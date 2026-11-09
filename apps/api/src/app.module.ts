@@ -36,6 +36,7 @@ import { EsmsGateway, MESSAGE_GATEWAY } from "./integrations/esms-gateway";
 import { IntegrationSettingsService } from "./integrations/integration-settings.service";
 import { IntegrationsController } from "./integrations/integrations.controller";
 import { MessagingService } from "./integrations/messaging.service";
+import { ZnsNotifier } from "./integrations/zns-notifier";
 import { EXCHANGE_RATE_FEED, VietcombankFeed } from "./settings/vietcombank-rates";
 import { DeactivationService } from "./users/deactivation.service";
 import { UsersController } from "./users/users.controller";
@@ -58,6 +59,7 @@ import { UsersService } from "./users/users.service";
     { provide: MESSAGE_GATEWAY, useClass: EsmsGateway },
     IntegrationSettingsService,
     MessagingService,
+    ZnsNotifier,
     PhoneOtpService,
     OauthService,
     { provide: OAUTH_CLIENT, useClass: HttpOauthClient },
