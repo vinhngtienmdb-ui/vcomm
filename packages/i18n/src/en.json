@@ -152,7 +152,11 @@
     "noLocationsToPrint": "The warehouse has no active locations to print.",
     "stocktakeLotRequired": "Lot-tracked items: count against an existing lot; new lots are received with an other receipt.",
     "productHasStockMovements": "The product already has stock movements; this cannot be changed.",
-    "stocktakeOverlaps": "Another stocktake is counting the same items and locations."
+    "stocktakeOverlaps": "Another stocktake is counting the same items and locations.",
+    "partnerTaxCodeExists": "This tax code already belongs to another partner in the group.",
+    "partnerCitizenIdExists": "This citizen ID already belongs to another partner in the group.",
+    "partnerInternalLocked": "Internal partners take their details from the company; edit them on the Companies screen.",
+    "partnerIsSelf": "A company cannot have a partner profile for itself."
   },
   "login": {
     "title": "Sign in",
@@ -691,7 +695,9 @@
     "entity_stock_document": "Stock document",
     "entity_stocktake": "Stocktake",
     "entity_reservation": "Reservation",
-    "entity_stock_level": "Safety stock"
+    "entity_stock_level": "Safety stock",
+    "entity_partner": "Partner",
+    "entity_partner_profile": "Partner profile"
   },
   "auditActions": {
     "login": "Sign in",
@@ -800,7 +806,13 @@
     "reservation_extend": "Extend reservation",
     "reservation_release": "Release reservation",
     "stock_level_save": "Set safety stock",
-    "stock_level_delete": "Remove safety stock"
+    "stock_level_delete": "Remove safety stock",
+    "partner_create": "Add partner",
+    "partner_update": "Edit partner",
+    "partner_deactivate": "Stop trading with partner",
+    "partner_activate": "Resume trading with partner",
+    "partner_view_identity": "View citizen ID",
+    "partner_profile_save": "Save partner profile"
   },
   "notifications": {
     "title": "Notifications",

@@ -47,6 +47,8 @@ import { PriceChangesService } from "./catalog/price-changes.service";
 import { PriceListsService } from "./catalog/price-lists.service";
 import { PricingController } from "./catalog/pricing.controller";
 import { InventoryController } from "./inventory/inventory.controller";
+import { CrmController } from "./crm/crm.controller";
+import { PartnersService } from "./crm/partners.service";
 import { ReservationsService } from "./inventory/reservations.service";
 import { StockDocumentsService } from "./inventory/stock-documents.service";
 import { StockLedgerService } from "./inventory/stock-ledger.service";
@@ -72,7 +74,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController],
   providers: [
     AuthService,
     ActivationService,
@@ -98,6 +100,7 @@ import { UsersService } from "./users/users.service";
     PriceListsService,
     PriceChangesService,
     WarehousesService,
+    PartnersService,
     StockLedgerService,
     ReservationsService,
     StockService,

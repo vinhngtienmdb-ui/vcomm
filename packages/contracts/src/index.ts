@@ -1854,3 +1854,138 @@ export const productLabelQuerySchema = z
   .object({ companyId: z.uuid(), variantIds: z.string().min(1), copies: z.coerce.number().int().min(1).max(500).default(1) })
   .strict();
 export const locationLabelQuerySchema = z.object({ warehouseId: z.uuid() }).strict();
+
+// CONG_VIEC_06, API_71, API_72: đối tác dùng chung tập đoàn, hồ sơ đối tác của công ty (CHUC_NANG_46 đến 48; QUYTAC_NGHIEPVU_56 đến 60).
+export const partnerKinds = ["organization", "household", "individual"] as const;
+export type PartnerKind = (typeof partnerKinds)[number];
+const blankToNull = (maximum: number) =>
+  z
+    .string()
+    .trim()
+    .max(maximum)
+    .nullable()
+    .optional()
+    .transform((value) => value || null);
+export const savePartnerSchema = z
+  .object({
+    kind: z.enum(partnerKinds),
+    name: z.string().trim().min(1).max(300),
+    shortName: blankToNull(100),
+    taxCode: z
+      .string()
+      .trim()
+      .nullable()
+      .optional()
+      .transform((value) => value || null)
+      .refine((value) => value === null || /^[0-9]{10}(-[0-9]{3})?$/.test(value), "invalidValue"),
+    citizenId: z
+      .string()
+      .trim()
+      .nullable()
+      .optional()
+      .transform((value) => value || null)
+      .refine((value) => value === null || /^[0-9]{12}$/.test(value), "invalidValue"),
+    address: blankToNull(500),
+    phone: blankToNull(30),
+    email: z
+      .string()
+      .trim()
+      .max(200)
+      .nullable()
+      .optional()
+      .transform((value) => value || null)
+      .refine((value) => value === null || z.email().safeParse(value).success, "invalidValue"),
+    contacts: z
+      .array(z.object({ fullName: z.string().trim().min(1).max(200), position: blankToNull(100), phone: blankToNull(30), email: blankToNull(200), isPrimary: z.boolean().default(false) }).strict())
+      .max(50)
+      .default([]),
+    bankAccounts: z
+      .array(
+        z
+          .object({
+            bankName: z.string().trim().min(1).max(200),
+            accountNo: z.string().trim().regex(/^[0-9A-Za-z-]{4,30}$/),
+            accountHolder: z.string().trim().min(1).max(200),
+            branch: blankToNull(200),
+            isDefault: z.boolean().default(false),
+          })
+          .strict(),
+      )
+      .max(20)
+      .default([]),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePartnerRequest = z.input<typeof savePartnerSchema>;
+export const partnerListQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    kind: z.enum(partnerKinds).optional(),
+    role: z.enum(["customer", "supplier", "internal"]).optional(),
+    status: z.enum(["active", "inactive"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface PartnerListItem {
+  id: string;
+  code: string;
+  kind: PartnerKind;
+  name: string;
+  shortName: string | null;
+  taxCode: string | null;
+  // Chỉ 3 số cuối (QUYTAC_NGHIEPVU_59).
+  citizenIdMasked: string | null;
+  phone: string | null;
+  internalCompanyId: string | null;
+  isCustomer: boolean;
+  isSupplier: boolean;
+  status: "active" | "inactive";
+}
+export interface PartnerProfileResponse {
+  companyId: string;
+  isCustomer: boolean;
+  isSupplier: boolean;
+  paymentTermDays: number;
+  creditLimit: string | null;
+  customerGroupId: string | null;
+  customerGroupName: string | null;
+  ownerUserId: string | null;
+  ownerUserName: string | null;
+  note: string | null;
+  status: "active" | "inactive";
+  version: number;
+}
+export interface PartnerResponse extends PartnerListItem {
+  address: string | null;
+  email: string | null;
+  contacts: { fullName: string; position: string | null; phone: string | null; email: string | null; isPrimary: boolean }[];
+  bankAccounts: { bankName: string; accountNo: string; accountHolder: string; branch: string | null; isDefault: boolean }[];
+  profile: PartnerProfileResponse | null;
+  version: number;
+  canManage: boolean;
+  canViewIdentity: boolean;
+  canManageProfile: boolean;
+}
+export const partnerLookupQuerySchema = z.object({ taxCode: z.string().trim().optional(), citizenId: z.string().trim().optional() }).strict();
+export interface PartnerLookupResponse {
+  partner: { id: string; code: string; name: string } | null;
+}
+export const savePartnerProfileSchema = z
+  .object({
+    isCustomer: z.boolean(),
+    isSupplier: z.boolean(),
+    paymentTermDays: z.number().int().min(0).max(365),
+    creditLimit: optionalMoney,
+    customerGroupId: z.uuid().nullable().optional(),
+    ownerUserId: z.uuid().nullable().optional(),
+    note: blankToNull(1000),
+    status: z.enum(["active", "inactive"]).default("active"),
+    version: z.number().int().min(0),
+  })
+  .strict()
+  .refine((value) => value.isCustomer || value.isSupplier, { path: ["isCustomer"], message: "invalidValue" });
+export interface PartnerProfileOptionsResponse {
+  customerGroups: { id: string; name: string }[];
+  users: { id: string; fullName: string }[];
+}

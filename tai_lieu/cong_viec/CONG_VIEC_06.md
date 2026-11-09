@@ -84,7 +84,7 @@ Vai trò hệ thống mới "Quản lý đối tác" (`partner_manager`): `crm.a
 
 ## 9. Điều kiện đặc biệt
 
-- Kiểm mã số thuế: 10 số, chữ số kiểm tra theo quy tắc của Tổng cục Thuế; dạng chi nhánh 10 số, dấu "-", 3 số.
+- Kiểm mã số thuế theo định dạng: 10 số, hoặc dạng chi nhánh 10 số, dấu "-", 3 số. Chữ số kiểm tra chưa kiểm (cần xác nhận quy tắc chính thức trước khi áp dụng; tra cứu mã số thuế làm cùng hóa đơn điện tử).
 - Số Căn cước công dân lưu nguyên văn trong cơ sở dữ liệu, không trả về trong danh sách; cấp mã hóa cột để sau cùng giải pháp khóa của tài liệu `22`.
 - Đồng bộ đối tác nội bộ khi khởi động API và khi thêm, sửa công ty (sự kiện outbox `core.company.changed` nếu đã có; chưa có thì gọi khi khởi động và khi đọc danh mục).
 
@@ -92,7 +92,7 @@ Vai trò hệ thống mới "Quản lý đối tác" (`partner_manager`): `crm.a
 
 | Mã | Chức năng | Tiêu chí | Cách kiểm tra | Mức |
 |---|---|---|---|---|
-| TIEUCHI_NGHIEMTHU_75 | CHUC_NANG_46 | Mã số thuế, số Căn cước công dân trùng trong tập đoàn bị từ chối kèm đối tác có sẵn; mã số thuế sai chữ số kiểm tra bị từ chối; tổ chức, hộ kinh doanh thiếu mã số thuế bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_75 | CHUC_NANG_46 | Mã số thuế, số Căn cước công dân trùng trong tập đoàn bị từ chối kèm đối tác có sẵn; mã số thuế sai định dạng bị từ chối; tổ chức, hộ kinh doanh thiếu mã số thuế bị từ chối | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_76 | CHUC_NANG_46 | Người có quyền ở công ty A thêm đối tác, công ty B thấy cùng đối tác; sửa ghi nhật ký trước, sau; ngừng giao dịch không xóa | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_77 | CHUC_NANG_47 | Mỗi công ty con đang hoạt động có đúng một đối tác nội bộ; sửa thông tin chung của đối tác nội bộ bị từ chối | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_78 | CHUC_NANG_46 | Danh sách chỉ hiện 3 số cuối Căn cước công dân; xem đầy đủ cần quyền và ghi nhật ký | Gọi API | Bắt buộc |

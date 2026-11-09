@@ -152,7 +152,11 @@
     "noLocationsToPrint": "Kho chưa có vị trí đang dùng để in tem.",
     "stocktakeLotRequired": "Hàng theo lô: ghi số đếm theo lô đã có; lô mới nhập bằng phiếu nhập khác.",
     "productHasStockMovements": "Sản phẩm đã phát sinh giao dịch kho, không đổi được.",
-    "stocktakeOverlaps": "Đang có lần kiểm kê khác kiểm cùng mặt hàng, vị trí."
+    "stocktakeOverlaps": "Đang có lần kiểm kê khác kiểm cùng mặt hàng, vị trí.",
+    "partnerTaxCodeExists": "Mã số thuế đã có ở đối tác khác trong tập đoàn.",
+    "partnerCitizenIdExists": "Số Căn cước công dân đã có ở đối tác khác trong tập đoàn.",
+    "partnerInternalLocked": "Đối tác nội bộ lấy thông tin từ công ty, sửa ở màn hình Công ty.",
+    "partnerIsSelf": "Không lập hồ sơ đối tác cho chính công ty đang chọn."
   },
   "login": {
     "title": "Đăng nhập",
@@ -691,7 +695,9 @@
     "entity_stock_document": "Phiếu kho",
     "entity_stocktake": "Kiểm kê",
     "entity_reservation": "Giữ hàng",
-    "entity_stock_level": "Tồn an toàn"
+    "entity_stock_level": "Tồn an toàn",
+    "entity_partner": "Đối tác",
+    "entity_partner_profile": "Hồ sơ đối tác"
   },
   "auditActions": {
     "login": "Đăng nhập",
@@ -800,7 +806,13 @@
     "reservation_extend": "Gia hạn giữ hàng",
     "reservation_release": "Nhả hàng giữ",
     "stock_level_save": "Đặt tồn an toàn",
-    "stock_level_delete": "Bỏ tồn an toàn"
+    "stock_level_delete": "Bỏ tồn an toàn",
+    "partner_create": "Thêm đối tác",
+    "partner_update": "Sửa đối tác",
+    "partner_deactivate": "Ngừng giao dịch đối tác",
+    "partner_activate": "Giao dịch lại đối tác",
+    "partner_view_identity": "Xem số Căn cước công dân",
+    "partner_profile_save": "Lưu hồ sơ đối tác"
   },
   "notifications": {
     "title": "Thông báo",
