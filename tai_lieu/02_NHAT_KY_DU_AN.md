@@ -17,6 +17,8 @@
 
 ### Quyết định
 
+- Phê duyệt THAY_DOI_06: vai trò Quản trị công ty có quyền truy cập mọi mini app, kể cả Tài chính – Kế toán, Nhân sự – người quyết định: người dùng.
+- Cho phép AI tự hợp nhất, đóng, chuyển trạng thái PR qua `.claude/settings.json`, và tự quyết các điểm đặc tả chưa rõ, ghi vào nhật ký – người quyết định: người dùng.
 - Hợp nhất sổ dùng chung và các nhánh vào `main` do AI thực hiện khi người dùng yêu cầu "tự động hợp nhất và kiểm thử"; thao tác nào bị hệ thống chặn thì người dùng tự bấm – người quyết định: người dùng.
 - Phê duyệt THAY_DOI_05: người có quyền gán vai trò xem được danh sách vai trò (API_36 `GET /roles`) – người quyết định: người dùng.
 - CONG_VIEC_02: Bỏ dừng chờ phản hồi ở điểm xem trước của từng lát; AI tự làm tiếp các lát L2 đến L8 theo kế hoạch đã duyệt, vẫn chụp màn hình và báo kết quả sau mỗi lát. Lát L6, L9 vẫn bị chặn; nghiệm thu, hợp nhất vào `main` và triển khai vẫn do người dùng thực hiện – người quyết định: người dùng.
