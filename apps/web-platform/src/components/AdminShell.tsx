@@ -27,6 +27,9 @@ export function useAdmin(): AdminContextValue {
 
 // Mục menu đã xây; các mục khác thêm ở lát sau.
 export const adminMenu = [
+  { href: "/platform/companies", key: "companies", permission: "platform.company.manage" },
+  { href: "/platform/branches", key: "branches", permission: "platform.branch.manage" },
+  { href: "/platform/departments", key: "departments", permission: "platform.department.manage" },
   { href: "/platform/users", key: "users", permission: "platform.user.view" },
   { href: "/platform/roles", key: "roles", permission: "platform.role.manage" },
 ] as const;
