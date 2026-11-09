@@ -1,9 +1,9 @@
 # 15. HỆ THỐNG THIẾT KẾ
 
 - Mô tả: Quy tắc thiết kế giao diện thống nhất: màu, chữ, khoảng cách, bo góc, đổ bóng, điểm ngắt, thành phần dùng chung.
-- Phiên bản: 0.1
+- Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Chờ phê duyệt (duyệt cùng bản mẫu bước 06.4)
+- Trạng thái: Đã phê duyệt 2026-11-09
 
 Mã giao diện chỉ dùng các biến dưới đây (nguyên tắc tại mục 15 của skill). Cần giá trị mới thì đề xuất bổ sung tài liệu này trước.
 
@@ -33,7 +33,7 @@ Tương phản tính theo công thức WCAG 2.1.
 | mau-canh-bao / mau-canh-bao-nen | #7A4A05 / #FDF6E3 | Cảnh báo, quá hạn sắp tới | 6,93:1 |
 | mau-loi / mau-loi-nen | #B91C1C / #FDECEC | Lỗi, quá hạn, từ chối | 5,66:1 |
 | mau-thong-tin / mau-thong-tin-nen | #1E40AF / #EEF3FF | Thông tin | 7,85:1 |
-| mau-canh-bao-vien / mau-loi-vien / mau-thong-tin-vien | #F1D38A / #F5B5B5 / #BFD0FA | Viền KhoiCanhBao (đề xuất bổ sung khi dựng bản mẫu) | Trang trí |
+| mau-canh-bao-vien / mau-loi-vien / mau-thong-tin-vien | #F1D38A / #F5B5B5 / #BFD0FA | Viền KhoiCanhBao (bổ sung khi dựng bản mẫu, đã duyệt 2026-11-09) | Trang trí |
 
 Quy tắc phân biệt: mau-chinh và màu thành công đều là xanh lục. Thông báo thành công luôn có biểu tượng dấu tích và viền; nút chính không bao giờ dùng màu thành công.
 

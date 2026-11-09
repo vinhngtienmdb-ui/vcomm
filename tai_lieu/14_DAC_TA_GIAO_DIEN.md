@@ -1,9 +1,9 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 0.1
+- Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Bước 06.1 đã phê duyệt 2026-11-09 (gồm THAY_DOI_01); bước 06.2 đã phê duyệt 2026-11-09; bước 06.3 chọn phương án C 2026-11-09; bước 06.4 chờ phê duyệt
+- Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 
 ## MODULE_01 Nền tảng
 
@@ -102,7 +102,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_06, CHUC_NANG_07, CHUC_NANG_08, CHUC_NANG_24.
 - Quyền hiển thị: Không áp dụng.
 - Responsive: thẻ chiếm toàn chiều ngang trên điện thoại.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_02: Xác thực hai lớp
 - Mục đích: Nhập mã xác thực hoặc đăng ký lần đầu.
@@ -115,7 +115,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: "Mã xác thực không đúng."
 - Quyền hiển thị: Không áp dụng.
 - Responsive: như MAN_HINH_01.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_03: Kích hoạt tài khoản
 - Mục đích: Nhân viên được mời đặt mật khẩu lần đầu.
@@ -128,7 +128,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_04.
 - Quyền hiển thị: Không áp dụng.
 - Responsive: như MAN_HINH_01.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_04: Quên mật khẩu, đặt lại mật khẩu
 - Mục đích: Lấy lại quyền truy cập.
@@ -141,7 +141,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_06.
 - Quyền hiển thị: Không áp dụng.
 - Responsive: như MAN_HINH_01.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_05: Trang chủ mini app
 - Mục đích: Điểm vào mọi mini app.
@@ -154,7 +154,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: Không có.
 - Quyền hiển thị: ô mini app theo quyền `<app>.access`.
 - Responsive: lưới 4 cột (rộng), 2 cột (điện thoại).
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_06: Hồ sơ cá nhân
 - Mục đích: Tự quản lý tài khoản.
@@ -167,7 +167,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_10, CHUC_NANG_24.
 - Quyền hiển thị: chỉ của chính mình.
 - Responsive: thẻ chuyển thành danh sách xổ xuống.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_07: Hộp duyệt
 - Mục đích: Xem, duyệt chứng từ đang chờ mình.
@@ -180,7 +180,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: duyệt thành công, thất bại.
 - Quyền hiển thị: Không áp dụng.
 - Responsive: thẻ chứng từ, nút Đồng ý, Từ chối cố định cuối thẻ.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_08: Chi tiết yêu cầu duyệt
 - Mục đích: Xem đầy đủ một yêu cầu và quyết định.
@@ -193,7 +193,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_16.
 - Quyền hiển thị: nút theo vai trò trong yêu cầu.
 - Responsive: dòng thời gian dọc.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_09: Công ty
 - Mục đích: Quản lý cây công ty.
@@ -206,7 +206,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_01.
 - Quyền hiển thị: chỉ quản trị tập đoàn.
 - Responsive: cây và chi tiết xếp dọc.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_10: Chi nhánh
 - Mục đích: Quản lý chi nhánh.
@@ -219,7 +219,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_02.
 - Quyền hiển thị: theo bảng vai trò – màn hình.
 - Responsive: chung.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_11: Phòng ban
 - Mục đích: Quản lý cây phòng ban.
@@ -232,7 +232,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_03.
 - Quyền hiển thị: theo bảng vai trò – màn hình.
 - Responsive: như MAN_HINH_09.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_12: Danh sách nhân viên
 - Mục đích: Tìm, mời, nhập nhân viên.
@@ -245,7 +245,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_04, CHUC_NANG_05.
 - Quyền hiển thị: theo bảng vai trò – màn hình.
 - Responsive: chung.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_13: Chi tiết nhân viên
 - Mục đích: Gán vai trò, khóa, vô hiệu hóa.
@@ -258,7 +258,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_13, CHUC_NANG_19.
 - Quyền hiển thị: nút ẩn khi xem chính mình; phạm vi gán chỉ hiện phạm vi được phép.
 - Responsive: thẻ xếp dọc.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_14: Vai trò và ma trận quyền
 - Mục đích: Quản lý vai trò.
@@ -271,7 +271,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_12.
 - Quyền hiển thị: vai trò hệ thống chỉ xem.
 - Responsive: ma trận cuộn ngang trong khung riêng.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_15: Chính sách duyệt
 - Mục đích: Cấu hình cấp duyệt theo hạn mức.
@@ -284,7 +284,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_15.
 - Quyền hiển thị: theo bảng vai trò – màn hình.
 - Responsive: bảng cấp duyệt thành thẻ.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_16: Dãy số chứng từ
 - Mục đích: Cấu hình đánh số.
@@ -297,7 +297,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_20.
 - Quyền hiển thị: theo bảng vai trò – màn hình.
 - Responsive: chung.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_17: Tiền tệ và tỷ giá
 - Mục đích: Xem, nhập tỷ giá.
@@ -310,7 +310,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: theo CHUC_NANG_21.
 - Quyền hiển thị: nút nhập, sửa chỉ với quản trị tập đoàn, quản lý tỷ giá.
 - Responsive: chung.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ### MAN_HINH_18: Nhật ký thao tác
 - Mục đích: Tra cứu ai làm gì.
@@ -323,7 +323,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Thông báo: Không có.
 - Quyền hiển thị: theo bảng vai trò – màn hình.
 - Responsive: chung.
-- Trạng thái phê duyệt: Bản nháp
+- Trạng thái phê duyệt: Đã phê duyệt 2026-11-09
 
 ## 4. Bản mẫu và kết quả rà soát giao diện – 2026-11-09
 
