@@ -3,7 +3,7 @@
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Bước 06.1 đã phê duyệt 2026-11-09 (gồm THAY_DOI_01); bước 06.2 chờ phê duyệt
+- Trạng thái: Bước 06.1 đã phê duyệt 2026-11-09 (gồm THAY_DOI_01); bước 06.2 đã phê duyệt 2026-11-09; bước 06.3 đang thực hiện
 
 ## MODULE_01 Nền tảng
 
