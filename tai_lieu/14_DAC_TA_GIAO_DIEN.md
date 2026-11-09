@@ -1,11 +1,12 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 1.2
+- Phiên bản: 1.3
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
 - Cập nhật CONG_VIEC_03 (2026-11-09): thêm MAN_HINH_19, MAN_HINH_20, MAN_HINH_21; mở rộng MAN_HINH_01, MAN_HINH_06, MAN_HINH_08 (THAY_DOI_04, THAY_DOI_08)
+- Cập nhật CONG_VIEC_04 (2026-11-09): thêm MODULE_02 phần Sản phẩm, MAN_HINH_22 đến MAN_HINH_27 (mục 5 đến mục 7)
 
 ## MODULE_01 Nền tảng
 
@@ -429,3 +430,141 @@ Bản mẫu: [ban_mau/index.html](ban_mau/index.html) (18 tệp `MAN_HINH_<số>
 | 10 | Nút có trạng thái đang xử lý; thao tác không hoàn tác có xác nhận | Đạt |
 | 11 | Lỗi hiện tại đúng ô nhập | Đạt |
 | 12 | Màn hình cũ không bị ảnh hưởng | Không áp dụng (chưa có giao diện cũ) |
+
+## MODULE_02 Sản phẩm và Nhà bán (phần Sản phẩm, CONG_VIEC_04)
+
+Mini app `apps/web-catalog`, đường dẫn gốc `/catalog` (mini app Nền tảng chuyển tiếp `/catalog` sang ứng dụng này, cùng tên miền và cookie phiên). Khung trang, thanh trên cùng, thành phần dùng chung lấy từ `packages/ui`; quy ước chung như mục 3 của MODULE_01. Mở `/catalog` thì chuyển tới mục menu đầu tiên có quyền; không có mục nào thì hiện "Bạn không có quyền xem trang này".
+
+## 5. Danh sách màn hình và điều hướng (MODULE_02)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_22 | Ngành hàng và đơn vị tính | CHUC_NANG_30 | Quản trị tập đoàn (sửa); quản trị công ty, Quản lý sản phẩm (xem) | Menu Sản phẩm | Không lập (CONG_VIEC_04 mục 6) |
+| MAN_HINH_23 | Danh sách sản phẩm (kèm ngăn kéo nhập Excel) | CHUC_NANG_31, CHUC_NANG_33 | Quản trị tập đoàn, quản trị công ty, Quản lý sản phẩm | Menu Sản phẩm | Không lập |
+| MAN_HINH_24 | Chi tiết sản phẩm (thêm, sửa; phần Giá bán, Liên kết công ty khác) | CHUC_NANG_31, CHUC_NANG_32, CHUC_NANG_34, CHUC_NANG_36 | Quản trị tập đoàn, quản trị công ty, Quản lý sản phẩm | MAN_HINH_23 | Không lập |
+| MAN_HINH_25 | Kênh bán và nhóm khách hàng | CHUC_NANG_35 | Quản trị tập đoàn, quản trị công ty | Menu Sản phẩm | Không lập |
+| MAN_HINH_26 | Bảng giá (giá hiện hành, lịch sử giá) | CHUC_NANG_36 | Quản trị tập đoàn, quản trị công ty (sửa); Quản lý sản phẩm (xem) | Menu Sản phẩm | Không lập |
+| MAN_HINH_27 | Phiếu điều chỉnh giá (danh sách, lập, sửa nháp, chi tiết) | CHUC_NANG_37 | Quản trị tập đoàn, quản trị công ty (lập); Quản lý sản phẩm (xem) | Menu Sản phẩm; MAN_HINH_24, MAN_HINH_26 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Sản phẩm| M{{Menu Sản phẩm}}
+    M --> P[MAN_HINH_23 Sản phẩm] --> D[MAN_HINH_24 Chi tiết sản phẩm]
+    M --> C[MAN_HINH_22 Ngành hàng, đơn vị tính]
+    M --> L[MAN_HINH_26 Bảng giá]
+    M --> Q[MAN_HINH_27 Điều chỉnh giá]
+    M --> K[MAN_HINH_25 Kênh bán, nhóm khách]
+    D -->|Lập phiếu điều chỉnh giá| Q
+    L -->|Lập phiếu điều chỉnh giá; số phiếu trong lịch sử giá| Q
+    Q -->|Xem luồng duyệt| H[MAN_HINH_08 Chi tiết yêu cầu duyệt]
+```
+
+- Thứ tự menu và quyền hiện mục: Sản phẩm (`catalog.product.view`), Ngành hàng, đơn vị tính (`catalog.access`), Bảng giá (`catalog.price.view`), Điều chỉnh giá (`catalog.price.view`), Kênh bán, nhóm khách (`catalog.price.manage`).
+- Mỗi màn hình có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng.
+
+## 6. Bảng vai trò – màn hình (MODULE_02)
+
+| Màn hình | Quản trị tập đoàn | Quản trị công ty | Quản lý sản phẩm | Nhân viên |
+|---|---|---|---|---|
+| MAN_HINH_22 Ngành hàng, đơn vị tính | Xem, Thêm, Sửa, Ngừng | Xem | Xem | Không thấy |
+| MAN_HINH_23 Sản phẩm | Xem, Thêm, Nhập Excel | Trong công ty mình | Trong công ty mình | Không thấy |
+| MAN_HINH_24 Chi tiết sản phẩm | Xem, Sửa, Ngừng bán, Ảnh; xem giá; liên kết, sao chép khi có quyền ở công ty kia | Trong công ty mình; xem giá; liên kết, sao chép chỉ khi có quyền quản lý sản phẩm ở công ty kia | Trong công ty mình; xem giá (không lập phiếu); liên kết, sao chép như quản trị công ty | Không thấy |
+| MAN_HINH_25 Kênh bán, nhóm khách hàng | Xem, Thêm, Sửa, Ngừng | Trong công ty mình | Không thấy | Không thấy |
+| MAN_HINH_26 Bảng giá | Xem, Thêm, Sửa, Ngừng | Trong công ty mình | Xem | Không thấy |
+| MAN_HINH_27 Phiếu điều chỉnh giá | Xem, Lập, Gửi, Rút (phiếu của mình) | Trong công ty mình | Xem | Không thấy |
+
+## 7. Đặc tả từng màn hình (MODULE_02)
+
+### MAN_HINH_22: Ngành hàng và đơn vị tính
+- Mục đích: Xem và quản lý cây ngành hàng, danh mục đơn vị tính dùng chung tập đoàn.
+- Chức năng thực hiện: CHUC_NANG_30
+- Đường dẫn: `/catalog/categories`
+- Bố cục: tiêu đề kèm nút "Lịch sử"; câu giải thích "Dùng chung cho mọi công ty trong tập đoàn. Chỉ quản trị tập đoàn thêm, sửa. Mã ngành hàng là tiền tố mã hàng của sản phẩm."; hai thẻ "Ngành hàng", "Đơn vị tính". Thẻ Ngành hàng: cây bên trái (mã · tên, nhãn "Ngừng dùng"), nút "Thêm ngành hàng cấp 1"; khối chi tiết bên phải (mã, tên tiếng Anh, cấp, theo dõi, bảo hành, số sản phẩm, trạng thái; nút "Sửa", "Thêm ngành hàng con", "Ngừng dùng"/"Dùng lại"). Ngăn kéo: ngành hàng cha, mã, tên tiếng Việt, tên tiếng Anh, theo dõi (không, lô và hạn dùng, serial và IMEI), bảo hành (tháng). Thẻ Đơn vị tính: bảng mã, tên tiếng Việt, tên tiếng Anh, trạng thái, nút "Sửa", "Ngừng dùng"/"Dùng lại"; nút "Thêm đơn vị tính"; ngăn kéo mã (chỉ khi thêm), tên tiếng Việt, tên tiếng Anh.
+- Dữ liệu hiển thị: mọi ngành hàng, đơn vị tính kể cả ngừng dùng.
+- Thành phần: ThanhTrenCung, MenuMiniApp, NganKeo, ONhap, OChon, Nut, BangDuLieu, NhanTrangThai, HopThoaiXacNhan (tài liệu `15`).
+- API: API_55 (tài liệu `17`).
+- Thao tác: thêm, sửa, ngừng dùng, dùng lại (có hộp thoại xác nhận).
+- Trạng thái: rỗng ("Chưa có ngành hàng."); chưa chọn ("Chọn một ngành hàng để xem chi tiết.").
+- Thông báo: "Đã lưu."; lỗi theo CHUC_NANG_30 dưới đúng ô nhập.
+- Quyền hiển thị: nút thêm, sửa, ngừng dùng chỉ với `catalog.category.manage`.
+- Responsive: chung.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_04 mục 14)
+
+### MAN_HINH_23: Danh sách sản phẩm
+- Mục đích: Tìm, lọc sản phẩm của công ty; thêm; nhập Excel.
+- Chức năng thực hiện: CHUC_NANG_31, CHUC_NANG_33
+- Đường dẫn: `/catalog/products`
+- Bố cục: tiêu đề, nút "Nhập Excel", "Thêm sản phẩm"; ô tìm "Tên (không cần dấu), mã hàng, mã vạch"; lọc ngành hàng, trạng thái (Đang bán, Ngừng bán); bảng ảnh đại diện, mã sản phẩm, tên, ngành hàng, đơn vị cơ sở, số biến thể, trạng thái, ngày cập nhật; phân trang. Ngăn kéo "Nhập sản phẩm từ Excel": hướng dẫn cách ghi cột, "Tải tệp mẫu", chọn tệp (".xlsx, tối đa 2.000 dòng, 5 MB"), kết quả số sản phẩm, biến thể, dòng lỗi, danh sách dòng lỗi, "Tải tệp dòng lỗi".
+- Dữ liệu hiển thị: sản phẩm của công ty đang chọn, mới cập nhật trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_55 (đọc ngành hàng), API_56, API_57 (ảnh đại diện), API_58.
+- Thao tác: bấm mã sản phẩm mở MAN_HINH_24; "Thêm sản phẩm" mở `/catalog/products/new`.
+- Trạng thái: rỗng ("Chưa có sản phẩm."); không có kết quả lọc.
+- Thông báo: theo CHUC_NANG_33.
+- Quyền hiển thị: màn hình với `catalog.product.view`; nút "Nhập Excel", "Thêm sản phẩm" với `catalog.product.manage`.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_04 mục 14)
+
+### MAN_HINH_24: Chi tiết sản phẩm
+- Mục đích: Thêm, sửa sản phẩm; xem giá bán; liên kết, sao chép sang công ty khác.
+- Chức năng thực hiện: CHUC_NANG_31, CHUC_NANG_32, CHUC_NANG_34, CHUC_NANG_36
+- Đường dẫn: `/catalog/products/[id]` (`/catalog/products/new` khi thêm)
+- Bố cục: đầu trang mã · tên và nhãn trạng thái, nút "Lịch sử", "Danh sách", "Ngừng bán"/"Bán lại". Một trang gồm các phần (không chia thẻ): "Thông tin chung" (ngành hàng, mã sản phẩm, tên, thuế suất, theo dõi, bảo hành, đơn vị cơ sở, thương hiệu, xuất xứ, trọng lượng, thể tích, mô tả); "Đơn vị quy đổi" (đơn vị, hệ số, "Thêm đơn vị quy đổi"); "Phân loại và biến thể" (thuộc tính phân loại và các giá trị, "Tạo biến thể theo phân loại"; bảng biến thể: phân loại, mã hàng, mã vạch kèm đơn vị, "+ Mã vạch", đang bán); "Thông số"; nút "Lưu". Sau khi lưu lần đầu có thêm: "Ảnh" (lưới ảnh, "Ảnh đại diện", "Đặt làm ảnh đại diện", "Xóa", "Thêm ảnh"; gợi ý "JPG, PNG, WEBP; tối đa 10 ảnh, mỗi ảnh 5 MB."); "Giá bán" (mỗi bảng giá đang dùng một bảng mã hàng, đơn vị, giá, hiệu lực từ; nút "Lập phiếu điều chỉnh giá"); "Liên kết công ty khác" (bảng mã hàng, công ty, sản phẩm tương ứng, hệ số, "Bỏ liên kết"; chọn công ty, "Sao chép sang công ty này", "Gợi ý theo mã vạch" kèm danh sách gợi ý và nút "Liên kết").
+- Dữ liệu hiển thị: sản phẩm của công ty đang chọn; giá hiện hành hôm nay; liên kết đọc cả hai chiều.
+- Thành phần: ThanhTrenCung, MenuMiniApp, ONhap, OChon, Nut, BangDuLieu, NhanTrangThai, HopThoaiXacNhan, KhoiCanhBao (tài liệu `15`).
+- API: API_55 (đọc), API_56, API_57, API_59, API_61 (đọc giá).
+- Thao tác: chọn ngành hàng thì điền sẵn theo dõi, bảo hành; lưu lần đầu chuyển sang `/catalog/products/{id}`; liên kết từ giao diện qua gợi ý theo mã vạch với hệ số 1 (hệ số khác chỉ qua API_59).
+- Trạng thái: chung; sản phẩm công ty khác hoặc không tồn tại hiện "Không tìm thấy dữ liệu hoặc bạn không có quyền xem."; chưa có giá ("Sản phẩm chưa có giá trong bảng giá này."); chưa liên kết ("Chưa liên kết với công ty nào."); không có gợi ý ("Không có sản phẩm cùng mã vạch chưa liên kết.").
+- Thông báo: "Đã lưu sản phẩm." · "Đã liên kết." · "Đã sao chép sang <công ty> và liên kết từng biến thể."; lỗi theo CHUC_NANG_31, 32, 34 dưới đúng ô, đúng dòng.
+- Quyền hiển thị: sửa, ảnh, liên kết với `catalog.product.manage`; khu chọn công ty để sao chép, gợi ý chỉ hiện khi nhân viên thuộc công ty khác, kèm câu "Cần quyền quản lý sản phẩm ở cả công ty đích."; phần Giá bán với `catalog.price.view`, nút lập phiếu với `catalog.price.manage`.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_04 mục 14)
+
+### MAN_HINH_25: Kênh bán và nhóm khách hàng
+- Mục đích: Khai báo kênh bán, nhóm khách hàng của công ty.
+- Chức năng thực hiện: CHUC_NANG_35
+- Đường dẫn: `/catalog/channels`
+- Bố cục: tiêu đề kèm "Lịch sử"; hai thẻ "Kênh bán", "Nhóm khách hàng"; nút "Thêm kênh bán" hoặc "Thêm nhóm khách hàng"; thẻ Kênh bán thêm nút "Thêm kênh có sẵn" và câu "Kênh có sẵn: Bán sỉ, Bán lẻ, Sàn VComm, Nội bộ. Kênh đã có thì không thêm lại."; bảng mã, tên, trạng thái, "Sửa", "Ngừng dùng"/"Dùng lại"; ngăn kéo mã (chỉ khi thêm), tên.
+- Dữ liệu hiển thị: kênh, nhóm khách của công ty đang chọn.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BangDuLieu, NhanTrangThai, NganKeo, ONhap, Nut (tài liệu `15`).
+- API: API_60.
+- Thao tác: như bố cục.
+- Trạng thái: rỗng ("Chưa có kênh bán.", "Chưa có nhóm khách hàng.").
+- Thông báo: "Đã lưu."; "Mã đã có trong công ty.".
+- Quyền hiển thị: mục menu với `catalog.price.manage`.
+- Responsive: chung.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_04 mục 14)
+
+### MAN_HINH_26: Bảng giá
+- Mục đích: Quản lý bảng giá; xem giá hiện hành tại một ngày, lịch sử giá.
+- Chức năng thực hiện: CHUC_NANG_36
+- Đường dẫn: `/catalog/price-lists`
+- Bố cục: tiêu đề kèm "Lịch sử", nút "Lập phiếu điều chỉnh giá", "Thêm bảng giá"; câu giải thích thứ tự chọn bảng giá; bảng mã, tên, kênh bán ("Mọi kênh"), nhóm khách ("Mọi nhóm khách"), tiền tệ, thuế ("Đã gồm thuế"/"Chưa gồm thuế"), trạng thái, "Xem giá", "Sửa", "Ngừng dùng"/"Dùng lại". Khối "Giá hiện hành: <tên>": ô ngày "Tại ngày", ô tìm tên sản phẩm, mã hàng; bảng mã hàng, sản phẩm, đơn vị, giá, hiệu lực từ, nút "Lịch sử giá". Ngăn kéo "Lịch sử giá": giá, hiệu lực từ, số phiếu (mở MAN_HINH_27). Ngăn kéo bảng giá: mã, tên, kênh, nhóm khách, tiền tệ (ba ô này chỉ khi thêm, câu "Kênh, nhóm khách hàng, tiền tệ không đổi sau khi tạo."), "Giá đã gồm thuế giá trị gia tăng".
+- Dữ liệu hiển thị: bảng giá của công ty đang chọn.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut (tài liệu `15`).
+- API: API_60 (đọc kênh, nhóm khách), API_46, API_61.
+- Thao tác: như bố cục.
+- Trạng thái: rỗng ("Chưa có bảng giá."; "Bảng giá chưa có giá. Lập phiếu điều chỉnh giá để đặt giá.").
+- Thông báo: "Đã lưu."; lỗi theo CHUC_NANG_36.
+- Quyền hiển thị: màn hình với `catalog.price.view`; nút thêm, sửa, ngừng, lập phiếu với `catalog.price.manage`.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_04 mục 14)
+
+### MAN_HINH_27: Phiếu điều chỉnh giá
+- Mục đích: Lập, gửi duyệt, rút, theo dõi phiếu điều chỉnh giá.
+- Chức năng thực hiện: CHUC_NANG_37
+- Đường dẫn: `/catalog/price-changes` (danh sách); `/catalog/price-changes/new` (lập mới); `/catalog/price-changes/[id]` (sửa nháp hoặc xem chi tiết).
+- Bố cục:
+  - Danh sách: tiêu đề, nút "Lập phiếu"; câu "Giá chỉ thay đổi qua phiếu. Công ty có chính sách duyệt thì giá đổi sau khi duyệt xong; chưa có chính sách thì giá đổi ngay khi gửi."; lọc trạng thái; bảng số phiếu (nháp hiện "(Nháp)"), bảng giá, hiệu lực từ, số dòng, trạng thái, người lập, ngày lập; phân trang.
+  - Lập, sửa nháp, chi tiết: đầu trang "Lập phiếu điều chỉnh giá" hoặc "Phiếu điều chỉnh giá <số>", nút "Danh sách phiếu", "Xem luồng duyệt" (khi đã gửi, mở MAN_HINH_08 `/hop-duyet/{id}`); bảng giá, hiệu lực từ ("Không trước ngày gửi."), ghi chú; phần "Mặt hàng điều chỉnh": ô "Tìm sản phẩm để thêm" (chọn sản phẩm rồi "Thêm <n> mã hàng"), "Nhập từ Excel", "Tải tệp mẫu", danh sách dòng không đọc được; bảng mã hàng, sản phẩm, đơn vị, giá hiện hành, giá mới, "Bỏ dòng"; nút "Lưu nháp", "Gửi duyệt" (hộp thoại "Sau khi gửi, phiếu nhận số và không sửa được nữa. Gửi phiếu này?"), "Xóa phiếu", "Rút phiếu".
+- Dữ liệu hiển thị: phiếu của công ty đang chọn; nhãn trạng thái Nháp, Chờ duyệt, Đã duyệt, Bị từ chối, Đã rút.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, ONhap, OChon, Nut, HopThoaiXacNhan, KhoiCanhBao (tài liệu `15`).
+- API: API_56 (tìm sản phẩm), API_61 (đọc bảng giá), API_62.
+- Thao tác: như bố cục; lưu lần đầu chuyển sang `/catalog/price-changes/{id}`.
+- Trạng thái: rỗng ("Chưa có phiếu điều chỉnh giá."; "Chưa có mặt hàng. Tìm sản phẩm để thêm hoặc nhập từ Excel.").
+- Thông báo: "Đã lưu nháp." · "Đã gửi phiếu đi duyệt." · "Công ty chưa có chính sách duyệt cho phiếu điều chỉnh giá nên giá đã được áp dụng." · "Đã xóa phiếu nháp." · "Đã rút phiếu."; lỗi theo CHUC_NANG_37.
+- Quyền hiển thị: màn hình với `catalog.price.view`; lập, sửa, gửi, xóa, rút với `catalog.price.manage` và chỉ người lập (theo `canEdit`, `canWithdraw` của API).
+- Responsive: bảng chuyển thành thẻ; nút xếp dọc.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_04 mục 14)
