@@ -19,7 +19,7 @@ const safeKey = (key: string) => {
 };
 
 export class LocalFileStorage implements FileStorage {
-  private readonly root = resolve(process.env.STORAGE_DIRECTORY ?? join(process.cwd(), ".storage"));
+  private readonly root = resolve(process.env.STORAGE_DIRECTORY || join(process.cwd(), ".storage"));
 
   async put(key: string, content: Buffer): Promise<void> {
     const path = join(this.root, safeKey(key));

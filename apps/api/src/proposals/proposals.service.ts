@@ -227,7 +227,7 @@ export class ProposalsService implements OnModuleInit {
   async addAttachment(actor: Actor, id: string, file: { buffer: Buffer; size: number; originalname: string } | undefined): Promise<AttachmentResponse> {
     await this.requireOwnDraft(actor, id);
     if (!file || file.size === 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "required" } });
-    if (file.size > attachmentMaximumBytes) throw new ApiError("VALIDATION_FAILED", "fileTooLarge", { fields: { file: "attachmentTooLarge" } });
+    if (file.size > attachmentMaximumBytes) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "attachmentTooLarge" } });
     const extension = file.originalname.split(".").pop()?.toLowerCase() as (typeof attachmentExtensions)[number] | undefined;
     const kind = extension && (attachmentExtensions as readonly string[]).includes(extension) ? contentTypes[extension] : null;
     if (!kind || !kind.signature.every((byte, index) => file.buffer[index] === byte)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "attachmentTypeInvalid" } });

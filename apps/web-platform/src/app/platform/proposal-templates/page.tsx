@@ -16,7 +16,7 @@ import { failureOf, useApi } from "@/lib/use-api";
 export default function ProposalTemplatesPage() {
   const t = useTranslations("templates");
   const { notify } = useAdmin();
-  const { state, reload } = useApi<ProposalTemplateResponse[]>("/proposal-templates?all=1");
+  const { state, reload } = useApi<ProposalTemplateResponse[]>("/proposal-templates?all=true");
   const [editing, setEditing] = useState<ProposalTemplateResponse | "new" | null>(null);
   const [addingDefaults, setAddingDefaults] = useState(false);
 
