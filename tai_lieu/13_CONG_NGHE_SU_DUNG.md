@@ -112,3 +112,21 @@
 - Đề xuất: phương án 3 – lý do: giữ kiến trúc và mô hình đa pháp nhân đã duyệt; tận dụng tri thức nghiệp vụ đã đầu tư; tránh mang theo lỗi bảo mật và cấu trúc của repo cũ.
 - Phát hiện cần xử lý ngay: repo cũ dùng Thông tư 99/2025. Đã kiểm chứng Thông tư 99/2025/TT-BTC thay thế Thông tư 200 từ năm tài chính 2026 → lập THAY_DOI_03.
 - Quyết định của người dùng: **CHƯA XÁC ĐỊNH**
+
+## 5. Ước tính chi phí hạ tầng AWS – 2026-11-09
+
+- Phương pháp: giá theo yêu cầu (on-demand) vùng ap-southeast-1 lấy từ AWS Price List API (`https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/{Service}/current/ap-southeast-1/index.json`), các tệp phát hành từ 2026-09 đến 2026-11; CloudFront gói cố định theo `https://aws.amazon.com/cloudfront/pricing/`. Một tháng 730 giờ. Môi trường thật chạy 2 vùng sẵn sàng; môi trường thử nghiệm 1 vùng, 1 bản mỗi dịch vụ.
+- Lưu lượng, dung lượng log là giả định của AI; chưa tính giảm giá Reserved Instance, Savings Plans; chưa tính ECR, Route 53, VPC endpoint dạng interface.
+
+| Giai đoạn | Giả định chính | Môi trường thật (USD/tháng) | Thử nghiệm (USD/tháng) | Tổng |
+|---|---|---|---|---|
+| 1. Hệ thống quản trị doanh nghiệp | 200–300 nhân viên; api, worker, 8 mini app chung 1 image; Aurora 2×db.t4g.large; Redis 2×t4g.small | ~830 | ~245 | ~1.075 |
+| 2. Thêm sàn thương mại điện tử | ~10.000 người dùng hoạt động mỗi ngày, ~3.000 đơn mỗi ngày; Aurora 2×r7g.large; OpenSearch 2 nút | ~2.220 | ~355 | ~2.575 |
+| 3. Thêm điểm thưởng, cửa hàng liên kết | ~1.000 cửa hàng, ~20.000 giao dịch điểm mỗi ngày; Aurora 2×r7g.xlarge | ~3.420 | ~400 | ~3.820 |
+
+- Khoản lớn nhất: Aurora (34–42% chi phí môi trường thật), Fargate (22–27%), từ giai đoạn 2 thêm Redis và OpenSearch (~25%).
+- Aurora Serverless v2 tương đương ở giai đoạn 1, đắt gấp 1,5–3 lần ở giai đoạn 2, 3 khi tải ổn định. Đề xuất: môi trường thật dùng máy cố định; môi trường thử nghiệm dùng Serverless v2 tự dừng khi không dùng.
+- Cách giảm chi phí giai đoạn 1 (đề xuất, chờ duyệt):
+  1. Aurora 2×db.t4g.medium thay vì t4g.large (giảm ~167 USD).
+  2. Fargate chạy chip Arm (Graviton), tắt môi trường thử nghiệm ngoài giờ.
+  3. Một NAT gateway ở giai đoạn 1, không dùng NAT ở môi trường thử nghiệm.
