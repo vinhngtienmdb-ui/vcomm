@@ -227,6 +227,13 @@ describe("TIEUCHI_NGHIEMTHU_25: quản trị công ty không gán ngoài công t
     expect(response.body.error.message).toBe("Bạn không thể cấp quyền mình không có.");
   });
 
+  it("THAY_DOI_06: quản trị công ty gán được vai trò Thủ kho cho nhân viên công ty mình", async () => {
+    const response = await assign(retailAdmin, testIds.purchasingManager, { roleId: testIds.warehouseKeeperRole, scopeType: "branch", branchId: testIds.binhDuongWarehouse });
+    expect(response.status).toBe(201);
+    const home = await retailAdmin.call("get", "/home", { companyId: retail });
+    expect(home.body.apps.map((app: { code: string }) => app.code)).toEqual(expect.arrayContaining(["inventory", "finance", "hr"]));
+  });
+
   it("gán vai trò có quyền nhạy cảm thì bật bắt buộc xác thực hai lớp (QUYTAC_NGHIEPVU_09)", async () => {
     const role = await createRole(retailAdmin, "quan_ly_khoa_thu", ["platform.user.manage"]);
     expect((await assign(retailAdmin, testIds.purchasingManager, { roleId: role, scopeType: "company" })).status).toBe(201);

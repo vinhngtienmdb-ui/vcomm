@@ -47,8 +47,10 @@ export const permissionCatalog: PermissionDefinition[] = [
 ];
 
 const employeePermissions = ["platform.access", "platform.profile.manage", "platform.approval.decide"];
+// THAY_DOI_06: quản trị công ty có quyền truy cập mọi mini app để gán được vai trò nghiệp vụ.
 const companyAdminPermissions = [
   ...employeePermissions,
+  ...permissionCatalog.filter((permission) => permission.code.endsWith(".access") && permission.code !== "platform.access").map((permission) => permission.code),
   "platform.branch.manage",
   "platform.department.manage",
   "platform.user.view",
