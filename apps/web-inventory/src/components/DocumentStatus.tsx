@@ -1,7 +1,7 @@
 "use client";
 
 // Nhãn trạng thái phiếu kho.
-import type { StockDocumentStatus } from "contracts";
+import type { StockDocumentStatus, StockDocumentType } from "contracts";
 import { useTranslations } from "next-intl";
 
 const tone: Record<StockDocumentStatus, string> = {
@@ -14,7 +14,9 @@ const tone: Record<StockDocumentStatus, string> = {
   withdrawn: "trung-tinh",
 };
 
-export function DocumentStatusBadge({ status }: { status: StockDocumentStatus }) {
+// Phiếu chuyển kho đã duyệt chưa ghi sổ (chờ kho nguồn xuất) nên có nhãn riêng.
+export function DocumentStatusBadge({ status, type }: { status: StockDocumentStatus; type: StockDocumentType }) {
   const t = useTranslations("documents");
-  return <span className={`nhan ${tone[status]}`}>{t(`status_${status}`)}</span>;
+  const transferApproved = type === "transfer" && status === "posted";
+  return <span className={`nhan ${transferApproved ? "canh-bao" : tone[status]}`}>{transferApproved ? t("status_transfer_posted") : t(`status_${status}`)}</span>;
 }

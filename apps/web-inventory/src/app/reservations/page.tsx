@@ -3,11 +3,12 @@
 // MAN_HINH_35 Giữ hàng và tồn an toàn (CHUC_NANG_43, 44; API_68, 69): danh sách hàng giữ, gia hạn, nhả; đặt tối thiểu, tối đa; cảnh báo kèm số gợi ý.
 import type { PageResponse, ReservationResponse, StockItemOption, StockLevelRow, WarehouseResponse } from "contracts";
 import { useTranslations } from "next-intl";
-import { type FormEvent, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { type FormEvent, Suspense, useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { HistoryLink } from "ui/components/HistoryLink";
-import { Loaded, MessageView } from "ui/components/StatusViews";
+import { Loaded, LoadingView, MessageView } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { formatDateTime, formatNumber } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
@@ -15,8 +16,17 @@ import { failureOf, useApi } from "ui/lib/use-api";
 type Tab = "reservations" | "levels";
 
 export default function ReservationsPage() {
+  return (
+    <Suspense fallback={<LoadingView />}>
+      <ReservationsTabs />
+    </Suspense>
+  );
+}
+
+// Thẻ mở theo ?tab=levels (liên kết từ thông báo cảnh báo tồn an toàn).
+function ReservationsTabs() {
   const t = useTranslations("reservations");
-  const [tab, setTab] = useState<Tab>("reservations");
+  const [tab, setTab] = useState<Tab>(useSearchParams().get("tab") === "levels" ? "levels" : "reservations");
   return (
     <>
       <div className="tieu-de">

@@ -578,7 +578,7 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
         <h1>
           {t(`type_${document.type}`)} {document.documentNo ?? t("draftNo")}
         </h1>
-        <DocumentStatusBadge status={document.status} />
+        <DocumentStatusBadge status={document.status} type={document.type} />
         <Link className="nut phu" href="/documents">
           {t("backToList")}
         </Link>

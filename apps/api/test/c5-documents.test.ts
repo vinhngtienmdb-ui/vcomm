@@ -212,6 +212,9 @@ describe("TIEUCHI_NGHIEMTHU_68: lô hết hạn trước, serial", () => {
     });
     const expired = await submitted(keeper, document("issue_other", "internal_use", [issueMilk(lot("L-HET"), { lotOverrideReason: "Thử" })]));
     expect(expired.body.error.fields).toEqual({ "lines.0.lotId": "Lô đã hết hạn dùng." });
+    // Lý do "Kiểm kê" trên phiếu điều chỉnh lập tay không được giảm lô hết hạn.
+    const manualStocktake = await submitted(keeper, document("adjustment", "stocktake", [issueMilk(lot("L-HET"), { quantity: "-1", lotOverrideReason: "Thử" })]));
+    expect(manualStocktake.body.error.fields).toEqual({ "lines.0.lotId": "Lô đã hết hạn dùng." });
     const disposal = await submitted(keeper, document("issue_other", "expired_disposal", [issueMilk(lot("L-HET"), { quantity: "10" })]));
     expect(disposal.body.status).toBe("pending");
     const chosen = await submitted(keeper, document("issue_other", "gift", [issueMilk(lot("L-MUON"), { lotOverrideReason: "Khách yêu cầu hạn dài" })]));
@@ -271,6 +274,24 @@ describe("TIEUCHI_NGHIEMTHU_65: công ty chủ hàng", () => {
         .status,
     ).toBe(404);
 
+    // Sản phẩm đã phát sinh giao dịch kho: không đổi đơn vị cơ sở, hệ số quy đổi (QUYTAC_NGHIEPVU_40).
+    const product = (await retailAdmin.call("get", `/catalog/products/${items.water!.productId}`, { companyId: retail })).body;
+    const changed = await retailAdmin.call("patch", `/catalog/products/${product.id}`, {
+      companyId: retail,
+      body: {
+        categoryId: product.categoryId,
+        name: product.name,
+        vatRate: product.vatRate,
+        tracksLots: product.tracksLots,
+        tracksSerials: product.tracksSerials,
+        warrantyMonths: product.warrantyMonths,
+        baseUnitId: units.HOP,
+        units: [{ unitId: units.THUNG, factor: "12" }],
+        variants: product.variants.map((variant: { id: string; sku: string; optionValues: string[] }) => ({ id: variant.id, sku: variant.sku, optionValues: variant.optionValues, barcodes: [] })),
+        version: product.version,
+      },
+    });
+    expect(changed.body.error.fields).toEqual({ baseUnitId: "Sản phẩm đã phát sinh giao dịch kho, không đổi được.", units: "Sản phẩm đã phát sinh giao dịch kho, không đổi được." });
     // Điều chỉnh: dòng âm giảm, dòng dương tăng theo giá vốn bình quân.
     const adjusted = await submitted(
       keeper,

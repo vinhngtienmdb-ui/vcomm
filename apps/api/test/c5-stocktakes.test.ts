@@ -77,6 +77,12 @@ describe("TIEUCHI_NGHIEMTHU_70: kiểm kê khóa mặt hàng đang kiểm, chên
     expect(started.body).toMatchObject({ status: "counting", stocktakeNo: expect.stringMatching(/^KK-VCR-/), lineCount: 1 });
     expect(started.body.lines[0]).toMatchObject({ systemQuantity: "100", countedQuantity: null, unitCost: "1000" });
 
+    // Không chạy song song hai lần kiểm kê trùng mặt hàng.
+    const overlapping = await retailAdmin.call("post", "/inventory/stocktakes", { companyId: retail, body: { warehouseId, companyId: retail, scopeType: "full" } });
+    expect((await retailAdmin.call("post", `/inventory/stocktakes/${overlapping.body.id}/start`, { companyId: retail })).body.error.message).toBe(
+      "Đang có lần kiểm kê khác kiểm cùng mặt hàng, vị trí.",
+    );
+    expect((await retailAdmin.call("post", `/inventory/stocktakes/${overlapping.body.id}/cancel`, { companyId: retail })).body.status).toBe("cancelled");
     const locked = await submitted(document("issue_other", "internal_use", [{ variantId: items.water, unitId: units.CHAI, quantity: "1" }]));
     expect(locked.status).toBe(409);
     expect(locked.body.error.message).toBe("Mặt hàng đang kiểm kê, chưa ghi sổ được.");

@@ -147,7 +147,7 @@ CREATE TABLE inventory.document_lines (
     unit_id                 uuid        NOT NULL REFERENCES catalog.units(id),
     quantity                numeric(20,4) NOT NULL CHECK (quantity <> 0),       -- âm chỉ ở phiếu điều chỉnh
     base_quantity           numeric(20,4) NOT NULL,
-    unit_cost               numeric(20,4),                                       -- đơn giá nhập (theo đơn vị cơ sở)
+    unit_cost               numeric(20,4),                                       -- đơn giá nhập theo đơn vị của dòng
     cost_value              numeric(20,4),                                       -- giá trị đã ghi sổ
     lot_id                  uuid        REFERENCES inventory.lots(id),
     lot_no                  text,

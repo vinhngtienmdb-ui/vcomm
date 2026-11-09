@@ -184,6 +184,13 @@ export class StocktakesService {
           FROM catalog.variants v WHERE v.id = ANY(${pgArray(row.scope_ids)}::uuid[]) AND v.company_id = ${row.company_id}
             AND NOT EXISTS (SELECT 1 FROM inventory.stocktake_lines l WHERE l.stocktake_id = ${id} AND l.variant_id = v.id)`);
       }
+      // Hai lần kiểm kê đang đếm không được trùng mặt hàng, vị trí (tránh hai phiếu điều chỉnh cho cùng chênh lệch).
+      const overlap = await transaction.execute(sql`
+        SELECT 1 FROM inventory.stocktake_lines mine JOIN inventory.stocktake_lines other ON other.variant_id = mine.variant_id
+          AND (other.location_id IS NULL OR mine.location_id IS NULL OR other.location_id = mine.location_id)
+        JOIN inventory.stocktakes s ON s.id = other.stocktake_id
+        WHERE mine.stocktake_id = ${id} AND s.id <> ${id} AND s.status = 'counting' AND s.warehouse_id = ${row.warehouse_id} AND s.company_id = ${row.company_id} LIMIT 1`);
+      if (overlap.rows.length > 0) throw new ApiError("BUSINESS_RULE", "stocktakeOverlaps");
       await transaction.execute(sql`
         UPDATE inventory.stocktakes SET status = 'counting', stocktake_no = ${stocktakeNo}, started_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.auditService.record({ ...inventoryAudit(actor, "stocktake"), companyId: row.company_id, action: "stocktake.start", entityId: id, afterData: { stocktakeNo } }, transaction);
@@ -341,8 +348,8 @@ export class StocktakesService {
     if (documentId) {
       try {
         const document = (
-          await this.database.execute<{ id: string; type: "adjustment"; company_id: string; warehouse_id: string; reason_code: string; version: number }>(sql`
-          SELECT id, type, company_id, warehouse_id, reason_code, version FROM inventory.documents WHERE id = ${documentId}`)
+          await this.database.execute<{ id: string; type: "adjustment"; company_id: string; warehouse_id: string; reason_code: string; stocktake_id: string | null; version: number }>(sql`
+          SELECT id, type, company_id, warehouse_id, reason_code, stocktake_id, version FROM inventory.documents WHERE id = ${documentId}`)
         ).rows[0]!;
         await this.documents.submitDocument(actor, document);
       } catch (error) {

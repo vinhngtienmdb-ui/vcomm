@@ -150,7 +150,9 @@
     "stocktakeNotFullyCounted": "Some lines have not been counted.",
     "reservationOwnedByDocument": "Goods reserved for a stock document are released only when it is rejected or withdrawn.",
     "noLocationsToPrint": "The warehouse has no active locations to print.",
-    "stocktakeLotRequired": "Lot-tracked items: count against an existing lot; new lots are received with an other receipt."
+    "stocktakeLotRequired": "Lot-tracked items: count against an existing lot; new lots are received with an other receipt.",
+    "productHasStockMovements": "The product already has stock movements; this cannot be changed.",
+    "stocktakeOverlaps": "Another stocktake is counting the same items and locations."
   },
   "login": {
     "title": "Sign in",
@@ -1434,7 +1436,8 @@
     "received": "Goods received.",
     "discrepancies": "Discrepancy report",
     "discrepancyLine": "shipped {shipped}, received {received}, difference {difference}",
-    "printLabels": "Print labels"
+    "printLabels": "Print labels",
+    "status_transfer_posted": "Approved, awaiting shipment"
   },
   "stocktakes": {
     "title": "Stocktake",

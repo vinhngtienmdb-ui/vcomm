@@ -316,7 +316,10 @@ export class StockDocumentsService implements OnModuleInit {
   }
 
   // Gửi phiếu: kiểm đầy đủ, giữ hàng cho dòng giảm, cấp số, gửi duyệt; chưa có chính sách duyệt thì ghi sổ ngay (QUYTAC_NGHIEPVU_50).
-  async submitDocument(actor: Actor, row: { id: string; type: StockDocumentType; company_id: string; warehouse_id: string; reason_code: string; version: number }): Promise<void> {
+  async submitDocument(
+    actor: Actor,
+    row: { id: string; type: StockDocumentType; company_id: string; warehouse_id: string; reason_code: string; stocktake_id: string | null; version: number },
+  ): Promise<void> {
     const lines = await this.lines(row.id);
     const fields = await this.checkForSubmit(row, lines);
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
@@ -581,7 +584,7 @@ export class StockDocumentsService implements OnModuleInit {
   }
 
   // Kiểm khi gửi: đủ hàng, lô còn hạn, chọn lô khác gợi ý có lý do, serial đúng trạng thái (QUYTAC_NGHIEPVU_47, 51).
-  private async checkForSubmit(row: { type: StockDocumentType; company_id: string; warehouse_id: string; reason_code: string }, lines: LineRow[]): Promise<FieldErrors> {
+  private async checkForSubmit(row: { type: StockDocumentType; company_id: string; warehouse_id: string; reason_code: string; stocktake_id: string | null }, lines: LineRow[]): Promise<FieldErrors> {
     const fields: FieldErrors = {};
     const today = this.permissionService.today();
     const neededByBalance = new Map<string, { quantity: number; index: number }>();
@@ -602,8 +605,8 @@ export class StockDocumentsService implements OnModuleInit {
           ).rows[0];
           if (!lot) fields[at("lotId")] = "invalidValue";
           else {
-            // Hủy hàng hết hạn, điều chỉnh sau kiểm kê được giảm lô đã hết hạn.
-            const disposal = row.reason_code === "expired_disposal" || row.reason_code === "stocktake";
+            // Hủy hàng hết hạn, phiếu điều chỉnh do kiểm kê sinh ra được giảm lô đã hết hạn.
+            const disposal = row.reason_code === "expired_disposal" || row.stocktake_id !== null;
             if (lot.expires_on !== null && day(lot.expires_on)! < today && !disposal) fields[at("lotId")] = "lotExpired";
             const suggestion = (await this.suggestLots(this.database, row.warehouse_id, row.company_id, line.variant_id, line.location_id, disposal)).find((item) => item.suggested);
             if (suggestion && suggestion.lotId !== line.lot_id && !line.lot_override_reason) fields[at("lotOverrideReason")] = "lotOverrideReasonRequired";

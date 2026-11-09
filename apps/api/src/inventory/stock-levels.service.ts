@@ -88,7 +88,7 @@ export class StockLevelsService {
           companyId: warehouse.companyId,
           kind: "inventory_stock_alert",
           title: `${rows[0]!.warehouse_name}: ${rows.length}`,
-          link: "/inventory/stock-levels",
+          link: "/inventory/reservations?tab=levels",
           payload: { warehouse: rows[0]!.warehouse_name, count: rows.length },
         })),
       );

@@ -131,6 +131,7 @@ export class ProductsService {
     await requireCompanyPermission(this.permissionService, actor, catalogPermissions.manageProducts);
     const before = await this.read(actor.companyId, id);
     if (input.version === undefined) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { version: "required" } });
+    await this.requireStockLockedFieldsUnchanged(id, before, input);
     await this.database.transaction(async (transaction) => {
       await this.validate(transaction, actor.companyId, input, before);
       const code = input.code || before.code;
@@ -150,6 +151,22 @@ export class ProductsService {
       );
     });
     return this.read(actor.companyId, id);
+  }
+
+  // Sản phẩm đã phát sinh giao dịch kho: không đổi đơn vị cơ sở, hệ số quy đổi, cách theo dõi lô, serial (QUYTAC_NGHIEPVU_40).
+  // Đọc thẻ kho của mini app Kho (chỉ đọc), vì tồn lưu theo đơn vị cơ sở.
+  private async requireStockLockedFieldsUnchanged(id: string, before: ProductResponse, input: ProductInput): Promise<void> {
+    const moved = await this.database.execute(sql`SELECT 1 FROM inventory.movements m JOIN catalog.variants v ON v.id = m.variant_id WHERE v.product_id = ${id} LIMIT 1`);
+    if (moved.rows.length === 0) return;
+    const factors = (units: { unitId: string; factor: string }[]) => new Map(units.map((unit) => [unit.unitId, Number(unit.factor)]));
+    const previous = factors(before.units);
+    const next = factors(input.units);
+    const fields: Record<string, "productHasStockMovements"> = {};
+    if (input.baseUnitId !== before.baseUnitId) fields.baseUnitId = "productHasStockMovements";
+    if (input.tracksLots !== before.tracksLots) fields.tracksLots = "productHasStockMovements";
+    if (input.tracksSerials !== before.tracksSerials) fields.tracksSerials = "productHasStockMovements";
+    if ([...previous].some(([unitId, factor]) => next.has(unitId) && next.get(unitId) !== factor)) fields.units = "productHasStockMovements";
+    if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
   }
 
   // Không xóa sản phẩm, chỉ ngừng bán hoặc bán lại (QUYTAC_NGHIEPVU_38).

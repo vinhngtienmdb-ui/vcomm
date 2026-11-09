@@ -108,7 +108,7 @@ export default function DocumentsPage() {
                         <span>{item.reason}</span>
                       </td>
                       <td data-nhan={headings[6]}>
-                        <DocumentStatusBadge status={item.status} />
+                        <DocumentStatusBadge status={item.status} type={item.type} />
                       </td>
                       <td data-nhan={headings[7]}>
                         <span>{item.totalValue === null ? "—" : formatMoney(item.totalValue, "VND")}</span>

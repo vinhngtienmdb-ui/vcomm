@@ -150,7 +150,9 @@
     "stocktakeNotFullyCounted": "Còn dòng chưa có số đếm.",
     "reservationOwnedByDocument": "Hàng giữ cho phiếu kho chỉ nhả khi phiếu bị từ chối hoặc rút.",
     "noLocationsToPrint": "Kho chưa có vị trí đang dùng để in tem.",
-    "stocktakeLotRequired": "Hàng theo lô: ghi số đếm theo lô đã có; lô mới nhập bằng phiếu nhập khác."
+    "stocktakeLotRequired": "Hàng theo lô: ghi số đếm theo lô đã có; lô mới nhập bằng phiếu nhập khác.",
+    "productHasStockMovements": "Sản phẩm đã phát sinh giao dịch kho, không đổi được.",
+    "stocktakeOverlaps": "Đang có lần kiểm kê khác kiểm cùng mặt hàng, vị trí."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1434,7 +1436,8 @@
     "received": "Đã nhận hàng.",
     "discrepancies": "Biên bản chênh lệch",
     "discrepancyLine": "xuất {shipped}, nhận {received}, chênh lệch {difference}",
-    "printLabels": "In tem"
+    "printLabels": "In tem",
+    "status_transfer_posted": "Đã duyệt, chờ xuất"
   },
   "stocktakes": {
     "title": "Kiểm kê",
