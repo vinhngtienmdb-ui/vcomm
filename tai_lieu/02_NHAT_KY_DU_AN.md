@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_04: Lập công việc mini app Sản phẩm (MODULE_02, phần Sản phẩm), mức Lớn. Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ; AI chạy song song các tác tử nghiên cứu câu hỏi nghiệp vụ cho Kho, Mua hàng, Bán hàng, Nhà bán.
 - Người dùng tạo tag `v0.2.0` trên commit `ffcbde3` (đã kiểm tra đúng commit). Thêm GitHub Actions `gan-tag-phat-hanh.yml` (pull request số 27): từ lần phát hành sau, khi CI trên `main` đạt cho commit hợp nhất nhánh `phat-hanh/vX.Y.Z`, GitHub tự gắn tag `vX.Y.Z`.
 - Phát hành phiên bản 0.2.0 (CONG_VIEC_03): tài liệu 23, hợp nhất nhánh `phat-hanh/v0.2.0` (pull request số 24), kiểm thử lại 156/156 đạt trên commit hợp nhất `ffcbde3`. Tag `v0.2.0` chờ người dùng tạo trên GitHub vì môi trường của AI không được phép đẩy tag. Chưa triển khai: chưa chọn hạ tầng, chưa có khóa nhà cung cấp.
 - CONG_VIEC_03: Người dùng nghiệm thu. Bổ sung theo yêu cầu khi nghiệm thu: nút "Gửi thử tin" ở MAN_HINH_19 (API `POST /integration-settings/test-message`), đếm ngược 60 giây cho nút gửi lại mã ở MAN_HINH_01, lời thông báo Zalo theo đặc tả. Hợp nhất pull request số 21 vào `main` (commit `5f4eb6c`), kiểm thử lại 156/156 đạt trên commit hợp nhất. Chưa phát hành, chưa triển khai.
@@ -33,6 +34,17 @@
 
 ### Quyết định
 
+- MODULE_02 (CONG_VIEC_04) – người quyết định: người dùng:
+  - danh mục sản phẩm riêng từng công ty con; ngành hàng dùng chung tập đoàn;
+  - giao dịch nội bộ dùng liên kết sản phẩm tương ứng giữa công ty (gắn một lần, có sao chép sản phẩm sang công ty khác, gợi ý theo mã vạch trùng);
+  - làm phần Sản phẩm trước, phần Nhà bán sau;
+  - mã hàng tự sinh theo tiền tố ngành hàng, sửa được; mã vạch nhà sản xuất nhập tay, một sản phẩm nhiều mã vạch;
+  - bảng giá theo công ty, kênh bán, nhóm khách hàng, hiệu lực theo ngày; gồm hay chưa gồm thuế giá trị gia tăng chọn theo từng bảng giá, thuế suất khai báo theo sản phẩm;
+  - điều chỉnh giá là chứng từ đi qua luồng duyệt có sẵn, công ty chưa cài chính sách duyệt thì áp dụng ngay;
+  - nhiều đơn vị tính quy đổi, đơn vị cơ sở là đơn vị tồn kho, mỗi đơn vị có mã vạch, giá riêng;
+  - danh mục nhóm khách hàng tạo trước ở MODULE_02, MODULE_07 gắn khách hàng sau;
+  - kênh bán là danh mục công ty tự khai báo, có sẵn Bán sỉ, Bán lẻ, Sàn VComm, Shopee, Lazada, TikTok Shop.
+- Đánh số phiên bản: 0.2.0 đã dùng cho phần hoàn thiện Nền tảng (CONG_VIEC_03), nên các mốc ở tài liệu `05` mục 4 lùi một số (Sản phẩm, Kho dự kiến 0.3) – AI tự quyết, ghi lại để người dùng biết.
 - Tag phiên bản do GitHub Actions tự gắn sau khi CI trên commit hợp nhất đạt, vì môi trường của AI không được đẩy tag – người quyết định: người dùng.
 - Phát hành phiên bản 0.2.0; chưa có khóa eSMS, Google, Microsoft, Zalo (đăng ký sau); hạ tầng triển khai chưa quyết – người quyết định: người dùng.
 - Nghiệm thu CONG_VIEC_03 trên bản giả lập nhà cung cấp và hợp nhất vào `main`; thử với eSMS, Google, Microsoft, Zalo, S3 thật khi có khóa – người quyết định: người dùng.
