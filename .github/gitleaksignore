@@ -1,0 +1,2 @@
+# Giá trị giữ chỗ trong .env.example, không phải khóa bí mật thật.
+d1bfc53df2bb1c60c85bf335b6d5ff929495fbb4:.env.example:generic-api-key:6

@@ -1,0 +1,123 @@
+# Tích hợp liên tục: kiểm tra mã và quét bảo mật.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: ["**"]
+
+# Quyền tối thiểu: chỉ đọc mã nguồn.
+permissions:
+  contents: read
+
+# Hủy lần chạy cũ khi có commit mới trên cùng nhánh.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: "1"
+
+jobs:
+  kiem-tra:
+    name: Kiểm tra kiểu, lint, kiểm thử
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Dịch vụ cho kiểm thử tích hợp.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: vcomm_ung_dung
+          POSTGRES_PASSWORD: mat_khau_phat_trien
+          POSTGRES_DB: vcomm_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U vcomm_ung_dung -d vcomm_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    # Khớp với .env.example.
+    env:
+      TEST_DATABASE_URL: postgres://vcomm_ung_dung:mat_khau_phat_trien@localhost:5432/vcomm_test
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - name: Lấy mã nguồn (toàn bộ lịch sử)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Phiên bản pnpm lấy từ trường packageManager (pnpm@10.28.0).
+      - name: Cài pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Cài Node 22 kèm bộ nhớ đệm pnpm
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Cài phụ thuộc
+        run: pnpm install --frozen-lockfile
+
+      - name: Kiểm tra kiểu
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Kiểm thử
+        run: pnpm test
+
+  quet-bao-mat:
+    name: Quét bảo mật
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GITLEAKS_VERSION: 8.30.1
+      # SHA-256 của gitleaks_8.30.1_linux_x64.tar.gz (theo checksums.txt chính thức).
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+    steps:
+      - name: Lấy mã nguồn (toàn bộ lịch sử)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Cài pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Cài Node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+
+      # Thất bại khi có lỗ hổng mức high hoặc critical.
+      - name: Kiểm tra lỗ hổng phụ thuộc
+        run: pnpm audit --audit-level=high
+
+      # Tải bản phát hành chính thức, đối chiếu checksum trước khi dùng.
+      - name: Cài gitleaks
+        run: |
+          set -euo pipefail
+          tep="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL -o "$RUNNER_TEMP/$tep" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${tep}"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/$tep" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$tep" -C "$RUNNER_TEMP" gitleaks
+          "$RUNNER_TEMP/gitleaks" version
+
+      # Quét bí mật trên toàn bộ lịch sử git.
+      - name: Quét bí mật (gitleaks)
+        run: $RUNNER_TEMP/gitleaks git . --redact --verbose --no-banner --exit-code 1 --gitleaks-ignore-path .github/gitleaksignore
