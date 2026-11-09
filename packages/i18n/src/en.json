@@ -1131,7 +1131,9 @@
     "price": "Price",
     "effectiveFrom": "Effective from",
     "history": "Price history",
-    "changeNo": "Change no."
+    "changeNo": "Change no.",
+    "productPrices": "Prices",
+    "noProductPrices": "This product has no prices in this price list."
   },
   "priceChanges": {
     "title": "Price change",

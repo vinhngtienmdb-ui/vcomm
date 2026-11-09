@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_24 Chi tiết sản phẩm (CHUC_NANG_31, 32; API_56, API_57): thông tin chung, đơn vị quy đổi, phân loại và biến thể, mã vạch, thông số, ảnh.
+// MAN_HINH_24 Chi tiết sản phẩm (CHUC_NANG_31, 32; API_56, API_57): thông tin chung, đơn vị quy đổi, phân loại và biến thể, mã vạch, thông số, ảnh, giá.
 import type { CategoryResponse, ProductImageResponse, ProductResponse, UnitResponse, VariantLinkResponse, VariantLinkSuggestion } from "contracts";
 import { productLimits, vatRates } from "contracts";
 import { useLocale, useTranslations } from "next-intl";
@@ -14,6 +14,7 @@ import { HistoryLink } from "ui/components/HistoryLink";
 import { Loaded } from "ui/components/StatusViews";
 import { apiFetch, apiUpload, selectedCompanyId } from "ui/lib/api";
 import { failureOf, useApi } from "ui/lib/use-api";
+import { ProductPrices } from "@/components/ProductPrices";
 
 type Tracking = "none" | "lots" | "serials";
 type BarcodeDraft = { unitId: string; barcode: string };
@@ -505,6 +506,8 @@ function ProductForm({ categories, units, product, onReload }: { categories: Cat
       </section>
 
       {product && <Images product={product} editable={editable} onChanged={onReload} />}
+
+      {product && can("catalog.price.view") && <ProductPrices product={product} canManage={can("catalog.price.manage")} />}
 
       {product && <Links product={product} editable={editable} />}
 

@@ -1131,7 +1131,9 @@
     "price": "Giá",
     "effectiveFrom": "Hiệu lực từ",
     "history": "Lịch sử giá",
-    "changeNo": "Số phiếu"
+    "changeNo": "Số phiếu",
+    "productPrices": "Giá bán",
+    "noProductPrices": "Sản phẩm chưa có giá trong bảng giá này."
   },
   "priceChanges": {
     "title": "Phiếu điều chỉnh giá",
