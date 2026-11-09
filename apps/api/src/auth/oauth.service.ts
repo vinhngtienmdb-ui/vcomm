@@ -108,7 +108,7 @@ export class OauthService {
     }
 
     if (saved.mode === "link") {
-      if (linked && linked !== saved.userId) throw new ApiError("BUSINESS_RULE", "identityLinkedElsewhere");
+      if (linked && linked !== saved.userId) throw new ApiError("BUSINESS_RULE", provider === "zalo" ? "zaloLinkedElsewhere" : "identityLinkedElsewhere");
       if (!linked) {
         await this.database.transaction(async (transaction) => {
           await transaction.execute(sql`INSERT INTO core.user_identities (user_id, provider, provider_subject) VALUES (${saved.userId}, ${provider}, ${profile.subject})`);
@@ -141,7 +141,7 @@ export class OauthService {
       }
       await this.database.execute(sql`INSERT INTO core.user_identities (user_id, provider, provider_subject) VALUES (${userId}, ${provider}, ${profile.subject})`);
     }
-    if (!userId) throw new ApiError("UNAUTHENTICATED", provider === "google" ? "emailNotInvited" : "providerNotLinked");
+    if (!userId) throw new ApiError("UNAUTHENTICATED", provider === "google" ? "emailNotInvited" : provider === "zalo" ? "zaloNotLinked" : "providerNotLinked");
     const user = (
       await this.database
         .select()

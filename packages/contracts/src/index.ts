@@ -845,6 +845,8 @@ export interface MessageDeliveryItem {
 
 // API_02, API_03: đăng nhập bằng số điện thoại (CHUC_NANG_08).
 export const otpSendSchema = z.object({ phone: phoneE164 }).strict();
+// MAN_HINH_19: gửi thử một tin theo mẫu mã OTP đã đăng ký (Zalo trước, SMS sau) tới số do quản trị nhập.
+export const integrationTestMessageSchema = z.object({ phone: phoneE164 }).strict();
 export const otpVerifySchema = z.object({ phone: phoneE164, code: z.string().regex(/^\d{6}$/) }).strict();
 
 // API_54: cách đăng nhập đang dùng được, để MAN_HINH_01 hiện nút.

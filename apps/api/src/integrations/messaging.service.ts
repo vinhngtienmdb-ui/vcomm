@@ -3,7 +3,7 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import type { IntegrationSettingKey, IntegrationTestResponse, MessageDeliveryItem } from "contracts";
 import { sql } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
+import { randomUUID, randomInt } from "node:crypto";
 import { DATABASE, type Database } from "../database/database.module";
 import { type EsmsCredentials, MESSAGE_GATEWAY, type MessageGateway } from "./esms-gateway";
 import { IntegrationSettingsService } from "./integration-settings.service";
@@ -28,11 +28,11 @@ export class MessagingService {
     return Boolean(values["esms.api_key"] && values["esms.secret_key"] && values["esms.brandname"]);
   }
 
-  async sendLoginOtp(phone: string, code: string, userId: string | null): Promise<boolean> {
+  async sendLoginOtp(phone: string, code: string, userId: string | null, purpose: "login_otp" | "test" = "login_otp"): Promise<boolean> {
     const values = await this.settings.getMany(["esms.api_key", "esms.secret_key", "esms.brandname", "esms.sandbox", "esms.oa_id", "esms.template.login_otp"]);
     const credentials = this.credentials(values);
     if (!credentials || !values["esms.brandname"]) {
-      await this.record({ channel: "sms", purpose: "login_otp", userId, phone, templateId: null, status: "skipped", messageId: null, error: "Chưa cài đặt eSMS" });
+      await this.record({ channel: "sms", purpose, userId, phone, templateId: null, status: "skipped", messageId: null, error: "Chưa cài đặt eSMS" });
       return false;
     }
     const withZalo = Boolean(values["esms.oa_id"] && values["esms.template.login_otp"]);
@@ -46,7 +46,7 @@ export class MessagingService {
     });
     await this.record({
       channel: withZalo ? "zns_sms" : "sms",
-      purpose: "login_otp",
+      purpose,
       userId,
       phone,
       templateId: values["esms.template.login_otp"],
@@ -89,6 +89,13 @@ export class MessagingService {
     if (!credentials) return { ok: false, message: "esmsMissing", officialAccounts: [] };
     const result = await this.gateway.listOfficialAccounts(credentials);
     return { ok: result.ok, message: result.ok ? "esmsConnected" : (result.error ?? "esmsFailed"), officialAccounts: result.accounts };
+  }
+
+  // Gửi thử: dùng mẫu mã OTP đã đăng ký với eSMS (tin Brandname phải đúng nội dung đã đăng ký), mã ngẫu nhiên không dùng đăng nhập được.
+  async sendTestMessage(phone: string, userId: string): Promise<IntegrationTestResponse> {
+    if (!(await this.smsConfigured())) return { ok: false, message: "esmsMissing", officialAccounts: [] };
+    const sent = await this.sendLoginOtp(phone, String(randomInt(0, 1_000_000)).padStart(6, "0"), userId, "test");
+    return { ok: sent, message: sent ? "testSent" : "testFailed", officialAccounts: [] };
   }
 
   async recentDeliveries(): Promise<MessageDeliveryItem[]> {

@@ -78,4 +78,19 @@ describe("TIEUCHI_NGHIEMTHU_48: khóa bí mật không bao giờ trả đầy đ
     expect((await groupAdmin.call("get", "/integration-settings/deliveries")).status).toBe(200);
     expect(testIds.groupAdmin).toBeTruthy();
   });
+
+  it("gửi thử tin theo mẫu mã OTP tới số quản trị nhập, ghi nhật ký gửi tin; chỉ quản trị tập đoàn", async () => {
+    expect((await retailAdmin.call("post", "/integration-settings/test-message", { body: { phone: "0909000111" } })).status).toBe(403);
+    expect((await groupAdmin.call("post", "/integration-settings/test-message", { body: { phone: "abc" } })).status).toBe(400);
+    // Chưa có Brandname thì chưa gửi được.
+    expect((await groupAdmin.call("post", "/integration-settings/test-message", { body: { phone: "0909000111" } })).body).toMatchObject({ ok: false, message: "esmsMissing" });
+    await groupAdmin.call("put", "/integration-settings", { body: { values: { "esms.brandname": "VCOMM" } } });
+    const before = testGateway.sent.length;
+    const sent = await groupAdmin.call("post", "/integration-settings/test-message", { body: { phone: "0909000111" } });
+    expect(sent.body).toMatchObject({ ok: true, message: "testSent" });
+    expect(testGateway.sent.length).toBe(before + 1);
+    expect(testGateway.sent.at(-1)!.input.phone).toBe("+84909000111");
+    const deliveries = (await groupAdmin.call("get", "/integration-settings/deliveries")).body;
+    expect(deliveries[0]).toMatchObject({ purpose: "test", status: "sent" });
+  });
 });

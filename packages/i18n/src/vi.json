@@ -52,7 +52,7 @@
     "mfaTooManyAttempts": "Nhập sai mã quá 5 lần. Vui lòng đăng nhập lại.",
     "resetInvalid": "Đường dẫn đặt lại mật khẩu đã hết hạn hoặc đã được dùng.",
     "currentPasswordWrong": "Mật khẩu hiện tại không đúng.",
-    "lastIdentity": "Không thể hủy cách đăng nhập cuối cùng.",
+    "lastIdentity": "Bạn cần giữ ít nhất một cách đăng nhập.",
     "levelAmountsNotIncreasing": "Ngưỡng của cấp sau phải lớn hơn cấp trước.",
     "substituteRequired": "Mỗi cấp phải có người duyệt thay thế.",
     "levelNumbersInvalid": "Thứ tự cấp phải liên tục từ 1.",
@@ -89,7 +89,9 @@
     "attachmentTooLarge": "Tệp vượt quá 10 MB.",
     "attachmentTypeInvalid": "Chỉ nhận tệp PDF, JPG, PNG, XLSX, DOCX.",
     "attachmentTooMany": "Mỗi đề xuất có tối đa 10 tệp đính kèm.",
-    "proposalNotDraft": "Chỉ sửa được đề xuất đang ở trạng thái nháp."
+    "proposalNotDraft": "Chỉ sửa được đề xuất đang ở trạng thái nháp.",
+    "zaloNotLinked": "Tài khoản Zalo này chưa được liên kết. Đăng nhập bằng cách khác rồi liên kết trong hồ sơ cá nhân.",
+    "zaloLinkedElsewhere": "Tài khoản Zalo này đã được liên kết với tài khoản khác."
   },
   "login": {
     "title": "Đăng nhập",
@@ -109,7 +111,9 @@
     "otpSent": "Đã gửi mã qua Zalo hoặc SMS nếu số này có tài khoản. Mã hiệu lực 5 phút.",
     "sendCode": "Gửi mã",
     "changePhone": "Đổi số điện thoại",
-    "activatedVia": "Đã kích hoạt tài khoản. Đăng nhập bằng {provider} để bắt đầu."
+    "activatedVia": "Đã kích hoạt tài khoản. Đăng nhập bằng {provider} để bắt đầu.",
+    "resend": "Gửi lại mã",
+    "resendIn": "Gửi lại mã sau {seconds} giây"
   },
   "home": {
     "greeting": "Xin chào, {name}",
@@ -754,7 +758,13 @@
     "purpose_approval_completed": "Kết quả duyệt",
     "saved": "Đã lưu cài đặt tích hợp.",
     "yes": "Bật",
-    "no": "Tắt"
+    "no": "Tắt",
+    "testMessage": "Gửi thử tin",
+    "testPhone": "Số điện thoại nhận tin thử",
+    "testPhoneHint": "Gửi theo mẫu mã OTP đã đăng ký (Zalo trước, SMS sau); có tính phí tin.",
+    "testSent": "Đã gửi tin thử. Kiểm tra điện thoại và nhật ký gửi tin bên dưới.",
+    "testFailed": "Gửi tin thử thất bại. Xem lỗi trong nhật ký gửi tin bên dưới.",
+    "purpose_test": "Tin thử"
   },
   "proposals": {
     "title": "Đề xuất",

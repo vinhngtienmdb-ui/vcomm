@@ -53,6 +53,8 @@ function IntegrationsForm({ data, onSaved }: { data: IntegrationSettingsResponse
   const [clear, setClear] = useState<IntegrationSettingKey[]>([]);
   const [testResult, setTestResult] = useState<IntegrationTestResponse | null>(null);
   const [testing, setTesting] = useState(false);
+  const [testPhone, setTestPhone] = useState("");
+  const [phoneError, setPhoneError] = useState<string | undefined>();
   const deliveries = useApi<MessageDeliveryItem[]>("/integration-settings/deliveries");
   const { submitting, fields, formError, run, inputClass } = useSubmit();
 
@@ -73,6 +75,21 @@ function IntegrationsForm({ data, onSaved }: { data: IntegrationSettingsResponse
       void deliveries.reload();
     } catch (error) {
       notify(failureOf(error).message, "loi");
+    } finally {
+      setTesting(false);
+    }
+  }
+
+  async function sendTestMessage() {
+    setTesting(true);
+    setPhoneError(undefined);
+    try {
+      setTestResult(await apiFetch<IntegrationTestResponse>("/integration-settings/test-message", { method: "POST", body: JSON.stringify({ phone: testPhone }) }));
+      void deliveries.reload();
+    } catch (error) {
+      const failure = failureOf(error);
+      if (failure.fields.phone) setPhoneError(failure.fields.phone);
+      else notify(failure.message, "loi");
     } finally {
       setTesting(false);
     }
@@ -156,9 +173,25 @@ function IntegrationsForm({ data, onSaved }: { data: IntegrationSettingsResponse
                 <button type="button" className={`nut phu${testing ? " dang-xu-ly" : ""}`} style={{ justifySelf: "start" }} disabled={testing} onClick={() => void test()}>
                   {t("test")}
                 </button>
+                <Field id="so-dien-thoai-thu" label={t("testPhone")} hint={t("testPhoneHint")} error={phoneError}>
+                  <span className="nhom-nut">
+                    <input
+                      id="so-dien-thoai-thu"
+                      type="tel"
+                      inputMode="tel"
+                      className={`o-nhap${phoneError ? " loi" : ""}`}
+                      style={{ flex: 1 }}
+                      value={testPhone}
+                      onChange={(event) => setTestPhone(event.target.value)}
+                    />
+                    <button type="button" className={`nut phu${testing ? " dang-xu-ly" : ""}`} disabled={testing || !testPhone.trim()} onClick={() => void sendTestMessage()}>
+                      {t("testMessage")}
+                    </button>
+                  </span>
+                </Field>
                 {testResult && (
                   <div className={`khoi-canh-bao ${testResult.ok ? "thong-tin" : "loi"}`} role="status">
-                    {["esmsMissing", "esmsConnected"].includes(testResult.message) ? t(testResult.message as "esmsMissing") : `${t("esmsFailed")} ${testResult.message}`}
+                    {["esmsMissing", "esmsConnected", "testSent", "testFailed"].includes(testResult.message) ? t(testResult.message as "esmsMissing") : `${t("esmsFailed")} ${testResult.message}`}
                     {testResult.officialAccounts.length > 0 && <div>{t("officialAccounts", { list: testResult.officialAccounts.map((account) => `${account.name} (${account.id})`).join(", ") })}</div>}
                   </div>
                 )}

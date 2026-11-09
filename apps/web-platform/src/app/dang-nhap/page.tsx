@@ -9,6 +9,8 @@ import { LanguageSelect } from "@/components/LanguageSelect";
 import { apiFetch, ApiFailure, forgetCompany } from "@/lib/api";
 
 const providers = ["google", "microsoft", "zalo"] as const;
+// Chờ giữa hai lần gửi mã (MAN_HINH_01); máy chủ còn giới hạn 5 lần mỗi giờ.
+const resendSeconds = 60;
 
 export default function LoginPage() {
   return (
@@ -30,6 +32,13 @@ function Login() {
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const timer = setTimeout(() => setResendIn((seconds) => seconds - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendIn]);
   const [submitting, setSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const returned = search.get("loi");
@@ -69,12 +78,17 @@ function Login() {
     void attempt(async () => signedIn(await apiFetch<LoginResponse>("/auth/login", { method: "POST", body: JSON.stringify({ identifier, password }) })));
   }
 
+  async function sendCode() {
+    await apiFetch("/auth/otp/send", { method: "POST", body: JSON.stringify({ phone }) });
+    setCodeSent(true);
+    setResendIn(resendSeconds);
+  }
+
   function submitPhone(event: FormEvent) {
     event.preventDefault();
     void attempt(async () => {
       if (!codeSent) {
-        await apiFetch("/auth/otp/send", { method: "POST", body: JSON.stringify({ phone }) });
-        setCodeSent(true);
+        await sendCode();
         return;
       }
       signedIn(await apiFetch<LoginResponse>("/auth/otp/verify", { method: "POST", body: JSON.stringify({ phone, code }) }));
@@ -196,16 +210,21 @@ function Login() {
               {codeSent ? t("submit") : t("sendCode")}
             </button>
             {codeSent && (
-              <button
-                type="button"
-                className="nut chu"
-                onClick={() => {
-                  setCodeSent(false);
-                  setCode("");
-                }}
-              >
-                {t("changePhone")}
-              </button>
+              <div className="nhom-nut" style={{ justifyContent: "space-between" }}>
+                <button type="button" className="nut chu" disabled={submitting || resendIn > 0} onClick={() => void attempt(sendCode)}>
+                  {resendIn > 0 ? t("resendIn", { seconds: resendIn }) : t("resend")}
+                </button>
+                <button
+                  type="button"
+                  className="nut chu"
+                  onClick={() => {
+                    setCodeSent(false);
+                    setCode("");
+                  }}
+                >
+                  {t("changePhone")}
+                </button>
+              </div>
             )}
           </form>
         )}

@@ -189,7 +189,7 @@ describe("Zalo (CHUC_NANG_24)", () => {
   it("TIEUCHI_NGHIEMTHU_46: chưa liên kết thì từ chối; liên kết từ hồ sơ rồi đăng nhập được", async () => {
     await configure({ "zalo.app_id": "zalo-app", "zalo.app_secret": "zalo-secret-5555" });
     testOauth.profiles.set("zalo-phuc", { subject: "zalo-1001", email: null, emailVerified: false, name: "Phúc Zalo" });
-    expect((await oauthRound("zalo", "zalo-phuc")).finished!.headers.location).toMatch(/\/dang-nhap\?loi=providerNotLinked$/);
+    expect((await oauthRound("zalo", "zalo-phuc")).finished!.headers.location).toMatch(/\/dang-nhap\?loi=zaloNotLinked$/);
     // Liên kết cần phiên đã đăng nhập.
     expect((await server().get("/api/v1/auth/oauth/zalo/start?mode=link")).headers.location).toMatch(/\/ho-so\?loi=unauthenticated$/);
     const login = await server().post("/api/v1/auth/login").send({ identifier: "phuc.le@vcomm.test", password: testPassword });
@@ -205,7 +205,7 @@ describe("Zalo (CHUC_NANG_24)", () => {
     const other = await server().post("/api/v1/auth/login").send({ identifier: "thukho.bd@vcomm.test", password: testPassword });
     const access = cookieValue(other.headers["set-cookie"], "vc_access");
     const linked = await oauthRound("zalo", "zalo-phuc", { mode: "link", accessCookie: `vc_access=${access}` });
-    expect(linked.finished!.headers.location).toMatch(/\/ho-so\?loi=identityLinkedElsewhere$/);
+    expect(linked.finished!.headers.location).toMatch(/\/ho-so\?loi=zaloLinkedElsewhere$/);
     // Nhân viên chỉ còn Zalo: không hủy được.
     const keeper = await signIn(application, "thukho.bd@vcomm.test");
     testOauth.profiles.set("zalo-kho", { subject: "zalo-2002", email: null, emailVerified: false, name: null });
@@ -215,7 +215,7 @@ describe("Zalo (CHUC_NANG_24)", () => {
     expect(identities).toHaveLength(1);
     const removed = await keeper.call("delete", `/me/identities/${identities[0].id}`);
     expect(removed.status).toBe(409);
-    expect(removed.body.error.message).toBe("Không thể hủy cách đăng nhập cuối cùng.");
+    expect(removed.body.error.message).toBe("Bạn cần giữ ít nhất một cách đăng nhập.");
   });
 });
 

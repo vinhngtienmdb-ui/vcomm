@@ -52,7 +52,7 @@
     "mfaTooManyAttempts": "Too many wrong codes. Please sign in again.",
     "resetInvalid": "The password reset link has expired or has already been used.",
     "currentPasswordWrong": "The current password is incorrect.",
-    "lastIdentity": "You cannot remove your last sign-in method.",
+    "lastIdentity": "You need to keep at least one sign-in method.",
     "levelAmountsNotIncreasing": "Each level's threshold must be higher than the previous level's.",
     "substituteRequired": "Each level must have a substitute approver.",
     "levelNumbersInvalid": "Level numbers must be consecutive from 1.",
@@ -89,7 +89,9 @@
     "attachmentTooLarge": "The file is larger than 10 MB.",
     "attachmentTypeInvalid": "Only PDF, JPG, PNG, XLSX and DOCX files are accepted.",
     "attachmentTooMany": "A proposal can have at most 10 attachments.",
-    "proposalNotDraft": "Only draft proposals can be changed."
+    "proposalNotDraft": "Only draft proposals can be changed.",
+    "zaloNotLinked": "This Zalo account is not linked yet. Sign in another way, then link it in your profile.",
+    "zaloLinkedElsewhere": "This Zalo account is already linked to another user."
   },
   "login": {
     "title": "Sign in",
@@ -109,7 +111,9 @@
     "otpSent": "If this number has an account, a code was sent via Zalo or SMS. It is valid for 5 minutes.",
     "sendCode": "Send code",
     "changePhone": "Use another number",
-    "activatedVia": "Account activated. Sign in with {provider} to start."
+    "activatedVia": "Account activated. Sign in with {provider} to start.",
+    "resend": "Resend code",
+    "resendIn": "Resend code in {seconds}s"
   },
   "home": {
     "greeting": "Hello, {name}",
@@ -754,7 +758,13 @@
     "purpose_approval_completed": "Approval result",
     "saved": "Integration settings saved.",
     "yes": "On",
-    "no": "Off"
+    "no": "Off",
+    "testMessage": "Send test message",
+    "testPhone": "Phone number for the test message",
+    "testPhoneHint": "Uses the registered OTP template (Zalo first, then SMS); message fees apply.",
+    "testSent": "Test message sent. Check the phone and the delivery log below.",
+    "testFailed": "Test message failed. See the error in the delivery log below.",
+    "purpose_test": "Test message"
   },
   "proposals": {
     "title": "Proposals",

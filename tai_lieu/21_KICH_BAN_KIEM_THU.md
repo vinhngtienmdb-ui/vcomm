@@ -1412,8 +1412,8 @@ Nguồn giả trong kiểm thử: eSMS.vn, nhà cung cấp OAuth, S3 thay bằng
 - Loại: Giá trị biên
 - Vai trò thực hiện: Quản trị tập đoàn
 - Điều kiện ban đầu và dữ liệu: Đã lưu khóa ở KICHBAN_KIEMTHU_122; eSMS giả trả danh sách Zalo OA `4097311281936189049` "VComm".
-- Các bước: (1) Lưu `google.client_secret` = "" và `google.client_id` = "". (2) Lưu với `clear` = [`google.client_secret`]. (3) Lưu khóa lạ `khong.co`. (4) Gọi `POST /integration-settings/test` khi chưa có khóa eSMS. (5) Lưu `esms.api_key`, `esms.secret_key`, gọi lại kiểm tra ngay, không khởi động lại máy chủ. (6) Cho eSMS giả trả lỗi, gọi lại kiểm tra. (7) Gọi `GET /integration-settings/deliveries`.
-- Kết quả mong đợi: Bước 1: khóa bí mật vẫn `lastFour: "9876"`, `google.client_id` thành chưa cài. Bước 2: khóa bí mật thành chưa cài. Bước 3 nhận `400`. Bước 4: `ok: false`, `message: "esmsMissing"`. Bước 5: `ok: true`, có Zalo OA. Bước 6: `ok: false`. Bước 7 trả `200`.
+- Các bước: (1) Lưu `google.client_secret` = "" và `google.client_id` = "". (2) Lưu với `clear` = [`google.client_secret`]. (3) Lưu khóa lạ `khong.co`. (4) Gọi `POST /integration-settings/test` khi chưa có khóa eSMS. (5) Lưu `esms.api_key`, `esms.secret_key`, gọi lại kiểm tra ngay, không khởi động lại máy chủ. (6) Cho eSMS giả trả lỗi, gọi lại kiểm tra. (7) Gọi `GET /integration-settings/deliveries`. (8) Quản trị công ty gọi `POST /integration-settings/test-message`. (9) Gửi thử tới số "abc". (10) Gửi thử tới `0909000111` khi chưa có Brandname, rồi sau khi lưu Brandname "VCOMM".
+- Kết quả mong đợi: Bước 1: khóa bí mật vẫn `lastFour: "9876"`, `google.client_id` thành chưa cài. Bước 2: khóa bí mật thành chưa cài. Bước 3 nhận `400`. Bước 4: `ok: false`, `message: "esmsMissing"`. Bước 5: `ok: true`, có Zalo OA. Bước 6: `ok: false`. Bước 7 trả `200`. Bước 8 nhận `403`. Bước 9 nhận `400`. Bước 10: lần đầu `message: "esmsMissing"`; lần sau `ok: true`, `message: "testSent"`, eSMS giả nhận một tin tới `+84909000111`, nhật ký gửi tin mới nhất có mục đích `test`, trạng thái đã gửi.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c3-integrations.test.ts`
 - Lát: L6a
 

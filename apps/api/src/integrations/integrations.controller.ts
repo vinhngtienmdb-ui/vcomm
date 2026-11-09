@@ -1,6 +1,6 @@
 // API_49: Cài đặt tích hợp (CHUC_NANG_25). Chỉ quản trị tập đoàn (TIEUCHI_NGHIEMTHU_49).
 import { Body, Controller, Get, HttpCode, Post, Put, Req } from "@nestjs/common";
-import { updateIntegrationSettingsSchema, type IntegrationSettingsResponse, type IntegrationTestResponse, type MessageDeliveryItem } from "contracts";
+import { integrationTestMessageSchema, updateIntegrationSettingsSchema, type IntegrationSettingsResponse, type IntegrationTestResponse, type MessageDeliveryItem } from "contracts";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { IntegrationSettingsService } from "./integration-settings.service";
@@ -31,6 +31,13 @@ export class IntegrationsController {
   async test(@Req() request: AuthenticatedRequest): Promise<IntegrationTestResponse> {
     await this.settings.requireManager(request.auth.userId);
     return this.messaging.test();
+  }
+
+  @Post("test-message")
+  @HttpCode(200)
+  async testMessage(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<IntegrationTestResponse> {
+    await this.settings.requireManager(request.auth.userId);
+    return this.messaging.sendTestMessage(integrationTestMessageSchema.parse(body).phone, request.auth.userId);
   }
 
   @Get("deliveries")
