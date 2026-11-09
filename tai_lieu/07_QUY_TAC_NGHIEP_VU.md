@@ -1,9 +1,10 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái và ngoại lệ, có mã định danh.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
+- Thay đổi theo: THAY_DOI_01 (2026-11-09)
 
 ## MODULE_01 Nền tảng
 
@@ -23,7 +24,7 @@
 | QUYTAC_NGHIEPVU_05 | Tài khoản phải có ít nhất một trong: tên đăng nhập, email, số điện thoại. Email, số điện thoại, tên đăng nhập duy nhất toàn hệ thống | YCAU_NGHIEPVU_04, YCAU_NGHIEPVU_05 |
 | QUYTAC_NGHIEPVU_06 | Đường dẫn kích hoạt dùng một lần, hết hạn sau 72 giờ; quản trị gửi lại được | YCAU_NGHIEPVU_04 |
 | QUYTAC_NGHIEPVU_07 | Mật khẩu tối thiểu 10 ký tự. Sai 5 lần liên tiếp thì khóa đăng nhập 15 phút | YCAU_NGHIEPVU_05 |
-| QUYTAC_NGHIEPVU_08 | Đăng nhập Google, Microsoft chỉ được khi email trả về đã gắn với một tài khoản đang hoạt động; không tự tạo tài khoản mới | YCAU_NGHIEPVU_05 |
+| QUYTAC_NGHIEPVU_08 | Đăng nhập Google, Microsoft chỉ được khi email trả về đã gắn với một tài khoản đang hoạt động. Đăng nhập Zalo chỉ được khi tài khoản Zalo đã được nhân viên liên kết từ hồ sơ cá nhân sau khi kích hoạt. Không tự tạo tài khoản bằng Google, Microsoft, Zalo | YCAU_NGHIEPVU_05 |
 | QUYTAC_NGHIEPVU_09 | Nhân viên có ít nhất một quyền nhạy cảm còn hiệu lực thì bắt buộc xác thực hai lớp; hệ thống tự bật khi gán vai trò có quyền đó | YCAU_NGHIEPVU_06 |
 | QUYTAC_NGHIEPVU_10 | Phiên làm việc trên web hết hạn sau 30 ngày không dùng; trên ứng dụng kho, ứng dụng kinh doanh sau 90 ngày | YCAU_NGHIEPVU_05 |
 | QUYTAC_NGHIEPVU_11 | Không có chức năng quản trị đăng nhập thay hoặc xem hệ thống dưới quyền nhân viên khác | YCAU_NGHIEPVU_08 |

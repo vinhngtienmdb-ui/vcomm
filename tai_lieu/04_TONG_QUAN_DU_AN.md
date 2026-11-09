@@ -1,9 +1,10 @@
 # 04. TỔNG QUAN DỰ ÁN
 
 - Mô tả: Định nghĩa sản phẩm VComm: vấn đề, mục tiêu, đối tượng sử dụng, giá trị, yêu cầu cấp cao, giới hạn ban đầu.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09)
 
 ## 1. Tên sản phẩm
 
@@ -62,6 +63,8 @@ VComm là hệ sinh thái gồm hệ thống quản trị doanh nghiệp (ERP) t
 7. Điểm thưởng chung toàn hệ sinh thái; giá trị điểm và thời hạn điểm cấu hình được; dùng điểm để đổi quà, voucher và trừ trực tiếp khi thanh toán.
 8. Giao diện tiếng Việt và tiếng Anh.
 9. Ứng dụng di động riêng cho kho và cho nhân viên kinh doanh; ứng dụng người mua trên iOS, Android, web.
+10. Mọi nhóm người dùng đăng nhập được bằng Zalo (THAY_DOI_01).
+11. Nhà bán cá nhân, hộ kinh doanh và doanh nghiệp bắt buộc xác thực danh tính qua VNeID trước khi mở bán, kết nối qua tổ chức cung cấp dịch vụ xác thực điện tử (THAY_DOI_02).
 
 ## 9. Giới hạn ban đầu
 

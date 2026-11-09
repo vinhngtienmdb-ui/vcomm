@@ -1,9 +1,10 @@
 # 27. MA TRẬN TRUY VẾT
 
 - Mô tả: Ma trận truy vết yêu cầu → quy tắc → chức năng → màn hình → tiêu chí nghiệm thu → kịch bản kiểm thử → mã nguồn → kết quả.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
+- Thay đổi theo: THAY_DOI_01 (2026-11-09)
 
 ## 1. Ma trận
 
@@ -54,6 +55,8 @@
 | YCAU_NGHIEPVU_16 | QUYTAC_NGHIEPVU_30 | CHUC_NANG_23 | MAN_HINH_18 | TIEUCHI_NGHIEMTHU_43 | Chưa lập | Chưa có | Chưa có | Chưa chạy | |
 | YCAU_NGHIEPVU_16 | QUYTAC_NGHIEPVU_30 | CHUC_NANG_23 | MAN_HINH_18 | TIEUCHI_NGHIEMTHU_44 | Chưa lập | Chưa có | Chưa có | Chưa chạy | |
 | Phi chức năng | Không có | Phi chức năng | Không có | TIEUCHI_NGHIEMTHU_45 | Chưa lập | Chưa có | Chưa có | Chưa chạy | |
+| YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_08 | CHUC_NANG_24 | MAN_HINH_01, MAN_HINH_06 | TIEUCHI_NGHIEMTHU_46 | Chưa lập | Chưa có | Chưa có | Chưa chạy | |
+| YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_08 | CHUC_NANG_24 | MAN_HINH_01, MAN_HINH_06 | TIEUCHI_NGHIEMTHU_47 | Chưa lập | Chưa có | Chưa có | Chưa chạy | |
 
 ## 2. Kiểm tra bao phủ – 2026-11-09
 

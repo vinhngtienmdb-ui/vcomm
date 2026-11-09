@@ -1,9 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
+- Thay đổi theo: THAY_DOI_01 (2026-11-09)
 
 ## MODULE_01 Nền tảng
 
@@ -142,7 +143,7 @@ Quy ước chung cho mọi chức năng của MODULE_01:
 - Mục đích: Nhân viên tự quản lý thông tin đăng nhập và tùy chọn.
 - Người sử dụng: Mọi nhân viên.
 - Điều kiện thực hiện: Đã đăng nhập.
-- Dữ liệu đầu vào: Ngôn ngữ (tiếng Việt, tiếng Anh); mật khẩu cũ và mới; bật, tắt xác thực hai lớp; liên kết Google, Microsoft; thu hồi phiên.
+- Dữ liệu đầu vào: Ngôn ngữ (tiếng Việt, tiếng Anh); mật khẩu cũ và mới; bật, tắt xác thực hai lớp; liên kết Google, Microsoft, Zalo; thu hồi phiên.
 - Quy trình xử lý: Lưu tùy chọn; đổi mật khẩu thì thu hồi các phiên khác; không tắt được xác thực hai lớp khi đang bắt buộc.
 - Kết quả đầu ra: Giao diện đổi ngôn ngữ ngay; danh sách phiên đang đăng nhập (thiết bị, địa chỉ IP, thời điểm).
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_05, YCAU_NGHIEPVU_06, YCAU_NGHIEPVU_17
@@ -333,6 +334,20 @@ Quy ước chung cho mọi chức năng của MODULE_01:
 - Phân quyền: Quản trị tập đoàn xem toàn tập đoàn; quản trị công ty xem công ty mình.
 - Thông báo lỗi: Không có.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_43, TIEUCHI_NGHIEMTHU_44
+
+### CHUC_NANG_24: Liên kết và đăng nhập bằng Zalo
+- Mục đích: Nhân viên đăng nhập bằng tài khoản Zalo đã liên kết.
+- Người sử dụng: Mọi nhân viên.
+- Điều kiện thực hiện: Liên kết: đã đăng nhập bằng cách khác, tài khoản "Đang hoạt động". Đăng nhập: tài khoản Zalo đã được liên kết.
+- Dữ liệu đầu vào: Kết quả ủy quyền OAuth 2.0 từ Zalo (mã định danh người dùng Zalo, tên, ảnh đại diện).
+- Quy trình xử lý: Liên kết: từ hồ sơ cá nhân bấm "Liên kết Zalo", đồng ý trên Zalo, hệ thống lưu mã định danh Zalo vào tài khoản. Đăng nhập: bấm "Đăng nhập bằng Zalo", tìm tài khoản theo mã định danh Zalo, tiếp tục luồng 2 tài liệu `09` (xác thực hai lớp nếu bắt buộc). Hủy liên kết: từ hồ sơ cá nhân.
+- Kết quả đầu ra: Phiên làm việc; trạng thái liên kết Zalo trong hồ sơ cá nhân.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_05
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_08
+- Trường hợp ngoại lệ: Tài khoản Zalo đã liên kết với nhân viên khác thì từ chối liên kết. Hủy liên kết khi Zalo là cách đăng nhập duy nhất thì từ chối.
+- Phân quyền: Chỉ liên kết, hủy liên kết cho chính mình.
+- Thông báo lỗi: "Tài khoản Zalo này chưa được liên kết. Đăng nhập bằng cách khác rồi liên kết trong hồ sơ cá nhân." · "Tài khoản Zalo này đã được liên kết với tài khoản khác." · "Bạn cần giữ ít nhất một cách đăng nhập."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_46, TIEUCHI_NGHIEMTHU_47
 
 ## Yêu cầu phi chức năng của MODULE_01
 

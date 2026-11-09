@@ -1,9 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
+- Thay đổi theo: THAY_DOI_01 (2026-11-09)
 
 ## MODULE_01 Nền tảng
 
@@ -55,4 +56,6 @@ Dữ liệu mẫu dùng trong tiêu chí: tập đoàn VCG; công ty con VCR, VC
 | TIEUCHI_NGHIEMTHU_42 | CHUC_NANG_22 | Chuyển sang tiếng Anh thì mọi chữ trên các màn hình của MODULE_01 là tiếng Anh | Duyệt qua mọi màn hình | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_43 | CHUC_NANG_23 | Mọi thao tác ghi trong các tiêu chí trên đều có dòng nhật ký với dữ liệu trước và sau | Đối chiếu nhật ký | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_44 | CHUC_NANG_23 | Không có API sửa hoặc xóa nhật ký; quản trị VCR không xem được nhật ký VCT | Rà soát API; gọi API tra cứu | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_46 | CHUC_NANG_24 | Đăng nhập bằng Zalo chưa liên kết thì bị từ chối, không tạo tài khoản; sau khi liên kết từ hồ sơ cá nhân thì đăng nhập được | Hai lần đăng nhập Zalo thử, trước và sau liên kết | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_47 | CHUC_NANG_24 | Liên kết một tài khoản Zalo đã gắn với nhân viên khác thì bị từ chối; hủy liên kết khi Zalo là cách đăng nhập duy nhất thì bị từ chối | Hai trường hợp | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_45 | Phi chức năng | Đăng nhập và kiểm tra quyền dưới 200 mili giây ở phân vị 95 với 200 người dùng đồng thời | Kiểm thử tải | Mong muốn |

@@ -1,9 +1,10 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09)
 
 Phạm vi hiện tại: MODULE_01 Nền tảng. Các module sau bổ sung vào cùng tài liệu.
 
@@ -20,6 +21,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng. Các module sau bổ sung vào c
 | Địa chỉ IP, thiết bị trong phiên và nhật ký | Cá nhân | Thường, mã hóa khi lưu | Chính nhân viên (phiên của mình); quản trị xem nhật ký |
 | Mã số thuế công ty | Tổ chức | Thường | Mọi nhân viên của công ty |
 | Tỷ giá | Tài chính | Thường | Mọi nhân viên xem; quản lý tỷ giá sửa |
+| Thông tin định danh nhà bán từ VNeID (họ tên, số định danh, ngày sinh; thông tin tổ chức) | Cá nhân, tổ chức | Mã hóa khi lưu; lưu lịch sử khai thác; không chia sẻ cho bên khác (Nghị định 69/2024/NĐ-CP Điều 18 khoản 6, 7 sửa đổi bởi Nghị định 320/2026/NĐ-CP) | Chi tiết xác định ở MODULE_02 (THAY_DOI_02) |
 | Khóa bí mật hệ thống (xem mục 5) | Khóa bí mật | AWS Secrets Manager | Chỉ ứng dụng khi chạy |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
@@ -27,6 +29,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng. Các module sau bổ sung vào c
 | Điểm | Loại | Kiểm tra đầu vào | Yêu cầu xác thực |
 |---|---|---|---|
 | Đăng nhập mật khẩu, gửi mã OTP, đặt lại mật khẩu, kích hoạt | API | Định dạng email, số điện thoại E.164, độ dài; giới hạn số lần thử theo địa chỉ IP và theo tài khoản | Không |
+| Phản hồi đăng nhập Zalo | Tích hợp (OAuth 2.0) | Kiểm tra `state`, mã PKCE; lấy mã định danh người dùng Zalo từ API Zalo bằng token vừa nhận | Không |
 | Phản hồi đăng nhập Google, Microsoft | Tích hợp (OpenID Connect) | Kiểm tra chữ ký token, `state`, `nonce`, đối tượng nhận, email đã xác minh | Không |
 | Mọi API quản trị và hồ sơ cá nhân của MODULE_01 | API | Lược đồ kiểm tra kiểu, độ dài, giá trị cho phép phía máy chủ | Có |
 | Nhập nhân viên từ tệp Excel | Tải tệp lên | Chỉ `.xlsx`, tối đa 5 MB, tối đa 1.000 dòng; đổi tên tệp; xử lý trong bộ nhớ, không lưu tệp gốc | Có |
@@ -35,7 +38,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng. Các module sau bổ sung vào c
 
 ## 3. Xác thực và phiên đăng nhập
 
-- Cách xác thực: mật khẩu; Google Workspace, Microsoft 365 (OpenID Connect); số điện thoại kèm mã OTP. Xác thực hai lớp bằng TOTP hoặc mã OTP qua SMS, email; bắt buộc theo QUYTAC_NGHIEPVU_09.
+- Cách xác thực: mật khẩu; Google Workspace, Microsoft 365 (OpenID Connect); Zalo (OAuth 2.0, chỉ tài khoản đã liên kết); số điện thoại kèm mã OTP. Xác thực hai lớp bằng TOTP hoặc mã OTP qua SMS, email; bắt buộc theo QUYTAC_NGHIEPVU_09.
 - Thời hạn phiên đăng nhập: token truy cập 15 phút; token làm mới 30 ngày (web), 90 ngày (ứng dụng kho, ứng dụng kinh doanh); token làm mới đổi mới mỗi lần dùng, phát hiện dùng lại token cũ thì thu hồi cả chuỗi phiên.
 - Lưu phiên trên web: cookie `HttpOnly`, `Secure`, `SameSite=Lax`; thao tác ghi kèm chống giả mạo yêu cầu (CSRF token).
 - Giới hạn số lần thử: mật khẩu sai 5 lần liên tiếp khóa 15 phút; mã OTP sai 5 lần thì hủy mã; gửi mã OTP tối đa 5 lần mỗi giờ mỗi số; mọi API không cần đăng nhập giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP.
@@ -74,7 +77,7 @@ Vai trò theo tài liệu `08`. Mọi API kiểm tra quyền phía máy chủ v�
 | Chuỗi kết nối cơ sở dữ liệu (tài khoản ứng dụng, quyền tối thiểu) | AWS Secrets Manager, tự đổi mỗi 90 ngày | Phát triển, thử nghiệm, thật (khác nhau) | Chưa tạo | Chưa tạo |
 | Khóa ký token truy cập | AWS Secrets Manager | Từng môi trường | Chưa tạo | Chưa tạo |
 | Khóa KMS mã hóa bí mật TOTP | AWS KMS | Từng môi trường | Chưa tạo | Chưa tạo |
-| Mã ứng dụng Google, Microsoft (client secret) | AWS Secrets Manager | Từng môi trường | Chưa tạo | Chưa tạo |
+| Mã ứng dụng Google, Microsoft, Zalo (client secret) | AWS Secrets Manager | Từng môi trường | Chưa tạo | Chưa tạo |
 | Khóa nhà cung cấp SMS | AWS Secrets Manager | Từng môi trường | Chưa tạo | Chưa tạo |
 | Khóa gửi email (Amazon SES) | Vai trò IAM, không dùng khóa tĩnh | Từng môi trường | Không áp dụng | Chưa tạo |
 

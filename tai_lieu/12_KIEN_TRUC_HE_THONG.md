@@ -1,9 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -22,7 +23,7 @@
                                                ▼
      PostgreSQL (Aurora) │ Redis │ OpenSearch │ S3 + CloudFront │ SQS/SNS (sự kiện từ outbox)
                                                ▼
-     Bên ngoài: cổng thanh toán │ đơn vị vận chuyển │ hóa đơn điện tử │ ngân hàng hoặc ví đối tác │ Google, Microsoft (đăng nhập)
+     Bên ngoài: cổng thanh toán │ đơn vị vận chuyển │ hóa đơn điện tử │ ngân hàng hoặc ví đối tác │ Google, Microsoft, Zalo (đăng nhập) │ tổ chức cung cấp dịch vụ xác thực điện tử (VNeID)
 ```
 
 ## 2. Quyết định kiến trúc
@@ -47,7 +48,8 @@
 | Lưu đệm quyền, mã OTP, giới hạn số lần thử | Redis | CHUC_NANG_06, CHUC_NANG_08, CHUC_NANG_13, yêu cầu phi chức năng hiệu năng |
 | Gửi email | Amazon SES | CHUC_NANG_04, CHUC_NANG_06, CHUC_NANG_09 |
 | Gửi SMS | **CHƯA XÁC ĐỊNH:** nhà cung cấp | CHUC_NANG_04, CHUC_NANG_08, CHUC_NANG_09 |
-| Đăng nhập liên kết | Google, Microsoft qua OpenID Connect | CHUC_NANG_07 |
+| Đăng nhập liên kết | Google, Microsoft qua OpenID Connect; Zalo qua OAuth 2.0 của Zalo for Developers | CHUC_NANG_07, CHUC_NANG_24 |
+| Xác thực nhà bán qua VNeID | Tổ chức cung cấp dịch vụ xác thực điện tử (**CHƯA XÁC ĐỊNH**), theo Nghị định 69/2024/NĐ-CP sửa đổi bởi Nghị định 320/2026/NĐ-CP | MODULE_02 (THAY_DOI_02) |
 | Khóa bí mật, mã hóa | AWS Secrets Manager, AWS KMS | Tài liệu `22` mục 5 |
 
 ## 4. Kiến trúc triển khai

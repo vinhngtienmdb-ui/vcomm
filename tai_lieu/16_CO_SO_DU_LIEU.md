@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Bản nháp
 
-Hiện có schema `core` của MODULE_01 Nền tảng. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng. Đã thêm giá trị `zalo` theo THAY_DOI_01. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -175,8 +175,8 @@ ALTER TABLE core.departments
 CREATE TABLE core.user_identities (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id             uuid        NOT NULL REFERENCES core.users(id) ON DELETE CASCADE,
-    provider            text        NOT NULL CHECK (provider IN ('password', 'google', 'microsoft', 'phone_otp')),
-    provider_subject    text        NOT NULL,           -- username/email; 'sub' cua Google/Microsoft; so dien thoai
+    provider            text        NOT NULL CHECK (provider IN ('password', 'google', 'microsoft', 'zalo', 'phone_otp')),
+    provider_subject    text        NOT NULL,           -- username/email; 'sub' cua Google/Microsoft; id Zalo; so dien thoai
     password_hash       text,                           -- argon2id, chi voi provider = 'password'
     password_changed_at timestamptz,
     created_at          timestamptz NOT NULL DEFAULT now(),

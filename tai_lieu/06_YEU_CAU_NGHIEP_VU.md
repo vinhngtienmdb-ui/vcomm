@@ -1,9 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
+- Thay đổi theo: THAY_DOI_01 (2026-11-09)
 
 ## MODULE_01 Nền tảng
 
@@ -13,7 +14,7 @@
 | YCAU_NGHIEPVU_02 | Quản lý chi nhánh của từng công ty theo loại: trụ sở, văn phòng, kho, cửa hàng | Quản trị công ty | Tài liệu `05` mục 2.1 |
 | YCAU_NGHIEPVU_03 | Quản lý phòng ban dạng cây trong từng công ty, có trưởng phòng | Quản trị công ty | Tài liệu `05` mục 2.1 |
 | YCAU_NGHIEPVU_04 | Mời nhân viên vào hệ thống, nhân viên tự kích hoạt tài khoản | Quản trị công ty, nhân viên | Đợt hỏi đáp 2026-11-09 |
-| YCAU_NGHIEPVU_05 | Đăng nhập bằng mật khẩu, Google Workspace, Microsoft 365 hoặc số điện thoại kèm mã OTP; một tài khoản dùng được nhiều cách | Mọi nhân viên | Đợt hỏi đáp 2026-11-09 |
+| YCAU_NGHIEPVU_05 | Đăng nhập bằng mật khẩu, Google Workspace, Microsoft 365, Zalo hoặc số điện thoại kèm mã OTP; một tài khoản dùng được nhiều cách | Mọi nhân viên | Đợt hỏi đáp 2026-11-09; THAY_DOI_01 |
 | YCAU_NGHIEPVU_06 | Bắt buộc xác thực hai lớp với người có quyền nhạy cảm | Quản trị tập đoàn | Đợt hỏi đáp 2026-11-09 |
 | YCAU_NGHIEPVU_07 | Một nhân viên thuộc nhiều công ty, có vai trò riêng ở từng công ty, chuyển công ty không phải đăng nhập lại | Nhân viên làm cho nhiều công ty | Đợt hỏi đáp 2026-11-09 |
 | YCAU_NGHIEPVU_08 | Phân quyền theo vai trò, gán trong phạm vi tập đoàn, công ty hoặc chi nhánh, có thể có thời hạn | Quản trị tập đoàn, quản trị công ty | Tài liệu `04` mục 8.2 |

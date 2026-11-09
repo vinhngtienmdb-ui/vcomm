@@ -1,9 +1,10 @@
 # 05. PHẠM VI
 
 - Mô tả: Phạm vi sản phẩm, phạm vi chức năng, phạm vi ngoài, phạm vi từng phiên bản và thứ tự ưu tiên.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09)
 
 ## 1. Phạm vi sản phẩm
 
@@ -21,8 +22,8 @@ VComm gồm ba khối, ra mắt lần lượt:
 
 | Mini app | Chức năng bắt buộc | Thứ tự |
 |---|---|---|
-| Nền tảng | Công ty, chi nhánh, phòng ban; người dùng; đăng nhập bằng mật khẩu, Google, Microsoft, số điện thoại; xác thực hai lớp; vai trò và phân quyền theo phạm vi tập đoàn, công ty, chi nhánh; trang chủ mini app; duyệt chứng từ theo hạn mức; đánh số chứng từ; tiền tệ và tỷ giá; nhật ký thao tác | 1 |
-| Sản phẩm và Nhà bán | Ngành hàng, sản phẩm, biến thể, mã hàng (SKU), thuộc tính, bảng giá; lô và hạn dùng; số serial, IMEI, bảo hành; duyệt sản phẩm của nhà bán; hợp đồng và biểu phí nhà bán | 2 |
+| Nền tảng | Công ty, chi nhánh, phòng ban; người dùng; đăng nhập bằng mật khẩu, Google, Microsoft, Zalo, số điện thoại; xác thực hai lớp; vai trò và phân quyền theo phạm vi tập đoàn, công ty, chi nhánh; trang chủ mini app; duyệt chứng từ theo hạn mức; đánh số chứng từ; tiền tệ và tỷ giá; nhật ký thao tác | 1 |
+| Sản phẩm và Nhà bán | Ngành hàng, sản phẩm, biến thể, mã hàng (SKU), thuộc tính, bảng giá; lô và hạn dùng; số serial, IMEI, bảo hành; duyệt sản phẩm của nhà bán; xác thực nhà bán qua VNeID, bắt buộc trước khi mở bán; hợp đồng và biểu phí nhà bán | 2 |
 | Kho | Nhiều kho, vị trí kệ; nhập, xuất, chuyển kho liên vùng; kiểm kê; tồn kho theo thời gian thực; tồn an toàn; quét mã vạch trên ứng dụng kho | 3 |
 | Mua hàng | Đề nghị mua, đơn mua, nhận hàng; nhập khẩu bằng ngoại tệ, phân bổ chi phí nhập khẩu | 4 |
 | Bán hàng | Đơn bán đa kênh; khuyến mãi; trả hàng; giao vận; giao dịch nội bộ giữa công ty con tự sinh đơn mua phía bên kia | 4 |
@@ -35,6 +36,7 @@ VComm gồm ba khối, ra mắt lần lượt:
 - Công ty tự bán và nhà bán bên ngoài bán trên cùng một giỏ hàng; đơn tách theo nhà bán và kho.
 - Thanh toán qua cổng VNPay, MoMo, ZaloPay và khi nhận hàng; giao hàng qua GHN, GHTK, Viettel Post.
 - Phí sàn: phần trăm trên đơn, gói thành viên, phí dịch vụ cộng thêm; cho phép miễn phí giai đoạn đầu.
+- Người mua, nhà bán đăng nhập được bằng Zalo; người mua đăng ký nhanh bằng Zalo.
 - Cộng tác viên một tầng; mua chung; bảng tin cộng đồng có đánh giá đã mua hàng; giới thiệu bạn bè thưởng một lần.
 
 ### 2.3 Điểm thưởng và cửa hàng liên kết (giai đoạn 3)
@@ -42,6 +44,7 @@ VComm gồm ba khối, ra mắt lần lượt:
 - Điểm chung liên minh do công ty phát hành; nhà bán và cửa hàng mua điểm để tặng khách, được công ty trả tiền khi khách dùng điểm tại họ.
 - Dùng điểm để đổi quà, voucher và trừ trực tiếp khi thanh toán, có giới hạn phần trăm giá trị đơn.
 - Giá trị điểm và thời hạn điểm cấu hình được.
+- Cửa hàng liên kết đăng nhập được bằng Zalo.
 - Mã QR động tại quầy, hạn mức theo cửa hàng, cảnh báo giao dịch bất thường.
 
 ## 3. Phạm vi ngoài
