@@ -1,9 +1,9 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 0.2
+- Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Chờ phê duyệt
+- Trạng thái: Đã phê duyệt
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -97,7 +97,7 @@ tai_lieu/               Bộ tài liệu dự án.
 - Ranh giới schema phải được giữ nghiêm để có thể tách dịch vụ sau này.
 - **CHƯA XÁC ĐỊNH:** yêu cầu lưu trữ dữ liệu cá nhân trong nước có áp dụng hay không (chờ ý kiến luật sư). Không chặn MODULE_01 vì dữ liệu cá nhân chỉ gồm thông tin nhân viên; chặn trước giai đoạn 2.
 
-## Nội dung do AI đề xuất, chờ người dùng xác nhận
+## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Vị trí | Nội dung |
 |---|---|
