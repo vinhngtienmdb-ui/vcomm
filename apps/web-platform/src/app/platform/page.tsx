@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { adminMenu, useAdmin } from "@/components/AdminShell";
-import { LoadingView, MessageView } from "@/components/StatusViews";
+import { LoadingView, MessageView } from "ui/components/StatusViews";
 
 export default function PlatformHome() {
   const t = useTranslations("common");

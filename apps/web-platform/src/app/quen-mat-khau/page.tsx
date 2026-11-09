@@ -4,10 +4,10 @@
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useState } from "react";
-import { Field, FormError, useSubmit } from "@/components/Form";
-import { LanguageSelect } from "@/components/LanguageSelect";
-import { LoadingView } from "@/components/StatusViews";
-import { apiFetch } from "@/lib/api";
+import { Field, FormError, useSubmit } from "ui/components/Form";
+import { LanguageSelect } from "ui/components/LanguageSelect";
+import { LoadingView } from "ui/components/StatusViews";
+import { apiFetch } from "ui/lib/api";
 
 function Forgot() {
   const t = useTranslations("forgot");

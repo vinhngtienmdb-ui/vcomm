@@ -854,5 +854,13 @@
     "type_select": "Choice list",
     "type_lines": "Line table",
     "policy": "Approval policy"
+  },
+  "catalogMenu": {
+    "title": "Products",
+    "products": "Products",
+    "categories": "Categories, units",
+    "priceLists": "Price lists",
+    "priceChanges": "Price changes",
+    "channels": "Channels, customer groups"
   }
 }

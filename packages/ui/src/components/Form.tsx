@@ -2,7 +2,7 @@
 
 // Ô nhập có nhãn, lỗi theo trường, gợi ý (tài liệu 15: ONhap, OChon).
 import { type ReactNode, useState } from "react";
-import { failureOf } from "@/lib/use-api";
+import { failureOf } from "../lib/use-api";
 
 export function Field({ id, label, error, hint, children }: { id: string; label: string; error?: string | undefined; hint?: string; children: ReactNode }) {
   return (

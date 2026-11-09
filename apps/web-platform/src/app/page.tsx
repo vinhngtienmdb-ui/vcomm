@@ -5,9 +5,9 @@ import type { HomeResponse, MeResponse } from "contracts";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { TopBar } from "@/components/TopBar";
-import { apiFetch, ApiFailure, rememberCompany } from "@/lib/api";
-import { formatMoney } from "@/lib/format";
+import { TopBar } from "ui/components/TopBar";
+import { apiFetch, ApiFailure, rememberCompany } from "ui/lib/api";
+import { formatMoney } from "ui/lib/format";
 
 // Mini app đã có giao diện.
 const builtApps = new Set(["platform"]);

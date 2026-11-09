@@ -3,7 +3,7 @@
 // Khung trang dùng chung ngoài mini app quản trị: thanh trên cùng và vùng nội dung.
 import type { MeResponse } from "contracts";
 import type { ReactNode } from "react";
-import { useApi } from "@/lib/use-api";
+import { useApi } from "../lib/use-api";
 import { Loaded } from "./StatusViews";
 import { TopBar } from "./TopBar";
 

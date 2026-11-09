@@ -6,12 +6,12 @@ import { proposalColumnTypes, proposalFieldTypes } from "contracts";
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 import { useAdmin } from "@/components/AdminShell";
-import { Drawer } from "@/components/Dialogs";
-import { Field, FormError, useSubmit } from "@/components/Form";
-import { HistoryLink } from "@/components/HistoryLink";
-import { Loaded, MessageView } from "@/components/StatusViews";
-import { apiFetch } from "@/lib/api";
-import { failureOf, useApi } from "@/lib/use-api";
+import { Drawer } from "ui/components/Dialogs";
+import { Field, FormError, useSubmit } from "ui/components/Form";
+import { HistoryLink } from "ui/components/HistoryLink";
+import { Loaded, MessageView } from "ui/components/StatusViews";
+import { apiFetch } from "ui/lib/api";
+import { failureOf, useApi } from "ui/lib/use-api";
 
 export default function ProposalTemplatesPage() {
   const t = useTranslations("templates");

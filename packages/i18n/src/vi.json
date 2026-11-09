@@ -854,5 +854,13 @@
     "type_select": "Danh sách chọn",
     "type_lines": "Bảng chi tiết",
     "policy": "Chính sách duyệt"
+  },
+  "catalogMenu": {
+    "title": "Sản phẩm",
+    "products": "Sản phẩm",
+    "categories": "Ngành hàng, đơn vị tính",
+    "priceLists": "Bảng giá",
+    "priceChanges": "Điều chỉnh giá",
+    "channels": "Kênh bán, nhóm khách"
   }
 }

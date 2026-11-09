@@ -5,10 +5,10 @@ import type { MfaBackupCodesResponse, MfaEnrollResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import qrcode from "qrcode-generator";
 import { type FormEvent, useEffect, useState } from "react";
-import { apiFetch } from "@/lib/api";
-import { failureOf } from "@/lib/use-api";
-import { Field, FormError, useSubmit } from "./Form";
-import { LoadingView } from "./StatusViews";
+import { apiFetch } from "ui/lib/api";
+import { failureOf } from "ui/lib/use-api";
+import { Field, FormError, useSubmit } from "ui/components/Form";
+import { LoadingView } from "ui/components/StatusViews";
 
 function qrDataUrl(text: string): string {
   const code = qrcode(0, "M");

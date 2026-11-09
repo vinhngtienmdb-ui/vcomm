@@ -6,11 +6,11 @@ import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 import { DecisionDrawer } from "@/components/DecisionDrawer";
-import { Loaded, MessageView } from "@/components/StatusViews";
-import { UserShell } from "@/components/UserShell";
-import { apiFetch } from "@/lib/api";
-import { formatDateTime, formatMoney } from "@/lib/format";
-import { failureOf, useApi } from "@/lib/use-api";
+import { Loaded, MessageView } from "ui/components/StatusViews";
+import { UserShell } from "ui/components/UserShell";
+import { apiFetch } from "ui/lib/api";
+import { formatDateTime, formatMoney } from "ui/lib/format";
+import { failureOf, useApi } from "ui/lib/use-api";
 
 export default function InboxPage() {
   return <UserShell>{(me) => <Inbox companies={me.companies} />}</UserShell>;

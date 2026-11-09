@@ -5,13 +5,13 @@ import { accountingRegimes, type CompanyResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 import { useAdmin } from "@/components/AdminShell";
-import { ConfirmDialog, Drawer } from "@/components/Dialogs";
-import { Field, FormError, useSubmit } from "@/components/Form";
-import { Loaded, MessageView } from "@/components/StatusViews";
-import { TreeList } from "@/components/TreeList";
-import { apiFetch } from "@/lib/api";
-import { failureOf, useApi } from "@/lib/use-api";
-import { HistoryLink } from "@/components/HistoryLink";
+import { ConfirmDialog, Drawer } from "ui/components/Dialogs";
+import { Field, FormError, useSubmit } from "ui/components/Form";
+import { Loaded, MessageView } from "ui/components/StatusViews";
+import { TreeList } from "ui/components/TreeList";
+import { apiFetch } from "ui/lib/api";
+import { failureOf, useApi } from "ui/lib/use-api";
+import { HistoryLink } from "ui/components/HistoryLink";
 
 export default function CompaniesPage() {
   const t = useTranslations("companies");

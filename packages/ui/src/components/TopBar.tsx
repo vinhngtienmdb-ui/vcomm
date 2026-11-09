@@ -3,15 +3,13 @@
 // ThanhTrenCung (tài liệu 15 mục 6): trang chủ, chọn công ty (CHUC_NANG_11), hộp duyệt, thông báo, đăng xuất.
 import type { MeResponse, NotificationItem, NotificationListResponse } from "contracts";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { apiFetch, rememberCompany } from "@/lib/api";
-import { formatDateTime } from "@/lib/format";
+import { apiFetch, rememberCompany } from "../lib/api";
+import { formatDateTime } from "../lib/format";
 import { Drawer } from "./Dialogs";
 
 export function TopBar({ me, onCompanyChange }: { me: MeResponse; onCompanyChange: () => void }) {
   const t = useTranslations("topBar");
-  const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const [notifications, setNotifications] = useState<NotificationListResponse | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -34,7 +32,8 @@ export function TopBar({ me, onCompanyChange }: { me: MeResponse; onCompanyChang
     if (!item.readAt) await apiFetch(`/notifications/${item.id}/read`, { method: "POST" }).catch(() => undefined);
     setShowNotifications(false);
     void loadNotifications();
-    if (item.link) router.push(item.link);
+    // Liên kết thông báo thuộc mini app Nền tảng (ví dụ /hop-duyet/...), mở bằng đường dẫn tuyệt đối.
+    if (item.link) window.location.assign(item.link);
   }
 
   async function logout() {
@@ -42,7 +41,7 @@ export function TopBar({ me, onCompanyChange }: { me: MeResponse; onCompanyChang
     try {
       await apiFetch("/auth/logout", { method: "POST" });
     } finally {
-      router.replace("/dang-nhap");
+      window.location.replace("/dang-nhap");
     }
   }
 

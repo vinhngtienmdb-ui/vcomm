@@ -5,10 +5,10 @@ import type { AuditEventDetail, AuditEventItem, HomeResponse, PageResponse, User
 import { useLocale, useMessages, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { Drawer } from "@/components/Dialogs";
-import { Loaded, LoadingView, MessageView } from "@/components/StatusViews";
-import { formatDateTime } from "@/lib/format";
-import { useApi } from "@/lib/use-api";
+import { Drawer } from "ui/components/Dialogs";
+import { Loaded, LoadingView, MessageView } from "ui/components/StatusViews";
+import { formatDateTime } from "ui/lib/format";
+import { useApi } from "ui/lib/use-api";
 
 const entityTypes = ["user", "company", "branch", "department", "role", "role_assignment", "approval_policy", "approval_request", "exchange_rate", "number_sequence", "proposal_template", "proposal", "integration_settings", "core.users", "core.sessions"];
 

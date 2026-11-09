@@ -5,8 +5,8 @@ import type { AuthMethodsResponse, LoginResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useEffect, useState } from "react";
-import { LanguageSelect } from "@/components/LanguageSelect";
-import { apiFetch, ApiFailure, forgetCompany } from "@/lib/api";
+import { LanguageSelect } from "ui/components/LanguageSelect";
+import { apiFetch, ApiFailure, forgetCompany } from "ui/lib/api";
 
 const providers = ["google", "microsoft", "zalo"] as const;
 // Chờ giữa hai lần gửi mã (MAN_HINH_01); máy chủ còn giới hạn 5 lần mỗi giờ.

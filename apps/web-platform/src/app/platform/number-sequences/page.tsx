@@ -5,12 +5,12 @@ import { numberSequenceResetPeriods, type NumberSequenceResponse } from "contrac
 import { useLocale, useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 import { useAdmin } from "@/components/AdminShell";
-import { Drawer } from "@/components/Dialogs";
-import { Field, FormError, useSubmit } from "@/components/Form";
-import { HistoryLink } from "@/components/HistoryLink";
-import { Loaded, MessageView } from "@/components/StatusViews";
-import { apiFetch } from "@/lib/api";
-import { useApi } from "@/lib/use-api";
+import { Drawer } from "ui/components/Dialogs";
+import { Field, FormError, useSubmit } from "ui/components/Form";
+import { HistoryLink } from "ui/components/HistoryLink";
+import { Loaded, MessageView } from "ui/components/StatusViews";
+import { apiFetch } from "ui/lib/api";
+import { useApi } from "ui/lib/use-api";
 
 export default function NumberSequencesPage() {
   const t = useTranslations("sequences");

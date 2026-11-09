@@ -5,13 +5,13 @@ import type { ApprovalPolicyResponse, ApproverView, DocumentTypeResponse, PageRe
 import { useLocale, useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 import { useAdmin } from "@/components/AdminShell";
-import { Drawer } from "@/components/Dialogs";
-import { Field, FormError, useSubmit } from "@/components/Form";
-import { HistoryLink } from "@/components/HistoryLink";
-import { Loaded, MessageView } from "@/components/StatusViews";
-import { apiFetch } from "@/lib/api";
-import { formatDate, formatMoney } from "@/lib/format";
-import { useApi } from "@/lib/use-api";
+import { Drawer } from "ui/components/Dialogs";
+import { Field, FormError, useSubmit } from "ui/components/Form";
+import { HistoryLink } from "ui/components/HistoryLink";
+import { Loaded, MessageView } from "ui/components/StatusViews";
+import { apiFetch } from "ui/lib/api";
+import { formatDate, formatMoney } from "ui/lib/format";
+import { useApi } from "ui/lib/use-api";
 
 export default function ApprovalPoliciesPage() {
   const t = useTranslations("policies");

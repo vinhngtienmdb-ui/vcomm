@@ -6,14 +6,14 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useState } from "react";
-import { ConfirmDialog } from "@/components/Dialogs";
-import { Field, FormError, useSubmit } from "@/components/Form";
+import { ConfirmDialog } from "ui/components/Dialogs";
+import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Attachments, ProposalFieldsForm, ProposalFieldsView, type ProposalValues, proposalStatusTone, valuesForApi } from "@/components/ProposalContent";
-import { Loaded, LoadingView, MessageView } from "@/components/StatusViews";
-import { UserShell } from "@/components/UserShell";
-import { apiDownload, apiFetch } from "@/lib/api";
-import { formatDateTime } from "@/lib/format";
-import { failureOf, useApi } from "@/lib/use-api";
+import { Loaded, LoadingView, MessageView } from "ui/components/StatusViews";
+import { UserShell } from "ui/components/UserShell";
+import { apiDownload, apiFetch } from "ui/lib/api";
+import { formatDateTime } from "ui/lib/format";
+import { failureOf, useApi } from "ui/lib/use-api";
 
 export default function ProposalPage() {
   return (
