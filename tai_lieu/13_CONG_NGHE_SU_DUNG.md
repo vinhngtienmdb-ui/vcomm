@@ -72,3 +72,43 @@
 - Phương án: dùng lại nguyên trạng các thư viện trên; tự viết phần nghiệp vụ (phân quyền theo phạm vi, duyệt theo hạn mức, đánh số chứng từ) vì không thư viện nào đáp ứng đúng quy tắc trong tài liệu `07`.
 - Đề xuất: dùng các thư viện trên, chọn read-excel-file thay exceljs – lý do: đều giấy phép MIT hoặc Apache 2.0, được cập nhật trong 2 tháng gần đây; exceljs không còn được cập nhật.
 - Quyết định của người dùng: dùng các thư viện trên, chọn read-excel-file thay exceljs – 2026-11-09
+
+## 4. Phân tích giải pháp có sẵn – Nguồn mã riêng V-com-ERP – 2026-11-09
+
+- Nguồn: `github.com/vinhngtienmdb-ui/V-com-ERP` (người dùng cung cấp ngày 2026-11-09), commit `827e287` ngày 2026-10-06. Đọc bằng phiên con, không sửa repo.
+- Hiện trạng repo:
+  - Một ứng dụng React 19, Vite 6 kèm máy chủ Express `server.ts` (4.668 dòng). Trình duyệt gọi thẳng Supabase qua `src/services/dbService.ts`. Chế độ dữ liệu giả (`DEMO_MODE`) bật mặc định.
+  - Mô hình một doanh nghiệp, tách khách thuê bằng `tenant_id`. Không có mô hình tập đoàn nhiều pháp nhân, trừ phần đơn vị trực thuộc trong kế toán (`acc_units`, `acc_internal_txn`, `acc_eliminations`).
+  - Phân quyền theo vai trò cố định, không theo công ty, chi nhánh. Chính sách RLS của `user_roles` là `USING (true)`.
+  - Khoảng 100 bảng, nhiều bảng lưu JSONB kiểu Firestore. Không có bộ chạy database migration thống nhất. Không dùng giao dịch cơ sở dữ liệu.
+  - 84 tệp kiểm thử, phần lớn giả lập `dbService`.
+  - Hơn 100 script sửa tệp mã bằng thay chuỗi (`fix_corruption*.ts`, `patch_*.cjs`), cho thấy mã sinh bằng AI được vá nhiều lần.
+  - Một số nghiệp vụ là mô phỏng: xác thực VNeID bằng `setTimeout` (`VNeidVerificationModal.tsx`), token MISA giả.
+  - Kế hoạch đích 26 app (MOD-01 đến MOD-26) chưa được áp vào mã.
+- Đáp ứng yêu cầu đã duyệt của VComm:
+
+| Yêu cầu | V-com-ERP |
+|---|---|
+| Tập đoàn nhiều công ty con, giao dịch nội bộ (tài liệu `04` mục 8.1) | Đáp ứng một phần (chỉ đơn vị trực thuộc trong kế toán) |
+| Mini app dùng chung cơ sở dữ liệu, đăng nhập (mục 8.2) | Không đáp ứng (có kế hoạch, chưa có mã) |
+| Phân quyền theo tập đoàn, công ty, chi nhánh (YCAU_NGHIEPVU_08) | Không đáp ứng |
+| Đăng nhập Google, Microsoft, Zalo, số điện thoại (YCAU_NGHIEPVU_05) | Không đáp ứng (chỉ email, mật khẩu và TOTP) |
+| Duyệt theo hạn mức có người thay thế (YCAU_NGHIEPVU_10, 11) | Đáp ứng một phần (có trình ký nhiều cấp) |
+| Kiến trúc đã duyệt (tài liệu `12`) | Không đáp ứng (Supabase, Vercel, gọi cơ sở dữ liệu từ trình duyệt) |
+
+- Phương án:
+  1. Dùng lại nguyên trạng: không phù hợp (không đáp ứng kiến trúc, phân quyền, đa pháp nhân).
+  2. Dùng lại có điều chỉnh: chuyển mã React sang kiến trúc mới. Công sức Cao vì chất lượng mã thấp, phải viết lại gần hết.
+  3. Tham khảo cách làm, tự viết: dùng tài liệu nghiệp vụ, đặc tả (`specs/`), quyết định và logic đã có kiểm thử làm đầu vào khi phân tích từng module. Ví dụ:
+     - sổ cái V-Xu (`vxuService.ts`);
+     - kế toán Thông tư 99/2025, hợp nhất (`tt99Service.ts`);
+     - hóa đơn điện tử (`einvoiceService.ts`), tính lương (`payrollEngine.ts`);
+     - khấu trừ thuế cộng tác viên (`commissionWithholdingService.ts`);
+     - trạng thái xác minh nhà bán (`sellerKycService.ts`);
+     - SePay, Zalo ZNS.
+
+     Viết lại theo tài liệu `12`, `16`, `17` và kiểm thử với PostgreSQL thật.
+  4. Tự viết mới hoàn toàn, không đọc repo cũ.
+- Đề xuất: phương án 3 – lý do: giữ kiến trúc và mô hình đa pháp nhân đã duyệt; tận dụng tri thức nghiệp vụ đã đầu tư; tránh mang theo lỗi bảo mật và cấu trúc của repo cũ.
+- Phát hiện cần xử lý ngay: repo cũ dùng Thông tư 99/2025. Đã kiểm chứng Thông tư 99/2025/TT-BTC thay thế Thông tư 200 từ năm tài chính 2026 → lập THAY_DOI_03.
+- Quyết định của người dùng: **CHƯA XÁC ĐỊNH**

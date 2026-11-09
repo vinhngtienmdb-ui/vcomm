@@ -129,7 +129,25 @@ Không áp dụng (chưa có mã nguồn).
 
 ## 14. Các lát và điểm xem trước
 
-Lập ở bước 3 của chu trình công việc.
+Đề xuất ngày 2026-11-09, chờ người dùng duyệt. Mỗi lát chạy được từ giao diện tới cơ sở dữ liệu, có kiểm thử tự động. Sau mỗi lát, AI dừng ở điểm xem trước. Thứ tự ưu tiên điều dễ hiểu sai nhất: đăng nhập và phân quyền theo phạm vi trước.
+
+| Lát | Nội dung | Màn hình, API | Tiêu chí nghiệm thu | Điểm xem trước: người dùng xem gì, thử gì |
+|---|---|---|---|---|
+| L1 | Dựng `apps/api` (NestJS), `apps/web-platform` (Next.js), `packages/ui` (biến từ tài liệu `15`), `packages/i18n`, `packages/contracts`. Database migration schema `core`, dữ liệu thử. Đăng nhập bằng mật khẩu, phiên, trang chủ mini app | MAN_HINH_01, MAN_HINH_05; API_01, API_09, API_10, API_14, API_19 | TIEUCHI_NGHIEMTHU_10, 11, 27 | Đăng nhập bằng 2 tài khoản thử khác vai trò, thấy trang chủ khác nhau; nhập sai 5 lần bị khóa |
+| L2 | Vai trò, quyền, gán vai trò theo phạm vi; lọc dữ liệu theo phạm vi trong truy vấn; chuyển công ty | MAN_HINH_13 (thẻ Vai trò), MAN_HINH_14; API_14, API_34, API_35, API_36 | TIEUCHI_NGHIEMTHU_19 đến 26 | Gán vai trò có thời hạn; thủ kho chi nhánh A không xem được dữ liệu chi nhánh B |
+| L3 | Công ty, chi nhánh, phòng ban | MAN_HINH_09, 10, 11; API_20 đến 23 | TIEUCHI_NGHIEMTHU_01 đến 05 | Tạo tập đoàn 2 công ty con, mỗi công ty 2 chi nhánh |
+| L4 | Mời, kích hoạt, nhập Excel, khóa nhân viên (email, SMS ghi ra log) | MAN_HINH_03, 12, 13; API_11, API_24 đến 30 | TIEUCHI_NGHIEMTHU_06 đến 09 | Mời một nhân viên, mở đường dẫn kích hoạt từ log; nhập tệp Excel có dòng lỗi |
+| L5 | Xác thực hai lớp, quên mật khẩu, hồ sơ cá nhân, phiên đăng nhập | MAN_HINH_02, 04, 06; API_06, 07, 08, 12, 13, 15 đến 18 | TIEUCHI_NGHIEMTHU_12, 15 đến 18 | Bật xác thực hai lớp bằng ứng dụng điện thoại; thu hồi một phiên |
+| L6 | Đăng nhập Google, Microsoft, Zalo, số điện thoại | MAN_HINH_01, 06; API_02 đến 05, API_17 | TIEUCHI_NGHIEMTHU_13, 14, 46, 47 | Liên kết và đăng nhập bằng từng cách. **Bị chặn** đến khi có mã ứng dụng Google, Microsoft, Zalo và nhà cung cấp SMS |
+| L7 | Chính sách duyệt, gửi duyệt, hộp duyệt, chi tiết, rút lại, nhắc và chuyển quá hạn (tác vụ nền). Dùng loại chứng từ thử `platform.test_document` vì chưa có module khác | MAN_HINH_07, 08, 15; API_37 đến 42 | TIEUCHI_NGHIEMTHU_28 đến 36 | Gửi chứng từ thử 80 triệu đồng, duyệt qua 2 cấp; tự duyệt bị chặn; chỉnh đồng hồ thử để thấy nhắc và chuyển |
+| L8 | Dãy số chứng từ, tỷ giá, nhật ký thao tác, thông báo, vô hiệu hóa và bàn giao | MAN_HINH_16, 17, 18; API_31, 32, 33, 43 đến 48 | TIEUCHI_NGHIEMTHU_37 đến 44 | 2 người lưu chứng từ cùng lúc nhận số liên tiếp; xem nhật ký trước và sau; vô hiệu hóa kèm bàn giao |
+
+Tiêu chí TIEUCHI_NGHIEMTHU_42 (tiếng Anh) và TIEUCHI_NGHIEMTHU_45 (hiệu năng) kiểm tra ở lát cuối trên toàn bộ màn hình.
+
+Điều kiện trước khi bắt đầu L1:
+- Giai đoạn 08 được duyệt (tài liệu `18`, `19`).
+- Chốt phiên bản TypeScript (tài liệu `18` mục 3).
+- Duyệt hoặc từ chối THAY_DOI_03 (chế độ kế toán), vì ảnh hưởng database migration bảng `core.companies`.
 
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 

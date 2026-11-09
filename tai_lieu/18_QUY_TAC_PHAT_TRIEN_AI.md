@@ -37,7 +37,9 @@ Bổ sung riêng:
 
 ## 4. Nguồn mã riêng của người dùng
 
-**CHƯA XÁC ĐỊNH:** người dùng cho biết có nguồn mã riêng, chưa cung cấp tên hoặc đường dẫn.
+| Nguồn | Nội dung | Cách dùng |
+|---|---|---|
+| `github.com/vinhngtienmdb-ui/V-com-ERP` | Bản làm trước của VComm: tài liệu thiết kế, kế hoạch 26 app, đặc tả `specs/`, mã React và Supabase | Theo quyết định của người dùng ở tài liệu `13` mục 4. Đọc ở thư mục riêng, không chép mã khi chưa được duyệt |
 
 ## 5. Chạy ứng dụng để xem trước
 
