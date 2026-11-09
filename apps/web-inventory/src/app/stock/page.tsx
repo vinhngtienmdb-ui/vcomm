@@ -8,7 +8,9 @@ import { useEffect, useState } from "react";
 import { Drawer } from "ui/components/Dialogs";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { formatDate, formatMoney, formatNumber } from "ui/lib/format";
-import { useApi } from "ui/lib/use-api";
+import { useAdmin } from "ui/components/AppShell";
+import { apiDownload } from "ui/lib/api";
+import { failureOf, useApi } from "ui/lib/use-api";
 
 export default function StockPage() {
   const t = useTranslations("stock");
@@ -147,6 +149,7 @@ export default function StockPage() {
 
 function StockDetail({ row, onClose }: { row: StockRow; onClose: () => void }) {
   const t = useTranslations("stock");
+  const { notify } = useAdmin();
   const { state, reload } = useApi<StockDetailResponse>(`/inventory/stock/${row.variantId}/details?warehouseId=${row.warehouseId}&companyId=${row.companyId}`);
   const card = new URLSearchParams({ warehouseId: row.warehouseId, companyId: row.companyId, variantId: row.variantId });
   return (
@@ -154,9 +157,22 @@ function StockDetail({ row, onClose }: { row: StockRow; onClose: () => void }) {
       <Loaded state={state} onRetry={() => void reload()}>
         {(detail) => (
           <div style={{ display: "grid", gap: "var(--khoang-4)" }}>
-            <Link className="nut phu" href={`/stock-card?${card}`} style={{ justifySelf: "start" }}>
-              {t("openCard")}
-            </Link>
+            <span className="nhom-nut">
+              <Link className="nut phu" href={`/stock-card?${card}`}>
+                {t("openCard")}
+              </Link>
+              <button
+                type="button"
+                className="nut phu"
+                onClick={() =>
+                  void apiDownload(`/inventory/labels/products?companyId=${row.companyId}&variantIds=${row.variantId}&copies=1`, "tem-san-pham.pdf", true).catch((error) =>
+                    notify(failureOf(error).message, "loi"),
+                  )
+                }
+              >
+                {t("printLabel")}
+              </button>
+            </span>
             <section>
               <h2>{t("balances")}</h2>
               {detail.balances.length === 0 ? (

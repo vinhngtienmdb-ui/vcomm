@@ -21,7 +21,7 @@ import { useAdmin } from "ui/components/AppShell";
 import { ConfirmDialog } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded, LoadingView, MessageView } from "ui/components/StatusViews";
-import { apiFetch } from "ui/lib/api";
+import { apiDownload, apiFetch } from "ui/lib/api";
 import { formatDate, formatMoney, formatNumber, vietnamToday } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 import { DocumentStatusBadge } from "@/components/DocumentStatus";
@@ -587,6 +587,19 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
             {t("viewApproval")}
           </a>
         )}
+        <button
+          type="button"
+          className="nut phu"
+          onClick={() =>
+            void apiDownload(
+              `/inventory/labels/products?companyId=${document.companyId}&variantIds=${[...new Set(document.lines.map((line) => line.variantId))].join(",")}&copies=1`,
+              "tem-san-pham.pdf",
+              true,
+            ).catch((error) => notify(failureOf(error).message, "loi"))
+          }
+        >
+          {t("printLabels")}
+        </button>
         {document.canShip && (
           <button type="button" className="nut chinh" disabled={busy} onClick={() => void ship()}>
             {t("ship")}

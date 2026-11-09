@@ -147,7 +147,9 @@
     "serialNotShipped": "Serial không có trong phiếu chuyển kho.",
     "stocktakeNotDraft": "Kiểm kê đã bắt đầu.",
     "stocktakeNotCounting": "Kiểm kê không ở trạng thái đang đếm.",
-    "stocktakeNotFullyCounted": "Còn dòng chưa có số đếm."
+    "stocktakeNotFullyCounted": "Còn dòng chưa có số đếm.",
+    "reservationOwnedByDocument": "Hàng giữ cho phiếu kho chỉ nhả khi phiếu bị từ chối hoặc rút.",
+    "noLocationsToPrint": "Kho chưa có vị trí đang dùng để in tem."
   },
   "login": {
     "title": "Đăng nhập",
@@ -684,7 +686,9 @@
     "entity_location": "Vị trí kệ",
     "entity_inventory_settings": "Cài đặt kho",
     "entity_stock_document": "Phiếu kho",
-    "entity_stocktake": "Kiểm kê"
+    "entity_stocktake": "Kiểm kê",
+    "entity_reservation": "Giữ hàng",
+    "entity_stock_level": "Tồn an toàn"
   },
   "auditActions": {
     "login": "Đăng nhập",
@@ -788,7 +792,12 @@
     "stocktake_create": "Lập kiểm kê",
     "stocktake_start": "Bắt đầu kiểm kê",
     "stocktake_finish": "Kết thúc kiểm kê",
-    "stocktake_cancel": "Hủy kiểm kê"
+    "stocktake_cancel": "Hủy kiểm kê",
+    "reservation_create": "Giữ hàng",
+    "reservation_extend": "Gia hạn giữ hàng",
+    "reservation_release": "Nhả hàng giữ",
+    "stock_level_save": "Đặt tồn an toàn",
+    "stock_level_delete": "Bỏ tồn an toàn"
   },
   "notifications": {
     "title": "Thông báo",
@@ -802,7 +811,8 @@
     "kind_approval_completed_approved": "Chứng từ {documentNo} đã được duyệt",
     "kind_approval_completed_rejected": "Chứng từ {documentNo} bị từ chối",
     "kind_approval_escalation_blocked": "Chứng từ {documentNo}: người duyệt thay thế cũng là người lập",
-    "kind_exchange_rate_fetch_failed": "Không lấy được tỷ giá Vietcombank ngày {date}, vui lòng nhập tay"
+    "kind_exchange_rate_fetch_failed": "Không lấy được tỷ giá Vietcombank ngày {date}, vui lòng nhập tay",
+    "kind_inventory_stock_alert": "{warehouse}: {count} mặt hàng dưới tồn an toàn"
   },
   "deactivate": {
     "button": "Vô hiệu hóa",
@@ -1249,7 +1259,8 @@
     "warehouses": "Kho và vị trí",
     "stock": "Tồn kho",
     "documents": "Phiếu kho",
-    "stocktakes": "Kiểm kê"
+    "stocktakes": "Kiểm kê",
+    "reservations": "Giữ hàng, tồn an toàn"
   },
   "warehouses": {
     "title": "Kho và vị trí",
@@ -1283,7 +1294,8 @@
     "line": "Dòng {line}",
     "settings": "Cài đặt kho của công ty",
     "reservationHours": "Thời hạn giữ hàng cho đơn bán (giờ)",
-    "reservationHoursHint": "Hết hạn mà đơn chưa xuất thì hàng tự nhả. Mặc định 72 giờ."
+    "reservationHoursHint": "Hết hạn mà đơn chưa xuất thì hàng tự nhả. Mặc định 72 giờ.",
+    "printLabels": "In tem vị trí"
   },
   "stock": {
     "title": "Tồn kho",
@@ -1308,7 +1320,8 @@
     "noLot": "Không theo lô",
     "serials": "Serial trong kho ({count})",
     "reservations": "Hàng đang giữ",
-    "noReservations": "Không có hàng giữ."
+    "noReservations": "Không có hàng giữ.",
+    "printLabel": "In tem sản phẩm"
   },
   "stockCard": {
     "title": "Thẻ kho",
@@ -1419,7 +1432,8 @@
     "receive": "Xác nhận nhận",
     "received": "Đã nhận hàng.",
     "discrepancies": "Biên bản chênh lệch",
-    "discrepancyLine": "xuất {shipped}, nhận {received}, chênh lệch {difference}"
+    "discrepancyLine": "xuất {shipped}, nhận {received}, chênh lệch {difference}",
+    "printLabels": "In tem"
   },
   "stocktakes": {
     "title": "Kiểm kê",
@@ -1475,5 +1489,47 @@
     "status_finished": "Đã kết thúc",
     "status_cancelled": "Đã hủy",
     "countedOf": "{counted}/{total} dòng"
+  },
+  "reservations": {
+    "title": "Giữ hàng và tồn an toàn",
+    "tab_reservations": "Giữ hàng",
+    "tab_levels": "Tồn an toàn",
+    "item": "Mặt hàng",
+    "itemHint": "Quét mã vạch hoặc gõ mã hàng rồi nhấn Enter",
+    "warehouse": "Kho",
+    "owner": "Công ty chủ hàng",
+    "quantity": "Số lượng",
+    "quantityBase": "Số lượng (đơn vị cơ sở)",
+    "note": "Lý do giữ",
+    "source": "Nguồn",
+    "source_inventory_manual": "Giữ thủ công",
+    "source_inventory_document": "Phiếu kho",
+    "source_sales_order": "Đơn bán",
+    "expiresAt": "Hạn giữ",
+    "noExpiry": "Đến khi phiếu kết thúc",
+    "createdBy": "Người giữ",
+    "status": "Trạng thái",
+    "status_active": "Đang giữ",
+    "status_released": "Đã nhả",
+    "status_consumed": "Đã xuất",
+    "none": "Không có hàng giữ.",
+    "extend": "Gia hạn 24 giờ",
+    "release": "Nhả",
+    "extended": "Đã gia hạn.",
+    "released": "Đã nhả hàng giữ.",
+    "reserve": "Giữ hàng",
+    "reserved": "Đã giữ hàng.",
+    "minimum": "Tối thiểu",
+    "maximum": "Tối đa",
+    "available": "Khả dụng",
+    "incoming": "Đang chuyển đến",
+    "suggested": "Gợi ý bổ sung",
+    "below": "Dưới tối thiểu",
+    "saveLevel": "Lưu tồn an toàn",
+    "levelSaved": "Đã lưu tồn an toàn.",
+    "removeLevel": "Bỏ",
+    "onlyAlerts": "Chỉ hiện hàng dưới tồn an toàn",
+    "noAlerts": "Không có hàng dưới tồn an toàn.",
+    "noLevels": "Chưa đặt tồn an toàn."
   }
 }

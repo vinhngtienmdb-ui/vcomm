@@ -9,7 +9,7 @@ import { Drawer } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { HistoryLink } from "ui/components/HistoryLink";
 import { Loaded, MessageView } from "ui/components/StatusViews";
-import { apiFetch } from "ui/lib/api";
+import { apiDownload, apiFetch } from "ui/lib/api";
 import { failureOf, useApi } from "ui/lib/use-api";
 
 export default function WarehousesPage() {
@@ -170,7 +170,16 @@ function Locations({ warehouse, onChanged }: { warehouse: WarehouseResponse; onC
   const lineErrors = Object.entries(fields).filter(([key]) => key.startsWith("locations."));
   return (
     <section className="the" style={{ marginTop: "var(--khoang-4)", display: "grid", gap: "var(--khoang-3)" }}>
-      <h2>{t("locationsOf", { name: warehouse.name })}</h2>
+      <div className="tieu-de">
+        <h2>{t("locationsOf", { name: warehouse.name })}</h2>
+        <button
+          type="button"
+          className="nut phu"
+          onClick={() => void apiDownload(`/inventory/labels/locations?warehouseId=${warehouse.id}`, "tem-vi-tri.pdf", true).catch((error) => notify(failureOf(error).message, "loi"))}
+        >
+          {t("printLabels")}
+        </button>
+      </div>
       <Loaded state={state} onRetry={() => void reload()}>
         {(locations) =>
           locations.length === 0 ? (

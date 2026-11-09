@@ -1771,3 +1771,73 @@ export interface StocktakeOptionsResponse {
   categories: { id: string; code: string; name: string }[];
   users: { id: string; fullName: string }[];
 }
+
+// CONG_VIEC_05, API_68 đến API_70: giữ hàng, tồn an toàn, cảnh báo, in tem (CHUC_NANG_43, 44, 45; QUYTAC_NGHIEPVU_54, 55).
+const positiveQuantity = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^\d{1,12}(\.\d{1,4})?$/.test(text) || Number(text) <= 0) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+const nonNegativeQuantity = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^\d{1,12}(\.\d{1,4})?$/.test(text)) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+// Giữ hàng thủ công (ví dụ khách hẹn lấy hàng); MODULE_05 giữ hàng cho đơn bán qua dịch vụ trong API.
+export const createReservationSchema = z
+  .object({ warehouseId: z.uuid(), companyId: z.uuid(), variantId: z.uuid(), quantity: positiveQuantity, note: z.string().trim().min(1).max(200) })
+  .strict();
+export const extendReservationSchema = z.object({ hours: z.number().int().min(1).max(720), version: z.number().int().positive() }).strict();
+export const reservationListQuerySchema = z
+  .object({ warehouseId: z.uuid().optional(), status: z.enum(["active", "released", "consumed"]).optional(), page: z.coerce.number().int().min(1).default(1), pageSize: z.coerce.number().int().min(1).max(100).default(50) })
+  .strict();
+export interface ReservationResponse {
+  id: string;
+  warehouseId: string;
+  warehouseName: string;
+  companyId: string;
+  companyName: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  quantity: string;
+  baseUnitName: string;
+  sourceType: string;
+  sourceNo: string | null;
+  expiresAt: string | null;
+  status: "active" | "released" | "consumed";
+  createdByName: string | null;
+  createdAt: string;
+  version: number;
+}
+export const saveStockLevelSchema = z
+  .object({ warehouseId: z.uuid(), companyId: z.uuid(), variantId: z.uuid(), minimum: nonNegativeQuantity, maximum: nonNegativeQuantity })
+  .strict()
+  .refine((value) => Number(value.maximum) >= Number(value.minimum), { path: ["maximum"], message: "stockLevelMaximumBelowMinimum" });
+export const stockLevelQuerySchema = z.object({ warehouseId: z.uuid().optional(), onlyAlerts: z.enum(["true", "false"]).optional() }).strict();
+export interface StockLevelRow {
+  warehouseId: string;
+  warehouseName: string;
+  companyId: string;
+  companyName: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  baseUnitName: string;
+  minimum: string;
+  maximum: string;
+  available: string;
+  incoming: string;
+  belowMinimum: boolean;
+  suggestedQuantity: string;
+}
+export const productLabelQuerySchema = z
+  .object({ companyId: z.uuid(), variantIds: z.string().min(1), copies: z.coerce.number().int().min(1).max(500).default(1) })
+  .strict();
+export const locationLabelQuerySchema = z.object({ warehouseId: z.uuid() }).strict();

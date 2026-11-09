@@ -1,7 +1,16 @@
 // API_63: kho, vị trí, cài đặt kho (CONG_VIEC_05). Quyền chi tiết kiểm trong service theo chi nhánh sở hữu kho.
-import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from "@nestjs/common";
 import {
   createLocationsSchema,
+  createReservationSchema,
+  extendReservationSchema,
+  locationLabelQuerySchema,
+  productLabelQuerySchema,
+  reservationListQuerySchema,
+  saveStockLevelSchema,
+  stockLevelQuerySchema,
+  type ReservationResponse,
+  type StockLevelRow,
   createStocktakeSchema,
   finishStocktakeSchema,
   saveStocktakeCountsSchema,
@@ -35,12 +44,16 @@ import {
   type WarehouseOptionsResponse,
   type WarehouseResponse,
 } from "contracts";
+import type { Response } from "express";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { StockDocumentsService } from "./stock-documents.service";
+import { LabelsService } from "./labels.service";
+import { ReservationsService } from "./reservations.service";
+import { StockLevelsService } from "./stock-levels.service";
 import { StockService } from "./stock.service";
 import { StocktakesService } from "./stocktakes.service";
 import { TransfersService } from "./transfers.service";
@@ -57,6 +70,9 @@ export class InventoryController {
     private readonly documents: StockDocumentsService,
     private readonly transfers: TransfersService,
     private readonly stocktakes: StocktakesService,
+    private readonly reservations: ReservationsService,
+    private readonly stockLevels: StockLevelsService,
+    private readonly labels: LabelsService,
   ) {}
 
   // Vào mini app Kho: quyền kho ở công ty đang chọn hoặc ở bất kỳ chi nhánh nào của công ty đó.
@@ -260,4 +276,72 @@ export class InventoryController {
   async cancelStocktake(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<StocktakeResponse> {
     return this.stocktakes.cancel(await this.actor(request, companyId), id);
   }
+
+  // API_68: giữ hàng.
+  @Get("reservations")
+  async listReservations(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<PageResponse<ReservationResponse>> {
+    return this.reservations.list(await this.actor(request, companyId), reservationListQuerySchema.parse(query));
+  }
+
+  @Post("reservations")
+  async createReservation(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<ReservationResponse> {
+    return this.reservations.create(await this.actor(request, companyId), createReservationSchema.parse(body));
+  }
+
+  @Post("reservations/:id/extend")
+  async extendReservation(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<ReservationResponse> {
+    return this.reservations.extend(await this.actor(request, companyId), id, extendReservationSchema.parse(body));
+  }
+
+  @Post("reservations/:id/release")
+  async releaseReservation(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<ReservationResponse> {
+    return this.reservations.release(await this.actor(request, companyId), id, versionSchema.parse(body).version);
+  }
+
+  // API_69: tồn an toàn, cảnh báo.
+  @Get("stock-levels")
+  async listStockLevels(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<StockLevelRow[]> {
+    return this.stockLevels.list(await this.actor(request, companyId), stockLevelQuerySchema.parse(query));
+  }
+
+  @Get("stock-alerts")
+  async stockAlerts(@Req() request: AuthenticatedRequest, @Query("warehouseId") warehouseId: string | undefined, @Headers("x-company-id") companyId?: string): Promise<StockLevelRow[]> {
+    return this.stockLevels.list(await this.actor(request, companyId), stockLevelQuerySchema.parse({ ...(warehouseId ? { warehouseId } : {}), onlyAlerts: "true" }));
+  }
+
+  @Put("stock-levels")
+  async saveStockLevel(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockLevelRow> {
+    return this.stockLevels.save(await this.actor(request, companyId), saveStockLevelSchema.parse(body));
+  }
+
+  @Delete("stock-levels/:warehouseId/:companyId/:variantId")
+  @HttpCode(204)
+  async removeStockLevel(
+    @Req() request: AuthenticatedRequest,
+    @Param("warehouseId", UuidPipe) warehouseId: string,
+    @Param("companyId", UuidPipe) owner: string,
+    @Param("variantId", UuidPipe) variantId: string,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<void> {
+    await this.stockLevels.remove(await this.actor(request, companyId), warehouseId, owner, variantId);
+  }
+
+  // API_70: tem PDF.
+  @Get("labels/products")
+  async productLabels(@Req() request: AuthenticatedRequest, @Res() response: Response, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<void> {
+    const parsed = productLabelQuerySchema.parse(query);
+    const variantIds = parsed.variantIds.split(",").map((id) => new UuidPipe().transform(id.trim()));
+    sendPdf(response, "tem-san-pham.pdf", await this.labels.products(await this.actor(request, companyId), parsed.companyId, variantIds, parsed.copies));
+  }
+
+  @Get("labels/locations")
+  async locationLabels(@Req() request: AuthenticatedRequest, @Res() response: Response, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<void> {
+    sendPdf(response, "tem-vi-tri.pdf", await this.labels.locations(await this.actor(request, companyId), locationLabelQuerySchema.parse(query).warehouseId));
+  }
+}
+
+function sendPdf(response: Response, fileName: string, content: Buffer): void {
+  response.setHeader("content-type", "application/pdf");
+  response.setHeader("content-disposition", `inline; filename="${fileName}"`);
+  response.send(content);
 }

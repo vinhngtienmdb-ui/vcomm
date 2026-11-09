@@ -51,6 +51,8 @@ import { ReservationsService } from "./inventory/reservations.service";
 import { StockDocumentsService } from "./inventory/stock-documents.service";
 import { StockLedgerService } from "./inventory/stock-ledger.service";
 import { StockService } from "./inventory/stock.service";
+import { LabelsService } from "./inventory/labels.service";
+import { StockLevelsService } from "./inventory/stock-levels.service";
 import { StocktakesService } from "./inventory/stocktakes.service";
 import { TransfersService } from "./inventory/transfers.service";
 import { WarehousesService } from "./inventory/warehouses.service";
@@ -102,6 +104,8 @@ import { UsersService } from "./users/users.service";
     StockDocumentsService,
     TransfersService,
     StocktakesService,
+    StockLevelsService,
+    LabelsService,
     ProposalsService,
     ProposalPdfService,
     PhoneOtpService,

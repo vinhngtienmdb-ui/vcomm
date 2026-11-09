@@ -147,7 +147,9 @@
     "serialNotShipped": "This serial is not on the transfer.",
     "stocktakeNotDraft": "The stocktake has already started.",
     "stocktakeNotCounting": "The stocktake is not being counted.",
-    "stocktakeNotFullyCounted": "Some lines have not been counted."
+    "stocktakeNotFullyCounted": "Some lines have not been counted.",
+    "reservationOwnedByDocument": "Goods reserved for a stock document are released only when it is rejected or withdrawn.",
+    "noLocationsToPrint": "The warehouse has no active locations to print."
   },
   "login": {
     "title": "Sign in",
@@ -684,7 +686,9 @@
     "entity_location": "Shelf location",
     "entity_inventory_settings": "Inventory settings",
     "entity_stock_document": "Stock document",
-    "entity_stocktake": "Stocktake"
+    "entity_stocktake": "Stocktake",
+    "entity_reservation": "Reservation",
+    "entity_stock_level": "Safety stock"
   },
   "auditActions": {
     "login": "Sign in",
@@ -788,7 +792,12 @@
     "stocktake_create": "Create stocktake",
     "stocktake_start": "Start stocktake",
     "stocktake_finish": "Finish stocktake",
-    "stocktake_cancel": "Cancel stocktake"
+    "stocktake_cancel": "Cancel stocktake",
+    "reservation_create": "Reserve goods",
+    "reservation_extend": "Extend reservation",
+    "reservation_release": "Release reservation",
+    "stock_level_save": "Set safety stock",
+    "stock_level_delete": "Remove safety stock"
   },
   "notifications": {
     "title": "Notifications",
@@ -802,7 +811,8 @@
     "kind_approval_completed_approved": "Document {documentNo} was approved",
     "kind_approval_completed_rejected": "Document {documentNo} was rejected",
     "kind_approval_escalation_blocked": "Document {documentNo}: the substitute approver is also the requester",
-    "kind_exchange_rate_fetch_failed": "Could not fetch Vietcombank rates for {date}; please enter them manually"
+    "kind_exchange_rate_fetch_failed": "Could not fetch Vietcombank rates for {date}; please enter them manually",
+    "kind_inventory_stock_alert": "{warehouse}: {count} items below safety stock"
   },
   "deactivate": {
     "button": "Disable",
@@ -1249,7 +1259,8 @@
     "warehouses": "Warehouses and locations",
     "stock": "Stock",
     "documents": "Stock documents",
-    "stocktakes": "Stocktakes"
+    "stocktakes": "Stocktakes",
+    "reservations": "Reservations, safety stock"
   },
   "warehouses": {
     "title": "Warehouses and locations",
@@ -1283,7 +1294,8 @@
     "line": "Line {line}",
     "settings": "Company inventory settings",
     "reservationHours": "Reservation period for sales orders (hours)",
-    "reservationHoursHint": "Reserved goods are released when an order is not shipped in time. Default 72 hours."
+    "reservationHoursHint": "Reserved goods are released when an order is not shipped in time. Default 72 hours.",
+    "printLabels": "Print location labels"
   },
   "stock": {
     "title": "Stock",
@@ -1308,7 +1320,8 @@
     "noLot": "No lot",
     "serials": "Serials in stock ({count})",
     "reservations": "Reserved goods",
-    "noReservations": "Nothing reserved."
+    "noReservations": "Nothing reserved.",
+    "printLabel": "Print product label"
   },
   "stockCard": {
     "title": "Stock card",
@@ -1419,7 +1432,8 @@
     "receive": "Confirm receipt",
     "received": "Goods received.",
     "discrepancies": "Discrepancy report",
-    "discrepancyLine": "shipped {shipped}, received {received}, difference {difference}"
+    "discrepancyLine": "shipped {shipped}, received {received}, difference {difference}",
+    "printLabels": "Print labels"
   },
   "stocktakes": {
     "title": "Stocktake",
@@ -1475,5 +1489,47 @@
     "status_finished": "Finished",
     "status_cancelled": "Cancelled",
     "countedOf": "{counted}/{total} lines"
+  },
+  "reservations": {
+    "title": "Reservations and safety stock",
+    "tab_reservations": "Reservations",
+    "tab_levels": "Safety stock",
+    "item": "Item",
+    "itemHint": "Scan a barcode or type a SKU, then press Enter",
+    "warehouse": "Warehouse",
+    "owner": "Owner company",
+    "quantity": "Quantity",
+    "quantityBase": "Quantity (base unit)",
+    "note": "Reason",
+    "source": "Source",
+    "source_inventory_manual": "Manual",
+    "source_inventory_document": "Stock document",
+    "source_sales_order": "Sales order",
+    "expiresAt": "Expires",
+    "noExpiry": "Until the document closes",
+    "createdBy": "Created by",
+    "status": "Status",
+    "status_active": "Active",
+    "status_released": "Released",
+    "status_consumed": "Consumed",
+    "none": "No reservations.",
+    "extend": "Extend 24 hours",
+    "release": "Release",
+    "extended": "Extended.",
+    "released": "Released.",
+    "reserve": "Reserve",
+    "reserved": "Reserved.",
+    "minimum": "Minimum",
+    "maximum": "Maximum",
+    "available": "Available",
+    "incoming": "Incoming",
+    "suggested": "Suggested",
+    "below": "Below minimum",
+    "saveLevel": "Save safety stock",
+    "levelSaved": "Safety stock saved.",
+    "removeLevel": "Remove",
+    "onlyAlerts": "Only items below safety stock",
+    "noAlerts": "No items below safety stock.",
+    "noLevels": "No safety stock set."
   }
 }
