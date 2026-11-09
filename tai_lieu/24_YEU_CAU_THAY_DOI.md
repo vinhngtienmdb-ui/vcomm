@@ -112,3 +112,17 @@
 - Mức quy mô: Nhỏ.
 - Rủi ro: lộ danh sách quyền của vai trò cho người gán vai trò; mức thấp vì người gán vai trò đã thấy vai trò khi gán.
 - Trạng thái: Đã phê duyệt 2026-11-09.
+
+### THAY_DOI_06: Quản trị công ty có quyền truy cập mọi mini app – 2026-11-09
+- Lý do: Theo QUYTAC_NGHIEPVU_14, quản trị công ty không cấp được quyền mình không có. Vai trò Quản trị công ty chỉ có quyền `platform`, nên không gán được vai trò nghiệp vụ (Thủ kho, Mua hàng…) cho nhân viên công ty mình (phát hiện ở lát L2).
+- Nội dung thay đổi: Vai trò hệ thống Quản trị công ty có thêm quyền `<mini app>.access` của mọi mini app, gồm cả Tài chính – Kế toán và Nhân sự (quyền nhạy cảm).
+- Thành phần bị ảnh hưởng: tài liệu `08` mục 1 (dòng Quản trị công ty); `22` ma trận phân quyền; danh mục vai trò hệ thống trong mã.
+- Dữ liệu bị ảnh hưởng: bảng `core.role_permissions` của vai trò `company_admin` (đồng bộ khi khởi động).
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: trang chủ của quản trị công ty hiện mọi mini app.
+- Quyền bị ảnh hưởng: quản trị công ty truy cập được mọi mini app trong công ty mình và gán được vai trò có các quyền này.
+- Ảnh hưởng chức năng cũ: quản trị công ty đang có vai trò bị bật bắt buộc xác thực hai lớp khi được gán lại (QUYTAC_NGHIEPVU_09, vai trò có quyền nhạy cảm).
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_52 đến 61, 66 đến 69; thêm kịch bản quản trị công ty gán vai trò Thủ kho.
+- Mức quy mô: Vừa (đổi phân quyền vai trò hệ thống).
+- Rủi ro: quản trị công ty có quyền rộng hơn; giảm thiểu bằng bắt buộc xác thực hai lớp và nhật ký thao tác.
+- Trạng thái: Đã phê duyệt 2026-11-09.
