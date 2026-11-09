@@ -9,11 +9,13 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_02: Xong lát L1 (đăng nhập bằng mật khẩu, phiên, trang chủ mini app); kiểm thử tích hợp 9/9 đạt; CI đạt; pull request số 4.
 - CONG_VIEC_01: Thu thập yêu cầu qua ba đợt hỏi đáp với người dùng; lập tài liệu tổng thể trên Claude Docs "VComm – Nền tảng TMĐT cộng đồng & Loyalty"; lập bản nháp kiến trúc, đặc tả mini app Nền tảng và mô hình dữ liệu schema `core` (pull request số 1, nhánh `docs/platform-spec`).
 - CONG_VIEC_01: Áp dụng quy trình Vibecoding_Flow; chuyển các bản nháp sang bộ tài liệu đánh số trong `tai_lieu/`.
 
 ### Quyết định
 
+- CONG_VIEC_02: Bỏ dừng chờ phản hồi ở điểm xem trước của từng lát; AI tự làm tiếp các lát L2 đến L8 theo kế hoạch đã duyệt, vẫn chụp màn hình và báo kết quả sau mỗi lát. Lát L6, L9 vẫn bị chặn; nghiệm thu, hợp nhất vào `main` và triển khai vẫn do người dùng thực hiện – người quyết định: người dùng.
 - Tên sản phẩm: VComm – người quyết định: người dùng.
 - Thứ tự ra mắt: hệ thống quản trị doanh nghiệp (ERP) → sàn thương mại điện tử → loyalty và cửa hàng liên kết – người quyết định: người dùng.
 - Tự xây dựng 100%, không dùng nền ERP có sẵn – người quyết định: người dùng.
