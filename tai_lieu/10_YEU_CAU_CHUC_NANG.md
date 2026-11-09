@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 1.4
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.5
+- Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03
 
 ## MODULE_01 Nền tảng
 
@@ -557,6 +557,136 @@ Quy ước chung cho mọi chức năng của MODULE_02:
 | Hiệu năng | Danh sách 10.000 sản phẩm trả trang đầu dưới 500 mili giây; nhập 2.000 dòng Excel trong 30 giây |
 | Tìm kiếm | Tìm tên sản phẩm không phân biệt dấu tiếng Việt, không cần extension PostgreSQL |
 | Bảo mật | Kiểm tra chữ ký đầu tệp ảnh; giới hạn kích thước tệp tải lên; dữ liệu tách theo công ty |
+
+## MODULE_03 Kho (phần web, CONG_VIEC_05)
+
+Quy ước chung cho mọi chức năng của MODULE_03:
+- Mọi thao tác ghi dữ liệu ghi một dòng nhật ký thao tác (CHUC_NANG_23), mini app `inventory`.
+- Mọi API cần `inventory.access` hoặc `inventory.stock.view` trong công ty đang làm việc; quyền chi tiết kiểm tra phía máy chủ theo chi nhánh sở hữu kho (QUYTAC_NGHIEPVU_46). Kho, phiếu, kiểm kê ngoài phạm vi trả "Không tìm thấy dữ liệu hoặc bạn không có quyền xem." như không tồn tại.
+- Sửa dữ liệu gửi kèm phiên bản; khác phiên bản hiện tại thì báo "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất.".
+- Số lượng, tiền lưu dạng số thập phân 4 chữ số lẻ, trao đổi dạng chuỗi, nhận dấu phẩy hoặc dấu chấm. Người không có `inventory.cost.view` nhận giá vốn, giá trị là trống.
+- Ô tìm mặt hàng nhận chuỗi từ máy quét mã vạch gõ phím kèm Enter: tìm đúng mã vạch, đúng mã hàng hoặc tên không dấu trong sản phẩm của công ty chủ hàng; trả đơn vị khớp mã vạch.
+
+### CHUC_NANG_38: Kho, vị trí kệ, công ty chủ hàng, cài đặt kho
+- Mục đích: Khai báo kho thuộc chi nhánh, vị trí kệ, các công ty được gửi hàng vào kho, số giờ giữ hàng mặc định.
+- Người sử dụng: Quản trị công ty, quản trị tập đoàn, Quản lý kho.
+- Điều kiện thực hiện: Xem: quyền kho tại kho, hoặc `inventory.stock.view` ở công ty chủ hàng. Thêm kho, sửa cài đặt giữ hàng: `inventory.warehouse.manage` ở phạm vi công ty. Sửa kho, vị trí, ngừng dùng: `inventory.warehouse.manage` tại kho.
+- Dữ liệu đầu vào: Kho: chi nhánh của công ty đang làm việc, mã (1 đến 20 ký tự chữ in hoa, số, `-`, `_`), tên, địa chỉ, dùng vị trí kệ, danh sách công ty chủ hàng (tối đa 50). Vị trí: một lần tối đa 500 vị trí, mã (1 đến 30 ký tự chữ in hoa, số, `-`, `_`, `.`), tên. Cài đặt: số giờ giữ hàng 1 đến 720.
+- Quy trình xử lý: Mã đổi thành chữ in hoa; kiểm tra chi nhánh đang hoạt động thuộc công ty, mã kho không trùng trong công ty, công ty chủ hàng đang hoạt động; luôn thêm công ty sở hữu kho vào danh sách chủ hàng. Sửa: không bỏ được chủ hàng còn tồn, không đổi cài đặt vị trí khi kho còn tồn. Ngừng dùng kho, vị trí khi không còn tồn; dùng lại được. Cài đặt giữ hàng lưu theo công ty, chưa cài thì 72 giờ.
+- Kết quả đầu ra: Danh sách kho (mã, tên, chi nhánh, công ty sở hữu, công ty chủ hàng, số vị trí đang dùng, trạng thái, thao tác được hay chỉ xem, quản lý được hay không); danh sách vị trí; cài đặt.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_26
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_45, QUYTAC_NGHIEPVU_46, QUYTAC_NGHIEPVU_54
+- Trường hợp ngoại lệ: Không có chức năng xóa kho, vị trí. Kho ngừng dùng không lập được phiếu mới.
+- Phân quyền: Người chỉ có quyền ở chi nhánh khác không thấy kho; nhân viên công ty chủ hàng thấy kho để xem tồn, không thao tác.
+- Thông báo lỗi: "Mã kho đã có trong công ty." · "Mã vị trí đã có trong kho." (chỉ ra đúng dòng) · "Công ty chủ hàng còn tồn trong kho, không bỏ được." · "Kho còn tồn, không đổi được cài đặt vị trí kệ." · "Kho còn tồn, không ngừng dùng được." · "Vị trí còn tồn, không ngừng dùng được."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_65
+
+### CHUC_NANG_39: Tồn kho, thẻ kho, giá vốn bình quân
+- Mục đích: Biết theo thời gian thực đang có bao nhiêu hàng của từng công ty chủ hàng, ở lô, serial, vị trí nào, giá vốn bao nhiêu; xem lịch sử biến động.
+- Người sử dụng: Thủ kho, Quản lý kho, quản trị công ty, quản trị tập đoàn; nhân viên công ty chủ hàng có quyền xem tồn.
+- Điều kiện thực hiện: `inventory.access` tại kho (mọi chủ hàng), hoặc `inventory.stock.view` ở công ty chủ hàng (hàng của công ty mình). Giá vốn, giá trị: `inventory.cost.view` tại kho, hoặc ở công ty chủ hàng cho hàng của công ty đó.
+- Dữ liệu đầu vào: Tồn kho: kho, công ty chủ hàng, ngành hàng, từ khóa (tên không dấu, đúng mã hàng, đúng mã vạch), chỉ hàng còn tồn (mặc định có), trang (tối đa 100 dòng, mặc định 50). Chi tiết: biến thể, kho, công ty chủ hàng. Thẻ kho: kho, công ty chủ hàng, biến thể, từ ngày, đến ngày.
+- Quy trình xử lý: Tồn khả dụng = tồn thực − hàng đang giữ; đang chuyển đến = tổng số lượng phiếu chuyển kho đang vận chuyển tới kho. Thẻ kho tính ngày theo giờ Việt Nam: tồn đầu kỳ là tồn sau của biến động cuối trước kỳ, tồn cuối kỳ là tồn sau của biến động cuối trong kỳ; giá trị là tổng giá trị biến động; tối đa 5.000 biến động một lần xem.
+- Kết quả đầu ra: Dòng tồn (kho, công ty chủ hàng, mã hàng, tên, đơn vị cơ sở, tồn thực, đang giữ, khả dụng, đang chuyển đến, giá vốn, giá trị, tối thiểu, dưới tồn an toàn); chi tiết theo lô và hạn dùng, vị trí, serial (kèm giá vốn đích danh), hàng đang giữ; thẻ kho (thời điểm, số phiếu, loại phiếu, lô, vị trí, số lượng, giá vốn, giá trị, tồn sau).
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_27
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_46, QUYTAC_NGHIEPVU_47, QUYTAC_NGHIEPVU_48, QUYTAC_NGHIEPVU_49, QUYTAC_NGHIEPVU_54
+- Trường hợp ngoại lệ: Từ ngày sau đến ngày bị từ chối.
+- Phân quyền: Như điều kiện thực hiện; kho ngoài phạm vi trả "Không tìm thấy".
+- Thông báo lỗi: "Giá trị không hợp lệ." (khoảng ngày)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_66, TIEUCHI_NGHIEMTHU_74
+
+### CHUC_NANG_40: Phiếu nhập khác, xuất khác, điều chỉnh
+- Mục đích: Thay đổi tồn không có chứng từ gốc có kiểm soát qua luồng duyệt.
+- Người sử dụng: Thủ kho, Quản lý kho, quản trị công ty, quản trị tập đoàn (lập); người duyệt theo chính sách (duyệt ở MAN_HINH_08).
+- Điều kiện thực hiện: Xem: như CHUC_NANG_39. Lập, sửa, xóa, gửi, rút, gợi ý lô: `inventory.document.manage` tại kho; sửa, xóa, gửi, rút chỉ người lập.
+- Dữ liệu đầu vào: Loại phiếu, kho, công ty chủ hàng, ngày, lý do (nhập khác: tồn đầu kỳ, phát hiện thừa, quà tặng biếu, khác; xuất khác: dùng nội bộ, quà tặng biếu, hư hỏng, hủy hàng hết hạn, khác; điều chỉnh: kiểm kê, hư hỏng, phát hiện thừa, khác), diễn giải, ghi chú; 1 đến 1.000 dòng (biến thể, đơn vị, số lượng khác 0 (âm chỉ ở phiếu điều chỉnh), đơn giá (bắt buộc ở phiếu nhập khác, theo đơn vị của dòng), lô (dòng nhập: số lô, ngày sản xuất, hạn dùng; dòng xuất: chọn lô), lý do đổi lô, vị trí, serial).
+- Quy trình xử lý: Lưu nháp: kiểm tra kho đang dùng nhận công ty chủ hàng, lý do đúng loại phiếu, mặt hàng đang bán của công ty chủ hàng, đơn vị của sản phẩm, vị trí theo cài đặt kho, lô và serial theo cách theo dõi của sản phẩm, số serial bằng số lượng đơn vị cơ sở. Gửi: kiểm tra đủ tồn theo lô, vị trí; đủ tồn khả dụng; lô còn hạn (QUYTAC_NGHIEPVU_51); lô khác gợi ý có lý do; serial đúng trạng thái; lô nhập đã có thì hạn dùng phải trùng. Trong một giao dịch: giữ hàng cho dòng giảm, cấp số `<tiền tố>-<mã công ty>-<năm>-<6 chữ số>`, gửi yêu cầu duyệt (CHUC_NANG_16) với giá trị duyệt theo QUYTAC_NGHIEPVU_50; chưa có chính sách duyệt thì ghi sổ ngay. Duyệt xong thì ghi sổ qua sổ kho (tạo lô, cập nhật tồn, giá vốn, serial, thẻ kho), đánh dấu hàng giữ đã dùng; từ chối, rút thì nhả hàng giữ. Gợi ý lô: các lô còn tồn sắp theo hạn dùng tăng dần, không hạn dùng xếp sau, đánh dấu lô hết hạn và lô gợi ý.
+- Kết quả đầu ra: Danh sách phiếu (số, loại, ngày, kho, kho đích, công ty chủ hàng, lý do, trạng thái, số dòng, tổng giá trị, người lập) lọc theo loại, trạng thái, kho, phân trang; chi tiết phiếu kèm dòng, giá trị đã ghi sổ, liên kết yêu cầu duyệt; in tem sản phẩm của phiếu.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_27, YCAU_NGHIEPVU_28
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_46, QUYTAC_NGHIEPVU_47, QUYTAC_NGHIEPVU_48, QUYTAC_NGHIEPVU_49, QUYTAC_NGHIEPVU_50, QUYTAC_NGHIEPVU_51, QUYTAC_NGHIEPVU_23, QUYTAC_NGHIEPVU_28
+- Trường hợp ngoại lệ: Hai phiếu đồng thời xuất món hàng cuối cùng: một phiếu bị từ chối "Không đủ hàng khả dụng". Mặt hàng đang kiểm kê không ghi sổ được. Phiếu điều chỉnh sinh từ kiểm kê không sửa, không xóa.
+- Phân quyền: Chỉ người lập sửa, xóa, gửi, rút; người khác nhận "Bạn không có quyền thực hiện thao tác này.".
+- Thông báo lỗi: "Kho không nhận hàng của công ty này." · "Mặt hàng không thuộc công ty chủ hàng hoặc đã ngừng bán." · "Không đổi loại phiếu, kho, công ty chủ hàng của phiếu đã lập." · "Không đủ hàng trong kho." · "Không đủ hàng khả dụng (một phần đang được giữ)." · "Lô đã hết hạn dùng." · "Lô đã có với hạn dùng khác." · "Chọn lô khác lô gợi ý phải ghi lý do." · "Sản phẩm không theo dõi lô." · "Số serial phải bằng số lượng theo đơn vị cơ sở." · "Serial bị lặp." · "Serial đã có trong kho." · "Serial không có trong kho, vị trí này." · "Sản phẩm không theo dõi serial." · "Mặt hàng đang kiểm kê, chưa ghi sổ được." · "Chỉ sửa được chứng từ đang ở trạng thái nháp."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_65, TIEUCHI_NGHIEMTHU_66, TIEUCHI_NGHIEMTHU_67, TIEUCHI_NGHIEMTHU_68, TIEUCHI_NGHIEMTHU_74
+
+### CHUC_NANG_41: Phiếu chuyển kho hai bước
+- Mục đích: Chuyển hàng giữa hai kho của cùng công ty chủ hàng, biết hàng đang trên đường và chênh lệch khi nhận.
+- Người sử dụng: Thủ kho, Quản lý kho kho nguồn (lập, xuất), kho đích (nhận); người duyệt theo chính sách.
+- Điều kiện thực hiện: Lập, gửi, rút, xuất: `inventory.document.manage` tại kho nguồn. Nhận: `inventory.document.manage` tại kho đích.
+- Dữ liệu đầu vào: Như CHUC_NANG_40 (lý do "Chuyển kho") cộng kho đích. Nhận: mọi dòng có số thực nhận theo đơn vị cơ sở, vị trí đích (kho đích có vị trí), serial nhận được; ghi chú.
+- Quy trình xử lý: Danh sách kho đích là kho đang dùng nhận hàng của công ty chủ hàng. Gửi như CHUC_NANG_40; duyệt xong (hoặc không có chính sách) phiếu chờ xuất. Xuất: ghi sổ giảm ở kho nguồn, serial sang đang vận chuyển, lưu giá trị xuất, hàng giữ của phiếu đã dùng; phiếu Đang vận chuyển. Nhận: ghi sổ tăng ở kho đích theo số thực nhận với giá vốn lúc xuất (serial giữ giá đích danh), giữ lô; dòng nhận khác số xuất lập biên bản chênh lệch (số xuất, số nhận, chênh lệch, giá trị = chênh lệch × giá vốn lúc xuất, ghi chú); phiếu Đã nhận.
+- Kết quả đầu ra: Phiếu kèm trạng thái, nút xuất (kho nguồn), nhận (kho đích); biên bản chênh lệch; đang chuyển đến trong tồn kho của kho đích.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_28
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_50, QUYTAC_NGHIEPVU_52
+- Trường hợp ngoại lệ: Xuất lại phiếu đã xuất, nhận phiếu chưa xuất bị từ chối. Chênh lệch chỉ ghi biên bản; hệ thống không tự lập phiếu điều chỉnh.
+- Phân quyền: Người không có quyền tại kho nguồn không xuất được; không có quyền tại kho đích không nhận được.
+- Thông báo lỗi: "Kho không nhận hàng của công ty này." · "Phiếu chuyển kho chưa được duyệt hoặc đã xuất." · "Phiếu chuyển kho không ở trạng thái đang vận chuyển." · "Serial không có trong phiếu chuyển kho." · "Số serial phải bằng số lượng theo đơn vị cơ sở." · như CHUC_NANG_40
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_69
+
+### CHUC_NANG_42: Kiểm kê
+- Mục đích: Đối chiếu tồn thực tế với sổ sách, điều chỉnh chênh lệch có duyệt và quy trách nhiệm.
+- Người sử dụng: Quản lý kho, quản trị công ty, quản trị tập đoàn; người duyệt phiếu điều chỉnh.
+- Điều kiện thực hiện: Xem: `inventory.access` tại kho. Lập, bắt đầu, nhập số đếm, kết thúc, hủy: `inventory.stocktake.manage` tại kho.
+- Dữ liệu đầu vào: Kho, công ty chủ hàng, phạm vi (toàn kho; ngành hàng; vị trí khi kho có vị trí; danh sách sản phẩm) và danh sách mã phạm vi, ghi chú. Số đếm theo đơn vị cơ sở theo dòng, hoặc dòng mới (biến thể, lô, vị trí); serial đếm được với hàng serial. Kết thúc: người chịu trách nhiệm, tiền bồi thường theo dòng.
+- Quy trình xử lý: Bắt đầu: cấp số `KK`, chụp tồn sổ sách các dòng tồn lớn hơn 0 trong phạm vi kèm giá vốn bình quân (kiểm theo danh sách sản phẩm thì mặt hàng hết tồn vẫn có dòng); từ đây mặt hàng trong phạm vi bị khóa (QUYTAC_NGHIEPVU_53). Nhập số đếm nhiều lần. Kết thúc khi mọi dòng có số đếm: tính chênh lệch (hàng serial theo danh sách serial thiếu, thừa), lập phiếu điều chỉnh lý do "Kiểm kê" gắn kiểm kê, dòng thiếu kèm người chịu trách nhiệm và tiền bồi thường (mặc định số thiếu × giá vốn lúc chụp), rồi gửi phiếu như CHUC_NANG_40; gửi lỗi thì kiểm kê về Đang đếm. Hủy khi Nháp hoặc Đang đếm.
+- Kết quả đầu ra: Danh sách kiểm kê (số, kho, công ty chủ hàng, phạm vi, trạng thái, số dòng, số dòng đã đếm); chi tiết dòng (tồn sổ sách, số đếm, chênh lệch, giá trị chênh lệch); liên kết phiếu điều chỉnh.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_28
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_53, QUYTAC_NGHIEPVU_50, QUYTAC_NGHIEPVU_48
+- Trường hợp ngoại lệ: Không có chênh lệch thì không sinh phiếu. Phiếu điều chỉnh ghi sổ được vào mặt hàng đang khóa của chính kiểm kê đó.
+- Phân quyền: Thủ kho không có quyền kiểm kê.
+- Thông báo lỗi: "Kiểm kê đã bắt đầu." · "Kiểm kê không ở trạng thái đang đếm." · "Còn dòng chưa có số đếm." · "Hàng theo lô: ghi số đếm theo lô đã có; lô mới nhập bằng phiếu nhập khác." · "Số serial phải bằng số lượng theo đơn vị cơ sở." · "Serial bị lặp." · "Kho không nhận hàng của công ty này."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_70
+
+### CHUC_NANG_43: Giữ hàng
+- Mục đích: Dành hàng cho đơn, phiếu đã xác nhận để không bán, xuất trùng.
+- Người sử dụng: Quản lý kho, quản trị công ty, quản trị tập đoàn; phiếu kho (tự động); MODULE_05 (đơn bán, qua dịch vụ trong API).
+- Điều kiện thực hiện: Xem: `inventory.access` tại kho. Giữ thủ công, gia hạn, nhả: `inventory.reservation.manage` tại kho.
+- Dữ liệu đầu vào: Giữ thủ công: kho, công ty chủ hàng, biến thể, số lượng lớn hơn 0 (đơn vị cơ sở), ghi chú (lưu làm số nguồn). Gia hạn: số giờ 1 đến 720.
+- Quy trình xử lý: Khóa dòng giá vốn của mặt hàng, kiểm tồn khả dụng, lưu hàng giữ; giữ thủ công có hạn theo cài đặt giữ hàng của công ty chủ hàng. Gia hạn cộng thêm số giờ vào hạn giữ (hoặc từ bây giờ nếu đã quá hạn). Nhả tay đổi sang Đã nhả. Tác vụ nền mỗi 5 phút nhả hàng giữ đã hết hạn.
+- Kết quả đầu ra: Danh sách hàng giữ lọc theo trạng thái, kho (mã hàng, số lượng, nguồn, số nguồn, hạn giữ, người tạo).
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_29
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_54
+- Trường hợp ngoại lệ: Hàng giữ cho phiếu kho không có hạn, không gia hạn, không nhả tay; nhả khi phiếu bị từ chối, rút; đã dùng khi ghi sổ hoặc xuất chuyển kho.
+- Phân quyền: Thủ kho không giữ, nhả được.
+- Thông báo lỗi: "Không đủ hàng khả dụng (một phần đang được giữ)." · "Hàng giữ cho phiếu kho chỉ nhả khi phiếu bị từ chối hoặc rút." · "Mặt hàng không thuộc công ty chủ hàng hoặc đã ngừng bán." · "Kho không nhận hàng của công ty này."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_71
+
+### CHUC_NANG_44: Tồn an toàn, cảnh báo, gợi ý bổ sung
+- Mục đích: Biết sớm hàng sắp thiếu và số cần mua hoặc chuyển.
+- Người sử dụng: Quản lý kho, quản trị công ty, quản trị tập đoàn; Mua hàng (nhận thông báo khi có quyền).
+- Điều kiện thực hiện: Xem, cảnh báo: `inventory.access` tại kho. Đặt, xóa mức tồn an toàn: `inventory.reservation.manage` tại kho.
+- Dữ liệu đầu vào: Kho, công ty chủ hàng, biến thể, tối thiểu, tối đa (không âm, tối đa không nhỏ hơn tối thiểu).
+- Quy trình xử lý: Lưu hoặc thay mức theo kho, công ty chủ hàng, biến thể. Dưới tồn an toàn khi tồn khả dụng + đang chuyển đến < tối thiểu; số gợi ý theo QUYTAC_NGHIEPVU_55. Tác vụ nền 7 giờ sáng giờ Việt Nam gửi mỗi kho một thông báo trong ứng dụng "<tên kho>: <số> mặt hàng dưới tồn an toàn" cho người có quyền `inventory.reservation.manage` ở tập đoàn, công ty sở hữu kho, chi nhánh của kho.
+- Kết quả đầu ra: Danh sách mức tồn an toàn (tối thiểu, tối đa, khả dụng, đang chuyển đến, dưới tồn an toàn, số gợi ý); danh sách cảnh báo; cột tối thiểu và dấu dưới tồn an toàn trong tồn kho.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_29
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_55
+- Trường hợp ngoại lệ: Mặt hàng chưa đặt mức thì không cảnh báo.
+- Phân quyền: Thủ kho xem cột tối thiểu trong tồn kho, không đặt mức.
+- Thông báo lỗi: "Giá trị không hợp lệ." (tối đa nhỏ hơn tối thiểu) · "Mặt hàng không thuộc công ty chủ hàng hoặc đã ngừng bán." · "Kho không nhận hàng của công ty này."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_72
+
+### CHUC_NANG_45: In tem mã vạch
+- Mục đích: In tem dán sản phẩm, tem vị trí kệ để quét bằng máy quét.
+- Người sử dụng: Thủ kho, Quản lý kho, quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: Tem sản phẩm: `inventory.access` tại ít nhất một kho nhận hàng của công ty chủ hàng. Tem vị trí: `inventory.access` tại kho.
+- Dữ liệu đầu vào: Tem sản phẩm: công ty chủ hàng, danh sách biến thể, số bản mỗi biến thể (1 đến 500). Tem vị trí: kho.
+- Quy trình xử lý: Tạo PDF bằng `pdfmake`, mỗi tem một trang khổ 50 × 30 mm, mã vạch Code 128 bộ B vẽ trực tiếp. Tem sản phẩm: tên sản phẩm, mã hàng và giá trị phân loại, mã vạch của đơn vị cơ sở (không có thì mã hàng). Tem vị trí: tên kho, tên vị trí, mã vị trí, mọi vị trí đang dùng. Ký tự ngoài ASCII được bỏ dấu hoặc thay bằng `-`.
+- Kết quả đầu ra: Tệp PDF `tem-san-pham.pdf`, `tem-vi-tri.pdf` mở ngay trên trình duyệt. Nút in ở MAN_HINH_28 (tem vị trí), MAN_HINH_29 và MAN_HINH_32 (tem sản phẩm).
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_29
+- Quy tắc nghiệp vụ: Không có
+- Trường hợp ngoại lệ: Kho chưa có vị trí đang dùng thì không in tem vị trí.
+- Phân quyền: Như điều kiện thực hiện.
+- Thông báo lỗi: "Kho chưa có vị trí đang dùng để in tem." · "Mặt hàng không thuộc công ty chủ hàng hoặc đã ngừng bán."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_73
+
+## Yêu cầu phi chức năng của MODULE_03 (phần web)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Hiệu năng | Danh sách tồn kho 50.000 dòng trả trang đầu dưới 500 mili giây; ghi sổ phiếu 200 dòng dưới 2 giây |
+| Đồng thời | Ghi sổ khóa dòng giá vốn rồi dòng tồn theo thứ tự cố định; giữ hàng khóa dòng giá vốn; tồn không âm (ràng buộc cơ sở dữ liệu) |
+| Toàn vẹn | Thẻ kho chỉ thêm (trigger cơ sở dữ liệu); số lượng, tiền `numeric(20,4)`, tính giá vốn trong cơ sở dữ liệu |
+| Giao diện | Dùng được trên điện thoại; nhận máy quét mã vạch gõ phím |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 

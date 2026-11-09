@@ -1,10 +1,10 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái và ngoại lệ, có mã định danh.
-- Phiên bản: 1.3
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.4
+- Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm QUYTAC_NGHIEPVU_45 đến QUYTAC_NGHIEPVU_55 của MODULE_03
 
 ## MODULE_01 Nền tảng
 
@@ -103,6 +103,29 @@
 | QUYTAC_NGHIEPVU_42 | Bảng giá thuộc một công ty, gắn tùy chọn một kênh bán và một nhóm khách hàng, một tiền tệ, đánh dấu giá gồm hay chưa gồm thuế giá trị gia tăng; kênh, nhóm khách hàng, tiền tệ không đổi sau khi tạo. Không có hai bảng giá đang dùng trùng công ty, kênh, nhóm khách hàng, tiền tệ. Chọn bảng giá khi bán theo thứ tự: trùng cả kênh và nhóm khách; chỉ trùng nhóm khách; chỉ trùng kênh; bảng giá chung (không kênh, không nhóm). Bảng giá ưu tiên hơn chưa có giá của mặt hàng thì xét bảng kế tiếp | YCAU_NGHIEPVU_25 |
 | QUYTAC_NGHIEPVU_43 | Giá đặt theo biến thể và đơn vị tính, kèm ngày hiệu lực; giá hiện hành tại một ngày là giá có ngày hiệu lực gần nhất không sau ngày đó (cùng ngày thì lấy giá ghi sau). Đơn vị không có giá riêng thì lấy giá đơn vị cơ sở nhân hệ số. Lịch sử giá không sửa, không xóa | YCAU_NGHIEPVU_25 |
 | QUYTAC_NGHIEPVU_44 | Giá chỉ thay đổi qua phiếu điều chỉnh giá: Nháp → Chờ duyệt → Đã duyệt (ghi giá vào lịch sử) hoặc Bị từ chối; Chờ duyệt → Đã rút. Chỉ người lập sửa, xóa, gửi khi Nháp; rút khi cấp 1 chưa quyết định. Ngày hiệu lực không trước ngày gửi; duyệt xong sau ngày hiệu lực thì giá có hiệu lực từ ngày duyệt. Phiếu đi qua chính sách duyệt của loại chứng từ "Phiếu điều chỉnh giá" (`catalog.price_change`) với giá trị duyệt 0; công ty chưa có chính sách duyệt hiệu lực cho loại chứng từ này thì ghi giá ngay khi gửi. Số phiếu cấp từ dãy số chứng từ khi gửi; công ty chưa cài dãy số thì tạo dãy tiền tố `DCG`, đặt lại theo năm, 6 chữ số. Bảng giá còn phiếu chờ duyệt thì không ngừng dùng được (quyết định ngày 2026-11-09) | YCAU_NGHIEPVU_25 |
+
+## MODULE_03 Kho (phần web, CONG_VIEC_05)
+
+### Kho, quyền, tồn kho
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_45 | Kho thuộc một chi nhánh của một công ty (công ty sở hữu kho), một chi nhánh nhiều kho; mã kho 1 đến 20 ký tự chữ in hoa, số, gạch ngang, gạch dưới, duy nhất trong công ty; mã vị trí 1 đến 30 ký tự (thêm dấu chấm), duy nhất trong kho. Kho có danh sách công ty chủ hàng được gửi hàng (luôn gồm công ty sở hữu kho); bỏ một công ty chủ hàng chỉ khi công ty đó không còn tồn trong kho. Kho bật tắt vị trí kệ, chỉ đổi được khi kho không còn tồn; kho có vị trí thì mọi dòng tồn có vị trí. Không xóa kho, vị trí; chỉ ngừng dùng khi không còn tồn | YCAU_NGHIEPVU_26 |
+| QUYTAC_NGHIEPVU_46 | Nhân viên được gán quyền kho ở chi nhánh sở hữu kho (hoặc phạm vi công ty sở hữu kho, tập đoàn bao trùm) thao tác mọi hàng trong kho. Nhân viên công ty chủ hàng có quyền xem tồn ở phạm vi công ty chỉ xem tồn, phiếu của công ty mình tại kho đó. Phiếu kho thuộc công ty chủ hàng: đánh số, chính sách duyệt, hạch toán theo công ty chủ hàng; một phiếu chỉ chứa hàng của một công ty chủ hàng; sản phẩm trên phiếu là sản phẩm đang bán của công ty chủ hàng | YCAU_NGHIEPVU_26, YCAU_NGHIEPVU_28 |
+| QUYTAC_NGHIEPVU_47 | Tồn lưu theo đơn vị cơ sở của sản phẩm, theo kho, công ty chủ hàng, biến thể, lô, vị trí. Không cho tồn âm: mọi lần ghi sổ khóa dòng tồn và kiểm đủ hàng. Hàng theo dõi lô: mỗi dòng nhập có số lô, hạn dùng (bắt buộc khi sản phẩm theo dõi lô), ngày sản xuất; lô đã có thì hạn dùng phải trùng; dòng xuất chọn lô. Hàng theo dõi serial: số lượng nguyên theo đơn vị cơ sở, số serial bằng số lượng, mỗi đơn vị một serial duy nhất trong công ty chủ hàng, serial chỉ ở một nơi tại một thời điểm; serial đã xuất được nhập lại | YCAU_NGHIEPVU_27 |
+| QUYTAC_NGHIEPVU_48 | Giá vốn bình quân gia quyền di động tính theo kho và công ty chủ hàng cho từng biến thể: nhập có giá thì giá vốn mới = (giá trị tồn + giá trị nhập) / (số lượng tồn + số lượng nhập), giá trị nhập = số lượng × đơn giá theo đơn vị của dòng; xuất, điều chỉnh giảm lấy giá vốn hiện hành (xuất hết thì lấy toàn bộ giá trị còn lại); điều chỉnh tăng không ghi đơn giá thì lấy giá vốn hiện hành; hàng serial lấy giá đích danh của từng serial. Tiền lưu 4 chữ số lẻ, hiển thị theo tiền tệ công ty (VND) | YCAU_NGHIEPVU_27 |
+| QUYTAC_NGHIEPVU_49 | Thẻ kho ghi mọi biến động: thời điểm, phiếu, lô, vị trí, số lượng tăng giảm, giá vốn, giá trị, tồn sau biến động (của biến thể tại kho cho công ty chủ hàng). Thẻ kho chỉ thêm, không sửa, không xóa (trigger cơ sở dữ liệu chặn); sai thì lập phiếu khác để điều chỉnh | YCAU_NGHIEPVU_27 |
+
+### Phiếu kho, chuyển kho, kiểm kê
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_50 | Phiếu nhập khác, xuất khác, điều chỉnh: Nháp → Chờ duyệt → Đã ghi sổ hoặc Bị từ chối; Chờ duyệt → Đã rút. Phiếu chuyển kho: Nháp → Chờ duyệt → Đã duyệt chờ xuất (trạng thái `posted`) → Đang vận chuyển → Đã nhận; Chờ duyệt → Bị từ chối, Đã rút. Chỉ người lập sửa, xóa, gửi khi Nháp (không đổi loại phiếu, kho, công ty chủ hàng); rút khi cấp 1 chưa quyết định. Giá trị duyệt là tổng giá trị: dòng có đơn giá theo đơn giá, dòng khác theo giá vốn bình quân hiện hành. Công ty chủ hàng chưa có chính sách duyệt hiệu lực cho loại phiếu thì ghi sổ ngay khi gửi (phiếu chuyển kho sang Đã duyệt chờ xuất). Số phiếu cấp khi gửi; công ty chưa cài dãy số thì tạo dãy tiền tố `NK`, `XK`, `DCK`, `CK`, đặt lại theo năm, 6 chữ số. Khi gửi phiếu làm giảm tồn, hàng được giữ cho phiếu đến khi ghi sổ (chuyển kho: khi xuất), bị từ chối hoặc rút | YCAU_NGHIEPVU_28 |
+| QUYTAC_NGHIEPVU_51 | Xuất hàng theo lô: hệ thống gợi ý lô hết hạn trước, lô không có hạn dùng thì nhập trước xuất trước; chọn lô khác gợi ý phải ghi lý do; không xuất lô đã hết hạn, trừ phiếu xuất lý do "Hủy hàng hết hạn" và phiếu điều chỉnh lý do "Kiểm kê". Kiểm tra lô khi gửi phiếu, không kiểm lại khi ghi sổ sau duyệt | YCAU_NGHIEPVU_27 |
+| QUYTAC_NGHIEPVU_52 | Chuyển kho chỉ trong cùng công ty chủ hàng, kho đích khác kho nguồn, đang dùng, nhận hàng của công ty đó. Sau duyệt: người có quyền lập phiếu ở kho nguồn xác nhận xuất (trừ tồn, serial sang trạng thái đang vận chuyển, giữ nguyên giá vốn), người có quyền lập phiếu ở kho đích xác nhận nhận theo số thực nhận (đơn vị cơ sở) cho mọi dòng, chọn vị trí khi kho đích có vị trí, serial nhận phải có trong phiếu. Nhận khác số xuất lập biên bản chênh lệch ghi số lượng, giá trị theo giá vốn lúc xuất. Hàng đang vận chuyển không tính vào tồn khả dụng của kho nào; hiển thị là "đang chuyển đến" của kho đích | YCAU_NGHIEPVU_28 |
+| QUYTAC_NGHIEPVU_53 | Kiểm kê toàn kho hoặc từng phần (theo ngành hàng, vị trí, danh sách sản phẩm) của một công ty chủ hàng: Nháp → Đang đếm → Đã kết thúc; Nháp, Đang đếm → Đã hủy. Bắt đầu kiểm thì cấp số (dãy `KK`), chụp số tồn sổ sách và khóa các mặt hàng (theo vị trí khi dòng có vị trí) trong phạm vi: không ghi sổ phiếu khác vào chúng đến khi kết thúc hoặc hủy. Số đếm theo đơn vị cơ sở, ghi nhiều lần; hàng có thực tế mà sổ sách không có thì thêm dòng; hàng theo lô ghi số đếm theo lô đã có (lô mới nhập bằng phiếu nhập khác). Kết thúc khi mọi dòng có số đếm: chênh lệch sinh phiếu điều chỉnh (lý do kiểm kê) và gửi ngay theo luồng duyệt; dòng thiếu ghi người chịu trách nhiệm và số tiền bồi thường (mặc định bằng giá trị thiếu, sửa được). Gửi phiếu điều chỉnh không được thì kiểm kê trở lại Đang đếm | YCAU_NGHIEPVU_28 |
+| QUYTAC_NGHIEPVU_54 | Tồn khả dụng = tồn thực − hàng đang giữ. Giữ hàng theo kho, công ty chủ hàng, biến thể, số lượng, nguồn (phiếu kho, giữ thủ công, sau này đơn bán), hạn giữ; không giữ quá tồn khả dụng. Giữ thủ công và giữ cho đơn bán tự nhả sau số giờ cài đặt theo công ty chủ hàng (1 đến 720, mặc định 72 giờ); người có quyền gia hạn (1 đến 720 giờ), nhả tay được; giữ cho phiếu kho không có hạn, không nhả tay | YCAU_NGHIEPVU_29 |
+| QUYTAC_NGHIEPVU_55 | Tồn an toàn đặt theo kho, công ty chủ hàng, biến thể: tối thiểu, tối đa (không âm, tối đa không nhỏ hơn tối thiểu). Tồn khả dụng cộng hàng đang chuyển đến dưới tối thiểu thì cảnh báo trên màn hình và thông báo lúc 7 giờ sáng hằng ngày cho người có quyền `inventory.reservation.manage` ở tập đoàn, công ty sở hữu kho hoặc chi nhánh của kho; số gợi ý bổ sung = tối đa − (tồn khả dụng + đang chuyển đến) | YCAU_NGHIEPVU_29 |
 
 ## Quy tắc do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
