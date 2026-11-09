@@ -11,10 +11,13 @@ const nextConfig: NextConfig = {
     const apiOrigin = process.env.API_ORIGIN ?? "http://localhost:4000";
     // Mini app khác chạy ứng dụng web riêng; chuyển tiếp để dùng chung tên miền, cookie phiên (tài liệu 12 mục 2).
     const catalogOrigin = process.env.CATALOG_ORIGIN ?? "http://localhost:3001";
+    const inventoryOrigin = process.env.INVENTORY_ORIGIN ?? "http://localhost:3002";
     return [
       { source: "/api/v1/:path*", destination: `${apiOrigin}/api/v1/:path*` },
       { source: "/catalog", destination: `${catalogOrigin}/catalog` },
       { source: "/catalog/:path*", destination: `${catalogOrigin}/catalog/:path*` },
+      { source: "/inventory", destination: `${inventoryOrigin}/inventory` },
+      { source: "/inventory/:path*", destination: `${inventoryOrigin}/inventory/:path*` },
     ];
   },
 };

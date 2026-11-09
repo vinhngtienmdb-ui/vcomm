@@ -1,10 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 1.1
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.2
+- Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -51,6 +51,28 @@
 | Đăng nhập liên kết | Google, Microsoft qua OpenID Connect; Zalo qua OAuth 2.0 của Zalo for Developers | CHUC_NANG_07, CHUC_NANG_24 |
 | Xác thực nhà bán qua VNeID | Tổ chức cung cấp dịch vụ xác thực điện tử (**CHƯA XÁC ĐỊNH**), theo Nghị định 69/2024/NĐ-CP sửa đổi bởi Nghị định 320/2026/NĐ-CP | MODULE_02 (THAY_DOI_02) |
 | Khóa bí mật, mã hóa | AWS Secrets Manager, AWS KMS | Tài liệu `22` mục 5 |
+
+## 3a. Mini app web và cách vào chung tên miền
+
+Mini app Nền tảng (`apps/web-platform`) là cửa vào chung: chuyển tiếp (rewrite của Next.js) đường dẫn của mini app khác sang ứng dụng web riêng của mini app đó, để mọi mini app dùng chung tên miền, cookie phiên HttpOnly và CSRF. Mỗi mini app đặt `basePath` bằng đường dẫn của mình và tự chuyển tiếp `/api/v1` sang backend (`API_ORIGIN`, mặc định `http://localhost:4000`).
+
+| Mini app | Thư mục | Đường dẫn | Cổng phát triển | Biến môi trường ở `web-platform` (mặc định) |
+|---|---|---|---|---|
+| Nền tảng, trang chủ mini app | `apps/web-platform` | `/` | 3000 | Không áp dụng |
+| Sản phẩm (CONG_VIEC_04) | `apps/web-catalog` | `/catalog` | 3001 | `CATALOG_ORIGIN` (`http://localhost:3001`) |
+| Kho (CONG_VIEC_05) | `apps/web-inventory` | `/inventory` | 3002 | `INVENTORY_ORIGIN` (`http://localhost:3002`) |
+
+Chạy riêng mini app Kho: `pnpm --filter web-inventory dev` (cổng 3002), vào qua `http://localhost:3000/inventory` khi mini app Nền tảng và backend đang chạy.
+
+## 3b. Thành phần phụ trợ cho MODULE_03 Kho (CONG_VIEC_05)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Sổ kho | Dịch vụ `StockLedgerService` (`apps/api/src/inventory/stock-ledger.service.ts`), chạy trong giao dịch của phiếu; MODULE_04, MODULE_05 gọi khi nhập, xuất kho | CHUC_NANG_40, CHUC_NANG_41, CHUC_NANG_42 |
+| Giữ hàng | Dịch vụ `ReservationsService`, gọi trong giao dịch của bên giữ; MODULE_05 dùng cho đơn bán | CHUC_NANG_43 |
+| Tác vụ nền | BullMQ: `inventory-reservation-expiry` mỗi 5 phút nhả hàng giữ hết hạn; `inventory-stock-alerts` lúc 7 giờ sáng giờ Việt Nam (`Asia/Ho_Chi_Minh`) gửi thông báo cảnh báo tồn an toàn | CHUC_NANG_43, CHUC_NANG_44 |
+| Duyệt phiếu kho | Dịch vụ duyệt của MODULE_01 (CHUC_NANG_16); nghe sự kiện `core.approval.completed` qua outbox để ghi sổ hoặc nhả hàng giữ | CHUC_NANG_40, CHUC_NANG_41, CHUC_NANG_42 |
+| Tem PDF | `pdfmake` (đã có), mã vạch Code 128 vẽ bằng mã trong `apps/api/src/inventory/code128.ts`, không thêm thư viện | CHUC_NANG_45 |
 
 ## 4. Kiến trúc triển khai
 

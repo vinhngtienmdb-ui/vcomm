@@ -54,7 +54,16 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "catalog.product.manage", appCode: "catalog", nameVi: "Quản lý sản phẩm", nameEn: "Manage products", isSensitive: false },
   { code: "catalog.price.view", appCode: "catalog", nameVi: "Xem bảng giá", nameEn: "View price lists", isSensitive: false },
   { code: "catalog.price.manage", appCode: "catalog", nameVi: "Quản lý bảng giá, điều chỉnh giá", nameEn: "Manage price lists and price changes", isSensitive: true },
+  // CONG_VIEC_05: mini app Kho (MODULE_03).
+  { code: "inventory.warehouse.manage", appCode: "inventory", nameVi: "Quản lý kho, vị trí", nameEn: "Manage warehouses and locations", isSensitive: false },
+  { code: "inventory.stock.view", appCode: "inventory", nameVi: "Xem tồn kho", nameEn: "View stock", isSensitive: false },
+  { code: "inventory.cost.view", appCode: "inventory", nameVi: "Xem giá vốn, giá trị tồn", nameEn: "View stock cost and value", isSensitive: true },
+  { code: "inventory.document.manage", appCode: "inventory", nameVi: "Lập phiếu kho", nameEn: "Manage stock documents", isSensitive: false },
+  { code: "inventory.stocktake.manage", appCode: "inventory", nameVi: "Kiểm kê", nameEn: "Manage stocktakes", isSensitive: false },
+  { code: "inventory.reservation.manage", appCode: "inventory", nameVi: "Quản lý giữ hàng, tồn an toàn", nameEn: "Manage reservations and stock levels", isSensitive: false },
 ];
+
+const inventoryPermissions = permissionCatalog.filter((permission) => permission.appCode === "inventory").map((permission) => permission.code);
 
 const employeePermissions = ["platform.access", "platform.profile.manage", "platform.approval.decide", "platform.proposal.create"];
 // THAY_DOI_06: quản trị công ty có quyền truy cập mọi mini app để gán được vai trò nghiệp vụ.
@@ -77,6 +86,7 @@ const companyAdminPermissions = [
   "catalog.product.manage",
   "catalog.price.view",
   "catalog.price.manage",
+  ...inventoryPermissions.filter((code) => code !== "inventory.access"),
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [
@@ -84,9 +94,9 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     code: "group_admin",
     nameVi: "Quản trị tập đoàn",
     nameEn: "Group administrator",
-    // Quản trị tập đoàn: mọi quyền của Nền tảng và Sản phẩm (CONG_VIEC_04), cộng quyền truy cập mọi mini app.
+    // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), cộng quyền truy cập mọi mini app.
     permissionCodes: permissionCatalog
-      .filter((permission) => permission.appCode === "platform" || permission.appCode === "catalog" || permission.code.endsWith(".access"))
+      .filter((permission) => ["platform", "catalog", "inventory"].includes(permission.appCode) || permission.code.endsWith(".access"))
       .map((permission) => permission.code),
   },
   { code: "company_admin", nameVi: "Quản trị công ty", nameEn: "Company administrator", permissionCodes: companyAdminPermissions },
@@ -98,12 +108,19 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     nameEn: "Product manager",
     permissionCodes: ["catalog.access", "catalog.product.view", "catalog.product.manage", "catalog.price.view"],
   },
+  { code: "warehouse_keeper", nameVi: "Thủ kho", nameEn: "Warehouse keeper", permissionCodes: ["inventory.access", "inventory.stock.view", "inventory.document.manage"] },
+  { code: "warehouse_manager", nameVi: "Quản lý kho", nameEn: "Warehouse manager", permissionCodes: inventoryPermissions },
 ];
 
 // Loại chứng từ do mã khai báo. Chứng từ thử của Nền tảng dùng để thử luồng duyệt khi chưa có module khác (CONG_VIEC_02 lát L7).
 export const documentTypeCatalog = [
   { code: "platform.test_document", appCode: "platform", nameVi: "Chứng từ thử", nameEn: "Test document", requiresApproval: true },
   { code: "catalog.price_change", appCode: "catalog", nameVi: "Phiếu điều chỉnh giá", nameEn: "Price change", requiresApproval: true },
+  { code: "inventory.receipt_other", appCode: "inventory", nameVi: "Phiếu nhập khác", nameEn: "Other goods receipt", requiresApproval: true },
+  { code: "inventory.issue_other", appCode: "inventory", nameVi: "Phiếu xuất khác", nameEn: "Other goods issue", requiresApproval: true },
+  { code: "inventory.adjustment", appCode: "inventory", nameVi: "Phiếu điều chỉnh kho", nameEn: "Stock adjustment", requiresApproval: true },
+  { code: "inventory.transfer", appCode: "inventory", nameVi: "Phiếu chuyển kho", nameEn: "Stock transfer", requiresApproval: true },
+  { code: "inventory.stocktake", appCode: "inventory", nameVi: "Phiếu kiểm kê", nameEn: "Stocktake", requiresApproval: false },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.

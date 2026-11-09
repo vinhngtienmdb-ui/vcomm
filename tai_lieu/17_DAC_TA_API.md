@@ -1,12 +1,12 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Hợp đồng API: endpoint, phương thức, dữ liệu gửi lên, dữ liệu trả về, xác thực, phân quyền, kiểm tra dữ liệu, lỗi, phân trang.
-- Phiên bản: 1.2
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.3
+- Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a)
+- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b)
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04).
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05).
 
 ## 1. Quy ước chung
 
@@ -123,6 +123,21 @@ Mọi đường dẫn có tiền tố `/api/v1`. Quyền viết đầy đủ. M�
 | API_60 | `GET`, `POST /catalog/sales-channels`; `PATCH /catalog/sales-channels/{id}`; `POST /catalog/sales-channels/{id}/deactivate`, `/activate`; `POST /catalog/sales-channels/defaults`; cùng các đường dẫn với `/catalog/customer-groups` (trừ `defaults`) | CHUC_NANG_35 | Xem: `catalog.price.view`; sửa: `catalog.price.manage` | `code`, `name`; sửa chỉ `name`, `version`; ngừng, dùng lại: `version` | Kênh hoặc nhóm khách (`id`, `code`, `name`, `status`, `version`); `defaults` trả danh sách kênh sau khi thêm |
 | API_61 | `GET /catalog/price-lists`, `POST /catalog/price-lists`, `PATCH /catalog/price-lists/{id}`, `POST /catalog/price-lists/{id}/deactivate`, `/activate`, `GET /catalog/price-lists/{id}/prices`, `GET /catalog/price-lists/{id}/history`, `GET /catalog/prices/lookup` | CHUC_NANG_36 | Xem, tra giá: `catalog.price.view`; sửa: `catalog.price.manage` | Bảng giá: `code`, `name`, `channelId`, `customerGroupId`, `currency` (mặc định `VND`), `includesVat`; sửa chỉ `name`, `includesVat`, `version`. `prices`: `date`, `search`, `page`, `pageSize` (mặc định 50). `history`: `variantId`, `unitId`. `lookup`: `variantId`, `unitId`, `channelId`, `customerGroupId`, `currency`, `date` | Bảng giá; trang giá hiện hành; lịch sử giá kèm số phiếu; kết quả tra giá (mục 3a) |
 | API_62 | `GET /catalog/price-changes`, `POST /catalog/price-changes`, `GET /catalog/price-changes/{id}`, `PATCH /catalog/price-changes/{id}`, `DELETE /catalog/price-changes/{id}`, `POST /catalog/price-changes/{id}/submit`, `POST /catalog/price-changes/{id}/withdraw`, `GET /catalog/price-changes/import-template`, `POST /catalog/price-changes/import-lines?priceListId=` (multipart) | CHUC_NANG_37 | Xem: `catalog.price.view`; lập, sửa, xóa, gửi, rút, nhập dòng: `catalog.price.manage`, sửa, xóa, gửi, rút chỉ người lập | `priceListId`, `effectiveFrom`, `note`, `lines[]` (`variantId`, `unitId`, `price`; 1 đến 5.000 dòng), `version`. Lọc `status`, `page`, `pageSize` | Phiếu kèm dòng, `canEdit`, `canWithdraw`; `204` khi xóa; nhập dòng trả `{ lines, errors }`, không lưu |
+
+## 2b. Danh sách endpoint MODULE_03 (Kho, CONG_VIEC_05)
+
+Mọi đường dẫn có tiền tố `/api/v1`, nằm trong `apps/api/src/inventory/inventory.controller.ts`. Mọi endpoint trước hết cần `inventory.access` hoặc `inventory.stock.view` trong công ty đang làm việc (header `X-Company-Id`), không có thì `403 FORBIDDEN`. Quyền chi tiết kiểm tra trong service tại kho: lần gán ở tập đoàn, ở công ty sở hữu kho hoặc ở chi nhánh của kho ("tại kho"). Kho không có `inventory.access` tại kho và không nhận hàng của công ty đang làm việc trả `404 NOT_FOUND`; có `inventory.access` nhưng thiếu quyền chi tiết trả `403`. Mã định danh trong đường dẫn không phải UUID trả `400`. `POST` thành công trả `201`, `DELETE` trả `204`.
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_63 | `GET`, `POST /inventory/warehouses`; `GET`, `PATCH /inventory/warehouses/{id}`; `POST /inventory/warehouses/{id}/deactivate`, `/activate`; `GET /inventory/warehouse-options`; `GET`, `POST /inventory/warehouses/{id}/locations`; `PATCH /inventory/warehouses/{id}/locations/{locationId}`; `POST /inventory/warehouses/{id}/locations/{locationId}/deactivate`, `/activate`; `GET`, `PUT /inventory/settings` | CHUC_NANG_38 | Xem: quyền kho tại kho hoặc `inventory.stock.view` ở công ty chủ hàng. Thêm kho, `warehouse-options`, sửa cài đặt: `inventory.warehouse.manage` ở phạm vi công ty. Sửa kho, vị trí, ngừng dùng: `inventory.warehouse.manage` tại kho | Kho: `branchId`, `code`, `name`, `address`, `usesLocations`, `ownerCompanyIds`; sửa không có `branchId`, `code`, thêm `version`. Vị trí: `locations[]` (`code`, `name`; 1 đến 500); sửa `name`, `version`. Ngừng, dùng lại: `version`. Cài đặt: `reservationHours`, `version` | Kho kèm `owners`, `locationCount`, `canOperate`, `canManage`; danh sách vị trí sau khi đổi; `{ branches, companies }`; `{ reservationHours, version }` (chưa cài: `72`, `0`) |
+| API_64 | `GET /inventory/stock`, `GET /inventory/stock/{variantId}/details`, `GET /inventory/stock-card` | CHUC_NANG_39 | Như xem kho; giá vốn, giá trị cần `inventory.cost.view` (mục 3b) | `stock`: `warehouseId`, `companyId`, `categoryId`, `search`, `onlyInStock` (mặc định `true`), `page`, `pageSize` (tối đa 100, mặc định 50). `details`: `warehouseId`, `companyId`. `stock-card`: `warehouseId`, `companyId`, `variantId`, `from`, `to` | Trang dòng tồn; `{ balances, serials, reservations }`; `{ sku, productName, baseUnitName, opening, movements, closing }` |
+| API_65 | `GET`, `POST /inventory/documents`; `GET`, `PATCH`, `DELETE /inventory/documents/{id}`; `POST /inventory/documents/{id}/submit`, `/withdraw`; `GET /inventory/documents/lot-suggestions`; `GET /inventory/items` | CHUC_NANG_40 | Xem: như xem kho. Lập, sửa, xóa, gửi, rút, gợi ý lô: `inventory.document.manage` tại kho; sửa, xóa, gửi, rút chỉ người lập. Tìm mặt hàng: `inventory.access` tại một kho nhận hàng của công ty chủ hàng | Phiếu: `type`, `warehouseId`, `companyId`, `destinationWarehouseId`, `documentDate`, `reasonCode`, `reason`, `note`, `lines[]` (1 đến 1.000), `version` (khi sửa). Lọc `type`, `status`, `warehouseId`, `page`, `pageSize` (mặc định 20). Gợi ý lô: `warehouseId`, `companyId`, `variantId`, `locationId`, `includeExpired`. Tìm: `companyId`, `search` | Trang phiếu; phiếu kèm dòng, `discrepancies`, `canEdit`, `canWithdraw`, `canShip`, `canReceive`; danh sách lô gợi ý; tối đa 10 mặt hàng kèm đơn vị, `matchedUnitId` |
+| API_66 | `GET /inventory/transfer-destinations?companyId=`, `POST /inventory/documents/{id}/ship`, `POST /inventory/documents/{id}/receive` | CHUC_NANG_41 | Kho đích: `inventory.access` tại một kho. Xuất: `inventory.document.manage` tại kho nguồn. Nhận: `inventory.document.manage` tại kho đích | Nhận: `lines[]` (`lineId`, `receivedQuantity` theo đơn vị cơ sở, `destinationLocationId`, `serials`; đủ mọi dòng), `note` | Kho nhận hàng của công ty chủ hàng (`id`, `code`, `name`, `companyName`, `usesLocations`); phiếu sau khi xuất, nhận |
+| API_67 | `GET`, `POST /inventory/stocktakes`; `GET /inventory/stocktake-options?warehouseId=`; `GET /inventory/stocktakes/{id}`; `POST /inventory/stocktakes/{id}/start`; `PUT /inventory/stocktakes/{id}/counts`; `POST /inventory/stocktakes/{id}/finish`, `/cancel` | CHUC_NANG_42 | Xem: `inventory.access` tại kho. Lập, `stocktake-options`, bắt đầu, đếm, kết thúc, hủy: `inventory.stocktake.manage` tại kho | Lập: `warehouseId`, `companyId`, `scopeType`, `scopeIds` (tối đa 5.000; trống khi toàn kho), `note`. Đếm: `counts[]` (`lineId` hoặc `variantId`, `lotId`, `locationId`; `countedQuantity`; `serials`; 1 đến 5.000). Kết thúc: `responsibilities[]` (`lineId`, `responsibleUserId`, `compensationAmount`), `version` | Danh sách (tối đa 200, mới trước); kiểm kê kèm dòng, `adjustmentDocumentId`, `adjustmentDocumentNo`, `canManage`; `{ categories, users }` |
+| API_68 | `GET`, `POST /inventory/reservations`; `POST /inventory/reservations/{id}/extend`, `/release` | CHUC_NANG_43 | Xem: `inventory.access` tại kho. Giữ, gia hạn, nhả: `inventory.reservation.manage` tại kho | Giữ: `warehouseId`, `companyId`, `variantId`, `quantity`, `note`. Gia hạn: `hours` (1 đến 720), `version`. Nhả: `version`. Lọc `warehouseId`, `status` (mặc định `active`), `page`, `pageSize` (mặc định 50) | Trang hàng giữ; hàng giữ sau khi đổi |
+| API_69 | `GET`, `PUT /inventory/stock-levels`; `DELETE /inventory/stock-levels/{warehouseId}/{companyId}/{variantId}`; `GET /inventory/stock-alerts` | CHUC_NANG_44 | Xem: `inventory.access` tại kho. Đặt, xóa: `inventory.reservation.manage` tại kho | `warehouseId`, `companyId`, `variantId`, `minimum`, `maximum`. Lọc `warehouseId`, `onlyAlerts` | Dòng tồn an toàn kèm `available`, `incoming`, `belowMinimum`, `suggestedQuantity`; `stock-alerts` chỉ dòng dưới tối thiểu |
+| API_70 | `GET /inventory/labels/products?companyId=&variantIds=&copies=`, `GET /inventory/labels/locations?warehouseId=` | CHUC_NANG_45 | Tem sản phẩm: `inventory.access` tại một kho nhận hàng của công ty chủ hàng. Tem vị trí: `inventory.access` tại kho | `variantIds` cách nhau dấu phẩy; `copies` 1 đến 500 (mặc định 1) | Tệp PDF (`inline`) `tem-san-pham.pdf`, `tem-vi-tri.pdf` |
 
 ## 3. Hợp đồng chi tiết
 
@@ -337,6 +352,53 @@ Gửi lên:
 - `import-lines`: tệp 3 cột "Mã hàng", "Mã đơn vị", "Giá", tối đa 2.000 dòng, 5 MB; trả `{ lines, errors: [{ row, message }] }`, có `priceListId` thì kèm giá hiện hành hôm nay.
 - Lỗi: `400` tại `effectiveFrom` "Ngày hiệu lực không được trước hôm nay.", `lines.<n>.unitId` "Mặt hàng và đơn vị bị lặp.", `lines.<n>.variantId` hoặc `priceListId` "Giá trị không hợp lệ."; `403` khi không phải người lập; `409 BUSINESS_RULE` "Chỉ sửa được chứng từ đang ở trạng thái nháp."; rút khi cấp 1 đã quyết định nhận `409 BUSINESS_RULE` như API_42; `409 CONFLICT_VERSION`.
 
+## 3b. Hợp đồng chi tiết MODULE_03 (CONG_VIEC_05)
+
+### API_63 Kho, vị trí, cài đặt
+- Mã kho, mã vị trí đổi thành chữ in hoa trước khi kiểm tra. Danh sách kho gồm kho của công ty đang làm việc mà nhân viên có quyền kho tại kho (`canOperate: true`) và kho nhận hàng của công ty đang làm việc khi nhân viên có `inventory.stock.view` ở công ty (`canOperate: false`, chỉ xem tồn). `ownerCompanyIds` luôn được thêm công ty sở hữu kho.
+- Lỗi: `400` tại `code` "Mã kho đã có trong công ty."; tại `branchId`, `ownerCompanyIds` "Giá trị không hợp lệ."; tại `ownerCompanyIds` "Công ty chủ hàng còn tồn trong kho, không bỏ được."; tại `usesLocations` "Kho còn tồn, không đổi được cài đặt vị trí kệ."; tại `locations.<n>.code` "Mã vị trí đã có trong kho."; `409 BUSINESS_RULE` "Kho còn tồn, không ngừng dùng được.", "Vị trí còn tồn, không ngừng dùng được."; `403`; `404`; `409 CONFLICT_VERSION`.
+
+### API_64 Tồn kho, thẻ kho
+- Dòng tồn: `{ warehouseId, warehouseName, companyId, companyName, variantId, sku, productName, optionValues, baseUnitName, onHand, reserved, available, incoming, averageCost, value, minimum, belowMinimum }`. Phạm vi: kho thao tác được (mọi chủ hàng) và kho chỉ xem (chỉ hàng của công ty đang làm việc). `search` tìm tên không dấu, đúng mã hàng, đúng mã vạch.
+- Giá vốn: `averageCost`, `value`, giá vốn serial, giá trị thẻ kho là `null` khi nhân viên không có `inventory.cost.view` tại kho, hoặc ở công ty đang làm việc cho hàng của công ty đó.
+- Thẻ kho: ngày theo giờ Việt Nam; `from` sau `to` trả `400` tại `to`; tối đa 5.000 biến động. Kho, chủ hàng ngoài phạm vi trả `404`.
+
+### API_65 Phiếu nhập khác, xuất khác, điều chỉnh
+Gửi lên:
+```json
+{ "type": "issue_other", "warehouseId": "01J...", "companyId": "01J...", "documentDate": "2026-11-10", "reasonCode": "gift", "reason": "Tặng khách",
+  "lines": [ { "variantId": "01J...", "unitId": "01J...", "quantity": "2", "lotId": "01J...", "lotOverrideReason": "Khách yêu cầu hạn dài", "locationId": null, "serials": [] } ] }
+```
+- `quantity` khác 0, tối đa 12 chữ số phần nguyên, 4 chữ số lẻ, nhận dấu phẩy; âm chỉ ở `adjustment`. `unitCost` theo đơn vị của dòng, bắt buộc ở `receipt_other`. `reasonCode` theo loại phiếu (`stockReasonCodes` trong `packages/contracts`). Dòng nhập hàng theo lô có `lotNo`, `expiresOn` (bắt buộc), `manufacturedOn`; dòng xuất có `lotId`. Serial tối đa 5.000 mỗi dòng.
+- `submit`: kiểm tra theo CHUC_NANG_40; tạo dãy số nếu chưa có; cấp số dạng `NK-VCR-2026-000001`; giữ hàng; gửi yêu cầu duyệt như API_38 với `documentTypeCode` = `inventory.<loại>`, `amount` theo QUYTAC_NGHIEPVU_50, `currency` `VND`. Chưa có chính sách duyệt thì trả `status: "posted"` (phiếu chuyển kho: `posted` là đã duyệt, chờ xuất), `approvalRequestId: null`. Có thì `status: "pending"`.
+- Khi nhận sự kiện `core.approval.completed` của loại chứng từ `inventory.*`: `approved` thì ghi sổ (phiếu chuyển kho sang `posted`); ghi sổ lỗi thì sự kiện được xử lý lại lần sau; `rejected`, `withdrawn` thì đổi trạng thái và nhả hàng giữ.
+- `withdraw`: rút yêu cầu duyệt như API_42, phiếu `withdrawn`, nhả hàng giữ.
+- Lỗi: `400` chỉ đúng trường, đúng dòng: `companyId` "Kho không nhận hàng của công ty này."; `lines.<n>.variantId` "Mặt hàng không thuộc công ty chủ hàng hoặc đã ngừng bán."; `lines.<n>.quantity` "Không đủ hàng trong kho.", "Không đủ hàng khả dụng (một phần đang được giữ)."; `lines.<n>.lotId` "Lô đã hết hạn dùng."; `lines.<n>.lotOverrideReason` "Chọn lô khác lô gợi ý phải ghi lý do."; `lines.<n>.expiresOn` "Lô đã có với hạn dùng khác."; `lines.<n>.lotNo` "Sản phẩm không theo dõi lô."; `lines.<n>.serials` "Số serial phải bằng số lượng theo đơn vị cơ sở.", "Serial bị lặp.", "Serial đã có trong kho.", "Serial không có trong kho, vị trí này.", "Sản phẩm không theo dõi serial."; `lines.<n>.locationId` "Vui lòng nhập thông tin này."; `type` "Không đổi loại phiếu, kho, công ty chủ hàng của phiếu đã lập.". `403` khi không phải người lập. `409 BUSINESS_RULE` "Chỉ sửa được chứng từ đang ở trạng thái nháp.", "Không đủ hàng khả dụng (một phần đang được giữ)." (hai phiếu đồng thời), "Mặt hàng đang kiểm kê, chưa ghi sổ được."; `409 CONFLICT_VERSION`.
+
+### API_66 Chuyển kho
+- `ship` (`201`): phiếu phải ở `posted`; ghi sổ giảm kho nguồn theo thứ tự khóa của sổ kho; serial sang `in_transit`; lưu `costValue` từng dòng; phiếu `in_transit`. Người không có quyền tại kho nguồn nhận `403`, hoặc `404` khi không có `inventory.access` tại kho nguồn.
+- `receive` (`201`): phiếu phải ở `in_transit`; ghi sổ tăng kho đích theo `receivedQuantity` với giá vốn lúc xuất; dòng nhận khác số xuất ghi `transfer_discrepancies`; phiếu `received`. Biên bản trả trong `discrepancies` (`difference` âm là thiếu; `value` là `null` khi không có quyền xem giá vốn).
+- Lỗi: `400` tại `destinationWarehouseId` "Kho không nhận hàng của công ty này." hoặc "Giá trị không hợp lệ."; tại `lines.<n>.receivedQuantity` "Vui lòng nhập thông tin này." (thiếu dòng); `lines.<n>.destinationLocationId`; `lines.<n>.serials` "Số serial phải bằng số lượng theo đơn vị cơ sở.", "Serial không có trong phiếu chuyển kho."; `409 BUSINESS_RULE` "Phiếu chuyển kho chưa được duyệt hoặc đã xuất.", "Phiếu chuyển kho không ở trạng thái đang vận chuyển.".
+
+### API_67 Kiểm kê
+- `start`: tạo dãy `KK` nếu chưa có, cấp số, khóa dòng giá vốn của mặt hàng trong phạm vi rồi chụp tồn sổ sách; `status: "counting"`.
+- `counts`: ghi đè số đếm theo dòng; dòng mới (không có `lineId`) cần `variantId`, `locationId` khi kho có vị trí, `lotId` khi hàng theo lô và số đếm lớn hơn 0.
+- `finish`: `version` phải bằng phiên bản hiện tại; sinh phiếu điều chỉnh (lý do `stocktake`, `stocktakeId` gắn kiểm kê) rồi gửi như `submit` của API_65; gửi lỗi thì xóa phiếu vừa sinh, kiểm kê về `counting` và trả lỗi của bước gửi.
+- Lỗi: `400` tại `companyId` "Kho không nhận hàng của công ty này."; `scopeIds`, `scopeType` "Giá trị không hợp lệ." hoặc "Vui lòng nhập thông tin này."; `counts.<n>.serials` "Số serial phải bằng số lượng theo đơn vị cơ sở.", "Serial bị lặp."; `counts.<n>.lotId`, `counts.<n>.countedQuantity` "Hàng theo lô: ghi số đếm theo lô đã có; lô mới nhập bằng phiếu nhập khác."; `409 BUSINESS_RULE` "Kiểm kê đã bắt đầu.", "Kiểm kê không ở trạng thái đang đếm.", "Còn dòng chưa có số đếm."; `409 CONFLICT_VERSION`.
+
+### API_68 Giữ hàng
+- Hàng giữ: `{ id, warehouseId, warehouseName, companyId, companyName, variantId, sku, productName, quantity, baseUnitName, sourceType, sourceNo, expiresAt, status, createdByName, createdAt, version }`. Giữ thủ công có `sourceType` `inventory.manual`, `sourceNo` là ghi chú, hạn theo cài đặt của công ty chủ hàng.
+- Dịch vụ trong API cho MODULE_05: `ReservationsService.reserve(transaction, { warehouseId, companyId, variantId, quantity, sourceType, sourceId, sourceNo, expiresAt, userId })`, `closeBySource(transaction, sourceType, sourceId, "released" | "consumed")`, `available(...)`; gọi trong giao dịch của bên giữ.
+- Lỗi: `409 BUSINESS_RULE` "Không đủ hàng khả dụng (một phần đang được giữ).", "Hàng giữ cho phiếu kho chỉ nhả khi phiếu bị từ chối hoặc rút."; `400` tại `companyId`, `variantId`; `409 CONFLICT_VERSION` (cả khi gia hạn hàng giữ không có hạn).
+
+### API_69 Tồn an toàn
+- `PUT` thêm hoặc thay mức của kho, công ty chủ hàng, biến thể; trả dòng kèm số gợi ý.
+- Lỗi: `400` tại `maximum` "Giá trị không hợp lệ." khi tối đa nhỏ hơn tối thiểu; tại `companyId`, `variantId`; `403`.
+
+### API_70 Tem PDF
+- Trả `application/pdf`, `Content-Disposition: inline`. Mỗi tem một trang 50 × 30 mm (`MediaBox` 141,73 × 85,03 điểm), mã Code 128 bộ B. Tem sản phẩm: số trang = số biến thể × `copies`.
+- Lỗi: `400` tại `variantIds` "Mặt hàng không thuộc công ty chủ hàng hoặc đã ngừng bán." (có biến thể không thuộc công ty), mã không phải UUID; `403`; `409 BUSINESS_RULE` "Kho chưa có vị trí đang dùng để in tem.".
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |
@@ -350,3 +412,5 @@ Gửi lên:
 | `core.notification.created` | Ghi thông báo trong ứng dụng; CHUC_NANG_26 nghe sự kiện này để gửi Zalo ZNS (CONG_VIEC_03) | `notificationId`, `kind` |
 
 MODULE_02 phần Sản phẩm (CONG_VIEC_04) không phát sự kiện mới; mini app Sản phẩm nghe `core.approval.completed` của loại chứng từ `catalog.price_change` để cập nhật phiếu điều chỉnh giá (API_62).
+
+MODULE_03 Kho (CONG_VIEC_05) không phát sự kiện mới; mini app Kho nghe `core.approval.completed` của loại chứng từ `inventory.receipt_other`, `inventory.issue_other`, `inventory.adjustment`, `inventory.transfer` để ghi sổ hoặc nhả hàng giữ (API_65, API_66). Thông báo trong ứng dụng loại `inventory_stock_alert` ghi qua `core.notifications`.

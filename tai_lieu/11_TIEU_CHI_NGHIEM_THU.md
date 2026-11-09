@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 1.3
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.4
+- Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03
 
 ## MODULE_01 Nền tảng
 
@@ -85,3 +85,22 @@ Dữ liệu mẫu: công ty VCR (VComm Bán lẻ Miền Nam), VCT (VComm Thươn
 | TIEUCHI_NGHIEMTHU_64 | CHUC_NANG_31 | Tìm "ao thun" ra sản phẩm "Áo thun"; danh sách 10.000 sản phẩm trả trang đầu dưới 500 ms | Kiểm thử tự động | Mong muốn |
 
 Ghi chú TIEUCHI_NGHIEMTHU_56: hệ thống không có chức năng xóa ngành hàng (QUYTAC_NGHIEPVU_37); vế "xóa khi có sản phẩm bị từ chối" kiểm tra bằng việc không có API xóa, ngành hàng đã có sản phẩm không nhận ngành hàng con, không đổi được mã.
+
+## MODULE_03 Kho (phần web, CONG_VIEC_05)
+
+Dữ liệu mẫu: công ty sở hữu kho VCR (VComm Bán lẻ Miền Nam), công ty chủ hàng VCT (VComm Thương mại); kho thuộc chi nhánh VCR-BD; tài khoản thử theo tài liệu `18` mục 5. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_65 | CHUC_NANG_38 | Kho thuộc chi nhánh; người chỉ có quyền chi nhánh khác không thấy, không thao tác kho; nhân viên công ty chủ hàng chỉ thấy tồn của công ty mình; phiếu chứa sản phẩm của công ty khác chủ hàng bị từ chối | Gọi API bằng từng vai trò | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_66 | CHUC_NANG_39, CHUC_NANG_40 | Nhập khác có duyệt: tồn, giá vốn chỉ đổi sau khi duyệt; giá vốn bình quân đúng công thức qua hai lần nhập giá khác nhau; thẻ kho đúng tồn sau từng biến động | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_67 | CHUC_NANG_40 | Xuất quá tồn khả dụng bị từ chối; hai phiếu xuất đồng thời món hàng cuối cùng chỉ một phiếu ghi sổ; tồn không bao giờ âm | Kiểm thử tự động | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_68 | CHUC_NANG_40 | Gợi ý lô hết hạn trước; chọn lô khác không có lý do bị từ chối; lô hết hạn không xuất được; serial trùng, serial không có trong kho bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_69 | CHUC_NANG_41 | Chuyển kho: sau xuất, tồn kho nguồn giảm, hàng đang vận chuyển, kho đích chưa tăng; nhận thiếu sinh biên bản chênh lệch đúng số lượng, giá trị; chuyển sang kho không nhận hàng của công ty chủ hàng bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_70 | CHUC_NANG_42 | Trong lúc kiểm kê, phiếu ghi sổ vào mặt hàng đang kiểm bị từ chối, mặt hàng ngoài phạm vi vẫn ghi được; kết thúc sinh phiếu điều chỉnh đúng chênh lệch, duyệt xong tồn bằng số đếm | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_71 | CHUC_NANG_43 | Không giữ quá tồn khả dụng; giữ hết hạn tự nhả; gia hạn, nhả tay ghi nhật ký thao tác | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_72 | CHUC_NANG_44 | Hàng dưới tối thiểu xuất hiện trong cảnh báo với số gợi ý đúng; tối đa nhỏ hơn tối thiểu bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_73 | CHUC_NANG_45 | Tem PDF đúng khổ, mã vạch đọc được, đủ số tem yêu cầu | Kiểm thử tự động, xem bằng mắt | Mong muốn |
+| TIEUCHI_NGHIEMTHU_74 | CHUC_NANG_39 | Danh sách tồn kho 50.000 dòng tồn trả trang đầu dưới 500 ms; ghi sổ phiếu 200 dòng dưới 2 giây | Kiểm thử tự động | Mong muốn |
+
+Ghi chú TIEUCHI_NGHIEMTHU_73: kiểm thử tự động kiểm tra cấu trúc mã Code 128, khổ trang, số trang; vế "mã vạch đọc được" (quét thử bằng máy quét, xem bằng mắt) chưa làm.

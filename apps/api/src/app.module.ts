@@ -46,6 +46,16 @@ import { CatalogItemsService } from "./catalog/catalog-items.service";
 import { PriceChangesService } from "./catalog/price-changes.service";
 import { PriceListsService } from "./catalog/price-lists.service";
 import { PricingController } from "./catalog/pricing.controller";
+import { InventoryController } from "./inventory/inventory.controller";
+import { ReservationsService } from "./inventory/reservations.service";
+import { StockDocumentsService } from "./inventory/stock-documents.service";
+import { StockLedgerService } from "./inventory/stock-ledger.service";
+import { StockService } from "./inventory/stock.service";
+import { LabelsService } from "./inventory/labels.service";
+import { StockLevelsService } from "./inventory/stock-levels.service";
+import { StocktakesService } from "./inventory/stocktakes.service";
+import { TransfersService } from "./inventory/transfers.service";
+import { WarehousesService } from "./inventory/warehouses.service";
 import { CategoriesService } from "./catalog/categories.service";
 import { UnitsService } from "./catalog/units.service";
 import { ProductsService } from "./catalog/products.service";
@@ -62,7 +72,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController],
   providers: [
     AuthService,
     ActivationService,
@@ -87,6 +97,15 @@ import { UsersService } from "./users/users.service";
     CatalogItemsService,
     PriceListsService,
     PriceChangesService,
+    WarehousesService,
+    StockLedgerService,
+    ReservationsService,
+    StockService,
+    StockDocumentsService,
+    TransfersService,
+    StocktakesService,
+    StockLevelsService,
+    LabelsService,
     ProposalsService,
     ProposalPdfService,
     PhoneOtpService,

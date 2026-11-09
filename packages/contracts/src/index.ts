@@ -1354,3 +1354,503 @@ export function normalizeMoneyText(text: string, currency: string): string {
   const compact = text.trim().replace(/\s/g, "");
   return currency === "VND" ? compact.replace(/\./g, "").replace(",", ".") : compact.replace(",", ".");
 }
+
+// CONG_VIEC_05, API_63: kho, vị trí, công ty chủ hàng, cài đặt kho (CHUC_NANG_38; QUYTAC_NGHIEPVU_45, 46).
+const warehouseCode = z.string().trim().toUpperCase().regex(/^[A-Z0-9_-]{1,20}$/);
+export const createWarehouseSchema = z
+  .object({
+    branchId: z.uuid(),
+    code: warehouseCode,
+    name: z.string().trim().min(1).max(200),
+    address: z.string().trim().max(500).nullable().optional(),
+    usesLocations: z.boolean(),
+    ownerCompanyIds: z.array(z.uuid()).max(50).default([]),
+  })
+  .strict();
+export type CreateWarehouseRequest = z.input<typeof createWarehouseSchema>;
+export const updateWarehouseSchema = z
+  .object({
+    name: z.string().trim().min(1).max(200),
+    address: z.string().trim().max(500).nullable().optional(),
+    usesLocations: z.boolean(),
+    ownerCompanyIds: z.array(z.uuid()).max(50),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export type UpdateWarehouseRequest = z.input<typeof updateWarehouseSchema>;
+export interface WarehouseResponse {
+  id: string;
+  companyId: string;
+  companyName: string;
+  branchId: string;
+  branchName: string;
+  code: string;
+  name: string;
+  address: string | null;
+  usesLocations: boolean;
+  owners: { companyId: string; companyName: string }[];
+  locationCount: number;
+  status: "active" | "inactive";
+  version: number;
+  // Người đang xem thao tác được kho (quyền kho ở chi nhánh sở hữu kho); sai thì chỉ xem tồn của công ty mình.
+  canOperate: boolean;
+  canManage: boolean;
+}
+const locationCode = z.string().trim().toUpperCase().regex(/^[A-Z0-9_.-]{1,30}$/);
+export const createLocationSchema = z.object({ code: locationCode, name: z.string().trim().max(100).nullable().optional() }).strict();
+export const createLocationsSchema = z.object({ locations: z.array(createLocationSchema).min(1).max(500) }).strict();
+export const updateLocationSchema = z.object({ name: z.string().trim().max(100).nullable().optional(), version: z.number().int().positive() }).strict();
+export interface LocationResponse {
+  id: string;
+  warehouseId: string;
+  code: string;
+  name: string | null;
+  status: "active" | "inactive";
+  version: number;
+}
+export const updateInventorySettingsSchema = z.object({ reservationHours: z.number().int().min(1).max(720), version: z.number().int().min(0) }).strict();
+export interface InventorySettingsResponse {
+  reservationHours: number;
+  version: number;
+}
+// Lựa chọn khi lập kho: chi nhánh của công ty đang chọn, công ty trong tập đoàn làm chủ hàng.
+export interface WarehouseOptionsResponse {
+  branches: { id: string; name: string }[];
+  companies: { id: string; shortName: string }[];
+}
+
+// CONG_VIEC_05, API_64, API_65: phiếu kho, tồn kho, thẻ kho (CHUC_NANG_39, 40; QUYTAC_NGHIEPVU_47 đến 51).
+export const stockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer"] as const;
+export type StockDocumentType = (typeof stockDocumentTypes)[number];
+export const stockDocumentStatuses = ["draft", "pending", "posted", "in_transit", "received", "rejected", "withdrawn"] as const;
+export type StockDocumentStatus = (typeof stockDocumentStatuses)[number];
+// Lý do theo loại phiếu; "Hủy hàng hết hạn" là lý do duy nhất được xuất lô hết hạn (QUYTAC_NGHIEPVU_51).
+export const stockReasonCodes = {
+  receipt_other: ["opening_balance", "found", "gift", "other"],
+  issue_other: ["internal_use", "gift", "damaged", "expired_disposal", "other"],
+  adjustment: ["stocktake", "damaged", "found", "other"],
+  transfer: ["transfer"],
+} as const satisfies Record<StockDocumentType, readonly string[]>;
+export type StockReasonCode = (typeof stockReasonCodes)[StockDocumentType][number];
+const signedDecimal = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^-?\d{1,12}(\.\d{1,4})?$/.test(text) || Number(text) === 0) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+const optionalMoney = z.union([z.number(), z.string(), z.null()]).optional().transform((value, context) => {
+  if (value === null || value === undefined || String(value).trim() === "") return null;
+  const text = String(value).trim().replace(",", ".");
+  if (!/^\d{1,16}(\.\d{1,4})?$/.test(text)) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+export const stockDocumentLineSchema = z
+  .object({
+    variantId: z.uuid(),
+    unitId: z.uuid(),
+    quantity: signedDecimal,
+    unitCost: optionalMoney,
+    lotId: z.uuid().nullable().optional(),
+    lotNo: z.string().trim().max(50).nullable().optional(),
+    manufacturedOn: isoDate.nullable().optional(),
+    expiresOn: isoDate.nullable().optional(),
+    lotOverrideReason: z.string().trim().max(200).nullable().optional(),
+    locationId: z.uuid().nullable().optional(),
+    destinationLocationId: z.uuid().nullable().optional(),
+    serials: z.array(z.string().trim().min(1).max(100)).max(5000).default([]),
+    responsibleUserId: z.uuid().nullable().optional(),
+    compensationAmount: optionalMoney,
+  })
+  .strict();
+export type StockDocumentLineInput = z.input<typeof stockDocumentLineSchema>;
+export const saveStockDocumentSchema = z
+  .object({
+    type: z.enum(stockDocumentTypes),
+    warehouseId: z.uuid(),
+    companyId: z.uuid(),
+    destinationWarehouseId: z.uuid().nullable().optional(),
+    documentDate: isoDate,
+    reasonCode: z.string().trim().min(1),
+    reason: z.string().trim().min(1).max(500),
+    note: z.string().trim().max(1000).nullable().optional(),
+    lines: z.array(stockDocumentLineSchema).min(1).max(1000),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveStockDocumentRequest = z.input<typeof saveStockDocumentSchema>;
+export const stockDocumentListQuerySchema = z
+  .object({
+    type: z.enum(stockDocumentTypes).optional(),
+    status: z.enum(stockDocumentStatuses).optional(),
+    warehouseId: z.uuid().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface StockDocumentListItem {
+  id: string;
+  type: StockDocumentType;
+  documentNo: string | null;
+  documentDate: string;
+  warehouseId: string;
+  warehouseName: string;
+  destinationWarehouseName: string | null;
+  companyId: string;
+  companyName: string;
+  reasonCode: string;
+  reason: string;
+  status: StockDocumentStatus;
+  lineCount: number;
+  totalValue: string | null;
+  createdByName: string;
+  createdAt: string;
+}
+export interface StockDocumentLineResponse {
+  id: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  tracksLots: boolean;
+  tracksSerials: boolean;
+  unitId: string;
+  unitName: string;
+  quantity: string;
+  baseQuantity: string;
+  baseUnitName: string;
+  unitCost: string | null;
+  costValue: string | null;
+  lotId: string | null;
+  lotNo: string | null;
+  manufacturedOn: string | null;
+  expiresOn: string | null;
+  lotOverrideReason: string | null;
+  locationId: string | null;
+  locationCode: string | null;
+  destinationLocationId: string | null;
+  destinationLocationCode: string | null;
+  serials: string[];
+  receivedBaseQuantity: string | null;
+  responsibleUserId: string | null;
+  responsibleUserName: string | null;
+  compensationAmount: string | null;
+}
+export interface StockDocumentResponse extends StockDocumentListItem {
+  destinationWarehouseId: string | null;
+  note: string | null;
+  approvalRequestId: string | null;
+  stocktakeId: string | null;
+  lines: StockDocumentLineResponse[];
+  discrepancies: {
+    lineId: string;
+    sku: string;
+    shippedQuantity: string;
+    receivedQuantity: string;
+    difference: string;
+    value: string | null;
+    note: string | null;
+    responsibleUserName: string | null;
+    compensationAmount: string | null;
+  }[];
+  version: number;
+  canEdit: boolean;
+  canWithdraw: boolean;
+  canShip: boolean;
+  canReceive: boolean;
+}
+export const lotSuggestionQuerySchema = z
+  .object({ warehouseId: z.uuid(), companyId: z.uuid(), variantId: z.uuid(), locationId: z.uuid().optional(), includeExpired: z.enum(["true", "false"]).optional() })
+  .strict();
+export interface LotSuggestion {
+  lotId: string;
+  lotNo: string;
+  expiresOn: string | null;
+  manufacturedOn: string | null;
+  locationId: string | null;
+  locationCode: string | null;
+  quantity: string;
+  expired: boolean;
+  suggested: boolean;
+}
+// Tìm mặt hàng khi lập phiếu: theo mã vạch (máy quét), mã hàng, tên; trả đơn vị khớp mã vạch.
+export const stockItemSearchQuerySchema = z.object({ companyId: z.uuid(), search: z.string().trim().min(1).max(100) }).strict();
+export interface StockItemOption {
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  tracksLots: boolean;
+  tracksSerials: boolean;
+  baseUnitId: string;
+  units: { unitId: string; unitName: string; factor: string }[];
+  matchedUnitId: string | null;
+}
+export const stockListQuerySchema = z
+  .object({
+    warehouseId: z.uuid().optional(),
+    companyId: z.uuid().optional(),
+    categoryId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    onlyInStock: z.enum(["true", "false"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(50),
+  })
+  .strict();
+export interface StockRow {
+  warehouseId: string;
+  warehouseName: string;
+  companyId: string;
+  companyName: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  baseUnitName: string;
+  onHand: string;
+  reserved: string;
+  available: string;
+  incoming: string;
+  averageCost: string | null;
+  value: string | null;
+  minimum: string | null;
+  belowMinimum: boolean;
+}
+export const stockDetailQuerySchema = z.object({ warehouseId: z.uuid(), companyId: z.uuid() }).strict();
+export interface StockDetailResponse {
+  balances: { lotId: string | null; lotNo: string | null; expiresOn: string | null; locationId: string | null; locationCode: string | null; quantity: string }[];
+  serials: { serialNo: string; locationCode: string | null; unitCost: string | null }[];
+  reservations: { id: string; quantity: string; sourceType: string; sourceNo: string | null; expiresAt: string | null }[];
+}
+export const stockCardQuerySchema = z.object({ warehouseId: z.uuid(), companyId: z.uuid(), variantId: z.uuid(), from: isoDate, to: isoDate }).strict();
+export interface StockCardResponse {
+  sku: string;
+  productName: string;
+  baseUnitName: string;
+  opening: { quantity: string; value: string | null };
+  movements: {
+    id: string;
+    movedAt: string;
+    documentId: string;
+    documentNo: string | null;
+    documentType: StockDocumentType;
+    lotNo: string | null;
+    locationCode: string | null;
+    quantity: string;
+    unitCost: string | null;
+    value: string | null;
+    balanceAfter: string;
+  }[];
+  closing: { quantity: string; value: string | null };
+}
+
+// CONG_VIEC_05, API_66: chuyển kho hai bước (CHUC_NANG_41; QUYTAC_NGHIEPVU_52). Số thực nhận theo đơn vị cơ sở.
+export const receiveTransferSchema = z
+  .object({
+    lines: z
+      .array(
+        z
+          .object({
+            lineId: z.uuid(),
+            receivedQuantity: z.union([z.number(), z.string()]).transform((value, context) => {
+              const text = String(value).trim().replace(",", ".");
+              if (!/^\d{1,12}(\.\d{1,4})?$/.test(text)) {
+                context.addIssue({ code: "custom", message: "invalidValue" });
+                return z.NEVER;
+              }
+              return text;
+            }),
+            destinationLocationId: z.uuid().nullable().optional(),
+            serials: z.array(z.string().trim().min(1).max(100)).max(5000).default([]),
+            // Nhận thiếu: người chịu trách nhiệm, tiền bồi thường (để trống: bằng giá trị thiếu).
+            responsibleUserId: z.uuid().nullable().optional(),
+            compensationAmount: optionalMoney,
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(1000),
+    note: z.string().trim().max(1000).nullable().optional(),
+  })
+  .strict();
+export type ReceiveTransferRequest = z.input<typeof receiveTransferSchema>;
+export interface TransferDestination {
+  id: string;
+  code: string;
+  name: string;
+  companyName: string;
+  usesLocations: boolean;
+}
+
+// CONG_VIEC_05, API_67: kiểm kê (CHUC_NANG_42; QUYTAC_NGHIEPVU_53).
+export const stocktakeScopeTypes = ["full", "categories", "locations", "variants"] as const;
+export const stocktakeStatuses = ["draft", "counting", "finished", "cancelled"] as const;
+export const createStocktakeSchema = z
+  .object({
+    warehouseId: z.uuid(),
+    companyId: z.uuid(),
+    scopeType: z.enum(stocktakeScopeTypes),
+    scopeIds: z.array(z.uuid()).max(5000).default([]),
+    note: z.string().trim().max(1000).nullable().optional(),
+  })
+  .strict();
+const countQuantity = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^\d{1,12}(\.\d{1,4})?$/.test(text)) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+// Số đếm theo đơn vị cơ sở. Dòng mới (hàng có thực tế nhưng sổ sách không có) gửi biến thể, lô, vị trí thay cho mã dòng.
+export const saveStocktakeCountsSchema = z
+  .object({
+    counts: z
+      .array(
+        z
+          .object({
+            lineId: z.uuid().optional(),
+            variantId: z.uuid().optional(),
+            lotId: z.uuid().nullable().optional(),
+            locationId: z.uuid().nullable().optional(),
+            countedQuantity: countQuantity,
+            serials: z.array(z.string().trim().min(1).max(100)).max(5000).optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(5000),
+  })
+  .strict();
+export const finishStocktakeSchema = z
+  .object({
+    responsibilities: z
+      .array(z.object({ lineId: z.uuid(), responsibleUserId: z.uuid().nullable(), compensationAmount: optionalMoney }).strict())
+      .max(5000)
+      .default([]),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export interface StocktakeListItem {
+  id: string;
+  stocktakeNo: string | null;
+  warehouseId: string;
+  warehouseName: string;
+  companyId: string;
+  companyName: string;
+  scopeType: (typeof stocktakeScopeTypes)[number];
+  status: (typeof stocktakeStatuses)[number];
+  lineCount: number;
+  countedCount: number;
+  createdByName: string;
+  createdAt: string;
+}
+export interface StocktakeResponse extends StocktakeListItem {
+  scopeIds: string[];
+  note: string | null;
+  adjustmentDocumentId: string | null;
+  adjustmentDocumentNo: string | null;
+  lines: {
+    id: string;
+    variantId: string;
+    sku: string;
+    productName: string;
+    optionValues: string[];
+    tracksSerials: boolean;
+    baseUnitName: string;
+    lotId: string | null;
+    lotNo: string | null;
+    expiresOn: string | null;
+    locationId: string | null;
+    locationCode: string | null;
+    systemQuantity: string;
+    countedQuantity: string | null;
+    countedSerials: string[] | null;
+    difference: string | null;
+    unitCost: string | null;
+    differenceValue: string | null;
+    responsibleUserId: string | null;
+    compensationAmount: string | null;
+  }[];
+  version: number;
+  canManage: boolean;
+}
+// Lựa chọn khi kiểm kê: ngành hàng (phạm vi kiểm), nhân viên công ty sở hữu kho (người chịu trách nhiệm phần thiếu).
+export interface StocktakeOptionsResponse {
+  categories: { id: string; code: string; name: string }[];
+  users: { id: string; fullName: string }[];
+}
+
+// CONG_VIEC_05, API_68 đến API_70: giữ hàng, tồn an toàn, cảnh báo, in tem (CHUC_NANG_43, 44, 45; QUYTAC_NGHIEPVU_54, 55).
+const positiveQuantity = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^\d{1,12}(\.\d{1,4})?$/.test(text) || Number(text) <= 0) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+const nonNegativeQuantity = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^\d{1,12}(\.\d{1,4})?$/.test(text)) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+// Giữ hàng thủ công (ví dụ khách hẹn lấy hàng); MODULE_05 giữ hàng cho đơn bán qua dịch vụ trong API.
+export const createReservationSchema = z
+  .object({ warehouseId: z.uuid(), companyId: z.uuid(), variantId: z.uuid(), quantity: positiveQuantity, note: z.string().trim().min(1).max(200) })
+  .strict();
+export const extendReservationSchema = z.object({ hours: z.number().int().min(1).max(720), version: z.number().int().positive() }).strict();
+export const reservationListQuerySchema = z
+  .object({ warehouseId: z.uuid().optional(), status: z.enum(["active", "released", "consumed"]).optional(), page: z.coerce.number().int().min(1).default(1), pageSize: z.coerce.number().int().min(1).max(100).default(50) })
+  .strict();
+export interface ReservationResponse {
+  id: string;
+  warehouseId: string;
+  warehouseName: string;
+  companyId: string;
+  companyName: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  quantity: string;
+  baseUnitName: string;
+  sourceType: string;
+  sourceNo: string | null;
+  expiresAt: string | null;
+  status: "active" | "released" | "consumed";
+  createdByName: string | null;
+  createdAt: string;
+  version: number;
+}
+export const saveStockLevelSchema = z
+  .object({ warehouseId: z.uuid(), companyId: z.uuid(), variantId: z.uuid(), minimum: nonNegativeQuantity, maximum: nonNegativeQuantity })
+  .strict()
+  .refine((value) => Number(value.maximum) >= Number(value.minimum), { path: ["maximum"], message: "stockLevelMaximumBelowMinimum" });
+export const stockLevelQuerySchema = z.object({ warehouseId: z.uuid().optional(), onlyAlerts: z.enum(["true", "false"]).optional() }).strict();
+export interface StockLevelRow {
+  warehouseId: string;
+  warehouseName: string;
+  companyId: string;
+  companyName: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  baseUnitName: string;
+  minimum: string;
+  maximum: string;
+  available: string;
+  incoming: string;
+  belowMinimum: boolean;
+  suggestedQuantity: string;
+}
+export const productLabelQuerySchema = z
+  .object({ companyId: z.uuid(), variantIds: z.string().min(1), copies: z.coerce.number().int().min(1).max(500).default(1) })
+  .strict();
+export const locationLabelQuerySchema = z.object({ warehouseId: z.uuid() }).strict();

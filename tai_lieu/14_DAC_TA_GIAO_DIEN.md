@@ -1,12 +1,13 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 1.3
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.4
+- Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
 - Cập nhật CONG_VIEC_03 (2026-11-09): thêm MAN_HINH_19, MAN_HINH_20, MAN_HINH_21; mở rộng MAN_HINH_01, MAN_HINH_06, MAN_HINH_08 (THAY_DOI_04, THAY_DOI_08)
 - Cập nhật CONG_VIEC_04 (2026-11-09): thêm MODULE_02 phần Sản phẩm, MAN_HINH_22 đến MAN_HINH_27 (mục 5 đến mục 7)
+- Cập nhật CONG_VIEC_05 (2026-11-10): thêm MODULE_03 Kho phần web, MAN_HINH_28 đến MAN_HINH_35 (mục 8 đến mục 10)
 
 ## MODULE_01 Nền tảng
 
@@ -568,3 +569,177 @@ flowchart TD
 - Quyền hiển thị: màn hình với `catalog.price.view`; lập, sửa, gửi, xóa, rút với `catalog.price.manage` và chỉ người lập (theo `canEdit`, `canWithdraw` của API).
 - Responsive: bảng chuyển thành thẻ; nút xếp dọc.
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_04 mục 14)
+
+## MODULE_03 Kho (phần web, CONG_VIEC_05)
+
+Mini app `apps/web-inventory`, đường dẫn gốc `/inventory` (mini app Nền tảng chuyển tiếp `/inventory` sang ứng dụng này, cùng tên miền và cookie phiên). Khung trang, thành phần dùng chung lấy từ `packages/ui`; quy ước chung như mục 3 của MODULE_01. Mở `/inventory` thì chuyển tới mục menu đầu tiên có quyền; không có mục nào thì hiện "Bạn không có quyền xem trang này". Mọi ô tìm mặt hàng nhận máy quét mã vạch gõ phím kèm Enter. Giá vốn, giá trị hiện trống với người không có quyền xem giá vốn.
+
+## 8. Danh sách màn hình và điều hướng (MODULE_03)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_28 | Kho và vị trí (kèm cài đặt giữ hàng, in tem vị trí) | CHUC_NANG_38, CHUC_NANG_45 | Quản trị tập đoàn, quản trị công ty, Quản lý kho (sửa); Thủ kho, nhân viên công ty chủ hàng (xem) | Menu Kho | Không lập (CONG_VIEC_05 mục 6) |
+| MAN_HINH_29 | Tồn kho (kèm chi tiết lô, serial, vị trí, hàng giữ; in tem sản phẩm) | CHUC_NANG_39, CHUC_NANG_45 | Quản trị tập đoàn, quản trị công ty, Quản lý kho, Thủ kho; nhân viên công ty chủ hàng có quyền xem tồn | Menu Kho | Không lập |
+| MAN_HINH_30 | Thẻ kho | CHUC_NANG_39 | Như MAN_HINH_29 | MAN_HINH_29 | Không lập |
+| MAN_HINH_31 | Danh sách phiếu kho | CHUC_NANG_40, CHUC_NANG_41 | Như MAN_HINH_29 (lập phiếu: có quyền lập phiếu kho) | Menu Kho | Không lập |
+| MAN_HINH_32 | Phiếu nhập khác, xuất khác, điều chỉnh | CHUC_NANG_40, CHUC_NANG_45 | Quản trị tập đoàn, quản trị công ty, Quản lý kho, Thủ kho (lập); nhân viên công ty chủ hàng (xem) | MAN_HINH_31, MAN_HINH_30, MAN_HINH_34 | Không lập |
+| MAN_HINH_33 | Phiếu chuyển kho | CHUC_NANG_41 | Như MAN_HINH_32; xuất ở kho nguồn, nhận ở kho đích | MAN_HINH_31 | Không lập |
+| MAN_HINH_34 | Kiểm kê (danh sách, lập; đếm và kết thúc) | CHUC_NANG_42 | Quản trị tập đoàn, quản trị công ty, Quản lý kho | Menu Kho | Không lập |
+| MAN_HINH_35 | Giữ hàng và tồn an toàn | CHUC_NANG_43, CHUC_NANG_44 | Quản trị tập đoàn, quản trị công ty, Quản lý kho (sửa); Thủ kho (xem) | Menu Kho | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Kho| M{{Menu Kho}}
+    M --> S[MAN_HINH_29 Tồn kho] -->|Xem thẻ kho| C[MAN_HINH_30 Thẻ kho]
+    M --> D[MAN_HINH_31 Phiếu kho]
+    D -->|Lập hoặc mở phiếu nhập, xuất, điều chỉnh| P[MAN_HINH_32 Phiếu kho]
+    D -->|Lập hoặc mở phiếu chuyển kho| T[MAN_HINH_33 Phiếu chuyển kho]
+    C -->|Số phiếu| P
+    M --> K[MAN_HINH_34 Kiểm kê] -->|Phiếu điều chỉnh| P
+    M --> R[MAN_HINH_35 Giữ hàng, tồn an toàn]
+    M --> W[MAN_HINH_28 Kho và vị trí]
+    P -->|Xem luồng duyệt| H[MAN_HINH_08 Chi tiết yêu cầu duyệt]
+    T -->|Xem luồng duyệt| H
+```
+
+- Thứ tự menu và quyền hiện mục: Tồn kho (`inventory.stock.view`), Phiếu kho (`inventory.stock.view`), Kiểm kê (`inventory.stocktake.manage`), Giữ hàng, tồn an toàn (`inventory.access`), Kho và vị trí (`inventory.access`). Thẻ kho không có mục menu, mở từ MAN_HINH_29.
+- MAN_HINH_32 và MAN_HINH_33 cùng một trang `/inventory/documents/[id]` (`/inventory/documents/new?type=<loại>` khi lập), hiện phần chuyển kho theo loại phiếu.
+- Màn hình Kho và vị trí, Phiếu kho, Kiểm kê, Giữ hàng và tồn an toàn có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng.
+
+## 9. Bảng vai trò – màn hình (MODULE_03)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Quản lý kho | Thủ kho | Nhân viên công ty chủ hàng có quyền xem tồn |
+|---|---|---|---|---|
+| MAN_HINH_28 Kho và vị trí | Xem, Thêm kho, Sửa, Ngừng, Vị trí, Cài đặt, In tem vị trí | Xem, Sửa, Ngừng, Vị trí, In tem vị trí ở kho trong phạm vi; Thêm kho, Cài đặt khi gán ở phạm vi công ty | Xem, In tem vị trí | Xem kho nhận hàng của công ty mình (nhãn "Chỉ xem tồn") |
+| MAN_HINH_29 Tồn kho | Xem mọi chủ hàng, giá vốn, In tem | Như bên trái, ở kho trong phạm vi | Xem mọi chủ hàng ở kho trong phạm vi, không giá vốn, In tem | Chỉ hàng của công ty mình, không thao tác |
+| MAN_HINH_30 Thẻ kho | Xem | Xem | Xem, không giá vốn | Chỉ hàng của công ty mình |
+| MAN_HINH_31, MAN_HINH_32 Phiếu kho | Xem, Lập, Gửi, Rút (phiếu của mình) | Như bên trái | Như bên trái, không thấy giá trị | Xem phiếu của công ty mình |
+| MAN_HINH_33 Phiếu chuyển kho | Xem, Lập, Gửi, Rút, Xuất, Nhận | Như bên trái, theo kho nguồn, kho đích trong phạm vi | Như Quản lý kho | Xem |
+| MAN_HINH_34 Kiểm kê | Xem, Lập, Bắt đầu, Đếm, Kết thúc, Hủy | Như bên trái | Không thấy mục menu | Không thấy |
+| MAN_HINH_35 Giữ hàng, tồn an toàn | Xem, Giữ, Gia hạn, Nhả, Đặt tồn an toàn | Như bên trái | Xem | Không thấy |
+
+## 10. Đặc tả từng màn hình (MODULE_03)
+
+### MAN_HINH_28: Kho và vị trí
+- Mục đích: Khai báo kho, công ty chủ hàng, vị trí kệ; cài đặt giữ hàng; in tem vị trí.
+- Chức năng thực hiện: CHUC_NANG_38, CHUC_NANG_45
+- Đường dẫn: `/inventory/warehouses`
+- Bố cục: tiêu đề kèm "Lịch sử", nút "Thêm kho"; câu giải thích kho thuộc chi nhánh và quyền của công ty chủ hàng; bảng mã kho, tên kho (kèm tên công ty sở hữu khi chỉ xem), chi nhánh, công ty chủ hàng, vị trí kệ (số vị trí hoặc "Không dùng"), trạng thái, nhãn "Chỉ xem tồn", "Sửa", "Ngừng dùng"/"Dùng lại". Ngăn kéo kho: chi nhánh, mã kho ("Chữ in hoa, số, dấu gạch; không đổi sau khi tạo."), tên, địa chỉ, "Công ty khác được gửi hàng", "Quản lý tồn theo vị trí kệ". Khối "Vị trí kệ: <tên kho>": bảng mã, tên, trạng thái, nút "In tem vị trí", "Thêm vị trí" (ô nhiều dòng, mỗi dòng mã rồi tên). Khối "Cài đặt kho của công ty": "Thời hạn giữ hàng cho đơn bán (giờ)".
+- Dữ liệu hiển thị: kho thao tác được và kho nhận hàng của công ty đang chọn.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, HopThoaiXacNhan (tài liệu `15`).
+- API: API_63, API_70.
+- Thao tác: như bố cục; lỗi mã vị trí trùng chỉ ra "Dòng <n>".
+- Trạng thái: rỗng ("Chưa có kho.", "Kho chưa có vị trí.").
+- Thông báo: "Đã lưu."; lỗi theo CHUC_NANG_38.
+- Quyền hiển thị: nút "Thêm kho", khối cài đặt với `inventory.warehouse.manage`; sửa, ngừng, thêm vị trí theo `canManage` của từng kho.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
+
+### MAN_HINH_29: Tồn kho
+- Mục đích: Xem tồn thực, đang giữ, khả dụng, đang chuyển đến, giá vốn theo kho và công ty chủ hàng.
+- Chức năng thực hiện: CHUC_NANG_39, CHUC_NANG_45
+- Đường dẫn: `/inventory/stock`
+- Bố cục: tiêu đề; bộ lọc kho, ô tìm "Tìm theo tên, mã hàng, mã vạch", "Gồm mặt hàng hết tồn"; bảng kho, chủ hàng, mã hàng, sản phẩm, tồn thực, đang giữ, khả dụng, đang chuyển đến, giá vốn, giá trị, nhãn "Dưới tồn an toàn"; phân trang. Bấm một dòng mở khối chi tiết: "Theo lô, vị trí" (lô, hạn, vị trí, số lượng), "Serial trong kho (<số>)", "Hàng đang giữ"; nút "Xem thẻ kho", "In tem sản phẩm".
+- Dữ liệu hiển thị: theo phạm vi quyền (QUYTAC_NGHIEPVU_46).
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_63 (đọc kho), API_64, API_70.
+- Thao tác: như bố cục.
+- Trạng thái: rỗng ("Không có tồn."; "Không có hàng giữ.").
+- Thông báo: lỗi tải tem hiện thông báo lỗi chung.
+- Quyền hiển thị: màn hình với `inventory.stock.view`.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
+
+### MAN_HINH_30: Thẻ kho
+- Mục đích: Xem biến động của một mặt hàng tại một kho trong khoảng ngày.
+- Chức năng thực hiện: CHUC_NANG_39
+- Đường dẫn: `/inventory/stock-card?warehouseId=&companyId=&variantId=`
+- Bố cục: tiêu đề mã hàng · tên, nút "Tồn kho"; ô "Từ ngày", "Đến ngày"; dòng "Tồn đầu kỳ"; bảng thời điểm, phiếu (số phiếu mở MAN_HINH_32 hoặc MAN_HINH_33), lô và vị trí, số lượng, đơn giá vốn, giá trị, tồn sau; dòng "Tồn cuối kỳ".
+- Dữ liệu hiển thị: biến động theo ngày giờ Việt Nam, tối đa 5.000 dòng.
+- Thành phần: ThanhTrenCung, MenuMiniApp, ONhap, BangDuLieu (tài liệu `15`).
+- API: API_64.
+- Thao tác: đổi khoảng ngày.
+- Trạng thái: thiếu tham số ("Chọn mặt hàng từ màn hình Tồn kho."); rỗng ("Không có biến động trong kỳ.").
+- Thông báo: không có.
+- Quyền hiển thị: như MAN_HINH_29.
+- Responsive: bảng cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
+
+### MAN_HINH_31: Danh sách phiếu kho
+- Mục đích: Tìm phiếu kho; lập phiếu mới.
+- Chức năng thực hiện: CHUC_NANG_40, CHUC_NANG_41
+- Đường dẫn: `/inventory/documents`
+- Bố cục: tiêu đề kèm "Lịch sử", nút "Lập phiếu nhập khác", "Lập phiếu xuất khác", "Lập phiếu điều chỉnh kho", "Lập phiếu chuyển kho"; lọc loại phiếu, trạng thái, kho; bảng số phiếu (nháp hiện "(Nháp)"), loại, ngày, kho (kèm kho đích), công ty chủ hàng, diễn giải, trạng thái, giá trị, người lập; phân trang.
+- Dữ liệu hiển thị: phiếu thấy được theo phạm vi quyền, mới lập trước. Lọc theo ngày chưa làm.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_63 (đọc kho), API_65.
+- Thao tác: bấm số phiếu mở MAN_HINH_32 hoặc MAN_HINH_33.
+- Trạng thái: rỗng ("Chưa có phiếu kho.").
+- Thông báo: không có.
+- Quyền hiển thị: màn hình với `inventory.stock.view`; nút lập phiếu với `inventory.document.manage`.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
+
+### MAN_HINH_32: Phiếu nhập khác, xuất khác, điều chỉnh
+- Mục đích: Lập, gửi duyệt, rút, xem phiếu kho không có chứng từ gốc.
+- Chức năng thực hiện: CHUC_NANG_40, CHUC_NANG_45
+- Đường dẫn: `/inventory/documents/new?type=receipt_other|issue_other|adjustment` (lập); `/inventory/documents/[id]` (sửa nháp, xem).
+- Bố cục: đầu trang loại phiếu và số phiếu, nhãn trạng thái, nút "Danh sách phiếu", "Xem luồng duyệt" (mở MAN_HINH_08 `/hop-duyet/{id}`), "In tem". Phần chung: kho, công ty chủ hàng ("Phiếu đánh số, duyệt, hạch toán theo công ty chủ hàng."), ngày phiếu, lý do, diễn giải, ghi chú. Phần "Mặt hàng": ô "Quét mã vạch hoặc gõ mã hàng, tên rồi nhấn Enter"; mỗi dòng: mặt hàng, số lượng (phiếu điều chỉnh: "Số lượng dương là tăng, âm là giảm (ví dụ -5)."), đơn vị, đơn giá (nhập khác bắt buộc; điều chỉnh "để trống: giá vốn hiện hành"), vị trí (kho có vị trí), lô (dòng nhập: số lô, hạn dùng, ngày sản xuất; dòng xuất: chọn lô có nhãn "gợi ý", "hết hạn", "không hạn"), "Lý do chọn lô khác lô gợi ý", serial (mỗi dòng một serial), "Bỏ dòng". Nút "Lưu nháp", "Gửi duyệt" (hộp thoại xác nhận), "Xóa phiếu", "Rút phiếu".
+- Dữ liệu hiển thị: chi tiết phiếu kèm giá trị đã ghi sổ từng dòng; phiếu điều chỉnh sinh từ kiểm kê chỉ xem, kèm người chịu trách nhiệm và tiền bồi thường.
+- Thành phần: ThanhTrenCung, MenuMiniApp, ONhap, OChon, Nut, BangDuLieu, NhanTrangThai, HopThoaiXacNhan, KhoiCanhBao (tài liệu `15`).
+- API: API_63 (đọc kho, vị trí), API_65, API_70.
+- Thao tác: như bố cục; lưu lần đầu chuyển sang `/inventory/documents/{id}`.
+- Trạng thái: rỗng ("Chưa có mặt hàng."); không tìm thấy ("Không tìm thấy mặt hàng của công ty chủ hàng.").
+- Thông báo: "Đã lưu nháp." · "Đã gửi phiếu đi duyệt." · "Công ty chủ hàng chưa có chính sách duyệt cho loại phiếu này nên phiếu đã ghi sổ." · "Đã xóa phiếu nháp." · "Đã rút phiếu."; lỗi theo CHUC_NANG_40 dưới đúng ô, đúng dòng.
+- Quyền hiển thị: sửa, gửi, xóa theo `canEdit`; rút theo `canWithdraw` của API.
+- Responsive: dòng mặt hàng xếp dọc trên điện thoại.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
+
+### MAN_HINH_33: Phiếu chuyển kho
+- Mục đích: Lập, gửi duyệt phiếu chuyển kho; kho nguồn xác nhận xuất; kho đích nhận theo số thực nhận.
+- Chức năng thực hiện: CHUC_NANG_41
+- Đường dẫn: `/inventory/documents/new?type=transfer` (lập); `/inventory/documents/[id]`.
+- Bố cục: như MAN_HINH_32, thêm ô "Kho đích" (kho nhận hàng của công ty chủ hàng). Phiếu đã duyệt: nút "Xác nhận xuất" (kho nguồn). Phiếu đang vận chuyển: khối "Nhận hàng tại kho đích" ("Nhập số thực nhận theo đơn vị cơ sở. Nhận thiếu hoặc thừa sẽ lập biên bản chênh lệch."), mỗi dòng "Số thực nhận", vị trí đích, serial nhận; "Ghi chú biên bản"; nút "Xác nhận nhận". Khối "Biên bản chênh lệch": mã hàng, "xuất <số>, nhận <số>, chênh lệch <số>", giá trị.
+- Dữ liệu hiển thị: chi tiết phiếu, biên bản chênh lệch.
+- Thành phần: như MAN_HINH_32.
+- API: API_63, API_65, API_66.
+- Thao tác: như bố cục.
+- Trạng thái: chung.
+- Thông báo: "Công ty chủ hàng chưa có chính sách duyệt chuyển kho nên phiếu đã được duyệt; kho nguồn xác nhận xuất." · "Đã xuất, hàng đang vận chuyển." · "Đã nhận hàng."; lỗi theo CHUC_NANG_41.
+- Quyền hiển thị: "Xác nhận xuất" theo `canShip`, khối nhận theo `canReceive` của API.
+- Responsive: như MAN_HINH_32.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
+
+### MAN_HINH_34: Kiểm kê
+- Mục đích: Lập phạm vi kiểm kê, đếm, kết thúc sinh phiếu điều chỉnh.
+- Chức năng thực hiện: CHUC_NANG_42
+- Đường dẫn: `/inventory/stocktakes` (danh sách, lập); `/inventory/stocktakes/[id]` (đếm, kết thúc).
+- Bố cục:
+  - Danh sách: tiêu đề kèm "Lịch sử", nút "Lập kiểm kê"; câu giải thích khóa mặt hàng; bảng số phiếu, kho, công ty chủ hàng, phạm vi, đã đếm ("<n>/<tổng> dòng"), trạng thái, ngày lập. Ngăn kéo lập: kho, công ty chủ hàng, phạm vi (Toàn kho, Theo ngành hàng, Theo vị trí, Theo danh sách sản phẩm), chọn ngành hàng hoặc vị trí, hoặc ô "Thêm sản phẩm (quét mã vạch hoặc gõ mã hàng rồi nhấn Enter)", ghi chú.
+  - Chi tiết: đầu trang số phiếu, trạng thái, nút "Danh sách kiểm kê", "Phiếu điều chỉnh <số>"; nút "Bắt đầu kiểm kê", "Hủy kiểm kê" (Nháp); ô "Quét mã vạch để đếm (mỗi lần quét cộng 1)"; bảng mặt hàng, lô, vị trí, sổ sách, số đếm, chênh lệch, giá trị chênh lệch, người chịu trách nhiệm, serial đếm được; khối "Hàng có thực tế nhưng sổ sách không có"; nút "Lưu số đếm", "Kết thúc kiểm kê", "Hủy kiểm kê".
+- Dữ liệu hiển thị: kiểm kê của kho thao tác được, tối đa 200 lần gần nhất.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, HopThoaiXacNhan (tài liệu `15`).
+- API: API_63 (đọc kho, vị trí), API_67, API_65 (tìm mặt hàng).
+- Thao tác: bắt đầu, kết thúc, hủy có hộp thoại xác nhận.
+- Trạng thái: rỗng ("Chưa có lần kiểm kê nào."); không tìm thấy ("Không tìm thấy mặt hàng.").
+- Thông báo: "Đã bắt đầu kiểm kê." · "Đã lưu số đếm." · "Đã kết thúc kiểm kê." · "Đã hủy kiểm kê."; lỗi theo CHUC_NANG_42.
+- Quyền hiển thị: mục menu, nút lập với `inventory.stocktake.manage`; thao tác theo `canManage` của API.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
+
+### MAN_HINH_35: Giữ hàng và tồn an toàn
+- Mục đích: Theo dõi, gia hạn, nhả hàng giữ; đặt tồn an toàn, xem cảnh báo và số gợi ý.
+- Chức năng thực hiện: CHUC_NANG_43, CHUC_NANG_44
+- Đường dẫn: `/inventory/reservations`
+- Bố cục: tiêu đề kèm "Lịch sử"; hai thẻ "Giữ hàng", "Tồn an toàn". Thẻ Giữ hàng: lọc trạng thái (Đang giữ, Đã nhả, Đã xuất); khối giữ thủ công (kho, công ty chủ hàng, mặt hàng quét hoặc gõ rồi Enter, số lượng theo đơn vị cơ sở, lý do giữ, nút "Giữ hàng"); bảng mặt hàng, kho, chủ hàng, số lượng, nguồn (Giữ thủ công, Phiếu kho, Đơn bán), hạn giữ ("Đến khi phiếu kết thúc"), người giữ, trạng thái, nút "Gia hạn 24 giờ", "Nhả". Thẻ Tồn an toàn: ô "Chỉ hiện hàng dưới tồn an toàn"; khối đặt mức (kho, công ty chủ hàng, mặt hàng, tối thiểu, tối đa, "Lưu tồn an toàn"); bảng mặt hàng, kho, tối thiểu, tối đa, khả dụng, đang chuyển đến, nhãn "Dưới tối thiểu", gợi ý bổ sung, nút "Bỏ".
+- Dữ liệu hiển thị: theo kho thao tác được.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_63 (đọc kho), API_65 (tìm mặt hàng), API_68, API_69.
+- Thao tác: như bố cục; "Nhả" không hiện với hàng giữ cho phiếu kho.
+- Trạng thái: rỗng ("Không có hàng giữ.", "Chưa đặt tồn an toàn.", "Không có hàng dưới tồn an toàn.").
+- Thông báo: "Đã giữ hàng." · "Đã gia hạn." · "Đã nhả hàng giữ." · "Đã lưu tồn an toàn."; lỗi theo CHUC_NANG_43, CHUC_NANG_44.
+- Quyền hiển thị: khối giữ, đặt mức, nút gia hạn, nhả, bỏ với `inventory.reservation.manage`.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)

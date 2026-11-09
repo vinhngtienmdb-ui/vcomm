@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 1.3
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.4
+- Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03
 
 ## MODULE_01 Nền tảng
 
@@ -41,6 +41,15 @@
 | YCAU_NGHIEPVU_24 | Giao dịch giữa công ty con biết sản phẩm tương ứng ở công ty bên kia | Kế toán, Mua hàng, Bán hàng | Quyết định của người dùng 2026-11-09 |
 | YCAU_NGHIEPVU_25 | Giá bán theo công ty, kênh bán, nhóm khách hàng, hiệu lực theo ngày; thay đổi giá được duyệt và lưu lịch sử | Ban giám đốc, Bán hàng | Tài liệu `04` yêu cầu cấp cao 4; quyết định của người dùng 2026-11-09 |
 
+## MODULE_03 Kho (phần web, CONG_VIEC_05)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_26 | Nhiều kho thuộc chi nhánh, có hoặc không có vị trí kệ; một kho chứa hàng của nhiều công ty con | Quản lý kho, quản trị công ty | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09 (tài liệu `02`, Kho chứa hàng nhiều công ty) |
+| YCAU_NGHIEPVU_27 | Tồn kho chính xác theo thời gian thực theo công ty chủ hàng, lô và hạn dùng, serial, vị trí; không âm; có giá vốn và thẻ kho | Thủ kho, Kế toán, Bán hàng | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09 |
+| YCAU_NGHIEPVU_28 | Nhập, xuất không có chứng từ gốc, chuyển kho, kiểm kê có kiểm soát: duyệt, biên bản chênh lệch, quy trách nhiệm | Quản lý kho, Ban giám đốc, Kế toán | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09 |
+| YCAU_NGHIEPVU_29 | Giữ hàng cho đơn đã xác nhận; cảnh báo hàng dưới tồn an toàn và gợi ý bổ sung; in tem mã vạch | Bán hàng, Mua hàng, Thủ kho | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09 |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -72,3 +81,15 @@
 | Bảng giá | Mã, tên, kênh bán, nhóm khách hàng, tiền tệ, gồm thuế hay không, trạng thái | Thuộc một công ty; có lịch sử giá |
 | Giá | Biến thể, đơn vị tính, giá, ngày hiệu lực | Thuộc một bảng giá; ghi từ một phiếu điều chỉnh giá |
 | Phiếu điều chỉnh giá | Số phiếu, bảng giá, ngày hiệu lực, ghi chú, trạng thái, người lập; các dòng (biến thể, đơn vị, giá mới, giá hiện hành) | Thuộc một công ty; có một yêu cầu duyệt khi gửi |
+| Kho | Mã (duy nhất trong công ty), tên, địa chỉ, dùng vị trí kệ, trạng thái | Thuộc một chi nhánh của công ty sở hữu kho; có danh sách công ty chủ hàng, nhiều vị trí |
+| Vị trí kệ | Mã (duy nhất trong kho), tên, trạng thái | Thuộc một kho |
+| Lô | Số lô, ngày sản xuất, hạn dùng | Thuộc một biến thể của công ty chủ hàng |
+| Serial | Số serial (duy nhất trong công ty chủ hàng), trạng thái (trong kho, đang vận chuyển, đã xuất), giá vốn đích danh | Thuộc một biến thể; ở một kho, một vị trí tại một thời điểm |
+| Tồn kho | Số lượng theo đơn vị cơ sở | Theo kho, công ty chủ hàng, biến thể, lô, vị trí |
+| Giá vốn | Số lượng, giá trị, giá vốn bình quân | Theo kho, công ty chủ hàng, biến thể |
+| Phiếu kho | Loại (nhập khác, xuất khác, điều chỉnh, chuyển kho), số phiếu, ngày, lý do, trạng thái, người lập; các dòng (biến thể, đơn vị, số lượng, đơn giá, lô, vị trí, serial, số thực nhận, người chịu trách nhiệm, tiền bồi thường) | Thuộc công ty chủ hàng, một kho (chuyển kho có kho đích); có một yêu cầu duyệt khi gửi |
+| Thẻ kho | Thời điểm, phiếu, số lượng tăng giảm, giá vốn, giá trị, tồn sau | Theo kho, công ty chủ hàng, biến thể; chỉ thêm |
+| Biên bản chênh lệch chuyển kho | Số xuất, số nhận, chênh lệch, giá trị, ghi chú | Thuộc một dòng phiếu chuyển kho |
+| Kiểm kê | Số kiểm kê, phạm vi (toàn kho, ngành hàng, vị trí, danh sách sản phẩm), trạng thái; các dòng (tồn sổ sách, số đếm, serial đếm được, người chịu trách nhiệm, tiền bồi thường) | Thuộc công ty chủ hàng, một kho; sinh một phiếu điều chỉnh khi kết thúc |
+| Hàng giữ | Số lượng, nguồn, hạn giữ, trạng thái (đang giữ, đã nhả, đã dùng) | Theo kho, công ty chủ hàng, biến thể |
+| Tồn an toàn | Tối thiểu, tối đa | Theo kho, công ty chủ hàng, biến thể |

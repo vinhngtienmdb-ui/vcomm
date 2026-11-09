@@ -1,13 +1,13 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 1.3
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.4
+- Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04). Các module sau bổ sung vào cùng tài liệu.
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05). Các module sau bổ sung vào cùng tài liệu.
 
 ## 1. Dữ liệu nhạy cảm
 
@@ -29,6 +29,8 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Nội dung đề xuất, tệp đính kèm (chứng từ gốc) | Tài chính, chứng từ | Cơ sở dữ liệu; tệp lưu AWS S3 (`STORAGE_DRIVER=s3`) hoặc thư mục cục bộ khi phát triển, theo khóa lưu trữ do hệ thống sinh | Người lập; người được giao duyệt hoặc đã duyệt; người có quyền `platform.proposal_template.manage` của công ty (QUYTAC_NGHIEPVU_36) |
 | Giá bán, bảng giá, phiếu điều chỉnh giá (CONG_VIEC_04) | Kinh doanh | Cơ sở dữ liệu schema `catalog`; lịch sử giá chỉ thêm | Người có quyền `catalog.price.view` của công ty xem; chỉ người có quyền nhạy cảm `catalog.price.manage` lập phiếu |
 | Sản phẩm, ảnh sản phẩm (CONG_VIEC_04) | Kinh doanh | Cơ sở dữ liệu schema `catalog`; ảnh lưu S3 hoặc thư mục cục bộ theo khóa `products/<công ty>/<sản phẩm>/<mã ngẫu nhiên>` | Người có quyền `catalog.product.view` của công ty |
+| Giá vốn, giá trị tồn kho, giá trị phiếu kho, biên bản chênh lệch, tiền bồi thường (CONG_VIEC_05) | Tài chính | Cơ sở dữ liệu schema `inventory`; API trả trống khi người xem không có quyền | Người có quyền nhạy cảm `inventory.cost.view` tại kho (mọi chủ hàng) hoặc ở công ty chủ hàng (hàng của công ty đó) |
+| Tồn kho, phiếu kho, thẻ kho (CONG_VIEC_05) | Kinh doanh | Cơ sở dữ liệu schema `inventory`; thẻ kho chỉ thêm | Người có quyền kho tại kho; nhân viên công ty chủ hàng có `inventory.stock.view` chỉ thấy hàng của công ty mình |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
 
@@ -48,6 +50,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Mọi API mini app Sản phẩm (API_55 đến API_62) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn phải là UUID; giới hạn số phần tử (3 thuộc tính phân loại, 200 biến thể, 5 đơn vị quy đổi, 20 mã vạch mỗi biến thể, 5.000 dòng mỗi phiếu điều chỉnh giá) | Có, `catalog.access` và quyền chi tiết |
 | Tải ảnh sản phẩm lên (API_57) | Tải tệp lên | Một tệp mỗi lần; tối đa 5 MB (multer cắt ở 10 MB), 10 ảnh mỗi sản phẩm; đuôi `jpg`, `jpeg`, `png`, `webp` và chữ ký đầu tệp phải khớp (`FF D8 FF`, `89 50 4E 47`, `RIFF....WEBP`); loại nội dung lưu theo loại đã kiểm; tên tệp thay `\`, `/`, xuống dòng, dấu nháy kép bằng `_`, giữ tối đa 200 ký tự cuối; khóa lưu trữ do hệ thống sinh; tải về kèm `X-Content-Type-Options: nosniff`, `Cache-Control: private` | Có |
 | Nhập sản phẩm, nhập dòng phiếu điều chỉnh giá từ Excel (API_58, API_62) | Tải tệp lên | Chỉ `.xlsx` đọc bằng `read-excel-file`; tối đa 5 MB (multer cắt ở 10 MB), 2.000 dòng; dòng tiêu đề phải đúng mẫu; xử lý trong bộ nhớ, không lưu tệp gốc; tệp lỗi trả về dạng `data:` | Có |
+| Mọi API mini app Kho (API_63 đến API_70) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn, danh sách `variantIds` phải là UUID; số lượng, tiền dạng chuỗi tối đa 12 (số lượng) hoặc 16 (tiền) chữ số phần nguyên, 4 chữ số lẻ; giới hạn số phần tử (1.000 dòng mỗi phiếu, 5.000 serial mỗi dòng, 500 vị trí mỗi lần thêm, 5.000 dòng đếm mỗi lần, 500 bản tem); không nhận tệp tải lên | Có, `inventory.access` hoặc `inventory.stock.view` và quyền chi tiết tại kho |
 | Gửi tin qua eSMS.vn (mã OTP, Zalo ZNS, kiểm tra kết nối) | Tích hợp | Chỉ đọc mã kết quả, mã tin, lỗi; gửi lỗi không chặn nghiệp vụ | Không áp dụng (hệ thống gọi ra) |
 
 ## 3. Xác thực và phiên đăng nhập
@@ -125,6 +128,44 @@ Ranh giới và kiểm soát riêng:
 - Ngành hàng, đơn vị tính dùng chung: quyền sửa chỉ tính khi gán ở phạm vi tập đoàn, quản trị công ty không tự cấp được.
 - Giá chỉ đổi qua phiếu điều chỉnh giá (QUYTAC_NGHIEPVU_44): không có API sửa, xóa bảng `catalog.prices`; giá chỉ ghi khi gửi (công ty chưa có chính sách duyệt) hoặc khi nhận sự kiện duyệt xong; quyền lập phiếu là quyền nhạy cảm; người lập không tự duyệt. Bảng `catalog.prices` chưa có trigger chặn sửa, xóa ở tầng cơ sở dữ liệu.
 - Nhật ký thao tác ghi mọi thao tác ghi của mini app `catalog` (dữ liệu trước và sau).
+
+### Ma trận phân quyền MODULE_03 Kho (CONG_VIEC_05)
+
+Quyền mới (`apps/api/src/permissions/permission-catalog.ts`; `inventory.access` đã có từ trước):
+
+| Quyền | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|
+| `inventory.access` | Công ty, chi nhánh | Không | Quản trị tập đoàn, quản trị công ty, Thủ kho, Quản lý kho |
+| `inventory.warehouse.manage` | Công ty (thêm kho, cài đặt); công ty hoặc chi nhánh (sửa kho, vị trí) | Không | Quản trị tập đoàn, quản trị công ty, Quản lý kho |
+| `inventory.stock.view` | Công ty, chi nhánh | Không | Quản trị tập đoàn, quản trị công ty, Thủ kho, Quản lý kho |
+| `inventory.cost.view` | Công ty, chi nhánh | Có (bắt buộc xác thực hai lớp, QUYTAC_NGHIEPVU_09) | Quản trị tập đoàn, quản trị công ty, Quản lý kho |
+| `inventory.document.manage` | Công ty, chi nhánh | Không | Quản trị tập đoàn, quản trị công ty, Thủ kho, Quản lý kho |
+| `inventory.stocktake.manage` | Công ty, chi nhánh | Không | Quản trị tập đoàn, quản trị công ty, Quản lý kho |
+| `inventory.reservation.manage` (gồm tồn an toàn) | Công ty, chi nhánh | Không | Quản trị tập đoàn, quản trị công ty, Quản lý kho |
+
+Vai trò hệ thống mới "Thủ kho" (`warehouse_keeper`): `inventory.access`, `inventory.stock.view`, `inventory.document.manage`. "Quản lý kho" (`warehouse_manager`): mọi quyền `inventory.*`. Loại chứng từ mới cần duyệt: `inventory.receipt_other`, `inventory.issue_other`, `inventory.adjustment`, `inventory.transfer`; không duyệt: `inventory.stocktake`.
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty | Quản lý kho | Thủ kho | Nhân viên công ty chủ hàng có `inventory.stock.view` | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|---|
+| CHUC_NANG_38 Thêm kho, cài đặt | Được | Trong công ty mình | Khi gán ở phạm vi công ty | Không | Không | Không |
+| CHUC_NANG_38 Sửa kho, vị trí | Được | Kho của công ty mình | Kho trong phạm vi gán | Không | Không | Không |
+| CHUC_NANG_39 Xem tồn, thẻ kho | Được | Kho của công ty mình (mọi chủ hàng); hàng công ty mình ở kho khác | Kho trong phạm vi gán | Kho trong phạm vi gán | Chỉ hàng của công ty mình | Không |
+| CHUC_NANG_39 Xem giá vốn, giá trị | Được | Được | Được | Không | Khi có `inventory.cost.view` ở công ty mình | Không |
+| CHUC_NANG_40, CHUC_NANG_41 Lập, gửi, rút phiếu; xuất, nhận chuyển kho | Được | Kho của công ty mình | Kho trong phạm vi gán | Kho trong phạm vi gán | Không (chỉ xem phiếu của công ty mình) | Có (chỉ người lập sửa, xóa, gửi, rút) |
+| CHUC_NANG_40, CHUC_NANG_41 Duyệt phiếu kho | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Không (người lập không tự duyệt, QUYTAC_NGHIEPVU_20) |
+| CHUC_NANG_42 Kiểm kê | Được | Kho của công ty mình | Kho trong phạm vi gán | Không | Không | Không |
+| CHUC_NANG_43, CHUC_NANG_44 Giữ hàng, tồn an toàn | Được | Kho của công ty mình | Kho trong phạm vi gán | Chỉ xem | Không | Không |
+| CHUC_NANG_45 In tem | Được | Được | Được | Được | Không | Không |
+
+Ranh giới và kiểm soát riêng:
+- Phạm vi theo chi nhánh sở hữu kho (QUYTAC_NGHIEPVU_46): quyền tại kho tính từ lần gán ở tập đoàn, ở công ty sở hữu kho hoặc ở chi nhánh của kho (`warehousePermissions` trong `apps/api/src/inventory/inventory-context.ts`). Người chỉ có quyền ở chi nhánh khác nhận `404` như kho không tồn tại (KICHBAN_KIEMTHU_147). Danh sách tồn, phiếu, kiểm kê, hàng giữ, tồn an toàn lọc theo danh sách kho trong điều kiện của câu truy vấn.
+- Công ty chủ hàng chỉ xem: nhân viên công ty chủ hàng không có quyền tại kho chỉ nhận dòng tồn, phiếu có `company_id` của công ty đang làm việc; không lập phiếu, không thao tác kho (KICHBAN_KIEMTHU_147, KICHBAN_KIEMTHU_152). Phiếu chỉ nhận sản phẩm của công ty chủ hàng; kho phải nhận hàng của công ty đó.
+- Giá vốn là thông tin nhạy cảm: giá vốn, giá trị tồn, giá trị dòng phiếu, giá trị thẻ kho, giá vốn serial, giá trị biên bản chênh lệch, giá trị chênh lệch kiểm kê, tiền bồi thường trả `null` khi người xem không có `inventory.cost.view` (KICHBAN_KIEMTHU_148, KICHBAN_KIEMTHU_154). Giá trị duyệt vẫn gửi sang yêu cầu duyệt cho người duyệt.
+- Chống tồn âm, đồng thời: sổ kho khóa dòng `costs` rồi dòng `balances` (`SELECT ... FOR UPDATE`) theo thứ tự khóa cố định (kho, chủ hàng, biến thể, lô, vị trí) trong giao dịch của phiếu; giữ hàng khóa dòng `costs` trước khi tính tồn khả dụng; cột `quantity` của `balances`, `costs` có ràng buộc không âm ở cơ sở dữ liệu (KICHBAN_KIEMTHU_149).
+- Thẻ kho chỉ thêm: trigger `movements_append_only` chặn `UPDATE`, `DELETE` trên `inventory.movements` ở tầng cơ sở dữ liệu (KICHBAN_KIEMTHU_148); sai thì lập phiếu khác.
+- Kiểm kê khóa mặt hàng đang đếm: sổ kho từ chối ghi vào mặt hàng (và vị trí) trong phạm vi kiểm kê đang đếm, trừ phiếu điều chỉnh của chính kiểm kê đó.
+- Tem PDF: `pdfmake` chặn tải tài nguyên qua URL và chỉ đọc tệp phông trong thư mục phông của thư viện; nội dung tem chỉ gồm ký tự ASCII.
+- Nhật ký thao tác ghi mọi thao tác ghi của mini app `inventory` (kho, vị trí, cài đặt, phiếu, xuất, nhận, kiểm kê, giữ hàng, tồn an toàn); ghi sổ sau duyệt và tác vụ nền nhả hàng giữ không ghi nhật ký riêng.
 
 ## 5. Quản lý khóa bí mật
 
