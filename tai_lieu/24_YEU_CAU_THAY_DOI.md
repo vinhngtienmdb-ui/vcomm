@@ -111,4 +111,4 @@
 - Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_52 đến 61 (đã chạy đạt trên nhánh CONG_VIEC_02).
 - Mức quy mô: Nhỏ.
 - Rủi ro: lộ danh sách quyền của vai trò cho người gán vai trò; mức thấp vì người gán vai trò đã thấy vai trò khi gán.
-- Trạng thái: Chờ duyệt. Mã đã làm theo phiếu này trên nhánh `chuc-nang/CONG_VIEC_02-mini-app-nen-tang` để không chặn lát L2; nếu từ chối thì gỡ trước khi hợp nhất.
+- Trạng thái: Đã phê duyệt 2026-11-09.
