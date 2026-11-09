@@ -1,10 +1,10 @@
 # 05. PHẠM VI
 
 - Mô tả: Phạm vi sản phẩm, phạm vi chức năng, phạm vi ngoài, phạm vi từng phiên bản và thứ tự ưu tiên.
-- Phiên bản: 1.2
+- Phiên bản: 1.3
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_03 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04 (2026-11-09)
 
 ## 1. Phạm vi sản phẩm
 
@@ -47,6 +47,22 @@ VComm gồm ba khối, ra mắt lần lượt:
 - Cửa hàng liên kết đăng nhập được bằng Zalo.
 - Mã QR động tại quầy, hạn mức theo cửa hàng, cảnh báo giao dịch bất thường.
 
+### 2.4 Phạm vi bổ sung theo THAY_DOI_04
+
+| Module | Chức năng bổ sung |
+|---|---|
+| MODULE_01 Nền tảng | Thông báo qua Zalo ZNS; biểu mẫu đề xuất tự do (phiếu chi, tạm ứng, mua sắm) đi qua luồng duyệt, mẫu in PDF |
+| MODULE_02 Sản phẩm và Nhà bán | Hiệu suất, chế tài nhà bán; nhiều nhân viên trong một nhà bán; công bố thông tin sản phẩm, truy xuất nguồn gốc |
+| MODULE_06 Tài chính – Kế toán | Tài sản cố định, khấu hao, công cụ dụng cụ; khóa sổ theo kỳ; kê khai thuế giá trị gia tăng, thu nhập doanh nghiệp; đối chiếu sao kê ngân hàng, nhận chuyển khoản tự đối chiếu, đối soát thu hộ COD; khấu trừ thuế thu nhập cá nhân trên hoa hồng; IFRS 15 |
+| MODULE_07 Khách hàng và Đối tác | Phiếu hỗ trợ có thời hạn xử lý, tổng đài, hộp thư đa kênh; khách hàng tiềm năng, cơ hội, chiến dịch tự động |
+| MODULE_08 Nhân sự | Tiếp nhận nhân viên mới, đào tạo, khen thưởng – kỷ luật; cổng tự phục vụ nhân viên |
+| MODULE_09 Sàn thương mại điện tử | Nghĩa vụ thuế của sàn với nhà bán, ủy nhiệm lập hóa đơn thay nhà bán; giữ tiền đảm bảo, ví và rút tiền nhà bán; minh bạch thông tin sàn, bảo vệ thương hiệu, bảo vệ dữ liệu cá nhân; quảng cáo nội bộ; tìm kiếm toàn văn |
+| MODULE_10 Cộng đồng | KOL, KOC, hoa hồng theo ngành hàng |
+| MODULE_13 Văn phòng số | Công việc, quy trình, công văn, chữ ký số, kho hợp đồng, bảng tin nội bộ |
+| MODULE_14 Bán lẻ tại quầy và trạm giao hàng | Bán hàng tại quầy cho cửa hàng tập đoàn tự vận hành; trạm giao hàng O2O; kế hoạch mua theo ngân sách |
+| MODULE_15 Phân tích dữ liệu | Báo cáo quản trị toàn tập đoàn |
+| MODULE_16 Mở rộng kinh doanh | Dropship; Open API cho đối tác; trợ lý AI; quản lý sản xuất |
+
 ## 3. Phạm vi ngoài
 
 | Nội dung | Lý do |
@@ -57,12 +73,13 @@ VComm gồm ba khối, ra mắt lần lượt:
 | Tự xây dịch vụ vận chuyển | Tích hợp đơn vị vận chuyển |
 | Hoa hồng cộng tác viên nhiều tầng | Rủi ro bị coi là kinh doanh đa cấp |
 | Ngôn ngữ ngoài tiếng Việt và tiếng Anh | Chưa có nhu cầu |
+| F2B2B, bán hàng qua livestream | Dự án V-com-ERP đã loại bỏ; không đưa vào THAY_DOI_04 |
 
 ## 4. Phạm vi phiên bản
 
 | Phiên bản | Nội dung |
 |---|---|
-| 0.1 | Mini app Nền tảng |
+| 0.1 | Mini app Nền tảng (gồm thông báo ZNS, biểu mẫu đề xuất theo THAY_DOI_04) |
 | 0.2 | Sản phẩm và Nhà bán, Kho, ứng dụng kho |
 | 0.3 | Mua hàng, Bán hàng, giao dịch nội bộ |
 | 0.4 | Tài chính – Kế toán |
@@ -70,6 +87,9 @@ VComm gồm ba khối, ra mắt lần lượt:
 | 1.0 | Hệ thống quản trị doanh nghiệp chạy thật cho mọi công ty con |
 | 2.x | Sàn thương mại điện tử cộng đồng |
 | 3.x | Điểm thưởng và cửa hàng liên kết |
+| 4.x | Văn phòng số (MODULE_13) |
+| 5.x | Bán lẻ tại quầy và trạm giao hàng (MODULE_14) |
+| 6.x | Phân tích dữ liệu (MODULE_15), mở rộng kinh doanh (MODULE_16) |
 
 ## 5. Danh sách ưu tiên
 
@@ -80,6 +100,9 @@ VComm gồm ba khối, ra mắt lần lượt:
 5. Khách hàng và Đối tác, Nhân sự.
 6. Sàn thương mại điện tử.
 7. Điểm thưởng và cửa hàng liên kết. Mô hình dữ liệu điểm được thiết kế từ giai đoạn 1.
+8. Văn phòng số.
+9. Bán lẻ tại quầy và trạm giao hàng.
+10. Phân tích dữ liệu, mở rộng kinh doanh.
 
 ## 6. Ranh giới
 

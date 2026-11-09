@@ -142,6 +142,9 @@ Người dùng duyệt ngày 2026-11-09. Mỗi lát chạy được từ giao di
 | L7 | Chính sách duyệt, gửi duyệt, hộp duyệt, chi tiết, rút lại, nhắc và chuyển quá hạn (tác vụ nền). Dùng loại chứng từ thử `platform.test_document` vì chưa có module khác | MAN_HINH_07, 08, 15; API_37 đến 42 | TIEUCHI_NGHIEMTHU_28 đến 36 | Gửi chứng từ thử 80 triệu đồng, duyệt qua 2 cấp; tự duyệt bị chặn; chỉnh đồng hồ thử để thấy nhắc và chuyển |
 | L8 | Dãy số chứng từ, tỷ giá, nhật ký thao tác, thông báo, vô hiệu hóa và bàn giao | MAN_HINH_16, 17, 18; API_31, 32, 33, 43 đến 48 | TIEUCHI_NGHIEMTHU_37 đến 44 | 2 người lưu chứng từ cùng lúc nhận số liên tiếp; xem nhật ký trước và sau; vô hiệu hóa kèm bàn giao |
 
+| L9 | Thông báo qua Zalo ZNS (THAY_DOI_04) | Chưa thiết kế | Chưa lập | Cần bổ sung tài liệu `06` đến `17` trước. **Bị chặn** chờ Zalo Official Account |
+| L10 | Biểu mẫu đề xuất tự do, mẫu in PDF (THAY_DOI_04) | Chưa thiết kế | Chưa lập | Cần bổ sung tài liệu `06` đến `17` trước |
+
 Tiêu chí TIEUCHI_NGHIEMTHU_42 (tiếng Anh) và TIEUCHI_NGHIEMTHU_45 (hiệu năng) kiểm tra ở lát cuối trên toàn bộ màn hình.
 
 Điều kiện trước khi bắt đầu L1:

@@ -1,3 +1,11 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Gói được chạy script khi cài (pnpm 10 chặn mặc định): argon2 dựng mã gốc băm mật khẩu, @swc/core tải bản dựng cho Vitest.
+onlyBuiltDependencies:
+  - "@swc/core"
+  - argon2
+# Không cần dựng: chỉ dùng để theo dõi tệp khi phát triển.
+ignoredBuiltDependencies:
+  - "@parcel/watcher"

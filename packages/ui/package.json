@@ -1,0 +1,5 @@
+{
+  "name": "ui",
+  "private": true,
+  "exports": { "./styles.css": "./src/styles.css" }
+}
