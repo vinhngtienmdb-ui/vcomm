@@ -1,11 +1,11 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Bản nháp
+- Trạng thái: Chờ phê duyệt
 
-Tài liệu được lập trước giai đoạn 03, 04 từ các quyết định của người dùng. Phải rà soát lại khi giai đoạn 04 hoàn thành, trước khi trình phê duyệt giai đoạn 05.
+Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
 ## 1. Kiến trúc tổng thể
 
@@ -39,7 +39,36 @@ Tài liệu được lập trước giai đoạn 03, 04 từ các quyết địn
 8. **Sự kiện giữa module qua outbox:** ghi sự kiện trong cùng giao dịch với dữ liệu, tiến trình nền đẩy sang SQS/SNS.
 9. **Hạ tầng AWS vùng Singapore:** ECS Fargate, Aurora PostgreSQL, ElastiCache Redis, OpenSearch, S3, CloudFront; hạ tầng viết bằng mã (Terraform hoặc CDK).
 
-## 3. Cấu trúc thư mục
+## 3. Thành phần phụ trợ cho MODULE_01
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Tác vụ nền | BullMQ trên Redis, chạy trong tiến trình riêng của `apps/api` | CHUC_NANG_18 (nhắc, chuyển duyệt quá hạn mỗi 15 phút), CHUC_NANG_21 (lấy tỷ giá mỗi sáng), đẩy sự kiện outbox |
+| Lưu đệm quyền, mã OTP, giới hạn số lần thử | Redis | CHUC_NANG_06, CHUC_NANG_08, CHUC_NANG_13, yêu cầu phi chức năng hiệu năng |
+| Gửi email | Amazon SES | CHUC_NANG_04, CHUC_NANG_06, CHUC_NANG_09 |
+| Gửi SMS | **CHƯA XÁC ĐỊNH:** nhà cung cấp | CHUC_NANG_04, CHUC_NANG_08, CHUC_NANG_09 |
+| Đăng nhập liên kết | Google, Microsoft qua OpenID Connect | CHUC_NANG_07 |
+| Khóa bí mật, mã hóa | AWS Secrets Manager, AWS KMS | Tài liệu `22` mục 5 |
+
+## 4. Kiến trúc triển khai
+
+| Môi trường | Mục đích | Hạ tầng |
+|---|---|---|
+| Phát triển | Máy lập trình viên và phiên AI | Docker Compose: PostgreSQL 16, Redis; gửi email, SMS giả lập ghi ra log |
+| Thử nghiệm (staging) | Người dùng nghiệm thu trước khi lên môi trường thật | AWS, cấu hình nhỏ, dữ liệu giả |
+| Thật | Vận hành | AWS vùng Singapore, ECS Fargate tối thiểu 2 bản chạy song song mỗi dịch vụ, Aurora PostgreSQL nhiều vùng sẵn sàng |
+
+- Mọi môi trường AWS dựng bằng AWS CDK; khóa bí mật mỗi môi trường khác nhau.
+- Database migration chạy một lần trước khi bật phiên bản mới, cùng thứ tự ở mọi môi trường.
+
+## 5. Sao lưu, phục hồi, ghi log, giám sát
+
+- Sao lưu: Aurora tự sao lưu hằng ngày, giữ 35 ngày, phục hồi về một thời điểm bất kỳ trong khoảng đó; sao lưu được mã hóa.
+- Phục hồi: diễn tập phục hồi vào môi trường thử nghiệm mỗi quý.
+- Ghi log: log có cấu trúc (JSON) đẩy về CloudWatch, mỗi yêu cầu có mã yêu cầu; không ghi mật khẩu, mã OTP, token.
+- Giám sát: Sentry cho lỗi ứng dụng; cảnh báo CloudWatch khi tỷ lệ lỗi, độ trễ, đăng nhập thất bại tăng bất thường.
+
+## 6. Cấu trúc thư mục
 
 Chia theo phần chạy riêng của hệ thống, bên trong chia theo module. Chỉ tạo thư mục khi có mã cần đặt vào.
 
@@ -62,8 +91,15 @@ database/
 tai_lieu/               Bộ tài liệu dự án.
 ```
 
-## 4. Ràng buộc kỹ thuật
+## 7. Ràng buộc kỹ thuật
 
 - Phải có kiểm thử tự động cho phân quyền theo phạm vi ngay từ MODULE_01, vì lỗi ở đây làm lộ dữ liệu giữa các công ty.
 - Ranh giới schema phải được giữ nghiêm để có thể tách dịch vụ sau này.
-- **CHƯA XÁC ĐỊNH:** yêu cầu lưu trữ dữ liệu cá nhân trong nước có áp dụng hay không (chờ ý kiến luật sư).
+- **CHƯA XÁC ĐỊNH:** yêu cầu lưu trữ dữ liệu cá nhân trong nước có áp dụng hay không (chờ ý kiến luật sư). Không chặn MODULE_01 vì dữ liệu cá nhân chỉ gồm thông tin nhân viên; chặn trước giai đoạn 2.
+
+## Nội dung do AI đề xuất, chờ người dùng xác nhận
+
+| Vị trí | Nội dung |
+|---|---|
+| Mục 4 | Có môi trường thử nghiệm (staging) riêng; môi trường thật chạy tối thiểu 2 bản mỗi dịch vụ, Aurora nhiều vùng sẵn sàng |
+| Mục 5 | Giữ sao lưu 35 ngày; diễn tập phục hồi mỗi quý |

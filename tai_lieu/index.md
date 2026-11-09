@@ -16,9 +16,10 @@
 | 09 | [09_LUONG_NGHIEP_VU.md](09_LUONG_NGHIEP_VU.md) | Luồng nghiệp vụ | Luồng chính, ngoại lệ, chuyển trạng thái | 03 | Đã phê duyệt |
 | 10 | [10_YEU_CAU_CHUC_NANG.md](10_YEU_CAU_CHUC_NANG.md) | Yêu cầu chức năng | CHUC_NANG, yêu cầu phi chức năng | 04 | Đã phê duyệt |
 | 11 | [11_TIEU_CHI_NGHIEM_THU.md](11_TIEU_CHI_NGHIEM_THU.md) | Tiêu chí nghiệm thu | TIEUCHI_NGHIEMTHU, Bắt buộc hoặc Mong muốn | 04 | Đã phê duyệt |
-| 12 | [12_KIEN_TRUC_HE_THONG.md](12_KIEN_TRUC_HE_THONG.md) | Kiến trúc hệ thống | Kiến trúc tổng thể, cấu trúc thư mục | 05 | Bản nháp |
-| 13 | [13_CONG_NGHE_SU_DUNG.md](13_CONG_NGHE_SU_DUNG.md) | Công nghệ sử dụng | Công nghệ, phân tích giải pháp có sẵn | 05 | Bản nháp |
+| 12 | [12_KIEN_TRUC_HE_THONG.md](12_KIEN_TRUC_HE_THONG.md) | Kiến trúc hệ thống | Kiến trúc tổng thể, triển khai, sao lưu, cấu trúc thư mục | 05 | Chờ phê duyệt |
+| 13 | [13_CONG_NGHE_SU_DUNG.md](13_CONG_NGHE_SU_DUNG.md) | Công nghệ sử dụng | Công nghệ, phân tích giải pháp có sẵn | 05 | Chờ phê duyệt |
 | 16 | [16_CO_SO_DU_LIEU.md](16_CO_SO_DU_LIEU.md) | Cơ sở dữ liệu | Schema `core` của MODULE_01 | 07 | Bản nháp |
+| 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | Dữ liệu nhạy cảm, điểm tiếp nhận, xác thực, ma trận phân quyền, khóa bí mật | 05 | Chờ phê duyệt |
 | 27 | [27_MA_TRAN_TRUY_VET.md](27_MA_TRAN_TRUY_VET.md) | Ma trận truy vết | Yêu cầu → chức năng → tiêu chí → kiểm thử → mã nguồn | 04 | Đã phê duyệt |
 
 Đặc tả công việc:
@@ -27,4 +28,4 @@
 |---|---|---|
 | CONG_VIEC_02 | [cong_viec/CONG_VIEC_02.md](cong_viec/CONG_VIEC_02.md) | Bản nháp |
 
-Các tài liệu `14`, `15`, `17` đến `26` chưa lập; tạo khi tới giai đoạn tương ứng.
+Các tài liệu `14`, `15`, `17` đến `21`, `23` đến `26` chưa lập; tạo khi tới giai đoạn tương ứng.
