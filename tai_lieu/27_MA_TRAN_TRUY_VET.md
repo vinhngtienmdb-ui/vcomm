@@ -1,10 +1,10 @@
 # 27. MA TRẬN TRUY VẾT
 
 - Mô tả: Ma trận truy vết yêu cầu → quy tắc → chức năng → màn hình → tiêu chí nghiệm thu → kịch bản kiểm thử → mã nguồn → kết quả.
-- Phiên bản: 1.1
+- Phiên bản: 1.2
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09)
 
 ## 1. Ma trận
 
@@ -22,8 +22,8 @@
 | YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_07, QUYTAC_NGHIEPVU_10 | CHUC_NANG_06 | MAN_HINH_01, MAN_HINH_04 | TIEUCHI_NGHIEMTHU_10 | KICHBAN_KIEMTHU_23, KICHBAN_KIEMTHU_24, KICHBAN_KIEMTHU_25 | apps/api/src/auth/auth.service.ts | apps/api/test/l1-authentication.test.ts | Đạt 2026-11-09 | |
 | YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_07, QUYTAC_NGHIEPVU_10 | CHUC_NANG_06 | MAN_HINH_01, MAN_HINH_04 | TIEUCHI_NGHIEMTHU_11 | KICHBAN_KIEMTHU_25, KICHBAN_KIEMTHU_26, KICHBAN_KIEMTHU_27 | apps/api/src/auth/auth.service.ts | apps/api/test/l1-authentication.test.ts | Đạt 2026-11-09 | |
 | YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_07, QUYTAC_NGHIEPVU_10 | CHUC_NANG_06 | MAN_HINH_01, MAN_HINH_04 | TIEUCHI_NGHIEMTHU_12 | KICHBAN_KIEMTHU_28, KICHBAN_KIEMTHU_29, KICHBAN_KIEMTHU_30 | apps/api/src/auth/password.service.ts, apps/web-platform/src/app/quen-mat-khau/page.tsx | apps/api/test/l5-security.test.ts | Đạt 2026-11-09 | |
-| YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_08 | CHUC_NANG_07 | MAN_HINH_01 | TIEUCHI_NGHIEMTHU_13 | KICHBAN_KIEMTHU_31, KICHBAN_KIEMTHU_32, KICHBAN_KIEMTHU_36 | Chưa có | Chưa có | Bị chặn (lát L6) | |
-| YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_10 | CHUC_NANG_08 | MAN_HINH_01 | TIEUCHI_NGHIEMTHU_14 | KICHBAN_KIEMTHU_33, KICHBAN_KIEMTHU_34, KICHBAN_KIEMTHU_35, KICHBAN_KIEMTHU_36 | Chưa có | Chưa có | Bị chặn (lát L6) | |
+| YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_08 | CHUC_NANG_07 | MAN_HINH_01 | TIEUCHI_NGHIEMTHU_13 | KICHBAN_KIEMTHU_31, KICHBAN_KIEMTHU_32, KICHBAN_KIEMTHU_36, KICHBAN_KIEMTHU_126 | apps/api/src/auth/oauth.service.ts, apps/api/src/auth/oauth-providers.ts, apps/web-platform/src/app/dang-nhap/page.tsx | apps/api/test/c3-login.test.ts | Chưa có (CONG_VIEC_03 chưa trình nghiệm thu) | |
+| YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_10, QUYTAC_NGHIEPVU_32 | CHUC_NANG_08 | MAN_HINH_01 | TIEUCHI_NGHIEMTHU_14 | KICHBAN_KIEMTHU_33, KICHBAN_KIEMTHU_34, KICHBAN_KIEMTHU_35, KICHBAN_KIEMTHU_36, KICHBAN_KIEMTHU_125 | apps/api/src/auth/phone-otp.service.ts, apps/api/src/auth/oauth.service.ts, apps/web-platform/src/app/dang-nhap/page.tsx | apps/api/test/c3-login.test.ts | Chưa có (CONG_VIEC_03 chưa trình nghiệm thu) | |
 | YCAU_NGHIEPVU_06 | QUYTAC_NGHIEPVU_09 | CHUC_NANG_09 | MAN_HINH_02, MAN_HINH_06, MAN_HINH_13 | TIEUCHI_NGHIEMTHU_15 | KICHBAN_KIEMTHU_37, KICHBAN_KIEMTHU_38, KICHBAN_KIEMTHU_39 | apps/api/src/auth/mfa.service.ts, apps/api/src/auth/auth.guard.ts, apps/web-platform/src/app/xac-thuc/page.tsx | apps/api/test/l5-security.test.ts | Đạt 2026-11-09 | |
 | YCAU_NGHIEPVU_06 | QUYTAC_NGHIEPVU_09 | CHUC_NANG_09 | MAN_HINH_02, MAN_HINH_06, MAN_HINH_13 | TIEUCHI_NGHIEMTHU_16 | KICHBAN_KIEMTHU_40 | apps/api/src/auth/mfa.service.ts | apps/api/test/l5-security.test.ts | Đạt 2026-11-09 | |
 | YCAU_NGHIEPVU_05, YCAU_NGHIEPVU_06, YCAU_NGHIEPVU_17 | QUYTAC_NGHIEPVU_07, QUYTAC_NGHIEPVU_09 | CHUC_NANG_10 | MAN_HINH_06 | TIEUCHI_NGHIEMTHU_17 | KICHBAN_KIEMTHU_41, KICHBAN_KIEMTHU_42, KICHBAN_KIEMTHU_43 | apps/api/src/auth/mfa.service.ts, apps/web-platform/src/app/ho-so/page.tsx | apps/api/test/l5-security.test.ts | Đạt 2026-11-09 | |
@@ -55,8 +55,16 @@
 | YCAU_NGHIEPVU_16 | QUYTAC_NGHIEPVU_30 | CHUC_NANG_23 | MAN_HINH_18 | TIEUCHI_NGHIEMTHU_43 | KICHBAN_KIEMTHU_108 | apps/api/src/common/audit.service.ts, apps/api/src/settings/audit-events.service.ts, apps/web-platform/src/app/platform/audit-log/page.tsx | apps/api/test/l8-settings.test.ts | Đạt 2026-11-09 | |
 | YCAU_NGHIEPVU_16 | QUYTAC_NGHIEPVU_30 | CHUC_NANG_23 | MAN_HINH_18 | TIEUCHI_NGHIEMTHU_44 | KICHBAN_KIEMTHU_109, KICHBAN_KIEMTHU_110 | apps/api/src/settings/settings.controller.ts, apps/api/src/settings/audit-events.service.ts | apps/api/test/l8-settings.test.ts | Đạt 2026-11-09 | |
 | Phi chức năng | Không có | Phi chức năng | Không có | TIEUCHI_NGHIEMTHU_45 | KICHBAN_KIEMTHU_111 | Không có | Thủ công: kịch bản Node đo trên máy phát triển, chưa có công cụ kiểm thử tải được duyệt | Không đạt sơ bộ 2026-11-09 (API_01 phân vị 95 là 411 ms; API_14, API_24 đạt), LOI_01 | |
-| YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_08 | CHUC_NANG_24 | MAN_HINH_01, MAN_HINH_06 | TIEUCHI_NGHIEMTHU_46 | KICHBAN_KIEMTHU_36, KICHBAN_KIEMTHU_112, KICHBAN_KIEMTHU_113 | Chưa có | Chưa có | Bị chặn (lát L6) | |
-| YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_08 | CHUC_NANG_24 | MAN_HINH_01, MAN_HINH_06 | TIEUCHI_NGHIEMTHU_47 | KICHBAN_KIEMTHU_36, KICHBAN_KIEMTHU_114, KICHBAN_KIEMTHU_115 | Chưa có | Chưa có | Bị chặn (lát L6) | |
+| YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_08 | CHUC_NANG_24 | MAN_HINH_01, MAN_HINH_06 | TIEUCHI_NGHIEMTHU_46 | KICHBAN_KIEMTHU_36, KICHBAN_KIEMTHU_112, KICHBAN_KIEMTHU_113 | apps/api/src/auth/oauth.service.ts, apps/api/src/auth/oauth-providers.ts, apps/web-platform/src/app/ho-so/page.tsx | apps/api/test/c3-login.test.ts | Chưa có (CONG_VIEC_03 chưa trình nghiệm thu) | |
+| YCAU_NGHIEPVU_05 | QUYTAC_NGHIEPVU_08 | CHUC_NANG_24 | MAN_HINH_01, MAN_HINH_06 | TIEUCHI_NGHIEMTHU_47 | KICHBAN_KIEMTHU_36, KICHBAN_KIEMTHU_114, KICHBAN_KIEMTHU_115 | apps/api/src/auth/oauth.service.ts, apps/api/src/me/me.controller.ts, apps/web-platform/src/app/ho-so/page.tsx | apps/api/test/c3-login.test.ts | Chưa có (CONG_VIEC_03 chưa trình nghiệm thu) | |
+| YCAU_NGHIEPVU_19 | QUYTAC_NGHIEPVU_31 | CHUC_NANG_25 | MAN_HINH_19 | TIEUCHI_NGHIEMTHU_48 | KICHBAN_KIEMTHU_122, KICHBAN_KIEMTHU_123, KICHBAN_KIEMTHU_126 | apps/api/src/integrations/integration-settings.service.ts, apps/api/src/common/secret-box.ts, apps/web-platform/src/app/platform/integrations/page.tsx | apps/api/test/c3-integrations.test.ts, apps/api/test/c3-login.test.ts | Chưa có (CONG_VIEC_03 chưa trình nghiệm thu) | |
+| YCAU_NGHIEPVU_19 | QUYTAC_NGHIEPVU_31 | CHUC_NANG_25 | MAN_HINH_19 | TIEUCHI_NGHIEMTHU_49 | KICHBAN_KIEMTHU_121 | apps/api/src/integrations/integrations.controller.ts, apps/api/src/integrations/integration-settings.service.ts, apps/api/src/permissions/permission-catalog.ts | apps/api/test/c3-integrations.test.ts | Chưa có (CONG_VIEC_03 chưa trình nghiệm thu) | |
+| YCAU_NGHIEPVU_20 | QUYTAC_NGHIEPVU_32 | CHUC_NANG_26 | MAN_HINH_19 | TIEUCHI_NGHIEMTHU_50 | KICHBAN_KIEMTHU_127, KICHBAN_KIEMTHU_128 | apps/api/src/integrations/zns-notifier.ts, apps/api/src/integrations/messaging.service.ts, apps/api/src/integrations/esms-gateway.ts | apps/api/test/c3-zns.test.ts | Chưa có (CONG_VIEC_03 chưa trình nghiệm thu) | |
+| YCAU_NGHIEPVU_05, YCAU_NGHIEPVU_20 | QUYTAC_NGHIEPVU_10, QUYTAC_NGHIEPVU_32 | CHUC_NANG_08 | MAN_HINH_01, MAN_HINH_19 | TIEUCHI_NGHIEMTHU_51 | KICHBAN_KIEMTHU_124, KICHBAN_KIEMTHU_125 | apps/api/src/auth/phone-otp.service.ts, apps/api/src/integrations/messaging.service.ts, apps/api/src/integrations/esms-gateway.ts | apps/api/test/c3-login.test.ts | Chưa có (CONG_VIEC_03 chưa trình nghiệm thu) | |
+| YCAU_NGHIEPVU_21 | QUYTAC_NGHIEPVU_33, QUYTAC_NGHIEPVU_34 | CHUC_NANG_27, CHUC_NANG_28 | MAN_HINH_20, MAN_HINH_21 | TIEUCHI_NGHIEMTHU_52 | KICHBAN_KIEMTHU_129 | apps/api/src/proposals/proposal-templates.service.ts, apps/api/src/proposals/proposals.service.ts, apps/web-platform/src/app/platform/proposal-templates/page.tsx, apps/web-platform/src/app/de-xuat/[id]/page.tsx | apps/api/test/c3-proposals.test.ts | Chưa có (CONG_VIEC_03 chưa trình nghiệm thu) | |
+| YCAU_NGHIEPVU_21 | QUYTAC_NGHIEPVU_33, QUYTAC_NGHIEPVU_34, QUYTAC_NGHIEPVU_36 | CHUC_NANG_28 | MAN_HINH_21, MAN_HINH_08 | TIEUCHI_NGHIEMTHU_53 | KICHBAN_KIEMTHU_130 | apps/api/src/proposals/proposals.service.ts, apps/api/src/proposals/proposals.controller.ts, apps/web-platform/src/app/de-xuat/page.tsx, apps/web-platform/src/app/de-xuat/[id]/page.tsx | apps/api/test/c3-proposals.test.ts | Chưa có (CONG_VIEC_03 chưa trình nghiệm thu) | |
+| YCAU_NGHIEPVU_21 | QUYTAC_NGHIEPVU_35, QUYTAC_NGHIEPVU_36 | CHUC_NANG_28 | MAN_HINH_21, MAN_HINH_08 | TIEUCHI_NGHIEMTHU_54 | KICHBAN_KIEMTHU_131 | apps/api/src/proposals/proposals.service.ts, apps/api/src/common/file-storage.ts, apps/web-platform/src/components/ProposalContent.tsx | apps/api/test/c3-proposals.test.ts | Chưa có (CONG_VIEC_03 chưa trình nghiệm thu) | |
+| YCAU_NGHIEPVU_21 | QUYTAC_NGHIEPVU_36 | CHUC_NANG_29 | MAN_HINH_21, MAN_HINH_08 | TIEUCHI_NGHIEMTHU_55 | KICHBAN_KIEMTHU_132 | apps/api/src/proposals/proposal-pdf.service.ts, apps/web-platform/src/app/hop-duyet/[id]/page.tsx | apps/api/test/c3-proposals.test.ts | Chưa có (CONG_VIEC_03 chưa trình nghiệm thu) | |
 
 ## 2. Kiểm tra bao phủ – 2026-11-09
 
@@ -69,3 +77,14 @@
 - Kịch bản chưa chạy hoặc kết quả Không đạt: Chưa áp dụng
 - Mã nguồn không truy được về yêu cầu nào: Chưa có mã nguồn
 - Kết luận: Đầy đủ cho giai đoạn 04 (cột yêu cầu, quy tắc, chức năng, tiêu chí nghiệm thu)
+
+## 3. Kiểm tra bao phủ CONG_VIEC_03 – 2026-11-09
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_19 → CHUC_NANG_25; YCAU_NGHIEPVU_20 → CHUC_NANG_26; YCAU_NGHIEPVU_21 → CHUC_NANG_27, CHUC_NANG_28, CHUC_NANG_29)
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_31 đến QUYTAC_NGHIEPVU_36)
+- Chức năng chưa có tiêu chí nghiệm thu: Không có
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có (CHUC_NANG_26 chạy nền; cài đặt, nhật ký gửi tin ở MAN_HINH_19)
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_48 đến TIEUCHI_NGHIEMTHU_55 → KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132)
+- Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_36 (thủ công, cần nhà cung cấp thật); bước 4 của KICHBAN_KIEMTHU_132 (mở tệp PDF bằng mắt)
+- Kịch bản chưa chạy hoặc kết quả Không đạt: Chưa ghi kết quả CONG_VIEC_03 vào tài liệu `25`
+- Mã nguồn không truy được về yêu cầu nào: Không có

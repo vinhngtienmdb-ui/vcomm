@@ -1,9 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng: đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Chờ phê duyệt
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -1378,3 +1379,147 @@ Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá th�
 - Kết quả mong đợi: 20 lần đầu trả `204`. Lần 21 nhận `429 RATE_LIMITED`. Bước 3 trả `204`.
 - Kiểm thử tự động: Tự động API
 - Lát: L1
+
+## CHUC_NANG_25: Cài đặt tích hợp (CONG_VIEC_03)
+
+Nguồn giả trong kiểm thử: eSMS.vn, nhà cung cấp OAuth, S3 thay bằng nguồn giả (`apps/api/test/setup-database.ts`), không gọi mạng ngoài (CONG_VIEC_03 mục 12).
+
+### KICHBAN_KIEMTHU_121: Chỉ quản trị tập đoàn mở được Cài đặt tích hợp
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_49
+- Chức năng: CHUC_NANG_25
+- Loại: Phân quyền
+- Vai trò thực hiện: Quản trị tập đoàn `quantri.tapdoan@vcomm.test`; quản trị công ty `quantri.vcr@vcomm.test`; nhân viên `phuc.le@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Chưa có cài đặt tích hợp.
+- Các bước: (1) Quản trị công ty, nhân viên gọi `GET /integration-settings`, `PUT /integration-settings` với `google.client_id`, `POST /integration-settings/test` (API_49). (2) Quản trị tập đoàn gọi `GET /integration-settings`.
+- Kết quả mong đợi: Bước 1 mọi lần nhận `403`, không có dòng `integration_settings` mới. Bước 2 trả `200` kèm `callbackUrls.google` kết thúc bằng `/api/v1/auth/oauth/google/callback`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c3-integrations.test.ts`
+- Lát: L6a
+
+### KICHBAN_KIEMTHU_122: Khóa bí mật không trả đầy đủ qua API, nhật ký, cơ sở dữ liệu
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_48
+- Chức năng: CHUC_NANG_25
+- Loại: Bảo mật
+- Vai trò thực hiện: Quản trị tập đoàn
+- Điều kiện ban đầu và dữ liệu: Client secret thử `GOCSPX-bi-mat-google-rat-dai-9876`.
+- Các bước: (1) `PUT /integration-settings` với `google.client_id` = `123.apps.googleusercontent.com`, `google.client_secret` = khóa thử. (2) Đọc kết quả, cột `plain_value`, `secret_value` của `core.integration_settings`. (3) Đọc `after_data` của nhật ký `integration_settings.update`.
+- Kết quả mong đợi: Kết quả có `google.client_secret` với `secret: true`, `value: null`, `lastFour: "9876"`; không chuỗi nào chứa khóa đầy đủ; `google.client_id` trả giá trị thường. `plain_value` trống, `secret_value` không chứa chữ của khóa. Nhật ký không chứa khóa đầy đủ, chỉ có `••••9876`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c3-integrations.test.ts`
+- Lát: L6a
+
+### KICHBAN_KIEMTHU_123: Để trống, xóa khóa và hiệu lực ngay không cần khởi động lại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_48
+- Chức năng: CHUC_NANG_25
+- Loại: Giá trị biên
+- Vai trò thực hiện: Quản trị tập đoàn
+- Điều kiện ban đầu và dữ liệu: Đã lưu khóa ở KICHBAN_KIEMTHU_122; eSMS giả trả danh sách Zalo OA `4097311281936189049` "VComm".
+- Các bước: (1) Lưu `google.client_secret` = "" và `google.client_id` = "". (2) Lưu với `clear` = [`google.client_secret`]. (3) Lưu khóa lạ `khong.co`. (4) Gọi `POST /integration-settings/test` khi chưa có khóa eSMS. (5) Lưu `esms.api_key`, `esms.secret_key`, gọi lại kiểm tra ngay, không khởi động lại máy chủ. (6) Cho eSMS giả trả lỗi, gọi lại kiểm tra. (7) Gọi `GET /integration-settings/deliveries`.
+- Kết quả mong đợi: Bước 1: khóa bí mật vẫn `lastFour: "9876"`, `google.client_id` thành chưa cài. Bước 2: khóa bí mật thành chưa cài. Bước 3 nhận `400`. Bước 4: `ok: false`, `message: "esmsMissing"`. Bước 5: `ok: true`, có Zalo OA. Bước 6: `ok: false`. Bước 7 trả `200`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c3-integrations.test.ts`
+- Lát: L6a
+
+## CHUC_NANG_08, CHUC_NANG_07: Mã OTP đa kênh, cách đăng nhập theo cài đặt (CONG_VIEC_03)
+
+### KICHBAN_KIEMTHU_124: Mã OTP gửi SMS khi chưa cài ZNS, gửi Zalo rồi SMS khi đã cài
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_51
+- Chức năng: CHUC_NANG_08, CHUC_NANG_25
+- Loại: Đúng
+- Vai trò thực hiện: Chưa đăng nhập; quản trị tập đoàn (cài đặt)
+- Điều kiện ban đầu và dữ liệu: `phuc.le@vcomm.test` có số `+84901234567`. Chưa cài eSMS.
+- Các bước: (1) Gọi API_54; gọi API_02 với `0901234567`. (2) Cài `esms.api_key`, `esms.secret_key`, `esms.brandname` = `VCOMM`; gọi API_54; gọi API_02 với số chưa gắn tài khoản `0999999999` và với `abc`. (3) Gọi API_02 với `0901234567`. (4) Cài `esms.oa_id`, `esms.template.login_otp` = `205644`; gọi lại API_02. (5) Đọc `core.message_deliveries` mục đích `login_otp`.
+- Kết quả mong đợi: Bước 1: API_54 trả `{ password: true, phone: false, google: false, microsoft: false, zalo: false }`; API_02 trả `204`, không gửi tin, nhật ký ghi `skipped`. Bước 2: API_54 có `phone: true`; số chưa gắn tài khoản trả `204` không gửi; `abc` nhận `400`. Bước 3: gửi SMS (không có mã OA, mẫu tin), Brandname `VCOMM`. Bước 4: gửi đa kênh với OA `4097311281936189049`, mẫu `205644`. Bước 5: kênh lần lượt `sms`, `sms`, `zns_sms`; số điện thoại hiện `+8490***4567`; không dòng nào chứa mã OTP.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c3-login.test.ts`
+- Lát: L6b
+
+### KICHBAN_KIEMTHU_125: Nhập mã OTP sai, dùng lại, quá số lần
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_14, TIEUCHI_NGHIEMTHU_51
+- Chức năng: CHUC_NANG_08
+- Loại: Giá trị biên
+- Vai trò thực hiện: Chưa đăng nhập
+- Điều kiện ban đầu và dữ liệu: Đã cài eSMS (KICHBAN_KIEMTHU_124); bảng `otp_codes` trống.
+- Các bước: (1) Gửi mã, nhập mã sai. (2) Nhập mã đúng. (3) Nhập lại mã vừa dùng. (4) Gửi mã mới, nhập sai 5 lần rồi nhập đúng. (5) Gửi mã 5 lần rồi lần thứ 6 trong cùng một giờ.
+- Kết quả mong đợi: Bước 1 nhận `401` "Mã không đúng hoặc đã hết hạn.". Bước 2 trả `200`, đúng mã tài khoản của `phuc.le`. Bước 3, 4 nhận `401`. Bước 5: 5 lần đầu `204`, lần 6 nhận `429` "Bạn đã yêu cầu quá nhiều mã, thử lại sau.".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c3-login.test.ts`
+- Lát: L6b
+
+### KICHBAN_KIEMTHU_126: Nút đăng nhập theo cài đặt, Microsoft theo tenant, kích hoạt bằng Google
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_13, TIEUCHI_NGHIEMTHU_48
+- Chức năng: CHUC_NANG_07, CHUC_NANG_04, CHUC_NANG_25
+- Loại: Bảo mật
+- Vai trò thực hiện: Chưa đăng nhập; quản trị công ty `quantri.vcr@vcomm.test` (mời)
+- Điều kiện ban đầu và dữ liệu: Nhà cung cấp OAuth giả lập. Chưa cài Google.
+- Các bước: (1) Gọi API_04 `google` khi chưa cài; gọi API_04 với nhà cung cấp `facebook`. (2) Cài Google ở API_49, đi qua API_04, API_05 ngay, không khởi động lại. (3) Gọi API_05 với `state` sai; nhà cung cấp trả lỗi đổi mã. (4) Cài Microsoft, tenant để trống (`organizations`); nhà cung cấp giả trả email `phuc.le@vcomm.test` không được tin (tài khoản thuộc tenant khác tenant đã cài); rồi trả cùng email được tin (tenant của công ty). (5) Mời `kichhoat.google@vcomm.test`; kích hoạt bằng Google (`mode=activate`) với tài khoản Google email khác; rồi với đúng email; rồi dùng lại đường dẫn; rồi đăng nhập Google.
+- Kết quả mong đợi: Bước 1 chuyển về `/dang-nhap?loi=oauthNotConfigured` và `loi=notFound`. Bước 2 chuyển tới nhà cung cấp (lưu xong có hiệu lực ngay). Bước 3 về `loi=oauthFailed`, không tạo phiên. Bước 4: lần đầu về `loi=providerNotLinked`, không gắn theo email; lần sau đăng nhập được. Bước 5: email khác về `/kich-hoat?token=...&loi=activationEmailMismatch`, tài khoản vẫn "Đã mời"; đúng email về `/dang-nhap?kichHoat=google`, tài khoản "Đang hoạt động"; dùng lại nhận `loi=activationInvalid`; đăng nhập Google thành công.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c3-login.test.ts`
+- Lát: L6b, L6c
+
+## CHUC_NANG_26: Thông báo Zalo ZNS (CONG_VIEC_03)
+
+### KICHBAN_KIEMTHU_127: Mỗi sự kiện duyệt gửi đúng một tin ZNS theo mẫu
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_50
+- Chức năng: CHUC_NANG_26, CHUC_NANG_16, CHUC_NANG_18
+- Loại: Đúng
+- Vai trò thực hiện: Người lập `lap.zns@vcomm.test` (tạo trong kiểm thử, vai trò Nhân viên ở VCR, số `+84922222222`); người duyệt `phuc.le@vcomm.test` (số `+84911111111`)
+- Điều kiện ban đầu và dữ liệu: Chính sách duyệt `platform.test_document` ở VCR một cấp: người duyệt `phuc.le`, thay thế `quantri.vcr`, thời hạn 4 giờ. Đồng hồ giả lập.
+- Các bước: (1) Chưa cài mẫu tin: gửi chứng từ 1.000.000 VND, đẩy outbox. (2) Cài khóa eSMS, OA, mẫu `approval_assigned` = 301, `approval_reminder` = 302, `approval_completed` = 303; gửi chứng từ 80.000.000 VND, đẩy outbox hai lần. (3) Người duyệt từ chối "Thiếu báo giá", đẩy outbox. (4) Gửi chứng từ lúc 8:00, chạy kiểm tra quá hạn lúc 12:30, đẩy outbox.
+- Kết quả mong đợi: Bước 1: không có tin ZNS; người duyệt vẫn có thông báo trong ứng dụng. Bước 2: người duyệt nhận đúng một tin mẫu 301 với `document_type` "Chứng từ thử", `amount` "80.000.000 VND", `requester` "Ngô Văn Lập", `result` "Chờ duyệt". Bước 3: người lập nhận đúng một tin mẫu 303 với `result` "Bị từ chối". Bước 4: người duyệt nhận đúng một tin mẫu 302.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c3-zns.test.ts`
+- Lát: L9
+
+### KICHBAN_KIEMTHU_128: eSMS lỗi hoặc người nhận không có số điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_50
+- Chức năng: CHUC_NANG_26
+- Loại: Sai
+- Vai trò thực hiện: Như KICHBAN_KIEMTHU_127
+- Điều kiện ban đầu và dữ liệu: Đã cài mẫu tin (KICHBAN_KIEMTHU_127). eSMS giả trả lỗi `101: Authorize Failed`.
+- Các bước: (1) Gửi chứng từ 3.000.000 VND, đẩy outbox hai lần. (2) Đọc dòng `message_deliveries` mục đích `approval.assigned` mới nhất. (3) Người duyệt đồng ý. (4) Xóa số điện thoại của người duyệt, gửi chứng từ 4.000.000 VND, đẩy outbox.
+- Kết quả mong đợi: Bước 1: chỉ một lần gọi gửi, không gửi lại khi đẩy outbox lần hai. Bước 2: `status = failed`, `error = 101: Authorize Failed`. Bước 3: yêu cầu "Đã duyệt" (luồng duyệt không bị chặn). Bước 4: không gửi tin nào.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c3-zns.test.ts`
+- Lát: L9
+
+## CHUC_NANG_27, CHUC_NANG_28, CHUC_NANG_29: Mẫu đề xuất, đề xuất, in PDF (CONG_VIEC_03)
+
+Dữ liệu chung: người lập `lap.dexuat@vcomm.test` "Trịnh Thị Đề Xuất", người ngoài `nguoi.ngoai@vcomm.test` (tạo trong kiểm thử, vai trò Nhân viên ở VCR); người duyệt `phuc.le@vcomm.test`; quản trị `quantri.vcr@vcomm.test`. Chính sách duyệt của từng mẫu một cấp: người duyệt `phuc.le`, thay thế `quantri.vcr`.
+
+### KICHBAN_KIEMTHU_129: Mẫu và đề xuất sai kiểu, thiếu trường bắt buộc
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_52
+- Chức năng: CHUC_NANG_27, CHUC_NANG_28
+- Loại: Sai
+- Vai trò thực hiện: Người lập; quản trị công ty
+- Điều kiện ban đầu và dữ liệu: Chưa có mẫu đề xuất ở VCR.
+- Các bước: (1) Người lập gọi `POST /proposal-templates/defaults`. (2) Quản trị gọi lại hai lần. (3) Quản trị tạo mẫu `XX` có hai trường cùng mã `a`, trường thứ hai kiểu danh sách chọn không có lựa chọn, giá trị duyệt là trường chữ `a`; tạo mẫu trùng mã `PC`. (4) Người lập lưu nháp phiếu chi với `amount` = "mười triệu", `payment_method` = "Séc", `due_date` = "2026-13-40". (5) Lưu nháp đúng kiểu thiếu người nhận tiền, lý do; gửi duyệt. (6) Lưu `amount` = "12500000.5" (VND).
+- Kết quả mong đợi: Bước 1 nhận `403`. Bước 2: lần đầu tạo MS, PC, TU kèm loại chứng từ `platform.proposal_vcr_pc`... và dãy số tiền tố PC, số kế tiếp `PC-VCR-2026-000001`; lần sau vẫn 3 mẫu. Bước 3: `400` tại đúng `fields.1.key`, `fields.1.options`, `amountField`; mẫu trùng mã nhận `code` "Mã mẫu đã có trong công ty.". Bước 4: `400` tại `values.amount`, `values.payment_method`, `values.due_date` "Giá trị không hợp lệ.". Bước 5: nháp tạo được (`proposalNo` trống); gửi nhận `400` tại `values.recipient`, `values.reason` "Vui lòng nhập thông tin này.". Bước 6: `400` tại `values.amount`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c3-proposals.test.ts`
+- Lát: L10a
+
+### KICHBAN_KIEMTHU_130: Gửi đề xuất nhận số, đi qua chính sách duyệt, giữ bản chụp mẫu
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_53
+- Chức năng: CHUC_NANG_28, CHUC_NANG_27, CHUC_NANG_16
+- Loại: Đúng
+- Vai trò thực hiện: Người lập; người duyệt; quản trị công ty
+- Điều kiện ban đầu và dữ liệu: 3 mẫu có sẵn (KICHBAN_KIEMTHU_129).
+- Các bước: (1) Lập đề nghị tạm ứng 5.000.000 VND, gửi khi chưa có chính sách duyệt; tạo chính sách rồi gửi lại. (2) Lập phiếu chi 12.500.000 VND đủ trường, gửi; người duyệt xem yêu cầu duyệt; người lập sửa đề xuất. (3) Người duyệt đồng ý "Đồng ý". (4) Quản trị sửa mẫu PC (tên "Phiếu chi (mới)", còn một trường); xem lại phiếu chi đã gửi. (5) Lập đề nghị mua sắm 2 dòng (8.000.000 và 1.200.000), gửi, rút. (6) Người lập, quản trị xem danh sách `scope=mine`, `scope=company`.
+- Kết quả mong đợi: Bước 1: lần đầu `409`, đề xuất vẫn Nháp, số không bị dùng; lần sau số `TU-VCR-2026-000001`. Bước 2: số `PC-VCR-2026-000001`, `status: pending`, `canWithdraw: true`; yêu cầu duyệt có cùng số, giá trị 12.500.000, mã chứng từ là đề xuất; sửa nhận `409`. Bước 3: đề xuất "Đã duyệt". Bước 4: đề xuất vẫn tên mẫu "Phiếu đề nghị chi" với 6 trường. Bước 5: giá trị duyệt 9.200.000; sau rút "Đã rút". Bước 6: người lập thấy 4 đề xuất của mình, `scope=company` nhận `403`; quản trị thấy 4 đề xuất toàn công ty.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c3-proposals.test.ts`
+- Lát: L10a
+
+### KICHBAN_KIEMTHU_131: Tệp đính kèm sai loại, quá lớn, quá số lượng, người ngoài tải
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_54
+- Chức năng: CHUC_NANG_28
+- Loại: Bảo mật
+- Vai trò thực hiện: Người lập; người ngoài; người duyệt
+- Điều kiện ban đầu và dữ liệu: Phiếu chi nháp 1.000.000 VND; tệp PDF thử bắt đầu bằng `%PDF-1.4`.
+- Các bước: (1) Tải lên `ghi-chu.txt`. (2) Tải lên `hoa-don.pdf` có nội dung HTML. (3) Tải lên PDF lớn hơn 10 MB. (4) Tải lên `Hóa đơn GTGT số 123.pdf`. (5) Người ngoài tải lên tệp cho đề xuất này. (6) Tải lên thêm 9 tệp, rồi tệp thứ 11. (7) Người lập tải tệp; người ngoài tải tệp. (8) Gửi đề xuất; người duyệt tải tệp; người lập xóa tệp.
+- Kết quả mong đợi: Bước 1 nhận `400`. Bước 2 nhận `400` tại `file` "Chỉ nhận tệp PDF, JPG, PNG, XLSX, DOCX.". Bước 3 nhận `400` tại `file` "Tệp vượt quá 10 MB.". Bước 4 trả `201`, giữ tên tiếng Việt, loại `application/pdf`. Bước 5 nhận `404`. Bước 6: 9 tệp `201`, tệp thứ 11 nhận `409`. Bước 7: người lập `200` kèm `Content-Disposition` tên UTF-8; người ngoài `404`. Bước 8: người duyệt `200`; xóa tệp nhận `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c3-proposals.test.ts`
+- Lát: L10a
+
+### KICHBAN_KIEMTHU_132: In đề xuất PDF tiếng Việt đúng dấu
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_55
+- Chức năng: CHUC_NANG_29
+- Loại: Đúng
+- Vai trò thực hiện: Người lập; người ngoài
+- Điều kiện ban đầu và dữ liệu: Phiếu chi `PC-VCR-2026-000001` đã duyệt và đề nghị mua sắm "Mua máy in" (KICHBAN_KIEMTHU_130). Công cụ `pdftotext` để đọc chữ trong tệp.
+- Các bước: (1) Người lập gọi API_53 cho hai đề xuất. (2) Người ngoài gọi API_53 cho phiếu chi. (3) Đọc chữ trong tệp PDF bằng `pdftotext -layout`. (4) Mở tệp PDF bằng trình xem, kiểm tra bằng mắt.
+- Kết quả mong đợi: Bước 1: `200`, `application/pdf`, tệp bắt đầu bằng `%PDF-`. Bước 2 nhận `404`. Bước 3: phiếu chi có "Công ty Cổ phần VComm Bán lẻ Miền Nam", "PHIẾU ĐỀ NGHỊ CHI", "PC-VCR-2026-000001", "Người nhận tiền", "Nhà hàng Sen", "12.500.000 VND", "Các cấp duyệt", "Lê Văn Phúc", "Đã duyệt", "Đồng ý"; đề nghị mua sắm có "Hàng hóa, dịch vụ cần mua", "Hộp mực". Bước 4: chữ tiếng Việt đúng dấu, bảng không tràn trang.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c3-proposals.test.ts` (bước 3 chỉ chạy khi máy có `pdftotext`); bước 4 thủ công tại điểm báo lát L10b
+- Lát: L10b
