@@ -31,7 +31,7 @@
 | 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | Sổ phiếu THAY_DOI | 13 | Đang cập nhật |
 | 25 | [25_KET_QUA_KIEM_THU.md](25_KET_QUA_KIEM_THU.md) | Kết quả kiểm thử | Kết quả từng lần kiểm thử, danh sách lỗi LOI | 10 | Đang cập nhật |
 | 27 | [27_MA_TRAN_TRUY_VET.md](27_MA_TRAN_TRUY_VET.md) | Ma trận truy vết | Yêu cầu → chức năng → tiêu chí → kiểm thử → mã nguồn | 04 | Đã phê duyệt |
-| 28 | [28_HUONG_DAN_DANG_KY_DICH_VU_NGOAI.md](28_HUONG_DAN_DANG_KY_DICH_VU_NGOAI.md) | Hướng dẫn đăng ký dịch vụ ngoài | Zalo OA, ZNS, Zalo Login, Google, Microsoft, SMS thương hiệu | 08 | Bản nháp |
+| 28 | [28_HUONG_DAN_DANG_KY_DICH_VU_NGOAI.md](28_HUONG_DAN_DANG_KY_DICH_VU_NGOAI.md) | Hướng dẫn đăng ký dịch vụ ngoài | eSMS (SMS Brandname, Zalo ZNS), Zalo OA, đăng nhập Zalo, Google, Microsoft, AWS S3; nhập khóa ở Cài đặt tích hợp | 08 | Đang dùng |
 
 Đặc tả công việc:
 
