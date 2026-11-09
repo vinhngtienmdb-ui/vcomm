@@ -63,4 +63,5 @@
   - C6 OWASP Top 10: A02 khóa tích hợp mã hóa AES-256-GCM, không trả về giao diện; A10 SSRF: chỉ gọi ra địa chỉ cố định của eSMS, Google, Microsoft, Zalo, S3.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát toàn nhánh tìm 9 điểm, sửa 8 (nháp trùng khi gửi lỗi, dùng lại mã OTP đồng thời, tệp không bị xóa khỏi nơi lưu, kiểm tiền tệ khi sửa mẫu, vượt 10 tệp khi tải đồng thời, tenant Microsoft dạng tên miền, kiểu thông báo lỗi, danh tính số điện thoại khi đổi người giữ số), thêm 4 kiểm thử; giữ lại 1 điểm hiệu năng nhỏ (kiểm quyền xem đề xuất đọc cả yêu cầu duyệt). Đối chiếu tài liệu với mã sửa thêm 3 lỗi (danh sách mẫu ngừng dùng, thông báo tệp quá lớn, thư mục lưu tệp mặc định).
 - Kết luận cổng kiểm thử: Đạt trên bản giả lập (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Kiểm với nhà cung cấp thật làm khi người dùng có khóa.
-
+- Bổ sung khi nghiệm thu (2026-11-09): nút gửi thử tin (KICHBAN_KIEMTHU_123 bước 8 đến 10), đếm ngược gửi lại mã, lời thông báo Zalo theo đặc tả. Kiểm thử lại 156/156 đạt trên nhánh và trên commit hợp nhất `5f4eb6c` vào `main`; CI đạt.
+- Kết luận: Người dùng nghiệm thu, đã hợp nhất vào `main`.
