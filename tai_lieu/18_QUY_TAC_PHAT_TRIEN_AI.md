@@ -16,6 +16,7 @@ Dùng quy ước mặc định trong `.claude/skills/vibecoding-flow/QUY_UOC_GIT
 
 Bổ sung riêng:
 - Kho mã: GitHub `vinhngtienmdb-ui/vcomm`. Mỗi nhánh mở một pull request; AI không tự hợp nhất vào `main`, người dùng bấm hợp nhất.
+- Tag phiên bản do GitHub Actions tự gắn (`.github/workflows/gan-tag-phat-hanh.yml`): khi CI trên `main` đạt cho commit hợp nhất nhánh `phat-hanh/vX.Y.Z`, gắn tag `vX.Y.Z` lên đúng commit đó. Môi trường của AI không được đẩy tag. Tag của bản vá khẩn cấp (gắn trên nhánh `khan-cap/`) và tag `v0.2.0` (phát hành trước khi có tự động) do người dùng tạo tay.
 - Pull request nhánh `tai-lieu/...` cần được hợp nhất ngay để mã mới cấp có hiệu lực.
 
 ## 3. Quy ước mã

@@ -1,0 +1,49 @@
+# Tự gắn tag phiên bản (quy ước tài liệu 18): khi CI trên main đạt cho commit hợp nhất nhánh phat-hanh/vX.Y.Z,
+# gắn tag vX.Y.Z lên đúng commit đó. Giữ quy tắc "tag gắn trên commit hợp nhất sau khi kiểm thử lại đạt".
+# Môi trường AI không được đẩy tag nên việc này do GitHub làm bằng quyền của kho (người dùng quyết định 2026-11-09).
+name: Gắn tag phát hành
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  gan-tag:
+    name: Gắn tag phiên bản
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Lấy mã nguồn tại commit đã kiểm thử
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 1
+
+      - name: Gắn tag nếu là commit hợp nhất nhánh phát hành
+        env:
+          COMMIT_MESSAGE: ${{ github.event.workflow_run.head_commit.message }}
+          COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          first_line="$(printf '%s\n' "$COMMIT_MESSAGE" | head -n 1)"
+          # Commit hợp nhất pull request: "Merge pull request #24 from <chủ kho>/phat-hanh/v0.2.0".
+          if [[ ! "$first_line" =~ ^Merge\ pull\ request\ \#[0-9]+\ from\ [A-Za-z0-9_.-]+/phat-hanh/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "Không phải commit hợp nhất nhánh phát hành, bỏ qua."
+            exit 0
+          fi
+          tag="${BASH_REMATCH[1]}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+            echo "Tag $tag đã có, không gắn lại."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$tag" "$COMMIT_SHA" -m "Phiên bản ${tag#v} (tài liệu 23)"
+          git push origin "refs/tags/$tag"
+          echo "Đã gắn tag $tag lên $COMMIT_SHA."
