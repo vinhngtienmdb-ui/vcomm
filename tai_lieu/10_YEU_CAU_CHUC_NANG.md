@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 1.2
+- Phiên bản: 1.3
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09)
 
 ## MODULE_01 Nền tảng
 
@@ -112,18 +112,18 @@ Quy ước chung cho mọi chức năng của MODULE_01:
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_13
 
 ### CHUC_NANG_08: Đăng nhập bằng số điện thoại
-- Mục đích: Nhân viên không có email công ty đăng nhập bằng mã OTP qua SMS.
+- Mục đích: Nhân viên không có email công ty đăng nhập bằng mã OTP qua Zalo hoặc SMS (THAY_DOI_08).
 - Người sử dụng: Nhân viên kho, cửa hàng.
 - Điều kiện thực hiện: Số điện thoại gắn với tài khoản "Đang hoạt động".
 - Dữ liệu đầu vào: Số điện thoại; mã OTP 6 chữ số.
-- Quy trình xử lý: Gửi mã OTP hiệu lực 5 phút; tối đa 5 lần nhập sai mỗi mã; tối đa 5 lần gửi mỗi giờ cho một số.
+- Quy trình xử lý: Gửi mã OTP hiệu lực 5 phút; tối đa 5 lần nhập sai mỗi mã; tối đa 5 lần gửi mỗi giờ cho một số. Mã gửi qua eSMS.vn theo kênh đa kênh: Zalo ZNS trước, không được thì SMS; chưa cài mẫu tin ZNS mã OTP thì gửi SMS (QUYTAC_NGHIEPVU_32). Chưa cài eSMS thì thẻ "Số điện thoại" ẩn trên MAN_HINH_01.
 - Kết quả đầu ra: Phiên làm việc.
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_05
-- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_10
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_10, QUYTAC_NGHIEPVU_32
 - Trường hợp ngoại lệ: Số chưa gắn với tài khoản thì vẫn hiện "Đã gửi mã" nhưng không gửi.
 - Phân quyền: Không cần quyền.
 - Thông báo lỗi: "Mã không đúng hoặc đã hết hạn." · "Bạn đã yêu cầu quá nhiều mã, thử lại sau."
-- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_14
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_14, TIEUCHI_NGHIEMTHU_51
 
 ### CHUC_NANG_09: Xác thực hai lớp
 - Mục đích: Bảo vệ tài khoản có quyền nhạy cảm.
@@ -348,6 +348,76 @@ Quy ước chung cho mọi chức năng của MODULE_01:
 - Phân quyền: Chỉ liên kết, hủy liên kết cho chính mình.
 - Thông báo lỗi: "Tài khoản Zalo này chưa được liên kết. Đăng nhập bằng cách khác rồi liên kết trong hồ sơ cá nhân." · "Tài khoản Zalo này đã được liên kết với tài khoản khác." · "Bạn cần giữ ít nhất một cách đăng nhập."
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_46, TIEUCHI_NGHIEMTHU_47
+
+### CHUC_NANG_25: Cài đặt tích hợp
+- Mục đích: Quản trị tập đoàn tự nhập mã ứng dụng Google, Microsoft, Zalo và khóa eSMS.vn (SMS, Zalo ZNS) mà không cần sửa mã, không cần khởi động lại.
+- Người sử dụng: Quản trị tập đoàn.
+- Điều kiện thực hiện: Có quyền `platform.integration.manage` (nhạy cảm) phạm vi tập đoàn.
+- Dữ liệu đầu vào: Google: Client ID, Client secret. Microsoft: Application (client) ID, Client secret, tenant (để trống là `organizations`). Zalo: App ID, Secret key. eSMS.vn: API key, Secret key, Brandname SMS, mã Zalo OA (OAID), chế độ thử, mã mẫu ZNS cho mã OTP đăng nhập, có chứng từ chờ duyệt, nhắc quá hạn, kết quả duyệt.
+- Quy trình xử lý: Lưu khóa bí mật đã mã hóa; ô khóa bí mật để trống thì giữ giá trị cũ, muốn xóa phải chọn "Xóa khóa"; ô giá trị thường để trống thì xóa. Ghi nhật ký thao tác chỉ với 4 ký tự cuối của khóa bí mật. Nút "Kiểm tra kết nối eSMS" gọi eSMS.vn bằng khóa đã lưu và liệt kê Zalo OA của tài khoản. Hiện đường dẫn chuyển hướng cần khai báo ở Google, Microsoft, Zalo và 50 tin gửi gần nhất.
+- Kết quả đầu ra: Cài đặt có hiệu lực ngay ở lần gọi nhà cung cấp tiếp theo; MAN_HINH_01 hiện nút đăng nhập của nhà cung cấp đã cài đủ.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_19
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_31
+- Trường hợp ngoại lệ: Khóa cài đặt không có trong danh sách thì từ chối. Kiểm tra kết nối khi chưa nhập API key, Secret key thì báo chưa cài.
+- Phân quyền: Chỉ quản trị tập đoàn.
+- Thông báo lỗi: "Bạn không có quyền thực hiện thao tác này." · "Chưa nhập API key, Secret key của eSMS." · "Kết nối eSMS thất bại." kèm lỗi nhà cung cấp.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_48, TIEUCHI_NGHIEMTHU_49
+
+### CHUC_NANG_26: Thông báo Zalo ZNS
+- Mục đích: Người duyệt, người lập nhận thông báo duyệt qua Zalo.
+- Người sử dụng: Hệ thống (gửi khi đẩy sự kiện outbox); người nhận là mọi nhân viên có số điện thoại.
+- Điều kiện thực hiện: Đã cài API key, Secret key, mã Zalo OA và mã mẫu tin của sự kiện (CHUC_NANG_25); người nhận đang hoạt động, có số điện thoại.
+- Dữ liệu đầu vào: Thông báo trong ứng dụng loại có chứng từ chờ duyệt, nhắc quá hạn, kết quả duyệt (CHUC_NANG_16, CHUC_NANG_18). Tham số mẫu tin: `document_no`, `document_type`, `amount` (dạng `80.000.000 VND`), `requester`, `result`.
+- Quy trình xử lý: Sau khi giao dịch duyệt ghi xong, mỗi thông báo gửi đúng một tin ZNS theo mẫu của sự kiện; ghi nhật ký gửi tin (số điện thoại che giữa). Gửi lỗi chỉ ghi trạng thái lỗi, không gửi lại để tránh trùng.
+- Kết quả đầu ra: Tin Zalo ZNS; dòng nhật ký gửi tin xem ở MAN_HINH_19.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_20
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_32
+- Trường hợp ngoại lệ: Chưa cài mẫu tin hoặc người nhận không có số điện thoại thì bỏ qua, thông báo trong ứng dụng vẫn có. eSMS lỗi thì luồng duyệt vẫn chạy.
+- Phân quyền: Không áp dụng.
+- Thông báo lỗi: Không có (lỗi ghi ở nhật ký gửi tin).
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_50
+
+### CHUC_NANG_27: Mẫu đề xuất
+- Mục đích: Quản trị tạo mẫu đề xuất (phiếu chi, tạm ứng, mua sắm...) để nhân viên lập đề xuất.
+- Người sử dụng: Quản trị tập đoàn, quản trị công ty.
+- Điều kiện thực hiện: Có quyền `platform.proposal_template.manage` trong công ty.
+- Dữ liệu đầu vào: Mã mẫu (chữ in hoa và số, tối đa 10 ký tự, dùng làm tiền tố số đề xuất), tên tiếng Việt, tên tiếng Anh, mô tả, tiền tệ, danh sách trường (1 đến 30 trường; mỗi trường: mã, nhãn, kiểu chữ, đoạn văn, số, tiền, ngày, danh sách chọn, bảng chi tiết; bắt buộc hay không; lựa chọn; cột của bảng), trường giá trị duyệt, trạng thái đang dùng hoặc ngừng dùng.
+- Quy trình xử lý: Tạo mẫu thì tạo kèm loại chứng từ cần duyệt `platform.proposal_<mã công ty>_<mã mẫu>` và dãy số chứng từ (tiền tố là mã mẫu, đặt lại theo năm, 6 chữ số). Nút "Thêm 3 mẫu có sẵn" tạo Phiếu đề nghị chi (PC), Đề nghị tạm ứng (TU), Đề nghị mua sắm (MS); gọi lại không tạo trùng. Giá trị duyệt là trường tiền được chọn, hoặc tổng cột thành tiền (`amount`) của bảng chi tiết. Sửa mẫu không đổi đề xuất đã lập.
+- Kết quả đầu ra: Danh sách mẫu kèm trạng thái và nhãn đã có hay chưa có chính sách duyệt.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_21
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_33
+- Trường hợp ngoại lệ: Mẫu chưa có chính sách duyệt thì nhân viên lập nháp được nhưng chưa gửi được.
+- Phân quyền: Quản trị công ty chỉ trong công ty mình.
+- Thông báo lỗi: "Mã mẫu đã có trong công ty." · "Giá trị không hợp lệ." (mã trường trùng, danh sách chọn thiếu lựa chọn, trường giá trị duyệt không phải trường tiền).
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_52
+
+### CHUC_NANG_28: Lập và gửi đề xuất
+- Mục đích: Nhân viên lập đề xuất theo mẫu, đính kèm chứng từ gốc, gửi đi duyệt.
+- Người sử dụng: Mọi nhân viên (người lập); người duyệt, quản trị (xem).
+- Điều kiện thực hiện: Có quyền `platform.proposal.create` trong công ty; mẫu đang dùng.
+- Dữ liệu đầu vào: Mẫu, tiêu đề, giá trị các trường theo mẫu; tệp đính kèm.
+- Quy trình xử lý: Lưu nháp kiểm tra kiểu từng trường; gửi duyệt kiểm thêm trường bắt buộc, cấp số đề xuất từ dãy số chứng từ và gửi yêu cầu duyệt (CHUC_NANG_16) với giá trị duyệt trong cùng một giao dịch; lỗi thì số không bị dùng. Duyệt xong, bị từ chối hoặc rút ở luồng duyệt thì trạng thái đề xuất đổi theo. Danh sách "Đề xuất của tôi"; người quản lý mẫu xem thêm "Toàn công ty".
+- Kết quả đầu ra: Đề xuất kèm số `<mã mẫu>-<mã công ty>-<kỳ>-<số thứ tự>` (ví dụ `PC-VCR-2026-000001`), trạng thái, tiến trình duyệt, tệp đính kèm.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_21
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_33, QUYTAC_NGHIEPVU_34, QUYTAC_NGHIEPVU_35, QUYTAC_NGHIEPVU_36, QUYTAC_NGHIEPVU_28
+- Trường hợp ngoại lệ: Sửa, xóa, thêm, xóa tệp khi đề xuất không còn Nháp thì từ chối. Rút được khi cấp 1 chưa quyết định (QUYTAC_NGHIEPVU_23). Tiền VND không có phần lẻ.
+- Phân quyền: Chỉ người lập sửa, xóa, gửi, rút. Người xem được đề xuất theo QUYTAC_NGHIEPVU_36; người khác nhận "Không tìm thấy".
+- Thông báo lỗi: "Vui lòng nhập thông tin này." · "Giá trị không hợp lệ." · "Chỉ sửa được đề xuất đang ở trạng thái nháp." · "Chưa có chính sách duyệt cho loại chứng từ này." · "Mỗi đề xuất có tối đa 10 tệp đính kèm." · "Tệp vượt quá 10 MB." · "Chỉ nhận tệp PDF, JPG, PNG, XLSX, DOCX."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_52, TIEUCHI_NGHIEMTHU_53, TIEUCHI_NGHIEMTHU_54
+
+### CHUC_NANG_29: In đề xuất PDF
+- Mục đích: In đề xuất để lưu hồ sơ, trình ký giấy.
+- Người sử dụng: Người xem được đề xuất (QUYTAC_NGHIEPVU_36).
+- Điều kiện thực hiện: Đã đăng nhập; xem được đề xuất.
+- Dữ liệu đầu vào: Đề xuất.
+- Quy trình xử lý: Dựng tệp PDF theo một bố cục chuẩn cho mọi mẫu: tên công ty, tên mẫu, số đề xuất, ngày, trạng thái, các trường, bảng chi tiết, giá trị duyệt, các cấp duyệt (người duyệt, quyết định, ý kiến, thời điểm). Không tải tài nguyên ngoài.
+- Kết quả đầu ra: Tệp PDF tiếng Việt đúng dấu, mở ngay trên trình duyệt.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_21
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_36
+- Trường hợp ngoại lệ: Đề xuất nháp in được, số hiện "(chưa gửi)".
+- Phân quyền: Như xem đề xuất.
+- Thông báo lỗi: "Không tìm thấy dữ liệu hoặc bạn không có quyền xem."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_55
 
 ## Yêu cầu phi chức năng của MODULE_01
 
