@@ -66,3 +66,35 @@
 - Kiểm thử cần thực hiện: TIEUCHI_NGHIEMTHU_01, TIEUCHI_NGHIEMTHU_02 (tạo công ty với chế độ kế toán mặc định).
 - Mức quy mô: Vừa.
 - Trạng thái: Đã phê duyệt 2026-11-09
+
+### THAY_DOI_04: Mở rộng phạm vi theo đối chiếu repo V-com-ERP – 2026-11-09
+- Lý do: Người dùng yêu cầu đối chiếu chức năng của nguồn mã riêng V-com-ERP với dự án mới và chọn phương án rộng hơn cho từng nhóm. Bảng đối chiếu 85 nhóm chức năng (phiên con, 2026-11-09): 29 đã có, 20 có một phần, 36 chưa có. Người dùng chọn thêm toàn bộ các nhóm dưới đây.
+- Nội dung thay đổi:
+
+| Module | Chức năng thêm vào phạm vi | Nguồn tham khảo trong V-com-ERP |
+|---|---|---|
+| MODULE_01 Nền tảng | Thông báo qua Zalo ZNS (duyệt, nhắc quá hạn); biểu mẫu đề xuất tự do (phiếu chi, tạm ứng, mua sắm) đi qua luồng duyệt, mẫu in PDF | `src/services/znsService.ts`; trình ký nhiều cấp (MOD-21) |
+| MODULE_02 Sản phẩm và Nhà bán | Hiệu suất, chế tài nhà bán; nhiều nhân viên trong một nhà bán; công bố thông tin sản phẩm, truy xuất nguồn gốc | MOD-07, MOD-09; `specs/012-vn-legal-compliance` |
+| MODULE_06 Tài chính – Kế toán | Tài sản cố định, khấu hao, công cụ dụng cụ; khóa sổ theo kỳ; kê khai thuế giá trị gia tăng, thu nhập doanh nghiệp; đối chiếu sao kê ngân hàng, nhận chuyển khoản tự đối chiếu (SePay), đối soát thu hộ COD; khấu trừ thuế thu nhập cá nhân trên hoa hồng; IFRS 15 | `tt99Service.ts`, `bankReconciliationService.ts`, `sepayService.ts`, `commissionWithholdingService.ts`; `specs/007`, `009`, `021` |
+| MODULE_07 Khách hàng và Đối tác | Chăm sóc khách hàng: phiếu hỗ trợ có thời hạn xử lý, tổng đài, hộp thư đa kênh; khách hàng tiềm năng, cơ hội, chiến dịch tự động | MOD-05, MOD-06; `specs/010-crm-loyalty-sla` |
+| MODULE_08 Nhân sự | Tiếp nhận nhân viên mới, đào tạo, khen thưởng – kỷ luật; cổng tự phục vụ nhân viên | MOD-03, MOD-04; `payrollEngine.ts` |
+| MODULE_09 Sàn thương mại điện tử | Nghĩa vụ thuế của sàn với nhà bán, ủy nhiệm lập hóa đơn thay nhà bán; giữ tiền đảm bảo, ví và rút tiền nhà bán; minh bạch thông tin sàn, bảo vệ thương hiệu, bảo vệ dữ liệu cá nhân; quảng cáo nội bộ; tìm kiếm toàn văn | `escrowService.ts`, `einvoiceService.ts`; `specs/025`, `027`, `028`, `030`; MOD-15, MOD-17 |
+| MODULE_10 Cộng đồng | KOL, KOC, hoa hồng theo ngành hàng | MOD-14 |
+| MODULE_13 Văn phòng số (mới) | Công việc, quy trình, công văn, chữ ký số, kho hợp đồng, bảng tin nội bộ | MOD-20 đến MOD-24 |
+| MODULE_14 Bán lẻ tại quầy và trạm giao hàng (mới) | Bán hàng tại quầy (POS) cho cửa hàng, siêu thị tập đoàn tự vận hành; trạm giao hàng O2O; kế hoạch mua theo ngân sách (Open-to-Buy) | MOD-12, MOD-16; `specs/018-o2o-tach-hai-san-pham` |
+| MODULE_15 Phân tích dữ liệu (mới) | Báo cáo quản trị toàn tập đoàn | MOD-01 |
+| MODULE_16 Mở rộng kinh doanh (mới) | Dropship; Open API cho đối tác; trợ lý AI; quản lý sản xuất | MOD-07 (Dropship); `vcomm_ai_integration_guide.md` |
+
+- Thành phần bị ảnh hưởng:
+  - Tài liệu `04` mục 8 (yêu cầu cấp cao), `05` mục 1, 2, 3, 4, 5 (phạm vi, phạm vi ngoài, phiên bản, ưu tiên), `01` mục 4, 5, 6 (danh sách module, mốc, rủi ro), `13` mục 5 (chi phí hạ tầng tăng khi thêm module).
+  - MODULE_01 đang làm: tài liệu `06`, `07`, `10`, `11`, `14`, `16`, `17`, `22`, `27` phải bổ sung yêu cầu, chức năng, màn hình, dữ liệu, API cho thông báo ZNS và biểu mẫu đề xuất; thêm lát vào CONG_VIEC_02 (sau L8). Các lát L1 đến L8 đã duyệt không đổi.
+  - Các module khác chưa phân tích: phạm vi mới được dùng khi tới giai đoạn 03 của module đó.
+- Dữ liệu bị ảnh hưởng: schema `core` thêm bảng mẫu đề xuất, đề xuất, nhật ký gửi ZNS (thiết kế ở giai đoạn 07 của phần bổ sung). Các schema khác chưa thiết kế.
+- API bị ảnh hưởng: thêm API cho đề xuất và thông báo; không đổi API đã duyệt.
+- Giao diện bị ảnh hưởng: thêm màn hình đề xuất, mẫu đề xuất; trang chủ thêm ô mini app Văn phòng số, Bán lẻ, Phân tích dữ liệu khi các module này được xây.
+- Quyền bị ảnh hưởng: thêm quyền cho mini app mới; không đổi mô hình phân quyền.
+- Ảnh hưởng chức năng cũ: không có mã nguồn đang chạy bị ảnh hưởng.
+- Kiểm thử cần thực hiện: lập kịch bản mới cho phần bổ sung MODULE_01; các tiêu chí đã có không đổi.
+- Mức quy mô: Lớn (module mới, nhiều module).
+- Rủi ro: tổng khối lượng tăng khoảng gấp rưỡi; mốc phiên bản 1.0, 2.0, 3.0 trong tài liệu `01` phải ước lượng lại; nên chia thêm phiên bản thay vì làm cùng lúc.
+- Trạng thái: Chờ phê duyệt
