@@ -82,3 +82,19 @@
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát lát L4 tìm 10 điểm, sửa 9, giữ 1 (kích thước giao diện ghi thẳng như các trang L2, chưa có biến trong tài liệu `15`); đối chiếu tài liệu với mã sửa thêm 3 lỗi.
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
 - Kết luận: Người dùng nghiệm thu; hợp nhất vào `main` (commit `65a7975`), kiểm thử lại 173/173 đạt trên commit hợp nhất; CI đạt.
+
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_05
+
+- Phạm vi: lát L0 đến L4 (kho, vị trí, chủ hàng; phiếu nhập khác, xuất khác, điều chỉnh; tồn, lô, serial, giá vốn, thẻ kho; chuyển kho; kiểm kê; giữ hàng; tồn an toàn; in tem); MAN_HINH_28 đến 35; API_63 đến API_70. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm --filter api typecheck`, `pnpm --filter web-inventory typecheck`, `pnpm --filter web-platform typecheck`, `pnpm --filter web-catalog typecheck`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --audit-level=high`; thử trên trình duyệt bằng Playwright: lập kho, vị trí; lập phiếu nhập có serial bằng ô quét mã; xem tồn, thẻ kho; chuyển kho xuất, nhận; kiểm kê bắt đầu; giữ hàng, tồn an toàn; tải tem PDF (máy tính và điện thoại).
+- Kết quả: 186 đạt / 0 không đạt / 186 kịch bản tự động (21 tệp; phần mới: `c5-warehouses` 1, `c5-documents` 6, `c5-transfers` 1, `c5-stocktakes` 2, `c5-reservations` 3). Khớp khóa dịch tiếng Việt, tiếng Anh.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_65 đến 72 (bắt buộc) – Đạt. TIEUCHI_NGHIEMTHU_73 (mong muốn) – Đạt phần tự động (cấu trúc mã Code 128, số trang, khổ tem); chưa quét thử bằng máy quét thật. TIEUCHI_NGHIEMTHU_74 (mong muốn) – Đạt (phiếu 200 dòng ghi sổ dưới 2 giây; 50.000 dòng tồn trả trang đầu dưới 500 ms).
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --audit-level=high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc: không có phát hiện.
+  - C3 phân quyền: Đạt – thao tác kho theo chi nhánh sở hữu kho; công ty chủ hàng chỉ xem tồn của mình; giá vốn chỉ hiện với người có quyền xem giá vốn; tìm mặt hàng chỉ với công ty chủ hàng được gửi vào kho người dùng thao tác.
+  - C4 toàn vẹn dữ liệu: Đạt – khóa dòng giá vốn, dòng tồn theo thứ tự cố định; hai phiếu đồng thời xuất món hàng cuối chỉ một phiếu ghi sổ; ràng buộc không âm; thẻ kho chặn sửa, xóa bằng trigger; kiểm kê khóa mặt hàng đang đếm.
+  - C6 OWASP Top 10: A01 kiểm quyền tại kho trong từng service; A04 serial đang vận chuyển không bị phiếu khác lấy.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát toàn nhánh tìm 10 điểm, sửa 9, giữ 1 (lô và serial không bật cùng lúc nên không xảy ra); đối chiếu tài liệu với mã sửa thêm 6 lỗi.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
