@@ -23,6 +23,7 @@
 - Phê duyệt tài liệu `04` Tổng quan dự án và `05` Phạm vi; giai đoạn 01, 02 đạt cổng kiểm soát – người quyết định: người dùng.
 - Phê duyệt tài liệu `06` đến `09` của MODULE_01 và 7 quy tắc do AI đề xuất; giai đoạn 03 của MODULE_01 đạt cổng kiểm soát – người quyết định: người dùng.
 - Phê duyệt tài liệu `10`, `11`, `27` của MODULE_01 và 7 nội dung do AI đề xuất; giai đoạn 04 của MODULE_01 đạt cổng kiểm soát – người quyết định: người dùng.
+- Chọn Drizzle ORM làm thư viện truy cập cơ sở dữ liệu, AWS CDK làm công cụ hạ tầng bằng mã – người quyết định: người dùng.
 - Các quyết định chi tiết khác ghi tại tài liệu `04` và `05`.
 
 ### Thay đổi
@@ -30,6 +31,7 @@
 - `tai_lieu/02_NHAT_KY_DU_AN.md`, `tai_lieu/03_DANH_SACH_CONG_VIEC.md`: tạo mới.
 - `tai_lieu/06` đến `09`: lập cho MODULE_01 (nhánh `chuc-nang/CONG_VIEC_01-bo-tai-lieu-khoi-tao`).
 - `tai_lieu/10`, `11`, `27`: lập cho MODULE_01; kiểm tra bao phủ đầy đủ.
+- `tai_lieu/12`, `13`: rà soát theo tài liệu `10`; `tai_lieu/22`: lập phần A cho MODULE_01.
 
 ### Vấn đề tồn đọng
 
