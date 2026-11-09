@@ -1,9 +1,9 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái và ngoại lệ, có mã định danh.
-- Phiên bản: 0.1
+- Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Chờ phê duyệt
+- Trạng thái: Đã phê duyệt
 
 ## MODULE_01 Nền tảng
 
@@ -67,7 +67,7 @@
 | QUYTAC_NGHIEPVU_29 | Mỗi ngày, cặp tiền tệ, loại, nguồn chỉ có một tỷ giá; tỷ giá lớn hơn 0 | YCAU_NGHIEPVU_15 |
 | QUYTAC_NGHIEPVU_30 | Nhật ký thao tác chỉ thêm, không sửa, không xóa; giữ tối thiểu 10 năm | YCAU_NGHIEPVU_16 |
 
-## Quy tắc do AI đề xuất, chờ người dùng xác nhận
+## Quy tắc do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Mã | Nội dung đề xuất |
 |---|---|
