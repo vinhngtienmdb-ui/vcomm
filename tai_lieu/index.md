@@ -18,7 +18,7 @@
 | 11 | [11_TIEU_CHI_NGHIEM_THU.md](11_TIEU_CHI_NGHIEM_THU.md) | Tiêu chí nghiệm thu | TIEUCHI_NGHIEMTHU, Bắt buộc hoặc Mong muốn | 04 | Đã phê duyệt |
 | 12 | [12_KIEN_TRUC_HE_THONG.md](12_KIEN_TRUC_HE_THONG.md) | Kiến trúc hệ thống | Kiến trúc tổng thể, triển khai, sao lưu, cấu trúc thư mục | 05 | Đã phê duyệt |
 | 13 | [13_CONG_NGHE_SU_DUNG.md](13_CONG_NGHE_SU_DUNG.md) | Công nghệ sử dụng | Công nghệ, phân tích giải pháp có sẵn | 05 | Đã phê duyệt |
-| 14 | [14_DAC_TA_GIAO_DIEN.md](14_DAC_TA_GIAO_DIEN.md) | Đặc tả giao diện | Danh sách màn hình, điều hướng, vai trò – màn hình | 06 | Bước 06.1 đã phê duyệt |
+| 14 | [14_DAC_TA_GIAO_DIEN.md](14_DAC_TA_GIAO_DIEN.md) | Đặc tả giao diện | Danh sách màn hình, điều hướng, vai trò – màn hình | 06 | Bước 06.1 đã phê duyệt; bước 06.2 chờ phê duyệt |
 | 16 | [16_CO_SO_DU_LIEU.md](16_CO_SO_DU_LIEU.md) | Cơ sở dữ liệu | Schema `core` của MODULE_01 | 07 | Bản nháp |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | Dữ liệu nhạy cảm, điểm tiếp nhận, xác thực, ma trận phân quyền, khóa bí mật | 05 | Đã phê duyệt |
 | 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | Sổ phiếu THAY_DOI | 13 | Đang cập nhật |

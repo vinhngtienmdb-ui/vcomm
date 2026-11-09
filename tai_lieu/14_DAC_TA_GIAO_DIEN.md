@@ -3,7 +3,7 @@
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Bước 06.1 đã phê duyệt 2026-11-09 (gồm THAY_DOI_01); bước 06.2 đang thực hiện
+- Trạng thái: Bước 06.1 đã phê duyệt 2026-11-09 (gồm THAY_DOI_01); bước 06.2 chờ phê duyệt
 
 ## MODULE_01 Nền tảng
 
@@ -81,4 +81,228 @@ flowchart TD
 
 ## 3. Đặc tả từng màn hình
 
-Lập ở bước 06.2 sau khi danh sách màn hình được duyệt.
+Quy ước chung cho mọi màn hình sau đăng nhập:
+- Bố cục: thanh trên cùng (logo, nút trang chủ, chọn công ty, hộp duyệt kèm số chờ, thông báo, ảnh đại diện mở hồ sơ cá nhân và đăng xuất); menu bên trái của mini app; vùng nội dung bên phải.
+- Màn hình danh sách: tiêu đề, nút thao tác chính góc phải, ô tìm kiếm và bộ lọc, bảng có phân trang 20 dòng, nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng.
+- Thêm, sửa bằng ngăn kéo bên phải (màn hình rộng) hoặc trang riêng (điện thoại); lỗi kiểm tra dữ liệu hiện ngay dưới ô nhập.
+- Trạng thái: đang tải = khung xám nhấp nháy theo bố cục; rỗng = hình minh họa, câu giải thích, nút thao tác chính; lỗi = thông báo kèm nút "Thử lại"; không có quyền = câu "Bạn không có quyền xem trang này" và nút về trang chủ.
+- Thông báo thành công, thất bại hiện góc trên phải, tự ẩn sau 5 giây; thao tác ngừng hoạt động, khóa, vô hiệu hóa, thu hồi phiên có hộp thoại xác nhận.
+- Điện thoại (dưới 768 điểm ảnh): menu trái thu thành nút mở; bảng chuyển thành danh sách thẻ.
+- Thành phần: tên thành phần theo tài liệu `15` bổ sung sau bước 06.3. API: bổ sung ở giai đoạn 07.
+- Bản khung thang xám: `tai_lieu/ban_mau/KHUNG_GIAO_DIEN_MODULE_01.html`.
+
+### MAN_HINH_01: Đăng nhập
+- Mục đích: Vào hệ thống.
+- Chức năng thực hiện: CHUC_NANG_06, CHUC_NANG_07, CHUC_NANG_08, CHUC_NANG_22, CHUC_NANG_24
+- Bố cục: một cột giữa màn hình: logo; chọn ngôn ngữ; thẻ "Mật khẩu" và "Số điện thoại"; ô nhập; nút "Đăng nhập"; liên kết "Quên mật khẩu"; dải phân cách "hoặc"; ba nút Google, Microsoft, Zalo.
+- Dữ liệu hiển thị: Không có.
+- Thao tác: nhập, bấm Đăng nhập → MAN_HINH_02 nếu cần xác thực hai lớp, ngược lại MAN_HINH_05; thẻ Số điện thoại: nhập số → "Gửi mã" → ô nhập mã 6 chữ số, đếm ngược gửi lại.
+- Trạng thái: đang xử lý (nút khóa, vòng quay); lỗi (thông báo trên ô nhập); bị khóa 15 phút (thông báo kèm thời gian còn lại).
+- Thông báo: theo CHUC_NANG_06, CHUC_NANG_07, CHUC_NANG_08, CHUC_NANG_24.
+- Quyền hiển thị: Không áp dụng.
+- Responsive: thẻ chiếm toàn chiều ngang trên điện thoại.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_02: Xác thực hai lớp
+- Mục đích: Nhập mã xác thực hoặc đăng ký lần đầu.
+- Chức năng thực hiện: CHUC_NANG_09
+- Bố cục: một cột giữa: tiêu đề; nhập mã 6 chữ số; liên kết "Dùng mã dự phòng"; khi đăng ký lần đầu: mã QR, mã nhập tay, ô xác nhận, danh sách 10 mã dự phòng kèm nút tải về.
+- Dữ liệu hiển thị: cách xác thực đã đăng ký (ứng dụng, SMS, email; che bớt số điện thoại, email).
+- Thao tác: nhập mã → MAN_HINH_05.
+- Trạng thái: đang xử lý; lỗi mã sai.
+- Thông báo: "Mã xác thực không đúng."
+- Quyền hiển thị: Không áp dụng.
+- Responsive: như MAN_HINH_01.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_03: Kích hoạt tài khoản
+- Mục đích: Nhân viên được mời đặt mật khẩu lần đầu.
+- Chức năng thực hiện: CHUC_NANG_04
+- Bố cục: một cột giữa: lời chào kèm họ tên, tên công ty; ô mật khẩu, nhập lại mật khẩu, chỉ báo độ mạnh; nút "Kích hoạt"; hoặc nút Google, Microsoft.
+- Dữ liệu hiển thị: họ tên, công ty mời.
+- Thao tác: kích hoạt → MAN_HINH_01 kèm thông báo thành công.
+- Trạng thái: đường dẫn hết hạn hoặc đã dùng (thông báo, hướng dẫn liên hệ quản trị).
+- Thông báo: theo CHUC_NANG_04.
+- Quyền hiển thị: Không áp dụng.
+- Responsive: như MAN_HINH_01.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_04: Quên mật khẩu, đặt lại mật khẩu
+- Mục đích: Lấy lại quyền truy cập.
+- Chức năng thực hiện: CHUC_NANG_06
+- Bố cục: bước 1: ô email hoặc số điện thoại, nút "Gửi đường dẫn"; bước 2 (mở từ đường dẫn): ô mật khẩu mới, nhập lại, nút "Đặt lại".
+- Dữ liệu hiển thị: Không có.
+- Thao tác: gửi → thông báo chung "Nếu tài khoản tồn tại, bạn sẽ nhận được đường dẫn"; đặt lại → MAN_HINH_01.
+- Trạng thái: đường dẫn hết hạn.
+- Thông báo: theo CHUC_NANG_06.
+- Quyền hiển thị: Không áp dụng.
+- Responsive: như MAN_HINH_01.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_05: Trang chủ mini app
+- Mục đích: Điểm vào mọi mini app.
+- Chức năng thực hiện: CHUC_NANG_14, CHUC_NANG_11
+- Bố cục: thanh trên cùng; lời chào; lưới ô mini app (biểu tượng, tên, số việc chờ); khối "Chờ tôi duyệt" tóm tắt 5 yêu cầu mới nhất.
+- Dữ liệu hiển thị: mini app được dùng trong công ty đang chọn; số việc chờ; yêu cầu duyệt.
+- Thao tác: bấm ô → mở mini app; chọn công ty ở thanh trên → tải lại trang chủ theo công ty mới.
+- Trạng thái: rỗng (chưa được cấp mini app nào, theo CHUC_NANG_14).
+- Thông báo: Không có.
+- Quyền hiển thị: ô mini app theo quyền `<app>.access`.
+- Responsive: lưới 4 cột (rộng), 2 cột (điện thoại).
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_06: Hồ sơ cá nhân
+- Mục đích: Tự quản lý tài khoản.
+- Chức năng thực hiện: CHUC_NANG_10, CHUC_NANG_09, CHUC_NANG_22, CHUC_NANG_24
+- Bố cục: các thẻ: "Thông tin" (họ tên, email, số điện thoại, công ty, ngôn ngữ); "Đăng nhập" (đổi mật khẩu; liên kết, hủy liên kết Google, Microsoft, Zalo); "Xác thực hai lớp" (bật, tắt, tạo lại mã dự phòng); "Phiên đăng nhập" (bảng thiết bị, địa chỉ IP, thời điểm, nút thu hồi).
+- Dữ liệu hiển thị: như trên.
+- Thao tác: lưu từng thẻ; thu hồi phiên có xác nhận.
+- Trạng thái: nút tắt xác thực hai lớp bị vô hiệu kèm giải thích khi đang bắt buộc.
+- Thông báo: theo CHUC_NANG_10, CHUC_NANG_24.
+- Quyền hiển thị: chỉ của chính mình.
+- Responsive: thẻ chuyển thành danh sách xổ xuống.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_07: Hộp duyệt
+- Mục đích: Xem, duyệt chứng từ đang chờ mình.
+- Chức năng thực hiện: CHUC_NANG_17, CHUC_NANG_16
+- Bố cục: tiêu đề kèm số chờ; bộ lọc công ty, mini app, loại chứng từ, chỉ quá hạn; danh sách: số chứng từ, loại, công ty, người lập, giá trị, cấp hiện tại, thời điểm gửi, nhãn "Quá hạn"; nút Đồng ý, Từ chối trên mỗi dòng.
+- Dữ liệu hiển thị: yêu cầu đang chờ nhân viên ở mọi công ty.
+- Thao tác: bấm dòng → MAN_HINH_08; Từ chối → hộp thoại bắt buộc nhập lý do.
+- Trạng thái: rỗng ("Không có chứng từ nào chờ bạn duyệt").
+- Thông báo: duyệt thành công, thất bại.
+- Quyền hiển thị: Không áp dụng.
+- Responsive: thẻ chứng từ, nút Đồng ý, Từ chối cố định cuối thẻ.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_08: Chi tiết yêu cầu duyệt
+- Mục đích: Xem đầy đủ một yêu cầu và quyết định.
+- Chức năng thực hiện: CHUC_NANG_16
+- Bố cục: đầu trang: số chứng từ, trạng thái, giá trị (kèm quy đổi nếu ngoại tệ); dòng thời gian các cấp (người duyệt, người thay thế, quyết định, ý kiến, thời điểm); liên kết "Mở chứng từ" sang mini app sở hữu; nút Đồng ý, Từ chối (người duyệt cấp hiện tại); nút Rút lại (người lập, khi cấp 1 chưa quyết định).
+- Dữ liệu hiển thị: yêu cầu duyệt và các bước.
+- Thao tác: như trên.
+- Trạng thái: không có quyền (không phải người lập hoặc người duyệt).
+- Thông báo: theo CHUC_NANG_16.
+- Quyền hiển thị: nút theo vai trò trong yêu cầu.
+- Responsive: dòng thời gian dọc.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_09: Công ty
+- Mục đích: Quản lý cây công ty.
+- Chức năng thực hiện: CHUC_NANG_01
+- Bố cục: cây công ty bên trái; chi tiết công ty được chọn bên phải; nút "Thêm công ty".
+- Dữ liệu hiển thị: mã, tên, mã số thuế, tiền tệ, chế độ kế toán, trạng thái, số chi nhánh.
+- Thao tác: thêm, sửa, ngừng hoạt động (xác nhận).
+- Trạng thái: chung.
+- Thông báo: theo CHUC_NANG_01.
+- Quyền hiển thị: chỉ quản trị tập đoàn.
+- Responsive: cây và chi tiết xếp dọc.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_10: Chi nhánh
+- Mục đích: Quản lý chi nhánh.
+- Chức năng thực hiện: CHUC_NANG_02
+- Bố cục: danh sách chung; lọc loại, tỉnh thành, trạng thái.
+- Dữ liệu hiển thị: mã, tên, loại, tỉnh thành, địa chỉ, trạng thái.
+- Thao tác: thêm, sửa, ngừng hoạt động.
+- Trạng thái: chung.
+- Thông báo: theo CHUC_NANG_02.
+- Quyền hiển thị: theo bảng vai trò – màn hình.
+- Responsive: chung.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_11: Phòng ban
+- Mục đích: Quản lý cây phòng ban.
+- Chức năng thực hiện: CHUC_NANG_03
+- Bố cục: như MAN_HINH_09 (cây bên trái, chi tiết bên phải).
+- Dữ liệu hiển thị: mã, tên, phòng ban cha, trưởng phòng, số nhân viên.
+- Thao tác: thêm, sửa, ngừng hoạt động.
+- Trạng thái: chung.
+- Thông báo: theo CHUC_NANG_03.
+- Quyền hiển thị: theo bảng vai trò – màn hình.
+- Responsive: như MAN_HINH_09.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_12: Danh sách nhân viên
+- Mục đích: Tìm, mời, nhập nhân viên.
+- Chức năng thực hiện: CHUC_NANG_04, CHUC_NANG_05, CHUC_NANG_19
+- Bố cục: danh sách chung; nút "Mời nhân viên" (ngăn kéo), "Nhập từ Excel" (hộp thoại: tải mẫu, chọn tệp, kết quả số dòng thành công, lỗi, tải tệp dòng lỗi); lọc chi nhánh, phòng ban, vai trò, trạng thái.
+- Dữ liệu hiển thị: họ tên, email, số điện thoại, chi nhánh, phòng ban, vai trò, trạng thái, lần đăng nhập cuối.
+- Thao tác: bấm dòng → MAN_HINH_13; gửi lại đường dẫn kích hoạt với dòng "Đã mời".
+- Trạng thái: chung.
+- Thông báo: theo CHUC_NANG_04, CHUC_NANG_05.
+- Quyền hiển thị: theo bảng vai trò – màn hình.
+- Responsive: chung.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_13: Chi tiết nhân viên
+- Mục đích: Gán vai trò, khóa, vô hiệu hóa.
+- Chức năng thực hiện: CHUC_NANG_13, CHUC_NANG_19, CHUC_NANG_09
+- Bố cục: đầu trang: họ tên, trạng thái, nút Khóa, Mở khóa, Vô hiệu hóa, Đặt lại xác thực hai lớp; thẻ "Công ty" (các công ty thuộc về, chi nhánh, phòng ban, chức danh); thẻ "Vai trò" (bảng vai trò, phạm vi, ngày bắt đầu, ngày kết thúc; nút Gán vai trò, Gỡ); thẻ "Phiên đăng nhập" (thu hồi).
+- Dữ liệu hiển thị: như trên.
+- Thao tác: Vô hiệu hóa → hộp thoại bàn giao: danh sách chứng từ chờ duyệt và phòng ban đang làm trưởng phòng, chọn người nhận cho từng mục, xác nhận.
+- Trạng thái: chung.
+- Thông báo: theo CHUC_NANG_13, CHUC_NANG_19.
+- Quyền hiển thị: nút ẩn khi xem chính mình; phạm vi gán chỉ hiện phạm vi được phép.
+- Responsive: thẻ xếp dọc.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_14: Vai trò và ma trận quyền
+- Mục đích: Quản lý vai trò.
+- Chức năng thực hiện: CHUC_NANG_12
+- Bố cục: danh sách vai trò bên trái (nhãn "Hệ thống", "Dùng chung", "Riêng công ty"); bên phải: thông tin vai trò và ma trận quyền nhóm theo mini app (dòng là đối tượng, cột là hành động, ô đánh dấu); quyền nhạy cảm có nhãn.
+- Dữ liệu hiển thị: vai trò, quyền, số người đang có vai trò.
+- Thao tác: thêm, sửa, ngừng dùng; lưu ma trận.
+- Trạng thái: ô quyền người dùng không có bị vô hiệu.
+- Thông báo: theo CHUC_NANG_12.
+- Quyền hiển thị: vai trò hệ thống chỉ xem.
+- Responsive: ma trận cuộn ngang trong khung riêng.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_15: Chính sách duyệt
+- Mục đích: Cấu hình cấp duyệt theo hạn mức.
+- Chức năng thực hiện: CHUC_NANG_15
+- Bố cục: danh sách loại chứng từ kèm chính sách đang hiệu lực; chi tiết: tiền tệ, ngày hiệu lực; bảng cấp duyệt (thứ tự, ngưỡng, người duyệt, người thay thế, thời hạn giờ); lịch sử chính sách.
+- Dữ liệu hiển thị: như trên.
+- Thao tác: tạo chính sách mới từ ngày chọn; thêm, bớt cấp.
+- Trạng thái: chung.
+- Thông báo: theo CHUC_NANG_15.
+- Quyền hiển thị: theo bảng vai trò – màn hình.
+- Responsive: bảng cấp duyệt thành thẻ.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_16: Dãy số chứng từ
+- Mục đích: Cấu hình đánh số.
+- Chức năng thực hiện: CHUC_NANG_20
+- Bố cục: danh sách chung: loại chứng từ, tiền tố, kiểu đặt lại, số chữ số, số tiếp theo kỳ hiện tại, ví dụ số kế tiếp.
+- Dữ liệu hiển thị: như trên.
+- Thao tác: sửa (ngăn kéo).
+- Trạng thái: chung.
+- Thông báo: theo CHUC_NANG_20.
+- Quyền hiển thị: theo bảng vai trò – màn hình.
+- Responsive: chung.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_17: Tiền tệ và tỷ giá
+- Mục đích: Xem, nhập tỷ giá.
+- Chức năng thực hiện: CHUC_NANG_21
+- Bố cục: chọn ngày; bảng tỷ giá theo cặp tiền tệ, loại, nguồn; nút "Nhập tỷ giá"; nhãn cảnh báo khi hôm nay chưa có tỷ giá hạch toán.
+- Dữ liệu hiển thị: như trên.
+- Thao tác: nhập, sửa (quản lý tỷ giá).
+- Trạng thái: chung.
+- Thông báo: theo CHUC_NANG_21.
+- Quyền hiển thị: nút nhập, sửa chỉ với quản trị tập đoàn, quản lý tỷ giá.
+- Responsive: chung.
+- Trạng thái phê duyệt: Bản nháp
+
+### MAN_HINH_18: Nhật ký thao tác
+- Mục đích: Tra cứu ai làm gì.
+- Chức năng thực hiện: CHUC_NANG_23
+- Bố cục: bộ lọc người làm, mini app, đối tượng, hành động, khoảng thời gian; bảng: thời điểm, người làm, công ty, hành động, đối tượng; bấm dòng mở ngăn kéo so sánh dữ liệu trước và sau.
+- Dữ liệu hiển thị: như trên.
+- Thao tác: lọc, xem chi tiết. Không có sửa, xóa.
+- Trạng thái: chung.
+- Thông báo: Không có.
+- Quyền hiển thị: theo bảng vai trò – màn hình.
+- Responsive: chung.
+- Trạng thái phê duyệt: Bản nháp
