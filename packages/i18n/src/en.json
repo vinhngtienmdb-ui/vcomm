@@ -91,7 +91,14 @@
     "attachmentTooMany": "A proposal can have at most 10 attachments.",
     "proposalNotDraft": "Only draft proposals can be changed.",
     "zaloNotLinked": "This Zalo account is not linked yet. Sign in another way, then link it in your profile.",
-    "zaloLinkedElsewhere": "This Zalo account is already linked to another user."
+    "zaloLinkedElsewhere": "This Zalo account is already linked to another user.",
+    "categoryCodeExists": "This category code already exists.",
+    "categoryCodeLocked": "This category has products; its code cannot change.",
+    "categoryTooDeep": "Categories can have at most 4 levels.",
+    "categoryParentCycle": "A category cannot be placed under its own subcategory.",
+    "categoryParentHasProducts": "This category has products, so it cannot have subcategories.",
+    "categoryLotsAndSerials": "Lots and serials cannot both be tracked.",
+    "unitCodeExists": "This unit code already exists."
   },
   "login": {
     "title": "Sign in",
@@ -616,7 +623,9 @@
     "field": "Field",
     "entity_integration_settings": "Integration settings",
     "entity_proposal_template": "Proposal template",
-    "entity_proposal": "Proposal"
+    "entity_proposal": "Proposal",
+    "entity_category": "Category",
+    "entity_unit": "Unit"
   },
   "auditActions": {
     "login": "Sign in",
@@ -669,7 +678,15 @@
     "proposal_delete": "Delete draft proposal",
     "proposal_submit": "Submit proposal",
     "proposal_attachment_add": "Add attachment",
-    "proposal_attachment_delete": "Delete attachment"
+    "proposal_attachment_delete": "Delete attachment",
+    "category_create": "Create category",
+    "category_update": "Edit category",
+    "category_deactivate": "Deactivate category",
+    "category_activate": "Reactivate category",
+    "unit_create": "Create unit",
+    "unit_update": "Edit unit",
+    "unit_deactivate": "Deactivate unit",
+    "unit_activate": "Reactivate unit"
   },
   "notifications": {
     "title": "Notifications",
@@ -862,5 +879,41 @@
     "priceLists": "Price lists",
     "priceChanges": "Price changes",
     "channels": "Channels, customer groups"
+  },
+  "categories": {
+    "title": "Categories and units",
+    "hint": "Shared by every company in the group. Only group administrators add or edit. The category code is the prefix of product codes.",
+    "tab_categories": "Categories",
+    "tab_units": "Units",
+    "addRoot": "Add top-level category",
+    "addChild": "Add subcategory",
+    "add": "Add category",
+    "none": "No categories yet.",
+    "pick": "Select a category to see details.",
+    "code": "Code",
+    "codeHint": "2 to 6 capital letters or digits; locked once products exist.",
+    "nameVi": "Vietnamese name",
+    "nameEn": "English name",
+    "parent": "Parent category",
+    "noParent": "None (top level)",
+    "level": "Level",
+    "tracking": "Tracking",
+    "trackingHint": "Default for new products; can be changed per product.",
+    "noTracking": "No lot or serial tracking",
+    "tracksLots": "Lots and expiry dates",
+    "tracksSerials": "Serials, IMEI",
+    "warrantyMonths": "Warranty (months)",
+    "months": "{count} months",
+    "productCount": "Products",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "deactivate": "Deactivate",
+    "activate": "Reactivate",
+    "deactivateText": "Deactivate this category? New products cannot use it; existing products are unchanged.",
+    "activateText": "Reactivate this category?",
+    "saved": "Saved.",
+    "addUnit": "Add unit",
+    "edit": "Edit"
   }
 }

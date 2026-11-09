@@ -967,3 +967,57 @@ export interface ProposalResponse extends ProposalListItem {
 export const attachmentMaximumBytes = 10 * 1024 * 1024;
 export const attachmentMaximumCount = 10;
 export const attachmentExtensions = ["pdf", "jpg", "jpeg", "png", "xlsx", "docx"] as const;
+
+// CONG_VIEC_04, API_55: ngành hàng, đơn vị tính dùng chung tập đoàn (CHUC_NANG_30; QUYTAC_NGHIEPVU_37).
+export const categoryMaximumLevel = 4;
+const categoryCode = z.string().trim().toUpperCase().regex(/^[A-Z0-9]{2,6}$/);
+const categoryFields = {
+  parentId: z.uuid().nullable().optional(),
+  code: categoryCode,
+  nameVi: z.string().trim().min(1).max(200),
+  nameEn: z.string().trim().min(1).max(200),
+  tracksLots: z.boolean().default(false),
+  tracksSerials: z.boolean().default(false),
+  warrantyMonths: z.number().int().min(0).max(120).default(0),
+};
+export const createCategorySchema = z.object(categoryFields).strict();
+export type CreateCategoryRequest = z.input<typeof createCategorySchema>;
+export const updateCategorySchema = z
+  .object({ ...categoryFields, tracksLots: z.boolean(), tracksSerials: z.boolean(), warrantyMonths: z.number().int().min(0).max(120), version: z.number().int().positive() })
+  .strict();
+export type UpdateCategoryRequest = z.input<typeof updateCategorySchema>;
+
+export interface CategoryResponse {
+  id: string;
+  parentId: string | null;
+  code: string;
+  nameVi: string;
+  nameEn: string;
+  level: number;
+  tracksLots: boolean;
+  tracksSerials: boolean;
+  warrantyMonths: number;
+  status: "active" | "inactive";
+  version: number;
+  productCount: number;
+  childCount: number;
+}
+
+const unitFields = {
+  code: z.string().trim().toUpperCase().regex(/^[A-Z0-9_]{1,10}$/),
+  nameVi: z.string().trim().min(1).max(100),
+  nameEn: z.string().trim().min(1).max(100),
+};
+export const createUnitSchema = z.object(unitFields).strict();
+export type CreateUnitRequest = z.input<typeof createUnitSchema>;
+export const updateUnitSchema = z.object({ nameVi: unitFields.nameVi, nameEn: unitFields.nameEn, version: z.number().int().positive() }).strict();
+export type UpdateUnitRequest = z.input<typeof updateUnitSchema>;
+
+export interface UnitResponse {
+  id: string;
+  code: string;
+  nameVi: string;
+  nameEn: string;
+  status: "active" | "inactive";
+  version: number;
+}

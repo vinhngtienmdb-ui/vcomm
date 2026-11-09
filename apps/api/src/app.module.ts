@@ -41,6 +41,9 @@ import { createFileStorage, FILE_STORAGE } from "./common/file-storage";
 import { ProposalPdfService } from "./proposals/proposal-pdf.service";
 import { ProposalTemplatesService } from "./proposals/proposal-templates.service";
 import { ProposalsController } from "./proposals/proposals.controller";
+import { CatalogController } from "./catalog/catalog.controller";
+import { CategoriesService } from "./catalog/categories.service";
+import { UnitsService } from "./catalog/units.service";
 import { ProposalsService } from "./proposals/proposals.service";
 import { EXCHANGE_RATE_FEED, VietcombankFeed } from "./settings/vietcombank-rates";
 import { DeactivationService } from "./users/deactivation.service";
@@ -51,7 +54,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController],
   providers: [
     AuthService,
     ActivationService,
@@ -67,6 +70,8 @@ import { UsersService } from "./users/users.service";
     ZnsNotifier,
     { provide: FILE_STORAGE, useFactory: createFileStorage },
     ProposalTemplatesService,
+    CategoriesService,
+    UnitsService,
     ProposalsService,
     ProposalPdfService,
     PhoneOtpService,

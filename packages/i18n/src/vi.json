@@ -91,7 +91,14 @@
     "attachmentTooMany": "Mỗi đề xuất có tối đa 10 tệp đính kèm.",
     "proposalNotDraft": "Chỉ sửa được đề xuất đang ở trạng thái nháp.",
     "zaloNotLinked": "Tài khoản Zalo này chưa được liên kết. Đăng nhập bằng cách khác rồi liên kết trong hồ sơ cá nhân.",
-    "zaloLinkedElsewhere": "Tài khoản Zalo này đã được liên kết với tài khoản khác."
+    "zaloLinkedElsewhere": "Tài khoản Zalo này đã được liên kết với tài khoản khác.",
+    "categoryCodeExists": "Mã ngành hàng đã có.",
+    "categoryCodeLocked": "Ngành hàng đã có sản phẩm, không đổi được mã.",
+    "categoryTooDeep": "Ngành hàng tối đa 4 cấp.",
+    "categoryParentCycle": "Không chọn được ngành hàng con của chính nó làm ngành hàng cha.",
+    "categoryParentHasProducts": "Ngành hàng này đã có sản phẩm nên không thêm được ngành hàng con.",
+    "categoryLotsAndSerials": "Không theo dõi đồng thời lô và serial.",
+    "unitCodeExists": "Mã đơn vị tính đã có."
   },
   "login": {
     "title": "Đăng nhập",
@@ -616,7 +623,9 @@
     "field": "Trường",
     "entity_integration_settings": "Cài đặt tích hợp",
     "entity_proposal_template": "Mẫu đề xuất",
-    "entity_proposal": "Đề xuất"
+    "entity_proposal": "Đề xuất",
+    "entity_category": "Ngành hàng",
+    "entity_unit": "Đơn vị tính"
   },
   "auditActions": {
     "login": "Đăng nhập",
@@ -669,7 +678,15 @@
     "proposal_delete": "Xóa đề xuất nháp",
     "proposal_submit": "Gửi đề xuất",
     "proposal_attachment_add": "Thêm tệp đính kèm",
-    "proposal_attachment_delete": "Xóa tệp đính kèm"
+    "proposal_attachment_delete": "Xóa tệp đính kèm",
+    "category_create": "Thêm ngành hàng",
+    "category_update": "Sửa ngành hàng",
+    "category_deactivate": "Ngừng dùng ngành hàng",
+    "category_activate": "Dùng lại ngành hàng",
+    "unit_create": "Thêm đơn vị tính",
+    "unit_update": "Sửa đơn vị tính",
+    "unit_deactivate": "Ngừng dùng đơn vị tính",
+    "unit_activate": "Dùng lại đơn vị tính"
   },
   "notifications": {
     "title": "Thông báo",
@@ -862,5 +879,41 @@
     "priceLists": "Bảng giá",
     "priceChanges": "Điều chỉnh giá",
     "channels": "Kênh bán, nhóm khách"
+  },
+  "categories": {
+    "title": "Ngành hàng và đơn vị tính",
+    "hint": "Dùng chung cho mọi công ty trong tập đoàn. Chỉ quản trị tập đoàn thêm, sửa. Mã ngành hàng là tiền tố mã hàng của sản phẩm.",
+    "tab_categories": "Ngành hàng",
+    "tab_units": "Đơn vị tính",
+    "addRoot": "Thêm ngành hàng cấp 1",
+    "addChild": "Thêm ngành hàng con",
+    "add": "Thêm ngành hàng",
+    "none": "Chưa có ngành hàng.",
+    "pick": "Chọn một ngành hàng để xem chi tiết.",
+    "code": "Mã",
+    "codeHint": "2 đến 6 chữ in hoa hoặc số; không đổi được khi đã có sản phẩm.",
+    "nameVi": "Tên tiếng Việt",
+    "nameEn": "Tên tiếng Anh",
+    "parent": "Ngành hàng cha",
+    "noParent": "Không (ngành hàng cấp 1)",
+    "level": "Cấp",
+    "tracking": "Theo dõi",
+    "trackingHint": "Mặc định cho sản phẩm mới; sửa được trên từng sản phẩm.",
+    "noTracking": "Không theo dõi lô, serial",
+    "tracksLots": "Lô và hạn dùng",
+    "tracksSerials": "Serial, IMEI",
+    "warrantyMonths": "Bảo hành (tháng)",
+    "months": "{count} tháng",
+    "productCount": "Số sản phẩm",
+    "status": "Trạng thái",
+    "active": "Đang dùng",
+    "inactive": "Ngừng dùng",
+    "deactivate": "Ngừng dùng",
+    "activate": "Dùng lại",
+    "deactivateText": "Ngừng dùng ngành hàng này? Không tạo được sản phẩm mới trong ngành hàng; sản phẩm đã có không đổi.",
+    "activateText": "Dùng lại ngành hàng này?",
+    "saved": "Đã lưu.",
+    "addUnit": "Thêm đơn vị tính",
+    "edit": "Sửa"
   }
 }

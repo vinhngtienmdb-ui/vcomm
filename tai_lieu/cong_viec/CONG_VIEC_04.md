@@ -36,7 +36,7 @@ Ngoài phạm vi:
 | CHUC_NANG_32 | Biến thể, mã hàng tự sinh, đơn vị tính quy đổi, mã vạch | YCAU_NGHIEPVU_23 |
 | CHUC_NANG_33 | Nhập sản phẩm từ Excel | YCAU_NGHIEPVU_23 |
 | CHUC_NANG_34 | Liên kết sản phẩm tương ứng giữa công ty, sao chép sản phẩm sang công ty khác | YCAU_NGHIEPVU_24 |
-| CHUC_NANG_35 | Danh mục kênh bán và nhóm khách hàng của công ty | YCAU_NGHIEPVU_25 |
+| CHUC_NANG_35 | Danh mục kênh bán (có sẵn Bán sỉ, Bán lẻ, Sàn VComm, Nội bộ) và nhóm khách hàng của công ty | YCAU_NGHIEPVU_25 |
 | CHUC_NANG_36 | Bảng giá, tra giá hiện hành và lịch sử giá | YCAU_NGHIEPVU_25 |
 | CHUC_NANG_37 | Phiếu điều chỉnh giá qua luồng duyệt | YCAU_NGHIEPVU_25 |
 
@@ -62,7 +62,7 @@ Database migration `0003_catalog.sql`, schema `catalog` (tài liệu `16` bổ s
 | `catalog.categories` | Cha, mã, tên tiếng Việt, tiếng Anh, cấp, theo dõi lô, theo dõi serial, tháng bảo hành, trạng thái, phiên bản |
 | `catalog.units` | Mã, tên tiếng Việt, tiếng Anh, trạng thái (dùng chung tập đoàn) |
 | `catalog.code_counters` | Công ty, tiền tố, số tiếp theo (sinh mã hàng) |
-| `catalog.products` | Công ty, ngành hàng, mã, tên, mô tả, thương hiệu, xuất xứ, thuế suất, theo dõi lô, theo dõi serial, tháng bảo hành, đơn vị cơ sở, thuộc tính phân loại (JSON), thông số (JSON), trạng thái, phiên bản, người tạo, người sửa |
+| `catalog.products` | Công ty, nhà bán sở hữu (để trống: hàng của công ty; dùng ở phần Nhà bán), trạng thái duyệt (dùng ở phần Nhà bán), ngành hàng, mã, tên, mô tả, thương hiệu, xuất xứ, thuế suất, theo dõi lô, theo dõi serial, tháng bảo hành, đơn vị cơ sở, trọng lượng (kg), thể tích (m³) của đơn vị cơ sở, thuộc tính phân loại (JSON), thông số (JSON), trạng thái, phiên bản, người tạo, người sửa |
 | `catalog.product_units` | Sản phẩm, đơn vị, hệ số quy đổi |
 | `catalog.variants` | Sản phẩm, công ty, mã hàng, giá trị phân loại (JSON), trạng thái |
 | `catalog.barcodes` | Công ty, biến thể, đơn vị, mã vạch (duy nhất theo công ty) |
@@ -71,10 +71,11 @@ Database migration `0003_catalog.sql`, schema `catalog` (tài liệu `16` bổ s
 | `catalog.customer_groups` | Công ty, mã, tên, trạng thái |
 | `catalog.price_lists` | Công ty, mã, tên, kênh, nhóm khách hàng, tiền tệ, gồm thuế, trạng thái |
 | `catalog.prices` | Bảng giá, biến thể, đơn vị, giá, ngày hiệu lực, phiếu điều chỉnh giá (chỉ thêm) |
+| `catalog.product_images` | Sản phẩm, tên tệp, loại, kích thước, khóa lưu trữ, thứ tự |
 | `catalog.price_changes` | Công ty, bảng giá, số phiếu, ngày hiệu lực, ghi chú, trạng thái, yêu cầu duyệt, người lập, phiên bản |
 | `catalog.price_change_lines` | Phiếu, biến thể, đơn vị, giá mới, giá hiện hành lúc lập |
 
-Ảnh sản phẩm dùng `core.attachments` (`owner_type = 'product'`). Loại chứng từ mới `catalog.price_change` "Phiếu điều chỉnh giá" (dãy số tiền tố `DCG`).
+Ảnh sản phẩm lưu bảng `catalog.product_images` (mỗi module chỉ ghi vào schema của mình), nội dung tệp dùng lưu trữ tệp của CONG_VIEC_03. Loại chứng từ mới `catalog.price_change` "Phiếu điều chỉnh giá" (dãy số tiền tố `DCG`).
 
 ## 6. Giao diện liên quan
 
@@ -85,7 +86,7 @@ Mini app mới `apps/web-catalog`, đường dẫn `/catalog`, khung trang và t
 | MAN_HINH_22 | Ngành hàng và đơn vị tính | Cây ngành hàng (thêm, sửa, ngừng dùng, cài đặt lô, serial, bảo hành); thẻ Đơn vị tính |
 | MAN_HINH_23 | Danh sách sản phẩm | Tìm theo tên, mã hàng, mã vạch; lọc ngành hàng, trạng thái; thêm; nhập Excel |
 | MAN_HINH_24 | Chi tiết sản phẩm | Thẻ Thông tin, Biến thể và mã vạch, Đơn vị tính, Ảnh, Giá, Liên kết công ty; sao chép sang công ty khác |
-| MAN_HINH_25 | Kênh bán và nhóm khách hàng | Hai thẻ; nút thêm kênh có sẵn |
+| MAN_HINH_25 | Kênh bán và nhóm khách hàng | Hai thẻ; nút thêm kênh có sẵn (Bán sỉ, Bán lẻ, Sàn VComm, Nội bộ); không có sàn ngoài theo quyết định ngày 2026-11-09 |
 | MAN_HINH_26 | Bảng giá | Danh sách bảng giá; xem giá hiện hành tại một ngày; lịch sử giá một biến thể |
 | MAN_HINH_27 | Phiếu điều chỉnh giá | Danh sách, lập phiếu (chọn biến thể hoặc nhập Excel), gửi duyệt, rút; liên kết tới MAN_HINH_08 |
 
@@ -121,6 +122,7 @@ Vai trò hệ thống mới "Quản lý sản phẩm" (`catalog_manager`): `cata
 - Nhập Excel: tối đa 2.000 dòng mỗi lần, mỗi dòng một biến thể; dòng lỗi trả về tệp lỗi như nhập nhân viên (API_27); dòng đúng vẫn được nhập.
 - Tiền: lưu chuỗi thập phân, số chữ số lẻ theo tiền tệ (VND 0).
 - Tìm kiếm sản phẩm theo tên không phân biệt dấu tiếng Việt.
+- Thiết kế sẵn cho các module sau (quyết định ngày 2026-11-09, tài liệu `02`): sản phẩm nhà bán chung bảng sản phẩm (cột nhà bán sở hữu, trạng thái duyệt; chưa có màn hình); trọng lượng, thể tích phục vụ phân bổ chi phí nhập khẩu (MODULE_04); kênh "Nội bộ" cho giá bán giữa công ty con (MODULE_05).
 
 ## 10. Tiêu chí nghiệm thu
 
@@ -143,7 +145,7 @@ KICHBAN_KIEMTHU_133 trở đi (tài liệu `21`), viết khi làm từng lát.
 ## 12. Ràng buộc kỹ thuật
 
 - Không thêm thư viện: Excel dùng `read-excel-file`, `write-excel-file` (đã có), ảnh dùng lưu trữ tệp của CONG_VIEC_03.
-- Tìm không dấu: hàm `unaccent` của PostgreSQL (extension có sẵn) hoặc cột tên đã bỏ dấu.
+- Tìm không dấu: cột `search_text` (tên, mã đã bỏ dấu, chữ thường) do API ghi; không cần extension PostgreSQL.
 - Khóa ngoại từ `catalog` chỉ trỏ vào `catalog` và `core`.
 
 ## 13. Thành phần không được thay đổi
