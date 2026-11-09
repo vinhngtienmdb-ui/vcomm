@@ -20,6 +20,7 @@
 - Mỗi phân hệ ERP là một mini app có giao diện riêng, dùng chung cơ sở dữ liệu – người quyết định: người dùng.
 - Hoa hồng đội kinh doanh gồm cả hoa hồng từ đơn mua của khách hàng; quy tắc gán đơn cho nhân viên cấu hình được – người quyết định: người dùng.
 - Áp dụng quy trình Vibecoding_Flow cho dự án; làm lại tài liệu theo bộ tài liệu đánh số – người quyết định: người dùng.
+- Phê duyệt tài liệu `04` Tổng quan dự án và `05` Phạm vi; giai đoạn 01, 02 đạt cổng kiểm soát – người quyết định: người dùng.
 - Các quyết định chi tiết khác ghi tại tài liệu `04` và `05`.
 
 ### Thay đổi
