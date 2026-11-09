@@ -26,6 +26,7 @@
 
 ### Quyết định
 
+- Nghiệm thu LOI_02 và hợp nhất vào `main`; LOI_01 giữ mức băm mật khẩu, đo lại trên môi trường thử nghiệm – người quyết định: người dùng.
 - Sửa LOI_02 ngay bằng Redis – người quyết định: người dùng.
 - Nghiệm thu CONG_VIEC_02 (lát L1 đến L5, L7, L8) và hợp nhất vào `main`; lát L6, L9, L10 tách thành công việc sau – người quyết định: người dùng.
 - Lấy tỷ giá tự động mỗi sáng từ Vietcombank (CHUC_NANG_21) – người quyết định: người dùng.
