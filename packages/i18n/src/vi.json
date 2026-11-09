@@ -80,7 +80,16 @@
     "emailNotInvited": "Email này chưa được cấp quyền truy cập. Liên hệ quản trị.",
     "providerNotLinked": "Tài khoản này chưa được liên kết. Đăng nhập bằng cách khác rồi liên kết trong hồ sơ cá nhân.",
     "identityLinkedElsewhere": "Tài khoản này đã được liên kết với tài khoản khác.",
-    "activationEmailMismatch": "Email của tài khoản nhà cung cấp phải trùng email được mời."
+    "activationEmailMismatch": "Email của tài khoản nhà cung cấp phải trùng email được mời.",
+    "templateCodeExists": "Mã mẫu đã có trong công ty.",
+    "templateFieldDuplicate": "Mã trường bị trùng.",
+    "templateOptionsRequired": "Danh sách chọn cần ít nhất một lựa chọn.",
+    "templateColumnsRequired": "Bảng chi tiết cần cột tiền có mã \"amount\" (thành tiền).",
+    "templateAmountFieldInvalid": "Chọn một trường tiền làm giá trị duyệt, hoặc thêm bảng chi tiết có cột thành tiền.",
+    "attachmentTooLarge": "Tệp vượt quá 10 MB.",
+    "attachmentTypeInvalid": "Chỉ nhận tệp PDF, JPG, PNG, XLSX, DOCX.",
+    "attachmentTooMany": "Mỗi đề xuất có tối đa 10 tệp đính kèm.",
+    "proposalNotDraft": "Chỉ sửa được đề xuất đang ở trạng thái nháp."
   },
   "login": {
     "title": "Đăng nhập",

@@ -855,3 +855,113 @@ export interface AuthMethodsResponse {
   microsoft: boolean;
   zalo: boolean;
 }
+
+// API_50: Mẫu đề xuất (CHUC_NANG_27; QUYTAC_NGHIEPVU_33).
+export const proposalFieldTypes = ["text", "textarea", "number", "money", "date", "select", "lines"] as const;
+export const proposalColumnTypes = ["text", "number", "money"] as const;
+const fieldKey = z.string().regex(/^[a-z][a-z0-9_]{0,39}$/);
+export const proposalFieldSchema = z
+  .object({
+    key: fieldKey,
+    label: z.string().trim().min(1).max(100),
+    type: z.enum(proposalFieldTypes),
+    required: z.boolean().default(false),
+    options: z.array(z.string().trim().min(1).max(100)).max(30).optional(),
+    // Bảng chi tiết: các cột; cột tiền có khóa "amount" là thành tiền của dòng.
+    columns: z.array(z.object({ key: fieldKey, label: z.string().trim().min(1).max(100), type: z.enum(proposalColumnTypes) }).strict()).max(10).optional(),
+  })
+  .strict();
+export type ProposalField = z.output<typeof proposalFieldSchema>;
+
+export const createProposalTemplateSchema = z
+  .object({
+    code: z.string().trim().regex(/^[A-Z0-9]{1,10}$/),
+    name: z.string().trim().min(1).max(100),
+    nameEn: z.string().trim().max(100).optional(),
+    description: z.string().trim().max(500).nullable().optional(),
+    currency: z.string().trim().regex(/^[A-Z]{3}$/).default("VND"),
+    fields: z.array(proposalFieldSchema).min(1).max(30),
+    // Trường tiền dùng làm giá trị duyệt; để trống thì lấy tổng thành tiền của bảng chi tiết.
+    amountField: fieldKey.nullable().optional(),
+  })
+  .strict();
+export type CreateProposalTemplateRequest = z.input<typeof createProposalTemplateSchema>;
+
+export const updateProposalTemplateSchema = createProposalTemplateSchema
+  .omit({ code: true })
+  .extend({ status: z.enum(["active", "inactive"]), version: z.number().int().positive() })
+  .strict();
+
+export interface ProposalTemplateResponse {
+  id: string;
+  code: string;
+  name: string;
+  nameEn: string;
+  description: string | null;
+  documentTypeCode: string;
+  currency: string;
+  fields: ProposalField[];
+  amountField: string | null;
+  status: "active" | "inactive";
+  version: number;
+  hasPolicy: boolean;
+}
+
+// API_51: Đề xuất (CHUC_NANG_28; QUYTAC_NGHIEPVU_34, 36).
+export const proposalStatuses = ["draft", "pending", "approved", "rejected", "withdrawn"] as const;
+export type ProposalStatus = (typeof proposalStatuses)[number];
+
+export const saveProposalSchema = z
+  .object({
+    templateId: z.uuid(),
+    title: z.string().trim().min(1).max(200),
+    values: z.record(z.string(), z.unknown()).default({}),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+
+export const proposalListQuerySchema = z
+  .object({
+    scope: z.enum(["mine", "company"]).default("mine"),
+    status: z.enum(proposalStatuses).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export interface ProposalListItem {
+  id: string;
+  proposalNo: string | null;
+  title: string;
+  templateName: string;
+  amount: string;
+  currency: string;
+  status: ProposalStatus;
+  requestedByName: string;
+  createdAt: string;
+  submittedAt: string | null;
+}
+
+export interface AttachmentResponse {
+  id: string;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  createdAt: string;
+}
+
+export interface ProposalResponse extends ProposalListItem {
+  templateId: string;
+  template: { name: string; fields: ProposalField[]; amountField: string | null };
+  values: Record<string, unknown>;
+  approvalRequestId: string | null;
+  attachments: AttachmentResponse[];
+  version: number;
+  canEdit: boolean;
+  canWithdraw: boolean;
+}
+
+// QUYTAC_NGHIEPVU_35
+export const attachmentMaximumBytes = 10 * 1024 * 1024;
+export const attachmentMaximumCount = 10;
+export const attachmentExtensions = ["pdf", "jpg", "jpeg", "png", "xlsx", "docx"] as const;

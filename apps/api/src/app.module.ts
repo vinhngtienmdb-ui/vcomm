@@ -37,6 +37,11 @@ import { IntegrationSettingsService } from "./integrations/integration-settings.
 import { IntegrationsController } from "./integrations/integrations.controller";
 import { MessagingService } from "./integrations/messaging.service";
 import { ZnsNotifier } from "./integrations/zns-notifier";
+import { createFileStorage, FILE_STORAGE } from "./common/file-storage";
+import { ProposalPdfService } from "./proposals/proposal-pdf.service";
+import { ProposalTemplatesService } from "./proposals/proposal-templates.service";
+import { ProposalsController } from "./proposals/proposals.controller";
+import { ProposalsService } from "./proposals/proposals.service";
 import { EXCHANGE_RATE_FEED, VietcombankFeed } from "./settings/vietcombank-rates";
 import { DeactivationService } from "./users/deactivation.service";
 import { UsersController } from "./users/users.controller";
@@ -46,7 +51,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController],
   providers: [
     AuthService,
     ActivationService,
@@ -60,6 +65,10 @@ import { UsersService } from "./users/users.service";
     IntegrationSettingsService,
     MessagingService,
     ZnsNotifier,
+    { provide: FILE_STORAGE, useFactory: createFileStorage },
+    ProposalTemplatesService,
+    ProposalsService,
+    ProposalPdfService,
     PhoneOtpService,
     OauthService,
     { provide: OAUTH_CLIENT, useClass: HttpOauthClient },

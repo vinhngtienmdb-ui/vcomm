@@ -10,3 +10,4 @@ coverage/
 tam_thoi/
 .DS_Store
 *.tsbuildinfo
+.storage/

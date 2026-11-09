@@ -9,6 +9,7 @@ import { OUTBOUND_MESSAGES, type OutboundMessage } from "../src/common/outbound-
 import { runMigrations } from "../src/database/run-migrations";
 import { EXCHANGE_RATE_FEED } from "../src/settings/vietcombank-rates";
 import { RATE_LIMIT } from "../src/common/rate-limiter";
+import { FILE_STORAGE, type FileStorage } from "../src/common/file-storage";
 import { OAUTH_CLIENT, type OauthClient, type OauthProfile } from "../src/auth/oauth-providers";
 import { MESSAGE_GATEWAY, type EsmsCredentials, type MessageGateway } from "../src/integrations/esms-gateway";
 import { seedTestData } from "../src/database/seed";
@@ -69,6 +70,19 @@ export const testOauth = {
   },
 } satisfies OauthClient & { profiles: Map<string, OauthProfile> };
 
+// Kho tệp trong bộ nhớ thay S3 khi kiểm thử.
+export const testStorage = {
+  files: new Map<string, Buffer>(),
+  async put(key, content) {
+    this.files.set(key, content);
+  },
+  async get(key) {
+    const content = this.files.get(key);
+    if (!content) throw new Error("Không có tệp");
+    return content;
+  },
+} satisfies FileStorage & { files: Map<string, Buffer> };
+
 export async function startTestApplication(): Promise<{ application: NestExpressApplication; pool: Pool }> {
   if (!new URL(testDatabaseUrl).pathname.endsWith("_test")) {
     throw new Error("TEST_DATABASE_URL phải trỏ tới cơ sở dữ liệu có tên kết thúc bằng _test.");
@@ -88,6 +102,8 @@ export async function startTestApplication(): Promise<{ application: NestExpress
     .useValue(testClock)
     .overrideProvider(OUTBOUND_MESSAGES)
     .useValue({ send: async (message: OutboundMessage) => void sentMessages.push(message) })
+    .overrideProvider(FILE_STORAGE)
+    .useValue(testStorage)
     .overrideProvider(OAUTH_CLIENT)
     .useValue(testOauth)
     .overrideProvider(MESSAGE_GATEWAY)

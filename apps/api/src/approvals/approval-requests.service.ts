@@ -98,10 +98,16 @@ export class ApprovalRequestsService {
 
   // API_38: mini app sở hữu chứng từ gọi qua service; người lập là người đang đăng nhập.
   async submit(companyId: string, requesterId: string, input: CreateApprovalRequestInput): Promise<ApprovalRequestResponse> {
-    const type = (await this.database.execute<{ app_code: string }>(sql`SELECT app_code FROM core.document_types WHERE code = ${input.documentTypeCode} AND requires_approval`)).rows[0];
+    const requestId = await this.database.transaction((transaction) => this.submitWithin(transaction, companyId, requesterId, input));
+    return this.detail(requesterId, requestId);
+  }
+
+  // Gửi duyệt trong giao dịch của mini app sở hữu chứng từ, để cấp số chứng từ và gửi duyệt cùng thành công hoặc cùng hủy.
+  async submitWithin(transaction: Executor, companyId: string, requesterId: string, input: CreateApprovalRequestInput): Promise<string> {
+    const type = (await transaction.execute<{ app_code: string }>(sql`SELECT app_code FROM core.document_types WHERE code = ${input.documentTypeCode} AND requires_approval`)).rows[0];
     if (!type) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { documentTypeCode: "documentTypeNotFound" } });
     // QUYTAC_NGHIEPVU_17: một chính sách hiệu lực tại ngày lập chứng từ.
-    const policy = (await this.database.execute<{ id: string; currency: string }>(sql`
+    const policy = (await transaction.execute<{ id: string; currency: string }>(sql`
       SELECT id, currency FROM core.approval_policies
       WHERE company_id = ${companyId} AND document_type_code = ${input.documentTypeCode}
         AND effective_from <= ${input.documentDate}::date AND (effective_to IS NULL OR effective_to >= ${input.documentDate}::date)
@@ -112,7 +118,7 @@ export class ApprovalRequestsService {
     let converted = input.amount;
     if (input.currency !== policy.currency) {
       // Tỷ giá nhập tay của quản lý tỷ giá được ưu tiên hơn tỷ giá lấy tự động.
-      const rate = (await this.database.execute<{ rate: string; converted: string }>(sql`
+      const rate = (await transaction.execute<{ rate: string; converted: string }>(sql`
         SELECT rate::text AS rate, round(${input.amount}::numeric * rate, 4)::text AS converted FROM core.exchange_rates
         WHERE rate_date = ${input.documentDate}::date AND from_currency = ${input.currency} AND to_currency = ${policy.currency} AND rate_type = 'accounting'
         ORDER BY source = 'manual' DESC, created_at DESC LIMIT 1`)).rows[0];
@@ -120,16 +126,15 @@ export class ApprovalRequestsService {
       exchangeRate = rate.rate;
       converted = rate.converted;
     }
-    const pending = await this.database.execute(sql`SELECT 1 FROM core.approval_requests WHERE document_type_code = ${input.documentTypeCode} AND document_id = ${input.documentId} AND status = 'pending'`);
+    const pending = await transaction.execute(sql`SELECT 1 FROM core.approval_requests WHERE document_type_code = ${input.documentTypeCode} AND document_id = ${input.documentId} AND status = 'pending'`);
     if (pending.rows.length > 0) throw new ApiError("BUSINESS_RULE", "documentPending");
     // QUYTAC_NGHIEPVU_18: mọi cấp có ngưỡng nhỏ hơn hoặc bằng giá trị.
-    const levels = (await this.database.execute<LevelRow>(sql`
+    const levels = (await transaction.execute<LevelRow>(sql`
       SELECT level_no, approver_type, approver_role_id, approver_user_id, substitute_type, substitute_role_id, substitute_user_id, due_hours
       FROM core.approval_policy_levels WHERE policy_id = ${policy.id} AND min_amount <= ${converted}::numeric ORDER BY level_no`)).rows;
 
     const now = this.clock.now();
-    const requestId = await this.database.transaction(async (transaction) => {
-      const inserted = await transaction.execute<{ id: string }>(sql`
+    const inserted = await transaction.execute<{ id: string }>(sql`
         INSERT INTO core.approval_requests (company_id, document_type_code, document_id, document_no, amount, currency, document_date, exchange_rate,
           amount_in_policy_currency, policy_id, status, current_level_no, requested_by, requested_at)
         VALUES (${companyId}, ${input.documentTypeCode}, ${input.documentId}, ${input.documentNo}, ${input.amount}::numeric, ${input.currency}, ${input.documentDate}::date,
@@ -151,8 +156,6 @@ export class ApprovalRequestsService {
       );
       await recordEvent(transaction, "core.approval.submitted", "approval_request", id, companyId, { requestId: id, documentTypeCode: input.documentTypeCode, documentId: input.documentId });
       return id;
-    });
-    return this.detail(requesterId, requestId);
   }
 
   // Xác định người duyệt của một cấp; là người lập (hoặc không có trưởng phòng) thì dùng người thay thế (QUYTAC_NGHIEPVU_20).
