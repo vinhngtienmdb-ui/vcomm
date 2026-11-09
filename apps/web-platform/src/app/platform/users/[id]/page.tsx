@@ -7,6 +7,8 @@ import { useParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { useAdmin } from "@/components/AdminShell";
 import { ConfirmDialog, Drawer } from "@/components/Dialogs";
+import { Field } from "@/components/Form";
+import { EditUserDrawer } from "@/components/UserForms";
 import { UserStatusBadge } from "@/components/StatusBadge";
 import { Loaded, MessageView } from "@/components/StatusViews";
 import { apiFetch } from "@/lib/api";
@@ -24,6 +26,10 @@ export default function UserDetailPage() {
   const t = useTranslations("userDetail");
   const { state, reload } = useApi<UserDetailResponse>(`/users/${id}`);
   const [tab, setTab] = useState<"companies" | "roles">("roles");
+  const [panel, setPanel] = useState<"edit" | "lock" | null>(null);
+  const editText = useTranslations("editUser");
+  const lockText = useTranslations("lock");
+  const { can, notify } = useAdmin();
 
   return (
     <Loaded state={state} onRetry={() => void reload()}>
@@ -33,7 +39,42 @@ export default function UserDetailPage() {
             <h1>
               {user.fullName} <UserStatusBadge status={user.status} />
             </h1>
+            {/* Nút ẩn khi xem chính mình (MAN_HINH_13). */}
+            {!user.isSelf && can("platform.user.manage") && (
+              <>
+                <button type="button" className="nut phu" onClick={() => setPanel("edit")}>
+                  {editText("button")}
+                </button>
+                {(user.status === "active" || user.status === "locked") && (
+                  <button type="button" className={user.status === "active" ? "nut nguy-hiem" : "nut phu"} onClick={() => setPanel("lock")}>
+                    {lockText(user.status === "active" ? "lock" : "unlock")}
+                  </button>
+                )}
+              </>
+            )}
           </div>
+          {panel === "edit" && (
+            <EditUserDrawer
+              user={user}
+              onClose={() => setPanel(null)}
+              onDone={() => {
+                setPanel(null);
+                notify(editText("saved"));
+                void reload();
+              }}
+            />
+          )}
+          {panel === "lock" && (
+            <LockDrawer
+              user={user}
+              onClose={() => setPanel(null)}
+              onDone={(text) => {
+                setPanel(null);
+                notify(text);
+                void reload();
+              }}
+            />
+          )}
           {user.mfaRequired && <span className="chu-thich">{t("mfaRequired")}</span>}
           <div className="cac-the" role="tablist">
             {(["companies", "roles"] as const).map((key) => (
@@ -315,6 +356,52 @@ function AssignDrawer({ user, onClose, onDone }: { user: UserDetailResponse; onC
           );
         }}
       </Loaded>
+    </Drawer>
+  );
+}
+
+function LockDrawer({ user, onClose, onDone }: { user: UserDetailResponse; onClose: () => void; onDone: (text: string) => void }) {
+  const t = useTranslations("lock");
+  const common = useTranslations("common");
+  const locking = user.status === "active";
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      await apiFetch(`/users/${user.id}/${locking ? "lock" : "unlock"}`, { method: "POST", body: JSON.stringify({ reason }) });
+      onDone(t(locking ? "locked" : "unlocked"));
+    } catch (failure) {
+      setError(failureOf(failure).message);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Drawer title={t(locking ? "lockTitle" : "unlockTitle", { name: user.fullName })} onClose={onClose}>
+      <form onSubmit={submit} noValidate style={{ display: "grid", gap: "var(--khoang-4)" }}>
+        {locking && <div className="khoi-canh-bao canh-bao">{t("lockNote")}</div>}
+        <Field id="ly-do-khoa" label={t("reason")}>
+          <textarea id="ly-do-khoa" className="o-nhap" rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
+        </Field>
+        {error && (
+          <div className="khoi-canh-bao loi" role="alert">
+            {error}
+          </div>
+        )}
+        <div className="nhom-nut">
+          <button type="button" className="nut phu" onClick={onClose}>
+            {common("cancel")}
+          </button>
+          <button type="submit" className={`nut ${locking ? "nguy-hiem" : "chinh"}${busy ? " dang-xu-ly" : ""}`} disabled={busy || !reason.trim()}>
+            {t(locking ? "lock" : "unlock")}
+          </button>
+        </div>
+      </form>
     </Drawer>
   );
 }

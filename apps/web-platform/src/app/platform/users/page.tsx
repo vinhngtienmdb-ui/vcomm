@@ -5,7 +5,11 @@ import type { PageResponse, UserListItem } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useAdmin } from "@/components/AdminShell";
 import { Loaded, MessageView } from "@/components/StatusViews";
+import { ImportDialog, InviteDrawer } from "@/components/UserForms";
+import { apiFetch } from "@/lib/api";
+import { failureOf } from "@/lib/use-api";
 import { UserStatusBadge } from "@/components/StatusBadge";
 import { useApi } from "@/lib/use-api";
 
@@ -18,6 +22,20 @@ export default function UsersPage() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
+  const [panel, setPanel] = useState<"invite" | "import" | null>(null);
+  const invite = useTranslations("invite");
+  const importText = useTranslations("importUsers");
+  const { can, notify } = useAdmin();
+  const canInvite = can("platform.user.invite");
+
+  async function resend(userId: string) {
+    try {
+      await apiFetch(`/users/${userId}/invitations/resend`, { method: "POST" });
+      notify(invite("resent"));
+    } catch (error) {
+      notify(failureOf(error).message, "loi");
+    }
+  }
 
   // Chờ người dùng ngừng gõ 300 ms rồi mới tìm.
   useEffect(() => {
@@ -37,6 +55,16 @@ export default function UsersPage() {
     <>
       <div className="tieu-de">
         <h1>{t("title")}</h1>
+        {canInvite && (
+          <>
+            <button type="button" className="nut phu" onClick={() => setPanel("import")}>
+              {importText("button")}
+            </button>
+            <button type="button" className="nut chinh" onClick={() => setPanel("invite")}>
+              {invite("button")}
+            </button>
+          </>
+        )}
       </div>
       <div className="bo-loc">
         <label className="an-nhan" htmlFor="tim">
@@ -72,7 +100,7 @@ export default function UsersPage() {
               <table>
                 <thead>
                   <tr>
-                    {[t("fullName"), t("contact"), t("branch"), t("roles"), t("status")].map((heading) => (
+                    {[t("fullName"), t("contact"), t("branch"), t("department"), t("roles"), t("status"), t("lastLogin")].map((heading) => (
                       <th key={heading} scope="col">
                         {heading}
                       </th>
@@ -91,13 +119,24 @@ export default function UsersPage() {
                       <td data-nhan={t("branch")}>
                         <span>{user.branchName ?? common("none")}</span>
                       </td>
+                      <td data-nhan={t("department")}>
+                        <span>{user.departmentName ?? common("none")}</span>
+                      </td>
                       <td data-nhan={t("roles")}>
                         <span>{user.roleNames.join(", ") || common("none")}</span>
                       </td>
                       <td data-nhan={t("status")}>
                         <span>
-                          <UserStatusBadge status={user.status} />
+                          <UserStatusBadge status={user.status} />{" "}
+                          {user.status === "invited" && canInvite && (
+                            <button type="button" className="nut chu" onClick={() => void resend(user.id)}>
+                              {invite("resend")}
+                            </button>
+                          )}
                         </span>
+                      </td>
+                      <td data-nhan={t("lastLogin")}>
+                        <span>{user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", dateStyle: "short", timeStyle: "short" }) : common("none")}</span>
                       </td>
                     </tr>
                   ))}
@@ -118,6 +157,17 @@ export default function UsersPage() {
           )
         }
       </Loaded>
+      {panel === "invite" && (
+        <InviteDrawer
+          onClose={() => setPanel(null)}
+          onDone={(text) => {
+            setPanel(null);
+            notify(text);
+            void reload();
+          }}
+        />
+      )}
+      {panel === "import" && <ImportDialog onClose={() => setPanel(null)} onImported={() => void reload()} />}
     </>
   );
 }
