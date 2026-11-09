@@ -126,3 +126,17 @@
 - Mức quy mô: Vừa (đổi phân quyền vai trò hệ thống).
 - Rủi ro: quản trị công ty có quyền rộng hơn; giảm thiểu bằng bắt buộc xác thực hai lớp và nhật ký thao tác.
 - Trạng thái: Đã phê duyệt 2026-11-09.
+
+### THAY_DOI_07: Tài khoản phải có email hoặc số điện thoại – 2026-11-09
+- Lý do: Tài khoản chỉ có tên đăng nhập không nhận được đường dẫn kích hoạt, đặt lại mật khẩu (phát hiện ở lát L4).
+- Nội dung thay đổi: QUYTAC_NGHIEPVU_05 đổi thành: tài khoản phải có email hoặc số điện thoại; tên đăng nhập là định danh thêm, không bắt buộc. Email, số điện thoại, tên đăng nhập duy nhất toàn hệ thống (giữ nguyên).
+- Thành phần bị ảnh hưởng: tài liệu `07` QUYTAC_NGHIEPVU_05; `10` CHUC_NANG_04 (dữ liệu đầu vào, thông báo lỗi); `16` ràng buộc bảng `users` (kiểm tra ở tầng ứng dụng, không đổi database migration đã chạy).
+- Dữ liệu bị ảnh hưởng: không có dữ liệu thật; dữ liệu thử đều có email.
+- API bị ảnh hưởng: API_25, API_27, API_29 từ chối khi thiếu cả email và số điện thoại.
+- Giao diện bị ảnh hưởng: gợi ý ô nhập ở ngăn kéo mời, sửa nhân viên.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_12 đến 21; thêm trường hợp mời chỉ bằng tên đăng nhập bị từ chối.
+- Mức quy mô: Nhỏ.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-09.
