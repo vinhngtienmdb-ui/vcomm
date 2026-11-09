@@ -3,7 +3,8 @@
 - Module: MODULE_01 Nền tảng
 - Mức quy mô: Lớn (module mới, dự án mới)
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Bản nháp. Bị chặn đến khi giai đoạn 03 đến 08 của MODULE_01 được phê duyệt. Khi lập tài liệu `06` đến `11` cho MODULE_01, nội dung dưới đây được tách thành mã `YCAU_NGHIEPVU`, `QUYTAC_NGHIEPVU`, `CHUC_NANG`, `TIEUCHI_NGHIEMTHU`.
+- Trạng thái: Bản nháp. Bị chặn đến khi giai đoạn 05 đến 08 của MODULE_01 được phê duyệt.
+- Nội dung nghiệp vụ đã được tách vào tài liệu `06` đến `11` và `27` ngày 2026-11-09. Khi hai nơi khác nhau, tài liệu đánh số là chuẩn.
 
 ## 1. Mục tiêu
 
