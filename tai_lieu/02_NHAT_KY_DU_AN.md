@@ -37,6 +37,7 @@
 - Áp dụng 3 cách giảm chi phí AWS giai đoạn 1 – người quyết định: người dùng.
 - Gửi OTP qua Zalo ZNS trước, SMS thương hiệu dự phòng – người quyết định: người dùng.
 - Liên hệ Trung tâm RAR về xác thực VNeID để sau, khi làm MODULE_02 – người quyết định: người dùng.
+- Nghiệm thu CONG_VIEC_01 (bộ tài liệu giai đoạn 01 đến 08 cho MODULE_01, cấu hình monorepo) – người quyết định: người dùng.
 - Phê duyệt THAY_DOI_01 (đăng nhập bằng Zalo cho người mua, nhà bán, cửa hàng liên kết, nhân viên; nhân viên chỉ liên kết sau khi kích hoạt) và THAY_DOI_02 (bắt buộc xác thực nhà bán cá nhân và doanh nghiệp qua VNeID, kết nối qua tổ chức cung cấp dịch vụ xác thực điện tử) – người quyết định: người dùng.
 - Các quyết định chi tiết khác ghi tại tài liệu `04` và `05`.
 
