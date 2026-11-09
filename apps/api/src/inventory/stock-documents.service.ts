@@ -426,8 +426,10 @@ export class StockDocumentsService implements OnModuleInit {
     for (const [index, result] of results.entries()) {
       const line = lines[index]!;
       await transaction.execute(sql`UPDATE inventory.document_lines SET cost_value = ${result.value.replace(/^-/, "")}::numeric WHERE id = ${line.id}`);
-      for (const [position, serialId] of result.serialIds.entries()) {
-        await transaction.execute(sql`UPDATE inventory.document_line_serials SET serial_id = ${serialId} WHERE line_id = ${line.id} AND serial_no = ${line.serials[position]!}`);
+      if (result.serialIds.length > 0) {
+        await transaction.execute(sql`
+          UPDATE inventory.document_line_serials ls SET serial_id = sr.id FROM inventory.serials sr
+          WHERE ls.line_id = ${line.id} AND sr.company_id = ${document.company_id} AND sr.serial_no = ls.serial_no`);
       }
     }
     await transaction.execute(sql`UPDATE inventory.documents SET status = 'posted', posted_at = now(), updated_at = now() WHERE id = ${documentId}`);
@@ -479,6 +481,13 @@ export class StockDocumentsService implements OnModuleInit {
 
   // Tìm mặt hàng của công ty chủ hàng theo mã vạch (đúng), mã hàng (đúng) hoặc tên không dấu.
   async searchItems(actor: Actor, query: z.output<typeof stockItemSearchQuerySchema>): Promise<StockItemOption[]> {
+    // Chỉ tìm hàng của công ty chủ hàng được gửi vào ít nhất một kho người dùng thao tác được.
+    const { operable } = await this.warehouses.stockScope(actor);
+    const accepted =
+      operable.length === 0
+        ? []
+        : (await this.database.execute(sql`SELECT 1 FROM inventory.warehouse_owners WHERE company_id = ${query.companyId} AND warehouse_id = ANY(${pgArray(operable)}::uuid[]) LIMIT 1`)).rows;
+    if (accepted.length === 0) throw new ApiError("FORBIDDEN", "forbidden");
     const pattern = `%${searchText(query.search).replace(/[%_\\]/g, (character) => `\\${character}`)}%`;
     const rows = await this.database.execute<{
       variant_id: string;
@@ -501,7 +510,6 @@ export class StockDocumentsService implements OnModuleInit {
         AND (v.sku = ${query.search.toUpperCase()} OR p.search_text LIKE ${pattern}
              OR EXISTS (SELECT 1 FROM catalog.barcodes b WHERE b.company_id = ${query.companyId} AND b.variant_id = v.id AND b.barcode = ${query.search}))
       ORDER BY (v.sku = ${query.search.toUpperCase()}) DESC, v.sku LIMIT 10`);
-    await this.requireAnyWarehouse(actor);
     return rows.rows.map((row) => ({
       variantId: row.variant_id,
       sku: row.sku,
@@ -618,7 +626,7 @@ export class StockDocumentsService implements OnModuleInit {
         }
         if (line.tracks_serials) {
           const taken = await this.database.execute(sql`
-            SELECT 1 FROM inventory.serials WHERE company_id = ${row.company_id} AND serial_no = ANY(${pgArray(line.serials)}::text[]) AND (status = 'in_stock' OR variant_id <> ${line.variant_id}) LIMIT 1`);
+            SELECT 1 FROM inventory.serials WHERE company_id = ${row.company_id} AND serial_no = ANY(${pgArray(line.serials)}::text[]) AND (status <> 'issued' OR variant_id <> ${line.variant_id}) LIMIT 1`);
           if (taken.rows.length > 0) fields[at("serials")] = "serialAlreadyInStock";
         }
       }
@@ -722,10 +730,6 @@ export class StockDocumentsService implements OnModuleInit {
     if (row.created_by !== actor.userId) throw new ApiError("FORBIDDEN", "forbidden");
     if (row.status !== "draft" || row.stocktake_id) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
     return row;
-  }
-
-  private async requireAnyWarehouse(actor: Actor): Promise<void> {
-    if (!(await this.warehouses.list(actor)).some((warehouse) => warehouse.canOperate)) throw new ApiError("FORBIDDEN", "forbidden");
   }
 
   private toItem(row: DocumentRow, costVisible: boolean): StockDocumentListItem {

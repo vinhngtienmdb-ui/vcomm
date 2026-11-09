@@ -149,7 +149,8 @@
     "stocktakeNotCounting": "Kiểm kê không ở trạng thái đang đếm.",
     "stocktakeNotFullyCounted": "Còn dòng chưa có số đếm.",
     "reservationOwnedByDocument": "Hàng giữ cho phiếu kho chỉ nhả khi phiếu bị từ chối hoặc rút.",
-    "noLocationsToPrint": "Kho chưa có vị trí đang dùng để in tem."
+    "noLocationsToPrint": "Kho chưa có vị trí đang dùng để in tem.",
+    "stocktakeLotRequired": "Hàng theo lô: ghi số đếm theo lô đã có; lô mới nhập bằng phiếu nhập khác."
   },
   "login": {
     "title": "Đăng nhập",

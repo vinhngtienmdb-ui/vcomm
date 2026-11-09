@@ -48,20 +48,33 @@ export class WarehousesService {
 
   // Kho của công ty đang chọn mà người dùng có quyền ở chi nhánh kho, cộng kho nhận hàng của công ty đang chọn (chỉ xem tồn).
   async list(actor: Actor): Promise<WarehouseResponse[]> {
-    const rows = await this.database.execute<WarehouseRow>(sql`
-      ${this.select()} WHERE w.company_id = ${actor.companyId}
-        OR EXISTS (SELECT 1 FROM inventory.warehouse_owners o WHERE o.warehouse_id = w.id AND o.company_id = ${actor.companyId})
-      ORDER BY w.status, w.code`);
-    const ownCompany = await this.permissionService.permissionsCovering(actor.userId, { scopeType: "company", companyId: actor.companyId });
-    const result: WarehouseResponse[] = [];
-    for (const row of rows.rows) {
-      const granted = await warehousePermissions(this.permissionService, actor.userId, { companyId: row.company_id, branchId: row.branch_id });
-      const canOperate = granted.has(inventoryPermissions.access);
-      const ownerView = row.owners.some((owner) => owner.companyId === actor.companyId) && ownCompany.has(inventoryPermissions.viewStock);
-      if (!canOperate && !ownerView) continue;
-      result.push(this.toResponse(row, canOperate, granted.has(inventoryPermissions.manageWarehouses)));
+    return (await this.evaluate(actor)).map((item) => item.response);
+  }
+
+  // Quyền tại từng kho tính một lần cho mỗi yêu cầu (đối tượng actor sống theo yêu cầu).
+  private readonly evaluated = new WeakMap<Actor, Promise<{ response: WarehouseResponse; viewCost: boolean }[]>>();
+  private evaluate(actor: Actor): Promise<{ response: WarehouseResponse; viewCost: boolean }[]> {
+    let pending = this.evaluated.get(actor);
+    if (!pending) {
+      pending = (async () => {
+        const rows = await this.database.execute<WarehouseRow>(sql`
+          ${this.select()} WHERE w.company_id = ${actor.companyId}
+            OR EXISTS (SELECT 1 FROM inventory.warehouse_owners o WHERE o.warehouse_id = w.id AND o.company_id = ${actor.companyId})
+          ORDER BY w.status, w.code`);
+        const ownCompany = await this.permissionService.permissionsCovering(actor.userId, { scopeType: "company", companyId: actor.companyId });
+        const result: { response: WarehouseResponse; viewCost: boolean }[] = [];
+        for (const row of rows.rows) {
+          const granted = await warehousePermissions(this.permissionService, actor.userId, { companyId: row.company_id, branchId: row.branch_id });
+          const canOperate = granted.has(inventoryPermissions.access);
+          const ownerView = row.owners.some((owner) => owner.companyId === actor.companyId) && ownCompany.has(inventoryPermissions.viewStock);
+          if (!canOperate && !ownerView) continue;
+          result.push({ response: this.toResponse(row, canOperate, granted.has(inventoryPermissions.manageWarehouses)), viewCost: granted.has(inventoryPermissions.viewCost) });
+        }
+        return result;
+      })();
+      this.evaluated.set(actor, pending);
     }
-    return result;
+    return pending;
   }
 
   async detail(actor: Actor, id: string): Promise<WarehouseResponse> {
@@ -77,10 +90,7 @@ export class WarehousesService {
 
   // Giá vốn: quyền xem giá vốn tại kho (mọi chủ hàng), hoặc tại công ty đang chọn (hàng của công ty đó).
   async costVisibility(actor: Actor): Promise<(row: { warehouse_id: string; company_id: string }) => boolean> {
-    const atWarehouse = new Set<string>();
-    for (const warehouse of await this.list(actor)) {
-      if ((await warehousePermissions(this.permissionService, actor.userId, warehouse)).has(inventoryPermissions.viewCost)) atWarehouse.add(warehouse.id);
-    }
+    const atWarehouse = new Set((await this.evaluate(actor)).filter((item) => item.viewCost).map((item) => item.response.id));
     const atCompany = (await this.permissionService.permissionsCovering(actor.userId, { scopeType: "company", companyId: actor.companyId })).has(inventoryPermissions.viewCost);
     return (row) => atWarehouse.has(row.warehouse_id) || (atCompany && row.company_id === actor.companyId);
   }

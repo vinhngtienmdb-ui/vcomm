@@ -99,6 +99,14 @@ describe("TIEUCHI_NGHIEMTHU_70: kiểm kê khóa mặt hàng đang kiểm, chên
     expect(adjustment).toMatchObject({ status: "posted", reasonCode: "stocktake", canEdit: false, stocktakeId: created.body.id });
     expect(adjustment.lines[0]).toMatchObject({ quantity: "-3", responsibleUserId: testIds.warehouseKeeper, compensationAmount: "3000" });
     expect(await stock("water")).toMatchObject({ onHand: "97" });
+    expect((await retailAdmin.call("post", `/inventory/stocktakes/${created.body.id}/cancel`, { companyId: retail })).status).toBe(409);
+    // Hàng theo lô: dòng không có lô không ghi số đếm được, phải đếm theo lô đã có.
+    const milkCount = await retailAdmin.call("post", "/inventory/stocktakes", { companyId: retail, body: { warehouseId, companyId: retail, scopeType: "variants", scopeIds: [items.milk] } });
+    const milkStarted = await retailAdmin.call("post", `/inventory/stocktakes/${milkCount.body.id}/start`, { companyId: retail });
+    expect(milkStarted.body.lines.map((line: { lotNo: string | null }) => line.lotNo)).toEqual(["KK-L1"]);
+    const noLot = await retailAdmin.call("put", `/inventory/stocktakes/${milkCount.body.id}/counts`, { companyId: retail, body: { counts: [{ variantId: items.milk, countedQuantity: "3" }] } });
+    expect(noLot.body.error.fields).toEqual({ "counts.0.lotId": "Hàng theo lô: ghi số đếm theo lô đã có; lô mới nhập bằng phiếu nhập khác." });
+    expect((await retailAdmin.call("post", `/inventory/stocktakes/${milkCount.body.id}/cancel`, { companyId: retail })).body.status).toBe("cancelled");
     // Kết thúc thì hết khóa.
     expect((await submitted(document("issue_other", "internal_use", [{ variantId: items.water, unitId: units.CHAI, quantity: "1" }]))).body.status).toBe("posted");
   });

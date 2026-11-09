@@ -163,6 +163,13 @@ export class StocktakesService {
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       const stocktakeNo = await this.sequences.next(row.company_id, stocktakeTypeCode, transaction);
       const scope = this.scopeCondition(row);
+      // Khóa dòng giá vốn của mặt hàng trong phạm vi: phiếu đang ghi sổ (khóa dòng này trước) phải xong trước khi chụp tồn,
+      // phiếu đến sau thấy kiểm kê đang đếm và bị từ chối.
+      await transaction.execute(sql`
+        SELECT 1 FROM inventory.costs c JOIN catalog.variants v ON v.id = c.variant_id JOIN catalog.products p ON p.id = v.product_id
+        WHERE c.warehouse_id = ${row.warehouse_id} AND c.company_id = ${row.company_id}
+          AND EXISTS (SELECT 1 FROM inventory.balances b WHERE b.warehouse_id = c.warehouse_id AND b.company_id = c.company_id AND b.variant_id = c.variant_id AND ${scope})
+        ORDER BY c.variant_id FOR UPDATE OF c`);
       await transaction.execute(sql`
         INSERT INTO inventory.stocktake_lines (stocktake_id, variant_id, lot_id, location_id, system_quantity, unit_cost)
         SELECT ${id}, b.variant_id, b.lot_id, b.location_id, b.quantity, coalesce(c.average_cost, 0)
@@ -190,6 +197,9 @@ export class StocktakesService {
     if (row.status !== "counting") throw new ApiError("BUSINESS_RULE", "stocktakeNotCounting");
     const warehouse = (await this.warehouses.find(row.warehouse_id))!;
     const lines = await this.lines(this.database, id);
+    const locations = new Set(
+      (await this.database.execute<{ id: string }>(sql`SELECT id FROM inventory.locations WHERE warehouse_id = ${row.warehouse_id} AND status = 'active'`)).rows.map((item) => item.id),
+    );
     const fields: Record<string, keyof Messages["errors"]> = {};
     for (const [index, count] of input.counts.entries()) {
       const at = (field: string) => `counts.${index}.${field}`;
@@ -201,7 +211,20 @@ export class StocktakesService {
         if (!count.serials || count.serials.length !== Number(count.countedQuantity)) fields[at("serials")] = "serialCountMismatch";
         else if (new Set(count.serials).size !== count.serials.length) fields[at("serials")] = "serialDuplicate";
       }
-      if (!line && warehouse.usesLocations && !count.locationId) fields[at("locationId")] = "required";
+      if (!line) {
+        if (warehouse.usesLocations && (!count.locationId || !locations.has(count.locationId))) fields[at("locationId")] = count.locationId ? "invalidValue" : "required";
+        if (!warehouse.usesLocations && count.locationId) fields[at("locationId")] = "invalidValue";
+        const tracksLots = count.variantId ? await this.variantTracksLots(count.variantId, row.company_id) : false;
+        if (count.lotId) {
+          const lot = await this.database.execute(sql`SELECT 1 FROM inventory.lots WHERE id = ${count.lotId} AND variant_id = ${count.variantId ?? null} AND company_id = ${row.company_id}`);
+          if (lot.rows.length === 0) fields[at("lotId")] = "invalidValue";
+        } else if (tracksLots && Number(count.countedQuantity) > 0) {
+          fields[at("lotId")] = "stocktakeLotRequired";
+        }
+      } else if (line.tracks_lots && !line.lot_id && Number(count.countedQuantity) > 0) {
+        // Dòng không có lô của hàng theo lô (kiểm theo danh sách khi hết tồn): số đếm phải ghi theo lô đã có.
+        fields[at("countedQuantity")] = "stocktakeLotRequired";
+      }
     }
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
     await this.database.transaction(async (transaction) => {
@@ -338,7 +361,9 @@ export class StocktakesService {
     const row = await this.requireManaged(actor, id);
     if (row.status !== "draft" && row.status !== "counting") throw new ApiError("BUSINESS_RULE", "stocktakeNotCounting");
     await this.database.transaction(async (transaction) => {
-      await transaction.execute(sql`UPDATE inventory.stocktakes SET status = 'cancelled', finished_at = now(), version = version + 1 WHERE id = ${id}`);
+      const updated = await transaction.execute(sql`
+        UPDATE inventory.stocktakes SET status = 'cancelled', finished_at = now(), version = version + 1 WHERE id = ${id} AND status IN ('draft', 'counting') RETURNING id`);
+      if (updated.rows.length === 0) throw new ApiError("BUSINESS_RULE", "stocktakeNotCounting");
       await this.auditService.record({ ...inventoryAudit(actor, "stocktake"), companyId: row.company_id, action: "stocktake.cancel", entityId: id }, transaction);
     });
     return this.detail(actor, id);
@@ -350,6 +375,14 @@ export class StocktakesService {
     if (row.scope_type === "locations") return sql`b.location_id = ANY(${ids}::uuid[])`;
     if (row.scope_type === "variants") return sql`b.variant_id = ANY(${ids}::uuid[])`;
     return sql`TRUE`;
+  }
+
+  private async variantTracksLots(variantId: string, companyId: string): Promise<boolean> {
+    const row = (
+      await this.database.execute<{ tracks_lots: boolean }>(sql`
+      SELECT p.tracks_lots FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id WHERE v.id = ${variantId} AND v.company_id = ${companyId}`)
+    ).rows[0];
+    return row?.tracks_lots ?? false;
   }
 
   private async variantTracksSerials(variantId: string | null, companyId: string): Promise<boolean | null> {

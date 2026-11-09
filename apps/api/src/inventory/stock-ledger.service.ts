@@ -118,7 +118,7 @@ export class StockLedgerService {
     if (locked.rows.length > 0) throw new ApiError("BUSINESS_RULE", "stockLockedByStocktake");
   }
 
-  // Serial nhập: chưa có thì tạo; đã xuất trước đó (hàng trả lại) thì đưa về kho; đang trong kho thì từ chối.
+  // Serial nhập: chưa có thì tạo; đã xuất trước đó (hàng trả lại) thì đưa về kho; đang trong kho hoặc đang vận chuyển thì từ chối.
   private async receiveSerials(transaction: Executor, entry: LedgerEntry, averageCost: string): Promise<{ value: string; serialIds: string[] }> {
     if (entry.keepSerialCost) {
       const moved = await transaction.execute<{ id: string }>(sql`
@@ -137,7 +137,7 @@ export class StockLedgerService {
         VALUES (${entry.companyId}, ${entry.variantId}, ${serialNo}, ${entry.warehouseId}, ${entry.locationId}, 'in_stock', ${unitCost}::numeric)
         ON CONFLICT (company_id, serial_no) DO UPDATE SET warehouse_id = EXCLUDED.warehouse_id, location_id = EXCLUDED.location_id, status = 'in_stock',
           unit_cost = EXCLUDED.unit_cost, updated_at = now()
-        WHERE inventory.serials.status <> 'in_stock' AND inventory.serials.variant_id = EXCLUDED.variant_id
+        WHERE inventory.serials.status = 'issued' AND inventory.serials.variant_id = EXCLUDED.variant_id
         RETURNING id`)
       ).rows[0];
       if (!row) throw new ApiError("BUSINESS_RULE", "serialAlreadyInStock");

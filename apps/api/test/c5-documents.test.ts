@@ -246,6 +246,8 @@ describe("TIEUCHI_NGHIEMTHU_68: lô hết hạn trước, serial", () => {
     const issued = await submitted(keeper, shelfDocument("issue_other", "gift", [phone("1", ["IMEI-2"], { locationId: shelf["A-02"] })]));
     await decide(issued.body.approvalRequestId, "approved");
     expect((await retailAdmin.call("get", `/inventory/documents/${issued.body.id}`, { companyId: retail })).body.lines[0]).toMatchObject({ costValue: "5200000", serials: ["IMEI-2"] });
+    const linked = await pool.query("SELECT ls.serial_no, s.serial_no AS linked FROM inventory.document_line_serials ls JOIN inventory.serials s ON s.id = ls.serial_id");
+    expect(linked.rows.every((row) => row.serial_no === row.linked)).toBe(true);
     const detail = (await retailAdmin.call("get", `/inventory/stock/${items.phone!.variantId}/details?warehouseId=${shelfWarehouseId}&companyId=${retail}`, { companyId: retail })).body;
     expect(detail.serials).toEqual([{ serialNo: "IMEI-1", locationCode: "A-01", unitCost: "5000000" }]);
   });

@@ -192,6 +192,14 @@ describe("TIEUCHI_NGHIEMTHU_69: chuyển kho hai bước, biên bản chênh l�
     expect(await stock(warehouses.DICH!, "DTC")).toMatchObject({ onHand: "1", averageCost: "3000000" });
     const milkDetail = (await retailAdmin.call("get", `/inventory/stock/${items.milk}/details?warehouseId=${warehouses.DICH}&companyId=${retail}`, { companyId: retail })).body;
     expect(milkDetail.balances).toEqual([expect.objectContaining({ lotNo: "LS-1", locationCode: "K-01", quantity: "4" })]);
+    // Serial đang vận chuyển không nhập lại bằng phiếu khác được.
+    const reuse = await keeperSource.call("post", "/inventory/documents", {
+      companyId: retail,
+      body: body("receipt_other", warehouses.NGUON!, [{ variantId: items.phone, unitId: units.CAI, quantity: "1", unitCost: "1", serials: ["CK-1"] }]),
+    });
+    expect((await keeperSource.call("post", `/inventory/documents/${reuse.body.id}/submit`, { companyId: retail })).body.error.fields).toEqual({ "lines.0.serials": "Serial đã có trong kho." });
+    // Không tìm được hàng của công ty không gửi hàng vào kho mình thao tác.
+    expect((await keeperDestination.call("get", `/inventory/items?companyId=${trading}&search=a`, { companyId: retail })).status).toBe(403);
     expect((await pool.query("SELECT serial_no, status FROM inventory.serials WHERE serial_no IN ('CK-1', 'CK-2') ORDER BY serial_no")).rows).toEqual([
       { serial_no: "CK-1", status: "in_transit" },
       { serial_no: "CK-2", status: "in_stock" },

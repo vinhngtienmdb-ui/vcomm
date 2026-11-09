@@ -1716,7 +1716,7 @@ export const saveStocktakeCountsSchema = z
 export const finishStocktakeSchema = z
   .object({
     responsibilities: z
-      .array(z.object({ lineId: z.uuid(), responsibleUserId: z.uuid().nullable(), compensationAmount: z.union([z.number(), z.string(), z.null()]).optional() }).strict())
+      .array(z.object({ lineId: z.uuid(), responsibleUserId: z.uuid().nullable(), compensationAmount: optionalMoney }).strict())
       .max(5000)
       .default([]),
     version: z.number().int().positive(),

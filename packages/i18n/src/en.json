@@ -149,7 +149,8 @@
     "stocktakeNotCounting": "The stocktake is not being counted.",
     "stocktakeNotFullyCounted": "Some lines have not been counted.",
     "reservationOwnedByDocument": "Goods reserved for a stock document are released only when it is rejected or withdrawn.",
-    "noLocationsToPrint": "The warehouse has no active locations to print."
+    "noLocationsToPrint": "The warehouse has no active locations to print.",
+    "stocktakeLotRequired": "Lot-tracked items: count against an existing lot; new lots are received with an other receipt."
   },
   "login": {
     "title": "Sign in",
