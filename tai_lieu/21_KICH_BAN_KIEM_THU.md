@@ -573,7 +573,7 @@ Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá th�
 - Chức năng: CHUC_NANG_11
 - Loại: Phân quyền
 - Vai trò thực hiện: Nhân viên `nhanvien.haicongty@vcomm.test`
-- Điều kiện ban đầu và dữ liệu: Vai trò "Kế toán thử" ở VCR có quyền lập chứng từ thử; vai trò "Chỉ xem thử" ở VCT chỉ có quyền xem. **CHƯA XÁC ĐỊNH:** MODULE_06 chưa có; quyền lập chứng từ thử thuộc loại `platform.test_document`, mã quyền chốt ở lát L2.
+- Điều kiện ban đầu và dữ liệu: Vai trò "Kế toán thử" ở VCR có quyền lập chứng từ thử; vai trò "Chỉ xem thử" ở VCT chỉ có quyền xem. Chốt ở lát L2: MODULE_06 chưa có nên dùng quyền `platform.user.view` và API_24 thay cho quyền lập chứng từ; chạy lại bằng API chứng từ khi xây MODULE_06.
 - Các bước: (1) Với `X-Company-Id` là VCT, gọi kiểm tra quyền lập chứng từ thử. (2) Gọi API_14 với VCT.
 - Kết quả mong đợi: Bước 1 nhận `403 FORBIDDEN`. Bước 2 không có quyền lập chứng từ thử.
 - Kiểm thử tự động: Tự động API
@@ -654,7 +654,7 @@ Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá th�
 - Chức năng: CHUC_NANG_13
 - Loại: Phân quyền
 - Vai trò thực hiện: Thủ kho `thukho.bd@vcomm.test`
-- Điều kiện ban đầu và dữ liệu: Vai trò thủ kho gán phạm vi chi nhánh VCR-BD. Bản ghi kho thử: 3 bản ghi ở VCR-BD, 2 bản ghi ở VCR-HCM. **CHƯA XÁC ĐỊNH:** MODULE_03 chưa có; đối tượng dữ liệu kho thử và mã quyền đọc chốt ở lát L2, kịch bản chạy lại bằng API kho khi xây MODULE_03.
+- Điều kiện ban đầu và dữ liệu: Vai trò thủ kho gán phạm vi chi nhánh VCR-BD. Bản ghi kho thử: 3 bản ghi ở VCR-BD, 2 bản ghi ở VCR-HCM. Chốt ở lát L2: MODULE_03 chưa có nên dùng danh sách nhân viên (API_24, API_29) lọc theo chi nhánh mặc định, quyền `platform.user.view`; kịch bản chạy lại bằng API kho khi xây MODULE_03.
 - Các bước: (1) Gọi API danh sách bản ghi kho thử. (2) Gọi lại với bộ lọc chi nhánh VCR-HCM.
 - Kết quả mong đợi: Bước 1 trả đúng 3 bản ghi VCR-BD. Bước 2 trả danh sách rỗng hoặc bị từ chối, không có bản ghi VCR-HCM.
 - Kiểm thử tự động: Tự động API
