@@ -24,6 +24,7 @@
 - Phê duyệt tài liệu `06` đến `09` của MODULE_01 và 7 quy tắc do AI đề xuất; giai đoạn 03 của MODULE_01 đạt cổng kiểm soát – người quyết định: người dùng.
 - Phê duyệt tài liệu `10`, `11`, `27` của MODULE_01 và 7 nội dung do AI đề xuất; giai đoạn 04 của MODULE_01 đạt cổng kiểm soát – người quyết định: người dùng.
 - Chọn Drizzle ORM làm thư viện truy cập cơ sở dữ liệu, AWS CDK làm công cụ hạ tầng bằng mã – người quyết định: người dùng.
+- Phê duyệt tài liệu `12`, `13`, `22` và danh sách thư viện cho MODULE_01 (chọn read-excel-file thay exceljs); giai đoạn 05 của MODULE_01 đạt cổng kiểm soát – người quyết định: người dùng.
 - Các quyết định chi tiết khác ghi tại tài liệu `04` và `05`.
 
 ### Thay đổi
