@@ -130,3 +130,19 @@
   1. Aurora 2×db.t4g.medium thay vì t4g.large (giảm ~167 USD).
   2. Fargate chạy chip Arm (Graviton), tắt môi trường thử nghiệm ngoài giờ.
   3. Một NAT gateway ở giai đoạn 1, không dùng NAT ở môi trường thử nghiệm.
+
+## 6. Nhà cung cấp VNeID, SMS, Zalo – tra cứu 2026-11-09
+
+### VNeID (THAY_DOI_02)
+- Nghị định 69/2024/NĐ-CP Điều 23 khoản 1: điều kiện cung cấp dịch vụ xác thực điện tử là "Đơn vị sự nghiệp công lập, doanh nghiệp trong Công an nhân dân". Nghị định 320/2026/NĐ-CP không sửa Điều 23. VComm không tự trở thành nhà cung cấp được; phải ký hợp đồng với một tổ chức đã được cấp phép.
+- Tổ chức đã xác nhận được: Trung tâm RAR thuộc C06, Bộ Công an (công bố 15/08/2024; `https://voh.com.vn/phap-luat/bo-cong-an-trien-khai-cung-cap-dich-vu-xac-thuc-dien-tu-545434.html`). Dịch vụ: đăng nhập bằng VNeID, chia sẻ thông tin, đối chiếu dữ liệu, xác thực khuôn mặt. Đối tác đã triển khai: VNDIRECT, 9Pay, FPT Telecom, Agribank, Pharmacity.
+- **CHƯA XÁC ĐỊNH:** danh sách chính thức các tổ chức được cấp phép; tài liệu API; xác thực tài khoản tổ chức (nhà bán là doanh nghiệp); giá; thời gian ký kết. Cần liên hệ trực tiếp Trung tâm RAR.
+
+### Gửi mã OTP
+- Zalo ZNS: mẫu xác thực (OTP) 300 đồng mỗi tin thành công, chưa gồm VAT (`https://zalo.solutions/zns/pricing`); mẫu phải được duyệt; gửi theo số điện thoại không cần người dùng theo dõi Official Account.
+- SMS thương hiệu: phí duy trì khoảng 50.000 đồng mỗi thương hiệu mỗi tháng mỗi nhà mạng; giá mỗi tin OTP khoảng 350–800 đồng theo các đại lý (`https://v9.com.vn/sms-brandname-mobifone/`, `https://smarketing.vn/bao-gia-sms-brandname`). Viettel duyệt thương hiệu tối đa 2 ngày trên mạng Viettel, 5 ngày cho mạng khác (`https://viettelnet.vn/sms-brandname-viettel/`). Giá chính thức của nhà mạng chưa xác minh.
+- Đề xuất (chờ duyệt): gửi OTP qua Zalo ZNS trước, chuyển sang SMS thương hiệu khi số điện thoại không dùng Zalo hoặc gửi ZNS thất bại.
+
+### Zalo Login (THAY_DOI_01)
+- OAuth phiên bản 4: `https://oauth.zaloapp.com/v4/permission`, `https://oauth.zaloapp.com/v4/access_token`, thông tin người dùng `https://graph.zalo.me/v2.0/me` với `fields=id,name,picture` (`https://github.com/zaloplatform/zalo-php-sdk`). SDK chính thức dùng PKCE (`code_challenge`).
+- Zalo Login trên web không trả số điện thoại; số điện thoại chỉ lấy được trong Zalo Mini App qua `getPhoneNumber` có sự đồng ý của người dùng. Phù hợp quy tắc đã duyệt: nhân viên liên kết Zalo sau khi kích hoạt (QUYTAC_NGHIEPVU_08); người mua đăng ký bằng Zalo vẫn cần xác minh số điện thoại bằng OTP.
