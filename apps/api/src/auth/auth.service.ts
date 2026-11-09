@@ -2,6 +2,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import * as argon2 from "argon2";
 import type { LoginRequest, LoginResponse } from "contracts";
+import { normalizePhone } from "contracts";
 import { and, count, eq, gt, isNull, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../common/api-error";
@@ -37,7 +38,9 @@ export class AuthService {
 
   async login(request: LoginRequest, client: ClientInfo): Promise<{ response: LoginResponse; session: IssuedSession }> {
     const now = client.now ?? new Date();
-    const identifier = request.identifier.trim().toLowerCase();
+    const typed = request.identifier.trim().toLowerCase();
+    // Số điện thoại nhập dạng 0912… được đổi sang dạng lưu +84912… (tài liệu 16).
+    const identifier = /^[+0-9][0-9 .-]{7,}$/.test(typed) ? normalizePhone(typed) : typed;
     const found = await this.database
       .select({ user: users, passwordHash: userIdentities.passwordHash })
       .from(userIdentities)

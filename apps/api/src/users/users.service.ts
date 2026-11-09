@@ -1,6 +1,9 @@
 // Danh sách, chi tiết nhân viên và gán vai trò (CHUC_NANG_13, CHUC_NANG_19; QUYTAC_NGHIEPVU_09, 11, 12, 13, 14, 15).
 // Không có chức năng đăng nhập thay hoặc xem hệ thống dưới quyền nhân viên khác (QUYTAC_NGHIEPVU_11).
 import { Inject, Injectable } from "@nestjs/common";
+import type { updateUserSchema } from "contracts";
+import type { z } from "zod";
+import { setClause } from "../common/sql-update";
 import type { PageResponse, RoleAssignmentRequest, RoleAssignmentResponse, UserDetailResponse, UserListItem, UserListQuery } from "contracts";
 import { sql } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
@@ -44,6 +47,14 @@ const toAssignment = (row: AssignmentRow): RoleAssignmentResponse => ({
   active: row.active,
 });
 
+export interface PreparedAssignment {
+  input: RoleAssignmentRequest;
+  target: ScopeTarget;
+  hasSensitive: boolean;
+}
+
+type Executor = Pick<Database, "execute" | "insert">;
+
 const targetOfAssignment = (row: Pick<AssignmentRow, "scope_type" | "company_id" | "branch_id">): ScopeTarget =>
   row.scope_type === "group"
     ? { scopeType: "group" }
@@ -75,19 +86,20 @@ export class UsersService {
       ${query.roleId ? sql`AND EXISTS (SELECT 1 FROM core.user_role_assignments a WHERE a.user_id = u.id AND a.role_id = ${query.roleId} AND (a.scope_type = 'group' OR a.company_id = ${actor.companyId}))` : sql``}`;
     const total = await this.database.execute<{ total: number }>(sql`
       SELECT count(*)::int AS total FROM core.users u JOIN core.user_company_memberships m ON m.user_id = u.id WHERE ${where}`);
-    const rows = await this.database.execute<{ id: string; full_name: string; email: string | null; phone: string | null; status: UserListItem["status"]; branch_name: string | null; job_title: string | null; role_names: string[] | null }>(sql`
-      SELECT u.id, u.full_name, u.email, u.phone, u.status, b.name AS branch_name, m.job_title,
+    const rows = await this.database.execute<{ id: string; full_name: string; email: string | null; phone: string | null; status: UserListItem["status"]; branch_name: string | null; department_name: string | null; job_title: string | null; role_names: string[] | null; last_login_at: Date | null }>(sql`
+      SELECT u.id, u.full_name, u.email, u.phone, u.status, b.name AS branch_name, d.name AS department_name, m.job_title, u.last_login_at,
         (SELECT array_agg(DISTINCT r.name_vi ORDER BY r.name_vi) FROM core.user_role_assignments a JOIN core.roles r ON r.id = a.role_id
           WHERE a.user_id = u.id AND (a.scope_type = 'group' OR a.company_id = ${actor.companyId})
             AND a.valid_from <= ${day}::date AND (a.valid_to IS NULL OR a.valid_to >= ${day}::date)) AS role_names
       FROM core.users u
       JOIN core.user_company_memberships m ON m.user_id = u.id
       LEFT JOIN core.branches b ON b.id = m.default_branch_id
+      LEFT JOIN core.departments d ON d.id = m.department_id
       WHERE ${where}
       ORDER BY u.full_name, u.id
       LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`);
     return {
-      data: rows.rows.map((row) => ({ id: row.id, fullName: row.full_name, email: row.email, phone: row.phone, status: row.status, branchName: row.branch_name, jobTitle: row.job_title, roleNames: row.role_names ?? [] })),
+      data: rows.rows.map((row) => ({ id: row.id, fullName: row.full_name, email: row.email, phone: row.phone, status: row.status, branchName: row.branch_name, departmentName: row.department_name, jobTitle: row.job_title, roleNames: row.role_names ?? [], lastLoginAt: row.last_login_at ? new Date(row.last_login_at).toISOString() : null })),
       page: query.page,
       pageSize: query.pageSize,
       total: total.rows[0]?.total ?? 0,
@@ -114,6 +126,7 @@ export class UsersService {
       mfaRequired: user.mfa_required,
       version: user.version,
       isSelf: userId === actor.userId,
+      currentMembership: await this.currentMembership(actor.companyId, userId),
       companies: companies.rows.map((row) => ({ id: row.id, shortName: row.short_name, branchName: row.branch_name, jobTitle: row.job_title, isDefault: row.is_default })),
       roleAssignments: (await this.assignments(actor.companyId, userId)).map(toAssignment),
       assignableScopes: await this.assignableScopes(actor),
@@ -124,6 +137,14 @@ export class UsersService {
   async assign(actor: Actor, userId: string, input: RoleAssignmentRequest): Promise<RoleAssignmentResponse> {
     await this.requireVisible(actor, userId);
     if (userId === actor.userId) throw new ApiError("FORBIDDEN", "forbidden");
+    const prepared = await this.prepareAssignment(actor, input);
+    const assignmentId = await this.database.transaction((transaction) => this.insertAssignment(transaction, actor, userId, prepared));
+    const created = (await this.assignments(actor.companyId, userId)).find((row) => row.id === assignmentId)!;
+    return toAssignment(created);
+  }
+
+  // Kiểm tra một lần gán trước khi ghi: ngày, phạm vi, quyền gán, vai trò còn dùng, không cấp quyền mình không có.
+  async prepareAssignment(actor: Actor, input: RoleAssignmentRequest): Promise<PreparedAssignment> {
     if (input.validTo && input.validTo < input.validFrom) {
       throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { validTo: "endBeforeStart" } });
     }
@@ -141,24 +162,91 @@ export class UsersService {
     if (role.status !== "active") throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { roleId: "roleInactive" } });
     const grantable = await this.rolesService.grantablePermissions(actor.userId, assignRole, target);
     if (grantable !== "all" && (role.permission_codes ?? []).some((code) => !grantable.has(code))) throw new ApiError("FORBIDDEN", "cannotGrantMissing");
+    return { input, target, hasSensitive: role.has_sensitive };
+  }
 
+  async insertAssignment(transaction: Executor, actor: Actor, userId: string, prepared: PreparedAssignment): Promise<string> {
+    const { input, target } = prepared;
     const companyId = target.scopeType === "group" ? null : target.companyId;
     const branchId = target.scopeType === "branch" ? target.branchId : null;
-    const assignmentId = await this.database.transaction(async (transaction) => {
-      const inserted = await transaction.execute<{ id: string }>(sql`
-        INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, branch_id, valid_from, valid_to, created_by)
-        VALUES (${userId}, ${input.roleId}, ${input.scopeType}, ${companyId}, ${branchId}, ${input.validFrom}::date, ${input.validTo ?? null}::date, ${actor.userId})
-        RETURNING id`);
-      const id = inserted.rows[0]!.id;
-      // QUYTAC_NGHIEPVU_09: vai trò có quyền nhạy cảm thì bật bắt buộc xác thực hai lớp.
-      if (role.has_sensitive) await transaction.execute(sql`UPDATE core.users SET mfa_required = true, updated_at = now() WHERE id = ${userId} AND mfa_required = false`);
-      const after = { userId, roleId: input.roleId, scopeType: input.scopeType, companyId, branchId, validFrom: input.validFrom, validTo: input.validTo ?? null };
-      await this.auditService.record({ ...this.auditBase(actor), action: "role_assignment.create", entityId: id, afterData: after }, transaction);
-      await this.recordChangeEvent(transaction, id, userId, companyId);
-      return id;
+    const inserted = await transaction.execute<{ id: string }>(sql`
+      INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, branch_id, valid_from, valid_to, created_by)
+      VALUES (${userId}, ${input.roleId}, ${input.scopeType}, ${companyId}, ${branchId}, ${input.validFrom}::date, ${input.validTo ?? null}::date, ${actor.userId})
+      RETURNING id`);
+    const id = inserted.rows[0]!.id;
+    // QUYTAC_NGHIEPVU_09: vai trò có quyền nhạy cảm thì bật bắt buộc xác thực hai lớp.
+    if (prepared.hasSensitive) await transaction.execute(sql`UPDATE core.users SET mfa_required = true, updated_at = now() WHERE id = ${userId} AND mfa_required = false`);
+    const after = { userId, roleId: input.roleId, scopeType: input.scopeType, companyId, branchId, validFrom: input.validFrom, validTo: input.validTo ?? null };
+    await this.auditService.record({ ...this.auditBase(actor), action: "role_assignment.create", entityId: id, afterData: after }, transaction);
+    await this.recordChangeEvent(transaction, id, userId, companyId);
+    return id;
+  }
+
+  // API_29 PATCH: thông tin tài khoản và thông tin trong công ty đang chọn.
+  async update(actor: Actor, userId: string, input: z.output<typeof updateUserSchema>): Promise<UserDetailResponse> {
+    await this.requireVisible(actor, userId);
+    const fields: Record<string, "emailUsed" | "phoneUsed" | "usernameUsed" | "invalidValue"> = {};
+    for (const [field, column] of [["email", "email"], ["phone", "phone"], ["username", "username"]] as const) {
+      const value = input[field];
+      if (!value) continue;
+      const owner = await this.database.execute(sql`SELECT 1 FROM core.users WHERE ${sql.raw(column)} = ${value} AND id <> ${userId}`);
+      if (owner.rows.length > 0) fields[field] = `${field}Used` as "emailUsed";
+    }
+    if (input.defaultBranchId && (await this.database.execute(sql`SELECT 1 FROM core.branches WHERE id = ${input.defaultBranchId} AND company_id = ${actor.companyId} AND status = 'active'`)).rows.length === 0) {
+      fields.defaultBranchId = "invalidValue";
+    }
+    if (input.departmentId && (await this.database.execute(sql`SELECT 1 FROM core.departments WHERE id = ${input.departmentId} AND company_id = ${actor.companyId} AND status = 'active'`)).rows.length === 0) {
+      fields.departmentId = "invalidValue";
+    }
+    if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
+    const before = await this.detail(actor, userId);
+    const remaining = { email: input.email === undefined ? before.email : input.email, phone: input.phone === undefined ? before.phone : input.phone, username: input.username === undefined ? before.username : input.username };
+    if (!remaining.email && !remaining.phone && !remaining.username) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { email: "identifierRequired" } });
+    await this.database.transaction(async (transaction) => {
+      const updated = await transaction.execute(sql`
+        UPDATE core.users SET ${sql.join(
+          [...setClause(input, { fullName: "full_name", email: "email", phone: "phone", username: "username" }), sql`version = version + 1`, sql`updated_at = now()`, sql`updated_by = ${actor.userId}`],
+          sql`, `,
+        )}
+        WHERE id = ${userId} AND version = ${input.version} RETURNING id`);
+      if (updated.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      const membership = setClause(input, { defaultBranchId: "default_branch_id", departmentId: "department_id", jobTitle: "job_title" });
+      if (membership.length > 0) {
+        await transaction.execute(sql`
+          UPDATE core.user_company_memberships SET ${sql.join([...membership, sql`updated_at = now()`, sql`updated_by = ${actor.userId}`], sql`, `)}
+          WHERE user_id = ${userId} AND company_id = ${actor.companyId}`);
+      }
+      // Đổi định danh đăng nhập: cập nhật dòng mật khẩu tương ứng (QUYTAC_NGHIEPVU_05).
+      for (const field of ["email", "phone", "username"] as const) {
+        if (input[field] === undefined || input[field] === before[field]) continue;
+        const old = before[field];
+        const next = input[field];
+        if (old && next) await transaction.execute(sql`UPDATE core.user_identities SET provider_subject = ${next.toLowerCase()} WHERE user_id = ${userId} AND provider = 'password' AND provider_subject = ${old.toLowerCase()}`);
+        else if (old) await transaction.execute(sql`DELETE FROM core.user_identities WHERE user_id = ${userId} AND provider = 'password' AND provider_subject = ${old.toLowerCase()}`);
+        else if (next) {
+          await transaction.execute(sql`
+            INSERT INTO core.user_identities (user_id, provider, provider_subject, password_hash)
+            SELECT ${userId}, 'password', ${next.toLowerCase()}, password_hash FROM core.user_identities WHERE user_id = ${userId} AND provider = 'password' LIMIT 1`);
+        }
+      }
+      await this.auditService.record({ ...this.auditBase(actor), entityType: "user", action: "user.update", entityId: userId, beforeData: before, afterData: input }, transaction);
     });
-    const created = (await this.assignments(actor.companyId, userId)).find((row) => row.id === assignmentId)!;
-    return toAssignment(created);
+    return this.detail(actor, userId);
+  }
+
+  // API_30: khóa chặn đăng nhập và thu hồi mọi phiên; không tự khóa chính mình (CHUC_NANG_19).
+  async setLocked(actor: Actor, userId: string, locked: boolean, reason: string): Promise<UserDetailResponse> {
+    await this.requireVisible(actor, userId);
+    if (userId === actor.userId) throw new ApiError("FORBIDDEN", "cannotLockSelf");
+    await this.database.transaction(async (transaction) => {
+      const updated = await transaction.execute(sql`
+        UPDATE core.users SET status = ${locked ? "locked" : "active"}, version = version + 1, updated_at = now(), updated_by = ${actor.userId}
+        WHERE id = ${userId} AND status = ${locked ? "active" : "locked"} RETURNING id`);
+      if (updated.rows.length === 0) throw new ApiError("BUSINESS_RULE", locked ? "userNotActive" : "userNotLocked");
+      if (locked) await transaction.execute(sql`UPDATE core.sessions SET revoked_at = now() WHERE user_id = ${userId} AND revoked_at IS NULL`);
+      await this.auditService.record({ ...this.auditBase(actor), entityType: "user", action: locked ? "user.lock" : "user.unlock", entityId: userId, afterData: { reason } }, transaction);
+    });
+    return this.detail(actor, userId);
   }
 
   // API_34 DELETE
@@ -224,7 +312,13 @@ export class UsersService {
     return result.rows;
   }
 
-  private async requireVisible(actor: Actor, userId: string): Promise<void> {
+  private async currentMembership(companyId: string, userId: string): Promise<UserDetailResponse["currentMembership"]> {
+    const row = (await this.database.execute<{ default_branch_id: string | null; department_id: string | null; job_title: string | null }>(sql`
+      SELECT default_branch_id, department_id, job_title FROM core.user_company_memberships WHERE user_id = ${userId} AND company_id = ${companyId}`)).rows[0];
+    return { defaultBranchId: row?.default_branch_id ?? null, departmentId: row?.department_id ?? null, jobTitle: row?.job_title ?? null };
+  }
+
+  async requireVisible(actor: Actor, userId: string): Promise<void> {
     const scope = await this.permissionService.dataScope(actor.userId, actor.companyId, viewUser);
     if (!scope) throw new ApiError("FORBIDDEN", "forbidden");
     const result = await this.database.execute(sql`

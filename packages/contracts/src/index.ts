@@ -167,8 +167,10 @@ export interface UserListItem {
   phone: string | null;
   status: "invited" | "active" | "locked" | "disabled";
   branchName: string | null;
+  departmentName: string | null;
   jobTitle: string | null;
   roleNames: string[];
+  lastLoginAt: string | null;
 }
 
 // API_29 (phần xem)
@@ -182,6 +184,7 @@ export interface UserDetailResponse {
   mfaRequired: boolean;
   version: number;
   isSelf: boolean;
+  currentMembership: { defaultBranchId: string | null; departmentId: string | null; jobTitle: string | null };
   companies: { id: string; shortName: string; branchName: string | null; jobTitle: string | null; isDefault: boolean }[];
   roleAssignments: RoleAssignmentResponse[];
   assignableScopes: { group: boolean; company: boolean; branches: { id: string; code: string; name: string }[] };
@@ -325,3 +328,88 @@ export interface DepartmentResponse {
   version: number;
   memberCount: number;
 }
+
+// Số điện thoại lưu dạng E.164 (tài liệu 16): 0912 345 678 → +84912345678.
+export function normalizePhone(value: string): string {
+  const digits = value.replace(/[\s.()-]/g, "");
+  if (/^0\d{9}$/.test(digits)) return `+84${digits.slice(1)}`;
+  if (/^84\d{9}$/.test(digits)) return `+${digits}`;
+  return digits;
+}
+
+const phoneE164 = z
+  .string()
+  .trim()
+  .transform(normalizePhone)
+  .pipe(z.string().regex(/^\+\d{8,15}$/));
+const username = z
+  .string()
+  .trim()
+  .transform((value) => value.toLowerCase())
+  .pipe(z.string().regex(/^[a-z0-9][a-z0-9._-]{2,49}$/));
+const emailAddress = z
+  .string()
+  .trim()
+  .transform((value) => value.toLowerCase())
+  .pipe(z.email().max(254));
+
+// API_25
+export const inviteUserSchema = z
+  .object({
+    fullName: z.string().trim().min(1).max(200),
+    email: emailAddress.nullable().optional(),
+    phone: phoneE164.nullable().optional(),
+    username: username.nullable().optional(),
+    defaultBranchId: z.uuid().nullable().optional(),
+    departmentId: z.uuid().nullable().optional(),
+    jobTitle: z.string().trim().max(100).nullable().optional(),
+    roleAssignments: z.array(roleAssignmentSchema).max(20).default([]),
+  })
+  .strict();
+export type InviteUserRequest = z.input<typeof inviteUserSchema>;
+
+export interface InviteUserResponse {
+  userId: string;
+  status: UserListItem["status"];
+  addedToExistingAccount: boolean;
+}
+
+// API_29 PATCH
+export const updateUserSchema = z
+  .object({
+    fullName: z.string().trim().min(1).max(200).optional(),
+    email: emailAddress.nullable().optional(),
+    phone: phoneE164.nullable().optional(),
+    username: username.nullable().optional(),
+    defaultBranchId: z.uuid().nullable().optional(),
+    departmentId: z.uuid().nullable().optional(),
+    jobTitle: z.string().trim().max(100).nullable().optional(),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export type UpdateUserRequest = z.input<typeof updateUserSchema>;
+
+// API_30
+export const lockUserSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+
+// API_11
+export const activationSchema = z.object({ token: z.string().min(20).max(200), password: z.string().max(256) }).strict();
+
+export interface ActivationInfoResponse {
+  fullName: string;
+  companyName: string | null;
+  loginIdentifier: string;
+}
+
+// API_27
+export interface UserImportResponse {
+  invited: number;
+  failed: number;
+  errors: { row: number; message: string }[];
+  errorFileUrl: string | null;
+}
+
+// Cột tệp mẫu nhập nhân viên (API_28), đúng thứ tự.
+export const userImportColumns = ["Họ tên", "Email", "Số điện thoại", "Tên đăng nhập", "Mã chi nhánh", "Mã phòng ban", "Chức danh", "Mã vai trò"] as const;
+export const userImportMaximumRows = 1000;
+export const userImportMaximumBytes = 5 * 1024 * 1024;

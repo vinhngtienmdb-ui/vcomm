@@ -65,6 +65,12 @@ export class ApiErrorFilter implements ExceptionFilter {
       code = "VALIDATION_FAILED";
       const fields = Object.fromEntries(exception.issues.map((issue) => [issue.path.join(".") || "_", isMissing(issue) ? text.required : text.invalidValue]));
       body = { code, message: text.validationFailed, fields, requestId };
+    } else if (exception instanceof HttpException && exception.getStatus() === 413) {
+      code = "VALIDATION_FAILED";
+      body = { code, message: text.validationFailed, fields: { file: text.fileTooLarge }, requestId };
+    } else if (exception instanceof HttpException && exception.getStatus() === 400) {
+      code = "VALIDATION_FAILED";
+      body = { code, message: text.validationFailed, requestId };
     } else if (exception instanceof HttpException && exception.getStatus() === 404) {
       code = "NOT_FOUND";
       body = { code, message: text.notFound, requestId };

@@ -1,8 +1,9 @@
-import { Body, Controller, HttpCode, Post, Req, Res } from "@nestjs/common";
-import { loginRequestSchema, type LoginResponse } from "contracts";
+import { Body, Controller, Get, HttpCode, Param, Post, Req, Res } from "@nestjs/common";
+import { activationSchema, loginRequestSchema, type ActivationInfoResponse, type LoginResponse } from "contracts";
 import type { Request, Response } from "express";
 import { ApiError } from "../common/api-error";
 import { accessCookieName, csrfCookieName, csrfMatches, Public, refreshCookieName, type AuthenticatedRequest } from "./auth.guard";
+import { ActivationService } from "./activation.service";
 import { AuthService, type ClientInfo, type IssuedSession } from "./auth.service";
 import { newRandomToken } from "./tokens";
 
@@ -28,7 +29,26 @@ function clearSessionCookies(response: Response): void {
 
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly activation: ActivationService,
+  ) {}
+
+  // API_11: xem thông tin trước khi kích hoạt (MAN_HINH_03).
+  @Public()
+  @Get("activation/:token")
+  async activationInfo(@Param("token") token: string): Promise<ActivationInfoResponse> {
+    return this.activation.info(token);
+  }
+
+  // API_11
+  @Public()
+  @Post("activation")
+  @HttpCode(204)
+  async activate(@Body() body: unknown, @Req() request: Request): Promise<void> {
+    const input = activationSchema.parse(body);
+    await this.activation.activate(input.token, input.password, clientInfo(request));
+  }
 
   // API_01
   @Public()

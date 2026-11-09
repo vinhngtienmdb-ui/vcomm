@@ -27,7 +27,23 @@
     "branchCodeExists": "The branch code already exists in this company.",
     "departmentCodeExists": "The department code already exists in this company.",
     "departmentParentCycle": "A child department cannot be chosen as the parent department.",
-    "managerNotMember": "The manager must be an employee of the company."
+    "managerNotMember": "The manager must be an employee of the company.",
+    "identifierRequired": "Enter at least one of email, phone number or username.",
+    "emailUsed": "The email is already used by another account.",
+    "phoneUsed": "The phone number is already used by another account.",
+    "usernameUsed": "The username is already used by another account.",
+    "alreadyMember": "This employee already belongs to this company.",
+    "activationInvalid": "The activation link has expired or has already been used.",
+    "passwordTooShort": "The password must be at least 10 characters.",
+    "notInvited": "This employee is already activated; no need to resend the link.",
+    "cannotLockSelf": "You cannot lock your own account.",
+    "userNotActive": "Only active accounts can be locked.",
+    "userNotLocked": "The account is not locked.",
+    "fileInvalidTemplate": "The file does not match the template.",
+    "fileTooManyRows": "The file has more than 1,000 rows.",
+    "fileTooLarge": "The file is larger than 5 MB.",
+    "duplicateInFile": "Duplicates row {row} in the file.",
+    "codeNotFound": "This code was not found in the company."
   },
   "login": {
     "title": "Sign in",
@@ -106,7 +122,9 @@
     "invited": "Invited",
     "active": "Active",
     "locked": "Locked",
-    "disabled": "Disabled"
+    "disabled": "Disabled",
+    "department": "Department",
+    "lastLogin": "Last sign-in"
   },
   "userDetail": {
     "tabCompanies": "Companies",
@@ -254,5 +272,68 @@
   "org": {
     "saved": "Saved.",
     "deactivated": "Deactivated."
+  },
+  "activation": {
+    "title": "Activate your account",
+    "greeting": "Hello {name}",
+    "company": "You have been invited to {company}.",
+    "identifier": "Your sign-in name: {identifier}",
+    "password": "New password",
+    "confirm": "Repeat password",
+    "mismatch": "The two passwords do not match.",
+    "hint": "At least 10 characters. Mix upper and lower case letters, digits and symbols.",
+    "strength": "Strength: {level}",
+    "weak": "weak",
+    "medium": "medium",
+    "strong": "strong",
+    "submit": "Activate",
+    "invalid": "The activation link has expired or has already been used. Ask your company administrator to resend it.",
+    "done": "Your account is active. Sign in with your new password.",
+    "toLogin": "Go to sign-in"
+  },
+  "invite": {
+    "button": "Invite employee",
+    "title": "Invite employee",
+    "fullName": "Full name",
+    "email": "Email",
+    "phone": "Phone number",
+    "username": "Username",
+    "identifierHint": "Enter at least one of email, phone number or username.",
+    "branch": "Default branch",
+    "department": "Department",
+    "jobTitle": "Job title",
+    "role": "Initial role",
+    "noRole": "No role",
+    "none": "None",
+    "submit": "Invite",
+    "sent": "{name} was invited. The activation link has been sent.",
+    "added": "{name} already has an account and was added to this company.",
+    "resend": "Resend",
+    "resent": "The activation link was sent again."
+  },
+  "importUsers": {
+    "button": "Import from Excel",
+    "title": "Import employees from Excel",
+    "template": "Download template",
+    "file": ".xlsx file (up to 1,000 rows, 5 MB)",
+    "submit": "Import",
+    "result": "{invited} rows invited, {failed} rows failed.",
+    "download": "Download failed rows",
+    "row": "Row {row}"
+  },
+  "lock": {
+    "lock": "Lock",
+    "unlock": "Unlock",
+    "lockTitle": "Lock account {name}",
+    "unlockTitle": "Unlock account {name}",
+    "reason": "Reason (required)",
+    "lockNote": "The employee is signed out of every device immediately.",
+    "locked": "Account locked.",
+    "unlocked": "Account unlocked."
+  },
+  "editUser": {
+    "button": "Edit details",
+    "title": "Edit employee details",
+    "saved": "Employee details saved."
   }
 }

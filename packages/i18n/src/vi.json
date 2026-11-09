@@ -27,7 +27,23 @@
     "branchCodeExists": "Mã chi nhánh đã tồn tại trong công ty.",
     "departmentCodeExists": "Mã phòng ban đã tồn tại trong công ty.",
     "departmentParentCycle": "Không thể chọn phòng ban con làm phòng ban cha.",
-    "managerNotMember": "Trưởng phòng phải là nhân viên của công ty."
+    "managerNotMember": "Trưởng phòng phải là nhân viên của công ty.",
+    "identifierRequired": "Cần nhập ít nhất một trong email, số điện thoại, tên đăng nhập.",
+    "emailUsed": "Email đã được dùng cho tài khoản khác.",
+    "phoneUsed": "Số điện thoại đã được dùng cho tài khoản khác.",
+    "usernameUsed": "Tên đăng nhập đã được dùng cho tài khoản khác.",
+    "alreadyMember": "Nhân viên đã thuộc công ty này.",
+    "activationInvalid": "Đường dẫn kích hoạt đã hết hạn hoặc đã được dùng.",
+    "passwordTooShort": "Mật khẩu phải có ít nhất 10 ký tự.",
+    "notInvited": "Nhân viên đã kích hoạt, không cần gửi lại đường dẫn.",
+    "cannotLockSelf": "Bạn không thể khóa tài khoản của chính mình.",
+    "userNotActive": "Chỉ khóa được tài khoản đang hoạt động.",
+    "userNotLocked": "Tài khoản không ở trạng thái bị khóa.",
+    "fileInvalidTemplate": "Tệp không đúng mẫu.",
+    "fileTooManyRows": "Tệp vượt quá 1.000 dòng.",
+    "fileTooLarge": "Tệp vượt quá 5 MB.",
+    "duplicateInFile": "Trùng với dòng {row} trong tệp.",
+    "codeNotFound": "Không tìm thấy mã này trong công ty."
   },
   "login": {
     "title": "Đăng nhập",
@@ -106,7 +122,9 @@
     "invited": "Đã mời",
     "active": "Đang hoạt động",
     "locked": "Bị khóa",
-    "disabled": "Đã vô hiệu hóa"
+    "disabled": "Đã vô hiệu hóa",
+    "department": "Phòng ban",
+    "lastLogin": "Đăng nhập cuối"
   },
   "userDetail": {
     "tabCompanies": "Công ty",
@@ -254,5 +272,68 @@
   "org": {
     "saved": "Đã lưu.",
     "deactivated": "Đã ngừng hoạt động."
+  },
+  "activation": {
+    "title": "Kích hoạt tài khoản",
+    "greeting": "Chào {name}",
+    "company": "Bạn được mời vào {company}.",
+    "identifier": "Tên đăng nhập của bạn: {identifier}",
+    "password": "Mật khẩu mới",
+    "confirm": "Nhập lại mật khẩu",
+    "mismatch": "Hai mật khẩu không giống nhau.",
+    "hint": "Ít nhất 10 ký tự. Nên có chữ hoa, chữ thường, số và ký tự đặc biệt.",
+    "strength": "Độ mạnh: {level}",
+    "weak": "yếu",
+    "medium": "trung bình",
+    "strong": "mạnh",
+    "submit": "Kích hoạt",
+    "invalid": "Đường dẫn kích hoạt đã hết hạn hoặc đã được dùng. Liên hệ quản trị công ty để được gửi lại.",
+    "done": "Kích hoạt thành công. Đăng nhập bằng mật khẩu vừa đặt.",
+    "toLogin": "Về trang đăng nhập"
+  },
+  "invite": {
+    "button": "Mời nhân viên",
+    "title": "Mời nhân viên",
+    "fullName": "Họ tên",
+    "email": "Email",
+    "phone": "Số điện thoại",
+    "username": "Tên đăng nhập",
+    "identifierHint": "Nhập ít nhất một trong email, số điện thoại, tên đăng nhập.",
+    "branch": "Chi nhánh mặc định",
+    "department": "Phòng ban",
+    "jobTitle": "Chức danh",
+    "role": "Vai trò ban đầu",
+    "noRole": "Không gán vai trò",
+    "none": "Không chọn",
+    "submit": "Mời",
+    "sent": "Đã mời {name}. Đường dẫn kích hoạt đã được gửi.",
+    "added": "{name} đã có tài khoản; đã thêm vào công ty này.",
+    "resend": "Gửi lại",
+    "resent": "Đã gửi lại đường dẫn kích hoạt."
+  },
+  "importUsers": {
+    "button": "Nhập từ Excel",
+    "title": "Nhập nhân viên từ Excel",
+    "template": "Tải tệp mẫu",
+    "file": "Tệp .xlsx (tối đa 1.000 dòng, 5 MB)",
+    "submit": "Nhập",
+    "result": "{invited} dòng đã mời, {failed} dòng lỗi.",
+    "download": "Tải danh sách dòng lỗi",
+    "row": "Dòng {row}"
+  },
+  "lock": {
+    "lock": "Khóa",
+    "unlock": "Mở khóa",
+    "lockTitle": "Khóa tài khoản {name}",
+    "unlockTitle": "Mở khóa tài khoản {name}",
+    "reason": "Lý do (bắt buộc)",
+    "lockNote": "Nhân viên bị đăng xuất khỏi mọi thiết bị ngay.",
+    "locked": "Đã khóa tài khoản.",
+    "unlocked": "Đã mở khóa tài khoản."
+  },
+  "editUser": {
+    "button": "Sửa thông tin",
+    "title": "Sửa thông tin nhân viên",
+    "saved": "Đã lưu thông tin nhân viên."
   }
 }
