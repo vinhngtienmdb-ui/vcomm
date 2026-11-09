@@ -60,7 +60,7 @@ Vai trò theo tài liệu `08`. Mọi API kiểm tra quyền phía máy chủ v�
 | CHUC_NANG_10 Hồ sơ cá nhân | Được | Được | Được | Được | Có |
 | CHUC_NANG_11 Chuyển công ty | Được | Được | Được | Được | Có |
 | CHUC_NANG_12 Quản lý vai trò | Được, cả vai trò dùng chung | Vai trò riêng công ty mình | Không | Không | Không |
-| CHUC_NANG_13 Gán vai trò | Mọi phạm vi | Công ty mình, chi nhánh của công ty mình | Không | Không | Không |
+| CHUC_NANG_13 Gán vai trò | Mọi phạm vi | Công ty mình, chi nhánh của công ty mình; xem danh sách vai trò để chọn (THAY_DOI_05) | Không | Không | Không |
 | CHUC_NANG_14 Trang chủ mini app | Được | Được | Được | Được | Có |
 | CHUC_NANG_15 Chính sách duyệt | Được | Trong công ty mình | Không | Không | Không |
 | CHUC_NANG_16, CHUC_NANG_17 Duyệt chứng từ, hộp duyệt | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Có |
