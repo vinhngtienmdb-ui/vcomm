@@ -1,9 +1,9 @@
 # 27. MA TRẬN TRUY VẾT
 
 - Mô tả: Ma trận truy vết yêu cầu → quy tắc → chức năng → màn hình → tiêu chí nghiệm thu → kịch bản kiểm thử → mã nguồn → kết quả.
-- Phiên bản: 0.1
+- Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Chờ phê duyệt
+- Trạng thái: Đã phê duyệt
 
 ## 1. Ma trận
 

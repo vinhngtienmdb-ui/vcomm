@@ -1,9 +1,9 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 0.1
+- Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Chờ phê duyệt
+- Trạng thái: Đã phê duyệt
 
 ## MODULE_01 Nền tảng
 
@@ -345,7 +345,7 @@ Quy ước chung cho mọi chức năng của MODULE_01:
 | Ngôn ngữ | Mọi chuỗi giao diện nằm trong tệp dịch tiếng Việt, tiếng Anh |
 | Lưu trữ | Nhật ký thao tác giữ tối thiểu 10 năm |
 
-## Nội dung do AI đề xuất, chờ người dùng xác nhận
+## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Vị trí | Nội dung |
 |---|---|
