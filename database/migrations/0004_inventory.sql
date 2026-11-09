@@ -237,6 +237,7 @@ CREATE TABLE inventory.stocktake_lines (
     location_id         uuid        REFERENCES inventory.locations(id),
     system_quantity     numeric(20,4) NOT NULL,
     counted_quantity    numeric(20,4) CHECK (counted_quantity >= 0),
+    counted_serials     text[],                             -- hàng theo dõi serial: serial đếm được
     unit_cost           numeric(20,4) NOT NULL DEFAULT 0,
     responsible_user_id uuid        REFERENCES core.users(id),
     compensation_amount numeric(20,4)

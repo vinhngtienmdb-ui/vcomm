@@ -8,6 +8,7 @@ import { AppShell } from "ui/components/AppShell";
 export const inventoryMenu = [
   { href: "/stock", key: "stock", permission: "inventory.stock.view" },
   { href: "/documents", key: "documents", permission: "inventory.stock.view" },
+  { href: "/stocktakes", key: "stocktakes", permission: "inventory.stocktake.manage" },
   { href: "/warehouses", key: "warehouses", permission: "inventory.access" },
 ] as const;
 

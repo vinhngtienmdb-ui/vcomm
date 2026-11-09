@@ -1672,3 +1672,102 @@ export interface TransferDestination {
   companyName: string;
   usesLocations: boolean;
 }
+
+// CONG_VIEC_05, API_67: kiểm kê (CHUC_NANG_42; QUYTAC_NGHIEPVU_53).
+export const stocktakeScopeTypes = ["full", "categories", "locations", "variants"] as const;
+export const stocktakeStatuses = ["draft", "counting", "finished", "cancelled"] as const;
+export const createStocktakeSchema = z
+  .object({
+    warehouseId: z.uuid(),
+    companyId: z.uuid(),
+    scopeType: z.enum(stocktakeScopeTypes),
+    scopeIds: z.array(z.uuid()).max(5000).default([]),
+    note: z.string().trim().max(1000).nullable().optional(),
+  })
+  .strict();
+const countQuantity = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^\d{1,12}(\.\d{1,4})?$/.test(text)) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+// Số đếm theo đơn vị cơ sở. Dòng mới (hàng có thực tế nhưng sổ sách không có) gửi biến thể, lô, vị trí thay cho mã dòng.
+export const saveStocktakeCountsSchema = z
+  .object({
+    counts: z
+      .array(
+        z
+          .object({
+            lineId: z.uuid().optional(),
+            variantId: z.uuid().optional(),
+            lotId: z.uuid().nullable().optional(),
+            locationId: z.uuid().nullable().optional(),
+            countedQuantity: countQuantity,
+            serials: z.array(z.string().trim().min(1).max(100)).max(5000).optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(5000),
+  })
+  .strict();
+export const finishStocktakeSchema = z
+  .object({
+    responsibilities: z
+      .array(z.object({ lineId: z.uuid(), responsibleUserId: z.uuid().nullable(), compensationAmount: z.union([z.number(), z.string(), z.null()]).optional() }).strict())
+      .max(5000)
+      .default([]),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export interface StocktakeListItem {
+  id: string;
+  stocktakeNo: string | null;
+  warehouseId: string;
+  warehouseName: string;
+  companyId: string;
+  companyName: string;
+  scopeType: (typeof stocktakeScopeTypes)[number];
+  status: (typeof stocktakeStatuses)[number];
+  lineCount: number;
+  countedCount: number;
+  createdByName: string;
+  createdAt: string;
+}
+export interface StocktakeResponse extends StocktakeListItem {
+  scopeIds: string[];
+  note: string | null;
+  adjustmentDocumentId: string | null;
+  adjustmentDocumentNo: string | null;
+  lines: {
+    id: string;
+    variantId: string;
+    sku: string;
+    productName: string;
+    optionValues: string[];
+    tracksSerials: boolean;
+    baseUnitName: string;
+    lotId: string | null;
+    lotNo: string | null;
+    expiresOn: string | null;
+    locationId: string | null;
+    locationCode: string | null;
+    systemQuantity: string;
+    countedQuantity: string | null;
+    countedSerials: string[] | null;
+    difference: string | null;
+    unitCost: string | null;
+    differenceValue: string | null;
+    responsibleUserId: string | null;
+    compensationAmount: string | null;
+  }[];
+  version: number;
+  canManage: boolean;
+}
+// Lựa chọn khi kiểm kê: ngành hàng (phạm vi kiểm), nhân viên công ty sở hữu kho (người chịu trách nhiệm phần thiếu).
+export interface StocktakeOptionsResponse {
+  categories: { id: string; code: string; name: string }[];
+  users: { id: string; fullName: string }[];
+}

@@ -594,7 +594,8 @@ export class StockDocumentsService implements OnModuleInit {
           ).rows[0];
           if (!lot) fields[at("lotId")] = "invalidValue";
           else {
-            const disposal = row.reason_code === "expired_disposal";
+            // Hủy hàng hết hạn, điều chỉnh sau kiểm kê được giảm lô đã hết hạn.
+            const disposal = row.reason_code === "expired_disposal" || row.reason_code === "stocktake";
             if (lot.expires_on !== null && day(lot.expires_on)! < today && !disposal) fields[at("lotId")] = "lotExpired";
             const suggestion = (await this.suggestLots(this.database, row.warehouse_id, row.company_id, line.variant_id, line.location_id, disposal)).find((item) => item.suggested);
             if (suggestion && suggestion.lotId !== line.lot_id && !line.lot_override_reason) fields[at("lotOverrideReason")] = "lotOverrideReasonRequired";

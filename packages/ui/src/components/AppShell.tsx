@@ -63,7 +63,7 @@ export function AppShell({ title, menu, children }: { title: string; menu: AppMe
                 {menu
                   .filter((item) => can(item.permission))
                   .map((item) => (
-                    <Link key={item.href} href={item.href} className={pathname.startsWith(item.href) ? "chon" : ""}>
+                    <Link key={item.href} href={item.href} className={pathname === item.href || pathname.startsWith(`${item.href}/`) ? "chon" : ""}>
                       {item.label}
                     </Link>
                   ))}

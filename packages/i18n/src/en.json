@@ -144,7 +144,10 @@
     "documentHeaderLocked": "The document type, warehouse and owner company cannot be changed.",
     "transferNotReadyToShip": "The transfer is not approved yet or has already been shipped.",
     "transferNotInTransit": "The transfer is not in transit.",
-    "serialNotShipped": "This serial is not on the transfer."
+    "serialNotShipped": "This serial is not on the transfer.",
+    "stocktakeNotDraft": "The stocktake has already started.",
+    "stocktakeNotCounting": "The stocktake is not being counted.",
+    "stocktakeNotFullyCounted": "Some lines have not been counted."
   },
   "login": {
     "title": "Sign in",
@@ -680,7 +683,8 @@
     "entity_warehouse": "Warehouse",
     "entity_location": "Shelf location",
     "entity_inventory_settings": "Inventory settings",
-    "entity_stock_document": "Stock document"
+    "entity_stock_document": "Stock document",
+    "entity_stocktake": "Stocktake"
   },
   "auditActions": {
     "login": "Sign in",
@@ -780,7 +784,11 @@
     "stock_document_delete": "Delete draft stock document",
     "stock_document_submit": "Submit stock document",
     "stock_document_ship": "Ship transfer",
-    "stock_document_receive": "Receive transfer"
+    "stock_document_receive": "Receive transfer",
+    "stocktake_create": "Create stocktake",
+    "stocktake_start": "Start stocktake",
+    "stocktake_finish": "Finish stocktake",
+    "stocktake_cancel": "Cancel stocktake"
   },
   "notifications": {
     "title": "Notifications",
@@ -1240,7 +1248,8 @@
     "title": "Inventory",
     "warehouses": "Warehouses and locations",
     "stock": "Stock",
-    "documents": "Stock documents"
+    "documents": "Stock documents",
+    "stocktakes": "Stocktakes"
   },
   "warehouses": {
     "title": "Warehouses and locations",
@@ -1411,5 +1420,60 @@
     "received": "Goods received.",
     "discrepancies": "Discrepancy report",
     "discrepancyLine": "shipped {shipped}, received {received}, difference {difference}"
+  },
+  "stocktakes": {
+    "title": "Stocktake",
+    "hint": "Starting a stocktake locks the items in scope; other documents cannot be posted on them until it finishes. Finishing creates an adjustment for the differences.",
+    "add": "New stocktake",
+    "none": "No stocktakes yet.",
+    "stocktakeNo": "No.",
+    "draftNo": "(Draft)",
+    "warehouse": "Warehouse",
+    "owner": "Owner company",
+    "scope": "Scope",
+    "progress": "Counted",
+    "counted": "Counted",
+    "createdAt": "Created",
+    "status": "Status",
+    "note": "Note",
+    "addItem": "Add product (scan or type a SKU, then press Enter)",
+    "addItemHint": "Untick to remove from scope.",
+    "backToList": "All stocktakes",
+    "adjustment": "Adjustment {number}",
+    "start": "Start stocktake",
+    "finish": "Finish stocktake",
+    "cancel": "Cancel stocktake",
+    "scan": "Scan barcodes to count (each scan adds 1)",
+    "scanHint": "Barcode, SKU",
+    "itemNotFound": "Item not found.",
+    "item": "Item",
+    "lot": "Lot",
+    "location": "Location",
+    "system": "Book",
+    "difference": "Difference",
+    "differenceValue": "Difference value",
+    "responsible": "Responsible",
+    "serials": "Counted serials, one per line",
+    "extraItems": "Items found but not on the books",
+    "saveCounts": "Save counts",
+    "countsSaved": "Counts saved.",
+    "startTitle": "Start stocktake",
+    "startText": "Book quantities are captured and items in scope are locked until the stocktake finishes. Start?",
+    "finishTitle": "Finish stocktake",
+    "finishText": "Every line must be counted. Differences create an adjustment for approval; compensation defaults to the shortage value. Finish?",
+    "cancelTitle": "Cancel stocktake",
+    "cancelText": "Cancel this stocktake and unlock the items?",
+    "startDone": "Stocktake started.",
+    "finishDone": "Stocktake finished.",
+    "cancelDone": "Stocktake cancelled.",
+    "scope_full": "Whole warehouse",
+    "scope_categories": "By category",
+    "scope_locations": "By location",
+    "scope_variants": "By product list",
+    "status_draft": "Draft",
+    "status_counting": "Counting",
+    "status_finished": "Finished",
+    "status_cancelled": "Cancelled",
+    "countedOf": "{counted}/{total} lines"
   }
 }

@@ -2,6 +2,12 @@
 import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req } from "@nestjs/common";
 import {
   createLocationsSchema,
+  createStocktakeSchema,
+  finishStocktakeSchema,
+  saveStocktakeCountsSchema,
+  type StocktakeListItem,
+  type StocktakeOptionsResponse,
+  type StocktakeResponse,
   lotSuggestionQuerySchema,
   receiveTransferSchema,
   saveStockDocumentSchema,
@@ -36,6 +42,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { StockDocumentsService } from "./stock-documents.service";
 import { StockService } from "./stock.service";
+import { StocktakesService } from "./stocktakes.service";
 import { TransfersService } from "./transfers.service";
 import { WarehousesService } from "./warehouses.service";
 
@@ -49,6 +56,7 @@ export class InventoryController {
     private readonly stock: StockService,
     private readonly documents: StockDocumentsService,
     private readonly transfers: TransfersService,
+    private readonly stocktakes: StocktakesService,
   ) {}
 
   // Vào mini app Kho: quyền kho ở công ty đang chọn hoặc ở bất kỳ chi nhánh nào của công ty đó.
@@ -210,5 +218,46 @@ export class InventoryController {
   @Post("documents/:id/receive")
   async receive(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
     return this.transfers.receive(await this.actor(request, companyId), id, receiveTransferSchema.parse(body));
+  }
+
+  // API_67: kiểm kê.
+  @Get("stocktakes")
+  async listStocktakes(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<StocktakeListItem[]> {
+    return this.stocktakes.list(await this.actor(request, companyId));
+  }
+
+  @Post("stocktakes")
+  async createStocktake(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StocktakeResponse> {
+    return this.stocktakes.create(await this.actor(request, companyId), createStocktakeSchema.parse(body));
+  }
+
+  @Get("stocktake-options")
+  async stocktakeOptions(@Req() request: AuthenticatedRequest, @Query("warehouseId", UuidPipe) warehouseId: string, @Headers("x-company-id") companyId?: string): Promise<StocktakeOptionsResponse> {
+    return this.stocktakes.options(await this.actor(request, companyId), warehouseId);
+  }
+
+  @Get("stocktakes/:id")
+  async stocktake(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<StocktakeResponse> {
+    return this.stocktakes.detail(await this.actor(request, companyId), id);
+  }
+
+  @Post("stocktakes/:id/start")
+  async startStocktake(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<StocktakeResponse> {
+    return this.stocktakes.start(await this.actor(request, companyId), id);
+  }
+
+  @Put("stocktakes/:id/counts")
+  async saveCounts(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StocktakeResponse> {
+    return this.stocktakes.saveCounts(await this.actor(request, companyId), id, saveStocktakeCountsSchema.parse(body));
+  }
+
+  @Post("stocktakes/:id/finish")
+  async finishStocktake(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StocktakeResponse> {
+    return this.stocktakes.finish(await this.actor(request, companyId), id, finishStocktakeSchema.parse(body));
+  }
+
+  @Post("stocktakes/:id/cancel")
+  async cancelStocktake(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<StocktakeResponse> {
+    return this.stocktakes.cancel(await this.actor(request, companyId), id);
   }
 }

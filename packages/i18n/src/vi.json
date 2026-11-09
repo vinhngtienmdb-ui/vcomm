@@ -144,7 +144,10 @@
     "documentHeaderLocked": "Không đổi loại phiếu, kho, công ty chủ hàng của phiếu đã lập.",
     "transferNotReadyToShip": "Phiếu chuyển kho chưa được duyệt hoặc đã xuất.",
     "transferNotInTransit": "Phiếu chuyển kho không ở trạng thái đang vận chuyển.",
-    "serialNotShipped": "Serial không có trong phiếu chuyển kho."
+    "serialNotShipped": "Serial không có trong phiếu chuyển kho.",
+    "stocktakeNotDraft": "Kiểm kê đã bắt đầu.",
+    "stocktakeNotCounting": "Kiểm kê không ở trạng thái đang đếm.",
+    "stocktakeNotFullyCounted": "Còn dòng chưa có số đếm."
   },
   "login": {
     "title": "Đăng nhập",
@@ -680,7 +683,8 @@
     "entity_warehouse": "Kho",
     "entity_location": "Vị trí kệ",
     "entity_inventory_settings": "Cài đặt kho",
-    "entity_stock_document": "Phiếu kho"
+    "entity_stock_document": "Phiếu kho",
+    "entity_stocktake": "Kiểm kê"
   },
   "auditActions": {
     "login": "Đăng nhập",
@@ -780,7 +784,11 @@
     "stock_document_delete": "Xóa phiếu kho nháp",
     "stock_document_submit": "Gửi phiếu kho",
     "stock_document_ship": "Xác nhận xuất chuyển kho",
-    "stock_document_receive": "Xác nhận nhận chuyển kho"
+    "stock_document_receive": "Xác nhận nhận chuyển kho",
+    "stocktake_create": "Lập kiểm kê",
+    "stocktake_start": "Bắt đầu kiểm kê",
+    "stocktake_finish": "Kết thúc kiểm kê",
+    "stocktake_cancel": "Hủy kiểm kê"
   },
   "notifications": {
     "title": "Thông báo",
@@ -1240,7 +1248,8 @@
     "title": "Kho",
     "warehouses": "Kho và vị trí",
     "stock": "Tồn kho",
-    "documents": "Phiếu kho"
+    "documents": "Phiếu kho",
+    "stocktakes": "Kiểm kê"
   },
   "warehouses": {
     "title": "Kho và vị trí",
@@ -1411,5 +1420,60 @@
     "received": "Đã nhận hàng.",
     "discrepancies": "Biên bản chênh lệch",
     "discrepancyLine": "xuất {shipped}, nhận {received}, chênh lệch {difference}"
+  },
+  "stocktakes": {
+    "title": "Kiểm kê",
+    "hint": "Bắt đầu kiểm kê thì các mặt hàng trong phạm vi bị khóa, không ghi sổ phiếu khác đến khi kết thúc. Kết thúc sinh phiếu điều chỉnh cho phần chênh lệch.",
+    "add": "Lập kiểm kê",
+    "none": "Chưa có lần kiểm kê nào.",
+    "stocktakeNo": "Số phiếu",
+    "draftNo": "(Nháp)",
+    "warehouse": "Kho",
+    "owner": "Công ty chủ hàng",
+    "scope": "Phạm vi",
+    "progress": "Đã đếm",
+    "counted": "Số đếm",
+    "createdAt": "Ngày lập",
+    "status": "Trạng thái",
+    "note": "Ghi chú",
+    "addItem": "Thêm sản phẩm (quét mã vạch hoặc gõ mã hàng rồi nhấn Enter)",
+    "addItemHint": "Bỏ chọn để loại khỏi phạm vi.",
+    "backToList": "Danh sách kiểm kê",
+    "adjustment": "Phiếu điều chỉnh {number}",
+    "start": "Bắt đầu kiểm kê",
+    "finish": "Kết thúc kiểm kê",
+    "cancel": "Hủy kiểm kê",
+    "scan": "Quét mã vạch để đếm (mỗi lần quét cộng 1)",
+    "scanHint": "Mã vạch, mã hàng",
+    "itemNotFound": "Không tìm thấy mặt hàng.",
+    "item": "Mặt hàng",
+    "lot": "Lô",
+    "location": "Vị trí",
+    "system": "Sổ sách",
+    "difference": "Chênh lệch",
+    "differenceValue": "Giá trị chênh lệch",
+    "responsible": "Người chịu trách nhiệm",
+    "serials": "Serial đếm được, mỗi dòng một serial",
+    "extraItems": "Hàng có thực tế nhưng sổ sách không có",
+    "saveCounts": "Lưu số đếm",
+    "countsSaved": "Đã lưu số đếm.",
+    "startTitle": "Bắt đầu kiểm kê",
+    "startText": "Hệ thống chụp tồn sổ sách và khóa các mặt hàng trong phạm vi đến khi kết thúc. Bắt đầu?",
+    "finishTitle": "Kết thúc kiểm kê",
+    "finishText": "Mọi dòng phải có số đếm. Chênh lệch sinh phiếu điều chỉnh đi luồng duyệt; tiền bồi thường mặc định bằng giá trị thiếu. Kết thúc?",
+    "cancelTitle": "Hủy kiểm kê",
+    "cancelText": "Hủy lần kiểm kê này và bỏ khóa mặt hàng?",
+    "startDone": "Đã bắt đầu kiểm kê.",
+    "finishDone": "Đã kết thúc kiểm kê.",
+    "cancelDone": "Đã hủy kiểm kê.",
+    "scope_full": "Toàn kho",
+    "scope_categories": "Theo ngành hàng",
+    "scope_locations": "Theo vị trí",
+    "scope_variants": "Theo danh sách sản phẩm",
+    "status_draft": "Nháp",
+    "status_counting": "Đang đếm",
+    "status_finished": "Đã kết thúc",
+    "status_cancelled": "Đã hủy",
+    "countedOf": "{counted}/{total} dòng"
   }
 }
