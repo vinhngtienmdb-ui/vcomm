@@ -4,11 +4,20 @@ import { randomBytes } from "node:crypto";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { Pool } from "pg";
 import { AppModule } from "../src/app.module";
+import { CLOCK, type Clock } from "../src/common/clock";
 import { runMigrations } from "../src/database/run-migrations";
 import { seedTestData } from "../src/database/seed";
 import { configureApplication } from "../src/main";
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL ?? "postgres://vcomm_ung_dung:mat_khau_phat_trien@localhost:5432/vcomm_test";
+
+// Đồng hồ giả lập: đặt `fixed` để thử ngày hiệu lực; để null thì dùng giờ thật.
+export const testClock: Clock & { fixed: Date | null } = {
+  fixed: null,
+  now() {
+    return this.fixed ?? new Date();
+  },
+};
 
 export async function startTestApplication(): Promise<{ application: NestExpressApplication; pool: Pool }> {
   if (!new URL(testDatabaseUrl).pathname.endsWith("_test")) {
@@ -20,7 +29,8 @@ export async function startTestApplication(): Promise<{ application: NestExpress
   await pool.query("DROP SCHEMA IF EXISTS core CASCADE; DROP TABLE IF EXISTS public.schema_migrations");
   await runMigrations(pool);
   await seedTestData(pool);
-  const moduleReference = await Test.createTestingModule({ imports: [AppModule] }).compile();
+  testClock.fixed = null;
+  const moduleReference = await Test.createTestingModule({ imports: [AppModule] }).overrideProvider(CLOCK).useValue(testClock).compile();
   const application = configureApplication(moduleReference.createNestApplication<NestExpressApplication>());
   await application.init();
   return { application, pool };

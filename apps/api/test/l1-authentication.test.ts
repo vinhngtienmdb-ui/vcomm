@@ -4,6 +4,7 @@ import type { Pool } from "pg";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds, testPassword } from "../src/database/seed";
+import { cookieValue } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -66,18 +67,12 @@ describe("TIEUCHI_NGHIEMTHU_10: khóa đăng nhập sau 5 lần sai liên tiếp
   });
 });
 
-function accessCookie(setCookie: string[] | string | undefined): string {
-  const cookies = Array.isArray(setCookie) ? setCookie : setCookie ? [setCookie] : [];
-  const access = cookies.find((cookie) => cookie.startsWith("vc_access="));
-  if (!access) throw new Error("Không nhận được cookie vc_access.");
-  return access.split(";")[0] ?? "";
-}
 
 describe("TIEUCHI_NGHIEMTHU_27: trang chủ chỉ hiện mini app có quyền", () => {
   async function homeApps(email: string, companyId?: string): Promise<{ status: number; codes: string[]; body: { error?: { code: string } } }> {
     const session = await login(email, testPassword);
     expect(session.status).toBe(200);
-    const call = request(application.getHttpServer()).get("/api/v1/home").set("cookie", accessCookie(session.headers["set-cookie"]));
+    const call = request(application.getHttpServer()).get("/api/v1/home").set("cookie", `vc_access=${cookieValue(session.headers["set-cookie"], "vc_access")}`);
     if (companyId) call.set("x-company-id", companyId);
     const response = await call;
     return { status: response.status, codes: (response.body.apps ?? []).map((app: { code: string }) => app.code).sort(), body: response.body };
