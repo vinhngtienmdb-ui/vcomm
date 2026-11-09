@@ -1354,3 +1354,67 @@ export function normalizeMoneyText(text: string, currency: string): string {
   const compact = text.trim().replace(/\s/g, "");
   return currency === "VND" ? compact.replace(/\./g, "").replace(",", ".") : compact.replace(",", ".");
 }
+
+// CONG_VIEC_05, API_63: kho, vị trí, công ty chủ hàng, cài đặt kho (CHUC_NANG_38; QUYTAC_NGHIEPVU_45, 46).
+const warehouseCode = z.string().trim().toUpperCase().regex(/^[A-Z0-9_-]{1,20}$/);
+export const createWarehouseSchema = z
+  .object({
+    branchId: z.uuid(),
+    code: warehouseCode,
+    name: z.string().trim().min(1).max(200),
+    address: z.string().trim().max(500).nullable().optional(),
+    usesLocations: z.boolean(),
+    ownerCompanyIds: z.array(z.uuid()).max(50).default([]),
+  })
+  .strict();
+export type CreateWarehouseRequest = z.input<typeof createWarehouseSchema>;
+export const updateWarehouseSchema = z
+  .object({
+    name: z.string().trim().min(1).max(200),
+    address: z.string().trim().max(500).nullable().optional(),
+    usesLocations: z.boolean(),
+    ownerCompanyIds: z.array(z.uuid()).max(50),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export type UpdateWarehouseRequest = z.input<typeof updateWarehouseSchema>;
+export interface WarehouseResponse {
+  id: string;
+  companyId: string;
+  companyName: string;
+  branchId: string;
+  branchName: string;
+  code: string;
+  name: string;
+  address: string | null;
+  usesLocations: boolean;
+  owners: { companyId: string; companyName: string }[];
+  locationCount: number;
+  status: "active" | "inactive";
+  version: number;
+  // Người đang xem thao tác được kho (quyền kho ở chi nhánh sở hữu kho); sai thì chỉ xem tồn của công ty mình.
+  canOperate: boolean;
+  canManage: boolean;
+}
+const locationCode = z.string().trim().toUpperCase().regex(/^[A-Z0-9_.-]{1,30}$/);
+export const createLocationSchema = z.object({ code: locationCode, name: z.string().trim().max(100).nullable().optional() }).strict();
+export const createLocationsSchema = z.object({ locations: z.array(createLocationSchema).min(1).max(500) }).strict();
+export const updateLocationSchema = z.object({ name: z.string().trim().max(100).nullable().optional(), version: z.number().int().positive() }).strict();
+export interface LocationResponse {
+  id: string;
+  warehouseId: string;
+  code: string;
+  name: string | null;
+  status: "active" | "inactive";
+  version: number;
+}
+export const updateInventorySettingsSchema = z.object({ reservationHours: z.number().int().min(1).max(720), version: z.number().int().min(0) }).strict();
+export interface InventorySettingsResponse {
+  reservationHours: number;
+  version: number;
+}
+// Lựa chọn khi lập kho: chi nhánh của công ty đang chọn, công ty trong tập đoàn làm chủ hàng.
+export interface WarehouseOptionsResponse {
+  branches: { id: string; name: string }[];
+  companies: { id: string; shortName: string }[];
+}

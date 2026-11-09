@@ -1,5 +1,6 @@
 // Ngữ cảnh chung mini app Sản phẩm (MODULE_02): nhật ký thao tác gắn mini app catalog, kiểm quyền theo phạm vi.
 import { ApiError } from "../common/api-error";
+export { isUniqueViolation } from "../common/database-errors";
 import type { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 
@@ -32,10 +33,4 @@ export function searchText(...parts: (string | null | undefined)[]): string {
 // Bỏ số 0 thừa sau dấu thập phân của giá trị numeric: "1.5000" thành "1.5", "24.0000" thành "24".
 export function trimDecimal<T extends string | null>(value: T): T {
   return (value !== null && value.includes(".") ? value.replace(/\.?0+$/, "") : value) as T;
-}
-
-// Lỗi trùng chỉ mục duy nhất của PostgreSQL (hai người lưu cùng lúc vượt qua bước kiểm tra trùng).
-export function isUniqueViolation(error: unknown): boolean {
-  const candidate = error as { code?: string; cause?: { code?: string } } | null;
-  return candidate?.code === "23505" || candidate?.cause?.code === "23505";
 }

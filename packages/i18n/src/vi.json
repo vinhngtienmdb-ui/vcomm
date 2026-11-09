@@ -120,7 +120,13 @@
     "priceLineDuplicate": "Mặt hàng và đơn vị bị lặp.",
     "documentNotDraft": "Chỉ sửa được chứng từ đang ở trạng thái nháp.",
     "priceListHasPendingChanges": "Bảng giá còn phiếu điều chỉnh giá chờ duyệt; duyệt xong hoặc rút phiếu trước khi ngừng dùng.",
-    "fileTooManyRowsCatalog": "Tệp vượt quá 2.000 dòng."
+    "fileTooManyRowsCatalog": "Tệp vượt quá 2.000 dòng.",
+    "warehouseCodeExists": "Mã kho đã có trong công ty.",
+    "warehouseOwnerHasStock": "Công ty chủ hàng còn tồn trong kho, không bỏ được.",
+    "warehouseLocationsHaveStock": "Kho còn tồn, không đổi được cài đặt vị trí kệ.",
+    "warehouseHasStock": "Kho còn tồn, không ngừng dùng được.",
+    "locationCodeExists": "Mã vị trí đã có trong kho.",
+    "locationHasStock": "Vị trí còn tồn, không ngừng dùng được."
   },
   "login": {
     "title": "Đăng nhập",
@@ -652,7 +658,10 @@
     "entity_channel": "Kênh bán",
     "entity_customer_group": "Nhóm khách hàng",
     "entity_price_list": "Bảng giá",
-    "entity_price_change": "Phiếu điều chỉnh giá"
+    "entity_price_change": "Phiếu điều chỉnh giá",
+    "entity_warehouse": "Kho",
+    "entity_location": "Vị trí kệ",
+    "entity_inventory_settings": "Cài đặt kho"
   },
   "auditActions": {
     "login": "Đăng nhập",
@@ -737,7 +746,16 @@
     "price_change_create": "Lập phiếu điều chỉnh giá",
     "price_change_update": "Sửa phiếu điều chỉnh giá",
     "price_change_delete": "Xóa phiếu điều chỉnh giá nháp",
-    "price_change_submit": "Gửi phiếu điều chỉnh giá"
+    "price_change_submit": "Gửi phiếu điều chỉnh giá",
+    "warehouse_create": "Thêm kho",
+    "warehouse_update": "Sửa kho",
+    "warehouse_deactivate": "Ngừng dùng kho",
+    "warehouse_activate": "Dùng lại kho",
+    "location_create": "Thêm vị trí kệ",
+    "location_update": "Sửa vị trí kệ",
+    "location_deactivate": "Ngừng dùng vị trí kệ",
+    "location_activate": "Dùng lại vị trí kệ",
+    "inventory_settings_update": "Sửa cài đặt kho"
   },
   "notifications": {
     "title": "Thông báo",
@@ -1192,5 +1210,43 @@
     "appliedNow": "Công ty chưa có chính sách duyệt cho phiếu điều chỉnh giá nên giá đã được áp dụng.",
     "deleted": "Đã xóa phiếu nháp.",
     "withdrawn": "Đã rút phiếu."
+  },
+  "inventoryMenu": {
+    "title": "Kho",
+    "warehouses": "Kho và vị trí"
+  },
+  "warehouses": {
+    "title": "Kho và vị trí",
+    "hint": "Kho thuộc một chi nhánh. Nhân viên có quyền kho ở chi nhánh đó thao tác mọi hàng trong kho, kể cả hàng của công ty chủ hàng khác; nhân viên công ty chủ hàng chỉ xem tồn của công ty mình.",
+    "add": "Thêm kho",
+    "none": "Chưa có kho.",
+    "code": "Mã kho",
+    "codeHint": "Chữ in hoa, số, dấu gạch; không đổi sau khi tạo.",
+    "name": "Tên kho",
+    "branch": "Chi nhánh",
+    "address": "Địa chỉ",
+    "owners": "Công ty chủ hàng",
+    "otherOwners": "Công ty khác được gửi hàng",
+    "otherOwnersHint": "Công ty sở hữu kho luôn được gửi hàng. Bỏ một công ty chỉ được khi công ty đó không còn tồn trong kho.",
+    "locations": "Vị trí kệ",
+    "usesLocations": "Quản lý tồn theo vị trí kệ",
+    "usesLocationsHint": "Chỉ đổi được khi kho không còn tồn.",
+    "noLocations": "Không dùng",
+    "status": "Trạng thái",
+    "active": "Đang dùng",
+    "inactive": "Ngừng dùng",
+    "viewOnly": "Chỉ xem tồn",
+    "edit": "Sửa",
+    "deactivate": "Ngừng dùng",
+    "activate": "Dùng lại",
+    "saved": "Đã lưu.",
+    "locationsOf": "Vị trí kệ: {name}",
+    "noLocationsYet": "Kho chưa có vị trí.",
+    "addLocations": "Thêm vị trí",
+    "addLocationsHint": "Mỗi dòng một vị trí: mã, sau đó là tên nếu có. Ví dụ: A-01-01 Kệ A tầng 1.",
+    "line": "Dòng {line}",
+    "settings": "Cài đặt kho của công ty",
+    "reservationHours": "Thời hạn giữ hàng cho đơn bán (giờ)",
+    "reservationHoursHint": "Hết hạn mà đơn chưa xuất thì hàng tự nhả. Mặc định 72 giờ."
   }
 }

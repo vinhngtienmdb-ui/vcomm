@@ -120,7 +120,13 @@
     "priceLineDuplicate": "The item and unit are repeated.",
     "documentNotDraft": "Only draft documents can be changed.",
     "priceListHasPendingChanges": "This price list has price changes pending approval; finish or withdraw them before deactivating.",
-    "fileTooManyRowsCatalog": "The file has more than 2,000 rows."
+    "fileTooManyRowsCatalog": "The file has more than 2,000 rows.",
+    "warehouseCodeExists": "This warehouse code already exists in the company.",
+    "warehouseOwnerHasStock": "This owner company still has stock in the warehouse.",
+    "warehouseLocationsHaveStock": "The warehouse has stock; the location setting cannot be changed.",
+    "warehouseHasStock": "The warehouse has stock and cannot be deactivated.",
+    "locationCodeExists": "This location code already exists in the warehouse.",
+    "locationHasStock": "The location has stock and cannot be deactivated."
   },
   "login": {
     "title": "Sign in",
@@ -652,7 +658,10 @@
     "entity_channel": "Sales channel",
     "entity_customer_group": "Customer group",
     "entity_price_list": "Price list",
-    "entity_price_change": "Price change"
+    "entity_price_change": "Price change",
+    "entity_warehouse": "Warehouse",
+    "entity_location": "Shelf location",
+    "entity_inventory_settings": "Inventory settings"
   },
   "auditActions": {
     "login": "Sign in",
@@ -737,7 +746,16 @@
     "price_change_create": "Create price change",
     "price_change_update": "Edit price change",
     "price_change_delete": "Delete draft price change",
-    "price_change_submit": "Submit price change"
+    "price_change_submit": "Submit price change",
+    "warehouse_create": "Add warehouse",
+    "warehouse_update": "Edit warehouse",
+    "warehouse_deactivate": "Deactivate warehouse",
+    "warehouse_activate": "Activate warehouse",
+    "location_create": "Add shelf locations",
+    "location_update": "Edit shelf location",
+    "location_deactivate": "Deactivate shelf location",
+    "location_activate": "Activate shelf location",
+    "inventory_settings_update": "Edit inventory settings"
   },
   "notifications": {
     "title": "Notifications",
@@ -1192,5 +1210,43 @@
     "appliedNow": "The company has no approval policy for price changes, so the prices were applied.",
     "deleted": "Draft deleted.",
     "withdrawn": "Withdrawn."
+  },
+  "inventoryMenu": {
+    "title": "Inventory",
+    "warehouses": "Warehouses and locations"
+  },
+  "warehouses": {
+    "title": "Warehouses and locations",
+    "hint": "A warehouse belongs to a branch. Staff with inventory rights at that branch handle all goods in it, including goods of other owner companies; staff of an owner company only see their own stock.",
+    "add": "Add warehouse",
+    "none": "No warehouses yet.",
+    "code": "Warehouse code",
+    "codeHint": "Uppercase letters, digits, hyphens; cannot be changed later.",
+    "name": "Warehouse name",
+    "branch": "Branch",
+    "address": "Address",
+    "owners": "Owner companies",
+    "otherOwners": "Other companies allowed to store goods",
+    "otherOwnersHint": "The owning company can always store goods. A company can be removed only when it has no stock left here.",
+    "locations": "Shelf locations",
+    "usesLocations": "Track stock by shelf location",
+    "usesLocationsHint": "Can be changed only when the warehouse has no stock.",
+    "noLocations": "Not used",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "viewOnly": "View stock only",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "saved": "Saved.",
+    "locationsOf": "Shelf locations: {name}",
+    "noLocationsYet": "No locations yet.",
+    "addLocations": "Add locations",
+    "addLocationsHint": "One location per line: code, then an optional name. Example: A-01-01 Rack A level 1.",
+    "line": "Line {line}",
+    "settings": "Company inventory settings",
+    "reservationHours": "Reservation period for sales orders (hours)",
+    "reservationHoursHint": "Reserved goods are released when an order is not shipped in time. Default 72 hours."
   }
 }

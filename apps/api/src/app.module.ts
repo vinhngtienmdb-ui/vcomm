@@ -46,6 +46,8 @@ import { CatalogItemsService } from "./catalog/catalog-items.service";
 import { PriceChangesService } from "./catalog/price-changes.service";
 import { PriceListsService } from "./catalog/price-lists.service";
 import { PricingController } from "./catalog/pricing.controller";
+import { InventoryController } from "./inventory/inventory.controller";
+import { WarehousesService } from "./inventory/warehouses.service";
 import { CategoriesService } from "./catalog/categories.service";
 import { UnitsService } from "./catalog/units.service";
 import { ProductsService } from "./catalog/products.service";
@@ -62,7 +64,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController],
   providers: [
     AuthService,
     ActivationService,
@@ -87,6 +89,7 @@ import { UsersService } from "./users/users.service";
     CatalogItemsService,
     PriceListsService,
     PriceChangesService,
+    WarehousesService,
     ProposalsService,
     ProposalPdfService,
     PhoneOtpService,
