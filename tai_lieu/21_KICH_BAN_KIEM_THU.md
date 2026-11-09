@@ -472,7 +472,7 @@ Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá th�
 - Chức năng: CHUC_NANG_10
 - Loại: Sai
 - Vai trò thực hiện: Quản lý tỷ giá `tygia@vcomm.test`
-- Điều kiện ban đầu và dữ liệu: Đã đăng nhập, đã xác thực hai lớp. **CHƯA XÁC ĐỊNH:** tài liệu `17` chưa có endpoint tắt xác thực hai lớp; kịch bản gọi endpoint được bổ sung ở lát L5.
+- Điều kiện ban đầu và dữ liệu: Đã đăng nhập, đã xác thực hai lớp. Chốt ở lát L5: endpoint tắt là `POST /me/mfa/disable` (tài liệu `17` dòng API_08).
 - Các bước: (1) Gọi endpoint tắt xác thực hai lớp.
 - Kết quả mong đợi: Bị từ chối "Tài khoản của bạn bắt buộc xác thực hai lớp.". Bảng `mfa_factors` không đổi.
 - Kiểm thử tự động: Tự động API

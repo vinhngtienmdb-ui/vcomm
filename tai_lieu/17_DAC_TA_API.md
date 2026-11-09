@@ -53,14 +53,14 @@ Quyền viết tắt theo tiền tố `platform.`. "Công khai" = không cần �
 
 | Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
 |---|---|---|---|---|---|
-| API_01 | `POST /auth/login` | CHUC_NANG_06 | Công khai | `identifier`, `password` | Đặt cookie phiên; `{ mfaRequired, user }` |
+| API_01 | `POST /auth/login` | CHUC_NANG_06 | Công khai | `identifier`, `password` | Đặt cookie phiên; `{ mfaRequired, mfaEnrolled, user }`; phiên chưa nhập mã thì API khác trả `401 MFA_REQUIRED` |
 | API_02 | `POST /auth/otp/send` | CHUC_NANG_08 | Công khai | `phone` | `204` (luôn thành công, QUYTAC_NGHIEPVU_05) |
 | API_03 | `POST /auth/otp/verify` | CHUC_NANG_08 | Công khai | `phone`, `code` | Như API_01 |
 | API_04 | `GET /auth/oauth/{provider}/start` | CHUC_NANG_07, CHUC_NANG_24 | Công khai | `provider` = `google`, `microsoft`, `zalo`; `mode` = `login`, `link` | Chuyển hướng tới nhà cung cấp |
 | API_05 | `GET /auth/oauth/{provider}/callback` | CHUC_NANG_07, CHUC_NANG_24 | Công khai | `code`, `state` | Đăng nhập hoặc liên kết; chuyển hướng về MAN_HINH_05 hoặc MAN_HINH_06 |
 | API_06 | `POST /auth/mfa/verify` | CHUC_NANG_09 | Đã qua bước một | `code` hoặc `backupCode` | Phiên đánh dấu đã xác thực hai lớp |
 | API_07 | `POST /auth/mfa/enroll` | CHUC_NANG_09 | Đã đăng nhập | `factorType` | `{ otpauthUrl, secretForManualEntry }` |
-| API_08 | `POST /auth/mfa/enroll/confirm` | CHUC_NANG_09 | Đã đăng nhập | `code` | `{ backupCodes: [10 mã] }` (chỉ trả một lần) |
+| API_08 | `POST /auth/mfa/enroll/confirm`; `POST /me/mfa/disable` (tắt, cần `code`); `POST /me/mfa/backup-codes` (tạo lại mã dự phòng, cần `code`) | CHUC_NANG_09, CHUC_NANG_10 | Đã đăng nhập | `code` | `{ backupCodes: [10 mã] }` (chỉ trả một lần); tắt bị từ chối khi đang bắt buộc |
 | API_09 | `POST /auth/refresh` | Phiên | Cookie làm mới | Không | Token mới; đổi token làm mới |
 | API_10 | `POST /auth/logout` | Phiên | Đã đăng nhập | Không | `204`; thu hồi phiên |
 | API_11 | `POST /auth/activation`; `GET /auth/activation/{token}` (thông tin cho MAN_HINH_03) | CHUC_NANG_04 | Công khai | `token`, `password` | `204`; `{ fullName, companyName, loginIdentifier }` |
