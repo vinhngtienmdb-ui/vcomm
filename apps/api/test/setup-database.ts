@@ -29,6 +29,7 @@ export async function startTestApplication(): Promise<{ application: NestExpress
   }
   process.env.DATABASE_URL = testDatabaseUrl;
   process.env.ACCESS_TOKEN_SECRET ??= randomBytes(32).toString("hex");
+  process.env.MFA_SECRET_KEY ??= randomBytes(32).toString("hex");
   const pool = new Pool({ connectionString: testDatabaseUrl, max: 2 });
   await pool.query("DROP SCHEMA IF EXISTS core CASCADE; DROP TABLE IF EXISTS public.schema_migrations");
   await runMigrations(pool);

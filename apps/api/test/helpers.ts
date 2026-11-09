@@ -2,6 +2,7 @@
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { Pool } from "pg";
 import request from "supertest";
+import { Secret, TOTP } from "otpauth";
 import { expect } from "vitest";
 import { testPassword } from "../src/database/seed";
 
@@ -18,11 +19,34 @@ export interface Session {
   call(method: Method, path: string, options?: { companyId?: string; body?: unknown }): request.Test;
 }
 
-export async function signIn(application: NestExpressApplication, email: string): Promise<Session> {
-  const response = await request(application.getHttpServer()).post("/api/v1/auth/login").send({ identifier: email, password: testPassword });
+// Bí mật TOTP của tài khoản thử đã đăng ký, để đăng nhập lại tự nhập mã.
+export const totpSecrets = new Map<string, string>();
+
+export const totpCode = (secret: string) => new TOTP({ secret: Secret.fromBase32(secret), digits: 6, period: 30 }).generate();
+
+// Đăng nhập; tài khoản cần xác thực hai lớp thì tự đăng ký hoặc nhập mã TOTP.
+export async function signIn(application: NestExpressApplication, email: string, password = testPassword): Promise<Session> {
+  const response = await request(application.getHttpServer()).post("/api/v1/auth/login").send({ identifier: email, password });
   expect(response.status).toBe(200);
-  const access = cookieValue(response.headers["set-cookie"], "vc_access");
-  const csrf = cookieValue(response.headers["set-cookie"], "vc_csrf");
+  const session = sessionFrom(application, response.headers["set-cookie"]);
+  if (response.body.mfaRequired) {
+    let secret = totpSecrets.get(email);
+    if (!response.body.mfaEnrolled) {
+      const enrolled = await session.call("post", "/auth/mfa/enroll");
+      expect(enrolled.status).toBe(201);
+      secret = enrolled.body.secretForManualEntry as string;
+      totpSecrets.set(email, secret);
+      expect((await session.call("post", "/auth/mfa/enroll/confirm", { body: { code: totpCode(secret) } })).status).toBe(201);
+    } else {
+      expect((await session.call("post", "/auth/mfa/verify", { body: { code: totpCode(secret!) } })).status).toBe(204);
+    }
+  }
+  return session;
+}
+
+export function sessionFrom(application: NestExpressApplication, setCookie: string[] | string | undefined): Session {
+  const access = cookieValue(setCookie, "vc_access");
+  const csrf = cookieValue(setCookie, "vc_csrf");
   return {
     call(method, path, options = {}) {
       const call = request(application.getHttpServer())[method](`/api/v1${path}`)
