@@ -9,6 +9,8 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_02: Xong lát L4 (mời, kích hoạt, nhập Excel, khóa, mở khóa, sửa nhân viên; API_11, API_25 đến API_30; MAN_HINH_03, 12, 13); kiểm thử tích hợp 58/58 đạt. Thêm thư viện read-excel-file 9.3.14 và write-excel-file 4.1.1 (MIT). AI tự quyết trong phạm vi đặc tả: trùng định danh trong cùng tệp Excel thì dòng sau lỗi; tài khoản có sẵn nhận theo định danh ưu tiên email, số điện thoại, tên đăng nhập; tệp dòng lỗi trả dạng data URL, không lưu máy chủ; API_11 thêm GET thông tin kích hoạt cho MAN_HINH_03.
+- Vấn đề tồn đọng: nhân viên chỉ có tên đăng nhập (không email, số điện thoại) không nhận được đường dẫn kích hoạt; cần quyết định cách giao đường dẫn.
 - CONG_VIEC_02: Xong lát L3 (công ty, chi nhánh, phòng ban; API_20 đến 23; MAN_HINH_09, 10, 11); kiểm thử tích hợp 44/44 đạt. AI tự quyết trong phạm vi đặc tả: người tạo công ty được thêm làm thành viên công ty mới để chọn được công ty đó (CHUC_NANG_11); ngừng hoạt động phòng ban không chặn khi còn phòng ban con vì đặc tả chưa có quy tắc này.
 - CONG_VIEC_02: Xong lát L2 (vai trò, ma trận quyền, gán vai trò theo phạm vi, lọc theo chi nhánh); kiểm thử tích hợp 29/29 đạt. Lập THAY_DOI_05.
 - CONG_VIEC_02: Xong lát L1 (đăng nhập bằng mật khẩu, phiên, trang chủ mini app); kiểm thử tích hợp 9/9 đạt; CI đạt; pull request số 4.
