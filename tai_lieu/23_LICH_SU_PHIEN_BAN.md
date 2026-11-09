@@ -5,6 +5,33 @@
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đang cập nhật
 
+## Phiên bản 0.2.0 – 2026-11-09 – Đã phát hành
+
+- Chức năng mới (CONG_VIEC_03, hoàn thiện MODULE_01):
+  - Cài đặt tích hợp (MAN_HINH_19): nhập mã ứng dụng Google, Microsoft, Zalo và khóa eSMS.vn trên giao diện, khóa bí mật mã hóa, kiểm tra kết nối, gửi thử tin, nhật ký gửi tin;
+  - đăng nhập bằng số điện thoại (mã OTP qua Zalo ZNS, không được thì SMS), Google, Microsoft, Zalo; liên kết, hủy liên kết ở hồ sơ; kích hoạt tài khoản bằng Google, Microsoft;
+  - Zalo ZNS cho chứng từ chờ duyệt, nhắc quá hạn, kết quả duyệt;
+  - mẫu đề xuất do quản trị công ty tạo, 3 mẫu có sẵn (phiếu đề nghị chi, đề nghị tạm ứng, đề nghị mua sắm) (MAN_HINH_20);
+  - đề xuất theo mẫu, gửi duyệt qua luồng duyệt có sẵn, tệp đính kèm (tối đa 10 tệp, 10 MB), in PDF (MAN_HINH_21); người duyệt xem nội dung đề xuất ở MAN_HINH_08.
+- Lỗi đã sửa: không có lỗi đã cấp mã.
+- Thay đổi dữ liệu: database migration `database/migrations/0002_cong_viec_03.sql` thêm 6 bảng (`integration_settings`, `otp_codes`, `message_deliveries`, `proposal_templates`, `proposals`, `attachments`), không sửa bảng cũ. Khi khởi động, API đồng bộ thêm 3 quyền (`platform.integration.manage`, `platform.proposal_template.manage`, `platform.proposal.create`) vào vai trò có sẵn.
+- Thay đổi API: thêm API_02 đến API_05, API_49 đến API_54 (tài liệu `17`); API cũ giữ nguyên.
+- Thư viện mới: pdfmake 0.3.12 (MIT), @aws-sdk/client-s3 3.1156.0 (Apache-2.0).
+- Biến môi trường mới: `STORAGE_DRIVER` (`local` hoặc `s3`), `STORAGE_DIRECTORY`, `S3_BUCKET`, `AWS_REGION`. Bỏ `GOOGLE_CLIENT_*`, `MICROSOFT_CLIENT_*`, `ZALO_APP_*`, `SMS_DRIVER` (chuyển sang Cài đặt tích hợp).
+- Rủi ro:
+  - Chưa thử với eSMS, Google, Microsoft, Zalo, S3 thật; chỉ thử trên bản giả lập. Phải nhập khóa và thử trên môi trường thử nghiệm trước môi trường thật.
+  - Khóa trong Cài đặt tích hợp mã hóa bằng `MFA_SECRET_KEY`; đổi khóa này thì phải nhập lại mọi khóa tích hợp và đăng ký lại xác thực hai lớp.
+  - Môi trường thật phải đặt `STORAGE_DRIVER=s3`; để `local` thì tệp đính kèm mất khi thay máy chủ.
+  - Chưa có tác vụ dọn bảng `otp_codes`, `message_deliveries`.
+  - LOI_01 còn mở.
+- Khả năng tương thích: tương thích ngược với 0.1.0; dữ liệu, API cũ không đổi.
+- Công việc gộp trong phiên bản: CONG_VIEC_03.
+- Tag: `v0.2.0` trên commit hợp nhất nhánh `phat-hanh/v0.2.0` vào `main`.
+- Phương án quay lui riêng của phiên bản:
+  - Mã nguồn: triển khai lại tag `v0.1.0`.
+  - Database migration `0002_cong_viec_03.sql`: bản 0.1.0 không đọc các bảng mới nên có thể giữ nguyên khi quay lui mã. Chỉ xóa khi cần: sao lưu, rồi `DROP TABLE core.attachments, core.proposals, core.proposal_templates, core.message_deliveries, core.otp_codes, core.integration_settings;` và xóa dòng `0002_cong_viec_03.sql` khỏi `public.schema_migrations`.
+  - Dữ liệu cần sao lưu thêm: thư mục hoặc bucket lưu tệp đính kèm; các dòng loại chứng từ `platform.proposal_*` và dãy số, chính sách duyệt của chúng do mẫu đề xuất tạo ra (giữ lại không ảnh hưởng 0.1.0).
+
 ## Phiên bản 0.1.0 – 2026-11-09 – Đã phát hành
 
 - Chức năng mới: mini app Nền tảng (MODULE_01) trừ phần đăng nhập Google, Microsoft, Zalo, số điện thoại:
