@@ -3,7 +3,7 @@
 - Module: MODULE_01 Nền tảng
 - Mức quy mô: Lớn (module mới, dự án mới)
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Bản nháp. Bị chặn đến khi giai đoạn 05 đến 08 của MODULE_01 được phê duyệt.
+- Trạng thái: Đã phê duyệt kế hoạch lát ngày 2026-11-09. Lát L6 bị chặn đến khi có Zalo Official Account, mã ứng dụng Google, Microsoft, Zalo và nhà cung cấp SMS.
 - Nội dung nghiệp vụ đã được tách vào tài liệu `06` đến `11` và `27` ngày 2026-11-09. Khi hai nơi khác nhau, tài liệu đánh số là chuẩn.
 
 ## 1. Mục tiêu
@@ -24,7 +24,7 @@ Cung cấp nền chung cho mọi mini app: biết ai đang dùng, thuộc công 
 
 ## 3. Yêu cầu nghiệp vụ
 
-1. Tập đoàn quản lý nhiều công ty con dạng cây; mỗi công ty có mã số thuế, tiền tệ hạch toán (mặc định VND), chế độ kế toán (Thông tư 200), tháng bắt đầu năm tài chính.
+1. Tập đoàn quản lý nhiều công ty con dạng cây; mỗi công ty có mã số thuế, tiền tệ hạch toán (mặc định VND), chế độ kế toán (Thông tư 99/2025), tháng bắt đầu năm tài chính.
 2. Chi nhánh thuộc một công ty, có loại: trụ sở, văn phòng, kho, cửa hàng. Mã chi nhánh duy nhất trong công ty.
 3. Phòng ban dạng cây trong một công ty, có trưởng phòng.
 4. Một người dùng đăng nhập được bằng nhiều cách: tên đăng nhập hoặc email kèm mật khẩu; Google Workspace hoặc Microsoft 365; số điện thoại kèm mã OTP gửi qua SMS.
@@ -129,7 +129,7 @@ Không áp dụng (chưa có mã nguồn).
 
 ## 14. Các lát và điểm xem trước
 
-Đề xuất ngày 2026-11-09, chờ người dùng duyệt. Mỗi lát chạy được từ giao diện tới cơ sở dữ liệu, có kiểm thử tự động. Sau mỗi lát, AI dừng ở điểm xem trước. Thứ tự ưu tiên điều dễ hiểu sai nhất: đăng nhập và phân quyền theo phạm vi trước.
+Người dùng duyệt ngày 2026-11-09. Mỗi lát chạy được từ giao diện tới cơ sở dữ liệu, có kiểm thử tự động. Sau mỗi lát, AI dừng ở điểm xem trước. Thứ tự ưu tiên điều dễ hiểu sai nhất: đăng nhập và phân quyền theo phạm vi trước.
 
 | Lát | Nội dung | Màn hình, API | Tiêu chí nghiệm thu | Điểm xem trước: người dùng xem gì, thử gì |
 |---|---|---|---|---|

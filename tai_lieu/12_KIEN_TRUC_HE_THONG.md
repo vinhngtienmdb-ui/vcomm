@@ -47,7 +47,7 @@
 | Tác vụ nền | BullMQ trên Redis, chạy trong tiến trình riêng của `apps/api` | CHUC_NANG_18 (nhắc, chuyển duyệt quá hạn mỗi 15 phút), CHUC_NANG_21 (lấy tỷ giá mỗi sáng), đẩy sự kiện outbox |
 | Lưu đệm quyền, mã OTP, giới hạn số lần thử | Redis | CHUC_NANG_06, CHUC_NANG_08, CHUC_NANG_13, yêu cầu phi chức năng hiệu năng |
 | Gửi email | Amazon SES | CHUC_NANG_04, CHUC_NANG_06, CHUC_NANG_09 |
-| Gửi SMS | **CHƯA XÁC ĐỊNH:** nhà cung cấp | CHUC_NANG_04, CHUC_NANG_08, CHUC_NANG_09 |
+| Gửi mã OTP, đường dẫn qua điện thoại | Zalo ZNS trước, SMS thương hiệu dự phòng; **CHƯA XÁC ĐỊNH:** nhà cung cấp SMS | CHUC_NANG_04, CHUC_NANG_08, CHUC_NANG_09 |
 | Đăng nhập liên kết | Google, Microsoft qua OpenID Connect; Zalo qua OAuth 2.0 của Zalo for Developers | CHUC_NANG_07, CHUC_NANG_24 |
 | Xác thực nhà bán qua VNeID | Tổ chức cung cấp dịch vụ xác thực điện tử (**CHƯA XÁC ĐỊNH**), theo Nghị định 69/2024/NĐ-CP sửa đổi bởi Nghị định 320/2026/NĐ-CP | MODULE_02 (THAY_DOI_02) |
 | Khóa bí mật, mã hóa | AWS Secrets Manager, AWS KMS | Tài liệu `22` mục 5 |
@@ -57,8 +57,8 @@
 | Môi trường | Mục đích | Hạ tầng |
 |---|---|---|
 | Phát triển | Máy lập trình viên và phiên AI | Docker Compose: PostgreSQL 16, Redis; gửi email, SMS giả lập ghi ra log |
-| Thử nghiệm (staging) | Người dùng nghiệm thu trước khi lên môi trường thật | AWS, cấu hình nhỏ, dữ liệu giả |
-| Thật | Vận hành | AWS vùng Singapore, ECS Fargate tối thiểu 2 bản chạy song song mỗi dịch vụ, Aurora PostgreSQL nhiều vùng sẵn sàng |
+| Thử nghiệm (staging) | Người dùng nghiệm thu trước khi lên môi trường thật | AWS, cấu hình nhỏ, Aurora Serverless v2 tự dừng, không NAT, tắt ngoài giờ làm việc, dữ liệu giả |
+| Thật | Vận hành | AWS vùng Singapore, ECS Fargate chip Arm tối thiểu 2 bản chạy song song mỗi dịch vụ, Aurora PostgreSQL nhiều vùng sẵn sàng (giai đoạn 1: 2×db.t4g.medium, 1 NAT gateway) |
 
 - Mọi môi trường AWS dựng bằng AWS CDK; khóa bí mật mỗi môi trường khác nhau.
 - Database migration chạy một lần trước khi bật phiên bản mới, cùng thứ tự ở mọi môi trường.

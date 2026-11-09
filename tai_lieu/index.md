@@ -22,8 +22,8 @@
 | 15 | [15_HE_THONG_THIET_KE.md](15_HE_THONG_THIET_KE.md) | Hệ thống thiết kế | Màu, chữ, khoảng cách, thành phần dùng chung (phương án C) | 06 | Đã phê duyệt |
 | 16 | [16_CO_SO_DU_LIEU.md](16_CO_SO_DU_LIEU.md) | Cơ sở dữ liệu | Schema `core` (29 bảng), sơ đồ quan hệ, chính sách xóa, lưu giữ | 07 | Đã phê duyệt |
 | 17 | [17_DAC_TA_API.md](17_DAC_TA_API.md) | Đặc tả API | Quy ước, mô hình lỗi, 48 mã API, sự kiện | 07 | Đã phê duyệt |
-| 18 | [18_QUY_TAC_PHAT_TRIEN_AI.md](18_QUY_TAC_PHAT_TRIEN_AI.md) | Quy tắc phát triển AI | Quy ước mã, Git, lệnh chạy, tài khoản thử | 08 | Chờ phê duyệt |
-| 19 | [19_CHI_DAN_HE_THONG_AI.md](19_CHI_DAN_HE_THONG_AI.md) | Chỉ dẫn hệ thống AI | Ngữ cảnh, điều luôn giữ, giới hạn quyền hạn | 08 | Chờ phê duyệt |
+| 18 | [18_QUY_TAC_PHAT_TRIEN_AI.md](18_QUY_TAC_PHAT_TRIEN_AI.md) | Quy tắc phát triển AI | Quy ước mã, Git, lệnh chạy, tài khoản thử | 08 | Đã phê duyệt |
+| 19 | [19_CHI_DAN_HE_THONG_AI.md](19_CHI_DAN_HE_THONG_AI.md) | Chỉ dẫn hệ thống AI | Ngữ cảnh, điều luôn giữ, giới hạn quyền hạn | 08 | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | Dữ liệu nhạy cảm, điểm tiếp nhận, xác thực, ma trận phân quyền, khóa bí mật | 05 | Đã phê duyệt |
 | 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | Sổ phiếu THAY_DOI | 13 | Đang cập nhật |
 | 27 | [27_MA_TRAN_TRUY_VET.md](27_MA_TRAN_TRUY_VET.md) | Ma trận truy vết | Yêu cầu → chức năng → tiêu chí → kiểm thử → mã nguồn | 04 | Đã phê duyệt |

@@ -1,9 +1,10 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
+- Thay đổi theo: THAY_DOI_03 (2026-11-09)
 
 Hiện có schema `core` của MODULE_01 Nền tảng. Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
@@ -135,7 +136,7 @@ CREATE TABLE core.companies (
     phone               text,
     email               citext,
     base_currency       char(3)     NOT NULL DEFAULT 'VND' REFERENCES core.currencies(code),
-    accounting_regime   text        NOT NULL DEFAULT 'TT200' CHECK (accounting_regime IN ('TT200', 'TT133')),
+    accounting_regime   text        NOT NULL DEFAULT 'TT99_2025' CHECK (accounting_regime IN ('TT99_2025', 'TT133')),
     fiscal_year_start   smallint    NOT NULL DEFAULT 1 CHECK (fiscal_year_start BETWEEN 1 AND 12),
     status              text        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
     created_at          timestamptz NOT NULL DEFAULT now(),

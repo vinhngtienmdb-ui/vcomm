@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 1.1
+- Phiên bản: 1.2
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09)
 
 ## MODULE_01 Nền tảng
 
@@ -17,7 +17,7 @@ Quy ước chung cho mọi chức năng của MODULE_01:
 - Mục đích: Tạo, sửa, ngừng hoạt động công ty trong cây tập đoàn.
 - Người sử dụng: Quản trị tập đoàn.
 - Điều kiện thực hiện: Có quyền `platform.company.manage` phạm vi tập đoàn.
-- Dữ liệu đầu vào: Công ty mẹ, mã, tên pháp lý, tên ngắn, mã số thuế, địa chỉ, điện thoại, email, tiền tệ hạch toán (mặc định VND), chế độ kế toán (mặc định Thông tư 200), tháng bắt đầu năm tài chính (mặc định 1).
+- Dữ liệu đầu vào: Công ty mẹ, mã, tên pháp lý, tên ngắn, mã số thuế, địa chỉ, điện thoại, email, tiền tệ hạch toán (mặc định VND), chế độ kế toán (mặc định Thông tư 99/2025; công ty nhỏ và vừa được chọn Thông tư 133), tháng bắt đầu năm tài chính (mặc định 1).
 - Quy trình xử lý: Kiểm tra trùng mã, mã số thuế; kiểm tra không tạo vòng khi đổi công ty mẹ; lưu.
 - Kết quả đầu ra: Công ty mới trên cây tập đoàn; danh sách công ty dạng cây.
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_01

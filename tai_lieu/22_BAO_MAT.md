@@ -79,7 +79,7 @@ Vai trò theo tài liệu `08`. Mọi API kiểm tra quyền phía máy chủ v�
 | Khóa ký token truy cập | AWS Secrets Manager | Từng môi trường | Chưa tạo | Chưa tạo |
 | Khóa KMS mã hóa bí mật TOTP | AWS KMS | Từng môi trường | Chưa tạo | Chưa tạo |
 | Mã ứng dụng Google, Microsoft, Zalo (client secret) | AWS Secrets Manager | Từng môi trường | Chưa tạo | Chưa tạo |
-| Khóa nhà cung cấp SMS | AWS Secrets Manager | Từng môi trường | Chưa tạo | Chưa tạo |
+| Khóa nhà cung cấp SMS, token Zalo Official Account (ZNS) | AWS Secrets Manager | Từng môi trường | Chưa tạo | Chưa tạo |
 | Khóa gửi email (Amazon SES) | Vai trò IAM, không dùng khóa tĩnh | Từng môi trường | Không áp dụng | Chưa tạo |
 
 Máy phát triển dùng tệp `.env` không commit; kho mã có `.env.example` không chứa giá trị thật.

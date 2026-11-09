@@ -1,10 +1,10 @@
 # 05. PHẠM VI
 
 - Mô tả: Phạm vi sản phẩm, phạm vi chức năng, phạm vi ngoài, phạm vi từng phiên bản và thứ tự ưu tiên.
-- Phiên bản: 1.1
+- Phiên bản: 1.2
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_03 (2026-11-09)
 
 ## 1. Phạm vi sản phẩm
 
@@ -27,7 +27,7 @@ VComm gồm ba khối, ra mắt lần lượt:
 | Kho | Nhiều kho, vị trí kệ; nhập, xuất, chuyển kho liên vùng; kiểm kê; tồn kho theo thời gian thực; tồn an toàn; quét mã vạch trên ứng dụng kho | 3 |
 | Mua hàng | Đề nghị mua, đơn mua, nhận hàng; nhập khẩu bằng ngoại tệ, phân bổ chi phí nhập khẩu | 4 |
 | Bán hàng | Đơn bán đa kênh; khuyến mãi; trả hàng; giao vận; giao dịch nội bộ giữa công ty con tự sinh đơn mua phía bên kia | 4 |
-| Tài chính – Kế toán | Hệ thống tài khoản Thông tư 200; bút toán tự động từ chứng từ; thu chi; công nợ; chênh lệch tỷ giá; hóa đơn điện tử; đối soát nhà bán, cửa hàng, cổng thanh toán; hoa hồng cộng tác viên và đội kinh doanh; báo cáo tài chính từng công ty và hợp nhất | 5 |
+| Tài chính – Kế toán | Hệ thống tài khoản Thông tư 99/2025 (Thông tư 133 cho công ty con nhỏ và vừa); bút toán tự động từ chứng từ; thu chi; công nợ; chênh lệch tỷ giá; hóa đơn điện tử; đối soát nhà bán, cửa hàng, cổng thanh toán; hoa hồng cộng tác viên và đội kinh doanh; báo cáo tài chính từng công ty và hợp nhất | 5 |
 | Khách hàng và Đối tác | Hồ sơ khách hàng, nhà cung cấp, nhà bán, cửa hàng liên kết; gán khách hàng cho nhân viên kinh doanh; ứng dụng nhân viên kinh doanh | 6 |
 | Nhân sự | Hồ sơ nhân viên, hợp đồng; chấm công, nghỉ phép; tính lương gồm hoa hồng, bảo hiểm xã hội, thuế thu nhập cá nhân; tuyển dụng; đánh giá hiệu suất (KPI) | 6 |
 

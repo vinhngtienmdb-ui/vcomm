@@ -10,7 +10,7 @@
 
 | Lớp | Lựa chọn | Lý do |
 |---|---|---|
-| Ngôn ngữ | TypeScript | Một ngôn ngữ cho mọi phần, AI viết tốt |
+| Ngôn ngữ | TypeScript 6.0.3 (ghim cố định) | Một ngôn ngữ cho mọi phần. Bản 7.0.2 chạy được với NestJS, Drizzle, Vitest, CDK nhưng chưa dùng được với typescript-eslint, ts-node; người dùng chọn 6.0.3 ngày 2026-11-09 |
 | Quản lý monorepo | pnpm, Turborepo | Chia sẻ kiểu dữ liệu và thư viện giữa các phần |
 | Backend | NestJS | Cấu trúc module rõ, phổ biến |
 | Truy cập cơ sở dữ liệu, database migration | Drizzle ORM | Hỗ trợ nhiều schema, ràng buộc kiểm tra, chỉ mục có điều kiện; người dùng chọn ngày 2026-11-09 |
@@ -25,7 +25,7 @@
 | Hạ tầng bằng mã | AWS CDK (TypeScript) | Cùng ngôn ngữ, cùng monorepo; người dùng chọn ngày 2026-11-09 |
 | Tác vụ nền | BullMQ trên Redis | Nhắc duyệt quá hạn, lấy tỷ giá, đẩy sự kiện outbox |
 | Gửi email | Amazon SES | Đường dẫn kích hoạt, đặt lại mật khẩu, mã OTP |
-| Gửi SMS | **CHƯA XÁC ĐỊNH:** nhà cung cấp SMS | Mã OTP, đường dẫn kích hoạt |
+| Gửi mã OTP, đường dẫn | Zalo ZNS trước, SMS thương hiệu dự phòng (người dùng chọn 2026-11-09); **CHƯA XÁC ĐỊNH:** nhà cung cấp SMS, Zalo Official Account | Mã OTP, đường dẫn kích hoạt |
 | Xác thực nhà bán qua VNeID | **CHƯA XÁC ĐỊNH:** tổ chức cung cấp dịch vụ xác thực điện tử | MODULE_02 (THAY_DOI_02) |
 | Bí mật hệ thống | AWS Secrets Manager | Tài liệu `22` mục 5 |
 | Kiểm thử | Vitest (đơn vị, tích hợp với PostgreSQL thật), Playwright (giao diện) | |
@@ -111,7 +111,7 @@
   4. Tự viết mới hoàn toàn, không đọc repo cũ.
 - Đề xuất: phương án 3 – lý do: giữ kiến trúc và mô hình đa pháp nhân đã duyệt; tận dụng tri thức nghiệp vụ đã đầu tư; tránh mang theo lỗi bảo mật và cấu trúc của repo cũ.
 - Phát hiện cần xử lý ngay: repo cũ dùng Thông tư 99/2025. Đã kiểm chứng Thông tư 99/2025/TT-BTC thay thế Thông tư 200 từ năm tài chính 2026 → lập THAY_DOI_03.
-- Quyết định của người dùng: **CHƯA XÁC ĐỊNH**
+- Quyết định của người dùng: phương án 3, tham khảo và viết lại – 2026-11-09
 
 ## 5. Ước tính chi phí hạ tầng AWS – 2026-11-09
 
@@ -126,7 +126,7 @@
 
 - Khoản lớn nhất: Aurora (34–42% chi phí môi trường thật), Fargate (22–27%), từ giai đoạn 2 thêm Redis và OpenSearch (~25%).
 - Aurora Serverless v2 tương đương ở giai đoạn 1, đắt gấp 1,5–3 lần ở giai đoạn 2, 3 khi tải ổn định. Đề xuất: môi trường thật dùng máy cố định; môi trường thử nghiệm dùng Serverless v2 tự dừng khi không dùng.
-- Cách giảm chi phí giai đoạn 1 (đề xuất, chờ duyệt):
+- Cách giảm chi phí giai đoạn 1 (người dùng duyệt áp dụng cả 3 cách ngày 2026-11-09):
   1. Aurora 2×db.t4g.medium thay vì t4g.large (giảm ~167 USD).
   2. Fargate chạy chip Arm (Graviton), tắt môi trường thử nghiệm ngoài giờ.
   3. Một NAT gateway ở giai đoạn 1, không dùng NAT ở môi trường thử nghiệm.
@@ -141,7 +141,7 @@
 ### Gửi mã OTP
 - Zalo ZNS: mẫu xác thực (OTP) 300 đồng mỗi tin thành công, chưa gồm VAT (`https://zalo.solutions/zns/pricing`); mẫu phải được duyệt; gửi theo số điện thoại không cần người dùng theo dõi Official Account.
 - SMS thương hiệu: phí duy trì khoảng 50.000 đồng mỗi thương hiệu mỗi tháng mỗi nhà mạng; giá mỗi tin OTP khoảng 350–800 đồng theo các đại lý (`https://v9.com.vn/sms-brandname-mobifone/`, `https://smarketing.vn/bao-gia-sms-brandname`). Viettel duyệt thương hiệu tối đa 2 ngày trên mạng Viettel, 5 ngày cho mạng khác (`https://viettelnet.vn/sms-brandname-viettel/`). Giá chính thức của nhà mạng chưa xác minh.
-- Đề xuất (chờ duyệt): gửi OTP qua Zalo ZNS trước, chuyển sang SMS thương hiệu khi số điện thoại không dùng Zalo hoặc gửi ZNS thất bại.
+- Quyết định (2026-11-09): gửi OTP qua Zalo ZNS trước, chuyển sang SMS thương hiệu khi số điện thoại không dùng Zalo hoặc gửi ZNS thất bại.
 
 ### Zalo Login (THAY_DOI_01)
 - OAuth phiên bản 4: `https://oauth.zaloapp.com/v4/permission`, `https://oauth.zaloapp.com/v4/access_token`, thông tin người dùng `https://graph.zalo.me/v2.0/me` với `fields=id,name,picture` (`https://github.com/zaloplatform/zalo-php-sdk`). SDK chính thức dùng PKCE (`code_challenge`).

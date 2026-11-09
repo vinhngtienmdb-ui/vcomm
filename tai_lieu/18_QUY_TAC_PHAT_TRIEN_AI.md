@@ -1,9 +1,9 @@
 # 18. QUY TẮC PHÁT TRIỂN AI
 
 - Mô tả: Quy tắc viết mã, quy ước Git, nguồn mã riêng, cách chạy ứng dụng để xem trước.
-- Phiên bản: 0.1
+- Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Chờ phê duyệt
+- Trạng thái: Đã phê duyệt
 
 ## 1. Quy trình
 
@@ -22,7 +22,7 @@ Bổ sung riêng:
 
 | Mục | Quy ước |
 |---|---|
-| Ngôn ngữ | TypeScript chế độ nghiêm ngặt (`tsconfig.base.json`) |
+| Ngôn ngữ | TypeScript 6.0.3 chế độ nghiêm ngặt (`tsconfig.base.json`); kiểm tra mã bằng ESLint và typescript-eslint. NestJS chạy bằng `tsc` hoặc SWC (không dùng `tsx` vì mất metadata của decorator); khai báo `rootDir` khi có `outDir` |
 | Tên trong mã | Tiếng Anh (từ chuyên môn), viết đầy đủ, không viết tắt: `approvalRequest`, không `apprReq`. Ngoại lệ được dùng: `id`, `url`, `api`, `otp`, `mfa`, `sql` |
 | Tên trong cơ sở dữ liệu | Theo tài liệu `16`: chữ thường, gạch dưới, tiếng Anh |
 | Chú thích mã | Tiếng Việt có dấu, chỉ viết khi giải thích lý do, ghi mã quy tắc liên quan (ví dụ `// QUYTAC_NGHIEPVU_20`) |

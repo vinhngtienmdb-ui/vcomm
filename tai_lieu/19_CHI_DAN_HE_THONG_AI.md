@@ -1,9 +1,9 @@
 # 19. CHỈ DẪN HỆ THỐNG AI
 
 - Mô tả: Ngữ cảnh và giới hạn quyền hạn của AI khi làm việc trên dự án VComm.
-- Phiên bản: 0.1
+- Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Chờ phê duyệt
+- Trạng thái: Đã phê duyệt
 
 ## 1. Vai trò
 

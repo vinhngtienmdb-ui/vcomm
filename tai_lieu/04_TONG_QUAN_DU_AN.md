@@ -1,10 +1,10 @@
 # 04. TỔNG QUAN DỰ ÁN
 
 - Mô tả: Định nghĩa sản phẩm VComm: vấn đề, mục tiêu, đối tượng sử dụng, giá trị, yêu cầu cấp cao, giới hạn ban đầu.
-- Phiên bản: 1.1
+- Phiên bản: 1.2
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_03 (2026-11-09)
 
 ## 1. Tên sản phẩm
 
@@ -56,7 +56,7 @@ VComm là hệ sinh thái gồm hệ thống quản trị doanh nghiệp (ERP) t
 
 1. Đa pháp nhân: mỗi công ty con có sổ sách, mã số thuế, hóa đơn riêng; có báo cáo hợp nhất; giao dịch nội bộ tự sinh chứng từ hai phía và được loại trừ khi hợp nhất.
 2. Mỗi phân hệ quản trị doanh nghiệp là một mini app có giao diện riêng, dùng chung cơ sở dữ liệu, đăng nhập và phân quyền.
-3. Chế độ kế toán theo Thông tư 200; giao dịch ngoại tệ và chi phí nhập khẩu phân bổ vào giá vốn; phương pháp tính giá vốn cấu hình theo từng công ty con.
+3. Chế độ kế toán theo Thông tư 99/2025 (công ty con là doanh nghiệp nhỏ và vừa được chọn Thông tư 133); giao dịch ngoại tệ và chi phí nhập khẩu phân bổ vào giá vốn; phương pháp tính giá vốn cấu hình theo từng công ty con.
 4. Quản lý sản phẩm hỗ trợ cùng lúc: biến thể (kích cỡ, màu), lô và hạn dùng, số serial hoặc IMEI và bảo hành; bật tắt theo ngành hàng.
 5. Duyệt chứng từ theo hạn mức cấu hình.
 6. Hoa hồng cộng tác viên một tầng; hoa hồng đội kinh doanh tính theo nhà bán, cửa hàng phát triển được, theo chỉ tiêu và theo đơn mua của khách hàng phụ trách, quy tắc gán cấu hình được.

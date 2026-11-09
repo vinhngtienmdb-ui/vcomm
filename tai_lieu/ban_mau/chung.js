@@ -98,7 +98,7 @@
     "09": () => trangQuanTri(`${tieuDe("Công ty", nutLichSu() + nut("Thêm công ty", "chinh", "ngan-keo"))}<div class="hai-cot">
       <div class="the"><ul class="cay"><li><button type="button">▾ Tập đoàn VComm (VCG)</button><ul><li><button type="button" class="chon">▸ VComm Bán lẻ Miền Nam (VCR)</button></li><li><button type="button">▸ VComm Thương mại và Dịch vụ Xuất nhập khẩu Miền Bắc (VCT)</button></li></ul></li></ul></div>
       <div class="the"><div class="tieu-de"><h2>Công ty Cổ phần VComm Bán lẻ Miền Nam</h2>${nhan("Đang hoạt động", "thanh-cong")}</div>
-      <dl class="thong-tin-dong"><dt>Mã</dt><dd>VCR</dd><dt>Mã số thuế</dt><dd>0312345678</dd><dt>Tiền tệ hạch toán</dt><dd>VND</dd><dt>Chế độ kế toán</dt><dd>Thông tư 200</dd><dt>Năm tài chính</dt><dd>Bắt đầu tháng 1</dd><dt>Chi nhánh</dt><dd>4</dd></dl>
+      <dl class="thong-tin-dong"><dt>Mã</dt><dd>VCR</dd><dt>Mã số thuế</dt><dd>0312345678</dd><dt>Tiền tệ hạch toán</dt><dd>VND</dd><dt>Chế độ kế toán</dt><dd>Thông tư 99/2025</dd><dt>Năm tài chính</dt><dd>Bắt đầu tháng 1</dd><dt>Chi nhánh</dt><dd>4</dd></dl>
       <div class="nhom-nut">${nut("Sửa", "phu", "ngan-keo")}${nut("Ngừng hoạt động", "nguy-hiem", "xac-nhan")}</div></div></div>`),
     "10": () => trangQuanTri(`${tieuDe("Chi nhánh", nutLichSu() + nut("Thêm chi nhánh", "chinh", "ngan-keo"))}${loc(["Loại", "Tỉnh thành", "Trạng thái"])}${bang(["Mã", "Tên", "Loại", "Tỉnh thành", "Trạng thái"], [
       ["VCR-HCM", "Trụ sở Thành phố Hồ Chí Minh", "Trụ sở", "Hồ Chí Minh", nhan("Đang hoạt động", "thanh-cong")],
