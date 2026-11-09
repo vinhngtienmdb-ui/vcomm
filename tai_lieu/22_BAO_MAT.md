@@ -5,6 +5,7 @@
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
 - Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09)
+- Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
 Phạm vi hiện tại: MODULE_01 Nền tảng. Các module sau bổ sung vào cùng tài liệu.
 
@@ -14,7 +15,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng. Các module sau bổ sung vào c
 |---|---|---|---|
 | Mật khẩu | Xác thực | Băm bằng argon2id | Không ai đọc được |
 | Bí mật ứng dụng xác thực hai lớp (TOTP) | Xác thực | Mã hóa bằng khóa AWS KMS | Chỉ máy chủ khi kiểm tra mã |
-| Mã dự phòng xác thực hai lớp | Xác thực | Băm bằng argon2id | Không ai đọc được |
+| Mã dự phòng xác thực hai lớp (bảng `mfa_backup_codes`) | Xác thực | Băm bằng argon2id, dùng một lần | Không ai đọc được |
 | Mã OTP qua SMS, email | Xác thực | Băm, lưu trong Redis, hết hạn 5 phút | Không ai đọc được |
 | Token làm mới, đường dẫn kích hoạt, đường dẫn đặt lại mật khẩu | Xác thực | Chỉ lưu bản băm SHA-256 | Không ai đọc được |
 | Email, số điện thoại, họ tên nhân viên | Cá nhân | Thường, cơ sở dữ liệu mã hóa khi lưu (Aurora) | Chính nhân viên; quản trị công ty của họ; quản trị tập đoàn |
@@ -28,12 +29,12 @@ Phạm vi hiện tại: MODULE_01 Nền tảng. Các module sau bổ sung vào c
 
 | Điểm | Loại | Kiểm tra đầu vào | Yêu cầu xác thực |
 |---|---|---|---|
-| Đăng nhập mật khẩu, gửi mã OTP, đặt lại mật khẩu, kích hoạt | API | Định dạng email, số điện thoại E.164, độ dài; giới hạn số lần thử theo địa chỉ IP và theo tài khoản | Không |
-| Phản hồi đăng nhập Zalo | Tích hợp (OAuth 2.0) | Kiểm tra `state`, mã PKCE; lấy mã định danh người dùng Zalo từ API Zalo bằng token vừa nhận | Không |
-| Phản hồi đăng nhập Google, Microsoft | Tích hợp (OpenID Connect) | Kiểm tra chữ ký token, `state`, `nonce`, đối tượng nhận, email đã xác minh | Không |
+| Đăng nhập mật khẩu, gửi mã OTP, đặt lại mật khẩu, kích hoạt (API_01, API_02, API_03, API_11, API_12, API_13) | API | Định dạng email, số điện thoại E.164, độ dài; giới hạn số lần thử theo địa chỉ IP và theo tài khoản | Không |
+| Phản hồi đăng nhập Zalo (API_05) | Tích hợp (OAuth 2.0) | Kiểm tra `state`, mã PKCE; lấy mã định danh người dùng Zalo từ API Zalo bằng token vừa nhận | Không |
+| Phản hồi đăng nhập Google, Microsoft (API_05) | Tích hợp (OpenID Connect) | Kiểm tra chữ ký token, `state`, `nonce`, đối tượng nhận, email đã xác minh | Không |
 | Mọi API quản trị và hồ sơ cá nhân của MODULE_01 | API | Lược đồ kiểm tra kiểu, độ dài, giá trị cho phép phía máy chủ | Có |
-| Nhập nhân viên từ tệp Excel | Tải tệp lên | Chỉ `.xlsx`, tối đa 5 MB, tối đa 1.000 dòng; đổi tên tệp; xử lý trong bộ nhớ, không lưu tệp gốc | Có |
-| Gửi duyệt, quyết định duyệt từ mini app khác | API nội bộ | Lược đồ kiểm tra; mã chứng từ phải thuộc công ty của người gọi | Có |
+| Nhập nhân viên từ tệp Excel (API_27) | Tải tệp lên | Chỉ `.xlsx`, tối đa 5 MB, tối đa 1.000 dòng; đổi tên tệp; xử lý trong bộ nhớ, không lưu tệp gốc | Có |
+| Gửi duyệt, quyết định duyệt (API_38, API_41, API_42) | API nội bộ, API | Lược đồ kiểm tra; mã chứng từ phải thuộc công ty của người gọi | Có |
 | Lấy tỷ giá tự động | Tích hợp | Giá trị số dương, đủ cặp tiền tệ; lỗi thì không ghi | Không áp dụng (hệ thống gọi ra) |
 
 ## 3. Xác thực và phiên đăng nhập

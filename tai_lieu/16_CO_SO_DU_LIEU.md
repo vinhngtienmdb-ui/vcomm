@@ -1,11 +1,11 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Bản nháp
+- Trạng thái: Chờ phê duyệt
 
-Hiện có schema `core` của MODULE_01 Nền tảng. Đã thêm giá trị `zalo` theo THAY_DOI_01. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng. Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -27,6 +27,8 @@ Hiện có schema `core` của MODULE_01 Nền tảng. Đã thêm giá trị `za
 | Duyệt chứng từ | `document_types`, `approval_policies`, `approval_policy_levels`, `approval_requests`, `approval_steps` | Loại chứng từ, chính sách duyệt theo hạn mức, yêu cầu và từng bước duyệt |
 | Đánh số | `number_sequences` | Dãy số chứng từ theo công ty, loại, kỳ |
 | Nhật ký, sự kiện | `audit_events` (chia partition theo tháng), `outbox_events` | Nhật ký thao tác chỉ thêm; sự kiện gửi sang module khác |
+| Thông báo | `notifications` | Chuông thông báo: được giao duyệt, nhắc, chuyển duyệt, kết quả |
+| Mã dùng một lần | `mfa_backup_codes`, `user_tokens` | Mã dự phòng xác thực hai lớp; đường dẫn kích hoạt, đặt lại mật khẩu |
 
 ## 3. Ràng buộc chính đã kiểm tra
 
@@ -38,6 +40,41 @@ Hiện có schema `core` của MODULE_01 Nền tảng. Đã thêm giá trị `za
 | Cách đăng nhập bằng mật khẩu nhưng không có mật khẩu đã băm | Bị chặn |
 | Hai vai trò dùng chung tập đoàn trùng mã | Bị chặn bởi chỉ mục duy nhất |
 | Cấp duyệt loại "vai trò" nhưng không chỉ định vai trò | Bị chặn |
+| Cấp duyệt thiếu người duyệt thay thế | Bị chặn (kiểm tra ngày 2026-11-09, giai đoạn 07) |
+| Bước duyệt bị từ chối không có ý kiến | Bị chặn |
+| Bước duyệt không có người được giao | Bị chặn |
+
+## 3a. Sơ đồ quan hệ chính
+
+```mermaid
+erDiagram
+    companies ||--o{ companies : "công ty mẹ"
+    companies ||--o{ branches : có
+    companies ||--o{ departments : có
+    departments ||--o{ departments : "phòng ban cha"
+    users ||--o{ user_identities : "cách đăng nhập"
+    users ||--o{ user_company_memberships : "thuộc"
+    companies ||--o{ user_company_memberships : "có nhân viên"
+    users ||--o{ user_role_assignments : "được gán"
+    roles ||--o{ user_role_assignments : ""
+    roles ||--o{ role_permissions : gồm
+    permissions ||--o{ role_permissions : ""
+    apps ||--o{ permissions : có
+    companies ||--o{ approval_policies : có
+    document_types ||--o{ approval_policies : "áp dụng cho"
+    approval_policies ||--o{ approval_policy_levels : "các cấp"
+    approval_policies ||--o{ approval_requests : "theo"
+    approval_requests ||--o{ approval_steps : "các bước"
+    users ||--o{ notifications : nhận
+```
+
+## 3b. Quy tắc kiểm tra dữ liệu, xóa và lưu giữ
+
+- Kiểm tra dữ liệu đầu vào ở hai lớp: lược đồ zod tại API (kiểu, độ dài, định dạng; tài liệu `17`) và ràng buộc trong cơ sở dữ liệu (khóa, duy nhất, kiểm tra).
+- Không xóa cứng: công ty, chi nhánh, phòng ban, người dùng, vai trò, chính sách duyệt, yêu cầu duyệt, tỷ giá (QUYTAC_NGHIEPVU_03). Dùng trạng thái hoặc ngày hết hiệu lực.
+- Được xóa cứng: phiên hết hạn quá 90 ngày; mã dùng một lần đã dùng hoặc hết hạn quá 30 ngày; mã OTP trong Redis tự hết hạn; thông báo đã đọc quá 180 ngày.
+- Lưu giữ: nhật ký thao tác tối thiểu 10 năm (QUYTAC_NGHIEPVU_30); nhật ký đăng nhập 2 năm; partition nhật ký thao tác tạo trước mỗi tháng bằng tác vụ nền.
+- Lịch sử thay đổi: mọi thay đổi bảng nghiệp vụ ghi `audit_events` (dữ liệu trước và sau); cột `version` chống ghi đè đồng thời.
 
 ## 4. Lược đồ schema `core`
 
@@ -160,6 +197,7 @@ CREATE TABLE core.users (
     status              text        NOT NULL DEFAULT 'invited'
                         CHECK (status IN ('invited', 'active', 'locked', 'disabled')),
     last_login_at       timestamptz,
+    login_locked_until  timestamptz,                    -- QUYTAC_NGHIEPVU_07: khoa 15 phut sau 5 lan sai
     created_at          timestamptz NOT NULL DEFAULT now(),
     created_by          uuid,
     updated_at          timestamptz NOT NULL DEFAULT now(),
@@ -196,11 +234,34 @@ CREATE TABLE core.mfa_factors (
     created_at          timestamptz NOT NULL DEFAULT now()
 );
 
+-- Ma du phong xac thuc hai lop (CHUC_NANG_09): 10 ma, dung mot lan.
+CREATE TABLE core.mfa_backup_codes (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id             uuid        NOT NULL REFERENCES core.users(id) ON DELETE CASCADE,
+    code_hash           text        NOT NULL,           -- argon2id
+    used_at             timestamptz,
+    created_at          timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX mfa_backup_codes_user_idx ON core.mfa_backup_codes (user_id) WHERE used_at IS NULL;
+
+-- Ma dung mot lan: kich hoat tai khoan (72 gio), dat lai mat khau (1 gio).
+CREATE TABLE core.user_tokens (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id             uuid        NOT NULL REFERENCES core.users(id) ON DELETE CASCADE,
+    purpose             text        NOT NULL CHECK (purpose IN ('activation', 'password_reset')),
+    token_hash          bytea       NOT NULL UNIQUE,    -- SHA-256 cua token gui qua email, SMS
+    expires_at          timestamptz NOT NULL,
+    used_at             timestamptz,
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    created_by          uuid
+);
+
 -- Phien dang nhap; luu bam (hash) cua refresh token, khong luu token goc.
 CREATE TABLE core.sessions (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id             uuid        NOT NULL REFERENCES core.users(id) ON DELETE CASCADE,
     refresh_token_hash  bytea       NOT NULL UNIQUE,
+    family_id           uuid        NOT NULL,           -- chuoi phien; phat hien dung lai token cu thi thu hoi ca chuoi
     client_type         text        NOT NULL CHECK (client_type IN ('web', 'warehouse_app', 'sales_app')),
     ip                  inet,
     user_agent          text,
@@ -354,7 +415,15 @@ CREATE TABLE core.approval_policy_levels (
     approver_type       text        NOT NULL CHECK (approver_type IN ('role', 'user', 'department_manager')),
     approver_role_id    uuid        REFERENCES core.roles(id),
     approver_user_id    uuid        REFERENCES core.users(id),
+    substitute_type     text        NOT NULL CHECK (substitute_type IN ('role', 'user')),
+    substitute_role_id  uuid        REFERENCES core.roles(id),
+    substitute_user_id  uuid        REFERENCES core.users(id),
+    due_hours           integer     NOT NULL CHECK (due_hours > 0),   -- QUYTAC_NGHIEPVU_21
     UNIQUE (policy_id, level_no),
+    CHECK (
+        (substitute_type = 'role' AND substitute_role_id IS NOT NULL AND substitute_user_id IS NULL) OR
+        (substitute_type = 'user' AND substitute_user_id IS NOT NULL AND substitute_role_id IS NULL)
+    ),
     CHECK (
         (approver_type = 'role'               AND approver_role_id IS NOT NULL AND approver_user_id IS NULL) OR
         (approver_type = 'user'               AND approver_user_id IS NOT NULL AND approver_role_id IS NULL) OR
@@ -371,9 +440,12 @@ CREATE TABLE core.approval_requests (
     document_no         text        NOT NULL,
     amount              numeric(20,4) NOT NULL,
     currency            char(3)     NOT NULL REFERENCES core.currencies(code),
+    document_date       date        NOT NULL,
+    exchange_rate       numeric(20,8),                  -- ty gia hach toan ngay lap; NULL khi cung tien te chinh sach
+    amount_in_policy_currency numeric(20,4) NOT NULL,   -- QUYTAC_NGHIEPVU_19
     policy_id           uuid        NOT NULL REFERENCES core.approval_policies(id),
     status              text        NOT NULL DEFAULT 'pending'
-                        CHECK (status IN ('pending', 'approved', 'rejected', 'cancelled')),
+                        CHECK (status IN ('pending', 'approved', 'rejected', 'withdrawn')),
     current_level_no    smallint,
     requested_by        uuid        NOT NULL REFERENCES core.users(id),
     requested_at        timestamptz NOT NULL DEFAULT now(),
@@ -386,12 +458,21 @@ CREATE TABLE core.approval_steps (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     request_id          uuid        NOT NULL REFERENCES core.approval_requests(id) ON DELETE CASCADE,
     level_no            smallint    NOT NULL,
+    assigned_role_id    uuid        REFERENCES core.roles(id),   -- nguoi duyet theo vai tro
+    assigned_user_id    uuid        REFERENCES core.users(id),   -- nguoi duyet cu the
+    is_substitute       boolean     NOT NULL DEFAULT false,      -- da chuyen cho nguoi thay the (QUYTAC_NGHIEPVU_20, 21)
+    started_at          timestamptz,                             -- thoi diem cap nay bat dau cho
+    reminded_at         timestamptz,
+    escalated_at        timestamptz,
     decision            text        CHECK (decision IN ('approved', 'rejected')),
     decided_by          uuid        REFERENCES core.users(id),
     decided_at          timestamptz,
     comment             text,
-    UNIQUE (request_id, level_no)
+    UNIQUE (request_id, level_no),
+    CHECK (assigned_role_id IS NOT NULL OR assigned_user_id IS NOT NULL),
+    CHECK (decision <> 'rejected' OR comment IS NOT NULL)
 );
+CREATE INDEX approval_steps_waiting_idx ON core.approval_steps (assigned_user_id) WHERE decision IS NULL;
 
 -- -----------------------------------------------------------------------------
 -- 6. Danh so chung tu
@@ -407,6 +488,20 @@ CREATE TABLE core.number_sequences (
     next_value          bigint      NOT NULL DEFAULT 1,
     PRIMARY KEY (company_id, document_type_code, period_key)
 );
+
+-- Thong bao trong ung dung (chuong o thanh tren cung).
+CREATE TABLE core.notifications (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id         uuid        NOT NULL REFERENCES core.users(id) ON DELETE CASCADE,
+    company_id      uuid        REFERENCES core.companies(id),
+    kind            text        NOT NULL,               -- 'approval.assigned', 'approval.reminder', 'approval.escalated', 'approval.completed'...
+    title           text        NOT NULL,
+    link            text,
+    payload         jsonb       NOT NULL DEFAULT '{}'::jsonb,
+    read_at         timestamptz,
+    created_at      timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX notifications_unread_idx ON core.notifications (user_id, created_at DESC) WHERE read_at IS NULL;
 
 -- -----------------------------------------------------------------------------
 -- 7. Nhat ky thao tac (audit) & su kien (outbox)
