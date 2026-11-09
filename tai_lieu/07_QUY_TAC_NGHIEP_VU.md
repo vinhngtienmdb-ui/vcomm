@@ -1,0 +1,85 @@
+# 07. QUY TẮC NGHIỆP VỤ
+
+- Mô tả: Điều kiện, ràng buộc, công thức, trạng thái và ngoại lệ, có mã định danh.
+- Phiên bản: 0.1
+- Ngày cập nhật: 2026-11-09
+- Trạng thái: Chờ phê duyệt
+
+## MODULE_01 Nền tảng
+
+### Tổ chức
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_01 | Chỉ quản trị tập đoàn được tạo công ty và tạo vai trò dùng chung toàn tập đoàn | YCAU_NGHIEPVU_01, YCAU_NGHIEPVU_08 |
+| QUYTAC_NGHIEPVU_02 | Mã công ty và mã số thuế duy nhất trong toàn tập đoàn; mã chi nhánh, mã phòng ban duy nhất trong một công ty | YCAU_NGHIEPVU_01, YCAU_NGHIEPVU_02, YCAU_NGHIEPVU_03 |
+| QUYTAC_NGHIEPVU_03 | Không xóa công ty, chi nhánh, phòng ban; chỉ chuyển sang ngừng hoạt động. Không ngừng hoạt động công ty còn chi nhánh đang hoạt động | YCAU_NGHIEPVU_01, YCAU_NGHIEPVU_02, YCAU_NGHIEPVU_03 |
+| QUYTAC_NGHIEPVU_04 | Cây công ty và cây phòng ban không được tạo vòng | YCAU_NGHIEPVU_01, YCAU_NGHIEPVU_03 |
+
+### Tài khoản và đăng nhập
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_05 | Tài khoản phải có ít nhất một trong: tên đăng nhập, email, số điện thoại. Email, số điện thoại, tên đăng nhập duy nhất toàn hệ thống | YCAU_NGHIEPVU_04, YCAU_NGHIEPVU_05 |
+| QUYTAC_NGHIEPVU_06 | Đường dẫn kích hoạt dùng một lần, hết hạn sau 72 giờ; quản trị gửi lại được | YCAU_NGHIEPVU_04 |
+| QUYTAC_NGHIEPVU_07 | Mật khẩu tối thiểu 10 ký tự. Sai 5 lần liên tiếp thì khóa đăng nhập 15 phút | YCAU_NGHIEPVU_05 |
+| QUYTAC_NGHIEPVU_08 | Đăng nhập Google, Microsoft chỉ được khi email trả về đã gắn với một tài khoản đang hoạt động; không tự tạo tài khoản mới | YCAU_NGHIEPVU_05 |
+| QUYTAC_NGHIEPVU_09 | Nhân viên có ít nhất một quyền nhạy cảm còn hiệu lực thì bắt buộc xác thực hai lớp; hệ thống tự bật khi gán vai trò có quyền đó | YCAU_NGHIEPVU_06 |
+| QUYTAC_NGHIEPVU_10 | Phiên làm việc trên web hết hạn sau 30 ngày không dùng; trên ứng dụng kho, ứng dụng kinh doanh sau 90 ngày | YCAU_NGHIEPVU_05 |
+| QUYTAC_NGHIEPVU_11 | Không có chức năng quản trị đăng nhập thay hoặc xem hệ thống dưới quyền nhân viên khác | YCAU_NGHIEPVU_08 |
+
+### Phân quyền
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_12 | Một thao tác trên dữ liệu của công ty C, chi nhánh B được phép khi nhân viên có quyền đó qua một lần gán vai trò còn hiệu lực với phạm vi: tập đoàn; hoặc công ty C; hoặc chi nhánh B | YCAU_NGHIEPVU_07, YCAU_NGHIEPVU_08 |
+| QUYTAC_NGHIEPVU_13 | Vai trò được gán riêng cho từng công ty; quyền ở công ty này không có hiệu lực ở công ty khác, trừ gán phạm vi tập đoàn | YCAU_NGHIEPVU_07 |
+| QUYTAC_NGHIEPVU_14 | Quản trị công ty chỉ gán được vai trò trong phạm vi công ty mình, và không gán được quyền mình không có | YCAU_NGHIEPVU_08 |
+| QUYTAC_NGHIEPVU_15 | Lần gán vai trò hết hiệu lực từ ngày sau ngày kết thúc | YCAU_NGHIEPVU_08 |
+| QUYTAC_NGHIEPVU_16 | Mini app chỉ hiện trên trang chủ khi nhân viên có quyền `<app>.access` trong công ty đang chọn | YCAU_NGHIEPVU_09 |
+
+### Duyệt chứng từ
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_17 | Mỗi công ty và loại chứng từ có tối đa một chính sách duyệt có hiệu lực tại một ngày | YCAU_NGHIEPVU_10 |
+| QUYTAC_NGHIEPVU_18 | Chứng từ phải qua lần lượt mọi cấp có ngưỡng nhỏ hơn hoặc bằng giá trị chứng từ, từ cấp thấp đến cấp cao | YCAU_NGHIEPVU_10 |
+| QUYTAC_NGHIEPVU_19 | Chứng từ bằng ngoại tệ quy đổi sang tiền tệ của chính sách theo tỷ giá hạch toán ngày lập chứng từ để so ngưỡng. Không có tỷ giá ngày đó thì không gửi duyệt được | YCAU_NGHIEPVU_10, YCAU_NGHIEPVU_15 |
+| QUYTAC_NGHIEPVU_20 | Người lập không được duyệt chứng từ của chính mình. Khi người duyệt của một cấp là người lập, cấp đó chuyển cho người duyệt thay thế đã cấu hình | YCAU_NGHIEPVU_10, YCAU_NGHIEPVU_11 |
+| QUYTAC_NGHIEPVU_21 | Mỗi cấp duyệt có thời hạn xử lý (giờ) cấu hình được. Quá thời hạn thì nhắc người duyệt; quá thêm một thời hạn nữa thì chuyển cho người duyệt thay thế | YCAU_NGHIEPVU_11 |
+| QUYTAC_NGHIEPVU_22 | Một cấp từ chối thì cả yêu cầu bị từ chối. Người lập sửa và gửi lại thành yêu cầu mới | YCAU_NGHIEPVU_10 |
+| QUYTAC_NGHIEPVU_23 | Người lập được rút lại yêu cầu khi cấp 1 chưa quyết định | YCAU_NGHIEPVU_10 |
+| QUYTAC_NGHIEPVU_24 | Mỗi chứng từ chỉ có một yêu cầu duyệt đang chờ tại một thời điểm | YCAU_NGHIEPVU_10 |
+| QUYTAC_NGHIEPVU_25 | Duyệt xong hoặc bị từ chối thì báo cho mini app sở hữu chứng từ; Nền tảng không sửa chứng từ | YCAU_NGHIEPVU_10 |
+
+### Nghỉ việc
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_26 | Vô hiệu hóa tài khoản thì khóa đăng nhập và thu hồi mọi phiên ngay | YCAU_NGHIEPVU_13 |
+| QUYTAC_NGHIEPVU_27 | Không vô hiệu hóa được khi nhân viên còn chứng từ chờ mình duyệt hoặc đang là trưởng phòng, cho đến khi quản trị chọn người nhận bàn giao | YCAU_NGHIEPVU_13 |
+
+### Đánh số, tỷ giá, nhật ký
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_28 | Số chứng từ dạng `<tiền tố>-<mã công ty>-<kỳ>-<số thứ tự>`; đặt lại theo năm, tháng hoặc không bao giờ; không trùng, không nhảy số khi lỗi | YCAU_NGHIEPVU_14 |
+| QUYTAC_NGHIEPVU_29 | Mỗi ngày, cặp tiền tệ, loại, nguồn chỉ có một tỷ giá; tỷ giá lớn hơn 0 | YCAU_NGHIEPVU_15 |
+| QUYTAC_NGHIEPVU_30 | Nhật ký thao tác chỉ thêm, không sửa, không xóa; giữ tối thiểu 10 năm | YCAU_NGHIEPVU_16 |
+
+## Quy tắc do AI đề xuất, chờ người dùng xác nhận
+
+| Mã | Nội dung đề xuất |
+|---|---|
+| QUYTAC_NGHIEPVU_03 | Vế sau: không ngừng hoạt động công ty còn chi nhánh đang hoạt động |
+| QUYTAC_NGHIEPVU_08 | Đăng nhập Google, Microsoft không tự tạo tài khoản mới |
+| QUYTAC_NGHIEPVU_14 | Vế sau: quản trị công ty không gán được quyền mình không có |
+| QUYTAC_NGHIEPVU_21 | Mốc chuyển người thay thế = gấp đôi thời hạn xử lý |
+| QUYTAC_NGHIEPVU_27 | Chặn vô hiệu hóa đến khi bàn giao xong |
+| Tài liệu `08` | Thêm vai trò hệ thống "Quản lý tỷ giá" |
+| Tài liệu `09` luồng 1 | Nhập Excel: dòng lỗi bị bỏ qua, các dòng đúng vẫn được tạo |
+
+## Điểm chưa xác định
+
+- **CHƯA XÁC ĐỊNH:** nhà cung cấp SMS gửi mã OTP, có dùng SMS thương hiệu riêng không.
+- **CHƯA XÁC ĐỊNH:** nguồn tỷ giá tự động.
