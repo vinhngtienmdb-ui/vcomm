@@ -186,3 +186,142 @@ export interface UserDetailResponse {
   roleAssignments: RoleAssignmentResponse[];
   assignableScopes: { group: boolean; company: boolean; branches: { id: string; code: string; name: string }[] };
 }
+
+// Mã công ty, chi nhánh, phòng ban: chữ in hoa không dấu, số, gạch ngang, gạch dưới.
+const organizationCode = z
+  .string()
+  .trim()
+  .transform((value) => value.toUpperCase())
+  .pipe(z.string().regex(/^[A-Z0-9][A-Z0-9_-]{1,29}$/));
+const optionalText = (maximum: number) => z.string().trim().max(maximum).nullable().optional();
+const phoneNumber = z.string().trim().regex(/^\+?[0-9][0-9 .-]{7,19}$/).nullable().optional();
+
+export const versionSchema = z.object({ version: z.number().int().positive() }).strict();
+
+// API_20, API_21
+export const accountingRegimes = ["TT99_2025", "TT133"] as const;
+
+const companyFields = {
+  parentId: z.uuid(),
+  code: organizationCode,
+  legalName: z.string().trim().min(1).max(255),
+  shortName: z.string().trim().min(1).max(100),
+  taxCode: z.string().trim().regex(/^\d{10}(-\d{3})?$/).nullable().optional(),
+  address: optionalText(500),
+  phone: phoneNumber,
+  email: z.email().nullable().optional(),
+  baseCurrency: z.string().trim().regex(/^[A-Z]{3}$/),
+  accountingRegime: z.enum(accountingRegimes),
+  fiscalYearStart: z.number().int().min(1).max(12),
+};
+
+export const createCompanySchema = z
+  .object({
+    ...companyFields,
+    baseCurrency: companyFields.baseCurrency.default("VND"),
+    accountingRegime: companyFields.accountingRegime.default("TT99_2025"),
+    fiscalYearStart: companyFields.fiscalYearStart.default(1),
+  })
+  .strict();
+export type CreateCompanyRequest = z.input<typeof createCompanySchema>;
+
+// Sửa: chỉ đổi trường được gửi lên, không tự điền giá trị mặc định.
+export const updateCompanySchema = z
+  .object(companyFields)
+  .partial()
+  .extend({ version: z.number().int().positive() })
+  .strict();
+export type UpdateCompanyRequest = z.input<typeof updateCompanySchema>;
+
+export interface CompanyResponse {
+  id: string;
+  parentId: string | null;
+  code: string;
+  legalName: string;
+  shortName: string;
+  taxCode: string | null;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+  baseCurrency: string;
+  accountingRegime: (typeof accountingRegimes)[number];
+  fiscalYearStart: number;
+  status: "active" | "inactive";
+  version: number;
+  activeBranchCount: number;
+}
+
+// API_22
+export const branchTypes = ["head_office", "office", "warehouse", "store", "other"] as const;
+
+export const createBranchSchema = z
+  .object({
+    code: organizationCode,
+    name: z.string().trim().min(1).max(200),
+    branchType: z.enum(branchTypes),
+    provinceCode: z.string().trim().regex(/^\d{2}$/).nullable().optional(),
+    address: optionalText(500),
+    phone: phoneNumber,
+  })
+  .strict();
+export type CreateBranchRequest = z.input<typeof createBranchSchema>;
+
+export const updateBranchSchema = createBranchSchema
+  .partial()
+  .extend({ version: z.number().int().positive() })
+  .strict();
+export type UpdateBranchRequest = z.input<typeof updateBranchSchema>;
+
+export const branchListQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+    q: z.string().trim().max(100).optional(),
+    branchType: z.enum(branchTypes).optional(),
+    provinceCode: z.string().regex(/^\d{2}$/).optional(),
+    status: z.enum(["active", "inactive"]).optional(),
+  })
+  .strict();
+export type BranchListQuery = z.infer<typeof branchListQuerySchema>;
+
+export interface BranchResponse {
+  id: string;
+  companyId: string;
+  code: string;
+  name: string;
+  branchType: (typeof branchTypes)[number];
+  provinceCode: string | null;
+  address: string | null;
+  phone: string | null;
+  status: "active" | "inactive";
+  version: number;
+}
+
+// API_23
+export const createDepartmentSchema = z
+  .object({
+    parentId: z.uuid().nullable().optional(),
+    code: organizationCode,
+    name: z.string().trim().min(1).max(200),
+    managerUserId: z.uuid().nullable().optional(),
+  })
+  .strict();
+export type CreateDepartmentRequest = z.input<typeof createDepartmentSchema>;
+
+export const updateDepartmentSchema = createDepartmentSchema
+  .partial()
+  .extend({ version: z.number().int().positive() })
+  .strict();
+export type UpdateDepartmentRequest = z.input<typeof updateDepartmentSchema>;
+
+export interface DepartmentResponse {
+  id: string;
+  parentId: string | null;
+  code: string;
+  name: string;
+  managerUserId: string | null;
+  managerName: string | null;
+  status: "active" | "inactive";
+  version: number;
+  memberCount: number;
+}
