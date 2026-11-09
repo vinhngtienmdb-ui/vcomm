@@ -4,6 +4,7 @@ import type { NestExpressApplication } from "@nestjs/platform-express";
 import cookieParser from "cookie-parser";
 import { AppModule } from "./app.module";
 import { DATABASE, type Database } from "./database/database.module";
+import { startBackgroundJobs } from "./jobs/background-jobs";
 import { syncPermissionCatalog } from "./permissions/permission-catalog";
 
 export function configureApplication(application: NestExpressApplication): NestExpressApplication {
@@ -18,6 +19,8 @@ async function bootstrap(): Promise<void> {
   const application = configureApplication(await NestFactory.create<NestExpressApplication>(AppModule));
   await syncPermissionCatalog(application.get<Database>(DATABASE));
   application.enableShutdownHooks();
+  const stopJobs = await startBackgroundJobs(application);
+  process.once("SIGTERM", () => void stopJobs());
   await application.listen(Number(process.env.API_PORT ?? 4000));
 }
 

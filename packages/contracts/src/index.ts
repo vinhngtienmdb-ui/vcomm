@@ -479,3 +479,155 @@ export interface SessionResponse {
   createdAt: string;
   current: boolean;
 }
+
+// Số tiền dạng chuỗi thập phân để không sai số (tài liệu 17 mục 1).
+const decimalAmount = z.string().trim().regex(/^\d{1,16}(\.\d{1,4})?$/);
+
+const roleOrUser = z.discriminatedUnion("type", [z.object({ type: z.literal("role"), roleId: z.uuid() }).strict(), z.object({ type: z.literal("user"), userId: z.uuid() }).strict()]);
+const approverChoice = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("role"), roleId: z.uuid() }).strict(),
+  z.object({ type: z.literal("user"), userId: z.uuid() }).strict(),
+  z.object({ type: z.literal("department_manager") }).strict(),
+]);
+export type ApproverChoice = z.infer<typeof approverChoice>;
+
+// API_37
+export const createApprovalPolicySchema = z
+  .object({
+    documentTypeCode: z.string().min(1).max(100),
+    currency: z.string().trim().regex(/^[A-Z]{3}$/),
+    effectiveFrom: isoDate,
+    levels: z
+      .array(
+        z
+          .object({
+            levelNo: z.number().int().min(1).max(10),
+            minAmount: decimalAmount,
+            approver: approverChoice,
+            substitute: roleOrUser.nullable().optional(),
+            dueHours: z.number().int().min(1).max(720),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(10),
+  })
+  .strict();
+export type CreateApprovalPolicyRequest = z.input<typeof createApprovalPolicySchema>;
+
+export interface ApproverView {
+  type: "role" | "user" | "department_manager";
+  roleId: string | null;
+  userId: string | null;
+  name: string | null;
+}
+
+export interface ApprovalPolicyResponse {
+  id: string;
+  documentTypeCode: string;
+  documentTypeNameVi: string;
+  documentTypeNameEn: string;
+  currency: string;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  active: boolean;
+  levels: { levelNo: number; minAmount: string; approver: ApproverView; substitute: ApproverView; dueHours: number }[];
+}
+
+export interface DocumentTypeResponse {
+  code: string;
+  appCode: string;
+  nameVi: string;
+  nameEn: string;
+}
+
+// API_38
+export const createApprovalRequestSchema = z
+  .object({
+    documentTypeCode: z.string().min(1).max(100),
+    documentId: z.uuid(),
+    documentNo: z.string().trim().min(1).max(100),
+    amount: decimalAmount,
+    currency: z.string().trim().regex(/^[A-Z]{3}$/),
+    documentDate: isoDate,
+  })
+  .strict();
+export type CreateApprovalRequestInput = z.infer<typeof createApprovalRequestSchema>;
+
+export type ApprovalStatus = "pending" | "approved" | "rejected" | "withdrawn";
+
+export interface ApprovalStepResponse {
+  levelNo: number;
+  assignedUserId: string | null;
+  assignedUserName: string | null;
+  assignedRoleId: string | null;
+  assignedRoleName: string | null;
+  isSubstitute: boolean;
+  startedAt: string | null;
+  dueAt: string | null;
+  overdue: boolean;
+  decision: "approved" | "rejected" | null;
+  decidedByName: string | null;
+  decidedAt: string | null;
+  comment: string | null;
+}
+
+export interface ApprovalRequestResponse {
+  id: string;
+  companyId: string;
+  companyShortName: string;
+  documentTypeCode: string;
+  documentTypeNameVi: string;
+  documentTypeNameEn: string;
+  appCode: string;
+  documentId: string;
+  documentNo: string;
+  amount: string;
+  currency: string;
+  documentDate: string;
+  exchangeRate: string | null;
+  amountInPolicyCurrency: string;
+  policyCurrency: string;
+  status: ApprovalStatus;
+  currentLevelNo: number | null;
+  requestedById: string;
+  requestedByName: string;
+  requestedAt: string;
+  completedAt: string | null;
+  steps: ApprovalStepResponse[];
+  canDecide: boolean;
+  canWithdraw: boolean;
+}
+
+// API_39
+export const approvalInboxQuerySchema = z
+  .object({
+    companyId: z.uuid().optional(),
+    appCode: z.string().max(50).optional(),
+    documentTypeCode: z.string().max(100).optional(),
+    overdue: z.enum(["true", "false"]).optional(),
+  })
+  .strict();
+
+export interface ApprovalInboxItem {
+  id: string;
+  companyId: string;
+  companyShortName: string;
+  appCode: string;
+  documentTypeCode: string;
+  documentTypeNameVi: string;
+  documentTypeNameEn: string;
+  documentNo: string;
+  amount: string;
+  currency: string;
+  requestedByName: string;
+  requestedAt: string;
+  currentLevelNo: number;
+  dueAt: string | null;
+  overdue: boolean;
+}
+
+// API_41
+export const approvalDecisionSchema = z
+  .object({ decision: z.enum(["approved", "rejected"]), comment: z.string().trim().max(1000).nullable().optional() })
+  .strict();

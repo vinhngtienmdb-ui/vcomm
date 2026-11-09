@@ -76,9 +76,20 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
   { code: "employee", nameVi: "Nhân viên", nameEn: "Employee", permissionCodes: employeePermissions },
 ];
 
+// Loại chứng từ do mã khai báo. Chứng từ thử của Nền tảng dùng để thử luồng duyệt khi chưa có module khác (CONG_VIEC_02 lát L7).
+export const documentTypeCatalog = [
+  { code: "platform.test_document", appCode: "platform", nameVi: "Chứng từ thử", nameEn: "Test document", requiresApproval: true },
+];
+
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.
 export async function syncPermissionCatalog(database: Database): Promise<void> {
   await database.transaction(async (transaction) => {
+    for (const type of documentTypeCatalog) {
+      await transaction.execute(sql`
+        INSERT INTO core.document_types (code, app_code, name_vi, name_en, requires_approval)
+        VALUES (${type.code}, ${type.appCode}, ${type.nameVi}, ${type.nameEn}, ${type.requiresApproval})
+        ON CONFLICT (code) DO UPDATE SET app_code = EXCLUDED.app_code, name_vi = EXCLUDED.name_vi, name_en = EXCLUDED.name_en, requires_approval = EXCLUDED.requires_approval`);
+    }
     for (const permission of permissionCatalog) {
       await transaction
         .insert(permissions)
