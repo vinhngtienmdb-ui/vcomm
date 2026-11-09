@@ -118,7 +118,8 @@
     "priceNotFound": "Chưa có giá cho mặt hàng này.",
     "effectiveDatePast": "Ngày hiệu lực không được trước hôm nay.",
     "priceLineDuplicate": "Mặt hàng và đơn vị bị lặp.",
-    "documentNotDraft": "Chỉ sửa được chứng từ đang ở trạng thái nháp."
+    "documentNotDraft": "Chỉ sửa được chứng từ đang ở trạng thái nháp.",
+    "priceListHasPendingChanges": "Bảng giá còn phiếu điều chỉnh giá chờ duyệt; duyệt xong hoặc rút phiếu trước khi ngừng dùng."
   },
   "login": {
     "title": "Đăng nhập",

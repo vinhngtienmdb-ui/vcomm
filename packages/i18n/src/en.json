@@ -118,7 +118,8 @@
     "priceNotFound": "No price has been set for this item.",
     "effectiveDatePast": "The effective date cannot be before today.",
     "priceLineDuplicate": "The item and unit are repeated.",
-    "documentNotDraft": "Only draft documents can be changed."
+    "documentNotDraft": "Only draft documents can be changed.",
+    "priceListHasPendingChanges": "This price list has price changes pending approval; finish or withdraw them before deactivating."
   },
   "login": {
     "title": "Sign in",

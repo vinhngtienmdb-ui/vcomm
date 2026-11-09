@@ -186,6 +186,11 @@ describe("TIEUCHI_NGHIEMTHU_62: phiếu điều chỉnh giá qua luồng duyệt
     const pending = await changePrice(listId, "8000", addDays(20));
     expect(pending).toMatchObject({ status: "pending", canEdit: false, canWithdraw: true });
     expect((await lookup({ date: addDays(20) })).body.price).toBe("7000");
+    // Còn phiếu chờ duyệt thì không ngừng dùng bảng giá.
+    const listVersion = (await retailAdmin.call("get", "/catalog/price-lists", { companyId: retail })).body.find((list: { id: string }) => list.id === listId).version;
+    const blocked = await retailAdmin.call("post", `/catalog/price-lists/${listId}/deactivate`, { companyId: retail, body: { version: listVersion } });
+    expect(blocked.status).toBe(409);
+    expect(blocked.body.error.message).toContain("chờ duyệt");
     await approver.call("post", `/approval-requests/${pending.approvalRequestId}/decisions`, { body: { decision: "approved" } });
     await outbox.dispatchPending();
     expect((await retailAdmin.call("get", `/catalog/price-changes/${pending.id}`, { companyId: retail })).body.status).toBe("approved");

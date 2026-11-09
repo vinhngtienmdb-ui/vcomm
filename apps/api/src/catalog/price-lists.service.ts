@@ -118,6 +118,10 @@ export class PriceListsService {
   async setStatus(actor: Actor, id: string, status: "active" | "inactive", version: number): Promise<PriceListResponse> {
     await requireCompanyPermission(this.permissionService, actor, catalogPermissions.managePrices);
     const before = await this.single(actor.companyId, id);
+    // Còn phiếu điều chỉnh giá chờ duyệt thì không ngừng dùng, để giá được duyệt luôn ghi vào bảng giá đang dùng.
+    if (status === "inactive" && (await this.database.execute(sql`SELECT 1 FROM catalog.price_changes WHERE price_list_id = ${id} AND status = 'pending' LIMIT 1`)).rows.length > 0) {
+      throw new ApiError("BUSINESS_RULE", "priceListHasPendingChanges");
+    }
     if (status === "active" && (await this.duplicate(actor.companyId, before.channelId, before.customerGroupId, before.currency, id))) throw new ApiError("BUSINESS_RULE", "priceListDuplicate");
     await this.database
       .transaction(async (transaction) => {
