@@ -30,6 +30,17 @@
 | Mã lỗi | Mô tả | Mức độ | Kịch bản liên quan | Quyết định xử lý | Trạng thái |
 |---|---|---|---|---|---|
 | LOI_01 | Đo sơ bộ trên máy phát triển 4 CPU, 200 người dùng ảo nghỉ 1 giây giữa thao tác: API_14 phân vị 95 là 10 ms, API_24 là 12 ms (đạt); API_01 đăng nhập phân vị 95 là 411 ms (mốc 200 ms) do băm mật khẩu argon2id; 0 lỗi. Gọi liên tục không nghỉ thì chậm hơn nhiều. Công cụ và môi trường kiểm thử tải trong tài liệu `20` chưa xác định | Trung bình | KICHBAN_KIEMTHU_111 | Chờ người dùng quyết định | Mở |
-| LOI_02 | Chưa giới hạn số yêu cầu theo địa chỉ IP cho API không cần đăng nhập (đăng nhập, quên mật khẩu, kích hoạt). Giảm thiểu hiện có: khóa tài khoản sau 5 lần sai mật khẩu, đường dẫn đặt lại hết hạn sau 1 giờ | Trung bình | KICHBAN_KIEMTHU_120 | Chờ người dùng quyết định | Mở |
+| LOI_02 | Chưa giới hạn số yêu cầu theo địa chỉ IP cho API không cần đăng nhập (đăng nhập, quên mật khẩu, kích hoạt). Giảm thiểu hiện có: khóa tài khoản sau 5 lần sai mật khẩu, đường dẫn đặt lại hết hạn sau 1 giờ | Trung bình | KICHBAN_KIEMTHU_120 | Sửa ngay bằng Redis (người dùng quyết định 2026-11-09) | Đã sửa trên nhánh `sua-loi/LOI_02-gioi-han-yeu-cau-theo-ip`, chờ nghiệm thu |
 
 - Kết luận cổng kiểm thử: Đạt (không còn lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt; LOI_01, LOI_02 mức Trung bình chờ người dùng quyết định).
+
+## Lần kiểm thử 2026-11-09 – LOI_02
+
+- Phạm vi: giới hạn số yêu cầu theo địa chỉ IP cho API không cần đăng nhập; hồi quy toàn bộ.
+- Môi trường: máy phát triển; PostgreSQL 16 `vcomm_test`; Redis 7 cho phép thử trên máy phát triển.
+- Lệnh đã chạy: `pnpm --filter api typecheck`, `pnpm --filter api test`; gọi thử API_12 21 lần trên API phát triển có Redis.
+- Kết quả: 120 đạt / 0 không đạt / 120 kịch bản. KICHBAN_KIEMTHU_120 đạt: 20 lần đầu `204`, lần 21 `429 RATE_LIMITED` kèm `Retry-After`, phút sau gọi lại được.
+- Tiêu chí nghiệm thu: không có tiêu chí riêng; kết quả mong đợi là KICHBAN_KIEMTHU_120 – Đạt.
+- Kiểm tra bảo mật phần B, C: C1, C2 chạy trong CI của pull request; C5 giới hạn số lần thử: Đạt; C3, C4, C6: Không áp dụng – không đổi phân quyền, dữ liệu đầu vào.
+- Tự rà soát mã và dọn dẹp: Đạt.
+- Kết luận cổng kiểm thử: Đạt.
