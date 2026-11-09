@@ -58,7 +58,9 @@ export function TopBar({ me, onCompanyChange }: { me: MeResponse; onCompanyChang
       <button type="button" disabled>
         {t("notifications")}
       </button>
-      <span style={{ fontSize: 13 }}>{me.user.fullName}</span>
+      <a href="/ho-so" title={t("profile")} style={{ fontSize: 13 }}>
+        {me.user.fullName}
+      </a>
       <button type="button" onClick={logout} disabled={loggingOut}>
         {t("logout")}
       </button>

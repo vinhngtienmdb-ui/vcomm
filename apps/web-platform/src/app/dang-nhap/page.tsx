@@ -24,9 +24,10 @@ export default function LoginPage() {
     setFieldErrors({});
     setFormError(null);
     try {
-      await apiFetch<LoginResponse>("/auth/login", { method: "POST", body: JSON.stringify({ identifier, password }) });
+      const result = await apiFetch<LoginResponse>("/auth/login", { method: "POST", body: JSON.stringify({ identifier, password }) });
       forgetCompany();
-      router.replace("/");
+      // Cần xác thực hai lớp: nhập mã, hoặc đăng ký ngay nếu chưa có (luồng 2 tài liệu 09).
+      router.replace(result.mfaRequired ? (result.mfaEnrolled ? "/xac-thuc" : "/xac-thuc?dang-ky=1") : "/");
     } catch (error) {
       const failure = error instanceof ApiFailure ? error.body : null;
       if (failure?.fields) setFieldErrors(failure.fields);
@@ -69,9 +70,7 @@ export default function LoginPage() {
         <button type="submit" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting} style={{ justifyContent: "center" }}>
           {t("submit")}
         </button>
-        <span className="chu-thich" title={notYet}>
-          {t("forgot")}
-        </span>
+        <a href="/quen-mat-khau">{t("forgot")}</a>
         <div className="phan-cach">{t("or")}</div>
         {(["google", "microsoft", "zalo"] as const).map((provider) => (
           <button key={provider} type="button" className="nut phu" disabled title={notYet} style={{ justifyContent: "center" }}>

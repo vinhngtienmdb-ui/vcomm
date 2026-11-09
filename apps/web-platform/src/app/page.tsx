@@ -36,7 +36,7 @@ export default function HomePage() {
       setState({ kind: "ready", me, home });
     } catch (error) {
       if (error instanceof ApiFailure && error.status === 401) {
-        router.replace("/dang-nhap");
+        router.replace(error.body?.code === "MFA_REQUIRED" ? "/xac-thuc" : "/dang-nhap");
         return;
       }
       setState({ kind: "error" });

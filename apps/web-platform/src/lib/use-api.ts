@@ -16,7 +16,7 @@ export function useApi<T>(path: string | null): { state: Loadable<T>; reload: ()
       setState({ kind: "ready", data: await apiFetch<T>(path) });
     } catch (error) {
       const status = error instanceof ApiFailure ? error.status : 0;
-      if (status === 401) router.replace("/dang-nhap");
+      if (status === 401) router.replace(error instanceof ApiFailure && error.body?.code === "MFA_REQUIRED" ? "/xac-thuc" : "/dang-nhap");
       else setState({ kind: status === 403 ? "forbidden" : status === 404 ? "notFound" : "error" });
     }
   }, [path, router]);
