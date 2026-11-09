@@ -105,13 +105,13 @@ In tem là nút trên MAN_HINH_28 (tem vị trí), MAN_HINH_29 và MAN_HINH_32 (
 
 | Mã | Endpoint | Nội dung |
 |---|---|---|
-| API_63 | `/inventory/warehouses`, `/inventory/warehouses/{id}/locations`, `/inventory/settings` | Kho, vị trí, công ty chủ hàng, cài đặt |
+| API_63 | `/inventory/warehouses` (kèm `/{id}/deactivate`, `/{id}/activate`), `/inventory/warehouse-options`, `/inventory/warehouses/{id}/locations` (kèm `/{locationId}/deactivate`, `/{locationId}/activate`), `/inventory/settings` | Kho, vị trí, công ty chủ hàng, cài đặt |
 | API_64 | `/inventory/stock`, `/inventory/stock/{variantId}/details`, `/inventory/stock-card` | Tồn kho, chi tiết lô, serial, vị trí, thẻ kho |
-| API_65 | `/inventory/documents` (kèm `/{id}/submit`, `/{id}/withdraw`, `/lot-suggestions`) | Phiếu nhập khác, xuất khác, điều chỉnh |
-| API_66 | `/inventory/documents/{id}/ship`, `/inventory/documents/{id}/receive` | Xuất, nhận phiếu chuyển kho; biên bản chênh lệch |
-| API_67 | `/inventory/stocktakes` (kèm `/{id}/start`, `/{id}/counts`, `/{id}/finish`) | Kiểm kê |
+| API_65 | `/inventory/documents` (kèm `/{id}/submit`, `/{id}/withdraw`, `/lot-suggestions`), `/inventory/items` | Phiếu nhập khác, xuất khác, điều chỉnh; tìm mặt hàng theo mã vạch, mã hàng, tên |
+| API_66 | `/inventory/transfer-destinations`, `/inventory/documents/{id}/ship`, `/inventory/documents/{id}/receive` | Kho đích, xuất, nhận phiếu chuyển kho; biên bản chênh lệch |
+| API_67 | `/inventory/stocktakes` (kèm `/{id}/start`, `/{id}/counts`, `/{id}/finish`, `/{id}/cancel`), `/inventory/stocktake-options` | Kiểm kê |
 | API_68 | `/inventory/reservations` (kèm `/{id}/extend`, `/{id}/release`) | Giữ hàng; dịch vụ giữ hàng trong API cho MODULE_05 |
-| API_69 | `/inventory/stock-levels`, `/inventory/stock-alerts` | Tồn an toàn, cảnh báo |
+| API_69 | `/inventory/stock-levels` (kèm `/{warehouseId}/{companyId}/{variantId}` để xóa), `/inventory/stock-alerts` | Tồn an toàn, cảnh báo |
 | API_70 | `/inventory/labels/products`, `/inventory/labels/locations` | Tem PDF |
 
 ## 8. Phân quyền

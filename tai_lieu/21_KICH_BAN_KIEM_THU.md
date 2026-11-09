@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng và MODULE_02 phần Sản phẩm: đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 0.3
-- Ngày cập nhật: 2026-11-09
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm và MODULE_03 Kho phần web: đúng, sai, giá trị biên, từng vai trò.
+- Phiên bản: 0.4
+- Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -1709,3 +1709,166 @@ Kiểm thử bổ sung không có mã kịch bản (`c4-prices.test.ts`, mục "
 - Lát: L4
 
 Kiểm thử bổ sung không có mã kịch bản (`c4-prices.test.ts`, "nhập dòng phiếu từ Excel"): tệp 4 dòng gọi `POST /catalog/price-changes/import-lines?priceListId=`; một dòng đúng `NUOC-00001` Thùng 100.000 kèm giá hiện hành 110.000; dòng 3, 4, 5 (mã hàng không có, đơn vị Kg, giá chữ) trả lỗi.
+
+## MODULE_03 Kho (phần web, CONG_VIEC_05)
+
+Dữ liệu chung: công ty sở hữu kho VCR (`testIds.retailCompany`), công ty chủ hàng VCT (`testIds.tradingCompany`); chi nhánh VCR-BD (`testIds.binhDuongWarehouse`), trụ sở (`testIds.headOfficeBranch`); đơn vị tính có sẵn của database migration 0003; ngành hàng, sản phẩm, kho, Thủ kho, Quản lý kho tạo trong từng tệp kiểm thử (Thủ kho gán ở phạm vi chi nhánh, Quản lý kho VCT gán ở phạm vi công ty VCT). Chính sách duyệt thử: một cấp, người duyệt `phuc.le@vcomm.test`, thay thế `quantri.vcr@vcomm.test`; sau khi quyết định thì đẩy outbox. Đường dẫn API có tiền tố `/api/v1`.
+
+## CHUC_NANG_38: Kho, vị trí, công ty chủ hàng (CONG_VIEC_05)
+
+### KICHBAN_KIEMTHU_147: Kho thuộc chi nhánh, nhiều công ty chủ hàng; quyền chi nhánh khác không thấy kho; vị trí, cài đặt
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_65
+- Chức năng: CHUC_NANG_38
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Quản trị công ty `quantri.vcr@vcomm.test`; Thủ kho chi nhánh VCR-BD; Thủ kho trụ sở; Quản lý kho VCT; Nhân viên VCR (vai trò Nhân viên)
+- Điều kiện ban đầu và dữ liệu: Chưa có kho.
+- Các bước: (1) Thủ kho VCR-BD tạo kho `kho-bd` (chi nhánh VCR-BD, có vị trí, chủ hàng thêm VCT). (2) Quản trị công ty tạo kho đó; tạo lại cùng mã; tạo kho mã `KHAC` ở chi nhánh không thuộc công ty. (3) Thủ kho VCR-BD, Thủ kho trụ sở xem danh sách kho; Thủ kho trụ sở xem chi tiết kho. (4) Quản lý kho VCT xem danh sách kho (công ty VCT), thêm vị trí. (5) Nhân viên VCR xem danh sách kho. (6) Thêm vị trí `a-01-01`, `A-01-02`; thêm `A-01-03`, `A-01-01`. (7) Sửa tên, bỏ VCT với phiên bản 1; gửi lại phiên bản 1; ngừng dùng. (8) Đọc, sửa cài đặt giữ hàng 48 giờ; Thủ kho sửa cài đặt.
+- Kết quả mong đợi: Bước 1: `403`. Bước 2: `201`, mã `KHO-BD`, `canOperate`, `canManage` đúng, chủ hàng VCR và VCT; lần hai `code` "Mã kho đã có trong công ty."; lần ba lỗi chỉ ở `branchId`. Bước 3: Thủ kho VCR-BD thấy kho (`canOperate: true`); Thủ kho trụ sở danh sách rỗng, chi tiết `404`. Bước 4: thấy kho với `canOperate: false`, `canManage: false`; thêm vị trí `403`. Bước 5: `403`. Bước 6: mã thành `A-01-01`, `A-01-02`; lần hai `locations.1.code` "Mã vị trí đã có trong kho."; `locationCount` 2. Bước 7: chủ hàng chỉ còn VCR; lần hai `409`; trạng thái `inactive`. Bước 8: mặc định `{ reservationHours: 72, version: 0 }`, sau sửa `{ 48, 1 }`; Thủ kho `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-warehouses.test.ts`
+- Lát: L0
+
+## CHUC_NANG_39, CHUC_NANG_40: Phiếu kho, tồn kho, giá vốn, thẻ kho (CONG_VIEC_05)
+
+Dữ liệu chung: kho `BD1` (không vị trí, chủ hàng VCR, VCT), `BD2` (vị trí `A-01`, `A-02`) ở chi nhánh VCR-BD; sản phẩm Nước suối (đơn vị cơ sở Chai, Thùng hệ số 24), Sữa hộp (theo lô), Điện thoại (theo serial) của VCR; Nước của VCT. Thủ kho gán ở VCR-BD lập phiếu.
+
+### KICHBAN_KIEMTHU_148: Nhập khác có duyệt; giá vốn bình quân qua hai lần nhập; xuất theo giá vốn; thẻ kho chỉ thêm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_66
+- Chức năng: CHUC_NANG_39, CHUC_NANG_40, CHUC_NANG_16
+- Loại: Đúng
+- Vai trò thực hiện: Thủ kho (lập); người duyệt `phuc.le@vcomm.test`; Quản trị công ty (xem)
+- Điều kiện ban đầu và dữ liệu: Chính sách duyệt `inventory.receipt_other`; chưa có chính sách `inventory.issue_other`.
+- Các bước: (1) Gửi phiếu nhập 10 Thùng đơn giá 240.000; xem tồn; duyệt. (2) Gửi nhập 60 Chai giá 12.000 và nhập 1.000 Chai giá 1; duyệt phiếu đầu, từ chối phiếu sau. (3) Gửi phiếu xuất 100 Chai dùng nội bộ. (4) Xem thẻ kho hôm nay. (5) Sửa thẳng một dòng `inventory.movements` trong cơ sở dữ liệu.
+- Kết quả mong đợi: Bước 1: `pending`, số `NK-VCR-<năm>-000001`, dòng 10 Thùng = 240 Chai; trước duyệt tồn 0; sau duyệt tồn 240, giá vốn 10.000, giá trị 2.400.000; Thủ kho xem phiếu `posted`, `totalValue` trống. Bước 2: phiếu sau `rejected`; tồn 300, giá vốn 10.400, giá trị 3.120.000. Bước 3: ghi sổ ngay `posted`, giá trị dòng 1.040.000; tồn 200, giá trị 2.080.000, khả dụng 200. Bước 4: đầu kỳ 0; biến động (240, 240), (60, 300), (-100, 200); cuối kỳ 200, 2.080.000. Bước 5: cơ sở dữ liệu báo lỗi.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-documents.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_149: Xuất quá tồn; phiếu chờ duyệt giữ hàng; hai phiếu đồng thời xuất món hàng cuối
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_67
+- Chức năng: CHUC_NANG_40, CHUC_NANG_43
+- Loại: Sai, đồng thời
+- Vai trò thực hiện: Thủ kho; người duyệt `phuc.le@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Tồn Nước 200 Chai ở KICHBAN_KIEMTHU_148.
+- Các bước: (1) Gửi xuất 9 Thùng (216 Chai). (2) Tạo chính sách `inventory.issue_other`; gửi xuất 150 Chai; xem tồn. (3) Gửi xuất 60 Chai. (4) Rút phiếu 150 Chai; xem tồn. (5) Lập hai phiếu xuất 150 Chai, gửi đồng thời. (6) Duyệt phiếu được gửi; xem tồn; đếm dòng tồn âm.
+- Kết quả mong đợi: Bước 1: `400`, `lines.0.quantity` "Không đủ hàng trong kho.". Bước 2: `pending`; tồn 200, đang giữ 150, khả dụng 50. Bước 3: `lines.0.quantity` "Không đủ hàng khả dụng (một phần đang được giữ).". Bước 4: `withdrawn`; đang giữ 0, khả dụng 200. Bước 5: một `201`, một `409`; đang giữ 150. Bước 6: tồn 50, đang giữ 0; không có dòng tồn âm.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-documents.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_150: Gợi ý lô hết hạn trước; lô khác phải có lý do; lô hết hạn chỉ xuất khi hủy hàng hết hạn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_68
+- Chức năng: CHUC_NANG_40
+- Loại: Đúng, sai
+- Vai trò thực hiện: Thủ kho; người duyệt `phuc.le@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Chính sách duyệt nhập khác, xuất khác ở KICHBAN_KIEMTHU_148, 149.
+- Các bước: (1) Lưu phiếu nhập Sữa không số lô, hạn dùng. (2) Nhập lô `L-HET` (hạn 2020-01-01), `L-SOM` (2098-01-01), `L-MUON` (2099-01-01), mỗi lô 10 Hộp; duyệt. (3) Gửi nhập `L-SOM` hạn 2098-06-01. (4) Xem gợi ý lô. (5) Gửi xuất 2 Hộp lô `L-MUON` không lý do. (6) Gửi xuất lô `L-HET` có lý do, lý do dùng nội bộ. (7) Gửi xuất hủy hàng hết hạn 10 Hộp `L-HET`; gửi xuất 2 Hộp `L-MUON` có lý do; duyệt cả hai. (8) Xem chi tiết tồn.
+- Kết quả mong đợi: Bước 1: `lines.0.lotNo`, `lines.0.expiresOn` "Vui lòng nhập thông tin này.". Bước 3: `lines.0.expiresOn` "Lô đã có với hạn dùng khác.". Bước 4: thứ tự `L-HET` (hết hạn, không gợi ý), `L-SOM` (gợi ý), `L-MUON`. Bước 5: `lines.0.lotOverrideReason` "Chọn lô khác lô gợi ý phải ghi lý do.". Bước 6: `lines.0.lotId` "Lô đã hết hạn dùng.". Bước 7: phiếu hủy `pending`. Bước 8: còn `L-SOM` 10, `L-MUON` 8.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-documents.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_151: Serial nhập, xuất đích danh; serial sai số lượng, trùng, không có trong kho; kho có vị trí bắt buộc vị trí
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_68
+- Chức năng: CHUC_NANG_40
+- Loại: Đúng, sai
+- Vai trò thực hiện: Thủ kho; người duyệt `phuc.le@vcomm.test`; Quản trị công ty (xem)
+- Điều kiện ban đầu và dữ liệu: Kho `BD2` có vị trí.
+- Các bước: (1) Lưu nhập 2 Điện thoại một serial. (2) Lưu nhập vào `BD2` không vị trí. (3) Nhập `IMEI-1` giá 5.000.000 vị trí `A-01`, `IMEI-2` giá 5.200.000 vị trí `A-02`; duyệt. (4) Gửi nhập lại `IMEI-1` vào `BD1`. (5) Gửi xuất `IMEI-1` ở vị trí `A-02`. (6) Gửi xuất `IMEI-2` ở `A-02`; duyệt. (7) Xem chi tiết tồn `BD2`. (8) Đối chiếu serial của dòng phiếu với serial được gắn trong cơ sở dữ liệu.
+- Kết quả mong đợi: Bước 1: `lines.0.serials` "Số serial phải bằng số lượng theo đơn vị cơ sở.". Bước 2: `lines.0.locationId` "Vui lòng nhập thông tin này.". Bước 3: tồn 2, giá vốn 5.100.000. Bước 4: `lines.0.serials` "Serial đã có trong kho.". Bước 5: `lines.0.serials` "Serial không có trong kho, vị trí này.". Bước 6: giá trị dòng 5.200.000, serial `IMEI-2`. Bước 7: chỉ còn `IMEI-1` ở `A-01` giá 5.000.000. Bước 8: mỗi dòng `document_line_serials` gắn đúng serial cùng số.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-documents.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_152: Phiếu chỉ chứa hàng của công ty chủ hàng; chủ hàng khác chỉ xem tồn của mình; điều chỉnh tăng giảm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_65
+- Chức năng: CHUC_NANG_38, CHUC_NANG_39, CHUC_NANG_40
+- Loại: Sai, phân quyền
+- Vai trò thực hiện: Thủ kho VCR-BD; Quản lý kho VCT (phạm vi công ty VCT)
+- Điều kiện ban đầu và dữ liệu: Kho `BD1` nhận hàng VCT; `BD2` không nhận.
+- Các bước: (1) Lưu phiếu VCR chứa Nước của VCT. (2) Lưu phiếu chủ hàng VCT vào `BD2`. (3) Thủ kho gửi phiếu nhập 5 Chai Nước của VCT vào `BD1` (VCT chưa có chính sách duyệt). (4) Quản lý kho VCT xem tồn, xem phiếu vừa nhập, xem một phiếu xuất của VCR. (5) Gửi phiếu điều chỉnh Nước VCR: -10 Chai, +1 Thùng.
+- Kết quả mong đợi: Bước 1: `lines.0.variantId` "Mặt hàng không thuộc công ty chủ hàng hoặc đã ngừng bán.". Bước 2: `companyId` "Kho không nhận hàng của công ty này.". Bước 3: `posted`, công ty "VComm Thương mại", số `NK-VCT-...`. Bước 4: tồn chỉ một dòng của VCT, 5; phiếu VCT `200`; phiếu VCR `404`. Bước 5: `posted`; tồn 64, giá vốn 10.400.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-documents.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_153: Ghi sổ phiếu 200 dòng; danh sách 50.000 dòng tồn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_74
+- Chức năng: CHUC_NANG_39, CHUC_NANG_40
+- Loại: Hiệu năng
+- Vai trò thực hiện: Thủ kho; Quản trị công ty
+- Điều kiện ban đầu và dữ liệu: Chèn thẳng 50.000 biến thể của sản phẩm Nước; chưa có chính sách duyệt điều chỉnh.
+- Các bước: (1) Lập phiếu điều chỉnh 200 dòng (mỗi dòng +1 Chai, đơn giá 1.000), đo thời gian gửi. (2) Chèn dòng giá vốn cho 50.000 biến thể; đo thời gian `GET /inventory/stock?warehouseId=` trang đầu.
+- Kết quả mong đợi: Bước 1: `posted` dưới 2 giây. Bước 2: `total` từ 50.000, dưới 500 mili giây.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-documents.test.ts`
+- Lát: L1
+
+## CHUC_NANG_41: Chuyển kho hai bước (CONG_VIEC_05)
+
+### KICHBAN_KIEMTHU_154: Duyệt rồi xuất: kho nguồn giảm, hàng đang vận chuyển; nhận thiếu sinh biên bản; kho không nhận chủ hàng bị từ chối
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_69
+- Chức năng: CHUC_NANG_41, CHUC_NANG_16
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Thủ kho kho nguồn (chi nhánh VCR-BD); Thủ kho kho đích (trụ sở); người duyệt `phuc.le@vcomm.test`; Quản trị công ty
+- Điều kiện ban đầu và dữ liệu: Kho `NGUON` (VCR-BD, không vị trí) có 100 Chai Nước giá 1.000, 10 Hộp Sữa lô `LS-1`, Điện thoại `CK-1`, `CK-2` giá 3.000.000; kho `DICH` (trụ sở, vị trí `K-01`); kho `KHAC` của VCT không nhận hàng VCR.
+- Các bước: (1) Lưu phiếu chuyển sang `KHAC`; xem danh sách kho đích. (2) Tạo chính sách `inventory.transfer`; gửi phiếu `NGUON` → `DICH` gồm 30 Chai, 4 Hộp lô `LS-1`, 2 Điện thoại; xem tồn nguồn. (3) Duyệt; xem phiếu, tồn. (4) Thủ kho đích xác nhận xuất; Thủ kho nguồn xác nhận xuất; xem phiếu, tồn, trạng thái serial; xuất lại. (5) Thủ kho nguồn nhận không dòng; Thủ kho đích nhận 28 Chai, đủ Sữa, 1 Điện thoại không ghi serial; rồi nhận 1 Điện thoại `CK-2`. (6) Xem biên bản bằng Thủ kho và Quản trị công ty; xem tồn kho đích, lô, serial. (7) Thủ kho nguồn gửi phiếu nhập lại serial `CK-1` (đang vận chuyển). (8) Thủ kho đích tìm mặt hàng của VCT (`GET /inventory/items?companyId=<VCT>`).
+- Kết quả mong đợi: Bước 1: `destinationWarehouseId` "Kho không nhận hàng của công ty này."; kho đích gồm `DICH`, `NGUON`. Bước 2: `pending`, số `CK-VCR-...`, `canShip: false`; tồn 100, đang giữ 30, khả dụng 70. Bước 3: `posted`, `canShip: true`; tồn nguồn vẫn 100. Bước 4: Thủ kho đích `404`; sau xuất `in_transit`, Thủ kho đích `canReceive: true`; tồn nguồn 70, đang giữ 0; `CK-1`, `CK-2` `in_transit`; xuất lại `409`. Bước 5: lần đầu `400`; lần hai `lines.2.serials` "Số serial phải bằng số lượng theo đơn vị cơ sở."; lần ba `received`. Bước 6: biên bản chênh lệch -2 và -1; giá trị trống với Thủ kho, -2.000 và -3.000.000 với Quản trị công ty; tồn đích Nước 28 giá vốn 1.000, Điện thoại 1 giá 3.000.000, Sữa lô `LS-1` vị trí `K-01` 4; `CK-1` còn `in_transit`, `CK-2` `in_stock`. Bước 7: `lines.0.serials` "Serial đã có trong kho.". Bước 8: `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-transfers.test.ts`
+- Lát: L2
+
+## CHUC_NANG_42: Kiểm kê (CONG_VIEC_05)
+
+Dữ liệu chung: kho `KK1` (VCR-BD) có 100 Chai Nước giá 1.000, 20 Hộp Sữa lô `KK-L1`, Điện thoại `KK-P1`, `KK-P2` giá 2.000.000.
+
+### KICHBAN_KIEMTHU_155: Kiểm theo ngành hàng: trong phạm vi bị khóa, ngoài phạm vi vẫn ghi sổ; kết thúc sinh phiếu điều chỉnh, ghi người chịu trách nhiệm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_70
+- Chức năng: CHUC_NANG_42, CHUC_NANG_40
+- Loại: Đúng, sai
+- Vai trò thực hiện: Quản trị công ty `quantri.vcr@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Chưa có chính sách duyệt điều chỉnh.
+- Các bước: (1) Lập kiểm kê phạm vi ngành hàng Nước; bắt đầu. (2) Gửi xuất 1 Chai Nước; gửi xuất 2 Hộp Sữa. (3) Kết thúc khi chưa đếm. (4) Ghi số đếm 97. (5) Kết thúc, người chịu trách nhiệm `thukho.bd@vcomm.test`. (6) Xem phiếu điều chỉnh, tồn. (7) Gửi xuất 1 Chai Nước; hủy kiểm kê đã kết thúc. (8) Lập kiểm kê danh sách sản phẩm Sữa, bắt đầu; ghi số đếm 3 cho dòng mới Sữa không lô; hủy kiểm kê.
+- Kết quả mong đợi: Bước 1: `draft`, 0 dòng; sau bắt đầu `counting`, số `KK-VCR-...`, 1 dòng sổ sách 100, giá vốn 1.000. Bước 2: Nước `409` "Mặt hàng đang kiểm kê, chưa ghi sổ được."; Sữa `posted`. Bước 3: `409`. Bước 4: chênh lệch -3, giá trị -3.000. Bước 5: `201`, `finished`, phiếu `DCK-VCR-...`. Bước 6: phiếu `posted`, lý do `stocktake`, `canEdit: false`, dòng -3, người chịu trách nhiệm đúng, bồi thường 3.000; tồn 97. Bước 7: `posted`; hủy nhận `409`. Bước 8: dòng chụp có lô `KK-L1`; ghi số đếm nhận `counts.0.lotId` "Hàng theo lô: ghi số đếm theo lô đã có; lô mới nhập bằng phiếu nhập khác."; hủy thành `cancelled`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-stocktakes.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_156: Kiểm theo danh sách sản phẩm có serial: thiếu, thừa serial; có chính sách thì tồn chỉ đổi sau duyệt
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_70
+- Chức năng: CHUC_NANG_42, CHUC_NANG_16
+- Loại: Đúng, sai
+- Vai trò thực hiện: Quản trị công ty; người duyệt `phuc.le@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Chính sách duyệt `inventory.adjustment`.
+- Các bước: (1) Lập kiểm kê danh sách sản phẩm Điện thoại; bắt đầu. (2) Ghi số đếm 2 không serial. (3) Ghi số đếm 2, serial `KK-P1`, `KK-P3`; kết thúc. (4) Xem phiếu điều chỉnh, serial trong kho. (5) Duyệt; xem serial, tồn.
+- Kết quả mong đợi: Bước 1: dòng sổ sách 2, theo dõi serial. Bước 2: `400`. Bước 3: `201`. Bước 4: phiếu `pending`, dòng (-1, `KK-P2`), (1, `KK-P3`); serial trong kho vẫn `KK-P1`, `KK-P2`. Bước 5: serial trong kho `KK-P1`, `KK-P3`; tồn 2.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-stocktakes.test.ts`
+- Lát: L3
+
+## CHUC_NANG_43, CHUC_NANG_44, CHUC_NANG_45: Giữ hàng, tồn an toàn, in tem (CONG_VIEC_05)
+
+Dữ liệu chung: kho `GH1` (VCR-BD, vị trí `G-01` "Kệ G", `G-02`) có 10 Hộp Bánh quy bơ (mã vạch `8936000000017`) ở `G-01`; Thủ kho gán ở VCR-BD.
+
+### KICHBAN_KIEMTHU_157: Không giữ quá tồn khả dụng; hết hạn tự nhả; gia hạn, nhả tay ghi nhật ký; hàng giữ cho phiếu kho không nhả tay
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_71
+- Chức năng: CHUC_NANG_43
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Thủ kho; Quản trị công ty `quantri.vcr@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Cài đặt giữ hàng mặc định 72 giờ.
+- Các bước: (1) Thủ kho giữ 1 Hộp. (2) Quản trị công ty giữ 8 Hộp ghi chú "Khách hẹn lấy"; giữ thêm 3; xem tồn. (3) Gia hạn 24 giờ; nhả; đọc nhật ký thao tác. (4) Giữ 5 Hộp, đặt hạn giữ về quá khứ, chạy tác vụ nhả hàng hết hạn; xem tồn, danh sách đã nhả. (5) Chèn hàng giữ nguồn `inventory.document`; nhả tay.
+- Kết quả mong đợi: Bước 1: `403`. Bước 2: `201`, `sourceNo` "Khách hẹn lấy", hạn sau 71 đến 72 giờ; lần hai "Không đủ hàng khả dụng (một phần đang được giữ)."; tồn 10, đang giữ 8, khả dụng 2. Bước 3: hạn mới thêm 24 giờ; `released`; nhật ký `reservation.create`, `reservation.extend`, `reservation.release`. Bước 4: tác vụ nhả 1; đang giữ 0, khả dụng 10; 2 hàng giữ đã nhả. Bước 5: `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-reservations.test.ts`
+- Lát: L4
+
+### KICHBAN_KIEMTHU_158: Dưới tối thiểu có cảnh báo, số gợi ý đúng; tối đa nhỏ hơn tối thiểu bị từ chối; thông báo hằng ngày
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_72
+- Chức năng: CHUC_NANG_44
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Thủ kho; Quản trị công ty
+- Điều kiện ban đầu và dữ liệu: Tồn khả dụng Bánh quy 9 (sau KICHBAN_KIEMTHU_157).
+- Các bước: (1) Đặt tối thiểu 20, tối đa 10. (2) Thủ kho đặt 20, 50. (3) Quản trị công ty đặt 20, 50; xem cảnh báo. (4) Thủ kho xem tồn kho. (5) Chạy tác vụ thông báo; đọc thông báo của quản trị công ty. (6) Đặt tối thiểu 5; xem cảnh báo.
+- Kết quả mong đợi: Bước 1: `400`. Bước 2: `403`. Bước 3: khả dụng 9, dưới tối thiểu, gợi ý 41; cảnh báo có một dòng gợi ý 41. Bước 4: `minimum` 20, `belowMinimum: true`. Bước 5: số người nhận lớn hơn 0; thông báo `inventory_stock_alert` dữ liệu `{ warehouse: "Kho giữ hàng", count: 1 }`. Bước 6: cảnh báo rỗng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-reservations.test.ts`
+- Lát: L4
+
+### KICHBAN_KIEMTHU_159: Mã Code 128 đúng cấu trúc; tem sản phẩm, tem vị trí ra PDF đúng khổ, đúng số trang
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_73
+- Chức năng: CHUC_NANG_45
+- Loại: Đúng
+- Vai trò thực hiện: Quản trị công ty
+- Điều kiện ban đầu và dữ liệu: Kho `GH1` có 2 vị trí đang dùng.
+- Các bước: (1) Kiểm bảng mẫu vạch Code 128: 106 mẫu đầu mỗi mẫu tổng 11 mô-đun; mã hóa chuỗi "Hi". (2) Tải tem sản phẩm Bánh quy 3 bản. (3) Tải tem vị trí kho `GH1`.
+- Kết quả mong đợi: Bước 1: đúng; "Hi" ra chuỗi độ rộng bắt đầu B, `H`, `i`, ký tự kiểm tra 84, dừng. Bước 2: `200`, `application/pdf`, bắt đầu `%PDF`, 3 trang, `MediaBox` 141,73 × 85,03 điểm (50 × 30 mm). Bước 3: 2 trang. Quét mã vạch bằng máy quét, xem bằng mắt: chưa làm.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c5-reservations.test.ts`
+- Lát: L4

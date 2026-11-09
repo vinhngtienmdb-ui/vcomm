@@ -1,10 +1,10 @@
 # 27. MA TRẬN TRUY VẾT
 
 - Mô tả: Ma trận truy vết yêu cầu → quy tắc → chức năng → màn hình → tiêu chí nghiệm thu → kịch bản kiểm thử → mã nguồn → kết quả.
-- Phiên bản: 1.3
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.4
+- Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm dòng TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64, mục 4
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm dòng TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64, mục 4; CONG_VIEC_05 (2026-11-10): thêm dòng TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74, mục 5
 
 ## 1. Ma trận
 
@@ -75,6 +75,18 @@
 | YCAU_NGHIEPVU_22, YCAU_NGHIEPVU_23 | QUYTAC_NGHIEPVU_38 | CHUC_NANG_31 | MAN_HINH_24 | TIEUCHI_NGHIEMTHU_63 | KICHBAN_KIEMTHU_139 | apps/api/src/catalog/product-images.service.ts, apps/api/src/catalog/catalog.controller.ts, apps/web-catalog/src/app/products/[id]/page.tsx | apps/api/test/c4-products.test.ts | Kiểm thử tự động đạt 2026-11-09; chưa nghiệm thu | |
 | YCAU_NGHIEPVU_22 | QUYTAC_NGHIEPVU_38 | CHUC_NANG_31 | MAN_HINH_23 | TIEUCHI_NGHIEMTHU_64 | KICHBAN_KIEMTHU_140 | apps/api/src/catalog/products.service.ts, apps/api/src/catalog/catalog-context.ts, apps/web-catalog/src/app/products/page.tsx | apps/api/test/c4-products.test.ts | Kiểm thử tự động đạt 2026-11-09; chưa nghiệm thu | |
 
+| YCAU_NGHIEPVU_26, YCAU_NGHIEPVU_27 | QUYTAC_NGHIEPVU_45, QUYTAC_NGHIEPVU_46 | CHUC_NANG_38 | MAN_HINH_28 | TIEUCHI_NGHIEMTHU_65 | KICHBAN_KIEMTHU_147 | database/migrations/0004_inventory.sql, apps/api/src/inventory/warehouses.service.ts, apps/api/src/inventory/inventory-context.ts, apps/api/src/inventory/inventory.controller.ts, apps/api/src/permissions/permission-catalog.ts, apps/web-inventory/src/app/warehouses/page.tsx, apps/web-platform/next.config.ts | apps/api/test/c5-warehouses.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_26, YCAU_NGHIEPVU_28 | QUYTAC_NGHIEPVU_46 | CHUC_NANG_38, CHUC_NANG_39, CHUC_NANG_40 | MAN_HINH_29, MAN_HINH_31, MAN_HINH_32 | TIEUCHI_NGHIEMTHU_65 | KICHBAN_KIEMTHU_152 | apps/api/src/inventory/stock-documents.service.ts, apps/api/src/inventory/stock.service.ts, apps/api/src/inventory/warehouses.service.ts | apps/api/test/c5-documents.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_27, YCAU_NGHIEPVU_28 | QUYTAC_NGHIEPVU_47, QUYTAC_NGHIEPVU_48, QUYTAC_NGHIEPVU_49, QUYTAC_NGHIEPVU_50 | CHUC_NANG_39, CHUC_NANG_40 | MAN_HINH_29, MAN_HINH_30, MAN_HINH_31, MAN_HINH_32, MAN_HINH_08 | TIEUCHI_NGHIEMTHU_66 | KICHBAN_KIEMTHU_148 | apps/api/src/inventory/stock-ledger.service.ts, apps/api/src/inventory/stock-documents.service.ts, apps/api/src/inventory/stock.service.ts, apps/web-inventory/src/app/stock/page.tsx, apps/web-inventory/src/app/stock-card/page.tsx, apps/web-inventory/src/app/documents/page.tsx, apps/web-inventory/src/app/documents/[id]/page.tsx | apps/api/test/c5-documents.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_27 | QUYTAC_NGHIEPVU_47, QUYTAC_NGHIEPVU_50, QUYTAC_NGHIEPVU_54 | CHUC_NANG_40, CHUC_NANG_43 | MAN_HINH_32 | TIEUCHI_NGHIEMTHU_67 | KICHBAN_KIEMTHU_149 | apps/api/src/inventory/stock-ledger.service.ts, apps/api/src/inventory/stock-documents.service.ts, apps/api/src/inventory/reservations.service.ts | apps/api/test/c5-documents.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_27 | QUYTAC_NGHIEPVU_47, QUYTAC_NGHIEPVU_51 | CHUC_NANG_40 | MAN_HINH_32 | TIEUCHI_NGHIEMTHU_68 | KICHBAN_KIEMTHU_150, KICHBAN_KIEMTHU_151 | apps/api/src/inventory/stock-documents.service.ts, apps/api/src/inventory/stock-ledger.service.ts, apps/web-inventory/src/app/documents/[id]/page.tsx | apps/api/test/c5-documents.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_28 | QUYTAC_NGHIEPVU_50, QUYTAC_NGHIEPVU_52 | CHUC_NANG_41 | MAN_HINH_33, MAN_HINH_08 | TIEUCHI_NGHIEMTHU_69 | KICHBAN_KIEMTHU_154 | apps/api/src/inventory/transfers.service.ts, apps/api/src/inventory/stock-documents.service.ts, apps/api/src/inventory/stock-ledger.service.ts, apps/web-inventory/src/app/documents/[id]/page.tsx | apps/api/test/c5-transfers.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_28 | QUYTAC_NGHIEPVU_53, QUYTAC_NGHIEPVU_50 | CHUC_NANG_42 | MAN_HINH_34, MAN_HINH_32 | TIEUCHI_NGHIEMTHU_70 | KICHBAN_KIEMTHU_155, KICHBAN_KIEMTHU_156 | apps/api/src/inventory/stocktakes.service.ts, apps/api/src/inventory/stock-ledger.service.ts, apps/api/src/inventory/stock-documents.service.ts, apps/web-inventory/src/app/stocktakes/page.tsx, apps/web-inventory/src/app/stocktakes/[id]/page.tsx | apps/api/test/c5-stocktakes.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_29 | QUYTAC_NGHIEPVU_54 | CHUC_NANG_43 | MAN_HINH_35 | TIEUCHI_NGHIEMTHU_71 | KICHBAN_KIEMTHU_157 | apps/api/src/inventory/reservations.service.ts, apps/api/src/jobs/background-jobs.ts, apps/web-inventory/src/app/reservations/page.tsx | apps/api/test/c5-reservations.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_29 | QUYTAC_NGHIEPVU_55 | CHUC_NANG_44 | MAN_HINH_35, MAN_HINH_29 | TIEUCHI_NGHIEMTHU_72 | KICHBAN_KIEMTHU_158 | apps/api/src/inventory/stock-levels.service.ts, apps/api/src/jobs/background-jobs.ts, apps/web-inventory/src/app/reservations/page.tsx | apps/api/test/c5-reservations.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_29 | Không có | CHUC_NANG_45 | MAN_HINH_28, MAN_HINH_29, MAN_HINH_32 | TIEUCHI_NGHIEMTHU_73 | KICHBAN_KIEMTHU_159 | apps/api/src/inventory/labels.service.ts, apps/api/src/inventory/code128.ts, apps/web-inventory/src/app/warehouses/page.tsx, apps/web-inventory/src/app/stock/page.tsx, apps/web-inventory/src/app/documents/[id]/page.tsx | apps/api/test/c5-reservations.test.ts | Kiểm thử tự động đạt 2026-11-10 (cấu trúc mã vạch, khổ, số trang); quét mã vạch, xem bằng mắt chưa làm; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_27 | QUYTAC_NGHIEPVU_47 | CHUC_NANG_39, CHUC_NANG_40 | MAN_HINH_29 | TIEUCHI_NGHIEMTHU_74 | KICHBAN_KIEMTHU_153 | apps/api/src/inventory/stock.service.ts, apps/api/src/inventory/stock-ledger.service.ts | apps/api/test/c5-documents.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+
 ## 2. Kiểm tra bao phủ – 2026-11-09
 
 - Yêu cầu nghiệp vụ chưa có chức năng: Không có
@@ -107,4 +119,15 @@
 - Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 → KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146)
 - Kịch bản kiểm thử chưa có kiểm thử tự động: Không có; giao diện MAN_HINH_22 đến MAN_HINH_27 chưa có kiểm thử tự động (kiểm tra bằng ảnh chụp sau mỗi lát)
 - Kịch bản chưa chạy hoặc kết quả Không đạt: Kiểm thử tự động đạt ngày 2026-11-09; chưa ghi kết quả CONG_VIEC_04 vào tài liệu `25`; chưa nghiệm thu
+- Mã nguồn không truy được về yêu cầu nào: Không có
+
+## 5. Kiểm tra bao phủ CONG_VIEC_05 – 2026-11-10
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_26 → CHUC_NANG_38; YCAU_NGHIEPVU_27 → CHUC_NANG_39, CHUC_NANG_40; YCAU_NGHIEPVU_28 → CHUC_NANG_40 đến CHUC_NANG_42; YCAU_NGHIEPVU_29 → CHUC_NANG_43 đến CHUC_NANG_45)
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_45 đến QUYTAC_NGHIEPVU_55); giữ hàng cho đơn bán của QUYTAC_NGHIEPVU_54 chờ MODULE_05 (đã có dịch vụ giữ hàng và giữ thủ công); vế "không đổi đơn vị cơ sở, hệ số khi đã phát sinh giao dịch" của QUYTAC_NGHIEPVU_40 chưa kiểm ở API sản phẩm dù MODULE_03 đã có giao dịch kho
+- Chức năng chưa có tiêu chí nghiệm thu: Không có
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có; MAN_HINH_29 chưa có bộ lọc công ty chủ hàng, ngành hàng (API_64 đã nhận); MAN_HINH_31 chưa có lọc theo ngày
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 → KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159)
+- Kịch bản kiểm thử chưa có kiểm thử tự động: Không có; vế quét mã vạch, xem bằng mắt của KICHBAN_KIEMTHU_159 (TIEUCHI_NGHIEMTHU_73, Mong muốn) chưa làm; giao diện MAN_HINH_28 đến MAN_HINH_35 chưa có kiểm thử tự động (kiểm tra bằng ảnh chụp sau mỗi lát)
+- Kịch bản chưa chạy hoặc kết quả Không đạt: Kiểm thử tự động đạt ngày 2026-11-10; chưa ghi kết quả CONG_VIEC_05 vào tài liệu `25`; chưa nghiệm thu
 - Mã nguồn không truy được về yêu cầu nào: Không có
