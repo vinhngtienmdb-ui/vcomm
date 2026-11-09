@@ -22,7 +22,7 @@ Phiên bản 0.1: mini app Nền tảng (MODULE_01). Chi tiết: tài liệu `05
 | 03 Phân tích nghiệp vụ | 06, 07, 08, 09 | Đã phê duyệt (MODULE_01) | 2026-11-09 |
 | 04 Đặc tả yêu cầu | 10, 11, 27 | Đã phê duyệt (MODULE_01) | 2026-11-09 |
 | 05 Kiến trúc hệ thống | 12, 13, 22 | Đã phê duyệt (MODULE_01) | 2026-11-09 |
-| 06 Giao diện | 14, 15, bản mẫu | Bước 06.1 đã phê duyệt 2026-11-09; bước 06.2 đã phê duyệt 2026-11-09; bước 06.3 đang thực hiện (MODULE_01) | |
+| 06 Giao diện | 14, 15, bản mẫu | Bước 06.1 đã phê duyệt 2026-11-09; bước 06.2 đã phê duyệt 2026-11-09; bước 06.3 chọn phương án C; bước 06.4 chờ phê duyệt (MODULE_01) | |
 | 07 Dữ liệu và API | 16, 17 | Bản nháp 16 schema `core` (rà soát lại sau giai đoạn 04) | |
 | 08 Chuẩn bị môi trường AI | 18, 19 | Chưa bắt đầu | |
 | 09 Xây dựng theo module | Mã nguồn | Chưa bắt đầu | |

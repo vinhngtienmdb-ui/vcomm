@@ -3,7 +3,7 @@
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Bước 06.1 đã phê duyệt 2026-11-09 (gồm THAY_DOI_01); bước 06.2 đã phê duyệt 2026-11-09; bước 06.3 đang thực hiện
+- Trạng thái: Bước 06.1 đã phê duyệt 2026-11-09 (gồm THAY_DOI_01); bước 06.2 đã phê duyệt 2026-11-09; bước 06.3 chọn phương án C 2026-11-09; bước 06.4 chờ phê duyệt
 
 ## MODULE_01 Nền tảng
 
@@ -88,7 +88,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Trạng thái: đang tải = khung xám nhấp nháy theo bố cục; rỗng = hình minh họa, câu giải thích, nút thao tác chính; lỗi = thông báo kèm nút "Thử lại"; không có quyền = câu "Bạn không có quyền xem trang này" và nút về trang chủ.
 - Thông báo thành công, thất bại hiện góc trên phải, tự ẩn sau 5 giây; thao tác ngừng hoạt động, khóa, vô hiệu hóa, thu hồi phiên có hộp thoại xác nhận.
 - Điện thoại (dưới 768 điểm ảnh): menu trái thu thành nút mở; bảng chuyển thành danh sách thẻ.
-- Thành phần: tên thành phần theo tài liệu `15` bổ sung sau bước 06.3. API: bổ sung ở giai đoạn 07.
+- API: bổ sung ở giai đoạn 07.
 - Bản khung thang xám: `tai_lieu/ban_mau/KHUNG_GIAO_DIEN_MODULE_01.html`.
 
 ### MAN_HINH_01: Đăng nhập
@@ -96,6 +96,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_06, CHUC_NANG_07, CHUC_NANG_08, CHUC_NANG_22, CHUC_NANG_24
 - Bố cục: một cột giữa màn hình: logo; chọn ngôn ngữ; thẻ "Mật khẩu" và "Số điện thoại"; ô nhập; nút "Đăng nhập"; liên kết "Quên mật khẩu"; dải phân cách "hoặc"; ba nút Google, Microsoft, Zalo.
 - Dữ liệu hiển thị: Không có.
+- Thành phần: ONhap, Nut, NutDangNhapLienKet, KhoiCanhBao (tài liệu `15`).
 - Thao tác: nhập, bấm Đăng nhập → MAN_HINH_02 nếu cần xác thực hai lớp, ngược lại MAN_HINH_05; thẻ Số điện thoại: nhập số → "Gửi mã" → ô nhập mã 6 chữ số, đếm ngược gửi lại.
 - Trạng thái: đang xử lý (nút khóa, vòng quay); lỗi (thông báo trên ô nhập); bị khóa 15 phút (thông báo kèm thời gian còn lại).
 - Thông báo: theo CHUC_NANG_06, CHUC_NANG_07, CHUC_NANG_08, CHUC_NANG_24.
@@ -108,6 +109,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_09
 - Bố cục: một cột giữa: tiêu đề; nhập mã 6 chữ số; liên kết "Dùng mã dự phòng"; khi đăng ký lần đầu: mã QR, mã nhập tay, ô xác nhận, danh sách 10 mã dự phòng kèm nút tải về.
 - Dữ liệu hiển thị: cách xác thực đã đăng ký (ứng dụng, SMS, email; che bớt số điện thoại, email).
+- Thành phần: ONhap (mã OTP), Nut, KhoiCanhBao (tài liệu `15`).
 - Thao tác: nhập mã → MAN_HINH_05.
 - Trạng thái: đang xử lý; lỗi mã sai.
 - Thông báo: "Mã xác thực không đúng."
@@ -120,6 +122,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_04
 - Bố cục: một cột giữa: lời chào kèm họ tên, tên công ty; ô mật khẩu, nhập lại mật khẩu, chỉ báo độ mạnh; nút "Kích hoạt"; hoặc nút Google, Microsoft.
 - Dữ liệu hiển thị: họ tên, công ty mời.
+- Thành phần: ONhap (mật khẩu), Nut, NutDangNhapLienKet, KhoiCanhBao (tài liệu `15`).
 - Thao tác: kích hoạt → MAN_HINH_01 kèm thông báo thành công.
 - Trạng thái: đường dẫn hết hạn hoặc đã dùng (thông báo, hướng dẫn liên hệ quản trị).
 - Thông báo: theo CHUC_NANG_04.
@@ -132,6 +135,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_06
 - Bố cục: bước 1: ô email hoặc số điện thoại, nút "Gửi đường dẫn"; bước 2 (mở từ đường dẫn): ô mật khẩu mới, nhập lại, nút "Đặt lại".
 - Dữ liệu hiển thị: Không có.
+- Thành phần: ONhap, Nut, KhoiCanhBao (tài liệu `15`).
 - Thao tác: gửi → thông báo chung "Nếu tài khoản tồn tại, bạn sẽ nhận được đường dẫn"; đặt lại → MAN_HINH_01.
 - Trạng thái: đường dẫn hết hạn.
 - Thông báo: theo CHUC_NANG_06.
@@ -144,6 +148,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_14, CHUC_NANG_11
 - Bố cục: thanh trên cùng; lời chào; lưới ô mini app (biểu tượng, tên, số việc chờ); khối "Chờ tôi duyệt" tóm tắt 5 yêu cầu mới nhất.
 - Dữ liệu hiển thị: mini app được dùng trong công ty đang chọn; số việc chờ; yêu cầu duyệt.
+- Thành phần: ThanhTrenCung, OMiniApp, BangDuLieu, TrangThaiRong (tài liệu `15`).
 - Thao tác: bấm ô → mở mini app; chọn công ty ở thanh trên → tải lại trang chủ theo công ty mới.
 - Trạng thái: rỗng (chưa được cấp mini app nào, theo CHUC_NANG_14).
 - Thông báo: Không có.
@@ -156,6 +161,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_10, CHUC_NANG_09, CHUC_NANG_22, CHUC_NANG_24
 - Bố cục: các thẻ: "Thông tin" (họ tên, email, số điện thoại, công ty, ngôn ngữ); "Đăng nhập" (đổi mật khẩu; liên kết, hủy liên kết Google, Microsoft, Zalo); "Xác thực hai lớp" (bật, tắt, tạo lại mã dự phòng); "Phiên đăng nhập" (bảng thiết bị, địa chỉ IP, thời điểm, nút thu hồi).
 - Dữ liệu hiển thị: như trên.
+- Thành phần: ThanhTrenCung, ONhap, OChon, Nut, NutDangNhapLienKet, BangDuLieu, HopThoaiXacNhan, ThongBaoNoi (tài liệu `15`).
 - Thao tác: lưu từng thẻ; thu hồi phiên có xác nhận.
 - Trạng thái: nút tắt xác thực hai lớp bị vô hiệu kèm giải thích khi đang bắt buộc.
 - Thông báo: theo CHUC_NANG_10, CHUC_NANG_24.
@@ -168,6 +174,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_17, CHUC_NANG_16
 - Bố cục: tiêu đề kèm số chờ; bộ lọc công ty, mini app, loại chứng từ, chỉ quá hạn; danh sách: số chứng từ, loại, công ty, người lập, giá trị, cấp hiện tại, thời điểm gửi, nhãn "Quá hạn"; nút Đồng ý, Từ chối trên mỗi dòng.
 - Dữ liệu hiển thị: yêu cầu đang chờ nhân viên ở mọi công ty.
+- Thành phần: ThanhTrenCung, BoLoc, BangDuLieu, NhanTrangThai, Nut, HopThoaiXacNhan, TrangThaiRong, ThongBaoNoi (tài liệu `15`).
 - Thao tác: bấm dòng → MAN_HINH_08; Từ chối → hộp thoại bắt buộc nhập lý do.
 - Trạng thái: rỗng ("Không có chứng từ nào chờ bạn duyệt").
 - Thông báo: duyệt thành công, thất bại.
@@ -180,6 +187,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_16
 - Bố cục: đầu trang: số chứng từ, trạng thái, giá trị (kèm quy đổi nếu ngoại tệ); dòng thời gian các cấp (người duyệt, người thay thế, quyết định, ý kiến, thời điểm); liên kết "Mở chứng từ" sang mini app sở hữu; nút Đồng ý, Từ chối (người duyệt cấp hiện tại); nút Rút lại (người lập, khi cấp 1 chưa quyết định).
 - Dữ liệu hiển thị: yêu cầu duyệt và các bước.
+- Thành phần: ThanhTrenCung, NhanTrangThai, DongThoiGian, Nut, HopThoaiXacNhan, ThongBaoNoi (tài liệu `15`).
 - Thao tác: như trên.
 - Trạng thái: không có quyền (không phải người lập hoặc người duyệt).
 - Thông báo: theo CHUC_NANG_16.
@@ -192,6 +200,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_01
 - Bố cục: cây công ty bên trái; chi tiết công ty được chọn bên phải; nút "Thêm công ty".
 - Dữ liệu hiển thị: mã, tên, mã số thuế, tiền tệ, chế độ kế toán, trạng thái, số chi nhánh.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CayDuLieu, NganKeo, Nut, HopThoaiXacNhan (tài liệu `15`).
 - Thao tác: thêm, sửa, ngừng hoạt động (xác nhận).
 - Trạng thái: chung.
 - Thông báo: theo CHUC_NANG_01.
@@ -204,6 +213,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_02
 - Bố cục: danh sách chung; lọc loại, tỉnh thành, trạng thái.
 - Dữ liệu hiển thị: mã, tên, loại, tỉnh thành, địa chỉ, trạng thái.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, HopThoaiXacNhan (tài liệu `15`).
 - Thao tác: thêm, sửa, ngừng hoạt động.
 - Trạng thái: chung.
 - Thông báo: theo CHUC_NANG_02.
@@ -216,6 +226,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_03
 - Bố cục: như MAN_HINH_09 (cây bên trái, chi tiết bên phải).
 - Dữ liệu hiển thị: mã, tên, phòng ban cha, trưởng phòng, số nhân viên.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CayDuLieu, NganKeo, OChon, HopThoaiXacNhan (tài liệu `15`).
 - Thao tác: thêm, sửa, ngừng hoạt động.
 - Trạng thái: chung.
 - Thông báo: theo CHUC_NANG_03.
@@ -228,6 +239,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_04, CHUC_NANG_05, CHUC_NANG_19
 - Bố cục: danh sách chung; nút "Mời nhân viên" (ngăn kéo), "Nhập từ Excel" (hộp thoại: tải mẫu, chọn tệp, kết quả số dòng thành công, lỗi, tải tệp dòng lỗi); lọc chi nhánh, phòng ban, vai trò, trạng thái.
 - Dữ liệu hiển thị: họ tên, email, số điện thoại, chi nhánh, phòng ban, vai trò, trạng thái, lần đăng nhập cuối.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, HopThoaiXacNhan (tài liệu `15`).
 - Thao tác: bấm dòng → MAN_HINH_13; gửi lại đường dẫn kích hoạt với dòng "Đã mời".
 - Trạng thái: chung.
 - Thông báo: theo CHUC_NANG_04, CHUC_NANG_05.
@@ -240,6 +252,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_13, CHUC_NANG_19, CHUC_NANG_09
 - Bố cục: đầu trang: họ tên, trạng thái, nút Khóa, Mở khóa, Vô hiệu hóa, Đặt lại xác thực hai lớp; thẻ "Công ty" (các công ty thuộc về, chi nhánh, phòng ban, chức danh); thẻ "Vai trò" (bảng vai trò, phạm vi, ngày bắt đầu, ngày kết thúc; nút Gán vai trò, Gỡ); thẻ "Phiên đăng nhập" (thu hồi).
 - Dữ liệu hiển thị: như trên.
+- Thành phần: ThanhTrenCung, MenuMiniApp, NhanTrangThai, BangDuLieu, OChon, Nut, HopThoaiXacNhan (tài liệu `15`).
 - Thao tác: Vô hiệu hóa → hộp thoại bàn giao: danh sách chứng từ chờ duyệt và phòng ban đang làm trưởng phòng, chọn người nhận cho từng mục, xác nhận.
 - Trạng thái: chung.
 - Thông báo: theo CHUC_NANG_13, CHUC_NANG_19.
@@ -252,6 +265,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_12
 - Bố cục: danh sách vai trò bên trái (nhãn "Hệ thống", "Dùng chung", "Riêng công ty"); bên phải: thông tin vai trò và ma trận quyền nhóm theo mini app (dòng là đối tượng, cột là hành động, ô đánh dấu); quyền nhạy cảm có nhãn.
 - Dữ liệu hiển thị: vai trò, quyền, số người đang có vai trò.
+- Thành phần: ThanhTrenCung, MenuMiniApp, MaTranQuyen, NhanTrangThai, NganKeo (tài liệu `15`).
 - Thao tác: thêm, sửa, ngừng dùng; lưu ma trận.
 - Trạng thái: ô quyền người dùng không có bị vô hiệu.
 - Thông báo: theo CHUC_NANG_12.
@@ -264,6 +278,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_15
 - Bố cục: danh sách loại chứng từ kèm chính sách đang hiệu lực; chi tiết: tiền tệ, ngày hiệu lực; bảng cấp duyệt (thứ tự, ngưỡng, người duyệt, người thay thế, thời hạn giờ); lịch sử chính sách.
 - Dữ liệu hiển thị: như trên.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BangDuLieu, OChon, ONhap, NganKeo (tài liệu `15`).
 - Thao tác: tạo chính sách mới từ ngày chọn; thêm, bớt cấp.
 - Trạng thái: chung.
 - Thông báo: theo CHUC_NANG_15.
@@ -276,6 +291,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_20
 - Bố cục: danh sách chung: loại chứng từ, tiền tố, kiểu đặt lại, số chữ số, số tiếp theo kỳ hiện tại, ví dụ số kế tiếp.
 - Dữ liệu hiển thị: như trên.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BangDuLieu, NganKeo (tài liệu `15`).
 - Thao tác: sửa (ngăn kéo).
 - Trạng thái: chung.
 - Thông báo: theo CHUC_NANG_20.
@@ -288,6 +304,7 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_21
 - Bố cục: chọn ngày; bảng tỷ giá theo cặp tiền tệ, loại, nguồn; nút "Nhập tỷ giá"; nhãn cảnh báo khi hôm nay chưa có tỷ giá hạch toán.
 - Dữ liệu hiển thị: như trên.
+- Thành phần: ThanhTrenCung, MenuMiniApp, KhoiCanhBao, BangDuLieu, NganKeo (tài liệu `15`).
 - Thao tác: nhập, sửa (quản lý tỷ giá).
 - Trạng thái: chung.
 - Thông báo: theo CHUC_NANG_21.
@@ -300,9 +317,29 @@ Quy ước chung cho mọi màn hình sau đăng nhập:
 - Chức năng thực hiện: CHUC_NANG_23
 - Bố cục: bộ lọc người làm, mini app, đối tượng, hành động, khoảng thời gian; bảng: thời điểm, người làm, công ty, hành động, đối tượng; bấm dòng mở ngăn kéo so sánh dữ liệu trước và sau.
 - Dữ liệu hiển thị: như trên.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NganKeo (tài liệu `15`).
 - Thao tác: lọc, xem chi tiết. Không có sửa, xóa.
 - Trạng thái: chung.
 - Thông báo: Không có.
 - Quyền hiển thị: theo bảng vai trò – màn hình.
 - Responsive: chung.
 - Trạng thái phê duyệt: Bản nháp
+
+## 4. Bản mẫu và kết quả rà soát giao diện – 2026-11-09
+
+Bản mẫu: [ban_mau/index.html](ban_mau/index.html) (18 tệp `MAN_HINH_<số>_<TÊN>.html`, dùng chung `chung.css`, `chung.js`). Bảng điều khiển góc dưới trái đổi vai trò và trạng thái hiển thị.
+
+| # | Mục rà soát | Kết quả |
+|---|---|---|
+| 1 | Khớp bản khung và đặc tả đã duyệt | Đạt |
+| 2 | Chỉ dùng giá trị trong tài liệu `15` | Đạt; ngoại lệ: màu viền của KhoiCanhBao (#F1D38A, #F5B5B5, #BFD0FA) chưa có trong tài liệu `15`, đề xuất bổ sung |
+| 3 | Đủ trạng thái có dữ liệu, rỗng, đang tải, lỗi, không có quyền | Đạt, 18 màn hình × 5 trạng thái |
+| 4 | Thông báo rõ lỗi gì, cách xử lý | Đạt |
+| 5 | Không tràn ngang ở 1440 và 375 điểm ảnh | Đạt (kiểm tra tự động 180 trường hợp) |
+| 6 | Tiếng Việt có dấu, nội dung dài không tràn khung | Đạt |
+| 7 | Tương phản tối thiểu 4,5:1 | Đạt theo tài liệu `15` mục 2 |
+| 8 | Bàn phím, viền phần tử đang chọn, ô nhập có nhãn | Đạt; mọi ô nhập có nhãn (kiểm tra tự động); Esc đóng hộp thoại |
+| 9 | Thành phần hiện theo vai trò | Đạt; nhân viên chỉ thấy mục Tỷ giá, mở MAN_HINH_09 bị chặn |
+| 10 | Nút có trạng thái đang xử lý; thao tác không hoàn tác có xác nhận | Đạt |
+| 11 | Lỗi hiện tại đúng ô nhập | Đạt |
+| 12 | Màn hình cũ không bị ảnh hưởng | Không áp dụng (chưa có giao diện cũ) |
