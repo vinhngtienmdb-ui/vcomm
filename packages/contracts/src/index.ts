@@ -1213,3 +1213,138 @@ export interface VariantLinkSuggestion {
   linkedProductName: string;
   barcode: string;
 }
+
+// CONG_VIEC_04, API_60: kênh bán, nhóm khách hàng của công ty (CHUC_NANG_35).
+const catalogItemCode = z.string().trim().toUpperCase().regex(/^[A-Z0-9_]{1,20}$/);
+export const createCatalogItemSchema = z.object({ code: catalogItemCode, name: z.string().trim().min(1).max(100) }).strict();
+export type CreateCatalogItemRequest = z.input<typeof createCatalogItemSchema>;
+export const updateCatalogItemSchema = z.object({ name: z.string().trim().min(1).max(100), version: z.number().int().positive() }).strict();
+export interface CatalogItemResponse {
+  id: string;
+  code: string;
+  name: string;
+  status: "active" | "inactive";
+  version: number;
+}
+// Kênh có sẵn; không có sàn ngoài (quyết định người dùng 2026-11-09).
+export const defaultSalesChannels = [
+  { code: "BAN_SI", name: "Bán sỉ" },
+  { code: "BAN_LE", name: "Bán lẻ" },
+  { code: "SAN_VCOMM", name: "Sàn VComm" },
+  { code: "NOI_BO", name: "Nội bộ" },
+] as const;
+
+// CONG_VIEC_04, API_61: bảng giá, giá hiện hành, lịch sử giá (CHUC_NANG_36; QUYTAC_NGHIEPVU_42, 43).
+export const createPriceListSchema = z
+  .object({
+    code: catalogItemCode,
+    name: z.string().trim().min(1).max(100),
+    channelId: z.uuid().nullable().optional(),
+    customerGroupId: z.uuid().nullable().optional(),
+    currency: z.string().trim().regex(/^[A-Z]{3}$/).default("VND"),
+    includesVat: z.boolean(),
+  })
+  .strict();
+export type CreatePriceListRequest = z.input<typeof createPriceListSchema>;
+export const updatePriceListSchema = z.object({ name: z.string().trim().min(1).max(100), includesVat: z.boolean(), version: z.number().int().positive() }).strict();
+export interface PriceListResponse {
+  id: string;
+  code: string;
+  name: string;
+  channelId: string | null;
+  channelName: string | null;
+  customerGroupId: string | null;
+  customerGroupName: string | null;
+  currency: string;
+  includesVat: boolean;
+  status: "active" | "inactive";
+  version: number;
+}
+
+export const priceListPricesQuerySchema = z
+  .object({ date: isoDate.optional(), search: z.string().trim().max(100).optional(), page: z.coerce.number().int().min(1).default(1), pageSize: z.coerce.number().int().min(1).max(100).default(50) })
+  .strict();
+export interface PriceRow {
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  unitId: string;
+  unitName: string;
+  price: string;
+  effectiveFrom: string;
+}
+export const priceHistoryQuerySchema = z.object({ variantId: z.uuid(), unitId: z.uuid() }).strict();
+export interface PriceHistoryItem {
+  price: string;
+  effectiveFrom: string;
+  priceChangeId: string;
+  changeNo: string | null;
+  createdAt: string;
+}
+// Tra giá khi bán (MODULE_05 dùng): chọn bảng giá theo thứ tự ưu tiên QUYTAC_NGHIEPVU_42, giá theo ngày QUYTAC_NGHIEPVU_43.
+export const priceLookupQuerySchema = z
+  .object({
+    variantId: z.uuid(),
+    unitId: z.uuid(),
+    channelId: z.uuid().optional(),
+    customerGroupId: z.uuid().optional(),
+    currency: z.string().trim().regex(/^[A-Z]{3}$/).default("VND"),
+    date: isoDate.optional(),
+  })
+  .strict();
+export interface PriceLookupResponse {
+  priceListId: string;
+  priceListCode: string;
+  includesVat: boolean;
+  price: string;
+  effectiveFrom: string;
+  fromBaseUnit: boolean;
+}
+
+// CONG_VIEC_04, API_62: phiếu điều chỉnh giá qua luồng duyệt (CHUC_NANG_37; QUYTAC_NGHIEPVU_44).
+export const priceChangeStatuses = ["draft", "pending", "approved", "rejected", "withdrawn"] as const;
+export type PriceChangeStatus = (typeof priceChangeStatuses)[number];
+export const savePriceChangeSchema = z
+  .object({
+    priceListId: z.uuid(),
+    effectiveFrom: isoDate,
+    note: z.string().trim().max(1000).nullable().optional(),
+    lines: z
+      .array(z.object({ variantId: z.uuid(), unitId: z.uuid(), price: decimalText(4) }).strict())
+      .min(1)
+      .max(5000),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePriceChangeRequest = z.input<typeof savePriceChangeSchema>;
+export const priceChangeListQuerySchema = z
+  .object({ status: z.enum(priceChangeStatuses).optional(), page: z.coerce.number().int().min(1).default(1), pageSize: z.coerce.number().int().min(1).max(100).default(20) })
+  .strict();
+export interface PriceChangeListItem {
+  id: string;
+  changeNo: string | null;
+  priceListId: string;
+  priceListName: string;
+  effectiveFrom: string;
+  lineCount: number;
+  status: PriceChangeStatus;
+  requestedByName: string;
+  createdAt: string;
+}
+export interface PriceChangeResponse extends PriceChangeListItem {
+  note: string | null;
+  currency: string;
+  approvalRequestId: string | null;
+  lines: { variantId: string; sku: string; productName: string; optionValues: string[]; unitId: string; unitName: string; price: string; currentPrice: string | null }[];
+  version: number;
+  canEdit: boolean;
+  canWithdraw: boolean;
+}
+export const priceChangeImportColumns = ["Mã hàng", "Mã đơn vị", "Giá"] as const;
+export type PriceChangeLine = PriceChangeResponse["lines"][number];
+// Nhập dòng phiếu từ Excel: trả các dòng đọc được để người dùng xem lại trước khi lưu.
+export interface PriceChangeImportResponse {
+  lines: PriceChangeLine[];
+  errors: { row: number; message: string }[];
+}
