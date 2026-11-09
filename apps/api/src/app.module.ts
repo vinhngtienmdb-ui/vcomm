@@ -24,6 +24,11 @@ import { OrganizationController } from "./organization/organization.controller";
 import { PermissionService } from "./permissions/permission.service";
 import { RolesController } from "./permissions/roles.controller";
 import { RolesService } from "./permissions/roles.service";
+import { AuditEventsService } from "./settings/audit-events.service";
+import { ExchangeRatesService } from "./settings/exchange-rates.service";
+import { NumberSequencesService } from "./settings/number-sequences.service";
+import { SettingsController } from "./settings/settings.controller";
+import { DeactivationService } from "./users/deactivation.service";
 import { UsersController } from "./users/users.controller";
 import { InvitationsService } from "./users/invitations.service";
 import { UserImportService } from "./users/user-import.service";
@@ -31,7 +36,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController],
   providers: [
     AuthService,
     ActivationService,
@@ -50,6 +55,10 @@ import { UsersService } from "./users/users.service";
     OutboxService,
     BranchesService,
     DepartmentsService,
+    DeactivationService,
+    NumberSequencesService,
+    ExchangeRatesService,
+    AuditEventsService,
     { provide: CLOCK, useValue: systemClock },
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_FILTER, useClass: ApiErrorFilter },

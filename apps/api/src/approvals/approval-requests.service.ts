@@ -141,8 +141,8 @@ export class ApprovalRequestsService {
           INSERT INTO core.approval_steps (request_id, level_no, assigned_role_id, assigned_user_id, is_substitute, started_at)
           VALUES (${id}, ${level.level_no}, ${assignee.roleId}, ${assignee.userId}, ${assignee.isSubstitute}, ${level.level_no === 1 ? now.toISOString() : null}::timestamptz)`);
       }
-      await this.notifyStep(transaction, id, 1, "approval.assigned", `Chứng từ ${input.documentNo} chờ bạn duyệt`);
-      if (admins.length > 0) await this.notifyAdmins(transaction, companyId, id, `Chứng từ ${input.documentNo}: người duyệt thay thế cũng là người lập`);
+      await this.notifyStep(transaction, id, 1, "approval.assigned", `Chứng từ ${input.documentNo} chờ bạn duyệt`, { documentNo: input.documentNo });
+      if (admins.length > 0) await this.notifyAdmins(transaction, companyId, id, `Chứng từ ${input.documentNo}: người duyệt thay thế cũng là người lập`, { documentNo: input.documentNo });
       await this.auditService.record(
         { actorUserId: requesterId, companyId, appCode: type.app_code, action: "approval_request.submit", entityType: "approval_request", entityId: id, afterData: input },
         transaction,
@@ -319,7 +319,7 @@ export class ApprovalRequestsService {
       if (decision === "approved" && next) {
         await transaction.execute(sql`UPDATE core.approval_steps SET started_at = ${now}::timestamptz WHERE request_id = ${requestId} AND level_no = ${next.level_no}`);
         await transaction.execute(sql`UPDATE core.approval_requests SET current_level_no = ${next.level_no} WHERE id = ${requestId}`);
-        await this.notifyStep(transaction, requestId, next.level_no, "approval.assigned", `Chứng từ ${request.document_no} chờ bạn duyệt`);
+        await this.notifyStep(transaction, requestId, next.level_no, "approval.assigned", `Chứng từ ${request.document_no} chờ bạn duyệt`, { documentNo: request.document_no });
       } else {
         await transaction.execute(sql`UPDATE core.approval_requests SET status = ${decision}, current_level_no = NULL, completed_at = ${now}::timestamptz WHERE id = ${requestId}`);
         // QUYTAC_NGHIEPVU_25: báo mini app sở hữu qua sự kiện; Nền tảng không sửa chứng từ.
@@ -336,6 +336,7 @@ export class ApprovalRequestsService {
             kind: "approval.completed",
             title: `Chứng từ ${request.document_no} ${decision === "approved" ? "đã được duyệt" : "bị từ chối"}`,
             link: link(requestId),
+            payload: { documentNo: request.document_no, decision },
           },
         ]);
       }
@@ -397,7 +398,7 @@ export class ApprovalRequestsService {
         if (row.reminded_at === null) {
           const claimed = await transaction.execute(sql`UPDATE core.approval_steps SET reminded_at = ${now.toISOString()}::timestamptz WHERE request_id = ${row.request_id} AND level_no = ${row.level_no} AND reminded_at IS NULL RETURNING id`);
           if (claimed.rows.length > 0) {
-            await this.notifyStep(transaction, row.request_id, row.level_no, "approval.reminder", `Nhắc: chứng từ ${row.document_no} đã quá hạn duyệt`);
+            await this.notifyStep(transaction, row.request_id, row.level_no, "approval.reminder", `Nhắc: chứng từ ${row.document_no} đã quá hạn duyệt`, { documentNo: row.document_no });
             result.reminded += 1;
           }
         }
@@ -407,7 +408,7 @@ export class ApprovalRequestsService {
         const substituteIsRequester = row.substitute_user_id === row.requested_by || (row.substitute_role_id !== null && (await this.onlyHolderIsRequester(transaction, row.company_id, row.requested_by, row.substitute_role_id)));
         if (substituteIsRequester) {
           // Người thay thế cũng là người lập: không chuyển, báo quản trị công ty (CHUC_NANG_18).
-          await this.notifyAdmins(transaction, row.company_id, row.request_id, `Chứng từ ${row.document_no} quá hạn nhưng người thay thế là người lập`);
+          await this.notifyAdmins(transaction, row.company_id, row.request_id, `Chứng từ ${row.document_no} quá hạn nhưng người thay thế là người lập`, { documentNo: row.document_no, overdue: true });
           result.blocked += 1;
           return;
         }
@@ -415,8 +416,8 @@ export class ApprovalRequestsService {
         await transaction.execute(sql`
           UPDATE core.approval_steps SET assigned_role_id = ${row.substitute_role_id}, assigned_user_id = ${row.substitute_user_id}, is_substitute = true
           WHERE request_id = ${row.request_id} AND level_no = ${row.level_no}`);
-        await notify(transaction, previous.map((userId) => ({ userId, companyId: row.company_id, kind: "approval.escalated", title: `Chứng từ ${row.document_no} đã chuyển cho người duyệt thay thế`, link: link(row.request_id) })));
-        await this.notifyStep(transaction, row.request_id, row.level_no, "approval.assigned", `Chứng từ ${row.document_no} quá hạn được chuyển cho bạn duyệt`);
+        await notify(transaction, previous.map((userId) => ({ userId, companyId: row.company_id, kind: "approval.escalated", title: `Chứng từ ${row.document_no} đã chuyển cho người duyệt thay thế`, link: link(row.request_id), payload: { documentNo: row.document_no } })));
+        await this.notifyStep(transaction, row.request_id, row.level_no, "approval.assigned", `Chứng từ ${row.document_no} quá hạn được chuyển cho bạn duyệt`, { documentNo: row.document_no, escalated: true });
         await this.auditService.record(
           { actorUserId: null, companyId: row.company_id, appCode: "platform", action: "approval_request.escalate", entityType: "approval_request", entityId: row.request_id, beforeData: { assignedUserId: row.assigned_user_id }, afterData: { substituteRoleId: row.substitute_role_id, substituteUserId: row.substitute_user_id } },
           transaction,
@@ -441,20 +442,20 @@ export class ApprovalRequestsService {
     return rows.rows.map((row) => row.user_id);
   }
 
-  private async notifyStep(executor: Pick<Database, "execute">, requestId: string, levelNo: number, kind: string, title: string): Promise<void> {
+  private async notifyStep(executor: Pick<Database, "execute">, requestId: string, levelNo: number, kind: string, title: string, payload: Record<string, unknown>): Promise<void> {
     const companyId = (await executor.execute<{ company_id: string }>(sql`SELECT company_id FROM core.approval_requests WHERE id = ${requestId}`)).rows[0]!.company_id;
     const recipients = await this.stepRecipients(executor, requestId, levelNo);
-    await notify(executor, recipients.map((userId): NotificationInput => ({ userId, companyId, kind, title, link: link(requestId) })));
+    await notify(executor, recipients.map((userId): NotificationInput => ({ userId, companyId, kind, title, link: link(requestId), payload })));
   }
 
   // Quản trị công ty: người có quyền cấu hình chính sách duyệt ở phạm vi cả công ty.
-  private async notifyAdmins(executor: Pick<Database, "execute">, companyId: string, requestId: string, title: string): Promise<void> {
+  private async notifyAdmins(executor: Pick<Database, "execute">, companyId: string, requestId: string, title: string, payload: Record<string, unknown>): Promise<void> {
     const day = this.permissionService.today();
     const admins = await executor.execute<{ user_id: string }>(sql`
       SELECT DISTINCT a.user_id FROM core.user_role_assignments a
       JOIN core.role_permissions rp ON rp.role_id = a.role_id AND rp.permission_code = 'platform.approval_policy.manage'
       WHERE (a.scope_type = 'group' OR (a.scope_type = 'company' AND a.company_id = ${companyId}))
         AND a.valid_from <= ${day}::date AND (a.valid_to IS NULL OR a.valid_to >= ${day}::date)`);
-    await notify(executor, admins.rows.map((row) => ({ userId: row.user_id, companyId, kind: "approval.escalation_blocked", title, link: link(requestId) })));
+    await notify(executor, admins.rows.map((row) => ({ userId: row.user_id, companyId, kind: "approval.escalation_blocked", title, link: link(requestId), payload })));
   }
 }

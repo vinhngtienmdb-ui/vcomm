@@ -631,3 +631,150 @@ export interface ApprovalInboxItem {
 export const approvalDecisionSchema = z
   .object({ decision: z.enum(["approved", "rejected"]), comment: z.string().trim().max(1000).nullable().optional() })
   .strict();
+
+// API_31
+export interface HandoverResponse {
+  pendingApprovalSteps: { id: string; requestId: string; documentNo: string; documentTypeNameVi: string; documentTypeNameEn: string; levelNo: number; requestedById: string }[];
+  managedDepartments: { id: string; code: string; name: string }[];
+}
+
+// API_32
+export const deactivateUserSchema = z
+  .object({
+    reason: z.string().trim().min(1).max(500),
+    handover: z
+      .array(z.object({ kind: z.enum(["approval_step", "department_manager"]), itemId: z.uuid(), toUserId: z.uuid() }).strict())
+      .max(1000)
+      .default([]),
+  })
+  .strict();
+export type DeactivateUserRequest = z.input<typeof deactivateUserSchema>;
+
+// API_43
+export const numberSequenceResetPeriods = ["year", "month", "never"] as const;
+export const updateNumberSequenceSchema = z
+  .object({
+    prefix: z.string().trim().min(1).max(10),
+    resetPeriod: z.enum(numberSequenceResetPeriods),
+    padding: z.number().int().min(3).max(10),
+  })
+  .strict();
+export type UpdateNumberSequenceRequest = z.input<typeof updateNumberSequenceSchema>;
+
+export interface NumberSequenceResponse {
+  documentTypeCode: string;
+  appCode: string;
+  documentTypeNameVi: string;
+  documentTypeNameEn: string;
+  configured: boolean;
+  prefix: string | null;
+  resetPeriod: (typeof numberSequenceResetPeriods)[number] | null;
+  padding: number | null;
+  nextNumber: string | null;
+}
+
+// API_45, API_46
+export const exchangeRateTypes = ["buy", "sell", "transfer", "accounting"] as const;
+export const exchangeRateSources = ["manual", "vietcombank"] as const;
+const rateValue = z.string().trim().regex(/^\d{1,12}(\.\d{1,8})?$/);
+const currencyCode = z.string().trim().regex(/^[A-Z]{3}$/);
+
+export const exchangeRateListQuerySchema = z.object({ date: isoDate.optional() }).strict();
+
+export const createExchangeRateSchema = z
+  .object({
+    rateDate: isoDate,
+    fromCurrency: currencyCode,
+    toCurrency: currencyCode,
+    rateType: z.enum(exchangeRateTypes),
+    source: z.enum(exchangeRateSources).default("manual"),
+    rate: rateValue,
+  })
+  .strict();
+export type CreateExchangeRateRequest = z.input<typeof createExchangeRateSchema>;
+
+export const updateExchangeRateSchema = z.object({ rate: rateValue }).strict();
+
+export interface ExchangeRateResponse {
+  id: string;
+  rateDate: string;
+  fromCurrency: string;
+  toCurrency: string;
+  rateType: (typeof exchangeRateTypes)[number];
+  source: string;
+  rate: string;
+}
+
+export interface ExchangeRateListResponse {
+  date: string;
+  baseCurrency: string;
+  data: ExchangeRateResponse[];
+  missingAccounting: string[];
+  canManage: boolean;
+}
+
+export interface CurrencyResponse {
+  code: string;
+  nameVi: string;
+  nameEn: string;
+  minorUnits: number;
+}
+
+// API_47
+export const auditEventListQuerySchema = z
+  .object({
+    actorUserId: z.uuid().optional(),
+    appCode: z.string().max(50).optional(),
+    entityType: z.string().max(100).optional(),
+    entityId: z.uuid().optional(),
+    action: z.string().max(100).optional(),
+    from: isoDate.optional(),
+    to: isoDate.optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export type AuditEventListQuery = z.input<typeof auditEventListQuerySchema>;
+
+export interface AuditEventItem {
+  id: string;
+  occurredAt: string;
+  actorUserId: string | null;
+  actorName: string | null;
+  companyShortName: string | null;
+  appCode: string;
+  action: string;
+  entityType: string;
+  entityId: string | null;
+  entityLabel: string | null;
+}
+
+export interface AuditEventDetail extends AuditEventItem {
+  beforeData: unknown;
+  afterData: unknown;
+  ip: string | null;
+  userAgent: string | null;
+  requestId: string | null;
+}
+
+// API_48
+export interface NotificationItem {
+  id: string;
+  kind: string;
+  title: string;
+  link: string | null;
+  payload: Record<string, unknown>;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface NotificationListResponse {
+  unreadCount: number;
+  data: NotificationItem[];
+}
+
+export interface DeactivateUserResponse {
+  id: string;
+  status: "active" | "locked" | "disabled" | "invited";
+  remainingCompanies: number;
+}

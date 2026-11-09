@@ -2,12 +2,15 @@
 import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
+  deactivateUserSchema,
   inviteUserSchema,
   lockUserSchema,
   roleAssignmentSchema,
   updateUserSchema,
   userImportMaximumBytes,
   userListQuerySchema,
+  type DeactivateUserResponse,
+  type HandoverResponse,
   type InviteUserResponse,
   type PageResponse,
   type RoleAssignmentResponse,
@@ -22,6 +25,7 @@ import { localeOf } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
+import { DeactivationService } from "./deactivation.service";
 import { InvitationsService } from "./invitations.service";
 import { UserImportService } from "./user-import.service";
 import { UsersService } from "./users.service";
@@ -35,6 +39,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly invitationsService: InvitationsService,
     private readonly userImportService: UserImportService,
+    private readonly deactivationService: DeactivationService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined, permission: string): Promise<Actor> {
@@ -105,6 +110,27 @@ export class UsersController {
   async unlock(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<UserDetailResponse> {
     const actor = await this.actor(request, companyId, "platform.user.manage");
     return this.usersService.setLocked(actor, id, false, lockUserSchema.parse(body).reason);
+  }
+
+  // API_31
+  @Get(":id/handover")
+  async handover(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<HandoverResponse> {
+    return this.deactivationService.handover(await this.actor(request, companyId, "platform.user.manage"), id);
+  }
+
+  // API_32
+  @Post(":id/deactivate")
+  @HttpCode(200)
+  async deactivate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<DeactivateUserResponse> {
+    const actor = await this.actor(request, companyId, "platform.user.manage");
+    return this.deactivationService.deactivate(actor, id, deactivateUserSchema.parse(body));
+  }
+
+  // API_33
+  @Post(":id/mfa/reset")
+  @HttpCode(204)
+  async resetMfa(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<void> {
+    await this.deactivationService.resetMfa(await this.actor(request, companyId, "platform.user.reset_mfa"), id);
   }
 
   @Post(":id/role-assignments")

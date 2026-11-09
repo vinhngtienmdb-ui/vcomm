@@ -64,7 +64,14 @@
     "documentPending": "Chứng từ đang chờ duyệt.",
     "withdrawNotAllowed": "Không thể rút lại vì đã có cấp duyệt.",
     "rejectReasonRequired": "Vui lòng nhập lý do từ chối.",
-    "requestNotPending": "Yêu cầu không còn chờ duyệt."
+    "requestNotPending": "Yêu cầu không còn chờ duyệt.",
+    "sameCurrency": "Tiền tệ nguồn và tiền tệ đích phải khác nhau.",
+    "exchangeRateDuplicate": "Đã có tỷ giá cho ngày, cặp tiền tệ, loại và nguồn này.",
+    "ratePositive": "Tỷ giá phải lớn hơn 0.",
+    "prefixInvalid": "Tiền tố chỉ gồm chữ in hoa và chữ số.",
+    "numberSequenceMissing": "Chưa cấu hình dãy số cho loại chứng từ này.",
+    "handoverRecipientInvalid": "Người nhận phải là nhân viên đang hoạt động khác, không phải người lập chứng từ.",
+    "handoverRequired": "Cần chọn người nhận bàn giao trước khi vô hiệu hóa."
   },
   "login": {
     "title": "Đăng nhập",

@@ -64,7 +64,14 @@
     "documentPending": "This document is already waiting for approval.",
     "withdrawNotAllowed": "Cannot withdraw because a level has already decided.",
     "rejectReasonRequired": "Please enter a reason for rejecting.",
-    "requestNotPending": "The request is no longer waiting for approval."
+    "requestNotPending": "The request is no longer waiting for approval.",
+    "sameCurrency": "Source and target currencies must differ.",
+    "exchangeRateDuplicate": "A rate already exists for this date, currency pair, type and source.",
+    "ratePositive": "The rate must be greater than 0.",
+    "prefixInvalid": "The prefix may contain only capital letters and digits.",
+    "numberSequenceMissing": "No number sequence is configured for this document type.",
+    "handoverRecipientInvalid": "The recipient must be another active employee who did not create the document.",
+    "handoverRequired": "Choose a handover recipient before disabling."
   },
   "login": {
     "title": "Sign in",
