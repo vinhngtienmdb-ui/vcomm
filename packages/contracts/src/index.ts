@@ -1021,3 +1021,137 @@ export interface UnitResponse {
   status: "active" | "inactive";
   version: number;
 }
+
+// CONG_VIEC_04, API_56, API_57: sản phẩm, biến thể, đơn vị quy đổi, mã vạch, ảnh (CHUC_NANG_31, 32; QUYTAC_NGHIEPVU_38 đến 40).
+export const vatRates = ["0", "5", "8", "10", "exempt", "not_declared"] as const;
+export type VatRate = (typeof vatRates)[number];
+export const productLimits = { options: 3, optionValues: 30, variants: 200, conversionUnits: 5, images: 10, imageBytes: 5 * 1024 * 1024 } as const;
+export const productImageExtensions = ["jpg", "jpeg", "png", "webp"] as const;
+
+const decimalText = (fraction: number) =>
+  z.union([z.number(), z.string()]).transform((value, context) => {
+    const text = String(value).trim().replace(",", ".");
+    if (!new RegExp(`^\\d{1,12}(\\.\\d{1,${fraction}})?$`).test(text)) {
+      context.addIssue({ code: "custom", message: "invalidValue" });
+      return z.NEVER;
+    }
+    return text;
+  });
+const optionalDecimal = (fraction: number) => z.union([decimalText(fraction), z.literal(""), z.null()]).optional().transform((value) => (value === "" || value === undefined ? null : value));
+
+const barcodeText = z.string().trim().regex(/^[0-9A-Za-z\-.]{4,40}$/);
+const productSku = z.string().trim().toUpperCase().regex(/^[A-Z0-9\-_.]{1,40}$/);
+
+export const saveProductSchema = z
+  .object({
+    categoryId: z.uuid(),
+    code: z.union([productSku, z.literal("")]).optional(),
+    name: z.string().trim().min(1).max(255),
+    description: z.string().trim().max(5000).nullable().optional(),
+    brand: z.string().trim().max(100).nullable().optional(),
+    origin: z.string().trim().max(100).nullable().optional(),
+    vatRate: z.enum(vatRates),
+    tracksLots: z.boolean(),
+    tracksSerials: z.boolean(),
+    warrantyMonths: z.number().int().min(0).max(120),
+    baseUnitId: z.uuid(),
+    weightKg: optionalDecimal(4),
+    volumeM3: optionalDecimal(6),
+    options: z
+      .array(z.object({ name: z.string().trim().min(1).max(50), values: z.array(z.string().trim().min(1).max(50)).min(1).max(productLimits.optionValues) }).strict())
+      .max(productLimits.options)
+      .default([]),
+    specifications: z
+      .array(z.object({ name: z.string().trim().min(1).max(100), value: z.string().trim().min(1).max(500) }).strict())
+      .max(50)
+      .default([]),
+    units: z
+      .array(z.object({ unitId: z.uuid(), factor: decimalText(4) }).strict())
+      .max(productLimits.conversionUnits)
+      .default([]),
+    variants: z
+      .array(
+        z
+          .object({
+            id: z.uuid().optional(),
+            sku: z.union([productSku, z.literal("")]).optional(),
+            optionValues: z.array(z.string().trim().min(1).max(50)).max(productLimits.options).default([]),
+            status: z.enum(["active", "inactive"]).default("active"),
+            barcodes: z
+              .array(z.object({ unitId: z.uuid(), barcode: barcodeText }).strict())
+              .max(20)
+              .default([]),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(productLimits.variants),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveProductRequest = z.input<typeof saveProductSchema>;
+
+export const productListQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    categoryId: z.uuid().optional(),
+    status: z.enum(["active", "inactive"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export interface ProductListItem {
+  id: string;
+  code: string;
+  name: string;
+  categoryId: string;
+  categoryName: string;
+  baseUnitName: string;
+  variantCount: number;
+  status: "active" | "inactive";
+  imageId: string | null;
+  updatedAt: string;
+}
+
+export interface ProductVariantResponse {
+  id: string;
+  sku: string;
+  optionValues: string[];
+  status: "active" | "inactive";
+  barcodes: { unitId: string; barcode: string }[];
+}
+
+export interface ProductImageResponse {
+  id: string;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+}
+
+export interface ProductResponse {
+  id: string;
+  companyId: string;
+  categoryId: string;
+  categoryName: string;
+  code: string;
+  name: string;
+  description: string | null;
+  brand: string | null;
+  origin: string | null;
+  vatRate: VatRate;
+  tracksLots: boolean;
+  tracksSerials: boolean;
+  warrantyMonths: number;
+  baseUnitId: string;
+  weightKg: string | null;
+  volumeM3: string | null;
+  options: { name: string; values: string[] }[];
+  specifications: { name: string; value: string }[];
+  units: { unitId: string; factor: string }[];
+  variants: ProductVariantResponse[];
+  images: ProductImageResponse[];
+  status: "active" | "inactive";
+  version: number;
+  updatedAt: string;
+}

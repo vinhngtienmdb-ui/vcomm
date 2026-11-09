@@ -44,6 +44,8 @@ import { ProposalsController } from "./proposals/proposals.controller";
 import { CatalogController } from "./catalog/catalog.controller";
 import { CategoriesService } from "./catalog/categories.service";
 import { UnitsService } from "./catalog/units.service";
+import { ProductsService } from "./catalog/products.service";
+import { ProductImagesService } from "./catalog/product-images.service";
 import { ProposalsService } from "./proposals/proposals.service";
 import { EXCHANGE_RATE_FEED, VietcombankFeed } from "./settings/vietcombank-rates";
 import { DeactivationService } from "./users/deactivation.service";
@@ -72,6 +74,8 @@ import { UsersService } from "./users/users.service";
     ProposalTemplatesService,
     CategoriesService,
     UnitsService,
+    ProductsService,
+    ProductImagesService,
     ProposalsService,
     ProposalPdfService,
     PhoneOtpService,
