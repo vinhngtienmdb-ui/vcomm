@@ -21,11 +21,13 @@
 - Hoa hồng đội kinh doanh gồm cả hoa hồng từ đơn mua của khách hàng; quy tắc gán đơn cho nhân viên cấu hình được – người quyết định: người dùng.
 - Áp dụng quy trình Vibecoding_Flow cho dự án; làm lại tài liệu theo bộ tài liệu đánh số – người quyết định: người dùng.
 - Phê duyệt tài liệu `04` Tổng quan dự án và `05` Phạm vi; giai đoạn 01, 02 đạt cổng kiểm soát – người quyết định: người dùng.
+- Phê duyệt tài liệu `06` đến `09` của MODULE_01 và 7 quy tắc do AI đề xuất; giai đoạn 03 của MODULE_01 đạt cổng kiểm soát – người quyết định: người dùng.
 - Các quyết định chi tiết khác ghi tại tài liệu `04` và `05`.
 
 ### Thay đổi
 
 - `tai_lieu/02_NHAT_KY_DU_AN.md`, `tai_lieu/03_DANH_SACH_CONG_VIEC.md`: tạo mới.
+- `tai_lieu/06` đến `09`: lập cho MODULE_01 (nhánh `chuc-nang/CONG_VIEC_01-bo-tai-lieu-khoi-tao`).
 
 ### Vấn đề tồn đọng
 
