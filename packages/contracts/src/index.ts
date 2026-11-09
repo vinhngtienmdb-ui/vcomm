@@ -1418,3 +1418,222 @@ export interface WarehouseOptionsResponse {
   branches: { id: string; name: string }[];
   companies: { id: string; shortName: string }[];
 }
+
+// CONG_VIEC_05, API_64, API_65: phiếu kho, tồn kho, thẻ kho (CHUC_NANG_39, 40; QUYTAC_NGHIEPVU_47 đến 51).
+export const stockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer"] as const;
+export type StockDocumentType = (typeof stockDocumentTypes)[number];
+export const stockDocumentStatuses = ["draft", "pending", "posted", "in_transit", "received", "rejected", "withdrawn"] as const;
+export type StockDocumentStatus = (typeof stockDocumentStatuses)[number];
+// Lý do theo loại phiếu; "Hủy hàng hết hạn" là lý do duy nhất được xuất lô hết hạn (QUYTAC_NGHIEPVU_51).
+export const stockReasonCodes = {
+  receipt_other: ["opening_balance", "found", "gift", "other"],
+  issue_other: ["internal_use", "gift", "damaged", "expired_disposal", "other"],
+  adjustment: ["stocktake", "damaged", "found", "other"],
+  transfer: ["transfer"],
+} as const satisfies Record<StockDocumentType, readonly string[]>;
+export type StockReasonCode = (typeof stockReasonCodes)[StockDocumentType][number];
+const signedDecimal = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^-?\d{1,12}(\.\d{1,4})?$/.test(text) || Number(text) === 0) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+const optionalMoney = z.union([z.number(), z.string(), z.null()]).optional().transform((value, context) => {
+  if (value === null || value === undefined || String(value).trim() === "") return null;
+  const text = String(value).trim().replace(",", ".");
+  if (!/^\d{1,16}(\.\d{1,4})?$/.test(text)) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+export const stockDocumentLineSchema = z
+  .object({
+    variantId: z.uuid(),
+    unitId: z.uuid(),
+    quantity: signedDecimal,
+    unitCost: optionalMoney,
+    lotId: z.uuid().nullable().optional(),
+    lotNo: z.string().trim().max(50).nullable().optional(),
+    manufacturedOn: isoDate.nullable().optional(),
+    expiresOn: isoDate.nullable().optional(),
+    lotOverrideReason: z.string().trim().max(200).nullable().optional(),
+    locationId: z.uuid().nullable().optional(),
+    destinationLocationId: z.uuid().nullable().optional(),
+    serials: z.array(z.string().trim().min(1).max(100)).max(5000).default([]),
+    responsibleUserId: z.uuid().nullable().optional(),
+    compensationAmount: optionalMoney,
+  })
+  .strict();
+export type StockDocumentLineInput = z.input<typeof stockDocumentLineSchema>;
+export const saveStockDocumentSchema = z
+  .object({
+    type: z.enum(stockDocumentTypes),
+    warehouseId: z.uuid(),
+    companyId: z.uuid(),
+    destinationWarehouseId: z.uuid().nullable().optional(),
+    documentDate: isoDate,
+    reasonCode: z.string().trim().min(1),
+    reason: z.string().trim().min(1).max(500),
+    note: z.string().trim().max(1000).nullable().optional(),
+    lines: z.array(stockDocumentLineSchema).min(1).max(1000),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveStockDocumentRequest = z.input<typeof saveStockDocumentSchema>;
+export const stockDocumentListQuerySchema = z
+  .object({
+    type: z.enum(stockDocumentTypes).optional(),
+    status: z.enum(stockDocumentStatuses).optional(),
+    warehouseId: z.uuid().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface StockDocumentListItem {
+  id: string;
+  type: StockDocumentType;
+  documentNo: string | null;
+  documentDate: string;
+  warehouseId: string;
+  warehouseName: string;
+  destinationWarehouseName: string | null;
+  companyId: string;
+  companyName: string;
+  reasonCode: string;
+  reason: string;
+  status: StockDocumentStatus;
+  lineCount: number;
+  totalValue: string | null;
+  createdByName: string;
+  createdAt: string;
+}
+export interface StockDocumentLineResponse {
+  id: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  tracksLots: boolean;
+  tracksSerials: boolean;
+  unitId: string;
+  unitName: string;
+  quantity: string;
+  baseQuantity: string;
+  baseUnitName: string;
+  unitCost: string | null;
+  costValue: string | null;
+  lotId: string | null;
+  lotNo: string | null;
+  manufacturedOn: string | null;
+  expiresOn: string | null;
+  lotOverrideReason: string | null;
+  locationId: string | null;
+  locationCode: string | null;
+  destinationLocationId: string | null;
+  destinationLocationCode: string | null;
+  serials: string[];
+  receivedBaseQuantity: string | null;
+  responsibleUserId: string | null;
+  responsibleUserName: string | null;
+  compensationAmount: string | null;
+}
+export interface StockDocumentResponse extends StockDocumentListItem {
+  destinationWarehouseId: string | null;
+  note: string | null;
+  approvalRequestId: string | null;
+  stocktakeId: string | null;
+  lines: StockDocumentLineResponse[];
+  discrepancies: { lineId: string; sku: string; shippedQuantity: string; receivedQuantity: string; difference: string; value: string | null; note: string | null }[];
+  version: number;
+  canEdit: boolean;
+  canWithdraw: boolean;
+  canShip: boolean;
+  canReceive: boolean;
+}
+export const lotSuggestionQuerySchema = z
+  .object({ warehouseId: z.uuid(), companyId: z.uuid(), variantId: z.uuid(), locationId: z.uuid().optional(), includeExpired: z.enum(["true", "false"]).optional() })
+  .strict();
+export interface LotSuggestion {
+  lotId: string;
+  lotNo: string;
+  expiresOn: string | null;
+  manufacturedOn: string | null;
+  locationId: string | null;
+  locationCode: string | null;
+  quantity: string;
+  expired: boolean;
+  suggested: boolean;
+}
+// Tìm mặt hàng khi lập phiếu: theo mã vạch (máy quét), mã hàng, tên; trả đơn vị khớp mã vạch.
+export const stockItemSearchQuerySchema = z.object({ companyId: z.uuid(), search: z.string().trim().min(1).max(100) }).strict();
+export interface StockItemOption {
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  tracksLots: boolean;
+  tracksSerials: boolean;
+  baseUnitId: string;
+  units: { unitId: string; unitName: string; factor: string }[];
+  matchedUnitId: string | null;
+}
+export const stockListQuerySchema = z
+  .object({
+    warehouseId: z.uuid().optional(),
+    companyId: z.uuid().optional(),
+    categoryId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    onlyInStock: z.enum(["true", "false"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(50),
+  })
+  .strict();
+export interface StockRow {
+  warehouseId: string;
+  warehouseName: string;
+  companyId: string;
+  companyName: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  baseUnitName: string;
+  onHand: string;
+  reserved: string;
+  available: string;
+  incoming: string;
+  averageCost: string | null;
+  value: string | null;
+  minimum: string | null;
+  belowMinimum: boolean;
+}
+export const stockDetailQuerySchema = z.object({ warehouseId: z.uuid(), companyId: z.uuid() }).strict();
+export interface StockDetailResponse {
+  balances: { lotId: string | null; lotNo: string | null; expiresOn: string | null; locationId: string | null; locationCode: string | null; quantity: string }[];
+  serials: { serialNo: string; locationCode: string | null; unitCost: string | null }[];
+  reservations: { id: string; quantity: string; sourceType: string; sourceNo: string | null; expiresAt: string | null }[];
+}
+export const stockCardQuerySchema = z.object({ warehouseId: z.uuid(), companyId: z.uuid(), variantId: z.uuid(), from: isoDate, to: isoDate }).strict();
+export interface StockCardResponse {
+  sku: string;
+  productName: string;
+  baseUnitName: string;
+  opening: { quantity: string; value: string | null };
+  movements: {
+    id: string;
+    movedAt: string;
+    documentId: string;
+    documentNo: string | null;
+    documentType: StockDocumentType;
+    lotNo: string | null;
+    locationCode: string | null;
+    quantity: string;
+    unitCost: string | null;
+    value: string | null;
+    balanceAfter: string;
+  }[];
+  closing: { quantity: string; value: string | null };
+}

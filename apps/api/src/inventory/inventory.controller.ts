@@ -1,7 +1,22 @@
 // API_63: kho, vị trí, cài đặt kho (CONG_VIEC_05). Quyền chi tiết kiểm trong service theo chi nhánh sở hữu kho.
-import { Body, Controller, Get, Headers, Param, Patch, Post, Put, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req } from "@nestjs/common";
 import {
   createLocationsSchema,
+  lotSuggestionQuerySchema,
+  saveStockDocumentSchema,
+  stockCardQuerySchema,
+  stockDetailQuerySchema,
+  stockDocumentListQuerySchema,
+  stockItemSearchQuerySchema,
+  stockListQuerySchema,
+  type LotSuggestion,
+  type PageResponse,
+  type StockCardResponse,
+  type StockDetailResponse,
+  type StockDocumentListItem,
+  type StockDocumentResponse,
+  type StockItemOption,
+  type StockRow,
   createWarehouseSchema,
   updateInventorySettingsSchema,
   updateLocationSchema,
@@ -17,6 +32,8 @@ import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
+import { StockDocumentsService } from "./stock-documents.service";
+import { StockService } from "./stock.service";
 import { WarehousesService } from "./warehouses.service";
 
 const statusOf = (request: AuthenticatedRequest) => (request.path.endsWith("/deactivate") ? "inactive" : "active");
@@ -26,6 +43,8 @@ export class InventoryController {
   constructor(
     private readonly permissionService: PermissionService,
     private readonly warehouses: WarehousesService,
+    private readonly stock: StockService,
+    private readonly documents: StockDocumentsService,
   ) {}
 
   // Vào mini app Kho: quyền kho ở công ty đang chọn hoặc ở bất kỳ chi nhánh nào của công ty đó.
@@ -104,5 +123,72 @@ export class InventoryController {
   @Put("settings")
   async updateSettings(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<InventorySettingsResponse> {
     return this.warehouses.updateSettings(await this.actor(request, companyId), updateInventorySettingsSchema.parse(body));
+  }
+  // API_64: tồn kho, chi tiết, thẻ kho.
+  @Get("stock")
+  async stockList(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<PageResponse<StockRow>> {
+    return this.stock.list(await this.actor(request, companyId), stockListQuerySchema.parse(query));
+  }
+
+  @Get("stock/:variantId/details")
+  async stockDetail(
+    @Req() request: AuthenticatedRequest,
+    @Param("variantId", UuidPipe) variantId: string,
+    @Query() query: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<StockDetailResponse> {
+    return this.stock.detail(await this.actor(request, companyId), variantId, stockDetailQuerySchema.parse(query));
+  }
+
+  @Get("stock-card")
+  async stockCard(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<StockCardResponse> {
+    return this.stock.card(await this.actor(request, companyId), stockCardQuerySchema.parse(query));
+  }
+
+  // API_65: phiếu nhập khác, xuất khác, điều chỉnh.
+  @Get("documents")
+  async listDocuments(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<PageResponse<StockDocumentListItem>> {
+    return this.documents.list(await this.actor(request, companyId), stockDocumentListQuerySchema.parse(query));
+  }
+
+  @Get("documents/lot-suggestions")
+  async lotSuggestions(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<LotSuggestion[]> {
+    return this.documents.lotSuggestions(await this.actor(request, companyId), lotSuggestionQuerySchema.parse(query));
+  }
+
+  @Get("items")
+  async searchItems(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<StockItemOption[]> {
+    return this.documents.searchItems(await this.actor(request, companyId), stockItemSearchQuerySchema.parse(query));
+  }
+
+  @Get("documents/:id")
+  async documentDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.documents.detail(await this.actor(request, companyId), id);
+  }
+
+  @Post("documents")
+  async createDocument(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.documents.create(await this.actor(request, companyId), saveStockDocumentSchema.parse(body));
+  }
+
+  @Patch("documents/:id")
+  async updateDocument(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.documents.update(await this.actor(request, companyId), id, saveStockDocumentSchema.parse(body));
+  }
+
+  @Delete("documents/:id")
+  @HttpCode(204)
+  async removeDocument(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<void> {
+    await this.documents.remove(await this.actor(request, companyId), id);
+  }
+
+  @Post("documents/:id/submit")
+  async submitDocument(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.documents.submit(await this.actor(request, companyId), id);
+  }
+
+  @Post("documents/:id/withdraw")
+  async withdrawDocument(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.documents.withdraw(await this.actor(request, companyId), id);
   }
 }

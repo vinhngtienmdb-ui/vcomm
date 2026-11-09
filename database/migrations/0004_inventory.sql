@@ -114,6 +114,7 @@ CREATE TABLE inventory.documents (
     type                    text        NOT NULL CHECK (type IN ('receipt_other', 'issue_other', 'adjustment', 'transfer')),
     document_no             text,                                                 -- cấp khi gửi
     document_date           date        NOT NULL,
+    reason_code             text        NOT NULL DEFAULT 'other' CHECK (reason_code IN ('internal_use', 'gift', 'damaged', 'expired_disposal', 'opening_balance', 'found', 'stocktake', 'transfer', 'other')),
     reason                  text        NOT NULL,
     note                    text,
     status                  text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'posted', 'in_transit', 'received', 'rejected', 'withdrawn')),

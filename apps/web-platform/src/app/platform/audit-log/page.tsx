@@ -10,7 +10,7 @@ import { Loaded, LoadingView, MessageView } from "ui/components/StatusViews";
 import { formatDateTime } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
 
-const entityTypes = ["user", "company", "branch", "department", "role", "role_assignment", "approval_policy", "approval_request", "exchange_rate", "number_sequence", "proposal_template", "proposal", "category", "unit", "product", "channel", "customer_group", "price_list", "price_change", "warehouse", "location", "inventory_settings", "integration_settings", "core.users", "core.sessions"];
+const entityTypes = ["user", "company", "branch", "department", "role", "role_assignment", "approval_policy", "approval_request", "exchange_rate", "number_sequence", "proposal_template", "proposal", "category", "unit", "product", "channel", "customer_group", "price_list", "price_change", "warehouse", "location", "inventory_settings", "stock_document", "integration_settings", "core.users", "core.sessions"];
 
 function useLabels() {
   const t = useTranslations("audit");

@@ -75,6 +75,22 @@ export class WarehousesService {
     return this.toResponse(row, granted.has(inventoryPermissions.access), granted.has(inventoryPermissions.manageWarehouses));
   }
 
+  // Giá vốn: quyền xem giá vốn tại kho (mọi chủ hàng), hoặc tại công ty đang chọn (hàng của công ty đó).
+  async costVisibility(actor: Actor): Promise<(row: { warehouse_id: string; company_id: string }) => boolean> {
+    const atWarehouse = new Set<string>();
+    for (const warehouse of await this.list(actor)) {
+      if ((await warehousePermissions(this.permissionService, actor.userId, warehouse)).has(inventoryPermissions.viewCost)) atWarehouse.add(warehouse.id);
+    }
+    const atCompany = (await this.permissionService.permissionsCovering(actor.userId, { scopeType: "company", companyId: actor.companyId })).has(inventoryPermissions.viewCost);
+    return (row) => atWarehouse.has(row.warehouse_id) || (atCompany && row.company_id === actor.companyId);
+  }
+
+  // Phạm vi xem tồn: kho thao tác được (mọi chủ hàng) và kho chỉ xem (hàng của công ty đang chọn).
+  async stockScope(actor: Actor): Promise<{ operable: string[]; ownerView: string[] }> {
+    const warehouses = await this.list(actor);
+    return { operable: warehouses.filter((item) => item.canOperate).map((item) => item.id), ownerView: warehouses.filter((item) => !item.canOperate).map((item) => item.id) };
+  }
+
   // Dùng cho các dịch vụ kho khác: kho kèm danh sách chủ hàng; kiểm quyền tại kho.
   async operable(userId: string, id: string, permission: string): Promise<Warehouse> {
     const warehouse = await this.find(id);

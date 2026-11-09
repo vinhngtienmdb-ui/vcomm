@@ -5,7 +5,11 @@ import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { AppShell } from "ui/components/AppShell";
 
-export const inventoryMenu = [{ href: "/warehouses", key: "warehouses", permission: "inventory.access" }] as const;
+export const inventoryMenu = [
+  { href: "/stock", key: "stock", permission: "inventory.stock.view" },
+  { href: "/documents", key: "documents", permission: "inventory.stock.view" },
+  { href: "/warehouses", key: "warehouses", permission: "inventory.access" },
+] as const;
 
 export function InventoryShell({ children }: { children: ReactNode }) {
   const t = useTranslations("inventoryMenu");

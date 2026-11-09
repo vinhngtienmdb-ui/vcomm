@@ -47,6 +47,10 @@ import { PriceChangesService } from "./catalog/price-changes.service";
 import { PriceListsService } from "./catalog/price-lists.service";
 import { PricingController } from "./catalog/pricing.controller";
 import { InventoryController } from "./inventory/inventory.controller";
+import { ReservationsService } from "./inventory/reservations.service";
+import { StockDocumentsService } from "./inventory/stock-documents.service";
+import { StockLedgerService } from "./inventory/stock-ledger.service";
+import { StockService } from "./inventory/stock.service";
 import { WarehousesService } from "./inventory/warehouses.service";
 import { CategoriesService } from "./catalog/categories.service";
 import { UnitsService } from "./catalog/units.service";
@@ -90,6 +94,10 @@ import { UsersService } from "./users/users.service";
     PriceListsService,
     PriceChangesService,
     WarehousesService,
+    StockLedgerService,
+    ReservationsService,
+    StockService,
+    StockDocumentsService,
     ProposalsService,
     ProposalPdfService,
     PhoneOtpService,
