@@ -201,7 +201,7 @@ export class UsersService {
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
     const before = await this.detail(actor, userId);
     const remaining = { email: input.email === undefined ? before.email : input.email, phone: input.phone === undefined ? before.phone : input.phone, username: input.username === undefined ? before.username : input.username };
-    if (!remaining.email && !remaining.phone && !remaining.username) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { email: "identifierRequired" } });
+    if (!remaining.email && !remaining.phone) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { email: "identifierRequired" } });
     await this.database.transaction(async (transaction) => {
       const updated = await transaction.execute(sql`
         UPDATE core.users SET ${sql.join(

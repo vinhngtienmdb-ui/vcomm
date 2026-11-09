@@ -83,7 +83,10 @@ describe("TIEUCHI_NGHIEMTHU_06: mời, kích hoạt rồi đăng nhập", () => 
   it("thiếu cả email, số điện thoại, tên đăng nhập bị từ chối; email trùng người khác bị từ chối", async () => {
     const missing = await invite(retailAdmin, { fullName: "Không định danh" });
     expect(missing.status).toBe(400);
-    expect(missing.body.error.fields.email).toBe("Cần nhập ít nhất một trong email, số điện thoại, tên đăng nhập.");
+    expect(missing.body.error.fields.email).toBe("Cần nhập email hoặc số điện thoại để gửi đường dẫn kích hoạt.");
+    const usernameOnly = await invite(retailAdmin, { fullName: "Chỉ tên đăng nhập", username: "chi.ten.dang.nhap" });
+    expect(usernameOnly.status).toBe(400);
+    expect(usernameOnly.body.error.fields.email).toBe("Cần nhập email hoặc số điện thoại để gửi đường dẫn kích hoạt.");
     const conflict = await invite(retailAdmin, { fullName: "Trùng", email: "nguoi.moi@vcomm.test", phone: "0912000003" });
     expect(conflict.status).toBe(400);
     expect(conflict.body.error.fields.phone).toBe("Số điện thoại đã được dùng cho tài khoản khác.");

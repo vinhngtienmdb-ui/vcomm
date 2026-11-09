@@ -59,7 +59,7 @@ Quy ước chung cho mọi chức năng của MODULE_01:
 - Mục đích: Đưa nhân viên mới vào hệ thống.
 - Người sử dụng: Quản trị công ty (mời), nhân viên (kích hoạt).
 - Điều kiện thực hiện: Có quyền `platform.user.invite` trong công ty.
-- Dữ liệu đầu vào: Họ tên; ít nhất một trong email, số điện thoại, tên đăng nhập; chi nhánh mặc định; phòng ban; chức danh; vai trò ban đầu.
+- Dữ liệu đầu vào: Họ tên; email hoặc số điện thoại (bắt buộc một trong hai, THAY_DOI_07); tên đăng nhập (không bắt buộc); chi nhánh mặc định; phòng ban; chức danh; vai trò ban đầu.
 - Quy trình xử lý: Theo luồng 1 tài liệu `09`. Nhân viên đã có tài khoản ở công ty khác thì thêm vào công ty này, không tạo tài khoản mới.
 - Kết quả đầu ra: Tài khoản "Đã mời"; đường dẫn kích hoạt gửi qua email hoặc SMS; sau kích hoạt là "Đang hoạt động".
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_04, YCAU_NGHIEPVU_07

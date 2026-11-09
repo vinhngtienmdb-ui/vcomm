@@ -33,7 +33,8 @@ export class InvitationsService {
   // API_25. Nhân viên đã có tài khoản ở công ty khác thì chỉ thêm vào công ty này (CHUC_NANG_04).
   async invite(actor: Actor, input: InviteInput): Promise<InviteUserResponse> {
     const fields: Record<string, FieldError> = {};
-    if (!input.email && !input.phone && !input.username) fields.email = "identifierRequired";
+    // THAY_DOI_07: phải có email hoặc số điện thoại để gửi đường dẫn kích hoạt.
+    if (!input.email && !input.phone) fields.email = "identifierRequired";
     const owners = new Map<string, string>();
     for (const [field, column] of [["email", "email"], ["phone", "phone"], ["username", "username"]] as const) {
       const value = input[field];
