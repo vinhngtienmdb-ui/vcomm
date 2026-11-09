@@ -1,0 +1,47 @@
+{
+  "errors": {
+    "invalidCredentials": "Incorrect sign-in details.",
+    "accountLocked": "Account temporarily locked. Try again in 15 minutes.",
+    "unauthenticated": "Your session has expired. Please sign in again.",
+    "forbidden": "You do not have permission to do this.",
+    "notMember": "You do not belong to this company.",
+    "validationFailed": "Invalid data. Check the highlighted fields.",
+    "required": "Please fill in this field.",
+    "csrf": "Invalid request. Reload the page and try again.",
+    "internal": "The system has an error. Try again in a few minutes; if it persists, tell your administrator when it happened.",
+    "notFound": "Not found, or you do not have permission to view it."
+  },
+  "login": {
+    "title": "Sign in",
+    "language": "Language",
+    "tabPassword": "Password",
+    "tabPhone": "Phone number",
+    "identifier": "Username or email",
+    "password": "Password",
+    "submit": "Sign in",
+    "forgot": "Forgot password?",
+    "or": "or",
+    "google": "Sign in with Google",
+    "microsoft": "Sign in with Microsoft",
+    "zalo": "Sign in with Zalo",
+    "notAvailableYet": "This feature comes in a later slice."
+  },
+  "home": {
+    "greeting": "Hello, {name}",
+    "pending": "{count} pending",
+    "noPending": "Nothing pending",
+    "pendingApprovals": "Waiting for my approval",
+    "noPendingApprovals": "No documents are waiting for your approval.",
+    "noApps": "You have not been given access to any app. Contact your administrator.",
+    "loadError": "Could not load data. Check your connection and select Retry.",
+    "retry": "Retry",
+    "comingLater": "{name}: this mini app comes in a later slice."
+  },
+  "topBar": {
+    "home": "Home",
+    "company": "Company",
+    "approvals": "Approvals",
+    "notifications": "Notifications",
+    "logout": "Sign out"
+  }
+}

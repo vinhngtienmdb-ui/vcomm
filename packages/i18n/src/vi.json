@@ -1,0 +1,47 @@
+{
+  "errors": {
+    "invalidCredentials": "Thông tin đăng nhập không đúng.",
+    "accountLocked": "Tài khoản tạm khóa, thử lại sau 15 phút.",
+    "unauthenticated": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+    "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "notMember": "Bạn không thuộc công ty này.",
+    "validationFailed": "Dữ liệu không hợp lệ. Kiểm tra các ô được đánh dấu.",
+    "required": "Vui lòng nhập thông tin này.",
+    "csrf": "Yêu cầu không hợp lệ. Tải lại trang rồi thử lại.",
+    "internal": "Hệ thống đang gặp lỗi. Thử lại sau ít phút; nếu vẫn lỗi, báo quản trị kèm thời điểm xảy ra.",
+    "notFound": "Không tìm thấy dữ liệu hoặc bạn không có quyền xem."
+  },
+  "login": {
+    "title": "Đăng nhập",
+    "language": "Ngôn ngữ",
+    "tabPassword": "Mật khẩu",
+    "tabPhone": "Số điện thoại",
+    "identifier": "Tên đăng nhập hoặc email",
+    "password": "Mật khẩu",
+    "submit": "Đăng nhập",
+    "forgot": "Quên mật khẩu?",
+    "or": "hoặc",
+    "google": "Đăng nhập bằng Google",
+    "microsoft": "Đăng nhập bằng Microsoft",
+    "zalo": "Đăng nhập bằng Zalo",
+    "notAvailableYet": "Chức năng này có ở lát sau."
+  },
+  "home": {
+    "greeting": "Xin chào, {name}",
+    "pending": "{count} việc chờ",
+    "noPending": "Không có việc chờ",
+    "pendingApprovals": "Chờ tôi duyệt",
+    "noPendingApprovals": "Không có chứng từ nào chờ bạn duyệt.",
+    "noApps": "Bạn chưa được cấp quyền dùng ứng dụng nào. Liên hệ quản trị.",
+    "loadError": "Không tải được dữ liệu. Kiểm tra kết nối mạng rồi bấm Thử lại.",
+    "retry": "Thử lại",
+    "comingLater": "{name}: mini app này có ở lát sau."
+  },
+  "topBar": {
+    "home": "Trang chủ",
+    "company": "Công ty",
+    "approvals": "Hộp duyệt",
+    "notifications": "Thông báo",
+    "logout": "Đăng xuất"
+  }
+}

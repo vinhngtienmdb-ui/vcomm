@@ -1,0 +1,66 @@
+// Kiểm tra đăng nhập cho mọi API, trừ API gắn @Public(); kiểm tra CSRF cho thao tác ghi (tài liệu 22 mục 3).
+import { CanActivate, ExecutionContext, Inject, Injectable, SetMetadata } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { and, eq, isNull } from "drizzle-orm";
+import type { Request } from "express";
+import { timingSafeEqual } from "node:crypto";
+import { ApiError } from "../common/api-error";
+import { DATABASE, type Database } from "../database/database.module";
+import { sessions, users } from "../database/schema";
+import { verifyAccessToken } from "./tokens";
+
+export const accessCookieName = "vc_access";
+export const refreshCookieName = "vc_refresh";
+export const csrfCookieName = "vc_csrf";
+
+const publicKey = "isPublic";
+export const Public = () => SetMetadata(publicKey, true);
+
+export interface AuthContext {
+  userId: string;
+  sessionId: string;
+}
+
+export type AuthenticatedRequest = Request & { auth: AuthContext };
+
+export function csrfMatches(request: Request): boolean {
+  const cookie = request.cookies?.[csrfCookieName] as string | undefined;
+  const header = request.header("x-csrf-token");
+  if (!cookie || !header || cookie.length !== header.length) return false;
+  return timingSafeEqual(Buffer.from(cookie), Buffer.from(header));
+}
+
+@Injectable()
+export class AuthGuard implements CanActivate {
+  constructor(
+    private readonly reflector: Reflector,
+    @Inject(DATABASE) private readonly database: Database,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (this.reflector.getAllAndOverride<boolean>(publicKey, [context.getHandler(), context.getClass()])) return true;
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+
+    const bearer = request.header("authorization")?.replace(/^Bearer\s+/i, "");
+    const cookieToken = request.cookies?.[accessCookieName] as string | undefined;
+    const token = bearer || cookieToken;
+    const payload = token ? verifyAccessToken(token) : null;
+    if (!payload) throw new ApiError("UNAUTHENTICATED", "unauthenticated");
+
+    // Cookie phiên trên web phải kèm CSRF token khi ghi; ứng dụng di động dùng header Authorization.
+    if (!bearer && request.method !== "GET" && request.method !== "HEAD" && !csrfMatches(request)) {
+      throw new ApiError("FORBIDDEN", "csrf");
+    }
+
+    const rows = await this.database
+      .select({ userStatus: users.status })
+      .from(sessions)
+      .innerJoin(users, eq(users.id, sessions.userId))
+      .where(and(eq(sessions.id, payload.sessionId), eq(sessions.userId, payload.userId), isNull(sessions.revokedAt)))
+      .limit(1);
+    if (rows[0]?.userStatus !== "active") throw new ApiError("UNAUTHENTICATED", "unauthenticated");
+
+    request.auth = { userId: payload.userId, sessionId: payload.sessionId };
+    return true;
+  }
+}
