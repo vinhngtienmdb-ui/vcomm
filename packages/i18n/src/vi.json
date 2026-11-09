@@ -71,7 +71,8 @@
     "prefixInvalid": "Tiền tố chỉ gồm chữ in hoa và chữ số.",
     "numberSequenceMissing": "Chưa cấu hình dãy số cho loại chứng từ này.",
     "handoverRecipientInvalid": "Người nhận phải là nhân viên đang hoạt động khác, không phải người lập chứng từ.",
-    "handoverRequired": "Cần chọn người nhận bàn giao trước khi vô hiệu hóa."
+    "handoverRequired": "Cần chọn người nhận bàn giao trước khi vô hiệu hóa.",
+    "rateLimited": "Bạn thao tác quá nhiều lần, vui lòng thử lại sau ít phút."
   },
   "login": {
     "title": "Đăng nhập",

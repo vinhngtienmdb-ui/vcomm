@@ -8,6 +8,7 @@ import { CLOCK, type Clock } from "../src/common/clock";
 import { OUTBOUND_MESSAGES, type OutboundMessage } from "../src/common/outbound-messages";
 import { runMigrations } from "../src/database/run-migrations";
 import { EXCHANGE_RATE_FEED } from "../src/settings/vietcombank-rates";
+import { RATE_LIMIT } from "../src/common/rate-limiter";
 import { seedTestData } from "../src/database/seed";
 import { configureApplication } from "../src/main";
 
@@ -33,11 +34,16 @@ export const testRateFeed = {
   },
 };
 
+// Giới hạn số yêu cầu không cần đăng nhập: để rất cao cho các kiểm thử đăng nhập nhiều lần; KICHBAN_KIEMTHU_120 đặt lại 20.
+export const testRateLimit = { perMinute: 1_000_000 };
+
 export async function startTestApplication(): Promise<{ application: NestExpressApplication; pool: Pool }> {
   if (!new URL(testDatabaseUrl).pathname.endsWith("_test")) {
     throw new Error("TEST_DATABASE_URL phải trỏ tới cơ sở dữ liệu có tên kết thúc bằng _test.");
   }
   process.env.DATABASE_URL = testDatabaseUrl;
+  // Bộ đếm giới hạn yêu cầu dùng bộ nhớ trong kiểm thử, không dùng Redis của máy.
+  delete process.env.REDIS_URL;
   process.env.ACCESS_TOKEN_SECRET ??= randomBytes(32).toString("hex");
   process.env.MFA_SECRET_KEY ??= randomBytes(32).toString("hex");
   const pool = new Pool({ connectionString: testDatabaseUrl, max: 2 });
@@ -45,10 +51,13 @@ export async function startTestApplication(): Promise<{ application: NestExpress
   await runMigrations(pool);
   await seedTestData(pool);
   testClock.fixed = null;
-  const moduleReference = await Test.createTestingModule({ imports: [AppModule] }).overrideProvider(CLOCK)
+  const moduleReference = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(CLOCK)
     .useValue(testClock)
     .overrideProvider(OUTBOUND_MESSAGES)
     .useValue({ send: async (message: OutboundMessage) => void sentMessages.push(message) })
+    .overrideProvider(RATE_LIMIT)
+    .useValue(testRateLimit)
     .overrideProvider(EXCHANGE_RATE_FEED)
     .useValue(testRateFeed)
     .compile();

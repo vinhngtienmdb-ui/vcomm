@@ -12,6 +12,7 @@ import { AuthService } from "./auth/auth.service";
 import { ApiErrorFilter } from "./common/api-error";
 import { AuditService } from "./common/audit.service";
 import { OutboxService } from "./common/outbox.service";
+import { defaultRateLimit, RATE_LIMIT, RateLimiter } from "./common/rate-limiter";
 import { CLOCK, systemClock } from "./common/clock";
 import { LogOutboundMessages, OUTBOUND_MESSAGES } from "./common/outbound-messages";
 import { DatabaseModule } from "./database/database.module";
@@ -62,6 +63,8 @@ import { UsersService } from "./users/users.service";
     ExchangeRatesService,
     AuditEventsService,
     { provide: CLOCK, useValue: systemClock },
+    { provide: RATE_LIMIT, useValue: defaultRateLimit },
+    RateLimiter,
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_FILTER, useClass: ApiErrorFilter },
   ],

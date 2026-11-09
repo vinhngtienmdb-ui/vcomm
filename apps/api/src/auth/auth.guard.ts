@@ -5,6 +5,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import type { Request } from "express";
 import { timingSafeEqual } from "node:crypto";
 import { ApiError } from "../common/api-error";
+import { RateLimiter } from "../common/rate-limiter";
 import { DATABASE, type Database } from "../database/database.module";
 import { sessions, users } from "../database/schema";
 import { verifyAccessToken } from "./tokens";
@@ -40,11 +41,18 @@ export class AuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     @Inject(DATABASE) private readonly database: Database,
+    private readonly rateLimiter: RateLimiter,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    if (this.reflector.getAllAndOverride<boolean>(publicKey, [context.getHandler(), context.getClass()])) return true;
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    if (this.reflector.getAllAndOverride<boolean>(publicKey, [context.getHandler(), context.getClass()])) {
+      // API không cần đăng nhập: giới hạn số yêu cầu theo địa chỉ IP (tài liệu 22 mục 3).
+      const route = `${request.method} ${(request.route as { path?: string } | undefined)?.path ?? request.path}`;
+      const retryAfterSeconds = await this.rateLimiter.hit(route, request.ip ?? "khong-ro");
+      if (retryAfterSeconds !== null) throw new ApiError("RATE_LIMITED", "rateLimited", { retryAfterSeconds });
+      return true;
+    }
 
     const bearer = request.header("authorization")?.replace(/^Bearer\s+/i, "");
     const cookieToken = request.cookies?.[accessCookieName] as string | undefined;

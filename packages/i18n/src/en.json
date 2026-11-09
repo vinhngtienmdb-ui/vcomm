@@ -71,7 +71,8 @@
     "prefixInvalid": "The prefix may contain only capital letters and digits.",
     "numberSequenceMissing": "No number sequence is configured for this document type.",
     "handoverRecipientInvalid": "The recipient must be another active employee who did not create the document.",
-    "handoverRequired": "Choose a handover recipient before disabling."
+    "handoverRequired": "Choose a handover recipient before disabling.",
+    "rateLimited": "Too many attempts. Please try again in a moment."
   },
   "login": {
     "title": "Sign in",
