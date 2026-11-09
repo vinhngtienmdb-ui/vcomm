@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_02: Người dùng nghiệm thu các lát L1 đến L5, L7, L8. Trước nghiệm thu: rà soát tiếng Anh 24 màn hình, sửa tên vai trò, tên loại chứng từ, ký hiệu tiền theo ngôn ngữ; thêm kiểm thử bảo mật KICHBAN_KIEMTHU_118, 119; đo tải sơ bộ KICHBAN_KIEMTHU_111. Toàn bộ 119/119 kiểm thử đạt. Lập tài liệu 25 với LOI_01 (đăng nhập chưa đạt mốc 200 ms dưới tải), LOI_02 (chưa giới hạn số yêu cầu theo địa chỉ IP).
 - CONG_VIEC_02: Xong lát L8 (dãy số chứng từ, tỷ giá, nhật ký thao tác, thông báo, vô hiệu hóa kèm bàn giao, đặt lại xác thực hai lớp; API_31 đến 33, 43 đến 48; MAN_HINH_16, 17, 18; nút Lịch sử ở MAN_HINH_09 đến 17); kiểm thử tích hợp 107/107 đạt. Không thêm thư viện. AI tự quyết trong phạm vi đặc tả: kỳ theo tháng trong số chứng từ viết `202611`, không đặt lại thì bỏ phần kỳ; bàn giao chỉ gồm bước duyệt giao đích danh và chức trưởng phòng, bước giao theo vai trò không cần bàn giao; vô hiệu hóa kết thúc vai trò của nhân viên trong công ty bị gỡ; người nhận bàn giao không được là người lập chứng từ; tỷ giá dùng chung tập đoàn, nguồn gồm nhập tay và Vietcombank; ghi nhật ký cả lần đăng nhập thất bại (chỉ quản trị tập đoàn thấy); tác vụ nền tạo trước partition nhật ký 3 tháng; thông báo hiển thị theo ngôn ngữ đang chọn.
 - CONG_VIEC_02: Làm phần lấy tỷ giá tự động của CHUC_NANG_21: đọc bảng tỷ giá công khai của Vietcombank lúc 8:30 sáng giờ Việt Nam; tỷ giá chuyển khoản dùng làm tỷ giá hạch toán; nguồn lỗi thì thông báo người có quyền nhập tỷ giá; khi quy đổi chứng từ, tỷ giá nhập tay được ưu tiên. Kiểm thử tích hợp 111/111 đạt. Máy chủ API trên môi trường thật cần được phép gọi ra `portal.vietcombank.com.vn`.
 - Vấn đề tồn đọng sau L8: nhân viên bị vô hiệu hóa vẫn có thể là người duyệt đích danh trong chính sách duyệt đang hiệu lực, chứng từ mới sẽ chờ người đó tới khi quá hạn và chuyển người thay thế.
@@ -24,6 +25,7 @@
 
 ### Quyết định
 
+- Nghiệm thu CONG_VIEC_02 (lát L1 đến L5, L7, L8) và hợp nhất vào `main`; lát L6, L9, L10 tách thành công việc sau – người quyết định: người dùng.
 - Lấy tỷ giá tự động mỗi sáng từ Vietcombank (CHUC_NANG_21) – người quyết định: người dùng.
 - Phê duyệt THAY_DOI_07: tài khoản phải có email hoặc số điện thoại – người quyết định: người dùng.
 - Phê duyệt THAY_DOI_06: vai trò Quản trị công ty có quyền truy cập mọi mini app, kể cả Tài chính – Kế toán, Nhân sự – người quyết định: người dùng.

@@ -26,6 +26,7 @@
 | 19 | [19_CHI_DAN_HE_THONG_AI.md](19_CHI_DAN_HE_THONG_AI.md) | Chỉ dẫn hệ thống AI | Ngữ cảnh, điều luôn giữ, giới hạn quyền hạn | 08 | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | Dữ liệu nhạy cảm, điểm tiếp nhận, xác thực, ma trận phân quyền, khóa bí mật | 05 | Đã phê duyệt |
 | 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | Sổ phiếu THAY_DOI | 13 | Đang cập nhật |
+| 25 | [25_KET_QUA_KIEM_THU.md](25_KET_QUA_KIEM_THU.md) | Kết quả kiểm thử | Kết quả từng lần kiểm thử, danh sách lỗi LOI | 10 | Đang cập nhật |
 | 27 | [27_MA_TRAN_TRUY_VET.md](27_MA_TRAN_TRUY_VET.md) | Ma trận truy vết | Yêu cầu → chức năng → tiêu chí → kiểm thử → mã nguồn | 04 | Đã phê duyệt |
 
 Đặc tả công việc:
@@ -34,4 +35,4 @@
 |---|---|---|
 | CONG_VIEC_02 | [cong_viec/CONG_VIEC_02.md](cong_viec/CONG_VIEC_02.md) | Bản nháp |
 
-Các tài liệu `20`, `21`, `23`, `25`, `26` chưa lập; tạo khi tới giai đoạn tương ứng.
+Tài liệu `20`, `21` lập trên nhánh CONG_VIEC_02, vào `main` khi hợp nhất công việc này. Tài liệu `23`, `26` chưa lập; tạo khi phát hành, triển khai.
