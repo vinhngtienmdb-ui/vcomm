@@ -779,3 +779,66 @@ export interface DeactivateUserResponse {
   status: "active" | "locked" | "disabled" | "invited";
   remainingCompanies: number;
 }
+
+// API_49: Cài đặt tích hợp (CHUC_NANG_25; QUYTAC_NGHIEPVU_31).
+export const integrationSettingKeys = [
+  "google.client_id",
+  "google.client_secret",
+  "microsoft.client_id",
+  "microsoft.client_secret",
+  "microsoft.tenant",
+  "zalo.app_id",
+  "zalo.app_secret",
+  "esms.api_key",
+  "esms.secret_key",
+  "esms.brandname",
+  "esms.oa_id",
+  "esms.sandbox",
+  "esms.template.login_otp",
+  "esms.template.approval_assigned",
+  "esms.template.approval_reminder",
+  "esms.template.approval_completed",
+] as const;
+export type IntegrationSettingKey = (typeof integrationSettingKeys)[number];
+export const secretIntegrationKeys: readonly IntegrationSettingKey[] = ["google.client_secret", "microsoft.client_secret", "zalo.app_secret", "esms.api_key", "esms.secret_key"];
+
+export interface IntegrationSettingItem {
+  key: IntegrationSettingKey;
+  secret: boolean;
+  configured: boolean;
+  // Giá trị thường; khóa bí mật chỉ trả 4 ký tự cuối.
+  value: string | null;
+  lastFour: string | null;
+  updatedAt: string | null;
+}
+
+export interface IntegrationSettingsResponse {
+  settings: IntegrationSettingItem[];
+  // Đường dẫn chuyển hướng cần khai báo ở Google, Microsoft, Zalo.
+  callbackUrls: { google: string; microsoft: string; zalo: string };
+}
+
+export const updateIntegrationSettingsSchema = z
+  .object({
+    // Khóa bí mật để trống thì giữ giá trị cũ; giá trị thường để trống thì xóa.
+    values: z.partialRecord(z.enum(integrationSettingKeys), z.string().trim().max(2000)),
+    clear: z.array(z.enum(integrationSettingKeys)).max(integrationSettingKeys.length).default([]),
+  })
+  .strict();
+export type UpdateIntegrationSettingsRequest = z.input<typeof updateIntegrationSettingsSchema>;
+
+export interface IntegrationTestResponse {
+  ok: boolean;
+  message: string;
+  officialAccounts: { id: string; name: string }[];
+}
+
+export interface MessageDeliveryItem {
+  id: string;
+  channel: "zns" | "zns_sms" | "sms";
+  purpose: string;
+  phoneMasked: string;
+  status: "sent" | "failed" | "skipped";
+  error: string | null;
+  createdAt: string;
+}

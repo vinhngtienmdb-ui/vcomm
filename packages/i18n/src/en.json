@@ -138,7 +138,8 @@
     "approvalPolicies": "Approval policies",
     "numberSequences": "Number sequences",
     "exchangeRates": "Exchange rates",
-    "auditLog": "Audit log"
+    "auditLog": "Audit log",
+    "integrations": "Integrations"
   },
   "users": {
     "title": "Users",
@@ -578,7 +579,8 @@
     "entity_number_sequence": "Number sequence",
     "entity_core_users": "Account",
     "entity_core_sessions": "Session",
-    "field": "Field"
+    "field": "Field",
+    "entity_integration_settings": "Integration settings"
   },
   "auditActions": {
     "login": "Sign in",
@@ -622,7 +624,8 @@
     "exchange_rate_create": "Enter rate",
     "exchange_rate_update": "Edit rate",
     "number_sequence_update": "Edit number sequence",
-    "exchange_rate_fetch": "Fetch exchange rates"
+    "exchange_rate_fetch": "Fetch exchange rates",
+    "integration_settings_update": "Edit integration settings"
   },
   "notifications": {
     "title": "Notifications",
@@ -656,5 +659,61 @@
     "title": "Reset two-factor authentication",
     "text": "{name}'s authenticator key and backup codes will be deleted and every session ends. The employee sets it up again at next sign-in. This action is logged.",
     "done": "Two-factor authentication reset."
+  },
+  "integrations": {
+    "title": "Integrations",
+    "hint": "App IDs and provider keys for Google, Microsoft, Zalo sign-in and messaging through eSMS.vn. Secrets are encrypted and only the last 4 characters are shown; leave a secret blank to keep the stored one. Changes apply immediately.",
+    "group_google": "Google",
+    "group_microsoft": "Microsoft",
+    "group_zalo": "Zalo (sign-in)",
+    "group_esms": "eSMS.vn (SMS, Zalo ZNS)",
+    "key_google_client_id": "Client ID",
+    "key_google_client_secret": "Client secret",
+    "key_microsoft_client_id": "Application (client) ID",
+    "key_microsoft_client_secret": "Client secret",
+    "key_microsoft_tenant": "Tenant (blank: any work account)",
+    "key_zalo_app_id": "App ID",
+    "key_zalo_app_secret": "Secret key",
+    "key_esms_api_key": "API key",
+    "key_esms_secret_key": "Secret key",
+    "key_esms_brandname": "SMS brandname",
+    "key_esms_oa_id": "Zalo OA ID (OAID)",
+    "key_esms_sandbox": "Sandbox (no real messages)",
+    "key_esms_template_login_otp": "ZNS template ID: sign-in OTP (parameter: code)",
+    "key_esms_template_approval_assigned": "ZNS template ID: awaiting approval",
+    "key_esms_template_approval_reminder": "ZNS template ID: overdue reminder",
+    "key_esms_template_approval_completed": "ZNS template ID: approval result",
+    "templateHint": "Approval ZNS template parameters: document_no, document_type, amount, requester, result.",
+    "secretSaved": "Saved ••••{lastFour}. Leave blank to keep.",
+    "notSaved": "Not set",
+    "clear": "Remove key",
+    "willClear": "Will be removed on save",
+    "callback": "Redirect URL (register at the provider)",
+    "copy": "Copy",
+    "test": "Test eSMS connection",
+    "esmsMissing": "Enter the eSMS API key and secret key first.",
+    "esmsConnected": "eSMS connection succeeded.",
+    "esmsFailed": "eSMS connection failed.",
+    "officialAccounts": "Zalo OAs on this account: {list}",
+    "deliveries": "Recent messages",
+    "channel": "Channel",
+    "purpose": "Purpose",
+    "phone": "Phone",
+    "status": "Status",
+    "time": "Time",
+    "error": "Error",
+    "status_sent": "Sent",
+    "status_failed": "Failed",
+    "status_skipped": "Skipped",
+    "channel_zns": "Zalo ZNS",
+    "channel_zns_sms": "Zalo then SMS",
+    "channel_sms": "SMS",
+    "purpose_login_otp": "Sign-in OTP",
+    "purpose_approval_assigned": "Awaiting approval",
+    "purpose_approval_reminder": "Overdue reminder",
+    "purpose_approval_completed": "Approval result",
+    "saved": "Integration settings saved.",
+    "yes": "On",
+    "no": "Off"
   }
 }

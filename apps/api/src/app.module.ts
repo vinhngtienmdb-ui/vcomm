@@ -29,6 +29,10 @@ import { AuditEventsService } from "./settings/audit-events.service";
 import { ExchangeRatesService } from "./settings/exchange-rates.service";
 import { NumberSequencesService } from "./settings/number-sequences.service";
 import { SettingsController } from "./settings/settings.controller";
+import { EsmsGateway, MESSAGE_GATEWAY } from "./integrations/esms-gateway";
+import { IntegrationSettingsService } from "./integrations/integration-settings.service";
+import { IntegrationsController } from "./integrations/integrations.controller";
+import { MessagingService } from "./integrations/messaging.service";
 import { EXCHANGE_RATE_FEED, VietcombankFeed } from "./settings/vietcombank-rates";
 import { DeactivationService } from "./users/deactivation.service";
 import { UsersController } from "./users/users.controller";
@@ -38,7 +42,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController],
   providers: [
     AuthService,
     ActivationService,
@@ -48,6 +52,9 @@ import { UsersService } from "./users/users.service";
     UserImportService,
     { provide: OUTBOUND_MESSAGES, useClass: LogOutboundMessages },
     { provide: EXCHANGE_RATE_FEED, useClass: VietcombankFeed },
+    { provide: MESSAGE_GATEWAY, useClass: EsmsGateway },
+    IntegrationSettingsService,
+    MessagingService,
     AuditService,
     PermissionService,
     RolesService,

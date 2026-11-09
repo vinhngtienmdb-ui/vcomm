@@ -44,9 +44,13 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "platform.number_sequence.manage", appCode: "platform", nameVi: "Cấu hình dãy số chứng từ", nameEn: "Manage number sequences", isSensitive: false },
   { code: "platform.exchange_rate.manage", appCode: "platform", nameVi: "Nhập, sửa tỷ giá", nameEn: "Manage exchange rates", isSensitive: true },
   { code: "platform.audit.view", appCode: "platform", nameVi: "Xem nhật ký thao tác", nameEn: "View audit log", isSensitive: true },
+  // CONG_VIEC_03 (THAY_DOI_04, THAY_DOI_08).
+  { code: "platform.integration.manage", appCode: "platform", nameVi: "Cài đặt tích hợp", nameEn: "Manage integrations", isSensitive: true },
+  { code: "platform.proposal_template.manage", appCode: "platform", nameVi: "Quản lý mẫu đề xuất", nameEn: "Manage proposal templates", isSensitive: false },
+  { code: "platform.proposal.create", appCode: "platform", nameVi: "Lập đề xuất", nameEn: "Create proposals", isSensitive: false },
 ];
 
-const employeePermissions = ["platform.access", "platform.profile.manage", "platform.approval.decide"];
+const employeePermissions = ["platform.access", "platform.profile.manage", "platform.approval.decide", "platform.proposal.create"];
 // THAY_DOI_06: quản trị công ty có quyền truy cập mọi mini app để gán được vai trò nghiệp vụ.
 const companyAdminPermissions = [
   ...employeePermissions,
@@ -62,6 +66,7 @@ const companyAdminPermissions = [
   "platform.approval_policy.manage",
   "platform.number_sequence.manage",
   "platform.audit.view",
+  "platform.proposal_template.manage",
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [

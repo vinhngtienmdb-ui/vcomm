@@ -138,7 +138,8 @@
     "approvalPolicies": "Chính sách duyệt",
     "numberSequences": "Dãy số chứng từ",
     "exchangeRates": "Tỷ giá",
-    "auditLog": "Nhật ký thao tác"
+    "auditLog": "Nhật ký thao tác",
+    "integrations": "Cài đặt tích hợp"
   },
   "users": {
     "title": "Nhân viên",
@@ -578,7 +579,8 @@
     "entity_number_sequence": "Dãy số chứng từ",
     "entity_core_users": "Tài khoản",
     "entity_core_sessions": "Phiên đăng nhập",
-    "field": "Trường"
+    "field": "Trường",
+    "entity_integration_settings": "Cài đặt tích hợp"
   },
   "auditActions": {
     "login": "Đăng nhập",
@@ -622,7 +624,8 @@
     "exchange_rate_create": "Nhập tỷ giá",
     "exchange_rate_update": "Sửa tỷ giá",
     "number_sequence_update": "Sửa dãy số chứng từ",
-    "exchange_rate_fetch": "Lấy tỷ giá tự động"
+    "exchange_rate_fetch": "Lấy tỷ giá tự động",
+    "integration_settings_update": "Sửa cài đặt tích hợp"
   },
   "notifications": {
     "title": "Thông báo",
@@ -656,5 +659,61 @@
     "title": "Đặt lại xác thực hai lớp",
     "text": "Khóa xác thực và mã dự phòng của {name} bị xóa, mọi phiên hết hiệu lực. Nhân viên thiết lập lại ở lần đăng nhập sau. Thao tác được ghi vào nhật ký.",
     "done": "Đã đặt lại xác thực hai lớp."
+  },
+  "integrations": {
+    "title": "Cài đặt tích hợp",
+    "hint": "Mã ứng dụng và khóa nhà cung cấp dùng cho đăng nhập Google, Microsoft, Zalo và gửi tin qua eSMS.vn. Khóa bí mật được mã hóa, chỉ hiện 4 ký tự cuối; để trống ô khóa bí mật thì giữ khóa đang lưu. Lưu xong có hiệu lực ngay.",
+    "group_google": "Google",
+    "group_microsoft": "Microsoft",
+    "group_zalo": "Zalo (đăng nhập)",
+    "group_esms": "eSMS.vn (SMS, Zalo ZNS)",
+    "key_google_client_id": "Client ID",
+    "key_google_client_secret": "Client secret",
+    "key_microsoft_client_id": "Application (client) ID",
+    "key_microsoft_client_secret": "Client secret",
+    "key_microsoft_tenant": "Tenant (để trống: tài khoản công ty bất kỳ)",
+    "key_zalo_app_id": "App ID",
+    "key_zalo_app_secret": "Secret key",
+    "key_esms_api_key": "API key",
+    "key_esms_secret_key": "Secret key",
+    "key_esms_brandname": "Brandname SMS",
+    "key_esms_oa_id": "Mã Zalo OA (OAID)",
+    "key_esms_sandbox": "Chế độ thử (không gửi tin thật)",
+    "key_esms_template_login_otp": "Mã mẫu ZNS: mã OTP đăng nhập (tham số: mã)",
+    "key_esms_template_approval_assigned": "Mã mẫu ZNS: có chứng từ chờ duyệt",
+    "key_esms_template_approval_reminder": "Mã mẫu ZNS: nhắc quá hạn duyệt",
+    "key_esms_template_approval_completed": "Mã mẫu ZNS: kết quả duyệt",
+    "templateHint": "Tham số mẫu ZNS duyệt: document_no, document_type, amount, requester, result.",
+    "secretSaved": "Đã lưu ••••{lastFour}. Để trống để giữ.",
+    "notSaved": "Chưa nhập",
+    "clear": "Xóa khóa",
+    "willClear": "Sẽ xóa khi lưu",
+    "callback": "Đường dẫn chuyển hướng (khai báo ở nhà cung cấp)",
+    "copy": "Sao chép",
+    "test": "Kiểm tra kết nối eSMS",
+    "esmsMissing": "Chưa nhập API key, Secret key của eSMS.",
+    "esmsConnected": "Kết nối eSMS thành công.",
+    "esmsFailed": "Kết nối eSMS thất bại.",
+    "officialAccounts": "Zalo OA của tài khoản: {list}",
+    "deliveries": "Tin gửi gần đây",
+    "channel": "Kênh",
+    "purpose": "Mục đích",
+    "phone": "Số điện thoại",
+    "status": "Trạng thái",
+    "time": "Thời điểm",
+    "error": "Lỗi",
+    "status_sent": "Đã gửi",
+    "status_failed": "Lỗi",
+    "status_skipped": "Bỏ qua",
+    "channel_zns": "Zalo ZNS",
+    "channel_zns_sms": "Zalo rồi SMS",
+    "channel_sms": "SMS",
+    "purpose_login_otp": "Mã OTP đăng nhập",
+    "purpose_approval_assigned": "Chờ duyệt",
+    "purpose_approval_reminder": "Nhắc quá hạn",
+    "purpose_approval_completed": "Kết quả duyệt",
+    "saved": "Đã lưu cài đặt tích hợp.",
+    "yes": "Bật",
+    "no": "Tắt"
   }
 }

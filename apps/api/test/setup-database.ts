@@ -9,6 +9,7 @@ import { OUTBOUND_MESSAGES, type OutboundMessage } from "../src/common/outbound-
 import { runMigrations } from "../src/database/run-migrations";
 import { EXCHANGE_RATE_FEED } from "../src/settings/vietcombank-rates";
 import { RATE_LIMIT } from "../src/common/rate-limiter";
+import { MESSAGE_GATEWAY, type EsmsCredentials, type MessageGateway } from "../src/integrations/esms-gateway";
 import { seedTestData } from "../src/database/seed";
 import { configureApplication } from "../src/main";
 
@@ -37,6 +38,23 @@ export const testRateFeed = {
 // Giới hạn số yêu cầu không cần đăng nhập: để rất cao cho các kiểm thử đăng nhập nhiều lần; KICHBAN_KIEMTHU_120 đặt lại 20.
 export const testRateLimit = { perMinute: 1_000_000 };
 
+// Cổng gửi tin giả: giữ lại mọi lần gửi; đặt `fail` để giả lập eSMS từ chối. Kiểm thử không gọi eSMS thật.
+export const testGateway = {
+  fail: false,
+  sent: [] as { kind: "zns" | "otp"; credentials: EsmsCredentials; input: Record<string, unknown> }[],
+  async sendZns(credentials, input) {
+    this.sent.push({ kind: "zns", credentials, input });
+    return this.fail ? { ok: false, messageId: null, error: "101: Authorize Failed" } : { ok: true, messageId: `zns-${this.sent.length}`, error: null };
+  },
+  async sendOtp(credentials, input) {
+    this.sent.push({ kind: "otp", credentials, input });
+    return this.fail ? { ok: false, messageId: null, error: "101: Authorize Failed" } : { ok: true, messageId: `otp-${this.sent.length}`, error: null };
+  },
+  async listOfficialAccounts() {
+    return this.fail ? { ok: false, error: "Authorize Failed", accounts: [] } : { ok: true, error: null, accounts: [{ id: "4097311281936189049", name: "VComm" }] };
+  },
+} satisfies MessageGateway & { fail: boolean; sent: unknown[] };
+
 export async function startTestApplication(): Promise<{ application: NestExpressApplication; pool: Pool }> {
   if (!new URL(testDatabaseUrl).pathname.endsWith("_test")) {
     throw new Error("TEST_DATABASE_URL phải trỏ tới cơ sở dữ liệu có tên kết thúc bằng _test.");
@@ -56,6 +74,8 @@ export async function startTestApplication(): Promise<{ application: NestExpress
     .useValue(testClock)
     .overrideProvider(OUTBOUND_MESSAGES)
     .useValue({ send: async (message: OutboundMessage) => void sentMessages.push(message) })
+    .overrideProvider(MESSAGE_GATEWAY)
+    .useValue(testGateway)
     .overrideProvider(RATE_LIMIT)
     .useValue(testRateLimit)
     .overrideProvider(EXCHANGE_RATE_FEED)
