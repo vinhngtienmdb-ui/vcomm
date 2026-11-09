@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Khung giao diện MODULE_01</title>
+<style>
+  :root { --den: #222; --xam-dam: #555; --xam: #888; --xam-nhat: #ccc; --xam-nen: #eee; --trang: #fff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, "Segoe UI", Roboto, Arial, sans-serif; color: var(--den); background: var(--xam-nen); font-size: 14px; }
+  .muc-luc { position: fixed; left: 0; top: 0; bottom: 0; width: 240px; overflow-y: auto; background: var(--trang); border-right: 1px solid var(--xam-nhat); padding: 12px; }
+  .muc-luc h1 { font-size: 14px; margin: 0 0 8px; }
+  .muc-luc a { display: block; padding: 6px 8px; color: var(--den); text-decoration: none; border-radius: 4px; }
+  .muc-luc a.dang-chon { background: var(--xam-nhat); font-weight: 600; }
+  .muc-luc .trang-thai { margin-top: 12px; border-top: 1px solid var(--xam-nhat); padding-top: 8px; }
+  .muc-luc label { display: block; padding: 2px 8px; }
+  main { margin-left: 240px; padding: 16px; }
+  .khung { background: var(--trang); border: 2px solid var(--xam); min-height: 640px; max-width: 1280px; }
+  .thanh-tren { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--xam-nhat); }
+  .thanh-tren .gian { flex: 1; }
+  .o { border: 1px dashed var(--xam); padding: 4px 10px; border-radius: 4px; background: var(--xam-nen); }
+  .than { display: flex; }
+  .menu-trai { width: 200px; border-right: 1px solid var(--xam-nhat); padding: 12px 0; }
+  .menu-trai div { padding: 8px 16px; }
+  .menu-trai div.chon { background: var(--xam-nhat); font-weight: 600; }
+  .noi-dung { flex: 1; padding: 16px 24px; min-width: 0; }
+  .tieu-de { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .tieu-de h2 { margin: 0; font-size: 20px; flex: 1; }
+  .nut { display: inline-block; border: 1px solid var(--den); padding: 6px 12px; border-radius: 4px; background: var(--trang); cursor: default; }
+  .nut.chinh { background: var(--xam-dam); color: var(--trang); border-color: var(--xam-dam); }
+  .nut.vo-hieu { opacity: .4; }
+  .loc { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  a { color: var(--den); }
+  .nhap { display: inline-block; margin: 2px 0; border: 1px solid var(--xam); border-radius: 4px; padding: 6px 10px; min-width: 160px; color: var(--xam); background: var(--trang); }
+  .cuon-bang { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border-bottom: 1px solid var(--xam-nhat); padding: 8px; text-align: left; vertical-align: top; }
+  th { background: var(--xam-nen); font-weight: 600; }
+  .nhan { display: inline-block; border: 1px solid var(--xam-dam); border-radius: 10px; padding: 0 8px; font-size: 12px; }
+  .giua { max-width: 400px; margin: 60px auto; display: flex; flex-direction: column; gap: 12px; }
+  .the { display: flex; gap: 4px; border-bottom: 1px solid var(--xam-nhat); margin-bottom: 12px; }
+  .the span { padding: 8px 12px; }
+  .the span.chon { border-bottom: 3px solid var(--den); font-weight: 600; }
+  .luoi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .o-app { border: 1px solid var(--xam); border-radius: 6px; padding: 16px; text-align: center; }
+  .o-app .bieu-tuong { width: 40px; height: 40px; background: var(--xam-nhat); margin: 0 auto 8px; border-radius: 8px; }
+  .hai-cot { display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
+  .khoi { border: 1px solid var(--xam-nhat); border-radius: 6px; padding: 12px; }
+  .ghi-chu { color: var(--xam-dam); font-size: 12px; margin-top: 8px; }
+  .trang-thai-hien { border: 2px dashed var(--xam); padding: 40px; text-align: center; color: var(--xam-dam); }
+  .song { height: 14px; background: var(--xam-nhat); border-radius: 4px; margin: 10px 0; }
+  .loi-o { color: var(--den); font-size: 12px; text-decoration: underline; }
+  @media (max-width: 768px) {
+    .muc-luc { position: static; width: auto; height: auto; }
+    main { margin-left: 0; }
+    .menu-trai { display: none; }
+    .luoi { grid-template-columns: repeat(2, 1fr); }
+    .hai-cot { grid-template-columns: 1fr; }
+    .noi-dung { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="muc-luc" id="muc-luc">
+  <h1>Khung giao diện MODULE_01 (thang xám)</h1>
+  <div id="danh-sach"></div>
+  <div class="trang-thai">
+    <strong>Trạng thái hiển thị</strong>
+    <label><input type="radio" name="tt" value="du-lieu" checked> Có dữ liệu</label>
+    <label><input type="radio" name="tt" value="rong"> Rỗng</label>
+    <label><input type="radio" name="tt" value="dang-tai"> Đang tải</label>
+    <label><input type="radio" name="tt" value="loi"> Lỗi</label>
+    <label><input type="radio" name="tt" value="khong-quyen"> Không có quyền</label>
+  </div>
+</nav>
+<main><div class="khung" id="khung"></div></main>
+<script>
+const MAN_HINH = [
+  ["01", "Đăng nhập"], ["02", "Xác thực hai lớp"], ["03", "Kích hoạt tài khoản"], ["04", "Quên mật khẩu"],
+  ["05", "Trang chủ mini app"], ["06", "Hồ sơ cá nhân"], ["07", "Hộp duyệt"], ["08", "Chi tiết yêu cầu duyệt"],
+  ["09", "Công ty"], ["10", "Chi nhánh"], ["11", "Phòng ban"], ["12", "Danh sách nhân viên"],
+  ["13", "Chi tiết nhân viên"], ["14", "Vai trò và ma trận quyền"], ["15", "Chính sách duyệt"],
+  ["16", "Dãy số chứng từ"], ["17", "Tiền tệ và tỷ giá"], ["18", "Nhật ký thao tác"]
+];
+const MENU = [["09", "Công ty"], ["10", "Chi nhánh"], ["11", "Phòng ban"], ["12", "Nhân viên"], ["14", "Vai trò"],
+  ["15", "Chính sách duyệt"], ["16", "Dãy số chứng từ"], ["17", "Tỷ giá"], ["18", "Nhật ký thao tác"]];
+
+const thanhTren = () => `<div class="thanh-tren"><span class="o">LOGO VComm</span><a href="#05" class="o">Trang chủ</a>
+  <span class="gian"></span><span class="o">Công ty: VComm Bán lẻ Miền Nam ▾</span><a href="#07" class="o">Hộp duyệt (3)</a>
+  <span class="o">Thông báo</span><a href="#06" class="o">Nguyễn Thị Hồng Nhung ▾</a></div>`;
+const coMenu = (ma, noiDung) => `${thanhTren()}<div class="than"><div class="menu-trai">${MENU.map(([m, t]) =>
+  `<div class="${m === ma || (ma === "13" && m === "12") ? "chon" : ""}"><a href="#${m}">${t}</a></div>`).join("")}</div>
+  <div class="noi-dung">${noiDung}</div></div>`;
+const bang = (cot, dong) => `<div class="cuon-bang"><table><thead><tr>${cot.map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>${
+  dong.map(d => `<tr>${d.map(o => `<td>${o}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+  <div class="ghi-chu">Phân trang: ‹ 1 2 3 › · 20 dòng mỗi trang</div>`;
+const danhSach = (tieuDe, nut, loc, cot, dong) => `<div class="tieu-de"><h2>${tieuDe}</h2><span class="nut">Lịch sử</span>${
+  nut.map(n => `<span class="nut chinh">${n}</span>`).join("")}</div><div class="loc"><span class="nhap">Tìm kiếm…</span>${
+  loc.map(l => `<span class="nhap">${l} ▾</span>`).join("")}</div>${bang(cot, dong)}`;
+
+const VE = {
+  "01": () => `<div class="giua"><span class="o">LOGO VComm</span><div style="text-align:right"><span class="o">Tiếng Việt ▾</span></div>
+    <div class="the"><span class="chon">Mật khẩu</span><span>Số điện thoại</span></div>
+    <span class="nhap">Tên đăng nhập hoặc email</span><span class="nhap">Mật khẩu</span>
+    <span class="loi-o">Thông tin đăng nhập không đúng.</span>
+    <span class="nut chinh">Đăng nhập</span><a href="#04">Quên mật khẩu?</a>
+    <div style="text-align:center">— hoặc —</div>
+    <span class="nut">Đăng nhập bằng Google</span><span class="nut">Đăng nhập bằng Microsoft</span><span class="nut">Đăng nhập bằng Zalo</span></div>`,
+  "02": () => `<div class="giua"><h2>Xác thực hai lớp</h2><div>Nhập mã 6 chữ số từ ứng dụng xác thực.</div>
+    <span class="nhap">_ _ _ _ _ _</span><span class="nut chinh">Xác nhận</span><a href="#">Dùng mã dự phòng</a>
+    <div class="khoi"><strong>Đăng ký lần đầu</strong><div class="o" style="width:120px;height:120px;margin:8px 0">Mã QR</div>
+    <div>Mã nhập tay: JBSW Y3DP EHPK 3PXP</div><div class="ghi-chu">10 mã dự phòng · Tải về</div></div></div>`,
+  "03": () => `<div class="giua"><h2>Chào Trần Văn Bảo Long Nguyễn Hoàng</h2><div>Bạn được mời vào <strong>Công ty Cổ phần VComm Bán lẻ Miền Nam</strong>.</div>
+    <span class="nhap">Mật khẩu (tối thiểu 10 ký tự)</span><div class="song" style="width:60%"></div><span class="nhap">Nhập lại mật khẩu</span>
+    <span class="nut chinh">Kích hoạt</span><div style="text-align:center">— hoặc —</div><span class="nut">Dùng Google</span><span class="nut">Dùng Microsoft</span></div>`,
+  "04": () => `<div class="giua"><h2>Quên mật khẩu</h2><span class="nhap">Email hoặc số điện thoại</span><span class="nut chinh">Gửi đường dẫn</span>
+    <div class="ghi-chu">Nếu tài khoản tồn tại, bạn sẽ nhận được đường dẫn đặt lại mật khẩu.</div>
+    <hr><h2>Đặt lại mật khẩu</h2><span class="nhap">Mật khẩu mới</span><span class="nhap">Nhập lại</span><span class="nut chinh">Đặt lại</span></div>`,
+  "05": () => `${thanhTren()}<div class="noi-dung"><h2>Xin chào, Nguyễn Thị Hồng Nhung</h2><div class="luoi">${
+    [["Quản trị hệ thống", ""], ["Sản phẩm và Nhà bán", "12"], ["Kho", "4"], ["Mua hàng", ""], ["Bán hàng", "27"],
+     ["Tài chính – Kế toán", "3"], ["Khách hàng và Đối tác", ""], ["Nhân sự", "1"]].map(([t, s]) =>
+    `<div class="o-app"><div class="bieu-tuong"></div>${t}${s ? ` <span class="nhan">${s}</span>` : ""}</div>`).join("")}</div>
+    <h3>Chờ tôi duyệt</h3>${bang(["Số chứng từ", "Loại", "Giá trị", "Gửi lúc"], [
+    ["DM-VCR-2026-000231", "Đơn mua", "80.000.000 đ", "09:12"], ["PC-VCR-2026-000088", "Phiếu chi", "12.500.000 đ", "Hôm qua"]])}</div>`,
+  "06": () => `${thanhTren()}<div class="noi-dung"><h2>Hồ sơ cá nhân</h2><div class="the"><span class="chon">Thông tin</span><span>Đăng nhập</span><span>Xác thực hai lớp</span><span>Phiên đăng nhập</span></div>
+    <div class="hai-cot"><div class="khoi">Họ tên<br><span class="nhap">Nguyễn Thị Hồng Nhung</span><br><br>Ngôn ngữ<br><span class="nhap">Tiếng Việt ▾</span></div>
+    <div class="khoi"><strong>Cách đăng nhập</strong>${bang(["Cách", "Trạng thái", ""], [["Mật khẩu", "Đã đặt", "<span class='nut'>Đổi</span>"],
+    ["Google", "Đã liên kết", "<span class='nut'>Hủy liên kết</span>"], ["Microsoft", "Chưa liên kết", "<span class='nut'>Liên kết</span>"],
+    ["Zalo", "Chưa liên kết", "<span class='nut'>Liên kết Zalo</span>"]])}<div class="ghi-chu">Tắt xác thực hai lớp: <span class="nut vo-hieu">Tắt</span> – bắt buộc với vai trò của bạn.</div></div></div></div>`,
+  "07": () => `${thanhTren()}<div class="noi-dung"><div class="tieu-de"><h2>Hộp duyệt (3)</h2></div><div class="loc"><span class="nhap">Công ty ▾</span><span class="nhap">Mini app ▾</span><span class="nhap">Loại chứng từ ▾</span><label><input type="checkbox"> Chỉ quá hạn</label></div>${
+    bang(["Số chứng từ", "Loại", "Công ty", "Người lập", "Giá trị", "Cấp", "Gửi lúc", ""], [
+    ["<a href='#08'>DM-VCR-2026-000231</a>", "Đơn mua", "VComm Bán lẻ Miền Nam", "Lê Văn Phúc", "80.000.000 đ", "2/2", "09:12 <span class='nhan'>Quá hạn</span>", "<span class='nut chinh'>Đồng ý</span> <span class='nut'>Từ chối</span>"],
+    ["<a href='#08'>DM-VCT-2026-000017</a>", "Đơn mua", "VComm Thương mại", "Phạm Thị Thu Hà", "2.000 USD (≈ 52.600.000 đ)", "2/2", "Hôm qua", "<span class='nut chinh'>Đồng ý</span> <span class='nut'>Từ chối</span>"]])}</div>`,
+  "08": () => `${thanhTren()}<div class="noi-dung"><div class="tieu-de"><h2>DM-VCR-2026-000231 · Đơn mua</h2><span class="nhan">Chờ duyệt</span></div>
+    <div>Giá trị: <strong>80.000.000 đ</strong> · Người lập: Lê Văn Phúc · <a href="#">Mở chứng từ ↗</a></div><br>
+    <div class="khoi">${bang(["Cấp", "Ngưỡng", "Người duyệt", "Người thay thế", "Quyết định", "Thời điểm"], [
+    ["1", "≥ 0 đ", "Trưởng phòng Mua hàng", "Phó phòng Mua hàng", "Đồng ý – “Đúng kế hoạch quý”", "08:30"],
+    ["2", "≥ 50.000.000 đ", "Giám đốc công ty", "Phó giám đốc", "Đang chờ (hạn 4 giờ)", ""]])}</div><br>
+    <span class="nut chinh">Đồng ý</span> <span class="nut">Từ chối</span> <span class="nut vo-hieu">Rút lại</span></div>`,
+  "09": () => coMenu("09", `<div class="tieu-de"><h2>Công ty</h2><span class="nut">Lịch sử</span><span class="nut chinh">Thêm công ty</span></div>
+    <div class="hai-cot"><div class="khoi">▾ Tập đoàn VComm (VCG)<br>&nbsp;&nbsp;▸ <strong>VComm Bán lẻ Miền Nam (VCR)</strong><br>&nbsp;&nbsp;▸ VComm Thương mại (VCT)</div>
+    <div class="khoi"><strong>Công ty Cổ phần VComm Bán lẻ Miền Nam</strong><br>Mã: VCR · Mã số thuế: 0312345678 · Tiền tệ: VND · Thông tư 200 · Năm tài chính từ tháng 1<br>Chi nhánh: 4 · Trạng thái: Đang hoạt động<br><br><span class="nut">Sửa</span> <span class="nut">Ngừng hoạt động</span></div></div>`),
+  "10": () => coMenu("10", danhSach("Chi nhánh", ["Thêm chi nhánh"], ["Loại", "Tỉnh thành", "Trạng thái"], ["Mã", "Tên", "Loại", "Tỉnh thành", "Trạng thái"], [
+    ["VCR-HCM", "Trụ sở Thành phố Hồ Chí Minh", "Trụ sở", "Hồ Chí Minh", "Đang hoạt động"],
+    ["VCR-BD", "Kho tổng Bình Dương – Khu công nghiệp Việt Nam Singapore II mở rộng", "Kho", "Bình Dương", "Đang hoạt động"]])),
+  "11": () => coMenu("11", `<div class="tieu-de"><h2>Phòng ban</h2><span class="nut">Lịch sử</span><span class="nut chinh">Thêm phòng ban</span></div>
+    <div class="hai-cot"><div class="khoi">▾ Ban Giám đốc<br>&nbsp;&nbsp;▾ Khối Vận hành<br>&nbsp;&nbsp;&nbsp;&nbsp;▸ <strong>Phòng Mua hàng</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;▸ Phòng Kho vận</div>
+    <div class="khoi"><strong>Phòng Mua hàng</strong><br>Mã: MH · Cha: Khối Vận hành · Trưởng phòng: Lê Văn Phúc · 12 nhân viên<br><br><span class="nut">Sửa</span> <span class="nut">Ngừng hoạt động</span></div></div>`),
+  "12": () => coMenu("12", danhSach("Nhân viên", ["Nhập từ Excel", "Mời nhân viên"], ["Chi nhánh", "Phòng ban", "Vai trò", "Trạng thái"],
+    ["Họ tên", "Email / Số điện thoại", "Chi nhánh", "Vai trò", "Trạng thái", "Đăng nhập cuối"], [
+    ["<a href='#13'>Lê Văn Phúc</a>", "phuc.le@vcomm.vn", "VCR-HCM", "Trưởng phòng mua hàng", "Đang hoạt động", "Hôm nay"],
+    ["<a href='#13'>Trần Văn Bảo Long Nguyễn Hoàng</a>", "+84 912 345 678", "VCR-BD", "Thủ kho", "Đã mời · <a href='#'>Gửi lại</a>", "—"]])),
+  "13": () => coMenu("13", `<div class="tieu-de"><h2>Lê Văn Phúc</h2><span class="nhan">Đang hoạt động</span><span class="nut">Khóa</span><span class="nut">Đặt lại xác thực hai lớp</span><span class="nut">Vô hiệu hóa</span></div>
+    <div class="the"><span>Công ty</span><span class="chon">Vai trò</span><span>Phiên đăng nhập</span></div><span class="nut chinh">Gán vai trò</span><br><br>
+    ${bang(["Vai trò", "Phạm vi", "Từ ngày", "Đến ngày", ""], [["Trưởng phòng mua hàng", "Công ty VCR", "01/11/2026", "—", "<span class='nut'>Gỡ</span>"],
+    ["Kế toán viên <span class='nhan'>Nhạy cảm</span>", "Chi nhánh VCR-BD", "09/11/2026", "30/11/2026", "<span class='nut'>Gỡ</span>"]])}
+    <div class="khoi" style="margin-top:12px"><strong>Hộp thoại vô hiệu hóa – bàn giao</strong><div>3 chứng từ đang chờ duyệt → người nhận <span class="nhap">Chọn nhân viên ▾</span></div><div>Trưởng phòng Mua hàng → người nhận <span class="nhap">Chọn nhân viên ▾</span></div><br><span class="nut">Hủy</span> <span class="nut chinh">Xác nhận vô hiệu hóa</span></div>`),
+  "14": () => coMenu("14", `<div class="tieu-de"><h2>Vai trò</h2><span class="nut">Lịch sử</span><span class="nut chinh">Thêm vai trò</span></div>
+    <div class="hai-cot"><div class="khoi">Quản trị tập đoàn <span class="nhan">Hệ thống</span><br>Quản trị công ty <span class="nhan">Hệ thống</span><br><strong>Trưởng phòng mua hàng</strong> <span class="nhan">Riêng công ty</span><br>Thủ kho <span class="nhan">Dùng chung</span></div>
+    <div class="khoi"><strong>Trưởng phòng mua hàng</strong> · 4 người đang có vai trò<br><br>${bang(["Mua hàng", "Xem", "Thêm", "Sửa", "Duyệt"], [
+    ["Đề nghị mua", "☑", "☑", "☑", "☑"], ["Đơn mua", "☑", "☑", "☑", "☐"], ["Nhà cung cấp", "☑", "☐", "☐", "—"]])}<div class="ghi-chu">Ô quyền bạn không có bị vô hiệu.</div></div></div>`),
+  "15": () => coMenu("15", `<div class="tieu-de"><h2>Chính sách duyệt · Đơn mua</h2><span class="nut">Lịch sử</span><span class="nut chinh">Tạo chính sách mới</span></div>
+    <div>Tiền tệ so ngưỡng: VND · Hiệu lực từ 01/11/2026</div><br>${bang(["Cấp", "Ngưỡng", "Người duyệt", "Người thay thế", "Thời hạn"], [
+    ["1", "0 đ", "Trưởng phòng của người lập", "Phó phòng Mua hàng", "4 giờ"], ["2", "50.000.000 đ", "Vai trò: Giám đốc công ty", "Phó giám đốc", "8 giờ"],
+    ["3", "500.000.000 đ", "Nhân viên: Võ Minh Tuấn (Tổng giám đốc)", "Nguyễn Văn An", "24 giờ"]])}`),
+  "16": () => coMenu("16", danhSach("Dãy số chứng từ", [], ["Mini app"], ["Loại chứng từ", "Tiền tố", "Đặt lại", "Số chữ số", "Số kế tiếp"], [
+    ["Phiếu nhập kho", "PN", "Theo năm", "6", "PN-VCR-2026-000124"], ["Đơn mua", "DM", "Theo năm", "6", "DM-VCR-2026-000232"]])),
+  "17": () => coMenu("17", `<div class="tieu-de"><h2>Tỷ giá</h2><span class="nut">Lịch sử</span><span class="nut chinh">Nhập tỷ giá</span></div>
+    <div class="loc"><span class="nhap">Ngày 09/11/2026 ▾</span></div><div class="khoi">⚠ Hôm nay chưa có tỷ giá hạch toán CNY → VND.</div><br>
+    ${bang(["Cặp tiền tệ", "Loại", "Nguồn", "Tỷ giá"], [["USD → VND", "Hạch toán", "Vietcombank", "26.300"], ["EUR → VND", "Hạch toán", "Nhập tay", "28.540"]])}`),
+  "18": () => coMenu("18", danhSach("Nhật ký thao tác", [], ["Người làm", "Mini app", "Đối tượng", "Hành động", "Từ ngày – đến ngày"],
+    ["Thời điểm", "Người làm", "Công ty", "Hành động", "Đối tượng"], [
+    ["09/11/2026 09:14", "Nguyễn Thị Hồng Nhung", "VCR", "Gán vai trò", "Lê Văn Phúc – Kế toán viên (VCR-BD)"],
+    ["09/11/2026 08:02", "—", "—", "Đăng nhập thất bại", "phuc.le@vcomm.vn"]]))
+};
+
+const TRANG_THAI = {
+  "rong": () => `<div class="trang-thai-hien"><div class="o" style="width:80px;height:60px;margin:0 auto 12px">Hình</div>Chưa có dữ liệu.<br><br><span class="nut chinh">Thêm mới</span></div>`,
+  "dang-tai": () => `<div>${"<div class='song'></div>".repeat(8)}</div>`,
+  "loi": () => `<div class="trang-thai-hien">Không tải được dữ liệu. Kiểm tra kết nối mạng và thử lại.<br><br><span class="nut">Thử lại</span></div>`,
+  "khong-quyen": () => `<div class="trang-thai-hien">Bạn không có quyền xem trang này.<br><br><a href="#05" class="nut">Về trang chủ</a></div>`
+};
+
+function ve() {
+  const ma = (location.hash.slice(1) || "01");
+  const trangThai = document.querySelector("input[name=tt]:checked").value;
+  document.getElementById("danh-sach").innerHTML = MAN_HINH.map(([m, t]) =>
+    `<a href="#${m}" class="${m === ma ? "dang-chon" : ""}">MAN_HINH_${m} · ${t}</a>`).join("");
+  let html = (VE[ma] || VE["01"])();
+  if (trangThai !== "du-lieu" && Number(ma) >= 5) {
+    const tieuDe = (MAN_HINH.find(x => x[0] === ma) || [])[1];
+    const than = `<div class="tieu-de"><h2>${tieuDe}</h2></div>${TRANG_THAI[trangThai]()}`;
+    html = Number(ma) >= 9 ? coMenu(ma, than) : `${thanhTren()}<div class="noi-dung">${than}</div>`;
+  }
+  document.getElementById("khung").innerHTML = html;
+}
+window.addEventListener("hashchange", ve);
+document.querySelectorAll("input[name=tt]").forEach(o => o.addEventListener("change", ve));
+ve();
+</script>
+</body>
+</html>

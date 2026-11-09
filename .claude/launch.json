@@ -1,0 +1,13 @@
+{
+  // Máy chủ phát triển cho điểm xem trước (tài liệu 18 mục 5).
+  // Chạy được khi apps/web-platform đã tồn tại (CONG_VIEC_02, lát đầu tiên).
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web-platform",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "web-platform", "dev"],
+      "port": 3000
+    }
+  ]
+}
