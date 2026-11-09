@@ -28,6 +28,7 @@ import { AuditEventsService } from "./settings/audit-events.service";
 import { ExchangeRatesService } from "./settings/exchange-rates.service";
 import { NumberSequencesService } from "./settings/number-sequences.service";
 import { SettingsController } from "./settings/settings.controller";
+import { EXCHANGE_RATE_FEED, VietcombankFeed } from "./settings/vietcombank-rates";
 import { DeactivationService } from "./users/deactivation.service";
 import { UsersController } from "./users/users.controller";
 import { InvitationsService } from "./users/invitations.service";
@@ -45,6 +46,7 @@ import { UsersService } from "./users/users.service";
     InvitationsService,
     UserImportService,
     { provide: OUTBOUND_MESSAGES, useClass: LogOutboundMessages },
+    { provide: EXCHANGE_RATE_FEED, useClass: VietcombankFeed },
     AuditService,
     PermissionService,
     RolesService,

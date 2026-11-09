@@ -7,6 +7,7 @@ import { AppModule } from "../src/app.module";
 import { CLOCK, type Clock } from "../src/common/clock";
 import { OUTBOUND_MESSAGES, type OutboundMessage } from "../src/common/outbound-messages";
 import { runMigrations } from "../src/database/run-migrations";
+import { EXCHANGE_RATE_FEED } from "../src/settings/vietcombank-rates";
 import { seedTestData } from "../src/database/seed";
 import { configureApplication } from "../src/main";
 
@@ -22,6 +23,15 @@ export const testClock: Clock & { fixed: Date | null } = {
 
 // Email, SMS gửi đi trong kiểm thử được giữ lại để lấy đường dẫn kích hoạt.
 export const sentMessages: OutboundMessage[] = [];
+
+// Nguồn tỷ giá giả: đặt `xml` là nội dung trả về, để null thì giả lập nguồn lỗi. Kiểm thử không gọi mạng ngoài.
+export const testRateFeed = {
+  xml: null as string | null,
+  async fetchXml(): Promise<string> {
+    if (this.xml === null) throw new Error("Nguồn tỷ giá giả lập lỗi");
+    return this.xml;
+  },
+};
 
 export async function startTestApplication(): Promise<{ application: NestExpressApplication; pool: Pool }> {
   if (!new URL(testDatabaseUrl).pathname.endsWith("_test")) {
@@ -39,6 +49,8 @@ export async function startTestApplication(): Promise<{ application: NestExpress
     .useValue(testClock)
     .overrideProvider(OUTBOUND_MESSAGES)
     .useValue({ send: async (message: OutboundMessage) => void sentMessages.push(message) })
+    .overrideProvider(EXCHANGE_RATE_FEED)
+    .useValue(testRateFeed)
     .compile();
   const application = configureApplication(moduleReference.createNestApplication<NestExpressApplication>());
   await application.init();

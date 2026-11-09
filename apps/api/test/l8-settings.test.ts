@@ -8,7 +8,9 @@ import { testIds } from "../src/database/seed";
 import { AuditEventsService } from "../src/settings/audit-events.service";
 import { NumberSequencesService } from "../src/settings/number-sequences.service";
 import { createTestUser, signIn, type Session } from "./helpers";
-import { startTestApplication, testClock } from "./setup-database";
+import { startTestApplication, testClock, testRateFeed } from "./setup-database";
+import { ExchangeRatesService } from "../src/settings/exchange-rates.service";
+import { parseVietcombankXml } from "../src/settings/vietcombank-rates";
 
 let application: NestExpressApplication;
 let pool: Pool;
@@ -632,5 +634,57 @@ describe("Kiểm tra theo vai trò (KICHBAN_KIEMTHU_95, 97, 105, 110)", () => {
     const home = await removed.call("get", "/home", { companyId: retail });
     expect(home.status).toBe(403);
     expect(home.body.error.message).toBe("Bạn không thuộc công ty này.");
+  });
+});
+
+describe("CHUC_NANG_21: lấy tỷ giá Vietcombank mỗi sáng", () => {
+  const sample = `<!--For reference only.-->
+<ExrateList>
+  <DateTime>11/20/2026 8:30:00 AM</DateTime>
+  <Exrate CurrencyCode="CNY" CurrencyName="YUAN RENMINBI       " Buy="3,725.17" Transfer="3,762.80" Sell="3,883.49" />
+  <Exrate CurrencyCode="DKK" CurrencyName="DANISH KRONE        " Buy="-" Transfer="3,742.79" Sell="3,886.09" />
+  <Exrate CurrencyCode="EUR" CurrencyName="EURO                " Buy="27,769.76" Transfer="28,050.27" Sell="29,235.17" />
+  <Exrate CurrencyCode="USD" CurrencyName="US DOLLAR           " Buy="26,080.00" Transfer="26,110.00" Sell="26,380.00" />
+</ExrateList>`;
+
+  it("đọc bảng tỷ giá: bỏ dấu phân cách, giá trị '-' là không có", () => {
+    const rates = parseVietcombankXml(sample);
+    expect(rates.find((rate) => rate.currency === "USD")).toEqual({ currency: "USD", buy: "26080.00", transfer: "26110.00", sell: "26380.00" });
+    expect(rates.find((rate) => rate.currency === "DKK")?.buy).toBeNull();
+    expect(() => parseVietcombankXml("<html>Bảo trì</html>")).toThrow();
+  });
+
+  it("ghi mua, chuyển khoản, bán và hạch toán cho tiền tệ đang dùng; chạy lại không ghi trùng", async () => {
+    testRateFeed.xml = sample;
+    const service = application.get(ExchangeRatesService);
+    expect(await service.fetchDaily("2026-11-20")).toEqual({ inserted: 12, failed: false });
+    expect(await service.fetchDaily("2026-11-20")).toEqual({ inserted: 0, failed: false });
+    const day = await employee.call("get", "/exchange-rates?date=2026-11-20", { companyId: retail });
+    expect(day.body.missingAccounting).toEqual([]);
+    expect(day.body.data.find((rate: { fromCurrency: string; rateType: string }) => rate.fromCurrency === "USD" && rate.rateType === "accounting")).toMatchObject({
+      source: "vietcombank",
+      rate: "26110",
+    });
+    expect(day.body.data.some((rate: { fromCurrency: string }) => rate.fromCurrency === "DKK")).toBe(false);
+  });
+
+  it("tỷ giá nhập tay được ưu tiên khi quy đổi chứng từ gửi duyệt", async () => {
+    await rateManager.call("post", "/exchange-rates", { body: { rateDate: "2026-11-20", fromCurrency: "USD", toCurrency: "VND", rateType: "accounting", source: "manual", rate: "26000" } });
+    const submitted = await employee.call("post", "/approval-requests", {
+      companyId: retail,
+      body: { documentTypeCode: documentType, documentId: randomUUID(), documentNo: "CT-USD-1", amount: "10", currency: "USD", documentDate: "2026-11-20" },
+    });
+    expect(submitted.status).toBe(201);
+    expect(submitted.body.amountInPolicyCurrency).toBe("260000.0000");
+  });
+
+  it("nguồn lỗi thì báo người có quyền nhập tỷ giá", async () => {
+    testRateFeed.xml = null;
+    expect(await application.get(ExchangeRatesService).fetchDaily("2026-11-21")).toEqual({ inserted: 0, failed: true });
+    const told = await pool.query("SELECT user_id FROM core.notifications WHERE kind = 'exchange_rate.fetch_failed' AND payload ->> 'date' = '2026-11-21'");
+    const users = told.rows.map((row) => row.user_id);
+    expect(users).toContain(testIds.exchangeRateManager);
+    expect(users).toContain(testIds.groupAdmin);
+    expect(users).not.toContain(testIds.retailAdmin);
   });
 });

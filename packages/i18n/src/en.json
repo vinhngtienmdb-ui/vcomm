@@ -620,7 +620,8 @@
     "approval_request_escalate": "Escalate to substitute",
     "exchange_rate_create": "Enter rate",
     "exchange_rate_update": "Edit rate",
-    "number_sequence_update": "Edit number sequence"
+    "number_sequence_update": "Edit number sequence",
+    "exchange_rate_fetch": "Fetch exchange rates"
   },
   "notifications": {
     "title": "Notifications",
@@ -633,7 +634,8 @@
     "kind_approval_escalated": "Document {documentNo} was escalated to the substitute approver",
     "kind_approval_completed_approved": "Document {documentNo} was approved",
     "kind_approval_completed_rejected": "Document {documentNo} was rejected",
-    "kind_approval_escalation_blocked": "Document {documentNo}: the substitute approver is also the requester"
+    "kind_approval_escalation_blocked": "Document {documentNo}: the substitute approver is also the requester",
+    "kind_exchange_rate_fetch_failed": "Could not fetch Vietcombank rates for {date}; please enter them manually"
   },
   "deactivate": {
     "button": "Disable",

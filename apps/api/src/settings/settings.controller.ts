@@ -55,7 +55,12 @@ export class SettingsController {
   }
 
   @Patch("number-sequences/:documentTypeCode")
-  async updateSequence(@Req() request: AuthenticatedRequest, @Param("documentTypeCode") code: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<NumberSequenceResponse> {
+  async updateSequence(
+    @Req() request: AuthenticatedRequest,
+    @Param("documentTypeCode") code: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<NumberSequenceResponse> {
     const actor = await this.actor(request, companyId, "platform.number_sequence.manage");
     if (!documentTypeCode.safeParse(code).success) throw new ApiError("NOT_FOUND", "notFound");
     return this.numberSequences.update(actor, code, updateNumberSequenceSchema.parse(body));
@@ -114,7 +119,15 @@ export class SettingsController {
     const unread = await this.database.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM core.notifications WHERE user_id = ${userId} AND read_at IS NULL`);
     return {
       unreadCount: unread.rows[0]?.total ?? 0,
-      data: rows.rows.map((row) => ({ id: row.id, kind: row.kind, title: row.title, link: row.link, payload: row.payload, readAt: row.read_at ? new Date(row.read_at).toISOString() : null, createdAt: new Date(row.created_at).toISOString() })),
+      data: rows.rows.map((row) => ({
+        id: row.id,
+        kind: row.kind,
+        title: row.title,
+        link: row.link,
+        payload: row.payload,
+        readAt: row.read_at ? new Date(row.read_at).toISOString() : null,
+        createdAt: new Date(row.created_at).toISOString(),
+      })),
     };
   }
 

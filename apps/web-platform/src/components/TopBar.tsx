@@ -98,12 +98,15 @@ export function TopBar({ me, onCompanyChange }: { me: MeResponse; onCompanyChang
 function useNotificationText() {
   const t = useTranslations("notifications");
   return (item: NotificationItem) => {
-    const payload = item.payload as { documentNo?: string; handover?: boolean; escalated?: boolean; decision?: string };
+    const payload = item.payload as { documentNo?: string; date?: string; handover?: boolean; escalated?: boolean; decision?: string };
     let key = `kind_${item.kind.replaceAll(".", "_")}`;
     if (item.kind === "approval.assigned" && payload.handover) key = "kind_approval_handover";
     if (item.kind === "approval.assigned" && payload.escalated) key = "kind_approval_escalated_to_you";
     if (item.kind === "approval.completed") key = `kind_approval_completed_${payload.decision}`;
-    return payload.documentNo && t.has(key) ? t(key, { documentNo: payload.documentNo }) : item.title;
+    if (!t.has(key)) return item.title;
+    if (payload.documentNo) return t(key, { documentNo: payload.documentNo });
+    if (payload.date) return t(key, { date: payload.date.split("-").reverse().join("/") });
+    return item.title;
   };
 }
 

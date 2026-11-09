@@ -620,7 +620,8 @@
     "approval_request_escalate": "Chuyển người duyệt thay thế",
     "exchange_rate_create": "Nhập tỷ giá",
     "exchange_rate_update": "Sửa tỷ giá",
-    "number_sequence_update": "Sửa dãy số chứng từ"
+    "number_sequence_update": "Sửa dãy số chứng từ",
+    "exchange_rate_fetch": "Lấy tỷ giá tự động"
   },
   "notifications": {
     "title": "Thông báo",
@@ -633,7 +634,8 @@
     "kind_approval_escalated": "Chứng từ {documentNo} đã chuyển cho người duyệt thay thế",
     "kind_approval_completed_approved": "Chứng từ {documentNo} đã được duyệt",
     "kind_approval_completed_rejected": "Chứng từ {documentNo} bị từ chối",
-    "kind_approval_escalation_blocked": "Chứng từ {documentNo}: người duyệt thay thế cũng là người lập"
+    "kind_approval_escalation_blocked": "Chứng từ {documentNo}: người duyệt thay thế cũng là người lập",
+    "kind_exchange_rate_fetch_failed": "Không lấy được tỷ giá Vietcombank ngày {date}, vui lòng nhập tay"
   },
   "deactivate": {
     "button": "Vô hiệu hóa",

@@ -110,10 +110,11 @@ export class ApprovalRequestsService {
     let exchangeRate: string | null = null;
     let converted = input.amount;
     if (input.currency !== policy.currency) {
+      // Tỷ giá nhập tay của quản lý tỷ giá được ưu tiên hơn tỷ giá lấy tự động.
       const rate = (await this.database.execute<{ rate: string; converted: string }>(sql`
         SELECT rate::text AS rate, round(${input.amount}::numeric * rate, 4)::text AS converted FROM core.exchange_rates
         WHERE rate_date = ${input.documentDate}::date AND from_currency = ${input.currency} AND to_currency = ${policy.currency} AND rate_type = 'accounting'
-        ORDER BY created_at DESC LIMIT 1`)).rows[0];
+        ORDER BY source = 'manual' DESC, created_at DESC LIMIT 1`)).rows[0];
       if (!rate) throw new ApiError("BUSINESS_RULE", "exchangeRateMissing");
       exchangeRate = rate.rate;
       converted = rate.converted;

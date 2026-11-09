@@ -1,15 +1,17 @@
 // Tiền tệ và tỷ giá (CHUC_NANG_21; QUYTAC_NGHIEPVU_29; API_45, API_46). Tỷ giá dùng chung cho cả tập đoàn.
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import type { CurrencyResponse, ExchangeRateListResponse, ExchangeRateResponse, createExchangeRateSchema, updateExchangeRateSchema } from "contracts";
 import { sql } from "drizzle-orm";
 import type { z } from "zod";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
+import { notify } from "../common/notifications";
 import { DATABASE, type Database } from "../database/database.module";
 import { auditBase } from "../organization/organization-context";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { trimAmount } from "../approvals/approval-policies.service";
+import { EXCHANGE_RATE_FEED, type ExchangeRateFeed, parseVietcombankXml } from "./vietcombank-rates";
 
 export const manageExchangeRate = "platform.exchange_rate.manage";
 const baseCurrency = "VND";
@@ -42,7 +44,68 @@ export class ExchangeRatesService {
     @Inject(DATABASE) private readonly database: Database,
     private readonly permissionService: PermissionService,
     private readonly auditService: AuditService,
+    @Inject(EXCHANGE_RATE_FEED) private readonly feed: ExchangeRateFeed,
   ) {}
+
+  private readonly logger = new Logger("ExchangeRates");
+
+  // Luồng 8 tài liệu 09: mỗi sáng lấy tỷ giá Vietcombank cho các tiền tệ đang dùng sang VND.
+  // Tỷ giá chuyển khoản dùng làm tỷ giá hạch toán. Tỷ giá đã có (trùng ngày, cặp, loại, nguồn) giữ nguyên.
+  // Lỗi nguồn thì báo người có quyền nhập tỷ giá để nhập tay.
+  async fetchDaily(day: string): Promise<{ inserted: number; failed: boolean }> {
+    let rates;
+    try {
+      rates = parseVietcombankXml(await this.feed.fetchXml());
+    } catch (error) {
+      this.logger.error(`Không lấy được tỷ giá Vietcombank ngày ${day}: ${(error as Error).message}`);
+      await this.notifyManagers(day);
+      return { inserted: 0, failed: true };
+    }
+    const active = new Set((await this.currencies()).map((currency) => currency.code));
+    return this.database.transaction(async (transaction) => {
+      let inserted = 0;
+      for (const rate of rates.filter((item) => active.has(item.currency) && item.currency !== baseCurrency)) {
+        for (const [rateType, value] of [
+          ["buy", rate.buy],
+          ["transfer", rate.transfer],
+          ["sell", rate.sell],
+          ["accounting", rate.transfer],
+        ] as const) {
+          if (!value) continue;
+          const result = await transaction.execute(sql`
+            INSERT INTO core.exchange_rates (rate_date, from_currency, to_currency, rate_type, source, rate)
+            VALUES (${day}::date, ${rate.currency}, ${baseCurrency}, ${rateType}, 'vietcombank', ${value}::numeric)
+            ON CONFLICT (rate_date, from_currency, to_currency, rate_type, source) DO NOTHING RETURNING id`);
+          inserted += result.rows.length;
+        }
+      }
+      await this.auditService.record(
+        { actorUserId: null, appCode: "platform", action: "exchange_rate.fetch", entityType: "exchange_rate", afterData: { date: day, source: "vietcombank", inserted } },
+        transaction,
+      );
+      return { inserted, failed: false };
+    });
+  }
+
+  private async notifyManagers(day: string): Promise<void> {
+    const managers = await this.database.execute<{ user_id: string }>(sql`
+      SELECT DISTINCT a.user_id FROM core.user_role_assignments a
+      JOIN core.role_permissions rp ON rp.role_id = a.role_id AND rp.permission_code = ${manageExchangeRate}
+      JOIN core.roles r ON r.id = a.role_id AND r.status = 'active'
+      JOIN core.users u ON u.id = a.user_id AND u.status = 'active'
+      WHERE a.valid_from <= ${day}::date AND (a.valid_to IS NULL OR a.valid_to >= ${day}::date)`);
+    await notify(
+      this.database,
+      managers.rows.map((row) => ({
+        userId: row.user_id,
+        companyId: null,
+        kind: "exchange_rate.fetch_failed",
+        title: `Không lấy được tỷ giá Vietcombank ngày ${day}, vui lòng nhập tay`,
+        link: "/platform/exchange-rates",
+        payload: { date: day },
+      })),
+    );
+  }
 
   async currencies(): Promise<CurrencyResponse[]> {
     const rows = await this.database.execute<{

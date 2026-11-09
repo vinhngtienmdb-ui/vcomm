@@ -176,6 +176,8 @@ Lỗi: `409 BUSINESS_RULE` "Cần chọn người nhận bàn giao trước khi 
 ```
 `source` nhận `manual` hoặc `vietcombank`. `PATCH` chỉ sửa `rate`. Quyền sửa xét ở công ty đang chọn hoặc phạm vi tập đoàn.
 
+Lấy tự động (luồng 8 tài liệu 09): tác vụ nền chạy 8:30 sáng giờ Việt Nam, đọc bảng tỷ giá công khai của Vietcombank (`portal.vietcombank.com.vn`, giới hạn một lần mỗi 5 phút), ghi tỷ giá mua, chuyển khoản, bán và hạch toán (bằng tỷ giá chuyển khoản) sang VND cho các tiền tệ đang dùng, nguồn `vietcombank`. Tỷ giá đã có giữ nguyên. Nguồn lỗi thì thông báo `exchange_rate.fetch_failed` tới người có quyền `platform.exchange_rate.manage`. Khi quy đổi chứng từ gửi duyệt (API_38), tỷ giá hạch toán nhập tay được ưu tiên hơn tỷ giá lấy tự động. Máy chủ API cần được phép gọi ra tên miền này.
+
 ### API_47, API_48 (bổ sung lát L8)
 
 - Mỗi dòng nhật ký có `entityLabel` (họ tên, tên công ty, số chứng từ, tên loại chứng từ...) để hiển thị. Đăng nhập thất bại ghi hành động `login.failed`, không có công ty, nên chỉ quản trị tập đoàn thấy.

@@ -1,5 +1,5 @@
 // Tác vụ nền bằng BullMQ trên Redis (tài liệu 13): kiểm tra duyệt quá hạn mỗi 15 phút, đẩy outbox mỗi 10 giây,
-// tạo trước partition nhật ký thao tác mỗi ngày (tài liệu 16).
+// tạo trước partition nhật ký thao tác mỗi ngày (tài liệu 16), lấy tỷ giá Vietcombank lúc 8:30 sáng giờ Việt Nam (CHUC_NANG_21).
 // Chỉ chạy trong tiến trình API; kiểm thử gọi thẳng dịch vụ nên không cần Redis.
 import { Logger, type INestApplication } from "@nestjs/common";
 import { Queue, Worker } from "bullmq";
@@ -7,6 +7,7 @@ import { ApprovalRequestsService } from "../approvals/approval-requests.service"
 import { vietnamDate } from "../common/clock";
 import { OutboxService } from "../common/outbox.service";
 import { AuditEventsService } from "../settings/audit-events.service";
+import { ExchangeRatesService } from "../settings/exchange-rates.service";
 
 const queueName = "nen-tang";
 
@@ -22,16 +23,19 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const approvals = application.get(ApprovalRequestsService);
   const outbox = application.get(OutboxService);
   const auditEvents = application.get(AuditEventsService);
+  const exchangeRates = application.get(ExchangeRatesService);
   const queue = new Queue(queueName, { connection });
   await queue.upsertJobScheduler("approval-overdue", { every: 15 * 60_000 }, { name: "approval-overdue" });
   await queue.upsertJobScheduler("outbox-dispatch", { every: 10_000 }, { name: "outbox-dispatch" });
   await queue.upsertJobScheduler("audit-partitions", { every: 24 * 60 * 60_000 }, { name: "audit-partitions" });
+  await queue.upsertJobScheduler("exchange-rate-fetch", { pattern: "30 8 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "exchange-rate-fetch" });
   const worker = new Worker(
     queueName,
     async (job) => {
       if (job.name === "approval-overdue") return approvals.processOverdue();
       if (job.name === "outbox-dispatch") return outbox.dispatchPending();
       if (job.name === "audit-partitions") return auditEvents.ensurePartitions(vietnamDate(new Date()));
+      if (job.name === "exchange-rate-fetch") return exchangeRates.fetchDaily(vietnamDate(new Date()));
       return null;
     },
     { connection, concurrency: 1 },
