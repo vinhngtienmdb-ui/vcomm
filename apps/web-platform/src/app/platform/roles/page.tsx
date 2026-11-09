@@ -9,6 +9,7 @@ import { ConfirmDialog, Drawer } from "@/components/Dialogs";
 import { Loaded, MessageView } from "@/components/StatusViews";
 import { apiFetch } from "@/lib/api";
 import { failureOf, useApi } from "@/lib/use-api";
+import { HistoryLink } from "@/components/HistoryLink";
 
 const kindTone = { system: "trung-tinh", shared: "thong-tin", company: "thong-tin" } as const;
 
@@ -27,6 +28,7 @@ export default function RolesPage() {
     <>
       <div className="tieu-de">
         <h1>{t("title")}</h1>
+        <HistoryLink entityType="role" />
         <button type="button" className="nut chinh" onClick={() => setDrawer("create")}>
           {t("add")}
         </button>

@@ -1,13 +1,14 @@
 "use client";
 
-// MAN_HINH_13 Chi tiết nhân viên: thẻ Công ty, thẻ Vai trò (API_29, API_34). Khóa, vô hiệu hóa, phiên có ở lát L4, L5, L8.
-import type { RoleAssignmentResponse, RoleResponse, UserDetailResponse } from "contracts";
+// MAN_HINH_13 Chi tiết nhân viên: thẻ Công ty, thẻ Vai trò (API_29, API_34); khóa (API_30), vô hiệu hóa kèm bàn giao (API_31, API_32), đặt lại xác thực hai lớp (API_33).
+import type { DeactivateUserResponse, HandoverResponse, PageResponse, RoleAssignmentResponse, RoleResponse, UserDetailResponse, UserListItem } from "contracts";
 import { useLocale, useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { useAdmin } from "@/components/AdminShell";
 import { ConfirmDialog, Drawer } from "@/components/Dialogs";
 import { Field } from "@/components/Form";
+import { HistoryLink } from "@/components/HistoryLink";
 import { EditUserDrawer } from "@/components/UserForms";
 import { UserStatusBadge } from "@/components/StatusBadge";
 import { Loaded, MessageView } from "@/components/StatusViews";
@@ -26,10 +27,30 @@ export default function UserDetailPage() {
   const t = useTranslations("userDetail");
   const { state, reload } = useApi<UserDetailResponse>(`/users/${id}`);
   const [tab, setTab] = useState<"companies" | "roles">("roles");
-  const [panel, setPanel] = useState<"edit" | "lock" | null>(null);
+  const [panel, setPanel] = useState<"edit" | "lock" | "deactivate" | "mfaReset" | null>(null);
   const editText = useTranslations("editUser");
   const lockText = useTranslations("lock");
+  const deactivateText = useTranslations("deactivate");
+  const mfaResetText = useTranslations("mfaReset");
   const { can, notify } = useAdmin();
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
+
+  async function resetMfa() {
+    setBusy(true);
+    setResetError(null);
+    try {
+      await apiFetch(`/users/${id}/mfa/reset`, { method: "POST" });
+      setPanel(null);
+      notify(mfaResetText("done"));
+      void reload();
+    } catch (failure) {
+      setResetError(failureOf(failure).message);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <Loaded state={state} onRetry={() => void reload()}>
@@ -39,7 +60,13 @@ export default function UserDetailPage() {
             <h1>
               {user.fullName} <UserStatusBadge status={user.status} />
             </h1>
+            <HistoryLink entityId={user.id} />
             {/* Nút ẩn khi xem chính mình (MAN_HINH_13). */}
+            {!user.isSelf && user.mfaEnabled && can("platform.user.reset_mfa") && (
+              <button type="button" className="nut phu" onClick={() => setPanel("mfaReset")}>
+                {mfaResetText("button")}
+              </button>
+            )}
             {!user.isSelf && can("platform.user.manage") && (
               <>
                 <button type="button" className="nut phu" onClick={() => setPanel("edit")}>
@@ -48,6 +75,11 @@ export default function UserDetailPage() {
                 {(user.status === "active" || user.status === "locked") && (
                   <button type="button" className={user.status === "active" ? "nut nguy-hiem" : "nut phu"} onClick={() => setPanel("lock")}>
                     {lockText(user.status === "active" ? "lock" : "unlock")}
+                  </button>
+                )}
+                {(user.status === "active" || user.status === "locked") && (
+                  <button type="button" className="nut nguy-hiem" onClick={() => setPanel("deactivate")}>
+                    {deactivateText("button")}
                   </button>
                 )}
               </>
@@ -72,6 +104,31 @@ export default function UserDetailPage() {
                 setPanel(null);
                 notify(text);
                 void reload();
+              }}
+            />
+          )}
+          {panel === "deactivate" && (
+            <DeactivateDrawer
+              user={user}
+              onClose={() => setPanel(null)}
+              onDone={(result) => {
+                setPanel(null);
+                notify(deactivateText(result.status === "disabled" ? "done" : "doneRemoved"));
+                router.push("/platform/users");
+              }}
+            />
+          )}
+          {panel === "mfaReset" && (
+            <ConfirmDialog
+              title={mfaResetText("title")}
+              text={mfaResetText("text", { name: user.fullName })}
+              confirmLabel={mfaResetText("button")}
+              busy={busy}
+              error={resetError}
+              onConfirm={() => void resetMfa()}
+              onClose={() => {
+                setPanel(null);
+                setResetError(null);
               }}
             />
           )}
@@ -402,6 +459,123 @@ function LockDrawer({ user, onClose, onDone }: { user: UserDetailResponse; onClo
           </button>
         </div>
       </form>
+    </Drawer>
+  );
+}
+
+// Vô hiệu hóa kèm bàn giao (luồng 6 tài liệu 09): chọn người nhận cho từng việc.
+function DeactivateDrawer({ user, onClose, onDone }: { user: UserDetailResponse; onClose: () => void; onDone: (result: DeactivateUserResponse) => void }) {
+  const t = useTranslations("deactivate");
+  const common = useTranslations("common");
+  const locale = useLocale();
+  const handover = useApi<HandoverResponse>(`/users/${user.id}/handover`);
+  const people = useApi<PageResponse<UserListItem>>("/users?pageSize=100&status=active");
+  const [reason, setReason] = useState("");
+  const [recipients, setRecipients] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fields, setFields] = useState<Record<string, string>>({});
+  const candidates = people.state.kind === "ready" ? people.state.data.data.filter((person) => person.id !== user.id) : [];
+
+  async function submit(event: FormEvent, items: { kind: "approval_step" | "department_manager"; itemId: string }[]) {
+    event.preventDefault();
+    setBusy(true);
+    setError(null);
+    setFields({});
+    try {
+      const body = {
+        reason,
+        handover: items.filter((item) => recipients[item.itemId]).map((item) => ({ ...item, toUserId: recipients[item.itemId] })),
+      };
+      onDone(
+        await apiFetch<DeactivateUserResponse>(`/users/${user.id}/deactivate`, {
+          method: "POST",
+          body: JSON.stringify(body),
+        }),
+      );
+    } catch (failure) {
+      const result = failureOf(failure);
+      // Lỗi theo dòng bàn giao trả về dạng handover.<thứ tự>.toUserId; đổi sang mã việc để hiện dưới ô chọn.
+      const sent = items.filter((item) => recipients[item.itemId]);
+      const byItem: Record<string, string> = {};
+      for (const [key, message] of Object.entries(result.fields)) {
+        const index = /^handover\.(\d+)\./.exec(key)?.[1];
+        if (index !== undefined && sent[Number(index)]) byItem[sent[Number(index)]!.itemId] = message;
+      }
+      setFields(byItem);
+      if (Object.keys(byItem).length === 0) setError(result.message);
+      setBusy(false);
+    }
+  }
+
+  const select = (itemId: string, label: string) => (
+    <Field key={itemId} id={`nhan-${itemId}`} label={label} error={fields[itemId]}>
+      <select
+        id={`nhan-${itemId}`}
+        className={`o-nhap${fields[itemId] ? " loi" : ""}`}
+        value={recipients[itemId] ?? ""}
+        onChange={(event) =>
+          setRecipients((current) => ({
+            ...current,
+            [itemId]: event.target.value,
+          }))
+        }
+      >
+        <option value="">{t("choose")}</option>
+        {candidates.map((person) => (
+          <option key={person.id} value={person.id}>
+            {person.fullName}
+          </option>
+        ))}
+      </select>
+    </Field>
+  );
+
+  return (
+    <Drawer title={t("title", { name: user.fullName })} onClose={onClose}>
+      <Loaded state={handover.state} onRetry={() => void handover.reload()}>
+        {(work) => {
+          const items = [
+            ...work.pendingApprovalSteps.map((step) => ({
+              kind: "approval_step" as const,
+              itemId: step.id,
+            })),
+            ...work.managedDepartments.map((department) => ({
+              kind: "department_manager" as const,
+              itemId: department.id,
+            })),
+          ];
+          const complete = items.every((item) => recipients[item.itemId]);
+          return (
+            <form onSubmit={(event) => void submit(event, items)} noValidate style={{ display: "grid", gap: "var(--khoang-4)" }}>
+              <div className="khoi-canh-bao canh-bao">{t("intro")}</div>
+              {items.length === 0 && <p style={{ margin: 0 }}>{t("nothing")}</p>}
+              {work.pendingApprovalSteps.length > 0 && <h3 style={{ margin: 0 }}>{t("steps")}</h3>}
+              {work.pendingApprovalSteps.map((step) =>
+                select(step.id, `${t("step", { documentNo: step.documentNo, levelNo: step.levelNo })} · ${locale === "en" ? step.documentTypeNameEn : step.documentTypeNameVi}`),
+              )}
+              {work.managedDepartments.length > 0 && <h3 style={{ margin: 0 }}>{t("departments")}</h3>}
+              {work.managedDepartments.map((department) => select(department.id, `${department.code} – ${department.name}`))}
+              <Field id="ly-do-vo-hieu" label={t("reason")}>
+                <textarea id="ly-do-vo-hieu" className="o-nhap" rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
+              </Field>
+              {error && (
+                <div className="khoi-canh-bao loi" role="alert">
+                  {error}
+                </div>
+              )}
+              <div className="nhom-nut">
+                <button type="button" className="nut phu" onClick={onClose}>
+                  {common("cancel")}
+                </button>
+                <button type="submit" className={`nut nguy-hiem${busy ? " dang-xu-ly" : ""}`} disabled={busy || !reason.trim() || !complete}>
+                  {t("button")}
+                </button>
+              </div>
+            </form>
+          );
+        }}
+      </Loaded>
     </Drawer>
   );
 }

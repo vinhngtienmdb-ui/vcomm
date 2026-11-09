@@ -41,16 +41,38 @@ export class NumberSequencesService {
   async list(actor: Actor): Promise<NumberSequenceResponse[]> {
     const today = this.permissionService.today();
     const companyCode = await this.companyCode(actor.companyId);
-    const rows = await this.database.execute<{ code: string; app_code: string; name_vi: string; name_en: string; prefix: string | null; reset_period: ResetPeriod | null; padding: number | null }>(sql`
+    const rows = await this.database.execute<{
+      code: string;
+      app_code: string;
+      name_vi: string;
+      name_en: string;
+      prefix: string | null;
+      reset_period: ResetPeriod | null;
+      padding: number | null;
+    }>(sql`
       SELECT t.code, t.app_code, t.name_vi, t.name_en, s.prefix, s.reset_period, s.padding
       FROM core.document_types t
       LEFT JOIN LATERAL (SELECT prefix, reset_period, padding FROM core.number_sequences WHERE company_id = ${actor.companyId} AND document_type_code = t.code LIMIT 1) s ON true
       ORDER BY t.app_code, t.code`);
-    const counters = await this.database.execute<{ document_type_code: string; period_key: string; next_value: string }>(sql`
+    const counters = await this.database.execute<{
+      document_type_code: string;
+      period_key: string;
+      next_value: string;
+    }>(sql`
       SELECT document_type_code, period_key, next_value::text FROM core.number_sequences WHERE company_id = ${actor.companyId}`);
     return rows.rows.map((row) => {
       if (!row.prefix || !row.reset_period || row.padding === null) {
-        return { documentTypeCode: row.code, appCode: row.app_code, documentTypeNameVi: row.name_vi, documentTypeNameEn: row.name_en, configured: false, prefix: null, resetPeriod: null, padding: null, nextNumber: null };
+        return {
+          documentTypeCode: row.code,
+          appCode: row.app_code,
+          documentTypeNameVi: row.name_vi,
+          documentTypeNameEn: row.name_en,
+          configured: false,
+          prefix: null,
+          resetPeriod: null,
+          padding: null,
+          nextNumber: null,
+        };
       }
       const period = periodKey(row.reset_period, today);
       const counter = counters.rows.find((item) => item.document_type_code === row.code && item.period_key === period);
@@ -70,9 +92,13 @@ export class NumberSequencesService {
 
   // API_43 PATCH: đổi cấu hình chỉ ảnh hưởng số cấp sau đó; số đã cấp nằm trên chứng từ.
   async update(actor: Actor, documentTypeCode: string, input: z.output<typeof updateNumberSequenceSchema>): Promise<NumberSequenceResponse> {
-    if (!/^[A-Z0-9]+$/.test(input.prefix)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { prefix: "prefixInvalid" } });
+    if (!/^[A-Z0-9]+$/.test(input.prefix))
+      throw new ApiError("VALIDATION_FAILED", "validationFailed", {
+        fields: { prefix: "prefixInvalid" },
+      });
     if ((await this.database.execute(sql`SELECT 1 FROM core.document_types WHERE code = ${documentTypeCode}`)).rows.length === 0) throw new ApiError("NOT_FOUND", "notFound");
-    const before = (await this.list(actor)).find((item) => item.documentTypeCode === documentTypeCode)!;
+    const current = (await this.list(actor)).find((item) => item.documentTypeCode === documentTypeCode)!;
+    const before = current.configured ? { documentTypeCode, prefix: current.prefix, resetPeriod: current.resetPeriod, padding: current.padding } : null;
     const period = periodKey(input.resetPeriod, this.permissionService.today());
     await this.database.transaction(async (transaction) => {
       await transaction.execute(sql`
@@ -82,7 +108,15 @@ export class NumberSequencesService {
         INSERT INTO core.number_sequences (company_id, document_type_code, period_key, prefix, reset_period, padding, next_value)
         VALUES (${actor.companyId}, ${documentTypeCode}, ${period}, ${input.prefix}, ${input.resetPeriod}, ${input.padding}, 1)
         ON CONFLICT (company_id, document_type_code, period_key) DO NOTHING`);
-      await this.auditService.record({ ...auditBase(actor, "number_sequence"), action: "number_sequence.update", beforeData: before, afterData: { documentTypeCode, ...input } }, transaction);
+      await this.auditService.record(
+        {
+          ...auditBase(actor, "number_sequence"),
+          action: "number_sequence.update",
+          beforeData: before,
+          afterData: { documentTypeCode, ...input },
+        },
+        transaction,
+      );
     });
     return (await this.list(actor)).find((item) => item.documentTypeCode === documentTypeCode)!;
   }
@@ -90,9 +124,16 @@ export class NumberSequencesService {
   // API_44: gọi trong giao dịch lưu chứng từ. Dòng của kỳ bị khóa đến hết giao dịch nên hai người lưu cùng lúc nhận số liên tiếp;
   // giao dịch lỗi thì số không bị dùng (QUYTAC_NGHIEPVU_28).
   async next(companyId: string, documentTypeCode: string, transaction: Executor): Promise<string> {
-    const config = (await transaction.execute<{ prefix: string; reset_period: ResetPeriod; padding: number; code: string }>(sql`
+    const config = (
+      await transaction.execute<{
+        prefix: string;
+        reset_period: ResetPeriod;
+        padding: number;
+        code: string;
+      }>(sql`
       SELECT s.prefix, s.reset_period, s.padding, c.code FROM core.number_sequences s JOIN core.companies c ON c.id = s.company_id
-      WHERE s.company_id = ${companyId} AND s.document_type_code = ${documentTypeCode} LIMIT 1`)).rows[0];
+      WHERE s.company_id = ${companyId} AND s.document_type_code = ${documentTypeCode} LIMIT 1`)
+    ).rows[0];
     if (!config) throw new ApiError("BUSINESS_RULE", "numberSequenceMissing");
     const period = periodKey(config.reset_period, this.permissionService.today());
     const issued = await transaction.execute<{ value: string }>(sql`

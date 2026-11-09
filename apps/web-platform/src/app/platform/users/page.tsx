@@ -12,6 +12,7 @@ import { apiFetch } from "@/lib/api";
 import { failureOf } from "@/lib/use-api";
 import { UserStatusBadge } from "@/components/StatusBadge";
 import { useApi } from "@/lib/use-api";
+import { HistoryLink } from "@/components/HistoryLink";
 
 const statuses = ["active", "invited", "locked", "disabled"] as const;
 
@@ -55,6 +56,7 @@ export default function UsersPage() {
     <>
       <div className="tieu-de">
         <h1>{t("title")}</h1>
+        <HistoryLink entityType="user" />
         {canInvite && (
           <>
             <button type="button" className="nut phu" onClick={() => setPanel("import")}>

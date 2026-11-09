@@ -25,7 +25,7 @@ export function useAdmin(): AdminContextValue {
   return value;
 }
 
-// Mục menu đã xây; các mục khác thêm ở lát sau.
+// Mục menu MAN_HINH_09 đến MAN_HINH_18 (tài liệu 14).
 export const adminMenu = [
   { href: "/platform/companies", key: "companies", permission: "platform.company.manage" },
   { href: "/platform/branches", key: "branches", permission: "platform.branch.manage" },
@@ -33,6 +33,9 @@ export const adminMenu = [
   { href: "/platform/users", key: "users", permission: "platform.user.view" },
   { href: "/platform/roles", key: "roles", permission: "platform.role.manage" },
   { href: "/platform/approval-policies", key: "approvalPolicies", permission: "platform.approval_policy.manage" },
+  { href: "/platform/number-sequences", key: "numberSequences", permission: "platform.number_sequence.manage" },
+  { href: "/platform/exchange-rates", key: "exchangeRates", permission: "platform.access" },
+  { href: "/platform/audit-log", key: "auditLog", permission: "platform.audit.view" },
 ] as const;
 
 export function AdminShell({ children }: { children: ReactNode }) {

@@ -155,6 +155,20 @@ export class AuthService {
       ip: client.ip,
       userAgent: client.userAgent,
     });
+    // CHUC_NANG_23: lần đăng nhập thất bại cũng ghi nhật ký thao tác; lần thành công ghi trong giao dịch tạo phiên.
+    if (!success) {
+      await this.audit.record({
+        actorUserId: null,
+        appCode: "platform",
+        action: "login.failed",
+        entityType: "core.users",
+        entityId: userId,
+        afterData: { identifier, reason: failureReason },
+        ip: client.ip,
+        userAgent: client.userAgent,
+        requestId: client.requestId,
+      });
+    }
   }
 
   // Đếm lần sai liên tiếp kể từ lần thành công gần nhất hoặc lần khóa trước.

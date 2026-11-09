@@ -10,6 +10,7 @@ import { Field, FormError, useSubmit } from "@/components/Form";
 import { Loaded, MessageView } from "@/components/StatusViews";
 import { apiFetch } from "@/lib/api";
 import { failureOf, useApi } from "@/lib/use-api";
+import { HistoryLink } from "@/components/HistoryLink";
 
 export default function BranchesPage() {
   const t = useTranslations("branches");
@@ -51,6 +52,7 @@ export default function BranchesPage() {
     <>
       <div className="tieu-de">
         <h1>{t("title")}</h1>
+        <HistoryLink entityType="branch" />
         <button type="button" className="nut chinh" onClick={() => setEditing("new")}>
           {t("add")}
         </button>

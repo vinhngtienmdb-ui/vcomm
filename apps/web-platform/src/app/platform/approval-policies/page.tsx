@@ -7,6 +7,7 @@ import { type FormEvent, useState } from "react";
 import { useAdmin } from "@/components/AdminShell";
 import { Drawer } from "@/components/Dialogs";
 import { Field, FormError, useSubmit } from "@/components/Form";
+import { HistoryLink } from "@/components/HistoryLink";
 import { Loaded, MessageView } from "@/components/StatusViews";
 import { apiFetch } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
@@ -24,6 +25,7 @@ export default function ApprovalPoliciesPage() {
     <>
       <div className="tieu-de">
         <h1>{t("title")}</h1>
+        <HistoryLink entityType="approval_policy" />
         <button type="button" className="nut chinh" onClick={() => setCreating(true)}>
           {t("add")}
         </button>

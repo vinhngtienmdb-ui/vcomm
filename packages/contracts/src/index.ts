@@ -194,6 +194,7 @@ export interface UserDetailResponse {
   username: string | null;
   status: "invited" | "active" | "locked" | "disabled";
   mfaRequired: boolean;
+  mfaEnabled: boolean;
   version: number;
   isSelf: boolean;
   currentMembership: { defaultBranchId: string | null; departmentId: string | null; jobTitle: string | null };

@@ -11,6 +11,7 @@ import { Loaded, MessageView } from "@/components/StatusViews";
 import { TreeList } from "@/components/TreeList";
 import { apiFetch } from "@/lib/api";
 import { failureOf, useApi } from "@/lib/use-api";
+import { HistoryLink } from "@/components/HistoryLink";
 
 export default function DepartmentsPage() {
   const t = useTranslations("departments");
@@ -29,6 +30,7 @@ export default function DepartmentsPage() {
     <>
       <div className="tieu-de">
         <h1>{t("title")}</h1>
+        <HistoryLink entityType="department" />
         <button type="button" className="nut chinh" onClick={() => setDrawer({ mode: "create", parentId: null })}>
           {t("add")}
         </button>

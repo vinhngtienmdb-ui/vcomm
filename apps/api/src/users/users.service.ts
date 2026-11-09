@@ -109,8 +109,10 @@ export class UsersService {
   // API_29 (phần xem): nhân viên ngoài phạm vi trả 404 như không tồn tại.
   async detail(actor: Actor, userId: string): Promise<UserDetailResponse> {
     await this.requireVisible(actor, userId);
-    const userResult = await this.database.execute<{ id: string; full_name: string; email: string | null; phone: string | null; username: string | null; status: UserDetailResponse["status"]; mfa_required: boolean; version: number }>(sql`
-      SELECT id, full_name, email, phone, username, status, mfa_required, version FROM core.users WHERE id = ${userId}`);
+    const userResult = await this.database.execute<{ id: string; full_name: string; email: string | null; phone: string | null; username: string | null; status: UserDetailResponse["status"]; mfa_required: boolean; mfa_enabled: boolean; version: number }>(sql`
+      SELECT id, full_name, email, phone, username, status, mfa_required, version,
+        EXISTS (SELECT 1 FROM core.mfa_factors WHERE user_id = ${userId} AND confirmed_at IS NOT NULL) AS mfa_enabled
+      FROM core.users WHERE id = ${userId}`);
     const user = userResult.rows[0]!;
     const companies = await this.database.execute<{ id: string; short_name: string; branch_name: string | null; job_title: string | null; is_default: boolean }>(sql`
       SELECT c.id, c.short_name, b.name AS branch_name, m.job_title, m.is_default
@@ -124,6 +126,7 @@ export class UsersService {
       username: user.username,
       status: user.status,
       mfaRequired: user.mfa_required,
+      mfaEnabled: user.mfa_enabled,
       version: user.version,
       isSelf: userId === actor.userId,
       currentMembership: await this.currentMembership(actor.companyId, userId),

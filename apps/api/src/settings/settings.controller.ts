@@ -42,7 +42,11 @@ export class SettingsController {
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined, ...anyOf: string[]): Promise<Actor> {
     const companyId = await this.permissionService.authorize(request.auth.userId, requestedCompanyId, ...anyOf);
-    return { userId: request.auth.userId, companyId, client: clientInfo(request) };
+    return {
+      userId: request.auth.userId,
+      companyId,
+      client: clientInfo(request),
+    };
   }
 
   @Get("number-sequences")
@@ -97,7 +101,15 @@ export class SettingsController {
   @Get("notifications")
   async notifications(@Req() request: AuthenticatedRequest): Promise<NotificationListResponse> {
     const userId = request.auth.userId;
-    const rows = await this.database.execute<{ id: string; kind: string; title: string; link: string | null; payload: Record<string, unknown>; read_at: Date | null; created_at: Date }>(sql`
+    const rows = await this.database.execute<{
+      id: string;
+      kind: string;
+      title: string;
+      link: string | null;
+      payload: Record<string, unknown>;
+      read_at: Date | null;
+      created_at: Date;
+    }>(sql`
       SELECT id, kind, title, link, payload, read_at, created_at FROM core.notifications WHERE user_id = ${userId} ORDER BY created_at DESC LIMIT 30`);
     const unread = await this.database.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM core.notifications WHERE user_id = ${userId} AND read_at IS NULL`);
     return {
@@ -118,6 +130,10 @@ export class SettingsController {
   private async memberActor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
     const { companyId } = await this.permissionService.resolveCompany(request.auth.userId, requestedCompanyId);
     if (!companyId) throw new ApiError("FORBIDDEN", "forbidden");
-    return { userId: request.auth.userId, companyId, client: clientInfo(request) };
+    return {
+      userId: request.auth.userId,
+      companyId,
+      client: clientInfo(request),
+    };
   }
 }

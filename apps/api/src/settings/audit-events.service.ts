@@ -40,14 +40,15 @@ const toItem = (row: EventRow): AuditEventItem => ({
 const selectEvents = sql`
   SELECT e.id, e.occurred_at, e.actor_user_id, actor.full_name AS actor_name, company.short_name AS company_short_name, e.app_code, e.action, e.entity_type, e.entity_id,
     CASE
-      WHEN e.entity_type IN ('user', 'core.users') THEN (SELECT full_name FROM core.users WHERE id = e.entity_id)
+      WHEN e.entity_type IN ('user', 'core.users') THEN COALESCE((SELECT full_name FROM core.users WHERE id = e.entity_id), e.after_data ->> 'identifier')
       WHEN e.entity_type = 'company' THEN (SELECT short_name FROM core.companies WHERE id = e.entity_id)
       WHEN e.entity_type = 'branch' THEN (SELECT code || ' – ' || name FROM core.branches WHERE id = e.entity_id)
       WHEN e.entity_type = 'department' THEN (SELECT name FROM core.departments WHERE id = e.entity_id)
       WHEN e.entity_type = 'role' THEN (SELECT name_vi FROM core.roles WHERE id = e.entity_id)
       WHEN e.entity_type = 'approval_request' THEN (SELECT document_no FROM core.approval_requests WHERE id = e.entity_id)
       WHEN e.entity_type = 'exchange_rate' THEN (SELECT from_currency || ' → ' || to_currency || ' ' || to_char(rate_date, 'DD/MM/YYYY') FROM core.exchange_rates WHERE id = e.entity_id)
-      WHEN e.entity_type = 'number_sequence' THEN e.after_data ->> 'documentTypeCode'
+      WHEN e.entity_type = 'number_sequence' THEN (SELECT name_vi FROM core.document_types WHERE code = e.after_data ->> 'documentTypeCode')
+      WHEN e.entity_type = 'approval_policy' THEN (SELECT t.name_vi || ' – ' || to_char(p.effective_from, 'DD/MM/YYYY') FROM core.approval_policies p JOIN core.document_types t ON t.code = p.document_type_code WHERE p.id = e.entity_id)
       ELSE NULL
     END AS entity_label
   FROM core.audit_events e
@@ -76,23 +77,59 @@ export class AuditEventsService {
     const rows = await this.database.execute<EventRow>(sql`
       ${selectEvents} WHERE ${where} ORDER BY e.occurred_at DESC, e.id
       LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`);
-    return { data: rows.rows.map(toItem), page: query.page, pageSize: query.pageSize, total: total.rows[0]?.total ?? 0 };
+    return {
+      data: rows.rows.map(toItem),
+      page: query.page,
+      pageSize: query.pageSize,
+      total: total.rows[0]?.total ?? 0,
+    };
   }
 
   // Dòng ngoài phạm vi trả 404 như không tồn tại.
   async detail(actor: Actor, id: string): Promise<AuditEventDetail> {
-    const row = (await this.database.execute<EventRow & { before_data: unknown; after_data: unknown; ip: string | null; user_agent: string | null; request_id: string | null }>(sql`
+    const row = (
+      await this.database.execute<
+        EventRow & {
+          before_data: unknown;
+          after_data: unknown;
+          ip: string | null;
+          user_agent: string | null;
+          request_id: string | null;
+        }
+      >(sql`
       SELECT listed.*, e.before_data, e.after_data, host(e.ip) AS ip, e.user_agent, e.request_id
       FROM (${selectEvents} WHERE e.id = ${id} AND ${await this.scopeCondition(actor)}) listed
-      JOIN core.audit_events e ON e.id = listed.id AND e.occurred_at = listed.occurred_at`)).rows[0];
+      JOIN core.audit_events e ON e.id = listed.id AND e.occurred_at = listed.occurred_at`)
+    ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
-    return { ...toItem(row), beforeData: row.before_data, afterData: row.after_data, ip: row.ip, userAgent: row.user_agent, requestId: row.request_id };
+    return {
+      ...toItem(row),
+      beforeData: row.before_data,
+      afterData: row.after_data,
+      ip: row.ip,
+      userAgent: row.user_agent,
+      requestId: row.request_id,
+    };
   }
 
   // Quản trị tập đoàn xem toàn tập đoàn; quản trị công ty chỉ xem nhật ký của công ty đang chọn.
   private async scopeCondition(actor: Actor): Promise<SQL> {
-    if ((await this.permissionService.permissionsCovering(actor.userId, { scopeType: "group" })).has(viewAudit)) return sql`TRUE`;
-    if ((await this.permissionService.permissionsCovering(actor.userId, { scopeType: "company", companyId: actor.companyId })).has(viewAudit)) {
+    if (
+      (
+        await this.permissionService.permissionsCovering(actor.userId, {
+          scopeType: "group",
+        })
+      ).has(viewAudit)
+    )
+      return sql`TRUE`;
+    if (
+      (
+        await this.permissionService.permissionsCovering(actor.userId, {
+          scopeType: "company",
+          companyId: actor.companyId,
+        })
+      ).has(viewAudit)
+    ) {
       return sql`e.company_id = ${actor.companyId}`;
     }
     throw new ApiError("FORBIDDEN", "forbidden");
