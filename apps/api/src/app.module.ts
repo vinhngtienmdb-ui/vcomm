@@ -7,6 +7,9 @@ import { AuthController } from "./auth/auth.controller";
 import { AuthGuard } from "./auth/auth.guard";
 import { ActivationService } from "./auth/activation.service";
 import { MfaService } from "./auth/mfa.service";
+import { HttpOauthClient, OAUTH_CLIENT } from "./auth/oauth-providers";
+import { OauthService } from "./auth/oauth.service";
+import { PhoneOtpService } from "./auth/phone-otp.service";
 import { PasswordService } from "./auth/password.service";
 import { AuthService } from "./auth/auth.service";
 import { ApiErrorFilter } from "./common/api-error";
@@ -55,6 +58,9 @@ import { UsersService } from "./users/users.service";
     { provide: MESSAGE_GATEWAY, useClass: EsmsGateway },
     IntegrationSettingsService,
     MessagingService,
+    PhoneOtpService,
+    OauthService,
+    { provide: OAUTH_CLIENT, useClass: HttpOauthClient },
     AuditService,
     PermissionService,
     RolesService,

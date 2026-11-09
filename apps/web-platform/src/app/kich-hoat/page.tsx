@@ -1,7 +1,7 @@
 "use client";
 
-// MAN_HINH_03 Kích hoạt tài khoản (CHUC_NANG_04; API_11). Liên kết Google, Microsoft có ở lát L6.
-import type { ActivationInfoResponse } from "contracts";
+// MAN_HINH_03 Kích hoạt tài khoản (CHUC_NANG_04; API_11; kích hoạt bằng Google, Microsoft qua API_04, API_05).
+import type { ActivationInfoResponse, AuthMethodsResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useEffect, useState } from "react";
@@ -21,7 +21,11 @@ function strength(password: string): "weak" | "medium" | "strong" {
 function Activation() {
   const t = useTranslations("activation");
   const login = useTranslations("login");
-  const token = useSearchParams().get("token") ?? "";
+  const errors = useTranslations("errors");
+  const search = useSearchParams();
+  const token = search.get("token") ?? "";
+  const returned = search.get("loi");
+  const [methods, setMethods] = useState<AuthMethodsResponse | null>(null);
   const [info, setInfo] = useState<ActivationInfoResponse | "invalid" | null>(null);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -37,6 +41,9 @@ function Activation() {
     apiFetch<ActivationInfoResponse>(`/auth/activation/${encodeURIComponent(token)}`)
       .then(setInfo)
       .catch(() => setInfo("invalid"));
+    apiFetch<AuthMethodsResponse>("/auth/methods")
+      .then(setMethods)
+      .catch(() => setMethods(null));
   }, [token]);
 
   function submit(event: FormEvent) {
@@ -101,12 +108,19 @@ function Activation() {
             <button type="submit" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting} style={{ justifyContent: "center" }}>
               {t("submit")}
             </button>
-            <div className="phan-cach">{login("or")}</div>
-            {(["google", "microsoft"] as const).map((provider) => (
-              <button key={provider} type="button" className="nut phu" disabled title={login("notAvailableYet")} style={{ justifyContent: "center" }}>
-                {login(provider)}
-              </button>
-            ))}
+            {returned && errors.has(returned as "notFound") && (
+              <span className="loi-o" role="alert">
+                {errors(returned as "notFound")}
+              </span>
+            )}
+            {(methods?.google || methods?.microsoft) && <div className="phan-cach">{login("or")}</div>}
+            {(["google", "microsoft"] as const)
+              .filter((provider) => methods?.[provider])
+              .map((provider) => (
+                <a key={provider} className="nut phu" href={`/api/v1/auth/oauth/${provider}/start?mode=activate&token=${encodeURIComponent(token)}`} style={{ justifyContent: "center" }}>
+                  {t(`activateWith_${provider}`)}
+                </a>
+              ))}
           </>
         )
       )}

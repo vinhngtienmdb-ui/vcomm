@@ -842,3 +842,16 @@ export interface MessageDeliveryItem {
   error: string | null;
   createdAt: string;
 }
+
+// API_02, API_03: đăng nhập bằng số điện thoại (CHUC_NANG_08).
+export const otpSendSchema = z.object({ phone: phoneE164 }).strict();
+export const otpVerifySchema = z.object({ phone: phoneE164, code: z.string().regex(/^\d{6}$/) }).strict();
+
+// API_54: cách đăng nhập đang dùng được, để MAN_HINH_01 hiện nút.
+export interface AuthMethodsResponse {
+  password: boolean;
+  phone: boolean;
+  google: boolean;
+  microsoft: boolean;
+  zalo: boolean;
+}

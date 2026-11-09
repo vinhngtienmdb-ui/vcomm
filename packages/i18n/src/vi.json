@@ -72,7 +72,15 @@
     "numberSequenceMissing": "Chưa cấu hình dãy số cho loại chứng từ này.",
     "handoverRecipientInvalid": "Người nhận phải là nhân viên đang hoạt động khác, không phải người lập chứng từ.",
     "handoverRequired": "Cần chọn người nhận bàn giao trước khi vô hiệu hóa.",
-    "rateLimited": "Bạn thao tác quá nhiều lần, vui lòng thử lại sau ít phút."
+    "rateLimited": "Bạn thao tác quá nhiều lần, vui lòng thử lại sau ít phút.",
+    "otpTooMany": "Bạn đã yêu cầu quá nhiều mã, thử lại sau.",
+    "otpInvalid": "Mã không đúng hoặc đã hết hạn.",
+    "oauthNotConfigured": "Cách đăng nhập này chưa được cài đặt. Liên hệ quản trị.",
+    "oauthFailed": "Không đăng nhập được qua nhà cung cấp. Vui lòng thử lại.",
+    "emailNotInvited": "Email này chưa được cấp quyền truy cập. Liên hệ quản trị.",
+    "providerNotLinked": "Tài khoản này chưa được liên kết. Đăng nhập bằng cách khác rồi liên kết trong hồ sơ cá nhân.",
+    "identityLinkedElsewhere": "Tài khoản này đã được liên kết với tài khoản khác.",
+    "activationEmailMismatch": "Email của tài khoản nhà cung cấp phải trùng email được mời."
   },
   "login": {
     "title": "Đăng nhập",
@@ -87,7 +95,12 @@
     "google": "Đăng nhập bằng Google",
     "microsoft": "Đăng nhập bằng Microsoft",
     "zalo": "Đăng nhập bằng Zalo",
-    "notAvailableYet": "Chức năng này có ở lát sau."
+    "phone": "Số điện thoại",
+    "otp": "Mã xác minh",
+    "otpSent": "Đã gửi mã qua Zalo hoặc SMS nếu số này có tài khoản. Mã hiệu lực 5 phút.",
+    "sendCode": "Gửi mã",
+    "changePhone": "Đổi số điện thoại",
+    "activatedVia": "Đã kích hoạt tài khoản. Đăng nhập bằng {provider} để bắt đầu."
   },
   "home": {
     "greeting": "Xin chào, {name}",
@@ -320,7 +333,9 @@
     "submit": "Kích hoạt",
     "invalid": "Đường dẫn kích hoạt đã hết hạn hoặc đã được dùng. Liên hệ quản trị công ty để được gửi lại.",
     "done": "Kích hoạt thành công. Đăng nhập bằng mật khẩu vừa đặt.",
-    "toLogin": "Về trang đăng nhập"
+    "toLogin": "Về trang đăng nhập",
+    "activateWith_google": "Kích hoạt bằng Google",
+    "activateWith_microsoft": "Kích hoạt bằng Microsoft"
   },
   "invite": {
     "button": "Mời nhân viên",
@@ -417,7 +432,6 @@
     "provider_microsoft": "Microsoft",
     "provider_zalo": "Zalo",
     "provider_phone_otp": "Số điện thoại",
-    "linkLater": "Liên kết Google, Microsoft, Zalo có ở lát sau.",
     "mfaOn": "Đang bật",
     "mfaOff": "Đang tắt",
     "mfaMandatory": "Tài khoản của bạn bắt buộc xác thực hai lớp nên không tắt được.",
@@ -434,7 +448,12 @@
     "revokeConfirm": "Thiết bị này sẽ phải đăng nhập lại. Tiếp tục?",
     "revoked": "Đã thu hồi phiên.",
     "saved": "Đã lưu hồ sơ.",
-    "mfaDisabled": "Đã tắt xác thực hai lớp."
+    "mfaDisabled": "Đã tắt xác thực hai lớp.",
+    "link": "Liên kết",
+    "linked": "Đã liên kết {provider}.",
+    "unlink": "Hủy liên kết",
+    "unlinked": "Đã hủy liên kết.",
+    "linkHint": "Liên kết tài khoản để đăng nhập nhanh. Zalo phải liên kết ở đây trước khi dùng để đăng nhập."
   },
   "approvals": {
     "inboxTitle": "Hộp duyệt",

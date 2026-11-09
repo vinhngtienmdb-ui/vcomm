@@ -48,6 +48,27 @@ export class ActivationService {
     });
   }
 
+  // MAN_HINH_03: kích hoạt bằng Google, Microsoft. Email nhà cung cấp trả về (đã xác minh) phải trùng email được mời.
+  async activateWithIdentity(token: string, identity: { provider: "google" | "microsoft"; subject: string; email: string | null; emailVerified: boolean }, client: ClientInfo): Promise<void> {
+    const row = await this.validToken(token);
+    if (!identity.emailVerified || !identity.email || identity.email.toLowerCase() !== row.email?.toLowerCase()) throw new ApiError("BUSINESS_RULE", "activationEmailMismatch");
+    const now = this.clock.now().toISOString();
+    await this.database.transaction(async (transaction) => {
+      const used = await transaction.execute(sql`
+        UPDATE core.user_tokens SET used_at = ${now}::timestamptz
+        WHERE id = ${row.token_id} AND used_at IS NULL AND expires_at > ${now}::timestamptz RETURNING id`);
+      if (used.rows.length === 0) throw new ApiError("BUSINESS_RULE", "activationInvalid");
+      const taken = await transaction.execute(sql`SELECT 1 FROM core.user_identities WHERE provider = ${identity.provider} AND provider_subject = ${identity.subject}`);
+      if (taken.rows.length > 0) throw new ApiError("BUSINESS_RULE", "identityLinkedElsewhere");
+      await transaction.execute(sql`INSERT INTO core.user_identities (user_id, provider, provider_subject) VALUES (${row.user_id}, ${identity.provider}, ${identity.subject})`);
+      await transaction.execute(sql`UPDATE core.users SET status = 'active', updated_at = now(), version = version + 1 WHERE id = ${row.user_id} AND status = 'invited'`);
+      await this.auditService.record(
+        { actorUserId: row.user_id, appCode: "platform", action: "user.activate", entityType: "user", entityId: row.user_id, afterData: { provider: identity.provider }, ip: client.ip, userAgent: client.userAgent, requestId: client.requestId },
+        transaction,
+      );
+    });
+  }
+
   private async validToken(token: string): Promise<TokenRow> {
     const now = this.clock.now().toISOString();
     const result = await this.database.execute<TokenRow>(sql`

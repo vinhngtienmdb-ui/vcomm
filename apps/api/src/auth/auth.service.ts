@@ -16,6 +16,8 @@ import { accessTokenLifetimeSeconds, hashToken, newRandomToken, refreshTokenLife
 export const maximumConsecutiveFailures = 5;
 export const lockMinutes = 15;
 
+export type IdentityProvider = "password" | "google" | "microsoft" | "zalo" | "phone_otp";
+
 export interface ClientInfo {
   ip: string | null;
   userAgent: string | null;
@@ -68,7 +70,12 @@ export class AuthService {
       throw new ApiError("UNAUTHENTICATED", "invalidCredentials");
     }
 
-    const user = match.user;
+    return this.completeLogin(match.user, "password", identifier, client);
+  }
+
+  // Bước chung sau khi đã xác minh danh tính bằng mật khẩu, mã OTP hoặc nhà cung cấp (luồng 2 tài liệu 09).
+  async completeLogin(user: typeof users.$inferSelect, provider: IdentityProvider, identifier: string, client: ClientInfo): Promise<{ response: LoginResponse; session: IssuedSession }> {
+    const now = client.now ?? new Date();
     const mfaEnrolled = await this.mfa.isEnrolled(user.id);
     const needsMfa = user.mfaRequired || mfaEnrolled;
     const session = await this.database.transaction(async (transaction) => {
@@ -76,16 +83,16 @@ export class AuthService {
       await transaction
         .update(userIdentities)
         .set({ lastUsedAt: now })
-        .where(and(eq(userIdentities.userId, user.id), eq(userIdentities.provider, "password")));
+        .where(and(eq(userIdentities.userId, user.id), eq(userIdentities.provider, provider)));
       // Bắt buộc xác thực hai lớp hoặc đã tự bật thì phiên chờ nhập mã (QUYTAC_NGHIEPVU_09).
       const issued = await this.issueSession(transaction, user.id, randomUUID(), client, now, !needsMfa);
       await this.audit.record(
-        { actorUserId: user.id, appCode: "platform", action: "login", entityType: "core.users", entityId: user.id, ip: client.ip, userAgent: client.userAgent, requestId: client.requestId },
+        { actorUserId: user.id, appCode: "platform", action: "login", entityType: "core.users", entityId: user.id, afterData: { provider }, ip: client.ip, userAgent: client.userAgent, requestId: client.requestId },
         transaction,
       );
       return issued;
     });
-    await this.recordAttempt(identifier, user.id, true, null, client, now);
+    await this.recordAttempt(identifier, user.id, true, null, client, now, provider);
     return {
       response: { mfaRequired: needsMfa, mfaEnrolled, user: { id: user.id, fullName: user.fullName, locale: user.locale === "en" ? "en" : "vi" } },
       session,
@@ -146,10 +153,10 @@ export class AuthService {
     return { accessToken, refreshToken, accessExpiresAt, refreshExpiresAt };
   }
 
-  private async recordAttempt(identifier: string, userId: string | null, success: boolean, failureReason: string | null, client: ClientInfo, now: Date): Promise<void> {
+  async recordAttempt(identifier: string, userId: string | null, success: boolean, failureReason: string | null, client: ClientInfo, now: Date, provider: IdentityProvider = "password"): Promise<void> {
     await this.database.insert(loginAttempts).values({
       attemptedAt: now,
-      provider: "password",
+      provider,
       identifier,
       userId,
       success,
