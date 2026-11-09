@@ -1,15 +1,16 @@
 "use client";
 
 // MAN_HINH_08 Chi tiết yêu cầu duyệt (CHUC_NANG_16; API_40, API_41, API_42).
-import type { ApprovalRequestResponse } from "contracts";
+import type { ApprovalRequestResponse, ProposalResponse } from "contracts";
 import { useLocale, useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { DecisionDrawer } from "@/components/DecisionDrawer";
 import { ConfirmDialog } from "@/components/Dialogs";
+import { Attachments, ProposalFieldsView } from "@/components/ProposalContent";
 import { Loaded } from "@/components/StatusViews";
 import { UserShell } from "@/components/UserShell";
-import { apiFetch } from "@/lib/api";
+import { apiDownload, apiFetch } from "@/lib/api";
 import { formatDate, formatDateTime, formatMoney, formatNumber } from "@/lib/format";
 import { failureOf, useApi } from "@/lib/use-api";
 
@@ -104,6 +105,7 @@ function RequestDetail() {
               </dd>
             </dl>
           </div>
+          {request.documentTypeCode.startsWith("platform.proposal_") && <ProposalSection proposalId={request.documentId} onError={setNotice} />}
           <div className="the">
             <h2>{t("steps")}</h2>
             <ol className="dong-thoi-gian">
@@ -158,5 +160,25 @@ function RequestDetail() {
         </>
       )}
     </Loaded>
+  );
+}
+
+// Đề xuất theo mẫu: người duyệt xem nội dung, tệp đính kèm và PDF ngay trên màn hình duyệt (CHUC_NANG_28, 29).
+function ProposalSection({ proposalId, onError }: { proposalId: string; onError: (text: string) => void }) {
+  const t = useTranslations("proposals");
+  const { state, reload } = useApi<ProposalResponse>(`/proposals/${proposalId}`);
+  if (state.kind !== "ready") return null;
+  const proposal = state.data;
+  return (
+    <div className="the">
+      <div className="tieu-de">
+        <h2 style={{ margin: 0 }}>{proposal.title}</h2>
+        <button type="button" className="nut phu" onClick={() => void apiDownload(`/proposals/${proposal.id}/pdf`, `${proposal.proposalNo ?? "de-xuat"}.pdf`, true).catch((failure) => onError(failureOf(failure).message))}>
+          {t("pdf")}
+        </button>
+      </div>
+      <ProposalFieldsView proposal={proposal} />
+      <Attachments proposal={proposal} onChanged={() => void reload()} notify={onError} />
+    </div>
   );
 }

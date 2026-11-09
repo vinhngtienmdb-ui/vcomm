@@ -4,7 +4,7 @@
 import type { BranchResponse, DepartmentResponse, InviteUserResponse, PageResponse, RoleResponse, UserDetailResponse, UserImportResponse } from "contracts";
 import { useLocale, useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
-import { apiFetch, ApiFailure, selectedCompanyId } from "@/lib/api";
+import { apiDownload, apiFetch, apiUpload } from "@/lib/api";
 import { useApi } from "@/lib/use-api";
 import { Drawer } from "./Dialogs";
 import { Field, FormError, useSubmit } from "./Form";
@@ -163,16 +163,7 @@ export function EditUserDrawer({ user, onClose, onDone }: { user: UserDetailResp
 }
 
 // Tải tệp mẫu qua fetch để gửi kèm cookie phiên và công ty đang chọn.
-async function downloadTemplate() {
-  const companyId = selectedCompanyId();
-  const response = await fetch("/api/v1/users/imports/template", { credentials: "same-origin", headers: companyId ? { "x-company-id": companyId } : {} });
-  const url = URL.createObjectURL(await response.blob());
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "mau_nhap_nhan_vien.xlsx";
-  link.click();
-  URL.revokeObjectURL(url);
-}
+const downloadTemplate = () => apiDownload("/users/imports/template", "mau_nhap_nhan_vien.xlsx");
 
 export function ImportDialog({ onClose, onImported }: { onClose: () => void; onImported: () => void }) {
   const t = useTranslations("importUsers");
@@ -187,17 +178,8 @@ export function ImportDialog({ onClose, onImported }: { onClose: () => void; onI
     void run(async () => {
       const form = new FormData();
       form.append("file", file);
-      const companyId = selectedCompanyId();
-      const csrf = document.cookie.split("; ").find((part) => part.startsWith("vc_csrf="))?.slice(8) ?? "";
-      const response = await fetch("/api/v1/users/imports", {
-        method: "POST",
-        body: form,
-        credentials: "same-origin",
-        headers: { "x-csrf-token": csrf, "accept-language": document.documentElement.lang || "vi", ...(companyId ? { "x-company-id": companyId } : {}) },
-      });
-      const payload = await response.json();
-      if (!response.ok) throw new ApiFailure(response.status, payload.error);
-      setResult(payload as UserImportResponse);
+      const payload = await apiUpload<UserImportResponse>("/users/imports", form);
+      setResult(payload);
       onImported();
     });
   }
