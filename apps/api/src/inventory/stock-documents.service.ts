@@ -187,9 +187,13 @@ export class StockDocumentsService implements OnModuleInit {
       difference: string;
       value: string;
       note: string | null;
+      responsible_user_name: string | null;
+      compensation_amount: string | null;
     }>(sql`
-      SELECT t.line_id, v.sku, t.shipped_quantity::text, t.received_quantity::text, t.difference::text, t.value::text, t.note
+      SELECT t.line_id, v.sku, t.shipped_quantity::text, t.received_quantity::text, t.difference::text, t.value::text, t.note, ru.full_name AS responsible_user_name,
+        t.compensation_amount::text
       FROM inventory.transfer_discrepancies t JOIN inventory.document_lines l ON l.id = t.line_id JOIN catalog.variants v ON v.id = l.variant_id
+      LEFT JOIN core.users ru ON ru.id = t.responsible_user_id
       WHERE t.document_id = ${id} ORDER BY l.line_no`);
     const own = row.created_by === actor.userId;
     const firstStepDecided = row.approval_request_id
@@ -244,6 +248,8 @@ export class StockDocumentsService implements OnModuleInit {
         difference: trimDecimal(item.difference),
         value: costVisible ? trimDecimal(item.value) : null,
         note: item.note,
+        responsibleUserName: item.responsible_user_name,
+        compensationAmount: costVisible ? decimal(item.compensation_amount) : null,
       })),
       version: row.version,
       canEdit: own && row.status === "draft" && !row.stocktake_id,

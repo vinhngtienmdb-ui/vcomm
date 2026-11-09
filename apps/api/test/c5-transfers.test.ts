@@ -178,7 +178,7 @@ describe("TIEUCHI_NGHIEMTHU_69: chuyển kho hai bước, biên bản chênh l�
     expect(missingSerial.body.error.fields).toEqual({ "lines.2.serials": "Số serial phải bằng số lượng theo đơn vị cơ sở." });
     const received = await keeperDestination.call("post", `/inventory/documents/${transfer.body.id}/receive`, {
       companyId: retail,
-      body: receive({ [water]: { receivedQuantity: "28" }, [phone]: { receivedQuantity: "1", serials: ["CK-2"] } }),
+      body: receive({ [water]: { receivedQuantity: "28", responsibleUserId: testIds.warehouseKeeper, compensationAmount: "1500" }, [phone]: { receivedQuantity: "1", serials: ["CK-2"] } }),
     });
     expect(received.status, JSON.stringify(received.body)).toBe(201);
     expect(received.body.status).toBe("received");
@@ -187,7 +187,12 @@ describe("TIEUCHI_NGHIEMTHU_69: chuyển kho hai bước, biên bản chênh l�
       ["-1", null],
     ]);
     const detail = (await retailAdmin.call("get", `/inventory/documents/${transfer.body.id}`, { companyId: retail })).body;
-    expect(detail.discrepancies.map((item: { value: string }) => item.value)).toEqual(["-2000", "-3000000"]);
+    expect(
+      detail.discrepancies.map((item: { value: string; responsibleUserName: string | null; compensationAmount: string | null }) => [item.value, item.responsibleUserName, item.compensationAmount]),
+    ).toEqual([
+      ["-2000", "Trần Văn Bảo Long Nguyễn Hoàng", "1500"],
+      ["-3000000", null, "3000000"],
+    ]);
     expect(await stock(warehouses.DICH!, "NUOCC")).toMatchObject({ onHand: "28", averageCost: "1000" });
     expect(await stock(warehouses.DICH!, "DTC")).toMatchObject({ onHand: "1", averageCost: "3000000" });
     const milkDetail = (await retailAdmin.call("get", `/inventory/stock/${items.milk}/details?warehouseId=${warehouses.DICH}&companyId=${retail}`, { companyId: retail })).body;

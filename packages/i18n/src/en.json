@@ -1437,7 +1437,9 @@
     "discrepancies": "Discrepancy report",
     "discrepancyLine": "shipped {shipped}, received {received}, difference {difference}",
     "printLabels": "Print labels",
-    "status_transfer_posted": "Approved, awaiting shipment"
+    "status_transfer_posted": "Approved, awaiting shipment",
+    "responsible": "Responsible for the shortage",
+    "compensation": "Compensation"
   },
   "stocktakes": {
     "title": "Stocktake",

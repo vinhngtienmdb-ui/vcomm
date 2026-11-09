@@ -8,6 +8,7 @@ import {
   type LocationResponse,
   type LotSuggestion,
   type StockDocumentResponse,
+  type StocktakeOptionsResponse,
   type StockDocumentType,
   type StockItemOption,
   type TransferDestination,
@@ -699,6 +700,8 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
                 {item.sku}: {t("discrepancyLine", { shipped: formatNumber(item.shippedQuantity), received: formatNumber(item.receivedQuantity), difference: formatNumber(item.difference) })}
                 {item.value !== null && ` · ${money(item.value)}`}
                 {item.note && <span className="chu-thich"> · {item.note}</span>}
+                {item.responsibleUserName && ` · ${t("responsible")}: ${item.responsibleUserName}`}
+                {item.compensationAmount !== null && ` · ${t("compensation")}: ${money(item.compensationAmount)}`}
               </li>
             ))}
           </ul>
@@ -718,7 +721,10 @@ function ReceiveForm({ document, onReceived }: { document: StockDocumentResponse
   const destination = useApi<WarehouseResponse>(`/inventory/warehouses/${document.destinationWarehouseId}`);
   const usesLocations = destination.state.kind === "ready" && destination.state.data.usesLocations;
   const locations = useApi<LocationResponse[]>(usesLocations ? `/inventory/warehouses/${document.destinationWarehouseId}/locations` : null);
-  const [lines, setLines] = useState(document.lines.map((line) => ({ lineId: line.id, receivedQuantity: line.baseQuantity, destinationLocationId: "", serials: line.serials.join("\n") })));
+  const people = useApi<StocktakeOptionsResponse>(`/inventory/stocktake-options?warehouseId=${document.destinationWarehouseId}`);
+  const [lines, setLines] = useState(
+    document.lines.map((line) => ({ lineId: line.id, receivedQuantity: line.baseQuantity, destinationLocationId: "", serials: line.serials.join("\n"), responsibleUserId: "" })),
+  );
   const [note, setNote] = useState("");
   const { submitting, fields, formError, run } = useSubmit();
   const update = (index: number, change: Partial<(typeof lines)[number]>) => setLines(lines.map((line, position) => (position === index ? { ...line, ...change } : line)));
@@ -733,6 +739,7 @@ function ReceiveForm({ document, onReceived }: { document: StockDocumentResponse
             lineId: line.lineId,
             receivedQuantity: line.receivedQuantity.replace(",", "."),
             destinationLocationId: line.destinationLocationId || null,
+            responsibleUserId: line.responsibleUserId || null,
             serials: line.serials
               .split(/[\n,;]/)
               .map((serial) => serial.trim())
@@ -770,6 +777,19 @@ function ReceiveForm({ document, onReceived }: { document: StockDocumentResponse
                         {location.code}
                       </option>
                     ))}
+              </select>
+            </Field>
+          )}
+          {Number(lines[index]!.receivedQuantity.replace(",", ".")) < Number(line.baseQuantity) && (
+            <Field id={`trach-nhiem-${index}`} label={t("responsible")}>
+              <select id={`trach-nhiem-${index}`} className="o-nhap" value={lines[index]!.responsibleUserId} onChange={(event) => update(index, { responsibleUserId: event.target.value })}>
+                <option value="">—</option>
+                {people.state.kind === "ready" &&
+                  people.state.data.users.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.fullName}
+                    </option>
+                  ))}
               </select>
             </Field>
           )}

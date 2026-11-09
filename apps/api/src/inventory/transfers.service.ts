@@ -1,6 +1,6 @@
 // Chuyển kho hai bước (CHUC_NANG_41; QUYTAC_NGHIEPVU_52; API_66; TIEUCHI_NGHIEMTHU_69).
 // Phiếu đã duyệt: kho nguồn xác nhận xuất (trừ tồn, hàng đang vận chuyển, giữ giá vốn); kho đích nhận theo số thực nhận,
-// chênh lệch lập biên bản.
+// chênh lệch lập biên bản; phần thiếu ghi người chịu trách nhiệm, tiền bồi thường (quyết định ngày 2026-11-10).
 import { Inject, Injectable } from "@nestjs/common";
 import type { receiveTransferSchema, StockDocumentResponse, TransferDestination } from "contracts";
 import { sql } from "drizzle-orm";
@@ -125,9 +125,12 @@ export class TransfersService {
           UPDATE inventory.document_lines SET received_base_quantity = ${entry.receivedQuantity}::numeric, destination_location_id = ${entry.destinationLocationId ?? null} WHERE id = ${line.id}`);
         if (Number(entry.receivedQuantity) !== shipped) {
           await transaction.execute(sql`
-            INSERT INTO inventory.transfer_discrepancies (document_id, line_id, shipped_quantity, received_quantity, difference, value, note, created_by)
-            VALUES (${id}, ${line.id}, ${line.base_quantity}::numeric, ${entry.receivedQuantity}::numeric, ${entry.receivedQuantity}::numeric - ${line.base_quantity}::numeric,
-              round((${entry.receivedQuantity}::numeric - ${line.base_quantity}::numeric) * ${unitCost}::numeric, 4), ${input.note ?? null}, ${actor.userId})`);
+            INSERT INTO inventory.transfer_discrepancies (document_id, line_id, shipped_quantity, received_quantity, difference, value, note, responsible_user_id, compensation_amount, created_by)
+            SELECT ${id}, ${line.id}, ${line.base_quantity}::numeric, ${entry.receivedQuantity}::numeric, d.difference, round(d.difference * ${unitCost}::numeric, 4), ${input.note ?? null},
+              CASE WHEN d.difference < 0 THEN ${entry.responsibleUserId ?? null}::uuid END,
+              CASE WHEN d.difference < 0 THEN coalesce(${entry.compensationAmount ?? null}::numeric, round(-d.difference * ${unitCost}::numeric, 4)) END,
+              ${actor.userId}
+            FROM (SELECT ${entry.receivedQuantity}::numeric - ${line.base_quantity}::numeric AS difference) d`);
         }
       }
       await transaction.execute(sql`UPDATE inventory.documents SET status = 'received', received_at = now(), received_by = ${actor.userId}, updated_at = now() WHERE id = ${id}`);

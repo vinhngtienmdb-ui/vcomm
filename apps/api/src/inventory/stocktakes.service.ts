@@ -125,7 +125,8 @@ export class StocktakesService {
   }
 
   async options(actor: Actor, warehouseId: string): Promise<StocktakeOptionsResponse> {
-    const warehouse = await this.warehouses.operable(actor.userId, warehouseId, inventoryPermissions.manageStocktakes);
+    // Dùng cả khi lập kiểm kê và khi nhận chuyển kho (chọn người chịu trách nhiệm phần thiếu).
+    const warehouse = await this.warehouses.operable(actor.userId, warehouseId, inventoryPermissions.access);
     const categories = await this.database.execute<{ id: string; code: string; name_vi: string }>(sql`SELECT id, code, name_vi FROM catalog.categories WHERE status = 'active' ORDER BY code`);
     const users = await this.database.execute<{ id: string; full_name: string }>(sql`
       SELECT u.id, u.full_name FROM core.users u JOIN core.user_company_memberships m ON m.user_id = u.id

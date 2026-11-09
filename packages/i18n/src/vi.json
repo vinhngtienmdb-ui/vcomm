@@ -1437,7 +1437,9 @@
     "discrepancies": "Biên bản chênh lệch",
     "discrepancyLine": "xuất {shipped}, nhận {received}, chênh lệch {difference}",
     "printLabels": "In tem",
-    "status_transfer_posted": "Đã duyệt, chờ xuất"
+    "status_transfer_posted": "Đã duyệt, chờ xuất",
+    "responsible": "Người chịu trách nhiệm phần thiếu",
+    "compensation": "Bồi thường"
   },
   "stocktakes": {
     "title": "Kiểm kê",

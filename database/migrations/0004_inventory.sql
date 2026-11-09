@@ -205,6 +205,8 @@ CREATE TABLE inventory.transfer_discrepancies (
     difference      numeric(20,4) NOT NULL,
     value           numeric(20,4) NOT NULL,
     note            text,
+    responsible_user_id uuid    REFERENCES core.users(id),   -- người chịu trách nhiệm phần thiếu
+    compensation_amount numeric(20,4),                       -- tiền bồi thường, mặc định bằng giá trị thiếu
     created_by      uuid        NOT NULL REFERENCES core.users(id),
     created_at      timestamptz NOT NULL DEFAULT now()
 );

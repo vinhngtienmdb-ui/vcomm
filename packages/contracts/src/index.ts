@@ -1546,7 +1546,17 @@ export interface StockDocumentResponse extends StockDocumentListItem {
   approvalRequestId: string | null;
   stocktakeId: string | null;
   lines: StockDocumentLineResponse[];
-  discrepancies: { lineId: string; sku: string; shippedQuantity: string; receivedQuantity: string; difference: string; value: string | null; note: string | null }[];
+  discrepancies: {
+    lineId: string;
+    sku: string;
+    shippedQuantity: string;
+    receivedQuantity: string;
+    difference: string;
+    value: string | null;
+    note: string | null;
+    responsibleUserName: string | null;
+    compensationAmount: string | null;
+  }[];
   version: number;
   canEdit: boolean;
   canWithdraw: boolean;
@@ -1656,6 +1666,9 @@ export const receiveTransferSchema = z
             }),
             destinationLocationId: z.uuid().nullable().optional(),
             serials: z.array(z.string().trim().min(1).max(100)).max(5000).default([]),
+            // Nhận thiếu: người chịu trách nhiệm, tiền bồi thường (để trống: bằng giá trị thiếu).
+            responsibleUserId: z.uuid().nullable().optional(),
+            compensationAmount: optionalMoney,
           })
           .strict(),
       )
