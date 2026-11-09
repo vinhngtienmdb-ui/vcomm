@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- Phát hành phiên bản 0.1.0 (CONG_VIEC_01, CONG_VIEC_02, LOI_02): tài liệu 23, hợp nhất nhánh `phat-hanh/v0.1.0` (pull request số 18), kiểm thử lại 120/120 đạt trên commit hợp nhất `cd5ed97`. Tag `v0.1.0` do người dùng tạo trên GitHub vì môi trường của AI không được phép đẩy tag. Chưa triển khai lên môi trường nào.
 - LOI_02: Sửa trên nhánh `sua-loi/LOI_02-gioi-han-yeu-cau-theo-ip` (pull request số 15): giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP cho mỗi API không cần đăng nhập, đếm trên Redis; kiểm thử 120/120 đạt. AI tự quyết: đếm riêng từng API để trang đăng nhập không bị chặn vì người dùng gọi quên mật khẩu; Redis lỗi thì cho qua.
 - CONG_VIEC_02: Người dùng nghiệm thu các lát L1 đến L5, L7, L8. Trước nghiệm thu: rà soát tiếng Anh 24 màn hình, sửa tên vai trò, tên loại chứng từ, ký hiệu tiền theo ngôn ngữ; thêm kiểm thử bảo mật KICHBAN_KIEMTHU_118, 119; đo tải sơ bộ KICHBAN_KIEMTHU_111. Toàn bộ 119/119 kiểm thử đạt. Lập tài liệu 25 với LOI_01 (đăng nhập chưa đạt mốc 200 ms dưới tải), LOI_02 (chưa giới hạn số yêu cầu theo địa chỉ IP).
 - CONG_VIEC_02: Xong lát L8 (dãy số chứng từ, tỷ giá, nhật ký thao tác, thông báo, vô hiệu hóa kèm bàn giao, đặt lại xác thực hai lớp; API_31 đến 33, 43 đến 48; MAN_HINH_16, 17, 18; nút Lịch sử ở MAN_HINH_09 đến 17); kiểm thử tích hợp 107/107 đạt. Không thêm thư viện. AI tự quyết trong phạm vi đặc tả: kỳ theo tháng trong số chứng từ viết `202611`, không đặt lại thì bỏ phần kỳ; bàn giao chỉ gồm bước duyệt giao đích danh và chức trưởng phòng, bước giao theo vai trò không cần bàn giao; vô hiệu hóa kết thúc vai trò của nhân viên trong công ty bị gỡ; người nhận bàn giao không được là người lập chứng từ; tỷ giá dùng chung tập đoàn, nguồn gồm nhập tay và Vietcombank; ghi nhật ký cả lần đăng nhập thất bại (chỉ quản trị tập đoàn thấy); tác vụ nền tạo trước partition nhật ký 3 tháng; thông báo hiển thị theo ngôn ngữ đang chọn.
@@ -26,6 +27,7 @@
 
 ### Quyết định
 
+- Phát hành phiên bản 0.1.0 – người quyết định: người dùng.
 - Nghiệm thu LOI_02 và hợp nhất vào `main`; LOI_01 giữ mức băm mật khẩu, đo lại trên môi trường thử nghiệm – người quyết định: người dùng.
 - Sửa LOI_02 ngay bằng Redis – người quyết định: người dùng.
 - Nghiệm thu CONG_VIEC_02 (lát L1 đến L5, L7, L8) và hợp nhất vào `main`; lát L6, L9, L10 tách thành công việc sau – người quyết định: người dùng.
