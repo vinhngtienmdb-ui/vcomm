@@ -1,7 +1,7 @@
 "use client";
 
 // MAN_HINH_24 Chi tiết sản phẩm (CHUC_NANG_31, 32; API_56, API_57): thông tin chung, đơn vị quy đổi, phân loại và biến thể, mã vạch, thông số, ảnh.
-import type { CategoryResponse, ProductImageResponse, ProductResponse, UnitResponse } from "contracts";
+import type { CategoryResponse, ProductImageResponse, ProductResponse, UnitResponse, VariantLinkResponse, VariantLinkSuggestion } from "contracts";
 import { productLimits, vatRates } from "contracts";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
@@ -506,6 +506,8 @@ function ProductForm({ categories, units, product, onReload }: { categories: Cat
 
       {product && <Images product={product} editable={editable} onChanged={onReload} />}
 
+      {product && <Links product={product} editable={editable} />}
+
       {editable && (
         <div className="nhom-nut">
           <button type="submit" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting}>
@@ -602,6 +604,145 @@ function Images({ product, editable, onChanged }: { product: ProductResponse; ed
           />
         </Field>
       )}
+    </section>
+  );
+}
+
+// Liên kết sản phẩm tương ứng ở công ty khác, sao chép sang công ty khác, gợi ý theo mã vạch trùng (CHUC_NANG_34; API_59).
+function Links({ product, editable }: { product: ProductResponse; editable: boolean }) {
+  const t = useTranslations("productLinks");
+  const { me, notify } = useAdmin();
+  const { state, reload } = useApi<VariantLinkResponse[]>(`/catalog/products/${product.id}/links`);
+  const others = me.companies.filter((company) => company.id !== product.companyId);
+  const [targetCompanyId, setTargetCompanyId] = useState(others[0]?.id ?? "");
+  const [busy, setBusy] = useState(false);
+  const [suggestions, setSuggestions] = useState<VariantLinkSuggestion[] | null>(null);
+
+  async function run(action: () => Promise<void>) {
+    setBusy(true);
+    try {
+      await action();
+    } catch (failure) {
+      notify(failureOf(failure).message, "loi");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const copy = () =>
+    run(async () => {
+      await apiFetch<{ productId: string }>(`/catalog/products/${product.id}/copy`, { method: "POST", body: JSON.stringify({ targetCompanyId }) });
+      notify(t("copied", { company: others.find((company) => company.id === targetCompanyId)?.shortName ?? "" }));
+      await reload();
+    });
+  const suggest = () => run(async () => setSuggestions(await apiFetch<VariantLinkSuggestion[]>(`/catalog/products/${product.id}/link-suggestions?targetCompanyId=${targetCompanyId}`)));
+  const link = (suggestion: VariantLinkSuggestion) =>
+    run(async () => {
+      await apiFetch("/catalog/variant-links", { method: "POST", body: JSON.stringify({ variantId: suggestion.variantId, linkedVariantId: suggestion.linkedVariantId }) });
+      setSuggestions((current) => current?.filter((item) => item !== suggestion) ?? null);
+      notify(t("linked"));
+      await reload();
+    });
+  const unlink = (linkId: string) =>
+    run(async () => {
+      await apiFetch(`/catalog/variant-links/${linkId}`, { method: "DELETE" });
+      await reload();
+    });
+  const headings = [t("sku"), t("company"), t("linkedProduct"), t("factor"), ""];
+
+  return (
+    <section className="the">
+      <h2>{t("title")}</h2>
+      <div className="chu-thich">{t("hint")}</div>
+      <Loaded state={state} onRetry={() => void reload()}>
+        {(links) =>
+          links.length === 0 ? (
+            <span className="chu-thich">{t("none")}</span>
+          ) : (
+            <div className="khung-bang">
+              <table>
+                <thead>
+                  <tr>
+                    {headings.map((heading, index) => (
+                      <th key={index} scope="col">
+                        {heading}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {links.map((item) => (
+                    <tr key={item.id}>
+                      <td data-nhan={headings[0]}>
+                        <span>{item.sku}</span>
+                      </td>
+                      <td data-nhan={headings[1]}>
+                        <span>{item.linkedCompanyName}</span>
+                      </td>
+                      <td data-nhan={headings[2]}>
+                        <span>
+                          {item.linkedSku} · {item.linkedProductName}
+                        </span>
+                      </td>
+                      <td data-nhan={headings[3]}>
+                        <span>{item.factor.replace(".", ",")}</span>
+                      </td>
+                      <td data-nhan="">
+                        {editable && (
+                          <button type="button" className="nut chu" disabled={busy} onClick={() => void unlink(item.id)}>
+                            {t("unlink")}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        }
+      </Loaded>
+      {editable && others.length > 0 && (
+        <div className="nhom-nut" style={{ alignItems: "end" }}>
+          <Field id="cong-ty-dich" label={t("targetCompany")}>
+            <select
+              id="cong-ty-dich"
+              className="o-nhap"
+              value={targetCompanyId}
+              onChange={(event) => {
+                setTargetCompanyId(event.target.value);
+                setSuggestions(null);
+              }}
+            >
+              {others.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.shortName}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <button type="button" className={`nut phu${busy ? " dang-xu-ly" : ""}`} disabled={busy || !targetCompanyId} onClick={() => void copy()}>
+            {t("copy")}
+          </button>
+          <button type="button" className="nut phu" disabled={busy || !targetCompanyId} onClick={() => void suggest()}>
+            {t("suggest")}
+          </button>
+        </div>
+      )}
+      {suggestions &&
+        (suggestions.length === 0 ? (
+          <span className="chu-thich">{t("noSuggestions")}</span>
+        ) : (
+          suggestions.map((suggestion) => (
+            <div key={`${suggestion.variantId}-${suggestion.linkedVariantId}`} className="nhom-nut">
+              <span>{t("suggestion", { sku: suggestion.sku, linked: `${suggestion.linkedSku} · ${suggestion.linkedProductName}`, barcode: suggestion.barcode })}</span>
+              <button type="button" className="nut chu" disabled={busy} onClick={() => void link(suggestion)}>
+                {t("link")}
+              </button>
+            </div>
+          ))
+        ))}
+      {editable && others.length > 0 && <span className="chu-thich">{t("copyHint")}</span>}
     </section>
   );
 }

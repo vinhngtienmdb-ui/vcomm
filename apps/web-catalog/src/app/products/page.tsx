@@ -11,6 +11,7 @@ import { Loaded, MessageView } from "ui/components/StatusViews";
 import { selectedCompanyId } from "ui/lib/api";
 import { formatDateTime } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
+import { ProductImportDrawer } from "@/components/ProductImportDrawer";
 
 export default function ProductsPage() {
   const t = useTranslations("products");
@@ -22,6 +23,7 @@ export default function ProductsPage() {
   const [categoryId, setCategoryId] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
+  const [importing, setImporting] = useState(false);
   const categories = useApi<CategoryResponse[]>("/catalog/categories");
 
   // Tìm sau khi ngừng gõ 300 ms.
@@ -48,9 +50,14 @@ export default function ProductsPage() {
         <h1>{t("title")}</h1>
         <HistoryLink entityType="product" />
         {can("catalog.product.manage") && (
-          <Link className="nut chinh" href="/products/new">
-            {t("add")}
-          </Link>
+          <>
+            <button type="button" className="nut phu" onClick={() => setImporting(true)}>
+              {t("import")}
+            </button>
+            <Link className="nut chinh" href="/products/new">
+              {t("add")}
+            </Link>
+          </>
         )}
       </div>
       <div className="bo-loc">
@@ -177,6 +184,7 @@ export default function ProductsPage() {
           )
         }
       </Loaded>
+      {importing && <ProductImportDrawer onClose={() => setImporting(false)} onImported={() => void reload()} />}
     </>
   );
 }

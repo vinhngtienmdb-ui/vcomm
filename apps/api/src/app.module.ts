@@ -46,6 +46,8 @@ import { CategoriesService } from "./catalog/categories.service";
 import { UnitsService } from "./catalog/units.service";
 import { ProductsService } from "./catalog/products.service";
 import { ProductImagesService } from "./catalog/product-images.service";
+import { ProductImportService } from "./catalog/product-import.service";
+import { VariantLinksService } from "./catalog/variant-links.service";
 import { ProposalsService } from "./proposals/proposals.service";
 import { EXCHANGE_RATE_FEED, VietcombankFeed } from "./settings/vietcombank-rates";
 import { DeactivationService } from "./users/deactivation.service";
@@ -76,6 +78,8 @@ import { UsersService } from "./users/users.service";
     UnitsService,
     ProductsService,
     ProductImagesService,
+    ProductImportService,
+    VariantLinksService,
     ProposalsService,
     ProposalPdfService,
     PhoneOtpService,

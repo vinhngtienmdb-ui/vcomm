@@ -10,7 +10,13 @@ import {
   updateCategorySchema,
   updateUnitSchema,
   versionSchema,
+  copyProductSchema,
+  createVariantLinkSchema,
+  productImportMaximumBytes,
   type CategoryResponse,
+  type ProductImportResponse,
+  type VariantLinkResponse,
+  type VariantLinkSuggestion,
   type PageResponse,
   type ProductImageResponse,
   type ProductListItem,
@@ -19,12 +25,15 @@ import {
 } from "contracts";
 import type { Response } from "express";
 import { clientInfo } from "../auth/auth.controller";
+import { localeOf } from "../common/api-error";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { CategoriesService } from "./categories.service";
 import { ProductImagesService } from "./product-images.service";
+import { ProductImportService } from "./product-import.service";
+import { VariantLinksService } from "./variant-links.service";
 import { ProductsService } from "./products.service";
 import { UnitsService } from "./units.service";
 
@@ -36,6 +45,8 @@ export class CatalogController {
     private readonly units: UnitsService,
     private readonly products: ProductsService,
     private readonly images: ProductImagesService,
+    private readonly imports: ProductImportService,
+    private readonly links: VariantLinksService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined, ...anyOf: string[]): Promise<Actor> {
@@ -171,5 +182,56 @@ export class CatalogController {
   @HttpCode(204)
   async removeImage(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<void> {
     await this.images.remove(await this.actor(request, companyId, "catalog.access"), id);
+  }
+
+  // API_58: nhập sản phẩm từ Excel.
+  @Get("product-imports/template")
+  async importTemplate(@Req() request: AuthenticatedRequest, @Res() response: Response, @Headers("x-company-id") companyId?: string): Promise<void> {
+    await this.actor(request, companyId, "catalog.access");
+    response.setHeader("content-type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    response.setHeader("content-disposition", 'attachment; filename="mau-nhap-san-pham.xlsx"');
+    response.send(await this.imports.template());
+  }
+
+  @Post("product-imports")
+  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: productImportMaximumBytes * 2, files: 1 } }))
+  async importProducts(
+    @Req() request: AuthenticatedRequest,
+    @UploadedFile() file: { buffer: Buffer; size: number } | undefined,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<ProductImportResponse> {
+    return this.imports.import(await this.actor(request, companyId, "catalog.access"), file, localeOf(request));
+  }
+
+  // API_59: liên kết biến thể giữa công ty, sao chép sản phẩm.
+  @Get("products/:id/links")
+  async productLinks(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<VariantLinkResponse[]> {
+    return this.links.listForProduct(await this.actor(request, companyId, "catalog.access"), id);
+  }
+
+  @Get("products/:id/link-suggestions")
+  async linkSuggestions(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Query("targetCompanyId", UuidPipe) targetCompanyId: string,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<VariantLinkSuggestion[]> {
+    return this.links.suggestions(await this.actor(request, companyId, "catalog.access"), id, targetCompanyId);
+  }
+
+  @Post("variant-links")
+  async createLink(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<VariantLinkResponse> {
+    return this.links.create(await this.actor(request, companyId, "catalog.access"), createVariantLinkSchema.parse(body));
+  }
+
+  @Delete("variant-links/:id")
+  @HttpCode(204)
+  async removeLink(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<void> {
+    await this.links.remove(await this.actor(request, companyId, "catalog.access"), id);
+  }
+
+  @Post("products/:id/copy")
+  async copyProduct(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<{ productId: string }> {
+    return this.links.copy(await this.actor(request, companyId, "catalog.access"), id, copyProductSchema.parse(body).targetCompanyId);
   }
 }

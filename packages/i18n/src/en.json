@@ -109,7 +109,10 @@
     "productCodeExists": "This product code already exists in the company.",
     "imageTooLarge": "The image is larger than 5 MB.",
     "imageTypeInvalid": "Only JPG, PNG, WEBP images are accepted.",
-    "imageTooMany": "A product can have at most 10 images."
+    "imageTooMany": "A product can have at most 10 images.",
+    "variantLinkSameCompany": "Choose a company other than the current one.",
+    "variantLinkExists": "This variant is already linked to a variant of that company.",
+    "catalogCodeNotFound": "This code was not found."
   },
   "login": {
     "title": "Sign in",
@@ -704,7 +707,9 @@
     "product_deactivate": "Discontinue product",
     "product_activate": "Resume product",
     "product_image_add": "Add product image",
-    "product_image_delete": "Delete product image"
+    "product_image_delete": "Delete product image",
+    "product_link": "Link product to another company",
+    "product_unlink": "Unlink product"
   },
   "notifications": {
     "title": "Notifications",
@@ -1008,6 +1013,39 @@
     "primaryImage": "Main image",
     "makePrimary": "Make main image",
     "addImage": "Add image",
-    "imageHint": "JPG, PNG, WEBP; up to 10 images, 5 MB each."
+    "imageHint": "JPG, PNG, WEBP; up to 10 images, 5 MB each.",
+    "importRow": "row",
+    "import": "Import Excel"
+  },
+  "productImport": {
+    "title": "Import products from Excel",
+    "hint": "Each row is one variant. Rows with the same product code (or the same name when the code is blank) form one product; general details come from its first row. Write options like \"Colour: Black\" and conversions like \"THUNG=24; HOP=6\". Tracking: blank (from category), \"Lô\", \"Serial\", \"Không\". VAT: 0, 5, 8, 10, KCT, KKKNT.",
+    "template": "Download template",
+    "file": "Excel file",
+    "fileHint": ".xlsx file, up to 2,000 rows, 5 MB. Products with errors are skipped; the others are imported.",
+    "importing": "Importing…",
+    "result": "Imported {products} products, {variants} variants; {failed} rows with errors.",
+    "row": "Row {row}",
+    "more": "{count} more rows with errors in the error file.",
+    "errorFile": "Download error rows"
+  },
+  "productLinks": {
+    "title": "Links to other companies",
+    "hint": "Matching products in other subsidiaries, used for intercompany trading. Factor: base units on the other side per one base unit here.",
+    "none": "Not linked to any company yet.",
+    "sku": "SKU",
+    "company": "Company",
+    "linkedProduct": "Matching product",
+    "factor": "Factor",
+    "unlink": "Unlink",
+    "targetCompany": "Company",
+    "copy": "Copy to this company",
+    "suggest": "Suggest by barcode",
+    "noSuggestions": "No unlinked products with the same barcode.",
+    "suggestion": "{sku} ↔ {linked} (barcode {barcode})",
+    "link": "Link",
+    "linked": "Linked.",
+    "copied": "Copied to {company} and linked each variant.",
+    "copyHint": "Requires product management permission in the target company too."
   }
 }

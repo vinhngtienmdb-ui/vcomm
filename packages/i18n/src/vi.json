@@ -109,7 +109,10 @@
     "productCodeExists": "Mã sản phẩm đã có trong công ty.",
     "imageTooLarge": "Ảnh vượt quá 5 MB.",
     "imageTypeInvalid": "Chỉ nhận ảnh JPG, PNG, WEBP.",
-    "imageTooMany": "Mỗi sản phẩm tối đa 10 ảnh."
+    "imageTooMany": "Mỗi sản phẩm tối đa 10 ảnh.",
+    "variantLinkSameCompany": "Chọn công ty khác công ty đang làm việc.",
+    "variantLinkExists": "Biến thể đã liên kết với một biến thể của công ty đó.",
+    "catalogCodeNotFound": "Không tìm thấy mã này."
   },
   "login": {
     "title": "Đăng nhập",
@@ -704,7 +707,9 @@
     "product_deactivate": "Ngừng bán sản phẩm",
     "product_activate": "Bán lại sản phẩm",
     "product_image_add": "Thêm ảnh sản phẩm",
-    "product_image_delete": "Xóa ảnh sản phẩm"
+    "product_image_delete": "Xóa ảnh sản phẩm",
+    "product_link": "Liên kết sản phẩm với công ty khác",
+    "product_unlink": "Bỏ liên kết sản phẩm"
   },
   "notifications": {
     "title": "Thông báo",
@@ -1008,6 +1013,39 @@
     "primaryImage": "Ảnh đại diện",
     "makePrimary": "Đặt làm ảnh đại diện",
     "addImage": "Thêm ảnh",
-    "imageHint": "JPG, PNG, WEBP; tối đa 10 ảnh, mỗi ảnh 5 MB."
+    "imageHint": "JPG, PNG, WEBP; tối đa 10 ảnh, mỗi ảnh 5 MB.",
+    "importRow": "dòng",
+    "import": "Nhập Excel"
+  },
+  "productImport": {
+    "title": "Nhập sản phẩm từ Excel",
+    "hint": "Mỗi dòng là một biến thể. Các dòng cùng mã sản phẩm (hoặc cùng tên khi để trống mã) gộp thành một sản phẩm; thông tin chung lấy ở dòng đầu. Phân loại ghi dạng \"Màu: Đen\". Đơn vị quy đổi ghi dạng \"THUNG=24; HOP=6\". Theo dõi: để trống (theo ngành hàng), \"Lô\", \"Serial\", \"Không\". Thuế suất: 0, 5, 8, 10, KCT, KKKNT.",
+    "template": "Tải tệp mẫu",
+    "file": "Tệp Excel",
+    "fileHint": "Tệp .xlsx, tối đa 2.000 dòng, 5 MB. Sản phẩm lỗi được bỏ qua, sản phẩm đúng vẫn được nhập.",
+    "importing": "Đang nhập…",
+    "result": "Đã nhập {products} sản phẩm, {variants} biến thể; {failed} dòng lỗi.",
+    "row": "Dòng {row}",
+    "more": "Còn {count} dòng lỗi khác trong tệp lỗi.",
+    "errorFile": "Tải tệp dòng lỗi"
+  },
+  "productLinks": {
+    "title": "Liên kết công ty khác",
+    "hint": "Sản phẩm tương ứng ở công ty con khác, dùng khi mua bán nội bộ. Hệ số: số đơn vị cơ sở bên kia trên một đơn vị cơ sở bên này.",
+    "none": "Chưa liên kết với công ty nào.",
+    "sku": "Mã hàng",
+    "company": "Công ty",
+    "linkedProduct": "Sản phẩm tương ứng",
+    "factor": "Hệ số",
+    "unlink": "Bỏ liên kết",
+    "targetCompany": "Công ty",
+    "copy": "Sao chép sang công ty này",
+    "suggest": "Gợi ý theo mã vạch",
+    "noSuggestions": "Không có sản phẩm cùng mã vạch chưa liên kết.",
+    "suggestion": "{sku} ↔ {linked} (mã vạch {barcode})",
+    "link": "Liên kết",
+    "linked": "Đã liên kết.",
+    "copied": "Đã sao chép sang {company} và liên kết từng biến thể.",
+    "copyHint": "Cần quyền quản lý sản phẩm ở cả công ty đích."
   }
 }

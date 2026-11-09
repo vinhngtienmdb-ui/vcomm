@@ -1155,3 +1155,61 @@ export interface ProductResponse {
   version: number;
   updatedAt: string;
 }
+
+// CONG_VIEC_04, API_58: nhập sản phẩm từ Excel (CHUC_NANG_33): mỗi dòng một biến thể; dòng cùng mã sản phẩm (hoặc cùng tên khi để trống mã) gộp thành một sản phẩm.
+export const productImportColumns = [
+  "Mã sản phẩm",
+  "Tên sản phẩm",
+  "Mã ngành hàng",
+  "Mã đơn vị cơ sở",
+  "Thuế suất",
+  "Theo dõi",
+  "Bảo hành (tháng)",
+  "Thương hiệu",
+  "Xuất xứ",
+  "Trọng lượng (kg)",
+  "Thể tích (m3)",
+  "Đơn vị quy đổi",
+  "Phân loại 1",
+  "Phân loại 2",
+  "Phân loại 3",
+  "Mã hàng",
+  "Mã vạch",
+] as const;
+export const productImportMaximumRows = 2000;
+export const productImportMaximumBytes = 5 * 1024 * 1024;
+
+export interface ProductImportResponse {
+  createdProducts: number;
+  createdVariants: number;
+  failedRows: number;
+  errors: { row: number; message: string }[];
+  errorFileUrl: string | null;
+}
+
+// CONG_VIEC_04, API_59: liên kết biến thể tương ứng giữa công ty, sao chép sản phẩm (CHUC_NANG_34; QUYTAC_NGHIEPVU_41).
+export const createVariantLinkSchema = z.object({ variantId: z.uuid(), linkedVariantId: z.uuid(), factor: decimalText(4).default("1") }).strict();
+export type CreateVariantLinkRequest = z.input<typeof createVariantLinkSchema>;
+export const copyProductSchema = z.object({ targetCompanyId: z.uuid() }).strict();
+
+export interface VariantLinkResponse {
+  id: string;
+  variantId: string;
+  sku: string;
+  linkedVariantId: string;
+  linkedSku: string;
+  linkedProductId: string;
+  linkedProductName: string;
+  linkedCompanyId: string;
+  linkedCompanyName: string;
+  factor: string;
+}
+
+export interface VariantLinkSuggestion {
+  variantId: string;
+  sku: string;
+  linkedVariantId: string;
+  linkedSku: string;
+  linkedProductName: string;
+  barcode: string;
+}
