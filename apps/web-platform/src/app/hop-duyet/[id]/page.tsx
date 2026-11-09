@@ -10,7 +10,7 @@ import { ConfirmDialog } from "@/components/Dialogs";
 import { Loaded } from "@/components/StatusViews";
 import { UserShell } from "@/components/UserShell";
 import { apiFetch } from "@/lib/api";
-import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
+import { formatDate, formatDateTime, formatMoney, formatNumber } from "@/lib/format";
 import { failureOf, useApi } from "@/lib/use-api";
 
 const statusTone = { pending: "canh-bao", approved: "thanh-cong", rejected: "loi", withdrawn: "trung-tinh" } as const;
@@ -91,7 +91,7 @@ function RequestDetail() {
               {request.exchangeRate && (
                 <>
                   <dt>{t("rate")}</dt>
-                  <dd>{new Intl.NumberFormat("vi-VN").format(Number(request.exchangeRate))}</dd>
+                  <dd>{formatNumber(request.exchangeRate)}</dd>
                   <dt>{t("converted")}</dt>
                   <dd>{formatMoney(request.amountInPolicyCurrency, request.policyCurrency)}</dd>
                 </>

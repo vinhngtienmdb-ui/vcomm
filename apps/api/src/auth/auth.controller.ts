@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Req, Res } from "@nestjs/common";
 import { activationSchema, forgotPasswordSchema, loginRequestSchema, mfaCodeSchema, mfaVerifySchema, resetPasswordSchema, type ActivationInfoResponse, type LoginResponse, type MfaBackupCodesResponse, type MfaEnrollResponse } from "contracts";
 import type { Request, Response } from "express";
-import { ApiError } from "../common/api-error";
+import { ApiError, localeOf } from "../common/api-error";
 import { accessCookieName, AllowMfaPending, csrfCookieName, csrfMatches, Public, refreshCookieName, type AuthenticatedRequest } from "./auth.guard";
 import { ActivationService } from "./activation.service";
 import { MfaService } from "./mfa.service";
@@ -12,7 +12,7 @@ import { newRandomToken } from "./tokens";
 const secureCookies = () => process.env.NODE_ENV === "production";
 
 export function clientInfo(request: Request): ClientInfo {
-  return { ip: request.ip ?? null, userAgent: request.header("user-agent") ?? null, requestId: request.header("x-request-id") ?? null };
+  return { ip: request.ip ?? null, userAgent: request.header("user-agent") ?? null, requestId: request.header("x-request-id") ?? null, locale: localeOf(request) };
 }
 
 function setSessionCookies(response: Response, session: IssuedSession): void {

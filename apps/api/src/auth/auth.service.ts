@@ -21,6 +21,8 @@ export interface ClientInfo {
   userAgent: string | null;
   requestId: string | null;
   now?: Date;
+  // Ngôn ngữ của yêu cầu (CHUC_NANG_22): chọn tên tiếng Việt hay tiếng Anh của danh mục hệ thống.
+  locale?: "vi" | "en";
 }
 
 export interface IssuedSession {

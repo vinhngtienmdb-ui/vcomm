@@ -4,6 +4,7 @@ import type { AuditEventDetail, AuditEventItem, PageResponse, auditEventListQuer
 import { type SQL, sql } from "drizzle-orm";
 import type { z } from "zod";
 import { ApiError } from "../common/api-error";
+import { localizedName } from "../common/localized";
 import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
@@ -37,18 +38,18 @@ const toItem = (row: EventRow): AuditEventItem => ({
 });
 
 // Tên dễ đọc của đối tượng theo loại.
-const selectEvents = sql`
+const selectEvents = (locale: "vi" | "en" | undefined) => sql`
   SELECT e.id, e.occurred_at, e.actor_user_id, actor.full_name AS actor_name, company.short_name AS company_short_name, e.app_code, e.action, e.entity_type, e.entity_id,
     CASE
       WHEN e.entity_type IN ('user', 'core.users') THEN COALESCE((SELECT full_name FROM core.users WHERE id = e.entity_id), e.after_data ->> 'identifier')
       WHEN e.entity_type = 'company' THEN (SELECT short_name FROM core.companies WHERE id = e.entity_id)
       WHEN e.entity_type = 'branch' THEN (SELECT code || ' – ' || name FROM core.branches WHERE id = e.entity_id)
       WHEN e.entity_type = 'department' THEN (SELECT name FROM core.departments WHERE id = e.entity_id)
-      WHEN e.entity_type = 'role' THEN (SELECT name_vi FROM core.roles WHERE id = e.entity_id)
+      WHEN e.entity_type = 'role' THEN (SELECT ${localizedName("r", locale)} FROM core.roles r WHERE r.id = e.entity_id)
       WHEN e.entity_type = 'approval_request' THEN (SELECT document_no FROM core.approval_requests WHERE id = e.entity_id)
       WHEN e.entity_type = 'exchange_rate' THEN (SELECT from_currency || ' → ' || to_currency || ' ' || to_char(rate_date, 'DD/MM/YYYY') FROM core.exchange_rates WHERE id = e.entity_id)
-      WHEN e.entity_type = 'number_sequence' THEN (SELECT name_vi FROM core.document_types WHERE code = e.after_data ->> 'documentTypeCode')
-      WHEN e.entity_type = 'approval_policy' THEN (SELECT t.name_vi || ' – ' || to_char(p.effective_from, 'DD/MM/YYYY') FROM core.approval_policies p JOIN core.document_types t ON t.code = p.document_type_code WHERE p.id = e.entity_id)
+      WHEN e.entity_type = 'number_sequence' THEN (SELECT ${localizedName("t", locale)} FROM core.document_types t WHERE t.code = e.after_data ->> 'documentTypeCode')
+      WHEN e.entity_type = 'approval_policy' THEN (SELECT ${localizedName("t", locale)} || ' – ' || to_char(p.effective_from, 'DD/MM/YYYY') FROM core.approval_policies p JOIN core.document_types t ON t.code = p.document_type_code WHERE p.id = e.entity_id)
       ELSE NULL
     END AS entity_label
   FROM core.audit_events e
@@ -75,7 +76,7 @@ export class AuditEventsService {
     const where = sql.join(conditions, sql` AND `);
     const total = await this.database.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM core.audit_events e WHERE ${where}`);
     const rows = await this.database.execute<EventRow>(sql`
-      ${selectEvents} WHERE ${where} ORDER BY e.occurred_at DESC, e.id
+      ${selectEvents(actor.client.locale)} WHERE ${where} ORDER BY e.occurred_at DESC, e.id
       LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`);
     return {
       data: rows.rows.map(toItem),
@@ -98,7 +99,7 @@ export class AuditEventsService {
         }
       >(sql`
       SELECT listed.*, e.before_data, e.after_data, host(e.ip) AS ip, e.user_agent, e.request_id
-      FROM (${selectEvents} WHERE e.id = ${id} AND ${await this.scopeCondition(actor)}) listed
+      FROM (${selectEvents(actor.client.locale)} WHERE e.id = ${id} AND ${await this.scopeCondition(actor)}) listed
       JOIN core.audit_events e ON e.id = listed.id AND e.occurred_at = listed.occurred_at`)
     ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");

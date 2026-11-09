@@ -10,6 +10,7 @@ import {
   type ApprovalRequestResponse,
   type DocumentTypeResponse,
 } from "contracts";
+import { localeOf } from "../common/api-error";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { ApiError } from "../common/api-error";
@@ -70,7 +71,7 @@ export class ApprovalsController {
   // API_40
   @Get("approval-requests/:id")
   async detail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<ApprovalRequestResponse> {
-    return this.requests.detail(request.auth.userId, id);
+    return this.requests.detail(request.auth.userId, id, localeOf(request));
   }
 
   // API_41

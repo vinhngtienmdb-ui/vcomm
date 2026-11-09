@@ -7,6 +7,7 @@ import { setClause } from "../common/sql-update";
 import type { PageResponse, RoleAssignmentRequest, RoleAssignmentResponse, UserDetailResponse, UserListItem, UserListQuery } from "contracts";
 import { sql } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
+import { localizedName } from "../common/localized";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { branchScopeCondition, PermissionService, type ScopeTarget } from "../permissions/permission.service";
@@ -88,7 +89,7 @@ export class UsersService {
       SELECT count(*)::int AS total FROM core.users u JOIN core.user_company_memberships m ON m.user_id = u.id WHERE ${where}`);
     const rows = await this.database.execute<{ id: string; full_name: string; email: string | null; phone: string | null; status: UserListItem["status"]; branch_name: string | null; department_name: string | null; job_title: string | null; role_names: string[] | null; last_login_at: Date | null }>(sql`
       SELECT u.id, u.full_name, u.email, u.phone, u.status, b.name AS branch_name, d.name AS department_name, m.job_title, u.last_login_at,
-        (SELECT array_agg(DISTINCT r.name_vi ORDER BY r.name_vi) FROM core.user_role_assignments a JOIN core.roles r ON r.id = a.role_id
+        (SELECT array_agg(DISTINCT ${localizedName("r", actor.client.locale)} ORDER BY ${localizedName("r", actor.client.locale)}) FROM core.user_role_assignments a JOIN core.roles r ON r.id = a.role_id
           WHERE a.user_id = u.id AND (a.scope_type = 'group' OR a.company_id = ${actor.companyId})
             AND a.valid_from <= ${day}::date AND (a.valid_to IS NULL OR a.valid_to >= ${day}::date)) AS role_names
       FROM core.users u

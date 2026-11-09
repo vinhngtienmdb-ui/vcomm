@@ -5,6 +5,7 @@ import { createApprovalPolicySchema } from "contracts";
 import { sql } from "drizzle-orm";
 import type { z } from "zod";
 import { ApiError } from "../common/api-error";
+import { localizedName } from "../common/localized";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { auditBase } from "../organization/organization-context";
@@ -57,7 +58,10 @@ export class ApprovalPoliciesService {
       WHERE p.company_id = ${actor.companyId}
       ORDER BY p.document_type_code, p.effective_from DESC`);
     if (policies.rows.length === 0) return [];
-    const levels = await this.levels(policies.rows.map((row) => row.id));
+    const levels = await this.levels(
+      policies.rows.map((row) => row.id),
+      actor.client.locale,
+    );
     return policies.rows.map((row) => ({
       id: row.id,
       documentTypeCode: row.document_type_code,
@@ -137,10 +141,10 @@ export class ApprovalPoliciesService {
     return (await this.database.execute(sql`SELECT 1 FROM core.user_company_memberships WHERE user_id = ${choice.userId!} AND company_id = ${companyId} AND status = 'active'`)).rows.length > 0;
   }
 
-  private async levels(policyIds: string[]): Promise<LevelRow[]> {
+  private async levels(policyIds: string[], locale: "vi" | "en" | undefined): Promise<LevelRow[]> {
     const result = await this.database.execute<LevelRow>(sql`
-      SELECT l.policy_id, l.level_no, l.min_amount::text AS min_amount, l.approver_type, l.approver_role_id, ar.name_vi AS approver_role_name,
-        l.approver_user_id, au.full_name AS approver_user_name, l.substitute_type, l.substitute_role_id, sr.name_vi AS substitute_role_name,
+      SELECT l.policy_id, l.level_no, l.min_amount::text AS min_amount, l.approver_type, l.approver_role_id, ${localizedName("ar", locale)} AS approver_role_name,
+        l.approver_user_id, au.full_name AS approver_user_name, l.substitute_type, l.substitute_role_id, ${localizedName("sr", locale)} AS substitute_role_name,
         l.substitute_user_id, su.full_name AS substitute_user_name, l.due_hours
       FROM core.approval_policy_levels l
       LEFT JOIN core.roles ar ON ar.id = l.approver_role_id LEFT JOIN core.users au ON au.id = l.approver_user_id

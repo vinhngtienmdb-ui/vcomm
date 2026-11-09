@@ -688,3 +688,15 @@ describe("CHUC_NANG_21: lấy tỷ giá Vietcombank mỗi sáng", () => {
     expect(users).not.toContain(testIds.retailAdmin);
   });
 });
+
+describe("TIEUCHI_NGHIEMTHU_42: danh mục hệ thống trả tên theo ngôn ngữ", () => {
+  it("tên vai trò hệ thống, tên loại chứng từ trong nhật ký theo Accept-Language", async () => {
+    const vi = await retailAdmin.call("get", "/users?pageSize=100", { companyId: retail });
+    const en = await retailAdmin.call("get", "/users?pageSize=100", { companyId: retail }).set("accept-language", "en");
+    const admin = (list: { body: { data: { id: string; roleNames: string[] }[] } }) => list.body.data.find((user) => user.id === testIds.retailAdmin)!.roleNames;
+    expect(admin(vi)).toContain("Quản trị công ty");
+    expect(admin(en)).toContain("Company administrator");
+    const audit = await retailAdmin.call("get", "/audit-events?action=number_sequence.update&pageSize=1", { companyId: retail }).set("accept-language", "en");
+    expect(audit.body.data[0].entityLabel).toBe("Test document");
+  });
+});

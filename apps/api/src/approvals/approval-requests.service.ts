@@ -3,6 +3,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import type { ApprovalInboxItem, ApprovalRequestResponse, ApprovalStepResponse, CreateApprovalRequestInput } from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
+import { localizedName } from "../common/localized";
 import { AuditService } from "../common/audit.service";
 import { CLOCK, type Clock } from "../common/clock";
 import { notify, type NotificationInput } from "../common/notifications";
@@ -226,7 +227,7 @@ export class ApprovalRequestsService {
   }
 
   // API_40: chỉ người lập hoặc người duyệt (hiện tại, trước đây, thuộc vai trò) của yêu cầu; người khác nhận 404.
-  async detail(userId: string, requestId: string): Promise<ApprovalRequestResponse> {
+  async detail(userId: string, requestId: string, locale: "vi" | "en" = "vi"): Promise<ApprovalRequestResponse> {
     const request = (await this.database.execute<RequestRow>(sql`
       SELECT q.id, q.company_id, c.short_name AS company_short_name, q.document_type_code, t.name_vi, t.name_en, t.app_code, q.document_id, q.document_no,
         q.amount::text AS amount, q.currency, to_char(q.document_date, 'YYYY-MM-DD') AS document_date, q.exchange_rate::text AS exchange_rate,
@@ -242,7 +243,7 @@ export class ApprovalRequestsService {
             AND (s.assigned_user_id = ${userId} OR s.decided_by = ${userId} OR (s.assigned_role_id IS NOT NULL AND ${this.holdsRole(userId, sql`s.assigned_role_id`, sql`q.company_id`)}))))`)).rows[0];
     if (!request) throw new ApiError("NOT_FOUND", "notFound");
     const steps = (await this.database.execute<StepRow>(sql`
-      SELECT s.level_no, s.assigned_user_id, au.full_name AS assigned_user_name, s.assigned_role_id, r.name_vi AS assigned_role_name, s.is_substitute,
+      SELECT s.level_no, s.assigned_user_id, au.full_name AS assigned_user_name, s.assigned_role_id, ${localizedName("r", locale)} AS assigned_role_name, s.is_substitute,
         s.started_at, l.due_hours, s.decision, du.full_name AS decided_by_name, s.decided_at, s.comment
       FROM core.approval_steps s
       JOIN core.approval_policy_levels l ON l.policy_id = ${request.policy_id} AND l.level_no = s.level_no
