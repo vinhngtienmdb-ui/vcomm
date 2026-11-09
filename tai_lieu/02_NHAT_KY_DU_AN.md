@@ -30,23 +30,31 @@
 - Chọn phương án C "Thân thiện" (xanh lục bảo #047857, phông Nunito Sans) cho nhận diện VComm, bước 06.3 – người quyết định: người dùng.
 - Phê duyệt bản mẫu bước 06.4 và tài liệu `14`, `15`; giai đoạn 06 của MODULE_01 đạt cổng kiểm soát – người quyết định: người dùng.
 - Phê duyệt tài liệu `16`, `17` (gồm thời gian lưu giữ dữ liệu và giữ API phiên bản cũ 6 tháng); giai đoạn 07 của MODULE_01 đạt cổng kiểm soát – người quyết định: người dùng.
+- Phê duyệt THAY_DOI_03: chế độ kế toán mặc định Thông tư 99/2025, cho phép Thông tư 133 với công ty con nhỏ và vừa (Thông tư 200 đã hết hiệu lực) – người quyết định: người dùng.
+- Dùng nguồn mã riêng V-com-ERP theo phương án 3: tham khảo nghiệp vụ, viết lại theo kiến trúc đã duyệt – người quyết định: người dùng.
+- Ghim TypeScript 6.0.3 – người quyết định: người dùng.
+- Phê duyệt tài liệu `18`, `19` và kế hoạch 8 lát của CONG_VIEC_02; giai đoạn 08 đạt cổng kiểm soát – người quyết định: người dùng.
+- Áp dụng 3 cách giảm chi phí AWS giai đoạn 1 – người quyết định: người dùng.
+- Gửi OTP qua Zalo ZNS trước, SMS thương hiệu dự phòng – người quyết định: người dùng.
+- Liên hệ Trung tâm RAR về xác thực VNeID để sau, khi làm MODULE_02 – người quyết định: người dùng.
 - Phê duyệt THAY_DOI_01 (đăng nhập bằng Zalo cho người mua, nhà bán, cửa hàng liên kết, nhân viên; nhân viên chỉ liên kết sau khi kích hoạt) và THAY_DOI_02 (bắt buộc xác thực nhà bán cá nhân và doanh nghiệp qua VNeID, kết nối qua tổ chức cung cấp dịch vụ xác thực điện tử) – người quyết định: người dùng.
 - Các quyết định chi tiết khác ghi tại tài liệu `04` và `05`.
 
 ### Thay đổi
 
 - `tai_lieu/02_NHAT_KY_DU_AN.md`, `tai_lieu/03_DANH_SACH_CONG_VIEC.md`: tạo mới.
-- `tai_lieu/24_YEU_CAU_THAY_DOI.md`: tạo mới với THAY_DOI_01, THAY_DOI_02.
+- `tai_lieu/24_YEU_CAU_THAY_DOI.md`: tạo mới với THAY_DOI_01, THAY_DOI_02; thêm THAY_DOI_03.
+- Tài liệu 13: thêm phân tích V-com-ERP, ước tính chi phí AWS, tra cứu nhà cung cấp VNeID, OTP, Zalo (thực hiện bằng phiên con).
+- Thư mục gốc: 8 tệp cấu hình monorepo và `.claude/launch.json`.
 - `tai_lieu/06` đến `09`: lập cho MODULE_01 (nhánh `chuc-nang/CONG_VIEC_01-bo-tai-lieu-khoi-tao`).
 - `tai_lieu/10`, `11`, `27`: lập cho MODULE_01; kiểm tra bao phủ đầy đủ.
 - `tai_lieu/12`, `13`: rà soát theo tài liệu `10`; `tai_lieu/22`: lập phần A cho MODULE_01.
 
 ### Vấn đề tồn đọng
 
-- Chưa ước tính chi phí hạ tầng đám mây theo giai đoạn – trạng thái: chờ xác nhận.
 - Chưa chốt đối tác ngân hàng hoặc ví điện tử – trạng thái: chờ xác nhận.
 - Chưa có ý kiến luật sư về điểm thưởng, cộng tác viên, dữ liệu cá nhân – trạng thái: chờ xác nhận.
 - Kế toán trưởng chưa chọn phương pháp tính giá vốn cho từng công ty con – trạng thái: chờ xác nhận.
-- Chưa có ứng dụng Zalo for Developers của công ty – trạng thái: chờ xác nhận.
-- Chưa chọn tổ chức cung cấp dịch vụ xác thực điện tử cho VNeID, chưa có chi phí – trạng thái: chờ xác nhận.
+- Chưa có Zalo Official Account và ứng dụng trên developers.zalo.me; chặn lát L6 – trạng thái: chờ người dùng đăng ký.
+- Chưa liên hệ Trung tâm RAR (tổ chức cung cấp dịch vụ xác thực điện tử) – trạng thái: để đến MODULE_02.
 - Chưa chọn nhà cung cấp SMS – trạng thái: chờ xác nhận.

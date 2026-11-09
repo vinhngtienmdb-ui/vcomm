@@ -65,4 +65,4 @@
 - Ảnh hưởng chức năng cũ: Không có mã nguồn đang chạy.
 - Kiểm thử cần thực hiện: TIEUCHI_NGHIEMTHU_01, TIEUCHI_NGHIEMTHU_02 (tạo công ty với chế độ kế toán mặc định).
 - Mức quy mô: Vừa.
-- Trạng thái: Chờ phê duyệt
+- Trạng thái: Đã phê duyệt 2026-11-09
