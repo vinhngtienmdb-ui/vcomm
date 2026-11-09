@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_06: Lập công việc danh mục đối tác dùng chung tập đoàn (MODULE_07, phần tối thiểu), mức Lớn, làm trước Mua hàng, Bán hàng.
 - CONG_VIEC_05: Người dùng nghiệm thu. Bổ sung trước khi hợp nhất: biên bản chênh lệch chuyển kho ghi người chịu trách nhiệm, tiền bồi thường. Hợp nhất pull request số 35 vào `main` (commit `9c3d7c8`), kiểm thử lại 186/186 đạt trên commit hợp nhất. Chưa phát hành, chưa triển khai.
 - CONG_VIEC_05: Xong lát L0 đến L4 trên nhánh `chuc-nang/CONG_VIEC_05-kho` (pull request số 35). L0: mini app `apps/web-inventory` đường dẫn `/inventory`, kho, vị trí kệ, công ty chủ hàng, vai trò Thủ kho, Quản lý kho. L1: phiếu nhập khác, xuất khác, điều chỉnh qua luồng duyệt; sổ kho khóa dòng, không tồn âm, giá vốn bình quân gia quyền di động, lô hết hạn trước, serial, thẻ kho chỉ thêm. L2: chuyển kho hai bước, biên bản chênh lệch. L3: kiểm kê khóa mặt hàng, sinh phiếu điều chỉnh, quy trách nhiệm. L4: giữ hàng, tồn an toàn, cảnh báo hằng ngày, tem PDF Code 128. Kiểm thử 186/186 đạt. Không thêm thư viện. Cập nhật tài liệu 06, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 27, mục lục trên nhánh. Tự rà soát mã sửa 9 điểm; đối chiếu tài liệu với mã sửa thêm 6 lỗi (gồm QUYTAC_NGHIEPVU_40 của CONG_VIEC_04: sản phẩm đã có giao dịch kho không đổi đơn vị cơ sở, hệ số). Sửa lỗi có từ trước: trang chủ không mở được mini app khác, menu tô sáng hai mục.
 - AI tự quyết trong phạm vi đặc tả (CONG_VIEC_05): phiếu kho chưa có chính sách duyệt thì ghi sổ ngay (như phiếu điều chỉnh giá); dãy số tự tạo NK, XK, DCK, CK, KK; duyệt muộn không đổi giá vốn đã tính; hai lần kiểm kê không chạy song song trên cùng mặt hàng; hàng theo lô phải đếm theo lô đã có; giữ hàng thủ công dùng thời hạn của công ty; quyền đặt tồn an toàn dùng `inventory.reservation.manage`.
@@ -41,6 +42,7 @@
 
 ### Quyết định
 
+- Danh mục đối tác (MODULE_07) – người quyết định: người dùng, ngày 2026-11-10: tổ chức, hộ kinh doanh định danh theo mã số thuế; cá nhân định danh theo số Căn cước công dân nếu khách cung cấp, không cung cấp thì không lập đối tác và hóa đơn ghi "Người mua không lấy hóa đơn"; người có quyền quản lý đối tác ở bất kỳ công ty nào được thêm, sửa thông tin chung, mọi thay đổi ghi nhật ký thao tác; tra cứu thông tin theo mã số thuế làm sau cùng hóa đơn điện tử.
 - Chuyển kho nhận thiếu: phần thiếu ghi biên bản kèm người chịu trách nhiệm, tiền bồi thường (mặc định bằng giá trị thiếu); Tài chính – Kế toán hạch toán tổn thất từ biên bản (sửa QUYTAC_NGHIEPVU_52) – người quyết định: người dùng, ngày 2026-11-10.
 - Kho chứa hàng nhiều công ty (MODULE_03) – người quyết định: người dùng, ngày 2026-11-09: nhân viên được gán quyền kho ở chi nhánh sở hữu kho thao tác mọi hàng trong kho, nhân viên công ty chủ hàng chỉ xem tồn của mình; phiếu kho thuộc công ty chủ hàng (đánh số, chính sách duyệt, hạch toán), một phiếu chỉ chứa hàng của một công ty chủ hàng; giữ hàng tự nhả sau thời hạn cài đặt theo công ty, mặc định 72 giờ, người có quyền gia hạn được.
 - Bảng giá còn phiếu điều chỉnh giá chờ duyệt thì không ngừng dùng được (bổ sung QUYTAC_NGHIEPVU_44) – người quyết định: người dùng, ngày 2026-11-09.
