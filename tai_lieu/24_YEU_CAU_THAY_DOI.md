@@ -45,3 +45,16 @@
 - Mức quy mô: Lớn (thêm tích hợp bên ngoài, thêm dữ liệu cá nhân nhạy cảm).
 - **CHƯA XÁC ĐỊNH:** chọn tổ chức cung cấp dịch vụ xác thực điện tử nào; chi phí mỗi lượt xác thực; thời gian ký hợp đồng và được phê duyệt phương án kết nối.
 - Trạng thái: Đã phê duyệt 2026-11-09
+
+### THAY_DOI_03: Chuyển chế độ kế toán từ Thông tư 200 sang Thông tư 99/2025 – 2026-11-09
+- Lý do: Thông tư 99/2025/TT-BTC (Bộ Tài chính, ban hành 27/10/2025, còn hiệu lực) Điều 31 khoản 1: "Thông tư này có hiệu lực thi hành kể từ ngày 01/01/2026 và áp dụng cho năm tài chính bắt đầu từ hoặc sau ngày 01/01/2026. Thông tư này thay thế cho các Thông tư số 200/2014/TT-BTC ngày 22/12/2014 của Bộ Tài chính hướng dẫn chế độ kế toán doanh nghiệp (trừ trường hợp quy định tại khoản 2 Điều này)…". Lựa chọn "Thông tư 200" do AI đưa ra ở đợt hỏi đáp ngày 2026-11-09 là sai. Phát hiện khi đọc nguồn mã riêng V-com-ERP (đã dùng Thông tư 99/2025).
+- Nội dung thay đổi: Chế độ kế toán mặc định của mọi công ty con là Thông tư 99/2025. Giữ lựa chọn Thông tư 133 cho công ty con là doanh nghiệp nhỏ và vừa nếu kế toán trưởng chọn. Thông tư 99/2025 Điều 31 khoản 3 cho doanh nghiệp vừa và nhỏ được lựa chọn áp dụng Thông tư 99/2025.
+- Thành phần bị ảnh hưởng: tài liệu `04` mục 8.3; `05` mục 2.1 (Tài chính – Kế toán); `06` YCAU_NGHIEPVU_01; `10` CHUC_NANG_01 (giá trị mặc định); `16` cột `core.companies.accounting_regime`; MODULE_06 (hệ thống tài khoản, mẫu báo cáo) khi phân tích.
+- Dữ liệu bị ảnh hưởng: `core.companies.accounting_regime` đổi tập giá trị thành `TT99_2025`, `TT133`; mặc định `TT99_2025`. Chưa có dữ liệu thật.
+- API bị ảnh hưởng: API_20 (giá trị cho phép của trường chế độ kế toán).
+- Giao diện bị ảnh hưởng: MAN_HINH_09 (hiển thị "Thông tư 99/2025").
+- Quyền bị ảnh hưởng: Không có.
+- Ảnh hưởng chức năng cũ: Không có mã nguồn đang chạy.
+- Kiểm thử cần thực hiện: TIEUCHI_NGHIEMTHU_01, TIEUCHI_NGHIEMTHU_02 (tạo công ty với chế độ kế toán mặc định).
+- Mức quy mô: Vừa.
+- Trạng thái: Chờ phê duyệt
