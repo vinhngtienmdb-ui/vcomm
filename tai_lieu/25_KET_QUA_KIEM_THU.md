@@ -65,3 +65,19 @@
 - Kết luận cổng kiểm thử: Đạt trên bản giả lập (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Kiểm với nhà cung cấp thật làm khi người dùng có khóa.
 - Bổ sung khi nghiệm thu (2026-11-09): nút gửi thử tin (KICHBAN_KIEMTHU_123 bước 8 đến 10), đếm ngược gửi lại mã, lời thông báo Zalo theo đặc tả. Kiểm thử lại 156/156 đạt trên nhánh và trên commit hợp nhất `5f4eb6c` vào `main`; CI đạt.
 - Kết luận: Người dùng nghiệm thu, đã hợp nhất vào `main`.
+
+## Lần kiểm thử 2026-11-09 – CONG_VIEC_04
+
+- Phạm vi: lát L0 đến L4 (mini app Sản phẩm; ngành hàng, đơn vị tính; sản phẩm, biến thể, mã vạch, ảnh; nhập Excel; liên kết, sao chép giữa công ty; kênh bán, nhóm khách hàng, bảng giá, phiếu điều chỉnh giá); MAN_HINH_22 đến 27; API_55 đến API_62. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22. Lưu ảnh dùng bản giả lập lưu trữ tệp như CONG_VIEC_03.
+- Lệnh đã chạy: `pnpm --filter api typecheck`, `pnpm --filter web-catalog typecheck`, `pnpm --filter web-platform typecheck`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --audit-level=high`; thử trên trình duyệt bằng Playwright: nhập Excel sản phẩm, sao chép sang công ty khác, thêm kênh có sẵn, tạo bảng giá (trùng bị từ chối), lập phiếu điều chỉnh giá chọn biến thể, gửi, xem giá hiện hành và lịch sử, phần Giá bán ở chi tiết sản phẩm (máy tính và điện thoại).
+- Kết quả: 173 đạt / 0 không đạt / 173 kịch bản tự động (16 tệp; phần mới: `c4-categories` 4, `c4-products` 5, `c4-import-links` 3, `c4-prices` 5). Khớp khóa dịch tiếng Việt, tiếng Anh: 1108 khóa.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_56 đến 63 (bắt buộc) – Đạt; TIEUCHI_NGHIEMTHU_64 (mong muốn) – Đạt (tìm không dấu; 10.000 sản phẩm trả trang đầu dưới 500 ms trong kiểm thử).
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --audit-level=high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc: không có phát hiện.
+  - C3 phân quyền: Đạt – ngành hàng, đơn vị tính chỉ người có quyền phạm vi tập đoàn sửa; sản phẩm, bảng giá của công ty khác trả `404`; liên kết, sao chép cần quyền quản lý sản phẩm ở cả hai công ty; giá chỉ đổi qua phiếu điều chỉnh giá.
+  - C4 dữ liệu độc hại: Đạt – ảnh kiểm chữ ký đầu tệp, tối đa 5 MB, 10 ảnh; tệp Excel tối đa 5 MB, 2.000 dòng, sai mẫu bị từ chối cả tệp; truy vấn tìm kiếm thoát ký tự đặc biệt của LIKE.
+  - C6 OWASP Top 10: A01 kiểm quyền theo công ty trong từng service; A04 hai người lưu cùng lúc trùng mã, trùng bảng giá nhận lỗi kiểm tra, không lỗi hệ thống.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát lát L4 tìm 10 điểm, sửa 9, giữ 1 (kích thước giao diện ghi thẳng như các trang L2, chưa có biến trong tài liệu `15`); đối chiếu tài liệu với mã sửa thêm 3 lỗi.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
