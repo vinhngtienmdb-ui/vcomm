@@ -3,6 +3,7 @@ import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, P
 import {
   createLocationsSchema,
   lotSuggestionQuerySchema,
+  receiveTransferSchema,
   saveStockDocumentSchema,
   stockCardQuerySchema,
   stockDetailQuerySchema,
@@ -17,6 +18,7 @@ import {
   type StockDocumentResponse,
   type StockItemOption,
   type StockRow,
+  type TransferDestination,
   createWarehouseSchema,
   updateInventorySettingsSchema,
   updateLocationSchema,
@@ -34,6 +36,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { StockDocumentsService } from "./stock-documents.service";
 import { StockService } from "./stock.service";
+import { TransfersService } from "./transfers.service";
 import { WarehousesService } from "./warehouses.service";
 
 const statusOf = (request: AuthenticatedRequest) => (request.path.endsWith("/deactivate") ? "inactive" : "active");
@@ -45,6 +48,7 @@ export class InventoryController {
     private readonly warehouses: WarehousesService,
     private readonly stock: StockService,
     private readonly documents: StockDocumentsService,
+    private readonly transfers: TransfersService,
   ) {}
 
   // Vào mini app Kho: quyền kho ở công ty đang chọn hoặc ở bất kỳ chi nhánh nào của công ty đó.
@@ -190,5 +194,21 @@ export class InventoryController {
   @Post("documents/:id/withdraw")
   async withdrawDocument(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
     return this.documents.withdraw(await this.actor(request, companyId), id);
+  }
+
+  // API_66: chuyển kho hai bước.
+  @Get("transfer-destinations")
+  async transferDestinations(@Req() request: AuthenticatedRequest, @Query("companyId", UuidPipe) owner: string, @Headers("x-company-id") companyId?: string): Promise<TransferDestination[]> {
+    return this.transfers.destinations(await this.actor(request, companyId), owner);
+  }
+
+  @Post("documents/:id/ship")
+  async ship(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.transfers.ship(await this.actor(request, companyId), id);
+  }
+
+  @Post("documents/:id/receive")
+  async receive(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.transfers.receive(await this.actor(request, companyId), id, receiveTransferSchema.parse(body));
   }
 }

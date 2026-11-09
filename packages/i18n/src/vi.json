@@ -141,7 +141,10 @@
     "lotOverrideReasonRequired": "Chọn lô khác lô gợi ý phải ghi lý do.",
     "warehouseOwnerNotAllowed": "Kho không nhận hàng của công ty này.",
     "stockItemNotOwned": "Mặt hàng không thuộc công ty chủ hàng hoặc đã ngừng bán.",
-    "documentHeaderLocked": "Không đổi loại phiếu, kho, công ty chủ hàng của phiếu đã lập."
+    "documentHeaderLocked": "Không đổi loại phiếu, kho, công ty chủ hàng của phiếu đã lập.",
+    "transferNotReadyToShip": "Phiếu chuyển kho chưa được duyệt hoặc đã xuất.",
+    "transferNotInTransit": "Phiếu chuyển kho không ở trạng thái đang vận chuyển.",
+    "serialNotShipped": "Serial không có trong phiếu chuyển kho."
   },
   "login": {
     "title": "Đăng nhập",
@@ -775,7 +778,9 @@
     "stock_document_create": "Lập phiếu kho",
     "stock_document_update": "Sửa phiếu kho",
     "stock_document_delete": "Xóa phiếu kho nháp",
-    "stock_document_submit": "Gửi phiếu kho"
+    "stock_document_submit": "Gửi phiếu kho",
+    "stock_document_ship": "Xác nhận xuất chuyển kho",
+    "stock_document_receive": "Xác nhận nhận chuyển kho"
   },
   "notifications": {
     "title": "Thông báo",
@@ -1393,6 +1398,18 @@
     "reason_damaged": "Hư hỏng",
     "reason_expired_disposal": "Hủy hàng hết hạn",
     "reason_stocktake": "Kiểm kê",
-    "reason_transfer": "Chuyển kho"
+    "reason_transfer": "Chuyển kho",
+    "destination": "Kho đích",
+    "approvedNow": "Công ty chủ hàng chưa có chính sách duyệt chuyển kho nên phiếu đã được duyệt; kho nguồn xác nhận xuất.",
+    "ship": "Xác nhận xuất",
+    "shipped": "Đã xuất, hàng đang vận chuyển.",
+    "receiveTitle": "Nhận hàng tại kho đích",
+    "receiveHint": "Nhập số thực nhận theo đơn vị cơ sở. Nhận thiếu hoặc thừa sẽ lập biên bản chênh lệch.",
+    "receivedQuantity": "Số thực nhận",
+    "receiveNote": "Ghi chú biên bản",
+    "receive": "Xác nhận nhận",
+    "received": "Đã nhận hàng.",
+    "discrepancies": "Biên bản chênh lệch",
+    "discrepancyLine": "xuất {shipped}, nhận {received}, chênh lệch {difference}"
   }
 }

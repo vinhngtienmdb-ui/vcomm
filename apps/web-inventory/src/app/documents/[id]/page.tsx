@@ -2,7 +2,17 @@
 
 // MAN_HINH_32 Phiếu nhập khác, xuất khác, điều chỉnh (CHUC_NANG_40; QUYTAC_NGHIEPVU_47, 50, 51; API_65):
 // quét mã vạch thêm dòng, chọn lô gợi ý hết hạn trước, serial, vị trí; gửi duyệt, rút; liên kết MAN_HINH_08.
-import { stockReasonCodes, type LocationResponse, type LotSuggestion, type StockDocumentResponse, type StockDocumentType, type StockItemOption, type WarehouseResponse } from "contracts";
+// MAN_HINH_33 Phiếu chuyển kho (CHUC_NANG_41; API_66): kho đích, kho nguồn xác nhận xuất, kho đích nhận theo số thực nhận, biên bản chênh lệch.
+import {
+  stockReasonCodes,
+  type LocationResponse,
+  type LotSuggestion,
+  type StockDocumentResponse,
+  type StockDocumentType,
+  type StockItemOption,
+  type TransferDestination,
+  type WarehouseResponse,
+} from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -37,7 +47,7 @@ type LineDraft = {
   serials: string;
 };
 
-const editableTypes = ["receipt_other", "issue_other", "adjustment"] as const;
+const editableTypes = ["receipt_other", "issue_other", "adjustment", "transfer"] as const;
 let nextKey = 0;
 const newKey = () => `dong-${++nextKey}`;
 // Dòng làm giảm tồn: phiếu xuất, chuyển kho, hoặc dòng âm của phiếu điều chỉnh.
@@ -87,6 +97,8 @@ function DocumentForm({ type, document, onChanged }: { type: StockDocumentType; 
   const [reasonCode, setReasonCode] = useState(document?.reasonCode ?? reasonCodes[0]!);
   const [reason, setReason] = useState(document?.reason ?? "");
   const [note, setNote] = useState(document?.note ?? "");
+  const [destinationWarehouseId, setDestinationWarehouseId] = useState(document?.destinationWarehouseId ?? "");
+  const destinations = useApi<TransferDestination[]>(type === "transfer" && companyId ? `/inventory/transfer-destinations?companyId=${companyId}` : null);
   const [lines, setLines] = useState<LineDraft[]>([]);
   const [draft, setDraft] = useState<{ id: string; version: number } | null>(document ? { id: document.id, version: document.version } : null);
   const [confirming, setConfirming] = useState<"submit" | "delete" | null>(null);
@@ -172,6 +184,7 @@ function DocumentForm({ type, document, onChanged }: { type: StockDocumentType; 
       reasonCode,
       reason,
       note: note || null,
+      destinationWarehouseId: type === "transfer" ? destinationWarehouseId || null : null,
       version: draft?.version,
       lines: lines.map((line) => ({
         variantId: line.variantId,
@@ -211,7 +224,7 @@ function DocumentForm({ type, document, onChanged }: { type: StockDocumentType; 
     void run(async () => {
       const savedId = await save();
       const submitted = await apiFetch<StockDocumentResponse>(`/inventory/documents/${savedId}/submit`, { method: "POST" });
-      notify(submitted.status === "posted" ? t("postedNow") : t("submitted"));
+      notify(submitted.status === "posted" ? t(type === "transfer" ? "approvedNow" : "postedNow") : t("submitted"));
       if (document) onChanged();
       else router.replace(`/documents/${savedId}`);
     });
@@ -262,6 +275,21 @@ function DocumentForm({ type, document, onChanged }: { type: StockDocumentType; 
               ))}
             </select>
           </Field>
+          {type === "transfer" && (
+            <Field id="kho-dich" label={`${t("destination")} *`} error={fields.destinationWarehouseId}>
+              <select id="kho-dich" className={inputClass("destinationWarehouseId")} value={destinationWarehouseId} onChange={(event) => setDestinationWarehouseId(event.target.value)}>
+                <option value="">—</option>
+                {destinations.state.kind === "ready" &&
+                  destinations.state.data
+                    .filter((item) => item.id !== warehouseId)
+                    .map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.code} · {item.name} ({item.companyName})
+                      </option>
+                    ))}
+              </select>
+            </Field>
+          )}
           <Field id="ngay-phieu" label={`${t("date")} *`} error={fields.documentDate}>
             <input id="ngay-phieu" type="date" className={inputClass("documentDate")} value={documentDate} onChange={(event) => setDocumentDate(event.target.value)} />
           </Field>
@@ -516,6 +544,19 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
   const [busy, setBusy] = useState(false);
   const money = (value: string | null) => (value === null ? "—" : formatMoney(value, "VND"));
 
+  async function ship() {
+    setBusy(true);
+    try {
+      await apiFetch(`/inventory/documents/${document.id}/ship`, { method: "POST" });
+      notify(t("shipped"));
+      onChanged();
+    } catch (error) {
+      notify(failureOf(error).message, "loi");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function withdraw() {
     setBusy(true);
     try {
@@ -545,6 +586,11 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
           <a className="nut phu" href={`/hop-duyet/${document.approvalRequestId}`}>
             {t("viewApproval")}
           </a>
+        )}
+        {document.canShip && (
+          <button type="button" className="nut chinh" disabled={busy} onClick={() => void ship()}>
+            {t("ship")}
+          </button>
         )}
         {document.canWithdraw && (
           <button type="button" className="nut phu" onClick={() => setWithdrawing(true)}>
@@ -630,9 +676,111 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
           </tbody>
         </table>
       </div>
+      {document.canReceive && <ReceiveForm document={document} onReceived={onChanged} />}
+      {document.discrepancies.length > 0 && (
+        <section className="the" style={{ marginTop: "var(--khoang-4)" }}>
+          <h2>{t("discrepancies")}</h2>
+          <ul>
+            {document.discrepancies.map((item) => (
+              <li key={item.lineId}>
+                {item.sku}: {t("discrepancyLine", { shipped: formatNumber(item.shippedQuantity), received: formatNumber(item.receivedQuantity), difference: formatNumber(item.difference) })}
+                {item.value !== null && ` · ${money(item.value)}`}
+                {item.note && <span className="chu-thich"> · {item.note}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       {withdrawing && (
         <ConfirmDialog title={t("withdrawTitle")} text={t("withdrawText")} confirmLabel={t("withdraw")} busy={busy} onConfirm={() => void withdraw()} onClose={() => setWithdrawing(false)} />
       )}
     </>
+  );
+}
+
+// Kho đích nhận hàng: số thực nhận theo đơn vị cơ sở, vị trí đích, serial nhận được; chênh lệch tự lập biên bản.
+function ReceiveForm({ document, onReceived }: { document: StockDocumentResponse; onReceived: () => void }) {
+  const t = useTranslations("documents");
+  const { notify } = useAdmin();
+  const destination = useApi<WarehouseResponse>(`/inventory/warehouses/${document.destinationWarehouseId}`);
+  const usesLocations = destination.state.kind === "ready" && destination.state.data.usesLocations;
+  const locations = useApi<LocationResponse[]>(usesLocations ? `/inventory/warehouses/${document.destinationWarehouseId}/locations` : null);
+  const [lines, setLines] = useState(document.lines.map((line) => ({ lineId: line.id, receivedQuantity: line.baseQuantity, destinationLocationId: "", serials: line.serials.join("\n") })));
+  const [note, setNote] = useState("");
+  const { submitting, fields, formError, run } = useSubmit();
+  const update = (index: number, change: Partial<(typeof lines)[number]>) => setLines(lines.map((line, position) => (position === index ? { ...line, ...change } : line)));
+
+  function submit() {
+    void run(async () => {
+      await apiFetch(`/inventory/documents/${document.id}/receive`, {
+        method: "POST",
+        body: JSON.stringify({
+          note: note || null,
+          lines: lines.map((line) => ({
+            lineId: line.lineId,
+            receivedQuantity: line.receivedQuantity.replace(",", "."),
+            destinationLocationId: line.destinationLocationId || null,
+            serials: line.serials
+              .split(/[\n,;]/)
+              .map((serial) => serial.trim())
+              .filter(Boolean),
+          })),
+        }),
+      });
+      notify(t("received"));
+      onReceived();
+    });
+  }
+
+  return (
+    <section className="the" style={{ marginTop: "var(--khoang-4)", display: "grid", gap: "var(--khoang-3)" }}>
+      <h2>{t("receiveTitle")}</h2>
+      <p className="chu-thich">{t("receiveHint")}</p>
+      {document.lines.map((line, index) => (
+        <div key={line.id} style={{ display: "grid", gap: "var(--khoang-3)", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", alignItems: "end" }}>
+          <strong>
+            {line.sku} · {formatNumber(line.baseQuantity)} {line.baseUnitName}
+            {line.lotNo && <span className="chu-thich"> · {line.lotNo}</span>}
+          </strong>
+          <Field id={`nhan-${index}`} label={t("receivedQuantity")}>
+            <input id={`nhan-${index}`} inputMode="decimal" className="o-nhap" value={lines[index]!.receivedQuantity} onChange={(event) => update(index, { receivedQuantity: event.target.value })} />
+          </Field>
+          {usesLocations && (
+            <Field id={`vi-tri-nhan-${index}`} label={`${t("location")} *`}>
+              <select id={`vi-tri-nhan-${index}`} className="o-nhap" value={lines[index]!.destinationLocationId} onChange={(event) => update(index, { destinationLocationId: event.target.value })}>
+                <option value="">—</option>
+                {locations.state.kind === "ready" &&
+                  locations.state.data
+                    .filter((location) => location.status === "active")
+                    .map((location) => (
+                      <option key={location.id} value={location.id}>
+                        {location.code}
+                      </option>
+                    ))}
+              </select>
+            </Field>
+          )}
+          {line.tracksSerials && (
+            <Field id={`serial-nhan-${index}`} label={t("serials")}>
+              <textarea id={`serial-nhan-${index}`} className="o-nhap" rows={2} value={lines[index]!.serials} onChange={(event) => update(index, { serials: event.target.value })} />
+            </Field>
+          )}
+          {Object.entries(fields)
+            .filter(([key]) => key.startsWith(`lines.${index}.`))
+            .map(([key, message]) => (
+              <span key={key} className="loi-o">
+                {message}
+              </span>
+            ))}
+        </div>
+      ))}
+      <Field id="ghi-chu-nhan" label={t("receiveNote")}>
+        <input id="ghi-chu-nhan" className="o-nhap" value={note} maxLength={1000} onChange={(event) => setNote(event.target.value)} />
+      </Field>
+      <FormError text={formError} />
+      <button type="button" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting} style={{ justifySelf: "start" }} onClick={submit}>
+        {t("receive")}
+      </button>
+    </section>
   );
 }

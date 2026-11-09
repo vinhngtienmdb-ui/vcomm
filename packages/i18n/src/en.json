@@ -141,7 +141,10 @@
     "lotOverrideReasonRequired": "Enter a reason when choosing a lot other than the suggested one.",
     "warehouseOwnerNotAllowed": "The warehouse does not accept goods of this company.",
     "stockItemNotOwned": "The item does not belong to the owner company or is inactive.",
-    "documentHeaderLocked": "The document type, warehouse and owner company cannot be changed."
+    "documentHeaderLocked": "The document type, warehouse and owner company cannot be changed.",
+    "transferNotReadyToShip": "The transfer is not approved yet or has already been shipped.",
+    "transferNotInTransit": "The transfer is not in transit.",
+    "serialNotShipped": "This serial is not on the transfer."
   },
   "login": {
     "title": "Sign in",
@@ -775,7 +778,9 @@
     "stock_document_create": "Create stock document",
     "stock_document_update": "Edit stock document",
     "stock_document_delete": "Delete draft stock document",
-    "stock_document_submit": "Submit stock document"
+    "stock_document_submit": "Submit stock document",
+    "stock_document_ship": "Ship transfer",
+    "stock_document_receive": "Receive transfer"
   },
   "notifications": {
     "title": "Notifications",
@@ -1393,6 +1398,18 @@
     "reason_damaged": "Damaged",
     "reason_expired_disposal": "Expired goods disposal",
     "reason_stocktake": "Stocktake",
-    "reason_transfer": "Transfer"
+    "reason_transfer": "Transfer",
+    "destination": "Destination warehouse",
+    "approvedNow": "The owner company has no approval policy for transfers, so the transfer was approved; the source warehouse confirms shipping.",
+    "ship": "Confirm shipping",
+    "shipped": "Shipped; goods are in transit.",
+    "receiveTitle": "Receive at destination",
+    "receiveHint": "Enter the received quantity in the base unit. Shortages or surpluses create a discrepancy report.",
+    "receivedQuantity": "Received quantity",
+    "receiveNote": "Report note",
+    "receive": "Confirm receipt",
+    "received": "Goods received.",
+    "discrepancies": "Discrepancy report",
+    "discrepancyLine": "shipped {shipped}, received {received}, difference {difference}"
   }
 }

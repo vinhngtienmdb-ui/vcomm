@@ -1637,3 +1637,38 @@ export interface StockCardResponse {
   }[];
   closing: { quantity: string; value: string | null };
 }
+
+// CONG_VIEC_05, API_66: chuyển kho hai bước (CHUC_NANG_41; QUYTAC_NGHIEPVU_52). Số thực nhận theo đơn vị cơ sở.
+export const receiveTransferSchema = z
+  .object({
+    lines: z
+      .array(
+        z
+          .object({
+            lineId: z.uuid(),
+            receivedQuantity: z.union([z.number(), z.string()]).transform((value, context) => {
+              const text = String(value).trim().replace(",", ".");
+              if (!/^\d{1,12}(\.\d{1,4})?$/.test(text)) {
+                context.addIssue({ code: "custom", message: "invalidValue" });
+                return z.NEVER;
+              }
+              return text;
+            }),
+            destinationLocationId: z.uuid().nullable().optional(),
+            serials: z.array(z.string().trim().min(1).max(100)).max(5000).default([]),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(1000),
+    note: z.string().trim().max(1000).nullable().optional(),
+  })
+  .strict();
+export type ReceiveTransferRequest = z.input<typeof receiveTransferSchema>;
+export interface TransferDestination {
+  id: string;
+  code: string;
+  name: string;
+  companyName: string;
+  usesLocations: boolean;
+}

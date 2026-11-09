@@ -38,7 +38,7 @@ export default function DocumentsPage() {
         <h1>{t("title")}</h1>
         <HistoryLink entityType="stock_document" />
         {can("inventory.document.manage") &&
-          (["receipt_other", "issue_other", "adjustment"] as const).map((item, index) => (
+          (["receipt_other", "issue_other", "adjustment", "transfer"] as const).map((item, index) => (
             <Link key={item} className={`nut ${index === 0 ? "chinh" : "phu"}`} href={`/documents/new?type=${item}`}>
               {t(`new_${item}`)}
             </Link>

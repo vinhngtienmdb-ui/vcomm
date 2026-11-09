@@ -25,6 +25,8 @@ export interface LedgerEntry {
   serials?: string[];
   // Trạng thái serial sau khi giảm: đã xuất, hoặc đang vận chuyển (chuyển kho).
   serialStatusAfter?: "issued" | "in_transit";
+  // Nhận serial đang vận chuyển: giữ giá đích danh của từng serial.
+  keepSerialCost?: boolean;
   documentId: string;
   lineId: string | null;
   // Bỏ kiểm khóa kiểm kê (phiếu điều chỉnh sinh từ chính lần kiểm kê đó).
@@ -118,6 +120,14 @@ export class StockLedgerService {
 
   // Serial nhập: chưa có thì tạo; đã xuất trước đó (hàng trả lại) thì đưa về kho; đang trong kho thì từ chối.
   private async receiveSerials(transaction: Executor, entry: LedgerEntry, averageCost: string): Promise<{ value: string; serialIds: string[] }> {
+    if (entry.keepSerialCost) {
+      const moved = await transaction.execute<{ id: string }>(sql`
+        UPDATE inventory.serials SET warehouse_id = ${entry.warehouseId}, location_id = ${entry.locationId}, status = 'in_stock', updated_at = now()
+        WHERE company_id = ${entry.companyId} AND variant_id = ${entry.variantId} AND status = 'in_transit' AND serial_no = ANY(${pgArray(entry.serials!)}::text[]) RETURNING id`);
+      if (moved.rows.length !== entry.serials!.length) throw new ApiError("BUSINESS_RULE", "serialNotInStock");
+      const ids = moved.rows.map((row) => row.id);
+      return { value: await scalar(transaction, sql`SELECT coalesce(sum(unit_cost), 0)::text AS value FROM inventory.serials WHERE id = ANY(${pgArray(ids)}::uuid[])`), serialIds: ids };
+    }
     const unitCost = entry.unitCost ?? (entry.totalValue ? await scalar(transaction, sql`SELECT round(${entry.totalValue}::numeric / ${entry.serials!.length}, 4)::text AS value`) : averageCost);
     const serialIds: string[] = [];
     for (const serialNo of entry.serials!) {
