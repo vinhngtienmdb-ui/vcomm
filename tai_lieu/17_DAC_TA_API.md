@@ -63,7 +63,7 @@ Quyền viết tắt theo tiền tố `platform.`. "Công khai" = không cần �
 | API_08 | `POST /auth/mfa/enroll/confirm` | CHUC_NANG_09 | Đã đăng nhập | `code` | `{ backupCodes: [10 mã] }` (chỉ trả một lần) |
 | API_09 | `POST /auth/refresh` | Phiên | Cookie làm mới | Không | Token mới; đổi token làm mới |
 | API_10 | `POST /auth/logout` | Phiên | Đã đăng nhập | Không | `204`; thu hồi phiên |
-| API_11 | `POST /auth/activation` | CHUC_NANG_04 | Công khai | `token`, `password` | `204` |
+| API_11 | `POST /auth/activation`; `GET /auth/activation/{token}` (thông tin cho MAN_HINH_03) | CHUC_NANG_04 | Công khai | `token`, `password` | `204`; `{ fullName, companyName, loginIdentifier }` |
 | API_12 | `POST /auth/password/forgot` | CHUC_NANG_06 | Công khai | `identifier` | `204` (luôn thành công) |
 | API_13 | `POST /auth/password/reset` | CHUC_NANG_06 | Công khai | `token`, `password` | `204`; thu hồi mọi phiên |
 | API_14 | `GET /me` | CHUC_NANG_10, CHUC_NANG_11 | Đã đăng nhập | Không | Hồ sơ, công ty thuộc về, công ty đang chọn, quyền trong công ty đang chọn |
@@ -79,7 +79,7 @@ Quyền viết tắt theo tiền tố `platform.`. "Công khai" = không cần �
 | API_24 | `GET /users` | CHUC_NANG_04, CHUC_NANG_19 | `user.view` | Lọc `branchId`, `departmentId`, `roleId`, `status`, `q` | Danh sách nhân viên trong công ty đang chọn |
 | API_25 | `POST /users/invitations` | CHUC_NANG_04 | `user.invite` | `fullName`, `email`, `phone`, `username`, `defaultBranchId`, `departmentId`, `jobTitle`, `roleAssignments[]` | Nhân viên "Đã mời" |
 | API_26 | `POST /users/{id}/invitations/resend` | CHUC_NANG_04 | `user.invite` | Không | `204` |
-| API_27 | `POST /users/imports` | CHUC_NANG_05 | `user.invite` | Tệp `.xlsx` (multipart, tối đa 5 MB, 1.000 dòng) | `{ invited, failed, errorFileUrl }` |
+| API_27 | `POST /users/imports` | CHUC_NANG_05 | `user.invite` | Tệp `.xlsx` (multipart, tối đa 5 MB, 1.000 dòng) | `{ invited, failed, errors, errorFileUrl }` (tệp lỗi dạng data URL, không lưu trên máy chủ) |
 | API_28 | `GET /users/imports/template` | CHUC_NANG_05 | `user.invite` | Không | Tệp mẫu `.xlsx` |
 | API_29 | `GET /users/{id}`, `PATCH /users/{id}` | CHUC_NANG_19 | `user.view`, `user.manage` | Trường nhân viên, `version` | Chi tiết nhân viên, công ty, vai trò, phiên |
 | API_30 | `POST /users/{id}/lock`, `POST /users/{id}/unlock` | CHUC_NANG_19 | `user.manage` | `reason` | Nhân viên; thu hồi phiên khi khóa |

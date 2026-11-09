@@ -220,7 +220,7 @@ Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá th�
 - Chức năng: CHUC_NANG_05
 - Loại: Đúng
 - Vai trò thực hiện: Quản trị công ty VCR
-- Điều kiện ban đầu và dữ liệu: Tệp `nhap_10_dong.xlsx` theo mẫu API_28: email `nhap.nv01@vcomm.test` đến `nhap.nv08@vcomm.test`; dòng 9 trùng email dòng 2, dòng 10 trùng email dòng 5. **CHƯA XÁC ĐỊNH:** "trùng email" là trùng trong cùng tệp hay trùng với tài khoản đã thuộc VCR; kịch bản dùng trùng trong cùng tệp, dòng sau bị lỗi.
+- Điều kiện ban đầu và dữ liệu: Tệp `nhap_10_dong.xlsx` theo mẫu API_28: email `nhap.nv01@vcomm.test` đến `nhap.nv08@vcomm.test`; dòng 9 trùng email dòng 2, dòng 10 trùng email dòng 5. Chốt ở lát L4: trùng trong cùng tệp thì dòng sau lỗi; email đã có tài khoản ở công ty khác thì thêm vào công ty (như CHUC_NANG_04); đã thuộc công ty này thì lỗi "Nhân viên đã thuộc công ty này.".
 - Các bước: (1) Gọi API_27 với tệp. (2) Tải `errorFileUrl`.
 - Kết quả mong đợi: `invited` = 8, `failed` = 2. Tệp lỗi có đúng dòng 9 và dòng 10 kèm lý do. Có 8 tài khoản "Đã mời".
 - Kiểm thử tự động: Tự động API
