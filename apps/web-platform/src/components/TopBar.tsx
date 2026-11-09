@@ -52,9 +52,7 @@ export function TopBar({ me, onCompanyChange }: { me: MeResponse; onCompanyChang
       ) : (
         <span style={{ fontSize: 13 }}>{me.companies[0]?.shortName}</span>
       )}
-      <button type="button" disabled>
-        {t("approvals")}
-      </button>
+      <a href="/hop-duyet">{t("approvals")}</a>
       <button type="button" disabled>
         {t("notifications")}
       </button>

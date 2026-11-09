@@ -32,6 +32,7 @@ export const adminMenu = [
   { href: "/platform/departments", key: "departments", permission: "platform.department.manage" },
   { href: "/platform/users", key: "users", permission: "platform.user.view" },
   { href: "/platform/roles", key: "roles", permission: "platform.role.manage" },
+  { href: "/platform/approval-policies", key: "approvalPolicies", permission: "platform.approval_policy.manage" },
 ] as const;
 
 export function AdminShell({ children }: { children: ReactNode }) {

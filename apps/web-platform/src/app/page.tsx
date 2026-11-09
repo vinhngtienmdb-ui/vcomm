@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { TopBar } from "@/components/TopBar";
 import { apiFetch, ApiFailure, rememberCompany } from "@/lib/api";
+import { formatMoney } from "@/lib/format";
 
 // Mini app đã có giao diện.
 const builtApps = new Set(["platform"]);
@@ -108,9 +109,19 @@ export default function HomePage() {
         )}
         <section className="the">
           <h2>{t("pendingApprovals")}</h2>
-          <p className="chu-thich" style={{ margin: 0 }}>
-            {t("noPendingApprovals")}
-          </p>
+          {home.pendingApprovals.length === 0 ? (
+            <p className="chu-thich" style={{ margin: 0 }}>
+              {t("noPendingApprovals")}
+            </p>
+          ) : (
+            <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 6 }}>
+              {home.pendingApprovals.map((item) => (
+                <li key={item.id}>
+                  <a href={`/hop-duyet/${item.id}`}>{item.documentNo}</a> · {formatMoney(item.amount, item.currency)}
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       </main>
     </>
