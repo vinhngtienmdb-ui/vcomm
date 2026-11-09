@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { LanguageSelect } from "@/components/LanguageSelect";
-import { apiFetch, ApiFailure } from "@/lib/api";
+import { apiFetch, ApiFailure, forgetCompany } from "@/lib/api";
 
 export default function LoginPage() {
   const t = useTranslations("login");
@@ -25,6 +25,7 @@ export default function LoginPage() {
     setFormError(null);
     try {
       await apiFetch<LoginResponse>("/auth/login", { method: "POST", body: JSON.stringify({ identifier, password }) });
+      forgetCompany();
       router.replace("/");
     } catch (error) {
       const failure = error instanceof ApiFailure ? error.body : null;

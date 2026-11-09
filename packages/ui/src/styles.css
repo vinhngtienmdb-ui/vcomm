@@ -77,6 +77,15 @@ td a { font-weight: 700; text-decoration: none; }
 .nhan.thong-tin { background: var(--mau-thong-tin-nen); color: var(--mau-thong-tin); }
 .nhan.trung-tinh { background: var(--mau-nen); color: var(--mau-chu-phu); border: 1px solid var(--mau-vien); }
 
+/* MaTranQuyen: luôn là bảng, cuộn ngang trong khung riêng kể cả trên điện thoại (MAN_HINH_14) */
+.ma-tran { background: var(--mau-be-mat); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); overflow-x: auto; }
+.ma-tran table { min-width: 640px; }
+.ma-tran th[scope="row"] { min-width: 180px; text-transform: none; letter-spacing: 0; font-size: 14px; color: var(--mau-chu); }
+.ma-tran th[scope="col"]:first-child { min-width: 180px; }
+.ma-tran td.o-quyen, .ma-tran th.o-quyen { text-align: center; }
+.ma-tran input { width: 18px; height: 18px; accent-color: var(--mau-chinh); cursor: pointer; }
+.ma-tran input[disabled] { opacity: .45; cursor: not-allowed; }
+
 /* KhoiCanhBao */
 .khoi-canh-bao { border-radius: var(--bo-vua); padding: var(--khoang-3) var(--khoang-4); border: 1px solid; }
 .khoi-canh-bao.canh-bao { background: var(--mau-canh-bao-nen); color: var(--mau-canh-bao); border-color: #F1D38A; }

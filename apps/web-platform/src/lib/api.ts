@@ -35,6 +35,15 @@ export function rememberCompany(companyId: string): void {
   }
 }
 
+// Gọi khi đăng nhập: công ty đã chọn của người dùng trước không áp dụng cho người dùng mới.
+export function forgetCompany(): void {
+  try {
+    localStorage.removeItem(companyStorageKey);
+  } catch {
+    // Không có bộ nhớ cục bộ thì không có gì để xóa.
+  }
+}
+
 async function send(path: string, init: RequestInit): Promise<Response> {
   const headers = new Headers(init.headers);
   headers.set("accept-language", document.documentElement.lang || "vi");

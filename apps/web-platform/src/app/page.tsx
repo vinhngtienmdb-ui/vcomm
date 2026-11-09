@@ -8,6 +8,9 @@ import { useCallback, useEffect, useState } from "react";
 import { TopBar } from "@/components/TopBar";
 import { apiFetch, ApiFailure, rememberCompany } from "@/lib/api";
 
+// Mini app đã có giao diện.
+const builtApps = new Set(["platform"]);
+
 type State = { kind: "loading" } | { kind: "error" } | { kind: "ready"; me: MeResponse; home: HomeResponse };
 
 const initials = (name: string) =>
@@ -92,8 +95,8 @@ export default function HomePage() {
                   type="button"
                   className="o-app"
                   style={{ font: "inherit", textAlign: "left", cursor: "pointer" }}
-                  // Mini app chưa xây ở lát này: báo rõ thay vì mở trang lỗi.
-                  onClick={() => setNotice(t("comingLater", { name }))}
+                  // Mini app chưa xây: báo rõ thay vì mở trang lỗi.
+                  onClick={() => (builtApps.has(app.code) ? router.push(app.url) : setNotice(t("comingLater", { name })))}
                 >
                   <span className="bieu-tuong">{initials(name)}</span>
                   <strong>{name}</strong>
