@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 1.1
+- Phiên bản: 1.2
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09)
 
 ## MODULE_01 Nền tảng
 
@@ -28,6 +28,9 @@
 | YCAU_NGHIEPVU_16 | Ghi nhật ký mọi thao tác ghi dữ liệu và đăng nhập; tra cứu được | Quản trị tập đoàn, quản trị công ty | Tài liệu `05` mục 2.1 |
 | YCAU_NGHIEPVU_17 | Giao diện tiếng Việt và tiếng Anh, mỗi nhân viên tự chọn | Mọi nhân viên | Tài liệu `04` mục 8.8 |
 | YCAU_NGHIEPVU_18 | Quản trị nhập danh sách nhân viên bằng tệp Excel | Quản trị công ty | Tài liệu `05` mục 3 |
+| YCAU_NGHIEPVU_19 | Quản trị tập đoàn tự nhập mã ứng dụng đăng nhập, khóa nhà cung cấp gửi tin mà không cần sửa mã | Quản trị tập đoàn | THAY_DOI_08 |
+| YCAU_NGHIEPVU_20 | Người duyệt, người lập nhận thông báo duyệt qua Zalo | Mọi nhân viên | THAY_DOI_04 |
+| YCAU_NGHIEPVU_21 | Nhân viên lập đề xuất theo mẫu do quản trị tạo, đính kèm chứng từ gốc, đi qua luồng duyệt, in được | Mọi nhân viên, quản trị công ty | THAY_DOI_04 |
 
 ## Đối tượng nghiệp vụ
 
@@ -45,3 +48,8 @@
 | Dãy số chứng từ | Công ty, loại chứng từ, kỳ, tiền tố, số tiếp theo | |
 | Tỷ giá | Ngày, tiền tệ nguồn, tiền tệ đích, loại, nguồn, giá trị | |
 | Nhật ký thao tác | Thời điểm, người làm, công ty, mini app, hành động, đối tượng, dữ liệu trước và sau | |
+| Cài đặt tích hợp | Khóa cài đặt, giá trị thường hoặc giá trị bí mật, người sửa, thời điểm sửa | Dùng chung toàn tập đoàn |
+| Nhật ký gửi tin | Kênh, mục đích, số điện thoại đã che, mẫu tin, trạng thái, lỗi | Gửi cho một nhân viên |
+| Mẫu đề xuất | Mã, tên, mô tả, danh sách trường, trường giá trị duyệt, tiền tệ, trạng thái | Thuộc một công ty; là một loại chứng từ cần duyệt |
+| Đề xuất | Số đề xuất, tiêu đề, giá trị các trường, giá trị duyệt, tiền tệ, trạng thái, người lập | Theo một mẫu (giữ bản chụp mẫu); có một yêu cầu duyệt khi gửi; có nhiều tệp đính kèm |
+| Tệp đính kèm | Tên tệp, loại, kích thước, người tải lên | Thuộc một đề xuất |

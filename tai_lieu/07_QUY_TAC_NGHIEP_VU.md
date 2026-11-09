@@ -1,10 +1,10 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái và ngoại lệ, có mã định danh.
-- Phiên bản: 1.1
+- Phiên bản: 1.2
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09)
 
 ## MODULE_01 Nền tảng
 
@@ -68,6 +68,22 @@
 | QUYTAC_NGHIEPVU_29 | Mỗi ngày, cặp tiền tệ, loại, nguồn chỉ có một tỷ giá; tỷ giá lớn hơn 0 | YCAU_NGHIEPVU_15 |
 | QUYTAC_NGHIEPVU_30 | Nhật ký thao tác chỉ thêm, không sửa, không xóa; giữ tối thiểu 10 năm | YCAU_NGHIEPVU_16 |
 
+### Tích hợp và thông báo qua Zalo (CONG_VIEC_03)
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_31 | Khóa bí mật của nhà cung cấp mã hóa khi lưu; API, giao diện, nhật ký chỉ hiện 4 ký tự cuối; để trống khi lưu thì giữ giá trị cũ | YCAU_NGHIEPVU_19 |
+| QUYTAC_NGHIEPVU_32 | Tin Zalo ZNS gửi qua eSMS.vn khi nhân viên có số điện thoại và mẫu tin của sự kiện đã cài đặt; gửi lỗi không chặn nghiệp vụ, ghi nhật ký gửi tin; mã OTP gửi Zalo trước, không được thì SMS | YCAU_NGHIEPVU_20, YCAU_NGHIEPVU_05 |
+
+### Đề xuất (CONG_VIEC_03)
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_33 | Mỗi mẫu đề xuất là một loại chứng từ cần duyệt của công ty; giá trị duyệt là trường tiền được chỉ định hoặc tổng cột thành tiền của bảng chi tiết; đề xuất đã gửi giữ bản chụp mẫu, sửa mẫu sau đó không đổi đề xuất đã gửi | YCAU_NGHIEPVU_21 |
+| QUYTAC_NGHIEPVU_34 | Trạng thái đề xuất: Nháp → Chờ duyệt → Đã duyệt hoặc Bị từ chối; Chờ duyệt → Đã rút. Chỉ sửa, xóa khi Nháp. Số đề xuất cấp từ dãy số chứng từ khi gửi | YCAU_NGHIEPVU_21 |
+| QUYTAC_NGHIEPVU_35 | Tệp đính kèm: tối đa 10 tệp mỗi đề xuất, mỗi tệp 10 MB; chỉ PDF, JPG, PNG, XLSX, DOCX (kiểm tra cả nội dung tệp); thêm, xóa khi Nháp; chỉ người xem được đề xuất mới tải được | YCAU_NGHIEPVU_21 |
+| QUYTAC_NGHIEPVU_36 | Người xem được đề xuất: người lập; người được giao duyệt hoặc đã duyệt; người có quyền quản lý mẫu đề xuất của công ty | YCAU_NGHIEPVU_21 |
+
 ## Quy tắc do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Mã | Nội dung đề xuất |
@@ -82,5 +98,5 @@
 
 ## Điểm chưa xác định
 
-- **CHƯA XÁC ĐỊNH:** nhà cung cấp SMS gửi mã OTP, có dùng SMS thương hiệu riêng không.
+- Đã xác định theo THAY_DOI_08 (CONG_VIEC_03): nhà cung cấp gửi mã OTP là eSMS.vn (Zalo ZNS trước, không được thì SMS); dùng SMS thương hiệu, tên thương hiệu (Brandname) nhập ở Cài đặt tích hợp.
 - **CHƯA XÁC ĐỊNH:** nguồn tỷ giá tự động.
