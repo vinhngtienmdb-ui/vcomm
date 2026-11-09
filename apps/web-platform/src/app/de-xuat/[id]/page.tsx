@@ -106,29 +106,33 @@ function ProposalEditor({
   const [title, setTitle] = useState(initialTitle);
   const [values, setValues] = useState<ProposalValues>(initialValues);
   const [confirming, setConfirming] = useState(false);
+  // Đề xuất mới đã lưu nháp nhưng gửi lỗi: lần sau sửa đúng bản nháp đó, không tạo nháp trùng.
+  const [saved, setSaved] = useState<ProposalResponse | undefined>(proposal);
   const { submitting, fields: errors, formError, run, inputClass } = useSubmit();
 
   async function save(): Promise<ProposalResponse> {
-    const body = JSON.stringify({ templateId, title, values: valuesForApi(fields, values), ...(proposal ? { version: proposal.version } : {}) });
-    return proposal ? apiFetch<ProposalResponse>(`/proposals/${proposal.id}`, { method: "PATCH", body }) : apiFetch<ProposalResponse>("/proposals", { method: "POST", body });
+    const body = JSON.stringify({ templateId, title, values: valuesForApi(fields, values), ...(saved ? { version: saved.version } : {}) });
+    const result = saved ? await apiFetch<ProposalResponse>(`/proposals/${saved.id}`, { method: "PATCH", body }) : await apiFetch<ProposalResponse>("/proposals", { method: "POST", body });
+    setSaved(result);
+    return result;
   }
 
   function saveDraft(event: FormEvent) {
     event.preventDefault();
     void run(async () => {
-      const saved = await save();
+      const result = await save();
       if (proposal) onSaved?.(t("saved"));
-      else router.replace(`/de-xuat/${saved.id}?luu=1`);
+      else router.replace(`/de-xuat/${result.id}?luu=1`);
     });
   }
 
   function submit() {
     setConfirming(false);
     void run(async () => {
-      const saved = await save();
-      await apiFetch(`/proposals/${saved.id}/submit`, { method: "POST" });
+      const result = await save();
+      await apiFetch(`/proposals/${result.id}/submit`, { method: "POST" });
       if (proposal) onSaved?.(t("submitted"));
-      else router.replace(`/de-xuat/${saved.id}?gui=1`);
+      else router.replace(`/de-xuat/${result.id}?gui=1`);
     });
   }
 

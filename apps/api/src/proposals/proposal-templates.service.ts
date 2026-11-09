@@ -130,9 +130,7 @@ export class ProposalTemplatesService {
     if ((await this.database.execute(sql`SELECT 1 FROM core.proposal_templates WHERE company_id = ${actor.companyId} AND code = ${input.code}`)).rows.length > 0) {
       throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { code: "templateCodeExists" } });
     }
-    if ((await this.database.execute(sql`SELECT 1 FROM core.currencies WHERE code = ${input.currency} AND is_active`)).rows.length === 0) {
-      throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { currency: "invalidValue" } });
-    }
+    await this.requireActiveCurrency(input.currency);
     const companyCode = (await this.database.execute<{ code: string }>(sql`SELECT code FROM core.companies WHERE id = ${actor.companyId}`)).rows[0]!.code;
     const documentTypeCode = `platform.proposal_${companyCode.toLowerCase()}_${input.code.toLowerCase()}`;
     const id = await this.database.transaction(async (transaction) => {
@@ -158,6 +156,7 @@ export class ProposalTemplatesService {
     await this.requireManager(actor);
     const before = await this.get(actor.companyId, id);
     this.validateFields(input.fields, input.amountField ?? null);
+    await this.requireActiveCurrency(input.currency);
     await this.database.transaction(async (transaction) => {
       const updated = await transaction.execute(sql`
         UPDATE core.proposal_templates SET name = ${input.name}, description = ${input.description ?? null}, fields = ${JSON.stringify(input.fields)}::jsonb,
@@ -181,6 +180,12 @@ export class ProposalTemplatesService {
         >);
     }
     return this.list(actor, true);
+  }
+
+  private async requireActiveCurrency(currency: string): Promise<void> {
+    if ((await this.database.execute(sql`SELECT 1 FROM core.currencies WHERE code = ${currency} AND is_active`)).rows.length === 0) {
+      throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { currency: "invalidValue" } });
+    }
   }
 
   private validateFields(fields: ProposalField[], amountField: string | null): void {

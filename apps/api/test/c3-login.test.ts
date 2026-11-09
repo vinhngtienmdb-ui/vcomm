@@ -5,6 +5,7 @@ import type { Pool } from "pg";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds, testPassword } from "../src/database/seed";
+import { tenantVerified } from "../src/auth/oauth-providers";
 import { cookieValue, sessionFrom, signIn, type Session } from "./helpers";
 import { sentMessages, startTestApplication, testGateway, testOauth } from "./setup-database";
 
@@ -99,6 +100,14 @@ describe("Đăng nhập bằng số điện thoại (CHUC_NANG_08)", () => {
     expect((await server().post("/api/v1/auth/otp/verify").send({ phone: "0901234567", code: next })).status).toBe(401);
   });
 
+  it("hai lần xác minh đồng thời cùng một mã chỉ một lần đăng nhập được", async () => {
+    await pool.query("DELETE FROM core.otp_codes");
+    await server().post("/api/v1/auth/otp/send").send({ phone: "0901234567" });
+    const code = String(testGateway.sent.at(-1)!.input.code);
+    const results = await Promise.all([1, 2, 3].map(() => server().post("/api/v1/auth/otp/verify").send({ phone: "0901234567", code })));
+    expect(results.map((result) => result.status).sort()).toEqual([200, 401, 401]);
+  });
+
   it("tối đa 5 lần gửi mỗi giờ cho một số", async () => {
     await pool.query("DELETE FROM core.otp_codes");
     for (let attempt = 0; attempt < 5; attempt += 1) expect((await server().post("/api/v1/auth/otp/send").send({ phone: "0901234567" })).status).toBe(204);
@@ -162,6 +171,17 @@ describe("Google, Microsoft (CHUC_NANG_07)", () => {
     expect((await oauthRound("microsoft", "ma-ms")).finished!.headers.location).toMatch(/loi=providerNotLinked$/);
     testOauth.profiles.set("ma-ms-2", { subject: "tenant-b:oid-2", email: "phuc.le@vcomm.test", emailVerified: true, name: null });
     expect((await oauthRound("microsoft", "ma-ms-2")).finished!.headers.location).not.toContain("loi=");
+  });
+});
+
+describe("Microsoft: xác định email tin được theo tenant", () => {
+  it("tenant GUID so với tid; tenant tên miền so với đuôi email; tenant chung không tin", () => {
+    const tenant = "8f0e5c2a-1b2c-4d3e-9f40-123456789abc";
+    expect(tenantVerified(tenant, tenant, "a@vcomm.test")).toBe(true);
+    expect(tenantVerified(tenant, "khac", "a@vcomm.test")).toBe(false);
+    expect(tenantVerified("vcomm.test", "bat-ky", "a@vcomm.test")).toBe(true);
+    expect(tenantVerified("vcomm.test", "bat-ky", "a@khac.vn")).toBe(false);
+    expect(tenantVerified("organizations", "bat-ky", "a@vcomm.test")).toBe(false);
   });
 });
 

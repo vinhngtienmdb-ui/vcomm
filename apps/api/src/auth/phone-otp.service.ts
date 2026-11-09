@@ -66,10 +66,13 @@ export class PhoneOtpService {
       await this.auth.recordAttempt(phone, user?.id ?? null, false, "wrong_otp", client, now, "phone_otp");
       throw new ApiError("UNAUTHENTICATED", "otpInvalid");
     }
-    await this.database.execute(sql`UPDATE core.otp_codes SET consumed_at = ${now} WHERE id = ${latest.id}`);
+    // Chỉ một lần xác minh đồng thời được dùng mã.
+    const consumed = await this.database.execute(sql`UPDATE core.otp_codes SET consumed_at = ${now} WHERE id = ${latest.id} AND consumed_at IS NULL RETURNING id`);
+    if (consumed.rows.length === 0) throw new ApiError("UNAUTHENTICATED", "otpInvalid");
+    // Số điện thoại chuyển sang người khác thì danh tính đi theo người đang giữ số.
     await this.database.execute(sql`
       INSERT INTO core.user_identities (user_id, provider, provider_subject) VALUES (${user.id}, 'phone_otp', ${phone})
-      ON CONFLICT (provider, provider_subject) DO NOTHING`);
+      ON CONFLICT (provider, provider_subject) DO UPDATE SET user_id = EXCLUDED.user_id`);
     return this.auth.completeLogin(user, "phone_otp", phone, client);
   }
 

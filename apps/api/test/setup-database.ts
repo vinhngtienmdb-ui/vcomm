@@ -81,6 +81,9 @@ export const testStorage = {
     if (!content) throw new Error("Không có tệp");
     return content;
   },
+  async remove(key) {
+    this.files.delete(key);
+  },
 } satisfies FileStorage & { files: Map<string, Buffer> };
 
 export async function startTestApplication(): Promise<{ application: NestExpressApplication; pool: Pool }> {

@@ -9,7 +9,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { createTestUser, signIn, type Session } from "./helpers";
-import { startTestApplication } from "./setup-database";
+import { startTestApplication, testStorage } from "./setup-database";
 
 let application: NestExpressApplication;
 let pool: Pool;
@@ -159,6 +159,16 @@ describe("TIEUCHI_NGHIEMTHU_53: gửi đề xuất nhận số, đi qua chính s
     expect(proposal.body.template.fields).toHaveLength(6);
   });
 
+  it("sửa mẫu với tiền tệ không có hoặc ngừng dùng thì bị từ chối", async () => {
+    const template = (await admin.call("get", "/proposal-templates?all=true", { companyId: retail })).body.find((item: { code: string }) => item.code === "TU");
+    const response = await admin.call("patch", `/proposal-templates/${template.id}`, {
+      companyId: retail,
+      body: { name: template.name, currency: "ABC", fields: template.fields, amountField: template.amountField, status: "active", version: template.version },
+    });
+    expect(response.status).toBe(400);
+    expect(Object.keys(response.body.error.fields)).toEqual(["currency"]);
+  });
+
   it("đề nghị mua sắm: giá trị duyệt là tổng thành tiền; rút được khi chưa ai duyệt", async () => {
     await policyFor(templates.MS!.documentTypeCode);
     const draft = await create("Mua máy in", templates.MS!.id, {
@@ -209,6 +219,19 @@ describe("TIEUCHI_NGHIEMTHU_54: tệp đính kèm", () => {
     expect((await requester.call("post", `/proposals/${id}/submit`, { companyId: retail })).status).toBe(200);
     expect((await approver.call("get", `/attachments/${first.body.id}`, { companyId: retail })).status).toBe(200);
     expect((await requester.call("delete", `/attachments/${first.body.id}`, { companyId: retail })).status).toBe(409);
+  });
+
+  it("xóa tệp hoặc xóa nháp thì xóa cả nội dung tệp đã lưu", async () => {
+    const draft = await create("Nháp sẽ xóa", templates.PC!.id, { amount: "500000" });
+    const upload = (name: string) => requester.call("post", `/proposals/${draft.body.id}/attachments`, { companyId: retail }).attach("file", pdfHeader, name);
+    const before = testStorage.files.size;
+    const first = await upload("mot.pdf");
+    await upload("hai.pdf");
+    expect(testStorage.files.size).toBe(before + 2);
+    expect((await requester.call("delete", `/attachments/${first.body.id}`, { companyId: retail })).status).toBe(204);
+    expect(testStorage.files.size).toBe(before + 1);
+    expect((await requester.call("delete", `/proposals/${draft.body.id}`, { companyId: retail })).status).toBe(204);
+    expect(testStorage.files.size).toBe(before);
   });
 });
 

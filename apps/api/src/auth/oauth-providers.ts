@@ -29,6 +29,10 @@ const decodeJwtPayload = (token: string): Record<string, unknown> => JSON.parse(
 // Microsoft: tenant cụ thể (mã GUID hoặc tên miền) là tenant của công ty, email do quản trị công ty cấp nên tin được;
 // "organizations", "common" cho mọi tenant thì không tự gắn theo email, phải liên kết từ hồ sơ trước.
 const isSpecificTenant = (tenant: string) => !["organizations", "common", "consumers"].includes(tenant);
+const isTenantId = (tenant: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenant);
+// Tenant là mã GUID: so với tid; tenant là tên miền: email phải thuộc tên miền đó.
+export const tenantVerified = (tenant: string, tid: unknown, email: string | null) =>
+  isSpecificTenant(tenant) && (isTenantId(tenant) ? tid === tenant.toLowerCase() : Boolean(email?.endsWith(`@${tenant.toLowerCase()}`)));
 
 @Injectable()
 export class HttpOauthClient implements OauthClient {
@@ -79,7 +83,7 @@ export class HttpOauthClient implements OauthClient {
     return {
       subject: `${String(claims.tid)}:${String(claims.oid ?? claims.sub)}`,
       email: email?.toLowerCase() ?? null,
-      emailVerified: isSpecificTenant(app.tenant) && claims.tid === app.tenant,
+      emailVerified: tenantVerified(app.tenant, claims.tid, email?.toLowerCase() ?? null),
       name: typeof claims.name === "string" ? claims.name : null,
     };
   }

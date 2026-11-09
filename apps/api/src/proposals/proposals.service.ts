@@ -1,5 +1,5 @@
 // Đề xuất (CHUC_NANG_28; QUYTAC_NGHIEPVU_33 đến 36; API_51, API_52).
-import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
+import { Inject, Injectable, Logger, type OnModuleInit } from "@nestjs/common";
 import {
   attachmentExtensions,
   attachmentMaximumBytes,
@@ -80,6 +80,8 @@ const contentTypes: Record<(typeof attachmentExtensions)[number], { type: string
 
 @Injectable()
 export class ProposalsService implements OnModuleInit {
+  private readonly logger = new Logger("Proposals");
+
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     @Inject(FILE_STORAGE) private readonly storage: FileStorage,
@@ -180,11 +182,13 @@ export class ProposalsService implements OnModuleInit {
 
   async remove(actor: Actor, id: string): Promise<void> {
     const row = await this.requireOwnDraft(actor, id);
-    await this.database.transaction(async (transaction) => {
-      await transaction.execute(sql`DELETE FROM core.attachments WHERE owner_type = 'proposal' AND owner_id = ${id}`);
+    const files = await this.database.transaction(async (transaction) => {
+      const deleted = await transaction.execute<{ storage_key: string }>(sql`DELETE FROM core.attachments WHERE owner_type = 'proposal' AND owner_id = ${id} RETURNING storage_key`);
       await transaction.execute(sql`DELETE FROM core.proposals WHERE id = ${id} AND status = 'draft'`);
       await this.auditService.record({ ...auditBase(actor, "proposal"), action: "proposal.delete", entityId: id, beforeData: { title: row.title, values: row.field_values } }, transaction);
+      return deleted.rows.map((file) => file.storage_key);
     });
+    await this.removeStoredFiles(files);
   }
 
   // Gửi: kiểm đủ trường bắt buộc, cấp số và gửi duyệt trong cùng giao dịch; lỗi thì số không bị dùng (QUYTAC_NGHIEPVU_28, 34).
@@ -227,8 +231,6 @@ export class ProposalsService implements OnModuleInit {
     const extension = file.originalname.split(".").pop()?.toLowerCase() as (typeof attachmentExtensions)[number] | undefined;
     const kind = extension && (attachmentExtensions as readonly string[]).includes(extension) ? contentTypes[extension] : null;
     if (!kind || !kind.signature.every((byte, index) => file.buffer[index] === byte)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "attachmentTypeInvalid" } });
-    const count = (await this.database.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM core.attachments WHERE owner_type = 'proposal' AND owner_id = ${id}`)).rows[0]!.total;
-    if (count >= attachmentMaximumCount) throw new ApiError("BUSINESS_RULE", "attachmentTooMany");
     // multer đọc tên tệp theo latin1; đổi lại UTF-8 để giữ tên tiếng Việt.
     const fileName = Buffer.from(file.originalname, "latin1")
       .toString("utf8")
@@ -236,15 +238,25 @@ export class ProposalsService implements OnModuleInit {
       .slice(-200);
     const storageKey = `proposals/${actor.companyId}/${id}/${randomUUID()}`;
     await this.storage.put(storageKey, file.buffer, kind.type);
-    const inserted = await this.database.transaction(async (transaction) => {
-      const row = (
-        await transaction.execute<{ id: string; created_at: Date }>(sql`
+    // Khóa dòng đề xuất để các lần tải lên đồng thời không vượt quá 10 tệp; lỗi thì xóa tệp vừa lưu.
+    const inserted = await this.database
+      .transaction(async (transaction) => {
+        const locked = await transaction.execute(sql`SELECT 1 FROM core.proposals WHERE id = ${id} AND status = 'draft' FOR UPDATE`);
+        if (locked.rows.length === 0) throw new ApiError("BUSINESS_RULE", "proposalNotDraft");
+        const count = (await transaction.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM core.attachments WHERE owner_type = 'proposal' AND owner_id = ${id}`)).rows[0]!.total;
+        if (count >= attachmentMaximumCount) throw new ApiError("BUSINESS_RULE", "attachmentTooMany");
+        const row = (
+          await transaction.execute<{ id: string; created_at: Date }>(sql`
         INSERT INTO core.attachments (company_id, owner_type, owner_id, file_name, content_type, size_bytes, storage_key, uploaded_by)
         VALUES (${actor.companyId}, 'proposal', ${id}, ${fileName}, ${kind.type}, ${file.size}, ${storageKey}, ${actor.userId}) RETURNING id, created_at`)
-      ).rows[0]!;
-      await this.auditService.record({ ...auditBase(actor, "proposal"), action: "proposal.attachment.add", entityId: id, afterData: { fileName, sizeBytes: file.size } }, transaction);
-      return row;
-    });
+        ).rows[0]!;
+        await this.auditService.record({ ...auditBase(actor, "proposal"), action: "proposal.attachment.add", entityId: id, afterData: { fileName, sizeBytes: file.size } }, transaction);
+        return row;
+      })
+      .catch(async (error: unknown) => {
+        await this.removeStoredFiles([storageKey]);
+        throw error;
+      });
     return { id: inserted.id, fileName, contentType: kind.type, sizeBytes: file.size, createdAt: new Date(inserted.created_at).toISOString() };
   }
 
@@ -258,6 +270,14 @@ export class ProposalsService implements OnModuleInit {
         transaction,
       );
     });
+    await this.removeStoredFiles([attachment.storage_key]);
+  }
+
+  // Xóa nội dung tệp sau khi đã xóa dòng dữ liệu; lỗi lưu trữ chỉ ghi log vì dòng dữ liệu đã không còn.
+  private async removeStoredFiles(keys: string[]): Promise<void> {
+    for (const key of keys) {
+      await this.storage.remove(key).catch((error: unknown) => this.logger.error(`Không xóa được tệp ${key}: ${(error as Error).message}`));
+    }
   }
 
   // Chỉ người xem được đề xuất mới tải được tệp (QUYTAC_NGHIEPVU_35, 36).
