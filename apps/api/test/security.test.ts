@@ -5,7 +5,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds, testPassword } from "../src/database/seed";
 import { cookieValue, signIn, type Session } from "./helpers";
-import { startTestApplication } from "./setup-database";
+import { startTestApplication, testClock, testRateLimit } from "./setup-database";
 
 let application: NestExpressApplication;
 let pool: Pool;
@@ -97,5 +97,27 @@ describe("KICHBAN_KIEMTHU_119: phiên, đăng xuất, token làm mới, chống 
     expect((await server().get("/api/v1/me").set("cookie", cookie)).status).toBe(200);
     expect((await server().post("/api/v1/auth/logout").set("cookie", cookie).set("x-csrf-token", csrf)).status).toBe(204);
     expect((await server().get("/api/v1/me").set("cookie", cookie)).status).toBe(401);
+  });
+});
+
+describe("KICHBAN_KIEMTHU_120: giới hạn số yêu cầu của API không cần đăng nhập", () => {
+  it("20 lần mỗi phút mỗi địa chỉ IP; lần 21 nhận 429; sang phút sau gọi lại được", async () => {
+    const forgot = () => request(application.getHttpServer()).post("/api/v1/auth/password/forgot").set("accept-language", "vi").send({ identifier: "khongco@vcomm.test" });
+    testRateLimit.perMinute = 20;
+    testClock.fixed = new Date("2026-11-09T03:00:05Z");
+    try {
+      for (let attempt = 0; attempt < 20; attempt += 1) expect((await forgot()).status).toBe(204);
+      const blocked = await forgot();
+      expect(blocked.status).toBe(429);
+      expect(blocked.body.error).toMatchObject({ code: "RATE_LIMITED", message: "Bạn thao tác quá nhiều lần, vui lòng thử lại sau ít phút.", retryAfterSeconds: 55 });
+      expect(blocked.headers["retry-after"]).toBe("55");
+      // Đăng nhập là API khác nên đếm riêng.
+      expect((await request(application.getHttpServer()).post("/api/v1/auth/login").send({ identifier: "phuc.le@vcomm.test", password: testPassword })).status).toBe(200);
+      testClock.fixed = new Date("2026-11-09T03:01:05Z");
+      expect((await forgot()).status).toBe(204);
+    } finally {
+      testRateLimit.perMinute = 1_000_000;
+      testClock.fixed = null;
+    }
   });
 });
