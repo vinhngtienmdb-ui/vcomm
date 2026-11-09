@@ -10,7 +10,7 @@ import { apiFetch, ApiFailure, rememberCompany } from "ui/lib/api";
 import { formatMoney } from "ui/lib/format";
 
 // Mini app đã có giao diện.
-const builtApps = new Set(["platform", "catalog", "inventory"]);
+const builtApps = new Set(["platform", "catalog", "inventory", "crm"]);
 
 type State = { kind: "loading" } | { kind: "error" } | { kind: "ready"; me: MeResponse; home: HomeResponse };
 
