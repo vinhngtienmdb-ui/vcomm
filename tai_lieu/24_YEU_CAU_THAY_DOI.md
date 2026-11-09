@@ -48,6 +48,14 @@
 
 ### THAY_DOI_03: Chuyển chế độ kế toán từ Thông tư 200 sang Thông tư 99/2025 – 2026-11-09
 - Lý do: Thông tư 99/2025/TT-BTC (Bộ Tài chính, ban hành 27/10/2025, còn hiệu lực) Điều 31 khoản 1: "Thông tư này có hiệu lực thi hành kể từ ngày 01/01/2026 và áp dụng cho năm tài chính bắt đầu từ hoặc sau ngày 01/01/2026. Thông tư này thay thế cho các Thông tư số 200/2014/TT-BTC ngày 22/12/2014 của Bộ Tài chính hướng dẫn chế độ kế toán doanh nghiệp (trừ trường hợp quy định tại khoản 2 Điều này)…". Lựa chọn "Thông tư 200" do AI đưa ra ở đợt hỏi đáp ngày 2026-11-09 là sai. Phát hiện khi đọc nguồn mã riêng V-com-ERP (đã dùng Thông tư 99/2025).
+- Đối chiếu trạng thái văn bản ngày 2026-11-09:
+
+| Văn bản | Tình trạng hiệu lực | Ghi chú |
+|---|---|---|
+| Thông tư 200/2014/TT-BTC | Hết hiệu lực toàn bộ | Bị thay thế bởi Thông tư 99/2025/TT-BTC, trừ nội dung kế toán cổ phần hóa doanh nghiệp nhà nước nêu tại Điều 31 khoản 2 Thông tư 99/2025 |
+| Thông tư 99/2025/TT-BTC | Còn hiệu lực, từ 01/01/2026 | Áp dụng cho năm tài chính bắt đầu từ hoặc sau 01/01/2026. Điều 31 khoản 3: doanh nghiệp vừa và nhỏ "được lựa chọn áp dụng Thông tư này", phải nhất quán tối thiểu một kỳ kế toán năm |
+| Thông tư 133/2016/TT-BTC | Hết hiệu lực một phần | Văn bản tra cứu không ghi rõ phần nào hết hiệu lực; cần đối chiếu bản trên Công báo trước khi chốt. Điều 3 khoản 1 cho doanh nghiệp nhỏ và vừa chọn chế độ kế toán doanh nghiệp "và các văn bản sửa đổi, bổ sung hoặc thay thế", nay là Thông tư 99/2025 |
+
 - Nội dung thay đổi: Chế độ kế toán mặc định của mọi công ty con là Thông tư 99/2025. Giữ lựa chọn Thông tư 133 cho công ty con là doanh nghiệp nhỏ và vừa nếu kế toán trưởng chọn. Thông tư 99/2025 Điều 31 khoản 3 cho doanh nghiệp vừa và nhỏ được lựa chọn áp dụng Thông tư 99/2025.
 - Thành phần bị ảnh hưởng: tài liệu `04` mục 8.3; `05` mục 2.1 (Tài chính – Kế toán); `06` YCAU_NGHIEPVU_01; `10` CHUC_NANG_01 (giá trị mặc định); `16` cột `core.companies.accounting_regime`; MODULE_06 (hệ thống tài khoản, mẫu báo cáo) khi phân tích.
 - Dữ liệu bị ảnh hưởng: `core.companies.accounting_regime` đổi tập giá trị thành `TT99_2025`, `TT133`; mặc định `TT99_2025`. Chưa có dữ liệu thật.
