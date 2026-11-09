@@ -24,6 +24,8 @@
 | 17 | [17_DAC_TA_API.md](17_DAC_TA_API.md) | Đặc tả API | Quy ước, mô hình lỗi, 48 mã API, sự kiện | 07 | Đã phê duyệt |
 | 18 | [18_QUY_TAC_PHAT_TRIEN_AI.md](18_QUY_TAC_PHAT_TRIEN_AI.md) | Quy tắc phát triển AI | Quy ước mã, Git, lệnh chạy, tài khoản thử | 08 | Đã phê duyệt |
 | 19 | [19_CHI_DAN_HE_THONG_AI.md](19_CHI_DAN_HE_THONG_AI.md) | Chỉ dẫn hệ thống AI | Ngữ cảnh, điều luôn giữ, giới hạn quyền hạn | 08 | Đã phê duyệt |
+| 20 | [20_KE_HOACH_KIEM_THU.md](20_KE_HOACH_KIEM_THU.md) | Kế hoạch kiểm thử | Phạm vi, loại kiểm thử, môi trường, dữ liệu thử, tiêu chí đạt | 10 | Bản nháp |
+| 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | KICHBAN_KIEMTHU_01–115 cho mọi tiêu chí nghiệm thu | 10 | Bản nháp |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | Dữ liệu nhạy cảm, điểm tiếp nhận, xác thực, ma trận phân quyền, khóa bí mật | 05 | Đã phê duyệt |
 | 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | Sổ phiếu THAY_DOI | 13 | Đang cập nhật |
 | 27 | [27_MA_TRAN_TRUY_VET.md](27_MA_TRAN_TRUY_VET.md) | Ma trận truy vết | Yêu cầu → chức năng → tiêu chí → kiểm thử → mã nguồn | 04 | Đã phê duyệt |
