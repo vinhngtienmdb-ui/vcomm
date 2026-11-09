@@ -8,7 +8,7 @@ import { testIds } from "../src/database/seed";
 import { AuditEventsService } from "../src/settings/audit-events.service";
 import { NumberSequencesService } from "../src/settings/number-sequences.service";
 import { createTestUser, signIn, type Session } from "./helpers";
-import { startTestApplication } from "./setup-database";
+import { startTestApplication, testClock } from "./setup-database";
 
 let application: NestExpressApplication;
 let pool: Pool;
@@ -91,13 +91,65 @@ describe("API_43, API_44: dãy số chứng từ", () => {
     expect(saved.body.nextNumber).toMatch(/^CTT-VCR-\d{4}-000001$/);
   });
 
-  it("TIEUCHI_NGHIEMTHU_39: 50 lần lưu song song nhận 50 số liên tiếp, không trùng", async () => {
+  it("TIEUCHI_NGHIEMTHU_39: 50 lần lưu song song nhận 50 số liên tiếp, không trùng (lặp 3 lần)", async () => {
     const service = application.get(NumberSequencesService);
     const database = application.get<Database>(DATABASE);
-    const numbers = await Promise.all(Array.from({ length: 50 }, () => database.transaction((transaction) => service.next(retail, documentType, transaction))));
-    const sequence = numbers.map((value) => Number(value.slice(-6))).sort((first, second) => first - second);
-    expect(new Set(numbers).size).toBe(50);
-    expect(sequence).toEqual(Array.from({ length: 50 }, (_, index) => index + 1));
+    for (let round = 0; round < 3; round += 1) {
+      await pool.query("UPDATE core.number_sequences SET next_value = 1 WHERE company_id = $1 AND document_type_code = $2", [retail, documentType]);
+      const numbers = await Promise.all(Array.from({ length: 50 }, () => database.transaction((transaction) => service.next(retail, documentType, transaction))));
+      const sequence = numbers.map((value) => Number(value.slice(-6))).sort((first, second) => first - second);
+      expect(new Set(numbers).size).toBe(50);
+      expect(sequence).toEqual(Array.from({ length: 50 }, (_, index) => index + 1));
+    }
+  });
+
+  it("KICHBAN_KIEMTHU_102: 10 trong 50 lần lưu song song bị lỗi thì 40 số còn lại liên tục", async () => {
+    const service = application.get(NumberSequencesService);
+    const database = application.get<Database>(DATABASE);
+    const type = "platform.thu_song_song";
+    await pool.query("INSERT INTO core.document_types (code, app_code, name_vi, name_en) VALUES ($1, 'platform', 'Chứng từ thử song song', 'Parallel test document')", [type]);
+    await retailAdmin.call("patch", `/number-sequences/${type}`, { companyId: retail, body: { prefix: "SS", resetPeriod: "year", padding: 6 } });
+    const failing = new Set([3, 7, 11, 19, 23, 29, 31, 37, 41, 47]);
+    const results = await Promise.allSettled(
+      Array.from({ length: 50 }, (_, index) =>
+        database.transaction(async (transaction) => {
+          const value = await service.next(retail, type, transaction);
+          if (failing.has(index)) throw new Error("Lưu chứng từ lỗi");
+          return value;
+        }),
+      ),
+    );
+    const saved = results.flatMap((result) => (result.status === "fulfilled" ? [Number(result.value.slice(-6))] : [])).sort((first, second) => first - second);
+    expect(saved).toEqual(Array.from({ length: 40 }, (_, index) => index + 1));
+  });
+
+  it("KICHBAN_KIEMTHU_99: đặt lại số theo năm, theo tháng, không bao giờ", async () => {
+    const service = application.get(NumberSequencesService);
+    const database = application.get<Database>(DATABASE);
+    const issue = async (type: string, at: string) => {
+      testClock.fixed = new Date(at);
+      try {
+        return await database.transaction((transaction) => service.next(retail, type, transaction));
+      } finally {
+        testClock.fixed = null;
+      }
+    };
+    const results: Record<string, string[]> = {};
+    for (const period of ["year", "month", "never"] as const) {
+      const type = `platform.thu_${period}`;
+      await pool.query("INSERT INTO core.document_types (code, app_code, name_vi, name_en) VALUES ($1, 'platform', $1, $1)", [type]);
+      await retailAdmin.call("patch", `/number-sequences/${type}`, { companyId: retail, body: { prefix: "TD", resetPeriod: period, padding: 6 } });
+      results[period] = [await issue(type, "2026-11-30T16:59:00Z"), await issue(type, "2026-11-30T17:01:00Z"), await issue(type, "2026-12-31T17:01:00Z")];
+    }
+    // Giờ Việt Nam: 23:59 ngày 30/11, 00:01 ngày 01/12, 00:01 ngày 01/01/2027.
+    expect(results.year).toEqual(["TD-VCR-2026-000001", "TD-VCR-2026-000002", "TD-VCR-2027-000001"]);
+    expect(results.month).toEqual(["TD-VCR-202611-000001", "TD-VCR-202612-000001", "TD-VCR-202701-000001"]);
+    expect(results.never).toEqual(["TD-VCR-000001", "TD-VCR-000002", "TD-VCR-000003"]);
+  });
+
+  it("KICHBAN_KIEMTHU_100: quản trị VCR không sửa được dãy số của VCT", async () => {
+    expect((await retailAdmin.call("patch", `/number-sequences/${documentType}`, { companyId: trading, body: { prefix: "VT", resetPeriod: "year", padding: 6 } })).status).toBe(403);
+    expect((await employee.call("patch", `/number-sequences/${documentType}`, { companyId: retail, body: { prefix: "VT", resetPeriod: "year", padding: 6 } })).status).toBe(403);
   });
 
   it("TIEUCHI_NGHIEMTHU_40: lưu chứng từ lỗi thì số không bị dùng; chứng từ sau nhận đúng số đó", async () => {
@@ -547,5 +599,38 @@ describe("API_48: thông báo", () => {
     const after = await receiver.call("get", "/notifications");
     expect(after.body.unreadCount).toBe(listed.body.unreadCount - 1);
     expect(after.body.data.find((notification: { id: string }) => notification.id === item.id).readAt).not.toBeNull();
+  });
+});
+
+describe("Kiểm tra theo vai trò (KICHBAN_KIEMTHU_95, 97, 105, 110)", () => {
+  it("KICHBAN_KIEMTHU_105: quản trị tập đoàn nhập được tỷ giá; quản trị VCR, nhân viên bị từ chối; chưa đăng nhập nhận 401", async () => {
+    const body = { rateDate: "2026-11-12", fromCurrency: "USD", toCurrency: "VND", rateType: "accounting", source: "manual", rate: "26310" };
+    expect((await groupAdmin.call("post", "/exchange-rates", { companyId: testIds.groupCompany, body })).status).toBe(201);
+    expect((await retailAdmin.call("post", "/exchange-rates", { companyId: retail, body: { ...body, rateDate: "2026-11-13" } })).status).toBe(403);
+    expect((await employee.call("post", "/exchange-rates", { companyId: retail, body: { ...body, rateDate: "2026-11-13" } })).status).toBe(403);
+    const server = (await import("supertest")).default(application.getHttpServer());
+    expect((await server.get("/api/v1/exchange-rates")).status).toBe(401);
+    for (const session of [groupAdmin, retailAdmin, employee, rateManager]) {
+      expect((await session.call("get", "/exchange-rates?date=2026-11-12")).status).toBe(200);
+    }
+  });
+
+  it("KICHBAN_KIEMTHU_110: quản lý tỷ giá không xem được nhật ký; quản trị tập đoàn thấy cả VCR và VCT", async () => {
+    expect((await rateManager.call("get", "/audit-events")).status).toBe(403);
+    const all = await groupAdmin.call("get", "/audit-events?pageSize=100", { companyId: testIds.groupCompany });
+    const companies = new Set(all.body.data.map((item: { companyShortName: string | null }) => item.companyShortName));
+    expect(companies.has("VComm Bán lẻ Miền Nam")).toBe(true);
+    expect(companies.has("VComm Thương mại")).toBe(true);
+    const retailOnly = await retailAdmin.call("get", "/audit-events?pageSize=100", { companyId: retail });
+    expect(retailOnly.body.data.every((item: { companyShortName: string | null }) => item.companyShortName === "VComm Bán lẻ Miền Nam")).toBe(true);
+  });
+
+  it("KICHBAN_KIEMTHU_95, 97: thủ kho không vô hiệu hóa được; nhân viên đã gỡ khỏi VCR nhận thông báo không thuộc công ty", async () => {
+    const keeper = await signIn(application, "thukho.bd@vcomm.test");
+    expect((await keeper.call("post", `/users/${testIds.purchasingManager}/deactivate`, { companyId: retail, body: { reason: "Thử" } })).status).toBe(403);
+    const removed = await signIn(application, "haicongty@vcomm.test");
+    const home = await removed.call("get", "/home", { companyId: retail });
+    expect(home.status).toBe(403);
+    expect(home.body.error.message).toBe("Bạn không thuộc công ty này.");
   });
 });

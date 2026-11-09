@@ -155,6 +155,32 @@ Xử lý: kiểm tra mọi mục trong API_31 đều có người nhận (QUYTAC
 
 Lỗi: `409 BUSINESS_RULE` "Cần chọn người nhận bàn giao trước khi vô hiệu hóa."; `403 FORBIDDEN` "Bạn không thể khóa tài khoản của chính mình."
 
+### API_31, API_32 (bổ sung lát L8)
+
+- API_31 chỉ liệt kê bước duyệt giao đích danh cho nhân viên (chưa quyết định, yêu cầu còn chờ) và phòng ban nhân viên đang làm trưởng phòng, trong công ty đang chọn. Bước giao theo vai trò không cần bàn giao vì người khác cùng vai trò vẫn duyệt được.
+- API_32 trả `{ id, status, remainingCompanies }`. Người nhận phải đang hoạt động trong công ty, khác người nghỉ, không phải người lập chứng từ; sai thì `400` tại trường `handover.<thứ tự>.toUserId`. Vai trò của nhân viên trong công ty bị gỡ hết hiệu lực từ hôm qua (lần gán bắt đầu từ hôm nay trở đi bị xóa); gỡ khỏi công ty cuối cùng thì kết thúc cả vai trò phạm vi tập đoàn.
+- API_29 trả thêm `mfaEnabled` để MAN_HINH_13 chỉ hiện nút đặt lại xác thực hai lớp khi nhân viên đã bật. API_33 trả `409` "Chưa bật xác thực hai lớp." khi chưa bật; thu hồi mọi phiên của nhân viên.
+
+### API_43, API_44 (bổ sung lát L8)
+
+- Kỳ trong số chứng từ: theo năm `2026`; theo tháng `202611`; không đặt lại thì bỏ phần kỳ. Ví dụ `PN-VCR-202611-000001`, `PN-VCR-000001`.
+- `GET` trả mọi loại chứng từ; loại chưa cấu hình có `configured: false`, `nextNumber: null`. API_44 với loại chưa cấu hình trả `409` "Chưa cấu hình dãy số cho loại chứng từ này.".
+- Số cấp trong giao dịch lưu chứng từ, khóa dòng của kỳ đến hết giao dịch.
+
+### API_45 (bổ sung lát L8)
+
+`GET /exchange-rates?date=2026-11-09` (mặc định hôm nay theo giờ Việt Nam) trả:
+```json
+{ "date": "2026-11-09", "baseCurrency": "VND", "canManage": false, "missingAccounting": ["CNY"],
+  "data": [ { "id": "01J...", "rateDate": "2026-11-09", "fromCurrency": "USD", "toCurrency": "VND", "rateType": "accounting", "source": "vietcombank", "rate": "26300" } ] }
+```
+`source` nhận `manual` hoặc `vietcombank`. `PATCH` chỉ sửa `rate`. Quyền sửa xét ở công ty đang chọn hoặc phạm vi tập đoàn.
+
+### API_47, API_48 (bổ sung lát L8)
+
+- Mỗi dòng nhật ký có `entityLabel` (họ tên, tên công ty, số chứng từ, tên loại chứng từ...) để hiển thị. Đăng nhập thất bại ghi hành động `login.failed`, không có công ty, nên chỉ quản trị tập đoàn thấy.
+- API_48 trả `{ unreadCount, data: [ { id, kind, title, link, payload, readAt, createdAt } ] }`, 30 thông báo mới nhất. Giao diện dựng nội dung theo `kind` và `payload.documentNo` bằng ngôn ngữ đang chọn; `title` tiếng Việt chỉ dùng khi loại chưa có bản dịch.
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |
