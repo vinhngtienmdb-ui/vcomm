@@ -27,6 +27,7 @@
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | Dữ liệu nhạy cảm, điểm tiếp nhận, xác thực, ma trận phân quyền, khóa bí mật | 05 | Đã phê duyệt |
 | 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | Sổ phiếu THAY_DOI | 13 | Đang cập nhật |
 | 27 | [27_MA_TRAN_TRUY_VET.md](27_MA_TRAN_TRUY_VET.md) | Ma trận truy vết | Yêu cầu → chức năng → tiêu chí → kiểm thử → mã nguồn | 04 | Đã phê duyệt |
+| 28 | [28_HUONG_DAN_DANG_KY_DICH_VU_NGOAI.md](28_HUONG_DAN_DANG_KY_DICH_VU_NGOAI.md) | Hướng dẫn đăng ký dịch vụ ngoài | Zalo OA, ZNS, Zalo Login, Google, Microsoft, SMS thương hiệu | 08 | Bản nháp |
 
 Đặc tả công việc:
 
