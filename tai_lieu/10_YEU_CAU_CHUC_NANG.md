@@ -530,10 +530,10 @@ Quy ước chung cho mọi chức năng của MODULE_02:
 - Quy trình xử lý: Kiểm tra trùng mã, kênh và nhóm khách đang dùng của công ty, tiền tệ đang dùng, không trùng bảng giá đang dùng (cả khi dùng lại bảng giá đã ngừng). Xem giá hiện hành tại một ngày của mọi mặt hàng có giá trong bảng; lịch sử giá một biến thể và đơn vị (kèm số phiếu điều chỉnh). Tra giá theo QUYTAC_NGHIEPVU_42, QUYTAC_NGHIEPVU_43.
 - Kết quả đầu ra: Danh sách bảng giá; bảng giá hiện hành; lịch sử giá; kết quả tra giá (bảng giá, gồm thuế hay không, giá, ngày hiệu lực, có phải quy đổi từ đơn vị cơ sở không).
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_25
-- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_42, QUYTAC_NGHIEPVU_43
-- Trường hợp ngoại lệ: Không có giá ở mọi bảng giá phù hợp thì tra giá báo chưa có giá. Giá không sửa trực tiếp, chỉ qua CHUC_NANG_37.
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_42, QUYTAC_NGHIEPVU_43, QUYTAC_NGHIEPVU_44
+- Trường hợp ngoại lệ: Không có giá ở mọi bảng giá phù hợp thì tra giá báo chưa có giá. Giá không sửa trực tiếp, chỉ qua CHUC_NANG_37. Bảng giá còn phiếu điều chỉnh giá chờ duyệt thì không ngừng dùng được (QUYTAC_NGHIEPVU_44).
 - Phân quyền: Trong công ty đang làm việc.
-- Thông báo lỗi: "Đã có bảng giá đang dùng cùng kênh, nhóm khách hàng, tiền tệ." · "Mã đã có trong công ty." · "Chưa có giá cho mặt hàng này."
+- Thông báo lỗi: "Đã có bảng giá đang dùng cùng kênh, nhóm khách hàng, tiền tệ." · "Mã đã có trong công ty." · "Chưa có giá cho mặt hàng này." · "Bảng giá còn phiếu điều chỉnh giá chờ duyệt; duyệt xong hoặc rút phiếu trước khi ngừng dùng."
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_61
 
 ### CHUC_NANG_37: Phiếu điều chỉnh giá

@@ -96,12 +96,12 @@ Mini app mới `apps/web-catalog`, đường dẫn `/catalog`, khung trang và t
 |---|---|---|
 | API_55 | `/catalog/categories`, `/catalog/units` | Ngành hàng, đơn vị tính |
 | API_56 | `/catalog/products` | Danh sách, chi tiết, tạo, sửa sản phẩm kèm biến thể, đơn vị, mã vạch |
-| API_57 | `/catalog/products/{id}/images` | Ảnh sản phẩm |
-| API_58 | `/catalog/products/imports` | Tệp mẫu, nhập Excel |
-| API_59 | `/catalog/variant-links`, `/catalog/products/{id}/copy` | Liên kết, sao chép giữa công ty |
-| API_60 | `/catalog/sales-channels`, `/catalog/customer-groups` | Kênh bán, nhóm khách hàng |
-| API_61 | `/catalog/price-lists`, `/catalog/prices` | Bảng giá, giá hiện hành, lịch sử giá |
-| API_62 | `/catalog/price-changes` | Phiếu điều chỉnh giá |
+| API_57 | `/catalog/products/{id}/images`, `/catalog/product-images/{id}`, `/catalog/product-images/{id}/primary` | Tải lên, xem, đặt ảnh đại diện, xóa ảnh sản phẩm |
+| API_58 | `/catalog/product-imports/template`, `/catalog/product-imports` | Tệp mẫu, nhập Excel |
+| API_59 | `/catalog/products/{id}/links`, `/catalog/products/{id}/link-suggestions`, `/catalog/variant-links`, `/catalog/products/{id}/copy` | Liên kết biến thể giữa công ty, gợi ý theo mã vạch, sao chép sản phẩm |
+| API_60 | `/catalog/sales-channels` (kèm `/defaults`), `/catalog/customer-groups` | Kênh bán, nhóm khách hàng |
+| API_61 | `/catalog/price-lists`, `/catalog/price-lists/{id}/prices`, `/catalog/price-lists/{id}/history`, `/catalog/prices/lookup` | Bảng giá, giá hiện hành, lịch sử giá, tra giá |
+| API_62 | `/catalog/price-changes` (kèm `/import-template`, `/import-lines`, `/{id}/submit`, `/{id}/withdraw`) | Phiếu điều chỉnh giá |
 
 ## 8. Phân quyền
 

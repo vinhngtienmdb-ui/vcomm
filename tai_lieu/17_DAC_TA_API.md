@@ -1,12 +1,12 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Hợp đồng API: endpoint, phương thức, dữ liệu gửi lên, dữ liệu trả về, xác thực, phân quyền, kiểm tra dữ liệu, lỗi, phân trang.
-- Phiên bản: 1.1
+- Phiên bản: 1.2
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05
+- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a)
 
-Phạm vi hiện tại: MODULE_01 Nền tảng.
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04).
 
 ## 1. Quy ước chung
 
@@ -108,6 +108,21 @@ Quyền viết tắt theo tiền tố `platform.`. "Công khai" = không cần �
 | API_52 | `POST /proposals/{id}/attachments` (multipart, trường `file`), `GET /attachments/{id}`, `DELETE /attachments/{id}` | CHUC_NANG_28 | Thêm, xóa: `proposal.create`, người lập, đề xuất Nháp; tải: QUYTAC_NGHIEPVU_36 | Một tệp mỗi lần; tối đa 10 tệp, 10 MB; `pdf`, `jpg`, `jpeg`, `png`, `xlsx`, `docx` | Tệp đính kèm; nội dung tệp kèm tên tệp UTF-8 |
 | API_53 | `GET /proposals/{id}/pdf` | CHUC_NANG_29 | `access` và QUYTAC_NGHIEPVU_36 | Không | Tệp PDF (`inline`) |
 | API_54 | `GET /auth/methods` | CHUC_NANG_06, CHUC_NANG_07, CHUC_NANG_08, CHUC_NANG_24 | Công khai | Không | `{ password, phone, google, microsoft, zalo }` cho MAN_HINH_01, MAN_HINH_03, MAN_HINH_06 |
+
+## 2a. Danh sách endpoint MODULE_02 (phần Sản phẩm, CONG_VIEC_04)
+
+Mọi đường dẫn có tiền tố `/api/v1`. Quyền viết đầy đủ. Mọi endpoint trước hết cần `catalog.access` trong công ty đang làm việc (header `X-Company-Id`), không có thì `403 FORBIDDEN`; quyền chi tiết kiểm tra trong service. Dữ liệu của công ty khác trả `404 NOT_FOUND`. Đường dẫn có `{id}` không phải UUID trả `400`.
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_55 | `GET /catalog/categories`, `POST /catalog/categories`, `PATCH /catalog/categories/{id}`, `POST /catalog/categories/{id}/deactivate`, `POST /catalog/categories/{id}/activate`; `GET /catalog/units`, `POST /catalog/units`, `PATCH /catalog/units/{id}`, `POST /catalog/units/{id}/deactivate`, `POST /catalog/units/{id}/activate` | CHUC_NANG_30 | Xem: `catalog.access`; sửa: `catalog.category.manage` gán ở phạm vi tập đoàn | Ngành hàng: `parentId`, `code`, `nameVi`, `nameEn`, `tracksLots`, `tracksSerials`, `warrantyMonths`; sửa thêm `version`. Đơn vị: `code`, `nameVi`, `nameEn`; sửa chỉ `nameVi`, `nameEn`, `version`. Ngừng, dùng lại: `version` | Ngành hàng kèm `level`, `productCount`, `childCount`; đơn vị tính. Không có endpoint xóa |
+| API_56 | `GET /catalog/products`, `POST /catalog/products`, `GET /catalog/products/{id}`, `PATCH /catalog/products/{id}`, `POST /catalog/products/{id}/deactivate`, `POST /catalog/products/{id}/activate` | CHUC_NANG_31, CHUC_NANG_32 | Xem: `catalog.product.view`; sửa: `catalog.product.manage` | Lọc `search`, `categoryId`, `status`, `page`, `pageSize` (tối đa 100, mặc định 20). Sản phẩm kèm `options`, `units`, `variants` (mục 3a) | Trang sản phẩm; chi tiết kèm đơn vị, biến thể, mã vạch, ảnh |
+| API_57 | `POST /catalog/products/{id}/images` (multipart, trường `file`), `GET /catalog/product-images/{id}` (nhận thêm `?companyId=` cho thẻ ảnh), `POST /catalog/product-images/{id}/primary`, `DELETE /catalog/product-images/{id}` | CHUC_NANG_31 | Tải về: `catalog.product.view`; thêm, đặt ảnh đại diện, xóa: `catalog.product.manage` | Một tệp mỗi lần; `jpg`, `jpeg`, `png`, `webp`; tối đa 5 MB, 10 ảnh | `201` ảnh (`id`, `fileName`, `contentType`, `sizeBytes`); nội dung ảnh; `204` |
+| API_58 | `GET /catalog/product-imports/template`, `POST /catalog/product-imports` (multipart, trường `file`) | CHUC_NANG_33 | `catalog.access` (tệp mẫu); `catalog.product.manage` (nhập) | Tệp `.xlsx` tối đa 2.000 dòng, 5 MB | Tệp mẫu `mau-nhap-san-pham.xlsx`; `{ createdProducts, createdVariants, failedRows, errors: [{ row, message }], errorFileUrl }` |
+| API_59 | `GET /catalog/products/{id}/links`, `GET /catalog/products/{id}/link-suggestions?targetCompanyId=`, `POST /catalog/variant-links`, `DELETE /catalog/variant-links/{id}`, `POST /catalog/products/{id}/copy` | CHUC_NANG_34 | Xem liên kết: `catalog.product.view`; gợi ý: `catalog.product.view` ở cả hai công ty; liên kết, bỏ liên kết, sao chép: `catalog.product.manage` ở cả hai công ty | Liên kết: `variantId`, `linkedVariantId`, `factor` (mặc định `"1"`). Sao chép: `targetCompanyId` | Liên kết đọc từ phía công ty đang làm việc; gợi ý theo mã vạch trùng; `201 { productId }` |
+| API_60 | `GET`, `POST /catalog/sales-channels`; `PATCH /catalog/sales-channels/{id}`; `POST /catalog/sales-channels/{id}/deactivate`, `/activate`; `POST /catalog/sales-channels/defaults`; cùng các đường dẫn với `/catalog/customer-groups` (trừ `defaults`) | CHUC_NANG_35 | Xem: `catalog.price.view`; sửa: `catalog.price.manage` | `code`, `name`; sửa chỉ `name`, `version`; ngừng, dùng lại: `version` | Kênh hoặc nhóm khách (`id`, `code`, `name`, `status`, `version`); `defaults` trả danh sách kênh sau khi thêm |
+| API_61 | `GET /catalog/price-lists`, `POST /catalog/price-lists`, `PATCH /catalog/price-lists/{id}`, `POST /catalog/price-lists/{id}/deactivate`, `/activate`, `GET /catalog/price-lists/{id}/prices`, `GET /catalog/price-lists/{id}/history`, `GET /catalog/prices/lookup` | CHUC_NANG_36 | Xem, tra giá: `catalog.price.view`; sửa: `catalog.price.manage` | Bảng giá: `code`, `name`, `channelId`, `customerGroupId`, `currency` (mặc định `VND`), `includesVat`; sửa chỉ `name`, `includesVat`, `version`. `prices`: `date`, `search`, `page`, `pageSize` (mặc định 50). `history`: `variantId`, `unitId`. `lookup`: `variantId`, `unitId`, `channelId`, `customerGroupId`, `currency`, `date` | Bảng giá; trang giá hiện hành; lịch sử giá kèm số phiếu; kết quả tra giá (mục 3a) |
+| API_62 | `GET /catalog/price-changes`, `POST /catalog/price-changes`, `GET /catalog/price-changes/{id}`, `PATCH /catalog/price-changes/{id}`, `DELETE /catalog/price-changes/{id}`, `POST /catalog/price-changes/{id}/submit`, `POST /catalog/price-changes/{id}/withdraw`, `GET /catalog/price-changes/import-template`, `POST /catalog/price-changes/import-lines?priceListId=` (multipart) | CHUC_NANG_37 | Xem: `catalog.price.view`; lập, sửa, xóa, gửi, rút, nhập dòng: `catalog.price.manage`, sửa, xóa, gửi, rút chỉ người lập | `priceListId`, `effectiveFrom`, `note`, `lines[]` (`variantId`, `unitId`, `price`; 1 đến 5.000 dòng), `version`. Lọc `status`, `page`, `pageSize` | Phiếu kèm dòng, `canEdit`, `canWithdraw`; `204` khi xóa; nhập dòng trả `{ lines, errors }`, không lưu |
 
 ## 3. Hợp đồng chi tiết
 
@@ -267,6 +282,61 @@ Trả `application/pdf`, `Content-Disposition: inline`. Nội dung: tên công t
 
 Công khai, chịu giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP như API không cần đăng nhập khác. `phone` là `true` khi đã cài `esms.api_key`, `esms.secret_key`, `esms.brandname`; `google`, `microsoft`, `zalo` là `true` khi đã cài đủ mã ứng dụng và khóa bí mật của nhà cung cấp đó.
 
+## 3a. Hợp đồng chi tiết MODULE_02 (CONG_VIEC_04)
+
+### API_55 Ngành hàng, đơn vị tính
+- Mã ngành hàng, mã đơn vị đổi thành chữ in hoa trước khi kiểm tra. Ngành hàng tối đa 4 cấp (tính cả nhánh con khi đổi ngành hàng cha); đổi ngành hàng cha thì cấp của cả nhánh được tính lại.
+- Lỗi: `400 VALIDATION_FAILED` tại `code` "Mã ngành hàng đã có.", "Ngành hàng đã có sản phẩm, không đổi được mã.", "Mã đơn vị tính đã có."; tại `parentId` "Ngành hàng tối đa 4 cấp.", "Không chọn được ngành hàng con của chính nó làm ngành hàng cha.", "Ngành hàng này đã có sản phẩm nên không thêm được ngành hàng con.", "Giá trị không hợp lệ."; tại `tracksSerials` "Không theo dõi đồng thời lô và serial."; `403 FORBIDDEN` khi không có quyền ở phạm vi tập đoàn; `409 CONFLICT_VERSION`.
+
+### API_56 Sản phẩm
+Gửi lên:
+```json
+{ "categoryId": "01J...", "code": "", "name": "Điện thoại VPhone X", "brand": "VPhone", "vatRate": "10", "tracksLots": false, "tracksSerials": true, "warrantyMonths": 12,
+  "baseUnitId": "01J...", "weightKg": "0,25", "volumeM3": null,
+  "options": [ { "name": "Màu", "values": ["Đen", "Trắng"] }, { "name": "Dung lượng", "values": ["128GB", "256GB"] } ],
+  "specifications": [ { "name": "Màn hình", "value": "6,1 inch" } ],
+  "units": [ { "unitId": "01J...", "factor": "1" } ],
+  "variants": [ { "id": "01J...", "sku": "", "optionValues": ["Đen", "128GB"], "status": "active", "barcodes": [ { "unitId": "01J...", "barcode": "8930000000011" } ] } ],
+  "version": 1 }
+```
+- Giới hạn: `options` tối đa 3, mỗi thuộc tính 1 đến 30 giá trị; `variants` 1 đến 200; `units` tối đa 5; mã vạch tối đa 20 mỗi biến thể, dạng `^[0-9A-Za-z\-.]{4,40}$`; mã sản phẩm, mã hàng dạng `^[A-Z0-9\-_.]{1,40}$` (để trống thì tự sinh); `specifications` tối đa 50. Số thập phân nhận dấu phẩy hoặc dấu chấm; `version` bắt buộc khi sửa.
+- `code` trống thì sinh `<mã ngành hàng>-<5 chữ số>`; mã hàng biến thể trống thì `<mã sản phẩm>-<2 chữ số>` (không phân loại thì bằng mã sản phẩm); biến thể đã có giữ mã cũ. Biến thể có `id` không còn trong danh sách chuyển `inactive`.
+- `GET /catalog/products?search=`: tìm không dấu trong `search_text` (tên, mã, thương hiệu), hoặc đúng mã hàng, đúng mã vạch của công ty; chỉ sản phẩm của công ty, không gồm sản phẩm nhà bán.
+- Lỗi: `400 VALIDATION_FAILED` chỉ đúng trường, đúng dòng: `categoryId` "Chỉ chọn ngành hàng cuối cùng (không có ngành hàng con).", `code` "Mã sản phẩm đã có trong công ty.", `variants.<n>.sku` "Mã hàng đã có trong công ty.", `variants.<n>.barcodes.<m>.barcode` "Mã vạch đã có trong công ty.", `variants.<n>.optionValues` "Biến thể không khớp thuộc tính phân loại." hoặc "Biến thể bị trùng.", `units.<n>.unitId` "Đơn vị tính không hợp lệ hoặc bị trùng.", `units.<n>.factor` "Giá trị không hợp lệ."; `403`; `404` sản phẩm công ty khác; `409 CONFLICT_VERSION`.
+
+### API_57 Ảnh sản phẩm
+- Kiểm tra: đuôi `jpg`, `jpeg`, `png`, `webp` và chữ ký đầu tệp khớp (`FF D8 FF`; `89 50 4E 47`; `RIFF....WEBP`); tối đa 5 MB (multer cắt ở 10 MB); tối đa 10 ảnh mỗi sản phẩm (khóa dòng sản phẩm khi đếm). Loại nội dung lưu theo loại đã kiểm. Tên tệp thay `\`, `/`, xuống dòng, dấu nháy kép bằng `_`, giữ tối đa 200 ký tự cuối.
+- Tải về trả nội dung kèm `Cache-Control: private, max-age=3600`, `X-Content-Type-Options: nosniff`.
+- Lỗi: `400` tại `file` "Chỉ nhận ảnh JPG, PNG, WEBP.", "Ảnh vượt quá 5 MB."; `409 BUSINESS_RULE` "Mỗi sản phẩm tối đa 10 ảnh."; `404` ảnh của công ty khác.
+
+### API_58 Nhập sản phẩm từ Excel
+- Cột theo `productImportColumns` (`packages/contracts`). Dòng cùng mã sản phẩm (hoặc cùng tên khi để trống mã) gộp thành một sản phẩm; mỗi sản phẩm lưu trong giao dịch riêng; sản phẩm lỗi thì mọi dòng của nó vào danh sách lỗi.
+- `errorFileUrl` là tệp `.xlsx` dạng `data:` (base64) gồm cột "Dòng", các cột gốc, "Lý do"; `null` khi không có lỗi.
+- Lỗi cả tệp: `400` tại `file` "Tệp không đúng mẫu.", "Tệp vượt quá 5 MB.", quá 2.000 dòng (thông báo hiện "Tệp vượt quá 1.000 dòng.").
+
+### API_59 Liên kết, sao chép
+- Kết quả liên kết: `{ id, variantId, sku, linkedVariantId, linkedSku, linkedProductId, linkedProductName, linkedCompanyId, linkedCompanyName, factor }`; đọc từ phía bên kia thì `factor` là nghịch đảo (ví dụ `"2"` thành `"0.5"`).
+- Sao chép: sản phẩm mới ở công ty đích gồm biến thể đang bán, đơn vị, mã vạch chưa có ở công ty đích; mã sản phẩm, mã hàng đã có thì hệ thống sinh mã khác; liên kết từng biến thể hệ số 1; một giao dịch.
+- Lỗi: `400` tại `linkedVariantId` hoặc `targetCompanyId` "Chọn công ty khác công ty đang làm việc."; `403` thiếu quyền ở công ty kia; `404` biến thể không thuộc công ty đang làm việc; `409 BUSINESS_RULE` "Biến thể đã liên kết với một biến thể của công ty đó.".
+
+### API_60 Kênh bán, nhóm khách hàng
+- `POST /catalog/sales-channels/defaults` thêm các kênh `BAN_SI` "Bán sỉ", `BAN_LE` "Bán lẻ", `SAN_VCOMM` "Sàn VComm", `NOI_BO` "Nội bộ" còn thiếu; trả `201` kèm danh sách kênh.
+- Lỗi: `400` tại `code` "Mã đã có trong công ty."; `403`; `409 CONFLICT_VERSION`.
+
+### API_61 Bảng giá, giá
+- Tạo bảng giá kiểm tra kênh, nhóm khách đang dùng của công ty, tiền tệ đang dùng; trùng bảng giá đang dùng trả `400` tại `channelId` "Đã có bảng giá đang dùng cùng kênh, nhóm khách hàng, tiền tệ."; dùng lại bảng giá đã ngừng khi trùng trả `409 BUSINESS_RULE` cùng thông báo. Ngừng dùng bảng giá còn phiếu điều chỉnh giá chờ duyệt trả `409 BUSINESS_RULE` (khóa lỗi `priceListHasPendingChanges`) "Bảng giá còn phiếu điều chỉnh giá chờ duyệt; duyệt xong hoặc rút phiếu trước khi ngừng dùng." (QUYTAC_NGHIEPVU_44).
+- `prices`: mỗi biến thể, đơn vị có giá trong bảng một dòng `{ variantId, sku, productName, optionValues, unitId, unitName, price, effectiveFrom }`, giá hiện hành tại `date` (mặc định hôm nay theo giờ Việt Nam).
+- `history`: `[ { price, effectiveFrom, priceChangeId, changeNo, createdAt } ]`, mới trước.
+- `lookup` trả `{ priceListId, priceListCode, includesVat, price, effectiveFrom, fromBaseUnit }`. Thứ tự bảng giá theo QUYTAC_NGHIEPVU_42; bảng chưa có giá thì xét bảng kế tiếp; đơn vị không có giá riêng thì giá đơn vị cơ sở nhân hệ số (`fromBaseUnit: true`). Không có giá: `404 NOT_FOUND` "Chưa có giá cho mặt hàng này.". Dùng cho MODULE_05.
+
+### API_62 Phiếu điều chỉnh giá
+- `POST`, `PATCH` lưu nháp; mỗi dòng lưu kèm `currentPrice` (giá hiện hành tại ngày hiệu lực). Kiểm tra bảng giá đang dùng của công ty; biến thể của công ty; đơn vị là đơn vị cơ sở hoặc đơn vị quy đổi của sản phẩm; không lặp biến thể và đơn vị.
+- `submit` (`201`): ngày hiệu lực không trước hôm nay; công ty chưa có dãy số `catalog.price_change` thì tạo tiền tố `DCG`, đặt lại theo năm, 6 chữ số; cấp số (ví dụ `DCG-VCR-2026-000001`) và gửi yêu cầu duyệt như API_38 với `amount` = `0` trong cùng giao dịch. Chưa có chính sách duyệt thì `status: "approved"`, `approvalRequestId: null`, giá ghi ngay. Có thì `status: "pending"`.
+- Khi nhận sự kiện `core.approval.completed` của loại chứng từ `catalog.price_change`: `approved` thì ghi các dòng vào lịch sử giá với ngày hiệu lực là ngày lớn hơn giữa ngày hiệu lực của phiếu và ngày duyệt; `rejected`, `withdrawn` chỉ đổi trạng thái.
+- `withdraw` (`201`): rút yêu cầu duyệt như API_42; trả `status: "withdrawn"`.
+- `import-lines`: tệp 3 cột "Mã hàng", "Mã đơn vị", "Giá", tối đa 2.000 dòng, 5 MB; trả `{ lines, errors: [{ row, message }] }`, có `priceListId` thì kèm giá hiện hành hôm nay.
+- Lỗi: `400` tại `effectiveFrom` "Ngày hiệu lực không được trước hôm nay.", `lines.<n>.unitId` "Mặt hàng và đơn vị bị lặp.", `lines.<n>.variantId` hoặc `priceListId` "Giá trị không hợp lệ."; `403` khi không phải người lập; `409 BUSINESS_RULE` "Chỉ sửa được chứng từ đang ở trạng thái nháp."; rút khi cấp 1 đã quyết định nhận `409 BUSINESS_RULE` như API_42; `409 CONFLICT_VERSION`.
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |
@@ -278,3 +348,5 @@ Công khai, chịu giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP 
 | `core.role_assignment.changed` | Gán, gỡ vai trò | `userId`, `companyId` |
 | `core.approval.completed` | Yêu cầu duyệt kết thúc | `requestId`, `documentTypeCode`, `documentId`, `status` |
 | `core.notification.created` | Ghi thông báo trong ứng dụng; CHUC_NANG_26 nghe sự kiện này để gửi Zalo ZNS (CONG_VIEC_03) | `notificationId`, `kind` |
+
+MODULE_02 phần Sản phẩm (CONG_VIEC_04) không phát sự kiện mới; mini app Sản phẩm nghe `core.approval.completed` của loại chứng từ `catalog.price_change` để cập nhật phiếu điều chỉnh giá (API_62).
