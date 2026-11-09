@@ -31,6 +31,12 @@ export class ApiError extends Error {
   }
 }
 
+// Thiếu giá trị (không gửi hoặc chuỗi rỗng) thì báo "Vui lòng nhập", còn lại báo giá trị không hợp lệ.
+function isMissing(issue: ZodError["issues"][number]): boolean {
+  if (issue.code === "invalid_type") return issue.message.endsWith("received undefined");
+  return issue.code === "too_small" && issue.origin === "string" && Number(issue.minimum) === 1;
+}
+
 export function localeOf(request: Request): "vi" | "en" {
   return resolveLocale(request.header("accept-language"));
 }
@@ -57,7 +63,7 @@ export class ApiErrorFilter implements ExceptionFilter {
       if (exception.extra.retryAfterSeconds !== undefined) body.retryAfterSeconds = exception.extra.retryAfterSeconds;
     } else if (exception instanceof ZodError) {
       code = "VALIDATION_FAILED";
-      const fields = Object.fromEntries(exception.issues.map((issue) => [issue.path.join(".") || "_", text.required]));
+      const fields = Object.fromEntries(exception.issues.map((issue) => [issue.path.join(".") || "_", isMissing(issue) ? text.required : text.invalidValue]));
       body = { code, message: text.validationFailed, fields, requestId };
     } else if (exception instanceof HttpException && exception.getStatus() === 404) {
       code = "NOT_FOUND";

@@ -82,6 +82,16 @@ export async function seedTestData(pool: Pool): Promise<void> {
       }
     }
 
+    // Chi nhánh mặc định trong công ty, dùng để lọc dữ liệu theo phạm vi chi nhánh (QUYTAC_NGHIEPVU_12).
+    await transaction.execute(sql`
+      UPDATE core.user_company_memberships m SET default_branch_id = v.branch_id::uuid
+      FROM (VALUES
+        (${id.retailAdmin}::uuid, ${id.headOfficeBranch}),
+        (${id.purchasingManager}::uuid, ${id.headOfficeBranch}),
+        (${id.warehouseKeeper}::uuid, ${id.binhDuongWarehouse})
+      ) AS v(user_id, branch_id)
+      WHERE m.user_id = v.user_id AND m.company_id = ${id.retailCompany}`);
+
     // Vai trò riêng công ty VCR để thử trang chủ theo quyền.
     await transaction
       .insert(roles)
@@ -98,15 +108,15 @@ export async function seedTestData(pool: Pool): Promise<void> {
 
     await transaction.execute(sql`DELETE FROM core.user_role_assignments WHERE user_id IN (${sql.join(people.map((person) => sql`${person.userId}`), sql`, `)})`);
     await transaction.execute(sql`
-      INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, branch_id) VALUES
-        (${id.groupAdmin}, ${groupAdminRole}, 'group', NULL, NULL),
-        (${id.retailAdmin}, ${companyAdminRole}, 'company', ${id.retailCompany}, NULL),
-        (${id.exchangeRateManager}, ${rateRole}, 'group', NULL, NULL),
-        (${id.purchasingManager}, ${employeeRole}, 'company', ${id.retailCompany}, NULL),
-        (${id.purchasingManager}, ${id.purchasingManagerRole}, 'company', ${id.retailCompany}, NULL),
-        (${id.purchasingManager}, ${employeeRole}, 'company', ${id.tradingCompany}, NULL),
-        (${id.warehouseKeeper}, ${employeeRole}, 'branch', ${id.retailCompany}, ${id.binhDuongWarehouse}),
-        (${id.warehouseKeeper}, ${id.warehouseKeeperRole}, 'branch', ${id.retailCompany}, ${id.binhDuongWarehouse})`);
+      INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, branch_id, valid_from) VALUES
+        (${id.groupAdmin}, ${groupAdminRole}, 'group', NULL, NULL, '2026-01-01'),
+        (${id.retailAdmin}, ${companyAdminRole}, 'company', ${id.retailCompany}, NULL, '2026-01-01'),
+        (${id.exchangeRateManager}, ${rateRole}, 'group', NULL, NULL, '2026-01-01'),
+        (${id.purchasingManager}, ${employeeRole}, 'company', ${id.retailCompany}, NULL, '2026-01-01'),
+        (${id.purchasingManager}, ${id.purchasingManagerRole}, 'company', ${id.retailCompany}, NULL, '2026-01-01'),
+        (${id.purchasingManager}, ${employeeRole}, 'company', ${id.tradingCompany}, NULL, '2026-01-01'),
+        (${id.warehouseKeeper}, ${employeeRole}, 'branch', ${id.retailCompany}, ${id.binhDuongWarehouse}, '2026-01-01'),
+        (${id.warehouseKeeper}, ${id.warehouseKeeperRole}, 'branch', ${id.retailCompany}, ${id.binhDuongWarehouse}, '2026-01-01')`);
   });
 }
 
