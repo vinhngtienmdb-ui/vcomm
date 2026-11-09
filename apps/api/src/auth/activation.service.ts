@@ -1,6 +1,5 @@
 // Kích hoạt tài khoản bằng đường dẫn một lần, hết hạn sau 72 giờ (CHUC_NANG_04; QUYTAC_NGHIEPVU_06, 07).
 import { Inject, Injectable } from "@nestjs/common";
-import * as argon2 from "argon2";
 import type { ActivationInfoResponse } from "contracts";
 import { sql } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
@@ -8,6 +7,7 @@ import { AuditService } from "../common/audit.service";
 import { CLOCK, type Clock } from "../common/clock";
 import { DATABASE, type Database } from "../database/database.module";
 import type { ClientInfo } from "./auth.service";
+import { setPassword } from "./password.service";
 import { hashToken } from "./tokens";
 
 export const minimumPasswordLength = 10;
@@ -31,7 +31,6 @@ export class ActivationService {
   async activate(token: string, password: string, client: ClientInfo): Promise<void> {
     const row = await this.validToken(token);
     if (password.length < minimumPasswordLength) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { password: "passwordTooShort" } });
-    const passwordHash = await argon2.hash(password, { type: argon2.argon2id });
     const now = this.clock.now().toISOString();
     await this.database.transaction(async (transaction) => {
       // Đánh dấu đã dùng có điều kiện để hai yêu cầu cùng lúc chỉ một yêu cầu thành công.
@@ -40,13 +39,7 @@ export class ActivationService {
         WHERE id = ${row.token_id} AND used_at IS NULL AND expires_at > ${now}::timestamptz RETURNING id`);
       if (used.rows.length === 0) throw new ApiError("BUSINESS_RULE", "activationInvalid");
       // Đăng nhập được bằng email, tên đăng nhập hoặc số điện thoại.
-      for (const subject of [row.email, row.username, row.phone]) {
-        if (!subject) continue;
-        await transaction.execute(sql`
-          INSERT INTO core.user_identities (user_id, provider, provider_subject, password_hash)
-          VALUES (${row.user_id}, 'password', ${subject.toLowerCase()}, ${passwordHash})
-          ON CONFLICT (provider, provider_subject) DO UPDATE SET password_hash = EXCLUDED.password_hash WHERE core.user_identities.user_id = EXCLUDED.user_id`);
-      }
+      await setPassword(transaction, row.user_id, password);
       await transaction.execute(sql`UPDATE core.users SET status = 'active', updated_at = now(), version = version + 1 WHERE id = ${row.user_id} AND status = 'invited'`);
       await this.auditService.record(
         { actorUserId: row.user_id, appCode: "platform", action: "user.activate", entityType: "user", entityId: row.user_id, ip: client.ip, userAgent: client.userAgent, requestId: client.requestId },

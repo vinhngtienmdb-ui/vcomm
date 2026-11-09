@@ -6,6 +6,7 @@ import { normalizePhone } from "contracts";
 import { and, count, eq, gt, isNull, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../common/api-error";
+import { MfaService } from "./mfa.service";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { loginAttempts, sessions, userIdentities, users } from "../database/schema";
@@ -34,6 +35,7 @@ export class AuthService {
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     private readonly audit: AuditService,
+    private readonly mfa: MfaService,
   ) {}
 
   async login(request: LoginRequest, client: ClientInfo): Promise<{ response: LoginResponse; session: IssuedSession }> {
@@ -65,13 +67,16 @@ export class AuthService {
     }
 
     const user = match.user;
+    const mfaEnrolled = await this.mfa.isEnrolled(user.id);
+    const needsMfa = user.mfaRequired || mfaEnrolled;
     const session = await this.database.transaction(async (transaction) => {
       await transaction.update(users).set({ lastLoginAt: now, loginLockedUntil: null }).where(eq(users.id, user.id));
       await transaction
         .update(userIdentities)
         .set({ lastUsedAt: now })
         .where(and(eq(userIdentities.userId, user.id), eq(userIdentities.provider, "password")));
-      const issued = await this.issueSession(transaction, user.id, randomUUID(), client, now);
+      // Bắt buộc xác thực hai lớp hoặc đã tự bật thì phiên chờ nhập mã (QUYTAC_NGHIEPVU_09).
+      const issued = await this.issueSession(transaction, user.id, randomUUID(), client, now, !needsMfa);
       await this.audit.record(
         { actorUserId: user.id, appCode: "platform", action: "login", entityType: "core.users", entityId: user.id, ip: client.ip, userAgent: client.userAgent, requestId: client.requestId },
         transaction,
@@ -80,7 +85,7 @@ export class AuthService {
     });
     await this.recordAttempt(identifier, user.id, true, null, client, now);
     return {
-      response: { mfaRequired: user.mfaRequired, user: { id: user.id, fullName: user.fullName, locale: user.locale === "en" ? "en" : "vi" } },
+      response: { mfaRequired: needsMfa, mfaEnrolled, user: { id: user.id, fullName: user.fullName, locale: user.locale === "en" ? "en" : "vi" } },
       session,
     };
   }
@@ -157,13 +162,13 @@ export class AuthService {
     const lastSuccess = await this.database
       .select({ at: sql<Date | null>`max(${loginAttempts.attemptedAt})` })
       .from(loginAttempts)
-      .where(and(eq(loginAttempts.userId, userId), eq(loginAttempts.success, true)));
+      .where(and(eq(loginAttempts.userId, userId), eq(loginAttempts.success, true), eq(loginAttempts.provider, "password")));
     const candidates = [lastSuccess[0]?.at ? new Date(lastSuccess[0].at) : new Date(0), previousLockUntil ?? new Date(0)];
     const since = new Date(Math.max(...candidates.map((value) => value.getTime())));
     const failures = await this.database
       .select({ total: count() })
       .from(loginAttempts)
-      .where(and(eq(loginAttempts.userId, userId), eq(loginAttempts.success, false), gt(loginAttempts.attemptedAt, since)));
+      .where(and(eq(loginAttempts.userId, userId), eq(loginAttempts.success, false), eq(loginAttempts.provider, "password"), gt(loginAttempts.attemptedAt, since)));
     if ((failures[0]?.total ?? 0) >= maximumConsecutiveFailures) {
       await this.database.update(users).set({ loginLockedUntil: new Date(now.getTime() + lockMinutes * 60_000) }).where(eq(users.id, userId));
     }

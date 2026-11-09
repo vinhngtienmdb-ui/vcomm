@@ -38,6 +38,7 @@ export const users = core.table("users", {
   status: text("status").notNull(),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   loginLockedUntil: timestamp("login_locked_until", { withTimezone: true }),
+  version: integer("version").notNull(),
 });
 
 export const userIdentities = core.table("user_identities", {

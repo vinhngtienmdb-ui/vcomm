@@ -35,13 +35,25 @@ export const loginRequestSchema = z
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 
 export interface LoginResponse {
+  // Phiên cần nhập mã xác thực hai lớp trước khi dùng; mfaEnrolled = false thì phải đăng ký ngay (luồng 2 tài liệu 09).
   mfaRequired: boolean;
+  mfaEnrolled: boolean;
   user: { id: string; fullName: string; locale: "vi" | "en" };
 }
 
 // API_14
 export interface MeResponse {
-  user: { id: string; fullName: string; email: string | null; locale: "vi" | "en" };
+  user: {
+    id: string;
+    fullName: string;
+    email: string | null;
+    phone: string | null;
+    username: string | null;
+    locale: "vi" | "en";
+    mfaRequired: boolean;
+    mfaEnabled: boolean;
+    version: number;
+  };
   companies: { id: string; code: string; shortName: string; isDefault: boolean }[];
   currentCompanyId: string | null;
   permissions: string[];
@@ -413,3 +425,57 @@ export interface UserImportResponse {
 export const userImportColumns = ["Họ tên", "Email", "Số điện thoại", "Tên đăng nhập", "Mã chi nhánh", "Mã phòng ban", "Chức danh", "Mã vai trò"] as const;
 export const userImportMaximumRows = 1000;
 export const userImportMaximumBytes = 5 * 1024 * 1024;
+
+// API_06
+export const mfaVerifySchema = z
+  .object({ code: z.string().regex(/^\d{6}$/).optional(), backupCode: z.string().trim().min(8).max(20).optional() })
+  .strict()
+  .refine((value) => Boolean(value.code) !== Boolean(value.backupCode));
+
+// API_07
+export interface MfaEnrollResponse {
+  otpauthUrl: string;
+  secretForManualEntry: string;
+}
+
+// API_08 và các thao tác cần mã hiện tại (tắt, tạo lại mã dự phòng)
+export const mfaCodeSchema = z.object({ code: z.string().regex(/^\d{6}$/) }).strict();
+
+export interface MfaBackupCodesResponse {
+  backupCodes: string[];
+}
+
+// API_12, API_13
+export const forgotPasswordSchema = z.object({ identifier: z.string().trim().min(1).max(254) }).strict();
+export const resetPasswordSchema = z.object({ token: z.string().min(20).max(200), password: z.string().max(256) }).strict();
+
+// API_15
+export const updateMeSchema = z
+  .object({
+    fullName: z.string().trim().min(1).max(200).optional(),
+    locale: z.enum(["vi", "en"]).optional(),
+    defaultCompanyId: z.uuid().optional(),
+    version: z.number().int().positive(),
+  })
+  .strict();
+
+// API_16
+export const changePasswordSchema = z.object({ currentPassword: z.string().min(1).max(256), newPassword: z.string().max(256) }).strict();
+
+// API_17
+export interface IdentityResponse {
+  id: string;
+  provider: "password" | "google" | "microsoft" | "zalo" | "phone_otp";
+  subject: string;
+  lastUsedAt: string | null;
+}
+
+// API_18
+export interface SessionResponse {
+  id: string;
+  clientType: string;
+  ip: string | null;
+  userAgent: string | null;
+  createdAt: string;
+  current: boolean;
+}

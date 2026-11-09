@@ -66,7 +66,6 @@ export async function seedTestData(pool: Pool): Promise<void> {
       { userId: id.warehouseKeeper, email: "thukho.bd@vcomm.test", fullName: "Trần Văn Bảo Long Nguyễn Hoàng", companies: [id.retailCompany] },
     ];
     for (const person of people) {
-      // Xác thực hai lớp bắt buộc (QUYTAC_NGHIEPVU_09) được bật ở lát L5; dữ liệu thử L1 để tắt.
       await transaction.execute(sql`
         INSERT INTO core.users (id, email, full_name, status) VALUES (${person.userId}, ${person.email}, ${person.fullName}, 'active')
         ON CONFLICT (id) DO NOTHING`);
@@ -117,6 +116,15 @@ export async function seedTestData(pool: Pool): Promise<void> {
         (${id.purchasingManager}, ${employeeRole}, 'company', ${id.tradingCompany}, NULL, '2026-01-01'),
         (${id.warehouseKeeper}, ${employeeRole}, 'branch', ${id.retailCompany}, ${id.binhDuongWarehouse}, '2026-01-01'),
         (${id.warehouseKeeper}, ${id.warehouseKeeperRole}, 'branch', ${id.retailCompany}, ${id.binhDuongWarehouse}, '2026-01-01')`);
+
+    // QUYTAC_NGHIEPVU_09: nhân viên có quyền nhạy cảm thì bắt buộc xác thực hai lớp.
+    await transaction.execute(sql`
+      UPDATE core.users u SET mfa_required = EXISTS (
+        SELECT 1 FROM core.user_role_assignments a
+        JOIN core.role_permissions rp ON rp.role_id = a.role_id
+        JOIN core.permissions p ON p.code = rp.permission_code AND p.is_sensitive
+        WHERE a.user_id = u.id)
+      WHERE u.id IN (${sql.join(people.map((person) => sql`${person.userId}`), sql`, `)})`);
   });
 }
 

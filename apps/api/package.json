@@ -20,6 +20,7 @@
     "cookie-parser": "1.4.7",
     "drizzle-orm": "0.45.4",
     "i18n": "workspace:*",
+    "otpauth": "9.6.0",
     "pg": "8.23.1",
     "read-excel-file": "9.3.14",
     "reflect-metadata": "0.2.2",

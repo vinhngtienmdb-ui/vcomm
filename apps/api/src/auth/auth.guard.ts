@@ -16,9 +16,14 @@ export const csrfCookieName = "vc_csrf";
 const publicKey = "isPublic";
 export const Public = () => SetMetadata(publicKey, true);
 
+// Đường dẫn dùng được khi phiên chưa nhập mã xác thực hai lớp (luồng 2 bước 3 tài liệu 09).
+const mfaPendingKey = "allowMfaPending";
+export const AllowMfaPending = () => SetMetadata(mfaPendingKey, true);
+
 export interface AuthContext {
   userId: string;
   sessionId: string;
+  mfaVerified: boolean;
 }
 
 export type AuthenticatedRequest = Request & { auth: AuthContext };
@@ -53,14 +58,18 @@ export class AuthGuard implements CanActivate {
     }
 
     const rows = await this.database
-      .select({ userStatus: users.status })
+      .select({ userStatus: users.status, mfaVerified: sessions.mfaVerified })
       .from(sessions)
       .innerJoin(users, eq(users.id, sessions.userId))
       .where(and(eq(sessions.id, payload.sessionId), eq(sessions.userId, payload.userId), isNull(sessions.revokedAt)))
       .limit(1);
-    if (rows[0]?.userStatus !== "active") throw new ApiError("UNAUTHENTICATED", "unauthenticated");
+    const row = rows[0];
+    if (row?.userStatus !== "active") throw new ApiError("UNAUTHENTICATED", "unauthenticated");
+    if (!row.mfaVerified && !this.reflector.getAllAndOverride<boolean>(mfaPendingKey, [context.getHandler(), context.getClass()])) {
+      throw new ApiError("MFA_REQUIRED", "mfaRequired");
+    }
 
-    request.auth = { userId: payload.userId, sessionId: payload.sessionId };
+    request.auth = { userId: payload.userId, sessionId: payload.sessionId, mfaVerified: row.mfaVerified };
     return true;
   }
 }
