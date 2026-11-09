@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 1.3
+- Phiên bản: 1.4
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02
 
 ## MODULE_01 Nền tảng
 
@@ -429,6 +429,134 @@ Quy ước chung cho mọi chức năng của MODULE_01:
 | Giao diện | Dùng được trên màn hình từ 360 điểm ảnh |
 | Ngôn ngữ | Mọi chuỗi giao diện nằm trong tệp dịch tiếng Việt, tiếng Anh |
 | Lưu trữ | Nhật ký thao tác giữ tối thiểu 10 năm |
+
+## MODULE_02 Sản phẩm và Nhà bán (phần Sản phẩm, CONG_VIEC_04)
+
+Quy ước chung cho mọi chức năng của MODULE_02:
+- Mọi thao tác ghi dữ liệu ghi một dòng nhật ký thao tác (CHUC_NANG_23), mini app `catalog`.
+- Mọi API cần quyền `catalog.access` trong công ty đang làm việc; quyền chi tiết kiểm tra phía máy chủ. Dữ liệu của công ty khác trả "Không tìm thấy dữ liệu hoặc bạn không có quyền xem." như không tồn tại.
+- Sửa dữ liệu gửi kèm phiên bản; khác phiên bản hiện tại thì báo "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất.".
+- Tiền, hệ số lưu dạng số thập phân, trao đổi dạng chuỗi.
+
+### CHUC_NANG_30: Ngành hàng và đơn vị tính
+- Mục đích: Quản lý cây ngành hàng và danh mục đơn vị tính dùng chung tập đoàn.
+- Người sử dụng: Quản trị tập đoàn (sửa); người có quyền vào mini app Sản phẩm (xem).
+- Điều kiện thực hiện: Xem: `catalog.access`. Thêm, sửa, ngừng dùng: `catalog.category.manage` gán ở phạm vi tập đoàn.
+- Dữ liệu đầu vào: Ngành hàng: ngành hàng cha, mã (2 đến 6 chữ in hoa hoặc số), tên tiếng Việt, tên tiếng Anh, theo dõi (không, lô và hạn dùng, serial), số tháng bảo hành (0 đến 120). Đơn vị tính: mã (chữ in hoa, số, gạch dưới, tối đa 10 ký tự), tên tiếng Việt, tên tiếng Anh.
+- Quy trình xử lý: Kiểm tra trùng mã, cấp không quá 4 (tính cả nhánh con khi đổi ngành hàng cha), không tạo vòng, ngành hàng cha chưa có sản phẩm, không bật cùng lúc lô và serial; lưu; đổi ngành hàng cha thì tính lại cấp cả nhánh. Ngừng dùng, dùng lại thay cho xóa.
+- Kết quả đầu ra: Cây ngành hàng kèm cấp, số sản phẩm, số ngành hàng con; danh sách đơn vị tính (có sẵn 14 đơn vị: Cái, Chiếc, Hộp, Thùng, Gói, Chai, Lon, Bộ, Kilôgam, Gam, Lít, Mililít, Mét, Mét vuông).
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_22, YCAU_NGHIEPVU_23
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_37
+- Trường hợp ngoại lệ: Ngành hàng ngừng dùng không chọn được cho sản phẩm mới; sản phẩm đã có giữ nguyên.
+- Phân quyền: Chỉ quản trị tập đoàn sửa; quản trị công ty, Quản lý sản phẩm chỉ xem.
+- Thông báo lỗi: "Mã ngành hàng đã có." · "Ngành hàng tối đa 4 cấp." · "Không chọn được ngành hàng con của chính nó làm ngành hàng cha." · "Ngành hàng này đã có sản phẩm nên không thêm được ngành hàng con." · "Ngành hàng đã có sản phẩm, không đổi được mã." · "Không theo dõi đồng thời lô và serial." · "Mã đơn vị tính đã có."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_56
+
+### CHUC_NANG_31: Quản lý sản phẩm
+- Mục đích: Lập và duy trì sản phẩm của công ty đủ thông tin cho Kho, Mua hàng, Bán hàng.
+- Người sử dụng: Quản lý sản phẩm, quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: Xem: `catalog.product.view`. Thêm, sửa, ngừng bán, ảnh: `catalog.product.manage` trong công ty.
+- Dữ liệu đầu vào: Ngành hàng lá, mã sản phẩm (để trống thì tự sinh), tên, mô tả, thương hiệu, xuất xứ, thuế suất, theo dõi lô hoặc serial, số tháng bảo hành, đơn vị cơ sở, trọng lượng (kg), thể tích (m³) của đơn vị cơ sở, thông số (tối đa 50 cặp tên, giá trị); ảnh JPG, PNG, WEBP.
+- Quy trình xử lý: Chọn ngành hàng thì điền sẵn theo dõi, bảo hành của ngành hàng; kiểm tra theo quy tắc; lưu sản phẩm cùng biến thể, đơn vị, mã vạch (CHUC_NANG_32) trong một giao dịch. Tìm theo tên không dấu (cột `search_text`), mã sản phẩm, đúng mã hàng hoặc mã vạch; lọc ngành hàng, trạng thái; phân trang. Ảnh: kiểm tra đuôi tệp và chữ ký đầu tệp, tối đa 5 MB, 10 ảnh; ảnh đầu tiên là ảnh đại diện, chọn lại được; xóa ảnh.
+- Kết quả đầu ra: Danh sách sản phẩm (ảnh đại diện, mã, tên, ngành hàng, đơn vị cơ sở, số biến thể đang bán, trạng thái, ngày cập nhật); chi tiết sản phẩm.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_22, YCAU_NGHIEPVU_23
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_38
+- Trường hợp ngoại lệ: Ngừng bán thay cho xóa; bán lại được. Ngành hàng của sản phẩm đã ngừng dùng thì sản phẩm vẫn lưu được với ngành hàng đó.
+- Phân quyền: Trong công ty đang làm việc; sản phẩm công ty khác trả "Không tìm thấy".
+- Thông báo lỗi: "Chỉ chọn ngành hàng cuối cùng (không có ngành hàng con)." · "Mã sản phẩm đã có trong công ty." · "Không theo dõi đồng thời lô và serial." · "Chỉ nhận ảnh JPG, PNG, WEBP." · "Ảnh vượt quá 5 MB." · "Mỗi sản phẩm tối đa 10 ảnh."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_57, TIEUCHI_NGHIEMTHU_63, TIEUCHI_NGHIEMTHU_64
+
+### CHUC_NANG_32: Biến thể, mã hàng, đơn vị quy đổi, mã vạch
+- Mục đích: Mỗi biến thể có mã hàng riêng; mỗi đơn vị có hệ số và mã vạch.
+- Người sử dụng: Quản lý sản phẩm, quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: `catalog.product.manage` trong công ty.
+- Dữ liệu đầu vào: Tối đa 3 thuộc tính phân loại, mỗi thuộc tính tối đa 30 giá trị; danh sách biến thể (giá trị phân loại, mã hàng để trống thì tự sinh, đang bán hay ngừng bán, tối đa 20 mã vạch mỗi biến thể kèm đơn vị); tối đa 5 đơn vị quy đổi kèm hệ số.
+- Quy trình xử lý: Giao diện tạo biến thể theo tổ hợp giá trị phân loại. Kiểm tra: biến thể khớp thuộc tính, không trùng tổ hợp, không quá 200; không phân loại thì đúng một biến thể; đơn vị quy đổi đang dùng, không trùng đơn vị cơ sở, hệ số lớn hơn 0; mã hàng, mã vạch không trùng trong sản phẩm và trong công ty; mã vạch thuộc đơn vị của sản phẩm. Sinh mã sản phẩm từ bộ đếm theo công ty và tiền tố, bỏ qua số đã bị dùng bằng mã nhập tay. Biến thể bị bỏ chuyển ngừng bán; mã vạch chuyển được giữa hai biến thể của cùng sản phẩm.
+- Kết quả đầu ra: Biến thể kèm mã hàng, mã vạch; đơn vị quy đổi.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_23
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_39, QUYTAC_NGHIEPVU_40
+- Trường hợp ngoại lệ: Lỗi chỉ ra đúng dòng biến thể, đúng dòng mã vạch, đúng dòng đơn vị.
+- Phân quyền: Như CHUC_NANG_31.
+- Thông báo lỗi: "Mã hàng đã có trong công ty." · "Mã vạch đã có trong công ty." · "Đơn vị tính không hợp lệ hoặc bị trùng." · "Biến thể không khớp thuộc tính phân loại." · "Biến thể bị trùng." · "Bị trùng." (tên, giá trị thuộc tính phân loại) · "Giá trị không hợp lệ." (hệ số)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_57, TIEUCHI_NGHIEMTHU_58
+
+### CHUC_NANG_33: Nhập sản phẩm từ Excel
+- Mục đích: Lập nhiều sản phẩm một lần.
+- Người sử dụng: Quản lý sản phẩm, quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: `catalog.product.manage` trong công ty.
+- Dữ liệu đầu vào: Tệp `.xlsx` theo mẫu tải về (17 cột: Mã sản phẩm, Tên sản phẩm, Mã ngành hàng, Mã đơn vị cơ sở, Thuế suất, Theo dõi, Bảo hành (tháng), Thương hiệu, Xuất xứ, Trọng lượng (kg), Thể tích (m3), Đơn vị quy đổi, Phân loại 1 đến 3, Mã hàng, Mã vạch); tối đa 2.000 dòng, 5 MB; mỗi dòng một biến thể.
+- Quy trình xử lý: Kiểm tra dòng tiêu đề đúng mẫu. Gộp các dòng cùng mã sản phẩm (để trống mã thì cùng tên) thành một sản phẩm, thông tin chung lấy ở dòng đầu; phân loại ghi dạng "Màu: Đen"; đơn vị quy đổi dạng "THUNG=24; HOP=6"; theo dõi để trống thì theo ngành hàng; thuế suất 0, 5, 8, 10, KCT, KKKNT (để trống là 10). Mỗi sản phẩm kiểm tra và lưu trong giao dịch riêng như CHUC_NANG_31, 32; sản phẩm lỗi thì mọi dòng của sản phẩm đó vào tệp lỗi, sản phẩm đúng vẫn được nhập.
+- Kết quả đầu ra: Số sản phẩm, số biến thể đã nhập, số dòng lỗi; danh sách dòng lỗi kèm lý do (chỉ ra cột hoặc dòng biến thể); tệp dòng lỗi (cột "Dòng", các cột gốc, "Lý do").
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_23
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_38, QUYTAC_NGHIEPVU_39, QUYTAC_NGHIEPVU_40
+- Trường hợp ngoại lệ: Sai mẫu, quá 2.000 dòng, quá 5 MB thì từ chối cả tệp.
+- Phân quyền: Trong công ty đang làm việc.
+- Thông báo lỗi: "Tệp không đúng mẫu." · "Tệp vượt quá 5 MB." · "Không tìm thấy mã này." kèm tên cột · theo CHUC_NANG_31, 32. Quá 2.000 dòng hiện "Tệp vượt quá 1.000 dòng." (thông báo dùng chung với nhập nhân viên, sai số dòng).
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_59
+
+### CHUC_NANG_34: Liên kết, sao chép sản phẩm giữa công ty
+- Mục đích: Biết sản phẩm tương ứng ở công ty con khác để giao dịch nội bộ.
+- Người sử dụng: Người có quyền quản lý sản phẩm ở cả hai công ty (thường là quản trị tập đoàn).
+- Điều kiện thực hiện: Xem liên kết: `catalog.product.view`. Gợi ý: `catalog.product.view` ở cả hai công ty. Liên kết, bỏ liên kết, sao chép: `catalog.product.manage` ở cả hai công ty.
+- Dữ liệu đầu vào: Liên kết: biến thể bên này, biến thể bên kia, hệ số (mặc định 1). Sao chép: công ty đích.
+- Quy trình xử lý: Liên kết: kiểm tra hai biến thể khác công ty, mỗi biến thể chưa liên kết với công ty kia; lưu một chiều, đọc cả hai chiều (hệ số nghịch đảo khi đọc từ bên kia). Gợi ý: biến thể của công ty đích có cùng mã vạch, chưa liên kết. Sao chép: tạo sản phẩm mới ở công ty đích gồm thông tin chung, đơn vị, biến thể đang bán, mã vạch; giữ mã nếu chưa bị dùng; rồi liên kết từng biến thể hệ số 1, trong một giao dịch.
+- Kết quả đầu ra: Danh sách liên kết của sản phẩm (mã hàng, công ty, sản phẩm tương ứng, hệ số); sản phẩm mới ở công ty đích.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_24
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_41
+- Trường hợp ngoại lệ: Sản phẩm không còn biến thể đang bán thì không sao chép.
+- Phân quyền: Thiếu quyền ở công ty bên kia thì từ chối.
+- Thông báo lỗi: "Chọn công ty khác công ty đang làm việc." · "Biến thể đã liên kết với một biến thể của công ty đó." · "Bạn không có quyền thực hiện thao tác này."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_60
+
+### CHUC_NANG_35: Kênh bán và nhóm khách hàng
+- Mục đích: Danh mục kênh bán, nhóm khách hàng của công ty để đặt bảng giá.
+- Người sử dụng: Quản trị công ty, quản trị tập đoàn (sửa); người có quyền xem giá (xem).
+- Điều kiện thực hiện: Xem: `catalog.price.view`. Thêm, sửa, ngừng dùng: `catalog.price.manage` trong công ty.
+- Dữ liệu đầu vào: Mã (chữ in hoa, số, gạch dưới, tối đa 20 ký tự, không đổi sau khi tạo), tên.
+- Quy trình xử lý: Kiểm tra trùng mã trong công ty; lưu. Nút "Thêm kênh có sẵn" thêm các kênh còn thiếu: Bán sỉ (`BAN_SI`), Bán lẻ (`BAN_LE`), Sàn VComm (`SAN_VCOMM`), Nội bộ (`NOI_BO`); bấm lại không tạo trùng. Không có kênh sàn ngoài (quyết định ngày 2026-11-09).
+- Kết quả đầu ra: Danh sách kênh bán, nhóm khách hàng kèm trạng thái.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_25
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_42
+- Trường hợp ngoại lệ: Ngừng dùng thay cho xóa.
+- Phân quyền: Trong công ty đang làm việc.
+- Thông báo lỗi: "Mã đã có trong công ty."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_61
+
+### CHUC_NANG_36: Bảng giá, tra giá, lịch sử giá
+- Mục đích: Đặt giá bán theo kênh, nhóm khách hàng, ngày; tra giá khi bán.
+- Người sử dụng: Quản trị công ty, quản trị tập đoàn (sửa); Quản lý sản phẩm và người có quyền xem giá (xem); MODULE_05 (tra giá).
+- Điều kiện thực hiện: Xem, tra giá: `catalog.price.view`. Thêm, sửa, ngừng dùng bảng giá: `catalog.price.manage`.
+- Dữ liệu đầu vào: Bảng giá: mã, tên, kênh bán (tùy chọn), nhóm khách hàng (tùy chọn), tiền tệ (mặc định VND), gồm thuế hay không; sửa chỉ đổi tên, gồm thuế. Xem giá: ngày, từ khóa. Tra giá: biến thể, đơn vị, kênh, nhóm khách, tiền tệ, ngày.
+- Quy trình xử lý: Kiểm tra trùng mã, kênh và nhóm khách đang dùng của công ty, tiền tệ đang dùng, không trùng bảng giá đang dùng (cả khi dùng lại bảng giá đã ngừng). Xem giá hiện hành tại một ngày của mọi mặt hàng có giá trong bảng; lịch sử giá một biến thể và đơn vị (kèm số phiếu điều chỉnh). Tra giá theo QUYTAC_NGHIEPVU_42, QUYTAC_NGHIEPVU_43.
+- Kết quả đầu ra: Danh sách bảng giá; bảng giá hiện hành; lịch sử giá; kết quả tra giá (bảng giá, gồm thuế hay không, giá, ngày hiệu lực, có phải quy đổi từ đơn vị cơ sở không).
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_25
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_42, QUYTAC_NGHIEPVU_43
+- Trường hợp ngoại lệ: Không có giá ở mọi bảng giá phù hợp thì tra giá báo chưa có giá. Giá không sửa trực tiếp, chỉ qua CHUC_NANG_37.
+- Phân quyền: Trong công ty đang làm việc.
+- Thông báo lỗi: "Đã có bảng giá đang dùng cùng kênh, nhóm khách hàng, tiền tệ." · "Mã đã có trong công ty." · "Chưa có giá cho mặt hàng này."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_61
+
+### CHUC_NANG_37: Phiếu điều chỉnh giá
+- Mục đích: Thay đổi giá có kiểm soát, qua luồng duyệt.
+- Người sử dụng: Quản trị công ty, quản trị tập đoàn (lập); người duyệt theo chính sách (duyệt ở MAN_HINH_08); người có quyền xem giá (xem).
+- Điều kiện thực hiện: Xem: `catalog.price.view`. Lập, sửa, xóa, gửi, rút: `catalog.price.manage` (nhạy cảm), chỉ người lập.
+- Dữ liệu đầu vào: Bảng giá đang dùng, ngày hiệu lực, ghi chú, các dòng (biến thể của công ty, đơn vị là đơn vị cơ sở hoặc đơn vị quy đổi của sản phẩm, giá mới; 1 đến 5.000 dòng); hoặc nhập dòng từ Excel 3 cột Mã hàng, Mã đơn vị, Giá (tối đa 2.000 dòng, 5 MB; trả các dòng đọc được kèm giá hiện hành để xem lại, không lưu).
+- Quy trình xử lý: Lưu nháp kèm giá hiện hành tại ngày hiệu lực của từng dòng. Gửi: kiểm tra ngày hiệu lực không trước hôm nay, bảng giá còn đang dùng; cấp số `DCG-<mã công ty>-<năm>-<6 chữ số>` và gửi yêu cầu duyệt (CHUC_NANG_16) giá trị 0 trong cùng giao dịch; không có chính sách duyệt thì phiếu "Đã duyệt" và ghi giá ngay. Yêu cầu duyệt kết thúc thì phiếu đổi theo; duyệt thì ghi các dòng vào lịch sử giá.
+- Kết quả đầu ra: Danh sách phiếu (số, bảng giá, ngày hiệu lực, số dòng, trạng thái, người lập, ngày lập) lọc theo trạng thái; chi tiết phiếu kèm giá hiện hành, giá mới, liên kết tới yêu cầu duyệt.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_25
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_44, QUYTAC_NGHIEPVU_43, QUYTAC_NGHIEPVU_23, QUYTAC_NGHIEPVU_28
+- Trường hợp ngoại lệ: Bị từ chối, rút thì giá không đổi. Duyệt sau ngày hiệu lực thì giá hiệu lực từ ngày duyệt.
+- Phân quyền: Chỉ người lập sửa, xóa, gửi, rút; người khác nhận "Bạn không có quyền thực hiện thao tác này.".
+- Thông báo lỗi: "Ngày hiệu lực không được trước hôm nay." · "Mặt hàng và đơn vị bị lặp." · "Giá trị không hợp lệ." · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · "Không tìm thấy mã này." (nhập Excel)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_62
+
+## Yêu cầu phi chức năng của MODULE_02 (phần Sản phẩm)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Hiệu năng | Danh sách 10.000 sản phẩm trả trang đầu dưới 500 mili giây; nhập 2.000 dòng Excel trong 30 giây |
+| Tìm kiếm | Tìm tên sản phẩm không phân biệt dấu tiếng Việt, không cần extension PostgreSQL |
+| Bảo mật | Kiểm tra chữ ký đầu tệp ảnh; giới hạn kích thước tệp tải lên; dữ liệu tách theo công ty |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 

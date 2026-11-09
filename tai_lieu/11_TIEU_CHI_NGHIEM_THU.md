@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 1.2
+- Phiên bản: 1.3
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02
 
 ## MODULE_01 Nền tảng
 
@@ -67,3 +67,21 @@ Dữ liệu mẫu dùng trong tiêu chí: tập đoàn VCG; công ty con VCR, VC
 | TIEUCHI_NGHIEMTHU_54 | CHUC_NANG_28 | Tệp sai loại, quá 10 MB, quá 10 tệp bị từ chối; người không xem được đề xuất không tải được tệp | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_55 | CHUC_NANG_29 | Tệp PDF có tên công ty, số đề xuất, các trường, bảng chi tiết, các cấp duyệt; tiếng Việt đúng dấu | Mở tệp PDF | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_45 | Phi chức năng | Đăng nhập và kiểm tra quyền dưới 200 mili giây ở phân vị 95 với 200 người dùng đồng thời | Kiểm thử tải | Mong muốn |
+
+## MODULE_02 Sản phẩm và Nhà bán (phần Sản phẩm, CONG_VIEC_04)
+
+Dữ liệu mẫu: công ty VCR (VComm Bán lẻ Miền Nam), VCT (VComm Thương mại); tài khoản thử theo tài liệu `18` mục 5. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_56 | CHUC_NANG_30 | Chỉ quản trị tập đoàn sửa được ngành hàng, đơn vị tính; ngành hàng quá 4 cấp, trùng mã, xóa khi có sản phẩm bị từ chối | Gọi API bằng từng vai trò | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_57 | CHUC_NANG_31, CHUC_NANG_32 | Tạo sản phẩm có 2 thuộc tính phân loại sinh đủ biến thể với mã hàng đúng quy tắc; sản phẩm của công ty A không đọc, sửa được từ công ty B | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_58 | CHUC_NANG_32 | Mã hàng, mã vạch trùng trong công ty bị từ chối, chỉ ra đúng dòng; hệ số quy đổi sai bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_59 | CHUC_NANG_33 | Nhập 2.000 dòng trong 30 giây; dòng lỗi có trong tệp lỗi kèm lý do, dòng đúng được nhập | Kiểm thử tự động | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_60 | CHUC_NANG_34 | Sao chép sản phẩm sang công ty khác tạo đủ biến thể, đơn vị, mã vạch và liên kết; người không có quyền ở công ty đích bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_61 | CHUC_NANG_35, CHUC_NANG_36 | Tạo hai bảng giá đang dùng trùng công ty, kênh, nhóm khách, tiền tệ bị từ chối; tra giá chọn đúng bảng giá theo thứ tự ưu tiên và đúng giá theo ngày | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_62 | CHUC_NANG_37 | Phiếu điều chỉnh giá: có chính sách duyệt thì giá chỉ đổi sau khi duyệt; không có chính sách thì đổi ngay khi gửi; bị từ chối, rút thì giá không đổi; lịch sử giá giữ giá cũ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_63 | CHUC_NANG_31 | Ảnh sai loại, quá 5 MB, quá 10 ảnh bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_64 | CHUC_NANG_31 | Tìm "ao thun" ra sản phẩm "Áo thun"; danh sách 10.000 sản phẩm trả trang đầu dưới 500 ms | Kiểm thử tự động | Mong muốn |
+
+Ghi chú TIEUCHI_NGHIEMTHU_56: hệ thống không có chức năng xóa ngành hàng (QUYTAC_NGHIEPVU_37); vế "xóa khi có sản phẩm bị từ chối" kiểm tra bằng việc không có API xóa, ngành hàng đã có sản phẩm không nhận ngành hàng con, không đổi được mã.
