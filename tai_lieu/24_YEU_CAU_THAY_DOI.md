@@ -22,7 +22,7 @@
 - Kiểm thử cần thực hiện: theo tài liệu `27`, các dòng của CHUC_NANG_06, CHUC_NANG_07, CHUC_NANG_08, CHUC_NANG_10 và tiêu chí mới của CHUC_NANG_24 (liên kết, đăng nhập, Zalo chưa liên kết bị từ chối với nhân viên, hủy liên kết).
 - Mức quy mô: Vừa đối với MODULE_01 (chức năng mới trong một module, thêm giá trị dữ liệu, không đổi kiến trúc).
 - **CHƯA XÁC ĐỊNH:** đã có tài khoản Zalo Official Account hoặc ứng dụng trên Zalo for Developers của công ty chưa.
-- Trạng thái: Chờ phê duyệt
+- Trạng thái: Đã phê duyệt 2026-11-09
 
 ### THAY_DOI_02: Xác thực nhà bán qua VNeID – 2026-11-09
 - Lý do: Người dùng yêu cầu xác thực danh tính nhà bán bằng tài khoản định danh điện tử VNeID.
@@ -44,4 +44,4 @@
 - Kiểm thử cần thực hiện: Lập khi phân tích MODULE_02.
 - Mức quy mô: Lớn (thêm tích hợp bên ngoài, thêm dữ liệu cá nhân nhạy cảm).
 - **CHƯA XÁC ĐỊNH:** chọn tổ chức cung cấp dịch vụ xác thực điện tử nào; chi phí mỗi lượt xác thực; thời gian ký hợp đồng và được phê duyệt phương án kết nối.
-- Trạng thái: Chờ phê duyệt
+- Trạng thái: Đã phê duyệt 2026-11-09
