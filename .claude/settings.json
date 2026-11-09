@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api -X PUT repos/vinhngtienmdb-ui/vcomm/pulls/*/merge *)",
+      "Bash(gh api -X POST repos/vinhngtienmdb-ui/vcomm/pulls/*/ccr/ready_for_review)",
+      "Bash(gh api -X PATCH repos/vinhngtienmdb-ui/vcomm/pulls/* -f state=closed *)"
+    ]
+  }
+}
