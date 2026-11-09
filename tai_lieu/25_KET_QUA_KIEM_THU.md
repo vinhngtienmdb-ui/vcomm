@@ -44,3 +44,23 @@
 - Kiểm tra bảo mật phần B, C: C1, C2 chạy trong CI của pull request; C5 giới hạn số lần thử: Đạt; C3, C4, C6: Không áp dụng – không đổi phân quyền, dữ liệu đầu vào.
 - Tự rà soát mã và dọn dẹp: Đạt.
 - Kết luận cổng kiểm thử: Đạt.
+
+## Lần kiểm thử 2026-11-09 – CONG_VIEC_03
+
+- Phạm vi: lát L6 (Cài đặt tích hợp, đăng nhập số điện thoại, Google, Microsoft, Zalo), L9 (Zalo ZNS cho thông báo duyệt), L10 (mẫu đề xuất, đề xuất, tệp đính kèm, in PDF); MAN_HINH_01, 03, 06, 08, 19, 20, 21; API_02 đến API_05, API_49 đến API_54. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22. Nhà cung cấp eSMS, Google, Microsoft, Zalo và S3 được thay bằng bản giả lập trong kiểm thử (`apps/api/test/setup-database.ts`) vì chưa có mã ứng dụng, khóa thật.
+- Lệnh đã chạy: `pnpm --filter api typecheck`, `pnpm --filter web-platform typecheck`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --audit-level=high`; thử trên trình duyệt bằng Playwright luồng quản trị thêm 3 mẫu có sẵn, nhân viên lập phiếu đề nghị chi, đính kèm tệp, gửi duyệt, người duyệt xem nội dung, tệp và PDF (máy tính và điện thoại).
+- Kết quả: 155 đạt / 0 không đạt / 155 kịch bản tự động (12 tệp; phần mới: `c3-integrations` 4, `c3-login` 15, `c3-zns` 5, `c3-proposals` 11). Khớp khóa dịch tiếng Việt, tiếng Anh: 776 khóa.
+- Tiêu chí nghiệm thu:
+  - TIEUCHI_NGHIEMTHU_13, 14, 46, 47, 48 đến 55 – Đạt trên bản giả lập nhà cung cấp.
+  - Chưa kiểm với nhà cung cấp thật: gửi SMS, ZNS qua eSMS.vn; đăng nhập Google, Microsoft, Zalo; lưu tệp trên S3. Cần người dùng nhập khóa ở MAN_HINH_19 và thử lại trên môi trường thử nghiệm.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --audit-level=high`: không có lỗ hổng đã biết. Thư viện mới: pdfmake 0.3.12, @aws-sdk/client-s3 3.1156.0.
+  - C2 gitleaks trong CI trên các commit của công việc: không có phát hiện. Không có khóa thật trong mã, tài liệu, `.env.example`.
+  - C3 phân quyền: Đạt – Cài đặt tích hợp chỉ quản trị tập đoàn; mẫu đề xuất chỉ người có quyền quản lý mẫu; đề xuất chỉ người lập, người duyệt, quản trị công ty xem được, người khác nhận `404`; tệp đính kèm, PDF theo cùng quy tắc.
+  - C4 dữ liệu độc hại: Đạt – tệp kiểm cả phần mở rộng và chữ ký đầu tệp, tên tệp loại ký tự điều khiển; giá trị đề xuất kiểm theo kiểu trường, tiền không có nhiều chữ số lẻ hơn tiền tệ; PDF không tải tài nguyên ngoài.
+  - C5 phiên và xác thực: Đạt – OAuth dùng PKCE và cookie trạng thái ký, hết hạn 10 phút; mã OTP băm, hiệu lực 5 phút, sai 5 lần thì hủy, tối đa 5 lần gửi mỗi giờ, hai lần xác minh đồng thời chỉ một lần đạt; số chưa gắn tài khoản vẫn trả "Đã gửi mã".
+  - C6 OWASP Top 10: A02 khóa tích hợp mã hóa AES-256-GCM, không trả về giao diện; A10 SSRF: chỉ gọi ra địa chỉ cố định của eSMS, Google, Microsoft, Zalo, S3.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát toàn nhánh tìm 9 điểm, sửa 8 (nháp trùng khi gửi lỗi, dùng lại mã OTP đồng thời, tệp không bị xóa khỏi nơi lưu, kiểm tiền tệ khi sửa mẫu, vượt 10 tệp khi tải đồng thời, tenant Microsoft dạng tên miền, kiểu thông báo lỗi, danh tính số điện thoại khi đổi người giữ số), thêm 4 kiểm thử; giữ lại 1 điểm hiệu năng nhỏ (kiểm quyền xem đề xuất đọc cả yêu cầu duyệt). Đối chiếu tài liệu với mã sửa thêm 3 lỗi (danh sách mẫu ngừng dùng, thông báo tệp quá lớn, thư mục lưu tệp mặc định).
+- Kết luận cổng kiểm thử: Đạt trên bản giả lập (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Kiểm với nhà cung cấp thật làm khi người dùng có khóa.
+
