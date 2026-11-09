@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_03: Lập công việc hoàn thiện mini app Nền tảng gồm lát L6, L9, L10; lập THAY_DOI_08 (màn hình Cài đặt tích hợp, mã OTP qua Zalo ZNS).
 - Phát hành phiên bản 0.1.0 (CONG_VIEC_01, CONG_VIEC_02, LOI_02): tài liệu 23, hợp nhất nhánh `phat-hanh/v0.1.0` (pull request số 18), kiểm thử lại 120/120 đạt trên commit hợp nhất `cd5ed97`. Tag `v0.1.0` do người dùng tạo trên GitHub vì môi trường của AI không được phép đẩy tag. Chưa triển khai lên môi trường nào.
 - LOI_02: Sửa trên nhánh `sua-loi/LOI_02-gioi-han-yeu-cau-theo-ip` (pull request số 15): giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP cho mỗi API không cần đăng nhập, đếm trên Redis; kiểm thử 120/120 đạt. AI tự quyết: đếm riêng từng API để trang đăng nhập không bị chặn vì người dùng gọi quên mật khẩu; Redis lỗi thì cho qua.
 - CONG_VIEC_02: Người dùng nghiệm thu các lát L1 đến L5, L7, L8. Trước nghiệm thu: rà soát tiếng Anh 24 màn hình, sửa tên vai trò, tên loại chứng từ, ký hiệu tiền theo ngôn ngữ; thêm kiểm thử bảo mật KICHBAN_KIEMTHU_118, 119; đo tải sơ bộ KICHBAN_KIEMTHU_111. Toàn bộ 119/119 kiểm thử đạt. Lập tài liệu 25 với LOI_01 (đăng nhập chưa đạt mốc 200 ms dưới tải), LOI_02 (chưa giới hạn số yêu cầu theo địa chỉ IP).
@@ -27,6 +28,10 @@
 
 ### Quyết định
 
+- CONG_VIEC_03: AI tự làm tiếp không chờ điểm xem trước; viết sẵn kết nối Google, Microsoft, Zalo, SMS, ZNS, mã ứng dụng nhập sau; làm luôn lát L9, L10 – người quyết định: người dùng.
+- Mã ứng dụng và khóa nhà cung cấp nhập ở màn hình Cài đặt tích hợp (THAY_DOI_08); nhà cung cấp SMS là eSMS.vn – người quyết định: người dùng.
+- Zalo ZNS gửi khi có chứng từ chờ duyệt, nhắc quá hạn, kết quả duyệt cho người lập, và mã OTP đăng nhập (ZNS trước, SMS sau) – người quyết định: người dùng.
+- Đề xuất: quản trị tự tạo mẫu đề xuất với các trường khai báo, có sẵn 3 mẫu phiếu chi, tạm ứng, mua sắm; cho đính kèm tệp lưu trên S3; in PDF theo bố cục chuẩn của hệ thống bằng thư viện pdfmake (MIT) – người quyết định: người dùng.
 - Phát hành phiên bản 0.1.0 – người quyết định: người dùng.
 - Nghiệm thu LOI_02 và hợp nhất vào `main`; LOI_01 giữ mức băm mật khẩu, đo lại trên môi trường thử nghiệm – người quyết định: người dùng.
 - Sửa LOI_02 ngay bằng Redis – người quyết định: người dùng.

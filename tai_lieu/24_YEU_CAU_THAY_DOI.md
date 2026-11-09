@@ -140,3 +140,19 @@
 - Mức quy mô: Nhỏ.
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-09.
+
+### THAY_DOI_08: Màn hình Cài đặt tích hợp, mã OTP qua Zalo ZNS – 2026-11-09
+- Lý do: Người dùng yêu cầu viết sẵn kết nối Google, Microsoft, Zalo, SMS, ZNS; mã ứng dụng và khóa nhà cung cấp do người dùng nhập sau trong phần cài đặt. Người dùng chọn gửi mã OTP đăng nhập qua Zalo ZNS trước, không được thì gửi SMS.
+- Nội dung thay đổi:
+  - Thêm chức năng Cài đặt tích hợp: quản trị tập đoàn nhập mã ứng dụng Google, Microsoft, Zalo, khóa eSMS.vn, Zalo ZNS (mã mẫu tin theo từng sự kiện). Khóa bí mật mã hóa khi lưu, chỉ hiện 4 ký tự cuối, có hiệu lực ngay, ghi nhật ký. Thay cho việc đặt các khóa này trong biến môi trường (tài liệu `22`).
+  - CHUC_NANG_08: mã OTP gửi qua Zalo ZNS trước; ZNS chưa cài đặt hoặc gửi lỗi thì gửi SMS qua eSMS.vn.
+- Thành phần bị ảnh hưởng: tài liệu `10` (chức năng mới, CHUC_NANG_08), `11`, `14` (màn hình mới), `16` (bảng cài đặt), `17` (API mới), `22` (quản lý khóa bí mật), `27`.
+- Dữ liệu bị ảnh hưởng: thêm bảng cài đặt tích hợp trong schema `core` (database migration mới); không đổi bảng đã có.
+- API bị ảnh hưởng: thêm API đọc, lưu cài đặt tích hợp; không đổi API đã có.
+- Giao diện bị ảnh hưởng: thêm màn hình Cài đặt tích hợp trong menu Quản trị hệ thống.
+- Quyền bị ảnh hưởng: thêm quyền `platform.integration.manage` (nhạy cảm), chỉ quản trị tập đoàn.
+- Ảnh hưởng chức năng cũ: tỷ giá Vietcombank, email không đổi.
+- Kiểm thử cần thực hiện: kịch bản mới cho cài đặt tích hợp, OTP qua ZNS và SMS.
+- Mức quy mô: Lớn (gộp trong CONG_VIEC_03).
+- Rủi ro: lộ khóa bí mật nếu mã hóa sai; giảm thiểu bằng mã hóa AES-256-GCM như khóa TOTP, không trả khóa đầy đủ qua API.
+- Trạng thái: Đã phê duyệt 2026-11-09.
