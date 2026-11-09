@@ -125,4 +125,14 @@ Người dùng bỏ dừng chờ ở điểm xem trước; AI chụp màn hình 
 
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa đối chiếu.
+Đối chiếu ngày 2026-11-09:
+
+- [x] Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: theo mục 3 đến 8; điểm lệch đặc tả còn chờ người dùng quyết định ghi ở tài liệu `02`.
+- [x] Đúng giao diện: ảnh chụp MAN_HINH_08, 19, 20, 21 trên máy tính và điện thoại; chỉ dùng biến của tài liệu `15`. Bản mẫu MAN_HINH_19 đến 21 chưa được duyệt riêng vì người dùng cho làm tiếp không dừng ở điểm xem trước; người dùng duyệt khi nghiệm thu.
+- [x] Đã xử lý lỗi: lỗi theo trường, lỗi nhà cung cấp ghi nhật ký gửi tin, lỗi lưu tệp không để lại tệp thừa.
+- [x] Đã kiểm thử: 155/155 đạt, kết quả trong tài liệu `25`; đạt cổng kiểm thử trên bản giả lập nhà cung cấp.
+- [x] Không phá vỡ chức năng cũ: toàn bộ kiểm thử hồi quy đạt.
+- [x] Đạt tiêu chí nghiệm thu bắt buộc TIEUCHI_NGHIEMTHU_13, 14, 46 đến 55 trên bản giả lập; chưa thử với eSMS, Google, Microsoft, Zalo, S3 thật vì chưa có khóa.
+- [x] Đạt cổng bảo mật: phần B, C trong tài liệu `25`; không có lỗ hổng Nghiêm trọng, Cao.
+- [x] Đã tự rà soát mã và dọn dẹp.
+- [x] Đã cập nhật tài liệu `27` và các tài liệu `06`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `22`.
