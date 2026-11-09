@@ -43,10 +43,12 @@ function ListPrices({ list, product }: { list: PriceListResponse; product: Produ
       <Loaded state={state} onRetry={() => void reload()}>
         {(result) => {
           const rows = result.data.filter((row) => variantIds.has(row.variantId));
+          const more = result.total > result.data.length && <p className="chu-thich">{t("productPricesMore", { count: result.data.length })}</p>;
           return rows.length === 0 ? (
             <p className="chu-thich">{t("noProductPrices")}</p>
           ) : (
             <div className="khung-bang">
+              {more}
               <table>
                 <thead>
                   <tr>

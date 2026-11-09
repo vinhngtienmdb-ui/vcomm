@@ -1348,3 +1348,9 @@ export interface PriceChangeImportResponse {
   lines: PriceChangeLine[];
   errors: { row: number; message: string }[];
 }
+// Giá người dùng gõ hoặc ô Excel dạng chữ: tiền VND không có phần lẻ nên dấu chấm, khoảng trắng là phân cách hàng nghìn ("120.000" là 120000);
+// tiền tệ khác dùng dấu phẩy hoặc dấu chấm làm dấu thập phân.
+export function normalizeMoneyText(text: string, currency: string): string {
+  const compact = text.trim().replace(/\s/g, "");
+  return currency === "VND" ? compact.replace(/\./g, "").replace(",", ".") : compact.replace(",", ".");
+}

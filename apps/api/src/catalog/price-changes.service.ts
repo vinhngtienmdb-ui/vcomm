@@ -1,6 +1,7 @@
 // Phiếu điều chỉnh giá qua luồng duyệt (CHUC_NANG_37; QUYTAC_NGHIEPVU_44; API_62; TIEUCHI_NGHIEMTHU_62).
 import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
 import {
+  normalizeMoneyText,
   priceChangeImportColumns,
   productImportMaximumBytes,
   productImportMaximumRows,
@@ -25,8 +26,8 @@ import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { NumberSequencesService } from "../settings/number-sequences.service";
-import { catalogAudit, catalogPermissions, requireCompanyPermission } from "./catalog-context";
-import { day, trimDecimal } from "./price-lists.service";
+import { catalogAudit, catalogPermissions, requireCompanyPermission, trimDecimal } from "./catalog-context";
+import { day } from "./price-lists.service";
 
 const documentTypeCode = "catalog.price_change";
 type Executor = Pick<Database, "execute">;
@@ -222,10 +223,19 @@ export class PriceChangesService implements OnModuleInit {
       throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "fileInvalidTemplate" } });
     }
     const text = (value: unknown) => (value === null || value === undefined ? "" : String(value).trim());
+    const currency = priceListId
+      ? ((await this.database.execute<{ currency: string }>(sql`SELECT currency FROM catalog.price_lists WHERE id = ${priceListId} AND company_id = ${actor.companyId}`)).rows[0]?.currency ?? "VND")
+      : "VND";
     if (priceChangeImportColumns.some((title, index) => text(sheet[0]?.[index]) !== title)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "fileInvalidTemplate" } });
     const rows = sheet
       .slice(1)
-      .map((row, index) => ({ number: index + 2, sku: text(row[0]).toUpperCase(), unitCode: text(row[1]).toUpperCase(), price: text(row[2]).replace(",", ".") }))
+      // Ô số giữ nguyên; ô chữ đọc theo cách viết số của tiền tệ bảng giá.
+      .map((row, index) => ({
+        number: index + 2,
+        sku: text(row[0]).toUpperCase(),
+        unitCode: text(row[1]).toUpperCase(),
+        price: typeof row[2] === "number" ? String(row[2]) : normalizeMoneyText(text(row[2]), currency),
+      }))
       .filter((row) => row.sku || row.unitCode || row.price);
     if (rows.length > productImportMaximumRows) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "fileTooManyRows" } });
     const errorText = messages[locale].errors as Record<string, string>;
@@ -241,7 +251,7 @@ export class PriceChangesService implements OnModuleInit {
       ).rows[0];
       if (!found) errors.push({ row: row.number, message: `${errorText.catalogCodeNotFound} (${priceChangeImportColumns[0]})` });
       else if (!found.unit_id) errors.push({ row: row.number, message: `${errorText.catalogCodeNotFound} (${priceChangeImportColumns[1]})` });
-      else if (!/^\d{1,16}(\.\d{1,4})?$/.test(row.price)) errors.push({ row: row.number, message: `${errorText.invalidValue} (${priceChangeImportColumns[2]})` });
+      else if (!/^\d{1,12}(\.\d{1,4})?$/.test(row.price)) errors.push({ row: row.number, message: `${errorText.invalidValue} (${priceChangeImportColumns[2]})` });
       else if (lines.some((line) => line.variantId === found.variant_id && line.unitId === found.unit_id)) errors.push({ row: row.number, message: errorText.priceLineDuplicate ?? "" });
       else {
         const current = priceListId ? await this.currentPrice(this.database, priceListId, found.variant_id, found.unit_id!, this.permissionService.today()) : null;
@@ -284,14 +294,16 @@ export class PriceChangesService implements OnModuleInit {
     if (list.rows.length === 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { priceListId: "invalidValue" } });
   }
 
-  // Lưu kèm giá hiện hành tại ngày hiệu lực để người duyệt so sánh.
+  // Lưu kèm giá hiện hành tại ngày hiệu lực để người duyệt so sánh; một câu lệnh cho mọi dòng.
   private async writeLines(transaction: Executor, changeId: string, input: Input): Promise<void> {
-    for (const line of input.lines) {
-      const current = await this.currentPrice(transaction, input.priceListId, line.variantId, line.unitId, input.effectiveFrom);
-      await transaction.execute(sql`
-        INSERT INTO catalog.price_change_lines (price_change_id, variant_id, unit_id, price, current_price)
-        VALUES (${changeId}, ${line.variantId}, ${line.unitId}, ${line.price}::numeric, ${current}::numeric)`);
-    }
+    const lines = JSON.stringify(input.lines.map((line) => ({ variant_id: line.variantId, unit_id: line.unitId, price: line.price })));
+    await transaction.execute(sql`
+      INSERT INTO catalog.price_change_lines (price_change_id, variant_id, unit_id, price, current_price)
+      SELECT ${changeId}, l.variant_id, l.unit_id, l.price,
+        (SELECT pr.price FROM catalog.prices pr
+         WHERE pr.price_list_id = ${input.priceListId} AND pr.variant_id = l.variant_id AND pr.unit_id = l.unit_id AND pr.effective_from <= ${input.effectiveFrom}::date
+         ORDER BY pr.effective_from DESC, pr.created_at DESC LIMIT 1)
+      FROM jsonb_to_recordset(${lines}::jsonb) AS l(variant_id uuid, unit_id uuid, price numeric)`);
   }
 
   private async currentPrice(executor: Executor, priceListId: string, variantId: string, unitId: string, date: string): Promise<string | null> {

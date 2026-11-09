@@ -220,7 +220,7 @@ describe("TIEUCHI_NGHIEMTHU_62: phiếu điều chỉnh giá qua luồng duyệt
     const file = await writeXlsxFile([
       priceChangeImportColumns.map((value) => ({ value })),
       ...[
-        ["NUOC-00001", "thung", "100000"],
+        ["NUOC-00001", "thung", "100.000"],
         ["KHONGCO", "CAI", "1"],
         ["NUOC-00001", "KG", "1"],
         ["NUOC-00001", "THUNG", "mười"],

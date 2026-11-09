@@ -8,7 +8,7 @@ import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
-import { catalogAudit, catalogPermissions, requireCompanyPermission } from "./catalog-context";
+import { catalogAudit, catalogPermissions, isUniqueViolation, requireCompanyPermission } from "./catalog-context";
 
 export type CatalogItemKind = "channel" | "customer_group";
 const tables: Record<CatalogItemKind, string> = { channel: "catalog.sales_channels", customer_group: "catalog.customer_groups" };
@@ -35,11 +35,17 @@ export class CatalogItemsService {
     if ((await this.database.execute(sql`SELECT 1 FROM ${table} WHERE company_id = ${actor.companyId} AND code = ${input.code}`)).rows.length > 0) {
       throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { code: "catalogItemCodeExists" } });
     }
-    const id = await this.database.transaction(async (transaction) => {
-      const itemId = (await transaction.execute<{ id: string }>(sql`INSERT INTO ${table} (company_id, code, name) VALUES (${actor.companyId}, ${input.code}, ${input.name}) RETURNING id`)).rows[0]!.id;
-      await this.auditService.record({ ...catalogAudit(actor, kind), action: `${kind}.create`, entityId: itemId, afterData: input }, transaction);
-      return itemId;
-    });
+    const id = await this.database
+      .transaction(async (transaction) => {
+        const itemId = (await transaction.execute<{ id: string }>(sql`INSERT INTO ${table} (company_id, code, name) VALUES (${actor.companyId}, ${input.code}, ${input.name}) RETURNING id`)).rows[0]!
+          .id;
+        await this.auditService.record({ ...catalogAudit(actor, kind), action: `${kind}.create`, entityId: itemId, afterData: input }, transaction);
+        return itemId;
+      })
+      .catch((error: unknown) => {
+        if (isUniqueViolation(error)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { code: "catalogItemCodeExists" } });
+        throw error;
+      });
     return this.single(actor.companyId, kind, id);
   }
 

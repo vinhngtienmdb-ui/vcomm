@@ -28,3 +28,14 @@ export async function requireCompanyPermission(permissionService: PermissionServ
 export function searchText(...parts: (string | null | undefined)[]): string {
   return parts.filter(Boolean).join(" ").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
 }
+
+// Bỏ số 0 thừa sau dấu thập phân của giá trị numeric: "1.5000" thành "1.5", "24.0000" thành "24".
+export function trimDecimal<T extends string | null>(value: T): T {
+  return (value !== null && value.includes(".") ? value.replace(/\.?0+$/, "") : value) as T;
+}
+
+// Lỗi trùng chỉ mục duy nhất của PostgreSQL (hai người lưu cùng lúc vượt qua bước kiểm tra trùng).
+export function isUniqueViolation(error: unknown): boolean {
+  const candidate = error as { code?: string; cause?: { code?: string } } | null;
+  return candidate?.code === "23505" || candidate?.cause?.code === "23505";
+}

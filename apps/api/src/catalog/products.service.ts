@@ -9,7 +9,7 @@ import { DATABASE, type Database } from "../database/database.module";
 import type { Executor } from "../organization/organization-context";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
-import { catalogAudit, catalogPermissions, requireCompanyPermission, searchText } from "./catalog-context";
+import { catalogAudit, catalogPermissions, requireCompanyPermission, searchText, trimDecimal } from "./catalog-context";
 
 export type ProductInput = z.output<typeof saveProductSchema>;
 type FieldErrors = Record<string, string>;
@@ -39,7 +39,6 @@ type ProductRow = {
 };
 
 // Bỏ số 0 vô nghĩa ở phần lẻ của số thập phân đọc từ cơ sở dữ liệu.
-const trimDecimal = (value: string | null) => (value === null ? null : value.includes(".") ? value.replace(/\.?0+$/, "") : value);
 
 @Injectable()
 export class ProductsService {

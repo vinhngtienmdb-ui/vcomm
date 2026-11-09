@@ -9,7 +9,7 @@ import { DATABASE, type Database } from "../database/database.module";
 import type { Executor } from "../organization/organization-context";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
-import { catalogAudit, catalogPermissions, requireCompanyPermission } from "./catalog-context";
+import { catalogAudit, catalogPermissions, requireCompanyPermission, trimDecimal } from "./catalog-context";
 import { ProductsService } from "./products.service";
 
 type LinkRow = {
@@ -24,8 +24,6 @@ type LinkRow = {
   linked_company_name: string;
   factor: string;
 };
-
-const trimDecimal = (value: string) => (value.includes(".") ? value.replace(/\.?0+$/, "") : value);
 
 @Injectable()
 export class VariantLinksService {

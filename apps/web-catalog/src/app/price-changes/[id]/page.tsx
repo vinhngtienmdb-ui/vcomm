@@ -1,7 +1,17 @@
 "use client";
 
 // MAN_HINH_27 Phiếu điều chỉnh giá, lập và xem (CHUC_NANG_37; API_62): chọn biến thể hoặc nhập Excel, gửi duyệt, rút; liên kết tới MAN_HINH_08.
-import type { PageResponse, PriceChangeImportResponse, PriceChangeLine, PriceChangeResponse, PriceListResponse, ProductListItem, ProductResponse, UnitResponse } from "contracts";
+import {
+  normalizeMoneyText,
+  type PageResponse,
+  type PriceChangeImportResponse,
+  type PriceChangeLine,
+  type PriceChangeResponse,
+  type PriceListResponse,
+  type ProductListItem,
+  type ProductResponse,
+  type UnitResponse,
+} from "contracts";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -58,7 +68,13 @@ function PriceChangeForm({ change, onChanged }: { change: PriceChangeResponse | 
 
   // Lưu nháp; trả mã phiếu để gửi duyệt ngay sau đó. Phiếu mới đã lưu một lần thì các lần sau sửa đúng phiếu đó.
   async function save(): Promise<string> {
-    const body = JSON.stringify({ priceListId, effectiveFrom, note: note || null, lines: lines.map((line) => ({ variantId: line.variantId, unitId: line.unitId, price: line.price })), version: draft?.version });
+    const body = JSON.stringify({
+      priceListId,
+      effectiveFrom,
+      note: note || null,
+      lines: lines.map((line) => ({ variantId: line.variantId, unitId: line.unitId, price: normalizeMoneyText(line.price, currency) })),
+      version: draft?.version,
+    });
     const saved = draft
       ? await apiFetch<PriceChangeResponse>(`/catalog/price-changes/${draft.id}`, { method: "PATCH", body })
       : await apiFetch<PriceChangeResponse>("/catalog/price-changes", { method: "POST", body });
@@ -243,8 +259,9 @@ function PriceChangeForm({ change, onChanged }: { change: PriceChangeResponse | 
                             className={inputClass(`lines.${index}.price`)}
                             style={{ maxWidth: 160 }}
                             value={line.price}
-                            onChange={(event) => setLines(lines.map((item, position) => (position === index ? { ...item, price: event.target.value.replace(",", ".") } : item)))}
+                            onChange={(event) => setLines(lines.map((item, position) => (position === index ? { ...item, price: event.target.value } : item)))}
                           />
+                          {/^\d+(\.\d+)?$/.test(normalizeMoneyText(line.price, currency)) && <span className="chu-thich">{formatMoney(normalizeMoneyText(line.price, currency), currency)}</span>}
                           {(fields[`lines.${index}.price`] ?? fields[`lines.${index}.unitId`] ?? fields[`lines.${index}.variantId`]) && (
                             <span className="loi-o">{fields[`lines.${index}.price`] ?? fields[`lines.${index}.unitId`] ?? fields[`lines.${index}.variantId`]}</span>
                           )}
@@ -313,6 +330,7 @@ function PriceChangeForm({ change, onChanged }: { change: PriceChangeResponse | 
 // Tìm sản phẩm, chọn đơn vị rồi thêm mọi biến thể đang bán của sản phẩm.
 function VariantPicker({ onAdd, unitName }: { onAdd: (lines: PriceChangeLine[]) => void; unitName: (unitId: string) => string }) {
   const t = useTranslations("priceChanges");
+  const { notify } = useAdmin();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [product, setProduct] = useState<ProductResponse | null>(null);
@@ -325,9 +343,13 @@ function VariantPicker({ onAdd, unitName }: { onAdd: (lines: PriceChangeLine[]) 
   const results = useApi<PageResponse<ProductListItem>>(search && !product ? `/catalog/products?${new URLSearchParams({ search, status: "active", pageSize: "8" })}` : null);
 
   async function choose(id: string) {
-    const detail = await apiFetch<ProductResponse>(`/catalog/products/${id}`);
-    setProduct(detail);
-    setUnitId(detail.baseUnitId);
+    try {
+      const detail = await apiFetch<ProductResponse>(`/catalog/products/${id}`);
+      setProduct(detail);
+      setUnitId(detail.baseUnitId);
+    } catch (error) {
+      notify(failureOf(error).message, "loi");
+    }
   }
 
   function add() {

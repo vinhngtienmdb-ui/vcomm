@@ -1133,7 +1133,8 @@
     "history": "Lịch sử giá",
     "changeNo": "Số phiếu",
     "productPrices": "Giá bán",
-    "noProductPrices": "Sản phẩm chưa có giá trong bảng giá này."
+    "noProductPrices": "Sản phẩm chưa có giá trong bảng giá này.",
+    "productPricesMore": "Chỉ hiện {count} dòng đầu; xem đủ trong màn hình Bảng giá."
   },
   "priceChanges": {
     "title": "Phiếu điều chỉnh giá",

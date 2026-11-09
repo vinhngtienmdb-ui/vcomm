@@ -1133,7 +1133,8 @@
     "history": "Price history",
     "changeNo": "Change no.",
     "productPrices": "Prices",
-    "noProductPrices": "This product has no prices in this price list."
+    "noProductPrices": "This product has no prices in this price list.",
+    "productPricesMore": "Showing the first {count} rows; see all on the Price lists screen."
   },
   "priceChanges": {
     "title": "Price change",

@@ -18,7 +18,7 @@ import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
-import { catalogAudit, catalogPermissions, requireCompanyPermission, searchText } from "./catalog-context";
+import { catalogAudit, catalogPermissions, requireCompanyPermission, isUniqueViolation, searchText, trimDecimal } from "./catalog-context";
 
 type PriceListRow = {
   id: string;
@@ -48,7 +48,6 @@ const toResponse = (row: PriceListRow): PriceListResponse => ({
   version: row.version,
 });
 
-export const trimDecimal = (value: string) => (value.includes(".") ? value.replace(/\.?0+$/, "") : value);
 export const day = (value: Date | string) => (value instanceof Date ? new Date(value.getTime() - value.getTimezoneOffset() * 60_000).toISOString().slice(0, 10) : String(value).slice(0, 10));
 
 @Injectable()
@@ -84,16 +83,21 @@ export class PriceListsService {
     if (Object.keys(errors).length === 0 && (await this.duplicate(actor.companyId, input.channelId ?? null, input.customerGroupId ?? null, input.currency, null)))
       errors.channelId = "priceListDuplicate";
     if (Object.keys(errors).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: errors });
-    const id = await this.database.transaction(async (transaction) => {
-      const listId = (
-        await transaction.execute<{ id: string }>(sql`
+    const id = await this.database
+      .transaction(async (transaction) => {
+        const listId = (
+          await transaction.execute<{ id: string }>(sql`
         INSERT INTO catalog.price_lists (company_id, code, name, channel_id, customer_group_id, currency, includes_vat, created_by, updated_by)
         VALUES (${actor.companyId}, ${input.code}, ${input.name}, ${input.channelId ?? null}, ${input.customerGroupId ?? null}, ${input.currency}, ${input.includesVat}, ${actor.userId}, ${actor.userId})
         RETURNING id`)
-      ).rows[0]!.id;
-      await this.auditService.record({ ...catalogAudit(actor, "price_list"), action: "price_list.create", entityId: listId, afterData: input }, transaction);
-      return listId;
-    });
+        ).rows[0]!.id;
+        await this.auditService.record({ ...catalogAudit(actor, "price_list"), action: "price_list.create", entityId: listId, afterData: input }, transaction);
+        return listId;
+      })
+      .catch((error: unknown) => {
+        if (isUniqueViolation(error)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { channelId: "priceListDuplicate" } });
+        throw error;
+      });
     return this.single(actor.companyId, id);
   }
 
@@ -115,16 +119,21 @@ export class PriceListsService {
     await requireCompanyPermission(this.permissionService, actor, catalogPermissions.managePrices);
     const before = await this.single(actor.companyId, id);
     if (status === "active" && (await this.duplicate(actor.companyId, before.channelId, before.customerGroupId, before.currency, id))) throw new ApiError("BUSINESS_RULE", "priceListDuplicate");
-    await this.database.transaction(async (transaction) => {
-      const updated = await transaction.execute(sql`
+    await this.database
+      .transaction(async (transaction) => {
+        const updated = await transaction.execute(sql`
         UPDATE catalog.price_lists SET status = ${status}, version = version + 1, updated_at = now(), updated_by = ${actor.userId}
         WHERE id = ${id} AND company_id = ${actor.companyId} AND version = ${version} RETURNING id`);
-      if (updated.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-      await this.auditService.record(
-        { ...catalogAudit(actor, "price_list"), action: `price_list.${status === "inactive" ? "deactivate" : "activate"}`, entityId: id, afterData: { status } },
-        transaction,
-      );
-    });
+        if (updated.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+        await this.auditService.record(
+          { ...catalogAudit(actor, "price_list"), action: `price_list.${status === "inactive" ? "deactivate" : "activate"}`, entityId: id, afterData: { status } },
+          transaction,
+        );
+      })
+      .catch((error: unknown) => {
+        if (isUniqueViolation(error)) throw new ApiError("BUSINESS_RULE", "priceListDuplicate");
+        throw error;
+      });
     return this.single(actor.companyId, id);
   }
 
