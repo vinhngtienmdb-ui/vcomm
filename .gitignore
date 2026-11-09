@@ -9,3 +9,4 @@ coverage/
 !.env.example
 tam_thoi/
 .DS_Store
+*.tsbuildinfo

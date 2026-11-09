@@ -21,7 +21,7 @@
 
 | Mã | Quy tắc | Yêu cầu |
 |---|---|---|
-| QUYTAC_NGHIEPVU_05 | Tài khoản phải có ít nhất một trong: tên đăng nhập, email, số điện thoại. Email, số điện thoại, tên đăng nhập duy nhất toàn hệ thống | YCAU_NGHIEPVU_04, YCAU_NGHIEPVU_05 |
+| QUYTAC_NGHIEPVU_05 | Tài khoản phải có email hoặc số điện thoại; tên đăng nhập là định danh thêm, không bắt buộc (THAY_DOI_07). Email, số điện thoại, tên đăng nhập duy nhất toàn hệ thống | YCAU_NGHIEPVU_04, YCAU_NGHIEPVU_05 |
 | QUYTAC_NGHIEPVU_06 | Đường dẫn kích hoạt dùng một lần, hết hạn sau 72 giờ; quản trị gửi lại được | YCAU_NGHIEPVU_04 |
 | QUYTAC_NGHIEPVU_07 | Mật khẩu tối thiểu 10 ký tự. Sai 5 lần liên tiếp thì khóa đăng nhập 15 phút | YCAU_NGHIEPVU_05 |
 | QUYTAC_NGHIEPVU_08 | Đăng nhập Google, Microsoft chỉ được khi email trả về đã gắn với một tài khoản đang hoạt động. Đăng nhập Zalo chỉ được khi tài khoản Zalo đã được nhân viên liên kết từ hồ sơ cá nhân sau khi kích hoạt. Không tự tạo tài khoản bằng Google, Microsoft, Zalo | YCAU_NGHIEPVU_05 |

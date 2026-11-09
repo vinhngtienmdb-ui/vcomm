@@ -49,6 +49,10 @@ Giai đoạn 03, 04 làm lần lượt cho từng module theo thứ tự xây d�
 | MODULE_10 | Cộng đồng | Cộng tác viên, mua chung, bảng tin, giới thiệu bạn bè | 8 | Chưa bắt đầu |
 | MODULE_11 | Điểm thưởng | Sổ cái điểm, hạng thành viên, đối soát liên minh, chống gian lận | 9 | Chưa bắt đầu |
 | MODULE_12 | Cửa hàng liên kết | Quét mã QR tích và đổi điểm, voucher, báo cáo cửa hàng | 9 | Chưa bắt đầu |
+| MODULE_13 | Văn phòng số | Công việc, quy trình, công văn, chữ ký số, kho hợp đồng, bảng tin nội bộ | 10 | Chưa bắt đầu |
+| MODULE_14 | Bán lẻ tại quầy và trạm giao hàng | Bán hàng tại quầy, trạm giao hàng O2O, kế hoạch mua theo ngân sách | 11 | Chưa bắt đầu |
+| MODULE_15 | Phân tích dữ liệu | Báo cáo quản trị toàn tập đoàn | 12 | Chưa bắt đầu |
+| MODULE_16 | Mở rộng kinh doanh | Dropship, Open API, trợ lý AI, quản lý sản xuất | 12 | Chưa bắt đầu |
 
 ## 5. Mốc phát hành
 
@@ -58,8 +62,11 @@ Giai đoạn 03, 04 làm lần lượt cho từng module theo thứ tự xây d�
 | 1.0 | MODULE_01 đến MODULE_08 | Tháng thứ 9 kể từ khi bắt đầu (ước lượng) | Chưa bắt đầu |
 | 2.0 | MODULE_09, MODULE_10 | Tháng thứ 15 (ước lượng) | Chưa bắt đầu |
 | 3.0 | MODULE_11, MODULE_12 | Tháng thứ 20 (ước lượng) | Chưa bắt đầu |
+| 4.0 | MODULE_13 | **CHƯA XÁC ĐỊNH** | Chưa bắt đầu |
+| 5.0 | MODULE_14 | **CHƯA XÁC ĐỊNH** | Chưa bắt đầu |
+| 6.0 | MODULE_15, MODULE_16 | **CHƯA XÁC ĐỊNH** | Chưa bắt đầu |
 
-Các mốc tháng là ước lượng ban đầu, chốt lại sau giai đoạn 04 của từng module.
+Các mốc tháng là ước lượng ban đầu, chốt lại sau giai đoạn 04 của từng module. THAY_DOI_04 làm tăng khối lượng khoảng gấp rưỡi; mốc 1.0 đến 3.0 phải ước lượng lại.
 
 ## 6. Rủi ro và phương án xử lý
 
