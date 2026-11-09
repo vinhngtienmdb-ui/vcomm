@@ -17,8 +17,8 @@ Phiên bản 0.1: mini app Nền tảng (MODULE_01). Chi tiết: tài liệu `05
 
 | Giai đoạn | Tài liệu đầu ra | Trạng thái | Ngày phê duyệt |
 |---|---|---|---|
-| 01 Xác định ý tưởng | 04 | Chờ phê duyệt | |
-| 02 Xác định phạm vi | 05 | Chờ phê duyệt | |
+| 01 Xác định ý tưởng | 04 | Đã phê duyệt | 2026-11-09 |
+| 02 Xác định phạm vi | 05 | Đã phê duyệt | 2026-11-09 |
 | 03 Phân tích nghiệp vụ | 06, 07, 08, 09 | Chưa bắt đầu | |
 | 04 Đặc tả yêu cầu | 10, 11, 27 | Chưa bắt đầu | |
 | 05 Kiến trúc hệ thống | 12, 13, 22 | Bản nháp 12, 13 (lập trước, rà soát lại sau giai đoạn 04) | |

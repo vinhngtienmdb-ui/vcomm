@@ -3,7 +3,7 @@
 - Mô tả: Phạm vi sản phẩm, phạm vi chức năng, phạm vi ngoài, phạm vi từng phiên bản và thứ tự ưu tiên.
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-09
-- Trạng thái: Chờ phê duyệt
+- Trạng thái: Đã phê duyệt
 
 ## 1. Phạm vi sản phẩm
 
