@@ -98,3 +98,17 @@
 - Mức quy mô: Lớn (module mới, nhiều module).
 - Rủi ro: tổng khối lượng tăng khoảng gấp rưỡi; mốc phiên bản 1.0, 2.0, 3.0 trong tài liệu `01` phải ước lượng lại; nên chia thêm phiên bản thay vì làm cùng lúc.
 - Trạng thái: Đã phê duyệt 2026-11-09 (chia thêm phiên bản; phần bổ sung MODULE_01 làm thành lát L9, L10)
+
+### THAY_DOI_05: Cho người có quyền gán vai trò xem danh sách vai trò – 2026-11-09
+- Lý do: MAN_HINH_13 cần danh sách vai trò để chọn khi gán (CHUC_NANG_13, quyền `platform.role.assign`), nhưng API_36 `GET /roles` chỉ cho quyền `platform.role.manage`. Người chỉ có quyền gán vai trò không mở được danh sách để chọn.
+- Nội dung thay đổi: API_36 `GET /roles` cho phép người có `platform.role.manage` hoặc `platform.role.assign`; các thao tác tạo, sửa, đổi quyền vai trò vẫn chỉ cho `platform.role.manage`. Kết quả vai trò thêm trường `hasSensitive` để giao diện báo trước việc bật xác thực hai lớp (QUYTAC_NGHIEPVU_09).
+- Thành phần bị ảnh hưởng: tài liệu `17` dòng API_36; tài liệu `22` ma trận phân quyền.
+- Dữ liệu bị ảnh hưởng: không có.
+- API bị ảnh hưởng: API_36 `GET /roles` (mở rộng quyền đọc, thêm một trường trả về; tương thích ngược).
+- Giao diện bị ảnh hưởng: MAN_HINH_13 ngăn kéo "Gán vai trò".
+- Quyền bị ảnh hưởng: người có `platform.role.assign` xem được tên và quyền của các vai trò trong công ty đang chọn.
+- Ảnh hưởng chức năng cũ: không có.
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_52 đến 61 (đã chạy đạt trên nhánh CONG_VIEC_02).
+- Mức quy mô: Nhỏ.
+- Rủi ro: lộ danh sách quyền của vai trò cho người gán vai trò; mức thấp vì người gán vai trò đã thấy vai trò khi gán.
+- Trạng thái: Chờ duyệt. Mã đã làm theo phiếu này trên nhánh `chuc-nang/CONG_VIEC_02-mini-app-nen-tang` để không chặn lát L2; nếu từ chối thì gỡ trước khi hợp nhất.
