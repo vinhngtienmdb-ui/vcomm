@@ -9,6 +9,8 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_03: Xong lát L6, L9, L10 trên nhánh `chuc-nang/CONG_VIEC_03-hoan-thien-nen-tang` (pull request số 21). L6: màn hình Cài đặt tích hợp (MAN_HINH_19), đăng nhập số điện thoại qua eSMS (Zalo trước, SMS sau), Google, Microsoft, Zalo, liên kết tài khoản ở hồ sơ, kích hoạt bằng Google, Microsoft. L9: Zalo ZNS cho chứng từ chờ duyệt, nhắc quá hạn, kết quả duyệt. L10: mẫu đề xuất (MAN_HINH_20, 3 mẫu có sẵn), đề xuất (MAN_HINH_21), tệp đính kèm trên S3, in PDF; người duyệt xem nội dung đề xuất ở MAN_HINH_08. Kiểm thử 155/155 đạt trên bản giả lập nhà cung cấp. Thêm thư viện pdfmake 0.3.12 (MIT), @aws-sdk/client-s3 3.1156.0 (Apache-2.0). Cập nhật tài liệu 06, 07, 10, 11, 14, 16, 17, 21, 22, 27 trên nhánh. Tự rà soát mã sửa 8 điểm, đối chiếu tài liệu sửa thêm 3 lỗi.
+- Vấn đề tồn đọng sau CONG_VIEC_03: chưa thử với eSMS, Google, Microsoft, Zalo, S3 thật (chờ người dùng nhập khóa); khóa mã hóa trong Cài đặt tích hợp dùng biến `MFA_SECRET_KEY`, chưa dùng AWS KMS; chưa có tác vụ dọn bảng `otp_codes`, `message_deliveries`; một số chỗ đặc tả lệch mã chờ người dùng quyết định (phông PDF, nút gửi thử tin, đếm ngược gửi lại mã, lời thông báo Zalo).
 - CONG_VIEC_03: Lập công việc hoàn thiện mini app Nền tảng gồm lát L6, L9, L10; lập THAY_DOI_08 (màn hình Cài đặt tích hợp, mã OTP qua Zalo ZNS).
 - Phát hành phiên bản 0.1.0 (CONG_VIEC_01, CONG_VIEC_02, LOI_02): tài liệu 23, hợp nhất nhánh `phat-hanh/v0.1.0` (pull request số 18), kiểm thử lại 120/120 đạt trên commit hợp nhất `cd5ed97`. Tag `v0.1.0` do người dùng tạo trên GitHub vì môi trường của AI không được phép đẩy tag. Chưa triển khai lên môi trường nào.
 - LOI_02: Sửa trên nhánh `sua-loi/LOI_02-gioi-han-yeu-cau-theo-ip` (pull request số 15): giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP cho mỗi API không cần đăng nhập, đếm trên Redis; kiểm thử 120/120 đạt. AI tự quyết: đếm riêng từng API để trang đăng nhập không bị chặn vì người dùng gọi quên mật khẩu; Redis lỗi thì cho qua.
@@ -28,6 +30,7 @@
 
 ### Quyết định
 
+- CONG_VIEC_03, AI tự quyết trong phạm vi đặc tả: Microsoft chỉ tự gắn tài khoản theo email khi cài tenant riêng của công ty (mã GUID hoặc tên miền), tenant chung phải liên kết từ hồ sơ trước; Zalo luôn phải liên kết từ hồ sơ trước; mỗi mẫu đề xuất là một loại chứng từ cần duyệt riêng của công ty, dãy số tiền tố là mã mẫu; đề xuất giữ bản chụp mẫu khi lập; giá trị duyệt là trường tiền được chọn hoặc tổng thành tiền bảng chi tiết; PDF dùng phông Roboto có sẵn trong pdfmake (đủ dấu tiếng Việt) thay Noto Sans; ZNS gửi lỗi không gửi lại để tránh trùng; vai trò Quản lý tỷ giá là vai trò bổ sung nên không có quyền lập đề xuất riêng.
 - CONG_VIEC_03: AI tự làm tiếp không chờ điểm xem trước; viết sẵn kết nối Google, Microsoft, Zalo, SMS, ZNS, mã ứng dụng nhập sau; làm luôn lát L9, L10 – người quyết định: người dùng.
 - Mã ứng dụng và khóa nhà cung cấp nhập ở màn hình Cài đặt tích hợp (THAY_DOI_08); nhà cung cấp SMS là eSMS.vn – người quyết định: người dùng.
 - Zalo ZNS gửi khi có chứng từ chờ duyệt, nhắc quá hạn, kết quả duyệt cho người lập, và mã OTP đăng nhập (ZNS trước, SMS sau) – người quyết định: người dùng.
