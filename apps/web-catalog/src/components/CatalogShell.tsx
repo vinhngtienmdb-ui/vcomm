@@ -10,7 +10,7 @@ export const catalogMenu = [
   { href: "/categories", key: "categories", permission: "catalog.access" },
   { href: "/price-lists", key: "priceLists", permission: "catalog.price.view" },
   { href: "/price-changes", key: "priceChanges", permission: "catalog.price.view" },
-  { href: "/channels", key: "channels", permission: "catalog.price.manage" },
+  { href: "/channels", key: "channels", permission: "catalog.price.view" },
 ] as const;
 
 export function CatalogShell({ children }: { children: ReactNode }) {

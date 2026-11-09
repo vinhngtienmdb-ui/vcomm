@@ -119,7 +119,8 @@
     "effectiveDatePast": "The effective date cannot be before today.",
     "priceLineDuplicate": "The item and unit are repeated.",
     "documentNotDraft": "Only draft documents can be changed.",
-    "priceListHasPendingChanges": "This price list has price changes pending approval; finish or withdraw them before deactivating."
+    "priceListHasPendingChanges": "This price list has price changes pending approval; finish or withdraw them before deactivating.",
+    "fileTooManyRowsCatalog": "The file has more than 2,000 rows."
   },
   "login": {
     "title": "Sign in",

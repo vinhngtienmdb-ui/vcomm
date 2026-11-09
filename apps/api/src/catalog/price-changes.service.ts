@@ -237,7 +237,7 @@ export class PriceChangesService implements OnModuleInit {
         price: typeof row[2] === "number" ? String(row[2]) : normalizeMoneyText(text(row[2]), currency),
       }))
       .filter((row) => row.sku || row.unitCode || row.price);
-    if (rows.length > productImportMaximumRows) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "fileTooManyRows" } });
+    if (rows.length > productImportMaximumRows) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "fileTooManyRowsCatalog" } });
     const errorText = messages[locale].errors as Record<string, string>;
     const lines: PriceChangeLine[] = [];
     const errors: { row: number; message: string }[] = [];

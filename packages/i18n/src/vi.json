@@ -119,7 +119,8 @@
     "effectiveDatePast": "Ngày hiệu lực không được trước hôm nay.",
     "priceLineDuplicate": "Mặt hàng và đơn vị bị lặp.",
     "documentNotDraft": "Chỉ sửa được chứng từ đang ở trạng thái nháp.",
-    "priceListHasPendingChanges": "Bảng giá còn phiếu điều chỉnh giá chờ duyệt; duyệt xong hoặc rút phiếu trước khi ngừng dùng."
+    "priceListHasPendingChanges": "Bảng giá còn phiếu điều chỉnh giá chờ duyệt; duyệt xong hoặc rút phiếu trước khi ngừng dùng.",
+    "fileTooManyRowsCatalog": "Tệp vượt quá 2.000 dòng."
   },
   "login": {
     "title": "Đăng nhập",

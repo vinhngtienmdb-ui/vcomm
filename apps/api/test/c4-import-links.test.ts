@@ -99,7 +99,7 @@ describe("TIEUCHI_NGHIEMTHU_59: nhập sản phẩm từ Excel", () => {
     );
     expect(
       (await upload(retailAdmin, retail, await workbook([...many, row({ "Tên sản phẩm": "Dòng thứ 2001", "Mã ngành hàng": "AOTH", "Mã đơn vị cơ sở": "CAI" })]))).body.error.fields.file,
-    ).toBeTruthy();
+    ).toBe("Tệp vượt quá 2.000 dòng.");
     const started = performance.now();
     const result = await upload(retailAdmin, retail, await workbook(many));
     const seconds = (performance.now() - started) / 1000;

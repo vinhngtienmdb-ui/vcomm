@@ -54,7 +54,7 @@ export class ProductImportService {
       .slice(1)
       .map((row, index) => ({ number: index + 2, cells: productImportColumns.map((_, position) => text(row[position])) }))
       .filter((row) => row.cells.some(Boolean));
-    if (rows.length > productImportMaximumRows) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "fileTooManyRows" } });
+    if (rows.length > productImportMaximumRows) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "fileTooManyRowsCatalog" } });
 
     // Gộp dòng theo mã sản phẩm, để trống mã thì theo tên.
     const groups = new Map<string, Row[]>();
