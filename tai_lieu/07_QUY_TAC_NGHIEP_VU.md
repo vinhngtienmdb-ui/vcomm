@@ -1,10 +1,10 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái và ngoại lệ, có mã định danh.
-- Phiên bản: 1.2
+- Phiên bản: 1.3
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02
 
 ## MODULE_01 Nền tảng
 
@@ -83,6 +83,26 @@
 | QUYTAC_NGHIEPVU_34 | Trạng thái đề xuất: Nháp → Chờ duyệt → Đã duyệt hoặc Bị từ chối; Chờ duyệt → Đã rút. Chỉ sửa, xóa khi Nháp. Số đề xuất cấp từ dãy số chứng từ khi gửi | YCAU_NGHIEPVU_21 |
 | QUYTAC_NGHIEPVU_35 | Tệp đính kèm: tối đa 10 tệp mỗi đề xuất, mỗi tệp 10 MB; chỉ PDF, JPG, PNG, XLSX, DOCX (kiểm tra cả nội dung tệp); thêm, xóa khi Nháp; chỉ người xem được đề xuất mới tải được | YCAU_NGHIEPVU_21 |
 | QUYTAC_NGHIEPVU_36 | Người xem được đề xuất: người lập; người được giao duyệt hoặc đã duyệt; người có quyền quản lý mẫu đề xuất của công ty | YCAU_NGHIEPVU_21 |
+
+## MODULE_02 Sản phẩm và Nhà bán (phần Sản phẩm, CONG_VIEC_04)
+
+### Ngành hàng, sản phẩm
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_37 | Ngành hàng dùng chung tập đoàn, tối đa 4 cấp; mã ngành hàng 2 đến 6 ký tự chữ in hoa, số, duy nhất, dùng làm tiền tố mã hàng. Ngành hàng có cài đặt mặc định: theo dõi lô và hạn dùng, theo dõi serial (gồm IMEI), số tháng bảo hành (0 đến 120). Không có chức năng xóa ngành hàng; chỉ ngừng dùng hoặc dùng lại. Ngành hàng đã có sản phẩm không đổi được mã, không nhận ngành hàng con. Đổi ngành hàng cha thì tính lại cấp của cả nhánh, không tạo vòng | YCAU_NGHIEPVU_22 |
+| QUYTAC_NGHIEPVU_38 | Sản phẩm thuộc một công ty, một ngành hàng lá (không có ngành hàng con). Khi tạo, cách theo dõi lô, serial, bảo hành lấy theo ngành hàng; người dùng sửa được trên sản phẩm. Lô và serial không bật cùng lúc. Thuế suất giá trị gia tăng: 0%, 5%, 8%, 10%, không chịu thuế, không kê khai nộp thuế. Không xóa sản phẩm, chỉ ngừng bán | YCAU_NGHIEPVU_23 |
+| QUYTAC_NGHIEPVU_39 | Sản phẩm có tối đa 3 thuộc tính phân loại (ví dụ Màu, Kích cỡ), mỗi thuộc tính tối đa 30 giá trị, tối đa 200 biến thể. Sản phẩm không phân loại có đúng một biến thể. Mã hàng của sản phẩm tự sinh `<mã ngành hàng>-<5 chữ số>` theo công ty và ngành hàng; biến thể `<mã sản phẩm>-<2 chữ số>`, sản phẩm một biến thể dùng luôn mã sản phẩm; sửa được; duy nhất trong công ty. Biến thể bị bỏ khỏi sản phẩm chuyển ngừng bán, không xóa | YCAU_NGHIEPVU_23 |
+| QUYTAC_NGHIEPVU_40 | Mỗi sản phẩm có một đơn vị cơ sở (đơn vị tồn kho) và tối đa 5 đơn vị quy đổi với hệ số so với đơn vị cơ sở (lớn hơn 0, tối đa 4 chữ số thập phân). Mã vạch gắn với biến thể và đơn vị; một biến thể nhiều mã vạch; mã vạch duy nhất trong công ty (công ty khác được dùng cùng mã vạch). Không đổi đơn vị cơ sở, hệ số khi sản phẩm đã phát sinh giao dịch (kiểm khi có MODULE_03) | YCAU_NGHIEPVU_23 |
+| QUYTAC_NGHIEPVU_41 | Liên kết biến thể của hai công ty khác nhau, mỗi biến thể có tối đa một liên kết với mỗi công ty khác; hệ số quy đổi đơn vị cơ sở bên kia so với bên này (mặc định 1; đọc từ phía bên kia là nghịch đảo). Người liên kết, bỏ liên kết phải có quyền quản lý sản phẩm ở cả hai công ty. Sao chép sản phẩm sang công ty khác tạo sản phẩm mới ở công ty đích và tự liên kết từng biến thể đang bán với hệ số 1; mã sản phẩm, mã hàng đã có ở công ty đích thì hệ thống sinh mã khác, mã vạch đã có thì bỏ | YCAU_NGHIEPVU_24 |
+
+### Giá bán
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_42 | Bảng giá thuộc một công ty, gắn tùy chọn một kênh bán và một nhóm khách hàng, một tiền tệ, đánh dấu giá gồm hay chưa gồm thuế giá trị gia tăng; kênh, nhóm khách hàng, tiền tệ không đổi sau khi tạo. Không có hai bảng giá đang dùng trùng công ty, kênh, nhóm khách hàng, tiền tệ. Chọn bảng giá khi bán theo thứ tự: trùng cả kênh và nhóm khách; chỉ trùng nhóm khách; chỉ trùng kênh; bảng giá chung (không kênh, không nhóm). Bảng giá ưu tiên hơn chưa có giá của mặt hàng thì xét bảng kế tiếp | YCAU_NGHIEPVU_25 |
+| QUYTAC_NGHIEPVU_43 | Giá đặt theo biến thể và đơn vị tính, kèm ngày hiệu lực; giá hiện hành tại một ngày là giá có ngày hiệu lực gần nhất không sau ngày đó (cùng ngày thì lấy giá ghi sau). Đơn vị không có giá riêng thì lấy giá đơn vị cơ sở nhân hệ số. Lịch sử giá không sửa, không xóa | YCAU_NGHIEPVU_25 |
+| QUYTAC_NGHIEPVU_44 | Giá chỉ thay đổi qua phiếu điều chỉnh giá: Nháp → Chờ duyệt → Đã duyệt (ghi giá vào lịch sử) hoặc Bị từ chối; Chờ duyệt → Đã rút. Chỉ người lập sửa, xóa, gửi khi Nháp; rút khi cấp 1 chưa quyết định. Ngày hiệu lực không trước ngày gửi; duyệt xong sau ngày hiệu lực thì giá có hiệu lực từ ngày duyệt. Phiếu đi qua chính sách duyệt của loại chứng từ "Phiếu điều chỉnh giá" (`catalog.price_change`) với giá trị duyệt 0; công ty chưa có chính sách duyệt hiệu lực cho loại chứng từ này thì ghi giá ngay khi gửi. Số phiếu cấp từ dãy số chứng từ khi gửi; công ty chưa cài dãy số thì tạo dãy tiền tố `DCG`, đặt lại theo năm, 6 chữ số. Bảng giá còn phiếu chờ duyệt thì không ngừng dùng được (quyết định ngày 2026-11-09) | YCAU_NGHIEPVU_25 |
 
 ## Quy tắc do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 

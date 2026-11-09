@@ -4,10 +4,10 @@
 import type { AttachmentResponse, ProposalField, ProposalResponse, ProposalStatus } from "contracts";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { apiDownload, apiFetch, apiUpload } from "@/lib/api";
-import { formatDate, formatMoney, formatNumber } from "@/lib/format";
-import { failureOf } from "@/lib/use-api";
-import { Field } from "./Form";
+import { apiDownload, apiFetch, apiUpload } from "ui/lib/api";
+import { formatDate, formatMoney, formatNumber } from "ui/lib/format";
+import { failureOf } from "ui/lib/use-api";
+import { Field } from "ui/components/Form";
 
 export const proposalStatusTone: Record<ProposalStatus, string> = { draft: "trung-tinh", pending: "canh-bao", approved: "thanh-cong", rejected: "loi", withdrawn: "trung-tinh" };
 

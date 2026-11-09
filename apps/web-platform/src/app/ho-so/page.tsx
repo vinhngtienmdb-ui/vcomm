@@ -5,13 +5,13 @@ import type { AuthMethodsResponse, IdentityResponse, MeResponse, MfaBackupCodesR
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useState } from "react";
-import { ConfirmDialog } from "@/components/Dialogs";
-import { Field, FormError, useSubmit } from "@/components/Form";
+import { ConfirmDialog } from "ui/components/Dialogs";
+import { Field, FormError, useSubmit } from "ui/components/Form";
 import { BackupCodes, MfaEnroll } from "@/components/MfaEnroll";
-import { Loaded, MessageView } from "@/components/StatusViews";
-import { TopBar } from "@/components/TopBar";
-import { apiFetch } from "@/lib/api";
-import { failureOf, useApi } from "@/lib/use-api";
+import { Loaded, MessageView } from "ui/components/StatusViews";
+import { TopBar } from "ui/components/TopBar";
+import { apiFetch } from "ui/lib/api";
+import { failureOf, useApi } from "ui/lib/use-api";
 
 type Tab = "info" | "login" | "mfa" | "sessions";
 

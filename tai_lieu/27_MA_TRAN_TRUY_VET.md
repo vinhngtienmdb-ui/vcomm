@@ -1,10 +1,10 @@
 # 27. MA TRẬN TRUY VẾT
 
 - Mô tả: Ma trận truy vết yêu cầu → quy tắc → chức năng → màn hình → tiêu chí nghiệm thu → kịch bản kiểm thử → mã nguồn → kết quả.
-- Phiên bản: 1.2
+- Phiên bản: 1.3
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm dòng TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64, mục 4
 
 ## 1. Ma trận
 
@@ -65,6 +65,15 @@
 | YCAU_NGHIEPVU_21 | QUYTAC_NGHIEPVU_33, QUYTAC_NGHIEPVU_34, QUYTAC_NGHIEPVU_36 | CHUC_NANG_28 | MAN_HINH_21, MAN_HINH_08 | TIEUCHI_NGHIEMTHU_53 | KICHBAN_KIEMTHU_130 | apps/api/src/proposals/proposals.service.ts, apps/api/src/proposals/proposals.controller.ts, apps/web-platform/src/app/de-xuat/page.tsx, apps/web-platform/src/app/de-xuat/[id]/page.tsx | apps/api/test/c3-proposals.test.ts | Đạt trên bản giả lập nhà cung cấp (tài liệu `25`, lần kiểm thử 2026-11-09 – CONG_VIEC_03) | |
 | YCAU_NGHIEPVU_21 | QUYTAC_NGHIEPVU_35, QUYTAC_NGHIEPVU_36 | CHUC_NANG_28 | MAN_HINH_21, MAN_HINH_08 | TIEUCHI_NGHIEMTHU_54 | KICHBAN_KIEMTHU_131 | apps/api/src/proposals/proposals.service.ts, apps/api/src/common/file-storage.ts, apps/web-platform/src/components/ProposalContent.tsx | apps/api/test/c3-proposals.test.ts | Đạt trên bản giả lập nhà cung cấp (tài liệu `25`, lần kiểm thử 2026-11-09 – CONG_VIEC_03) | |
 | YCAU_NGHIEPVU_21 | QUYTAC_NGHIEPVU_36 | CHUC_NANG_29 | MAN_HINH_21, MAN_HINH_08 | TIEUCHI_NGHIEMTHU_55 | KICHBAN_KIEMTHU_132 | apps/api/src/proposals/proposal-pdf.service.ts, apps/web-platform/src/app/hop-duyet/[id]/page.tsx | apps/api/test/c3-proposals.test.ts | Đạt trên bản giả lập nhà cung cấp (tài liệu `25`, lần kiểm thử 2026-11-09 – CONG_VIEC_03) | |
+| YCAU_NGHIEPVU_22, YCAU_NGHIEPVU_23 | QUYTAC_NGHIEPVU_37 | CHUC_NANG_30 | MAN_HINH_22 | TIEUCHI_NGHIEMTHU_56 | KICHBAN_KIEMTHU_133, KICHBAN_KIEMTHU_134, KICHBAN_KIEMTHU_135 | apps/api/src/catalog/categories.service.ts, apps/api/src/catalog/units.service.ts, apps/api/src/catalog/catalog.controller.ts, apps/api/src/catalog/catalog-context.ts, database/migrations/0003_catalog.sql, apps/web-catalog/src/app/categories/page.tsx | apps/api/test/c4-categories.test.ts | Kiểm thử tự động đạt 2026-11-09; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_22, YCAU_NGHIEPVU_23 | QUYTAC_NGHIEPVU_38, QUYTAC_NGHIEPVU_39 | CHUC_NANG_31, CHUC_NANG_32 | MAN_HINH_23, MAN_HINH_24 | TIEUCHI_NGHIEMTHU_57 | KICHBAN_KIEMTHU_136, KICHBAN_KIEMTHU_137 | apps/api/src/catalog/products.service.ts, apps/api/src/catalog/catalog.controller.ts, apps/web-catalog/src/app/products/page.tsx, apps/web-catalog/src/app/products/[id]/page.tsx | apps/api/test/c4-products.test.ts | Kiểm thử tự động đạt 2026-11-09; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_23 | QUYTAC_NGHIEPVU_39, QUYTAC_NGHIEPVU_40 | CHUC_NANG_32 | MAN_HINH_24 | TIEUCHI_NGHIEMTHU_58 | KICHBAN_KIEMTHU_138 | apps/api/src/catalog/products.service.ts, packages/contracts/src/index.ts, apps/web-catalog/src/app/products/[id]/page.tsx | apps/api/test/c4-products.test.ts | Kiểm thử tự động đạt 2026-11-09; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_23 | QUYTAC_NGHIEPVU_38, QUYTAC_NGHIEPVU_39, QUYTAC_NGHIEPVU_40 | CHUC_NANG_33 | MAN_HINH_23 | TIEUCHI_NGHIEMTHU_59 | KICHBAN_KIEMTHU_141, KICHBAN_KIEMTHU_142 | apps/api/src/catalog/product-import.service.ts, apps/web-catalog/src/components/ProductImportDrawer.tsx | apps/api/test/c4-import-links.test.ts | Kiểm thử tự động đạt 2026-11-09; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_24 | QUYTAC_NGHIEPVU_41 | CHUC_NANG_34 | MAN_HINH_24 | TIEUCHI_NGHIEMTHU_60 | KICHBAN_KIEMTHU_143 | apps/api/src/catalog/variant-links.service.ts, apps/api/src/catalog/catalog.controller.ts, apps/web-catalog/src/app/products/[id]/page.tsx | apps/api/test/c4-import-links.test.ts | Kiểm thử tự động đạt 2026-11-09; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_25 | QUYTAC_NGHIEPVU_42, QUYTAC_NGHIEPVU_43 | CHUC_NANG_35, CHUC_NANG_36 | MAN_HINH_25, MAN_HINH_26, MAN_HINH_24 | TIEUCHI_NGHIEMTHU_61 | KICHBAN_KIEMTHU_144, KICHBAN_KIEMTHU_145 | apps/api/src/catalog/catalog-items.service.ts, apps/api/src/catalog/price-lists.service.ts, apps/api/src/catalog/pricing.controller.ts, apps/web-catalog/src/app/channels/page.tsx, apps/web-catalog/src/app/price-lists/page.tsx, apps/web-catalog/src/components/ProductPrices.tsx | apps/api/test/c4-prices.test.ts | Kiểm thử tự động đạt 2026-11-09; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_25 | QUYTAC_NGHIEPVU_43, QUYTAC_NGHIEPVU_44 | CHUC_NANG_37 | MAN_HINH_27, MAN_HINH_08 | TIEUCHI_NGHIEMTHU_62 | KICHBAN_KIEMTHU_146 | apps/api/src/catalog/price-changes.service.ts, apps/api/src/catalog/price-lists.service.ts, apps/api/src/catalog/pricing.controller.ts, apps/api/src/permissions/permission-catalog.ts, apps/web-catalog/src/app/price-changes/page.tsx, apps/web-catalog/src/app/price-changes/[id]/page.tsx | apps/api/test/c4-prices.test.ts | Kiểm thử tự động đạt 2026-11-09; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_22, YCAU_NGHIEPVU_23 | QUYTAC_NGHIEPVU_38 | CHUC_NANG_31 | MAN_HINH_24 | TIEUCHI_NGHIEMTHU_63 | KICHBAN_KIEMTHU_139 | apps/api/src/catalog/product-images.service.ts, apps/api/src/catalog/catalog.controller.ts, apps/web-catalog/src/app/products/[id]/page.tsx | apps/api/test/c4-products.test.ts | Kiểm thử tự động đạt 2026-11-09; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_22 | QUYTAC_NGHIEPVU_38 | CHUC_NANG_31 | MAN_HINH_23 | TIEUCHI_NGHIEMTHU_64 | KICHBAN_KIEMTHU_140 | apps/api/src/catalog/products.service.ts, apps/api/src/catalog/catalog-context.ts, apps/web-catalog/src/app/products/page.tsx | apps/api/test/c4-products.test.ts | Kiểm thử tự động đạt 2026-11-09; chưa nghiệm thu | |
 
 ## 2. Kiểm tra bao phủ – 2026-11-09
 
@@ -87,4 +96,15 @@
 - Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_48 đến TIEUCHI_NGHIEMTHU_55 → KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132)
 - Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_36 (thủ công, cần nhà cung cấp thật); bước 4 của KICHBAN_KIEMTHU_132 (mở tệp PDF bằng mắt)
 - Kịch bản chưa chạy hoặc kết quả Không đạt: Chưa ghi kết quả CONG_VIEC_03 vào tài liệu `25`
+- Mã nguồn không truy được về yêu cầu nào: Không có
+
+## 4. Kiểm tra bao phủ CONG_VIEC_04 – 2026-11-09
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_22 → CHUC_NANG_30, CHUC_NANG_31; YCAU_NGHIEPVU_23 → CHUC_NANG_30 đến CHUC_NANG_33; YCAU_NGHIEPVU_24 → CHUC_NANG_34; YCAU_NGHIEPVU_25 → CHUC_NANG_35 đến CHUC_NANG_37)
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44); vế "không đổi đơn vị cơ sở, hệ số khi đã phát sinh giao dịch" của QUYTAC_NGHIEPVU_40 chờ MODULE_03
+- Chức năng chưa có tiêu chí nghiệm thu: Không có
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có (tra giá CHUC_NANG_36 chỉ có API, dùng cho MODULE_05; giá hiện hành xem ở MAN_HINH_24, MAN_HINH_26)
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 → KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146)
+- Kịch bản kiểm thử chưa có kiểm thử tự động: Không có; giao diện MAN_HINH_22 đến MAN_HINH_27 chưa có kiểm thử tự động (kiểm tra bằng ảnh chụp sau mỗi lát)
+- Kịch bản chưa chạy hoặc kết quả Không đạt: Kiểm thử tự động đạt ngày 2026-11-09; chưa ghi kết quả CONG_VIEC_04 vào tài liệu `25`; chưa nghiệm thu
 - Mã nguồn không truy được về yêu cầu nào: Không có

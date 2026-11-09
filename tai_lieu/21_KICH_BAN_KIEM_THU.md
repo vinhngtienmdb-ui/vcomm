@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng: đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 0.2
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng và MODULE_02 phần Sản phẩm: đúng, sai, giá trị biên, từng vai trò.
+- Phiên bản: 0.3
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -1523,3 +1523,189 @@ Dữ liệu chung: người lập `lap.dexuat@vcomm.test` "Trịnh Thị Đề X
 - Kết quả mong đợi: Bước 1: `200`, `application/pdf`, tệp bắt đầu bằng `%PDF-`. Bước 2 nhận `404`. Bước 3: phiếu chi có "Công ty Cổ phần VComm Bán lẻ Miền Nam", "PHIẾU ĐỀ NGHỊ CHI", "PC-VCR-2026-000001", "Người nhận tiền", "Nhà hàng Sen", "12.500.000 VND", "Các cấp duyệt", "Lê Văn Phúc", "Đã duyệt", "Đồng ý"; đề nghị mua sắm có "Hàng hóa, dịch vụ cần mua", "Hộp mực". Bước 4: chữ tiếng Việt đúng dấu, bảng không tràn trang.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c3-proposals.test.ts` (bước 3 chỉ chạy khi máy có `pdftotext`); bước 4 thủ công tại điểm báo lát L10b
 - Lát: L10b
+
+## MODULE_02 Sản phẩm và Nhà bán (phần Sản phẩm, CONG_VIEC_04)
+
+Dữ liệu chung: công ty VCR (`testIds.retailCompany`), VCT (`testIds.tradingCompany`); đơn vị tính có sẵn của database migration 0003; ngành hàng, sản phẩm tạo trong từng tệp kiểm thử. Công ty đang làm việc chọn bằng header `X-Company-Id`. Đường dẫn API có tiền tố `/api/v1`.
+
+## CHUC_NANG_30: Ngành hàng và đơn vị tính (CONG_VIEC_04)
+
+### KICHBAN_KIEMTHU_133: Chỉ quản trị tập đoàn sửa ngành hàng, đơn vị tính
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_56
+- Chức năng: CHUC_NANG_30
+- Loại: Phân quyền
+- Vai trò thực hiện: Nhân viên `thukho.bd@vcomm.test` (không có quyền mini app Sản phẩm); Quản trị công ty `quantri.vcr@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Đơn vị tính có sẵn.
+- Các bước: (1) Nhân viên gọi `GET /catalog/categories`. (2) Quản trị công ty gọi `GET /catalog/categories`. (3) Quản trị công ty gọi `POST /catalog/categories` mã `XX`, `POST /catalog/units` mã `CUON`. (4) Quản trị công ty gọi `GET /catalog/units`.
+- Kết quả mong đợi: Bước 1 nhận `403`. Bước 2 trả `200`. Bước 3 nhận `403` cả hai lần. Bước 4 có `CAI`, `THUNG`, `KG`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-categories.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_134: Tối đa 4 cấp; trùng mã, vòng, vừa lô vừa serial bị từ chối
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_56
+- Chức năng: CHUC_NANG_30
+- Loại: Sai, giá trị biên
+- Vai trò thực hiện: Quản trị tập đoàn `quantri.tapdoan@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Chưa có ngành hàng.
+- Các bước: (1) Tạo `dt` (serial, bảo hành 12 tháng), rồi `DTDD`, `DTTM`, `DTCC` lần lượt là con. (2) Tạo `DTQ` con của `DTCC`. (3) Tạo lại `DT`. (4) Tạo `TP` bật cả lô và serial. (5) Sửa `DT` có cha là `DTTM`. (6) Tạo `GD`, `GDBEP` con của `GD`; chuyển `DTDD` (nhánh 3 cấp) vào dưới `GDBEP`. (7) Chuyển `DTTM` vào dưới `GD`; xem danh sách.
+- Kết quả mong đợi: Bước 1: mã đổi thành `DT`, cấp 1; `DTCC` cấp 4. Bước 2: `400`, chỉ trường `parentId` "Ngành hàng tối đa 4 cấp.". Bước 3: `code` "Mã ngành hàng đã có.". Bước 4: chỉ trường `tracksSerials`. Bước 5: `parentId` "Không chọn được ngành hàng con của chính nó làm ngành hàng cha.". Bước 6: `parentId` "Ngành hàng tối đa 4 cấp.". Bước 7: `DTTM` cấp 2, `DTCC` cấp 3.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-categories.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_135: Ngành hàng đã có sản phẩm; ngừng dùng, dùng lại; sai phiên bản
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_56
+- Chức năng: CHUC_NANG_30
+- Loại: Sai
+- Vai trò thực hiện: Quản trị tập đoàn `quantri.tapdoan@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Ngành hàng `MP` có một sản phẩm (chèn thẳng vào cơ sở dữ liệu).
+- Các bước: (1) Tạo `MPKD` con của `MP`. (2) Đổi mã `MP` thành `MPX`. (3) Ngừng dùng `MP`. (4) Dùng lại với phiên bản cũ, rồi với phiên bản mới. (5) Đọc nhật ký thao tác của `MP`.
+- Kết quả mong đợi: Bước 1: `parentId` "Ngành hàng này đã có sản phẩm nên không thêm được ngành hàng con.". Bước 2: `code` "Ngành hàng đã có sản phẩm, không đổi được mã.". Bước 3: `status: inactive`, `productCount: 1`. Bước 4: lần đầu `409`, lần sau `active`. Bước 5: `category.create`, `category.deactivate`, `category.activate`, mini app `catalog`. Không có API xóa ngành hàng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-categories.test.ts`
+- Lát: L1
+
+Kiểm thử bổ sung không có mã kịch bản (`c4-categories.test.ts`, "đơn vị tính: trùng mã bị từ chối; thêm, sửa, ngừng dùng"): tạo đơn vị `cai` bị từ chối "Mã đơn vị tính đã có."; tạo `cuon` thành `CUON`, sửa tên, ngừng dùng.
+
+## CHUC_NANG_31, CHUC_NANG_32: Sản phẩm, biến thể, mã hàng, mã vạch, ảnh (CONG_VIEC_04)
+
+Dữ liệu chung: ngành hàng `DT` (serial, 12 tháng) → `DTDD`; `AO` → `AOTH`. Sản phẩm điện thoại: 2 thuộc tính Màu (Đen, Trắng), Dung lượng (128GB, 256GB), đơn vị cơ sở Cái, đơn vị quy đổi Hộp hệ số 1, mã vạch `8930000000011` ở biến thể đầu.
+
+### KICHBAN_KIEMTHU_136: Hai thuộc tính phân loại sinh 4 biến thể; công ty khác không đọc được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_57
+- Chức năng: CHUC_NANG_31, CHUC_NANG_32
+- Loại: Đúng, phân quyền
+- Vai trò thực hiện: Nhân viên `thukho.bd@vcomm.test` (không có quyền mini app Sản phẩm); Quản trị công ty `quantri.vcr@vcomm.test`; Quản trị tập đoàn `quantri.tapdoan@vcomm.test` (làm việc ở VCT)
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung.
+- Các bước: (1) Nhân viên gọi `GET /catalog/products`. (2) Quản trị VCR tạo sản phẩm điện thoại, trọng lượng `0,25`. (3) Tạo áo thun không phân loại, mã vạch `8930000000028`. (4) Quản trị tập đoàn với `X-Company-Id` = VCT đọc chi tiết, danh sách, sửa sản phẩm điện thoại.
+- Kết quả mong đợi: Bước 1 nhận `403`. Bước 2: `201`, mã `DTDD-00001`, `weightKg` `0.25`; biến thể `DTDD-00001-01` đến `DTDD-00001-04`; mã vạch ở biến thể đầu. Bước 3: mã `AOTH-00001`, một biến thể mã `AOTH-00001`. Bước 4: chi tiết `404`, danh sách `total` 0, sửa `404`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-products.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_137: Sửa sản phẩm: bỏ biến thể, chuyển mã vạch, sai phiên bản
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_57
+- Chức năng: CHUC_NANG_31, CHUC_NANG_32
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Quản trị công ty `quantri.vcr@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Sản phẩm điện thoại ở KICHBAN_KIEMTHU_136.
+- Các bước: (1) Sửa tên, giữ 3 biến thể đầu, chuyển mã vạch sang biến thể thứ hai. (2) Gửi lại với phiên bản cũ. (3) Ngừng bán sản phẩm. (4) Tìm sản phẩm đang bán theo `VPhone`.
+- Kết quả mong đợi: Bước 1: `200`; trạng thái biến thể `active`, `active`, `active`, `inactive`; mã vạch ở biến thể thứ hai. Bước 2: `409`. Bước 3: `inactive`. Bước 4: `total` 0.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-products.test.ts`
+- Lát: L2
+
+## CHUC_NANG_32: Trùng mã hàng, mã vạch, đơn vị sai (CONG_VIEC_04)
+
+### KICHBAN_KIEMTHU_138: Trùng mã hàng, mã vạch, đơn vị sai bị từ chối, chỉ ra đúng dòng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_58
+- Chức năng: CHUC_NANG_32
+- Loại: Sai
+- Vai trò thực hiện: Quản trị công ty `quantri.vcr@vcomm.test`; Quản trị tập đoàn `quantri.tapdoan@vcomm.test` (VCT)
+- Điều kiện ban đầu và dữ liệu: Sản phẩm ở KICHBAN_KIEMTHU_136.
+- Các bước: (1) Tạo áo thun dùng lại mã vạch `8930000000028`. (2) Tạo với mã hàng `aoth-00001`. (3) Đơn vị quy đổi Cái hệ số 2 (trùng đơn vị cơ sở) và Thùng hệ số 0. (4) Chọn ngành hàng `AO` (có ngành hàng con). (5) Điện thoại có biến thể trùng tổ hợp và biến thể giá trị `Xanh` không có trong thuộc tính. (6) Quản trị tập đoàn tạo ở VCT áo thun cùng mã vạch `8930000000028`.
+- Kết quả mong đợi: Bước 1: `400` chỉ `variants.0.barcodes.0.barcode` "Mã vạch đã có trong công ty.". Bước 2: chỉ `variants.0.sku` "Mã hàng đã có trong công ty.". Bước 3: `units.0.unitId`, `units.1.factor`. Bước 4: `categoryId` "Chỉ chọn ngành hàng cuối cùng (không có ngành hàng con).". Bước 5: `variants.1.optionValues`, `variants.2.optionValues`. Bước 6: `201`, mã `AOTH-00001` (mã vạch, mã hàng chỉ duy nhất trong công ty).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-products.test.ts`
+- Lát: L2
+
+## CHUC_NANG_31: Ảnh, tìm kiếm (CONG_VIEC_04)
+
+### KICHBAN_KIEMTHU_139: Ảnh sai loại, quá 5 MB, quá 10 ảnh; công ty khác không tải được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_63
+- Chức năng: CHUC_NANG_31
+- Loại: Sai, bảo mật
+- Vai trò thực hiện: Quản trị công ty `quantri.vcr@vcomm.test`; Quản trị tập đoàn `quantri.tapdoan@vcomm.test` (VCT)
+- Điều kiện ban đầu và dữ liệu: Áo thun cổ tròn ở VCR; tệp PNG thử (chữ ký `89 50 4E 47`).
+- Các bước: (1) Tải lên `anh.png` có nội dung chữ. (2) Tải lên PNG lớn hơn 5 MB. (3) Tải lên `Áo thun mặt trước.png`. (4) Tải thêm 9 ảnh, rồi ảnh thứ 11. (5) Xem danh sách sản phẩm; tải ảnh qua `?companyId=`. (6) Quản trị tập đoàn ở VCT tải ảnh đó. (7) Đặt ảnh thứ tư làm ảnh đại diện; xóa ảnh đầu.
+- Kết quả mong đợi: Bước 1: `file` "Chỉ nhận ảnh JPG, PNG, WEBP.". Bước 2: `file` "Ảnh vượt quá 5 MB.". Bước 3: `201`, giữ tên tiếng Việt, `image/png`. Bước 4: 9 ảnh `201`, ảnh 11 nhận `409`. Bước 5: `imageId` là ảnh đầu; tải về `200`, `image/png`. Bước 6: `404`. Bước 7: `204`, ảnh thứ tư lên đầu; xóa `204`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-products.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_140: Tìm không dấu, theo mã vạch, mã hàng; danh sách 10.000 sản phẩm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_64
+- Chức năng: CHUC_NANG_31
+- Loại: Đúng, hiệu năng
+- Vai trò thực hiện: Quản trị công ty `quantri.vcr@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Sản phẩm của các kịch bản trên; thêm 10.000 sản phẩm thử chèn thẳng vào cơ sở dữ liệu.
+- Các bước: (1) Tìm `ao thun`. (2) Tìm `8930000000028`. (3) Tìm `dtdd-00001-02`. (4) Chèn 10.000 sản phẩm; đo thời gian `GET /catalog/products?pageSize=20`.
+- Kết quả mong đợi: Bước 1: đúng một kết quả "Áo thun cổ tròn". Bước 2: `total` 1. Bước 3: sản phẩm `DTDD-00001`. Bước 4: `total` trên 10.000; dưới 500 mili giây (đo trên máy chạy kiểm thử).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-products.test.ts`
+- Lát: L2
+
+## CHUC_NANG_33: Nhập sản phẩm từ Excel (CONG_VIEC_04)
+
+Dữ liệu chung: ngành hàng `AO` → `AOTH`; `SUA` (theo dõi lô).
+
+### KICHBAN_KIEMTHU_141: Tệp mẫu; gộp dòng thành sản phẩm có phân loại; dòng lỗi có trong tệp lỗi
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_59
+- Chức năng: CHUC_NANG_33
+- Loại: Đúng, sai
+- Vai trò thực hiện: Quản trị công ty `quantri.vcr@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Tệp 5 dòng: 2 dòng `AOTH-TRON` (Màu Đen, Trắng; Cỡ M; thuế `8%`; `THUNG=24`); "Sữa tươi 1 lít" (`SUA`, Hộp, thuế 5, trọng lượng `1,05`); dòng mã ngành hàng `KHONGCO`; dòng mã vạch trùng dòng sữa.
+- Các bước: (1) Tải tệp mẫu `GET /catalog/product-imports/template`. (2) Nhập tệp. (3) Đọc tệp dòng lỗi. (4) Xem chi tiết hai sản phẩm đã nhập.
+- Kết quả mong đợi: Bước 1: dòng đầu đúng 17 cột mẫu. Bước 2: `201`, `createdProducts` 2, `createdVariants` 3, `failedRows` 2, lỗi ở dòng 5 (chứa "Mã ngành hàng") và dòng 6 ("Mã vạch đã có trong công ty."). Bước 3: cột đầu "Dòng", cột cuối là lý do. Bước 4: `AOTH-TRON` thuế `8`, phân loại Màu (Đen, Trắng), Cỡ (M), mã hàng `AOTH-TRON-01`, `AOTH-TRON-02`; sữa mã `SUA-00001`, theo dõi lô, trọng lượng `1.05`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-import-links.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_142: 2.000 dòng trong 30 giây; sai mẫu, quá 2.000 dòng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_59
+- Chức năng: CHUC_NANG_33
+- Loại: Giá trị biên, hiệu năng
+- Vai trò thực hiện: Quản trị công ty `quantri.vcr@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Tệp 2.000 dòng áo thun, mỗi dòng một mã vạch khác nhau.
+- Các bước: (1) Nhập tệp chỉ có cột "Cột lạ". (2) Nhập tệp 2.001 dòng. (3) Nhập tệp 2.000 dòng, đo thời gian.
+- Kết quả mong đợi: Bước 1: `file` "Tệp không đúng mẫu.". Bước 2: bị từ chối tại `file`. Bước 3: `createdProducts` 2.000, `failedRows` 0, `errorFileUrl` trống; dưới 30 giây.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-import-links.test.ts`
+- Lát: L3
+
+## CHUC_NANG_34: Liên kết, sao chép sản phẩm giữa công ty (CONG_VIEC_04)
+
+### KICHBAN_KIEMTHU_143: Sao chép, liên kết, gợi ý theo mã vạch; thiếu quyền ở công ty kia
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_60
+- Chức năng: CHUC_NANG_34
+- Loại: Đúng, phân quyền
+- Vai trò thực hiện: Quản trị công ty `quantri.vcr@vcomm.test` (chỉ có quyền ở VCR); Quản trị tập đoàn `quantri.tapdoan@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Sản phẩm `AOTH-TRON` ở VCR (KICHBAN_KIEMTHU_141).
+- Các bước: (1) Quản trị VCR sao chép sang VCT. (2) Quản trị tập đoàn sao chép sang chính VCR. (3) Quản trị tập đoàn sao chép sang VCT; đọc sản phẩm mới ở VCT. (4) Xem liên kết từ VCR và từ VCT. (5) Liên kết thêm biến thể đã liên kết với VCT. (6) Bỏ một liên kết; xem gợi ý theo mã vạch; liên kết theo gợi ý hệ số `2`; xem từ VCT. (7) Quản trị VCR liên kết biến thể còn lại với biến thể ở VCT.
+- Kết quả mong đợi: Bước 1: `403`. Bước 2: `400`. Bước 3: `201`; sản phẩm `AOTH-TRON` cùng phân loại, biến thể `AOTH-TRON-01`, `AOTH-TRON-02` kèm mã vạch, 1 đơn vị quy đổi. Bước 4: từ VCR hai liên kết tới "VComm Thương mại" hệ số `1`; từ VCT thấy "VComm Bán lẻ Miền Nam". Bước 5: `409`. Bước 6: bỏ liên kết `204`; một gợi ý mã vạch `8930000001001`; liên kết `factor` `2`; từ VCT hệ số `0.5`. Bước 7: `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-import-links.test.ts`
+- Lát: L3
+
+## CHUC_NANG_35, CHUC_NANG_36: Kênh bán, nhóm khách hàng, bảng giá (CONG_VIEC_04)
+
+Dữ liệu chung: sản phẩm "Nước suối 500ml" (ngành hàng `NUOC`, đơn vị cơ sở Chai, Thùng hệ số 24) ở VCR. Người duyệt `phuc.le@vcomm.test`.
+
+Kiểm thử bổ sung không có mã kịch bản (`c4-prices.test.ts`, mục "API_60: kênh bán, nhóm khách hàng"): nhân viên gọi `POST /catalog/sales-channels/defaults` nhận `403`; quản trị công ty gọi hai lần, lần đầu tạo `BAN_LE`, `BAN_SI`, `NOI_BO`, `SAN_VCOMM`, lần sau vẫn 4 kênh; nhóm khách `VIP` tạo được, tạo trùng nhận `code` "Mã đã có trong công ty.", sửa tên tăng phiên bản.
+
+### KICHBAN_KIEMTHU_144: Bảng giá đang dùng không trùng; ngừng dùng rồi tạo được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_61
+- Chức năng: CHUC_NANG_35, CHUC_NANG_36
+- Loại: Sai, phân quyền
+- Vai trò thực hiện: Quản trị công ty `quantri.vcr@vcomm.test`; Nhân viên `thukho.bd@vcomm.test` (không có quyền mini app Sản phẩm)
+- Điều kiện ban đầu và dữ liệu: Kênh có sẵn, nhóm khách `VIP` ở trên.
+- Các bước: (1) Tạo bảng giá chung `CHUNG`; tạo `CHUNG2` cũng chung. (2) Tạo `LE` (kênh Bán lẻ), `VIP` (nhóm VIP), `LE_VIP` (cả hai), `USD` (tiền tệ USD). (3) Tạo `LE2` kênh Bán lẻ. (4) Ngừng dùng `LE`; tạo lại `LE2`; dùng lại `LE`. (5) Nhân viên tạo bảng giá.
+- Kết quả mong đợi: Bước 1: `CHUNG` `201`, kênh, nhóm trống, tiền tệ `VND`; `CHUNG2` `400` tại `channelId` "Đã có bảng giá đang dùng cùng kênh, nhóm khách hàng, tiền tệ.". Bước 2: đều tạo được. Bước 3: `400`. Bước 4: ngừng dùng được; `LE2` `201`; dùng lại `LE` nhận `409`. Bước 5: `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-prices.test.ts`
+- Lát: L4
+
+### KICHBAN_KIEMTHU_145: Tra giá theo thứ tự ưu tiên, theo ngày, theo đơn vị quy đổi
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_61
+- Chức năng: CHUC_NANG_36, CHUC_NANG_37
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Quản trị công ty `quantri.vcr@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Bảng giá ở KICHBAN_KIEMTHU_144; chưa có chính sách duyệt `catalog.price_change` (giá ghi ngay khi gửi phiếu).
+- Các bước: (1) Tra giá khi chưa có giá. (2) Gửi phiếu: `CHUNG` 5.000 hôm nay và 6.000 sau 10 ngày; `LE2` 5.500; `VIP` 4.500; `LE_VIP` 4.000. (3) Tra giá không kênh, nhóm; tại ngày +10, +9; kênh Bán lẻ; nhóm VIP; cả hai; kênh Bán sỉ. (4) Tra giá đơn vị Thùng; gửi phiếu Thùng 110.000 ở `CHUNG`; tra lại. (5) `GET /catalog/price-lists/{CHUNG}/prices?date=<ngày +10>`.
+- Kết quả mong đợi: Bước 1: `404`. Bước 3: `CHUNG` 5.000; 6.000 hiệu lực ngày +10; 5.000; `LE2` 5.500; `VIP` 4.500; `LE_VIP` 4.000; Bán sỉ dùng `CHUNG`. Bước 4: 120.000 `fromBaseUnit: true`; sau phiếu 110.000 `fromBaseUnit: false`. Bước 5: có dòng 6.000 và dòng Thùng 110.000.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-prices.test.ts`
+- Lát: L4
+
+## CHUC_NANG_37: Phiếu điều chỉnh giá (CONG_VIEC_04)
+
+### KICHBAN_KIEMTHU_146: Đổi giá ngay hoặc sau duyệt; từ chối, rút không đổi giá; lịch sử giữ giá cũ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_62
+- Chức năng: CHUC_NANG_37, CHUC_NANG_36, CHUC_NANG_16
+- Loại: Đúng, sai
+- Vai trò thực hiện: Quản trị công ty `quantri.vcr@vcomm.test` (người lập); người duyệt `phuc.le@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Bảng giá `CHUNG` có giá ở KICHBAN_KIEMTHU_145.
+- Các bước: (1) Lập phiếu hiệu lực hôm qua, gửi; xóa phiếu. (2) Lập phiếu có dòng lặp và dòng đơn vị Kg (không thuộc sản phẩm). (3) Chưa có chính sách: gửi phiếu 7.000 hiệu lực ngày +20. (4) Tạo chính sách duyệt `catalog.price_change` một cấp (người duyệt `phuc.le`, thay thế `quantri.vcr`). (5) Gửi phiếu 8.000; tra giá; ngừng dùng `CHUNG`; người duyệt đồng ý, đẩy outbox. (6) Gửi phiếu 9.000, người duyệt từ chối. (7) Gửi phiếu 9.500, rút. (8) Xem lịch sử giá Chai; danh sách phiếu Đã duyệt; sửa phiếu đã gửi.
+- Kết quả mong đợi: Bước 1: `effectiveFrom` "Ngày hiệu lực không được trước hôm nay."; xóa `204`. Bước 2: `lines.1.unitId` "Mặt hàng và đơn vị bị lặp.", `lines.2.variantId` "Giá trị không hợp lệ.". Bước 3: `approved`, không có yêu cầu duyệt, giá hiện hành lúc lập 6.000, số `DCG-VCR-<năm>-0000xx`; giá ngày +20 là 7.000. Bước 4: `201`. Bước 5: `pending`, `canWithdraw: true`, giá vẫn 7.000; ngừng dùng bảng giá nhận `409` thông báo có "chờ duyệt"; sau duyệt phiếu `approved`, giá 8.000. Bước 6: phiếu `rejected`. Bước 7: phiếu `withdrawn`, giá vẫn 8.000. Bước 8: lịch sử 8.000, 7.000, 6.000, 5.000; 8 phiếu Đã duyệt; sửa phiếu đã gửi nhận `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c4-prices.test.ts`
+- Lát: L4
+
+Kiểm thử bổ sung không có mã kịch bản (`c4-prices.test.ts`, "nhập dòng phiếu từ Excel"): tệp 4 dòng gọi `POST /catalog/price-changes/import-lines?priceListId=`; một dòng đúng `NUOC-00001` Thùng 100.000 kèm giá hiện hành 110.000; dòng 3, 4, 5 (mã hàng không có, đơn vị Kg, giá chữ) trả lỗi.

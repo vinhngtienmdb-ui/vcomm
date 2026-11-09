@@ -967,3 +967,390 @@ export interface ProposalResponse extends ProposalListItem {
 export const attachmentMaximumBytes = 10 * 1024 * 1024;
 export const attachmentMaximumCount = 10;
 export const attachmentExtensions = ["pdf", "jpg", "jpeg", "png", "xlsx", "docx"] as const;
+
+// CONG_VIEC_04, API_55: ngành hàng, đơn vị tính dùng chung tập đoàn (CHUC_NANG_30; QUYTAC_NGHIEPVU_37).
+export const categoryMaximumLevel = 4;
+const categoryCode = z.string().trim().toUpperCase().regex(/^[A-Z0-9]{2,6}$/);
+const categoryFields = {
+  parentId: z.uuid().nullable().optional(),
+  code: categoryCode,
+  nameVi: z.string().trim().min(1).max(200),
+  nameEn: z.string().trim().min(1).max(200),
+  tracksLots: z.boolean().default(false),
+  tracksSerials: z.boolean().default(false),
+  warrantyMonths: z.number().int().min(0).max(120).default(0),
+};
+export const createCategorySchema = z.object(categoryFields).strict();
+export type CreateCategoryRequest = z.input<typeof createCategorySchema>;
+export const updateCategorySchema = z
+  .object({ ...categoryFields, tracksLots: z.boolean(), tracksSerials: z.boolean(), warrantyMonths: z.number().int().min(0).max(120), version: z.number().int().positive() })
+  .strict();
+export type UpdateCategoryRequest = z.input<typeof updateCategorySchema>;
+
+export interface CategoryResponse {
+  id: string;
+  parentId: string | null;
+  code: string;
+  nameVi: string;
+  nameEn: string;
+  level: number;
+  tracksLots: boolean;
+  tracksSerials: boolean;
+  warrantyMonths: number;
+  status: "active" | "inactive";
+  version: number;
+  productCount: number;
+  childCount: number;
+}
+
+const unitFields = {
+  code: z.string().trim().toUpperCase().regex(/^[A-Z0-9_]{1,10}$/),
+  nameVi: z.string().trim().min(1).max(100),
+  nameEn: z.string().trim().min(1).max(100),
+};
+export const createUnitSchema = z.object(unitFields).strict();
+export type CreateUnitRequest = z.input<typeof createUnitSchema>;
+export const updateUnitSchema = z.object({ nameVi: unitFields.nameVi, nameEn: unitFields.nameEn, version: z.number().int().positive() }).strict();
+export type UpdateUnitRequest = z.input<typeof updateUnitSchema>;
+
+export interface UnitResponse {
+  id: string;
+  code: string;
+  nameVi: string;
+  nameEn: string;
+  status: "active" | "inactive";
+  version: number;
+}
+
+// CONG_VIEC_04, API_56, API_57: sản phẩm, biến thể, đơn vị quy đổi, mã vạch, ảnh (CHUC_NANG_31, 32; QUYTAC_NGHIEPVU_38 đến 40).
+export const vatRates = ["0", "5", "8", "10", "exempt", "not_declared"] as const;
+export type VatRate = (typeof vatRates)[number];
+export const productLimits = { options: 3, optionValues: 30, variants: 200, conversionUnits: 5, images: 10, imageBytes: 5 * 1024 * 1024 } as const;
+export const productImageExtensions = ["jpg", "jpeg", "png", "webp"] as const;
+
+const decimalText = (fraction: number) =>
+  z.union([z.number(), z.string()]).transform((value, context) => {
+    const text = String(value).trim().replace(",", ".");
+    if (!new RegExp(`^\\d{1,12}(\\.\\d{1,${fraction}})?$`).test(text)) {
+      context.addIssue({ code: "custom", message: "invalidValue" });
+      return z.NEVER;
+    }
+    return text;
+  });
+const optionalDecimal = (fraction: number) => z.union([decimalText(fraction), z.literal(""), z.null()]).optional().transform((value) => (value === "" || value === undefined ? null : value));
+
+const barcodeText = z.string().trim().regex(/^[0-9A-Za-z\-.]{4,40}$/);
+const productSku = z.string().trim().toUpperCase().regex(/^[A-Z0-9\-_.]{1,40}$/);
+
+export const saveProductSchema = z
+  .object({
+    categoryId: z.uuid(),
+    code: z.union([productSku, z.literal("")]).optional(),
+    name: z.string().trim().min(1).max(255),
+    description: z.string().trim().max(5000).nullable().optional(),
+    brand: z.string().trim().max(100).nullable().optional(),
+    origin: z.string().trim().max(100).nullable().optional(),
+    vatRate: z.enum(vatRates),
+    tracksLots: z.boolean(),
+    tracksSerials: z.boolean(),
+    warrantyMonths: z.number().int().min(0).max(120),
+    baseUnitId: z.uuid(),
+    weightKg: optionalDecimal(4),
+    volumeM3: optionalDecimal(6),
+    options: z
+      .array(z.object({ name: z.string().trim().min(1).max(50), values: z.array(z.string().trim().min(1).max(50)).min(1).max(productLimits.optionValues) }).strict())
+      .max(productLimits.options)
+      .default([]),
+    specifications: z
+      .array(z.object({ name: z.string().trim().min(1).max(100), value: z.string().trim().min(1).max(500) }).strict())
+      .max(50)
+      .default([]),
+    units: z
+      .array(z.object({ unitId: z.uuid(), factor: decimalText(4) }).strict())
+      .max(productLimits.conversionUnits)
+      .default([]),
+    variants: z
+      .array(
+        z
+          .object({
+            id: z.uuid().optional(),
+            sku: z.union([productSku, z.literal("")]).optional(),
+            optionValues: z.array(z.string().trim().min(1).max(50)).max(productLimits.options).default([]),
+            status: z.enum(["active", "inactive"]).default("active"),
+            barcodes: z
+              .array(z.object({ unitId: z.uuid(), barcode: barcodeText }).strict())
+              .max(20)
+              .default([]),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(productLimits.variants),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveProductRequest = z.input<typeof saveProductSchema>;
+
+export const productListQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    categoryId: z.uuid().optional(),
+    status: z.enum(["active", "inactive"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export interface ProductListItem {
+  id: string;
+  code: string;
+  name: string;
+  categoryId: string;
+  categoryName: string;
+  baseUnitName: string;
+  variantCount: number;
+  status: "active" | "inactive";
+  imageId: string | null;
+  updatedAt: string;
+}
+
+export interface ProductVariantResponse {
+  id: string;
+  sku: string;
+  optionValues: string[];
+  status: "active" | "inactive";
+  barcodes: { unitId: string; barcode: string }[];
+}
+
+export interface ProductImageResponse {
+  id: string;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+}
+
+export interface ProductResponse {
+  id: string;
+  companyId: string;
+  categoryId: string;
+  categoryName: string;
+  code: string;
+  name: string;
+  description: string | null;
+  brand: string | null;
+  origin: string | null;
+  vatRate: VatRate;
+  tracksLots: boolean;
+  tracksSerials: boolean;
+  warrantyMonths: number;
+  baseUnitId: string;
+  weightKg: string | null;
+  volumeM3: string | null;
+  options: { name: string; values: string[] }[];
+  specifications: { name: string; value: string }[];
+  units: { unitId: string; factor: string }[];
+  variants: ProductVariantResponse[];
+  images: ProductImageResponse[];
+  status: "active" | "inactive";
+  version: number;
+  updatedAt: string;
+}
+
+// CONG_VIEC_04, API_58: nhập sản phẩm từ Excel (CHUC_NANG_33): mỗi dòng một biến thể; dòng cùng mã sản phẩm (hoặc cùng tên khi để trống mã) gộp thành một sản phẩm.
+export const productImportColumns = [
+  "Mã sản phẩm",
+  "Tên sản phẩm",
+  "Mã ngành hàng",
+  "Mã đơn vị cơ sở",
+  "Thuế suất",
+  "Theo dõi",
+  "Bảo hành (tháng)",
+  "Thương hiệu",
+  "Xuất xứ",
+  "Trọng lượng (kg)",
+  "Thể tích (m3)",
+  "Đơn vị quy đổi",
+  "Phân loại 1",
+  "Phân loại 2",
+  "Phân loại 3",
+  "Mã hàng",
+  "Mã vạch",
+] as const;
+export const productImportMaximumRows = 2000;
+export const productImportMaximumBytes = 5 * 1024 * 1024;
+
+export interface ProductImportResponse {
+  createdProducts: number;
+  createdVariants: number;
+  failedRows: number;
+  errors: { row: number; message: string }[];
+  errorFileUrl: string | null;
+}
+
+// CONG_VIEC_04, API_59: liên kết biến thể tương ứng giữa công ty, sao chép sản phẩm (CHUC_NANG_34; QUYTAC_NGHIEPVU_41).
+export const createVariantLinkSchema = z.object({ variantId: z.uuid(), linkedVariantId: z.uuid(), factor: decimalText(4).default("1") }).strict();
+export type CreateVariantLinkRequest = z.input<typeof createVariantLinkSchema>;
+export const copyProductSchema = z.object({ targetCompanyId: z.uuid() }).strict();
+
+export interface VariantLinkResponse {
+  id: string;
+  variantId: string;
+  sku: string;
+  linkedVariantId: string;
+  linkedSku: string;
+  linkedProductId: string;
+  linkedProductName: string;
+  linkedCompanyId: string;
+  linkedCompanyName: string;
+  factor: string;
+}
+
+export interface VariantLinkSuggestion {
+  variantId: string;
+  sku: string;
+  linkedVariantId: string;
+  linkedSku: string;
+  linkedProductName: string;
+  barcode: string;
+}
+
+// CONG_VIEC_04, API_60: kênh bán, nhóm khách hàng của công ty (CHUC_NANG_35).
+const catalogItemCode = z.string().trim().toUpperCase().regex(/^[A-Z0-9_]{1,20}$/);
+export const createCatalogItemSchema = z.object({ code: catalogItemCode, name: z.string().trim().min(1).max(100) }).strict();
+export type CreateCatalogItemRequest = z.input<typeof createCatalogItemSchema>;
+export const updateCatalogItemSchema = z.object({ name: z.string().trim().min(1).max(100), version: z.number().int().positive() }).strict();
+export interface CatalogItemResponse {
+  id: string;
+  code: string;
+  name: string;
+  status: "active" | "inactive";
+  version: number;
+}
+// Kênh có sẵn; không có sàn ngoài (quyết định người dùng 2026-11-09).
+export const defaultSalesChannels = [
+  { code: "BAN_SI", name: "Bán sỉ" },
+  { code: "BAN_LE", name: "Bán lẻ" },
+  { code: "SAN_VCOMM", name: "Sàn VComm" },
+  { code: "NOI_BO", name: "Nội bộ" },
+] as const;
+
+// CONG_VIEC_04, API_61: bảng giá, giá hiện hành, lịch sử giá (CHUC_NANG_36; QUYTAC_NGHIEPVU_42, 43).
+export const createPriceListSchema = z
+  .object({
+    code: catalogItemCode,
+    name: z.string().trim().min(1).max(100),
+    channelId: z.uuid().nullable().optional(),
+    customerGroupId: z.uuid().nullable().optional(),
+    currency: z.string().trim().regex(/^[A-Z]{3}$/).default("VND"),
+    includesVat: z.boolean(),
+  })
+  .strict();
+export type CreatePriceListRequest = z.input<typeof createPriceListSchema>;
+export const updatePriceListSchema = z.object({ name: z.string().trim().min(1).max(100), includesVat: z.boolean(), version: z.number().int().positive() }).strict();
+export interface PriceListResponse {
+  id: string;
+  code: string;
+  name: string;
+  channelId: string | null;
+  channelName: string | null;
+  customerGroupId: string | null;
+  customerGroupName: string | null;
+  currency: string;
+  includesVat: boolean;
+  status: "active" | "inactive";
+  version: number;
+}
+
+export const priceListPricesQuerySchema = z
+  .object({ date: isoDate.optional(), search: z.string().trim().max(100).optional(), page: z.coerce.number().int().min(1).default(1), pageSize: z.coerce.number().int().min(1).max(100).default(50) })
+  .strict();
+export interface PriceRow {
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  unitId: string;
+  unitName: string;
+  price: string;
+  effectiveFrom: string;
+}
+export const priceHistoryQuerySchema = z.object({ variantId: z.uuid(), unitId: z.uuid() }).strict();
+export interface PriceHistoryItem {
+  price: string;
+  effectiveFrom: string;
+  priceChangeId: string;
+  changeNo: string | null;
+  createdAt: string;
+}
+// Tra giá khi bán (MODULE_05 dùng): chọn bảng giá theo thứ tự ưu tiên QUYTAC_NGHIEPVU_42, giá theo ngày QUYTAC_NGHIEPVU_43.
+export const priceLookupQuerySchema = z
+  .object({
+    variantId: z.uuid(),
+    unitId: z.uuid(),
+    channelId: z.uuid().optional(),
+    customerGroupId: z.uuid().optional(),
+    currency: z.string().trim().regex(/^[A-Z]{3}$/).default("VND"),
+    date: isoDate.optional(),
+  })
+  .strict();
+export interface PriceLookupResponse {
+  priceListId: string;
+  priceListCode: string;
+  includesVat: boolean;
+  price: string;
+  effectiveFrom: string;
+  fromBaseUnit: boolean;
+}
+
+// CONG_VIEC_04, API_62: phiếu điều chỉnh giá qua luồng duyệt (CHUC_NANG_37; QUYTAC_NGHIEPVU_44).
+export const priceChangeStatuses = ["draft", "pending", "approved", "rejected", "withdrawn"] as const;
+export type PriceChangeStatus = (typeof priceChangeStatuses)[number];
+export const savePriceChangeSchema = z
+  .object({
+    priceListId: z.uuid(),
+    effectiveFrom: isoDate,
+    note: z.string().trim().max(1000).nullable().optional(),
+    lines: z
+      .array(z.object({ variantId: z.uuid(), unitId: z.uuid(), price: decimalText(4) }).strict())
+      .min(1)
+      .max(5000),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePriceChangeRequest = z.input<typeof savePriceChangeSchema>;
+export const priceChangeListQuerySchema = z
+  .object({ status: z.enum(priceChangeStatuses).optional(), page: z.coerce.number().int().min(1).default(1), pageSize: z.coerce.number().int().min(1).max(100).default(20) })
+  .strict();
+export interface PriceChangeListItem {
+  id: string;
+  changeNo: string | null;
+  priceListId: string;
+  priceListName: string;
+  effectiveFrom: string;
+  lineCount: number;
+  status: PriceChangeStatus;
+  requestedByName: string;
+  createdAt: string;
+}
+export interface PriceChangeResponse extends PriceChangeListItem {
+  note: string | null;
+  currency: string;
+  approvalRequestId: string | null;
+  lines: { variantId: string; sku: string; productName: string; optionValues: string[]; unitId: string; unitName: string; price: string; currentPrice: string | null }[];
+  version: number;
+  canEdit: boolean;
+  canWithdraw: boolean;
+}
+export const priceChangeImportColumns = ["Mã hàng", "Mã đơn vị", "Giá"] as const;
+export type PriceChangeLine = PriceChangeResponse["lines"][number];
+// Nhập dòng phiếu từ Excel: trả các dòng đọc được để người dùng xem lại trước khi lưu.
+export interface PriceChangeImportResponse {
+  lines: PriceChangeLine[];
+  errors: { row: number; message: string }[];
+}
+// Giá người dùng gõ hoặc ô Excel dạng chữ: tiền VND không có phần lẻ nên dấu chấm, khoảng trắng là phân cách hàng nghìn ("120.000" là 120000);
+// tiền tệ khác dùng dấu phẩy hoặc dấu chấm làm dấu thập phân.
+export function normalizeMoneyText(text: string, currency: string): string {
+  const compact = text.trim().replace(/\s/g, "");
+  return currency === "VND" ? compact.replace(/\./g, "").replace(",", ".") : compact.replace(",", ".");
+}

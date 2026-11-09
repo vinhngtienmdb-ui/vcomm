@@ -5,10 +5,10 @@ import type { ActivationInfoResponse, AuthMethodsResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useEffect, useState } from "react";
-import { useSubmit } from "@/components/Form";
-import { LanguageSelect } from "@/components/LanguageSelect";
-import { LoadingView } from "@/components/StatusViews";
-import { apiFetch } from "@/lib/api";
+import { useSubmit } from "ui/components/Form";
+import { LanguageSelect } from "ui/components/LanguageSelect";
+import { LoadingView } from "ui/components/StatusViews";
+import { apiFetch } from "ui/lib/api";
 
 // Ước lượng độ mạnh: độ dài và số loại ký tự.
 function strength(password: string): "weak" | "medium" | "strong" {

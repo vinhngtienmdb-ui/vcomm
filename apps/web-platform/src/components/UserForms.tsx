@@ -4,10 +4,10 @@
 import type { BranchResponse, DepartmentResponse, InviteUserResponse, PageResponse, RoleResponse, UserDetailResponse, UserImportResponse } from "contracts";
 import { useLocale, useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
-import { apiDownload, apiFetch, apiUpload } from "@/lib/api";
-import { useApi } from "@/lib/use-api";
-import { Drawer } from "./Dialogs";
-import { Field, FormError, useSubmit } from "./Form";
+import { apiDownload, apiFetch, apiUpload } from "ui/lib/api";
+import { useApi } from "ui/lib/use-api";
+import { Drawer } from "ui/components/Dialogs";
+import { Field, FormError, useSubmit } from "ui/components/Form";
 
 // Danh sách chọn dùng chung; thiếu quyền xem danh mục thì để trống.
 function useChoices() {

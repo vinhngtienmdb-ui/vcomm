@@ -5,11 +5,11 @@ import type { PermissionGroupResponse, RoleResponse } from "contracts";
 import { useLocale, useTranslations } from "next-intl";
 import { type FormEvent, useEffect, useState } from "react";
 import { useAdmin } from "@/components/AdminShell";
-import { ConfirmDialog, Drawer } from "@/components/Dialogs";
-import { Loaded, MessageView } from "@/components/StatusViews";
-import { apiFetch } from "@/lib/api";
-import { failureOf, useApi } from "@/lib/use-api";
-import { HistoryLink } from "@/components/HistoryLink";
+import { ConfirmDialog, Drawer } from "ui/components/Dialogs";
+import { Loaded, MessageView } from "ui/components/StatusViews";
+import { apiFetch } from "ui/lib/api";
+import { failureOf, useApi } from "ui/lib/use-api";
+import { HistoryLink } from "ui/components/HistoryLink";
 
 const kindTone = { system: "trung-tinh", shared: "thong-tin", company: "thong-tin" } as const;
 

@@ -6,14 +6,14 @@ import { useLocale, useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { useAdmin } from "@/components/AdminShell";
-import { ConfirmDialog, Drawer } from "@/components/Dialogs";
-import { Field } from "@/components/Form";
-import { HistoryLink } from "@/components/HistoryLink";
+import { ConfirmDialog, Drawer } from "ui/components/Dialogs";
+import { Field } from "ui/components/Form";
+import { HistoryLink } from "ui/components/HistoryLink";
 import { EditUserDrawer } from "@/components/UserForms";
-import { UserStatusBadge } from "@/components/StatusBadge";
-import { Loaded, MessageView } from "@/components/StatusViews";
-import { apiFetch } from "@/lib/api";
-import { failureOf, useApi } from "@/lib/use-api";
+import { UserStatusBadge } from "ui/components/StatusBadge";
+import { Loaded, MessageView } from "ui/components/StatusViews";
+import { apiFetch } from "ui/lib/api";
+import { failureOf, useApi } from "ui/lib/use-api";
 
 // Ngày dạng YYYY-MM-DD hiển thị theo dd/mm/yyyy.
 const displayDate = (value: string | null, empty: string) => (value ? value.split("-").reverse().join("/") : empty);

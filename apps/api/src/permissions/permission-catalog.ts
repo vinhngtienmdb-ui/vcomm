@@ -48,6 +48,12 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "platform.integration.manage", appCode: "platform", nameVi: "Cài đặt tích hợp", nameEn: "Manage integrations", isSensitive: true },
   { code: "platform.proposal_template.manage", appCode: "platform", nameVi: "Quản lý mẫu đề xuất", nameEn: "Manage proposal templates", isSensitive: false },
   { code: "platform.proposal.create", appCode: "platform", nameVi: "Lập đề xuất", nameEn: "Create proposals", isSensitive: false },
+  // CONG_VIEC_04: mini app Sản phẩm (MODULE_02).
+  { code: "catalog.category.manage", appCode: "catalog", nameVi: "Quản lý ngành hàng, đơn vị tính (toàn tập đoàn)", nameEn: "Manage categories and units (group)", isSensitive: false },
+  { code: "catalog.product.view", appCode: "catalog", nameVi: "Xem sản phẩm", nameEn: "View products", isSensitive: false },
+  { code: "catalog.product.manage", appCode: "catalog", nameVi: "Quản lý sản phẩm", nameEn: "Manage products", isSensitive: false },
+  { code: "catalog.price.view", appCode: "catalog", nameVi: "Xem bảng giá", nameEn: "View price lists", isSensitive: false },
+  { code: "catalog.price.manage", appCode: "catalog", nameVi: "Quản lý bảng giá, điều chỉnh giá", nameEn: "Manage price lists and price changes", isSensitive: true },
 ];
 
 const employeePermissions = ["platform.access", "platform.profile.manage", "platform.approval.decide", "platform.proposal.create"];
@@ -67,6 +73,10 @@ const companyAdminPermissions = [
   "platform.number_sequence.manage",
   "platform.audit.view",
   "platform.proposal_template.manage",
+  "catalog.product.view",
+  "catalog.product.manage",
+  "catalog.price.view",
+  "catalog.price.manage",
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [
@@ -74,16 +84,26 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     code: "group_admin",
     nameVi: "Quản trị tập đoàn",
     nameEn: "Group administrator",
-    permissionCodes: permissionCatalog.filter((permission) => permission.appCode === "platform").map((permission) => permission.code),
+    // Quản trị tập đoàn: mọi quyền của Nền tảng và Sản phẩm (CONG_VIEC_04), cộng quyền truy cập mọi mini app.
+    permissionCodes: permissionCatalog
+      .filter((permission) => permission.appCode === "platform" || permission.appCode === "catalog" || permission.code.endsWith(".access"))
+      .map((permission) => permission.code),
   },
   { code: "company_admin", nameVi: "Quản trị công ty", nameEn: "Company administrator", permissionCodes: companyAdminPermissions },
   { code: "exchange_rate_manager", nameVi: "Quản lý tỷ giá", nameEn: "Exchange rate manager", permissionCodes: ["platform.access", "platform.exchange_rate.manage"] },
   { code: "employee", nameVi: "Nhân viên", nameEn: "Employee", permissionCodes: employeePermissions },
+  {
+    code: "catalog_manager",
+    nameVi: "Quản lý sản phẩm",
+    nameEn: "Product manager",
+    permissionCodes: ["catalog.access", "catalog.product.view", "catalog.product.manage", "catalog.price.view"],
+  },
 ];
 
 // Loại chứng từ do mã khai báo. Chứng từ thử của Nền tảng dùng để thử luồng duyệt khi chưa có module khác (CONG_VIEC_02 lát L7).
 export const documentTypeCatalog = [
   { code: "platform.test_document", appCode: "platform", nameVi: "Chứng từ thử", nameEn: "Test document", requiresApproval: true },
+  { code: "catalog.price_change", appCode: "catalog", nameVi: "Phiếu điều chỉnh giá", nameEn: "Price change", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.

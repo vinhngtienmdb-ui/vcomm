@@ -4,11 +4,11 @@
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useState } from "react";
-import { Field, FormError, useSubmit } from "@/components/Form";
-import { LanguageSelect } from "@/components/LanguageSelect";
+import { Field, FormError, useSubmit } from "ui/components/Form";
+import { LanguageSelect } from "ui/components/LanguageSelect";
 import { BackupCodes, MfaEnroll } from "@/components/MfaEnroll";
-import { LoadingView } from "@/components/StatusViews";
-import { apiFetch } from "@/lib/api";
+import { LoadingView } from "ui/components/StatusViews";
+import { apiFetch } from "ui/lib/api";
 
 function Verification() {
   const t = useTranslations("mfa");

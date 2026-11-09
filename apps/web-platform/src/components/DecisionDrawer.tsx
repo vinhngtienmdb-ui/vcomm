@@ -3,9 +3,9 @@
 // Đồng ý hoặc từ chối một yêu cầu duyệt; từ chối bắt buộc nhập lý do (API_41).
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
-import { apiFetch } from "@/lib/api";
-import { Drawer } from "./Dialogs";
-import { Field, FormError, useSubmit } from "./Form";
+import { apiFetch } from "ui/lib/api";
+import { Drawer } from "ui/components/Dialogs";
+import { Field, FormError, useSubmit } from "ui/components/Form";
 
 export function DecisionDrawer({ requestId, documentNo, decision, onClose, onDone }: { requestId: string; documentNo: string; decision: "approved" | "rejected"; onClose: () => void; onDone: (text: string) => void }) {
   const t = useTranslations("approvals");

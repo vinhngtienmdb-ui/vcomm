@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 1.2
+- Phiên bản: 1.3
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02
 
 ## MODULE_01 Nền tảng
 
@@ -32,6 +32,15 @@
 | YCAU_NGHIEPVU_20 | Người duyệt, người lập nhận thông báo duyệt qua Zalo | Mọi nhân viên | THAY_DOI_04 |
 | YCAU_NGHIEPVU_21 | Nhân viên lập đề xuất theo mẫu do quản trị tạo, đính kèm chứng từ gốc, đi qua luồng duyệt, in được | Mọi nhân viên, quản trị công ty | THAY_DOI_04 |
 
+## MODULE_02 Sản phẩm và Nhà bán (phần Sản phẩm, CONG_VIEC_04)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_22 | Mỗi công ty con quản lý danh mục sản phẩm của mình, phân loại theo một cây ngành hàng chung của tập đoàn | Quản lý sản phẩm, quản trị tập đoàn | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09 (tài liệu `02`) |
+| YCAU_NGHIEPVU_23 | Sản phẩm có biến thể, nhiều đơn vị tính quy đổi, nhiều mã vạch, theo dõi lô và hạn dùng hoặc serial theo ngành hàng; nhập hàng loạt từ Excel | Quản lý sản phẩm, Kho, Bán hàng | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09 |
+| YCAU_NGHIEPVU_24 | Giao dịch giữa công ty con biết sản phẩm tương ứng ở công ty bên kia | Kế toán, Mua hàng, Bán hàng | Quyết định của người dùng 2026-11-09 |
+| YCAU_NGHIEPVU_25 | Giá bán theo công ty, kênh bán, nhóm khách hàng, hiệu lực theo ngày; thay đổi giá được duyệt và lưu lịch sử | Ban giám đốc, Bán hàng | Tài liệu `04` yêu cầu cấp cao 4; quyết định của người dùng 2026-11-09 |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -53,3 +62,13 @@
 | Mẫu đề xuất | Mã, tên, mô tả, danh sách trường, trường giá trị duyệt, tiền tệ, trạng thái | Thuộc một công ty; là một loại chứng từ cần duyệt |
 | Đề xuất | Số đề xuất, tiêu đề, giá trị các trường, giá trị duyệt, tiền tệ, trạng thái, người lập | Theo một mẫu (giữ bản chụp mẫu); có một yêu cầu duyệt khi gửi; có nhiều tệp đính kèm |
 | Tệp đính kèm | Tên tệp, loại, kích thước, người tải lên | Thuộc một đề xuất |
+| Ngành hàng | Mã (tiền tố mã hàng), tên tiếng Việt, tiếng Anh, cấp (1 đến 4), theo dõi lô và hạn dùng, theo dõi serial, số tháng bảo hành, trạng thái | Dùng chung tập đoàn; có ngành hàng cha; có nhiều sản phẩm |
+| Đơn vị tính | Mã, tên tiếng Việt, tiếng Anh, trạng thái | Dùng chung tập đoàn |
+| Sản phẩm | Mã, tên, mô tả, thương hiệu, xuất xứ, thuế suất giá trị gia tăng, theo dõi lô hoặc serial, số tháng bảo hành, đơn vị cơ sở, trọng lượng, thể tích, thuộc tính phân loại, thông số, trạng thái | Thuộc một công ty, một ngành hàng lá; có nhiều đơn vị quy đổi, biến thể, ảnh |
+| Biến thể | Mã hàng, giá trị phân loại, trạng thái | Thuộc một sản phẩm; có nhiều mã vạch; liên kết với biến thể tương ứng ở công ty khác |
+| Mã vạch | Mã vạch, đơn vị tính | Thuộc một biến thể; duy nhất trong công ty |
+| Liên kết biến thể | Hệ số quy đổi đơn vị cơ sở | Nối hai biến thể của hai công ty khác nhau |
+| Kênh bán, nhóm khách hàng | Mã, tên, trạng thái | Thuộc một công ty |
+| Bảng giá | Mã, tên, kênh bán, nhóm khách hàng, tiền tệ, gồm thuế hay không, trạng thái | Thuộc một công ty; có lịch sử giá |
+| Giá | Biến thể, đơn vị tính, giá, ngày hiệu lực | Thuộc một bảng giá; ghi từ một phiếu điều chỉnh giá |
+| Phiếu điều chỉnh giá | Số phiếu, bảng giá, ngày hiệu lực, ghi chú, trạng thái, người lập; các dòng (biến thể, đơn vị, giá mới, giá hiện hành) | Thuộc một công ty; có một yêu cầu duyệt khi gửi |

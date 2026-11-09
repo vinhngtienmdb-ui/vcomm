@@ -5,13 +5,13 @@ import { exchangeRateSources, exchangeRateTypes, type CurrencyResponse, type Exc
 import { useLocale, useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 import { useAdmin } from "@/components/AdminShell";
-import { Drawer } from "@/components/Dialogs";
-import { Field, FormError, useSubmit } from "@/components/Form";
-import { HistoryLink } from "@/components/HistoryLink";
-import { Loaded, MessageView } from "@/components/StatusViews";
-import { apiFetch } from "@/lib/api";
-import { formatDate } from "@/lib/format";
-import { useApi } from "@/lib/use-api";
+import { Drawer } from "ui/components/Dialogs";
+import { Field, FormError, useSubmit } from "ui/components/Form";
+import { HistoryLink } from "ui/components/HistoryLink";
+import { Loaded, MessageView } from "ui/components/StatusViews";
+import { apiFetch } from "ui/lib/api";
+import { formatDate } from "ui/lib/format";
+import { useApi } from "ui/lib/use-api";
 
 const todayInVietnam = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).format(new Date());
 const formatRate = (rate: string, locale: string) =>

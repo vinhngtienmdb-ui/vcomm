@@ -6,13 +6,13 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAdmin } from "@/components/AdminShell";
-import { Loaded, MessageView } from "@/components/StatusViews";
+import { Loaded, MessageView } from "ui/components/StatusViews";
 import { ImportDialog, InviteDrawer } from "@/components/UserForms";
-import { apiFetch } from "@/lib/api";
-import { failureOf } from "@/lib/use-api";
-import { UserStatusBadge } from "@/components/StatusBadge";
-import { useApi } from "@/lib/use-api";
-import { HistoryLink } from "@/components/HistoryLink";
+import { apiFetch } from "ui/lib/api";
+import { failureOf } from "ui/lib/use-api";
+import { UserStatusBadge } from "ui/components/StatusBadge";
+import { useApi } from "ui/lib/use-api";
+import { HistoryLink } from "ui/components/HistoryLink";
 
 const statuses = ["active", "invited", "locked", "disabled"] as const;
 

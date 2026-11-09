@@ -6,14 +6,14 @@ import { useLocale, useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { DecisionDrawer } from "@/components/DecisionDrawer";
-import { ConfirmDialog } from "@/components/Dialogs";
-import { FormError } from "@/components/Form";
+import { ConfirmDialog } from "ui/components/Dialogs";
+import { FormError } from "ui/components/Form";
 import { Attachments, ProposalFieldsView } from "@/components/ProposalContent";
-import { Loaded } from "@/components/StatusViews";
-import { UserShell } from "@/components/UserShell";
-import { apiDownload, apiFetch } from "@/lib/api";
-import { formatDate, formatDateTime, formatMoney, formatNumber } from "@/lib/format";
-import { failureOf, useApi } from "@/lib/use-api";
+import { Loaded } from "ui/components/StatusViews";
+import { UserShell } from "ui/components/UserShell";
+import { apiDownload, apiFetch } from "ui/lib/api";
+import { formatDate, formatDateTime, formatMoney, formatNumber } from "ui/lib/format";
+import { failureOf, useApi } from "ui/lib/use-api";
 
 const statusTone = { pending: "canh-bao", approved: "thanh-cong", rejected: "loi", withdrawn: "trung-tinh" } as const;
 

@@ -5,12 +5,12 @@ import type { IntegrationSettingItem, IntegrationSettingKey, IntegrationSettings
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 import { useAdmin } from "@/components/AdminShell";
-import { Field, FormError, useSubmit } from "@/components/Form";
-import { HistoryLink } from "@/components/HistoryLink";
-import { Loaded } from "@/components/StatusViews";
-import { apiFetch } from "@/lib/api";
-import { formatDateTime } from "@/lib/format";
-import { failureOf, useApi } from "@/lib/use-api";
+import { Field, FormError, useSubmit } from "ui/components/Form";
+import { HistoryLink } from "ui/components/HistoryLink";
+import { Loaded } from "ui/components/StatusViews";
+import { apiFetch } from "ui/lib/api";
+import { formatDateTime } from "ui/lib/format";
+import { failureOf, useApi } from "ui/lib/use-api";
 
 const groups: { name: "google" | "microsoft" | "zalo" | "esms"; keys: IntegrationSettingKey[] }[] = [
   { name: "google", keys: ["google.client_id", "google.client_secret"] },

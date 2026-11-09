@@ -3,7 +3,7 @@
 // Trạng thái chung của màn hình: đang tải, lỗi, không có quyền, không tìm thấy, rỗng (tài liệu 15).
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
-import type { Loadable } from "@/lib/use-api";
+import type { Loadable } from "../lib/use-api";
 
 export function LoadingView() {
   return (

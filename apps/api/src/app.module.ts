@@ -41,6 +41,17 @@ import { createFileStorage, FILE_STORAGE } from "./common/file-storage";
 import { ProposalPdfService } from "./proposals/proposal-pdf.service";
 import { ProposalTemplatesService } from "./proposals/proposal-templates.service";
 import { ProposalsController } from "./proposals/proposals.controller";
+import { CatalogController } from "./catalog/catalog.controller";
+import { CatalogItemsService } from "./catalog/catalog-items.service";
+import { PriceChangesService } from "./catalog/price-changes.service";
+import { PriceListsService } from "./catalog/price-lists.service";
+import { PricingController } from "./catalog/pricing.controller";
+import { CategoriesService } from "./catalog/categories.service";
+import { UnitsService } from "./catalog/units.service";
+import { ProductsService } from "./catalog/products.service";
+import { ProductImagesService } from "./catalog/product-images.service";
+import { ProductImportService } from "./catalog/product-import.service";
+import { VariantLinksService } from "./catalog/variant-links.service";
 import { ProposalsService } from "./proposals/proposals.service";
 import { EXCHANGE_RATE_FEED, VietcombankFeed } from "./settings/vietcombank-rates";
 import { DeactivationService } from "./users/deactivation.service";
@@ -51,7 +62,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController],
   providers: [
     AuthService,
     ActivationService,
@@ -67,6 +78,15 @@ import { UsersService } from "./users/users.service";
     ZnsNotifier,
     { provide: FILE_STORAGE, useFactory: createFileStorage },
     ProposalTemplatesService,
+    CategoriesService,
+    UnitsService,
+    ProductsService,
+    ProductImagesService,
+    ProductImportService,
+    VariantLinksService,
+    CatalogItemsService,
+    PriceListsService,
+    PriceChangesService,
     ProposalsService,
     ProposalPdfService,
     PhoneOtpService,

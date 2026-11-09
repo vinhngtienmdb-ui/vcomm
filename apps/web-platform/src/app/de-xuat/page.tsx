@@ -6,12 +6,12 @@ import { proposalStatuses } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
-import { Drawer } from "@/components/Dialogs";
+import { Drawer } from "ui/components/Dialogs";
 import { proposalStatusTone } from "@/components/ProposalContent";
-import { Loaded, MessageView } from "@/components/StatusViews";
-import { UserShell } from "@/components/UserShell";
-import { formatDateTime, formatMoney } from "@/lib/format";
-import { useApi } from "@/lib/use-api";
+import { Loaded, MessageView } from "ui/components/StatusViews";
+import { UserShell } from "ui/components/UserShell";
+import { formatDateTime, formatMoney } from "ui/lib/format";
+import { useApi } from "ui/lib/use-api";
 
 export default function ProposalsPage() {
   return <UserShell>{(me) => <Proposals me={me} />}</UserShell>;
