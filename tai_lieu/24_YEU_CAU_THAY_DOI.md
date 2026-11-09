@@ -97,4 +97,4 @@
 - Kiểm thử cần thực hiện: lập kịch bản mới cho phần bổ sung MODULE_01; các tiêu chí đã có không đổi.
 - Mức quy mô: Lớn (module mới, nhiều module).
 - Rủi ro: tổng khối lượng tăng khoảng gấp rưỡi; mốc phiên bản 1.0, 2.0, 3.0 trong tài liệu `01` phải ước lượng lại; nên chia thêm phiên bản thay vì làm cùng lúc.
-- Trạng thái: Chờ phê duyệt
+- Trạng thái: Đã phê duyệt 2026-11-09 (chia thêm phiên bản; phần bổ sung MODULE_01 làm thành lát L9, L10)
