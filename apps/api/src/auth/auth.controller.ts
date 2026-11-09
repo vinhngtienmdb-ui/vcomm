@@ -1,5 +1,5 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Req, Res } from "@nestjs/common";
-import { activationSchema, forgotPasswordSchema, loginRequestSchema, mfaCodeSchema, mfaVerifySchema, resetPasswordSchema, type ActivationInfoResponse, type LoginResponse, type MfaBackupCodesResponse, type MfaEnrollResponse } from "contracts";
+import { Body, Controller, Get, HttpCode, Param, Post, Query, Req, Res } from "@nestjs/common";
+import { activationSchema, forgotPasswordSchema, loginRequestSchema, mfaCodeSchema, mfaVerifySchema, otpSendSchema, otpVerifySchema, resetPasswordSchema, type ActivationInfoResponse, type AuthMethodsResponse, type LoginResponse, type MfaBackupCodesResponse, type MfaEnrollResponse } from "contracts";
 import type { Request, Response } from "express";
 import { ApiError, localeOf } from "../common/api-error";
 import { accessCookieName, AllowMfaPending, csrfCookieName, csrfMatches, Public, refreshCookieName, type AuthenticatedRequest } from "./auth.guard";
@@ -8,6 +8,11 @@ import { MfaService } from "./mfa.service";
 import { PasswordService } from "./password.service";
 import { AuthService, type ClientInfo, type IssuedSession } from "./auth.service";
 import { newRandomToken } from "./tokens";
+import { MessagingService } from "../integrations/messaging.service";
+import { webOrigin } from "../common/outbound-messages";
+import { oauthProviders, OauthService, oauthStateCookieName } from "./oauth.service";
+import type { OauthProvider } from "./oauth-providers";
+import { PhoneOtpService } from "./phone-otp.service";
 
 const secureCookies = () => process.env.NODE_ENV === "production";
 
@@ -36,7 +41,75 @@ export class AuthController {
     private readonly activation: ActivationService,
     private readonly mfa: MfaService,
     private readonly passwords: PasswordService,
+    private readonly phoneOtp: PhoneOtpService,
+    private readonly oauth: OauthService,
+    private readonly messaging: MessagingService,
   ) {}
+
+  // API_54: cách đăng nhập đã cài đặt, để MAN_HINH_01 chỉ hiện nút dùng được.
+  @Public()
+  @Get("methods")
+  async methods(): Promise<AuthMethodsResponse> {
+    return {
+      password: true,
+      phone: await this.messaging.smsConfigured(),
+      google: await this.oauth.configured("google"),
+      microsoft: await this.oauth.configured("microsoft"),
+      zalo: await this.oauth.configured("zalo"),
+    };
+  }
+
+  // API_02: luôn trả 204 kể cả số chưa gắn tài khoản (QUYTAC_NGHIEPVU_05).
+  @Public()
+  @Post("otp/send")
+  @HttpCode(204)
+  async sendOtp(@Body() body: unknown): Promise<void> {
+    await this.phoneOtp.send(otpSendSchema.parse(body).phone);
+  }
+
+  // API_03
+  @Public()
+  @Post("otp/verify")
+  @HttpCode(200)
+  async verifyOtp(@Body() body: unknown, @Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<LoginResponse> {
+    const input = otpVerifySchema.parse(body);
+    const { response: result, session } = await this.phoneOtp.verify(input.phone, input.code, clientInfo(request));
+    setSessionCookies(response, session);
+    return result;
+  }
+
+  // API_04: chuyển hướng tới nhà cung cấp. Lỗi thì quay về trang đăng nhập, hồ sơ hoặc kích hoạt kèm mã lỗi.
+  @Public()
+  @Get("oauth/:provider/start")
+  async oauthStart(@Param("provider") provider: string, @Query("mode") mode: string | undefined, @Query("token") token: string | undefined, @Req() request: Request, @Res() response: Response): Promise<void> {
+    const chosen = mode === "link" || mode === "activate" ? mode : "login";
+    try {
+      const started = await this.oauth.start(oauthProvider(provider), chosen, request.cookies?.[accessCookieName] as string | undefined, token);
+      response.cookie(oauthStateCookieName, started.stateCookie, { httpOnly: true, secure: secureCookies(), sameSite: "lax", path: "/api/v1/auth/oauth", maxAge: 600_000 });
+      response.redirect(302, started.url);
+    } catch (error) {
+      response.redirect(302, errorRedirect(chosen, error, token));
+    }
+  }
+
+  // API_05: nhà cung cấp chuyển về đây; đăng nhập xong về trang chủ (hoặc nhập mã xác thực hai lớp),
+  // liên kết xong về hồ sơ, kích hoạt xong về trang đăng nhập kèm thông báo (MAN_HINH_03).
+  @Public()
+  @Get("oauth/:provider/callback")
+  async oauthCallback(@Param("provider") provider: string, @Query("code") code: string | undefined, @Query("state") state: string | undefined, @Req() request: Request, @Res() response: Response): Promise<void> {
+    const stateCookie = request.cookies?.[oauthStateCookieName] as string | undefined;
+    response.clearCookie(oauthStateCookieName, { path: "/api/v1/auth/oauth" });
+    const pending = this.oauth.pending(stateCookie);
+    try {
+      const outcome = await this.oauth.callback(oauthProvider(provider), { code, state, stateCookie }, clientInfo(request));
+      if (outcome.kind === "linked") return response.redirect(302, `${webOrigin()}/ho-so?lienKet=${outcome.provider}`);
+      if (outcome.kind === "activated") return response.redirect(302, `${webOrigin()}/dang-nhap?kichHoat=${outcome.provider}`);
+      setSessionCookies(response, outcome.session);
+      response.redirect(302, `${webOrigin()}${outcome.mfaRequired ? "/xac-thuc" : "/"}`);
+    } catch (error) {
+      response.redirect(302, errorRedirect(pending.mode, error, pending.activationToken ?? undefined));
+    }
+  }
 
   // API_06
   @AllowMfaPending()
@@ -123,4 +196,17 @@ export class AuthController {
     await this.auth.logout(request.auth.sessionId, request.auth.userId, clientInfo(request));
     clearSessionCookies(response);
   }
+}
+
+function oauthProvider(value: string): OauthProvider {
+  if (!(oauthProviders as string[]).includes(value)) throw new ApiError("NOT_FOUND", "notFound");
+  return value as OauthProvider;
+}
+
+// Mã lỗi đưa qua tham số "loi" để giao diện hiện thông báo theo ngôn ngữ đang chọn.
+function errorRedirect(mode: "login" | "link" | "activate", error: unknown, activationToken?: string): string {
+  const key = encodeURIComponent(error instanceof ApiError ? error.messageKey : "oauthFailed");
+  if (mode === "link") return `${webOrigin()}/ho-so?loi=${key}`;
+  if (mode === "activate" && activationToken) return `${webOrigin()}/kich-hoat?token=${encodeURIComponent(activationToken)}&loi=${key}`;
+  return `${webOrigin()}/dang-nhap?loi=${key}`;
 }

@@ -78,6 +78,7 @@ export function TopBar({ me, onCompanyChange }: { me: MeResponse; onCompanyChang
         ) : (
           <span style={{ fontSize: 13 }}>{me.companies[0]?.shortName}</span>
         )}
+        <a href="/de-xuat">{t("proposals")}</a>
         <a href="/hop-duyet">{t("approvals")}</a>
         <button type="button" onClick={() => setShowNotifications(true)} aria-haspopup="dialog">
           {t("notifications")} {notifications && notifications.unreadCount > 0 && <span className="huy-hieu">{notifications.unreadCount}</span>}

@@ -28,7 +28,7 @@ import { AuditEventsService } from "./audit-events.service";
 import { ExchangeRatesService } from "./exchange-rates.service";
 import { NumberSequencesService } from "./number-sequences.service";
 
-const documentTypeCode = z.string().regex(/^[a-z_]+\.[a-z_]+$/);
+const documentTypeCode = z.string().regex(/^[a-z0-9_]+\.[a-z0-9_]+$/);
 
 @Controller()
 export class SettingsController {

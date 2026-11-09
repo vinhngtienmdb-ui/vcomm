@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 1.1
+- Phiên bản: 1.2
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09)
 
 ## MODULE_01 Nền tảng
 
@@ -58,4 +58,12 @@ Dữ liệu mẫu dùng trong tiêu chí: tập đoàn VCG; công ty con VCR, VC
 | TIEUCHI_NGHIEMTHU_44 | CHUC_NANG_23 | Không có API sửa hoặc xóa nhật ký; quản trị VCR không xem được nhật ký VCT | Rà soát API; gọi API tra cứu | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_46 | CHUC_NANG_24 | Đăng nhập bằng Zalo chưa liên kết thì bị từ chối, không tạo tài khoản; sau khi liên kết từ hồ sơ cá nhân thì đăng nhập được | Hai lần đăng nhập Zalo thử, trước và sau liên kết | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_47 | CHUC_NANG_24 | Liên kết một tài khoản Zalo đã gắn với nhân viên khác thì bị từ chối; hủy liên kết khi Zalo là cách đăng nhập duy nhất thì bị từ chối | Hai trường hợp | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_48 | CHUC_NANG_25 | Khóa bí mật không bao giờ trả đầy đủ qua API hoặc ghi vào nhật ký; lưu xong có hiệu lực ngay không cần khởi động lại | Gọi API, đọc nhật ký, đăng nhập thử | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_49 | CHUC_NANG_25 | Chỉ quản trị tập đoàn xem, sửa được Cài đặt tích hợp | Gọi API bằng từng vai trò | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_50 | CHUC_NANG_26 | Mỗi lần có chứng từ chờ duyệt, nhắc quá hạn, có kết quả duyệt, người nhận có số điện thoại nhận đúng một tin ZNS theo mẫu đã cài; ZNS lỗi thì luồng duyệt vẫn chạy và có ghi lỗi | Kiểm thử tự động với nguồn giả | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_51 | CHUC_NANG_08 | Mã OTP gửi qua kênh đa kênh Zalo rồi SMS; chưa cài ZNS thì gửi SMS | Kiểm thử tự động với nguồn giả | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_52 | CHUC_NANG_27, CHUC_NANG_28 | Lập đề xuất thiếu trường bắt buộc hoặc sai kiểu bị từ chối, chỉ ra đúng trường | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_53 | CHUC_NANG_28 | Gửi đề xuất nhận số tự động, đi qua chính sách duyệt với giá trị đúng; duyệt xong đề xuất chuyển "Đã duyệt"; sửa mẫu sau khi gửi không đổi đề xuất đã gửi | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_54 | CHUC_NANG_28 | Tệp sai loại, quá 10 MB, quá 10 tệp bị từ chối; người không xem được đề xuất không tải được tệp | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_55 | CHUC_NANG_29 | Tệp PDF có tên công ty, số đề xuất, các trường, bảng chi tiết, các cấp duyệt; tiếng Việt đúng dấu | Mở tệp PDF | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_45 | Phi chức năng | Đăng nhập và kiểm tra quyền dưới 200 mili giây ở phân vị 95 với 200 người dùng đồng thời | Kiểm thử tải | Mong muốn |

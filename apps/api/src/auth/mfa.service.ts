@@ -4,36 +4,17 @@ import { Inject, Injectable } from "@nestjs/common";
 import * as argon2 from "argon2";
 import type { MfaBackupCodesResponse, MfaEnrollResponse } from "contracts";
 import { sql } from "drizzle-orm";
-import { createCipheriv, createDecipheriv, createHash, randomBytes, randomInt } from "node:crypto";
+import { randomInt } from "node:crypto";
 import { Secret, TOTP } from "otpauth";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
+import { decryptSecret, encryptSecret } from "../common/secret-box";
 import { DATABASE, type Database } from "../database/database.module";
 import type { ClientInfo } from "./auth.service";
 
 const maximumWrongCodes = 5;
 const backupCodeCount = 10;
 const backupAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
-// Khóa mã hóa bí mật TOTP lấy từ biến môi trường; môi trường thật dùng khóa AWS KMS (tài liệu 22).
-function encryptionKey(): Buffer {
-  const value = process.env.MFA_SECRET_KEY;
-  if (!value || value.length < 32) throw new Error("MFA_SECRET_KEY phải có ít nhất 32 ký tự.");
-  return createHash("sha256").update(value).digest();
-}
-
-function encrypt(plain: string): Buffer {
-  const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", encryptionKey(), iv);
-  const body = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()]);
-  return Buffer.concat([iv, cipher.getAuthTag(), body]);
-}
-
-function decrypt(data: Buffer): string {
-  const decipher = createDecipheriv("aes-256-gcm", encryptionKey(), data.subarray(0, 12));
-  decipher.setAuthTag(data.subarray(12, 28));
-  return Buffer.concat([decipher.update(data.subarray(28)), decipher.final()]).toString("utf8");
-}
 
 const totpFor = (secretBase32: string, label: string) => new TOTP({ issuer: "VComm", label, secret: Secret.fromBase32(secretBase32), digits: 6, period: 30 });
 
@@ -63,7 +44,7 @@ export class MfaService {
     const secret = new Secret({ size: 20 });
     await this.database.transaction(async (transaction) => {
       await transaction.execute(sql`DELETE FROM core.mfa_factors WHERE user_id = ${userId} AND confirmed_at IS NULL`);
-      await transaction.execute(sql`INSERT INTO core.mfa_factors (user_id, factor_type, secret_encrypted) VALUES (${userId}, 'totp', ${encrypt(secret.base32)})`);
+      await transaction.execute(sql`INSERT INTO core.mfa_factors (user_id, factor_type, secret_encrypted) VALUES (${userId}, 'totp', ${encryptSecret(secret.base32)})`);
     });
     return { otpauthUrl: totpFor(secret.base32, label).toString(), secretForManualEntry: secret.base32 };
   }
@@ -169,7 +150,7 @@ export class MfaService {
         AND ${confirmed ? sql`confirmed_at IS NOT NULL` : sql`confirmed_at IS NULL`}
       ORDER BY created_at DESC LIMIT 1`);
     const row = result.rows[0];
-    return row ? { id: row.id, secret: decrypt(row.secret_encrypted) } : null;
+    return row ? { id: row.id, secret: decryptSecret(row.secret_encrypted) } : null;
   }
 
   private async label(userId: string): Promise<string> {

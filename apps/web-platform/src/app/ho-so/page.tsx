@@ -1,10 +1,10 @@
 "use client";
 
 // MAN_HINH_06 Hồ sơ cá nhân (CHUC_NANG_10, CHUC_NANG_22; API_15 đến API_18, API_07, API_08). Liên kết Google, Microsoft, Zalo có ở lát L6.
-import type { IdentityResponse, MeResponse, MfaBackupCodesResponse, SessionResponse } from "contracts";
+import type { AuthMethodsResponse, IdentityResponse, MeResponse, MfaBackupCodesResponse, SessionResponse } from "contracts";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { type FormEvent, Suspense, useState } from "react";
 import { ConfirmDialog } from "@/components/Dialogs";
 import { Field, FormError, useSubmit } from "@/components/Form";
 import { BackupCodes, MfaEnroll } from "@/components/MfaEnroll";
@@ -16,10 +16,23 @@ import { failureOf, useApi } from "@/lib/use-api";
 type Tab = "info" | "login" | "mfa" | "sessions";
 
 export default function ProfilePage() {
+  return (
+    <Suspense>
+      <Profile />
+    </Suspense>
+  );
+}
+
+function Profile() {
   const t = useTranslations("profile");
+  const errors = useTranslations("errors");
+  const search = useSearchParams();
   const { state, reload } = useApi<MeResponse>("/me");
-  const [tab, setTab] = useState<Tab>("info");
-  const [notice, setNotice] = useState<string | null>(null);
+  // Nhà cung cấp chuyển về hồ sơ sau khi liên kết: mở thẻ Cách đăng nhập và báo kết quả.
+  const linkedProvider = search.get("lienKet");
+  const returned = search.get("loi");
+  const [tab, setTab] = useState<Tab>(linkedProvider || returned ? "login" : "info");
+  const [notice, setNotice] = useState<string | null>(linkedProvider ? t("linked", { provider: t(`provider_${linkedProvider as "google"}`) }) : returned && errors.has(returned as "notFound") ? errors(returned as "notFound") : null);
   const tabs: { key: Tab; label: string }[] = [
     { key: "info", label: t("tabInfo") },
     { key: "login", label: t("tabLogin") },
@@ -140,7 +153,6 @@ function InfoTab({ me, onSaved }: { me: MeResponse; onSaved: (text: string) => v
 function LoginTab({ onSaved }: { onSaved: (text: string) => void }) {
   const t = useTranslations("profile");
   const activation = useTranslations("activation");
-  const identities = useApi<IdentityResponse[]>("/me/identities");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const { submitting, fields, formError, run, inputClass } = useSubmit();
@@ -172,19 +184,79 @@ function LoginTab({ onSaved }: { onSaved: (text: string) => void }) {
           </button>
         </div>
       </form>
+      <Identities onSaved={onSaved} />
+    </>
+  );
+}
+
+// CHUC_NANG_10, CHUC_NANG_24: cách đăng nhập của chính mình; liên kết Google, Microsoft, Zalo; hủy liên kết (API_17).
+function Identities({ onSaved }: { onSaved: (text: string) => void }) {
+  const t = useTranslations("profile");
+  const identities = useApi<IdentityResponse[]>("/me/identities");
+  const methods = useApi<AuthMethodsResponse>("/auth/methods");
+  const [removing, setRemoving] = useState<IdentityResponse | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function unlink() {
+    if (!removing) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await apiFetch(`/me/identities/${removing.id}`, { method: "DELETE" });
+      setRemoving(null);
+      onSaved(t("unlinked"));
+      void identities.reload();
+    } catch (failure) {
+      setError(failureOf(failure).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
       <h2>{t("identities")}</h2>
+      <span className="chu-thich">{t("linkHint")}</span>
       <Loaded state={identities.state} onRetry={() => void identities.reload()}>
         {(list) => (
-          <ul style={{ margin: 0, paddingLeft: 18 }}>
+          <div style={{ display: "grid", gap: "var(--khoang-2)", maxWidth: 560 }}>
             {list.map((identity) => (
-              <li key={identity.id}>
-                {t(`provider_${identity.provider}`)}: {identity.subject}
-              </li>
+              <div key={identity.id} className="the" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--khoang-3)" }}>
+                <span>
+                  <strong>{t(`provider_${identity.provider}`)}</strong> <span className="chu-thich">{identity.subject}</span>
+                </span>
+                {identity.provider !== "password" && (
+                  <button type="button" className="nut chu" onClick={() => setRemoving(identity)}>
+                    {t("unlink")}
+                  </button>
+                )}
+              </div>
             ))}
-          </ul>
+            {(["google", "microsoft", "zalo"] as const)
+              .filter((provider) => methods.state.kind === "ready" && methods.state.data[provider] && !list.some((identity) => identity.provider === provider))
+              .map((provider) => (
+                <a key={provider} className="nut phu" style={{ justifySelf: "start" }} href={`/api/v1/auth/oauth/${provider}/start?mode=link`}>
+                  {t("link")} {t(`provider_${provider}`)}
+                </a>
+              ))}
+          </div>
         )}
       </Loaded>
-      <span className="chu-thich">{t("linkLater")}</span>
+      {removing && (
+        <ConfirmDialog
+          title={t("unlink")}
+          text={`${t("unlink")} ${t(`provider_${removing.provider}`)}: ${removing.subject}?`}
+          confirmLabel={t("unlink")}
+          busy={busy}
+          error={error}
+          onConfirm={() => void unlink()}
+          onClose={() => {
+            setRemoving(null);
+            setError(null);
+          }}
+        />
+      )}
     </>
   );
 }

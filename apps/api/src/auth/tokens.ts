@@ -21,19 +21,28 @@ function secret(): Buffer {
 const encode = (value: Buffer | string) => Buffer.from(value).toString("base64url");
 
 export function signAccessToken(payload: AccessTokenPayload): string {
+  return signPayload(payload);
+}
+
+// Ký một giá trị có hạn dùng bằng cùng khóa máy chủ: token truy cập, cookie trạng thái đăng nhập bằng nhà cung cấp.
+export function signPayload<T extends { expiresAt: number }>(payload: T): string {
   const body = encode(JSON.stringify(payload));
   const signature = createHmac("sha256", secret()).update(body).digest("base64url");
   return `${body}.${signature}`;
 }
 
 export function verifyAccessToken(token: string, nowSeconds = Math.floor(Date.now() / 1000)): AccessTokenPayload | null {
+  return verifyPayload<AccessTokenPayload>(token, nowSeconds);
+}
+
+export function verifyPayload<T extends { expiresAt: number }>(token: string, nowSeconds = Math.floor(Date.now() / 1000)): T | null {
   const [body, signature] = token.split(".");
   if (!body || !signature) return null;
   const expected = createHmac("sha256", secret()).update(body).digest();
   const actual = Buffer.from(signature, "base64url");
   if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) return null;
   try {
-    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8")) as AccessTokenPayload;
+    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8")) as T;
     return payload.expiresAt > nowSeconds ? payload : null;
   } catch {
     return null;

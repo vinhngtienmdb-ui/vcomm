@@ -1,10 +1,10 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 1.1
+- Phiên bản: 1.2
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09)
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09)
 
 Hiện có schema `core` của MODULE_01 Nền tảng. Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
@@ -30,6 +30,8 @@ Hiện có schema `core` của MODULE_01 Nền tảng. Đã thêm giá trị `za
 | Nhật ký, sự kiện | `audit_events` (chia partition theo tháng), `outbox_events` | Nhật ký thao tác chỉ thêm; sự kiện gửi sang module khác |
 | Thông báo | `notifications` | Chuông thông báo: được giao duyệt, nhắc, chuyển duyệt, kết quả |
 | Mã dùng một lần | `mfa_backup_codes`, `user_tokens` | Mã dự phòng xác thực hai lớp; đường dẫn kích hoạt, đặt lại mật khẩu |
+| Tích hợp, gửi tin (CONG_VIEC_03) | `integration_settings`, `otp_codes`, `message_deliveries` | Cài đặt tích hợp; mã OTP đăng nhập bằng số điện thoại; nhật ký gửi tin Zalo ZNS, SMS |
+| Đề xuất (CONG_VIEC_03) | `proposal_templates`, `proposals`, `attachments` | Mẫu đề xuất; đề xuất theo mẫu; tệp đính kèm |
 
 ## 3. Ràng buộc chính đã kiểm tra
 
@@ -73,7 +75,7 @@ erDiagram
 
 - Kiểm tra dữ liệu đầu vào ở hai lớp: lược đồ zod tại API (kiểu, độ dài, định dạng; tài liệu `17`) và ràng buộc trong cơ sở dữ liệu (khóa, duy nhất, kiểm tra).
 - Không xóa cứng: công ty, chi nhánh, phòng ban, người dùng, vai trò, chính sách duyệt, yêu cầu duyệt, tỷ giá (QUYTAC_NGHIEPVU_03). Dùng trạng thái hoặc ngày hết hiệu lực.
-- Được xóa cứng: phiên hết hạn quá 90 ngày; mã dùng một lần đã dùng hoặc hết hạn quá 30 ngày; mã OTP trong Redis tự hết hạn; thông báo đã đọc quá 180 ngày.
+- Được xóa cứng: phiên hết hạn quá 90 ngày; mã dùng một lần đã dùng hoặc hết hạn quá 30 ngày; mã OTP đăng nhập lưu bảng `otp_codes` (CONG_VIEC_03), chưa có tác vụ xóa định kỳ; thông báo đã đọc quá 180 ngày.
 - Lưu giữ: nhật ký thao tác tối thiểu 10 năm (QUYTAC_NGHIEPVU_30); nhật ký đăng nhập 2 năm; partition nhật ký thao tác tạo trước mỗi tháng bằng tác vụ nền.
 - Lịch sử thay đổi: mọi thay đổi bảng nghiệp vụ ghi `audit_events` (dữ liệu trước và sau); cột `version` chống ghi đè đồng thời.
 
@@ -565,4 +567,137 @@ INSERT INTO core.apps (code, name_vi, name_en, base_url, icon, sort_order) VALUE
     ('finance',    'Tài chính - Kế toán', 'Finance & Accounting', '/finance', 'calculator', 60),
     ('crm',        'Khách hàng & Đối tác', 'Customers & Partners', '/crm',    'users',     70),
     ('hr',         'Nhân sự',           'Human Resources',    '/hr',         'id-card',   80);
+```
+
+## 5. Database migration 0002 – CONG_VIEC_03
+
+Tệp `database/migrations/0002_cong_viec_03.sql` thêm 6 bảng vào schema `core`, không đổi bảng đã có (THAY_DOI_04, THAY_DOI_08). `core.user_identities` dùng lại: với `provider = 'phone_otp'`, `provider_subject` là số điện thoại dạng `+84...`, gắn khi đăng nhập bằng mã OTP lần đầu.
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `integration_settings` | Cài đặt tích hợp (CHUC_NANG_25; QUYTAC_NGHIEPVU_31) | `setting_key` (khóa chính: `google.client_id`, `esms.secret_key`...), `plain_value` (giá trị thường), `secret_value` (giá trị bí mật mã hóa AES-256-GCM), `updated_at`, `updated_by` | Chỉ một trong hai cột giá trị có dữ liệu; khóa cài đặt hợp lệ do `packages/contracts` khai báo |
+| `otp_codes` | Mã OTP đăng nhập bằng số điện thoại (CHUC_NANG_08; QUYTAC_NGHIEPVU_10) | `phone` (`+84...`), `code_hash` (SHA-256 của mã), `expires_at` (5 phút), `wrong_attempts`, `consumed_at`, `created_at` | Chỉ mục `(phone, created_at DESC)` để đếm số lần gửi trong một giờ; sai 5 lần thì đặt `consumed_at` |
+| `message_deliveries` | Nhật ký gửi tin qua eSMS.vn (QUYTAC_NGHIEPVU_32) | `channel` (`zns`, `zns_sms` = Zalo rồi SMS, `sms`), `purpose` (`login_otp`, `approval.assigned`, `approval.reminder`, `approval.completed`), `user_id`, `phone_masked` (`+8490***4567`), `template_id`, `status` (`sent`, `failed`, `skipped`), `provider_message_id` (mã tin eSMS), `error`, `created_at` | Kiểm tra giá trị `channel`, `status`; chỉ mục `created_at DESC`. Không lưu nội dung mã OTP |
+| `proposal_templates` | Mẫu đề xuất (CHUC_NANG_27; QUYTAC_NGHIEPVU_33) | `company_id`, `code`, `name`, `description`, `document_type_code`, `fields` (JSON: `key`, `label`, `type`, `required`, `options`, `columns`), `amount_field` (trống = tổng thành tiền bảng chi tiết), `currency`, `status` (`active`, `inactive`), cột người tạo, người sửa, `version` | Duy nhất `(company_id, code)`; `document_type_code` duy nhất, tham chiếu `document_types`; `currency` tham chiếu `currencies` |
+| `proposals` | Đề xuất (CHUC_NANG_28; QUYTAC_NGHIEPVU_33, QUYTAC_NGHIEPVU_34) | `company_id`, `template_id`, `template_snapshot` (JSON, bản chụp mẫu lúc lập), `document_type_code`, `proposal_no` (cấp khi gửi), `title`, `field_values` (JSON), `amount` (giá trị duyệt, `numeric(20,4)` không âm), `currency`, `status` (`draft`, `pending`, `approved`, `rejected`, `withdrawn`), `approval_request_id`, `requested_by`, `created_at`, `updated_at`, `submitted_at`, `completed_at`, `version` | Duy nhất `(company_id, proposal_no)`; chỉ mục `(requested_by, created_at DESC)`, `(company_id, created_at DESC)` |
+| `attachments` | Tệp đính kèm (QUYTAC_NGHIEPVU_35) | `company_id`, `owner_type` (hiện chỉ `proposal`), `owner_id`, `file_name`, `content_type`, `size_bytes` (lớn hơn 0), `storage_key` (khóa lưu trữ do hệ thống sinh, không chứa tên tệp người dùng), `uploaded_by`, `created_at` | `storage_key` duy nhất; chỉ mục `(owner_type, owner_id)`. Nội dung tệp lưu S3 khi `STORAGE_DRIVER=s3`, thư mục cục bộ khi phát triển, kiểm thử |
+
+Quy tắc xóa và lưu giữ bổ sung:
+- Đề xuất nháp được xóa cứng cùng tệp đính kèm (QUYTAC_NGHIEPVU_34); đề xuất đã gửi không xóa. Tệp đính kèm được xóa cứng khi đề xuất còn Nháp.
+- `integration_settings`: xóa dòng khi quản trị xóa giá trị; mọi lần lưu ghi `audit_events` (khóa bí mật chỉ ghi 4 ký tự cuối).
+- `otp_codes`, `message_deliveries`: chưa có tác vụ dọn định kỳ.
+
+```mermaid
+erDiagram
+    users ||--o{ integration_settings : "sửa"
+    users ||--o{ message_deliveries : nhận
+    companies ||--o{ proposal_templates : có
+    document_types ||--|| proposal_templates : "loại chứng từ của mẫu"
+    proposal_templates ||--o{ proposals : "theo"
+    users ||--o{ proposals : "lập"
+    approval_requests |o--o| proposals : "yêu cầu duyệt"
+    proposals ||--o{ attachments : "đính kèm"
+```
+
+Lược đồ (chép từ tệp `database/migrations/0002_cong_viec_03.sql`):
+
+```sql
+-- CONG_VIEC_03: Cài đặt tích hợp, mã OTP qua số điện thoại, nhật ký gửi tin, mẫu đề xuất, đề xuất, tệp đính kèm (tài liệu 16).
+
+-- Cài đặt tích hợp (CHUC_NANG_25; QUYTAC_NGHIEPVU_31): giá trị thường hoặc giá trị bí mật đã mã hóa AES-256-GCM.
+CREATE TABLE core.integration_settings (
+    setting_key     text        PRIMARY KEY,                -- 'google.client_id', 'esms.secret_key'...
+    plain_value     text,
+    secret_value    bytea,
+    updated_at      timestamptz NOT NULL DEFAULT now(),
+    updated_by      uuid        REFERENCES core.users(id),
+    CHECK (plain_value IS NULL OR secret_value IS NULL)
+);
+
+-- Mã OTP đăng nhập bằng số điện thoại (CHUC_NANG_08; QUYTAC_NGHIEPVU_10): hiệu lực 5 phút, tối đa 5 lần nhập sai.
+CREATE TABLE core.otp_codes (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    phone           text        NOT NULL,                   -- dạng +84...
+    code_hash       text        NOT NULL,                   -- SHA-256 của mã
+    expires_at      timestamptz NOT NULL,
+    wrong_attempts  smallint    NOT NULL DEFAULT 0,
+    consumed_at     timestamptz,
+    created_at      timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX otp_codes_phone_idx ON core.otp_codes (phone, created_at DESC);
+
+-- Nhật ký gửi tin Zalo ZNS, SMS qua eSMS.vn (QUYTAC_NGHIEPVU_32). Không lưu nội dung mã OTP.
+CREATE TABLE core.message_deliveries (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    channel             text        NOT NULL CHECK (channel IN ('zns', 'zns_sms', 'sms')),
+    purpose             text        NOT NULL,               -- 'login_otp', 'approval.assigned'...
+    user_id             uuid        REFERENCES core.users(id),
+    phone_masked        text        NOT NULL,               -- +8490***4567
+    template_id         text,
+    status              text        NOT NULL CHECK (status IN ('sent', 'failed', 'skipped')),
+    provider_message_id text,
+    error               text,
+    created_at          timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX message_deliveries_created_idx ON core.message_deliveries (created_at DESC);
+
+-- Mẫu đề xuất (CHUC_NANG_27; QUYTAC_NGHIEPVU_33): mỗi mẫu là một loại chứng từ cần duyệt của công ty.
+CREATE TABLE core.proposal_templates (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    code                text        NOT NULL,               -- 'PC', 'TU', 'MS'...
+    name                text        NOT NULL,
+    description         text,
+    document_type_code  text        NOT NULL UNIQUE REFERENCES core.document_types(code),
+    fields              jsonb       NOT NULL,               -- danh sách trường: key, label, type, required, options, columns
+    amount_field        text,                               -- khóa trường tiền dùng làm giá trị duyệt; NULL = tổng thành tiền bảng chi tiết
+    currency            char(3)     NOT NULL DEFAULT 'VND' REFERENCES core.currencies(code),
+    status              text        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    created_by          uuid,
+    updated_at          timestamptz NOT NULL DEFAULT now(),
+    updated_by          uuid,
+    version             integer     NOT NULL DEFAULT 1,
+    UNIQUE (company_id, code)
+);
+
+-- Đề xuất (CHUC_NANG_28; QUYTAC_NGHIEPVU_33, 34).
+CREATE TABLE core.proposals (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    template_id         uuid        NOT NULL REFERENCES core.proposal_templates(id),
+    template_snapshot   jsonb       NOT NULL,               -- bản chụp mẫu lúc lập, không đổi khi mẫu bị sửa
+    document_type_code  text        NOT NULL REFERENCES core.document_types(code),
+    proposal_no         text,                               -- cấp khi gửi
+    title               text        NOT NULL,
+    field_values        jsonb       NOT NULL DEFAULT '{}'::jsonb,
+    amount              numeric(20,4) NOT NULL DEFAULT 0 CHECK (amount >= 0),
+    currency            char(3)     NOT NULL REFERENCES core.currencies(code),
+    status              text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'approved', 'rejected', 'withdrawn')),
+    approval_request_id uuid        REFERENCES core.approval_requests(id),
+    requested_by        uuid        NOT NULL REFERENCES core.users(id),
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    updated_at          timestamptz NOT NULL DEFAULT now(),
+    submitted_at        timestamptz,
+    completed_at        timestamptz,
+    version             integer     NOT NULL DEFAULT 1,
+    UNIQUE (company_id, proposal_no)
+);
+CREATE INDEX proposals_requester_idx ON core.proposals (requested_by, created_at DESC);
+CREATE INDEX proposals_company_idx ON core.proposals (company_id, created_at DESC);
+
+-- Tệp đính kèm (QUYTAC_NGHIEPVU_35): nội dung lưu S3 hoặc thư mục cục bộ theo khóa lưu trữ.
+CREATE TABLE core.attachments (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id      uuid        NOT NULL REFERENCES core.companies(id),
+    owner_type      text        NOT NULL CHECK (owner_type IN ('proposal')),
+    owner_id        uuid        NOT NULL,
+    file_name       text        NOT NULL,
+    content_type    text        NOT NULL,
+    size_bytes      integer     NOT NULL CHECK (size_bytes > 0),
+    storage_key     text        NOT NULL UNIQUE,
+    uploaded_by     uuid        NOT NULL REFERENCES core.users(id),
+    created_at      timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX attachments_owner_idx ON core.attachments (owner_type, owner_id);
 ```
