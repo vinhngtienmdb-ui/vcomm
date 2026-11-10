@@ -5,6 +5,7 @@ import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { commissionPercent } from "../src/commission/commission-rules";
+import { OutboxService } from "../src/common/outbox.service";
 import { PermissionService } from "../src/permissions/permission.service";
 import { createTestUser, signIn, type Session } from "./helpers";
 import { startTestApplication } from "./setup-database";
@@ -328,5 +329,136 @@ describe("TIEUCHI_NGHIEMTHU_129: phát sinh hoa hồng", () => {
     expect(commissionPercent(settings, "other", "kenh-a")).toBe(1);
     expect(commissionPercent({ ...settings, combination: "channel_factor" }, "child", "kenh-b")).toBe(8);
     expect(commissionPercent({ ...settings, combination: "channel_factor" }, "child", "kenh-a")).toBe(4);
+  });
+});
+
+type Statement = {
+  id: string;
+  month: string;
+  status: string;
+  documentNo: string | null;
+  totalAmount: string;
+  version: number;
+  lines: { userId: string; baseAmount: string; commissionBefore: string; targetAmount: string | null; achievedPercent: string | null; multiplier: string; amount: string }[];
+};
+const statements = async () => (await call(accountant, "get", "/finance/commissions/statements")).body as { statements: Statement[]; nextMonth: string | null; canCreate: boolean };
+
+describe("TIEUCHI_NGHIEMTHU_130: bảng hoa hồng tháng", () => {
+  it("KICHBAN_KIEMTHU_239: lập lần lượt theo tháng; cơ sở, phần trăm đạt, hệ số; bỏ bảng nháp trả phát sinh; ghi sổ có bút toán chi phí, phải trả người lao động", async () => {
+    await call(chief, "post", "/finance/ledger/setup");
+    const sellerId = await userIdOf("banhang.hh@vcomm.test");
+    // Phát sinh các kịch bản trước (ngày hôm nay) dời về tháng 9 để lập bảng.
+    await pool.query("UPDATE finance.commission_events SET event_date = '2026-09-15' WHERE company_id = $1", [retail]);
+    const events = (
+      await pool.query<{ base: string; amount: string }>("SELECT sum(base_amount)::text AS base, sum(amount)::text AS amount FROM finance.commission_events WHERE company_id = $1 AND user_id = $2", [
+        retail,
+        sellerId,
+      ])
+    ).rows[0]!;
+    await saveSettings({
+      assignment: "order_creator",
+      tiers: [
+        { fromPercent: "0", multiplier: "0.5" },
+        { fromPercent: "100", multiplier: "1.2" },
+      ],
+    });
+    await call(chief, "put", "/finance/commission-targets", { month: "2026-09", targets: [{ userId: sellerId, amount: String(Number(events.base) / 2) }] });
+    const listed = await statements();
+    expect(listed).toMatchObject({ nextMonth: "2026-09", canCreate: true });
+    expect((await call(accountant, "post", "/finance/commissions/statements", { month: "2026-10" })).status).toBe(409);
+    expect((await call(seller, "post", "/finance/commissions/statements", { month: "2026-09" })).status).toBe(403);
+    const draft = await call(accountant, "post", "/finance/commissions/statements", { month: "2026-09" });
+    expect(draft.status, JSON.stringify(draft.body)).toBe(201);
+    expect(draft.body.lines).toEqual([
+      expect.objectContaining({
+        userId: sellerId,
+        baseAmount: String(Number(events.base)),
+        commissionBefore: String(Number(events.amount)),
+        achievedPercent: "200",
+        multiplier: "1.2",
+        amount: String(Math.round(Number(events.amount) * 1.2)),
+      }),
+    ]);
+    expect((await call(accountant, "post", "/finance/commissions/statements", { month: "2026-09" })).status).toBe(409);
+    // Bỏ bảng nháp: phát sinh trả về, lập lại được.
+    expect((await call(accountant, "delete", `/finance/commissions/statements/${draft.body.id}`)).status).toBe(200);
+    expect((await pool.query("SELECT 1 FROM finance.commission_events WHERE statement_id IS NOT NULL")).rowCount).toBe(0);
+    const again = await call(accountant, "post", "/finance/commissions/statements", { month: "2026-09" });
+    const posted = await call(accountant, "post", `/finance/commissions/statements/${again.body.id}/submit`, { version: again.body.version });
+    expect(posted.status, JSON.stringify(posted.body)).toBe(201);
+    expect(posted.body).toMatchObject({ status: "posted", documentNo: expect.stringMatching(/^HH/) });
+    const journal = await pool.query<{ code: string; debit: string; credit: string }>(
+      `SELECT a.code, l.debit::text, l.credit::text FROM accounting.journals j JOIN accounting.journal_lines l ON l.journal_id = j.id JOIN accounting.accounts a ON a.id = l.account_id
+       WHERE j.source_type = 'commission' AND j.source_id = $1 ORDER BY l.line_no`,
+      [again.body.id],
+    );
+    const total = Number(posted.body.totalAmount);
+    expect(journal.rows.map((row) => [row.code, Number(row.debit), Number(row.credit)])).toEqual([
+      ["6411", total, 0],
+      ["334", 0, total],
+    ]);
+    const eventList = (await call(accountant, "get", "/finance/commissions/events?pageSize=100")).body.data as { statementNo: string | null }[];
+    expect(eventList.every((event) => event.statementNo === posted.body.documentNo)).toBe(true);
+  });
+
+  it("KICHBAN_KIEMTHU_240: phát sinh của tháng đã chốt về sau (hoàn tiền) vào bảng kỳ sau; tháng chưa kết thúc không lập; bị từ chối trả phát sinh, lập lại được", async () => {
+    // Hoàn tiền phát sinh sau khi đã chốt tháng 9, ghi ngày tháng 9: vào bảng tháng 10 (tháng 10 không có chỉ tiêu: hệ số 1).
+    const order = (
+      await pool.query<{ order_id: string; user_id: string; order_line_id: string; document_id: string }>("SELECT order_id, user_id, order_line_id, document_id FROM finance.commission_events LIMIT 1")
+    ).rows[0]!;
+    await pool.query(
+      `INSERT INTO finance.commission_events (company_id, user_id, order_id, source_type, source_id, document_id, order_line_id, event_date, base_amount, percent, amount)
+       VALUES ($1, $2, $3, 'refund', gen_random_uuid(), $4, $5, '2026-09-20', -10000, 3, -300)`,
+      [retail, order.user_id, order.order_id, order.document_id, order.order_line_id],
+    );
+    expect((await statements()).nextMonth).toBe("2026-10");
+    await admin.call("post", "/approval-policies", {
+      companyId: retail,
+      body: {
+        documentTypeCode: "finance.commission",
+        currency: "VND",
+        effectiveFrom: "2026-01-01",
+        levels: [{ levelNo: 1, minAmount: "0", approver: { type: "user", userId: testIds.purchasingManager }, substitute: { type: "user", userId: testIds.retailAdmin }, dueHours: 8 }],
+      },
+    });
+    const october = await call(accountant, "post", "/finance/commissions/statements", { month: "2026-10" });
+    expect(october.body).toMatchObject({ totalAmount: "-300", eventCount: 1 });
+    expect(october.body.lines).toEqual([expect.objectContaining({ baseAmount: "-10000", commissionBefore: "-300", multiplier: "1", amount: "-300" })]);
+    const pending = await call(accountant, "post", `/finance/commissions/statements/${october.body.id}/submit`, { version: october.body.version });
+    expect(pending.body).toMatchObject({ status: "pending", canWithdraw: true });
+    expect((await statements()).canCreate).toBe(false);
+    // Người duyệt được giao (người duyệt chính hoặc người thay thế).
+    const approverOf = async (requestId: string) => {
+      const assigned = (await pool.query<{ assigned_user_id: string }>("SELECT assigned_user_id FROM core.approval_steps WHERE request_id = $1 ORDER BY level_no LIMIT 1", [requestId])).rows[0]!
+        .assigned_user_id;
+      return assigned === testIds.retailAdmin ? admin : signIn(application, "phuc.le@vcomm.test");
+    };
+    const requestId = (await pool.query<{ approval_request_id: string }>("SELECT approval_request_id FROM finance.commission_statements WHERE id = $1", [october.body.id])).rows[0]!
+      .approval_request_id;
+    const decided = await (await approverOf(requestId)).call("post", `/approval-requests/${requestId}/decisions`, { body: { decision: "rejected", comment: "Xem lại" } });
+    expect(decided.status, JSON.stringify(decided.body)).toBe(200);
+    await application.get(OutboxService).dispatchPending();
+    expect((await call(accountant, "get", `/finance/commissions/statements/${october.body.id}`)).body.status).toBe("rejected");
+    expect((await pool.query("SELECT 1 FROM finance.commission_events WHERE statement_id IS NULL")).rowCount).toBe(1);
+    // Lập lại, duyệt: bút toán đảo bên khi tổng âm.
+    const retry = await call(accountant, "post", "/finance/commissions/statements", { month: "2026-10" });
+    await call(accountant, "post", `/finance/commissions/statements/${retry.body.id}/submit`, { version: retry.body.version });
+    const retryRequest = (await pool.query<{ approval_request_id: string }>("SELECT approval_request_id FROM finance.commission_statements WHERE id = $1", [retry.body.id])).rows[0]!
+      .approval_request_id;
+    await (await approverOf(retryRequest)).call("post", `/approval-requests/${retryRequest}/decisions`, { body: { decision: "approved", comment: "Đồng ý" } });
+    await application.get(OutboxService).dispatchPending();
+    expect((await call(accountant, "get", `/finance/commissions/statements/${retry.body.id}`)).body.status).toBe("posted");
+    const journal = await pool.query<{ code: string; debit: string; credit: string }>(
+      `SELECT a.code, l.debit::text, l.credit::text FROM accounting.journals j JOIN accounting.journal_lines l ON l.journal_id = j.id JOIN accounting.accounts a ON a.id = l.account_id
+       WHERE j.source_type = 'commission' AND j.source_id = $1 ORDER BY l.line_no`,
+      [retry.body.id],
+    );
+    expect(journal.rows.map((row) => [row.code, Number(row.debit), Number(row.credit)])).toEqual([
+      ["334", 300, 0],
+      ["6411", 0, 300],
+    ]);
+    // Tháng hiện tại chưa kết thúc.
+    expect((await statements()).nextMonth).toBeNull();
+    expect((await call(accountant, "post", "/finance/commissions/statements", { month: today.slice(0, 7) })).status).toBe(409);
   });
 });

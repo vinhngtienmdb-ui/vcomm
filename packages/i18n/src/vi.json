@@ -239,7 +239,9 @@
     "einvoiceReplacementPending": "Hóa đơn đang có hóa đơn thay thế chưa phát hành.",
     "commissionTierStart": "Bậc đầu tiên phải bắt đầu từ 0%.",
     "commissionTierDuplicate": "Hai bậc trùng phần trăm bắt đầu.",
-    "commissionRateDuplicate": "Ngành hàng và kênh này đã có mức."
+    "commissionRateDuplicate": "Ngành hàng và kênh này đã có mức.",
+    "commissionStatementOpen": "Đang có bảng hoa hồng nháp hoặc chờ duyệt; xử lý bảng đó trước.",
+    "commissionMonthNotNext": "Chỉ lập được bảng của tháng tiếp theo đã kết thúc."
   },
   "login": {
     "title": "Đăng nhập",
@@ -2636,6 +2638,36 @@
     "source_receipt": "Thu tiền",
     "source_refund": "Hoàn tiền trả hàng",
     "source_retail_delivery": "Bán lẻ giao hàng",
-    "source_retail_return": "Bán lẻ trả hàng"
+    "source_retail_return": "Bán lẻ trả hàng",
+    "tab_statements": "Bảng hoa hồng",
+    "tab_events": "Phát sinh",
+    "month": "Tháng",
+    "documentNo": "Số",
+    "statementStatus": "Trạng thái",
+    "total": "Tổng hoa hồng",
+    "status_draft": "Nháp",
+    "status_pending": "Chờ duyệt",
+    "status_posted": "Đã ghi sổ",
+    "status_rejected": "Bị từ chối",
+    "status_withdrawn": "Đã rút",
+    "nextMonth": "Tháng tiếp theo cần chốt: {month}",
+    "noNextMonth": "Chưa có tháng nào cần chốt.",
+    "createStatement": "Lập bảng tháng {month}",
+    "statementCreated": "Đã lập bảng hoa hồng tháng {month}.",
+    "noStatements": "Chưa có bảng hoa hồng.",
+    "statementTitle": "Bảng hoa hồng tháng {month} ({count} phát sinh)",
+    "submit": "Gửi",
+    "discard": "Bỏ bảng nháp",
+    "withdraw": "Rút",
+    "close": "Đóng",
+    "commissionBefore": "Hoa hồng trước hệ số",
+    "target": "Chỉ tiêu",
+    "achieved": "Đạt",
+    "multiplier": "Hệ số",
+    "noTarget": "Không có",
+    "discarded": "Đã bỏ bảng nháp.",
+    "withdrawn": "Đã rút bảng hoa hồng.",
+    "posted": "Đã ghi sổ bảng hoa hồng.",
+    "submitted": "Đã gửi duyệt bảng hoa hồng."
   }
 }

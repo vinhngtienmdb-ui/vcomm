@@ -239,7 +239,9 @@
     "einvoiceReplacementPending": "A replacement for this invoice is still being issued.",
     "commissionTierStart": "The first tier must start at 0%.",
     "commissionTierDuplicate": "Two tiers start at the same percent.",
-    "commissionRateDuplicate": "This category and channel already have a rate."
+    "commissionRateDuplicate": "This category and channel already have a rate.",
+    "commissionStatementOpen": "A draft or pending commission statement exists; finish it first.",
+    "commissionMonthNotNext": "Only the next finished month can be closed."
   },
   "login": {
     "title": "Sign in",
@@ -2636,6 +2638,36 @@
     "source_receipt": "Receipt",
     "source_refund": "Refund",
     "source_retail_delivery": "Retail delivery",
-    "source_retail_return": "Retail return"
+    "source_retail_return": "Retail return",
+    "tab_statements": "Statements",
+    "tab_events": "Entries",
+    "month": "Month",
+    "documentNo": "Number",
+    "statementStatus": "Status",
+    "total": "Total commission",
+    "status_draft": "Draft",
+    "status_pending": "Pending",
+    "status_posted": "Posted",
+    "status_rejected": "Rejected",
+    "status_withdrawn": "Withdrawn",
+    "nextMonth": "Next month to close: {month}",
+    "noNextMonth": "No month to close yet.",
+    "createStatement": "Create statement for {month}",
+    "statementCreated": "Commission statement for {month} created.",
+    "noStatements": "No commission statements.",
+    "statementTitle": "Commission statement {month} ({count} entries)",
+    "submit": "Submit",
+    "discard": "Discard draft",
+    "withdraw": "Withdraw",
+    "close": "Close",
+    "commissionBefore": "Before multiplier",
+    "target": "Target",
+    "achieved": "Achieved",
+    "multiplier": "Multiplier",
+    "noTarget": "None",
+    "discarded": "Draft discarded.",
+    "withdrawn": "Statement withdrawn.",
+    "posted": "Statement posted.",
+    "submitted": "Statement submitted for approval."
   }
 }

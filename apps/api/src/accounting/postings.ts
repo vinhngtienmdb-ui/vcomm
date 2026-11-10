@@ -21,7 +21,9 @@ export type PostingRole =
   | "surplus_pending"
   | "opening_offset"
   | "income_summary"
-  | "retained_earnings";
+  | "retained_earnings"
+  | "commission_expense"
+  | "staff_payable";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -41,6 +43,8 @@ export const postingRoles: PostingRole[] = [
   "opening_offset",
   "income_summary",
   "retained_earnings",
+  "commission_expense",
+  "staff_payable",
 ];
 
 export interface DraftLine {
@@ -51,7 +55,7 @@ export interface DraftLine {
 }
 export interface DraftJournal {
   companyId: string;
-  sourceType: "inventory_document" | "payment" | "internal_write_off";
+  sourceType: "inventory_document" | "payment" | "internal_write_off" | "commission";
   sourceId: string;
   journalNo: string;
   date: string;

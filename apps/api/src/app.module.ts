@@ -63,6 +63,7 @@ import { LedgerController } from "./accounting/ledger.controller";
 import { JournalsService } from "./accounting/journals.service";
 import { LedgerReportsService } from "./accounting/ledger-reports.service";
 import { StatementsService } from "./accounting/statements.service";
+import { CommissionStatementsService } from "./commission/commission-statements.service";
 import { CommissionsController } from "./commission/commissions.controller";
 import { CommissionsService } from "./commission/commissions.service";
 import { EinvoiceCorrectionsService } from "./einvoice/einvoice-corrections.service";
@@ -145,6 +146,7 @@ import { UsersService } from "./users/users.service";
     EinvoicesService,
     EinvoiceCorrectionsService,
     CommissionsService,
+    CommissionStatementsService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

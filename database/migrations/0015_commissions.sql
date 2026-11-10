@@ -98,3 +98,4 @@ CREATE INDEX commission_events_user_idx ON finance.commission_events (company_id
 CREATE INDEX commission_events_statement_idx ON finance.commission_events (statement_id);
 -- Mỗi lần trừ nợ (hoặc phiếu kho bán lẻ) ghi một lần cho mỗi dòng đơn.
 CREATE UNIQUE INDEX commission_events_source_idx ON finance.commission_events (source_type, source_id, order_line_id);
+

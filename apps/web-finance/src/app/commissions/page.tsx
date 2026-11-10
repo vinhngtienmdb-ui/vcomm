@@ -1,21 +1,30 @@
 "use client";
 
-// MAN_HINH_56 Hoa hồng (CHUC_NANG_82, 83; API_94): thẻ phát sinh lọc khoảng ngày.
+// MAN_HINH_56 Hoa hồng (CHUC_NANG_82, 83; API_94): thẻ bảng hoa hồng tháng, thẻ phát sinh lọc khoảng ngày.
 import type { CommissionEventItem, PageResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { CommissionStatements } from "@/components/CommissionStatements";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { formatDate, formatNumber } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
 
 export default function CommissionsPage() {
   const t = useTranslations("commissions");
+  const [tab, setTab] = useState<"statements" | "events">("statements");
   return (
     <>
       <div className="tieu-de">
         <h1>{t("title")}</h1>
       </div>
-      <CommissionEvents />
+      <div className="cac-the" role="tablist">
+        {(["statements", "events"] as const).map((key) => (
+          <button key={key} type="button" role="tab" aria-selected={tab === key} className={tab === key ? "chon" : ""} onClick={() => setTab(key)}>
+            {t(`tab_${key}`)}
+          </button>
+        ))}
+      </div>
+      {tab === "statements" ? <CommissionStatements /> : <CommissionEvents />}
     </>
   );
 }

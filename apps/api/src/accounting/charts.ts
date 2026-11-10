@@ -350,6 +350,8 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     opening_offset: "3388",
     income_summary: "911",
     retained_earnings: "4212",
+    commission_expense: "6411",
+    staff_payable: "334",
   },
   TT133: {
     receivable: "131",
@@ -370,6 +372,8 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     opening_offset: "3388",
     income_summary: "911",
     retained_earnings: "4212",
+    commission_expense: "6421",
+    staff_payable: "334",
   },
 };
 
@@ -392,4 +396,6 @@ export const roleDescriptions: Record<PostingRole, string> = {
   opening_offset: "Đối ứng nhập tồn kho đầu kỳ",
   income_summary: "Xác định kết quả kinh doanh",
   retained_earnings: "Lợi nhuận chưa phân phối năm nay",
+  commission_expense: "Chi phí hoa hồng nhân viên bán hàng",
+  staff_payable: "Phải trả người lao động",
 };

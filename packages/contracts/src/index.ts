@@ -3331,3 +3331,38 @@ export interface CommissionEventItem {
   amount: string;
   statementNo: string | null;
 }
+export const commissionStatementStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
+export type CommissionStatementStatus = (typeof commissionStatementStatuses)[number];
+export const createCommissionStatementSchema = z.object({ month: monthText }).strict();
+export interface CommissionStatementListItem {
+  id: string;
+  month: string;
+  documentNo: string | null;
+  status: CommissionStatementStatus;
+  totalAmount: string;
+  postError: string | null;
+}
+export interface CommissionStatementsResponse {
+  statements: CommissionStatementListItem[];
+  nextMonth: string | null;
+  canCreate: boolean;
+  canManage: boolean;
+  currency: string;
+}
+export interface CommissionStatementResponse extends CommissionStatementListItem {
+  lines: {
+    userId: string;
+    fullName: string;
+    baseAmount: string;
+    commissionBefore: string;
+    targetAmount: string | null;
+    achievedPercent: string | null;
+    multiplier: string;
+    amount: string;
+  }[];
+  eventCount: number;
+  currency: string;
+  canManage: boolean;
+  canWithdraw: boolean;
+  version: number;
+}
