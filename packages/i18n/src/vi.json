@@ -272,7 +272,12 @@
     "assignmentTargetInactive": "Nhân viên nhận đã ngừng làm việc ở công ty.",
     "visitTooManyPhotos": "Tối đa 3 ảnh mỗi lượt ghé thăm.",
     "visitPhotoTooLarge": "Ảnh vượt quá 5 MB.",
-    "visitPhotoTypeInvalid": "Ảnh phải là JPEG hoặc PNG."
+    "visitPhotoTypeInvalid": "Ảnh phải là JPEG hoặc PNG.",
+    "phoneTaken": "Số điện thoại đã có tài khoản. Hãy đăng nhập.",
+    "referralCodeInvalid": "Mã giới thiệu không đúng.",
+    "referralSelf": "Không dùng được mã giới thiệu của chính mình.",
+    "referralCycle": "Không chọn được người mà chính bạn đã giới thiệu.",
+    "referrerAlreadySet": "Tài khoản đã có người giới thiệu."
   },
   "login": {
     "title": "Đăng nhập",

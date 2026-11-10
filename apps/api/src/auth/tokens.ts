@@ -2,7 +2,7 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
 export const accessTokenLifetimeSeconds = 15 * 60;
-export const refreshTokenLifetimeDays = { web: 30, warehouse_app: 90, sales_app: 90 } as const;
+export const refreshTokenLifetimeDays = { web: 30, warehouse_app: 90, sales_app: 90, vcomm_app: 90 } as const;
 
 export interface AccessTokenPayload {
   sessionId: string;

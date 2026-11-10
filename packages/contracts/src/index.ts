@@ -3854,3 +3854,98 @@ export interface VisitItem {
   photoIds: string[];
 }
 
+
+// CONG_VIEC_23: tài khoản người mua VComm (API_116 đến 119; QUYTAC_NGHIEPVU_141 đến 147).
+const vietnamPhone = z
+  .string()
+  .trim()
+  .transform(normalizePhone)
+  .pipe(z.string().regex(/^\+84\d{9}$/));
+const otpCode = z.string().trim().regex(/^\d{6}$/);
+const referralCode = z.string().trim().max(20);
+
+export const buyerPhoneSchema = z.object({ phone: vietnamPhone }).strict();
+export const buyerRegisterSchema = z
+  .object({ phone: vietnamPhone, code: otpCode, fullName: z.string().trim().min(1).max(100), password: z.string().max(256), referralCode: referralCode.nullable().optional() })
+  .strict();
+export const buyerLoginSchema = z.object({ phone: vietnamPhone, password: z.string().min(1).max(256) }).strict();
+export const buyerOtpVerifySchema = z.object({ phone: vietnamPhone, code: otpCode }).strict();
+export const buyerPasswordResetSchema = z.object({ phone: vietnamPhone, code: otpCode, password: z.string().max(256) }).strict();
+export const buyerSetReferrerSchema = z.object({ referralCode: referralCode.min(1) }).strict();
+export const buyerChangeReferrerSchema = z.object({ referralCode: referralCode.nullable(), reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
+export const buyerSalesFlagSchema = z.object({ departmentId: z.uuid(), version: z.number().int().min(1) }).strict();
+export const buyerSalesUnflagSchema = z.object({ version: z.number().int().min(1) }).strict();
+export const buyerListQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    salesStaff: z.enum(["true", "false"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+// Người giới thiệu, người được giới thiệu chỉ hiện số điện thoại đã che (QUYTAC_NGHIEPVU_146).
+export interface BuyerPersonMasked {
+  fullName: string;
+  maskedPhone: string;
+}
+
+export interface BuyerMeResponse {
+  id: string;
+  fullName: string;
+  phone: string;
+  referralCode: string;
+  registeredAt: string;
+  referrer: BuyerPersonMasked | null;
+  canSetReferrer: boolean;
+  isSalesStaff: boolean;
+}
+
+export interface BuyerReferralItem extends BuyerPersonMasked {
+  registeredAt: string;
+}
+
+export interface BuyerSalesCustomerItem {
+  id: string;
+  fullName: string;
+  phone: string;
+  registeredAt: string;
+}
+
+export interface BuyerAccountListItem {
+  id: string;
+  fullName: string;
+  phone: string;
+  status: string;
+  registeredAt: string;
+  referrerName: string | null;
+  referrerPhone: string | null;
+  isSalesStaff: boolean;
+  referralCount: number;
+}
+
+export interface BuyerReferrerHistoryItem {
+  previousReferrerName: string | null;
+  newReferrerName: string | null;
+  source: "registration" | "self" | "admin";
+  reason: string | null;
+  changedByName: string;
+  changedAt: string;
+}
+
+export interface BuyerSalesFlagHistoryItem {
+  action: "flag" | "unflag";
+  departmentName: string | null;
+  changedByName: string;
+  changedAt: string;
+}
+
+export interface BuyerAccountDetailResponse extends BuyerAccountListItem {
+  version: number;
+  referrerId: string | null;
+  salesDepartmentId: string | null;
+  salesDepartmentName: string | null;
+  referrerHistory: BuyerReferrerHistoryItem[];
+  salesFlagHistory: BuyerSalesFlagHistoryItem[];
+  referrals: Array<{ id: string; fullName: string; phone: string; registeredAt: string }>;
+}

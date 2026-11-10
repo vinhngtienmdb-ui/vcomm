@@ -117,8 +117,8 @@ export class AuthService {
   }
 
   // Đổi token làm mới mỗi lần dùng; dùng lại token cũ thì thu hồi cả chuỗi phiên (tài liệu 22 mục 3).
-  // onlyClientType: ứng dụng di động gửi token làm mới trong thân yêu cầu, chỉ làm mới được phiên của ứng dụng (CONG_VIEC_22).
-  async refresh(refreshToken: string, client: ClientInfo, onlyClientType?: SessionClientType): Promise<IssuedSession> {
+  // appOnly: ứng dụng di động gửi token làm mới trong thân yêu cầu, chỉ làm mới được phiên của ứng dụng (CONG_VIEC_22, 23).
+  async refresh(refreshToken: string, client: ClientInfo, appOnly = false): Promise<IssuedSession> {
     const now = client.now ?? new Date();
     const found = await this.database
       .select()
@@ -127,22 +127,33 @@ export class AuthService {
       .limit(1);
     const current = found[0];
     if (!current) throw new ApiError("UNAUTHENTICATED", "unauthenticated");
-    if (onlyClientType && current.clientType !== onlyClientType) throw new ApiError("UNAUTHENTICATED", "unauthenticated");
-    if (current.revokedAt) {
-      await this.database
-        .update(sessions)
-        .set({ revokedAt: now })
-        .where(and(eq(sessions.familyId, current.familyId), isNull(sessions.revokedAt)));
-      throw new ApiError("UNAUTHENTICATED", "unauthenticated");
-    }
+    if (appOnly && current.clientType === "web") throw new ApiError("UNAUTHENTICATED", "unauthenticated");
+    if (current.revokedAt) await this.revokeFamily(current.familyId, now);
     if (current.expiresAt <= now) throw new ApiError("UNAUTHENTICATED", "unauthenticated");
     const active = await this.database.select({ status: users.status }).from(users).where(eq(users.id, current.userId));
     if (active[0]?.status !== "active") throw new ApiError("UNAUTHENTICATED", "unauthenticated");
 
-    return this.database.transaction(async (transaction) => {
-      await transaction.update(sessions).set({ revokedAt: now }).where(eq(sessions.id, current.id));
+    // Hai yêu cầu làm mới cùng một token cùng lúc: chỉ yêu cầu thu hồi được dòng phiên mới được cấp phiên mới,
+    // yêu cầu còn lại bị coi là dùng lại token và thu hồi cả chuỗi (rà soát CONG_VIEC_22).
+    const issued = await this.database.transaction(async (transaction) => {
+      const revoked = await transaction
+        .update(sessions)
+        .set({ revokedAt: now })
+        .where(and(eq(sessions.id, current.id), isNull(sessions.revokedAt)))
+        .returning({ id: sessions.id });
+      if (revoked.length === 0) return null;
       return this.issueSession(transaction, current.userId, current.familyId, client, now, current.mfaVerified, current.clientType as SessionClientType);
     });
+    if (!issued) await this.revokeFamily(current.familyId, now);
+    return issued!;
+  }
+
+  private async revokeFamily(familyId: string, now: Date): Promise<never> {
+    await this.database
+      .update(sessions)
+      .set({ revokedAt: now })
+      .where(and(eq(sessions.familyId, familyId), isNull(sessions.revokedAt)));
+    throw new ApiError("UNAUTHENTICATED", "unauthenticated");
   }
 
   async logout(sessionId: string, userId: string, client: ClientInfo): Promise<void> {
@@ -173,7 +184,7 @@ export class AuthService {
     clientType: SessionClientType = "web",
   ): Promise<IssuedSession> {
     const refreshToken = newRandomToken();
-    // Token làm mới 30 ngày trên web, 90 ngày trên ứng dụng kho, ứng dụng kinh doanh (tài liệu 22 mục 3).
+    // Token làm mới 30 ngày trên web, 90 ngày trên các ứng dụng di động (tài liệu 22 mục 3).
     const refreshExpiresAt = new Date(now.getTime() + refreshTokenLifetimeDays[clientType] * 86_400_000);
     const inserted = await executor
       .insert(sessions)

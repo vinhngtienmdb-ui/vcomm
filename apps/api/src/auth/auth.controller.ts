@@ -19,7 +19,7 @@ import {
 } from "contracts";
 import type { Request, Response } from "express";
 import { ApiError, localeOf } from "../common/api-error";
-import { accessCookieName, AllowMfaPending, csrfCookieName, csrfMatches, Public, refreshCookieName, type AuthenticatedRequest } from "./auth.guard";
+import { accessCookieName, AllowMfaPending, csrfCookieName, csrfMatches, Public, RateLimitGroup, refreshCookieName, type AuthenticatedRequest } from "./auth.guard";
 import { ActivationService } from "./activation.service";
 import { MfaService } from "./mfa.service";
 import { PasswordService } from "./password.service";
@@ -204,6 +204,7 @@ export class AuthController {
 
   // API_01
   @Public()
+  @RateLimitGroup("login")
   @Post("login")
   @HttpCode(200)
   async login(@Body() body: unknown, @Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<LoginResponse> {
@@ -216,6 +217,7 @@ export class AuthController {
   // API_112: ứng dụng nhân viên kinh doanh đăng nhập bằng mật khẩu, nhận token trong thân phản hồi (QUYTAC_NGHIEPVU_136).
   // Xác thực hai lớp, đăng xuất dùng API hiện có với header Authorization.
   @Public()
+  @RateLimitGroup("login")
   @Post("app/login")
   @HttpCode(200)
   async appLogin(@Body() body: unknown, @Req() request: Request): Promise<AppLoginResponse> {
@@ -227,7 +229,7 @@ export class AuthController {
   @Post("app/refresh")
   @HttpCode(200)
   async appRefresh(@Body() body: unknown, @Req() request: Request): Promise<AppTokens> {
-    return appTokens(await this.auth.refresh(appRefreshSchema.parse(body).refreshToken, clientInfo(request), "sales_app"));
+    return appTokens(await this.auth.refresh(appRefreshSchema.parse(body).refreshToken, clientInfo(request), true));
   }
 
   // API_09

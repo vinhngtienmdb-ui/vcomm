@@ -272,7 +272,12 @@
     "assignmentTargetInactive": "The receiving staff member is no longer active in the company.",
     "visitTooManyPhotos": "At most 3 photos per visit.",
     "visitPhotoTooLarge": "The photo is larger than 5 MB.",
-    "visitPhotoTypeInvalid": "Photos must be JPEG or PNG."
+    "visitPhotoTypeInvalid": "Photos must be JPEG or PNG.",
+    "phoneTaken": "This phone number already has an account. Please sign in.",
+    "referralCodeInvalid": "The referral code is invalid.",
+    "referralSelf": "You cannot use your own referral code.",
+    "referralCycle": "You cannot choose someone you referred.",
+    "referrerAlreadySet": "This account already has a referrer."
   },
   "login": {
     "title": "Sign in",
