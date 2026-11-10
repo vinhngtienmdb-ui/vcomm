@@ -183,6 +183,22 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_17
+
+- Phạm vi: lát L0, L1 (cài đặt hoa hồng theo công ty, bảng mức theo ngành hàng và kênh, hệ số kênh, bậc hệ số, chỉ tiêu tháng; gán nhân viên hưởng khi gửi đơn; phát sinh khi phiếu thu trừ nợ phiếu xuất, hoàn tiền trả hàng ghi âm, bán lẻ khi giao, khi trả; bảng hoa hồng tháng qua luồng duyệt, bút toán Nợ chi phí hoa hồng / Có 334); MAN_HINH_56, 57, bổ sung MAN_HINH_43; API_93, 94, sửa API_77. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --prod --audit-level high`; database migration 0015 đến 0017 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright (Quản trị công ty VCR): cài đặt, chỉ tiêu, lập bảng tháng 10 từ một phát sinh mẫu thêm vào dữ liệu phát triển, gửi, ghi sổ (máy tính và điện thoại 375 điểm ảnh, không cuộn ngang, không có yêu cầu lỗi).
+- Kết quả: 250 đạt / 0 không đạt / 250 kịch bản tự động (31 tệp; phần mới: `c17-commissions` 9, KICHBAN_KIEMTHU_234 đến 242). KICHBAN_KIEMTHU_243, 244 (thủ công trên trình duyệt) đạt.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_127 đến 131 (bắt buộc) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod --audit-level high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 52).
+  - C3 phân quyền: Đạt – xem, quản lý, cài đặt hoa hồng cần phạm vi công ty; cài đặt là quyền nhạy cảm; nhân viên bán hàng không xem được phát sinh, bảng.
+  - C4 toàn vẹn dữ liệu: Đạt – phát sinh ghi cùng giao dịch trừ nợ hoặc ghi sổ phiếu kho, khóa duy nhất theo nguồn và dòng đơn; lập bảng tuần tự theo khóa cài đặt; bị từ chối, rút, bỏ bảng nháp trả phát sinh.
+- Tự rà soát mã và dọn dẹp: Đạt. Khi kiểm thử phát hiện bảng có tổng âm treo ở chờ duyệt (không có cấp duyệt), đã sửa (giá trị duyệt là trị tuyệt đối). Rà soát độc lập tìm 2 lỗi Cao (một dòng đơn tách nhiều dòng phiếu mất hoa hồng; hàng trả trừ vào phần chưa thu vẫn được tính khi thu nốt), 3 mục Trung bình (tháng đã khóa sổ chặn các tháng sau; bảng ghi sổ trước khi khởi tạo kế toán không có bút toán; hoàn tiền có thể trừ vào tiền trả trước), 6 mục Thấp; đã sửa 2 lỗi Cao, 2 mục Trung bình, 3 mục Thấp. Giữ lại, chờ người dùng quyết (tài liệu 22): hoàn tiền trừ vào khoản có cũ nhất; bán lẻ chỉ có người hưởng khi gán theo người lập đơn; đơn nội bộ được tính hoa hồng; số dư đầu kỳ không phát sinh hoa hồng.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
+- Kết luận: Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_16
 
 - Phạm vi: lát L0 đến L2 (cài đặt hóa đơn điện tử theo công ty; lập hóa đơn khi phiếu xuất giao hàng ghi sổ, kể cả đơn không có khách (THAY_DOI_11) và bán nội bộ; gửi nền qua bộ giả lập, MISA meInvoice; gửi lại, tra trạng thái, báo quá hạn; trả hàng: hóa đơn điều chỉnh giảm, hóa đơn trả hàng của người mua; hóa đơn thay thế); MAN_HINH_54, 55; API_91, 92. Hồi quy: toàn bộ kiểm thử tự động của dự án.

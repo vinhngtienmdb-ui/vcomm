@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_17: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_17-hoa-hong` (pull request số 52, tách từ nhánh CONG_VIEC_16). Database migration 0015 đến 0017; cài đặt, chỉ tiêu, gán đơn, phát sinh theo tiền thu, bảng hoa hồng tháng qua luồng duyệt, bút toán. Kiểm thử 250/250 đạt. Không thêm thư viện. Rà soát mã sửa 2 lỗi Cao, 2 mục Trung bình. Chờ người dùng nghiệm thu.
 - CONG_VIEC_17: Lập công việc Hoa hồng đội kinh doanh (MODULE_06, phần 5), mức Lớn.
 - CONG_VIEC_16: Người dùng nghiệm thu, chấp nhận giới hạn: kết nối MISA theo nguồn thứ cấp (thử tài khoản thử MISA trước phát hành), cơ quan thuế từ chối qua MISA chưa nhận ra, tệp tải lỗi không tự tải lại, ngày làm việc tiếp theo chưa tính ngày lễ; chờ người dùng hợp nhất pull request số 51 (sau số 50).
 - CONG_VIEC_16: Xong lát L0 đến L2 trên nhánh `chuc-nang/CONG_VIEC_16-hoa-don-dien-tu` (pull request số 51, tách từ nhánh CONG_VIEC_15). Database migration 0013, 0014; cài đặt theo công ty; hóa đơn lập khi phiếu xuất giao hàng ghi sổ, gửi nền qua lớp kết nối nhà cung cấp (bộ giả lập, MISA meInvoice theo nguồn thứ cấp); gửi lại, tra trạng thái, báo quá hạn; trả hàng (điều chỉnh giảm, hóa đơn của người mua); hóa đơn thay thế; MAN_HINH_54, 55. Kiểm thử 241/241 đạt. Không thêm thư viện. Rà soát mã sửa 2 lỗi Cao, 5 mục Trung bình. Chờ người dùng nghiệm thu.
