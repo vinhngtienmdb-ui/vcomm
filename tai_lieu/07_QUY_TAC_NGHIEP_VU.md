@@ -1,10 +1,10 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái và ngoại lệ, có mã định danh.
-- Phiên bản: 1.4
+- Phiên bản: 1.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm QUYTAC_NGHIEPVU_45 đến QUYTAC_NGHIEPVU_55 của MODULE_03
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm QUYTAC_NGHIEPVU_45 đến QUYTAC_NGHIEPVU_55 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm QUYTAC_NGHIEPVU_56 đến QUYTAC_NGHIEPVU_60 của MODULE_07
 
 ## MODULE_01 Nền tảng
 
@@ -126,6 +126,16 @@
 | QUYTAC_NGHIEPVU_53 | Kiểm kê toàn kho hoặc từng phần (theo ngành hàng, vị trí, danh sách sản phẩm) của một công ty chủ hàng: Nháp → Đang đếm → Đã kết thúc; Nháp, Đang đếm → Đã hủy. Bắt đầu kiểm thì cấp số (dãy `KK`), chụp số tồn sổ sách và khóa các mặt hàng (theo vị trí khi dòng có vị trí) trong phạm vi: không ghi sổ phiếu khác vào chúng đến khi kết thúc hoặc hủy. Số đếm theo đơn vị cơ sở, ghi nhiều lần; hàng có thực tế mà sổ sách không có thì thêm dòng; hàng theo lô ghi số đếm theo lô đã có (lô mới nhập bằng phiếu nhập khác). Kết thúc khi mọi dòng có số đếm: chênh lệch sinh phiếu điều chỉnh (lý do kiểm kê) và gửi ngay theo luồng duyệt; dòng thiếu ghi người chịu trách nhiệm và số tiền bồi thường (mặc định bằng giá trị thiếu, sửa được). Gửi phiếu điều chỉnh không được thì kiểm kê trở lại Đang đếm | YCAU_NGHIEPVU_28 |
 | QUYTAC_NGHIEPVU_54 | Tồn khả dụng = tồn thực − hàng đang giữ. Giữ hàng theo kho, công ty chủ hàng, biến thể, số lượng, nguồn (phiếu kho, giữ thủ công, sau này đơn bán), hạn giữ; không giữ quá tồn khả dụng. Giữ thủ công và giữ cho đơn bán tự nhả sau số giờ cài đặt theo công ty chủ hàng (1 đến 720, mặc định 72 giờ); người có quyền gia hạn (1 đến 720 giờ), nhả tay được; giữ cho phiếu kho không có hạn, không nhả tay | YCAU_NGHIEPVU_29 |
 | QUYTAC_NGHIEPVU_55 | Tồn an toàn đặt theo kho, công ty chủ hàng, biến thể: tối thiểu, tối đa (không âm, tối đa không nhỏ hơn tối thiểu). Tồn khả dụng cộng hàng đang chuyển đến dưới tối thiểu thì cảnh báo trên màn hình và thông báo lúc 7 giờ sáng hằng ngày cho người có quyền `inventory.reservation.manage` ở tập đoàn, công ty sở hữu kho hoặc chi nhánh của kho; số gợi ý bổ sung = tối đa − (tồn khả dụng + đang chuyển đến) | YCAU_NGHIEPVU_29 |
+
+## MODULE_07 Khách hàng và Đối tác (phần tối thiểu, CONG_VIEC_06)
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_56 | Đối tác thuộc một trong ba loại: tổ chức, hộ kinh doanh (bắt buộc mã số thuế 10 số hoặc 10 số kèm "-" và 3 số chi nhánh, duy nhất trong tập đoàn; mã số thuế đơn vị phụ thuộc là đối tác riêng), cá nhân (bắt buộc số Căn cước công dân 12 số, duy nhất trong tập đoàn; không nhập mã số thuế thay số Căn cước công dân). Cá nhân không cung cấp số Căn cước công dân thì không lập đối tác; bán hàng dùng người mua không lấy hóa đơn (quyết định ngày 2026-11-10). Mã đối tác tự sinh `DT` + 6 số. Chữ số kiểm tra của mã số thuế chưa kiểm | YCAU_NGHIEPVU_30 |
+| QUYTAC_NGHIEPVU_57 | Người có quyền quản lý đối tác ở bất kỳ công ty nào được thêm, sửa thông tin chung (gồm người liên hệ, tài khoản ngân hàng); mọi thay đổi ghi nhật ký thao tác kèm dữ liệu trước, sau. Không xóa đối tác, chỉ ngừng giao dịch, cho giao dịch lại; đối tác ngừng giao dịch không chọn được trên chứng từ mới | YCAU_NGHIEPVU_30 |
+| QUYTAC_NGHIEPVU_58 | Mỗi công ty con đang hoạt động là một đối tác nội bộ, đồng bộ tên, tên ngắn, mã số thuế, địa chỉ từ danh sách công ty (đối tác bên ngoài trùng mã số thuế được gắn thành đối tác nội bộ); công ty con ngừng hoạt động thì đối tác nội bộ ngừng giao dịch. Thông tin chung, trạng thái của đối tác nội bộ chỉ sửa ở màn hình công ty. Công ty không lập hồ sơ đối tác với chính mình | YCAU_NGHIEPVU_30 |
+| QUYTAC_NGHIEPVU_59 | Số Căn cước công dân là dữ liệu cá nhân: danh sách, chi tiết che, chỉ hiện 3 số cuối; xem đầy đủ cần quyền xem dữ liệu cá nhân đối tác, mỗi lần xem ghi nhật ký thao tác. Nhật ký thêm, sửa đối tác không chứa số đầy đủ. Sửa đối tác cá nhân để trống số Căn cước công dân thì giữ số đã lưu | YCAU_NGHIEPVU_30 |
+| QUYTAC_NGHIEPVU_60 | Hồ sơ đối tác của công ty: đánh dấu khách hàng, nhà cung cấp (ít nhất một), số ngày được nợ (0 đến 365), hạn mức công nợ theo tiền tệ công ty (không âm; để trống: không giới hạn), nhóm khách hàng đang dùng của công ty, nhân viên phụ trách là nhân viên đang làm ở công ty; trạng thái riêng từng công ty. Công ty khác không xem được hồ sơ của nhau | YCAU_NGHIEPVU_31 |
 
 ## Quy tắc do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 

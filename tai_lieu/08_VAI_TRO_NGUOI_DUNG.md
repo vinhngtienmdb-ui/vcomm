@@ -1,10 +1,10 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò mặc định, trách nhiệm và quyền hạn.
-- Phiên bản: 1.1
+- Phiên bản: 1.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5)
+- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7)
 
 ## 1. Nguyên tắc
 
@@ -44,7 +44,7 @@ Quyền kho gán ở phạm vi chi nhánh áp dụng cho kho thuộc chi nhánh 
 
 | Vai trò | Mã | Phạm vi gán | Trách nhiệm | Quyền chính | Nhạy cảm |
 |---|---|---|---|---|---|
-| Thủ kho | `warehouse_keeper` | Chi nhánh hoặc công ty | Lập phiếu nhập khác, xuất khác, điều chỉnh, chuyển kho; xác nhận xuất, nhận chuyển kho; xem tồn, thẻ kho; in tem | `inventory.access`, `inventory.stock.view`, `inventory.document.manage` | Không |
+| Thủ kho | `warehouse_keeper` | Chi nhánh hoặc công ty | Lập phiếu nhập khác, xuất khác, điều chỉnh, chuyển kho; xác nhận xuất, nhận chuyển kho; xem tồn, thẻ kho; in tem | `inventory.access`, `inventory.stock.view`, `inventory.document.manage`; `crm.partner.view` (xem đối tác, CONG_VIEC_06) | Không |
 | Quản lý kho | `warehouse_manager` | Chi nhánh hoặc công ty | Như Thủ kho; quản lý kho, vị trí, cài đặt giữ hàng (khi gán ở phạm vi công ty); kiểm kê; giữ hàng, tồn an toàn; xem giá vốn | Mọi quyền `inventory.*` | Có (`inventory.cost.view`) |
 
 ## 5. Ma trận vai trò – thao tác của MODULE_03
@@ -60,3 +60,31 @@ Quyền kho gán ở phạm vi chi nhánh áp dụng cho kho thuộc chi nhánh 
 | Giữ hàng, gia hạn, nhả; tồn an toàn | Có | Kho của công ty mình | Kho trong phạm vi gán | Không | Không |
 | In tem sản phẩm, tem vị trí | Có | Có | Có | Có | Không |
 | Duyệt phiếu kho | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định |
+
+## 6. Vai trò hệ thống của MODULE_07 Khách hàng và Đối tác (CONG_VIEC_06)
+
+Đối tác dùng chung tập đoàn: người có quyền ở bất kỳ công ty nào thấy, sửa cùng một danh mục (QUYTAC_NGHIEPVU_57); hồ sơ đối tác chỉ của công ty đang chọn (QUYTAC_NGHIEPVU_60). Quản trị tập đoàn, quản trị công ty có sẵn mọi quyền `crm.*` (gồm `crm.partner.identity.view`, `crm.profile.manage`).
+
+| Vai trò | Mã | Phạm vi gán | Trách nhiệm | Quyền chính | Nhạy cảm |
+|---|---|---|---|---|---|
+| Quản lý đối tác | `partner_manager` | Công ty | Thêm, sửa thông tin chung, người liên hệ, tài khoản ngân hàng của đối tác; ngừng giao dịch, cho giao dịch lại | `crm.access`, `crm.partner.view`, `crm.partner.manage` | Không |
+
+Quyền của MODULE_07:
+
+| Quyền | Tên | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|---|
+| `crm.access` | Truy cập mini app Khách hàng và Đối tác | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Quản lý đối tác |
+| `crm.partner.view` | Xem đối tác | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Quản lý đối tác, Thủ kho |
+| `crm.partner.manage` | Thêm, sửa đối tác dùng chung | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Quản lý đối tác |
+| `crm.partner.identity.view` | Xem số Căn cước công dân của đối tác | Công ty | Có | Quản trị tập đoàn, quản trị công ty |
+| `crm.profile.manage` | Quản lý hồ sơ đối tác của công ty (hạn mức công nợ) | Công ty | Có | Quản trị tập đoàn, quản trị công ty |
+
+## 7. Ma trận vai trò – thao tác của MODULE_07
+
+| Thao tác | Quản trị tập đoàn | Quản trị công ty | Quản lý đối tác | Thủ kho |
+|---|---|---|---|---|
+| Xem danh sách, chi tiết đối tác (số Căn cước công dân che) | Có | Có | Có | Có |
+| Thêm, sửa, ngừng giao dịch đối tác bên ngoài | Có | Có | Có | Không |
+| Sửa đối tác nội bộ | Ở màn hình Công ty | Không | Không | Không |
+| Xem đầy đủ số Căn cước công dân (ghi nhật ký) | Có | Có | Không | Không |
+| Lập, sửa hồ sơ đối tác của công ty | Có | Trong công ty mình | Không | Không |

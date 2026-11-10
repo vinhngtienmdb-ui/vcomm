@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07
 
 ## MODULE_01 Nền tảng
 
@@ -687,6 +687,65 @@ Quy ước chung cho mọi chức năng của MODULE_03:
 | Đồng thời | Ghi sổ khóa dòng giá vốn rồi dòng tồn theo thứ tự cố định; giữ hàng khóa dòng giá vốn; tồn không âm (ràng buộc cơ sở dữ liệu) |
 | Toàn vẹn | Thẻ kho chỉ thêm (trigger cơ sở dữ liệu); số lượng, tiền `numeric(20,4)`, tính giá vốn trong cơ sở dữ liệu |
 | Giao diện | Dùng được trên điện thoại; nhận máy quét mã vạch gõ phím |
+
+## MODULE_07 Khách hàng và Đối tác (phần tối thiểu, CONG_VIEC_06)
+
+Quy ước chung cho mọi chức năng của MODULE_07 phần tối thiểu:
+- Mọi thao tác ghi dữ liệu ghi một dòng nhật ký thao tác (CHUC_NANG_23), mini app `crm`, loại đối tượng `partner` hoặc `partner_profile`.
+- Mọi API cần `crm.access` hoặc `crm.partner.view` trong công ty đang làm việc; quyền chi tiết kiểm tra phía máy chủ ở phạm vi công ty đang làm việc.
+- Sửa dữ liệu gửi kèm phiên bản; khác phiên bản hiện tại thì báo "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất.".
+- Danh mục đối tác dùng chung tập đoàn, không lọc theo công ty; hồ sơ đối tác, cờ khách hàng, nhà cung cấp lấy theo công ty đang làm việc.
+
+### CHUC_NANG_46: Quản lý đối tác dùng chung
+- Mục đích: Một danh mục đối tác cho cả tập đoàn, không lập trùng cùng một doanh nghiệp, cá nhân.
+- Người sử dụng: Quản lý đối tác, quản trị công ty, quản trị tập đoàn (thêm, sửa); Thủ kho và người có `crm.partner.view` (xem).
+- Điều kiện thực hiện: Xem, tìm, kiểm trùng: `crm.partner.view`. Thêm, sửa, ngừng giao dịch, cho giao dịch lại: `crm.partner.manage`. Xem đầy đủ số Căn cước công dân: `crm.partner.identity.view` (nhạy cảm).
+- Dữ liệu đầu vào: Loại (tổ chức, hộ kinh doanh, cá nhân), tên (tối đa 300 ký tự), tên ngắn, mã số thuế (10 số hoặc 10 số, `-`, 3 số), số Căn cước công dân (12 số), địa chỉ, điện thoại, email; tối đa 50 người liên hệ (họ tên, chức vụ, điện thoại, email, liên hệ chính); tối đa 20 tài khoản ngân hàng (ngân hàng, số tài khoản 4 đến 30 ký tự chữ, số, `-`, chủ tài khoản, chi nhánh, mặc định). Danh sách: từ khóa, loại, vai trò với công ty đang chọn (khách hàng, nhà cung cấp, nội bộ), trạng thái, trang (tối đa 100 dòng, mặc định 20).
+- Quy trình xử lý: Kiểm tra tổ chức, hộ kinh doanh có mã số thuế; cá nhân có số Căn cước công dân, không nhận số Căn cước công dân cho tổ chức, hộ kinh doanh; mã số thuế, số Căn cước công dân không trùng trong tập đoàn. Thêm: sinh mã `DT` + 6 số; ghi đối tác, người liên hệ, tài khoản ngân hàng, nhật ký trong một giao dịch. Sửa: thay toàn bộ người liên hệ, tài khoản ngân hàng; cá nhân để trống số Căn cước công dân thì giữ số đã lưu; nhật ký ghi dữ liệu trước, sau (số Căn cước công dân chỉ ghi 3 số cuối). Ngừng giao dịch, cho giao dịch lại đổi trạng thái, không xóa. Tìm không dấu theo tên, tên ngắn, mã số thuế, điện thoại; đúng mã đối tác, đúng mã số thuế, đúng số điện thoại. Kiểm trùng khi rời ô mã số thuế, số Căn cước công dân trả đối tác có sẵn (mã, tên). Xem đầy đủ số Căn cước công dân ghi nhật ký mỗi lần.
+- Kết quả đầu ra: Danh sách (mã, tên, tên ngắn, loại, mã số thuế hoặc số Căn cước công dân đã che, điện thoại, nội bộ, khách hàng, nhà cung cấp của công ty đang chọn, trạng thái) sắp đang giao dịch trước, theo tên; chi tiết kèm người liên hệ, tài khoản ngân hàng, hồ sơ của công ty đang chọn, phiên bản, được sửa hay không, được xem số Căn cước công dân hay không.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_30
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_56, QUYTAC_NGHIEPVU_57, QUYTAC_NGHIEPVU_59
+- Trường hợp ngoại lệ: Không có chức năng xóa đối tác. Đối tác nội bộ không sửa, không đổi trạng thái được (CHUC_NANG_47). Hai người thêm cùng mã số thuế đồng thời: một người nhận lỗi trùng (ràng buộc duy nhất của cơ sở dữ liệu).
+- Phân quyền: Người không có `crm.partner.manage` không thấy nút thêm, sửa, ngừng giao dịch; gọi API nhận 403.
+- Thông báo lỗi: "Vui lòng nhập thông tin này." (mã số thuế, số Căn cước công dân) · "Giá trị không hợp lệ." (định dạng) · "Mã số thuế đã có ở đối tác khác trong tập đoàn." · "Số Căn cước công dân đã có ở đối tác khác trong tập đoàn."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_75, TIEUCHI_NGHIEMTHU_76, TIEUCHI_NGHIEMTHU_78
+
+### CHUC_NANG_47: Đối tác nội bộ
+- Mục đích: Biết ngay đối tác là công ty con nào trong tập đoàn để giao dịch nội bộ.
+- Người sử dụng: Hệ thống (tự đồng bộ); mọi người có `crm.partner.view` (xem).
+- Điều kiện thực hiện: Chạy mỗi lần đọc danh sách đối tác.
+- Dữ liệu đầu vào: Danh sách công ty con (có công ty mẹ) đang hoạt động: tên pháp lý, tên ngắn, mã số thuế, địa chỉ.
+- Quy trình xử lý: Công ty con đã có đối tác nội bộ: cập nhật tên, tên ngắn, mã số thuế, địa chỉ, trạng thái khi khác. Chưa có: đối tác bên ngoài trùng mã số thuế được gắn thành đối tác nội bộ (loại tổ chức); không có thì thêm đối tác nội bộ mới. Công ty con ngừng hoạt động: đối tác nội bộ ngừng giao dịch.
+- Kết quả đầu ra: Mỗi công ty con đang hoạt động có đúng một đối tác nội bộ, hiện nhãn "Nội bộ"; lọc được theo vai trò nội bộ.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_30
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_58
+- Trường hợp ngoại lệ: Công ty con chưa khai mã số thuế vẫn là đối tác nội bộ. Mã số thuế của công ty con không dùng được cho đối tác bên ngoài.
+- Phân quyền: Không ai sửa thông tin chung, trạng thái của đối tác nội bộ trong mini app Đối tác; sửa ở màn hình Công ty (MAN_HINH_03).
+- Thông báo lỗi: "Đối tác nội bộ lấy thông tin từ công ty, sửa ở màn hình Công ty."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_77
+
+### CHUC_NANG_48: Hồ sơ đối tác của công ty
+- Mục đích: Mỗi công ty giữ điều kiện giao dịch riêng với đối tác dùng chung.
+- Người sử dụng: Quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: Xem: `crm.partner.view` (hồ sơ của công ty đang chọn). Lập, sửa, tải danh sách chọn: `crm.profile.manage` (nhạy cảm).
+- Dữ liệu đầu vào: Là khách hàng, là nhà cung cấp, số ngày được nợ (0 đến 365), hạn mức công nợ (không âm, 4 chữ số lẻ; để trống là không giới hạn), nhóm khách hàng, nhân viên phụ trách, ghi chú (tối đa 1.000 ký tự), trạng thái, phiên bản (0 khi lập mới).
+- Quy trình xử lý: Kiểm tra chọn ít nhất khách hàng hoặc nhà cung cấp; đối tác không phải chính công ty đang chọn; nhóm khách hàng đang dùng của công ty đang chọn; nhân viên phụ trách đang làm ở công ty đang chọn. Lập mới hoặc ghi đè theo phiên bản; ghi nhật ký dữ liệu trước, sau. Danh sách chọn gồm nhóm khách hàng đang dùng, nhân viên đang làm của công ty.
+- Kết quả đầu ra: Hồ sơ (khách hàng, nhà cung cấp, số ngày được nợ, hạn mức, nhóm khách hàng, nhân viên phụ trách, ghi chú, trạng thái, phiên bản) trong chi tiết đối tác; cờ khách hàng, nhà cung cấp trong danh sách và bộ lọc.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_31
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_60
+- Trường hợp ngoại lệ: Công ty khác không đọc được hồ sơ của công ty A (chi tiết trả hồ sơ trống). Đối tác nội bộ của chính công ty đang chọn không lập được hồ sơ.
+- Phân quyền: Quản lý đối tác không có `crm.profile.manage`, gọi API nhận 403.
+- Thông báo lỗi: "Giá trị không hợp lệ." (không chọn vai trò, số ngày, hạn mức, nhóm khách hàng, nhân viên phụ trách) · "Không lập hồ sơ đối tác cho chính công ty đang chọn."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_79
+
+## Yêu cầu phi chức năng của MODULE_07 (phần tối thiểu)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Tìm kiếm | Tìm tên không phân biệt dấu tiếng Việt, không cần extension PostgreSQL |
+| Toàn vẹn | Mã số thuế, số Căn cước công dân, đối tác nội bộ duy nhất (ràng buộc cơ sở dữ liệu); khóa ngoại từ `crm` chỉ trỏ vào `crm`, `core` |
+| Bảo mật | Số Căn cước công dân che trong danh sách, chi tiết, nhật ký thêm, sửa; xem đầy đủ cần quyền nhạy cảm và ghi nhật ký |
+| Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
