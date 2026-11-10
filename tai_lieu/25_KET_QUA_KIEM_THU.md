@@ -198,7 +198,7 @@
   - C4 toàn vẹn dữ liệu: Đạt – gửi và áp dụng phiếu khóa hồ sơ khách theo thứ tự rồi mới kiểm; khách đổi nhân viên hoặc nhân viên nhận ngừng làm việc trong lúc chờ duyệt thì phiếu bị từ chối; một dòng lịch sử mở cho mỗi khách (chỉ mục duy nhất); truy vấn tham số ràng buộc.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập không thấy lỗi Nghiêm trọng; tìm 2 lỗi Cao (hai phiếu cùng khách áp dụng song song ghi đè nhau; nhân viên không nhận được đối tác đã có trong tập đoàn), 6 mục Trung bình (kiểm phạm vi ngoài giao dịch khi gửi; khóa không theo thứ tự; không kiểm nhân viên nhận khi áp dụng; người lập không sửa được đơn nháp khi khách đã chuyển; trưởng phòng cần quyền xem đối tác; lý do từ chối là chuỗi cố định), 7 mục Thấp; đã sửa các mục, mục quyền của trưởng phòng và bảng vai trò sửa trong đặc tả. Tài khoản thử trên dữ liệu phát triển ghi trong `tam_thoi/CONG_VIEC_02/da_tao.md`.
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
-- Kết luận: Chờ người dùng nghiệm thu.
+- Kết luận: Người dùng nghiệm thu 2026-11-10, chấp nhận các giới hạn đã biết (đặc tả mục 16); chờ người dùng hợp nhất pull request số 56 (sau số 55).
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_20
 

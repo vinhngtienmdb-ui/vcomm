@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_21: Người dùng nghiệm thu, chấp nhận giới hạn đã biết (khách chưa có người phụ trách chỉ quản lý thấy; đối tác đã có hồ sơ do người khác phụ trách phải nhờ trưởng phòng giao; đơn đối ứng nội bộ chỉ hiện khi mình lập hoặc hưởng hoa hồng; nhân viên nghỉ việc không tự chuyển khách); chờ người dùng hợp nhất pull request số 56 (sau số 55).
 - CONG_VIEC_21: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_21-gan-khach-hang` (pull request số 56, tách từ nhánh CONG_VIEC_20). Database migration 0021; nhân viên bán hàng chỉ xem khách mình hoặc phòng mình quản lý phụ trách và đơn của các khách đó; phiếu giao khách theo chính sách duyệt; lịch sử phụ trách; MAN_HINH_64, 65. Kiểm thử 290/290 đạt; tám tệp kiểm thử cũ thêm bước chuẩn bị theo phép của người dùng. Không thêm thư viện. Rà soát độc lập, sửa 2 lỗi Cao và các mục Trung bình, Thấp. Chờ người dùng nghiệm thu.
 - CONG_VIEC_21: Lập công việc Gán khách hàng cho nhân viên kinh doanh (MODULE_07), mức Lớn; THAY_DOI_12.
 - CONG_VIEC_20: Người dùng nghiệm thu, chấp nhận giới hạn đã biết (cột so sánh chỉ là số cộng gộp; lãi chưa thực hiện chỉ xét hàng mua nội bộ trong kỳ; loại trừ đầu tư vào công ty con, thuế giá trị gia tăng nội bộ bằng điều chỉnh tay; chênh lệch công nợ nội bộ chỉ cảnh báo); chờ người dùng hợp nhất pull request số 55 (sau số 54).
