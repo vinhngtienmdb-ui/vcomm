@@ -369,9 +369,9 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
 - Không có mục rủi ro cao còn mở.
 - Đã sửa (commit 173a73b): ghi sổ phiếu chi đọc số dư quỹ trước khi khóa quỹ, hai phiếu chi duyệt đồng thời có thể cùng qua kiểm số dư và làm quỹ âm (mức Cao); nay khóa quỹ rồi mới tính số dư. Xóa khoản số dư đầu kỳ đang được chọn trên phiếu thu chi trả lỗi máy chủ; nay trả `409` và không xóa. Chi tiết công nợ trả tên, mã của mọi đối tác dùng chung tập đoàn theo mã; nay chỉ đối tác có quan hệ với công ty. Lý do không ghi sổ lưu câu tiếng Việt; nay lưu khóa thông báo.
 - Ghi nhận, chưa sửa (Thấp): so sánh tiền (số trừ, số dư quỹ, trả trước) và số dư lũy kế của sổ quỹ tính bằng số thực của JavaScript với sai số 0,00005; tiền đến 12 chữ số phần nguyên, 4 chữ số lẻ vượt độ chính xác của số thực, giá trị rất lớn có thể sai ở chữ số lẻ cuối khi so sánh, hiển thị sổ quỹ. Dữ liệu lưu, trừ nợ tính bằng `numeric` nên không sai số liệu gốc. Đề xuất: so sánh trong SQL hoặc dùng số thập phân chính xác.
-- Ghi nhận, chưa sửa (Thấp): tìm đối tác ở API_85 (`/finance/debts`, `/finance/partners`) dùng `ILIKE` theo mã không thoát `%`, `_`, `\` như các module khác; câu lệnh có tham số nên không bị chèn SQL, chỉ khớp rộng hơn ý muốn.
+- Đã sửa: tìm đối tác ở API_85 (`/finance/debts`, `/finance/partners`) theo mã nay so khớp đúng mã (chữ in hoa), không dùng `ILIKE`.
 - Ghi nhận, chưa sửa (Thấp): ghi sổ phiếu chi sau khi duyệt và việc chuyển phiếu sang "Bị từ chối" do không ghi sổ được chạy trong xử lý sự kiện, không ghi dòng nhật ký thao tác riêng (chỉ có nhật ký của yêu cầu duyệt và `payment.submit`).
-- Ghi nhận, chưa sửa (nghiệp vụ): kiểm đối tác chỉ xét cờ khách hàng, nhà cung cấp của hồ sơ, chưa xét trạng thái hồ sơ, đối tác ngừng giao dịch (vế sau của QUYTAC_NGHIEPVU_57).
+- Đã sửa: lập, sửa phiếu thu chi, số dư đầu kỳ chỉ nhận đối tác có hồ sơ đang giao dịch và đối tác chưa ngừng giao dịch (báo lỗi "chưa có hồ sơ đang dùng ở công ty").
 - Ghi nhận, chưa sửa (nghiệp vụ): ngày phiếu không giới hạn; phiếu chi ghi ngày trong quá khứ chỉ kiểm số dư quỹ hiện tại, nên sổ quỹ theo ngày có thể hiện số dư lũy kế âm tại một ngày trước đó.
 - Ghi nhận: bốn quyền tài chính không đánh dấu nhạy cảm; dữ liệu chỉ lộ trong công ty, theo quyền gán.
 

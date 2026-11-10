@@ -181,7 +181,7 @@ export class DebtsService implements OnModuleInit {
       SELECT p.id AS partner_id, p.code AS partner_code, p.name AS partner_name, ${ageingColumns(today)}
       FROM finance.debt_items i JOIN crm.partners p ON p.id = i.partner_id
       WHERE i.company_id = ${actor.companyId} AND i.side = ${side} AND i.open_amount > 0
-        ${search ? sql`AND (p.search_text LIKE ${`%${searchText(search)}%`} OR p.code ILIKE ${`%${search}%`})` : sql``}
+        ${search ? sql`AND (p.search_text LIKE ${`%${searchText(search)}%`} OR p.code = ${search.toUpperCase()})` : sql``}
       GROUP BY p.id, p.code, p.name
       ${overdueOnly ? sql`HAVING sum(CASE WHEN i.direction = 'debit' AND i.due_date < ${today}::date THEN i.open_amount ELSE 0 END) > 0` : sql``}
       ORDER BY sum(CASE WHEN i.direction = 'debit' THEN i.open_amount ELSE -i.open_amount END) DESC, p.name
@@ -334,17 +334,20 @@ export class DebtsService implements OnModuleInit {
     const rows = await this.database.execute<{ id: string; code: string; name: string }>(sql`
       SELECT p.id, p.code, p.name FROM crm.partner_profiles pp JOIN crm.partners p ON p.id = pp.partner_id
       WHERE pp.company_id = ${actor.companyId} AND ${side === "receivable" ? sql`pp.is_customer` : sql`pp.is_supplier`}
-        ${search ? sql`AND (p.search_text LIKE ${`%${searchText(search)}%`} OR p.code ILIKE ${`%${search}%`})` : sql``}
+        ${search ? sql`AND (p.search_text LIKE ${`%${searchText(search)}%`} OR p.code = ${search.toUpperCase()})` : sql``}
       ORDER BY p.name LIMIT 20`);
     return rows.rows;
   }
 
+  // Đối tác phải là khách hàng (phải thu) hoặc nhà cung cấp (phải trả) đang giao dịch của công ty.
   async requirePartnerOnSide(executor: Executor, companyId: string, side: DebtSide, partnerId: string, field: string): Promise<void> {
     const profile = (
-      await executor.execute<{ ok: boolean }>(sql`
-      SELECT ${side === "receivable" ? sql`pp.is_customer` : sql`pp.is_supplier`} AS ok FROM crm.partner_profiles pp WHERE pp.company_id = ${companyId} AND pp.partner_id = ${partnerId}`)
+      await executor.execute<{ ok: boolean; active: boolean }>(sql`
+      SELECT ${side === "receivable" ? sql`pp.is_customer` : sql`pp.is_supplier`} AS ok, (pp.status = 'active' AND p.status = 'active') AS active
+      FROM crm.partner_profiles pp JOIN crm.partners p ON p.id = pp.partner_id WHERE pp.company_id = ${companyId} AND pp.partner_id = ${partnerId}`)
     ).rows[0];
     if (!profile?.ok) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [field]: side === "receivable" ? "partnerNotCustomer" : "partnerNotSupplier" } });
+    if (!profile.active) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [field]: side === "receivable" ? "customerNotActive" : "supplierNotActive" } });
   }
 
   // Số dư đầu kỳ theo chứng từ cũ (QUYTAC_NGHIEPVU_90).
