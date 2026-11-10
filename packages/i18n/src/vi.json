@@ -286,7 +286,11 @@
     "salesUnitHasMembers": "Đơn vị còn thành viên đội kinh doanh. Chuyển thành viên sang đơn vị khác trước.",
     "salesUnitOrderInvalid": "Sai thứ bậc đơn vị kinh doanh: Khối > Vùng > Phòng.",
     "salesManagerNotInUnit": "Người quản lý phải là thành viên đội kinh doanh thuộc chính đơn vị này.",
-    "salesManagerOfOtherUnit": "Người này đang quản lý đơn vị khác."
+    "salesManagerOfOtherUnit": "Người này đang quản lý đơn vị khác.",
+    "salesProposalTargetNotFound": "Không có tài khoản đang hoạt động với số điện thoại này.",
+    "salesProposalAlreadyMember": "Người này đã thuộc đội kinh doanh.",
+    "salesProposalPendingExists": "Người này đang có một đề xuất chờ duyệt.",
+    "salesProposalNotPending": "Đề xuất không còn chờ duyệt."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1778,7 +1782,8 @@
     "customerAssignments": "Giao khách hàng",
     "visits": "Ghé thăm khách",
     "buyers": "Người mua VComm",
-    "salesTeam": "Đội kinh doanh"
+    "salesTeam": "Đội kinh doanh",
+    "salesProposals": "Đề xuất đội kinh doanh"
   },
   "partners": {
     "title": "Đối tác",
@@ -3114,7 +3119,35 @@
     "call": "Gọi",
     "customerCount": "{count} khách",
     "retry": "Thử lại",
-    "loadFailed": "Không tải được danh sách. Kéo xuống hoặc mở lại để thử lại."
+    "loadFailed": "Không tải được danh sách. Kéo xuống hoặc mở lại để thử lại.",
+    "title_director": "Giám đốc Kinh doanh",
+    "title_regional_director": "Giám đốc Vùng",
+    "title_team_head": "Trưởng phòng kinh doanh",
+    "title_staff": "Nhân viên kinh doanh",
+    "myTeam": "Đội của tôi ({count})",
+    "noTeam": "Chưa có cấp dưới.",
+    "customersOf": "Khách của {name}",
+    "back": "‹ Quay lại",
+    "proposals": "Đề xuất thay đổi đội",
+    "newProposal": "Lập đề xuất",
+    "kind_add": "Thêm người",
+    "kind_move": "Chuyển đơn vị",
+    "kind_appoint": "Bổ nhiệm quản lý",
+    "kind_remove": "Đưa ra khỏi đội",
+    "proposalKind": "Loại đề xuất",
+    "targetPhone": "Số điện thoại người được thêm",
+    "member": "Thành viên",
+    "unit": "Đơn vị",
+    "reason": "Lý do",
+    "submitProposal": "Gửi đề xuất",
+    "proposalSent": "Đã gửi đề xuất, chờ quản trị duyệt.",
+    "myProposals": "Đề xuất của tôi",
+    "noProposals": "Chưa có đề xuất.",
+    "status_pending": "Chờ duyệt",
+    "status_approved": "Đã duyệt",
+    "status_rejected": "Bị từ chối",
+    "status_withdrawn": "Đã rút",
+    "withdraw": "Rút đề xuất"
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -3199,5 +3232,32 @@
     "chain": "Cấp trên",
     "noChain": "Không có cấp trên.",
     "salesTitle": "Chức danh"
+  },
+  "salesProposals": {
+    "title": "Đề xuất đội kinh doanh",
+    "hint": "Người quản lý trong đội kinh doanh gửi đề xuất từ ứng dụng VComm. Duyệt thì thay đổi được áp dụng ngay.",
+    "status": "Trạng thái",
+    "kind": "Loại",
+    "target": "Người được đề xuất",
+    "unit": "Đơn vị",
+    "proposer": "Người đề xuất",
+    "reason": "Lý do",
+    "createdAt": "Thời điểm",
+    "actions": "Xử lý",
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "rejectNote": "Ghi chú từ chối",
+    "approved": "Đã duyệt và áp dụng.",
+    "rejected": "Đã từ chối.",
+    "none": "Không có đề xuất.",
+    "decided": "{name} · {time}",
+    "kind_add": "Thêm người",
+    "kind_move": "Chuyển đơn vị",
+    "kind_appoint": "Bổ nhiệm quản lý",
+    "kind_remove": "Đưa ra khỏi đội",
+    "status_pending": "Chờ duyệt",
+    "status_approved": "Đã duyệt",
+    "status_rejected": "Bị từ chối",
+    "status_withdrawn": "Đã rút"
   }
 }

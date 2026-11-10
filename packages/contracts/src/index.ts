@@ -3899,6 +3899,9 @@ export interface BuyerMeResponse {
   referrer: BuyerPersonMasked | null;
   canSetReferrer: boolean;
   isSalesStaff: boolean;
+  // Chức danh, đơn vị trong đội kinh doanh (CONG_VIEC_27).
+  salesTitle: SalesTitle | null;
+  salesUnitName: string | null;
 }
 
 export interface BuyerReferralItem extends BuyerPersonMasked {
@@ -4005,4 +4008,60 @@ export interface SalesChainItem {
   userId: string;
   fullName: string;
   title: SalesTitle;
+}
+
+// API_122: đội của tôi trên ứng dụng (người quản lý xem nhánh của mình).
+export interface MySalesTeamMember {
+  userId: string;
+  fullName: string;
+  title: SalesTitle;
+  unitName: string;
+  customerCount: number;
+}
+
+export interface MySalesTeamResponse {
+  title: SalesTitle;
+  unitName: string;
+  members: MySalesTeamMember[];
+}
+
+// API_121: đề xuất thay đổi đội kinh doanh (QUYTAC_NGHIEPVU_153).
+export const salesProposalKinds = ["add", "move", "appoint", "remove"] as const;
+export type SalesProposalKind = (typeof salesProposalKinds)[number];
+export const salesProposalStatuses = ["pending", "approved", "rejected", "withdrawn"] as const;
+export type SalesProposalStatus = (typeof salesProposalStatuses)[number];
+
+export const createSalesProposalSchema = z
+  .object({
+    kind: z.enum(salesProposalKinds),
+    targetPhone: z.string().trim().max(20).optional(),
+    targetUserId: z.uuid().optional(),
+    departmentId: z.uuid().optional(),
+    reason: z.string().trim().min(1).max(500),
+  })
+  .strict();
+export const rejectSalesProposalSchema = z.object({ note: z.string().trim().min(1).max(500) }).strict();
+export const salesProposalListQuerySchema = z.object({ status: z.enum(salesProposalStatuses).optional() }).strict();
+
+export interface SalesProposalItem {
+  id: string;
+  kind: SalesProposalKind;
+  status: SalesProposalStatus;
+  proposerName: string;
+  targetUserId: string;
+  targetName: string;
+  targetPhone: string;
+  departmentId: string | null;
+  departmentName: string | null;
+  reason: string;
+  decidedByName: string | null;
+  decidedAt: string | null;
+  decisionNote: string | null;
+  createdAt: string;
+}
+
+// Lựa chọn khi lập đề xuất trên ứng dụng: đơn vị trong nhánh, cấp dưới.
+export interface SalesProposalOptionsResponse {
+  units: Array<{ id: string; name: string; type: SalesUnitType }>;
+  members: Array<{ userId: string; fullName: string; departmentId: string; title: SalesTitle }>;
 }

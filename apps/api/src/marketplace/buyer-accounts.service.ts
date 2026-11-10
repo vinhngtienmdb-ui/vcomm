@@ -1,7 +1,7 @@
 // Tài khoản người mua VComm: đăng ký bằng số điện thoại và OTP, đăng nhập, quên mật khẩu, giới thiệu
 // (CONG_VIEC_23; CHUC_NANG_104 đến 106; QUYTAC_NGHIEPVU_141 đến 147; API_116 đến 118).
 import { Inject, Injectable } from "@nestjs/common";
-import type { AppLoginResponse, BuyerMeResponse, BuyerReferralItem, BuyerSalesCustomerItem } from "contracts";
+import type { AppLoginResponse, BuyerMeResponse, BuyerReferralItem, BuyerSalesCustomerItem, MySalesTeamResponse } from "contracts";
 import { sql } from "drizzle-orm";
 import { ApiError, type ErrorMessageKey } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
@@ -13,6 +13,7 @@ import { AuthService, type ClientInfo, type IssuedSession } from "../auth/auth.s
 import { setPassword } from "../auth/password.service";
 import { PhoneOtpService } from "../auth/phone-otp.service";
 import { users } from "../database/schema";
+import { SalesTeamService, type SalesTeam } from "./sales-team.service";
 
 type Executor = Pick<Database, "execute">;
 
@@ -41,6 +42,7 @@ export class BuyerAccountsService {
     private readonly auth: AuthService,
     private readonly phoneOtp: PhoneOtpService,
     private readonly audit: AuditService,
+    private readonly salesTeam: SalesTeamService,
   ) {}
 
   // API_116: gửi mã đăng ký. Số đã có tài khoản thì báo để khách chuyển sang đăng nhập (QUYTAC_NGHIEPVU_141).
@@ -172,6 +174,7 @@ export class BuyerAccountsService {
       // Chỉ khách chưa từng có người giới thiệu tự nhập được; quản trị đã bỏ người giới thiệu thì khách không tự đặt lại.
       canSetReferrer: !row.referrer_name && !row.has_history,
       isSalesStaff: row.is_sales_staff,
+      ...(await this.salesPosition(userId)),
     };
   }
 
@@ -224,12 +227,55 @@ export class BuyerAccountsService {
 
   // Khách tôi phụ trách: khách mà tôi là người giới thiệu hiện tại khi tôi đang được đánh dấu nhân viên kinh doanh (QUYTAC_NGHIEPVU_145).
   async salesCustomers(userId: string): Promise<BuyerSalesCustomerItem[]> {
-    const flagged = await this.database.execute(sql`SELECT 1 FROM marketplace.buyer_accounts WHERE user_id = ${userId} AND is_sales_staff`);
-    if (flagged.rows.length === 0) throw new ApiError("FORBIDDEN", "forbidden");
+    await this.myTeam(userId);
+    return this.customersOf(userId);
+  }
+
+  // API_122: nhánh của người quản lý (QUYTAC_NGHIEPVU_150, 151); nhân viên thấy danh sách rỗng.
+  async team(userId: string): Promise<MySalesTeamResponse> {
+    const team = await this.myTeam(userId);
+    const members = team.branch(userId);
+    const counts = await this.salesTeam.customerCounts(members.map((member) => member.userId));
+    return {
+      title: team.titleOf(userId)!,
+      unitName: team.unit(team.member(userId)!.departmentId)?.name ?? "",
+      members: members.map((member) => ({
+        userId: member.userId,
+        fullName: member.fullName,
+        title: team.titleOf(member.userId)!,
+        unitName: team.unit(member.departmentId)?.name ?? "",
+        customerCount: counts.get(member.userId) ?? 0,
+      })),
+    };
+  }
+
+  // Khách của một cấp dưới trong nhánh, thông tin đầy đủ (quyết định của người dùng 2026-11-10); ngoài nhánh trả 404.
+  async memberCustomers(userId: string, memberId: string): Promise<BuyerSalesCustomerItem[]> {
+    const team = await this.myTeam(userId);
+    if (!team.branch(userId).some((member) => member.userId === memberId)) throw new ApiError("NOT_FOUND", "notFound");
+    return this.customersOf(memberId);
+  }
+
+  private async customersOf(userId: string): Promise<BuyerSalesCustomerItem[]> {
     const rows = await this.database.execute<{ id: string; full_name: string; phone: string | null; registered_at: Date }>(sql`
       SELECT u.id, u.full_name, u.phone, b.registered_at FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id
       WHERE b.referrer_user_id = ${userId} ORDER BY b.registered_at DESC LIMIT 1000`);
     return rows.rows.map((row) => ({ id: row.id, fullName: row.full_name, phone: localPhone(row.phone ?? ""), registeredAt: new Date(row.registered_at).toISOString() }));
+  }
+
+  // Đội của công ty mà người gọi đang thuộc; không phải thành viên đội thì 403.
+  private async myTeam(userId: string): Promise<SalesTeam> {
+    const row = (await this.database.execute<{ sales_company_id: string | null }>(sql`SELECT sales_company_id FROM marketplace.buyer_accounts WHERE user_id = ${userId} AND is_sales_staff`)).rows[0];
+    if (!row?.sales_company_id) throw new ApiError("FORBIDDEN", "forbidden");
+    return this.salesTeam.load(this.database, row.sales_company_id);
+  }
+
+  private async salesPosition(userId: string): Promise<{ salesTitle: BuyerMeResponse["salesTitle"]; salesUnitName: string | null }> {
+    const row = (await this.database.execute<{ sales_company_id: string | null }>(sql`SELECT sales_company_id FROM marketplace.buyer_accounts WHERE user_id = ${userId} AND is_sales_staff`)).rows[0];
+    if (!row?.sales_company_id) return { salesTitle: null, salesUnitName: null };
+    const team = await this.salesTeam.load(this.database, row.sales_company_id);
+    const member = team.member(userId);
+    return { salesTitle: team.titleOf(userId), salesUnitName: member ? (team.unit(member.departmentId)?.name ?? null) : null };
   }
 
   // Mã giới thiệu là số điện thoại của tài khoản đang hoạt động; không tự giới thiệu, không chọn người mình đã giới thiệu.

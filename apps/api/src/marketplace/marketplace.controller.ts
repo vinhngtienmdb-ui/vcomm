@@ -6,6 +6,9 @@ import {
   buyerSalesFlagSchema,
   buyerSalesUnflagSchema,
   marketplaceOperatorSchema,
+  rejectSalesProposalSchema,
+  salesProposalListQuerySchema,
+  type SalesProposalItem,
   salesMoveSchema,
   salesUnitManagerSchema,
   salesUnitTypeSchema,
@@ -19,6 +22,7 @@ import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
 import { BuyerAdminService } from "./buyer-admin.service";
+import { SalesProposalsService } from "./sales-proposals.service";
 import { SalesTeamService } from "./sales-team.service";
 
 @Controller("marketplace")
@@ -26,7 +30,26 @@ export class MarketplaceController {
   constructor(
     private readonly admin: BuyerAdminService,
     private readonly salesTeam: SalesTeamService,
+    private readonly proposals: SalesProposalsService,
   ) {}
+
+  // API_121: duyệt đề xuất đội kinh doanh.
+  @Get("sales-proposals")
+  async proposalList(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<SalesProposalItem[]> {
+    return this.proposals.pendingForAdmin(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.buyer.view"), salesProposalListQuerySchema.parse(query).status);
+  }
+
+  @Post("sales-proposals/:id/approve")
+  @HttpCode(200)
+  async approve(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<SalesProposalItem> {
+    return this.proposals.approve(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.buyer.manage"), id);
+  }
+
+  @Post("sales-proposals/:id/reject")
+  @HttpCode(200)
+  async reject(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<SalesProposalItem> {
+    return this.proposals.reject(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.buyer.manage"), id, rejectSalesProposalSchema.parse(body).note);
+  }
 
   // API_120: đội kinh doanh (CONG_VIEC_27).
   @Get("sales-team")
@@ -85,11 +108,11 @@ export class MarketplaceController {
   @Post("buyers/:id/sales-flag")
   @HttpCode(200)
   async flag(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<BuyerAccountDetailResponse> {
-    return this.admin.flagSalesStaff(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.buyer.manage"), id, buyerSalesFlagSchema.parse(body));
+    return (await this.admin.flagSalesStaff(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.buyer.manage"), id, buyerSalesFlagSchema.parse(body)))!;
   }
 
   @Delete("buyers/:id/sales-flag")
   async unflag(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<BuyerAccountDetailResponse> {
-    return this.admin.unflagSalesStaff(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.buyer.manage"), id, buyerSalesUnflagSchema.parse(body).version);
+    return (await this.admin.unflagSalesStaff(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.buyer.manage"), id, buyerSalesUnflagSchema.parse(body).version))!;
   }
 }

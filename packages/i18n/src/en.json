@@ -286,7 +286,11 @@
     "salesUnitHasMembers": "The unit still has sales team members. Move them to another unit first.",
     "salesUnitOrderInvalid": "Invalid sales unit order: Division > Region > Team.",
     "salesManagerNotInUnit": "The manager must be a sales team member of this unit.",
-    "salesManagerOfOtherUnit": "This person already manages another unit."
+    "salesManagerOfOtherUnit": "This person already manages another unit.",
+    "salesProposalTargetNotFound": "No active account has this phone number.",
+    "salesProposalAlreadyMember": "This person is already in the sales team.",
+    "salesProposalPendingExists": "This person already has a pending proposal.",
+    "salesProposalNotPending": "The proposal is no longer pending."
   },
   "login": {
     "title": "Sign in",
@@ -1778,7 +1782,8 @@
     "customerAssignments": "Customer assignments",
     "visits": "Customer visits",
     "buyers": "VComm buyers",
-    "salesTeam": "Sales team"
+    "salesTeam": "Sales team",
+    "salesProposals": "Sales team proposals"
   },
   "partners": {
     "title": "Partners",
@@ -3114,7 +3119,35 @@
     "call": "Call",
     "customerCount": "{count} customers",
     "retry": "Try again",
-    "loadFailed": "Could not load the list. Reopen to try again."
+    "loadFailed": "Could not load the list. Reopen to try again.",
+    "title_director": "Sales director",
+    "title_regional_director": "Regional director",
+    "title_team_head": "Sales team head",
+    "title_staff": "Salesperson",
+    "myTeam": "My team ({count})",
+    "noTeam": "No team members yet.",
+    "customersOf": "{name}'s customers",
+    "back": "‹ Back",
+    "proposals": "Team change proposals",
+    "newProposal": "New proposal",
+    "kind_add": "Add person",
+    "kind_move": "Move unit",
+    "kind_appoint": "Appoint manager",
+    "kind_remove": "Remove from team",
+    "proposalKind": "Proposal type",
+    "targetPhone": "Phone of the person to add",
+    "member": "Member",
+    "unit": "Unit",
+    "reason": "Reason",
+    "submitProposal": "Send proposal",
+    "proposalSent": "Proposal sent, waiting for approval.",
+    "myProposals": "My proposals",
+    "noProposals": "No proposals yet.",
+    "status_pending": "Pending",
+    "status_approved": "Approved",
+    "status_rejected": "Rejected",
+    "status_withdrawn": "Withdrawn",
+    "withdraw": "Withdraw"
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -3199,5 +3232,32 @@
     "chain": "Superiors",
     "noChain": "No superiors.",
     "salesTitle": "Title"
+  },
+  "salesProposals": {
+    "title": "Sales team proposals",
+    "hint": "Sales managers send proposals from the VComm app. Approving applies the change immediately.",
+    "status": "Status",
+    "kind": "Type",
+    "target": "Person",
+    "unit": "Unit",
+    "proposer": "Proposed by",
+    "reason": "Reason",
+    "createdAt": "Created",
+    "actions": "Actions",
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectNote": "Rejection note",
+    "approved": "Approved and applied.",
+    "rejected": "Rejected.",
+    "none": "No proposals.",
+    "decided": "{name} · {time}",
+    "kind_add": "Add person",
+    "kind_move": "Move unit",
+    "kind_appoint": "Appoint manager",
+    "kind_remove": "Remove from team",
+    "status_pending": "Pending",
+    "status_approved": "Approved",
+    "status_rejected": "Rejected",
+    "status_withdrawn": "Withdrawn"
   }
 }

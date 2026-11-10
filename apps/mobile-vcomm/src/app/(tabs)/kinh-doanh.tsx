@@ -1,24 +1,32 @@
-// MAN_HINH_78 Kinh doanh: khách tôi phụ trách, chỉ nhân viên kinh doanh (CHUC_NANG_108; API_118; QUYTAC_NGHIEPVU_145, 146).
-import type { BuyerSalesCustomerItem } from "contracts";
-import { useFocusEffect } from "expo-router";
+// MAN_HINH_78 Kinh doanh, MAN_HINH_83 Đội của tôi (CHUC_NANG_108, 111; API_118, 122; QUYTAC_NGHIEPVU_145, 149 đến 151):
+// chức danh, đơn vị của tôi; khách tôi phụ trách; người quản lý xem cấp dưới trong nhánh.
+import type { BuyerSalesCustomerItem, MySalesTeamResponse } from "contracts";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { Linking, ScrollView, Text, View } from "react-native";
-import { Button, Card, Loading, Muted, Notice, Screen } from "@/components/ui";
+import { Pressable, ScrollView, Text } from "react-native";
+import { CustomerList } from "@/components/CustomerList";
+import { Button, Card, Loading, Muted, Notice, Screen, Title } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
-import { shortDate, translator } from "@/lib/i18n";
+import { translator } from "@/lib/i18n";
 import { colors, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
 
 export default function SalesScreen() {
   const [customers, setCustomers] = useState<BuyerSalesCustomerItem[] | null>(null);
+  const [team, setTeam] = useState<MySalesTeamResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       let active = true;
-      api<BuyerSalesCustomerItem[]>("/buyer/sales/customers")
-        .then((items) => active && setCustomers(items))
+      Promise.all([api<BuyerSalesCustomerItem[]>("/buyer/sales/customers"), api<MySalesTeamResponse>("/buyer/sales/team")])
+        .then(([loadedCustomers, loadedTeam]) => {
+          if (!active) return;
+          setCustomers(loadedCustomers);
+          setTeam(loadedTeam);
+          setError(null);
+        })
         .catch((failure: unknown) => active && setError(failure instanceof ApiFailure ? failure.message : t("unknownError")));
       return () => {
         active = false;
@@ -30,26 +38,40 @@ export default function SalesScreen() {
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <Screen>
         {error ? <Notice text={error} /> : null}
-        <Card>
-          <Text style={{ fontWeight: "700", color: colors.text }}>{t("salesCustomers")}</Text>
-          {customers ? <Muted>{t("customerCount", { count: customers.length })}</Muted> : null}
-          {!customers && !error ? <Loading /> : null}
-          {customers?.length === 0 ? <Muted>{t("noSalesCustomers")}</Muted> : null}
-          {customers?.map((customer, index) => (
-            <View
-              key={customer.id}
-              style={{ flexDirection: "row", alignItems: "center", gap: space[2], borderTopWidth: index === 0 ? 0 : 1, borderColor: colors.border, paddingTop: index === 0 ? 0 : space[2] }}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: colors.text, fontWeight: "600" }}>{customer.fullName}</Text>
+        {!team && !error ? <Loading /> : null}
+        {team ? (
+          <Card>
+            <Title>{t(`title_${team.title}`)}</Title>
+            <Muted>{team.unitName}</Muted>
+          </Card>
+        ) : null}
+        {customers ? (
+          <Card>
+            <Text style={{ fontWeight: "700", color: colors.text }}>{t("salesCustomers")}</Text>
+            <Muted>{t("customerCount", { count: customers.length })}</Muted>
+            <CustomerList customers={customers} />
+          </Card>
+        ) : null}
+        {team && team.title !== "staff" ? (
+          <Card>
+            <Text style={{ fontWeight: "700", color: colors.text }}>{t("myTeam", { count: team.members.length })}</Text>
+            <Button label={t("proposals")} kind="secondary" onPress={() => router.push("/de-xuat")} />
+            {team.members.length === 0 ? <Muted>{t("noTeam")}</Muted> : null}
+            {team.members.map((member, index) => (
+              <Pressable
+                key={member.userId}
+                accessibilityRole="link"
+                onPress={() => router.push({ pathname: "/doi/[id]", params: { id: member.userId, ten: member.fullName } })}
+                style={{ borderTopWidth: index === 0 ? 0 : 1, borderColor: colors.border, paddingTop: index === 0 ? 0 : space[2] }}
+              >
+                <Text style={{ color: colors.primary, fontWeight: "600" }}>{member.fullName}</Text>
                 <Muted>
-                  {customer.phone} · {t("registeredOn", { date: shortDate(customer.registeredAt) })}
+                  {t(`title_${member.title}`)} · {member.unitName} · {t("customerCount", { count: member.customerCount })}
                 </Muted>
-              </View>
-              <Button label={t("call")} kind="secondary" onPress={() => void Linking.openURL(`tel:${customer.phone}`)} />
-            </View>
-          ))}
-        </Card>
+              </Pressable>
+            ))}
+          </Card>
+        ) : null}
       </Screen>
     </ScrollView>
   );

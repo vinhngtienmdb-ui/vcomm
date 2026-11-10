@@ -1,6 +1,7 @@
 // API_116 đến 118: đăng ký, đăng nhập, tài khoản người mua trên ứng dụng VComm (CONG_VIEC_23).
 // Người mua không thuộc công ty nào nên các API này không dùng header X-Company-Id.
-import { Body, Controller, Get, HttpCode, Post, Req } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post, Req } from "@nestjs/common";
+import { UuidPipe } from "../common/uuid.pipe";
 import {
   buyerLoginSchema,
   buyerOtpVerifySchema,
@@ -12,15 +13,23 @@ import {
   type BuyerMeResponse,
   type BuyerReferralItem,
   type BuyerSalesCustomerItem,
+  type MySalesTeamResponse,
+  createSalesProposalSchema,
+  type SalesProposalItem,
+  type SalesProposalOptionsResponse,
 } from "contracts";
 import type { Request } from "express";
 import { clientInfo } from "../auth/auth.controller";
 import { Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.guard";
 import { BuyerAccountsService } from "./buyer-accounts.service";
+import { SalesProposalsService } from "./sales-proposals.service";
 
 @Controller("buyer")
 export class BuyerController {
-  constructor(private readonly buyers: BuyerAccountsService) {}
+  constructor(
+    private readonly buyers: BuyerAccountsService,
+    private readonly proposals: SalesProposalsService,
+  ) {}
 
   @Public()
   @Post("register/otp")
@@ -97,5 +106,38 @@ export class BuyerController {
   @Get("sales/customers")
   async salesCustomers(@Req() request: AuthenticatedRequest): Promise<BuyerSalesCustomerItem[]> {
     return this.buyers.salesCustomers(request.auth.userId);
+  }
+
+  // API_122: đội của tôi (CONG_VIEC_27).
+  @Get("sales/team")
+  async team(@Req() request: AuthenticatedRequest): Promise<MySalesTeamResponse> {
+    return this.buyers.team(request.auth.userId);
+  }
+
+  @Get("sales/members/:id/customers")
+  async memberCustomers(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<BuyerSalesCustomerItem[]> {
+    return this.buyers.memberCustomers(request.auth.userId, id);
+  }
+
+  // API_121: đề xuất thay đổi đội kinh doanh (người quản lý).
+  @Get("sales/proposal-options")
+  async proposalOptions(@Req() request: AuthenticatedRequest): Promise<SalesProposalOptionsResponse> {
+    return this.proposals.options(request.auth.userId);
+  }
+
+  @Get("sales/proposals")
+  async myProposals(@Req() request: AuthenticatedRequest): Promise<SalesProposalItem[]> {
+    return this.proposals.mine(request.auth.userId);
+  }
+
+  @Post("sales/proposals")
+  async createProposal(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<SalesProposalItem> {
+    return this.proposals.create(request.auth.userId, createSalesProposalSchema.parse(body));
+  }
+
+  @Post("sales/proposals/:id/withdraw")
+  @HttpCode(200)
+  async withdrawProposal(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<SalesProposalItem> {
+    return this.proposals.withdraw(request.auth.userId, id);
   }
 }

@@ -91,7 +91,11 @@ export class BuyerAdminService {
     const canManage = granted.includes("marketplace.buyer.manage");
     const departments =
       operatorCompanyId && canManage
-        ? (await this.database.execute<{ id: string; name: string; type: SalesUnitType }>(sql`SELECT id, name, sales_unit_type AS type FROM core.departments WHERE company_id = ${operatorCompanyId} AND status = 'active' AND sales_unit_type IS NOT NULL ORDER BY name`)).rows
+        ? (
+            await this.database.execute<{ id: string; name: string; type: SalesUnitType }>(
+              sql`SELECT id, name, sales_unit_type AS type FROM core.departments WHERE company_id = ${operatorCompanyId} AND status = 'active' AND sales_unit_type IS NOT NULL ORDER BY name`,
+            )
+          ).rows
         : [];
     return {
       operatorCompany: operator ? { id: operator.id, shortName: operator.short_name } : null,
@@ -218,8 +222,14 @@ export class BuyerAdminService {
   }
 
   // QUYTAC_NGHIEPVU_144 (THAY_DOI_15): thêm vào công ty vận hành sàn với phòng ban đã chọn, không gán vai trò.
-  async flagSalesStaff(actor: BuyerAdminActor, buyerId: string, input: { departmentId: string; version: number }): Promise<BuyerAccountDetailResponse> {
-    await this.database.transaction(async (transaction) => {
+  async flagSalesStaff(
+    actor: BuyerAdminActor,
+    buyerId: string,
+    input: { departmentId: string; version: number | null },
+    executor?: Database,
+    proposalId: string | null = null,
+  ): Promise<BuyerAccountDetailResponse | null> {
+    const run = async (transaction: Database) => {
       const current = await this.lockBuyer(transaction, buyerId, input.version);
       if (current.user_status !== "active") throw new ApiError("BUSINESS_RULE", "buyerInactive");
       // Đánh dấu vào đơn vị kinh doanh (QUYTAC_NGHIEPVU_149); khóa đội để thay đổi đội chạy lần lượt.
@@ -261,22 +271,27 @@ export class BuyerAdminService {
         UPDATE marketplace.buyer_accounts SET is_sales_staff = true, sales_company_id = ${company}, sales_department_id = ${input.departmentId}, updated_at = now(), version = version + 1
         WHERE user_id = ${buyerId}`);
       await transaction.execute(sql`
-        INSERT INTO marketplace.sales_flag_history (buyer_user_id, action, company_id, department_id, changed_by) VALUES (${buyerId}, 'flag', ${company}, ${input.departmentId}, ${actor.userId})`);
+        INSERT INTO marketplace.sales_flag_history (buyer_user_id, action, company_id, department_id, changed_by, proposal_id) VALUES (${buyerId}, 'flag', ${company}, ${input.departmentId}, ${actor.userId}, ${proposalId})`);
       await this.record(transaction, actor, "buyer.sales.flag", buyerId, { departmentId: input.departmentId });
-    });
+    };
+    if (executor) {
+      await run(executor);
+      return null;
+    }
+    await this.database.transaction(run);
     return this.detail(actor, buyerId);
   }
 
   // Bỏ đánh dấu: bỏ phòng ban; thành viên do đánh dấu tạo mà không còn vai trò nào ở công ty thì ngừng; thành viên có sẵn trả lại phòng ban cũ; giữ tài khoản người mua.
-  async unflagSalesStaff(actor: BuyerAdminActor, buyerId: string, version: number): Promise<BuyerAccountDetailResponse> {
-    await this.database.transaction(async (transaction) => {
+  async unflagSalesStaff(actor: BuyerAdminActor, buyerId: string, version: number | null, executor?: Database, proposalId: string | null = null): Promise<BuyerAccountDetailResponse | null> {
+    const run = async (transaction: Database) => {
       const current = await this.lockBuyer(transaction, buyerId, version);
       if (!current.is_sales_staff) throw new ApiError("BUSINESS_RULE", "buyerNotSalesStaff");
       const company = current.sales_company_id!;
       const today = this.permissions.today();
       // Người đang quản lý đơn vị kinh doanh thì bỏ quản lý (QUYTAC_NGHIEPVU_152).
       await this.salesTeam.lockTeam(transaction, company);
-      await this.salesTeam.releaseManagement(transaction, actor, buyerId);
+      await this.salesTeam.releaseManagement(transaction, actor, buyerId, proposalId);
       if (current.sales_membership_created) {
         // Thành viên do đánh dấu tạo: bỏ phòng ban; không còn vai trò nào ở công ty thì ngừng.
         const remaining = await transaction.execute(sql`
@@ -293,13 +308,18 @@ export class BuyerAdminService {
       await transaction.execute(sql`
         UPDATE marketplace.buyer_accounts SET is_sales_staff = false, sales_company_id = NULL, sales_department_id = NULL, sales_membership_created = false, previous_department_id = NULL, updated_at = now(), version = version + 1 WHERE user_id = ${buyerId}`);
       await transaction.execute(sql`
-        INSERT INTO marketplace.sales_flag_history (buyer_user_id, action, company_id, department_id, changed_by) VALUES (${buyerId}, 'unflag', ${company}, ${current.sales_department_id}, ${actor.userId})`);
+        INSERT INTO marketplace.sales_flag_history (buyer_user_id, action, company_id, department_id, changed_by, proposal_id) VALUES (${buyerId}, 'unflag', ${company}, ${current.sales_department_id}, ${actor.userId}, ${proposalId})`);
       await this.record(transaction, actor, "buyer.sales.unflag", buyerId, {});
-    });
+    };
+    if (executor) {
+      await run(executor);
+      return null;
+    }
+    await this.database.transaction(run);
     return this.detail(actor, buyerId);
   }
 
-  private async lockBuyer(executor: Executor, buyerId: string, version: number) {
+  private async lockBuyer(executor: Executor, buyerId: string, version: number | null) {
     const row = (
       await executor.execute<{
         version: number;
@@ -316,7 +336,7 @@ export class BuyerAdminService {
       FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id WHERE b.user_id = ${buyerId} FOR UPDATE OF b`)
     ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
-    if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+    if (version !== null && row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     return row;
   }
 
