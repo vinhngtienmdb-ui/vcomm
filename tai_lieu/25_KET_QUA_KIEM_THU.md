@@ -183,6 +183,22 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_15
+
+- Phạm vi: lát L0, L1 (báo cáo tình hình tài chính B01-DN theo Thông tư 99/2025, B01a-DNN, B01b-DNN theo Thông tư 133/2016; báo cáo kết quả hoạt động kinh doanh B02-DN, B02-DNN; lập được khi kỳ chưa khóa sổ; số đầu năm, cùng kỳ năm trước; đánh dấu tài khoản chi tiết dài hạn; xuất Excel, PDF); MAN_HINH_53, ô Dài hạn trên MAN_HINH_50; API_90, sửa API_87. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --prod --audit-level high`; database migration 0012 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright (Quản trị công ty VCR): báo cáo tình hình tài chính (tổng tài sản 17.804.000 bằng tổng nguồn vốn), kết quả kinh doanh, tải Excel (tệp xlsx hợp lệ), mở PDF thẻ mới, đánh dấu tài khoản chi tiết dài hạn (máy tính và điện thoại 375 điểm ảnh, không cuộn ngang, không có yêu cầu lỗi).
+- Kết quả: 233 đạt / 0 không đạt / 233 kịch bản tự động (29 tệp; phần mới: `c15-statements` 4, KICHBAN_KIEMTHU_218 đến 221). KICHBAN_KIEMTHU_222, 223 (thủ công trên trình duyệt) đạt.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_117 đến 120 (bắt buộc) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod --audit-level high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 50).
+  - C3 phân quyền: Đạt – xem, xuất báo cáo cần quyền `finance.ledger.view` trong phạm vi công ty; nhân viên bán hàng nhận 403; đánh dấu dài hạn cần `finance.ledger.setup`, tài khoản hệ thống không đánh dấu được.
+  - C4 toàn vẹn dữ liệu: Đạt – báo cáo chỉ đọc; mọi truy vấn lọc theo công ty; tham số truy vấn ràng buộc, không ghép chuỗi.
+- Tự rà soát mã và dọn dẹp: Đạt. Khi thử trên trình duyệt phát hiện tệp Excel, PDF tải về hỏng (máy chủ trả nội dung dạng JSON), đã sửa và thêm kiểm tra chữ ký tệp. Rà soát độc lập không có lỗi chặn; tìm 2 mục Trung bình, 4 mục Thấp. Đã sửa: phiếu kế toán kết chuyển thủ công qua 911 làm sai kết quả kinh doanh, cùng kỳ năm trước bỏ sót ngày 29/02, tổng có thể lệch 1 đồng so với các dòng, thiếu từ ngày hoặc mẫu sai không báo lỗi. Giữ lại (ghi đặc tả mục 16): lợi nhuận chưa kết chuyển mọi năm vào 4212 như khi khóa sổ thật; chỉ tiêu theo tài khoản đối ứng không chia bút toán nhiều đối ứng; "Từ ngày" mặc định 01/01.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
+- Kết luận: Chờ người dùng nghiệm thu. Trước khi phát hành: kế toán trưởng so Phụ lục IV Thông tư 99/2025 (biểu mẫu, cách lập) với bản gốc.
+
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_14
 
 - Phạm vi: lát L0, L1 (khởi tạo kế toán theo chế độ của công ty, hệ thống tài khoản Thông tư 99/2025 và Thông tư 133/2016, tài khoản chi tiết, định khoản mặc định; bút toán tự sinh từ phiếu kho, phiếu thu chi, ghi tổn thất hàng thiếu nội bộ; phiếu kế toán qua luồng duyệt; khóa sổ, kết chuyển, mở lại; bảng cân đối số phát sinh, sổ cái; làm tròn chung công nợ và bút toán theo THAY_DOI_10); MAN_HINH_50 đến 52; API_87 đến 89, sửa API_20. Hồi quy: toàn bộ kiểm thử tự động của dự án.
