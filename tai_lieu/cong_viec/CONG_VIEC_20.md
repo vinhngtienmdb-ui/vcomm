@@ -3,7 +3,7 @@
 - Mô tả: Lập bảng hợp nhất theo kỳ cho tập đoàn: cộng gộp số liệu sổ cái các công ty cùng đồng tiền hạch toán, tự lập bút toán loại trừ công nợ nội bộ, doanh thu và giá vốn bán nội bộ, lãi chưa thực hiện trong hàng tồn kho (ước tính, sửa được), điều chỉnh tay; lập B01-DN, B02-DN hợp nhất; gửi duyệt, đã duyệt giữ nguyên số; xuất Excel, PDF.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Bản nháp. Người dùng xác nhận thiết kế ngày 2026-11-10; đã lập trình lát L0.
+- Trạng thái: Bản nháp. Người dùng xác nhận thiết kế ngày 2026-11-10; đã lập trình lát L0, L1.
 - Nguồn: tài liệu `04` mục 6, `05` mục 2.1 (báo cáo hợp nhất); quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`.
 
 ## 1. Mục tiêu
@@ -39,7 +39,7 @@ Ngoài phạm vi:
 - QUYTAC_NGHIEPVU_124: Cộng gộp theo mã tài khoản của Thông tư 99; công ty theo Thông tư 133 ghép theo mã cùng số, riêng 6421 vào 641, 6422 vào 642 (bảng ánh xạ trong mã). Số liệu từng công ty tính như báo cáo tài chính của công ty (kể cả đã hay chưa khóa sổ).
 - QUYTAC_NGHIEPVU_125: Loại trừ công nợ nội bộ: số dư cuối kỳ của tài khoản phải thu, phải trả, phải thu khác, phải trả khác có đối tác là công ty thành viên; loại trừ theo từng cặp công ty phần nhỏ hơn của hai bên (Nợ phải trả / Có phải thu); phần chênh hiện cảnh báo để kế toán đối chiếu, điều chỉnh tay.
 - QUYTAC_NGHIEPVU_126: Loại trừ doanh thu, giá vốn nội bộ trong kỳ: doanh thu thuần của phiếu xuất bán (trừ nhận hàng trả lại) cho khách là công ty thành viên: Nợ 511 / Có 632.
-- QUYTAC_NGHIEPVU_127: Lãi chưa thực hiện: mỗi công ty mua, mỗi mặt hàng mua nội bộ trong kỳ: số lượng còn tồn cuối kỳ (tối đa bằng số đã mua nội bộ trong kỳ) × lãi gộp mỗi đơn vị của bên bán (doanh thu thuần trừ giá vốn trên số lượng bán nội bộ mặt hàng đó trong kỳ, không âm): Nợ 632 / Có 156. Kế toán trưởng sửa được số từng dòng khi bảng còn nháp.
+- QUYTAC_NGHIEPVU_127: Lãi chưa thực hiện: mỗi công ty mua, mỗi mặt hàng mua nội bộ trong kỳ: số lượng còn tồn cuối kỳ (tối đa bằng số đã mua nội bộ trong kỳ) × lãi gộp mỗi đơn vị (doanh thu thuần trừ giá vốn của bên bán trên các dòng xuất nội bộ đã nhận, chia số lượng bên mua đã nhận, theo đơn vị của bên mua, không âm): Nợ 632 / Có 156. Kế toán trưởng sửa được số từng dòng khi bảng còn nháp.
 - QUYTAC_NGHIEPVU_128: Bảng hợp nhất theo kỳ (từ ngày, đến ngày), trạng thái nháp, chờ duyệt, đã duyệt, bị từ chối, đã rút; mỗi kỳ một bảng đang dùng. Tính lại lấy số mới từ sổ các công ty, giữ số đã sửa tay. Duyệt theo chính sách duyệt của công ty gốc; đã duyệt thì lưu số báo cáo, không tính lại.
 
 ## 5. Vai trò và quyền

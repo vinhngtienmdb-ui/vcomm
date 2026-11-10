@@ -3619,3 +3619,75 @@ export interface ConsolidatedStatementResponse {
   memberNames: string[];
   lines: ConsolidatedStatementLine[];
 }
+export const consolidationStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
+export type ConsolidationStatus = (typeof consolidationStatuses)[number];
+export const consolidationEntryKinds = ["intercompany_balance", "internal_sales", "unrealized_profit", "manual"] as const;
+export type ConsolidationEntryKind = (typeof consolidationEntryKinds)[number];
+export const createConsolidationSchema = z.object({ from: isoDate, to: isoDate }).strict();
+export const consolidationVersionSchema = z.object({ version: z.number().int().min(0) }).strict();
+export const saveConsolidationProfitSchema = z
+  .object({ amount: z.string().regex(/^\d{1,16}(\.\d{1,4})?$/).nullable(), reason: z.string().trim().max(500).nullable(), version: z.number().int().min(0) })
+  .strict();
+export const consolidationManualEntrySchema = z
+  .object({
+    description: z.string().trim().min(1).max(500),
+    lines: z
+      .array(z.object({ accountCode: z.string().trim().min(3).max(10), debit: z.string().regex(/^\d{1,16}(\.\d{1,4})?$/), credit: z.string().regex(/^\d{1,16}(\.\d{1,4})?$/) }).strict())
+      .min(2)
+      .max(20),
+    version: z.number().int().min(0),
+  })
+  .strict();
+export interface ConsolidationListItem {
+  id: string;
+  fromDate: string;
+  toDate: string;
+  documentNo: string | null;
+  status: ConsolidationStatus;
+  calculatedAt: string | null;
+  postError: string | null;
+}
+export interface ConsolidationsResponse {
+  data: ConsolidationListItem[];
+  canManage: boolean;
+}
+export interface ConsolidationEntry {
+  entryNo: number;
+  kind: ConsolidationEntryKind;
+  description: string;
+  lines: { companyName: string; accountCode: string; partnerName: string | null; debit: string; credit: string }[];
+}
+export interface ConsolidationProfitLine {
+  id: string;
+  buyerName: string;
+  sellerName: string;
+  itemName: string;
+  internalQuantity: string;
+  endingQuantity: string;
+  unitMargin: string;
+  estimatedAmount: string;
+  overrideAmount: string | null;
+  overrideReason: string | null;
+  effectiveAmount: string;
+}
+export interface ConsolidationWarning {
+  receivableCompany: string;
+  payableCompany: string;
+  receivable: string;
+  payable: string;
+  difference: string;
+}
+export interface ConsolidationResponse extends ConsolidationListItem {
+  memberNames: string[];
+  warnings: ConsolidationWarning[];
+  entries: ConsolidationEntry[];
+  profitLines: ConsolidationProfitLine[];
+  balanceSheet: ConsolidatedStatementResponse;
+  incomeStatement: ConsolidatedStatementResponse;
+  accountOptions: { code: string; name: string }[];
+  canManage: boolean;
+  canEdit: boolean;
+  canWithdraw: boolean;
+  currency: string;
+  version: number;
+}
