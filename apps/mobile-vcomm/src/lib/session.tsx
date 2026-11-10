@@ -1,9 +1,10 @@
 // Phiên đăng nhập của ứng dụng VComm: tài khoản người mua (QUYTAC_NGHIEPVU_147).
 import type { AppLoginResponse, BuyerMeResponse } from "contracts";
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { api, loadStoredSession, setSignedOutHandler, storeTokens } from "./api";
+import { api, ApiFailure, loadStoredSession, setSignedOutHandler, storeTokens } from "./api";
 
-type Stage = "loading" | "signedOut" | "mfa" | "mfaEnroll" | "ready";
+// offline: khởi động không gọi được máy chủ (mất mạng, máy chủ bận); giữ phiên, cho thử lại.
+type Stage = "loading" | "offline" | "signedOut" | "mfa" | "mfaEnroll" | "ready";
 type Session = {
   stage: Stage;
   me: BuyerMeResponse | null;
@@ -11,6 +12,7 @@ type Session = {
   signIn: (path: string, body: object) => Promise<void>;
   verifyMfa: (code: string, backup: boolean) => Promise<void>;
   reload: () => Promise<void>;
+  retry: () => Promise<void>;
   setMe: (me: BuyerMeResponse) => void;
   logout: () => Promise<void>;
 };
@@ -33,7 +35,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     });
     void (async () => {
       if (!(await loadStoredSession())) return setStage("signedOut");
-      await reload().catch(() => setStage("signedOut"));
+      await reload().catch((failure: unknown) => setStage(failure instanceof ApiFailure && failure.status === 401 ? "signedOut" : "offline"));
     })();
   }, [reload]);
 
@@ -53,6 +55,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await reload();
       },
       reload,
+      retry: async () => {
+        setStage("loading");
+        await reload().catch((failure: unknown) => setStage(failure instanceof ApiFailure && failure.status === 401 ? "signedOut" : "offline"));
+      },
       setMe,
       logout: async () => {
         await api("/auth/logout", { method: "POST" }).catch(() => undefined);

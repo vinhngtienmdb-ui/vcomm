@@ -1,6 +1,6 @@
 // MAN_HINH_74 Đăng ký (CHUC_NANG_104; API_116; QUYTAC_NGHIEPVU_141, 142): bước 1 số điện thoại, mã giới thiệu; bước 2 mã OTP, họ tên, mật khẩu.
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AuthLayout, TextLink, useAction, useResendTimer } from "@/components/auth";
 import { Button, Card, Field, Muted, Notice } from "@/components/ui";
 import { api } from "@/lib/api";
@@ -17,8 +17,12 @@ export default function RegisterScreen() {
   const [code, setCode] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
-  const { busy, error, fields, run } = useAction();
+  const { busy, error, fields, run } = useAction(step === "phone" ? ["phone", "referralCode"] : ["code", "fullName", "password", "referralCode"]);
   const timer = useResendTimer();
+  // Số vừa có người khác đăng ký khi đang ở bước 2: quay lại bước 1 để thấy lỗi ở ô số điện thoại.
+  useEffect(() => {
+    if (fields.phone) setStep("phone");
+  }, [fields.phone]);
 
   const sendCode = () =>
     run(async () => {

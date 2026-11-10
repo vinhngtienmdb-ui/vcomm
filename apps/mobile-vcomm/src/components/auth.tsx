@@ -25,23 +25,31 @@ export function AuthLayout({ title, children }: { title: string; children: React
 }
 
 // Gọi một thao tác, giữ lỗi chung và lỗi theo ô để hiện dưới từng ô nhập.
-export function useAction() {
+// shownFields: các ô đang hiện trên màn hình; lỗi của ô không hiện thì đưa lên thông báo chung để người dùng vẫn thấy.
+export function useAction(shownFields: readonly string[] = []) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fields, setFields] = useState<Record<string, string>>({});
-  const run = useCallback(async (action: () => Promise<void>) => {
-    setBusy(true);
-    setError(null);
-    setFields({});
-    try {
-      await action();
-    } catch (failure) {
-      if (failure instanceof ApiFailure && Object.keys(failure.fields).length > 0) setFields(failure.fields);
-      else setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
-    } finally {
-      setBusy(false);
-    }
-  }, []);
+  const run = useCallback(
+    async (action: () => Promise<void>) => {
+      setBusy(true);
+      setError(null);
+      setFields({});
+      try {
+        await action();
+      } catch (failure) {
+        if (failure instanceof ApiFailure && Object.keys(failure.fields).length > 0) {
+          setFields(failure.fields);
+          const hidden = Object.entries(failure.fields).filter(([field]) => !shownFields.includes(field));
+          if (hidden.length > 0) setError(hidden.map(([, message]) => message).join(" "));
+        } else setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
+      } finally {
+        setBusy(false);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [shownFields.join(",")],
+  );
   return { busy, error, fields, run };
 }
 

@@ -3107,7 +3107,9 @@
     "salesCustomers": "My customers",
     "noSalesCustomers": "No customers yet.",
     "call": "Call",
-    "customerCount": "{count} customers"
+    "customerCount": "{count} customers",
+    "retry": "Try again",
+    "loadFailed": "Could not load the list. Reopen to try again."
   },
   "buyers": {
     "title": "Buyer accounts",

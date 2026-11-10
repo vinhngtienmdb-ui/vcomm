@@ -2,16 +2,24 @@
 import { Redirect, Stack, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { Loading } from "@/components/ui";
+import { Button, Loading, Notice, Screen } from "@/components/ui";
+import { translator } from "@/lib/i18n";
 import { colors } from "@/lib/theme";
 import { SessionProvider, useSession } from "@/lib/session";
 
 const publicPaths = ["/dang-nhap", "/dang-ky", "/quen-mat-khau"];
 
 function Gate() {
-  const { stage } = useSession();
+  const { stage, retry } = useSession();
   const path = usePathname();
   if (stage === "loading") return <Loading />;
+  if (stage === "offline")
+    return (
+      <Screen>
+        <Notice text={translator("vcommApp")("offline")} />
+        <Button label={translator("vcommApp")("retry")} onPress={() => void retry()} />
+      </Screen>
+    );
   const onPublic = publicPaths.includes(path);
   const onReferral = path.startsWith("/r/");
   if (stage !== "ready" && !onPublic && !onReferral) return <Redirect href="/dang-nhap" />;

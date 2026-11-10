@@ -3107,7 +3107,9 @@
     "salesCustomers": "Khách tôi phụ trách",
     "noSalesCustomers": "Chưa có khách nào.",
     "call": "Gọi",
-    "customerCount": "{count} khách"
+    "customerCount": "{count} khách",
+    "retry": "Thử lại",
+    "loadFailed": "Không tải được danh sách. Kéo xuống hoặc mở lại để thử lại."
   },
   "buyers": {
     "title": "Tài khoản người mua",

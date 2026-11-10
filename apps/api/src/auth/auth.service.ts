@@ -130,6 +130,9 @@ export class AuthService {
     if (appOnly && current.clientType === "web") throw new ApiError("UNAUTHENTICATED", "unauthenticated");
     if (current.revokedAt) await this.revokeFamily(current.familyId, now);
     if (current.expiresAt <= now) throw new ApiError("UNAUTHENTICATED", "unauthenticated");
+    // Phiên chưa nhập mã xác thực hai lớp không được làm mới: số lần nhập sai đếm theo phiên,
+    // làm mới để có phiên mới sẽ đếm lại từ đầu (rà soát CONG_VIEC_23). Hết 15 phút thì đăng nhập lại.
+    if (!current.mfaVerified) throw new ApiError("UNAUTHENTICATED", "unauthenticated");
     const active = await this.database.select({ status: users.status }).from(users).where(eq(users.id, current.userId));
     if (active[0]?.status !== "active") throw new ApiError("UNAUTHENTICATED", "unauthenticated");
 

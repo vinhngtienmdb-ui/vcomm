@@ -30,6 +30,7 @@ export class BuyerController {
   }
 
   @Public()
+  @RateLimitGroup("otp-verify")
   @Post("register")
   @HttpCode(200)
   async register(@Body() body: unknown, @Req() request: Request): Promise<AppLoginResponse> {
@@ -53,7 +54,7 @@ export class BuyerController {
   }
 
   @Public()
-  @RateLimitGroup("login")
+  @RateLimitGroup("otp-verify")
   @Post("login/otp/verify")
   @HttpCode(200)
   async verifyLoginOtp(@Body() body: unknown, @Req() request: Request): Promise<AppLoginResponse> {
@@ -69,6 +70,7 @@ export class BuyerController {
   }
 
   @Public()
+  @RateLimitGroup("otp-verify")
   @Post("password-reset")
   @HttpCode(204)
   async resetPassword(@Body() body: unknown, @Req() request: Request): Promise<void> {

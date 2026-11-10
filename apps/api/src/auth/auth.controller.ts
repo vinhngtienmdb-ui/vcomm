@@ -93,6 +93,7 @@ export class AuthController {
 
   // API_03
   @Public()
+  @RateLimitGroup("otp-verify")
   @Post("otp/verify")
   @HttpCode(200)
   async verifyOtp(@Body() body: unknown, @Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<LoginResponse> {

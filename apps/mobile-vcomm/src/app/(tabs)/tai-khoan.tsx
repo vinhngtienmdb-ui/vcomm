@@ -13,23 +13,30 @@ import { colors, space } from "@/lib/theme";
 
 export default function AccountScreen() {
   const t = translator("vcommApp");
-  const { me, setMe, logout } = useSession();
+  const { me, setMe, reload, logout } = useSession();
   const { ma } = useLocalSearchParams<{ ma?: string }>();
   const [code, setCode] = useState(typeof ma === "string" ? ma : "");
   const [referrals, setReferrals] = useState<BuyerReferralItem[] | null>(null);
+  const [referralsFailed, setReferralsFailed] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { busy, error, fields, run } = useAction();
+  const { busy, error, fields, run } = useAction(["referralCode"]);
 
   useFocusEffect(
     useCallback(() => {
       let active = true;
+      // Tải lại tài khoản để thấy ngay khi vừa được đánh dấu nhân viên kinh doanh.
+      void reload().catch(() => undefined);
       api<BuyerReferralItem[]>("/buyer/referrals")
-        .then((items) => active && setReferrals(items))
-        .catch(() => active && setReferrals([]));
+        .then((items) => {
+          if (!active) return;
+          setReferrals(items);
+          setReferralsFailed(false);
+        })
+        .catch(() => active && setReferralsFailed(true));
       return () => {
         active = false;
       };
-    }, []),
+    }, [reload]),
   );
 
   if (!me) return null;
@@ -108,6 +115,7 @@ export default function AccountScreen() {
             {t("myReferrals")}
             {referrals ? ` (${referrals.length})` : ""}
           </Text>
+          {referralsFailed ? <Notice text={t("loadFailed")} /> : null}
           {referrals?.length === 0 ? <Muted>{t("noReferrals")}</Muted> : null}
           {referrals?.map((item, index) => (
             <View key={`${item.maskedPhone}-${index}`} style={{ borderTopWidth: index === 0 ? 0 : 1, borderColor: colors.border, paddingTop: index === 0 ? 0 : space[2] }}>

@@ -198,6 +198,9 @@ describe("CONG_VIEC_23 quản trị người mua", () => {
     // Để trống người giới thiệu.
     const cleared = await company.call("post", `/marketplace/buyers/${id}/referrer`, { companyId: retail, body: { referralCode: null, reason: "Khách yêu cầu bỏ", version: changed.body.version } });
     expect(cleared.body.referrerName).toBeNull();
+    // Quản trị đã bỏ người giới thiệu: khách không tự đặt lại được.
+    const buyerTwo = await post("/buyer/login", { phone: "0911000002", password });
+    expect((await bearer("get", "/buyer/me", buyerTwo.body.tokens.accessToken)).body.canSetReferrer).toBe(false);
     // Người không có quyền quản trị người mua.
     const purchasing = await signIn(application, "phuc.le@vcomm.test");
     expect((await purchasing.call("get", "/marketplace/buyers", { companyId: retail })).status).toBe(403);
@@ -228,7 +231,9 @@ describe("CONG_VIEC_23 quản trị người mua", () => {
     // Gắn lại 0911000001 làm người giới thiệu của 0911000002 (đã bỏ ở KICHBAN_KIEMTHU_298): đó là khách 0911000001 phụ trách.
     const customerId = (await pool.query<{ id: string }>("SELECT id FROM core.users WHERE phone = '+84911000002'")).rows[0]!.id;
     const customer = await company.call("get", `/marketplace/buyers/${customerId}`, { companyId: retail });
-    expect((await company.call("post", `/marketplace/buyers/${customerId}/referrer`, { companyId: retail, body: { referralCode: "0911000001", reason: "Gắn lại", version: customer.body.version } })).status).toBe(200);
+    expect(
+      (await company.call("post", `/marketplace/buyers/${customerId}/referrer`, { companyId: retail, body: { referralCode: "0911000001", reason: "Gắn lại", version: customer.body.version } })).status,
+    ).toBe(200);
     const login = await post("/buyer/login", { phone: "0911000001", password });
     const token = login.body.tokens.accessToken as string;
     expect((await bearer("get", "/buyer/me", token)).body.isSalesStaff).toBe(true);
@@ -248,5 +253,65 @@ describe("CONG_VIEC_23 quản trị người mua", () => {
     expect(left.rows).toHaveLength(0);
     expect((await pool.query("SELECT status FROM core.user_company_memberships WHERE user_id = $1 AND company_id = $2", [buyerId, retail])).rows[0].status).toBe("inactive");
     expect((await bearer("get", "/buyer/sales/customers", token)).status).toBe(403);
+  });
+});
+
+describe("CONG_VIEC_23 sửa lỗi rà soát", () => {
+  const retail: string = testIds.retailCompany;
+
+  it("KICHBAN_KIEMTHU_297 (rà soát): phiên chưa nhập mã xác thực hai lớp không làm mới được; đoán mã OTP cùng lúc không vượt 5 lượt; tài khoản có thư điện tử không đặt lại mật khẩu bằng OTP", async () => {
+    const pending = await post("/auth/app/login", { identifier: "quantri.vcr@vcomm.test", password: "MatKhauThu@2026" });
+    expect(pending.status).toBe(200);
+    expect(pending.body.mfaRequired).toBe(true);
+    expect((await post("/auth/app/refresh", { refreshToken: pending.body.tokens.refreshToken })).status).toBe(401);
+
+    const code = await otp("/buyer/login/otp", "0911000003", "864200");
+    const guesses = await Promise.all(Array.from({ length: 12 }, (_, index) => post("/buyer/login/otp/verify", { phone: "0911000003", code: String(100000 + index) })));
+    expect(guesses.every((guess) => guess.status === 401)).toBe(true);
+    const row = (await pool.query("SELECT wrong_attempts, consumed_at FROM core.otp_codes WHERE phone = '+84911000003' AND purpose = 'login' ORDER BY created_at DESC LIMIT 1")).rows[0];
+    expect(row.wrong_attempts).toBe(5);
+    expect(row.consumed_at).not.toBeNull();
+    expect((await post("/buyer/login/otp/verify", { phone: "0911000003", code })).status).toBe(401);
+
+    await pool.query("UPDATE core.users SET phone = '+84911000099' WHERE email = 'quantri.vcr@vcomm.test'");
+    try {
+      const resetCode = await otp("/buyer/password-reset/otp", "0911000099", "111222");
+      expect((await post("/buyer/password-reset", { phone: "0911000099", code: resetCode, password: "MatKhauMoi@2026" })).status).toBe(400);
+    } finally {
+      await pool.query("UPDATE core.users SET phone = NULL WHERE email = 'quantri.vcr@vcomm.test'");
+    }
+  });
+
+  it("KICHBAN_KIEMTHU_299 (rà soát): đánh dấu nhân viên có sẵn giữ vai trò, phòng ban nhân sự đã gán khi bỏ đánh dấu; người từng có công ty mặc định đã ngừng vẫn đánh dấu được", async () => {
+    const company = await signIn(application, "quantri.vcr@vcomm.test");
+    const sales = (await pool.query<{ id: string }>("SELECT id FROM core.departments WHERE company_id = $1 AND code = 'KD-SAN'", [retail])).rows[0]!.id;
+    const accounting = (await pool.query<{ id: string }>("INSERT INTO core.departments (company_id, code, name) VALUES ($1, 'KT-SAN', 'Kế toán') RETURNING id", [retail])).rows[0]!.id;
+    // Nhân viên có sẵn ở VCR: phòng Kế toán, vai trò Nhân viên bán hàng do nhân sự gán; tự đăng ký người mua bằng số điện thoại của mình.
+    const staff = await register("0911000004", "Nhân Viên Có Sẵn");
+    const staffId = staff.body.user.id as string;
+    await pool.query("INSERT INTO core.user_company_memberships (user_id, company_id, department_id, is_default) VALUES ($1, $2, $3, true)", [staffId, retail, accounting]);
+    await pool.query(
+      "INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, valid_from) SELECT $1, id, 'company', $2, '2026-01-01' FROM core.roles WHERE code = 'salesperson' AND company_id IS NULL",
+      [staffId, retail],
+    );
+    const before = await company.call("get", `/marketplace/buyers/${staffId}`, { companyId: retail });
+    const flagged = await company.call("post", `/marketplace/buyers/${staffId}/sales-flag`, { companyId: retail, body: { departmentId: sales, version: before.body.version } });
+    expect(flagged.status, JSON.stringify(flagged.body)).toBe(200);
+    expect((await pool.query("SELECT count(*)::int AS total FROM core.user_role_assignments WHERE user_id = $1", [staffId])).rows[0].total).toBe(1);
+    const unflagged = await company.call("delete", `/marketplace/buyers/${staffId}/sales-flag`, { companyId: retail, body: { version: flagged.body.version } });
+    expect(unflagged.status).toBe(200);
+    const membership = (await pool.query("SELECT status, department_id FROM core.user_company_memberships WHERE user_id = $1 AND company_id = $2", [staffId, retail])).rows[0];
+    expect(membership).toEqual({ status: "active", department_id: accounting });
+    const roles = await pool.query("SELECT valid_to FROM core.user_role_assignments WHERE user_id = $1", [staffId]);
+    expect(roles.rows).toEqual([{ valid_to: null }]);
+
+    // Cựu nhân viên công ty khác (thành viên mặc định đã ngừng) tự đăng ký rồi được đánh dấu.
+    const former = await register("0911000005", "Cựu Nhân Viên");
+    const formerId = former.body.user.id as string;
+    await pool.query("INSERT INTO core.user_company_memberships (user_id, company_id, is_default, status) VALUES ($1, $2, true, 'inactive')", [formerId, testIds.tradingCompany]);
+    const formerDetail = await company.call("get", `/marketplace/buyers/${formerId}`, { companyId: retail });
+    const formerFlag = await company.call("post", `/marketplace/buyers/${formerId}/sales-flag`, { companyId: retail, body: { departmentId: sales, version: formerDetail.body.version } });
+    expect(formerFlag.status, JSON.stringify(formerFlag.body)).toBe(200);
+    expect((await pool.query("SELECT is_default FROM core.user_company_memberships WHERE user_id = $1 AND company_id = $2", [formerId, retail])).rows[0].is_default).toBe(false);
   });
 });

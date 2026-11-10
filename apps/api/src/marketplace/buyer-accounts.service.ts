@@ -126,8 +126,9 @@ export class BuyerAccountsService {
   // Đặt mật khẩu mới bằng mã OTP; thu hồi mọi phiên, bỏ khóa đăng nhập (QUYTAC_NGHIEPVU_147).
   async resetPassword(phone: string, code: string, password: string, client: ClientInfo): Promise<void> {
     if (password.length < minimumPasswordLength) throw invalidField("password", "passwordTooShort");
+    // Tài khoản có thư điện tử (nhân viên) đặt lại mật khẩu bằng đường dẫn gửi qua thư điện tử trên web (rà soát CONG_VIEC_23).
     const user = await this.phoneOtp.activeUserByPhone(phone);
-    if (!user || !(await this.phoneOtp.consume(phone, code, "password_reset"))) throw invalidField("code", "otpInvalid");
+    if (!user || user.email || !(await this.phoneOtp.consume(phone, code, "password_reset"))) throw invalidField("code", "otpInvalid");
     await this.database.transaction(async (transaction) => {
       await setPassword(transaction, user.id, password);
       await transaction.execute(sql`UPDATE core.users SET login_locked_until = NULL, updated_at = now() WHERE id = ${user.id}`);
@@ -150,10 +151,10 @@ export class BuyerAccountsService {
         is_sales_staff: boolean;
         referrer_name: string | null;
         referrer_phone: string | null;
-        has_self_set: boolean;
+        has_history: boolean;
       }>(sql`
       SELECT u.full_name, u.phone, b.registered_at, b.is_sales_staff, r.full_name AS referrer_name, r.phone AS referrer_phone,
-             EXISTS (SELECT 1 FROM marketplace.referrer_history h WHERE h.buyer_user_id = b.user_id AND h.source = 'self') AS has_self_set
+             EXISTS (SELECT 1 FROM marketplace.referrer_history h WHERE h.buyer_user_id = b.user_id) AS has_history
       FROM marketplace.buyer_accounts b
       JOIN core.users u ON u.id = b.user_id
       LEFT JOIN core.users r ON r.id = b.referrer_user_id
@@ -168,7 +169,8 @@ export class BuyerAccountsService {
       referralCode: localPhone(phone),
       registeredAt: new Date(row.registered_at).toISOString(),
       referrer: row.referrer_name ? { fullName: row.referrer_name, maskedPhone: maskPhone(row.referrer_phone ?? "") } : null,
-      canSetReferrer: !row.referrer_name && !row.has_self_set,
+      // Chỉ khách chưa từng có người giới thiệu tự nhập được; quản trị đã bỏ người giới thiệu thì khách không tự đặt lại.
+      canSetReferrer: !row.referrer_name && !row.has_history,
       isSalesStaff: row.is_sales_staff,
     };
   }
@@ -183,13 +185,18 @@ export class BuyerAccountsService {
   // Khách chưa có người giới thiệu tự nhập mã một lần (QUYTAC_NGHIEPVU_142).
   async setReferrer(userId: string, referralCode: string, client: ClientInfo): Promise<BuyerMeResponse> {
     await this.ensureAccount(userId);
+    // Báo "đã có người giới thiệu" trước khi kiểm mã; trong giao dịch kiểm lại sau khi khóa.
+    const state = (await this.me(userId)).canSetReferrer;
+    if (!state) throw new ApiError("BUSINESS_RULE", "referrerAlreadySet");
     await this.database.transaction(async (transaction) => {
+      // Khóa cả hai tài khoản theo thứ tự: hai người cùng lúc nhập mã của nhau không tạo được vòng (rà soát CONG_VIEC_23).
+      await this.lockPair(transaction, userId, await this.resolveReferrer(transaction, referralCode, userId));
       const current = (
-        await transaction.execute<{ referrer_user_id: string | null; has_self_set: boolean }>(sql`
-        SELECT referrer_user_id, EXISTS (SELECT 1 FROM marketplace.referrer_history h WHERE h.buyer_user_id = b.user_id AND h.source = 'self') AS has_self_set
+        await transaction.execute<{ referrer_user_id: string | null; has_history: boolean }>(sql`
+        SELECT referrer_user_id, EXISTS (SELECT 1 FROM marketplace.referrer_history h WHERE h.buyer_user_id = b.user_id) AS has_history
         FROM marketplace.buyer_accounts b WHERE b.user_id = ${userId} FOR UPDATE`)
       ).rows[0]!;
-      if (current.referrer_user_id || current.has_self_set) throw new ApiError("BUSINESS_RULE", "referrerAlreadySet");
+      if (current.referrer_user_id || current.has_history) throw new ApiError("BUSINESS_RULE", "referrerAlreadySet");
       const referrerId = await this.resolveReferrer(transaction, referralCode, userId);
       const now = this.clock.now();
       await transaction.execute(sql`
@@ -239,6 +246,11 @@ export class BuyerAccountsService {
     if (buyerUserId && found.id === buyerUserId) throw invalidField("referralCode", "referralSelf");
     if (buyerUserId && found.referrer_user_id === buyerUserId) throw invalidField("referralCode", "referralCycle");
     return found.id;
+  }
+
+  // Khóa dòng của hai tài khoản theo thứ tự mã để không khóa chéo.
+  async lockPair(executor: Executor, first: string, second: string): Promise<void> {
+    await executor.execute(sql`SELECT user_id FROM marketplace.buyer_accounts WHERE user_id IN (${first}, ${second}) ORDER BY user_id FOR UPDATE`);
   }
 
   // Tài khoản có sẵn (nhân viên có số điện thoại) dùng ứng dụng lần đầu thì tạo hồ sơ người mua, không có người giới thiệu.

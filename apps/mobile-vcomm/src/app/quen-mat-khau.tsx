@@ -12,7 +12,7 @@ export default function ForgotPasswordScreen() {
   const [codeSent, setCodeSent] = useState(false);
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
-  const { busy, error, fields, run } = useAction();
+  const { busy, error, fields, run } = useAction(["phone", "code", "password"]);
   const timer = useResendTimer();
 
   const sendCode = () =>

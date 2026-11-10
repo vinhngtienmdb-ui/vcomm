@@ -104,7 +104,9 @@ export async function api<T>(path: string, init: RequestInit & { json?: unknown 
   } catch {
     throw new ApiFailure(0, t("offline"), null, {});
   }
-  if (response.status === 401 && tokens) {
+  // Đăng nhập, đăng ký, quên mật khẩu trả 401 khi sai thông tin, không phải do phiên hết hạn: không làm mới token.
+  const publicPath = /^\/(buyer\/(login|register|password-reset)|auth\/app\/)/.test(path);
+  if (response.status === 401 && tokens && !publicPath) {
     if (!retried) {
       const outcome = await refresh();
       if (outcome === "ok") return api<T>(path, init, true);

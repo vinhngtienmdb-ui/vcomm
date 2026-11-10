@@ -19,7 +19,7 @@ export default function LoginScreen() {
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [backup, setBackup] = useState(false);
-  const { busy, error, fields, run } = useAction();
+  const { busy, error, fields, run } = useAction(["phone", "password", "code", "backupCode"]);
   const timer = useResendTimer();
 
   const sendCode = () =>
@@ -39,7 +39,14 @@ export default function LoginScreen() {
           ) : (
             <>
               <Muted>{backup ? t("backupHint") : t("mfaHint")}</Muted>
-              <Field label={backup ? t("backupCode") : t("mfaCode")} value={code} onChangeText={setCode} keyboardType={backup ? "default" : "number-pad"} maxLength={backup ? 20 : 6} />
+              <Field
+                label={backup ? t("backupCode") : t("mfaCode")}
+                value={code}
+                onChangeText={setCode}
+                keyboardType={backup ? "default" : "number-pad"}
+                maxLength={backup ? 20 : 6}
+                error={fields.code ?? fields.backupCode}
+              />
               <Button label={t("verify")} busy={busy} onPress={() => void run(() => verifyMfa(code.trim(), backup))} />
               <Button label={backup ? t("useAuthenticator") : t("useBackup")} kind="secondary" onPress={() => setBackup(!backup)} />
             </>

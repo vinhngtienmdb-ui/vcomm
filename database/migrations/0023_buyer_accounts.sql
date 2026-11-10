@@ -22,6 +22,10 @@ CREATE TABLE marketplace.buyer_accounts (
     is_sales_staff      boolean     NOT NULL DEFAULT false,      -- đánh dấu nhân viên kinh doanh (QUYTAC_NGHIEPVU_144)
     sales_company_id    uuid        REFERENCES core.companies(id),
     sales_department_id uuid        REFERENCES core.departments(id),
+    -- Những gì thao tác đánh dấu đã tạo, để bỏ đánh dấu chỉ gỡ đúng phần đó (giữ vai trò, phòng ban nhân sự đã gán trước).
+    sales_role_assignment_id uuid   REFERENCES core.user_role_assignments(id),
+    sales_membership_created boolean NOT NULL DEFAULT false,
+    previous_department_id uuid     REFERENCES core.departments(id),
     updated_at          timestamptz NOT NULL DEFAULT now(),
     version             integer     NOT NULL DEFAULT 1,
     CHECK (referrer_user_id IS NULL OR referrer_user_id <> user_id),
