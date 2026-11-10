@@ -1715,7 +1715,7 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 8:
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_48
 - Quy tắc: QUYTAC_NGHIEPVU_144, QUYTAC_NGHIEPVU_145
 - Vai trò: Quản trị công ty vận hành sàn; Nhân viên kinh doanh
-- Xử lý: đánh dấu (thành viên, vai trò Nhân viên bán hàng, phòng ban), bỏ đánh dấu, lịch sử; nhân viên kinh doanh xem khách mình phụ trách trên ứng dụng
+- Xử lý: đánh dấu (thành viên, phòng ban; không gán vai trò theo THAY_DOI_15), bỏ đánh dấu, lịch sử; nhân viên kinh doanh xem khách mình phụ trách trên ứng dụng
 - Màn hình: MAN_HINH_80, MAN_HINH_78; API: API_119, API_118
 
 ## Yêu cầu phi chức năng của MODULE_09 (phần lõi 1)

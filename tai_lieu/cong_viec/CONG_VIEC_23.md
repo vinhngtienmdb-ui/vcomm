@@ -1,9 +1,9 @@
 # CONG_VIEC_23: Tài khoản người mua VComm (MODULE_09, phần lõi 1)
 
 - Mô tả: Khách tự đăng ký tài khoản trên ứng dụng sàn VComm bằng số điện thoại và mã OTP, gắn với người giới thiệu qua mã giới thiệu (số điện thoại) hoặc đường dẫn giới thiệu. Tài khoản nhân viên kinh doanh là tài khoản người mua được quản trị đánh dấu. Ứng dụng Expo của CONG_VIEC_22 trở thành ứng dụng VComm cho người mua.
-- Phiên bản: 0.3
+- Phiên bản: 0.4
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-10 (không làm bản mẫu giao diện riêng, xem trước từng lát thay cho bản mẫu). Đã làm L0 đến L3, sửa lỗi rà soát độc lập; chờ nghiệm thu.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-10 (không làm bản mẫu giao diện riêng, xem trước từng lát thay cho bản mẫu). Đã nghiệm thu 2026-11-10; THAY_DOI_15 (không gán vai trò Nhân viên bán hàng khi đánh dấu).
 - Nguồn: THAY_DOI_14; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`; tài liệu `05` (MODULE_09); CONG_VIEC_03 (OTP số điện thoại, eSMS); CONG_VIEC_22 (đăng nhập ứng dụng bằng token, khung Expo).
 
 ## 1. Mục tiêu
@@ -38,7 +38,7 @@ Các màn hình khách B2B, lập đơn bán, ghé thăm, hoa hồng tháng củ
 - QUYTAC_NGHIEPVU_141: Đăng ký: số điện thoại Việt Nam, chuẩn hóa dạng +84; số đã có tài khoản thì báo "Số điện thoại đã có tài khoản" và gợi ý đăng nhập. OTP như QUYTAC_NGHIEPVU_32 (6 chữ số, 5 phút, sai 5 lần thì hủy mã, tối đa 5 lần gửi mỗi giờ mỗi số, tính chung mọi mục đích; tổng 300 mã đăng ký mỗi giờ toàn hệ thống); mỗi lượt thử giữ trước bằng lệnh nguyên tử; mã OTP đăng ký chỉ dùng cho đăng ký. Họ tên 1 đến 100 ký tự; mật khẩu theo chính sách mật khẩu hiện có. Đăng ký xong tài khoản ở trạng thái hoạt động, đăng nhập ngay trên ứng dụng.
 - QUYTAC_NGHIEPVU_142: Mã giới thiệu là số điện thoại của người giới thiệu (nhập dạng 0912345678 hoặc +84912345678). Người giới thiệu phải là tài khoản đang hoạt động; không tự giới thiệu mình; không chọn người mà chính mình đã giới thiệu. Mã không hợp lệ thì báo lỗi, không đăng ký. Đường dẫn giới thiệu: `<địa chỉ ứng dụng>/r/<số điện thoại dạng 0…>`; mở đường dẫn thì vào màn hình đăng ký, mã được điền sẵn, sửa được. Mã giới thiệu không bắt buộc. Khách chưa từng có người giới thiệu được tự nhập mã một lần trên màn hình tài khoản (quản trị đã bỏ người giới thiệu thì khách không tự đặt lại).
 - QUYTAC_NGHIEPVU_143: Đổi người giới thiệu: chỉ người có quyền `marketplace.buyer.manage`; được đặt người khác hoặc để trống; bắt buộc lý do 1 đến 500 ký tự; kiểm tra như QUYTAC_NGHIEPVU_142; ghi lịch sử (người cũ, người mới, người đổi, thời điểm, lý do; cả lần gắn khi đăng ký và lần khách tự nhập). Đơn đặt trước lúc đổi vẫn tính cho người giới thiệu lúc đặt đơn (áp dụng ở CONG_VIEC_26).
-- QUYTAC_NGHIEPVU_144: Đánh dấu nhân viên kinh doanh: người có quyền `marketplace.buyer.manage` chọn tài khoản người mua đang hoạt động, chọn phòng ban thuộc công ty vận hành sàn; hệ thống thêm tài khoản vào công ty với vai trò Nhân viên bán hàng và phòng ban đã chọn (phòng ban là căn cứ hoa hồng nhiều cấp theo cơ cấu tổ chức). Bỏ đánh dấu chỉ gỡ phần do thao tác đánh dấu tạo: lần gán vai trò Nhân viên bán hàng đã tạo; thành viên do đánh dấu tạo thì bỏ phòng ban, ngừng khi không còn vai trò; thành viên có sẵn thì trả lại phòng ban cũ. Giữ tài khoản người mua. Ghi lịch sử đánh dấu.
+- QUYTAC_NGHIEPVU_144: Đánh dấu nhân viên kinh doanh: người có quyền `marketplace.buyer.manage` chọn tài khoản người mua đang hoạt động, chọn phòng ban thuộc công ty vận hành sàn; hệ thống thêm tài khoản vào công ty với phòng ban đã chọn (căn cứ hoa hồng nhiều cấp theo cơ cấu tổ chức), không gán vai trò Nhân viên bán hàng (không bán B2B, không lập đơn hộ; THAY_DOI_15). Bỏ đánh dấu chỉ gỡ phần do thao tác đánh dấu tạo: thành viên do đánh dấu tạo thì bỏ phòng ban, ngừng khi không còn vai trò; thành viên có sẵn thì trả lại phòng ban cũ. Giữ tài khoản người mua. Ghi lịch sử đánh dấu.
 - QUYTAC_NGHIEPVU_145: Nhân viên kinh doanh phụ trách khách là người giới thiệu hiện tại của khách khi người đó đang được đánh dấu nhân viên kinh doanh; ngược lại khách không có nhân viên kinh doanh phụ trách (quyết định 2026-11-10). Bỏ đánh dấu thì các khách của người đó không còn nhân viên phụ trách.
 - QUYTAC_NGHIEPVU_146: Người giới thiệu xem người mình đã giới thiệu: họ tên, số điện thoại che (giữ 4 số đầu và 3 số cuối, ví dụ 0912***678), ngày đăng ký. Nhân viên kinh doanh xem khách mình phụ trách trong phần Kinh doanh: họ tên, số điện thoại đầy đủ, ngày đăng ký.
 - QUYTAC_NGHIEPVU_147: Công ty vận hành sàn là một công ty trong tập đoàn (cột trên công ty, tối đa một công ty); chỉ người có `marketplace.buyer.manage` ở phạm vi tập đoàn chọn, trên màn hình MAN_HINH_79; không đổi được khi còn nhân viên kinh doanh được đánh dấu ở công ty khác; chưa chọn thì chưa quản trị được người mua. Tài khoản người mua không thuộc công ty nào trừ khi được đánh dấu nhân viên kinh doanh; không vào được các mini app quản trị. Phiên ứng dụng như QUYTAC_NGHIEPVU_136 (token truy cập 15 phút, token làm mới 90 ngày, xoay vòng). Phiên chưa nhập mã xác thực hai lớp không làm mới được. Quên mật khẩu: OTP rồi đặt mật khẩu mới, chỉ cho tài khoản không có thư điện tử; thu hồi mọi phiên cũ.
@@ -126,13 +126,12 @@ Không thêm thư viện mới. Dùng lại `PhoneOtpService`, `MessagingService
 | Đã kiểm thử, có kết quả trong tài liệu `25`, đạt cổng kiểm thử | Đạt: c23-buyer-accounts 9/9, toàn bộ 305/305; không còn lỗi Nghiêm trọng, Cao |
 | Không phá vỡ chức năng cũ | Đạt: toàn bộ kiểm thử cũ đạt, không sửa kiểm thử đã duyệt (chỉ thêm schema `marketplace` vào danh sách dọn của bộ dựng cơ sở dữ liệu kiểm thử). Ứng dụng kinh doanh của CONG_VIEC_22 (chưa nghiệm thu) được thay theo THAY_DOI_14 |
 | Đạt tiêu chí nghiệm thu bắt buộc | Đạt: TIEUCHI_NGHIEMTHU_163 đến 167; mong muốn TIEUCHI_NGHIEMTHU_168 đạt |
-| Đạt cổng bảo mật | Đạt có điều kiện: lỗi Cao, Trung bình của rà soát đã sửa; 2 lỗ hổng Trung bình trong `@expo/cli` (công cụ phát triển) chờ quyết định; gitleaks trong CI chưa chạy do tài khoản GitHub lỗi thanh toán |
+| Đạt cổng bảo mật | Đạt có điều kiện: lỗi Cao, Trung bình của rà soát đã sửa; 2 lỗ hổng Trung bình trong `@expo/cli` (công cụ phát triển) người dùng chấp nhận có thời hạn; gitleaks trong CI chưa chạy do tài khoản GitHub lỗi thanh toán |
 | Đã tự rà soát mã, dọn dẹp | Đạt: rà soát độc lập, sửa ở commit 70b9c29; tệp tạm trong `tam_thoi/CONG_VIEC_23/` (Git bỏ qua) |
 | Đã cập nhật tài liệu `27` và tài liệu liên quan | Đạt: 06 đến 11, 12, 14, 16, 17, 21, 22, 27, mục lục |
 
 ## 16. Giới hạn đã biết
 
-- Vai trò hệ thống Nhân viên bán hàng có quyền ghi đơn bán, đối tác ở công ty vận hành sàn; người mua được đánh dấu nhận đủ các quyền đó. Cần người dùng quyết định (đề xuất vai trò riêng hẹp hơn trong công việc sửa CONG_VIEC_21, CONG_VIEC_17).
 - Đăng ký kiểm mã giới thiệu trước mã OTP nên phân biệt được số có tài khoản đang hoạt động (Thấp).
 - Tin SMS đăng ký, đặt lại mật khẩu dùng chung mẫu tin mã đăng nhập của eSMS.
 - Đường dẫn giới thiệu mở bản web của ứng dụng; mở thẳng ứng dụng đã cài (deep link), đóng gói lên kho ứng dụng làm sau.

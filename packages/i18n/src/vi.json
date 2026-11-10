@@ -3158,7 +3158,7 @@
     "noDepartments": "Công ty vận hành sàn chưa có phòng ban. Tạo phòng ban trước.",
     "flag": "Đánh dấu nhân viên kinh doanh",
     "unflag": "Bỏ đánh dấu",
-    "unflagConfirm": "Bỏ đánh dấu {name}? Tài khoản mất vai trò Nhân viên bán hàng; các khách của người này không còn nhân viên kinh doanh phụ trách.",
+    "unflagConfirm": "Bỏ đánh dấu {name}? Tài khoản rời phòng ban; các khách của người này không còn nhân viên kinh doanh phụ trách.",
     "flagged": "Đã đánh dấu nhân viên kinh doanh.",
     "unflagged": "Đã bỏ đánh dấu.",
     "flagHistory": "Lịch sử đánh dấu",

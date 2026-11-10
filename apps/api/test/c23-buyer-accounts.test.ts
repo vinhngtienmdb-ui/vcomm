@@ -206,7 +206,7 @@ describe("CONG_VIEC_23 quản trị người mua", () => {
     expect((await purchasing.call("get", "/marketplace/buyers", { companyId: retail })).status).toBe(403);
   });
 
-  it("KICHBAN_KIEMTHU_299: đánh dấu nhân viên kinh doanh cấp vai trò Nhân viên bán hàng và phòng ban ở công ty vận hành sàn; khách tôi phụ trách theo người giới thiệu; bỏ đánh dấu gỡ vai trò; công ty vận hành sàn không đổi được khi còn nhân viên được đánh dấu", async () => {
+  it("KICHBAN_KIEMTHU_299: đánh dấu nhân viên kinh doanh thêm thành viên và phòng ban ở công ty vận hành sàn, không cấp vai trò Nhân viên bán hàng; khách tôi phụ trách theo người giới thiệu; bỏ đánh dấu ngừng thành viên do đánh dấu tạo; công ty vận hành sàn không đổi được khi còn nhân viên được đánh dấu", async () => {
     const company = await signIn(application, "quantri.vcr@vcomm.test");
     const department = (await pool.query<{ id: string }>("INSERT INTO core.departments (company_id, code, name) VALUES ($1, 'KD-SAN', 'Kinh doanh sàn') RETURNING id", [retail])).rows[0]!.id;
     const buyerId = (await pool.query<{ id: string }>("SELECT id FROM core.users WHERE phone = '+84911000001'")).rows[0]!.id;
@@ -226,7 +226,9 @@ describe("CONG_VIEC_23 quản trị người mua", () => {
       buyerId,
       retail,
     ]);
-    expect(roles.rows).toEqual([{ code: "salesperson" }]);
+    // THAY_DOI_15: không gán vai trò Nhân viên bán hàng (không bán B2B, không lập đơn hộ).
+    expect(roles.rows).toEqual([]);
+    expect((await bearer("get", "/crm/partners", (await post("/buyer/login", { phone: "0911000001", password })).body.tokens.accessToken).set("x-company-id", retail)).status).toBe(403);
 
     // Gắn lại 0911000001 làm người giới thiệu của 0911000002 (đã bỏ ở KICHBAN_KIEMTHU_298): đó là khách 0911000001 phụ trách.
     const customerId = (await pool.query<{ id: string }>("SELECT id FROM core.users WHERE phone = '+84911000002'")).rows[0]!.id;

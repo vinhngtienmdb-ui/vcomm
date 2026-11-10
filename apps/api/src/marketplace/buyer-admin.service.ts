@@ -212,7 +212,7 @@ export class BuyerAdminService {
     return this.detail(actor, buyerId);
   }
 
-  // QUYTAC_NGHIEPVU_144: thêm vào công ty vận hành sàn với vai trò Nhân viên bán hàng và phòng ban đã chọn.
+  // QUYTAC_NGHIEPVU_144 (THAY_DOI_15): thêm vào công ty vận hành sàn với phòng ban đã chọn, không gán vai trò.
   async flagSalesStaff(actor: BuyerAdminActor, buyerId: string, input: { departmentId: string; version: number }): Promise<BuyerAccountDetailResponse> {
     await this.database.transaction(async (transaction) => {
       const current = await this.lockBuyer(transaction, buyerId, input.version);
@@ -245,21 +245,9 @@ export class BuyerAdminService {
           UPDATE core.user_company_memberships SET department_id = ${input.departmentId}, updated_at = now(), updated_by = ${actor.userId}
           WHERE user_id = ${buyerId} AND company_id = ${company}`);
       }
-      const role = (await transaction.execute<{ id: string }>(sql`SELECT id FROM core.roles WHERE code = 'salesperson' AND company_id IS NULL AND is_system`)).rows[0];
-      if (!role) throw new ApiError("INTERNAL", "internal");
-      const today = this.permissions.today();
-      // Vai trò Nhân viên bán hàng đã gán sẵn (do nhân sự) thì không tạo thêm và không gỡ khi bỏ đánh dấu.
-      const assignment = (
-        await transaction.execute<{ id: string }>(sql`
-        INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, valid_from, created_by)
-        SELECT ${buyerId}, ${role.id}, 'company', ${company}, ${today}::date, ${actor.userId}
-        WHERE NOT EXISTS (
-          SELECT 1 FROM core.user_role_assignments WHERE user_id = ${buyerId} AND role_id = ${role.id} AND company_id = ${company}
-            AND valid_from <= ${today}::date AND (valid_to IS NULL OR valid_to >= ${today}::date))
-        RETURNING id`)
-      ).rows[0];
+      // Không gán vai trò Nhân viên bán hàng: nhân viên kinh doanh không bán B2B, không lập đơn hộ (THAY_DOI_15).
       await transaction.execute(sql`
-        UPDATE marketplace.buyer_accounts SET sales_role_assignment_id = ${assignment?.id ?? null}, sales_membership_created = ${membershipCreated}, previous_department_id = ${previousDepartmentId}
+        UPDATE marketplace.buyer_accounts SET sales_membership_created = ${membershipCreated}, previous_department_id = ${previousDepartmentId}
         WHERE user_id = ${buyerId}`);
       await transaction.execute(sql`
         UPDATE marketplace.buyer_accounts SET is_sales_staff = true, sales_company_id = ${company}, sales_department_id = ${input.departmentId}, updated_at = now(), version = version + 1
@@ -271,21 +259,13 @@ export class BuyerAdminService {
     return this.detail(actor, buyerId);
   }
 
-  // Bỏ đánh dấu: gỡ vai trò Nhân viên bán hàng, phòng ban; không còn vai trò nào ở công ty thì ngừng thành viên; giữ tài khoản người mua.
+  // Bỏ đánh dấu: bỏ phòng ban; thành viên do đánh dấu tạo mà không còn vai trò nào ở công ty thì ngừng; thành viên có sẵn trả lại phòng ban cũ; giữ tài khoản người mua.
   async unflagSalesStaff(actor: BuyerAdminActor, buyerId: string, version: number): Promise<BuyerAccountDetailResponse> {
     await this.database.transaction(async (transaction) => {
       const current = await this.lockBuyer(transaction, buyerId, version);
       if (!current.is_sales_staff) throw new ApiError("BUSINESS_RULE", "buyerNotSalesStaff");
       const company = current.sales_company_id!;
       const today = this.permissions.today();
-      // Chỉ gỡ lần gán vai trò do thao tác đánh dấu tạo.
-      // Bỏ tham chiếu trước khi xóa lần gán vai trò.
-      await transaction.execute(sql`UPDATE marketplace.buyer_accounts SET sales_role_assignment_id = NULL WHERE user_id = ${buyerId}`);
-      if (current.sales_role_assignment_id) {
-        await transaction.execute(sql`DELETE FROM core.user_role_assignments WHERE id = ${current.sales_role_assignment_id} AND valid_from >= ${today}::date`);
-        await transaction.execute(sql`
-          UPDATE core.user_role_assignments SET valid_to = ${today}::date - 1 WHERE id = ${current.sales_role_assignment_id} AND (valid_to IS NULL OR valid_to >= ${today}::date)`);
-      }
       if (current.sales_membership_created) {
         // Thành viên do đánh dấu tạo: bỏ phòng ban; không còn vai trò nào ở công ty thì ngừng.
         const remaining = await transaction.execute(sql`
@@ -300,7 +280,7 @@ export class BuyerAdminService {
           WHERE user_id = ${buyerId} AND company_id = ${company}`);
       }
       await transaction.execute(sql`
-        UPDATE marketplace.buyer_accounts SET is_sales_staff = false, sales_company_id = NULL, sales_department_id = NULL, sales_role_assignment_id = NULL, sales_membership_created = false, previous_department_id = NULL, updated_at = now(), version = version + 1 WHERE user_id = ${buyerId}`);
+        UPDATE marketplace.buyer_accounts SET is_sales_staff = false, sales_company_id = NULL, sales_department_id = NULL, sales_membership_created = false, previous_department_id = NULL, updated_at = now(), version = version + 1 WHERE user_id = ${buyerId}`);
       await transaction.execute(sql`
         INSERT INTO marketplace.sales_flag_history (buyer_user_id, action, company_id, department_id, changed_by) VALUES (${buyerId}, 'unflag', ${company}, ${current.sales_department_id}, ${actor.userId})`);
       await this.record(transaction, actor, "buyer.sales.unflag", buyerId, {});
@@ -317,12 +297,11 @@ export class BuyerAdminService {
         sales_company_id: string | null;
         sales_department_id: string | null;
         user_status: string;
-        sales_role_assignment_id: string | null;
         sales_membership_created: boolean;
         previous_department_id: string | null;
       }>(sql`
       SELECT b.version, b.referrer_user_id, b.is_sales_staff, b.sales_company_id, b.sales_department_id, u.status AS user_status,
-             b.sales_role_assignment_id, b.sales_membership_created, b.previous_department_id
+             b.sales_membership_created, b.previous_department_id
       FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id WHERE b.user_id = ${buyerId} FOR UPDATE OF b`)
     ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");

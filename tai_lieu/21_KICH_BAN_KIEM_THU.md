@@ -3490,7 +3490,7 @@ Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DO
 - Vai trò thực hiện: Quản trị công ty VCR; Quản trị tập đoàn; Người mua 0911000001
 - Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_298; phòng ban "Kinh doanh sàn" của VCR; một phòng ban của VCT.
 - Các bước: (1) Đánh dấu 0911000001 với phòng ban của VCT; với "Kinh doanh sàn". (2) Đọc thành viên, vai trò của 0911000001 tại VCR. (3) Quản trị gắn lại 0911000001 làm người giới thiệu của 0911000002; 0911000001 đăng nhập, đọc tài khoản, khách tôi phụ trách. (4) Quản trị tập đoàn đổi công ty vận hành sàn sang VCT. (5) Bỏ đánh dấu; đọc vai trò, thành viên; 0911000001 gọi khách tôi phụ trách.
-- Kết quả mong đợi: Bước 1: `400`; `200`, `isSalesStaff` đúng, phòng "Kinh doanh sàn". Bước 2: thành viên đang hoạt động, đúng phòng ban, là công ty mặc định; một vai trò `salesperson` còn hiệu lực. Bước 3: `isSalesStaff` đúng; khách là "Người Mua Hai" 0911000002. Bước 4: `409`. Bước 5: `200`, lịch sử "unflag", "flag"; không còn vai trò hiệu lực tại VCR; thành viên `inactive`; khách tôi phụ trách `403`.
+- Kết quả mong đợi: Bước 1: `400`; `200`, `isSalesStaff` đúng, phòng "Kinh doanh sàn". Bước 2: thành viên đang hoạt động, đúng phòng ban, là công ty mặc định; không có vai trò nào (THAY_DOI_15); gọi danh sách đối tác của công ty nhận `403`. Bước 3: `isSalesStaff` đúng; khách là "Người Mua Hai" 0911000002. Bước 4: `409`. Bước 5: `200`, lịch sử "unflag", "flag"; không còn vai trò hiệu lực tại VCR; thành viên `inactive`; khách tôi phụ trách `403`.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c23-buyer-accounts.test.ts`
 - Lát: L3
 

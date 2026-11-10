@@ -666,7 +666,7 @@ Ranh giới và kiểm soát riêng:
 - OTP: lưu bản băm SHA-256, tách mục đích, 5 lần gửi mỗi giờ mỗi số (mọi mục đích), 300 mã đăng ký mỗi giờ toàn hệ thống, mỗi lượt thử giữ trước bằng lệnh nguyên tử (đoán song song không vượt 5 lượt), dùng mã nguyên tử.
 - Phiên: `vcomm_app` 90 ngày, xoay vòng; làm mới cùng token hai lần thì thu hồi chuỗi; phiên chưa nhập mã xác thực hai lớp không làm mới được; phiên web không làm mới qua đường dẫn ứng dụng.
 - Người mua không thuộc công ty nên không qua được kiểm tra công ty của các API quản trị (`403`).
-- Đánh dấu nhân viên kinh doanh ghi lại phần mình tạo; bỏ đánh dấu không gỡ vai trò, phòng ban do nhân sự gán.
+- Đánh dấu nhân viên kinh doanh không gán vai trò (THAY_DOI_15), ghi lại thành viên do mình tạo và phòng ban cũ; bỏ đánh dấu không gỡ vai trò, phòng ban do nhân sự gán.
 - Khóa cặp tài khoản theo thứ tự khi gắn người giới thiệu (chống vòng do thao tác đồng thời); khóa dòng tài khoản người mua và kiểm phiên bản khi quản trị thao tác.
 - Số điện thoại hiện cho người giới thiệu luôn che; số đầy đủ chỉ cho nhân viên kinh doanh (khách mình phụ trách) và quản trị.
 - Nhật ký thao tác: `buyer.register`, `buyer.referrer.self`, `buyer.referrer.change`, `buyer.sales.flag`, `buyer.sales.unflag`, `marketplace.operator.set`, `password.reset`.
@@ -679,9 +679,9 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10, rà soát đ�
 - Đã sửa (Thấp): vòng giới thiệu do thao tác đồng thời; quản trị không còn là thành viên vẫn thao tác được; đặt lại mật khẩu bằng OTP cho tài khoản nhân viên có thư điện tử; đường dẫn xác minh mã chưa dùng chung bộ đếm; khách tự đặt lại người giới thiệu sau khi quản trị bỏ; ô tìm kiếm chưa thoát ký tự; chọn công ty vận hành sàn đồng thời trả lỗi 500; ứng dụng làm mới token ở đường dẫn đăng nhập, về đăng nhập khi khởi động lỗi tạm thời.
 - Ghi nhận, chưa sửa (Thấp): đăng ký kiểm mã giới thiệu trước mã OTP nên phân biệt được số có tài khoản đang hoạt động; `register/otp` vốn báo số đã có tài khoản theo QUYTAC_NGHIEPVU_141.
 - Ghi nhận, chưa sửa (Thấp): tin SMS mã đặt lại mật khẩu, mã đăng ký dùng chung mẫu tin mã đăng nhập của eSMS.
-- Ghi nhận, cần người dùng quyết định: vai trò hệ thống Nhân viên bán hàng có quyền ghi đơn bán, đối tác (B2B) ở công ty vận hành sàn; người mua được đánh dấu nhận đủ các quyền đó, trái với THAY_DOI_14 (nhân viên kinh doanh không tạo đơn giùm, không bán B2B). Đề xuất vai trò riêng hẹp hơn trong công việc sửa CONG_VIEC_21, CONG_VIEC_17.
+- Đã xử lý theo quyết định của người dùng (THAY_DOI_15): đánh dấu không còn gán vai trò Nhân viên bán hàng (quyền ghi đơn bán, đối tác B2B).
 - Ghi nhận (Thấp): mục menu "Người mua VComm" theo quyền ở công ty đang chọn; người đang chọn công ty khác công ty vận hành sàn không thấy mục.
-- Quét thư viện phụ thuộc: 2 lỗ hổng mức Trung bình trong `@expo/cli` (công cụ phát triển, không chạy trên môi trường thật), chờ quyết định của người dùng. Quét khóa bí mật: các dòng thêm mới không có khóa bí mật; gitleaks trong CI chưa chạy được do tài khoản GitHub lỗi thanh toán.
+- Quét thư viện phụ thuộc: 2 lỗ hổng mức Trung bình trong `@expo/cli` (công cụ phát triển, không chạy trên môi trường thật), người dùng chấp nhận rủi ro có thời hạn (mục 8). Quét khóa bí mật: các dòng thêm mới không có khóa bí mật; gitleaks trong CI chưa chạy được do tài khoản GitHub lỗi thanh toán.
 
 ## 5. Quản lý khóa bí mật
 
@@ -710,6 +710,8 @@ Chưa có.
 ## 8. Rủi ro đã chấp nhận
 
 Chưa có.
+
+- RUIRO CONG_VIEC_23 (người dùng chấp nhận 2026-11-10): 2 lỗ hổng mức Trung bình (glob GHSA, minimatch GHSA-g3hv-75wg-m249) trong `@expo/cli`, công cụ phát triển của Expo SDK 58, không chạy trên môi trường thật. Thời hạn: đến khi Expo phát hành bản sửa tương thích, rà lại mỗi lần nâng Expo, chậm nhất 2027-02-10. Biện pháp giảm thiểu: chỉ chạy công cụ trên máy phát triển, không đưa vào ảnh triển khai máy chủ.
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 

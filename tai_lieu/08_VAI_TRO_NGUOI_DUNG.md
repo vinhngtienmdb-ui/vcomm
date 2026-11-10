@@ -446,7 +446,7 @@ Trưởng phòng: không cần quyền riêng. Người đang là trưởng phò
 ## 31. Người mua và quyền quản trị người mua (MODULE_09 phần lõi 1, CONG_VIEC_23)
 
 - Người mua: tài khoản tự đăng ký trên ứng dụng VComm, không thuộc công ty nào, không có vai trò; chỉ dùng API dành cho người mua (tài khoản của mình, người mình giới thiệu, nhập mã người giới thiệu một lần).
-- Nhân viên kinh doanh: người mua được đánh dấu; là thành viên công ty vận hành sàn với vai trò Nhân viên bán hàng và một phòng ban (căn cứ hoa hồng nhiều cấp theo cơ cấu tổ chức, CONG_VIEC_26); thấy thêm phần Kinh doanh trên ứng dụng.
+- Nhân viên kinh doanh: người mua được đánh dấu; là thành viên công ty vận hành sàn với một phòng ban, không có vai trò Nhân viên bán hàng (không bán B2B, không lập đơn hộ; THAY_DOI_15) (căn cứ hoa hồng nhiều cấp theo cơ cấu tổ chức, CONG_VIEC_26); thấy thêm phần Kinh doanh trên ứng dụng.
 
 | Quyền | Nội dung | Vai trò hệ thống có sẵn |
 |---|---|---|

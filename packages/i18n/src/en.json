@@ -3158,7 +3158,7 @@
     "noDepartments": "The operator company has no departments yet. Create one first.",
     "flag": "Flag as sales staff",
     "unflag": "Remove flag",
-    "unflagConfirm": "Remove the flag from {name}? The account loses the Salesperson role and their customers no longer have a responsible salesperson.",
+    "unflagConfirm": "Remove the flag from {name}? The account leaves the department and their customers no longer have a responsible salesperson.",
     "flagged": "Flagged as sales staff.",
     "unflagged": "Flag removed.",
     "flagHistory": "Flag history",
