@@ -3,7 +3,7 @@
 - Mô tả: Khai đơn vị thu hộ (nhà vận chuyển thu COD, cổng thanh toán); nhập bảng đối soát từ tệp Excel theo mẫu chung; ghép từng dòng với đơn bán; ghi sổ thì trừ nợ khách theo đơn, chuyển thành nợ của đơn vị thu hộ, phí vào chi phí bán hàng; tiền đơn vị thu hộ chuyển về ngân hàng lập phiếu thu của đơn vị thu hộ và được đối soát ngân hàng tự ghép.
 - Phiên bản: 0.3
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Bản nháp. Người dùng xác nhận thiết kế ngày 2026-11-10; đã lập trình lát L0, L1. Phiên bản 0.3: mục 4, 7, 8, 9, 10, 11, 13, 16 sửa khớp mã (gồm sửa lỗi rà soát commit 0480edc).
+- Trạng thái: Chờ nghiệm thu.
 - Nguồn: tài liệu `04` mục 6, `05` mục 2.1; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02` (làm cả COD, cổng thanh toán; nhập từ tệp theo mẫu chung; phí vào chi phí bán hàng; ghi nhận khách đã trả khi ghi sổ bảng đối soát; chênh lệch cho ghi sổ kèm cảnh báo; duyệt theo chính sách duyệt công ty).
 
 ## 1. Mục tiêu
@@ -96,7 +96,15 @@ Ghi sổ phiếu kho, phiếu thu chi, bút toán đã có. Thay đổi nhỏ: p
 
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa đối chiếu.
+- Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: Đạt (TIEUCHI_NGHIEMTHU_139 đến 143).
+- Đúng giao diện: Đạt (thành phần, biến dùng chung đã có; máy tính và điện thoại 375 điểm ảnh không cuộn ngang). Không có bản mẫu riêng, theo cách làm các màn hình Tài chính trước.
+- Đã xử lý lỗi: Đạt (thông báo tiếng Việt, tiếng Anh; lỗi từng dòng tệp kèm dòng, cột).
+- Đã kiểm thử: Đạt (274/274; tài liệu `25`, lần kiểm thử 2026-11-10 – CONG_VIEC_19).
+- Không phá vỡ chức năng cũ: Đạt (hồi quy toàn bộ; thay đổi ngoài module: phiếu thu chi của đơn vị thu hộ hạch toán 1388, hoa hồng tính khoản giảm nợ của bảng đối soát, nhãn nguồn bút toán hoa hồng).
+- Tiêu chí nghiệm thu bắt buộc: Đạt.
+- Cổng bảo mật: Đạt (không lỗ hổng thư viện; không lỗ hổng Nghiêm trọng, Cao còn lại).
+- Tự rà soát mã, dọn dẹp: Đạt (rà soát độc lập, đã sửa 8/9 mục; tệp tạm trong `tam_thoi/`).
+- Tài liệu `27` và tài liệu liên quan: Đạt.
 
 ## 16. Giới hạn đã biết
 
