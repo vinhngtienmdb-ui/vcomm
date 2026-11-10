@@ -1,10 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -110,6 +110,18 @@ Chạy riêng mini app Bán hàng: `pnpm --filter web-sales dev` (cổng 3005), 
 | Duyệt đơn bán có ngoại lệ | Dịch vụ duyệt của MODULE_01 (CHUC_NANG_16) gọi trong giao dịch gửi; nghe `core.approval.completed` qua outbox (loại `sales.order`) | CHUC_NANG_54 |
 | Giữ hàng theo đơn bán | `ReservationsService` của module Kho (nguồn `sales.order`): giữ khi gửi; `closeBySource` nhả khi từ chối, rút, hủy, đóng; `consumeFromSource` giảm phần giữ khi giao | CHUC_NANG_54, CHUC_NANG_56 |
 | Phiếu xuất giao hàng, nhận hàng trả lại | `SalesDeliveriesService` (`apps/api/src/inventory/sales-deliveries.service.ts`) của module Kho, dùng lại `StockDocumentsService` (kiểm, ghi dòng, ghi sổ; kiểm hàng khả dụng đọc trong giao dịch gửi) và `StockLedgerService`; đọc `sales.orders`, `sales.order_lines`; gọi `SalesOrdersService.refreshDelivered` trong giao dịch ghi sổ để chuyển đơn "Đã giao đủ" | CHUC_NANG_56, CHUC_NANG_57 |
+
+## 3f. Thành phần phụ trợ cho giao dịch nội bộ (MODULE_05 phần 2, CONG_VIEC_09)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Nối hai phía | `InternalTradeService` (`apps/api/src/sales/internal-trade.service.ts`) đăng ký móc nối (`internalHooks`) vào `SalesOrdersService` và `PurchaseOrdersService` khi khởi động: đơn bán xác nhận thì gọi `PurchaseOrdersService.createCounterpart`, đơn mua duyệt thì gọi `SalesOrdersService.createCounterpart`; một bên kết thúc thì gọi `endByCounterpart` của bên kia; mọi việc trong cùng giao dịch, mỗi module chỉ ghi schema của mình | CHUC_NANG_58, CHUC_NANG_59 |
+| Quy tắc nội bộ dùng chung | `apps/api/src/sales/internal-trade-rules.ts` (chỉ đọc): kênh `NOI_BO`, điều kiện đơn bán, đơn mua nội bộ, giá nội bộ (dùng lại `lookupPrice`); `linkedVariant` (`apps/api/src/catalog/variant-links.service.ts`) đọc liên kết hai chiều; `internalCompanyOf`, `internalPartnerOf` (`apps/api/src/crm/partners.service.ts`) | CHUC_NANG_58, CHUC_NANG_59 |
+| Xác nhận, từ chối đơn đối ứng | `SalesOrdersService.confirmCounterpart`, `rejectCounterpart` (gửi như đơn thường, dùng lại giữ hàng, ngoại lệ, duyệt); `PurchaseOrdersService.confirmCounterpart`, `rejectCounterpart` (dùng lại luồng duyệt đơn mua); tra giá nội bộ qua `SupplierPricesService.lookupFor` | CHUC_NANG_58, CHUC_NANG_59 |
+| Rút yêu cầu duyệt bên kia | `ApprovalRequestsService.cancelWithin` (`apps/api/src/approvals/approval-requests.service.ts`) rút yêu cầu còn chờ trong giao dịch, không phát sự kiện hoàn tất | CHUC_NANG_58, CHUC_NANG_59 |
+| Phiếu nhập chờ nhận | `SalesDeliveriesService.createInternalReceipt` sinh phiếu nhập mua `in_transit` khi ghi sổ phiếu xuất giao hàng nội bộ; `requireInternalReady` chặn giao khi đơn mua đối ứng chưa duyệt; `PurchaseReceiptsService` chặn nhập mua thường đơn nội bộ | CHUC_NANG_60 |
+| Nhận hàng nội bộ, biên bản chênh lệch | `InternalReceiptsService` (`apps/api/src/inventory/internal-receipts.service.ts`): dùng lại `StockDocumentsService` (kiểm, ghi dòng, ghi sổ), `PurchaseOrdersService.refreshReceived`; nhập lại kho dùng lại `SalesDeliveriesService.createReturn`, `submit` | CHUC_NANG_60, CHUC_NANG_61 |
+| Giao diện | `CounterpartPanel` ở `apps/web-sales`, `apps/web-purchasing` (chi tiết đơn); `InternalReceiveForm` ở chi tiết phiếu kho, trang `/internal-discrepancies` ở `apps/web-inventory` | CHUC_NANG_58 đến CHUC_NANG_61 |
 
 ## 4. Kiến trúc triển khai
 

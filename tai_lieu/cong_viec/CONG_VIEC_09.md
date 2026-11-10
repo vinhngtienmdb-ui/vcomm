@@ -1,9 +1,9 @@
 # CONG_VIEC_09: Giao dịch nội bộ giữa công ty con (MODULE_05, phần 2)
 
 - Mô tả: Đơn bán nội bộ sinh đơn mua đối ứng ở công ty mua và ngược lại; bên kia xác nhận theo luồng duyệt riêng; xuất giao hàng sinh phiếu nhập chờ bên mua nhận; nhận thiếu lập biên bản chênh lệch để bên bán xử lý.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Bản nháp. Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ.
+- Trạng thái: Bản nháp. Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ. Bản 0.2 sửa cho khớp mã đã làm (giá đơn bán đối ứng, đường dẫn tra giá nội bộ, chặn nhập mua thường đơn nội bộ, rút, không duyệt đơn đối ứng, người lập đơn đối ứng, biên bản dòng nhận 0, dung sai làm tròn khi nhận đủ).
 - Nguồn: tài liệu `04` mục ràng buộc 1 (giao dịch nội bộ tự sinh chứng từ hai phía); tài liệu `05` mục 2.1 (Bán hàng), phiên bản 0.3; quyết định của người dùng ngày 2026-11-09 (khởi tạo từ phía nào cũng được, chứng từ đối ứng chờ bên kia xác nhận, xuất kho sinh phiếu nhập chờ bên mua nhận, giá nội bộ theo bảng giá kênh "Nội bộ" của công ty bán, liên kết sản phẩm giữa công ty, chuyển hàng giữa công ty con luôn là mua bán nội bộ) và ngày 2026-11-10 (xác nhận theo duyệt riêng, biên bản chênh lệch, ngoại lệ như đơn thường) trong tài liệu `02`.
 
 ## 1. Mục tiêu
@@ -38,11 +38,11 @@ Ngoài phạm vi (công việc sau):
 | Mã | Quy tắc | Yêu cầu |
 |---|---|---|
 | QUYTAC_NGHIEPVU_73 | Đơn bán là nội bộ khi khách là đối tác nội bộ (đối tác gắn công ty con, QUYTAC_NGHIEPVU_58); đơn mua là nội bộ khi nhà cung cấp là đối tác nội bộ. Đơn nội bộ: kênh bán phải là kênh mã `NOI_BO` của công ty bán; mỗi mặt hàng phải có liên kết sản phẩm với công ty bên kia (QUYTAC_NGHIEPVU_41), thiếu liên kết thì không gửi được; hai công ty phải cùng tiền tệ | YCAU_NGHIEPVU_36 |
-| QUYTAC_NGHIEPVU_74 | Chứng từ đối ứng sinh khi chứng từ bên khởi tạo được xác nhận (đơn bán) hoặc được duyệt (đơn mua), ở trạng thái "Chờ xác nhận nội bộ", ngày đơn bằng ngày đơn khởi tạo. Mặt hàng quy theo liên kết sản phẩm, số lượng theo đơn vị cơ sở bên kia (nhân hệ số liên kết). Bên kia (người có quyền quản lý đơn bán hoặc đơn mua của công ty đó) chọn kho rồi xác nhận: đơn mua đối ứng đi luồng duyệt đơn mua; đơn bán đối ứng đi luồng gửi đơn bán (kiểm ngoại lệ, giữ hàng, QUYTAC_NGHIEPVU_68 đến 70). Bên kia từ chối (ghi lý do) thì chứng từ khởi tạo chưa giao bị hủy (đơn bán, nhả hàng giữ) hoặc đóng (đơn mua) với lý do từ chối | YCAU_NGHIEPVU_36 |
-| QUYTAC_NGHIEPVU_75 | Giá nội bộ: dòng đơn mua nội bộ lấy giá chưa thuế từ bảng giá kênh `NOI_BO` của công ty bán theo nhóm khách của hồ sơ công ty mua tại công ty bán, tại ngày đơn (QUYTAC_NGHIEPVU_42, 43), quy về mặt hàng, đơn vị của công ty bán, không sửa tay; không có giá thì không lập được dòng. Đơn mua đối ứng sinh từ đơn bán lấy giá chưa thuế của dòng đơn bán (sau chiết khấu) chia theo số lượng bên mua; thuế suất theo dòng bên bán | YCAU_NGHIEPVU_36 |
-| QUYTAC_NGHIEPVU_76 | Đơn bán nội bộ chỉ giao khi đơn mua đối ứng đã duyệt. Phiếu xuất giao hàng nội bộ khi ghi sổ sinh phiếu nhập mua ở công ty mua, kho nhận của đơn mua, trạng thái "Chờ nhận", đơn giá theo đơn mua; lô, hạn dùng, serial theo phiếu xuất. Thủ kho bên mua nhận: số nhận mỗi dòng không vượt số xuất, hàng serial chỉ nhận serial đã xuất, chọn vị trí nếu kho dùng vị trí; ghi sổ số thực nhận (không qua kiểm tra chất lượng, không qua luồng duyệt) | YCAU_NGHIEPVU_36 |
-| QUYTAC_NGHIEPVU_77 | Nhận thiếu thì mỗi dòng thiếu sinh một biên bản chênh lệch thuộc công ty bán: số thiếu theo đơn vị cơ sở bên bán, giá trị theo giá vốn trên phiếu xuất, serial chưa nhận, lý do của bên nhận. Bên bán (người có quyền xuất giao hàng tại kho xuất) xử lý một lần: "Nhập lại kho" sinh và ghi sổ phiếu nhận hàng trả lại vào kho xuất theo giá vốn phiếu xuất (QUYTAC_NGHIEPVU_72); "Ghi tổn thất" chỉ đóng biên bản kèm ghi chú (hạch toán tổn thất làm cùng MODULE_06) | YCAU_NGHIEPVU_36 |
-| QUYTAC_NGHIEPVU_78 | Hủy, đóng một bên thì bên kia đóng phần chưa giao với lý do "Bên đối ứng hủy, đóng" (đơn bán nhả hàng giữ); không đóng được khi bên bán còn phiếu xuất giao hàng nháp. Đơn đối ứng đang "Chờ xác nhận nội bộ" không sửa dòng được, chỉ chọn kho, xác nhận hoặc từ chối | YCAU_NGHIEPVU_36 |
+| QUYTAC_NGHIEPVU_74 | Chứng từ đối ứng sinh khi chứng từ bên khởi tạo được xác nhận (đơn bán) hoặc được duyệt (đơn mua), ở trạng thái "Chờ xác nhận nội bộ", chưa có kho, chưa có số, ngày đơn bằng ngày đơn khởi tạo; dòng thứ tự như chứng từ khởi tạo. Mặt hàng quy theo liên kết sản phẩm, số lượng theo đơn vị cơ sở bên kia (nhân hệ số liên kết). Bên kia (người có quyền quản lý đơn bán hoặc đơn mua của công ty đó) chọn kho rồi xác nhận; người xác nhận trở thành người lập đơn đối ứng ở công ty mình (rút được yêu cầu duyệt của mình): đơn mua đối ứng đi luồng duyệt đơn mua; đơn bán đối ứng đi luồng gửi đơn bán (kiểm ngoại lệ, giữ hàng, QUYTAC_NGHIEPVU_68 đến 70). Bên kia từ chối (ghi lý do), rút đơn đối ứng đang chờ duyệt, hoặc đơn đối ứng không được duyệt thì đơn đối ứng kết thúc (đơn bán hủy, đơn mua đóng) và chứng từ khởi tạo kết thúc theo QUYTAC_NGHIEPVU_78 với lý do tương ứng | YCAU_NGHIEPVU_36 |
+| QUYTAC_NGHIEPVU_75 | Giá nội bộ: dòng đơn mua nội bộ khởi tạo lấy giá chưa thuế từ bảng giá kênh `NOI_BO` của công ty bán theo nhóm khách của hồ sơ công ty mua tại công ty bán, tại ngày đơn (QUYTAC_NGHIEPVU_42, 43): tra theo mặt hàng liên kết, đơn vị cơ sở của công ty bán (bảng giá gồm thuế thì trừ thuế theo thuế suất sản phẩm bên bán), quy về đơn vị dòng đơn mua theo hệ số liên kết, làm tròn 4 chữ số; thuế suất theo sản phẩm bên bán. Giá, thuế suất nhập tay bị thay; không có giá thì không lập được dòng. Đơn mua đối ứng sinh từ đơn bán lấy tiền chưa thuế của dòng đơn bán (sau chiết khấu) chia số lượng bên mua, làm tròn 4 chữ số; thuế suất theo dòng bên bán. Đơn bán đối ứng sinh từ đơn mua lấy giá chưa thuế, thuế suất theo dòng đơn mua (đơn mua đã tra bảng giá kênh Nội bộ khi lập), không tra lại bảng giá, không chiết khấu | YCAU_NGHIEPVU_36 |
+| QUYTAC_NGHIEPVU_76 | Đơn bán nội bộ chỉ giao khi đơn mua đối ứng đã duyệt. Phiếu xuất giao hàng nội bộ khi ghi sổ sinh phiếu nhập mua ở công ty mua, kho nhận của đơn mua, trạng thái "Chờ nhận", đơn giá theo đơn mua; lô, hạn dùng, serial theo phiếu xuất. Thủ kho bên mua nhận: số nhận mỗi dòng không vượt số xuất, hàng serial chỉ nhận serial đã xuất, chọn vị trí nếu kho dùng vị trí; mọi dòng phải có số nhận; ghi sổ số thực nhận (không qua kiểm tra chất lượng, không qua luồng duyệt), phiếu lấy số khi nhận; dòng nhận 0 bỏ khỏi phiếu. Đơn mua nội bộ không lập được phiếu nhập mua thường, không hiện trong danh sách đơn chờ nhận; chỉ nhận theo phiếu nhập sinh từ phiếu xuất. Đơn mua "Đã nhận đủ" khi mọi dòng nhận đủ, cho phép lệch làm tròn 0,0005 đơn vị cơ sở | YCAU_NGHIEPVU_36 |
+| QUYTAC_NGHIEPVU_77 | Nhận thiếu thì phải ghi lý do; mỗi dòng xuất thiếu sinh một biên bản chênh lệch thuộc công ty bán (một phiếu nhập, một dòng xuất có tối đa một biên bản; dòng nhận 0 thì biên bản không có dòng nhập): số thiếu theo đơn vị cơ sở bên bán, giá trị theo giá vốn trên phiếu xuất tỷ lệ với số thiếu, serial chưa nhận, lý do của bên nhận. Bên bán (người có quyền xuất giao hàng tại kho xuất) xem, xử lý một lần; giá trị chỉ hiện cho người xem được giá vốn: "Nhập lại kho" sinh và ghi sổ phiếu nhận hàng trả lại vào kho xuất theo giá vốn phiếu xuất (QUYTAC_NGHIEPVU_72); "Ghi tổn thất" chỉ đóng biên bản kèm ghi chú (hạch toán tổn thất làm cùng MODULE_06) | YCAU_NGHIEPVU_36 |
+| QUYTAC_NGHIEPVU_78 | Một bên hủy, đóng, từ chối, rút đơn đối ứng hoặc đơn đối ứng không được duyệt thì bên kia kết thúc phần chưa giao với lý do nêu bên và thao tác (ví dụ "Bên mua từ chối: <lý do>", "Bên bán hủy đơn bán đối ứng"): đơn bán chưa có phiếu xuất thì hủy, đã có thì đóng, nhả hàng giữ; đơn mua chưa nhận đủ, chưa đóng thì đóng. Yêu cầu duyệt còn chờ của bên kia được rút. Bên bán còn phiếu xuất giao hàng nháp thì không kết thúc được. Đơn đối ứng không sửa dòng được, khi "Chờ xác nhận nội bộ" chỉ chọn kho, xác nhận hoặc từ chối; đơn mua nội bộ khởi tạo đã có đơn bán đối ứng cũng không sửa được | YCAU_NGHIEPVU_36 |
 
 ## 5. Vai trò và quyền
 
@@ -77,16 +77,16 @@ Giao nhận:
 ## 8. Dữ liệu và API
 
 - Database migration `0008_internal_trade.sql`:
-  - `sales.orders`: thêm `counterpart_order_id` (đơn mua đối ứng, kiểm trong service), `counterpart_rejected_reason`; trạng thái thêm `counterpart_pending`; `warehouse_id` cho phép trống khi `counterpart_pending`.
-  - `purchasing.orders`: thêm `counterpart_order_id`, `counterpart_rejected_reason`; trạng thái thêm `counterpart_pending`; `warehouse_id` cho phép trống khi `counterpart_pending`.
-  - `inventory.documents`: phiếu nhập mua nội bộ dùng trạng thái `in_transit` (đã có) cho "Chờ nhận", `source_type` `purchasing.order`; thêm `counterpart_document_id` (phiếu xuất gốc bên bán).
-  - Bảng mới `inventory.internal_discrepancies` (công ty bán, phiếu xuất, dòng xuất, phiếu nhập, dòng nhập, mặt hàng, số thiếu, giá trị, serial, lý do, trạng thái `open`/`returned`/`written_off`, phiếu nhận hàng trả lại, ghi chú, người và thời điểm xử lý).
+  - `sales.orders`: thêm `counterpart_order_id` (đơn mua đối ứng, kiểm trong service), `is_counterpart` (đơn sinh từ đơn mua), `counterpart_rejected_reason`; trạng thái thêm `counterpart_pending`; `warehouse_id` cho phép trống khi `counterpart_pending`, `cancelled`, `closed`.
+  - `purchasing.orders`: thêm `counterpart_order_id`, `is_counterpart`, `counterpart_rejected_reason`; trạng thái thêm `counterpart_pending`; `warehouse_id` cho phép trống như trên.
+  - `inventory.documents`: phiếu nhập mua nội bộ dùng trạng thái `in_transit` (đã có) cho "Chờ nhận", `source_type` `purchasing.order`; thêm `counterpart_document_id` (phiếu xuất gốc bên bán). `inventory.document_lines`: thêm `counterpart_line_id` (dòng xuất gốc).
+  - Bảng mới `inventory.internal_discrepancies` (công ty bán, kho xuất, phiếu xuất, dòng xuất, phiếu nhập, dòng nhập có thể trống khi dòng nhận 0, mặt hàng, số thiếu, giá trị, serial, lý do, trạng thái `open`/`returned`/`written_off`, phiếu nhận hàng trả lại, ghi chú, người và thời điểm xử lý); duy nhất theo (phiếu nhập, dòng xuất).
 - Bên Bán hàng gọi `PurchaseOrdersService` để sinh, đóng đơn mua đối ứng và ngược lại; mỗi module chỉ ghi schema của mình.
 
 | Mã | Đường dẫn | Mô tả |
 |---|---|---|
 | API_80 | `/sales/orders/{id}/counterpart-confirm`, `/sales/orders/{id}/counterpart-reject` | Xác nhận (chọn kho xuất), từ chối đơn bán đối ứng |
-| API_81 | `/purchasing/orders/{id}/counterpart-confirm`, `/purchasing/orders/{id}/counterpart-reject`, `/purchasing/internal-price` | Xác nhận (chọn kho nhận), từ chối đơn mua đối ứng; tra giá nội bộ |
+| API_81 | `/purchasing/orders/{id}/counterpart-confirm`, `/purchasing/orders/{id}/counterpart-reject`; tra giá nội bộ qua `/purchasing/supplier-prices/lookup` (API_73, trả thêm `internal.vatRate` khi nhà cung cấp nội bộ) | Xác nhận (chọn kho nhận), từ chối đơn mua đối ứng; tra giá nội bộ |
 | API_82 | `/inventory/internal-receipts/{id}/receive`, `/inventory/internal-discrepancies`, `/inventory/internal-discrepancies/{id}/resolve` | Nhận hàng nội bộ; biên bản chênh lệch, xử lý |
 
 ## 9. Điều kiện đặc biệt
@@ -107,7 +107,7 @@ Giao nhận:
 
 ## 11. Kịch bản kiểm thử
 
-KICHBAN_KIEMTHU_185 trở đi (tài liệu `21`), viết khi làm từng lát.
+KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_190 tự động (`apps/api/test/c9-internal-trade.test.ts`); KICHBAN_KIEMTHU_191 thủ công trên trình duyệt (tài liệu `21`).
 
 ## 12. Ràng buộc kỹ thuật
 

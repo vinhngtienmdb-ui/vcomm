@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 1.7
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ)
 
 ## MODULE_01 Nền tảng
 
@@ -143,3 +143,16 @@ Dữ liệu mẫu: công ty con VCR, VCT; kho bán Bình Dương của VCR; khá
 | TIEUCHI_NGHIEMTHU_90 | CHUC_NANG_56 | Giao nhiều lần không vượt số đặt; xuất theo giá vốn bình quân; giao đủ thì đơn "Đã giao đủ"; đơn chưa xác nhận, đã đóng không giao được; đơn đã giao không hủy được | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_91 | CHUC_NANG_57 | Trả hàng nhập lại theo giá vốn phiếu xuất gốc; trả quá số đã giao, serial chưa giao bị từ chối | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_92 | CHUC_NANG_54 | Công ty khác không xem được đơn bán; thủ kho chi nhánh khác không giao từ kho không thuộc chi nhánh mình | Gọi API | Bắt buộc |
+
+## MODULE_05 Bán hàng (phần 2: Giao dịch nội bộ, CONG_VIEC_09)
+
+Dữ liệu mẫu: công ty bán VCR, công ty mua VCT; mặt hàng liên kết giả lập (một hộp bên VCT bằng 12 cái bên VCR), mặt hàng serial, bảng giá kênh Nội bộ của VCR. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_93 | CHUC_NANG_58 | Đơn bán nội bộ xác nhận thì sinh đúng đơn mua đối ứng (mặt hàng, số lượng quy theo liên kết, giá); thiếu liên kết, sai kênh không gửi được; bên mua xác nhận đi luồng duyệt; từ chối thì đơn bán hủy, nhả hàng giữ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_94 | CHUC_NANG_59 | Đơn mua nội bộ lấy giá bảng giá "Nội bộ" bên bán, không sửa tay; duyệt thì sinh đơn bán đối ứng; bên bán xác nhận kiểm ngoại lệ, giữ hàng; từ chối thì đơn mua đóng | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_95 | CHUC_NANG_60 | Chưa duyệt đơn mua đối ứng thì không giao; xuất ghi sổ sinh phiếu nhập chờ nhận đúng mặt hàng, số lượng, đơn giá, serial; nhận vượt, serial không xuất bị từ chối; nhận đủ thì đơn mua "Đã nhận đủ" | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_96 | CHUC_NANG_61 | Nhận thiếu sinh biên bản đúng số, giá trị; nhập lại kho ghi sổ phiếu trả vào kho xuất; ghi tổn thất đóng biên bản; mỗi biên bản xử lý một lần | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_97 | CHUC_NANG_58, CHUC_NANG_59 | Hủy, đóng một bên thì bên kia đóng phần chưa giao; công ty thứ ba không xem được chứng từ; người không có quyền ở công ty bên kia không xác nhận được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_98 | CHUC_NANG_58 đến CHUC_NANG_61 | Giao diện hiện nhãn nội bộ, liên kết chứng từ đối ứng, nút xác nhận, từ chối, form nhận hàng, danh sách biên bản trên máy tính và điện thoại | Trình duyệt | Bắt buộc |

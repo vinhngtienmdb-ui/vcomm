@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.1
+- Phiên bản: 1.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11)
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng
 
 ## MODULE_01 Nền tảng
 
@@ -150,3 +150,64 @@ Trạng thái đơn bán:
 | Nháp, Bị từ chối, Đã rút, Đã xác nhận (chưa có phiếu xuất) | Hủy | Đã hủy |
 | Đã xác nhận | Ghi sổ phiếu xuất làm mọi dòng đủ số đặt | Đã giao đủ |
 | Đã xác nhận | Đóng kèm lý do | Đã đóng |
+
+## MODULE_05 Bán hàng (phần 2: Giao dịch nội bộ, CONG_VIEC_09)
+
+### Luồng 12. Công ty bán khởi tạo đơn bán nội bộ
+
+- Bắt đầu: công ty A lập đơn bán cho khách là đối tác nội bộ của công ty B (Luồng 9).
+- Các bước:
+  1. Chọn kênh "Nội bộ" (`NOI_BO`), kho xuất; mọi mặt hàng phải có liên kết với sản phẩm của B, hai công ty cùng tiền tệ, B có hồ sơ nhà cung cấp cho A (QUYTAC_NGHIEPVU_73); sai thì không lưu, không gửi được.
+  2. Gửi như Luồng 9 (giữ hàng, ngoại lệ, duyệt). Khi đơn "Đã xác nhận" (ngay hoặc sau duyệt), hệ thống sinh đơn mua đối ứng ở B trong cùng giao dịch: "Chờ xác nhận nội bộ", chưa có kho, chưa có số; mặt hàng, số lượng quy theo liên kết; giá chưa thuế, thuế suất theo dòng đơn bán (QUYTAC_NGHIEPVU_74, QUYTAC_NGHIEPVU_75).
+  3. Người có `purchasing.order.manage` ở B mở đơn mua đối ứng, chọn kho nhận, xác nhận: đơn về nháp, người xác nhận thành người lập, gửi luồng duyệt đơn mua (Luồng 5; chưa có chính sách duyệt thì duyệt ngay).
+  4. Đơn mua đối ứng "Đã duyệt": A giao được (Luồng 14). Trước đó phiếu xuất giao hàng theo đơn bán bị từ chối.
+- Ngoại lệ: B từ chối kèm lý do, rút đơn đối ứng đang chờ duyệt, hoặc đơn đối ứng không được duyệt: đơn mua đóng, đơn bán của A kết thúc theo Luồng 15.
+- Kết thúc: đơn bán "Đã xác nhận", đơn mua đối ứng "Đã duyệt".
+
+### Luồng 13. Công ty mua khởi tạo đơn mua nội bộ
+
+- Bắt đầu: công ty B lập đơn mua với nhà cung cấp là đối tác nội bộ của công ty A.
+- Các bước:
+  1. Thêm mặt hàng: giá chưa thuế, thuế suất tự lấy theo bảng giá kênh "Nội bộ" của A (tra qua API_73), khóa sửa; A phải có kênh Nội bộ và hồ sơ khách hàng cho B; cùng tiền tệ; mọi mặt hàng có liên kết (QUYTAC_NGHIEPVU_73, QUYTAC_NGHIEPVU_75).
+  2. Gửi duyệt như đơn mua thường (QUYTAC_NGHIEPVU_63). Khi đơn "Đã duyệt", hệ thống sinh đơn bán đối ứng ở A trong cùng giao dịch: "Chờ xác nhận nội bộ", kênh Nội bộ, chưa có kho, chưa có số; mặt hàng, số lượng quy theo liên kết; giá chưa thuế, thuế suất theo đơn mua, không tra lại bảng giá.
+  3. Người có `sales.order.manage` ở A chọn kho xuất, xác nhận: đơn về nháp, người xác nhận thành người lập, gửi như Luồng 9 (giữ hàng, ngoại lệ, duyệt).
+  4. Đơn bán "Đã xác nhận": A giao được ngay (đơn mua khởi tạo đã duyệt).
+- Ngoại lệ: không đủ hàng khả dụng khi xác nhận thì báo lỗi, đơn giữ "Chờ xác nhận nội bộ". A từ chối kèm lý do, rút đơn đối ứng đang chờ duyệt, hoặc đơn đối ứng không được duyệt: đơn bán hủy, đơn mua của B đóng theo Luồng 15. Đơn mua đã có đơn bán đối ứng không sửa được.
+- Kết thúc: đơn bán đối ứng "Đã xác nhận", hàng đang giữ.
+
+### Luồng 14. Giao, nhận hàng nội bộ
+
+- Bắt đầu: đơn bán nội bộ "Đã xác nhận", đơn mua bên kia "Đã duyệt".
+- Các bước:
+  1. Thủ kho A lập, gửi phiếu xuất giao hàng theo đơn bán (Luồng 10). Ghi sổ xong, hệ thống sinh phiếu nhập mua "Chờ nhận" ở kho nhận của đơn mua của B trong cùng giao dịch: mặt hàng, số lượng quy theo liên kết (đơn vị cơ sở bên B), đơn giá theo đơn mua, lô, hạn dùng theo phiếu xuất (QUYTAC_NGHIEPVU_76). Hàng đang trên đường không thuộc tồn kho bên nào.
+  2. Thủ kho B (quyền `inventory.purchase.receive` tại kho nhận) mở phiếu nhập, nhập số thực nhận từng dòng (không vượt số xuất), chọn serial đã nhận trong số serial đã xuất, vị trí nếu kho dùng vị trí; nhận thiếu phải ghi lý do.
+  3. Xác nhận nhận hàng: cấp số phiếu nhập mua của B, ghi sổ số thực nhận (dòng nhận 0 bỏ khỏi phiếu), không kiểm tra chất lượng, không đi luồng duyệt; số đã nhận của đơn mua cập nhật; nhận đủ mọi dòng thì đơn mua "Đã nhận đủ".
+  4. Dòng nhận thiếu: hệ thống sinh biên bản chênh lệch ở A (Luồng 15b).
+- Ngoại lệ: đơn mua nội bộ không lập được phiếu nhập mua thường. Phiếu đã nhận rồi không nhận lại được.
+- Kết thúc: phiếu nhập đã ghi sổ; biên bản chờ xử lý nếu thiếu.
+
+### Luồng 15. Kết thúc hai bên, xử lý biên bản chênh lệch
+
+a) Kết thúc hai bên (QUYTAC_NGHIEPVU_78):
+- Bắt đầu: một bên hủy, đóng, từ chối, rút đơn đối ứng, hoặc đơn đối ứng không được duyệt.
+- Các bước: trong cùng giao dịch, chứng từ bên kia kết thúc với lý do nêu bên và thao tác: đơn bán chưa có phiếu xuất thì hủy, đã có thì đóng, nhả hàng giữ; đơn mua chưa nhận đủ, chưa đóng thì đóng; yêu cầu duyệt còn chờ của bên kia được rút.
+- Ngoại lệ: bên bán còn phiếu xuất giao hàng nháp thì không kết thúc được; xóa hoặc gửi phiếu nháp trước.
+- Kết thúc: cả hai chứng từ đã hủy hoặc đã đóng.
+
+b) Xử lý biên bản chênh lệch (QUYTAC_NGHIEPVU_77):
+- Bắt đầu: Thủ kho A (quyền `inventory.sales.issue` tại kho xuất) mở "Chênh lệch giao nội bộ" ở mini app Kho, lọc "Chờ xử lý".
+- Các bước: nhập ghi chú nếu cần, chọn "Nhập lại kho" (lập, ghi sổ phiếu nhận hàng trả lại vào kho xuất theo giá vốn phiếu xuất, serial chưa nhận) hoặc "Ghi tổn thất" (chỉ đóng biên bản).
+- Ngoại lệ: biên bản đã xử lý thì từ chối lần xử lý sau; nhập lại kho không ghi sổ được thì biên bản trở lại "Chờ xử lý".
+- Kết thúc: biên bản "Đã nhập lại kho" hoặc "Đã ghi tổn thất".
+
+Trạng thái đơn đối ứng (đơn bán, đơn mua sinh tự động):
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| (mới) | Chứng từ khởi tạo bên kia được xác nhận (đơn bán) hoặc được duyệt (đơn mua) | Chờ xác nhận nội bộ |
+| Chờ xác nhận nội bộ | Chọn kho, xác nhận | Nháp, rồi gửi ngay theo luồng của chứng từ (đơn bán: Đã xác nhận hoặc Chờ duyệt; đơn mua: Đã duyệt hoặc Chờ duyệt) |
+| Chờ xác nhận nội bộ | Từ chối kèm lý do | Đơn bán: Đã hủy; đơn mua: Đã đóng |
+| Chờ duyệt | Từ chối duyệt hoặc người lập rút | Đơn bán: Đã hủy; đơn mua: Đã đóng |
+| Chờ xác nhận nội bộ, Chờ duyệt, Đã xác nhận, Đã duyệt | Chứng từ bên kia kết thúc | Đơn bán: Đã hủy (chưa có phiếu xuất) hoặc Đã đóng; đơn mua: Đã đóng |
+
+Trạng thái phiếu nhập mua nội bộ: (mới, khi ghi sổ phiếu xuất) → Chờ nhận → (nhận hàng) Đã ghi sổ. Trạng thái biên bản chênh lệch: Chờ xử lý → Đã nhập lại kho hoặc Đã ghi tổn thất.

@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 1.7
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ)
 
 ## MODULE_01 Nền tảng
 
@@ -71,6 +71,12 @@
 | YCAU_NGHIEPVU_34 | Lập đơn bán đúng giá bảng giá theo kênh, nhóm khách; đơn chỉ duyệt khi có ngoại lệ (chiết khấu tay vượt mức, bán dưới giá vốn, vượt hạn mức công nợ); hàng được giữ khi gửi đơn | Nhân viên bán hàng, quản lý | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
 | YCAU_NGHIEPVU_35 | Kho giao hàng theo đơn, giao nhiều lần; khách trả hàng gắn đơn gốc, trả một phần | Thủ kho, Bán hàng, Kế toán | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
 
+## MODULE_05 Bán hàng (phần 2: Giao dịch nội bộ, CONG_VIEC_09)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_36 | Mua bán giữa công ty con tự sinh chứng từ hai phía, bên kia xác nhận; hàng giao, hàng nhận khớp nhau, lệch có biên bản | Bán hàng, Mua hàng, Thủ kho, Kế toán các công ty con | Tài liệu `04` mục ràng buộc 1; tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -121,10 +127,11 @@
 | Giá mua của nhà cung cấp | Nhà cung cấp, mặt hàng, đơn vị mua, số lượng tối thiểu, đơn giá chưa thuế, mã hàng nhà cung cấp, hiệu lực từ, đến, trạng thái | Thuộc công ty; nhà cung cấp là đối tác có hồ sơ nhà cung cấp ở công ty |
 | Cài đặt mua hàng | Dung sai nhận vượt (phần trăm, mặc định 0) | Một bản mỗi công ty |
 | Đề nghị mua | Số (`DNM`…), kho nhận, ngày cần, lý do, trạng thái (nháp, chờ duyệt, đã duyệt, bị từ chối, đã rút, đã đóng); các dòng (mặt hàng, đơn vị, số lượng, đơn giá ước tính, nhà cung cấp đề xuất, ghi chú) | Thuộc công ty; mỗi dòng được đặt qua một hoặc nhiều dòng đơn mua |
-| Đơn mua | Số (`DMH`…), nhà cung cấp, kho nhận, ngày đơn, ngày giao dự kiến, tiền tệ của công ty, ghi chú, tổng chưa thuế, thuế, trạng thái (nháp, chờ duyệt, đã duyệt, bị từ chối, đã rút, đã nhận đủ, đã đóng), lý do đóng; các dòng (mặt hàng, đơn vị, số lượng, đơn giá chưa thuế, thuế suất, thành tiền) | Thuộc công ty; dòng có thể lấy từ dòng đề nghị mua; số đã nhận, đã trả tính từ phiếu kho |
-| Phiếu nhập mua | Như phiếu kho; nhà cung cấp, đơn mua gốc, trạng thái thêm "Chờ kiểm tra chất lượng", số không đạt và lý do từng dòng, người và thời điểm kiểm | Phiếu kho của công ty đặt đơn ở kho nhận của đơn; mỗi dòng gắn một dòng đơn mua |
+| Đơn mua | Số (`DMH`…), nhà cung cấp, kho nhận, ngày đơn, ngày giao dự kiến, tiền tệ của công ty, ghi chú, tổng chưa thuế, thuế, trạng thái (chờ xác nhận nội bộ, nháp, chờ duyệt, đã duyệt, bị từ chối, đã rút, đã nhận đủ, đã đóng), lý do đóng, đơn bán đối ứng, là đơn đối ứng hay không, lý do bên kia từ chối; các dòng (mặt hàng, đơn vị, số lượng, đơn giá chưa thuế, thuế suất, thành tiền) | Thuộc công ty; dòng có thể lấy từ dòng đề nghị mua; số đã nhận, đã trả tính từ phiếu kho; nhà cung cấp nội bộ thì có một đơn bán đối ứng ở công ty bán |
+| Phiếu nhập mua | Như phiếu kho; nhà cung cấp, đơn mua gốc, trạng thái thêm "Chờ kiểm tra chất lượng", "Chờ nhận" (nội bộ), số không đạt và lý do từng dòng, người và thời điểm kiểm, phiếu xuất gốc bên bán (nội bộ) | Phiếu kho của công ty đặt đơn ở kho nhận của đơn; mỗi dòng gắn một dòng đơn mua; phiếu nhập nội bộ mỗi dòng gắn một dòng phiếu xuất giao hàng gốc |
 | Phiếu trả hàng nhà cung cấp | Như phiếu kho; nhà cung cấp, phiếu nhập mua gốc, lý do | Mỗi dòng gắn một dòng phiếu nhập mua gốc |
 | Cài đặt bán hàng | Chiết khấu tay tối đa không cần duyệt (phần trăm, mặc định 0) | Một bản mỗi công ty |
-| Đơn bán | Số (`DBH`…), khách hàng (trống: người mua không lấy hóa đơn, kèm tên người mua), kênh bán, nhóm khách lúc lập, kho xuất, ngày đơn, địa chỉ giao, ghi chú, tiền tệ của công ty, tổng chưa thuế, thuế, tổng gồm thuế, ngoại lệ cần duyệt, trạng thái (nháp, chờ duyệt, đã xác nhận, bị từ chối, đã rút, đã giao đủ, đã hủy, đã đóng), lý do đóng; các dòng (mặt hàng, đơn vị, số lượng, bảng giá, giá bảng giá, giá gồm thuế hay chưa, chiết khấu tay phần trăm, đơn giá sau chiết khấu, thuế suất, tiền chưa thuế, thuế, tổng) | Thuộc công ty; khách là đối tác có hồ sơ khách hàng ở công ty; hàng giữ theo nguồn `sales.order`; số đã giao, đã trả tính từ phiếu kho |
+| Đơn bán | Số (`DBH`…), khách hàng (trống: người mua không lấy hóa đơn, kèm tên người mua), kênh bán, nhóm khách lúc lập, kho xuất, ngày đơn, địa chỉ giao, ghi chú, tiền tệ của công ty, tổng chưa thuế, thuế, tổng gồm thuế, ngoại lệ cần duyệt, trạng thái (chờ xác nhận nội bộ, nháp, chờ duyệt, đã xác nhận, bị từ chối, đã rút, đã giao đủ, đã hủy, đã đóng), lý do đóng, đơn mua đối ứng, là đơn đối ứng hay không, lý do bên kia từ chối; các dòng (mặt hàng, đơn vị, số lượng, bảng giá, giá bảng giá, giá gồm thuế hay chưa, chiết khấu tay phần trăm, đơn giá sau chiết khấu, thuế suất, tiền chưa thuế, thuế, tổng) | Thuộc công ty; khách là đối tác có hồ sơ khách hàng ở công ty; hàng giữ theo nguồn `sales.order`; số đã giao, đã trả tính từ phiếu kho; khách nội bộ thì có một đơn mua đối ứng ở công ty mua |
 | Phiếu xuất giao hàng | Như phiếu kho; khách hàng, đơn bán gốc | Phiếu kho của công ty bán ở kho xuất của đơn; mỗi dòng gắn một dòng đơn bán |
 | Phiếu nhận hàng trả lại | Như phiếu kho; khách hàng, phiếu xuất giao hàng gốc, lý do | Mỗi dòng gắn một dòng phiếu xuất giao hàng gốc |
+| Biên bản chênh lệch giao nhận nội bộ | Số thiếu (đơn vị cơ sở bên bán), giá trị theo giá vốn phiếu xuất, serial chưa nhận, lý do bên nhận, trạng thái (chờ xử lý, đã nhập lại kho, đã ghi tổn thất), ghi chú, người và thời điểm xử lý | Thuộc công ty bán, kho xuất; gắn một dòng phiếu xuất giao hàng và một phiếu nhập mua nội bộ; có phiếu nhận hàng trả lại khi nhập lại kho |

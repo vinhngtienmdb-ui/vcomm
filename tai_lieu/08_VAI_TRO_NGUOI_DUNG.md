@@ -1,10 +1,10 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò mặc định, trách nhiệm và quyền hạn.
-- Phiên bản: 1.4
+- Phiên bản: 1.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11)
+- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12)
 
 ## 1. Nguyên tắc
 
@@ -151,3 +151,15 @@ Quyền của MODULE_05 phần 1:
 | Cài đặt chiết khấu tay tối đa | Có | Trong công ty mình | Không | Không | Không |
 | Lập, gửi phiếu xuất giao hàng; lập, gửi phiếu nhận hàng trả lại | Có | Kho của công ty mình | Không | Kho trong phạm vi gán | Kho trong phạm vi gán |
 | Duyệt đơn bán có ngoại lệ | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định |
+
+## 12. Phân quyền giao dịch nội bộ (MODULE_05 phần 2, CONG_VIEC_09)
+
+Không thêm quyền, vai trò. Mỗi bên dùng quyền của mình tại công ty mình; người dùng chỉ thấy chứng từ của công ty đang chọn, chứng từ đối ứng chỉ hiện tên công ty bên kia, số, trạng thái.
+
+| Thao tác | Quyền dùng | Quản trị tập đoàn | Quản trị công ty | Nhân viên bán hàng | Nhân viên mua hàng | Thủ kho | Quản lý kho |
+|---|---|---|---|---|---|---|---|
+| Xác nhận (chọn kho xuất), từ chối đơn bán đối ứng | `sales.order.manage` tại công ty bán | Có | Trong công ty mình | Có | Không | Không | Không |
+| Xác nhận (chọn kho nhận), từ chối đơn mua đối ứng | `purchasing.order.manage` tại công ty mua | Có | Trong công ty mình | Không | Có | Không | Không |
+| Nhận hàng nội bộ theo phiếu nhập "Chờ nhận" | `inventory.purchase.receive` tại kho nhận | Có | Kho của công ty mình | Không | Không | Kho trong phạm vi gán | Kho trong phạm vi gán |
+| Xem, xử lý biên bản chênh lệch nội bộ | `inventory.sales.issue` tại kho xuất của công ty bán | Có | Kho của công ty mình | Không | Không | Kho trong phạm vi gán | Kho trong phạm vi gán |
+| Xem giá trị biên bản chênh lệch | `inventory.cost.view` tại kho xuất hoặc công ty bán | Có | Trong công ty mình | Không | Không | Không | Có |

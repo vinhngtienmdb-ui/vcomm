@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ)
 
 ## MODULE_01 Nền tảng
 
@@ -905,6 +905,78 @@ Quy ước chung cho mọi chức năng của MODULE_05 phần 1:
 |---|---|
 | Toàn vẹn | Số đã giao, đã trả không lưu trùng, tính từ phiếu kho; gửi đơn khóa đơn và hồ sơ khách; gửi phiếu xuất khóa đơn bán; gửi phiếu trả khóa dòng phiếu xuất gốc; kiểm hàng khả dụng khi gửi phiếu đọc trong giao dịch; khóa ngoại từ `sales` chỉ trỏ vào `sales`, `core`, `catalog`, `crm` |
 | Ranh giới module | Bán hàng chỉ ghi schema `sales`; giữ hàng ghi qua `ReservationsService` của module Kho; phiếu xuất giao hàng, nhận hàng trả lại do module Kho ghi (đọc đơn bán); trạng thái "Đã giao đủ" cập nhật qua `SalesOrdersService` trong giao dịch ghi sổ |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_05 Bán hàng (phần 2: Giao dịch nội bộ, CONG_VIEC_09)
+
+Quy ước chung cho mọi chức năng của MODULE_05 phần 2:
+- Mọi thao tác ghi dữ liệu ghi một dòng nhật ký thao tác (CHUC_NANG_23): `sales_order.counterpart_confirm`, `.counterpart_reject` (mini app `sales`); `purchase_order.counterpart_confirm`, `.counterpart_reject` (mini app `purchasing`); `stock_document.receive_internal`, `internal_discrepancy.resolve` (mini app `inventory`). Chứng từ bên kia sinh, kết thúc theo chứng từ khởi tạo trong cùng giao dịch, lý do ghi trên chứng từ.
+- Không thêm quyền (tài liệu `08` mục 12). Mỗi bên chỉ xem, thao tác chứng từ của công ty đang làm việc; chứng từ đối ứng chỉ hiện tên công ty bên kia, số, trạng thái.
+- Xác nhận, từ chối, nhận hàng, xử lý biên bản gửi kèm phiên bản; khác phiên bản hoặc chứng từ không còn ở trạng thái chờ thì báo "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất.".
+- Bán hàng ghi `sales`, Mua hàng ghi `purchasing`, Kho ghi `inventory`; sinh, kết thúc chứng từ bên kia qua service của module sở hữu (`InternalTradeService` nối hai module).
+
+### CHUC_NANG_58: Đơn bán nội bộ sinh đơn mua đối ứng
+- Mục đích: Công ty bán nhập đơn một lần; công ty mua nhận đơn mua đối ứng để xác nhận, đi luồng duyệt của mình.
+- Người sử dụng: Nhân viên bán hàng công ty bán (lập, gửi); Nhân viên mua hàng công ty mua (xác nhận, từ chối); quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: Đơn bán: như CHUC_NANG_54. Xác nhận, từ chối đơn mua đối ứng: `purchasing.order.manage` ở công ty mua, đơn "Chờ xác nhận nội bộ".
+- Dữ liệu đầu vào: Đơn bán như CHUC_NANG_54, khách là đối tác nội bộ. Xác nhận: kho nhận, phiên bản. Từ chối: lý do (1 đến 500 ký tự), phiên bản.
+- Quy trình xử lý: Khi lưu và khi gửi kiểm điều kiện nội bộ (QUYTAC_NGHIEPVU_73). Đơn bán chuyển "Đã xác nhận" (ngay khi gửi hoặc khi duyệt xong): sinh đơn mua đối ứng ở công ty mua, "Chờ xác nhận nội bộ", nhà cung cấp là đối tác nội bộ của công ty bán, chưa có kho, chưa có số, ngày đơn theo đơn bán; mỗi dòng: mặt hàng liên kết, đơn vị cơ sở bên mua, số lượng = số lượng cơ sở × hệ số liên kết, đơn giá = tiền chưa thuế của dòng đơn bán / số lượng bên mua (làm tròn 4 chữ số), thuế suất theo dòng đơn bán; hai đơn trỏ nhau. Xác nhận: kiểm kho nhận của công ty, ghi kho, về nháp, người xác nhận thành người lập, gửi luồng duyệt đơn mua (QUYTAC_NGHIEPVU_63; chưa có chính sách thì duyệt ngay, cấp số `DMH`). Từ chối: đơn mua đóng, ghi lý do từ chối; đơn bán kết thúc theo QUYTAC_NGHIEPVU_78. Rút, không duyệt đơn mua đối ứng: đóng, đơn bán kết thúc theo.
+- Kết quả đầu ra: Chi tiết đơn bán, đơn mua thêm: nội bộ hay không, là đơn đối ứng hay không, chứng từ đối ứng (tên công ty, số, trạng thái), lý do bên kia từ chối, được xác nhận đơn đối ứng hay không.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_36
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_73, QUYTAC_NGHIEPVU_74, QUYTAC_NGHIEPVU_75, QUYTAC_NGHIEPVU_78
+- Trường hợp ngoại lệ: Đơn mua đối ứng không sửa dòng được (409). Đơn bán nội bộ chưa có đơn mua đối ứng đã duyệt thì không giao được. Kho nhận không thuộc công ty, ngừng dùng: lỗi ô kho.
+- Phân quyền: Người không có `purchasing.order.manage` ở công ty mua xác nhận, từ chối nhận 403. Công ty bán không xem được đơn mua của công ty mua (404).
+- Thông báo lỗi: "Đơn bán cho công ty con phải dùng kênh bán Nội bộ." · "Công ty bên kia chưa có hồ sơ đối tác đang dùng cho công ty này (khách hàng ở công ty bán, nhà cung cấp ở công ty mua)." · "Hai công ty dùng tiền tệ khác nhau, chưa giao dịch nội bộ được." · "Mặt hàng chưa liên kết với sản phẩm của công ty bên kia." · "Đơn mua đối ứng của công ty mua chưa được duyệt, chưa giao được." · "Giá trị không hợp lệ." (kho)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_93, TIEUCHI_NGHIEMTHU_97, TIEUCHI_NGHIEMTHU_98
+
+### CHUC_NANG_59: Đơn mua nội bộ sinh đơn bán đối ứng
+- Mục đích: Công ty mua đặt hàng công ty con khác đúng giá nội bộ; công ty bán nhận đơn bán đối ứng để xác nhận, giữ hàng.
+- Người sử dụng: Nhân viên mua hàng công ty mua (lập, gửi); Nhân viên bán hàng công ty bán (xác nhận, từ chối); quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: Đơn mua: như CHUC_NANG_51. Xác nhận, từ chối đơn bán đối ứng: `sales.order.manage` ở công ty bán, đơn "Chờ xác nhận nội bộ".
+- Dữ liệu đầu vào: Đơn mua như CHUC_NANG_51, nhà cung cấp là đối tác nội bộ (đơn giá, thuế suất gửi lên bị thay). Xác nhận: kho xuất, phiên bản. Từ chối: lý do (1 đến 500 ký tự), phiên bản.
+- Quy trình xử lý: Khi lưu kiểm điều kiện nội bộ (QUYTAC_NGHIEPVU_73), lấy giá chưa thuế, thuế suất theo bảng giá kênh Nội bộ của công ty bán (QUYTAC_NGHIEPVU_75); tra giá gợi ý qua API_73 trả thêm `internal.vatRate`. Đơn mua chuyển "Đã duyệt": sinh đơn bán đối ứng ở công ty bán, "Chờ xác nhận nội bộ", khách là đối tác nội bộ của công ty mua, kênh Nội bộ, nhóm khách theo hồ sơ, chưa có kho, chưa có số; mỗi dòng: mặt hàng liên kết, đơn vị cơ sở bên bán, số lượng quy theo liên kết, giá chưa thuế = thành tiền dòng đơn mua / số lượng bên bán (làm tròn 4 chữ số), thuế suất theo đơn mua, không chiết khấu. Xác nhận: kiểm kho, ghi kho, về nháp, người xác nhận thành người lập, gửi như CHUC_NANG_54 (cấp số `DBH`, giữ hàng, ngoại lệ, duyệt). Từ chối: đơn bán hủy, ghi lý do; đơn mua đóng theo. Rút, không duyệt đơn bán đối ứng: hủy, đơn mua đóng theo.
+- Kết quả đầu ra: Như CHUC_NANG_58; trên form đơn mua, nhà cung cấp nội bộ thì đơn giá, thuế suất chỉ đọc kèm chú thích.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_36
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_73, QUYTAC_NGHIEPVU_74, QUYTAC_NGHIEPVU_75, QUYTAC_NGHIEPVU_78
+- Trường hợp ngoại lệ: Không có giá nội bộ thì không lưu được dòng. Không đủ hàng khả dụng khi xác nhận: báo lỗi theo dòng, đơn giữ "Chờ xác nhận nội bộ". Đơn mua đã có đơn bán đối ứng không sửa được. Đơn bán đối ứng "Chờ xác nhận nội bộ" không hủy được, chỉ từ chối.
+- Phân quyền: Người không có `sales.order.manage` ở công ty bán xác nhận, từ chối nhận 403.
+- Thông báo lỗi: "Công ty bán chưa có kênh bán Nội bộ đang dùng." · "Chưa có giá cho mặt hàng này." · "Không đủ hàng khả dụng (một phần đang được giữ)." · thông báo nội bộ như CHUC_NANG_58
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_94, TIEUCHI_NGHIEMTHU_97, TIEUCHI_NGHIEMTHU_98
+
+### CHUC_NANG_60: Giao, nhận hàng nội bộ
+- Mục đích: Hàng xuất ở công ty bán tự thành phiếu nhập chờ nhận ở công ty mua; bên mua chỉ nhập số thực nhận.
+- Người sử dụng: Thủ kho công ty bán (xuất); Thủ kho công ty mua (nhận); Quản lý kho, quản trị.
+- Điều kiện thực hiện: Xuất: như CHUC_NANG_56, thêm đơn mua đối ứng đã duyệt. Nhận: `inventory.purchase.receive` tại kho nhận, phiếu "Chờ nhận".
+- Dữ liệu đầu vào: Nhận: mọi dòng của phiếu (1 đến 200): số thực nhận theo đơn vị cơ sở bên mua (0 trở lên, tối đa 12 chữ số phần nguyên, 4 chữ số lẻ), vị trí, serial đã nhận (tối đa 5.000); lý do thiếu (tối đa 500 ký tự, bắt buộc khi nhận thiếu); phiên bản.
+- Quy trình xử lý: Lập, gửi phiếu xuất giao hàng theo đơn bán nội bộ kiểm đơn mua đối ứng "Đã duyệt". Ghi sổ phiếu xuất: sinh phiếu nhập mua `in_transit` ở công ty mua, kho nhận của đơn mua, nguồn đơn mua, nhà cung cấp là đối tác nội bộ của công ty bán, trỏ phiếu xuất; mỗi dòng ghép dòng đơn mua cùng số thứ tự với dòng đơn bán: mặt hàng bên mua, đơn vị cơ sở, số lượng = số xuất cơ sở × hệ số liên kết, đơn giá = đơn giá dòng đơn mua quy về đơn vị cơ sở, lô, ngày sản xuất, hạn dùng theo dòng xuất, trỏ dòng xuất. Nhận: kiểm đủ dòng, không vượt số xuất, serial thuộc serial đã xuất, thiếu phải có lý do; bỏ dòng nhận 0; kiểm như phiếu kho (vị trí, lô); khóa phiếu; cấp số theo dãy `inventory.purchase_receipt` của công ty mua; ghi sổ, cập nhật số đã nhận của đơn mua (nhận đủ, cho phép lệch 0,0005 thì "Đã nhận đủ"); dòng thiếu sinh biên bản (CHUC_NANG_61).
+- Kết quả đầu ra: Chi tiết phiếu kho thêm: phiếu xuất gốc (số, tên công ty bán); khi chờ nhận: số xuất, serial xuất từng dòng; được nhận hàng nội bộ hay không.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_36
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_76, QUYTAC_NGHIEPVU_77
+- Trường hợp ngoại lệ: Đơn mua nội bộ không lập phiếu nhập mua thường, không hiện trong danh sách đơn chờ nhận. Phiếu đã nhận thì nhận lại bị từ chối. Nhận 0 mọi dòng: phiếu ghi sổ không có dòng, mọi dòng sinh biên bản.
+- Phân quyền: Thủ kho không có quyền tại kho nhận (kể cả thủ kho công ty bán) không nhận được.
+- Thông báo lỗi: "Đơn mua đối ứng của công ty mua chưa được duyệt, chưa giao được." · "Phiếu nhập nội bộ không ở trạng thái chờ nhận." · "Số nhận vượt số đã xuất." · "Serial không có trong phiếu xuất gốc." · "Nhận thiếu phải ghi lý do." · "Phải nhập số nhận cho mọi dòng của phiếu." · "Đơn mua nội bộ chỉ nhận theo phiếu nhập sinh từ phiếu xuất của công ty bán." · lỗi phiếu kho theo CHUC_NANG_40
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_95, TIEUCHI_NGHIEMTHU_98
+
+### CHUC_NANG_61: Biên bản chênh lệch giao nhận nội bộ
+- Mục đích: Phần hàng giao thiếu có biên bản ở công ty bán và người xử lý.
+- Người sử dụng: Thủ kho, Quản lý kho công ty bán; quản trị.
+- Điều kiện thực hiện: `inventory.sales.issue` tại kho xuất của biên bản, công ty đang làm việc là công ty bán.
+- Dữ liệu đầu vào: Danh sách: trạng thái (chờ xử lý, đã nhập lại kho, đã ghi tổn thất). Xử lý: cách xử lý (nhập lại kho, ghi tổn thất), ghi chú (tối đa 500 ký tự, không bắt buộc), phiên bản.
+- Quy trình xử lý: Khi nhận thiếu, mỗi dòng xuất thiếu sinh một biên bản: công ty, kho xuất, phiếu xuất, dòng xuất, phiếu nhập, dòng nhập (trống khi nhận 0), mặt hàng bên bán, số thiếu = số xuất cơ sở × tỷ lệ thiếu (làm tròn 4 chữ số), giá trị = giá vốn dòng xuất × tỷ lệ thiếu, serial đã xuất chưa nhận, lý do bên nhận. Danh sách: biên bản của công ty tại các kho người dùng có quyền, mới trước, tối đa 500. Xử lý: giữ biên bản (kiểm "Chờ xử lý", phiên bản), ghi cách xử lý, ghi chú, người, thời điểm; nhập lại kho thì lập, ghi sổ phiếu nhận hàng trả lại theo phiếu xuất gốc (CHUC_NANG_57) với số thiếu, serial chưa nhận, lý do "Hàng thiếu khi giao nội bộ: <lý do>", lưu phiếu trả vào biên bản; lỗi thì xóa phiếu nháp, trả biên bản về "Chờ xử lý".
+- Kết quả đầu ra: Danh sách: mặt hàng (mã, tên, kho), số thiếu (đơn vị cơ sở), serial, phiếu xuất, công ty mua, phiếu nhập, lý do, thời điểm, giá trị (chỉ người có `inventory.cost.view` tại kho hoặc công ty; người khác nhận trống), trạng thái, người xử lý, ghi chú, phiếu trả, được xử lý hay không.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_36
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_77
+- Trường hợp ngoại lệ: Biên bản đã xử lý thì xử lý lần nữa bị từ chối (409). Công ty mua không thấy biên bản.
+- Phân quyền: Không có `inventory.sales.issue` tại kho xuất: danh sách không có biên bản của kho đó, xử lý nhận 403 (không có quyền vào kho thì 404).
+- Thông báo lỗi: "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất." · lỗi phiếu nhận hàng trả lại theo CHUC_NANG_57
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_96, TIEUCHI_NGHIEMTHU_98
+
+## Yêu cầu phi chức năng của MODULE_05 (phần 2)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Toàn vẹn | Sinh, kết thúc chứng từ đối ứng, sinh phiếu nhập chờ nhận trong cùng giao dịch với chứng từ khởi tạo; hai đơn trỏ nhau bằng mã, không khóa ngoại khác schema (kiểm trong service); nhận hàng khóa phiếu nhập theo phiên bản; xử lý biên bản giữ biên bản trước khi nhập lại kho |
+| Ranh giới module | Bán hàng ghi `sales`, Mua hàng ghi `purchasing`, Kho ghi `inventory`; `InternalTradeService` (module Bán hàng) đăng ký móc nối vào `SalesOrdersService`, `PurchaseOrdersService` khi khởi động |
 | Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
