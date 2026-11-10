@@ -3707,3 +3707,69 @@ export interface ConsolidationResponse extends ConsolidationListItem {
   currency: string;
   version: number;
 }
+
+// API_110, API_111: phiếu giao khách, lịch sử phụ trách (CONG_VIEC_21).
+export const customerAssignmentStatuses = ["draft", "pending", "applied", "rejected", "withdrawn"] as const;
+export type CustomerAssignmentStatus = (typeof customerAssignmentStatuses)[number];
+export const customerAssignmentListQuerySchema = z
+  .object({
+    status: z.enum(customerAssignmentStatuses).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const saveCustomerAssignmentSchema = z
+  .object({
+    targetUserId: z.uuid(),
+    reason: z.string().trim().min(1).max(500),
+    partnerIds: z
+      .array(z.uuid())
+      .min(1)
+      .max(500)
+      .refine((items) => new Set(items).size === items.length, { message: "duplicate" }),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export interface CustomerAssignmentListItem {
+  id: string;
+  documentNo: string | null;
+  status: CustomerAssignmentStatus;
+  targetUserName: string;
+  reason: string;
+  customerCount: number;
+  createdByName: string;
+  createdAt: string;
+}
+export interface CustomerAssignmentLine {
+  partnerId: string;
+  code: string;
+  name: string;
+  // Nhân viên phụ trách hiện tại; lúc gửi (để so khi áp dụng).
+  currentOwnerName: string | null;
+  previousOwnerName: string | null;
+}
+export interface CustomerAssignmentResponse extends CustomerAssignmentListItem {
+  targetUserId: string;
+  lines: CustomerAssignmentLine[];
+  applyError: string | null;
+  submittedAt: string | null;
+  appliedAt: string | null;
+  version: number;
+  canEdit: boolean;
+  canSubmit: boolean;
+  canWithdraw: boolean;
+  canDiscard: boolean;
+}
+export interface CustomerAssignmentOptionsResponse {
+  // Nhân viên nhận được chọn: mọi thành viên (quyền giao khách) hoặc nhân viên phòng mình quản lý.
+  users: { id: string; fullName: string }[];
+  canAssignAll: boolean;
+}
+export interface PartnerOwnerHistoryItem {
+  userName: string;
+  validFrom: string;
+  validTo: string | null;
+  assignmentId: string | null;
+  documentNo: string | null;
+}
+

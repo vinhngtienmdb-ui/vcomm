@@ -264,7 +264,10 @@
     "consolidationNoMembers": "No company can be consolidated (same currency, ledger initialized).",
     "consolidationPeriodExists": "A consolidation already exists for this period.",
     "consolidationPostingRuleMissing": "A member company is missing posting rules for revenue, cost of goods sold or goods.",
-    "ownerNeedsAssignment": "This customer already has a sales owner; change it with a customer assignment."
+    "ownerNeedsAssignment": "This customer already has a sales owner; change it with a customer assignment.",
+    "assignmentCustomerInvalid": "The customer is outside your assignment scope or is not an active customer.",
+    "assignmentSameOwner": "This customer is already owned by this staff member.",
+    "assignmentOwnersChanged": "Some customers changed owner; reopen the assignment to check."
   },
   "login": {
     "title": "Sign in",
@@ -1752,7 +1755,8 @@
   },
   "crmMenu": {
     "title": "Customers and Partners",
-    "partners": "Partners"
+    "partners": "Partners",
+    "customerAssignments": "Customer assignments"
   },
   "partners": {
     "title": "Partners",
@@ -1829,7 +1833,10 @@
     "selfProfile": "This is the selected company; it cannot have a partner profile.",
     "days": "{count} days",
     "mine": "My customers",
-    "ownerChangeHint": "Change the sales owner with a customer assignment."
+    "ownerChangeHint": "Change the sales owner with a customer assignment.",
+    "ownerHistory": "Owner history",
+    "noOwnerHistory": "No sales owner yet.",
+    "ownerNow": "now"
   },
   "purchasingMenu": {
     "title": "Purchasing",
@@ -2963,5 +2970,46 @@
     "anyCompany": "Parent first",
     "choosePartner": "Choose partner (required)",
     "noPartner": "No partner"
+  },
+  "customerAssignments": {
+    "title": "Customer assignments",
+    "titleOne": "Customer assignment",
+    "hint": "Assign customers to sales staff; follows the company approval policy.",
+    "create": "New assignment",
+    "none": "No customer assignments yet.",
+    "documentNo": "Number",
+    "draftNo": "(draft)",
+    "target": "Assign to",
+    "chooseTarget": "Choose staff",
+    "customers": "Customers",
+    "customer": "Customer",
+    "reason": "Reason",
+    "createdBy": "Created by",
+    "status": "Status",
+    "status_draft": "Draft",
+    "status_pending": "Pending",
+    "status_applied": "Applied",
+    "status_rejected": "Rejected",
+    "status_withdrawn": "Withdrawn",
+    "picked": "Selected customers: {count}",
+    "nonePicked": "No customers selected.",
+    "noOwner": "no owner",
+    "remove": "Remove",
+    "add": "Add",
+    "findCustomers": "Find customers to add",
+    "searchHint": "Name, code, tax code, phone",
+    "saved": "Assignment saved.",
+    "submit": "Submit",
+    "submitted": "Assignment submitted.",
+    "edit": "Edit",
+    "withdraw": "Withdraw",
+    "withdrawn": "Assignment withdrawn.",
+    "discard": "Discard draft",
+    "discardConfirm": "Discard this draft? This cannot be undone.",
+    "discarded": "Draft discarded.",
+    "backToList": "List",
+    "appliedAt": "Applied at",
+    "currentOwner": "Current owner",
+    "previousOwner": "Owner when submitted"
   }
 }

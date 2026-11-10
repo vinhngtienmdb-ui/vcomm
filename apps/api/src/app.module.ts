@@ -49,6 +49,7 @@ import { PricingController } from "./catalog/pricing.controller";
 import { InventoryController } from "./inventory/inventory.controller";
 import { CrmController } from "./crm/crm.controller";
 import { PartnersService } from "./crm/partners.service";
+import { CustomerAssignmentsService } from "./crm/customer-assignments.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
@@ -137,6 +138,7 @@ import { UsersService } from "./users/users.service";
     SalesDeliveriesService,
     InternalReceiptsService,
     PartnersService,
+    CustomerAssignmentsService,
     SupplierPricesService,
     SalesOrdersService,
     InternalTradeService,

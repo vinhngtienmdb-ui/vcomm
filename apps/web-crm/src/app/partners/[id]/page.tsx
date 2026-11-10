@@ -1,7 +1,7 @@
 "use client";
 
 // MAN_HINH_37 Chi tiết đối tác (CHUC_NANG_46 đến 48; API_71, API_72): thông tin chung, người liên hệ, tài khoản ngân hàng, hồ sơ của công ty đang chọn, lịch sử.
-import type { PartnerProfileOptionsResponse, PartnerResponse } from "contracts";
+import type { PartnerOwnerHistoryItem, PartnerProfileOptionsResponse, PartnerResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -12,7 +12,7 @@ import { Field, FormError, useSubmit } from "ui/components/Form";
 import { HistoryLink } from "ui/components/HistoryLink";
 import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
-import { formatMoney } from "ui/lib/format";
+import { formatDateTime, formatMoney } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 import { PartnerDrawer } from "@/components/PartnerDrawer";
 
@@ -157,6 +157,7 @@ function PartnerDetail({ partner, reload }: { partner: PartnerResponse; reload: 
       </section>
 
       <Profile partner={partner} reload={reload} />
+      {partner.profile?.isCustomer && <OwnerHistory partnerId={partner.id} />}
 
       {editing && (
         <PartnerDrawer
@@ -180,6 +181,35 @@ function PartnerDetail({ partner, reload }: { partner: PartnerResponse; reload: 
         />
       )}
     </>
+  );
+}
+
+// Lịch sử nhân viên phụ trách tại công ty đang chọn (CHUC_NANG_98; API_111).
+function OwnerHistory({ partnerId }: { partnerId: string }) {
+  const t = useTranslations("partners");
+  const { state } = useApi<PartnerOwnerHistoryItem[]>(`/crm/partners/${partnerId}/owner-history`);
+  if (state.kind !== "ready") return null;
+  return (
+    <section className="the">
+      <h2 style={{ margin: 0 }}>{t("ownerHistory")}</h2>
+      {state.data.length === 0 ? (
+        <span className="chu-thich">{t("noOwnerHistory")}</span>
+      ) : (
+        <ul style={{ margin: 0, paddingLeft: "var(--khoang-4)" }}>
+          {state.data.map((item, index) => (
+            <li key={index}>
+              <strong>{item.userName}</strong> · {formatDateTime(item.validFrom)} – {item.validTo ? formatDateTime(item.validTo) : t("ownerNow")}
+              {item.assignmentId && (
+                <>
+                  {" · "}
+                  <Link href={`/customer-assignments/${item.assignmentId}`}>{item.documentNo}</Link>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 

@@ -2,6 +2,7 @@
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
 import { createTestUser, signIn, type Session } from "./helpers";
@@ -158,5 +159,109 @@ describe("CONG_VIEC_21 phạm vi xem theo nhân viên phụ trách", () => {
     expect(first.status, JSON.stringify(first.body)).toBe(200);
     const history = await pool.query("SELECT user_id, valid_to FROM crm.partner_owner_history WHERE partner_id = $1 AND company_id = $2", [customers.none, retail]);
     expect(history.rows).toEqual([{ user_id: ids.sellerB, valid_to: null }]);
+  });
+});
+
+const ownerOf = async (partnerId: string) =>
+  (await pool.query<{ owner_user_id: string | null }>("SELECT owner_user_id FROM crm.partner_profiles WHERE partner_id = $1 AND company_id = $2", [partnerId, retail])).rows[0]!.owner_user_id;
+const assignment = (targetUserId: string, partnerIds: string[], extra: Record<string, unknown> = {}) => ({ targetUserId, reason: "Chia lại khách theo vùng", partnerIds, ...extra });
+
+describe("CONG_VIEC_21 phiếu giao khách", () => {
+  it("KICHBAN_KIEMTHU_280 (phần giao): trưởng phòng giao khách trong phòng; không giao được khách, nhân viên ngoài phòng; nhân viên không phải trưởng phòng không lập được", async () => {
+    const options = await as(manager, "get", "/crm/customer-assignment-options");
+    expect(options.status).toBe(200);
+    expect(options.body.canAssignAll).toBe(false);
+    expect((options.body.users as { id: string }[]).map((user) => user.id).sort()).toEqual([ids.manager, ids.sellerA].sort());
+    const outside = await as(manager, "post", "/crm/customer-assignments", assignment(ids.sellerB!, [customers.B!]));
+    expect(outside.status).toBe(400);
+    expect(Object.keys(outside.body.error.fields).sort()).toEqual(["partnerIds.0", "targetUserId"]);
+    expect((await as(sellerB, "get", "/crm/customer-assignment-options")).status).toBe(403);
+    expect((await as(sellerB, "post", "/crm/customer-assignments", assignment(ids.sellerB!, [customers.A!]))).status).toBe(403);
+    // Bỏ phiếu nháp chưa gửi.
+    const draft = await as(manager, "post", "/crm/customer-assignments", assignment(ids.manager!, [customers.A!]));
+    expect(draft.status, JSON.stringify(draft.body)).toBe(201);
+    expect(draft.body).toMatchObject({ status: "draft", canDiscard: true, customerCount: 1 });
+    expect((await as(manager, "post", `/crm/customer-assignments/${draft.body.id}/discard`, { version: draft.body.version })).status).toBe(204);
+    expect((await as(manager, "get", `/crm/customer-assignments/${draft.body.id}`)).status).toBe(404);
+  });
+
+  it("KICHBAN_KIEMTHU_281: chưa có chính sách duyệt thì áp dụng ngay; nhân viên cũ không còn thấy khách; đơn đã gán hoa hồng giữ nhân viên cũ", async () => {
+    const draft = await as(manager, "post", "/crm/customer-assignments", assignment(ids.manager!, [customers.A!]));
+    const applied = await as(manager, "post", `/crm/customer-assignments/${draft.body.id}/submit`, { version: draft.body.version });
+    expect(applied.status, JSON.stringify(applied.body)).toBe(201);
+    expect(applied.body).toMatchObject({ status: "applied", documentNo: expect.stringMatching(/^GK/) });
+    expect(applied.body.lines[0]).toMatchObject({ partnerId: customers.A, previousOwnerName: "Bán Hàng A", currentOwnerName: "Trưởng Phòng KD" });
+    expect(await ownerOf(customers.A!)).toBe(ids.manager);
+    expect(await listed(sellerA, "/crm/partners")).not.toContain(customers.A);
+    expect((await as(sellerA, "get", `/sales/orders/${orders.ofA}`)).status).toBe(404);
+    expect((await as(sellerA, "get", `/sales/orders/${orders.commission}`)).status).toBe(200);
+    const commission = await pool.query("SELECT commission_user_id FROM sales.orders WHERE id = $1", [orders.commission]);
+    expect(commission.rows[0].commission_user_id).toBe(ids.sellerA);
+    const notices = await pool.query<{ user_id: string; title: string }>("SELECT user_id, title FROM core.notifications WHERE kind LIKE 'crm.customer_assignment.%' ORDER BY title");
+    expect(notices.rows).toEqual([
+      { user_id: ids.sellerA, title: `1 khách hàng của bạn đã chuyển cho nhân viên khác theo phiếu ${applied.body.documentNo}` },
+      { user_id: ids.manager, title: `Bạn được giao 1 khách hàng theo phiếu ${applied.body.documentNo}` },
+    ]);
+    // Nhân viên nhận xem được phiếu giao cho mình.
+    expect((await as(manager, "get", "/crm/customer-assignments")).body.total).toBe(1);
+  });
+
+  it("KICHBAN_KIEMTHU_282: có chính sách duyệt thì chờ duyệt; rút, gửi lại giữ số; khách đổi nhân viên trong lúc chờ thì bị từ chối; sửa, gửi lại, duyệt thì áp dụng", async () => {
+    const policy = await retailAdmin.call("post", "/approval-policies", {
+      companyId: retail,
+      body: {
+        documentTypeCode: "crm.customer_assignment",
+        currency: "VND",
+        effectiveFrom: "2026-01-01",
+        levels: [{ levelNo: 1, minAmount: "0", approver: { type: "user", userId: testIds.retailAdmin }, substitute: { type: "user", userId: testIds.purchasingManager }, dueHours: 8 }],
+      },
+    });
+    expect(policy.status, JSON.stringify(policy.body)).toBe(201);
+    const draft = await as(manager, "post", "/crm/customer-assignments", assignment(ids.sellerA!, [customers.A!]));
+    const pending = await as(manager, "post", `/crm/customer-assignments/${draft.body.id}/submit`, { version: draft.body.version });
+    expect(pending.body).toMatchObject({ status: "pending", canWithdraw: true, canEdit: false });
+    expect(await ownerOf(customers.A!)).toBe(ids.manager);
+    const withdrawn = await as(manager, "post", `/crm/customer-assignments/${draft.body.id}/withdraw`);
+    expect(withdrawn.body).toMatchObject({ status: "withdrawn", canEdit: true });
+    const again = await as(manager, "post", `/crm/customer-assignments/${draft.body.id}/submit`, { version: withdrawn.body.version });
+    expect(again.body).toMatchObject({ status: "pending", documentNo: pending.body.documentNo });
+    const decide = async () => {
+      const requestId = (await pool.query<{ approval_request_id: string }>("SELECT approval_request_id FROM crm.customer_assignments WHERE id = $1", [draft.body.id])).rows[0]!.approval_request_id;
+      const decided = await retailAdmin.call("post", `/approval-requests/${requestId}/decisions`, { body: { decision: "approved", comment: "" } });
+      expect(decided.status, JSON.stringify(decided.body)).toBe(200);
+      await application.get(OutboxService).dispatchPending();
+      return (await as(manager, "get", `/crm/customer-assignments/${draft.body.id}`)).body;
+    };
+    // Khách đổi nhân viên trong lúc chờ duyệt (phiếu khác đã áp dụng).
+    await pool.query("UPDATE crm.partner_profiles SET owner_user_id = $1 WHERE partner_id = $2 AND company_id = $3", [ids.sellerB, customers.A, retail]);
+    const rejected = await decide();
+    expect(rejected).toMatchObject({ status: "rejected", canEdit: true, applyError: "Khách đã đổi nhân viên phụ trách hoặc ngừng giao dịch: Khách A" });
+    expect(await ownerOf(customers.A!)).toBe(ids.sellerB);
+    await pool.query("UPDATE crm.partner_profiles SET owner_user_id = $1 WHERE partner_id = $2 AND company_id = $3", [ids.manager, customers.A, retail]);
+    const edited = await as(
+      manager,
+      "patch",
+      `/crm/customer-assignments/${draft.body.id}`,
+      assignment(ids.sellerA!, [customers.A!], { reason: "Trả khách cho nhân viên A", version: rejected.version }),
+    );
+    expect(edited.body).toMatchObject({ status: "draft", reason: "Trả khách cho nhân viên A", applyError: null });
+    await as(manager, "post", `/crm/customer-assignments/${draft.body.id}/submit`, { version: edited.body.version });
+    expect(await decide()).toMatchObject({ status: "applied" });
+    expect(await ownerOf(customers.A!)).toBe(ids.sellerA);
+    expect(await listed(sellerA, "/crm/partners")).toContain(customers.A);
+  });
+
+  it("KICHBAN_KIEMTHU_283: lịch sử phụ trách ghi đủ các lần, kèm số phiếu; người không thấy khách không xem được lịch sử", async () => {
+    const history = await as(retailAdmin, "get", `/crm/partners/${customers.A}/owner-history`);
+    expect(history.status).toBe(200);
+    expect(
+      (history.body as { userName: string; validTo: string | null; documentNo: string | null }[]).map((item) => [item.userName, item.validTo === null, item.documentNo?.startsWith("GK") ?? false]),
+    ).toEqual([
+      ["Bán Hàng A", true, true],
+      ["Trưởng Phòng KD", false, true],
+      ["Bán Hàng A", false, false],
+    ]);
+    expect((await as(sellerB, "get", `/crm/partners/${customers.A}/owner-history`)).status).toBe(404);
+    expect((await as(sellerA, "get", `/crm/partners/${customers.A}/owner-history`)).status).toBe(200);
   });
 });

@@ -264,7 +264,10 @@
     "consolidationNoMembers": "Tập đoàn chưa có công ty nào hợp nhất được (cùng đồng tiền, đã khởi tạo kế toán).",
     "consolidationPeriodExists": "Kỳ này đã có bảng hợp nhất đang dùng.",
     "consolidationPostingRuleMissing": "Công ty thành viên chưa khai định khoản doanh thu, giá vốn hoặc hàng hóa (Hệ thống tài khoản).",
-    "ownerNeedsAssignment": "Khách đã có nhân viên phụ trách; đổi nhân viên bằng phiếu giao khách."
+    "ownerNeedsAssignment": "Khách đã có nhân viên phụ trách; đổi nhân viên bằng phiếu giao khách.",
+    "assignmentCustomerInvalid": "Khách không thuộc phạm vi giao của bạn hoặc không phải khách hàng đang giao dịch.",
+    "assignmentSameOwner": "Khách đã do nhân viên này phụ trách.",
+    "assignmentOwnersChanged": "Có khách đã đổi nhân viên phụ trách; mở lại phiếu để kiểm tra."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1752,7 +1755,8 @@
   },
   "crmMenu": {
     "title": "Khách hàng và Đối tác",
-    "partners": "Đối tác"
+    "partners": "Đối tác",
+    "customerAssignments": "Giao khách hàng"
   },
   "partners": {
     "title": "Đối tác",
@@ -1829,7 +1833,10 @@
     "selfProfile": "Đây là công ty đang chọn, không lập hồ sơ đối tác.",
     "days": "{count} ngày",
     "mine": "Khách của tôi",
-    "ownerChangeHint": "Đổi nhân viên phụ trách bằng phiếu giao khách."
+    "ownerChangeHint": "Đổi nhân viên phụ trách bằng phiếu giao khách.",
+    "ownerHistory": "Lịch sử phụ trách",
+    "noOwnerHistory": "Chưa có nhân viên phụ trách.",
+    "ownerNow": "nay"
   },
   "purchasingMenu": {
     "title": "Mua hàng",
@@ -2963,5 +2970,46 @@
     "anyCompany": "Công ty gốc trước",
     "choosePartner": "Chọn đối tác (bắt buộc)",
     "noPartner": "Không chọn đối tác"
+  },
+  "customerAssignments": {
+    "title": "Giao khách hàng",
+    "titleOne": "Phiếu giao khách",
+    "hint": "Giao, chuyển khách cho nhân viên kinh doanh; đi theo chính sách duyệt của công ty.",
+    "create": "Lập phiếu giao khách",
+    "none": "Chưa có phiếu giao khách.",
+    "documentNo": "Số phiếu",
+    "draftNo": "(nháp)",
+    "target": "Nhân viên nhận",
+    "chooseTarget": "Chọn nhân viên",
+    "customers": "Số khách",
+    "customer": "Khách hàng",
+    "reason": "Lý do",
+    "createdBy": "Người lập",
+    "status": "Trạng thái",
+    "status_draft": "Nháp",
+    "status_pending": "Chờ duyệt",
+    "status_applied": "Đã áp dụng",
+    "status_rejected": "Bị từ chối",
+    "status_withdrawn": "Đã rút",
+    "picked": "Khách đã chọn: {count}",
+    "nonePicked": "Chưa chọn khách nào.",
+    "noOwner": "chưa có người phụ trách",
+    "remove": "Bỏ",
+    "add": "Thêm",
+    "findCustomers": "Tìm khách để thêm",
+    "searchHint": "Tên, mã, mã số thuế, điện thoại",
+    "saved": "Đã lưu phiếu giao khách.",
+    "submit": "Gửi",
+    "submitted": "Đã gửi phiếu giao khách.",
+    "edit": "Sửa",
+    "withdraw": "Rút",
+    "withdrawn": "Đã rút phiếu.",
+    "discard": "Bỏ phiếu nháp",
+    "discardConfirm": "Bỏ phiếu nháp này? Không khôi phục được.",
+    "discarded": "Đã bỏ phiếu nháp.",
+    "backToList": "Danh sách",
+    "appliedAt": "Áp dụng lúc",
+    "currentOwner": "Đang phụ trách",
+    "previousOwner": "Phụ trách lúc gửi"
   }
 }

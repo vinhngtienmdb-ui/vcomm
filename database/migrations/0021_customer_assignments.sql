@@ -16,7 +16,7 @@ CREATE TABLE crm.customer_assignments (
     submitted_at        timestamptz,
     applied_at          timestamptz,
     updated_at          timestamptz NOT NULL DEFAULT now(),
-    version             integer     NOT NULL DEFAULT 0
+    version             integer     NOT NULL DEFAULT 1
 );
 CREATE INDEX customer_assignments_company_idx ON crm.customer_assignments (company_id, created_at DESC);
 CREATE INDEX customer_assignments_approval_idx ON crm.customer_assignments (approval_request_id);
