@@ -1,0 +1,303 @@
+// Quản trị tài khoản người mua: danh sách, chi tiết, đổi người giới thiệu, đánh dấu nhân viên kinh doanh
+// (CONG_VIEC_23; CHUC_NANG_107, 108; QUYTAC_NGHIEPVU_143 đến 145, 147; API_119).
+import { Inject, Injectable } from "@nestjs/common";
+import type { BuyerAccountDetailResponse, BuyerAccountListItem, MarketplaceSettingsResponse, PageResponse } from "contracts";
+import { sql } from "drizzle-orm";
+import { ApiError } from "../common/api-error";
+import { AuditService } from "../common/audit.service";
+import { DATABASE, type Database } from "../database/database.module";
+import type { ClientInfo } from "../auth/auth.service";
+import { PermissionService } from "../permissions/permission.service";
+import { BuyerAccountsService, localPhone } from "./buyer-accounts.service";
+
+type Executor = Pick<Database, "execute">;
+
+export interface BuyerAdminActor {
+  userId: string;
+  operatorCompanyId: string;
+  client: ClientInfo;
+}
+
+type ListRow = {
+  id: string;
+  full_name: string;
+  phone: string | null;
+  status: string;
+  registered_at: Date;
+  referrer_name: string | null;
+  referrer_phone: string | null;
+  is_sales_staff: boolean;
+  referral_count: number;
+};
+
+const listItem = (row: ListRow): BuyerAccountListItem => ({
+  id: row.id,
+  fullName: row.full_name,
+  phone: localPhone(row.phone ?? ""),
+  status: row.status,
+  registeredAt: new Date(row.registered_at).toISOString(),
+  referrerName: row.referrer_name,
+  referrerPhone: row.referrer_phone ? localPhone(row.referrer_phone) : null,
+  isSalesStaff: row.is_sales_staff,
+  referralCount: row.referral_count,
+});
+
+const listColumns = sql`
+  u.id, u.full_name, u.phone, u.status, b.registered_at, r.full_name AS referrer_name, r.phone AS referrer_phone, b.is_sales_staff,
+  (SELECT count(*)::int FROM marketplace.buyer_accounts c WHERE c.referrer_user_id = b.user_id) AS referral_count`;
+
+@Injectable()
+export class BuyerAdminService {
+  constructor(
+    @Inject(DATABASE) private readonly database: Database,
+    private readonly permissions: PermissionService,
+    private readonly buyers: BuyerAccountsService,
+    private readonly audit: AuditService,
+  ) {}
+
+  async operatorCompanyId(): Promise<string | null> {
+    const row = (await this.database.execute<{ id: string }>(sql`SELECT id FROM core.companies WHERE is_marketplace_operator AND status = 'active'`)).rows[0];
+    return row?.id ?? null;
+  }
+
+  // Quyền xét tại công ty vận hành sàn (QUYTAC_NGHIEPVU_147); chưa đặt công ty thì chưa quản trị được.
+  async actor(userId: string, client: ClientInfo, permission: "marketplace.buyer.view" | "marketplace.buyer.manage"): Promise<BuyerAdminActor> {
+    const operatorCompanyId = await this.operatorCompanyId();
+    if (!operatorCompanyId) throw new ApiError("BUSINESS_RULE", "marketplaceOperatorNotSet");
+    const granted = await this.permissions.permissionsInCompany(userId, operatorCompanyId);
+    const allowed = permission === "marketplace.buyer.view" ? granted.includes("marketplace.buyer.view") || granted.includes("marketplace.buyer.manage") : granted.includes(permission);
+    if (!allowed) throw new ApiError("FORBIDDEN", "forbidden");
+    return { userId, operatorCompanyId, client };
+  }
+
+  private async canSetOperator(userId: string): Promise<boolean> {
+    return (await this.permissions.permissionsCovering(userId, { scopeType: "group" })).has("marketplace.buyer.manage");
+  }
+
+  async settings(userId: string): Promise<MarketplaceSettingsResponse> {
+    const operatorCompanyId = await this.operatorCompanyId();
+    const canSetOperator = await this.canSetOperator(userId);
+    const granted = operatorCompanyId ? await this.permissions.permissionsInCompany(userId, operatorCompanyId) : [];
+    if (!canSetOperator && !granted.includes("marketplace.buyer.view") && !granted.includes("marketplace.buyer.manage")) throw new ApiError("FORBIDDEN", "forbidden");
+    const companies = await this.database.execute<{ id: string; short_name: string }>(sql`SELECT id, short_name FROM core.companies WHERE status = 'active' ORDER BY code`);
+    const operator = companies.rows.find((company) => company.id === operatorCompanyId);
+    const canManage = granted.includes("marketplace.buyer.manage");
+    const departments =
+      operatorCompanyId && canManage
+        ? (await this.database.execute<{ id: string; name: string }>(sql`SELECT id, name FROM core.departments WHERE company_id = ${operatorCompanyId} AND status = 'active' ORDER BY name`)).rows
+        : [];
+    return {
+      operatorCompany: operator ? { id: operator.id, shortName: operator.short_name } : null,
+      canSetOperator,
+      companies: canSetOperator ? companies.rows.map((company) => ({ id: company.id, shortName: company.short_name })) : [],
+      canManage,
+      departments,
+    };
+  }
+
+  // Đổi công ty vận hành sàn khi chưa có nhân viên kinh doanh nào được đánh dấu ở công ty cũ.
+  async setOperator(userId: string, companyId: string, client: ClientInfo): Promise<MarketplaceSettingsResponse> {
+    if (!(await this.canSetOperator(userId))) throw new ApiError("FORBIDDEN", "forbidden");
+    await this.database.transaction(async (transaction) => {
+      const company = await transaction.execute(sql`SELECT 1 FROM core.companies WHERE id = ${companyId} AND status = 'active'`);
+      if (company.rows.length === 0) throw new ApiError("NOT_FOUND", "notFound");
+      const flagged = await transaction.execute(sql`SELECT 1 FROM marketplace.buyer_accounts WHERE is_sales_staff AND sales_company_id <> ${companyId} LIMIT 1`);
+      if (flagged.rows.length > 0) throw new ApiError("BUSINESS_RULE", "marketplaceOperatorHasSalesStaff");
+      await transaction.execute(sql`UPDATE core.companies SET is_marketplace_operator = false WHERE is_marketplace_operator AND id <> ${companyId}`);
+      await transaction.execute(sql`UPDATE core.companies SET is_marketplace_operator = true, updated_at = now() WHERE id = ${companyId}`);
+      await this.audit.record(
+        {
+          actorUserId: userId,
+          appCode: "marketplace",
+          action: "marketplace.operator.set",
+          entityType: "core.companies",
+          entityId: companyId,
+          ip: client.ip,
+          userAgent: client.userAgent,
+          requestId: client.requestId,
+        },
+        transaction,
+      );
+    });
+    return this.settings(userId);
+  }
+
+  async list(actor: BuyerAdminActor, query: { search?: string | undefined; salesStaff?: "true" | "false" | undefined; page: number; pageSize: number }): Promise<PageResponse<BuyerAccountListItem>> {
+    const digits = query.search?.replace(/[^0-9]/g, "") ?? "";
+    const search = query.search ? sql`AND (u.full_name ILIKE ${`%${query.search}%`} ${digits.length >= 3 ? sql`OR u.phone LIKE ${`%${digits.replace(/^0/, "")}%`}` : sql``})` : sql``;
+    const staff = query.salesStaff ? sql`AND b.is_sales_staff = ${query.salesStaff === "true"}` : sql``;
+    const where = sql`WHERE TRUE ${search} ${staff}`;
+    const total = (await this.database.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id ${where}`)).rows[0]!.total;
+    const rows = await this.database.execute<ListRow>(sql`
+      SELECT ${listColumns}
+      FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id LEFT JOIN core.users r ON r.id = b.referrer_user_id
+      ${where} ORDER BY b.registered_at DESC, u.id LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`);
+    return { data: rows.rows.map(listItem), page: query.page, pageSize: query.pageSize, total };
+  }
+
+  async detail(actor: BuyerAdminActor, buyerId: string): Promise<BuyerAccountDetailResponse> {
+    const row = (
+      await this.database.execute<ListRow & { version: number; referrer_user_id: string | null; sales_department_id: string | null; department_name: string | null }>(sql`
+      SELECT ${listColumns}, b.version, b.referrer_user_id, b.sales_department_id, d.name AS department_name
+      FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id LEFT JOIN core.users r ON r.id = b.referrer_user_id
+      LEFT JOIN core.departments d ON d.id = b.sales_department_id
+      WHERE b.user_id = ${buyerId}`)
+    ).rows[0];
+    if (!row) throw new ApiError("NOT_FOUND", "notFound");
+    const history = await this.database.execute<{
+      previous_name: string | null;
+      new_name: string | null;
+      source: "registration" | "self" | "admin";
+      reason: string | null;
+      changed_by_name: string;
+      changed_at: Date;
+    }>(sql`
+      SELECT p.full_name AS previous_name, n.full_name AS new_name, h.source, h.reason, c.full_name AS changed_by_name, h.changed_at
+      FROM marketplace.referrer_history h LEFT JOIN core.users p ON p.id = h.previous_referrer_id LEFT JOIN core.users n ON n.id = h.new_referrer_id
+      JOIN core.users c ON c.id = h.changed_by WHERE h.buyer_user_id = ${buyerId} ORDER BY h.changed_at DESC`);
+    const flags = await this.database.execute<{ action: "flag" | "unflag"; department_name: string | null; changed_by_name: string; changed_at: Date }>(sql`
+      SELECT h.action, d.name AS department_name, c.full_name AS changed_by_name, h.changed_at
+      FROM marketplace.sales_flag_history h LEFT JOIN core.departments d ON d.id = h.department_id JOIN core.users c ON c.id = h.changed_by
+      WHERE h.buyer_user_id = ${buyerId} ORDER BY h.changed_at DESC`);
+    const referrals = await this.database.execute<{ id: string; full_name: string; phone: string | null; registered_at: Date }>(sql`
+      SELECT u.id, u.full_name, u.phone, b.registered_at FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id
+      WHERE b.referrer_user_id = ${buyerId} ORDER BY b.registered_at DESC LIMIT 500`);
+    return {
+      ...listItem(row),
+      version: row.version,
+      referrerId: row.referrer_user_id,
+      salesDepartmentId: row.sales_department_id,
+      salesDepartmentName: row.department_name,
+      referrerHistory: history.rows.map((item) => ({
+        previousReferrerName: item.previous_name,
+        newReferrerName: item.new_name,
+        source: item.source,
+        reason: item.reason,
+        changedByName: item.changed_by_name,
+        changedAt: new Date(item.changed_at).toISOString(),
+      })),
+      salesFlagHistory: flags.rows.map((item) => ({
+        action: item.action,
+        departmentName: item.department_name,
+        changedByName: item.changed_by_name,
+        changedAt: new Date(item.changed_at).toISOString(),
+      })),
+      referrals: referrals.rows.map((item) => ({ id: item.id, fullName: item.full_name, phone: localPhone(item.phone ?? ""), registeredAt: new Date(item.registered_at).toISOString() })),
+    };
+  }
+
+  // QUYTAC_NGHIEPVU_143: đặt người khác hoặc để trống, bắt buộc lý do, ghi lịch sử.
+  async changeReferrer(actor: BuyerAdminActor, buyerId: string, input: { referralCode: string | null; reason: string; version: number }): Promise<BuyerAccountDetailResponse> {
+    await this.database.transaction(async (transaction) => {
+      const current = await this.lockBuyer(transaction, buyerId, input.version);
+      const referrerId = input.referralCode ? await this.buyers.resolveReferrer(transaction, input.referralCode, buyerId) : null;
+      if (referrerId === current.referrer_user_id) throw new ApiError("BUSINESS_RULE", "referrerUnchanged");
+      await transaction.execute(sql`UPDATE marketplace.buyer_accounts SET referrer_user_id = ${referrerId}, updated_at = now(), version = version + 1 WHERE user_id = ${buyerId}`);
+      await transaction.execute(sql`
+        INSERT INTO marketplace.referrer_history (buyer_user_id, previous_referrer_id, new_referrer_id, source, reason, changed_by)
+        VALUES (${buyerId}, ${current.referrer_user_id}, ${referrerId}, 'admin', ${input.reason}, ${actor.userId})`);
+      await this.record(transaction, actor, "buyer.referrer.change", buyerId, { previousReferrerId: current.referrer_user_id, referrerId, reason: input.reason });
+    });
+    return this.detail(actor, buyerId);
+  }
+
+  // QUYTAC_NGHIEPVU_144: thêm vào công ty vận hành sàn với vai trò Nhân viên bán hàng và phòng ban đã chọn.
+  async flagSalesStaff(actor: BuyerAdminActor, buyerId: string, input: { departmentId: string; version: number }): Promise<BuyerAccountDetailResponse> {
+    await this.database.transaction(async (transaction) => {
+      const current = await this.lockBuyer(transaction, buyerId, input.version);
+      if (current.user_status !== "active") throw new ApiError("BUSINESS_RULE", "buyerInactive");
+      const department = await transaction.execute(sql`SELECT 1 FROM core.departments WHERE id = ${input.departmentId} AND company_id = ${actor.operatorCompanyId} AND status = 'active'`);
+      if (department.rows.length === 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { departmentId: "invalidValue" } });
+      const company = actor.operatorCompanyId;
+      const memberships = await transaction.execute<{ company_id: string }>(sql`SELECT company_id FROM core.user_company_memberships WHERE user_id = ${buyerId} AND status = 'active'`);
+      const existing = await transaction.execute(sql`SELECT 1 FROM core.user_company_memberships WHERE user_id = ${buyerId} AND company_id = ${company}`);
+      if (existing.rows.length > 0) {
+        await transaction.execute(sql`
+          UPDATE core.user_company_memberships SET status = 'active', department_id = ${input.departmentId}, updated_at = now(), updated_by = ${actor.userId}
+          WHERE user_id = ${buyerId} AND company_id = ${company}`);
+      } else {
+        await transaction.execute(sql`
+          INSERT INTO core.user_company_memberships (user_id, company_id, department_id, is_default, created_by)
+          VALUES (${buyerId}, ${company}, ${input.departmentId}, ${memberships.rows.length === 0}, ${actor.userId})`);
+      }
+      const role = (await transaction.execute<{ id: string }>(sql`SELECT id FROM core.roles WHERE code = 'salesperson' AND company_id IS NULL AND is_system`)).rows[0]!;
+      const today = this.permissions.today();
+      await transaction.execute(sql`
+        INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, valid_from, created_by)
+        SELECT ${buyerId}, ${role.id}, 'company', ${company}, ${today}::date, ${actor.userId}
+        WHERE NOT EXISTS (
+          SELECT 1 FROM core.user_role_assignments WHERE user_id = ${buyerId} AND role_id = ${role.id} AND scope_type = 'company' AND company_id = ${company}
+            AND valid_from <= ${today}::date AND (valid_to IS NULL OR valid_to >= ${today}::date))`);
+      await transaction.execute(sql`
+        UPDATE marketplace.buyer_accounts SET is_sales_staff = true, sales_company_id = ${company}, sales_department_id = ${input.departmentId}, updated_at = now(), version = version + 1
+        WHERE user_id = ${buyerId}`);
+      await transaction.execute(sql`
+        INSERT INTO marketplace.sales_flag_history (buyer_user_id, action, company_id, department_id, changed_by) VALUES (${buyerId}, 'flag', ${company}, ${input.departmentId}, ${actor.userId})`);
+      await this.record(transaction, actor, "buyer.sales.flag", buyerId, { departmentId: input.departmentId });
+    });
+    return this.detail(actor, buyerId);
+  }
+
+  // Bỏ đánh dấu: gỡ vai trò Nhân viên bán hàng, phòng ban; không còn vai trò nào ở công ty thì ngừng thành viên; giữ tài khoản người mua.
+  async unflagSalesStaff(actor: BuyerAdminActor, buyerId: string, version: number): Promise<BuyerAccountDetailResponse> {
+    await this.database.transaction(async (transaction) => {
+      const current = await this.lockBuyer(transaction, buyerId, version);
+      if (!current.is_sales_staff) throw new ApiError("BUSINESS_RULE", "buyerNotSalesStaff");
+      const company = current.sales_company_id!;
+      const today = this.permissions.today();
+      const role = sql`(SELECT id FROM core.roles WHERE code = 'salesperson' AND company_id IS NULL AND is_system)`;
+      await transaction.execute(sql`
+        DELETE FROM core.user_role_assignments WHERE user_id = ${buyerId} AND role_id = ${role} AND company_id = ${company} AND valid_from >= ${today}::date`);
+      await transaction.execute(sql`
+        UPDATE core.user_role_assignments SET valid_to = ${today}::date - 1
+        WHERE user_id = ${buyerId} AND role_id = ${role} AND company_id = ${company} AND (valid_to IS NULL OR valid_to >= ${today}::date)`);
+      const remaining = await transaction.execute(sql`
+        SELECT 1 FROM core.user_role_assignments WHERE user_id = ${buyerId} AND company_id = ${company} AND (valid_to IS NULL OR valid_to >= ${today}::date) LIMIT 1`);
+      await transaction.execute(sql`
+        UPDATE core.user_company_memberships SET department_id = NULL, ${remaining.rows.length === 0 ? sql`status = 'inactive',` : sql``} updated_at = now(), updated_by = ${actor.userId}
+        WHERE user_id = ${buyerId} AND company_id = ${company}`);
+      await transaction.execute(sql`
+        UPDATE marketplace.buyer_accounts SET is_sales_staff = false, sales_company_id = NULL, sales_department_id = NULL, updated_at = now(), version = version + 1 WHERE user_id = ${buyerId}`);
+      await transaction.execute(sql`
+        INSERT INTO marketplace.sales_flag_history (buyer_user_id, action, company_id, department_id, changed_by) VALUES (${buyerId}, 'unflag', ${company}, ${current.sales_department_id}, ${actor.userId})`);
+      await this.record(transaction, actor, "buyer.sales.unflag", buyerId, {});
+    });
+    return this.detail(actor, buyerId);
+  }
+
+  private async lockBuyer(executor: Executor, buyerId: string, version: number) {
+    const row = (
+      await executor.execute<{
+        version: number;
+        referrer_user_id: string | null;
+        is_sales_staff: boolean;
+        sales_company_id: string | null;
+        sales_department_id: string | null;
+        user_status: string;
+      }>(sql`
+      SELECT b.version, b.referrer_user_id, b.is_sales_staff, b.sales_company_id, b.sales_department_id, u.status AS user_status
+      FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id WHERE b.user_id = ${buyerId} FOR UPDATE OF b`)
+    ).rows[0];
+    if (!row) throw new ApiError("NOT_FOUND", "notFound");
+    if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+    return row;
+  }
+
+  private async record(executor: Pick<Database, "insert">, actor: BuyerAdminActor, action: string, buyerId: string, afterData: Record<string, unknown>) {
+    await this.audit.record(
+      {
+        actorUserId: actor.userId,
+        companyId: actor.operatorCompanyId,
+        appCode: "marketplace",
+        action,
+        entityType: "core.users",
+        entityId: buyerId,
+        afterData,
+        ip: actor.client.ip,
+        userAgent: actor.client.userAgent,
+        requestId: actor.client.requestId,
+      },
+      executor,
+    );
+  }
+}

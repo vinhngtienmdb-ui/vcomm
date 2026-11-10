@@ -71,6 +71,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "crm.customer.assign", appCode: "crm", nameVi: "Giao, chuyển khách hàng cho nhân viên", nameEn: "Assign customers to staff", isSensitive: false },
   // CONG_VIEC_22: ứng dụng nhân viên kinh doanh (THAY_DOI_13).
   { code: "crm.visit.manage", appCode: "crm", nameVi: "Ghi lượt ghé thăm khách", nameEn: "Record customer visits", isSensitive: false },
+  // CONG_VIEC_23: tài khoản người mua VComm (xét tại công ty vận hành sàn).
+  { code: "marketplace.buyer.view", appCode: "crm", nameVi: "Xem tài khoản người mua", nameEn: "View buyer accounts", isSensitive: false },
+  { code: "marketplace.buyer.manage", appCode: "crm", nameVi: "Đổi người giới thiệu, đánh dấu nhân viên kinh doanh", nameEn: "Change referrers, flag sales staff", isSensitive: true },
   { code: "finance.commission.view_own", appCode: "finance", nameVi: "Xem hoa hồng của chính mình", nameEn: "View own commissions", isSensitive: false },
   // CONG_VIEC_07: Mua hàng trong nước (MODULE_04, phần 1).
   { code: "purchasing.price.manage", appCode: "purchasing", nameVi: "Quản lý bảng giá mua", nameEn: "Manage supplier prices", isSensitive: false },
@@ -141,6 +144,8 @@ const companyAdminPermissions = [
   "crm.customer.view_all",
   "crm.customer.assign",
   "crm.visit.manage",
+  "marketplace.buyer.view",
+  "marketplace.buyer.manage",
   "finance.commission.view_own",
   "purchasing.price.manage",
   "purchasing.requisition.create",

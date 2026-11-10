@@ -27,7 +27,7 @@ export default function SalesScreen() {
   );
 
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <Screen>
         {error ? <Notice text={error} /> : null}
         <Card>

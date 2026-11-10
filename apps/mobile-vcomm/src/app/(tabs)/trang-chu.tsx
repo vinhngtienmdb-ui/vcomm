@@ -8,7 +8,7 @@ export default function HomeScreen() {
   const t = translator("vcommApp");
   const { me } = useSession();
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <Screen>
         <Card>
           <Title>{t("homeGreeting", { name: me?.fullName ?? "" })}</Title>

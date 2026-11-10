@@ -3949,3 +3949,15 @@ export interface BuyerAccountDetailResponse extends BuyerAccountListItem {
   salesFlagHistory: BuyerSalesFlagHistoryItem[];
   referrals: Array<{ id: string; fullName: string; phone: string; registeredAt: string }>;
 }
+
+export const marketplaceOperatorSchema = z.object({ companyId: z.uuid() }).strict();
+
+// API_119: công ty vận hành sàn và các lựa chọn của màn hình quản trị người mua.
+export interface MarketplaceSettingsResponse {
+  operatorCompany: { id: string; shortName: string } | null;
+  // Chỉ người có quyền quản trị người mua ở phạm vi tập đoàn đặt được công ty vận hành sàn.
+  canSetOperator: boolean;
+  companies: Array<{ id: string; shortName: string }>;
+  canManage: boolean;
+  departments: Array<{ id: string; name: string }>;
+}

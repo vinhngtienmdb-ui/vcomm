@@ -4,6 +4,8 @@ import { createHash } from "node:crypto";
 import type { Pool } from "pg";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { testIds } from "../src/database/seed";
+import { signIn } from "./helpers";
 import { startTestApplication, testClock, testRateLimit } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -155,5 +157,96 @@ describe("CONG_VIEC_23 đăng nhập người mua", () => {
       testRateLimit.perMinute = saved;
       testClock.fixed = null;
     }
+  });
+});
+
+describe("CONG_VIEC_23 quản trị người mua", () => {
+  const retail: string = testIds.retailCompany;
+
+  it("KICHBAN_KIEMTHU_298 (phần quản trị): chưa đặt công ty vận hành sàn thì chưa quản trị được; quản trị đổi người giới thiệu bắt buộc lý do, kiểm tra phiên bản, ghi lịch sử", async () => {
+    const group = await signIn(application, "quantri.tapdoan@vcomm.test");
+    const company = await signIn(application, "quantri.vcr@vcomm.test");
+    expect((await company.call("get", "/marketplace/buyers", { companyId: retail })).status).toBe(409);
+    // Quản trị công ty không đặt được công ty vận hành sàn; quản trị tập đoàn đặt được.
+    expect((await company.call("put", "/marketplace/operator-company", { companyId: retail, body: { companyId: retail } })).status).toBe(403);
+    const set = await group.call("put", "/marketplace/operator-company", { companyId: retail, body: { companyId: retail } });
+    expect(set.status, JSON.stringify(set.body)).toBe(200);
+    expect(set.body.operatorCompany.id).toBe(retail);
+
+    const list = await company.call("get", "/marketplace/buyers?search=0911000002", { companyId: retail });
+    expect(list.status, JSON.stringify(list.body)).toBe(200);
+    expect(list.body.data).toEqual([expect.objectContaining({ fullName: "Người Mua Hai", phone: "0911000002", referrerName: "Người Mua Một", referrerPhone: "0911000001", isSalesStaff: false })]);
+    const id = list.body.data[0].id as string;
+    const detail = await company.call("get", `/marketplace/buyers/${id}`, { companyId: retail });
+    expect(detail.body.referrerHistory).toHaveLength(1);
+
+    expect((await company.call("post", `/marketplace/buyers/${id}/referrer`, { companyId: retail, body: { referralCode: "0911000003", reason: "", version: detail.body.version } })).status).toBe(400);
+    expect((await company.call("post", `/marketplace/buyers/${id}/referrer`, { companyId: retail, body: { referralCode: "0911000003", reason: "Khách xác nhận", version: 99 } })).status).toBe(409);
+    const changed = await company.call("post", `/marketplace/buyers/${id}/referrer`, {
+      companyId: retail,
+      body: { referralCode: "0911000003", reason: "Khách xác nhận người giới thiệu", version: detail.body.version },
+    });
+    expect(changed.status, JSON.stringify(changed.body)).toBe(200);
+    expect(changed.body).toMatchObject({ referrerName: "Người Mua Ba", version: detail.body.version + 1 });
+    expect(changed.body.referrerHistory[0]).toMatchObject({
+      previousReferrerName: "Người Mua Một",
+      newReferrerName: "Người Mua Ba",
+      source: "admin",
+      reason: "Khách xác nhận người giới thiệu",
+      changedByName: "Trần Minh Quân",
+    });
+    // Để trống người giới thiệu.
+    const cleared = await company.call("post", `/marketplace/buyers/${id}/referrer`, { companyId: retail, body: { referralCode: null, reason: "Khách yêu cầu bỏ", version: changed.body.version } });
+    expect(cleared.body.referrerName).toBeNull();
+    // Người không có quyền quản trị người mua.
+    const purchasing = await signIn(application, "phuc.le@vcomm.test");
+    expect((await purchasing.call("get", "/marketplace/buyers", { companyId: retail })).status).toBe(403);
+  });
+
+  it("KICHBAN_KIEMTHU_299: đánh dấu nhân viên kinh doanh cấp vai trò Nhân viên bán hàng và phòng ban ở công ty vận hành sàn; khách tôi phụ trách theo người giới thiệu; bỏ đánh dấu gỡ vai trò; công ty vận hành sàn không đổi được khi còn nhân viên được đánh dấu", async () => {
+    const company = await signIn(application, "quantri.vcr@vcomm.test");
+    const department = (await pool.query<{ id: string }>("INSERT INTO core.departments (company_id, code, name) VALUES ($1, 'KD-SAN', 'Kinh doanh sàn') RETURNING id", [retail])).rows[0]!.id;
+    const buyerId = (await pool.query<{ id: string }>("SELECT id FROM core.users WHERE phone = '+84911000001'")).rows[0]!.id;
+    const before = await company.call("get", `/marketplace/buyers/${buyerId}`, { companyId: retail });
+    const otherCompanyDepartment = (
+      await pool.query<{ id: string }>("INSERT INTO core.departments (company_id, code, name) VALUES ($1, 'KD-KHAC', 'Phòng công ty khác') RETURNING id", [testIds.tradingCompany])
+    ).rows[0]!.id;
+    expect((await company.call("post", `/marketplace/buyers/${buyerId}/sales-flag`, { companyId: retail, body: { departmentId: otherCompanyDepartment, version: before.body.version } })).status).toBe(
+      400,
+    );
+    const flagged = await company.call("post", `/marketplace/buyers/${buyerId}/sales-flag`, { companyId: retail, body: { departmentId: department, version: before.body.version } });
+    expect(flagged.status, JSON.stringify(flagged.body)).toBe(200);
+    expect(flagged.body).toMatchObject({ isSalesStaff: true, salesDepartmentName: "Kinh doanh sàn" });
+    const membership = (await pool.query("SELECT status, department_id, is_default FROM core.user_company_memberships WHERE user_id = $1 AND company_id = $2", [buyerId, retail])).rows[0];
+    expect(membership).toEqual({ status: "active", department_id: department, is_default: true });
+    const roles = await pool.query("SELECT r.code FROM core.user_role_assignments a JOIN core.roles r ON r.id = a.role_id WHERE a.user_id = $1 AND a.company_id = $2 AND a.valid_to IS NULL", [
+      buyerId,
+      retail,
+    ]);
+    expect(roles.rows).toEqual([{ code: "salesperson" }]);
+
+    // Gắn lại 0911000001 làm người giới thiệu của 0911000002 (đã bỏ ở KICHBAN_KIEMTHU_298): đó là khách 0911000001 phụ trách.
+    const customerId = (await pool.query<{ id: string }>("SELECT id FROM core.users WHERE phone = '+84911000002'")).rows[0]!.id;
+    const customer = await company.call("get", `/marketplace/buyers/${customerId}`, { companyId: retail });
+    expect((await company.call("post", `/marketplace/buyers/${customerId}/referrer`, { companyId: retail, body: { referralCode: "0911000001", reason: "Gắn lại", version: customer.body.version } })).status).toBe(200);
+    const login = await post("/buyer/login", { phone: "0911000001", password });
+    const token = login.body.tokens.accessToken as string;
+    expect((await bearer("get", "/buyer/me", token)).body.isSalesStaff).toBe(true);
+    const customers = await bearer("get", "/buyer/sales/customers", token);
+    expect(customers.status).toBe(200);
+    expect(customers.body).toEqual([expect.objectContaining({ fullName: "Người Mua Hai", phone: "0911000002" })]);
+
+    const group = await signIn(application, "quantri.tapdoan@vcomm.test");
+    const blocked = await group.call("put", "/marketplace/operator-company", { companyId: retail, body: { companyId: testIds.tradingCompany } });
+    expect(blocked.status).toBe(409);
+
+    const unflagged = await company.call("delete", `/marketplace/buyers/${buyerId}/sales-flag`, { companyId: retail, body: { version: flagged.body.version } });
+    expect(unflagged.status, JSON.stringify(unflagged.body)).toBe(200);
+    expect(unflagged.body.isSalesStaff).toBe(false);
+    expect(unflagged.body.salesFlagHistory.map((item: { action: string }) => item.action)).toEqual(["unflag", "flag"]);
+    const left = await pool.query("SELECT 1 FROM core.user_role_assignments WHERE user_id = $1 AND company_id = $2 AND (valid_to IS NULL OR valid_to >= current_date)", [buyerId, retail]);
+    expect(left.rows).toHaveLength(0);
+    expect((await pool.query("SELECT status FROM core.user_company_memberships WHERE user_id = $1 AND company_id = $2", [buyerId, retail])).rows[0].status).toBe("inactive");
+    expect((await bearer("get", "/buyer/sales/customers", token)).status).toBe(403);
   });
 });

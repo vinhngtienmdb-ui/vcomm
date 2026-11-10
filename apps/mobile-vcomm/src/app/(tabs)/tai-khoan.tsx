@@ -51,7 +51,7 @@ export default function AccountScreen() {
   }
 
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <Screen>
         <Card>
           <Title>{me.fullName}</Title>
