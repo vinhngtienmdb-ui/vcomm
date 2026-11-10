@@ -96,3 +96,43 @@ describe("CONG_VIEC_22 đăng nhập ứng dụng", () => {
     ).toBe(401);
   });
 });
+
+describe("CONG_VIEC_22 khách của tôi", () => {
+  it("KICHBAN_KIEMTHU_289: tóm tắt khách trong phạm vi: liên hệ, phải thu còn lại sau khi trừ trả trước, phần quá hạn, đơn gần đây; không có hạn mức; khách ngoài phạm vi nhận 404", async () => {
+    const token = (await appLogin("banhang.app@vcomm.test")).body.tokens.accessToken as string;
+    const created = await bearer("post", "/crm/partners", token, {
+      kind: "organization",
+      name: "Khách có công nợ",
+      taxCode: "0322000002",
+      phone: "0281234567",
+      contacts: [{ fullName: "Chị Lan", position: "Kế toán", phone: "0909000111", email: null, isPrimary: true }],
+    });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    const partnerId = created.body.id as string;
+    const debt = (direction: string, amount: number, open: number, due: string | null) =>
+      pool.query(
+        `INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, document_no, document_date, due_date, amount, open_amount)
+         VALUES ($1, $2, 'receivable', $3, 'opening', 'SDĐK', '2026-10-01', $4, $5, $6)`,
+        [retail, partnerId, direction, due, amount, open],
+      );
+    await debt("debit", 1000000, 600000, "2026-10-15");
+    await debt("debit", 300000, 300000, "2099-12-31");
+    await debt("credit", 200000, 100000, null);
+    const summary = await bearer("get", `/crm/partners/${partnerId}/summary`, token);
+    expect(summary.status, JSON.stringify(summary.body)).toBe(200);
+    expect(summary.body).toMatchObject({
+      name: "Khách có công nợ",
+      phone: "0281234567",
+      paymentTermDays: 0,
+      currency: "VND",
+      receivable: "800000",
+      overdue: "600000",
+      recentOrders: [],
+      contacts: [{ fullName: "Chị Lan", phone: "0909000111", isPrimary: true }],
+    });
+    expect(summary.body).not.toHaveProperty("creditLimit");
+    // Khách của người khác (đối tác nội bộ, chưa có người phụ trách) ngoài phạm vi.
+    const other = (await pool.query<{ id: string }>("SELECT id FROM crm.partners WHERE company_id IS NOT NULL LIMIT 1")).rows[0]!.id;
+    expect((await bearer("get", `/crm/partners/${other}/summary`, token)).status).toBe(404);
+  });
+});

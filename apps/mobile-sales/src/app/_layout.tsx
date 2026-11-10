@@ -1,5 +1,5 @@
 // Khung ứng dụng: phiên đăng nhập; chưa đăng nhập hoặc chờ mã xác thực thì về MAN_HINH_66.
-import { Redirect, Slot, usePathname } from "expo-router";
+import { Redirect, Stack, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Loading } from "@/components/ui";
@@ -13,7 +13,13 @@ function Gate() {
   const onLogin = path === "/dang-nhap";
   if (stage !== "ready" && !onLogin) return <Redirect href="/dang-nhap" />;
   if (stage === "ready" && onLogin) return <Redirect href="/khach" />;
-  return <Slot />;
+  return (
+    <Stack screenOptions={{ headerStyle: { backgroundColor: colors.topBar }, headerTintColor: colors.surface, contentStyle: { backgroundColor: colors.background } }}>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="dang-nhap" options={{ headerShown: false }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+    </Stack>
+  );
 }
 
 export default function RootLayout() {

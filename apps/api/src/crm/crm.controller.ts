@@ -7,6 +7,7 @@ import {
   type CustomerAssignmentOptionsResponse,
   type CustomerAssignmentResponse,
   type PartnerOwnerHistoryItem,
+  type PartnerSummaryResponse,
   partnerListQuerySchema,
   partnerLookupQuerySchema,
   savePartnerProfileSchema,
@@ -95,6 +96,12 @@ export class CrmController {
   @Put("partners/:id/profile")
   async saveProfile(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PartnerResponse> {
     return this.partners.saveProfile(await this.actor(request, companyId), id, savePartnerProfileSchema.parse(body));
+  }
+
+  // API_113: tóm tắt khách cho ứng dụng nhân viên kinh doanh (CONG_VIEC_22).
+  @Get("partners/:id/summary")
+  async summary(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<PartnerSummaryResponse> {
+    return this.partners.summary(await this.actor(request, companyId), id);
   }
 
   // API_111: lịch sử phụ trách (CONG_VIEC_21).

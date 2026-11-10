@@ -8,6 +8,7 @@ import type {
   PartnerProfileOptionsResponse,
   PartnerProfileResponse,
   PartnerResponse,
+  PartnerSummaryResponse,
   savePartnerProfileSchema,
   savePartnerSchema,
 } from "contracts";
@@ -21,7 +22,7 @@ import { isUniqueViolation } from "../common/database-errors";
 import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
-import { customerScope, ownedCustomer, recordOwner } from "./customer-scope";
+import { customerScope, ownedCustomer, recordOwner, visibleOrder } from "./customer-scope";
 
 export const crmPermissions = {
   view: "crm.partner.view",
@@ -281,6 +282,54 @@ export class PartnersService implements OnApplicationBootstrap {
     ).rows[0];
     if (!row) return { partner: null };
     return { partner: row, canClaim: granted.has(crmPermissions.manage) && (await this.claimable(actor, row.id)) };
+  }
+
+  // Tóm tắt khách trong phạm vi xem: liên hệ, công nợ phải thu, đơn gần đây (API_113; QUYTAC_NGHIEPVU_137).
+  async summary(actor: Actor, id: string): Promise<PartnerSummaryResponse> {
+    await this.require(actor, crmPermissions.view);
+    const scope = await customerScope(this.database, this.permissionService, actor);
+    const row = (
+      await this.database.execute<{
+        id: string;
+        code: string;
+        name: string;
+        phone: string | null;
+        email: string | null;
+        address: string | null;
+        payment_term_days: number | null;
+        currency: string;
+      }>(sql`
+      SELECT p.id, p.code, p.name, p.phone, p.email, p.address, pr.payment_term_days, c.base_currency AS currency
+      FROM crm.partners p JOIN core.companies c ON c.id = ${actor.companyId} LEFT JOIN crm.partner_profiles pr ON pr.partner_id = p.id AND pr.company_id = c.id
+      WHERE p.id = ${id} AND ${ownedCustomer(scope, sql`${actor.companyId}::uuid`, sql`p.id`)}`)
+    ).rows[0];
+    if (!row) throw new ApiError("NOT_FOUND", "notFound");
+    const contacts = await this.database.execute<{ full_name: string; position: string | null; phone: string | null; is_primary: boolean }>(sql`
+      SELECT full_name, position, phone, is_primary FROM crm.partner_contacts WHERE partner_id = ${id} ORDER BY is_primary DESC, sort_order`);
+    const debt = (
+      await this.database.execute<{ receivable: string; overdue: string }>(sql`
+      SELECT coalesce(sum(CASE WHEN direction = 'debit' THEN open_amount ELSE -open_amount END), 0)::text AS receivable,
+        coalesce(sum(CASE WHEN direction = 'debit' AND due_date < ${this.permissionService.today()}::date THEN open_amount ELSE 0 END), 0)::text AS overdue
+      FROM finance.debt_items WHERE company_id = ${actor.companyId} AND side = 'receivable' AND partner_id = ${id} AND open_amount > 0`)
+    ).rows[0]!;
+    // Đơn gần đây: chỉ đơn người xem được thấy (QUYTAC_NGHIEPVU_129).
+    const orders = await this.database.execute<{ id: string; document_no: string | null; order_date: string; status: string; total_amount: string }>(sql`
+      SELECT o.id, o.document_no, o.order_date::text, o.status, o.total_amount::text FROM sales.orders o
+      WHERE o.company_id = ${actor.companyId} AND o.customer_id = ${id} AND ${visibleOrder(scope, "o")} ORDER BY o.order_date DESC, o.created_at DESC LIMIT 10`);
+    return {
+      id: row.id,
+      code: row.code,
+      name: row.name,
+      phone: row.phone,
+      email: row.email,
+      address: row.address,
+      contacts: contacts.rows.map((item) => ({ fullName: item.full_name, position: item.position, phone: item.phone, isPrimary: item.is_primary })),
+      paymentTermDays: row.payment_term_days,
+      currency: row.currency,
+      receivable: trimDecimal(debt.receivable),
+      overdue: trimDecimal(debt.overdue),
+      recentOrders: orders.rows.map((order) => ({ id: order.id, documentNo: order.document_no, orderDate: order.order_date, status: order.status, totalAmount: trimDecimal(order.total_amount) })),
+    };
   }
 
   // Đối tác nhận được: đang giao dịch, không phải công ty trong tập đoàn, chưa có hồ sơ tại công ty; người nhận chỉ xem khách của mình.

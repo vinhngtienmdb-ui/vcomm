@@ -3786,3 +3786,20 @@ export interface PartnerOwnerHistoryItem {
   documentNo: string | null;
 }
 
+// API_113: tóm tắt khách cho ứng dụng nhân viên kinh doanh (CONG_VIEC_22; QUYTAC_NGHIEPVU_137). Không có hạn mức công nợ.
+export interface PartnerSummaryResponse {
+  id: string;
+  code: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  contacts: { fullName: string; position: string | null; phone: string | null; isPrimary: boolean }[];
+  paymentTermDays: number | null;
+  currency: string;
+  // Phải thu còn lại (đã trừ tiền khách trả trước) và phần quá hạn.
+  receivable: string;
+  overdue: string;
+  recentOrders: { id: string; documentNo: string | null; orderDate: string; status: string; totalAmount: string }[];
+}
+
