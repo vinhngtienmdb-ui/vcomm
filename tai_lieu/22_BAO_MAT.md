@@ -1,13 +1,13 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 1.9
+- Phiên bản: 2.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ)
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12). Các module sau bổ sung vào cùng tài liệu.
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13). Các module sau bổ sung vào cùng tài liệu.
 
 ## 1. Dữ liệu nhạy cảm
 
@@ -37,10 +37,11 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Giá mua, bảng giá mua, giá trị đề nghị mua, đơn mua (CONG_VIEC_07) | Kinh doanh | Cơ sở dữ liệu schema `purchasing` theo công ty | Người có quyền Mua hàng của chính công ty (Thủ kho có `purchasing.order.view` thấy đơn giá trên đơn mua); công ty khác nhận `404` |
 | Giá nhập, giá trị dòng phiếu nhập mua, phiếu trả hàng (CONG_VIEC_07) | Tài chính | `inventory.document_lines.unit_cost`, `cost_value` | Như giá vốn: `inventory.cost.view` (API trả trống khi không có quyền) |
 | Giá bán, chiết khấu, giá trị đơn bán (CONG_VIEC_08) | Kinh doanh | Cơ sở dữ liệu schema `sales` theo công ty | Người có `sales.order.view` hoặc `sales.order.manage` của chính công ty (Thủ kho có `sales.order.view` thấy giá trên đơn bán); công ty khác nhận `404` |
-| Diễn giải ngoại lệ đơn bán: dư nợ tạm tính, hạn mức công nợ, giá vốn bình quân (CONG_VIEC_08) | Tài chính | Cột `sales.orders.exceptions` (`jsonb`) | Lưu đầy đủ; API_77 chỉ trả diễn giải `credit_limit` cho người có `crm.profile.manage`, diễn giải `below_cost` cho người có `inventory.cost.view`; người khác nhận loại ngoại lệ, diễn giải trống |
+| Diễn giải ngoại lệ đơn bán: dư nợ (từ CONG_VIEC_13 tính theo công nợ thật, QUYTAC_NGHIEPVU_92), hạn mức công nợ, giá vốn bình quân (CONG_VIEC_08) | Tài chính | Cột `sales.orders.exceptions` (`jsonb`) | Lưu đầy đủ; API_77 chỉ trả diễn giải `credit_limit` cho người có `crm.profile.manage`, diễn giải `below_cost` cho người có `inventory.cost.view`; người khác nhận loại ngoại lệ, diễn giải trống |
 | Giá trị dòng phiếu xuất giao hàng, phiếu nhận hàng trả lại (CONG_VIEC_08) | Tài chính | `inventory.document_lines.unit_cost`, `cost_value` | Như giá vốn: `inventory.cost.view` (API trả trống khi không có quyền) |
 | Chứng từ đối ứng nội bộ, giá nội bộ, biên bản chênh lệch giao nhận nội bộ (CONG_VIEC_09) | Kinh doanh, tài chính | Schema `sales`, `purchasing` theo công ty; bảng `inventory.internal_discrepancies` thuộc công ty bán | Mỗi công ty chỉ thấy chứng từ của mình; chứng từ bên kia chỉ hiện tên công ty, số, trạng thái; giá trị biên bản như giá vốn (`inventory.cost.view`) |
 | Chương trình khuyến mãi: ngân sách, đã dùng, điều kiện (CONG_VIEC_12) | Kinh doanh | Bảng `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups` theo công ty; đã dùng tính từ `sales.order_lines` | `sales.promotion.view` hoặc `sales.promotion.manage` trong công ty; không đánh dấu nhạy cảm |
+| Quỹ, số dư quỹ, công nợ phải thu, phải trả, phiếu thu chi (CONG_VIEC_13) | Tài chính | Schema `finance` theo công ty (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`) | Người có quyền `finance.*` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; công ty khác nhận `404`; quyền không đánh dấu nhạy cảm. Số tài khoản ngân hàng của quỹ hiện cho người xem quỹ |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
 
@@ -66,6 +67,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Mọi API mini app Bán hàng, giao hàng, nhận hàng trả lại (API_77 đến API_79) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn, mã khách, kênh, kho, mặt hàng, đơn vị, lô, vị trí, dòng phải là UUID; số lượng chuỗi tối đa 12 chữ số phần nguyên, 4 chữ số lẻ, lớn hơn 0; chiết khấu 0 đến 100, 2 chữ số lẻ; tối đa 200 dòng mỗi chứng từ, 1.000 serial mỗi dòng (100 ký tự mỗi serial); từ khóa tối đa 100 ký tự, ký tự `%`, `_`, `\` được thoát trong `LIKE`; tên người mua 200, địa chỉ giao 500, lý do 500, ghi chú 1.000 ký tự; giá dòng không nhận từ người dùng mà tra theo bảng giá phía máy chủ; không nhận tệp tải lên | Có, `sales.access` hoặc `sales.order.view` (API_77, API_78); quyền vào mini app Kho và `inventory.sales.issue` tại kho (API_79) |
 | API giao dịch nội bộ (API_80 đến API_82) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, kho, dòng, vị trí là UUID; lý do từ chối 1 đến 500 ký tự; số nhận từ 0, tối đa 12 chữ số phần nguyên, 4 chữ số lẻ; tối đa 200 dòng, 5.000 serial mỗi dòng (100 ký tự mỗi serial); lý do thiếu, ghi chú tối đa 500 ký tự; `action` chỉ `return`, `write_off`; phiên bản số nguyên dương | Có |
 | API khuyến mãi (API_83) | API | Lược đồ zod `savePromotionSchema`, `stopPromotionSchema`, `promotionListQuerySchema` trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, mặt hàng, kênh, nhóm khách là UUID; tên 1 đến 200 ký tự, ghi chú tối đa 1.000, lý do dừng 1 đến 500; tối đa 500 mặt hàng, 50 kênh, 50 nhóm khách; phần trăm lớn hơn 0 đến 100; số tiền, số lượng dạng chuỗi số dương; máy chủ kiểm mặt hàng, kênh (không phải Nội bộ), nhóm khách thuộc công ty, đang dùng | Có |
+| API công nợ (API_84 đến API_86) | API | Lược đồ zod `saveFundSchema`, `fundLedgerQuerySchema`, `debtSummaryQuerySchema`, `debtPartnerQuerySchema`, `openDebtQuerySchema`, `financePartnerQuerySchema`, `saveOpeningDebtSchema`, `paymentListQuerySchema`, `savePaymentSchema`, `versionSchema` trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, đối tác, quỹ, khoản công nợ là UUID; tiền dạng chuỗi tối đa 12 chữ số phần nguyên, 4 chữ số lẻ; mã quỹ 20, tên 200, số chứng từ 50, ghi chú, nội dung 500 ký tự; tối đa 500 dòng chứng từ mỗi phiếu; từ khóa tối đa 100 ký tự; máy chủ kiểm đối tác có hồ sơ đúng phía, quỹ, khoản công nợ thuộc công ty và đối tác; không nhận tệp tải lên | Có, `finance.access` hoặc `finance.debt.view` và quyền chi tiết |
 | Gửi tin qua eSMS.vn (mã OTP, Zalo ZNS, kiểm tra kết nối) | Tích hợp | Chỉ đọc mã kết quả, mã tin, lỗi; gửi lỗi không chặn nghiệp vụ | Không áp dụng (hệ thống gọi ra) |
 
 ## 3. Xác thực và phiên đăng nhập
@@ -338,6 +340,40 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
 - Ghi nhận (theo QUYTAC_NGHIEPVU_84): dừng chương trình không gỡ khuyến mãi khỏi đơn nháp đã lưu; đơn đó gửi vẫn giữ khuyến mãi nếu còn ngân sách, số suất.
 - Đã sửa (commit 57bbcd0): rút chương trình ghi nhật ký `promotion.withdraw` trong cùng giao dịch; `maxGiftSets` tối đa 1.000.000.000, vượt thì trả lỗi kiểm tra dữ liệu `400` (KICHBAN_KIEMTHU_193).
 - Ghi nhận: Nhân viên bán hàng xem được ngân sách, đã dùng của chương trình (để tư vấn khách); cảnh báo thiếu suất tặng cho biết gián tiếp tồn hàng tặng tại kho xuất, người bán vốn đã thấy lỗi thiếu hàng khi gửi đơn.
+
+### Ma trận phân quyền công nợ MODULE_06 phần 1 (CONG_VIEC_13)
+
+Thêm quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage` (không nhạy cảm, chỉ dùng được khi gán ở phạm vi tập đoàn hoặc công ty), vai trò Kế toán, loại chứng từ `finance.receipt` (không duyệt), `finance.payment` (cần duyệt) (tài liệu `08` mục 14, 15).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty | Kế toán | Nhân viên bán hàng | Thủ kho | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|---|
+| CHUC_NANG_65 Xem quỹ, sổ quỹ | Được | Trong công ty mình | Được | Không | Không | Không |
+| CHUC_NANG_65 Thêm, sửa, ngừng dùng quỹ | Được | Trong công ty mình | Được | Không | Không | Không |
+| CHUC_NANG_66 Xem công nợ, chi tiết đối tác | Được | Trong công ty mình | Được | Không | Không | Không |
+| CHUC_NANG_66 Nhập, xóa số dư đầu kỳ | Được | Trong công ty mình | Được | Không | Không | Không |
+| CHUC_NANG_66 Công nợ tự phát sinh khi ghi sổ phiếu kho | Được | Kho của công ty mình | Không | Không | Kho trong phạm vi gán | Không |
+| CHUC_NANG_67 Lập, sửa, gửi phiếu thu chi | Được | Trong công ty mình | Được | Không | Không | Không |
+| CHUC_NANG_67 Rút phiếu chi chờ duyệt | Được | Trong công ty mình | Được | Không | Không | Có (người lập) |
+| CHUC_NANG_67 Duyệt phiếu chi | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Không |
+
+Ranh giới và kiểm soát riêng:
+- Tách dữ liệu công ty: quỹ, khoản công nợ, phiếu đọc, ghi theo `company_id` của công ty đang làm việc; đối tác phải có hồ sơ khách hàng hoặc nhà cung cấp ở công ty; khoản công nợ chọn trừ phải thuộc công ty, đúng đối tác, đúng phía; trừ nợ chỉ ghép hai khoản cùng công ty, đối tác, phía; chi tiết công nợ chỉ cho đối tác có hồ sơ hoặc có công nợ với công ty (khác thì `404`).
+- Quyền tài chính kiểm bằng `requireFinancePermission`: quyền gán ở chi nhánh không mở được dữ liệu công nợ của cả công ty.
+- Tiền không do người dùng quyết định ngoài số tiền phiếu và số trừ: giá trị công nợ từ phiếu kho tính phía máy chủ (`finance.inventory_debt_amount`); số dư quỹ, số còn lại, trả trước tính từ dữ liệu; tiền lưu `numeric(20,4)`.
+- Khóa đồng thời: mọi thay đổi công nợ của một đối tác ở một phía khóa `pg_advisory_xact_lock` theo công ty, phía, đối tác; ghi sổ phiếu thu chi khóa công nợ trước, khóa quỹ (`FOR UPDATE`) sau, rồi mới tính số dư quỹ bằng câu lệnh riêng; ghi sổ kiểm lại mọi điều kiện, nên hai phiếu đồng thời không trừ quá số còn nợ, không làm quỹ âm. Sửa, gửi phiếu kiểm phiên bản trong câu khóa phiếu.
+- Ghi tổn thất biên bản chênh lệch nội bộ giảm phải thu bên bán trong cùng giao dịch đóng biên bản (giữ biên bản `open` đúng phiên bản), giá trị tính theo giá đơn bán phía máy chủ, nên một biên bản chỉ sinh một khoản giảm.
+- Phiếu chi chỉ ghi sổ sau luồng duyệt (hoặc công ty chưa có chính sách duyệt); phiếu đã ghi sổ không sửa, không hủy; khoản công nợ từ chứng từ không sửa, không xóa.
+- Nhật ký thao tác: `fund.create`, `.update`; `debt.opening.create`, `.delete`; `payment.create`, `.update`, `.submit`, `.withdraw`.
+
+Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
+- Không có mục rủi ro cao còn mở.
+- Đã sửa (commit 173a73b): ghi sổ phiếu chi đọc số dư quỹ trước khi khóa quỹ, hai phiếu chi duyệt đồng thời có thể cùng qua kiểm số dư và làm quỹ âm (mức Cao); nay khóa quỹ rồi mới tính số dư. Xóa khoản số dư đầu kỳ đang được chọn trên phiếu thu chi trả lỗi máy chủ; nay trả `409` và không xóa. Chi tiết công nợ trả tên, mã của mọi đối tác dùng chung tập đoàn theo mã; nay chỉ đối tác có quan hệ với công ty. Lý do không ghi sổ lưu câu tiếng Việt; nay lưu khóa thông báo.
+- Ghi nhận, chưa sửa (Thấp): so sánh tiền (số trừ, số dư quỹ, trả trước) và số dư lũy kế của sổ quỹ tính bằng số thực của JavaScript với sai số 0,00005; tiền đến 12 chữ số phần nguyên, 4 chữ số lẻ vượt độ chính xác của số thực, giá trị rất lớn có thể sai ở chữ số lẻ cuối khi so sánh, hiển thị sổ quỹ. Dữ liệu lưu, trừ nợ tính bằng `numeric` nên không sai số liệu gốc. Đề xuất: so sánh trong SQL hoặc dùng số thập phân chính xác.
+- Ghi nhận, chưa sửa (Thấp): tìm đối tác ở API_85 (`/finance/debts`, `/finance/partners`) dùng `ILIKE` theo mã không thoát `%`, `_`, `\` như các module khác; câu lệnh có tham số nên không bị chèn SQL, chỉ khớp rộng hơn ý muốn.
+- Ghi nhận, chưa sửa (Thấp): ghi sổ phiếu chi sau khi duyệt và việc chuyển phiếu sang "Bị từ chối" do không ghi sổ được chạy trong xử lý sự kiện, không ghi dòng nhật ký thao tác riêng (chỉ có nhật ký của yêu cầu duyệt và `payment.submit`).
+- Ghi nhận, chưa sửa (nghiệp vụ): kiểm đối tác chỉ xét cờ khách hàng, nhà cung cấp của hồ sơ, chưa xét trạng thái hồ sơ, đối tác ngừng giao dịch (vế sau của QUYTAC_NGHIEPVU_57).
+- Ghi nhận, chưa sửa (nghiệp vụ): ngày phiếu không giới hạn; phiếu chi ghi ngày trong quá khứ chỉ kiểm số dư quỹ hiện tại, nên sổ quỹ theo ngày có thể hiện số dư lũy kế âm tại một ngày trước đó.
+- Ghi nhận: bốn quyền tài chính không đánh dấu nhạy cảm; dữ liệu chỉ lộ trong công ty, theo quyền gán.
 
 ## 5. Quản lý khóa bí mật
 

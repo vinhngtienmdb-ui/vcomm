@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ) và phần 3 (Khuyến mãi): đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 0.9
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ): đúng, sai, giá trị biên, từng vai trò.
+- Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2165,6 +2165,7 @@ Dữ liệu chung: công ty con VCR (`testIds.retailCompany`), VCT (`testIds.tra
 - Điều kiện ban đầu và dữ liệu: Nước suối đơn vị cơ sở chai, thùng 24 chai, giá vốn 4.000 một chai; chiết khấu tối đa 60%.
 - Các bước: (1) Đơn 1 thùng, giao 1 thùng. (2) Lập phiếu trả 5 chai, gửi. (3) Lập hai phiếu trả 15 chai, gửi cùng lúc. (4) Đơn 1 thùng chiết khấu 50%, gửi; Nhân viên bán hàng và Quản trị xem chi tiết đơn. (5) Thủ kho mở dòng của một đơn nháp và của đơn ở bước 1 qua `GET /inventory/sales-orders/{id}`.
 - Kết quả mong đợi: Bước 2: phiếu trả 5 chai, giá trị 20.000. Bước 3: một phiếu ghi sổ, phiếu kia `400` "vượt số đã giao"; tổng đã trả 20 chai. Bước 4: ngoại lệ dưới giá vốn; Nhân viên bán hàng không thấy diễn giải, Quản trị thấy giá bán và giá vốn. Bước 5: đơn nháp `404`; đơn đã giao `200`.
+- Ghi chú THAY_DOI_09 (CONG_VIEC_13): từ khi có công nợ, giao hàng và trả hàng ở kịch bản này còn sinh khoản phải thu, khoản giảm phải thu (QUYTAC_NGHIEPVU_86); kịch bản không kiểm hạn mức nên kết quả không đổi.
 - Kiểm thử tự động: `apps/api/test/c8-sales.test.ts`
 - Lát: L0, L1
 
@@ -2176,6 +2177,7 @@ Dữ liệu chung: công ty con VCR (`testIds.retailCompany`), VCT (`testIds.tra
 - Điều kiện ban đầu và dữ liệu: Khách mới, hạn mức 250.000, số ngày được nợ 30; nước suối giá chung 6.600 gồm thuế một chai, thùng 24 chai.
 - Các bước: (1) Đơn 1 thùng (158.400), gửi, giao đủ. (2) Đơn 1 thùng nữa, gửi. (3) Khách trả 12 chai (79.200). (4) Đơn 1 thùng, gửi.
 - Kết quả mong đợi: Bước 1: `confirmed`. Bước 2: `pending`, ngoại lệ `credit_limit` (316.800 > 250.000). Bước 4: `confirmed`, không ngoại lệ (79.200 + 158.400 = 237.600; đơn chờ duyệt ở bước 2 không tính).
+- Ghi chú THAY_DOI_09 (CONG_VIEC_13): dư nợ tính theo QUYTAC_NGHIEPVU_92 thay QUYTAC_NGHIEPVU_69: bước 1 sinh phải thu 158.400, bước 3 sinh khoản giảm 79.200 trừ vào phiếu xuất gốc; số dư công nợ 79.200 cộng đơn đang gửi 158.400 = 237.600, kết quả không đổi. Hàng đã giao nay tính theo số còn nợ, không còn giới hạn theo số ngày được nợ.
 - Kiểm thử tự động: `apps/api/test/c8-sales.test.ts`
 - Lát: L0, L1
 
@@ -2374,3 +2376,116 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`); Quản trị công ty
 - Kết quả mong đợi: Bước 1: bảng chuyển thành thẻ; ô ngưỡng, phần trăm, giảm tối đa xếp dọc; không cuộn ngang. Bước 2: thẻ thông tin, nút xếp gọn, không cuộn ngang. Bước 3: khối cảnh báo "Mua 1 kẹo tặng 600 quà: thiếu 1 suất tặng do kho xuất không đủ hàng tặng."; dòng tặng 600 cái; bảng dòng chuyển thành thẻ, nhãn "Hàng tặng" hiện đủ.
 - Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
 - Lát: L1
+
+## MODULE_06 Tài chính – Kế toán (phần 1: Công nợ phải thu, phải trả, CONG_VIEC_13)
+
+Dữ liệu chung: công ty VCR (`testIds.retailCompany`); Quản trị công ty VCR `quantri.vcr@vcomm.test`, Quản trị tập đoàn `quantri.tapdoan@vcomm.test`, người duyệt `phuc.le@vcomm.test`; tạo trong tệp kiểm thử: Kế toán `ketoan.cn@vcomm.test` (`accountant`, gán ở công ty), Nhân viên bán hàng `banhang.cn@vcomm.test` (`salesperson`, gán ở công ty), Thủ kho `thukho.cn@vcomm.test` (`warehouse_keeper`, gán ở chi nhánh Bình Dương). Kho "Kho công nợ" `CNW` tồn đầu 1.000 cái "Hàng công nợ A" giá vốn 8.000, thuế suất 10%; bảng giá `CHUNG` gồm thuế 11.000 một cái; kênh mặc định `BAN_LE`. Đối tác "Khách công nợ" (khách hàng, được nợ 30 ngày), "Nhà cung cấp công nợ" (nhà cung cấp, được nợ 15 ngày). Công ty không có chính sách duyệt đơn bán, đơn mua (gửi là xác nhận, duyệt ngay). Các kịch bản tự động chạy nối tiếp trong một tệp, kịch bản sau dùng số liệu của kịch bản trước. Đường dẫn API có tiền tố `/api/v1`.
+
+## CHUC_NANG_65: Quỹ (CONG_VIEC_13)
+
+### KICHBAN_KIEMTHU_201: Thêm quỹ tiền mặt, ngân hàng; thiếu thông tin ngân hàng, trùng mã bị từ chối; nhân viên bán hàng không quản lý được quỹ; sửa, ngừng dùng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_105
+- Chức năng: CHUC_NANG_65
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán VCR; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; công ty chưa có quỹ.
+- Các bước: (1) Kế toán thêm quỹ `TM` "Quỹ tiền mặt", tiền mặt, số dư đầu 1.000.000. (2) Thêm quỹ `NH` loại ngân hàng không có tên ngân hàng, số tài khoản. (3) Thêm quỹ mã `tm`. (4) Nhân viên bán hàng thêm quỹ; xem danh sách quỹ. (5) Kế toán thêm quỹ `NH` "Ngân hàng A" đủ thông tin ngân hàng. (6) Sửa quỹ `NH`: tên "Tài khoản Ngân hàng A", số dư đầu 500.000, ngừng dùng. (7) Xem danh sách quỹ.
+- Kết quả mong đợi: Bước 1: `201`, số dư đầu và số dư hiện tại 1.000.000, `active`, `hasPostings: false`, `canManage: true`. Bước 2: `400`, lỗi ở `bankName`, `accountNo`. Bước 3: `400` tại `code` "Mã quỹ đã có trong công ty.". Bước 4: `403` cả hai. Bước 5: `201`. Bước 6: tên mới, số dư đầu 500.000, `inactive`. Bước 7: thứ tự `TM`, `NH` (đang dùng trước).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c13-debts.test.ts`
+- Lát: L0
+
+## CHUC_NANG_66: Sổ công nợ (CONG_VIEC_13)
+
+### KICHBAN_KIEMTHU_202: Giao hàng tăng phải thu có hạn; trả hàng trừ vào phiếu gốc; đơn không có khách không sinh công nợ; nhập mua tăng phải trả; trả hàng nhà cung cấp giảm phải trả
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_106
+- Chức năng: CHUC_NANG_66
+- Loại: Đúng, giá trị biên, phân quyền
+- Vai trò thực hiện: Nhân viên bán hàng; Thủ kho; Quản trị công ty VCR; Kế toán
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_201.
+- Các bước: (1) Nhân viên bán hàng lập, gửi đơn 10 cái cho "Khách công nợ"; Thủ kho giao 4 cái. (2) Kế toán xem chi tiết công nợ phải thu của khách. (3) Thủ kho nhận hàng trả lại 1 cái từ phiếu xuất. (4) Xem lại chi tiết. (5) Đơn 1 cái không có khách (người mua "Khách lẻ"), giao 1 cái; đếm khoản công nợ. (6) Quản trị lập đơn mua 10 cái giá 8.000 chưa thuế, thuế 10% của "Nhà cung cấp công nợ", gửi (duyệt ngay); Thủ kho nhập đủ 10, rồi trả 2 cái. (7) Kế toán xem công nợ phải trả của nhà cung cấp. (8) Kế toán, Nhân viên bán hàng xem danh sách công nợ phải thu.
+- Kết quả mong đợi: Bước 2: một khoản tăng `sales_issue` số phiếu xuất, 44.000, còn 44.000, hạn = hôm nay + 30 ngày. Bước 4: số dư 33.000, trả trước 0, chưa đến hạn 33.000; khoản giảm `sales_return` 11.000, còn 0, không có hạn, trừ 11.000 vào phiếu xuất. Bước 5: số khoản công nợ không đổi. Bước 7: số dư 70.400; khoản tăng `purchase_receipt` 88.000, còn 70.400, hạn = hôm nay + 15 ngày. Bước 8: Kế toán thấy một đối tác số dư 33.000, chưa đến hạn 33.000, quá hạn trên 90 ngày 0; Nhân viên bán hàng `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c13-debts.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_203: Số dư đầu kỳ còn nợ quá hạn vào nhóm trên 90 ngày; trả trước đầu kỳ tự trừ nợ cũ nhất; đã trừ thì không xóa; đối tác sai phía bị từ chối
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_109
+- Chức năng: CHUC_NANG_66
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Kế toán; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_202.
+- Các bước: (1) Kế toán nhập số dư đầu kỳ phải thu còn nợ "HD-CU-01" ngày 2026-01-01, hạn 2026-02-01, 50.000. (2) Xem danh sách phải thu chỉ đối tác quá hạn; tìm "khong-co". (3) Nhập trả trước đầu kỳ phải trả "UT-01" 20.000 cho nhà cung cấp; xóa khoản đó. (4) Nhập phải thu cho nhà cung cấp (sai phía). (5) Nhập còn nợ không có hạn thanh toán. (6) Nhân viên bán hàng nhập số dư đầu kỳ. (7) Kế toán nhập "HD-CU-02" 1.000 hạn hôm nay, rồi xóa. (8) Chọn đối tác phía phải thu, tìm "công nợ".
+- Kết quả mong đợi: Bước 1: `201`; số dư 83.000, chưa đến hạn 33.000, quá hạn trên 90 ngày 50.000; khoản `opening`, `canDelete: true`. Bước 2: có khách, quá hạn trên 90 ngày 50.000; tìm không thấy: danh sách rỗng. Bước 3: số dư phải trả 50.400, trả trước 0; khoản "UT-01" còn 0, `canDelete: false`; xóa bị từ chối "Khoản số dư đầu kỳ đã được trừ nợ hoặc đang được chọn trên phiếu thu chi, không xóa được.". Bước 4: `400` tại `partnerId` "Đối tác không phải khách hàng của công ty.". Bước 5: `400` tại `dueDate`. Bước 6: `403`. Bước 7: xóa xong số dư về 83.000. Bước 8: trả về khách công nợ.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c13-debts.test.ts`
+- Lát: L0
+
+## CHUC_NANG_67: Phiếu thu, phiếu chi (CONG_VIEC_13)
+
+### KICHBAN_KIEMTHU_204: Thu không chọn chứng từ trừ cũ nhất trước, thừa thành trả trước; khoản nợ mới tự trừ trả trước; chọn chứng từ thì trừ đúng chứng từ; vượt số còn lại, vượt số tiền bị từ chối; quỹ có phiếu không sửa số dư đầu
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_105, TIEUCHI_NGHIEMTHU_107
+- Chức năng: CHUC_NANG_65, CHUC_NANG_67
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Kế toán; Nhân viên bán hàng; Thủ kho
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_203; khách đang nợ "HD-CU-01" 50.000 (quá hạn) và phiếu xuất 33.000.
+- Các bước: (1) Kế toán lập phiếu thu tiền khách 100.000 quỹ `TM`, không chọn chứng từ, gửi. (2) Xem công nợ khách, số dư quỹ. (3) Giao thêm 1 cái (11.000) theo đơn mới; xem công nợ. (4) Giao thêm 2 cái (22.000); xem chứng từ còn nợ. (5) Lập phiếu thu 20.000 chọn phiếu xuất còn nợ với số trừ 16.001. (6) Lập phiếu thu 5.000 chọn số trừ 10.000. (7) Lập phiếu thu 20.000 chọn phiếu xuất số trừ 10.000, gửi. (8) Sửa số dư đầu quỹ `TM` thành 2.000.000. (9) Xem sổ quỹ hôm nay.
+- Kết quả mong đợi: Bước 1: `posted`, số bắt đầu `PT`, phần trả trước 17.000; trừ "HD-CU-01" 50.000 rồi phiếu xuất 33.000. Bước 2: số dư −17.000, trả trước 17.000; quỹ 1.100.000. Bước 3: số dư −6.000, trả trước 6.000. Bước 4: trả trước 0, một chứng từ còn nợ 16.000. Bước 5: `400` tại `lines.0.amount` "Số trừ vượt số còn nợ của chứng từ.". Bước 6: `400` tại `amount` "Tổng số trừ vượt số tiền phiếu.". Bước 7: `posted`, trả trước 10.000, chứng từ đã trừ 10.000 còn 6.000; số dư khách −4.000, trả trước 10.000. Bước 8: `400` tại `openingBalance` "Quỹ đã có phiếu thu chi, không sửa được số dư đầu.". Bước 9: số dư đầu kỳ 1.000.000, cuối kỳ 1.120.000, 2 dòng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c13-debts.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_205: Phiếu chi chờ duyệt, duyệt xong mới ghi sổ; vượt số dư quỹ thì bị từ chối kèm lý do; rút; hoàn tiền không vượt trả trước; không có quyền không lập được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_108
+- Chức năng: CHUC_NANG_67
+- Loại: Đúng, sai, phân quyền, luồng duyệt
+- Vai trò thực hiện: Kế toán; Nhân viên bán hàng; Quản trị công ty VCR; người duyệt `phuc.le@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_204; Quản trị VCR tạo chính sách duyệt `finance.payment` một cấp từ 0 đồng, người duyệt `phuc.le@vcomm.test`, người thay thế Quản trị VCR. Phải trả nhà cung cấp còn 50.400.
+- Các bước: (1) Nhân viên bán hàng lập phiếu chi. (2) Kế toán lập phiếu trả tiền nhà cung cấp 30.000, không chọn chứng từ, gửi; xem số dư quỹ. (3) Người duyệt duyệt; xem phiếu, công nợ, quỹ. (4) Lập phiếu chi 5.000.000, gửi; người duyệt duyệt; xem phiếu. (5) Lập phiếu chi 1.000, gửi, rút. (6) Lập phiếu hoàn tiền cho khách 10.001. (7) Lập phiếu hoàn tiền cho khách 4.000, gửi, người duyệt duyệt; xem công nợ khách. (8) Lập phiếu nhà cung cấp hoàn tiền 1 (nhà cung cấp không có trả trước). (9) Lọc danh sách loại trả tiền nhà cung cấp.
+- Kết quả mong đợi: Bước 1: `403`. Bước 2: `pending`, số bắt đầu `PC`, `canWithdraw: true`; số dư quỹ chưa đổi. Bước 3: `posted`, phần trả trước 0; phải trả còn 20.400; quỹ giảm 30.000. Bước 4: `rejected`, `postError` `insufficientFundBalance` (giao diện hiện "Số dư quỹ không đủ."), `canEdit: true`. Bước 5: `withdrawn`. Bước 6: `400` tại `amount` "Số tiền hoàn vượt tiền trả trước đang còn.". Bước 7: `posted`; khách số dư 0, trả trước 6.000. Bước 8: `400` tại `amount` như bước 6. Bước 9: 3 phiếu.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c13-debts.test.ts`
+- Lát: L1
+
+## CHUC_NANG_68: Dư nợ thật cho kiểm hạn mức (CONG_VIEC_13)
+
+### KICHBAN_KIEMTHU_206: Đơn bán vượt hạn mức theo số dư công nợ cộng phần chưa giao thì sinh ngoại lệ; khách trả tiền thì hết vượt; khoản đầu kỳ đang được chọn không xóa được; đối tác không quan hệ không xem được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_109
+- Chức năng: CHUC_NANG_66, CHUC_NANG_68
+- Loại: Đúng, giá trị biên, sai, phân quyền dữ liệu
+- Vai trò thực hiện: Quản trị công ty VCR; Nhân viên bán hàng; Kế toán
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_205; đơn 10 cái của KICHBAN_KIEMTHU_202 còn 6 cái chưa giao (66.000); số dư công nợ khách 0 (còn nợ 6.000, trả trước 6.000).
+- Các bước: (1) Quản trị đặt hạn mức công nợ của khách 80.000. (2) Nhân viên bán hàng lập, gửi đơn 3 cái (33.000). (3) Kế toán thu 60.000 của khách, không chọn chứng từ. (4) Nhân viên bán hàng lập, gửi đơn 3 cái nữa. (5) Kế toán nhập số dư đầu kỳ còn nợ "HD-CU-03" 1.000 hạn hôm nay; lập phiếu thu nháp chọn khoản đó; xóa khoản đó. (6) Tạo một đối tác không có hồ sơ, không có công nợ ở VCR; Kế toán xem chi tiết công nợ của đối tác đó.
+- Kết quả mong đợi: Bước 2: ngoại lệ `credit_limit` (66.000 + 33.000 > 80.000); chưa có chính sách duyệt đơn bán nên đơn xác nhận, thêm 33.000 chưa giao. Bước 4: không có ngoại lệ (số dư −60.000 + chưa giao 99.000 = 39.000; cộng 33.000 không vượt 80.000). Bước 5: trước khi lập phiếu `canDelete: true`; xóa sau khi lập phiếu nháp trả `409`. Bước 6: `404`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c13-debts.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_209: Ghi tổn thất hàng thiếu nội bộ giảm phải thu của phiếu xuất đúng giá trị phần thiếu theo giá đơn bán; bên mua không có phải trả cho phần không nhận
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_106
+- Chức năng: CHUC_NANG_66, CHUC_NANG_61
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Thủ kho VCR (bên bán); Quản trị tập đoàn (bên mua VCT)
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung của giao dịch nội bộ (CONG_VIEC_09); chạy sau KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_190 trong cùng tệp: một phiếu xuất nội bộ 1 máy bị thất lạc toàn bộ, biên bản chênh lệch đã được Thủ kho VCR "Ghi tổn thất".
+- Các bước: (1) Đọc biên bản ở trạng thái đã ghi tổn thất. (2) Đọc khoản công nợ nguồn `internal_write_off` của biên bản và khoản tăng phải thu của phiếu xuất gốc. (3) Đọc khoản công nợ của phiếu nhập nội bộ bên VCT.
+- Kết quả mong đợi: Bước 1: đúng một biên bản. Bước 2: khoản giảm bằng toàn bộ phải thu của phiếu xuất (phần thiếu là cả phiếu), còn lại 0, gắn khoản tăng của phiếu xuất gốc; phiếu xuất hết nợ. Bước 3: không có khoản công nợ (phiếu nhập không nhận gì nên không phát sinh phải trả).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c9-internal-trade.test.ts`
+- Lát: L1
+
+## Kịch bản thủ công của công nợ (CONG_VIEC_13)
+
+### KICHBAN_KIEMTHU_207: Quỹ, công nợ, phiếu thu chi trên trình duyệt (máy tính)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_110
+- Chức năng: CHUC_NANG_65, CHUC_NANG_66, CHUC_NANG_67
+- Loại: Đúng, sai, giao diện, phân quyền
+- Vai trò thực hiện: Kế toán; Nhân viên bán hàng; người duyệt
+- Điều kiện ban đầu và dữ liệu: Dữ liệu như phần dữ liệu chung (tạo trên môi trường phát triển); mini app Nền tảng, Tài chính – Kế toán, Kho, Bán hàng, backend đang chạy; đã giao hàng cho "Khách công nợ" ít nhất hai phiếu; có chính sách duyệt `finance.payment`.
+- Các bước: (1) Kế toán mở mini app Tài chính – Kế toán từ trang chủ mini app. (2) Menu "Quỹ": bấm "Thêm quỹ", chọn loại "Ngân hàng", bấm "Lưu" khi chưa nhập tên ngân hàng; nhập đủ, lưu; mở quỹ, xem sổ quỹ, đổi khoảng ngày. (3) Menu "Công nợ": xem thẻ "Phải thu", "Phải trả"; gõ tìm; chọn "Chỉ đối tác quá hạn". (4) Mở khách; bấm "Nhập số dư đầu kỳ", nhập khoản còn nợ quá hạn, lưu; xóa một khoản số dư đầu kỳ chưa trừ. (5) Bấm "Lập phiếu thu": xem loại, khách chọn sẵn, bảng chứng từ còn nợ; nhập số tiền, bấm "Chia lại từ cũ nhất"; nhập số trừ vượt số còn nợ, lưu. (6) Sửa số trừ đúng, lưu, bấm "Gửi". (7) Lập phiếu "Trả tiền nhà cung cấp" vượt số dư quỹ, gửi; người duyệt duyệt ở Hộp duyệt; mở lại phiếu. (8) Bấm "Sửa", giảm số tiền, lưu, gửi lại; người duyệt duyệt. (9) Nhân viên bán hàng mở `/finance`.
+- Kết quả mong đợi: Bước 1: menu Công nợ, Phiếu thu chi, Quỹ; mở trang Công nợ. Bước 2: lỗi "Vui lòng nhập thông tin này." dưới ô tên ngân hàng; "Đã lưu quỹ."; sổ quỹ có số dư đầu kỳ, cuối kỳ, số phiếu liên kết sang phiếu. Bước 3: cột số dư, trả trước, các nhóm tuổi nợ, dòng "Tổng cộng"; số quá hạn tô màu lỗi; lọc đúng. Bước 4: "Đã lưu số dư đầu kỳ."; khoản mới hiện "quá hạn <số> ngày"; "Đã xóa số dư đầu kỳ.". Bước 5: "Trả trước đang còn"; số trừ chia từ chứng từ cũ nhất; dòng "Tổng trừ … · Trả trước …"; lỗi "Số trừ vượt số còn nợ của chứng từ." dưới bảng. Bước 6: "Đã lưu phiếu."; "Đã ghi sổ."; số `PT…`, bảng "Chứng từ đã trừ". Bước 7: sau duyệt phiếu "Bị từ chối", khối "Duyệt xong nhưng không ghi sổ được: Số dư quỹ không đủ. Sửa phiếu rồi gửi lại.". Bước 8: "Đã gửi duyệt."; sau duyệt "Đã ghi sổ", số `PC…` giữ nguyên. Bước 9: "Bạn không có quyền xem trang này".
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Lát: L0, L1
+
+### KICHBAN_KIEMTHU_208: Quỹ, công nợ, phiếu thu chi trên điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_110
+- Chức năng: CHUC_NANG_65, CHUC_NANG_66, CHUC_NANG_67
+- Loại: Giao diện
+- Vai trò thực hiện: Kế toán
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_207 sau bước 8.
+- Các bước: (1) Mở trình duyệt chiều rộng 375 điểm ảnh; mở "Công nợ", đổi thẻ, mở một khách. (2) Mở "Phiếu thu chi", bấm "Lập phiếu", chọn khách có nhiều chứng từ còn nợ, nhập số trừ. (3) Mở chi tiết một phiếu bị từ chối do không ghi sổ được. (4) Mở "Quỹ", thêm quỹ ngân hàng; mở chi tiết quỹ xem sổ quỹ.
+- Kết quả mong đợi: Bước 1: bảng chuyển thành thẻ, nhãn cột hiện đủ; thẻ phía, lọc xuống dòng; không cuộn ngang. Bước 2: ô biểu mẫu xếp dọc; mỗi chứng từ một thẻ có ô số trừ nhập được; nút "Chia lại từ cũ nhất" bấm được. Bước 3: khối lý do hiện đủ, nút xếp gọn. Bước 4: ô ngân hàng xếp dọc; sổ quỹ thành thẻ; không cuộn ngang.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Lát: L0, L1

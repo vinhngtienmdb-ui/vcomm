@@ -20,12 +20,12 @@
 | 13 | [13_CONG_NGHE_SU_DUNG.md](13_CONG_NGHE_SU_DUNG.md) | Công nghệ sử dụng | Công nghệ, phân tích giải pháp có sẵn | 05 | Đã phê duyệt |
 | 14 | [14_DAC_TA_GIAO_DIEN.md](14_DAC_TA_GIAO_DIEN.md) | Đặc tả giao diện | Danh sách màn hình, điều hướng, vai trò – màn hình | 06 | Đã phê duyệt |
 | 15 | [15_HE_THONG_THIET_KE.md](15_HE_THONG_THIET_KE.md) | Hệ thống thiết kế | Màu, chữ, khoảng cách, thành phần dùng chung (phương án C) | 06 | Đã phê duyệt |
-| 16 | [16_CO_SO_DU_LIEU.md](16_CO_SO_DU_LIEU.md) | Cơ sở dữ liệu | Schema `core`, `catalog` (CONG_VIEC_04), `inventory` (CONG_VIEC_05), `crm` (CONG_VIEC_06), `purchasing` (CONG_VIEC_07), `sales` (CONG_VIEC_08), giao dịch nội bộ (CONG_VIEC_09), khuyến mãi (CONG_VIEC_12), sơ đồ quan hệ, chính sách xóa, lưu giữ | 07 | Đã phê duyệt |
-| 17 | [17_DAC_TA_API.md](17_DAC_TA_API.md) | Đặc tả API | Quy ước, mô hình lỗi, API_01 đến API_83, sự kiện | 07 | Đã phê duyệt |
+| 16 | [16_CO_SO_DU_LIEU.md](16_CO_SO_DU_LIEU.md) | Cơ sở dữ liệu | Schema `core`, `catalog` (CONG_VIEC_04), `inventory` (CONG_VIEC_05), `crm` (CONG_VIEC_06), `purchasing` (CONG_VIEC_07), `sales` (CONG_VIEC_08), giao dịch nội bộ (CONG_VIEC_09), khuyến mãi (CONG_VIEC_12), `finance` (CONG_VIEC_13), sơ đồ quan hệ, chính sách xóa, lưu giữ | 07 | Đã phê duyệt |
+| 17 | [17_DAC_TA_API.md](17_DAC_TA_API.md) | Đặc tả API | Quy ước, mô hình lỗi, API_01 đến API_86, sự kiện | 07 | Đã phê duyệt |
 | 18 | [18_QUY_TAC_PHAT_TRIEN_AI.md](18_QUY_TAC_PHAT_TRIEN_AI.md) | Quy tắc phát triển AI | Quy ước mã, Git, lệnh chạy, tài khoản thử | 08 | Đã phê duyệt |
 | 19 | [19_CHI_DAN_HE_THONG_AI.md](19_CHI_DAN_HE_THONG_AI.md) | Chỉ dẫn hệ thống AI | Ngữ cảnh, điều luôn giữ, giới hạn quyền hạn | 08 | Đã phê duyệt |
 | 20 | [20_KE_HOACH_KIEM_THU.md](20_KE_HOACH_KIEM_THU.md) | Kế hoạch kiểm thử | Phạm vi, loại kiểm thử, môi trường, dữ liệu thử, tiêu chí đạt | 10 | Bản nháp |
-| 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | KICHBAN_KIEMTHU_01 đến KICHBAN_KIEMTHU_200 cho mọi tiêu chí nghiệm thu | 10 | Bản nháp |
+| 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | KICHBAN_KIEMTHU_01 đến KICHBAN_KIEMTHU_209 cho mọi tiêu chí nghiệm thu | 10 | Bản nháp |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | Dữ liệu nhạy cảm, điểm tiếp nhận, xác thực, ma trận phân quyền, khóa bí mật | 05 | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Phiên bản, nội dung, phương án quay lui | 11 | Đang cập nhật |
 | 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | Sổ phiếu THAY_DOI | 13 | Đang cập nhật |
@@ -46,5 +46,6 @@
 | CONG_VIEC_08 | [cong_viec/CONG_VIEC_08.md](cong_viec/CONG_VIEC_08.md) | Bản nháp |
 | CONG_VIEC_09 | [cong_viec/CONG_VIEC_09.md](cong_viec/CONG_VIEC_09.md) | Bản nháp |
 | CONG_VIEC_12 | [cong_viec/CONG_VIEC_12.md](cong_viec/CONG_VIEC_12.md) | Bản nháp |
+| CONG_VIEC_13 | [cong_viec/CONG_VIEC_13.md](cong_viec/CONG_VIEC_13.md) | Bản nháp |
 
 Tài liệu `26` chưa lập; tạo khi triển khai.
