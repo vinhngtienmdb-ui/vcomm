@@ -1,7 +1,7 @@
 # CONG_VIEC_19: Đối soát thu hộ COD, cổng thanh toán (MODULE_06, phần 7)
 
 - Mô tả: Khai đơn vị thu hộ (nhà vận chuyển thu COD, cổng thanh toán); nhập bảng đối soát từ tệp Excel theo mẫu chung; ghép từng dòng với đơn bán; ghi sổ thì trừ nợ khách theo đơn, chuyển thành nợ của đơn vị thu hộ, phí vào chi phí bán hàng; tiền đơn vị thu hộ chuyển về ngân hàng lập phiếu thu của đơn vị thu hộ và được đối soát ngân hàng tự ghép.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Bản nháp. Người dùng xác nhận thiết kế ngày 2026-11-10; đã lập trình lát L0, L1.
 - Nguồn: tài liệu `04` mục 6, `05` mục 2.1; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02` (làm cả COD, cổng thanh toán; nhập từ tệp theo mẫu chung; phí vào chi phí bán hàng; ghi nhận khách đã trả khi ghi sổ bảng đối soát; chênh lệch cho ghi sổ kèm cảnh báo; duyệt theo chính sách duyệt công ty).
@@ -67,11 +67,19 @@ Tệp chỉ đọc giá trị ô, không chạy công thức; tối đa 5 MB.
 
 ## 10. Tiêu chí nghiệm thu
 
-Lập sau khi người dùng xác nhận thiết kế (TIEUCHI_NGHIEMTHU_139 trở đi).
+| Mã | Tiêu chí | Mức | Kịch bản |
+|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_139 | Chỉ người có quyền khai đơn vị thu hộ; đối tác phải có hồ sơ khách hàng; không khai trùng | Bắt buộc | KICHBAN_KIEMTHU_261 |
+| TIEUCHI_NGHIEMTHU_140 | Nhập tệp theo mẫu chung: sai mẫu, sai ô bị từ chối kèm dòng, cột; ghép đơn theo số; lỗi chặn, cảnh báo chênh lệch, tổng đúng; bỏ dòng, nhập lại, trùng số bảng, bỏ bảng nháp | Bắt buộc | KICHBAN_KIEMTHU_262, 263 |
+| TIEUCHI_NGHIEMTHU_141 | Còn dòng lỗi không gửi được; ghi sổ trừ nợ khách theo đơn, thừa thành trả trước, đơn không có khách chỉ có bút toán; nợ đơn vị thu hộ bằng thực nhận; bút toán đúng tài khoản; bảng đã ghi sổ không sửa | Bắt buộc | KICHBAN_KIEMTHU_264, 265 |
+| TIEUCHI_NGHIEMTHU_142 | Khoản trừ nợ của bảng đối soát tính hoa hồng như phiếu thu | Bắt buộc | KICHBAN_KIEMTHU_264 |
+| TIEUCHI_NGHIEMTHU_143 | Có chính sách duyệt thì chờ duyệt, rút, gửi lại, duyệt xong ghi sổ; tiền đơn vị chuyển về lập phiếu thu trừ nợ đơn vị thu hộ | Bắt buộc | KICHBAN_KIEMTHU_266, 267 |
+| TIEUCHI_NGHIEMTHU_144 | MAN_HINH_60, 61 hiển thị đúng trên máy tính và điện thoại, không cuộn ngang, không lỗi trình duyệt | Mong muốn | KICHBAN_KIEMTHU_268 |
 
 ## 11. Kịch bản kiểm thử
 
-Lập sau khi người dùng xác nhận thiết kế (KICHBAN_KIEMTHU_261 trở đi).
+- KICHBAN_KIEMTHU_261 đến 267: tự động, tệp `apps/api/test/c19-collection-statements.test.ts`.
+- KICHBAN_KIEMTHU_268: thủ công trên trình duyệt (`tam_thoi/CONG_VIEC_19/xem_l0.js`, `xem_l1.js`): khai đơn vị, nhập tệp, lỗi, bỏ dòng, gửi, ghi sổ, bút toán; khổ 1360 và 375 điểm ảnh.
 
 ## 12. Ràng buộc kỹ thuật
 
@@ -89,3 +97,11 @@ Ghi sổ phiếu kho, phiếu thu chi, bút toán đã có. Thay đổi nhỏ: h
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
 Chưa đối chiếu.
+
+## 16. Giới hạn đã biết
+
+- Phí chưa tách thuế giá trị gia tăng đầu vào; ghi cả vào chi phí.
+- Bảng đã ghi sổ không hủy được; sai thì lập bút toán điều chỉnh bằng phiếu kế toán.
+- Ngày thu từng dòng chỉ để tra cứu; bút toán, công nợ theo ngày bảng.
+- Kỳ đã khóa sổ: gửi bảng có ngày trong kỳ khóa bị từ chối (đổi ngày bảng bằng nhập lại).
+- Chỉ đọc mẫu chung; tệp riêng của từng đơn vị thêm khi có tệp thật.
