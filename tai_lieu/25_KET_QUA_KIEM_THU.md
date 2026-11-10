@@ -197,7 +197,7 @@
   - C4 toàn vẹn dữ liệu: Đạt – báo cáo chỉ đọc; mọi truy vấn lọc theo công ty; tham số truy vấn ràng buộc, không ghép chuỗi.
 - Tự rà soát mã và dọn dẹp: Đạt. Khi thử trên trình duyệt phát hiện tệp Excel, PDF tải về hỏng (máy chủ trả nội dung dạng JSON), đã sửa và thêm kiểm tra chữ ký tệp. Rà soát độc lập không có lỗi chặn; tìm 2 mục Trung bình, 4 mục Thấp. Đã sửa: phiếu kế toán kết chuyển thủ công qua 911 làm sai kết quả kinh doanh, cùng kỳ năm trước bỏ sót ngày 29/02, tổng có thể lệch 1 đồng so với các dòng, thiếu từ ngày hoặc mẫu sai không báo lỗi. Giữ lại (ghi đặc tả mục 16): lợi nhuận chưa kết chuyển mọi năm vào 4212 như khi khóa sổ thật; chỉ tiêu theo tài khoản đối ứng không chia bút toán nhiều đối ứng; "Từ ngày" mặc định 01/01.
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
-- Kết luận: Chờ người dùng nghiệm thu. Trước khi phát hành: kế toán trưởng so Phụ lục IV Thông tư 99/2025 (biểu mẫu, cách lập) với bản gốc.
+- Kết luận: Người dùng nghiệm thu 2026-11-10, chấp nhận ba giới hạn đã biết; trước khi phát hành: kế toán trưởng so Phụ lục IV Thông tư 99/2025 (biểu mẫu, cách lập) với bản gốc; chờ người dùng hợp nhất pull request số 50 (sau số 49).
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_14
 

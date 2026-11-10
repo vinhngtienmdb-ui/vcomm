@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_15: Người dùng nghiệm thu, chấp nhận ba giới hạn đã biết (lợi nhuận chưa kết chuyển mọi năm vào 4212; chỉ tiêu theo tài khoản đối ứng không chia bút toán nhiều đối ứng; "Từ ngày" mặc định 01/01); việc trước phát hành: kế toán trưởng so Phụ lục IV Thông tư 99/2025 với bản gốc; chờ người dùng hợp nhất pull request số 50 (sau số 49).
 - CONG_VIEC_15: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_15-bao-cao-tai-chinh` (pull request số 50, tách từ nhánh CONG_VIEC_14). Mẫu B01-DN, B02-DN (Thông tư 99/2025), B01a-DNN, B01b-DNN, B02-DNN (Thông tư 133/2016) khai báo trong mã; báo cáo lập được khi kỳ chưa khóa sổ; số đầu năm theo tháng bắt đầu năm tài chính, cùng kỳ năm trước; database migration 0012 cờ dài hạn của tài khoản chi tiết; MAN_HINH_53 xem, xuất Excel, PDF. Kiểm thử 233/233 đạt. Không thêm thư viện. Rà soát mã sửa 2 mục Trung bình, 4 mục Thấp; sửa lỗi tệp xuất hỏng phát hiện khi thử trên trình duyệt. Chờ người dùng nghiệm thu.
 - CONG_VIEC_15: Bắt đầu Báo cáo tài chính.
 - CONG_VIEC_14: Người dùng nghiệm thu, chấp nhận định khoản mặc định (hàng tặng 6418/6421, dùng nội bộ 6422, đối ứng tồn đầu kỳ 3388 tạm, hủy hỏng 632); việc trước phát hành: kế toán trưởng so danh mục Thông tư 99/2025 với bản gốc; chờ người dùng hợp nhất pull request số 49 (sau số 48).
