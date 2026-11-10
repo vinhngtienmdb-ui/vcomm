@@ -109,7 +109,7 @@
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_75 đến 79 (bắt buộc) – Đạt. Vế "đối tác ngừng giao dịch không chọn được trên chứng từ mới" của QUYTAC_NGHIEPVU_57 kiểm khi làm MODULE_04, MODULE_05.
 - Kiểm tra bảo mật phần B, C:
   - C1 `pnpm audit --audit-level=high`: không có lỗ hổng đã biết. Không thêm thư viện.
-  - C2 gitleaks trong CI trên các commit của công việc: chờ kết quả CI của pull request số 39.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 39): không có phát hiện.
   - C3 phân quyền: Đạt – thêm, sửa đối tác cần `crm.partner.manage`; xem số Căn cước công dân đầy đủ, hạn mức công nợ, lưu hồ sơ cần quyền nhạy cảm; tra theo số Căn cước công dân cần quyền quản lý đối tác; hồ sơ công ty khác không đọc được; đối tác nội bộ không sửa được ở mini app Đối tác.
   - C4 dữ liệu cá nhân: Đạt – danh sách, chi tiết, kết quả thêm, sửa, nhật ký chỉ có 3 số cuối Căn cước công dân; mỗi lần xem đầy đủ ghi nhật ký.
   - C6 OWASP Top 10: A01 kiểm quyền trong từng service; A04 hai người lưu cùng lúc trùng mã số thuế, số Căn cước công dân nhận lỗi đúng trường, không lỗi hệ thống.
