@@ -167,7 +167,14 @@
     "purchaseReceiptNotPosted": "Returns can only be made from posted purchase receipts.",
     "documentNotInQualityCheck": "The document is not awaiting quality check.",
     "purchaseOverReceipt": "Exceeds the quantity still receivable on the purchase order (tolerance included).",
-    "purchaseReturnExceeded": "Exceeds the quantity still returnable on the original receipt."
+    "purchaseReturnExceeded": "Exceeds the quantity still returnable on the original receipt.",
+    "customerNotActive": "This partner has no active customer profile in the company.",
+    "salesOrderNotCancellable": "The sales order has deliveries or cannot be cancelled in its status; close it instead.",
+    "salesOrderHasOpenIssues": "The sales order has draft deliveries and cannot be closed.",
+    "salesOrderNotOpen": "The sales order is not confirmed or is closed; it cannot be delivered.",
+    "salesIssueNotPosted": "Returns can only be received from posted deliveries.",
+    "salesOverDelivery": "Exceeds the quantity still to deliver on the sales order.",
+    "salesReturnExceeded": "Exceeds the quantity still returnable on the original delivery."
   },
   "login": {
     "title": "Sign in",
@@ -712,7 +719,9 @@
     "entity_supplier_price": "Supplier price",
     "entity_purchasing_settings": "Purchasing settings",
     "entity_requisition": "Purchase requisition",
-    "entity_purchase_order": "Purchase order"
+    "entity_purchase_order": "Purchase order",
+    "entity_sales_order": "Sales order",
+    "entity_sales_settings": "Sales settings"
   },
   "auditActions": {
     "login": "Sign in",
@@ -842,7 +851,13 @@
     "purchase_order_update": "Edit purchase order",
     "purchase_order_submit": "Submit purchase order",
     "purchase_order_close": "Close purchase order",
-    "stock_document_quality_check": "Record quality check"
+    "stock_document_quality_check": "Record quality check",
+    "sales_order_create": "Create sales order",
+    "sales_order_update": "Edit sales order",
+    "sales_order_submit": "Submit sales order",
+    "sales_order_cancel": "Cancel sales order",
+    "sales_order_close": "Close sales order",
+    "sales_settings_update": "Edit sales settings"
   },
   "notifications": {
     "title": "Notifications",

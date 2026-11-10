@@ -215,7 +215,7 @@ export class PurchaseReceiptsService {
           lines.map((line) => ({ receiptLineId: line.source_line_id!, baseQuantity: Math.abs(Number(line.base_quantity)) })),
         );
       }
-      Object.assign(fields, await this.documents.checkForSubmit(row, lines));
+      Object.assign(fields, await this.documents.checkForSubmit(row, lines, transaction));
       if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
       const documentNo = await this.sequences.next(row.company_id, typeCode, transaction);
       const checking = row.type === "purchase_receipt" && lines.some((line) => line.requires_quality_check);

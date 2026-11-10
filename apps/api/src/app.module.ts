@@ -50,6 +50,8 @@ import { InventoryController } from "./inventory/inventory.controller";
 import { CrmController } from "./crm/crm.controller";
 import { PartnersService } from "./crm/partners.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
+import { SalesController } from "./sales/sales.controller";
+import { SalesOrdersService } from "./sales/sales-orders.service";
 import { SupplierPricesService } from "./purchasing/supplier-prices.service";
 import { RequisitionsService } from "./purchasing/requisitions.service";
 import { PurchaseOrdersService } from "./purchasing/orders.service";
@@ -63,6 +65,7 @@ import { StocktakesService } from "./inventory/stocktakes.service";
 import { TransfersService } from "./inventory/transfers.service";
 import { WarehousesService } from "./inventory/warehouses.service";
 import { PurchaseReceiptsService } from "./inventory/purchase-receipts.service";
+import { SalesDeliveriesService } from "./inventory/sales-deliveries.service";
 import { CategoriesService } from "./catalog/categories.service";
 import { UnitsService } from "./catalog/units.service";
 import { ProductsService } from "./catalog/products.service";
@@ -79,7 +82,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController],
   providers: [
     AuthService,
     ActivationService,
@@ -106,8 +109,10 @@ import { UsersService } from "./users/users.service";
     PriceChangesService,
     WarehousesService,
     PurchaseReceiptsService,
+    SalesDeliveriesService,
     PartnersService,
     SupplierPricesService,
+    SalesOrdersService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

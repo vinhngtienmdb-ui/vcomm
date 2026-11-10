@@ -1,6 +1,8 @@
 // API_63: kho, vị trí, cài đặt kho (CONG_VIEC_05). Quyền chi tiết kiểm trong service theo chi nhánh sở hữu kho.
 import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from "@nestjs/common";
 import {
+  saveSalesIssueSchema,
+  saveSalesReturnSchema,
   qualityCheckSchema,
   savePurchaseReceiptSchema,
   savePurchaseReturnSchema,
@@ -59,7 +61,8 @@ import { ReservationsService } from "./reservations.service";
 import { StockLevelsService } from "./stock-levels.service";
 import { StockService } from "./stock.service";
 import { PurchaseReceiptsService } from "./purchase-receipts.service";
-import { purchaseTypes } from "./stock-documents.service";
+import { SalesDeliveriesService } from "./sales-deliveries.service";
+import { salesTypes, sourcedTypes } from "./stock-documents.service";
 import { StocktakesService } from "./stocktakes.service";
 import { TransfersService } from "./transfers.service";
 import { WarehousesService } from "./warehouses.service";
@@ -79,6 +82,7 @@ export class InventoryController {
     private readonly stockLevels: StockLevelsService,
     private readonly labels: LabelsService,
     private readonly purchases: PurchaseReceiptsService,
+    private readonly deliveries: SalesDeliveriesService,
   ) {}
 
   // Vào mini app Kho: quyền kho ở công ty đang chọn hoặc ở bất kỳ chi nhánh nào của công ty đó.
@@ -216,7 +220,8 @@ export class InventoryController {
     const actor = await this.actor(request, companyId);
     const row = await this.documents.visibleRow(actor, id);
     // Nháp phiếu nhập mua, trả hàng: người lập có quyền nhập mua xóa được (không cần quyền lập phiếu kho thường).
-    if (purchaseTypes.includes(row.type)) await this.purchases.remove(actor, id);
+    if (salesTypes.includes(row.type)) await this.deliveries.remove(actor, id);
+    else if (sourcedTypes.includes(row.type)) await this.purchases.remove(actor, id);
     else await this.documents.remove(actor, id);
   }
 
@@ -225,7 +230,29 @@ export class InventoryController {
   async submitDocument(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
     const actor = await this.actor(request, companyId);
     const row = await this.documents.visibleRow(actor, id);
-    return purchaseTypes.includes(row.type) ? this.purchases.submit(actor, id) : this.documents.submit(actor, id);
+    if (salesTypes.includes(row.type)) return this.deliveries.submit(actor, id);
+    return sourcedTypes.includes(row.type) ? this.purchases.submit(actor, id) : this.documents.submit(actor, id);
+  }
+
+  // API_79: đơn bán đã xác nhận chờ giao; phiếu xuất giao hàng; phiếu nhận hàng trả lại (CONG_VIEC_08).
+  @Get("sales-orders")
+  async openSalesOrders(@Req() request: AuthenticatedRequest, @Query("search") search: string | undefined, @Headers("x-company-id") companyId?: string) {
+    return this.deliveries.openOrders(await this.actor(request, companyId), search?.trim().slice(0, 100) || undefined);
+  }
+
+  @Get("sales-orders/:id")
+  async salesOrderLines(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string) {
+    return this.deliveries.orderLines(await this.actor(request, companyId), id);
+  }
+
+  @Post("sales-issues")
+  async createSalesIssue(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.deliveries.createIssue(await this.actor(request, companyId), saveSalesIssueSchema.parse(body));
+  }
+
+  @Post("sales-returns")
+  async createSalesReturn(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.deliveries.createReturn(await this.actor(request, companyId), saveSalesReturnSchema.parse(body));
   }
 
   // API_76: đơn mua đã duyệt nhận vào kho người dùng nhập mua được; dòng còn nhận được.

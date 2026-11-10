@@ -206,39 +206,10 @@ export class PriceListsService {
   // Đơn vị không có giá riêng thì lấy giá đơn vị cơ sở nhân hệ số (QUYTAC_NGHIEPVU_42, 43).
   async lookup(actor: Actor, query: z.output<typeof priceLookupQuerySchema>): Promise<PriceLookupResponse> {
     await requireCompanyPermission(this.permissionService, actor, catalogPermissions.viewPrices);
-    const date = query.date ?? this.permissionService.today();
-    const variant = (
-      await this.database.execute<{ base_unit_id: string; factor: string | null }>(sql`
-      SELECT p.base_unit_id, (SELECT pu.factor::text FROM catalog.product_units pu WHERE pu.product_id = p.id AND pu.unit_id = ${query.unitId}) AS factor
-      FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id WHERE v.id = ${query.variantId} AND v.company_id = ${actor.companyId}`)
-    ).rows[0];
-    if (!variant) throw new ApiError("NOT_FOUND", "notFound");
-    const candidates = await this.database.execute<{ id: string; code: string; includes_vat: boolean; rank: number }>(sql`
-      SELECT id, code, includes_vat,
-        CASE WHEN channel_id IS NOT NULL AND customer_group_id IS NOT NULL THEN 1 WHEN customer_group_id IS NOT NULL THEN 2 WHEN channel_id IS NOT NULL THEN 3 ELSE 4 END AS rank
-      FROM catalog.price_lists
-      WHERE company_id = ${actor.companyId} AND status = 'active' AND currency = ${query.currency}
-        AND (channel_id IS NULL OR channel_id = ${query.channelId ?? null}) AND (customer_group_id IS NULL OR customer_group_id = ${query.customerGroupId ?? null})
-      ORDER BY rank`);
-    for (const list of candidates.rows) {
-      const price = async (unitId: string) =>
-        (
-          await this.database.execute<{ price: string; effective_from: Date }>(sql`
-          SELECT price::text AS price, effective_from FROM catalog.prices
-          WHERE price_list_id = ${list.id} AND variant_id = ${query.variantId} AND unit_id = ${unitId} AND effective_from <= ${date}::date
-          ORDER BY effective_from DESC, created_at DESC LIMIT 1`)
-        ).rows[0];
-      const own = await price(query.unitId);
-      if (own) return { priceListId: list.id, priceListCode: list.code, includesVat: list.includes_vat, price: trimDecimal(own.price), effectiveFrom: day(own.effective_from), fromBaseUnit: false };
-      if (query.unitId !== variant.base_unit_id && variant.factor) {
-        const base = await price(variant.base_unit_id);
-        if (base) {
-          const converted = (await this.database.execute<{ value: string }>(sql`SELECT round(${base.price}::numeric * ${variant.factor}::numeric, 4)::text AS value`)).rows[0]!.value;
-          return { priceListId: list.id, priceListCode: list.code, includesVat: list.includes_vat, price: trimDecimal(converted), effectiveFrom: day(base.effective_from), fromBaseUnit: true };
-        }
-      }
-    }
-    throw new ApiError("NOT_FOUND", "priceNotFound");
+    const found = await lookupPrice(this.database, actor.companyId, query, query.date ?? this.permissionService.today());
+    if (found === "variantNotFound") throw new ApiError("NOT_FOUND", "notFound");
+    if (!found) throw new ApiError("NOT_FOUND", "priceNotFound");
+    return found;
   }
 
   async single(companyId: string, id: string): Promise<PriceListResponse> {
@@ -259,4 +230,45 @@ export class PriceListsService {
       SELECT l.id, l.code, l.name, l.channel_id, ch.name AS channel_name, l.customer_group_id, g.name AS customer_group_name, l.currency, l.includes_vat, l.status, l.version
       FROM catalog.price_lists l LEFT JOIN catalog.sales_channels ch ON ch.id = l.channel_id LEFT JOIN catalog.customer_groups g ON g.id = l.customer_group_id`;
   }
+}
+
+// Dùng chung cho API tra giá và đơn bán (CONG_VIEC_08); không kiểm quyền.
+export async function lookupPrice(
+  database: Pick<Database, "execute">,
+  companyId: string,
+  query: Pick<z.output<typeof priceLookupQuerySchema>, "variantId" | "unitId" | "channelId" | "customerGroupId" | "currency">,
+  date: string,
+): Promise<PriceLookupResponse | null | "variantNotFound"> {
+  const variant = (
+    await database.execute<{ base_unit_id: string; factor: string | null }>(sql`
+    SELECT p.base_unit_id, (SELECT pu.factor::text FROM catalog.product_units pu WHERE pu.product_id = p.id AND pu.unit_id = ${query.unitId}) AS factor
+    FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id WHERE v.id = ${query.variantId} AND v.company_id = ${companyId}`)
+  ).rows[0];
+  if (!variant) return "variantNotFound";
+  const candidates = await database.execute<{ id: string; code: string; includes_vat: boolean; rank: number }>(sql`
+    SELECT id, code, includes_vat,
+      CASE WHEN channel_id IS NOT NULL AND customer_group_id IS NOT NULL THEN 1 WHEN customer_group_id IS NOT NULL THEN 2 WHEN channel_id IS NOT NULL THEN 3 ELSE 4 END AS rank
+    FROM catalog.price_lists
+    WHERE company_id = ${companyId} AND status = 'active' AND currency = ${query.currency}
+      AND (channel_id IS NULL OR channel_id = ${query.channelId ?? null}) AND (customer_group_id IS NULL OR customer_group_id = ${query.customerGroupId ?? null})
+    ORDER BY rank`);
+  for (const list of candidates.rows) {
+    const price = async (unitId: string) =>
+      (
+        await database.execute<{ price: string; effective_from: Date }>(sql`
+        SELECT price::text AS price, effective_from FROM catalog.prices
+        WHERE price_list_id = ${list.id} AND variant_id = ${query.variantId} AND unit_id = ${unitId} AND effective_from <= ${date}::date
+        ORDER BY effective_from DESC, created_at DESC LIMIT 1`)
+      ).rows[0];
+    const own = await price(query.unitId);
+    if (own) return { priceListId: list.id, priceListCode: list.code, includesVat: list.includes_vat, price: trimDecimal(own.price), effectiveFrom: day(own.effective_from), fromBaseUnit: false };
+    if (query.unitId !== variant.base_unit_id && variant.factor) {
+      const base = await price(variant.base_unit_id);
+      if (base) {
+        const converted = (await database.execute<{ value: string }>(sql`SELECT round(${base.price}::numeric * ${variant.factor}::numeric, 4)::text AS value`)).rows[0]!.value;
+        return { priceListId: list.id, priceListCode: list.code, includesVat: list.includes_vat, price: trimDecimal(converted), effectiveFrom: day(base.effective_from), fromBaseUnit: true };
+      }
+    }
+  }
+  return null;
 }

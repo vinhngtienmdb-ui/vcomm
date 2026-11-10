@@ -44,10 +44,23 @@ export const documentTypeCodes: Record<StockDocumentType, string> = {
   transfer: "inventory.transfer",
   purchase_receipt: "inventory.purchase_receipt",
   purchase_return: "inventory.purchase_return",
+  sales_issue: "inventory.sales_issue",
+  sales_return: "inventory.sales_return",
 };
-export const prefixes: Record<StockDocumentType, string> = { receipt_other: "NK", issue_other: "XK", adjustment: "DCK", transfer: "CK", purchase_receipt: "NM", purchase_return: "TNCC" };
-// Phiếu có chứng từ gốc của Mua hàng: lập, gửi, kiểm tra chất lượng qua PurchaseReceiptsService (CONG_VIEC_07).
+export const prefixes: Record<StockDocumentType, string> = {
+  receipt_other: "NK",
+  issue_other: "XK",
+  adjustment: "DCK",
+  transfer: "CK",
+  purchase_receipt: "NM",
+  purchase_return: "TNCC",
+  sales_issue: "XBH",
+  sales_return: "NTL",
+};
+// Phiếu có chứng từ gốc của Mua hàng (CONG_VIEC_07), Bán hàng (CONG_VIEC_08): lập, gửi qua PurchaseReceiptsService, SalesDeliveriesService.
 export const purchaseTypes: StockDocumentType[] = ["purchase_receipt", "purchase_return"];
+export const salesTypes: StockDocumentType[] = ["sales_issue", "sales_return"];
+export const sourcedTypes: StockDocumentType[] = ["purchase_receipt", "purchase_return", "sales_issue", "sales_return"];
 
 type VariantInfo = {
   id: string;
@@ -133,7 +146,13 @@ const day = (value: Date | string | null) =>
 const decimal = (value: string | null) => (value === null ? null : trimDecimal(value));
 // Chiều của dòng: nhập tăng, xuất giảm, điều chỉnh theo dấu số lượng.
 export const lineSign = (type: StockDocumentType, quantity: string) =>
-  type === "receipt_other" || type === "purchase_receipt" ? 1 : type === "issue_other" || type === "transfer" || type === "purchase_return" ? -1 : quantity.startsWith("-") ? -1 : 1;
+  type === "receipt_other" || type === "purchase_receipt" || type === "sales_return"
+    ? 1
+    : type === "issue_other" || type === "transfer" || type === "purchase_return" || type === "sales_issue"
+      ? -1
+      : quantity.startsWith("-")
+        ? -1
+        : 1;
 
 @Injectable()
 export class StockDocumentsService implements OnModuleInit {
@@ -218,6 +237,9 @@ export class StockDocumentsService implements OnModuleInit {
     const canManageAt = async (warehouse: Warehouse | null) =>
       warehouse !== null &&
       (await this.permissionService.permissionsCovering(actor.userId, { scopeType: "branch", companyId: warehouse.companyId, branchId: warehouse.branchId })).has(inventoryPermissions.manageDocuments);
+    const canIssueSales = async (warehouse: Warehouse | null) =>
+      warehouse !== null &&
+      (await this.permissionService.permissionsCovering(actor.userId, { scopeType: "branch", companyId: warehouse.companyId, branchId: warehouse.branchId })).has(inventoryPermissions.issueSales);
     const canReceivePurchases = async (warehouse: Warehouse | null) =>
       warehouse !== null &&
       (await this.permissionService.permissionsCovering(actor.userId, { scopeType: "branch", companyId: warehouse.companyId, branchId: warehouse.branchId })).has(
@@ -275,7 +297,7 @@ export class StockDocumentsService implements OnModuleInit {
         compensationAmount: costVisible ? decimal(item.compensation_amount) : null,
       })),
       version: row.version,
-      canEdit: own && row.status === "draft" && !row.stocktake_id && !purchaseTypes.includes(row.type),
+      canEdit: own && row.status === "draft" && !row.stocktake_id && !sourcedTypes.includes(row.type),
       canWithdraw: own && row.status === "pending" && !firstStepDecided,
       canShip: row.type === "transfer" && row.status === "posted" && (await canManageAt(sourceWarehouse)),
       canReceive: row.type === "transfer" && row.status === "in_transit" && (await canManageAt(destinationWarehouse)),
@@ -284,12 +306,14 @@ export class StockDocumentsService implements OnModuleInit {
       sourceId: row.source_id,
       sourceNo: row.source_no,
       canQualityCheck: row.type === "purchase_receipt" && row.status === "quality_check" && (await canReceivePurchases(sourceWarehouse)),
-      canReturn: row.type === "purchase_receipt" && row.status === "posted" && (await canReceivePurchases(sourceWarehouse)),
+      canReturn:
+        (row.type === "purchase_receipt" && row.status === "posted" && (await canReceivePurchases(sourceWarehouse))) ||
+        (row.type === "sales_issue" && row.status === "posted" && (await canIssueSales(sourceWarehouse))),
     };
   }
 
   async create(actor: Actor, input: Input): Promise<StockDocumentResponse> {
-    if (purchaseTypes.includes(input.type)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { type: "invalidValue" } });
+    if (sourcedTypes.includes(input.type)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { type: "invalidValue" } });
     const prepared = await this.prepare(actor, input);
     const id = await this.database.transaction(async (transaction) => {
       const documentId = (
@@ -320,7 +344,7 @@ export class StockDocumentsService implements OnModuleInit {
 
   async update(actor: Actor, id: string, input: Input): Promise<StockDocumentResponse> {
     const row = await this.requireOwnDraft(actor, id);
-    if (purchaseTypes.includes(row.type) || input.type !== row.type || input.companyId !== row.company_id || input.warehouseId !== row.warehouse_id) {
+    if (sourcedTypes.includes(row.type) || input.type !== row.type || input.companyId !== row.company_id || input.warehouseId !== row.warehouse_id) {
       throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { type: "documentHeaderLocked" } });
     }
     const prepared = await this.prepare(actor, input);
@@ -454,6 +478,7 @@ export class StockDocumentsService implements OnModuleInit {
       }
       const amount = rejected > 0 ? accepted.toFixed(4) : line.base_quantity.replace(/^-/, "");
       // Có đơn giá: nhập theo đơn giá; trả hàng nhà cung cấp xuất theo giá phiếu nhập gốc đã lưu ở đơn giá (QUYTAC_NGHIEPVU_66).
+      // Nhận hàng trả lại: nhập theo giá vốn phiếu xuất gốc đã lưu ở đơn giá (QUYTAC_NGHIEPVU_72).
       const fullValue = line.unit_cost !== null && (sign > 0 || document.type === "purchase_return") ? await this.lineValue(transaction, line) : null;
       const value = fullValue !== null && rejected > 0 ? ((Number(fullValue) * accepted) / Math.abs(Number(line.base_quantity))).toFixed(4) : fullValue;
       entries.push({
@@ -597,7 +622,11 @@ export class StockDocumentsService implements OnModuleInit {
   }
 
   // Kiểm khi gửi: đủ hàng, lô còn hạn, chọn lô khác gợi ý có lý do, serial đúng trạng thái (QUYTAC_NGHIEPVU_47, 51).
-  async checkForSubmit(row: { type: StockDocumentType; company_id: string; warehouse_id: string; reason_code: string; stocktake_id: string | null }, lines: LineRow[]): Promise<FieldErrors> {
+  async checkForSubmit(
+    row: { type: StockDocumentType; company_id: string; warehouse_id: string; reason_code: string; stocktake_id: string | null },
+    lines: LineRow[],
+    executor: Executor = this.database,
+  ): Promise<FieldErrors> {
     const fields: FieldErrors = {};
     const today = this.permissionService.today();
     const neededByBalance = new Map<string, { quantity: number; index: number }>();
@@ -612,7 +641,7 @@ export class StockDocumentsService implements OnModuleInit {
         neededByVariant.set(line.variant_id, { quantity: (neededByVariant.get(line.variant_id)?.quantity ?? 0) + amount, index });
         if (line.tracks_lots && line.lot_id) {
           const lot = (
-            await this.database.execute<{ expires_on: string | null }>(
+            await executor.execute<{ expires_on: string | null }>(
               sql`SELECT expires_on FROM inventory.lots WHERE id = ${line.lot_id} AND company_id = ${row.company_id} AND variant_id = ${line.variant_id}`,
             )
           ).rows[0];
@@ -626,7 +655,7 @@ export class StockDocumentsService implements OnModuleInit {
           }
         }
         if (line.tracks_serials) {
-          const found = await this.database.execute<{ total: number }>(sql`
+          const found = await executor.execute<{ total: number }>(sql`
             SELECT count(*)::int AS total FROM inventory.serials WHERE company_id = ${row.company_id} AND variant_id = ${line.variant_id} AND warehouse_id = ${row.warehouse_id}
               AND status = 'in_stock' AND location_id IS NOT DISTINCT FROM ${line.location_id} AND serial_no = ANY(${pgArray(line.serials)}::text[])`);
           if (found.rows[0]!.total !== line.serials.length) fields[at("serials")] = "serialNotInStock";
@@ -634,14 +663,14 @@ export class StockDocumentsService implements OnModuleInit {
       } else {
         if (line.tracks_lots && line.lot_no) {
           const lot = (
-            await this.database.execute<{ expires_on: string | null }>(
+            await executor.execute<{ expires_on: string | null }>(
               sql`SELECT expires_on FROM inventory.lots WHERE company_id = ${row.company_id} AND variant_id = ${line.variant_id} AND lot_no = ${line.lot_no}`,
             )
           ).rows[0];
           if (lot && day(lot.expires_on) !== day(line.expires_on)) fields[at("expiresOn")] = "lotExpiryMismatch";
         }
         if (line.tracks_serials) {
-          const taken = await this.database.execute(sql`
+          const taken = await executor.execute(sql`
             SELECT 1 FROM inventory.serials WHERE company_id = ${row.company_id} AND serial_no = ANY(${pgArray(line.serials)}::text[]) AND (status <> 'issued' OR variant_id <> ${line.variant_id}) LIMIT 1`);
           if (taken.rows.length > 0) fields[at("serials")] = "serialAlreadyInStock";
         }
@@ -650,7 +679,7 @@ export class StockDocumentsService implements OnModuleInit {
     for (const [balanceKey, needed] of neededByBalance) {
       const [variantId, lotId, locationId] = balanceKey.split("|");
       const balance = (
-        await this.database.execute<{ quantity: string }>(sql`
+        await executor.execute<{ quantity: string }>(sql`
         SELECT coalesce(sum(quantity), 0)::text AS quantity FROM inventory.balances
         WHERE warehouse_id = ${row.warehouse_id} AND company_id = ${row.company_id} AND variant_id = ${variantId}
           AND lot_id IS NOT DISTINCT FROM ${lotId || null}::uuid AND location_id IS NOT DISTINCT FROM ${locationId || null}::uuid`)
@@ -659,7 +688,7 @@ export class StockDocumentsService implements OnModuleInit {
     }
     for (const [variantId, needed] of neededByVariant) {
       if (fields[`lines.${needed.index}.quantity`]) continue;
-      const available = await this.reservations.available(this.database, row.warehouse_id, row.company_id, variantId);
+      const available = await this.reservations.available(executor, row.warehouse_id, row.company_id, variantId);
       if (Number(available) < needed.quantity) fields[`lines.${needed.index}.quantity`] = "insufficientAvailableStock";
     }
     return fields;
@@ -779,7 +808,8 @@ export class StockDocumentsService implements OnModuleInit {
         (SELECT sum(l.cost_value)::text FROM inventory.document_lines l WHERE l.document_id = d.id) AS total_value,
         d.created_by, u.full_name AS created_by_name, d.created_at, d.version, d.partner_id, pt.name AS partner_name, d.source_id,
         CASE WHEN d.type = 'purchase_receipt' THEN (SELECT o.document_no FROM purchasing.orders o WHERE o.id = d.source_id)
-             WHEN d.type = 'purchase_return' THEN (SELECT r.document_no FROM inventory.documents r WHERE r.id = d.source_id) END AS source_no
+             WHEN d.type = 'sales_issue' THEN (SELECT so.document_no FROM sales.orders so WHERE so.id = d.source_id)
+             WHEN d.type IN ('purchase_return', 'sales_return') THEN (SELECT r.document_no FROM inventory.documents r WHERE r.id = d.source_id) END AS source_no
       FROM inventory.documents d LEFT JOIN crm.partners pt ON pt.id = d.partner_id JOIN inventory.warehouses w ON w.id = d.warehouse_id LEFT JOIN inventory.warehouses dw ON dw.id = d.destination_warehouse_id
       JOIN core.companies c ON c.id = d.company_id JOIN core.users u ON u.id = d.created_by`;
   }

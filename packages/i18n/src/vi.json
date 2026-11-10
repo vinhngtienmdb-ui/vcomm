@@ -167,7 +167,14 @@
     "purchaseReceiptNotPosted": "Chỉ trả hàng từ phiếu nhập mua đã ghi sổ.",
     "documentNotInQualityCheck": "Phiếu không ở trạng thái chờ kiểm tra chất lượng.",
     "purchaseOverReceipt": "Vượt số còn nhận được của đơn mua (đã tính dung sai).",
-    "purchaseReturnExceeded": "Vượt số đã nhập còn trả được của phiếu nhập gốc."
+    "purchaseReturnExceeded": "Vượt số đã nhập còn trả được của phiếu nhập gốc.",
+    "customerNotActive": "Đối tác chưa có hồ sơ khách hàng đang dùng ở công ty.",
+    "salesOrderNotCancellable": "Đơn bán đã có phiếu xuất giao hàng hoặc không ở trạng thái hủy được; hãy đóng đơn.",
+    "salesOrderHasOpenIssues": "Đơn bán còn phiếu xuất giao hàng nháp, chưa đóng được.",
+    "salesOrderNotOpen": "Đơn bán chưa xác nhận hoặc đã đóng, không giao hàng được.",
+    "salesIssueNotPosted": "Chỉ nhận hàng trả lại từ phiếu xuất giao hàng đã ghi sổ.",
+    "salesOverDelivery": "Vượt số còn phải giao của đơn bán.",
+    "salesReturnExceeded": "Vượt số đã giao còn trả được của phiếu xuất gốc."
   },
   "login": {
     "title": "Đăng nhập",
@@ -712,7 +719,9 @@
     "entity_supplier_price": "Giá mua",
     "entity_purchasing_settings": "Cài đặt mua hàng",
     "entity_requisition": "Đề nghị mua",
-    "entity_purchase_order": "Đơn mua"
+    "entity_purchase_order": "Đơn mua",
+    "entity_sales_order": "Đơn bán",
+    "entity_sales_settings": "Cài đặt bán hàng"
   },
   "auditActions": {
     "login": "Đăng nhập",
@@ -842,7 +851,13 @@
     "purchase_order_update": "Sửa đơn mua",
     "purchase_order_submit": "Gửi đơn mua",
     "purchase_order_close": "Đóng đơn mua",
-    "stock_document_quality_check": "Ghi kết quả kiểm tra chất lượng"
+    "stock_document_quality_check": "Ghi kết quả kiểm tra chất lượng",
+    "sales_order_create": "Lập đơn bán",
+    "sales_order_update": "Sửa đơn bán",
+    "sales_order_submit": "Gửi đơn bán",
+    "sales_order_cancel": "Hủy đơn bán",
+    "sales_order_close": "Đóng đơn bán",
+    "sales_settings_update": "Sửa cài đặt bán hàng"
   },
   "notifications": {
     "title": "Thông báo",

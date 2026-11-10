@@ -1423,7 +1423,7 @@ export interface WarehouseOptionsResponse {
 }
 
 // CONG_VIEC_05, API_64, API_65: phiếu kho, tồn kho, thẻ kho (CHUC_NANG_39, 40; QUYTAC_NGHIEPVU_47 đến 51).
-export const stockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer", "purchase_receipt", "purchase_return"] as const;
+export const stockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer", "purchase_receipt", "purchase_return", "sales_issue", "sales_return"] as const;
 // Loại phiếu lập tay ở màn hình phiếu kho; phiếu nhập mua, trả hàng nhà cung cấp lập từ đơn mua, phiếu nhập mua (CONG_VIEC_07).
 export const manualStockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer"] as const;
 export type StockDocumentType = (typeof stockDocumentTypes)[number];
@@ -1437,6 +1437,8 @@ export const stockReasonCodes = {
   transfer: ["transfer"],
   purchase_receipt: ["purchase"],
   purchase_return: ["purchase_return"],
+  sales_issue: ["sale"],
+  sales_return: ["sales_return"],
 } as const satisfies Record<StockDocumentType, readonly string[]>;
 export type StockReasonCode = (typeof stockReasonCodes)[StockDocumentType][number];
 const signedDecimal = z.union([z.number(), z.string()]).transform((value, context) => {
@@ -2331,3 +2333,161 @@ export const savePurchaseReturnSchema = z
   })
   .strict();
 export type SavePurchaseReturnRequest = z.input<typeof savePurchaseReturnSchema>;
+
+// CONG_VIEC_08, API_77 đến API_79: Bán hàng (CHUC_NANG_54 đến 57; QUYTAC_NGHIEPVU_67 đến 72).
+export const salesOrderStatuses = ["draft", "pending", "confirmed", "rejected", "withdrawn", "delivered", "cancelled", "closed"] as const;
+export type SalesOrderStatus = (typeof salesOrderStatuses)[number];
+export const salesExceptionKinds = ["discount", "below_cost", "credit_limit"] as const;
+export type SalesExceptionKind = (typeof salesExceptionKinds)[number];
+const percentText = z
+  .union([z.number(), z.string()])
+  .optional()
+  .transform((value, context) => {
+    const text = value === undefined || String(value).trim() === "" ? "0" : String(value).trim().replace(",", ".");
+    if (!/^\d{1,3}(\.\d{1,2})?$/.test(text) || Number(text) > 100) {
+      context.addIssue({ code: "custom", message: "invalidValue" });
+      return z.NEVER;
+    }
+    return text;
+  });
+export const saveSalesOrderSchema = z
+  .object({
+    customerId: z.uuid().nullable().optional(),
+    buyerName: blankToNull(200),
+    channelId: z.uuid(),
+    warehouseId: z.uuid(),
+    orderDate: isoDate,
+    deliveryAddress: blankToNull(500),
+    note: blankToNull(1000),
+    lines: z
+      .array(z.object({ variantId: z.uuid(), unitId: z.uuid(), quantity: positiveQuantity, discountPercent: percentText }).strict())
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveSalesOrderRequest = z.input<typeof saveSalesOrderSchema>;
+export const salesOrderListQuerySchema = z
+  .object({
+    status: z.enum(salesOrderStatuses).optional(),
+    customerId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface SalesOrderListItem {
+  id: string;
+  documentNo: string | null;
+  customerId: string | null;
+  customerName: string | null;
+  buyerName: string | null;
+  channelName: string;
+  warehouseName: string;
+  orderDate: string;
+  currency: string;
+  netAmount: string;
+  taxAmount: string;
+  totalAmount: string;
+  status: SalesOrderStatus;
+  createdByName: string;
+}
+export interface SalesOrderLineResponse {
+  id: string;
+  lineNo: number;
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  unitId: string;
+  unitName: string;
+  quantity: string;
+  baseQuantity: string;
+  priceListCode: string | null;
+  listPrice: string;
+  priceIncludesVat: boolean;
+  discountPercent: string;
+  unitPrice: string;
+  vatRate: VatRate;
+  netAmount: string;
+  taxAmount: string;
+  totalAmount: string;
+  // Theo đơn vị cơ sở, tính từ phiếu kho.
+  deliveredBaseQuantity: string;
+  returnedBaseQuantity: string;
+}
+export interface SalesOrderResponse extends SalesOrderListItem {
+  channelId: string;
+  warehouseId: string;
+  deliveryAddress: string | null;
+  note: string | null;
+  approvalRequestId: string | null;
+  exceptions: { kind: SalesExceptionKind; lineNo: number | null; detail: string }[];
+  closedReason: string | null;
+  lines: SalesOrderLineResponse[];
+  documents: { id: string; documentNo: string | null; type: "sales_issue" | "sales_return"; status: string; documentDate: string }[];
+  version: number;
+  canEdit: boolean;
+  canSubmit: boolean;
+  canWithdraw: boolean;
+  canCancel: boolean;
+  canClose: boolean;
+}
+export interface SalesOptionsResponse {
+  customers: { id: string; code: string; name: string; customerGroupId: string | null }[];
+  channels: { id: string; code: string; name: string }[];
+  warehouses: { id: string; code: string; name: string }[];
+  currency: string;
+}
+export const salesPriceQuerySchema = z
+  .object({ variantId: z.uuid(), unitId: z.uuid(), channelId: z.uuid(), customerId: z.uuid().optional(), date: isoDate.optional() })
+  .strict();
+export interface SalesPriceResponse {
+  price: string | null;
+  priceListCode: string | null;
+  includesVat: boolean;
+  vatRate: VatRate;
+}
+export interface SalesSettingsResponse {
+  maxManualDiscountPercent: string;
+  version: number;
+}
+export const updateSalesSettingsSchema = z.object({ maxManualDiscountPercent: percentText, version: z.number().int().min(0) }).strict();
+export const closeSalesOrderSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();
+
+export const saveSalesIssueSchema = z
+  .object({
+    orderId: z.uuid(),
+    documentDate: isoDate,
+    note: blankToNull(1000),
+    lines: z
+      .array(
+        z
+          .object({
+            orderLineId: z.uuid(),
+            quantity: positiveQuantity,
+            lotId: z.uuid().nullable().optional(),
+            lotOverrideReason: z.string().trim().max(200).nullable().optional(),
+            locationId: z.uuid().nullable().optional(),
+            serials: serialList,
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+  })
+  .strict();
+export type SaveSalesIssueRequest = z.input<typeof saveSalesIssueSchema>;
+export const saveSalesReturnSchema = z
+  .object({
+    issueId: z.uuid(),
+    documentDate: isoDate,
+    reason: z.string().trim().min(1).max(500),
+    note: blankToNull(1000),
+    lines: z
+      .array(z.object({ issueLineId: z.uuid(), quantity: positiveQuantity, serials: serialList }).strict())
+      .min(1)
+      .max(200),
+  })
+  .strict();
+export type SaveSalesReturnRequest = z.input<typeof saveSalesReturnSchema>;

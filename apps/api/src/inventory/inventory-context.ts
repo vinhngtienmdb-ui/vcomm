@@ -10,6 +10,7 @@ export const inventoryPermissions = {
   viewCost: "inventory.cost.view",
   manageDocuments: "inventory.document.manage",
   receivePurchases: "inventory.purchase.receive",
+  issueSales: "inventory.sales.issue",
   manageStocktakes: "inventory.stocktake.manage",
   manageReservations: "inventory.reservation.manage",
 } as const;

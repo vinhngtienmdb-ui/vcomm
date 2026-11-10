@@ -192,6 +192,25 @@ export class ReservationsService {
   }
 
   // Nguồn kết thúc: đã dùng (xuất kho) hoặc nhả (từ chối, rút, hủy).
+  // Giao hàng theo đơn bán dùng phần đang giữ trước (QUYTAC_NGHIEPVU_70): giảm số giữ của mặt hàng, hết thì đánh dấu đã dùng.
+  async consumeFromSource(transaction: Executor, sourceType: string, sourceId: string, warehouseId: string, variantId: string, quantity: string): Promise<void> {
+    const rows = await transaction.execute<{ id: string; quantity: string }>(sql`
+      SELECT id, quantity::text FROM inventory.reservations
+      WHERE source_type = ${sourceType} AND source_id = ${sourceId} AND warehouse_id = ${warehouseId} AND variant_id = ${variantId} AND status = 'active'
+      ORDER BY created_at FOR UPDATE`);
+    let remaining = Number(quantity);
+    for (const row of rows.rows) {
+      if (remaining <= 0) break;
+      if (Number(row.quantity) <= remaining + 0.00005) {
+        await transaction.execute(sql`UPDATE inventory.reservations SET status = 'consumed', released_at = now(), version = version + 1 WHERE id = ${row.id}`);
+        remaining -= Number(row.quantity);
+      } else {
+        await transaction.execute(sql`UPDATE inventory.reservations SET quantity = quantity - ${remaining.toFixed(4)}::numeric, version = version + 1 WHERE id = ${row.id}`);
+        remaining = 0;
+      }
+    }
+  }
+
   async closeBySource(transaction: Executor, sourceType: string, sourceId: string, status: "released" | "consumed"): Promise<void> {
     await transaction.execute(sql`
       UPDATE inventory.reservations SET status = ${status}, released_at = now(), version = version + 1
