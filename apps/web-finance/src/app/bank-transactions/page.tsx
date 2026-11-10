@@ -1,12 +1,14 @@
 "use client";
 
-// MAN_HINH_58 Giao dịch ngân hàng (CHUC_NANG_85, 86; QUYTAC_NGHIEPVU_115; API_99): lọc quỹ, trạng thái, chiều, khoảng ngày, tìm nội dung; phiếu đã ghép.
+// MAN_HINH_58 Giao dịch ngân hàng (CHUC_NANG_85 đến 87; QUYTAC_NGHIEPVU_115 đến 117; API_99 đến API_101): lọc, phiếu đã ghép, gợi ý khách, xử lý giao dịch chưa ghép, ô đối chiếu khi chọn quỹ.
 import { bankTransactionStatuses, type BankConnectionsResponse, type BankTransactionsResponse, type BankTransactionStatus } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
+import { BankReconciliationPanel } from "@/components/BankReconciliationPanel";
+import { BankTransactionActions } from "@/components/BankTransactionActions";
 import { Loaded, MessageView } from "ui/components/StatusViews";
-import { formatDate, formatDateTime, formatNumber } from "ui/lib/format";
+import { formatDate, formatDateTime, formatNumber, vietnamToday } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
 
 const tone: Record<BankTransactionStatus, string> = { unmatched: "canh-bao", matched: "thanh-cong", ignored: "trung-tinh" };
@@ -14,13 +16,15 @@ const tone: Record<BankTransactionStatus, string> = { unmatched: "canh-bao", mat
 export default function BankTransactionsPage() {
   const t = useTranslations("bankTransactions");
   const common = useTranslations("common");
+  const payments = useTranslations("payments");
   const connections = useApi<BankConnectionsResponse>("/finance/bank-connections");
   const [filter, setFilter] = useState({ fundId: "", status: "unmatched", direction: "", from: "", to: "", search: "" });
   const [page, setPage] = useState(1);
   const query = new URLSearchParams({ page: String(page), ...Object.fromEntries(Object.entries(filter).filter(([, value]) => value)) });
   const { state, reload } = useApi<BankTransactionsResponse>(`/finance/bank-transactions?${query.toString()}`);
   const update = (key: keyof typeof filter, value: string) => (setFilter({ ...filter, [key]: value }), setPage(1));
-  const headings = [t("transactionAt"), t("fund"), t("direction"), t("amount"), t("content"), t("status"), t("payment")];
+  const headings = [t("transactionAt"), t("fund"), t("direction"), t("amount"), t("content"), t("status"), t("payment"), ""];
+  const today = vietnamToday();
   return (
     <>
       <div className="tieu-de">
@@ -74,6 +78,9 @@ export default function BankTransactionsPage() {
           onChange={(event) => update("search", event.target.value)}
         />
       </div>
+      {filter.fundId && (
+        <BankReconciliationPanel key={`${filter.fundId}${filter.from}${filter.to}${state.kind}`} fundId={filter.fundId} from={filter.from || `${today.slice(0, 8)}01`} to={filter.to || today} />
+      )}
       <Loaded state={state} onRetry={() => void reload()}>
         {(result) =>
           result.data.length === 0 ? (
@@ -129,10 +136,27 @@ export default function BankTransactionsPage() {
                               · {item.payment.partnerName} · {formatDate(item.payment.paymentDate)}
                             </span>
                           </span>
+                        ) : item.status === "ignored" ? (
+                          <span>{t("ignoredBecause", { reason: item.ignoreReason ?? "" })}</span>
                         ) : (
-                          <span>{item.ignoreReason ?? "—"}</span>
+                          <span>
+                            {item.receipt && (
+                              <span className="nhom-nut">
+                                <Link href={`/payments/${item.receipt.id}`}>{item.receipt.documentNo ?? t("receiptDraft")}</Link>
+                                <span className="chu-thich">{payments(`status_${item.receipt.status as "draft"}`)}</span>
+                              </span>
+                            )}
+                            {!item.receipt && item.suggestion && (
+                              <span>
+                                {t("suggestion", { name: item.suggestion.partnerName })}
+                                <span className="chu-thich"> · {t(`reason_${item.suggestion.reason}`)}</span>
+                              </span>
+                            )}
+                            {!item.receipt && !item.suggestion && "—"}
+                          </span>
                         )}
                       </td>
+                      <td data-nhan={headings[7]}>{result.canManage && <BankTransactionActions item={item} onChanged={() => void reload()} />}</td>
                     </tr>
                   ))}
                 </tbody>

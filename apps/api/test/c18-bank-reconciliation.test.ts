@@ -218,3 +218,102 @@ describe("CONG_VIEC_18 bộ giả lập, danh sách", () => {
     expect((await call(seller, "get", "/finance/bank-transactions")).status).toBe(403);
   });
 });
+
+describe("CONG_VIEC_18 gợi ý khách, lập phiếu thu", () => {
+  let customerCode: string;
+  let otherCustomer: string;
+  let otherCode: string;
+  beforeAll(async () => {
+    otherCustomer = await partner("Khách thứ hai", "0320001803", { isCustomer: true, paymentTermDays: 30 });
+    customerCode = (await pool.query<{ code: string }>("SELECT code FROM crm.partners WHERE id = $1", [customer])).rows[0]!.code;
+    otherCode = (await pool.query<{ code: string }>("SELECT code FROM crm.partners WHERE id = $1", [otherCustomer])).rows[0]!.code;
+    const channel = ((await admin.call("post", "/catalog/sales-channels/defaults", { companyId: retail })).body as { id: string }[])[0]!.id;
+    const creator = (await pool.query<{ id: string }>("SELECT id FROM core.users WHERE email = 'ketoan.ns@vcomm.test'")).rows[0]!.id;
+    await pool.query(
+      "INSERT INTO sales.orders (company_id, channel_id, order_date, currency, created_by, document_no, customer_id, status) VALUES ($1, $2, $3, 'VND', $4, 'DBH-VCR-2026-009001', $5, 'closed')",
+      [retail, channel, today, creator, otherCustomer],
+    );
+  });
+  const suggestion = async (externalId: number) =>
+    (await pool.query("SELECT suggested_partner_id, suggestion_reason FROM finance.bank_transactions WHERE external_id = $1", [String(externalId)])).rows[0];
+
+  it("KICHBAN_KIEMTHU_252: gợi ý theo số đơn bán, mã khách, mã số thuế; nhiều khách hoặc tiền ra thì không gợi ý", async () => {
+    const byOrder = payload("in", 410000, today, { content: `CK THANH TOAN DBHVCR2026009001 ${customerCode}` });
+    await webhook(byOrder);
+    expect(await suggestion(byOrder.id)).toEqual({ suggested_partner_id: otherCustomer, suggestion_reason: "sales_order" });
+    const byCode = payload("in", 420000, today, { content: `${customerCode.toLowerCase()} chuyen tien` });
+    await webhook(byCode);
+    expect(await suggestion(byCode.id)).toEqual({ suggested_partner_id: customer, suggestion_reason: "partner_code" });
+    const byTax = payload("in", 430000, today, { content: "MST 0320001803 TT HD" });
+    await webhook(byTax);
+    expect(await suggestion(byTax.id)).toEqual({ suggested_partner_id: otherCustomer, suggestion_reason: "tax_code" });
+    const both = payload("in", 440000, today, { content: `${customerCode} ${otherCode}` });
+    await webhook(both);
+    expect(await suggestion(both.id)).toEqual({ suggested_partner_id: null, suggestion_reason: null });
+    const outgoing = payload("out", 450000, today, { content: customerCode });
+    await webhook(outgoing);
+    expect(await suggestion(outgoing.id)).toEqual({ suggested_partner_id: null, suggestion_reason: null });
+    const listed = await call(accountant, "get", "/finance/bank-transactions?search=430000");
+    expect(listed.body.data[0].suggestion).toEqual({ partnerId: otherCustomer, partnerName: "Khách thứ hai", reason: "tax_code" });
+  });
+
+  it("KICHBAN_KIEMTHU_253: kế toán xác nhận thì lập phiếu thu ngày giao dịch, ghi sổ và ghép; không lập cho tiền ra, giao dịch đã ghép", async () => {
+    const incoming = payload("in", 460000, addDays(today, -1), { content: `${customerCode} tra no` });
+    await webhook(incoming);
+    const transaction = (await call(accountant, "get", "/finance/bank-transactions?search=460000")).body.data[0];
+    expect(transaction.suggestion.partnerId).toBe(customer);
+    expect((await call(seller, "post", `/finance/bank-transactions/${transaction.id}/confirm-receipt`, { partnerId: customer, version: transaction.version })).status).toBe(403);
+    expect((await call(accountant, "post", `/finance/bank-transactions/${transaction.id}/confirm-receipt`, { partnerId: customer, version: transaction.version + 1 })).status).toBe(409);
+    const confirmed = await call(accountant, "post", `/finance/bank-transactions/${transaction.id}/confirm-receipt`, { partnerId: customer, version: transaction.version });
+    expect(confirmed.status, JSON.stringify(confirmed.body)).toBe(201);
+    expect(confirmed.body).toMatchObject({ status: "matched", autoMatched: false, payment: { kind: "customer_receipt", partnerName: "Khách ngân hàng", paymentDate: addDays(today, -1) } });
+    const receipt = (await call(accountant, "get", `/finance/payments/${confirmed.body.payment.id}`)).body;
+    expect(receipt).toMatchObject({ status: "posted", amount: "460000", fund: { id: bankFund }, note: `${customerCode} tra no` });
+    expect((await call(accountant, "post", `/finance/bank-transactions/${transaction.id}/confirm-receipt`, { partnerId: customer, version: confirmed.body.version })).body.error.message).toBe(
+      "Giao dịch không còn ở trạng thái chưa ghép.",
+    );
+    const outgoing = (await call(accountant, "get", "/finance/bank-transactions?search=450000")).body.data[0];
+    expect((await call(accountant, "post", `/finance/bank-transactions/${outgoing.id}/confirm-receipt`, { partnerId: customer, version: outgoing.version })).body.error.message).toBe(
+      "Chỉ lập phiếu thu cho tiền vào.",
+    );
+  });
+});
+
+describe("CONG_VIEC_18 ghép tay, bỏ qua, bỏ ghép, đối chiếu", () => {
+  it("KICHBAN_KIEMTHU_254: ghép tay với phiếu đủ điều kiện; bỏ qua cần lý do; bỏ ghép đưa về chưa ghép", async () => {
+    // Giao dịch 310.000 có hai phiếu cùng số tiền (KICHBAN_KIEMTHU_249).
+    const transaction = (await call(accountant, "get", `/finance/bank-transactions?fundId=${bankFund}&search=310000`)).body.data[0];
+    const candidates = await call(accountant, "get", `/finance/bank-transactions/${transaction.id}/candidates`);
+    expect(candidates.body).toHaveLength(2);
+    expect(candidates.body[0]).toMatchObject({ amount: "310000", paymentDate: today, kind: "customer_receipt" });
+    const wrongAmount = (await pool.query<{ id: string }>("SELECT id FROM finance.payments WHERE amount = 260000 AND fund_id = $1", [bankFund])).rows[0]!.id;
+    expect((await call(accountant, "post", `/finance/bank-transactions/${transaction.id}/match`, { paymentId: wrongAmount, version: transaction.version })).status).toBe(409);
+    const matched = await call(accountant, "post", `/finance/bank-transactions/${transaction.id}/match`, { paymentId: candidates.body[1].id, version: transaction.version });
+    expect(matched.body).toMatchObject({ status: "matched", autoMatched: false, payment: { id: candidates.body[1].id } });
+    // Phiếu đã ghép không ghép giao dịch khác.
+    const other = (await call(accountant, "get", `/finance/bank-transactions?fundId=${bankFund}&search=320000`)).body.data[0];
+    expect((await call(accountant, "post", `/finance/bank-transactions/${other.id}/match`, { paymentId: candidates.body[1].id, version: other.version })).status).toBe(409);
+    const reopened = await call(accountant, "post", `/finance/bank-transactions/${transaction.id}/reopen`, { version: matched.body.version });
+    expect(reopened.body).toMatchObject({ status: "unmatched", payment: null });
+    expect((await call(accountant, "post", `/finance/bank-transactions/${transaction.id}/reopen`, { version: reopened.body.version })).status).toBe(409);
+    expect((await call(accountant, "post", `/finance/bank-transactions/${transaction.id}/ignore`, { reason: " ", version: reopened.body.version })).status).toBe(400);
+    const ignored = await call(accountant, "post", `/finance/bank-transactions/${transaction.id}/ignore`, { reason: "Chuyển khoản nội bộ", version: reopened.body.version });
+    expect(ignored.body).toMatchObject({ status: "ignored", ignoreReason: "Chuyển khoản nội bộ" });
+    expect((await call(seller, "post", `/finance/bank-transactions/${transaction.id}/reopen`, { version: ignored.body.version })).status).toBe(403);
+    const audit = await pool.query("SELECT action FROM core.audit_events WHERE entity_id = $1 ORDER BY occurred_at", [transaction.id]);
+    expect(audit.rows.map((row) => row.action)).toEqual(["bank_transaction.match", "bank_transaction.reopen", "bank_transaction.ignore"]);
+  });
+
+  it("KICHBAN_KIEMTHU_255: đối chiếu số dư sổ với số dư ngân hàng, đếm giao dịch chưa ghép, liệt kê phiếu chưa có giao dịch", async () => {
+    const book = (await call(accountant, "get", `/finance/funds/${bankFund}`)).body.balance as string;
+    const result = await call(accountant, "get", `/finance/bank-reconciliation?fundId=${bankFund}&from=${addDays(today, -10)}&to=${today}`);
+    expect(result.status, JSON.stringify(result.body)).toBe(200);
+    expect(result.body).toMatchObject({ bookBalance: book, bankBalance: "50000000", difference: String(50000000 - Number(book)), ignoredCount: 1, currency: "VND" });
+    expect(result.body.unmatchedIn.count).toBeGreaterThan(0);
+    expect(result.body.unmatchedOut).toEqual({ count: 2, amount: "710000" });
+    expect(result.body.unmatchedPayments.map((item: { amount: string }) => item.amount)).toEqual(expect.arrayContaining(["260000", "280000"]));
+    expect(result.body.unmatchedPaymentCount).toBe(result.body.unmatchedPayments.length);
+    expect((await call(accountant, "get", `/finance/bank-reconciliation?fundId=${bankFund}&from=${today}&to=${addDays(today, -1)}`)).status).toBe(400);
+    expect((await call(seller, "get", `/finance/bank-reconciliation?fundId=${bankFund}&from=${today}&to=${today}`)).status).toBe(403);
+  });
+});

@@ -3424,7 +3424,7 @@ export const simulateBankTransactionSchema = z
 
 export const bankTransactionListQuerySchema = z
   .object({
-    fundId: z.string().uuid().optional(),
+    fundId: z.uuid().optional(),
     status: z.enum(bankTransactionStatuses).optional(),
     direction: z.enum(bankDirections).optional(),
     from: isoDate.optional(),
@@ -3455,5 +3455,34 @@ export interface BankTransactionItem {
 }
 export interface BankTransactionsResponse extends PageResponse<BankTransactionItem> {
   canManage: boolean;
+  currency: string;
+}
+export const bankVersionSchema = z.object({ version: z.number().int().min(0) }).strict();
+export const confirmBankReceiptSchema = z.object({ partnerId: z.uuid(), version: z.number().int().min(0) }).strict();
+export const matchBankTransactionSchema = z.object({ paymentId: z.uuid(), version: z.number().int().min(0) }).strict();
+export const ignoreBankTransactionSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().min(0) }).strict();
+export interface BankPaymentCandidate {
+  id: string;
+  documentNo: string | null;
+  kind: PaymentKind;
+  partnerName: string;
+  paymentDate: string;
+  amount: string;
+  note: string | null;
+}
+export const bankReconciliationQuerySchema = z.object({ fundId: z.uuid(), from: isoDate, to: isoDate }).strict();
+export interface BankReconciliationResponse {
+  fundId: string;
+  from: string;
+  to: string;
+  bookBalance: string;
+  bankBalance: string | null;
+  bankBalanceAt: string | null;
+  difference: string | null;
+  unmatchedIn: { count: number; amount: string };
+  unmatchedOut: { count: number; amount: string };
+  ignoredCount: number;
+  unmatchedPayments: BankPaymentCandidate[];
+  unmatchedPaymentCount: number;
   currency: string;
 }
