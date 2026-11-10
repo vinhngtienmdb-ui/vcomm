@@ -353,3 +353,33 @@ describe("TIEUCHI_NGHIEMTHU_88, 91: trả một phần theo đơn vị cơ sở,
     expect((await keeper.call("get", `/inventory/sales-orders/${order.id}`, { companyId: retail })).status).toBe(200);
   });
 });
+
+describe("TIEUCHI_NGHIEMTHU_88: dư nợ tạm tính trừ hàng khách trả", () => {
+  it("KICHBAN_KIEMTHU_184: đã giao tính vào dư nợ; hàng khách trả được trừ; đơn chờ duyệt không tính", async () => {
+    const created = await retailAdmin.call("post", "/crm/partners", { companyId: retail, body: { kind: "organization", name: "Cửa hàng Hạn mức", taxCode: "0320000004" } });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    const customerId = created.body.id as string;
+    const profile = await retailAdmin.call("put", `/crm/partners/${customerId}/profile`, {
+      companyId: retail,
+      body: { isCustomer: true, isSupplier: false, paymentTermDays: 30, creditLimit: "250000", version: 0 },
+    });
+    expect(profile.status, JSON.stringify(profile.body)).toBe(200);
+
+    // Giao 1 thùng (24 chai × 6.600 = 158.400 gồm thuế).
+    const first = (await submitted(orderBody([water("1")], { customerId }))).body;
+    expect(first.status).toBe("confirmed");
+    const issued = await deliver(keeper, first.id, [{ orderLineId: first.lines[0].id, quantity: "1" }]);
+    expect(issued.body.status, JSON.stringify(issued.body)).toBe("posted");
+    // Thêm 1 thùng: 316.800 > 250.000; đơn này chờ duyệt, không tính vào dư nợ của đơn sau.
+    const over = (await submitted(orderBody([water("1")], { customerId }))).body;
+    expect(over).toMatchObject({ status: "pending", exceptions: [expect.objectContaining({ kind: "credit_limit" })] });
+    // Khách trả 12 chai (79.200): dư nợ còn 79.200; thêm 1 thùng thành 237.600, trong hạn mức.
+    const returned = await keeper.call("post", "/inventory/sales-returns", {
+      companyId: retail,
+      body: { issueId: issued.body.id, documentDate: today, reason: "Khách trả", lines: [{ issueLineId: issued.body.lines[0].id, quantity: "12", serials: [] }] },
+    });
+    expect(returned.status, JSON.stringify(returned.body)).toBe(201);
+    expect((await keeper.call("post", `/inventory/documents/${returned.body.id}/submit`, { companyId: retail })).body.status).toBe("posted");
+    expect((await submitted(orderBody([water("1")], { customerId }))).body).toMatchObject({ status: "confirmed", exceptions: [] });
+  });
+});

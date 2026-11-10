@@ -453,7 +453,7 @@ export class SalesOrdersService implements OnModuleInit {
     return exception.detail;
   }
 
-  // Ngoại lệ: chiết khấu vượt mức; dưới giá vốn bình quân tại kho; vượt hạn mức công nợ theo dư nợ tạm tính (QUYTAC_NGHIEPVU_68, 69).
+  // Ngoại lệ: chiết khấu vượt mức; dưới giá vốn bình quân tại kho; vượt hạn mức công nợ theo dư nợ tạm tính, đã trừ hàng khách trả của các phiếu xuất trong số ngày được nợ (QUYTAC_NGHIEPVU_68, 69).
   private async exceptions(
     transaction: Executor,
     order: OrderRow,
@@ -488,6 +488,12 @@ export class SalesOrdersService implements OnModuleInit {
                       FROM inventory.document_lines dl JOIN inventory.documents d ON d.id = dl.document_id
                       JOIN sales.order_lines sl ON sl.id = dl.source_line_id JOIN sales.orders o ON o.id = sl.order_id
                       WHERE d.type = 'sales_issue' AND d.status = 'posted' AND o.company_id = ${order.company_id} AND o.customer_id = ${order.customer_id}
+                        AND d.document_date > ${this.permissionService.today()}::date - ${profile.payment_term_days}::int), 0)
+            - coalesce((SELECT sum(sl.total_amount * rl.base_quantity / sl.base_quantity)
+                      FROM inventory.document_lines rl JOIN inventory.documents r ON r.id = rl.document_id
+                      JOIN inventory.document_lines dl ON dl.id = rl.source_line_id JOIN inventory.documents d ON d.id = dl.document_id
+                      JOIN sales.order_lines sl ON sl.id = dl.source_line_id JOIN sales.orders o ON o.id = sl.order_id
+                      WHERE r.type = 'sales_return' AND r.status = 'posted' AND d.type = 'sales_issue' AND o.company_id = ${order.company_id} AND o.customer_id = ${order.customer_id}
                         AND d.document_date > ${this.permissionService.today()}::date - ${profile.payment_term_days}::int), 0)
           )::text AS value`)
         ).rows[0]!.value;
