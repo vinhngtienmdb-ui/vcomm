@@ -38,7 +38,7 @@ export const userList = (userIds: string[]): SQL =>
 export function ownedCustomer(scope: CustomerScope, companyId: SQL, partnerId: SQL): SQL {
   if (scope.kind === "all") return sql`TRUE`;
   return sql`EXISTS (SELECT 1 FROM crm.partner_profiles scope_profile WHERE scope_profile.company_id = ${companyId} AND scope_profile.partner_id = ${partnerId}
-    AND scope_profile.owner_user_id IN (${userList(scope.userIds)}))`;
+    AND scope_profile.is_customer AND scope_profile.owner_user_id IN (${userList(scope.userIds)}))`;
 }
 
 // Đơn bán thuộc phạm vi: khách thuộc phạm vi, hoặc người lập, người hưởng hoa hồng thuộc phạm vi.

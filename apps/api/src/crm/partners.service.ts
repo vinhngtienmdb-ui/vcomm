@@ -279,7 +279,32 @@ export class PartnersService implements OnApplicationBootstrap {
       }>(sql`
       SELECT id, code, name FROM crm.partners WHERE (${taxCode ?? null}::text IS NOT NULL AND tax_code = ${taxCode ?? null}) OR (${citizenId ?? null}::text IS NOT NULL AND citizen_id = ${citizenId ?? null}) LIMIT 1`)
     ).rows[0];
-    return { partner: row ?? null };
+    if (!row) return { partner: null };
+    return { partner: row, canClaim: granted.has(crmPermissions.manage) && (await this.claimable(actor, row.id)) };
+  }
+
+  // Đối tác nhận được: đang giao dịch, không phải công ty trong tập đoàn, chưa có hồ sơ tại công ty; người nhận chỉ xem khách của mình.
+  private async claimable(actor: Actor, id: string): Promise<boolean> {
+    if ((await customerScope(this.database, this.permissionService, actor)).kind === "all") return false;
+    const found = await this.database.execute(sql`
+      SELECT 1 FROM crm.partners p WHERE p.id = ${id} AND p.status = 'active' AND p.company_id IS NULL
+        AND NOT EXISTS (SELECT 1 FROM crm.partner_profiles pr WHERE pr.partner_id = p.id AND pr.company_id = ${actor.companyId})`);
+    return found.rows.length > 0;
+  }
+
+  // Nhận đối tác có sẵn làm khách của mình: hồ sơ khách hàng do mình phụ trách, thanh toán ngay, hạn mức 0 (QUYTAC_NGHIEPVU_135).
+  async claim(actor: Actor, id: string): Promise<PartnerResponse> {
+    await this.require(actor, crmPermissions.manage);
+    if (!(await this.claimable(actor, id))) throw new ApiError("BUSINESS_RULE", "partnerNotClaimable");
+    await this.database.transaction(async (transaction) => {
+      const inserted = await transaction.execute(sql`
+        INSERT INTO crm.partner_profiles (company_id, partner_id, is_customer, is_supplier, payment_term_days, credit_limit, owner_user_id, status, updated_by)
+        VALUES (${actor.companyId}, ${id}, true, false, 0, 0, ${actor.userId}, 'active', ${actor.userId}) ON CONFLICT (company_id, partner_id) DO NOTHING RETURNING partner_id`);
+      if (inserted.rows.length === 0) throw new ApiError("BUSINESS_RULE", "partnerNotClaimable");
+      await recordOwner(transaction, { companyId: actor.companyId, partnerId: id, userId: actor.userId, assignmentId: null, actorUserId: actor.userId });
+      await this.auditService.record({ ...crmAudit(actor), entityType: "partner_profile", action: "partner_profile.claim", entityId: id }, transaction);
+    });
+    return this.detail(actor, id);
   }
 
   async create(actor: Actor, input: PartnerInput): Promise<PartnerResponse> {
@@ -375,7 +400,10 @@ export class PartnersService implements OnApplicationBootstrap {
   // Xem đầy đủ số Căn cước công dân: cần quyền riêng, mỗi lần xem ghi nhật ký (QUYTAC_NGHIEPVU_59).
   async identity(actor: Actor, id: string): Promise<{ citizenId: string | null }> {
     await this.require(actor, crmPermissions.viewIdentity);
-    const row = (await this.database.execute<{ citizen_id: string | null }>(sql`SELECT citizen_id FROM crm.partners WHERE id = ${id}`)).rows[0];
+    const row = (
+      await this.database.execute<{ citizen_id: string | null }>(sql`
+      SELECT citizen_id FROM crm.partners p WHERE p.id = ${id} AND ${ownedCustomer(await customerScope(this.database, this.permissionService, actor), sql`${actor.companyId}::uuid`, sql`p.id`)}`)
+    ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
     if (row.citizen_id === null) return { citizenId: null };
     await this.auditService.record({
@@ -413,6 +441,8 @@ export class PartnersService implements OnApplicationBootstrap {
       }>(sql`SELECT status, company_id FROM crm.partners WHERE id = ${id}`)
     ).rows[0];
     if (!partner) throw new ApiError("NOT_FOUND", "notFound");
+    // Người không xem mọi khách chỉ sửa hồ sơ khách trong phạm vi của mình.
+    await this.detail(actor, id);
     const fields: Record<string, keyof Messages["errors"]> = {};
     if (partner.company_id === actor.companyId) fields.partnerId = "partnerIsSelf";
     if (input.customerGroupId) {

@@ -164,7 +164,12 @@ export class SalesOrdersService implements OnModuleInit {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
     const unit = await variantUnitFactor(this.database, actor.companyId, query.variantId, query.unitId);
     if (!unit) throw new ApiError("NOT_FOUND", "notFound");
-    const groupId = query.customerId ? await this.customerGroup(this.database, actor.companyId, query.customerId) : null;
+    // Khách ngoài phạm vi xem thì tra giá như đơn không có khách.
+    const visible =
+      query.customerId &&
+      (await this.database.execute(sql`SELECT 1 FROM crm.partners p WHERE p.id = ${query.customerId} AND ${ownedCustomer(await this.scope(actor), sql`${actor.companyId}::uuid`, sql`p.id`)}`)).rows
+        .length > 0;
+    const groupId = visible && query.customerId ? await this.customerGroup(this.database, actor.companyId, query.customerId) : null;
     const found = await lookupPrice(
       this.database,
       actor.companyId,
@@ -714,7 +719,8 @@ export class SalesOrdersService implements OnModuleInit {
       const customer = (
         await transaction.execute<{ customer_group_id: string | null }>(sql`
         SELECT pr.customer_group_id FROM crm.partners p JOIN crm.partner_profiles pr ON pr.partner_id = p.id AND pr.company_id = ${companyId}
-        WHERE p.id = ${input.customerId} AND p.status = 'active' AND pr.status = 'active' AND pr.is_customer AND ${ownedCustomer(scope, sql`${companyId}::uuid`, sql`p.id`)}`)
+        WHERE p.id = ${input.customerId} AND p.status = 'active' AND pr.status = 'active' AND pr.is_customer
+          AND (${ownedCustomer(scope, sql`${companyId}::uuid`, sql`p.id`)} OR EXISTS (SELECT 1 FROM sales.orders kept WHERE kept.id = ${orderId} AND kept.customer_id = p.id))`)
       ).rows[0];
       if (!customer) fields.customerId = "customerNotActive";
       else groupId = customer.customer_group_id;

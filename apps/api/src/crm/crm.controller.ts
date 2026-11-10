@@ -86,6 +86,12 @@ export class CrmController {
     return this.partners.identity(await this.actor(request, companyId), id);
   }
 
+  // CONG_VIEC_21: nhận đối tác có sẵn làm khách của mình (QUYTAC_NGHIEPVU_135).
+  @Post("partners/:id/claim")
+  async claim(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<PartnerResponse> {
+    return this.partners.claim(await this.actor(request, companyId), id);
+  }
+
   @Put("partners/:id/profile")
   async saveProfile(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PartnerResponse> {
     return this.partners.saveProfile(await this.actor(request, companyId), id, savePartnerProfileSchema.parse(body));

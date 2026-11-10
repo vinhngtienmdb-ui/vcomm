@@ -73,7 +73,12 @@ export default function CustomerAssignmentPage() {
               {item.createdByName} · {formatDateTime(item.createdAt)}
             </Row>
             {item.appliedAt && <Row label={t("appliedAt")}>{formatDateTime(item.appliedAt)}</Row>}
-            {item.applyError && <div className="khoi-canh-bao loi">{errors.has(item.applyError as never) ? errors(item.applyError as never) : item.applyError}</div>}
+            {item.applyError && (
+              <div className="khoi-canh-bao loi">
+                {errors.has(item.applyError as never) ? errors(item.applyError as never) : item.applyError}
+                {item.applyErrorDetail && <div>{t("changedCustomers", { names: item.applyErrorDetail })}</div>}
+              </div>
+            )}
             {error && <div className="khoi-canh-bao loi">{error}</div>}
             <div className="nhom-nut">
               {item.canSubmit && !editing && (

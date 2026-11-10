@@ -267,7 +267,9 @@
     "ownerNeedsAssignment": "Khách đã có nhân viên phụ trách; đổi nhân viên bằng phiếu giao khách.",
     "assignmentCustomerInvalid": "Khách không thuộc phạm vi giao của bạn hoặc không phải khách hàng đang giao dịch.",
     "assignmentSameOwner": "Khách đã do nhân viên này phụ trách.",
-    "assignmentOwnersChanged": "Có khách đã đổi nhân viên phụ trách; mở lại phiếu để kiểm tra."
+    "assignmentOwnersChanged": "Có khách đã đổi nhân viên phụ trách hoặc ngừng giao dịch trong lúc chờ duyệt.",
+    "partnerNotClaimable": "Đối tác đã có hồ sơ ở công ty hoặc không nhận được; đề nghị trưởng phòng giao khách.",
+    "assignmentTargetInactive": "Nhân viên nhận đã ngừng làm việc ở công ty."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1836,7 +1838,9 @@
     "ownerChangeHint": "Đổi nhân viên phụ trách bằng phiếu giao khách.",
     "ownerHistory": "Lịch sử phụ trách",
     "noOwnerHistory": "Chưa có nhân viên phụ trách.",
-    "ownerNow": "nay"
+    "ownerNow": "nay",
+    "claim": "Nhận làm khách của tôi",
+    "claimed": "Đã nhận đối tác làm khách của bạn."
   },
   "purchasingMenu": {
     "title": "Mua hàng",
@@ -3010,6 +3014,8 @@
     "backToList": "Danh sách",
     "appliedAt": "Áp dụng lúc",
     "currentOwner": "Đang phụ trách",
-    "previousOwner": "Phụ trách lúc gửi"
+    "previousOwner": "Phụ trách lúc gửi",
+    "changedCustomers": "Khách đã đổi: {names}",
+    "noAuthority": "Bạn không phải trưởng phòng và không có quyền giao khách."
   }
 }

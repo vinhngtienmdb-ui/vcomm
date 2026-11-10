@@ -43,10 +43,13 @@ type Row = {
   submitted_at: string | null;
   applied_at: string | null;
   apply_error: string | null;
+  apply_error_detail: string | null;
   approval_request_id: string | null;
   version: number;
 };
 type Authority = { all: boolean; users: string[]; manager: boolean };
+// Lý do không áp dụng được: khóa thông báo và danh sách khách (QUYTAC_NGHIEPVU_133).
+type ApplyFailure = { key: "assignmentOwnersChanged" | "assignmentTargetInactive"; detail: string | null };
 
 export const customerAssignmentType = "crm.customer_assignment";
 const editable: CustomerAssignmentStatus[] = ["draft", "rejected", "withdrawn"];
@@ -89,9 +92,10 @@ export class CustomerAssignmentsService implements OnModuleInit {
     });
   }
 
-  private async close(executor: Executor, id: string, status: "rejected" | "withdrawn", applyError: string | null): Promise<void> {
+  private async close(executor: Executor, id: string, status: "rejected" | "withdrawn", failure: ApplyFailure | null): Promise<void> {
     await executor.execute(sql`
-      UPDATE crm.customer_assignments SET status = ${status}, apply_error = ${applyError}, updated_at = now(), version = version + 1 WHERE id = ${id} AND status = 'pending'`);
+      UPDATE crm.customer_assignments SET status = ${status}, apply_error = ${failure?.key ?? null}, apply_error_detail = ${failure?.detail ?? null}, updated_at = now(), version = version + 1
+      WHERE id = ${id} AND status = 'pending'`);
   }
 
   // Người có quyền giao khách: mọi khách, mọi nhân viên; trưởng phòng: nhân viên phòng mình quản lý (QUYTAC_NGHIEPVU_131).
@@ -157,6 +161,7 @@ export class CustomerAssignmentsService implements OnModuleInit {
         previousOwnerName: line.previous_owner,
       })),
       applyError: row.apply_error,
+      applyErrorDetail: row.apply_error_detail,
       submittedAt: row.submitted_at ? new Date(row.submitted_at).toISOString() : null,
       appliedAt: row.applied_at ? new Date(row.applied_at).toISOString() : null,
       version: row.version,
@@ -217,7 +222,7 @@ export class CustomerAssignmentsService implements OnModuleInit {
     await this.validate(this.database, actor, authority, input);
     await this.database.transaction(async (transaction) => {
       const updated = await transaction.execute(sql`
-        UPDATE crm.customer_assignments SET target_user_id = ${input.targetUserId}, reason = ${input.reason}, status = 'draft', apply_error = NULL, updated_at = now(), version = version + 1
+        UPDATE crm.customer_assignments SET target_user_id = ${input.targetUserId}, reason = ${input.reason}, status = 'draft', apply_error = NULL, apply_error_detail = NULL, updated_at = now(), version = version + 1
         WHERE id = ${id} AND version = ${input.version ?? 0} AND status IN ('draft', 'rejected', 'withdrawn') RETURNING id`);
       if (updated.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       await this.writeLines(transaction, id, input.partnerIds);
@@ -244,12 +249,14 @@ export class CustomerAssignmentsService implements OnModuleInit {
     const authority = await this.requireAuthority(actor);
     const before = await this.detail(actor, id);
     if (!before.canSubmit) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
-    await this.validate(this.database, actor, authority, { targetUserId: before.targetUserId, reason: before.reason, partnerIds: before.lines.map((line) => line.partnerId) });
     await ensureSequence(this.database, this.sequences, actor, customerAssignmentType, "GK");
     await this.database.transaction(async (transaction) => {
       const locked = await transaction.execute<{ document_no: string | null }>(sql`
         SELECT document_no FROM crm.customer_assignments WHERE id = ${id} AND version = ${version} AND status IN ('draft', 'rejected', 'withdrawn') FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      // Khóa hồ sơ khách (theo thứ tự) rồi mới kiểm phạm vi và ghi nhân viên phụ trách lúc gửi: phiếu khác áp dụng giữa chừng không lọt qua.
+      await this.lockProfiles(transaction, actor.companyId, id);
+      await this.validate(transaction, actor, authority, { targetUserId: before.targetUserId, reason: before.reason, partnerIds: before.lines.map((line) => line.partnerId) });
       // Ghi nhân viên phụ trách lúc gửi để kiểm khi áp dụng.
       await transaction.execute(sql`
         UPDATE crm.customer_assignment_lines l SET previous_user_id = pr.owner_user_id FROM crm.partner_profiles pr
@@ -269,12 +276,12 @@ export class CustomerAssignmentsService implements OnModuleInit {
         if (!(error instanceof ApiError && error.messageKey === "policyNotFound")) throw error;
       }
       await transaction.execute(sql`
-        UPDATE crm.customer_assignments SET status = 'pending', document_no = ${documentNo}, approval_request_id = ${requestId}, apply_error = NULL, submitted_at = now(),
+        UPDATE crm.customer_assignments SET status = 'pending', document_no = ${documentNo}, approval_request_id = ${requestId}, apply_error = NULL, apply_error_detail = NULL, submitted_at = now(),
           submitted_by = ${actor.userId}, updated_at = now(), version = version + 1
         WHERE id = ${id}`);
       if (!requestId) {
         const failure = await this.apply(transaction, id, actor.userId);
-        if (failure) throw new ApiError("BUSINESS_RULE", "assignmentOwnersChanged");
+        if (failure) throw new ApiError("BUSINESS_RULE", failure.key);
       }
       await this.auditService.record({ ...audit(actor), action: "customer_assignment.submit", entityId: id, afterData: { documentNo, approvalRequestId: requestId } }, transaction);
     });
@@ -294,21 +301,31 @@ export class CustomerAssignmentsService implements OnModuleInit {
   }
 
   // Áp dụng: khách nào đổi nhân viên phụ trách so với lúc gửi thì không áp dụng phiếu, trả danh sách khách đó (QUYTAC_NGHIEPVU_133).
-  private async apply(executor: Executor, id: string, actorUserId: string): Promise<string | null> {
+  private async lockProfiles(executor: Executor, companyId: string, id: string): Promise<void> {
+    await executor.execute(sql`
+      SELECT 1 FROM crm.partner_profiles WHERE company_id = ${companyId} AND partner_id IN (SELECT partner_id FROM crm.customer_assignment_lines WHERE assignment_id = ${id})
+      ORDER BY partner_id FOR UPDATE`);
+  }
+
+  private async apply(executor: Executor, id: string, actorUserId: string): Promise<ApplyFailure | null> {
     const head = (
       await executor.execute<{ company_id: string; target_user_id: string; document_no: string; status: string }>(sql`
       SELECT company_id, target_user_id, document_no, status FROM crm.customer_assignments WHERE id = ${id} FOR UPDATE`)
     ).rows[0]!;
     if (head.status !== "pending") return null;
+    await this.lockProfiles(executor, head.company_id, id);
+    // Nhân viên nhận đã nghỉ, bị ngừng ở công ty trong lúc chờ duyệt thì không áp dụng.
+    const target = await executor.execute(sql`
+      SELECT 1 FROM core.user_company_memberships m JOIN core.users u ON u.id = m.user_id
+      WHERE m.user_id = ${head.target_user_id} AND m.company_id = ${head.company_id} AND m.status = 'active' AND u.status = 'active'`);
+    if (target.rows.length === 0) return { key: "assignmentTargetInactive", detail: null };
     const lines = await executor.execute<{ partner_id: string; name: string; previous_user_id: string | null; owner_user_id: string | null; usable: boolean }>(sql`
       SELECT l.partner_id, p.name, l.previous_user_id, pr.owner_user_id, (pr.partner_id IS NOT NULL AND pr.is_customer AND pr.status = 'active' AND p.status = 'active') AS usable
       FROM crm.customer_assignment_lines l JOIN crm.partners p ON p.id = l.partner_id
         LEFT JOIN crm.partner_profiles pr ON pr.partner_id = l.partner_id AND pr.company_id = ${head.company_id}
       WHERE l.assignment_id = ${id} ORDER BY p.name FOR UPDATE OF l`);
-    await executor.execute(sql`
-      SELECT 1 FROM crm.partner_profiles WHERE company_id = ${head.company_id} AND partner_id IN (SELECT partner_id FROM crm.customer_assignment_lines WHERE assignment_id = ${id}) FOR UPDATE`);
     const changed = lines.rows.filter((line) => !line.usable || line.owner_user_id !== line.previous_user_id);
-    if (changed.length > 0) return `Khách đã đổi nhân viên phụ trách hoặc ngừng giao dịch: ${changed.map((line) => line.name).join(", ")}`;
+    if (changed.length > 0) return { key: "assignmentOwnersChanged", detail: changed.map((line) => line.name).join(", ") };
     for (const line of lines.rows) {
       await executor.execute(sql`
         UPDATE crm.partner_profiles SET owner_user_id = ${head.target_user_id}, updated_at = now(), updated_by = ${actorUserId}, version = version + 1

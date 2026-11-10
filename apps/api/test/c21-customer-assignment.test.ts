@@ -235,7 +235,7 @@ describe("CONG_VIEC_21 phiếu giao khách", () => {
     // Khách đổi nhân viên trong lúc chờ duyệt (phiếu khác đã áp dụng).
     await pool.query("UPDATE crm.partner_profiles SET owner_user_id = $1 WHERE partner_id = $2 AND company_id = $3", [ids.sellerB, customers.A, retail]);
     const rejected = await decide();
-    expect(rejected).toMatchObject({ status: "rejected", canEdit: true, applyError: "Khách đã đổi nhân viên phụ trách hoặc ngừng giao dịch: Khách A" });
+    expect(rejected).toMatchObject({ status: "rejected", canEdit: true, applyError: "assignmentOwnersChanged", applyErrorDetail: "Khách A" });
     expect(await ownerOf(customers.A!)).toBe(ids.sellerB);
     await pool.query("UPDATE crm.partner_profiles SET owner_user_id = $1 WHERE partner_id = $2 AND company_id = $3", [ids.manager, customers.A, retail]);
     const edited = await as(
@@ -263,5 +263,43 @@ describe("CONG_VIEC_21 phiếu giao khách", () => {
     ]);
     expect((await as(sellerB, "get", `/crm/partners/${customers.A}/owner-history`)).status).toBe(404);
     expect((await as(sellerA, "get", `/crm/partners/${customers.A}/owner-history`)).status).toBe(200);
+  });
+});
+
+describe("CONG_VIEC_21 sửa lỗi rà soát", () => {
+  it("KICHBAN_KIEMTHU_286: nhận đối tác có sẵn làm khách; nhân viên nhận ngừng làm việc thì phiếu bị từ chối; sửa đơn nháp của khách đã chuyển đi; giá không lấy nhóm khách ngoài phạm vi", async () => {
+    // Đối tác có sẵn trong tập đoàn, công ty chưa có hồ sơ: nhân viên nhận làm khách của mình.
+    const shared = await as(retailAdmin, "post", "/crm/partners", { kind: "organization", name: "Đối tác dùng chung", taxCode: "0321000010" });
+    const lookup = await as(sellerB, "get", "/crm/partners/lookup?taxCode=0321000010");
+    expect(lookup.body).toMatchObject({ partner: { id: shared.body.id }, canClaim: true });
+    expect((await as(retailAdmin, "get", "/crm/partners/lookup?taxCode=0321000010")).body.canClaim).toBe(false);
+    const claimed = await as(sellerB, "post", `/crm/partners/${shared.body.id}/claim`);
+    expect(claimed.status, JSON.stringify(claimed.body)).toBe(201);
+    expect(claimed.body.profile).toMatchObject({ isCustomer: true, paymentTermDays: 0, ownerUserName: "Bán Hàng B" });
+    const again = await as(sellerA, "post", `/crm/partners/${shared.body.id}/claim`);
+    expect(again.status).toBe(409);
+    expect((await as(sellerA, "get", "/crm/partners/lookup?taxCode=0321000010")).body.canClaim).toBe(false);
+
+    // Nhân viên nhận ngừng ở công ty trong lúc chờ duyệt: phiếu bị từ chối, khách giữ nguyên.
+    const draft = await as(manager, "post", "/crm/customer-assignments", assignment(ids.manager!, [customers.A!]));
+    const pending = await as(manager, "post", `/crm/customer-assignments/${draft.body.id}/submit`, { version: draft.body.version });
+    expect(pending.body.status).toBe("pending");
+    await pool.query("UPDATE core.user_company_memberships SET status = 'inactive' WHERE user_id = $1 AND company_id = $2", [ids.manager, retail]);
+    const requestId = (await pool.query<{ approval_request_id: string }>("SELECT approval_request_id FROM crm.customer_assignments WHERE id = $1", [draft.body.id])).rows[0]!.approval_request_id;
+    expect((await retailAdmin.call("post", `/approval-requests/${requestId}/decisions`, { body: { decision: "approved", comment: "" } })).status).toBe(200);
+    await application.get(OutboxService).dispatchPending();
+    await pool.query("UPDATE core.user_company_memberships SET status = 'active' WHERE user_id = $1 AND company_id = $2", [ids.manager, retail]);
+    expect((await as(retailAdmin, "get", `/crm/customer-assignments/${draft.body.id}`)).body).toMatchObject({ status: "rejected", applyError: "assignmentTargetInactive" });
+    expect(await ownerOf(customers.A!)).toBe(ids.sellerA);
+
+    // Đơn nháp do nhân viên B lập cho khách B; khách B chuyển cho nhân viên A: nhân viên B vẫn sửa được đơn với khách đang có.
+    await order("draftOfB", customers.B!, ids.sellerB!);
+    await pool.query("UPDATE crm.partner_profiles SET owner_user_id = $1 WHERE partner_id = $2 AND company_id = $3", [ids.sellerA, customers.B, retail]);
+    const line = { variantId: "00000000-0000-4000-8000-000000000000", unitId: "00000000-0000-4000-8000-000000000000", quantity: "1" };
+    const kept = await as(sellerB, "patch", `/sales/orders/${orders.draftOfB}`, { customerId: customers.B, channelId, warehouseId, orderDate: today, lines: [line], version: 1 });
+    expect(kept.status).toBe(400);
+    expect(kept.body.error.fields.customerId).toBeUndefined();
+    const switched = await as(sellerB, "patch", `/sales/orders/${orders.draftOfB}`, { customerId: customers.A, channelId, warehouseId, orderDate: today, lines: [line], version: 1 });
+    expect(switched.body.error.fields.customerId).toBeDefined();
   });
 });

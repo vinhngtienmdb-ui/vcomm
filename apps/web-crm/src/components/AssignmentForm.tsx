@@ -29,12 +29,19 @@ export function AssignmentForm({ current, onSaved, onCancel }: { current: Custom
   if (search) parameters.set("search", search);
   const found = useApi<PageResponse<PartnerListItem>>(`/crm/partners?${parameters}`);
   const users = options.state.kind === "ready" ? options.state.data.users : [];
-  const lineError = Object.entries(fields).find(([key]) => key.startsWith("partnerIds"));
+  // Lỗi từng khách trả theo vị trí trong lần gửi gần nhất: đổi về mã khách để không lệch khi bỏ khách.
+  const [sentIds, setSentIds] = useState<string[]>([]);
+  const errorOf = (partnerId: string) => {
+    const index = sentIds.indexOf(partnerId);
+    return index < 0 ? undefined : fields[`partnerIds.${index}`];
+  };
 
   function submit(event: FormEvent) {
     event.preventDefault();
     void run(async () => {
-      const body = { targetUserId, reason, partnerIds: picked.map((item) => item.id), ...(current ? { version: current.version } : {}) };
+      const partnerIds = picked.map((item) => item.id);
+      setSentIds(partnerIds);
+      const body = { targetUserId, reason, partnerIds, ...(current ? { version: current.version } : {}) };
       const saved = await apiFetch<CustomerAssignmentResponse>(current ? `/crm/customer-assignments/${current.id}` : "/crm/customer-assignments", {
         method: current ? "PATCH" : "POST",
         body: JSON.stringify(body),
@@ -43,6 +50,8 @@ export function AssignmentForm({ current, onSaved, onCancel }: { current: Custom
     });
   }
 
+  // Không phải trưởng phòng, không có quyền giao khách: báo rõ thay vì để biểu mẫu trống.
+  if (options.state.kind === "forbidden") return <div className="khoi-canh-bao canh-bao">{t("noAuthority")}</div>;
   return (
     <form onSubmit={submit} noValidate className="the" style={{ display: "grid", gap: "var(--khoang-4)" }}>
       <Field id="gk-nhan" label={`${t("target")} *`} error={fields.targetUserId}>
@@ -60,20 +69,20 @@ export function AssignmentForm({ current, onSaved, onCancel }: { current: Custom
       </Field>
       <div style={{ display: "grid", gap: "var(--khoang-2)" }}>
         <strong>{t("picked", { count: picked.length })}</strong>
-        {(fields.partnerIds || lineError) && <span className="loi-o">{fields.partnerIds ?? lineError?.[1]}</span>}
+        {fields.partnerIds && <span className="loi-o">{fields.partnerIds}</span>}
         {picked.length === 0 ? (
           <span className="chu-thich">{t("nonePicked")}</span>
         ) : (
           <ul style={{ margin: 0, paddingLeft: "var(--khoang-4)" }}>
-            {picked.map((item, index) => (
+            {picked.map((item) => (
               <li key={item.id}>
-                <span className={fields[`partnerIds.${index}`] ? "loi-o" : undefined}>
+                <span className={errorOf(item.id) ? "loi-o" : undefined}>
                   {item.code} · {item.name} · {item.ownerUserName ?? t("noOwner")}
                 </span>{" "}
                 <button type="button" className="nut phu" onClick={() => setPicked(picked.filter((other) => other.id !== item.id))}>
                   {t("remove")}
                 </button>
-                {fields[`partnerIds.${index}`] && <div className="loi-o">{fields[`partnerIds.${index}`]}</div>}
+                {errorOf(item.id) && <div className="loi-o">{errorOf(item.id)}</div>}
               </li>
             ))}
           </ul>

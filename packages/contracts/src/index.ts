@@ -2002,6 +2002,8 @@ export interface PartnerResponse extends PartnerListItem {
 export const partnerLookupQuerySchema = z.object({ taxCode: z.string().trim().optional(), citizenId: z.string().trim().optional() }).strict();
 export interface PartnerLookupResponse {
   partner: { id: string; code: string; name: string } | null;
+  // CONG_VIEC_21: người chỉ xem khách của mình nhận được đối tác chưa có hồ sơ tại công ty (QUYTAC_NGHIEPVU_135).
+  canClaim?: boolean;
 }
 export const savePartnerProfileSchema = z
   .object({
@@ -3751,7 +3753,9 @@ export interface CustomerAssignmentLine {
 export interface CustomerAssignmentResponse extends CustomerAssignmentListItem {
   targetUserId: string;
   lines: CustomerAssignmentLine[];
+  // Khóa thông báo (errors) và danh sách khách đã đổi nhân viên phụ trách.
   applyError: string | null;
+  applyErrorDetail: string | null;
   submittedAt: string | null;
   appliedAt: string | null;
   version: number;

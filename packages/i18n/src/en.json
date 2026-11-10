@@ -267,7 +267,9 @@
     "ownerNeedsAssignment": "This customer already has a sales owner; change it with a customer assignment.",
     "assignmentCustomerInvalid": "The customer is outside your assignment scope or is not an active customer.",
     "assignmentSameOwner": "This customer is already owned by this staff member.",
-    "assignmentOwnersChanged": "Some customers changed owner; reopen the assignment to check."
+    "assignmentOwnersChanged": "Some customers changed owner or became inactive while the assignment was pending.",
+    "partnerNotClaimable": "This partner already has a profile in the company or cannot be claimed; ask your manager to assign it.",
+    "assignmentTargetInactive": "The receiving staff member is no longer active in the company."
   },
   "login": {
     "title": "Sign in",
@@ -1836,7 +1838,9 @@
     "ownerChangeHint": "Change the sales owner with a customer assignment.",
     "ownerHistory": "Owner history",
     "noOwnerHistory": "No sales owner yet.",
-    "ownerNow": "now"
+    "ownerNow": "now",
+    "claim": "Claim as my customer",
+    "claimed": "Partner claimed as your customer."
   },
   "purchasingMenu": {
     "title": "Purchasing",
@@ -3010,6 +3014,8 @@
     "backToList": "List",
     "appliedAt": "Applied at",
     "currentOwner": "Current owner",
-    "previousOwner": "Owner when submitted"
+    "previousOwner": "Owner when submitted",
+    "changedCustomers": "Changed customers: {names}",
+    "noAuthority": "You are not a department manager and cannot assign customers."
   }
 }

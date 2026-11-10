@@ -9,7 +9,8 @@ CREATE TABLE crm.customer_assignments (
     reason              text        NOT NULL,
     status              text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'applied', 'rejected', 'withdrawn')),
     approval_request_id uuid,
-    apply_error         text,
+    apply_error         text,                                                     -- khóa thông báo lý do không áp dụng được
+    apply_error_detail  text,                                                     -- danh sách khách đã đổi nhân viên phụ trách
     created_by          uuid        NOT NULL REFERENCES core.users(id),
     submitted_by        uuid        REFERENCES core.users(id),
     created_at          timestamptz NOT NULL DEFAULT now(),
