@@ -3,7 +3,7 @@
 - Mô tả: Nhận giao dịch ngân hàng qua dịch vụ trung gian chọn theo từng công ty (webhook), tự ghép với phiếu thu chi đã ghi sổ của quỹ ngân hàng; tiền vào chưa có phiếu thu thì gợi ý khách hàng, kế toán xác nhận tạo phiếu thu; đối chiếu số dư sổ sách với ngân hàng.
 - Phiên bản: 0.3
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Bản nháp. Người dùng xác nhận thiết kế ngày 2026-11-10; đã lập trình lát L0, L1; bản 0.3 sửa đặc tả khớp mã sau rà soát (commit b3ffdd5).
+- Trạng thái: Đã nghiệm thu ngày 2026-11-10, chờ phát hành.
 - Nguồn: tài liệu `04` mục 6, `05` mục 2.1; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`.
 
 ## 1. Mục tiêu
