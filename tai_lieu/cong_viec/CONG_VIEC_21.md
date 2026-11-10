@@ -3,7 +3,7 @@
 - Mô tả: Nhân viên kinh doanh chỉ xem khách hàng mình phụ trách và đơn bán của các khách đó; trưởng phòng xem, giao khách của nhân viên trong phòng; giao, chuyển khách bằng phiếu giao khách theo chính sách duyệt của công ty; lưu lịch sử phụ trách.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Chờ nghiệm thu. Người dùng xác nhận thiết kế ngày 2026-11-10.
+- Trạng thái: Đã nghiệm thu 2026-11-10, chờ phát hành.
 - Nguồn: tài liệu `05` mục 2.1 (gán khách hàng cho nhân viên kinh doanh); THAY_DOI_12; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`.
 
 ## 1. Mục tiêu
