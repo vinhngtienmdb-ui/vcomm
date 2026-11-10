@@ -265,7 +265,7 @@ apps/
   web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm, web-purchasing, web-sales, web-finance...).
                         Chỉ gọi API, không truy cập cơ sở dữ liệu.
   mobile-warehouse/     Ứng dụng kho (Expo).
-  mobile-sales/         Ứng dụng nhân viên kinh doanh (Expo).
+  mobile-vcomm/         Ứng dụng VComm cho người mua, có phần kinh doanh cho nhân viên kinh doanh (Expo; CONG_VIEC_23).
 packages/
   ui/                   Thành phần giao diện dùng chung, sinh từ tài liệu 15.
   auth/                 Đăng nhập một lần và kiểm tra quyền phía giao diện.

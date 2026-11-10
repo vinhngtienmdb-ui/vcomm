@@ -1,16 +1,17 @@
-// Phiên đăng nhập của ứng dụng: người dùng, công ty đang chọn, quyền (QUYTAC_NGHIEPVU_136).
-import type { AppLoginResponse, MeResponse } from "contracts";
+// Phiên đăng nhập của ứng dụng VComm: tài khoản người mua (QUYTAC_NGHIEPVU_147).
+import type { AppLoginResponse, BuyerMeResponse } from "contracts";
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { api, loadStoredSession, setSignedOutHandler, storeCompany, storeTokens } from "./api";
+import { api, loadStoredSession, setSignedOutHandler, storeTokens } from "./api";
 
 type Stage = "loading" | "signedOut" | "mfa" | "mfaEnroll" | "ready";
 type Session = {
   stage: Stage;
-  me: MeResponse | null;
-  can: (permission: string) => boolean;
-  login: (identifier: string, password: string) => Promise<void>;
+  me: BuyerMeResponse | null;
+  // Đăng ký, đăng nhập bằng mật khẩu hoặc OTP đều trả phiên dạng token.
+  signIn: (path: string, body: object) => Promise<void>;
   verifyMfa: (code: string, backup: boolean) => Promise<void>;
-  switchCompany: (companyId: string) => Promise<void>;
+  reload: () => Promise<void>;
+  setMe: (me: BuyerMeResponse) => void;
   logout: () => Promise<void>;
 };
 
@@ -18,12 +19,10 @@ const SessionContext = createContext<Session | null>(null);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [stage, setStage] = useState<Stage>("loading");
-  const [me, setMe] = useState<MeResponse | null>(null);
+  const [me, setMe] = useState<BuyerMeResponse | null>(null);
 
-  const loadMe = useCallback(async () => {
-    const loaded = await api<MeResponse>("/me");
-    if (loaded.currentCompanyId) await storeCompany(loaded.currentCompanyId);
-    setMe(loaded);
+  const reload = useCallback(async () => {
+    setMe(await api<BuyerMeResponse>("/buyer/me"));
     setStage("ready");
   }, []);
 
@@ -34,38 +33,35 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     });
     void (async () => {
       if (!(await loadStoredSession())) return setStage("signedOut");
-      await loadMe().catch(() => setStage("signedOut"));
+      await reload().catch(() => setStage("signedOut"));
     })();
-  }, [loadMe]);
+  }, [reload]);
 
   const value = useMemo<Session>(
     () => ({
       stage,
       me,
-      can: (permission) => me?.permissions.includes(permission) ?? false,
-      login: async (identifier, password) => {
-        const result = await api<AppLoginResponse>("/auth/app/login", { method: "POST", json: { identifier, password } });
+      signIn: async (path, body) => {
+        const result = await api<AppLoginResponse>(path, { method: "POST", json: body });
         await storeTokens(result.tokens);
+        // Tài khoản nhân viên bắt buộc xác thực hai lớp vẫn phải nhập mã như web.
         if (result.mfaRequired) return setStage(result.mfaEnrolled ? "mfa" : "mfaEnroll");
-        await loadMe();
+        await reload();
       },
       verifyMfa: async (code, backup) => {
         await api("/auth/mfa/verify", { method: "POST", json: backup ? { backupCode: code } : { code } });
-        await loadMe();
+        await reload();
       },
-      switchCompany: async (companyId) => {
-        await storeCompany(companyId);
-        await loadMe();
-      },
+      reload,
+      setMe,
       logout: async () => {
         await api("/auth/logout", { method: "POST" }).catch(() => undefined);
         await storeTokens(null);
-        await storeCompany(null);
         setMe(null);
         setStage("signedOut");
       },
     }),
-    [stage, me, loadMe],
+    [stage, me, reload],
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

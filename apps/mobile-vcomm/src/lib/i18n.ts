@@ -21,7 +21,7 @@ export function errorText(key: string): string {
   return table[key] ?? key;
 }
 
-export function money(amount: string | number, currency = "VND"): string {
-  const value = Number(amount);
-  return `${new Intl.NumberFormat(locale === "vi" ? "vi-VN" : "en-US", { maximumFractionDigits: currency === "VND" ? 0 : 2 }).format(value)} ${currency === "VND" ? "đ" : currency}`;
+// Ngày theo giờ Việt Nam, dạng 10/11/2026.
+export function shortDate(iso: string): string {
+  return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-GB", { timeZone: "Asia/Ho_Chi_Minh", day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(iso));
 }

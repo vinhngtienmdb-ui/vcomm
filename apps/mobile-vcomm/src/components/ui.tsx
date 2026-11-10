@@ -96,7 +96,7 @@ export const styles = StyleSheet.create({
 export function Choice<T extends string>({ label, value, options, onChange }: { label: string; value: T | null; options: { value: T; label: string }[]; onChange: (value: T) => void }) {
   return (
     <View style={{ gap: space[1] }}>
-      <Text style={styles.label}>{label}</Text>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space[2] }}>
         {options.map((option) => {
           const selected = option.value === value;
