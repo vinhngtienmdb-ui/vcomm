@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_19: Lập trình lát L0, L1 Đối soát thu hộ COD, cổng thanh toán; tài liệu; rà soát độc lập, sửa 8 mục; kiểm thử 274/274 đạt; pull request số 54; chờ nghiệm thu.
 - CONG_VIEC_18: Lập trình lát L0, L1 Đối soát ngân hàng (kết nối, webhook, tự ghép, gợi ý khách, lập phiếu thu, ghép tay, bỏ qua, đối chiếu số dư); tài liệu; tự rà soát, rà soát độc lập, sửa 14 mục; kiểm thử 266/266 đạt; pull request số 53; người dùng nghiệm thu 2026-11-10.
 - CONG_VIEC_18, CONG_VIEC_19: Lập công việc Đối soát ngân hàng và Đối soát thu hộ COD, cổng thanh toán (MODULE_06, phần 6, 7), mức Lớn.
 - CONG_VIEC_17: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 52 (sau số 51).
@@ -47,6 +48,7 @@
 
 ### Quyết định
 
+- Đối soát thu hộ – người quyết định: người dùng, ngày 2026-11-10: khách coi là đã trả khi ghi sổ bảng đối soát (nợ chuyển sang đơn vị thu hộ, 1388); tiền thu hộ khác số còn nợ cho ghi sổ kèm cảnh báo (thiếu còn nợ, thừa thành trả trước); duyệt theo chính sách duyệt công ty.
 - Đối soát ngân hàng – người quyết định: người dùng, ngày 2026-11-10: tự ghép lệch ngày tối đa 3 ngày; webhook ngân hàng đúng khóa không bị giới hạn tần suất, chỉ đếm lần sai khóa theo địa chỉ IP.
 - Đối soát (MODULE_06) – người quyết định: người dùng, ngày 2026-11-10: làm cả sao kê ngân hàng, COD, cổng thanh toán; giao dịch ngân hàng nhận qua dịch vụ trung gian chọn theo từng công ty (lớp kết nối chung, bộ giả lập); tiền vào chưa có phiếu thu thì hệ thống gợi ý, kế toán xác nhận; COD, cổng thanh toán nhập bảng đối soát từ tệp theo mẫu chung (chưa có tệp mẫu của đơn vị); phí thu hộ, phí cổng thanh toán vào chi phí bán hàng.
 - Hoa hồng (CONG_VIEC_17) – người quyết định: người dùng, ngày 2026-11-10, khi nghiệm thu: đơn không có khách gán cho người lập đơn bất kể cách gán; đơn bán cho công ty con trong tập đoàn không tính hoa hồng; phiếu chi hoàn tiền giữ cách trừ vào khoản có cũ nhất (giới hạn đã biết).

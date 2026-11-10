@@ -183,6 +183,22 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_19
+
+- Phạm vi: lát L0, L1 (đơn vị thu hộ; nhập bảng đối soát từ tệp Excel mẫu chung, ghép đơn bán, lỗi chặn, cảnh báo chênh lệch, bỏ dòng, nhập lại, bỏ bảng nháp; gửi theo chính sách duyệt, rút; ghi sổ: trừ nợ khách theo đơn, trả trước, nợ đơn vị thu hộ bằng thực nhận, bút toán 1388, 131, 6418/6421; hoa hồng theo tiền thu hộ; phiếu thu của đơn vị thu hộ hạch toán 1388); MAN_HINH_60, 61; API_102 đến API_105. Sửa nhãn nguồn bút toán hoa hồng trên MAN_HINH_51. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22. Chưa có tệp đối soát thật của nhà vận chuyển, cổng thanh toán.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --prod --audit-level high`; database migration 0019 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright (Quản trị công ty VCR): khai đơn vị, nhập tệp có dòng lỗi, bỏ dòng, gửi, ghi sổ, xem bút toán (máy tính và điện thoại 375 điểm ảnh, không cuộn ngang, không có yêu cầu lỗi).
+- Kết quả: 274 đạt / 0 không đạt / 274 kịch bản tự động (33 tệp; phần mới: `c19-collection-statements` 8, KICHBAN_KIEMTHU_261 đến 267, 269). KICHBAN_KIEMTHU_268 (thủ công trên trình duyệt) đạt.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_139 đến 143 (bắt buộc) – Đạt. TIEUCHI_NGHIEMTHU_144 (mong muốn) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod --audit-level high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 54).
+  - C3 phân quyền: Đạt – xem, nhập gửi, khai đơn vị cần phạm vi công ty; khai đơn vị là quyền nhạy cảm; nhân viên bán hàng nhận 403; chỉ người gửi được rút.
+  - C4 toàn vẹn dữ liệu: Đạt – tệp tối đa 5 MB, 5.000 dòng, chỉ đọc giá trị ô; ghép đơn trong công ty, bỏ đơn đối ứng; khóa theo đơn vị thu hộ khi nhập, gửi, ghi sổ; khóa công nợ khách, đơn vị khi ghi sổ; kiểm lại lỗi khi ghi sổ sau duyệt; bút toán cân Nợ Có; truy vấn tham số ràng buộc.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 1 lỗi Cao (phiếu thu của đơn vị thu hộ ghi Có 131 trong khi nợ đơn vị nằm ở 1388, sổ cái lệch sổ công nợ), 4 mục Trung bình (bảng nháp trùng mã làm bảng đã duyệt bị từ chối; hai bảng cùng mã gửi đồng thời cùng ghi sổ; thiếu khóa công nợ khi ghi sổ; người gửi khác người lập không rút được), 4 mục Thấp (đọc số tiền có dấu chấm khi tiền tệ có số lẻ; mã dạng số dài bị làm tròn; lý do lỗi hiện mã thô; giải nén toàn bộ tệp trước khi đếm dòng); đã sửa 8 mục, giữ lại mục giải nén tệp (rủi ro chung với nhập sản phẩm, ghi đặc tả mục 16). Khi cập nhật tài liệu phát hiện 2 câu thông báo sai ngữ cảnh (1.000 dòng, thiếu định khoản nói về hoa hồng), đã sửa. Khi thử trên trình duyệt phát hiện nhãn nguồn bút toán hoa hồng (CONG_VIEC_17) hiện mã thô, đã sửa.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
+- Kết luận: Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_18
 
 - Phạm vi: lát L0, L1 (kết nối quỹ ngân hàng với dịch vụ trung gian: bộ giả lập, SePay; webhook công khai có khóa Apikey, chống trùng, lưu nội dung gốc; tự ghép với phiếu thu chi đã ghi sổ; gợi ý khách, xác nhận lập phiếu thu; ghép tay, bỏ qua, bỏ ghép; đối chiếu số dư); MAN_HINH_58, 59; API_95 đến API_101. Hồi quy: toàn bộ kiểm thử tự động của dự án.
