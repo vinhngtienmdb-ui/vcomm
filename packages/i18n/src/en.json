@@ -187,7 +187,8 @@
     "internalSerialNotShipped": "The serial is not on the original delivery.",
     "internalShortageReasonRequired": "A reason is required when receiving less than shipped.",
     "internalLineMissing": "Enter the received quantity for every line.",
-    "internalReceiptOnly": "An internal purchase order is received only through the receipt created from the seller's delivery."
+    "internalReceiptOnly": "An internal purchase order is received only through the receipt created from the seller's delivery.",
+    "promotionLimitExceeded": "The promotion has run out of budget or gift sets. Save the order again to recalculate promotions, then submit."
   },
   "login": {
     "title": "Sign in",

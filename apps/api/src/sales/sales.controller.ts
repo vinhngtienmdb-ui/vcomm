@@ -1,6 +1,12 @@
 // API_77, API_78: đơn bán, cài đặt bán hàng (CONG_VIEC_08). Quyền chi tiết kiểm trong service.
 import { Body, Controller, Get, Headers, Inject, Param, Patch, Post, Put, Query, Req } from "@nestjs/common";
 import {
+  promotionListQuerySchema,
+  savePromotionSchema,
+  stopPromotionSchema,
+  type PromotionListItem,
+  type PromotionOptionsResponse,
+  type PromotionResponse,
   closeSalesOrderSchema,
   confirmCounterpartSchema,
   rejectCounterpartSchema,
@@ -26,6 +32,7 @@ import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { requireSalesPermission, salesPermissions } from "./sales-context";
+import { PromotionsService } from "./promotions.service";
 import { SalesOrdersService } from "./sales-orders.service";
 
 const itemSearchSchema = z.object({ search: z.string().trim().min(1).max(100) }).strict();
@@ -35,6 +42,7 @@ export class SalesController {
   constructor(
     private readonly permissionService: PermissionService,
     private readonly orders: SalesOrdersService,
+    private readonly promotions: PromotionsService,
     @Inject(DATABASE) private readonly database: Database,
   ) {}
 
@@ -119,5 +127,47 @@ export class SalesController {
   @Post("orders/:id/counterpart-reject")
   async rejectCounterpart(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<SalesOrderResponse> {
     return this.orders.rejectCounterpart(await this.actor(request, companyId), id, rejectCounterpartSchema.parse(body));
+  }
+
+  // API_83 (CONG_VIEC_12): chương trình khuyến mãi.
+  @Get("promotions/options")
+  async promotionOptions(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<PromotionOptionsResponse> {
+    return this.promotions.options(await this.actor(request, companyId));
+  }
+
+  @Get("promotions")
+  async promotionList(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<PromotionListItem[]> {
+    return this.promotions.list(await this.actor(request, companyId), promotionListQuerySchema.parse(query).status);
+  }
+
+  @Get("promotions/:id")
+  async promotionDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<PromotionResponse> {
+    return this.promotions.detail(await this.actor(request, companyId), id);
+  }
+
+  @Post("promotions")
+  async createPromotion(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PromotionResponse> {
+    return this.promotions.create(await this.actor(request, companyId), savePromotionSchema.parse(body));
+  }
+
+  @Patch("promotions/:id")
+  async updatePromotion(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PromotionResponse> {
+    return this.promotions.update(await this.actor(request, companyId), id, savePromotionSchema.parse(body));
+  }
+
+  @Post("promotions/:id/submit")
+  async submitPromotion(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<PromotionResponse> {
+    return this.promotions.submit(await this.actor(request, companyId), id);
+  }
+
+  @Post("promotions/:id/withdraw")
+  async withdrawPromotion(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<PromotionResponse> {
+    return this.promotions.withdraw(await this.actor(request, companyId), id);
+  }
+
+  @Post("promotions/:id/stop")
+  async stopPromotion(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PromotionResponse> {
+    const parsed = stopPromotionSchema.parse(body);
+    return this.promotions.stop(await this.actor(request, companyId), id, parsed.reason, parsed.version);
   }
 }

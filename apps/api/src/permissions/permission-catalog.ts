@@ -76,6 +76,8 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "sales.order.view", appCode: "sales", nameVi: "Xem đơn bán", nameEn: "View sales orders", isSensitive: false },
   { code: "sales.order.manage", appCode: "sales", nameVi: "Lập, sửa, gửi, hủy, đóng đơn bán", nameEn: "Manage sales orders", isSensitive: false },
   { code: "sales.settings.manage", appCode: "sales", nameVi: "Cài đặt bán hàng", nameEn: "Manage sales settings", isSensitive: false },
+  { code: "sales.promotion.view", appCode: "sales", nameVi: "Xem chương trình khuyến mãi", nameEn: "View promotions", isSensitive: false },
+  { code: "sales.promotion.manage", appCode: "sales", nameVi: "Lập, gửi duyệt, dừng chương trình khuyến mãi", nameEn: "Manage promotions", isSensitive: false },
   { code: "inventory.sales.issue", appCode: "inventory", nameVi: "Xuất giao hàng, nhận hàng trả lại", nameEn: "Issue sales deliveries and receive returns", isSensitive: false },
   { code: "inventory.purchase.receive", appCode: "inventory", nameVi: "Nhập mua, trả hàng nhà cung cấp", nameEn: "Receive purchases and return to suppliers", isSensitive: false },
 ];
@@ -116,6 +118,8 @@ const companyAdminPermissions = [
   "sales.order.view",
   "sales.order.manage",
   "sales.settings.manage",
+  "sales.promotion.view",
+  "sales.promotion.manage",
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [
@@ -149,7 +153,7 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     code: "salesperson",
     nameVi: "Nhân viên bán hàng",
     nameEn: "Salesperson",
-    permissionCodes: ["sales.access", "sales.order.view", "sales.order.manage", "crm.access", "crm.partner.view", "crm.partner.manage", "catalog.access", "catalog.price.view"],
+    permissionCodes: ["sales.access", "sales.order.view", "sales.order.manage", "sales.promotion.view", "crm.access", "crm.partner.view", "crm.partner.manage", "catalog.access", "catalog.price.view"],
   },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },
 ];
@@ -168,6 +172,7 @@ export const documentTypeCatalog = [
   { code: "purchasing.requisition", appCode: "purchasing", nameVi: "Đề nghị mua", nameEn: "Purchase requisition", requiresApproval: true },
   { code: "purchasing.order", appCode: "purchasing", nameVi: "Đơn mua", nameEn: "Purchase order", requiresApproval: true },
   { code: "sales.order", appCode: "sales", nameVi: "Đơn bán", nameEn: "Sales order", requiresApproval: true },
+  { code: "sales.promotion", appCode: "sales", nameVi: "Chương trình khuyến mãi", nameEn: "Promotion", requiresApproval: true },
   { code: "inventory.sales_issue", appCode: "inventory", nameVi: "Phiếu xuất giao hàng", nameEn: "Sales delivery", requiresApproval: false },
   { code: "inventory.sales_return", appCode: "inventory", nameVi: "Phiếu nhận hàng trả lại", nameEn: "Sales return", requiresApproval: false },
 ];

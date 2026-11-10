@@ -33,6 +33,8 @@ import { companyCurrency, ensureSequence } from "../purchasing/requisitions.serv
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { internalCompanyOf } from "../crm/partners.service";
 import { internalSalesErrors } from "./internal-trade-rules";
+import { applyPromotions, type PricedLine, withoutPromotion } from "./promotion-pricing";
+import { promotionGiftUsage, promotionUsage } from "./promotions.service";
 import { requireSalesPermission, salesAudit, salesPermissions } from "./sales-context";
 
 const documentTypeCode = "sales.order";
@@ -77,20 +79,16 @@ type OrderRow = {
   created_by_name: string;
   version: number;
 };
-type PreparedLine = {
-  variantId: string;
-  unitId: string;
-  quantity: string;
-  baseQuantity: string;
-  priceListId: string | null;
-  listPrice: string;
-  includesVat: boolean;
-  discountPercent: string;
-  unitPrice: string;
-  vatRate: VatRate;
-  net: string;
-  tax: string;
-  total: string;
+type PreparedLine = PricedLine;
+type ExceptionLine = {
+  line_no: number;
+  variant_id: string;
+  base_quantity: string;
+  discount_percent: string;
+  net_amount: string;
+  is_gift: boolean;
+  promotion_discount_total: string;
+  vat_rate: VatRate;
 };
 
 const vatFraction = (rate: VatRate) => (["0", "5", "8", "10"].includes(rate) ? Number(rate) / 100 : 0);
@@ -214,12 +212,18 @@ export class SalesOrdersService implements OnModuleInit {
       total_amount: string;
       delivered: string;
       returned: string;
+      is_gift: boolean;
+      promotion_name: string | null;
+      promotion_percent: string;
+      order_promotion_name: string | null;
+      order_discount_amount: string;
     }>(sql`
       SELECT l.id, l.line_no, l.variant_id, v.sku, p.name AS product_name, v.option_values, l.unit_id, u.name_vi AS unit_name, l.quantity::text, l.base_quantity::text,
         pl.code AS price_list_code, l.list_price::text, l.price_includes_vat, l.discount_percent::text, l.unit_price::text, l.vat_rate, l.net_amount::text, l.tax_amount::text,
         l.total_amount::text, ${deliveredOnOrderLine(sql`l.id`)}::text AS delivered, ${returnedOnOrderLine(sql`l.id`)}::text AS returned
+        , l.is_gift, pr.name AS promotion_name, l.promotion_percent::text, opr.name AS order_promotion_name, l.order_discount_amount::text
       FROM sales.order_lines l JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id JOIN catalog.units u ON u.id = l.unit_id
-      LEFT JOIN catalog.price_lists pl ON pl.id = l.price_list_id
+      LEFT JOIN catalog.price_lists pl ON pl.id = l.price_list_id LEFT JOIN sales.promotions pr ON pr.id = l.promotion_id LEFT JOIN sales.promotions opr ON opr.id = l.order_promotion_id
       WHERE l.order_id = ${id} ORDER BY l.line_no`);
     const documents = await this.database.execute<{ id: string; document_no: string | null; type: "sales_issue" | "sales_return"; status: string; document_date: Date | string }>(sql`
       SELECT d.id, d.document_no, d.type, d.status, d.document_date FROM inventory.documents d
@@ -276,6 +280,11 @@ export class SalesOrdersService implements OnModuleInit {
         totalAmount: trimDecimal(line.total_amount),
         deliveredBaseQuantity: trimDecimal(line.delivered),
         returnedBaseQuantity: trimDecimal(line.returned),
+        isGift: line.is_gift,
+        promotionName: line.promotion_name,
+        promotionPercent: trimDecimal(line.promotion_percent),
+        orderPromotionName: line.order_promotion_name,
+        orderDiscountAmount: trimDecimal(line.order_discount_amount),
       })),
       documents: documents.rows.map((document) => ({ id: document.id, documentNo: document.document_no, type: document.type, status: document.status, documentDate: day(document.document_date) })),
       version: row.version,
@@ -291,7 +300,7 @@ export class SalesOrdersService implements OnModuleInit {
   async create(actor: Actor, input: Input): Promise<SalesOrderResponse> {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
     const id = await this.database.transaction(async (transaction) => {
-      const { lines, groupId } = await this.prepare(transaction, actor.companyId, input);
+      const { lines, groupId } = await this.prepare(transaction, actor.companyId, input, null);
       const orderId = (
         await transaction.execute<{ id: string }>(sql`
         INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, customer_group_id, warehouse_id, order_date, delivery_address, note, currency, created_by)
@@ -311,7 +320,7 @@ export class SalesOrdersService implements OnModuleInit {
     const before = await this.detail(actor, id);
     if (!before.canEdit) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
     await this.database.transaction(async (transaction) => {
-      const { lines, groupId } = await this.prepare(transaction, actor.companyId, input);
+      const { lines, groupId } = await this.prepare(transaction, actor.companyId, input, id);
       const updated = await transaction.execute(sql`
         UPDATE sales.orders SET customer_id = ${input.customerId ?? null}, buyer_name = ${input.buyerName}, channel_id = ${input.channelId}, customer_group_id = ${groupId},
           warehouse_id = ${input.warehouseId}, order_date = ${input.orderDate}::date, delivery_address = ${input.deliveryAddress}, note = ${input.note}, status = 'draft',
@@ -352,8 +361,10 @@ export class SalesOrdersService implements OnModuleInit {
     if (current.customer_id) {
       await transaction.execute(sql`SELECT 1 FROM crm.partner_profiles WHERE company_id = ${actor.companyId} AND partner_id = ${current.customer_id} FOR UPDATE`);
     }
-    const lines = await transaction.execute<{ line_no: number; variant_id: string; base_quantity: string; discount_percent: string; net_amount: string }>(sql`
-      SELECT line_no, variant_id, base_quantity::text, discount_percent::text, net_amount::text FROM sales.order_lines WHERE order_id = ${id} ORDER BY line_no`);
+    const lines = await transaction.execute<ExceptionLine>(sql`
+      SELECT line_no, variant_id, base_quantity::text, discount_percent::text, net_amount::text, is_gift, promotion_discount_total::text, vat_rate
+      FROM sales.order_lines WHERE order_id = ${id} ORDER BY line_no`);
+    await this.checkPromotionLimits(transaction, id);
     if (current.customer_id) {
       const internal = await internalSalesErrors(
         transaction,
@@ -520,7 +531,7 @@ export class SalesOrdersService implements OnModuleInit {
     const lines: PreparedLine[] = input.lines.map((line) => {
       const net = Number(line.quantity) * Number(line.netUnitPrice);
       const tax = net * vatFraction(line.vatRate);
-      return {
+      return withoutPromotion({
         variantId: line.variantId,
         unitId: line.unitId,
         quantity: line.quantity,
@@ -534,7 +545,7 @@ export class SalesOrdersService implements OnModuleInit {
         net: net.toFixed(4),
         tax: tax.toFixed(4),
         total: (Number(net.toFixed(4)) + Number(tax.toFixed(4))).toFixed(4),
-      };
+      });
     });
     const orderId = (
       await transaction.execute<{ id: string }>(sql`
@@ -612,11 +623,26 @@ export class SalesOrdersService implements OnModuleInit {
   }
 
   // Ngoại lệ: chiết khấu vượt mức; dưới giá vốn bình quân tại kho; vượt hạn mức công nợ theo dư nợ tạm tính, đã trừ hàng khách trả của các phiếu xuất trong số ngày được nợ (QUYTAC_NGHIEPVU_68, 69).
-  private async exceptions(
-    transaction: Executor,
-    order: OrderRow,
-    lines: { line_no: number; variant_id: string; base_quantity: string; discount_percent: string; net_amount: string }[],
-  ): Promise<SalesException[]> {
+  // Gửi đơn: khóa chương trình đã áp, kiểm lại ngân sách, suất cùng các đơn khác; không đủ thì người bán lưu lại để tính lại (QUYTAC_NGHIEPVU_82).
+  private async checkPromotionLimits(transaction: Executor, orderId: string): Promise<void> {
+    const used = await transaction.execute<{ id: string }>(sql`
+      SELECT p.id FROM sales.promotions p
+      WHERE p.id IN (SELECT promotion_id FROM sales.order_lines WHERE order_id = ${orderId} UNION SELECT order_promotion_id FROM sales.order_lines WHERE order_id = ${orderId})
+      ORDER BY p.id FOR UPDATE`);
+    for (const promotion of used.rows) {
+      const over = await transaction.execute(sql`
+        SELECT 1 FROM sales.promotions p WHERE p.id = ${promotion.id} AND (
+          (p.budget_amount IS NOT NULL AND ${promotionUsage(sql`p.id`, sql`${orderId}::uuid`)} + coalesce((
+            SELECT sum(CASE WHEN l.promotion_id = p.id AND NOT l.is_gift THEN l.promotion_discount_total - l.order_discount_amount ELSE 0 END)
+                 + sum(CASE WHEN l.order_promotion_id = p.id THEN l.order_discount_amount ELSE 0 END)
+            FROM sales.order_lines l WHERE l.order_id = ${orderId}), 0) > p.budget_amount + 0.00005)
+          OR (p.max_gift_sets IS NOT NULL AND ${promotionGiftUsage(sql`p.id`, sql`${orderId}::uuid`)} + coalesce((
+            SELECT sum(l.gift_sets) FROM sales.order_lines l WHERE l.order_id = ${orderId} AND l.promotion_id = p.id AND l.is_gift), 0) > p.max_gift_sets))`);
+      if (over.rows.length > 0) throw new ApiError("BUSINESS_RULE", "promotionLimitExceeded");
+    }
+  }
+
+  private async exceptions(transaction: Executor, order: OrderRow, lines: ExceptionLine[]): Promise<SalesException[]> {
     const result: SalesException[] = [];
     const maximum = Number((await readSettings(transaction, order.company_id)).maxManualDiscountPercent);
     for (const line of lines) {
@@ -625,8 +651,10 @@ export class SalesOrdersService implements OnModuleInit {
         await transaction.execute<{ average_cost: string; quantity: string }>(sql`
         SELECT average_cost::text, quantity::text FROM inventory.costs WHERE warehouse_id = ${order.warehouse_id} AND company_id = ${order.company_id} AND variant_id = ${line.variant_id}`)
       ).rows[0];
-      const unitNet = Number(line.net_amount) / Number(line.base_quantity);
-      if (cost && Number(cost.quantity) > 0 && unitNet < Number(cost.average_cost) - 0.00005) {
+      // So giá vốn với giá sau chiết khấu tay, trước khuyến mãi; dòng hàng tặng không xét (QUYTAC_NGHIEPVU_83).
+      const promotionNet = Number(line.promotion_discount_total) / (1 + vatFraction(line.vat_rate));
+      const unitNet = (Number(line.net_amount) + promotionNet) / Number(line.base_quantity);
+      if (!line.is_gift && cost && Number(cost.quantity) > 0 && unitNet < Number(cost.average_cost) - 0.00005) {
         result.push({ kind: "below_cost", lineNo: line.line_no, detail: `${trimDecimal(unitNet.toFixed(4))} < ${trimDecimal(cost.average_cost)}` });
       }
     }
@@ -665,7 +693,7 @@ export class SalesOrdersService implements OnModuleInit {
   }
 
   // Kiểm khách, kênh, kho; tra giá từng dòng theo kênh, nhóm khách tại ngày đơn; tính tiền theo cách tính thuế của bảng giá (QUYTAC_NGHIEPVU_67).
-  private async prepare(transaction: Executor, companyId: string, input: Input): Promise<{ lines: PreparedLine[]; groupId: string | null }> {
+  private async prepare(transaction: Executor, companyId: string, input: Input, orderId: string | null): Promise<{ lines: PreparedLine[]; groupId: string | null }> {
     const fields: FieldErrors = {};
     let groupId: string | null = null;
     if (input.customerId) {
@@ -693,7 +721,11 @@ export class SalesOrdersService implements OnModuleInit {
       );
     }
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
-    return { lines: await this.priceLines(transaction, companyId, input.channelId, groupId, input.orderDate, input.lines), groupId };
+    const priced = await this.priceLines(transaction, companyId, input.channelId, groupId, input.orderDate, input.lines);
+    // Khuyến mãi tự áp khi lưu; đơn bán nội bộ không áp (QUYTAC_NGHIEPVU_81).
+    const internal = input.customerId ? (await internalCompanyOf(transaction, input.customerId)) !== null : false;
+    const lines = await applyPromotions(transaction, { companyId, orderId, channelId: input.channelId, customerGroupId: groupId, orderDate: input.orderDate, internal }, priced);
+    return { lines, groupId };
   }
 
   // Tra giá từng dòng theo kênh, nhóm khách tại ngày đơn; tính tiền theo cách tính thuế của bảng giá.
@@ -725,21 +757,23 @@ export class SalesOrdersService implements OnModuleInit {
       const amount = Number(line.quantity) * Number(unitPrice.toFixed(4));
       const net = price.includesVat ? amount / (1 + rate) : amount;
       const total = price.includesVat ? amount : net * (1 + rate);
-      lines.push({
-        variantId: line.variantId,
-        unitId: line.unitId,
-        quantity: line.quantity,
-        baseQuantity: (Number(line.quantity) * unit.factor).toFixed(4),
-        priceListId: price.priceListId,
-        listPrice: price.price,
-        includesVat: price.includesVat,
-        discountPercent: line.discountPercent,
-        unitPrice: unitPrice.toFixed(4),
-        vatRate,
-        net: net.toFixed(4),
-        tax: (Number(total.toFixed(4)) - Number(net.toFixed(4))).toFixed(4),
-        total: total.toFixed(4),
-      });
+      lines.push(
+        withoutPromotion({
+          variantId: line.variantId,
+          unitId: line.unitId,
+          quantity: line.quantity,
+          baseQuantity: (Number(line.quantity) * unit.factor).toFixed(4),
+          priceListId: price.priceListId,
+          listPrice: price.price,
+          includesVat: price.includesVat,
+          discountPercent: line.discountPercent,
+          unitPrice: unitPrice.toFixed(4),
+          vatRate,
+          net: net.toFixed(4),
+          tax: (Number(total.toFixed(4)) - Number(net.toFixed(4))).toFixed(4),
+          total: total.toFixed(4),
+        }),
+      );
     }
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
     return lines;
@@ -749,9 +783,11 @@ export class SalesOrdersService implements OnModuleInit {
     for (const [index, line] of lines.entries()) {
       await transaction.execute(sql`
         INSERT INTO sales.order_lines (order_id, line_no, variant_id, unit_id, quantity, base_quantity, price_list_id, list_price, price_includes_vat, discount_percent, unit_price, vat_rate,
-          net_amount, tax_amount, total_amount)
+          net_amount, tax_amount, total_amount, promotion_id, promotion_percent, order_promotion_id, order_discount_amount, promotion_discount_total, is_gift, gift_sets)
         VALUES (${orderId}, ${index + 1}, ${line.variantId}, ${line.unitId}, ${line.quantity}::numeric, ${line.baseQuantity}::numeric, ${line.priceListId}, ${line.listPrice}::numeric,
-          ${line.includesVat}, ${line.discountPercent}::numeric, ${line.unitPrice}::numeric, ${line.vatRate}, ${line.net}::numeric, ${line.tax}::numeric, ${line.total}::numeric)`);
+          ${line.includesVat}, ${line.discountPercent}::numeric, ${line.unitPrice}::numeric, ${line.vatRate}, ${line.net}::numeric, ${line.tax}::numeric, ${line.total}::numeric,
+          ${line.promotionId}, ${line.promotionPercent}::numeric, ${line.orderPromotionId}, ${line.orderDiscountAmount}::numeric, ${line.promotionDiscountTotal}::numeric, ${line.isGift},
+          ${line.giftSets})`);
     }
     await transaction.execute(sql`
       UPDATE sales.orders SET net_amount = t.net, tax_amount = t.tax, total_amount = t.total

@@ -187,7 +187,8 @@
     "internalSerialNotShipped": "Serial không có trong phiếu xuất gốc.",
     "internalShortageReasonRequired": "Nhận thiếu phải ghi lý do.",
     "internalLineMissing": "Phải nhập số nhận cho mọi dòng của phiếu.",
-    "internalReceiptOnly": "Đơn mua nội bộ chỉ nhận theo phiếu nhập sinh từ phiếu xuất của công ty bán."
+    "internalReceiptOnly": "Đơn mua nội bộ chỉ nhận theo phiếu nhập sinh từ phiếu xuất của công ty bán.",
+    "promotionLimitExceeded": "Chương trình khuyến mãi đã hết ngân sách hoặc hết suất. Lưu lại đơn để tính lại khuyến mãi rồi gửi."
   },
   "login": {
     "title": "Đăng nhập",

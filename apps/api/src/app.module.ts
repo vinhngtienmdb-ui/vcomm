@@ -53,6 +53,7 @@ import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
 import { InternalTradeService } from "./sales/internal-trade.service";
+import { PromotionsService } from "./sales/promotions.service";
 import { SupplierPricesService } from "./purchasing/supplier-prices.service";
 import { RequisitionsService } from "./purchasing/requisitions.service";
 import { PurchaseOrdersService } from "./purchasing/orders.service";
@@ -117,6 +118,7 @@ import { UsersService } from "./users/users.service";
     SupplierPricesService,
     SalesOrdersService,
     InternalTradeService,
+    PromotionsService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

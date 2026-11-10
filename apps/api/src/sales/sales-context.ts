@@ -7,6 +7,8 @@ export const salesPermissions = {
   viewOrders: "sales.order.view",
   manageOrders: "sales.order.manage",
   manageSettings: "sales.settings.manage",
+  viewPromotions: "sales.promotion.view",
+  managePromotions: "sales.promotion.manage",
 } as const;
 
 export const salesAudit = (actor: Actor, entityType: string) => ({

@@ -2429,6 +2429,12 @@ export interface SalesOrderLineResponse {
   // Theo đơn vị cơ sở, tính từ phiếu kho.
   deliveredBaseQuantity: string;
   returnedBaseQuantity: string;
+  // CONG_VIEC_12: khuyến mãi theo sản phẩm (hoặc chương trình tặng của dòng tặng), phần giảm theo đơn chia vào dòng (gồm thuế).
+  isGift: boolean;
+  promotionName: string | null;
+  promotionPercent: string;
+  orderPromotionName: string | null;
+  orderDiscountAmount: string;
 }
 export interface SalesOrderResponse extends SalesOrderListItem {
   channelId: string;
@@ -2512,6 +2518,109 @@ export const saveSalesReturnSchema = z
   })
   .strict();
 export type SaveSalesReturnRequest = z.input<typeof saveSalesReturnSchema>;
+
+// CONG_VIEC_12, API_83: chương trình khuyến mãi (CHUC_NANG_62 đến 64; QUYTAC_NGHIEPVU_79 đến 84).
+export const promotionKinds = ["product_discount", "order_discount", "buy_get"] as const;
+export type PromotionKind = (typeof promotionKinds)[number];
+export const promotionStatuses = ["draft", "pending", "active", "rejected", "withdrawn", "stopped"] as const;
+export type PromotionStatus = (typeof promotionStatuses)[number];
+const optionalPositive = z
+  .union([positiveQuantity, z.literal(""), z.null()])
+  .optional()
+  .transform((value) => (value === "" || value === undefined ? null : value));
+export const savePromotionSchema = z
+  .object({
+    name: z.string().trim().min(1).max(200),
+    kind: z.enum(promotionKinds),
+    validFrom: isoDate,
+    validTo: isoDate,
+    channelIds: z.array(z.uuid()).max(50).default([]),
+    customerGroupIds: z.array(z.uuid()).max(50).default([]),
+    // Giảm theo sản phẩm: mỗi mặt hàng một phần trăm giảm.
+    items: z
+      .array(z.object({ variantId: z.uuid(), discountPercent: percentText }).strict())
+      .max(500)
+      .default([]),
+    // Giảm theo đơn: ngưỡng gồm thuế, phần trăm, trần (trống: không giới hạn).
+    minOrderAmount: optionalDecimal(4),
+    orderDiscountPercent: optionalDecimal(2),
+    maxOrderDiscount: optionalPositive,
+    // Mua X tặng Y: số lượng theo đơn vị cơ sở.
+    buyVariantId: z.uuid().nullable().optional(),
+    buyQuantity: optionalPositive,
+    giftVariantId: z.uuid().nullable().optional(),
+    giftQuantity: optionalPositive,
+    budgetAmount: optionalPositive,
+    maxGiftSets: z.number().int().positive().nullable().optional(),
+    note: blankToNull(1000),
+    version: z.number().int().positive().optional(),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const missing = (path: string) => context.addIssue({ code: "custom", message: "required", path: [path] });
+    if (value.validTo < value.validFrom) context.addIssue({ code: "custom", message: "invalidValue", path: ["validTo"] });
+    if (value.kind === "product_discount") {
+      if (value.items.length === 0) missing("items");
+      value.items.forEach((item, index) => {
+        if (Number(item.discountPercent) <= 0) context.addIssue({ code: "custom", message: "invalidValue", path: ["items", index, "discountPercent"] });
+      });
+      if (new Set(value.items.map((item) => item.variantId)).size !== value.items.length) context.addIssue({ code: "custom", message: "invalidValue", path: ["items"] });
+    }
+    if (value.kind === "order_discount") {
+      if (value.minOrderAmount === null) missing("minOrderAmount");
+      if (value.orderDiscountPercent === null) missing("orderDiscountPercent");
+      else if (Number(value.orderDiscountPercent) <= 0 || Number(value.orderDiscountPercent) > 100)
+        context.addIssue({ code: "custom", message: "invalidValue", path: ["orderDiscountPercent"] });
+    }
+    if (value.kind === "buy_get") {
+      if (!value.buyVariantId) missing("buyVariantId");
+      if (value.buyQuantity === null) missing("buyQuantity");
+      if (!value.giftVariantId) missing("giftVariantId");
+      if (value.giftQuantity === null) missing("giftQuantity");
+    }
+  });
+export type SavePromotionRequest = z.input<typeof savePromotionSchema>;
+export const promotionListQuerySchema = z.object({ status: z.enum(promotionStatuses).optional() }).strict();
+export const stopPromotionSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();
+export interface PromotionListItem {
+  id: string;
+  documentNo: string | null;
+  name: string;
+  kind: PromotionKind;
+  validFrom: string;
+  validTo: string;
+  status: PromotionStatus;
+  // Đã dùng: tiền đã giảm (gồm thuế), số suất đã tặng, tính từ đơn bán chờ duyệt, đã xác nhận, đã giao, đã đóng.
+  usedAmount: string;
+  usedGiftSets: number;
+  budgetAmount: string | null;
+  maxGiftSets: number | null;
+  createdByName: string;
+}
+export interface PromotionResponse extends PromotionListItem {
+  channels: { id: string; name: string }[];
+  customerGroups: { id: string; name: string }[];
+  items: { variantId: string; sku: string; productName: string; discountPercent: string }[];
+  minOrderAmount: string | null;
+  orderDiscountPercent: string | null;
+  maxOrderDiscount: string | null;
+  buy: { variantId: string; sku: string; productName: string; quantity: string; baseUnitName: string } | null;
+  gift: { variantId: string; sku: string; productName: string; quantity: string; baseUnitName: string } | null;
+  note: string | null;
+  approvalRequestId: string | null;
+  stoppedReason: string | null;
+  currency: string;
+  version: number;
+  canEdit: boolean;
+  canSubmit: boolean;
+  canWithdraw: boolean;
+  canStop: boolean;
+}
+export interface PromotionOptionsResponse {
+  channels: { id: string; code: string; name: string }[];
+  customerGroups: { id: string; code: string; name: string }[];
+  currency: string;
+}
 
 // CONG_VIEC_09, API_82: nhận hàng nội bộ theo số thực nhận (đơn vị cơ sở bên nhận); biên bản chênh lệch nội bộ (QUYTAC_NGHIEPVU_76, 77).
 export const receiveInternalSchema = z
