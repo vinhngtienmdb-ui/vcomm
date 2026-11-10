@@ -307,3 +307,26 @@ describe("TIEUCHI_NGHIEMTHU_103: ngoại lệ, giữ hàng, giao hàng tặng", 
     expect((await call(seller, "get", `/sales/orders/${confirmed.id}`)).body.status).toBe("delivered");
   });
 });
+
+describe("TIEUCHI_NGHIEMTHU_100: hàng tặng không tính là hàng mua", () => {
+  it("KICHBAN_KIEMTHU_198: dòng tặng của chương trình này không làm đủ điều kiện mua của chương trình khác; mua X tặng Y không nhận ngân sách", async () => {
+    await stopAll();
+    await running({ name: "Mua 2 bánh tặng 2 kẹo", kind: "buy_get", buyVariantId: items.biscuit, buyQuantity: "2", giftVariantId: items.candy, giftQuantity: "2" });
+    await running({ name: "Mua 2 kẹo tặng 1 quà", kind: "buy_get", buyVariantId: items.candy, buyQuantity: "2", giftVariantId: items.gift, giftQuantity: "1" });
+    const result = await saved(order([line("biscuit", "2")]));
+    expect(result.lines.filter((item: { isGift: boolean }) => item.isGift)).toEqual([expect.objectContaining({ variantId: items.candy, quantity: "2" })]);
+    const budget = await call(admin, "post", "/sales/promotions", {
+      validFrom: today,
+      validTo: "2026-12-31",
+      name: "Sai ngân sách",
+      kind: "buy_get",
+      buyVariantId: items.biscuit,
+      buyQuantity: "1",
+      giftVariantId: items.gift,
+      giftQuantity: "1",
+      budgetAmount: "100000",
+    });
+    expect(budget.body.error.fields).toEqual({ budgetAmount: expect.any(String) });
+    await stopAll();
+  });
+});

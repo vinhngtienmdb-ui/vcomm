@@ -144,7 +144,7 @@ export class PromotionsService implements OnModuleInit {
       version: row.version,
       canEdit: manage && ["draft", "rejected", "withdrawn"].includes(row.status),
       canSubmit: manage && ["draft", "rejected", "withdrawn"].includes(row.status),
-      canWithdraw: row.created_by === actor.userId && row.status === "pending" && !firstStepDecided,
+      canWithdraw: manage && row.created_by === actor.userId && row.status === "pending" && !firstStepDecided,
       canStop: manage && row.status === "active",
     };
   }
@@ -228,17 +228,21 @@ export class PromotionsService implements OnModuleInit {
   // Dừng chương trình đang chạy; đơn đã lưu giữ khuyến mãi đã áp cho đến khi lưu lại (QUYTAC_NGHIEPVU_80, 84).
   async stop(actor: Actor, id: string, reason: string, version: number): Promise<PromotionResponse> {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.managePromotions);
-    const updated = await this.database.execute(sql`
-      UPDATE sales.promotions SET status = 'stopped', stopped_reason = ${reason}, stopped_at = now(), stopped_by = ${actor.userId}, updated_at = now(), version = version + 1
-      WHERE id = ${id} AND company_id = ${actor.companyId} AND status = 'active' AND version = ${version} RETURNING id`);
-    if (updated.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-    await this.auditService.record({ ...salesAudit(actor, "promotion"), action: "promotion.stop", entityId: id, afterData: { reason } });
+    await this.database.transaction(async (transaction) => {
+      const updated = await transaction.execute(sql`
+        UPDATE sales.promotions SET status = 'stopped', stopped_reason = ${reason}, stopped_at = now(), stopped_by = ${actor.userId}, updated_at = now(), version = version + 1
+        WHERE id = ${id} AND company_id = ${actor.companyId} AND status = 'active' AND version = ${version} RETURNING id`);
+      if (updated.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      await this.auditService.record({ ...salesAudit(actor, "promotion"), action: "promotion.stop", entityId: id, afterData: { reason } }, transaction);
+    });
     return this.detail(actor, id);
   }
 
   // Mặt hàng đang bán của công ty; kênh (không phải kênh Nội bộ), nhóm khách của công ty.
   private async validate(transaction: Executor, companyId: string, input: Input): Promise<void> {
     const fields: FieldErrors = {};
+    // Mua X tặng Y giới hạn theo số suất, không theo ngân sách tiền.
+    if (input.kind === "buy_get" && input.budgetAmount !== null) fields.budgetAmount = "invalidValue";
     const activeVariant = async (variantId: string) =>
       (
         await transaction.execute(sql`
@@ -253,12 +257,12 @@ export class PromotionsService implements OnModuleInit {
     }
     if (input.channelIds.length > 0) {
       const found = await transaction.execute<{ total: number }>(sql`
-        SELECT count(*)::int AS total FROM catalog.sales_channels WHERE company_id = ${companyId} AND code <> ${internalChannelCode} AND id = ANY(${pgArray(input.channelIds)}::uuid[])`);
+        SELECT count(*)::int AS total FROM catalog.sales_channels WHERE company_id = ${companyId} AND status = 'active' AND code <> ${internalChannelCode} AND id = ANY(${pgArray(input.channelIds)}::uuid[])`);
       if (found.rows[0]!.total !== new Set(input.channelIds).size) fields.channelIds = "invalidValue";
     }
     if (input.customerGroupIds.length > 0) {
       const found = await transaction.execute<{ total: number }>(sql`
-        SELECT count(*)::int AS total FROM catalog.customer_groups WHERE company_id = ${companyId} AND id = ANY(${pgArray(input.customerGroupIds)}::uuid[])`);
+        SELECT count(*)::int AS total FROM catalog.customer_groups WHERE company_id = ${companyId} AND status = 'active' AND id = ANY(${pgArray(input.customerGroupIds)}::uuid[])`);
       if (found.rows[0]!.total !== new Set(input.customerGroupIds).size) fields.customerGroupIds = "invalidValue";
     }
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });

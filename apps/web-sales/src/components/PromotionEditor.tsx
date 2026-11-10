@@ -121,7 +121,10 @@ export function PromotionEditor({ promotion, onSaved, onCancel }: { promotion: P
           {fields.items && <span className="loi-o">{fields.items}</span>}
           {items.map((item, index) => (
             <div key={item.variantId} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "var(--khoang-3)" }}>
-              <span>{item.label}</span>
+              <span>
+                {item.label}
+                {fields[`items.${index}.variantId`] && <span className="loi-o"> {fields[`items.${index}.variantId`]}</span>}
+              </span>
               <span className="nhom-nut">
                 <Field id={`phan-tram-${index}`} label={t("discountPercent")} error={fields[`items.${index}.discountPercent`]}>
                   <input

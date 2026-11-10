@@ -59,7 +59,8 @@ export class SalesController {
   @Get("items")
   async items(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<StockItemOption[]> {
     const actor = await this.actor(request, companyId);
-    await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
+    // Tìm mặt hàng khi lập đơn bán hoặc chương trình khuyến mãi.
+    await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders, salesPermissions.managePromotions);
     return searchVariantOptions(this.database, actor.companyId, itemSearchSchema.parse(query).search);
   }
 

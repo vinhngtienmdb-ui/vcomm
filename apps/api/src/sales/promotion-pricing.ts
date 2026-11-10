@@ -148,8 +148,11 @@ export async function applyPromotions(
   const chosen = orderBest;
   if (chosen && orderTotal > 0) {
     let left = chosen.amount;
+    // Phần dư làm tròn dồn vào dòng cuối có thành tiền; dòng thành tiền 0 không nhận phần giảm.
+    const lastPaid = lines.reduce((found, line, index) => (Number(line.total) > 0 ? index : found), -1);
     lines.forEach((line, index) => {
-      const share = index === lines.length - 1 ? left : round((chosen.amount * Number(line.total)) / orderTotal);
+      if (Number(line.total) <= 0) return;
+      const share = index === lastPaid ? left : round((chosen.amount * Number(line.total)) / orderTotal);
       left = round(left - share);
       const total = round(Number(line.total) - share);
       const net = round(total / (1 + vatFraction(line.vatRate)));
@@ -166,7 +169,8 @@ export async function applyPromotions(
 
   // Mua X tặng Y: số suất theo tổng số lượng cơ sở mặt hàng mua, không quá số suất còn lại; dòng tặng giá 0 theo đơn vị cơ sở.
   for (const candidate of candidates.filter((item) => item.kind === "buy_get")) {
-    const bought = lines.filter((line) => line.variantId === candidate.buy_variant_id).reduce((sum, line) => sum + Number(line.baseQuantity), 0);
+    // Chỉ đếm hàng mua, không đếm dòng tặng của chương trình khác.
+    const bought = lines.filter((line) => !line.isGift && line.variantId === candidate.buy_variant_id).reduce((sum, line) => sum + Number(line.baseQuantity), 0);
     let sets = Math.floor((bought + 0.00005) / Number(candidate.buy_quantity));
     if (candidate.max_gift_sets !== null) sets = Math.min(sets, candidate.max_gift_sets - Number(candidate.used_gift_sets));
     if (sets <= 0) continue;
