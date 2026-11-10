@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu và MODULE_04 Mua hàng phần 1: đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 0.6
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1 và MODULE_05 Bán hàng phần 1: đúng, sai, giá trị biên, từng vai trò.
+- Phiên bản: 0.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_182 của MODULE_05 (172 đến 175 tự động, 176 đến 182 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2023,3 +2023,136 @@ Dữ liệu chung: công ty con VCR (`testIds.retailCompany`), VCT (`testIds.tra
 - Kết quả mong đợi: Bước 1: lỗi chỉ ở `warehouseId`. Bước 2: `pending`; sau từ chối `rejected`, `canClose`, `canEdit` đúng; nhận thêm `409`. Bước 3: `received`. Bước 4: `closed`. Bước 5: phiếu `quality_check`; lỗi chỉ ở `lines.1.rejectedQuantity`.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c7-purchasing.test.ts`
 - Lát: L2
+
+## MODULE_05 Bán hàng (phần 1, CONG_VIEC_08)
+
+Dữ liệu chung: công ty con VCR (`testIds.retailCompany`), VCT (`testIds.tradingCompany`); Quản trị tập đoàn `quantri.tapdoan@vcomm.test`, Quản trị công ty VCR `quantri.vcr@vcomm.test`, người duyệt `phuc.le@vcomm.test`; tạo trong tệp kiểm thử: Nhân viên bán hàng `banhang.vcr@vcomm.test` (vai trò `salesperson` ở VCR), `banhang.vct@vcomm.test` (`salesperson` ở VCT), Thủ kho `thukho.ban@vcomm.test` (`warehouse_keeper` gán ở chi nhánh VCR-BD), Thủ kho `thukho.hcm.ban@vcomm.test` (`warehouse_keeper` gán ở chi nhánh VCR-HCM). Kho `BDB` "Kho bán BD" của chi nhánh VCR-BD, không dùng vị trí. Mặt hàng của VCR: "Nước suối bán" (đơn vị cơ sở chai, thùng = 24 chai, thuế suất 10%; tồn đầu 960 chai giá vốn 4.000), "Nước chưa có giá" (chai, không có giá), "Điện thoại bán" (cái, theo serial; tồn đầu 3 cái `IMEI-B1` đến `IMEI-B3` giá vốn 5.000.000). Kênh "Bán lẻ" (`BAN_LE`, tạo từ kênh mặc định); nhóm khách "Khách sỉ" (`SI`); bảng giá `CHUNG` gồm thuế (nước 6.600 một chai, điện thoại 7.700.000 một cái), bảng giá `SI` chưa thuế cho nhóm "Khách sỉ" (nước 5.000 một chai). Đối tác: "Đại lý Sỉ Phú Thọ" mã số thuế `0320000001` (khách hàng nhóm "Khách sỉ", hạn mức công nợ 1.000.000, 30 ngày); "Cửa hàng Lẻ An Bình" `0320000002` (khách hàng, hạn mức trống); "Nhà cung cấp không bán" `0320000003` (chỉ là nhà cung cấp). Các kịch bản tự động chạy nối tiếp trong một tệp (chính sách duyệt, cài đặt chiết khấu đặt ở KICHBAN_KIEMTHU_173 dùng tiếp ở KICHBAN_KIEMTHU_174, KICHBAN_KIEMTHU_175). Kịch bản thủ công dùng cùng dữ liệu, nạp bằng cách chạy các bước chuẩn bị của tệp kiểm thử hoặc nhập tay trên môi trường phát triển. Đường dẫn API có tiền tố `/api/v1`.
+
+## CHUC_NANG_54: Đơn bán, giá theo bảng giá (CONG_VIEC_08)
+
+### KICHBAN_KIEMTHU_172: Giá theo kênh, nhóm khách; mặt hàng chưa có giá, đối tác chưa là khách bị từ chối; người mua không lấy hóa đơn lập được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_87
+- Chức năng: CHUC_NANG_54
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Nhân viên bán hàng VCR; Thủ kho VCR-BD
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung.
+- Các bước: (1) Nhân viên bán hàng tra giá 1 thùng nước, kênh "Bán lẻ", không chọn khách; chọn "Đại lý Sỉ Phú Thọ". (2) Lập đơn có dòng "Nước chưa có giá". (3) Lập đơn với khách "Nhà cung cấp không bán". (4) Lập đơn không khách, tên người mua "Anh Tuấn", 2 thùng nước. (5) Lập đơn khách "Đại lý Sỉ Phú Thọ", 1 thùng nước. (6) Thủ kho lập đơn; xem chi tiết đơn bước 4.
+- Kết quả mong đợi: Bước 1: `price` "158400", bảng giá `CHUNG`, `includesVat: true`, thuế suất "10"; `price` "120000", bảng giá `SI`, `includesVat: false`. Bước 2: lỗi chỉ ở `lines.0.variantId`. Bước 3: lỗi chỉ ở `customerId` "Đối tác chưa có hồ sơ khách hàng đang dùng ở công ty.". Bước 4: `201`, `customerId: null`, người mua "Anh Tuấn", tổng gồm thuế "316800", chưa thuế "288000", thuế "28800"; dòng giá bảng giá "158400", gồm thuế, số lượng cơ sở "48". Bước 5: chưa thuế "120000", thuế "12000", tổng "132000". Bước 6: `403`; `canEdit: false`, `canSubmit: false`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c8-sales.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_173: Không ngoại lệ xác nhận ngay và giữ hàng; chiết khấu vượt mức, dưới giá vốn, vượt hạn mức chờ duyệt; từ chối nhả hàng giữ; không đủ hàng không gửi được; hủy nhả hàng; công ty khác không xem được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_88, TIEUCHI_NGHIEMTHU_89, TIEUCHI_NGHIEMTHU_92
+- Chức năng: CHUC_NANG_54, CHUC_NANG_55
+- Loại: Đúng, sai, giá trị biên, phân quyền, luồng duyệt
+- Vai trò thực hiện: Quản trị công ty VCR; Nhân viên bán hàng VCR, VCT; người duyệt
+- Điều kiện ban đầu và dữ liệu: Quản trị công ty VCR lập chính sách duyệt `sales.order`: một cấp từ 0 đồng, người duyệt `phuc.le@vcomm.test`, người thay thế quản trị công ty VCR; đặt chiết khấu tay tối đa 5% (phiên bản 0).
+- Các bước: (1) Gửi đơn "Cửa hàng Lẻ An Bình" 2 thùng nước chiết khấu 5% (đúng bằng mức tối đa); xem tồn nước. (2) Gửi đơn 1 thùng chiết khấu 10%; người duyệt duyệt; xem đơn. (3) Đặt mức tối đa 60% (phiên bản 1); gửi đơn 1 thùng chiết khấu 50% (3.000 chưa thuế một chai < giá vốn 4.000); người duyệt từ chối; xem đơn, tồn. (4) Gửi đơn "Đại lý Sỉ Phú Thọ" 9 thùng (1.188.000 gồm thuế > hạn mức 1.000.000); người lập rút. (5) Gửi đơn cùng khách 7 thùng (924.000). (6) Gửi đơn cùng khách 1 thùng (132.000). (7) Gửi đơn 50 thùng. (8) Hủy đơn bước 1; xem tồn. (9) Nhân viên bán hàng VCT xem đơn bước 1 và danh sách đơn ở VCT.
+- Kết quả mong đợi: Bước 1: `confirmed`, không ngoại lệ, số bắt đầu `DBH`; tồn 960, giữ 48, khả dụng 912. Bước 2: `pending`, ngoại lệ `discount` dòng 1; sau duyệt `confirmed`. Bước 3: `pending`, ngoại lệ `below_cost` dòng 1; sau từ chối `rejected`, `canEdit: true`, số giữ giảm 24. Bước 4: `pending`, ngoại lệ `credit_limit` không gắn dòng; sau rút `withdrawn`. Bước 5: `confirmed`. Bước 6: ngoại lệ `credit_limit` (đơn đã xác nhận chưa giao tính vào dư nợ). Bước 7: lỗi chỉ ở `lines.0.quantity` "Không đủ hàng khả dụng (một phần đang được giữ).". Bước 8: `cancelled`, số giữ giảm 48. Bước 9: `404`; tổng 0.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c8-sales.test.ts`
+- Lát: L0
+
+## CHUC_NANG_56: Phiếu xuất giao hàng (CONG_VIEC_08)
+
+### KICHBAN_KIEMTHU_174: Giao nhiều lần không vượt số đặt, theo giá vốn bình quân, dùng hàng đã giữ; giao đủ thì đơn đã giao đủ; đơn đã giao không hủy, chỉ đóng; thủ kho chi nhánh khác không giao
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_89, TIEUCHI_NGHIEMTHU_90, TIEUCHI_NGHIEMTHU_92
+- Chức năng: CHUC_NANG_54, CHUC_NANG_56
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Nhân viên bán hàng VCR; Thủ kho VCR-BD; Thủ kho VCR-HCM; Quản trị công ty VCR (xem giá trị, Thủ kho không có `inventory.cost.view`)
+- Điều kiện ban đầu và dữ liệu: Chính sách duyệt, cài đặt chiết khấu của KICHBAN_KIEMTHU_173; đơn "Cửa hàng Lẻ An Bình" 3 thùng nước đã xác nhận.
+- Các bước: (1) Thủ kho VCR-HCM xem đơn bán cần giao; lập, gửi phiếu xuất 1 thùng. Thủ kho VCR-BD xem đơn bán cần giao. (2) Thủ kho VCR-BD lập, gửi phiếu xuất 1 thùng; xem số giữ; Quản trị công ty đọc giá trị dòng phiếu. (3) Nhân viên bán hàng xem đơn; hủy đơn. (4) Lập phiếu xuất 3 thùng (còn 2). (5) Lập, gửi phiếu xuất 2 thùng; xem đơn; giao thêm 1 thùng. (6) Đơn khác 2 thùng: giao 1 thùng; đóng đơn lý do "Khách đổi ý"; xem số giữ; giao thêm 1 thùng. (7) Lập đơn nháp 1 thùng rồi giao theo đơn đó. (8) Thủ kho lập phiếu loại `sales_issue` qua `POST /inventory/documents`.
+- Kết quả mong đợi: Bước 1: danh sách rỗng; `403` hoặc `404`; danh sách có đơn. Bước 2: `201`, `sales_issue`, `posted`, số bắt đầu `XBH`, khách "Cửa hàng Lẻ An Bình", số đơn gốc; số giữ giảm 24; giá trị dòng "96000" (24 chai × 4.000). Bước 3: `confirmed`, `canCancel: false`, `canClose: true`; hủy `409`. Bước 4: lỗi chỉ ở `lines.0.quantity` "Vượt số còn phải giao của đơn bán.". Bước 5: `201`; đơn `delivered`, đã giao "72", 2 phiếu liên quan; giao thêm `409`. Bước 6: `201`; `closed`; số giữ giảm 24; giao thêm `409`. Bước 7: `409`. Bước 8: `400`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c8-sales.test.ts`
+- Lát: L1
+
+## CHUC_NANG_57: Phiếu nhận hàng trả lại (CONG_VIEC_08)
+
+### KICHBAN_KIEMTHU_175: Nhập lại theo giá vốn phiếu xuất gốc; trả quá số đã giao, serial chưa giao bị từ chối
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_91
+- Chức năng: CHUC_NANG_57
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Nhân viên bán hàng VCR; Thủ kho VCR-BD; Quản trị công ty VCR (xem giá trị)
+- Điều kiện ban đầu và dữ liệu: Đơn "Cửa hàng Lẻ An Bình" 2 cái "Điện thoại bán" đã xác nhận; Thủ kho giao serial `IMEI-B1`, `IMEI-B2`.
+- Các bước: (1) Lập phiếu trả 3 cái serial `IMEI-B1`, `IMEI-B2`, `IMEI-B3`. (2) Lập phiếu trả 1 cái serial `IMEI-B3` (chưa giao). (3) Lập phiếu trả 1 cái serial `IMEI-B2`, lý do "Lỗi màn hình"; gửi; Quản trị công ty đọc giá trị dòng; xem tồn điện thoại; Nhân viên bán hàng xem đơn. (4) Lập phiếu trả 2 cái serial `IMEI-B1`, `IMEI-B2`; gửi.
+- Kết quả mong đợi: Bước 1: có lỗi ở `lines.0.serials`. Bước 2: lỗi chỉ ở `lines.0.serials`. Bước 3: `201`; gửi: `sales_return`, `posted`, số bắt đầu `NTL`, số phiếu xuất gốc; giá trị dòng "5000000"; tồn 2 cái; dòng đơn đã trả "1". Bước 4: `400` (còn trả được 1 cái).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c8-sales.test.ts`
+- Lát: L1
+
+## Kịch bản thủ công của MODULE_05 (CONG_VIEC_08)
+
+### KICHBAN_KIEMTHU_176: Lập, gửi đơn bán trên trình duyệt; giá đổi theo khách, kênh; xem ngoại lệ, đã giao
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_87, TIEUCHI_NGHIEMTHU_88
+- Chức năng: CHUC_NANG_54, CHUC_NANG_55
+- Loại: Đúng, giao diện
+- Vai trò thực hiện: Nhân viên bán hàng VCR; Quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; mini app Nền tảng, Bán hàng, backend đang chạy; chính sách duyệt, chiết khấu tối đa 5% như KICHBAN_KIEMTHU_173.
+- Các bước: (1) Nhân viên bán hàng mở `/sales`. (2) "Lập đơn bán": để trống khách, nhập tên người mua; thêm "Nước suối bán" đơn vị thùng. (3) Chọn khách "Đại lý Sỉ Phú Thọ". (4) Đổi dòng sang "Nước chưa có giá"; lưu. (5) Bỏ dòng đó, nhập chiết khấu 10%, lưu, bấm "Gửi". (6) Quản trị công ty mở `/sales/orders`, bấm "Cài đặt", đổi chiết khấu tay tối đa; Nhân viên bán hàng mở lại `/sales/orders`. (7) Xem trên điện thoại (chiều rộng 375 điểm ảnh).
+- Kết quả mong đợi: Bước 1: chuyển tới `/sales/orders`, chỉ có mục menu "Đơn bán"; không thấy nút "Cài đặt". Bước 2: ô "Tên người mua" hiện; dòng hiện "Giá 158.400 ₫ theo bảng giá CHUNG (gồm thuế)". Bước 3: ô tên người mua ẩn; giá đổi sang 120.000 ₫ bảng giá SI (chưa thuế); "Tổng gồm thuế (tạm tính)" tính lại. Bước 4: dòng hiện "Chưa có giá trong bảng giá cho kênh, nhóm khách này."; lỗi "Chưa có giá cho mặt hàng này." dưới dòng. Bước 5: chuyển tới chi tiết, "Đã lưu đơn bán."; sau gửi nhãn "Chờ duyệt", khối "Ngoại lệ cần duyệt" có "Chiết khấu vượt mức (dòng 1): 10% > 5%". Bước 6: lưu được, "Đã lưu."; Nhân viên bán hàng không thấy nút "Cài đặt". Bước 7: bảng chuyển thành thẻ, dòng hàng xếp dọc, không cuộn ngang.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Lát: L0
+
+### KICHBAN_KIEMTHU_177: Giá trị biên chiết khấu tay, cài đặt bán hàng, dữ liệu gửi lên
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_88
+- Chức năng: CHUC_NANG_54, CHUC_NANG_55
+- Loại: Giá trị biên, sai
+- Vai trò thực hiện: Quản trị công ty VCR; Nhân viên bán hàng VCR
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; công ty chưa có cài đặt bán hàng.
+- Các bước: (1) Đọc `GET /sales/settings`. (2) `PUT /sales/settings` với `maxManualDiscountPercent` lần lượt "100.01", "-1", "5.555", "5,5" (phiên bản 0). (3) Lưu lại với phiên bản 0. (4) Lập đơn có dòng chiết khấu "100", "100.01", "", 0 dòng, 201 dòng, `quantity` "0", tên người mua 201 ký tự, trường lạ `price`. (5) Với mức tối đa "5.5": gửi đơn có dòng chiết khấu 5,5% và đơn chiết khấu 5,6%.
+- Kết quả mong đợi: Bước 1: `{ maxManualDiscountPercent: "0", version: 0 }`. Bước 2: `400` lỗi ở `maxManualDiscountPercent` với ba giá trị đầu; "5,5" lưu thành "5.5", phiên bản 1. Bước 3: `409 CONFLICT_VERSION`. Bước 4: "100" lập được (đơn giá 0; gửi sinh ngoại lệ chiết khấu, dưới giá vốn); "100.01" `400`; "" thành 0; 0 dòng, 201 dòng, số lượng 0, tên 201 ký tự, trường lạ đều `400`. Bước 5: 5,5% xác nhận ngay (bằng mức tối đa); 5,6% `pending`, ngoại lệ `discount`.
+- Kiểm thử tự động: Thủ công – gọi API bằng công cụ gọi API
+- Lát: L0
+
+### KICHBAN_KIEMTHU_178: Biên hạn mức công nợ; che hạn mức công nợ, giá vốn trong diễn giải ngoại lệ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_88, TIEUCHI_NGHIEMTHU_92
+- Chức năng: CHUC_NANG_54
+- Loại: Giá trị biên, phân quyền, bảo mật
+- Vai trò thực hiện: Nhân viên bán hàng VCR; Thủ kho VCR-BD; Quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Chính sách duyệt `sales.order` một cấp; khách "Đại lý Sỉ Phú Thọ" hạn mức 1.000.000, chưa có đơn nào.
+- Các bước: (1) Gửi đơn khách "Đại lý Sỉ Phú Thọ" có tổng gồm thuế đúng 1.000.000 (ví dụ lập dòng đơn vị chai để ra đúng số). (2) Gửi đơn cùng khách 1 chai. (3) Gửi đơn khách "Cửa hàng Lẻ An Bình" (hạn mức trống) 30 thùng; đơn người mua không lấy hóa đơn 1 thùng. (4) Gửi đơn chiết khấu 50% (dưới giá vốn) với chiết khấu tối đa 60%. (5) Nhân viên bán hàng, Thủ kho, Quản trị công ty lần lượt xem chi tiết đơn bước 2, bước 4 qua API và trên trình duyệt.
+- Kết quả mong đợi: Bước 1: `confirmed` (bằng hạn mức không vượt). Bước 2: `pending`, ngoại lệ `credit_limit`. Bước 3: không có ngoại lệ `credit_limit` (hạn mức trống, không có khách thì không kiểm). Bước 4: `pending`, ngoại lệ `below_cost`. Bước 5: Nhân viên bán hàng, Thủ kho thấy loại ngoại lệ, `detail` là chuỗi trống, giao diện không hiện số; Quản trị công ty (có `crm.profile.manage`, `inventory.cost.view`) thấy "<dư nợ sau đơn> > 1000000" và "<giá một đơn vị cơ sở> < 4000".
+- Kiểm thử tự động: Thủ công – gọi API và kiểm tra trên trình duyệt
+- Lát: L0
+
+### KICHBAN_KIEMTHU_179: Phân quyền từng vai trò của mini app Bán hàng và phiếu giao hàng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_92
+- Chức năng: CHUC_NANG_54, CHUC_NANG_55, CHUC_NANG_56, CHUC_NANG_57
+- Loại: Phân quyền
+- Vai trò thực hiện: Nhân viên bán hàng VCR, VCT; Thủ kho VCR-BD; Quản lý kho; người dùng chỉ có vai trò Nhân viên (không quyền Bán hàng); Quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Đơn A của VCR do Nhân viên bán hàng VCR lập, đang chờ duyệt; đơn B đã xác nhận.
+- Các bước: (1) Người không có quyền Bán hàng gọi `GET /sales/orders`, mở `/sales`. (2) Thủ kho VCR-BD gọi `GET /sales/orders`, `GET /sales/settings`, `GET /sales/price`, `GET /sales/items?search=nuoc`, `PUT /sales/settings`, `POST /sales/orders/{B}/cancel`. (3) Nhân viên bán hàng VCR gọi `PUT /sales/settings`, `POST /inventory/sales-issues` theo đơn B, `GET /inventory/sales-orders`. (4) Quản trị công ty VCR rút đơn A (không phải người lập). (5) Nhân viên bán hàng VCT gọi `GET`, `PATCH`, `POST .../cancel`, `POST .../close` đơn B với `X-Company-Id` VCT, và với `X-Company-Id` VCR. (6) Quản lý kho gán ở VCR-BD gọi `GET /inventory/sales-orders`, lập, gửi phiếu xuất theo đơn B.
+- Kết quả mong đợi: Bước 1: `403`; trang "Bạn không có quyền xem trang này". Bước 2: `200`, `200`, `403`, `403`, `403`, `403`. Bước 3: `403`, `403` hoặc `404`, danh sách rỗng hoặc `403`. Bước 4: `403`. Bước 5: `404`, `404`, `409 CONFLICT_VERSION` hoặc `404`; với VCR `403` (không được gán ở VCR). Bước 6: có đơn B; lập, gửi được.
+- Kiểm thử tự động: Thủ công – gọi API bằng công cụ gọi API
+- Lát: L0, L1
+
+### KICHBAN_KIEMTHU_180: Giao hàng, nhận hàng trả lại trên trình duyệt (mini app Kho)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_90, TIEUCHI_NGHIEMTHU_91
+- Chức năng: CHUC_NANG_56, CHUC_NANG_57
+- Loại: Đúng, giao diện
+- Vai trò thực hiện: Thủ kho VCR-BD; Nhân viên bán hàng VCR
+- Điều kiện ban đầu và dữ liệu: Đơn đã xác nhận có 2 thùng nước, 1 hộp hàng theo lô (hai lô hạn khác nhau), 1 điện thoại; kho có vị trí và kho không dùng vị trí.
+- Các bước: (1) Thủ kho mở `/inventory/documents`, bấm "Giao hàng theo đơn bán". (2) Chọn đơn; nhập 1 thùng nước, chọn lô, nhập serial; "Lưu nháp". (3) Ở chi tiết phiếu nháp: kiểm nút; bấm "Xóa nháp"; lập lại, bấm "Gửi". (4) Bấm "Nhận hàng trả lại" ở phiếu đã ghi sổ; nhập lý do, số trả 1 chai nước, chọn serial điện thoại; "Lưu nháp", "Gửi". (5) Bấm liên kết "Đơn bán" ở phiếu xuất; xem chi tiết đơn. (6) Mở `/inventory/sales-returns/new` không có `issueId`.
+- Kết quả mong đợi: Bước 1: trang "Giao hàng theo đơn bán", danh sách chọn đơn. Bước 2: mỗi dòng hiện "Đặt <số> <đơn vị>, còn phải giao <số> <đơn vị>"; lô gợi ý hết hạn trước được chọn sẵn; chỉ dòng có số giao vào phiếu; mở chi tiết phiếu nháp. Bước 3: chỉ có "Xóa nháp", "Gửi" (không "Sửa"); xóa xong "Đã xóa phiếu nháp."; gửi xong trạng thái đã ghi sổ, số `XBH`, có "Khách hàng", "Đơn bán". Bước 4: trang "Nhận hàng trả lại: <số phiếu xuất>", câu "Hàng trả nhập lại theo giá vốn trên phiếu xuất gốc."; ô số trả theo đơn vị cơ sở; gửi xong số `NTL`, "Phiếu xuất gốc" liên kết về phiếu xuất. Bước 5: mở MAN_HINH_43; cột "Đã giao" hiện số đã giao, "đã trả 1"; khối "Phiếu kho liên quan" có hai phiếu. Bước 6: "Chọn phiếu xuất giao hàng để nhận hàng trả lại.".
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Lát: L1
+
+### KICHBAN_KIEMTHU_181: Khóa đồng thời khi gửi đơn, giao hàng, nhận hàng trả lại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_88, TIEUCHI_NGHIEMTHU_89, TIEUCHI_NGHIEMTHU_90, TIEUCHI_NGHIEMTHU_91
+- Chức năng: CHUC_NANG_54, CHUC_NANG_56, CHUC_NANG_57
+- Loại: Đồng thời, giá trị biên
+- Vai trò thực hiện: Nhân viên bán hàng VCR (hai phiên); Thủ kho VCR-BD (hai phiên)
+- Điều kiện ban đầu và dữ liệu: Chính sách duyệt `sales.order` một cấp; khách hạn mức 1.000.000 chưa có đơn; kho còn khả dụng 30 thùng nước.
+- Các bước: (1) Hai phiên gửi cùng lúc hai đơn nháp cùng khách, mỗi đơn 600.000. (2) Hai phiên gửi cùng lúc hai đơn, mỗi đơn 20 thùng. (3) Hai phiên gửi cùng lúc hai phiếu xuất nháp, mỗi phiếu 2 thùng, theo đơn còn phải giao 3 thùng. (4) Hai phiên gửi cùng lúc hai phiếu trả nháp, mỗi phiếu 1 cái, theo dòng phiếu xuất đã giao 1 cái. (5) Hai phiên gửi cùng lúc hai đơn có cùng hai mặt hàng nhưng thứ tự dòng ngược nhau.
+- Kết quả mong đợi: Bước 1: đơn gửi sau có ngoại lệ `credit_limit` (hồ sơ khách bị khóa khi gửi). Bước 2: một đơn được, đơn kia lỗi "Không đủ hàng khả dụng (một phần đang được giữ).". Bước 3: một phiếu ghi sổ, phiếu kia lỗi "Vượt số còn phải giao của đơn bán." (khóa đơn bán). Bước 4: một phiếu ghi sổ, phiếu kia lỗi "Vượt số đã giao còn trả được của phiếu xuất gốc." (khóa dòng phiếu xuất gốc). Bước 5: cả hai xử lý xong, không khóa chéo (giữ hàng, dùng hàng giữ theo thứ tự mã mặt hàng).
+- Kiểm thử tự động: Thủ công – chạy tập lệnh gọi API song song
+- Lát: L0, L1
+
+### KICHBAN_KIEMTHU_182: Hủy, đóng đơn theo trạng thái; phiếu xuất nháp chặn hủy, đóng; giữ hàng khi sửa, gửi lại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_89, TIEUCHI_NGHIEMTHU_90
+- Chức năng: CHUC_NANG_54, CHUC_NANG_56
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Nhân viên bán hàng VCR; Thủ kho VCR-BD
+- Điều kiện ban đầu và dữ liệu: Chính sách duyệt `sales.order` một cấp; chiết khấu tối đa 5%.
+- Các bước: (1) Hủy đơn nháp; hủy đơn bị từ chối. (2) Đơn bị từ chối: sửa giảm chiết khấu về 5%, gửi lại; xem số giữ. (3) Đơn đã xác nhận 2 thùng: Thủ kho lập phiếu xuất nháp 1 thùng (chưa gửi); Nhân viên bán hàng hủy đơn, xem nút trên chi tiết. (4) Thủ kho gửi phiếu nháp; lập thêm phiếu nháp 1 thùng; Nhân viên bán hàng đóng đơn. (5) Thủ kho xóa phiếu nháp; Nhân viên bán hàng đóng đơn với lý do trống, rồi lý do "Khách đổi ý". (6) Hủy, đóng đơn đã giao đủ, đã hủy.
+- Kết quả mong đợi: Bước 1: `cancelled`. Bước 2: về nháp khi sửa; gửi lại `confirmed`, không ngoại lệ; giữ hàng lại đúng số của đơn. Bước 3: `409` "Đơn bán đã có phiếu xuất giao hàng hoặc không ở trạng thái hủy được; hãy đóng đơn."; không có "Hủy đơn", "Đóng đơn". Bước 4: `409` "Đơn bán còn phiếu xuất giao hàng nháp, chưa đóng được."; nút "Đóng đơn" ẩn. Bước 5: lý do trống `400`; `closed`, nhả phần giữ còn lại. Bước 6: hủy `409`; đóng `409 CONFLICT_VERSION`.
+- Kiểm thử tự động: Thủ công – gọi API và kiểm tra trên trình duyệt
+- Lát: L0, L1
