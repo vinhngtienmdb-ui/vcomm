@@ -20,6 +20,9 @@ const shiftYear = (date: string, years: number) => {
   const target = new Date(Date.UTC(year + years, month - 1, dayOfMonth));
   // 29/02 lùi về năm không nhuận thành 28/02.
   if (target.getUTCMonth() !== month - 1) target.setUTCDate(0);
+  // Ngày cuối tháng lùi thành ngày cuối tháng đó của năm trước (28/02/2025 thành 29/02/2024).
+  const isMonthEnd = new Date(Date.UTC(year, month - 1, dayOfMonth + 1)).getUTCDate() === 1;
+  if (isMonthEnd) return new Date(Date.UTC(year + years, month, 0)).toISOString().slice(0, 10);
   return target.toISOString().slice(0, 10);
 };
 
@@ -52,9 +55,16 @@ export class StatementsService {
     // Dài hạn: tài khoản được đánh dấu hoặc nằm dưới tài khoản được đánh dấu.
     const longTerm = (id: string | null): boolean => (id ? (byId.get(id)!.is_long_term ? true : longTerm(byId.get(id)!.parent_id)) : false);
     const accounts: Account[] = rows.rows.map((row) => ({ id: row.id, code: row.code, parentId: row.parent_id, longTerm: longTerm(row.id) }));
-    const retained = (await this.database.execute<{ account_id: string }>(sql`SELECT account_id FROM accounting.posting_rules WHERE company_id = ${actor.companyId} AND role = 'retained_earnings'`))
-      .rows[0]!.account_id;
-    return { company, accounts, retained };
+    const rules = new Map(
+      (
+        await this.database.execute<{ role: string; account_id: string }>(sql`
+        SELECT role, account_id FROM accounting.posting_rules WHERE company_id = ${actor.companyId} AND role IN ('retained_earnings', 'income_summary')`)
+      ).rows.map((row) => [row.role, row.account_id]),
+    );
+    const retained = rules.get("retained_earnings")!;
+    const summaryCode = byId.get(rules.get("income_summary")!)!.code;
+    const incomeSummary = accounts.filter((account) => account.code.startsWith(summaryCode)).map((account) => account.id);
+    return { company, accounts, retained, incomeSummary };
   }
 
   // Tài khoản thuộc từng mã trong công thức (gồm tài khoản chi tiết); tài khoản khớp nhiều mã thì thuộc mã dài nhất.
@@ -105,25 +115,33 @@ export class StatementsService {
     return formula.negative ? -value : value;
   }
 
+  // Bút toán kết chuyển: do khóa sổ sinh ra, hoặc phiếu kế toán có dòng trên tài khoản xác định kết quả (911).
+  private notClosing(incomeSummary: string[]) {
+    return sql`j.source_type <> 'closing' AND NOT EXISTS (SELECT 1 FROM accounting.journal_lines z WHERE z.journal_id = j.id AND z.account_id IN (${sql.join(
+      incomeSummary.map((id) => sql`${id}::uuid`),
+      sql`, `,
+    )}))`;
+  }
+
   // Phát sinh trong kỳ, không tính bút toán kết chuyển (QUYTAC_NGHIEPVU_100).
-  private async turnovers(companyId: string, from: string, to: string): Promise<Map<string, { debit: number; credit: number }>> {
+  private async turnovers(companyId: string, from: string, to: string, incomeSummary: string[]): Promise<Map<string, { debit: number; credit: number }>> {
     const rows = await this.database.execute<{ account_id: string; debit: string; credit: string }>(sql`
       SELECT l.account_id, sum(l.debit)::text AS debit, sum(l.credit)::text AS credit
       FROM accounting.journal_lines l JOIN accounting.journals j ON j.id = l.journal_id
-      WHERE j.company_id = ${companyId} AND j.status = 'posted' AND j.source_type <> 'closing' AND j.journal_date BETWEEN ${from}::date AND ${to}::date
+      WHERE j.company_id = ${companyId} AND j.status = 'posted' AND ${this.notClosing(incomeSummary)} AND j.journal_date BETWEEN ${from}::date AND ${to}::date
       GROUP BY l.account_id`);
     return new Map(rows.rows.map((row) => [row.account_id, { debit: Number(row.debit), credit: Number(row.credit) }]));
   }
 
   // Phát sinh của một bên trên các tài khoản, chỉ dòng có tài khoản đối ứng (bên kia của cùng bút toán) thuộc danh sách.
-  private async counterTurnover(companyId: string, from: string, to: string, accountIds: string[], counterIds: string[], side: "debit" | "credit"): Promise<number> {
+  private async counterTurnover(companyId: string, from: string, to: string, incomeSummary: string[], accountIds: string[], counterIds: string[], side: "debit" | "credit"): Promise<number> {
     if (accountIds.length === 0 || counterIds.length === 0) return 0;
     const own = side === "debit" ? sql`l.debit` : sql`l.credit`;
     const other = side === "debit" ? sql`o.credit` : sql`o.debit`;
     const row = (
       await this.database.execute<{ value: string }>(sql`
       SELECT coalesce(sum(${own}), 0)::text AS value FROM accounting.journal_lines l JOIN accounting.journals j ON j.id = l.journal_id
-      WHERE j.company_id = ${companyId} AND j.status = 'posted' AND j.source_type <> 'closing' AND j.journal_date BETWEEN ${from}::date AND ${to}::date
+      WHERE j.company_id = ${companyId} AND j.status = 'posted' AND ${this.notClosing(incomeSummary)} AND j.journal_date BETWEEN ${from}::date AND ${to}::date
         AND l.account_id IN ${sql`(${sql.join(
           accountIds.map((id) => sql`${id}::uuid`),
           sql`, `,
@@ -138,7 +156,15 @@ export class StatementsService {
   }
 
   // Chỉ tiêu kết quả kinh doanh: phát sinh đối ứng 911 (hoặc 521) tính như đã kết chuyển: phát sinh thuần của tài khoản trong kỳ.
-  private async incomeValue(companyId: string, from: string, to: string, formula: StatementFormula, accounts: Account[], turnovers: Map<string, { debit: number; credit: number }>): Promise<number> {
+  private async incomeValue(
+    companyId: string,
+    from: string,
+    to: string,
+    incomeSummary: string[],
+    formula: StatementFormula,
+    accounts: Account[],
+    turnovers: Map<string, { debit: number; credit: number }>,
+  ): Promise<number> {
     const ids = (codes: string[] | undefined) => [...this.groups(accounts, codes ?? [], "all").values()].flat().map((account) => account.id);
     const sumOf = (codes: string[] | undefined, pick: (value: { debit: number; credit: number }) => number) =>
       ids(codes).reduce((total, id) => total + (turnovers.has(id) ? pick(turnovers.get(id)!) : 0), 0);
@@ -150,7 +176,7 @@ export class StatementsService {
     if (counter.length === 1 && counter[0] === "521" && formula.debitTurnover) return sumOf(["521"], (value) => value.debit - value.credit);
     if (counter.length > 0) {
       const side = formula.debitTurnover ? "debit" : "credit";
-      return this.counterTurnover(companyId, from, to, ids(formula.debitTurnover ?? formula.creditTurnover), ids(counter), side);
+      return this.counterTurnover(companyId, from, to, incomeSummary, ids(formula.debitTurnover ?? formula.creditTurnover), ids(counter), side);
     }
     // Loại đối ứng 911, 521: chỉ có ở bút toán kết chuyển, đã không tính.
     if (formula.creditTurnover) return sumOf(formula.creditTurnover, (value) => value.credit);
@@ -182,15 +208,19 @@ export class StatementsService {
     const templates = statementTemplates[regime];
     if (kind === "income_statement") return templates.incomeStatement;
     if (form && templates.balanceSheetB01b && form === templates.balanceSheetB01b.form) return templates.balanceSheetB01b;
+    if (form && form !== templates.balanceSheet.form) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { form: "invalidValue" } });
     return templates.balanceSheet;
   }
 
   async statement(actor: Actor, kind: StatementKind, from: string, to: string, form?: string): Promise<StatementResponse> {
-    const { company, accounts, retained } = await this.context(actor);
+    const { company, accounts, retained, incomeSummary } = await this.context(actor);
     if (from > to) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { to: "endBeforeStart" } });
     const template = this.template(company.accounting_regime, kind, form);
     const templates = statementTemplates[company.accounting_regime];
     const forms = kind === "balance_sheet" ? [templates.balanceSheet.form, ...(templates.balanceSheetB01b ? [templates.balanceSheetB01b.form] : [])] : [templates.incomeStatement.form];
+    const units = Number((await this.database.execute<{ units: number }>(sql`SELECT finance.company_minor_units(${actor.companyId}) AS units`)).rows[0]!.units);
+    // Chỉ tiêu thành phần làm tròn theo đơn vị tiền tệ trước khi cộng, để tổng khớp các dòng hiển thị.
+    const toMinor = (value: number) => Math.round(value * 10 ** units) / 10 ** units;
     let current: Map<string, number>;
     let previous: Map<string, number>;
     let columns: { label: string; from: string | null; to: string }[];
@@ -207,9 +237,9 @@ export class StatementsService {
         return this.evaluate(template, (line) => {
           if (line.longTermOf) {
             const twin = byCode.get(line.longTermOf);
-            return twin?.formula ? this.balanceValue(twin.formula, accounts, balances, "long") : 0;
+            return twin?.formula ? toMinor(this.balanceValue(twin.formula, accounts, balances, "long")) : 0;
           }
-          return line.formula ? this.balanceValue(line.formula, accounts, balances, twins.has(line.code) ? "short" : "all") : 0;
+          return line.formula ? toMinor(this.balanceValue(line.formula, accounts, balances, twins.has(line.code) ? "short" : "all")) : 0;
         });
       };
       current = await compute(to);
@@ -220,10 +250,11 @@ export class StatementsService {
       ];
     } else {
       const compute = async (start: string, end: string) => {
-        const turnovers = await this.turnovers(actor.companyId, start, end);
+        const turnovers = await this.turnovers(actor.companyId, start, end, incomeSummary);
         const bases = new Map<string, number>();
         for (const line of template.lines)
-          if (line.formula && !line.formula.sum && !line.formula.minus) bases.set(line.code, await this.incomeValue(actor.companyId, start, end, line.formula, accounts, turnovers));
+          if (line.formula && !line.formula.sum && !line.formula.minus)
+            bases.set(line.code, toMinor(await this.incomeValue(actor.companyId, start, end, incomeSummary, line.formula, accounts, turnovers)));
         return this.evaluate(template, (line) => bases.get(line.code) ?? 0);
       };
       const previousFrom = shiftYear(from, -1);
@@ -235,8 +266,7 @@ export class StatementsService {
         { label: "previousPeriod", from: previousFrom, to: previousTo },
       ];
     }
-    const units = Number((await this.database.execute<{ units: number }>(sql`SELECT finance.company_minor_units(${actor.companyId}) AS units`)).rows[0]!.units);
-    const money = (value: number) => trimDecimal((Math.round(value * 10 ** units) / 10 ** units).toFixed(Math.max(units, 0)));
+    const money = (value: number) => trimDecimal(toMinor(value).toFixed(Math.max(units, 0)));
     return {
       kind,
       form: template.form,

@@ -3065,7 +3065,8 @@ export const statementKinds = ["balance_sheet", "income_statement"] as const;
 export type StatementKind = (typeof statementKinds)[number];
 export const statementQuerySchema = z
   .object({ kind: z.enum(statementKinds), from: isoDate.optional(), to: isoDate, form: z.string().trim().max(20).optional(), format: z.enum(["xlsx", "pdf"]).optional() })
-  .strict();
+  .strict()
+  .refine((value) => value.kind !== "income_statement" || Boolean(value.from), { path: ["from"], message: "required" });
 export interface StatementLineResponse {
   code: string;
   name: string;

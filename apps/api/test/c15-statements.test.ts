@@ -271,3 +271,26 @@ describe("TIEUCHI_NGHIEMTHU_119, 120: Thông tư 133, xuất tệp", () => {
     ).toBe("%PDF-");
   });
 });
+
+describe("TIEUCHI_NGHIEMTHU_117, 118: trường hợp biên", () => {
+  it("KICHBAN_KIEMTHU_221: phiếu kế toán kết chuyển thủ công qua 911 không làm sai kết quả kinh doanh; cùng kỳ năm trước giữ ngày cuối tháng; thiếu từ ngày, mẫu không hợp lệ bị từ chối", async () => {
+    const before = await statement(`kind=income_statement&from=2026-01-01&to=${today}`);
+    const posted = await journal(today, [
+      { code: "911", debit: "5000" },
+      { code: "632", credit: "5000" },
+    ]);
+    expect(posted.body.status, JSON.stringify(posted.body)).toBe("posted");
+    const after = await statement(`kind=income_statement&from=2026-01-01&to=${today}`);
+    expect([value(after, "01"), value(after, "11"), value(after, "60")]).toEqual([value(before, "01"), value(before, "11"), value(before, "60")]);
+    const balance = await statement(`kind=balance_sheet&to=${today}`);
+    expect(value(balance, "280")).toBe(value(balance, "440"));
+
+    const february = await statement("kind=income_statement&from=2025-02-01&to=2025-02-28");
+    expect(february.columns[1]).toMatchObject({ from: "2024-02-01", to: "2024-02-29" });
+    const leap = await statement("kind=income_statement&from=2024-02-01&to=2024-02-29");
+    expect(leap.columns[1]).toMatchObject({ from: "2023-02-01", to: "2023-02-28" });
+
+    expect((await call(accountant, "get", `/finance/statements?kind=income_statement&to=${today}`)).status).toBe(400);
+    expect((await call(accountant, "get", `/finance/statements?kind=balance_sheet&to=${today}&form=B09-XX`)).status).toBe(400);
+  });
+});
