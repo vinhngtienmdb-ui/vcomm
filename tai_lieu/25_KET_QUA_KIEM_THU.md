@@ -196,7 +196,8 @@
   - C3 phân quyền: Đạt – quyền tài chính cần phạm vi công ty; nhân viên bán hàng không xem, không lập được; chi tiết công nợ chỉ cho đối tác có quan hệ với công ty.
   - C4 toàn vẹn dữ liệu: Đạt – công nợ tạo cùng giao dịch ghi sổ phiếu kho; trừ nợ tuần tự theo khóa đối tác, không vượt số còn lại; ghi sổ phiếu chi khóa quỹ rồi mới tính số dư.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 1 lỗi Cao (hai phiếu chi đồng thời làm quỹ âm), 1 lỗi Trung bình (xóa số dư đầu kỳ đang được chọn lỗi máy chủ), 3 lỗi Thấp; đã sửa cả. Rà soát bảo mật tài liệu 22 sửa thêm 2 điểm Thấp. Giữ lại (ghi tài liệu 22): so sánh tiền dùng số thực với sai số 0,00005 (giá trị rất lớn có thể lệch chữ số lẻ cuối, dữ liệu lưu đúng); ghi sổ phiếu chi sau duyệt không ghi dòng nhật ký riêng; phiếu chi ghi ngày quá khứ chỉ kiểm số dư quỹ hiện tại.
-- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
+- Kết luận: Người dùng nghiệm thu 2026-11-10, chấp nhận các điểm AI tự quyết; chờ người dùng hợp nhất pull request số 48 (sau số 47).
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_10 (LOI_04)
 
