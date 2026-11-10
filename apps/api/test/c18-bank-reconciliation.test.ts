@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
 import { createTestUser, signIn, type Session } from "./helpers";
-import { startTestApplication } from "./setup-database";
+import { startTestApplication, testRateLimit } from "./setup-database";
 
 let application: NestExpressApplication;
 let pool: Pool;
@@ -376,5 +376,19 @@ describe("CONG_VIEC_18 sửa lỗi rà soát", () => {
     expect((await webhook(dirty)).status).toBe(200);
     expect((await pool.query("SELECT content FROM finance.bank_transactions WHERE external_id = $1", [String(dirty.id)])).rows[0].content).toBe("ab");
     expect((await call(chief, "post", `/finance/bank-connections/${otherFund}/simulate`, { direction: "in", amount: "0" })).status).toBe(400);
+  });
+});
+
+describe("CONG_VIEC_18 giới hạn tần suất webhook", () => {
+  it("KICHBAN_KIEMTHU_260: webhook đúng khóa không bị giới hạn; vượt giới hạn lần sai khóa thì trả 429", async () => {
+    const saved = testRateLimit.perMinute;
+    testRateLimit.perMinute = 0;
+    try {
+      for (let index = 0; index < 3; index += 1) expect((await webhook(payload("in", 1200 + index, today))).status).toBe(200);
+      expect((await webhook(payload("in", 1300, today), "sai-khoa")).status).toBe(429);
+    } finally {
+      testRateLimit.perMinute = saved;
+    }
+    expect((await webhook(payload("in", 1300, today), "sai-khoa")).status).toBe(401);
   });
 });

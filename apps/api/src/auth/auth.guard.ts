@@ -16,6 +16,9 @@ export const csrfCookieName = "vc_csrf";
 
 const publicKey = "isPublic";
 export const Public = () => SetMetadata(publicKey, true);
+// API công khai tự giới hạn số lần gọi sai (webhook ngân hàng chỉ đếm lần sai khóa; CONG_VIEC_18).
+const ownRateLimitKey = "ownRateLimit";
+export const OwnRateLimit = () => SetMetadata(ownRateLimitKey, true);
 
 // Đường dẫn dùng được khi phiên chưa nhập mã xác thực hai lớp (luồng 2 bước 3 tài liệu 09).
 const mfaPendingKey = "allowMfaPending";
@@ -48,6 +51,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     if (this.reflector.getAllAndOverride<boolean>(publicKey, [context.getHandler(), context.getClass()])) {
       // API không cần đăng nhập: giới hạn số yêu cầu theo địa chỉ IP (tài liệu 22 mục 3).
+      if (this.reflector.getAllAndOverride<boolean>(ownRateLimitKey, [context.getHandler(), context.getClass()])) return true;
       const route = `${request.method} ${(request.route as { path?: string } | undefined)?.path ?? request.path}`;
       const retryAfterSeconds = await this.rateLimiter.hit(route, request.ip ?? "khong-ro");
       if (retryAfterSeconds !== null) throw new ApiError("RATE_LIMITED", "rateLimited", { retryAfterSeconds });

@@ -17,7 +17,8 @@ import {
   type SaveBankConnectionResponse,
 } from "contracts";
 import { clientInfo } from "../auth/auth.controller";
-import { Public, type AuthenticatedRequest } from "../auth/auth.guard";
+import { OwnRateLimit, Public, type AuthenticatedRequest } from "../auth/auth.guard";
+import type { Request } from "express";
 import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
@@ -56,11 +57,18 @@ export class BankReconciliationController {
   }
 
   // Dịch vụ trung gian gọi, xác thực bằng khóa của kết nối (QUYTAC_NGHIEPVU_113).
+  // Không giới hạn yêu cầu đúng khóa; chỉ đếm lần sai khóa theo địa chỉ IP (quyết định của người dùng ngày 2026-11-10).
   @Public()
+  @OwnRateLimit()
   @Post("public/bank-webhooks/:connectionId")
   @HttpCode(200)
-  async webhook(@Param("connectionId", UuidPipe) connectionId: string, @Headers("authorization") authorization: string | undefined, @Body() body: unknown): Promise<{ success: true }> {
-    return this.bank.receive(connectionId, authorization, body);
+  async webhook(
+    @Req() request: Request,
+    @Param("connectionId", UuidPipe) connectionId: string,
+    @Headers("authorization") authorization: string | undefined,
+    @Body() body: unknown,
+  ): Promise<{ success: true }> {
+    return this.bank.receive(connectionId, authorization, body, request.ip ?? "khong-ro");
   }
 
   @Get("finance/bank-transactions")

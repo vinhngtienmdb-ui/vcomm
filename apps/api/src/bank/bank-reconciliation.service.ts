@@ -21,6 +21,7 @@ import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { CLOCK, type Clock, vietnamDate } from "../common/clock";
+import { RateLimiter } from "../common/rate-limiter";
 import { decryptSecret, encryptSecret } from "../common/secret-box";
 import { DATABASE, type Database } from "../database/database.module";
 import { simulatorAllowed } from "../einvoice/einvoice-settings.service";
@@ -61,6 +62,7 @@ export class BankReconciliationService implements OnModuleInit {
     private readonly permissionService: PermissionService,
     private readonly auditService: AuditService,
     private readonly payments: PaymentsService,
+    private readonly rateLimiter: RateLimiter,
   ) {}
 
   onModuleInit(): void {
@@ -179,9 +181,13 @@ export class BankReconciliationService implements OnModuleInit {
       FROM finance.bank_connections c JOIN finance.funds f ON f.id = c.fund_id`;
   }
 
-  async receive(connectionId: string, authorization: string | undefined, body: unknown): Promise<{ success: true }> {
+  async receive(connectionId: string, authorization: string | undefined, body: unknown, ip: string): Promise<{ success: true }> {
     const connection = (await this.database.execute<ConnectionRow>(sql`${this.connectionSelect()} WHERE c.id = ${connectionId}`)).rows[0];
-    if (!connection || !connection.enabled || !authorized(authorization, decryptSecret(connection.secret_value))) throw new ApiError("UNAUTHENTICATED", "bankWebhookUnauthorized");
+    if (!connection || !connection.enabled || !authorized(authorization, decryptSecret(connection.secret_value))) {
+      const retryAfterSeconds = await this.rateLimiter.hit("bank-webhook-unauthorized", ip);
+      if (retryAfterSeconds !== null) throw new ApiError("RATE_LIMITED", "rateLimited", { retryAfterSeconds });
+      throw new ApiError("UNAUTHENTICATED", "bankWebhookUnauthorized");
+    }
     const parsed = parseWebhook(body);
     if (!parsed) throw new ApiError("VALIDATION_FAILED", "bankWebhookInvalid");
     const fundAccount = accountDigits(connection.account_no);
