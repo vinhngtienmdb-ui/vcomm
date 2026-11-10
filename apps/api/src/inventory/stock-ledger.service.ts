@@ -20,6 +20,7 @@ export interface LedgerEntry {
   // Giá vốn một đơn vị cơ sở khi tăng; để trống thì lấy giá vốn bình quân hiện hành.
   unitCost?: string | null;
   // Tổng giá trị khi tăng (nhập theo đơn vị khác đơn vị cơ sở); ưu tiên hơn giá một đơn vị.
+  // Khi giảm: xuất theo giá trị cho trước (trả hàng nhà cung cấp theo giá phiếu nhập gốc, QUYTAC_NGHIEPVU_66).
   totalValue?: string | null;
   // Hàng theo dõi serial: danh sách serial tăng hoặc giảm.
   serials?: string[];
@@ -81,6 +82,12 @@ export class StockLedgerService {
       serialIds = moved.serialIds;
     } else if (increase && entry.totalValue) {
       value = entry.totalValue;
+    } else if (!increase && entry.totalValue) {
+      // Xuất hết thì lấy toàn bộ giá trị còn lại; không xuất quá giá trị đang có để giá trị tồn không âm.
+      value = await scalar(
+        transaction,
+        sql`SELECT (CASE WHEN ${amount}::numeric = ${cost.quantity}::numeric THEN ${cost.value}::numeric ELSE least(${entry.totalValue}::numeric, ${cost.value}::numeric) END)::text AS value`,
+      );
     } else if (increase) {
       value = await scalar(transaction, sql`SELECT round(${amount}::numeric * ${entry.unitCost ?? cost.average_cost}::numeric, 4)::text AS value`);
     } else {

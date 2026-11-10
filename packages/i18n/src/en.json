@@ -162,7 +162,12 @@
     "purchaseOrderHasOpenReceipts": "The purchase order has draft or quality-check receipts and cannot be closed.",
     "purchaseLineHasReceipts": "This line already has receipts; it cannot be removed or change item or unit.",
     "purchaseQuantityBelowReceived": "The quantity is below the quantity already received.",
-    "requisitionQuantityExceeded": "The quantity exceeds what remains on the requisition line."
+    "requisitionQuantityExceeded": "The quantity exceeds what remains on the requisition line.",
+    "purchaseOrderNotOpen": "The purchase order is not approved or is closed; goods cannot be received.",
+    "purchaseReceiptNotPosted": "Returns can only be made from posted purchase receipts.",
+    "documentNotInQualityCheck": "The document is not awaiting quality check.",
+    "purchaseOverReceipt": "Exceeds the quantity still receivable on the purchase order (tolerance included).",
+    "purchaseReturnExceeded": "Exceeds the quantity still returnable on the original receipt."
   },
   "login": {
     "title": "Sign in",
@@ -836,7 +841,8 @@
     "purchase_order_create": "Create purchase order",
     "purchase_order_update": "Edit purchase order",
     "purchase_order_submit": "Submit purchase order",
-    "purchase_order_close": "Close purchase order"
+    "purchase_order_close": "Close purchase order",
+    "stock_document_quality_check": "Record quality check"
   },
   "notifications": {
     "title": "Notifications",
@@ -1065,7 +1071,11 @@
     "activateText": "Reactivate this category?",
     "saved": "Saved.",
     "addUnit": "Add unit",
-    "edit": "Edit"
+    "edit": "Edit",
+    "requiresQualityCheck": "Quality check on purchase receipt",
+    "requiresQualityCheckLabel": "Requires quality check on purchase receipt (goods stay out of stock until checked)",
+    "yes": "Yes",
+    "no": "No"
   },
   "products": {
     "title": "Products",
@@ -1475,7 +1485,39 @@
     "printLabels": "Print labels",
     "status_transfer_posted": "Approved, awaiting shipment",
     "responsible": "Responsible for the shortage",
-    "compensation": "Compensation"
+    "compensation": "Compensation",
+    "type_purchase_receipt": "Purchase receipt",
+    "type_purchase_return": "Purchase return",
+    "status_quality_check": "Awaiting quality check",
+    "reason_purchase": "Purchase",
+    "reason_purchase_return": "Return to supplier",
+    "new_purchase_receipt": "Receive purchase order",
+    "supplier": "Supplier",
+    "sourceOrder": "Purchase order",
+    "sourceReceipt": "Original receipt",
+    "deleteDraft": "Delete draft",
+    "returnToSupplier": "Return to supplier",
+    "rejected": "rejected {count} {unit}",
+    "qualityCheck": "Quality check",
+    "qualityCheckHint": "Enter the rejected quantity per line; accepted goods are posted to stock, rejected goods are recorded with a reason.",
+    "rejectedSerials": "Rejected serials",
+    "rejectedQuantity": "Rejected quantity ({unit})",
+    "rejectionReason": "Rejection reason",
+    "confirmQualityCheck": "Record quality check",
+    "qualityChecked": "Quality check recorded; accepted goods are in stock.",
+    "noOpenOrders": "No approved purchase orders to receive into your warehouses.",
+    "purchaseOrder": "Purchase order",
+    "chooseOrder": "Choose a purchase order…",
+    "needsQualityCheck": "Quality check required",
+    "orderedReceivable": "Ordered {ordered} {unit}, still receivable {receivable} {unit}",
+    "chooseReceipt": "Choose a purchase receipt to return goods.",
+    "returnHint": "Returned goods are issued at the original receipt price.",
+    "receivedOnReceipt": "Received {count} {unit}",
+    "returnQuantity": "Return quantity ({unit})",
+    "submitPurchase": "Submit",
+    "purchaseSubmitted": "Document submitted.",
+    "purchaseReceiveHint": "Enter the received quantity for lines that arrived; leave others blank.",
+    "purchaseReceivedQuantity": "Received ({unit})"
   },
   "stocktakes": {
     "title": "Stocktake",

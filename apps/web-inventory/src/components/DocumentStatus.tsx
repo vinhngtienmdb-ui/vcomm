@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 const tone: Record<StockDocumentStatus, string> = {
   draft: "trung-tinh",
   pending: "canh-bao",
+  quality_check: "canh-bao",
   posted: "thanh-cong",
   in_transit: "thong-tin",
   received: "thanh-cong",

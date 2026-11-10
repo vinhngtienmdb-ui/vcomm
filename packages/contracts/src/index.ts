@@ -979,6 +979,8 @@ const categoryFields = {
   tracksLots: z.boolean().default(false),
   tracksSerials: z.boolean().default(false),
   warrantyMonths: z.number().int().min(0).max(120).default(0),
+  // CONG_VIEC_07: hàng thuộc ngành cần kiểm tra chất lượng khi nhập mua (QUYTAC_NGHIEPVU_65); khi sửa không gửi thì giữ nguyên.
+  requiresQualityCheck: z.boolean().optional(),
 };
 export const createCategorySchema = z.object(categoryFields).strict();
 export type CreateCategoryRequest = z.input<typeof createCategorySchema>;
@@ -997,6 +999,7 @@ export interface CategoryResponse {
   tracksLots: boolean;
   tracksSerials: boolean;
   warrantyMonths: number;
+  requiresQualityCheck: boolean;
   status: "active" | "inactive";
   version: number;
   productCount: number;
@@ -1420,9 +1423,11 @@ export interface WarehouseOptionsResponse {
 }
 
 // CONG_VIEC_05, API_64, API_65: phiếu kho, tồn kho, thẻ kho (CHUC_NANG_39, 40; QUYTAC_NGHIEPVU_47 đến 51).
-export const stockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer"] as const;
+export const stockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer", "purchase_receipt", "purchase_return"] as const;
+// Loại phiếu lập tay ở màn hình phiếu kho; phiếu nhập mua, trả hàng nhà cung cấp lập từ đơn mua, phiếu nhập mua (CONG_VIEC_07).
+export const manualStockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer"] as const;
 export type StockDocumentType = (typeof stockDocumentTypes)[number];
-export const stockDocumentStatuses = ["draft", "pending", "posted", "in_transit", "received", "rejected", "withdrawn"] as const;
+export const stockDocumentStatuses = ["draft", "pending", "quality_check", "posted", "in_transit", "received", "rejected", "withdrawn"] as const;
 export type StockDocumentStatus = (typeof stockDocumentStatuses)[number];
 // Lý do theo loại phiếu; "Hủy hàng hết hạn" là lý do duy nhất được xuất lô hết hạn (QUYTAC_NGHIEPVU_51).
 export const stockReasonCodes = {
@@ -1430,6 +1435,8 @@ export const stockReasonCodes = {
   issue_other: ["internal_use", "gift", "damaged", "expired_disposal", "other"],
   adjustment: ["stocktake", "damaged", "found", "other"],
   transfer: ["transfer"],
+  purchase_receipt: ["purchase"],
+  purchase_return: ["purchase_return"],
 } as const satisfies Record<StockDocumentType, readonly string[]>;
 export type StockReasonCode = (typeof stockReasonCodes)[StockDocumentType][number];
 const signedDecimal = z.union([z.number(), z.string()]).transform((value, context) => {
@@ -1539,6 +1546,11 @@ export interface StockDocumentLineResponse {
   responsibleUserId: string | null;
   responsibleUserName: string | null;
   compensationAmount: string | null;
+  // Phiếu nhập mua: dòng đơn mua; trả hàng: dòng phiếu nhập mua gốc.
+  sourceLineId: string | null;
+  rejectedBaseQuantity: string | null;
+  rejectionReason: string | null;
+  requiresQualityCheck: boolean;
 }
 export interface StockDocumentResponse extends StockDocumentListItem {
   destinationWarehouseId: string | null;
@@ -1562,6 +1574,13 @@ export interface StockDocumentResponse extends StockDocumentListItem {
   canWithdraw: boolean;
   canShip: boolean;
   canReceive: boolean;
+  // Phiếu nhập mua, trả hàng: nhà cung cấp, chứng từ gốc (đơn mua hoặc phiếu nhập mua).
+  partnerId: string | null;
+  partnerName: string | null;
+  sourceId: string | null;
+  sourceNo: string | null;
+  canQualityCheck: boolean;
+  canReturn: boolean;
 }
 export const lotSuggestionQuerySchema = z
   .object({ warehouseId: z.uuid(), companyId: z.uuid(), variantId: z.uuid(), locationId: z.uuid().optional(), includeExpired: z.enum(["true", "false"]).optional() })
@@ -2243,3 +2262,72 @@ export interface PurchaseOrderResponse extends PurchaseOrderListItem {
   canClose: boolean;
 }
 export const closePurchaseOrderSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();
+
+// CONG_VIEC_07, API_76: phiếu nhập mua theo đơn mua, kết quả kiểm tra chất lượng, phiếu trả hàng nhà cung cấp (CHUC_NANG_52, 53; QUYTAC_NGHIEPVU_64 đến 66).
+const serialList = z.array(z.string().trim().min(1).max(100)).max(1000).default([]);
+export const savePurchaseReceiptSchema = z
+  .object({
+    orderId: z.uuid(),
+    documentDate: isoDate,
+    note: blankToNull(1000),
+    lines: z
+      .array(
+        z
+          .object({
+            orderLineId: z.uuid(),
+            quantity: positiveQuantity,
+            lotNo: z.string().trim().max(50).nullable().optional(),
+            manufacturedOn: isoDate.nullable().optional(),
+            expiresOn: isoDate.nullable().optional(),
+            locationId: z.uuid().nullable().optional(),
+            serials: serialList,
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePurchaseReceiptRequest = z.input<typeof savePurchaseReceiptSchema>;
+export const qualityCheckSchema = z
+  .object({
+    lines: z
+      .array(
+        z
+          .object({
+            lineId: z.uuid(),
+            // Số không đạt theo đơn vị của dòng; hàng serial ghi danh sách serial không đạt.
+            rejectedQuantity: z
+              .union([z.number(), z.string()])
+              .transform((value, context) => {
+                const text = String(value).trim().replace(",", ".") || "0";
+                if (!/^\d{1,12}(\.\d{1,4})?$/.test(text)) {
+                  context.addIssue({ code: "custom", message: "invalidValue" });
+                  return z.NEVER;
+                }
+                return text;
+              }),
+            rejectedSerials: serialList,
+            rejectionReason: blankToNull(500),
+          })
+          .strict(),
+      )
+      .max(200),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export const savePurchaseReturnSchema = z
+  .object({
+    receiptId: z.uuid(),
+    documentDate: isoDate,
+    reason: z.string().trim().min(1).max(500),
+    note: blankToNull(1000),
+    lines: z
+      .array(z.object({ receiptLineId: z.uuid(), quantity: positiveQuantity, serials: serialList }).strict())
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePurchaseReturnRequest = z.input<typeof savePurchaseReturnSchema>;

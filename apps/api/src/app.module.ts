@@ -62,6 +62,7 @@ import { StockLevelsService } from "./inventory/stock-levels.service";
 import { StocktakesService } from "./inventory/stocktakes.service";
 import { TransfersService } from "./inventory/transfers.service";
 import { WarehousesService } from "./inventory/warehouses.service";
+import { PurchaseReceiptsService } from "./inventory/purchase-receipts.service";
 import { CategoriesService } from "./catalog/categories.service";
 import { UnitsService } from "./catalog/units.service";
 import { ProductsService } from "./catalog/products.service";
@@ -104,6 +105,7 @@ import { UsersService } from "./users/users.service";
     PriceListsService,
     PriceChangesService,
     WarehousesService,
+    PurchaseReceiptsService,
     PartnersService,
     SupplierPricesService,
     RequisitionsService,

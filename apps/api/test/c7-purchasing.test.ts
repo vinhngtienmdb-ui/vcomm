@@ -15,6 +15,7 @@ let retailAdmin: Session;
 let purchaser: Session;
 let tradingPurchaser: Session;
 let keeper: Session;
+let otherKeeper: Session;
 let approver: Session;
 let today: string;
 let warehouseId: string;
@@ -80,6 +81,11 @@ beforeAll(async () => {
   await product(retail, retailAdmin, "water", "Nước suối mua", water, "CHAI", { units: [{ unitId: units.THUNG, factor: "24" }] });
   await product(retail, retailAdmin, "rice", "Gạo mua", water, "KG", { vatRate: "5" });
   await product(trading, groupAdmin, "tradingWater", "Nước của VCT", water, "CHAI");
+  const checked = await category("THUCM", { tracksLots: true, requiresQualityCheck: true });
+  await product(retail, retailAdmin, "milk", "Sữa tươi kiểm tra", checked, "HOP", { tracksLots: true });
+  const phone = await category("DTM", { tracksSerials: true });
+  await product(retail, retailAdmin, "phone", "Điện thoại mua", phone, "CAI", { tracksSerials: true });
+  otherKeeper = await assign("thukho.hcm.mua@vcomm.test", "Mạc Văn Khác", "warehouse_keeper", retail, testIds.headOfficeBranch);
 
   warehouseId = (await retailAdmin.call("post", "/inventory/warehouses", { companyId: retail, body: { branchId: testIds.binhDuongWarehouse, code: "BDM", name: "Kho mua BD", usesLocations: false } }))
     .body.id;
@@ -288,5 +294,192 @@ describe("TIEUCHI_NGHIEMTHU_82, 86: sửa đơn đã duyệt, đóng đơn, ph�
       "purchase_order.submit",
       "purchase_order.close",
     ]);
+  });
+});
+
+// Đơn mua đã duyệt (công ty chưa có chính sách duyệt đơn mua ở phần này thì dùng chính sách cấp 1, duyệt bằng người duyệt).
+async function approvedOrder(lines: Record<string, unknown>[]) {
+  const created = await purchaser.call("post", "/purchasing/orders", { companyId: retail, body: orderBody(lines) });
+  expect(created.status, JSON.stringify(created.body)).toBe(201);
+  const submitted = await purchaser.call("post", `/purchasing/orders/${created.body.id}/submit`, { companyId: retail });
+  if (submitted.body.status === "pending") await decide(submitted.body.approvalRequestId, "approved");
+  return (await purchaser.call("get", `/purchasing/orders/${created.body.id}`, { companyId: retail })).body;
+}
+async function receive(session: Session, orderId: string, lines: Record<string, unknown>[]) {
+  const created = await session.call("post", "/inventory/purchase-receipts", { companyId: retail, body: { orderId, documentDate: today, lines } });
+  if (created.status !== 201) return created;
+  return session.call("post", `/inventory/documents/${created.body.id}/submit`, { companyId: retail });
+}
+
+describe("TIEUCHI_NGHIEMTHU_83, 86: nhận hàng theo đơn mua", () => {
+  it("KICHBAN_KIEMTHU_168: dung sai nhận vượt; đơn chưa duyệt, đã đóng không nhận; giá nhập theo đơn; đơn nhận đủ; thủ kho chi nhánh khác không nhận", async () => {
+    await retailAdmin.call("put", "/purchasing/settings", { companyId: retail, body: { overReceiptTolerancePercent: "5", version: 0 } });
+    const order = await approvedOrder([waterLine("10", "96000"), { variantId: items.rice!.variantId, unitId: units.KG, quantity: "50", unitPrice: "20000", vatRate: "5" }]);
+    expect(order.status).toBe("approved");
+    const [water, rice] = order.lines;
+    expect(water.receivableBaseQuantity).toBe("252");
+
+    // Thủ kho chi nhánh khác không thấy đơn, không nhận vào kho Bình Dương.
+    expect((await otherKeeper.call("get", "/inventory/purchase-orders", { companyId: retail })).body).toEqual([]);
+    expect([403, 404]).toContain((await receive(otherKeeper, order.id, [{ orderLineId: water.id, quantity: "1" }])).status);
+    expect((await keeper.call("get", "/inventory/purchase-orders", { companyId: retail })).body.map((item: { id: string }) => item.id)).toContain(order.id);
+
+    // Vượt dung sai 5% (10,5 thùng) bị từ chối; 10,5 thùng được.
+    const over = await keeper.call("post", "/inventory/purchase-receipts", { companyId: retail, body: { orderId: order.id, documentDate: today, lines: [{ orderLineId: water.id, quantity: "11" }] } });
+    expect(over.body.error.fields).toEqual({ "lines.0.quantity": "Vượt số còn nhận được của đơn mua (đã tính dung sai)." });
+    const first = await receive(keeper, order.id, [{ orderLineId: water.id, quantity: "6" }]);
+    expect(first.status, JSON.stringify(first.body)).toBe(201);
+    expect(first.body).toMatchObject({
+      type: "purchase_receipt",
+      status: "posted",
+      documentNo: expect.stringMatching(/^NM/),
+      partnerName: "Công ty TNHH Nước Sạch Miền Nam",
+      sourceNo: order.documentNo,
+    });
+    // Giá nhập = đơn giá đơn mua quy về đơn vị cơ sở: 96.000 / 24 = 4.000 một chai.
+    const waterStock = (await retailAdmin.call("get", `/inventory/stock?warehouseId=${warehouseId}&onlyInStock=false&search=Nước suối mua`, { companyId: retail })).body.data[0];
+    expect(waterStock).toMatchObject({ onHand: "144", averageCost: "4000", value: "576000" });
+
+    // Giảm số lượng dòng dưới số đã nhận bị từ chối.
+    const below = await purchaser.call("patch", `/purchasing/orders/${order.id}`, {
+      companyId: retail,
+      body: orderBody([waterLine("5", "96000", { id: water.id }), { id: rice.id, variantId: items.rice!.variantId, unitId: units.KG, quantity: "50", unitPrice: "20000", vatRate: "5" }], {
+        version: order.version,
+      }),
+    });
+    expect(below.body.error.fields).toEqual({ "lines.0.quantity": "Số lượng nhỏ hơn số đã nhận." });
+
+    // Nhận nốt trong dung sai: đơn chuyển "Đã nhận đủ" khi mọi dòng đủ.
+    expect((await receive(keeper, order.id, [{ orderLineId: water.id, quantity: "4.5" }])).status).toBe(201);
+    expect((await purchaser.call("get", `/purchasing/orders/${order.id}`, { companyId: retail })).body.status).toBe("approved");
+    expect((await receive(keeper, order.id, [{ orderLineId: rice.id, quantity: "50" }])).status).toBe(201);
+    const done = (await purchaser.call("get", `/purchasing/orders/${order.id}`, { companyId: retail })).body;
+    expect(done).toMatchObject({ status: "received" });
+    expect(done.lines[0]).toMatchObject({ receivedBaseQuantity: "252", receivableBaseQuantity: "0" });
+    expect(done.receipts).toHaveLength(3);
+    // Đơn đã nhận đủ, đơn nháp không nhận được.
+    expect((await receive(keeper, order.id, [{ orderLineId: rice.id, quantity: "1" }])).body.error.message).toBe("Đơn mua chưa duyệt hoặc đã đóng, không nhận hàng được.");
+    const draftOrder = await purchaser.call("post", "/purchasing/orders", { companyId: retail, body: orderBody([waterLine("1", "96000")]) });
+    expect((await receive(keeper, draftOrder.body.id, [{ orderLineId: draftOrder.body.lines[0].id, quantity: "1" }])).status).toBe(409);
+
+    // Đóng đơn còn thiếu: phần chưa nhận hủy, không nhận thêm được.
+    const partial = await approvedOrder([waterLine("2", "96000")]);
+    expect((await receive(keeper, partial.id, [{ orderLineId: partial.lines[0].id, quantity: "1" }])).status).toBe(201);
+    const reloaded = (await purchaser.call("get", `/purchasing/orders/${partial.id}`, { companyId: retail })).body;
+    expect((await purchaser.call("post", `/purchasing/orders/${partial.id}/close`, { companyId: retail, body: { reason: "Nhà cung cấp giao thiếu", version: reloaded.version } })).body.status).toBe(
+      "closed",
+    );
+    expect((await receive(keeper, partial.id, [{ orderLineId: partial.lines[0].id, quantity: "1" }])).status).toBe(409);
+    // Thủ kho không lập phiếu nhập mua bằng màn hình phiếu kho thường.
+    const manual = await keeper.call("post", "/inventory/documents", {
+      companyId: retail,
+      body: {
+        type: "purchase_receipt",
+        warehouseId,
+        companyId: retail,
+        documentDate: today,
+        reasonCode: "purchase",
+        reason: "Thử",
+        lines: [{ variantId: items.water!.variantId, unitId: units.CHAI, quantity: "1", unitCost: "1" }],
+      },
+    });
+    expect(manual.status).toBe(400);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_84: kiểm tra chất lượng khi nhập mua", () => {
+  it("KICHBAN_KIEMTHU_169: hàng cần kiểm tra chưa vào tồn khi chờ kiểm; ghi sổ phần đạt; phần không đạt không tính đã nhận", async () => {
+    const order = await approvedOrder([{ variantId: items.milk!.variantId, unitId: units.HOP, quantity: "100", unitPrice: "10000", vatRate: "5" }]);
+    const line = order.lines[0];
+    const received = await receive(keeper, order.id, [{ orderLineId: line.id, quantity: "100", lotNo: "L-SUA-01", expiresOn: "2099-01-01" }]);
+    expect(received.body).toMatchObject({ status: "quality_check", canQualityCheck: true });
+    expect(received.body.lines[0].requiresQualityCheck).toBe(true);
+    const milkStock = async () => (await retailAdmin.call("get", `/inventory/stock?warehouseId=${warehouseId}&onlyInStock=false&search=Sữa tươi kiểm tra`, { companyId: retail })).body.data[0];
+    expect((await milkStock())?.onHand ?? "0").toBe("0");
+    // Đang chờ kiểm vẫn tính vào số còn nhận được (dung sai 5% từ kịch bản trước: còn 5 hộp); đơn chưa đóng được.
+    expect((await purchaser.call("get", `/purchasing/orders/${order.id}`, { companyId: retail })).body.lines[0]).toMatchObject({ receivedBaseQuantity: "0", receivableBaseQuantity: "5" });
+    const reloaded = (await purchaser.call("get", `/purchasing/orders/${order.id}`, { companyId: retail })).body;
+    expect((await purchaser.call("post", `/purchasing/orders/${order.id}/close`, { companyId: retail, body: { reason: "Thử", version: reloaded.version } })).body.error.message).toBe(
+      "Đơn mua còn phiếu nhập nháp hoặc chờ kiểm tra, chưa đóng được.",
+    );
+
+    const missingReason = await keeper.call("post", `/inventory/documents/${received.body.id}/quality-check`, {
+      companyId: retail,
+      body: { lines: [{ lineId: received.body.lines[0].id, rejectedQuantity: "10" }], version: received.body.version },
+    });
+    expect(missingReason.body.error.fields).toEqual({ "lines.0.rejectionReason": "Vui lòng nhập thông tin này." });
+    const checked = await keeper.call("post", `/inventory/documents/${received.body.id}/quality-check`, {
+      companyId: retail,
+      body: { lines: [{ lineId: received.body.lines[0].id, rejectedQuantity: "10", rejectionReason: "Hộp móp, rò rỉ" }], version: received.body.version },
+    });
+    expect(checked.status, JSON.stringify(checked.body)).toBe(201);
+    expect(checked.body).toMatchObject({ status: "posted", canQualityCheck: false });
+    expect(checked.body.lines[0]).toMatchObject({ rejectedBaseQuantity: "10", rejectionReason: "Hộp móp, rò rỉ" });
+    expect((await retailAdmin.call("get", `/inventory/documents/${received.body.id}`, { companyId: retail })).body.lines[0].costValue).toBe("900000");
+    expect(await milkStock()).toMatchObject({ onHand: "90", averageCost: "10000" });
+    // Phần không đạt không tính đã nhận: còn nhận được 15 hộp (105 - 90).
+    expect((await purchaser.call("get", `/purchasing/orders/${order.id}`, { companyId: retail })).body.lines[0]).toMatchObject({ receivedBaseQuantity: "90", receivableBaseQuantity: "15" });
+    expect((await keeper.call("post", `/inventory/documents/${received.body.id}/quality-check`, { companyId: retail, body: { lines: [], version: checked.body.version } })).status).toBe(409);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_85: trả hàng nhà cung cấp", () => {
+  it("KICHBAN_KIEMTHU_170: trả theo giá phiếu nhập gốc, giá vốn bình quân phần còn lại tính lại; trả quá số đã nhập, serial chưa nhập bị từ chối", async () => {
+    const cheap = await approvedOrder([waterLine("10", "96000")]);
+    const expensive = await approvedOrder([waterLine("10", "120000")]);
+    const firstReceipt = await receive(keeper, cheap.id, [{ orderLineId: cheap.lines[0].id, quantity: "10" }]);
+    await receive(keeper, expensive.id, [{ orderLineId: expensive.lines[0].id, quantity: "10" }]);
+    const before = (await retailAdmin.call("get", `/inventory/stock?warehouseId=${warehouseId}&onlyInStock=false&search=Nước suối mua`, { companyId: retail })).body.data[0];
+    const beforeValue = Number(before.value);
+    const beforeQuantity = Number(before.onHand);
+
+    // Trả 1 thùng (24 chai) từ phiếu nhập giá 96.000: xuất đúng 96.000.
+    const line = firstReceipt.body.lines[0];
+    const tooMany = await keeper.call("post", "/inventory/purchase-returns", {
+      companyId: retail,
+      body: { receiptId: firstReceipt.body.id, documentDate: today, reason: "Hàng lỗi", lines: [{ receiptLineId: line.id, quantity: "11" }] },
+    });
+    const tooManySubmit = tooMany.status === 201 ? await keeper.call("post", `/inventory/documents/${tooMany.body.id}/submit`, { companyId: retail }) : tooMany;
+    expect(tooManySubmit.body.error.fields).toEqual({ "lines.0.quantity": "Vượt số đã nhập còn trả được của phiếu nhập gốc." });
+    if (tooMany.status === 201) await keeper.call("delete", `/inventory/documents/${tooMany.body.id}`, { companyId: retail });
+
+    const returned = await keeper.call("post", "/inventory/purchase-returns", {
+      companyId: retail,
+      body: { receiptId: firstReceipt.body.id, documentDate: today, reason: "Hàng lỗi", lines: [{ receiptLineId: line.id, quantity: "1" }] },
+    });
+    expect(returned.status, JSON.stringify(returned.body)).toBe(201);
+    const posted = await keeper.call("post", `/inventory/documents/${returned.body.id}/submit`, { companyId: retail });
+    expect(posted.body).toMatchObject({ type: "purchase_return", status: "posted", documentNo: expect.stringMatching(/^TNCC/), sourceNo: firstReceipt.body.documentNo });
+    // Thủ kho không có quyền xem giá vốn: đọc giá trị bằng quản trị công ty.
+    expect((await retailAdmin.call("get", `/inventory/documents/${returned.body.id}`, { companyId: retail })).body.lines[0].costValue).toBe("96000");
+    const after = (await retailAdmin.call("get", `/inventory/stock?warehouseId=${warehouseId}&onlyInStock=false&search=Nước suối mua`, { companyId: retail })).body.data[0];
+    expect(Number(after.value)).toBe(beforeValue - 96000);
+    expect(Number(after.onHand)).toBe(beforeQuantity - 24);
+    expect(Number(after.averageCost)).toBeCloseTo((beforeValue - 96000) / (beforeQuantity - 24), 3);
+    expect((await purchaser.call("get", `/purchasing/orders/${cheap.id}`, { companyId: retail })).body.lines[0].returnedBaseQuantity).toBe("24");
+    // Trả nốt phần còn lại của dòng gốc: tổng không vượt 10 thùng.
+    const rest = await keeper.call("post", "/inventory/purchase-returns", {
+      companyId: retail,
+      body: { receiptId: firstReceipt.body.id, documentDate: today, reason: "Hàng lỗi", lines: [{ receiptLineId: line.id, quantity: "10" }] },
+    });
+    expect((await keeper.call("post", `/inventory/documents/${rest.body.id}/submit`, { companyId: retail })).status).toBe(400);
+
+    // Hàng serial: chỉ trả serial đã nhập ở phiếu gốc.
+    const phones = await approvedOrder([{ variantId: items.phone!.variantId, unitId: units.CAI, quantity: "2", unitPrice: "5000000", vatRate: "10" }]);
+    const phoneReceipt = await receive(keeper, phones.id, [{ orderLineId: phones.lines[0].id, quantity: "2", serials: ["IMEI-M1", "IMEI-M2"] }]);
+    expect(phoneReceipt.body.status).toBe("posted");
+    const wrongSerial = await keeper.call("post", "/inventory/purchase-returns", {
+      companyId: retail,
+      body: { receiptId: phoneReceipt.body.id, documentDate: today, reason: "Lỗi màn hình", lines: [{ receiptLineId: phoneReceipt.body.lines[0].id, quantity: "1", serials: ["IMEI-KHAC"] }] },
+    });
+    expect(wrongSerial.body.error.fields).toEqual({ "lines.0.serials": expect.any(String) });
+    const phoneReturn = await keeper.call("post", "/inventory/purchase-returns", {
+      companyId: retail,
+      body: { receiptId: phoneReceipt.body.id, documentDate: today, reason: "Lỗi màn hình", lines: [{ receiptLineId: phoneReceipt.body.lines[0].id, quantity: "1", serials: ["IMEI-M2"] }] },
+    });
+    const phoneReturned = await keeper.call("post", `/inventory/documents/${phoneReturn.body.id}/submit`, { companyId: retail });
+    expect(phoneReturned.body).toMatchObject({ status: "posted" });
+    expect(phoneReturned.body.lines[0]).toMatchObject({ serials: ["IMEI-M2"] });
+    expect((await retailAdmin.call("get", `/inventory/documents/${phoneReturn.body.id}`, { companyId: retail })).body.lines[0].costValue).toBe("5000000");
   });
 });

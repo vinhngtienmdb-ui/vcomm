@@ -37,13 +37,17 @@ import { WarehousesService, type Warehouse } from "./warehouses.service";
 type Input = z.output<typeof saveStockDocumentSchema>;
 type FieldErrors = Record<string, keyof Messages["errors"]>;
 export const documentSource = "inventory.document";
-const documentTypeCodes: Record<StockDocumentType, string> = {
+export const documentTypeCodes: Record<StockDocumentType, string> = {
   receipt_other: "inventory.receipt_other",
   issue_other: "inventory.issue_other",
   adjustment: "inventory.adjustment",
   transfer: "inventory.transfer",
+  purchase_receipt: "inventory.purchase_receipt",
+  purchase_return: "inventory.purchase_return",
 };
-const prefixes: Record<StockDocumentType, string> = { receipt_other: "NK", issue_other: "XK", adjustment: "DCK", transfer: "CK" };
+export const prefixes: Record<StockDocumentType, string> = { receipt_other: "NK", issue_other: "XK", adjustment: "DCK", transfer: "CK", purchase_receipt: "NM", purchase_return: "TNCC" };
+// Phiếu có chứng từ gốc của Mua hàng: lập, gửi, kiểm tra chất lượng qua PurchaseReceiptsService (CONG_VIEC_07).
+export const purchaseTypes: StockDocumentType[] = ["purchase_receipt", "purchase_return"];
 
 type VariantInfo = {
   id: string;
@@ -82,9 +86,13 @@ type DocumentRow = {
   created_by_name: string;
   created_at: Date;
   version: number;
+  partner_id: string | null;
+  partner_name: string | null;
+  source_id: string | null;
+  source_no: string | null;
 };
 
-type LineRow = {
+export type LineRow = {
   id: string;
   line_no: number;
   variant_id: string;
@@ -114,13 +122,18 @@ type LineRow = {
   responsible_user_id: string | null;
   responsible_user_name: string | null;
   compensation_amount: string | null;
+  source_line_id: string | null;
+  rejected_base_quantity: string | null;
+  rejection_reason: string | null;
+  requires_quality_check: boolean;
 };
 
 const day = (value: Date | string | null) =>
   value === null ? null : value instanceof Date ? new Date(value.getTime() - value.getTimezoneOffset() * 60_000).toISOString().slice(0, 10) : String(value).slice(0, 10);
 const decimal = (value: string | null) => (value === null ? null : trimDecimal(value));
 // Chiều của dòng: nhập tăng, xuất giảm, điều chỉnh theo dấu số lượng.
-export const lineSign = (type: StockDocumentType, quantity: string) => (type === "receipt_other" ? 1 : type === "issue_other" || type === "transfer" ? -1 : quantity.startsWith("-") ? -1 : 1);
+export const lineSign = (type: StockDocumentType, quantity: string) =>
+  type === "receipt_other" || type === "purchase_receipt" ? 1 : type === "issue_other" || type === "transfer" || type === "purchase_return" ? -1 : quantity.startsWith("-") ? -1 : 1;
 
 @Injectable()
 export class StockDocumentsService implements OnModuleInit {
@@ -205,6 +218,11 @@ export class StockDocumentsService implements OnModuleInit {
     const canManageAt = async (warehouse: Warehouse | null) =>
       warehouse !== null &&
       (await this.permissionService.permissionsCovering(actor.userId, { scopeType: "branch", companyId: warehouse.companyId, branchId: warehouse.branchId })).has(inventoryPermissions.manageDocuments);
+    const canReceivePurchases = async (warehouse: Warehouse | null) =>
+      warehouse !== null &&
+      (await this.permissionService.permissionsCovering(actor.userId, { scopeType: "branch", companyId: warehouse.companyId, branchId: warehouse.branchId })).has(
+        inventoryPermissions.receivePurchases,
+      );
     return {
       ...this.toItem(row, costVisible),
       destinationWarehouseId: row.destination_warehouse_id,
@@ -240,6 +258,10 @@ export class StockDocumentsService implements OnModuleInit {
         responsibleUserId: line.responsible_user_id,
         responsibleUserName: line.responsible_user_name,
         compensationAmount: costVisible ? decimal(line.compensation_amount) : null,
+        sourceLineId: line.source_line_id,
+        rejectedBaseQuantity: decimal(line.rejected_base_quantity),
+        rejectionReason: line.rejection_reason,
+        requiresQualityCheck: line.requires_quality_check,
       })),
       discrepancies: discrepancies.rows.map((item) => ({
         lineId: item.line_id,
@@ -253,14 +275,21 @@ export class StockDocumentsService implements OnModuleInit {
         compensationAmount: costVisible ? decimal(item.compensation_amount) : null,
       })),
       version: row.version,
-      canEdit: own && row.status === "draft" && !row.stocktake_id,
+      canEdit: own && row.status === "draft" && !row.stocktake_id && !purchaseTypes.includes(row.type),
       canWithdraw: own && row.status === "pending" && !firstStepDecided,
       canShip: row.type === "transfer" && row.status === "posted" && (await canManageAt(sourceWarehouse)),
       canReceive: row.type === "transfer" && row.status === "in_transit" && (await canManageAt(destinationWarehouse)),
+      partnerId: row.partner_id,
+      partnerName: row.partner_name,
+      sourceId: row.source_id,
+      sourceNo: row.source_no,
+      canQualityCheck: row.type === "purchase_receipt" && row.status === "quality_check" && (await canReceivePurchases(sourceWarehouse)),
+      canReturn: row.type === "purchase_receipt" && row.status === "posted" && (await canReceivePurchases(sourceWarehouse)),
     };
   }
 
   async create(actor: Actor, input: Input): Promise<StockDocumentResponse> {
+    if (purchaseTypes.includes(input.type)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { type: "invalidValue" } });
     const prepared = await this.prepare(actor, input);
     const id = await this.database.transaction(async (transaction) => {
       const documentId = (
@@ -291,7 +320,7 @@ export class StockDocumentsService implements OnModuleInit {
 
   async update(actor: Actor, id: string, input: Input): Promise<StockDocumentResponse> {
     const row = await this.requireOwnDraft(actor, id);
-    if (input.type !== row.type || input.companyId !== row.company_id || input.warehouseId !== row.warehouse_id) {
+    if (purchaseTypes.includes(row.type) || input.type !== row.type || input.companyId !== row.company_id || input.warehouseId !== row.warehouse_id) {
       throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { type: "documentHeaderLocked" } });
     }
     const prepared = await this.prepare(actor, input);
@@ -405,8 +434,14 @@ export class StockDocumentsService implements OnModuleInit {
     ).rows[0]!;
     const lines = await this.lines(documentId, transaction);
     const entries: LedgerEntry[] = [];
+    const posted: LineRow[] = [];
     for (const line of lines) {
       const sign = lineSign(document.type, line.quantity);
+      // Phiếu nhập mua: chỉ ghi sổ phần đạt kiểm tra chất lượng (QUYTAC_NGHIEPVU_65).
+      const rejected = Number(line.rejected_base_quantity ?? 0);
+      const accepted = Math.abs(Number(line.base_quantity)) - rejected;
+      if (accepted <= 0) continue;
+      posted.push(line);
       let lotId = line.lot_id;
       if (sign > 0 && line.tracks_lots && line.lot_no) {
         lotId = (
@@ -417,7 +452,10 @@ export class StockDocumentsService implements OnModuleInit {
         ).rows[0]!.id;
         await transaction.execute(sql`UPDATE inventory.document_lines SET lot_id = ${lotId} WHERE id = ${line.id}`);
       }
-      const amount = line.base_quantity.replace(/^-/, "");
+      const amount = rejected > 0 ? accepted.toFixed(4) : line.base_quantity.replace(/^-/, "");
+      // Có đơn giá: nhập theo đơn giá; trả hàng nhà cung cấp xuất theo giá phiếu nhập gốc đã lưu ở đơn giá (QUYTAC_NGHIEPVU_66).
+      const fullValue = line.unit_cost !== null && (sign > 0 || document.type === "purchase_return") ? await this.lineValue(transaction, line) : null;
+      const value = fullValue !== null && rejected > 0 ? ((Number(fullValue) * accepted) / Math.abs(Number(line.base_quantity))).toFixed(4) : fullValue;
       entries.push({
         warehouseId: document.warehouse_id,
         companyId: document.company_id,
@@ -425,7 +463,7 @@ export class StockDocumentsService implements OnModuleInit {
         lotId,
         locationId: line.location_id,
         quantity: sign > 0 ? amount : `-${amount}`,
-        totalValue: sign > 0 && line.unit_cost !== null ? await this.lineValue(transaction, line) : null,
+        totalValue: value,
         serials: line.tracks_serials ? line.serials : undefined,
         documentId,
         lineId: line.id,
@@ -434,7 +472,7 @@ export class StockDocumentsService implements OnModuleInit {
     }
     const results = await this.ledger.postAll(transaction, entries);
     for (const [index, result] of results.entries()) {
-      const line = lines[index]!;
+      const line = posted[index]!;
       await transaction.execute(sql`UPDATE inventory.document_lines SET cost_value = ${result.value.replace(/^-/, "")}::numeric WHERE id = ${line.id}`);
       if (result.serialIds.length > 0) {
         await transaction.execute(sql`
@@ -502,8 +540,8 @@ export class StockDocumentsService implements OnModuleInit {
   }
 
   // Kiểm phiếu khi lưu nháp: kho, chủ hàng, lý do, mặt hàng, đơn vị, vị trí, lô, serial.
-  private async prepare(actor: Actor, input: Input): Promise<{ variants: Map<string, VariantInfo>; warehouse: Warehouse }> {
-    const warehouse = await this.warehouses.operable(actor.userId, input.warehouseId, inventoryPermissions.manageDocuments);
+  async prepare(actor: Actor, input: Input, permission: string = inventoryPermissions.manageDocuments): Promise<{ variants: Map<string, VariantInfo>; warehouse: Warehouse }> {
+    const warehouse = await this.warehouses.operable(actor.userId, input.warehouseId, permission);
     const fields: FieldErrors = {};
     if (warehouse.status !== "active") fields.warehouseId = "invalidValue";
     if (!warehouse.ownerIds.includes(input.companyId)) fields.companyId = "warehouseOwnerNotAllowed";
@@ -559,7 +597,7 @@ export class StockDocumentsService implements OnModuleInit {
   }
 
   // Kiểm khi gửi: đủ hàng, lô còn hạn, chọn lô khác gợi ý có lý do, serial đúng trạng thái (QUYTAC_NGHIEPVU_47, 51).
-  private async checkForSubmit(row: { type: StockDocumentType; company_id: string; warehouse_id: string; reason_code: string; stocktake_id: string | null }, lines: LineRow[]): Promise<FieldErrors> {
+  async checkForSubmit(row: { type: StockDocumentType; company_id: string; warehouse_id: string; reason_code: string; stocktake_id: string | null }, lines: LineRow[]): Promise<FieldErrors> {
     const fields: FieldErrors = {};
     const today = this.permissionService.today();
     const neededByBalance = new Map<string, { quantity: number; index: number }>();
@@ -627,7 +665,7 @@ export class StockDocumentsService implements OnModuleInit {
     return fields;
   }
 
-  private async writeLines(transaction: Executor, documentId: string, input: Input, prepared: { variants: Map<string, VariantInfo> }): Promise<void> {
+  async writeLines(transaction: Executor, documentId: string, input: Input, prepared: { variants: Map<string, VariantInfo> }): Promise<void> {
     for (const [index, line] of input.lines.entries()) {
       const variant = prepared.variants.get(line.variantId)!;
       const factor = variant.units.find((unit) => unit.unitId === line.unitId)!.factor;
@@ -676,7 +714,9 @@ export class StockDocumentsService implements OnModuleInit {
         coalesce(lot.manufactured_on, l.manufactured_on)::text AS manufactured_on, coalesce(lot.expires_on, l.expires_on)::text AS expires_on, l.lot_override_reason,
         l.location_id, loc.code AS location_code, l.destination_location_id, dloc.code AS destination_location_code,
         coalesce((SELECT array_agg(s.serial_no ORDER BY s.serial_no) FROM inventory.document_line_serials s WHERE s.line_id = l.id), '{}') AS serials,
-        l.received_base_quantity::text, l.responsible_user_id, ru.full_name AS responsible_user_name, l.compensation_amount::text
+        l.received_base_quantity::text, l.responsible_user_id, ru.full_name AS responsible_user_name, l.compensation_amount::text,
+        l.source_line_id, l.rejected_base_quantity::text, l.rejection_reason,
+        coalesce((SELECT cat.requires_quality_check FROM catalog.categories cat WHERE cat.id = p.category_id), false) AS requires_quality_check
       FROM inventory.document_lines l JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id
       JOIN catalog.units u ON u.id = l.unit_id JOIN catalog.units bu ON bu.id = p.base_unit_id
       LEFT JOIN inventory.lots lot ON lot.id = l.lot_id LEFT JOIN inventory.locations loc ON loc.id = l.location_id LEFT JOIN inventory.locations dloc ON dloc.id = l.destination_location_id
@@ -737,8 +777,10 @@ export class StockDocumentsService implements OnModuleInit {
         d.company_id, c.short_name AS company_name, d.reason_code, d.reason, d.note, d.status, d.approval_request_id, d.stocktake_id,
         (SELECT count(*)::int FROM inventory.document_lines l WHERE l.document_id = d.id) AS line_count,
         (SELECT sum(l.cost_value)::text FROM inventory.document_lines l WHERE l.document_id = d.id) AS total_value,
-        d.created_by, u.full_name AS created_by_name, d.created_at, d.version
-      FROM inventory.documents d JOIN inventory.warehouses w ON w.id = d.warehouse_id LEFT JOIN inventory.warehouses dw ON dw.id = d.destination_warehouse_id
+        d.created_by, u.full_name AS created_by_name, d.created_at, d.version, d.partner_id, pt.name AS partner_name, d.source_id,
+        CASE WHEN d.type = 'purchase_receipt' THEN (SELECT o.document_no FROM purchasing.orders o WHERE o.id = d.source_id)
+             WHEN d.type = 'purchase_return' THEN (SELECT r.document_no FROM inventory.documents r WHERE r.id = d.source_id) END AS source_no
+      FROM inventory.documents d LEFT JOIN crm.partners pt ON pt.id = d.partner_id JOIN inventory.warehouses w ON w.id = d.warehouse_id LEFT JOIN inventory.warehouses dw ON dw.id = d.destination_warehouse_id
       JOIN core.companies c ON c.id = d.company_id JOIN core.users u ON u.id = d.created_by`;
   }
 }

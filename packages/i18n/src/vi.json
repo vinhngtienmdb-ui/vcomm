@@ -162,7 +162,12 @@
     "purchaseOrderHasOpenReceipts": "Đơn mua còn phiếu nhập nháp hoặc chờ kiểm tra, chưa đóng được.",
     "purchaseLineHasReceipts": "Dòng đã có phiếu nhập, không bỏ hoặc đổi mặt hàng, đơn vị được.",
     "purchaseQuantityBelowReceived": "Số lượng nhỏ hơn số đã nhận.",
-    "requisitionQuantityExceeded": "Vượt số lượng còn lại của dòng đề nghị mua."
+    "requisitionQuantityExceeded": "Vượt số lượng còn lại của dòng đề nghị mua.",
+    "purchaseOrderNotOpen": "Đơn mua chưa duyệt hoặc đã đóng, không nhận hàng được.",
+    "purchaseReceiptNotPosted": "Chỉ trả hàng từ phiếu nhập mua đã ghi sổ.",
+    "documentNotInQualityCheck": "Phiếu không ở trạng thái chờ kiểm tra chất lượng.",
+    "purchaseOverReceipt": "Vượt số còn nhận được của đơn mua (đã tính dung sai).",
+    "purchaseReturnExceeded": "Vượt số đã nhập còn trả được của phiếu nhập gốc."
   },
   "login": {
     "title": "Đăng nhập",
@@ -836,7 +841,8 @@
     "purchase_order_create": "Lập đơn mua",
     "purchase_order_update": "Sửa đơn mua",
     "purchase_order_submit": "Gửi đơn mua",
-    "purchase_order_close": "Đóng đơn mua"
+    "purchase_order_close": "Đóng đơn mua",
+    "stock_document_quality_check": "Ghi kết quả kiểm tra chất lượng"
   },
   "notifications": {
     "title": "Thông báo",
@@ -1065,7 +1071,11 @@
     "activateText": "Dùng lại ngành hàng này?",
     "saved": "Đã lưu.",
     "addUnit": "Thêm đơn vị tính",
-    "edit": "Sửa"
+    "edit": "Sửa",
+    "requiresQualityCheck": "Kiểm tra chất lượng khi nhập mua",
+    "requiresQualityCheckLabel": "Cần kiểm tra chất lượng khi nhập mua (hàng chưa vào tồn đến khi kiểm xong)",
+    "yes": "Có",
+    "no": "Không"
   },
   "products": {
     "title": "Sản phẩm",
@@ -1475,7 +1485,39 @@
     "printLabels": "In tem",
     "status_transfer_posted": "Đã duyệt, chờ xuất",
     "responsible": "Người chịu trách nhiệm phần thiếu",
-    "compensation": "Bồi thường"
+    "compensation": "Bồi thường",
+    "type_purchase_receipt": "Phiếu nhập mua",
+    "type_purchase_return": "Phiếu trả hàng nhà cung cấp",
+    "status_quality_check": "Chờ kiểm tra chất lượng",
+    "reason_purchase": "Nhập mua",
+    "reason_purchase_return": "Trả hàng nhà cung cấp",
+    "new_purchase_receipt": "Nhập mua theo đơn",
+    "supplier": "Nhà cung cấp",
+    "sourceOrder": "Đơn mua",
+    "sourceReceipt": "Phiếu nhập gốc",
+    "deleteDraft": "Xóa nháp",
+    "returnToSupplier": "Trả hàng nhà cung cấp",
+    "rejected": "không đạt {count} {unit}",
+    "qualityCheck": "Kiểm tra chất lượng",
+    "qualityCheckHint": "Nhập số không đạt từng dòng; phần đạt ghi sổ kho, phần không đạt ghi biên bản kèm lý do.",
+    "rejectedSerials": "Serial không đạt",
+    "rejectedQuantity": "Số không đạt ({unit})",
+    "rejectionReason": "Lý do không đạt",
+    "confirmQualityCheck": "Ghi kết quả kiểm tra",
+    "qualityChecked": "Đã ghi kết quả kiểm tra, phần đạt đã vào tồn.",
+    "noOpenOrders": "Không có đơn mua đã duyệt cần nhận vào kho bạn quản lý.",
+    "purchaseOrder": "Đơn mua",
+    "chooseOrder": "Chọn đơn mua…",
+    "needsQualityCheck": "Cần kiểm tra chất lượng",
+    "orderedReceivable": "Đặt {ordered} {unit}, còn nhận được {receivable} {unit}",
+    "chooseReceipt": "Chọn phiếu nhập mua để trả hàng.",
+    "returnHint": "Hàng trả xuất theo giá trên phiếu nhập gốc.",
+    "receivedOnReceipt": "Đã nhập {count} {unit}",
+    "returnQuantity": "Số trả ({unit})",
+    "submitPurchase": "Gửi",
+    "purchaseSubmitted": "Đã gửi phiếu.",
+    "purchaseReceiveHint": "Nhập số thực nhận cho dòng có hàng về; dòng để trống không nhận lần này.",
+    "purchaseReceivedQuantity": "Thực nhận ({unit})"
   },
   "stocktakes": {
     "title": "Kiểm kê",
