@@ -3934,7 +3934,7 @@ export interface BuyerReferrerHistoryItem {
 }
 
 export interface BuyerSalesFlagHistoryItem {
-  action: "flag" | "unflag";
+  action: "flag" | "unflag" | "move" | "appoint" | "unappoint";
   departmentName: string | null;
   changedByName: string;
   changedAt: string;
@@ -3942,6 +3942,9 @@ export interface BuyerSalesFlagHistoryItem {
 
 export interface BuyerAccountDetailResponse extends BuyerAccountListItem {
   version: number;
+  // Chức danh, chuỗi cấp trên khi là thành viên đội kinh doanh (CONG_VIEC_27).
+  salesTitle: SalesTitle | null;
+  salesChain: SalesChainItem[];
   referrerId: string | null;
   salesDepartmentId: string | null;
   salesDepartmentName: string | null;
@@ -3960,4 +3963,45 @@ export interface MarketplaceSettingsResponse {
   companies: Array<{ id: string; shortName: string }>;
   canManage: boolean;
   departments: Array<{ id: string; name: string }>;
+}
+
+// CONG_VIEC_27: đội kinh doanh nhiều cấp (API_120 đến 122; QUYTAC_NGHIEPVU_148 đến 153).
+export const salesUnitTypes = ["division", "region", "team"] as const;
+export type SalesUnitType = (typeof salesUnitTypes)[number];
+export const salesTitles = ["director", "regional_director", "team_head", "staff"] as const;
+export type SalesTitle = (typeof salesTitles)[number];
+
+export const salesUnitTypeSchema = z.object({ type: z.enum(salesUnitTypes).nullable() }).strict();
+export const salesUnitManagerSchema = z.object({ userId: z.uuid().nullable() }).strict();
+export const salesMoveSchema = z.object({ departmentId: z.uuid(), version: z.number().int().min(1) }).strict();
+
+export interface SalesTeamUnit {
+  id: string;
+  parentId: string | null;
+  code: string;
+  name: string;
+  type: SalesUnitType | null;
+  managerUserId: string | null;
+  managerName: string | null;
+}
+
+export interface SalesTeamMember {
+  userId: string;
+  fullName: string;
+  phone: string;
+  departmentId: string;
+  title: SalesTitle;
+  customerCount: number;
+  version: number;
+}
+
+export interface SalesTeamResponse {
+  units: SalesTeamUnit[];
+  members: SalesTeamMember[];
+}
+
+export interface SalesChainItem {
+  userId: string;
+  fullName: string;
+  title: SalesTitle;
 }

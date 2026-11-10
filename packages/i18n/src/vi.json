@@ -282,7 +282,11 @@
     "marketplaceOperatorHasSalesStaff": "Còn nhân viên kinh doanh được đánh dấu ở công ty vận hành sàn hiện tại. Bỏ đánh dấu trước khi đổi công ty.",
     "referrerUnchanged": "Người giới thiệu không thay đổi.",
     "buyerInactive": "Tài khoản không hoạt động.",
-    "buyerNotSalesStaff": "Tài khoản chưa được đánh dấu nhân viên kinh doanh."
+    "buyerNotSalesStaff": "Tài khoản chưa được đánh dấu nhân viên kinh doanh.",
+    "salesUnitHasMembers": "Đơn vị còn thành viên đội kinh doanh. Chuyển thành viên sang đơn vị khác trước.",
+    "salesUnitOrderInvalid": "Sai thứ bậc đơn vị kinh doanh: Khối > Vùng > Phòng.",
+    "salesManagerNotInUnit": "Người quản lý phải là thành viên đội kinh doanh thuộc chính đơn vị này.",
+    "salesManagerOfOtherUnit": "Người này đang quản lý đơn vị khác."
   },
   "login": {
     "title": "Đăng nhập",

@@ -282,7 +282,11 @@
     "marketplaceOperatorHasSalesStaff": "Sales staff are still flagged at the current operator company. Unflag them before changing the company.",
     "referrerUnchanged": "The referrer is unchanged.",
     "buyerInactive": "The account is not active.",
-    "buyerNotSalesStaff": "The account is not flagged as sales staff."
+    "buyerNotSalesStaff": "The account is not flagged as sales staff.",
+    "salesUnitHasMembers": "The unit still has sales team members. Move them to another unit first.",
+    "salesUnitOrderInvalid": "Invalid sales unit order: Division > Region > Team.",
+    "salesManagerNotInUnit": "The manager must be a sales team member of this unit.",
+    "salesManagerOfOtherUnit": "This person already manages another unit."
   },
   "login": {
     "title": "Sign in",

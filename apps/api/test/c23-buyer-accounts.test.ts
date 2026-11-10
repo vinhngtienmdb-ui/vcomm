@@ -208,7 +208,7 @@ describe("CONG_VIEC_23 quản trị người mua", () => {
 
   it("KICHBAN_KIEMTHU_299: đánh dấu nhân viên kinh doanh thêm thành viên và phòng ban ở công ty vận hành sàn, không cấp vai trò Nhân viên bán hàng; khách tôi phụ trách theo người giới thiệu; bỏ đánh dấu ngừng thành viên do đánh dấu tạo; công ty vận hành sàn không đổi được khi còn nhân viên được đánh dấu", async () => {
     const company = await signIn(application, "quantri.vcr@vcomm.test");
-    const department = (await pool.query<{ id: string }>("INSERT INTO core.departments (company_id, code, name) VALUES ($1, 'KD-SAN', 'Kinh doanh sàn') RETURNING id", [retail])).rows[0]!.id;
+    const department = (await pool.query<{ id: string }>("INSERT INTO core.departments (company_id, code, name, sales_unit_type) VALUES ($1, 'KD-SAN', 'Kinh doanh sàn', 'team') RETURNING id", [retail])).rows[0]!.id;
     const buyerId = (await pool.query<{ id: string }>("SELECT id FROM core.users WHERE phone = '+84911000001'")).rows[0]!.id;
     const before = await company.call("get", `/marketplace/buyers/${buyerId}`, { companyId: retail });
     const otherCompanyDepartment = (

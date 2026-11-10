@@ -10,6 +10,7 @@ import { DATABASE, type Database } from "../database/database.module";
 import type { ClientInfo } from "../auth/auth.service";
 import { PermissionService } from "../permissions/permission.service";
 import { BuyerAccountsService, localPhone } from "./buyer-accounts.service";
+import { SalesTeamService } from "./sales-team.service";
 
 type Executor = Pick<Database, "execute">;
 
@@ -54,6 +55,7 @@ export class BuyerAdminService {
     private readonly permissions: PermissionService,
     private readonly buyers: BuyerAccountsService,
     private readonly audit: AuditService,
+    private readonly salesTeam: SalesTeamService,
   ) {}
 
   async operatorCompanyId(): Promise<string | null> {
@@ -165,16 +167,19 @@ export class BuyerAdminService {
       SELECT p.full_name AS previous_name, n.full_name AS new_name, h.source, h.reason, c.full_name AS changed_by_name, h.changed_at
       FROM marketplace.referrer_history h LEFT JOIN core.users p ON p.id = h.previous_referrer_id LEFT JOIN core.users n ON n.id = h.new_referrer_id
       JOIN core.users c ON c.id = h.changed_by WHERE h.buyer_user_id = ${buyerId} ORDER BY h.changed_at DESC`);
-    const flags = await this.database.execute<{ action: "flag" | "unflag"; department_name: string | null; changed_by_name: string; changed_at: Date }>(sql`
+    const flags = await this.database.execute<{ action: "flag" | "unflag" | "move" | "appoint" | "unappoint"; department_name: string | null; changed_by_name: string; changed_at: Date }>(sql`
       SELECT h.action, d.name AS department_name, c.full_name AS changed_by_name, h.changed_at
       FROM marketplace.sales_flag_history h LEFT JOIN core.departments d ON d.id = h.department_id JOIN core.users c ON c.id = h.changed_by
       WHERE h.buyer_user_id = ${buyerId} ORDER BY h.changed_at DESC`);
     const referrals = await this.database.execute<{ id: string; full_name: string; phone: string | null; registered_at: Date }>(sql`
       SELECT u.id, u.full_name, u.phone, b.registered_at FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id
       WHERE b.referrer_user_id = ${buyerId} ORDER BY b.registered_at DESC LIMIT 500`);
+    const team = await this.salesTeam.load(this.database, actor.operatorCompanyId);
     return {
       ...listItem(row),
       version: row.version,
+      salesTitle: team.titleOf(buyerId),
+      salesChain: team.chain(buyerId),
       referrerId: row.referrer_user_id,
       salesDepartmentId: row.sales_department_id,
       salesDepartmentName: row.department_name,
@@ -217,7 +222,10 @@ export class BuyerAdminService {
     await this.database.transaction(async (transaction) => {
       const current = await this.lockBuyer(transaction, buyerId, input.version);
       if (current.user_status !== "active") throw new ApiError("BUSINESS_RULE", "buyerInactive");
-      const department = await transaction.execute(sql`SELECT 1 FROM core.departments WHERE id = ${input.departmentId} AND company_id = ${actor.operatorCompanyId} AND status = 'active'`);
+      // Đánh dấu vào đơn vị kinh doanh (QUYTAC_NGHIEPVU_149); khóa đội để thay đổi đội chạy lần lượt.
+      await this.salesTeam.lockTeam(transaction, actor.operatorCompanyId);
+      const department = await transaction.execute(sql`
+        SELECT 1 FROM core.departments WHERE id = ${input.departmentId} AND company_id = ${actor.operatorCompanyId} AND status = 'active' AND sales_unit_type IS NOT NULL`);
       if (department.rows.length === 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { departmentId: "invalidValue" } });
       const company = actor.operatorCompanyId;
       // Thành viên có sẵn đang hoạt động: giữ nguyên, nhớ phòng ban cũ để trả lại khi bỏ đánh dấu.
@@ -266,6 +274,9 @@ export class BuyerAdminService {
       if (!current.is_sales_staff) throw new ApiError("BUSINESS_RULE", "buyerNotSalesStaff");
       const company = current.sales_company_id!;
       const today = this.permissions.today();
+      // Người đang quản lý đơn vị kinh doanh thì bỏ quản lý (QUYTAC_NGHIEPVU_152).
+      await this.salesTeam.lockTeam(transaction, company);
+      await this.salesTeam.releaseManagement(transaction, actor, buyerId);
       if (current.sales_membership_created) {
         // Thành viên do đánh dấu tạo: bỏ phòng ban; không còn vai trò nào ở công ty thì ngừng.
         const remaining = await transaction.execute(sql`
