@@ -167,9 +167,18 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 44 (sau số 43).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_10 (LOI_04)
+
+- Phạm vi: hàm tải dữ liệu dùng chung `useApi` (packages/ui). Hồi quy: kiểm tra kiểu, lint toàn dự án.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`; Playwright trên MAN_HINH_35: làm chậm phản hồi bộ lọc mặc định 3 giây rồi đổi bộ lọc ngay.
+- Kết quả: trước khi sửa, danh sách hiện kết quả bộ lọc cũ (1 dòng thay vì 0); sau khi sửa, hiện đúng kết quả bộ lọc mới (0 dòng). Kết quả mong đợi trong tài liệu 03 – Đạt.
+- Kiểm tra bảo mật phần B, C: không thêm thư viện; gitleaks trong CI trên pull request số 45. Thay đổi chỉ ở giao diện, không đổi phân quyền, dữ liệu.
+- Tự rà soát mã và dọn dẹp: Đạt.
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
+
 ## Lỗi phát hiện 2026-11-10
 
 | Mã lỗi | Mô tả | Mức độ | Kịch bản liên quan | Quyết định xử lý | Trạng thái |
 |---|---|---|---|---|---|
 | LOI_03 | KICHBAN_KIEMTHU_149 (CONG_VIEC_05) lỗi không đều trên CI: hai phiếu xuất đồng thời tranh món hàng cuối, phiếu thua nhận `400` khi bị chặn ở bước kiểm tra trước, nhận `409` khi bị chặn trong khóa giữ hàng. Dữ liệu đúng trong cả hai trường hợp (chỉ một phiếu giữ hàng); kiểm thử chờ cố định `409` nên thất bại theo thời điểm, kéo theo KICHBAN_KIEMTHU_152 | Thấp | KICHBAN_KIEMTHU_149 | Thống nhất trả `400` "Không đủ hàng khả dụng (một phần đang được giữ)." gắn vào dòng hàng, sửa kiểm thử chờ `400` (người dùng quyết định 2026-11-10) | Mở |
-| LOI_04 | Hàm tải dữ liệu dùng chung của giao diện (`useApi`) không bỏ phản hồi cũ: đổi bộ lọc nhanh trên danh sách thì phản hồi của bộ lọc trước về sau ghi đè kết quả mới (thấy khi thử MAN_HINH_44, có ở mọi mini app) | Thấp | KICHBAN_KIEMTHU_192 | Sửa hàm tải dữ liệu: chỉ nhận phản hồi của lần gọi mới nhất (người dùng quyết định 2026-11-10) | Mở |
+| LOI_04 | Hàm tải dữ liệu dùng chung của giao diện (`useApi`) không bỏ phản hồi cũ: đổi bộ lọc nhanh trên danh sách thì phản hồi của bộ lọc trước về sau ghi đè kết quả mới (thấy khi thử MAN_HINH_44, có ở mọi mini app) | Thấp | KICHBAN_KIEMTHU_192 | Sửa hàm tải dữ liệu: chỉ nhận phản hồi của lần gọi mới nhất (người dùng quyết định 2026-11-10) | Đã sửa (pull request số 45), chờ nghiệm thu |
