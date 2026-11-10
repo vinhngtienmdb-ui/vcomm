@@ -102,7 +102,15 @@ Báo cáo tài chính từng công ty (CONG_VIEC_15) cho kết quả như cũ; k
 
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa đối chiếu.
+- Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: Đạt (TIEUCHI_NGHIEMTHU_145 đến 149; quyền chỉ hiệu lực ở phạm vi tập đoàn).
+- Đúng giao diện: Đạt (thành phần, biến dùng chung đã có; máy tính và điện thoại 375 điểm ảnh không cuộn ngang). Không có bản mẫu riêng, theo cách làm các màn hình Tài chính trước.
+- Đã xử lý lỗi: Đạt (thông báo tiếng Việt, tiếng Anh; lỗi từng ô của điều chỉnh tay; lỗi ghi sổ hiện câu đã dịch).
+- Đã kiểm thử: Đạt (tài liệu `25`, lần kiểm thử 2026-11-10 – CONG_VIEC_20).
+- Không phá vỡ chức năng cũ: Đạt (hồi quy toàn bộ; báo cáo tài chính từng công ty dùng chung phần đọc số liệu mới, kết quả không đổi).
+- Tiêu chí nghiệm thu bắt buộc: Đạt.
+- Cổng bảo mật: Đạt (không lỗ hổng thư viện; không khóa bí mật trong commit; không lỗ hổng Nghiêm trọng, Cao còn lại).
+- Tự rà soát mã, dọn dẹp: Đạt (rà soát độc lập, đã sửa các mục phát hiện; tệp tạm trong `tam_thoi/`; bảng nháp thử trên dữ liệu phát triển đã xóa).
+- Tài liệu `27` và tài liệu liên quan: Đạt.
 
 ## 16. Giới hạn đã biết
 
