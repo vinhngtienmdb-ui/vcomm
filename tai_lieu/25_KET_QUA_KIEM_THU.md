@@ -134,6 +134,22 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 42 (sau số 39).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_08
+
+- Phạm vi: lát L0, L1 (đơn bán giá theo bảng giá kênh, nhóm khách; ngoại lệ chiết khấu tay, dưới giá vốn, vượt hạn mức công nợ qua luồng duyệt; giữ hàng khi xác nhận; phiếu xuất giao hàng theo đơn, giao nhiều lần; phiếu nhận hàng trả lại theo phiếu xuất gốc); MAN_HINH_42, 43, sửa MAN_HINH_31, 32; API_77 đến API_79. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --prod --audit-level high`; thử trên trình duyệt bằng Playwright: lập đơn bán người mua không lấy hóa đơn, gửi (xác nhận ngay khi không ngoại lệ), lập phiếu xuất giao hàng serial có vị trí kệ, nhận hàng trả lại theo serial, xem đơn sau giao (máy tính và điện thoại).
+- Kết quả: 203 đạt / 0 không đạt / 203 kịch bản tự động (24 tệp; phần mới: `c8-sales` 5, KICHBAN_KIEMTHU_172 đến 175, 183). Một lần chạy toàn bộ giữa chừng có 1 tệp lỗi, không tái hiện trong 4 lần chạy sau; không xác định được tệp lỗi (đầu ra đã bị lọc).
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_87 đến 92 (bắt buộc) – Đạt theo kiểm thử tự động và thử trên trình duyệt; KICHBAN_KIEMTHU_176 đến 182 (thủ công) phần chính đã thử trên trình duyệt, phần biên đã có kiểm thử tự động tương ứng.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod --audit-level high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 43): không có phát hiện.
+  - C3 phân quyền: Đạt – đơn bán công ty khác trả `404`; thủ kho chi nhánh khác không giao được; hạn mức công nợ, giá vốn trong diễn giải ngoại lệ chỉ hiện cho người có `crm.profile.manage`, `inventory.cost.view`; kho chỉ xem đơn đã xác nhận trở đi.
+  - C4 toàn vẹn dữ liệu: Đạt – gửi đơn khóa hồ sơ khách; gửi phiếu xuất khóa đơn bán; gửi phiếu trả khóa dòng phiếu xuất bằng câu lệnh riêng (KICHBAN_KIEMTHU_183 thất bại khi bỏ khóa, đạt khi có); giữ hàng theo thứ tự mặt hàng tránh khóa chéo.
+  - C6 OWASP Top 10: A01 kiểm quyền trong từng service; A04 đơn đã giao không hủy, chỉ đóng.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 4 lỗi mức Trung bình (lộ hạn mức công nợ, giá vốn; trả vượt khi gửi đồng thời; không trả một phần theo đơn vị quy đổi; lỗi thiếu hàng không báo dòng) và 6 lỗi Thấp; đã sửa 4 lỗi Trung bình và 4 lỗi Thấp. Đối chiếu tài liệu với mã: dư nợ tạm tính cộng cả đơn chờ duyệt, lệch quyết định của người dùng, đã sửa. Giữ lại: khi sửa đơn không đổi được đơn vị của dòng đã có (xóa dòng, thêm lại); màn trả hàng chưa trừ số đã trả (chặn khi gửi).
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+
 ## Lỗi phát hiện 2026-11-10
 
 | Mã lỗi | Mô tả | Mức độ | Kịch bản liên quan | Quyết định xử lý | Trạng thái |
