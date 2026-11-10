@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_16: Người dùng nghiệm thu, chấp nhận giới hạn: kết nối MISA theo nguồn thứ cấp (thử tài khoản thử MISA trước phát hành), cơ quan thuế từ chối qua MISA chưa nhận ra, tệp tải lỗi không tự tải lại, ngày làm việc tiếp theo chưa tính ngày lễ; chờ người dùng hợp nhất pull request số 51 (sau số 50).
 - CONG_VIEC_16: Xong lát L0 đến L2 trên nhánh `chuc-nang/CONG_VIEC_16-hoa-don-dien-tu` (pull request số 51, tách từ nhánh CONG_VIEC_15). Database migration 0013, 0014; cài đặt theo công ty; hóa đơn lập khi phiếu xuất giao hàng ghi sổ, gửi nền qua lớp kết nối nhà cung cấp (bộ giả lập, MISA meInvoice theo nguồn thứ cấp); gửi lại, tra trạng thái, báo quá hạn; trả hàng (điều chỉnh giảm, hóa đơn của người mua); hóa đơn thay thế; MAN_HINH_54, 55. Kiểm thử 241/241 đạt. Không thêm thư viện. Rà soát mã sửa 2 lỗi Cao, 5 mục Trung bình. Chờ người dùng nghiệm thu.
 - CONG_VIEC_16: Lập công việc Hóa đơn điện tử (MODULE_06, phần 4), mức Lớn.
 - CONG_VIEC_15: Người dùng nghiệm thu, chấp nhận ba giới hạn đã biết (lợi nhuận chưa kết chuyển mọi năm vào 4212; chỉ tiêu theo tài khoản đối ứng không chia bút toán nhiều đối ứng; "Từ ngày" mặc định 01/01); việc trước phát hành: kế toán trưởng so Phụ lục IV Thông tư 99/2025 với bản gốc; chờ người dùng hợp nhất pull request số 50 (sau số 49).

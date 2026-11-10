@@ -197,7 +197,7 @@
   - C4 toàn vẹn dữ liệu: Đạt – hóa đơn lập cùng giao dịch ghi sổ; gọi nhà cung cấp ngoài giao dịch, ghi lần gửi trước khi gọi, mã tham chiếu chống lập trùng, tra trạng thái trước khi gửi lại; chỉ kết quả lần gửi mới nhất được ghi; mật khẩu mã hóa AES-256-GCM, không trả về, không ghi nhật ký.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 2 lỗi Cao (gửi lại không tra trạng thái có thể lập trùng; gửi chồng, kết quả cũ ghi đè), 5 mục Trung bình (gửi lại lần đầu sau 5 phút thay vì 1; mã truy cập MISA không đổi khi đổi cài đặt; hóa đơn bị từ chối không xử lý tiếp được; tác vụ hóa đơn chặn tác vụ nền khác; đánh dấu thay thế trước khi hóa đơn thay thế phát hành), 6 mục Thấp; đã sửa cả 7 mục Cao, Trung bình và 2 mục Thấp. Giữ lại (ghi tài liệu 22, đặc tả mục 16): trạng thái gửi cơ quan thuế của MISA chưa ánh xạ nên cơ quan thuế từ chối qua MISA hiện "Chờ cấp mã"; tệp tải lỗi không tự tải lại; ngày làm việc tiếp theo chưa tính ngày nghỉ lễ.
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
-- Kết luận: Chờ người dùng nghiệm thu. Trước khi phát hành: đối chiếu tài liệu API MISA chính thức, thử với tài khoản thử MISA (chữ ký số từ xa); kế toán trưởng đối chiếu Nghị định 254/2026, Thông tư 91/2026.
+- Kết luận: Người dùng nghiệm thu 2026-11-10, chấp nhận 4 giới hạn đã biết; chờ người dùng hợp nhất pull request số 51 (sau số 50). Trước khi phát hành: đối chiếu tài liệu API MISA chính thức, thử với tài khoản thử MISA (chữ ký số từ xa); kế toán trưởng đối chiếu Nghị định 254/2026, Thông tư 91/2026.
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_15
 
