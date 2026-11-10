@@ -36,6 +36,100 @@ export function nextWorkingDay(date: string): string {
   return moment.toISOString().slice(0, 10);
 }
 
+export interface InvoiceItem {
+  lineNo: number;
+  itemCode: string | null;
+  itemName: string;
+  unitName: string | null;
+  quantity: number;
+  unitPrice: number;
+  vatRate: VatRate;
+  netAmount: number;
+  taxAmount: number;
+  totalAmount: number;
+  isPromotion: boolean;
+}
+
+// Ghi hóa đơn mới (gốc, điều chỉnh, thay thế) trạng thái "Chờ gửi"; thiếu ký hiệu của năm thì "Lỗi cài đặt".
+export async function insertInvoice(
+  transaction: Executor,
+  input: {
+    companyId: string;
+    sourceDocumentId: string;
+    kind: EinvoiceKind;
+    relatedInvoiceId: string | null;
+    invoiceDate: string;
+    settings: { provider: EinvoiceProvider; template_code: string; with_tax_code: boolean };
+    seller: { name: string | null; taxCode: string | null; address: string | null };
+    buyer: { partnerId: string | null; name: string | null; taxCode: string | null; address: string | null; anonymous: boolean };
+    currency: string;
+    items: InvoiceItem[];
+    note: string | null;
+  },
+): Promise<string> {
+  const total = (key: "netAmount" | "taxAmount" | "totalAmount") => Math.round(input.items.reduce((sum, item) => sum + item[key], 0) * 10000) / 10000;
+  const series = await seriesFor(transaction, input.companyId, Number(input.invoiceDate.slice(0, 4)));
+  const inserted = await transaction.execute<{ id: string }>(sql`
+    INSERT INTO finance.einvoices (company_id, source_document_id, kind, related_invoice_id, provider, invoice_date, template_code, series, with_tax_code, seller, buyer, currency,
+      net_amount, tax_amount, total_amount, note, status, last_error, due_date)
+    VALUES (${input.companyId}, ${input.sourceDocumentId}, ${input.kind}, ${input.relatedInvoiceId}, ${input.settings.provider}, ${input.invoiceDate}::date, ${input.settings.template_code},
+      ${series}, ${input.settings.with_tax_code}, ${JSON.stringify(input.seller)}::jsonb, ${JSON.stringify(input.buyer)}::jsonb, ${input.currency},
+      ${total("netAmount")}, ${total("taxAmount")}, ${total("totalAmount")}, ${input.note}, ${series ? "pending" : "setup_error"}, ${series ? null : "einvoiceSeriesMissing"},
+      ${nextWorkingDay(input.invoiceDate)}::date)
+    RETURNING id`);
+  const invoiceId = inserted.rows[0]!.id;
+  for (const item of input.items)
+    await transaction.execute(sql`
+      INSERT INTO finance.einvoice_lines (invoice_id, line_no, item_code, item_name, unit_name, quantity, unit_price, vat_rate, net_amount, tax_amount, total_amount, is_promotion)
+      VALUES (${invoiceId}, ${item.lineNo}, ${item.itemCode}, ${item.itemName}, ${item.unitName}, ${item.quantity}, ${item.unitPrice}, ${item.vatRate}, ${item.netAmount},
+        ${item.taxAmount}, ${item.totalAmount}, ${item.isPromotion})`);
+  return invoiceId;
+}
+
+// Dòng hóa đơn của phiếu xuất giao hàng hoặc phiếu nhận hàng trả lại: tiền theo lũy kế dòng đơn như công nợ (THAY_DOI_10), phiếu trả ghi âm.
+export async function documentItems(transaction: Executor, documentId: string, type: "sales_issue" | "sales_return"): Promise<InvoiceItem[]> {
+  const orderLine = type === "sales_issue" ? sql`sl.id = dl.source_line_id` : sql`sl.id = (SELECT il.source_line_id FROM inventory.document_lines il WHERE il.id = dl.source_line_id)`;
+  const before =
+    type === "sales_issue"
+      ? sql`SELECT coalesce(sum(abs(o.base_quantity)), 0) AS before FROM inventory.document_lines o JOIN inventory.documents od ON od.id = o.document_id
+          WHERE o.source_line_id = sl.id AND od.type = 'sales_issue' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)`
+      : sql`SELECT coalesce(sum(abs(o.base_quantity)), 0) AS before FROM inventory.document_lines o JOIN inventory.documents od ON od.id = o.document_id
+          JOIN inventory.document_lines oi ON oi.id = o.source_line_id
+          WHERE oi.source_line_id = sl.id AND od.type = 'sales_return' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)`;
+  const lines = (
+    await transaction.execute<{ sku: string; name: string; unit_name: string; quantity: string; vat_rate: VatRate; gross: string; net: string; free: boolean; units: number }>(sql`
+    WITH d AS (SELECT id, posted_at, finance.company_minor_units(company_id) AS units FROM inventory.documents WHERE id = ${documentId})
+    SELECT v.sku, p.name, u.name_vi AS unit_name, abs(dl.quantity)::text AS quantity, sl.vat_rate, sl.total_amount = 0 AS free, d.units,
+      finance.line_share(sl.total_amount, b.before, abs(dl.base_quantity), sl.base_quantity, d.units)::text AS gross,
+      finance.line_share(sl.net_amount, b.before, abs(dl.base_quantity), sl.base_quantity, d.units)::text AS net
+    FROM d JOIN inventory.document_lines dl ON dl.document_id = d.id JOIN sales.order_lines sl ON ${orderLine}
+    JOIN catalog.variants v ON v.id = dl.variant_id JOIN catalog.products p ON p.id = v.product_id JOIN catalog.units u ON u.id = dl.unit_id
+    CROSS JOIN LATERAL (${before}) b
+    ORDER BY dl.line_no`)
+  ).rows;
+  const sign = type === "sales_return" ? -1 : 1;
+  return lines.map((line, index) => {
+    const net = Number(line.net);
+    const gross = Number(line.gross);
+    const quantity = Number(line.quantity);
+    const units = 10 ** Number(line.units);
+    return {
+      lineNo: index + 1,
+      itemCode: line.sku,
+      itemName: line.name,
+      unitName: line.unit_name,
+      quantity,
+      // Đơn giá chưa thuế làm tròn theo đơn vị tiền tệ công ty (quyết định người dùng 2026-11-10); thành tiền giữ theo công nợ.
+      unitPrice: quantity ? Math.round((net / quantity) * units) / units : 0,
+      vatRate: line.vat_rate,
+      netAmount: sign * net,
+      taxAmount: sign * (Math.round((gross - net) * 10000) / 10000),
+      totalAmount: sign * gross,
+      isPromotion: line.free,
+    };
+  });
+}
+
 type InvoiceRow = {
   id: string;
   company_id: string;
@@ -115,7 +209,11 @@ export class EinvoicesService implements OnModuleInit {
       SELECT d.id, d.type, d.company_id, d.document_date::text, d.partner_id, o.buyer_name, o.currency
       FROM inventory.documents d JOIN sales.orders o ON o.id = d.source_id AND d.source_type = 'sales.order' WHERE d.id = ${documentId}`)
     ).rows[0];
-    if (!document || document.type !== "sales_issue") return;
+    if (!document) {
+      await this.recordReturn(transaction, documentId);
+      return;
+    }
+    if (document.type !== "sales_issue") return;
     const settings = await settingsRow(transaction, document.company_id);
     if (!settings?.enabled || !settings.start_date || document.document_date < settings.start_date) return;
     const company = (
@@ -131,54 +229,29 @@ export class EinvoicesService implements OnModuleInit {
     const buyer = partner
       ? { partnerId: document.partner_id, name: partner.name, taxCode: partner.tax_code, address: partner.address, anonymous: false }
       : { partnerId: null, name: document.buyer_name, taxCode: null, address: null, anonymous: true };
-    // Tiền từng dòng theo lũy kế dòng đơn, cùng cách tính công nợ (THAY_DOI_10; finance.inventory_amounts).
-    const lines = (
-      await transaction.execute<{ line_no: number; sku: string; name: string; unit_name: string; quantity: string; vat_rate: VatRate; gross: string; net: string; free: boolean; units: number }>(sql`
-      WITH d AS (SELECT id, posted_at, finance.company_minor_units(company_id) AS units FROM inventory.documents WHERE id = ${documentId})
-      SELECT dl.line_no, v.sku, p.name, u.name_vi AS unit_name, abs(dl.quantity)::text AS quantity, sl.vat_rate, sl.total_amount = 0 AS free, d.units,
-        finance.line_share(sl.total_amount, b.before, abs(dl.base_quantity), sl.base_quantity, d.units)::text AS gross,
-        finance.line_share(sl.net_amount, b.before, abs(dl.base_quantity), sl.base_quantity, d.units)::text AS net
-      FROM d JOIN inventory.document_lines dl ON dl.document_id = d.id JOIN sales.order_lines sl ON sl.id = dl.source_line_id
-      JOIN catalog.variants v ON v.id = dl.variant_id JOIN catalog.products p ON p.id = v.product_id JOIN catalog.units u ON u.id = dl.unit_id
-      CROSS JOIN LATERAL (SELECT coalesce(sum(abs(o.base_quantity)), 0) AS before FROM inventory.document_lines o JOIN inventory.documents od ON od.id = o.document_id
-        WHERE o.source_line_id = sl.id AND od.type = 'sales_issue' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)) b
-      ORDER BY dl.line_no`)
-    ).rows;
-    const items = lines.map((line, index) => {
-      const net = Number(line.net);
-      const gross = Number(line.gross);
-      const quantity = Number(line.quantity);
-      return {
-        lineNo: index + 1,
-        itemCode: line.sku,
-        itemName: line.name,
-        unitName: line.unit_name,
-        quantity,
-        // Đơn giá chưa thuế làm tròn theo đơn vị tiền tệ công ty (quyết định người dùng 2026-11-10); thành tiền giữ theo công nợ.
-        unitPrice: quantity ? Math.round((net / quantity) * 10 ** Number(line.units)) / 10 ** Number(line.units) : 0,
-        vatRate: line.vat_rate,
-        netAmount: net,
-        taxAmount: Math.round((gross - net) * 10000) / 10000,
-        totalAmount: gross,
-        isPromotion: line.free,
-      };
+    const items = await documentItems(transaction, documentId, "sales_issue");
+    await insertInvoice(transaction, {
+      companyId: document.company_id,
+      sourceDocumentId: documentId,
+      kind: "original",
+      relatedInvoiceId: null,
+      invoiceDate: document.document_date,
+      settings,
+      seller: { name: company.legal_name, taxCode: company.tax_code, address: company.address },
+      buyer,
+      currency: document.currency,
+      items,
+      note: null,
     });
-    const total = (key: "netAmount" | "taxAmount" | "totalAmount") => Math.round(items.reduce((sum, item) => sum + item[key], 0) * 10000) / 10000;
-    const series = await seriesFor(transaction, document.company_id, Number(document.document_date.slice(0, 4)));
-    const inserted = await transaction.execute<{ id: string }>(sql`
-      INSERT INTO finance.einvoices (company_id, source_document_id, kind, provider, invoice_date, template_code, series, with_tax_code, seller, buyer, currency,
-        net_amount, tax_amount, total_amount, status, last_error, due_date)
-      VALUES (${document.company_id}, ${documentId}, 'original', ${settings.provider}, ${document.document_date}::date, ${settings.template_code}, ${series}, ${settings.with_tax_code},
-        ${JSON.stringify({ name: company.legal_name, taxCode: company.tax_code, address: company.address })}::jsonb, ${JSON.stringify(buyer)}::jsonb, ${document.currency},
-        ${total("netAmount")}, ${total("taxAmount")}, ${total("totalAmount")}, ${series ? "pending" : "setup_error"}, ${series ? null : "einvoiceSeriesMissing"},
-        ${nextWorkingDay(document.document_date)}::date)
-      RETURNING id`);
-    const invoiceId = inserted.rows[0]!.id;
-    for (const item of items)
-      await transaction.execute(sql`
-        INSERT INTO finance.einvoice_lines (invoice_id, line_no, item_code, item_name, unit_name, quantity, unit_price, vat_rate, net_amount, tax_amount, total_amount, is_promotion)
-        VALUES (${invoiceId}, ${item.lineNo}, ${item.itemCode}, ${item.itemName}, ${item.unitName}, ${item.quantity}, ${item.unitPrice}, ${item.vatRate}, ${item.netAmount},
-          ${item.taxAmount}, ${item.totalAmount}, ${item.isPromotion})`);
+  }
+
+  // Phiếu nhận hàng trả lại ghi sổ mà phiếu xuất gốc có hóa đơn: tạo việc chờ kế toán chọn cách xử lý (QUYTAC_NGHIEPVU_106).
+  private async recordReturn(transaction: Executor, documentId: string): Promise<void> {
+    await transaction.execute(sql`
+      INSERT INTO finance.einvoice_return_tasks (company_id, return_document_id, original_invoice_id)
+      SELECT r.company_id, r.id, e.id FROM inventory.documents r JOIN finance.einvoices e ON e.source_document_id = r.source_id AND e.kind = 'original'
+      WHERE r.id = ${documentId} AND r.type = 'sales_return' AND r.source_type = 'inventory.document'
+      ON CONFLICT (return_document_id) DO NOTHING`);
   }
 
   private async invoiceRow(executor: Executor, condition: SQL): Promise<InvoiceRow | undefined> {
@@ -387,6 +460,7 @@ export class EinvoicesService implements OnModuleInit {
       currency: row.currency,
       status: row.status,
       overdue: row.overdue,
+      replaced: Boolean(row.replaced_by_id),
       sourceDocumentNo: row.source_document_no,
     };
   }
@@ -396,9 +470,17 @@ export class EinvoicesService implements OnModuleInit {
     const row = await this.invoiceRow(this.database, sql`e.id = ${id} AND e.company_id = ${actor.companyId}`);
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
     const lines = await this.lineRows(this.database, id);
-    const related = await this.database.execute<{ id: string; kind: EinvoiceKind; series: string | null; invoice_no: string | null; invoice_date: string; relation: "original" | "replaced_by" }>(sql`
+    const related = await this.database.execute<{
+      id: string;
+      kind: EinvoiceKind;
+      series: string | null;
+      invoice_no: string | null;
+      invoice_date: string;
+      relation: "original" | "replaced_by" | "adjusted_by";
+    }>(sql`
       SELECT id, kind, series, invoice_no, invoice_date::text, 'original' AS relation FROM finance.einvoices WHERE id = ${row.related_invoice_id}
-      UNION ALL SELECT id, kind, series, invoice_no, invoice_date::text, 'replaced_by' FROM finance.einvoices WHERE related_invoice_id = ${id}`);
+      UNION ALL SELECT id, kind, series, invoice_no, invoice_date::text, CASE WHEN kind = 'adjustment' THEN 'adjusted_by' ELSE 'replaced_by' END
+      FROM finance.einvoices WHERE related_invoice_id = ${id} ORDER BY invoice_date`);
     const attempts = await this.database.execute<{
       operation: "publish" | "status";
       started_at: Date;

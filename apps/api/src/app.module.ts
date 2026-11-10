@@ -63,6 +63,7 @@ import { LedgerController } from "./accounting/ledger.controller";
 import { JournalsService } from "./accounting/journals.service";
 import { LedgerReportsService } from "./accounting/ledger-reports.service";
 import { StatementsService } from "./accounting/statements.service";
+import { EinvoiceCorrectionsService } from "./einvoice/einvoice-corrections.service";
 import { EinvoiceSettingsService } from "./einvoice/einvoice-settings.service";
 import { EinvoicesController } from "./einvoice/einvoices.controller";
 import { EinvoicesService } from "./einvoice/einvoices.service";
@@ -140,6 +141,7 @@ import { UsersService } from "./users/users.service";
     StatementsService,
     EinvoiceSettingsService,
     EinvoicesService,
+    EinvoiceCorrectionsService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

@@ -9,13 +9,35 @@ import { Suspense, useState } from "react";
 import { Loaded, LoadingView, MessageView } from "ui/components/StatusViews";
 import { formatDate, formatNumber } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
+import { EinvoiceReturns } from "@/components/EinvoiceReturns";
 import { EinvoiceStatusBadge } from "@/components/EinvoiceStatusBadge";
 
 export default function EinvoicesPage() {
   return (
     <Suspense fallback={<LoadingView />}>
-      <EinvoiceList />
+      <EinvoiceTabs />
     </Suspense>
+  );
+}
+
+function EinvoiceTabs() {
+  const t = useTranslations("einvoices");
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<"invoices" | "returns">(searchParams.get("tab") === "returns" ? "returns" : "invoices");
+  return (
+    <>
+      <div className="tieu-de">
+        <h1>{t("title")}</h1>
+      </div>
+      <div className="cac-the" role="tablist">
+        {(["invoices", "returns"] as const).map((key) => (
+          <button key={key} type="button" role="tab" aria-selected={tab === key} className={tab === key ? "chon" : ""} onClick={() => setTab(key)}>
+            {t(`tab_${key}`)}
+          </button>
+        ))}
+      </div>
+      {tab === "invoices" ? <EinvoiceList /> : <EinvoiceReturns />}
+    </>
   );
 }
 
@@ -47,9 +69,6 @@ function EinvoiceList() {
   const headings = [t("invoiceDate"), t("number"), t("buyer"), t("sourceDocument"), t("totalAmount"), t("kind"), t("status")];
   return (
     <>
-      <div className="tieu-de">
-        <h1>{t("title")}</h1>
-      </div>
       <div className="bo-loc">
         <label className="an-nhan" htmlFor="loc-trang-thai-hd">
           {t("status")}
@@ -114,7 +133,7 @@ function EinvoiceList() {
                         <span>{t(`kind_${item.kind}`)}</span>
                       </td>
                       <td data-nhan={headings[6]}>
-                        <EinvoiceStatusBadge status={item.status} overdue={item.overdue} />
+                        <EinvoiceStatusBadge status={item.status} overdue={item.overdue} replaced={item.replaced} />
                       </td>
                     </tr>
                   ))}

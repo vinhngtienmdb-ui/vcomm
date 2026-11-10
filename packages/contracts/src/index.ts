@@ -3157,6 +3157,7 @@ export interface EinvoiceListItem {
   currency: string;
   status: EinvoiceStatus;
   overdue: boolean;
+  replaced: boolean;
   sourceDocumentNo: string | null;
 }
 export interface EinvoiceParty {
@@ -3194,7 +3195,7 @@ export interface EinvoiceResponse extends EinvoiceListItem {
   dueDate: string;
   issuedAt: string | null;
   sourceDocumentId: string;
-  related: { id: string; kind: EinvoiceKind; series: string | null; invoiceNo: string | null; invoiceDate: string; relation: "original" | "replaced_by" }[];
+  related: { id: string; kind: EinvoiceKind; series: string | null; invoiceNo: string | null; invoiceDate: string; relation: "original" | "replaced_by" | "adjusted_by" }[];
   lines: EinvoiceLineResponse[];
   taxSummary: { vatRate: string; netAmount: string; taxAmount: string }[];
   attempts: { operation: "publish" | "status"; startedAt: string; finishedAt: string | null; outcome: string | null; errorCode: string | null; message: string | null }[];
@@ -3203,3 +3204,40 @@ export interface EinvoiceResponse extends EinvoiceListItem {
   canManage: boolean;
   version: number;
 }
+export const einvoiceReturnStatuses = ["open", "adjusted", "buyer_invoice"] as const;
+export type EinvoiceReturnStatus = (typeof einvoiceReturnStatuses)[number];
+export const einvoiceReturnQuerySchema = z.object({ status: z.enum(einvoiceReturnStatuses).optional() }).strict();
+export interface EinvoiceReturnTask {
+  id: string;
+  status: EinvoiceReturnStatus;
+  returnDocumentId: string;
+  returnDocumentNo: string | null;
+  returnDate: string;
+  buyerName: string;
+  buyerTaxCode: string | null;
+  returnAmount: string;
+  currency: string;
+  original: { id: string; series: string | null; invoiceNo: string | null; invoiceDate: string; status: EinvoiceStatus };
+  adjustmentInvoiceId: string | null;
+  buyerInvoice: { series: string | null; invoiceNo: string; invoiceDate: string } | null;
+  canResolve: boolean;
+  version: number;
+}
+export const recordBuyerInvoiceSchema = z
+  .object({ series: blankToNull(20), invoiceNo: z.string().trim().min(1).max(20), invoiceDate: isoDate, version: z.number().int().min(0) })
+  .strict();
+export const replaceEinvoiceSchema = z
+  .object({
+    buyerName: z.string().trim().min(1).max(300),
+    buyerTaxCode: z
+      .string()
+      .trim()
+      .regex(/^[0-9]{10}(-[0-9]{3})?$/, "invalidValue")
+      .nullable()
+      .optional()
+      .or(z.literal("").transform(() => null)),
+    buyerAddress: blankToNull(500),
+    reason: z.string().trim().min(1).max(500),
+    version: z.number().int().min(0),
+  })
+  .strict();

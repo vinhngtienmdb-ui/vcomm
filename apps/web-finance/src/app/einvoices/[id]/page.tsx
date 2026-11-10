@@ -4,10 +4,10 @@
 import type { EinvoiceResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { type FormEvent, useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
-import { FormError } from "ui/components/Form";
+import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded } from "ui/components/StatusViews";
 import { apiDownload, apiFetch } from "ui/lib/api";
 import { formatDate, formatDateTime, formatNumber } from "ui/lib/format";
@@ -23,6 +23,7 @@ export default function EinvoicePage() {
   const { id } = useParams<{ id: string }>();
   const { state, reload } = useApi<EinvoiceResponse>(`/finance/einvoices/${id}`);
   const [busy, setBusy] = useState(false);
+  const [replacing, setReplacing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   async function resend(invoice: EinvoiceResponse) {
     setBusy(true);
@@ -64,6 +65,11 @@ export default function EinvoicePage() {
                     {t("resend")}
                   </button>
                 )}
+                {invoice.canManage && invoice.status === "issued" && invoice.kind !== "adjustment" && !invoice.replaced && !invoice.related.some((item) => item.relation === "adjusted_by") && (
+                  <button type="button" className="nut phu" onClick={() => setReplacing(true)}>
+                    {t("replace")}
+                  </button>
+                )}
                 {invoice.hasPdf && (
                   <button type="button" className="nut phu" onClick={() => void download(invoice, "pdf")}>
                     {t("downloadPdf")}
@@ -77,13 +83,26 @@ export default function EinvoicePage() {
               </span>
             </div>
             <FormError text={error} />
+            {replacing && <ReplaceForm invoice={invoice} onCancel={() => setReplacing(false)} />}
+            {invoice.note && <p className="chu-thich">{t("noteLine", { note: invoice.note })}</p>}
+            {invoice.related.length > 0 && (
+              <section className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
+                <strong>{t("relatedInvoices")}</strong>
+                {invoice.related.map((item) => (
+                  <div key={item.id}>
+                    {t(`relation_${item.relation}`)}: <Link href={`/einvoices/${item.id}`}>{item.invoiceNo ? `${item.series} · ${item.invoiceNo}` : t("noNumber")}</Link>
+                    <span className="chu-thich"> · {formatDate(item.invoiceDate)}</span>
+                  </div>
+                ))}
+              </section>
+            )}
             {invoice.lastError && <div className="khoi-canh-bao loi">{t("lastError", { message: errorMessage(invoice.lastError) })}</div>}
             {invoice.provider === "simulator" && <div className="khoi-canh-bao">{t("simulatorNote")}</div>}
             <section className="the" style={{ display: "grid", gap: "var(--khoang-2)", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
               <div>
                 <span className="chu-thich">{t("status")}</span>
                 <div>
-                  <EinvoiceStatusBadge status={invoice.status} overdue={invoice.overdue} />
+                  <EinvoiceStatusBadge status={invoice.status} overdue={invoice.overdue} replaced={invoice.replaced} />
                 </div>
               </div>
               <div>
@@ -203,5 +222,57 @@ export default function EinvoicePage() {
         );
       }}
     </Loaded>
+  );
+}
+
+// Hóa đơn thay thế khi sai thông tin người mua (CHUC_NANG_79; QUYTAC_NGHIEPVU_107).
+function ReplaceForm({ invoice, onCancel }: { invoice: EinvoiceResponse; onCancel: () => void }) {
+  const t = useTranslations("einvoices");
+  const { notify } = useAdmin();
+  const router = useRouter();
+  const [buyerName, setBuyerName] = useState(invoice.buyer.name ?? "");
+  const [buyerTaxCode, setBuyerTaxCode] = useState(invoice.buyer.taxCode ?? "");
+  const [buyerAddress, setBuyerAddress] = useState(invoice.buyer.address ?? "");
+  const [reason, setReason] = useState("");
+  const { submitting, fields, formError, run, inputClass } = useSubmit();
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    void run(async () => {
+      const created = await apiFetch<EinvoiceResponse>(`/finance/einvoices/${invoice.id}/replace`, {
+        method: "POST",
+        body: JSON.stringify({ buyerName, buyerTaxCode, buyerAddress, reason, version: invoice.version }),
+      });
+      notify(t("replacementCreated"));
+      router.push(`/einvoices/${created.id}`);
+    });
+  }
+  return (
+    <form onSubmit={submit} className="the" style={{ display: "grid", gap: "var(--khoang-3)" }}>
+      <strong>{t("replaceTitle")}</strong>
+      <span className="chu-thich">{t("replaceHint")}</span>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "var(--khoang-3)" }}>
+        <Field id="tt-ten-nguoi-mua" label={`${t("buyerName")} *`} error={fields.buyerName}>
+          <input id="tt-ten-nguoi-mua" className={inputClass("buyerName")} value={buyerName} onChange={(event) => setBuyerName(event.target.value)} />
+        </Field>
+        <Field id="tt-mst-nguoi-mua" label={t("taxCode")} error={fields.buyerTaxCode}>
+          <input id="tt-mst-nguoi-mua" inputMode="numeric" className={inputClass("buyerTaxCode")} value={buyerTaxCode} onChange={(event) => setBuyerTaxCode(event.target.value)} />
+        </Field>
+        <Field id="tt-dia-chi-nguoi-mua" label={t("address")} error={fields.buyerAddress}>
+          <input id="tt-dia-chi-nguoi-mua" className={inputClass("buyerAddress")} value={buyerAddress} onChange={(event) => setBuyerAddress(event.target.value)} />
+        </Field>
+      </div>
+      <Field id="tt-ly-do" label={`${t("reason")} *`} error={fields.reason}>
+        <input id="tt-ly-do" className={inputClass("reason")} value={reason} onChange={(event) => setReason(event.target.value)} />
+      </Field>
+      <FormError text={formError} />
+      <div className="nhom-nut">
+        <button type="submit" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting}>
+          {t("createReplacement")}
+        </button>
+        <button type="button" className="nut phu" onClick={onCancel}>
+          {t("cancel")}
+        </button>
+      </div>
+    </form>
   );
 }

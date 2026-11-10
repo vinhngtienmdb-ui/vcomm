@@ -14,12 +14,13 @@ const tone: Record<EinvoiceStatus, string> = {
   setup_error: "loi",
 };
 
-export function EinvoiceStatusBadge({ status, overdue }: { status: EinvoiceStatus; overdue?: boolean }) {
+export function EinvoiceStatusBadge({ status, overdue, replaced }: { status: EinvoiceStatus; overdue?: boolean; replaced?: boolean }) {
   const t = useTranslations("einvoices");
   return (
     <span className="nhom-nut">
       <span className={`nhan ${tone[status]}`}>{t(`status_${status}`)}</span>
       {overdue && <span className="nhan loi">{t("overdue")}</span>}
+      {replaced && <span className="nhan trung-tinh">{t("replaced")}</span>}
     </span>
   );
 }

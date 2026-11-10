@@ -337,3 +337,99 @@ describe("TIEUCHI_NGHIEMTHU_122, 123: lập khi giao hàng, gửi nền", () => 
     expect(await application.get(EinvoicesService).notifyOverdue()).toBe(0);
   });
 });
+
+async function returnGoods(issue: { id: string; lines: { id: string }[] }, quantity: string) {
+  const created = await keeper.call("post", "/inventory/sales-returns", {
+    companyId: retail,
+    body: { issueId: issue.id, documentDate: today, reason: "Khách trả", lines: [{ issueLineId: issue.lines[0]!.id, quantity }] },
+  });
+  expect(created.status, JSON.stringify(created.body)).toBe(201);
+  const posted = await keeper.call("post", `/inventory/documents/${created.body.id}/submit`, { companyId: retail });
+  expect(posted.body.status, JSON.stringify(posted.body)).toBe("posted");
+  return posted.body as { id: string };
+}
+type ReturnTask = { id: string; status: string; returnDocumentId: string; returnAmount: string; original: { id: string; status: string }; canResolve: boolean; version: number };
+const taskOf = async (returnId: string) => ((await call(accountant, "get", "/finance/einvoice-returns")).body as ReturnTask[]).find((task) => task.returnDocumentId === returnId)!;
+
+describe("TIEUCHI_NGHIEMTHU_124, 125: trả hàng, thay thế", () => {
+  it("KICHBAN_KIEMTHU_228: trả hàng tạo việc chờ; hóa đơn gốc chưa phát hành thì chờ; điều chỉnh giảm ghi âm, tham chiếu hóa đơn gốc, gửi như hóa đơn thường", async () => {
+    const year = Number(today.slice(0, 4));
+    await saveSettings({ simulation: "data_error", series: [{ year, series: `C${String(year).slice(2)}TAC` }] });
+    const order = await confirmedOrder("10", customer);
+    const issue = await deliver(order, "4");
+    await sendNow();
+    const returned = await returnGoods(issue, "1");
+    const waiting = await taskOf(returned.id);
+    expect(waiting).toMatchObject({ status: "open", returnAmount: "11000", canResolve: false, original: { status: "failed" } });
+    expect((await call(accountant, "post", `/finance/einvoice-returns/${waiting.id}/adjust`, { version: waiting.version })).status).toBe(409);
+    // Hóa đơn gốc phát hành rồi mới điều chỉnh.
+    await saveSettings({ simulation: "normal", series: [{ year, series: `C${String(year).slice(2)}TAC` }] });
+    const original = (await invoiceOf(issue.id))!;
+    await call(accountant, "post", `/finance/einvoices/${original.id}/resend`, { version: original.version });
+    const ready = await taskOf(returned.id);
+    expect(ready).toMatchObject({ canResolve: true, original: { id: original.id, status: "issued" } });
+    expect((await call(seller, "post", `/finance/einvoice-returns/${ready.id}/adjust`, { version: ready.version })).status).toBe(403);
+    const adjusted = await call(accountant, "post", `/finance/einvoice-returns/${ready.id}/adjust`, { version: ready.version });
+    expect(adjusted.status, JSON.stringify(adjusted.body)).toBe(201);
+    expect(adjusted.body).toMatchObject({ kind: "adjustment", status: "issued", invoiceNo: "2", netAmount: "-10000", taxAmount: "-1000", totalAmount: "-11000" });
+    expect(adjusted.body.lines).toEqual([expect.objectContaining({ quantity: "1", unitPrice: "10000", netAmount: "-10000", totalAmount: "-11000" })]);
+    expect(adjusted.body.related).toEqual([expect.objectContaining({ id: original.id, relation: "original" })]);
+    expect((await taskOf(returned.id)).status).toBe("adjusted");
+    expect((await call(accountant, "post", `/finance/einvoice-returns/${ready.id}/adjust`, { version: ready.version + 1 })).status).toBe(409);
+    const originalAfter = (await call(accountant, "get", `/finance/einvoices/${original.id}`)).body;
+    expect(originalAfter.related).toEqual([expect.objectContaining({ id: adjusted.body.id, relation: "adjusted_by" })]);
+    // Hóa đơn đã điều chỉnh thì không thay thế.
+    const refused = await call(accountant, "post", `/finance/einvoices/${original.id}/replace`, { buyerName: "Tên mới", reason: "Sai tên", version: originalAfter.version });
+    expect(refused.status).toBe(409);
+  });
+
+  it("KICHBAN_KIEMTHU_229: ghi hóa đơn trả hàng của người mua là tổ chức; người mua không cung cấp thông tin thì không ghi được", async () => {
+    const issue = await deliver(await confirmedOrder("5", customer), "5");
+    const anonymousIssue = await deliver(await confirmedOrder("2", null), "2");
+    await sendNow();
+    const returned = await returnGoods(issue, "2");
+    const task = await taskOf(returned.id);
+    const body = { series: "C26TBB", invoiceNo: "123", invoiceDate: today, version: task.version };
+    const recorded = await call(accountant, "post", `/finance/einvoice-returns/${task.id}/buyer-invoice`, body);
+    expect(recorded.status, JSON.stringify(recorded.body)).toBe(201);
+    expect((recorded.body as ReturnTask[]).find((item) => item.id === task.id)).toMatchObject({ status: "buyer_invoice", buyerInvoice: { invoiceNo: "123" } });
+    const anonymousReturn = await returnGoods(anonymousIssue, "1");
+    const anonymousTask = await taskOf(anonymousReturn.id);
+    expect((await call(accountant, "post", `/finance/einvoice-returns/${anonymousTask.id}/buyer-invoice`, { ...body, version: anonymousTask.version })).status).toBe(409);
+    expect((await call(accountant, "get", "/finance/einvoice-returns?status=open")).body.map((item: ReturnTask) => item.id)).toEqual([anonymousTask.id]);
+  });
+
+  it("KICHBAN_KIEMTHU_230: thay thế khi sai thông tin người mua; không thay lại hóa đơn đã bị thay thế; trả hàng sau đó tham chiếu hóa đơn thay thế", async () => {
+    const issue = await deliver(await confirmedOrder("3", customer), "3");
+    await sendNow();
+    const original = (await invoiceOf(issue.id))!;
+    expect(
+      (await call(accountant, "post", `/finance/einvoices/${original.id}/replace`, { buyerName: "Công ty Đúng Tên", buyerTaxCode: "123", reason: "Sai tên", version: original.version })).status,
+    ).toBe(400);
+    const replaced = await call(accountant, "post", `/finance/einvoices/${original.id}/replace`, {
+      buyerName: "Công ty Đúng Tên",
+      buyerTaxCode: "0320001601",
+      buyerAddress: "1 Đường Số 2",
+      reason: "Sai tên người mua",
+      version: original.version,
+    });
+    expect(replaced.status, JSON.stringify(replaced.body)).toBe(201);
+    expect(replaced.body).toMatchObject({
+      kind: "replacement",
+      status: "issued",
+      totalAmount: original.totalAmount,
+      buyer: { name: "Công ty Đúng Tên", address: "1 Đường Số 2" },
+      note: "Sai tên người mua",
+    });
+    expect(replaced.body.lines.map((line: { netAmount: string }) => line.netAmount)).toEqual(original.lines.map((line) => line.netAmount));
+    const old = (await call(accountant, "get", `/finance/einvoices/${original.id}`)).body;
+    expect(old).toMatchObject({ replaced: true, status: "issued" });
+    expect((await call(accountant, "post", `/finance/einvoices/${original.id}/replace`, { buyerName: "Khác", reason: "Lần hai", version: old.version })).status).toBe(409);
+    const returned = await returnGoods(issue, "1");
+    const task = await taskOf(returned.id);
+    expect(task.original.id).toBe(replaced.body.id);
+    const adjusted = await call(accountant, "post", `/finance/einvoice-returns/${task.id}/adjust`, { version: task.version });
+    expect(adjusted.body.related).toEqual([expect.objectContaining({ id: replaced.body.id, relation: "original" })]);
+    expect(adjusted.body.buyer).toMatchObject({ name: "Công ty Đúng Tên" });
+  });
+});

@@ -1,6 +1,17 @@
 // API_91, API_92: hóa đơn điện tử, cài đặt hóa đơn điện tử (CONG_VIEC_16). Quyền chi tiết kiểm trong service.
 import { Body, Controller, Get, Headers, Param, Post, Put, Query, Req, Res, StreamableFile } from "@nestjs/common";
-import { einvoiceListQuerySchema, updateEinvoiceSettingsSchema, type EinvoiceListItem, type EinvoiceResponse, type EinvoiceSettingsResponse, type PageResponse } from "contracts";
+import {
+  einvoiceListQuerySchema,
+  einvoiceReturnQuerySchema,
+  recordBuyerInvoiceSchema,
+  replaceEinvoiceSchema,
+  updateEinvoiceSettingsSchema,
+  type EinvoiceListItem,
+  type EinvoiceResponse,
+  type EinvoiceReturnTask,
+  type EinvoiceSettingsResponse,
+  type PageResponse,
+} from "contracts";
 import type { Response } from "express";
 import { z } from "zod";
 import { clientInfo } from "../auth/auth.controller";
@@ -9,6 +20,7 @@ import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
+import { EinvoiceCorrectionsService } from "./einvoice-corrections.service";
 import { EinvoiceSettingsService } from "./einvoice-settings.service";
 import { EinvoicesService } from "./einvoices.service";
 
@@ -20,6 +32,7 @@ export class EinvoicesController {
     private readonly permissionService: PermissionService,
     private readonly settings: EinvoiceSettingsService,
     private readonly einvoices: EinvoicesService,
+    private readonly corrections: EinvoiceCorrectionsService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -65,5 +78,25 @@ export class EinvoicesController {
     response.setHeader("content-type", format === "pdf" ? "application/pdf" : "application/xml");
     response.setHeader("content-disposition", `${format === "pdf" ? "inline" : "attachment"}; filename="${file.fileName}"`);
     return new StreamableFile(file.content);
+  }
+
+  @Post("einvoices/:id/replace")
+  async replace(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<EinvoiceResponse> {
+    return this.corrections.replace(await this.actor(request, companyId), id, replaceEinvoiceSchema.parse(body));
+  }
+
+  @Get("einvoice-returns")
+  async returnTasks(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<EinvoiceReturnTask[]> {
+    return this.corrections.returnTasks(await this.actor(request, companyId), einvoiceReturnQuerySchema.parse(query).status);
+  }
+
+  @Post("einvoice-returns/:id/adjust")
+  async adjustReturn(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<EinvoiceResponse> {
+    return this.corrections.adjustReturn(await this.actor(request, companyId), id, resendSchema.parse(body).version);
+  }
+
+  @Post("einvoice-returns/:id/buyer-invoice")
+  async recordBuyerInvoice(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<EinvoiceReturnTask[]> {
+    return this.corrections.recordBuyerInvoice(await this.actor(request, companyId), id, recordBuyerInvoiceSchema.parse(body));
   }
 }
