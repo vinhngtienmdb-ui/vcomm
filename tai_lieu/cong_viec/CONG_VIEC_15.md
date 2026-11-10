@@ -1,7 +1,7 @@
 # CONG_VIEC_15: Báo cáo tài chính (MODULE_06, phần 3)
 
 - Mô tả: Báo cáo tình hình tài chính, Báo cáo kết quả hoạt động kinh doanh theo mẫu của chế độ kế toán từng công ty, lập từ sổ cái; xem trên màn hình, xuất Excel, PDF.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Bản nháp. Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ.
 - Nguồn: tài liệu `05` mục 2.1 (báo cáo tài chính từng công ty); quyết định của người dùng ngày 2026-11-10 trong tài liệu `02` (phạm vi gồm báo cáo tài chính; tách ngắn hạn, dài hạn theo tài khoản chi tiết; Thông tư 133 cho chọn mẫu B01a-DNN hoặc B01b-DNN; xem màn hình, xuất Excel, PDF); Thông tư 99/2025/TT-BTC Điều 17, Phụ lục IV; Thông tư 133/2016/TT-BTC Điều 81.
@@ -94,3 +94,8 @@ Chưa đối chiếu.
 
 - Thông tư 99/2025/TT-BTC: Điều 17 (danh mục mẫu) tra được; Phụ lục IV (biểu mẫu, cách lập) lấy từ bản chép kèm Thông tư và tài liệu tập huấn của Bộ Tài chính, một phần từ hướng dẫn thứ cấp; phải đối chiếu bản gốc trước khi phát hành.
 - Thông tư 133/2016/TT-BTC: mã số, tên, cách lấy số liệu theo Điều 81.
+
+Giới hạn đã biết (rà soát 2026-11-10):
+- Kỳ chưa khóa sổ, số dư chưa kết chuyển của mọi tài khoản loại 5 đến 9 (của mọi năm) cộng vào 4212 như khóa sổ thật; lãi năm trước nằm ở 4212 đến khi kế toán chuyển 4212 sang 4211.
+- Chỉ tiêu "phát sinh có đối ứng" tính cả số tiền của dòng khi trong cùng bút toán có một dòng đối ứng khớp; bút toán nhiều Nợ nhiều Có không tách theo cặp đối ứng.
+- Màn hình MAN_HINH_53 mặc định "Từ ngày" là 01/01, không theo tháng bắt đầu năm tài chính của công ty.

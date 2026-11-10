@@ -316,15 +316,15 @@ Ngày 2026-11-10, chưa xác nhận.
 | Mã | Quy tắc | Yêu cầu |
 |---|---|---|
 | QUYTAC_NGHIEPVU_99 | Mỗi chỉ tiêu có mã số, tên, cách lấy số liệu theo hướng dẫn lập của chế độ: số dư Nợ hoặc Có cuối kỳ của tài khoản (bù trừ trong tài khoản), số dư Nợ hoặc Có theo từng đối tác với tài khoản lưỡng tính (phải thu, phải trả), số ghi âm với dự phòng, hao mòn; phát sinh Nợ hoặc Có trong kỳ có hoặc loại tài khoản đối ứng; tổng, hiệu các chỉ tiêu khác. Tài khoản trong công thức gồm cả tài khoản chi tiết của nó; tài khoản khớp nhiều số hiệu trong cùng công thức thì thuộc số hiệu dài nhất. Mẫu: Thông tư 99/2025/TT-BTC B01-DN, B02-DN; Thông tư 133/2016/TT-BTC B01a-DNN (mặc định), B01b-DNN, B02-DNN | YCAU_NGHIEPVU_40 |
-| QUYTAC_NGHIEPVU_100 | Báo cáo lập được cả khi kỳ chưa khóa sổ: số dư tài khoản loại 5 đến 9 (doanh thu, chi phí, xác định kết quả) chưa kết chuyển được cộng vào lợi nhuận chưa phân phối năm nay (tài khoản của vai trò định khoản `retained_earnings`); chỉ tiêu kết quả kinh doanh lấy phát sinh của tài khoản doanh thu, chi phí trong kỳ, không tính bút toán kết chuyển. Chỉ tính bút toán đã ghi sổ. Tổng tài sản bằng tổng nguồn vốn; số liệu không đổi trước và sau khóa sổ | YCAU_NGHIEPVU_40 |
+| QUYTAC_NGHIEPVU_100 | Báo cáo lập được cả khi kỳ chưa khóa sổ: số dư tài khoản loại 5 đến 9 (doanh thu, chi phí, xác định kết quả) chưa kết chuyển được cộng vào lợi nhuận chưa phân phối năm nay (tài khoản của vai trò định khoản `retained_earnings`); chỉ tiêu kết quả kinh doanh lấy phát sinh của tài khoản doanh thu, chi phí trong kỳ, không tính bút toán kết chuyển (bút toán do khóa sổ sinh ra và mọi bút toán có dòng trên tài khoản xác định kết quả kinh doanh 911 hoặc tài khoản chi tiết của nó). Chỉ tính bút toán đã ghi sổ. Tổng tài sản bằng tổng nguồn vốn; số liệu không đổi trước và sau khóa sổ | YCAU_NGHIEPVU_40 |
 | QUYTAC_NGHIEPVU_101 | Kế toán trưởng đánh dấu tài khoản chi tiết (không phải tài khoản của chế độ) là dài hạn; tài khoản con của tài khoản dài hạn cũng là dài hạn. Số dư của tài khoản dài hạn vào chỉ tiêu dài hạn tương ứng (phải thu, trả trước, phải trả, vay, doanh thu chờ phân bổ...), còn lại vào chỉ tiêu ngắn hạn. Chỉ tiêu cần thông tin hệ thống chưa có (tương đương tiền, dự phòng đầu tư nắm giữ đến ngày đáo hạn, chi phí đi vay...) bằng 0 kèm ghi chú | YCAU_NGHIEPVU_40 |
-| QUYTAC_NGHIEPVU_102 | Số đầu năm là số dư cuối ngày trước ngày đầu năm tài chính (theo tháng bắt đầu năm tài chính của công ty) chứa ngày báo cáo; cùng kỳ năm trước là khoảng ngày lùi một năm (29/02 lùi thành 28/02). Tiền làm tròn theo đơn vị tiền tệ công ty | YCAU_NGHIEPVU_40 |
+| QUYTAC_NGHIEPVU_102 | Số đầu năm là số dư cuối ngày trước ngày đầu năm tài chính (theo tháng bắt đầu năm tài chính của công ty) chứa ngày báo cáo; cùng kỳ năm trước là khoảng ngày lùi một năm, ngày cuối tháng lùi thành ngày cuối tháng đó của năm trước (28/02/2025 thành 29/02/2024; 29/02/2024 thành 28/02/2023). Tiền làm tròn theo đơn vị tiền tệ công ty; chỉ tiêu thành phần làm tròn trước khi cộng vào chỉ tiêu tổng | YCAU_NGHIEPVU_40 |
 
 Mẫu báo cáo, công thức, ghi chú từng chỉ tiêu: `apps/api/src/accounting/statement-templates.ts`; nguồn mẫu biểu và điểm chưa xác minh: đặc tả `cong_viec/CONG_VIEC_15.md` mục 16.
 
 Ngoại lệ:
 - Công ty chưa khởi tạo kế toán: báo "Công ty chưa khởi tạo kế toán." (QUYTAC_NGHIEPVU_100).
-- Từ ngày sau đến ngày: báo "Ngày kết thúc phải sau ngày bắt đầu." (QUYTAC_NGHIEPVU_102).
+- Từ ngày sau đến ngày: báo "Ngày kết thúc phải sau ngày bắt đầu."; kết quả kinh doanh thiếu từ ngày, mẫu không thuộc chế độ: báo "Giá trị không hợp lệ." (QUYTAC_NGHIEPVU_102).
 - Đánh dấu dài hạn tài khoản của chế độ: báo "Chỉ đánh dấu dài hạn cho tài khoản chi tiết do kế toán mở." (QUYTAC_NGHIEPVU_101).
 
 ### Quyết định AI tự đưa ra (CONG_VIEC_15)
@@ -334,9 +334,9 @@ Ngày 2026-11-10, chưa xác nhận.
 | Vị trí | Nội dung |
 |---|---|
 | QUYTAC_NGHIEPVU_99 | Tài khoản khớp nhiều số hiệu trong một công thức thì thuộc số hiệu dài nhất. Chỉ tiêu kết quả kinh doanh có đối ứng 911 tính bằng phát sinh thuần của tài khoản trong kỳ (như đã kết chuyển); chỉ tiêu giảm trừ doanh thu đối ứng 521 tính bằng phát sinh thuần Nợ của 521. Thông tư 133 mặc định mẫu B01a-DNN |
-| QUYTAC_NGHIEPVU_100 | Cộng số dư chưa kết chuyển của mọi tài khoản loại 5 đến 9 vào tài khoản của vai trò `retained_earnings` (4212 theo định khoản mặc định) |
+| QUYTAC_NGHIEPVU_100 | Cộng số dư chưa kết chuyển của mọi tài khoản loại 5 đến 9 (mọi năm) vào tài khoản của vai trò `retained_earnings` (4212 theo định khoản mặc định), như khóa sổ thật; lãi năm trước nằm ở 4212 đến khi kế toán chuyển 4212 sang 4211. Phiếu kế toán có dòng trên 911 coi là kết chuyển, không tính vào kết quả kinh doanh |
 | QUYTAC_NGHIEPVU_101 | Chỉ đánh dấu được tài khoản chi tiết do kế toán mở; tài khoản con kế thừa dài hạn của tài khoản cha. Chỉ tiêu dài hạn lấy cùng công thức với chỉ tiêu ngắn hạn tương ứng nhưng chỉ trên tài khoản dài hạn. Chỉ tiêu chưa có thông tin bằng 0 hoặc mặc định toàn bộ vào chỉ tiêu ngắn hạn, kèm ghi chú cách lấy số liệu và đề xuất |
-| QUYTAC_NGHIEPVU_102 | Báo cáo tình hình tài chính bỏ qua từ ngày; số âm hiện trong ngoặc đơn trên màn hình; ô số 0 để trống trên màn hình |
+| QUYTAC_NGHIEPVU_102 | Báo cáo tình hình tài chính bỏ qua từ ngày; kết quả kinh doanh bắt buộc từ ngày; mẫu không thuộc chế độ bị từ chối; màn hình mặc định từ ngày 01/01, không theo tháng bắt đầu năm tài chính; số âm hiện trong ngoặc đơn, ô số 0 để trống trên màn hình |
 
 ## Quy tắc do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
