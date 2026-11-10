@@ -151,6 +151,21 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
 - Kết luận: Người dùng nghiệm thu 2026-11-10. Sau nghiệm thu thêm trừ hàng khách trả khỏi dư nợ tạm tính theo quyết định của người dùng: 204 đạt / 0 không đạt (KICHBAN_KIEMTHU_184). Chờ người dùng hợp nhất pull request số 43 (sau số 42).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_09
+
+- Phạm vi: lát L0, L1 (đơn bán nội bộ sinh đơn mua đối ứng và ngược lại; xác nhận, từ chối, rút, hủy, đóng lan hai bên; giá nội bộ theo bảng giá kênh Nội bộ; phiếu xuất nội bộ sinh phiếu nhập chờ nhận; nhận theo số thực nhận; biên bản chênh lệch, nhập lại kho, ghi tổn thất); MAN_HINH_44, sửa MAN_HINH_31, 32, 40, 41, 43; API_80 đến API_82. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --prod --audit-level high`; thử trên trình duyệt bằng Playwright (Quản trị tập đoàn chuyển công ty VCR, VCT): đơn bán nội bộ, đơn mua đối ứng chọn kho và xác nhận, phiếu xuất sinh phiếu nhập, nhận thiếu có lý do, biên bản nhập lại kho, đơn mua nội bộ khóa giá (máy tính và điện thoại).
+- Kết quả: 210 đạt / 0 không đạt / 210 kịch bản tự động (25 tệp; phần mới: `c9-internal-trade` 6, KICHBAN_KIEMTHU_185 đến 190). KICHBAN_KIEMTHU_191, 192 (thủ công trên trình duyệt) đạt.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_93 đến 98 (bắt buộc) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod --audit-level high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 44): không có phát hiện.
+  - C3 phân quyền: Đạt – xác nhận, từ chối chứng từ đối ứng chỉ người có quyền quản lý đơn của công ty đó; công ty bán không xem đơn mua của công ty mua (`404`); nhận hàng cần quyền nhập mua tại kho nhận; biên bản chỉ của công ty bán tại kho được xuất giao hàng, giá trị chỉ hiện cho người xem được giá vốn.
+  - C4 toàn vẹn dữ liệu: Đạt – đơn mua nội bộ không nhận bằng phiếu nhập thường; nhận hàng khóa theo phiên bản; biên bản duy nhất theo phiếu nhập và dòng xuất, xử lý giữ trước rồi mở lại khi lỗi; một bên kết thúc thì rút yêu cầu duyệt còn chờ của bên kia.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 1 lỗi Cao (đơn mua nội bộ lập được phiếu nhập thường), 4 lỗi Trung bình (yêu cầu duyệt treo, đơn đối ứng bị rút kẹt, đổi bảng giá lúc chờ duyệt làm treo đơn, lỗi xác nhận không hiện), 4 lỗi Thấp; đã sửa lỗi Cao, 4 lỗi Trung bình, 2 lỗi Thấp. Giữ lại (ghi tài liệu 22): hai bên hủy, đóng cùng lúc có thể khóa chéo (một giao dịch bị hủy, dữ liệu không hỏng); đơn giá đơn mua đối ứng làm tròn 4 chữ số có thể lệch vài đồng lẻ. Ghi nhận ngoài phạm vi: đổi bộ lọc nhanh trên danh sách có thể hiện kết quả của bộ lọc trước (hook `useApi` dùng chung không bỏ phản hồi cũ).
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+
 ## Lỗi phát hiện 2026-11-10
 
 | Mã lỗi | Mô tả | Mức độ | Kịch bản liên quan | Quyết định xử lý | Trạng thái |
