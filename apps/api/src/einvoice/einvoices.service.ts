@@ -133,9 +133,9 @@ export class EinvoicesService implements OnModuleInit {
       : { partnerId: null, name: document.buyer_name, taxCode: null, address: null, anonymous: true };
     // Tiền từng dòng theo lũy kế dòng đơn, cùng cách tính công nợ (THAY_DOI_10; finance.inventory_amounts).
     const lines = (
-      await transaction.execute<{ line_no: number; sku: string; name: string; unit_name: string; quantity: string; vat_rate: VatRate; gross: string; net: string; free: boolean }>(sql`
+      await transaction.execute<{ line_no: number; sku: string; name: string; unit_name: string; quantity: string; vat_rate: VatRate; gross: string; net: string; free: boolean; units: number }>(sql`
       WITH d AS (SELECT id, posted_at, finance.company_minor_units(company_id) AS units FROM inventory.documents WHERE id = ${documentId})
-      SELECT dl.line_no, v.sku, p.name, u.name_vi AS unit_name, abs(dl.quantity)::text AS quantity, sl.vat_rate, sl.total_amount = 0 AS free,
+      SELECT dl.line_no, v.sku, p.name, u.name_vi AS unit_name, abs(dl.quantity)::text AS quantity, sl.vat_rate, sl.total_amount = 0 AS free, d.units,
         finance.line_share(sl.total_amount, b.before, abs(dl.base_quantity), sl.base_quantity, d.units)::text AS gross,
         finance.line_share(sl.net_amount, b.before, abs(dl.base_quantity), sl.base_quantity, d.units)::text AS net
       FROM d JOIN inventory.document_lines dl ON dl.document_id = d.id JOIN sales.order_lines sl ON sl.id = dl.source_line_id
@@ -154,7 +154,8 @@ export class EinvoicesService implements OnModuleInit {
         itemName: line.name,
         unitName: line.unit_name,
         quantity,
-        unitPrice: quantity ? Math.round((net / quantity) * 10000) / 10000 : 0,
+        // Đơn giá chưa thuế làm tròn theo đơn vị tiền tệ công ty (quyết định người dùng 2026-11-10); thành tiền giữ theo công nợ.
+        unitPrice: quantity ? Math.round((net / quantity) * 10 ** Number(line.units)) / 10 ** Number(line.units) : 0,
         vatRate: line.vat_rate,
         netAmount: net,
         taxAmount: Math.round((gross - net) * 10000) / 10000,

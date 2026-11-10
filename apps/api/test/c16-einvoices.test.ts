@@ -23,6 +23,7 @@ let warehouseId: string;
 let retailChannel: string;
 let customer: string;
 let itemA: string;
+let itemB: string;
 let unitId: string;
 const retail: string = testIds.retailCompany;
 
@@ -51,13 +52,13 @@ async function partner(name: string, taxCode: string, profile: Record<string, un
   return created.body.id as string;
 }
 // Đơn bán đã xác nhận (chưa có chính sách duyệt) rồi giao một phần.
-async function confirmedOrder(quantity: string, customerId: string | null) {
+async function confirmedOrder(quantity: string, customerId: string | null, variantId = itemA) {
   const created = await call(seller, "post", "/sales/orders", {
     channelId: retailChannel,
     warehouseId,
     orderDate: today,
     ...(customerId ? { customerId } : { buyerName: "Khách lẻ" }),
-    lines: [{ variantId: itemA, unitId, quantity, discountPercent: "0" }],
+    lines: [{ variantId, unitId, quantity, discountPercent: "0" }],
   });
   expect(created.status, JSON.stringify(created.body)).toBe(201);
   const submitted = await call(seller, "post", `/sales/orders/${created.body.id}/submit`);
@@ -88,6 +89,13 @@ beforeAll(async () => {
     body: { categoryId: category, name: "Hàng công nợ A", vatRate: "10", tracksLots: false, tracksSerials: false, warrantyMonths: 0, baseUnitId: unitId, variants: [{ barcodes: [] }] },
   });
   itemA = product.body.variants[0].id;
+  // Hàng B giá gồm thuế 12.000: đơn giá chưa thuế lẻ (10.909,09...).
+  itemB = (
+    await admin.call("post", "/catalog/products", {
+      companyId: retail,
+      body: { categoryId: category, name: "Hàng hóa đơn B", vatRate: "10", tracksLots: false, tracksSerials: false, warrantyMonths: 0, baseUnitId: unitId, variants: [{ barcodes: [] }] },
+    })
+  ).body.variants[0].id;
   warehouseId = (await admin.call("post", "/inventory/warehouses", { companyId: retail, body: { branchId: testIds.binhDuongWarehouse, code: "HDW", name: "Kho hóa đơn", usesLocations: false } })).body
     .id;
   const receipt = await admin.call("post", "/inventory/documents", {
@@ -99,14 +107,27 @@ beforeAll(async () => {
       documentDate: today,
       reasonCode: "opening_balance",
       reason: "Tồn đầu",
-      lines: [{ variantId: itemA, unitId, quantity: "1000", unitCost: "8000" }],
+      lines: [
+        { variantId: itemA, unitId, quantity: "1000", unitCost: "8000" },
+        { variantId: itemB, unitId, quantity: "100", unitCost: "8000" },
+      ],
     },
   });
   expect((await admin.call("post", `/inventory/documents/${receipt.body.id}/submit`, { companyId: retail })).body.status).toBe("posted");
   const channels = (await admin.call("post", "/catalog/sales-channels/defaults", { companyId: retail })).body as { id: string; code: string }[];
   retailChannel = channels.find((channel) => channel.code === "BAN_LE")!.id;
   const general = (await admin.call("post", "/catalog/price-lists", { companyId: retail, body: { code: "CHUNG", name: "Chung", includesVat: true } })).body.id;
-  const change = await admin.call("post", "/catalog/price-changes", { companyId: retail, body: { priceListId: general, effectiveFrom: today, lines: [{ variantId: itemA, unitId, price: "11000" }] } });
+  const change = await admin.call("post", "/catalog/price-changes", {
+    companyId: retail,
+    body: {
+      priceListId: general,
+      effectiveFrom: today,
+      lines: [
+        { variantId: itemA, unitId, price: "11000" },
+        { variantId: itemB, unitId, price: "12000" },
+      ],
+    },
+  });
   expect((await admin.call("post", `/catalog/price-changes/${change.body.id}/submit`, { companyId: retail })).status).toBe(201);
   customer = await partner("Khách công nợ", "0320001601", { isCustomer: true, paymentTermDays: 30 });
 });
@@ -234,6 +255,10 @@ describe("TIEUCHI_NGHIEMTHU_122, 123: lập khi giao hàng, gửi nền", () => 
     expect(anonymous.buyer).toMatchObject({ anonymous: true, taxCode: null });
     const listed = await call(accountant, "get", "/finance/einvoices?status=issued");
     expect(listed.body.total).toBe(3);
+    // Đơn giá chưa thuế làm tròn đến đồng; thành tiền theo công nợ.
+    const rounded = await deliver(await confirmedOrder("6", customer, itemB), "6");
+    expect((await invoiceOf(rounded.id))!.lines).toEqual([expect.objectContaining({ quantity: "6", unitPrice: "10909", netAmount: "65455", taxAmount: "6545", totalAmount: "72000" })]);
+    await sendNow();
     expect((await call(seller, "get", "/finance/einvoices")).status).toBe(403);
   });
 
@@ -247,7 +272,7 @@ describe("TIEUCHI_NGHIEMTHU_122, 123: lập khi giao hàng, gửi nền", () => 
       .rows[0]!;
     expect(Number(next.minutes)).toBeGreaterThan(0);
     await sendNow();
-    expect((await invoiceOf(temporary.id))!).toMatchObject({ status: "issued", invoiceNo: "4" });
+    expect((await invoiceOf(temporary.id))!).toMatchObject({ status: "issued", invoiceNo: "5" });
 
     await saveSettings({ simulation: "timeout" });
     const timedOut = await deliver(order, "1");
@@ -256,7 +281,7 @@ describe("TIEUCHI_NGHIEMTHU_122, 123: lập khi giao hàng, gửi nền", () => 
     await sendNow();
     const resolved = (await invoiceOf(timedOut.id))!;
     // Lần sau tra trạng thái theo mã tham chiếu, nhận số đã cấp ở lần gửi đầu.
-    expect(resolved).toMatchObject({ status: "issued", invoiceNo: "5" });
+    expect(resolved).toMatchObject({ status: "issued", invoiceNo: "6" });
     expect(resolved.attempts.map((attempt) => [attempt.operation, attempt.outcome])).toEqual([
       ["status", "issued"],
       ["publish", "unknown"],
@@ -274,9 +299,9 @@ describe("TIEUCHI_NGHIEMTHU_122, 123: lập khi giao hàng, gửi nền", () => 
     expect((await call(seller, "post", `/finance/einvoices/${failed.id}/resend`, { version: failed.version })).status).toBe(403);
     const resent = await call(accountant, "post", `/finance/einvoices/${failed.id}/resend`, { version: failed.version });
     expect(resent.status, JSON.stringify(resent.body)).toBe(201);
-    expect(resent.body).toMatchObject({ status: "awaiting_code", invoiceNo: "6", taxAuthorityCode: null });
+    expect(resent.body).toMatchObject({ status: "awaiting_code", invoiceNo: "7", taxAuthorityCode: null });
     await sendNow();
-    expect((await invoiceOf(broken.id))!).toMatchObject({ status: "issued", invoiceNo: "6" });
+    expect((await invoiceOf(broken.id))!).toMatchObject({ status: "issued", invoiceNo: "7" });
     expect((await call(accountant, "post", `/finance/einvoices/${failed.id}/resend`, { version: resent.body.version })).status).toBe(409);
   });
 
