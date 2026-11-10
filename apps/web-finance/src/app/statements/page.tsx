@@ -28,7 +28,7 @@ export default function StatementsPage() {
     setExporting(format);
     setError(null);
     try {
-      await apiDownload(`/finance/statements?${query}&format=${format}`, `${kind}-${to}.${format}`, format === "pdf");
+      await apiDownload(`/finance/statements?${query}&format=${format}`, `${state.kind === "ready" ? state.data.form : kind}-${to}.${format}`, format === "pdf");
     } catch (failure) {
       setError(failureOf(failure).message);
     } finally {
