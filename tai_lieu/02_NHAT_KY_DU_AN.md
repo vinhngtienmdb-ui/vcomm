@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_09: Lập công việc Giao dịch nội bộ (MODULE_05, phần 2), mức Lớn.
 - CONG_VIEC_08: Người dùng nghiệm thu; dư nợ tạm tính trừ hàng khách trả (KICHBAN_KIEMTHU_184), kiểm thử 204/204 đạt; chờ người dùng hợp nhất pull request số 43 (sau số 42).
 - CONG_VIEC_08: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_08-ban-hang` (pull request số 43, tách từ nhánh CONG_VIEC_07). L0: database migration 0007 schema `sales`, mini app `apps/web-sales` đường dẫn `/sales`, vai trò Nhân viên bán hàng, đơn bán giá theo bảng giá, ngoại lệ chiết khấu tay, dưới giá vốn, vượt hạn mức công nợ qua luồng duyệt, giữ hàng khi xác nhận. L1: phiếu xuất giao hàng theo đơn (dùng phần đã giữ), phiếu nhận hàng trả lại theo phiếu xuất gốc. Kiểm thử 203/203 đạt. Không thêm thư viện. Cập nhật tài liệu 06 đến 12, 14, 16, 17, 21, 22, 27, mục lục trên nhánh. Rà soát mã sửa 4 lỗi Trung bình, 4 lỗi Thấp; sửa dư nợ tạm tính cho đúng quyết định (chỉ đơn đã xác nhận).
 - CONG_VIEC_08: Lập công việc Bán hàng (MODULE_05, phần 1), mức Lớn.
@@ -24,6 +25,7 @@
 
 - Mua hàng (MODULE_04) – người quyết định: người dùng, ngày 2026-11-10: chia công việc, CONG_VIEC_07 gồm bảng giá mua theo nhà cung cấp, đề nghị mua, đơn mua, nhận hàng, trả hàng nhà cung cấp; nhập khẩu, phân bổ chi phí là công việc sau; hóa đơn, so khớp ba bên, lịch thanh toán làm cùng Tài chính – Kế toán; giao dịch nội bộ làm cùng Bán hàng. Hàng thuộc ngành hàng cần kiểm tra chất lượng chưa vào tồn đến khi kiểm xong: phần đạt ghi sổ kho, phần không đạt ghi biên bản. Trả hàng nhà cung cấp xuất kho theo giá mua trên phiếu nhập gốc.
 - Bán hàng (MODULE_05) – người quyết định: người dùng, ngày 2026-11-10: chia công việc, CONG_VIEC_08 gồm đơn bán, giữ hàng, phiếu xuất giao hàng theo đơn, trả hàng bán; khuyến mãi, giao vận, hóa đơn điện tử, giao dịch nội bộ là công việc sau. Chiết khấu tay tối đa không cần duyệt là một mức phần trăm theo công ty (mặc định 0%). Giá tối thiểu là giá vốn bình quân hiện hành tại kho xuất. Dư nợ tạm tính (đến khi có MODULE_06): giá trị đơn đã xác nhận chưa giao cộng giá trị đã giao trong số ngày được nợ gần nhất.
+- Giao dịch nội bộ (CONG_VIEC_09) – người quyết định: người dùng, ngày 2026-11-10: làm giao dịch nội bộ trước khuyến mãi; chứng từ đối ứng chờ bên kia xác nhận, khi xác nhận đi luồng duyệt của bên đó nếu có chính sách; bên mua nhận thiếu thì ghi sổ số thực nhận, phần thiếu lập biên bản chênh lệch để bên bán xử lý (nhập lại kho bên bán hoặc ghi tổn thất); đơn bán nội bộ kiểm ngoại lệ như đơn bán thường.
 - Dư nợ tạm tính – người quyết định: người dùng, ngày 2026-11-10: trừ giá trị hàng khách trả lại (theo giá trên đơn) khỏi phần đã giao.
 - LOI_03 – người quyết định: người dùng, ngày 2026-11-10: thống nhất trả `400` gắn vào dòng hàng khi không đủ hàng khả dụng.
 
