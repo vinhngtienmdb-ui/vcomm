@@ -321,7 +321,7 @@ function ManualEntryDrawer({ data, onClose, onSaved }: { data: ConsolidationResp
           ))}
         </datalist>
         {lines.map((line, index) => (
-          <div key={index} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))", gap: "var(--khoang-2)" }}>
+          <div key={index} style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "var(--khoang-2)", alignItems: "start" }}>
             <Field id={`dc-tk-${index}`} label={t("account")} error={fields[`lines.${index}.accountCode`]}>
               <input
                 id={`dc-tk-${index}`}
@@ -338,6 +338,15 @@ function ManualEntryDrawer({ data, onClose, onSaved }: { data: ConsolidationResp
                 className={inputClass(`lines.${index}.debit`)}
                 value={line.debit}
                 onChange={(event) => update(index, "debit", event.target.value.trim())}
+              />
+            </Field>
+            <Field id={`dc-co-${index}`} label={t("credit")} error={fields[`lines.${index}.credit`]}>
+              <input
+                id={`dc-co-${index}`}
+                inputMode="decimal"
+                className={inputClass(`lines.${index}.credit`)}
+                value={line.credit}
+                onChange={(event) => update(index, "credit", event.target.value.trim())}
               />
             </Field>
             <Field id={`dc-cty-${index}`} label={t("company")} error={fields[`lines.${index}.companyId`]}>
@@ -359,15 +368,6 @@ function ManualEntryDrawer({ data, onClose, onSaved }: { data: ConsolidationResp
                   </option>
                 ))}
               </select>
-            </Field>
-            <Field id={`dc-co-${index}`} label={t("credit")} error={fields[`lines.${index}.credit`]}>
-              <input
-                id={`dc-co-${index}`}
-                inputMode="decimal"
-                className={inputClass(`lines.${index}.credit`)}
-                value={line.credit}
-                onChange={(event) => update(index, "credit", event.target.value.trim())}
-              />
             </Field>
           </div>
         ))}
