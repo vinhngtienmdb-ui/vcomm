@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1 và MODULE_05 Bán hàng phần 1: đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 0.7
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1 và phần 2 (Giao dịch nội bộ): đúng, sai, giá trị biên, từng vai trò.
+- Phiên bản: 0.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2178,3 +2178,101 @@ Dữ liệu chung: công ty con VCR (`testIds.retailCompany`), VCT (`testIds.tra
 - Kết quả mong đợi: Bước 1: `confirmed`. Bước 2: `pending`, ngoại lệ `credit_limit` (316.800 > 250.000). Bước 4: `confirmed`, không ngoại lệ (79.200 + 158.400 = 237.600; đơn chờ duyệt ở bước 2 không tính).
 - Kiểm thử tự động: `apps/api/test/c8-sales.test.ts`
 - Lát: L0, L1
+
+## MODULE_05 Bán hàng (phần 2: Giao dịch nội bộ, CONG_VIEC_09)
+
+Dữ liệu chung: công ty bán VCR (`testIds.retailCompany`, tên ngắn "VComm Bán lẻ Miền Nam"), công ty mua VCT (`testIds.tradingCompany`, "VComm Thương mại"); Quản trị tập đoàn `quantri.tapdoan@vcomm.test` (thao tác bên VCT), Quản trị công ty VCR `quantri.vcr@vcomm.test`; tạo trong tệp kiểm thử: Thủ kho `thukho.noibo@vcomm.test` (`warehouse_keeper` gán ở chi nhánh Bình Dương của VCR), Nhân viên bán hàng VCT `banhang.vct.noibo@vcomm.test` (`salesperson` ở VCT, không có quyền Mua hàng). Kho `NBB` "Kho bán nội bộ" (VCR, kho xuất) và `NBM` "Kho nhận VCT" (cùng chi nhánh, công ty chủ hàng gồm VCT, kho nhận), không dùng vị trí. Mặt hàng VCR: "Bánh nội bộ" (cái; tồn đầu 500 cái giá vốn 6.000), "Bánh chưa liên kết" (cái; 10 cái), "Máy nội bộ" (cái, theo serial; `MAY-01` đến `MAY-03` giá vốn 2.000.000); mặt hàng VCT: "Bánh nội bộ hộp" (hộp), "Máy nội bộ nhận" (cái, serial). Liên kết: một hộp VCT bằng 12 cái VCR; máy hệ số 1; mọi sản phẩm thuế suất 10%. Kênh "Nội bộ" (`NOI_BO`) và "Bán lẻ" (`BAN_LE`) của VCR tạo từ kênh mặc định; bảng giá `NB` chưa thuế kênh Nội bộ (bánh 10.000 một cái, máy 3.000.000), bảng giá `LE` gồm thuế (bánh 15.000). Hồ sơ: VCT là khách hàng ở VCR, VCR là nhà cung cấp ở VCT (đối tác nội bộ tự đồng bộ). Các kịch bản tự động chạy nối tiếp trong một tệp; công ty VCT chưa có chính sách duyệt `purchasing.order` cho tới KICHBAN_KIEMTHU_190. Đường dẫn API có tiền tố `/api/v1`.
+
+## CHUC_NANG_58, CHUC_NANG_59: Chứng từ đối ứng (CONG_VIEC_09)
+
+### KICHBAN_KIEMTHU_185: Đơn bán nội bộ: sai kênh, thiếu liên kết bị từ chối; xác nhận sinh đơn mua đối ứng đúng mặt hàng, số lượng, giá; chưa duyệt đơn mua thì chưa giao; bên mua xác nhận chọn kho
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_93, TIEUCHI_NGHIEMTHU_95
+- Chức năng: CHUC_NANG_58, CHUC_NANG_60
+- Loại: Đúng, sai
+- Vai trò thực hiện: Quản trị công ty VCR; Quản trị tập đoàn (ở VCT); Thủ kho VCR
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung.
+- Các bước: (1) Quản trị VCR lập đơn bán cho khách VCT, kênh "Bán lẻ", 24 cái bánh. (2) Lập đơn kênh Nội bộ với "Bánh chưa liên kết". (3) Lập đơn kênh Nội bộ 24 cái bánh, gửi. (4) Quản trị tập đoàn xem đơn mua đối ứng ở VCT. (5) Thủ kho lập phiếu xuất giao hàng 1 cái theo đơn bán. (6) Quản trị tập đoàn sửa đơn mua đối ứng. (7) Xác nhận đơn mua đối ứng, kho nhận `NBM`. (8) Thủ kho lập lại phiếu xuất bước 5.
+- Kết quả mong đợi: Bước 1: lỗi chỉ ở `channelId` "Đơn bán cho công ty con phải dùng kênh bán Nội bộ.". Bước 2: lỗi chỉ ở `lines.0.variantId` "Mặt hàng chưa liên kết với sản phẩm của công ty bên kia.". Bước 3: `confirmed`, `isInternal: true`, `isCounterpart: false`, `counterpart` là VComm Thương mại, chưa có số, `counterpart_pending`. Bước 4: `counterpart_pending`, nhà cung cấp "Công ty Cổ phần VComm Bán lẻ Miền Nam", `warehouseId: null`, `isCounterpart: true`, `canConfirmCounterpart: true`, `canEdit: false`, `canSubmit: false`, tổng chưa thuế "240000", thuế "24000", `counterpart.documentNo` bằng số đơn bán; một dòng "Bánh nội bộ hộp", đơn vị hộp, số lượng "2", đơn giá "120000", thuế suất "10". Bước 5: `409` "Đơn mua đối ứng của công ty mua chưa được duyệt, chưa giao được.". Bước 6: `409`. Bước 7: `approved` (chưa có chính sách duyệt), kho `NBM`, số bắt đầu `DMH`. Bước 8: `201`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c9-internal-trade.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_186: Đơn mua nội bộ: giá theo bảng giá Nội bộ bên bán, không sửa tay; duyệt sinh đơn bán đối ứng; bên bán xác nhận giữ hàng, giao được ngay; bên bán từ chối thì đơn mua đóng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_94
+- Chức năng: CHUC_NANG_59
+- Loại: Đúng, sai
+- Vai trò thực hiện: Quản trị tập đoàn (ở VCT); Quản trị công ty VCR; Thủ kho VCR
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung.
+- Các bước: (1) Quản trị tập đoàn tra giá nhà cung cấp VCR, "Bánh nội bộ hộp", đơn vị hộp. (2) Lập đơn mua 3 hộp, đơn giá nhập tay 1, thuế suất 0. (3) Gửi. (4) Quản trị VCR xem đơn bán đối ứng. (5) Xác nhận đơn bán đối ứng, kho xuất `NBB`; xem số giữ. (6) Thủ kho lập phiếu xuất 1 cái theo đơn bán đó. (7) Lập, gửi đơn mua khác 1 hộp; Quản trị VCR từ chối đơn bán đối ứng với lý do "Hết hàng"; xem đơn mua.
+- Kết quả mong đợi: Bước 1: `{ unitPrice: "120000.0000", priceId: null, internal: { vatRate: "10" } }`. Bước 2: `201`, dòng đơn giá "120000", thuế suất "10". Bước 3: `approved`, `isInternal: true`, `canEdit: false`, `counterpart` là VComm Bán lẻ Miền Nam, `counterpart_pending`. Bước 4: `counterpart_pending`, `warehouseId: null`, `isCounterpart: true`, `canConfirmCounterpart: true`, `canEdit: false`, `canCancel: false`, chưa thuế "360000"; dòng "Bánh nội bộ", đơn vị cái, số lượng "36", giá bảng giá "10000". Bước 5: `confirmed`, số bắt đầu `DBH`, kho `NBB`; số giữ tăng 36. Bước 6: `201`. Bước 7: đơn bán `cancelled`, `counterpartRejectedReason` "Hết hàng"; đơn mua `closed`, lý do đóng "Bên bán từ chối: Hết hàng".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c9-internal-trade.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_187: Kết thúc hai bên: bên mua từ chối thì đơn bán hủy, nhả hàng giữ; bên bán hủy thì đơn mua đóng; đóng đơn mua thì đơn bán đã giao một phần đóng; công ty khác, người không có quyền không xem, không xác nhận được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_97
+- Chức năng: CHUC_NANG_58, CHUC_NANG_59
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Quản trị công ty VCR; Quản trị tập đoàn (ở VCT); Nhân viên bán hàng VCT; Thủ kho VCR
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung.
+- Các bước: (1) Quản trị VCR gửi đơn bán nội bộ 12 cái; xem số giữ. (2) Nhân viên bán hàng VCT từ chối đơn mua đối ứng. (3) Quản trị VCR mở đơn mua đối ứng (ở VCR). (4) Quản trị tập đoàn từ chối với lý do "Không cần"; xem đơn bán, số giữ. (5) Gửi đơn bán nội bộ 12 cái khác, hủy; xem đơn mua đối ứng. (6) Quản trị tập đoàn lập, gửi đơn mua 2 hộp; Quản trị VCR xác nhận đơn bán đối ứng kho `NBB`; Thủ kho lập phiếu xuất nháp 12 cái. (7) Quản trị tập đoàn đóng đơn mua, lý do "Đủ dùng". (8) Thủ kho gửi phiếu xuất; Quản trị tập đoàn đóng đơn mua lần nữa; xem đơn bán, số giữ.
+- Kết quả mong đợi: Bước 1: số giữ tăng 12. Bước 2: `403`. Bước 3: `404`. Bước 4: đơn mua `closed`; đơn bán `cancelled`, lý do "Bên mua từ chối: Không cần"; số giữ về như trước bước 1. Bước 5: đơn bán `cancelled`; đơn mua `closed`, lý do "Bên bán hủy đơn bán đối ứng". Bước 7: `409` (còn phiếu xuất nháp). Bước 8: phiếu `posted`; đơn mua `closed`; đơn bán `closed`, lý do "Bên mua đóng đơn mua đối ứng: Đủ dùng"; số giữ giảm 12 (phần còn giữ được nhả).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c9-internal-trade.test.ts`
+- Lát: L0
+
+## CHUC_NANG_60, CHUC_NANG_61: Giao, nhận hàng nội bộ, biên bản chênh lệch (CONG_VIEC_09)
+
+### KICHBAN_KIEMTHU_188: Xuất giao hàng nội bộ sinh phiếu nhập chờ nhận đúng mặt hàng, số lượng, đơn giá, serial; nhận vượt, serial không xuất bị từ chối; nhận đủ thì đơn mua nhận đủ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_95
+- Chức năng: CHUC_NANG_60
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Quản trị công ty VCR; Quản trị tập đoàn (ở VCT); Thủ kho VCR
+- Điều kiện ban đầu và dữ liệu: Đơn bán nội bộ 24 cái bánh và 2 máy; bên mua xác nhận kho `NBM` (duyệt ngay); Thủ kho lập, gửi phiếu xuất 24 cái và máy `MAY-01`, `MAY-02`.
+- Các bước: (1) Quản trị tập đoàn xem phiếu nhập sinh từ phiếu xuất (ở VCT). (2) Thủ kho VCR gọi nhận phiếu đó ở VCR, danh sách dòng rỗng. (3) Nhận dòng bánh 3 hộp, dòng máy 2 với serial `MAY-01`, `MAY-03`. (4) Nhận dòng bánh 2 hộp, dòng máy `MAY-01`, `MAY-02`. (5) Xem tồn VCT ở kho `NBM`, đơn mua. (6) Nhận lần nữa.
+- Kết quả mong đợi: Bước 1: loại `purchase_receipt`, trạng thái `in_transit`, công ty VCT, kho `NBM`, `canReceiveInternal: true`; `internalReceipt` có số phiếu xuất, "VComm Bán lẻ Miền Nam", dòng bánh xuất "2" không serial, dòng máy xuất "2" serial `MAY-01`, `MAY-02`; dòng bánh: "Bánh nội bộ hộp", đơn vị hộp, số lượng "2", đơn giá "120000". Bước 2: `400`. Bước 3: lỗi `lines.0.receivedQuantity` "Số nhận vượt số đã xuất." và `lines.1.serials` "Serial không có trong phiếu xuất gốc.". Bước 4: `posted`, số bắt đầu `NM`, `canReceiveInternal: false`. Bước 5: bánh hộp tồn 2, máy tồn 2; đơn mua `received`. Bước 6: `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c9-internal-trade.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_189: Nhận thiếu phải ghi lý do, sinh biên bản ở công ty bán; nhập lại kho ghi sổ phiếu trả; ghi tổn thất đóng biên bản; mỗi biên bản xử lý một lần; giá trị chỉ hiện cho người xem được giá vốn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_96
+- Chức năng: CHUC_NANG_60, CHUC_NANG_61
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Quản trị tập đoàn (ở VCT); Thủ kho VCR; Quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_188: phiếu xuất 24 cái bánh (phiếu nhập 2 hộp chờ nhận); sau đó phiếu xuất 1 máy `MAY-03`.
+- Các bước: (1) Nhận 1 hộp, không ghi lý do. (2) Nhận 1 hộp, lý do "Rách thùng". (3) Quản trị tập đoàn xem danh sách biên bản ở VCT; Thủ kho xem biên bản "Chờ xử lý" ở VCR; Quản trị VCR xem. (4) Thủ kho xử lý "Nhập lại kho", ghi chú "Hàng về lại kho"; xem phiếu trả, tồn bánh ở `NBB`. (5) Xử lý lại biên bản đó "Ghi tổn thất". (6) Phiếu nhập máy: nhận 0, lý do "Thất lạc". (7) Xem biên bản mới; Thủ kho "Ghi tổn thất", ghi chú "Ghi tổn thất".
+- Kết quả mong đợi: Bước 1: lỗi chỉ ở `shortageReason` "Nhận thiếu phải ghi lý do.". Bước 2: `posted`. Bước 3: VCT nhận danh sách rỗng; Thủ kho thấy một biên bản: số phiếu xuất, công ty mua "VComm Thương mại", số thiếu "12" (cái), `value: null`, lý do "Rách thùng", `open`, `canResolve: true`; Quản trị VCR thấy `value` "72000". Bước 4: `201`; biên bản `returned`, có `returnDocumentId`, `canResolve: false`; phiếu trả loại `sales_return`, `posted`; tồn bánh tăng 12. Bước 5: `409`. Bước 6: `posted`, không có dòng. Bước 7: một biên bản số thiếu "1", serial `MAY-03`, giá trị "2000000" (Quản trị VCR); sau xử lý `written_off`, ghi chú "Ghi tổn thất", `returnDocumentId: null`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c9-internal-trade.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_190: Đơn mua nội bộ không lập phiếu nhập mua thường; bên bán hủy khi đơn mua đối ứng chờ duyệt thì yêu cầu duyệt bị rút; bên mua rút đơn đối ứng thì đơn bán hủy, nhả hàng giữ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_95, TIEUCHI_NGHIEMTHU_97
+- Chức năng: CHUC_NANG_58, CHUC_NANG_60
+- Loại: Sai, luồng duyệt
+- Vai trò thực hiện: Quản trị tập đoàn (ở VCT); Quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; từ bước 3 VCT có chính sách duyệt `purchasing.order` một cấp từ 0 đồng, người duyệt Nhân viên bán hàng VCT, người thay thế Quản trị tập đoàn.
+- Các bước: (1) Quản trị tập đoàn lập, gửi đơn mua nội bộ 1 hộp; xem danh sách đơn mua chờ nhận (`GET /inventory/purchase-orders`). (2) Lập phiếu nhập mua thường theo đơn đó. (3) Lập chính sách duyệt; Quản trị VCR gửi đơn bán nội bộ 12 cái; Quản trị tập đoàn xác nhận đơn mua đối ứng kho `NBM`. (4) Quản trị VCR hủy đơn bán; xem đơn mua, yêu cầu duyệt. (5) Lặp bước 3; Quản trị tập đoàn rút đơn mua đối ứng; xem hai đơn, số giữ.
+- Kết quả mong đợi: Bước 1: `approved`; danh sách không có đơn này. Bước 2: `409` "Đơn mua nội bộ chỉ nhận theo phiếu nhập sinh từ phiếu xuất của công ty bán.". Bước 3: đơn mua `pending`, `canWithdraw: true`. Bước 4: đơn bán `cancelled`; đơn mua `closed`; yêu cầu duyệt `withdrawn`. Bước 5: rút `201`; đơn mua `closed`, lý do "Bên mua rút đơn mua đối ứng"; đơn bán `cancelled`, cùng lý do; số giữ giảm 12.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c9-internal-trade.test.ts`
+- Lát: L0, L1
+
+## Kịch bản thủ công của giao dịch nội bộ (CONG_VIEC_09)
+
+### KICHBAN_KIEMTHU_191: Chứng từ đối ứng trên trình duyệt: nhãn Nội bộ, chứng từ đối ứng, xác nhận, từ chối; giá nội bộ khóa sửa; máy tính và điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_98
+- Chức năng: CHUC_NANG_58, CHUC_NANG_59
+- Loại: Đúng, sai, giao diện
+- Vai trò thực hiện: Quản trị công ty VCR; Quản trị tập đoàn (ở VCT)
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; mini app Nền tảng, Bán hàng, Mua hàng, backend đang chạy.
+- Các bước: (1) Quản trị VCR lập đơn bán khách VCT, kênh Nội bộ, 24 cái bánh, gửi; xem chi tiết. (2) Quản trị tập đoàn chọn công ty VCT, mở `/purchasing/orders`, lọc "Chờ xác nhận nội bộ", mở đơn. (3) Bấm "Xác nhận" khi chưa chọn kho; chọn kho nhận rồi bấm "Xác nhận". (4) Mở `/purchasing/orders/new`, chọn nhà cung cấp VCR, thêm "Bánh nội bộ hộp". (5) Lưu, gửi đơn; Quản trị VCR mở đơn bán đối ứng ở `/sales/orders`. (6) Nhập lý do, bấm "Từ chối"; Quản trị tập đoàn xem lại đơn mua. (7) Lặp bước 1, 2, 5 trên điện thoại (chiều rộng 375 điểm ảnh).
+- Kết quả mong đợi: Bước 1: thẻ có nhãn "Nội bộ" và "Đơn mua đối ứng của VComm Thương mại: chưa có số (Chờ xác nhận nội bộ)". Bước 2: nhãn trạng thái "Chờ xác nhận nội bộ", kho nhận trống, không có nút "Sửa"; thẻ "Sinh từ đơn bán của VComm Bán lẻ Miền Nam: <số>", câu hướng dẫn, ô "Kho nhận", nút "Xác nhận", ô "Lý do từ chối", nút "Từ chối". Bước 3: nút "Xác nhận" bị khóa khi chưa chọn kho; sau xác nhận đơn "Đã duyệt", có số, khối xác nhận ẩn; đơn bán hiện số đơn mua, "Đã duyệt". Bước 4: khối "Nhà cung cấp nội bộ: giá theo bảng giá kênh Nội bộ của công ty bán, không sửa được."; đơn giá 120.000 chỉ đọc, thuế suất 10% khóa. Bước 5: đơn bán "Chờ xác nhận nội bộ", ô "Kho xuất", không có nút "Sửa đơn bán", "Hủy đơn". Bước 6: đơn bán "Đã hủy", khối "Đã từ chối: <lý do>"; đơn mua "Đã đóng", lý do đóng "Bên bán từ chối: <lý do>". Bước 7: khối đối ứng, ô, nút xếp dọc, không cuộn ngang.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Lát: L0
+
+### KICHBAN_KIEMTHU_192: Nhận hàng nội bộ và biên bản chênh lệch trên trình duyệt (mini app Kho); máy tính và điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_98
+- Chức năng: CHUC_NANG_60, CHUC_NANG_61
+- Loại: Đúng, sai, giao diện, phân quyền
+- Vai trò thực hiện: Quản trị tập đoàn (ở VCT); Thủ kho VCR; Quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_191 bước 1 đến 3; Thủ kho VCR đã lập, gửi phiếu xuất 24 cái bánh và 1 máy `MAY-01`.
+- Các bước: (1) Quản trị tập đoàn (VCT) mở `/inventory/documents`, mở phiếu nhập mua "Đang vận chuyển". (2) Đổi số nhận bánh thành 3, bỏ chọn serial máy, bấm "Xác nhận nhận hàng". (3) Đổi số nhận bánh thành 1, không ghi lý do, bấm "Xác nhận nhận hàng"; ghi lý do "Rách thùng", bấm lại. (4) Thủ kho VCR mở menu Kho, mục "Chênh lệch giao nội bộ". (5) Nhập ghi chú, bấm "Nhập lại kho" ở biên bản bánh; đổi lọc "Đã nhập lại kho", bấm "Phiếu trả". (6) Bấm "Ghi tổn thất" ở biên bản máy. (7) Quản trị VCR mở cùng màn hình. (8) Lặp bước 1, 4 trên điện thoại (chiều rộng 375 điểm ảnh).
+- Kết quả mong đợi: Bước 1: dòng "Phiếu xuất của bên bán" (VComm Bán lẻ Miền Nam: <số phiếu xuất>); khối "Nhận hàng nội bộ": dòng bánh "Đã xuất 2 Hộp", ô số nhận 2; dòng máy ô chọn serial `MAY-01` đã chọn. Bước 2: lỗi "Số nhận vượt số đã xuất." dưới ô bánh; khi bỏ serial, ô "Lý do nhận thiếu" hiện. Bước 3: lỗi "Nhận thiếu phải ghi lý do." dưới ô lý do; sau đó "Đã nhận hàng nội bộ.", phiếu "Đã ghi sổ" có số, khối nhận ẩn. Bước 4: bảng biên bản "Chờ xử lý": bánh thiếu 12 cái, máy thiếu 1 kèm `MAY-01`, phiếu xuất → VComm Thương mại: <số phiếu nhập>, lý do, giá trị "—". Bước 5: "Đã nhập lại kho."; biên bản hiện người xử lý, ghi chú, liên kết "Phiếu trả" mở phiếu nhận hàng trả lại đã ghi sổ. Bước 6: "Đã ghi tổn thất.". Bước 7: cột giá trị hiện số tiền. Bước 8: bảng chuyển thành thẻ, ô, nút xếp dọc, không cuộn ngang. Quản trị tập đoàn khi chọn công ty VCT không thấy biên bản của VCR.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Lát: L1

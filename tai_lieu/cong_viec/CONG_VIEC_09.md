@@ -107,7 +107,7 @@ Giao nhận:
 
 ## 11. Kịch bản kiểm thử
 
-KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_190 tự động (`apps/api/test/c9-internal-trade.test.ts`); KICHBAN_KIEMTHU_191 thủ công trên trình duyệt (tài liệu `21`).
+KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_190 tự động (`apps/api/test/c9-internal-trade.test.ts`); KICHBAN_KIEMTHU_191, KICHBAN_KIEMTHU_192 thủ công trên trình duyệt (tài liệu `21`).
 
 ## 12. Ràng buộc kỹ thuật
 

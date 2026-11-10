@@ -1,13 +1,13 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 1.7
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08). Các module sau bổ sung vào cùng tài liệu.
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09). Các module sau bổ sung vào cùng tài liệu.
 
 ## 1. Dữ liệu nhạy cảm
 
@@ -39,6 +39,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Giá bán, chiết khấu, giá trị đơn bán (CONG_VIEC_08) | Kinh doanh | Cơ sở dữ liệu schema `sales` theo công ty | Người có `sales.order.view` hoặc `sales.order.manage` của chính công ty (Thủ kho có `sales.order.view` thấy giá trên đơn bán); công ty khác nhận `404` |
 | Diễn giải ngoại lệ đơn bán: dư nợ tạm tính, hạn mức công nợ, giá vốn bình quân (CONG_VIEC_08) | Tài chính | Cột `sales.orders.exceptions` (`jsonb`) | Lưu đầy đủ; API_77 chỉ trả diễn giải `credit_limit` cho người có `crm.profile.manage`, diễn giải `below_cost` cho người có `inventory.cost.view`; người khác nhận loại ngoại lệ, diễn giải trống |
 | Giá trị dòng phiếu xuất giao hàng, phiếu nhận hàng trả lại (CONG_VIEC_08) | Tài chính | `inventory.document_lines.unit_cost`, `cost_value` | Như giá vốn: `inventory.cost.view` (API trả trống khi không có quyền) |
+| Chứng từ đối ứng nội bộ, giá nội bộ, biên bản chênh lệch giao nhận nội bộ (CONG_VIEC_09) | Kinh doanh, tài chính | Schema `sales`, `purchasing` theo công ty; bảng `inventory.internal_discrepancies` thuộc công ty bán | Mỗi công ty chỉ thấy chứng từ của mình; chứng từ bên kia chỉ hiện tên công ty, số, trạng thái; giá trị biên bản như giá vốn (`inventory.cost.view`) |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
 
@@ -62,6 +63,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Mọi API mini app Khách hàng và Đối tác (API_71, API_72) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn, `customerGroupId`, `ownerUserId` phải là UUID; mã số thuế `^[0-9]{10}(-[0-9]{3})?$`, số Căn cước công dân `^[0-9]{12}$`, email đúng định dạng, số tài khoản 4 đến 30 ký tự chữ, số, `-`; độ dài tên 300, địa chỉ 500, ghi chú 1.000 ký tự; tối đa 50 người liên hệ, 20 tài khoản ngân hàng; từ khóa tìm tối đa 100 ký tự, ký tự `%`, `_`, `\` được thoát trong `LIKE`; hạn mức công nợ tối đa 16 chữ số phần nguyên, 4 chữ số lẻ, không âm; không nhận tệp tải lên | Có, `crm.access` hoặc `crm.partner.view` và quyền chi tiết ở công ty đang làm việc |
 | Mọi API mini app Mua hàng, nhập mua, trả hàng nhà cung cấp (API_73 đến API_76) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn, mã nhà cung cấp, mặt hàng, đơn vị, kho, dòng phải là UUID; số lượng chuỗi tối đa 12 chữ số phần nguyên, tiền tối đa 16, 4 chữ số lẻ; dung sai 0 đến 100, 2 chữ số lẻ; tối đa 200 dòng mỗi chứng từ, 1.000 serial mỗi dòng; từ khóa tối đa 100 ký tự, ký tự `%`, `_`, `\` được thoát trong `LIKE`; lý do 500, ghi chú 1.000 ký tự; không nhận tệp tải lên | Có, `purchasing.access`, `purchasing.order.view` hoặc `purchasing.requisition.create` (API_73 đến API_75); quyền vào mini app Kho và `inventory.purchase.receive` tại kho (API_76) |
 | Mọi API mini app Bán hàng, giao hàng, nhận hàng trả lại (API_77 đến API_79) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn, mã khách, kênh, kho, mặt hàng, đơn vị, lô, vị trí, dòng phải là UUID; số lượng chuỗi tối đa 12 chữ số phần nguyên, 4 chữ số lẻ, lớn hơn 0; chiết khấu 0 đến 100, 2 chữ số lẻ; tối đa 200 dòng mỗi chứng từ, 1.000 serial mỗi dòng (100 ký tự mỗi serial); từ khóa tối đa 100 ký tự, ký tự `%`, `_`, `\` được thoát trong `LIKE`; tên người mua 200, địa chỉ giao 500, lý do 500, ghi chú 1.000 ký tự; giá dòng không nhận từ người dùng mà tra theo bảng giá phía máy chủ; không nhận tệp tải lên | Có, `sales.access` hoặc `sales.order.view` (API_77, API_78); quyền vào mini app Kho và `inventory.sales.issue` tại kho (API_79) |
+| API giao dịch nội bộ (API_80 đến API_82) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, kho, dòng, vị trí là UUID; lý do từ chối 1 đến 500 ký tự; số nhận từ 0, tối đa 12 chữ số phần nguyên, 4 chữ số lẻ; tối đa 200 dòng, 5.000 serial mỗi dòng (100 ký tự mỗi serial); lý do thiếu, ghi chú tối đa 500 ký tự; `action` chỉ `return`, `write_off`; phiên bản số nguyên dương | Có |
 | Gửi tin qua eSMS.vn (mã OTP, Zalo ZNS, kiểm tra kết nối) | Tích hợp | Chỉ đọc mã kết quả, mã tin, lỗi; gửi lỗi không chặn nghiệp vụ | Không áp dụng (hệ thống gọi ra) |
 
 ## 3. Xác thực và phiên đăng nhập
@@ -278,6 +280,34 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
 - Đã sửa trong mã: diễn giải ngoại lệ ban đầu trả nguyên số hạn mức công nợ, dư nợ, giá vốn bình quân cho mọi người xem đơn (Nhân viên bán hàng, Thủ kho); nay che theo quyền như trên.
 - Ghi nhận (đúng phạm vi vận hành kho): `GET /inventory/sales-orders`, `GET /inventory/sales-orders/{id}` lọc theo kho người dùng có `inventory.sales.issue`, không lọc theo công ty đang làm việc; kho dùng chung nhiều công ty chủ hàng thì thủ kho thấy đơn đã xác nhận của các công ty chủ hàng đó (đúng phạm vi vận hành kho, như nhập mua). Đã sửa: `GET /inventory/sales-orders/{id}` chỉ trả đơn đã xác nhận, đã giao đủ, đã đóng; đơn khác trả `404`.
 - Không có mục rủi ro cao còn mở.
+
+### Ma trận phân quyền giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09)
+
+Không thêm quyền, vai trò, loại chứng từ. Mỗi bên dùng quyền của mình tại công ty mình (tài liệu `08` mục 12).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty | Nhân viên bán hàng | Nhân viên mua hàng | Thủ kho | Quản lý kho | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|---|---|
+| CHUC_NANG_58, CHUC_NANG_59 Xác nhận, từ chối đơn bán đối ứng | Được | Trong công ty mình | Được | Không | Không | Không | Không |
+| CHUC_NANG_58, CHUC_NANG_59 Xác nhận, từ chối đơn mua đối ứng | Được | Trong công ty mình | Không | Được | Không | Không | Không |
+| CHUC_NANG_60 Nhận hàng nội bộ | Được | Kho của công ty mình | Không | Không | Kho trong phạm vi gán | Kho trong phạm vi gán | Không |
+| CHUC_NANG_61 Xem, xử lý biên bản chênh lệch | Được | Kho của công ty mình | Không | Không | Kho xuất trong phạm vi gán | Kho xuất trong phạm vi gán | Không |
+| CHUC_NANG_61 Xem giá trị biên bản | Được | Trong công ty mình | Không | Không | Không | Được | Không |
+
+Ranh giới và kiểm soát riêng:
+- Tách dữ liệu hai công ty: xác nhận, từ chối, xem đơn chỉ trong công ty đang làm việc (`company_id`); công ty bán không mở được đơn mua của công ty mua (`404`, KICHBAN_KIEMTHU_187). Chứng từ đối ứng trong phản hồi chỉ có tên ngắn công ty, số, trạng thái. Biên bản chênh lệch chỉ trả cho công ty bán (công ty mua nhận danh sách rỗng, KICHBAN_KIEMTHU_189).
+- Sinh, kết thúc chứng từ bên kia do hệ thống làm trong cùng giao dịch của thao tác hợp lệ ở bên khởi tạo, không kiểm quyền người gọi ở công ty bên kia; người gọi chỉ quyết định được chứng từ của công ty mình, bên kia vẫn phải xác nhận bằng quyền của họ.
+- Giá không do người dùng gửi: đơn mua nội bộ bỏ đơn giá, thuế suất gửi lên, lấy theo bảng giá kênh Nội bộ bên bán; đơn đối ứng lấy giá theo chứng từ khởi tạo; đơn đối ứng và đơn mua nội bộ đã có đơn đối ứng không sửa được.
+- Nhận hàng: số nhận không vượt số xuất, serial chỉ trong serial đã xuất; khóa phiếu theo phiên bản để không nhận hai lần; đơn mua nội bộ không nhập mua thường được (tránh nhập trùng).
+- Biên bản: giữ biên bản (`status = 'open'`, đúng phiên bản) trước khi nhập lại kho để hai người không cùng nhập lại; giá trị chỉ trả cho người có `inventory.cost.view`.
+- Nhật ký thao tác: `sales_order.counterpart_confirm`, `.counterpart_reject`, `purchase_order.counterpart_confirm`, `.counterpart_reject`, `stock_document.receive_internal`, `internal_discrepancy.resolve`; sinh, kết thúc chứng từ bên kia không ghi nhật ký riêng, lý do ghi trên chứng từ.
+
+Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
+- Không có mục rủi ro cao còn mở.
+- Ghi nhận, chưa sửa: hai bên hủy, đóng cùng lúc (ví dụ bên bán hủy đơn bán trong khi bên mua đóng đơn mua đối ứng) khóa hai đơn theo thứ tự ngược nhau, có thể khóa chéo; PostgreSQL hủy một giao dịch, người gọi nhận lỗi `500`, dữ liệu không hỏng, thao tác lại được.
+- Ghi nhận, chưa sửa: đơn giá dòng đơn mua đối ứng làm tròn 4 chữ số (tiền chưa thuế dòng đơn bán chia số lượng bên mua), tổng đơn mua có thể lệch vài đồng lẻ so với đơn bán.
+- Ghi nhận (đúng phạm vi vận hành kho): kho dùng chung nhiều công ty chủ hàng thì thủ kho có `inventory.purchase.receive` tại kho (kể cả thủ kho công ty bán) thấy và nhận được phiếu nhập nội bộ của công ty mua ở kho đó, như phiếu kho khác (QUYTAC_NGHIEPVU_46).
+- Ghi nhận: giá bảng giá kênh Nội bộ của công ty bán hiện cho người lập đơn mua ở công ty mua (theo QUYTAC_NGHIEPVU_75). Trước khi xác nhận, đơn đối ứng hiện người lập là người lập chứng từ khởi tạo ở công ty kia (họ tên).
+- Ghi nhận: "Nhập lại kho" giữ biên bản rồi lập, ghi sổ phiếu trả ở giao dịch riêng; lỗi thì trả biên bản về "Chờ xử lý", nhưng máy chủ dừng giữa chừng có thể để biên bản "Đã nhập lại kho" chưa có phiếu trả. Danh sách biên bản tối đa 500 dòng, chưa phân trang.
 
 ## 5. Quản lý khóa bí mật
 
