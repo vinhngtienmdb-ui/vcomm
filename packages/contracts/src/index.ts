@@ -3368,3 +3368,92 @@ export interface CommissionStatementResponse extends CommissionStatementListItem
   canWithdraw: boolean;
   version: number;
 }
+
+// CONG_VIEC_18: Đối soát ngân hàng (API_95 đến API_102).
+export const bankProviders = ["simulator", "sepay"] as const;
+export type BankProvider = (typeof bankProviders)[number];
+export const bankTransactionStatuses = ["unmatched", "matched", "ignored"] as const;
+export type BankTransactionStatus = (typeof bankTransactionStatuses)[number];
+export const bankDirections = ["in", "out"] as const;
+export type BankDirection = (typeof bankDirections)[number];
+export const bankSuggestionReasons = ["sales_order", "partner_code", "tax_code"] as const;
+export type BankSuggestionReason = (typeof bankSuggestionReasons)[number];
+
+export const saveBankConnectionSchema = z
+  .object({
+    provider: z.enum(bankProviders),
+    enabled: z.boolean(),
+    rotateSecret: z.boolean().default(false),
+    version: z.number().int().min(0).nullable(),
+  })
+  .strict();
+export interface BankConnectionItem {
+  fundId: string;
+  fundCode: string;
+  fundName: string;
+  bankName: string | null;
+  accountNo: string | null;
+  connection: {
+    id: string;
+    provider: BankProvider;
+    enabled: boolean;
+    secretHint: string;
+    webhookPath: string;
+    lastReceivedAt: string | null;
+    version: number;
+  } | null;
+}
+export interface BankConnectionsResponse {
+  funds: BankConnectionItem[];
+  canSetup: boolean;
+  simulatorAllowed: boolean;
+}
+// Khóa chỉ trả về một lần khi tạo hoặc đổi khóa.
+export interface SaveBankConnectionResponse {
+  item: BankConnectionItem;
+  secret: string | null;
+}
+export const simulateBankTransactionSchema = z
+  .object({
+    direction: z.enum(bankDirections),
+    amount: z.string().regex(/^\d{1,16}(\.\d{1,4})?$/),
+    content: z.string().trim().max(500).default(""),
+    transactionDate: isoDate.optional(),
+  })
+  .strict();
+
+export const bankTransactionListQuerySchema = z
+  .object({
+    fundId: z.string().uuid().optional(),
+    status: z.enum(bankTransactionStatuses).optional(),
+    direction: z.enum(bankDirections).optional(),
+    from: isoDate.optional(),
+    to: isoDate.optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface BankTransactionItem {
+  id: string;
+  fundId: string;
+  fundName: string;
+  transactionAt: string;
+  transactionDate: string;
+  direction: BankDirection;
+  amount: string;
+  content: string;
+  referenceCode: string | null;
+  balanceAfter: string | null;
+  status: BankTransactionStatus;
+  payment: { id: string; documentNo: string | null; kind: PaymentKind; partnerName: string; paymentDate: string } | null;
+  autoMatched: boolean;
+  suggestion: { partnerId: string; partnerName: string; reason: BankSuggestionReason } | null;
+  receipt: { id: string; documentNo: string | null; status: string } | null;
+  ignoreReason: string | null;
+  version: number;
+}
+export interface BankTransactionsResponse extends PageResponse<BankTransactionItem> {
+  canManage: boolean;
+  currency: string;
+}

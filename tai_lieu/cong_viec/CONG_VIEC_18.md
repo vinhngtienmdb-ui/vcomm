@@ -3,7 +3,7 @@
 - Mô tả: Nhận giao dịch ngân hàng qua dịch vụ trung gian chọn theo từng công ty (webhook), tự ghép với phiếu thu chi đã ghi sổ của quỹ ngân hàng; tiền vào chưa có phiếu thu thì gợi ý khách hàng, kế toán xác nhận tạo phiếu thu; đối chiếu số dư sổ sách với ngân hàng.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Bản nháp, chờ người dùng xác nhận thiết kế.
+- Trạng thái: Bản nháp. Người dùng xác nhận thiết kế ngày 2026-11-10; đã lập trình lát L0.
 - Nguồn: tài liệu `04` mục 6, `05` mục 2.1; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`.
 
 ## 1. Mục tiêu
@@ -35,7 +35,7 @@ Ngoài phạm vi:
 
 ## 4. Quy tắc nghiệp vụ
 
-- QUYTAC_NGHIEPVU_113: Mỗi quỹ ngân hàng có tối đa một kết nối. Khóa xác thực lưu mã hóa, chỉ hiện bốn ký tự cuối. Webhook sai khóa hoặc kết nối tắt trả lỗi 401, không lưu dữ liệu.
+- QUYTAC_NGHIEPVU_113: Mỗi quỹ ngân hàng có tối đa một kết nối. Hệ thống sinh khóa xác thực, chỉ hiện đủ một lần khi tạo hoặc đổi khóa; sau đó chỉ hiện bốn ký tự cuối; khóa lưu mã hóa. Webhook sai khóa, kết nối không có hoặc đang tắt trả lỗi 401, không lưu dữ liệu.
 - QUYTAC_NGHIEPVU_114: Giao dịch trùng mã giao dịch của dịch vụ trên cùng kết nối chỉ lưu một lần và vẫn trả thành công. Giao dịch đã lưu không sửa, không xóa.
 - QUYTAC_NGHIEPVU_115: Tự ghép khi có đúng một phiếu thu chi đã ghi sổ, cùng quỹ, cùng chiều (tiền vào: thu khách, nhà cung cấp hoàn tiền; tiền ra: chi nhà cung cấp, hoàn tiền khách), cùng số tiền, ngày phiếu cách ngày giao dịch không quá 3 ngày, chưa ghép giao dịch khác. Nhiều phiếu thỏa thì không tự ghép, hiện danh sách để chọn. Phiếu ghi sổ sau giao dịch cũng được thử ghép lại.
 - QUYTAC_NGHIEPVU_116: Gợi ý khách cho tiền vào chưa ghép, theo thứ tự: số đơn bán trong nội dung chuyển khoản; mã khách hàng; mã số thuế. Kế toán xác nhận (sửa được khách, số tiền không sửa) thì hệ thống lập phiếu thu khách hàng của quỹ, ngày giao dịch, ghi chú nội dung chuyển khoản, theo luồng duyệt phiếu thu đã có; phiếu ghi sổ thì giao dịch chuyển sang đã ghép.

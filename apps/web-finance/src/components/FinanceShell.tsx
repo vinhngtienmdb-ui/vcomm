@@ -9,6 +9,8 @@ export const financeMenu = [
   { href: "/debts", key: "debts", permission: "finance.debt.view" },
   { href: "/payments", key: "payments", permission: "finance.debt.view" },
   { href: "/funds", key: "funds", permission: "finance.debt.view" },
+  { href: "/bank-transactions", key: "bankTransactions", permission: "finance.bank.view" },
+  { href: "/bank-connections", key: "bankConnections", permission: "finance.bank.setup" },
   { href: "/journals", key: "journals", permission: "finance.ledger.view" },
   { href: "/books", key: "books", permission: "finance.ledger.view" },
   { href: "/statements", key: "statements", permission: "finance.ledger.view" },
