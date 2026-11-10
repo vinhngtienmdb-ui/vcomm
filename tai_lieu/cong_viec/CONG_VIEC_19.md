@@ -3,7 +3,7 @@
 - Mô tả: Khai đơn vị thu hộ (nhà vận chuyển thu COD, cổng thanh toán); nhập bảng đối soát từ tệp Excel theo mẫu chung; ghép từng dòng với đơn bán; ghi sổ thì trừ nợ khách theo đơn, chuyển thành nợ của đơn vị thu hộ, phí vào chi phí bán hàng; tiền đơn vị thu hộ chuyển về ngân hàng lập phiếu thu của đơn vị thu hộ và được đối soát ngân hàng tự ghép.
 - Phiên bản: 0.3
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Chờ nghiệm thu.
+- Trạng thái: Đã nghiệm thu ngày 2026-11-10, chờ phát hành.
 - Nguồn: tài liệu `04` mục 6, `05` mục 2.1; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02` (làm cả COD, cổng thanh toán; nhập từ tệp theo mẫu chung; phí vào chi phí bán hàng; ghi nhận khách đã trả khi ghi sổ bảng đối soát; chênh lệch cho ghi sổ kèm cảnh báo; duyệt theo chính sách duyệt công ty).
 
 ## 1. Mục tiêu
