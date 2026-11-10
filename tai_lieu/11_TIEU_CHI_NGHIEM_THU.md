@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04
 
 ## MODULE_01 Nền tảng
 
@@ -116,3 +116,17 @@ Dữ liệu mẫu: công ty con VCR (VComm Bán lẻ Miền Nam), VCT (VComm Th�
 | TIEUCHI_NGHIEMTHU_77 | CHUC_NANG_47 | Mỗi công ty con đang hoạt động có đúng một đối tác nội bộ; sửa thông tin chung của đối tác nội bộ bị từ chối | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_78 | CHUC_NANG_46 | Danh sách chỉ hiện 3 số cuối Căn cước công dân; xem đầy đủ cần quyền và ghi nhật ký | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_79 | CHUC_NANG_48 | Hồ sơ của công ty A không đọc được từ công ty B; không chọn khách hàng hay nhà cung cấp bị từ chối; hạn mức âm, nhóm khách công ty khác bị từ chối | Gọi API | Bắt buộc |
+
+## MODULE_04 Mua hàng (phần 1: Mua hàng trong nước, CONG_VIEC_07)
+
+Dữ liệu mẫu: công ty con VCR, VCT; kho Bình Dương của VCR; nhà cung cấp, mặt hàng, giá giả lập. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_80 | CHUC_NANG_49 | Giá mua chồng hiệu lực bị từ chối; giá gợi ý đúng theo ngày và số lượng tối thiểu; nhà cung cấp chưa có hồ sơ nhà cung cấp bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_81 | CHUC_NANG_50, CHUC_NANG_51 | Đề nghị mua đi luồng duyệt; đơn từ đề nghị đã duyệt không vượt giá trị thì duyệt ngay, vượt thì chờ duyệt; đặt quá số lượng đề nghị còn lại bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_82 | CHUC_NANG_51 | Đơn đã duyệt sửa tăng giá trị hoặc đổi nhà cung cấp về chờ duyệt; sửa giảm giữ trạng thái; giảm số lượng dưới số đã nhận bị từ chối; đóng đơn hủy phần chưa nhận | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_83 | CHUC_NANG_52 | Nhận vượt dung sai bị từ chối; nhận trong dung sai được; đơn chưa duyệt, đã đóng không nhận được; giá nhập bằng đơn giá đơn mua quy về đơn vị cơ sở | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_84 | CHUC_NANG_52 | Hàng cần kiểm tra chất lượng chưa vào tồn khi chờ kiểm; ghi sổ đúng phần đạt; phần không đạt không tính đã nhận | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_85 | CHUC_NANG_53 | Trả hàng xuất đúng đơn giá phiếu nhập gốc, giá vốn bình quân phần còn lại tính lại đúng; trả quá số đã nhập bị từ chối; trả serial chưa nhập ở phiếu gốc bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_86 | CHUC_NANG_51 | Nhân viên công ty khác không xem được đơn mua; thủ kho chi nhánh khác không nhận hàng vào kho không thuộc chi nhánh mình | Gọi API | Bắt buộc |

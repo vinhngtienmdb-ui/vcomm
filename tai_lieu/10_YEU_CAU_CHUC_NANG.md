@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 1.6
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04
 
 ## MODULE_01 Nền tảng
 
@@ -745,6 +745,93 @@ Quy ước chung cho mọi chức năng của MODULE_07 phần tối thiểu:
 | Tìm kiếm | Tìm tên không phân biệt dấu tiếng Việt, không cần extension PostgreSQL |
 | Toàn vẹn | Mã số thuế, số Căn cước công dân, đối tác nội bộ duy nhất (ràng buộc cơ sở dữ liệu); khóa ngoại từ `crm` chỉ trỏ vào `crm`, `core` |
 | Bảo mật | Số Căn cước công dân che trong danh sách, chi tiết, nhật ký thêm, sửa; xem đầy đủ cần quyền nhạy cảm và ghi nhật ký |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_04 Mua hàng (phần 1: Mua hàng trong nước, CONG_VIEC_07)
+
+Quy ước chung cho mọi chức năng của MODULE_04 phần 1:
+- Mọi thao tác ghi dữ liệu ghi một dòng nhật ký thao tác (CHUC_NANG_23): mini app `purchasing`, loại đối tượng `supplier_price`, `purchasing_settings`, `requisition`, `purchase_order`; phiếu nhập mua, phiếu trả hàng ghi ở mini app `inventory`, loại đối tượng `stock_document` (thêm hành động `stock_document.quality_check`).
+- API Mua hàng cần `purchasing.access`, `purchasing.order.view` hoặc `purchasing.requisition.create` trong công ty đang làm việc; quyền chi tiết kiểm tra phía máy chủ. `purchasing.requisition.create`, `purchasing.order.view` gán ở chi nhánh nào của công ty cũng dùng được trong công ty đó; quyền Mua hàng khác cần lần gán ở phạm vi tập đoàn hoặc công ty. Phiếu nhập mua, phiếu trả hàng cần `inventory.purchase.receive` tại kho (QUYTAC_NGHIEPVU_46).
+- Sửa dữ liệu gửi kèm phiên bản; khác phiên bản hiện tại thì báo "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất.".
+- Tiền tệ là tiền tệ của công ty; đơn giá chưa gồm thuế giá trị gia tăng; số lượng, tiền `numeric(20,4)`.
+- Số đã nhận, đã trả của dòng đơn mua tính từ phiếu kho (đọc chéo module), không lưu trùng.
+
+### CHUC_NANG_49: Bảng giá mua theo nhà cung cấp
+- Mục đích: Gợi ý đúng đơn giá đã thỏa thuận với nhà cung cấp khi lập đơn mua.
+- Người sử dụng: Nhân viên mua hàng, quản trị công ty, quản trị tập đoàn (thêm, sửa); Thủ kho và người có quyền Mua hàng khác (xem).
+- Điều kiện thực hiện: Xem, tra giá gợi ý, tải danh sách chọn, tìm mặt hàng: một trong `purchasing.price.manage`, `purchasing.requisition.create`, `purchasing.order.view`, `purchasing.order.manage`. Thêm, sửa, ngừng dùng, dùng lại: `purchasing.price.manage`.
+- Dữ liệu đầu vào: Nhà cung cấp, mặt hàng (biến thể đang bán của công ty), đơn vị mua (đơn vị cơ sở hoặc đơn vị quy đổi của sản phẩm), số lượng tối thiểu (mặc định 0; tối đa 12 chữ số phần nguyên, 4 chữ số lẻ), đơn giá chưa thuế (bắt buộc, không âm; tối đa 16 chữ số phần nguyên, 4 chữ số lẻ), mã hàng nhà cung cấp (tối đa 50 ký tự), hiệu lực từ (bắt buộc), hiệu lực đến (trống: không thời hạn; không trước ngày bắt đầu). Danh sách: nhà cung cấp, trạng thái, từ khóa (đúng mã hàng, tên không dấu, đúng mã hàng nhà cung cấp), trang (tối đa 100 dòng, mặc định 20). Tra giá: nhà cung cấp, mặt hàng, đơn vị, số lượng, ngày (mặc định hôm nay).
+- Quy trình xử lý: Kiểm nhà cung cấp là đối tác đang giao dịch có hồ sơ nhà cung cấp đang dùng ở công ty; mặt hàng, đơn vị hợp lệ. Khóa theo (công ty, nhà cung cấp, mặt hàng, đơn vị) trong giao dịch rồi kiểm không có giá đang dùng khác cùng số lượng tối thiểu chồng hiệu lực; ghi giá, nhật ký. Ngừng dùng đổi trạng thái; dùng lại kiểm lại như khi lưu. Tra giá: giá đang dùng có hiệu lực tại ngày, số lượng tối thiểu lớn nhất không vượt số lượng; cùng mức thì lấy giá bắt đầu hiệu lực muộn nhất.
+- Kết quả đầu ra: Danh sách giá (nhà cung cấp, mặt hàng, đơn vị, số lượng tối thiểu, đơn giá, mã hàng nhà cung cấp, hiệu lực, trạng thái, phiên bản) sắp đang dùng trước, theo tên nhà cung cấp, mã hàng, số lượng tối thiểu; giá gợi ý (đơn giá, mã giá; không có: trống); danh sách chọn (nhà cung cấp có hồ sơ nhà cung cấp, kho nhận hàng của công ty, tiền tệ).
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_32
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_61
+- Trường hợp ngoại lệ: Không xóa giá, chỉ ngừng dùng. Hai người lưu giá chồng hiệu lực cùng lúc: người sau nhận lỗi chồng hiệu lực. Giá của công ty khác không xem, không sửa được (404).
+- Phân quyền: Người không có `purchasing.price.manage` không thấy nút thêm, sửa, ngừng dùng; gọi API nhận 403.
+- Thông báo lỗi: "Nhà cung cấp chưa có hồ sơ nhà cung cấp đang dùng ở công ty." · "Đã có giá đang dùng cùng nhà cung cấp, mặt hàng, đơn vị, số lượng tối thiểu trùng thời gian hiệu lực." · "Giá trị không hợp lệ." (đơn vị, số, ngày)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_80
+
+### CHUC_NANG_50: Đề nghị mua
+- Mục đích: Bộ phận cần hàng đề nghị mua, được duyệt trước khi đặt.
+- Người sử dụng: Nhân viên mua hàng, Thủ kho, quản trị công ty, quản trị tập đoàn (lập); Nhân viên mua hàng, quản trị (đóng, lập đơn mua từ đề nghị).
+- Điều kiện thực hiện: Xem danh sách, chi tiết: `purchasing.requisition.create` hoặc `purchasing.order.manage`. Lập, sửa, gửi: `purchasing.requisition.create`; sửa, gửi, rút chỉ người lập. Đóng: `purchasing.order.manage`.
+- Dữ liệu đầu vào: Kho nhận (kho đang dùng nhận hàng của công ty), ngày cần, lý do (tối đa 500 ký tự), 1 đến 200 dòng: mặt hàng đang bán của công ty, đơn vị, số lượng lớn hơn 0, đơn giá ước tính (không bắt buộc, mặc định 0), nhà cung cấp đề xuất (đối tác có hồ sơ nhà cung cấp), ghi chú (tối đa 300 ký tự). Danh sách: trạng thái, "Còn đặt được", từ khóa (đúng số, lý do), trang.
+- Quy trình xử lý: Kiểm kho, mặt hàng, đơn vị, nhà cung cấp; quy số lượng về đơn vị cơ sở; lưu nháp. Sửa khi nháp, bị từ chối, đã rút: thay toàn bộ dòng, về nháp. Gửi: cấp số theo dãy `purchasing.requisition` (chưa cấu hình thì tự tạo dãy tiền tố `DNM`, đặt lại theo năm, 6 chữ số), gửi luồng duyệt với giá trị ước tính; chưa có chính sách duyệt thì duyệt ngay. Nghe `core.approval.completed` để chuyển đã duyệt, bị từ chối, đã rút. Rút khi chờ duyệt và cấp 1 chưa quyết định. Đóng đề nghị đã duyệt. Số đã đặt từng dòng tính từ dòng đơn mua (QUYTAC_NGHIEPVU_62).
+- Kết quả đầu ra: Danh sách (số, lý do, kho nhận, ngày cần, số dòng, giá trị ước tính, người lập, trạng thái) mới lập trước; chi tiết kèm dòng (đã đặt theo đơn vị cơ sở), phiên bản, được sửa, được rút, được lập đơn mua hay không.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_32
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_62
+- Trường hợp ngoại lệ: Đề nghị chưa duyệt, đã đóng hoặc của công ty khác không đặt được (lỗi ở dòng đơn mua). Thủ kho gán ở chi nhánh vẫn lập được.
+- Phân quyền: Người không phải người lập sửa, gửi, rút nhận 403; không có `purchasing.order.manage` không thấy nút "Đóng đề nghị", "Lập đơn mua".
+- Thông báo lỗi: "Giá trị không hợp lệ." (kho, đơn vị) · "Nhà cung cấp chưa có hồ sơ nhà cung cấp đang dùng ở công ty." · "Chỉ sửa được chứng từ đang ở trạng thái nháp."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_81
+
+### CHUC_NANG_51: Đơn mua
+- Mục đích: Đặt hàng nhà cung cấp có kiểm soát giá trị; theo dõi đã nhận, đã trả.
+- Người sử dụng: Nhân viên mua hàng, quản trị công ty, quản trị tập đoàn (lập, sửa, gửi, đóng); Thủ kho (xem).
+- Điều kiện thực hiện: Xem: `purchasing.order.view` hoặc `purchasing.order.manage`. Lập, sửa, gửi, đóng: `purchasing.order.manage`. Rút: người lập. Sửa cài đặt dung sai: `purchasing.settings.manage`.
+- Dữ liệu đầu vào: Nhà cung cấp, kho nhận, ngày đơn, ngày giao dự kiến, ghi chú (tối đa 1.000 ký tự), 1 đến 200 dòng: mã dòng (khi sửa, giữ dòng cũ), mặt hàng, đơn vị, số lượng, đơn giá chưa thuế (giao diện gợi ý theo CHUC_NANG_49), thuế suất (0, 5, 8, 10, không chịu thuế, không kê khai; giao diện lấy theo sản phẩm, sửa được), dòng đề nghị mua. Cài đặt: dung sai nhận vượt 0 đến 100 (2 chữ số lẻ), phiên bản (0 khi chưa có). Danh sách: trạng thái, nhà cung cấp, từ khóa (đúng số, tên nhà cung cấp), chỉ đơn đã duyệt, trang.
+- Quy trình xử lý: Kiểm nhà cung cấp, kho, mặt hàng, đơn vị. Dòng từ đề nghị: đề nghị đã duyệt của công ty, cùng mặt hàng, tổng đặt không vượt số còn lại (khóa dòng đề nghị). Dòng đã có phiếu nhập: không bỏ, không đổi mặt hàng, đơn vị, không giảm dưới số đã nhận cộng đang chờ kiểm. Tính thành tiền, tổng chưa thuế, thuế; lưu nháp. Gửi: cấp số theo dãy `purchasing.order` (chưa cấu hình thì tự tạo tiền tố `DMH`); miễn duyệt hoặc gửi luồng duyệt theo QUYTAC_NGHIEPVU_63, chưa có chính sách thì duyệt ngay; khi duyệt lưu tổng và nhà cung cấp đã duyệt. Sửa đơn nháp, bị từ chối, đã rút (về nháp) hoặc đã duyệt (giữ đã duyệt; tăng tổng hoặc đổi nhà cung cấp thì tự gửi duyệt lại, giữ số đơn). Đóng đơn đã duyệt kèm lý do: phần chưa nhận hủy. Ghi sổ phiếu nhập mua làm mọi dòng đủ số đặt thì đơn tự chuyển "Đã nhận đủ".
+- Kết quả đầu ra: Danh sách (số, nhà cung cấp, kho nhận, ngày đơn, ngày giao dự kiến, tổng chưa thuế, thuế, trạng thái, người lập) mới lập trước; chi tiết: dòng kèm hệ số, đã nhận, đã trả, còn nhận được (đơn vị cơ sở, đã cộng dung sai, chỉ khi đơn đã duyệt), phiếu kho liên quan (nhập mua, trả hàng), lý do đóng, phiên bản, được sửa, gửi, rút, đóng hay không.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_32
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_61, QUYTAC_NGHIEPVU_62, QUYTAC_NGHIEPVU_63, QUYTAC_NGHIEPVU_64
+- Trường hợp ngoại lệ: Còn phiếu nhập nháp hoặc chờ kiểm tra thì chưa đóng được. Đơn bị từ chối, đã rút không giữ số lượng của đề nghị. Đơn của công ty khác không xem được (404).
+- Phân quyền: Thủ kho chỉ xem; gọi lập, sửa nhận 403. Không có `purchasing.settings.manage` không thấy nút "Cài đặt".
+- Thông báo lỗi: "Nhà cung cấp chưa có hồ sơ nhà cung cấp đang dùng ở công ty." · "Vượt số lượng còn lại của dòng đề nghị mua." · "Số lượng nhỏ hơn số đã nhận." · "Dòng đã có phiếu nhập, không bỏ hoặc đổi mặt hàng, đơn vị được." · "Đơn mua còn phiếu nhập nháp hoặc chờ kiểm tra, chưa đóng được." · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · "Giá trị không hợp lệ."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_81, TIEUCHI_NGHIEMTHU_82, TIEUCHI_NGHIEMTHU_86
+
+### CHUC_NANG_52: Phiếu nhập mua theo đơn mua, kiểm tra chất lượng
+- Mục đích: Kho nhận đúng hàng của đơn mua, không vượt dung sai; hàng cần kiểm tra chỉ vào tồn khi đạt.
+- Người sử dụng: Thủ kho, Quản lý kho, quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: `inventory.purchase.receive` tại kho nhận của đơn mua; sửa, gửi, xóa nháp chỉ người lập (xóa nháp dùng API_65 nên cần thêm `inventory.document.manage`).
+- Dữ liệu đầu vào: Đơn mua đã duyệt, ngày phiếu, ghi chú, 1 đến 200 dòng: dòng đơn mua, số thực nhận theo đơn vị của dòng đơn, số lô, ngày sản xuất, hạn dùng, vị trí, serial (tối đa 1.000). Kết quả kiểm tra: từng dòng số không đạt theo đơn vị của dòng (hàng serial: danh sách serial không đạt), lý do không đạt (tối đa 500 ký tự), phiên bản.
+- Quy trình xử lý: Danh sách đơn đã duyệt nhận vào kho người dùng có quyền (tối đa 50, ngày giao dự kiến sớm trước); dòng đơn kèm số còn nhận được (đã trừ đã nhận, đang chờ kiểm, cộng dung sai) và có cần kiểm tra chất lượng không. Lập nháp: mặt hàng, đơn vị, đơn giá lấy từ dòng đơn; kho, công ty chủ hàng, nhà cung cấp lấy từ đơn; lý do "Nhập mua theo đơn <số đơn>"; báo sớm khi vượt số còn nhận được. Gửi: khóa đơn mua, kiểm đơn còn đã duyệt và dung sai, kiểm lô, hạn, serial, vị trí như phiếu kho; cấp số theo dãy `inventory.purchase_receipt` (tiền tố `NM`); không đi luồng duyệt. Không có dòng cần kiểm tra: ghi sổ ngay với giá nhập = đơn giá dòng đơn quy về đơn vị cơ sở, cập nhật trạng thái đơn. Có: cả phiếu chuyển "Chờ kiểm tra chất lượng", chưa ghi sổ. Ghi kết quả: phần đạt ghi sổ (giá trị theo tỷ lệ phần đạt), serial không đạt bỏ khỏi dòng, số không đạt và lý do (kèm serial) ghi vào dòng; ghi người, thời điểm kiểm; cập nhật trạng thái đơn.
+- Kết quả đầu ra: Phiếu kho loại `purchase_receipt` kèm nhà cung cấp, số đơn mua gốc, số không đạt, lý do từng dòng, được kiểm tra chất lượng, được trả hàng hay không.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_33
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_64, QUYTAC_NGHIEPVU_65
+- Trường hợp ngoại lệ: Không lập phiếu nhập mua ở màn hình phiếu kho thường (loại `purchase_receipt` qua API_65 bị từ chối). Hai phiếu cùng nhận một dòng: gửi khóa đơn mua nên phiếu sau kiểm lại dung sai. Phần không đạt không tính đã nhận, đơn vẫn nhận tiếp được.
+- Phân quyền: Thủ kho chi nhánh khác không thấy đơn, không nhận vào kho không thuộc chi nhánh mình (403 hoặc 404).
+- Thông báo lỗi: "Đơn mua chưa duyệt hoặc đã đóng, không nhận hàng được." · "Vượt số còn nhận được của đơn mua (đã tính dung sai)." · "Phiếu không ở trạng thái chờ kiểm tra chất lượng." · "Vui lòng nhập thông tin này." (lý do không đạt) · "Serial không có trong kho, vị trí này." (serial không đạt không thuộc dòng) · "Giá trị không hợp lệ." (số không đạt vượt số nhận) · lỗi phiếu kho theo CHUC_NANG_40
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_83, TIEUCHI_NGHIEMTHU_84, TIEUCHI_NGHIEMTHU_86
+
+### CHUC_NANG_53: Phiếu trả hàng nhà cung cấp
+- Mục đích: Trả hàng lỗi cho nhà cung cấp đúng giá đã nhập.
+- Người sử dụng: Thủ kho, Quản lý kho, quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: `inventory.purchase.receive` tại kho của phiếu nhập gốc; sửa, gửi chỉ người lập.
+- Dữ liệu đầu vào: Phiếu nhập mua gốc đã ghi sổ, ngày phiếu, lý do (bắt buộc, tối đa 500 ký tự), ghi chú, 1 đến 200 dòng: dòng phiếu nhập gốc, số trả theo đơn vị của dòng gốc, serial (hàng serial).
+- Quy trình xử lý: Lấy mặt hàng, đơn vị, lô, vị trí từ dòng gốc; đơn giá = giá trị đã ghi sổ của dòng gốc / số đã nhập (phần đạt) × hệ số đơn vị; serial phải thuộc dòng gốc. Gửi: khóa dòng gốc, tổng đã trả (phiếu đã ghi sổ) cộng lần này không vượt số đã nhập phần đạt; kiểm đủ hàng, serial như phiếu kho; cấp số theo dãy `inventory.purchase_return` (tiền tố `TNCC`); không đi luồng duyệt; ghi sổ xuất theo giá trị = số trả × đơn giá gốc (trả làm tồn về 0 thì xuất toàn bộ giá trị còn lại; không vượt giá trị tồn); giá vốn bình quân phần còn lại tính lại.
+- Kết quả đầu ra: Phiếu kho loại `purchase_return` kèm nhà cung cấp, số phiếu nhập gốc; số đã trả hiện ở dòng đơn mua.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_33
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_66
+- Trường hợp ngoại lệ: Phiếu nhập nháp, chờ kiểm tra không trả được. Trả quá số còn trả được báo khi gửi.
+- Phân quyền: Như CHUC_NANG_52.
+- Thông báo lỗi: "Chỉ trả hàng từ phiếu nhập mua đã ghi sổ." · "Vượt số đã nhập còn trả được của phiếu nhập gốc." · "Serial không có trong kho, vị trí này." · lỗi phiếu kho theo CHUC_NANG_40
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_85
+
+## Yêu cầu phi chức năng của MODULE_04 (phần 1)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Toàn vẹn | Số đã nhận, đã trả không lưu trùng, tính từ phiếu kho; gửi phiếu nhập khóa đơn mua, gửi phiếu trả khóa dòng phiếu gốc; chồng hiệu lực giá mua kiểm trong giao dịch có khóa; khóa ngoại từ `purchasing` chỉ trỏ vào `purchasing`, `core`, `catalog`, `crm` |
+| Ranh giới module | Mua hàng chỉ ghi schema `purchasing`; phiếu nhập mua, trả hàng do module Kho ghi (đọc đơn mua); trạng thái "Đã nhận đủ" cập nhật qua `PurchaseOrdersService` trong giao dịch ghi sổ |
 | Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
