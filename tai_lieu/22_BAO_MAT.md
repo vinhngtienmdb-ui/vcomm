@@ -336,7 +336,7 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
 - Ghi nhận, chưa sửa: giá trị gửi duyệt là ngân sách; chương trình không giới hạn ngân sách (hoặc mua X tặng Y) gửi với giá trị 0, nên chính sách duyệt chỉ có cấp từ mức tiền lớn hơn 0 sẽ không áp, chương trình chạy ngay. Công ty muốn duyệt mọi chương trình thì đặt cấp duyệt từ 0 đồng.
 - Ghi nhận, chưa sửa: lưu đơn đọc đã dùng, tồn hàng tặng không khóa; giới hạn chỉ chắc chắn khi gửi đơn (kiểm lại). Tồn hàng tặng giảm giữa lúc lưu và lúc gửi thì gửi đơn báo thiếu hàng ở dòng tặng, người bán lưu lại để tính lại.
 - Ghi nhận (theo QUYTAC_NGHIEPVU_84): dừng chương trình không gỡ khuyến mãi khỏi đơn nháp đã lưu; đơn đó gửi vẫn giữ khuyến mãi nếu còn ngân sách, số suất.
-- Ghi nhận: thao tác rút chương trình không ghi nhật ký loại `promotion` (chỉ có ở yêu cầu duyệt); `maxGiftSets` chỉ kiểm số nguyên dương, giá trị vượt kiểu `integer` của PostgreSQL trả lỗi `500`, dữ liệu không hỏng.
+- Đã sửa (commit 57bbcd0): rút chương trình ghi nhật ký `promotion.withdraw` trong cùng giao dịch; `maxGiftSets` tối đa 1.000.000.000, vượt thì trả lỗi kiểm tra dữ liệu `400` (KICHBAN_KIEMTHU_193).
 - Ghi nhận: Nhân viên bán hàng xem được ngân sách, đã dùng của chương trình (để tư vấn khách); cảnh báo thiếu suất tặng cho biết gián tiếp tồn hàng tặng tại kho xuất, người bán vốn đã thấy lỗi thiếu hàng khi gửi đơn.
 
 ## 5. Quản lý khóa bí mật
