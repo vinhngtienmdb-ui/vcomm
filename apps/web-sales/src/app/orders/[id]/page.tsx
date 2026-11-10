@@ -140,6 +140,7 @@ function Detail({ order, reload }: { order: SalesOrderResponse; reload: () => Pr
         </div>
         <div className="chu-thich">
           {t("channel")}: {order.channelName} · {t("warehouse")}: {order.warehouseName} · {t("orderDate")}: {formatDate(order.orderDate)} · {t("createdBy")}: {order.createdByName}
+          {order.commissionUserName && ` · ${t("commissionUser")}: ${order.commissionUserName}`}
         </div>
         {order.deliveryAddress && <div>{order.deliveryAddress}</div>}
         {order.note && <div>{order.note}</div>}

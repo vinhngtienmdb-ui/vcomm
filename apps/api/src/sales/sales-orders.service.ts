@@ -80,6 +80,7 @@ type OrderRow = {
   closed_reason: string | null;
   created_by: string;
   created_by_name: string;
+  commission_user_name: string | null;
   version: number;
 };
 type PreparedLine = PricedLine;
@@ -260,6 +261,8 @@ export class SalesOrdersService implements OnModuleInit {
       counterpart: counterpart ? { companyName: counterpart.company_name, documentNo: counterpart.document_no, status: counterpart.status } : null,
       counterpartRejectedReason: row.counterpart_rejected_reason,
       giftShortages: row.gift_shortages,
+      // CONG_VIEC_17: nhân viên hưởng hoa hồng.
+      commissionUserName: row.commission_user_name,
       canConfirmCounterpart: manage && row.status === "counterpart_pending",
       closedReason: row.closed_reason,
       lines: lines.rows.map((line) => ({
@@ -812,7 +815,8 @@ export class SalesOrdersService implements OnModuleInit {
   private select(): SQL {
     return sql`SELECT o.id, o.company_id, o.document_no, o.customer_id, c.name AS customer_name, o.buyer_name, o.channel_id, ch.name AS channel_name, o.customer_group_id, o.warehouse_id,
       coalesce(w.name, '') AS warehouse_name, o.order_date, o.delivery_address, c.company_id AS customer_company_id, o.counterpart_order_id, o.is_counterpart, o.counterpart_rejected_reason, o.gift_shortages, o.note, o.currency, o.status, o.exceptions, o.approval_request_id, o.net_amount::text, o.tax_amount::text,
-      o.total_amount::text, o.closed_reason, o.created_by, cu.full_name AS created_by_name, o.version`;
+      o.total_amount::text, o.closed_reason, o.created_by, cu.full_name AS created_by_name,
+      (SELECT cmu.full_name FROM core.users cmu WHERE cmu.id = o.commission_user_id) AS commission_user_name, o.version`;
   }
 
   private from(): SQL {

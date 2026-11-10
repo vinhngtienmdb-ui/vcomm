@@ -2437,6 +2437,8 @@ export interface SalesOrderLineResponse {
   orderDiscountAmount: string;
 }
 export interface SalesOrderResponse extends SalesOrderListItem {
+  // CONG_VIEC_17: nhân viên hưởng hoa hồng (gán khi gửi).
+  commissionUserName: string | null;
   // CONG_VIEC_12: suất tặng thiếu do kho xuất không đủ hàng tặng lúc lưu đơn.
   giftShortages: { promotionName: string; missingSets: number }[];
   channelId: string;

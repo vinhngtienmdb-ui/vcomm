@@ -2048,7 +2048,8 @@
     "linePromotion": "{name}: {percent}% off",
     "orderPromotionShare": "{name}: {amount} off",
     "promotionHint": "Active promotions apply when saved (line, order discounts, gifts); the estimate excludes promotions.",
-    "giftShortage": "{name}: {sets} gift sets missing because the warehouse lacks gift stock."
+    "giftShortage": "{name}: {sets} gift sets missing because the warehouse lacks gift stock.",
+    "commissionUser": "Commission to"
   },
   "salesMenu": {
     "title": "Sales",
@@ -2669,6 +2670,7 @@
     "discarded": "Draft discarded.",
     "withdrawn": "Statement withdrawn.",
     "posted": "Statement posted.",
-    "submitted": "Statement submitted for approval."
+    "submitted": "Statement submitted for approval.",
+    "allStaff": "All staff"
   }
 }

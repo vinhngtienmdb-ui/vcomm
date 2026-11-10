@@ -64,7 +64,7 @@ Kế toán: xem, quản lý. Kế toán trưởng, Quản trị công ty, Quản
 | MAN_HINH_56 | Hoa hồng | Thẻ "Bảng hoa hồng": tháng tiếp theo cần chốt, nút "Lập bảng tháng ..."; danh sách (tháng, số, trạng thái, tổng hoa hồng); chi tiết: từng nhân viên (tiền chưa thuế, hoa hồng trước hệ số, chỉ tiêu, phần trăm đạt, hệ số, hoa hồng), gửi, bỏ bảng nháp, rút. Thẻ "Phát sinh": lọc khoảng ngày; dòng (ngày, nhân viên, nguồn kèm số chứng từ, đơn, mặt hàng, tiền chưa thuế, mức, hoa hồng, bảng) |
 | MAN_HINH_57 | Cài đặt hoa hồng | Thẻ "Cài đặt": bật, ngày bắt đầu, cách gán, cách kết hợp, mức mặc định, mức theo ngành hàng (kênh chỉ khi kết hợp kiểu bảng), hệ số kênh (chỉ khi kênh nhân hệ số), bậc hệ số; thẻ "Chỉ tiêu": tháng, nhân viên, chỉ tiêu tiền thu chưa thuế |
 
-Chưa làm (mục 16): chi tiết đơn bán (MAN_HINH_43; bản 0.1 ghi nhầm MAN_HINH_39) chưa hiện "Nhân viên hưởng hoa hồng", API đơn bán chưa trả trường này; thẻ "Phát sinh" chưa có ô lọc nhân viên (API có `userId`).
+Chi tiết đơn bán (MAN_HINH_43; bản 0.1 ghi nhầm MAN_HINH_39) hiện "Hưởng hoa hồng"; thẻ "Phát sinh" có ô lọc nhân viên (sửa bổ sung sau rà soát).
 
 ## 8. Dữ liệu và API
 
@@ -120,4 +120,3 @@ Chưa đối chiếu.
 - Với cách gán nhân viên phụ trách khách, đơn không có khách không có nhân viên hưởng; chỉ cách gán người lập đơn tính hoa hồng cho bán lẻ.
 - Đơn bán nội bộ phát sinh hoa hồng như đơn bán thường.
 - Tháng của bảng đã khóa sổ: bút toán lấy ngày sau ngày khóa sổ, không phải ngày cuối tháng.
-- Chi tiết đơn bán chưa hiện nhân viên hưởng hoa hồng; thẻ "Phát sinh" chưa lọc theo nhân viên.

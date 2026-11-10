@@ -2048,7 +2048,8 @@
     "linePromotion": "{name}: giảm {percent}%",
     "orderPromotionShare": "{name}: giảm {amount}",
     "promotionHint": "Khuyến mãi đang chạy tự áp khi lưu (giảm theo dòng, theo đơn, hàng tặng); tổng tạm tính chưa gồm khuyến mãi.",
-    "giftShortage": "{name}: thiếu {sets} suất tặng do kho xuất không đủ hàng tặng."
+    "giftShortage": "{name}: thiếu {sets} suất tặng do kho xuất không đủ hàng tặng.",
+    "commissionUser": "Hưởng hoa hồng"
   },
   "salesMenu": {
     "title": "Bán hàng",
@@ -2669,6 +2670,7 @@
     "discarded": "Đã bỏ bảng nháp.",
     "withdrawn": "Đã rút bảng hoa hồng.",
     "posted": "Đã ghi sổ bảng hoa hồng.",
-    "submitted": "Đã gửi duyệt bảng hoa hồng."
+    "submitted": "Đã gửi duyệt bảng hoa hồng.",
+    "allStaff": "Mọi nhân viên"
   }
 }

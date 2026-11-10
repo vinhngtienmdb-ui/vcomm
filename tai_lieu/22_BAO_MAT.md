@@ -505,7 +505,7 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10, gồm sửa l�
 - Ghi nhận: tháng tiếp theo bỏ qua tháng không có phát sinh; tháng đó không có bảng.
 - Ghi nhận: chi trả hoa hồng ngoài phạm vi (qua lương ở MODULE_08); bút toán chỉ ghi phải trả người lao động (334).
 - Ghi nhận, chưa sửa (Thấp): bộ tính cộng tiền bằng số thực của JavaScript rồi làm tròn theo đơn vị tiền tệ (như công nợ, bảng cân đối số phát sinh).
-- Ghi nhận, chưa sửa (Thấp): chi tiết đơn bán chưa hiện nhân viên hưởng hoa hồng; màn hình phát sinh chưa có ô lọc theo nhân viên (API có).
+- Đã sửa (Thấp): chi tiết đơn bán hiện nhân viên hưởng hoa hồng; màn hình phát sinh có ô lọc theo nhân viên.
 
 ## 5. Quản lý khóa bí mật
 

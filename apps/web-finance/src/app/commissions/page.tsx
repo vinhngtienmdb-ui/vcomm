@@ -1,12 +1,12 @@
 "use client";
 
 // MAN_HINH_56 Hoa hồng (CHUC_NANG_82, 83; API_94): thẻ bảng hoa hồng tháng, thẻ phát sinh lọc khoảng ngày.
-import type { CommissionEventItem, PageResponse } from "contracts";
+import type { CommissionEventItem, CommissionTargetsResponse, PageResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { CommissionStatements } from "@/components/CommissionStatements";
 import { Loaded, MessageView } from "ui/components/StatusViews";
-import { formatDate, formatNumber } from "ui/lib/format";
+import { formatDate, formatNumber, vietnamToday } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
 
 export default function CommissionsPage() {
@@ -32,15 +32,28 @@ export default function CommissionsPage() {
 function CommissionEvents() {
   const t = useTranslations("commissions");
   const common = useTranslations("common");
+  const [userId, setUserId] = useState("");
+  const staff = useApi<CommissionTargetsResponse>(`/finance/commission-targets?month=${vietnamToday().slice(0, 7)}`);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [page, setPage] = useState(1);
-  const query = new URLSearchParams({ page: String(page), ...(from ? { from } : {}), ...(to ? { to } : {}) });
+  const query = new URLSearchParams({ page: String(page), ...(userId ? { userId } : {}), ...(from ? { from } : {}), ...(to ? { to } : {}) });
   const { state, reload } = useApi<PageResponse<CommissionEventItem>>(`/finance/commissions/events?${query.toString()}`);
   const headings = [t("eventDate"), t("staff"), t("source"), t("order"), t("item"), t("baseAmount"), t("percent"), t("amount"), t("statement")];
   return (
     <>
       <div className="bo-loc">
+        <label className="an-nhan" htmlFor="hh-nhan-vien">
+          {t("staff")}
+        </label>
+        <select id="hh-nhan-vien" className="o-nhap" style={{ width: "auto" }} value={userId} onChange={(event) => (setUserId(event.target.value), setPage(1))}>
+          <option value="">{t("allStaff")}</option>
+          {(staff.state.kind === "ready" ? staff.state.data.staff : []).map((item) => (
+            <option key={item.userId} value={item.userId}>
+              {item.fullName}
+            </option>
+          ))}
+        </select>
         <label htmlFor="hh-tu-ngay">{t("from")}</label>
         <input id="hh-tu-ngay" type="date" className="o-nhap" style={{ width: "auto" }} value={from} onChange={(event) => (setFrom(event.target.value), setPage(1))} />
         <label htmlFor="hh-den-ngay">{t("to")}</label>

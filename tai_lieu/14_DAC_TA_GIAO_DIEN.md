@@ -1503,7 +1503,7 @@ flowchart TD
 - Thông báo: lỗi lập bảng hiện dưới dòng tháng tiếp theo; lỗi gửi, rút, bỏ hiện trong khối chi tiết.
 - Quyền hiển thị: mục menu, màn hình với `finance.commission.view`; nút theo `canCreate`, `canManage`, `canWithdraw` của API.
 - Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; nút, bộ lọc xuống dòng; số tiền không xuống dòng; không cuộn ngang.
-- Chưa có: ô lọc theo nhân viên (API có `userId`).
+- Ô lọc theo nhân viên (danh sách nhân viên của công ty, mặc định mọi nhân viên).
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_17 mục 14)
 
 ### MAN_HINH_57: Cài đặt hoa hồng
