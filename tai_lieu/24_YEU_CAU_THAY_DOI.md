@@ -198,3 +198,17 @@
 - Mức quy mô: Nhỏ (gộp trong CONG_VIEC_16).
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-10.
+
+### THAY_DOI_12: Nhân viên bán hàng chỉ xem khách mình phụ trách – 2026-11-10
+- Lý do: gán khách hàng cho nhân viên kinh doanh (tài liệu `05` mục 2.1, MODULE_07). Người dùng chọn: nhân viên chỉ xem khách của mình; trưởng phòng xem, giao khách theo phòng ban; giao, chuyển khách theo chính sách duyệt; đơn đã gán nhân viên hưởng hoa hồng giữ nguyên (tài liệu `02`, 2026-11-10).
+- Nội dung thay đổi: thêm quyền xem mọi khách hàng và đơn bán của công ty; vai trò Nhân viên bán hàng không có quyền này nên chỉ thấy khách mình phụ trách (hoặc của nhân viên trong phòng mình quản lý) và đơn bán của các khách đó, đơn mình lập, đơn mình hưởng hoa hồng. Đổi nhân viên phụ trách của khách đã có phụ trách phải qua phiếu giao khách (không sửa trực tiếp trên hồ sơ).
+- Thành phần bị ảnh hưởng: tài liệu `07` QUYTAC_NGHIEPVU_60 (hồ sơ đối tác), quy tắc xem đơn bán; `08` (vai trò Nhân viên bán hàng); `10`, `14`, `17`, `22`; CONG_VIEC_06, CONG_VIEC_08, CONG_VIEC_17.
+- Dữ liệu bị ảnh hưởng: thêm bảng lịch sử phụ trách, phiếu giao khách; hồ sơ đã có nhân viên phụ trách được ghi lịch sử bắt đầu từ ngày cập nhật hồ sơ gần nhất.
+- API bị ảnh hưởng: danh sách, chi tiết đối tác, đơn bán lọc theo phạm vi xem; sửa hồ sơ không đổi được nhân viên phụ trách đã có.
+- Giao diện bị ảnh hưởng: danh sách đối tác, đơn bán; hồ sơ đối tác (ô nhân viên phụ trách, lịch sử).
+- Quyền bị ảnh hưởng: thêm quyền xem mọi khách hàng, đơn bán và quyền giao khách; gán cho mọi vai trò hệ thống đang xem đối tác hoặc đơn bán, trừ Nhân viên bán hàng.
+- Ảnh hưởng chức năng cũ: hoa hồng không đổi (đơn đã gán giữ nhân viên); kế toán, kho, mua hàng xem như cũ.
+- Kiểm thử cần thực hiện: kịch bản của CONG_VIEC_21; hồi quy CONG_VIEC_06, 08, 17.
+- Mức quy mô: Lớn (gộp trong CONG_VIEC_21).
+- Rủi ro: trung bình (vai trò tự tạo đang có quyền xem đối tác sẽ không còn thấy mọi khách cho tới khi được thêm quyền mới; database migration thêm quyền mới vào vai trò tự tạo đang có `crm.partner.view` hoặc `sales.order.view`).
+- Trạng thái: Đã phê duyệt 2026-11-10.
