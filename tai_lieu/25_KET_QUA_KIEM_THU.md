@@ -183,6 +183,13 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-10 – THAY_DOI_15 (CONG_VIEC_23)
+
+- Phạm vi: đánh dấu nhân viên kinh doanh không gán vai trò Nhân viên bán hàng; bỏ cột `sales_role_assignment_id`; câu xác nhận bỏ đánh dấu.
+- Lệnh đã chạy: `pnpm --filter api typecheck`, `pnpm --filter api lint`, `pnpm --filter web-crm typecheck`, `pnpm --filter api test`.
+- Kết quả: 305 đạt / 0 không đạt (c23-buyer-accounts 9/9). KICHBAN_KIEMTHU_299 sửa theo hành vi mới: tài khoản được đánh dấu không có vai trò, gọi danh sách đối tác nhận `403`; người dùng cho phép qua THAY_DOI_15.
+- Kết luận cổng kiểm thử: Đạt.
+
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_23
 
 - Phạm vi: lát L0 đến L3 (đăng ký người mua bằng số điện thoại và OTP, mã và đường dẫn giới thiệu, đăng nhập bằng mật khẩu hoặc OTP, quên mật khẩu, người tôi giới thiệu, nhập mã người giới thiệu một lần; công ty vận hành sàn; quản trị người mua trên web-crm, đổi người giới thiệu, đánh dấu nhân viên kinh doanh; ứng dụng VComm `apps/mobile-vcomm`) và các bản sửa sau rà soát độc lập.
