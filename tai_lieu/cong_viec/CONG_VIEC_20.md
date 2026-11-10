@@ -3,7 +3,7 @@
 - Mô tả: Lập bảng hợp nhất theo kỳ cho tập đoàn: cộng gộp số liệu sổ cái các công ty cùng đồng tiền hạch toán, tự lập bút toán loại trừ công nợ nội bộ, doanh thu và giá vốn bán nội bộ, lãi chưa thực hiện trong hàng tồn kho (ước tính, sửa được), điều chỉnh tay; lập B01-DN, B02-DN hợp nhất; gửi duyệt, đã duyệt giữ nguyên số; xuất Excel, PDF.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Bản nháp, chờ người dùng xác nhận thiết kế.
+- Trạng thái: Bản nháp. Người dùng xác nhận thiết kế ngày 2026-11-10; đã lập trình lát L0.
 - Nguồn: tài liệu `04` mục 6, `05` mục 2.1 (báo cáo hợp nhất); quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`.
 
 ## 1. Mục tiêu

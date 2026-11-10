@@ -3579,3 +3579,43 @@ export interface CollectionStatementResponse extends CollectionStatementListItem
   currency: string;
   version: number;
 }
+
+// CONG_VIEC_20: Báo cáo tài chính hợp nhất (API_106 đến API_109).
+export const consolidationExclusionReasons = ["other_currency", "ledger_not_initialized"] as const;
+export type ConsolidationExclusionReason = (typeof consolidationExclusionReasons)[number];
+export interface ConsolidationMember {
+  companyId: string;
+  code: string;
+  name: string;
+  regime: AccountingRegime;
+  currency: string;
+  isRoot: boolean;
+  excludedReason: ConsolidationExclusionReason | null;
+}
+export interface ConsolidationScopeResponse {
+  group: { id: string; name: string };
+  currency: string;
+  members: ConsolidationMember[];
+  canManage: boolean;
+}
+export const consolidationPreviewQuerySchema = z.object({ kind: z.enum(["balance_sheet", "income_statement"]), from: isoDate, to: isoDate }).strict();
+export interface ConsolidatedStatementLine {
+  code: string;
+  name: string;
+  level: number;
+  note: string | null;
+  combined: string;
+  eliminations: string;
+  consolidated: string;
+  previous: string;
+}
+export interface ConsolidatedStatementResponse {
+  kind: StatementKind;
+  form: string;
+  name: string;
+  group: { id: string; name: string };
+  currency: string;
+  columns: { label: string; from: string | null; to: string }[];
+  memberNames: string[];
+  lines: ConsolidatedStatementLine[];
+}

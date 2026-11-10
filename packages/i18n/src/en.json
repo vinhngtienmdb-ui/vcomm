@@ -260,7 +260,8 @@
     "collectionLastLine": "Cannot remove the last line; discard the draft or re-import.",
     "collectionStatementHasErrors": "The statement has line errors; remove them or re-import.",
     "collectionTooManyRows": "The file exceeds 5,000 rows.",
-    "collectionPostingRuleMissing": "Posting rules for collector receivable, collection fee or customer receivable are missing."
+    "collectionPostingRuleMissing": "Posting rules for collector receivable, collection fee or customer receivable are missing.",
+    "consolidationNoMembers": "No company can be consolidated (same currency, ledger initialized)."
   },
   "login": {
     "title": "Sign in",
@@ -2171,7 +2172,8 @@
     "commissionSettings": "Commission settings",
     "bankTransactions": "Bank transactions",
     "bankConnections": "Bank connections",
-    "collections": "Collections"
+    "collections": "Collections",
+    "consolidation": "Consolidation"
   },
   "debts": {
     "title": "Debts",
@@ -2874,5 +2876,20 @@
     "submittedPending": "The statement is pending approval.",
     "withdrawn": "Statement withdrawn.",
     "postError": "Could not post: {reason}"
+  },
+  "consolidation": {
+    "title": "Consolidated statements",
+    "members": "Members",
+    "groupTitle": "Group {name} · currency {currency}",
+    "root": "parent",
+    "included": "Included",
+    "excluded_other_currency": "Excluded: other currency",
+    "excluded_ledger_not_initialized": "Excluded: ledger not initialized",
+    "regime_TT99_2025": "Circular 99",
+    "regime_TT133": "Circular 133",
+    "combined": "Combined",
+    "eliminations": "Eliminations",
+    "consolidated": "Consolidated",
+    "previewHint": "combined figures of {members}, before eliminations"
   }
 }

@@ -12,6 +12,24 @@ import { ledgerPermissions } from "./ledger.service";
 import { statementTemplates, type StatementFormula, type StatementLine, type StatementTemplate } from "./statement-templates";
 
 type Account = { id: string; code: string; parentId: string | null; longTerm: boolean };
+// Số liệu sổ cái dùng để lập báo cáo: một công ty, hoặc nhiều công ty cộng gộp (CONG_VIEC_20); dòng bổ sung là bút toán loại trừ hợp nhất.
+export type ExtraLine = { accountId: string; partnerKey: string; debit: number; credit: number };
+export type Ledger = { companyIds: string[]; accounts: Account[]; retained: string; incomeSummary: string[]; extras: ExtraLine[] };
+export type { Account as LedgerAccount };
+// Tài khoản Thông tư 133 ghép vào mã Thông tư 99 khi hợp nhất (QUYTAC_NGHIEPVU_124); còn lại giữ mã.
+const tt133ToTt99: [string, string][] = [
+  ["6421", "641"],
+  ["6422", "642"],
+  ["3385", "3386"],
+  ["3386", "344"],
+  ["1386", "244"],
+  ["2281", "222"],
+];
+export const consolidatedCode = (regime: AccountingRegime, code: string): string => {
+  if (regime !== "TT133") return code;
+  const rule = tt133ToTt99.find(([prefix]) => code.startsWith(prefix));
+  return rule ? rule[1] + code.slice(rule[0].length) : code;
+};
 type Scope = "all" | "short" | "long";
 const round = (value: number) => Math.round(value * 10000) / 10000;
 const addDays = (date: string, days: number) => new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -49,22 +67,43 @@ export class StatementsService {
       FROM core.companies c WHERE c.id = ${actor.companyId}`)
     ).rows[0]!;
     if (!company.initialized) throw new ApiError("BUSINESS_RULE", "ledgerNotInitialized");
-    const rows = await this.database.execute<{ id: string; code: string; parent_id: string | null; is_long_term: boolean }>(sql`
-      SELECT id, code, parent_id, is_long_term FROM accounting.accounts WHERE company_id = ${actor.companyId}`);
+    return { company, ledger: await this.ledger([{ id: actor.companyId, regime: company.accounting_regime }]) };
+  }
+
+  // Tài khoản, tài khoản lợi nhuận chưa phân phối (của công ty đầu danh sách), tài khoản xác định kết quả của các công ty; hợp nhất thì mã tài khoản ghép theo Thông tư 99.
+  async ledger(companies: { id: string; regime: AccountingRegime }[], consolidated = false): Promise<Ledger> {
+    const companyIds = companies.map((company) => company.id);
+    const regimeOf = new Map(companies.map((company) => [company.id, company.regime]));
+    const ids = sql.join(
+      companyIds.map((id) => sql`${id}::uuid`),
+      sql`, `,
+    );
+    const rows = await this.database.execute<{ id: string; company_id: string; code: string; parent_id: string | null; is_long_term: boolean }>(sql`
+      SELECT id, company_id, code, parent_id, is_long_term FROM accounting.accounts WHERE company_id IN (${ids})`);
     const byId = new Map(rows.rows.map((row) => [row.id, row]));
     // Dài hạn: tài khoản được đánh dấu hoặc nằm dưới tài khoản được đánh dấu.
     const longTerm = (id: string | null): boolean => (id ? (byId.get(id)!.is_long_term ? true : longTerm(byId.get(id)!.parent_id)) : false);
-    const accounts: Account[] = rows.rows.map((row) => ({ id: row.id, code: row.code, parentId: row.parent_id, longTerm: longTerm(row.id) }));
-    const rules = new Map(
-      (
-        await this.database.execute<{ role: string; account_id: string }>(sql`
-        SELECT role, account_id FROM accounting.posting_rules WHERE company_id = ${actor.companyId} AND role IN ('retained_earnings', 'income_summary')`)
-      ).rows.map((row) => [row.role, row.account_id]),
-    );
-    const retained = rules.get("retained_earnings")!;
-    const summaryCode = byId.get(rules.get("income_summary")!)!.code;
-    const incomeSummary = accounts.filter((account) => account.code.startsWith(summaryCode)).map((account) => account.id);
-    return { company, accounts, retained, incomeSummary };
+    const code = (row: { company_id: string; code: string }) => (consolidated ? consolidatedCode(regimeOf.get(row.company_id)!, row.code) : row.code);
+    const accounts: Account[] = rows.rows.map((row) => ({ id: row.id, code: code(row), parentId: row.parent_id, longTerm: longTerm(row.id) }));
+    const rules = (
+      await this.database.execute<{ company_id: string; role: string; account_id: string }>(sql`
+      SELECT company_id, role, account_id FROM accounting.posting_rules WHERE company_id IN (${ids}) AND role IN ('retained_earnings', 'income_summary')`)
+    ).rows;
+    const retained = rules.find((rule) => rule.company_id === companyIds[0] && rule.role === "retained_earnings")!.account_id;
+    const incomeSummary = rules
+      .filter((rule) => rule.role === "income_summary")
+      .flatMap((rule) => {
+        const summaryCode = byId.get(rule.account_id)!.code;
+        return rows.rows.filter((row) => row.company_id === rule.company_id && row.code.startsWith(summaryCode)).map((row) => row.id);
+      });
+    return { companyIds, accounts, retained, incomeSummary, extras: [] };
+  }
+
+  private companiesSql(ledger: Ledger) {
+    return sql`j.company_id IN (${sql.join(
+      ledger.companyIds.map((id) => sql`${id}::uuid`),
+      sql`, `,
+    )})`;
   }
 
   // Tài khoản thuộc từng mã trong công thức (gồm tài khoản chi tiết); tài khoản khớp nhiều mã thì thuộc mã dài nhất.
@@ -80,12 +119,15 @@ export class StatementsService {
   }
 
   // Số dư cuối ngày theo tài khoản, đối tác; số dư tài khoản loại 5 đến 9 (chưa kết chuyển) cộng vào lợi nhuận chưa phân phối năm nay (QUYTAC_NGHIEPVU_100).
-  private async balances(companyId: string, date: string, accounts: Account[], retained: string): Promise<Map<string, Map<string, number>>> {
+  // Dòng bổ sung (loại trừ hợp nhất) chỉ cộng khi có "withExtras" (cột cuối kỳ của báo cáo hợp nhất).
+  private async balances(ledger: Ledger, date: string, withExtras = false): Promise<Map<string, Map<string, number>>> {
+    const { accounts, retained } = ledger;
     const rows = await this.database.execute<{ account_id: string; partner_id: string | null; net: string }>(sql`
       SELECT l.account_id, l.partner_id, sum(l.debit - l.credit)::text AS net
       FROM accounting.journal_lines l JOIN accounting.journals j ON j.id = l.journal_id
-      WHERE j.company_id = ${companyId} AND j.status = 'posted' AND j.journal_date <= ${date}::date
+      WHERE ${this.companiesSql(ledger)} AND j.status = 'posted' AND j.journal_date <= ${date}::date
       GROUP BY l.account_id, l.partner_id`);
+    if (withExtras) for (const extra of ledger.extras) rows.rows.push({ account_id: extra.accountId, partner_id: extra.partnerKey || null, net: String(extra.debit - extra.credit) });
     const codeOf = new Map(accounts.map((account) => [account.id, account.code]));
     const result = new Map<string, Map<string, number>>();
     const add = (accountId: string, partner: string, value: number) => {
@@ -124,24 +166,30 @@ export class StatementsService {
   }
 
   // Phát sinh trong kỳ, không tính bút toán kết chuyển (QUYTAC_NGHIEPVU_100).
-  private async turnovers(companyId: string, from: string, to: string, incomeSummary: string[]): Promise<Map<string, { debit: number; credit: number }>> {
+  private async turnovers(ledger: Ledger, from: string, to: string, withExtras = false): Promise<Map<string, { debit: number; credit: number }>> {
     const rows = await this.database.execute<{ account_id: string; debit: string; credit: string }>(sql`
       SELECT l.account_id, sum(l.debit)::text AS debit, sum(l.credit)::text AS credit
       FROM accounting.journal_lines l JOIN accounting.journals j ON j.id = l.journal_id
-      WHERE j.company_id = ${companyId} AND j.status = 'posted' AND ${this.notClosing(incomeSummary)} AND j.journal_date BETWEEN ${from}::date AND ${to}::date
+      WHERE ${this.companiesSql(ledger)} AND j.status = 'posted' AND ${this.notClosing(ledger.incomeSummary)} AND j.journal_date BETWEEN ${from}::date AND ${to}::date
       GROUP BY l.account_id`);
-    return new Map(rows.rows.map((row) => [row.account_id, { debit: Number(row.debit), credit: Number(row.credit) }]));
+    const result = new Map(rows.rows.map((row) => [row.account_id, { debit: Number(row.debit), credit: Number(row.credit) }]));
+    if (withExtras)
+      for (const extra of ledger.extras) {
+        const current = result.get(extra.accountId) ?? { debit: 0, credit: 0 };
+        result.set(extra.accountId, { debit: current.debit + extra.debit, credit: current.credit + extra.credit });
+      }
+    return result;
   }
 
   // Phát sinh của một bên trên các tài khoản, chỉ dòng có tài khoản đối ứng (bên kia của cùng bút toán) thuộc danh sách.
-  private async counterTurnover(companyId: string, from: string, to: string, incomeSummary: string[], accountIds: string[], counterIds: string[], side: "debit" | "credit"): Promise<number> {
+  private async counterTurnover(ledger: Ledger, from: string, to: string, accountIds: string[], counterIds: string[], side: "debit" | "credit"): Promise<number> {
     if (accountIds.length === 0 || counterIds.length === 0) return 0;
     const own = side === "debit" ? sql`l.debit` : sql`l.credit`;
     const other = side === "debit" ? sql`o.credit` : sql`o.debit`;
     const row = (
       await this.database.execute<{ value: string }>(sql`
       SELECT coalesce(sum(${own}), 0)::text AS value FROM accounting.journal_lines l JOIN accounting.journals j ON j.id = l.journal_id
-      WHERE j.company_id = ${companyId} AND j.status = 'posted' AND ${this.notClosing(incomeSummary)} AND j.journal_date BETWEEN ${from}::date AND ${to}::date
+      WHERE ${this.companiesSql(ledger)} AND j.status = 'posted' AND ${this.notClosing(ledger.incomeSummary)} AND j.journal_date BETWEEN ${from}::date AND ${to}::date
         AND l.account_id IN ${sql`(${sql.join(
           accountIds.map((id) => sql`${id}::uuid`),
           sql`, `,
@@ -156,15 +204,8 @@ export class StatementsService {
   }
 
   // Chỉ tiêu kết quả kinh doanh: phát sinh đối ứng 911 (hoặc 521) tính như đã kết chuyển: phát sinh thuần của tài khoản trong kỳ.
-  private async incomeValue(
-    companyId: string,
-    from: string,
-    to: string,
-    incomeSummary: string[],
-    formula: StatementFormula,
-    accounts: Account[],
-    turnovers: Map<string, { debit: number; credit: number }>,
-  ): Promise<number> {
+  private async incomeValue(ledger: Ledger, from: string, to: string, formula: StatementFormula, turnovers: Map<string, { debit: number; credit: number }>): Promise<number> {
+    const { accounts } = ledger;
     const ids = (codes: string[] | undefined) => [...this.groups(accounts, codes ?? [], "all").values()].flat().map((account) => account.id);
     const sumOf = (codes: string[] | undefined, pick: (value: { debit: number; credit: number }) => number) =>
       ids(codes).reduce((total, id) => total + (turnovers.has(id) ? pick(turnovers.get(id)!) : 0), 0);
@@ -176,7 +217,7 @@ export class StatementsService {
     if (counter.length === 1 && counter[0] === "521" && formula.debitTurnover) return sumOf(["521"], (value) => value.debit - value.credit);
     if (counter.length > 0) {
       const side = formula.debitTurnover ? "debit" : "credit";
-      return this.counterTurnover(companyId, from, to, incomeSummary, ids(formula.debitTurnover ?? formula.creditTurnover), ids(counter), side);
+      return this.counterTurnover(ledger, from, to, ids(formula.debitTurnover ?? formula.creditTurnover), ids(counter), side);
     }
     // Loại đối ứng 911, 521: chỉ có ở bút toán kết chuyển, đã không tính.
     if (formula.creditTurnover) return sumOf(formula.creditTurnover, (value) => value.credit);
@@ -213,60 +254,14 @@ export class StatementsService {
   }
 
   async statement(actor: Actor, kind: StatementKind, from: string, to: string, form?: string): Promise<StatementResponse> {
-    const { company, accounts, retained, incomeSummary } = await this.context(actor);
+    const { company, ledger } = await this.context(actor);
     if (from > to) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { to: "endBeforeStart" } });
     const template = this.template(company.accounting_regime, kind, form);
     const templates = statementTemplates[company.accounting_regime];
     const forms = kind === "balance_sheet" ? [templates.balanceSheet.form, ...(templates.balanceSheetB01b ? [templates.balanceSheetB01b.form] : [])] : [templates.incomeStatement.form];
     const units = Number((await this.database.execute<{ units: number }>(sql`SELECT finance.company_minor_units(${actor.companyId}) AS units`)).rows[0]!.units);
-    // Chỉ tiêu thành phần làm tròn theo đơn vị tiền tệ trước khi cộng, để tổng khớp các dòng hiển thị.
-    const toMinor = (value: number) => Math.round(value * 10 ** units) / 10 ** units;
-    let current: Map<string, number>;
-    let previous: Map<string, number>;
-    let columns: { label: string; from: string | null; to: string }[];
-    if (kind === "balance_sheet") {
-      // Số đầu năm: cuối ngày trước ngày đầu năm tài chính chứa ngày báo cáo (QUYTAC_NGHIEPVU_102).
-      const month = String(company.fiscal_year_start).padStart(2, "0");
-      let yearStart = `${to.slice(0, 4)}-${month}-01`;
-      if (yearStart > to) yearStart = `${Number(to.slice(0, 4)) - 1}-${month}-01`;
-      const openingDate = addDays(yearStart, -1);
-      const compute = async (date: string) => {
-        const balances = await this.balances(actor.companyId, date, accounts, retained);
-        const byCode = new Map(template.lines.map((line) => [line.code, line]));
-        const twins = new Set(template.lines.filter((line) => line.longTermOf).map((line) => line.longTermOf!));
-        return this.evaluate(template, (line) => {
-          if (line.longTermOf) {
-            const twin = byCode.get(line.longTermOf);
-            return twin?.formula ? toMinor(this.balanceValue(twin.formula, accounts, balances, "long")) : 0;
-          }
-          return line.formula ? toMinor(this.balanceValue(line.formula, accounts, balances, twins.has(line.code) ? "short" : "all")) : 0;
-        });
-      };
-      current = await compute(to);
-      previous = await compute(openingDate);
-      columns = [
-        { label: "endOfPeriod", from: null, to },
-        { label: "startOfYear", from: null, to: openingDate },
-      ];
-    } else {
-      const compute = async (start: string, end: string) => {
-        const turnovers = await this.turnovers(actor.companyId, start, end, incomeSummary);
-        const bases = new Map<string, number>();
-        for (const line of template.lines)
-          if (line.formula && !line.formula.sum && !line.formula.minus)
-            bases.set(line.code, toMinor(await this.incomeValue(actor.companyId, start, end, incomeSummary, line.formula, accounts, turnovers)));
-        return this.evaluate(template, (line) => bases.get(line.code) ?? 0);
-      };
-      const previousFrom = shiftYear(from, -1);
-      const previousTo = shiftYear(to, -1);
-      current = await compute(from, to);
-      previous = await compute(previousFrom, previousTo);
-      columns = [
-        { label: "currentPeriod", from, to },
-        { label: "previousPeriod", from: previousFrom, to: previousTo },
-      ];
-    }
-    const money = (value: number) => trimDecimal(toMinor(value).toFixed(Math.max(units, 0)));
+    const { current, previous, columns } = await this.compute(ledger, template, kind, from, to, company.fiscal_year_start, units, false);
+    const money = (value: number) => trimDecimal((Math.round(value * 10 ** units) / 10 ** units).toFixed(Math.max(units, 0)));
     return {
       kind,
       form: template.form,
@@ -285,5 +280,61 @@ export class StatementsService {
         previous: money(previous.get(line.code) ?? 0),
       })),
     };
+  }
+
+  // Tính các chỉ tiêu cột kỳ này, cột so sánh; "withExtras": cột kỳ này cộng dòng bổ sung (loại trừ hợp nhất).
+  async compute(ledger: Ledger, template: StatementTemplate, kind: StatementKind, from: string, to: string, fiscalYearStart: number, units: number, withExtras: boolean) {
+    // Chỉ tiêu thành phần làm tròn theo đơn vị tiền tệ trước khi cộng, để tổng khớp các dòng hiển thị.
+    const toMinor = (value: number) => Math.round(value * 10 ** units) / 10 ** units;
+    const { accounts } = ledger;
+    let current: Map<string, number>;
+    let previous: Map<string, number>;
+    let columns: { label: string; from: string | null; to: string }[];
+    if (kind === "balance_sheet") {
+      // Số đầu năm: cuối ngày trước ngày đầu năm tài chính chứa ngày báo cáo (QUYTAC_NGHIEPVU_102).
+      const month = String(fiscalYearStart).padStart(2, "0");
+      let yearStart = `${to.slice(0, 4)}-${month}-01`;
+      if (yearStart > to) yearStart = `${Number(to.slice(0, 4)) - 1}-${month}-01`;
+      const openingDate = addDays(yearStart, -1);
+      const evaluateAt = async (date: string, extras: boolean) => {
+        const balances = await this.balances(ledger, date, extras);
+        const byCode = new Map(template.lines.map((line) => [line.code, line]));
+        const twins = new Set(template.lines.filter((line) => line.longTermOf).map((line) => line.longTermOf!));
+        return this.evaluate(template, (line) => {
+          if (line.longTermOf) {
+            const twin = byCode.get(line.longTermOf);
+            return twin?.formula ? toMinor(this.balanceValue(twin.formula, accounts, balances, "long")) : 0;
+          }
+          return line.formula ? toMinor(this.balanceValue(line.formula, accounts, balances, twins.has(line.code) ? "short" : "all")) : 0;
+        });
+      };
+      current = await evaluateAt(to, withExtras);
+      previous = await evaluateAt(openingDate, false);
+      columns = [
+        { label: "endOfPeriod", from: null, to },
+        { label: "startOfYear", from: null, to: openingDate },
+      ];
+    } else {
+      const evaluateBetween = async (start: string, end: string, extras: boolean) => {
+        const turnovers = await this.turnovers(ledger, start, end, extras);
+        const bases = new Map<string, number>();
+        for (const line of template.lines)
+          if (line.formula && !line.formula.sum && !line.formula.minus) bases.set(line.code, toMinor(await this.incomeValue(ledger, start, end, line.formula, turnovers)));
+        return this.evaluate(template, (line) => bases.get(line.code) ?? 0);
+      };
+      const previousFrom = shiftYear(from, -1);
+      const previousTo = shiftYear(to, -1);
+      current = await evaluateBetween(from, to, withExtras);
+      previous = await evaluateBetween(previousFrom, previousTo, false);
+      columns = [
+        { label: "currentPeriod", from, to },
+        { label: "previousPeriod", from: previousFrom, to: previousTo },
+      ];
+    }
+    return { current, previous, columns };
+  }
+
+  templateOf(regime: AccountingRegime, kind: StatementKind): StatementTemplate {
+    return this.template(regime, kind, undefined);
   }
 }

@@ -98,6 +98,8 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "finance.collection.view", appCode: "finance", nameVi: "Xem bảng đối soát thu hộ", nameEn: "View collection statements", isSensitive: false },
   { code: "finance.collection.manage", appCode: "finance", nameVi: "Nhập, gửi bảng đối soát thu hộ", nameEn: "Manage collection statements", isSensitive: false },
   { code: "finance.collection.setup", appCode: "finance", nameVi: "Khai đơn vị thu hộ", nameEn: "Set up collectors", isSensitive: true },
+  { code: "finance.consolidation.view", appCode: "finance", nameVi: "Xem báo cáo hợp nhất (phạm vi tập đoàn)", nameEn: "View consolidated statements", isSensitive: false },
+  { code: "finance.consolidation.manage", appCode: "finance", nameVi: "Lập, gửi bảng hợp nhất (phạm vi tập đoàn)", nameEn: "Manage consolidation", isSensitive: true },
   { code: "inventory.sales.issue", appCode: "inventory", nameVi: "Xuất giao hàng, nhận hàng trả lại", nameEn: "Issue sales deliveries and receive returns", isSensitive: false },
   { code: "inventory.purchase.receive", appCode: "inventory", nameVi: "Nhập mua, trả hàng nhà cung cấp", nameEn: "Receive purchases and return to suppliers", isSensitive: false },
 ];
@@ -271,6 +273,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "finance.collection.view",
       "finance.collection.manage",
       "finance.collection.setup",
+      "finance.consolidation.view",
+      "finance.consolidation.manage",
       "crm.access",
       "crm.partner.view",
     ],

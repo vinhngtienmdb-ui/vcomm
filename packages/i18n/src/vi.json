@@ -260,7 +260,8 @@
     "collectionLastLine": "Không bỏ được dòng cuối; hãy bỏ bảng nháp hoặc nhập lại tệp.",
     "collectionStatementHasErrors": "Bảng đối soát còn dòng lỗi; bỏ dòng hoặc nhập lại tệp.",
     "collectionTooManyRows": "Tệp vượt quá 5.000 dòng.",
-    "collectionPostingRuleMissing": "Chưa khai định khoản phải thu đơn vị thu hộ, phí thu hộ hoặc phải thu khách hàng (Hệ thống tài khoản)."
+    "collectionPostingRuleMissing": "Chưa khai định khoản phải thu đơn vị thu hộ, phí thu hộ hoặc phải thu khách hàng (Hệ thống tài khoản).",
+    "consolidationNoMembers": "Tập đoàn chưa có công ty nào hợp nhất được (cùng đồng tiền, đã khởi tạo kế toán)."
   },
   "login": {
     "title": "Đăng nhập",
@@ -2171,7 +2172,8 @@
     "commissionSettings": "Cài đặt hoa hồng",
     "bankTransactions": "Giao dịch ngân hàng",
     "bankConnections": "Kết nối ngân hàng",
-    "collections": "Đối soát thu hộ"
+    "collections": "Đối soát thu hộ",
+    "consolidation": "Báo cáo hợp nhất"
   },
   "debts": {
     "title": "Công nợ",
@@ -2874,5 +2876,20 @@
     "submittedPending": "Bảng đối soát đang chờ duyệt.",
     "withdrawn": "Đã rút bảng đối soát.",
     "postError": "Không ghi sổ được: {reason}"
+  },
+  "consolidation": {
+    "title": "Báo cáo tài chính hợp nhất",
+    "members": "Thành viên hợp nhất",
+    "groupTitle": "Tập đoàn {name} · đồng tiền {currency}",
+    "root": "công ty gốc",
+    "included": "Hợp nhất",
+    "excluded_other_currency": "Không hợp nhất: khác đồng tiền",
+    "excluded_ledger_not_initialized": "Không hợp nhất: chưa khởi tạo kế toán",
+    "regime_TT99_2025": "Thông tư 99",
+    "regime_TT133": "Thông tư 133",
+    "combined": "Cộng gộp",
+    "eliminations": "Loại trừ",
+    "consolidated": "Hợp nhất",
+    "previewHint": "số cộng gộp của {members}, chưa loại trừ nội bộ"
   }
 }

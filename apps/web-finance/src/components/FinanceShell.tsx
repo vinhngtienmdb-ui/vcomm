@@ -15,6 +15,7 @@ export const financeMenu = [
   { href: "/journals", key: "journals", permission: "finance.ledger.view" },
   { href: "/books", key: "books", permission: "finance.ledger.view" },
   { href: "/statements", key: "statements", permission: "finance.ledger.view" },
+  { href: "/consolidation", key: "consolidation", permission: "finance.consolidation.view" },
   { href: "/accounts", key: "accounts", permission: "finance.ledger.view" },
   { href: "/einvoices", key: "einvoices", permission: "finance.einvoice.view" },
   { href: "/einvoice-settings", key: "einvoiceSettings", permission: "finance.einvoice.setup" },
