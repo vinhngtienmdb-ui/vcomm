@@ -208,7 +208,11 @@
     "accountUsedByRule": "Tài khoản đang dùng trong định khoản mặc định.",
     "accountHasChildren": "Tài khoản còn tài khoản chi tiết đang dùng.",
     "accountNotPostable": "Tài khoản không nhận bút toán (đã ngừng dùng hoặc có tài khoản chi tiết).",
-    "ledgerInitialized": "Công ty đã khởi tạo kế toán."
+    "ledgerInitialized": "Công ty đã khởi tạo kế toán.",
+    "journalLineSide": "Mỗi dòng ghi một bên Nợ hoặc Có, lớn hơn 0.",
+    "journalUnbalanced": "Tổng Nợ phải bằng tổng Có.",
+    "periodNotClosable": "Không khóa được tháng này (khóa lần lượt từng tháng đã kết thúc).",
+    "periodHasPendingJournals": "Còn phiếu kế toán chờ duyệt trong kỳ."
   },
   "login": {
     "title": "Đăng nhập",

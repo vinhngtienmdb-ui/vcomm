@@ -208,7 +208,11 @@
     "accountUsedByRule": "The account is used by a posting rule.",
     "accountHasChildren": "The account still has active detail accounts.",
     "accountNotPostable": "The account cannot take entries (inactive or has detail accounts).",
-    "ledgerInitialized": "Accounting is already set up for this company."
+    "ledgerInitialized": "Accounting is already set up for this company.",
+    "journalLineSide": "Each line must have either a debit or a credit greater than 0.",
+    "journalUnbalanced": "Total debits must equal total credits.",
+    "periodNotClosable": "This month cannot be closed (close ended months in order).",
+    "periodHasPendingJournals": "There are pending journals in the period."
   },
   "login": {
     "title": "Sign in",

@@ -2946,3 +2946,115 @@ export interface PostingRuleResponse {
   canEdit: boolean;
 }
 export const updatePostingRuleSchema = z.object({ accountId: z.uuid() }).strict();
+export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing"] as const;
+export type JournalSourceType = (typeof journalSourceTypes)[number];
+export const journalStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
+export type JournalStatus = (typeof journalStatuses)[number];
+export const journalListQuerySchema = z
+  .object({ sourceType: z.enum(journalSourceTypes).optional(), status: z.enum(journalStatuses).optional(), from: isoDate.optional(), to: isoDate.optional() })
+  .strict();
+export interface JournalListItem {
+  id: string;
+  journalNo: string | null;
+  journalDate: string;
+  sourceType: JournalSourceType;
+  description: string;
+  totalAmount: string;
+  status: JournalStatus;
+}
+export interface JournalLineResponse {
+  lineNo: number;
+  accountId: string;
+  accountCode: string;
+  accountName: string;
+  partnerId: string | null;
+  partnerName: string | null;
+  debit: string;
+  credit: string;
+  description: string | null;
+}
+export interface JournalResponse extends JournalListItem {
+  sourceId: string | null;
+  currency: string;
+  lines: JournalLineResponse[];
+  approvalRequestId: string | null;
+  postError: string | null;
+  createdByName: string | null;
+  version: number;
+  canEdit: boolean;
+  canSubmit: boolean;
+  canWithdraw: boolean;
+}
+export const saveJournalSchema = z
+  .object({
+    journalDate: isoDate,
+    description: z.string().trim().min(1).max(500),
+    lines: z
+      .array(
+        z
+          .object({
+            accountId: z.uuid(),
+            partnerId: z.uuid().nullable().optional(),
+            debit: decimalText(4).default("0"),
+            credit: decimalText(4).default("0"),
+            description: blankToNull(300),
+          })
+          .strict(),
+      )
+      .min(2)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveJournalRequest = z.input<typeof saveJournalSchema>;
+export interface LedgerPeriodsResponse {
+  lockedThrough: string | null;
+  nextMonth: string | null;
+  canClose: boolean;
+  canReopen: boolean;
+  lastClosedMonth: string | null;
+}
+export const closePeriodSchema = z.object({ month: z.string().regex(/^\d{4}-\d{2}$/) }).strict();
+export const ledgerRangeQuerySchema = z.object({ from: isoDate, to: isoDate }).strict();
+export interface TrialBalanceRow {
+  accountId: string;
+  code: string;
+  name: string;
+  depth: number;
+  openingDebit: string;
+  openingCredit: string;
+  debit: string;
+  credit: string;
+  closingDebit: string;
+  closingCredit: string;
+}
+export interface TrialBalanceResponse {
+  from: string;
+  to: string;
+  currency: string;
+  rows: TrialBalanceRow[];
+  totals: Omit<TrialBalanceRow, "accountId" | "code" | "name" | "depth">;
+}
+export interface AccountLedgerEntry {
+  journalId: string;
+  journalNo: string | null;
+  journalDate: string;
+  description: string;
+  accountCode: string;
+  counterAccounts: string[];
+  partnerName: string | null;
+  debit: string;
+  credit: string;
+  balance: string;
+}
+export interface AccountLedgerResponse {
+  account: { id: string; code: string; name: string; nature: "debit" | "credit" | "both" };
+  from: string;
+  to: string;
+  currency: string;
+  openingBalance: string;
+  entries: AccountLedgerEntry[];
+  totalDebit: string;
+  totalCredit: string;
+  closingBalance: string;
+}

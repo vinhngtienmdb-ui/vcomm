@@ -3,6 +3,7 @@
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
 import { createTestUser, signIn, type Session } from "./helpers";
@@ -249,5 +250,128 @@ describe("TIEUCHI_NGHIEMTHU_112: bút toán tự sinh", () => {
     expect((await entries(next.id))[1]).toEqual(["5111", "0", "10000"]);
     // Bút toán cũ giữ nguyên tài khoản 511.
     expect((await entries(issue.id))[1]).toEqual(["511", "0", "40000"]);
+  });
+});
+
+const accountId = async (code: string) => ((await call(accountant, "get", "/finance/accounts")).body as { id: string; code: string }[]).find((account) => account.code === code)!.id;
+async function journal(body: Record<string, unknown>) {
+  const created = await call(accountant, "post", "/finance/journals", body);
+  if (created.status !== 201) return created;
+  return call(accountant, "post", `/finance/journals/${created.body.id}/submit`, { version: created.body.version });
+}
+const line = async (code: string, debit: string, credit: string) => ({ accountId: await accountId(code), debit, credit });
+
+describe("TIEUCHI_NGHIEMTHU_113: phiếu kế toán", () => {
+  it("KICHBAN_KIEMTHU_212: lệch Nợ Có, dòng ghi cả hai bên bị từ chối; chưa có chính sách thì ghi sổ ngay, cấp số; có chính sách thì chờ duyệt; đã ghi sổ không sửa; không có quyền không lập được", async () => {
+    const unbalanced = await call(accountant, "post", "/finance/journals", { journalDate: "2026-10-01", description: "Lệch", lines: [await line("111", "100", "0"), await line("41111", "0", "90")] });
+    expect(unbalanced.body.error.fields).toEqual({ lines: "Tổng Nợ phải bằng tổng Có." });
+    const twoSides = await call(accountant, "post", "/finance/journals", {
+      journalDate: "2026-10-01",
+      description: "Hai bên",
+      lines: [await line("111", "100", "100"), await line("41111", "0", "0")],
+    });
+    expect(Object.keys(twoSides.body.error.fields).sort()).toEqual(["lines.0.debit", "lines.1.debit"]);
+    expect((await call(seller, "post", "/finance/journals", { journalDate: "2026-10-01", description: "X", lines: [] })).status).toBe(403);
+    // Số dư đầu kỳ tài khoản: vốn góp 5.000.000 bằng tiền mặt.
+    const opening = await journal({ journalDate: "2026-10-01", description: "Số dư đầu kỳ", lines: [await line("111", "5000000", "0"), await line("41111", "0", "5000000")] });
+    expect(opening.body).toMatchObject({ status: "posted", journalNo: expect.stringMatching(/^PKT/), totalAmount: "5000000", canEdit: false });
+    expect(
+      (
+        await call(accountant, "patch", `/finance/journals/${opening.body.id}`, {
+          journalDate: "2026-10-01",
+          description: "Sửa",
+          lines: [await line("111", "1", "0"), await line("41111", "0", "1")],
+          version: opening.body.version,
+        })
+      ).status,
+    ).toBe(409);
+
+    await admin.call("post", "/approval-policies", {
+      companyId: retail,
+      body: {
+        documentTypeCode: "accounting.journal",
+        currency: "VND",
+        effectiveFrom: "2026-01-01",
+        levels: [{ levelNo: 1, minAmount: "0", approver: { type: "user", userId: testIds.purchasingManager }, substitute: { type: "user", userId: testIds.retailAdmin }, dueHours: 8 }],
+      },
+    });
+    const pending = await journal({ journalDate: "2026-10-20", description: "Chi phí khác tháng 10", lines: [await line("6428", "100000", "0"), await line("111", "0", "100000")] });
+    expect(pending.body).toMatchObject({ status: "pending", canWithdraw: true });
+    const approver = await signIn(application, "phuc.le@vcomm.test");
+    await approver.call("post", `/approval-requests/${pending.body.approvalRequestId}/decisions`, { body: { decision: "approved", comment: "Đồng ý" } });
+    await application.get(OutboxService).dispatchPending();
+    expect((await call(accountant, "get", `/finance/journals/${pending.body.id}`)).body.status).toBe("posted");
+    const income = await journal({ journalDate: "2026-10-25", description: "Thu nhập khác tháng 10", lines: [await line("111", "300000", "0"), await line("711", "0", "300000")] });
+    await approver.call("post", `/approval-requests/${income.body.approvalRequestId}/decisions`, { body: { decision: "approved", comment: "Đồng ý" } });
+    await application.get(OutboxService).dispatchPending();
+    expect((await call(accountant, "get", "/finance/journals?sourceType=manual&status=posted")).body).toHaveLength(3);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_114: khóa sổ", () => {
+  it("KICHBAN_KIEMTHU_213: khóa tháng 10 kết chuyển chi phí, thu nhập sang 911, lãi sang 4212; chứng từ ngày trong kỳ khóa bị từ chối; tháng chưa kết thúc không khóa; mở lại xóa kết chuyển", async () => {
+    const periods = (await call(accountant, "get", "/finance/ledger/periods")).body;
+    expect(periods).toMatchObject({ lockedThrough: null, nextMonth: "2026-10", canClose: true, canReopen: false });
+    expect((await call(seller, "post", "/finance/ledger/periods/close", { month: "2026-10" })).status).toBe(403);
+    const closed = await call(accountant, "post", "/finance/ledger/periods/close", { month: "2026-10" });
+    expect(closed.status, JSON.stringify(closed.body)).toBe(201);
+    expect(closed.body).toMatchObject({ lockedThrough: "2026-10-31", nextMonth: "2026-11", canClose: false, canReopen: true });
+    const closing = (await call(accountant, "get", "/finance/journals?sourceType=closing")).body[0];
+    expect(
+      (await call(accountant, "get", `/finance/journals/${closing.id}`)).body.lines.map((item: { accountCode: string; debit: string; credit: string }) => [item.accountCode, item.debit, item.credit]),
+    ).toEqual([
+      ["911", "100000", "0"],
+      ["6428", "0", "100000"],
+      ["711", "300000", "0"],
+      ["911", "0", "300000"],
+      ["911", "200000", "0"],
+      ["4212", "0", "200000"],
+    ]);
+    const locked = await call(accountant, "post", "/finance/journals", { journalDate: "2026-10-31", description: "Muộn", lines: [await line("6428", "1", "0"), await line("111", "0", "1")] });
+    expect(locked.body.error.message).toBe("Ngày chứng từ thuộc kỳ kế toán đã khóa sổ.");
+    const lateReceipt = await admin.call("post", "/inventory/documents", {
+      companyId: retail,
+      body: {
+        type: "receipt_other",
+        warehouseId,
+        companyId: retail,
+        documentDate: "2026-10-15",
+        reasonCode: "found",
+        reason: "Thừa",
+        lines: [{ variantId: itemA, unitId, quantity: "1", unitCost: "8000" }],
+      },
+    });
+    const lateSubmit = await admin.call("post", `/inventory/documents/${lateReceipt.body.id}/submit`, { companyId: retail });
+    expect(lateSubmit.status).toBe(409);
+    expect((await call(accountant, "post", "/finance/ledger/periods/close", { month: "2026-11" })).status).toBe(409);
+
+    const reopened = await call(accountant, "post", "/finance/ledger/periods/reopen");
+    expect(reopened.body).toMatchObject({ lockedThrough: null, nextMonth: "2026-10" });
+    expect((await call(accountant, "get", "/finance/journals?sourceType=closing")).body).toEqual([]);
+    expect((await call(accountant, "post", "/finance/ledger/periods/close", { month: "2026-10" })).body.lockedThrough).toBe("2026-10-31");
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_115: sổ sách", () => {
+  it("KICHBAN_KIEMTHU_214: bảng cân đối số phát sinh cân ở mọi cột, cộng dồn lên tài khoản cha; sổ cái tiền mặt đúng số dư lũy kế, tài khoản đối ứng", async () => {
+    const balance = (await call(accountant, "get", `/finance/ledger/trial-balance?from=2026-11-01&to=${today}`)).body;
+    expect(balance.totals.openingDebit).toBe(balance.totals.openingCredit);
+    expect(balance.totals.debit).toBe(balance.totals.credit);
+    expect(balance.totals.closingDebit).toBe(balance.totals.closingCredit);
+    // Đầu tháng 11: tiền mặt 5.000.000 − 100.000 + 300.000; lợi nhuận năm nay 200.000.
+    expect(balance.rows.find((row: { code: string }) => row.code === "111")).toMatchObject({ openingDebit: "5200000" });
+    expect(balance.rows.find((row: { code: string }) => row.code === "421")).toMatchObject({ openingCredit: "200000", depth: 0 });
+    expect(balance.rows.find((row: { code: string }) => row.code === "4212")).toMatchObject({ openingCredit: "200000", depth: 1 });
+    expect(balance.rows.find((row: { code: string }) => row.code === "131")).toMatchObject({ debit: "55000" });
+
+    const cash = await accountId("111");
+    const ledger = (await call(accountant, "get", `/finance/ledger/accounts/${cash}?from=2026-10-01&to=${today}`)).body;
+    expect(ledger).toMatchObject({ openingBalance: "0", totalDebit: "5320000", totalCredit: "100000", closingBalance: "5220000" });
+    expect(ledger.entries.map((entry: { counterAccounts: string[]; balance: string }) => [entry.counterAccounts, entry.balance])).toEqual([
+      [["41111"], "5000000"],
+      [["6428"], "4900000"],
+      [["711"], "5200000"],
+      [["1311"], "5220000"],
+    ]);
   });
 });

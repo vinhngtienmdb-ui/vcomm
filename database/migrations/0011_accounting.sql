@@ -48,6 +48,7 @@ CREATE TABLE accounting.journals (
     description             text        NOT NULL,
     status                  text        NOT NULL DEFAULT 'posted' CHECK (status IN ('draft', 'pending', 'posted', 'rejected', 'withdrawn')),
     approval_request_id     uuid        REFERENCES core.approval_requests(id),
+    post_error              text,                                                   -- khóa thông báo khi duyệt xong nhưng không ghi sổ được (kỳ đã khóa)
     total_amount            numeric(20,4) NOT NULL DEFAULT 0,                       -- tổng Nợ
     created_by              uuid        REFERENCES core.users(id),
     posted_at               timestamptz,
