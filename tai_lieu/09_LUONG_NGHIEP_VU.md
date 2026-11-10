@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.2
+- Phiên bản: 1.3
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi
 
 ## MODULE_01 Nền tảng
 
@@ -211,3 +211,43 @@ Trạng thái đơn đối ứng (đơn bán, đơn mua sinh tự động):
 | Chờ xác nhận nội bộ, Chờ duyệt, Đã xác nhận, Đã duyệt | Chứng từ bên kia kết thúc | Đơn bán: Đã hủy (chưa có phiếu xuất) hoặc Đã đóng; đơn mua: Đã đóng |
 
 Trạng thái phiếu nhập mua nội bộ: (mới, khi ghi sổ phiếu xuất) → Chờ nhận → (nhận hàng) Đã ghi sổ. Trạng thái biên bản chênh lệch: Chờ xử lý → Đã nhập lại kho hoặc Đã ghi tổn thất.
+
+## MODULE_05 Bán hàng (phần 3: Khuyến mãi, CONG_VIEC_12)
+
+### Luồng 16. Lập, duyệt, dừng chương trình khuyến mãi
+
+- Bắt đầu: người có `sales.promotion.manage` mở "Khuyến mãi" ở mini app Bán hàng, bấm "Lập chương trình".
+- Các bước:
+  1. Nhập tên, loại, từ ngày, đến ngày, kênh áp dụng (không chọn: mọi kênh trừ Nội bộ), nhóm khách áp dụng (không chọn: mọi khách); theo loại: mặt hàng và phần trăm giảm; hoặc ngưỡng tổng đơn gồm thuế, phần trăm, mức giảm tối đa; hoặc mặt hàng mua, số lượng mua, mặt hàng tặng, số lượng tặng mỗi suất. Ngân sách (giảm theo sản phẩm, theo đơn) hoặc số suất tối đa (mua X tặng Y). Lưu nháp (QUYTAC_NGHIEPVU_79).
+  2. Gửi duyệt: cấp số (`KM`) lần đầu; gửi luồng duyệt (Luồng 5) loại `sales.promotion` với giá trị là ngân sách; chương trình "Chờ duyệt". Chưa có chính sách duyệt: chương trình "Đang chạy" ngay (QUYTAC_NGHIEPVU_80).
+  3. Duyệt xong: "Đang chạy". Từ chối: "Bị từ chối". Người lập rút khi cấp duyệt đầu chưa quyết định: "Đã rút". Bị từ chối, đã rút thì sửa (về nháp), gửi lại.
+  4. Chương trình đang chạy: xem đã dùng (tiền đã giảm, số suất đã tặng so với giới hạn); dừng kèm lý do khi cần.
+- Ngoại lệ: chương trình đang chạy không sửa được, chỉ dừng; chương trình đã dừng không chạy lại được (lập chương trình mới).
+- Kết thúc: chương trình "Đang chạy" hoặc "Đã dừng".
+
+### Luồng 17. Áp khuyến mãi vào đơn bán
+
+- Bắt đầu: Nhân viên bán hàng lưu đơn bán (lập hoặc sửa, Luồng 9).
+- Các bước:
+  1. Hệ thống tra giá từng dòng như cũ (QUYTAC_NGHIEPVU_67). Đơn bán nội bộ, đơn kênh Nội bộ thì bỏ qua khuyến mãi.
+  2. Lấy chương trình đang chạy của công ty có ngày đơn trong thời gian hiệu lực, đúng kênh, đúng nhóm khách (QUYTAC_NGHIEPVU_81, QUYTAC_NGHIEPVU_84).
+  3. Giảm theo sản phẩm: mỗi dòng chọn phần trăm cao nhất, trừ trên giá bảng giá trước chiết khấu tay; chương trình không đủ ngân sách còn lại cho cả đơn thì bỏ, các dòng chọn lại.
+  4. Giảm theo đơn: tổng gồm thuế sau bước 3 đạt ngưỡng thì chọn chương trình có tiền giảm lớn nhất (có trần, còn đủ ngân sách); chia vào các dòng có thành tiền theo tỷ lệ thành tiền gồm thuế, phần dư dồn dòng cuối có thành tiền.
+  5. Mua X tặng Y: mỗi chương trình tính số suất từ tổng số lượng cơ sở mặt hàng mua (không đếm dòng tặng), không quá số suất còn lại; thêm dòng hàng tặng giá 0.
+  6. Ghi dòng, tổng đơn. Dòng hàng tặng cũ bị thay mỗi lần lưu.
+  7. Gửi đơn (Luồng 9): khóa các chương trình đơn đã áp, kiểm lại ngân sách, số suất cùng các đơn khác (QUYTAC_NGHIEPVU_82); giữ hàng gồm dòng tặng; ngoại lệ dưới giá vốn tính trên giá trước khuyến mãi, bỏ qua dòng tặng (QUYTAC_NGHIEPVU_83).
+- Ngoại lệ: gửi đơn khi chương trình đã hết ngân sách hoặc hết suất thì báo "Chương trình khuyến mãi đã hết ngân sách hoặc hết suất. Lưu lại đơn để tính lại khuyến mãi rồi gửi.", đơn giữ nháp; người bán lưu lại để tính lại. Kho không đủ hàng cho dòng tặng thì không gửi được (điểm chờ quyết định, tài liệu `07`).
+- Kết thúc: đơn mang khuyến mãi đã áp; đã dùng của chương trình tăng khi đơn chờ duyệt, xác nhận, giao, đóng; đơn bị từ chối, rút, hủy thì không còn tính vào đã dùng.
+
+Trạng thái chương trình khuyến mãi:
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| (mới) | Lập | Nháp |
+| Nháp, Bị từ chối, Đã rút | Gửi, chưa có chính sách duyệt | Đang chạy |
+| Nháp, Bị từ chối, Đã rút | Gửi, có chính sách duyệt | Chờ duyệt |
+| Chờ duyệt | Duyệt xong | Đang chạy |
+| Chờ duyệt | Từ chối | Bị từ chối |
+| Chờ duyệt | Người lập rút (cấp 1 chưa quyết định) | Đã rút |
+| Bị từ chối, Đã rút | Sửa | Nháp |
+| Đang chạy | Dừng kèm lý do | Đã dừng |

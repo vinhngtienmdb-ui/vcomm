@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 1.9
+- Phiên bản: 2.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán
 
 ## MODULE_01 Nền tảng
 
@@ -856,6 +856,7 @@ Quy ước chung cho mọi chức năng của MODULE_05 phần 1:
 - Phân quyền: Thủ kho chỉ xem; gọi lập, sửa nhận 403. Không có `sales.settings.manage` không thấy nút "Cài đặt".
 - Thông báo lỗi: "Đối tác chưa có hồ sơ khách hàng đang dùng ở công ty." · "Chưa có giá cho mặt hàng này." · "Không đủ hàng khả dụng (một phần đang được giữ)." · "Đơn bán đã có phiếu xuất giao hàng hoặc không ở trạng thái hủy được; hãy đóng đơn." · "Đơn bán còn phiếu xuất giao hàng nháp, chưa đóng được." · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · "Giá trị không hợp lệ." (kênh, kho, đơn vị, số, chiết khấu)
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_87, TIEUCHI_NGHIEMTHU_88, TIEUCHI_NGHIEMTHU_89, TIEUCHI_NGHIEMTHU_90, TIEUCHI_NGHIEMTHU_92
+- Bổ sung CONG_VIEC_12: khi lưu, khuyến mãi tự áp theo CHUC_NANG_63; dòng đơn thêm trường khuyến mãi, dòng hàng tặng; gửi đơn kiểm giới hạn khuyến mãi (CHUC_NANG_64).
 
 ### CHUC_NANG_55: Cài đặt bán hàng
 - Mục đích: Công ty đặt mức chiết khấu tay tối đa không cần duyệt.
@@ -977,6 +978,64 @@ Quy ước chung cho mọi chức năng của MODULE_05 phần 2:
 |---|---|
 | Toàn vẹn | Sinh, kết thúc chứng từ đối ứng, sinh phiếu nhập chờ nhận trong cùng giao dịch với chứng từ khởi tạo; hai đơn trỏ nhau bằng mã, không khóa ngoại khác schema (kiểm trong service); nhận hàng khóa phiếu nhập theo phiên bản; xử lý biên bản giữ biên bản trước khi nhập lại kho |
 | Ranh giới module | Bán hàng ghi `sales`, Mua hàng ghi `purchasing`, Kho ghi `inventory`; `InternalTradeService` (module Bán hàng) đăng ký móc nối vào `SalesOrdersService`, `PurchaseOrdersService` khi khởi động |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_05 Bán hàng (phần 3: Khuyến mãi, CONG_VIEC_12)
+
+Quy ước chung cho mọi chức năng của MODULE_05 phần 3:
+- Thao tác ghi chương trình ghi nhật ký thao tác (CHUC_NANG_23): mini app `sales`, loại đối tượng `promotion` (`promotion.create`, `.update`, `.submit`, `.stop`); rút ghi ở yêu cầu duyệt (Luồng 5). Áp khuyến mãi vào đơn bán ghi theo nhật ký của đơn bán (`sales_order.create`, `.update`).
+- Quyền `sales.promotion.view`, `sales.promotion.manage` gán ở phạm vi tập đoàn hoặc công ty (tài liệu `08` mục 13). Chương trình chỉ xem, thao tác trong công ty đang làm việc; chương trình công ty khác trả 404.
+- Sửa, dừng gửi kèm phiên bản; khác phiên bản thì báo "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất.".
+- Tiền gồm thuế, tiền tệ của công ty; tiền, số lượng `numeric(20,4)`, phần trăm 2 chữ số lẻ. Đã dùng tính từ dòng đơn bán, không lưu trùng.
+
+### CHUC_NANG_62: Chương trình khuyến mãi
+- Mục đích: Bộ phận kinh doanh khai báo chương trình một lần, được duyệt rồi mới chạy, dừng khi cần.
+- Người sử dụng: Quản trị công ty, quản trị tập đoàn (lập, sửa, gửi duyệt, rút, dừng); Nhân viên bán hàng (xem).
+- Điều kiện thực hiện: Xem danh sách, chi tiết, lựa chọn kênh, nhóm khách: `sales.promotion.view` hoặc `sales.promotion.manage`. Lập, sửa, gửi duyệt, dừng: `sales.promotion.manage`. Rút: người lập, có `sales.promotion.manage`, chương trình chờ duyệt, cấp duyệt đầu chưa quyết định. Tìm mặt hàng (API_77 `/sales/items`): `sales.order.manage` hoặc `sales.promotion.manage`.
+- Dữ liệu đầu vào: Tên (1 đến 200 ký tự), loại (giảm theo sản phẩm, giảm theo đơn, mua X tặng Y), từ ngày, đến ngày (không trước từ ngày), kênh (tối đa 50), nhóm khách (tối đa 50), ghi chú (tối đa 1.000 ký tự). Giảm theo sản phẩm: 1 đến 500 mặt hàng không trùng, mỗi mặt hàng phần trăm giảm lớn hơn 0 đến 100. Giảm theo đơn: ngưỡng tổng đơn gồm thuế (bắt buộc, từ 0), phần trăm giảm (bắt buộc, lớn hơn 0 đến 100), mức giảm tối đa (lớn hơn 0, trống: không giới hạn). Mua X tặng Y: mặt hàng mua, số lượng mua, mặt hàng tặng, số lượng tặng mỗi suất (bắt buộc, số lượng lớn hơn 0, đơn vị cơ sở), số suất tối đa (số nguyên lớn hơn 0, trống: không giới hạn). Ngân sách gồm thuế (lớn hơn 0, trống: không giới hạn; chỉ giảm theo sản phẩm, giảm theo đơn). Sửa: phiên bản. Dừng: lý do (1 đến 500 ký tự), phiên bản. Danh sách: trạng thái.
+- Quy trình xử lý: Kiểm mặt hàng là mặt hàng đang bán của công ty (biến thể, sản phẩm đang dùng), kênh đang dùng của công ty không phải kênh Nội bộ, nhóm khách đang dùng của công ty; mua X tặng Y có ngân sách thì lỗi ô ngân sách. Lưu nháp chỉ giữ trường của loại đã chọn, thay toàn bộ mặt hàng, kênh, nhóm khách. Sửa khi nháp, bị từ chối, đã rút: về nháp, bỏ liên kết yêu cầu duyệt cũ. Gửi: cấp số theo dãy `sales.promotion` (chưa cấu hình thì tự tạo tiền tố `KM`) ở lần gửi đầu; gửi luồng duyệt với giá trị là ngân sách (trống thì 0); chưa có chính sách duyệt thì "Đang chạy" ngay, có thì "Chờ duyệt". Nghe `core.approval.completed`: duyệt xong thì "Đang chạy", từ chối thì "Bị từ chối", rút thì "Đã rút". Rút: rút yêu cầu duyệt, chương trình "Đã rút". Dừng: chương trình đang chạy chuyển "Đã dừng", ghi lý do, người, thời điểm.
+- Kết quả đầu ra: Danh sách (số, tên, loại, từ ngày, đến ngày, trạng thái, đã dùng: tiền đã giảm, số suất đã tặng, ngân sách, số suất tối đa, người lập) mới lập trước, tối đa 500. Chi tiết thêm: kênh, nhóm khách, mặt hàng (mã, tên, phần trăm), ngưỡng, phần trăm, mức giảm tối đa, mặt hàng mua, tặng (mã, tên, số lượng, đơn vị cơ sở), ghi chú, yêu cầu duyệt, lý do dừng, tiền tệ, phiên bản, được sửa, gửi, rút, dừng hay không. Lựa chọn: kênh đang dùng (trừ Nội bộ), nhóm khách đang dùng, tiền tệ.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_37
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_79, QUYTAC_NGHIEPVU_80, QUYTAC_NGHIEPVU_84
+- Trường hợp ngoại lệ: Chương trình đang chạy, chờ duyệt, đã dừng không sửa, gửi được (409). Dừng chương trình không đang chạy hoặc sai phiên bản: 409. Chương trình đã dừng không chạy lại được.
+- Phân quyền: Nhân viên bán hàng lập, sửa, gửi, dừng nhận 403; người không phải người lập rút nhận 403.
+- Thông báo lỗi: "Vui lòng nhập thông tin này." (thiếu mặt hàng, ngưỡng, phần trăm, mặt hàng mua, tặng, số lượng) · "Giá trị không hợp lệ." (mặt hàng ngừng bán, kênh, nhóm khách, phần trăm, đến ngày trước từ ngày, mặt hàng trùng, ngân sách cho mua X tặng Y) · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất." · "Bạn không có quyền thực hiện thao tác này."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_99, TIEUCHI_NGHIEMTHU_104
+
+### CHUC_NANG_63: Tự áp dụng khuyến mãi vào đơn bán
+- Mục đích: Người bán không tính tay; đơn bán thỏa điều kiện tự được giảm, tự có hàng tặng.
+- Người sử dụng: Nhân viên bán hàng, quản trị (lập, sửa đơn bán).
+- Điều kiện thực hiện: Lập, sửa đơn bán (CHUC_NANG_54), `sales.order.manage`.
+- Dữ liệu đầu vào: Đơn bán như CHUC_NANG_54 (không gửi dòng hàng tặng; dòng tặng do hệ thống tạo).
+- Quy trình xử lý: Sau khi tra giá dòng, trong cùng giao dịch lưu đơn: bỏ qua nếu khách là đối tác nội bộ. Lấy chương trình đang chạy của công ty, ngày đơn trong thời gian hiệu lực, có kênh của đơn (hoặc không giới hạn kênh và kênh không phải Nội bộ), có nhóm khách của đơn (hoặc không giới hạn nhóm khách); đã dùng không tính đơn đang lưu. Giảm theo sản phẩm, giảm theo đơn, mua X tặng Y tính theo QUYTAC_NGHIEPVU_81, QUYTAC_NGHIEPVU_82. Mỗi dòng ghi chương trình theo sản phẩm (dòng tặng: chương trình tặng), phần trăm, chương trình theo đơn, phần giảm theo đơn gồm thuế, tổng giảm do khuyến mãi gồm thuế, là dòng tặng, số suất; đơn giá, tiền chưa thuế, thuế, thành tiền sau khuyến mãi; tổng đơn cộng từ dòng. Gửi đơn: khóa chương trình đơn đã áp, kiểm lại ngân sách, số suất (CHUC_NANG_64); ngoại lệ dưới giá vốn so giá trước khuyến mãi, bỏ qua dòng tặng (QUYTAC_NGHIEPVU_83); giữ hàng, giao hàng, trả hàng dòng tặng như dòng thường.
+- Kết quả đầu ra: Dòng chi tiết đơn bán thêm: là hàng tặng, tên chương trình theo sản phẩm (hoặc chương trình tặng), phần trăm khuyến mãi, tên chương trình theo đơn, phần giảm theo đơn của dòng.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_37
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_81, QUYTAC_NGHIEPVU_83, QUYTAC_NGHIEPVU_84
+- Trường hợp ngoại lệ: Chương trình hết thời gian, đã dừng thì đơn lưu sau đó không áp; đơn đã lưu giữ khuyến mãi đến khi lưu lại. Mặt hàng tặng ngừng bán thì không thêm dòng tặng. Kho không đủ hàng cho dòng tặng thì gửi đơn báo thiếu hàng ở dòng tặng (điểm chờ quyết định, tài liệu `07`).
+- Phân quyền: Như CHUC_NANG_54.
+- Thông báo lỗi: như CHUC_NANG_54; "Không đủ hàng khả dụng (một phần đang được giữ)." ở dòng tặng.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_100, TIEUCHI_NGHIEMTHU_101, TIEUCHI_NGHIEMTHU_103, TIEUCHI_NGHIEMTHU_104
+
+### CHUC_NANG_64: Theo dõi đã dùng, dừng khi hết
+- Mục đích: Chương trình không vượt ngân sách, số suất; người quản lý thấy đã dùng bao nhiêu.
+- Người sử dụng: Quản trị công ty, quản trị tập đoàn; Nhân viên bán hàng (xem).
+- Điều kiện thực hiện: Xem: như CHUC_NANG_62. Kiểm giới hạn: tự động khi lưu, gửi đơn bán.
+- Dữ liệu đầu vào: Không nhập thêm.
+- Quy trình xử lý: Đã dùng = tổng trên dòng đơn bán của các đơn chờ duyệt, đã xác nhận, đã giao đủ, đã đóng: tiền đã giảm (phần giảm theo sản phẩm của dòng không phải hàng tặng cộng phần giảm theo đơn) và số suất đã tặng (QUYTAC_NGHIEPVU_82). Khi lưu đơn, chương trình không đủ ngân sách, số suất còn lại được xử lý theo QUYTAC_NGHIEPVU_82. Khi gửi đơn, khóa các chương trình đơn đã áp theo thứ tự mã, cộng đã dùng của các đơn khác với đơn này; vượt ngân sách hoặc số suất thì từ chối gửi.
+- Kết quả đầu ra: "Đã giảm <tiền> / <ngân sách hoặc ∞>" hoặc "Đã tặng <số> / <số suất tối đa hoặc ∞> suất" ở danh sách, chi tiết chương trình.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_37
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_82
+- Trường hợp ngoại lệ: Đơn bị từ chối, rút, hủy không còn tính vào đã dùng. Hai đơn gửi đồng thời cùng chương trình: khóa chương trình nên đơn sau kiểm lại.
+- Phân quyền: Như CHUC_NANG_62.
+- Thông báo lỗi: "Chương trình khuyến mãi đã hết ngân sách hoặc hết suất. Lưu lại đơn để tính lại khuyến mãi rồi gửi." (409)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_102
+
+## Yêu cầu phi chức năng của MODULE_05 (phần 3)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Toàn vẹn | Áp khuyến mãi trong cùng giao dịch lưu đơn; gửi đơn khóa chương trình đã áp trước khi kiểm giới hạn; đã dùng tính từ dòng đơn bán, không lưu trùng; khóa ngoại từ `sales` chỉ trỏ vào `sales`, `core`, `catalog` |
+| Ranh giới module | Tính khuyến mãi ở `promotion-pricing.ts` (chỉ đọc chương trình), gọi từ `SalesOrdersService`; dùng lại luồng duyệt, dãy số chứng từ, tra giá, giữ hàng có sẵn |
 | Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09

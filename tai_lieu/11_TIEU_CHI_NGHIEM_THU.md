@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi)
 
 ## MODULE_01 Nền tảng
 
@@ -156,3 +156,16 @@ Dữ liệu mẫu: công ty bán VCR, công ty mua VCT; mặt hàng liên kết 
 | TIEUCHI_NGHIEMTHU_96 | CHUC_NANG_61 | Nhận thiếu sinh biên bản đúng số, giá trị; nhập lại kho ghi sổ phiếu trả vào kho xuất; ghi tổn thất đóng biên bản; mỗi biên bản xử lý một lần | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_97 | CHUC_NANG_58, CHUC_NANG_59 | Hủy, đóng một bên thì bên kia đóng phần chưa giao; công ty thứ ba không xem được chứng từ; người không có quyền ở công ty bên kia không xác nhận được | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_98 | CHUC_NANG_58 đến CHUC_NANG_61 | Giao diện hiện nhãn nội bộ, liên kết chứng từ đối ứng, nút xác nhận, từ chối, form nhận hàng, danh sách biên bản trên máy tính và điện thoại | Trình duyệt | Bắt buộc |
+
+## MODULE_05 Bán hàng (phần 3: Khuyến mãi, CONG_VIEC_12)
+
+Dữ liệu mẫu: công ty VCR; bảng giá chung gồm thuế (bánh 11.000, kẹo 22.000, quà 5.500 một cái, thuế 10%), giá vốn bánh 9.000; kênh bán lẻ, bán sỉ, Nội bộ; nhóm khách VIP giả lập. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_99 | CHUC_NANG_62 | Lập chương trình ba loại đúng dữ liệu; gửi duyệt, duyệt thì chạy, từ chối thì sửa được; đang chạy chỉ dừng được; người không có quyền không lập được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_100 | CHUC_NANG_63 | Giảm theo sản phẩm chọn phần trăm cao nhất, trừ trước chiết khấu tay; giảm theo đơn khi đạt ngưỡng, chọn mức lớn nhất, có trần; mua X tặng Y thêm đúng số suất, dòng tặng giá 0, dòng tặng không tính là hàng mua | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_101 | CHUC_NANG_63 | Không áp khi sai kênh, sai nhóm khách, ngoài thời gian, chương trình chưa chạy hoặc đã dừng, đơn bán nội bộ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_102 | CHUC_NANG_64 | Hết ngân sách, hết suất thì không áp vào đơn mới; gửi đơn vượt ngân sách bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_103 | CHUC_NANG_63 | Phần giảm do khuyến mãi, dòng hàng tặng không sinh ngoại lệ dưới giá vốn; chiết khấu tay vẫn kiểm; dòng hàng tặng được giữ hàng, giao hàng | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_104 | CHUC_NANG_62, CHUC_NANG_63 | Giao diện danh sách, soạn chương trình; đơn bán hiện khuyến mãi, dòng tặng trên máy tính và điện thoại | Trình duyệt | Bắt buộc |

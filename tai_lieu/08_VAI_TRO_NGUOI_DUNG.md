@@ -1,10 +1,10 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò mặc định, trách nhiệm và quyền hạn.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12)
+- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13)
 
 ## 1. Nguyên tắc
 
@@ -129,7 +129,7 @@ Quyền của MODULE_04 phần 1:
 
 | Vai trò | Mã | Phạm vi gán | Trách nhiệm | Quyền chính | Nhạy cảm |
 |---|---|---|---|---|---|
-| Nhân viên bán hàng | `salesperson` | Công ty | Lập, sửa, gửi, rút, hủy, đóng đơn bán; xem giá bán; thêm, sửa khách hàng | `sales.access`, `sales.order.view`, `sales.order.manage`, `crm.access`, `crm.partner.view`, `crm.partner.manage`, `catalog.access`, `catalog.price.view` | Không |
+| Nhân viên bán hàng | `salesperson` | Công ty | Lập, sửa, gửi, rút, hủy, đóng đơn bán; xem giá bán; xem chương trình khuyến mãi (CONG_VIEC_12); thêm, sửa khách hàng | `sales.access`, `sales.order.view`, `sales.order.manage`, `sales.promotion.view`, `crm.access`, `crm.partner.view`, `crm.partner.manage`, `catalog.access`, `catalog.price.view` | Không |
 
 Quyền của MODULE_05 phần 1:
 
@@ -163,3 +163,20 @@ Không thêm quyền, vai trò. Mỗi bên dùng quyền của mình tại công
 | Nhận hàng nội bộ theo phiếu nhập "Chờ nhận" | `inventory.purchase.receive` tại kho nhận | Có | Kho của công ty mình | Không | Không | Kho trong phạm vi gán | Kho trong phạm vi gán |
 | Xem, xử lý biên bản chênh lệch nội bộ | `inventory.sales.issue` tại kho xuất của công ty bán | Có | Kho của công ty mình | Không | Không | Kho trong phạm vi gán | Kho trong phạm vi gán |
 | Xem giá trị biên bản chênh lệch | `inventory.cost.view` tại kho xuất hoặc công ty bán | Có | Trong công ty mình | Không | Không | Không | Có |
+
+## 13. Phân quyền khuyến mãi (MODULE_05 phần 3, CONG_VIEC_12)
+
+Chương trình khuyến mãi thuộc công ty đang chọn; quyền gán ở phạm vi tập đoàn hoặc công ty. Quản trị tập đoàn, quản trị công ty có sẵn hai quyền mới. Chương trình đi luồng duyệt với loại chứng từ `sales.promotion` (Chương trình khuyến mãi). Áp khuyến mãi vào đơn bán không cần quyền riêng: tự áp khi người có `sales.order.manage` lưu đơn.
+
+| Quyền | Tên | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|---|
+| `sales.promotion.view` | Xem chương trình khuyến mãi | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên bán hàng |
+| `sales.promotion.manage` | Lập, gửi duyệt, dừng chương trình khuyến mãi | Công ty | Không | Quản trị tập đoàn, quản trị công ty |
+
+| Thao tác | Quyền dùng | Quản trị tập đoàn | Quản trị công ty | Nhân viên bán hàng | Thủ kho | Quản lý kho |
+|---|---|---|---|---|---|---|
+| Xem danh sách, chi tiết chương trình, đã dùng | `sales.promotion.view` hoặc `sales.promotion.manage` | Có | Trong công ty mình | Có | Không | Không |
+| Lập, sửa, gửi duyệt, dừng chương trình | `sales.promotion.manage` | Có | Trong công ty mình | Không | Không | Không |
+| Rút chương trình đang chờ duyệt | `sales.promotion.manage`, người lập, cấp duyệt đầu chưa quyết định | Chương trình của mình | Chương trình của mình | Không | Không | Không |
+| Tìm mặt hàng `/sales/items` | `sales.order.manage` hoặc `sales.promotion.manage` | Có | Trong công ty mình | Có | Không | Không |
+| Duyệt chương trình khuyến mãi | Theo chính sách duyệt `sales.promotion` | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định |

@@ -1,10 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 1.6
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -122,6 +122,16 @@ Chạy riêng mini app Bán hàng: `pnpm --filter web-sales dev` (cổng 3005), 
 | Phiếu nhập chờ nhận | `SalesDeliveriesService.createInternalReceipt` sinh phiếu nhập mua `in_transit` khi ghi sổ phiếu xuất giao hàng nội bộ; `requireInternalReady` chặn giao khi đơn mua đối ứng chưa duyệt; `PurchaseReceiptsService` chặn nhập mua thường đơn nội bộ | CHUC_NANG_60 |
 | Nhận hàng nội bộ, biên bản chênh lệch | `InternalReceiptsService` (`apps/api/src/inventory/internal-receipts.service.ts`): dùng lại `StockDocumentsService` (kiểm, ghi dòng, ghi sổ), `PurchaseOrdersService.refreshReceived`; nhập lại kho dùng lại `SalesDeliveriesService.createReturn`, `submit` | CHUC_NANG_60, CHUC_NANG_61 |
 | Giao diện | `CounterpartPanel` ở `apps/web-sales`, `apps/web-purchasing` (chi tiết đơn); `InternalReceiveForm` ở chi tiết phiếu kho, trang `/internal-discrepancies` ở `apps/web-inventory` | CHUC_NANG_58 đến CHUC_NANG_61 |
+
+## 3g. Thành phần phụ trợ cho khuyến mãi (MODULE_05 phần 3, CONG_VIEC_12)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Chương trình khuyến mãi | `PromotionsService` (`apps/api/src/sales/promotions.service.ts`), đường dẫn trong `SalesController`; ghi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`; dùng lại dãy số chứng từ (`NumberSequencesService`, `ensureSequence`), luồng duyệt (`ApprovalRequestsService.submitWithin`, `withdraw`; nghe `core.approval.completed` qua outbox, loại `sales.promotion`) | CHUC_NANG_62 |
+| Đã dùng của chương trình | Biểu thức SQL `promotionUsage`, `promotionGiftUsage` (cùng tệp) cộng từ `sales.order_lines` của đơn chờ duyệt, đã xác nhận, đã giao đủ, đã đóng; bỏ được một đơn (đơn đang lưu, đang gửi) | CHUC_NANG_64 |
+| Áp khuyến mãi vào đơn bán | Hàm `applyPromotions`, `lineAmounts` (`apps/api/src/sales/promotion-pricing.ts`, chỉ đọc chương trình) gọi từ `SalesOrdersService.prepare` sau `priceLines`, cùng giao dịch lưu; `writeLines` ghi trường khuyến mãi của dòng | CHUC_NANG_63 |
+| Kiểm giới hạn khi gửi, ngoại lệ | `SalesOrdersService.checkPromotionLimits` (khóa chương trình `FOR UPDATE` theo thứ tự mã, kiểm ngân sách, số suất) trong `submitWithin`; `exceptions` so giá vốn với giá trước khuyến mãi, bỏ qua dòng tặng; giữ hàng dòng tặng qua `ReservationsService` như dòng thường | CHUC_NANG_63, CHUC_NANG_64 |
+| Giao diện | Trang `/promotions`, `/promotions/new`, `/promotions/[id]` ở `apps/web-sales`; `PromotionEditor`, `PromotionStatusBadge`; menu `SalesShell` thêm "Khuyến mãi"; `SalesOrderEditor` bỏ dòng tặng khỏi biểu mẫu sửa; chi tiết đơn bán hiện khuyến mãi từng dòng | CHUC_NANG_62, CHUC_NANG_63 |
 
 ## 4. Kiến trúc triển khai
 

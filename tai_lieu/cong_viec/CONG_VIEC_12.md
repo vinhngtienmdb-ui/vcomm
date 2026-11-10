@@ -1,9 +1,9 @@
 # CONG_VIEC_12: Khuyến mãi (MODULE_05, phần 3)
 
 - Mô tả: Chương trình khuyến mãi giảm theo sản phẩm, giảm theo đơn, mua X tặng Y; điều kiện kênh, nhóm khách, thời gian; duyệt trước khi chạy; giới hạn ngân sách, số suất; tự áp dụng vào đơn bán.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Bản nháp. Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ.
+- Trạng thái: Bản nháp. Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ. Bản 0.2 sửa cho khớp mã đã làm (cột dòng đơn bán, ngân sách chỉ cho giảm theo sản phẩm, theo đơn, chọn chương trình khi không đủ ngân sách, cách chia giảm theo đơn, hàng tặng không tính là hàng mua, đường dẫn API_83, tìm mặt hàng, rút yêu cầu duyệt); hai điểm chờ người dùng quyết định ghi ở mục 16.
 - Nguồn: tài liệu `05` mục 2.1 (Bán hàng: khuyến mãi); quyết định của người dùng ngày 2026-11-09 (khuyến mãi giảm theo sản phẩm, theo đơn, mua X tặng Y, điều kiện kênh, nhóm khách, thời gian) và ngày 2026-11-10 (cộng dồn, duyệt, ngoại lệ dưới giá vốn, giới hạn) trong tài liệu `02`.
 
 ## 1. Mục tiêu
@@ -28,7 +28,7 @@ Ngoài phạm vi (công việc sau):
 
 | Mã | Chức năng | Yêu cầu |
 |---|---|---|
-| CHUC_NANG_62 | Chương trình khuyến mãi: loại (giảm theo sản phẩm, giảm theo đơn, mua X tặng Y), thời gian, kênh, nhóm khách, ngân sách, số suất; lập, sửa, gửi duyệt, rút, dừng | YCAU_NGHIEPVU_37 |
+| CHUC_NANG_62 | Chương trình khuyến mãi: loại (giảm theo sản phẩm, giảm theo đơn, mua X tặng Y), thời gian, kênh, nhóm khách, ngân sách (giảm theo sản phẩm, theo đơn), số suất (mua X tặng Y); lập, sửa, gửi duyệt, rút, dừng | YCAU_NGHIEPVU_37 |
 | CHUC_NANG_63 | Tự áp dụng khuyến mãi vào đơn bán khi lưu: giảm từng dòng, giảm theo đơn, thêm dòng hàng tặng | YCAU_NGHIEPVU_37 |
 | CHUC_NANG_64 | Theo dõi đã dùng của chương trình (tiền đã giảm, số suất đã tặng), dừng áp dụng khi hết | YCAU_NGHIEPVU_37 |
 
@@ -36,42 +36,46 @@ Ngoài phạm vi (công việc sau):
 
 | Mã | Quy tắc | Yêu cầu |
 |---|---|---|
-| QUYTAC_NGHIEPVU_79 | Chương trình thuộc công ty, có thời gian hiệu lực (từ ngày, đến ngày), kênh bán áp dụng (để trống: mọi kênh trừ kênh Nội bộ), nhóm khách áp dụng (để trống: mọi khách, kể cả người mua không lấy hóa đơn). Loại giảm theo sản phẩm: danh sách mặt hàng, mỗi mặt hàng một phần trăm giảm. Loại giảm theo đơn: ngưỡng tổng đơn gồm thuế, phần trăm giảm, mức giảm tối đa (để trống: không giới hạn). Loại mua X tặng Y: mặt hàng mua, số lượng mua (đơn vị cơ sở), mặt hàng tặng, số lượng tặng mỗi suất (đơn vị cơ sở) | YCAU_NGHIEPVU_37 |
-| QUYTAC_NGHIEPVU_80 | Chương trình đi luồng duyệt (loại chứng từ `sales.promotion`; chưa có chính sách duyệt thì hiệu lực ngay như các chứng từ khác). Sửa khi nháp, bị từ chối, đã rút. Chương trình đang chạy chỉ dừng được (ghi lý do), không sửa | YCAU_NGHIEPVU_37 |
-| QUYTAC_NGHIEPVU_81 | Áp dụng khi lưu đơn bán: chương trình đang chạy, ngày đơn trong thời gian hiệu lực, kênh và nhóm khách của đơn thỏa điều kiện, còn ngân sách, còn suất. Đơn bán nội bộ không áp dụng khuyến mãi. Mỗi dòng hàng chỉ một khuyến mãi theo sản phẩm, chọn phần trăm cao nhất; phần trăm khuyến mãi trừ trên giá bảng giá trước chiết khấu tay. Tổng đơn sau giảm theo sản phẩm đạt ngưỡng thì áp tối đa một khuyến mãi theo đơn, chọn số tiền giảm lớn nhất; tiền giảm chia cho các dòng (trừ dòng hàng tặng) theo tỷ lệ thành tiền gồm thuế. Mua X tặng Y tính riêng: số suất bằng phần nguyên của tổng số lượng mặt hàng mua chia số lượng mua; dòng hàng tặng giá 0, không sửa tay, tự tạo lại mỗi lần lưu | YCAU_NGHIEPVU_37 |
-| QUYTAC_NGHIEPVU_82 | Đã dùng của chương trình tính từ đơn bán đang chờ duyệt, đã xác nhận, đã giao đủ, đã đóng: tiền đã giảm (gồm thuế) và số suất đã tặng. Ngân sách (tổng tiền giảm tối đa, gồm thuế) và số suất tối đa để trống là không giới hạn. Lưu đơn chỉ áp chương trình còn đủ ngân sách, đủ suất cho đơn đó; gửi đơn khóa chương trình và kiểm lại, không còn đủ thì không gửi được, người bán lưu lại đơn để tính lại | YCAU_NGHIEPVU_37 |
-| QUYTAC_NGHIEPVU_83 | Phần giảm do khuyến mãi đã duyệt và dòng hàng tặng không tính ngoại lệ dưới giá vốn; giá so với giá vốn là giá sau chiết khấu tay, trước khuyến mãi. Chiết khấu tay vẫn kiểm mức tối đa như cũ (QUYTAC_NGHIEPVU_68). Dòng hàng tặng được giữ hàng, giao hàng, trả hàng như dòng thường | YCAU_NGHIEPVU_37 |
-| QUYTAC_NGHIEPVU_84 | Chương trình hết thời gian thì không áp vào đơn lưu sau đó; đơn đã lưu giữ khuyến mãi đã áp cho đến khi lưu lại | YCAU_NGHIEPVU_37 |
+| QUYTAC_NGHIEPVU_79 | Chương trình thuộc công ty, có thời gian hiệu lực (từ ngày, đến ngày), kênh bán áp dụng (để trống: mọi kênh trừ kênh Nội bộ), nhóm khách áp dụng (để trống: mọi khách, kể cả người mua không lấy hóa đơn). Loại giảm theo sản phẩm: danh sách mặt hàng, mỗi mặt hàng một phần trăm giảm. Loại giảm theo đơn: ngưỡng tổng đơn gồm thuế, phần trăm giảm, mức giảm tối đa (để trống: không giới hạn). Loại mua X tặng Y: mặt hàng mua, số lượng mua (đơn vị cơ sở), mặt hàng tặng, số lượng tặng mỗi suất (đơn vị cơ sở). Mặt hàng phải là mặt hàng đang bán của công ty; kênh là kênh đang dùng của công ty, không chọn được kênh Nội bộ; nhóm khách là nhóm đang dùng. Ngân sách (tổng tiền giảm tối đa, gồm thuế) chỉ khai cho giảm theo sản phẩm, giảm theo đơn; số suất tối đa chỉ khai cho mua X tặng Y (mua X tặng Y khai ngân sách thì bị từ chối) | YCAU_NGHIEPVU_37 |
+| QUYTAC_NGHIEPVU_80 | Chương trình đi luồng duyệt (loại chứng từ `sales.promotion`, giá trị duyệt là ngân sách, không có ngân sách thì 0; chưa có chính sách duyệt thì chạy ngay như các chứng từ khác). Gửi lần đầu cấp số (`KM`…). Duyệt xong thì "Đang chạy"; từ chối thì "Bị từ chối". Người lập rút được khi chờ duyệt và cấp duyệt đầu chưa quyết định. Sửa khi nháp, bị từ chối, đã rút; sửa xong chương trình về nháp. Chương trình đang chạy chỉ dừng được (ghi lý do), không sửa | YCAU_NGHIEPVU_37 |
+| QUYTAC_NGHIEPVU_81 | Áp dụng khi lưu đơn bán (lập, sửa): chương trình đang chạy, ngày đơn trong thời gian hiệu lực, kênh và nhóm khách của đơn thỏa điều kiện, còn ngân sách, còn suất (QUYTAC_NGHIEPVU_82). Đơn bán nội bộ (khách là đối tác nội bộ) và đơn kênh Nội bộ không áp khuyến mãi. Thứ tự tính: giảm theo sản phẩm, rồi giảm theo đơn, rồi mua X tặng Y. Mỗi dòng hàng chỉ một khuyến mãi theo sản phẩm, chọn phần trăm cao nhất (bằng nhau thì chương trình lập trước); đơn giá = giá bảng giá × (1 − phần trăm khuyến mãi) × (1 − chiết khấu tay). Tổng đơn gồm thuế sau giảm theo sản phẩm đạt ngưỡng thì áp tối đa một khuyến mãi theo đơn: tiền giảm = tổng × phần trăm, không quá mức giảm tối đa; chọn chương trình có tiền giảm lớn nhất. Tiền giảm theo đơn chia cho các dòng có thành tiền lớn hơn 0 theo tỷ lệ thành tiền gồm thuế, làm tròn 4 chữ số, phần dư dồn vào dòng cuối có thành tiền; dòng hàng tặng sinh sau nên không nhận phần giảm. Mua X tặng Y tính riêng từng chương trình: số suất bằng phần nguyên của tổng số lượng cơ sở mặt hàng mua trên các dòng không phải hàng tặng chia số lượng mua (dòng tặng của chương trình khác không tính); thêm một dòng hàng tặng theo đơn vị cơ sở, số lượng = số suất × số lượng tặng, giá 0, thuế suất theo sản phẩm; mặt hàng tặng ngừng bán thì không thêm dòng. Dòng hàng tặng không sửa tay, bỏ khỏi biểu mẫu sửa đơn, tự tạo lại mỗi lần lưu | YCAU_NGHIEPVU_37 |
+| QUYTAC_NGHIEPVU_82 | Đã dùng của chương trình tính từ dòng đơn bán của các đơn đang chờ duyệt, đã xác nhận, đã giao đủ, đã đóng: tiền đã giảm (gồm thuế; giảm theo sản phẩm trên dòng không phải hàng tặng cộng phần giảm theo đơn chia vào dòng) và số suất đã tặng. Ngân sách và số suất tối đa để trống là không giới hạn. Khi lưu, đã dùng không tính chính đơn đang lưu. Giảm theo sản phẩm: tổng giảm của chương trình trên đơn vượt ngân sách còn lại thì bỏ chương trình đó cho cả đơn, các dòng chọn lại chương trình khác. Giảm theo đơn: tiền giảm vượt ngân sách còn lại thì bỏ chương trình đó, xét chương trình khác. Mua X tặng Y: số suất không quá số suất còn lại (điểm chờ quyết định ở mục 16). Gửi đơn khóa các chương trình đơn đã áp và kiểm lại đã dùng của các đơn khác cộng đơn này; vượt ngân sách hoặc số suất thì không gửi được ("Chương trình khuyến mãi đã hết ngân sách hoặc hết suất. Lưu lại đơn để tính lại khuyến mãi rồi gửi."), người bán lưu lại đơn để tính lại | YCAU_NGHIEPVU_37 |
+| QUYTAC_NGHIEPVU_83 | Phần giảm do khuyến mãi đã duyệt (theo sản phẩm và theo đơn) và dòng hàng tặng không tính ngoại lệ dưới giá vốn; giá so với giá vốn là giá chưa thuế sau chiết khấu tay, trước khuyến mãi (tiền chưa thuế của dòng cộng phần giảm khuyến mãi quy về chưa thuế, chia số lượng cơ sở). Chiết khấu tay vẫn kiểm mức tối đa như cũ (QUYTAC_NGHIEPVU_68). Dòng hàng tặng được giữ hàng (cộng vào tổng số lượng cơ sở của mặt hàng), giao hàng, trả hàng như dòng thường; thiếu hàng khả dụng cho dòng tặng thì không gửi được đơn (điểm chờ quyết định ở mục 16) | YCAU_NGHIEPVU_37 |
+| QUYTAC_NGHIEPVU_84 | Chương trình hết thời gian hoặc đã dừng thì không áp vào đơn lưu sau đó; đơn đã lưu giữ khuyến mãi đã áp cho đến khi lưu lại | YCAU_NGHIEPVU_37 |
 
 ## 5. Vai trò và quyền
 
 | Quyền | Phạm vi | Nhạy cảm | Vai trò mặc định |
 |---|---|---|---|
-| `sales.promotion.view` | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên bán hàng |
+| `sales.promotion.view` | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên bán hàng (`salesperson`) |
 | `sales.promotion.manage` | Công ty | Không | Quản trị tập đoàn, quản trị công ty |
+
+Loại chứng từ duyệt mới `sales.promotion` (Chương trình khuyến mãi). Tìm mặt hàng `/sales/items` dùng được với `sales.order.manage` hoặc `sales.promotion.manage`.
 
 ## 6. Luồng nghiệp vụ
 
-1. Người có quyền quản lý khuyến mãi lập chương trình, gửi duyệt; duyệt xong chương trình chạy.
+1. Người có quyền quản lý khuyến mãi lập chương trình, gửi duyệt; duyệt xong chương trình chạy (chưa có chính sách duyệt thì chạy ngay). Bị từ chối hoặc rút thì sửa, gửi lại.
 2. Nhân viên bán hàng lập đơn bán như cũ; khi lưu, hệ thống tự áp khuyến mãi theo dòng, theo đơn, thêm dòng hàng tặng.
-3. Gửi đơn: kiểm lại ngân sách, suất; đơn đi tiếp luồng ngoại lệ, giữ hàng như cũ.
+3. Gửi đơn: kiểm lại ngân sách, suất; không đủ thì người bán lưu lại đơn để tính lại rồi gửi. Đơn đi tiếp kiểm nội bộ, giữ hàng (gồm hàng tặng), ngoại lệ như cũ.
 4. Người quản lý xem đã dùng của chương trình, dừng khi cần.
 
 ## 7. Màn hình
 
 | Mã | Màn hình | Mô tả |
 |---|---|---|
-| MAN_HINH_45 | Khuyến mãi | Mini app Bán hàng; danh sách chương trình lọc trạng thái; lập, sửa, gửi duyệt, rút, dừng; đã dùng |
-| MAN_HINH_42, 43 (sửa) | Đơn bán | Dòng có khuyến mãi hiện tên chương trình, phần trăm giảm; dòng hàng tặng; tiền giảm theo đơn |
+| MAN_HINH_45 | Khuyến mãi | Mini app Bán hàng, menu "Khuyến mãi" (`sales.promotion.view`); danh sách chương trình lọc trạng thái, cột đã dùng so với giới hạn; lập (`/sales/promotions/new`), chi tiết (`/sales/promotions/[id]`): sửa, gửi duyệt, rút, dừng kèm lý do |
+| MAN_HINH_42 (sửa) | Đơn bán | Menu Bán hàng thêm mục "Khuyến mãi"; danh sách đơn bán không đổi |
+| MAN_HINH_43 (sửa) | Chi tiết, soạn đơn bán | Chi tiết: dòng có khuyến mãi hiện "<chương trình>: giảm <phần trăm>%"; dòng hàng tặng có nhãn "Hàng tặng" kèm tên chương trình; dòng nhận giảm theo đơn hiện "<chương trình>: giảm <số tiền>". Soạn: không hiện dòng hàng tặng; chú thích khuyến mãi tự áp khi lưu, tổng tạm tính chưa gồm khuyến mãi |
 
 ## 8. Dữ liệu và API
 
-- Database migration `0009_promotions.sql`: `sales.promotions`, `sales.promotion_items` (mặt hàng giảm theo sản phẩm), `sales.promotion_channels`, `sales.promotion_customer_groups`; dòng đơn bán thêm `promotion_id`, `promotion_percent`, `order_promotion_id`, `order_discount_amount`, `promotion_discount_net`, `is_gift`.
+- Database migration `0009_promotions.sql`: `sales.promotions`, `sales.promotion_items` (mặt hàng giảm theo sản phẩm), `sales.promotion_channels`, `sales.promotion_customer_groups`; dòng đơn bán `sales.order_lines` thêm `promotion_id` (chương trình giảm theo sản phẩm, hoặc chương trình tặng của dòng hàng tặng), `promotion_percent`, `order_promotion_id` (chương trình giảm theo đơn), `order_discount_amount` (phần giảm theo đơn của dòng, gồm thuế), `promotion_discount_total` (tổng giảm do khuyến mãi của dòng, gồm thuế), `is_gift`, `gift_sets` (số suất của dòng tặng).
 - Đã dùng tính từ dòng đơn bán, không lưu trùng.
 
 | Mã | Đường dẫn | Mô tả |
 |---|---|---|
-| API_83 | `/sales/promotions` | Chương trình khuyến mãi: danh sách, chi tiết, lập, sửa, gửi, rút, dừng |
+| API_83 | `GET /sales/promotions/options`, `GET /sales/promotions?status=`, `GET /sales/promotions/{id}`, `POST /sales/promotions`, `PATCH /sales/promotions/{id}`, `POST /sales/promotions/{id}/submit`, `/withdraw`, `/stop` | Chương trình khuyến mãi: lựa chọn kênh, nhóm khách; danh sách, chi tiết, lập, sửa, gửi duyệt, rút, dừng |
+| API_77 (sửa) | `GET /sales/items` dùng được với `sales.order.manage` hoặc `sales.promotion.manage`; dòng chi tiết đơn bán thêm `isGift`, `promotionName`, `promotionPercent`, `orderPromotionName`, `orderDiscountAmount` | Tìm mặt hàng; khuyến mãi trên dòng đơn bán |
 
 ## 9. Điều kiện đặc biệt
 
@@ -82,7 +86,7 @@ Ngoài phạm vi (công việc sau):
 | Mã | Chức năng | Tiêu chí | Cách kiểm tra | Mức |
 |---|---|---|---|---|
 | TIEUCHI_NGHIEMTHU_99 | CHUC_NANG_62 | Lập chương trình ba loại đúng dữ liệu; gửi duyệt, duyệt thì chạy, từ chối thì sửa được; đang chạy chỉ dừng được; người không có quyền không lập được | Gọi API | Bắt buộc |
-| TIEUCHI_NGHIEMTHU_100 | CHUC_NANG_63 | Giảm theo sản phẩm chọn phần trăm cao nhất, trừ trước chiết khấu tay; giảm theo đơn khi đạt ngưỡng, chọn mức lớn nhất, có trần; mua X tặng Y thêm đúng số suất, dòng tặng giá 0 | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_100 | CHUC_NANG_63 | Giảm theo sản phẩm chọn phần trăm cao nhất, trừ trước chiết khấu tay; giảm theo đơn khi đạt ngưỡng, chọn mức lớn nhất, có trần; mua X tặng Y thêm đúng số suất, dòng tặng giá 0, dòng tặng không tính là hàng mua | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_101 | CHUC_NANG_63 | Không áp khi sai kênh, sai nhóm khách, ngoài thời gian, chương trình chưa chạy hoặc đã dừng, đơn bán nội bộ | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_102 | CHUC_NANG_64 | Hết ngân sách, hết suất thì không áp vào đơn mới; gửi đơn vượt ngân sách bị từ chối | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_103 | CHUC_NANG_63 | Phần giảm do khuyến mãi, dòng hàng tặng không sinh ngoại lệ dưới giá vốn; chiết khấu tay vẫn kiểm; dòng hàng tặng được giữ hàng, giao hàng | Gọi API | Bắt buộc |
@@ -90,7 +94,7 @@ Ngoài phạm vi (công việc sau):
 
 ## 11. Kịch bản kiểm thử
 
-KICHBAN_KIEMTHU_193 trở đi (tài liệu `21`), viết khi làm từng lát.
+KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_198 tự động (`apps/api/test/c12-promotions.test.ts`); KICHBAN_KIEMTHU_199, KICHBAN_KIEMTHU_200 thủ công trên trình duyệt cho TIEUCHI_NGHIEMTHU_104 (tài liệu `21`).
 
 ## 12. Ràng buộc kỹ thuật
 
@@ -113,3 +117,10 @@ Người dùng cho AI làm tiếp không dừng ở điểm xem trước; AI ch�
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
 Chưa đối chiếu.
+
+## 16. Điểm chờ quyết định
+
+Mã đang làm theo cách ghi dưới đây; người dùng chưa quyết định, chưa chốt.
+
+- **CHƯA XÁC ĐỊNH:** hàng tặng thiếu tồn. Hiện tại: khi lưu, dòng hàng tặng vẫn được tạo dù kho xuất không đủ hàng; khi gửi đơn, giữ hàng báo thiếu hàng ở dòng tặng và đơn không gửi được; người bán không bỏ được dòng tặng (dòng tự tạo lại mỗi lần lưu). Cần người dùng quyết định: giữ như hiện tại, tự giảm số suất theo hàng khả dụng, hay cho người bán bỏ dòng tặng.
+- **CHƯA XÁC ĐỊNH:** không đủ số suất. Hiện tại: mua X tặng Y cắt số suất về phần còn lại; giảm theo sản phẩm, giảm theo đơn thì bỏ hẳn chương trình cho đơn khi không đủ ngân sách (không giảm một phần). Cần người dùng quyết định: giữ như hiện tại hay đổi cách xử lý (ví dụ không tặng khi không đủ suất cho cả đơn, hoặc giảm một phần đến hết ngân sách).
