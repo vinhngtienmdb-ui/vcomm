@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.6
+- Phiên bản: 2.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản
 
 ## MODULE_01 Nền tảng
 
@@ -1141,7 +1141,7 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 2:
 - Mục đích: Bút toán tự sinh ghi đúng tài khoản công ty muốn dùng.
 - Người sử dụng: Kế toán trưởng, quản trị công ty, quản trị tập đoàn; Kế toán (xem).
 - Điều kiện thực hiện: Xem: `finance.ledger.view` hoặc `finance.ledger.setup`. Đổi: `finance.ledger.setup`.
-- Dữ liệu đầu vào: Vai trò (một trong 20 vai trò: 18 vai trò ở đặc tả `cong_viec/CONG_VIEC_14.md` mục 8, `commission_expense`, `staff_payable` thêm ở CONG_VIEC_17), tài khoản.
+- Dữ liệu đầu vào: Vai trò (một trong 22 vai trò: 18 vai trò ở đặc tả `cong_viec/CONG_VIEC_14.md` mục 8, `commission_expense`, `staff_payable` thêm ở CONG_VIEC_17, `collector_receivable`, `collection_fee` thêm ở CONG_VIEC_19), tài khoản.
 - Quy trình xử lý: Khởi tạo ghi tài khoản mặc định của chế độ cho mọi vai trò. Đổi: vai trò phải có trong danh mục; tài khoản thuộc công ty, đang dùng, không có con đang dùng; ghi người, thời điểm sửa (QUYTAC_NGHIEPVU_94). Bút toán sinh sau đó dùng tài khoản mới; bút toán cũ không đổi.
 - Kết quả đầu ra: Danh sách theo thứ tự vai trò: vai trò, mô tả, tài khoản (số hiệu, tên), được đổi hay không.
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_39
@@ -1466,6 +1466,79 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 6:
 | Toàn vẹn | Chỉ mục duy nhất (kết nối, mã giao dịch của dịch vụ) chống lưu trùng; chỉ mục duy nhất phiếu đã ghép (một phiếu một giao dịch); ràng buộc đã ghép khi và chỉ khi có phiếu, bỏ qua khi và chỉ khi có lý do; khóa theo quỹ khi lưu, ghép |
 | Ranh giới module | Module `apps/api/src/bank` đăng ký móc nối `PaymentsService.postedHooks`; module Tài chính (`apps/api/src/finance`) không phụ thuộc module ngân hàng; lập phiếu thu qua `PaymentsService.create`, `submit` (không đổi ghi sổ, công nợ, bút toán, luồng duyệt) |
 | Thư viện | Không thêm thư viện |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_06 Tài chính – Kế toán (phần 7: Đối soát thu hộ COD, cổng thanh toán, CONG_VIEC_19)
+
+Quy ước chung cho mọi chức năng của MODULE_06 phần 7:
+- Quyền (tài liệu `08` mục 25, 26): API trước hết cần `finance.access`, `finance.collection.view` hoặc `finance.collection.setup` ở công ty đang chọn; quyền chi tiết phải gán ở phạm vi tập đoàn hoặc công ty. Dữ liệu công ty khác trả `404`.
+- Ghi nhật ký thao tác: `collector.create`, `collector.update`, `collection_statement.import`, `collection_statement.reimport`, `collection_statement.remove_line`, `collection_statement.discard`, `collection_statement.submit`, `collection_statement.withdraw`.
+- Tiền trả về dạng chuỗi, bỏ số 0 thừa. Sửa, gửi, bỏ bảng so `version`.
+
+### CHUC_NANG_88: Đơn vị thu hộ
+- Mục đích: Khai nhà vận chuyển thu COD, cổng thanh toán là đơn vị thu hộ để nhập bảng đối soát và theo dõi tiền đơn vị còn phải trả.
+- Người sử dụng: Kế toán trưởng, quản trị công ty, quản trị tập đoàn (khai); Kế toán (xem).
+- Điều kiện thực hiện: Xem: `finance.collection.view` hoặc `finance.collection.setup`. Thêm, sửa: `finance.collection.setup`.
+- Dữ liệu đầu vào: Đối tác (chỉ khi thêm), loại (`cod` thu COD, `gateway` cổng thanh toán), trạng thái (`active` đang dùng, `inactive` ngừng dùng; mặc định đang dùng), `version` (`null` khi thêm).
+- Quy trình xử lý: Thêm: đối tác phải có hồ sơ khách hàng đang dùng của công ty; mỗi đối tác một đơn vị thu hộ trong công ty. Sửa: đổi loại, trạng thái; không đổi đối tác; so `version` (QUYTAC_NGHIEPVU_118).
+- Kết quả đầu ra: Danh sách đơn vị (đối tác: mã, tên; loại, trạng thái, `version`), đang dùng trước, theo tên; `canSetup`, `canManage`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_44
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_118
+- Trường hợp ngoại lệ: Đơn vị ngừng dùng không nhập được bảng mới; bảng đã có vẫn xem, gửi được.
+- Phân quyền: Không có `finance.collection.setup` thêm, sửa nhận 403; không thấy nút "Thêm đơn vị thu hộ", "Sửa".
+- Thông báo lỗi: "Đối tác không phải khách hàng của công ty." · "Đối tác chưa có hồ sơ khách hàng đang dùng ở công ty." · "Đối tác đã là đơn vị thu hộ." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_139, TIEUCHI_NGHIEMTHU_144
+
+### CHUC_NANG_89: Nhập bảng đối soát từ tệp Excel; ghép đơn bán
+- Mục đích: Đưa bảng đối soát của đơn vị thu hộ vào hệ thống không nhập tay từng đơn; biết dòng nào lỗi, dòng nào chênh lệch.
+- Người sử dụng: Kế toán, Kế toán trưởng, quản trị.
+- Điều kiện thực hiện: `finance.collection.manage`; đơn vị thu hộ đang dùng. Nhập lại, bỏ dòng: bảng nháp, bị từ chối hoặc đã rút. Bỏ bảng nháp: bảng nháp chưa gửi lần nào.
+- Dữ liệu đầu vào: Nhập tệp (multipart): đơn vị thu hộ, số bảng của đơn vị (1 đến 100 ký tự), ngày bảng, tệp `.xlsx` (tối đa 5 MB); nhập lại thêm mã bảng, `version`. Bỏ dòng: mã dòng, `version`. Bỏ bảng nháp: `version`.
+- Quy trình xử lý: Tệp mẫu: tiêu đề năm cột, hai dòng ví dụ, trang "Đối soát". Nhập: đọc trang đầu, chỉ giá trị ô; khóa theo đơn vị thu hộ; kiểm tiêu đề, từng ô theo QUYTAC_NGHIEPVU_118 (sai thì từ chối cả tệp, trả lỗi theo `rows.<dòng>.<cột>`); kiểm đơn vị đang dùng, số bảng không trùng; tạo bảng nháp (nhập lại: thay toàn bộ dòng, có thể đổi đơn vị, số bảng, ngày); ghép dòng với đơn bán theo QUYTAC_NGHIEPVU_119, lưu đơn, khách của đơn; tính tổng tiền thu hộ, tổng phí. Bỏ dòng: xóa dòng, tính lại tổng; không bỏ được dòng cuối. Lỗi, cảnh báo của dòng tính lại mỗi lần xem.
+- Kết quả đầu ra: Chi tiết bảng (CHUC_NANG_91).
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_44
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_118, QUYTAC_NGHIEPVU_119, QUYTAC_NGHIEPVU_122
+- Trường hợp ngoại lệ: Tệp có ô sai: không lưu dòng nào. Đơn không có khách: dòng không có khách, không có cảnh báo.
+- Phân quyền: Không có `finance.collection.manage` nhận 403; không thấy nút "Nhập tệp", "Nhập lại tệp", "Bỏ dòng", "Bỏ bảng nháp".
+- Thông báo lỗi: "Tệp không đúng mẫu." · "Tệp không có dòng dữ liệu." · "Tệp vượt quá 5 MB." · khóa `fileTooManyRows` (quá 5.000 dòng) · "Dòng <số>, cột <tên cột>: Giá trị không hợp lệ." · "Vui lòng nhập thông tin này." · "Số bảng đối soát đã có với đơn vị thu hộ này." · "Không bỏ được dòng cuối; hãy bỏ bảng nháp hoặc nhập lại tệp." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_140, TIEUCHI_NGHIEMTHU_144
+
+### CHUC_NANG_90: Gửi, duyệt, ghi sổ bảng đối soát
+- Mục đích: Ghi nhận khách đã trả theo đơn, chuyển thành nợ của đơn vị thu hộ, ghi phí vào chi phí bán hàng.
+- Người sử dụng: Kế toán, Kế toán trưởng, quản trị; người duyệt theo chính sách.
+- Điều kiện thực hiện: `finance.collection.manage`; bảng nháp, bị từ chối hoặc đã rút, không còn dòng lỗi. Rút: người gửi lần gần nhất, bảng chờ duyệt.
+- Dữ liệu đầu vào: Gửi: `version`. Rút: không có.
+- Quy trình xử lý: Gửi: khóa bảng, so `version`, kiểm dòng lỗi; tạo dãy số `DST` nếu chưa có; cấp số lần đầu; tạo yêu cầu duyệt qua `approvals.submitWithin` (QUYTAC_NGHIEPVU_122); ghi người gửi; chuyển chờ duyệt; chưa có chính sách thì ghi sổ ngay trong cùng giao dịch. Ghi sổ: khóa theo đơn vị thu hộ, khóa công nợ các khách và đơn vị theo thứ tự mã; kiểm lại dòng lỗi; công ty đã khởi tạo kế toán thì kiểm đủ định khoản; lập khoản công nợ, trừ nợ qua `DebtsService.matchCredit`, `matchDebit` (QUYTAC_NGHIEPVU_120); lập bút toán qua `ledger.record` (QUYTAC_NGHIEPVU_121); chuyển đã ghi sổ. Duyệt xong (nghe `core.approval.completed`): ghi sổ; lỗi quy tắc thì bị từ chối kèm khóa lý do. Từ chối, rút: chuyển bị từ chối, đã rút.
+- Kết quả đầu ra: Chi tiết bảng sau thao tác.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_44
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_120, QUYTAC_NGHIEPVU_121, QUYTAC_NGHIEPVU_122
+- Trường hợp ngoại lệ: Ngày bảng trong kỳ đã khóa sổ: không ghi sổ. Công ty chưa khởi tạo kế toán: ghi sổ công nợ, bút toán lập khi khởi tạo. Thực nhận âm: giảm nợ đơn vị thu hộ.
+- Phân quyền: Không có `finance.collection.manage` nhận 403; không thấy nút "Gửi"; nút "Rút" chỉ hiện với người gửi khi bảng chờ duyệt.
+- Thông báo lỗi: "Bảng đối soát còn dòng lỗi; bỏ dòng hoặc nhập lại tệp." · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ." · khóa `postingRuleMissing` · "Bạn không có quyền thực hiện thao tác này." (rút) · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_141, TIEUCHI_NGHIEMTHU_142, TIEUCHI_NGHIEMTHU_143, TIEUCHI_NGHIEMTHU_144
+
+### CHUC_NANG_91: Xem bảng đối soát
+- Mục đích: Biết đơn vị thu hộ đã đối soát bảng nào, thu hộ, phí, thực nhận bao nhiêu.
+- Người sử dụng: Kế toán, Kế toán trưởng, quản trị.
+- Điều kiện thực hiện: `finance.collection.view`.
+- Dữ liệu đầu vào: Danh sách: đơn vị thu hộ, trạng thái, từ ngày, đến ngày (ngày bảng), `page`, `pageSize` (1 đến 100, mặc định 20). Chi tiết: mã bảng.
+- Quy trình xử lý: Danh sách theo ngày bảng giảm dần, rồi thời điểm lập giảm dần; thực nhận = tổng thu hộ − tổng phí; số dòng lỗi (bảng đã ghi sổ là 0). Chi tiết: các dòng theo thứ tự trong tệp; bảng chưa ghi sổ có số khách còn nợ hiện tại của đơn, lỗi, cảnh báo chênh lệch; số dòng cảnh báo.
+- Kết quả đầu ra: Danh sách: ngày bảng, đơn vị (tên, loại), số bảng của đơn vị, số nội bộ, trạng thái, tổng thu hộ, tổng phí, thực nhận, số dòng, số dòng lỗi, lý do không ghi sổ được; `canManage`, tiền tệ. Chi tiết: thêm các dòng (dòng, mã, ngày thu, số đơn, đơn ghép được, khách, tiền thu hộ, phí, số khách còn nợ, lỗi, có chênh lệch), số dòng cảnh báo, `canManage`, `canWithdraw`, `version`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_44
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_119
+- Trường hợp ngoại lệ: Bảng của công ty khác: `404`.
+- Phân quyền: Không có `finance.collection.view` nhận 403, không thấy mục menu "Đối soát thu hộ".
+- Thông báo lỗi: "Giá trị không hợp lệ." (bộ lọc) · "Không tìm thấy dữ liệu hoặc bạn không có quyền xem."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_140, TIEUCHI_NGHIEMTHU_144
+
+## Yêu cầu phi chức năng của MODULE_06 (phần 7)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Bảo mật | Tệp `.xlsx` tối đa 5 MB, 5.000 dòng; chỉ đọc giá trị ô, không chạy công thức (tài liệu `22`) |
+| Toàn vẹn | Gửi, ghi sổ trong một giao dịch cơ sở dữ liệu, khóa bảng (`FOR UPDATE`); nhập, gửi, ghi sổ khóa theo đơn vị thu hộ (`pg_advisory_xact_lock`); ghi sổ khóa công nợ khách, đơn vị (`DebtsService.lockPartner`); khoản công nợ duy nhất theo nguồn (`collection_statement`, mã dòng hoặc mã bảng); kiểm lại dòng lỗi khi ghi sổ; bút toán duy nhất theo nguồn |
+| Ranh giới module | Module `apps/api/src/collection` dùng `DebtsService` (trừ nợ), `LedgerService.record` (bút toán), `ApprovalRequestsService.submitWithin` (duyệt); module Hoa hồng tính khoản giảm nợ nguồn `collection_statement` như phiếu thu; khởi tạo kế toán lập bút toán cho bảng đã ghi sổ; bút toán phiếu thu chi (`paymentDraft`) dùng `collector_receivable` khi đối tác là đơn vị thu hộ |
+| Thư viện | Không thêm thư viện; đọc, ghi Excel bằng `read-excel-file`, `write-excel-file` đang dùng |
 | Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09

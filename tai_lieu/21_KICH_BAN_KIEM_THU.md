@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng): đúng, sai, giá trị biên, từng vai trò.
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng), phần 7 (Đối soát thu hộ): đúng, sai, giá trị biên, từng vai trò.
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -3112,4 +3112,112 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Kết quả mong đợi: Bước 1: khối khóa hiện một lần, bảng hiện địa chỉ webhook và "khóa …<bốn ký tự cuối>". Bước 2: "Đã nhận giao dịch thử, tự ghép với phiếu <số>.". Bước 3: ô đối chiếu hiện số dư sổ, "Dịch vụ chưa gửi số dư", giao dịch chưa ghép; giao dịch tự ghép có nhãn "Tự ghép". Bước 4: thông báo ghi sổ phiếu thu và ghép. Bước 5: trạng thái đổi đúng, ô đối chiếu cập nhật. Bước 6: bảng chuyển thành thẻ, không cuộn ngang, không lỗi trình duyệt.
 - Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
 - Kết quả thực hiện: Đạt 2026-11-10 (ảnh chụp lát L0, L1 trên máy tính và điện thoại trong `tam_thoi/CONG_VIEC_18/`).
+- Lát: L0, L1
+
+## CHUC_NANG_88, CHUC_NANG_89: Đơn vị thu hộ, nhập bảng đối soát (CONG_VIEC_19)
+
+Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng Việt Nam; Kế toán, Kế toán trưởng, Nhân viên bán hàng gán ở phạm vi công ty, Thủ kho gán ở kho Bình Dương; hàng A thuế 10%, giá bán gồm thuế 11.000; khách "Khách công nợ" (hạn thanh toán 30 ngày); kế toán đã khởi tạo; hoa hồng bật, gán người lập đơn, mức mặc định 2%; đơn một: 10 cái đã giao (110.000), đơn hai: 5 cái đã giao (55.000); tệp Excel tạo bằng `write-excel-file` theo mẫu chung, trang "Đối soát".
+
+### KICHBAN_KIEMTHU_261: Khai đơn vị thu hộ là đối tác có hồ sơ khách hàng; trùng, không có quyền bị từ chối
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_139
+- Chức năng: CHUC_NANG_88
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán trưởng; Kế toán; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; đối tác "Nhà vận chuyển chưa là khách" (chỉ hồ sơ nhà cung cấp), "Giao hàng nhanh thử" (hồ sơ khách hàng).
+- Các bước: (1) Kế toán trưởng khai "Nhà vận chuyển chưa là khách". (2) Kế toán khai "Giao hàng nhanh thử". (3) Kế toán trưởng khai "Giao hàng nhanh thử", loại thu COD. (4) Kế toán trưởng khai lại "Giao hàng nhanh thử", loại cổng thanh toán. (5) Kế toán xem danh sách đơn vị. (6) Nhân viên bán hàng xem danh sách.
+- Kết quả mong đợi: Bước 1: lỗi tại `partnerId`. Bước 2: `403`. Bước 3: `201`, tên đối tác, loại `cod`, trạng thái `active`, `version` 0. Bước 4: "Đối tác đã là đơn vị thu hộ." tại `partnerId`. Bước 5: có đơn vị vừa khai, `canSetup` `false`, `canManage` `true`. Bước 6: `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c19-collection-statements.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_262: Tệp mẫu; tệp sai mẫu, sai ô bị từ chối; nhập thành công ghép đơn, báo lỗi, cảnh báo, tổng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_140
+- Chức năng: CHUC_NANG_89, CHUC_NANG_91
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Kế toán; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_261; số bảng "GHN-2026-11-01", ngày hôm nay.
+- Các bước: (1) Tải tệp mẫu. (2) Nhập tệp có tiêu đề "Mã", "Đơn". (3) Nhập tệp: dòng 2 tiền thu hộ "abc"; dòng 3 mã trống, ngày thu "31/02/2026". (4) Nhân viên bán hàng nhập tệp hợp lệ. (5) Kế toán nhập bốn dòng: V1, số đơn một viết thường, 110.000, phí 16.500, ngày "10/11/2026"; V2, đơn hai, "50.000", phí "16.500"; V3, số đơn không có, 20.000; V3, đơn hai, 0, phí 22.000. (6) Xem danh sách lọc theo đơn vị.
+- Kết quả mong đợi: Bước 1: `200`, tệp `.xlsx` (bắt đầu bằng "PK"). Bước 2: lỗi tại `file`. Bước 3: lỗi đúng ba ô `rows.2.collected`, `rows.3.collectedDate`, `rows.3.reference`; không lưu bảng. Bước 4: `403`. Bước 5: `201`, `draft`, tổng thu hộ 180.000, tổng phí 55.000, thực nhận 125.000, 4 dòng, 2 dòng lỗi, 1 cảnh báo; V1 ghép đơn một, khách "Khách công nợ", còn nợ 110.000, ngày thu 2026-11-10; V2 còn nợ 55.000, có chênh lệch; V3 thứ nhất `order_not_found`; V3 thứ hai `duplicate_reference`. Bước 6: tổng 1, `errorCount` 2, tiền tệ VND.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c19-collection-statements.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_263: Bỏ dòng, nhập lại thay các dòng, trùng số bảng bị từ chối, bỏ bảng nháp
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_140
+- Chức năng: CHUC_NANG_89
+- Loại: Đúng, sai
+- Vai trò thực hiện: Kế toán
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_262.
+- Các bước: (1) Bỏ dòng không tìm thấy đơn. (2) Bỏ lại dòng đó với `version` cũ. (3) Nhập bảng mới cùng số "GHN-2026-11-01". (4) Nhập lại bảng: V1 đơn một 110.000 phí 16.500; V2 đơn hai 55.000 phí 16.500. (5) Nhập bảng "GHN-2026-11-02" dùng lại mã V1 (bảng "GHN-2026-11-01" còn nháp). (6) Bỏ bảng đó với `version` sai, rồi đúng `version`; xem lại.
+- Kết quả mong đợi: Bước 1: 3 dòng, 0 dòng lỗi, tổng thu hộ 160.000. Bước 2: `409`. Bước 3: "Số bảng đối soát đã có với đơn vị thu hộ này." tại `statementNo`. Bước 4: `201`, cùng mã bảng, 2 dòng, không lỗi, không cảnh báo, thực nhận 132.000. Bước 5: dòng không lỗi (bảng nháp không tính mã đã dùng). Bước 6: `409`; `204`; xem lại `404`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c19-collection-statements.test.ts`
+- Lát: L0
+
+## CHUC_NANG_90: Gửi, duyệt, ghi sổ bảng đối soát (CONG_VIEC_19)
+
+### KICHBAN_KIEMTHU_264: Còn dòng lỗi không gửi được; ghi sổ trừ nợ đơn, nợ đơn vị thu hộ bằng thực nhận, bút toán, hoa hồng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_141, TIEUCHI_NGHIEMTHU_142
+- Chức năng: CHUC_NANG_90
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_263; chưa có chính sách duyệt loại `finance.collection_statement`.
+- Các bước: (1) Nhập bảng "GHN-LOI" một dòng số đơn không có; gửi; bỏ bảng. (2) Nhân viên bán hàng gửi bảng "GHN-2026-11-01". (3) Kế toán gửi bảng đó. (4) Kiểm số khách còn nợ của hai đơn, công nợ của đơn vị thu hộ, bút toán, phát sinh hoa hồng của hai đơn. (5) Bỏ dòng, gửi lại bảng đã ghi sổ. (6) Nhập bảng "GHN-TRUNG" dùng lại mã V1; bỏ bảng đó.
+- Kết quả mong đợi: Bước 1: "Bảng đối soát còn dòng lỗi; bỏ dòng hoặc nhập lại tệp.". Bước 2: `403`. Bước 3: `201`, `posted`, số `DST…`, thực nhận 132.000; dòng không còn lỗi, số còn nợ, chênh lệch. Bước 4: hai đơn còn nợ 0; đơn vị thu hộ còn một khoản phải thu 132.000; bút toán Nợ 1388 (đơn vị) 165.000 / Có 131 (khách) 165.000; Nợ 6418 33.000 / Có 1388 (đơn vị) 33.000; hoa hồng cơ sở 150.000, hoa hồng 3.000. Bước 5: cả hai `409`. Bước 6: dòng lỗi `reference_used`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c19-collection-statements.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_265: Thu thừa thành tiền trả trước; đơn không có khách chỉ có bút toán; dòng chỉ có phí; thực nhận âm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_141
+- Chức năng: CHUC_NANG_90
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Kế toán
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_264; đơn bán lẻ không có khách, 1 cái đã giao.
+- Các bước: (1) Nhập bảng "GHN-2026-11-03": W1 đơn một (đã hết nợ) 5.000; W2 đơn bán lẻ 11.000 phí 1.000; W3 đơn hai 0 phí 20.000. (2) Gửi. (3) Kiểm tiền trả trước của khách, công nợ đơn vị thu hộ, bút toán.
+- Kết quả mong đợi: Bước 1: không lỗi, 1 cảnh báo (W1), thực nhận −5.000; W2 không có khách, không có số còn nợ, không chênh lệch. Bước 2: `posted`. Bước 3: tiền trả trước của khách tăng 5.000; khoản phải thu của đơn vị còn 127.000 (giảm 5.000); bút toán Nợ 1388 16.000 / Có 131 (khách) 5.000, Có 131 (không đối tác) 11.000; Nợ 6418 21.000 / Có 1388 21.000.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c19-collection-statements.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_266: Tiền đơn vị thu hộ chuyển về lập phiếu thu của đơn vị, trừ nợ đơn vị thu hộ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_143
+- Chức năng: CHUC_NANG_90
+- Loại: Đúng
+- Vai trò thực hiện: Kế toán
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_265; quỹ ngân hàng "Ngân hàng thu hộ" (mã NHTH).
+- Các bước: (1) Lập phiếu thu khách hàng cho đối tác của đơn vị thu hộ, quỹ NHTH, số tiền 127.000; gửi. (2) Xem công nợ của đơn vị thu hộ. (3) Xem dòng Có của bút toán phiếu thu.
+- Kết quả mong đợi: Bước 1: `201`, phiếu `posted`. Bước 2: không còn khoản phải thu còn mở. Bước 3: một dòng Có 1388, 127.000 (không phải 131).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c19-collection-statements.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_267: Có chính sách duyệt thì chờ duyệt; rút; gửi lại; duyệt xong ghi sổ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_143
+- Chức năng: CHUC_NANG_90
+- Loại: Đúng
+- Vai trò thực hiện: Kế toán; quản trị công ty (người duyệt)
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_266; chính sách duyệt loại `finance.collection_statement` một cấp, người duyệt là quản trị công ty; đơn ba 2 cái đã giao (22.000; tiền trả trước 5.000 của khách đã tự trừ khi giao, còn nợ 17.000).
+- Các bước: (1) Nhập bảng "GHN-2026-11-04": X1 đơn ba 22.000 phí 1.000; gửi. (2) Kiểm số còn nợ của đơn ba. (3) Rút. (4) Gửi lại. (5) Quản trị công ty duyệt; chạy sự kiện outbox. (6) Xem bảng, số còn nợ của đơn ba.
+- Kết quả mong đợi: Bước 1: `pending`, `canWithdraw` `true`. Bước 2: 17.000 (chưa trừ nợ). Bước 3: `withdrawn`, `canWithdraw` `false`. Bước 4: `pending`, giữ số `DST…` của lần gửi đầu. Bước 5: `200`. Bước 6: `posted`; đơn ba còn nợ 0.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c19-collection-statements.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_269: Người gửi được rút; bảng nháp trùng mã không làm bảng chờ duyệt bị từ chối; đọc số tiền
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_140, TIEUCHI_NGHIEMTHU_143
+- Chức năng: CHUC_NANG_89, CHUC_NANG_90
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Kế toán; Kế toán trưởng; quản trị công ty (người duyệt)
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_267 (chính sách duyệt còn hiệu lực); đơn bốn 1 cái đã giao (11.000).
+- Các bước: (1) Kế toán nhập bảng "GHN-2026-11-05": Y1, đơn bốn, tiền thu hộ ô số 11000,0000000001, phí ô chữ "1.000". (2) Nhập bảng "GHN-SO-DAI" có mã ô số 1234567890123456. (3) Kế toán trưởng gửi bảng "GHN-2026-11-05". (4) Kế toán xem bảng; rút. (5) Kế toán nhập bảng nháp "GHN-2026-11-06" dùng lại mã Y1. (6) Quản trị công ty duyệt bảng "GHN-2026-11-05"; chạy sự kiện outbox; xem bảng.
+- Kết quả mong đợi: Bước 1: tổng thu hộ 11.000, tổng phí 1.000, không lỗi. Bước 2: lỗi tại `rows.2.reference`. Bước 3: `pending`, `canWithdraw` `true`. Bước 4: `canWithdraw` `false`; rút `403`. Bước 5: dòng lỗi `reference_used`. Bước 6: `posted` (bảng nháp trùng mã không chặn ghi sổ).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c19-collection-statements.test.ts`
+- Lát: L1 (sửa sau rà soát độc lập, commit 0480edc)
+
+## Kịch bản thủ công của đối soát thu hộ (CONG_VIEC_19)
+
+### KICHBAN_KIEMTHU_268: Đối soát thu hộ trên trình duyệt (máy tính, điện thoại)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_144
+- Chức năng: CHUC_NANG_88, CHUC_NANG_89, CHUC_NANG_90, CHUC_NANG_91
+- Loại: Đúng, giao diện
+- Vai trò thực hiện: Người có cả ba quyền đối soát thu hộ (quản trị công ty hoặc Kế toán trưởng)
+- Điều kiện ban đầu và dữ liệu: Môi trường phát triển; mini app Nền tảng, Tài chính – Kế toán, backend đang chạy; có đối tác có hồ sơ khách hàng, đơn bán đã giao của khách; tệp `tam_thoi/CONG_VIEC_19/xem_l0.js`, `xem_l1.js`, `doi-soat-mau.xlsx`.
+- Các bước: (1) Khổ 1360 điểm ảnh, mở "Đối soát thu hộ", thẻ "Đơn vị thu hộ", "Thêm đơn vị thu hộ", chọn đối tác, "Lưu". (2) Thẻ "Bảng đối soát", "Nhập tệp"; nhập tệp `doi-soat-mau.xlsx` có dòng lỗi và dòng chênh lệch. (3) Xem chi tiết; "Bỏ dòng" dòng lỗi. (4) "Gửi" (chưa có chính sách duyệt). (5) Mở "Bút toán". (6) Khổ 375 điểm ảnh, mở lại chi tiết, danh sách (lát L0).
+- Kết quả mong đợi: Bước 1: "Đã lưu đơn vị thu hộ.", đơn vị hiện trong bảng. Bước 2: mở chi tiết bảng nháp, tổng đúng. Bước 3: khối lỗi, nhãn lỗi, nhãn "Thừa so với còn nợ" hoặc "Thiếu so với còn nợ" đúng dòng; bỏ dòng xong hết dòng lỗi, nút "Gửi" bật. Bước 4: "Đã ghi sổ", số `DST…`, cột "Khách còn nợ" hiện "—". Bước 5: bút toán của bảng hiện nguồn "Bảng đối soát thu hộ", không hiện mã thô. Bước 6: bảng chuyển thành thẻ, không cuộn ngang, không lỗi trình duyệt.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Kết quả thực hiện: Đạt 2026-11-10 (ảnh chụp lát L0 trên máy tính và điện thoại, lát L1 trên máy tính, trong `tam_thoi/CONG_VIEC_19/`).
 - Lát: L0, L1

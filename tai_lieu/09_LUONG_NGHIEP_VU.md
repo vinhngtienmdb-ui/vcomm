@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.9
+- Phiên bản: 1.10
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ
 
 ## MODULE_01 Nền tảng
 
@@ -522,3 +522,41 @@ Trạng thái giao dịch ngân hàng:
 | Chưa ghép | Bỏ qua kèm lý do | Bỏ qua (`ignored`) |
 | Đã ghép | Bỏ ghép | Chưa ghép; phiếu không đổi |
 | Bỏ qua | Thôi bỏ qua | Chưa ghép |
+
+## MODULE_06 Tài chính – Kế toán (phần 7: Đối soát thu hộ COD, cổng thanh toán, CONG_VIEC_19)
+
+### Luồng 31. Đối soát thu hộ COD, cổng thanh toán
+
+- Bắt đầu: Kế toán trưởng mở "Đối soát thu hộ", thẻ "Đơn vị thu hộ", bấm "Thêm đơn vị thu hộ", chọn đối tác có hồ sơ khách hàng (nhà vận chuyển, cổng thanh toán), loại "Thu COD" hoặc "Cổng thanh toán", bấm "Lưu" (QUYTAC_NGHIEPVU_118).
+- Các bước:
+  1. Đơn vị thu hộ gửi bảng đối soát (đơn đã thu, tiền thu hộ, phí). Kế toán bấm "Tải tệp mẫu", chép dữ liệu vào mẫu chung.
+  2. Kế toán bấm "Nhập tệp", chọn đơn vị thu hộ, nhập số bảng của đơn vị, ngày bảng, chọn tệp, bấm "Nhập tệp". Tệp sai mẫu hoặc có ô sai: từ chối cả tệp, báo từng dòng, cột (QUYTAC_NGHIEPVU_118).
+  3. Hệ thống lưu bảng nháp, ghép từng dòng với đơn bán theo số đơn, tính tổng tiền thu hộ, tổng phí, thực nhận; mở chi tiết bảng. Dòng lỗi (không tìm thấy đơn, đơn đã hủy, mã trùng, mã đã dùng) và cảnh báo (tiền thu hộ thiếu hoặc thừa so với số khách còn nợ) hiện trên từng dòng (QUYTAC_NGHIEPVU_119).
+  4. Kế toán sửa lỗi bằng "Bỏ dòng" hoặc "Nhập lại tệp" (thay toàn bộ dòng).
+  5. Kế toán bấm "Gửi": cấp số `DST…`, gửi duyệt theo chính sách duyệt loại `finance.collection_statement`; chưa có chính sách thì ghi sổ ngay (QUYTAC_NGHIEPVU_122).
+  6. Người duyệt duyệt: hệ thống ghi sổ: trừ nợ khách theo đơn (thừa thành trả trước), lập khoản phải thu của đơn vị thu hộ bằng thực nhận, bút toán Nợ 1388 / Có 131, Nợ phí thu hộ / Có 1388; khoản trừ nợ khách ghi phát sinh hoa hồng như phiếu thu (QUYTAC_NGHIEPVU_120, QUYTAC_NGHIEPVU_121).
+  7. Đơn vị thu hộ chuyển tiền về ngân hàng: kế toán lập phiếu thu khách hàng cho đối tác của đơn vị thu hộ, số tiền thực nhận; phiếu ghi sổ trừ vào khoản phải thu của đơn vị, bút toán Nợ tiền gửi / Có 1388; đối soát ngân hàng tự ghép giao dịch với phiếu (Luồng 30, QUYTAC_NGHIEPVU_115).
+- Ngoại lệ:
+  - Còn dòng lỗi: không gửi được, "Bảng đối soát còn dòng lỗi; bỏ dòng hoặc nhập lại tệp.".
+  - Mã vận đơn đã có trong bảng chờ duyệt hoặc đã ghi sổ của cùng đơn vị: dòng lỗi "Mã đã có ở bảng khác".
+  - Số bảng đã có với đơn vị (bảng chưa bị từ chối, chưa rút): "Số bảng đối soát đã có với đơn vị thu hộ này."; đơn vị thu hộ ngừng dùng: không nhập được.
+  - Bị từ chối, người gửi rút: sửa (nhập lại, bỏ dòng) rồi gửi lại, giữ số bảng.
+  - Duyệt xong mà không ghi sổ được (kỳ đã khóa sổ, dòng mới bị lỗi vì bảng khác đã dùng mã, thiếu định khoản): bảng "Bị từ chối" kèm lý do; kỳ đã khóa thì nhập lại với ngày bảng khác.
+  - Bảng nháp nhập nhầm, chưa gửi lần nào: "Bỏ bảng nháp".
+  - Thực nhận âm (phí lớn hơn tiền thu hộ): giảm khoản phải thu của đơn vị thu hộ.
+  - Bảng đã ghi sổ sai: không hủy được; lập phiếu kế toán điều chỉnh.
+- Kết thúc: bảng "Đã ghi sổ"; đơn đã thu không còn nợ (hoặc còn phần thiếu, hoặc khách có tiền trả trước); khoản phải thu của đơn vị thu hộ được trừ khi tiền về.
+
+Trạng thái bảng đối soát thu hộ:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Nhập tệp | Nháp (`draft`) |
+| Nháp (chưa gửi lần nào) | Bỏ bảng nháp | (Xóa bảng và dòng) |
+| Nháp, Bị từ chối, Đã rút | Nhập lại, bỏ dòng | Giữ trạng thái |
+| Nháp, Bị từ chối, Đã rút | Gửi, có chính sách duyệt | Chờ duyệt (`pending`) |
+| Nháp, Bị từ chối, Đã rút | Gửi, chưa có chính sách duyệt | Đã ghi sổ (`posted`) |
+| Chờ duyệt | Duyệt xong, ghi sổ được | Đã ghi sổ |
+| Chờ duyệt | Duyệt xong, không ghi sổ được | Bị từ chối (`rejected`) kèm lý do |
+| Chờ duyệt | Từ chối | Bị từ chối |
+| Chờ duyệt | Người gửi rút | Đã rút (`withdrawn`) |

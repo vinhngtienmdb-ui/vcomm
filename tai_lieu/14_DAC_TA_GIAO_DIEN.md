@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.5
+- Phiên bản: 2.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -19,6 +19,7 @@
 - Cập nhật CONG_VIEC_16 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 4, MAN_HINH_54, MAN_HINH_55 (mục 35 đến mục 37); menu mini app Tài chính – Kế toán thêm mục "Hóa đơn điện tử", "Cài đặt hóa đơn điện tử"
 - Cập nhật CONG_VIEC_17 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 5, MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40); menu mini app Tài chính – Kế toán thêm mục "Hoa hồng", "Cài đặt hoa hồng"
 - Cập nhật CONG_VIEC_18 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 6, MAN_HINH_58, MAN_HINH_59 (mục 41 đến mục 43); menu mini app Tài chính – Kế toán thêm mục "Giao dịch ngân hàng", "Kết nối ngân hàng"
+- Cập nhật CONG_VIEC_19 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 7, MAN_HINH_60, MAN_HINH_61 (mục 44 đến mục 46); menu mini app Tài chính – Kế toán thêm mục "Đối soát thu hộ"; MAN_HINH_51 (Bút toán) bộ lọc, cột "Nguồn" thêm "Bảng hoa hồng" (sửa lỗi hiện mã thô `commission` từ CONG_VIEC_17), "Bảng đối soát thu hộ"
 
 ## MODULE_01 Nền tảng
 
@@ -1303,7 +1304,7 @@ flowchart TD
 - Mục đích: Xem mọi bút toán của công ty; lập, gửi phiếu kế toán; mở chứng từ gốc của bút toán tự sinh.
 - Chức năng thực hiện: CHUC_NANG_71, CHUC_NANG_72
 - Đường dẫn: `/finance/journals` (danh sách); `/finance/journals/new` (lập); `/finance/journals/[id]` (chi tiết; "Sửa" mở biểu mẫu trên cùng trang).
-- Bố cục: danh sách: tiêu đề "Bút toán" kèm "Lịch sử", nút "Lập phiếu kế toán"; lọc "Nguồn: tất cả" (Phiếu kế toán, Phiếu kho, Phiếu thu chi, Ghi tổn thất hàng thiếu nội bộ, Kết chuyển cuối kỳ), "Trạng thái: tất cả" (Nháp, Chờ duyệt, Đã ghi sổ, Bị từ chối, Đã rút), "Từ ngày", "Đến ngày"; bảng "Số" (nháp: "(nháp)"; liên kết sang chi tiết), "Ngày", "Nguồn", "Diễn giải", "Số tiền", "Trạng thái". Biểu mẫu: "Ngày" *, "Diễn giải" *; bảng dòng "Tài khoản" (ô chọn tài khoản nhận bút toán), "Đối tác", "Diễn giải dòng", "Nợ", "Có", nút "Bỏ dòng"; nút "Thêm dòng"; dòng "Tổng Nợ <tiền> · Tổng Có <tiền>", "Chênh lệch <tiền>"; nút "Lưu", "Hủy". Chi tiết: liên kết "Danh sách bút toán"; "<nguồn> <số hoặc (nháp)>", nhãn trạng thái, "Lịch sử", nút "Sửa", "Rút", "Gửi", "Mở chứng từ gốc" (phiếu kho, phiếu thu chi); khối lỗi "Duyệt xong nhưng không ghi sổ được: <lý do> Sửa phiếu rồi gửi lại."; thẻ: ngày, số tiền, diễn giải, "Người lập"; bảng dòng "Tài khoản", "Đối tác", "Diễn giải dòng", "Nợ", "Có".
+- Bố cục: danh sách: tiêu đề "Bút toán" kèm "Lịch sử", nút "Lập phiếu kế toán"; lọc "Nguồn: tất cả" (Phiếu kế toán, Phiếu kho, Phiếu thu chi, Ghi tổn thất hàng thiếu nội bộ, Kết chuyển cuối kỳ, Bảng hoa hồng, Bảng đối soát thu hộ; cột "Nguồn" và tiêu đề chi tiết dùng cùng nhãn, CONG_VIEC_19), "Trạng thái: tất cả" (Nháp, Chờ duyệt, Đã ghi sổ, Bị từ chối, Đã rút), "Từ ngày", "Đến ngày"; bảng "Số" (nháp: "(nháp)"; liên kết sang chi tiết), "Ngày", "Nguồn", "Diễn giải", "Số tiền", "Trạng thái". Biểu mẫu: "Ngày" *, "Diễn giải" *; bảng dòng "Tài khoản" (ô chọn tài khoản nhận bút toán), "Đối tác", "Diễn giải dòng", "Nợ", "Có", nút "Bỏ dòng"; nút "Thêm dòng"; dòng "Tổng Nợ <tiền> · Tổng Có <tiền>", "Chênh lệch <tiền>"; nút "Lưu", "Hủy". Chi tiết: liên kết "Danh sách bút toán"; "<nguồn> <số hoặc (nháp)>", nhãn trạng thái, "Lịch sử", nút "Sửa", "Rút", "Gửi", "Mở chứng từ gốc" (phiếu kho, phiếu thu chi); khối lỗi "Duyệt xong nhưng không ghi sổ được: <lý do> Sửa phiếu rồi gửi lại."; thẻ: ngày, số tiền, diễn giải, "Người lập"; bảng dòng "Tài khoản", "Đối tác", "Diễn giải dòng", "Nợ", "Có".
 - Dữ liệu hiển thị: bút toán của công ty đang chọn, ngày mới trước, tối đa 500.
 - Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, KhoiCanhBao, TrangThaiRong (tài liệu `15`).
 - API: API_88; tài khoản API_87; chọn đối tác API_85.
@@ -1602,3 +1603,80 @@ flowchart TD
 - Quyền hiển thị: mục menu với `finance.bank.setup`; người có `finance.bank.view` mở đường dẫn thì chỉ xem; nút theo `canSetup`, `simulatorAllowed` của API.
 - Responsive: bảng chuyển thành thẻ; địa chỉ webhook, khóa xuống dòng theo ký tự; ô biểu mẫu xếp dọc; không cuộn ngang.
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_18 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 7: Đối soát thu hộ COD, cổng thanh toán, CONG_VIEC_19)
+
+Cùng mini app `apps/web-finance` (mục 26).
+
+## 44. Danh sách màn hình và điều hướng (MODULE_06 phần 7)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_60 | Đối soát thu hộ: danh sách bảng đối soát, nhập tệp; thẻ đơn vị thu hộ | CHUC_NANG_88, CHUC_NANG_89, CHUC_NANG_91 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_19 mục 14) |
+| MAN_HINH_61 | Chi tiết bảng đối soát: tổng, các dòng, bỏ dòng, nhập lại, gửi, rút, bỏ bảng nháp | CHUC_NANG_89, CHUC_NANG_90, CHUC_NANG_91 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán | MAN_HINH_60 | Không lập (CONG_VIEC_19 mục 14) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> D[MAN_HINH_60 Đối soát thu hộ]
+    D -->|Thẻ Đơn vị thu hộ: Thêm, Sửa| V[Ngăn kéo đơn vị thu hộ]
+    D -->|Nhập tệp| N[Ngăn kéo nhập bảng đối soát]
+    N -->|Nhập thành công| C[MAN_HINH_61 Chi tiết bảng đối soát]
+    D -->|Số bảng| C
+    C -->|Nhập lại tệp| L[Ngăn kéo nhập lại]
+    C -->|Bỏ bảng nháp| X[Hộp xác nhận]
+    X -->|Đã bỏ| D
+    C -->|Danh sách| D
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Giao dịch ngân hàng (`finance.bank.view`); Kết nối ngân hàng (`finance.bank.setup`); Đối soát thu hộ (`finance.collection.view`); Bút toán, Sổ sách, Báo cáo tài chính, Hệ thống tài khoản (`finance.ledger.view`); Hóa đơn điện tử (`finance.einvoice.view`); Cài đặt hóa đơn điện tử (`finance.einvoice.setup`); Hoa hồng (`finance.commission.view`); Cài đặt hoa hồng (`finance.commission.setup`).
+
+## 45. Bảng vai trò – màn hình (MODULE_06 phần 7)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_60 thẻ "Bảng đối soát" | Xem, Nhập tệp | Xem, Nhập tệp | Xem, Nhập tệp | Không |
+| MAN_HINH_60 thẻ "Đơn vị thu hộ" | Xem, Thêm, Sửa | Xem, Thêm, Sửa | Xem | Không |
+| MAN_HINH_61 Chi tiết bảng đối soát | Xem, Bỏ dòng, Nhập lại tệp, Bỏ bảng nháp, Gửi, Rút (bảng mình gửi) | Xem, Bỏ dòng, Nhập lại tệp, Bỏ bảng nháp, Gửi, Rút (bảng mình gửi) | Xem, Bỏ dòng, Nhập lại tệp, Bỏ bảng nháp, Gửi, Rút (bảng mình gửi) | Không |
+
+## 46. Đặc tả từng màn hình (MODULE_06 phần 7)
+
+### MAN_HINH_60: Đối soát thu hộ
+- Mục đích: Xem bảng đối soát của các đơn vị thu hộ; nhập bảng mới từ tệp Excel; khai đơn vị thu hộ.
+- Chức năng thực hiện: CHUC_NANG_88, CHUC_NANG_89, CHUC_NANG_91
+- Đường dẫn: `/finance/collection-statements`.
+- Bố cục: tiêu đề "Đối soát thu hộ" kèm "Lịch sử" (theo thẻ đang chọn: bảng đối soát hoặc đơn vị thu hộ); hai thẻ "Bảng đối soát" (mặc định), "Đơn vị thu hộ".
+  - Thẻ "Bảng đối soát": bộ lọc "Mọi đơn vị thu hộ", "Mọi trạng thái" ("Nháp", "Chờ duyệt", "Đã ghi sổ", "Bị từ chối", "Đã rút"), "Từ ngày", "Đến ngày"; nút "Nhập tệp" (khi có `canManage`; mờ khi chưa có đơn vị đang dùng); chưa có đơn vị: "Chưa có đơn vị thu hộ. Khai ở thẻ Đơn vị thu hộ trước khi nhập bảng đối soát.". Bảng: "Ngày bảng", "Đơn vị thu hộ" (tên · "Thu COD" hoặc "Cổng thanh toán"), "Số bảng của đơn vị" (liên kết sang MAN_HINH_61 · số nội bộ `DST…` khi có), "Tổng thu hộ", "Tổng phí", "Thực nhận", "Trạng thái" (nhãn trạng thái; kèm "<số> dòng lỗi" khi có). Phân trang 20 dòng, tổng số dòng, nút trang trước, trang sau.
+  - Thẻ "Đơn vị thu hộ": nút "Thêm đơn vị thu hộ" (khi có `canSetup`); chú thích "Đơn vị thu hộ là đối tác có hồ sơ khách hàng của công ty; tiền đơn vị chuyển về ngân hàng lập phiếu thu khách hàng cho đối tác này."; bảng "Đối tác" (tên · mã), "Loại", "Trạng thái" (nhãn "Đang dùng", "Ngừng dùng"), cột nút "Sửa" (khi có `canSetup`).
+  - Ngăn kéo "Thêm đơn vị thu hộ" / "Sửa đơn vị thu hộ": "Đối tác" (khi thêm: ô tìm đối tác có hồ sơ khách hàng, gợi ý "Tìm đối tác có hồ sơ khách hàng, gõ tên hoặc mã rồi nhấn Enter."; khi sửa: chỉ hiện tên · mã), "Loại" ("Thu COD", "Cổng thanh toán"), ô chọn "Đang dùng"; nút "Hủy", "Lưu".
+  - Ngăn kéo "Nhập bảng đối soát": chú thích "Tệp Excel theo mẫu chung: mã vận đơn hoặc mã giao dịch, số đơn bán, tiền thu hộ, phí, ngày thu; tối đa 5.000 dòng, 5 MB. Nhập lại thay toàn bộ các dòng."; nút "Tải tệp mẫu" (tệp `mau-doi-soat-thu-ho.xlsx`); "Đơn vị thu hộ" (đơn vị đang dùng: tên · loại), "Số bảng của đơn vị", "Ngày bảng" (mặc định hôm nay), "Tệp Excel" (chỉ `.xlsx`); khối lỗi "Tệp có dòng sai, chưa nhập:" liệt kê tối đa 20 lỗi "Dòng <số>, cột <tên cột>: <lỗi>"; nút "Hủy", "Nhập tệp" (mờ khi chưa chọn tệp).
+- Dữ liệu hiển thị: bảng của công ty đang chọn, ngày bảng mới nhất trước; số định dạng theo tiếng Việt.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, KhoiCanhBao, TrangThaiRong (tài liệu `15`).
+- API: API_102, API_103, API_105.
+- Thao tác: "Lưu" đơn vị báo "Đã lưu đơn vị thu hộ.", tải lại; "Nhập tệp" thành công mở MAN_HINH_61 của bảng vừa nhập; đổi bộ lọc về trang 1.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có bảng đối soát.", "Chưa có đơn vị thu hộ.".
+- Thông báo: lỗi tại trường, khối lỗi dòng, cuối ngăn kéo; lỗi tải tệp mẫu hiện dưới nút "Tải tệp mẫu".
+- Quyền hiển thị: mục menu, màn hình với `finance.collection.view`; nút "Nhập tệp" theo `canManage`, "Thêm đơn vị thu hộ", "Sửa" theo `canSetup` của API_102.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc, nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_19 mục 14)
+
+### MAN_HINH_61: Chi tiết bảng đối soát
+- Mục đích: Xem các dòng đã ghép, sửa lỗi, gửi bảng đối soát.
+- Chức năng thực hiện: CHUC_NANG_89, CHUC_NANG_90, CHUC_NANG_91
+- Đường dẫn: `/finance/collection-statements/<mã>`.
+- Bố cục: tiêu đề "Bảng đối soát <số bảng của đơn vị>", nút "Danh sách".
+  - Thẻ thông tin: nhãn trạng thái, số nội bộ (khi có), "<đơn vị> · <loại> · <ngày bảng>"; ô "Tổng thu hộ", "Tổng phí", "Thực nhận" (kèm tiền tệ), "Số dòng"; khối lỗi "<số> dòng lỗi phải bỏ dòng hoặc sửa tệp rồi nhập lại trước khi gửi."; khối cảnh báo "<số> dòng có tiền thu hộ khác số khách còn nợ của đơn: thiếu thì đơn còn nợ, thừa thì thành tiền trả trước của khách."; khối lỗi "Không ghi sổ được: <lý do>" (câu đã dịch theo khóa lý do; khi có).
+  - Nút theo trạng thái: nháp, bị từ chối, đã rút (có `canManage`): "Gửi" (mờ khi còn dòng lỗi), "Nhập lại tệp"; thêm "Bỏ bảng nháp" khi nháp chưa có số; chờ duyệt (`canWithdraw`: người gửi): "Rút".
+  - Bảng dòng: "Dòng", "Mã vận đơn, giao dịch" (kèm ngày thu), "Đơn bán", "Khách hàng" (đơn không có khách: "Đơn không có khách"; không tìm thấy đơn: "—"), "Thu hộ", "Phí", "Khách còn nợ" (bảng đã ghi sổ hoặc dòng không có khách: "—"), "Kiểm tra" (lỗi: "Không tìm thấy đơn", "Đơn đã hủy", "Mã trùng trong bảng", "Mã đã có ở bảng khác"; cảnh báo: "Thừa so với còn nợ", "Thiếu so với còn nợ"; khác: "—"), cột nút "Bỏ dòng" (khi sửa được và bảng còn hơn một dòng).
+  - Ngăn kéo "Nhập lại bảng đối soát": như ngăn kéo nhập của MAN_HINH_60, điền sẵn đơn vị, số bảng, ngày bảng.
+  - Hộp xác nhận "Bỏ bảng nháp": "Bảng nháp và các dòng sẽ bị xóa."; nút "Bỏ bảng nháp".
+- Dữ liệu hiển thị: các dòng theo thứ tự trong tệp; số định dạng theo tiếng Việt.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, NhanTrangThai, KhoiCanhBao, BangDuLieu, NganKeo, HopThoaiXacNhan, ONhap, OChon, Nut (tài liệu `15`).
+- API: API_102 (đơn vị cho ngăn kéo nhập lại), API_103 (nhập lại), API_104.
+- Thao tác: "Gửi" báo "Đã gửi bảng đối soát." (chờ duyệt thì thêm "Bảng đối soát đang chờ duyệt."); "Rút" báo "Đã rút bảng đối soát."; "Bỏ dòng" báo "Đã bỏ dòng."; nhập lại báo "Đã nhập lại bảng đối soát."; "Bỏ bảng nháp" báo "Đã bỏ bảng nháp.", về MAN_HINH_60; sau mỗi thao tác tải lại bảng.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại".
+- Thông báo: lỗi thao tác hiện trong thẻ thông tin; lỗi bỏ bảng hiện trong hộp xác nhận.
+- Quyền hiển thị: nút theo `canManage`, `canWithdraw` của API và trạng thái bảng.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; ô tổng xếp lưới tự co; nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_19 mục 14)

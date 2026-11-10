@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 2.5
+- Phiên bản: 2.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ); CONG_VIEC_14 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_111 đến TIEUCHI_NGHIEMTHU_116 của MODULE_06 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_117 đến TIEUCHI_NGHIEMTHU_120 của MODULE_06 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_121 đến TIEUCHI_NGHIEMTHU_126 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_127 đến TIEUCHI_NGHIEMTHU_131 của MODULE_06 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_132 đến TIEUCHI_NGHIEMTHU_138 của MODULE_06 (đối soát ngân hàng)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ); CONG_VIEC_14 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_111 đến TIEUCHI_NGHIEMTHU_116 của MODULE_06 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_117 đến TIEUCHI_NGHIEMTHU_120 của MODULE_06 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_121 đến TIEUCHI_NGHIEMTHU_126 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_127 đến TIEUCHI_NGHIEMTHU_131 của MODULE_06 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_132 đến TIEUCHI_NGHIEMTHU_138 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_139 đến TIEUCHI_NGHIEMTHU_144 của MODULE_06 (đối soát thu hộ)
 
 ## MODULE_01 Nền tảng
 
@@ -245,3 +245,16 @@ Dữ liệu mẫu: công ty VCR, tiền tệ đồng Việt Nam; quỹ ngân hà
 | TIEUCHI_NGHIEMTHU_136 | CHUC_NANG_86 | Ghép tay chỉ với phiếu đủ điều kiện; một phiếu ghép tối đa một giao dịch; bỏ qua cần lý do; bỏ ghép đưa về chưa ghép, không đổi phiếu; mỗi thao tác có nhật ký; người không có quyền bị từ chối | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_137 | CHUC_NANG_87 | Đối chiếu quỹ theo khoảng ngày: số dư sổ đến ngày cuối, số dư ngân hàng gần nhất (khi dịch vụ gửi), chênh lệch, số giao dịch chưa ghép hai chiều, số bỏ qua, danh sách phiếu chưa có giao dịch | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_138 | CHUC_NANG_84 đến CHUC_NANG_87 | MAN_HINH_58, MAN_HINH_59 hiển thị đúng trên máy tính và điện thoại, không cuộn ngang trang, không lỗi trình duyệt | Trình duyệt | Mong muốn |
+
+## MODULE_06 Tài chính – Kế toán (phần 7: Đối soát thu hộ COD, cổng thanh toán, CONG_VIEC_19)
+
+Dữ liệu mẫu: công ty VCR, tiền tệ đồng Việt Nam; đơn vị thu hộ "Giao hàng nhanh thử" (thu COD); khách "Khách công nợ"; hàng thuế 10%, giá gồm thuế 11.000; đơn bán đã giao 10 cái (110.000), 5 cái (55.000), đơn bán lẻ không có khách; tệp Excel theo mẫu chung. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_139 | CHUC_NANG_88 | Chỉ người có quyền khai đơn vị thu hộ; đối tác phải có hồ sơ khách hàng; không khai trùng | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_140 | CHUC_NANG_89, CHUC_NANG_91 | Nhập tệp theo mẫu chung: sai mẫu, sai ô bị từ chối kèm dòng, cột; ghép đơn theo số; lỗi chặn, cảnh báo chênh lệch, tổng đúng; bỏ dòng, nhập lại, trùng số bảng, bỏ bảng nháp | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_141 | CHUC_NANG_90 | Còn dòng lỗi không gửi được; ghi sổ trừ nợ khách theo đơn, thừa thành trả trước, đơn không có khách chỉ có bút toán; nợ đơn vị thu hộ bằng thực nhận (âm thì giảm nợ); bút toán đúng tài khoản; bảng đã ghi sổ không sửa | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_142 | CHUC_NANG_90 | Khoản trừ nợ của bảng đối soát tính hoa hồng như phiếu thu | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_143 | CHUC_NANG_90 | Có chính sách duyệt thì chờ duyệt, người gửi rút, gửi lại giữ số, duyệt xong ghi sổ; tiền đơn vị chuyển về lập phiếu thu trừ nợ đơn vị thu hộ, hạch toán 1388 | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_144 | CHUC_NANG_88 đến CHUC_NANG_91 | MAN_HINH_60, MAN_HINH_61 hiển thị đúng trên máy tính và điện thoại, không cuộn ngang trang, không lỗi trình duyệt | Trình duyệt | Mong muốn |

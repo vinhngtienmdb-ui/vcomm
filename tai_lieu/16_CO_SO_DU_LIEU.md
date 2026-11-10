@@ -1,12 +1,12 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 2.5
+- Phiên bản: 2.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14); CONG_VIEC_15 (2026-11-10): thêm cột `accounting.accounts.is_long_term` (mục 15); CONG_VIEC_16 (2026-11-10): thêm bảng hóa đơn điện tử `finance.einvoice_settings`, `finance.einvoice_series`, `finance.einvoices`, `finance.einvoice_lines`, `finance.einvoice_attempts` (database migration 0013), `finance.einvoice_return_tasks` (database migration 0014) (mục 16); CONG_VIEC_17 (2026-11-10): thêm cột `sales.orders.commission_user_id`, bảng hoa hồng `finance.commission_settings`, `finance.commission_rates`, `finance.commission_channel_factors`, `finance.commission_targets`, `finance.commission_statements`, `finance.commission_statement_lines`, `finance.commission_events` (database migration 0015), nguồn bút toán `commission`, vai trò định khoản `commission_expense`, `staff_payable` (database migration 0016), cột `finance.commission_events.gross_amount` (database migration 0017) (mục 17); CONG_VIEC_18 (2026-11-10): thêm bảng `finance.bank_connections`, `finance.bank_transactions` (database migration 0018) (mục 18)
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14); CONG_VIEC_15 (2026-11-10): thêm cột `accounting.accounts.is_long_term` (mục 15); CONG_VIEC_16 (2026-11-10): thêm bảng hóa đơn điện tử `finance.einvoice_settings`, `finance.einvoice_series`, `finance.einvoices`, `finance.einvoice_lines`, `finance.einvoice_attempts` (database migration 0013), `finance.einvoice_return_tasks` (database migration 0014) (mục 16); CONG_VIEC_17 (2026-11-10): thêm cột `sales.orders.commission_user_id`, bảng hoa hồng `finance.commission_settings`, `finance.commission_rates`, `finance.commission_channel_factors`, `finance.commission_targets`, `finance.commission_statements`, `finance.commission_statement_lines`, `finance.commission_events` (database migration 0015), nguồn bút toán `commission`, vai trò định khoản `commission_expense`, `staff_payable` (database migration 0016), cột `finance.commission_events.gross_amount` (database migration 0017) (mục 17); CONG_VIEC_18 (2026-11-10): thêm bảng `finance.bank_connections`, `finance.bank_transactions` (database migration 0018) (mục 18); CONG_VIEC_19 (2026-11-10): thêm bảng `finance.collectors`, `finance.collection_statements`, `finance.collection_statement_lines`, nguồn công nợ, nguồn bút toán `collection_statement`, vai trò định khoản `collector_receivable`, `collection_fee` (database migration 0019) (mục 19)
 
-Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14); cột tài khoản dài hạn của MODULE_06 phần 3 (CONG_VIEC_15, mục 15); bảng hóa đơn điện tử của MODULE_06 phần 4 trong schema `finance` (CONG_VIEC_16, mục 16); bảng hoa hồng đội kinh doanh của MODULE_06 phần 5 trong schema `finance` (CONG_VIEC_17, mục 17); bảng đối soát ngân hàng của MODULE_06 phần 6 trong schema `finance` (CONG_VIEC_18, mục 18). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14); cột tài khoản dài hạn của MODULE_06 phần 3 (CONG_VIEC_15, mục 15); bảng hóa đơn điện tử của MODULE_06 phần 4 trong schema `finance` (CONG_VIEC_16, mục 16); bảng hoa hồng đội kinh doanh của MODULE_06 phần 5 trong schema `finance` (CONG_VIEC_17, mục 17); bảng đối soát ngân hàng của MODULE_06 phần 6 trong schema `finance` (CONG_VIEC_18, mục 18); bảng đối soát thu hộ của MODULE_06 phần 7 trong schema `finance` (CONG_VIEC_19, mục 19). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -1957,7 +1957,7 @@ Tệp `database/migrations/0010_finance.sql` tạo schema `finance` của MODULE
 | Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
 |---|---|---|---|
 | `funds` | Quỹ tiền mặt, tài khoản ngân hàng (CHUC_NANG_65; QUYTAC_NGHIEPVU_85) | `company_id`, `code` (1 đến 20 ký tự), `name`, `kind` (`cash`, `bank`), `bank_name`, `account_no`, `account_holder`, `opening_balance` (`numeric(20,4)`, không âm), `status` (`active`, `inactive`), `created_by`, `created_at`, `updated_at`, `version` | Duy nhất `(company_id, code)` (service kiểm thêm không phân biệt hoa thường); `bank` phải có `bank_name`, `account_no` |
-| `debt_items` | Khoản công nợ (CHUC_NANG_66; QUYTAC_NGHIEPVU_86, 87, 90) | `company_id`, `partner_id` (`crm.partners`), `side` (`receivable`, `payable`), `direction` (`debit` tăng nợ, `credit` giảm nợ), `source_type` (`opening`, `sales_issue`, `sales_return`, `purchase_receipt`, `purchase_return`, `payment`, `internal_write_off`), `source_id` (phiếu kho, phiếu thu chi hoặc biên bản chênh lệch nội bộ ghi tổn thất; số dư đầu kỳ trống), `original_item_id` (khoản tăng của phiếu gốc khi trả hàng, ghi tổn thất), `document_no`, `document_date`, `due_date` (chỉ khoản tăng), `amount` (lớn hơn 0, gồm thuế), `open_amount` (0 đến `amount`), `note`, `created_by`, `created_at` | `due_date` có khi và chỉ khi `debit`; `source_id` trống khi và chỉ khi `opening`; duy nhất `(source_type, source_id)` khi có `source_id`; chỉ mục `(company_id, side, partner_id, direction)`, `(company_id, side, partner_id)` với `open_amount > 0` |
+| `debt_items` | Khoản công nợ (CHUC_NANG_66; QUYTAC_NGHIEPVU_86, 87, 90) | `company_id`, `partner_id` (`crm.partners`), `side` (`receivable`, `payable`), `direction` (`debit` tăng nợ, `credit` giảm nợ), `source_type` (`opening`, `sales_issue`, `sales_return`, `purchase_receipt`, `purchase_return`, `payment`, `internal_write_off`; database migration 0019 thêm `collection_statement`), `source_id` (phiếu kho, phiếu thu chi, biên bản chênh lệch nội bộ ghi tổn thất, dòng bảng đối soát thu hộ hoặc bảng đối soát thu hộ; số dư đầu kỳ trống), `original_item_id` (khoản tăng của phiếu gốc khi trả hàng, ghi tổn thất), `document_no`, `document_date`, `due_date` (chỉ khoản tăng), `amount` (lớn hơn 0, gồm thuế), `open_amount` (0 đến `amount`), `note`, `created_by`, `created_at` | `due_date` có khi và chỉ khi `debit`; `source_id` trống khi và chỉ khi `opening`; duy nhất `(source_type, source_id)` khi có `source_id`; chỉ mục `(company_id, side, partner_id, direction)`, `(company_id, side, partner_id)` với `open_amount > 0` |
 | `debt_allocations` | Trừ nợ: ghép khoản giảm với khoản tăng (QUYTAC_NGHIEPVU_87) | `company_id`, `debit_item_id`, `credit_item_id` (xóa theo khoản), `amount` (lớn hơn 0), `created_at` | Chỉ mục `debit_item_id`, `credit_item_id`; service chỉ ghép hai khoản cùng công ty, đối tác, phía |
 | `payments` | Phiếu thu, phiếu chi (CHUC_NANG_67; QUYTAC_NGHIEPVU_88, 89) | `company_id`, `document_no` (cấp khi gửi lần đầu), `kind` (`customer_receipt`, `supplier_payment`, `customer_refund`, `supplier_refund`), `partner_id`, `fund_id`, `payment_date`, `amount` (lớn hơn 0), `note`, `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`), `approval_request_id` (`core.approval_requests`), `post_error` (khóa thông báo lỗi khi duyệt xong không ghi sổ được, ví dụ `insufficientFundBalance`), `posted_at`, `created_by`, `created_at`, `updated_at`, `version` | Duy nhất `(company_id, kind, document_no)`; chỉ mục `(company_id, status, payment_date)`, `(fund_id, status)`, `approval_request_id` |
 | `payment_lines` | Chứng từ còn nợ người lập chọn trừ | `payment_id` (xóa theo phiếu), `debit_item_id`, `amount` (lớn hơn 0) | Khóa chính `(payment_id, debit_item_id)` |
@@ -2151,8 +2151,8 @@ Tệp `database/migrations/0011_accounting.sql` tạo schema `accounting` của 
 |---|---|---|---|
 | `settings` | Cài đặt kế toán của công ty đã khởi tạo (QUYTAC_NGHIEPVU_93, 97); không có dòng là chưa khởi tạo | `company_id` (khóa chính), `locked_through` (đã khóa sổ đến hết ngày), `initialized_by`, `initialized_at`, `version` | Ghi sổ chứng từ đọc với `FOR SHARE`; khóa sổ, mở lại với `FOR UPDATE` |
 | `accounts` | Hệ thống tài khoản (CHUC_NANG_69; QUYTAC_NGHIEPVU_93) | `company_id`, `code` (3 đến 20 chữ số hoặc chữ cái), `name`, `parent_id`, `nature` (`debit`, `credit`, `both`), `is_system` (nạp từ chế độ), `status` (`active`, `inactive`), `created_at`, `updated_at`, `version` | Duy nhất `(company_id, code)`; chỉ mục `parent_id`; service kiểm số hiệu bắt đầu bằng số hiệu cha |
-| `posting_rules` | Định khoản mặc định (CHUC_NANG_70; QUYTAC_NGHIEPVU_94) | `company_id`, `role` (18 vai trò ở `apps/api/src/accounting/postings.ts`; CONG_VIEC_17 thêm `commission_expense`, `staff_payable`: 20 vai trò), `account_id`, `updated_at`, `updated_by` | Khóa chính `(company_id, role)` |
-| `journals` | Bút toán: tự sinh, phiếu kế toán, kết chuyển (CHUC_NANG_71 đến 73; QUYTAC_NGHIEPVU_95 đến 97) | `company_id`, `journal_no` (phiếu kế toán: cấp khi gửi; tự sinh: số chứng từ gốc; kết chuyển: `KC-YYYY-MM`), `journal_date`, `source_type` (`manual`, `inventory_document`, `payment`, `internal_write_off`, `closing`; database migration 0016 thêm `commission`), `source_id`, `description`, `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`), `approval_request_id` (`core.approval_requests`), `post_error` (khóa thông báo khi duyệt xong không ghi sổ được, ví dụ `periodLocked`), `total_amount` (tổng Nợ, `numeric(20,4)`), `created_by`, `posted_at`, `created_at`, `updated_at`, `version` | Không phải `manual` thì phải `posted`; duy nhất `(source_type, source_id)` khi có `source_id`; chỉ mục `(company_id, status, journal_date)`, `approval_request_id` |
+| `posting_rules` | Định khoản mặc định (CHUC_NANG_70; QUYTAC_NGHIEPVU_94) | `company_id`, `role` (18 vai trò ở `apps/api/src/accounting/postings.ts`; CONG_VIEC_17 thêm `commission_expense`, `staff_payable`; CONG_VIEC_19 thêm `collector_receivable`, `collection_fee`: 22 vai trò), `account_id`, `updated_at`, `updated_by` | Khóa chính `(company_id, role)` |
+| `journals` | Bút toán: tự sinh, phiếu kế toán, kết chuyển (CHUC_NANG_71 đến 73; QUYTAC_NGHIEPVU_95 đến 97) | `company_id`, `journal_no` (phiếu kế toán: cấp khi gửi; tự sinh: số chứng từ gốc; kết chuyển: `KC-YYYY-MM`), `journal_date`, `source_type` (`manual`, `inventory_document`, `payment`, `internal_write_off`, `closing`; database migration 0016 thêm `commission`; database migration 0019 thêm `collection_statement`), `source_id`, `description`, `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`), `approval_request_id` (`core.approval_requests`), `post_error` (khóa thông báo khi duyệt xong không ghi sổ được, ví dụ `periodLocked`), `total_amount` (tổng Nợ, `numeric(20,4)`), `created_by`, `posted_at`, `created_at`, `updated_at`, `version` | Không phải `manual` thì phải `posted`; duy nhất `(source_type, source_id)` khi có `source_id`; chỉ mục `(company_id, status, journal_date)`, `approval_request_id` |
 | `journal_lines` | Dòng bút toán | `journal_id` (xóa theo bút toán), `line_no`, `account_id`, `partner_id` (`crm.partners`), `debit`, `credit` (không âm, `numeric(20,4)`), `description` | Duy nhất `(journal_id, line_no)`; đúng một bên lớn hơn 0; chỉ mục `account_id`, `partner_id` |
 
 Hàm làm tròn dùng chung (THAY_DOI_10, quyết định của người dùng 2026-11-10; QUYTAC_NGHIEPVU_86, QUYTAC_NGHIEPVU_95):
@@ -2725,4 +2725,108 @@ CREATE UNIQUE INDEX bank_transactions_payment_idx ON finance.bank_transactions (
 CREATE INDEX bank_transactions_fund_idx ON finance.bank_transactions (fund_id, transaction_date);
 CREATE INDEX bank_transactions_company_idx ON finance.bank_transactions (company_id, transaction_date);
 CREATE INDEX bank_transactions_open_idx ON finance.bank_transactions (fund_id, direction, amount) WHERE status = 'unmatched';
+```
+
+## 19. Database migration 0019 – CONG_VIEC_19 (đối soát thu hộ)
+
+Tệp `database/migrations/0019_collection_statements.sql` (lát L0) thêm 3 bảng vào schema `finance`; thêm nguồn `collection_statement` vào ràng buộc `finance.debt_items.source_type`, `accounting.journals.source_type`; định khoản mặc định hai vai trò mới cho công ty đã khởi tạo kế toán (`collector_receivable`: 1388; `collection_fee`: 6418 với Thông tư 99/2025, 6421 với Thông tư 133; công ty thiếu tài khoản thì không thêm). Lát L1 không thêm database migration. Khóa ngoại từ bảng mới trỏ vào `core`, `crm`, `sales`, `finance`.
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `collectors` | Đơn vị thu hộ (CHUC_NANG_88; QUYTAC_NGHIEPVU_118) | `company_id`, `partner_id` (`crm.partners`; service kiểm hồ sơ khách hàng đang dùng), `kind` (`cod`, `gateway`), `status` (`active`, `inactive`), `created_by`, `created_at`, `version` | Duy nhất `(company_id, partner_id)` |
+| `collection_statements` | Bảng đối soát thu hộ (CHUC_NANG_89 đến CHUC_NANG_91; QUYTAC_NGHIEPVU_118 đến QUYTAC_NGHIEPVU_122) | `company_id`, `collector_id`, `statement_no` (số bảng của đơn vị, 1 đến 100 ký tự), `document_no` (số nội bộ `DST…`, cấp khi gửi lần đầu), `statement_date`, `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`), `total_collected`, `total_fee`, `approval_request_id`, `post_error` (khóa thông báo khi duyệt xong không ghi sổ được), `created_by`, `created_at`, `submitted_at`, `submitted_by` (người gửi lần gần nhất, được rút), `posted_at`, `version` | Chỉ mục `(company_id, statement_date)`, `approval_request_id`; số bảng không trùng trong cùng đơn vị (trừ `rejected`, `withdrawn`) kiểm trong service |
+| `collection_statement_lines` | Dòng bảng đối soát (CHUC_NANG_89; QUYTAC_NGHIEPVU_119) | `statement_id` (xóa theo bảng), `line_no` (dòng trong tệp), `reference` (mã vận đơn hoặc mã giao dịch, 1 đến 100 ký tự), `order_no` (số đơn trong tệp, chữ hoa), `order_id` (`sales.orders`, trống khi không tìm thấy), `customer_id` (khách của đơn lúc nhập), `collected_amount`, `fee_amount` (không âm), `collected_date` | Duy nhất `(statement_id, line_no)`; chỉ mục `reference`, `order_id` |
+| `finance.debt_items` (0019) | Khoản công nợ của bảng đối soát | `source_type` thêm `collection_statement`; `source_id` là dòng bảng (khoản giảm phải thu của khách) hoặc bảng (khoản phải thu của đơn vị thu hộ) | Duy nhất `(source_type, source_id)` như cũ |
+| `accounting.journals` (0019) | Bút toán bảng đối soát | `source_type` thêm `collection_statement`, `source_id` là bảng | Duy nhất `(source_type, source_id)` như cũ |
+| `accounting.posting_rules` (0019) | Định khoản mặc định vai trò `collector_receivable`, `collection_fee` của công ty đã khởi tạo kế toán | `company_id`, `role`, `account_id` | Bỏ qua khi đã có (`ON CONFLICT DO NOTHING`) |
+
+Định khoản khi ghi sổ (QUYTAC_NGHIEPVU_121): Nợ `collector_receivable` (đối tác của đơn vị) tổng tiền thu hộ / Có `receivable` gộp theo khách (đơn không có khách: không có đối tác); Nợ `collection_fee` / Có `collector_receivable` (đối tác của đơn vị) tổng phí. Ngày bút toán là ngày bảng, số là `document_no`. Phiếu thu khách hàng, phiếu chi hoàn tiền cho khách hàng có đối tác là đơn vị thu hộ (có dòng `finance.collectors`) hạch toán `collector_receivable` thay vì `receivable` (sửa lỗi rà soát, commit 0480edc).
+
+Quy tắc xóa và lưu giữ bổ sung:
+- Bỏ bảng nháp chưa gửi lần nào xóa bảng và dòng; nhập lại, bỏ dòng xóa dòng của bảng nháp, bị từ chối, đã rút.
+- Bảng đã ghi sổ, dòng, khoản công nợ, bút toán của bảng không sửa, không xóa. Bảng bị từ chối, đã rút giữ lại.
+- Không xóa đơn vị thu hộ; ngừng dùng bằng `status`.
+
+```mermaid
+erDiagram
+    partners ||--o| collectors : "đơn vị thu hộ"
+    collectors ||--o{ collection_statements : "bảng đối soát"
+    collection_statements ||--o{ collection_statement_lines : "dòng"
+    orders |o--o{ collection_statement_lines : "đơn bán ghép được"
+    partners |o--o{ collection_statement_lines : "khách của đơn"
+    collection_statement_lines ||--o| debt_items : "giảm phải thu khách (source_type collection_statement)"
+    collection_statements ||--o| debt_items : "phải thu đơn vị thu hộ (source_type collection_statement)"
+    collection_statements ||--o| journals : "bút toán (source_type collection_statement)"
+```
+
+Lược đồ (chép từ tệp `database/migrations/0019_collection_statements.sql`):
+
+```sql
+-- CONG_VIEC_19: Đối soát thu hộ COD, cổng thanh toán (CHUC_NANG_88 đến 91; QUYTAC_NGHIEPVU_118 đến 122).
+
+-- Đơn vị thu hộ: đối tác có hồ sơ khách hàng của công ty (CHUC_NANG_88).
+CREATE TABLE finance.collectors (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    partner_id          uuid        NOT NULL REFERENCES crm.partners(id),
+    kind                text        NOT NULL CHECK (kind IN ('cod', 'gateway')),
+    status              text        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+    created_by          uuid        NOT NULL REFERENCES core.users(id),
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    version             integer     NOT NULL DEFAULT 0,
+    UNIQUE (company_id, partner_id)
+);
+
+-- Bảng đối soát thu hộ (CHUC_NANG_89, 90).
+CREATE TABLE finance.collection_statements (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    collector_id        uuid        NOT NULL REFERENCES finance.collectors(id),
+    statement_no        text        NOT NULL CHECK (length(statement_no) BETWEEN 1 AND 100),   -- số bảng của đơn vị thu hộ
+    document_no         text,                                                               -- số nội bộ, cấp khi gửi lần đầu
+    statement_date      date        NOT NULL,
+    status              text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'posted', 'rejected', 'withdrawn')),
+    total_collected     numeric(20,4) NOT NULL DEFAULT 0,
+    total_fee           numeric(20,4) NOT NULL DEFAULT 0,
+    approval_request_id uuid,
+    post_error          text,
+    created_by          uuid        NOT NULL REFERENCES core.users(id),
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    submitted_at        timestamptz,
+    submitted_by        uuid        REFERENCES core.users(id),     -- người gửi, được rút
+    posted_at           timestamptz,
+    version             integer     NOT NULL DEFAULT 0
+);
+CREATE INDEX collection_statements_company_idx ON finance.collection_statements (company_id, statement_date);
+CREATE INDEX collection_statements_approval_idx ON finance.collection_statements (approval_request_id);
+
+CREATE TABLE finance.collection_statement_lines (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    statement_id        uuid        NOT NULL REFERENCES finance.collection_statements(id) ON DELETE CASCADE,
+    line_no             integer     NOT NULL,                       -- dòng trong tệp
+    reference           text        NOT NULL CHECK (length(reference) BETWEEN 1 AND 100),
+    order_no            text        NOT NULL,
+    order_id            uuid        REFERENCES sales.orders(id),
+    customer_id         uuid        REFERENCES crm.partners(id),
+    collected_amount    numeric(20,4) NOT NULL CHECK (collected_amount >= 0),
+    fee_amount          numeric(20,4) NOT NULL CHECK (fee_amount >= 0),
+    collected_date      date,
+    UNIQUE (statement_id, line_no)
+);
+CREATE INDEX collection_statement_lines_reference_idx ON finance.collection_statement_lines (reference);
+CREATE INDEX collection_statement_lines_order_idx ON finance.collection_statement_lines (order_id);
+
+-- Nguồn công nợ, nguồn bút toán của bảng đối soát (QUYTAC_NGHIEPVU_120, 121).
+ALTER TABLE finance.debt_items DROP CONSTRAINT debt_items_source_type_check;
+ALTER TABLE finance.debt_items ADD CONSTRAINT debt_items_source_type_check
+    CHECK (source_type IN ('opening', 'sales_issue', 'sales_return', 'purchase_receipt', 'purchase_return', 'payment', 'internal_write_off', 'collection_statement'));
+ALTER TABLE accounting.journals DROP CONSTRAINT journals_source_type_check;
+ALTER TABLE accounting.journals ADD CONSTRAINT journals_source_type_check
+    CHECK (source_type IN ('manual', 'inventory_document', 'payment', 'internal_write_off', 'closing', 'commission', 'collection_statement'));
+INSERT INTO accounting.posting_rules (company_id, role, account_id)
+SELECT s.company_id, r.role, a.id
+FROM accounting.settings s JOIN core.companies c ON c.id = s.company_id
+CROSS JOIN (VALUES ('collector_receivable', '1388', '1388'), ('collection_fee', '6418', '6421')) AS r(role, code_tt99, code_tt133)
+JOIN accounting.accounts a ON a.company_id = s.company_id AND a.code = CASE WHEN c.accounting_regime = 'TT133' THEN r.code_tt133 ELSE r.code_tt99 END
+ON CONFLICT DO NOTHING;
 ```
