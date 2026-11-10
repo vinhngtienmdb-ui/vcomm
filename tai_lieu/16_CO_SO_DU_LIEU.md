@@ -1,12 +1,12 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8)
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9)
 
-Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) và schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) và schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -708,7 +708,7 @@ Tệp `database/migrations/0003_catalog.sql` tạo schema `catalog` của MODULE
 
 | Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
 |---|---|---|---|
-| `categories` | Ngành hàng dùng chung tập đoàn (CHUC_NANG_30; QUYTAC_NGHIEPVU_37) | `parent_id`, `code`, `name_vi`, `name_en`, `level`, `tracks_lots`, `tracks_serials`, `warranty_months`, `status`, cột người tạo, người sửa, `version` | `code` duy nhất, dạng `^[A-Z0-9]{2,6}$`; `level` 1 đến 4; `warranty_months` 0 đến 120; không bật cùng lúc lô và serial; chỉ mục `parent_id` |
+| `categories` | Ngành hàng dùng chung tập đoàn (CHUC_NANG_30; QUYTAC_NGHIEPVU_37) | `parent_id`, `code`, `name_vi`, `name_en`, `level`, `tracks_lots`, `tracks_serials`, `warranty_months`, `requires_quality_check` (CONG_VIEC_07, mục 9), `status`, cột người tạo, người sửa, `version` | `code` duy nhất, dạng `^[A-Z0-9]{2,6}$`; `level` 1 đến 4; `warranty_months` 0 đến 120; không bật cùng lúc lô và serial; chỉ mục `parent_id` |
 | `units` | Đơn vị tính dùng chung tập đoàn | `code`, `name_vi`, `name_en`, `status`, `version` | `code` duy nhất, dạng `^[A-Z0-9_]{1,10}$`; nạp sẵn 14 đơn vị (`CAI`, `CHIEC`, `HOP`, `THUNG`, `GOI`, `CHAI`, `LON`, `BO`, `KG`, `G`, `L`, `ML`, `M`, `M2`) |
 | `code_counters` | Bộ đếm sinh mã sản phẩm (QUYTAC_NGHIEPVU_39) | `company_id`, `prefix`, `next_value` | Khóa chính `(company_id, prefix)` |
 | `products` | Sản phẩm của công ty (CHUC_NANG_31; QUYTAC_NGHIEPVU_38) | `company_id`, `seller_id` (nhà bán sở hữu; trống là hàng của công ty; dùng ở phần Nhà bán), `review_status` (`draft`, `pending`, `approved`, `rejected`; mặc định `approved`), `category_id`, `code`, `name`, `search_text` (tên, mã, thương hiệu bỏ dấu, chữ thường), `description`, `brand`, `origin`, `vat_rate` (`0`, `5`, `8`, `10`, `exempt`, `not_declared`), `tracks_lots`, `tracks_serials`, `warranty_months`, `base_unit_id`, `weight_kg`, `volume_m3`, `options` (JSON thuộc tính phân loại), `specifications` (JSON thông số), `status`, cột người tạo, người sửa, `version` | Duy nhất `(company_id, code)`; không bật cùng lúc lô và serial; chỉ mục `(company_id, category_id)`, `(company_id, updated_at DESC)` |
@@ -1016,8 +1016,8 @@ Tệp `database/migrations/0004_inventory.sql` tạo schema `inventory` của MO
 | `serials` | Serial, giá vốn đích danh (QUYTAC_NGHIEPVU_47, QUYTAC_NGHIEPVU_48) | `company_id`, `variant_id`, `serial_no`, `warehouse_id`, `location_id`, `status` (`in_stock`, `in_transit`, `issued`), `unit_cost` | Duy nhất `(company_id, serial_no)`; chỉ mục một phần `(warehouse_id, company_id, variant_id) WHERE status = 'in_stock'` |
 | `balances` | Tồn theo kho, chủ hàng, biến thể, lô, vị trí (đơn vị cơ sở) | `warehouse_id`, `company_id`, `variant_id`, `lot_id`, `location_id`, `quantity` | `quantity >= 0` (tồn không âm); chỉ mục duy nhất `(warehouse_id, company_id, variant_id, lô, vị trí)` (trống thay bằng UUID toàn số 0); chỉ mục `(company_id, variant_id)` |
 | `costs` | Giá vốn bình quân theo kho, chủ hàng, biến thể (QUYTAC_NGHIEPVU_48); dòng khóa khi ghi sổ, giữ hàng | `warehouse_id`, `company_id`, `variant_id`, `quantity`, `value`, `average_cost`, `method` (mặc định `moving_average`, chừa chỗ phương pháp khác) | Khóa chính `(warehouse_id, company_id, variant_id)`; `quantity >= 0` |
-| `documents` | Phiếu kho thuộc công ty chủ hàng (QUYTAC_NGHIEPVU_46, QUYTAC_NGHIEPVU_50, QUYTAC_NGHIEPVU_52) | `company_id`, `warehouse_id`, `destination_warehouse_id`, `type` (`receipt_other`, `issue_other`, `adjustment`, `transfer`), `document_no` (cấp khi gửi), `document_date`, `reason_code`, `reason`, `note`, `status` (`draft`, `pending`, `posted`, `in_transit`, `received`, `rejected`, `withdrawn`), `approval_request_id`, `source_type`, `source_id` (trống: không có chứng từ gốc), `stocktake_id`, `created_by`, thời điểm gửi, ghi sổ, xuất (kèm người), nhận (kèm người), `version` | Duy nhất `(company_id, document_no)`; có kho đích khi và chỉ khi là phiếu chuyển kho; chỉ mục `(company_id, created_at DESC)`, `(warehouse_id, created_at DESC)`, `approval_request_id` |
-| `document_lines` | Dòng phiếu | `document_id`, `line_no`, `variant_id`, `unit_id`, `quantity` (khác 0, âm chỉ ở phiếu điều chỉnh), `base_quantity`, `unit_cost` (đơn giá theo đơn vị của dòng), `cost_value` (giá trị đã ghi sổ), `lot_id`, `lot_no`, `manufactured_on`, `expires_on`, `lot_override_reason`, `location_id`, `destination_location_id`, `received_base_quantity`, `responsible_user_id`, `compensation_amount` | Duy nhất `(document_id, line_no)`; xóa theo phiếu |
+| `documents` | Phiếu kho thuộc công ty chủ hàng (QUYTAC_NGHIEPVU_46, QUYTAC_NGHIEPVU_50, QUYTAC_NGHIEPVU_52) | `company_id`, `warehouse_id`, `destination_warehouse_id`, `type` (`receipt_other`, `issue_other`, `adjustment`, `transfer`; CONG_VIEC_07 thêm `purchase_receipt`, `purchase_return`), `document_no` (cấp khi gửi), `document_date`, `reason_code`, `reason`, `note`, `status` (`draft`, `pending`, `posted`, `in_transit`, `received`, `rejected`, `withdrawn`; CONG_VIEC_07 thêm `quality_check`), `approval_request_id`, `source_type`, `source_id` (trống: không có chứng từ gốc), `stocktake_id`, `partner_id`, `quality_checked_at`, `quality_checked_by` (CONG_VIEC_07, mục 9), `created_by`, thời điểm gửi, ghi sổ, xuất (kèm người), nhận (kèm người), `version` | Duy nhất `(company_id, document_no)`; có kho đích khi và chỉ khi là phiếu chuyển kho; chỉ mục `(company_id, created_at DESC)`, `(warehouse_id, created_at DESC)`, `approval_request_id` |
+| `document_lines` | Dòng phiếu | `document_id`, `line_no`, `variant_id`, `unit_id`, `quantity` (khác 0, âm chỉ ở phiếu điều chỉnh), `base_quantity`, `unit_cost` (đơn giá theo đơn vị của dòng), `cost_value` (giá trị đã ghi sổ), `lot_id`, `lot_no`, `manufactured_on`, `expires_on`, `lot_override_reason`, `location_id`, `destination_location_id`, `received_base_quantity`, `responsible_user_id`, `compensation_amount`, `source_line_id`, `rejected_base_quantity`, `rejection_reason` (CONG_VIEC_07, mục 9) | Duy nhất `(document_id, line_no)`; xóa theo phiếu |
 | `document_line_serials` | Serial của dòng phiếu | `line_id`, `serial_no`, `serial_id` (gán khi ghi sổ) | Khóa chính `(line_id, serial_no)`; xóa theo dòng |
 | `movements` | Thẻ kho (QUYTAC_NGHIEPVU_49) | `id` (`bigserial`), `warehouse_id`, `company_id`, `variant_id`, `lot_id`, `location_id`, `serial_id`, `quantity` (có dấu), `unit_cost`, `value`, `balance_after` (tồn của biến thể tại kho cho chủ hàng), `document_id`, `line_id`, `moved_at` | Trigger `movements_append_only` gọi hàm `inventory.reject_movement_change()` chặn mọi `UPDATE`, `DELETE`; chỉ mục `(warehouse_id, company_id, variant_id, id)`, `document_id` |
 | `transfer_discrepancies` | Biên bản chênh lệch chuyển kho (QUYTAC_NGHIEPVU_52) | `document_id`, `line_id`, `shipped_quantity`, `received_quantity`, `difference`, `value`, `note`, `created_by`, `created_at` | |
@@ -1450,4 +1450,188 @@ CREATE TABLE crm.partner_profiles (
     CHECK (is_customer OR is_supplier)
 );
 CREATE INDEX partner_profiles_partner_idx ON crm.partner_profiles (partner_id);
+```
+
+## 9. Database migration 0006 – CONG_VIEC_07 (schema `purchasing`)
+
+Tệp `database/migrations/0006_purchasing.sql` tạo schema `purchasing` của MODULE_04 Mua hàng (phần 1: Mua hàng trong nước), 6 bảng; thêm cột vào `catalog.categories`, `inventory.documents`, `inventory.document_lines`. Khóa ngoại từ `purchasing` chỉ trỏ vào `purchasing`, `core`, `catalog`, `crm`; kho nhận (`inventory.warehouses`) kiểm trong service, không đặt khóa ngoại. Số đã nhận, đã trả của dòng đơn mua tính từ phiếu kho (`inventory.document_lines.source_line_id`), không lưu trùng. Quyền `purchasing.price.manage`, `purchasing.requisition.create`, `purchasing.order.view`, `purchasing.order.manage`, `purchasing.settings.manage`, `inventory.purchase.receive`, vai trò `purchaser`, loại chứng từ `purchasing.requisition`, `purchasing.order` (cần duyệt), `inventory.purchase_receipt`, `inventory.purchase_return` (không cần duyệt) ghi vào bảng của `core` bằng hàm đồng bộ danh mục quyền (`apps/api/src/permissions/permission-catalog.ts`).
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `settings` | Cài đặt mua hàng theo công ty (QUYTAC_NGHIEPVU_64) | `company_id` (khóa chính), `over_receipt_tolerance_percent` (`numeric(5,2)`, mặc định 0), `updated_by`, `updated_at`, `version` | Dung sai 0 đến 100; chưa có dòng thì dung sai 0, phiên bản 0 |
+| `supplier_prices` | Bảng giá mua (CHUC_NANG_49; QUYTAC_NGHIEPVU_61) | `company_id`, `supplier_id` (`crm.partners`), `variant_id`, `unit_id`, `min_quantity` (mặc định 0), `unit_price` (chưa thuế), `supplier_sku`, `valid_from`, `valid_to` (trống: không thời hạn), `status`, `created_by`, `version` | `min_quantity >= 0`, `unit_price >= 0`, `valid_to >= valid_from`; chồng hiệu lực kiểm trong service khi giữ khóa tư vấn theo (công ty, nhà cung cấp, mặt hàng, đơn vị); chỉ mục `(company_id, supplier_id, variant_id, unit_id)`, `(company_id, variant_id)` |
+| `requisitions` | Đề nghị mua (CHUC_NANG_50; QUYTAC_NGHIEPVU_62) | `company_id`, `document_no` (cấp khi gửi), `warehouse_id`, `needed_by`, `reason`, `status` (`draft`, `pending`, `approved`, `rejected`, `withdrawn`, `closed`), `approval_request_id`, `created_by`, `submitted_at`, `version` | Duy nhất `(company_id, document_no)`; chỉ mục `(company_id, created_at DESC)`, `approval_request_id` |
+| `requisition_lines` | Dòng đề nghị mua | `requisition_id`, `line_no`, `variant_id`, `unit_id`, `quantity`, `base_quantity`, `estimated_unit_price` (mặc định 0), `suggested_supplier_id`, `note` | Số lượng lớn hơn 0; duy nhất `(requisition_id, line_no)`; xóa theo đề nghị |
+| `orders` | Đơn mua (CHUC_NANG_51; QUYTAC_NGHIEPVU_63, QUYTAC_NGHIEPVU_64) | `company_id`, `document_no` (cấp khi gửi lần đầu), `supplier_id`, `warehouse_id`, `order_date`, `expected_date`, `currency` (tiền tệ của công ty), `note`, `status` (`draft`, `pending`, `approved`, `rejected`, `withdrawn`, `received`, `closed`), `approval_request_id`, `approved_total`, `approved_supplier_id` (lần duyệt gần nhất, so khi sửa), `total_amount` (chưa thuế), `tax_amount`, `closed_reason`, `closed_at`, `closed_by`, `created_by`, `submitted_at`, `version` | Duy nhất `(company_id, document_no)`; chỉ mục `(company_id, created_at DESC)`, `(company_id, supplier_id)`, `approval_request_id` |
+| `order_lines` | Dòng đơn mua | `order_id`, `line_no`, `variant_id`, `unit_id`, `quantity`, `base_quantity`, `unit_price` (chưa thuế, theo đơn vị của dòng), `vat_rate` (`0`, `5`, `8`, `10`, `exempt`, `not_declared`), `amount`, `requisition_line_id` | Số lượng lớn hơn 0, đơn giá không âm; duy nhất `(order_id, line_no)`; xóa theo đơn; chỉ mục `requisition_line_id` |
+
+Cột, ràng buộc thêm vào bảng của schema khác:
+
+| Bảng | Cột, ràng buộc | Mục đích |
+|---|---|---|
+| `catalog.categories` | `requires_quality_check` (`boolean`, mặc định `false`) | Hàng thuộc ngành cần kiểm tra chất lượng khi nhập mua (QUYTAC_NGHIEPVU_65); sửa ngành hàng không gửi giá trị thì giữ nguyên |
+| `inventory.documents` | `type` thêm `purchase_receipt`, `purchase_return`; `status` thêm `quality_check`; `reason_code` thêm `purchase`, `purchase_return`; `partner_id` (nhà cung cấp, không khóa ngoại); `quality_checked_at`, `quality_checked_by`; ràng buộc phiếu nhập mua, trả hàng phải có `source_id`, `partner_id`; chỉ mục `(source_type, source_id)` | Phiếu nhập mua (`source_type` `purchasing.order`, `source_id` là đơn mua), phiếu trả hàng (`source_type` `inventory.document`, `source_id` là phiếu nhập gốc) do module Kho ghi |
+| `inventory.document_lines` | `source_line_id` (dòng đơn mua hoặc dòng phiếu nhập gốc, không khóa ngoại); `rejected_base_quantity` (không âm); `rejection_reason`; chỉ mục `source_line_id` | Số không đạt kiểm tra chất lượng và lý do; tính số đã nhận, đã trả |
+
+Quy tắc xóa và lưu giữ bổ sung:
+- Không xóa giá mua, đề nghị mua, đơn mua đã gửi: dùng `status`. Dòng đề nghị, dòng đơn ghi lại khi sửa; dòng đơn đã có phiếu nhập giữ nguyên mã dòng.
+- Phiếu nhập mua, trả hàng nháp xóa được như phiếu kho nháp; phiếu đã gửi không xóa.
+- Phần không đạt kiểm tra chất lượng không vào sổ kho, chỉ ghi trên dòng phiếu; serial không đạt bỏ khỏi dòng, ghi vào lý do.
+
+```mermaid
+erDiagram
+    companies ||--o| settings : "cài đặt"
+    companies ||--o{ supplier_prices : "bảng giá"
+    partners ||--o{ supplier_prices : "nhà cung cấp"
+    requisitions ||--|{ requisition_lines : "dòng"
+    orders ||--|{ order_lines : "dòng"
+    requisition_lines |o--o{ order_lines : "đặt từ"
+    partners ||--o{ orders : "nhà cung cấp"
+    orders |o--o{ documents : "phiếu nhập mua"
+    order_lines |o--o{ document_lines : "dòng nhập"
+    documents |o--o{ documents : "phiếu trả từ phiếu nhập"
+```
+
+Lược đồ (chép từ tệp `database/migrations/0006_purchasing.sql`):
+
+```sql
+-- CONG_VIEC_07: Mua hàng trong nước (MODULE_04, phần 1), schema `purchasing` (tài liệu 12 mục 2, tài liệu 16).
+-- Khóa ngoại từ `purchasing` chỉ trỏ vào `purchasing`, `core`, `catalog`, `crm`.
+-- Số đã nhận, đã trả của dòng đơn mua tính từ phiếu kho, không lưu trùng.
+
+CREATE SCHEMA IF NOT EXISTS purchasing;
+
+-- Cài đặt mua hàng theo công ty: dung sai nhận vượt (QUYTAC_NGHIEPVU_64).
+CREATE TABLE purchasing.settings (
+    company_id                      uuid        PRIMARY KEY REFERENCES core.companies(id),
+    over_receipt_tolerance_percent  numeric(5,2) NOT NULL DEFAULT 0 CHECK (over_receipt_tolerance_percent BETWEEN 0 AND 100),
+    updated_by                      uuid        REFERENCES core.users(id),
+    updated_at                      timestamptz NOT NULL DEFAULT now(),
+    version                         integer     NOT NULL DEFAULT 1
+);
+
+-- Bảng giá mua theo nhà cung cấp (CHUC_NANG_49; QUYTAC_NGHIEPVU_61). Chồng hiệu lực kiểm trong service khi khóa dòng nhà cung cấp.
+CREATE TABLE purchasing.supplier_prices (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id      uuid        NOT NULL REFERENCES core.companies(id),
+    supplier_id     uuid        NOT NULL REFERENCES crm.partners(id),
+    variant_id      uuid        NOT NULL REFERENCES catalog.variants(id),
+    unit_id         uuid        NOT NULL REFERENCES catalog.units(id),
+    min_quantity    numeric(20,4) NOT NULL DEFAULT 0 CHECK (min_quantity >= 0),
+    unit_price      numeric(20,4) NOT NULL CHECK (unit_price >= 0),     -- chưa gồm thuế giá trị gia tăng, tiền tệ công ty
+    supplier_sku    text,                                               -- mã hàng phía nhà cung cấp
+    valid_from      date        NOT NULL,
+    valid_to        date,
+    status          text        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+    created_by      uuid        NOT NULL REFERENCES core.users(id),
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    updated_at      timestamptz NOT NULL DEFAULT now(),
+    version         integer     NOT NULL DEFAULT 1,
+    CHECK (valid_to IS NULL OR valid_to >= valid_from)
+);
+CREATE INDEX supplier_prices_lookup_idx ON purchasing.supplier_prices (company_id, supplier_id, variant_id, unit_id);
+CREATE INDEX supplier_prices_variant_idx ON purchasing.supplier_prices (company_id, variant_id);
+
+-- Đề nghị mua (CHUC_NANG_50; QUYTAC_NGHIEPVU_62).
+CREATE TABLE purchasing.requisitions (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id              uuid        NOT NULL REFERENCES core.companies(id),
+    document_no             text,                                                   -- cấp khi gửi
+    warehouse_id            uuid        NOT NULL,                                   -- kho nhận (inventory.warehouses, kiểm trong service)
+    needed_by               date        NOT NULL,
+    reason                  text        NOT NULL,
+    status                  text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'approved', 'rejected', 'withdrawn', 'closed')),
+    approval_request_id     uuid        REFERENCES core.approval_requests(id),
+    created_by              uuid        NOT NULL REFERENCES core.users(id),
+    created_at              timestamptz NOT NULL DEFAULT now(),
+    updated_at              timestamptz NOT NULL DEFAULT now(),
+    submitted_at            timestamptz,
+    version                 integer     NOT NULL DEFAULT 1,
+    UNIQUE (company_id, document_no)
+);
+CREATE INDEX requisitions_company_idx ON purchasing.requisitions (company_id, created_at DESC);
+CREATE INDEX requisitions_approval_idx ON purchasing.requisitions (approval_request_id);
+
+CREATE TABLE purchasing.requisition_lines (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    requisition_id          uuid        NOT NULL REFERENCES purchasing.requisitions(id) ON DELETE CASCADE,
+    line_no                 integer     NOT NULL,
+    variant_id              uuid        NOT NULL REFERENCES catalog.variants(id),
+    unit_id                 uuid        NOT NULL REFERENCES catalog.units(id),
+    quantity                numeric(20,4) NOT NULL CHECK (quantity > 0),
+    base_quantity           numeric(20,4) NOT NULL CHECK (base_quantity > 0),
+    estimated_unit_price    numeric(20,4) NOT NULL DEFAULT 0 CHECK (estimated_unit_price >= 0),
+    suggested_supplier_id   uuid        REFERENCES crm.partners(id),
+    note                    text,
+    UNIQUE (requisition_id, line_no)
+);
+
+-- Đơn mua (CHUC_NANG_51; QUYTAC_NGHIEPVU_63, 64).
+CREATE TABLE purchasing.orders (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id              uuid        NOT NULL REFERENCES core.companies(id),
+    document_no             text,                                                   -- cấp khi gửi lần đầu
+    supplier_id             uuid        NOT NULL REFERENCES crm.partners(id),
+    warehouse_id            uuid        NOT NULL,                                   -- kho nhận (inventory.warehouses, kiểm trong service)
+    order_date              date        NOT NULL,
+    expected_date           date,
+    currency                char(3)     NOT NULL REFERENCES core.currencies(code),
+    note                    text,
+    status                  text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'approved', 'rejected', 'withdrawn', 'received', 'closed')),
+    approval_request_id     uuid        REFERENCES core.approval_requests(id),
+    approved_total          numeric(20,4),                                          -- tổng chưa thuế lần duyệt gần nhất (so khi sửa)
+    approved_supplier_id    uuid        REFERENCES crm.partners(id),
+    total_amount            numeric(20,4) NOT NULL DEFAULT 0,                       -- chưa gồm thuế giá trị gia tăng
+    tax_amount              numeric(20,4) NOT NULL DEFAULT 0,
+    closed_reason           text,
+    created_by              uuid        NOT NULL REFERENCES core.users(id),
+    created_at              timestamptz NOT NULL DEFAULT now(),
+    updated_at              timestamptz NOT NULL DEFAULT now(),
+    submitted_at            timestamptz,
+    closed_at               timestamptz,
+    closed_by               uuid        REFERENCES core.users(id),
+    version                 integer     NOT NULL DEFAULT 1,
+    UNIQUE (company_id, document_no)
+);
+CREATE INDEX orders_company_idx ON purchasing.orders (company_id, created_at DESC);
+CREATE INDEX orders_supplier_idx ON purchasing.orders (company_id, supplier_id);
+CREATE INDEX orders_approval_idx ON purchasing.orders (approval_request_id);
+
+CREATE TABLE purchasing.order_lines (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id                uuid        NOT NULL REFERENCES purchasing.orders(id) ON DELETE CASCADE,
+    line_no                 integer     NOT NULL,
+    variant_id              uuid        NOT NULL REFERENCES catalog.variants(id),
+    unit_id                 uuid        NOT NULL REFERENCES catalog.units(id),
+    quantity                numeric(20,4) NOT NULL CHECK (quantity > 0),
+    base_quantity           numeric(20,4) NOT NULL CHECK (base_quantity > 0),
+    unit_price              numeric(20,4) NOT NULL CHECK (unit_price >= 0),         -- chưa gồm thuế, theo đơn vị của dòng
+    vat_rate                text        NOT NULL CHECK (vat_rate IN ('0', '5', '8', '10', 'exempt', 'not_declared')),
+    amount                  numeric(20,4) NOT NULL,
+    requisition_line_id     uuid        REFERENCES purchasing.requisition_lines(id),
+    UNIQUE (order_id, line_no)
+);
+CREATE INDEX order_lines_requisition_idx ON purchasing.order_lines (requisition_line_id);
+
+-- Ngành hàng cần kiểm tra chất lượng khi nhập mua (QUYTAC_NGHIEPVU_65).
+ALTER TABLE catalog.categories ADD COLUMN requires_quality_check boolean NOT NULL DEFAULT false;
+
+-- Phiếu nhập mua, phiếu trả hàng nhà cung cấp do module Kho ghi (CHUC_NANG_52, 53).
+ALTER TABLE inventory.documents DROP CONSTRAINT documents_type_check;
+ALTER TABLE inventory.documents ADD CONSTRAINT documents_type_check CHECK (type IN ('receipt_other', 'issue_other', 'adjustment', 'transfer', 'purchase_receipt', 'purchase_return'));
+ALTER TABLE inventory.documents DROP CONSTRAINT documents_status_check;
+ALTER TABLE inventory.documents ADD CONSTRAINT documents_status_check CHECK (status IN ('draft', 'pending', 'quality_check', 'posted', 'in_transit', 'received', 'rejected', 'withdrawn'));
+ALTER TABLE inventory.documents DROP CONSTRAINT documents_reason_code_check;
+ALTER TABLE inventory.documents ADD CONSTRAINT documents_reason_code_check CHECK (reason_code IN ('internal_use', 'gift', 'damaged', 'expired_disposal', 'opening_balance', 'found', 'stocktake', 'transfer', 'purchase', 'purchase_return', 'other'));
+ALTER TABLE inventory.documents ADD COLUMN partner_id uuid;                          -- nhà cung cấp (crm.partners), phiếu nhập mua, trả hàng
+ALTER TABLE inventory.documents ADD COLUMN quality_checked_at timestamptz;
+ALTER TABLE inventory.documents ADD COLUMN quality_checked_by uuid REFERENCES core.users(id);
+ALTER TABLE inventory.documents ADD CONSTRAINT documents_purchase_source_check
+    CHECK (type NOT IN ('purchase_receipt', 'purchase_return') OR (source_id IS NOT NULL AND partner_id IS NOT NULL));
+CREATE INDEX documents_source_idx ON inventory.documents (source_type, source_id);
+
+ALTER TABLE inventory.document_lines ADD COLUMN source_line_id uuid;                 -- dòng đơn mua (nhập mua) hoặc dòng phiếu nhập gốc (trả hàng)
+ALTER TABLE inventory.document_lines ADD COLUMN rejected_base_quantity numeric(20,4) CHECK (rejected_base_quantity >= 0);   -- không đạt kiểm tra chất lượng
+ALTER TABLE inventory.document_lines ADD COLUMN rejection_reason text;
+CREATE INDEX document_lines_source_line_idx ON inventory.document_lines (source_line_id);
 ```

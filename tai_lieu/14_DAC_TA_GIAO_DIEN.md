@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -9,6 +9,7 @@
 - Cập nhật CONG_VIEC_04 (2026-11-09): thêm MODULE_02 phần Sản phẩm, MAN_HINH_22 đến MAN_HINH_27 (mục 5 đến mục 7)
 - Cập nhật CONG_VIEC_05 (2026-11-10): thêm MODULE_03 Kho phần web, MAN_HINH_28 đến MAN_HINH_35 (mục 8 đến mục 10)
 - Cập nhật CONG_VIEC_06 (2026-11-10): thêm MODULE_07 Khách hàng và Đối tác phần tối thiểu, MAN_HINH_36, MAN_HINH_37 (mục 11 đến mục 13)
+- Cập nhật CONG_VIEC_07 (2026-11-10): thêm MODULE_04 Mua hàng phần 1, MAN_HINH_38 đến MAN_HINH_41 (mục 14 đến mục 16); sửa MAN_HINH_22, MAN_HINH_31, MAN_HINH_32
 
 ## MODULE_01 Nền tảng
 
@@ -492,6 +493,7 @@ flowchart TD
 - Thông báo: "Đã lưu."; lỗi theo CHUC_NANG_30 dưới đúng ô nhập.
 - Quyền hiển thị: nút thêm, sửa, ngừng dùng chỉ với `catalog.category.manage`.
 - Responsive: chung.
+- Bổ sung CONG_VIEC_07: khối chi tiết thêm dòng "Kiểm tra chất lượng khi nhập mua" (Có, Không); ngăn kéo thêm ô đánh dấu "Cần kiểm tra chất lượng khi nhập mua (hàng chưa vào tồn đến khi kiểm xong)", ngành hàng con mặc định theo ngành hàng cha; sửa không gửi ô này thì giữ nguyên (CHUC_NANG_52, QUYTAC_NGHIEPVU_65).
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_04 mục 14)
 
 ### MAN_HINH_23: Danh sách sản phẩm
@@ -681,6 +683,7 @@ flowchart TD
 - Thông báo: không có.
 - Quyền hiển thị: màn hình với `inventory.stock.view`; nút lập phiếu với `inventory.document.manage`.
 - Responsive: bảng chuyển thành thẻ.
+- Bổ sung CONG_VIEC_07: nút "Nhập mua theo đơn" (mở `/inventory/purchase-receipts/new`) với `inventory.purchase.receive`; lọc, hiện thêm loại "Phiếu nhập mua", "Phiếu trả hàng nhà cung cấp", trạng thái "Chờ kiểm tra chất lượng". Phiếu nhập mua, trả hàng không lập bằng các nút lập phiếu thường.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
 
 ### MAN_HINH_32: Phiếu nhập khác, xuất khác, điều chỉnh
@@ -696,6 +699,10 @@ flowchart TD
 - Thông báo: "Đã lưu nháp." · "Đã gửi phiếu đi duyệt." · "Công ty chủ hàng chưa có chính sách duyệt cho loại phiếu này nên phiếu đã ghi sổ." · "Đã xóa phiếu nháp." · "Đã rút phiếu."; lỗi theo CHUC_NANG_40 dưới đúng ô, đúng dòng.
 - Quyền hiển thị: sửa, gửi, xóa theo `canEdit`; rút theo `canWithdraw` của API.
 - Responsive: dòng mặt hàng xếp dọc trên điện thoại.
+- Bổ sung CONG_VIEC_07 (CHUC_NANG_52, CHUC_NANG_53; API_76):
+  - Lập phiếu nhập mua `/inventory/purchase-receipts/new`: chọn "Đơn mua" ("Chọn đơn mua…"; đơn đã duyệt nhận vào kho người dùng có quyền; không có thì "Không có đơn mua đã duyệt cần nhận vào kho bạn quản lý."); ngày phiếu; câu "Nhập số thực nhận cho dòng có hàng về; dòng để trống không nhận lần này."; mỗi dòng đơn: mặt hàng, nhãn "Cần kiểm tra chất lượng", "Đặt <số> <đơn vị>, còn nhận được <số> <đơn vị>", ô "Thực nhận (<đơn vị>)", số lô, hạn dùng (hàng theo lô), vị trí (kho dùng vị trí), serial (hàng serial); nút "Lưu nháp".
+  - Lập phiếu trả hàng `/inventory/purchase-returns/new?receiptId=<phiếu nhập>` (mở bằng nút "Trả hàng nhà cung cấp" ở phiếu nhập mua đã ghi sổ): tiêu đề "Trả hàng nhà cung cấp: <số phiếu nhập>", nhà cung cấp và câu "Hàng trả xuất theo giá trên phiếu nhập gốc."; ngày phiếu, lý do; mỗi dòng gốc "Đã nhập <số> <đơn vị cơ sở>", ô "Số trả (<đơn vị>)" hoặc chọn serial; nút "Lưu nháp".
+  - Chi tiết phiếu nhập mua, trả hàng `/inventory/documents/[id]`: thêm "Nhà cung cấp", "Đơn mua" (liên kết sang MAN_HINH_41) hoặc "Phiếu nhập gốc"; dòng có phần không đạt hiện nhãn "không đạt <số> <đơn vị>: <lý do>". Phiếu nháp chỉ có nút "Xóa nháp", "Gửi" (không sửa; cần sửa thì xóa, lập lại); thông báo "Đã gửi phiếu.". Phiếu chờ kiểm tra hiện khối "Kiểm tra chất lượng" ("Nhập số không đạt từng dòng; phần đạt ghi sổ kho, phần không đạt ghi biên bản kèm lý do."): mỗi dòng "Số không đạt (<đơn vị>)" hoặc "Serial không đạt", "Lý do không đạt"; nút "Ghi kết quả kiểm tra"; thông báo "Đã ghi kết quả kiểm tra, phần đạt đã vào tồn.". Quyền hiển thị theo `canQualityCheck`, `canReturn` của API.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
 
 ### MAN_HINH_33: Phiếu chuyển kho
@@ -810,3 +817,108 @@ flowchart TD
 - Quyền hiển thị: nút sửa, ngừng giao dịch theo `canManage` (có `crm.partner.manage`, không phải đối tác nội bộ); "Xem đầy đủ" theo `canViewIdentity`; nút hồ sơ theo `canManageProfile`.
 - Responsive: thẻ xếp dọc; nhãn và giá trị xếp hai cột.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_06 mục 14)
+
+## MODULE_04 Mua hàng (phần 1: Mua hàng trong nước, CONG_VIEC_07)
+
+Mini app `apps/web-purchasing`, tên "Mua hàng", đường dẫn gốc `/purchasing` (mini app Nền tảng chuyển tiếp `/purchasing` sang ứng dụng này, cùng tên miền và cookie phiên). Khung trang, thành phần dùng chung lấy từ `packages/ui`; quy ước chung như mục 3 của MODULE_01. Mở `/purchasing` thì chuyển tới mục menu đầu tiên có quyền; không có mục nào thì hiện "Bạn không có quyền xem trang này". Phiếu nhập mua, kiểm tra chất lượng, phiếu trả hàng nhà cung cấp làm ở mini app Kho (MAN_HINH_31, MAN_HINH_32); ô cần kiểm tra chất lượng ở MAN_HINH_22.
+
+## 14. Danh sách màn hình và điều hướng (MODULE_04)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_38 | Bảng giá mua (kèm ngăn kéo thêm, sửa giá) | CHUC_NANG_49 | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng (thêm, sửa); Thủ kho (xem) | Menu Mua hàng | Không lập (CONG_VIEC_07 mục 14) |
+| MAN_HINH_39 | Đề nghị mua: danh sách, chi tiết (kèm ngăn kéo lập, sửa) | CHUC_NANG_50 | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng, Thủ kho | Menu Mua hàng | Không lập |
+| MAN_HINH_40 | Đơn mua: danh sách, lập đơn (kèm ngăn kéo cài đặt dung sai) | CHUC_NANG_51 | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng (lập); Thủ kho (xem) | Menu Mua hàng; nút "Lập đơn mua" ở MAN_HINH_39 | Không lập |
+| MAN_HINH_41 | Chi tiết đơn mua (kèm sửa đơn, hộp thoại đóng đơn) | CHUC_NANG_51 | Như MAN_HINH_40 | MAN_HINH_40; liên kết "Đơn mua" ở MAN_HINH_32 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Mua hàng| M{{Menu Mua hàng}}
+    M --> O[MAN_HINH_40 Đơn mua]
+    M --> R[MAN_HINH_39 Đề nghị mua]
+    M --> P[MAN_HINH_38 Bảng giá mua]
+    R -->|Lập đơn mua| N[MAN_HINH_40 Lập đơn mua]
+    O -->|Lập đơn mua| N
+    N -->|lưu xong| D[MAN_HINH_41 Chi tiết đơn mua]
+    O -->|Số đơn| D
+    D -->|Phiếu kho liên quan| K[MAN_HINH_32 Phiếu kho]
+    K -->|Đơn mua| D
+    D -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+```
+
+- Thứ tự menu và quyền hiện mục: Đơn mua (`purchasing.order.view`), Đề nghị mua (`purchasing.requisition.create`), Bảng giá mua (`purchasing.access`).
+- Danh sách và chi tiết có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng.
+
+## 15. Bảng vai trò – màn hình (MODULE_04)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Nhân viên mua hàng | Thủ kho | Quản lý kho |
+|---|---|---|---|---|
+| MAN_HINH_38 Bảng giá mua | Xem, Thêm, Sửa, Ngừng dùng, Dùng lại | Xem, Thêm, Sửa, Ngừng dùng, Dùng lại | Xem | Không |
+| MAN_HINH_39 Đề nghị mua | Xem, Lập, Sửa, Gửi duyệt, Rút (của mình), Đóng, Lập đơn mua | Xem, Lập, Sửa, Gửi duyệt, Rút (của mình), Đóng, Lập đơn mua | Xem, Lập, Sửa, Gửi duyệt, Rút (của mình) | Không |
+| MAN_HINH_40 Đơn mua | Xem, Lập đơn, Cài đặt | Xem, Lập đơn | Xem | Không |
+| MAN_HINH_41 Chi tiết đơn mua | Xem, Sửa, Gửi, Rút (của mình), Đóng đơn | Xem, Sửa, Gửi, Rút (của mình), Đóng đơn | Xem | Không |
+| MAN_HINH_31, MAN_HINH_32 phần nhập mua, kiểm tra, trả hàng | Lập, Gửi, Xóa nháp, Kiểm tra chất lượng, Trả hàng (kho của công ty mình) | Không | Kho trong phạm vi gán | Kho trong phạm vi gán |
+
+## 16. Đặc tả từng màn hình (MODULE_04)
+
+### MAN_HINH_38: Bảng giá mua
+- Mục đích: Xem, quản lý giá mua đã thỏa thuận với nhà cung cấp để đơn mua gợi ý đúng giá.
+- Chức năng thực hiện: CHUC_NANG_49
+- Đường dẫn: `/purchasing/supplier-prices`
+- Bố cục: tiêu đề "Bảng giá mua" kèm "Lịch sử", nút "Thêm giá mua"; câu "Giá chưa gồm thuế giá trị gia tăng, theo tiền tệ công ty. Đơn mua gợi ý giá có hiệu lực tại ngày đơn với số lượng tối thiểu lớn nhất không vượt số lượng đặt."; bộ lọc: ô tìm "Mã hàng, tên, mã hàng nhà cung cấp", "Nhà cung cấp", "Trạng thái" (Đang dùng, Ngừng dùng); bảng nhà cung cấp, mặt hàng, đơn vị mua, số lượng tối thiểu, đơn giá, hiệu lực ("từ – đến" hoặc "không thời hạn"), trạng thái, nút "Sửa", "Ngừng dùng"/"Dùng lại"; phân trang 20 dòng. Ngăn kéo "Thêm giá mua"/"Sửa giá mua": "Nhà cung cấp" (gợi ý "Chỉ hiện đối tác có hồ sơ nhà cung cấp ở công ty."), "Mặt hàng" (ô tìm "Mã vạch, mã hàng hoặc tên rồi nhấn Enter", nút "Đổi mặt hàng"), "Đơn vị mua", "Số lượng tối thiểu" ("Mua từ số lượng này trở lên thì áp dụng giá. 0: mọi số lượng."), "Đơn giá" ("Chưa gồm thuế giá trị gia tăng."), "Mã hàng nhà cung cấp", "Hiệu lực từ", "Hiệu lực đến" ("Để trống: không có ngày kết thúc.").
+- Dữ liệu hiển thị: giá mua của công ty đang chọn, đang dùng trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_73.
+- Thao tác: gõ ô tìm thì tìm sau 300 mili giây; đổi bộ lọc về trang 1; "Ngừng dùng", "Dùng lại" đổi trạng thái ngay.
+- Trạng thái: rỗng ("Chưa có giá mua."; có lọc thì "Không có kết quả phù hợp.").
+- Thông báo: "Đã lưu giá mua."; lỗi theo CHUC_NANG_49 dưới đúng ô.
+- Quyền hiển thị: màn hình với `purchasing.access`; nút thêm, sửa, ngừng dùng với `purchasing.price.manage`.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_07 mục 14)
+
+### MAN_HINH_39: Đề nghị mua
+- Mục đích: Lập, gửi duyệt đề nghị mua; xem đã đặt bao nhiêu.
+- Chức năng thực hiện: CHUC_NANG_50
+- Đường dẫn: `/purchasing/requisitions` (danh sách); `/purchasing/requisitions/[id]` (chi tiết).
+- Bố cục: danh sách: tiêu đề "Đề nghị mua" kèm "Lịch sử", nút "Lập đề nghị mua"; lọc "Trạng thái" (các trạng thái và "Còn đặt được"); bảng số (nháp hiện "(nháp)"), lý do, kho nhận, ngày cần, giá trị ước tính, người lập, trạng thái. Chi tiết: liên kết "Danh sách đề nghị mua"; số, nhãn trạng thái, "Lịch sử", nút "Sửa", "Gửi duyệt", "Rút", "Đóng đề nghị", "Lập đơn mua"; kho nhận, ngày cần, người lập, giá trị ước tính; bảng dòng: mặt hàng, đơn vị, số lượng, đơn giá ước tính, nhà cung cấp đề xuất, đã đặt ("<đã đặt> / <số lượng> đơn vị cơ sở"). Ngăn kéo "Lập đề nghị mua"/"Sửa đề nghị mua": "Kho nhận", "Ngày cần", "Lý do"; khối "Dòng hàng" mỗi dòng mặt hàng, đơn vị, số lượng, đơn giá ước tính, nhà cung cấp đề xuất, "Bỏ dòng"; ô "Thêm mặt hàng".
+- Dữ liệu hiển thị: đề nghị của công ty đang chọn, mới lập trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_73 (danh sách chọn, tìm mặt hàng), API_74.
+- Thao tác: "Lập đơn mua" mở MAN_HINH_40 lập đơn với các dòng còn đặt được của đề nghị.
+- Trạng thái: rỗng ("Chưa có đề nghị mua."; có lọc thì "Không có kết quả phù hợp.").
+- Thông báo: "Đã lưu đề nghị mua."; lỗi theo CHUC_NANG_50.
+- Quyền hiển thị: màn hình, nút lập với `purchasing.requisition.create`; sửa, rút theo `canEdit`, `canWithdraw`; "Đóng đề nghị", "Lập đơn mua" theo `canOrder` (có `purchasing.order.manage`, đề nghị đã duyệt còn đặt được).
+- Responsive: bảng chuyển thành thẻ; dòng hàng trong ngăn kéo xếp dọc.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_07 mục 14)
+
+### MAN_HINH_40: Đơn mua
+- Mục đích: Tìm đơn mua; lập đơn trực tiếp hoặc từ đề nghị; cài đặt dung sai nhận vượt.
+- Chức năng thực hiện: CHUC_NANG_51
+- Đường dẫn: `/purchasing/orders` (danh sách); `/purchasing/orders/new` (lập trực tiếp), `/purchasing/orders/new?requisitionId=<đề nghị>` (lập từ đề nghị).
+- Bố cục: danh sách: tiêu đề "Đơn mua" kèm "Lịch sử", nút "Cài đặt", "Lập đơn mua"; bộ lọc ô tìm "Số đơn, nhà cung cấp", "Nhà cung cấp", "Trạng thái"; bảng số, nhà cung cấp, kho nhận, ngày đơn, ngày giao dự kiến, tổng chưa thuế, trạng thái; phân trang. Ngăn kéo "Cài đặt": "Dung sai nhận vượt (%)" ("Kho được nhận vượt số đặt tối đa theo phần trăm này. Mặc định 0."). Trang lập đơn: "Nhà cung cấp", "Kho nhận", "Ngày đơn", "Ngày giao dự kiến", "Ghi chú"; khối "Dòng hàng" mỗi dòng mặt hàng (nhãn "Từ đề nghị mua" nếu có), đơn vị, số lượng, "Đơn giá chưa thuế" (gợi ý theo bảng giá mua khi đổi nhà cung cấp, ngày đơn, đơn vị, số lượng; dòng đã có giá không ghi đè), "Thuế suất", "Bỏ dòng"; ô "Thêm mặt hàng"; tổng chưa thuế.
+- Dữ liệu hiển thị: đơn mua của công ty đang chọn, mới lập trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_73 (danh sách chọn, giá gợi ý, tìm mặt hàng), API_74 (đọc đề nghị), API_75.
+- Thao tác: lưu đơn mới thì mở MAN_HINH_41.
+- Trạng thái: rỗng ("Chưa có đơn mua."; có lọc thì "Không có kết quả phù hợp.").
+- Thông báo: "Đã lưu đơn mua."; lỗi theo CHUC_NANG_51 dưới đúng ô, đúng dòng.
+- Quyền hiển thị: màn hình với `purchasing.order.view`; "Lập đơn mua" với `purchasing.order.manage`; "Cài đặt" với `purchasing.settings.manage`.
+- Responsive: bảng chuyển thành thẻ; dòng hàng xếp dọc.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_07 mục 14)
+
+### MAN_HINH_41: Chi tiết đơn mua
+- Mục đích: Theo dõi đơn mua: đã nhận, đã trả, còn nhận được, phiếu kho liên quan; sửa, gửi, rút, đóng đơn.
+- Chức năng thực hiện: CHUC_NANG_51
+- Đường dẫn: `/purchasing/orders/[id]`
+- Bố cục: liên kết "Danh sách đơn mua"; tiêu đề số đơn (nháp: "(nháp)"), nhãn trạng thái, "Lịch sử", nút "Sửa", "Rút", "Đóng đơn", "Gửi"; thẻ nhà cung cấp, kho nhận, ngày đơn, ngày giao dự kiến, người lập, ghi chú, "Lý do đóng" (đơn đã đóng), "Tổng chưa thuế", "Thuế giá trị gia tăng"; bảng dòng: mặt hàng, đơn vị, số lượng, đơn giá chưa thuế, thuế suất, thành tiền, đã nhận (kèm "đã trả <số>"), còn nhận được; chú thích "Đã nhận, còn nhận được tính theo đơn vị cơ sở; còn nhận được đã cộng dung sai nhận vượt."; khối "Phiếu kho liên quan" (số phiếu liên kết sang MAN_HINH_32, loại, ngày, trạng thái; trống: "Chưa có phiếu nhập."). Sửa đơn dùng cùng biểu mẫu lập đơn; đơn đã duyệt hiện "Đơn đã duyệt: sửa làm tăng tổng giá trị hoặc đổi nhà cung cấp thì đơn được gửi duyệt lại.". "Đóng đơn" mở hộp thoại "Lý do đóng" kèm "Phần chưa nhận bị hủy, kho không nhận thêm theo đơn này.".
+- Dữ liệu hiển thị: đơn của công ty đang chọn; số đã nhận, đã trả tính từ phiếu kho.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, HopThoaiXacNhan (tài liệu `15`).
+- API: API_73, API_75.
+- Thao tác: như bố cục; lưu, gửi, rút, đóng xong tải lại đơn.
+- Trạng thái: chưa có phiếu kho ("Chưa có phiếu nhập.").
+- Thông báo: "Đã lưu đơn mua."; lỗi theo CHUC_NANG_51.
+- Quyền hiển thị: theo `canEdit`, `canSubmit`, `canWithdraw`, `canClose` của API.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_07 mục 14)
