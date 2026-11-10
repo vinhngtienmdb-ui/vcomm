@@ -404,9 +404,10 @@ Trạng thái kỳ kế toán (theo tháng):
   4. Kế toán mở "Hóa đơn điện tử" xem danh sách, chi tiết; bấm "Tải PDF", "Tải XML".
 - Ngoại lệ:
   - Có số nhưng chưa có mã của cơ quan thuế: "Chờ cấp mã"; lần sau tra trạng thái theo mã tham chiếu.
-  - Lỗi kết nối, lỗi máy chủ nhà cung cấp: "Chờ gửi lại", tự gửi lại sau 1, 5, 15, 60 phút rồi mỗi 60 phút, cùng mã tham chiếu nên không lập trùng. Hết thời gian chờ: lần sau tra trạng thái trước, tra không thấy mới gửi.
+  - Lỗi kết nối, lỗi máy chủ nhà cung cấp, hết thời gian chờ: "Chờ gửi lại", tự gửi lại sau 1, 5, 15, 60 phút rồi mỗi 60 phút; mọi lần sau lần đầu tra trạng thái theo mã tham chiếu trước, tra không thấy mới gửi, nên không lập trùng.
   - Lỗi dữ liệu, lỗi xác thực: "Lỗi" kèm lỗi gần nhất; kế toán sửa cài đặt hoặc dữ liệu rồi bấm "Gửi lại". "Lỗi cài đặt": khai ký hiệu của năm trong cài đặt thì hóa đơn tự về "Chờ gửi".
-  - Cơ quan thuế từ chối: "Bị từ chối" kèm lý do.
+  - Cơ quan thuế từ chối: "Bị từ chối" kèm lý do; kế toán sửa rồi gửi lại qua API (lập lại với mã tham chiếu mới; màn hình chưa có nút "Gửi lại" cho trạng thái này).
+  - Đang có lần gửi chưa xong (dưới 10 phút): "Gửi lại" báo "Hóa đơn đang được gửi; thử lại sau ít phút.".
   - Chưa "Đã phát hành" sau ngày làm việc tiếp theo ngày hóa đơn: nhãn "Quá hạn"; tác vụ nền `einvoice-overdue` (mỗi giờ) báo người có quyền quản lý hóa đơn của công ty, mỗi hóa đơn một lần; thông báo mở danh sách lọc hóa đơn quá hạn.
   - Công ty chưa bật hoặc ngày phiếu trước ngày bắt đầu: không lập hóa đơn.
 - Kết thúc: hóa đơn "Đã phát hành" có số, mã của cơ quan thuế (hóa đơn có mã), tệp PDF, XML.
@@ -423,8 +424,8 @@ Trạng thái hóa đơn điện tử:
 | Chờ gửi, Chờ gửi lại, Chờ cấp mã | Lỗi dữ liệu, lỗi xác thực, nhà cung cấp đã đổi trong cài đặt | Lỗi (`failed`) |
 | Chờ gửi, Chờ gửi lại, Chờ cấp mã | Cơ quan thuế từ chối | Bị từ chối (`rejected`) |
 | Chờ cấp mã | Tra trạng thái có mã | Đã phát hành |
-| Lỗi, Chờ gửi lại | "Gửi lại" | Chờ gửi, gửi ngay |
-| Đã phát hành | Lập hóa đơn thay thế | Đã phát hành, ghi "Đã bị thay thế" |
+| Lỗi, Chờ gửi lại, Bị từ chối | "Gửi lại" | Chờ gửi, gửi ngay (Bị từ chối: mã tham chiếu mới) |
+| Đã phát hành | Hóa đơn thay thế của nó phát hành | Đã phát hành, ghi "Đã bị thay thế"; kết quả gửi khác không đổi trạng thái "Đã phát hành" |
 
 ### Luồng 28. Xử lý hóa đơn khi trả hàng; hóa đơn thay thế
 
@@ -436,7 +437,7 @@ Trạng thái hóa đơn điện tử:
   4. Hoặc bấm "Ghi hóa đơn trả hàng của người mua", nhập ký hiệu, số, ngày, bấm "Lưu": việc chuyển "Người mua lập hóa đơn trả hàng".
 - Các bước (thay thế):
   1. Ở chi tiết hóa đơn "Đã phát hành" (không phải hóa đơn điều chỉnh, chưa bị thay thế, chưa có hóa đơn điều chỉnh), kế toán bấm "Lập hóa đơn thay thế", sửa tên, mã số thuế, địa chỉ người mua, nhập lý do, bấm "Lập hóa đơn thay thế" (QUYTAC_NGHIEPVU_107).
-  2. Hệ thống lập hóa đơn thay thế cùng dòng hàng, gửi ngay như Luồng 27, mở chi tiết hóa đơn mới; hóa đơn cũ ghi "Đã bị thay thế".
+  2. Hệ thống lập hóa đơn thay thế cùng dòng hàng, gửi ngay như Luồng 27, mở chi tiết hóa đơn mới; khi hóa đơn thay thế "Đã phát hành", hóa đơn cũ ghi "Đã bị thay thế". Hóa đơn thay thế lỗi, bị từ chối thì hóa đơn cũ không bị đánh dấu và lập được hóa đơn thay thế mới; đang có hóa đơn thay thế khác chưa xong thì báo "Hóa đơn đang có hóa đơn thay thế chưa phát hành.".
 - Ngoại lệ: hóa đơn gốc chưa phát hành: "Hóa đơn gốc chưa phát hành; chờ hóa đơn gốc phát hành rồi xử lý."; người mua không có mã số thuế: "Chỉ ghi hóa đơn trả hàng của người mua là tổ chức có mã số thuế."; việc đã xử lý: "Việc trả hàng này đã được xử lý."; thay thế hóa đơn đã có điều chỉnh, đã bị thay thế, hóa đơn điều chỉnh: thông báo ở tài liệu `07` (QUYTAC_NGHIEPVU_107).
 - Kết thúc: việc trả hàng đã xử lý; hoặc hóa đơn thay thế được gửi. Công nợ, bút toán không đổi.
 

@@ -2700,14 +2700,14 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Kiểm thử tự động: Tự động API – `apps/api/test/c16-einvoices.test.ts`
 - Lát: L0
 
-### KICHBAN_KIEMTHU_226: Lỗi tạm thời gửi lại không lập trùng; hết thời gian chờ thì tra trước khi gửi lại; lỗi dữ liệu dừng chờ gửi lại; chờ cấp mã
+### KICHBAN_KIEMTHU_226: Lỗi tạm thời gửi lại sau 1 phút, không lập trùng; hết thời gian chờ thì tra trước khi gửi lại; lỗi dữ liệu dừng chờ gửi lại; chờ cấp mã; không gửi chồng; hóa đơn bị từ chối gửi lại với số mới; hóa đơn đã phát hành không bị ghi đè
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_123
 - Chức năng: CHUC_NANG_77
 - Loại: Sai, giá trị biên, phân quyền
 - Vai trò thực hiện: Kế toán trưởng; Kế toán; Nhân viên bán hàng
 - Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_225 (đã cấp số 1 đến 4); đơn 10 cái A cho "Khách công nợ".
-- Các bước: (1) Đặt tình huống "Lỗi tạm thời lần đầu"; giao 1 cái; gửi nền; xem giờ gửi lại; gửi nền lần nữa. (2) Đặt "Hết thời gian chờ lần đầu"; giao 1 cái; gửi nền; gửi nền lần nữa; xem các lần gửi. (3) Đặt "Lỗi dữ liệu"; giao 1 cái; gửi nền; gửi nền lần nữa. (4) Đặt "Cơ quan thuế cấp mã chậm"; Nhân viên bán hàng bấm gửi lại; Kế toán bấm gửi lại; gửi nền. (5) Kế toán gửi lại lần nữa với `version` mới.
-- Kết quả mong đợi: Bước 1: lần đầu `retrying`, chưa có số, giờ gửi lại sau hiện tại; lần sau `issued` số 5. Bước 2: lần đầu `retrying`, chưa có số; lần sau `issued` số 6; các lần gửi (mới trước): tra trạng thái `issued`, phát hành `unknown` (nhận số đã cấp ở lần đầu, không lập trùng). Bước 3: `failed`, lỗi gần nhất chứa "không hợp lệ"; gửi nền lần sau vẫn `failed`. Bước 4: Nhân viên bán hàng `403`; Kế toán `201`, `awaiting_code`, số 7, chưa có mã; sau gửi nền `issued` số 7. Bước 5: `409` (không gửi lại hóa đơn đã phát hành).
+- Các bước: (1) Đặt tình huống "Lỗi tạm thời lần đầu"; giao 1 cái; gửi nền; xem giờ gửi lại; gửi nền lần nữa. (2) Đặt "Hết thời gian chờ lần đầu"; giao 1 cái; gửi nền; gửi nền lần nữa; xem các lần gửi. (3) Đặt "Lỗi dữ liệu"; giao 1 cái; gửi nền; gửi nền lần nữa. (4) Đặt "Cơ quan thuế cấp mã chậm"; Nhân viên bán hàng bấm gửi lại; Kế toán bấm gửi lại; gửi nền. (5) Kế toán gửi lại lần nữa với `version` mới. (6) Đặt "Lỗi dữ liệu"; giao 1 cái; gửi nền; thêm một lần gửi chưa xong trong cơ sở dữ liệu; Kế toán gửi lại; xóa lần gửi chưa xong. (7) Đặt "Cơ quan thuế từ chối"; giao 1 cái; gửi nền; đặt "Bình thường"; Kế toán gửi lại. (8) Gọi `EinvoicesService.process` cho hóa đơn vừa phát hành.
+- Kết quả mong đợi: Bước 1: lần đầu `retrying`, chưa có số, giờ gửi lại sau hiện tại khoảng 1 phút (lớn hơn 0,5, nhỏ hơn 1,5 phút); lần sau `issued` số 5. Bước 2: lần đầu `retrying`, chưa có số; lần sau `issued` số 6; các lần gửi (mới trước): tra trạng thái `issued`, phát hành `unknown` (nhận số đã cấp ở lần đầu, không lập trùng). Bước 3: `failed`, lỗi gần nhất chứa "không hợp lệ"; gửi nền lần sau vẫn `failed`. Bước 4: Nhân viên bán hàng `403`; Kế toán `201`, `awaiting_code`, số 7, chưa có mã; sau gửi nền `issued` số 7. Bước 5: `409` (không gửi lại hóa đơn đã phát hành). Bước 6: `409`, thông báo chứa "đang được gửi". Bước 7: lần đầu `rejected`; gửi lại `issued` với số khác số cũ, mã tham chiếu mới. Bước 8: vẫn `issued`, số không đổi.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c16-einvoices.test.ts`
 - Lát: L0
 
@@ -2746,14 +2746,14 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Kiểm thử tự động: Tự động API – `apps/api/test/c16-einvoices.test.ts`
 - Lát: L1
 
-### KICHBAN_KIEMTHU_230: Thay thế khi sai thông tin người mua; không thay lại hóa đơn đã bị thay thế; trả hàng sau đó tham chiếu hóa đơn thay thế
+### KICHBAN_KIEMTHU_230: Thay thế khi sai thông tin người mua; hóa đơn thay thế lỗi thì hóa đơn gốc chưa bị thay thế, lập lại được; không thay lại hóa đơn đã bị thay thế; trả hàng sau đó tham chiếu hóa đơn thay thế
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_125, TIEUCHI_NGHIEMTHU_124
 - Chức năng: CHUC_NANG_79, CHUC_NANG_78
 - Loại: Đúng, sai
 - Vai trò thực hiện: Kế toán; Thủ kho
 - Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_229.
-- Các bước: (1) Lập đơn 3 cái A cho "Khách công nợ", giao 3; gửi nền. (2) Lập hóa đơn thay thế với mã số thuế "123". (3) Lập hóa đơn thay thế: tên "Công ty Đúng Tên", mã số thuế 0320001601, địa chỉ "1 Đường Số 2", lý do "Sai tên người mua". (4) Xem hóa đơn cũ; thay thế hóa đơn cũ lần nữa. (5) Nhận trả 1 cái của phiếu; xem việc; lập điều chỉnh giảm.
-- Kết quả mong đợi: Bước 2: `400`. Bước 3: `201`, hóa đơn `replacement` `issued`, tổng bằng hóa đơn cũ, người mua mới, ghi chú "Sai tên người mua", dòng cùng tiền chưa thuế. Bước 4: hóa đơn cũ `replaced` `true`, vẫn `issued`; thay lần nữa `409`. Bước 5: hóa đơn gốc của việc là hóa đơn thay thế; hóa đơn điều chỉnh tham chiếu hóa đơn thay thế, người mua "Công ty Đúng Tên".
+- Các bước: (1) Lập đơn 3 cái A cho "Khách công nợ", giao 3; gửi nền. (2) Lập hóa đơn thay thế với mã số thuế "123". (2a) Đặt "Lỗi dữ liệu"; lập hóa đơn thay thế tên "Tên tạm"; xem hóa đơn gốc; đặt "Bình thường". (3) Lập hóa đơn thay thế: tên "Công ty Đúng Tên", mã số thuế 0320001601, địa chỉ "1 Đường Số 2", lý do "Sai tên người mua". (4) Xem hóa đơn cũ; thay thế hóa đơn cũ lần nữa. (5) Nhận trả 1 cái của phiếu; xem việc; lập điều chỉnh giảm.
+- Kết quả mong đợi: Bước 2: `400`. Bước 2a: hóa đơn `replacement` `failed`; hóa đơn gốc `replaced` `false`. Bước 3: `201`, hóa đơn `replacement` `issued`, tổng bằng hóa đơn cũ, người mua mới, ghi chú "Sai tên người mua", dòng cùng tiền chưa thuế. Bước 4: hóa đơn cũ `replaced` `true`, vẫn `issued`; thay lần nữa `409`. Bước 5: hóa đơn gốc của việc là hóa đơn thay thế; hóa đơn điều chỉnh tham chiếu hóa đơn thay thế, người mua "Công ty Đúng Tên".
 - Kiểm thử tự động: Tự động API – `apps/api/test/c16-einvoices.test.ts`
 - Lát: L1
 

@@ -1,13 +1,13 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 2.2
+- Phiên bản: 2.3
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử)
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15). Các module sau bổ sung vào cùng tài liệu.
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16). Các module sau bổ sung vào cùng tài liệu.
 
 ## 1. Dữ liệu nhạy cảm
 
@@ -44,6 +44,9 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Quỹ, số dư quỹ, công nợ phải thu, phải trả, phiếu thu chi (CONG_VIEC_13) | Tài chính | Schema `finance` theo công ty (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`) | Người có quyền `finance.*` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; công ty khác nhận `404`; quyền không đánh dấu nhạy cảm. Số tài khoản ngân hàng của quỹ hiện cho người xem quỹ |
 | Hệ thống tài khoản, bút toán, sổ cái, bảng cân đối số phát sinh, kỳ khóa sổ (CONG_VIEC_14) | Tài chính | Schema `accounting` theo công ty (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`) | Người có quyền `finance.ledger.*`, `finance.journal.manage`, `finance.period.close` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; công ty khác nhận `404`. Bút toán lộ doanh thu, giá vốn, lãi lỗ cho người có `finance.ledger.view` (Kế toán có sẵn) |
 | Báo cáo tình hình tài chính, kết quả hoạt động kinh doanh; tệp Excel, PDF xuất ra (CONG_VIEC_15) | Tài chính | Không lưu; tính khi xem từ schema `accounting` theo công ty; tệp trả thẳng cho người xem, không lưu trên máy chủ | `finance.ledger.view` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; tệp đã tải ra nằm ngoài kiểm soát của hệ thống |
+| Mật khẩu kết nối nhà cung cấp hóa đơn điện tử (CONG_VIEC_16) | Khóa bí mật | Cột `finance.einvoice_settings.secret_value`, mã hóa AES-256-GCM bằng `apps/api/src/common/secret-box.ts` (khóa như Cài đặt tích hợp); không trả về qua API (4 ký tự cuối chỉ cho người có `finance.einvoice.setup`); nhật ký thao tác ghi `••••` và `passwordChanged`, không ghi mật khẩu; không lưu trong lần gửi | Chỉ máy chủ khi gọi nhà cung cấp; người có `finance.einvoice.setup` nhập, thay nhưng không đọc lại được |
+| Mã truy cập MISA meInvoice (CONG_VIEC_16) | Khóa bí mật | Chỉ trong bộ nhớ tiến trình API, theo khóa băm của công ty và thông tin kết nối, tối đa 12 giờ; không lưu cơ sở dữ liệu, không ghi log | Chỉ máy chủ |
+| Hóa đơn điện tử: người mua (tên, mã số thuế, địa chỉ), dòng hàng, số tiền, tệp PDF, XML; lần gửi (CONG_VIEC_16) | Tài chính, tổ chức | Bảng `finance.einvoices`, `einvoice_lines`, `einvoice_attempts`, `einvoice_return_tasks` theo công ty; tệp lưu `bytea` | `finance.einvoice.view` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; công ty khác nhận `404`; tệp gửi cho nhà cung cấp, cơ quan thuế theo quy định |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
 
@@ -72,6 +75,8 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | API công nợ (API_84 đến API_86) | API | Lược đồ zod `saveFundSchema`, `fundLedgerQuerySchema`, `debtSummaryQuerySchema`, `debtPartnerQuerySchema`, `openDebtQuerySchema`, `financePartnerQuerySchema`, `saveOpeningDebtSchema`, `paymentListQuerySchema`, `savePaymentSchema`, `versionSchema` trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, đối tác, quỹ, khoản công nợ là UUID; tiền dạng chuỗi tối đa 12 chữ số phần nguyên, 4 chữ số lẻ; mã quỹ 20, tên 200, số chứng từ 50, ghi chú, nội dung 500 ký tự; tối đa 500 dòng chứng từ mỗi phiếu; từ khóa tối đa 100 ký tự; máy chủ kiểm đối tác có hồ sơ đúng phía, quỹ, khoản công nợ thuộc công ty và đối tác; không nhận tệp tải lên | Có, `finance.access` hoặc `finance.debt.view` và quyền chi tiết |
 | API kế toán tổng hợp (API_87 đến API_89) | API | Lược đồ zod `saveAccountSchema`, `updateAccountSchema`, `updatePostingRuleSchema`, `journalListQuerySchema`, `saveJournalSchema`, `versionSchema`, `closePeriodSchema`, `ledgerRangeQuerySchema` trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, tài khoản, đối tác là UUID; vai trò định khoản so với danh mục cố định (khác thì `404`); số hiệu 3 đến 20 chữ số hoặc chữ cái, tên 200, diễn giải 500, diễn giải dòng 300 ký tự; 2 đến 200 dòng mỗi phiếu; tiền dạng chuỗi tối đa 12 chữ số phần nguyên, 4 chữ số lẻ, máy chủ từ chối số lẻ hơn đơn vị tiền tệ; tháng `YYYY-MM`; máy chủ kiểm tài khoản, đối tác thuộc công ty; không nhận tệp tải lên | Có, `finance.access` hoặc `finance.ledger.view` và quyền chi tiết |
 | API báo cáo tài chính (API_90); `isLongTerm` của API_87 | API | Lược đồ zod `statementQuerySchema` trong `packages/contracts`, trường thừa bị từ chối; `kind`, `format` so với danh sách cố định; `from`, `to` là ngày `YYYY-MM-DD`; `form` tối đa 20 ký tự, chỉ dùng để chọn trong các mẫu của chế độ; `isLongTerm` kiểu đúng sai trong `updateAccountSchema`; chỉ đọc, không nhận tệp tải lên | Có, `finance.access` hoặc `finance.ledger.view`; xem, xuất cần `finance.ledger.view` |
+| API hóa đơn điện tử (API_91, API_92) | API | Lược đồ zod `updateEinvoiceSettingsSchema`, `einvoiceListQuerySchema`, `einvoiceReturnQuerySchema`, `recordBuyerInvoiceSchema`, `replaceEinvoiceSchema` trong `packages/contracts`, lược đồ `version` trong bộ điều khiển; trường thừa bị từ chối; mã trong đường dẫn là UUID; `format` chỉ `pdf`, `xml`; nhà cung cấp, môi trường, trạng thái so với danh sách cố định; ký hiệu khớp `^[CK][0-9]{2}T[A-Z]{2}$`; mã số thuế người mua 10 chữ số hoặc 10 chữ số, gạch ngang, 3 chữ số; độ dài tên 300, địa chỉ 500, lý do 500, mật khẩu 200, từ khóa 100 ký tự; từ khóa tìm kiếm thoát `%`, `_`; không nhận tệp tải lên | Có, `finance.access` hoặc `finance.einvoice.view` và quyền chi tiết |
+| Phản hồi nhà cung cấp hóa đơn điện tử (MISA meInvoice, bộ giả lập) | Tích hợp (hệ thống gọi ra) | Chỉ đọc số, mã của cơ quan thuế, mã giao dịch, mã lỗi, tệp PDF, XML (base64) của đúng mã tham chiếu, mã giao dịch; JSON lỗi coi là lỗi; câu chữ lỗi của nhà cung cấp lưu như văn bản, giao diện hiện dạng văn bản | Không áp dụng (hệ thống gọi ra) |
 | Gửi tin qua eSMS.vn (mã OTP, Zalo ZNS, kiểm tra kết nối) | Tích hợp | Chỉ đọc mã kết quả, mã tin, lỗi; gửi lỗi không chặn nghiệp vụ | Không áp dụng (hệ thống gọi ra) |
 
 ## 3. Xác thực và phiên đăng nhập
@@ -436,6 +441,37 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
 - Ghi nhận, chưa sửa (Thấp): khoảng ngày của báo cáo kết quả kinh doanh không giới hạn; mỗi chỉ tiêu có tài khoản đối ứng chạy một truy vấn riêng, nên khoảng ngày dài trên công ty nhiều bút toán có thể chậm.
 - Ghi nhận: báo cáo lộ doanh thu, giá vốn, lãi lỗ, tổng tài sản cho người có `finance.ledger.view` (Kế toán có sẵn), như sổ cái.
 
+### Ma trận phân quyền hóa đơn điện tử MODULE_06 phần 4 (CONG_VIEC_16)
+
+Quyền mới `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm) (tài liệu `08` mục 19, 20).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng | Thủ kho | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|---|---|
+| CHUC_NANG_76 Xem cài đặt | Được | Trong công ty mình | Được | Được (không thấy 4 ký tự cuối mật khẩu) | Không | Không | Không |
+| CHUC_NANG_76 Sửa cài đặt, kiểm tra kết nối | Được | Trong công ty mình | Được | Không | Không | Không | Không |
+| CHUC_NANG_77 đến CHUC_NANG_79 Xem hóa đơn, tải PDF, XML, xem việc trả hàng | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+| CHUC_NANG_77 đến CHUC_NANG_79 Gửi lại, điều chỉnh giảm, ghi hóa đơn của người mua, thay thế | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+
+Ranh giới và kiểm soát riêng:
+- Tách dữ liệu công ty: mọi truy vấn lọc theo `company_id` của công ty đang làm việc (`actor.companyId`); hóa đơn, việc trả hàng của công ty khác trả `404`. Tác vụ nền xử lý theo từng hóa đơn với cài đặt của chính công ty đó.
+- Quyền kiểm hai lớp: bộ điều khiển cần `finance.access` hoặc `finance.einvoice.view`; service kiểm quyền chi tiết bằng `requireFinancePermission` (bao trùm công ty; quyền gán ở chi nhánh không dùng được). `finance.einvoice.setup` là quyền nhạy cảm.
+- Mật khẩu nhà cung cấp mã hóa AES-256-GCM bằng `common/secret-box`, không bao giờ trả về (chỉ 4 ký tự cuối cho người có quyền cài đặt), không ghi nhật ký thao tác, không lưu trong lần gửi. Mã truy cập MISA chỉ giữ trong bộ nhớ.
+- Gọi nhà cung cấp ngoài giao dịch cơ sở dữ liệu, thời gian chờ 30 giây mỗi lần gọi, mỗi lần tải tệp; 20 giây mỗi yêu cầu HTTP tới MISA; giữ chỗ 10 phút, mã tham chiếu duy nhất chống lập trùng.
+- Bộ giả lập bị từ chối khi `NODE_ENV=production` (lưu cài đặt báo lỗi); PDF của bộ giả lập ghi "BẢN GIẢ LẬP – KHÔNG CÓ GIÁ TRỊ PHÁP LÝ".
+- Địa chỉ MISA đổi được bằng biến môi trường `MISA_EINVOICE_BASE_URL` (dùng cho kiểm thử); không đặt biến này ở môi trường thật.
+- Truy vấn dùng tham số của Drizzle (`sql`), không ghép chuỗi SQL; tệp trả `content-disposition` với tên ghép từ ký hiệu, số (giá trị do hệ thống, nhà cung cấp cấp).
+- Không thêm thư viện phụ thuộc: `fetch` của Node.js, `pdfmake`, BullMQ đã có.
+
+Kết quả rà soát bảo mật phần thay đổi (2026-11-10, gồm sửa lỗi rà soát commit ec4b79b):
+- Không có mục rủi ro cao còn mở. Đã kiểm: endpoint kiểm quyền và giới hạn công ty; mật khẩu không lộ qua API, nhật ký, lần gửi; 4 ký tự cuối chỉ cho người có quyền cài đặt; không gửi chồng khi đang gọi nhà cung cấp; chỉ ghi kết quả lần gửi mới nhất, hóa đơn đã phát hành không bị ghi đè.
+- Ghi nhận, chưa sửa (rủi ro nghiệp vụ, Cao trước khi bật ở môi trường thật): đường dẫn, tên trường API MISA meInvoice lấy từ nguồn thứ cấp; phải đối chiếu tài liệu chính thức và thử với tài khoản thử MISA trước khi phát hành (đặc tả `cong_viec/CONG_VIEC_16.md` mục 9, 16).
+- Ghi nhận, chưa sửa (Trung bình): trường `SendTaxStatus` của MISA chưa được dùng, nên cơ quan thuế từ chối qua MISA chưa nhận ra là "Bị từ chối" (hiện "Chờ cấp mã") đến khi xác nhận giá trị của trường.
+- Ghi nhận, chưa sửa (Thấp): tệp PDF, XML tải lỗi khi phát hành không được tự tải lại.
+- Ghi nhận, chưa sửa (Thấp): dòng hóa đơn lấy bằng phép nối trong với dòng đơn bán (`documentItems`); dòng phiếu không có dòng đơn nguồn sẽ bị bỏ khỏi hóa đơn.
+- Ghi nhận, chưa sửa (Thấp): tác vụ nền hóa đơn chạy một tác vụ một lúc trên hàng đợi riêng `hoa-don-dien-tu`, nên nhà cung cấp chậm làm chậm các hóa đơn khác trong lượt (không còn làm chậm tác vụ nền khác).
+- Ghi nhận, chưa sửa (Thấp): ngày làm việc tiếp theo chỉ bỏ thứ Bảy, Chủ nhật, chưa tính ngày nghỉ lễ; hóa đơn có thể bị báo quá hạn sớm hoặc muộn quanh ngày lễ.
+- Ghi nhận: bộ giả lập giữ hóa đơn đã nhận trong bộ nhớ tiến trình; khởi động lại API thì tra trạng thái không thấy và phát hành lại với số mới (chỉ ảnh hưởng môi trường không phải môi trường thật).
+
 ## 5. Quản lý khóa bí mật
 
 | Khóa | Nơi lưu | Môi trường | Ngày đổi gần nhất | Trạng thái |
@@ -445,6 +481,7 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
 | Khóa KMS mã hóa bí mật TOTP và khóa bí mật trong Cài đặt tích hợp (máy phát triển: biến `MFA_SECRET_KEY`, tối thiểu 32 ký tự) | AWS KMS | Từng môi trường | Chưa tạo | Chưa tạo |
 | Mã ứng dụng Google, Microsoft, Zalo (client secret) | Cài đặt tích hợp (bảng `integration_settings`, mã hóa AES-256-GCM), quản trị tập đoàn nhập ở MAN_HINH_19 (THAY_DOI_08); không đặt trong biến môi trường | Từng môi trường | Chưa tạo | Chưa tạo |
 | Khóa eSMS.vn (API key, Secret key) gửi SMS, Zalo ZNS | Cài đặt tích hợp như trên (THAY_DOI_08) | Từng môi trường | Chưa tạo | Chưa tạo |
+| Thông tin kết nối MISA meInvoice (mã ứng dụng, tên đăng nhập, mật khẩu) của từng công ty (CONG_VIEC_16) | Bảng `finance.einvoice_settings`, mật khẩu mã hóa AES-256-GCM (khóa như Cài đặt tích hợp); Kế toán trưởng nhập ở MAN_HINH_55; không đặt trong biến môi trường | Từng môi trường, từng công ty | Chưa tạo | Chưa tạo |
 | Thông tin truy cập AWS S3 lưu tệp đính kèm | Vai trò IAM, không dùng khóa tĩnh | Từng môi trường | Không áp dụng | Chưa tạo |
 | Khóa gửi email (Amazon SES) | Vai trò IAM, không dùng khóa tĩnh | Từng môi trường | Không áp dụng | Chưa tạo |
 
