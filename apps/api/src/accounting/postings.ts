@@ -23,7 +23,9 @@ export type PostingRole =
   | "income_summary"
   | "retained_earnings"
   | "commission_expense"
-  | "staff_payable";
+  | "staff_payable"
+  | "collector_receivable"
+  | "collection_fee";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -45,6 +47,8 @@ export const postingRoles: PostingRole[] = [
   "retained_earnings",
   "commission_expense",
   "staff_payable",
+  "collector_receivable",
+  "collection_fee",
 ];
 
 export interface DraftLine {

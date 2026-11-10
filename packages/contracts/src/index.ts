@@ -2740,7 +2740,7 @@ export interface FundLedgerResponse {
 
 export const debtSides = ["receivable", "payable"] as const;
 export type DebtSide = (typeof debtSides)[number];
-export const debtSourceTypes = ["opening", "sales_issue", "sales_return", "purchase_receipt", "purchase_return", "payment", "internal_write_off"] as const;
+export const debtSourceTypes = ["opening", "sales_issue", "sales_return", "purchase_receipt", "purchase_return", "payment", "internal_write_off", "collection_statement"] as const;
 export type DebtSourceType = (typeof debtSourceTypes)[number];
 export const debtSummaryQuerySchema = z
   .object({ side: z.enum(debtSides), search: z.string().trim().max(100).optional(), overdueOnly: z.enum(["true", "false"]).optional() })
@@ -2949,7 +2949,7 @@ export interface PostingRuleResponse {
   canEdit: boolean;
 }
 export const updatePostingRuleSchema = z.object({ accountId: z.uuid() }).strict();
-export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing"] as const;
+export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "collection_statement"] as const;
 export type JournalSourceType = (typeof journalSourceTypes)[number];
 export const journalStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
 export type JournalStatus = (typeof journalStatuses)[number];
@@ -3485,4 +3485,97 @@ export interface BankReconciliationResponse {
   unmatchedPayments: BankPaymentCandidate[];
   unmatchedPaymentCount: number;
   currency: string;
+}
+
+// CONG_VIEC_19: Đối soát thu hộ COD, cổng thanh toán (API_102 đến API_105).
+export const collectorKinds = ["cod", "gateway"] as const;
+export type CollectorKind = (typeof collectorKinds)[number];
+export const collectionStatementStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
+export type CollectionStatementStatus = (typeof collectionStatementStatuses)[number];
+export const collectionImportColumns = ["Mã vận đơn hoặc mã giao dịch", "Số đơn bán", "Tiền thu hộ", "Phí", "Ngày thu"] as const;
+export const collectionImportMaximumRows = 5000;
+export const collectionImportMaximumBytes = 5 * 1024 * 1024;
+// Lỗi chặn gửi và cảnh báo của dòng (QUYTAC_NGHIEPVU_119).
+export const collectionLineErrors = ["order_not_found", "order_cancelled", "duplicate_reference", "reference_used"] as const;
+export type CollectionLineError = (typeof collectionLineErrors)[number];
+
+export const saveCollectorSchema = z
+  .object({ partnerId: z.uuid(), kind: z.enum(collectorKinds), status: z.enum(["active", "inactive"]).default("active"), version: z.number().int().min(0).nullable() })
+  .strict();
+export interface CollectorItem {
+  id: string;
+  partnerId: string;
+  partnerCode: string;
+  partnerName: string;
+  kind: CollectorKind;
+  status: "active" | "inactive";
+  version: number;
+}
+export interface CollectorsResponse {
+  collectors: CollectorItem[];
+  canSetup: boolean;
+  canManage: boolean;
+}
+// Nhập tệp: multipart gồm collectorId, statementNo, statementDate, file; có statementId thì nhập lại vào bảng đó.
+export const importCollectionStatementSchema = z
+  .object({
+    collectorId: z.uuid(),
+    statementNo: z.string().trim().min(1).max(100),
+    statementDate: isoDate,
+    statementId: z.uuid().optional(),
+    version: z.coerce.number().int().min(0).optional(),
+  })
+  .strict();
+export const collectionStatementListQuerySchema = z
+  .object({
+    collectorId: z.uuid().optional(),
+    status: z.enum(collectionStatementStatuses).optional(),
+    from: isoDate.optional(),
+    to: isoDate.optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface CollectionStatementListItem {
+  id: string;
+  collectorName: string;
+  collectorKind: CollectorKind;
+  statementNo: string;
+  documentNo: string | null;
+  statementDate: string;
+  status: CollectionStatementStatus;
+  totalCollected: string;
+  totalFee: string;
+  netAmount: string;
+  lineCount: number;
+  errorCount: number;
+  postError: string | null;
+}
+export interface CollectionStatementsResponse extends PageResponse<CollectionStatementListItem> {
+  canManage: boolean;
+  currency: string;
+}
+export interface CollectionStatementLine {
+  id: string;
+  lineNo: number;
+  reference: string;
+  orderNo: string;
+  orderId: string | null;
+  customerName: string | null;
+  collectedAmount: string;
+  feeAmount: string;
+  collectedDate: string | null;
+  orderOpenAmount: string | null;
+  error: CollectionLineError | null;
+  amountDiffers: boolean;
+}
+export interface CollectionStatementResponse extends CollectionStatementListItem {
+  collectorId: string;
+  partnerId: string;
+  lines: CollectionStatementLine[];
+  warningCount: number;
+  canManage: boolean;
+  canWithdraw: boolean;
+  currency: string;
+  version: number;
 }

@@ -95,6 +95,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "finance.bank.view", appCode: "finance", nameVi: "Xem giao dịch ngân hàng, đối chiếu", nameEn: "View bank transactions and reconciliation", isSensitive: false },
   { code: "finance.bank.manage", appCode: "finance", nameVi: "Ghép, bỏ qua giao dịch ngân hàng, lập phiếu thu từ gợi ý", nameEn: "Reconcile bank transactions", isSensitive: false },
   { code: "finance.bank.setup", appCode: "finance", nameVi: "Cài đặt kết nối ngân hàng", nameEn: "Set up bank connections", isSensitive: true },
+  { code: "finance.collection.view", appCode: "finance", nameVi: "Xem bảng đối soát thu hộ", nameEn: "View collection statements", isSensitive: false },
+  { code: "finance.collection.manage", appCode: "finance", nameVi: "Nhập, gửi bảng đối soát thu hộ", nameEn: "Manage collection statements", isSensitive: false },
+  { code: "finance.collection.setup", appCode: "finance", nameVi: "Khai đơn vị thu hộ", nameEn: "Set up collectors", isSensitive: true },
   { code: "inventory.sales.issue", appCode: "inventory", nameVi: "Xuất giao hàng, nhận hàng trả lại", nameEn: "Issue sales deliveries and receive returns", isSensitive: false },
   { code: "inventory.purchase.receive", appCode: "inventory", nameVi: "Nhập mua, trả hàng nhà cung cấp", nameEn: "Receive purchases and return to suppliers", isSensitive: false },
 ];
@@ -154,6 +157,9 @@ const companyAdminPermissions = [
   "finance.bank.view",
   "finance.bank.manage",
   "finance.bank.setup",
+  "finance.collection.view",
+  "finance.collection.manage",
+  "finance.collection.setup",
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [
@@ -233,6 +239,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "finance.commission.manage",
       "finance.bank.view",
       "finance.bank.manage",
+      "finance.collection.view",
+      "finance.collection.manage",
       "crm.access",
       "crm.partner.view",
     ],
@@ -260,6 +268,9 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "finance.bank.view",
       "finance.bank.manage",
       "finance.bank.setup",
+      "finance.collection.view",
+      "finance.collection.manage",
+      "finance.collection.setup",
       "crm.access",
       "crm.partner.view",
     ],
@@ -288,6 +299,7 @@ export const documentTypeCatalog = [
   { code: "finance.payment", appCode: "finance", nameVi: "Phiếu chi", nameEn: "Cash payment", requiresApproval: true },
   { code: "accounting.journal", appCode: "finance", nameVi: "Phiếu kế toán", nameEn: "Manual journal", requiresApproval: true },
   { code: "finance.commission", appCode: "finance", nameVi: "Bảng hoa hồng", nameEn: "Commission statement", requiresApproval: true },
+  { code: "finance.collection_statement", appCode: "finance", nameVi: "Bảng đối soát thu hộ", nameEn: "Collection statement", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.

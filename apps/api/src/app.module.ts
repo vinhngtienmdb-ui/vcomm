@@ -67,6 +67,8 @@ import { CommissionStatementsService } from "./commission/commission-statements.
 import { CommissionsController } from "./commission/commissions.controller";
 import { BankReconciliationController } from "./bank/bank-reconciliation.controller";
 import { BankReconciliationService } from "./bank/bank-reconciliation.service";
+import { CollectionStatementsController } from "./collection/collection-statements.controller";
+import { CollectionStatementsService } from "./collection/collection-statements.service";
 import { CommissionsService } from "./commission/commissions.service";
 import { EinvoiceCorrectionsService } from "./einvoice/einvoice-corrections.service";
 import { EinvoiceSettingsService } from "./einvoice/einvoice-settings.service";
@@ -103,7 +105,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, CommissionsController, BankReconciliationController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, CommissionsController, BankReconciliationController, CollectionStatementsController],
   providers: [
     AuthService,
     ActivationService,
@@ -150,6 +152,7 @@ import { UsersService } from "./users/users.service";
     CommissionsService,
     CommissionStatementsService,
     BankReconciliationService,
+    CollectionStatementsService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

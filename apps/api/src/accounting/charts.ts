@@ -352,6 +352,8 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     retained_earnings: "4212",
     commission_expense: "6411",
     staff_payable: "334",
+    collector_receivable: "1388",
+    collection_fee: "6418",
   },
   TT133: {
     receivable: "131",
@@ -374,6 +376,8 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     retained_earnings: "4212",
     commission_expense: "6421",
     staff_payable: "334",
+    collector_receivable: "1388",
+    collection_fee: "6421",
   },
 };
 
@@ -398,4 +402,6 @@ export const roleDescriptions: Record<PostingRole, string> = {
   retained_earnings: "Lợi nhuận chưa phân phối năm nay",
   commission_expense: "Chi phí hoa hồng nhân viên bán hàng",
   staff_payable: "Phải trả người lao động",
+  collector_receivable: "Phải thu đơn vị thu hộ",
+  collection_fee: "Phí thu hộ, phí cổng thanh toán",
 };
