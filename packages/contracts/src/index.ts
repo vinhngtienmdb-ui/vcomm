@@ -1947,6 +1947,8 @@ export const partnerListQuerySchema = z
     kind: z.enum(partnerKinds).optional(),
     role: z.enum(["customer", "supplier", "internal"]).optional(),
     status: z.enum(["active", "inactive"]).optional(),
+    // CONG_VIEC_21: khách của tôi, khách theo nhân viên phụ trách.
+    owner: z.union([z.literal("mine"), z.uuid()]).optional(),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
   })
@@ -1964,6 +1966,8 @@ export interface PartnerListItem {
   internalCompanyId: string | null;
   isCustomer: boolean;
   isSupplier: boolean;
+  // CONG_VIEC_21: nhân viên phụ trách tại công ty đang chọn.
+  ownerUserName: string | null;
   status: "active" | "inactive";
 }
 export interface PartnerProfileResponse {

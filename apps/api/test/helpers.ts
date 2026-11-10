@@ -49,10 +49,7 @@ export function sessionFrom(application: NestExpressApplication, setCookie: stri
   const csrf = cookieValue(setCookie, "vc_csrf");
   return {
     call(method, path, options = {}) {
-      const call = request(application.getHttpServer())[method](`/api/v1${path}`)
-        .set("accept-language", "vi")
-        .set("cookie", `vc_access=${access}; vc_csrf=${csrf}`)
-        .set("x-csrf-token", csrf);
+      const call = request(application.getHttpServer())[method](`/api/v1${path}`).set("accept-language", "vi").set("cookie", `vc_access=${access}; vc_csrf=${csrf}`).set("x-csrf-token", csrf);
       if (options.companyId) call.set("x-company-id", options.companyId);
       if (options.body !== undefined) call.send(options.body as object);
       return call;
@@ -78,4 +75,12 @@ export async function createTestUser(pool: Pool, email: string, fullName: string
     ]);
   }
   return id;
+}
+
+// CONG_VIEC_21 (THAY_DOI_12): kiểm thử viết trước khi có phạm vi xem theo nhân viên phụ trách giữ hành vi cũ của vai trò Nhân viên bán hàng (xem mọi khách).
+// Người dùng cho phép thêm vào bước chuẩn bị ngày 2026-11-10; phạm vi xem mới kiểm trong c21-customer-assignment.
+export async function salespersonSeesAllCustomers(pool: Pool): Promise<void> {
+  await pool.query(`
+    INSERT INTO core.role_permissions (role_id, permission_code)
+    SELECT id, 'crm.customer.view_all' FROM core.roles WHERE company_id IS NULL AND code = 'salesperson' ON CONFLICT DO NOTHING`);
 }

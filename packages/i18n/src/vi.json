@@ -263,7 +263,8 @@
     "collectionPostingRuleMissing": "Chưa khai định khoản phải thu đơn vị thu hộ, phí thu hộ hoặc phải thu khách hàng (Hệ thống tài khoản).",
     "consolidationNoMembers": "Tập đoàn chưa có công ty nào hợp nhất được (cùng đồng tiền, đã khởi tạo kế toán).",
     "consolidationPeriodExists": "Kỳ này đã có bảng hợp nhất đang dùng.",
-    "consolidationPostingRuleMissing": "Công ty thành viên chưa khai định khoản doanh thu, giá vốn hoặc hàng hóa (Hệ thống tài khoản)."
+    "consolidationPostingRuleMissing": "Công ty thành viên chưa khai định khoản doanh thu, giá vốn hoặc hàng hóa (Hệ thống tài khoản).",
+    "ownerNeedsAssignment": "Khách đã có nhân viên phụ trách; đổi nhân viên bằng phiếu giao khách."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1826,7 +1827,9 @@
     "choose": "Chọn…",
     "profileSaved": "Đã lưu hồ sơ.",
     "selfProfile": "Đây là công ty đang chọn, không lập hồ sơ đối tác.",
-    "days": "{count} ngày"
+    "days": "{count} ngày",
+    "mine": "Khách của tôi",
+    "ownerChangeHint": "Đổi nhân viên phụ trách bằng phiếu giao khách."
   },
   "purchasingMenu": {
     "title": "Mua hàng",

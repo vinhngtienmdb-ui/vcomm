@@ -307,7 +307,15 @@ function ProfileDrawer({ partner, onClose, onSaved }: { partner: PartnerResponse
           </select>
         </Field>
         <Field id="phu-trach" label={t("owner")} error={fields.ownerUserId}>
-          <select id="phu-trach" className={inputClass("ownerUserId")} value={ownerUserId} onChange={(event) => setOwnerUserId(event.target.value)}>
+          {/* Khách đã có nhân viên phụ trách chỉ đổi bằng phiếu giao khách (QUYTAC_NGHIEPVU_134). */}
+          <select
+            id="phu-trach"
+            className={inputClass("ownerUserId")}
+            value={ownerUserId}
+            disabled={Boolean(profile?.ownerUserId)}
+            aria-describedby={profile?.ownerUserId ? "phu-trach-goi-y" : undefined}
+            onChange={(event) => setOwnerUserId(event.target.value)}
+          >
             <option value="">{common("none")}</option>
             {choices.users.map((user) => (
               <option key={user.id} value={user.id}>
@@ -315,6 +323,11 @@ function ProfileDrawer({ partner, onClose, onSaved }: { partner: PartnerResponse
               </option>
             ))}
           </select>
+          {profile?.ownerUserId && (
+            <span id="phu-trach-goi-y" className="chu-thich">
+              {t("ownerChangeHint")}
+            </span>
+          )}
         </Field>
         <Field id="ghi-chu" label={t("note")} error={fields.note}>
           <textarea id="ghi-chu" className={inputClass("note")} rows={3} value={note} onChange={(event) => setNote(event.target.value)} />

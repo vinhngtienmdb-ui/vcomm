@@ -66,6 +66,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "crm.partner.manage", appCode: "crm", nameVi: "Thêm, sửa đối tác dùng chung", nameEn: "Manage shared partners", isSensitive: false },
   { code: "crm.partner.identity.view", appCode: "crm", nameVi: "Xem số Căn cước công dân của đối tác", nameEn: "View partner citizen identity numbers", isSensitive: true },
   { code: "crm.profile.manage", appCode: "crm", nameVi: "Quản lý hồ sơ đối tác của công ty (hạn mức công nợ)", nameEn: "Manage company partner profiles (credit limits)", isSensitive: true },
+  // CONG_VIEC_21: gán khách hàng cho nhân viên kinh doanh (THAY_DOI_12).
+  { code: "crm.customer.view_all", appCode: "crm", nameVi: "Xem mọi khách hàng, đơn bán của công ty", nameEn: "View all customers and sales orders of the company", isSensitive: false },
+  { code: "crm.customer.assign", appCode: "crm", nameVi: "Giao, chuyển khách hàng cho nhân viên", nameEn: "Assign customers to staff", isSensitive: false },
   // CONG_VIEC_07: Mua hàng trong nước (MODULE_04, phần 1).
   { code: "purchasing.price.manage", appCode: "purchasing", nameVi: "Quản lý bảng giá mua", nameEn: "Manage supplier prices", isSensitive: false },
   { code: "purchasing.requisition.create", appCode: "purchasing", nameVi: "Lập đề nghị mua", nameEn: "Create purchase requisitions", isSensitive: false },
@@ -132,6 +135,8 @@ const companyAdminPermissions = [
   "crm.partner.manage",
   "crm.partner.identity.view",
   "crm.profile.manage",
+  "crm.customer.view_all",
+  "crm.customer.assign",
   "purchasing.price.manage",
   "purchasing.requisition.create",
   "purchasing.order.view",
@@ -281,6 +286,10 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
   },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },
 ];
+// THAY_DOI_12: vai trò hệ thống đang xem đối tác hoặc đơn bán (trừ Nhân viên bán hàng) giữ phạm vi xem mọi khách như cũ.
+for (const role of systemRoles)
+  if (role.code !== "salesperson" && role.permissionCodes.some((code) => code === "crm.partner.view" || code === "sales.order.view") && !role.permissionCodes.includes("crm.customer.view_all"))
+    role.permissionCodes.push("crm.customer.view_all");
 
 // Loại chứng từ do mã khai báo. Chứng từ thử của Nền tảng dùng để thử luồng duyệt khi chưa có module khác (CONG_VIEC_02 lát L7).
 export const documentTypeCatalog = [
@@ -305,6 +314,7 @@ export const documentTypeCatalog = [
   { code: "finance.commission", appCode: "finance", nameVi: "Bảng hoa hồng", nameEn: "Commission statement", requiresApproval: true },
   { code: "finance.collection_statement", appCode: "finance", nameVi: "Bảng đối soát thu hộ", nameEn: "Collection statement", requiresApproval: true },
   { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },
+  { code: "crm.customer_assignment", appCode: "crm", nameVi: "Phiếu giao khách", nameEn: "Customer assignment", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.

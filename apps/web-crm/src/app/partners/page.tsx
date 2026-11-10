@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_36 Danh sách đối tác (CHUC_NANG_46, 47; API_71): tìm không dấu theo tên, mã, mã số thuế, điện thoại; lọc loại, vai trò với công ty đang chọn, trạng thái.
+// MAN_HINH_36 Danh sách đối tác (CHUC_NANG_46, 47, 98; API_71): tìm không dấu theo tên, mã, mã số thuế, điện thoại; lọc loại, vai trò với công ty đang chọn, trạng thái, khách của tôi.
 import { partnerKinds, type PageResponse, type PartnerListItem } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -22,6 +22,7 @@ export default function PartnersPage() {
   const [kind, setKind] = useState("");
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("");
+  const [owner, setOwner] = useState("");
   const [page, setPage] = useState(1);
   const [adding, setAdding] = useState(false);
 
@@ -42,8 +43,9 @@ export default function PartnersPage() {
   if (kind) parameters.set("kind", kind);
   if (role) parameters.set("role", role);
   if (status) parameters.set("status", status);
+  if (owner) parameters.set("owner", owner);
   const { state, reload } = useApi<PageResponse<PartnerListItem>>(`/crm/partners?${parameters}`);
-  const headings = [t("code"), t("name"), t("kind"), t("identity"), t("phone"), t("role"), t("status")];
+  const headings = [t("code"), t("name"), t("kind"), t("identity"), t("phone"), t("role"), t("owner"), t("status")];
   const filter = (id: string, label: string, value: string, onChange: (value: string) => void, options: { value: string; label: string }[]) => (
     <>
       <label className="an-nhan" htmlFor={id}>
@@ -110,11 +112,12 @@ export default function PartnersPage() {
           { value: "active", label: t("active") },
           { value: "inactive", label: t("inactive") },
         ])}
+        {filter("loc-phu-trach", t("owner"), owner, setOwner, [{ value: "mine", label: t("mine") }])}
       </div>
       <Loaded state={state} onRetry={() => void reload()}>
         {(result) =>
           result.data.length === 0 ? (
-            <MessageView text={search || kind || role || status ? common("noResult") : t("none")} />
+            <MessageView text={search || kind || role || status || owner ? common("noResult") : t("none")} />
           ) : (
             <div className="khung-bang">
               <table>
@@ -156,6 +159,9 @@ export default function PartnersPage() {
                         </span>
                       </td>
                       <td data-nhan={headings[6]}>
+                        <span>{item.ownerUserName ?? common("none")}</span>
+                      </td>
+                      <td data-nhan={headings[7]}>
                         <span className={`nhan ${item.status === "active" ? "thanh-cong" : "trung-tinh"}`}>{t(item.status)}</span>
                       </td>
                     </tr>

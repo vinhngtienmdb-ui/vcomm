@@ -263,7 +263,8 @@
     "collectionPostingRuleMissing": "Posting rules for collector receivable, collection fee or customer receivable are missing.",
     "consolidationNoMembers": "No company can be consolidated (same currency, ledger initialized).",
     "consolidationPeriodExists": "A consolidation already exists for this period.",
-    "consolidationPostingRuleMissing": "A member company is missing posting rules for revenue, cost of goods sold or goods."
+    "consolidationPostingRuleMissing": "A member company is missing posting rules for revenue, cost of goods sold or goods.",
+    "ownerNeedsAssignment": "This customer already has a sales owner; change it with a customer assignment."
   },
   "login": {
     "title": "Sign in",
@@ -1826,7 +1827,9 @@
     "choose": "Choose…",
     "profileSaved": "Profile saved.",
     "selfProfile": "This is the selected company; it cannot have a partner profile.",
-    "days": "{count} days"
+    "days": "{count} days",
+    "mine": "My customers",
+    "ownerChangeHint": "Change the sales owner with a customer assignment."
   },
   "purchasingMenu": {
     "title": "Purchasing",
