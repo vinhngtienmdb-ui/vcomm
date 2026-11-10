@@ -1,10 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6); CONG_VIEC_14 (2026-11-10): schema `accounting`, thành phần phụ trợ kế toán tổng hợp của MODULE_06 phần 2 (mục 3i, 6)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -147,6 +147,17 @@ Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance de
 | Dư nợ cho đơn bán | Biểu thức SQL `receivableBalance` (`apps/api/src/finance/receivable-balance.ts`, tách riêng để không nhập vòng giữa module; chỉ đọc `finance.debt_items`) dùng trong `SalesOrdersService` khi tính ngoại lệ vượt hạn mức | CHUC_NANG_68 |
 | Giao diện | `apps/web-finance`: trang `/debts`, `/debts/[partnerId]`, `/payments`, `/payments/new`, `/payments/[id]`, `/funds`, `/funds/[id]`; `FinanceShell` (menu), `FundEditor`, `PaymentEditor`, `PartnerPicker`, `PaymentStatusBadge`; mini app Nền tảng chuyển tiếp `/finance` theo `FINANCE_ORIGIN` (`apps/web-platform/next.config.ts`) | CHUC_NANG_65 đến CHUC_NANG_67 |
 
+## 3i. Thành phần phụ trợ cho MODULE_06 Tài chính – Kế toán (phần 2, CONG_VIEC_14)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Khởi tạo, tài khoản, định khoản | `LedgerService` (`apps/api/src/accounting/ledger.service.ts`), bộ điều khiển `LedgerController` (`apps/api/src/accounting/ledger.controller.ts`), quyền dùng chung `requireFinancePermission` (`apps/api/src/finance/finance-context.ts`); danh mục tài khoản, định khoản mặc định hai chế độ khai báo trong `apps/api/src/accounting/charts.ts`; ghi `accounting.settings`, `accounting.accounts`, `accounting.posting_rules`; chế độ đọc từ `core.companies.accounting_regime` | CHUC_NANG_69, CHUC_NANG_70 |
+| Bút toán tự sinh | `apps/api/src/accounting/postings.ts` (`inventoryDraft`, `paymentDraft`, `writeOffDraft`: tính số tiền theo vai trò, làm tròn theo `core.currencies.minor_units`); `LedgerService.record` đổi vai trò sang tài khoản, kiểm cân, ghi `accounting.journals`, `accounting.journal_lines`. Móc nối đăng ký trong `LedgerService.onModuleInit`: `StockDocumentsService.postedHooks` (ghi sổ phiếu kho), `PaymentsService.postedHooks` (thêm ở CONG_VIEC_14, `apps/api/src/finance/payments.service.ts`, gọi cuối giao dịch ghi sổ phiếu thu chi), `InternalReceiptsService.writtenOffHooks` (ghi tổn thất biên bản nội bộ). Kiểm khóa sổ đọc `accounting.settings` với `FOR SHARE`. Module Kho, Tài chính không phụ thuộc module kế toán | CHUC_NANG_71 |
+| Đổi chế độ kế toán | `beforeRegimeChange` (`apps/api/src/accounting/regime-guard.ts`, tách riêng để không nhập vòng) gọi trong giao dịch sửa công ty của `CompaniesService` (`apps/api/src/organization/companies.service.ts`) khi `accountingRegime` đổi: có bút toán thì từ chối; không có thì xóa định khoản, tài khoản, cài đặt | CHUC_NANG_69, CHUC_NANG_01 |
+| Phiếu kế toán, khóa sổ | `JournalsService` (`apps/api/src/accounting/journals.service.ts`): phiếu kế toán dùng lại dãy số chứng từ (`NumberSequencesService`, `ensureSequence`, tiền tố `PKT`), luồng duyệt (`ApprovalRequestsService.submitWithin`, `withdraw`; nghe `core.approval.completed` qua outbox, loại `accounting.journal`); khóa sổ, mở lại khóa `accounting.settings` bằng `FOR UPDATE`, tạo, xóa bút toán kết chuyển `closing` | CHUC_NANG_72, CHUC_NANG_73 |
+| Sổ sách | `LedgerReportsService` (`apps/api/src/accounting/ledger-reports.service.ts`): bảng cân đối số phát sinh (cộng dồn lên tài khoản cha trong mã), sổ cái (cây tài khoản bằng truy vấn đệ quy) | CHUC_NANG_73 |
+| Giao diện | `apps/web-finance`: trang `/accounts`, `/journals`, `/journals/new`, `/journals/[id]`, `/books`; `FinanceShell` thêm ba mục menu; `JournalEditor`, `JournalStatusBadge` | CHUC_NANG_69 đến CHUC_NANG_73 |
+
 ## 4. Kiến trúc triển khai
 
 | Môi trường | Mục đích | Hạ tầng |
@@ -171,7 +182,7 @@ Chia theo phần chạy riêng của hệ thống, bên trong chia theo module. 
 
 ```
 apps/
-  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales, src/finance...
+  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales, src/finance, src/accounting...
                         Không chứa mã giao diện.
   web-platform/         Mini app Nền tảng và trang chủ mini app.
   web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm, web-purchasing, web-sales, web-finance...).

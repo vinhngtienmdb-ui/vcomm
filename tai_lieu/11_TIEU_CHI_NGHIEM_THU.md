@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 2.0
+- Phiên bản: 2.1
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ); CONG_VIEC_14 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_111 đến TIEUCHI_NGHIEMTHU_116 của MODULE_06 (kế toán tổng hợp)
 
 ## MODULE_01 Nền tảng
 
@@ -182,3 +182,16 @@ Dữ liệu mẫu: công ty VCR; "Hàng công nợ A" thuế 10%, giá bán gồ
 | TIEUCHI_NGHIEMTHU_108 | CHUC_NANG_67 | Phiếu chi qua luồng duyệt, duyệt xong mới ghi sổ; vượt số dư quỹ thì không ghi sổ, phiếu về bị từ chối kèm lý do; hoàn tiền không vượt trả trước; nhân viên không có quyền không lập được | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_109 | CHUC_NANG_66, CHUC_NANG_68 | Số dư đầu kỳ; danh sách công nợ, tuổi nợ, quá hạn đúng; đơn bán kiểm hạn mức theo dư nợ thật | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_110 | CHUC_NANG_65 đến CHUC_NANG_67 | Màn hình MAN_HINH_46 đến MAN_HINH_49 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |
+
+## MODULE_06 Tài chính – Kế toán (phần 2: Kế toán tổng hợp, CONG_VIEC_14)
+
+Dữ liệu mẫu: công ty VCR chế độ Thông tư 99/2025, tiền tệ đồng Việt Nam; "Hàng công nợ A" thuế 10%, giá bán gồm thuế 11.000, giá vốn 8.000, giá mua chưa thuế 8.000; tồn đầu 1.000 cái nhập trước khi khởi tạo kế toán; "Khách công nợ", "Nhà cung cấp công nợ". Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_111 | CHUC_NANG_69, CHUC_NANG_70 | Khởi tạo theo chế độ của công ty nạp đủ tài khoản (Thông tư 99/2025: 184), tạo bút toán cho chứng từ đã ghi sổ; thêm tài khoản chi tiết đúng quy tắc số hiệu, nhận định khoản của tài khoản cha; tài khoản hệ thống không ngừng dùng; đổi chế độ khi đã có bút toán, khởi tạo lần hai bị từ chối; người không có quyền không khởi tạo được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_112 | CHUC_NANG_70, CHUC_NANG_71 | Phiếu xuất giao hàng, nhận hàng trả lại, nhập mua, trả hàng nhà cung cấp, nhập xuất khác, điều chỉnh, phiếu thu chi sinh bút toán cân, đúng tài khoản, đúng số tiền, gắn đối tác; đổi định khoản áp dụng cho chứng từ sau, bút toán cũ giữ nguyên | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_113 | CHUC_NANG_72 | Phiếu kế toán lệch Nợ Có, ghi cả hai bên, số lẻ hơn đơn vị tiền tệ bị từ chối; chưa có chính sách thì ghi sổ ngay, cấp số; có chính sách thì chờ duyệt, duyệt xong ghi sổ; đã ghi sổ không sửa; người không có quyền không lập được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_114 | CHUC_NANG_71, CHUC_NANG_73 | Khóa sổ tạo bút toán kết chuyển đúng (loại 5 đến 8 sang 911, kết quả sang 4212); chứng từ có ngày trong kỳ khóa bị từ chối; tháng chưa kết thúc không khóa được; người không có quyền không khóa được; mở lại tháng gần nhất xóa kết chuyển | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_115 | CHUC_NANG_73 | Bảng cân đối số phát sinh cân ở mọi cột, cộng dồn lên tài khoản cha; sổ cái đúng số dư lũy kế, tài khoản đối ứng | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_116 | CHUC_NANG_69 đến CHUC_NANG_73 | Màn hình MAN_HINH_50 đến MAN_HINH_52 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |

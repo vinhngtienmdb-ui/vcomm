@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.1
+- Phiên bản: 2.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán
 
 ## MODULE_01 Nền tảng
 
@@ -26,6 +26,7 @@ Quy ước chung cho mọi chức năng của MODULE_01:
 - Phân quyền: Chỉ quản trị tập đoàn.
 - Thông báo lỗi: "Mã công ty đã tồn tại." · "Mã số thuế đã được dùng cho công ty khác." · "Không thể chọn công ty con làm công ty mẹ." · "Công ty còn chi nhánh đang hoạt động."
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_01, TIEUCHI_NGHIEMTHU_02, TIEUCHI_NGHIEMTHU_03
+- Bổ sung CONG_VIEC_14: đổi chế độ kế toán khi công ty đã có bút toán thì từ chối, lỗi tại `accountingRegime` "Công ty đã có bút toán, không đổi được chế độ kế toán."; đã khởi tạo kế toán nhưng chưa có bút toán thì bỏ khởi tạo (QUYTAC_NGHIEPVU_93, CHUC_NANG_69).
 
 ### CHUC_NANG_02: Quản lý chi nhánh
 - Mục đích: Tạo, sửa, ngừng hoạt động chi nhánh của một công ty.
@@ -1110,6 +1111,93 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 1:
 |---|---|
 | Toàn vẹn | Công nợ phát sinh trong cùng giao dịch ghi sổ phiếu kho; mọi thay đổi công nợ của một đối tác ở một phía chạy tuần tự (khóa theo công ty, phía, đối tác); ghi sổ phiếu thu chi khóa công nợ trước, quỹ sau; số dư quỹ, số dư công nợ tính từ dữ liệu, không lưu trùng; tiền `numeric`; khóa ngoại từ `finance` chỉ trỏ vào `finance`, `core`, `crm` |
 | Ranh giới module | Module Kho gọi công nợ qua móc nối `postedHooks` (ghi sổ phiếu kho), `writtenOffHooks` (ghi tổn thất biên bản nội bộ) đăng ký lúc khởi động; đơn bán chỉ đọc số dư công nợ qua biểu thức `receivableBalance` (`apps/api/src/finance/receivable-balance.ts`); dùng lại luồng duyệt, dãy số chứng từ có sẵn |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_06 Tài chính – Kế toán (phần 2: Kế toán tổng hợp, CONG_VIEC_14)
+
+Quy ước chung cho mọi chức năng của MODULE_06 phần 2:
+- Thao tác ghi nhật ký thao tác (CHUC_NANG_23): mini app `finance`, loại đối tượng `ledger` (`ledger.setup`), `account` (`account.create`, `.update`), `posting_rule` (`posting_rule.update`), `journal` (`journal.create`, `.update`, `.submit`, `.withdraw`), `ledger_period` (`period.close`, `period.reopen`). Bút toán tự sinh ghi theo nhật ký của chứng từ gốc.
+- Quyền `finance.*` chỉ dùng được khi gán ở phạm vi tập đoàn hoặc công ty (tài liệu `08` mục 16). Mọi API trước hết cần `finance.access` hoặc `finance.ledger.view` ở công ty đang chọn. Dữ liệu của công ty khác trả 404.
+- Sửa gửi kèm phiên bản; khác phiên bản thì báo "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất.".
+- Tiền `numeric(20,4)`, tiền tệ của công ty; bút toán làm tròn theo số chữ số lẻ của tiền tệ công ty; số trả về dạng chuỗi bỏ số 0 thừa.
+- Công ty chưa khởi tạo kế toán: các thao tác khác khởi tạo báo "Công ty chưa khởi tạo kế toán.".
+
+### CHUC_NANG_69: Khởi tạo kế toán, hệ thống tài khoản
+- Mục đích: Công ty có hệ thống tài khoản đúng chế độ kế toán; chứng từ đã ghi sổ có bút toán; kế toán mở tài khoản chi tiết.
+- Người sử dụng: Kế toán trưởng, quản trị công ty, quản trị tập đoàn; Kế toán (xem).
+- Điều kiện thực hiện: Trạng thái khởi tạo: `finance.ledger.view` hoặc `finance.ledger.setup`. Khởi tạo, thêm, sửa tài khoản: `finance.ledger.setup`. Xem tài khoản: `finance.ledger.view`, `finance.ledger.setup` hoặc `finance.journal.manage`.
+- Dữ liệu đầu vào: Khởi tạo: không nhập (chế độ lấy từ công ty). Thêm tài khoản chi tiết: tài khoản cha, số hiệu (3 đến 20 chữ số hoặc chữ cái), tên (1 đến 200 ký tự). Sửa: tên, trạng thái (đang dùng, ngừng dùng), phiên bản.
+- Quy trình xử lý: Khởi tạo: khóa công ty; đã có cài đặt thì từ chối; ghi cài đặt; nạp tài khoản của chế độ `accounting_regime` của công ty (`charts.ts`), đánh dấu tài khoản hệ thống; ghi định khoản mặc định (CHUC_NANG_70); tạo bút toán cho phiếu kho đã ghi sổ (trừ chuyển kho), phiếu thu chi đã ghi sổ, biên bản nội bộ đã ghi tổn thất, theo thứ tự ghi sổ, không kiểm khóa sổ. Thêm chi tiết: tài khoản cha thuộc công ty, đang dùng; số hiệu bắt đầu bằng số hiệu cha, dài hơn, chưa có trong công ty; tính chất theo cha; định khoản đang dùng tài khoản cha chuyển sang tài khoản mới (QUYTAC_NGHIEPVU_93). Sửa: khóa tài khoản, kiểm phiên bản; ngừng dùng chỉ với tài khoản chi tiết, không nằm trong định khoản, không còn con đang dùng. Đổi chế độ kế toán ở CHUC_NANG_01: đã có bút toán thì từ chối; đã khởi tạo, chưa có bút toán thì xóa định khoản, tài khoản, cài đặt.
+- Kết quả đầu ra: Trạng thái: đã khởi tạo hay chưa, chế độ, tên chế độ, đã khóa sổ đến, được khởi tạo hay không. Tài khoản: số hiệu, tên, tài khoản cha, tính chất, là tài khoản hệ thống, trạng thái, nhận bút toán được, đã có bút toán, phiên bản, được sửa; theo số hiệu.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_39
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_93
+- Trường hợp ngoại lệ: Tài khoản cha đã ngừng dùng, của công ty khác: lỗi tại tài khoản cha. Tài khoản đã có bút toán vẫn thêm chi tiết được; bút toán cũ giữ ở tài khoản cha.
+- Phân quyền: Không có `finance.ledger.setup` khởi tạo, thêm, sửa nhận 403; không thấy nút "Khởi tạo kế toán", "Thêm chi tiết", "Sửa".
+- Thông báo lỗi: "Công ty đã khởi tạo kế toán." · "Số hiệu tài khoản chi tiết phải bắt đầu bằng số hiệu tài khoản cha và dài hơn." · "Số hiệu tài khoản đã có trong công ty." · "Tài khoản của chế độ kế toán không ngừng dùng được." · "Tài khoản đang dùng trong định khoản mặc định." · "Tài khoản còn tài khoản chi tiết đang dùng." · "Công ty đã có bút toán, không đổi được chế độ kế toán." (CHUC_NANG_01) · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_111, TIEUCHI_NGHIEMTHU_116
+
+### CHUC_NANG_70: Định khoản mặc định
+- Mục đích: Bút toán tự sinh ghi đúng tài khoản công ty muốn dùng.
+- Người sử dụng: Kế toán trưởng, quản trị công ty, quản trị tập đoàn; Kế toán (xem).
+- Điều kiện thực hiện: Xem: `finance.ledger.view` hoặc `finance.ledger.setup`. Đổi: `finance.ledger.setup`.
+- Dữ liệu đầu vào: Vai trò (một trong 19 vai trò ở đặc tả `cong_viec/CONG_VIEC_14.md` mục 8), tài khoản.
+- Quy trình xử lý: Khởi tạo ghi tài khoản mặc định của chế độ cho mọi vai trò. Đổi: vai trò phải có trong danh mục; tài khoản thuộc công ty, đang dùng, không có con đang dùng; ghi người, thời điểm sửa (QUYTAC_NGHIEPVU_94). Bút toán sinh sau đó dùng tài khoản mới; bút toán cũ không đổi.
+- Kết quả đầu ra: Danh sách theo thứ tự vai trò: vai trò, mô tả, tài khoản (số hiệu, tên), được đổi hay không.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_39
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_94
+- Trường hợp ngoại lệ: Thêm tài khoản chi tiết dưới tài khoản đang dùng trong định khoản thì định khoản tự chuyển sang tài khoản chi tiết.
+- Phân quyền: Không có `finance.ledger.setup` đổi nhận 403; ô chọn chỉ hiện chữ.
+- Thông báo lỗi: "Tài khoản không nhận bút toán (đã ngừng dùng hoặc có tài khoản chi tiết)."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_111, TIEUCHI_NGHIEMTHU_112
+
+### CHUC_NANG_71: Bút toán tự sinh
+- Mục đích: Nghiệp vụ kho, thu chi tự thành bút toán, kế toán không nhập lại.
+- Người sử dụng: Thủ kho, Kế toán (gián tiếp: ghi sổ chứng từ); Kế toán, Kế toán trưởng (xem bút toán).
+- Điều kiện thực hiện: Ghi sổ phiếu kho (trừ chuyển kho), phiếu thu chi; ghi tổn thất biên bản chênh lệch nội bộ; công ty đã khởi tạo kế toán.
+- Dữ liệu đầu vào: Không nhập thêm.
+- Quy trình xử lý: Phiếu kho, phiếu thu chi, biên bản nội bộ gọi móc nối của module kế toán trong cùng giao dịch ghi sổ (`postedHooks`, `writtenOffHooks`). Đọc cài đặt kế toán có khóa dòng chia sẻ; ngày thuộc kỳ đã khóa thì từ chối (QUYTAC_NGHIEPVU_97). Tính số tiền theo vai trò: xuất giao hàng, nhận hàng trả lại theo tiền chưa thuế, thuế của dòng đơn bán tỷ lệ số lượng; nhập mua theo giá đơn mua phần đạt kiểm tra chất lượng, trả hàng nhà cung cấp theo giá đơn mua; giá vốn, hàng hóa theo giá trị ghi sổ kho; phiếu thu chi theo số tiền phiếu; ghi tổn thất theo giá đơn bán gồm thuế phần thiếu. Làm tròn theo tiền tệ công ty (tổng gồm thuế trước, thuế là phần còn lại). Đổi vai trò sang tài khoản theo định khoản; bỏ dòng 0; kiểm tổng Nợ bằng tổng Có; ghi bút toán "Đã ghi sổ", số chứng từ gốc, ngày chứng từ (ghi tổn thất: ngày ghi tổn thất), đối tác ở dòng phải thu, phải trả (QUYTAC_NGHIEPVU_95). Bút toán theo chứng từ: đặc tả mục 8.
+- Kết quả đầu ra: Bút toán nguồn `inventory_document`, `payment`, `internal_write_off`; mỗi chứng từ một bút toán.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_39
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_94, QUYTAC_NGHIEPVU_95, QUYTAC_NGHIEPVU_97
+- Trường hợp ngoại lệ: Công ty chưa khởi tạo: không sinh, chứng từ vẫn ghi sổ. Kỳ đã khóa: chứng từ không ghi sổ. Phiếu chi, phiếu kế toán duyệt xong rơi vào kỳ khóa: về "Bị từ chối" kèm lý do. Bút toán lệch hoặc thiếu định khoản: lỗi máy chủ, chứng từ không ghi sổ.
+- Phân quyền: Như quyền ghi sổ chứng từ gốc; không cần quyền kế toán.
+- Thông báo lỗi: "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_112, TIEUCHI_NGHIEMTHU_114
+
+### CHUC_NANG_72: Phiếu kế toán
+- Mục đích: Kế toán lập bút toán điều chỉnh, số dư đầu kỳ tài khoản; phiếu được duyệt trước khi ghi sổ.
+- Người sử dụng: Kế toán, Kế toán trưởng, quản trị công ty, quản trị tập đoàn; người duyệt phiếu kế toán.
+- Điều kiện thực hiện: Danh sách, chi tiết bút toán: `finance.ledger.view` hoặc `finance.journal.manage`. Lập, sửa, gửi: `finance.journal.manage`. Rút: người lập, có `finance.journal.manage`, phiếu chờ duyệt, cấp duyệt đầu chưa quyết định.
+- Dữ liệu đầu vào: Ngày, diễn giải (1 đến 500 ký tự), 2 đến 200 dòng (tài khoản, đối tác không bắt buộc, Nợ, Có dạng chuỗi tối đa 4 chữ số lẻ, diễn giải dòng tối đa 300 ký tự), phiên bản khi sửa, gửi. Danh sách: nguồn, trạng thái, từ ngày, đến ngày.
+- Quy trình xử lý: Lưu: công ty đã khởi tạo; ngày không thuộc kỳ đã khóa; mỗi dòng ghi đúng một bên lớn hơn 0, không lẻ hơn đơn vị tiền tệ; tài khoản thuộc công ty, nhận bút toán được; đối tác có hồ sơ ở công ty; tổng Nợ bằng tổng Có (QUYTAC_NGHIEPVU_96). Sửa khi nháp, bị từ chối, đã rút (về nháp, xóa lý do không ghi sổ được, thay toàn bộ dòng). Gửi: kiểm lại kỳ; cấp số theo dãy `accounting.journal` (tự tạo tiền tố `PKT`) ở lần gửi đầu; gửi luồng duyệt với tổng Nợ; chưa có chính sách thì ghi sổ ngay. Nghe `core.approval.completed` loại `accounting.journal`: duyệt xong thì ghi sổ, kỳ đã khóa thì "Bị từ chối" kèm khóa lỗi; từ chối, rút thì chuyển tương ứng.
+- Kết quả đầu ra: Danh sách (số, ngày, nguồn, diễn giải, tổng tiền, trạng thái), ngày mới trước, tối đa 500. Chi tiết: thông tin, chứng từ gốc, tiền tệ, dòng (tài khoản, đối tác, Nợ, Có, diễn giải), yêu cầu duyệt, lý do không ghi sổ được, người lập, phiên bản, được sửa, gửi, rút hay không.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_39
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_96
+- Trường hợp ngoại lệ: Bút toán tự sinh, kết chuyển không sửa, không gửi. Phiếu đã ghi sổ không sửa.
+- Phân quyền: Không có `finance.journal.manage` lập, sửa, gửi nhận 403; không thấy "Lập phiếu kế toán"; người không phải người lập rút nhận 403.
+- Thông báo lỗi: "Mỗi dòng ghi một bên Nợ hoặc Có, lớn hơn 0." · "Giá trị không hợp lệ." (số lẻ, đối tác) · "Tài khoản không nhận bút toán (đã ngừng dùng hoặc có tài khoản chi tiết)." · "Tổng Nợ phải bằng tổng Có." · "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ." · "Công ty chưa khởi tạo kế toán." · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_113, TIEUCHI_NGHIEMTHU_116
+
+### CHUC_NANG_73: Khóa sổ, sổ cái, bảng cân đối số phát sinh
+- Mục đích: Cuối tháng kết chuyển kết quả, chặn sửa số liệu tháng đã chốt; xem số dư, phát sinh từng tài khoản.
+- Người sử dụng: Kế toán trưởng, quản trị công ty, quản trị tập đoàn; Kế toán (xem).
+- Điều kiện thực hiện: Xem kỳ: `finance.ledger.view` hoặc `finance.period.close`. Khóa sổ, mở lại: `finance.period.close`. Bảng cân đối số phát sinh, sổ cái: `finance.ledger.view`.
+- Dữ liệu đầu vào: Khóa sổ: tháng (`YYYY-MM`). Mở lại: không nhập. Bảng cân đối, sổ cái: từ ngày, đến ngày; sổ cái thêm tài khoản.
+- Quy trình xử lý: Kỳ: tháng tiếp theo là tháng sau ngày khóa, chưa khóa lần nào thì tháng của bút toán đã ghi sổ sớm nhất; được khóa khi tháng đó đã kết thúc. Khóa sổ: tháng gửi lên phải là tháng tiếp theo, được khóa; khóa dòng cài đặt, kiểm ngày khóa chưa đổi; không còn phiếu kế toán chờ duyệt có ngày đến hết tháng; tính số dư lũy kế đến cuối tháng của từng tài khoản loại 5 đến 8 (trừ 911), kết chuyển sang 911; số dư 911 chuyển sang 4212; ghi bút toán `KC-YYYY-MM` nguồn `closing` ngày cuối tháng, dòng theo số hiệu tài khoản; ghi ngày khóa (QUYTAC_NGHIEPVU_97). Mở lại: khóa dòng cài đặt; xóa bút toán kết chuyển ngày bằng ngày khóa; ngày khóa lùi về ngày của bút toán kết chuyển trước đó (không có thì trống). Bảng cân đối: số dư đầu kỳ từ bút toán trước từ ngày, phát sinh trong khoảng; tài khoản lưỡng tính có đối tác tách theo đối tác; cộng dồn lên cha; tổng theo tài khoản cấp cao nhất (QUYTAC_NGHIEPVU_98). Sổ cái: tài khoản và tài khoản chi tiết; số dư đầu; dòng theo ngày, thời điểm tạo, số dòng (tối đa 10.000) kèm tài khoản đối ứng (các tài khoản bên kia trong cùng bút toán); số dư lũy kế theo bên Nợ (âm là dư Có).
+- Kết quả đầu ra: Kỳ: đã khóa đến, tháng tiếp theo, tháng khóa gần nhất, được khóa, được mở lại. Bảng cân đối: tiền tệ, dòng (số hiệu, tên, cấp, dư đầu Nợ, dư đầu Có, phát sinh Nợ, phát sinh Có, dư cuối Nợ, dư cuối Có) chỉ tài khoản có số, dòng tổng. Sổ cái: tài khoản, số dư đầu kỳ, dòng (ngày, số, diễn giải, tài khoản, tài khoản đối ứng, đối tác, Nợ, Có, số dư), tổng phát sinh, số dư cuối kỳ.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_39
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_97, QUYTAC_NGHIEPVU_98
+- Trường hợp ngoại lệ: Tháng chưa kết thúc, sai thứ tự, chưa có bút toán: không khóa được. Chưa khóa lần nào: không mở lại được. Từ ngày sau đến ngày: lỗi tại đến ngày.
+- Phân quyền: Không có `finance.period.close` khóa, mở lại nhận 403; không thấy nút "Khóa sổ tháng …", "Mở lại tháng …".
+- Thông báo lỗi: "Không khóa được tháng này (khóa lần lượt từng tháng đã kết thúc)." · "Còn phiếu kế toán chờ duyệt trong kỳ." · "Công ty chưa khởi tạo kế toán." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_114, TIEUCHI_NGHIEMTHU_115, TIEUCHI_NGHIEMTHU_116
+
+## Yêu cầu phi chức năng của MODULE_06 (phần 2)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Toàn vẹn | Bút toán tự sinh trong cùng giao dịch ghi sổ chứng từ; tổng Nợ bằng tổng Có ở mọi bút toán; kiểm khóa sổ đọc cài đặt có khóa dòng chia sẻ, khóa sổ và mở lại khóa dòng cài đặt, nên ghi sổ và khóa sổ chạy tuần tự; tiền `numeric`; khóa ngoại từ `accounting` chỉ trỏ vào `accounting`, `core`, `crm` |
+| Ranh giới module | Module Kho, phiếu thu chi gọi kế toán qua móc nối `postedHooks` (phiếu kho, phiếu thu chi), `writtenOffHooks` (ghi tổn thất biên bản nội bộ) đăng ký lúc khởi động; module Tổ chức gọi `beforeRegimeChange` (`apps/api/src/accounting/regime-guard.ts`) khi đổi chế độ; dùng lại luồng duyệt, dãy số chứng từ có sẵn |
 | Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09

@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.0
+- Phiên bản: 2.1
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -14,6 +14,7 @@
 - Cập nhật CONG_VIEC_09 (2026-11-10): thêm MODULE_05 phần 2 Giao dịch nội bộ, MAN_HINH_44 (mục 20 đến mục 22); sửa MAN_HINH_31, MAN_HINH_32, MAN_HINH_40, MAN_HINH_41, MAN_HINH_43
 - Cập nhật CONG_VIEC_12 (2026-11-10): thêm MODULE_05 phần 3 Khuyến mãi, MAN_HINH_45 (mục 23 đến mục 25); sửa MAN_HINH_42 (menu), MAN_HINH_43 (khuyến mãi trên dòng đơn)
 - Cập nhật CONG_VIEC_13 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 1, MAN_HINH_46 đến MAN_HINH_49 (mục 26 đến mục 28)
+- Cập nhật CONG_VIEC_14 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 2, MAN_HINH_50 đến MAN_HINH_52 (mục 29 đến mục 31); menu mini app Tài chính – Kế toán thêm ba mục
 
 ## MODULE_01 Nền tảng
 
@@ -1233,3 +1234,93 @@ flowchart TD
 - Quyền hiển thị: mục menu, màn hình với `finance.debt.view`; "Lập phiếu" với `finance.payment.manage`; "Sửa", "Gửi", "Rút" theo `canEdit`, `canSubmit`, `canWithdraw` của API.
 - Responsive: bảng chuyển thành thẻ; ô biểu mẫu xếp lưới tự co, xếp dọc trên điện thoại; ô số trừ nằm trong thẻ của từng chứng từ.
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_13 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 2: Kế toán tổng hợp, CONG_VIEC_14)
+
+Cùng mini app `apps/web-finance` (mục 26). Bút toán tự sinh khi ghi sổ phiếu kho (MAN_HINH_32), phiếu thu chi (MAN_HINH_49), ghi tổn thất biên bản nội bộ (MAN_HINH_44), không có thao tác mới ở đó. Chế độ kế toán của công ty đổi ở màn hình Công ty (MAN_HINH_09 của MODULE_01); đổi khi đã có bút toán thì lỗi hiện dưới ô "Chế độ kế toán".
+
+## 29. Danh sách màn hình và điều hướng (MODULE_06 phần 2)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_50 | Hệ thống tài khoản: khởi tạo kế toán, cây tài khoản, tài khoản chi tiết, định khoản mặc định | CHUC_NANG_69, CHUC_NANG_70 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán (xem) | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_14 mục 14) |
+| MAN_HINH_51 | Bút toán: danh sách, lập, chi tiết, sửa phiếu kế toán | CHUC_NANG_71, CHUC_NANG_72 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán; người duyệt phiếu kế toán xem qua Hộp duyệt | Menu Tài chính – Kế toán; số bút toán ở sổ cái MAN_HINH_52 | Không lập |
+| MAN_HINH_52 | Sổ sách: bảng cân đối số phát sinh, sổ cái, khóa sổ | CHUC_NANG_73 | Như MAN_HINH_51 (khóa sổ, mở lại: Kế toán trưởng, quản trị) | Menu Tài chính – Kế toán | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> J[MAN_HINH_51 Bút toán]
+    M --> B[MAN_HINH_52 Sổ sách]
+    M --> A[MAN_HINH_50 Hệ thống tài khoản]
+    J -->|Lập phiếu kế toán| N[MAN_HINH_51 Lập phiếu]
+    N -->|lưu xong| JD[MAN_HINH_51 Chi tiết bút toán]
+    J -->|Số bút toán| JD
+    JD -->|Sửa| JD
+    JD -->|Mở chứng từ gốc| S[MAN_HINH_32 Phiếu kho hoặc MAN_HINH_49 Phiếu thu chi]
+    B -->|Số bút toán ở sổ cái| JD
+    J -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+    A -->|Lịch sử| H
+    B -->|Lịch sử| H
+    AP[MAN_HINH_07 Hộp duyệt] -->|Phiếu kế toán| JD
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Bút toán, Sổ sách, Hệ thống tài khoản (`finance.ledger.view`). Mở `/finance` thì chuyển tới mục đầu tiên có quyền.
+- Duyệt phiếu kế toán ở Hộp duyệt (MAN_HINH_07) như chứng từ khác, loại "Phiếu kế toán".
+- Nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng `account` (MAN_HINH_50), `journal` (MAN_HINH_51), `ledger_period` (MAN_HINH_52).
+
+## 30. Bảng vai trò – màn hình (MODULE_06 phần 2)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_50 Hệ thống tài khoản | Xem, Khởi tạo, Thêm chi tiết, Sửa, Đổi định khoản | Xem, Khởi tạo, Thêm chi tiết, Sửa, Đổi định khoản | Xem | Không |
+| MAN_HINH_51 Bút toán | Xem, Lập, Sửa, Gửi, Rút (của mình) | Xem, Lập, Sửa, Gửi, Rút (của mình) | Xem, Lập, Sửa, Gửi, Rút (của mình) | Không |
+| MAN_HINH_52 Sổ sách | Xem, Khóa sổ, Mở lại | Xem, Khóa sổ, Mở lại | Xem | Không |
+
+## 31. Đặc tả từng màn hình (MODULE_06 phần 2)
+
+### MAN_HINH_50: Hệ thống tài khoản
+- Mục đích: Khởi tạo kế toán của công ty; xem, mở tài khoản chi tiết; đổi định khoản mặc định.
+- Chức năng thực hiện: CHUC_NANG_69, CHUC_NANG_70
+- Đường dẫn: `/finance/accounts`.
+- Bố cục: tiêu đề "Hệ thống tài khoản" kèm "Lịch sử". Chưa khởi tạo: thẻ "Công ty chưa khởi tạo kế toán. Chế độ kế toán của công ty: <chế độ>.", chú thích "Khởi tạo sẽ nạp hệ thống tài khoản, định khoản mặc định và tạo bút toán cho các chứng từ đã ghi sổ. Đổi chế độ kế toán ở phần quản lý công ty trước khi khởi tạo.", nút "Khởi tạo kế toán". Đã khởi tạo: dòng "Chế độ kế toán: <chế độ>."; hai thẻ "Tài khoản", "Định khoản mặc định". Thẻ "Tài khoản": bảng "Số hiệu" (thụt lề theo cấp, cấp 1 in đậm), "Tên tài khoản", "Tính chất" (Dư Nợ, Dư Có, Lưỡng tính), "Trạng thái" (Nhận bút toán, Tổng hợp, Ngừng dùng), nút "Thêm chi tiết", "Sửa" trên dòng đang dùng; biểu mẫu thêm "Thêm tài khoản chi tiết của <số hiệu> · <tên>": "Số hiệu" * (điền sẵn số hiệu cha, gợi ý "Bắt đầu bằng số hiệu tài khoản cha và dài hơn."), "Tên tài khoản" *; biểu mẫu sửa "Sửa tài khoản <số hiệu>": "Tên tài khoản" *, ô chọn "Đang dùng" (chỉ tài khoản chi tiết); nút "Lưu", "Hủy". Thẻ "Định khoản mặc định": chú thích "Tài khoản dùng khi hệ thống tự sinh bút toán; thay đổi áp dụng cho chứng từ ghi sổ sau đó."; bảng "Nghiệp vụ", "Tài khoản" (ô chọn các tài khoản nhận bút toán "<số hiệu> · <tên>").
+- Dữ liệu hiển thị: tài khoản của công ty đang chọn theo số hiệu; định khoản theo thứ tự vai trò.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_87.
+- Thao tác: khởi tạo xong tải lại trang; lưu tài khoản tải lại cây; đổi ô chọn tài khoản của vai trò thì lưu ngay.
+- Trạng thái: chưa khởi tạo (như bố cục).
+- Thông báo: "Đã khởi tạo kế toán." · "Đã lưu tài khoản." · "Đã đổi định khoản."; lỗi dưới đúng ô (số hiệu sai quy tắc, trùng; ngừng dùng tài khoản đang trong định khoản, còn tài khoản con).
+- Quyền hiển thị: mục menu với `finance.ledger.view`; "Khởi tạo kế toán" theo `canSetup`; "Thêm chi tiết", "Sửa" theo `canEdit` của tài khoản; ô chọn định khoản theo `canEdit` của vai trò, không có quyền thì hiện chữ.
+- Responsive: bảng chuyển thành thẻ; ô biểu mẫu xếp lưới tự co, xếp dọc trên điện thoại.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_14 mục 14)
+
+### MAN_HINH_51: Bút toán
+- Mục đích: Xem mọi bút toán của công ty; lập, gửi phiếu kế toán; mở chứng từ gốc của bút toán tự sinh.
+- Chức năng thực hiện: CHUC_NANG_71, CHUC_NANG_72
+- Đường dẫn: `/finance/journals` (danh sách); `/finance/journals/new` (lập); `/finance/journals/[id]` (chi tiết; "Sửa" mở biểu mẫu trên cùng trang).
+- Bố cục: danh sách: tiêu đề "Bút toán" kèm "Lịch sử", nút "Lập phiếu kế toán"; lọc "Nguồn: tất cả" (Phiếu kế toán, Phiếu kho, Phiếu thu chi, Ghi tổn thất hàng thiếu nội bộ, Kết chuyển cuối kỳ), "Trạng thái: tất cả" (Nháp, Chờ duyệt, Đã ghi sổ, Bị từ chối, Đã rút), "Từ ngày", "Đến ngày"; bảng "Số" (nháp: "(nháp)"; liên kết sang chi tiết), "Ngày", "Nguồn", "Diễn giải", "Số tiền", "Trạng thái". Biểu mẫu: "Ngày" *, "Diễn giải" *; bảng dòng "Tài khoản" (ô chọn tài khoản nhận bút toán), "Đối tác", "Diễn giải dòng", "Nợ", "Có", nút "Bỏ dòng"; nút "Thêm dòng"; dòng "Tổng Nợ <tiền> · Tổng Có <tiền>", "Chênh lệch <tiền>"; nút "Lưu", "Hủy". Chi tiết: liên kết "Danh sách bút toán"; "<nguồn> <số hoặc (nháp)>", nhãn trạng thái, "Lịch sử", nút "Sửa", "Rút", "Gửi", "Mở chứng từ gốc" (phiếu kho, phiếu thu chi); khối lỗi "Duyệt xong nhưng không ghi sổ được: <lý do> Sửa phiếu rồi gửi lại."; thẻ: ngày, số tiền, diễn giải, "Người lập"; bảng dòng "Tài khoản", "Đối tác", "Diễn giải dòng", "Nợ", "Có".
+- Dữ liệu hiển thị: bút toán của công ty đang chọn, ngày mới trước, tối đa 500.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, KhoiCanhBao, TrangThaiRong (tài liệu `15`).
+- API: API_88; tài khoản API_87; chọn đối tác API_85.
+- Thao tác: đổi lọc tải lại danh sách; lưu phiếu mới thì mở chi tiết; gửi, rút xong tải lại phiếu.
+- Trạng thái: rỗng ("Chưa có bút toán.").
+- Thông báo: "Đã lưu phiếu kế toán." · "Đã ghi sổ." · "Đã gửi duyệt." · "Đã rút phiếu."; lỗi dưới đúng ô, lỗi dòng dưới bảng.
+- Quyền hiển thị: mục menu với `finance.ledger.view`; "Lập phiếu kế toán" với `finance.journal.manage`; "Sửa", "Gửi", "Rút" theo `canEdit`, `canSubmit`, `canWithdraw` của API.
+- Responsive: bảng chuyển thành thẻ; mỗi dòng phiếu một thẻ, ô xếp dọc trên điện thoại.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_14 mục 14)
+
+### MAN_HINH_52: Sổ sách
+- Mục đích: Xem bảng cân đối số phát sinh, sổ cái; khóa sổ, mở lại sổ theo tháng.
+- Chức năng thực hiện: CHUC_NANG_73
+- Đường dẫn: `/finance/books`.
+- Bố cục: tiêu đề "Sổ sách" kèm "Lịch sử"; ba thẻ "Bảng cân đối số phát sinh", "Sổ cái", "Khóa sổ". Hai thẻ đầu có "Từ ngày" (mặc định đầu tháng), "Đến ngày" (mặc định hôm nay). Bảng cân đối: "Số hiệu" (thụt lề theo cấp, cấp 1 in đậm), "Tên tài khoản", "Dư đầu Nợ", "Dư đầu Có", "Nợ", "Có", "Dư cuối Nợ", "Dư cuối Có", dòng "Tổng cộng". Sổ cái: ô chọn tài khoản "<số hiệu> · <tên>" (mặc định "Chọn tài khoản"); "Số dư đầu kỳ"; bảng "Ngày", "Số" (liên kết sang MAN_HINH_51), "Diễn giải", "Tài khoản đối ứng", "Nợ", "Có", "Số dư" (kèm "Nợ" hoặc "Có"); dòng "Phát sinh Nợ <tiền> · phát sinh Có <tiền>", "Số dư cuối kỳ". Khóa sổ: chú thích "Khóa lần lượt từng tháng đã kết thúc. …"; "Đã khóa sổ đến: <ngày hoặc chưa khóa>", "Tháng tiếp theo cần khóa: <tháng>"; nút "Khóa sổ tháng <tháng>", "Mở lại tháng <tháng>"; hộp xác nhận "Hệ thống tạo bút toán kết chuyển và chặn ghi sổ chứng từ trong tháng này." hoặc "Bút toán kết chuyển của tháng sẽ bị xóa; chứng từ trong tháng lại ghi sổ được.", nút "Khóa sổ", "Mở lại".
+- Dữ liệu hiển thị: chỉ bút toán đã ghi sổ của công ty đang chọn; bảng cân đối chỉ tài khoản có số; sổ cái tối đa 10.000 dòng.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BoLoc, BangDuLieu, The, ONhap, OChon, Nut, HopThoaiXacNhan, TrangThaiRong (tài liệu `15`).
+- API: API_89; tài khoản API_87.
+- Thao tác: đổi khoảng ngày, tài khoản tải lại bảng; khóa, mở lại xong tải lại thẻ "Khóa sổ".
+- Trạng thái: chưa chọn tài khoản (chỉ ô chọn); công ty chưa khởi tạo ("Công ty chưa khởi tạo kế toán.").
+- Thông báo: "Đã khóa sổ." · "Đã mở lại sổ."; lỗi khóa sổ hiện trong hộp xác nhận.
+- Quyền hiển thị: mục menu với `finance.ledger.view`; "Khóa sổ tháng …" theo `canClose`, "Mở lại tháng …" theo `canReopen` của API.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; thẻ và bộ lọc xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_14 mục 14)
