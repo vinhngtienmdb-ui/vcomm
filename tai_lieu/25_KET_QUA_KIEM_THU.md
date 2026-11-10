@@ -167,6 +167,21 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 44 (sau số 43).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_12
+
+- Phạm vi: lát L0, L1 (chương trình giảm theo sản phẩm, giảm theo đơn, mua X tặng Y; điều kiện kênh, nhóm khách, thời gian; gửi duyệt, rút, dừng; ngân sách, số suất; tự áp dụng vào đơn bán, tặng theo tồn còn lại tại kho xuất); MAN_HINH_45, sửa MAN_HINH_42, 43; API_83, sửa API_77. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm --filter api test`, `pnpm audit --prod --audit-level high`; thử trên trình duyệt bằng Playwright (Quản trị công ty VCR): danh sách, lập chương trình thiếu mặt hàng, giảm theo sản phẩm có ngân sách, mua X tặng Y có số suất, đơn bán tự áp khuyến mãi và hàng tặng, cảnh báo thiếu suất tặng, sửa đơn không có dòng tặng, dừng chương trình, lọc theo trạng thái (máy tính và điện thoại 375 điểm ảnh, không cuộn ngang).
+- Kết quả: 216 đạt / 0 không đạt / 216 kịch bản tự động (26 tệp; phần mới: `c12-promotions` 6, KICHBAN_KIEMTHU_193 đến 198). KICHBAN_KIEMTHU_199, 200 (thủ công trên trình duyệt) đạt, trừ bước 5 của KICHBAN_KIEMTHU_199 (Nhân viên bán hàng xem chương trình) chưa chạy trên trình duyệt vì máy phát triển chưa có tài khoản Nhân viên bán hàng; phân quyền này đã có kiểm thử tự động KICHBAN_KIEMTHU_193.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_99 đến 104 (bắt buộc) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod --audit-level high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 47): không có phát hiện.
+  - C3 phân quyền: Đạt – lập, sửa, gửi, rút, dừng chương trình cần quyền quản lý khuyến mãi; Nhân viên bán hàng chỉ xem; chỉ người lập rút được chương trình chờ duyệt.
+  - C4 toàn vẹn dữ liệu: Đạt – gửi đơn khóa các chương trình đã áp và từ chối khi vượt ngân sách hoặc số suất; suất tặng không vượt tồn khả dụng tại kho xuất; chương trình sửa theo phiên bản.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập đã sửa các lỗi tìm được (commit `fix` 2c92a77). Rà soát bảo mật tài liệu 22 sửa thêm 2 điểm: rút chương trình không ghi nhật ký; số suất tặng quá lớn trả lỗi máy chủ (commit 57bbcd0). Giữ lại (ghi tài liệu 22): chương trình không có ngân sách gửi duyệt với giá trị 0, chính sách duyệt chỉ có cấp từ mức lớn hơn 0 sẽ không áp.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_10 (LOI_04)
 
 - Phạm vi: hàm tải dữ liệu dùng chung `useApi` (packages/ui). Hồi quy: kiểm tra kiểu, lint toàn dự án.
