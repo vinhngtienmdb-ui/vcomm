@@ -105,7 +105,15 @@ Ghi sổ phiếu thu chi, công nợ, bút toán, luồng duyệt (chỉ dùng l
 
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa đối chiếu.
+- Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: Đạt (TIEUCHI_NGHIEMTHU_132 đến 137).
+- Đúng giao diện: Đạt (thành phần, biến dùng chung đã có; máy tính và điện thoại 375 điểm ảnh không cuộn ngang). Không có bản mẫu riêng, theo cách làm các màn hình Tài chính trước.
+- Đã xử lý lỗi: Đạt (thông báo lỗi tiếng Việt, tiếng Anh cho mọi trường hợp từ chối).
+- Đã kiểm thử: Đạt (266/266; tài liệu `25`, lần kiểm thử 2026-11-10 – CONG_VIEC_18).
+- Không phá vỡ chức năng cũ: Đạt (hồi quy toàn bộ; thay đổi dùng chung duy nhất là decorator `OwnRateLimit` trong bộ bảo vệ, không đổi hành vi API khác).
+- Tiêu chí nghiệm thu bắt buộc: Đạt.
+- Cổng bảo mật: Đạt (không có lỗ hổng thư viện; không lỗ hổng Nghiêm trọng, Cao còn lại).
+- Tự rà soát mã, dọn dẹp: Đạt (tự rà soát, rà soát độc lập; tệp tạm trong `tam_thoi/`).
+- Tài liệu `27` và tài liệu liên quan: Đạt.
 
 ## 16. Giới hạn đã biết
 
