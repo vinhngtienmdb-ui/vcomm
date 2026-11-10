@@ -271,6 +271,13 @@ describe("TIEUCHI_NGHIEMTHU_113: phiếu kế toán", () => {
       lines: [await line("111", "100", "100"), await line("41111", "0", "0")],
     });
     expect(Object.keys(twoSides.body.error.fields).sort()).toEqual(["lines.0.debit", "lines.1.debit"]);
+    // Đồng Việt Nam không có số lẻ.
+    const fractional = await call(accountant, "post", "/finance/journals", {
+      journalDate: "2026-10-01",
+      description: "Lẻ",
+      lines: [await line("111", "100.5", "0"), await line("41111", "0", "100.5")],
+    });
+    expect(Object.keys(fractional.body.error.fields).sort()).toEqual(["lines.0.debit", "lines.1.debit"]);
     expect((await call(seller, "post", "/finance/journals", { journalDate: "2026-10-01", description: "X", lines: [] })).status).toBe(403);
     // Số dư đầu kỳ tài khoản: vốn góp 5.000.000 bằng tiền mặt.
     const opening = await journal({ journalDate: "2026-10-01", description: "Số dư đầu kỳ", lines: [await line("111", "5000000", "0"), await line("41111", "0", "5000000")] });

@@ -170,10 +170,17 @@ export class JournalsService implements OnModuleInit {
     const fields: FieldErrors = {};
     let debit = 0;
     let credit = 0;
+    // Số tiền không lẻ hơn đơn vị nhỏ nhất của tiền tệ công ty.
+    const units = Number(
+      (await executor.execute<{ minor_units: number }>(sql`SELECT cur.minor_units FROM core.companies c JOIN core.currencies cur ON cur.code = c.base_currency WHERE c.id = ${companyId}`)).rows[0]
+        ?.minor_units ?? 0,
+    );
+    const fraction = (value: string) => (value.split(".")[1] ?? "").replace(/0+$/, "").length;
     for (const [index, line] of input.lines.entries()) {
       const lineDebit = Number(line.debit);
       const lineCredit = Number(line.credit);
       if (lineDebit > 0 === lineCredit > 0) fields[`lines.${index}.debit`] = "journalLineSide";
+      else if (fraction(line.debit) > units || fraction(line.credit) > units) fields[`lines.${index}.debit`] = "invalidValue";
       const account = (
         await executor.execute<{ ok: boolean }>(sql`
         SELECT a.status = 'active' AND NOT EXISTS (SELECT 1 FROM accounting.accounts c WHERE c.parent_id = a.id AND c.status = 'active') AS ok

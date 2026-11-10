@@ -64,6 +64,16 @@ export interface DraftJournal {
 const round = (value: number) => Math.round(value * 10000) / 10000;
 const debit = (role: PostingRole, amount: number, partnerId: string | null = null): DraftLine => ({ role, partnerId, debit: round(amount), credit: 0 });
 const credit = (role: PostingRole, amount: number, partnerId: string | null = null): DraftLine => ({ role, partnerId, debit: 0, credit: round(amount) });
+
+// Bút toán ghi theo đơn vị nhỏ nhất của tiền tệ công ty (đồng Việt Nam: không có số lẻ).
+async function rounder(executor: Executor, companyId: string): Promise<(value: number) => number> {
+  const units = Number(
+    (await executor.execute<{ minor_units: number }>(sql`SELECT cur.minor_units FROM core.companies c JOIN core.currencies cur ON cur.code = c.base_currency WHERE c.id = ${companyId}`)).rows[0]
+      ?.minor_units ?? 0,
+  );
+  const factor = 10 ** units;
+  return (value: number) => Math.round(round(value) * factor) / factor;
+}
 const vatFraction = sql`(CASE WHEN pl.vat_rate IN ('0', '5', '8', '10') THEN pl.vat_rate::numeric / 100 ELSE 0 END)`;
 
 // Phiếu kho đã ghi sổ (QUYTAC_NGHIEPVU_95): doanh thu, thuế khi xuất giao hàng; giá vốn theo giá trị ghi sổ kho; nhập mua theo giá đơn mua phần đạt kiểm tra chất lượng.
@@ -98,11 +108,13 @@ export async function inventoryDraft(executor: Executor, documentId: string): Pr
     FROM inventory.document_lines dl JOIN inventory.documents d ON d.id = dl.document_id
     WHERE dl.document_id = ${documentId}`)
   ).rows[0]!;
-  const cost = round(Number(values.cost));
-  const saleNet = round(Number(values.sale_net));
-  const saleTax = round(Number(values.sale_tax));
-  const purchaseNet = round(Number(values.purchase_net));
-  const purchaseTax = round(Number(values.purchase_tax));
+  // Tổng gồm thuế làm tròn trước, thuế là phần còn lại sau khi làm tròn tiền chưa thuế, để Nợ Có cân.
+  const money = await rounder(executor, document.company_id);
+  const cost = money(Number(values.cost));
+  const saleNet = money(Number(values.sale_net));
+  const saleTax = money(Number(values.sale_net) + Number(values.sale_tax)) - saleNet;
+  const purchaseNet = money(Number(values.purchase_net));
+  const purchaseTax = money(Number(values.purchase_net) + Number(values.purchase_tax)) - purchaseNet;
   const partner = document.partner_id;
   let lines: DraftLine[] = [];
   let description = document.reason ?? "";
@@ -141,8 +153,8 @@ export async function inventoryDraft(executor: Executor, documentId: string): Pr
       break;
     }
     case "adjustment": {
-      const gain = round(Number(values.cost_in));
-      const loss = round(Number(values.cost_out));
+      const gain = money(Number(values.cost_in));
+      const loss = money(Number(values.cost_out));
       lines = [debit("goods", gain), credit("surplus_pending", gain), debit("shortage_pending", loss), credit("goods", loss)];
       break;
     }
@@ -168,7 +180,7 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
     FROM finance.payments p JOIN finance.funds f ON f.id = p.fund_id WHERE p.id = ${paymentId}`)
   ).rows[0];
   if (!payment) return null;
-  const amount = Number(payment.amount);
+  const amount = (await rounder(executor, payment.company_id))(Number(payment.amount));
   const fund: PostingRole = payment.fund_kind === "cash" ? "cash" : "bank";
   const partner = payment.partner_id;
   const lines: Record<string, DraftLine[]> = {
@@ -204,7 +216,7 @@ export async function writeOffDraft(executor: Executor, discrepancyId: string, d
     WHERE x.id = ${discrepancyId}`)
   ).rows[0];
   if (!row) return null;
-  const amount = Number(row.amount);
+  const amount = (await rounder(executor, row.company_id))(Number(row.amount));
   return {
     companyId: row.company_id,
     sourceType: "internal_write_off",
