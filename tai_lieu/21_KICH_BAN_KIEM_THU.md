@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1 và phần 2 (Giao dịch nội bộ): đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 0.8
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ) và phần 3 (Khuyến mãi): đúng, sai, giá trị biên, từng vai trò.
+- Phiên bản: 0.9
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2274,5 +2274,103 @@ Dữ liệu chung: công ty bán VCR (`testIds.retailCompany`, tên ngắn "VCom
 - Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_191 bước 1 đến 3; Thủ kho VCR đã lập, gửi phiếu xuất 24 cái bánh và 1 máy `MAY-01`.
 - Các bước: (1) Quản trị tập đoàn (VCT) mở `/inventory/documents`, mở phiếu nhập mua "Đang vận chuyển". (2) Đổi số nhận bánh thành 3, bỏ chọn serial máy, bấm "Xác nhận nhận hàng". (3) Đổi số nhận bánh thành 1, không ghi lý do, bấm "Xác nhận nhận hàng"; ghi lý do "Rách thùng", bấm lại. (4) Thủ kho VCR mở menu Kho, mục "Chênh lệch giao nội bộ". (5) Nhập ghi chú, bấm "Nhập lại kho" ở biên bản bánh; đổi lọc "Đã nhập lại kho", bấm "Phiếu trả". (6) Bấm "Ghi tổn thất" ở biên bản máy. (7) Quản trị VCR mở cùng màn hình. (8) Lặp bước 1, 4 trên điện thoại (chiều rộng 375 điểm ảnh).
 - Kết quả mong đợi: Bước 1: dòng "Phiếu xuất của bên bán" (VComm Bán lẻ Miền Nam: <số phiếu xuất>); khối "Nhận hàng nội bộ": dòng bánh "Đã xuất 2 Hộp", ô số nhận 2; dòng máy ô chọn serial `MAY-01` đã chọn. Bước 2: lỗi "Số nhận vượt số đã xuất." dưới ô bánh; khi bỏ serial, ô "Lý do nhận thiếu" hiện. Bước 3: lỗi "Nhận thiếu phải ghi lý do." dưới ô lý do; sau đó "Đã nhận hàng nội bộ.", phiếu "Đã ghi sổ" có số, khối nhận ẩn. Bước 4: bảng biên bản "Chờ xử lý": bánh thiếu 12 cái, máy thiếu 1 kèm `MAY-01`, phiếu xuất → VComm Thương mại: <số phiếu nhập>, lý do, giá trị "—". Bước 5: "Đã nhập lại kho."; biên bản hiện người xử lý, ghi chú, liên kết "Phiếu trả" mở phiếu nhận hàng trả lại đã ghi sổ. Bước 6: "Đã ghi tổn thất.". Bước 7: cột giá trị hiện số tiền. Bước 8: bảng chuyển thành thẻ, ô, nút xếp dọc, không cuộn ngang. Quản trị tập đoàn khi chọn công ty VCT không thấy biên bản của VCR.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Lát: L1
+
+## MODULE_05 Bán hàng (phần 3: Khuyến mãi, CONG_VIEC_12)
+
+Dữ liệu chung: công ty VCR (`testIds.retailCompany`); Quản trị công ty VCR `quantri.vcr@vcomm.test`, Quản trị tập đoàn `quantri.tapdoan@vcomm.test`, người duyệt `phuc.le@vcomm.test`; tạo trong tệp kiểm thử: Nhân viên bán hàng `banhang.km@vcomm.test` (`salesperson`, gán ở công ty), Thủ kho `thukho.km@vcomm.test` (`warehouse_keeper` gán ở chi nhánh Bình Dương); kho "Kho khuyến mãi" `KMW` tồn đầu 1.000 cái mỗi mặt hàng: "Bánh khuyến mãi" (giá vốn 9.000), "Kẹo khuyến mãi" (10.000), "Quà tặng khuyến mãi" (3.000), thuế suất 10%; bảng giá `CHUNG` gồm thuế: bánh 11.000, kẹo 22.000, quà 5.500 một cái; kênh mặc định `BAN_LE`, `BAN_SI`, `NOI_BO`; nhóm khách `VIP`, khách "Cửa hàng thân thiết" thuộc nhóm `VIP`. Chiết khấu tay tối đa 0%. Trừ KICHBAN_KIEMTHU_193, công ty không có chính sách duyệt `sales.promotion` (chương trình chạy ngay khi gửi); cuối mỗi kịch bản dừng mọi chương trình đang chạy.
+
+## CHUC_NANG_62: Chương trình khuyến mãi (CONG_VIEC_12)
+
+### KICHBAN_KIEMTHU_193: Lập ba loại, thiếu dữ liệu bị từ chối; nhân viên bán hàng không lập được; gửi duyệt, từ chối sửa lại, duyệt thì chạy; đang chạy chỉ dừng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_99
+- Chức năng: CHUC_NANG_62
+- Loại: Đúng, sai, phân quyền, luồng duyệt
+- Vai trò thực hiện: Quản trị công ty VCR; Nhân viên bán hàng; người duyệt
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; từ bước 4 có chính sách duyệt `sales.promotion` một cấp từ 0 đồng, người duyệt `phuc.le@vcomm.test`, người thay thế Quản trị công ty VCR.
+- Các bước: (1) Quản trị VCR lập chương trình giảm theo sản phẩm không có mặt hàng; mua X tặng Y thiếu mặt hàng tặng, số lượng tặng. (2) Nhân viên bán hàng lập chương trình giảm theo đơn. (3) Nhân viên bán hàng xem danh sách. (4) Quản trị VCR lập "Giảm bánh" (bánh 10%, kênh bán lẻ, ngân sách 1.000.000), gửi. (5) Người duyệt từ chối; xem chương trình. (6) Sửa thành bánh 8%, không chọn kênh; gửi lại; người duyệt duyệt. (7) Sửa chương trình đang chạy. (8) Dừng kèm lý do "Đổi kế hoạch".
+- Kết quả mong đợi: Bước 1: `400`, lỗi chỉ ở `items`; lỗi ở `giftQuantity`, `giftVariantId`. Bước 2: `403`. Bước 3: `200`. Bước 4: lưu `draft`, đúng loại, mặt hàng, kênh; gửi thì `pending`, số bắt đầu `KM`. Bước 5: `rejected`, `canEdit: true`. Bước 6: sửa về `draft`, kênh rỗng; duyệt xong `active`, `canEdit: false`, `canStop: true`. Bước 7: `409`. Bước 8: `stopped`, `stoppedReason` "Đổi kế hoạch", `canStop: false`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c12-promotions.test.ts`
+- Lát: L0
+
+## CHUC_NANG_63, CHUC_NANG_64: Áp khuyến mãi vào đơn bán, giới hạn (CONG_VIEC_12)
+
+### KICHBAN_KIEMTHU_194: Dòng chọn phần trăm cao nhất, trừ trước chiết khấu tay; theo đơn chọn mức lớn nhất, có trần; mua 3 tặng 1 thêm đúng số suất
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_100
+- Chức năng: CHUC_NANG_63
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Quản trị công ty VCR (chương trình); Nhân viên bán hàng (đơn)
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; chương trình đang chạy: "Bánh 10%", "Bánh 15%" (giảm theo sản phẩm); "Đơn từ 200 nghìn giảm 10%" (trần 15.000), "Đơn từ 200 nghìn giảm 5%" (giảm theo đơn); "Mua 3 kẹo tặng 1 quà".
+- Các bước: (1) Nhân viên bán hàng lập đơn kênh bán lẻ, 10 cái bánh, chiết khấu tay 2%. (2) Lập đơn 10 cái bánh chiết khấu 2% và 7 cái kẹo.
+- Kết quả mong đợi: Bước 1: một dòng, chương trình "Bánh 15%", phần trăm 15, đơn giá 9.163 (11.000 × 85% × 98%), thành tiền 91.630, không phải hàng tặng. Bước 2: ba dòng; tổng trước giảm theo đơn 245.630; 10% = 24.563 bị trần 15.000, 5% = 12.282, chọn "Đơn từ 200 nghìn giảm 10%"; tổng phần giảm theo đơn của hai dòng hàng bán đúng 15.000; dòng 3 quà 2 cái, đơn giá 0, thành tiền 0, hàng tặng, chương trình "Mua 3 kẹo tặng 1 quà"; tổng đơn 230.630.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c12-promotions.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_195: Sai kênh, sai nhóm khách, ngoài thời gian, đã dừng, kênh Nội bộ thì không áp
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_101
+- Chức năng: CHUC_NANG_63
+- Loại: Sai, giá trị biên
+- Vai trò thực hiện: Quản trị công ty VCR; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; chương trình "Kẹo VIP bán sỉ" (kẹo 20%, kênh bán sỉ, nhóm `VIP`), "Kẹo tháng sau" (kẹo 30%, từ 2026-12-01 đến 2026-12-31).
+- Các bước: (1) Lập đơn 1 cái kẹo kênh bán sỉ, khách "Cửa hàng thân thiết". (2) Như bước 1, kênh bán lẻ. (3) Kênh bán sỉ, người mua không lấy hóa đơn. (4) Như bước 1, ngày đơn 2026-12-05. (5) Lập chương trình "Kẹo mọi kênh" (kẹo 5%, không chọn kênh); lập đơn kênh Nội bộ, người mua "Thử". (6) Dừng "Kẹo VIP bán sỉ"; lặp bước 1.
+- Kết quả mong đợi: Bước 1: dòng có chương trình "Kẹo VIP bán sỉ". Bước 2, 3: không có chương trình. Bước 4: "Kẹo tháng sau" (30% cao hơn 20%). Bước 5: không có chương trình. Bước 6: "Kẹo mọi kênh".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c12-promotions.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_196: Hết ngân sách không áp vào đơn mới; gửi đơn vượt ngân sách bị từ chối, lưu lại thì tính lại; suất tặng không quá số suất còn lại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_102
+- Chức năng: CHUC_NANG_64, CHUC_NANG_63
+- Loại: Sai, giá trị biên, đồng thời
+- Vai trò thực hiện: Quản trị công ty VCR; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; chương trình "Bánh ngân sách" (bánh 10%, tức 1.100 một cái; ngân sách 20.000).
+- Các bước: (1) Lập hai đơn nháp, mỗi đơn 10 cái bánh. (2) Gửi đơn thứ nhất; xem chương trình. (3) Gửi đơn thứ hai. (4) Lưu lại đơn thứ hai không đổi dòng; gửi. (5) Lập chương trình "Kẹo tặng 3 suất" (mua 1 kẹo tặng 1 quà, tối đa 3 suất); lập, gửi đơn 2 cái kẹo. (6) Lập đơn 5 cái kẹo.
+- Kết quả mong đợi: Bước 1: cả hai đơn có chương trình "Bánh ngân sách" (lúc lưu mỗi đơn còn đủ ngân sách). Bước 2: `confirmed`; đã dùng `usedAmount` 11.000. Bước 3: `409` "Chương trình khuyến mãi đã hết ngân sách hoặc hết suất. Lưu lại đơn để tính lại khuyến mãi rồi gửi.". Bước 4: dòng không còn chương trình; gửi `confirmed`. Bước 5: `confirmed`. Bước 6: dòng tặng 1 cái (còn 1 suất).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c12-promotions.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_197: Khuyến mãi làm giá dưới giá vốn không sinh ngoại lệ; chiết khấu tay vượt mức vẫn sinh ngoại lệ; dòng tặng được giữ hàng, giao hàng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_103
+- Chức năng: CHUC_NANG_63
+- Loại: Đúng, sai, luồng kho
+- Vai trò thực hiện: Quản trị công ty VCR; Nhân viên bán hàng; Thủ kho
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; chương trình "Bánh giảm sâu" (bánh 50%), "Mua bánh tặng quà" (mua 2 bánh tặng 1 quà).
+- Các bước: (1) Lập, gửi đơn 2 cái bánh. (2) Lập, gửi đơn 1 cái kẹo chiết khấu tay 10%. (3) Xem số giữ hàng của quà theo đơn bước 1. (4) Thủ kho lập phiếu xuất giao hàng đủ mọi dòng (gồm dòng tặng) của đơn bước 1, gửi; xem đơn.
+- Kết quả mong đợi: Bước 1: đơn giá 5.500 gồm thuế thấp hơn giá vốn 9.000 nhưng do khuyến mãi: `confirmed`, không có ngoại lệ; có dòng tặng 1 cái quà. Bước 2: ngoại lệ `discount`. Bước 3: đang giữ 1 cái. Bước 4: phiếu `201`, ghi sổ `posted`; đơn `delivered`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c12-promotions.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_198: Dòng tặng của chương trình này không làm đủ điều kiện mua của chương trình khác; mua X tặng Y không nhận ngân sách; tặng theo tồn còn lại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_100, TIEUCHI_NGHIEMTHU_99
+- Chức năng: CHUC_NANG_63, CHUC_NANG_62
+- Loại: Sai, giá trị biên
+- Vai trò thực hiện: Quản trị công ty VCR; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; dừng mọi chương trình; chương trình "Mua 2 bánh tặng 2 kẹo", "Mua 2 kẹo tặng 1 quà". Tồn quà ở kho `KMW` còn dưới 1.200 cái sau các kịch bản trước.
+- Các bước: (1) Lập đơn 2 cái bánh. (2) Lập chương trình mua X tặng Y "Sai ngân sách" có ngân sách 100.000. (3) Dừng mọi chương trình; lập "Mua 1 kẹo tặng 600 quà"; lập đơn 2 cái kẹo. (4) Gửi đơn bước 3.
+- Kết quả mong đợi: Bước 1: chỉ một dòng tặng: kẹo 2 cái (dòng tặng kẹo không làm đơn đủ điều kiện "Mua 2 kẹo tặng 1 quà"). Bước 2: `400`, lỗi chỉ ở `budgetAmount`. Bước 3: tính được 2 suất nhưng kho chỉ đủ 1 suất: dòng tặng 600 cái quà; `giftShortages` là `[{ promotionName: "Mua 1 kẹo tặng 600 quà", missingSets: 1 }]`. Bước 4: `confirmed`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c12-promotions.test.ts`
+- Lát: L1
+
+## Kịch bản thủ công của khuyến mãi (CONG_VIEC_12)
+
+### KICHBAN_KIEMTHU_199: Chương trình khuyến mãi và khuyến mãi trên đơn bán trên trình duyệt (máy tính)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_104
+- Chức năng: CHUC_NANG_62, CHUC_NANG_63, CHUC_NANG_64
+- Loại: Đúng, sai, giao diện, phân quyền
+- Vai trò thực hiện: Quản trị công ty VCR; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Dữ liệu như phần dữ liệu chung (tạo trên môi trường phát triển); mini app Nền tảng, Bán hàng, backend đang chạy; không có chính sách duyệt `sales.promotion`.
+- Các bước: (1) Quản trị VCR mở mini app Bán hàng, menu "Khuyến mãi"; bấm "Lập chương trình". (2) Chọn loại "Giảm theo sản phẩm", bấm "Lưu" khi chưa thêm mặt hàng. (3) Thêm "Bánh khuyến mãi" giảm 10, ngân sách 20.000, lưu; bấm "Gửi duyệt". (4) Lập chương trình "Mua X tặng Y": mua 3 kẹo, tặng 1 quà, số suất tối đa 10; lưu, gửi duyệt. (5) Nhân viên bán hàng mở "Khuyến mãi", mở một chương trình. (6) Nhân viên bán hàng lập đơn kênh bán lẻ: 10 cái bánh, 3 cái kẹo; xem chú thích dưới tổng tạm tính; lưu. (7) Bấm "Sửa đơn bán". (8) Quản trị VCR mở lại danh sách "Khuyến mãi"; lọc "Đang chạy"; mở "Giảm bánh", nhập lý do, bấm "Dừng chương trình".
+- Kết quả mong đợi: Bước 1: danh sách cột Số, Tên chương trình, Loại, Thời gian, Đã dùng, Trạng thái; biểu mẫu có Kênh bán áp dụng, Nhóm khách áp dụng kèm gợi ý. Bước 2: lỗi "Vui lòng nhập thông tin này." ở khối mặt hàng. Bước 3: "Đã lưu chương trình."; sau gửi trạng thái "Đang chạy", có số `KM…`, nút "Dừng chương trình". Bước 4: không có ô ngân sách; dòng "Mua 3 Cái … tặng 1 Cái …"; "Đã tặng 0 / 10 suất". Bước 5: xem được, không có nút "Lập chương trình", "Sửa", "Dừng chương trình". Bước 6: chú thích "Khuyến mãi đang chạy tự áp khi lưu (giảm theo dòng, theo đơn, hàng tặng); tổng tạm tính chưa gồm khuyến mãi."; chi tiết đơn: dòng bánh "<tên chương trình>: giảm 10%", dòng quà nhãn "Hàng tặng" kèm tên chương trình, thành tiền 0. Bước 7: biểu mẫu chỉ có dòng bánh, kẹo, không có dòng tặng. Bước 8: "Đã dừng chương trình."; khối "Đã dừng: <lý do>"; danh sách lọc đúng trạng thái.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Lát: L0, L1
+
+### KICHBAN_KIEMTHU_200: Khuyến mãi trên điện thoại; cảnh báo thiếu suất tặng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_104
+- Chức năng: CHUC_NANG_62, CHUC_NANG_63
+- Loại: Giao diện
+- Vai trò thực hiện: Quản trị công ty VCR; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_199; chương trình "Mua 1 kẹo tặng 600 quà" đang chạy, tồn quà ở kho xuất dưới 1.200 cái.
+- Các bước: (1) Mở trình duyệt chiều rộng 375 điểm ảnh; Quản trị VCR mở danh sách "Khuyến mãi", lập chương trình giảm theo đơn. (2) Mở chi tiết một chương trình. (3) Nhân viên bán hàng lập đơn 2 cái kẹo, lưu; xem chi tiết đơn.
+- Kết quả mong đợi: Bước 1: bảng chuyển thành thẻ; ô ngưỡng, phần trăm, giảm tối đa xếp dọc; không cuộn ngang. Bước 2: thẻ thông tin, nút xếp gọn, không cuộn ngang. Bước 3: khối cảnh báo "Mua 1 kẹo tặng 600 quà: thiếu 1 suất tặng do kho xuất không đủ hàng tặng."; dòng tặng 600 cái; bảng dòng chuyển thành thẻ, nhãn "Hàng tặng" hiện đủ.
 - Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
 - Lát: L1

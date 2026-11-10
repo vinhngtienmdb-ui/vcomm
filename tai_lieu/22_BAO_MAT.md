@@ -1,13 +1,13 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09). Các module sau bổ sung vào cùng tài liệu.
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12). Các module sau bổ sung vào cùng tài liệu.
 
 ## 1. Dữ liệu nhạy cảm
 
@@ -40,6 +40,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Diễn giải ngoại lệ đơn bán: dư nợ tạm tính, hạn mức công nợ, giá vốn bình quân (CONG_VIEC_08) | Tài chính | Cột `sales.orders.exceptions` (`jsonb`) | Lưu đầy đủ; API_77 chỉ trả diễn giải `credit_limit` cho người có `crm.profile.manage`, diễn giải `below_cost` cho người có `inventory.cost.view`; người khác nhận loại ngoại lệ, diễn giải trống |
 | Giá trị dòng phiếu xuất giao hàng, phiếu nhận hàng trả lại (CONG_VIEC_08) | Tài chính | `inventory.document_lines.unit_cost`, `cost_value` | Như giá vốn: `inventory.cost.view` (API trả trống khi không có quyền) |
 | Chứng từ đối ứng nội bộ, giá nội bộ, biên bản chênh lệch giao nhận nội bộ (CONG_VIEC_09) | Kinh doanh, tài chính | Schema `sales`, `purchasing` theo công ty; bảng `inventory.internal_discrepancies` thuộc công ty bán | Mỗi công ty chỉ thấy chứng từ của mình; chứng từ bên kia chỉ hiện tên công ty, số, trạng thái; giá trị biên bản như giá vốn (`inventory.cost.view`) |
+| Chương trình khuyến mãi: ngân sách, đã dùng, điều kiện (CONG_VIEC_12) | Kinh doanh | Bảng `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups` theo công ty; đã dùng tính từ `sales.order_lines` | `sales.promotion.view` hoặc `sales.promotion.manage` trong công ty; không đánh dấu nhạy cảm |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
 
@@ -64,6 +65,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Mọi API mini app Mua hàng, nhập mua, trả hàng nhà cung cấp (API_73 đến API_76) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn, mã nhà cung cấp, mặt hàng, đơn vị, kho, dòng phải là UUID; số lượng chuỗi tối đa 12 chữ số phần nguyên, tiền tối đa 16, 4 chữ số lẻ; dung sai 0 đến 100, 2 chữ số lẻ; tối đa 200 dòng mỗi chứng từ, 1.000 serial mỗi dòng; từ khóa tối đa 100 ký tự, ký tự `%`, `_`, `\` được thoát trong `LIKE`; lý do 500, ghi chú 1.000 ký tự; không nhận tệp tải lên | Có, `purchasing.access`, `purchasing.order.view` hoặc `purchasing.requisition.create` (API_73 đến API_75); quyền vào mini app Kho và `inventory.purchase.receive` tại kho (API_76) |
 | Mọi API mini app Bán hàng, giao hàng, nhận hàng trả lại (API_77 đến API_79) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn, mã khách, kênh, kho, mặt hàng, đơn vị, lô, vị trí, dòng phải là UUID; số lượng chuỗi tối đa 12 chữ số phần nguyên, 4 chữ số lẻ, lớn hơn 0; chiết khấu 0 đến 100, 2 chữ số lẻ; tối đa 200 dòng mỗi chứng từ, 1.000 serial mỗi dòng (100 ký tự mỗi serial); từ khóa tối đa 100 ký tự, ký tự `%`, `_`, `\` được thoát trong `LIKE`; tên người mua 200, địa chỉ giao 500, lý do 500, ghi chú 1.000 ký tự; giá dòng không nhận từ người dùng mà tra theo bảng giá phía máy chủ; không nhận tệp tải lên | Có, `sales.access` hoặc `sales.order.view` (API_77, API_78); quyền vào mini app Kho và `inventory.sales.issue` tại kho (API_79) |
 | API giao dịch nội bộ (API_80 đến API_82) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, kho, dòng, vị trí là UUID; lý do từ chối 1 đến 500 ký tự; số nhận từ 0, tối đa 12 chữ số phần nguyên, 4 chữ số lẻ; tối đa 200 dòng, 5.000 serial mỗi dòng (100 ký tự mỗi serial); lý do thiếu, ghi chú tối đa 500 ký tự; `action` chỉ `return`, `write_off`; phiên bản số nguyên dương | Có |
+| API khuyến mãi (API_83) | API | Lược đồ zod `savePromotionSchema`, `stopPromotionSchema`, `promotionListQuerySchema` trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, mặt hàng, kênh, nhóm khách là UUID; tên 1 đến 200 ký tự, ghi chú tối đa 1.000, lý do dừng 1 đến 500; tối đa 500 mặt hàng, 50 kênh, 50 nhóm khách; phần trăm lớn hơn 0 đến 100; số tiền, số lượng dạng chuỗi số dương; máy chủ kiểm mặt hàng, kênh (không phải Nội bộ), nhóm khách thuộc công ty, đang dùng | Có |
 | Gửi tin qua eSMS.vn (mã OTP, Zalo ZNS, kiểm tra kết nối) | Tích hợp | Chỉ đọc mã kết quả, mã tin, lỗi; gửi lỗi không chặn nghiệp vụ | Không áp dụng (hệ thống gọi ra) |
 
 ## 3. Xác thực và phiên đăng nhập
@@ -308,6 +310,34 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
 - Ghi nhận (đúng phạm vi vận hành kho): kho dùng chung nhiều công ty chủ hàng thì thủ kho có `inventory.purchase.receive` tại kho (kể cả thủ kho công ty bán) thấy và nhận được phiếu nhập nội bộ của công ty mua ở kho đó, như phiếu kho khác (QUYTAC_NGHIEPVU_46).
 - Ghi nhận: giá bảng giá kênh Nội bộ của công ty bán hiện cho người lập đơn mua ở công ty mua (theo QUYTAC_NGHIEPVU_75). Trước khi xác nhận, đơn đối ứng hiện người lập là người lập chứng từ khởi tạo ở công ty kia (họ tên).
 - Ghi nhận: "Nhập lại kho" giữ biên bản rồi lập, ghi sổ phiếu trả ở giao dịch riêng; lỗi thì trả biên bản về "Chờ xử lý", nhưng máy chủ dừng giữa chừng có thể để biên bản "Đã nhập lại kho" chưa có phiếu trả. Danh sách biên bản tối đa 500 dòng, chưa phân trang.
+
+### Ma trận phân quyền khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12)
+
+Thêm quyền `sales.promotion.view`, `sales.promotion.manage` (không nhạy cảm, phạm vi công ty) và loại chứng từ duyệt `sales.promotion` (tài liệu `08` mục 13).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty | Nhân viên bán hàng | Thủ kho | Quản lý kho | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|---|
+| CHUC_NANG_62, CHUC_NANG_64 Xem chương trình, đã dùng | Được | Trong công ty mình | Được | Không | Không | Không |
+| CHUC_NANG_62 Lập, sửa, gửi duyệt, dừng chương trình | Được | Trong công ty mình | Không | Không | Không | Không |
+| CHUC_NANG_62 Rút chương trình chờ duyệt | Được | Trong công ty mình | Không | Không | Không | Có (người lập) |
+| CHUC_NANG_63 Khuyến mãi tự áp khi lưu đơn bán | Được | Trong công ty mình | Được | Không | Không | Không |
+| Tìm mặt hàng `/sales/items` | Được | Trong công ty mình | Được | Không | Không | Không |
+
+Ranh giới và kiểm soát riêng:
+- Tách dữ liệu công ty: chương trình đọc, sửa, gửi, rút, dừng theo `company_id` của công ty đang làm việc (chương trình công ty khác trả `404`); mặt hàng, kênh, nhóm khách gửi lên phải thuộc công ty; khuyến mãi áp vào đơn chỉ lấy chương trình của công ty của đơn; mặt hàng tặng, tồn hàng tặng đọc theo công ty và kho xuất đã kiểm.
+- Giá không do người dùng gửi: dòng đơn gửi lên không có trường khuyến mãi; phần trăm, tiền giảm, dòng hàng tặng do máy chủ tính; dòng tặng không sửa tay.
+- Chương trình chỉ chạy sau khi đi luồng duyệt (hoặc công ty chưa có chính sách duyệt); chương trình đang chạy không sửa được, chỉ dừng.
+- Giới hạn: gửi đơn khóa chương trình đã áp (`FOR UPDATE`, thứ tự theo mã) rồi kiểm ngân sách, số suất cùng các đơn khác, nên hai đơn gửi đồng thời không cùng vượt giới hạn.
+- Ngoại lệ dưới giá vốn: chỉ bỏ qua phần giảm do khuyến mãi đã duyệt và dòng tặng; chiết khấu tay vẫn kiểm mức tối đa.
+- Nhật ký thao tác: `promotion.create`, `.update`, `.submit`, `.stop`; rút ghi theo yêu cầu duyệt; áp khuyến mãi ghi theo `sales_order.create`, `.update`.
+
+Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
+- Không có mục rủi ro cao còn mở.
+- Ghi nhận, chưa sửa: giá trị gửi duyệt là ngân sách; chương trình không giới hạn ngân sách (hoặc mua X tặng Y) gửi với giá trị 0, nên chính sách duyệt chỉ có cấp từ mức tiền lớn hơn 0 sẽ không áp, chương trình chạy ngay. Công ty muốn duyệt mọi chương trình thì đặt cấp duyệt từ 0 đồng.
+- Ghi nhận, chưa sửa: lưu đơn đọc đã dùng, tồn hàng tặng không khóa; giới hạn chỉ chắc chắn khi gửi đơn (kiểm lại). Tồn hàng tặng giảm giữa lúc lưu và lúc gửi thì gửi đơn báo thiếu hàng ở dòng tặng, người bán lưu lại để tính lại.
+- Ghi nhận (theo QUYTAC_NGHIEPVU_84): dừng chương trình không gỡ khuyến mãi khỏi đơn nháp đã lưu; đơn đó gửi vẫn giữ khuyến mãi nếu còn ngân sách, số suất.
+- Ghi nhận: thao tác rút chương trình không ghi nhật ký loại `promotion` (chỉ có ở yêu cầu duyệt); `maxGiftSets` chỉ kiểm số nguyên dương, giá trị vượt kiểu `integer` của PostgreSQL trả lỗi `500`, dữ liệu không hỏng.
+- Ghi nhận: Nhân viên bán hàng xem được ngân sách, đã dùng của chương trình (để tư vấn khách); cảnh báo thiếu suất tặng cho biết gián tiếp tồn hàng tặng tại kho xuất, người bán vốn đã thấy lỗi thiếu hàng khi gửi đơn.
 
 ## 5. Quản lý khóa bí mật
 
