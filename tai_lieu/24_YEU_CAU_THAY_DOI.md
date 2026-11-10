@@ -265,5 +265,5 @@
 - Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_299 sửa theo hành vi mới (người dùng cho phép qua quyết định này); hồi quy toàn bộ.
 - Mức quy mô: Vừa.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-10.
+- Trạng thái: Đã phê duyệt 2026-11-10; đã thực hiện trên nhánh CONG_VIEC_23 (commit eeaf0e9), chờ phát hành.
 
