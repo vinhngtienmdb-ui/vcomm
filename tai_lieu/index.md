@@ -44,5 +44,6 @@
 | CONG_VIEC_06 | [cong_viec/CONG_VIEC_06.md](cong_viec/CONG_VIEC_06.md) | Bản nháp |
 | CONG_VIEC_07 | [cong_viec/CONG_VIEC_07.md](cong_viec/CONG_VIEC_07.md) | Bản nháp |
 | CONG_VIEC_08 | [cong_viec/CONG_VIEC_08.md](cong_viec/CONG_VIEC_08.md) | Bản nháp |
+| CONG_VIEC_09 | [cong_viec/CONG_VIEC_09.md](cong_viec/CONG_VIEC_09.md) | Bản nháp |
 
 Tài liệu `26` chưa lập; tạo khi triển khai.
