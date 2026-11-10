@@ -1,12 +1,12 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11)
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines` (mục 12)
 
-Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -1843,4 +1843,106 @@ CREATE TABLE inventory.internal_discrepancies (
     UNIQUE (receipt_document_id, issue_line_id)
 );
 CREATE INDEX internal_discrepancies_company_idx ON inventory.internal_discrepancies (company_id, status, created_at DESC);
+```
+
+## 12. Database migration 0009 – CONG_VIEC_12 (khuyến mãi)
+
+Tệp `database/migrations/0009_promotions.sql` thêm chương trình khuyến mãi và cột khuyến mãi của dòng đơn bán. Khóa ngoại chỉ trỏ vào `sales`, `core`, `catalog`. Đã dùng của chương trình (tiền đã giảm, số suất đã tặng) tính từ `sales.order_lines` của đơn `pending`, `confirmed`, `delivered`, `closed`, không lưu trùng. Loại chứng từ duyệt `sales.promotion`, dãy số tiền tố `KM` tạo khi gửi lần đầu (không có trong database migration).
+
+| Bảng | Cột, ràng buộc | Mục đích |
+|---|---|---|
+| `sales.promotions` (mới) | `company_id`, `document_no` (cấp khi gửi lần đầu; duy nhất theo công ty), `name`, `kind` (`product_discount`, `order_discount`, `buy_get`), `valid_from`, `valid_to` (không trước `valid_from`); giảm theo đơn: `min_order_amount` (từ 0, gồm thuế), `order_discount_percent` (lớn hơn 0 đến 100), `max_order_discount` (lớn hơn 0; trống: không giới hạn); mua X tặng Y: `buy_variant_id`, `buy_quantity`, `gift_variant_id`, `gift_quantity` (lớn hơn 0, đơn vị cơ sở); `budget_amount` (lớn hơn 0, gồm thuế; trống: không giới hạn), `max_gift_sets` (lớn hơn 0; trống: không giới hạn); `note`, `status` (`draft`, `pending`, `active`, `rejected`, `withdrawn`, `stopped`), `approval_request_id`, `stopped_reason`, `stopped_at`, `stopped_by`, `created_by`, `created_at`, `updated_at`, `version`. Ràng buộc theo loại: `order_discount` phải có ngưỡng, phần trăm; `buy_get` phải có đủ mặt hàng mua, tặng, số lượng. Chỉ mục `(company_id, status, valid_from, valid_to)`, `(approval_request_id)` | Chương trình khuyến mãi (QUYTAC_NGHIEPVU_79, QUYTAC_NGHIEPVU_80). Service chỉ ghi `budget_amount` cho giảm theo sản phẩm, theo đơn; `max_gift_sets` cho mua X tặng Y; trường của loại khác để trống |
+| `sales.promotion_items` (mới) | `promotion_id` (xóa theo chương trình), `variant_id`, `discount_percent` (lớn hơn 0 đến 100); khóa chính `(promotion_id, variant_id)` | Mặt hàng, phần trăm của giảm theo sản phẩm |
+| `sales.promotion_channels`, `sales.promotion_customer_groups` (mới) | `promotion_id` (xóa theo chương trình), `channel_id` hoặc `customer_group_id`; khóa chính hai cột | Điều kiện kênh, nhóm khách; không có dòng: mọi kênh trừ Nội bộ, mọi khách |
+| `sales.order_lines` | Thêm `promotion_id` (chương trình giảm theo sản phẩm, hoặc chương trình tặng của dòng hàng tặng), `promotion_percent` (mặc định 0), `order_promotion_id` (chương trình giảm theo đơn), `order_discount_amount` (phần giảm theo đơn của dòng, gồm thuế, mặc định 0), `promotion_discount_total` (tổng giảm do khuyến mãi của dòng, gồm thuế, mặc định 0), `is_gift` (mặc định `false`), `gift_sets` (số suất của dòng tặng, mặc định 0); chỉ mục `promotion_id`, `order_promotion_id` | Khuyến mãi đã áp trên dòng (QUYTAC_NGHIEPVU_81 đến QUYTAC_NGHIEPVU_83). Tiền đã giảm của chương trình theo sản phẩm = tổng `promotion_discount_total − order_discount_amount` trên dòng không phải hàng tặng; theo đơn = tổng `order_discount_amount` |
+
+Quy tắc xóa và lưu giữ bổ sung:
+- Không xóa chương trình; dừng chuyển `stopped`, giữ lý do, người, thời điểm.
+- Sửa chương trình thay toàn bộ dòng `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`.
+- Dòng đơn bán (gồm dòng hàng tặng) ghi lại toàn bộ mỗi lần lưu đơn như trước.
+
+```mermaid
+erDiagram
+    promotions ||--o{ promotion_items : "mặt hàng giảm theo sản phẩm"
+    promotions ||--o{ promotion_channels : "kênh áp dụng"
+    promotions ||--o{ promotion_customer_groups : "nhóm khách áp dụng"
+    promotions |o--o{ order_lines : "giảm theo sản phẩm, dòng tặng (promotion_id)"
+    promotions |o--o{ order_lines : "giảm theo đơn (order_promotion_id)"
+```
+
+Lược đồ (chép từ tệp `database/migrations/0009_promotions.sql`):
+
+```sql
+-- CONG_VIEC_12: Khuyến mãi (MODULE_05, phần 3; tài liệu 16).
+-- Đã dùng của chương trình tính từ dòng đơn bán, không lưu trùng.
+
+-- Chương trình khuyến mãi (CHUC_NANG_62; QUYTAC_NGHIEPVU_79, 80).
+CREATE TABLE sales.promotions (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id              uuid        NOT NULL REFERENCES core.companies(id),
+    document_no             text,                                                   -- cấp khi gửi lần đầu
+    name                    text        NOT NULL,
+    kind                    text        NOT NULL CHECK (kind IN ('product_discount', 'order_discount', 'buy_get')),
+    valid_from              date        NOT NULL,
+    valid_to                date        NOT NULL,
+    -- Giảm theo đơn: ngưỡng tổng đơn gồm thuế, phần trăm giảm, mức giảm tối đa (trống: không giới hạn).
+    min_order_amount        numeric(20,4) CHECK (min_order_amount >= 0),
+    order_discount_percent  numeric(5,2) CHECK (order_discount_percent > 0 AND order_discount_percent <= 100),
+    max_order_discount      numeric(20,4) CHECK (max_order_discount > 0),
+    -- Mua X tặng Y: số lượng theo đơn vị cơ sở.
+    buy_variant_id          uuid        REFERENCES catalog.variants(id),
+    buy_quantity            numeric(20,4) CHECK (buy_quantity > 0),
+    gift_variant_id         uuid        REFERENCES catalog.variants(id),
+    gift_quantity           numeric(20,4) CHECK (gift_quantity > 0),
+    -- Giới hạn (trống: không giới hạn): tổng tiền giảm gồm thuế, tổng số suất tặng.
+    budget_amount           numeric(20,4) CHECK (budget_amount > 0),
+    max_gift_sets           integer     CHECK (max_gift_sets > 0),
+    note                    text,
+    status                  text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'active', 'rejected', 'withdrawn', 'stopped')),
+    approval_request_id     uuid        REFERENCES core.approval_requests(id),
+    stopped_reason          text,
+    stopped_at              timestamptz,
+    stopped_by              uuid        REFERENCES core.users(id),
+    created_by              uuid        NOT NULL REFERENCES core.users(id),
+    created_at              timestamptz NOT NULL DEFAULT now(),
+    updated_at              timestamptz NOT NULL DEFAULT now(),
+    version                 integer     NOT NULL DEFAULT 1,
+    UNIQUE (company_id, document_no),
+    CHECK (valid_to >= valid_from),
+    CHECK (kind <> 'order_discount' OR (min_order_amount IS NOT NULL AND order_discount_percent IS NOT NULL)),
+    CHECK (kind <> 'buy_get' OR (buy_variant_id IS NOT NULL AND buy_quantity IS NOT NULL AND gift_variant_id IS NOT NULL AND gift_quantity IS NOT NULL))
+);
+CREATE INDEX sales_promotions_company_idx ON sales.promotions (company_id, status, valid_from, valid_to);
+CREATE INDEX sales_promotions_approval_idx ON sales.promotions (approval_request_id);
+
+-- Giảm theo sản phẩm: mỗi mặt hàng một phần trăm giảm.
+CREATE TABLE sales.promotion_items (
+    promotion_id            uuid        NOT NULL REFERENCES sales.promotions(id) ON DELETE CASCADE,
+    variant_id              uuid        NOT NULL REFERENCES catalog.variants(id),
+    discount_percent        numeric(5,2) NOT NULL CHECK (discount_percent > 0 AND discount_percent <= 100),
+    PRIMARY KEY (promotion_id, variant_id)
+);
+
+-- Điều kiện kênh, nhóm khách (không có dòng: mọi kênh trừ Nội bộ, mọi khách).
+CREATE TABLE sales.promotion_channels (
+    promotion_id            uuid        NOT NULL REFERENCES sales.promotions(id) ON DELETE CASCADE,
+    channel_id              uuid        NOT NULL REFERENCES catalog.sales_channels(id),
+    PRIMARY KEY (promotion_id, channel_id)
+);
+CREATE TABLE sales.promotion_customer_groups (
+    promotion_id            uuid        NOT NULL REFERENCES sales.promotions(id) ON DELETE CASCADE,
+    customer_group_id       uuid        NOT NULL REFERENCES catalog.customer_groups(id),
+    PRIMARY KEY (promotion_id, customer_group_id)
+);
+
+-- Dòng đơn bán: khuyến mãi đã áp (QUYTAC_NGHIEPVU_81 đến 83).
+ALTER TABLE sales.order_lines ADD COLUMN promotion_id uuid REFERENCES sales.promotions(id);            -- giảm theo sản phẩm hoặc mua X tặng Y (dòng tặng)
+ALTER TABLE sales.order_lines ADD COLUMN promotion_percent numeric(5,2) NOT NULL DEFAULT 0;
+ALTER TABLE sales.order_lines ADD COLUMN order_promotion_id uuid REFERENCES sales.promotions(id);      -- giảm theo đơn chia vào dòng
+ALTER TABLE sales.order_lines ADD COLUMN order_discount_amount numeric(20,4) NOT NULL DEFAULT 0;      -- phần giảm theo đơn của dòng, gồm thuế
+ALTER TABLE sales.order_lines ADD COLUMN promotion_discount_total numeric(20,4) NOT NULL DEFAULT 0;   -- tổng giảm do khuyến mãi của dòng, gồm thuế
+ALTER TABLE sales.order_lines ADD COLUMN is_gift boolean NOT NULL DEFAULT false;
+ALTER TABLE sales.order_lines ADD COLUMN gift_sets integer NOT NULL DEFAULT 0;                         -- số suất của dòng tặng
+CREATE INDEX sales_order_lines_promotion_idx ON sales.order_lines (promotion_id);
+CREATE INDEX sales_order_lines_order_promotion_idx ON sales.order_lines (order_promotion_id);
 ```

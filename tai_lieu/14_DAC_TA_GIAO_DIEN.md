@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -12,6 +12,7 @@
 - Cập nhật CONG_VIEC_07 (2026-11-10): thêm MODULE_04 Mua hàng phần 1, MAN_HINH_38 đến MAN_HINH_41 (mục 14 đến mục 16); sửa MAN_HINH_22, MAN_HINH_31, MAN_HINH_32
 - Cập nhật CONG_VIEC_08 (2026-11-10): thêm MODULE_05 Bán hàng phần 1, MAN_HINH_42, MAN_HINH_43 (mục 17 đến mục 19); sửa MAN_HINH_31, MAN_HINH_32
 - Cập nhật CONG_VIEC_09 (2026-11-10): thêm MODULE_05 phần 2 Giao dịch nội bộ, MAN_HINH_44 (mục 20 đến mục 22); sửa MAN_HINH_31, MAN_HINH_32, MAN_HINH_40, MAN_HINH_41, MAN_HINH_43
+- Cập nhật CONG_VIEC_12 (2026-11-10): thêm MODULE_05 phần 3 Khuyến mãi, MAN_HINH_45 (mục 23 đến mục 25); sửa MAN_HINH_42 (menu), MAN_HINH_43 (khuyến mãi trên dòng đơn)
 
 ## MODULE_01 Nền tảng
 
@@ -964,7 +965,7 @@ flowchart TD
     K -->|Nhận hàng trả lại| R[MAN_HINH_32 Lập phiếu nhận hàng trả lại]
 ```
 
-- Thứ tự menu và quyền hiện mục: Đơn bán (`sales.order.view`).
+- Thứ tự menu và quyền hiện mục: Đơn bán (`sales.order.view`), Khuyến mãi (`sales.promotion.view`, thêm ở CONG_VIEC_12).
 - Danh sách và chi tiết có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng.
 
 ## 18. Bảng vai trò – màn hình (MODULE_05)
@@ -1006,6 +1007,7 @@ flowchart TD
 - Quyền hiển thị: theo `canEdit`, `canSubmit`, `canWithdraw`, `canCancel`, `canClose` của API ("Đóng đơn" chỉ khi đơn đã xác nhận đã có giao hàng, không còn phiếu xuất nháp; "Hủy đơn" khi chưa có phiếu xuất).
 - Responsive: bảng chuyển thành thẻ; dòng hàng xếp dọc.
 - Bổ sung CONG_VIEC_09 (CHUC_NANG_58, CHUC_NANG_59; API_80): bộ lọc trạng thái ở MAN_HINH_42 thêm "Chờ xác nhận nội bộ". Chi tiết đơn nội bộ hiện thẻ có nhãn "Nội bộ" kèm "Đơn mua đối ứng của <công ty>: <số, chưa có thì "chưa có số"> (<trạng thái>)" (đơn khởi tạo) hoặc "Sinh từ đơn mua của <công ty>: <số>" (đơn đối ứng); bên kia đã từ chối thì khối cảnh báo "Đã từ chối: <lý do>". Đơn "Chờ xác nhận nội bộ" (theo `canConfirmCounterpart`) hiện câu "Công ty mua đã đặt hàng. Chọn kho xuất rồi xác nhận (kiểm ngoại lệ, giữ hàng như đơn thường), hoặc từ chối kèm lý do.", ô "Kho xuất" (bắt buộc), nút "Xác nhận" (bật khi đã chọn kho), ô "Lý do từ chối", nút "Từ chối" (bật khi có lý do); thông báo "Đã lưu đơn bán."; lỗi thiếu hàng, thiếu liên kết, hồ sơ đối tác hiện kèm "Dòng <số>". Đơn đối ứng không có nút "Sửa đơn bán"; khi "Chờ xác nhận nội bộ" không có nút "Hủy đơn".
+- Bổ sung CONG_VIEC_12 (CHUC_NANG_63; API_77): bảng dòng ở chi tiết, cột mặt hàng thêm: dòng hàng tặng có nhãn "Hàng tặng" kèm " · <tên chương trình>"; dòng có giảm theo sản phẩm thêm " · <tên chương trình>: giảm <phần trăm>%"; dòng nhận phần giảm theo đơn (lớn hơn 0) thêm " · <tên chương trình>: giảm <số tiền>". Dòng hàng tặng có giá 0, giữ hàng, giao hàng như dòng thường. Biểu mẫu soạn không hiện dòng hàng tặng (tự tạo lại khi lưu); dưới "Tổng gồm thuế (tạm tính)" có chú thích "Khuyến mãi đang chạy tự áp khi lưu (giảm theo dòng, theo đơn, hàng tặng); tổng tạm tính chưa gồm khuyến mãi.". Gửi đơn khi chương trình hết ngân sách, hết suất thì thông báo lỗi "Chương trình khuyến mãi đã hết ngân sách hoặc hết suất. Lưu lại đơn để tính lại khuyến mãi rồi gửi."; thiếu hàng ở dòng tặng hiện lỗi thiếu hàng kèm dòng đó.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_08 mục 14)
 
 ## MODULE_05 Bán hàng (phần 2: Giao dịch nội bộ, CONG_VIEC_09)
@@ -1063,3 +1065,58 @@ flowchart TD
 - Quyền hiển thị: mục menu với `inventory.sales.issue`; nút xử lý theo `canResolve` của API; giá trị theo quyền xem giá vốn.
 - Responsive: bảng chuyển thành thẻ.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_09 mục 14)
+
+## MODULE_05 Bán hàng (phần 3: Khuyến mãi, CONG_VIEC_12)
+
+Chương trình khuyến mãi là màn hình mới MAN_HINH_45 ở mini app Bán hàng; khuyến mãi trên đơn bán hiện ở MAN_HINH_43; menu Bán hàng (MAN_HINH_42) thêm mục "Khuyến mãi".
+
+## 23. Danh sách màn hình và điều hướng (MODULE_05 phần 3)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_45 | Khuyến mãi: danh sách, lập, chi tiết chương trình | CHUC_NANG_62, CHUC_NANG_64 | Quản trị tập đoàn, quản trị công ty (lập, sửa, gửi duyệt, rút, dừng); Nhân viên bán hàng (xem) | Menu Bán hàng | Không lập (CONG_VIEC_12 mục 14) |
+| MAN_HINH_42 (sửa) | Menu Bán hàng thêm "Khuyến mãi"; danh sách đơn bán không đổi | CHUC_NANG_62 | Như MAN_HINH_42 | Menu Bán hàng | Không lập |
+| MAN_HINH_43 (sửa) | Chi tiết, soạn đơn bán: khuyến mãi trên dòng, dòng hàng tặng | CHUC_NANG_63 | Như MAN_HINH_42 | MAN_HINH_42 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Bán hàng}} --> O[MAN_HINH_42 Đơn bán]
+    M --> P[MAN_HINH_45 Khuyến mãi]
+    P -->|Lập chương trình| N[MAN_HINH_45 Lập chương trình]
+    N -->|lưu xong| D[MAN_HINH_45 Chi tiết chương trình]
+    P -->|Số chương trình| D
+    D -->|Sửa| D
+    D -->|Danh sách chương trình| P
+    D -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+    P -->|Lịch sử| H
+    O -->|Số đơn| S[MAN_HINH_43 Chi tiết đơn bán: khuyến mãi, hàng tặng]
+```
+
+- Thứ tự menu Bán hàng và quyền hiện mục: Đơn bán (`sales.order.view`), Khuyến mãi (`sales.promotion.view`).
+- Duyệt chương trình ở Hộp duyệt (MAN_HINH_07) như chứng từ khác, loại "Chương trình khuyến mãi".
+
+## 24. Bảng vai trò – màn hình (MODULE_05 phần 3)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Nhân viên bán hàng | Thủ kho | Quản lý kho |
+|---|---|---|---|---|
+| MAN_HINH_45 Khuyến mãi | Xem, Lập, Sửa, Gửi duyệt, Rút (của mình), Dừng | Xem | Không | Không |
+| MAN_HINH_43 khuyến mãi trên dòng | Xem; khuyến mãi tự áp khi lưu đơn | Xem; khuyến mãi tự áp khi lưu đơn | Xem | Không |
+
+## 25. Đặc tả từng màn hình (MODULE_05 phần 3)
+
+### MAN_HINH_45: Khuyến mãi
+- Mục đích: Lập chương trình khuyến mãi, gửi duyệt, theo dõi đã dùng, dừng chương trình.
+- Chức năng thực hiện: CHUC_NANG_62, CHUC_NANG_64
+- Đường dẫn: `/sales/promotions` (danh sách); `/sales/promotions/new` (lập); `/sales/promotions/[id]` (chi tiết; "Sửa" mở biểu mẫu trên cùng trang).
+- Bố cục: danh sách: tiêu đề "Chương trình khuyến mãi" kèm "Lịch sử", nút "Lập chương trình"; lọc "Trạng thái: tất cả" (Nháp, Chờ duyệt, Đang chạy, Bị từ chối, Đã rút, Đã dừng); bảng "Số" (nháp: "(nháp)"; liên kết sang chi tiết), "Tên chương trình", "Loại" (Giảm theo sản phẩm, Giảm theo đơn, Mua X tặng Y), "Thời gian" (từ ngày – đến ngày), "Đã dùng" ("Đã giảm <tiền> / <ngân sách hoặc ∞>" hoặc "Đã tặng <số> / <số suất hoặc ∞> suất"), "Trạng thái". Biểu mẫu soạn: "Tên chương trình" *, "Loại" *, "Từ ngày" *, "Đến ngày" * (mặc định hôm nay), "Kênh bán áp dụng" (ô chọn nhiều; gợi ý "Không chọn: mọi kênh trừ kênh Nội bộ."), "Nhóm khách áp dụng" (gợi ý "Không chọn: mọi khách, kể cả người mua không lấy hóa đơn."); theo loại: "Mặt hàng giảm giá" (mỗi dòng mặt hàng, "Giảm (%)", "Bỏ"; ô "Thêm mặt hàng" tìm mã vạch, mã hàng, tên) hoặc "Tổng đơn từ (gồm thuế)" *, "Giảm (%)" *, "Giảm tối đa" hoặc "Mặt hàng mua" *, "Số lượng mua (đơn vị cơ sở)" *, "Mặt hàng tặng" *, "Số lượng tặng mỗi suất (đơn vị cơ sở)" *, "Số suất tối đa (để trống: không giới hạn)"; "Ngân sách giảm tối đa, gồm thuế (<tiền tệ>; để trống: không giới hạn)" (không hiện với mua X tặng Y); "Ghi chú"; nút "Lưu", "Hủy". Chi tiết: liên kết "Danh sách chương trình"; số (nháp: "(nháp)"), nhãn trạng thái, "Lịch sử", nút "Sửa", "Rút", "Gửi duyệt"; thẻ: tên, loại · thời gian · "Người lập", "Kênh bán áp dụng" (trống: "mọi kênh trừ Nội bộ"), "Nhóm khách áp dụng" (trống: "mọi khách"), nội dung theo loại ("<mã> · <tên>: giảm <phần trăm>%"; "Tổng đơn từ <ngưỡng> giảm <phần trăm>%, tối đa <trần hoặc "không giới hạn">"; "Mua <số> <đơn vị> <mặt hàng> tặng <số> <đơn vị> <mặt hàng>"), đã dùng, ghi chú, khối "Đã dừng: <lý do>"; chương trình đang chạy có thẻ "Lý do dừng" * và nút "Dừng chương trình" (bật khi có lý do).
+- Dữ liệu hiển thị: chương trình của công ty đang chọn, mới lập trước, tối đa 500; đã dùng tính từ đơn bán chờ duyệt, đã xác nhận, đã giao đủ, đã đóng.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, KhoiCanhBao, TrangThaiRong (tài liệu `15`).
+- API: API_83; tìm mặt hàng API_77 (`/sales/items`).
+- Thao tác: đổi lọc tải lại danh sách; lưu chương trình mới thì mở chi tiết; gửi duyệt, rút, dừng xong tải lại chương trình.
+- Trạng thái: rỗng ("Chưa có chương trình.").
+- Thông báo: "Đã lưu chương trình." (lưu, gửi duyệt, rút) · "Đã dừng chương trình."; lỗi dưới đúng ô khi soạn; lỗi gửi, rút hiện ở thông báo lỗi.
+- Quyền hiển thị: mục menu, màn hình với `sales.promotion.view`; "Lập chương trình" với `sales.promotion.manage`; "Sửa", "Gửi duyệt", "Rút", "Dừng chương trình" theo `canEdit`, `canSubmit`, `canWithdraw`, `canStop` của API.
+- Responsive: bảng chuyển thành thẻ; ô theo loại xếp lưới tự co, xếp dọc trên điện thoại.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_12 mục 14)

@@ -1,12 +1,12 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Hợp đồng API: endpoint, phương thức, dữ liệu gửi lên, dữ liệu trả về, xác thực, phân quyền, kiểm tra dữ liệu, lỗi, phân trang.
-- Phiên bản: 1.7
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79
+- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79; CONG_VIEC_12 (2026-11-10): thêm API_83 khuyến mãi (mục 2g, 3g); bổ sung API_77
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09).
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12).
 
 ## 1. Quy ước chung
 
@@ -184,6 +184,16 @@ API_80 nằm trong `apps/api/src/sales/sales.controller.ts`, API_81 trong `apps/
 | API_82 | `POST /inventory/internal-receipts/{id}/receive`; `GET /inventory/internal-discrepancies?status=`; `POST /inventory/internal-discrepancies/{id}/resolve` | CHUC_NANG_60, CHUC_NANG_61 | Nhận: `inventory.purchase.receive` tại kho nhận. Biên bản: `inventory.sales.issue` tại kho xuất | Nhận: `lines[]` (1 đến 200: `lineId`, `receivedQuantity`, `locationId`, `serials`), `shortageReason`, `version`. Xử lý: `action` (`return`, `write_off`), `note`, `version`. Lọc `status` (`open`, `returned`, `written_off`) | Phiếu kho (`StockDocumentResponse`); danh sách biên bản (`InternalDiscrepancyItem[]`) |
 
 Bổ sung API_73, API_75, API_77, API_65, API_76, API_79 (CONG_VIEC_09): trạng thái `counterpart_pending` ở đơn bán, đơn mua (`warehouseId` `null` khi chưa xác nhận); `SalesOrderResponse`, `PurchaseOrderResponse` thêm `isInternal`, `isCounterpart`, `counterpart` (`{ companyName, documentNo, status }` hoặc `null`), `counterpartRejectedReason`, `canConfirmCounterpart`; `canEdit` `false` với đơn đối ứng và đơn mua nội bộ đã có đơn đối ứng; `PATCH` các đơn đó trả `409`. Lưu, gửi đơn nội bộ kiểm điều kiện QUYTAC_NGHIEPVU_73; đơn mua nội bộ lấy giá, thuế suất theo bảng giá Nội bộ, bỏ giá gửi lên. `StockDocumentResponse` thêm `internalReceipt` (`{ issueDocumentNo, sellerCompanyName, lines[] }`, dòng `{ lineId, shippedBaseQuantity, shippedSerials }` khi chờ nhận; `null` với phiếu thường) và `canReceiveInternal`. Lập phiếu xuất giao hàng, gửi phiếu xuất theo đơn bán nội bộ khi đơn mua đối ứng chưa duyệt trả `409`; ghi sổ phiếu xuất sinh phiếu nhập `in_transit` ở công ty mua. `GET /inventory/purchase-orders` không trả đơn mua nội bộ; `POST /inventory/purchase-receipts` với đơn mua nội bộ trả `409`.
+
+## 2g. Danh sách endpoint khuyến mãi (MODULE_05 phần 3, CONG_VIEC_12)
+
+API_83 nằm trong `apps/api/src/sales/sales.controller.ts`, gọi `PromotionsService`; mọi endpoint trước hết cần `sales.access` hoặc `sales.order.view` như API_77; quyền chi tiết kiểm trong service. Chương trình của công ty khác trả `404`. `POST` thành công trả `201`.
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_83 | `GET /sales/promotions/options`; `GET /sales/promotions?status=`; `GET /sales/promotions/{id}`; `POST /sales/promotions`; `PATCH /sales/promotions/{id}`; `POST /sales/promotions/{id}/submit`, `/withdraw`, `/stop` | CHUC_NANG_62, CHUC_NANG_64 | Lựa chọn, danh sách, chi tiết: `sales.promotion.view` hoặc `sales.promotion.manage`. Lập, sửa, gửi, rút, dừng: `sales.promotion.manage`; rút: người lập, cấp duyệt đầu chưa quyết định | Lập, sửa: `name`, `kind`, `validFrom`, `validTo`, `channelIds`, `customerGroupIds`, `items[]` (`variantId`, `discountPercent`), `minOrderAmount`, `orderDiscountPercent`, `maxOrderDiscount`, `buyVariantId`, `buyQuantity`, `giftVariantId`, `giftQuantity`, `budgetAmount`, `maxGiftSets`, `note`, `version` (khi sửa). Dừng: `reason`, `version`. Lọc `status` | `{ channels, customerGroups, currency }`; danh sách `PromotionListItem[]`; chương trình `PromotionResponse` |
+
+Bổ sung API_77 (CONG_VIEC_12): `GET /sales/items` cần `sales.order.manage` hoặc `sales.promotion.manage` (trước chỉ `sales.order.manage`), để soạn chương trình khuyến mãi tìm được mặt hàng. Lập, sửa đơn bán tự áp khuyến mãi (CHUC_NANG_63); dòng gửi lên không có trường khuyến mãi, dòng hàng tặng do hệ thống thêm. Dòng `SalesOrderResponse.lines[]` thêm `isGift`, `promotionName` (chương trình giảm theo sản phẩm, hoặc chương trình tặng của dòng tặng; `null` nếu không có), `promotionPercent`, `orderPromotionName`, `orderDiscountAmount` (gồm thuế). `submit` kiểm giới hạn khuyến mãi: vượt ngân sách hoặc số suất trả `409 BUSINESS_RULE` "Chương trình khuyến mãi đã hết ngân sách hoặc hết suất. Lưu lại đơn để tính lại khuyến mãi rồi gửi.".
 
 ## 3. Hợp đồng chi tiết
 
@@ -602,6 +612,30 @@ Gửi lên (`POST /inventory/internal-discrepancies/{id}/resolve`):
 - `resolve` (`201`): giữ biên bản (`open`, đúng phiên bản), ghi `returned` hoặc `written_off`, ghi chú, người, thời điểm; `return` lập và gửi phiếu nhận hàng trả lại theo API_79 (số thiếu, serial chưa nhận, lý do "Hàng thiếu khi giao nội bộ: <lý do>"), lưu `returnDocumentId`; lỗi thì xóa phiếu nháp, trả biên bản về `open` và trả lỗi đó. Nhật ký `internal_discrepancy.resolve`. Trả danh sách biên bản (mọi trạng thái).
 - Lỗi: `400` tại `lines.{i}.receivedQuantity` "Số nhận vượt số đã xuất.", "Phải nhập số nhận cho mọi dòng của phiếu."; tại `lines.{i}.serials` "Serial không có trong phiếu xuất gốc."; tại `shortageReason` "Nhận thiếu phải ghi lý do."; lỗi kiểm phiếu của API_65 theo vị trí dòng xuất; `403`; `404`; `409 BUSINESS_RULE` "Phiếu nhập nội bộ không ở trạng thái chờ nhận."; `409 CONFLICT_VERSION`.
 
+## 3g. Hợp đồng chi tiết khuyến mãi (MODULE_05 phần 3, CONG_VIEC_12)
+
+### API_83 Chương trình khuyến mãi
+Gửi lên (`POST /sales/promotions`, giảm theo sản phẩm):
+```json
+{ "name": "Bánh 10%", "kind": "product_discount", "validFrom": "2026-11-10", "validTo": "2026-12-31", "channelIds": [], "customerGroupIds": [],
+  "items": [ { "variantId": "01J...", "discountPercent": "10" } ], "budgetAmount": "1000000", "note": null }
+```
+Giảm theo đơn: `"kind": "order_discount", "minOrderAmount": "200000", "orderDiscountPercent": "10", "maxOrderDiscount": "15000"`. Mua X tặng Y: `"kind": "buy_get", "buyVariantId": "01J...", "buyQuantity": "3", "giftVariantId": "01J...", "giftQuantity": "1", "maxGiftSets": 100`.
+Gửi lên (`POST /sales/promotions/{id}/stop`):
+```json
+{ "reason": "Đổi kế hoạch", "version": 3 }
+```
+- Kiểm tra: `name` 1 đến 200 ký tự; `kind` một trong ba loại; `validFrom`, `validTo` dạng `YYYY-MM-DD`, `validTo` không trước `validFrom`; `channelIds`, `customerGroupIds` tối đa 50 UUID (mặc định rỗng); `items` tối đa 500, không trùng mặt hàng, `discountPercent` lớn hơn 0 đến 100 (2 chữ số lẻ); giảm theo sản phẩm phải có ít nhất 1 mặt hàng; giảm theo đơn bắt buộc `minOrderAmount`, `orderDiscountPercent` (lớn hơn 0 đến 100); mua X tặng Y bắt buộc `buyVariantId`, `buyQuantity`, `giftVariantId`, `giftQuantity`; số tiền, số lượng lớn hơn 0, chuỗi trống thành `null`; `maxGiftSets` số nguyên dương; `note` tối đa 1.000 ký tự; `reason` 1 đến 500 ký tự; trường lạ bị từ chối. Phía máy chủ: mặt hàng đang bán của công ty, kênh đang dùng của công ty không phải `NOI_BO`, nhóm khách đang dùng của công ty; `kind` `buy_get` có `budgetAmount` thì lỗi; trường của loại khác bị bỏ khi ghi.
+- `GET /sales/promotions/options` (`200`): `{ channels: [{ id, code, name }], customerGroups: [{ id, code, name }], currency }` (kênh đang dùng trừ Nội bộ).
+- `GET /sales/promotions` (`200`): tối đa 500, mới lập trước: `{ id, documentNo, name, kind, validFrom, validTo, status, usedAmount, usedGiftSets, budgetAmount, maxGiftSets, createdByName }`.
+- `GET /sales/promotions/{id}` (`200`): thêm `channels`, `customerGroups` (`{ id, name }`), `items` (`{ variantId, sku, productName, discountPercent }`), `minOrderAmount`, `orderDiscountPercent`, `maxOrderDiscount`, `buy`, `gift` (`{ variantId, sku, productName, quantity, baseUnitName }` hoặc `null`), `note`, `approvalRequestId`, `stoppedReason`, `currency`, `version`, `canEdit`, `canSubmit`, `canWithdraw`, `canStop`.
+- `POST` (`201`): lưu `draft`. Nhật ký `promotion.create`.
+- `PATCH` (`200`): chương trình `draft`, `rejected`, `withdrawn`, đúng phiên bản; về `draft`, bỏ `approvalRequestId`. Nhật ký `promotion.update` (kèm dữ liệu trước).
+- `submit` (`201`): chương trình `draft`, `rejected`, `withdrawn`; cấp số dãy `sales.promotion` (chưa cấu hình thì tự tạo tiền tố `KM`, đặt lại theo năm, 6 chữ số) ở lần gửi đầu; gửi luồng duyệt loại `sales.promotion` với giá trị là `budgetAmount` (trống thì 0); chưa có chính sách thì `active`, có thì `pending`. Nhật ký `promotion.submit`.
+- `withdraw` (`201`): người lập, `pending`, cấp duyệt đầu chưa quyết định; rút yêu cầu duyệt (API duyệt), chương trình `withdrawn`.
+- `stop` (`201`): chương trình `active` đúng phiên bản; `stopped`, ghi lý do, người, thời điểm. Nhật ký `promotion.stop`.
+- Lỗi: `400` tại `items`, `minOrderAmount`, `orderDiscountPercent`, `buyVariantId`, `buyQuantity`, `giftVariantId`, `giftQuantity` "Vui lòng nhập thông tin này."; tại `validTo`, `items`, `items.{i}.variantId`, `items.{i}.discountPercent`, `channelIds`, `customerGroupIds`, `buyVariantId`, `giftVariantId`, `budgetAmount` "Giá trị không hợp lệ."; `403` (thiếu quyền; rút không phải người lập); `404`; `409 BUSINESS_RULE` "Chỉ sửa được chứng từ đang ở trạng thái nháp." (sửa, gửi chương trình đang chờ duyệt, đang chạy, đã dừng); `409 CONFLICT_VERSION` (sai phiên bản; dừng chương trình không đang chạy).
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |
@@ -625,3 +659,5 @@ MODULE_04 phần 1 (CONG_VIEC_07) không phát sự kiện mới; mini app Mua h
 MODULE_05 phần 1 (CONG_VIEC_08) không phát sự kiện mới; mini app Bán hàng nghe `core.approval.completed` của loại chứng từ `sales.order` để chuyển đơn bán đã xác nhận, bị từ chối, đã rút (từ chối, rút thì nhả hàng giữ) (API_77). Phiếu xuất giao hàng, phiếu nhận hàng trả lại không đi luồng duyệt; trạng thái "Đã giao đủ" của đơn bán cập nhật trong cùng giao dịch ghi sổ (API_79).
 
 MODULE_05 phần 2 (CONG_VIEC_09) không phát sự kiện mới; dùng lại việc nghe `core.approval.completed` của `sales.order`, `purchasing.order`: duyệt xong thì sinh chứng từ đối ứng, từ chối hoặc rút đơn đối ứng thì kết thúc hai bên trong cùng giao dịch xử lý sự kiện. Yêu cầu duyệt bị rút do bên kia kết thúc không phát sự kiện.
+
+MODULE_05 phần 3 (CONG_VIEC_12) không phát sự kiện mới; mini app Bán hàng nghe `core.approval.completed` của loại chứng từ `sales.promotion` để chuyển chương trình `pending` sang `active` (duyệt xong), `rejected`, `withdrawn` (API_83).
