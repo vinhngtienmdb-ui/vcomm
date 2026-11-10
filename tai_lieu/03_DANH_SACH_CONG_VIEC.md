@@ -35,7 +35,7 @@
 | CONG_VIEC_24 | Đặt hàng trên VComm (MODULE_09, phần lõi 2): danh mục bán, giỏ hàng, đơn của người mua, giao hàng, trả hàng trong 7 ngày, đơn hoàn tất | MODULE_09 | Lớn | Cao | Chưa bắt đầu | | | | | THAY_DOI_14 |
 | CONG_VIEC_25 | Thanh toán đơn người mua (MODULE_09, phần lõi 3): khung cổng thanh toán chung, bật tắt từng cổng và phương thức, COD và đối soát COD với bên giao vận | MODULE_09 | Lớn | Cao | Chưa bắt đầu | | | | | THAY_DOI_14 |
 | CONG_VIEC_26 | Hoa hồng theo đơn và ví hoa hồng (MODULE_09, phần lõi 4): thiết lập theo sản phẩm, hoa hồng giới thiệu, hoa hồng đội kinh doanh nhiều cấp theo cơ cấu tổ chức, cộng ví khi đơn hoàn tất, yêu cầu rút tiền, duyệt và chi trả | MODULE_09 | Lớn | Cao | Chưa bắt đầu | | | | | THAY_DOI_14 |
-| CONG_VIEC_27 | Đội kinh doanh nhiều cấp (MODULE_09, phần lõi 1b): chức danh Giám đốc Kinh doanh, Giám đốc Vùng, Trưởng phòng, Nhân viên; cây đơn vị kinh doanh theo phòng ban; quyền xem theo nhánh; đề xuất trên ứng dụng, duyệt trên web | MODULE_09 | Lớn | Cao | Đang thực hiện | `chuc-nang/CONG_VIEC_27-doi-kinh-doanh` | 2026-11-10 | | | THAY_DOI_16; nền CONG_VIEC_23 |
+| CONG_VIEC_27 | Đội kinh doanh nhiều cấp (MODULE_09, phần lõi 1b): chức danh Giám đốc Kinh doanh, Giám đốc Vùng, Trưởng phòng, Nhân viên; cây đơn vị kinh doanh theo phòng ban; quyền xem theo nhánh; đề xuất trên ứng dụng, duyệt trên web | MODULE_09 | Lớn | Cao | Chờ nghiệm thu | `chuc-nang/CONG_VIEC_27-doi-kinh-doanh` | 2026-11-10 | | | THAY_DOI_16; nền CONG_VIEC_23 |
 
 ## Chờ phê duyệt (đề xuất của AI)
 

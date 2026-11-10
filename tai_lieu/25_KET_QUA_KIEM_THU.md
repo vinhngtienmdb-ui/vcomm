@@ -183,6 +183,23 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_27
+
+- Phạm vi: lát L0 đến L3 (loại đơn vị kinh doanh, chức danh suy ra từ vị trí, chuỗi cấp trên, quản trị đội trên web-crm, đội của tôi trên ứng dụng, đề xuất và duyệt) và các bản sửa sau rà soát độc lập.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22; Expo bản web cổng 8083.
+- Lệnh đã chạy: `pnpm --filter api typecheck`, `pnpm --filter api lint`, `pnpm --filter web-crm typecheck`, `pnpm --filter web-crm lint`, `npx tsc --noEmit` (mobile-vcomm), `pnpm --filter api test`; database migration 0024 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright: đội kinh doanh, chi tiết người mua, đề xuất (web-crm máy tính, điện thoại); ứng dụng: chức danh, đội của tôi, khách của cấp dưới, gửi đề xuất (khổ iPhone 13).
+- Kết quả: 312 đạt / 0 không đạt / 312 kịch bản tự động (39 tệp; phần mới: `c27-sales-team` 7, KICHBAN_KIEMTHU_302 đến 307 kèm trường hợp sửa lỗi rà soát). KICHBAN_KIEMTHU_308, 309 (thủ công) đạt, không lỗi trình duyệt, không cuộn ngang.
+- Kiểm thử đã duyệt được sửa: `c23-buyer-accounts` thêm bước gắn loại Phòng kinh doanh cho phòng ban dùng trong KICHBAN_KIEMTHU_299 (người dùng cho phép 2026-11-10); các bước, kết quả mong đợi giữ nguyên.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_169 đến 173 (bắt buộc) – Đạt. TIEUCHI_NGHIEMTHU_174 (mong muốn) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit`: không thêm thư viện; 2 lỗ hổng Trung bình đã biết trong `@expo/cli` (rủi ro đã chấp nhận, tài liệu 22 mục 8).
+  - C2 gitleaks trong CI (pull request số 59) chưa chạy được do tài khoản GitHub lỗi thanh toán; đã rà các dòng thêm mới không có khóa bí mật.
+  - C3 phân quyền: Đạt – khách của người ngoài nhánh, của chính mình `404`; nhân viên không xem đội, không lập đề xuất; đề xuất chỉ trong nhánh; người mua không vào API quản trị đội.
+  - C4 toàn vẹn dữ liệu: Đạt – thay đổi đội khóa theo công ty trước khóa dòng; duyệt kiểm lại trong cùng giao dịch; một đề xuất chờ mỗi người (chỉ mục duy nhất); cây phòng ban có vòng không treo máy chủ.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập không thấy lỗi Nghiêm trọng; tìm 2 lỗi Cao (đánh dấu lại người đã trong đội; thứ tự khóa ngược gây khóa chết), 6 Trung bình, các mục Thấp; đã sửa ở commit 09086c5, kiểm thử lại đạt. Ghi nhận còn lại ở tài liệu 22, đặc tả mục 16.
+- Kết luận cổng kiểm thử: Đạt.
+- Kết luận: Chờ người dùng nghiệm thu; pull request số 59 (nền pull request số 58).
+
 ## Lần kiểm thử 2026-11-10 – THAY_DOI_15 (CONG_VIEC_23)
 
 - Phạm vi: đánh dấu nhân viên kinh doanh không gán vai trò Nhân viên bán hàng; bỏ cột `sales_role_assignment_id`; câu xác nhận bỏ đánh dấu.
