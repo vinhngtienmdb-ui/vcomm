@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_18: Lập trình lát L0, L1 Đối soát ngân hàng (kết nối, webhook, tự ghép, gợi ý khách, lập phiếu thu, ghép tay, bỏ qua, đối chiếu số dư); tài liệu; tự rà soát, rà soát độc lập, sửa 14 mục; kiểm thử 266/266 đạt; pull request số 53; chờ nghiệm thu.
 - CONG_VIEC_18, CONG_VIEC_19: Lập công việc Đối soát ngân hàng và Đối soát thu hộ COD, cổng thanh toán (MODULE_06, phần 6, 7), mức Lớn.
 - CONG_VIEC_17: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 52 (sau số 51).
 - CONG_VIEC_17: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_17-hoa-hong` (pull request số 52, tách từ nhánh CONG_VIEC_16). Database migration 0015 đến 0017; cài đặt, chỉ tiêu, gán đơn, phát sinh theo tiền thu, bảng hoa hồng tháng qua luồng duyệt, bút toán. Kiểm thử 250/250 đạt. Không thêm thư viện. Rà soát mã sửa 2 lỗi Cao, 2 mục Trung bình. Chờ người dùng nghiệm thu.
@@ -46,6 +47,7 @@
 
 ### Quyết định
 
+- Đối soát ngân hàng – người quyết định: người dùng, ngày 2026-11-10: tự ghép lệch ngày tối đa 3 ngày; webhook ngân hàng đúng khóa không bị giới hạn tần suất, chỉ đếm lần sai khóa theo địa chỉ IP.
 - Đối soát (MODULE_06) – người quyết định: người dùng, ngày 2026-11-10: làm cả sao kê ngân hàng, COD, cổng thanh toán; giao dịch ngân hàng nhận qua dịch vụ trung gian chọn theo từng công ty (lớp kết nối chung, bộ giả lập); tiền vào chưa có phiếu thu thì hệ thống gợi ý, kế toán xác nhận; COD, cổng thanh toán nhập bảng đối soát từ tệp theo mẫu chung (chưa có tệp mẫu của đơn vị); phí thu hộ, phí cổng thanh toán vào chi phí bán hàng.
 - Hoa hồng (CONG_VIEC_17) – người quyết định: người dùng, ngày 2026-11-10, khi nghiệm thu: đơn không có khách gán cho người lập đơn bất kể cách gán; đơn bán cho công ty con trong tập đoàn không tính hoa hồng; phiếu chi hoàn tiền giữ cách trừ vào khoản có cũ nhất (giới hạn đã biết).
 - Hoa hồng (MODULE_06) – người quyết định: người dùng, ngày 2026-11-10: làm hoa hồng đội kinh doanh trước, cộng tác viên, nhà bán, cửa hàng liên kết làm cùng các module đó; đơn bán gán cho nhân viên phụ trách khách hoặc người lập đơn, công ty chọn trong cài đặt; hoa hồng tính trên tiền đã thu; mức theo phần trăm ngành hàng và kênh bán, cách kết hợp công ty chọn trong cài đặt; hệ số theo phần trăm đạt chỉ tiêu tháng; chốt tháng, qua luồng duyệt, hạch toán; khách được hoàn tiền sau khi đã chốt thì trừ vào kỳ sau.

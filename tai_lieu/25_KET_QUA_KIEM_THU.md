@@ -183,6 +183,22 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_18
+
+- Phạm vi: lát L0, L1 (kết nối quỹ ngân hàng với dịch vụ trung gian: bộ giả lập, SePay; webhook công khai có khóa Apikey, chống trùng, lưu nội dung gốc; tự ghép với phiếu thu chi đã ghi sổ; gợi ý khách, xác nhận lập phiếu thu; ghép tay, bỏ qua, bỏ ghép; đối chiếu số dư); MAN_HINH_58, 59; API_95 đến API_101. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22. SePay thử bằng dữ liệu theo tài liệu công khai, chưa thử với tài khoản thật.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --prod --audit-level high`; database migration 0018 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright (Quản trị công ty VCR): kết nối bộ giả lập, khóa hiện một lần, gửi thử tự ghép, gợi ý khách theo số đơn bán, lập phiếu thu, ghép tay, bỏ qua, ô đối chiếu (máy tính và điện thoại 375 điểm ảnh, không cuộn ngang, không có yêu cầu lỗi).
+- Kết quả: 266 đạt / 0 không đạt / 266 kịch bản tự động (32 tệp; phần mới: `c18-bank-reconciliation` 15, KICHBAN_KIEMTHU_246 đến 255, 257 đến 260). KICHBAN_KIEMTHU_256 (thủ công trên trình duyệt) đạt.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_132 đến 137 (bắt buộc) – Đạt. TIEUCHI_NGHIEMTHU_138 (mong muốn) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod --audit-level high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 53).
+  - C3 phân quyền: Đạt – xem, xử lý, cài đặt cần phạm vi công ty; cài đặt là quyền nhạy cảm; nhân viên bán hàng nhận 403; webhook xác thực bằng khóa riêng từng kết nối, so sánh thời gian cố định, cùng một lỗi 401 cho không có kết nối, kết nối tắt, sai khóa.
+  - C4 toàn vẹn dữ liệu: Đạt – khóa sinh ngẫu nhiên 192 bit, lưu mã hóa AES-256-GCM, chỉ trả về một lần; chống trùng theo mã giao dịch của dịch vụ; khóa dòng quỹ cùng thứ tự với ghi sổ phiếu; một phiếu ghép tối đa một giao dịch (chỉ mục duy nhất); mọi truy vấn lọc theo công ty, tham số ràng buộc.
+- Tự rà soát mã và dọn dẹp: Đạt. Tự rà soát sửa 2 mục (tạo được kết nối cho quỹ ngừng dùng; cột dữ liệu gốc lưu dữ liệu đã xử lý). Rà soát độc lập tìm 1 lỗi Nghiêm trọng (giới hạn 20 yêu cầu mỗi phút theo IP dùng chung cho mọi công ty, có thể mất giao dịch), 2 lỗi Cao (phiếu thu từ gợi ý bị sửa vẫn được ghép; xác nhận lại bỏ qua khách vừa chọn), 4 mục Trung bình (khóa chết giữa webhook và ghi sổ phiếu; ghép song song với bỏ qua gây lỗi; xác nhận song song có thể lập hai phiếu; chỉ mục theo công ty), 6 mục Thấp; đã sửa cả 13 mục trừ 1 mục Thấp (kết nối bộ giả lập còn lại trên môi trường thật không sửa được, không xảy ra vì không tạo được bộ giả lập trên môi trường thật). Lỗi Nghiêm trọng sửa theo quyết định của người dùng: webhook đúng khóa không giới hạn, chỉ đếm lần sai khóa (KICHBAN_KIEMTHU_260).
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
+- Kết luận: Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_17
 
 - Phạm vi: lát L0, L1 (cài đặt hoa hồng theo công ty, bảng mức theo ngành hàng và kênh, hệ số kênh, bậc hệ số, chỉ tiêu tháng; gán nhân viên hưởng khi gửi đơn; phát sinh khi phiếu thu trừ nợ phiếu xuất, hoàn tiền trả hàng ghi âm, bán lẻ khi giao, khi trả; bảng hoa hồng tháng qua luồng duyệt, bút toán Nợ chi phí hoa hồng / Có 334); MAN_HINH_56, 57, bổ sung MAN_HINH_43; API_93, 94, sửa API_77. Hồi quy: toàn bộ kiểm thử tự động của dự án.
