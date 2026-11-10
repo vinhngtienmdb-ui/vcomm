@@ -505,6 +505,8 @@ Trạng thái bảng hoa hồng:
   - Sai khóa, kết nối không có hoặc đang tắt: 401, không lưu. Dữ liệu sai: 400. Khác số tài khoản của quỹ: 409. Vượt 20 yêu cầu mỗi phút mỗi địa chỉ IP: 429, dịch vụ gửi lại.
   - Nhiều phiếu hoặc nhiều giao dịch cùng thỏa điều kiện: không tự ghép, kế toán ghép tay.
   - Ghép sai: "Bỏ ghép" đưa giao dịch về "Chưa ghép", phiếu không đổi. Bỏ qua nhầm: "Thôi bỏ qua".
+  - Phiếu thu lập từ gợi ý bị sửa (quỹ, số tiền, loại, ngày) không còn khớp giao dịch: khi ghi sổ không ghép với giao dịch đó, bỏ liên kết; giao dịch xét tự ghép như thường.
+  - Lần xác nhận trước gửi lỗi, còn phiếu nháp: xác nhận lại đặt lại phiếu nháp theo khách vừa chọn rồi gửi lại.
   - Phiếu thu lập từ gợi ý bị từ chối hoặc rút: giao dịch vẫn "Chưa ghép"; kế toán lập lại phiếu thu, ghép tay hoặc bỏ qua.
   - Dịch vụ không gửi số dư (bộ giả lập): ô đối chiếu hiện "Dịch vụ chưa gửi số dư", không có chênh lệch.
 - Kết thúc: mọi giao dịch trong kỳ "Đã ghép" hoặc "Bỏ qua" có lý do; chênh lệch số dư bằng 0 hoặc đã giải thích được.
