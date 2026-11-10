@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính): đúng, sai, giá trị biên, từng vai trò.
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử): đúng, sai, giá trị biên, từng vai trò.
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2669,3 +2669,129 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`) chế độ Thông tư
 - Kết quả mong đợi: Bước 1: bảng chuyển thành thẻ, nhãn cột hiện đủ; số không xuống dòng; không cuộn ngang. Bước 2: thẻ, bộ lọc xuống dòng; ghi chú mở trong thẻ. Bước 3: nút xuất xếp gọn, bấm được; tệp tải về, PDF mở được. Bước 4: ô "Dài hạn" và chú thích hiện đủ, ô biểu mẫu xếp dọc.
 - Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
 - Lát: L0, L1
+
+## MODULE_06 Tài chính – Kế toán (phần 4: Hóa đơn điện tử, CONG_VIEC_16)
+
+Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng Việt Nam; Quản trị tập đoàn `quantri.tapdoan@vcomm.test`, Quản trị công ty VCR `quantri.vcr@vcomm.test`; tạo trong tệp kiểm thử, gán ở công ty: Kế toán `ketoan.hd@vcomm.test` (`accountant`), Kế toán trưởng `ketoantruong.hd@vcomm.test` (`chief_accountant`), Nhân viên bán hàng `banhang.hd@vcomm.test` (`salesperson`); Thủ kho `thukho.hd@vcomm.test` (`warehouse_keeper`, gán ở chi nhánh Bình Dương). Kho "Kho hóa đơn" `HDW` có tồn đầu 1.000 cái "Hàng công nợ A", 100 cái "Hàng hóa đơn B" (thuế suất 10%); bảng giá `CHUNG` gồm thuế: A 11.000, B 12.000 một cái; kênh `BAN_LE`. Đối tác "Khách công nợ" (khách hàng, mã số thuế 0320001601). Đơn bán xác nhận ngay khi gửi (không có chính sách duyệt); phiếu xuất, phiếu nhận hàng trả lại ngày hôm nay. "Gửi nền" là đặt giờ gửi của hóa đơn đang chờ về hiện tại rồi gọi `EinvoicesService.sendDue`. Ký hiệu năm nay dạng `C<2 số cuối năm>T..`; số hóa đơn đếm riêng theo ký hiệu. Các kịch bản tự động chạy nối tiếp trong một tệp. Đường dẫn API có tiền tố `/api/v1`.
+
+## CHUC_NANG_76: Cài đặt hóa đơn điện tử (CONG_VIEC_16)
+
+### KICHBAN_KIEMTHU_224: Kiểm ký hiệu, ngày bắt đầu, thông tin kết nối; mật khẩu không hiện lại; chỉ người có quyền cài đặt sửa được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_121
+- Chức năng: CHUC_NANG_76
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán; Kế toán trưởng; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; công ty chưa có cài đặt hóa đơn điện tử.
+- Các bước: (1) Kế toán xem cài đặt; sửa cài đặt. (2) Nhân viên bán hàng xem cài đặt. (3) Kế toán trưởng lưu với bật, không có ngày bắt đầu, ký hiệu năm nay `K<năm trước>TAA` khi chọn có mã. (4) Lưu ký hiệu `C2XTAA`. (5) Lưu với nhà cung cấp `misa`, không có thông tin kết nối. (6) Lưu chưa bật, `misa`, mã ứng dụng `APP`, mã số thuế 0101010101, tên đăng nhập `ketoan`, mật khẩu `MatKhauMisa1234`; đọc cột `secret_value`. (7) Lưu lại không nhập mật khẩu, `version` 1. (8) Lưu lại với `version` 1. (9) Lưu bật, bộ giả lập, ngày bắt đầu 2026-01-01, ký hiệu năm nay.
+- Kết quả mong đợi: Bước 1: `200` với `enabled` `false`, `provider` `simulator`, `canSetup` `false`, `version` 0; sửa `403`. Bước 2: `403`. Bước 3: `400`, lỗi tại đúng `series.0.series`, `startDate`. Bước 4: `400`. Bước 5: `400`, lỗi tại `appId`, `password`, `taxCode`, `username`. Bước 6: `200`, `passwordLastFour` "1234", `version` 1; phản hồi không chứa "MatKhauMisa"; `secret_value` không chứa mật khẩu dạng chữ. Bước 7: `passwordLastFour` "1234", `version` 2. Bước 8: `409`. Bước 9: `200`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c16-einvoices.test.ts`
+- Lát: L0
+
+## CHUC_NANG_77: Lập hóa đơn, gửi nền (CONG_VIEC_16)
+
+### KICHBAN_KIEMTHU_225: Phiếu xuất giao hàng ghi sổ lập đúng một hóa đơn, nội dung đúng, tổng bằng công nợ; gửi nhận số liên tục, mã của cơ quan thuế, PDF; đơn không có khách vẫn lập; đơn giá làm tròn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_122, TIEUCHI_NGHIEMTHU_123
+- Chức năng: CHUC_NANG_77
+- Loại: Đúng, giá trị biên, phân quyền
+- Vai trò thực hiện: Nhân viên bán hàng; Thủ kho; Kế toán
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_224; tình huống giả lập "Bình thường".
+- Các bước: (1) Lập, gửi đơn 10 cái A cho "Khách công nợ"; Thủ kho giao 3 cái. (2) Kế toán xem hóa đơn của phiếu xuất; so tổng với `finance.inventory_amounts` của phiếu. (3) Gửi nền; xem lại; tải PDF. (4) Giao tiếp 7 cái; lập đơn 1 cái A không có khách (người mua "Khách lẻ"), giao 1 cái; gửi nền. (5) Xem danh sách `status=issued`. (6) Lập đơn 6 cái B cho "Khách công nợ", giao 6 cái; xem hóa đơn; gửi nền. (7) Nhân viên bán hàng xem danh sách hóa đơn.
+- Kết quả mong đợi: Bước 2: `pending`, ký hiệu năm nay `…TAA`, chưa có số; người mua "Khách công nợ", mã số thuế 0320001601, không phải người mua không cung cấp thông tin; một dòng "Hàng công nợ A" số lượng 3, đơn giá 10.000, thuế suất 10, chưa thuế 30.000, thuế 3.000, gồm thuế 33.000; tổng 30.000, 3.000, 33.000; tổng theo thuế suất `[{ 10, 30.000, 3.000 }]`; tổng thanh toán bằng tiền công nợ của phiếu. Bước 3: `issued`, số 1, có PDF, mã của cơ quan thuế dạng `M<2 số>-<12 ký tự hệ 16>`; tệp bắt đầu bằng `%PDF-`. Bước 4: hóa đơn lần giao hai `issued` số 2, tổng 77.000; hóa đơn đơn không có khách `issued` số 3, người mua `anonymous` `true`, không có mã số thuế. Bước 5: `total` 3. Bước 6: dòng số lượng 6, đơn giá 10.909, chưa thuế 65.455, thuế 6.545, gồm thuế 72.000. Bước 7: `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c16-einvoices.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_226: Lỗi tạm thời gửi lại không lập trùng; hết thời gian chờ thì tra trước khi gửi lại; lỗi dữ liệu dừng chờ gửi lại; chờ cấp mã
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_123
+- Chức năng: CHUC_NANG_77
+- Loại: Sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Kế toán trưởng; Kế toán; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_225 (đã cấp số 1 đến 4); đơn 10 cái A cho "Khách công nợ".
+- Các bước: (1) Đặt tình huống "Lỗi tạm thời lần đầu"; giao 1 cái; gửi nền; xem giờ gửi lại; gửi nền lần nữa. (2) Đặt "Hết thời gian chờ lần đầu"; giao 1 cái; gửi nền; gửi nền lần nữa; xem các lần gửi. (3) Đặt "Lỗi dữ liệu"; giao 1 cái; gửi nền; gửi nền lần nữa. (4) Đặt "Cơ quan thuế cấp mã chậm"; Nhân viên bán hàng bấm gửi lại; Kế toán bấm gửi lại; gửi nền. (5) Kế toán gửi lại lần nữa với `version` mới.
+- Kết quả mong đợi: Bước 1: lần đầu `retrying`, chưa có số, giờ gửi lại sau hiện tại; lần sau `issued` số 5. Bước 2: lần đầu `retrying`, chưa có số; lần sau `issued` số 6; các lần gửi (mới trước): tra trạng thái `issued`, phát hành `unknown` (nhận số đã cấp ở lần đầu, không lập trùng). Bước 3: `failed`, lỗi gần nhất chứa "không hợp lệ"; gửi nền lần sau vẫn `failed`. Bước 4: Nhân viên bán hàng `403`; Kế toán `201`, `awaiting_code`, số 7, chưa có mã; sau gửi nền `issued` số 7. Bước 5: `409` (không gửi lại hóa đơn đã phát hành).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c16-einvoices.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_227: Thiếu ký hiệu của năm thì lỗi cài đặt, khai ký hiệu thì gửi; tắt hoặc trước ngày bắt đầu thì không lập; quá hạn báo kế toán
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_123
+- Chức năng: CHUC_NANG_76, CHUC_NANG_77
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Kế toán trưởng; Kế toán; Thủ kho
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_226; đơn 10 cái A cho "Khách công nợ".
+- Các bước: (1) Tắt hóa đơn điện tử, không ký hiệu; giao 1 cái. (2) Bật, ngày bắt đầu là ngày mai; giao 1 cái. (3) Xóa ký hiệu, đặt ngày bắt đầu 2026-01-01 trực tiếp trong cơ sở dữ liệu; giao 1 cái. (4) Lưu cài đặt với ký hiệu năm nay `…TAB`; gửi nền. (5) Đặt "Lỗi dữ liệu"; giao 1 cái; gửi nền; lùi hạn gửi 10 ngày; Kế toán xem danh sách `overdue=true`. (6) Chạy báo quá hạn; xem thông báo của Kế toán; chạy báo quá hạn lần nữa.
+- Kết quả mong đợi: Bước 1, 2: không có hóa đơn. Bước 3: `setup_error`, chưa có ký hiệu. Bước 4: lưu xong hóa đơn `pending` với ký hiệu `…TAB`; gửi nền `issued` số 1 (ký hiệu mới đếm từ 1). Bước 5: danh sách chỉ có hóa đơn đó. Bước 6: số người nhận lớn hơn 0; Kế toán có đúng một thông báo `einvoice_overdue`; lần hai trả 0.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c16-einvoices.test.ts`
+- Lát: L0
+
+## CHUC_NANG_78, CHUC_NANG_79: Trả hàng, thay thế (CONG_VIEC_16)
+
+### KICHBAN_KIEMTHU_228: Trả hàng tạo việc chờ; hóa đơn gốc chưa phát hành thì chờ; điều chỉnh giảm ghi âm, tham chiếu hóa đơn gốc, gửi như hóa đơn thường; hóa đơn đã điều chỉnh không thay thế được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_124, TIEUCHI_NGHIEMTHU_125
+- Chức năng: CHUC_NANG_78, CHUC_NANG_79
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán trưởng; Kế toán; Thủ kho; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_227; ký hiệu năm nay `…TAC`, tình huống "Lỗi dữ liệu".
+- Các bước: (1) Lập đơn 10 cái A, giao 4 cái; gửi nền. (2) Thủ kho nhận trả 1 cái theo phiếu xuất; Kế toán xem thẻ chờ xử lý trả hàng; bấm lập hóa đơn điều chỉnh giảm. (3) Đặt "Bình thường"; Kế toán gửi lại hóa đơn gốc; xem lại việc. (4) Nhân viên bán hàng lập điều chỉnh giảm; Kế toán lập điều chỉnh giảm. (5) Xem việc; lập điều chỉnh lần nữa. (6) Xem hóa đơn gốc; lập hóa đơn thay thế cho hóa đơn gốc.
+- Kết quả mong đợi: Bước 2: việc `open`, tiền hàng trả 11.000, `canResolve` `false`, hóa đơn gốc `failed`; lập điều chỉnh `409`. Bước 3: `canResolve` `true`, hóa đơn gốc `issued`. Bước 4: Nhân viên bán hàng `403`; Kế toán `201`, hóa đơn `adjustment` `issued` số 2, chưa thuế −10.000, thuế −1.000, tổng −11.000; dòng số lượng 1, đơn giá 10.000, chưa thuế −10.000, gồm thuế −11.000; hóa đơn liên quan là hóa đơn gốc (`original`). Bước 5: việc `adjusted`; lập lần nữa `409`. Bước 6: hóa đơn gốc có hóa đơn liên quan `adjusted_by`; thay thế `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c16-einvoices.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_229: Ghi hóa đơn trả hàng của người mua là tổ chức; người mua không cung cấp thông tin thì không ghi được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_124
+- Chức năng: CHUC_NANG_78
+- Loại: Đúng, sai
+- Vai trò thực hiện: Kế toán; Thủ kho
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_228.
+- Các bước: (1) Lập đơn 5 cái A cho "Khách công nợ", giao 5; lập đơn 2 cái A không có khách, giao 2; gửi nền. (2) Nhận trả 2 cái của phiếu thứ nhất; ghi hóa đơn của người mua ký hiệu `C26TBB`, số 123, ngày hôm nay. (3) Nhận trả 1 cái của phiếu không có khách; ghi hóa đơn của người mua. (4) Xem việc `status=open`.
+- Kết quả mong đợi: Bước 2: `201`; việc `buyer_invoice`, hóa đơn của người mua số 123. Bước 3: `409`. Bước 4: chỉ còn việc của phiếu không có khách.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c16-einvoices.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_230: Thay thế khi sai thông tin người mua; không thay lại hóa đơn đã bị thay thế; trả hàng sau đó tham chiếu hóa đơn thay thế
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_125, TIEUCHI_NGHIEMTHU_124
+- Chức năng: CHUC_NANG_79, CHUC_NANG_78
+- Loại: Đúng, sai
+- Vai trò thực hiện: Kế toán; Thủ kho
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_229.
+- Các bước: (1) Lập đơn 3 cái A cho "Khách công nợ", giao 3; gửi nền. (2) Lập hóa đơn thay thế với mã số thuế "123". (3) Lập hóa đơn thay thế: tên "Công ty Đúng Tên", mã số thuế 0320001601, địa chỉ "1 Đường Số 2", lý do "Sai tên người mua". (4) Xem hóa đơn cũ; thay thế hóa đơn cũ lần nữa. (5) Nhận trả 1 cái của phiếu; xem việc; lập điều chỉnh giảm.
+- Kết quả mong đợi: Bước 2: `400`. Bước 3: `201`, hóa đơn `replacement` `issued`, tổng bằng hóa đơn cũ, người mua mới, ghi chú "Sai tên người mua", dòng cùng tiền chưa thuế. Bước 4: hóa đơn cũ `replaced` `true`, vẫn `issued`; thay lần nữa `409`. Bước 5: hóa đơn gốc của việc là hóa đơn thay thế; hóa đơn điều chỉnh tham chiếu hóa đơn thay thế, người mua "Công ty Đúng Tên".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c16-einvoices.test.ts`
+- Lát: L1
+
+## CHUC_NANG_76, CHUC_NANG_77: Kết nối MISA meInvoice (CONG_VIEC_16)
+
+### KICHBAN_KIEMTHU_231: Kiểm tra kết nối; phát hành đúng định dạng, kèm mã truy cập; lỗi máy chủ gửi lại; mã truy cập hết hạn lấy lại; chờ cấp mã; lỗi dữ liệu; tải PDF
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_126
+- Chức năng: CHUC_NANG_76, CHUC_NANG_77
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán trưởng; Kế toán
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_230. Máy chủ giả MISA trong tệp kiểm thử (biến `MISA_EINVOICE_BASE_URL`): ghi lại yêu cầu, trả phản hồi theo hàng đợi; mặc định `/auth/token` trả mã truy cập, đường dẫn khác trả `{ Success: true, Data: "[]" }`. Cài đặt `misa`, mã ứng dụng `APP-1`, mã số thuế 0312345678, tên đăng nhập `ketoan`, mật khẩu `MatKhauMisa9`, ký hiệu năm nay `…TMS`.
+- Các bước: (1) Kế toán kiểm tra kết nối; Kế toán trưởng kiểm tra kết nối. (2) Đặt `/auth/token` trả `InvalidUser`; kiểm tra kết nối. (3) Giao 2 cái A cho "Khách công nợ"; `/invoice` trả HTTP 503; gửi nền. (4) `/invoice` trả số 1, mã `M1-26-ABC`, mã giao dịch `T-1`; `/invoice/Download` trả PDF, XML; gửi nền; tải PDF. (5) Giao 1 cái; `/invoice` trả HTTP 401 rồi trả số 2 chưa có mã; gửi nền. (6) `/invoice/status` trả mã `M1-26-DEF`; gửi nền. (7) Giao 1 cái; `/invoice` trả lỗi `InvalidBuyerTaxCode` "Mã số thuế người mua không hợp lệ"; gửi nền.
+- Kết quả mong đợi: Bước 1: Kế toán `403`; Kế toán trưởng `{ ok: true, message: null }`; `/auth/token` nhận `{ appid, taxcode, username, password }` đúng cài đặt. Bước 2: `{ ok: false, message: "einvoiceProviderAuthentication" }`. Bước 3: `retrying`, chưa có số. Bước 4: `issued` số 1, mã `M1-26-ABC`, có PDF; yêu cầu `/invoice` có `Bearer` mã truy cập, `SignType` 2; `InvoiceData[0]` có mã tham chiếu, ký hiệu, mẫu số 1, `VND`, người mua "Khách công nợ" 0320001601, chưa thuế 20.000, thuế 2.000, tổng 22.000, "Hai mươi hai nghìn đồng"; dòng `ItemType` 1, "Hàng công nợ A", số lượng 2, đơn giá 10.000, 20.000, "10%", thuế 2.000; `TaxRateInfo` một dòng 10%; PDF tải về đúng nội dung máy chủ giả trả. Bước 5: `awaiting_code` số 2; thứ tự yêu cầu `/invoice`, `/auth/token`, `/invoice`. Bước 6: `issued`, mã `M1-26-DEF`; `/invoice/status` nhận `[mã tham chiếu]`. Bước 7: `failed`, lỗi gần nhất "Mã số thuế người mua không hợp lệ".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c16-einvoices.test.ts`
+- Lát: L2
+
+## Kịch bản thủ công của hóa đơn điện tử (CONG_VIEC_16)
+
+### KICHBAN_KIEMTHU_232: Cài đặt, hóa đơn, trả hàng, thay thế trên trình duyệt (máy tính)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_126, TIEUCHI_NGHIEMTHU_122, TIEUCHI_NGHIEMTHU_124, TIEUCHI_NGHIEMTHU_125
+- Chức năng: CHUC_NANG_76 đến CHUC_NANG_79
+- Loại: Đúng, sai, giao diện, phân quyền
+- Vai trò thực hiện: Kế toán trưởng; Kế toán; Thủ kho
+- Điều kiện ban đầu và dữ liệu: Môi trường phát triển (không phải môi trường thật); mini app Nền tảng, Kho, Bán hàng, Tài chính – Kế toán, backend, tác vụ nền đang chạy; công ty có hàng tồn, đơn bán đã xác nhận cho khách có mã số thuế.
+- Các bước: (1) Kế toán trưởng mở "Cài đặt hóa đơn điện tử"; bật, ngày bắt đầu hôm nay, bộ giả lập, có mã, mẫu số 1, thêm năm nay ký hiệu `C<2 số năm>TAA`; bấm "Lưu"; bấm "Kiểm tra kết nối". (2) Thủ kho ghi sổ phiếu xuất giao hàng; Kế toán mở "Hóa đơn điện tử", đợi tác vụ nền. (3) Mở chi tiết hóa đơn. (4) Bấm "Tải PDF". (5) Thủ kho nhận hàng trả lại theo phiếu xuất; Kế toán mở thẻ "Chờ xử lý trả hàng", bấm "Lập hóa đơn điều chỉnh giảm". (6) Ở chi tiết hóa đơn đã phát hành khác, bấm "Lập hóa đơn thay thế", sửa tên người mua, nhập lý do, bấm "Lập hóa đơn thay thế". (7) Kế toán mở `/finance/einvoice-settings`.
+- Kết quả mong đợi: Bước 1: "Đã lưu cài đặt hóa đơn điện tử."; "Kết nối được với nhà cung cấp.". Bước 2: hóa đơn chuyển từ "Chờ gửi" sang "Đã phát hành", có ký hiệu, số. Bước 3: người bán, người mua, dòng, tổng theo thuế suất, mã của cơ quan thuế, phiếu kho, các lần gửi; khối "Hóa đơn gửi qua bộ giả lập, không có giá trị pháp lý.". Bước 4: PDF mở ở thẻ mới, ghi "BẢN GIẢ LẬP – KHÔNG CÓ GIÁ TRỊ PHÁP LÝ", đủ chữ tiếng Việt. Bước 5: "Đã lập hóa đơn điều chỉnh giảm (Đã phát hành).", việc chuyển "Đã lập hóa đơn điều chỉnh", liên kết tới hóa đơn điều chỉnh có số âm. Bước 6: mở chi tiết hóa đơn thay thế; hóa đơn cũ có nhãn "Đã bị thay thế". Bước 7: "Bạn chỉ xem được cài đặt.", ô bị khóa, không có nút "Lưu".
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Kết quả thực hiện: Đạt 2026-11-10 các bước cài đặt, lưu; giao hàng phát hành qua bộ giả lập; chi tiết; PDF; thẻ "Chờ xử lý trả hàng" lập hóa đơn điều chỉnh giảm. Bước 6 (thay thế) chưa chạy trên trình duyệt vì dữ liệu phát triển thiếu hàng tồn; đã kiểm bằng KICHBAN_KIEMTHU_230.
+- Lát: L0, L1, L2
+
+### KICHBAN_KIEMTHU_233: Hóa đơn điện tử, cài đặt trên điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_126
+- Chức năng: CHUC_NANG_76 đến CHUC_NANG_79
+- Loại: Giao diện
+- Vai trò thực hiện: Kế toán trưởng
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_232.
+- Các bước: (1) Mở trình duyệt chiều rộng 375 điểm ảnh; mở "Cài đặt hóa đơn điện tử", lưu. (2) Mở "Hóa đơn điện tử", đổi bộ lọc. (3) Mở chi tiết hóa đơn đã phát hành; bấm "Tải PDF". (4) Mở thẻ "Chờ xử lý trả hàng", lập hóa đơn điều chỉnh giảm. (5) Mở biểu mẫu "Lập hóa đơn thay thế".
+- Kết quả mong đợi: Bước 1: ô biểu mẫu xếp dọc, dòng ký hiệu xuống dòng; không cuộn ngang. Bước 2: bộ lọc xuống dòng; bảng chuyển thành thẻ, nhãn cột hiện đủ, số tiền không xuống dòng. Bước 3: thẻ thông tin, người bán, người mua xếp dọc; mã của cơ quan thuế ngắt dòng; bảng dòng thành thẻ; PDF mở được. Bước 4: thẻ, nút xử lý xếp gọn, bấm được. Bước 5: ô biểu mẫu xếp dọc.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Kết quả thực hiện: Đạt 2026-11-10 các bước cài đặt, lưu; danh sách, chi tiết hóa đơn phát hành qua bộ giả lập; PDF; thẻ "Chờ xử lý trả hàng" lập hóa đơn điều chỉnh giảm. Bước 5 (thay thế) chưa chạy trên trình duyệt vì dữ liệu phát triển thiếu hàng tồn; đã kiểm bằng KICHBAN_KIEMTHU_230.
+- Lát: L0, L1, L2
