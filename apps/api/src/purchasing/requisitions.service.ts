@@ -208,6 +208,7 @@ export class RequisitionsService implements OnModuleInit {
   }
 
   async withdraw(actor: Actor, id: string): Promise<RequisitionResponse> {
+    await requirePermission(this.permissionService, actor, purchasingPermissions.createRequisition);
     const row = await this.single(actor.companyId, id);
     if (row.created_by !== actor.userId || !row.approval_request_id || row.status !== "pending") throw new ApiError("FORBIDDEN", "forbidden");
     await this.approvals.withdraw(actor.userId, row.approval_request_id);

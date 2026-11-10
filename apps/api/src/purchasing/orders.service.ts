@@ -44,9 +44,8 @@ type OrderRow = {
   created_by_name: string;
   version: number;
 };
-type PreparedLine = { id: string | null; baseQuantity: string; amount: string; tax: number; estimate: number | null };
+type PreparedLine = { id: string | null; baseQuantity: string; amount: string; estimate: number | null };
 
-const vatPercent = (rate: VatRate) => (["0", "5", "8", "10"].includes(rate) ? Number(rate) : 0);
 // Theo đơn vị cơ sở: nhập mua đã ghi sổ (trừ phần không đạt), đang chờ kiểm tra, đã trả.
 export const receivedOnOrderLine = (lineId: SQL) => sql`coalesce((
   SELECT sum(dl.base_quantity - coalesce(dl.rejected_base_quantity, 0)) FROM inventory.document_lines dl JOIN inventory.documents d ON d.id = dl.document_id
@@ -175,7 +174,8 @@ export class PurchaseOrdersService implements OnModuleInit {
       canEdit: manage && ["draft", "rejected", "withdrawn", "approved"].includes(row.status),
       canSubmit: manage && row.status === "draft",
       canWithdraw: own && row.status === "pending" && !firstStepDecided,
-      canClose: manage && row.status === "approved",
+      // Đơn từng được duyệt mà lần duyệt lại bị từ chối, bị rút vẫn đóng được (đã có thể có phiếu nhập).
+      canClose: manage && (row.status === "approved" || (["rejected", "withdrawn"].includes(row.status) && row.approved_total !== null)),
     };
   }
 
@@ -203,14 +203,17 @@ export class PurchaseOrdersService implements OnModuleInit {
     const before = await this.detail(actor, id);
     if (!before.canEdit) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
     await this.database.transaction(async (transaction) => {
-      const locked = await transaction.execute<{ status: PurchaseDocumentStatus }>(sql`
-        SELECT status FROM purchasing.orders WHERE id = ${id} AND company_id = ${actor.companyId} AND version = ${input.version ?? 0} FOR UPDATE`);
+      const locked = await transaction.execute<{ status: PurchaseDocumentStatus; approved_total: string | null; warehouse_id: string }>(sql`
+        SELECT status, approved_total::text, warehouse_id FROM purchasing.orders WHERE id = ${id} AND company_id = ${actor.companyId} AND version = ${input.version ?? 0} FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-      const wasApproved = locked.rows[0]!.status === "approved";
+      // Đơn đã từng được duyệt (kể cả lần duyệt lại bị từ chối, bị rút): sửa vẫn so với lần duyệt gần nhất, không về nháp.
+      const wasApproved = locked.rows[0]!.approved_total !== null;
+      // Kho nhận đã duyệt không đổi được: phiếu nhập đã lập, đang mở gắn với kho cũ.
+      if (wasApproved && input.warehouseId !== locked.rows[0]!.warehouse_id) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { warehouseId: "documentHeaderLocked" } });
       const lines = await this.prepare(transaction, actor.companyId, input, id);
       await transaction.execute(sql`
         UPDATE purchasing.orders SET supplier_id = ${input.supplierId}, warehouse_id = ${input.warehouseId}, order_date = ${input.orderDate}::date, expected_date = ${input.expectedDate ?? null}::date,
-          note = ${input.note}, status = CASE WHEN status = 'approved' THEN 'approved' ELSE 'draft' END, approval_request_id = CASE WHEN status = 'approved' THEN approval_request_id END,
+          note = ${input.note}, status = ${wasApproved ? "approved" : "draft"}, approval_request_id = CASE WHEN ${wasApproved} THEN approval_request_id END,
           updated_at = now(), version = version + 1
         WHERE id = ${id}`);
       await this.writeLines(transaction, id, input, lines);
@@ -222,6 +225,8 @@ export class PurchaseOrdersService implements OnModuleInit {
         transaction,
       );
       if (reapprove) await this.sendForApproval(transaction, actor, row, lines);
+      // Giảm về đúng số đã nhận thì đơn nhận đủ.
+      else if (wasApproved) await this.refreshReceived(transaction, id);
     });
     return this.detail(actor, id);
   }
@@ -242,6 +247,7 @@ export class PurchaseOrdersService implements OnModuleInit {
   }
 
   async withdraw(actor: Actor, id: string): Promise<PurchaseOrderResponse> {
+    await requirePermission(this.permissionService, actor, purchasingPermissions.manageOrders);
     const row = await this.single(this.database, actor.companyId, id);
     if (row.created_by !== actor.userId || !row.approval_request_id || row.status !== "pending") throw new ApiError("FORBIDDEN", "forbidden");
     await this.approvals.withdraw(actor.userId, row.approval_request_id);
@@ -254,7 +260,8 @@ export class PurchaseOrdersService implements OnModuleInit {
     await requirePermission(this.permissionService, actor, purchasingPermissions.manageOrders);
     await this.database.transaction(async (transaction) => {
       const locked = await transaction.execute(sql`
-        SELECT 1 FROM purchasing.orders WHERE id = ${id} AND company_id = ${actor.companyId} AND status = 'approved' AND version = ${version} FOR UPDATE`);
+        SELECT 1 FROM purchasing.orders WHERE id = ${id} AND company_id = ${actor.companyId} AND version = ${version}
+          AND (status = 'approved' OR (status IN ('rejected', 'withdrawn') AND approved_total IS NOT NULL)) FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       const open = await transaction.execute(sql`
         SELECT 1 FROM inventory.documents WHERE type = 'purchase_receipt' AND source_id = ${id} AND status IN ('draft', 'quality_check') LIMIT 1`);
@@ -356,7 +363,7 @@ export class PurchaseOrdersService implements OnModuleInit {
         }
       }
       const amount = Number(line.quantity) * Number(line.unitPrice);
-      lines.push({ id: line.id ?? null, baseQuantity: baseQuantity.toFixed(4), amount: amount.toFixed(4), tax: (amount * vatPercent(line.vatRate)) / 100, estimate });
+      lines.push({ id: line.id ?? null, baseQuantity: baseQuantity.toFixed(4), amount: amount.toFixed(4), estimate });
     }
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
     return lines;
@@ -382,9 +389,10 @@ export class PurchaseOrdersService implements OnModuleInit {
             ${prepared.amount}::numeric, ${line.requisitionLineId ?? null})`);
       }
     }
-    const tax = lines.reduce((sum, line) => sum + line.tax, 0);
+    // Tổng, thuế tính trong cơ sở dữ liệu để không lệch làm tròn số thực.
     await transaction.execute(sql`
-      UPDATE purchasing.orders SET total_amount = (SELECT coalesce(sum(amount), 0) FROM purchasing.order_lines WHERE order_id = ${orderId}), tax_amount = ${tax.toFixed(4)}::numeric
+      UPDATE purchasing.orders SET total_amount = (SELECT coalesce(sum(amount), 0) FROM purchasing.order_lines WHERE order_id = ${orderId}),
+        tax_amount = (SELECT coalesce(sum(round(amount * CASE WHEN vat_rate IN ('0', '5', '8', '10') THEN vat_rate::numeric ELSE 0 END / 100, 4)), 0) FROM purchasing.order_lines WHERE order_id = ${orderId})
       WHERE id = ${orderId}`);
   }
 

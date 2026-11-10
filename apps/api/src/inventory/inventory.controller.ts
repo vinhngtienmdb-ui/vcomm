@@ -213,7 +213,11 @@ export class InventoryController {
   @Delete("documents/:id")
   @HttpCode(204)
   async removeDocument(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<void> {
-    await this.documents.remove(await this.actor(request, companyId), id);
+    const actor = await this.actor(request, companyId);
+    const row = await this.documents.visibleRow(actor, id);
+    // Nháp phiếu nhập mua, trả hàng: người lập có quyền nhập mua xóa được (không cần quyền lập phiếu kho thường).
+    if (purchaseTypes.includes(row.type)) await this.purchases.remove(actor, id);
+    else await this.documents.remove(actor, id);
   }
 
   // Phiếu nhập mua, trả hàng nhà cung cấp gửi qua luồng riêng (không đi luồng duyệt, CONG_VIEC_07).
@@ -227,7 +231,7 @@ export class InventoryController {
   // API_76: đơn mua đã duyệt nhận vào kho người dùng nhập mua được; dòng còn nhận được.
   @Get("purchase-orders")
   async openPurchaseOrders(@Req() request: AuthenticatedRequest, @Query("search") search: string | undefined, @Headers("x-company-id") companyId?: string) {
-    return this.purchases.openOrders(await this.actor(request, companyId), search?.trim() || undefined);
+    return this.purchases.openOrders(await this.actor(request, companyId), search?.trim().slice(0, 100) || undefined);
   }
 
   @Get("purchase-orders/:id")

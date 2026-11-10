@@ -73,8 +73,8 @@ Vai trò hệ thống mới "Nhân viên mua hàng" (`purchaser`): `purchasing.a
 |---|---|---|
 | MAN_HINH_38 | Bảng giá mua | Mini app Mua hàng; lọc nhà cung cấp, mặt hàng; thêm, sửa, ngừng dùng giá |
 | MAN_HINH_39 | Đề nghị mua | Danh sách, chi tiết, lập, gửi duyệt; xem đã đặt bao nhiêu |
-| MAN_HINH_40 | Đơn mua | Danh sách lọc trạng thái, nhà cung cấp; lập từ đề nghị hoặc trực tiếp |
-| MAN_HINH_41 | Chi tiết đơn mua | Dòng hàng, đã nhận, đã trả, phiếu nhập liên quan; gửi, sửa, đóng đơn; cài đặt dung sai |
+| MAN_HINH_40 | Đơn mua | Danh sách lọc trạng thái, nhà cung cấp; lập từ đề nghị hoặc trực tiếp; cài đặt dung sai nhận vượt |
+| MAN_HINH_41 | Chi tiết đơn mua | Dòng hàng, đã nhận, đã trả, phiếu nhập liên quan; gửi, sửa, đóng đơn |
 | MAN_HINH_31, 32 (sửa) | Phiếu kho của mini app Kho | Thêm loại phiếu nhập mua (chọn đơn mua), phiếu trả nhà cung cấp (chọn phiếu nhập mua); nhập kết quả kiểm tra chất lượng |
 | MAN_HINH_22 (sửa) | Ngành hàng | Thêm ô "Cần kiểm tra chất lượng khi nhập mua" |
 

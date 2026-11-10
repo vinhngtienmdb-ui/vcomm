@@ -483,3 +483,59 @@ describe("TIEUCHI_NGHIEMTHU_85: trả hàng nhà cung cấp", () => {
     expect((await retailAdmin.call("get", `/inventory/documents/${phoneReturn.body.id}`, { companyId: retail })).body.lines[0].costValue).toBe("5000000");
   });
 });
+
+describe("TIEUCHI_NGHIEMTHU_82: đơn đã duyệt bị từ chối duyệt lại", () => {
+  it("KICHBAN_KIEMTHU_171: đơn đã nhận một phần bị từ chối duyệt lại vẫn đóng được; không đổi kho nhận của đơn đã duyệt; giảm về đúng số đã nhận thì nhận đủ", async () => {
+    const order = await approvedOrder([waterLine("4", "96000")]);
+    expect((await receive(keeper, order.id, [{ orderLineId: order.lines[0].id, quantity: "2" }])).status).toBe(201);
+    let current = (await purchaser.call("get", `/purchasing/orders/${order.id}`, { companyId: retail })).body;
+    // Kho nhận đã duyệt không đổi được.
+    const otherWarehouse = (
+      await retailAdmin.call("post", "/inventory/warehouses", { companyId: retail, body: { branchId: testIds.binhDuongWarehouse, code: "BDM2", name: "Kho mua BD 2", usesLocations: false } })
+    ).body.id;
+    const moved = await purchaser.call("patch", `/purchasing/orders/${order.id}`, {
+      companyId: retail,
+      body: orderBody([waterLine("4", "96000", { id: current.lines[0].id })], { warehouseId: otherWarehouse, version: current.version }),
+    });
+    expect(Object.keys(moved.body.error.fields)).toEqual(["warehouseId"]);
+    // Tăng giá trị, bị từ chối duyệt lại: vẫn sửa, đóng được; không nhận thêm được.
+    const increased = await purchaser.call("patch", `/purchasing/orders/${order.id}`, {
+      companyId: retail,
+      body: orderBody([waterLine("6", "96000", { id: current.lines[0].id })], { version: current.version }),
+    });
+    expect(increased.body.status).toBe("pending");
+    await decide(increased.body.approvalRequestId, "rejected");
+    current = (await purchaser.call("get", `/purchasing/orders/${order.id}`, { companyId: retail })).body;
+    expect(current).toMatchObject({ status: "rejected", canClose: true, canEdit: true });
+    expect((await receive(keeper, order.id, [{ orderLineId: current.lines[0].id, quantity: "1" }])).status).toBe(409);
+    // Sửa lại về đúng số đã nhận (2 thùng): không tăng giá trị so với lần duyệt gần nhất nên đã duyệt, và nhận đủ.
+    const reduced = await purchaser.call("patch", `/purchasing/orders/${order.id}`, {
+      companyId: retail,
+      body: orderBody([waterLine("2", "96000", { id: current.lines[0].id })], { version: current.version }),
+    });
+    expect(reduced.body.status).toBe("received");
+
+    // Đơn khác: bị từ chối duyệt lại rồi đóng.
+    const second = await approvedOrder([waterLine("3", "96000")]);
+    const bigger = await purchaser.call("patch", `/purchasing/orders/${second.id}`, {
+      companyId: retail,
+      body: orderBody([waterLine("5", "96000", { id: second.lines[0].id })], { version: second.version }),
+    });
+    await decide(bigger.body.approvalRequestId, "rejected");
+    const rejected = (await purchaser.call("get", `/purchasing/orders/${second.id}`, { companyId: retail })).body;
+    expect((await purchaser.call("post", `/purchasing/orders/${second.id}/close`, { companyId: retail, body: { reason: "Thôi không mua", version: rejected.version } })).body.status).toBe("closed");
+
+    // Dòng không thuộc ngành cần kiểm tra không ghi phần không đạt được.
+    const milkAndWater = await approvedOrder([{ variantId: items.milk!.variantId, unitId: units.HOP, quantity: "5", unitPrice: "10000", vatRate: "5" }, waterLine("1", "96000")]);
+    const checking = await receive(keeper, milkAndWater.id, [
+      { orderLineId: milkAndWater.lines[0].id, quantity: "5", lotNo: "L-SUA-02", expiresOn: "2099-01-01" },
+      { orderLineId: milkAndWater.lines[1].id, quantity: "1" },
+    ]);
+    expect(checking.body.status).toBe("quality_check");
+    const wrong = await keeper.call("post", `/inventory/documents/${checking.body.id}/quality-check`, {
+      companyId: retail,
+      body: { lines: [{ lineId: checking.body.lines[1].id, rejectedQuantity: "1", rejectionReason: "Móp" }], version: checking.body.version },
+    });
+    expect(Object.keys(wrong.body.error.fields)).toEqual(["lines.1.rejectedQuantity"]);
+  });
+});

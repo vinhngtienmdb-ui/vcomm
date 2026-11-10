@@ -254,6 +254,8 @@ export class PurchaseReceiptsService {
           rejected = result.rejectedSerials.length;
         }
         if (rejected > Number(line.base_quantity) + 0.00005) fields[at("rejectedQuantity")] = "invalidValue";
+        // Chỉ dòng thuộc ngành cần kiểm tra chất lượng mới ghi phần không đạt.
+        if (rejected > 0 && !line.requires_quality_check) fields[at("rejectedQuantity")] = "invalidValue";
         if (rejected > 0 && !result.rejectionReason) fields[at("rejectionReason")] = "required";
         if (Object.keys(fields).length > 0) continue;
         if (rejected === 0) continue;
@@ -261,9 +263,7 @@ export class PurchaseReceiptsService {
         const reason = line.tracks_serials ? `${result.rejectionReason} (${result.rejectedSerials.join(", ")})` : result.rejectionReason;
         await transaction.execute(sql`UPDATE inventory.document_lines SET rejected_base_quantity = ${rejected.toFixed(4)}::numeric, rejection_reason = ${reason} WHERE id = ${line.id}`);
         if (line.tracks_serials) {
-          await transaction.execute(
-            sql`DELETE FROM inventory.document_line_serials WHERE line_id = ${line.id} AND serial_no = ANY(${pgArray(result.rejectedSerials)}::text[])`,
-          );
+          await transaction.execute(sql`DELETE FROM inventory.document_line_serials WHERE line_id = ${line.id} AND serial_no = ANY(${pgArray(result.rejectedSerials)}::text[])`);
         }
       }
       if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
@@ -433,6 +433,15 @@ export class PurchaseReceiptsService {
       if (total > Number(row.accepted) - Number(row.returned) + 0.00005) fields[`lines.${index}.quantity`] = "purchaseReturnExceeded";
     }
     return fields;
+  }
+
+  async remove(actor: Actor, id: string): Promise<void> {
+    const row = await this.documents.visibleRow(actor, id);
+    await this.ownDraft(actor, id, row.type as "purchase_receipt" | "purchase_return");
+    await this.database.transaction(async (transaction) => {
+      await transaction.execute(sql`DELETE FROM inventory.documents WHERE id = ${id} AND status = 'draft'`);
+      await this.auditService.record({ ...inventoryAudit(actor, "stock_document"), companyId: row.company_id, action: "stock_document.delete", entityId: id }, transaction);
+    });
   }
 
   private async ownDraft(actor: Actor, id: string, type: "purchase_receipt" | "purchase_return") {

@@ -4,7 +4,7 @@
 - Phiên bản: 0.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_170 của MODULE_04
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2011,5 +2011,15 @@ Dữ liệu chung: công ty con VCR (`testIds.retailCompany`), VCT (`testIds.tra
 - Điều kiện ban đầu và dữ liệu: Đơn A 10 thùng nước × `96000`, đơn B 10 thùng × `120000`, cả hai đã duyệt và nhận đủ; đọc giá trị, số lượng tồn nước suối trước khi trả.
 - Các bước: (1) Lập phiếu trả 11 thùng từ phiếu nhập của đơn A, gửi; xóa nháp. (2) Lập, gửi phiếu trả 1 thùng từ cùng dòng; đọc giá trị dòng phiếu trả, tồn nước suối; xem đơn A. (3) Lập phiếu trả 10 thùng từ cùng dòng, gửi. (4) Lập, duyệt đơn 2 cái "Điện thoại mua" × `5000000`; nhận serial `IMEI-M1`, `IMEI-M2`. (5) Lập phiếu trả 1 cái serial `IMEI-KHAC`. (6) Lập, gửi phiếu trả 1 cái serial `IMEI-M2`; đọc giá trị dòng.
 - Kết quả mong đợi: Bước 1: lỗi chỉ ở `lines.0.quantity` "Vượt số đã nhập còn trả được của phiếu nhập gốc.". Bước 2: `purchase_return`, `posted`, số bắt đầu `TNCC`, số phiếu nhập gốc; giá trị dòng "96000"; giá trị tồn giảm đúng 96.000, số lượng giảm 24 chai, giá vốn bình quân = giá trị còn lại / số còn lại; đơn A đã trả "24". Bước 3: `400` (còn trả được 9 thùng). Bước 4: phiếu nhập `posted`. Bước 5: lỗi ở `lines.0.serials`. Bước 6: `posted`, serial `IMEI-M2`, giá trị dòng "5000000".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c7-purchasing.test.ts`
+
+### KICHBAN_KIEMTHU_171: Đơn đã duyệt bị từ chối duyệt lại; không đổi kho nhận; giảm về đúng số đã nhận thì nhận đủ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_82, TIEUCHI_NGHIEMTHU_84
+- Chức năng: CHUC_NANG_51, CHUC_NANG_52
+- Loại: Đúng, sai
+- Vai trò thực hiện: Nhân viên mua hàng VCR; Thủ kho VCR-BD; người duyệt `phuc.le@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Chính sách duyệt đơn mua cấp 1; đơn 4 thùng nước × `96000` đã duyệt, đã nhận 2 thùng; kho thứ hai `BDM2` của chi nhánh VCR-BD
+- Các bước: (1) Sửa đơn đổi kho nhận sang `BDM2`. (2) Sửa tăng lên 6 thùng; người duyệt từ chối; xem đơn; nhận thêm 1 thùng. (3) Sửa về 2 thùng. (4) Đơn khác 3 thùng đã duyệt, sửa lên 5 thùng, bị từ chối, đóng đơn. (5) Đơn có sữa (ngành cần kiểm tra) và nước, nhận đủ; ghi không đạt 1 thùng ở dòng nước.
+- Kết quả mong đợi: Bước 1: lỗi chỉ ở `warehouseId`. Bước 2: `pending`; sau từ chối `rejected`, `canClose`, `canEdit` đúng; nhận thêm `409`. Bước 3: `received`. Bước 4: `closed`. Bước 5: phiếu `quality_check`; lỗi chỉ ở `lines.1.rejectedQuantity`.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c7-purchasing.test.ts`
 - Lát: L2

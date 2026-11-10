@@ -140,7 +140,13 @@ export function OrderEditor({
           </select>
         </Field>
         <Field id="kho-nhan" label={`${t("warehouse")} *`} error={fields.warehouseId}>
-          <select id="kho-nhan" className={inputClass("warehouseId")} value={warehouseId || choices.warehouses[0]?.id || ""} onChange={(event) => setWarehouseId(event.target.value)}>
+          <select
+            id="kho-nhan"
+            className={inputClass("warehouseId")}
+            value={warehouseId || choices.warehouses[0]?.id || ""}
+            disabled={order?.status === "approved"}
+            onChange={(event) => setWarehouseId(event.target.value)}
+          >
             {choices.warehouses.map((warehouse) => (
               <option key={warehouse.id} value={warehouse.id}>
                 {warehouse.code} · {warehouse.name}
