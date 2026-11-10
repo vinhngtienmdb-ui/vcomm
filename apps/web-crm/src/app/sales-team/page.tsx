@@ -39,7 +39,11 @@ function MemberRow({ member, units, canManage, onAction }: { member: SalesTeamMe
       {canManage && (
         <span className="nhom-nut" style={{ flexWrap: "wrap" }}>
           {unit?.managerUserId !== member.userId && (
-            <button type="button" className="nut phu" onClick={() => onAction(`/marketplace/sales-units/${member.departmentId}/manager`, "PUT", { userId: member.userId })}>
+            <button
+              type="button"
+              className="nut phu"
+              onClick={() => window.confirm(t("confirmAppoint", { name: member.fullName })) && onAction(`/marketplace/sales-units/${member.departmentId}/manager`, "PUT", { userId: member.userId })}
+            >
               {t("appoint")}
             </button>
           )}
@@ -60,7 +64,10 @@ function MemberRow({ member, units, canManage, onAction }: { member: SalesTeamMe
             type="button"
             className="nut phu"
             disabled={!target}
-            onClick={() => onAction(`/marketplace/buyers/${member.userId}/sales-move`, "POST", { departmentId: target, version: member.version })}
+            onClick={() => {
+              onAction(`/marketplace/buyers/${member.userId}/sales-move`, "POST", { departmentId: target, version: member.version });
+              setTarget("");
+            }}
           >
             {t("move")}
           </button>
@@ -120,7 +127,7 @@ export default function SalesTeamPage() {
                             className="o-nhap"
                             style={{ width: "auto" }}
                             value={unit.type ?? ""}
-                            onChange={(event) => void act(`/marketplace/sales-units/${unit.id}`, "PUT", { type: event.target.value || null })}
+                            onChange={(event) => window.confirm(t("confirmType", { name: unit.name })) && void act(`/marketplace/sales-units/${unit.id}`, "PUT", { type: event.target.value || null })}
                           >
                             <option value="">{t("type_none")}</option>
                             {salesUnitTypes.map((type) => (
@@ -140,7 +147,11 @@ export default function SalesTeamPage() {
                           <span className="chu-thich">{t("manager")}:</span>
                           <span>{unit.managerName ?? t("noManager")}</span>
                           {canManage && unit.managerUserId && (
-                            <button type="button" className="nut phu" onClick={() => void act(`/marketplace/sales-units/${unit.id}/manager`, "PUT", { userId: null })}>
+                            <button
+                              type="button"
+                              className="nut phu"
+                              onClick={() => window.confirm(t("confirmRemoveManager", { name: unit.name })) && void act(`/marketplace/sales-units/${unit.id}/manager`, "PUT", { userId: null })}
+                            >
                               {t("removeManager")}
                             </button>
                           )}
@@ -160,6 +171,21 @@ export default function SalesTeamPage() {
                   </div>
                 );
               })}
+              {(() => {
+                const salesUnits = new Set(team.units.filter((unit) => unit.type).map((unit) => unit.id));
+                const orphans = team.members.filter((member) => !salesUnits.has(member.departmentId));
+                return orphans.length === 0 ? null : (
+                  <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
+                    <strong>{t("orphans", { count: orphans.length })}</strong>
+                    <span className="khoi-canh-bao canh-bao">{t("orphansHint")}</span>
+                    <ul style={{ margin: 0, paddingLeft: "var(--khoang-4)", display: "grid", gap: "var(--khoang-2)" }}>
+                      {orphans.map((member) => (
+                        <MemberRow key={member.userId} member={member} units={team.units} canManage={canManage} onAction={(path, method, body) => void act(path, method, body)} />
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })()}
             </div>
           )
         }

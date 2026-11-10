@@ -78,7 +78,9 @@ export default function ProposalsScreen() {
               <Choice<string>
                 label={t("member")}
                 value={memberId}
-                options={options.members.map((candidate) => ({ value: candidate.userId, label: `${candidate.fullName} · ${t(`title_${candidate.title}`)}` }))}
+                options={options.members
+                  .filter((candidate) => kind !== "appoint" || candidate.departmentId !== options.managedUnitId)
+                  .map((candidate) => ({ value: candidate.userId, label: `${candidate.fullName} · ${t(`title_${candidate.title}`)}` }))}
                 onChange={setMemberId}
               />
             )}

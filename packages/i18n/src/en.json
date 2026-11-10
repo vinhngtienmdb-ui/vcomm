@@ -290,7 +290,11 @@
     "salesProposalTargetNotFound": "No active account has this phone number.",
     "salesProposalAlreadyMember": "This person is already in the sales team.",
     "salesProposalPendingExists": "This person already has a pending proposal.",
-    "salesProposalNotPending": "The proposal is no longer pending."
+    "salesProposalNotPending": "The proposal is no longer pending.",
+    "buyerAlreadySalesStaff": "This account is already in the sales team. Use Move to change its unit.",
+    "salesProposalTargetUnavailable": "This phone number cannot be added to the team.",
+    "salesProposalStale": "The proposal no longer matches the current team (the proposer no longer manages the unit, or the person changed). Reject the proposal.",
+    "salesProposalTooMany": "You have sent too many proposals today. Try again tomorrow."
   },
   "login": {
     "title": "Sign in",
@@ -3204,7 +3208,11 @@
     "action_unflag": "Unflagged",
     "referralsTitle": "Referred people ({count})",
     "noReferrals": "No one referred yet.",
-    "by": "by {name}"
+    "by": "by {name}",
+    "action_move": "Moved",
+    "action_appoint": "Appointed manager",
+    "action_unappoint": "Manager removed",
+    "byProposal": "by proposal"
   },
   "salesTeam": {
     "title": "Sales team",
@@ -3231,7 +3239,12 @@
     "noUnits": "The operator company has no departments. Create them in the Administration app.",
     "chain": "Superiors",
     "noChain": "No superiors.",
-    "salesTitle": "Title"
+    "salesTitle": "Title",
+    "orphans": "Members outside active sales units ({count})",
+    "orphansHint": "Their unit is inactive or no longer a sales unit. Move them to another unit.",
+    "confirmType": "Change the type of {name}?",
+    "confirmAppoint": "Appoint {name} as manager? The current manager (if any) will be replaced.",
+    "confirmRemoveManager": "Remove the manager of {name}?"
   },
   "salesProposals": {
     "title": "Sales team proposals",
@@ -3258,6 +3271,7 @@
     "status_pending": "Pending",
     "status_approved": "Approved",
     "status_rejected": "Rejected",
-    "status_withdrawn": "Withdrawn"
+    "status_withdrawn": "Withdrawn",
+    "confirmApprove": "Approve the proposal? The change applies immediately."
   }
 }

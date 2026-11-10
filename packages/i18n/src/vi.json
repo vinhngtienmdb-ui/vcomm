@@ -290,7 +290,11 @@
     "salesProposalTargetNotFound": "Không có tài khoản đang hoạt động với số điện thoại này.",
     "salesProposalAlreadyMember": "Người này đã thuộc đội kinh doanh.",
     "salesProposalPendingExists": "Người này đang có một đề xuất chờ duyệt.",
-    "salesProposalNotPending": "Đề xuất không còn chờ duyệt."
+    "salesProposalNotPending": "Đề xuất không còn chờ duyệt.",
+    "buyerAlreadySalesStaff": "Tài khoản đã thuộc đội kinh doanh. Dùng Chuyển đơn vị để đổi đơn vị.",
+    "salesProposalTargetUnavailable": "Không thêm được người có số điện thoại này vào đội.",
+    "salesProposalStale": "Đề xuất không còn đúng với đội hiện tại (người đề xuất không còn quản lý, hoặc người được đề xuất đã thay đổi). Hãy từ chối đề xuất.",
+    "salesProposalTooMany": "Bạn đã gửi quá nhiều đề xuất hôm nay. Thử lại vào ngày mai."
   },
   "login": {
     "title": "Đăng nhập",
@@ -3204,7 +3208,11 @@
     "action_unflag": "Bỏ đánh dấu",
     "referralsTitle": "Người được giới thiệu ({count})",
     "noReferrals": "Chưa giới thiệu ai.",
-    "by": "bởi {name}"
+    "by": "bởi {name}",
+    "action_move": "Chuyển đơn vị",
+    "action_appoint": "Bổ nhiệm quản lý",
+    "action_unappoint": "Bỏ quản lý",
+    "byProposal": "theo đề xuất"
   },
   "salesTeam": {
     "title": "Đội kinh doanh",
@@ -3231,7 +3239,12 @@
     "noUnits": "Công ty vận hành sàn chưa có phòng ban. Tạo phòng ban ở mini app Quản trị hệ thống.",
     "chain": "Cấp trên",
     "noChain": "Không có cấp trên.",
-    "salesTitle": "Chức danh"
+    "salesTitle": "Chức danh",
+    "orphans": "Thành viên không thuộc đơn vị kinh doanh đang hoạt động ({count})",
+    "orphansHint": "Đơn vị của những người này đã ngừng hoạt động hoặc không còn là đơn vị kinh doanh. Chuyển họ sang đơn vị khác.",
+    "confirmType": "Đổi loại đơn vị {name}?",
+    "confirmAppoint": "Bổ nhiệm {name} làm quản lý? Người quản lý hiện tại (nếu có) sẽ bị thay.",
+    "confirmRemoveManager": "Bỏ quản lý của đơn vị {name}?"
   },
   "salesProposals": {
     "title": "Đề xuất đội kinh doanh",
@@ -3258,6 +3271,7 @@
     "status_pending": "Chờ duyệt",
     "status_approved": "Đã duyệt",
     "status_rejected": "Bị từ chối",
-    "status_withdrawn": "Đã rút"
+    "status_withdrawn": "Đã rút",
+    "confirmApprove": "Duyệt đề xuất? Thay đổi được áp dụng ngay."
   }
 }

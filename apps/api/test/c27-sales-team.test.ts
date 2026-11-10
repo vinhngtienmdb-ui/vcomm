@@ -166,10 +166,14 @@ describe("CONG_VIEC_27 cây đơn vị kinh doanh", () => {
     expect(options.body.units.map((unit: { id: string }) => unit.id).sort()).toEqual([ids.division, ids.south, ids.teamOne, ids.direct].sort());
     const add = await send(director, { kind: "add", targetPhone: "0922000002", departmentId: ids.south, reason: "Tuyển Giám đốc Vùng" });
     expect(add.status, JSON.stringify(add.body)).toBe(201);
-    expect(add.body).toMatchObject({ kind: "add", status: "pending", targetName: "Giám Đốc Vùng", departmentName: "Vùng Miền Nam" });
+    // Đề xuất thêm người chưa duyệt: người đề xuất chỉ thấy tên, số điện thoại đã che.
+    expect(add.body).toMatchObject({ kind: "add", status: "pending", targetName: "G. Đ. V.", targetPhone: "0922***002", departmentName: "Vùng Miền Nam" });
     expect((await send(director, { kind: "add", targetPhone: "0922000002", departmentId: ids.south, reason: "Lặp" })).body.error.message).toBe("Người này đang có một đề xuất chờ duyệt.");
     expect((await send(director, { kind: "add", targetPhone: "0922000004", departmentId: ids.south, reason: "Đã là thành viên" })).body.error.fields.targetPhone).toBe(
-      "Người này đã thuộc đội kinh doanh.",
+      "Không thêm được người có số điện thoại này vào đội.",
+    );
+    expect((await send(director, { kind: "add", targetPhone: "0999999998", departmentId: ids.south, reason: "Không có tài khoản" })).body.error.fields.targetPhone).toBe(
+      "Không thêm được người có số điện thoại này vào đội.",
     );
     expect((await send(director, { kind: "add", targetPhone: "0922000003", departmentId: ids.plain, reason: "Ngoài cây" })).status).toBe(400);
     expect((await send(staffToken, { kind: "remove", targetUserId: ids.directStaff, reason: "Không có quyền" })).status).toBe(403);
@@ -206,8 +210,36 @@ describe("CONG_VIEC_27 cây đơn vị kinh doanh", () => {
     const remove = await http().post("/api/v1/buyer/sales/proposals").set("authorization", `Bearer ${head}`).send({ kind: "remove", targetUserId: ids.directStaff, reason: "Nghỉ việc" });
     expect(remove.status, JSON.stringify(remove.body)).toBe(201);
     expect((await call("put", `/marketplace/sales-units/${ids.direct}/manager`, { userId: null })).status).toBe(200);
-    expect((await call("post", `/marketplace/sales-proposals/${remove.body.id}/approve`)).status).toBe(403);
+    const stale = await call("post", `/marketplace/sales-proposals/${remove.body.id}/approve`);
+    expect(stale.status).toBe(409);
+    expect(stale.body.error.message).toContain("Đề xuất không còn đúng với đội hiện tại");
     expect((await call("get", "/marketplace/sales-proposals?status=pending")).body.map((item: { id: string }) => item.id)).toEqual([remove.body.id]);
     expect((await call("get", `/marketplace/buyers/${ids.directStaff}`)).body.isSalesStaff).toBe(true);
+  });
+
+  it("KICHBAN_KIEMTHU_304 (rà soát): đánh dấu lại thành viên bị từ chối; chuỗi bỏ người quản lý không thuộc đơn vị; phòng ban ngừng hoạt động không cắt chuỗi; cây phòng ban có vòng không treo máy chủ", async () => {
+    const staff = await call("get", `/marketplace/buyers/${ids.staff}`);
+    const again = await call("post", `/marketplace/buyers/${ids.staff}/sales-flag`, { departmentId: ids.direct, version: staff.body.version });
+    expect(again.status).toBe(409);
+    expect(again.body.error.message).toBe("Tài khoản đã thuộc đội kinh doanh. Dùng Chuyển đơn vị để đổi đơn vị.");
+    // Mini app Nền tảng đặt Nhân viên Trực tiếp (thuộc Phòng Trực tiếp) làm quản lý Vùng: không vào chuỗi cấp trên.
+    await pool.query("UPDATE core.departments SET manager_user_id = $1 WHERE id = $2", [ids.directStaff, ids.south]);
+    expect((await call("get", `/marketplace/buyers/${ids.staff}`)).body.salesChain.map((item: { userId: string }) => item.userId)).toEqual([ids.director]);
+    // Vùng ngừng hoạt động: Phòng 1 vẫn thuộc Khối qua nút trung gian.
+    await pool.query("UPDATE core.departments SET status = 'inactive', manager_user_id = NULL WHERE id = $1", [ids.south]);
+    expect((await call("get", `/marketplace/buyers/${ids.staff}`)).body.salesChain.map((item: { userId: string }) => item.userId)).toEqual([ids.director]);
+    const director = (await post("/buyer/login", { phone: "0922000001", password })).body.tokens.accessToken as string;
+    const team = await http().get("/api/v1/buyer/sales/team").set("authorization", `Bearer ${director}`);
+    expect(team.body.members.map((member: { userId: string }) => member.userId)).toContain(ids.staff);
+    // Vòng cha – con giữa Khối và Phòng 1: các API vẫn trả lời.
+    await pool.query("UPDATE core.departments SET parent_id = $1 WHERE id = $2", [ids.teamOne, ids.division]);
+    try {
+      expect((await call("get", "/marketplace/sales-team")).status).toBe(200);
+      expect((await call("get", `/marketplace/buyers/${ids.staff}`)).status).toBe(200);
+      expect((await http().get("/api/v1/buyer/sales/team").set("authorization", `Bearer ${director}`)).status).toBe(200);
+    } finally {
+      await pool.query("UPDATE core.departments SET parent_id = NULL WHERE id = $1", [ids.division]);
+      await pool.query("UPDATE core.departments SET status = 'active' WHERE id = $1", [ids.south]);
+    }
   });
 });

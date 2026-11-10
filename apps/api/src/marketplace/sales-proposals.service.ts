@@ -7,11 +7,12 @@ import { ApiError } from "../common/api-error";
 import { isUniqueViolation } from "../common/database-errors";
 import { notify } from "../common/notifications";
 import { DATABASE, type Database } from "../database/database.module";
-import { localPhone } from "./buyer-accounts.service";
+import { localPhone, maskPhone } from "./buyer-accounts.service";
 import { BuyerAdminService, type BuyerAdminActor } from "./buyer-admin.service";
 import { type SalesTeam, SalesTeamService } from "./sales-team.service";
 
 type Executor = Pick<Database, "execute">;
+const maximumProposalsPerDay = 20;
 interface ProposalInput {
   kind: SalesProposalKind;
   targetPhone?: string | undefined;
@@ -20,6 +21,14 @@ interface ProposalInput {
   reason: string;
 }
 
+// Che họ tên: giữ chữ cái đầu của từng từ.
+const maskName = (name: string) =>
+  name
+    .split(/\s+/)
+    .map((word) => (word ? `${word[0]}.` : word))
+    .join(" ");
+const masked = (item: SalesProposalItem): SalesProposalItem =>
+  item.kind === "add" && item.status !== "approved" ? { ...item, targetName: maskName(item.targetName), targetPhone: maskPhone(item.targetPhone) } : item;
 const field = (name: string) => new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [name]: "invalidValue" } });
 
 @Injectable()
@@ -43,6 +52,7 @@ export class SalesProposalsService {
   async options(userId: string): Promise<SalesProposalOptionsResponse> {
     const { team, units } = await this.managerScope(this.database, userId);
     return {
+      managedUnitId: team.managedUnit(userId)!.id,
       units: team.units.filter((unit) => unit.type && units.has(unit.id)).map((unit) => ({ id: unit.id, name: unit.name, type: unit.type! })),
       members: team.branch(userId).map((member) => ({ userId: member.userId, fullName: member.fullName, departmentId: member.departmentId, title: team.titleOf(member.userId)! })),
     };
@@ -59,8 +69,8 @@ export class SalesProposalsService {
         await executor.execute<{ id: string; is_sales_staff: boolean | null }>(sql`
         SELECT u.id, b.is_sales_staff FROM core.users u LEFT JOIN marketplace.buyer_accounts b ON b.user_id = u.id WHERE u.phone = ${phone} AND u.status = 'active'`)
       ).rows[0];
-      if (!target) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { targetPhone: "salesProposalTargetNotFound" } });
-      if (target.is_sales_staff) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { targetPhone: "salesProposalAlreadyMember" } });
+      // Một thông báo chung cho không có tài khoản và đã trong đội: không dò được số nào có tài khoản (rà soát CONG_VIEC_27).
+      if (!target || target.is_sales_staff) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { targetPhone: "salesProposalTargetUnavailable" } });
       if (!input.departmentId || !units.has(input.departmentId)) throw field("departmentId");
       return { companyId, targetUserId: target.id, departmentId: input.departmentId };
     }
@@ -75,27 +85,32 @@ export class SalesProposalsService {
   }
 
   async create(proposerId: string, input: ProposalInput): Promise<SalesProposalItem> {
+    // Tối đa 20 đề xuất mỗi ngày cho mỗi người (chống dò tên qua đề xuất thêm người).
+    const today = await this.database.execute<{ total: number }>(sql`
+      SELECT count(*)::int AS total FROM marketplace.sales_team_proposals WHERE proposer_user_id = ${proposerId} AND created_at > now() - interval '1 day'`);
+    if ((today.rows[0]?.total ?? 0) >= maximumProposalsPerDay) throw new ApiError("RATE_LIMITED", "salesProposalTooMany");
     const checked = await this.validate(this.database, proposerId, input);
     try {
       const created = await this.database.execute<{ id: string }>(sql`
         INSERT INTO marketplace.sales_team_proposals (company_id, proposer_user_id, kind, target_user_id, department_id, reason)
         VALUES (${checked.companyId}, ${proposerId}, ${input.kind}, ${checked.targetUserId}, ${checked.departmentId}, ${input.reason}) RETURNING id`);
-      return (await this.list(sql`p.id = ${created.rows[0]!.id}`))[0]!;
+      return masked((await this.list(sql`p.id = ${created.rows[0]!.id}`))[0]!);
     } catch (error) {
       if (isUniqueViolation(error)) throw new ApiError("BUSINESS_RULE", "salesProposalPendingExists");
       throw error;
     }
   }
 
+  // Đề xuất thêm người chưa duyệt: người đề xuất chỉ thấy tên, số điện thoại đã che.
   async mine(proposerId: string): Promise<SalesProposalItem[]> {
-    return this.list(sql`p.proposer_user_id = ${proposerId}`);
+    return (await this.list(sql`p.proposer_user_id = ${proposerId}`)).map(masked);
   }
 
   async withdraw(proposerId: string, proposalId: string): Promise<SalesProposalItem> {
     const updated = await this.database.execute(sql`
       UPDATE marketplace.sales_team_proposals SET status = 'withdrawn', decided_at = now() WHERE id = ${proposalId} AND proposer_user_id = ${proposerId} AND status = 'pending' RETURNING id`);
     if (updated.rows.length === 0) throw new ApiError("NOT_FOUND", "notFound");
-    return (await this.list(sql`p.id = ${proposalId}`))[0]!;
+    return masked((await this.list(sql`p.id = ${proposalId}`))[0]!);
   }
 
   async pendingForAdmin(actor: BuyerAdminActor, status: SalesProposalStatus | undefined): Promise<SalesProposalItem[]> {
@@ -109,7 +124,10 @@ export class SalesProposalsService {
       await this.salesTeam.lockTeam(transaction, actor.operatorCompanyId);
       const input: ProposalInput = { kind: proposal.kind, targetUserId: proposal.target_user_id, departmentId: proposal.department_id ?? undefined, reason: proposal.reason };
       if (proposal.kind === "add") input.targetPhone = proposal.target_phone ?? "";
-      const checked = await this.validate(transaction, proposal.proposer_user_id, input);
+      // Điều kiện không còn đúng (người đề xuất không còn quản lý, người được đề xuất đã đổi): báo rõ để quản trị từ chối.
+      const checked = await this.validate(transaction, proposal.proposer_user_id, input).catch((error: unknown) => {
+        throw error instanceof ApiError && (error.code === "FORBIDDEN" || error.code === "VALIDATION_FAILED") ? new ApiError("BUSINESS_RULE", "salesProposalStale") : error;
+      });
       if (proposal.kind === "add") {
         await transaction.execute(sql`INSERT INTO marketplace.buyer_accounts (user_id) VALUES (${checked.targetUserId}) ON CONFLICT (user_id) DO NOTHING`);
         await this.admin.flagSalesStaff(actor, checked.targetUserId, { departmentId: checked.departmentId!, version: null }, transaction, proposalId);

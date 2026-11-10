@@ -171,8 +171,14 @@ export class BuyerAdminService {
       SELECT p.full_name AS previous_name, n.full_name AS new_name, h.source, h.reason, c.full_name AS changed_by_name, h.changed_at
       FROM marketplace.referrer_history h LEFT JOIN core.users p ON p.id = h.previous_referrer_id LEFT JOIN core.users n ON n.id = h.new_referrer_id
       JOIN core.users c ON c.id = h.changed_by WHERE h.buyer_user_id = ${buyerId} ORDER BY h.changed_at DESC`);
-    const flags = await this.database.execute<{ action: "flag" | "unflag" | "move" | "appoint" | "unappoint"; department_name: string | null; changed_by_name: string; changed_at: Date }>(sql`
-      SELECT h.action, d.name AS department_name, c.full_name AS changed_by_name, h.changed_at
+    const flags = await this.database.execute<{
+      action: "flag" | "unflag" | "move" | "appoint" | "unappoint";
+      department_name: string | null;
+      changed_by_name: string;
+      changed_at: Date;
+      proposal_id: string | null;
+    }>(sql`
+      SELECT h.action, d.name AS department_name, c.full_name AS changed_by_name, h.changed_at, h.proposal_id
       FROM marketplace.sales_flag_history h LEFT JOIN core.departments d ON d.id = h.department_id JOIN core.users c ON c.id = h.changed_by
       WHERE h.buyer_user_id = ${buyerId} ORDER BY h.changed_at DESC`);
     const referrals = await this.database.execute<{ id: string; full_name: string; phone: string | null; registered_at: Date }>(sql`
@@ -200,6 +206,7 @@ export class BuyerAdminService {
         departmentName: item.department_name,
         changedByName: item.changed_by_name,
         changedAt: new Date(item.changed_at).toISOString(),
+        proposalId: item.proposal_id,
       })),
       referrals: referrals.rows.map((item) => ({ id: item.id, fullName: item.full_name, phone: localPhone(item.phone ?? ""), registeredAt: new Date(item.registered_at).toISOString() })),
     };
@@ -230,10 +237,12 @@ export class BuyerAdminService {
     proposalId: string | null = null,
   ): Promise<BuyerAccountDetailResponse | null> {
     const run = async (transaction: Database) => {
+      await this.salesTeam.lockTeam(transaction, actor.operatorCompanyId);
       const current = await this.lockBuyer(transaction, buyerId, input.version);
+      // Đã là thành viên đội: dùng Chuyển đơn vị (rà soát CONG_VIEC_27).
+      if (current.is_sales_staff) throw new ApiError("BUSINESS_RULE", "buyerAlreadySalesStaff");
       if (current.user_status !== "active") throw new ApiError("BUSINESS_RULE", "buyerInactive");
       // Đánh dấu vào đơn vị kinh doanh (QUYTAC_NGHIEPVU_149); khóa đội để thay đổi đội chạy lần lượt.
-      await this.salesTeam.lockTeam(transaction, actor.operatorCompanyId);
       const department = await transaction.execute(sql`
         SELECT 1 FROM core.departments WHERE id = ${input.departmentId} AND company_id = ${actor.operatorCompanyId} AND status = 'active' AND sales_unit_type IS NOT NULL`);
       if (department.rows.length === 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { departmentId: "invalidValue" } });
@@ -285,12 +294,13 @@ export class BuyerAdminService {
   // Bỏ đánh dấu: bỏ phòng ban; thành viên do đánh dấu tạo mà không còn vai trò nào ở công ty thì ngừng; thành viên có sẵn trả lại phòng ban cũ; giữ tài khoản người mua.
   async unflagSalesStaff(actor: BuyerAdminActor, buyerId: string, version: number | null, executor?: Database, proposalId: string | null = null): Promise<BuyerAccountDetailResponse | null> {
     const run = async (transaction: Database) => {
+      // Khóa đội trước rồi mới khóa dòng tài khoản, cùng thứ tự với chuyển đơn vị, duyệt đề xuất (tránh khóa chết).
+      await this.salesTeam.lockTeam(transaction, actor.operatorCompanyId);
       const current = await this.lockBuyer(transaction, buyerId, version);
       if (!current.is_sales_staff) throw new ApiError("BUSINESS_RULE", "buyerNotSalesStaff");
       const company = current.sales_company_id!;
       const today = this.permissions.today();
       // Người đang quản lý đơn vị kinh doanh thì bỏ quản lý (QUYTAC_NGHIEPVU_152).
-      await this.salesTeam.lockTeam(transaction, company);
       await this.salesTeam.releaseManagement(transaction, actor, buyerId, proposalId);
       if (current.sales_membership_created) {
         // Thành viên do đánh dấu tạo: bỏ phòng ban; không còn vai trò nào ở công ty thì ngừng.

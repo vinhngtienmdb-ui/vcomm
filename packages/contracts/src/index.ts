@@ -3941,6 +3941,8 @@ export interface BuyerSalesFlagHistoryItem {
   departmentName: string | null;
   changedByName: string;
   changedAt: string;
+  // Đề xuất đã duyệt dẫn tới thay đổi (CONG_VIEC_27).
+  proposalId: string | null;
 }
 
 export interface BuyerAccountDetailResponse extends BuyerAccountListItem {
@@ -4062,6 +4064,8 @@ export interface SalesProposalItem {
 
 // Lựa chọn khi lập đề xuất trên ứng dụng: đơn vị trong nhánh, cấp dưới.
 export interface SalesProposalOptionsResponse {
+  // Đơn vị người đề xuất đang quản lý: không bổ nhiệm vào đơn vị này.
+  managedUnitId: string;
   units: Array<{ id: string; name: string; type: SalesUnitType }>;
   members: Array<{ userId: string; fullName: string; departmentId: string; title: SalesTitle }>;
 }

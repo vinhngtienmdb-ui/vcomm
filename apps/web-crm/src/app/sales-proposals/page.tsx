@@ -127,10 +127,18 @@ export default function SalesProposalsPage() {
                             </span>
                           ) : (
                             <span className="nhom-nut">
-                              <button type="button" className="nut chinh" disabled={busy} onClick={() => void decide(item.id, "approve")}>
+                              <button type="button" className="nut chinh" disabled={busy} onClick={() => window.confirm(t("confirmApprove")) && void decide(item.id, "approve")}>
                                 {t("approve")}
                               </button>
-                              <button type="button" className="nut phu" disabled={busy} onClick={() => setRejecting(item.id)}>
+                              <button
+                                type="button"
+                                className="nut phu"
+                                disabled={busy}
+                                onClick={() => {
+                                  setRejecting(item.id);
+                                  setNote("");
+                                }}
+                              >
                                 {t("reject")}
                               </button>
                             </span>

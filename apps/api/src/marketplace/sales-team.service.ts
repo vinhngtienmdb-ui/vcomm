@@ -18,6 +18,8 @@ export interface Unit {
   name: string;
   type: SalesUnitType | null;
   managerUserId: string | null;
+  // Phòng ban ngừng hoạt động vẫn nạp để đi lên cây, coi như nút trung gian không phải đơn vị kinh doanh.
+  active: boolean;
 }
 
 export interface Member {
@@ -53,24 +55,34 @@ export class SalesTeam {
     return this.memberById.get(userId);
   }
 
-  // Đơn vị kinh doanh cha gần nhất (bỏ qua phòng ban không phải đơn vị kinh doanh ở giữa).
+  // Đơn vị kinh doanh cha gần nhất (bỏ qua phòng ban không phải đơn vị kinh doanh ở giữa); cây có vòng thì dừng (rà soát CONG_VIEC_27).
   salesParent(unit: Unit): Unit | undefined {
+    const visited = new Set<string>([unit.id]);
     let current = unit.parentId ? this.unitById.get(unit.parentId) : undefined;
-    while (current && !current.type) current = current.parentId ? this.unitById.get(current.parentId) : undefined;
-    return current;
+    while (current && !current.type) {
+      if (visited.has(current.id)) return undefined;
+      visited.add(current.id);
+      current = current.parentId ? this.unitById.get(current.parentId) : undefined;
+    }
+    return current && !visited.has(current.id) ? current : undefined;
   }
 
   // Đơn vị kinh doanh con gần nhất.
   salesChildren(unit: Unit): Unit[] {
-    return this.units.filter((candidate) => candidate.type && this.salesParent(candidate)?.id === unit.id);
+    return this.units.filter((candidate) => candidate.type && candidate.id !== unit.id && this.salesParent(candidate)?.id === unit.id);
   }
 
-  // Đơn vị và mọi đơn vị kinh doanh bên dưới.
+  // Đơn vị và mọi đơn vị kinh doanh bên dưới (không lặp lại nút đã đi qua).
   subtree(unitId: string): Set<string> {
-    const result = new Set<string>([unitId]);
-    const unit = this.unitById.get(unitId);
-    if (!unit) return result;
-    for (const child of this.salesChildren(unit)) for (const id of this.subtree(child.id)) result.add(id);
+    const result = new Set<string>();
+    const pending = [unitId];
+    while (pending.length > 0) {
+      const id = pending.pop()!;
+      if (result.has(id)) continue;
+      result.add(id);
+      const unit = this.unitById.get(id);
+      if (unit) for (const child of this.salesChildren(unit)) pending.push(child.id);
+    }
     return result;
   }
 
@@ -93,10 +105,13 @@ export class SalesTeam {
   chain(userId: string): SalesChainItem[] {
     const member = this.memberById.get(userId);
     const result: SalesChainItem[] = [];
+    const visited = new Set<string>();
     let unit = member ? this.unitById.get(member.departmentId) : undefined;
-    while (unit) {
-      const manager = unit.managerUserId ? this.memberById.get(unit.managerUserId) : undefined;
-      if (manager && manager.userId !== userId && !result.some((item) => item.userId === manager.userId)) {
+    while (unit && !visited.has(unit.id)) {
+      visited.add(unit.id);
+      // Chỉ nhận người quản lý thuộc chính đơn vị (QUYTAC_NGHIEPVU_149); người do mini app Nền tảng đặt mà không thuộc đơn vị thì bỏ qua.
+      const manager = unit.type && unit.managerUserId ? this.memberById.get(unit.managerUserId) : undefined;
+      if (manager && manager.departmentId === unit.id && manager.userId !== userId && !result.some((item) => item.userId === manager.userId)) {
         result.push({ userId: manager.userId, fullName: manager.fullName, title: this.titleOf(manager.userId)! });
       }
       unit = this.salesParent(unit);
@@ -121,13 +136,29 @@ export class SalesTeamService {
   ) {}
 
   async load(executor: Executor, companyId: string): Promise<SalesTeam> {
-    const units = await executor.execute<{ id: string; parent_id: string | null; code: string; name: string; sales_unit_type: SalesUnitType | null; manager_user_id: string | null }>(sql`
-      SELECT id, parent_id, code, name, sales_unit_type, manager_user_id FROM core.departments WHERE company_id = ${companyId} AND status = 'active' ORDER BY code`);
+    const units = await executor.execute<{
+      id: string;
+      parent_id: string | null;
+      code: string;
+      name: string;
+      sales_unit_type: SalesUnitType | null;
+      manager_user_id: string | null;
+      status: string;
+    }>(sql`
+      SELECT id, parent_id, code, name, sales_unit_type, manager_user_id, status FROM core.departments WHERE company_id = ${companyId} ORDER BY code`);
     const members = await executor.execute<{ user_id: string; full_name: string; phone: string | null; sales_department_id: string; version: number }>(sql`
       SELECT b.user_id, u.full_name, u.phone, b.sales_department_id, b.version FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id
       WHERE b.is_sales_staff AND b.sales_company_id = ${companyId} ORDER BY u.full_name`);
     return new SalesTeam(
-      units.rows.map((row) => ({ id: row.id, parentId: row.parent_id, code: row.code, name: row.name, type: row.sales_unit_type, managerUserId: row.manager_user_id })),
+      units.rows.map((row) => ({
+        id: row.id,
+        parentId: row.parent_id,
+        code: row.code,
+        name: row.name,
+        type: row.status === "active" ? row.sales_unit_type : null,
+        managerUserId: row.manager_user_id,
+        active: row.status === "active",
+      })),
       members.rows.map((row) => ({ userId: row.user_id, fullName: row.full_name, phone: localPhone(row.phone ?? ""), departmentId: row.sales_department_id, version: row.version })),
     );
   }
@@ -139,7 +170,9 @@ export class SalesTeamService {
     const nameOf = (userId: string | null) => (userId ? (team.member(userId)?.fullName ?? null) : null);
     const managers = await this.userNames(team.units.map((unit) => unit.managerUserId).filter((id): id is string => Boolean(id)));
     return {
-      units: team.units.map((unit) => ({ ...unit, managerName: nameOf(unit.managerUserId) ?? (unit.managerUserId ? (managers.get(unit.managerUserId) ?? null) : null) })),
+      units: team.units
+        .filter((unit) => unit.active)
+        .map(({ active: _active, ...unit }) => ({ ...unit, managerName: nameOf(unit.managerUserId) ?? (unit.managerUserId ? (managers.get(unit.managerUserId) ?? null) : null) })),
       members: team.members.map((member) => ({ ...member, title: team.titleOf(member.userId)!, customerCount: counts.get(member.userId) ?? 0 })),
     };
   }
@@ -150,7 +183,7 @@ export class SalesTeamService {
       await this.lockTeam(transaction, actor.operatorCompanyId);
       const team = await this.load(transaction, actor.operatorCompanyId);
       const unit = team.unit(departmentId);
-      if (!unit) throw new ApiError("NOT_FOUND", "notFound");
+      if (!unit?.active) throw new ApiError("NOT_FOUND", "notFound");
       if (unit.type === type) return;
       // Chỉ chặn đổi, bỏ loại của đơn vị kinh doanh còn thành viên; gắn loại lần đầu cho phòng ban có người được.
       if (unit.type && team.members.some((member) => member.departmentId === departmentId)) throw new ApiError("BUSINESS_RULE", "salesUnitHasMembers");
@@ -181,7 +214,7 @@ export class SalesTeamService {
       if (userId) {
         const member = team.member(userId);
         if (!member || member.departmentId !== departmentId) throw new ApiError("BUSINESS_RULE", "salesManagerNotInUnit");
-        if (team.units.some((other) => other.id !== departmentId && other.managerUserId === userId)) throw new ApiError("BUSINESS_RULE", "salesManagerOfOtherUnit");
+        if (team.units.some((other) => other.type && other.id !== departmentId && other.managerUserId === userId)) throw new ApiError("BUSINESS_RULE", "salesManagerOfOtherUnit");
       }
       await transaction.execute(sql`UPDATE core.departments SET manager_user_id = ${userId}, updated_at = now(), updated_by = ${actor.userId} WHERE id = ${departmentId}`);
       if (unit.managerUserId && team.member(unit.managerUserId)) await this.history(transaction, actor, unit.managerUserId, "unappoint", departmentId, proposalId);

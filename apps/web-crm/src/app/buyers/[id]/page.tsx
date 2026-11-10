@@ -215,6 +215,12 @@ export default function BuyerPage() {
                       <span>
                         {t(`action_${item.action}`)}
                         {item.departmentName ? ` · ${item.departmentName}` : ""}
+                        {item.proposalId ? (
+                          <>
+                            {" · "}
+                            <Link href="/sales-proposals?status=approved">{t("byProposal")}</Link>
+                          </>
+                        ) : null}
                       </span>
                       <div className="chu-thich">
                         {formatDateTime(item.changedAt)} · {t("by", { name: item.changedByName })}

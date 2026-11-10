@@ -20,14 +20,22 @@ export default function SalesScreen() {
   useFocusEffect(
     useCallback(() => {
       let active = true;
-      Promise.all([api<BuyerSalesCustomerItem[]>("/buyer/sales/customers"), api<MySalesTeamResponse>("/buyer/sales/team")])
-        .then(([loadedCustomers, loadedTeam]) => {
-          if (!active) return;
-          setCustomers(loadedCustomers);
-          setTeam(loadedTeam);
-          setError(null);
-        })
-        .catch((failure: unknown) => active && setError(failure instanceof ApiFailure ? failure.message : t("unknownError")));
+      // Tải riêng khách và đội: lỗi của phần này không che phần kia; bị bỏ đánh dấu (403) thì xóa dữ liệu cũ.
+      const fail = (failure: unknown) => {
+        if (!active) return;
+        setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
+        if (failure instanceof ApiFailure && failure.status === 403) {
+          setCustomers(null);
+          setTeam(null);
+        }
+      };
+      setError(null);
+      api<BuyerSalesCustomerItem[]>("/buyer/sales/customers")
+        .then((items) => active && setCustomers(items))
+        .catch(fail);
+      api<MySalesTeamResponse>("/buyer/sales/team")
+        .then((loaded) => active && setTeam(loaded))
+        .catch(fail);
       return () => {
         active = false;
       };
