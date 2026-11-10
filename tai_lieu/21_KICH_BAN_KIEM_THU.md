@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh): đúng, sai, giá trị biên, từng vai trò.
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng): đúng, sai, giá trị biên, từng vai trò.
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_256 của đối soát ngân hàng (246 đến 255 tự động; 256 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2938,4 +2938,134 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Kết quả mong đợi: Bước 1: ô biểu mẫu xếp dọc, dòng mức, bậc xuống dòng; không cuộn ngang. Bước 2: bảng chuyển thành thẻ, nhãn cột hiện đủ, nút bấm được; không cuộn ngang. Bước 3: bộ lọc xuống dòng, số tiền không xuống dòng; không cuộn ngang.
 - Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
 - Kết quả thực hiện: Đạt 2026-11-10: chiều rộng điện thoại không cuộn ngang trên cả hai màn hình.
+- Lát: L0, L1
+
+## CHUC_NANG_84, CHUC_NANG_85: Kết nối ngân hàng, webhook, tự ghép (CONG_VIEC_18)
+
+Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng Việt Nam; Kế toán, Kế toán trưởng, Nhân viên bán hàng gán ở phạm vi công ty; quỹ ngân hàng "Vietcombank" (mã VCB, số tài khoản "0071 000 123 456"), "ACB" (số tài khoản "999888"); khách "Khách ngân hàng" (mã số thuế 0320001801), nhà cung cấp "Nhà cung cấp ngân hàng"; webhook theo định dạng SePay, số tài khoản "0071000123456", số dư sau giao dịch 50.000.000.
+
+### KICHBAN_KIEMTHU_246: Chỉ người có quyền cài đặt tạo kết nối; khóa trả về một lần; đổi khóa; quỹ ngừng dùng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_132
+- Chức năng: CHUC_NANG_84
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán; Kế toán trưởng; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; quỹ "Vietcombank" chưa có kết nối; quỹ ngân hàng "Techcombank" ngừng dùng.
+- Các bước: (1) Kế toán tạo kết nối SePay cho "Vietcombank". (2) Nhân viên bán hàng xem danh sách kết nối. (3) Kế toán trưởng tạo kết nối SePay. (4) Kế toán xem danh sách. (5) Kế toán trưởng sửa với `version` 5. (6) Kế toán trưởng đổi khóa với `version` 0; gửi webhook bằng khóa cũ. (7) Kế toán trưởng lưu không đổi khóa. (8) Kế toán trưởng tạo kết nối cho "Techcombank".
+- Kết quả mong đợi: Bước 1, 2: `403`. Bước 3: `200`, khóa 32 ký tự, `secretHint` là bốn ký tự cuối, `webhookPath` `/api/v1/public/bank-webhooks/<mã kết nối>`, `version` 0. Bước 4: `canSetup` `false`, kết quả không chứa khóa, có cả hai quỹ. Bước 5: `409`. Bước 6: khóa mới khác khóa cũ; webhook khóa cũ `401`. Bước 7: `secret` `null`. Bước 8: "Quỹ đã ngừng dùng, không tạo được kết nối.".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c18-bank-reconciliation.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_247: Webhook kiểm khóa, dữ liệu, số tài khoản; trùng mã chỉ lưu một lần
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_132, TIEUCHI_NGHIEMTHU_133
+- Chức năng: CHUC_NANG_85
+- Loại: Đúng, sai, giá trị biên, bảo mật
+- Vai trò thực hiện: Dịch vụ trung gian (không đăng nhập); Kế toán trưởng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_246; kết nối "Vietcombank" đang bật.
+- Các bước: (1) Gửi webhook không có khóa, sai khóa, mã kết nối không tồn tại. (2) Gửi thân thiếu trường; số tiền 0; số tài khoản "111222". (3) Gửi giao dịch tiền vào 123.456 hai lần cùng `id`. (4) Đọc giao dịch đã lưu. (5) Kế toán trưởng tắt kết nối; gửi webhook; bật lại.
+- Kết quả mong đợi: Bước 1: `401`. Bước 2: `400`, `400`, `409`. Bước 3: cả hai lần `200` `{"success": true}`; chỉ một dòng. Bước 4: ngày giao dịch là hôm nay theo giờ Việt Nam, chiều `in`, số tiền 123.456, nội dung, mã tham chiếu đúng; dữ liệu gốc bằng đúng thân đã gửi. Bước 5: `401`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c18-bank-reconciliation.test.ts`
+- Lát: L0 (bước 4 dữ liệu gốc: sửa sau rà soát)
+
+### KICHBAN_KIEMTHU_248: Tự ghép phiếu thu, phiếu chi đã ghi sổ cùng quỹ, cùng chiều, cùng số tiền, lệch tối đa 3 ngày
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_134
+- Chức năng: CHUC_NANG_85
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Kế toán; dịch vụ trung gian
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_247.
+- Các bước: (1) Ghi sổ phiếu thu 700.000 ngày hôm nay trừ 3 ngày; gửi tiền vào 700.000. (2) Ghi sổ phiếu chi nhà cung cấp 250.000; gửi tiền ra 250.000. (3) Ghi sổ phiếu thu 260.000; gửi tiền ra 260.000. (4) Ghi sổ phiếu thu 270.000 quỹ "ACB"; gửi tiền vào 270.000 vào "Vietcombank". (5) Ghi sổ phiếu thu 280.000 ngày hôm nay trừ 4 ngày; gửi tiền vào 280.000. (6) Kế toán xem danh sách đã ghép của "Vietcombank".
+- Kết quả mong đợi: Bước 1, 2: giao dịch "Đã ghép" với đúng phiếu. Bước 3, 4, 5: "Chưa ghép". Bước 6: giao dịch 700.000 có `autoMatched` `true`, phiếu đúng số, loại `customer_receipt`, đối tác "Khách ngân hàng".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c18-bank-reconciliation.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_249: Nhiều phiếu hoặc nhiều giao dịch cùng số tiền thì không tự ghép
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_134
+- Chức năng: CHUC_NANG_85
+- Loại: Giá trị biên
+- Vai trò thực hiện: Kế toán; dịch vụ trung gian
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_248.
+- Các bước: (1) Ghi sổ hai phiếu thu 310.000 (hôm nay, hôm qua); gửi tiền vào 310.000. (2) Gửi hai giao dịch tiền vào 320.000; sau đó ghi sổ một phiếu thu 320.000.
+- Kết quả mong đợi: Bước 1: giao dịch "Chưa ghép". Bước 2: cả hai giao dịch "Chưa ghép".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c18-bank-reconciliation.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_250: Phiếu ghi sổ sau giao dịch thì tự ghép khi ghi sổ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_134
+- Chức năng: CHUC_NANG_85
+- Loại: Đúng
+- Vai trò thực hiện: Kế toán; dịch vụ trung gian
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_249.
+- Các bước: (1) Gửi tiền vào 330.000. (2) Ghi sổ phiếu thu 330.000 ngày hôm nay trừ 2 ngày.
+- Kết quả mong đợi: Bước 1: "Chưa ghép". Bước 2: giao dịch "Đã ghép" với phiếu vừa ghi sổ.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c18-bank-reconciliation.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_251: Bộ giả lập gửi giao dịch thử; lọc danh sách; quyền xem
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_134
+- Chức năng: CHUC_NANG_84, CHUC_NANG_85
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán trưởng; Kế toán; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_250; môi trường kiểm thử (không phải môi trường thật); quỹ "ACB" chưa có kết nối, có phiếu thu 270.000 đã ghi sổ (KICHBAN_KIEMTHU_248).
+- Các bước: (1) Kế toán trưởng gửi thử cho "ACB". (2) Tạo kết nối bộ giả lập cho "ACB"; gửi thử tiền vào 270.000, nội dung "DBH thu thu". (3) Kế toán gửi thử. (4) Kế toán lọc "Vietcombank", "Chưa ghép", "Tiền vào", tìm "320000"; lọc từ ngày mai. (5) Nhân viên bán hàng xem danh sách.
+- Kết quả mong đợi: Bước 1: `409` (chưa kết nối bộ giả lập). Bước 2: `201`, giao dịch "Đã ghép", `autoMatched` `true`. Bước 3: `403`. Bước 4: `total` 2, `canManage` `true`, tiền tệ VND; từ ngày mai `total` 0. Bước 5: `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c18-bank-reconciliation.test.ts`
+- Lát: L0
+
+## CHUC_NANG_86, CHUC_NANG_87: Xử lý giao dịch chưa ghép, đối chiếu (CONG_VIEC_18)
+
+### KICHBAN_KIEMTHU_252: Gợi ý theo số đơn bán, mã khách, mã số thuế; nhiều khách hoặc tiền ra thì không gợi ý
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_135
+- Chức năng: CHUC_NANG_86
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Dịch vụ trung gian; Kế toán
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_251; khách "Khách thứ hai" (mã số thuế 0320001803) có đơn bán số "DBH-VCR-2026-009001".
+- Các bước: (1) Gửi tiền vào nội dung "CK THANH TOAN DBHVCR2026009001 <mã Khách ngân hàng>". (2) Nội dung "<mã Khách ngân hàng chữ thường> chuyen tien". (3) Nội dung "MST 0320001803 TT HD". (4) Nội dung có mã của cả hai khách. (5) Tiền ra nội dung là mã khách. (6) Kế toán tìm giao dịch bước 3.
+- Kết quả mong đợi: Bước 1: gợi ý "Khách thứ hai", căn cứ `sales_order` (số đơn bán xét trước mã khách). Bước 2: "Khách ngân hàng", `partner_code`. Bước 3: "Khách thứ hai", `tax_code`. Bước 4, 5: không gợi ý. Bước 6: `suggestion` có mã, tên "Khách thứ hai", căn cứ `tax_code`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c18-bank-reconciliation.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_253: Xác nhận lập phiếu thu ngày giao dịch, ghi sổ và ghép; không lập cho tiền ra, giao dịch đã ghép
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_135
+- Chức năng: CHUC_NANG_86
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_252; chưa có chính sách duyệt phiếu thu.
+- Các bước: (1) Gửi tiền vào 460.000 ngày hôm qua, nội dung "<mã Khách ngân hàng> tra no". (2) Nhân viên bán hàng xác nhận lập phiếu thu. (3) Kế toán xác nhận với `version` sai. (4) Kế toán xác nhận đúng. (5) Đọc phiếu thu. (6) Xác nhận lại giao dịch đó. (7) Xác nhận cho giao dịch tiền ra 450.000.
+- Kết quả mong đợi: Bước 1: gợi ý "Khách ngân hàng". Bước 2: `403`. Bước 3: `409`. Bước 4: `201`, giao dịch "Đã ghép", `autoMatched` `false`, phiếu `customer_receipt` của "Khách ngân hàng" ngày hôm qua. Bước 5: phiếu "Đã ghi sổ", 460.000, quỹ "Vietcombank", ghi chú là nội dung chuyển khoản. Bước 6: "Giao dịch không còn ở trạng thái chưa ghép.". Bước 7: "Chỉ lập phiếu thu cho tiền vào.".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c18-bank-reconciliation.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_254: Ghép tay với phiếu đủ điều kiện; bỏ qua cần lý do; bỏ ghép đưa về chưa ghép; nhật ký
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_136
+- Chức năng: CHUC_NANG_86
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_253; giao dịch 310.000 chưa ghép có hai phiếu cùng số tiền (KICHBAN_KIEMTHU_249).
+- Các bước: (1) Xem danh sách phiếu ghép tay của giao dịch 310.000. (2) Ghép với phiếu 260.000. (3) Ghép với phiếu thứ hai trong danh sách. (4) Ghép giao dịch 320.000 với cùng phiếu. (5) Bỏ ghép; bỏ ghép lần nữa. (6) Bỏ qua với lý do " "; bỏ qua với lý do "Chuyển khoản nội bộ". (7) Nhân viên bán hàng thôi bỏ qua. (8) Đọc nhật ký thao tác của giao dịch.
+- Kết quả mong đợi: Bước 1: 2 phiếu, phiếu ngày hôm nay trước. Bước 2: `409`. Bước 3: "Đã ghép", `autoMatched` `false`. Bước 4: `409`. Bước 5: "Chưa ghép", không có phiếu; lần hai `409`. Bước 6: `400`; "Bỏ qua" kèm lý do. Bước 7: `403`. Bước 8: `bank_transaction.match`, `bank_transaction.reopen`, `bank_transaction.ignore`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c18-bank-reconciliation.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_255: Đối chiếu số dư sổ với số dư ngân hàng; đếm giao dịch chưa ghép; liệt kê phiếu chưa có giao dịch
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_137
+- Chức năng: CHUC_NANG_87
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_254.
+- Các bước: (1) Đọc số dư quỹ "Vietcombank". (2) Đối chiếu "Vietcombank" từ hôm nay trừ 10 ngày đến hôm nay. (3) Đối chiếu với từ ngày sau đến ngày. (4) Nhân viên bán hàng đối chiếu.
+- Kết quả mong đợi: Bước 2: số dư sổ bằng số dư bước 1; số dư ngân hàng 50.000.000; chênh lệch bằng 50.000.000 trừ số dư sổ; 1 giao dịch bỏ qua; tiền vào chưa ghép lớn hơn 0; tiền ra chưa ghép 2 giao dịch, 710.000; phiếu chưa có giao dịch gồm phiếu 260.000, 280.000; số phiếu bằng độ dài danh sách. Bước 3: `400`. Bước 4: `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c18-bank-reconciliation.test.ts`
+- Lát: L1
+
+## Kịch bản thủ công của đối soát ngân hàng (CONG_VIEC_18)
+
+### KICHBAN_KIEMTHU_256: Kết nối ngân hàng, giao dịch ngân hàng trên trình duyệt (máy tính, điện thoại)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_138
+- Chức năng: CHUC_NANG_84, CHUC_NANG_85, CHUC_NANG_86, CHUC_NANG_87
+- Loại: Đúng, giao diện
+- Vai trò thực hiện: Người có cả ba quyền ngân hàng (Kế toán trưởng hoặc quản trị công ty)
+- Điều kiện ban đầu và dữ liệu: Môi trường phát triển (không phải môi trường thật); mini app Nền tảng, Tài chính – Kế toán, backend đang chạy; có quỹ ngân hàng chưa kết nối, phiếu thu đã ghi sổ của quỹ đó; tệp `tam_thoi/CONG_VIEC_18/xem_l0.js`, `xem_l1.js`.
+- Các bước: (1) Khổ 1360 điểm ảnh, mở "Kết nối ngân hàng"; bấm "Kết nối", chọn "Bộ giả lập", "Lưu". (2) Bấm "Gửi thử" với số tiền bằng phiếu thu đã ghi sổ. (3) Mở "Giao dịch ngân hàng", chọn quỹ. (4) Với giao dịch tiền vào có gợi ý: "Lập phiếu thu", "Xác nhận lập phiếu thu". (5) "Ghép tay" một giao dịch; "Bỏ qua" một giao dịch kèm lý do. (6) Khổ 375 điểm ảnh, mở lại hai màn hình.
+- Kết quả mong đợi: Bước 1: khối khóa hiện một lần, bảng hiện địa chỉ webhook và "khóa …<bốn ký tự cuối>". Bước 2: "Đã nhận giao dịch thử, tự ghép với phiếu <số>.". Bước 3: ô đối chiếu hiện số dư sổ, "Dịch vụ chưa gửi số dư", giao dịch chưa ghép; giao dịch tự ghép có nhãn "Tự ghép". Bước 4: thông báo ghi sổ phiếu thu và ghép. Bước 5: trạng thái đổi đúng, ô đối chiếu cập nhật. Bước 6: bảng chuyển thành thẻ, không cuộn ngang, không lỗi trình duyệt.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Kết quả thực hiện: Chưa ghi kết quả (ảnh chụp lát L0, L1 trong `tam_thoi/CONG_VIEC_18/`).
 - Lát: L0, L1

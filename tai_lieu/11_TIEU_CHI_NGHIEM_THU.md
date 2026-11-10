@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 2.4
+- Phiên bản: 2.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ); CONG_VIEC_14 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_111 đến TIEUCHI_NGHIEMTHU_116 của MODULE_06 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_117 đến TIEUCHI_NGHIEMTHU_120 của MODULE_06 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_121 đến TIEUCHI_NGHIEMTHU_126 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_127 đến TIEUCHI_NGHIEMTHU_131 của MODULE_06 (hoa hồng đội kinh doanh)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ); CONG_VIEC_14 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_111 đến TIEUCHI_NGHIEMTHU_116 của MODULE_06 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_117 đến TIEUCHI_NGHIEMTHU_120 của MODULE_06 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_121 đến TIEUCHI_NGHIEMTHU_126 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_127 đến TIEUCHI_NGHIEMTHU_131 của MODULE_06 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_132 đến TIEUCHI_NGHIEMTHU_138 của MODULE_06 (đối soát ngân hàng)
 
 ## MODULE_01 Nền tảng
 
@@ -231,3 +231,17 @@ Dữ liệu mẫu: công ty VCR, tiền tệ đồng Việt Nam; ngành hàng "H
 | TIEUCHI_NGHIEMTHU_129 | CHUC_NANG_82 | Phát sinh đúng khi thu tiền (chia theo phần còn phải thu của từng dòng đơn, tiền chưa thuế, mức theo ngành hàng, kênh, hai cách kết hợp), thu trước giao sau, hoàn tiền ghi âm, bán lẻ khi giao, trả hàng chưa thu không phát sinh | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_130 | CHUC_NANG_83 | Bảng tháng đúng cơ sở, phần trăm đạt, hệ số, tổng; lần lượt theo tháng; phát sinh muộn vào kỳ sau; bỏ bảng nháp, bị từ chối lập lại được; duyệt, ghi sổ, bút toán đúng (kể cả tổng âm) | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_131 | CHUC_NANG_80, CHUC_NANG_82, CHUC_NANG_83 | MAN_HINH_56, MAN_HINH_57 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |
+
+## MODULE_06 Tài chính – Kế toán (phần 6: Đối soát ngân hàng, CONG_VIEC_18)
+
+Dữ liệu mẫu: công ty VCR, tiền tệ đồng Việt Nam; quỹ ngân hàng "Vietcombank" (số tài khoản 0071 000 123 456), "ACB"; khách "Khách ngân hàng", "Khách thứ hai"; nhà cung cấp "Nhà cung cấp ngân hàng"; webhook theo định dạng SePay. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_132 | CHUC_NANG_84, CHUC_NANG_85 | Chỉ người có quyền cài đặt tạo, sửa kết nối; khóa sinh tự động, hiện đủ một lần, lưu mã hóa; đổi khóa thì khóa cũ hết hiệu lực; quỹ ngừng dùng không tạo được kết nối; webhook sai khóa, kết nối không có hoặc đang tắt bị từ chối (401) | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_133 | CHUC_NANG_85 | Giao dịch nhận đúng ngày giờ Việt Nam, chiều, số tiền, nội dung, lưu dữ liệu gốc; trùng mã chỉ lưu một lần và vẫn trả thành công; dữ liệu sai bị từ chối (400); số tài khoản khác quỹ bị từ chối (409) | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_134 | CHUC_NANG_84, CHUC_NANG_85 | Tự ghép đúng QUYTAC_NGHIEPVU_115: cùng quỹ, cùng chiều, cùng số tiền, lệch tối đa 3 ngày, duy nhất ở cả hai phía; phiếu ghi sổ sau giao dịch cũng được ghép; bộ giả lập đi đúng luồng này | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_135 | CHUC_NANG_86 | Gợi ý khách đúng thứ tự số đơn bán, mã khách, mã số thuế; nhiều khách hoặc tiền ra thì không gợi ý; kế toán xác nhận thì lập phiếu thu khách hàng của quỹ, ngày giao dịch, ghi chú nội dung, theo luồng duyệt phiếu thu, ghép khi phiếu ghi sổ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_136 | CHUC_NANG_86 | Ghép tay chỉ với phiếu đủ điều kiện; một phiếu ghép tối đa một giao dịch; bỏ qua cần lý do; bỏ ghép đưa về chưa ghép, không đổi phiếu; mỗi thao tác có nhật ký; người không có quyền bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_137 | CHUC_NANG_87 | Đối chiếu quỹ theo khoảng ngày: số dư sổ đến ngày cuối, số dư ngân hàng gần nhất (khi dịch vụ gửi), chênh lệch, số giao dịch chưa ghép hai chiều, số bỏ qua, danh sách phiếu chưa có giao dịch | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_138 | CHUC_NANG_84 đến CHUC_NANG_87 | MAN_HINH_58, MAN_HINH_59 hiển thị đúng trên máy tính và điện thoại, không cuộn ngang trang, không lỗi trình duyệt | Trình duyệt | Mong muốn |

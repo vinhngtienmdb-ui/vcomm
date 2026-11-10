@@ -1,12 +1,12 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Hợp đồng API: endpoint, phương thức, dữ liệu gửi lên, dữ liệu trả về, xác thực, phân quyền, kiểm tra dữ liệu, lỗi, phân trang.
-- Phiên bản: 2.3
+- Phiên bản: 2.4
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79; CONG_VIEC_12 (2026-11-10): thêm API_83 khuyến mãi (mục 2g, 3g); bổ sung API_77; CONG_VIEC_13 (2026-11-10): thêm API_84 đến API_86 của MODULE_06 phần 1 (mục 2h, 3h); sửa API_77 kiểm hạn mức theo dư nợ thật; CONG_VIEC_14 (2026-11-10): thêm API_87 đến API_89 của MODULE_06 phần 2 (mục 2i, 3i); bổ sung API_20 (từ chối đổi chế độ kế toán khi đã có bút toán); ghi sổ chứng từ kiểm kỳ khóa sổ; CONG_VIEC_15 (2026-11-10): thêm API_90 báo cáo tài chính của MODULE_06 phần 3 (mục 2j, 3j); bổ sung API_87 (`isLongTerm`); CONG_VIEC_16 (2026-11-10): thêm API_91, API_92 hóa đơn điện tử của MODULE_06 phần 4 (mục 2k, 3k); bổ sung ghi sổ phiếu xuất giao hàng, phiếu nhận hàng trả lại (API_65); CONG_VIEC_17 (2026-11-10): thêm API_93, API_94 hoa hồng đội kinh doanh của MODULE_06 phần 5 (mục 2l, 3l); bổ sung gửi đơn bán (API_77), ghi sổ phiếu thu chi, phiếu kho (API_65, API_86), vai trò định khoản (API_87)
+- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79; CONG_VIEC_12 (2026-11-10): thêm API_83 khuyến mãi (mục 2g, 3g); bổ sung API_77; CONG_VIEC_13 (2026-11-10): thêm API_84 đến API_86 của MODULE_06 phần 1 (mục 2h, 3h); sửa API_77 kiểm hạn mức theo dư nợ thật; CONG_VIEC_14 (2026-11-10): thêm API_87 đến API_89 của MODULE_06 phần 2 (mục 2i, 3i); bổ sung API_20 (từ chối đổi chế độ kế toán khi đã có bút toán); ghi sổ chứng từ kiểm kỳ khóa sổ; CONG_VIEC_15 (2026-11-10): thêm API_90 báo cáo tài chính của MODULE_06 phần 3 (mục 2j, 3j); bổ sung API_87 (`isLongTerm`); CONG_VIEC_16 (2026-11-10): thêm API_91, API_92 hóa đơn điện tử của MODULE_06 phần 4 (mục 2k, 3k); bổ sung ghi sổ phiếu xuất giao hàng, phiếu nhận hàng trả lại (API_65); CONG_VIEC_17 (2026-11-10): thêm API_93, API_94 hoa hồng đội kinh doanh của MODULE_06 phần 5 (mục 2l, 3l); bổ sung gửi đơn bán (API_77), ghi sổ phiếu thu chi, phiếu kho (API_65, API_86), vai trò định khoản (API_87); CONG_VIEC_18 (2026-11-10): thêm API_95 đến API_101 đối soát ngân hàng của MODULE_06 phần 6 (mục 2m, 3m); bổ sung ghi sổ phiếu thu chi (API_86)
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16); MODULE_06 phần 5 Hoa hồng đội kinh doanh (CONG_VIEC_17).
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16); MODULE_06 phần 5 Hoa hồng đội kinh doanh (CONG_VIEC_17); MODULE_06 phần 6 Đối soát ngân hàng (CONG_VIEC_18).
 
 ## 1. Quy ước chung
 
@@ -256,6 +256,22 @@ Mọi đường dẫn có tiền tố `/api/v1`. API_93, API_94 nằm trong `app
 | API_94 | `GET /finance/commissions/events?userId=&from=&to=&page=&pageSize=`; `GET`, `POST /finance/commissions/statements`; `GET /finance/commissions/statements/{id}`; `POST /finance/commissions/statements/{id}/submit`, `/withdraw`; `DELETE /finance/commissions/statements/{id}` | CHUC_NANG_82, CHUC_NANG_83 | Xem: `finance.commission.view`. Lập, gửi, rút, bỏ bảng nháp: `finance.commission.manage`; rút: người lập | Lập: `month`. Gửi: `version`. Rút, bỏ: không có | `PageResponse<CommissionEventItem>`; `CommissionStatementsResponse`; `CommissionStatementResponse` |
 
 Bổ sung (CONG_VIEC_17), hợp đồng không đổi: gửi đơn bán (API_77 `submit`) gán nhân viên hưởng hoa hồng trong cùng giao dịch; chi tiết đơn bán (API_77) trả thêm `commissionUserName` (tên nhân viên hưởng, trống khi chưa gán); ghi sổ phiếu thu chi (API_86), phiếu kho (API_65) ghi phát sinh hoa hồng trong cùng giao dịch trừ nợ; trừ nợ với số dư đầu kỳ (API_85) không phát sinh; ghi sổ phiếu kho của đơn không có khách ghi phát sinh bán lẻ.
+
+## 2m. Danh sách endpoint đối soát ngân hàng (MODULE_06 phần 6, CONG_VIEC_18)
+
+Mọi đường dẫn có tiền tố `/api/v1`. API_95 đến API_101 nằm trong `apps/api/src/bank/bank-reconciliation.controller.ts`. Trừ API_98, mọi endpoint trước hết cần `finance.access`, `finance.bank.view` hoặc `finance.bank.setup` trong công ty đang làm việc (header `X-Company-Id`), không có thì `403 FORBIDDEN`; quyền chi tiết kiểm trong service (`requireFinancePermission`): quyền phải gán ở phạm vi tập đoàn hoặc công ty đang làm việc. Dữ liệu công ty khác trả `404`. `POST` thành công trả `201` (trừ API_98); `PUT` trả `200`. Mã trong đường dẫn phải là UUID. Lỗi quy tắc nghiệp vụ trả `409 BUSINESS_RULE`. API_98 không cần đăng nhập, xác thực bằng khóa của kết nối, giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP như mọi API không cần đăng nhập (`429 RATE_LIMITED`).
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_95 | `GET /finance/bank-connections` | CHUC_NANG_84 | `finance.bank.view` hoặc `finance.bank.setup` | Không có | `BankConnectionsResponse` |
+| API_96 | `PUT /finance/bank-connections/{fundId}` | CHUC_NANG_84 | `finance.bank.setup` | `provider`, `enabled`, `rotateSecret`, `version` | `SaveBankConnectionResponse` |
+| API_97 | `POST /finance/bank-connections/{fundId}/simulate` | CHUC_NANG_84 | `finance.bank.setup`; ngoài môi trường thật | `direction`, `amount`, `content`, `transactionDate` | `BankTransactionItem` |
+| API_98 | `POST /public/bank-webhooks/{connectionId}` | CHUC_NANG_85 | Không cần đăng nhập; tiêu đề `Authorization: Apikey <khóa>` | Định dạng SePay | `{ "success": true }` |
+| API_99 | `GET /finance/bank-transactions?fundId=&status=&direction=&from=&to=&search=&page=&pageSize=` | CHUC_NANG_85 | `finance.bank.view` | Không có | `BankTransactionsResponse` |
+| API_100 | `GET /finance/bank-transactions/{id}/candidates`; `POST /finance/bank-transactions/{id}/confirm-receipt`, `/match`, `/ignore`, `/reopen` | CHUC_NANG_86 | `finance.bank.manage`; lập phiếu thu cần thêm `finance.payment.manage` | Lập phiếu thu: `partnerId`, `version`. Ghép: `paymentId`, `version`. Bỏ qua: `reason`, `version`. Bỏ ghép, thôi bỏ qua: `version` | `BankPaymentCandidate[]`; `BankTransactionItem` |
+| API_101 | `GET /finance/bank-reconciliation?fundId=&from=&to=` | CHUC_NANG_87 | `finance.bank.view` | Không có | `BankReconciliationResponse` |
+
+Bổ sung API_86 (CONG_VIEC_18), hợp đồng không đổi: ghi sổ phiếu thu chi (gửi phiếu, hoặc duyệt xong) của quỹ có kết nối ngân hàng thử ghép phiếu với giao dịch ngân hàng chưa ghép trong cùng giao dịch ghi sổ (QUYTAC_NGHIEPVU_115); phiếu thu lập từ gợi ý ghép đúng giao dịch của nó.
 
 ## 3. Hợp đồng chi tiết
 
@@ -886,6 +902,62 @@ Lược đồ, kiểu trong `packages/contracts/src/index.ts` (phần CONG_VIEC_
 - Duyệt xong (nghe `core.approval.completed`): ghi sổ, chuyển `posted`; lỗi quy tắc khi ghi sổ thì `rejected` kèm `postError`, trả phát sinh. Từ chối, rút: `rejected`, `withdrawn`, trả phát sinh.
 - Lỗi: `400 VALIDATION_FAILED` (`month` sai định dạng, `version`, bộ lọc); `403`; `404` (bảng của công ty khác, không tồn tại; trừ `DELETE`); `409 CONFLICT_VERSION`; `409 BUSINESS_RULE` với khóa thông báo: `commissionStatementOpen` "Đang có bảng hoa hồng nháp hoặc chờ duyệt; xử lý bảng đó trước.", `commissionMonthNotNext` "Chỉ lập được bảng của tháng tiếp theo đã kết thúc.", `documentNotDraft` "Chỉ sửa được chứng từ đang ở trạng thái nháp." (gửi, bỏ bảng không phải nháp), `postingRuleMissing` "Chưa có định khoản cho chi phí hoa hồng hoặc phải trả người lao động; kế toán trưởng khai ở Hệ thống tài khoản."; lỗi luồng duyệt như chứng từ khác.
 
+## 3m. Hợp đồng chi tiết đối soát ngân hàng (MODULE_06 phần 6, CONG_VIEC_18)
+
+Lược đồ, kiểu trong `packages/contracts/src/index.ts` (phần CONG_VIEC_18); trường thừa bị từ chối. Tiền trả về dạng chuỗi, bỏ số 0 thừa. Ngày `YYYY-MM-DD`; thời điểm ISO 8601. `status` của giao dịch: `unmatched` (Chưa ghép), `matched` (Đã ghép), `ignored` (Bỏ qua). `direction`: `in` (Tiền vào), `out` (Tiền ra).
+
+### API_95 đến API_97 Kết nối ngân hàng
+- `GET /finance/bank-connections` (`200`), `BankConnectionsResponse`:
+```json
+{ "funds": [ { "fundId": "…", "fundCode": "VCB", "fundName": "Vietcombank", "bankName": "Vietcombank", "accountNo": "0071 000 123 456",
+    "connection": { "id": "…", "provider": "sepay", "enabled": true, "secretHint": "Ab3x", "webhookPath": "/api/v1/public/bank-webhooks/…", "lastReceivedAt": null, "version": 0 } } ],
+  "canSetup": true, "simulatorAllowed": true }
+```
+- `funds`: quỹ ngân hàng đang dùng của công ty và quỹ ngừng dùng đã có kết nối, theo mã quỹ; `connection` `null` khi chưa kết nối. Không bao giờ trả khóa.
+- `PUT /finance/bank-connections/{fundId}` (`200`), lược đồ `saveBankConnectionSchema`: `{ "provider": "sepay", "enabled": true, "rotateSecret": false, "version": null }`; `version` `null` khi tạo, số khi sửa. Tạo: quỹ ngân hàng của công ty (khác thì `404`), đang dùng; sinh khóa. Sửa: so `version`; `rotateSecret` `true` thì sinh khóa mới. Trả `{ "item": BankConnectionItem, "secret": "…" }`; `secret` chỉ có khi tạo hoặc đổi khóa, khác thì `null`. Ghi nhật ký `bank_connection.create` hoặc `bank_connection.update` (dịch vụ, bật tắt, `secretChanged`; không ghi khóa).
+- `POST /finance/bank-connections/{fundId}/simulate` (`201`), lược đồ `simulateBankTransactionSchema`: `{ "direction": "in", "amount": "270000", "content": "DBH thu thu", "transactionDate": "2026-11-10" }` (`amount` tối đa 16 chữ số phần nguyên, 4 chữ số lẻ; `content` tối đa 500 ký tự, mặc định rỗng; `transactionDate` trống là hôm nay). Chỉ ngoài môi trường thật, quỹ có kết nối bộ giả lập. Lưu như webhook (mã `SIM-…`, mã tham chiếu `SIM…`, không có số dư), tự ghép, gợi ý; trả `BankTransactionItem`.
+- Lỗi: `400 VALIDATION_FAILED`; `403`; `404`; `409 CONFLICT_VERSION`; `409 BUSINESS_RULE` với khóa thông báo: `bankFundInactive` "Quỹ đã ngừng dùng, không tạo được kết nối.", `bankSimulatorNotAllowed` "Không dùng được bộ giả lập trên môi trường thật.", `bankSimulatorNotConnected` "Quỹ chưa kết nối bộ giả lập.".
+
+### API_98 Webhook nhận giao dịch
+- `POST /public/bank-webhooks/{connectionId}` (`200`), tiêu đề `Authorization: Apikey <khóa>` (kiểu chứng thực API Key của SePay). Thân theo định dạng SePay (https://developer.sepay.vn/en/sepay-webhooks/tich-hop-webhook):
+```json
+{ "id": 92704, "gateway": "Vietcombank", "transactionDate": "2026-11-10 10:15:00", "accountNumber": "0071000123456", "code": null,
+  "content": "CK THANH TOAN DBHVCR2026009001", "transferType": "in", "transferAmount": 410000, "accumulated": 50000000,
+  "subAccount": null, "referenceCode": "FT26314…", "description": "" }
+```
+- Kiểm tra: `id` số nguyên hoặc chuỗi 1 đến 100 ký tự; `transactionDate` dạng `YYYY-MM-DD HH:mm:ss`, hiểu theo giờ Việt Nam; `transferType` `in`, `out`; `transferAmount` số hoặc chuỗi số lớn hơn 0 (tối đa 16 chữ số phần nguyên, 4 chữ số lẻ); `accumulated` số hoặc chuỗi số, có thể trống; `content` tối đa 1.000 ký tự (trống thì lấy `description`, tối đa 2.000 ký tự); `referenceCode` tối đa 100 ký tự; `accountNumber` tối đa 50 ký tự. Trường khác được bỏ qua.
+- Xử lý: kết nối không có, đang tắt hoặc khóa sai trả `401 UNAUTHENTICATED` `bankWebhookUnauthorized` "Khóa xác thực webhook không đúng hoặc kết nối đã tắt."; dữ liệu sai `400 VALIDATION_FAILED` `bankWebhookInvalid` "Dữ liệu giao dịch ngân hàng không hợp lệ."; `accountNumber` có và khác số tài khoản của quỹ (so phần chữ số) `409 BUSINESS_RULE` `bankAccountMismatch` "Số tài khoản trong giao dịch khác số tài khoản của quỹ.". Hợp lệ: lưu giao dịch và thân gốc (trùng `id` trên cùng kết nối thì không lưu lại), cập nhật lần nhận cuối, tự ghép, gợi ý khách; trả `{ "success": true }`.
+- Vượt giới hạn: `429 RATE_LIMITED` kèm `retryAfterSeconds`.
+
+### API_99 Danh sách giao dịch ngân hàng
+- `GET /finance/bank-transactions` (`200`), lược đồ `bankTransactionListQuerySchema`: `fundId`, `status`, `direction`, `from`, `to` (ngày giao dịch), `search` (tối đa 100 ký tự; tìm trong nội dung, mã tham chiếu, số tiền), `page` (từ 1, mặc định 1), `pageSize` (1 đến 100, mặc định 20). Trả `{ data: BankTransactionItem[], page, pageSize, total, canManage, currency }`, theo thời điểm giao dịch giảm dần:
+```json
+{ "id": "…", "fundId": "…", "fundName": "Vietcombank", "transactionAt": "2026-11-10T03:15:00.000Z", "transactionDate": "2026-11-10", "direction": "in", "amount": "700000",
+  "content": "Chuyen tien 3", "referenceCode": "FT3", "balanceAfter": "50000000", "status": "matched",
+  "payment": { "id": "…", "documentNo": "PT…", "kind": "customer_receipt", "partnerName": "Khách ngân hàng", "paymentDate": "2026-11-07" }, "autoMatched": true,
+  "suggestion": null, "receipt": null, "ignoreReason": null, "version": 1 }
+```
+- `autoMatched`: đã ghép và người ghép trống. `suggestion`: `{ partnerId, partnerName, reason }` (`sales_order`, `partner_code`, `tax_code`). `receipt`: phiếu thu lập từ gợi ý chưa ghép (`{ id, documentNo, status }`). `canManage`: có `finance.bank.manage`.
+
+### API_100 Xử lý giao dịch chưa ghép
+- `GET /finance/bank-transactions/{id}/candidates` (`200`): tối đa 20 phiếu `BankPaymentCandidate` (`{ id, documentNo, kind, partnerName, paymentDate, amount, note }`) đã ghi sổ, cùng quỹ, cùng chiều, cùng số tiền, chưa ghép giao dịch nào; ngày gần ngày giao dịch trước, rồi ngày mới trước.
+- `POST /finance/bank-transactions/{id}/confirm-receipt` (`201`), lược đồ `confirmBankReceiptSchema`: `{ "partnerId": "…", "version": 0 }`. Giao dịch phải `unmatched`, `in`, chưa có phiếu thu lập từ gợi ý ở trạng thái chờ duyệt hoặc đã ghi sổ. Lập phiếu thu `customer_receipt` (quỹ, ngày, số tiền của giao dịch; ghi chú là nội dung, tối đa 500 ký tự) hoặc dùng lại phiếu nháp đã lập trước; gửi theo luồng duyệt phiếu thu; phiếu ghi sổ thì giao dịch `matched`. Cần thêm `finance.payment.manage`. Ghi nhật ký `bank_transaction.confirm_receipt`. Trả `BankTransactionItem`.
+- `POST /finance/bank-transactions/{id}/match` (`201`), lược đồ `matchBankTransactionSchema`: `{ "paymentId": "…", "version": 0 }`. Giao dịch `unmatched`; phiếu thuộc công ty, đã ghi sổ, cùng quỹ, cùng chiều, cùng số tiền, chưa ghép. Ghi nhật ký `bank_transaction.match`.
+- `POST /finance/bank-transactions/{id}/ignore` (`201`), lược đồ `ignoreBankTransactionSchema`: `{ "reason": "Chuyển khoản nội bộ", "version": 0 }` (`reason` 1 đến 500 ký tự sau khi bỏ khoảng trắng). Giao dịch `unmatched`, không có phiếu thu lập từ gợi ý đang chờ duyệt. Ghi nhật ký `bank_transaction.ignore`.
+- `POST /finance/bank-transactions/{id}/reopen` (`201`), lược đồ `bankVersionSchema`: `{ "version": 2 }`. Giao dịch `matched` hoặc `ignored` về `unmatched`; bỏ phiếu đã ghép, lý do; phiếu không đổi. Ghi nhật ký `bank_transaction.reopen` (trạng thái, phiếu trước đó).
+- Lỗi: `400 VALIDATION_FAILED` (`reason` trống, mã không phải UUID); `403`; `404` (giao dịch công ty khác, không tồn tại); `409 CONFLICT_VERSION`; `409 BUSINESS_RULE` với khóa thông báo: `bankTransactionNotOpen` "Giao dịch không còn ở trạng thái chưa ghép.", `bankTransactionAlreadyOpen` "Giao dịch đang ở trạng thái chưa ghép.", `bankReceiptOnlyIncoming` "Chỉ lập phiếu thu cho tiền vào.", `bankReceiptPending` "Giao dịch đã có phiếu thu đang chờ duyệt hoặc đã ghi sổ.", `bankPaymentNotMatchable` "Phiếu không ghép được: phải đã ghi sổ, cùng quỹ, cùng chiều tiền, cùng số tiền và chưa ghép giao dịch khác."; lỗi của API_86 khi lập, gửi phiếu thu.
+
+### API_101 Đối chiếu quỹ ngân hàng
+- `GET /finance/bank-reconciliation?fundId=&from=&to=` (`200`), lược đồ `bankReconciliationQuerySchema` (cả ba bắt buộc), `BankReconciliationResponse`:
+```json
+{ "fundId": "…", "from": "2026-10-31", "to": "2026-11-10", "bookBalance": "1230000", "bankBalance": "50000000", "bankBalanceAt": "2026-11-10T03:15:00.000Z",
+  "difference": "48770000", "unmatchedIn": { "count": 5, "amount": "2150000" }, "unmatchedOut": { "count": 2, "amount": "710000" }, "ignoredCount": 1,
+  "unmatchedPayments": [ { "id": "…", "documentNo": "PT…", "kind": "customer_receipt", "partnerName": "Khách ngân hàng", "paymentDate": "2026-11-06", "amount": "280000", "note": null } ],
+  "unmatchedPaymentCount": 1, "currency": "VND" }
+```
+- `bookBalance`: số dư đầu của quỹ cộng phiếu đã ghi sổ đến hết `to`. `bankBalance`, `bankBalanceAt`: số dư sau giao dịch của giao dịch gần nhất có số dư, ngày không sau `to`; `null` khi không có. `difference` = `bankBalance` − `bookBalance`, `null` khi không có số dư ngân hàng. `unmatchedIn`, `unmatchedOut`, `ignoredCount`: giao dịch trong khoảng ngày. `unmatchedPayments`: tối đa 100 phiếu đã ghi sổ của quỹ trong khoảng ngày chưa ghép giao dịch, theo ngày, số phiếu; `unmatchedPaymentCount`: tổng số.
+- Lỗi: `400 VALIDATION_FAILED` (`from` sau `to`: tại `from`); `403`; `404` (quỹ không phải quỹ ngân hàng của công ty).
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |
@@ -921,3 +993,5 @@ MODULE_06 phần 3 (CONG_VIEC_15) không phát, không nghe sự kiện; API_90 
 MODULE_06 phần 4 (CONG_VIEC_16) không phát, không nghe sự kiện outbox. Hóa đơn gốc lập và việc chờ trả hàng tạo qua móc nối `postedHooks` trong giao dịch ghi sổ phiếu kho; gửi nhà cung cấp chạy bằng tác vụ nền `einvoice-send`, báo quá hạn bằng `einvoice-overdue` (thông báo `einvoice_overdue`), cả hai trên hàng đợi BullMQ riêng `hoa-don-dien-tu`.
 
 MODULE_06 phần 5 (CONG_VIEC_17) không phát sự kiện mới; mini app Tài chính – Kế toán nghe `core.approval.completed` của loại chứng từ `finance.commission` để ghi sổ bảng hoa hồng duyệt xong (không ghi sổ được thì `rejected` kèm `postError`), chuyển `rejected`, `withdrawn` (API_94). Phát sinh hoa hồng không qua sự kiện mà qua móc nối `allocatedHooks` trong giao dịch trừ nợ và `postedHooks` trong giao dịch ghi sổ phiếu kho; gán nhân viên hưởng trong giao dịch gửi đơn bán.
+
+MODULE_06 phần 6 (CONG_VIEC_18) không phát, không nghe sự kiện outbox. Thử ghép lại khi phiếu thu chi ghi sổ qua móc nối `PaymentsService.postedHooks` trong giao dịch ghi sổ; giao dịch ngân hàng nhận qua webhook (API_98).

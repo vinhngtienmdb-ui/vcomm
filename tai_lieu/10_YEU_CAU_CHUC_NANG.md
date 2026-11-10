@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.5
+- Phiên bản: 2.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng)
 
 ## MODULE_01 Nền tảng
 
@@ -1391,6 +1391,80 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 5:
 |---|---|
 | Toàn vẹn | Phát sinh ghi trong cùng giao dịch trừ nợ, ghi sổ phiếu kho; chỉ mục duy nhất (nguồn, chứng từ nguồn, dòng đơn) chống ghi trùng; phát sinh vào nhiều nhất một bảng; mỗi tháng một bảng đang dùng (chỉ mục duy nhất có điều kiện); bảng đã ghi sổ không sửa |
 | Ranh giới module | Module `apps/api/src/commission` đăng ký móc nối `DebtsService.allocatedHooks`, `StockDocumentsService.postedHooks`; module Công nợ, Kho không phụ thuộc module hoa hồng; module Bán hàng gọi hàm dùng chung `assignCommissionUser` (`commission-rules.ts`, không phụ thuộc dịch vụ khác); bút toán qua `commissionDraft`, `LedgerService.record` |
+| Thư viện | Không thêm thư viện |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_06 Tài chính – Kế toán (phần 6: Đối soát ngân hàng, CONG_VIEC_18)
+
+Quy ước chung cho mọi chức năng của MODULE_06 phần 6:
+- Quyền (tài liệu `08` mục 23, 24): API cần đăng nhập trước hết cần `finance.access`, `finance.bank.view` hoặc `finance.bank.setup` ở công ty đang chọn; quyền chi tiết phải gán ở phạm vi tập đoàn hoặc công ty. Dữ liệu công ty khác trả `404`. Webhook không cần đăng nhập, xác thực bằng khóa của kết nối.
+- Ghi nhật ký thao tác: `bank_connection.create`, `bank_connection.update` (không ghi khóa, chỉ ghi đã đổi khóa hay chưa), `bank_transaction.confirm_receipt`, `bank_transaction.match`, `bank_transaction.ignore`, `bank_transaction.reopen`.
+- Tiền trả về dạng chuỗi, bỏ số 0 thừa. Ngày giao dịch tính theo giờ Việt Nam.
+- Lưu, tự ghép, ghép tay giao dịch của một quỹ chạy tuần tự (khóa theo quỹ trong giao dịch cơ sở dữ liệu), để không ghép trùng.
+
+### CHUC_NANG_84: Kết nối ngân hàng cho quỹ ngân hàng
+- Mục đích: Mỗi quỹ ngân hàng nhận giao dịch tự động qua dịch vụ trung gian công ty chọn.
+- Người sử dụng: Kế toán trưởng, quản trị công ty, quản trị tập đoàn (cài đặt); Kế toán (xem).
+- Điều kiện thực hiện: Xem: `finance.bank.view` hoặc `finance.bank.setup`. Tạo, sửa, gửi giao dịch thử: `finance.bank.setup`. Gửi thử chỉ ngoài môi trường thật, với kết nối bộ giả lập.
+- Dữ liệu đầu vào: Kết nối: dịch vụ (`simulator`, `sepay`), bật tắt, đổi khóa, `version` (`null` khi tạo). Giao dịch thử: chiều, số tiền (tối đa 16 chữ số phần nguyên, 4 chữ số lẻ), nội dung (tối đa 500 ký tự), ngày giao dịch (trống là hôm nay).
+- Quy trình xử lý: Danh sách: quỹ ngân hàng đang dùng của công ty và quỹ ngừng dùng đã có kết nối, theo mã quỹ. Tạo: quỹ phải là quỹ ngân hàng của công ty, đang dùng; sinh khóa 24 byte ngẫu nhiên, lưu mã hóa bằng `common/secret-box`, lưu bốn ký tự cuối. Sửa: so `version`; đổi khóa thì sinh khóa mới thay khóa cũ (QUYTAC_NGHIEPVU_113). Gửi thử: tạo giao dịch như webhook (mã `SIM-…`, không có số dư) rồi lưu, tự ghép, gợi ý như CHUC_NANG_85, CHUC_NANG_86.
+- Kết quả đầu ra: Danh sách quỹ (mã, tên, ngân hàng, số tài khoản, kết nối: dịch vụ, bật tắt, bốn ký tự cuối của khóa, đường dẫn webhook, lần nhận cuối, `version`), `canSetup`, `simulatorAllowed`. Lưu trả kết nối và khóa (chỉ khi tạo hoặc đổi khóa, khác thì `null`). Gửi thử trả giao dịch vừa lưu.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_43
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_113
+- Trường hợp ngoại lệ: Quỹ ngừng dùng không tạo được kết nối mới. Môi trường thật không chọn được bộ giả lập, không gửi thử được.
+- Phân quyền: Không có `finance.bank.setup` lưu, gửi thử nhận 403; màn hình chỉ xem, không có nút "Kết nối", "Sửa", "Gửi thử"; không thấy mục menu "Kết nối ngân hàng".
+- Thông báo lỗi: "Quỹ đã ngừng dùng, không tạo được kết nối." · "Không dùng được bộ giả lập trên môi trường thật." · "Quỹ chưa kết nối bộ giả lập." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_132, TIEUCHI_NGHIEMTHU_134, TIEUCHI_NGHIEMTHU_138
+
+### CHUC_NANG_85: Nhận giao dịch qua webhook; tự ghép với phiếu thu chi
+- Mục đích: Giao dịch ngân hàng vào hệ thống ngay khi phát sinh, tự gắn với chứng từ đã có.
+- Người sử dụng: Dịch vụ trung gian (gửi webhook); Kế toán, Kế toán trưởng, quản trị (xem danh sách).
+- Điều kiện thực hiện: Webhook: kết nối tồn tại, đang bật, khóa đúng. Xem: `finance.bank.view`.
+- Dữ liệu đầu vào: Webhook định dạng SePay: `id`, `transactionDate` (`YYYY-MM-DD HH:mm:ss` giờ Việt Nam), `transferType` (`in`, `out`), `transferAmount` (lớn hơn 0), `accumulated`, `content` (tối đa 1.000 ký tự) hoặc `description`, `referenceCode`, `accountNumber`. Danh sách: quỹ, trạng thái, chiều, từ ngày, đến ngày, tìm (nội dung, mã tham chiếu, số tiền; tối đa 100 ký tự), `page`, `pageSize` (1 đến 100, mặc định 20).
+- Quy trình xử lý: Kiểm khóa, dữ liệu, số tài khoản (QUYTAC_NGHIEPVU_113, QUYTAC_NGHIEPVU_114). Trong một giao dịch cơ sở dữ liệu, khóa theo quỹ: lưu giao dịch (trùng mã giao dịch trên cùng kết nối thì bỏ qua), ghi lần nhận cuối, tự ghép theo QUYTAC_NGHIEPVU_115, gợi ý khách cho tiền vào (CHUC_NANG_86). `BankReconciliationService` đăng ký móc nối `PaymentsService.postedHooks`: phiếu thu chi của quỹ có kết nối ghi sổ thì thử ghép lại trong cùng giao dịch ghi sổ.
+- Kết quả đầu ra: Webhook trả `200 {"success": true}`. Danh sách giao dịch theo thời điểm giảm dần: thời điểm, quỹ, chiều, số tiền, nội dung, mã tham chiếu, số dư sau giao dịch, trạng thái, phiếu đã ghép (số, loại, đối tác, ngày), tự ghép hay không, gợi ý, phiếu thu lập từ gợi ý, lý do bỏ qua, `version`; `canManage`, tiền tệ.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_43
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_113, QUYTAC_NGHIEPVU_114, QUYTAC_NGHIEPVU_115
+- Trường hợp ngoại lệ: Nhiều phiếu hoặc nhiều giao dịch cùng thỏa: không tự ghép. Webhook không có số tài khoản hoặc quỹ không có số tài khoản: không so số tài khoản.
+- Phân quyền: Không có `finance.bank.view` xem danh sách nhận 403, không thấy mục menu "Giao dịch ngân hàng".
+- Thông báo lỗi: "Khóa xác thực webhook không đúng hoặc kết nối đã tắt." (401) · "Dữ liệu giao dịch ngân hàng không hợp lệ." (400) · "Số tài khoản trong giao dịch khác số tài khoản của quỹ." (409) · "Giá trị không hợp lệ." (bộ lọc)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_132, TIEUCHI_NGHIEMTHU_133, TIEUCHI_NGHIEMTHU_134, TIEUCHI_NGHIEMTHU_138
+
+### CHUC_NANG_86: Xử lý giao dịch chưa ghép
+- Mục đích: Mọi giao dịch có chứng từ hoặc có lý do bỏ qua.
+- Người sử dụng: Kế toán, Kế toán trưởng, quản trị.
+- Điều kiện thực hiện: `finance.bank.manage`; lập phiếu thu cần thêm `finance.payment.manage`.
+- Dữ liệu đầu vào: Lập phiếu thu: khách hàng, `version`. Ghép tay: phiếu thu chi, `version`. Bỏ qua: lý do (1 đến 500 ký tự), `version`. Bỏ ghép, thôi bỏ qua: `version`.
+- Quy trình xử lý: Gợi ý khách khi nhận giao dịch theo QUYTAC_NGHIEPVU_116. Lập phiếu thu: giao dịch phải chưa ghép, tiền vào, chưa có phiếu thu chờ duyệt hoặc đã ghi sổ; tăng `version`; lập phiếu thu khách hàng (`customer_receipt`) qua `PaymentsService.create` (dùng lại phiếu nháp đã lập trước nếu có), gửi qua `PaymentsService.submit`; phiếu ghi sổ thì móc nối ghép giao dịch với phiếu. Danh sách phiếu ghép tay: tối đa 20 phiếu đã ghi sổ, cùng quỹ, cùng chiều, cùng số tiền, chưa ghép, ngày gần ngày giao dịch trước. Ghép tay: khóa giao dịch (`FOR UPDATE`), khóa quỹ, kiểm lại điều kiện phiếu (QUYTAC_NGHIEPVU_117). Bỏ qua: ghi lý do, người, thời điểm. Bỏ ghép, thôi bỏ qua: về chưa ghép, xóa phiếu đã ghép, lý do; phiếu không đổi.
+- Kết quả đầu ra: Giao dịch sau thao tác (như danh sách CHUC_NANG_85).
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_43
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_116, QUYTAC_NGHIEPVU_117
+- Trường hợp ngoại lệ: Phiếu thu chờ duyệt: không bỏ qua, không lập lại được; giao dịch ghép khi phiếu ghi sổ. Phiếu thu bị từ chối, rút: lập lại được. Tiền ra không có gợi ý, không lập phiếu thu.
+- Phân quyền: Không có `finance.bank.manage` nhận 403, không thấy cột thao tác.
+- Thông báo lỗi: "Giao dịch không còn ở trạng thái chưa ghép." · "Giao dịch đang ở trạng thái chưa ghép." · "Chỉ lập phiếu thu cho tiền vào." · "Giao dịch đã có phiếu thu đang chờ duyệt hoặc đã ghi sổ." · "Phiếu không ghép được: phải đã ghi sổ, cùng quỹ, cùng chiều tiền, cùng số tiền và chưa ghép giao dịch khác." · "Vui lòng nhập thông tin này." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_135, TIEUCHI_NGHIEMTHU_136, TIEUCHI_NGHIEMTHU_138
+
+### CHUC_NANG_87: Đối chiếu quỹ ngân hàng theo khoảng ngày
+- Mục đích: Biết số dư quỹ ngân hàng trên sổ có khớp ngân hàng không và khoản nào chưa khớp.
+- Người sử dụng: Kế toán, Kế toán trưởng, quản trị.
+- Điều kiện thực hiện: `finance.bank.view`.
+- Dữ liệu đầu vào: Quỹ ngân hàng, từ ngày, đến ngày (từ ngày không sau đến ngày).
+- Quy trình xử lý: Số dư sổ: số dư đầu của quỹ cộng phiếu thu chi đã ghi sổ đến hết ngày cuối. Số dư ngân hàng: số dư sau giao dịch của giao dịch gần nhất có số dư, ngày không sau ngày cuối. Chênh lệch: số dư ngân hàng trừ số dư sổ. Trong khoảng ngày: số giao dịch, tổng tiền chưa ghép theo chiều; số giao dịch bỏ qua; phiếu đã ghi sổ của quỹ chưa có giao dịch (tối đa 100 phiếu, theo ngày, số phiếu) và tổng số phiếu đó.
+- Kết quả đầu ra: Quỹ, khoảng ngày, số dư sổ, số dư ngân hàng và thời điểm, chênh lệch, tiền vào chưa ghép, tiền ra chưa ghép, số bỏ qua, danh sách và số phiếu chưa có giao dịch, tiền tệ.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_43
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_115
+- Trường hợp ngoại lệ: Dịch vụ không gửi số dư (bộ giả lập): số dư ngân hàng, chênh lệch là `null`.
+- Phân quyền: Không có `finance.bank.view` nhận 403.
+- Thông báo lỗi: "Giá trị không hợp lệ." (từ ngày sau đến ngày)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_137, TIEUCHI_NGHIEMTHU_138
+
+## Yêu cầu phi chức năng của MODULE_06 (phần 6)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Bảo mật | Webhook công khai: khóa sinh ngẫu nhiên, lưu mã hóa AES-256-GCM, so sánh thời gian cố định; giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP; chỉ chấp nhận đúng số tài khoản của quỹ (tài liệu `22`) |
+| Toàn vẹn | Chỉ mục duy nhất (kết nối, mã giao dịch của dịch vụ) chống lưu trùng; chỉ mục duy nhất phiếu đã ghép (một phiếu một giao dịch); ràng buộc đã ghép khi và chỉ khi có phiếu, bỏ qua khi và chỉ khi có lý do; khóa theo quỹ khi lưu, ghép |
+| Ranh giới module | Module `apps/api/src/bank` đăng ký móc nối `PaymentsService.postedHooks`; module Tài chính (`apps/api/src/finance`) không phụ thuộc module ngân hàng; lập phiếu thu qua `PaymentsService.create`, `submit` (không đổi ghi sổ, công nợ, bút toán, luồng duyệt) |
 | Thư viện | Không thêm thư viện |
 | Giao diện | Dùng được trên điện thoại |
 

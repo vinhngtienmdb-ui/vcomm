@@ -1,10 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 2.2
+- Phiên bản: 2.3
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6); CONG_VIEC_14 (2026-11-10): schema `accounting`, thành phần phụ trợ kế toán tổng hợp của MODULE_06 phần 2 (mục 3i, 6); CONG_VIEC_15 (2026-11-10): thành phần phụ trợ báo cáo tài chính của MODULE_06 phần 3 (mục 3j); CONG_VIEC_16 (2026-11-10): module `apps/api/src/einvoice`, lớp kết nối nhà cung cấp hóa đơn điện tử, tác vụ nền `einvoice-send`, `einvoice-overdue` của MODULE_06 phần 4 (mục 3k, 6); CONG_VIEC_17 (2026-11-10): module `apps/api/src/commission`, móc nối `DebtsService.allocatedHooks`, gán nhân viên hưởng khi gửi đơn, bút toán bảng hoa hồng của MODULE_06 phần 5 (mục 3l, 6)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6); CONG_VIEC_14 (2026-11-10): schema `accounting`, thành phần phụ trợ kế toán tổng hợp của MODULE_06 phần 2 (mục 3i, 6); CONG_VIEC_15 (2026-11-10): thành phần phụ trợ báo cáo tài chính của MODULE_06 phần 3 (mục 3j); CONG_VIEC_16 (2026-11-10): module `apps/api/src/einvoice`, lớp kết nối nhà cung cấp hóa đơn điện tử, tác vụ nền `einvoice-send`, `einvoice-overdue` của MODULE_06 phần 4 (mục 3k, 6); CONG_VIEC_17 (2026-11-10): module `apps/api/src/commission`, móc nối `DebtsService.allocatedHooks`, gán nhân viên hưởng khi gửi đơn, bút toán bảng hoa hồng của MODULE_06 phần 5 (mục 3l, 6); CONG_VIEC_18 (2026-11-10): module `apps/api/src/bank`, webhook công khai, móc nối `PaymentsService.postedHooks` của MODULE_06 phần 6 (mục 3m, 6)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -195,6 +195,15 @@ Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance de
 | Bộ điều khiển | `CommissionsController` (`apps/api/src/commission/commissions.controller.ts`): API_93, API_94; kiểm `finance.access` hoặc `finance.commission.view` bằng `PermissionService.authorize`, quyền chi tiết kiểm trong service bằng `requireFinancePermission` | CHUC_NANG_80 đến CHUC_NANG_83 |
 | Giao diện | `apps/web-finance`: trang `/commissions` (thẻ "Bảng hoa hồng", "Phát sinh"), `/commission-settings` (thẻ "Cài đặt", "Chỉ tiêu"); `CommissionStatements`; `FinanceShell` thêm mục menu "Hoa hồng", "Cài đặt hoa hồng" | CHUC_NANG_80, CHUC_NANG_82, CHUC_NANG_83 |
 
+## 3m. Thành phần phụ trợ cho MODULE_06 Tài chính – Kế toán (phần 6, CONG_VIEC_18)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Đọc webhook | `apps/api/src/bank/bank-webhook.ts`, không phụ thuộc dịch vụ khác: `parseWebhook` (lược đồ zod định dạng SePay, ngày giờ không múi giờ hiểu theo giờ Việt Nam), `authorized` (tiêu đề `Authorization: Apikey <khóa>`, so sánh bằng `timingSafeEqual`), `accountDigits` | CHUC_NANG_85 |
+| Kết nối, giao dịch, ghép, đối chiếu | `BankReconciliationService` (`apps/api/src/bank/bank-reconciliation.service.ts`): ghi `finance.bank_connections`, `finance.bank_transactions`; khóa sinh bằng `randomBytes`, mã hóa bằng `encryptSecret` (`apps/api/src/common/secret-box.ts`); bộ giả lập chỉ khi `simulatorAllowed()` (`NODE_ENV` khác `production`, dùng chung với hóa đơn điện tử); lưu, ghép trong giao dịch cơ sở dữ liệu có khóa theo quỹ; `onModuleInit` đăng ký `PaymentsService.postedHooks` (`matchPayment`: phiếu ghi sổ thì thử ghép lại trong cùng giao dịch); lập phiếu thu từ gợi ý qua `PaymentsService.create`, `submit`; số dư sổ dùng `signedPaymentAmount` (`apps/api/src/finance/funds.service.ts`) | CHUC_NANG_84 đến CHUC_NANG_87 |
+| Bộ điều khiển | `BankReconciliationController` (`apps/api/src/bank/bank-reconciliation.controller.ts`): API_95 đến API_101; kiểm `finance.access`, `finance.bank.view` hoặc `finance.bank.setup` bằng `PermissionService.authorize`, quyền chi tiết kiểm trong service bằng `requireFinancePermission`; webhook (API_98) đánh dấu `@Public()`, đi qua giới hạn số yêu cầu theo địa chỉ IP của `AuthGuard` (`RateLimiter`, `apps/api/src/common/rate-limiter.ts`) | CHUC_NANG_84 đến CHUC_NANG_87 |
+| Giao diện | `apps/web-finance`: trang `/bank-transactions` (MAN_HINH_58), `/bank-connections` (MAN_HINH_59); `BankTransactionActions` (lập phiếu thu, ghép tay, bỏ qua, bỏ ghép), `BankReconciliationPanel` (ô đối chiếu), dùng lại `PartnerPicker`; `FinanceShell` thêm mục menu "Giao dịch ngân hàng", "Kết nối ngân hàng" | CHUC_NANG_84 đến CHUC_NANG_87 |
+
 ## 4. Kiến trúc triển khai
 
 | Môi trường | Mục đích | Hạ tầng |
@@ -219,7 +228,7 @@ Chia theo phần chạy riêng của hệ thống, bên trong chia theo module. 
 
 ```
 apps/
-  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales, src/finance, src/accounting, src/einvoice, src/commission...
+  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales, src/finance, src/accounting, src/einvoice, src/commission, src/bank...
                         Không chứa mã giao diện.
   web-platform/         Mini app Nền tảng và trang chủ mini app.
   web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm, web-purchasing, web-sales, web-finance...).

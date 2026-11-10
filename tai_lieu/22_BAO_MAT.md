@@ -1,13 +1,13 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 2.4
+- Phiên bản: 2.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 5 (hoa hồng đội kinh doanh)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 5 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 6 (đối soát ngân hàng)
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16); MODULE_06 phần 5 Hoa hồng đội kinh doanh (CONG_VIEC_17). Các module sau bổ sung vào cùng tài liệu.
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16); MODULE_06 phần 5 Hoa hồng đội kinh doanh (CONG_VIEC_17); MODULE_06 phần 6 Đối soát ngân hàng (CONG_VIEC_18). Các module sau bổ sung vào cùng tài liệu.
 
 ## 1. Dữ liệu nhạy cảm
 
@@ -48,6 +48,8 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Mã truy cập MISA meInvoice (CONG_VIEC_16) | Khóa bí mật | Chỉ trong bộ nhớ tiến trình API, theo khóa băm của công ty và thông tin kết nối, tối đa 12 giờ; không lưu cơ sở dữ liệu, không ghi log | Chỉ máy chủ |
 | Hóa đơn điện tử: người mua (tên, mã số thuế, địa chỉ), dòng hàng, số tiền, tệp PDF, XML; lần gửi (CONG_VIEC_16) | Tài chính, tổ chức | Bảng `finance.einvoices`, `einvoice_lines`, `einvoice_attempts`, `einvoice_return_tasks` theo công ty; tệp lưu `bytea` | `finance.einvoice.view` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; công ty khác nhận `404`; tệp gửi cho nhà cung cấp, cơ quan thuế theo quy định |
 | Cài đặt hoa hồng, chỉ tiêu, phát sinh, bảng hoa hồng theo nhân viên (CONG_VIEC_17) | Tài chính, thu nhập của nhân viên | Schema `finance` theo công ty (`commission_settings`, `commission_rates`, `commission_channel_factors`, `commission_targets`, `commission_events`, `commission_statements`, `commission_statement_lines`); cột `sales.orders.commission_user_id` | `finance.commission.view` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; công ty khác nhận `404`; sửa cài đặt, chỉ tiêu cần `finance.commission.setup` (nhạy cảm). Người có quyền xem thấy hoa hồng, chỉ tiêu của mọi nhân viên trong công ty |
+| Khóa xác thực webhook ngân hàng (CONG_VIEC_18) | Khóa bí mật | Cột `finance.bank_connections.secret_value`, mã hóa AES-256-GCM bằng `apps/api/src/common/secret-box.ts` (khóa như Cài đặt tích hợp); trả đủ một lần trong kết quả tạo kết nối hoặc đổi khóa; sau đó chỉ trả bốn ký tự cuối (`secret_hint`); nhật ký thao tác chỉ ghi `secretChanged`, không ghi khóa | Người có `finance.bank.setup` thấy khóa một lần khi tạo, đổi; máy chủ giải mã khi kiểm webhook |
+| Giao dịch ngân hàng: số tiền, nội dung chuyển khoản (có thể chứa tên, số tài khoản người chuyển), mã tham chiếu, số dư tài khoản, dữ liệu webhook gốc (CONG_VIEC_18) | Tài chính | Bảng `finance.bank_transactions` theo công ty; không sửa, không xóa | `finance.bank.view` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; công ty khác nhận `404`; dữ liệu gốc không trả qua API |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
 
@@ -78,6 +80,8 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | API báo cáo tài chính (API_90); `isLongTerm` của API_87 | API | Lược đồ zod `statementQuerySchema` trong `packages/contracts`, trường thừa bị từ chối; `kind`, `format` so với danh sách cố định; `from`, `to` là ngày `YYYY-MM-DD`; `form` tối đa 20 ký tự, chỉ dùng để chọn trong các mẫu của chế độ; `isLongTerm` kiểu đúng sai trong `updateAccountSchema`; chỉ đọc, không nhận tệp tải lên | Có, `finance.access` hoặc `finance.ledger.view`; xem, xuất cần `finance.ledger.view` |
 | API hóa đơn điện tử (API_91, API_92) | API | Lược đồ zod `updateEinvoiceSettingsSchema`, `einvoiceListQuerySchema`, `einvoiceReturnQuerySchema`, `recordBuyerInvoiceSchema`, `replaceEinvoiceSchema` trong `packages/contracts`, lược đồ `version` trong bộ điều khiển; trường thừa bị từ chối; mã trong đường dẫn là UUID; `format` chỉ `pdf`, `xml`; nhà cung cấp, môi trường, trạng thái so với danh sách cố định; ký hiệu khớp `^[CK][0-9]{2}T[A-Z]{2}$`; mã số thuế người mua 10 chữ số hoặc 10 chữ số, gạch ngang, 3 chữ số; độ dài tên 300, địa chỉ 500, lý do 500, mật khẩu 200, từ khóa 100 ký tự; từ khóa tìm kiếm thoát `%`, `_`; không nhận tệp tải lên | Có, `finance.access` hoặc `finance.einvoice.view` và quyền chi tiết |
 | API hoa hồng (API_93, API_94) | API | Lược đồ zod `updateCommissionSettingsSchema`, `commissionTargetsQuerySchema`, `saveCommissionTargetsSchema`, `commissionEventsQuerySchema`, `createCommissionStatementSchema` trong `packages/contracts`, lược đồ `version` trong bộ điều khiển; trường thừa bị từ chối; mã trong đường dẫn, ngành hàng, kênh, nhân viên là UUID; phần trăm 0 đến 100, hệ số 0 đến 10, tối đa 4 chữ số lẻ; tháng `YYYY-MM`; giới hạn số dòng (bậc 20, mức 2.000, hệ số kênh 200, chỉ tiêu 500, trang 100); phía máy chủ kiểm ngành hàng tồn tại, kênh thuộc công ty, nhân viên là thành viên đang làm việc của công ty | Có, `finance.access` hoặc `finance.commission.view` trong công ty đang làm việc; quyền chi tiết kiểm trong service |
+| Webhook giao dịch ngân hàng (API_98, CONG_VIEC_18) | Tích hợp (dịch vụ trung gian gọi vào), API công khai | Đường dẫn chứa mã kết nối (UUID); khóa trong tiêu đề `Authorization: Apikey <khóa>`; lược đồ zod định dạng SePay (`id` tối đa 100 ký tự, ngày giờ đúng mẫu, chiều `in`, `out`, số tiền lớn hơn 0 tối đa 16 chữ số phần nguyên, nội dung tối đa 1.000 ký tự, mã tham chiếu 100, số tài khoản 50); trường khác bỏ qua; số tài khoản phải khớp quỹ; thân giới hạn theo mặc định của bộ đọc JSON (100 KB) | Không đăng nhập; xác thực bằng khóa của kết nối; giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP |
+| API đối soát ngân hàng (API_95 đến API_97, API_99 đến API_101) | API | Lược đồ zod `saveBankConnectionSchema`, `simulateBankTransactionSchema`, `bankTransactionListQuerySchema`, `confirmBankReceiptSchema`, `matchBankTransactionSchema`, `ignoreBankTransactionSchema`, `bankVersionSchema`, `bankReconciliationQuerySchema` trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, quỹ, khách, phiếu là UUID; dịch vụ, chiều, trạng thái so với danh sách cố định; số tiền tối đa 16 chữ số phần nguyên, 4 chữ số lẻ; nội dung thử 500, lý do bỏ qua 500, tìm kiếm 100 ký tự; trang 100 dòng; ký tự `%`, `_`, `\` trong tìm kiếm được thoát | Có, `finance.access`, `finance.bank.view` hoặc `finance.bank.setup`; quyền chi tiết theo tài liệu `08` mục 23 |
 | Phản hồi nhà cung cấp hóa đơn điện tử (MISA meInvoice, bộ giả lập) | Tích hợp (hệ thống gọi ra) | Chỉ đọc số, mã của cơ quan thuế, mã giao dịch, mã lỗi, tệp PDF, XML (base64) của đúng mã tham chiếu, mã giao dịch; JSON lỗi coi là lỗi; câu chữ lỗi của nhà cung cấp lưu như văn bản, giao diện hiện dạng văn bản | Không áp dụng (hệ thống gọi ra) |
 | Gửi tin qua eSMS.vn (mã OTP, Zalo ZNS, kiểm tra kết nối) | Tích hợp | Chỉ đọc mã kết quả, mã tin, lỗi; gửi lỗi không chặn nghiệp vụ | Không áp dụng (hệ thống gọi ra) |
 
@@ -507,6 +511,41 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10, gồm sửa l�
 - Ghi nhận, chưa sửa (Thấp): bộ tính cộng tiền bằng số thực của JavaScript rồi làm tròn theo đơn vị tiền tệ (như công nợ, bảng cân đối số phát sinh).
 - Đã sửa (Thấp): chi tiết đơn bán hiện nhân viên hưởng hoa hồng; màn hình phát sinh có ô lọc theo nhân viên.
 
+### Ma trận phân quyền đối soát ngân hàng MODULE_06 phần 6 (CONG_VIEC_18)
+
+Quyền mới `finance.bank.view`, `finance.bank.manage`, `finance.bank.setup` (nhạy cảm) (tài liệu `08` mục 23, 24).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng | Thủ kho | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|---|---|
+| CHUC_NANG_84 Xem kết nối | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+| CHUC_NANG_84 Tạo, sửa kết nối, đổi khóa, gửi thử | Được | Trong công ty mình | Được | Không | Không | Không | Không |
+| CHUC_NANG_85, CHUC_NANG_87 Xem giao dịch, đối chiếu | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+| CHUC_NANG_86 Lập phiếu thu từ gợi ý, ghép tay, bỏ qua, bỏ ghép | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+
+Điểm nhận webhook công khai (API_98):
+- Khóa xác thực: 24 byte sinh bằng `randomBytes` (32 ký tự base64url), riêng cho từng kết nối; lưu mã hóa AES-256-GCM bằng `common/secret-box`; chỉ trả một lần; đổi khóa thì khóa cũ hết hiệu lực ngay.
+- So khóa bằng `timingSafeEqual` (thời gian cố định khi cùng độ dài). Kết nối không có, đang tắt, khóa sai đều trả cùng lỗi `401` để không lộ kết nối nào tồn tại; không lưu dữ liệu khi bị từ chối.
+- Giới hạn 20 yêu cầu mỗi phút cho mỗi đường dẫn, mỗi địa chỉ IP (`RateLimiter` dùng chung của API không cần đăng nhập; Redis lỗi thì cho qua).
+- Số tài khoản trong webhook khác số tài khoản của quỹ thì từ chối (`409`), chặn dùng khóa của quỹ này để ghi giao dịch tài khoản khác.
+- Trùng mã giao dịch trên cùng kết nối không lưu lại (chỉ mục duy nhất), nên dịch vụ gửi lại không tạo giao dịch trùng.
+- Bộ giả lập (chọn làm dịch vụ, gửi giao dịch thử) bị chặn khi `NODE_ENV=production` (`bankSimulatorNotAllowed`).
+
+Ranh giới và kiểm soát riêng:
+- Tách dữ liệu công ty: mọi truy vấn của API cần đăng nhập lọc theo `company_id` của công ty đang làm việc; quỹ, giao dịch, phiếu của công ty khác trả `404` hoặc không ghép được. Webhook lấy công ty, quỹ từ kết nối, không từ dữ liệu gửi lên.
+- Quyền kiểm hai lớp: bộ điều khiển cần `finance.access`, `finance.bank.view` hoặc `finance.bank.setup`; service kiểm quyền chi tiết bằng `requireFinancePermission`. Lập phiếu thu từ gợi ý kiểm thêm `finance.payment.manage` qua `PaymentsService`.
+- Ghép, lưu giao dịch của một quỹ chạy tuần tự (khóa theo quỹ); giao dịch xử lý khóa dòng `FOR UPDATE` và so `version`.
+- Truy vấn dùng tham số của Drizzle (`sql`, `sql.join`), không ghép chuỗi SQL; mẫu tìm kiếm thoát `%`, `_`, `\`.
+- Không thêm thư viện phụ thuộc.
+
+Kết quả rà soát bảo mật phần thay đổi (2026-11-10, gồm sửa lỗi rà soát commit a7af42f):
+- Không có mục rủi ro cao còn mở. Đã kiểm: khóa không trả lại qua API, không ghi nhật ký; webhook từ chối khóa sai, kết nối tắt, sai số tài khoản; quỹ ngừng dùng không tạo được kết nối mới; dữ liệu gốc lưu đúng thân webhook nhận được.
+- Ghi nhận: cách SePay gửi khóa (`Authorization: Apikey <khóa>`) và định dạng ngày giờ theo tài liệu công khai; phải thử với tài khoản SePay thật trước phát hành.
+- Ghi nhận: webhook không có số tài khoản vẫn được nhận (chỉ so khi có).
+- Ghi nhận, chưa sửa (Thấp): so độ dài khóa trước khi so nội dung, lộ được độ dài khóa (độ dài cố định 32 ký tự nên không có thông tin thêm).
+- Ghi nhận: giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP dùng chung với API không cần đăng nhập; công ty nhiều giao dịch có thể bị trả `429`, dịch vụ tự gửi lại.
+- Ghi nhận: thân webhook giới hạn theo mặc định 100 KB của bộ đọc JSON, chưa đặt giới hạn riêng.
+- Ghi nhận: người có `finance.bank.view` (Kế toán có sẵn) thấy nội dung chuyển khoản, số dư tài khoản của mọi quỹ ngân hàng trong công ty.
+
 ## 5. Quản lý khóa bí mật
 
 | Khóa | Nơi lưu | Môi trường | Ngày đổi gần nhất | Trạng thái |
@@ -517,6 +556,7 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10, gồm sửa l�
 | Mã ứng dụng Google, Microsoft, Zalo (client secret) | Cài đặt tích hợp (bảng `integration_settings`, mã hóa AES-256-GCM), quản trị tập đoàn nhập ở MAN_HINH_19 (THAY_DOI_08); không đặt trong biến môi trường | Từng môi trường | Chưa tạo | Chưa tạo |
 | Khóa eSMS.vn (API key, Secret key) gửi SMS, Zalo ZNS | Cài đặt tích hợp như trên (THAY_DOI_08) | Từng môi trường | Chưa tạo | Chưa tạo |
 | Thông tin kết nối MISA meInvoice (mã ứng dụng, tên đăng nhập, mật khẩu) của từng công ty (CONG_VIEC_16) | Bảng `finance.einvoice_settings`, mật khẩu mã hóa AES-256-GCM (khóa như Cài đặt tích hợp); Kế toán trưởng nhập ở MAN_HINH_55; không đặt trong biến môi trường | Từng môi trường, từng công ty | Chưa tạo | Chưa tạo |
+| Khóa xác thực webhook ngân hàng của từng kết nối (CONG_VIEC_18) | Bảng `finance.bank_connections`, mã hóa AES-256-GCM (khóa như Cài đặt tích hợp); hệ thống sinh, Kế toán trưởng khai vào dịch vụ trung gian; đổi bằng "Đổi khóa xác thực" ở MAN_HINH_59; không đặt trong biến môi trường | Từng môi trường, từng quỹ | Chưa tạo | Chưa tạo |
 | Thông tin truy cập AWS S3 lưu tệp đính kèm | Vai trò IAM, không dùng khóa tĩnh | Từng môi trường | Không áp dụng | Chưa tạo |
 | Khóa gửi email (Amazon SES) | Vai trò IAM, không dùng khóa tĩnh | Từng môi trường | Không áp dụng | Chưa tạo |
 

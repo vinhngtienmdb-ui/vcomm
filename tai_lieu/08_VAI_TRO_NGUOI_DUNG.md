@@ -1,10 +1,10 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò mặc định, trách nhiệm và quyền hạn.
-- Phiên bản: 2.1
+- Phiên bản: 2.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18); CONG_VIEC_16 (2026-11-10): thêm quyền `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm); Kế toán có thêm `finance.einvoice.view`, `finance.einvoice.manage`; Kế toán trưởng có thêm cả ba (mục 19, 20); CONG_VIEC_17 (2026-11-10): thêm quyền `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` (nhạy cảm); Kế toán có thêm `finance.commission.view`, `finance.commission.manage`; Kế toán trưởng có thêm cả ba (mục 21, 22)
+- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18); CONG_VIEC_16 (2026-11-10): thêm quyền `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm); Kế toán có thêm `finance.einvoice.view`, `finance.einvoice.manage`; Kế toán trưởng có thêm cả ba (mục 19, 20); CONG_VIEC_17 (2026-11-10): thêm quyền `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` (nhạy cảm); Kế toán có thêm `finance.commission.view`, `finance.commission.manage`; Kế toán trưởng có thêm cả ba (mục 21, 22); CONG_VIEC_18 (2026-11-10): thêm quyền `finance.bank.view`, `finance.bank.manage`, `finance.bank.setup` (nhạy cảm); Kế toán có thêm `finance.bank.view`, `finance.bank.manage`; Kế toán trưởng có thêm cả ba (mục 23, 24)
 
 ## 1. Nguyên tắc
 
@@ -324,3 +324,29 @@ Không thêm vai trò. Ba quyền mới chỉ dùng được khi gán ở phạm
 | Duyệt, từ chối bảng hoa hồng | Người duyệt theo chính sách duyệt loại `finance.commission` | Theo chính sách | Theo chính sách | Theo chính sách | Theo chính sách | Không | Không |
 | Gán nhân viên hưởng hoa hồng khi gửi đơn | Quyền gửi đơn bán (mục 10) | Có | Trong công ty mình | Không | Không | Có | Không |
 | Ghi phát sinh khi trừ nợ, ghi sổ phiếu kho của đơn không có khách | Quyền ghi sổ phiếu thu chi (mục 14), phiếu kho (mục 10) | Có | Trong công ty mình | Có | Có | Không | Kho trong phạm vi gán |
+
+## 23. Quyền đối soát ngân hàng (MODULE_06 phần 6, CONG_VIEC_18)
+
+Không thêm vai trò. Ba quyền mới chỉ dùng được khi gán ở phạm vi tập đoàn hoặc công ty (như mục 16). Quản trị tập đoàn, quản trị công ty có sẵn ba quyền mới. Webhook của dịch vụ trung gian không dùng tài khoản người dùng, xác thực bằng khóa của kết nối (QUYTAC_NGHIEPVU_113). Xác nhận lập phiếu thu từ gợi ý cần thêm quyền `finance.payment.manage` (mục 14).
+
+| Quyền | Tên | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|---|
+| `finance.bank.view` | Xem giao dịch ngân hàng, đối chiếu | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán, Kế toán trưởng |
+| `finance.bank.manage` | Ghép, bỏ qua giao dịch ngân hàng, lập phiếu thu từ gợi ý | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán, Kế toán trưởng |
+| `finance.bank.setup` | Cài đặt kết nối ngân hàng | Công ty | Có | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng |
+
+| Vai trò | Mã | Quyền thêm |
+|---|---|---|
+| Kế toán | `accountant` | `finance.bank.view`, `finance.bank.manage` |
+| Kế toán trưởng | `chief_accountant` | `finance.bank.view`, `finance.bank.manage`, `finance.bank.setup` |
+
+## 24. Ma trận vai trò – thao tác của MODULE_06 (phần 6)
+
+| Thao tác | Quyền dùng | Quản trị tập đoàn | Quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng | Thủ kho |
+|---|---|---|---|---|---|---|---|
+| Xem quỹ ngân hàng, kết nối | `finance.bank.view` hoặc `finance.bank.setup` | Có | Trong công ty mình | Có | Có (không có mục menu; mở đường dẫn thì chỉ xem) | Không | Không |
+| Tạo, sửa kết nối, đổi khóa; gửi giao dịch thử (bộ giả lập) | `finance.bank.setup` | Có | Trong công ty mình | Có | Không | Không | Không |
+| Xem giao dịch ngân hàng, đối chiếu | `finance.bank.view` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Ghép tay, bỏ qua, bỏ ghép, thôi bỏ qua | `finance.bank.manage` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Xác nhận lập phiếu thu từ gợi ý | `finance.bank.manage` và `finance.payment.manage` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Tự ghép khi phiếu thu chi ghi sổ | Quyền ghi sổ phiếu thu chi (mục 15) | Có | Trong công ty mình | Có | Có | Không | Không |

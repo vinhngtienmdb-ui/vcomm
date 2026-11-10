@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng
 
 ## MODULE_01 Nền tảng
 
@@ -484,3 +484,39 @@ Trạng thái bảng hoa hồng:
 | Chờ duyệt | Duyệt xong, không ghi sổ được | Bị từ chối (`rejected`) kèm lý do; phát sinh trả về |
 | Chờ duyệt | Từ chối | Bị từ chối; phát sinh trả về |
 | Chờ duyệt | Người lập rút | Đã rút (`withdrawn`); phát sinh trả về |
+
+## MODULE_06 Tài chính – Kế toán (phần 6: Đối soát ngân hàng, CONG_VIEC_18)
+
+### Luồng 30. Nhận giao dịch ngân hàng, ghép với phiếu thu chi, đối chiếu số dư
+
+- Bắt đầu: Kế toán trưởng mở "Kết nối ngân hàng", bấm "Kết nối" ở quỹ ngân hàng, chọn dịch vụ trung gian, bấm "Lưu"; sao chép khóa xác thực (chỉ hiện một lần) và địa chỉ webhook, khai vào trang quản trị của dịch vụ (QUYTAC_NGHIEPVU_113).
+- Các bước:
+  1. Dịch vụ trung gian gửi webhook `POST /api/v1/public/bank-webhooks/<mã kết nối>` kèm tiêu đề `Authorization: Apikey <khóa>`. Hệ thống kiểm khóa, kết nối đang bật, dữ liệu, số tài khoản (QUYTAC_NGHIEPVU_113, QUYTAC_NGHIEPVU_114).
+  2. Hệ thống lưu giao dịch (trùng mã giao dịch thì không lưu lại), ghi lần nhận cuối, trả `{"success": true}`.
+  3. Hệ thống thử tự ghép với phiếu thu chi đã ghi sổ (QUYTAC_NGHIEPVU_115). Ghép được: giao dịch "Đã ghép", "Tự ghép".
+  4. Tiền vào chưa ghép: hệ thống gợi ý khách hàng theo số đơn bán, mã khách hàng, mã số thuế (QUYTAC_NGHIEPVU_116).
+  5. Kế toán mở "Giao dịch ngân hàng" (mặc định lọc "Chưa ghép") và xử lý từng giao dịch:
+     - "Lập phiếu thu": chọn hoặc giữ khách gợi ý, bấm "Xác nhận lập phiếu thu". Hệ thống lập, gửi phiếu thu; phiếu ghi sổ thì giao dịch "Đã ghép"; phiếu chờ duyệt thì giao dịch ghép khi phiếu ghi sổ.
+     - "Ghép tay": chọn một phiếu trong danh sách phiếu đủ điều kiện, bấm "Ghép" (QUYTAC_NGHIEPVU_117).
+     - "Bỏ qua": nhập lý do (phí ngân hàng, chuyển khoản nội bộ đã lập phiếu riêng...).
+  6. Kế toán lập phiếu thu chi cho khoản chưa có chứng từ theo chức năng đã có; phiếu ghi sổ thì hệ thống thử ghép lại (QUYTAC_NGHIEPVU_115).
+  7. Cuối kỳ, kế toán chọn quỹ, khoảng ngày; ô đối chiếu hiện số dư sổ, số dư ngân hàng, chênh lệch, giao dịch chưa ghép hai chiều, số giao dịch bỏ qua, phiếu chưa có giao dịch.
+- Ngoại lệ:
+  - Sai khóa, kết nối không có hoặc đang tắt: 401, không lưu. Dữ liệu sai: 400. Khác số tài khoản của quỹ: 409. Vượt 20 yêu cầu mỗi phút mỗi địa chỉ IP: 429, dịch vụ gửi lại.
+  - Nhiều phiếu hoặc nhiều giao dịch cùng thỏa điều kiện: không tự ghép, kế toán ghép tay.
+  - Ghép sai: "Bỏ ghép" đưa giao dịch về "Chưa ghép", phiếu không đổi. Bỏ qua nhầm: "Thôi bỏ qua".
+  - Phiếu thu lập từ gợi ý bị từ chối hoặc rút: giao dịch vẫn "Chưa ghép"; kế toán lập lại phiếu thu, ghép tay hoặc bỏ qua.
+  - Dịch vụ không gửi số dư (bộ giả lập): ô đối chiếu hiện "Dịch vụ chưa gửi số dư", không có chênh lệch.
+- Kết thúc: mọi giao dịch trong kỳ "Đã ghép" hoặc "Bỏ qua" có lý do; chênh lệch số dư bằng 0 hoặc đã giải thích được.
+
+Trạng thái giao dịch ngân hàng:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Nhận webhook, tự ghép được | Đã ghép (`matched`), người ghép trống |
+| (Chưa có) | Nhận webhook, không tự ghép được | Chưa ghép (`unmatched`) |
+| Chưa ghép | Phiếu thu chi đủ điều kiện ghi sổ; phiếu thu lập từ gợi ý ghi sổ | Đã ghép |
+| Chưa ghép | Ghép tay | Đã ghép, người ghép là người thao tác |
+| Chưa ghép | Bỏ qua kèm lý do | Bỏ qua (`ignored`) |
+| Đã ghép | Bỏ ghép | Chưa ghép; phiếu không đổi |
+| Bỏ qua | Thôi bỏ qua | Chưa ghép |

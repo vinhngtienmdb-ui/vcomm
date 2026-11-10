@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.4
+- Phiên bản: 2.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -18,6 +18,7 @@
 - Cập nhật CONG_VIEC_15 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 3, MAN_HINH_53 (mục 32 đến mục 34); menu mini app Tài chính – Kế toán thêm mục "Báo cáo tài chính"; sửa MAN_HINH_50 (ô, nhãn "Dài hạn")
 - Cập nhật CONG_VIEC_16 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 4, MAN_HINH_54, MAN_HINH_55 (mục 35 đến mục 37); menu mini app Tài chính – Kế toán thêm mục "Hóa đơn điện tử", "Cài đặt hóa đơn điện tử"
 - Cập nhật CONG_VIEC_17 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 5, MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40); menu mini app Tài chính – Kế toán thêm mục "Hoa hồng", "Cài đặt hoa hồng"
+- Cập nhật CONG_VIEC_18 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 6, MAN_HINH_58, MAN_HINH_59 (mục 41 đến mục 43); menu mini app Tài chính – Kế toán thêm mục "Giao dịch ngân hàng", "Kết nối ngân hàng"
 
 ## MODULE_01 Nền tảng
 
@@ -1522,3 +1523,81 @@ flowchart TD
 - Quyền hiển thị: mục menu với `finance.commission.setup`; người có `finance.commission.view` mở đường dẫn thì chỉ xem; nút theo `canSetup` của API.
 - Responsive: ô biểu mẫu xếp dọc, dòng mức, hệ số, bậc xuống dòng; bảng chỉ tiêu chuyển thành thẻ; không cuộn ngang.
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_17 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 6: Đối soát ngân hàng, CONG_VIEC_18)
+
+Cùng mini app `apps/web-finance` (mục 26).
+
+## 41. Danh sách màn hình và điều hướng (MODULE_06 phần 6)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_58 | Giao dịch ngân hàng: danh sách, xử lý giao dịch chưa ghép, ô đối chiếu | CHUC_NANG_85, CHUC_NANG_86, CHUC_NANG_87 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_18 mục 14) |
+| MAN_HINH_59 | Kết nối ngân hàng: quỹ ngân hàng, kết nối, gửi giao dịch thử | CHUC_NANG_84 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_18 mục 14) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> G[MAN_HINH_58 Giao dịch ngân hàng]
+    M --> K[MAN_HINH_59 Kết nối ngân hàng]
+    G -->|Chọn quỹ| D[Ô đối chiếu]
+    G -->|Lập phiếu thu, Ghép tay, Bỏ qua| X[Ngăn kéo xử lý]
+    G -->|Bỏ ghép, Thôi bỏ qua| C[Hộp xác nhận]
+    G -->|Số phiếu| P[MAN_HINH_49 Chi tiết phiếu thu chi]
+    K -->|Kết nối, Sửa| S[Ngăn kéo kết nối]
+    K -->|Gửi thử| T[Ngăn kéo gửi giao dịch thử]
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Giao dịch ngân hàng (`finance.bank.view`); Kết nối ngân hàng (`finance.bank.setup`); Bút toán, Sổ sách, Báo cáo tài chính, Hệ thống tài khoản (`finance.ledger.view`); Hóa đơn điện tử (`finance.einvoice.view`); Cài đặt hóa đơn điện tử (`finance.einvoice.setup`); Hoa hồng (`finance.commission.view`); Cài đặt hoa hồng (`finance.commission.setup`).
+
+## 42. Bảng vai trò – màn hình (MODULE_06 phần 6)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_58 Giao dịch ngân hàng, ô đối chiếu | Xem, Lập phiếu thu, Ghép tay, Bỏ qua, Bỏ ghép, Thôi bỏ qua | Xem, Lập phiếu thu, Ghép tay, Bỏ qua, Bỏ ghép, Thôi bỏ qua | Xem, Lập phiếu thu, Ghép tay, Bỏ qua, Bỏ ghép, Thôi bỏ qua | Không |
+| MAN_HINH_59 Kết nối ngân hàng | Xem, Kết nối, Sửa, Gửi thử | Xem, Kết nối, Sửa, Gửi thử | Không có mục menu; mở đường dẫn thì chỉ xem | Không |
+
+## 43. Đặc tả từng màn hình (MODULE_06 phần 6)
+
+### MAN_HINH_58: Giao dịch ngân hàng
+- Mục đích: Xem giao dịch ngân hàng nhận qua webhook; xử lý giao dịch chưa ghép; đối chiếu số dư quỹ ngân hàng.
+- Chức năng thực hiện: CHUC_NANG_85, CHUC_NANG_86, CHUC_NANG_87
+- Đường dẫn: `/finance/bank-transactions`.
+- Bố cục: tiêu đề "Giao dịch ngân hàng".
+  - Bộ lọc: quỹ ("Mọi quỹ ngân hàng"), trạng thái ("Mọi trạng thái", "Chưa ghép" (mặc định), "Đã ghép", "Bỏ qua"), chiều ("Tiền vào và ra", "Tiền vào", "Tiền ra"), "Từ ngày", "Đến ngày", ô tìm "Nội dung, mã tham chiếu, số tiền".
+  - Ô đối chiếu (chỉ khi chọn một quỹ): tiêu đề "Đối chiếu từ <ngày> đến <ngày>" (theo bộ lọc ngày; trống thì từ đầu tháng đến hôm nay); "Số dư sổ"; "Số dư ngân hàng" (hoặc "Dịch vụ chưa gửi số dư"; kèm "lúc <thời điểm>"); "Chênh lệch" (khác 0 thì tô màu lỗi; không có số dư ngân hàng: "—"); "Tiền vào chưa ghép", "Tiền ra chưa ghép" (số giao dịch · số tiền); "Phiếu chưa có giao dịch" (kèm "<số> giao dịch bỏ qua"); nút "Xem phiếu chưa có giao dịch" / "Ẩn danh sách phiếu" mở danh sách số phiếu (liên kết), ngày, loại, đối tác, số tiền.
+  - Bảng: "Thời gian", "Quỹ", "Chiều" (nhãn "Tiền vào", "Tiền ra"), "Số tiền" (dấu + hoặc −), "Nội dung" (kèm mã tham chiếu), "Trạng thái" (nhãn "Chưa ghép", "Đã ghép", "Bỏ qua"; kèm "Tự ghép"), "Phiếu thu chi" (đã ghép: số phiếu liên kết, đối tác, ngày; bỏ qua: "Lý do: <lý do>"; có phiếu thu lập từ gợi ý: số phiếu hoặc "Phiếu nháp" kèm trạng thái phiếu; có gợi ý: "Gợi ý: <tên khách>" kèm căn cứ "số đơn bán", "mã khách hàng", "mã số thuế"), cột thao tác. Phân trang 20 dòng, tổng số dòng, nút trang trước, trang sau.
+  - Thao tác theo trạng thái: chưa ghép: "Lập phiếu thu" (tiền vào, không có phiếu thu chờ duyệt), "Ghép tay", "Bỏ qua" (không có phiếu thu chờ duyệt); đã ghép: "Bỏ ghép"; bỏ qua: "Thôi bỏ qua".
+  - Ngăn kéo "Lập phiếu thu": tóm tắt giao dịch (chiều, số tiền, ngày, nội dung); "Hệ thống gợi ý khách theo <căn cứ>."; "Khách hàng" (mặc định khách gợi ý, chọn lại bằng ô tìm khách); chú thích "Phiếu thu lập theo quỹ, ngày và số tiền của giao dịch, nội dung chuyển khoản làm ghi chú, rồi gửi theo luồng duyệt phiếu thu."; nút "Hủy", "Xác nhận lập phiếu thu".
+  - Ngăn kéo "Ghép tay": tóm tắt giao dịch; danh sách phiếu đủ điều kiện (số, ngày, loại, đối tác, ghi chú), mỗi phiếu nút "Ghép".
+  - Ngăn kéo "Bỏ qua": tóm tắt giao dịch; ô "Lý do bỏ qua" (tối đa 500 ký tự); nút "Hủy", "Bỏ qua".
+  - Hộp xác nhận "Bỏ ghép" / "Thôi bỏ qua": "Giao dịch về trạng thái chưa ghép; phiếu thu chi không thay đổi.".
+- Dữ liệu hiển thị: giao dịch của công ty đang chọn, thời điểm mới nhất trước; số định dạng theo tiếng Việt.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, The, BangDuLieu, NhanTrangThai, NganKeo, HopThoaiXacNhan, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_95 (danh sách quỹ cho bộ lọc), API_99, API_100, API_101.
+- Thao tác: "Xác nhận lập phiếu thu" báo "Đã ghi sổ phiếu thu <số> và ghép giao dịch." hoặc "Phiếu thu <số> đang chờ duyệt; giao dịch tự ghép khi phiếu ghi sổ."; "Ghép" báo "Đã ghép với phiếu <số>."; "Bỏ qua" báo "Đã bỏ qua giao dịch."; "Bỏ ghép", "Thôi bỏ qua" báo "Giao dịch đã về trạng thái chưa ghép."; sau mỗi thao tác tải lại danh sách và ô đối chiếu; đổi bộ lọc về trang 1.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; danh sách rỗng "Không có giao dịch."; ghép tay không có phiếu: "Không có phiếu đã ghi sổ cùng quỹ, cùng chiều, cùng số tiền chưa ghép.".
+- Thông báo: lỗi lập phiếu thu, bỏ qua hiện tại trường và cuối ngăn kéo; lỗi ghép, bỏ ghép hiện trong ngăn kéo hoặc hộp xác nhận.
+- Quyền hiển thị: mục menu, màn hình với `finance.bank.view`; cột thao tác theo `canManage` của API.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc, nút xuống dòng; ô đối chiếu xếp lưới tự co; số tiền, thời gian không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_18 mục 14)
+
+### MAN_HINH_59: Kết nối ngân hàng
+- Mục đích: Kết nối quỹ ngân hàng với dịch vụ trung gian; lấy địa chỉ webhook, khóa; gửi giao dịch thử.
+- Chức năng thực hiện: CHUC_NANG_84
+- Đường dẫn: `/finance/bank-connections`.
+- Bố cục: tiêu đề "Kết nối ngân hàng" kèm "Lịch sử"; người chỉ xem thấy "Bạn chỉ được xem kết nối ngân hàng.".
+  - Khối khóa (sau khi tạo kết nối hoặc đổi khóa): "Khóa xác thực webhook chỉ hiện một lần. Sao chép và khai vào dịch vụ trung gian (tiêu đề Authorization có dạng "Apikey" cách một khoảng rồi đến khóa)."; khóa; nút "Sao chép", "Đã lưu khóa, ẩn đi".
+  - Bảng: "Quỹ" (tên · mã), "Tài khoản" (ngân hàng · số tài khoản), "Dịch vụ trung gian" ("Bộ giả lập", "SePay"; nhãn "Đang bật", "Đang tắt"; chưa có: "Chưa kết nối"), "Địa chỉ webhook" (địa chỉ đầy đủ · "khóa …<bốn ký tự cuối>"), "Nhận lần cuối", cột thao tác "Kết nối" hoặc "Sửa", "Gửi thử" (kết nối bộ giả lập, ngoài môi trường thật).
+  - Ngăn kéo "Kết nối ngân hàng: <quỹ>": "Dịch vụ trung gian" (bộ giả lập chỉ hiện ngoài môi trường thật hoặc khi kết nối đang dùng bộ giả lập), chú thích theo dịch vụ ("Chỉ dùng ngoài môi trường thật để thử; gửi giao dịch thử bằng nút Gửi thử.", "Khai địa chỉ webhook và khóa vào trang quản trị SePay, kiểu chứng thực API Key."); ô chọn "Đang bật"; "Đổi khóa xác thực (khóa cũ hết hiệu lực ngay)" (khi đã có kết nối); nút "Hủy", "Lưu".
+  - Ngăn kéo "Gửi giao dịch thử: <quỹ>": "Chiều", "Số tiền", "Nội dung", "Ngày giao dịch" (gợi ý "Để trống là hôm nay."); nút "Hủy", "Gửi".
+- Dữ liệu hiển thị: quỹ ngân hàng đang dùng của công ty đang chọn và quỹ ngừng dùng đã có kết nối, theo mã quỹ.
+- Thành phần: ThanhTrenCung, MenuMiniApp, KhoiCanhBao, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_95, API_96, API_97.
+- Thao tác: "Lưu" báo "Đã lưu kết nối ngân hàng.", hiện khối khóa khi có khóa mới, tải lại; "Gửi" báo "Đã nhận giao dịch thử, tự ghép với phiếu <số>." hoặc "Đã nhận giao dịch thử, chưa ghép được phiếu.".
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có quỹ ngân hàng. Thêm quỹ loại ngân hàng ở màn hình Quỹ.".
+- Thông báo: lỗi tại trường và cuối ngăn kéo.
+- Quyền hiển thị: mục menu với `finance.bank.setup`; người có `finance.bank.view` mở đường dẫn thì chỉ xem; nút theo `canSetup`, `simulatorAllowed` của API.
+- Responsive: bảng chuyển thành thẻ; địa chỉ webhook, khóa xuống dòng theo ký tự; ô biểu mẫu xếp dọc; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_18 mục 14)

@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 2.4
+- Phiên bản: 2.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm YCAU_NGHIEPVU_38 của MODULE_06 (công nợ phải thu, phải trả), đối tượng quỹ, khoản công nợ, trừ nợ, phiếu thu chi; CONG_VIEC_14 (2026-11-10): thêm YCAU_NGHIEPVU_39 của MODULE_06 (kế toán tổng hợp), đối tượng tài khoản kế toán, định khoản mặc định, bút toán, cài đặt kế toán; CONG_VIEC_15 (2026-11-10): thêm YCAU_NGHIEPVU_40 của MODULE_06 (báo cáo tài chính), đối tượng báo cáo tài chính; tài khoản kế toán thêm thuộc tính dài hạn; CONG_VIEC_16 (2026-11-10): thêm YCAU_NGHIEPVU_41 của MODULE_06 (hóa đơn điện tử), đối tượng cài đặt hóa đơn điện tử, ký hiệu hóa đơn, hóa đơn điện tử, lần gửi hóa đơn, việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm YCAU_NGHIEPVU_42 của MODULE_06 (hoa hồng đội kinh doanh), đối tượng cài đặt hoa hồng, chỉ tiêu hoa hồng, phát sinh hoa hồng, bảng hoa hồng; đơn bán thêm nhân viên hưởng hoa hồng
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm YCAU_NGHIEPVU_38 của MODULE_06 (công nợ phải thu, phải trả), đối tượng quỹ, khoản công nợ, trừ nợ, phiếu thu chi; CONG_VIEC_14 (2026-11-10): thêm YCAU_NGHIEPVU_39 của MODULE_06 (kế toán tổng hợp), đối tượng tài khoản kế toán, định khoản mặc định, bút toán, cài đặt kế toán; CONG_VIEC_15 (2026-11-10): thêm YCAU_NGHIEPVU_40 của MODULE_06 (báo cáo tài chính), đối tượng báo cáo tài chính; tài khoản kế toán thêm thuộc tính dài hạn; CONG_VIEC_16 (2026-11-10): thêm YCAU_NGHIEPVU_41 của MODULE_06 (hóa đơn điện tử), đối tượng cài đặt hóa đơn điện tử, ký hiệu hóa đơn, hóa đơn điện tử, lần gửi hóa đơn, việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm YCAU_NGHIEPVU_42 của MODULE_06 (hoa hồng đội kinh doanh), đối tượng cài đặt hoa hồng, chỉ tiêu hoa hồng, phát sinh hoa hồng, bảng hoa hồng; đơn bán thêm nhân viên hưởng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm YCAU_NGHIEPVU_43 của MODULE_06 (đối soát ngân hàng), đối tượng kết nối ngân hàng, giao dịch ngân hàng
 
 ## MODULE_01 Nền tảng
 
@@ -113,6 +113,12 @@
 |---|---|---|---|
 | YCAU_NGHIEPVU_42 | Tính, chốt, hạch toán hoa hồng đội kinh doanh theo tiền đã thu, theo chính sách của từng công ty | Kế toán, Kế toán trưởng, Nhân viên kinh doanh | Tài liệu `04` mục 6; tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`) |
 
+## MODULE_06 Tài chính – Kế toán (phần 6: Đối soát ngân hàng, CONG_VIEC_18)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_43 | Nhận giao dịch ngân hàng tự động qua dịch vụ trung gian chọn theo từng công ty, ghép với phiếu thu chi, đối chiếu số dư quỹ ngân hàng | Kế toán, Kế toán trưởng | Tài liệu `04` mục 6; tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`) |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -191,3 +197,6 @@
 | Phát sinh hoa hồng | Nhân viên, đơn bán, dòng đơn, nguồn (thu tiền, hoàn tiền trả hàng, bán lẻ giao hàng, bán lẻ trả hàng), chứng từ nguồn (lần trừ nợ hoặc phiếu kho), phiếu xuất hoặc phiếu trả, ngày, tiền gồm thuế, tiền chưa thuế, phần trăm, hoa hồng (có dấu), bảng hoa hồng | Thuộc công ty; mỗi chứng từ nguồn một phát sinh cho mỗi dòng đơn; vào nhiều nhất một bảng hoa hồng |
 | Bảng hoa hồng | Tháng, số (`HH`…), trạng thái (nháp, chờ duyệt, đã ghi sổ, bị từ chối, đã rút), tổng hoa hồng, lý do không ghi sổ được, người lập; các dòng theo nhân viên (cơ sở, hoa hồng trước hệ số, chỉ tiêu, phần trăm đạt, hệ số, hoa hồng) | Thuộc công ty; mỗi tháng một bảng đang dùng; có một yêu cầu duyệt khi gửi; ghi sổ sinh một bút toán |
 | Đơn bán (bổ sung) | Nhân viên hưởng hoa hồng | Gán khi gửi đơn (CONG_VIEC_17) |
+
+| Kết nối ngân hàng | Quỹ ngân hàng, dịch vụ trung gian (bộ giả lập, SePay), khóa xác thực webhook (lưu mã hóa, chỉ hiện bốn ký tự cuối), bật tắt, lần nhận cuối, người và thời điểm sửa | Mỗi quỹ ngân hàng tối đa một kết nối; thuộc công ty của quỹ (CONG_VIEC_18) |
+| Giao dịch ngân hàng | Mã giao dịch của dịch vụ, thời điểm, ngày theo giờ Việt Nam, chiều (tiền vào, tiền ra), số tiền, nội dung chuyển khoản, mã tham chiếu, số dư sau giao dịch, trạng thái (chưa ghép, đã ghép, bỏ qua), phiếu thu chi đã ghép, người ghép (trống: tự ghép), khách gợi ý và căn cứ gợi ý, phiếu thu lập từ gợi ý, lý do bỏ qua, dữ liệu webhook gốc | Thuộc một kết nối và một quỹ; mỗi kết nối lưu một lần cho mỗi mã giao dịch của dịch vụ; ghép tối đa một phiếu thu chi, mỗi phiếu ghép tối đa một giao dịch (CONG_VIEC_18) |
