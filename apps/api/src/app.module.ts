@@ -73,6 +73,7 @@ import { CollectionStatementsService } from "./collection/collection-statements.
 import { ConsolidationController } from "./consolidation/consolidation.controller";
 import { ConsolidationService } from "./consolidation/consolidation.service";
 import { CommissionsService } from "./commission/commissions.service";
+import { MyCommissionsService } from "./commission/my-commissions.service";
 import { EinvoiceCorrectionsService } from "./einvoice/einvoice-corrections.service";
 import { EinvoiceSettingsService } from "./einvoice/einvoice-settings.service";
 import { EinvoicesController } from "./einvoice/einvoices.controller";
@@ -154,6 +155,7 @@ import { UsersService } from "./users/users.service";
     EinvoicesService,
     EinvoiceCorrectionsService,
     CommissionsService,
+    MyCommissionsService,
     CommissionStatementsService,
     BankReconciliationService,
     CollectionStatementsService,

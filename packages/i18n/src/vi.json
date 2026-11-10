@@ -2441,7 +2441,7 @@
     "periodTotals": "Phát sinh Nợ {debit} · phát sinh Có {credit}",
     "lockedThrough": "Đã khóa sổ đến",
     "notLocked": "chưa khóa",
-    "nextMonth": "Tháng tiếp theo cần khóa",
+    "nextMonth": "Sau ›",
     "closeHint": "Khóa lần lượt từng tháng đã kết thúc. Khóa sổ kết chuyển doanh thu, chi phí sang xác định kết quả, kết quả sang lợi nhuận chưa phân phối; sau đó không ghi sổ chứng từ có ngày trong kỳ đã khóa.",
     "closeMonth": "Khóa sổ tháng {month}",
     "reopenMonth": "Mở lại tháng {month}",
@@ -2695,7 +2695,7 @@
     "status_posted": "Đã ghi sổ",
     "status_rejected": "Bị từ chối",
     "status_withdrawn": "Đã rút",
-    "nextMonth": "Tháng tiếp theo cần chốt: {month}",
+    "nextMonth": "Sau ›",
     "noNextMonth": "Chưa có tháng nào cần chốt.",
     "createStatement": "Lập bảng tháng {month}",
     "statementCreated": "Đã lập bảng hoa hồng tháng {month}.",
@@ -3089,6 +3089,19 @@
     "submitOrder": "Gửi đơn",
     "editOrder": "Sửa đơn",
     "withdrawOrder": "Rút đơn",
-    "noNumber": "Chưa có số"
+    "noNumber": "Chưa có số",
+    "tabCommissions": "Hoa hồng",
+    "previousMonth": "‹ Trước",
+    "nextMonth": "Sau ›",
+    "commissionEstimate": "Hoa hồng tạm tính",
+    "commissionBase": "Tiền thu tính hoa hồng {amount}",
+    "commissionTarget": "Chỉ tiêu {amount}, đạt {percent}%",
+    "commissionNote": "Chưa nhân hệ số chỉ tiêu; số chính thức theo bảng hoa hồng tháng.",
+    "commissionEvents": "Phát sinh trong tháng",
+    "noCommissionEvents": "Chưa có phát sinh.",
+    "commissionStatements": "Bảng hoa hồng tháng",
+    "noCommissionStatements": "Chưa có bảng hoa hồng.",
+    "statementPosted": "Đã ghi sổ",
+    "statementPending": "Chờ duyệt"
   }
 }

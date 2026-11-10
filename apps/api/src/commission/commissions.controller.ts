@@ -6,6 +6,8 @@ import {
   type CommissionStatementResponse,
   type CommissionStatementsResponse,
   commissionTargetsQuerySchema,
+  myCommissionsQuerySchema,
+  type MyCommissionsResponse,
   saveCommissionTargetsSchema,
   updateCommissionSettingsSchema,
   type CommissionEventItem,
@@ -21,6 +23,7 @@ import { UuidPipe } from "../common/uuid.pipe";
 import { z } from "zod";
 import { CommissionStatementsService } from "./commission-statements.service";
 import { CommissionsService } from "./commissions.service";
+import { MyCommissionsService } from "./my-commissions.service";
 
 @Controller("finance")
 export class CommissionsController {
@@ -28,7 +31,15 @@ export class CommissionsController {
     private readonly permissionService: PermissionService,
     private readonly commissions: CommissionsService,
     private readonly statements: CommissionStatementsService,
+    private readonly mine: MyCommissionsService,
   ) {}
+
+  // API_115: hoa hồng của chính mình; quyền gán ở phạm vi nào trong công ty cũng được, chỉ trả dữ liệu của người xem (QUYTAC_NGHIEPVU_140).
+  @Get("my-commissions")
+  async myCommissions(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<MyCommissionsResponse> {
+    const company = await this.permissionService.authorize(request.auth.userId, companyId, "finance.commission.view_own");
+    return this.mine.month({ userId: request.auth.userId, companyId: company, client: clientInfo(request) }, myCommissionsQuerySchema.parse(query).month);
+  }
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
     const companyId = await this.permissionService.authorize(request.auth.userId, requestedCompanyId, "finance.access", "finance.commission.view");

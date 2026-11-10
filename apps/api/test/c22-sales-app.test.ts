@@ -136,3 +136,81 @@ describe("CONG_VIEC_22 khách của tôi", () => {
     expect((await bearer("get", `/crm/partners/${other}/summary`, token)).status).toBe(404);
   });
 });
+
+describe("CONG_VIEC_22 hoa hồng của tôi", () => {
+  it("KICHBAN_KIEMTHU_292: chỉ trả phát sinh, chỉ tiêu, bảng hoa hồng của chính người xem; tổng khớp phát sinh; không có quyền thì 403", async () => {
+    const admin = await signIn(application, "quantri.vcr@vcomm.test");
+    const call = (method: "get" | "post", path: string, body?: unknown) => admin.call(method, path, { companyId: retail, body });
+    const unitId = (await pool.query<{ id: string }>("SELECT id FROM catalog.units WHERE code = 'CAI'")).rows[0]!.id;
+    const groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
+    const categoryId = (await groupAdmin.call("post", "/catalog/categories", { companyId: retail, body: { code: "HHUD", nameVi: "Hoa hồng ứng dụng", nameEn: "App commission" } })).body.id;
+    const product = await call("post", "/catalog/products", {
+      categoryId,
+      name: "Hàng tính hoa hồng",
+      vatRate: "10",
+      tracksLots: false,
+      tracksSerials: false,
+      warrantyMonths: 0,
+      baseUnitId: unitId,
+      variants: [{ barcodes: [] }],
+    });
+    expect(product.status, JSON.stringify(product.body)).toBe(201);
+    const variantId = product.body.variants[0].id as string;
+    const warehouseId = (await call("post", "/inventory/warehouses", { branchId: testIds.binhDuongWarehouse, code: "KHHUD", name: "Kho hoa hồng", usesLocations: false })).body.id as string;
+    const channelId = (await call("post", "/catalog/sales-channels/defaults")).body.find((item: { code: string }) => item.code === "BAN_LE").id as string;
+    await assign("other", "banhang.khac@vcomm.test", "Bán Hàng Khác", "salesperson");
+    const order = (
+      await pool.query<{ id: string }>(
+        `INSERT INTO sales.orders (company_id, buyer_name, channel_id, warehouse_id, order_date, currency, created_by, document_no) VALUES ($1, 'Khách lẻ', $2, $3, '2026-11-02', 'VND', $4, 'DBH-UD-1') RETURNING id`,
+        [retail, channelId, warehouseId, ids.seller],
+      )
+    ).rows[0]!.id;
+    const line = (
+      await pool.query<{ id: string }>(
+        `INSERT INTO sales.order_lines (order_id, line_no, variant_id, unit_id, quantity, base_quantity, list_price, price_includes_vat, unit_price, vat_rate, net_amount, tax_amount, total_amount)
+         VALUES ($1, 1, $2, $3, 1, 1, 1000000, false, 1000000, '10', 1000000, 100000, 1100000) RETURNING id`,
+        [order, variantId, unitId],
+      )
+    ).rows[0]!.id;
+    const document = (
+      await pool.query<{ id: string }>(
+        `INSERT INTO inventory.documents (company_id, warehouse_id, type, document_date, reason, created_by, source_id) VALUES ($1, $2, 'sales_issue', '2026-11-02', 'Thử', $3, $4) RETURNING id`,
+        [retail, warehouseId, ids.seller, order],
+      )
+    ).rows[0]!.id;
+    const event = (userId: string, date: string, base: number, amount: number, source: string) =>
+      pool.query(
+        `INSERT INTO finance.commission_events (company_id, user_id, order_id, source_type, source_id, document_id, order_line_id, event_date, base_amount, percent, amount)
+         VALUES ($1, $2, $3, 'retail_delivery', $4, $5, $6, $7, $8, 2, $9)`,
+        [retail, userId, order, source, document, line, date, base, amount],
+      );
+    await event(ids.seller!, "2026-11-02", 1000000, 20000, "00000000-0000-4000-8000-000000000001");
+    await event(ids.seller!, "2026-11-05", -200000, -4000, "00000000-0000-4000-8000-000000000002");
+    await event(ids.seller!, "2026-10-30", 500000, 10000, "00000000-0000-4000-8000-000000000003");
+    await event(ids.other!, "2026-11-03", 900000, 18000, "00000000-0000-4000-8000-000000000004");
+    await pool.query("INSERT INTO finance.commission_targets (company_id, user_id, month, amount) VALUES ($1, $2, '2026-11', 1600000)", [retail, ids.seller]);
+    const statement = (
+      await pool.query<{ id: string }>("INSERT INTO finance.commission_statements (company_id, month, document_no, status) VALUES ($1, '2026-10', 'HH-10', 'posted') RETURNING id", [retail])
+    ).rows[0]!.id;
+    await pool.query(
+      `INSERT INTO finance.commission_statement_lines (statement_id, user_id, base_amount, commission_before, target_amount, achieved_percent, multiplier, amount) VALUES
+       ($1, $2, 500000, 10000, null, null, 1, 10000), ($1, $3, 700000, 14000, null, null, 1, 14000)`,
+      [statement, ids.seller, ids.other],
+    );
+
+    const token = (await appLogin("banhang.app@vcomm.test")).body.tokens.accessToken as string;
+    const mine = await bearer("get", "/finance/my-commissions?month=2026-11", token);
+    expect(mine.status, JSON.stringify(mine.body)).toBe(200);
+    expect(mine.body).toMatchObject({ month: "2026-11", currency: "VND", baseAmount: "800000", commissionAmount: "16000", targetAmount: "1600000", achievedPercent: "50" });
+    expect(mine.body.events.map((item: { date: string; amount: string; orderNo: string }) => [item.date, item.amount, item.orderNo])).toEqual([
+      ["2026-11-05", "-4000", "DBH-UD-1"],
+      ["2026-11-02", "20000", "DBH-UD-1"],
+    ]);
+    expect(mine.body.statements).toEqual([{ month: "2026-10", documentNo: "HH-10", status: "posted", baseAmount: "500000", achievedPercent: null, multiplier: "1", amount: "10000" }]);
+    expect((await bearer("get", "/finance/my-commissions?month=2026-13", token)).status).toBe(400);
+    // Kế toán (không có quyền xem hoa hồng của mình) bị từ chối.
+    await assign("accountant", "ketoan.ud@vcomm.test", "Kế Toán Ứng Dụng", "accountant");
+    const accountant = (await appLogin("ketoan.ud@vcomm.test")).body.tokens.accessToken as string;
+    expect((await bearer("get", "/finance/my-commissions?month=2026-11", accountant)).status).toBe(403);
+  });
+});

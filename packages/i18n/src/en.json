@@ -2441,7 +2441,7 @@
     "periodTotals": "Debits {debit} · credits {credit}",
     "lockedThrough": "Locked through",
     "notLocked": "not locked",
-    "nextMonth": "Next month to close",
+    "nextMonth": "Next ›",
     "closeHint": "Close ended months in order. Closing transfers revenue and expenses to the income summary and the result to retained earnings; documents dated in closed periods can no longer be posted.",
     "closeMonth": "Close {month}",
     "reopenMonth": "Reopen {month}",
@@ -2695,7 +2695,7 @@
     "status_posted": "Posted",
     "status_rejected": "Rejected",
     "status_withdrawn": "Withdrawn",
-    "nextMonth": "Next month to close: {month}",
+    "nextMonth": "Next ›",
     "noNextMonth": "No month to close yet.",
     "createStatement": "Create statement for {month}",
     "statementCreated": "Commission statement for {month} created.",
@@ -3089,6 +3089,19 @@
     "submitOrder": "Submit order",
     "editOrder": "Edit order",
     "withdrawOrder": "Withdraw order",
-    "noNumber": "No number yet"
+    "noNumber": "No number yet",
+    "tabCommissions": "Commission",
+    "previousMonth": "‹ Previous",
+    "nextMonth": "Next ›",
+    "commissionEstimate": "Estimated commission",
+    "commissionBase": "Collected base {amount}",
+    "commissionTarget": "Target {amount}, achieved {percent}%",
+    "commissionNote": "Before the target multiplier; the monthly statement is final.",
+    "commissionEvents": "This month's entries",
+    "noCommissionEvents": "No entries yet.",
+    "commissionStatements": "Monthly statements",
+    "noCommissionStatements": "No statements yet.",
+    "statementPosted": "Posted",
+    "statementPending": "Pending"
   }
 }

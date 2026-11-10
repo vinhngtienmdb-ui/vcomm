@@ -3803,3 +3803,17 @@ export interface PartnerSummaryResponse {
   recentOrders: { id: string; documentNo: string | null; orderDate: string; status: string; totalAmount: string }[];
 }
 
+// API_115: hoa hồng của chính người đang đăng nhập (CONG_VIEC_22; QUYTAC_NGHIEPVU_140).
+export const myCommissionsQuerySchema = z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/) }).strict();
+export interface MyCommissionsResponse {
+  month: string;
+  currency: string;
+  // Tổng tiền thu chưa thuế tính hoa hồng, hoa hồng trước hệ số chỉ tiêu (tạm tính), chỉ tiêu tháng.
+  baseAmount: string;
+  commissionAmount: string;
+  targetAmount: string | null;
+  achievedPercent: string | null;
+  events: { date: string; orderNo: string | null; customerName: string | null; baseAmount: string; percent: string; amount: string }[];
+  statements: { month: string; documentNo: string | null; status: "pending" | "posted"; baseAmount: string; achievedPercent: string | null; multiplier: string; amount: string }[];
+}
+

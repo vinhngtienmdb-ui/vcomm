@@ -69,6 +69,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   // CONG_VIEC_21: gán khách hàng cho nhân viên kinh doanh (THAY_DOI_12).
   { code: "crm.customer.view_all", appCode: "crm", nameVi: "Xem mọi khách hàng, đơn bán của công ty", nameEn: "View all customers and sales orders of the company", isSensitive: false },
   { code: "crm.customer.assign", appCode: "crm", nameVi: "Giao, chuyển khách hàng cho nhân viên", nameEn: "Assign customers to staff", isSensitive: false },
+  // CONG_VIEC_22: ứng dụng nhân viên kinh doanh (THAY_DOI_13).
+  { code: "crm.visit.manage", appCode: "crm", nameVi: "Ghi lượt ghé thăm khách", nameEn: "Record customer visits", isSensitive: false },
+  { code: "finance.commission.view_own", appCode: "finance", nameVi: "Xem hoa hồng của chính mình", nameEn: "View own commissions", isSensitive: false },
   // CONG_VIEC_07: Mua hàng trong nước (MODULE_04, phần 1).
   { code: "purchasing.price.manage", appCode: "purchasing", nameVi: "Quản lý bảng giá mua", nameEn: "Manage supplier prices", isSensitive: false },
   { code: "purchasing.requisition.create", appCode: "purchasing", nameVi: "Lập đề nghị mua", nameEn: "Create purchase requisitions", isSensitive: false },
@@ -137,6 +140,8 @@ const companyAdminPermissions = [
   "crm.profile.manage",
   "crm.customer.view_all",
   "crm.customer.assign",
+  "crm.visit.manage",
+  "finance.commission.view_own",
   "purchasing.price.manage",
   "purchasing.requisition.create",
   "purchasing.order.view",
@@ -226,7 +231,20 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     code: "salesperson",
     nameVi: "Nhân viên bán hàng",
     nameEn: "Salesperson",
-    permissionCodes: ["sales.access", "sales.order.view", "sales.order.manage", "sales.promotion.view", "crm.access", "crm.partner.view", "crm.partner.manage", "catalog.access", "catalog.price.view"],
+    permissionCodes: [
+      "sales.access",
+      "sales.order.view",
+      "sales.order.manage",
+      "sales.promotion.view",
+      "crm.access",
+      "crm.partner.view",
+      "crm.partner.manage",
+      "catalog.access",
+      "catalog.price.view",
+      // CONG_VIEC_22: ghé thăm khách, hoa hồng của tôi trên ứng dụng (THAY_DOI_13).
+      "crm.visit.manage",
+      "finance.commission.view_own",
+    ],
   },
   {
     code: "accountant",
