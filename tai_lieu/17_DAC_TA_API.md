@@ -1,12 +1,12 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Hợp đồng API: endpoint, phương thức, dữ liệu gửi lên, dữ liệu trả về, xác thực, phân quyền, kiểm tra dữ liệu, lỗi, phân trang.
-- Phiên bản: 2.0
+- Phiên bản: 2.1
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79; CONG_VIEC_12 (2026-11-10): thêm API_83 khuyến mãi (mục 2g, 3g); bổ sung API_77; CONG_VIEC_13 (2026-11-10): thêm API_84 đến API_86 của MODULE_06 phần 1 (mục 2h, 3h); sửa API_77 kiểm hạn mức theo dư nợ thật; CONG_VIEC_14 (2026-11-10): thêm API_87 đến API_89 của MODULE_06 phần 2 (mục 2i, 3i); bổ sung API_20 (từ chối đổi chế độ kế toán khi đã có bút toán); ghi sổ chứng từ kiểm kỳ khóa sổ
+- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79; CONG_VIEC_12 (2026-11-10): thêm API_83 khuyến mãi (mục 2g, 3g); bổ sung API_77; CONG_VIEC_13 (2026-11-10): thêm API_84 đến API_86 của MODULE_06 phần 1 (mục 2h, 3h); sửa API_77 kiểm hạn mức theo dư nợ thật; CONG_VIEC_14 (2026-11-10): thêm API_87 đến API_89 của MODULE_06 phần 2 (mục 2i, 3i); bổ sung API_20 (từ chối đổi chế độ kế toán khi đã có bút toán); ghi sổ chứng từ kiểm kỳ khóa sổ; CONG_VIEC_15 (2026-11-10): thêm API_90 báo cáo tài chính của MODULE_06 phần 3 (mục 2j, 3j); bổ sung API_87 (`isLongTerm`)
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14).
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15).
 
 ## 1. Quy ước chung
 
@@ -224,6 +224,16 @@ Bổ sung API_20 (CONG_VIEC_14): `PATCH /companies/{id}` đổi `accountingRegim
 Bổ sung ghi sổ chứng từ (CONG_VIEC_14): công ty đã khởi tạo kế toán thì ghi sổ phiếu kho (API_65, API_76, API_79; trừ chuyển kho), phiếu thu chi (API_86), ghi tổn thất biên bản nội bộ (API_82) sinh bút toán trong cùng giao dịch. Ngày chứng từ (ghi tổn thất: hôm nay) thuộc kỳ đã khóa: gửi phiếu kho (mọi loại, kể cả chuyển kho, API_65, API_66, API_76, API_79) hoặc ghi sổ trả `409 BUSINESS_RULE` "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ.", cả lần không thực hiện; phiếu chi duyệt xong rơi vào kỳ khóa thì `rejected`, `postError` `periodLocked`; phiếu kho duyệt xong rơi vào kỳ khóa thì `rejected` (ghi chú thêm lý do), nhả hàng giữ. Ghi tổn thất (API_82) sinh bút toán Nợ giảm trừ doanh thu, Nợ thuế đầu ra / Có phải thu.
 
 Bổ sung API_85, API_86 (CONG_VIEC_14, THAY_DOI_10): `amount` của số dư đầu kỳ, phiếu thu chi, `lines[].amount` lẻ hơn đơn vị tiền tệ công ty thì `400` "Giá trị không hợp lệ." tại đúng trường. Công nợ phiếu kho, ghi tổn thất làm tròn đến đơn vị tiền tệ theo lũy kế từng dòng đơn (`finance.inventory_amounts`). Hợp đồng không đổi.
+
+## 2j. Danh sách endpoint báo cáo tài chính (MODULE_06 phần 3, CONG_VIEC_15)
+
+Như mục 2i: API_90 nằm trong `apps/api/src/accounting/ledger.controller.ts`, trước hết cần `finance.access` hoặc `finance.ledger.view` trong công ty đang làm việc; quyền chi tiết kiểm trong `StatementsService`.
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_90 | `GET /finance/statements?kind=&from=&to=&form=&format=` | CHUC_NANG_74, CHUC_NANG_75 | `finance.ledger.view` | Tham số truy vấn: `kind` (`balance_sheet`, `income_statement`), `from`, `to`, `form`, `format` (`xlsx`, `pdf`) | `StatementResponse`; tệp Excel hoặc PDF khi có `format` |
+
+Bổ sung API_87 (CONG_VIEC_15): `PATCH /finance/accounts/{id}` nhận thêm `isLongTerm` (không bắt buộc; không gửi thì giữ giá trị cũ); `true` với tài khoản hệ thống thì `400 VALIDATION_FAILED` tại `isLongTerm` "Chỉ đánh dấu dài hạn cho tài khoản chi tiết do kế toán mở." (khóa `accountSystemLongTerm`). `GET /finance/accounts` trả thêm `isLongTerm`.
 
 ## 3. Hợp đồng chi tiết
 
@@ -756,6 +766,25 @@ Gửi lên (`POST /finance/ledger/periods/close`): `{ "month": "2026-10" }`.
 - `accounts/{id}` (`200`): `{ account ({ id, code, name, nature }), from, to, currency, openingBalance, entries[] ({ journalId, journalNo, journalDate, description, accountCode, counterAccounts[], partnerName, debit, credit, balance }), totalDebit, totalCredit, closingBalance }`; gồm tài khoản chi tiết; số dư theo bên Nợ (âm là dư Có); theo ngày, thời điểm tạo, số dòng; danh sách tối đa 10.000 dòng; `totalDebit`, `totalCredit`, `closingBalance` tính bằng SQL trên toàn khoảng ngày.
 - Lỗi: `400` tại `to` "Ngày kết thúc phải sau ngày bắt đầu."; `403`; `404` (tài khoản của công ty khác); `409 BUSINESS_RULE` "Không khóa được tháng này (khóa lần lượt từng tháng đã kết thúc).", "Còn phiếu kế toán chờ duyệt trong kỳ.", "Còn phiếu kho hoặc phiếu chi đang chờ (duyệt, kiểm tra chất lượng, nhận hàng nội bộ) có ngày trong kỳ.", "Công ty chưa khởi tạo kế toán."; `409 CONFLICT_VERSION`.
 
+## 3j. Hợp đồng chi tiết báo cáo tài chính (MODULE_06 phần 3, CONG_VIEC_15)
+
+### API_90 Báo cáo tài chính
+Ví dụ: `GET /finance/statements?kind=balance_sheet&to=2026-11-10&form=B01b-DNN`; `GET /finance/statements?kind=income_statement&from=2026-01-01&to=2026-11-10&format=pdf`.
+- Kiểm tra (lược đồ `statementQuerySchema` trong `packages/contracts/src/index.ts`, trường thừa bị từ chối): `kind` bắt buộc, `balance_sheet` hoặc `income_statement`; `to` bắt buộc, ngày `YYYY-MM-DD`; `from` ngày, không bắt buộc (thiếu thì bằng `to`; báo cáo tình hình tài chính không dùng); `form` tối đa 20 ký tự; `format` `xlsx` hoặc `pdf`. Phía máy chủ: có `finance.ledger.view`; công ty đã khởi tạo kế toán; `from` không sau `to`.
+- Mẫu: theo chế độ kế toán của công ty. `TT99_2025`: `balance_sheet` B01-DN, `income_statement` B02-DN. `TT133`: `balance_sheet` B01a-DNN, hoặc B01b-DNN khi `form=B01b-DNN`; `income_statement` B02-DNN. `form` không khớp mẫu nào của chế độ thì dùng mẫu mặc định.
+- Không có `format` (`200`), `StatementResponse`:
+```json
+{ "kind": "balance_sheet", "form": "B01-DN", "name": "Báo cáo tình hình tài chính", "forms": ["B01-DN"], "regime": "TT99_2025",
+  "company": { "name": "Công ty ...", "taxCode": "0300000000", "address": "..." }, "currency": "VND",
+  "columns": [ { "label": "endOfPeriod", "from": null, "to": "2026-11-10" }, { "label": "startOfYear", "from": null, "to": "2025-12-31" } ],
+  "lines": [ { "code": "131", "name": "1. Phải thu ngắn hạn của khách hàng", "level": 2, "note": "Mặc định toàn bộ là ngắn hạn (xem 211).", "current": "44000", "previous": "0" } ] }
+```
+- `columns`: `balance_sheet` có `endOfPeriod` (tại `to`), `startOfYear` (ngày trước ngày đầu năm tài chính chứa `to`, theo `core.companies.fiscal_year_start`); `income_statement` có `currentPeriod` (`from` đến `to`), `previousPeriod` (lùi một năm; 29/02 thành 28/02). `forms`: các mẫu chọn được của loại báo cáo. `lines` theo thứ tự của mẫu; `level` 0 là dòng tổng; `note` là cách lấy số liệu khi có; `current`, `previous` dạng chuỗi, làm tròn theo tiền tệ công ty, bỏ số 0 thừa.
+- Cách tính: chỉ bút toán `posted` của công ty; tình hình tài chính lấy số dư đến hết ngày, số dư tài khoản loại 5 đến 9 cộng vào tài khoản của vai trò `retained_earnings`; kết quả kinh doanh lấy phát sinh trong khoảng ngày, không tính bút toán `closing` (CHUC_NANG_74, CHUC_NANG_75).
+- `format=xlsx` (`200`): `content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, `content-disposition: attachment; filename="<form>-<to>.xlsx"`; thân là tệp nhị phân.
+- `format=pdf` (`200`): `content-type: application/pdf`, `content-disposition: inline; filename="<form>-<to>.pdf"`; thân là tệp nhị phân.
+- Lỗi: `400 VALIDATION_FAILED` tại `to` "Ngày kết thúc phải sau ngày bắt đầu."; tham số sai "Giá trị không hợp lệ." (thiếu `kind`, `to`: "Vui lòng nhập thông tin này."); `403`; `409 BUSINESS_RULE` "Công ty chưa khởi tạo kế toán.". Lỗi trả JSON như mục 1, kể cả khi có `format`.
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |
@@ -785,3 +814,5 @@ MODULE_05 phần 3 (CONG_VIEC_12) không phát sự kiện mới; mini app Bán 
 MODULE_06 phần 1 (CONG_VIEC_13) không phát sự kiện mới; mini app Tài chính – Kế toán nghe `core.approval.completed` của loại chứng từ `finance.payment` để ghi sổ phiếu chi duyệt xong (không ghi sổ được thì `rejected` kèm `postError`), chuyển `rejected`, `withdrawn` (API_86). Công nợ tự phát sinh không qua sự kiện mà qua móc nối `postedHooks` trong giao dịch ghi sổ phiếu kho và `writtenOffHooks` trong giao dịch ghi tổn thất biên bản chênh lệch nội bộ (API_82).
 
 MODULE_06 phần 2 (CONG_VIEC_14) không phát sự kiện mới; mini app Tài chính – Kế toán nghe `core.approval.completed` của loại chứng từ `accounting.journal` để ghi sổ phiếu kế toán duyệt xong (kỳ đã khóa thì `rejected` kèm `postError`), chuyển `rejected`, `withdrawn` (API_88). Bút toán tự sinh không qua sự kiện mà qua móc nối `postedHooks` (phiếu kho, phiếu thu chi), `writtenOffHooks` (ghi tổn thất biên bản nội bộ) trong cùng giao dịch ghi sổ.
+
+MODULE_06 phần 3 (CONG_VIEC_15) không phát, không nghe sự kiện; API_90 chỉ đọc.

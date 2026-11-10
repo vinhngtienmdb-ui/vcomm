@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 2.1
+- Phiên bản: 2.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ); CONG_VIEC_14 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_111 đến TIEUCHI_NGHIEMTHU_116 của MODULE_06 (kế toán tổng hợp)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ); CONG_VIEC_14 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_111 đến TIEUCHI_NGHIEMTHU_116 của MODULE_06 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_117 đến TIEUCHI_NGHIEMTHU_120 của MODULE_06 (báo cáo tài chính)
 
 ## MODULE_01 Nền tảng
 
@@ -195,3 +195,14 @@ Dữ liệu mẫu: công ty VCR chế độ Thông tư 99/2025, tiền tệ đ�
 | TIEUCHI_NGHIEMTHU_114 | CHUC_NANG_71, CHUC_NANG_73 | Khóa sổ tạo bút toán kết chuyển đúng (loại 5 đến 8 sang 911, kết quả sang 4212); chứng từ có ngày trong kỳ khóa bị từ chối; tháng chưa kết thúc không khóa được; người không có quyền không khóa được; mở lại tháng gần nhất xóa kết chuyển | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_115 | CHUC_NANG_73 | Bảng cân đối số phát sinh cân ở mọi cột, cộng dồn lên tài khoản cha; sổ cái đúng số dư lũy kế, tài khoản đối ứng | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_116 | CHUC_NANG_69 đến CHUC_NANG_73 | Màn hình MAN_HINH_50 đến MAN_HINH_52 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |
+
+## MODULE_06 Tài chính – Kế toán (phần 3: Báo cáo tài chính, CONG_VIEC_15)
+
+Dữ liệu mẫu: công ty VCR chế độ Thông tư 99/2025, tiền tệ đồng Việt Nam, năm tài chính bắt đầu tháng 1; "Hàng công nợ A" thuế 10%, giá bán gồm thuế 11.000, giá vốn 8.000; "Khách công nợ", "Nhà cung cấp công nợ"; công ty thương mại chuyển sang Thông tư 133. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_117 | CHUC_NANG_74 | Báo cáo tình hình tài chính đúng mẫu theo chế độ, số liệu đúng cách lấy (phải thu theo đối tác, lợi nhuận năm nay gồm phần chưa kết chuyển, số đầu năm); tổng tài sản bằng tổng nguồn vốn khi kỳ chưa khóa và đã khóa sổ; người không có quyền không xem được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_118 | CHUC_NANG_75 | Báo cáo kết quả kinh doanh đúng mẫu, doanh thu, giảm trừ doanh thu, doanh thu thuần, giá vốn, lợi nhuận đúng; khớp lợi nhuận chưa phân phối tăng trong kỳ; không đổi sau khóa sổ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_119 | CHUC_NANG_74, CHUC_NANG_75 | Tài khoản chi tiết đánh dấu dài hạn vào đúng chỉ tiêu dài hạn; tài khoản của chế độ không đánh dấu được; Thông tư 133 chọn được B01a-DNN, B01b-DNN, kết quả B02-DNN | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_120 | CHUC_NANG_74, CHUC_NANG_75 | Xuất Excel, PDF đúng số liệu, đúng loại tệp; MAN_HINH_53 (và ô "Dài hạn" ở MAN_HINH_50) đạt danh sách rà soát giao diện trên máy tính và điện thoại | Gọi API, trình duyệt | Bắt buộc |

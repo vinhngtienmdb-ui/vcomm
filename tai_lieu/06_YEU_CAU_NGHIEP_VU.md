@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 2.1
+- Phiên bản: 2.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm YCAU_NGHIEPVU_38 của MODULE_06 (công nợ phải thu, phải trả), đối tượng quỹ, khoản công nợ, trừ nợ, phiếu thu chi; CONG_VIEC_14 (2026-11-10): thêm YCAU_NGHIEPVU_39 của MODULE_06 (kế toán tổng hợp), đối tượng tài khoản kế toán, định khoản mặc định, bút toán, cài đặt kế toán
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm YCAU_NGHIEPVU_38 của MODULE_06 (công nợ phải thu, phải trả), đối tượng quỹ, khoản công nợ, trừ nợ, phiếu thu chi; CONG_VIEC_14 (2026-11-10): thêm YCAU_NGHIEPVU_39 của MODULE_06 (kế toán tổng hợp), đối tượng tài khoản kế toán, định khoản mặc định, bút toán, cài đặt kế toán; CONG_VIEC_15 (2026-11-10): thêm YCAU_NGHIEPVU_40 của MODULE_06 (báo cáo tài chính), đối tượng báo cáo tài chính; tài khoản kế toán thêm thuộc tính dài hạn
 
 ## MODULE_01 Nền tảng
 
@@ -95,6 +95,12 @@
 |---|---|---|---|
 | YCAU_NGHIEPVU_39 | Ghi sổ kế toán kép theo chế độ kế toán từng công ty (Thông tư 99/2025 hoặc Thông tư 133); bút toán tự sinh từ nghiệp vụ; điều chỉnh bằng phiếu kế toán qua luồng duyệt; khóa sổ theo tháng; xem sổ cái, bảng cân đối số phát sinh | Kế toán, Kế toán trưởng | Tài liệu `05` mục 2.1; THAY_DOI_03; quyết định của người dùng 2026-11-10 (tài liệu `02`) |
 
+## MODULE_06 Tài chính – Kế toán (phần 3: Báo cáo tài chính, CONG_VIEC_15)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_40 | Lập báo cáo tình hình tài chính, báo cáo kết quả hoạt động kinh doanh theo mẫu của chế độ kế toán từng công ty từ số liệu sổ cái; xem trên màn hình, xuất Excel, PDF | Kế toán trưởng, Ban giám đốc | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`); Thông tư 99/2025/TT-BTC Điều 17, Phụ lục IV; Thông tư 133/2016/TT-BTC Điều 81 |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -159,6 +165,7 @@
 | Trừ nợ | Số tiền, thời điểm | Ghép một khoản giảm nợ với một khoản tăng nợ cùng công ty, đối tác, phía |
 | Phiếu thu, phiếu chi | Số (`PT`…, `PC`…), loại (thu tiền khách hàng, trả tiền nhà cung cấp, hoàn tiền cho khách hàng, nhận tiền nhà cung cấp hoàn), đối tác, quỹ, ngày, số tiền, nội dung, trạng thái (nháp, chờ duyệt, đã ghi sổ, bị từ chối, đã rút), lý do không ghi sổ được, thời điểm ghi sổ; các chứng từ chọn trừ (khoản tăng nợ, số trừ) | Thuộc công ty; phiếu chi có một yêu cầu duyệt khi gửi; ghi sổ sinh một khoản công nợ |
 | Cài đặt kế toán | Đã khởi tạo hay chưa, người và thời điểm khởi tạo, đã khóa sổ đến ngày; chế độ kế toán lấy từ công ty | Một bản mỗi công ty đã khởi tạo kế toán |
-| Tài khoản kế toán | Số hiệu (duy nhất trong công ty), tên, tính chất số dư (dư Nợ, dư Có, lưỡng tính), là tài khoản của chế độ hay tài khoản chi tiết, trạng thái (đang dùng, ngừng dùng); nhận bút toán được khi đang dùng và không có tài khoản con đang dùng | Thuộc công ty; có tài khoản cha; nạp từ chế độ kế toán khi khởi tạo |
+| Tài khoản kế toán | Số hiệu (duy nhất trong công ty), tên, tính chất số dư (dư Nợ, dư Có, lưỡng tính), là tài khoản của chế độ hay tài khoản chi tiết, dài hạn (chỉ tài khoản chi tiết; tài khoản con kế thừa), trạng thái (đang dùng, ngừng dùng); nhận bút toán được khi đang dùng và không có tài khoản con đang dùng | Thuộc công ty; có tài khoản cha; nạp từ chế độ kế toán khi khởi tạo |
 | Định khoản mặc định | Vai trò (phải thu khách hàng, doanh thu, thuế đầu ra...), tài khoản, người và thời điểm sửa | Một tài khoản cho mỗi vai trò của công ty |
 | Bút toán | Số (số chứng từ gốc, `PKT`… với phiếu kế toán, `KC-YYYY-MM` với kết chuyển), ngày, nguồn (phiếu kế toán, phiếu kho, phiếu thu chi, ghi tổn thất hàng thiếu nội bộ, kết chuyển cuối kỳ), diễn giải, tổng tiền, trạng thái (nháp, chờ duyệt, đã ghi sổ, bị từ chối, đã rút; bút toán tự sinh luôn đã ghi sổ), lý do không ghi sổ được, người lập; các dòng (tài khoản, đối tác, Nợ, Có, diễn giải) | Thuộc công ty; bút toán tự sinh gắn một chứng từ gốc; phiếu kế toán có một yêu cầu duyệt khi gửi |
+| Báo cáo tài chính | Loại (tình hình tài chính, kết quả hoạt động kinh doanh), mẫu (B01-DN, B02-DN; B01a-DNN, B01b-DNN, B02-DNN), ngày báo cáo hoặc khoảng ngày; các chỉ tiêu (mã số, tên, cấp, ghi chú cách lấy số liệu, số kỳ này, số so sánh) | Không lưu; tính khi xem từ bút toán đã ghi sổ của công ty; mẫu theo chế độ kế toán của công ty, khai báo trong mã |

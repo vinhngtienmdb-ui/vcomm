@@ -1,10 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 1.9
+- Phiên bản: 2.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6); CONG_VIEC_14 (2026-11-10): schema `accounting`, thành phần phụ trợ kế toán tổng hợp của MODULE_06 phần 2 (mục 3i, 6)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6); CONG_VIEC_14 (2026-11-10): schema `accounting`, thành phần phụ trợ kế toán tổng hợp của MODULE_06 phần 2 (mục 3i, 6); CONG_VIEC_15 (2026-11-10): thành phần phụ trợ báo cáo tài chính của MODULE_06 phần 3 (mục 3j)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -157,6 +157,16 @@ Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance de
 | Phiếu kế toán, khóa sổ | `JournalsService` (`apps/api/src/accounting/journals.service.ts`): phiếu kế toán dùng lại dãy số chứng từ (`NumberSequencesService`, `ensureSequence`, tiền tố `PKT`), luồng duyệt (`ApprovalRequestsService.submitWithin`, `withdraw`; nghe `core.approval.completed` qua outbox, loại `accounting.journal`); khóa sổ, mở lại khóa `accounting.settings` bằng `FOR UPDATE`, tạo, xóa bút toán kết chuyển `closing` | CHUC_NANG_72, CHUC_NANG_73 |
 | Sổ sách | `LedgerReportsService` (`apps/api/src/accounting/ledger-reports.service.ts`): bảng cân đối số phát sinh (cộng dồn lên tài khoản cha trong mã), sổ cái (cây tài khoản bằng truy vấn đệ quy) | CHUC_NANG_73 |
 | Giao diện | `apps/web-finance`: trang `/accounts`, `/journals`, `/journals/new`, `/journals/[id]`, `/books`; `FinanceShell` thêm ba mục menu; `JournalEditor`, `JournalStatusBadge` | CHUC_NANG_69 đến CHUC_NANG_73 |
+
+## 3j. Thành phần phụ trợ cho MODULE_06 Tài chính – Kế toán (phần 3, CONG_VIEC_15)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Mẫu báo cáo | `apps/api/src/accounting/statement-templates.ts`: mẫu B01-DN, B02-DN (Thông tư 99/2025), B01a-DNN, B01b-DNN, B02-DNN (Thông tư 133) khai báo trong mã; mỗi chỉ tiêu có mã số, tên, cấp, công thức (số dư Nợ, Có, theo đối tác, bù trừ; phát sinh có, loại tài khoản đối ứng; tổng, hiệu), `longTermOf` (chỉ tiêu dài hạn của chỉ tiêu ngắn hạn), ghi chú; nguồn văn bản của từng chế độ | CHUC_NANG_74, CHUC_NANG_75 |
+| Tính báo cáo | `StatementsService` (`apps/api/src/accounting/statements.service.ts`): kiểm quyền bằng `requireFinancePermission`; đọc `core.companies` (chế độ, tháng bắt đầu năm tài chính, tiền tệ), `accounting.accounts` (`is_long_term`, cây tài khoản), tài khoản của vai trò `retained_earnings`; số dư cuối ngày, phát sinh trong kỳ (trừ bút toán `closing`) bằng truy vấn tổng hợp `accounting.journal_lines`; tính chỉ tiêu theo thứ tự phụ thuộc; làm tròn theo `finance.company_minor_units` | CHUC_NANG_74, CHUC_NANG_75 |
+| Xuất tệp | `apps/api/src/accounting/statement-export.ts`: Excel bằng `write-excel-file`, PDF bằng `pdfmake` (phông Roboto đi kèm, chặn tải tài nguyên theo URL, chỉ đọc thư mục phông); `LedgerController.statement` (`apps/api/src/accounting/ledger.controller.ts`) trả `StreamableFile` kèm `content-type`, `content-disposition` | CHUC_NANG_75 |
+| Tài khoản dài hạn | Cột `accounting.accounts.is_long_term` (database migration `0012_financial_statements.sql`); `LedgerService.updateAccount` nhận `isLongTerm`, từ chối tài khoản hệ thống | CHUC_NANG_75, CHUC_NANG_69 |
+| Giao diện | `apps/web-finance`: trang `/statements`; `FinanceShell` thêm mục menu "Báo cáo tài chính"; trang `/accounts` thêm ô "Dài hạn", nhãn "Dài hạn"; tải tệp bằng `apiDownload` (`packages/ui/src/lib/api.ts`) | CHUC_NANG_74, CHUC_NANG_75 |
 
 ## 4. Kiến trúc triển khai
 

@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26)
 
 ## MODULE_01 Nền tảng
 
@@ -377,3 +377,17 @@ Trạng thái kỳ kế toán (theo tháng):
 |---|---|---|
 | Đang mở | Khóa sổ (tháng tiếp theo, đã kết thúc, không còn chứng từ đang chờ) | Đã khóa |
 | Đã khóa (tháng khóa gần nhất) | Mở lại | Đang mở |
+
+## MODULE_06 Tài chính – Kế toán (phần 3: Báo cáo tài chính, CONG_VIEC_15)
+
+### Luồng 26. Lập, xuất báo cáo tài chính
+
+- Bắt đầu: công ty đã khởi tạo kế toán (Luồng 22). Kế toán trưởng mở "Báo cáo tài chính".
+- Các bước:
+  1. Khi cần tách ngắn hạn, dài hạn: Kế toán trưởng mở "Hệ thống tài khoản", thêm tài khoản chi tiết (ví dụ 3312 dưới 331), bấm "Sửa", chọn ô "Dài hạn", lưu (QUYTAC_NGHIEPVU_101).
+  2. Ở "Báo cáo tài chính", chọn thẻ "Tình hình tài chính" và "Tại ngày", hoặc thẻ "Kết quả kinh doanh" và "Từ ngày", "Đến ngày". Công ty theo Thông tư 133 chọn mẫu B01a-DNN hoặc B01b-DNN.
+  3. Hệ thống tính từ bút toán đã ghi sổ: tình hình tài chính lấy số dư cuối ngày báo cáo và cuối ngày trước đầu năm tài chính; kết quả kinh doanh lấy phát sinh trong kỳ và cùng kỳ năm trước, không tính bút toán kết chuyển; số dư doanh thu, chi phí chưa kết chuyển cộng vào lợi nhuận chưa phân phối năm nay (QUYTAC_NGHIEPVU_99, QUYTAC_NGHIEPVU_100, QUYTAC_NGHIEPVU_102).
+  4. Màn hình hiện bảng chỉ tiêu (mã số, tên, cách lấy số liệu, hai cột số).
+  5. Bấm "Xuất Excel" (tải tệp) hoặc "Xuất PDF" (mở ở thẻ mới).
+- Ngoại lệ: công ty chưa khởi tạo kế toán: "Công ty chưa khởi tạo kế toán."; từ ngày sau đến ngày: màn hình báo "Chọn ngày hợp lệ; từ ngày không sau đến ngày." và không gọi API; đánh dấu dài hạn tài khoản của chế độ: "Chỉ đánh dấu dài hạn cho tài khoản chi tiết do kế toán mở.".
+- Kết thúc: báo cáo hiện trên màn hình hoặc tệp Excel, PDF; không lưu báo cáo trong hệ thống.

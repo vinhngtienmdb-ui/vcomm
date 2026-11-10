@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp): đúng, sai, giá trị biên, từng vai trò.
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính): đúng, sai, giá trị biên, từng vai trò.
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 220 tự động; 221, 222 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2589,5 +2589,70 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`) chế độ Thông tư
 - Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_215 sau bước 8.
 - Các bước: (1) Mở trình duyệt chiều rộng 375 điểm ảnh; mở "Hệ thống tài khoản", đổi thẻ, bấm "Thêm chi tiết". (2) Mở "Bút toán", đổi lọc; bấm "Lập phiếu kế toán", thêm dòng, nhập số. (3) Người duyệt từ chối một phiếu kế toán; mở chi tiết phiếu đó. (4) Mở "Sổ sách": bảng cân đối, sổ cái, thẻ "Khóa sổ".
 - Kết quả mong đợi: Bước 1: bảng chuyển thành thẻ, nhãn cột hiện đủ; ô biểu mẫu xếp dọc; không cuộn ngang. Bước 2: lọc xuống dòng; mỗi dòng phiếu một thẻ, ô Nợ, Có nhập được; tổng, chênh lệch hiện đủ. Bước 3: nhãn "Bị từ chối", nút "Sửa", "Gửi" xếp gọn. Bước 4: bảng cân đối, sổ cái thành thẻ; nút khóa sổ, hộp xác nhận vừa màn hình; không cuộn ngang.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Lát: L0, L1
+
+## MODULE_06 Tài chính – Kế toán (phần 3: Báo cáo tài chính, CONG_VIEC_15)
+
+Dữ liệu chung: công ty VCR (`testIds.retailCompany`) chế độ Thông tư 99/2025, tiền tệ đồng Việt Nam, năm tài chính bắt đầu tháng 1; công ty thương mại (`testIds.tradingCompany`) dùng cho Thông tư 133; Quản trị công ty VCR `quantri.vcr@vcomm.test`, Quản trị tập đoàn `quantri.tapdoan@vcomm.test`; tạo trong tệp kiểm thử: Kế toán trưởng `ketoantruong.bc@vcomm.test` (`chief_accountant`, gán ở công ty), Nhân viên bán hàng `banhang.bc@vcomm.test` (`salesperson`, gán ở công ty), Thủ kho `thukho.bc@vcomm.test` (`warehouse_keeper`, gán ở chi nhánh Bình Dương). Kho "Kho báo cáo" `BCW` có phiếu nhập tồn đầu kỳ 1.000 cái "Hàng công nợ A" giá vốn 8.000 (ghi sổ trước khi khởi tạo kế toán), thuế suất 10%; bảng giá `CHUNG` gồm thuế 11.000 một cái; kênh `BAN_LE`. Đối tác "Khách công nợ" (khách hàng), "Nhà cung cấp công nợ" (nhà cung cấp). Hôm nay sau tháng 1/2026. Các kịch bản tự động chạy nối tiếp trong một tệp. Đường dẫn API có tiền tố `/api/v1`. Bút toán ghi dạng "số hiệu tài khoản Nợ / Có".
+
+## CHUC_NANG_74, CHUC_NANG_75: Báo cáo theo Thông tư 99/2025 (CONG_VIEC_15)
+
+### KICHBAN_KIEMTHU_218: Kỳ chưa khóa sổ: kết quả kinh doanh đúng doanh thu, giá vốn, lợi nhuận; tình hình tài chính cân, lợi nhuận năm nay gồm phần chưa kết chuyển; số đầu năm; không có quyền không xem được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_117, TIEUCHI_NGHIEMTHU_118
+- Chức năng: CHUC_NANG_74, CHUC_NANG_75
+- Loại: Đúng, giá trị biên, phân quyền
+- Vai trò thực hiện: Kế toán trưởng; Nhân viên bán hàng; Thủ kho
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; công ty chưa khởi tạo kế toán.
+- Các bước: (1) Kế toán trưởng khởi tạo kế toán; lập, gửi phiếu kế toán ngày 2026-01-02: 111 Nợ 100.000.000 / 41111 Có 100.000.000. (2) Nhân viên bán hàng lập, gửi đơn 10 cái cho "Khách công nợ"; Thủ kho giao 4 cái ngày hôm nay. (3) Kế toán trưởng xem kết quả kinh doanh từ 2026-01-01 đến hôm nay. (4) Xem tình hình tài chính tại hôm nay. (5) Nhân viên bán hàng xem tình hình tài chính.
+- Kết quả mong đợi: Bước 3: mẫu B02-DN; chỉ tiêu 01 = 40.000, 02 = 0, 10 = 40.000, 11 = 32.000, 20 = 8.000, 50 = 8.000, 60 = 8.000; cột `currentPeriod`, `previousPeriod`; chỉ tiêu 01 cùng kỳ năm trước 0. Bước 4: mẫu B01-DN; tổng tài sản (280) bằng tổng nguồn vốn (440), lớn hơn 0; 131 = 44.000; lợi nhuận năm nay (420b) = 8.000 (chưa khóa sổ); cột thứ hai `startOfYear` tại 2025-12-31, 280 số đầu năm 0. Bước 5: `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c15-statements.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_219: Sau khóa sổ số liệu không đổi; giảm trừ doanh thu vào chỉ tiêu 02; tài khoản chi tiết đánh dấu dài hạn vào chỉ tiêu dài hạn; tài khoản của chế độ không đánh dấu được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_117, TIEUCHI_NGHIEMTHU_118, TIEUCHI_NGHIEMTHU_119
+- Chức năng: CHUC_NANG_74, CHUC_NANG_75, CHUC_NANG_69
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Kế toán trưởng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_218.
+- Các bước: (1) Lập, gửi phiếu kế toán hàng bán bị trả lại ngày 2026-01-15: 521 Nợ 1.000, 33311 Nợ 100 / 131 Có 1.100 ("Khách công nợ"); xem kết quả kinh doanh từ 2026-01-01 đến hôm nay. (2) Khóa sổ tháng 2026-01; xem lại kết quả kinh doanh; xem tình hình tài chính tại hôm nay. (3) Thêm tài khoản chi tiết 3311 "Phải trả người bán ngắn hạn", 3312 "Phải trả người bán dài hạn" dưới 331. (4) Sửa tài khoản 331 với `isLongTerm: true`. (5) Sửa 3312 với `isLongTerm: true`. (6) Lập, gửi phiếu kế toán ngày hôm nay: 156 Nợ 5.000 / 3311 Có 3.000, 3312 Có 2.000 ("Nhà cung cấp công nợ"); xem tình hình tài chính tại hôm nay.
+- Kết quả mong đợi: Bước 1: 02 = 1.000, 10 = 39.000, 60 = 7.000. Bước 2: khóa sổ `201`; kết quả kinh doanh vẫn 02 = 1.000, 10 = 39.000, 60 = 7.000 (không tính bút toán kết chuyển); 280 bằng 440; 420b = 7.000. Bước 4: `400` (tài khoản của chế độ). Bước 5: tài khoản 3312 `isLongTerm: true`. Bước 6: phải trả người bán ngắn hạn (311) = 3.000, phải trả người bán dài hạn (331) = 2.000; 280 bằng 440.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c15-statements.test.ts`
+- Lát: L0
+
+## CHUC_NANG_74, CHUC_NANG_75: Thông tư 133, xuất tệp (CONG_VIEC_15)
+
+### KICHBAN_KIEMTHU_220: Công ty theo Thông tư 133 chọn được B01a-DNN, B01b-DNN, kết quả B02-DNN; xuất Excel, PDF
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_119, TIEUCHI_NGHIEMTHU_120
+- Chức năng: CHUC_NANG_74, CHUC_NANG_75
+- Loại: Đúng
+- Vai trò thực hiện: Quản trị tập đoàn; Kế toán trưởng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_219; công ty thương mại chưa khởi tạo kế toán.
+- Các bước: (1) Quản trị tập đoàn đổi chế độ kế toán của công ty thương mại sang Thông tư 133; khởi tạo kế toán. (2) Lập, gửi phiếu kế toán ngày hôm nay: 1111 Nợ 51.000.000 / 4111 Có 50.000.000, 5111 Có 1.000.000. (3) Xem kết quả kinh doanh từ 2026-01-01 đến hôm nay. (4) Xem tình hình tài chính tại hôm nay không chọn mẫu. (5) Xem tình hình tài chính với `form=B01b-DNN`. (6) Kế toán trưởng VCR xuất tình hình tài chính tại hôm nay `format=xlsx`. (7) Xuất kết quả kinh doanh từ 2026-01-01 đến hôm nay `format=pdf`.
+- Kết quả mong đợi: Bước 1: `200`, `201`. Bước 2: phiếu `posted`. Bước 3: mẫu B02-DNN; 01 = 10 = 60 = 1.000.000. Bước 4: mẫu B01a-DNN, `forms` [B01a-DNN, B01b-DNN]; tổng tài sản (200) bằng tổng nguồn vốn (500) = 51.000.000. Bước 5: mẫu B01b-DNN. Bước 6: `200`, `content-disposition` chứa `B01-DN`; tệp bắt đầu bằng `PK` (tệp xlsx). Bước 7: `200`, `content-type` `application/pdf`; tệp bắt đầu bằng `%PDF-`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c15-statements.test.ts`
+- Lát: L1
+
+## Kịch bản thủ công của báo cáo tài chính (CONG_VIEC_15)
+
+### KICHBAN_KIEMTHU_222: Báo cáo tài chính, đánh dấu dài hạn trên trình duyệt (máy tính)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_119, TIEUCHI_NGHIEMTHU_120
+- Chức năng: CHUC_NANG_74, CHUC_NANG_75
+- Loại: Đúng, sai, giao diện, phân quyền
+- Vai trò thực hiện: Kế toán trưởng; Kế toán; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Môi trường phát triển; công ty VCR đã khởi tạo kế toán, có bút toán bán hàng, phiếu kế toán trong năm; một công ty theo Thông tư 133 đã khởi tạo kế toán; mini app Nền tảng, Tài chính – Kế toán, backend đang chạy.
+- Các bước: (1) Kế toán trưởng mở mini app Tài chính – Kế toán, menu "Báo cáo tài chính". (2) Mở "Cách lấy số liệu" của một chỉ tiêu có ghi chú. (3) Đổi "Tại ngày" sang ngày khác. (4) Chọn thẻ "Kết quả kinh doanh"; đặt "Từ ngày" sau "Đến ngày"; sửa lại cho đúng. (5) Bấm "Xuất Excel"; mở tệp. (6) Bấm "Xuất PDF". (7) Mở "Hệ thống tài khoản", thêm tài khoản chi tiết dưới 331, bấm "Sửa", chọn "Dài hạn", lưu; lập, gửi phiếu kế toán có số dư Có ở tài khoản đó; mở lại "Báo cáo tài chính". (8) Bấm "Sửa" trên tài khoản 331. (9) Chọn công ty theo Thông tư 133; mở "Báo cáo tài chính", chọn "Mẫu" B01b-DNN. (10) Kế toán mở "Báo cáo tài chính", "Hệ thống tài khoản"; Nhân viên bán hàng mở `/finance/statements`.
+- Kết quả mong đợi: Bước 1: thẻ "Tình hình tài chính", "Tại ngày" là hôm nay; "Báo cáo tình hình tài chính (B01-DN)", tên công ty, "Đơn vị tính: VND"; cột "Số cuối kỳ (…)", "Số đầu năm (…)"; dòng cấp 0 in đậm, chỉ tiêu thụt lề theo cấp; số 0 để trống, số âm trong ngoặc đơn; tổng tài sản bằng tổng nguồn vốn. Bước 2: ghi chú mở ra. Bước 3: báo cáo tải lại. Bước 4: "Chọn ngày hợp lệ; từ ngày không sau đến ngày.", không có bảng; sửa xong hiện B02-DN với cột "Kỳ này (…)", "Cùng kỳ năm trước (…)". Bước 5: tệp `.xlsx` tải về, số liệu, mã số khớp màn hình. Bước 6: PDF mở ở thẻ mới, khổ A4, đủ chữ tiếng Việt, ô ký ba người, số liệu khớp màn hình. Bước 7: tài khoản có nhãn "Dài hạn"; số dư vào chỉ tiêu phải trả người bán dài hạn (331), không ở 311. Bước 8: biểu mẫu không có ô "Dài hạn". Bước 9: ô "Mẫu" hiện B01a-DNN, B01b-DNN; đổi mẫu thì bảng đổi theo. Bước 10: Kế toán xem, xuất được, không thấy nút "Sửa" tài khoản; Nhân viên bán hàng không thấy mục menu, mở đường dẫn thấy "Bạn không có quyền xem trang này".
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Lát: L0, L1
+
+### KICHBAN_KIEMTHU_223: Báo cáo tài chính trên điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_120
+- Chức năng: CHUC_NANG_74, CHUC_NANG_75
+- Loại: Giao diện
+- Vai trò thực hiện: Kế toán trưởng
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_222.
+- Các bước: (1) Mở trình duyệt chiều rộng 375 điểm ảnh; mở "Báo cáo tài chính". (2) Đổi thẻ, ngày; mở "Cách lấy số liệu". (3) Bấm "Xuất Excel", "Xuất PDF". (4) Mở "Hệ thống tài khoản", bấm "Sửa" trên một tài khoản chi tiết.
+- Kết quả mong đợi: Bước 1: bảng chuyển thành thẻ, nhãn cột hiện đủ; số không xuống dòng; không cuộn ngang. Bước 2: thẻ, bộ lọc xuống dòng; ghi chú mở trong thẻ. Bước 3: nút xuất xếp gọn, bấm được; tệp tải về, PDF mở được. Bước 4: ô "Dài hạn" và chú thích hiện đủ, ô biểu mẫu xếp dọc.
 - Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
 - Lát: L0, L1

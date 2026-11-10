@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.1
+- Phiên bản: 2.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -15,6 +15,7 @@
 - Cập nhật CONG_VIEC_12 (2026-11-10): thêm MODULE_05 phần 3 Khuyến mãi, MAN_HINH_45 (mục 23 đến mục 25); sửa MAN_HINH_42 (menu), MAN_HINH_43 (khuyến mãi trên dòng đơn)
 - Cập nhật CONG_VIEC_13 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 1, MAN_HINH_46 đến MAN_HINH_49 (mục 26 đến mục 28)
 - Cập nhật CONG_VIEC_14 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 2, MAN_HINH_50 đến MAN_HINH_52 (mục 29 đến mục 31); menu mini app Tài chính – Kế toán thêm ba mục
+- Cập nhật CONG_VIEC_15 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 3, MAN_HINH_53 (mục 32 đến mục 34); menu mini app Tài chính – Kế toán thêm mục "Báo cáo tài chính"; sửa MAN_HINH_50 (ô, nhãn "Dài hạn")
 
 ## MODULE_01 Nền tảng
 
@@ -1282,9 +1283,9 @@ flowchart TD
 
 ### MAN_HINH_50: Hệ thống tài khoản
 - Mục đích: Khởi tạo kế toán của công ty; xem, mở tài khoản chi tiết; đổi định khoản mặc định.
-- Chức năng thực hiện: CHUC_NANG_69, CHUC_NANG_70
+- Chức năng thực hiện: CHUC_NANG_69, CHUC_NANG_70, CHUC_NANG_75 (đánh dấu dài hạn)
 - Đường dẫn: `/finance/accounts`.
-- Bố cục: tiêu đề "Hệ thống tài khoản" kèm "Lịch sử". Chưa khởi tạo: thẻ "Công ty chưa khởi tạo kế toán. Chế độ kế toán của công ty: <chế độ>.", chú thích "Khởi tạo sẽ nạp hệ thống tài khoản, định khoản mặc định và tạo bút toán cho các chứng từ đã ghi sổ. Đổi chế độ kế toán ở phần quản lý công ty trước khi khởi tạo.", nút "Khởi tạo kế toán". Đã khởi tạo: dòng "Chế độ kế toán: <chế độ>."; hai thẻ "Tài khoản", "Định khoản mặc định". Thẻ "Tài khoản": bảng "Số hiệu" (thụt lề theo cấp, cấp 1 in đậm), "Tên tài khoản", "Tính chất" (Dư Nợ, Dư Có, Lưỡng tính), "Trạng thái" (Nhận bút toán, Tổng hợp, Ngừng dùng), nút "Thêm chi tiết", "Sửa" trên dòng đang dùng; biểu mẫu thêm "Thêm tài khoản chi tiết của <số hiệu> · <tên>": "Số hiệu" * (điền sẵn số hiệu cha, gợi ý "Bắt đầu bằng số hiệu tài khoản cha và dài hơn."), "Tên tài khoản" *; biểu mẫu sửa "Sửa tài khoản <số hiệu>": "Tên tài khoản" *, ô chọn "Đang dùng" (chỉ tài khoản chi tiết); nút "Lưu", "Hủy". Thẻ "Định khoản mặc định": chú thích "Tài khoản dùng khi hệ thống tự sinh bút toán; thay đổi áp dụng cho chứng từ ghi sổ sau đó."; bảng "Nghiệp vụ", "Tài khoản" (ô chọn các tài khoản nhận bút toán "<số hiệu> · <tên>").
+- Bố cục: tiêu đề "Hệ thống tài khoản" kèm "Lịch sử". Chưa khởi tạo: thẻ "Công ty chưa khởi tạo kế toán. Chế độ kế toán của công ty: <chế độ>.", chú thích "Khởi tạo sẽ nạp hệ thống tài khoản, định khoản mặc định và tạo bút toán cho các chứng từ đã ghi sổ. Đổi chế độ kế toán ở phần quản lý công ty trước khi khởi tạo.", nút "Khởi tạo kế toán". Đã khởi tạo: dòng "Chế độ kế toán: <chế độ>."; hai thẻ "Tài khoản", "Định khoản mặc định". Thẻ "Tài khoản": bảng "Số hiệu" (thụt lề theo cấp, cấp 1 in đậm), "Tên tài khoản" (tài khoản dài hạn kèm nhãn "Dài hạn"), "Tính chất" (Dư Nợ, Dư Có, Lưỡng tính), "Trạng thái" (Nhận bút toán, Tổng hợp, Ngừng dùng), nút "Thêm chi tiết", "Sửa" trên dòng đang dùng; biểu mẫu thêm "Thêm tài khoản chi tiết của <số hiệu> · <tên>": "Số hiệu" * (điền sẵn số hiệu cha, gợi ý "Bắt đầu bằng số hiệu tài khoản cha và dài hơn."), "Tên tài khoản" *; biểu mẫu sửa "Sửa tài khoản <số hiệu>": "Tên tài khoản" *, ô chọn "Đang dùng" (chỉ tài khoản chi tiết), ô chọn "Dài hạn" kèm chú thích "(số dư vào chỉ tiêu dài hạn trên báo cáo tình hình tài chính)" (chỉ tài khoản chi tiết do kế toán mở); nút "Lưu", "Hủy". Thẻ "Định khoản mặc định": chú thích "Tài khoản dùng khi hệ thống tự sinh bút toán; thay đổi áp dụng cho chứng từ ghi sổ sau đó."; bảng "Nghiệp vụ", "Tài khoản" (ô chọn các tài khoản nhận bút toán "<số hiệu> · <tên>").
 - Dữ liệu hiển thị: tài khoản của công ty đang chọn theo số hiệu; định khoản theo thứ tự vai trò.
 - Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
 - API: API_87.
@@ -1324,3 +1325,50 @@ flowchart TD
 - Quyền hiển thị: mục menu với `finance.ledger.view`; "Khóa sổ tháng …" theo `canClose`, "Mở lại tháng …" theo `canReopen` của API.
 - Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; thẻ và bộ lọc xuống dòng; không cuộn ngang.
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_14 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 3: Báo cáo tài chính, CONG_VIEC_15)
+
+Cùng mini app `apps/web-finance` (mục 26). Đánh dấu tài khoản chi tiết dài hạn ở MAN_HINH_50 (biểu mẫu "Sửa tài khoản").
+
+## 32. Danh sách màn hình và điều hướng (MODULE_06 phần 3)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_53 | Báo cáo tài chính: tình hình tài chính, kết quả kinh doanh; xuất Excel, PDF | CHUC_NANG_74, CHUC_NANG_75 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_15 mục 14) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> R[MAN_HINH_53 Báo cáo tài chính]
+    M --> A[MAN_HINH_50 Hệ thống tài khoản]
+    R -->|Xuất Excel| X[/Tệp Excel tải về/]
+    R -->|Xuất PDF| P[/Tệp PDF mở ở thẻ mới/]
+    A -->|Sửa tài khoản chi tiết, chọn Dài hạn| A
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Bút toán, Sổ sách, Báo cáo tài chính, Hệ thống tài khoản (`finance.ledger.view`).
+
+## 33. Bảng vai trò – màn hình (MODULE_06 phần 3)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_53 Báo cáo tài chính | Xem, Xuất Excel, Xuất PDF | Xem, Xuất Excel, Xuất PDF | Xem, Xuất Excel, Xuất PDF | Không |
+| MAN_HINH_50 ô "Dài hạn" | Sửa | Sửa | Không (chỉ thấy nhãn) | Không |
+
+## 34. Đặc tả từng màn hình (MODULE_06 phần 3)
+
+### MAN_HINH_53: Báo cáo tài chính
+- Mục đích: Xem báo cáo tình hình tài chính, báo cáo kết quả hoạt động kinh doanh theo mẫu của chế độ kế toán công ty; xuất Excel, PDF.
+- Chức năng thực hiện: CHUC_NANG_74, CHUC_NANG_75
+- Đường dẫn: `/finance/statements`.
+- Bố cục: tiêu đề "Báo cáo tài chính"; hai thẻ "Tình hình tài chính" (mặc định), "Kết quả kinh doanh"; bộ lọc: thẻ tình hình tài chính có "Tại ngày" (mặc định hôm nay); thẻ kết quả kinh doanh có "Từ ngày" (mặc định ngày 1 tháng 1 năm hiện tại), "Đến ngày" (mặc định hôm nay); ô chọn "Mẫu" chỉ hiện khi chế độ có nhiều mẫu (Thông tư 133: B01a-DNN, B01b-DNN). Khối tiêu đề báo cáo: "<tên báo cáo> (<mẫu>)", chú thích "<tên công ty> · Đơn vị tính: <tiền tệ>", nút "Xuất Excel", "Xuất PDF". Bảng: "Mã số", "Chỉ tiêu" (thụt lề theo cấp, cấp 0 in đậm), "Ghi chú" (mục thu gọn "Cách lấy số liệu" khi chỉ tiêu có ghi chú), hai cột số: "Số cuối kỳ (<ngày>)", "Số đầu năm (<ngày>)" hoặc "Kỳ này (<từ ngày> – <đến ngày>)", "Cùng kỳ năm trước (<từ ngày> – <đến ngày>)".
+- Dữ liệu hiển thị: chỉ tiêu theo thứ tự của mẫu; số định dạng theo tiếng Việt, số 0 để trống, số âm trong ngoặc đơn; dòng cấp 0 in đậm.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BoLoc, BangDuLieu, ONhap, OChon, Nut, KhoiCanhBao (tài liệu `15`).
+- API: API_90; đánh dấu dài hạn API_87.
+- Thao tác: đổi thẻ (bỏ mẫu đã chọn), ngày, mẫu thì tải lại báo cáo; "Xuất Excel" tải tệp `<loại báo cáo>-<đến ngày>.xlsx` (ví dụ `balance_sheet-2026-11-10.xlsx`; tên tệp do màn hình đặt, không lấy tên trong `content-disposition`); "Xuất PDF" mở tệp ở thẻ mới; khi đang xuất, hai nút bị khóa, nút đang xuất hiện trạng thái đang xử lý.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại" (ví dụ "Công ty chưa khởi tạo kế toán."); ngày không hợp lệ hoặc từ ngày sau đến ngày: "Chọn ngày hợp lệ; từ ngày không sau đến ngày." và không gọi API.
+- Thông báo: lỗi xuất tệp hiện dưới nút xuất.
+- Quyền hiển thị: mục menu, màn hình với `finance.ledger.view`.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; thẻ, bộ lọc, nút xuất xuống dòng; số không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_15 mục 14)

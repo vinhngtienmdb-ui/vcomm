@@ -1,10 +1,10 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái và ngoại lệ, có mã định danh.
-- Phiên bản: 2.1
+- Phiên bản: 2.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm QUYTAC_NGHIEPVU_45 đến QUYTAC_NGHIEPVU_55 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm QUYTAC_NGHIEPVU_56 đến QUYTAC_NGHIEPVU_60 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm QUYTAC_NGHIEPVU_61 đến QUYTAC_NGHIEPVU_66 của MODULE_04, quyết định AI tự đưa ra trong phạm vi đặc tả; CONG_VIEC_08 (2026-11-10): thêm QUYTAC_NGHIEPVU_67 đến QUYTAC_NGHIEPVU_72 của MODULE_05, quyết định AI tự đưa ra trong phạm vi đặc tả; CONG_VIEC_09 (2026-11-10): thêm QUYTAC_NGHIEPVU_73 đến QUYTAC_NGHIEPVU_78 của MODULE_05 (giao dịch nội bộ), quyết định AI tự đưa ra; CONG_VIEC_12 (2026-11-10): thêm QUYTAC_NGHIEPVU_79 đến QUYTAC_NGHIEPVU_84 của MODULE_05 (khuyến mãi), quyết định AI tự đưa ra, quyết định của người dùng về hàng tặng; CONG_VIEC_13 (2026-11-10): thêm QUYTAC_NGHIEPVU_85 đến QUYTAC_NGHIEPVU_92 của MODULE_06 (công nợ), quyết định AI tự đưa ra, quyết định của người dùng về ghi tổn thất nội bộ; QUYTAC_NGHIEPVU_77 bổ sung giảm phải thu khi ghi tổn thất; QUYTAC_NGHIEPVU_69 thay bằng QUYTAC_NGHIEPVU_92 theo THAY_DOI_09; CONG_VIEC_14 (2026-11-10): thêm QUYTAC_NGHIEPVU_93 đến QUYTAC_NGHIEPVU_98 của MODULE_06 (kế toán tổng hợp), quyết định AI tự đưa ra; QUYTAC_NGHIEPVU_86 làm tròn công nợ theo đơn vị tiền tệ (THAY_DOI_10)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm QUYTAC_NGHIEPVU_45 đến QUYTAC_NGHIEPVU_55 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm QUYTAC_NGHIEPVU_56 đến QUYTAC_NGHIEPVU_60 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm QUYTAC_NGHIEPVU_61 đến QUYTAC_NGHIEPVU_66 của MODULE_04, quyết định AI tự đưa ra trong phạm vi đặc tả; CONG_VIEC_08 (2026-11-10): thêm QUYTAC_NGHIEPVU_67 đến QUYTAC_NGHIEPVU_72 của MODULE_05, quyết định AI tự đưa ra trong phạm vi đặc tả; CONG_VIEC_09 (2026-11-10): thêm QUYTAC_NGHIEPVU_73 đến QUYTAC_NGHIEPVU_78 của MODULE_05 (giao dịch nội bộ), quyết định AI tự đưa ra; CONG_VIEC_12 (2026-11-10): thêm QUYTAC_NGHIEPVU_79 đến QUYTAC_NGHIEPVU_84 của MODULE_05 (khuyến mãi), quyết định AI tự đưa ra, quyết định của người dùng về hàng tặng; CONG_VIEC_13 (2026-11-10): thêm QUYTAC_NGHIEPVU_85 đến QUYTAC_NGHIEPVU_92 của MODULE_06 (công nợ), quyết định AI tự đưa ra, quyết định của người dùng về ghi tổn thất nội bộ; QUYTAC_NGHIEPVU_77 bổ sung giảm phải thu khi ghi tổn thất; QUYTAC_NGHIEPVU_69 thay bằng QUYTAC_NGHIEPVU_92 theo THAY_DOI_09; CONG_VIEC_14 (2026-11-10): thêm QUYTAC_NGHIEPVU_93 đến QUYTAC_NGHIEPVU_98 của MODULE_06 (kế toán tổng hợp), quyết định AI tự đưa ra; QUYTAC_NGHIEPVU_86 làm tròn công nợ theo đơn vị tiền tệ (THAY_DOI_10); CONG_VIEC_15 (2026-11-10): thêm QUYTAC_NGHIEPVU_99 đến QUYTAC_NGHIEPVU_102 của MODULE_06 (báo cáo tài chính), quyết định AI tự đưa ra
 
 ## MODULE_01 Nền tảng
 
@@ -310,6 +310,33 @@ Ngày 2026-11-10, chưa xác nhận.
 
 - Công nợ (CONG_VIEC_13) làm tròn đến đơn vị tiền tệ công ty như bút toán, theo lũy kế từng dòng đơn (THAY_DOI_10; QUYTAC_NGHIEPVU_95; QUYTAC_NGHIEPVU_86 tiền làm tròn theo đơn vị tiền tệ thay cho 4 chữ số lẻ).
 - Ghi tổn thất hàng thiếu giao nội bộ ghi Nợ giảm trừ doanh thu, Nợ thuế đầu ra / Có phải thu; không có vai trò định khoản riêng cho tổn thất.
+
+## MODULE_06 Tài chính – Kế toán (phần 3: Báo cáo tài chính, CONG_VIEC_15)
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_99 | Mỗi chỉ tiêu có mã số, tên, cách lấy số liệu theo hướng dẫn lập của chế độ: số dư Nợ hoặc Có cuối kỳ của tài khoản (bù trừ trong tài khoản), số dư Nợ hoặc Có theo từng đối tác với tài khoản lưỡng tính (phải thu, phải trả), số ghi âm với dự phòng, hao mòn; phát sinh Nợ hoặc Có trong kỳ có hoặc loại tài khoản đối ứng; tổng, hiệu các chỉ tiêu khác. Tài khoản trong công thức gồm cả tài khoản chi tiết của nó; tài khoản khớp nhiều số hiệu trong cùng công thức thì thuộc số hiệu dài nhất. Mẫu: Thông tư 99/2025/TT-BTC B01-DN, B02-DN; Thông tư 133/2016/TT-BTC B01a-DNN (mặc định), B01b-DNN, B02-DNN | YCAU_NGHIEPVU_40 |
+| QUYTAC_NGHIEPVU_100 | Báo cáo lập được cả khi kỳ chưa khóa sổ: số dư tài khoản loại 5 đến 9 (doanh thu, chi phí, xác định kết quả) chưa kết chuyển được cộng vào lợi nhuận chưa phân phối năm nay (tài khoản của vai trò định khoản `retained_earnings`); chỉ tiêu kết quả kinh doanh lấy phát sinh của tài khoản doanh thu, chi phí trong kỳ, không tính bút toán kết chuyển. Chỉ tính bút toán đã ghi sổ. Tổng tài sản bằng tổng nguồn vốn; số liệu không đổi trước và sau khóa sổ | YCAU_NGHIEPVU_40 |
+| QUYTAC_NGHIEPVU_101 | Kế toán trưởng đánh dấu tài khoản chi tiết (không phải tài khoản của chế độ) là dài hạn; tài khoản con của tài khoản dài hạn cũng là dài hạn. Số dư của tài khoản dài hạn vào chỉ tiêu dài hạn tương ứng (phải thu, trả trước, phải trả, vay, doanh thu chờ phân bổ...), còn lại vào chỉ tiêu ngắn hạn. Chỉ tiêu cần thông tin hệ thống chưa có (tương đương tiền, dự phòng đầu tư nắm giữ đến ngày đáo hạn, chi phí đi vay...) bằng 0 kèm ghi chú | YCAU_NGHIEPVU_40 |
+| QUYTAC_NGHIEPVU_102 | Số đầu năm là số dư cuối ngày trước ngày đầu năm tài chính (theo tháng bắt đầu năm tài chính của công ty) chứa ngày báo cáo; cùng kỳ năm trước là khoảng ngày lùi một năm (29/02 lùi thành 28/02). Tiền làm tròn theo đơn vị tiền tệ công ty | YCAU_NGHIEPVU_40 |
+
+Mẫu báo cáo, công thức, ghi chú từng chỉ tiêu: `apps/api/src/accounting/statement-templates.ts`; nguồn mẫu biểu và điểm chưa xác minh: đặc tả `cong_viec/CONG_VIEC_15.md` mục 16.
+
+Ngoại lệ:
+- Công ty chưa khởi tạo kế toán: báo "Công ty chưa khởi tạo kế toán." (QUYTAC_NGHIEPVU_100).
+- Từ ngày sau đến ngày: báo "Ngày kết thúc phải sau ngày bắt đầu." (QUYTAC_NGHIEPVU_102).
+- Đánh dấu dài hạn tài khoản của chế độ: báo "Chỉ đánh dấu dài hạn cho tài khoản chi tiết do kế toán mở." (QUYTAC_NGHIEPVU_101).
+
+### Quyết định AI tự đưa ra (CONG_VIEC_15)
+
+Ngày 2026-11-10, chưa xác nhận.
+
+| Vị trí | Nội dung |
+|---|---|
+| QUYTAC_NGHIEPVU_99 | Tài khoản khớp nhiều số hiệu trong một công thức thì thuộc số hiệu dài nhất. Chỉ tiêu kết quả kinh doanh có đối ứng 911 tính bằng phát sinh thuần của tài khoản trong kỳ (như đã kết chuyển); chỉ tiêu giảm trừ doanh thu đối ứng 521 tính bằng phát sinh thuần Nợ của 521. Thông tư 133 mặc định mẫu B01a-DNN |
+| QUYTAC_NGHIEPVU_100 | Cộng số dư chưa kết chuyển của mọi tài khoản loại 5 đến 9 vào tài khoản của vai trò `retained_earnings` (4212 theo định khoản mặc định) |
+| QUYTAC_NGHIEPVU_101 | Chỉ đánh dấu được tài khoản chi tiết do kế toán mở; tài khoản con kế thừa dài hạn của tài khoản cha. Chỉ tiêu dài hạn lấy cùng công thức với chỉ tiêu ngắn hạn tương ứng nhưng chỉ trên tài khoản dài hạn. Chỉ tiêu chưa có thông tin bằng 0 hoặc mặc định toàn bộ vào chỉ tiêu ngắn hạn, kèm ghi chú cách lấy số liệu và đề xuất |
+| QUYTAC_NGHIEPVU_102 | Báo cáo tình hình tài chính bỏ qua từ ngày; số âm hiện trong ngoặc đơn trên màn hình; ô số 0 để trống trên màn hình |
 
 ## Quy tắc do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 

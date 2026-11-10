@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.2
+- Phiên bản: 2.3
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn
 
 ## MODULE_01 Nền tảng
 
@@ -1135,6 +1135,7 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 2:
 - Phân quyền: Không có `finance.ledger.setup` khởi tạo, thêm, sửa nhận 403; không thấy nút "Khởi tạo kế toán", "Thêm chi tiết", "Sửa".
 - Thông báo lỗi: "Công ty đã khởi tạo kế toán." · "Số hiệu tài khoản chi tiết phải bắt đầu bằng số hiệu tài khoản cha và dài hơn." · "Số hiệu tài khoản đã có trong công ty." · "Tài khoản của chế độ kế toán không ngừng dùng được." · "Tài khoản đang dùng trong định khoản mặc định." · "Tài khoản còn tài khoản chi tiết đang dùng." · "Công ty đã có bút toán, không đổi được chế độ kế toán." (CHUC_NANG_01) · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_111, TIEUCHI_NGHIEMTHU_116
+- Bổ sung CONG_VIEC_15: sửa tài khoản nhận thêm "Dài hạn" (`isLongTerm`, không bắt buộc) với `finance.ledger.setup`; chỉ tài khoản chi tiết do kế toán mở, tài khoản của chế độ thì lỗi tại `isLongTerm` "Chỉ đánh dấu dài hạn cho tài khoản chi tiết do kế toán mở."; danh sách tài khoản trả thêm `isLongTerm` (QUYTAC_NGHIEPVU_101, CHUC_NANG_75).
 
 ### CHUC_NANG_70: Định khoản mặc định
 - Mục đích: Bút toán tự sinh ghi đúng tài khoản công ty muốn dùng.
@@ -1198,6 +1199,52 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 2:
 |---|---|
 | Toàn vẹn | Bút toán tự sinh trong cùng giao dịch ghi sổ chứng từ; tổng Nợ bằng tổng Có ở mọi bút toán; kiểm khóa sổ đọc cài đặt có khóa dòng chia sẻ, khóa sổ và mở lại khóa dòng cài đặt, nên ghi sổ và khóa sổ chạy tuần tự; tiền `numeric`; khóa ngoại từ `accounting` chỉ trỏ vào `accounting`, `core`, `crm` |
 | Ranh giới module | Module Kho, phiếu thu chi gọi kế toán qua móc nối `postedHooks` (phiếu kho, phiếu thu chi), `writtenOffHooks` (ghi tổn thất biên bản nội bộ) đăng ký lúc khởi động; module Tổ chức gọi `beforeRegimeChange` (`apps/api/src/accounting/regime-guard.ts`) khi đổi chế độ; dùng lại luồng duyệt, dãy số chứng từ có sẵn |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_06 Tài chính – Kế toán (phần 3: Báo cáo tài chính, CONG_VIEC_15)
+
+Quy ước chung cho mọi chức năng của MODULE_06 phần 3:
+- Chỉ đọc, không ghi dữ liệu, không ghi nhật ký thao tác; đánh dấu dài hạn ghi nhật ký `account.update` của CHUC_NANG_69.
+- Quyền như MODULE_06 phần 2 (tài liệu `08` mục 16, 18): API trước hết cần `finance.access` hoặc `finance.ledger.view` ở công ty đang chọn; xem, xuất báo cáo cần `finance.ledger.view`.
+- Số liệu lấy từ bút toán đã ghi sổ (`posted`) của công ty đang chọn; mẫu theo chế độ kế toán của công ty (`core.companies.accounting_regime`), khai báo trong `apps/api/src/accounting/statement-templates.ts`.
+- Tiền trả về dạng chuỗi, làm tròn theo số chữ số lẻ của tiền tệ công ty, bỏ số 0 thừa.
+- Công ty chưa khởi tạo kế toán: báo "Công ty chưa khởi tạo kế toán.".
+
+### CHUC_NANG_74: Báo cáo tình hình tài chính
+- Mục đích: Kế toán trưởng có báo cáo tình hình tài chính đúng mẫu tại một ngày bất kỳ, không tổng hợp tay từ sổ cái.
+- Người sử dụng: Kế toán trưởng, Kế toán, quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: `finance.ledger.view`; công ty đã khởi tạo kế toán.
+- Dữ liệu đầu vào: Ngày báo cáo; mẫu (Thông tư 133: B01a-DNN mặc định hoặc B01b-DNN; Thông tư 99/2025 chỉ có B01-DN; mẫu không thuộc chế độ thì dùng mẫu mặc định).
+- Quy trình xử lý: Đọc tài khoản của công ty, tính dài hạn của từng tài khoản (đánh dấu hoặc nằm dưới tài khoản đánh dấu). Tính số dư cuối ngày theo tài khoản, đối tác; số dư tài khoản loại 5 đến 9 chuyển vào tài khoản của vai trò `retained_earnings` (QUYTAC_NGHIEPVU_100). Mỗi chỉ tiêu tính theo công thức: số dư Nợ, số dư Có của nhóm tài khoản; số dư Nợ, Có theo từng đối tác; số dư bù trừ (chỉ tiêu nguồn vốn, chỉ tiêu ghi âm đổi dấu); tổng, hiệu chỉ tiêu khác, tính sau chỉ tiêu thành phần. Tài khoản trong công thức gồm tài khoản chi tiết; khớp nhiều số hiệu thì thuộc số hiệu dài nhất (QUYTAC_NGHIEPVU_99). Chỉ tiêu ngắn hạn có chỉ tiêu dài hạn tương ứng chỉ lấy tài khoản không dài hạn; chỉ tiêu dài hạn lấy cùng công thức trên tài khoản dài hạn (QUYTAC_NGHIEPVU_101). Cột "Số đầu năm" tính như trên tại ngày trước ngày đầu năm tài chính chứa ngày báo cáo (QUYTAC_NGHIEPVU_102). Làm tròn theo tiền tệ công ty.
+- Kết quả đầu ra: Loại, mẫu, tên báo cáo, các mẫu chọn được, chế độ, công ty (tên, mã số thuế, địa chỉ), tiền tệ, hai cột ("Số cuối kỳ" tại ngày báo cáo, "Số đầu năm" tại ngày trước đầu năm tài chính), dòng chỉ tiêu (mã số, tên, cấp, ghi chú cách lấy số liệu, số cuối kỳ, số đầu năm) theo thứ tự của mẫu. Tổng tài sản bằng tổng nguồn vốn (B01-DN: 280 = 440; B01a-DNN: 200 = 500; B01b-DNN: 300 = 600).
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_40
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_99, QUYTAC_NGHIEPVU_100, QUYTAC_NGHIEPVU_101, QUYTAC_NGHIEPVU_102
+- Trường hợp ngoại lệ: Kỳ chưa khóa sổ hoặc đã khóa sổ cho cùng số liệu. Chỉ tiêu cần thông tin hệ thống chưa có bằng 0 hoặc mặc định vào chỉ tiêu ngắn hạn, kèm ghi chú.
+- Phân quyền: Không có `finance.ledger.view` nhận 403; không thấy mục menu "Báo cáo tài chính".
+- Thông báo lỗi: "Công ty chưa khởi tạo kế toán." · "Giá trị không hợp lệ." (ngày, loại báo cáo)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_117, TIEUCHI_NGHIEMTHU_119, TIEUCHI_NGHIEMTHU_120
+
+### CHUC_NANG_75: Báo cáo kết quả hoạt động kinh doanh; xuất Excel, PDF; tài khoản dài hạn
+- Mục đích: Kế toán trưởng có báo cáo kết quả hoạt động kinh doanh đúng mẫu cho khoảng ngày bất kỳ; xuất cả hai báo cáo ra Excel, PDF; tách số dư dài hạn theo tài khoản chi tiết.
+- Người sử dụng: Kế toán trưởng, Kế toán, quản trị công ty, quản trị tập đoàn (xem, xuất); Kế toán trưởng, quản trị (đánh dấu dài hạn).
+- Điều kiện thực hiện: Xem, xuất: `finance.ledger.view`. Đánh dấu dài hạn: `finance.ledger.setup` (CHUC_NANG_69).
+- Dữ liệu đầu vào: Kết quả kinh doanh: từ ngày, đến ngày. Xuất: báo cáo, ngày (khoảng ngày), mẫu như khi xem, định dạng (`xlsx`, `pdf`). Đánh dấu dài hạn: tài khoản chi tiết, "Dài hạn".
+- Quy trình xử lý: Kết quả kinh doanh: tính phát sinh Nợ, Có của từng tài khoản trong khoảng ngày, chỉ bút toán đã ghi sổ, không tính bút toán kết chuyển `closing` (QUYTAC_NGHIEPVU_100). Chỉ tiêu có đối ứng 911 lấy phát sinh thuần của tài khoản (doanh thu: Có trừ Nợ; chi phí: Nợ trừ Có); giảm trừ doanh thu đối ứng 521 lấy phát sinh thuần Nợ của 521; chỉ tiêu có tài khoản đối ứng khác lấy phát sinh một bên của dòng có tài khoản bên kia của cùng bút toán thuộc danh sách đối ứng; tổng, hiệu tính sau. Cột "Cùng kỳ năm trước" tính trên khoảng ngày lùi một năm (QUYTAC_NGHIEPVU_102). Xuất: tính như khi xem; Excel một trang tính tên là mẫu (tên công ty, tên báo cáo kèm mẫu, kỳ, đơn vị tính, bảng "Chỉ tiêu", "Mã số", hai cột số định dạng `#,##0`); PDF khổ A4 (tên công ty, mã số thuế, địa chỉ, "Mẫu số …", tên báo cáo, kỳ, đơn vị tính, bảng, ô ký "Người lập biểu", "Kế toán trưởng", "Người đại diện theo pháp luật"). Tên tệp `<mẫu>-<đến ngày>.xlsx` hoặc `.pdf`; Excel tải về, PDF mở trong trình duyệt. Đánh dấu dài hạn: sửa tài khoản chi tiết ở CHUC_NANG_69 (QUYTAC_NGHIEPVU_101).
+- Kết quả đầu ra: Như CHUC_NANG_74 với mẫu B02-DN (Thông tư 99/2025) hoặc B02-DNN (Thông tư 133), hai cột "Kỳ này", "Cùng kỳ năm trước" (từ ngày, đến ngày). Tệp Excel, PDF.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_40
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_99, QUYTAC_NGHIEPVU_100, QUYTAC_NGHIEPVU_101, QUYTAC_NGHIEPVU_102
+- Trường hợp ngoại lệ: Từ ngày sau đến ngày: lỗi tại đến ngày. Khoảng ngày chứa ngày khóa sổ cho cùng số liệu như trước khi khóa. Tài khoản của chế độ không đánh dấu dài hạn được.
+- Phân quyền: Không có `finance.ledger.view` xem, xuất nhận 403. Không có `finance.ledger.setup` không thấy "Sửa" ở MAN_HINH_50.
+- Thông báo lỗi: "Ngày kết thúc phải sau ngày bắt đầu." · "Công ty chưa khởi tạo kế toán." · "Chỉ đánh dấu dài hạn cho tài khoản chi tiết do kế toán mở." · "Giá trị không hợp lệ."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_118, TIEUCHI_NGHIEMTHU_119, TIEUCHI_NGHIEMTHU_120
+
+## Yêu cầu phi chức năng của MODULE_06 (phần 3)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Toàn vẹn | Chỉ đọc bút toán đã ghi sổ; số liệu không đổi trước và sau khóa sổ; tổng tài sản bằng tổng nguồn vốn |
+| Ranh giới module | Thuộc module kế toán (`apps/api/src/accounting`); đọc `accounting.accounts`, `accounting.journals`, `accounting.journal_lines`, `accounting.posting_rules`, `core.companies`; mẫu báo cáo khai báo trong mã, không có bảng cấu hình |
+| Thư viện | Không thêm thư viện: Excel dùng `write-excel-file`, PDF dùng `pdfmake` có sẵn; PDF chỉ đọc phông chữ đi kèm `pdfmake`, chặn tải tài nguyên theo URL |
 | Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
