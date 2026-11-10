@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm và MODULE_03 Kho phần web: đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 0.4
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web và MODULE_07 Khách hàng và Đối tác phần tối thiểu: đúng, sai, giá trị biên, từng vai trò.
+- Phiên bản: 0.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -1872,3 +1872,66 @@ Dữ liệu chung: kho `GH1` (VCR-BD, vị trí `G-01` "Kệ G", `G-02`) có 10 
 - Kết quả mong đợi: Bước 1: đúng; "Hi" ra chuỗi độ rộng bắt đầu B, `H`, `i`, ký tự kiểm tra 84, dừng. Bước 2: `200`, `application/pdf`, bắt đầu `%PDF`, 3 trang, `MediaBox` 141,73 × 85,03 điểm (50 × 30 mm). Bước 3: 2 trang. Quét mã vạch bằng máy quét, xem bằng mắt: chưa làm.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c5-reservations.test.ts`
 - Lát: L4
+
+## MODULE_07 Khách hàng và Đối tác (phần tối thiểu, CONG_VIEC_06)
+
+Dữ liệu chung: công ty con VCR (`testIds.retailCompany`), VCT (`testIds.tradingCompany`, mã số thuế `0109876543`); Quản trị công ty VCR `quantri.vcr@vcomm.test`; tạo trong tệp kiểm thử: Quản lý đối tác `doitac.vct@vcomm.test` (vai trò `partner_manager` ở VCT), Thủ kho `thukho.doitac@vcomm.test` (`warehouse_keeper` ở VCR), Nhân viên `nhanvien.doitac@vcomm.test` (`employee` ở VCR). Đối tác mẫu: tổ chức "Công ty TNHH Bao Bì Xanh", mã số thuế `0301234567`, một người liên hệ, một tài khoản ngân hàng. Đường dẫn API có tiền tố `/api/v1`.
+
+## CHUC_NANG_46, CHUC_NANG_47: Đối tác dùng chung, đối tác nội bộ (CONG_VIEC_06)
+
+### KICHBAN_KIEMTHU_160: Mã số thuế bắt buộc, đúng định dạng, không trùng; kiểm trùng trả đối tác có sẵn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_75
+- Chức năng: CHUC_NANG_46
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Quản trị công ty VCR; Quản lý đối tác VCT; Thủ kho VCR; Nhân viên VCR
+- Điều kiện ban đầu và dữ liệu: Chưa có đối tác bên ngoài.
+- Các bước: (1) Quản trị công ty thêm tổ chức không có mã số thuế; thêm hộ kinh doanh "Hộ kinh doanh Tạp hóa Bé Ba" không có mã số thuế; thêm tổ chức mã số thuế `03012345`. (2) Thủ kho thêm đối tác mẫu; Nhân viên xem danh sách đối tác. (3) Quản trị công ty thêm đối tác mẫu. (4) Quản lý đối tác VCT thêm đối tác cùng mã số thuế, tên khác. (5) Quản lý đối tác VCT kiểm trùng `taxCode=0301234567`, `taxCode=0399999999`. (6) Quản trị công ty thêm "Chi nhánh Bao Bì Xanh" mã số thuế `0301234567-001`.
+- Kết quả mong đợi: Bước 1: `400`, lỗi chỉ ở `taxCode` ("Vui lòng nhập thông tin này." với hai lần đầu). Bước 2: `403`, `403`. Bước 3: `201`, mã dạng `DT` + 6 số, `internalCompanyId: null`, `canManage: true`; người liên hệ, tài khoản ngân hàng đúng như gửi. Bước 4: `taxCode` "Mã số thuế đã có ở đối tác khác trong tập đoàn.". Bước 5: trả `{ id, code, name }` của đối tác bước 3; mã chưa có trả `partner: null`. Bước 6: `201` (đơn vị phụ thuộc là đối tác riêng).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c6-partners.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_161: Công ty khác thấy, sửa đối tác chung; sửa ghi nhật ký trước, sau; ngừng giao dịch không xóa
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_76
+- Chức năng: CHUC_NANG_46
+- Loại: Đúng, phân quyền, đồng thời
+- Vai trò thực hiện: Quản trị công ty VCR; Quản lý đối tác VCT; Thủ kho VCR
+- Điều kiện ban đầu và dữ liệu: Quản trị công ty VCR thêm "Công ty Cổ phần Gạo Ngon" mã số thuế `0302222222`.
+- Các bước: (1) Quản lý đối tác VCT tìm "gao ngon" (không dấu). (2) Thủ kho VCR xem chi tiết. (3) Quản lý đối tác VCT sửa tên thành "Công ty Cổ phần Gạo Rất Ngon" với phiên bản 1. (4) Quản trị công ty VCR sửa lại với phiên bản 1. (5) Đọc nhật ký thao tác của đối tác. (6) Quản trị công ty ngừng giao dịch (phiên bản 2); tìm theo mã số thuế với `status=inactive`; giao dịch lại (phiên bản 3).
+- Kết quả mong đợi: Bước 1: danh sách chỉ có đối tác vừa thêm. Bước 2: thấy đối tác, `canManage: false`. Bước 3: `200`, tên mới, `version` 2. Bước 4: `409`. Bước 5: hai dòng theo thứ tự: `partner.create` công ty VCR, `afterData.name` "Công ty Cổ phần Gạo Ngon"; `partner.update` công ty VCT, `beforeData.name` "Công ty Cổ phần Gạo Ngon", `afterData.name` "Công ty Cổ phần Gạo Rất Ngon". Bước 6: trạng thái `inactive`; tìm thấy 1 đối tác (không bị xóa); giao dịch lại trạng thái `active`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c6-partners.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_162: Mỗi công ty con đang hoạt động có đúng một đối tác nội bộ, không sửa được thông tin chung
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_77
+- Chức năng: CHUC_NANG_47
+- Loại: Đúng, sai
+- Vai trò thực hiện: Quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Công ty con VCR, VCT đang hoạt động.
+- Các bước: (1) Xem danh sách `role=internal` hai lần; đếm đối tác nội bộ theo công ty trong cơ sở dữ liệu. (2) Xem chi tiết đối tác nội bộ của VCT. (3) Sửa đối tác nội bộ VCT; ngừng giao dịch đối tác đó. (4) Thêm đối tác bên ngoài mã số thuế `0109876543`. (5) Đổi tên ngắn công ty VCT thành "VComm TM" trong cơ sở dữ liệu; xem chi tiết; xem danh sách đối tác nội bộ; xem lại chi tiết.
+- Kết quả mong đợi: Bước 1: đối tác nội bộ của đúng VCR, VCT; mỗi công ty đúng 1 dòng sau hai lần đồng bộ. Bước 2: mã số thuế `0109876543`, loại tổ chức, `canManage: false`. Bước 3: `409 BUSINESS_RULE` "Đối tác nội bộ lấy thông tin từ công ty, sửa ở màn hình Công ty."; ngừng giao dịch `409`. Bước 4: `taxCode` "Mã số thuế đã có ở đối tác khác trong tập đoàn.". Bước 5: chi tiết còn tên cũ "VComm Thương mại" đến khi đọc danh sách; sau đó tên ngắn "VComm TM".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c6-partners.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_163: Cá nhân bắt buộc số Căn cước công dân; danh sách chỉ hiện 3 số cuối; xem đầy đủ cần quyền và ghi nhật ký
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_78
+- Chức năng: CHUC_NANG_46
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Vai trò thực hiện: Quản trị công ty VCR; Quản lý đối tác VCT; Thủ kho VCR
+- Điều kiện ban đầu và dữ liệu: Số Căn cước công dân giả `079090012345`.
+- Các bước: (1) Quản trị công ty thêm cá nhân "Nguyễn Văn An" không có số Căn cước công dân; với số 11 chữ số `07909001234`. (2) Quản lý đối tác VCT thêm cá nhân với số `079090012345`, điện thoại `0912345678`. (3) Quản trị công ty thêm "Người khác" cùng số. (4) Quản trị công ty xem danh sách `kind=individual`; đọc nhật ký `partner.create` của đối tác. (5) Quản lý đối tác VCT gọi `identity`. (6) Quản trị công ty xem chi tiết, gọi `identity`; Thủ kho, Quản trị công ty kiểm trùng `citizenId=079090012345`. (7) Quản trị công ty sửa tên thành "Nguyễn Văn An Bình", gửi `citizenId` trống, phiên bản 1. (8) Đọc nhật ký `partner.view_identity`.
+- Kết quả mong đợi: Bước 1: `citizenId` "Vui lòng nhập thông tin này."; lần hai lỗi chỉ ở `citizenId`. Bước 2: `201`, `citizenIdMasked` `*********345`, `canViewIdentity: false`; nội dung trả về không chứa số đầy đủ. Bước 3: `citizenId` "Số Căn cước công dân đã có ở đối tác khác trong tập đoàn.". Bước 4: danh sách không chứa số đầy đủ, dòng đầu `*********345`; nhật ký thêm không chứa số đầy đủ. Bước 5: `403`. Bước 6: `canViewIdentity: true`; `{ citizenId: "079090012345" }`; Thủ kho kiểm trùng `403`, Quản trị công ty nhận đúng đối tác. Bước 7: tên mới, vẫn `*********345` (giữ số đã lưu). Bước 8: đúng một dòng, công ty VCR.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c6-partners.test.ts`
+- Lát: L0
+
+## CHUC_NANG_48: Hồ sơ đối tác của công ty (CONG_VIEC_06)
+
+### KICHBAN_KIEMTHU_164: Hồ sơ riêng từng công ty; phải chọn khách hàng hoặc nhà cung cấp; hạn mức không âm; nhóm khách, người phụ trách thuộc công ty
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_79
+- Chức năng: CHUC_NANG_48
+- Loại: Đúng, sai, phân quyền, đồng thời
+- Vai trò thực hiện: Quản trị công ty VCR; Quản lý đối tác VCT
+- Điều kiện ban đầu và dữ liệu: Đối tác "Công ty TNHH Nông Sản Việt" mã số thuế `0303333333`; nhóm khách hàng "Khách sỉ" ở VCR và ở VCT (chèn thẳng vào `catalog.customer_groups`). Hồ sơ mẫu: khách hàng, 30 ngày, hạn mức `50000000`, nhóm khách VCR, nhân viên phụ trách đầu tiên của danh sách chọn, ghi chú "Giao buổi sáng", phiên bản 0.
+- Các bước: (1) Quản trị công ty tải danh sách chọn hồ sơ. (2) Lưu hồ sơ mẫu với: không khách hàng, không nhà cung cấp; hạn mức `-1`; 366 ngày; nhóm khách của VCT; nhân viên phụ trách chỉ thuộc VCT. (3) Quản lý đối tác VCT lưu hồ sơ mẫu ở VCT. (4) Quản trị công ty lưu hồ sơ mẫu; lưu lại cùng phiên bản 0; lọc `role=customer`. (5) Quản lý đối tác VCT xem chi tiết đối tác; lọc `role=customer` ở VCT. (6) Quản trị công ty lưu hồ sơ cho đối tác nội bộ của chính VCR. (7) Đọc nhật ký loại đối tượng `partner_profile`.
+- Kết quả mong đợi: Bước 1: nhóm khách hàng chỉ có "Khách sỉ" của VCR. Bước 2: `400`, `400`, `400`; lỗi chỉ ở `customerGroupId`; lỗi chỉ ở `ownerUserId`. Bước 3: `403`. Bước 4: `200`, hồ sơ công ty VCR, khách hàng, hạn mức `50000000`, nhóm "Khách sỉ", 30 ngày, `version` 1; lần hai `409`; danh sách chỉ có đối tác này. Bước 5: `profile: null`, `isCustomer: false`; tổng 0. Bước 6: lỗi chỉ ở `partnerId`. Bước 7: đúng một dòng `partner_profile.save`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c6-partners.test.ts`
+- Lát: L1

@@ -1,10 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 1.2
+- Phiên bản: 1.3
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -61,8 +61,11 @@ Mini app Nền tảng (`apps/web-platform`) là cửa vào chung: chuyển tiế
 | Nền tảng, trang chủ mini app | `apps/web-platform` | `/` | 3000 | Không áp dụng |
 | Sản phẩm (CONG_VIEC_04) | `apps/web-catalog` | `/catalog` | 3001 | `CATALOG_ORIGIN` (`http://localhost:3001`) |
 | Kho (CONG_VIEC_05) | `apps/web-inventory` | `/inventory` | 3002 | `INVENTORY_ORIGIN` (`http://localhost:3002`) |
+| Khách hàng và Đối tác (CONG_VIEC_06) | `apps/web-crm` | `/crm` | 3003 | `CRM_ORIGIN` (`http://localhost:3003`) |
 
 Chạy riêng mini app Kho: `pnpm --filter web-inventory dev` (cổng 3002), vào qua `http://localhost:3000/inventory` khi mini app Nền tảng và backend đang chạy.
+
+Chạy riêng mini app Khách hàng và Đối tác: `pnpm --filter web-crm dev` (cổng 3003), vào qua `http://localhost:3000/crm` khi mini app Nền tảng và backend đang chạy.
 
 ## 3b. Thành phần phụ trợ cho MODULE_03 Kho (CONG_VIEC_05)
 
@@ -73,6 +76,14 @@ Chạy riêng mini app Kho: `pnpm --filter web-inventory dev` (cổng 3002), và
 | Tác vụ nền | BullMQ: `inventory-reservation-expiry` mỗi 5 phút nhả hàng giữ hết hạn; `inventory-stock-alerts` lúc 7 giờ sáng giờ Việt Nam (`Asia/Ho_Chi_Minh`) gửi thông báo cảnh báo tồn an toàn | CHUC_NANG_43, CHUC_NANG_44 |
 | Duyệt phiếu kho | Dịch vụ duyệt của MODULE_01 (CHUC_NANG_16); nghe sự kiện `core.approval.completed` qua outbox để ghi sổ hoặc nhả hàng giữ | CHUC_NANG_40, CHUC_NANG_41, CHUC_NANG_42 |
 | Tem PDF | `pdfmake` (đã có), mã vạch Code 128 vẽ bằng mã trong `apps/api/src/inventory/code128.ts`, không thêm thư viện | CHUC_NANG_45 |
+
+## 3c. Thành phần phụ trợ cho MODULE_07 Khách hàng và Đối tác (CONG_VIEC_06)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Đồng bộ đối tác nội bộ | Hàm `syncInternalPartners` của `PartnersService` (`apps/api/src/crm/partners.service.ts`), chạy mỗi lần đọc danh sách đối tác; đọc `core.companies`, ghi `crm.partners`; công ty con có mã số thuế trùng đối tác khác được bỏ qua, ghi cảnh báo vào log. Chưa có sự kiện `core.company.changed` nên chưa đồng bộ theo sự kiện | CHUC_NANG_47 |
+| Đọc nhóm khách hàng | Truy vấn đọc `catalog.customer_groups` (không đặt khóa ngoại từ `crm` sang `catalog`) | CHUC_NANG_48 |
+| Danh mục đối tác cho module sau | Bảng `crm.partners`, `crm.partner_profiles`; MODULE_04 Mua hàng, MODULE_05 Bán hàng, MODULE_06 Tài chính – Kế toán chọn đối tác đang giao dịch | CHUC_NANG_46, CHUC_NANG_48 |
 
 ## 4. Kiến trúc triển khai
 
@@ -98,10 +109,10 @@ Chia theo phần chạy riêng của hệ thống, bên trong chia theo module. 
 
 ```
 apps/
-  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory...
+  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm...
                         Không chứa mã giao diện.
   web-platform/         Mini app Nền tảng và trang chủ mini app.
-  web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory...).
+  web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm...).
                         Chỉ gọi API, không truy cập cơ sở dữ liệu.
   mobile-warehouse/     Ứng dụng kho (Expo).
   mobile-sales/         Ứng dụng nhân viên kinh doanh (Expo).

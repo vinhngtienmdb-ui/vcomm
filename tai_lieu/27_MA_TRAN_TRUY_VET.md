@@ -1,10 +1,10 @@
 # 27. MA TRẬN TRUY VẾT
 
 - Mô tả: Ma trận truy vết yêu cầu → quy tắc → chức năng → màn hình → tiêu chí nghiệm thu → kịch bản kiểm thử → mã nguồn → kết quả.
-- Phiên bản: 1.4
+- Phiên bản: 1.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm dòng TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64, mục 4; CONG_VIEC_05 (2026-11-10): thêm dòng TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74, mục 5
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm dòng TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64, mục 4; CONG_VIEC_05 (2026-11-10): thêm dòng TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74, mục 5; CONG_VIEC_06 (2026-11-10): thêm dòng TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79, mục 6
 
 ## 1. Ma trận
 
@@ -86,6 +86,11 @@
 | YCAU_NGHIEPVU_29 | QUYTAC_NGHIEPVU_55 | CHUC_NANG_44 | MAN_HINH_35, MAN_HINH_29 | TIEUCHI_NGHIEMTHU_72 | KICHBAN_KIEMTHU_158 | apps/api/src/inventory/stock-levels.service.ts, apps/api/src/jobs/background-jobs.ts, apps/web-inventory/src/app/reservations/page.tsx | apps/api/test/c5-reservations.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
 | YCAU_NGHIEPVU_29 | Không có | CHUC_NANG_45 | MAN_HINH_28, MAN_HINH_29, MAN_HINH_32 | TIEUCHI_NGHIEMTHU_73 | KICHBAN_KIEMTHU_159 | apps/api/src/inventory/labels.service.ts, apps/api/src/inventory/code128.ts, apps/web-inventory/src/app/warehouses/page.tsx, apps/web-inventory/src/app/stock/page.tsx, apps/web-inventory/src/app/documents/[id]/page.tsx | apps/api/test/c5-reservations.test.ts | Kiểm thử tự động đạt 2026-11-10 (cấu trúc mã vạch, khổ, số trang); quét mã vạch, xem bằng mắt chưa làm; chưa nghiệm thu | |
 | YCAU_NGHIEPVU_27 | QUYTAC_NGHIEPVU_47 | CHUC_NANG_39, CHUC_NANG_40 | MAN_HINH_29 | TIEUCHI_NGHIEMTHU_74 | KICHBAN_KIEMTHU_153 | apps/api/src/inventory/stock.service.ts, apps/api/src/inventory/stock-ledger.service.ts | apps/api/test/c5-documents.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_30 | QUYTAC_NGHIEPVU_56 | CHUC_NANG_46 | MAN_HINH_36, MAN_HINH_37 | TIEUCHI_NGHIEMTHU_75 | KICHBAN_KIEMTHU_160 | database/migrations/0005_crm.sql, apps/api/src/crm/partners.service.ts, apps/api/src/crm/crm.controller.ts, packages/contracts/src/index.ts, apps/api/src/permissions/permission-catalog.ts, apps/web-crm/src/app/partners/page.tsx, apps/web-crm/src/components/PartnerDrawer.tsx, apps/web-platform/next.config.ts | apps/api/test/c6-partners.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_30 | QUYTAC_NGHIEPVU_57 | CHUC_NANG_46 | MAN_HINH_36, MAN_HINH_37 | TIEUCHI_NGHIEMTHU_76 | KICHBAN_KIEMTHU_161 | database/migrations/0005_crm.sql, apps/api/src/crm/partners.service.ts, apps/api/src/crm/crm.controller.ts, packages/contracts/src/index.ts, apps/web-crm/src/app/partners/[id]/page.tsx | apps/api/test/c6-partners.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_30 | QUYTAC_NGHIEPVU_58 | CHUC_NANG_47 | MAN_HINH_36, MAN_HINH_37 | TIEUCHI_NGHIEMTHU_77 | KICHBAN_KIEMTHU_162 | database/migrations/0005_crm.sql, apps/api/src/crm/partners.service.ts, apps/api/src/crm/crm.controller.ts, packages/contracts/src/index.ts, apps/web-crm/src/app/partners/[id]/page.tsx | apps/api/test/c6-partners.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_30 | QUYTAC_NGHIEPVU_59 | CHUC_NANG_46 | MAN_HINH_36, MAN_HINH_37 | TIEUCHI_NGHIEMTHU_78 | KICHBAN_KIEMTHU_163 | database/migrations/0005_crm.sql, apps/api/src/crm/partners.service.ts, apps/api/src/crm/crm.controller.ts, packages/contracts/src/index.ts, apps/api/src/permissions/permission-catalog.ts, apps/web-crm/src/app/partners/[id]/page.tsx | apps/api/test/c6-partners.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
+| YCAU_NGHIEPVU_31 | QUYTAC_NGHIEPVU_60 | CHUC_NANG_48 | MAN_HINH_37 | TIEUCHI_NGHIEMTHU_79 | KICHBAN_KIEMTHU_164 | database/migrations/0005_crm.sql, apps/api/src/crm/partners.service.ts, apps/api/src/crm/crm.controller.ts, packages/contracts/src/index.ts, apps/web-crm/src/app/partners/[id]/page.tsx | apps/api/test/c6-partners.test.ts | Kiểm thử tự động đạt 2026-11-10; chưa nghiệm thu | |
 
 ## 2. Kiểm tra bao phủ – 2026-11-09
 
@@ -130,4 +135,15 @@
 - Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 → KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159)
 - Kịch bản kiểm thử chưa có kiểm thử tự động: Không có; vế quét mã vạch, xem bằng mắt của KICHBAN_KIEMTHU_159 (TIEUCHI_NGHIEMTHU_73, Mong muốn) chưa làm; giao diện MAN_HINH_28 đến MAN_HINH_35 chưa có kiểm thử tự động (kiểm tra bằng ảnh chụp sau mỗi lát)
 - Kịch bản chưa chạy hoặc kết quả Không đạt: Kiểm thử tự động đạt ngày 2026-11-10; chưa ghi kết quả CONG_VIEC_05 vào tài liệu `25`; chưa nghiệm thu
+- Mã nguồn không truy được về yêu cầu nào: Không có
+
+## 6. Kiểm tra bao phủ CONG_VIEC_06 – 2026-11-10
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_30 → CHUC_NANG_46, CHUC_NANG_47; YCAU_NGHIEPVU_31 → CHUC_NANG_48)
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_56 đến QUYTAC_NGHIEPVU_60); vế "đối tác ngừng giao dịch không chọn được trên chứng từ mới" của QUYTAC_NGHIEPVU_57 chờ MODULE_04, MODULE_05 (chưa có chứng từ chọn đối tác)
+- Chức năng chưa có tiêu chí nghiệm thu: Không có
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có (CHUC_NANG_47 chạy khi đọc danh sách, hiện ở MAN_HINH_36, MAN_HINH_37)
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_75, TIEUCHI_NGHIEMTHU_76 → KICHBAN_KIEMTHU_160, KICHBAN_KIEMTHU_161; TIEUCHI_NGHIEMTHU_77 → KICHBAN_KIEMTHU_162; TIEUCHI_NGHIEMTHU_78 → KICHBAN_KIEMTHU_163; TIEUCHI_NGHIEMTHU_79 → KICHBAN_KIEMTHU_164)
+- Kịch bản kiểm thử chưa có kiểm thử tự động: Không có; giao diện MAN_HINH_36, MAN_HINH_37 chưa có kiểm thử tự động (đã thử trên trình duyệt)
+- Kịch bản chưa chạy hoặc kết quả Không đạt: Kiểm thử tự động đạt ngày 2026-11-10 (191/191); chưa ghi kết quả CONG_VIEC_06 vào tài liệu `25`; chưa nghiệm thu
 - Mã nguồn không truy được về yêu cầu nào: Không có

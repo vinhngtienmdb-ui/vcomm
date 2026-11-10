@@ -1,12 +1,12 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Hợp đồng API: endpoint, phương thức, dữ liệu gửi lên, dữ liệu trả về, xác thực, phân quyền, kiểm tra dữ liệu, lỗi, phân trang.
-- Phiên bản: 1.3
+- Phiên bản: 1.4
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b)
+- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c)
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05).
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06).
 
 ## 1. Quy ước chung
 
@@ -138,6 +138,15 @@ Mọi đường dẫn có tiền tố `/api/v1`, nằm trong `apps/api/src/inven
 | API_68 | `GET`, `POST /inventory/reservations`; `POST /inventory/reservations/{id}/extend`, `/release` | CHUC_NANG_43 | Xem: `inventory.access` tại kho. Giữ, gia hạn, nhả: `inventory.reservation.manage` tại kho | Giữ: `warehouseId`, `companyId`, `variantId`, `quantity`, `note`. Gia hạn: `hours` (1 đến 720), `version`. Nhả: `version`. Lọc `warehouseId`, `status` (mặc định `active`), `page`, `pageSize` (mặc định 50) | Trang hàng giữ; hàng giữ sau khi đổi |
 | API_69 | `GET`, `PUT /inventory/stock-levels`; `DELETE /inventory/stock-levels/{warehouseId}/{companyId}/{variantId}`; `GET /inventory/stock-alerts` | CHUC_NANG_44 | Xem: `inventory.access` tại kho. Đặt, xóa: `inventory.reservation.manage` tại kho | `warehouseId`, `companyId`, `variantId`, `minimum`, `maximum`. Lọc `warehouseId`, `onlyAlerts` | Dòng tồn an toàn kèm `available`, `incoming`, `belowMinimum`, `suggestedQuantity`; `stock-alerts` chỉ dòng dưới tối thiểu |
 | API_70 | `GET /inventory/labels/products?companyId=&variantIds=&copies=`, `GET /inventory/labels/locations?warehouseId=` | CHUC_NANG_45 | Tem sản phẩm: `inventory.access` tại một kho nhận hàng của công ty chủ hàng. Tem vị trí: `inventory.access` tại kho | `variantIds` cách nhau dấu phẩy; `copies` 1 đến 500 (mặc định 1) | Tệp PDF (`inline`) `tem-san-pham.pdf`, `tem-vi-tri.pdf` |
+
+## 2c. Danh sách endpoint MODULE_07 (Khách hàng và Đối tác, phần tối thiểu, CONG_VIEC_06)
+
+Mọi đường dẫn có tiền tố `/api/v1`, nằm trong `apps/api/src/crm/crm.controller.ts`. Mọi endpoint trước hết cần `crm.access` hoặc `crm.partner.view` trong công ty đang làm việc (header `X-Company-Id`), không có thì `403 FORBIDDEN`. Quyền chi tiết kiểm tra trong service ở phạm vi công ty đang làm việc (lần gán ở tập đoàn hoặc công ty đó). Đối tác dùng chung tập đoàn nên không lọc theo công ty; hồ sơ, cờ khách hàng, nhà cung cấp lấy theo công ty đang làm việc. Mã định danh trong đường dẫn không phải UUID trả `400`. `POST` thành công trả `201`.
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_71 | `GET`, `POST /crm/partners`; `GET`, `PATCH /crm/partners/{id}`; `POST /crm/partners/{id}/deactivate`, `/activate`; `GET /crm/partners/{id}/identity`; `GET /crm/partners/lookup?taxCode=&citizenId=` | CHUC_NANG_46, CHUC_NANG_47 | Xem, tìm, kiểm trùng theo `taxCode`: `crm.partner.view`. Kiểm trùng theo `citizenId`, thêm, sửa, ngừng giao dịch, giao dịch lại: `crm.partner.manage`. Xem số Căn cước công dân: `crm.partner.identity.view` (nhạy cảm) | Đối tác: `kind`, `name`, `shortName`, `taxCode`, `citizenId`, `address`, `phone`, `email`, `contacts[]` (tối đa 50), `bankAccounts[]` (tối đa 20), `version` (khi sửa). Ngừng, giao dịch lại: `version`. Lọc `search`, `kind`, `role` (`customer`, `supplier`, `internal`), `status`, `page`, `pageSize` (tối đa 100, mặc định 20) | Trang đối tác (`PartnerListItem`); đối tác kèm `contacts`, `bankAccounts`, `profile` của công ty đang làm việc, `version`, `canManage`, `canViewIdentity`, `canManageProfile`; `{ citizenId }`; `{ partner: { id, code, name } }` (không có: `partner` là `null`) |
+| API_72 | `PUT /crm/partners/{id}/profile`; `GET /crm/partner-profile-options` | CHUC_NANG_48 | Xem hồ sơ (trong chi tiết đối tác của API_71): `crm.partner.view`. Lưu hồ sơ, danh sách chọn: `crm.profile.manage` (nhạy cảm) | `isCustomer`, `isSupplier`, `paymentTermDays` (0 đến 365), `creditLimit` (chuỗi hoặc số, không âm, 4 chữ số lẻ; trống: không giới hạn), `customerGroupId`, `ownerUserId`, `note` (tối đa 1.000 ký tự), `status` (mặc định `active`), `version` (0 khi lập mới) | Đối tác (như chi tiết của API_71) kèm hồ sơ sau khi lưu; `{ customerGroups: [{ id, name }], users: [{ id, fullName }] }` |
 
 ## 3. Hợp đồng chi tiết
 
@@ -399,6 +408,33 @@ Gửi lên:
 - Trả `application/pdf`, `Content-Disposition: inline`. Mỗi tem một trang 50 × 30 mm (`MediaBox` 141,73 × 85,03 điểm), mã Code 128 bộ B. Tem sản phẩm: số trang = số biến thể × `copies`.
 - Lỗi: `400` tại `variantIds` "Mặt hàng không thuộc công ty chủ hàng hoặc đã ngừng bán." (có biến thể không thuộc công ty), mã không phải UUID; `403`; `409 BUSINESS_RULE` "Kho chưa có vị trí đang dùng để in tem.".
 
+## 3c. Hợp đồng chi tiết MODULE_07 (CONG_VIEC_06)
+
+### API_71 Đối tác dùng chung
+Gửi lên (`POST /crm/partners`):
+```json
+{ "kind": "organization", "name": "Công ty TNHH Bao Bì Xanh", "shortName": "Bao Bì Xanh", "taxCode": "0301234567", "address": "12 Nguyễn Huệ, Quận 1", "phone": "0281234567", "email": "lienhe@baobixanh.test",
+  "contacts": [ { "fullName": "Trần Thị Mai", "position": "Kế toán", "phone": "0901234567", "isPrimary": true } ],
+  "bankAccounts": [ { "bankName": "Vietcombank", "accountNo": "0071000123456", "accountHolder": "CONG TY TNHH BAO BI XANH", "isDefault": true } ] }
+```
+- Dòng danh sách: `{ id, code, kind, name, shortName, taxCode, citizenIdMasked, phone, internalCompanyId, isCustomer, isSupplier, status }`. `citizenIdMasked` dạng `*********345`; số đầy đủ không có trong danh sách, chi tiết. Sắp `status` (đang giao dịch trước) rồi `name`. Mỗi lần đọc danh sách đồng bộ đối tác nội bộ trước (CHUC_NANG_47); công ty con có mã số thuế trùng đối tác khác được bỏ qua, ghi cảnh báo vào log.
+- `search` tìm không dấu trong tên, tên ngắn, mã số thuế, điện thoại; khớp đúng mã đối tác (không phân biệt hoa thường), đúng mã số thuế, đúng điện thoại. `role` lọc theo hồ sơ của công ty đang làm việc; `internal` lọc đối tác nội bộ.
+- Kiểm tra: chuỗi trống của trường tùy chọn coi như `null`; `taxCode` dạng `^[0-9]{10}(-[0-9]{3})?$`; `citizenId` dạng `^[0-9]{12}$`; `email` đúng định dạng; `accountNo` 4 đến 30 ký tự chữ, số, `-`; trường lạ bị từ chối.
+- `POST` (`201`) sinh `code` dạng `DT000001`; nhật ký `partner.create` (`afterData`, số Căn cước công dân chỉ còn 3 số cuối). `PATCH` (`200`): `version` phải bằng phiên bản hiện tại; thay toàn bộ `contacts`, `bankAccounts`; cá nhân gửi `citizenId` trống thì giữ số đã lưu; nhật ký `partner.update` có `beforeData` (chi tiết trước khi sửa, số đã che), `afterData`. `deactivate`, `activate` (`201`): nhật ký `partner.deactivate`, `partner.activate`.
+- `identity` (`200`): trả `{ "citizenId": "079090012345" }` (`null` khi đối tác không có số); mỗi lần gọi ghi nhật ký `partner.view_identity` (không ghi số vào nhật ký).
+- `lookup`: trả đối tác có đúng `taxCode` hoặc `citizenId`; không gửi tham số nào thì `{ "partner": null }`. Gửi `citizenId` mà không có `crm.partner.manage` trả `403` (tránh dò tìm danh tính).
+- Lỗi: `400` tại `taxCode` "Vui lòng nhập thông tin này.", "Giá trị không hợp lệ.", "Mã số thuế đã có ở đối tác khác trong tập đoàn."; tại `citizenId` "Vui lòng nhập thông tin này.", "Giá trị không hợp lệ." (sai định dạng, hoặc gửi kèm cho tổ chức, hộ kinh doanh), "Số Căn cước công dân đã có ở đối tác khác trong tập đoàn." (cả khi hai người lưu đồng thời, theo ràng buộc duy nhất bị vi phạm); `403`; `404` khi không có đối tác; `409 BUSINESS_RULE` "Đối tác nội bộ lấy thông tin từ công ty, sửa ở màn hình Công ty." (sửa, ngừng giao dịch, giao dịch lại đối tác nội bộ); `409 CONFLICT_VERSION`.
+
+### API_72 Hồ sơ đối tác của công ty
+Gửi lên (`PUT /crm/partners/{id}/profile`):
+```json
+{ "isCustomer": true, "isSupplier": false, "paymentTermDays": 30, "creditLimit": "50000000", "customerGroupId": "01J...", "ownerUserId": "01J...", "note": "Giao buổi sáng", "version": 0 }
+```
+- Hồ sơ: `{ companyId, isCustomer, isSupplier, paymentTermDays, creditLimit, customerGroupId, customerGroupName, ownerUserId, ownerUserName, note, status, version }`; `creditLimit` trả dạng chuỗi bỏ số 0 thừa, `null` là không giới hạn. Chi tiết đối tác đọc từ công ty khác trả `profile: null`.
+- `PUT` (`200`) lập mới (khi `version` 0) hoặc ghi đè hồ sơ của công ty đang làm việc; nhật ký `partner_profile.save` (loại đối tượng `partner_profile`) có `beforeData`, `afterData`.
+- `partner-profile-options`: nhóm khách hàng đang dùng của công ty đang làm việc; nhân viên đang làm ở công ty, sắp theo tên.
+- Lỗi: `400` tại `isCustomer` "Giá trị không hợp lệ." (không chọn khách hàng, nhà cung cấp); tại `paymentTermDays`, `creditLimit` (âm, quá 4 chữ số lẻ); tại `customerGroupId` "Giá trị không hợp lệ." (nhóm khách hàng của công ty khác hoặc ngừng dùng); tại `ownerUserId` "Giá trị không hợp lệ." (không làm ở công ty); tại `partnerId` "Không lập hồ sơ đối tác cho chính công ty đang chọn."; `403`; `404`; `409 CONFLICT_VERSION`.
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |
@@ -414,3 +450,5 @@ Gửi lên:
 MODULE_02 phần Sản phẩm (CONG_VIEC_04) không phát sự kiện mới; mini app Sản phẩm nghe `core.approval.completed` của loại chứng từ `catalog.price_change` để cập nhật phiếu điều chỉnh giá (API_62).
 
 MODULE_03 Kho (CONG_VIEC_05) không phát sự kiện mới; mini app Kho nghe `core.approval.completed` của loại chứng từ `inventory.receipt_other`, `inventory.issue_other`, `inventory.adjustment`, `inventory.transfer` để ghi sổ hoặc nhả hàng giữ (API_65, API_66). Thông báo trong ứng dụng loại `inventory_stock_alert` ghi qua `core.notifications`.
+
+MODULE_07 phần tối thiểu (CONG_VIEC_06) không phát, không nghe sự kiện; đối tác nội bộ đồng bộ khi đọc danh sách đối tác (API_71).

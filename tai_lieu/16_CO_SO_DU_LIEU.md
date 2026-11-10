@@ -1,12 +1,12 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 1.4
+- Phiên bản: 1.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7)
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8)
 
-Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) và schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) và schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -1341,4 +1341,113 @@ CREATE TABLE inventory.stock_levels (
     PRIMARY KEY (warehouse_id, company_id, variant_id),
     CHECK (maximum >= minimum)
 );
+```
+
+## 8. Database migration 0005 – CONG_VIEC_06 (schema `crm`)
+
+Tệp `database/migrations/0005_crm.sql` tạo schema `crm` của MODULE_07 Khách hàng và Đối tác (phần tối thiểu), 4 bảng và một sequence; không đổi schema `core`, `catalog`, `inventory`. Khóa ngoại từ `crm` chỉ trỏ vào `crm` và `core` (`core.companies`, `core.users`). Nhóm khách hàng (`catalog.customer_groups`) kiểm bằng truy vấn đọc, không đặt khóa ngoại. Quyền `crm.partner.view`, `crm.partner.manage`, `crm.partner.identity.view`, `crm.profile.manage`, vai trò `partner_manager` ghi vào bảng của `core` bằng hàm đồng bộ danh mục quyền (`apps/api/src/permissions/permission-catalog.ts`).
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `partners` | Đối tác dùng chung tập đoàn (CHUC_NANG_46, CHUC_NANG_47; QUYTAC_NGHIEPVU_56 đến QUYTAC_NGHIEPVU_59) | `code` (mặc định `DT` + 6 số từ sequence `crm.partner_code_seq`), `kind` (`organization`, `household`, `individual`), `name`, `short_name`, `tax_code`, `citizen_id` (dữ liệu cá nhân, lưu nguyên văn, không trả trong danh sách), `address`, `phone`, `email`, `company_id` (đối tác nội bộ; trống: đối tác bên ngoài), `search_text` (chuỗi tìm không dấu), `status` (`active`, `inactive`), cột người tạo, người sửa, `version` | Duy nhất `code`, `tax_code`, `citizen_id`, `company_id`; `tax_code` dạng `^[0-9]{10}(-[0-9]{3})?$`; `citizen_id` dạng `^[0-9]{12}$`; cá nhân bắt buộc `citizen_id`; tổ chức, hộ kinh doanh bắt buộc `tax_code` hoặc là đối tác nội bộ (công ty con chưa khai mã số thuế); chỉ mục `search_text`, `phone` |
+| `partner_contacts` | Người liên hệ | `partner_id`, `full_name`, `position`, `phone`, `email`, `is_primary`, `sort_order` | Xóa theo đối tác; chỉ mục `partner_id` |
+| `partner_bank_accounts` | Tài khoản ngân hàng | `partner_id`, `bank_name`, `account_no`, `account_holder`, `branch`, `is_default`, `sort_order` | Xóa theo đối tác; chỉ mục `partner_id` |
+| `partner_profiles` | Hồ sơ đối tác của từng công ty (CHUC_NANG_48; QUYTAC_NGHIEPVU_60) | `company_id`, `partner_id`, `is_customer`, `is_supplier`, `payment_term_days` (mặc định 0), `credit_limit` (`numeric(20,4)`; trống: không giới hạn), `customer_group_id` (không khóa ngoại), `owner_user_id`, `note`, `status`, `updated_at`, `updated_by`, `version` | Khóa chính `(company_id, partner_id)`; ít nhất một trong `is_customer`, `is_supplier`; `payment_term_days` 0 đến 365; `credit_limit >= 0`; chỉ mục `partner_id` |
+
+Quy tắc xóa và lưu giữ bổ sung:
+- Không xóa đối tác, hồ sơ đối tác: dùng `status`. Hệ thống không có thao tác xóa đối tác; `ON DELETE CASCADE` của người liên hệ, tài khoản ngân hàng chỉ để dọn dữ liệu thử.
+- Người liên hệ, tài khoản ngân hàng được ghi lại toàn bộ mỗi lần sửa đối tác.
+- Đối tác nội bộ do hệ thống đồng bộ từ `core.companies` (CHUC_NANG_47), không sửa qua API đối tác.
+- `citizen_id` lưu nguyên văn; mã hóa cột làm sau cùng giải pháp khóa của tài liệu `22` mục 5.
+
+```mermaid
+erDiagram
+    companies |o--o| partners : "đối tác nội bộ"
+    partners ||--o{ partner_contacts : "người liên hệ"
+    partners ||--o{ partner_bank_accounts : "tài khoản ngân hàng"
+    partners ||--o{ partner_profiles : "hồ sơ"
+    companies ||--o{ partner_profiles : "của công ty"
+    users |o--o{ partner_profiles : "nhân viên phụ trách"
+```
+
+Lược đồ (chép từ tệp `database/migrations/0005_crm.sql`):
+
+```sql
+-- CONG_VIEC_06: danh mục đối tác dùng chung tập đoàn (MODULE_07, phần tối thiểu), schema `crm` (tài liệu 12 mục 2, tài liệu 16).
+-- Khóa ngoại chỉ trỏ vào `crm` và `core`.
+
+CREATE SCHEMA IF NOT EXISTS crm;
+
+CREATE SEQUENCE crm.partner_code_seq;
+
+-- Đối tác dùng chung tập đoàn (CHUC_NANG_46, 47; QUYTAC_NGHIEPVU_56 đến 59).
+CREATE TABLE crm.partners (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    code            text        NOT NULL UNIQUE DEFAULT 'DT' || lpad(nextval('crm.partner_code_seq')::text, 6, '0'),
+    kind            text        NOT NULL CHECK (kind IN ('organization', 'household', 'individual')),
+    name            text        NOT NULL,
+    short_name      text,
+    tax_code        text        UNIQUE CHECK (tax_code ~ '^[0-9]{10}(-[0-9]{3})?$'),
+    citizen_id      text        UNIQUE CHECK (citizen_id ~ '^[0-9]{12}$'),          -- dữ liệu cá nhân, không trả về trong danh sách
+    address         text,
+    phone           text,
+    email           text,
+    company_id      uuid        UNIQUE REFERENCES core.companies(id),               -- đối tác nội bộ: công ty con trong tập đoàn
+    search_text     text        NOT NULL,
+    status          text        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    created_by      uuid        REFERENCES core.users(id),
+    updated_at      timestamptz NOT NULL DEFAULT now(),
+    updated_by      uuid        REFERENCES core.users(id),
+    version         integer     NOT NULL DEFAULT 1,
+    CHECK (kind = 'individual' OR tax_code IS NOT NULL OR company_id IS NOT NULL),   -- công ty con chưa khai mã số thuế vẫn là đối tác nội bộ
+    CHECK (kind <> 'individual' OR citizen_id IS NOT NULL)
+);
+CREATE INDEX partners_search_idx ON crm.partners (search_text);
+CREATE INDEX partners_phone_idx ON crm.partners (phone);
+
+CREATE TABLE crm.partner_contacts (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    partner_id      uuid        NOT NULL REFERENCES crm.partners(id) ON DELETE CASCADE,
+    full_name       text        NOT NULL,
+    position        text,
+    phone           text,
+    email           text,
+    is_primary      boolean     NOT NULL DEFAULT false,
+    sort_order      integer     NOT NULL DEFAULT 0
+);
+CREATE INDEX partner_contacts_partner_idx ON crm.partner_contacts (partner_id);
+
+CREATE TABLE crm.partner_bank_accounts (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    partner_id      uuid        NOT NULL REFERENCES crm.partners(id) ON DELETE CASCADE,
+    bank_name       text        NOT NULL,
+    account_no      text        NOT NULL,
+    account_holder  text        NOT NULL,
+    branch          text,
+    is_default      boolean     NOT NULL DEFAULT false,
+    sort_order      integer     NOT NULL DEFAULT 0
+);
+CREATE INDEX partner_bank_accounts_partner_idx ON crm.partner_bank_accounts (partner_id);
+
+-- Hồ sơ đối tác của từng công ty (CHUC_NANG_48; QUYTAC_NGHIEPVU_60). Nhóm khách hàng thuộc schema catalog nên không đặt khóa ngoại.
+CREATE TABLE crm.partner_profiles (
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    partner_id          uuid        NOT NULL REFERENCES crm.partners(id),
+    is_customer         boolean     NOT NULL DEFAULT false,
+    is_supplier         boolean     NOT NULL DEFAULT false,
+    payment_term_days   integer     NOT NULL DEFAULT 0 CHECK (payment_term_days BETWEEN 0 AND 365),
+    credit_limit        numeric(20,4) CHECK (credit_limit >= 0),                 -- để trống: không giới hạn
+    customer_group_id   uuid,
+    owner_user_id       uuid        REFERENCES core.users(id),                   -- nhân viên phụ trách
+    note                text,
+    status              text        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    updated_at          timestamptz NOT NULL DEFAULT now(),
+    updated_by          uuid        REFERENCES core.users(id),
+    version             integer     NOT NULL DEFAULT 1,
+    PRIMARY KEY (company_id, partner_id),
+    CHECK (is_customer OR is_supplier)
+);
+CREATE INDEX partner_profiles_partner_idx ON crm.partner_profiles (partner_id);
 ```

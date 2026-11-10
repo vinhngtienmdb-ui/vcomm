@@ -699,13 +699,13 @@ Quy ước chung cho mọi chức năng của MODULE_07 phần tối thiểu:
 ### CHUC_NANG_46: Quản lý đối tác dùng chung
 - Mục đích: Một danh mục đối tác cho cả tập đoàn, không lập trùng cùng một doanh nghiệp, cá nhân.
 - Người sử dụng: Quản lý đối tác, quản trị công ty, quản trị tập đoàn (thêm, sửa); Thủ kho và người có `crm.partner.view` (xem).
-- Điều kiện thực hiện: Xem, tìm, kiểm trùng: `crm.partner.view`. Thêm, sửa, ngừng giao dịch, cho giao dịch lại: `crm.partner.manage`. Xem đầy đủ số Căn cước công dân: `crm.partner.identity.view` (nhạy cảm).
+- Điều kiện thực hiện: Xem, tìm, kiểm trùng theo mã số thuế: `crm.partner.view`. Kiểm trùng theo số Căn cước công dân: `crm.partner.manage` (tránh dò tìm danh tính). Thêm, sửa, ngừng giao dịch, cho giao dịch lại: `crm.partner.manage`. Xem đầy đủ số Căn cước công dân: `crm.partner.identity.view` (nhạy cảm).
 - Dữ liệu đầu vào: Loại (tổ chức, hộ kinh doanh, cá nhân), tên (tối đa 300 ký tự), tên ngắn, mã số thuế (10 số hoặc 10 số, `-`, 3 số), số Căn cước công dân (12 số), địa chỉ, điện thoại, email; tối đa 50 người liên hệ (họ tên, chức vụ, điện thoại, email, liên hệ chính); tối đa 20 tài khoản ngân hàng (ngân hàng, số tài khoản 4 đến 30 ký tự chữ, số, `-`, chủ tài khoản, chi nhánh, mặc định). Danh sách: từ khóa, loại, vai trò với công ty đang chọn (khách hàng, nhà cung cấp, nội bộ), trạng thái, trang (tối đa 100 dòng, mặc định 20).
 - Quy trình xử lý: Kiểm tra tổ chức, hộ kinh doanh có mã số thuế; cá nhân có số Căn cước công dân, không nhận số Căn cước công dân cho tổ chức, hộ kinh doanh; mã số thuế, số Căn cước công dân không trùng trong tập đoàn. Thêm: sinh mã `DT` + 6 số; ghi đối tác, người liên hệ, tài khoản ngân hàng, nhật ký trong một giao dịch. Sửa: thay toàn bộ người liên hệ, tài khoản ngân hàng; cá nhân để trống số Căn cước công dân thì giữ số đã lưu; nhật ký ghi dữ liệu trước, sau (số Căn cước công dân chỉ ghi 3 số cuối). Ngừng giao dịch, cho giao dịch lại đổi trạng thái, không xóa. Tìm không dấu theo tên, tên ngắn, mã số thuế, điện thoại; đúng mã đối tác, đúng mã số thuế, đúng số điện thoại. Kiểm trùng khi rời ô mã số thuế, số Căn cước công dân trả đối tác có sẵn (mã, tên). Xem đầy đủ số Căn cước công dân ghi nhật ký mỗi lần.
 - Kết quả đầu ra: Danh sách (mã, tên, tên ngắn, loại, mã số thuế hoặc số Căn cước công dân đã che, điện thoại, nội bộ, khách hàng, nhà cung cấp của công ty đang chọn, trạng thái) sắp đang giao dịch trước, theo tên; chi tiết kèm người liên hệ, tài khoản ngân hàng, hồ sơ của công ty đang chọn, phiên bản, được sửa hay không, được xem số Căn cước công dân hay không.
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_30
 - Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_56, QUYTAC_NGHIEPVU_57, QUYTAC_NGHIEPVU_59
-- Trường hợp ngoại lệ: Không có chức năng xóa đối tác. Đối tác nội bộ không sửa, không đổi trạng thái được (CHUC_NANG_47). Hai người thêm cùng mã số thuế đồng thời: một người nhận lỗi trùng (ràng buộc duy nhất của cơ sở dữ liệu).
+- Trường hợp ngoại lệ: Không có chức năng xóa đối tác. Đối tác nội bộ không sửa, không đổi trạng thái được (CHUC_NANG_47). Hai người thêm cùng mã số thuế hoặc số Căn cước công dân đồng thời: một người nhận lỗi trùng đúng trường (ràng buộc duy nhất của cơ sở dữ liệu).
 - Phân quyền: Người không có `crm.partner.manage` không thấy nút thêm, sửa, ngừng giao dịch; gọi API nhận 403.
 - Thông báo lỗi: "Vui lòng nhập thông tin này." (mã số thuế, số Căn cước công dân) · "Giá trị không hợp lệ." (định dạng) · "Mã số thuế đã có ở đối tác khác trong tập đoàn." · "Số Căn cước công dân đã có ở đối tác khác trong tập đoàn."
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_75, TIEUCHI_NGHIEMTHU_76, TIEUCHI_NGHIEMTHU_78
@@ -715,12 +715,12 @@ Quy ước chung cho mọi chức năng của MODULE_07 phần tối thiểu:
 - Người sử dụng: Hệ thống (tự đồng bộ); mọi người có `crm.partner.view` (xem).
 - Điều kiện thực hiện: Chạy mỗi lần đọc danh sách đối tác.
 - Dữ liệu đầu vào: Danh sách công ty con (có công ty mẹ) đang hoạt động: tên pháp lý, tên ngắn, mã số thuế, địa chỉ.
-- Quy trình xử lý: Công ty con đã có đối tác nội bộ: cập nhật tên, tên ngắn, mã số thuế, địa chỉ, trạng thái khi khác. Chưa có: đối tác bên ngoài trùng mã số thuế được gắn thành đối tác nội bộ (loại tổ chức); không có thì thêm đối tác nội bộ mới. Công ty con ngừng hoạt động: đối tác nội bộ ngừng giao dịch.
+- Quy trình xử lý: Công ty con đã có đối tác nội bộ: cập nhật tên, tên ngắn, mã số thuế, địa chỉ, trạng thái khi khác. Chưa có: đối tác bên ngoài trùng mã số thuế được gắn thành đối tác nội bộ (loại tổ chức); không có thì thêm đối tác nội bộ mới. Công ty con ngừng hoạt động: đối tác nội bộ ngừng giao dịch. Mã số thuế công ty con trùng một đối tác khác đã gắn: bỏ qua công ty đó, ghi cảnh báo vào log, không chặn danh sách.
 - Kết quả đầu ra: Mỗi công ty con đang hoạt động có đúng một đối tác nội bộ, hiện nhãn "Nội bộ"; lọc được theo vai trò nội bộ.
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_30
 - Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_58
 - Trường hợp ngoại lệ: Công ty con chưa khai mã số thuế vẫn là đối tác nội bộ. Mã số thuế của công ty con không dùng được cho đối tác bên ngoài.
-- Phân quyền: Không ai sửa thông tin chung, trạng thái của đối tác nội bộ trong mini app Đối tác; sửa ở màn hình Công ty (MAN_HINH_03).
+- Phân quyền: Không ai sửa thông tin chung, trạng thái của đối tác nội bộ trong mini app Đối tác; sửa ở màn hình Công ty (MAN_HINH_09).
 - Thông báo lỗi: "Đối tác nội bộ lấy thông tin từ công ty, sửa ở màn hình Công ty."
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_77
 

@@ -1,13 +1,14 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 1.4
+- Phiên bản: 1.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
 - Cập nhật CONG_VIEC_03 (2026-11-09): thêm MAN_HINH_19, MAN_HINH_20, MAN_HINH_21; mở rộng MAN_HINH_01, MAN_HINH_06, MAN_HINH_08 (THAY_DOI_04, THAY_DOI_08)
 - Cập nhật CONG_VIEC_04 (2026-11-09): thêm MODULE_02 phần Sản phẩm, MAN_HINH_22 đến MAN_HINH_27 (mục 5 đến mục 7)
 - Cập nhật CONG_VIEC_05 (2026-11-10): thêm MODULE_03 Kho phần web, MAN_HINH_28 đến MAN_HINH_35 (mục 8 đến mục 10)
+- Cập nhật CONG_VIEC_06 (2026-11-10): thêm MODULE_07 Khách hàng và Đối tác phần tối thiểu, MAN_HINH_36, MAN_HINH_37 (mục 11 đến mục 13)
 
 ## MODULE_01 Nền tảng
 
@@ -743,3 +744,69 @@ flowchart TD
 - Quyền hiển thị: khối giữ, đặt mức, nút gia hạn, nhả, bỏ với `inventory.reservation.manage`.
 - Responsive: bảng chuyển thành thẻ.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
+
+## MODULE_07 Khách hàng và Đối tác (phần tối thiểu, CONG_VIEC_06)
+
+Mini app `apps/web-crm`, tên "Khách hàng và Đối tác", đường dẫn gốc `/crm` (mini app Nền tảng chuyển tiếp `/crm` sang ứng dụng này, cùng tên miền và cookie phiên). Khung trang, thành phần dùng chung lấy từ `packages/ui`; quy ước chung như mục 3 của MODULE_01. Mở `/crm` thì chuyển tới mục menu đầu tiên có quyền; không có mục nào thì hiện "Bạn không có quyền xem trang này". Số Căn cước công dân luôn hiện dạng che `*********` + 3 số cuối, trừ khi người có quyền bấm "Xem đầy đủ".
+
+## 11. Danh sách màn hình và điều hướng (MODULE_07)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_36 | Danh sách đối tác (kèm ngăn kéo thêm đối tác) | CHUC_NANG_46, CHUC_NANG_47 | Quản trị tập đoàn, quản trị công ty, Quản lý đối tác (thêm); Thủ kho (xem) | Menu Khách hàng và Đối tác | Không lập (CONG_VIEC_06 mục 14) |
+| MAN_HINH_37 | Chi tiết đối tác (kèm ngăn kéo sửa thông tin chung, sửa hồ sơ của công ty) | CHUC_NANG_46, CHUC_NANG_47, CHUC_NANG_48 | Như MAN_HINH_36; sửa hồ sơ: quản trị tập đoàn, quản trị công ty | MAN_HINH_36 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Khách hàng và Đối tác| M{{Menu Khách hàng và Đối tác}}
+    M --> L[MAN_HINH_36 Danh sách đối tác]
+    L -->|Mã đối tác| D[MAN_HINH_37 Chi tiết đối tác]
+    L -->|Thêm đối tác, lưu xong| D
+    L -->|Đã có đối tác: Mở| D
+    D -->|Danh sách đối tác| L
+    D -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+```
+
+- Thứ tự menu và quyền hiện mục: Đối tác (`crm.partner.view`).
+- Danh sách và chi tiết có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng.
+
+## 12. Bảng vai trò – màn hình (MODULE_07)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Quản lý đối tác | Thủ kho |
+|---|---|---|---|
+| MAN_HINH_36 Danh sách đối tác | Xem, Thêm | Xem, Thêm | Xem |
+| MAN_HINH_37 Chi tiết đối tác | Xem, Sửa, Ngừng giao dịch, Giao dịch lại (trừ đối tác nội bộ), Xem đầy đủ số Căn cước công dân, Lập, sửa hồ sơ | Xem, Sửa, Ngừng giao dịch, Giao dịch lại (trừ đối tác nội bộ) | Xem |
+
+## 13. Đặc tả từng màn hình (MODULE_07)
+
+### MAN_HINH_36: Danh sách đối tác
+- Mục đích: Tìm đối tác dùng chung tập đoàn, biết vai trò của đối tác với công ty đang chọn; thêm đối tác mới không trùng.
+- Chức năng thực hiện: CHUC_NANG_46, CHUC_NANG_47
+- Đường dẫn: `/crm/partners`
+- Bố cục: tiêu đề "Đối tác" kèm "Lịch sử", nút "Thêm đối tác"; câu "Đối tác dùng chung toàn tập đoàn; hồ sơ khách hàng, nhà cung cấp riêng từng công ty."; bộ lọc: ô tìm "Tên, mã, mã số thuế, điện thoại", "Loại" (Tổ chức, Hộ kinh doanh, Cá nhân), "Vai trò với công ty" (Khách hàng, Nhà cung cấp, Nội bộ), "Trạng thái" (Đang giao dịch, Ngừng giao dịch); bảng mã (liên kết mở MAN_HINH_37), tên kèm tên viết tắt, loại, giấy tờ (mã số thuế hoặc số Căn cước công dân đã che), điện thoại, nhãn "Nội bộ", "Khách hàng", "Nhà cung cấp", trạng thái; phân trang 20 dòng. Ngăn kéo "Thêm đối tác": loại; cá nhân nhập "Số Căn cước công dân" (gợi ý "12 số. Khách không cung cấp thì không lập đối tác; bán hàng chọn người mua không lấy hóa đơn."), loại khác nhập "Mã số thuế" (gợi ý "10 số, hoặc 10 số kèm "-" và 3 số chi nhánh."); rời ô thì kiểm trùng, trùng hiện "Đã có đối tác <mã> · <tên>." kèm nút "Mở"; tên, tên viết tắt, địa chỉ, điện thoại, email; khối "Người liên hệ" (họ tên, chức vụ, điện thoại, email, "Liên hệ chính", "Bỏ", "Thêm người liên hệ"); khối "Tài khoản ngân hàng" (ngân hàng, số tài khoản, chủ tài khoản, chi nhánh ngân hàng, "Mặc định", "Bỏ", "Thêm tài khoản").
+- Dữ liệu hiển thị: mọi đối tác của tập đoàn, đang giao dịch trước, theo tên; vai trò khách hàng, nhà cung cấp theo hồ sơ của công ty đang chọn.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_71.
+- Thao tác: gõ ô tìm thì tìm sau 300 mili giây; đổi bộ lọc về trang 1; lưu đối tác mới thì mở MAN_HINH_37 của đối tác đó.
+- Trạng thái: rỗng ("Chưa có đối tác."; có lọc thì "Không có kết quả phù hợp.").
+- Thông báo: "Đã lưu đối tác."; lỗi theo CHUC_NANG_46.
+- Quyền hiển thị: màn hình với `crm.partner.view`; nút "Thêm đối tác" với `crm.partner.manage`.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_06 mục 14)
+
+### MAN_HINH_37: Chi tiết đối tác
+- Mục đích: Xem, sửa thông tin chung của đối tác; xem, lập hồ sơ đối tác của công ty đang chọn.
+- Chức năng thực hiện: CHUC_NANG_46, CHUC_NANG_47, CHUC_NANG_48
+- Đường dẫn: `/crm/partners/[id]`
+- Bố cục: liên kết "Danh sách đối tác"; tiêu đề mã · tên, nhãn trạng thái, nhãn "Nội bộ", "Lịch sử", nút "Ngừng giao dịch"/"Giao dịch lại", "Sửa thông tin chung"; đối tác nội bộ hiện khối "Đối tác nội bộ lấy thông tin từ công ty con; sửa ở màn hình Công ty.". Thẻ "Thông tin chung": loại, số Căn cước công dân (đã che, nút "Xem đầy đủ" có chú thích "Mỗi lần xem số đầy đủ được ghi nhật ký.") hoặc mã số thuế, tên viết tắt, địa chỉ, điện thoại, email. Thẻ "Người liên hệ", "Tài khoản ngân hàng". Thẻ "Hồ sơ của công ty đang chọn": vai trò với công ty, số ngày được nợ, hạn mức công nợ ("Không giới hạn" khi trống), nhóm khách hàng, nhân viên phụ trách, ghi chú, trạng thái hồ sơ; nút "Lập hồ sơ"/"Sửa hồ sơ" mở ngăn kéo: "Là khách hàng", "Là nhà cung cấp", số ngày được nợ, hạn mức công nợ ("Theo tiền tệ công ty. Để trống: không giới hạn."), nhóm khách hàng, nhân viên phụ trách, ghi chú, trạng thái hồ sơ. Ngăn kéo sửa thông tin chung như ngăn kéo thêm của MAN_HINH_36; cá nhân để trống số Căn cước công dân thì giữ số đã lưu (gợi ý hiện số đã che).
+- Dữ liệu hiển thị: đối tác dùng chung; hồ sơ chỉ của công ty đang chọn.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, NhanTrangThai, NganKeo, ONhap, OChon, Nut, HopThoaiXacNhan (tài liệu `15`).
+- API: API_71, API_72.
+- Thao tác: "Ngừng giao dịch" hỏi xác nhận "Ngừng giao dịch với <tên>? Đối tác không chọn được trên chứng từ mới, dữ liệu cũ giữ nguyên."; "Giao dịch lại" không hỏi. "Xem đầy đủ" thay số đã che bằng số đầy đủ đến khi rời trang.
+- Trạng thái: rỗng ("Chưa có người liên hệ.", "Chưa có tài khoản ngân hàng.", "Công ty đang chọn chưa giao dịch với đối tác này."); đối tác nội bộ của chính công ty đang chọn hiện "Đây là công ty đang chọn, không lập hồ sơ đối tác.".
+- Thông báo: "Đã lưu đối tác." · "Đã lưu hồ sơ."; lỗi theo CHUC_NANG_46 đến CHUC_NANG_48.
+- Quyền hiển thị: nút sửa, ngừng giao dịch theo `canManage` (có `crm.partner.manage`, không phải đối tác nội bộ); "Xem đầy đủ" theo `canViewIdentity`; nút hồ sơ theo `canManageProfile`.
+- Responsive: thẻ xếp dọc; nhãn và giá trị xếp hai cột.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_06 mục 14)

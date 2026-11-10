@@ -1,13 +1,13 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 1.4
+- Phiên bản: 1.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05). Các module sau bổ sung vào cùng tài liệu.
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06). Các module sau bổ sung vào cùng tài liệu.
 
 ## 1. Dữ liệu nhạy cảm
 
@@ -31,6 +31,9 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Sản phẩm, ảnh sản phẩm (CONG_VIEC_04) | Kinh doanh | Cơ sở dữ liệu schema `catalog`; ảnh lưu S3 hoặc thư mục cục bộ theo khóa `products/<công ty>/<sản phẩm>/<mã ngẫu nhiên>` | Người có quyền `catalog.product.view` của công ty |
 | Giá vốn, giá trị tồn kho, giá trị phiếu kho, biên bản chênh lệch, tiền bồi thường (CONG_VIEC_05) | Tài chính | Cơ sở dữ liệu schema `inventory`; API trả trống khi người xem không có quyền | Người có quyền nhạy cảm `inventory.cost.view` tại kho (mọi chủ hàng) hoặc ở công ty chủ hàng (hàng của công ty đó) |
 | Tồn kho, phiếu kho, thẻ kho (CONG_VIEC_05) | Kinh doanh | Cơ sở dữ liệu schema `inventory`; thẻ kho chỉ thêm | Người có quyền kho tại kho; nhân viên công ty chủ hàng có `inventory.stock.view` chỉ thấy hàng của công ty mình |
+| Số Căn cước công dân của đối tác cá nhân (CONG_VIEC_06) | Cá nhân | Cột `crm.partners.citizen_id`, lưu nguyên văn trong cơ sở dữ liệu mã hóa khi lưu (Aurora); chưa mã hóa cột (làm sau cùng giải pháp khóa ở mục 5). Danh sách, chi tiết, kết quả thêm, sửa chỉ trả dạng che `*********` + 3 số cuối; nhật ký thêm, sửa chỉ ghi 3 số cuối | Người có quyền nhạy cảm `crm.partner.identity.view` ở công ty đang làm việc xem số đầy đủ qua `GET /crm/partners/{id}/identity`, mỗi lần xem ghi nhật ký `partner.view_identity` (QUYTAC_NGHIEPVU_59) |
+| Đối tác: tên, mã số thuế, địa chỉ, điện thoại, email, người liên hệ, tài khoản ngân hàng (CONG_VIEC_06) | Tổ chức, cá nhân | Cơ sở dữ liệu schema `crm`; dùng chung tập đoàn | Người có `crm.partner.view` ở bất kỳ công ty nào; sửa: `crm.partner.manage` |
+| Hồ sơ đối tác của công ty: hạn mức công nợ, số ngày được nợ, nhân viên phụ trách (CONG_VIEC_06) | Tài chính, kinh doanh | Bảng `crm.partner_profiles` theo công ty | Xem: người có `crm.partner.view` của chính công ty đó; lập, sửa: quyền nhạy cảm `crm.profile.manage`. Công ty khác không đọc được |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
 
@@ -51,6 +54,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Tải ảnh sản phẩm lên (API_57) | Tải tệp lên | Một tệp mỗi lần; tối đa 5 MB (multer cắt ở 10 MB), 10 ảnh mỗi sản phẩm; đuôi `jpg`, `jpeg`, `png`, `webp` và chữ ký đầu tệp phải khớp (`FF D8 FF`, `89 50 4E 47`, `RIFF....WEBP`); loại nội dung lưu theo loại đã kiểm; tên tệp thay `\`, `/`, xuống dòng, dấu nháy kép bằng `_`, giữ tối đa 200 ký tự cuối; khóa lưu trữ do hệ thống sinh; tải về kèm `X-Content-Type-Options: nosniff`, `Cache-Control: private` | Có |
 | Nhập sản phẩm, nhập dòng phiếu điều chỉnh giá từ Excel (API_58, API_62) | Tải tệp lên | Chỉ `.xlsx` đọc bằng `read-excel-file`; tối đa 5 MB (multer cắt ở 10 MB), 2.000 dòng; dòng tiêu đề phải đúng mẫu; xử lý trong bộ nhớ, không lưu tệp gốc; tệp lỗi trả về dạng `data:` | Có |
 | Mọi API mini app Kho (API_63 đến API_70) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn, danh sách `variantIds` phải là UUID; số lượng, tiền dạng chuỗi tối đa 12 (số lượng) hoặc 16 (tiền) chữ số phần nguyên, 4 chữ số lẻ; giới hạn số phần tử (1.000 dòng mỗi phiếu, 5.000 serial mỗi dòng, 500 vị trí mỗi lần thêm, 5.000 dòng đếm mỗi lần, 500 bản tem); không nhận tệp tải lên | Có, `inventory.access` hoặc `inventory.stock.view` và quyền chi tiết tại kho |
+| Mọi API mini app Khách hàng và Đối tác (API_71, API_72) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn, `customerGroupId`, `ownerUserId` phải là UUID; mã số thuế `^[0-9]{10}(-[0-9]{3})?$`, số Căn cước công dân `^[0-9]{12}$`, email đúng định dạng, số tài khoản 4 đến 30 ký tự chữ, số, `-`; độ dài tên 300, địa chỉ 500, ghi chú 1.000 ký tự; tối đa 50 người liên hệ, 20 tài khoản ngân hàng; từ khóa tìm tối đa 100 ký tự, ký tự `%`, `_`, `\` được thoát trong `LIKE`; hạn mức công nợ tối đa 16 chữ số phần nguyên, 4 chữ số lẻ, không âm; không nhận tệp tải lên | Có, `crm.access` hoặc `crm.partner.view` và quyền chi tiết ở công ty đang làm việc |
 | Gửi tin qua eSMS.vn (mã OTP, Zalo ZNS, kiểm tra kết nối) | Tích hợp | Chỉ đọc mã kết quả, mã tin, lỗi; gửi lỗi không chặn nghiệp vụ | Không áp dụng (hệ thống gọi ra) |
 
 ## 3. Xác thực và phiên đăng nhập
@@ -166,6 +170,35 @@ Ranh giới và kiểm soát riêng:
 - Kiểm kê khóa mặt hàng đang đếm: sổ kho từ chối ghi vào mặt hàng (và vị trí) trong phạm vi kiểm kê đang đếm, trừ phiếu điều chỉnh của chính kiểm kê đó.
 - Tem PDF: `pdfmake` chặn tải tài nguyên qua URL và chỉ đọc tệp phông trong thư mục phông của thư viện; nội dung tem chỉ gồm ký tự ASCII.
 - Nhật ký thao tác ghi mọi thao tác ghi của mini app `inventory` (kho, vị trí, cài đặt, phiếu, xuất, nhận, kiểm kê, giữ hàng, tồn an toàn); ghi sổ sau duyệt và tác vụ nền nhả hàng giữ không ghi nhật ký riêng.
+
+### Ma trận phân quyền MODULE_07 Khách hàng và Đối tác (CONG_VIEC_06)
+
+Quyền mới (`apps/api/src/permissions/permission-catalog.ts`; `crm.access` đã có từ trước):
+
+| Quyền | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|
+| `crm.partner.view` | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Quản lý đối tác, Thủ kho |
+| `crm.partner.manage` | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Quản lý đối tác |
+| `crm.partner.identity.view` | Công ty | Có (bắt buộc xác thực hai lớp, QUYTAC_NGHIEPVU_09) | Quản trị tập đoàn, quản trị công ty |
+| `crm.profile.manage` | Công ty | Có (hạn mức công nợ; bắt buộc xác thực hai lớp) | Quản trị tập đoàn, quản trị công ty |
+
+Vai trò hệ thống mới "Quản lý đối tác" (`partner_manager`): `crm.access`, `crm.partner.view`, `crm.partner.manage`. Vai trò "Thủ kho" có thêm `crm.partner.view`.
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty | Quản lý đối tác | Thủ kho | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|
+| CHUC_NANG_46 Xem, tìm đối tác (số Căn cước công dân che) | Được | Được | Được | Được | Không |
+| CHUC_NANG_46 Thêm, sửa, ngừng giao dịch đối tác bên ngoài | Được | Được | Được | Không | Không |
+| CHUC_NANG_46 Xem đầy đủ số Căn cước công dân | Được, ghi nhật ký | Được, ghi nhật ký | Không | Không | Không |
+| CHUC_NANG_47 Sửa đối tác nội bộ | Không (sửa ở màn hình Công ty) | Không | Không | Không | Không |
+| CHUC_NANG_48 Lập, sửa hồ sơ đối tác của công ty | Được | Trong công ty mình | Không | Không | Không |
+
+Ranh giới và kiểm soát riêng:
+- Đối tác dùng chung tập đoàn: không lọc theo công ty; người có `crm.partner.manage` ở bất kỳ công ty nào sửa được thông tin chung (QUYTAC_NGHIEPVU_57), nhật ký ghi công ty của người sửa và dữ liệu trước, sau (KICHBAN_KIEMTHU_161). Không có API xóa đối tác.
+- Số Căn cước công dân là dữ liệu cá nhân (QUYTAC_NGHIEPVU_59): không trả trong danh sách, chi tiết, kết quả thêm, sửa (KICHBAN_KIEMTHU_163 kiểm nội dung trả về không chứa số đầy đủ); nhật ký thêm, sửa thay số bằng `***` + 3 số cuối; xem đầy đủ cần quyền nhạy cảm, mỗi lần gọi ghi nhật ký `partner.view_identity` không kèm số; giao diện chỉ gọi khi người dùng bấm "Xem đầy đủ". Sửa đối tác cá nhân không cần xem số đầy đủ (để trống là giữ số cũ).
+- Hồ sơ đối tác theo công ty: truy vấn hồ sơ luôn có điều kiện `company_id` của công ty đang làm việc; công ty khác nhận `profile: null`, bộ lọc khách hàng, nhà cung cấp chỉ theo hồ sơ của công ty mình (KICHBAN_KIEMTHU_164). Nhóm khách hàng, nhân viên phụ trách phải thuộc công ty đang làm việc.
+- Đối tác nội bộ chỉ do hệ thống đồng bộ từ `core.companies`; API từ chối sửa, đổi trạng thái (KICHBAN_KIEMTHU_162).
+- Kiểm trùng (`lookup`) trả mã, tên đối tác khi biết đúng mã số thuế (người có `crm.partner.view`) hoặc đúng số Căn cước công dân (chỉ người có `crm.partner.manage`, tránh dò tìm danh tính; KICHBAN_KIEMTHU_163); không trả số Căn cước công dân.
+- Nhật ký thao tác ghi mọi thao tác ghi của mini app `crm` (thêm, sửa, ngừng giao dịch, giao dịch lại đối tác, lưu hồ sơ) và mỗi lần xem số Căn cước công dân; đồng bộ đối tác nội bộ không ghi nhật ký riêng.
 
 ## 5. Quản lý khóa bí mật
 
