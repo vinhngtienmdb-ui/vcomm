@@ -1,10 +1,10 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò mặc định, trách nhiệm và quyền hạn.
-- Phiên bản: 1.7
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15)
+- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17)
 
 ## 1. Nguyên tắc
 
@@ -219,3 +219,45 @@ Loại chứng từ của MODULE_06 phần 1:
 | Rút phiếu chi đang chờ duyệt | `finance.payment.manage`, người lập, cấp duyệt đầu chưa quyết định | Phiếu của mình | Phiếu của mình | Phiếu của mình | Không | Không |
 | Duyệt phiếu chi | Theo chính sách duyệt `finance.payment` | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định |
 | Phát sinh công nợ khi ghi sổ phiếu kho | Quyền ghi sổ phiếu kho tương ứng (mục 4, 8, 10) | Có | Kho của công ty mình | Không | Không | Kho trong phạm vi gán |
+
+## 16. Vai trò hệ thống của MODULE_06 Tài chính – Kế toán (phần 2, CONG_VIEC_14)
+
+Tài khoản, bút toán, kỳ khóa sổ thuộc công ty đang chọn. Bốn quyền mới chỉ dùng được khi gán ở phạm vi tập đoàn hoặc công ty. Quản trị tập đoàn, quản trị công ty có sẵn bốn quyền mới. Phiếu kế toán dùng loại chứng từ `accounting.journal` (Phiếu kế toán, cần duyệt). Bút toán tự sinh khi ghi sổ phiếu kho, phiếu thu chi, ghi tổn thất hàng thiếu nội bộ, không cần quyền kế toán. Chế độ kế toán của công ty đổi ở quản lý công ty với quyền `platform.company.manage` (MODULE_01).
+
+| Vai trò | Mã | Phạm vi gán | Trách nhiệm | Quyền chính | Nhạy cảm |
+|---|---|---|---|---|---|
+| Kế toán (bổ sung) | `accountant` | Công ty | Như mục 14; thêm: xem tài khoản, bút toán, sổ sách; lập, sửa, gửi, rút phiếu kế toán | Quyền ở mục 14 và `finance.ledger.view`, `finance.journal.manage` | Không |
+| Kế toán trưởng | `chief_accountant` | Công ty | Mọi việc của Kế toán; khởi tạo kế toán, thêm, sửa tài khoản, đổi định khoản mặc định; khóa sổ, mở lại sổ | `finance.access`, `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, `crm.access`, `crm.partner.view` | Có (`finance.period.close`) |
+
+Quyền của MODULE_06 phần 2:
+
+| Quyền | Tên | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|---|
+| `finance.ledger.view` | Xem tài khoản, bút toán, sổ cái | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán, Kế toán trưởng |
+| `finance.ledger.setup` | Khởi tạo kế toán, sửa tài khoản, định khoản | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng |
+| `finance.journal.manage` | Lập, gửi phiếu kế toán | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán, Kế toán trưởng |
+| `finance.period.close` | Khóa sổ, mở lại sổ | Công ty | Có | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng |
+
+Loại chứng từ của MODULE_06 phần 2:
+
+| Mã | Tên | Cần duyệt | Dãy số | Giá trị duyệt |
+|---|---|---|---|---|
+| `accounting.journal` | Phiếu kế toán | Có (chưa có chính sách duyệt thì ghi sổ ngay) | `PKT` | Tổng Nợ |
+
+## 17. Ma trận vai trò – thao tác của MODULE_06 (phần 2)
+
+| Thao tác | Quyền dùng | Quản trị tập đoàn | Quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng | Thủ kho |
+|---|---|---|---|---|---|---|---|
+| Xem trạng thái khởi tạo | `finance.ledger.view` hoặc `finance.ledger.setup` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Khởi tạo kế toán; thêm, sửa, ngừng dùng tài khoản chi tiết; đổi định khoản mặc định | `finance.ledger.setup` | Có | Trong công ty mình | Có | Không | Không | Không |
+| Xem hệ thống tài khoản | `finance.ledger.view`, `finance.ledger.setup` hoặc `finance.journal.manage` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Xem định khoản mặc định | `finance.ledger.view` hoặc `finance.ledger.setup` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Xem danh sách, chi tiết bút toán | `finance.ledger.view` hoặc `finance.journal.manage` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Lập, sửa, gửi phiếu kế toán | `finance.journal.manage` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Rút phiếu kế toán đang chờ duyệt | `finance.journal.manage`, người lập, cấp duyệt đầu chưa quyết định | Phiếu của mình | Phiếu của mình | Phiếu của mình | Phiếu của mình | Không | Không |
+| Duyệt phiếu kế toán | Theo chính sách duyệt `accounting.journal` | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định |
+| Xem kỳ khóa sổ | `finance.ledger.view` hoặc `finance.period.close` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Khóa sổ, mở lại sổ | `finance.period.close` | Có | Trong công ty mình | Có | Không | Không | Không |
+| Xem bảng cân đối số phát sinh, sổ cái | `finance.ledger.view` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Bút toán tự sinh khi ghi sổ phiếu kho, phiếu thu chi | Quyền ghi sổ chứng từ tương ứng (mục 4, 8, 10, 14) | Có | Trong công ty mình | Có (phiếu thu chi) | Có (phiếu thu chi) | Không | Kho trong phạm vi gán |
+| Đổi chế độ kế toán của công ty | `platform.company.manage` (mục 2, 3) | Có | Không | Không | Không | Không | Không |

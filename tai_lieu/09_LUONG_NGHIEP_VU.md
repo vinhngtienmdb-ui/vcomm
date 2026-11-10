@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.4
+- Phiên bản: 1.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán
 
 ## MODULE_01 Nền tảng
 
@@ -310,3 +310,70 @@ Trạng thái phiếu thu, phiếu chi:
 | Chờ duyệt | Duyệt xong, không ghi sổ được | Bị từ chối (kèm lý do) |
 | Chờ duyệt | Từ chối | Bị từ chối |
 | Chờ duyệt | Người lập rút (cấp 1 chưa quyết định) | Đã rút |
+
+## MODULE_06 Tài chính – Kế toán (phần 2: Kế toán tổng hợp, CONG_VIEC_14)
+
+### Luồng 22. Khởi tạo kế toán của công ty
+
+- Bắt đầu: quản trị tập đoàn đã đặt chế độ kế toán của công ty ở quản lý công ty (Thông tư 99/2025 mặc định, hoặc Thông tư 133). Kế toán trưởng mở "Hệ thống tài khoản".
+- Các bước:
+  1. Màn hình hiện "Công ty chưa khởi tạo kế toán. Chế độ kế toán của công ty: <chế độ>." và nút "Khởi tạo kế toán".
+  2. Kế toán trưởng bấm "Khởi tạo kế toán". Trong một giao dịch, hệ thống khóa công ty, ghi cài đặt kế toán, nạp hệ thống tài khoản của chế độ, định khoản mặc định (QUYTAC_NGHIEPVU_93, QUYTAC_NGHIEPVU_94), tạo bút toán cho mọi phiếu kho, phiếu thu chi đã ghi sổ và biên bản nội bộ đã ghi tổn thất của công ty theo thứ tự ghi sổ.
+  3. Kế toán trưởng thêm tài khoản chi tiết ("Thêm chi tiết" trên dòng tài khoản cha): định khoản đang dùng tài khoản cha chuyển sang tài khoản mới.
+  4. Kế toán trưởng đổi tài khoản của vai trò ở thẻ "Định khoản mặc định" khi cần.
+  5. Kế toán lập phiếu kế toán số dư đầu kỳ các tài khoản (Luồng 24).
+- Ngoại lệ: khởi tạo lần hai báo "Công ty đã khởi tạo kế toán."; số hiệu sai quy tắc, trùng thì báo dưới ô. Đổi chế độ ở quản lý công ty khi đã có bút toán: báo "Công ty đã có bút toán, không đổi được chế độ kế toán."; đã khởi tạo nhưng chưa có bút toán: hệ thống bỏ khởi tạo, kế toán trưởng khởi tạo lại.
+- Kết thúc: "Đã khởi tạo kế toán."; cây tài khoản, định khoản hiện ở MAN_HINH_50.
+
+### Luồng 23. Bút toán tự sinh
+
+- Bắt đầu: Thủ kho ghi sổ phiếu kho (Luồng 10, Luồng 11; MODULE_03, MODULE_04); Kế toán ghi sổ phiếu thu chi (Luồng 19 đến Luồng 21); bên bán ghi tổn thất biên bản chênh lệch nội bộ (Luồng 15).
+- Các bước:
+  1. Trong cùng giao dịch ghi sổ, hệ thống đọc cài đặt kế toán của công ty (khóa dòng chia sẻ). Chưa khởi tạo thì dừng.
+  2. Ngày chứng từ thuộc kỳ đã khóa thì từ chối cả lần ghi sổ (QUYTAC_NGHIEPVU_97).
+  3. Tính số tiền theo vai trò (doanh thu, thuế, giá vốn, phải thu...), làm tròn theo tiền tệ công ty; đổi vai trò sang tài khoản theo định khoản của công ty (QUYTAC_NGHIEPVU_95).
+  4. Bỏ dòng 0, kiểm tổng Nợ bằng tổng Có, ghi bút toán "Đã ghi sổ" số chứng từ gốc, gắn đối tác vào dòng phải thu, phải trả.
+- Ngoại lệ: kỳ đã khóa thì chứng từ không ghi sổ, báo "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ."; phiếu chi duyệt xong rơi vào kỳ khóa thì về "Bị từ chối" kèm lý do (Luồng 20). Phiếu chuyển kho không sinh bút toán.
+- Kết thúc: bút toán hiện ở MAN_HINH_51 với nguồn "Phiếu kho", "Phiếu thu chi" hoặc "Ghi tổn thất hàng thiếu nội bộ".
+
+### Luồng 24. Phiếu kế toán
+
+- Bắt đầu: Kế toán mở "Bút toán", bấm "Lập phiếu kế toán".
+- Các bước:
+  1. Nhập ngày, diễn giải, các dòng (tài khoản, đối tác, diễn giải dòng, Nợ hoặc Có); màn hình hiện tổng Nợ, tổng Có, chênh lệch. Lưu nháp (QUYTAC_NGHIEPVU_96).
+  2. Gửi: cấp số `PKT` lần đầu; gửi luồng duyệt (Luồng 5) loại `accounting.journal` với giá trị là tổng Nợ; phiếu "Chờ duyệt". Chưa có chính sách duyệt thì ghi sổ ngay.
+  3. Người lập rút khi cấp duyệt đầu chưa quyết định: "Đã rút". Từ chối: "Bị từ chối".
+  4. Duyệt xong: kiểm kỳ chưa khóa, ghi sổ.
+- Ngoại lệ: lệch Nợ Có, dòng ghi cả hai bên, số lẻ hơn đơn vị tiền tệ, tài khoản không nhận bút toán thì không lưu được; ngày thuộc kỳ đã khóa thì không lưu, gửi được; duyệt xong mà kỳ đã khóa thì phiếu về "Bị từ chối", chi tiết hiện "Duyệt xong nhưng không ghi sổ được: Ngày chứng từ thuộc kỳ kế toán đã khóa sổ. Sửa phiếu rồi gửi lại.".
+- Kết thúc: phiếu "Đã ghi sổ"; phiếu đã ghi sổ không sửa.
+
+Trạng thái phiếu kế toán:
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| (mới) | Lập | Nháp |
+| Nháp, Bị từ chối, Đã rút | Sửa | Nháp |
+| Nháp, Bị từ chối, Đã rút | Gửi, chưa có chính sách duyệt | Đã ghi sổ |
+| Nháp, Bị từ chối, Đã rút | Gửi, có chính sách duyệt | Chờ duyệt |
+| Chờ duyệt | Duyệt xong, kỳ chưa khóa | Đã ghi sổ |
+| Chờ duyệt | Duyệt xong, kỳ đã khóa | Bị từ chối (kèm lý do) |
+| Chờ duyệt | Từ chối | Bị từ chối |
+| Chờ duyệt | Người lập rút (cấp 1 chưa quyết định) | Đã rút |
+
+### Luồng 25. Khóa sổ, mở lại sổ
+
+- Bắt đầu: tháng đã kết thúc; Kế toán trưởng mở "Sổ sách".
+- Các bước:
+  1. Thẻ "Bảng cân đối số phát sinh": chọn từ ngày, đến ngày của tháng, kiểm tổng Nợ bằng tổng Có (QUYTAC_NGHIEPVU_98).
+  2. Thẻ "Khóa sổ": màn hình hiện "Đã khóa sổ đến", "Tháng tiếp theo cần khóa".
+  3. Bấm "Khóa sổ tháng <tháng>", xác nhận. Hệ thống khóa dòng cài đặt, kiểm tháng đúng thứ tự, đã kết thúc, không còn phiếu kế toán chờ duyệt; tạo bút toán kết chuyển `KC-YYYY-MM` ngày cuối tháng; ghi ngày khóa sổ (QUYTAC_NGHIEPVU_97).
+  4. Cần sửa số liệu tháng đã khóa: bấm "Mở lại tháng <tháng>" (tháng khóa gần nhất), xác nhận. Hệ thống xóa bút toán kết chuyển của tháng, lùi ngày khóa về lần khóa trước.
+- Ngoại lệ: tháng chưa kết thúc, không đúng thứ tự: báo "Không khóa được tháng này (khóa lần lượt từng tháng đã kết thúc)."; còn phiếu chờ duyệt: báo "Còn phiếu kế toán chờ duyệt trong kỳ.".
+- Kết thúc: "Đã khóa sổ." hoặc "Đã mở lại sổ."; chứng từ có ngày trong kỳ khóa không ghi sổ được.
+
+Trạng thái kỳ kế toán (theo tháng):
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| Đang mở | Khóa sổ (tháng tiếp theo, đã kết thúc, không còn phiếu chờ duyệt) | Đã khóa |
+| Đã khóa (tháng khóa gần nhất) | Mở lại | Đang mở |

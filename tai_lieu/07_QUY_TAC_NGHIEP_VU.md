@@ -1,10 +1,10 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái và ngoại lệ, có mã định danh.
-- Phiên bản: 2.0
+- Phiên bản: 2.1
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm QUYTAC_NGHIEPVU_45 đến QUYTAC_NGHIEPVU_55 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm QUYTAC_NGHIEPVU_56 đến QUYTAC_NGHIEPVU_60 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm QUYTAC_NGHIEPVU_61 đến QUYTAC_NGHIEPVU_66 của MODULE_04, quyết định AI tự đưa ra trong phạm vi đặc tả; CONG_VIEC_08 (2026-11-10): thêm QUYTAC_NGHIEPVU_67 đến QUYTAC_NGHIEPVU_72 của MODULE_05, quyết định AI tự đưa ra trong phạm vi đặc tả; CONG_VIEC_09 (2026-11-10): thêm QUYTAC_NGHIEPVU_73 đến QUYTAC_NGHIEPVU_78 của MODULE_05 (giao dịch nội bộ), quyết định AI tự đưa ra; CONG_VIEC_12 (2026-11-10): thêm QUYTAC_NGHIEPVU_79 đến QUYTAC_NGHIEPVU_84 của MODULE_05 (khuyến mãi), quyết định AI tự đưa ra, quyết định của người dùng về hàng tặng; CONG_VIEC_13 (2026-11-10): thêm QUYTAC_NGHIEPVU_85 đến QUYTAC_NGHIEPVU_92 của MODULE_06 (công nợ), quyết định AI tự đưa ra, quyết định của người dùng về ghi tổn thất nội bộ; QUYTAC_NGHIEPVU_77 bổ sung giảm phải thu khi ghi tổn thất; QUYTAC_NGHIEPVU_69 thay bằng QUYTAC_NGHIEPVU_92 theo THAY_DOI_09
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm QUYTAC_NGHIEPVU_45 đến QUYTAC_NGHIEPVU_55 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm QUYTAC_NGHIEPVU_56 đến QUYTAC_NGHIEPVU_60 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm QUYTAC_NGHIEPVU_61 đến QUYTAC_NGHIEPVU_66 của MODULE_04, quyết định AI tự đưa ra trong phạm vi đặc tả; CONG_VIEC_08 (2026-11-10): thêm QUYTAC_NGHIEPVU_67 đến QUYTAC_NGHIEPVU_72 của MODULE_05, quyết định AI tự đưa ra trong phạm vi đặc tả; CONG_VIEC_09 (2026-11-10): thêm QUYTAC_NGHIEPVU_73 đến QUYTAC_NGHIEPVU_78 của MODULE_05 (giao dịch nội bộ), quyết định AI tự đưa ra; CONG_VIEC_12 (2026-11-10): thêm QUYTAC_NGHIEPVU_79 đến QUYTAC_NGHIEPVU_84 của MODULE_05 (khuyến mãi), quyết định AI tự đưa ra, quyết định của người dùng về hàng tặng; CONG_VIEC_13 (2026-11-10): thêm QUYTAC_NGHIEPVU_85 đến QUYTAC_NGHIEPVU_92 của MODULE_06 (công nợ), quyết định AI tự đưa ra, quyết định của người dùng về ghi tổn thất nội bộ; QUYTAC_NGHIEPVU_77 bổ sung giảm phải thu khi ghi tổn thất; QUYTAC_NGHIEPVU_69 thay bằng QUYTAC_NGHIEPVU_92 theo THAY_DOI_09; CONG_VIEC_14 (2026-11-10): thêm QUYTAC_NGHIEPVU_93 đến QUYTAC_NGHIEPVU_98 của MODULE_06 (kế toán tổng hợp), quyết định AI tự đưa ra
 
 ## MODULE_01 Nền tảng
 
@@ -271,6 +271,40 @@ Ngày 2026-11-10, chưa xác nhận.
 ### Quyết định của người dùng (CONG_VIEC_13, 2026-11-10)
 
 - Giao nội bộ thiếu, bên bán "Ghi tổn thất" biên bản chênh lệch thì giảm phải thu của công ty mua đúng giá trị phần thiếu theo giá đơn bán, để công nợ hai công ty khớp nhau (QUYTAC_NGHIEPVU_86).
+
+## MODULE_06 Tài chính – Kế toán (phần 2: Kế toán tổng hợp, CONG_VIEC_14)
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_93 | Chế độ kế toán là trường `accounting_regime` có sẵn của công ty (Thông tư 99/2025/TT-BTC `TT99_2025` hoặc Thông tư 133/2016/TT-BTC `TT133`), đổi ở quản lý công ty (API_20); không có bảng chọn chế độ riêng. Khởi tạo kế toán nạp hệ thống tài khoản của chế độ (tài khoản hệ thống, không ngừng dùng, không đổi số hiệu, được đổi tên). Đổi chế độ: công ty đã có bút toán thì từ chối; đã khởi tạo nhưng chưa có bút toán thì bỏ khởi tạo (xóa tài khoản, định khoản, cài đặt) để khởi tạo lại theo chế độ mới. Kế toán trưởng thêm tài khoản chi tiết dưới tài khoản đang dùng bất kỳ, kể cả tài khoản đã có bút toán: số hiệu 3 đến 20 chữ số hoặc chữ cái, bắt đầu bằng số hiệu tài khoản cha, dài hơn, duy nhất trong công ty; tính chất số dư theo tài khoản cha. Định khoản đang dùng tài khoản cha chuyển sang tài khoản chi tiết mới; bút toán cũ giữ ở tài khoản cha và vẫn cộng vào số dư của cha. Chỉ tài khoản đang dùng, không có tài khoản con đang dùng mới nhận bút toán. Tài khoản chi tiết ngừng dùng được khi không nằm trong định khoản mặc định và không còn tài khoản con đang dùng; không xóa tài khoản | YCAU_NGHIEPVU_39 |
+| QUYTAC_NGHIEPVU_94 | Định khoản mặc định theo vai trò (bảng ở mục 8); kế toán trưởng đổi tài khoản của từng vai trò cho công ty, tài khoản phải nhận bút toán được; thay đổi áp dụng cho bút toán sinh sau đó | YCAU_NGHIEPVU_39 |
+| QUYTAC_NGHIEPVU_95 | Bút toán tự sinh trong cùng giao dịch ghi sổ chứng từ, ngày bút toán là ngày chứng từ (ghi tổn thất hàng thiếu nội bộ: ngày ghi tổn thất), số bút toán là số chứng từ gốc, gắn đối tác với dòng phải thu, phải trả. Công ty chưa khởi tạo kế toán thì không sinh. Chứng từ sinh bút toán mà ngày thuộc kỳ đã khóa thì bị từ chối (QUYTAC_NGHIEPVU_97); phiếu chuyển kho không sinh bút toán nên không bị chặn. Số tiền làm tròn theo số chữ số lẻ của tiền tệ công ty (đồng Việt Nam: 0): tổng gồm thuế làm tròn trước, tiền chưa thuế làm tròn, thuế là phần còn lại. Tổng Nợ bằng tổng Có; dòng số tiền 0 bỏ qua | YCAU_NGHIEPVU_39 |
+| QUYTAC_NGHIEPVU_96 | Phiếu kế toán nhập tay: ngày, diễn giải (1 đến 500 ký tự), 2 đến 200 dòng (tài khoản nhận bút toán được, đối tác có hồ sơ ở công ty nếu cần, diễn giải dòng, Nợ hoặc Có lớn hơn 0, không ghi cả hai bên); số tiền không lẻ hơn đơn vị nhỏ nhất của tiền tệ công ty; tổng Nợ bằng tổng Có. Ngày thuộc kỳ đã khóa thì không lập, sửa, gửi được. Đi luồng duyệt (loại chứng từ `accounting.journal`, giá trị duyệt là tổng Nợ; chưa có chính sách thì ghi sổ ngay khi gửi). Gửi lần đầu cấp số (`PKT`…), gửi lại giữ số. Sửa khi nháp, bị từ chối, đã rút (về nháp); người lập rút được khi chờ duyệt và cấp duyệt đầu chưa quyết định. Duyệt xong mà kỳ đã khóa thì phiếu về "Bị từ chối" kèm lý do. Đã ghi sổ không sửa (điều chỉnh bằng phiếu khác) | YCAU_NGHIEPVU_39 |
+| QUYTAC_NGHIEPVU_97 | Khóa sổ theo tháng, lần lượt: tháng tiếp theo là tháng sau tháng đã khóa; chưa khóa lần nào thì tháng của bút toán đã ghi sổ sớm nhất. Chỉ khóa tháng đã kết thúc (ngày cuối tháng trước hôm nay). Còn phiếu kế toán chờ duyệt có ngày đến hết tháng thì không khóa được. Khóa sổ tạo bút toán kết chuyển số `KC-YYYY-MM`, ngày cuối tháng: số dư lũy kế đến cuối tháng của từng tài khoản loại 5 đến 8 (kể cả 521, trừ tài khoản xác định kết quả) kết chuyển trực tiếp sang tài khoản xác định kết quả kinh doanh (911); số dư của 911 chuyển sang lợi nhuận chưa phân phối năm nay (4212): dư Có là lãi, dư Nợ là lỗ; ghi ngày khóa sổ đến cuối tháng. Sau khi khóa, không ghi sổ chứng từ sinh bút toán (kho, thu chi, ghi tổn thất, phiếu kế toán) có ngày trong kỳ đã khóa. Mở lại chỉ tháng khóa gần nhất, cần quyền khóa sổ: xóa bút toán kết chuyển của tháng đó, lùi ngày khóa về lần khóa trước (chưa có thì bỏ ngày khóa) | YCAU_NGHIEPVU_39 |
+| QUYTAC_NGHIEPVU_98 | Bảng cân đối số phát sinh theo khoảng ngày: mỗi tài khoản có số dư đầu kỳ, phát sinh Nợ, phát sinh Có, số dư cuối kỳ (Nợ hoặc Có theo dấu; tài khoản lưỡng tính hiện cả hai bên theo chi tiết đối tác), cộng dồn lên tài khoản cha; tổng Nợ bằng tổng Có ở mọi cột. Sổ cái của một tài khoản (gồm tài khoản chi tiết): số dư đầu, từng dòng bút toán (ngày, số, diễn giải, tài khoản đối ứng, Nợ, Có), số dư lũy kế. Chỉ tính bút toán đã ghi sổ | YCAU_NGHIEPVU_39 |
+
+Vai trò định khoản và tài khoản mặc định từng chế độ: bảng ở đặc tả `cong_viec/CONG_VIEC_14.md` mục 8.
+
+Trạng thái phiếu kế toán: như phiếu chi (tài liệu `09`, Luồng 24). Bút toán tự sinh và bút toán kết chuyển luôn ở trạng thái "Đã ghi sổ".
+
+Ngoại lệ:
+- Chứng từ kho, phiếu thu chi có ngày trong kỳ đã khóa: không ghi sổ được, báo "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ." (QUYTAC_NGHIEPVU_95, QUYTAC_NGHIEPVU_97). Phiếu chi duyệt xong rơi vào kỳ đã khóa thì về "Bị từ chối" như QUYTAC_NGHIEPVU_89.
+- Đổi chế độ kế toán khi công ty đã có bút toán: báo "Công ty đã có bút toán, không đổi được chế độ kế toán." (QUYTAC_NGHIEPVU_93).
+- Khóa sổ khi còn phiếu kế toán chờ duyệt trong kỳ: báo "Còn phiếu kế toán chờ duyệt trong kỳ." (QUYTAC_NGHIEPVU_97).
+
+### Quyết định AI tự đưa ra (CONG_VIEC_14)
+
+Ngày 2026-11-10, chưa xác nhận.
+
+| Vị trí | Nội dung |
+|---|---|
+| QUYTAC_NGHIEPVU_93 | Dùng lại trường chế độ kế toán của công ty, không có bảng chọn riêng; đã khởi tạo, chưa có bút toán mà đổi chế độ thì bỏ khởi tạo. Thêm được tài khoản chi tiết dưới tài khoản đã có bút toán; định khoản chuyển sang tài khoản chi tiết, bút toán cũ giữ ở cha. Tài khoản của chế độ không ngừng dùng được, đổi tên được |
+| QUYTAC_NGHIEPVU_94 | Tài khoản mặc định từng vai trò (đặc tả mục 8): Thông tư 133 ghi hàng bán bị trả lại giảm 5111 (không có 521); hàng hủy, hỏng, hết hạn vào 632; ghi tổn thất hàng thiếu nội bộ vào 1381 (vai trò `internal_shortage`) |
+| QUYTAC_NGHIEPVU_95 | Làm tròn theo tiền tệ công ty, tổng gồm thuế làm tròn trước, thuế là phần còn lại; công nợ vẫn 4 chữ số lẻ. Bút toán ghi tổn thất lấy ngày ghi tổn thất. Chuyển kho không sinh bút toán, không bị chặn khi kỳ khóa |
+| QUYTAC_NGHIEPVU_96 | Từ chối số lẻ hơn đơn vị tiền tệ; tối đa 200 dòng; duyệt xong mà kỳ đã khóa thì về "Bị từ chối" kèm lý do |
+| QUYTAC_NGHIEPVU_97 | Chỉ khóa tháng đã kết thúc; tháng đầu là tháng của bút toán sớm nhất; chặn khi còn phiếu kế toán chờ duyệt; kết chuyển thẳng từng tài khoản loại 5 đến 8 (kể cả 521) sang 911, không qua 511; mở lại xóa bút toán kết chuyển, lùi ngày khóa về lần khóa trước |
+| QUYTAC_NGHIEPVU_98 | Tài khoản lưỡng tính có đối tác tách số dư Nợ, Có theo từng đối tác; sổ cái gồm tài khoản chi tiết, tối đa 10.000 dòng |
+| Tài liệu `08` | Vai trò Kế toán trưởng có mọi quyền tài chính và `crm.access`, `crm.partner.view`; `finance.period.close` là quyền nhạy cảm |
 
 ## Quy tắc do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
