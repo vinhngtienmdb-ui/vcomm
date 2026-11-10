@@ -183,6 +183,23 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_21
+
+- Phạm vi: lát L0, L1 (phạm vi xem khách hàng, đơn bán theo nhân viên phụ trách và phòng ban quản lý; quyền `crm.customer.view_all`, `crm.customer.assign`; nhân viên thêm đối tác mới hoặc nhận đối tác có sẵn thì tự phụ trách; hồ sơ chỉ đặt nhân viên phụ trách khi chưa có; phiếu giao khách theo chính sách duyệt, áp dụng có kiểm nhân viên phụ trách lúc gửi, báo nhân viên; lịch sử phụ trách); MAN_HINH_64, 65; sửa MAN_HINH_36, 37; API_110, API_111; THAY_DOI_12. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --prod`; database migration 0021 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright: nhân viên bán hàng chỉ thấy khách của mình; quản trị công ty lọc khách của tôi, lập và gửi phiếu giao khách, xem lịch sử phụ trách (máy tính và điện thoại 375 điểm ảnh, không cuộn ngang, không có yêu cầu lỗi).
+- Kết quả: 290 đạt / 0 không đạt / 290 kịch bản tự động (36 tệp; phần mới: `c21-customer-assignment` 9, KICHBAN_KIEMTHU_278 đến 284, 286). KICHBAN_KIEMTHU_285 (thủ công trên trình duyệt) đạt.
+- Kiểm thử đã duyệt được sửa: tám tệp kiểm thử của CONG_VIEC_08, 12, 13, 14, 15, 16, 17, 19 dùng vai trò Nhân viên bán hàng lập đơn cho khách chưa có nhân viên phụ trách; theo THAY_DOI_12 các kiểm thử này bị chặn. Người dùng cho phép (2026-11-10) thêm bước chuẩn bị `salespersonSeesAllCustomers` (người bán thử có quyền xem mọi khách như hành vi cũ), không đổi phần kiểm tra; 59/59 đạt.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_151 đến 155 (bắt buộc) – Đạt. TIEUCHI_NGHIEMTHU_156 (mong muốn) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 56) chưa chạy được do tài khoản GitHub lỗi thanh toán; đã rà các dòng thêm mới không có khóa bí mật.
+  - C3 phân quyền: Đạt – nhân viên không có quyền xem mọi khách nhận 404 với khách, đơn ngoài phạm vi (chi tiết, sửa, gửi, rút, hủy, đóng, đơn đối ứng, số Căn cước công dân, lịch sử, hồ sơ); giá gợi ý không dùng nhóm khách ngoài phạm vi; chỉ trưởng phòng hoặc người có quyền giao khách lập phiếu; chỉ người gửi rút.
+  - C4 toàn vẹn dữ liệu: Đạt – gửi và áp dụng phiếu khóa hồ sơ khách theo thứ tự rồi mới kiểm; khách đổi nhân viên hoặc nhân viên nhận ngừng làm việc trong lúc chờ duyệt thì phiếu bị từ chối; một dòng lịch sử mở cho mỗi khách (chỉ mục duy nhất); truy vấn tham số ràng buộc.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập không thấy lỗi Nghiêm trọng; tìm 2 lỗi Cao (hai phiếu cùng khách áp dụng song song ghi đè nhau; nhân viên không nhận được đối tác đã có trong tập đoàn), 6 mục Trung bình (kiểm phạm vi ngoài giao dịch khi gửi; khóa không theo thứ tự; không kiểm nhân viên nhận khi áp dụng; người lập không sửa được đơn nháp khi khách đã chuyển; trưởng phòng cần quyền xem đối tác; lý do từ chối là chuỗi cố định), 7 mục Thấp; đã sửa các mục, mục quyền của trưởng phòng và bảng vai trò sửa trong đặc tả. Tài khoản thử trên dữ liệu phát triển ghi trong `tam_thoi/CONG_VIEC_02/da_tao.md`.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
+- Kết luận: Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_20
 
 - Phạm vi: lát L0 đến L2 (phạm vi tập đoàn, quyền chỉ hiệu lực ở phạm vi tập đoàn; cộng gộp B01-DN, B02-DN theo mã Thông tư 99, công ty Thông tư 133 ghép mã; số dư theo từng công ty không bù trừ ngược chiều; bảng hợp nhất theo kỳ; loại trừ công nợ và trả trước nội bộ kèm cảnh báo chênh lệch; loại trừ doanh thu, giá vốn bán nội bộ; lãi chưa thực hiện ước tính theo phần bên mua thực nhận, sửa tay có lý do; điều chỉnh tay theo công ty, đối tác; gửi duyệt tính lại và chốt số; rút, gửi lại; xuất Excel, PDF); MAN_HINH_62, 63; API_106 đến API_109. Báo cáo tài chính từng công ty (API_90) dùng chung phần đọc số liệu mới. Hồi quy: toàn bộ kiểm thử tự động của dự án.

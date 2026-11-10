@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_21: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_21-gan-khach-hang` (pull request số 56, tách từ nhánh CONG_VIEC_20). Database migration 0021; nhân viên bán hàng chỉ xem khách mình hoặc phòng mình quản lý phụ trách và đơn của các khách đó; phiếu giao khách theo chính sách duyệt; lịch sử phụ trách; MAN_HINH_64, 65. Kiểm thử 290/290 đạt; tám tệp kiểm thử cũ thêm bước chuẩn bị theo phép của người dùng. Không thêm thư viện. Rà soát độc lập, sửa 2 lỗi Cao và các mục Trung bình, Thấp. Chờ người dùng nghiệm thu.
 - CONG_VIEC_21: Lập công việc Gán khách hàng cho nhân viên kinh doanh (MODULE_07), mức Lớn; THAY_DOI_12.
 - CONG_VIEC_20: Người dùng nghiệm thu, chấp nhận giới hạn đã biết (cột so sánh chỉ là số cộng gộp; lãi chưa thực hiện chỉ xét hàng mua nội bộ trong kỳ; loại trừ đầu tư vào công ty con, thuế giá trị gia tăng nội bộ bằng điều chỉnh tay; chênh lệch công nợ nội bộ chỉ cảnh báo); chờ người dùng hợp nhất pull request số 55 (sau số 54).
 - CONG_VIEC_20: Xong lát L0 đến L2 trên nhánh `chuc-nang/CONG_VIEC_20-bao-cao-hop-nhat` (pull request số 55, tách từ nhánh CONG_VIEC_19). Database migration 0020; cộng gộp B01-DN, B02-DN theo Thông tư 99; bảng hợp nhất theo kỳ, loại trừ công nợ, trả trước, doanh thu và giá vốn nội bộ, lãi chưa thực hiện, điều chỉnh tay; gửi duyệt chốt số; xuất Excel, PDF; MAN_HINH_62, 63. Kiểm thử 281/281 đạt. Không thêm thư viện. Rà soát độc lập, sửa 2 lỗi Cao và các mục Trung bình, Thấp. Chờ người dùng nghiệm thu.
@@ -53,6 +54,7 @@
 ### Quyết định
 
 - MODULE_07 (người dùng, 2026-11-10): sau MODULE_06 làm MODULE_07; công việc đầu tiên là gán khách hàng cho nhân viên kinh doanh (CONG_VIEC_21).
+- CONG_VIEC_21 (người dùng, 2026-11-10): nhân viên tự tìm được khách mới thì tự lập hồ sơ, tự phụ trách, hạn mức 0; kiểm thử cũ dùng vai trò Nhân viên bán hàng được thêm quyền xem mọi khách ở bước chuẩn bị.
 - CONG_VIEC_21 (người dùng, 2026-11-10): nhân viên chỉ xem khách mình phụ trách và đơn của khách đó; trưởng phòng xem, giao khách của nhân viên trong phòng (kể cả phòng con); chuyển khách thì đơn đã gán nhân viên hưởng hoa hồng giữ nguyên; giao, chuyển khách theo chính sách duyệt của công ty (THAY_DOI_12).
 - Báo cáo hợp nhất – người quyết định: người dùng, ngày 2026-11-10: làm tiếp sau đối soát; cộng gộp và loại trừ nội bộ (công nợ, doanh thu, giá vốn nội bộ, lãi chưa thực hiện trong tồn kho); mọi công ty con coi như sở hữu 100%.
 - Báo cáo hợp nhất (tiếp) – người quyết định: người dùng, ngày 2026-11-10: lập theo mẫu B01-DN, B02-DN Thông tư 99 (công ty Thông tư 133 ghép theo mã tài khoản); công ty khác đồng tiền hạch toán chưa hợp nhất, báo rõ; lãi chưa thực hiện ước tính tự động, kế toán trưởng sửa được; lập bảng hợp nhất theo kỳ, gửi duyệt, đã duyệt thì giữ nguyên số.
