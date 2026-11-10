@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 1.7
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05
 
 ## MODULE_01 Nền tảng
 
@@ -832,6 +832,79 @@ Quy ước chung cho mọi chức năng của MODULE_04 phần 1:
 |---|---|
 | Toàn vẹn | Số đã nhận, đã trả không lưu trùng, tính từ phiếu kho; gửi phiếu nhập khóa đơn mua, gửi phiếu trả khóa dòng phiếu gốc; chồng hiệu lực giá mua kiểm trong giao dịch có khóa; khóa ngoại từ `purchasing` chỉ trỏ vào `purchasing`, `core`, `catalog`, `crm` |
 | Ranh giới module | Mua hàng chỉ ghi schema `purchasing`; phiếu nhập mua, trả hàng do module Kho ghi (đọc đơn mua); trạng thái "Đã nhận đủ" cập nhật qua `PurchaseOrdersService` trong giao dịch ghi sổ |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_05 Bán hàng (phần 1, CONG_VIEC_08)
+
+Quy ước chung cho mọi chức năng của MODULE_05 phần 1:
+- Mọi thao tác ghi dữ liệu ghi một dòng nhật ký thao tác (CHUC_NANG_23): mini app `sales`, loại đối tượng `sales_order` (`sales_order.create`, `.update`, `.submit`, `.cancel`, `.close`), `sales_settings` (`sales_settings.update`); phiếu xuất giao hàng, phiếu nhận hàng trả lại ghi ở mini app `inventory`, loại đối tượng `stock_document` (`stock_document.create`, `.submit`, `.delete`).
+- API Bán hàng cần `sales.access` hoặc `sales.order.view` trong công ty đang làm việc; quyền chi tiết kiểm tra phía máy chủ. `sales.order.view` gán ở chi nhánh nào của công ty cũng dùng được trong công ty đó; quyền Bán hàng khác cần lần gán ở phạm vi tập đoàn hoặc công ty. Phiếu xuất giao hàng, phiếu nhận hàng trả lại cần `inventory.sales.issue` tại kho (QUYTAC_NGHIEPVU_46).
+- Sửa dữ liệu gửi kèm phiên bản; khác phiên bản hiện tại thì báo "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất.".
+- Tiền tệ là tiền tệ của công ty; số lượng, tiền `numeric(20,4)`.
+- Số đã giao, đã trả của dòng đơn bán tính từ phiếu kho (đọc chéo module), không lưu trùng.
+
+### CHUC_NANG_54: Đơn bán
+- Mục đích: Bán hàng đúng giá bảng giá, chỉ duyệt khi có ngoại lệ, giữ hàng ngay khi gửi để không bán trùng; theo dõi đã giao, đã trả.
+- Người sử dụng: Nhân viên bán hàng, quản trị công ty, quản trị tập đoàn (lập, sửa, gửi, hủy, đóng); Thủ kho (xem).
+- Điều kiện thực hiện: Xem danh sách, chi tiết, danh sách chọn: `sales.order.view` hoặc `sales.order.manage`. Tra giá, tìm mặt hàng, lập, sửa, gửi, hủy, đóng: `sales.order.manage`. Rút: người lập, có `sales.order.manage`.
+- Dữ liệu đầu vào: Khách hàng (trống: người mua không lấy hóa đơn), tên người mua (tối đa 200 ký tự), kênh bán, kho xuất, ngày đơn, địa chỉ giao (tối đa 500 ký tự), ghi chú (tối đa 1.000 ký tự), 1 đến 200 dòng: mặt hàng, đơn vị, số lượng lớn hơn 0 (tối đa 12 chữ số phần nguyên, 4 chữ số lẻ), chiết khấu tay phần trăm (0 đến 100, 2 chữ số lẻ, mặc định 0). Đóng: lý do (1 đến 500 ký tự), phiên bản. Hủy: phiên bản. Danh sách: trạng thái, khách hàng, từ khóa (đúng số đơn, tên khách hoặc tên người mua chứa từ khóa), trang (tối đa 100 dòng, mặc định 20).
+- Quy trình xử lý: Kiểm khách là đối tác đang giao dịch có hồ sơ khách hàng đang dùng ở công ty, kênh đang dùng của công ty, kho đang dùng nhận hàng của công ty, mặt hàng, đơn vị hợp lệ. Mỗi dòng tra giá theo kênh, nhóm khách của hồ sơ khách tại ngày đơn (QUYTAC_NGHIEPVU_67); đơn giá sau chiết khấu = giá bảng giá × (1 − chiết khấu/100); bảng giá gồm thuế thì thành tiền là tổng gồm thuế, tiền chưa thuế = tổng / (1 + thuế suất); bảng giá chưa thuế thì ngược lại; lưu nháp kèm nhóm khách. Sửa khi nháp, bị từ chối, đã rút: thay toàn bộ dòng, về nháp, bỏ yêu cầu duyệt cũ, xóa ngoại lệ. Gửi đơn nháp: cấp số theo dãy `sales.order` (chưa cấu hình thì tự tạo tiền tố `DBH`, đặt lại theo năm, 6 chữ số) ở lần gửi đầu; khóa đơn, khóa hồ sơ khách; giữ hàng (QUYTAC_NGHIEPVU_70); tính ngoại lệ (QUYTAC_NGHIEPVU_68, QUYTAC_NGHIEPVU_69); có ngoại lệ thì gửi luồng duyệt với tổng gồm thuế, chưa có chính sách thì xác nhận ngay. Nghe `core.approval.completed` để chuyển đã xác nhận, bị từ chối, đã rút (từ chối, rút thì nhả hàng giữ). Hủy đơn nháp, bị từ chối, đã rút, đã xác nhận chưa có phiếu xuất giao hàng: nhả hàng giữ. Đóng đơn đã xác nhận kèm lý do: nhả hàng giữ còn lại, phần chưa giao hủy.
+- Kết quả đầu ra: Danh sách (số, khách hoặc người mua, kênh, kho xuất, ngày đơn, tổng chưa thuế, thuế, tổng gồm thuế, trạng thái, người lập) mới lập trước; chi tiết: dòng kèm bảng giá, giá bảng giá, gồm thuế hay chưa, chiết khấu, đơn giá sau chiết khấu, thuế suất, tiền, đã giao, đã trả (đơn vị cơ sở); ngoại lệ (loại, dòng, diễn giải); phiếu kho liên quan (xuất giao hàng theo đơn và nhận hàng trả lại từ các phiếu đó); lý do đóng; phiên bản; được sửa, gửi, rút, hủy, đóng hay không. Danh sách chọn: khách hàng (kèm nhóm khách), kênh, kho xuất, tiền tệ. Giá gợi ý: giá, mã bảng giá, gồm thuế hay chưa, thuế suất của sản phẩm.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_34
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_67, QUYTAC_NGHIEPVU_68, QUYTAC_NGHIEPVU_69, QUYTAC_NGHIEPVU_70, QUYTAC_NGHIEPVU_71
+- Trường hợp ngoại lệ: Đơn đã có phiếu xuất giao hàng (kể cả nháp) không hủy được, chỉ đóng. Còn phiếu xuất nháp thì chưa đóng được. Đơn của công ty khác không xem được (404).
+- Phân quyền: Thủ kho chỉ xem; gọi lập, sửa nhận 403. Không có `sales.settings.manage` không thấy nút "Cài đặt".
+- Thông báo lỗi: "Đối tác chưa có hồ sơ khách hàng đang dùng ở công ty." · "Chưa có giá cho mặt hàng này." · "Không đủ hàng khả dụng (một phần đang được giữ)." · "Đơn bán đã có phiếu xuất giao hàng hoặc không ở trạng thái hủy được; hãy đóng đơn." · "Đơn bán còn phiếu xuất giao hàng nháp, chưa đóng được." · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · "Giá trị không hợp lệ." (kênh, kho, đơn vị, số, chiết khấu)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_87, TIEUCHI_NGHIEMTHU_88, TIEUCHI_NGHIEMTHU_89, TIEUCHI_NGHIEMTHU_90, TIEUCHI_NGHIEMTHU_92
+
+### CHUC_NANG_55: Cài đặt bán hàng
+- Mục đích: Công ty đặt mức chiết khấu tay tối đa không cần duyệt.
+- Người sử dụng: Quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: Xem: `sales.order.view`, `sales.order.manage` hoặc `sales.settings.manage`. Sửa: `sales.settings.manage`.
+- Dữ liệu đầu vào: Chiết khấu tay tối đa (0 đến 100, 2 chữ số lẻ; trống là 0), phiên bản (0 khi chưa có).
+- Quy trình xử lý: Kiểm phiên bản; lưu (chưa có thì thêm, có thì sửa), ghi nhật ký kèm giá trị trước.
+- Kết quả đầu ra: Mức chiết khấu tay tối đa, phiên bản (chưa có: "0", 0).
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_34
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_68
+- Trường hợp ngoại lệ: Đổi mức không tính lại ngoại lệ của đơn đã gửi.
+- Phân quyền: Người không có `sales.settings.manage` sửa nhận 403.
+- Thông báo lỗi: "Giá trị không hợp lệ." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_88
+
+### CHUC_NANG_56: Phiếu xuất giao hàng theo đơn bán
+- Mục đích: Kho giao đúng hàng của đơn bán, giao nhiều lần, dùng hàng đã giữ.
+- Người sử dụng: Thủ kho, Quản lý kho, quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: `inventory.sales.issue` tại kho xuất của đơn bán; gửi, xóa nháp chỉ người lập.
+- Dữ liệu đầu vào: Đơn bán đã xác nhận, ngày phiếu, ghi chú (tối đa 1.000 ký tự), 1 đến 200 dòng: dòng đơn bán, số giao theo đơn vị của dòng đơn, lô, lý do chọn lô khác gợi ý (tối đa 200 ký tự), vị trí, serial (tối đa 1.000).
+- Quy trình xử lý: Danh sách đơn đã xác nhận xuất từ kho người dùng có quyền (tối đa 50, ngày đơn sớm trước; tìm theo số đơn, tên khách, tên người mua); dòng đơn kèm số đặt, số còn phải giao theo đơn vị của dòng. Lập nháp: mặt hàng, đơn vị lấy từ dòng đơn; kho, công ty chủ hàng, khách lấy từ đơn; lý do "Bán hàng", diễn giải "Giao hàng theo đơn <số đơn>"; kiểm như phiếu kho; báo sớm khi vượt số còn phải giao. Gửi: khóa phiếu, khóa đơn, kiểm đơn còn đã xác nhận và tổng đã giao (phiếu đã ghi sổ) cộng lần này không vượt số đặt; dùng phần đang giữ của đơn cho từng mặt hàng; kiểm đủ hàng khả dụng, lô, hạn, serial, vị trí như phiếu kho; cấp số theo dãy `inventory.sales_issue` (tiền tố `XBH`); không đi luồng duyệt; ghi sổ xuất theo giá vốn bình quân; giao đủ mọi dòng thì đơn chuyển "Đã giao đủ", phần giữ còn sót đánh dấu đã dùng.
+- Kết quả đầu ra: Phiếu kho loại `sales_issue` kèm khách hàng, số đơn bán gốc, được nhận hàng trả lại hay không; số đã giao hiện ở dòng đơn bán.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_35
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_70, QUYTAC_NGHIEPVU_71
+- Trường hợp ngoại lệ: Không lập phiếu xuất giao hàng ở màn hình phiếu kho thường (loại `sales_issue` qua API_65 bị từ chối). Phiếu nháp không sửa, chỉ gửi hoặc xóa. Hai phiếu cùng giao một dòng: gửi khóa đơn nên phiếu sau kiểm lại số còn phải giao.
+- Phân quyền: Thủ kho chi nhánh khác không thấy đơn, không giao từ kho không thuộc chi nhánh mình (403 hoặc 404).
+- Thông báo lỗi: "Đơn bán chưa xác nhận hoặc đã đóng, không giao hàng được." · "Vượt số còn phải giao của đơn bán." · "Không đủ hàng khả dụng (một phần đang được giữ)." · "Giá trị không hợp lệ." (dòng đơn) · lỗi phiếu kho theo CHUC_NANG_40
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_90, TIEUCHI_NGHIEMTHU_92
+
+### CHUC_NANG_57: Phiếu nhận hàng trả lại
+- Mục đích: Nhận hàng khách trả, gắn đúng đơn gốc, nhập lại đúng giá vốn đã xuất.
+- Người sử dụng: Thủ kho, Quản lý kho, quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: `inventory.sales.issue` tại kho của phiếu xuất gốc; gửi, xóa nháp chỉ người lập.
+- Dữ liệu đầu vào: Phiếu xuất giao hàng gốc đã ghi sổ, ngày phiếu, lý do (bắt buộc, tối đa 500 ký tự), ghi chú, 1 đến 200 dòng: dòng phiếu xuất gốc, số trả theo đơn vị của dòng gốc, serial (hàng serial).
+- Quy trình xử lý: Lấy mặt hàng, đơn vị, lô, vị trí từ dòng gốc; đơn giá = giá trị đã ghi sổ của dòng gốc / số đã giao × hệ số đơn vị; serial phải thuộc dòng gốc; lý do mã "Khách trả hàng"; khách hàng theo phiếu gốc. Gửi: khóa dòng gốc, tổng đã trả (phiếu đã ghi sổ) cộng lần này không vượt số đã giao; kiểm serial, lô như phiếu kho; cấp số theo dãy `inventory.sales_return` (tiền tố `NTL`); không đi luồng duyệt; ghi sổ nhập theo đơn giá gốc.
+- Kết quả đầu ra: Phiếu kho loại `sales_return` kèm khách hàng, số phiếu xuất gốc; số đã trả hiện ở dòng đơn bán.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_35
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_72
+- Trường hợp ngoại lệ: Phiếu xuất nháp không trả được. Trả quá số còn trả được báo khi gửi. Trả hàng không đổi trạng thái đơn bán.
+- Phân quyền: Như CHUC_NANG_56.
+- Thông báo lỗi: "Chỉ nhận hàng trả lại từ phiếu xuất giao hàng đã ghi sổ." · "Vượt số đã giao còn trả được của phiếu xuất gốc." · "Serial không có trong kho, vị trí này." (serial không thuộc dòng gốc) · lỗi phiếu kho theo CHUC_NANG_40
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_91
+
+## Yêu cầu phi chức năng của MODULE_05 (phần 1)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Toàn vẹn | Số đã giao, đã trả không lưu trùng, tính từ phiếu kho; gửi đơn khóa đơn và hồ sơ khách; gửi phiếu xuất khóa đơn bán; gửi phiếu trả khóa dòng phiếu xuất gốc; kiểm hàng khả dụng khi gửi phiếu đọc trong giao dịch; khóa ngoại từ `sales` chỉ trỏ vào `sales`, `core`, `catalog`, `crm` |
+| Ranh giới module | Bán hàng chỉ ghi schema `sales`; giữ hàng ghi qua `ReservationsService` của module Kho; phiếu xuất giao hàng, nhận hàng trả lại do module Kho ghi (đọc đơn bán); trạng thái "Đã giao đủ" cập nhật qua `SalesOrdersService` trong giao dịch ghi sổ |
 | Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09

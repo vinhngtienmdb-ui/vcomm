@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 1.6
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05
 
 ## MODULE_01 Nền tảng
 
@@ -64,6 +64,13 @@
 | YCAU_NGHIEPVU_32 | Đề nghị mua hàng trong danh mục được duyệt trước khi đặt; đơn mua có duyệt, sửa tăng giá trị hoặc đổi nhà cung cấp thì duyệt lại; giá mua gợi ý theo bảng giá nhà cung cấp | Mua hàng, quản lý | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
 | YCAU_NGHIEPVU_33 | Kho nhận hàng theo đơn mua, không vượt dung sai; hàng cần kiểm tra chất lượng chỉ vào tồn khi đạt; trả hàng nhà cung cấp theo phiếu nhập gốc | Thủ kho, Mua hàng, Kế toán | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
 
+## MODULE_05 Bán hàng (phần 1, CONG_VIEC_08)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_34 | Lập đơn bán đúng giá bảng giá theo kênh, nhóm khách; đơn chỉ duyệt khi có ngoại lệ (chiết khấu tay vượt mức, bán dưới giá vốn, vượt hạn mức công nợ); hàng được giữ khi gửi đơn | Nhân viên bán hàng, quản lý | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
+| YCAU_NGHIEPVU_35 | Kho giao hàng theo đơn, giao nhiều lần; khách trả hàng gắn đơn gốc, trả một phần | Thủ kho, Bán hàng, Kế toán | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -117,3 +124,7 @@
 | Đơn mua | Số (`DMH`…), nhà cung cấp, kho nhận, ngày đơn, ngày giao dự kiến, tiền tệ của công ty, ghi chú, tổng chưa thuế, thuế, trạng thái (nháp, chờ duyệt, đã duyệt, bị từ chối, đã rút, đã nhận đủ, đã đóng), lý do đóng; các dòng (mặt hàng, đơn vị, số lượng, đơn giá chưa thuế, thuế suất, thành tiền) | Thuộc công ty; dòng có thể lấy từ dòng đề nghị mua; số đã nhận, đã trả tính từ phiếu kho |
 | Phiếu nhập mua | Như phiếu kho; nhà cung cấp, đơn mua gốc, trạng thái thêm "Chờ kiểm tra chất lượng", số không đạt và lý do từng dòng, người và thời điểm kiểm | Phiếu kho của công ty đặt đơn ở kho nhận của đơn; mỗi dòng gắn một dòng đơn mua |
 | Phiếu trả hàng nhà cung cấp | Như phiếu kho; nhà cung cấp, phiếu nhập mua gốc, lý do | Mỗi dòng gắn một dòng phiếu nhập mua gốc |
+| Cài đặt bán hàng | Chiết khấu tay tối đa không cần duyệt (phần trăm, mặc định 0) | Một bản mỗi công ty |
+| Đơn bán | Số (`DBH`…), khách hàng (trống: người mua không lấy hóa đơn, kèm tên người mua), kênh bán, nhóm khách lúc lập, kho xuất, ngày đơn, địa chỉ giao, ghi chú, tiền tệ của công ty, tổng chưa thuế, thuế, tổng gồm thuế, ngoại lệ cần duyệt, trạng thái (nháp, chờ duyệt, đã xác nhận, bị từ chối, đã rút, đã giao đủ, đã hủy, đã đóng), lý do đóng; các dòng (mặt hàng, đơn vị, số lượng, bảng giá, giá bảng giá, giá gồm thuế hay chưa, chiết khấu tay phần trăm, đơn giá sau chiết khấu, thuế suất, tiền chưa thuế, thuế, tổng) | Thuộc công ty; khách là đối tác có hồ sơ khách hàng ở công ty; hàng giữ theo nguồn `sales.order`; số đã giao, đã trả tính từ phiếu kho |
+| Phiếu xuất giao hàng | Như phiếu kho; khách hàng, đơn bán gốc | Phiếu kho của công ty bán ở kho xuất của đơn; mỗi dòng gắn một dòng đơn bán |
+| Phiếu nhận hàng trả lại | Như phiếu kho; khách hàng, phiếu xuất giao hàng gốc, lý do | Mỗi dòng gắn một dòng phiếu xuất giao hàng gốc |

@@ -1,9 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.1
+- Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11)
 
 ## MODULE_01 Nền tảng
 
@@ -100,3 +101,52 @@ Trạng thái tài khoản:
 - Bắt đầu: mỗi sáng, hoặc quản lý tỷ giá nhập tay.
 - Các bước: lấy tỷ giá từ nguồn, ghi theo QUYTAC_NGHIEPVU_29; lỗi nguồn thì báo quản lý tỷ giá để nhập tay.
 - Kết thúc: có tỷ giá ngày hôm đó.
+
+## MODULE_05 Bán hàng (phần 1, CONG_VIEC_08)
+
+### Luồng 9. Lập, gửi đơn bán
+
+- Bắt đầu: Nhân viên bán hàng (hoặc quản trị) mở "Lập đơn bán" ở mini app Bán hàng.
+- Các bước:
+  1. Chọn khách hàng (đối tác có hồ sơ khách hàng ở công ty) hoặc để trống, ghi tên người mua; chọn kênh bán, kho xuất, ngày đơn.
+  2. Thêm mặt hàng; hệ thống tra giá theo bảng giá với kênh, nhóm khách, ngày đơn (QUYTAC_NGHIEPVU_67); nhập số lượng, chiết khấu tay nếu có; lưu nháp (dòng không có giá bị từ chối).
+  3. Gửi: hệ thống cấp số (`DBH`), khóa hồ sơ khách, giữ hàng tại kho xuất theo tổng số lượng cơ sở từng mặt hàng (QUYTAC_NGHIEPVU_70); không đủ hàng khả dụng thì báo lỗi, đơn giữ nháp.
+  4. Hệ thống tính ngoại lệ: chiết khấu vượt mức, dưới giá vốn, vượt hạn mức công nợ theo dư nợ tạm tính (QUYTAC_NGHIEPVU_68, QUYTAC_NGHIEPVU_69).
+  5. Không có ngoại lệ, hoặc công ty chưa có chính sách duyệt `sales.order`: đơn "Đã xác nhận". Có ngoại lệ: gửi luồng duyệt (Luồng 5) với tổng gồm thuế, đơn "Chờ duyệt" kèm danh sách ngoại lệ.
+  6. Duyệt xong: đơn "Đã xác nhận". Từ chối hoặc người lập rút: đơn "Bị từ chối", "Đã rút", nhả hàng giữ; sửa được, sửa xong về nháp, gửi lại tính lại ngoại lệ và giữ hàng.
+- Ngoại lệ: hủy đơn nháp, bị từ chối, đã rút, đã xác nhận chưa có phiếu xuất giao hàng thì nhả hàng giữ; đơn đã có phiếu xuất chỉ đóng được (Luồng 10).
+- Kết thúc: đơn "Đã xác nhận", hàng đang giữ cho đơn.
+
+### Luồng 10. Giao hàng theo đơn bán
+
+- Bắt đầu: Thủ kho mở "Giao hàng theo đơn bán" ở mini app Kho.
+- Các bước:
+  1. Chọn đơn đã xác nhận có kho xuất người dùng có quyền `inventory.sales.issue`; hệ thống hiện từng dòng số đặt, số còn phải giao.
+  2. Nhập số giao lần này cho dòng có hàng, chọn lô (gợi ý hết hạn trước), vị trí, serial; lưu nháp (kiểm sớm không vượt số còn phải giao).
+  3. Gửi: khóa đơn, kiểm đơn còn đã xác nhận, tổng đã giao không vượt số đặt (QUYTAC_NGHIEPVU_71); dùng phần đang giữ của đơn; kiểm đủ hàng, lô, serial như phiếu kho; cấp số (`XBH`); ghi sổ theo giá vốn bình quân; không đi luồng duyệt.
+  4. Giao đủ mọi dòng: đơn "Đã giao đủ", phần giữ còn sót đánh dấu đã dùng. Chưa đủ: giao tiếp nhiều lần.
+- Ngoại lệ: người có `sales.order.manage` đóng đơn đã giao một phần kèm lý do (không còn phiếu xuất nháp): phần chưa giao hủy, nhả hàng giữ còn lại.
+- Kết thúc: đơn "Đã giao đủ" hoặc "Đã đóng".
+
+### Luồng 11. Nhận hàng trả lại
+
+- Bắt đầu: khách trả hàng; Thủ kho mở phiếu xuất giao hàng đã ghi sổ, bấm "Nhận hàng trả lại".
+- Các bước:
+  1. Nhập ngày, lý do; mỗi dòng gốc nhập số trả (hàng serial chọn serial đã giao); lưu nháp.
+  2. Gửi: khóa dòng phiếu xuất gốc, kiểm tổng trả không vượt số đã giao trừ số đã trả (QUYTAC_NGHIEPVU_72); cấp số (`NTL`); ghi sổ nhập lại theo giá vốn phiếu xuất gốc, lô, vị trí của dòng gốc.
+- Kết thúc: hàng vào lại tồn; số đã trả hiện ở dòng đơn bán; trạng thái đơn không đổi.
+
+Trạng thái đơn bán:
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| (mới) | Lập đơn | Nháp |
+| Nháp | Gửi, không có ngoại lệ hoặc chưa có chính sách duyệt | Đã xác nhận |
+| Nháp | Gửi, có ngoại lệ | Chờ duyệt |
+| Chờ duyệt | Duyệt xong | Đã xác nhận |
+| Chờ duyệt | Từ chối | Bị từ chối |
+| Chờ duyệt | Người lập rút (cấp 1 chưa quyết định) | Đã rút |
+| Bị từ chối, Đã rút | Sửa | Nháp |
+| Nháp, Bị từ chối, Đã rút, Đã xác nhận (chưa có phiếu xuất) | Hủy | Đã hủy |
+| Đã xác nhận | Ghi sổ phiếu xuất làm mọi dòng đủ số đặt | Đã giao đủ |
+| Đã xác nhận | Đóng kèm lý do | Đã đóng |

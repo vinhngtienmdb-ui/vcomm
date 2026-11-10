@@ -1,10 +1,10 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò mặc định, trách nhiệm và quyền hạn.
-- Phiên bản: 1.3
+- Phiên bản: 1.4
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9)
+- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11)
 
 ## 1. Nguyên tắc
 
@@ -44,7 +44,7 @@ Quyền kho gán ở phạm vi chi nhánh áp dụng cho kho thuộc chi nhánh 
 
 | Vai trò | Mã | Phạm vi gán | Trách nhiệm | Quyền chính | Nhạy cảm |
 |---|---|---|---|---|---|
-| Thủ kho | `warehouse_keeper` | Chi nhánh hoặc công ty | Lập phiếu nhập khác, xuất khác, điều chỉnh, chuyển kho; xác nhận xuất, nhận chuyển kho; xem tồn, thẻ kho; in tem | `inventory.access`, `inventory.stock.view`, `inventory.document.manage`; `crm.partner.view` (xem đối tác, CONG_VIEC_06); `inventory.purchase.receive`, `purchasing.access`, `purchasing.requisition.create`, `purchasing.order.view` (nhập mua, trả hàng nhà cung cấp, lập đề nghị mua, xem đơn mua, CONG_VIEC_07) | Không |
+| Thủ kho | `warehouse_keeper` | Chi nhánh hoặc công ty | Lập phiếu nhập khác, xuất khác, điều chỉnh, chuyển kho; xác nhận xuất, nhận chuyển kho; xem tồn, thẻ kho; in tem | `inventory.access`, `inventory.stock.view`, `inventory.document.manage`; `crm.partner.view` (xem đối tác, CONG_VIEC_06); `inventory.purchase.receive`, `purchasing.access`, `purchasing.requisition.create`, `purchasing.order.view` (nhập mua, trả hàng nhà cung cấp, lập đề nghị mua, xem đơn mua, CONG_VIEC_07); `inventory.sales.issue`, `sales.access`, `sales.order.view` (xuất giao hàng, nhận hàng trả lại, xem đơn bán, CONG_VIEC_08) | Không |
 | Quản lý kho | `warehouse_manager` | Chi nhánh hoặc công ty | Như Thủ kho; quản lý kho, vị trí, cài đặt giữ hàng (khi gán ở phạm vi công ty); kiểm kê; giữ hàng, tồn an toàn; xem giá vốn | Mọi quyền `inventory.*` | Có (`inventory.cost.view`) |
 
 ## 5. Ma trận vai trò – thao tác của MODULE_03
@@ -122,3 +122,32 @@ Quyền của MODULE_04 phần 1:
 | Cài đặt dung sai nhận vượt | Có | Trong công ty mình | Không | Không | Không |
 | Lập, gửi phiếu nhập mua; ghi kết quả kiểm tra chất lượng; lập, gửi phiếu trả hàng nhà cung cấp | Có | Kho của công ty mình | Không | Kho trong phạm vi gán | Kho trong phạm vi gán |
 | Duyệt đề nghị mua, đơn mua | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định |
+
+## 10. Vai trò hệ thống của MODULE_05 Bán hàng (phần 1, CONG_VIEC_08)
+
+Đơn bán, cài đặt bán hàng thuộc công ty đang chọn. `sales.order.view` gán ở chi nhánh nào của công ty cũng dùng được trong công ty đó (thủ kho thường gán theo chi nhánh); quyền Bán hàng khác cần gán ở phạm vi tập đoàn hoặc công ty. `inventory.sales.issue` tính theo kho như quyền kho khác (QUYTAC_NGHIEPVU_46). Quản trị tập đoàn, quản trị công ty có sẵn mọi quyền `sales.*` và `inventory.sales.issue`; Quản lý kho có `inventory.sales.issue` (mọi quyền `inventory.*`).
+
+| Vai trò | Mã | Phạm vi gán | Trách nhiệm | Quyền chính | Nhạy cảm |
+|---|---|---|---|---|---|
+| Nhân viên bán hàng | `salesperson` | Công ty | Lập, sửa, gửi, rút, hủy, đóng đơn bán; xem giá bán; thêm, sửa khách hàng | `sales.access`, `sales.order.view`, `sales.order.manage`, `crm.access`, `crm.partner.view`, `crm.partner.manage`, `catalog.access`, `catalog.price.view` | Không |
+
+Quyền của MODULE_05 phần 1:
+
+| Quyền | Tên | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|---|
+| `sales.access` | Truy cập mini app Bán hàng (đã có) | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên bán hàng, Thủ kho |
+| `sales.order.view` | Xem đơn bán | Công ty, chi nhánh | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên bán hàng, Thủ kho |
+| `sales.order.manage` | Lập, sửa, gửi, hủy, đóng đơn bán | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên bán hàng |
+| `sales.settings.manage` | Cài đặt bán hàng (chiết khấu tay tối đa) | Công ty | Không | Quản trị tập đoàn, quản trị công ty |
+| `inventory.sales.issue` | Xuất giao hàng, nhận hàng trả lại | Chi nhánh sở hữu kho, công ty | Không | Quản trị tập đoàn, quản trị công ty, Thủ kho, Quản lý kho |
+
+## 11. Ma trận vai trò – thao tác của MODULE_05 (phần 1)
+
+| Thao tác | Quản trị tập đoàn | Quản trị công ty | Nhân viên bán hàng | Thủ kho | Quản lý kho |
+|---|---|---|---|---|---|
+| Xem đơn bán, cài đặt bán hàng | Có | Trong công ty mình | Có | Có (kể cả khi gán ở chi nhánh) | Không |
+| Tra giá dòng, lập, sửa, gửi, hủy, đóng đơn bán | Có | Trong công ty mình | Có | Không | Không |
+| Rút đơn bán đang chờ duyệt | Đơn của mình | Đơn của mình | Đơn của mình | Không | Không |
+| Cài đặt chiết khấu tay tối đa | Có | Trong công ty mình | Không | Không | Không |
+| Lập, gửi phiếu xuất giao hàng; lập, gửi phiếu nhận hàng trả lại | Có | Kho của công ty mình | Không | Kho trong phạm vi gán | Kho trong phạm vi gán |
+| Duyệt đơn bán có ngoại lệ | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định |

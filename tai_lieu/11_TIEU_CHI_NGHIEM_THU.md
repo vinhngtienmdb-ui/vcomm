@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 1.6
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05
 
 ## MODULE_01 Nền tảng
 
@@ -130,3 +130,16 @@ Dữ liệu mẫu: công ty con VCR, VCT; kho Bình Dương của VCR; nhà cung
 | TIEUCHI_NGHIEMTHU_84 | CHUC_NANG_52 | Hàng cần kiểm tra chất lượng chưa vào tồn khi chờ kiểm; ghi sổ đúng phần đạt; phần không đạt không tính đã nhận | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_85 | CHUC_NANG_53 | Trả hàng xuất đúng đơn giá phiếu nhập gốc, giá vốn bình quân phần còn lại tính lại đúng; trả quá số đã nhập bị từ chối; trả serial chưa nhập ở phiếu gốc bị từ chối | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_86 | CHUC_NANG_51 | Nhân viên công ty khác không xem được đơn mua; thủ kho chi nhánh khác không nhận hàng vào kho không thuộc chi nhánh mình | Gọi API | Bắt buộc |
+
+## MODULE_05 Bán hàng (phần 1, CONG_VIEC_08)
+
+Dữ liệu mẫu: công ty con VCR, VCT; kho bán Bình Dương của VCR; khách hàng, mặt hàng, bảng giá giả lập. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_87 | CHUC_NANG_54 | Giá dòng lấy đúng bảng giá theo kênh, nhóm khách; mặt hàng không có giá bị từ chối; khách chưa có hồ sơ khách hàng bị từ chối; người mua không lấy hóa đơn lập được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_88 | CHUC_NANG_54, CHUC_NANG_55 | Không ngoại lệ thì xác nhận ngay; chiết khấu vượt mức, dưới giá vốn, vượt hạn mức công nợ thì chờ duyệt kèm đúng ngoại lệ; duyệt thì xác nhận, từ chối thì nhả hàng giữ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_89 | CHUC_NANG_54 | Gửi đơn giữ hàng; không đủ hàng khả dụng không gửi được; hủy, đóng nhả phần còn giữ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_90 | CHUC_NANG_56 | Giao nhiều lần không vượt số đặt; xuất theo giá vốn bình quân; giao đủ thì đơn "Đã giao đủ"; đơn chưa xác nhận, đã đóng không giao được; đơn đã giao không hủy được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_91 | CHUC_NANG_57 | Trả hàng nhập lại theo giá vốn phiếu xuất gốc; trả quá số đã giao, serial chưa giao bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_92 | CHUC_NANG_54 | Công ty khác không xem được đơn bán; thủ kho chi nhánh khác không giao từ kho không thuộc chi nhánh mình | Gọi API | Bắt buộc |

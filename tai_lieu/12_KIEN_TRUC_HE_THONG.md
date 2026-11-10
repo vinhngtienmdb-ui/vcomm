@@ -1,10 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 1.4
+- Phiên bản: 1.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -63,12 +63,15 @@ Mini app Nền tảng (`apps/web-platform`) là cửa vào chung: chuyển tiế
 | Kho (CONG_VIEC_05) | `apps/web-inventory` | `/inventory` | 3002 | `INVENTORY_ORIGIN` (`http://localhost:3002`) |
 | Khách hàng và Đối tác (CONG_VIEC_06) | `apps/web-crm` | `/crm` | 3003 | `CRM_ORIGIN` (`http://localhost:3003`) |
 | Mua hàng (CONG_VIEC_07) | `apps/web-purchasing` | `/purchasing` | 3004 | `PURCHASING_ORIGIN` (`http://localhost:3004`) |
+| Bán hàng (CONG_VIEC_08) | `apps/web-sales` | `/sales` | 3005 | `SALES_ORIGIN` (`http://localhost:3005`) |
 
 Chạy riêng mini app Kho: `pnpm --filter web-inventory dev` (cổng 3002), vào qua `http://localhost:3000/inventory` khi mini app Nền tảng và backend đang chạy.
 
 Chạy riêng mini app Khách hàng và Đối tác: `pnpm --filter web-crm dev` (cổng 3003), vào qua `http://localhost:3000/crm` khi mini app Nền tảng và backend đang chạy.
 
 Chạy riêng mini app Mua hàng: `pnpm --filter web-purchasing dev` (cổng 3004), vào qua `http://localhost:3000/purchasing` khi mini app Nền tảng và backend đang chạy. Phiếu nhập mua, phiếu trả hàng nhà cung cấp làm ở mini app Kho.
+
+Chạy riêng mini app Bán hàng: `pnpm --filter web-sales dev` (cổng 3005), vào qua `http://localhost:3000/sales` khi mini app Nền tảng và backend đang chạy. Phiếu xuất giao hàng, phiếu nhận hàng trả lại làm ở mini app Kho.
 
 ## 3b. Thành phần phụ trợ cho MODULE_03 Kho (CONG_VIEC_05)
 
@@ -96,7 +99,17 @@ Chạy riêng mini app Mua hàng: `pnpm --filter web-purchasing dev` (cổng 300
 | Duyệt đề nghị mua, đơn mua | Dịch vụ duyệt của MODULE_01 (CHUC_NANG_16) gọi trong giao dịch gửi; nghe `core.approval.completed` qua outbox (loại `purchasing.requisition`, `purchasing.order`) | CHUC_NANG_50, CHUC_NANG_51 |
 | Phiếu nhập mua, kiểm tra chất lượng, trả hàng | `PurchaseReceiptsService` (`apps/api/src/inventory/purchase-receipts.service.ts`) của module Kho, dùng lại `StockDocumentsService` (kiểm, ghi dòng, ghi sổ) và `StockLedgerService`; đọc `purchasing.orders`, `purchasing.order_lines`, `purchasing.settings`; gọi `PurchaseOrdersService.refreshReceived` trong giao dịch ghi sổ để chuyển đơn "Đã nhận đủ" | CHUC_NANG_52, CHUC_NANG_53 |
 | Xuất kho theo giá trị cho trước | `StockLedgerService`: dòng giảm có tổng giá trị thì xuất đúng giá trị đó; xuất hết tồn thì lấy toàn bộ giá trị còn lại; không vượt giá trị tồn | CHUC_NANG_53 |
-| Tìm mặt hàng dùng chung | Hàm `searchVariantOptions` (`apps/api/src/catalog/variant-search.ts`), dùng cho mini app Kho và Mua hàng | CHUC_NANG_40, CHUC_NANG_49, CHUC_NANG_50, CHUC_NANG_51 |
+| Tìm mặt hàng dùng chung | Hàm `searchVariantOptions` (`apps/api/src/catalog/variant-search.ts`), dùng cho mini app Kho, Mua hàng, Bán hàng | CHUC_NANG_40, CHUC_NANG_49, CHUC_NANG_50, CHUC_NANG_51, CHUC_NANG_54 |
+
+## 3e. Thành phần phụ trợ cho MODULE_05 Bán hàng (phần 1, CONG_VIEC_08)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Đơn bán, cài đặt bán hàng | Dịch vụ `SalesOrdersService` (`apps/api/src/sales/sales-orders.service.ts`), bộ điều khiển `SalesController` (`apps/api/src/sales/sales.controller.ts`), quyền dùng chung `apps/api/src/sales/sales-context.ts`; ghi schema `sales`; đọc `crm.partners`, `crm.partner_profiles` (khách hàng, nhóm khách, hạn mức, số ngày được nợ), `catalog` (mặt hàng, đơn vị, thuế suất, kênh bán), `inventory.warehouses` (kho xuất), `inventory.costs` (giá vốn bình quân), `inventory.settings` (thời hạn giữ hàng) | CHUC_NANG_54, CHUC_NANG_55 |
+| Tra giá bán | Hàm dùng chung `lookupPrice` (`apps/api/src/catalog/price-lists.service.ts`), tách từ API_61 để đơn bán dùng lại, không kiểm quyền | CHUC_NANG_36, CHUC_NANG_54 |
+| Duyệt đơn bán có ngoại lệ | Dịch vụ duyệt của MODULE_01 (CHUC_NANG_16) gọi trong giao dịch gửi; nghe `core.approval.completed` qua outbox (loại `sales.order`) | CHUC_NANG_54 |
+| Giữ hàng theo đơn bán | `ReservationsService` của module Kho (nguồn `sales.order`): giữ khi gửi; `closeBySource` nhả khi từ chối, rút, hủy, đóng; `consumeFromSource` giảm phần giữ khi giao | CHUC_NANG_54, CHUC_NANG_56 |
+| Phiếu xuất giao hàng, nhận hàng trả lại | `SalesDeliveriesService` (`apps/api/src/inventory/sales-deliveries.service.ts`) của module Kho, dùng lại `StockDocumentsService` (kiểm, ghi dòng, ghi sổ; kiểm hàng khả dụng đọc trong giao dịch gửi) và `StockLedgerService`; đọc `sales.orders`, `sales.order_lines`; gọi `SalesOrdersService.refreshDelivered` trong giao dịch ghi sổ để chuyển đơn "Đã giao đủ" | CHUC_NANG_56, CHUC_NANG_57 |
 
 ## 4. Kiến trúc triển khai
 
@@ -122,10 +135,10 @@ Chia theo phần chạy riêng của hệ thống, bên trong chia theo module. 
 
 ```
 apps/
-  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing...
+  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales...
                         Không chứa mã giao diện.
   web-platform/         Mini app Nền tảng và trang chủ mini app.
-  web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm, web-purchasing...).
+  web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm, web-purchasing, web-sales...).
                         Chỉ gọi API, không truy cập cơ sở dữ liệu.
   mobile-warehouse/     Ứng dụng kho (Expo).
   mobile-sales/         Ứng dụng nhân viên kinh doanh (Expo).

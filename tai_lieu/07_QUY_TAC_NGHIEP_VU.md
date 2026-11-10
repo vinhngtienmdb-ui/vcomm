@@ -1,10 +1,10 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái và ngoại lệ, có mã định danh.
-- Phiên bản: 1.6
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm QUYTAC_NGHIEPVU_45 đến QUYTAC_NGHIEPVU_55 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm QUYTAC_NGHIEPVU_56 đến QUYTAC_NGHIEPVU_60 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm QUYTAC_NGHIEPVU_61 đến QUYTAC_NGHIEPVU_66 của MODULE_04, quyết định AI tự đưa ra trong phạm vi đặc tả
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm QUYTAC_NGHIEPVU_45 đến QUYTAC_NGHIEPVU_55 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm QUYTAC_NGHIEPVU_56 đến QUYTAC_NGHIEPVU_60 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm QUYTAC_NGHIEPVU_61 đến QUYTAC_NGHIEPVU_66 của MODULE_04, quyết định AI tự đưa ra trong phạm vi đặc tả; CONG_VIEC_08 (2026-11-10): thêm QUYTAC_NGHIEPVU_67 đến QUYTAC_NGHIEPVU_72 của MODULE_05, quyết định AI tự đưa ra trong phạm vi đặc tả
 
 ## MODULE_01 Nền tảng
 
@@ -159,6 +159,28 @@
 | QUYTAC_NGHIEPVU_65 | Một phiếu nhập mua có ít nhất một dòng hàng cần kiểm tra chất lượng thì cả phiếu chờ kiểm, chưa ghi sổ dòng nào |
 | CHUC_NANG_52, CHUC_NANG_53 | Phiếu nháp nhập mua, trả hàng trên giao diện chỉ gửi hoặc xóa; cần sửa thì xóa rồi lập lại từ đơn mua, phiếu nhập gốc |
 | QUYTAC_NGHIEPVU_66 | Trả làm tồn của mặt hàng về 0 thì xuất toàn bộ giá trị tồn còn lại; không xuất quá giá trị tồn đang có (giá trị tồn không âm) |
+
+## MODULE_05 Bán hàng (phần 1, CONG_VIEC_08)
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_67 | Đơn bán thuộc công ty; khách là đối tác đang giao dịch có hồ sơ khách hàng đang dùng ở công ty, hoặc để trống (người mua không lấy hóa đơn, ghi tên người mua nếu có). Kênh bán là kênh đang dùng của công ty; kho xuất là kho đang dùng nhận hàng của công ty. Giá dòng tra theo bảng giá của công ty với kênh bán của đơn và nhóm khách của hồ sơ khách tại ngày đơn (QUYTAC_NGHIEPVU_42, QUYTAC_NGHIEPVU_43; dòng không có giá theo đơn vị thì quy từ giá đơn vị cơ sở); không có giá thì không lập được dòng. Giá gồm hay chưa gồm thuế theo bảng giá; thuế suất theo sản phẩm | YCAU_NGHIEPVU_34 |
+| QUYTAC_NGHIEPVU_68 | Chiết khấu tay theo phần trăm từng dòng (0 đến 100, 2 chữ số lẻ). Đơn có ngoại lệ phải đi luồng duyệt (loại chứng từ `sales.order`, giá trị duyệt là tổng gồm thuế; chưa có chính sách duyệt thì xác nhận ngay như các chứng từ khác): chiết khấu dòng vượt mức chiết khấu tay tối đa của công ty (mặc định 0%); giá sau chiết khấu chưa thuế quy về đơn vị cơ sở thấp hơn giá vốn bình quân hiện hành tại kho xuất (chỉ khi kho đang có tồn mặt hàng đó); vượt hạn mức công nợ. Không có ngoại lệ thì xác nhận ngay. Ngoại lệ lưu trên đơn, hiện cho người duyệt và người xem đơn | YCAU_NGHIEPVU_34 |
+| QUYTAC_NGHIEPVU_69 | Dư nợ tạm tính của khách (đến khi có MODULE_06): giá trị gồm thuế phần chưa giao của các đơn khác của khách đang chờ duyệt hoặc đã xác nhận, cộng giá trị gồm thuế đã giao (phiếu xuất giao hàng đã ghi sổ) có ngày phiếu trong số ngày được nợ gần nhất của hồ sơ khách. Dư nợ cộng tổng gồm thuế của đơn đang gửi vượt hạn mức công nợ thì là ngoại lệ. Hạn mức để trống là không giới hạn; khách để trống không kiểm. Gửi đơn khóa hồ sơ khách để hai đơn cùng khách gửi đồng thời không cùng lọt hạn mức | YCAU_NGHIEPVU_34 |
+| QUYTAC_NGHIEPVU_70 | Gửi đơn thì giữ hàng ngay tại kho xuất theo tổng số lượng cơ sở từng mặt hàng, nguồn `sales.order` (không đủ hàng khả dụng thì không gửi được); thời hạn giữ theo cài đặt kho của công ty (chưa cài: 72 giờ). Bị từ chối, rút, hủy, đóng thì nhả phần còn giữ; giao hàng dùng phần đang giữ trước; giao đủ thì phần giữ còn sót đánh dấu đã dùng | YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 |
+| QUYTAC_NGHIEPVU_71 | Phiếu xuất giao hàng chỉ theo đơn đã xác nhận (chưa giao đủ, chưa hủy, chưa đóng); tổng đã giao (phiếu đã ghi sổ) cộng lần này mỗi dòng không vượt số đặt; xuất theo giá vốn bình quân tại kho; giao đủ mọi dòng thì đơn chuyển "Đã giao đủ". Đơn đã có phiếu xuất giao hàng (kể cả nháp) không hủy được, chỉ đóng kèm lý do (phần chưa giao hủy); còn phiếu xuất nháp thì chưa đóng được | YCAU_NGHIEPVU_35 |
+| QUYTAC_NGHIEPVU_72 | Phiếu nhận hàng trả lại lập từ phiếu xuất giao hàng đã ghi sổ; tổng trả (phiếu đã ghi sổ) mỗi dòng không vượt số đã giao trừ số đã trả; nhập lại theo giá vốn trên phiếu xuất gốc (giá trị đã ghi sổ của dòng gốc chia số đã giao); hàng serial chỉ trả serial đã giao ở dòng gốc; lô, vị trí theo dòng gốc. Phiếu xuất giao hàng, phiếu nhận hàng trả lại có chứng từ gốc nên không đi luồng duyệt | YCAU_NGHIEPVU_35 |
+
+### Quyết định AI tự đưa ra trong phạm vi đặc tả (CONG_VIEC_08, 2026-11-10, chưa xác nhận)
+
+| Vị trí | Nội dung |
+|---|---|
+| QUYTAC_NGHIEPVU_67 | Nhóm khách dùng tra giá lấy theo hồ sơ khách lúc lập, sửa đơn và lưu trên đơn; đổi nhóm khách sau đó không đổi giá đơn đã lập |
+| QUYTAC_NGHIEPVU_68 | Ngoại lệ dưới giá vốn chỉ xét khi kho xuất đang có tồn và giá vốn bình quân của mặt hàng; sai số làm tròn 0,00005 |
+| QUYTAC_NGHIEPVU_69 | Dư nợ tạm tính cộng cả đơn khác đang chờ duyệt (không chỉ đơn đã xác nhận) để hai đơn chờ duyệt cùng khách không cùng lọt hạn mức; hàng khách trả lại chưa trừ khỏi dư nợ tạm tính |
+| QUYTAC_NGHIEPVU_70 | Giữ hàng theo tổng số lượng cơ sở từng mặt hàng của đơn, không theo lô, vị trí; thủ kho chọn lô, vị trí khi lập phiếu xuất |
+| Tài liệu `08` | Thủ kho gán theo chi nhánh vẫn xem đơn bán của công ty: quyền `sales.order.view` gán ở chi nhánh nào của công ty cũng dùng được; quyền Bán hàng khác cần gán ở phạm vi tập đoàn hoặc công ty |
+| CHUC_NANG_56, CHUC_NANG_57 | Phiếu nháp xuất giao hàng, nhận hàng trả lại chỉ gửi hoặc xóa; cần sửa thì xóa rồi lập lại từ đơn bán, phiếu xuất gốc (như phiếu nhập mua, CONG_VIEC_07) |
 
 ## Quy tắc do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
