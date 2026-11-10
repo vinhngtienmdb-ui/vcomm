@@ -230,7 +230,15 @@
 ### THAY_DOI_14: Mô hình kinh doanh B2C qua sàn VComm, giới thiệu khách và hoa hồng theo đơn – 2026-11-10
 - Lý do: người dùng bổ sung mô hình kinh doanh (tài liệu `02`, 2026-11-10): khách hàng tự đăng ký tài khoản trên ứng dụng sàn VComm (ứng dụng cho người mua), gắn với tài khoản giới thiệu cấp trên qua đường dẫn hoặc mã giới thiệu là số điện thoại; tài khoản nhân viên kinh doanh là tài khoản thường được đánh dấu để cấp quyền; hoa hồng đến từ việc khách mua hàng; nhân viên kinh doanh chỉ bán B2C, không tạo đơn giùm khách (khách tự đặt trên ứng dụng VComm); các công ty nội bộ chỉ bán dịch vụ cho nhau, không bán hàng hóa; chỉ VComm là sàn bán hàng hóa; hoa hồng chi trả khi đơn hoàn tất (sau 7 ngày trả hàng).
 - Nội dung thay đổi (quyết định của người dùng 2026-11-10):
-  - Hoa hồng chỉ tính cho người giới thiệu trực tiếp của khách (một cấp).
+  - Hoa hồng chỉ tính cho người giới thiệu trực tiếp của khách (một cấp). Thay bằng quyết định bổ sung cùng ngày bên dưới.
+  - Bổ sung (người dùng, 2026-11-10): hai loại hoa hồng, mỗi loại thiết lập riêng:
+    - hoa hồng giới thiệu cho người giới thiệu trực tiếp của khách;
+    - hoa hồng đội kinh doanh nhiều cấp theo cơ cấu tổ chức (cấp 1 là nhân viên kinh doanh phụ trách khách, các cấp trên là người quản lý theo phòng ban), không theo cây giới thiệu.
+    - Nhân viên kinh doanh giới thiệu khách thì nhận cả hai loại.
+    - Tỷ lệ đặt theo từng sản phẩm, mỗi sản phẩm chọn tính theo phần trăm hoặc số tiền cố định trên mỗi đơn vị.
+    - Đăng ký bằng số điện thoại và mã OTP qua SMS.
+    - Đơn của người mua có thanh toán trực tuyến và thanh toán khi nhận hàng (COD); VComm tự đối soát COD với bên giao vận.
+    - Khung cổng thanh toán chung cho mọi cổng (ví điện tử MoMo, VNPAY, SePay, PayOS..., mã QR, chuyển khoản ngân hàng, thẻ Visa, Mastercard), bật tắt riêng từng cổng và từng phương thức.
   - Đơn hoàn tất (hết 7 ngày trả hàng) thì hoa hồng cộng vào ví của người giới thiệu; người được hưởng tự tạo yêu cầu rút tiền về tài khoản ngân hàng.
   - Không làm ứng dụng nhân viên kinh doanh riêng: phần kinh doanh gộp vào ứng dụng VComm, tài khoản được đánh dấu nhân viên kinh doanh thấy thêm phần kinh doanh.
   - Làm phần lõi MODULE_09 trước (tài khoản người mua tự đăng ký, giới thiệu, đánh dấu nhân viên kinh doanh, đơn của người mua, hoa hồng vào ví, rút tiền); sửa các công việc đã làm bằng công việc riêng sau.
