@@ -499,10 +499,11 @@ export class EinvoicesService implements OnModuleInit {
       series: string | null;
       invoice_no: string | null;
       invoice_date: string;
+      status: EinvoiceStatus;
       relation: "original" | "replaced_by" | "adjusted_by";
     }>(sql`
-      SELECT id, kind, series, invoice_no, invoice_date::text, 'original' AS relation FROM finance.einvoices WHERE id = ${row.related_invoice_id}
-      UNION ALL SELECT id, kind, series, invoice_no, invoice_date::text, CASE WHEN kind = 'adjustment' THEN 'adjusted_by' ELSE 'replaced_by' END
+      SELECT id, kind, series, invoice_no, invoice_date::text, status, 'original' AS relation FROM finance.einvoices WHERE id = ${row.related_invoice_id}
+      UNION ALL SELECT id, kind, series, invoice_no, invoice_date::text, status, CASE WHEN kind = 'adjustment' THEN 'adjusted_by' ELSE 'replaced_by' END
       FROM finance.einvoices WHERE related_invoice_id = ${id} ORDER BY invoice_date`);
     const attempts = await this.database.execute<{
       operation: "publish" | "status";
@@ -537,7 +538,15 @@ export class EinvoicesService implements OnModuleInit {
       dueDate: day(row.due_date),
       issuedAt: row.issued_at ? new Date(row.issued_at).toISOString() : null,
       sourceDocumentId: row.source_document_id,
-      related: related.rows.map((item) => ({ id: item.id, kind: item.kind, series: item.series, invoiceNo: item.invoice_no, invoiceDate: day(item.invoice_date), relation: item.relation })),
+      related: related.rows.map((item) => ({
+        id: item.id,
+        kind: item.kind,
+        series: item.series,
+        invoiceNo: item.invoice_no,
+        invoiceDate: day(item.invoice_date),
+        status: item.status,
+        relation: item.relation,
+      })),
       lines: lines.map((line) => ({
         lineNo: line.line_no,
         itemCode: line.item_code,

@@ -3195,7 +3195,7 @@ export interface EinvoiceResponse extends EinvoiceListItem {
   dueDate: string;
   issuedAt: string | null;
   sourceDocumentId: string;
-  related: { id: string; kind: EinvoiceKind; series: string | null; invoiceNo: string | null; invoiceDate: string; relation: "original" | "replaced_by" | "adjusted_by" }[];
+  related: { id: string; kind: EinvoiceKind; series: string | null; invoiceNo: string | null; invoiceDate: string; status: EinvoiceStatus; relation: "original" | "replaced_by" | "adjusted_by" }[];
   lines: EinvoiceLineResponse[];
   taxSummary: { vatRate: string; netAmount: string; taxAmount: string }[];
   attempts: { operation: "publish" | "status"; startedAt: string; finishedAt: string | null; outcome: string | null; errorCode: string | null; message: string | null }[];

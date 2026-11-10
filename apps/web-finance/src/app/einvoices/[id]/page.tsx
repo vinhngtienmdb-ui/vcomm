@@ -60,16 +60,20 @@ export default function EinvoicePage() {
             <div className="tieu-de">
               <h1>{invoice.invoiceNo ? t("invoiceTitle", { series: invoice.series ?? "", number: invoice.invoiceNo }) : t("invoiceDraftTitle")}</h1>
               <span className="nhom-nut">
-                {invoice.canManage && ["failed", "setup_error", "retrying"].includes(invoice.status) && (
+                {invoice.canManage && ["failed", "setup_error", "retrying", "rejected"].includes(invoice.status) && (
                   <button type="button" className={`nut chinh${busy ? " dang-xu-ly" : ""}`} disabled={busy} onClick={() => void resend(invoice)}>
                     {t("resend")}
                   </button>
                 )}
-                {invoice.canManage && invoice.status === "issued" && invoice.kind !== "adjustment" && !invoice.replaced && !invoice.related.some((item) => item.relation === "adjusted_by") && (
-                  <button type="button" className="nut phu" onClick={() => setReplacing(true)}>
-                    {t("replace")}
-                  </button>
-                )}
+                {invoice.canManage &&
+                  invoice.status === "issued" &&
+                  invoice.kind !== "adjustment" &&
+                  !invoice.replaced &&
+                  !invoice.related.some((item) => item.relation === "adjusted_by" || (item.relation === "replaced_by" && !["failed", "rejected"].includes(item.status))) && (
+                    <button type="button" className="nut phu" onClick={() => setReplacing(true)}>
+                      {t("replace")}
+                    </button>
+                  )}
                 {invoice.hasPdf && (
                   <button type="button" className="nut phu" onClick={() => void download(invoice, "pdf")}>
                     {t("downloadPdf")}
