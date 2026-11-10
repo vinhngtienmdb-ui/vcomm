@@ -3369,7 +3369,7 @@ export interface CommissionStatementResponse extends CommissionStatementListItem
   version: number;
 }
 
-// CONG_VIEC_18: Đối soát ngân hàng (API_95 đến API_102).
+// CONG_VIEC_18: Đối soát ngân hàng (API_95 đến API_101).
 export const bankProviders = ["simulator", "sepay"] as const;
 export type BankProvider = (typeof bankProviders)[number];
 export const bankTransactionStatuses = ["unmatched", "matched", "ignored"] as const;
@@ -3416,7 +3416,7 @@ export interface SaveBankConnectionResponse {
 export const simulateBankTransactionSchema = z
   .object({
     direction: z.enum(bankDirections),
-    amount: z.string().regex(/^\d{1,16}(\.\d{1,4})?$/),
+    amount: z.string().regex(/^\d{1,16}(\.\d{1,4})?$/).refine((value) => Number(value) > 0),
     content: z.string().trim().max(500).default(""),
     transactionDate: isoDate.optional(),
   })

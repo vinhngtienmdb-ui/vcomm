@@ -47,4 +47,5 @@ CREATE TABLE finance.bank_transactions (
 -- Một phiếu ghép tối đa một giao dịch (QUYTAC_NGHIEPVU_117).
 CREATE UNIQUE INDEX bank_transactions_payment_idx ON finance.bank_transactions (payment_id) WHERE payment_id IS NOT NULL;
 CREATE INDEX bank_transactions_fund_idx ON finance.bank_transactions (fund_id, transaction_date);
+CREATE INDEX bank_transactions_company_idx ON finance.bank_transactions (company_id, transaction_date);
 CREATE INDEX bank_transactions_open_idx ON finance.bank_transactions (fund_id, direction, amount) WHERE status = 'unmatched';

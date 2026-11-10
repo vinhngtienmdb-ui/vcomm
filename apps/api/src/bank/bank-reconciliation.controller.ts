@@ -1,4 +1,4 @@
-// API_95 đến API_99: kết nối ngân hàng, webhook, giao dịch ngân hàng (CONG_VIEC_18). Quyền chi tiết kiểm trong service.
+// API_95 đến API_101: kết nối ngân hàng (95–97), webhook (98), giao dịch ngân hàng (99), xử lý giao dịch (100), đối chiếu (101) (CONG_VIEC_18). Quyền chi tiết kiểm trong service.
 import { Body, Controller, Get, Headers, HttpCode, Param, Post, Put, Query, Req } from "@nestjs/common";
 import {
   bankReconciliationQuerySchema,

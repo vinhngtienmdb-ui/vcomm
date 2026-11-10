@@ -14,17 +14,30 @@ export type ParsedTransaction = {
   accountNumber: string | null;
 };
 
-const money = z.union([z.number().positive(), z.string().regex(/^\d{1,16}(\.\d{1,4})?$/)]).transform(String);
+// Số tiền tối đa 16 chữ số phần nguyên, 4 chữ số lẻ (numeric(20,4)).
+const money = z
+  .union([z.number(), z.string()])
+  .transform(String)
+  .pipe(z.string().regex(/^\d{1,16}(\.\d{1,4})?$/));
+const signedMoney = z
+  .union([z.number(), z.string()])
+  .transform(String)
+  .pipe(z.string().regex(/^-?\d{1,16}(\.\d{1,4})?$/));
+const text = (max: number) =>
+  z
+    .string()
+    .max(max)
+    .transform((value) => value.replace(/\u0000/g, ""));
 const sepayPayloadSchema = z.object({
-  id: z.union([z.number().int(), z.string().min(1).max(100)]).transform(String),
+  id: z.union([z.number().int(), text(100).pipe(z.string().min(1))]).transform(String),
   transactionDate: z.string().regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/),
   transferType: z.enum(["in", "out"]),
   transferAmount: money,
-  accumulated: z.union([z.number(), z.string().regex(/^-?\d{1,16}(\.\d{1,4})?$/)]).nullish(),
-  content: z.string().max(1000).nullish(),
-  description: z.string().max(2000).nullish(),
-  referenceCode: z.string().max(100).nullish(),
-  accountNumber: z.string().max(50).nullish(),
+  accumulated: signedMoney.nullish(),
+  content: text(1000).nullish(),
+  description: text(2000).nullish(),
+  referenceCode: text(100).nullish(),
+  accountNumber: text(50).nullish(),
 });
 
 // Ngày giờ SePay theo giờ Việt Nam, không kèm múi giờ.

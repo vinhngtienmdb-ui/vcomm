@@ -1,4 +1,4 @@
-// Đối soát ngân hàng (CONG_VIEC_18; CHUC_NANG_84 đến 86; QUYTAC_NGHIEPVU_113 đến 117; API_95 đến API_101).
+// Đối soát ngân hàng (CONG_VIEC_18; CHUC_NANG_84 đến 87; QUYTAC_NGHIEPVU_113 đến 117; API_95 đến API_101).
 import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
 import { savePaymentSchema } from "contracts";
 import type {
@@ -156,7 +156,7 @@ export class BankReconciliationService implements OnModuleInit {
     const connection = (await this.database.execute<ConnectionRow>(sql`${this.connectionSelect()} WHERE c.fund_id = ${fundId} AND c.company_id = ${actor.companyId}`)).rows[0];
     if (!connection || connection.provider !== "simulator") throw new ApiError("BUSINESS_RULE", "bankSimulatorNotConnected");
     const now = this.clock.now();
-    const transactionAt = input.transactionDate ? new Date(`${input.transactionDate}T${now.toISOString().slice(11, 19)}+07:00`) : now;
+    const transactionAt = input.transactionDate ? new Date(`${input.transactionDate}T${new Date(now.getTime() + 7 * 3_600_000).toISOString().slice(11, 19)}+07:00`) : now;
     const parsed: ParsedTransaction = {
       externalId: `SIM-${randomUUID()}`,
       transactionAt,
@@ -199,7 +199,7 @@ export class BankReconciliationService implements OnModuleInit {
         await transaction.execute<{ id: string }>(sql`
         INSERT INTO finance.bank_transactions (company_id, connection_id, fund_id, external_id, transaction_at, transaction_date, direction, amount, content, reference_code, balance_after, raw_payload)
         VALUES (${connection.company_id}, ${connection.id}, ${connection.fund_id}, ${parsed.externalId}, ${parsed.transactionAt.toISOString()}::timestamptz, ${vietnamDate(parsed.transactionAt)}::date,
-          ${parsed.direction}, ${parsed.amount}::numeric, ${parsed.content}, ${parsed.referenceCode}, ${parsed.balanceAfter}::numeric, ${JSON.stringify(raw)}::jsonb)
+          ${parsed.direction}, ${parsed.amount}::numeric, ${parsed.content}, ${parsed.referenceCode}, ${parsed.balanceAfter}::numeric, ${JSON.stringify(raw).replaceAll("\\u0000", "")}::jsonb)
         ON CONFLICT (connection_id, external_id) DO NOTHING RETURNING id`)
       ).rows[0];
       await transaction.execute(sql`UPDATE finance.bank_connections SET last_received_at = now() WHERE id = ${connection.id}`);
@@ -214,8 +214,9 @@ export class BankReconciliationService implements OnModuleInit {
 
   // ---------- Tự ghép (QUYTAC_NGHIEPVU_115) ----------
 
+  // Khóa dòng quỹ: cùng thứ tự với ghi sổ phiếu (khóa quỹ trước, giao dịch ngân hàng sau) để tránh khóa chết.
   private async lockFund(executor: Executor, fundId: string): Promise<void> {
-    await executor.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${`bank:${fundId}`}, 0))`);
+    await executor.execute(sql`SELECT id FROM finance.funds WHERE id = ${fundId} FOR UPDATE`);
   }
 
   private paymentCandidates(transactionId: SQL | string): SQL {
@@ -233,10 +234,11 @@ export class BankReconciliationService implements OnModuleInit {
         AND ((b.direction = 'in' AND p.kind IN ${kindsOf.in}) OR (b.direction = 'out' AND p.kind IN ${kindsOf.out}))`;
   }
 
-  private async setMatched(executor: Executor, transactionId: string, paymentId: string, userId: string | null): Promise<void> {
-    await executor.execute(sql`
+  private async setMatched(executor: Executor, transactionId: string, paymentId: string, userId: string | null): Promise<boolean> {
+    const updated = await executor.execute(sql`
       UPDATE finance.bank_transactions SET status = 'matched', payment_id = ${paymentId}, matched_by = ${userId}, matched_at = now(), receipt_id = NULL, version = version + 1
-      WHERE id = ${transactionId}`);
+      WHERE id = ${transactionId} AND status = 'unmatched'`);
+    return (updated.rowCount ?? 0) > 0;
   }
 
   // Ghép khi giao dịch có đúng một phiếu và phiếu đó cũng chỉ hợp với giao dịch này.
@@ -252,13 +254,15 @@ export class BankReconciliationService implements OnModuleInit {
       .rows[0];
     if (!fund) return;
     await this.lockFund(executor, fund.fund_id);
-    // Phiếu thu lập từ gợi ý (QUYTAC_NGHIEPVU_116) ghép đúng giao dịch của nó.
-    // Người ghép là người lập phiếu thu từ gợi ý.
+    // Phiếu thu lập từ gợi ý (QUYTAC_NGHIEPVU_116) ghép đúng giao dịch của nó khi phiếu vẫn khớp quỹ, số tiền, loại, ngày; người ghép là người lập phiếu.
+    // Phiếu đã bị sửa không còn khớp thì bỏ liên kết, giao dịch xét như thường.
     const fromSuggestion = (
-      await executor.execute<{ id: string; created_by: string }>(sql`
-      SELECT b.id, p.created_by FROM finance.bank_transactions b JOIN finance.payments p ON p.id = b.receipt_id WHERE b.receipt_id = ${paymentId} AND b.status = 'unmatched'`)
+      await executor.execute<{ id: string; created_by: string; fits: boolean }>(sql`
+      SELECT b.id, p.created_by, (p.fund_id = b.fund_id AND p.amount = b.amount AND p.kind = 'customer_receipt' AND abs(p.payment_date - b.transaction_date) <= ${matchDays}) AS fits
+      FROM finance.bank_transactions b JOIN finance.payments p ON p.id = b.receipt_id WHERE b.receipt_id = ${paymentId}`)
     ).rows[0];
-    if (fromSuggestion) return this.setMatched(executor, fromSuggestion.id, paymentId, fromSuggestion.created_by);
+    if (fromSuggestion?.fits && (await this.setMatched(executor, fromSuggestion.id, paymentId, fromSuggestion.created_by))) return;
+    if (fromSuggestion) await executor.execute(sql`UPDATE finance.bank_transactions SET receipt_id = NULL, version = version + 1 WHERE id = ${fromSuggestion.id}`);
     const transactions = (await executor.execute<{ id: string }>(sql`${this.transactionCandidates(paymentId)} AND b.receipt_id IS NULL LIMIT 2`)).rows;
     if (transactions.length === 1) await this.matchTransaction(executor, transactions[0]!.id);
   }
@@ -429,6 +433,7 @@ export class BankReconciliationService implements OnModuleInit {
   }
 
   // Kế toán xác nhận gợi ý: lập phiếu thu khách hàng của quỹ, ngày giao dịch, theo luồng duyệt phiếu thu.
+  // Phiếu nháp còn lại từ lần xác nhận trước (gửi lỗi) được đặt lại theo giao dịch và khách vừa chọn rồi gửi lại.
   async confirmReceipt(actor: Actor, id: string, partnerId: string, version: number): Promise<BankTransactionItem> {
     await requireFinancePermission(this.permissionService, actor, bankPermissions.manage);
     const row = await this.database.transaction(async (transaction) => {
@@ -436,17 +441,32 @@ export class BankReconciliationService implements OnModuleInit {
       if (current.status !== "unmatched") throw new ApiError("BUSINESS_RULE", "bankTransactionNotOpen");
       if (current.direction !== "in") throw new ApiError("BUSINESS_RULE", "bankReceiptOnlyIncoming");
       if (current.receipt_status === "pending" || current.receipt_status === "posted") throw new ApiError("BUSINESS_RULE", "bankReceiptPending");
-      await transaction.execute(sql`UPDATE finance.bank_transactions SET version = version + 1 WHERE id = ${id}`);
       return current;
     });
-    let receiptId = row.receipt_status === "draft" ? row.receipt_id! : null;
-    if (!receiptId) {
-      const created = await this.payments.create(
-        actor,
-        savePaymentSchema.parse({ kind: "customer_receipt", partnerId, fundId: row.fund_id, paymentDate: row.transaction_date, amount: row.amount, note: row.content.slice(0, 500), lines: [] }),
-      );
-      receiptId = created.id;
-      await this.database.execute(sql`UPDATE finance.bank_transactions SET receipt_id = ${receiptId}, version = version + 1 WHERE id = ${id}`);
+    const input = savePaymentSchema.parse({
+      kind: "customer_receipt",
+      partnerId,
+      fundId: row.fund_id,
+      paymentDate: row.transaction_date,
+      amount: row.amount,
+      note: row.content.slice(0, 500),
+      lines: [],
+    });
+    let receiptId: string;
+    if (row.receipt_status === "draft") {
+      receiptId = row.receipt_id!;
+      const draft = await this.payments.detail(actor, receiptId);
+      await this.payments.update(actor, receiptId, { ...input, version: draft.version });
+    } else {
+      receiptId = (await this.payments.create(actor, input)).id;
+      // Chỉ một lần xác nhận được gắn phiếu; lần song song thua thì xóa phiếu nháp vừa lập.
+      const linked = await this.database.execute(sql`
+        UPDATE finance.bank_transactions SET receipt_id = ${receiptId}, version = version + 1
+        WHERE id = ${id} AND status = 'unmatched' AND version = ${row.version} AND receipt_id IS NOT DISTINCT FROM ${row.receipt_id}`);
+      if ((linked.rowCount ?? 0) === 0) {
+        await this.database.execute(sql`DELETE FROM finance.payments WHERE id = ${receiptId} AND status = 'draft'`);
+        throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      }
     }
     const draft = await this.payments.detail(actor, receiptId);
     await this.payments.submit(actor, receiptId, draft.version);
@@ -490,8 +510,10 @@ export class BankReconciliationService implements OnModuleInit {
   async match(actor: Actor, id: string, paymentId: string, version: number): Promise<BankTransactionItem> {
     await requireFinancePermission(this.permissionService, actor, bankPermissions.manage);
     await this.database.transaction(async (transaction) => {
+      const fundId = (await transaction.execute<{ fund_id: string }>(sql`SELECT fund_id FROM finance.bank_transactions WHERE id = ${id} AND company_id = ${actor.companyId}`)).rows[0]?.fund_id;
+      if (!fundId) throw new ApiError("NOT_FOUND", "notFound");
+      await this.lockFund(transaction, fundId);
       const current = await this.open(transaction, actor, id, version);
-      await this.lockFund(transaction, current.fund_id);
       if (current.status !== "unmatched") throw new ApiError("BUSINESS_RULE", "bankTransactionNotOpen");
       const allowed = (
         await transaction.execute<{ id: string }>(sql`

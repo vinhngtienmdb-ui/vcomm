@@ -30,7 +30,7 @@ async function assign(email: string, name: string, role: string) {
   await pool.query("INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, valid_from) VALUES ($1, $2, 'company', $3, '2026-01-01')", [id, roleId, retail]);
   return signIn(application, email);
 }
-const call = (session: Session, method: "get" | "post" | "put", path: string, body?: unknown) => session.call(method, path, { companyId: retail, body });
+const call = (session: Session, method: "get" | "post" | "put" | "patch", path: string, body?: unknown) => session.call(method, path, { companyId: retail, body });
 const addDays = (date: string, days: number) => new Date(Date.parse(date) + days * 86_400_000).toISOString().slice(0, 10);
 async function partner(name: string, taxCode: string, profile: Record<string, unknown>) {
   const created = await admin.call("post", "/crm/partners", { companyId: retail, body: { kind: "organization", name, taxCode } });
@@ -326,5 +326,55 @@ describe("CONG_VIEC_18 ghép tay, bỏ qua, bỏ ghép, đối chiếu", () => {
     expect(result.body.unmatchedPaymentCount).toBe(result.body.unmatchedPayments.length);
     expect((await call(accountant, "get", `/finance/bank-reconciliation?fundId=${bankFund}&from=${today}&to=${addDays(today, -1)}`)).status).toBe(400);
     expect((await call(seller, "get", `/finance/bank-reconciliation?fundId=${bankFund}&from=${today}&to=${today}`)).status).toBe(403);
+  });
+});
+
+describe("CONG_VIEC_18 sửa lỗi rà soát", () => {
+  const draftReceipt = async (partnerId: string, amount: string) => {
+    const created = await call(accountant, "post", "/finance/payments", { kind: "customer_receipt", partnerId, fundId: bankFund, paymentDate: today, amount, lines: [] });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    return created.body as { id: string; version: number };
+  };
+  const byAmount = async (amount: string) => (await call(accountant, "get", `/finance/bank-transactions?fundId=${bankFund}&search=${amount}`)).body.data[0];
+
+  it("KICHBAN_KIEMTHU_257: phiếu nháp còn lại từ lần xác nhận lỗi được gửi lại theo khách vừa chọn", async () => {
+    const otherCustomer = (await pool.query<{ id: string }>("SELECT id FROM crm.partners WHERE tax_code = '0320001803'")).rows[0]!.id;
+    await webhook(payload("in", 470000, today, { content: "khong ro" }));
+    const transaction = await byAmount("470000");
+    // Lần xác nhận trước gửi lỗi: phiếu nháp của khách thứ nhất còn gắn với giao dịch.
+    const draft = await draftReceipt(customer, "470000");
+    await pool.query("UPDATE finance.bank_transactions SET receipt_id = $1 WHERE id = $2", [draft.id, transaction.id]);
+    const confirmed = await call(accountant, "post", `/finance/bank-transactions/${transaction.id}/confirm-receipt`, { partnerId: otherCustomer, version: transaction.version });
+    expect(confirmed.status, JSON.stringify(confirmed.body)).toBe(201);
+    expect(confirmed.body).toMatchObject({ status: "matched", payment: { id: draft.id, partnerName: "Khách thứ hai" } });
+  });
+
+  it("KICHBAN_KIEMTHU_258: phiếu nháp gắn giao dịch bị sửa số tiền thì không ghép khi ghi sổ, bỏ liên kết", async () => {
+    await webhook(payload("in", 480000, today, { content: "khong ro" }));
+    const transaction = await byAmount("480000");
+    const draft = await draftReceipt(customer, "480000");
+    await pool.query("UPDATE finance.bank_transactions SET receipt_id = $1 WHERE id = $2", [draft.id, transaction.id]);
+    const edited = await call(accountant, "patch", `/finance/payments/${draft.id}`, {
+      kind: "customer_receipt",
+      partnerId: customer,
+      fundId: bankFund,
+      paymentDate: today,
+      amount: "490000",
+      lines: [],
+      version: draft.version,
+    });
+    expect(edited.status, JSON.stringify(edited.body)).toBe(200);
+    expect((await call(accountant, "post", `/finance/payments/${draft.id}/submit`, { version: edited.body.version })).body.status).toBe("posted");
+    expect(await byAmount("480000")).toMatchObject({ status: "unmatched", payment: null, receipt: null });
+  });
+
+  it("KICHBAN_KIEMTHU_259: số tiền ngoài giới hạn bị từ chối 400; ký tự rỗng bị bỏ", async () => {
+    expect((await webhook(payload("in", 0.00001, today))).status).toBe(400);
+    expect((await webhook(payload("in", 1e16, today))).status).toBe(400);
+    expect((await webhook(payload("in", 1000, today, { accumulated: 1e21 }))).status).toBe(400);
+    const dirty = payload("in", 1100, today, { content: "a\u0000b" });
+    expect((await webhook(dirty)).status).toBe(200);
+    expect((await pool.query("SELECT content FROM finance.bank_transactions WHERE external_id = $1", [String(dirty.id)])).rows[0].content).toBe("ab");
+    expect((await call(chief, "post", `/finance/bank-connections/${otherFund}/simulate`, { direction: "in", amount: "0" })).status).toBe(400);
   });
 });

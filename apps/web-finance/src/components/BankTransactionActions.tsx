@@ -45,7 +45,7 @@ export function BankTransactionActions({ item, onChanged }: { item: BankTransact
           </button>
         )}
       </span>
-      {action === "receipt" && <ReceiptDrawer item={item} onClose={() => setAction(null)} onDone={done} />}
+      {action === "receipt" && <ReceiptDrawer item={item} onClose={() => setAction(null)} onDone={done} onFailed={onChanged} />}
       {action === "match" && <MatchDrawer item={item} onClose={() => setAction(null)} onDone={done} />}
       {action === "ignore" && <IgnoreDrawer item={item} onClose={() => setAction(null)} onDone={done} />}
       {action === "reopen" && <ReopenDialog item={item} onClose={() => setAction(null)} onDone={done} />}
@@ -66,7 +66,8 @@ function Summary({ item }: { item: BankTransactionItem }) {
   );
 }
 
-function ReceiptDrawer({ item, onClose, onDone }: { item: BankTransactionItem; onClose: () => void; onDone: () => void }) {
+// Gửi lỗi thì tải lại danh sách để ngăn kéo nhận phiên bản mới của giao dịch (phiếu nháp đã gắn).
+function ReceiptDrawer({ item, onClose, onDone, onFailed }: { item: BankTransactionItem; onClose: () => void; onDone: () => void; onFailed: () => void }) {
   const t = useTranslations("bankTransactions");
   const common = useTranslations("common");
   const { notify } = useAdmin();
@@ -79,6 +80,9 @@ function ReceiptDrawer({ item, onClose, onDone }: { item: BankTransactionItem; o
       const result = await apiFetch<BankTransactionItem>(`/finance/bank-transactions/${item.id}/confirm-receipt`, {
         method: "POST",
         body: JSON.stringify({ partnerId: partner.id, version: item.version }),
+      }).catch((failure: unknown) => {
+        onFailed();
+        throw failure;
       });
       notify(result.status === "matched" ? t("receiptPosted", { document: result.payment?.documentNo ?? "" }) : t("receiptPending", { document: result.receipt?.documentNo ?? "" }));
       onDone();

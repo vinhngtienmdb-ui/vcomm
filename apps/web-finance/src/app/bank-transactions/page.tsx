@@ -79,7 +79,12 @@ export default function BankTransactionsPage() {
         />
       </div>
       {filter.fundId && (
-        <BankReconciliationPanel key={`${filter.fundId}${filter.from}${filter.to}${state.kind}`} fundId={filter.fundId} from={filter.from || `${today.slice(0, 8)}01`} to={filter.to || today} />
+        <BankReconciliationPanel
+          key={`${filter.fundId}${filter.from}${filter.to}${state.kind}`}
+          fundId={filter.fundId}
+          from={filter.from || `${(filter.to || today).slice(0, 8)}01`}
+          to={filter.to || today}
+        />
       )}
       <Loaded state={state} onRetry={() => void reload()}>
         {(result) =>
