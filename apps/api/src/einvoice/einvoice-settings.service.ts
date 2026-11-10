@@ -70,7 +70,8 @@ export class EinvoiceSettingsService {
     const granted = await requireFinancePermission(this.permissionService, actor, einvoicePermissions.view, einvoicePermissions.setup);
     const row = await settingsRow(this.database, actor.companyId);
     const series = await this.database.execute<{ year: number; series: string }>(sql`SELECT year, series FROM finance.einvoice_series WHERE company_id = ${actor.companyId} ORDER BY year`);
-    const password = row?.secret_value ? decryptSecret(row.secret_value) : null;
+    // 4 ký tự cuối mật khẩu chỉ cho người có quyền cài đặt.
+    const password = row?.secret_value && granted.has(einvoicePermissions.setup) ? decryptSecret(row.secret_value) : null;
     return {
       enabled: row?.enabled ?? false,
       startDate: row?.start_date ?? null,

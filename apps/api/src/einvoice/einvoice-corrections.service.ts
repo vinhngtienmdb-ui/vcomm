@@ -167,9 +167,11 @@ export class EinvoiceCorrectionsService {
           currency: string;
           buyer: Party;
           adjusted: boolean;
+          replacing: boolean;
         }>(sql`
         SELECT e.kind, e.status, e.version, e.replaced_by_id, e.source_document_id, e.currency, e.buyer,
-          EXISTS (SELECT 1 FROM finance.einvoices a WHERE a.related_invoice_id = e.id AND a.kind = 'adjustment') AS adjusted
+          EXISTS (SELECT 1 FROM finance.einvoices a WHERE a.related_invoice_id = e.id AND a.kind = 'adjustment') AS adjusted,
+          EXISTS (SELECT 1 FROM finance.einvoices r WHERE r.related_invoice_id = e.id AND r.kind = 'replacement' AND r.status NOT IN ('failed', 'rejected')) AS replacing
         FROM finance.einvoices e WHERE e.id = ${invoiceId} AND e.company_id = ${actor.companyId} FOR UPDATE`)
       ).rows[0];
       if (!row) throw new ApiError("NOT_FOUND", "notFound");
@@ -178,6 +180,7 @@ export class EinvoiceCorrectionsService {
       if (row.status !== "issued") throw new ApiError("BUSINESS_RULE", "einvoiceNotIssued");
       if (row.replaced_by_id) throw new ApiError("BUSINESS_RULE", "einvoiceAlreadyReplaced");
       if (row.adjusted) throw new ApiError("BUSINESS_RULE", "einvoiceAlreadyAdjusted");
+      if (row.replacing) throw new ApiError("BUSINESS_RULE", "einvoiceReplacementPending");
       const settings = await settingsRow(transaction, actor.companyId);
       if (!settings) throw new ApiError("BUSINESS_RULE", "einvoiceNotConfigured");
       const company = (
@@ -229,7 +232,7 @@ export class EinvoiceCorrectionsService {
         })),
         note: input.reason,
       });
-      await transaction.execute(sql`UPDATE finance.einvoices SET replaced_by_id = ${id}, version = version + 1 WHERE id = ${invoiceId}`);
+      // Hóa đơn bị thay thế được đánh dấu khi hóa đơn thay thế phát hành (EinvoicesService.process).
       await this.auditService.record(
         { ...financeAudit(actor, "einvoice"), action: "einvoice.replace", entityId: id, beforeData: { invoiceId, buyer: row.buyer }, afterData: { buyer, reason: input.reason } },
         transaction,

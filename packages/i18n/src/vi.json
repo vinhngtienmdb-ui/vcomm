@@ -215,7 +215,7 @@
     "periodHasPendingJournals": "Còn phiếu kế toán chờ duyệt trong kỳ.",
     "periodHasPendingDocuments": "Còn phiếu kho hoặc phiếu chi đang chờ (duyệt, kiểm tra chất lượng, nhận hàng nội bộ) có ngày trong kỳ.",
     "accountSystemLongTerm": "Chỉ đánh dấu dài hạn cho tài khoản chi tiết do kế toán mở.",
-    "einvoiceNotResendable": "Chỉ gửi lại được hóa đơn lỗi, lỗi cài đặt hoặc đang chờ gửi lại.",
+    "einvoiceNotResendable": "Chỉ gửi lại được hóa đơn lỗi, lỗi cài đặt, đang chờ gửi lại hoặc bị từ chối.",
     "einvoiceNotConfigured": "Công ty chưa cài đặt hóa đơn điện tử.",
     "einvoiceSeriesMissing": "Chưa khai ký hiệu hóa đơn cho năm của hóa đơn.",
     "einvoiceFileUnavailable": "Chưa có tệp của hóa đơn này.",
@@ -234,7 +234,9 @@
     "einvoiceAlreadyReplaced": "Hóa đơn đã bị thay thế; thay thế hóa đơn thay thế.",
     "einvoiceAlreadyAdjusted": "Hóa đơn đã có hóa đơn điều chỉnh; lần sau xử lý bằng điều chỉnh.",
     "einvoiceProviderAuthentication": "Nhà cung cấp từ chối thông tin kết nối (mã ứng dụng, mã số thuế, tên đăng nhập, mật khẩu).",
-    "einvoiceProviderRejected": "Nhà cung cấp từ chối yêu cầu."
+    "einvoiceProviderRejected": "Nhà cung cấp từ chối yêu cầu.",
+    "einvoiceSending": "Hóa đơn đang được gửi; thử lại sau ít phút.",
+    "einvoiceReplacementPending": "Hóa đơn đang có hóa đơn thay thế chưa phát hành."
   },
   "login": {
     "title": "Đăng nhập",

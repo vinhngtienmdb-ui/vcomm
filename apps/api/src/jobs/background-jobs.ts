@@ -15,6 +15,7 @@ import { AuditEventsService } from "../settings/audit-events.service";
 import { ExchangeRatesService } from "../settings/exchange-rates.service";
 
 const queueName = "nen-tang";
+const einvoiceQueueName = "hoa-don-dien-tu";
 
 export async function startBackgroundJobs(application: INestApplication): Promise<() => Promise<void>> {
   const logger = new Logger("BackgroundJobs");
@@ -39,8 +40,20 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("exchange-rate-fetch", { pattern: "30 8 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "exchange-rate-fetch" });
   await queue.upsertJobScheduler("inventory-reservation-expiry", { every: 5 * 60_000 }, { name: "inventory-reservation-expiry" });
   await queue.upsertJobScheduler("inventory-stock-alerts", { pattern: "0 7 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "inventory-stock-alerts" });
-  await queue.upsertJobScheduler("einvoice-send", { every: 30_000 }, { name: "einvoice-send" });
-  await queue.upsertJobScheduler("einvoice-overdue", { every: 60 * 60_000 }, { name: "einvoice-overdue" });
+  // Hóa đơn điện tử chạy hàng đợi riêng: gọi nhà cung cấp chậm không làm chậm các tác vụ khác.
+  const einvoiceQueue = new Queue(einvoiceQueueName, { connection });
+  await einvoiceQueue.upsertJobScheduler("einvoice-send", { every: 30_000 }, { name: "einvoice-send" });
+  await einvoiceQueue.upsertJobScheduler("einvoice-overdue", { every: 60 * 60_000 }, { name: "einvoice-overdue" });
+  const einvoiceWorker = new Worker(
+    einvoiceQueueName,
+    async (job) => {
+      if (job.name === "einvoice-send") return einvoices.sendDue();
+      if (job.name === "einvoice-overdue") return einvoices.notifyOverdue();
+      return null;
+    },
+    { connection, concurrency: 1 },
+  );
+  einvoiceWorker.on("failed", (job, error) => logger.error(`${job?.name}: ${error.message}`));
   const worker = new Worker(
     queueName,
     async (job) => {
@@ -50,8 +63,6 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "exchange-rate-fetch") return exchangeRates.fetchDaily(vietnamDate(new Date()));
       if (job.name === "inventory-reservation-expiry") return reservations.releaseExpired();
       if (job.name === "inventory-stock-alerts") return stockLevels.notifyAlerts();
-      if (job.name === "einvoice-send") return einvoices.sendDue();
-      if (job.name === "einvoice-overdue") return einvoices.notifyOverdue();
       return null;
     },
     { connection, concurrency: 1 },
@@ -59,6 +70,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   worker.on("failed", (job, error) => logger.error(`${job?.name}: ${error.message}`));
   return async () => {
     await worker.close();
+    await einvoiceWorker.close();
     await queue.close();
+    await einvoiceQueue.close();
   };
 }

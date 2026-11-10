@@ -1,6 +1,7 @@
 // Kết nối MISA meInvoice (CONG_VIEC_16 lát L2; QUYTAC_NGHIEPVU_105). REST, JSON; ký số từ xa (HSM) phía MISA.
 // Đường dẫn, tên trường lấy theo nguồn thứ cấp trích tài liệu tích hợp `doc.meinvoice.vn/itg` (trang chính thức không truy cập được ngày 2026-11-10):
 // phải đối chiếu với tài liệu MISA cấp khi ký hợp đồng và thử với tài khoản thử trước khi bật ở môi trường thật.
+import { createHash } from "node:crypto";
 import type { EinvoiceProviderAdapter, ProviderConfig, ProviderInvoice, ProviderResult } from "./provider";
 
 const baseUrls = { test: "https://testapi.meinvoice.vn/api/integration", production: "https://api.meinvoice.vn/api/integration" } as const;
@@ -62,14 +63,21 @@ export class MisaProvider implements EinvoiceProviderAdapter {
     return ((await response.json().catch(() => null)) ?? { Success: false, ErrorCode: `HTTP ${response.status}` }) as MisaResponse;
   }
 
+  // Khóa bộ nhớ theo công ty và thông tin kết nối: đổi cài đặt thì lấy mã mới.
+  private tokenKey(config: ProviderConfig): string {
+    return createHash("sha256")
+      .update(JSON.stringify([config.companyId, config.environment, config.appId, config.taxCode, config.username, config.password]))
+      .digest("hex");
+  }
+
   private async token(config: ProviderConfig, refresh = false): Promise<string> {
-    const cached = this.tokens.get(config.companyId);
+    const cached = this.tokens.get(this.tokenKey(config));
     if (cached && !refresh && cached.expiresAt > Date.now()) return cached.token;
     const result = await this.request(config, "POST", "/auth/token", { appid: config.appId, taxcode: config.taxCode, username: config.username, password: config.password }, null);
     const token = typeof result.Data === "string" ? result.Data : null;
     if (!result.Success || !token) throw Object.assign(new Error(result.ErrorCode ?? "UnAuthorize"), { authentication: true });
     // Thời hạn mã truy cập chưa rõ trong tài liệu: giữ 12 giờ, lỗi xác thực thì lấy lại.
-    this.tokens.set(config.companyId, { token, expiresAt: Date.now() + 12 * 60 * 60_000 });
+    this.tokens.set(this.tokenKey(config), { token, expiresAt: Date.now() + 12 * 60 * 60_000 });
     return token;
   }
 
@@ -167,6 +175,9 @@ export class MisaProvider implements EinvoiceProviderAdapter {
       if (response.ErrorCode && authenticationErrors.has(response.ErrorCode)) return { outcome: "data_error", errorCode: response.ErrorCode, message: "einvoiceProviderAuthentication" };
       return { outcome: "data_error", errorCode: response.ErrorCode ?? "EmptyResponse", message: response.DescriptionErrorCode ?? response.Errors?.join("; ") ?? null };
     }
+    // Trùng mã tham chiếu: nhà cung cấp đã nhận hóa đơn này, tra trạng thái thay vì coi là lỗi dữ liệu.
+    if (item.ErrorCode && /duplicate|exist/i.test(item.ErrorCode))
+      return { outcome: "unknown", errorCode: item.ErrorCode, message: item.DescriptionErrorCode ?? null, transactionId: item.TransactionID ?? null };
     if (item.ErrorCode) return { outcome: "data_error", errorCode: item.ErrorCode, message: item.DescriptionErrorCode ?? item.ErrorCode, transactionId: item.TransactionID ?? null };
     const code = item.InvoiceCode ?? item.InvCode ?? null;
     if (!item.InvNo) return { outcome: "unknown", errorCode: "MissingNumber", transactionId: item.TransactionID ?? null };

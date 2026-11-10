@@ -308,7 +308,13 @@ export class EinvoicesService implements OnModuleInit {
   async sendDue(limit = 20): Promise<number> {
     const due = await this.database.execute<{ id: string }>(sql`
       SELECT id FROM finance.einvoices WHERE status IN ('pending', 'retrying', 'awaiting_code') AND next_attempt_at <= now() ORDER BY next_attempt_at LIMIT ${limit}`);
-    for (const item of due.rows) await this.process(item.id);
+    for (const item of due.rows) {
+      try {
+        await this.process(item.id);
+      } catch (error) {
+        this.logger.error(`Gửi hóa đơn ${item.id}: ${(error as Error).message}`);
+      }
+    }
     return due.rows.length;
   }
 
@@ -330,13 +336,13 @@ export class EinvoicesService implements OnModuleInit {
   async process(invoiceId: string): Promise<void> {
     const claimed = await this.database.transaction(async (transaction) => {
       const row = (
-        await transaction.execute<{ status: EinvoiceStatus; last_outcome: string | null }>(sql`
-        SELECT e.status, (SELECT a.outcome FROM finance.einvoice_attempts a WHERE a.invoice_id = e.id ORDER BY a.started_at DESC LIMIT 1) AS last_outcome
+        await transaction.execute<{ status: EinvoiceStatus; attempted: boolean }>(sql`
+        SELECT e.status, EXISTS (SELECT 1 FROM finance.einvoice_attempts a WHERE a.invoice_id = e.id) AS attempted
         FROM finance.einvoices e WHERE e.id = ${invoiceId} AND e.status IN ('pending', 'retrying', 'awaiting_code') AND e.next_attempt_at <= now() FOR UPDATE SKIP LOCKED`)
       ).rows[0];
       if (!row) return null;
-      // Chờ cấp mã hoặc lần trước không rõ kết quả: tra trạng thái theo mã tham chiếu trước, không gửi lại ngay.
-      const operation: "publish" | "status" = row.status === "awaiting_code" || row.last_outcome === "unknown" ? "status" : "publish";
+      // Đã gửi lần nào (kể cả lần lỗi, lần bị gián đoạn) thì tra trạng thái theo mã tham chiếu trước; không thấy mới gửi lại, tránh lập trùng.
+      const operation: "publish" | "status" = row.attempted ? "status" : "publish";
       const attempt = await transaction.execute<{ id: string }>(sql`INSERT INTO finance.einvoice_attempts (invoice_id, operation) VALUES (${invoiceId}, ${operation}) RETURNING id`);
       // Giữ chỗ: tiến trình khác không lấy lại hóa đơn trong lúc đang gọi.
       await transaction.execute(sql`UPDATE finance.einvoices SET attempt_count = attempt_count + 1, next_attempt_at = now() + interval '10 minutes' WHERE id = ${invoiceId}`);
@@ -360,11 +366,17 @@ export class EinvoicesService implements OnModuleInit {
     let files: { pdf: Buffer | null; xml: Buffer | null } = { pdf: null, xml: null };
     if (result.outcome === "issued" && adapter && settings && invoice) {
       try {
-        files = await adapter.download(providerConfig(row.company_id, settings), invoice, {
-          invoiceNo: result.invoiceNo!,
-          taxAuthorityCode: result.taxAuthorityCode ?? null,
-          transactionId: result.transactionId ?? null,
-        });
+        let timer: NodeJS.Timeout | undefined;
+        files = await Promise.race([
+          adapter.download(providerConfig(row.company_id, settings), invoice, {
+            invoiceNo: result.invoiceNo!,
+            taxAuthorityCode: result.taxAuthorityCode ?? null,
+            transactionId: result.transactionId ?? null,
+          }),
+          new Promise<never>((_, reject) => {
+            timer = setTimeout(() => reject(new Error("einvoiceProviderTimeout")), providerTimeoutMilliseconds);
+          }),
+        ]).finally(() => clearTimeout(timer));
       } catch (error) {
         this.logger.warn(`Không tải được tệp hóa đơn ${invoiceId}: ${(error as Error).message}`);
       }
@@ -373,7 +385,8 @@ export class EinvoicesService implements OnModuleInit {
       await transaction.execute(sql`
         UPDATE finance.einvoice_attempts SET finished_at = now(), outcome = ${result.outcome}, error_code = ${result.errorCode ?? null}, message = ${result.message ?? null}
         WHERE id = ${claimed.attemptId}`);
-      const attempts = row.attempt_count + 1;
+      // attempt_count đã tăng khi giữ chỗ.
+      const attempts = row.attempt_count;
       const status: EinvoiceStatus =
         result.outcome === "issued"
           ? "issued"
@@ -393,38 +406,47 @@ export class EinvoicesService implements OnModuleInit {
           next_attempt_at = now() + make_interval(mins => ${retryDelayMinutes(attempts)}),
           issued_at = CASE WHEN ${status} = 'issued' THEN now() ELSE issued_at END,
           pdf_content = coalesce(${files.pdf}, pdf_content), xml_content = coalesce(${files.xml}, xml_content), version = version + 1
-        WHERE id = ${invoiceId}`);
+        WHERE id = ${invoiceId} AND status <> 'issued'
+          AND (SELECT a.id FROM finance.einvoice_attempts a WHERE a.invoice_id = ${invoiceId} ORDER BY a.started_at DESC, a.id DESC LIMIT 1) = ${claimed.attemptId}`);
+      // Chỉ kết quả của lần gửi mới nhất được ghi; hóa đơn đã phát hành không lùi trạng thái.
+      // Hóa đơn thay thế phát hành xong mới đánh dấu hóa đơn bị thay thế.
+      if (status === "issued" && row.kind === "replacement" && row.related_invoice_id)
+        await transaction.execute(sql`
+          UPDATE finance.einvoices SET replaced_by_id = ${invoiceId}, version = version + 1 WHERE id = ${row.related_invoice_id} AND replaced_by_id IS NULL
+            AND EXISTS (SELECT 1 FROM finance.einvoices r WHERE r.id = ${invoiceId} AND r.status = 'issued')`);
     });
   }
 
   // Tác vụ nền: báo hóa đơn quá hạn (chưa phát hành sau ngày làm việc tiếp theo ngày hóa đơn) cho người quản lý hóa đơn của công ty.
   async notifyOverdue(): Promise<number> {
     const today = vietnamDate(new Date());
-    const overdue = await this.database.execute<{ company_id: string; count: number }>(sql`
+    return this.database.transaction(async (transaction) => {
+      const overdue = await transaction.execute<{ company_id: string; count: number }>(sql`
       UPDATE finance.einvoices SET overdue_notified_at = now() WHERE status <> 'issued' AND due_date < ${today}::date AND overdue_notified_at IS NULL
       RETURNING company_id, 1 AS count`);
-    const byCompany = new Map<string, number>();
-    for (const row of overdue.rows) byCompany.set(row.company_id, (byCompany.get(row.company_id) ?? 0) + 1);
-    let sent = 0;
-    for (const [companyId, count] of byCompany) {
-      const recipients = await this.database.execute<{ user_id: string }>(sql`
+      const byCompany = new Map<string, number>();
+      for (const row of overdue.rows) byCompany.set(row.company_id, (byCompany.get(row.company_id) ?? 0) + 1);
+      let sent = 0;
+      for (const [companyId, count] of byCompany) {
+        const recipients = await transaction.execute<{ user_id: string }>(sql`
         SELECT DISTINCT a.user_id FROM core.user_role_assignments a JOIN core.role_permissions rp ON rp.role_id = a.role_id JOIN core.roles r ON r.id = a.role_id AND r.status = 'active'
-        WHERE rp.permission_code = ${einvoicePermissions.manage} AND a.valid_from <= current_date AND (a.valid_to IS NULL OR a.valid_to >= current_date)
+        WHERE rp.permission_code = ${einvoicePermissions.manage} AND a.valid_from <= ${today}::date AND (a.valid_to IS NULL OR a.valid_to >= ${today}::date)
           AND (a.scope_type = 'group' OR (a.scope_type = 'company' AND a.company_id = ${companyId}))`);
-      await notify(
-        this.database,
-        recipients.rows.map((recipient) => ({
-          userId: recipient.user_id,
-          companyId,
-          kind: "einvoice_overdue",
-          title: String(count),
-          link: "/finance/einvoices?overdue=true",
-          payload: { count },
-        })),
-      );
-      sent += recipients.rows.length;
-    }
-    return sent;
+        await notify(
+          transaction,
+          recipients.rows.map((recipient) => ({
+            userId: recipient.user_id,
+            companyId,
+            kind: "einvoice_overdue",
+            title: String(count),
+            link: "/finance/einvoices?overdue=true",
+            payload: { count },
+          })),
+        );
+        sent += recipients.rows.length;
+      }
+      return sent;
+    });
   }
 
   async list(actor: Actor, query: z.output<typeof einvoiceListQuerySchema>): Promise<PageResponse<EinvoiceListItem>> {
@@ -545,17 +567,22 @@ export class EinvoicesService implements OnModuleInit {
     };
   }
 
-  // Gửi lại ngay: hóa đơn lỗi, lỗi cài đặt hoặc đang chờ gửi lại. Chưa phát hành nên lấy lại nhà cung cấp, ký hiệu, thông tin người bán theo cài đặt, công ty hiện tại.
+  // Gửi lại ngay: hóa đơn lỗi, lỗi cài đặt, đang chờ gửi lại hoặc bị cơ quan thuế từ chối.
   async resend(actor: Actor, id: string, version: number): Promise<EinvoiceResponse> {
     await requireFinancePermission(this.permissionService, actor, einvoicePermissions.manage);
     await this.database.transaction(async (transaction) => {
       const row = (
-        await transaction.execute<{ status: EinvoiceStatus; version: number; invoice_date: string; invoice_no: string | null }>(sql`
-        SELECT status, version, invoice_date::text, invoice_no FROM finance.einvoices WHERE id = ${id} AND company_id = ${actor.companyId} FOR UPDATE`)
+        await transaction.execute<{ status: EinvoiceStatus; version: number; invoice_date: string; invoice_no: string | null; last_outcome: string | null; in_flight: boolean }>(sql`
+        SELECT e.status, e.version, e.invoice_date::text, e.invoice_no,
+          (SELECT a.outcome FROM finance.einvoice_attempts a WHERE a.invoice_id = e.id ORDER BY a.started_at DESC, a.id DESC LIMIT 1) AS last_outcome,
+          EXISTS (SELECT 1 FROM finance.einvoice_attempts a WHERE a.invoice_id = e.id AND a.finished_at IS NULL AND a.started_at > now() - interval '10 minutes') AS in_flight
+        FROM finance.einvoices e WHERE e.id = ${id} AND e.company_id = ${actor.companyId} FOR UPDATE`)
       ).rows[0];
       if (!row) throw new ApiError("NOT_FOUND", "notFound");
       if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-      if (!["failed", "setup_error", "retrying"].includes(row.status)) throw new ApiError("BUSINESS_RULE", "einvoiceNotResendable");
+      if (!["failed", "setup_error", "retrying", "rejected"].includes(row.status)) throw new ApiError("BUSINESS_RULE", "einvoiceNotResendable");
+      // Đang gọi nhà cung cấp: không gửi chồng.
+      if (row.in_flight) throw new ApiError("BUSINESS_RULE", "einvoiceSending");
       const settings = await settingsRow(transaction, actor.companyId);
       if (!settings) throw new ApiError("BUSINESS_RULE", "einvoiceNotConfigured");
       const series = await seriesFor(transaction, actor.companyId, Number(row.invoice_date.slice(0, 4)));
@@ -563,15 +590,21 @@ export class EinvoicesService implements OnModuleInit {
       const company = (
         await transaction.execute<{ legal_name: string; tax_code: string | null; address: string | null }>(sql`SELECT legal_name, tax_code, address FROM core.companies WHERE id = ${actor.companyId}`)
       ).rows[0]!;
-      // Đã có số từ nhà cung cấp thì giữ nhà cung cấp, ký hiệu.
-      await transaction.execute(sql`
-        UPDATE finance.einvoices SET status = 'pending', next_attempt_at = now(), last_error = NULL, version = version + 1,
-          provider = CASE WHEN invoice_no IS NULL THEN ${settings.provider} ELSE provider END,
-          series = CASE WHEN invoice_no IS NULL THEN ${series} ELSE series END,
-          with_tax_code = CASE WHEN invoice_no IS NULL THEN ${settings.with_tax_code} ELSE with_tax_code END,
-          template_code = CASE WHEN invoice_no IS NULL THEN ${settings.template_code} ELSE template_code END,
-          seller = CASE WHEN invoice_no IS NULL THEN ${JSON.stringify({ name: company.legal_name, taxCode: company.tax_code, address: company.address })}::jsonb ELSE seller END
-        WHERE id = ${id}`);
+      // Nhà cung cấp có thể đang giữ hóa đơn (đã có số, lần trước lỗi tạm thời hoặc không rõ kết quả): giữ nguyên nội dung, chỉ gửi lại.
+      // Bị cơ quan thuế từ chối: lập lại với mã tham chiếu mới. Còn lại (chưa gửi được, lỗi dữ liệu): lấy cài đặt, thông tin công ty hiện tại.
+      const rejected = row.status === "rejected";
+      const keep = !rejected && (row.invoice_no !== null || row.last_outcome === "unknown" || row.last_outcome === "temporary_error");
+      if (keep) {
+        await transaction.execute(sql`UPDATE finance.einvoices SET status = 'pending', next_attempt_at = now(), last_error = NULL, version = version + 1 WHERE id = ${id}`);
+      } else {
+        await transaction.execute(sql`
+          UPDATE finance.einvoices SET status = 'pending', next_attempt_at = now(), last_error = NULL, version = version + 1,
+            reference_id = CASE WHEN ${rejected} THEN gen_random_uuid() ELSE reference_id END,
+            invoice_no = NULL, tax_authority_code = NULL, provider_transaction_id = NULL,
+            provider = ${settings.provider}, series = ${series}, with_tax_code = ${settings.with_tax_code}, template_code = ${settings.template_code},
+            seller = ${JSON.stringify({ name: company.legal_name, taxCode: company.tax_code, address: company.address })}::jsonb
+          WHERE id = ${id}`);
+      }
       await this.auditService.record({ ...financeAudit(actor, "einvoice"), action: "einvoice.resend", entityId: id, beforeData: { status: row.status } }, transaction);
     });
     await this.process(id);

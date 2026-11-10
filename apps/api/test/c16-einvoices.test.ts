@@ -272,7 +272,9 @@ describe("TIEUCHI_NGHIEMTHU_122, 123: lập khi giao hàng, gửi nền", () => 
     expect((await invoiceOf(temporary.id))!).toMatchObject({ status: "retrying", invoiceNo: null });
     const next = (await pool.query<{ minutes: number }>("SELECT extract(epoch FROM next_attempt_at - now()) / 60 AS minutes FROM finance.einvoices WHERE source_document_id = $1", [temporary.id]))
       .rows[0]!;
-    expect(Number(next.minutes)).toBeGreaterThan(0);
+    // Lần gửi lại đầu sau 1 phút (1, 5, 15, 60 phút).
+    expect(Number(next.minutes)).toBeGreaterThan(0.5);
+    expect(Number(next.minutes)).toBeLessThan(1.5);
     await sendNow();
     expect((await invoiceOf(temporary.id))!).toMatchObject({ status: "issued", invoiceNo: "5" });
 
@@ -305,6 +307,33 @@ describe("TIEUCHI_NGHIEMTHU_122, 123: lập khi giao hàng, gửi nền", () => 
     await sendNow();
     expect((await invoiceOf(broken.id))!).toMatchObject({ status: "issued", invoiceNo: "7" });
     expect((await call(accountant, "post", `/finance/einvoices/${failed.id}/resend`, { version: resent.body.version })).status).toBe(409);
+
+    // Đang gọi nhà cung cấp (lần gửi chưa xong): không gửi lại chồng.
+    await saveSettings({ simulation: "data_error" });
+    const busy = await deliver(order, "1");
+    await sendNow();
+    const busyInvoice = (await invoiceOf(busy.id))!;
+    await pool.query("INSERT INTO finance.einvoice_attempts (invoice_id, operation) VALUES ($1, 'publish')", [busyInvoice.id]);
+    const refusedResend = await call(accountant, "post", `/finance/einvoices/${busyInvoice.id}/resend`, { version: busyInvoice.version });
+    expect(refusedResend.status).toBe(409);
+    expect(refusedResend.body.error.message).toContain("đang được gửi");
+    await pool.query("DELETE FROM finance.einvoice_attempts WHERE invoice_id = $1 AND finished_at IS NULL", [busyInvoice.id]);
+    // Cơ quan thuế từ chối: gửi lại với mã tham chiếu mới, nhận số mới.
+    await saveSettings({ simulation: "rejected" });
+    const rejectedIssue = await deliver(order, "1");
+    await sendNow();
+    const rejected = (await invoiceOf(rejectedIssue.id))!;
+    expect(rejected.status).toBe("rejected");
+    const oldReference = (await pool.query<{ reference_id: string }>("SELECT reference_id FROM finance.einvoices WHERE id = $1", [rejected.id])).rows[0]!.reference_id;
+    await saveSettings({ simulation: "normal" });
+    const reissued = await call(accountant, "post", `/finance/einvoices/${rejected.id}/resend`, { version: rejected.version });
+    expect(reissued.body).toMatchObject({ status: "issued" });
+    expect(reissued.body.invoiceNo).not.toBe(rejected.invoiceNo);
+    expect((await pool.query<{ reference_id: string }>("SELECT reference_id FROM finance.einvoices WHERE id = $1", [rejected.id])).rows[0]!.reference_id).not.toBe(oldReference);
+    // Hóa đơn đã phát hành không bị kết quả cũ ghi đè.
+    const issuedRow = (await invoiceOf(rejectedIssue.id))!;
+    await application.get(EinvoicesService).process(issuedRow.id);
+    expect((await invoiceOf(rejectedIssue.id))!).toMatchObject({ status: "issued", invoiceNo: issuedRow.invoiceNo });
   });
 
   it("KICHBAN_KIEMTHU_227: thiếu ký hiệu của năm thì lỗi cài đặt, khai ký hiệu thì gửi; tắt hoặc trước ngày bắt đầu thì không lập; quá hạn báo kế toán", async () => {
@@ -408,12 +437,19 @@ describe("TIEUCHI_NGHIEMTHU_124, 125: trả hàng, thay thế", () => {
     expect(
       (await call(accountant, "post", `/finance/einvoices/${original.id}/replace`, { buyerName: "Công ty Đúng Tên", buyerTaxCode: "123", reason: "Sai tên", version: original.version })).status,
     ).toBe(400);
+    // Hóa đơn thay thế chưa phát hành được: hóa đơn gốc chưa bị đánh dấu thay thế, được lập lại.
+    await saveSettings({ simulation: "data_error" });
+    const failedReplacement = await call(accountant, "post", `/finance/einvoices/${original.id}/replace`, { buyerName: "Tên tạm", reason: "Sai tên", version: original.version });
+    expect(failedReplacement.body).toMatchObject({ kind: "replacement", status: "failed" });
+    const notYet = (await call(accountant, "get", `/finance/einvoices/${original.id}`)).body;
+    expect(notYet.replaced).toBe(false);
+    await saveSettings({ simulation: "normal" });
     const replaced = await call(accountant, "post", `/finance/einvoices/${original.id}/replace`, {
       buyerName: "Công ty Đúng Tên",
       buyerTaxCode: "0320001601",
       buyerAddress: "1 Đường Số 2",
       reason: "Sai tên người mua",
-      version: original.version,
+      version: notYet.version,
     });
     expect(replaced.status, JSON.stringify(replaced.body)).toBe(201);
     expect(replaced.body).toMatchObject({
@@ -448,7 +484,8 @@ async function startMisa(): Promise<string> {
     request.on("end", () => {
       const path = request.url ?? "";
       misaRequests.push({ method: request.method ?? "", path, authorization: request.headers.authorization, body: raw ? JSON.parse(raw) : null });
-      const index = misaReplies.findIndex((reply) => path.startsWith(reply.path));
+      // Khớp đúng đường dẫn; phản hồi khai kèm tham số thì khớp cả tham số.
+      const index = misaReplies.findIndex((reply) => (reply.path.includes("?") ? path.startsWith(reply.path) : path.split("?")[0] === reply.path));
       const reply =
         index >= 0
           ? misaReplies.splice(index, 1)[0]!
