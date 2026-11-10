@@ -156,3 +156,17 @@
 - Mức quy mô: Lớn (gộp trong CONG_VIEC_03).
 - Rủi ro: lộ khóa bí mật nếu mã hóa sai; giảm thiểu bằng mã hóa AES-256-GCM như khóa TOTP, không trả khóa đầy đủ qua API.
 - Trạng thái: Đã phê duyệt 2026-11-09.
+
+### THAY_DOI_09: Dư nợ thật thay dư nợ tạm tính khi kiểm hạn mức công nợ – 2026-11-10
+- Lý do: QUYTAC_NGHIEPVU_69 dùng dư nợ tạm tính "đến khi có MODULE_06". CONG_VIEC_13 làm công nợ phải thu; người dùng quyết định đổi sang công nợ thật (tài liệu `02`, 2026-11-10).
+- Nội dung thay đổi: QUYTAC_NGHIEPVU_69 được thay bằng QUYTAC_NGHIEPVU_92: dư nợ = số dư công nợ phải thu của khách (trả trước làm giảm) cộng giá trị gồm thuế phần chưa giao của các đơn khác của khách đã xác nhận. Bỏ phần "đã giao trong số ngày được nợ gần nhất" và "trừ hàng trả lại" (đã nằm trong công nợ thật).
+- Thành phần bị ảnh hưởng: tài liệu `07` QUYTAC_NGHIEPVU_69; `10` CHUC_NANG_54 (kiểm ngoại lệ đơn bán); `21` KICHBAN_KIEMTHU_183, 184; `27`.
+- Dữ liệu bị ảnh hưởng: không đổi dữ liệu đơn bán; công nợ của phiếu xuất đã ghi sổ được tính lại khi chạy database migration.
+- API bị ảnh hưởng: API_77 (ngoại lệ vượt hạn mức công nợ khi gửi đơn).
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: khách đã trả tiền thì không còn bị tính vào dư nợ; giao hàng quá số ngày được nợ mà chưa trả vẫn bị tính (trước đây không tính).
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_183, 184 cập nhật dữ liệu theo công nợ thật (sửa kiểm thử đã có, theo phiếu này); kịch bản mới của CONG_VIEC_13.
+- Mức quy mô: Lớn (gộp trong CONG_VIEC_13).
+- Rủi ro: đơn đang chờ duyệt có thể đổi kết quả kiểm ngoại lệ ở lần gửi sau; thấp vì chưa phát hành.
+- Trạng thái: Đã phê duyệt 2026-11-10 (người dùng chọn đổi dư nợ tạm tính sang công nợ thật).
