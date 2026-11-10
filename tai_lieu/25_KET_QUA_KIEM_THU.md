@@ -183,6 +183,22 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_16
+
+- Phạm vi: lát L0 đến L2 (cài đặt hóa đơn điện tử theo công ty; lập hóa đơn khi phiếu xuất giao hàng ghi sổ, kể cả đơn không có khách (THAY_DOI_11) và bán nội bộ; gửi nền qua bộ giả lập, MISA meInvoice; gửi lại, tra trạng thái, báo quá hạn; trả hàng: hóa đơn điều chỉnh giảm, hóa đơn trả hàng của người mua; hóa đơn thay thế); MAN_HINH_54, 55; API_91, 92. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22. MISA meInvoice thử bằng máy chủ giả trong kiểm thử, chưa thử với tài khoản thật.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --prod --audit-level high`; database migration 0013, 0014 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright (Quản trị công ty VCR): cài đặt, giao hàng sinh hóa đơn, tác vụ nền gửi qua bộ giả lập nhận số và mã, chi tiết, tải PDF, thẻ "Chờ xử lý trả hàng", lập hóa đơn điều chỉnh giảm (máy tính và điện thoại 375 điểm ảnh, không cuộn ngang, không có yêu cầu lỗi). Hóa đơn thay thế chưa thử trên trình duyệt (dữ liệu phát triển thiếu tồn kho), có kiểm thử tự động KICHBAN_KIEMTHU_230.
+- Kết quả: 241 đạt / 0 không đạt / 241 kịch bản tự động (30 tệp; phần mới: `c16-einvoices` 8, KICHBAN_KIEMTHU_224 đến 231). KICHBAN_KIEMTHU_232, 233 (thủ công trên trình duyệt) đạt.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_121 đến 125 (bắt buộc) – Đạt. TIEUCHI_NGHIEMTHU_126 (bắt buộc) – Đạt với máy chủ giả MISA; thử với tài khoản thử MISA là việc trước khi phát hành.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod --audit-level high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 51).
+  - C3 phân quyền: Đạt – xem, quản lý, cài đặt hóa đơn điện tử cần phạm vi công ty; cài đặt là quyền nhạy cảm; nhân viên bán hàng nhận 403; 4 ký tự cuối mật khẩu chỉ cho người có quyền cài đặt.
+  - C4 toàn vẹn dữ liệu: Đạt – hóa đơn lập cùng giao dịch ghi sổ; gọi nhà cung cấp ngoài giao dịch, ghi lần gửi trước khi gọi, mã tham chiếu chống lập trùng, tra trạng thái trước khi gửi lại; chỉ kết quả lần gửi mới nhất được ghi; mật khẩu mã hóa AES-256-GCM, không trả về, không ghi nhật ký.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 2 lỗi Cao (gửi lại không tra trạng thái có thể lập trùng; gửi chồng, kết quả cũ ghi đè), 5 mục Trung bình (gửi lại lần đầu sau 5 phút thay vì 1; mã truy cập MISA không đổi khi đổi cài đặt; hóa đơn bị từ chối không xử lý tiếp được; tác vụ hóa đơn chặn tác vụ nền khác; đánh dấu thay thế trước khi hóa đơn thay thế phát hành), 6 mục Thấp; đã sửa cả 7 mục Cao, Trung bình và 2 mục Thấp. Giữ lại (ghi tài liệu 22, đặc tả mục 16): trạng thái gửi cơ quan thuế của MISA chưa ánh xạ nên cơ quan thuế từ chối qua MISA hiện "Chờ cấp mã"; tệp tải lỗi không tự tải lại; ngày làm việc tiếp theo chưa tính ngày nghỉ lễ.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
+- Kết luận: Chờ người dùng nghiệm thu. Trước khi phát hành: đối chiếu tài liệu API MISA chính thức, thử với tài khoản thử MISA (chữ ký số từ xa); kế toán trưởng đối chiếu Nghị định 254/2026, Thông tư 91/2026.
+
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_15
 
 - Phạm vi: lát L0, L1 (báo cáo tình hình tài chính B01-DN theo Thông tư 99/2025, B01a-DNN, B01b-DNN theo Thông tư 133/2016; báo cáo kết quả hoạt động kinh doanh B02-DN, B02-DNN; lập được khi kỳ chưa khóa sổ; số đầu năm, cùng kỳ năm trước; đánh dấu tài khoản chi tiết dài hạn; xuất Excel, PDF); MAN_HINH_53, ô Dài hạn trên MAN_HINH_50; API_90, sửa API_87. Hồi quy: toàn bộ kiểm thử tự động của dự án.
