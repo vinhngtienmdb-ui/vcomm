@@ -248,23 +248,13 @@ describe("TIEUCHI_NGHIEMTHU_77: đối tác nội bộ", () => {
     ).toEqual({ taxCode: "Mã số thuế đã có ở đối tác khác trong tập đoàn." });
     // Đổi tên công ty thì đối tác nội bộ đổi theo.
     await pool.query("UPDATE core.companies SET short_name = 'VComm TM' WHERE id = $1", [trading]);
-    expect(
-      (
-        await retailAdmin.call("get", `/crm/partners/${tradingPartner.id}`, {
-          companyId: retail,
-        })
-      ).body.shortName,
-    ).toBe("VComm Thương mại");
-    await retailAdmin.call("get", "/crm/partners?role=internal", {
-      companyId: retail,
-    });
-    expect(
-      (
-        await retailAdmin.call("get", `/crm/partners/${tradingPartner.id}`, {
-          companyId: retail,
-        })
-      ).body.shortName,
-    ).toBe("VComm TM");
+    // Xem chi tiết cũng đồng bộ ngay; thay đổi do đồng bộ ghi nhật ký, người làm là hệ thống.
+    expect((await retailAdmin.call("get", `/crm/partners/${tradingPartner.id}`, { companyId: retail })).body.shortName).toBe("VComm TM");
+    const synced = await pool.query(
+      "SELECT actor_user_id, before_data->>'shortName' AS before_name, after_data->>'shortName' AS after_name FROM core.audit_events WHERE entity_id = $1 AND action = 'partner.sync' ORDER BY occurred_at DESC LIMIT 1",
+      [tradingPartner.id],
+    );
+    expect(synced.rows).toEqual([{ actor_user_id: null, before_name: "VComm Thương mại", after_name: "VComm TM" }]);
     await pool.query("UPDATE core.companies SET short_name = 'VComm Thương mại' WHERE id = $1", [trading]);
   });
 });
@@ -331,6 +321,10 @@ describe("TIEUCHI_NGHIEMTHU_78: che số Căn cước công dân", () => {
     expect(detail.body.canViewIdentity).toBe(true);
     const identity = await retailAdmin.call("get", `/crm/partners/${created.body.id}/identity`, { companyId: retail });
     expect(identity.body).toEqual({ citizenId: "079090012345" });
+    // Đối tác không có số Căn cước công dân: không ghi nhật ký xem.
+    const organizationId = (await pool.query<{ id: string }>("SELECT id FROM crm.partners WHERE citizen_id IS NULL LIMIT 1")).rows[0]!.id;
+    expect((await retailAdmin.call("get", `/crm/partners/${organizationId}/identity`, { companyId: retail })).body).toEqual({ citizenId: null });
+    expect((await pool.query("SELECT 1 FROM core.audit_events WHERE entity_id = $1 AND action = 'partner.view_identity'", [organizationId])).rows).toEqual([]);
     // Tra số Căn cước công dân chỉ dành cho người thêm, sửa đối tác.
     expect((await keeper.call("get", "/crm/partners/lookup?citizenId=079090012345", { companyId: retail })).status).toBe(403);
     expect((await retailAdmin.call("get", "/crm/partners/lookup?citizenId=079090012345", { companyId: retail })).body.partner.id).toBe(created.body.id);
@@ -459,6 +453,11 @@ describe("TIEUCHI_NGHIEMTHU_79: hồ sơ đối tác của công ty", () => {
         })
       ).body.data.map((item: { id: string }) => item.id),
     ).toEqual([id]);
+
+    // Hạn mức công nợ theo tiền tệ công ty; người không có quyền quản lý hồ sơ đối tác không thấy hạn mức.
+    expect(saved.body.profile).toMatchObject({ currency: "VND", creditLimitHidden: false });
+    const fromKeeper = await keeper.call("get", `/crm/partners/${id}`, { companyId: retail });
+    expect(fromKeeper.body.profile).toMatchObject({ isCustomer: true, creditLimit: null, creditLimitHidden: true });
 
     // Công ty khác không thấy hồ sơ của công ty A.
     const fromTrading = await tradingPartnerManager.call("get", `/crm/partners/${id}`, { companyId: trading });

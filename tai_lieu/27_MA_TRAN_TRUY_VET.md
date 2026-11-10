@@ -142,7 +142,7 @@
 - Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_30 → CHUC_NANG_46, CHUC_NANG_47; YCAU_NGHIEPVU_31 → CHUC_NANG_48)
 - Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_56 đến QUYTAC_NGHIEPVU_60); vế "đối tác ngừng giao dịch không chọn được trên chứng từ mới" của QUYTAC_NGHIEPVU_57 chờ MODULE_04, MODULE_05 (chưa có chứng từ chọn đối tác)
 - Chức năng chưa có tiêu chí nghiệm thu: Không có
-- Chức năng cần giao diện nhưng chưa có màn hình: Không có (CHUC_NANG_47 chạy khi đọc danh sách, hiện ở MAN_HINH_36, MAN_HINH_37)
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có (CHUC_NANG_47 chạy khi khởi động API và khi đọc danh sách, chi tiết, hiện ở MAN_HINH_36, MAN_HINH_37)
 - Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_75, TIEUCHI_NGHIEMTHU_76 → KICHBAN_KIEMTHU_160, KICHBAN_KIEMTHU_161; TIEUCHI_NGHIEMTHU_77 → KICHBAN_KIEMTHU_162; TIEUCHI_NGHIEMTHU_78 → KICHBAN_KIEMTHU_163; TIEUCHI_NGHIEMTHU_79 → KICHBAN_KIEMTHU_164)
 - Kịch bản kiểm thử chưa có kiểm thử tự động: Không có; giao diện MAN_HINH_36, MAN_HINH_37 chưa có kiểm thử tự động (đã thử trên trình duyệt)
 - Kịch bản chưa chạy hoặc kết quả Không đạt: Kiểm thử tự động đạt ngày 2026-11-10 (191/191); chưa ghi kết quả CONG_VIEC_06 vào tài liệu `25`; chưa nghiệm thu

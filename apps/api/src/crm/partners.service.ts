@@ -1,5 +1,5 @@
 // Đối tác dùng chung tập đoàn, hồ sơ đối tác của công ty (CHUC_NANG_46 đến 48; QUYTAC_NGHIEPVU_56 đến 60; API_71, API_72).
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
 import type {
   PageResponse,
   partnerListQuerySchema,
@@ -64,7 +64,7 @@ const withoutIdentity = (input: PartnerInput) => ({
 });
 
 @Injectable()
-export class PartnersService {
+export class PartnersService implements OnApplicationBootstrap {
   private readonly logger = new Logger(PartnersService.name);
 
   constructor(
@@ -73,12 +73,28 @@ export class PartnersService {
     private readonly auditService: AuditService,
   ) {}
 
+  // Đồng bộ đối tác nội bộ khi khởi động; lỗi chỉ ghi log, lần đọc danh mục sau đồng bộ lại.
+  async onApplicationBootstrap(): Promise<void> {
+    await this.syncInternalPartners().catch((error: unknown) => this.logger.warn(`Chưa đồng bộ được đối tác nội bộ khi khởi động: ${String(error)}`));
+  }
+
   // Mỗi công ty con đang hoạt động là một đối tác nội bộ; đối tác bên ngoài trùng mã số thuế được gắn với công ty (QUYTAC_NGHIEPVU_58).
   // Công ty con ngừng hoạt động thì đối tác nội bộ ngừng giao dịch.
   async syncInternalPartners(): Promise<void> {
-    await this.database.execute(sql`
-      UPDATE crm.partners p SET status = 'inactive', updated_at = now() FROM core.companies c
-      WHERE p.company_id = c.id AND c.status <> 'active' AND p.status = 'active'`);
+    const stopped = await this.database.execute<{ id: string }>(sql`
+      UPDATE crm.partners p SET status = 'inactive', version = p.version + 1, updated_at = now() FROM core.companies c
+      WHERE p.company_id = c.id AND c.status <> 'active' AND p.status = 'active' RETURNING p.id`);
+    for (const row of stopped.rows) {
+      await this.auditService.record({
+        actorUserId: null,
+        appCode: "crm",
+        entityType: "partner",
+        action: "partner.sync",
+        entityId: row.id,
+        beforeData: { status: "active" },
+        afterData: { status: "inactive" },
+      });
+    }
     const companies = await this.database.execute<{
       id: string;
       legal_name: string;
@@ -96,27 +112,72 @@ export class PartnersService {
     }
   }
 
+  // Mỗi thay đổi do đồng bộ ghi nhật ký thao tác kèm dữ liệu trước, sau, người làm là hệ thống (QUYTAC_NGHIEPVU_57).
   private async syncCompany(company: { id: string; legal_name: string; short_name: string; tax_code: string | null; address: string | null }): Promise<void> {
+    const after = {
+      kind: "organization",
+      name: company.legal_name,
+      shortName: company.short_name,
+      taxCode: company.tax_code,
+      address: company.address,
+      internalCompanyId: company.id,
+      status: "active",
+    };
     const search = searchText(company.legal_name, company.short_name, company.tax_code);
-    const linked = await this.database.execute(sql`
-      UPDATE crm.partners SET name = ${company.legal_name}, short_name = ${company.short_name}, tax_code = ${company.tax_code}, address = ${company.address},
-        search_text = ${search}, status = 'active', updated_at = now()
-      WHERE company_id = ${company.id}
-        AND (name, short_name, tax_code, address, status) IS DISTINCT FROM (${company.legal_name}, ${company.short_name}, ${company.tax_code}, ${company.address}, 'active')
-      RETURNING id`);
-    if (linked.rows.length > 0) return;
-    if ((await this.database.execute(sql`SELECT 1 FROM crm.partners WHERE company_id = ${company.id}`)).rows.length > 0) return;
-    if (company.tax_code) {
-      const byTaxCode = await this.database.execute(sql`
-        UPDATE crm.partners SET company_id = ${company.id}, kind = 'organization', citizen_id = NULL, name = ${company.legal_name}, short_name = ${company.short_name},
-          address = ${company.address}, search_text = ${search}, status = 'active', updated_at = now()
-        WHERE tax_code = ${company.tax_code} AND company_id IS NULL RETURNING id`);
-      if (byTaxCode.rows.length > 0) return;
+    const existing = (
+      await this.database.execute<{
+        id: string;
+        kind: string;
+        name: string;
+        short_name: string | null;
+        tax_code: string | null;
+        citizen_id: string | null;
+        address: string | null;
+        company_id: string | null;
+        status: string;
+      }>(sql`
+      SELECT id, kind, name, short_name, tax_code, citizen_id, address, company_id, status FROM crm.partners
+      WHERE company_id = ${company.id} OR (${company.tax_code}::text IS NOT NULL AND tax_code = ${company.tax_code} AND company_id IS NULL)
+      ORDER BY company_id NULLS LAST LIMIT 1`)
+    ).rows[0];
+    if (!existing) {
+      await this.database.transaction(async (transaction) => {
+        const created = await transaction.execute<{ id: string }>(sql`
+          INSERT INTO crm.partners (kind, name, short_name, tax_code, address, company_id, search_text)
+          VALUES ('organization', ${company.legal_name}, ${company.short_name}, ${company.tax_code}, ${company.address}, ${company.id}, ${search})
+          ON CONFLICT DO NOTHING RETURNING id`);
+        if (created.rows[0])
+          await this.auditService.record({ actorUserId: null, appCode: "crm", entityType: "partner", action: "partner.sync", entityId: created.rows[0].id, afterData: after }, transaction);
+      });
+      return;
     }
-    await this.database.execute(sql`
-      INSERT INTO crm.partners (kind, name, short_name, tax_code, address, company_id, search_text)
-      VALUES ('organization', ${company.legal_name}, ${company.short_name}, ${company.tax_code}, ${company.address}, ${company.id}, ${search})
-      ON CONFLICT DO NOTHING`);
+    const unchanged =
+      existing.company_id === company.id &&
+      existing.kind === "organization" &&
+      existing.name === company.legal_name &&
+      existing.short_name === company.short_name &&
+      existing.tax_code === company.tax_code &&
+      existing.address === company.address &&
+      existing.status === "active";
+    if (unchanged) return;
+    // Đối tác bên ngoài trùng mã số thuế công ty con được gắn thành đối tác nội bộ (QUYTAC_NGHIEPVU_58).
+    await this.database.transaction(async (transaction) => {
+      await transaction.execute(sql`
+        UPDATE crm.partners SET company_id = ${company.id}, kind = 'organization', citizen_id = NULL, name = ${company.legal_name}, short_name = ${company.short_name},
+          tax_code = ${company.tax_code}, address = ${company.address}, search_text = ${search}, status = 'active', version = version + 1, updated_at = now()
+        WHERE id = ${existing.id}`);
+      const before = {
+        kind: existing.kind,
+        name: existing.name,
+        shortName: existing.short_name,
+        taxCode: existing.tax_code,
+        citizenId: existing.citizen_id ? `***${existing.citizen_id.slice(-3)}` : null,
+        address: existing.address,
+        internalCompanyId: existing.company_id,
+        status: existing.status,
+      };
+      await this.auditService.record({ actorUserId: null, appCode: "crm", entityType: "partner", action: "partner.sync", entityId: existing.id, beforeData: before, afterData: after }, transaction);
+    });
   }
 
   async list(actor: Actor, query: z.output<typeof partnerListQuerySchema>): Promise<PageResponse<PartnerListItem>> {
@@ -147,6 +208,7 @@ export class PartnersService {
 
   async detail(actor: Actor, id: string): Promise<PartnerResponse> {
     const granted = await this.require(actor, crmPermissions.view);
+    await this.syncInternalPartners();
     const row = (
       await this.database.execute<PartnerRow>(sql`
       SELECT p.*, pr.is_customer, pr.is_supplier FROM crm.partners p LEFT JOIN crm.partner_profiles pr ON pr.partner_id = p.id AND pr.company_id = ${actor.companyId}
@@ -187,7 +249,7 @@ export class PartnersService {
         branch: item.branch,
         isDefault: item.is_default,
       })),
-      profile: await this.profile(actor.companyId, id),
+      profile: await this.profile(actor.companyId, id, granted.has(crmPermissions.manageProfile)),
       version: row.version,
       canManage: granted.has(crmPermissions.manage) && row.company_id === null,
       canViewIdentity: granted.has(crmPermissions.viewIdentity) && row.citizen_id !== null,
@@ -201,6 +263,7 @@ export class PartnersService {
     // Tra theo số Căn cước công dân chỉ dành cho người thêm, sửa đối tác, tránh dò tìm danh tính (QUYTAC_NGHIEPVU_59).
     if (citizenId && !granted.has(crmPermissions.manage)) throw new ApiError("FORBIDDEN", "forbidden");
     if (!taxCode && !citizenId) return { partner: null };
+    await this.syncInternalPartners();
     const row = (
       await this.database.execute<{
         id: string;
@@ -299,6 +362,7 @@ export class PartnersService {
     await this.require(actor, crmPermissions.viewIdentity);
     const row = (await this.database.execute<{ citizen_id: string | null }>(sql`SELECT citizen_id FROM crm.partners WHERE id = ${id}`)).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
+    if (row.citizen_id === null) return { citizenId: null };
     await this.auditService.record({
       ...crmAudit(actor),
       action: "partner.view_identity",
@@ -345,7 +409,7 @@ export class PartnersService {
       if (member.rows.length === 0) fields.ownerUserId = "invalidValue";
     }
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
-    const before = await this.profile(actor.companyId, id);
+    const before = await this.profile(actor.companyId, id, true);
     if ((before?.version ?? 0) !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     await this.database.transaction(async (transaction) => {
       const saved = await transaction.execute(sql`
@@ -372,7 +436,8 @@ export class PartnersService {
     return this.detail(actor, id);
   }
 
-  private async profile(companyId: string, partnerId: string): Promise<PartnerProfileResponse | null> {
+  // Hạn mức công nợ là thông tin nhạy cảm: chỉ người có quyền quản lý hồ sơ đối tác thấy (tài liệu 22).
+  private async profile(companyId: string, partnerId: string, showCreditLimit: boolean): Promise<PartnerProfileResponse | null> {
     const row = (
       await this.database.execute<{
         is_customer: boolean;
@@ -386,10 +451,12 @@ export class PartnersService {
         note: string | null;
         status: "active" | "inactive";
         version: number;
+        currency: string;
       }>(sql`
       SELECT pr.is_customer, pr.is_supplier, pr.payment_term_days, pr.credit_limit::text, pr.customer_group_id, g.name AS customer_group_name, pr.owner_user_id,
-        u.full_name AS owner_user_name, pr.note, pr.status, pr.version
-      FROM crm.partner_profiles pr LEFT JOIN catalog.customer_groups g ON g.id = pr.customer_group_id LEFT JOIN core.users u ON u.id = pr.owner_user_id
+        u.full_name AS owner_user_name, pr.note, pr.status, pr.version, c.base_currency AS currency
+      FROM crm.partner_profiles pr JOIN core.companies c ON c.id = pr.company_id LEFT JOIN catalog.customer_groups g ON g.id = pr.customer_group_id
+        LEFT JOIN core.users u ON u.id = pr.owner_user_id
       WHERE pr.company_id = ${companyId} AND pr.partner_id = ${partnerId}`)
     ).rows[0];
     if (!row) return null;
@@ -398,7 +465,9 @@ export class PartnersService {
       isCustomer: row.is_customer,
       isSupplier: row.is_supplier,
       paymentTermDays: row.payment_term_days,
-      creditLimit: row.credit_limit === null ? null : trimDecimal(row.credit_limit),
+      creditLimit: !showCreditLimit || row.credit_limit === null ? null : trimDecimal(row.credit_limit),
+      creditLimitHidden: !showCreditLimit,
+      currency: row.currency,
       customerGroupId: row.customer_group_id,
       customerGroupName: row.customer_group_name,
       ownerUserId: row.owner_user_id,

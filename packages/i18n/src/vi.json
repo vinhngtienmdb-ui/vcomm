@@ -812,7 +812,8 @@
     "partner_deactivate": "Ngừng giao dịch đối tác",
     "partner_activate": "Giao dịch lại đối tác",
     "partner_view_identity": "Xem số Căn cước công dân",
-    "partner_profile_save": "Lưu hồ sơ đối tác"
+    "partner_profile_save": "Lưu hồ sơ đối tác",
+    "partner_sync": "Đồng bộ đối tác nội bộ"
   },
   "notifications": {
     "title": "Thông báo",

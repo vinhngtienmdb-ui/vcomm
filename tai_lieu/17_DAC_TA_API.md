@@ -421,7 +421,7 @@ Gửi lên (`POST /crm/partners`):
 - `search` tìm không dấu trong tên, tên ngắn, mã số thuế, điện thoại; khớp đúng mã đối tác (không phân biệt hoa thường), đúng mã số thuế, đúng điện thoại. `role` lọc theo hồ sơ của công ty đang làm việc; `internal` lọc đối tác nội bộ.
 - Kiểm tra: chuỗi trống của trường tùy chọn coi như `null`; `taxCode` dạng `^[0-9]{10}(-[0-9]{3})?$`; `citizenId` dạng `^[0-9]{12}$`; `email` đúng định dạng; `accountNo` 4 đến 30 ký tự chữ, số, `-`; trường lạ bị từ chối.
 - `POST` (`201`) sinh `code` dạng `DT000001`; nhật ký `partner.create` (`afterData`, số Căn cước công dân chỉ còn 3 số cuối). `PATCH` (`200`): `version` phải bằng phiên bản hiện tại; thay toàn bộ `contacts`, `bankAccounts`; cá nhân gửi `citizenId` trống thì giữ số đã lưu; nhật ký `partner.update` có `beforeData` (chi tiết trước khi sửa, số đã che), `afterData`. `deactivate`, `activate` (`201`): nhật ký `partner.deactivate`, `partner.activate`.
-- `identity` (`200`): trả `{ "citizenId": "079090012345" }` (`null` khi đối tác không có số); mỗi lần gọi ghi nhật ký `partner.view_identity` (không ghi số vào nhật ký).
+- `identity` (`200`): trả `{ "citizenId": "079090012345" }` (`null` khi đối tác không có số); mỗi lần gọi trả số ghi nhật ký `partner.view_identity` (không ghi số vào nhật ký); đối tác không có số thì không ghi nhật ký.
 - `lookup`: trả đối tác có đúng `taxCode` hoặc `citizenId`; không gửi tham số nào thì `{ "partner": null }`. Gửi `citizenId` mà không có `crm.partner.manage` trả `403` (tránh dò tìm danh tính).
 - Lỗi: `400` tại `taxCode` "Vui lòng nhập thông tin này.", "Giá trị không hợp lệ.", "Mã số thuế đã có ở đối tác khác trong tập đoàn."; tại `citizenId` "Vui lòng nhập thông tin này.", "Giá trị không hợp lệ." (sai định dạng, hoặc gửi kèm cho tổ chức, hộ kinh doanh), "Số Căn cước công dân đã có ở đối tác khác trong tập đoàn." (cả khi hai người lưu đồng thời, theo ràng buộc duy nhất bị vi phạm); `403`; `404` khi không có đối tác; `409 BUSINESS_RULE` "Đối tác nội bộ lấy thông tin từ công ty, sửa ở màn hình Công ty." (sửa, ngừng giao dịch, giao dịch lại đối tác nội bộ); `409 CONFLICT_VERSION`.
 
@@ -430,7 +430,7 @@ Gửi lên (`PUT /crm/partners/{id}/profile`):
 ```json
 { "isCustomer": true, "isSupplier": false, "paymentTermDays": 30, "creditLimit": "50000000", "customerGroupId": "01J...", "ownerUserId": "01J...", "note": "Giao buổi sáng", "version": 0 }
 ```
-- Hồ sơ: `{ companyId, isCustomer, isSupplier, paymentTermDays, creditLimit, customerGroupId, customerGroupName, ownerUserId, ownerUserName, note, status, version }`; `creditLimit` trả dạng chuỗi bỏ số 0 thừa, `null` là không giới hạn. Chi tiết đối tác đọc từ công ty khác trả `profile: null`.
+- Hồ sơ: `{ companyId, isCustomer, isSupplier, paymentTermDays, creditLimit, creditLimitHidden, currency, customerGroupId, customerGroupName, ownerUserId, ownerUserName, note, status, version }`; `creditLimit` trả dạng chuỗi bỏ số 0 thừa, `null` là không giới hạn; người xem không có quyền `crm.profile.manage` nhận `creditLimit: null`, `creditLimitHidden: true`. `currency` là tiền tệ của công ty (`core.companies.base_currency`). Chi tiết đối tác đọc từ công ty khác trả `profile: null`.
 - `PUT` (`200`) lập mới (khi `version` 0) hoặc ghi đè hồ sơ của công ty đang làm việc; nhật ký `partner_profile.save` (loại đối tượng `partner_profile`) có `beforeData`, `afterData`.
 - `partner-profile-options`: nhóm khách hàng đang dùng của công ty đang làm việc; nhân viên đang làm ở công ty, sắp theo tên.
 - Lỗi: `400` tại `isCustomer` "Giá trị không hợp lệ." (không chọn khách hàng, nhà cung cấp); tại `paymentTermDays`, `creditLimit` (âm, quá 4 chữ số lẻ); tại `customerGroupId` "Giá trị không hợp lệ." (nhóm khách hàng của công ty khác hoặc ngừng dùng); tại `ownerUserId` "Giá trị không hợp lệ." (không làm ở công ty); tại `partnerId` "Không lập hồ sơ đối tác cho chính công ty đang chọn."; `403`; `404`; `409 CONFLICT_VERSION`.
@@ -451,4 +451,4 @@ MODULE_02 phần Sản phẩm (CONG_VIEC_04) không phát sự kiện mới; min
 
 MODULE_03 Kho (CONG_VIEC_05) không phát sự kiện mới; mini app Kho nghe `core.approval.completed` của loại chứng từ `inventory.receipt_other`, `inventory.issue_other`, `inventory.adjustment`, `inventory.transfer` để ghi sổ hoặc nhả hàng giữ (API_65, API_66). Thông báo trong ứng dụng loại `inventory_stock_alert` ghi qua `core.notifications`.
 
-MODULE_07 phần tối thiểu (CONG_VIEC_06) không phát, không nghe sự kiện; đối tác nội bộ đồng bộ khi đọc danh sách đối tác (API_71).
+MODULE_07 phần tối thiểu (CONG_VIEC_06) không phát, không nghe sự kiện; đối tác nội bộ đồng bộ khi khởi động API và khi đọc danh sách, chi tiết, kiểm trùng (API_71); mỗi thay đổi do đồng bộ ghi nhật ký `partner.sync`, người làm là hệ thống.

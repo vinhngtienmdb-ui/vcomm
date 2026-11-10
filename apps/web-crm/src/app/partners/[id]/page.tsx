@@ -214,7 +214,7 @@ function Profile({ partner, reload }: { partner: PartnerResponse; reload: () => 
             </span>
           </Row>
           <Row label={t("paymentTermDays")}>{t("days", { count: profile.paymentTermDays })}</Row>
-          <Row label={t("creditLimit")}>{profile.creditLimit === null ? t("unlimited") : formatMoney(profile.creditLimit, "VND")}</Row>
+          <Row label={t("creditLimit")}>{profile.creditLimitHidden ? common("none") : profile.creditLimit === null ? t("unlimited") : formatMoney(profile.creditLimit, profile.currency)}</Row>
           <Row label={t("customerGroup")}>{profile.customerGroupName ?? common("none")}</Row>
           <Row label={t("owner")}>{profile.ownerUserName ?? common("none")}</Row>
           <Row label={t("note")}>{profile.note ?? common("none")}</Row>

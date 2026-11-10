@@ -1947,7 +1947,11 @@ export interface PartnerProfileResponse {
   isCustomer: boolean;
   isSupplier: boolean;
   paymentTermDays: number;
+  // null: không giới hạn, hoặc bị ẩn khi creditLimitHidden (người xem không có quyền quản lý hồ sơ đối tác).
   creditLimit: string | null;
+  creditLimitHidden: boolean;
+  // Tiền tệ của công ty (core.companies.base_currency).
+  currency: string;
   customerGroupId: string | null;
   customerGroupName: string | null;
   ownerUserId: string | null;

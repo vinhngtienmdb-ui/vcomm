@@ -812,7 +812,8 @@
     "partner_deactivate": "Stop trading with partner",
     "partner_activate": "Resume trading with partner",
     "partner_view_identity": "View citizen ID",
-    "partner_profile_save": "Save partner profile"
+    "partner_profile_save": "Save partner profile",
+    "partner_sync": "Sync internal partner"
   },
   "notifications": {
     "title": "Notifications",
