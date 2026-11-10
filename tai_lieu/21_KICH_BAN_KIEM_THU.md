@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ): đúng, sai, giá trị biên, từng vai trò.
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp): đúng, sai, giá trị biên, từng vai trò.
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_216 của kế toán tổng hợp (210 đến 214 tự động; 215, 216 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2487,5 +2487,96 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`); Quản trị công ty
 - Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_207 sau bước 8.
 - Các bước: (1) Mở trình duyệt chiều rộng 375 điểm ảnh; mở "Công nợ", đổi thẻ, mở một khách. (2) Mở "Phiếu thu chi", bấm "Lập phiếu", chọn khách có nhiều chứng từ còn nợ, nhập số trừ. (3) Mở chi tiết một phiếu bị từ chối do không ghi sổ được. (4) Mở "Quỹ", thêm quỹ ngân hàng; mở chi tiết quỹ xem sổ quỹ.
 - Kết quả mong đợi: Bước 1: bảng chuyển thành thẻ, nhãn cột hiện đủ; thẻ phía, lọc xuống dòng; không cuộn ngang. Bước 2: ô biểu mẫu xếp dọc; mỗi chứng từ một thẻ có ô số trừ nhập được; nút "Chia lại từ cũ nhất" bấm được. Bước 3: khối lý do hiện đủ, nút xếp gọn. Bước 4: ô ngân hàng xếp dọc; sổ quỹ thành thẻ; không cuộn ngang.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Lát: L0, L1
+
+## MODULE_06 Tài chính – Kế toán (phần 2: Kế toán tổng hợp, CONG_VIEC_14)
+
+Dữ liệu chung: công ty VCR (`testIds.retailCompany`) chế độ Thông tư 99/2025, tiền tệ đồng Việt Nam; Quản trị công ty VCR `quantri.vcr@vcomm.test`, Quản trị tập đoàn `quantri.tapdoan@vcomm.test`, người duyệt `phuc.le@vcomm.test`; tạo trong tệp kiểm thử: Kế toán trưởng `ketoantruong.kt@vcomm.test` (`chief_accountant`, gán ở công ty), Nhân viên bán hàng `banhang.kt@vcomm.test` (`salesperson`, gán ở công ty), Thủ kho `thukho.kt@vcomm.test` (`warehouse_keeper`, gán ở chi nhánh Bình Dương). Kho "Kho kế toán" `KTW` có phiếu nhập tồn đầu kỳ 1.000 cái "Hàng công nợ A" giá vốn 8.000 (ghi sổ trước khi khởi tạo kế toán), thuế suất 10%; bảng giá `CHUNG` gồm thuế 11.000 một cái; kênh `BAN_LE`. Đối tác "Khách công nợ" (khách hàng, được nợ 30 ngày), "Nhà cung cấp công nợ" (nhà cung cấp, được nợ 15 ngày). Công ty không có chính sách duyệt đơn bán, đơn mua. Các kịch bản tự động chạy nối tiếp trong một tệp, kịch bản sau dùng số liệu của kịch bản trước. Đường dẫn API có tiền tố `/api/v1`. Bút toán ghi dạng "số hiệu tài khoản Nợ / Có".
+
+## CHUC_NANG_69, CHUC_NANG_70: Khởi tạo, tài khoản, định khoản (CONG_VIEC_14)
+
+### KICHBAN_KIEMTHU_210: Khởi tạo theo Thông tư 99/2025 nạp tài khoản, tạo bút toán cho chứng từ đã ghi sổ; tài khoản chi tiết đúng quy tắc số hiệu, nhận định khoản của tài khoản cha; đổi chế độ khi có bút toán bị từ chối; không có quyền không khởi tạo được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_111
+- Chức năng: CHUC_NANG_69, CHUC_NANG_70
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán trưởng; Nhân viên bán hàng; Quản trị tập đoàn
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; công ty chưa khởi tạo kế toán.
+- Các bước: (1) Kế toán trưởng xem trạng thái khởi tạo. (2) Nhân viên bán hàng khởi tạo. (3) Kế toán trưởng khởi tạo; xem danh sách tài khoản. (4) Đọc bút toán của phiếu nhập tồn đầu kỳ. (5) Quản trị tập đoàn đổi chế độ kế toán của VCR sang Thông tư 133. (6) Kế toán trưởng khởi tạo lần nữa. (7) Thêm tài khoản chi tiết dưới 131 số hiệu `1411`; số hiệu `131`. (8) Thêm `1311` "Phải thu khách hàng trong nước"; xem định khoản. (9) Ngừng dùng tài khoản 632. (10) Đổi tên `1311`, giữ đang dùng.
+- Kết quả mong đợi: Bước 1: `initialized: false`, `canSetup: true`. Bước 2: `403`. Bước 3: `201`, `initialized: true`, `regime` `TT99_2025`, `lockedThrough: null`; 184 tài khoản. Bước 4: 156 Nợ 8.000.000 / 3388 Có 8.000.000. Bước 5: lỗi tại `accountingRegime` "Công ty đã có bút toán, không đổi được chế độ kế toán.". Bước 6: `409`. Bước 7: `400` tại `code` cả hai. Bước 8: `201`; 131 `postable: false`; vai trò `receivable` dùng 1311. Bước 9: `400` tại `status`. Bước 10: `200`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c14-ledger.test.ts`
+- Lát: L0
+
+## CHUC_NANG_71: Bút toán tự sinh (CONG_VIEC_14)
+
+### KICHBAN_KIEMTHU_211: Xuất giao hàng, nhận hàng trả lại, nhập mua, trả hàng nhà cung cấp, xuất làm quà tặng, phiếu thu sinh bút toán cân đúng tài khoản; đổi định khoản áp dụng cho chứng từ sau
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_112
+- Chức năng: CHUC_NANG_70, CHUC_NANG_71
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Nhân viên bán hàng; Thủ kho; Quản trị công ty VCR; Kế toán trưởng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_210 (phải thu dùng 1311).
+- Các bước: (1) Nhân viên bán hàng lập, gửi đơn 10 cái cho "Khách công nợ"; Thủ kho giao 4 cái; đọc bút toán và đối tác của dòng phải thu. (2) Thủ kho nhận hàng trả lại 1 cái. (3) Quản trị lập đơn mua 10 cái giá 8.000 chưa thuế, thuế 10%; Thủ kho nhập đủ 10. (4) Thủ kho trả nhà cung cấp 2 cái. (5) Quản trị lập, gửi phiếu xuất khác lý do quà tặng 1 cái. (6) Kế toán trưởng thêm quỹ tiền mặt `TM`, lập, gửi phiếu thu tiền khách 20.000. (7) Thêm tài khoản chi tiết 5111 dưới 511; Thủ kho giao thêm 1 cái của đơn bước 1. (8) Đọc lại bút toán của phiếu xuất bước 1.
+- Kết quả mong đợi: Bước 1: 1311 Nợ 44.000; 511 Có 40.000; 33311 Có 4.000; 632 Nợ 32.000; 156 Có 32.000; dòng 1311 gắn "Khách công nợ". Bước 2: 521 Nợ 10.000; 33311 Nợ 1.000; 1311 Có 11.000; 156 Nợ 8.000; 632 Có 8.000. Bước 3: 156 Nợ 80.000; 1331 Nợ 8.000; 331 Có 88.000. Bước 4: 331 Nợ 17.600; 156 Có 16.000; 1331 Có 1.600. Bước 5: 6418 Nợ 8.000 / 156 Có 8.000. Bước 6: phiếu `posted`; 111 Nợ 20.000 / 1311 Có 20.000. Bước 7: dòng doanh thu 5111 Có 10.000. Bước 8: dòng doanh thu vẫn 511 Có 40.000.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c14-ledger.test.ts`
+- Lát: L0
+
+## CHUC_NANG_72: Phiếu kế toán (CONG_VIEC_14)
+
+### KICHBAN_KIEMTHU_212: Lệch Nợ Có, dòng ghi cả hai bên, số lẻ bị từ chối; chưa có chính sách thì ghi sổ ngay, cấp số; có chính sách thì chờ duyệt; đã ghi sổ không sửa; không có quyền không lập được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_113
+- Chức năng: CHUC_NANG_72
+- Loại: Đúng, sai, giá trị biên, phân quyền, luồng duyệt
+- Vai trò thực hiện: Kế toán trưởng; Nhân viên bán hàng; Quản trị công ty VCR; người duyệt `phuc.le@vcomm.test`
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_211; chưa có chính sách duyệt `accounting.journal`.
+- Các bước: (1) Kế toán trưởng lập phiếu ngày 2026-10-01: 111 Nợ 100 / 41111 Có 90. (2) Lập phiếu dòng 111 Nợ 100, Có 100 và dòng 41111 Nợ 0, Có 0. (3) Lập phiếu 111 Nợ 100,5 / 41111 Có 100,5. (4) Nhân viên bán hàng lập phiếu. (5) Kế toán trưởng lập, gửi phiếu "Số dư đầu kỳ" ngày 2026-10-01: 111 Nợ 5.000.000 / 41111 Có 5.000.000. (6) Sửa phiếu bước 5. (7) Quản trị tạo chính sách duyệt `accounting.journal` một cấp từ 0 đồng, người duyệt `phuc.le@vcomm.test`; Kế toán trưởng lập, gửi phiếu ngày 2026-10-20: 6428 Nợ 100.000 / 111 Có 100.000. (8) Người duyệt duyệt; xem phiếu. (9) Lập, gửi phiếu ngày 2026-10-25: 111 Nợ 300.000 / 711 Có 300.000; người duyệt duyệt. (10) Lọc danh sách nguồn phiếu kế toán, trạng thái đã ghi sổ.
+- Kết quả mong đợi: Bước 1: `400` tại `lines` "Tổng Nợ phải bằng tổng Có.". Bước 2: `400` tại `lines.0.debit`, `lines.1.debit`. Bước 3: `400` tại `lines.0.debit`, `lines.1.debit` (đồng Việt Nam không có số lẻ). Bước 4: `403`. Bước 5: `posted`, số bắt đầu `PKT`, tổng 5.000.000, `canEdit: false`. Bước 6: `409`. Bước 7: `pending`, `canWithdraw: true`. Bước 8: `posted`. Bước 10: 3 phiếu.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c14-ledger.test.ts`
+- Lát: L1
+
+## CHUC_NANG_73: Khóa sổ, sổ sách (CONG_VIEC_14)
+
+### KICHBAN_KIEMTHU_213: Khóa tháng 10 kết chuyển chi phí, thu nhập sang 911, lãi sang 4212; chứng từ ngày trong kỳ khóa bị từ chối; tháng chưa kết thúc không khóa; mở lại xóa kết chuyển
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_114
+- Chức năng: CHUC_NANG_71, CHUC_NANG_73
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Kế toán trưởng; Nhân viên bán hàng; Quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_212; tháng 10/2026 đã kết thúc; bút toán tháng 10: phiếu số dư đầu kỳ, chi phí 6428 100.000, thu nhập 711 300.000; các chứng từ khác ngày hôm nay (tháng 11).
+- Các bước: (1) Kế toán trưởng xem kỳ. (2) Nhân viên bán hàng khóa tháng 2026-10. (3) Kế toán trưởng khóa tháng 2026-10; xem bút toán kết chuyển. (4) Lập phiếu kế toán ngày 2026-10-31. (5) Quản trị lập, gửi phiếu nhập khác ngày 2026-10-15. (6) Khóa tháng 2026-11. (7) Mở lại; xem bút toán kết chuyển. (8) Khóa lại tháng 2026-10.
+- Kết quả mong đợi: Bước 1: `lockedThrough: null`, `nextMonth` `2026-10`, `canClose: true`, `canReopen: false`. Bước 2: `403`. Bước 3: `201`, `lockedThrough` `2026-10-31`, `nextMonth` `2026-11`, `canClose: false`, `canReopen: true`; bút toán kết chuyển: 911 Nợ 100.000 / 6428 Có 100.000; 711 Nợ 300.000 / 911 Có 300.000; 911 Nợ 200.000 / 4212 Có 200.000. Bước 4: "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ.". Bước 5: `409`. Bước 6: `409` (tháng chưa kết thúc). Bước 7: `lockedThrough: null`, `nextMonth` `2026-10`; không còn bút toán kết chuyển. Bước 8: `lockedThrough` `2026-10-31`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c14-ledger.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_214: Bảng cân đối số phát sinh cân ở mọi cột, cộng dồn lên tài khoản cha; sổ cái tiền mặt đúng số dư lũy kế, tài khoản đối ứng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_115
+- Chức năng: CHUC_NANG_73
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Kế toán trưởng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_213 (tháng 10 đã khóa).
+- Các bước: (1) Xem bảng cân đối số phát sinh từ 2026-11-01 đến hôm nay. (2) Xem sổ cái tài khoản 111 từ 2026-10-01 đến hôm nay.
+- Kết quả mong đợi: Bước 1: tổng dư đầu Nợ bằng dư đầu Có, phát sinh Nợ bằng phát sinh Có, dư cuối Nợ bằng dư cuối Có; 111 dư đầu Nợ 5.200.000; 421 (cấp 0) và 4212 (cấp 1) dư đầu Có 200.000; 131 phát sinh Nợ 55.000 (cộng từ 1311). Bước 2: số dư đầu 0; phát sinh Nợ 5.320.000, Có 100.000; số dư cuối 5.220.000; bốn dòng với tài khoản đối ứng và số dư: 41111 5.000.000; 6428 4.900.000; 711 5.200.000; 1311 5.220.000.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c14-ledger.test.ts`
+- Lát: L1
+
+## Kịch bản thủ công của kế toán tổng hợp (CONG_VIEC_14)
+
+### KICHBAN_KIEMTHU_215: Hệ thống tài khoản, bút toán, sổ sách trên trình duyệt (máy tính)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_116
+- Chức năng: CHUC_NANG_69 đến CHUC_NANG_73
+- Loại: Đúng, sai, giao diện, phân quyền
+- Vai trò thực hiện: Kế toán trưởng; Kế toán; Nhân viên bán hàng; người duyệt
+- Điều kiện ban đầu và dữ liệu: Dữ liệu như phần dữ liệu chung (tạo trên môi trường phát triển); công ty chưa khởi tạo kế toán, đã có phiếu kho, phiếu thu chi ghi sổ trong tháng trước; mini app Nền tảng, Tài chính – Kế toán, Kho, backend đang chạy; có chính sách duyệt `accounting.journal`.
+- Các bước: (1) Kế toán trưởng mở mini app Tài chính – Kế toán, menu "Hệ thống tài khoản". (2) Bấm "Khởi tạo kế toán". (3) Thẻ "Tài khoản": bấm "Thêm chi tiết" trên 131, nhập số hiệu `141`, lưu; sửa thành `1311`, lưu. (4) Thẻ "Định khoản mặc định": đổi tài khoản của "Chi phí hàng xuất làm quà tặng". (5) Menu "Bút toán": lọc nguồn "Phiếu kho"; mở một bút toán, bấm "Mở chứng từ gốc". (6) Bấm "Lập phiếu kế toán": nhập hai dòng lệch, xem "Chênh lệch", lưu; sửa cho cân, lưu, bấm "Gửi". (7) Người duyệt duyệt ở Hộp duyệt; mở lại phiếu. (8) Menu "Sổ sách": thẻ "Bảng cân đối số phát sinh" tháng trước; thẻ "Sổ cái" chọn 111, bấm một số bút toán. (9) Thẻ "Khóa sổ": bấm "Khóa sổ tháng …", xác nhận; lập phiếu kế toán ngày trong tháng vừa khóa. (10) Bấm "Mở lại tháng …", xác nhận. (11) Kế toán mở "Hệ thống tài khoản", "Sổ sách"; Nhân viên bán hàng mở `/finance`.
+- Kết quả mong đợi: Bước 1: "Công ty chưa khởi tạo kế toán. Chế độ kế toán của công ty: Thông tư 99/2025/TT-BTC.", nút "Khởi tạo kế toán". Bước 2: "Đã khởi tạo kế toán."; dòng chế độ; cây tài khoản thụt lề theo cấp. Bước 3: lỗi số hiệu dưới ô; "Đã lưu tài khoản."; 131 đổi sang "Tổng hợp". Bước 4: "Đã đổi định khoản.". Bước 5: bút toán của phiếu kho đã có; mở đúng phiếu kho. Bước 6: "Tổng Nợ … · Tổng Có …", "Chênh lệch …"; lỗi "Tổng Nợ phải bằng tổng Có."; "Đã lưu phiếu kế toán."; "Đã gửi duyệt.". Bước 7: "Đã ghi sổ", số `PKT…`. Bước 8: dòng "Tổng cộng" hai bên bằng nhau; sổ cái có số dư đầu kỳ, số dư lũy kế kèm "Nợ" hoặc "Có", tài khoản đối ứng; số bút toán mở MAN_HINH_51. Bước 9: hộp xác nhận; "Đã khóa sổ."; "Đã khóa sổ đến" đổi; lỗi "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ.". Bước 10: "Đã mở lại sổ.". Bước 11: Kế toán không thấy "Khởi tạo kế toán", "Thêm chi tiết", nút khóa sổ, ô chọn định khoản chỉ hiện chữ; Nhân viên bán hàng thấy "Bạn không có quyền xem trang này".
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Lát: L0, L1
+
+### KICHBAN_KIEMTHU_216: Hệ thống tài khoản, bút toán, sổ sách trên điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_116
+- Chức năng: CHUC_NANG_69 đến CHUC_NANG_73
+- Loại: Giao diện
+- Vai trò thực hiện: Kế toán trưởng; người duyệt
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_215 sau bước 8.
+- Các bước: (1) Mở trình duyệt chiều rộng 375 điểm ảnh; mở "Hệ thống tài khoản", đổi thẻ, bấm "Thêm chi tiết". (2) Mở "Bút toán", đổi lọc; bấm "Lập phiếu kế toán", thêm dòng, nhập số. (3) Người duyệt từ chối một phiếu kế toán; mở chi tiết phiếu đó. (4) Mở "Sổ sách": bảng cân đối, sổ cái, thẻ "Khóa sổ".
+- Kết quả mong đợi: Bước 1: bảng chuyển thành thẻ, nhãn cột hiện đủ; ô biểu mẫu xếp dọc; không cuộn ngang. Bước 2: lọc xuống dòng; mỗi dòng phiếu một thẻ, ô Nợ, Có nhập được; tổng, chênh lệch hiện đủ. Bước 3: nhãn "Bị từ chối", nút "Sửa", "Gửi" xếp gọn. Bước 4: bảng cân đối, sổ cái thành thẻ; nút khóa sổ, hộp xác nhận vừa màn hình; không cuộn ngang.
 - Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
 - Lát: L0, L1

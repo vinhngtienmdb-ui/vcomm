@@ -1,13 +1,13 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 2.0
+- Phiên bản: 2.1
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp)
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13). Các module sau bổ sung vào cùng tài liệu.
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14). Các module sau bổ sung vào cùng tài liệu.
 
 ## 1. Dữ liệu nhạy cảm
 
@@ -42,6 +42,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Chứng từ đối ứng nội bộ, giá nội bộ, biên bản chênh lệch giao nhận nội bộ (CONG_VIEC_09) | Kinh doanh, tài chính | Schema `sales`, `purchasing` theo công ty; bảng `inventory.internal_discrepancies` thuộc công ty bán | Mỗi công ty chỉ thấy chứng từ của mình; chứng từ bên kia chỉ hiện tên công ty, số, trạng thái; giá trị biên bản như giá vốn (`inventory.cost.view`) |
 | Chương trình khuyến mãi: ngân sách, đã dùng, điều kiện (CONG_VIEC_12) | Kinh doanh | Bảng `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups` theo công ty; đã dùng tính từ `sales.order_lines` | `sales.promotion.view` hoặc `sales.promotion.manage` trong công ty; không đánh dấu nhạy cảm |
 | Quỹ, số dư quỹ, công nợ phải thu, phải trả, phiếu thu chi (CONG_VIEC_13) | Tài chính | Schema `finance` theo công ty (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`) | Người có quyền `finance.*` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; công ty khác nhận `404`; quyền không đánh dấu nhạy cảm. Số tài khoản ngân hàng của quỹ hiện cho người xem quỹ |
+| Hệ thống tài khoản, bút toán, sổ cái, bảng cân đối số phát sinh, kỳ khóa sổ (CONG_VIEC_14) | Tài chính | Schema `accounting` theo công ty (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`) | Người có quyền `finance.ledger.*`, `finance.journal.manage`, `finance.period.close` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; công ty khác nhận `404`. Bút toán lộ doanh thu, giá vốn, lãi lỗ cho người có `finance.ledger.view` (Kế toán có sẵn) |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
 
@@ -68,6 +69,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | API giao dịch nội bộ (API_80 đến API_82) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, kho, dòng, vị trí là UUID; lý do từ chối 1 đến 500 ký tự; số nhận từ 0, tối đa 12 chữ số phần nguyên, 4 chữ số lẻ; tối đa 200 dòng, 5.000 serial mỗi dòng (100 ký tự mỗi serial); lý do thiếu, ghi chú tối đa 500 ký tự; `action` chỉ `return`, `write_off`; phiên bản số nguyên dương | Có |
 | API khuyến mãi (API_83) | API | Lược đồ zod `savePromotionSchema`, `stopPromotionSchema`, `promotionListQuerySchema` trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, mặt hàng, kênh, nhóm khách là UUID; tên 1 đến 200 ký tự, ghi chú tối đa 1.000, lý do dừng 1 đến 500; tối đa 500 mặt hàng, 50 kênh, 50 nhóm khách; phần trăm lớn hơn 0 đến 100; số tiền, số lượng dạng chuỗi số dương; máy chủ kiểm mặt hàng, kênh (không phải Nội bộ), nhóm khách thuộc công ty, đang dùng | Có |
 | API công nợ (API_84 đến API_86) | API | Lược đồ zod `saveFundSchema`, `fundLedgerQuerySchema`, `debtSummaryQuerySchema`, `debtPartnerQuerySchema`, `openDebtQuerySchema`, `financePartnerQuerySchema`, `saveOpeningDebtSchema`, `paymentListQuerySchema`, `savePaymentSchema`, `versionSchema` trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, đối tác, quỹ, khoản công nợ là UUID; tiền dạng chuỗi tối đa 12 chữ số phần nguyên, 4 chữ số lẻ; mã quỹ 20, tên 200, số chứng từ 50, ghi chú, nội dung 500 ký tự; tối đa 500 dòng chứng từ mỗi phiếu; từ khóa tối đa 100 ký tự; máy chủ kiểm đối tác có hồ sơ đúng phía, quỹ, khoản công nợ thuộc công ty và đối tác; không nhận tệp tải lên | Có, `finance.access` hoặc `finance.debt.view` và quyền chi tiết |
+| API kế toán tổng hợp (API_87 đến API_89) | API | Lược đồ zod `saveAccountSchema`, `updateAccountSchema`, `updatePostingRuleSchema`, `journalListQuerySchema`, `saveJournalSchema`, `versionSchema`, `closePeriodSchema`, `ledgerRangeQuerySchema` trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, tài khoản, đối tác là UUID; vai trò định khoản so với danh mục cố định (khác thì `404`); số hiệu 3 đến 20 chữ số hoặc chữ cái, tên 200, diễn giải 500, diễn giải dòng 300 ký tự; 2 đến 200 dòng mỗi phiếu; tiền dạng chuỗi tối đa 12 chữ số phần nguyên, 4 chữ số lẻ, máy chủ từ chối số lẻ hơn đơn vị tiền tệ; tháng `YYYY-MM`; máy chủ kiểm tài khoản, đối tác thuộc công ty; không nhận tệp tải lên | Có, `finance.access` hoặc `finance.ledger.view` và quyền chi tiết |
 | Gửi tin qua eSMS.vn (mã OTP, Zalo ZNS, kiểm tra kết nối) | Tích hợp | Chỉ đọc mã kết quả, mã tin, lỗi; gửi lỗi không chặn nghiệp vụ | Không áp dụng (hệ thống gọi ra) |
 
 ## 3. Xác thực và phiên đăng nhập
@@ -374,6 +376,42 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
 - Đã sửa: lập, sửa phiếu thu chi, số dư đầu kỳ chỉ nhận đối tác có hồ sơ đang giao dịch và đối tác chưa ngừng giao dịch (báo lỗi "chưa có hồ sơ đang dùng ở công ty").
 - Ghi nhận, chưa sửa (nghiệp vụ): ngày phiếu không giới hạn; phiếu chi ghi ngày trong quá khứ chỉ kiểm số dư quỹ hiện tại, nên sổ quỹ theo ngày có thể hiện số dư lũy kế âm tại một ngày trước đó.
 - Ghi nhận: bốn quyền tài chính không đánh dấu nhạy cảm; dữ liệu chỉ lộ trong công ty, theo quyền gán.
+
+### Ma trận phân quyền kế toán tổng hợp MODULE_06 phần 2 (CONG_VIEC_14)
+
+Thêm quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage` (không nhạy cảm), `finance.period.close` (nhạy cảm), chỉ dùng được khi gán ở phạm vi tập đoàn hoặc công ty; vai trò Kế toán trưởng; Kế toán thêm `finance.ledger.view`, `finance.journal.manage`; loại chứng từ `accounting.journal` (cần duyệt) (tài liệu `08` mục 16, 17).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng | Thủ kho | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|---|---|
+| CHUC_NANG_69 Khởi tạo, thêm, sửa tài khoản | Được | Trong công ty mình | Được | Không | Không | Không | Không |
+| CHUC_NANG_69 Xem tài khoản | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+| CHUC_NANG_70 Đổi định khoản mặc định | Được | Trong công ty mình | Được | Không | Không | Không | Không |
+| CHUC_NANG_71 Bút toán tự sinh khi ghi sổ chứng từ | Được | Trong công ty mình | Được (phiếu thu chi) | Được (phiếu thu chi) | Không | Kho trong phạm vi gán | Không |
+| CHUC_NANG_72 Xem bút toán; lập, sửa, gửi phiếu kế toán | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+| CHUC_NANG_72 Rút phiếu kế toán chờ duyệt | Được | Trong công ty mình | Được | Được | Không | Không | Có (người lập) |
+| CHUC_NANG_72 Duyệt phiếu kế toán | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Không |
+| CHUC_NANG_73 Xem sổ cái, bảng cân đối, kỳ | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+| CHUC_NANG_73 Khóa sổ, mở lại sổ | Được | Trong công ty mình | Được | Không | Không | Không | Không |
+| CHUC_NANG_01 Đổi chế độ kế toán của công ty | Được | Không | Không | Không | Không | Không | Không |
+
+Ranh giới và kiểm soát riêng:
+- Tách dữ liệu công ty: tài khoản, định khoản, bút toán, cài đặt đọc, ghi theo `company_id` của công ty đang làm việc; tài khoản cha, tài khoản dòng phiếu, tài khoản định khoản phải thuộc công ty; đối tác dòng phiếu phải có hồ sơ ở công ty; sổ cái tài khoản của công ty khác trả `404`.
+- Quyền kiểm bằng `requireFinancePermission` (bao trùm công ty): quyền gán ở chi nhánh không mở được sổ kế toán.
+- Số tiền bút toán tự sinh tính phía máy chủ từ đơn bán, đơn mua, giá trị ghi sổ kho, phiếu thu chi; người dùng chỉ nhập số tiền ở phiếu kế toán, phiếu này đi luồng duyệt (trừ khi công ty chưa có chính sách). Tổng Nợ bằng tổng Có kiểm ở máy chủ; cơ sở dữ liệu kiểm mỗi dòng một bên.
+- Khóa sổ, mở lại là quyền nhạy cảm; khóa dòng `accounting.settings` (`FOR UPDATE`) chạy tuần tự với ghi sổ chứng từ (`FOR SHARE`), nên không có chứng từ lọt vào kỳ vừa khóa.
+- Bút toán tự sinh, kết chuyển không sửa, không gửi qua API_88 (chỉ `manual`). Bút toán kết chuyển chỉ bị xóa khi mở lại.
+- Nhật ký thao tác: `ledger.setup`; `account.create`, `.update`; `posting_rule.update`; `journal.create`, `.update`, `.submit`, `.withdraw`; `period.close`, `period.reopen`.
+
+Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
+- Không có mục rủi ro cao còn mở. Đã kiểm: mọi endpoint kiểm quyền và giới hạn công ty; mọi truy vấn dùng tham số của Drizzle, không ghép chuỗi SQL; vai trò trong đường dẫn so với danh mục; không có tệp tải lên.
+- Ghi nhận, chưa sửa (rủi ro nghiệp vụ, Trung bình): danh mục tài khoản Thông tư 99/2025/TT-BTC trong `apps/api/src/accounting/charts.ts` lập từ bản chép Phụ lục II, đã đối chiếu số lượng và các điểm thay đổi nhưng chưa so với bản gốc trên Công báo. Sai số hiệu, tên hoặc tính chất làm sai sổ kế toán và báo cáo tài chính (CONG_VIEC_15). Phải được kế toán trưởng so với bản gốc trước khi phát hành.
+- Ghi nhận, chưa sửa (Thấp): công nợ (CONG_VIEC_13) lưu 4 chữ số lẻ, bút toán làm tròn theo đơn vị tiền tệ công ty; với đơn có tiền dòng lẻ (chiết khấu phần trăm, giao nhiều lần) số dư công nợ của đối tác có thể lệch phần lẻ với số dư tài khoản 131, 331 trên sổ cái. Đề xuất: làm tròn công nợ cùng cách với bút toán.
+- Ghi nhận, chưa sửa (Thấp): bảng cân đối, sổ cái cộng tiền bằng số thực của JavaScript (như sổ quỹ, CONG_VIEC_13); sổ cái giới hạn 10.000 dòng, khoảng ngày có nhiều dòng hơn thì số dư cuối kỳ và tổng phát sinh chỉ tính trên 10.000 dòng đầu mà không báo. Bảng cân đối không giới hạn khoảng ngày.
+- Ghi nhận, chưa sửa (Thấp): đổi chế độ kế toán chạy cùng lúc với ghi sổ chứng từ đầu tiên của công ty có thể trả lỗi máy chủ thay vì thông báo (kiểm "chưa có bút toán" trước khi xóa tài khoản không khóa dòng cài đặt); khóa ngoại chặn xóa tài khoản đã có dòng bút toán nên dữ liệu không sai.
+- Ghi nhận, chưa sửa (Thấp): khởi tạo kế toán tạo bút toán cho mọi chứng từ cũ trong một giao dịch, khóa dòng công ty suốt thời gian chạy; công ty nhiều chứng từ có thể làm ghi sổ chờ lâu.
+- Ghi nhận, chưa sửa (Thấp): ghi sổ phiếu kế toán sau khi duyệt và việc chuyển phiếu sang "Bị từ chối" do kỳ đã khóa chạy trong xử lý sự kiện, không ghi dòng nhật ký thao tác riêng (như phiếu chi).
+- Ghi nhận: phiếu chuyển kho không sinh bút toán nên ghi sổ được cả khi ngày thuộc kỳ đã khóa.
+- Ghi nhận, chưa sửa (Trung bình, nghiệp vụ): phiếu kho cần duyệt (nhập khác, xuất khác, điều chỉnh) duyệt xong khi ngày phiếu đã thuộc kỳ khóa thì xử lý sự kiện duyệt báo lỗi, phiếu giữ "Chờ duyệt" và sự kiện được thử lại, không chuyển "Bị từ chối" như phiếu chi, phiếu kế toán. Đề xuất: kiểm kỳ khi gửi phiếu và chuyển phiếu sang "Bị từ chối" khi duyệt xong không ghi sổ được.
 
 ## 5. Quản lý khóa bí mật
 
