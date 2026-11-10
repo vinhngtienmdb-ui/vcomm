@@ -81,6 +81,7 @@
   - C6 OWASP Top 10: A01 kiểm quyền theo công ty trong từng service; A04 hai người lưu cùng lúc trùng mã, trùng bảng giá nhận lỗi kiểm tra, không lỗi hệ thống.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát lát L4 tìm 10 điểm, sửa 9, giữ 1 (kích thước giao diện ghi thẳng như các trang L2, chưa có biến trong tài liệu `15`); đối chiếu tài liệu với mã sửa thêm 3 lỗi.
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+- Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 39.
 - Kết luận: Người dùng nghiệm thu; hợp nhất vào `main` (commit `65a7975`), kiểm thử lại 173/173 đạt trên commit hợp nhất; CI đạt.
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_05
@@ -98,6 +99,7 @@
   - C6 OWASP Top 10: A01 kiểm quyền tại kho trong từng service; A04 serial đang vận chuyển không bị phiếu khác lấy.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát toàn nhánh tìm 10 điểm, sửa 9, giữ 1 (lô và serial không bật cùng lúc nên không xảy ra); đối chiếu tài liệu với mã sửa thêm 6 lỗi.
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+- Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 39.
 - Kết luận: Người dùng nghiệm thu; hợp nhất vào `main` (commit `9c3d7c8`), kiểm thử lại 186/186 đạt trên commit hợp nhất; CI đạt.
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_06
@@ -115,3 +117,10 @@
   - C6 OWASP Top 10: A01 kiểm quyền trong từng service; A04 hai người lưu cùng lúc trùng mã số thuế, số Căn cước công dân nhận lỗi đúng trường, không lỗi hệ thống.
 - Tự rà soát mã và dọn dẹp: Đạt. Tự rà soát sửa 3 điểm (tra theo số Căn cước công dân, lỗi trùng đồng thời, đồng bộ gặp mã số thuế trùng); đối chiếu tài liệu với mã sửa thêm 5 điểm (ẩn hạn mức công nợ, tiền tệ công ty, đồng bộ khi khởi động và khi xem chi tiết, nhật ký đồng bộ, nhật ký xem số khi không có số).
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+- Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 39.
+
+## Lỗi phát hiện 2026-11-10
+
+| Mã lỗi | Mô tả | Mức độ | Kịch bản | Quyết định xử lý | Trạng thái |
+|---|---|---|---|---|---|
+| LOI_03 | KICHBAN_KIEMTHU_149 (CONG_VIEC_05) lỗi không đều trên CI: hai phiếu xuất đồng thời tranh món hàng cuối, phiếu thua nhận `400` khi bị chặn ở bước kiểm tra trước, nhận `409` khi bị chặn trong khóa giữ hàng. Dữ liệu đúng trong cả hai trường hợp (chỉ một phiếu giữ hàng); kiểm thử chờ cố định `409` nên thất bại theo thời điểm, kéo theo KICHBAN_KIEMTHU_152 | Thấp | KICHBAN_KIEMTHU_149 | Thống nhất trả `400` "Không đủ hàng khả dụng (một phần đang được giữ)." gắn vào dòng hàng, sửa kiểm thử chờ `400` (người dùng quyết định 2026-11-10) | Mở |

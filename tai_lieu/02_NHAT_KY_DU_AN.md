@@ -9,6 +9,8 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_06: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 39 (theo tài liệu 18, AI không tự hợp nhất vào `main`).
+- LOI_03: Kiểm thử đồng thời của Kho lỗi không đều trên CI (phiếu thua nhận `400` hoặc `409` tùy thời điểm). Người dùng quyết định thống nhất trả `400` gắn vào dòng hàng.
 - CONG_VIEC_06: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_06-doi-tac` (pull request số 39). L0: database migration 0005 schema `crm`; mini app `apps/web-crm` đường dẫn `/crm`; đối tác dùng chung tập đoàn (tổ chức, hộ kinh doanh, cá nhân), người liên hệ, tài khoản ngân hàng; kiểm trùng mã số thuế, số Căn cước công dân; công ty con là đối tác nội bộ tự đồng bộ; che số Căn cước công dân, xem đầy đủ cần quyền và ghi nhật ký; vai trò Quản lý đối tác. L1: hồ sơ đối tác của từng công ty (khách hàng, nhà cung cấp, số ngày được nợ, hạn mức công nợ theo tiền tệ công ty, nhóm khách, nhân viên phụ trách). Kiểm thử 191/191 đạt. Không thêm thư viện. Cập nhật tài liệu 06, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 27, mục lục trên nhánh. Tự rà soát mã sửa 3 điểm; đối chiếu tài liệu với mã sửa thêm 5 điểm.
 - AI tự quyết trong phạm vi đặc tả (CONG_VIEC_06): kiểm mã số thuế theo định dạng, không kiểm số kiểm tra; sửa cá nhân để trống số Căn cước công dân là giữ số cũ; tra trùng theo số Căn cước công dân chỉ dành cho người có quyền quản lý đối tác; hạn mức công nợ ẩn với người không có quyền quản lý hồ sơ đối tác; công ty mẹ không là đối tác nội bộ.
 
