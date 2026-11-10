@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 1.9
+- Phiên bản: 2.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -13,6 +13,7 @@
 - Cập nhật CONG_VIEC_08 (2026-11-10): thêm MODULE_05 Bán hàng phần 1, MAN_HINH_42, MAN_HINH_43 (mục 17 đến mục 19); sửa MAN_HINH_31, MAN_HINH_32
 - Cập nhật CONG_VIEC_09 (2026-11-10): thêm MODULE_05 phần 2 Giao dịch nội bộ, MAN_HINH_44 (mục 20 đến mục 22); sửa MAN_HINH_31, MAN_HINH_32, MAN_HINH_40, MAN_HINH_41, MAN_HINH_43
 - Cập nhật CONG_VIEC_12 (2026-11-10): thêm MODULE_05 phần 3 Khuyến mãi, MAN_HINH_45 (mục 23 đến mục 25); sửa MAN_HINH_42 (menu), MAN_HINH_43 (khuyến mãi trên dòng đơn)
+- Cập nhật CONG_VIEC_13 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 1, MAN_HINH_46 đến MAN_HINH_49 (mục 26 đến mục 28)
 
 ## MODULE_01 Nền tảng
 
@@ -1120,3 +1121,115 @@ flowchart TD
 - Quyền hiển thị: mục menu, màn hình với `sales.promotion.view`; "Lập chương trình" với `sales.promotion.manage`; "Sửa", "Gửi duyệt", "Rút", "Dừng chương trình" theo `canEdit`, `canSubmit`, `canWithdraw`, `canStop` của API.
 - Responsive: bảng chuyển thành thẻ; ô theo loại xếp lưới tự co, xếp dọc trên điện thoại.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_12 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 1: Công nợ phải thu, phải trả, CONG_VIEC_13)
+
+Mini app `apps/web-finance`, tên "Tài chính – Kế toán", đường dẫn gốc `/finance` (mini app Nền tảng chuyển tiếp `/finance` sang ứng dụng này theo `FINANCE_ORIGIN`, cùng tên miền và cookie phiên). Khung trang, thành phần dùng chung lấy từ `packages/ui`; quy ước chung như mục 3 của MODULE_01. Mở `/finance` thì chuyển tới mục menu đầu tiên có quyền; không có mục nào thì hiện "Bạn không có quyền xem trang này". Công nợ tự phát sinh khi ghi sổ phiếu kho ở mini app Kho (MAN_HINH_32), không có thao tác mới ở đó.
+
+## 26. Danh sách màn hình và điều hướng (MODULE_06 phần 1)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_46 | Quỹ: danh sách, thêm, chi tiết, sửa, sổ quỹ | CHUC_NANG_65 | Quản trị tập đoàn, quản trị công ty, Kế toán | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_13 mục 14) |
+| MAN_HINH_47 | Công nợ: phải thu, phải trả theo đối tác, tuổi nợ | CHUC_NANG_66 | Như MAN_HINH_46 | Menu Tài chính – Kế toán | Không lập |
+| MAN_HINH_48 | Chi tiết công nợ đối tác (kèm biểu mẫu số dư đầu kỳ) | CHUC_NANG_66 | Như MAN_HINH_46 | MAN_HINH_47; liên kết đối tác ở MAN_HINH_49 | Không lập |
+| MAN_HINH_49 | Phiếu thu, phiếu chi: danh sách, lập, chi tiết, sửa | CHUC_NANG_67 | Như MAN_HINH_46; người duyệt phiếu chi xem qua Hộp duyệt | Menu Tài chính – Kế toán; nút "Lập phiếu thu", "Lập phiếu chi" ở MAN_HINH_48; số phiếu ở sổ quỹ MAN_HINH_46 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Tài chính – Kế toán| M{{Menu Tài chính – Kế toán}}
+    M --> C[MAN_HINH_47 Công nợ]
+    M --> P[MAN_HINH_49 Phiếu thu chi]
+    M --> F[MAN_HINH_46 Quỹ]
+    C -->|Tên đối tác| D[MAN_HINH_48 Chi tiết công nợ đối tác]
+    D -->|Danh sách công nợ| C
+    D -->|Lập phiếu thu, Lập phiếu chi| N[MAN_HINH_49 Lập phiếu]
+    P -->|Lập phiếu| N
+    N -->|lưu xong| PD[MAN_HINH_49 Chi tiết phiếu]
+    P -->|Số phiếu| PD
+    PD -->|Sửa| PD
+    PD -->|Tên đối tác| D
+    F -->|Mã quỹ| FD[MAN_HINH_46 Chi tiết quỹ, sổ quỹ]
+    FD -->|Số phiếu| PD
+    PD -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+    C -->|Lịch sử| H
+    F -->|Lịch sử| H
+    A[MAN_HINH_07 Hộp duyệt] -->|Phiếu chi| PD
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (cả ba với `finance.debt.view`).
+- Duyệt phiếu chi ở Hộp duyệt (MAN_HINH_07) như chứng từ khác, loại "Phiếu chi".
+- Danh sách và chi tiết phiếu có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng (`fund`, `debt_item`, `payment`).
+
+## 27. Bảng vai trò – màn hình (MODULE_06 phần 1)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán | Nhân viên bán hàng | Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_46 Quỹ | Xem, Thêm, Sửa, Ngừng dùng, Sổ quỹ | Xem, Thêm, Sửa, Ngừng dùng, Sổ quỹ | Không | Không |
+| MAN_HINH_47 Công nợ | Xem | Xem | Không | Không |
+| MAN_HINH_48 Chi tiết công nợ đối tác | Xem, Nhập, Xóa số dư đầu kỳ, Lập phiếu | Xem, Nhập, Xóa số dư đầu kỳ, Lập phiếu | Không | Không |
+| MAN_HINH_49 Phiếu thu chi | Xem, Lập, Sửa, Gửi, Rút (của mình) | Xem, Lập, Sửa, Gửi, Rút (của mình) | Không | Không |
+
+## 28. Đặc tả từng màn hình (MODULE_06 phần 1)
+
+### MAN_HINH_46: Quỹ
+- Mục đích: Quản lý quỹ tiền mặt, tài khoản ngân hàng; xem số dư, sổ quỹ.
+- Chức năng thực hiện: CHUC_NANG_65
+- Đường dẫn: `/finance/funds` (danh sách, biểu mẫu thêm trên cùng trang); `/finance/funds/[id]` (chi tiết, "Sửa" mở biểu mẫu trên cùng trang, sổ quỹ).
+- Bố cục: danh sách: tiêu đề "Quỹ" kèm "Lịch sử", nút "Thêm quỹ"; bảng "Mã quỹ" (liên kết sang chi tiết), "Tên quỹ" (ngân hàng kèm tên ngân hàng, số tài khoản), "Loại" (Tiền mặt, Ngân hàng), "Số dư hiện tại", "Trạng thái" (Đang dùng, Ngừng dùng). Biểu mẫu: "Mã quỹ" *, "Tên quỹ" *, "Loại" *, "Số dư đầu" (khóa khi quỹ đã có phiếu ghi sổ); loại ngân hàng thêm "Tên ngân hàng" *, "Số tài khoản" *, "Chủ tài khoản"; khi sửa có ô chọn "Đang dùng"; nút "Lưu", "Hủy". Chi tiết: liên kết "Danh sách quỹ"; "<mã> · <tên>", nhãn trạng thái, nút "Sửa"; thẻ: loại, thông tin ngân hàng, "Số dư đầu", "Số dư hiện tại"; khối "Sổ quỹ": "Từ ngày" (mặc định đầu tháng), "Đến ngày" (mặc định hôm nay), "Số dư đầu kỳ", bảng "Ngày", "Số phiếu" (liên kết sang MAN_HINH_49), "Đối tác", "Thu", "Chi", "Số dư", "Số dư cuối kỳ".
+- Dữ liệu hiển thị: quỹ của công ty đang chọn, đang dùng trước, theo mã; sổ quỹ chỉ phiếu đã ghi sổ.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_84.
+- Thao tác: lưu quỹ mới tải lại danh sách; sửa xong tải lại quỹ và sổ quỹ; đổi khoảng ngày tải lại sổ quỹ.
+- Trạng thái: rỗng ("Chưa có quỹ.", "Không có phiếu trong khoảng ngày.").
+- Thông báo: "Đã lưu quỹ."; lỗi dưới đúng ô (mã trùng, thiếu thông tin ngân hàng, số dư đầu khi đã có phiếu).
+- Quyền hiển thị: mục menu với `finance.debt.view`; "Thêm quỹ" với `finance.fund.manage`; "Sửa" theo `canManage` của API.
+- Responsive: bảng chuyển thành thẻ; ô biểu mẫu xếp lưới tự co, xếp dọc trên điện thoại.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_13 mục 14)
+
+### MAN_HINH_47: Công nợ
+- Mục đích: Xem đối tác còn nợ, trả trước, quá hạn theo phải thu, phải trả.
+- Chức năng thực hiện: CHUC_NANG_66
+- Đường dẫn: `/finance/debts` (tham số `side=payable` mở thẻ Phải trả).
+- Bố cục: tiêu đề "Công nợ" kèm "Lịch sử"; hai thẻ "Phải thu", "Phải trả"; lọc: ô "Tìm theo tên, mã đối tác", ô chọn "Chỉ đối tác quá hạn"; bảng "Đối tác" (mã · tên, liên kết sang MAN_HINH_48), "Số dư", "Trả trước", "Chưa đến hạn", "Quá hạn 1–30 ngày", "Quá hạn 31–60 ngày", "Quá hạn 61–90 ngày", "Quá hạn trên 90 ngày" (số quá hạn lớn hơn 0 tô màu lỗi); dòng "Tổng cộng".
+- Dữ liệu hiển thị: đối tác của công ty đang chọn có khoản còn số còn lại ở phía đang chọn, số dư giảm dần, tối đa 1.000.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BoLoc, BangDuLieu, ONhap, TrangThaiRong (tài liệu `15`).
+- API: API_85.
+- Thao tác: đổi thẻ, gõ tìm, đổi ô chọn thì tải lại danh sách.
+- Trạng thái: rỗng ("Không có đối tác còn công nợ.").
+- Thông báo: không có.
+- Quyền hiển thị: mục menu, màn hình với `finance.debt.view`.
+- Responsive: bảng chuyển thành thẻ; thẻ phía và lọc xuống dòng.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_13 mục 14)
+
+### MAN_HINH_48: Chi tiết công nợ đối tác
+- Mục đích: Xem từng chứng từ còn nợ, các lần trừ nợ; nhập số dư đầu kỳ; mở lập phiếu thu, phiếu chi cho đối tác.
+- Chức năng thực hiện: CHUC_NANG_66
+- Đường dẫn: `/finance/debts/[partnerId]?side=receivable|payable`.
+- Bố cục: liên kết "Danh sách công nợ"; "<mã> · <tên>", nhãn phía; nút "Lập phiếu thu" (phải thu) hoặc "Lập phiếu chi" (phải trả), nút "Nhập số dư đầu kỳ"; thẻ: "Số dư", "Trả trước", tuổi nợ (quá hạn lớn hơn 0 tô màu lỗi); biểu mẫu số dư đầu kỳ: "Loại số dư" (Còn nợ, Trả trước), "Số chứng từ" *, "Ngày" *, "Hạn thanh toán" * (chỉ với Còn nợ), "Số tiền" *, "Ghi chú", nút "Lưu", "Hủy"; bảng khoản: "Số chứng từ", "Loại" (Số dư đầu kỳ kèm Còn nợ hoặc Trả trước, Xuất giao hàng, Nhận hàng trả lại, Nhập mua, Trả hàng nhà cung cấp, loại phiếu thu chi), "Ngày", "Hạn thanh toán" (kèm "quá hạn <số> ngày"), "Số tiền" (khoản giảm có dấu trừ), "Còn lại", "Trừ nợ" ("<chứng từ>: <số tiền>"), nút "Xóa" (khoản số dư đầu kỳ xóa được).
+- Dữ liệu hiển thị: khoản của đối tác ở phía đang chọn trong công ty đang chọn, mới trước, tối đa 1.000.
+- Thành phần: ThanhTrenCung, MenuMiniApp, NhanTrangThai, The, BangDuLieu, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_85.
+- Thao tác: lưu số dư đầu kỳ, xóa xong tải lại chi tiết; "Lập phiếu thu", "Lập phiếu chi" mở MAN_HINH_49 lập phiếu với loại và đối tác chọn sẵn.
+- Trạng thái: rỗng ("Chưa có khoản công nợ.").
+- Thông báo: "Đã lưu số dư đầu kỳ." · "Đã xóa số dư đầu kỳ."; lỗi dưới đúng ô; lỗi xóa ("Khoản số dư đầu kỳ đã được trừ nợ hoặc đang được chọn trên phiếu thu chi, không xóa được.") hiện trên bảng.
+- Quyền hiển thị: "Lập phiếu thu", "Lập phiếu chi" theo `canManagePayments`; "Nhập số dư đầu kỳ" theo `canManageOpening`; "Xóa" theo `canDelete` của từng khoản.
+- Responsive: bảng chuyển thành thẻ; ô biểu mẫu xếp dọc trên điện thoại.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_13 mục 14)
+
+### MAN_HINH_49: Phiếu thu, phiếu chi
+- Mục đích: Lập, gửi phiếu thu, phiếu chi, hoàn tiền; theo dõi trạng thái; sửa phiếu bị từ chối.
+- Chức năng thực hiện: CHUC_NANG_67
+- Đường dẫn: `/finance/payments` (danh sách); `/finance/payments/new?kind=&partnerId=` (lập); `/finance/payments/[id]` (chi tiết; "Sửa" mở biểu mẫu trên cùng trang).
+- Bố cục: danh sách: tiêu đề "Phiếu thu chi" kèm "Lịch sử", nút "Lập phiếu"; lọc "Loại: tất cả" (Thu tiền khách hàng, Trả tiền nhà cung cấp, Hoàn tiền cho khách hàng, Nhà cung cấp hoàn tiền), "Trạng thái: tất cả" (Nháp, Chờ duyệt, Đã ghi sổ, Bị từ chối, Đã rút); bảng "Số phiếu" (nháp: "(nháp)"; liên kết sang chi tiết), "Loại phiếu", "Ngày", "Đối tác", "Quỹ", "Số tiền", "Trạng thái". Biểu mẫu: "Loại phiếu" *, "Quỹ" * (mã · tên kèm số dư; quỹ đã ngừng dùng của phiếu đang sửa hiện kèm "đã ngừng dùng"), "Ngày" *, "Số tiền" *, "Khách hàng" * hoặc "Nhà cung cấp" * (ô tìm "Gõ tên, mã đối tác rồi nhấn Enter"); khi đã chọn đối tác: "Trả trước đang còn"; thu tiền khách, trả tiền nhà cung cấp có bảng "Chứng từ còn nợ" ("Số chứng từ", "Ngày chứng từ", "Hạn thanh toán" kèm "quá hạn <số> ngày", "Còn nợ", ô "Số trừ"), nút "Chia lại từ cũ nhất", dòng "Tổng trừ: <tiền> · Trả trước: <tiền>" hoặc "Không chọn chứng từ: tự trừ cũ nhất trước khi ghi sổ"; đối tác không còn chứng từ nợ thì "Đối tác không còn chứng từ nợ; toàn bộ số tiền là trả trước."; hoàn tiền hiện gợi ý không vượt trả trước; "Nội dung"; nút "Lưu", "Hủy". Chi tiết: liên kết "Danh sách phiếu thu chi"; "<loại> <số hoặc (nháp)>", nhãn trạng thái, "Lịch sử", nút "Sửa", "Rút", "Gửi"; khối lỗi "Duyệt xong nhưng không ghi sổ được: <lý do> Sửa phiếu rồi gửi lại." khi phiếu bị từ chối do không ghi sổ được; thẻ: đối tác (liên kết sang MAN_HINH_48), quỹ, ngày, số tiền, nội dung, "Người lập", "Ghi sổ lúc"; bảng "Chứng từ sẽ trừ" (chưa ghi sổ) hoặc "Chứng từ đã trừ" (đã ghi sổ) kèm "Đã trừ", dòng "Trả trước".
+- Dữ liệu hiển thị: phiếu của công ty đang chọn, ngày mới trước, tối đa 500.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, KhoiCanhBao, TrangThaiRong (tài liệu `15`).
+- API: API_86; chứng từ còn nợ, chọn đối tác API_85.
+- Thao tác: đổi lọc tải lại danh sách; đổi loại sang phía khác thì bỏ đối tác, bỏ số trừ; lưu phiếu mới thì mở chi tiết; gửi, rút xong tải lại phiếu.
+- Trạng thái: rỗng ("Chưa có phiếu thu chi."); chưa có quỹ đang dùng ("Chưa có quỹ đang dùng").
+- Thông báo: "Đã lưu phiếu." · "Đã ghi sổ." · "Đã gửi duyệt." · "Đã rút phiếu."; lỗi dưới đúng ô, lỗi dòng chứng từ dưới bảng; lỗi gửi, rút hiện ở thông báo lỗi.
+- Quyền hiển thị: mục menu, màn hình với `finance.debt.view`; "Lập phiếu" với `finance.payment.manage`; "Sửa", "Gửi", "Rút" theo `canEdit`, `canSubmit`, `canWithdraw` của API.
+- Responsive: bảng chuyển thành thẻ; ô biểu mẫu xếp lưới tự co, xếp dọc trên điện thoại; ô số trừ nằm trong thẻ của từng chứng từ.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_13 mục 14)

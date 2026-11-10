@@ -1,10 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 1.7
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -64,6 +64,7 @@ Mini app Nền tảng (`apps/web-platform`) là cửa vào chung: chuyển tiế
 | Khách hàng và Đối tác (CONG_VIEC_06) | `apps/web-crm` | `/crm` | 3003 | `CRM_ORIGIN` (`http://localhost:3003`) |
 | Mua hàng (CONG_VIEC_07) | `apps/web-purchasing` | `/purchasing` | 3004 | `PURCHASING_ORIGIN` (`http://localhost:3004`) |
 | Bán hàng (CONG_VIEC_08) | `apps/web-sales` | `/sales` | 3005 | `SALES_ORIGIN` (`http://localhost:3005`) |
+| Tài chính – Kế toán (CONG_VIEC_13) | `apps/web-finance` | `/finance` | 3006 | `FINANCE_ORIGIN` (`http://localhost:3006`) |
 
 Chạy riêng mini app Kho: `pnpm --filter web-inventory dev` (cổng 3002), vào qua `http://localhost:3000/inventory` khi mini app Nền tảng và backend đang chạy.
 
@@ -72,6 +73,8 @@ Chạy riêng mini app Khách hàng và Đối tác: `pnpm --filter web-crm dev`
 Chạy riêng mini app Mua hàng: `pnpm --filter web-purchasing dev` (cổng 3004), vào qua `http://localhost:3000/purchasing` khi mini app Nền tảng và backend đang chạy. Phiếu nhập mua, phiếu trả hàng nhà cung cấp làm ở mini app Kho.
 
 Chạy riêng mini app Bán hàng: `pnpm --filter web-sales dev` (cổng 3005), vào qua `http://localhost:3000/sales` khi mini app Nền tảng và backend đang chạy. Phiếu xuất giao hàng, phiếu nhận hàng trả lại làm ở mini app Kho.
+
+Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance dev` (cổng 3006), vào qua `http://localhost:3000/finance` khi mini app Nền tảng và backend đang chạy. Công nợ tự phát sinh khi ghi sổ phiếu kho ở mini app Kho.
 
 ## 3b. Thành phần phụ trợ cho MODULE_03 Kho (CONG_VIEC_05)
 
@@ -133,6 +136,17 @@ Chạy riêng mini app Bán hàng: `pnpm --filter web-sales dev` (cổng 3005), 
 | Kiểm giới hạn khi gửi, ngoại lệ | `SalesOrdersService.checkPromotionLimits` (khóa chương trình `FOR UPDATE` theo thứ tự mã, kiểm ngân sách, số suất) trong `submitWithin`; `exceptions` so giá vốn với giá trước khuyến mãi, bỏ qua dòng tặng; giữ hàng dòng tặng qua `ReservationsService` như dòng thường | CHUC_NANG_63, CHUC_NANG_64 |
 | Giao diện | Trang `/promotions`, `/promotions/new`, `/promotions/[id]` ở `apps/web-sales`; `PromotionEditor`, `PromotionStatusBadge`; menu `SalesShell` thêm "Khuyến mãi"; `SalesOrderEditor` bỏ dòng tặng khỏi biểu mẫu sửa; chi tiết đơn bán hiện khuyến mãi từng dòng | CHUC_NANG_62, CHUC_NANG_63 |
 
+## 3h. Thành phần phụ trợ cho MODULE_06 Tài chính – Kế toán (phần 1, CONG_VIEC_13)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Quỹ | `FundsService` (`apps/api/src/finance/funds.service.ts`), bộ điều khiển `FinanceController` (`apps/api/src/finance/finance.controller.ts`), quyền, nhật ký dùng chung `apps/api/src/finance/finance-context.ts` (`requireFinancePermission` kiểm quyền bao trùm công ty); ghi `finance.funds`; số dư tính bằng biểu thức `fundBalance` từ `finance.payments` đã ghi sổ | CHUC_NANG_65 |
+| Sổ công nợ | `DebtsService` (`apps/api/src/finance/debts.service.ts`): ghi `finance.debt_items`, `finance.debt_allocations`; khóa công nợ theo công ty, phía, đối tác bằng `pg_advisory_xact_lock`; trừ nợ `matchCredit`, `matchDebit`; tuổi nợ; số dư đầu kỳ; đọc `crm.partners`, `crm.partner_profiles` (khách hàng, nhà cung cấp, số ngày được nợ) | CHUC_NANG_66 |
+| Móc nối ghi sổ phiếu kho | `StockDocumentsService.postedHooks` (`apps/api/src/inventory/stock-documents.service.ts`): danh sách hàm gọi cuối giao dịch ghi sổ phiếu kho; `DebtsService.onModuleInit` đăng ký `recordInventoryDocument`. Module Kho không phụ thuộc module Tài chính. Giá trị công nợ tính bằng hàm `finance.inventory_debt_amount` (database migration `0010_finance.sql`, đọc `inventory.documents`, `inventory.document_lines`, `sales.order_lines`, `purchasing.order_lines`) | CHUC_NANG_66 |
+| Phiếu thu, phiếu chi | `PaymentsService` (`apps/api/src/finance/payments.service.ts`): ghi `finance.payments`, `finance.payment_lines`; dùng lại dãy số chứng từ (`NumberSequencesService`, `ensureSequence`; tiền tố `PT`, `PC`), luồng duyệt (`ApprovalRequestsService.submitWithin`, `withdraw`; nghe `core.approval.completed` qua outbox, loại `finance.payment`); ghi sổ gọi `DebtsService` trong cùng giao dịch | CHUC_NANG_67 |
+| Dư nợ cho đơn bán | Biểu thức SQL `receivableBalance` (`apps/api/src/finance/debts.service.ts`, chỉ đọc `finance.debt_items`) dùng trong `SalesOrdersService` khi tính ngoại lệ vượt hạn mức | CHUC_NANG_68 |
+| Giao diện | `apps/web-finance`: trang `/debts`, `/debts/[partnerId]`, `/payments`, `/payments/new`, `/payments/[id]`, `/funds`, `/funds/[id]`; `FinanceShell` (menu), `FundEditor`, `PaymentEditor`, `PartnerPicker`, `PaymentStatusBadge`; mini app Nền tảng chuyển tiếp `/finance` theo `FINANCE_ORIGIN` (`apps/web-platform/next.config.ts`) | CHUC_NANG_65 đến CHUC_NANG_67 |
+
 ## 4. Kiến trúc triển khai
 
 | Môi trường | Mục đích | Hạ tầng |
@@ -157,10 +171,10 @@ Chia theo phần chạy riêng của hệ thống, bên trong chia theo module. 
 
 ```
 apps/
-  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales...
+  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales, src/finance...
                         Không chứa mã giao diện.
   web-platform/         Mini app Nền tảng và trang chủ mini app.
-  web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm, web-purchasing, web-sales...).
+  web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm, web-purchasing, web-sales, web-finance...).
                         Chỉ gọi API, không truy cập cơ sở dữ liệu.
   mobile-warehouse/     Ứng dụng kho (Expo).
   mobile-sales/         Ứng dụng nhân viên kinh doanh (Expo).

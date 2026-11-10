@@ -90,7 +90,7 @@ Mini app Tài chính – Kế toán: menu Công nợ, Phiếu thu chi, Quỹ.
 ## 9. Điều kiện đặc biệt
 
 - Ghi sổ phiếu kho và tạo công nợ cùng một giao dịch: tạo công nợ lỗi thì phiếu không ghi sổ.
-- Mọi thay đổi công nợ của một đối tác ở một phía chạy tuần tự (khóa theo công ty, phía, đối tác đến hết giao dịch). Ghi sổ phiếu thu chi khóa công nợ của đối tác trước, rồi khóa quỹ, để tránh khóa chéo.
+- Mọi thay đổi công nợ của một đối tác ở một phía chạy tuần tự (khóa theo công ty, phía, đối tác đến hết giao dịch). Ghi sổ phiếu thu chi khóa công nợ của đối tác trước, rồi khóa quỹ, để tránh khóa chéo; số dư quỹ tính bằng câu lệnh riêng sau khi khóa quỹ, để hai phiếu chi ghi sổ đồng thời không làm quỹ âm.
 
 ## 10. Tiêu chí nghiệm thu
 
@@ -149,4 +149,5 @@ Chưa đối chiếu.
 | QUYTAC_NGHIEPVU_89 | Không nêu | Phiếu đã cấp số không đổi được giữa phiếu thu và phiếu chi; rút khi cấp duyệt đầu chưa quyết định |
 | Mục 5 | Không nêu phạm vi gán, loại chứng từ phiếu thu | Quyền gán ở tập đoàn hoặc công ty; thêm loại chứng từ `finance.receipt` (Phiếu thu, không duyệt) |
 | QUYTAC_NGHIEPVU_90 | Xóa được khi chưa trừ nợ | Thêm: chưa được chọn trên phiếu thu chi nào |
+| Mục 9 | Khóa công nợ rồi khóa quỹ | Thêm: số dư quỹ tính sau khi khóa quỹ (sửa lỗi rà soát, commit 173a73b) |
 | Mục 8 | API_85 không có chọn đối tác | Thêm `GET /finance/partners`; chi tiết công nợ chỉ cho đối tác có hồ sơ hoặc có công nợ với công ty đang chọn |

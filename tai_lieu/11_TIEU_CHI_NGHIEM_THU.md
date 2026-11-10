@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 1.9
+- Phiên bản: 2.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ)
 
 ## MODULE_01 Nền tảng
 
@@ -169,3 +169,16 @@ Dữ liệu mẫu: công ty VCR; bảng giá chung gồm thuế (bánh 11.000, k
 | TIEUCHI_NGHIEMTHU_102 | CHUC_NANG_64 | Hết ngân sách, hết suất thì không áp vào đơn mới; gửi đơn vượt ngân sách bị từ chối | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_103 | CHUC_NANG_63 | Phần giảm do khuyến mãi, dòng hàng tặng không sinh ngoại lệ dưới giá vốn; chiết khấu tay vẫn kiểm; dòng hàng tặng được giữ hàng, giao hàng | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_104 | CHUC_NANG_62, CHUC_NANG_63 | Giao diện danh sách, soạn chương trình; đơn bán hiện khuyến mãi, dòng tặng trên máy tính và điện thoại | Trình duyệt | Bắt buộc |
+
+## MODULE_06 Tài chính – Kế toán (phần 1: Công nợ phải thu, phải trả, CONG_VIEC_13)
+
+Dữ liệu mẫu: công ty VCR; "Hàng công nợ A" thuế 10%, giá bán gồm thuế 11.000, giá mua chưa thuế 8.000; "Khách công nợ" được nợ 30 ngày, "Nhà cung cấp công nợ" được nợ 15 ngày; quỹ tiền mặt số dư đầu 1.000.000. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_105 | CHUC_NANG_65 | Quỹ: thêm, sửa, ngừng dùng; số dư đầu chỉ sửa khi chưa có phiếu; số dư hiện tại, sổ quỹ đúng sau thu, chi | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_106 | CHUC_NANG_66 | Ghi sổ phiếu xuất giao hàng, nhận hàng trả lại, nhập mua (phần đạt kiểm tra chất lượng), trả hàng nhà cung cấp tạo đúng khoản công nợ (giá trị gồm thuế, hạn thanh toán); trả hàng trừ vào phiếu gốc; đơn không có khách không sinh công nợ; phiếu cũ được tính lại | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_107 | CHUC_NANG_67 | Phiếu thu trừ nợ theo chứng từ chọn; không chọn thì trừ cũ nhất trước; phần thừa thành trả trước và tự trừ vào khoản nợ sau; vượt số còn lại, vượt số tiền phiếu bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_108 | CHUC_NANG_67 | Phiếu chi qua luồng duyệt, duyệt xong mới ghi sổ; vượt số dư quỹ thì không ghi sổ, phiếu về bị từ chối kèm lý do; hoàn tiền không vượt trả trước; nhân viên không có quyền không lập được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_109 | CHUC_NANG_66, CHUC_NANG_68 | Số dư đầu kỳ; danh sách công nợ, tuổi nợ, quá hạn đúng; đơn bán kiểm hạn mức theo dư nợ thật | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_110 | CHUC_NANG_65 đến CHUC_NANG_67 | Màn hình MAN_HINH_46 đến MAN_HINH_49 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |

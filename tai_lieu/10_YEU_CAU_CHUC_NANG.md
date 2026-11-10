@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.0
+- Phiên bản: 2.1
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09)
 
 ## MODULE_01 Nền tảng
 
@@ -857,6 +857,7 @@ Quy ước chung cho mọi chức năng của MODULE_05 phần 1:
 - Thông báo lỗi: "Đối tác chưa có hồ sơ khách hàng đang dùng ở công ty." · "Chưa có giá cho mặt hàng này." · "Không đủ hàng khả dụng (một phần đang được giữ)." · "Đơn bán đã có phiếu xuất giao hàng hoặc không ở trạng thái hủy được; hãy đóng đơn." · "Đơn bán còn phiếu xuất giao hàng nháp, chưa đóng được." · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · "Giá trị không hợp lệ." (kênh, kho, đơn vị, số, chiết khấu)
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_87, TIEUCHI_NGHIEMTHU_88, TIEUCHI_NGHIEMTHU_89, TIEUCHI_NGHIEMTHU_90, TIEUCHI_NGHIEMTHU_92
 - Bổ sung CONG_VIEC_12: khi lưu, khuyến mãi tự áp theo CHUC_NANG_63; dòng đơn thêm trường khuyến mãi, dòng hàng tặng; gửi đơn kiểm giới hạn khuyến mãi (CHUC_NANG_64).
+- Bổ sung CONG_VIEC_13 (THAY_DOI_09): ngoại lệ vượt hạn mức công nợ tính theo dư nợ thật (CHUC_NANG_68, QUYTAC_NGHIEPVU_92) thay dư nợ tạm tính (QUYTAC_NGHIEPVU_69).
 
 ### CHUC_NANG_55: Cài đặt bán hàng
 - Mục đích: Công ty đặt mức chiết khấu tay tối đa không cần duyệt.
@@ -1036,6 +1037,78 @@ Quy ước chung cho mọi chức năng của MODULE_05 phần 3:
 |---|---|
 | Toàn vẹn | Áp khuyến mãi trong cùng giao dịch lưu đơn; gửi đơn khóa chương trình đã áp trước khi kiểm giới hạn; đã dùng tính từ dòng đơn bán, không lưu trùng; khóa ngoại từ `sales` chỉ trỏ vào `sales`, `core`, `catalog` |
 | Ranh giới module | Tính khuyến mãi ở `promotion-pricing.ts` (chỉ đọc chương trình), gọi từ `SalesOrdersService`; dùng lại luồng duyệt, dãy số chứng từ, tra giá, giữ hàng có sẵn |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_06 Tài chính – Kế toán (phần 1: Công nợ phải thu, phải trả, CONG_VIEC_13)
+
+Quy ước chung cho mọi chức năng của MODULE_06 phần 1:
+- Thao tác ghi nhật ký thao tác (CHUC_NANG_23): mini app `finance`, loại đối tượng `fund` (`fund.create`, `.update`), `debt_item` (`debt.opening.create`, `debt.opening.delete`), `payment` (`payment.create`, `.update`, `.submit`, `.withdraw`). Công nợ tự phát sinh ghi theo nhật ký của phiếu kho.
+- Quyền `finance.*` chỉ dùng được khi gán ở phạm vi tập đoàn hoặc công ty (tài liệu `08` mục 14). Mọi API trước hết cần `finance.access` hoặc `finance.debt.view` ở công ty đang chọn. Dữ liệu chỉ xem, thao tác trong công ty đang làm việc; của công ty khác trả 404.
+- Sửa gửi kèm phiên bản; khác phiên bản thì báo "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất.".
+- Tiền gồm thuế, tiền tệ của công ty, `numeric(20,4)`; số trả về dạng chuỗi bỏ số 0 thừa. So sánh tiền cho phép sai số làm tròn 0,00005.
+
+### CHUC_NANG_65: Quỹ
+- Mục đích: Biết số tiền đang có ở từng quỹ tiền mặt, tài khoản ngân hàng; xem thu, chi theo ngày.
+- Người sử dụng: Kế toán, quản trị công ty, quản trị tập đoàn.
+- Điều kiện thực hiện: Danh sách: `finance.debt.view`, `finance.fund.manage` hoặc `finance.payment.manage`. Chi tiết, sổ quỹ: `finance.debt.view` hoặc `finance.fund.manage`. Thêm, sửa, ngừng dùng: `finance.fund.manage`.
+- Dữ liệu đầu vào: Mã (1 đến 20 ký tự), tên (1 đến 200 ký tự), loại (tiền mặt, ngân hàng), tên ngân hàng (tối đa 200 ký tự), số tài khoản (tối đa 50), chủ tài khoản (tối đa 200), số dư đầu (không âm, 4 chữ số lẻ, mặc định 0), trạng thái (đang dùng, ngừng dùng), phiên bản khi sửa. Sổ quỹ: từ ngày, đến ngày.
+- Quy trình xử lý: Kiểm ngân hàng có tên ngân hàng, số tài khoản; mã không trùng trong công ty (không phân biệt hoa thường). Tiền mặt bỏ thông tin ngân hàng khi lưu. Sửa: khóa quỹ, kiểm phiên bản; quỹ có phiếu chờ duyệt hoặc đã ghi sổ thì không đổi được số dư đầu (QUYTAC_NGHIEPVU_85). Số dư hiện tại = số dư đầu + phiếu thu đã ghi sổ − phiếu chi đã ghi sổ. Sổ quỹ: số dư đầu kỳ = số dư đầu + phiếu đã ghi sổ trước từ ngày; các phiếu đã ghi sổ trong khoảng theo ngày, thời điểm ghi sổ (tối đa 5.000 dòng); số dư lũy kế; số dư cuối kỳ.
+- Kết quả đầu ra: Danh sách (mã, tên, loại, thông tin ngân hàng, số dư đầu, số dư hiện tại, trạng thái, đã có phiếu ghi sổ hay không, tiền tệ, phiên bản, được quản lý hay không), quỹ đang dùng trước, theo mã. Sổ quỹ: quỹ, khoảng ngày, số dư đầu kỳ, dòng (ngày, số phiếu, loại, đối tác, thu, chi, số dư), số dư cuối kỳ.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_38
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_85
+- Trường hợp ngoại lệ: Quỹ ngừng dùng không hiện ở biểu mẫu phiếu mới; phiếu chờ duyệt dùng quỹ đã ngừng dùng thì không ghi sổ được.
+- Phân quyền: Người không có `finance.fund.manage` thêm, sửa nhận 403; không thấy nút "Thêm quỹ", "Sửa".
+- Thông báo lỗi: "Vui lòng nhập thông tin này." (tên ngân hàng, số tài khoản khi loại ngân hàng) · "Mã quỹ đã có trong công ty." · "Quỹ đã có phiếu thu chi, không sửa được số dư đầu." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_105, TIEUCHI_NGHIEMTHU_110
+
+### CHUC_NANG_66: Sổ công nợ
+- Mục đích: Biết mỗi đối tác còn nợ hoặc đã trả trước bao nhiêu, theo chứng từ nào, quá hạn bao lâu.
+- Người sử dụng: Kế toán, quản trị công ty, quản trị tập đoàn; Thủ kho (gián tiếp: ghi sổ phiếu kho sinh công nợ).
+- Điều kiện thực hiện: Danh sách, chi tiết đối tác: `finance.debt.view`. Chứng từ còn nợ: `finance.debt.view` hoặc `finance.payment.manage`. Chọn đối tác: `finance.debt.view`, `finance.payment.manage` hoặc `finance.debt.manage`. Nhập, xóa số dư đầu kỳ: `finance.debt.manage`. Phát sinh tự động: khi phiếu kho ghi sổ.
+- Dữ liệu đầu vào: Danh sách: phía (phải thu, phải trả), từ khóa (tên không dấu hoặc mã đối tác, tối đa 100 ký tự), chỉ đối tác quá hạn. Số dư đầu kỳ: đối tác, phía, loại (còn nợ, trả trước), số chứng từ (1 đến 50 ký tự), ngày, hạn thanh toán (bắt buộc với còn nợ, không trước ngày chứng từ), số tiền (lớn hơn 0), ghi chú (tối đa 500 ký tự).
+- Quy trình xử lý: Phiếu kho ghi sổ gọi móc nối của module Tài chính trong cùng giao dịch: tính giá trị gồm thuế (hàm `finance.inventory_debt_amount`), tạo khoản tăng hoặc giảm nợ, trừ nợ (QUYTAC_NGHIEPVU_86, QUYTAC_NGHIEPVU_87). Số dư đầu kỳ: kiểm đối tác là khách hàng (phải thu) hoặc nhà cung cấp (phải trả) theo hồ sơ của công ty; khóa công nợ của đối tác; tạo khoản, tự trừ (QUYTAC_NGHIEPVU_90). Xóa: chỉ khoản số dư đầu kỳ chưa trừ nợ, chưa được chọn trên phiếu thu chi. Danh sách: đối tác có khoản còn số còn lại, sắp số dư giảm dần (tối đa 1.000), kèm dòng tổng; tuổi nợ theo QUYTAC_NGHIEPVU_91.
+- Kết quả đầu ra: Danh sách: tiền tệ, đối tác (mã, tên), số dư, trả trước, chưa đến hạn, quá hạn 1 đến 30, 31 đến 60, 61 đến 90, trên 90 ngày; tổng. Chi tiết đối tác: đối tác, phía, số dư, trả trước, tuổi nợ, được nhập số dư đầu kỳ, được lập phiếu; khoản (số chứng từ, nguồn, loại phiếu thu chi, ngày, hạn, số tiền, còn lại, số ngày quá hạn, ghi chú, được xóa, các lần trừ nợ: chứng từ bên kia, số tiền, ngày), mới trước, tối đa 1.000. Chứng từ còn nợ: trả trước đang còn; khoản tăng còn lại, cũ nhất trước. Chọn đối tác: tối đa 20 (mã, tên).
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_38
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_86, QUYTAC_NGHIEPVU_87, QUYTAC_NGHIEPVU_90, QUYTAC_NGHIEPVU_91
+- Trường hợp ngoại lệ: Đơn bán không có khách, phiếu giá trị 0 không phát sinh công nợ. Đối tác không có hồ sơ và không có công nợ ở công ty đang chọn: chi tiết trả 404. Phiếu kho ghi sổ trước khi nâng cấp được tính lại khi chạy database migration.
+- Phân quyền: Nhân viên bán hàng, Thủ kho xem công nợ nhận 403; không có `finance.debt.manage` thì không thấy "Nhập số dư đầu kỳ", nút "Xóa".
+- Thông báo lỗi: "Đối tác không phải khách hàng của công ty." · "Đối tác không phải nhà cung cấp của công ty." · "Vui lòng nhập thông tin này." (hạn thanh toán) · "Khoản số dư đầu kỳ đã được trừ nợ hoặc đang được chọn trên phiếu thu chi, không xóa được."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_106, TIEUCHI_NGHIEMTHU_109, TIEUCHI_NGHIEMTHU_110
+
+### CHUC_NANG_67: Phiếu thu, phiếu chi
+- Mục đích: Thu tiền khách, trả tiền nhà cung cấp, hoàn tiền; trừ đúng chứng từ; phiếu chi được duyệt trước khi chi.
+- Người sử dụng: Kế toán, quản trị công ty, quản trị tập đoàn; người duyệt phiếu chi.
+- Điều kiện thực hiện: Tùy chọn, danh sách, chi tiết: `finance.debt.view` hoặc `finance.payment.manage`. Lập, sửa, gửi: `finance.payment.manage`. Rút: người lập, có `finance.payment.manage`, phiếu chờ duyệt.
+- Dữ liệu đầu vào: Loại (thu tiền khách hàng, trả tiền nhà cung cấp, hoàn tiền cho khách hàng, nhà cung cấp hoàn tiền), đối tác, quỹ, ngày, số tiền (lớn hơn 0), nội dung (tối đa 500 ký tự), tối đa 500 dòng chứng từ trừ (khoản tăng nợ, số trừ lớn hơn 0; chỉ với thu tiền khách hàng, trả tiền nhà cung cấp), phiên bản khi sửa, gửi. Danh sách: loại, trạng thái, đối tác.
+- Quy trình xử lý: Lưu: kiểm đối tác đúng phía, quỹ của công ty đang dùng, chứng từ là khoản tăng còn nợ của đối tác ở phía đó, không trùng, không vượt số còn lại, tổng không vượt số tiền; hoàn tiền không vượt trả trước đang còn (QUYTAC_NGHIEPVU_88). Sửa khi nháp, bị từ chối, đã rút (về nháp, xóa lý do không ghi sổ được); đã cấp số thì không đổi giữa phiếu thu và phiếu chi. Gửi: cấp số theo dãy `finance.receipt` (tự tạo tiền tố `PT`) hoặc `finance.payment` (`PC`) ở lần gửi đầu; phiếu chi gửi luồng duyệt với số tiền, chưa có chính sách thì ghi sổ ngay; phiếu thu ghi sổ ngay (QUYTAC_NGHIEPVU_89). Ghi sổ: khóa công nợ của đối tác, khóa quỹ, kiểm lại quỹ đang dùng, số dư quỹ (phiếu chi), số còn lại, trả trước; tạo khoản giảm nợ (thu, trả) hoặc tăng nợ (hoàn tiền), trừ nợ; đánh dấu đã ghi sổ. Nghe `core.approval.completed` loại `finance.payment`: duyệt xong thì ghi sổ, lỗi nghiệp vụ thì phiếu "Bị từ chối" kèm khóa lỗi; từ chối, rút thì chuyển tương ứng.
+- Kết quả đầu ra: Tùy chọn: quỹ đang dùng (mã, tên, loại, số dư), tiền tệ. Danh sách (số, loại, ngày, đối tác, quỹ, số tiền, trạng thái), ngày mới trước, tối đa 500. Chi tiết: thông tin, yêu cầu duyệt, lý do không ghi sổ được (khi bị từ chối), chứng từ sẽ trừ (chưa ghi sổ) hoặc đã trừ (đã ghi sổ) kèm số trừ, phần thành trả trước, người lập, thời điểm ghi sổ, phiên bản, được sửa, gửi, rút hay không.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_38
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_87, QUYTAC_NGHIEPVU_88, QUYTAC_NGHIEPVU_89
+- Trường hợp ngoại lệ: Phiếu đã ghi sổ không sửa, không hủy. Phiếu thu không ghi sổ được thì báo lỗi, giữ trạng thái trước khi gửi. Phiếu chi duyệt xong không ghi sổ được thì về "Bị từ chối" kèm lý do. Hai phiếu ghi sổ đồng thời cùng đối tác hoặc cùng quỹ chạy tuần tự.
+- Phân quyền: Không có `finance.payment.manage` lập, sửa, gửi nhận 403; người không phải người lập rút nhận 403.
+- Thông báo lỗi: "Đối tác không phải khách hàng của công ty." · "Đối tác không phải nhà cung cấp của công ty." · "Giá trị không hợp lệ." (quỹ, chứng từ, đổi loại sau khi cấp số) · "Quỹ đã ngừng dùng." · "Số trừ vượt số còn nợ của chứng từ." · "Tổng số trừ vượt số tiền phiếu." · "Số tiền hoàn vượt tiền trả trước đang còn." · "Số dư quỹ không đủ." · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_107, TIEUCHI_NGHIEMTHU_108, TIEUCHI_NGHIEMTHU_110
+
+### CHUC_NANG_68: Dư nợ thật cho kiểm hạn mức công nợ của đơn bán
+- Mục đích: Đơn bán kiểm hạn mức công nợ theo số khách còn nợ thật thay cho dư nợ tạm tính.
+- Người sử dụng: Nhân viên bán hàng, quản trị (gửi đơn bán); người duyệt đơn bán.
+- Điều kiện thực hiện: Gửi đơn bán (CHUC_NANG_54), khách có hạn mức công nợ.
+- Dữ liệu đầu vào: Không nhập thêm.
+- Quy trình xử lý: Khi tính ngoại lệ lúc gửi đơn: dư nợ = số dư công nợ phải thu của khách ở công ty (khoản tăng còn lại − khoản giảm còn lại) + giá trị gồm thuế phần chưa giao của các đơn khác của khách đã xác nhận; dư nợ + tổng gồm thuế của đơn vượt hạn mức thì ngoại lệ vượt hạn mức (QUYTAC_NGHIEPVU_92).
+- Kết quả đầu ra: Ngoại lệ `credit_limit` trên đơn bán như cũ; diễn giải "<dư nợ sau đơn> > <hạn mức>" chỉ trả cho người có `crm.profile.manage`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_38
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_92 (thay QUYTAC_NGHIEPVU_69, THAY_DOI_09)
+- Trường hợp ngoại lệ: Khách trả tiền, trả trước làm giảm dư nợ ngay; hàng khách trả lại làm giảm qua khoản giảm nợ. Hạn mức trống, đơn không có khách thì không kiểm.
+- Phân quyền: Như CHUC_NANG_54.
+- Thông báo lỗi: Như CHUC_NANG_54.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_109
+
+## Yêu cầu phi chức năng của MODULE_06 (phần 1)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Toàn vẹn | Công nợ phát sinh trong cùng giao dịch ghi sổ phiếu kho; mọi thay đổi công nợ của một đối tác ở một phía chạy tuần tự (khóa theo công ty, phía, đối tác); ghi sổ phiếu thu chi khóa công nợ trước, quỹ sau; số dư quỹ, số dư công nợ tính từ dữ liệu, không lưu trùng; tiền `numeric`; khóa ngoại từ `finance` chỉ trỏ vào `finance`, `core`, `crm` |
+| Ranh giới module | Module Kho gọi công nợ qua móc nối `postedHooks` đăng ký lúc khởi động; đơn bán chỉ đọc số dư công nợ qua biểu thức `receivableBalance`; dùng lại luồng duyệt, dãy số chứng từ có sẵn |
 | Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
