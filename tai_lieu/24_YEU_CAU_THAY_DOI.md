@@ -212,3 +212,17 @@
 - Mức quy mô: Lớn (gộp trong CONG_VIEC_21).
 - Rủi ro: trung bình (vai trò tự tạo đang có quyền xem đối tác sẽ không còn thấy mọi khách cho tới khi được thêm quyền mới; database migration thêm quyền mới vào vai trò tự tạo đang có `crm.partner.view` hoặc `sales.order.view`).
 - Trạng thái: Đã phê duyệt 2026-11-10.
+
+### THAY_DOI_13: Ghé thăm khách và hoa hồng của tôi trong ứng dụng nhân viên kinh doanh – 2026-11-10
+- Lý do: người dùng chọn phạm vi bản đầu của ứng dụng nhân viên kinh doanh gồm ghé thăm khách và hoa hồng của tôi (tài liệu `02`, 2026-11-10); hai chức năng này chưa có trong tài liệu `05`.
+- Nội dung thay đổi: thêm chức năng ghi lượt ghé thăm khách (bắt buộc vị trí GPS, 0 đến 3 ảnh chụp tại chỗ, ghi chú bắt buộc) trên ứng dụng; trưởng phòng, quản lý xem lịch sử ghé thăm trên web-crm và ứng dụng theo phạm vi xem của CONG_VIEC_21. Thêm quyền xem hoa hồng của chính mình (phát sinh, bảng tháng) cho vai trò Nhân viên bán hàng.
+- Thành phần bị ảnh hưởng: tài liệu `05` (bổ sung phạm vi MODULE_07), `06`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27`; CONG_VIEC_17 (đọc phát sinh, bảng hoa hồng), CONG_VIEC_21 (phạm vi xem).
+- Dữ liệu bị ảnh hưởng: thêm bảng lượt ghé thăm, ảnh ghé thăm; không đổi dữ liệu cũ.
+- API bị ảnh hưởng: thêm API ghé thăm, hoa hồng của tôi, đăng nhập cho ứng dụng di động; API cũ không đổi hợp đồng.
+- Giao diện bị ảnh hưởng: ứng dụng mới `apps/mobile-sales`; web-crm thêm màn hình ghé thăm và thẻ ghé thăm trên chi tiết đối tác.
+- Quyền bị ảnh hưởng: thêm quyền ghi ghé thăm, xem hoa hồng của chính mình cho vai trò Nhân viên bán hàng.
+- Ảnh hưởng chức năng cũ: không đổi cách tính hoa hồng, phạm vi xem.
+- Kiểm thử cần thực hiện: kịch bản của CONG_VIEC_22; hồi quy CONG_VIEC_17, 21.
+- Mức quy mô: Lớn (gộp trong CONG_VIEC_22).
+- Rủi ro: trung bình (lưu vị trí, ảnh là dữ liệu cá nhân của nhân viên và khách; cần tài liệu `22`).
+- Trạng thái: Đã phê duyệt 2026-11-10.

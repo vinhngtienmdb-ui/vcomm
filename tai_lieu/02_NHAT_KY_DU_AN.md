@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_22: Lập công việc Ứng dụng nhân viên kinh doanh (MODULE_07), mức Lớn; THAY_DOI_13.
 - CONG_VIEC_21: Người dùng nghiệm thu, chấp nhận giới hạn đã biết (khách chưa có người phụ trách chỉ quản lý thấy; đối tác đã có hồ sơ do người khác phụ trách phải nhờ trưởng phòng giao; đơn đối ứng nội bộ chỉ hiện khi mình lập hoặc hưởng hoa hồng; nhân viên nghỉ việc không tự chuyển khách); chờ người dùng hợp nhất pull request số 56 (sau số 55).
 - CONG_VIEC_21: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_21-gan-khach-hang` (pull request số 56, tách từ nhánh CONG_VIEC_20). Database migration 0021; nhân viên bán hàng chỉ xem khách mình hoặc phòng mình quản lý phụ trách và đơn của các khách đó; phiếu giao khách theo chính sách duyệt; lịch sử phụ trách; MAN_HINH_64, 65. Kiểm thử 290/290 đạt; tám tệp kiểm thử cũ thêm bước chuẩn bị theo phép của người dùng. Không thêm thư viện. Rà soát độc lập, sửa 2 lỗi Cao và các mục Trung bình, Thấp. Chờ người dùng nghiệm thu.
 - CONG_VIEC_21: Lập công việc Gán khách hàng cho nhân viên kinh doanh (MODULE_07), mức Lớn; THAY_DOI_12.
@@ -55,6 +56,7 @@
 ### Quyết định
 
 - MODULE_07 (người dùng, 2026-11-10): sau MODULE_06 làm MODULE_07; công việc đầu tiên là gán khách hàng cho nhân viên kinh doanh (CONG_VIEC_21).
+- CONG_VIEC_22 (người dùng, 2026-11-10): làm tiếp ứng dụng nhân viên kinh doanh; giải pháp Expo SDK 58 (expo-router, expo-secure-store, expo-location, expo-image-picker, react-native-web); bản đầu gồm khách của tôi, lập đơn bán, hoa hồng của tôi (phát sinh và bảng tháng), ghé thăm khách (bắt buộc vị trí, 0 đến 3 ảnh chụp tại chỗ, ghi chú bắt buộc; xem trên web-crm và ứng dụng); chỉ trực tuyến; giao nộp mã nguồn và bản xem trước web, chưa đóng gói lên kho ứng dụng (THAY_DOI_13).
 - CONG_VIEC_21 (người dùng, 2026-11-10): nhân viên tự tìm được khách mới thì tự lập hồ sơ, tự phụ trách, hạn mức 0; kiểm thử cũ dùng vai trò Nhân viên bán hàng được thêm quyền xem mọi khách ở bước chuẩn bị.
 - CONG_VIEC_21 (người dùng, 2026-11-10): nhân viên chỉ xem khách mình phụ trách và đơn của khách đó; trưởng phòng xem, giao khách của nhân viên trong phòng (kể cả phòng con); chuyển khách thì đơn đã gán nhân viên hưởng hoa hồng giữ nguyên; giao, chuyển khách theo chính sách duyệt của công ty (THAY_DOI_12).
 - Báo cáo hợp nhất – người quyết định: người dùng, ngày 2026-11-10: làm tiếp sau đối soát; cộng gộp và loại trừ nội bộ (công nợ, doanh thu, giá vốn nội bộ, lãi chưa thực hiện trong tồn kho); mọi công ty con coi như sở hữu 100%.
