@@ -5,6 +5,7 @@ import type { SalesOrderStatus } from "contracts";
 import { useTranslations } from "next-intl";
 
 const tone: Record<SalesOrderStatus, string> = {
+  counterpart_pending: "canh-bao",
   draft: "trung-tinh",
   pending: "canh-bao",
   confirmed: "thong-tin",

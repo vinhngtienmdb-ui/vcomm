@@ -18,17 +18,28 @@ import { NumberSequencesService } from "../settings/number-sequences.service";
 import { isActiveSupplier, isReceivingWarehouse, purchasingAudit, purchasingPermissions, requirePermission, variantUnitFactor, type Executor, type FieldErrors } from "./purchasing-context";
 import { companyCurrency, ensureSequence, orderedOnRequisitionLine } from "./requisitions.service";
 import { readSettings } from "./supplier-prices.service";
+import { internalCompanyOf } from "../crm/partners.service";
+import { internalPrice, internalPurchaseErrors } from "../sales/internal-trade-rules";
 
 const documentTypeCode = "purchasing.order";
 type Input = z.output<typeof savePurchaseOrderSchema>;
+// Móc nối giao dịch nội bộ (CONG_VIEC_09): InternalTradeService đăng ký khi khởi động để sinh, đóng đơn bán đối ứng trong cùng giao dịch.
+export interface PurchasingInternalHooks {
+  afterApproved(transaction: Executor, orderId: string): Promise<void>;
+  afterEnded(transaction: Executor, orderId: string, reason: string): Promise<void>;
+}
 type OrderRow = {
   id: string;
   company_id: string;
   document_no: string | null;
   supplier_id: string;
   supplier_name: string;
-  warehouse_id: string;
+  supplier_company_id: string | null;
+  warehouse_id: string | null;
   warehouse_name: string;
+  counterpart_order_id: string | null;
+  is_counterpart: boolean;
+  counterpart_rejected_reason: string | null;
   order_date: Date | string;
   expected_date: Date | string | null;
   currency: string;
@@ -60,6 +71,8 @@ export const returnedOnOrderLine = (lineId: SQL) => sql`coalesce((
 
 @Injectable()
 export class PurchaseOrdersService implements OnModuleInit {
+  internalHooks: PurchasingInternalHooks | null = null;
+
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     private readonly permissionService: PermissionService,
@@ -80,7 +93,15 @@ export class PurchaseOrdersService implements OnModuleInit {
             approved_total = CASE WHEN ${status} = 'approved' THEN total_amount ELSE approved_total END,
             approved_supplier_id = CASE WHEN ${status} = 'approved' THEN supplier_id ELSE approved_supplier_id END
           WHERE approval_request_id = ${String(event.payload.requestId)} AND status = 'pending' RETURNING id`);
-        if (updated.rows[0] && status === "approved") await this.refreshReceived(transaction, updated.rows[0].id);
+        const orderId = updated.rows[0]?.id;
+        if (!orderId) return;
+        if (status === "approved") {
+          await this.refreshReceived(transaction, orderId);
+          await this.internalHooks?.afterApproved(transaction, orderId);
+        } else if (await this.isCounterpart(transaction, orderId)) {
+          // Đơn mua đối ứng nội bộ không được duyệt thì đóng, đơn bán bên kia hủy theo (QUYTAC_NGHIEPVU_74).
+          await this.endByCounterpart(transaction, orderId, "Đơn mua đối ứng không được duyệt", true);
+        }
       });
     });
   }
@@ -136,6 +157,14 @@ export class PurchaseOrdersService implements OnModuleInit {
       ORDER BY d.created_at`);
     const manage = granted.has(purchasingPermissions.manageOrders);
     const own = row.created_by === actor.userId;
+    const counterpart = row.counterpart_order_id
+      ? ((
+          await this.database.execute<{ company_name: string; document_no: string | null; status: string }>(sql`
+          SELECT c.short_name AS company_name, o.document_no, o.status FROM sales.orders o JOIN core.companies c ON c.id = o.company_id WHERE o.id = ${row.counterpart_order_id}`)
+        ).rows[0] ?? null)
+      : null;
+    // Đơn nội bộ đã có đơn đối ứng, đơn đối ứng: không sửa dòng (QUYTAC_NGHIEPVU_78).
+    const locked = row.is_counterpart || row.counterpart_order_id !== null;
     const firstStepDecided = row.approval_request_id
       ? (await this.database.execute(sql`SELECT 1 FROM core.approval_steps WHERE request_id = ${row.approval_request_id} AND level_no = 1 AND decision IS NOT NULL`)).rows.length > 0
       : true;
@@ -145,6 +174,11 @@ export class PurchaseOrdersService implements OnModuleInit {
       note: row.note,
       approvalRequestId: row.approval_request_id,
       closedReason: row.closed_reason,
+      isInternal: row.supplier_company_id !== null,
+      isCounterpart: row.is_counterpart,
+      counterpart: counterpart ? { companyName: counterpart.company_name, documentNo: counterpart.document_no, status: counterpart.status } : null,
+      counterpartRejectedReason: row.counterpart_rejected_reason,
+      canConfirmCounterpart: manage && row.status === "counterpart_pending",
       lines: lines.rows.map((line) => {
         const allowed = Number(line.base_quantity) * (1 + tolerance / 100);
         const receivable = row.status === "approved" ? Math.max(0, allowed - Number(line.received) - Number(line.checking)) : 0;
@@ -171,7 +205,7 @@ export class PurchaseOrdersService implements OnModuleInit {
       }),
       receipts: receipts.rows.map((receipt) => ({ id: receipt.id, documentNo: receipt.document_no, type: receipt.type, status: receipt.status, documentDate: day(receipt.document_date) })),
       version: row.version,
-      canEdit: manage && ["draft", "rejected", "withdrawn", "approved"].includes(row.status),
+      canEdit: manage && !locked && ["draft", "rejected", "withdrawn", "approved"].includes(row.status),
       canSubmit: manage && row.status === "draft",
       canWithdraw: own && row.status === "pending" && !firstStepDecided,
       // Đơn từng được duyệt mà lần duyệt lại bị từ chối, bị rút vẫn đóng được (đã có thể có phiếu nhập).
@@ -182,7 +216,7 @@ export class PurchaseOrdersService implements OnModuleInit {
   async create(actor: Actor, input: Input): Promise<PurchaseOrderResponse> {
     await requirePermission(this.permissionService, actor, purchasingPermissions.manageOrders);
     const id = await this.database.transaction(async (transaction) => {
-      const lines = await this.prepare(transaction, actor.companyId, input, null);
+      const lines = await this.prepare(transaction, actor.companyId, input, null, false);
       const currency = await companyCurrency(transaction, actor.companyId);
       const orderId = (
         await transaction.execute<{ id: string }>(sql`
@@ -210,7 +244,7 @@ export class PurchaseOrdersService implements OnModuleInit {
       const wasApproved = locked.rows[0]!.approved_total !== null;
       // Kho nhận đã duyệt không đổi được: phiếu nhập đã lập, đang mở gắn với kho cũ.
       if (wasApproved && input.warehouseId !== locked.rows[0]!.warehouse_id) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { warehouseId: "documentHeaderLocked" } });
-      const lines = await this.prepare(transaction, actor.companyId, input, id);
+      const lines = await this.prepare(transaction, actor.companyId, input, id, false);
       await transaction.execute(sql`
         UPDATE purchasing.orders SET supplier_id = ${input.supplierId}, warehouse_id = ${input.warehouseId}, order_date = ${input.orderDate}::date, expected_date = ${input.expectedDate ?? null}::date,
           note = ${input.note}, status = ${wasApproved ? "approved" : "draft"}, approval_request_id = CASE WHEN ${wasApproved} THEN approval_request_id END,
@@ -240,7 +274,7 @@ export class PurchaseOrdersService implements OnModuleInit {
       const locked = await transaction.execute(sql`SELECT 1 FROM purchasing.orders WHERE id = ${id} AND status = 'draft' AND version = ${current.version} FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       const input = await this.inputOf(transaction, current);
-      const lines = await this.prepare(transaction, actor.companyId, input, id);
+      const lines = await this.prepare(transaction, actor.companyId, input, id, current.is_counterpart);
       await this.sendForApproval(transaction, actor, current, lines);
     });
     return this.detail(actor, id);
@@ -269,8 +303,86 @@ export class PurchaseOrdersService implements OnModuleInit {
       await transaction.execute(sql`
         UPDATE purchasing.orders SET status = 'closed', closed_reason = ${reason}, closed_at = now(), closed_by = ${actor.userId}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.auditService.record({ ...purchasingAudit(actor, "purchase_order"), action: "purchase_order.close", entityId: id, afterData: { reason } }, transaction);
+      await this.internalHooks?.afterEnded(transaction, id, `Bên mua đóng đơn mua đối ứng: ${reason}`);
     });
     return this.detail(actor, id);
+  }
+
+  // Bên mua xác nhận đơn đối ứng nội bộ: chọn kho nhận rồi gửi luồng duyệt đơn mua (QUYTAC_NGHIEPVU_74).
+  async confirmCounterpart(actor: Actor, id: string, input: { warehouseId: string; version: number }): Promise<PurchaseOrderResponse> {
+    await requirePermission(this.permissionService, actor, purchasingPermissions.manageOrders);
+    await ensureSequence(this.database, this.sequences, actor, documentTypeCode, "DMH");
+    await this.database.transaction(async (transaction) => {
+      const locked = await transaction.execute(sql`
+        SELECT 1 FROM purchasing.orders WHERE id = ${id} AND company_id = ${actor.companyId} AND status = 'counterpart_pending' AND version = ${input.version} FOR UPDATE`);
+      if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      if (!(await isReceivingWarehouse(transaction, actor.companyId, input.warehouseId))) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { warehouseId: "invalidValue" } });
+      await transaction.execute(sql`UPDATE purchasing.orders SET warehouse_id = ${input.warehouseId}, status = 'draft', updated_at = now(), version = version + 1 WHERE id = ${id}`);
+      await this.auditService.record({ ...purchasingAudit(actor, "purchase_order"), action: "purchase_order.counterpart_confirm", entityId: id, afterData: input }, transaction);
+      const current = await this.single(transaction, actor.companyId, id);
+      const lines = await this.prepare(transaction, actor.companyId, await this.inputOf(transaction, current), id, true);
+      await this.sendForApproval(transaction, actor, current, lines);
+    });
+    return this.detail(actor, id);
+  }
+
+  // Bên mua từ chối đơn đối ứng: đóng, đơn bán bên kia hủy theo.
+  async rejectCounterpart(actor: Actor, id: string, input: { reason: string; version: number }): Promise<PurchaseOrderResponse> {
+    await requirePermission(this.permissionService, actor, purchasingPermissions.manageOrders);
+    await this.database.transaction(async (transaction) => {
+      const updated = await transaction.execute(sql`
+        UPDATE purchasing.orders SET status = 'closed', counterpart_rejected_reason = ${input.reason}, closed_reason = ${input.reason}, closed_at = now(), closed_by = ${actor.userId},
+          updated_at = now(), version = version + 1
+        WHERE id = ${id} AND company_id = ${actor.companyId} AND status = 'counterpart_pending' AND version = ${input.version} RETURNING id`);
+      if (updated.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      await this.auditService.record({ ...purchasingAudit(actor, "purchase_order"), action: "purchase_order.counterpart_reject", entityId: id, afterData: input }, transaction);
+      await this.internalHooks?.afterEnded(transaction, id, `Bên mua từ chối: ${input.reason}`);
+    });
+    return this.detail(actor, id);
+  }
+
+  // Sinh đơn mua đối ứng từ đơn bán nội bộ đã xác nhận của công ty bán; giá, thuế suất theo đơn bán (QUYTAC_NGHIEPVU_74, 75).
+  async createCounterpart(
+    transaction: Executor,
+    input: {
+      companyId: string;
+      supplierId: string;
+      orderDate: string;
+      salesOrderId: string;
+      createdBy: string;
+      lines: { variantId: string; unitId: string; quantity: string; unitPrice: string; vatRate: VatRate }[];
+    },
+  ): Promise<string> {
+    const orderId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO purchasing.orders (company_id, supplier_id, warehouse_id, order_date, currency, status, counterpart_order_id, is_counterpart, created_by)
+      VALUES (${input.companyId}, ${input.supplierId}, NULL, ${input.orderDate}::date, ${await companyCurrency(transaction, input.companyId)}, 'counterpart_pending', ${input.salesOrderId}, true,
+        ${input.createdBy}) RETURNING id`)
+    ).rows[0]!.id;
+    const lines = input.lines.map((line) => ({ ...line, requisitionLineId: null }));
+    await this.writeLines(
+      transaction,
+      orderId,
+      { supplierId: input.supplierId, warehouseId: null, orderDate: input.orderDate, expectedDate: null, note: null, lines, version: 0 } as unknown as Input,
+      lines.map((line) => ({ id: null, baseQuantity: line.quantity, amount: (Number(line.quantity) * Number(line.unitPrice)).toFixed(4), estimate: null })),
+    );
+    return orderId;
+  }
+
+  async linkCounterpart(transaction: Executor, orderId: string, salesOrderId: string): Promise<void> {
+    await transaction.execute(sql`UPDATE purchasing.orders SET counterpart_order_id = ${salesOrderId} WHERE id = ${orderId}`);
+  }
+
+  // Bên bán hủy, đóng, từ chối, không duyệt đơn đối ứng: đơn mua chưa kết thúc thì đóng phần chưa nhận (QUYTAC_NGHIEPVU_78).
+  async endByCounterpart(transaction: Executor, orderId: string, reason: string, propagate = false): Promise<void> {
+    await transaction.execute(sql`
+      UPDATE purchasing.orders SET status = 'closed', closed_reason = ${reason}, closed_at = now(), updated_at = now(), version = version + 1
+      WHERE id = ${orderId} AND status NOT IN ('received', 'closed')`);
+    if (propagate) await this.internalHooks?.afterEnded(transaction, orderId, reason);
+  }
+
+  private async isCounterpart(executor: Executor, orderId: string): Promise<boolean> {
+    return (await executor.execute<{ is_counterpart: boolean }>(sql`SELECT is_counterpart FROM purchasing.orders WHERE id = ${orderId}`)).rows[0]?.is_counterpart ?? false;
   }
 
   // Gọi trong giao dịch ghi sổ phiếu nhập mua của module Kho: đơn nhận đủ mọi dòng thì chuyển "Đã nhận đủ" (QUYTAC_NGHIEPVU_64).
@@ -312,13 +424,35 @@ export class PurchaseOrdersService implements OnModuleInit {
       { ...purchasingAudit(actor, "purchase_order"), action: "purchase_order.submit", entityId: row.id, afterData: { documentNo, amount: totals.total, approvalRequestId: requestId, exempt } },
       transaction,
     );
+    if (requestId === null) await this.internalHooks?.afterApproved(transaction, row.id);
   }
 
   // Kiểm nhà cung cấp, kho, dòng hàng; dòng từ đề nghị mua không vượt số còn lại; dòng đã có phiếu nhập không đổi mặt hàng, đơn vị, không giảm dưới số đã nhận.
-  private async prepare(transaction: Executor, companyId: string, input: Input, orderId: string | null): Promise<PreparedLine[]> {
+  // Nhà cung cấp nội bộ: kiểm điều kiện giao dịch nội bộ; dòng đơn khởi tạo lấy giá, thuế suất theo bảng giá Nội bộ bên bán, ghi đè giá nhập tay (QUYTAC_NGHIEPVU_73, 75).
+  // Đơn đối ứng giữ giá lấy từ đơn bán.
+  private async prepare(transaction: Executor, companyId: string, input: Input, orderId: string | null, counterpart: boolean): Promise<PreparedLine[]> {
     const fields: FieldErrors = {};
     if (!(await isActiveSupplier(transaction, companyId, input.supplierId))) fields.supplierId = "supplierNotActive";
-    if (!(await isReceivingWarehouse(transaction, companyId, input.warehouseId))) fields.warehouseId = "invalidValue";
+    const sellerCompanyId = await internalCompanyOf(transaction, input.supplierId);
+    if (sellerCompanyId && !fields.supplierId) {
+      Object.assign(
+        fields,
+        await internalPurchaseErrors(
+          transaction,
+          companyId,
+          input.supplierId,
+          input.lines.map((line) => line.variantId),
+        ),
+      );
+      if (!counterpart && Object.keys(fields).length === 0) {
+        for (const [index, line] of input.lines.entries()) {
+          const price = await internalPrice(transaction, companyId, sellerCompanyId, line.variantId, line.unitId, input.orderDate);
+          if (!price) fields[`lines.${index}.variantId`] = "priceNotFound";
+          else Object.assign(line, { unitPrice: price.unitPrice, vatRate: price.vatRate });
+        }
+      }
+    }
+    if (!(await isReceivingWarehouse(transaction, companyId, input.warehouseId!))) fields.warehouseId = "invalidValue";
     const existing = new Map<string, { variant_id: string; unit_id: string; used: string }>();
     if (orderId) {
       const rows = await transaction.execute<{ id: string; variant_id: string; unit_id: string; used: string }>(sql`
@@ -405,7 +539,7 @@ export class PurchaseOrdersService implements OnModuleInit {
       SELECT id, variant_id, unit_id, quantity::text, unit_price::text, vat_rate, requisition_line_id FROM purchasing.order_lines WHERE order_id = ${row.id} ORDER BY line_no`);
     return {
       supplierId: row.supplier_id,
-      warehouseId: row.warehouse_id,
+      warehouseId: row.warehouse_id!,
       orderDate: day(row.order_date),
       expectedDate: row.expected_date === null ? null : day(row.expected_date),
       note: row.note,
@@ -429,13 +563,14 @@ export class PurchaseOrdersService implements OnModuleInit {
   }
 
   private select(): SQL {
-    return sql`SELECT o.id, o.company_id, o.document_no, o.supplier_id, s.name AS supplier_name, o.warehouse_id, w.name AS warehouse_name, o.order_date, o.expected_date, o.currency, o.note,
+    return sql`SELECT o.id, o.company_id, o.document_no, o.supplier_id, s.name AS supplier_name, s.company_id AS supplier_company_id, o.warehouse_id, coalesce(w.name, '') AS warehouse_name,
+      o.counterpart_order_id, o.is_counterpart, o.counterpart_rejected_reason, o.order_date, o.expected_date, o.currency, o.note,
       o.status, o.approval_request_id, o.approved_total::text, o.approved_supplier_id, o.total_amount::text, o.tax_amount::text, o.closed_reason, o.created_by,
       cu.full_name AS created_by_name, o.version`;
   }
 
   private from(): SQL {
-    return sql`FROM purchasing.orders o JOIN crm.partners s ON s.id = o.supplier_id JOIN inventory.warehouses w ON w.id = o.warehouse_id JOIN core.users cu ON cu.id = o.created_by`;
+    return sql`FROM purchasing.orders o JOIN crm.partners s ON s.id = o.supplier_id LEFT JOIN inventory.warehouses w ON w.id = o.warehouse_id JOIN core.users cu ON cu.id = o.created_by`;
   }
 }
 

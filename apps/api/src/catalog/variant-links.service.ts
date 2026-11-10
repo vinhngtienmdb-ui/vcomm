@@ -202,3 +202,17 @@ export class VariantLinksService {
     return { productId: newId };
   }
 }
+
+// Mặt hàng tương ứng ở công ty khác qua liên kết (QUYTAC_NGHIEPVU_41), đọc hai chiều; factor là số đơn vị cơ sở bên kia cho một đơn vị cơ sở bên này.
+export async function linkedVariant(executor: Pick<Database, "execute">, variantId: string, targetCompanyId: string): Promise<{ variantId: string; baseUnitId: string; factor: number } | null> {
+  const row = (
+    await executor.execute<{ variant_id: string; base_unit_id: string; factor: string }>(sql`
+    SELECT l.variant_id, p.base_unit_id, l.factor::text FROM (
+      SELECT linked_variant_id AS variant_id, factor FROM catalog.variant_links WHERE variant_id = ${variantId} AND linked_company_id = ${targetCompanyId}
+      UNION ALL
+      SELECT variant_id, 1 / factor FROM catalog.variant_links WHERE linked_variant_id = ${variantId} AND company_id = ${targetCompanyId}
+    ) l JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id
+    WHERE v.status = 'active' LIMIT 1`)
+  ).rows[0];
+  return row ? { variantId: row.variant_id, baseUnitId: row.base_unit_id, factor: Number(row.factor) } : null;
+}

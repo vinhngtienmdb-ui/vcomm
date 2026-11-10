@@ -31,6 +31,8 @@ import type { Actor } from "../permissions/roles.service";
 import { isReceivingWarehouse, variantUnitFactor } from "../purchasing/purchasing-context";
 import { companyCurrency, ensureSequence } from "../purchasing/requisitions.service";
 import { NumberSequencesService } from "../settings/number-sequences.service";
+import { internalCompanyOf } from "../crm/partners.service";
+import { internalSalesErrors } from "./internal-trade-rules";
 import { requireSalesPermission, salesAudit, salesPermissions } from "./sales-context";
 
 const documentTypeCode = "sales.order";
@@ -38,6 +40,11 @@ export const salesOrderSource = "sales.order";
 type Executor = Pick<Database, "execute" | "insert">;
 type FieldErrors = Record<string, keyof Messages["errors"]>;
 type Input = z.output<typeof saveSalesOrderSchema>;
+// Móc nối giao dịch nội bộ (CONG_VIEC_09): InternalTradeService đăng ký khi khởi động để sinh, đóng chứng từ đối ứng ở module Mua hàng trong cùng giao dịch.
+export interface SalesInternalHooks {
+  afterConfirmed(transaction: Executor, orderId: string): Promise<void>;
+  afterEnded(transaction: Executor, orderId: string, reason: string): Promise<void>;
+}
 type SalesException = { kind: SalesExceptionKind; lineNo: number | null; detail: string };
 type OrderRow = {
   id: string;
@@ -49,10 +56,14 @@ type OrderRow = {
   channel_id: string;
   channel_name: string;
   customer_group_id: string | null;
-  warehouse_id: string;
+  warehouse_id: string | null;
   warehouse_name: string;
   order_date: Date | string;
   delivery_address: string | null;
+  customer_company_id: string | null;
+  counterpart_order_id: string | null;
+  is_counterpart: boolean;
+  counterpart_rejected_reason: string | null;
   note: string | null;
   currency: string;
   status: SalesOrderStatus;
@@ -94,6 +105,8 @@ export const returnedOnOrderLine = (lineId: SQL) => sql`coalesce((
 
 @Injectable()
 export class SalesOrdersService implements OnModuleInit {
+  internalHooks: SalesInternalHooks | null = null;
+
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     private readonly permissionService: PermissionService,
@@ -116,7 +129,11 @@ export class SalesOrdersService implements OnModuleInit {
           UPDATE sales.orders SET status = ${next}, confirmed_at = CASE WHEN ${next} = 'confirmed' THEN now() ELSE confirmed_at END, updated_at = now()
           WHERE approval_request_id = ${String(event.payload.requestId)} AND status = 'pending' RETURNING id`);
         const orderId = updated.rows[0]?.id;
-        if (orderId && next !== "confirmed") await this.reservations.closeBySource(transaction, salesOrderSource, orderId, "released");
+        if (!orderId) return;
+        if (next === "confirmed") await this.internalHooks?.afterConfirmed(transaction, orderId);
+        else await this.reservations.closeBySource(transaction, salesOrderSource, orderId, "released");
+        // Đơn đối ứng nội bộ không được duyệt thì hủy, đơn mua bên kia đóng theo (QUYTAC_NGHIEPVU_74).
+        if (next !== "confirmed" && (await this.isCounterpart(transaction, orderId))) await this.endByCounterpart(transaction, orderId, "Đơn bán đối ứng không được duyệt", true);
       });
     });
   }
@@ -211,6 +228,13 @@ export class SalesOrdersService implements OnModuleInit {
       ORDER BY d.created_at`);
     const manage = granted.has(salesPermissions.manageOrders);
     const own = row.created_by === actor.userId;
+    const internal = row.customer_company_id !== null;
+    const counterpart = row.counterpart_order_id
+      ? ((
+          await this.database.execute<{ company_name: string; document_no: string | null; status: string }>(sql`
+          SELECT c.short_name AS company_name, o.document_no, o.status FROM purchasing.orders o JOIN core.companies c ON c.id = o.company_id WHERE o.id = ${row.counterpart_order_id}`)
+        ).rows[0] ?? null)
+      : null;
     const delivered = lines.rows.some((line) => Number(line.delivered) > 0) || documents.rows.some((document) => document.type === "sales_issue");
     const draftIssue = documents.rows.some((document) => document.type === "sales_issue" && document.status === "draft");
     const firstStepDecided = row.approval_request_id
@@ -224,6 +248,11 @@ export class SalesOrdersService implements OnModuleInit {
       note: row.note,
       approvalRequestId: row.approval_request_id,
       exceptions: row.exceptions.map((exception) => ({ ...exception, detail: this.visibleDetail(exception, granted) })),
+      isInternal: internal,
+      isCounterpart: row.is_counterpart,
+      counterpart: counterpart ? { companyName: counterpart.company_name, documentNo: counterpart.document_no, status: counterpart.status } : null,
+      counterpartRejectedReason: row.counterpart_rejected_reason,
+      canConfirmCounterpart: manage && row.status === "counterpart_pending",
       closedReason: row.closed_reason,
       lines: lines.rows.map((line) => ({
         id: line.id,
@@ -250,7 +279,8 @@ export class SalesOrdersService implements OnModuleInit {
       })),
       documents: documents.rows.map((document) => ({ id: document.id, documentNo: document.document_no, type: document.type, status: document.status, documentDate: day(document.document_date) })),
       version: row.version,
-      canEdit: manage && ["draft", "rejected", "withdrawn"].includes(row.status),
+      // Đơn đối ứng nội bộ không sửa dòng được (QUYTAC_NGHIEPVU_78).
+      canEdit: manage && !row.is_counterpart && ["draft", "rejected", "withdrawn"].includes(row.status),
       canSubmit: manage && row.status === "draft",
       canWithdraw: manage && own && row.status === "pending" && !firstStepDecided,
       canCancel: manage && (["draft", "rejected", "withdrawn"].includes(row.status) || (row.status === "confirmed" && !delivered)),
@@ -286,7 +316,7 @@ export class SalesOrdersService implements OnModuleInit {
         UPDATE sales.orders SET customer_id = ${input.customerId ?? null}, buyer_name = ${input.buyerName}, channel_id = ${input.channelId}, customer_group_id = ${groupId},
           warehouse_id = ${input.warehouseId}, order_date = ${input.orderDate}::date, delivery_address = ${input.deliveryAddress}, note = ${input.note}, status = 'draft',
           approval_request_id = NULL, exceptions = '[]'::jsonb, updated_at = now(), version = version + 1
-        WHERE id = ${id} AND company_id = ${actor.companyId} AND version = ${input.version ?? 0} AND status IN ('draft', 'rejected', 'withdrawn') RETURNING id`);
+        WHERE id = ${id} AND company_id = ${actor.companyId} AND version = ${input.version ?? 0} AND status IN ('draft', 'rejected', 'withdrawn') AND NOT is_counterpart RETURNING id`);
       if (updated.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       await transaction.execute(sql`DELETE FROM sales.order_lines WHERE order_id = ${id}`);
       await this.writeLines(transaction, id, lines);
@@ -300,72 +330,93 @@ export class SalesOrdersService implements OnModuleInit {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
     const current = await this.single(this.database, actor.companyId, id);
     if (current.status !== "draft") throw new ApiError("BUSINESS_RULE", "documentNotDraft");
-    await ensureSequence(this.database, this.sequences, actor, documentTypeCode, "DBH");
-    const hours = (await this.database.execute<{ hours: number }>(sql`SELECT coalesce((SELECT reservation_hours FROM inventory.settings WHERE company_id = ${actor.companyId}), 72) AS hours`)).rows[0]!
-      .hours;
+    const hours = await this.beforeSubmit(actor);
     await this.database.transaction(async (transaction) => {
       const locked = await transaction.execute(sql`SELECT 1 FROM sales.orders WHERE id = ${id} AND status = 'draft' AND version = ${current.version} FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-      // Khóa hồ sơ khách để hai đơn cùng khách gửi đồng thời không cùng lọt hạn mức.
-      if (current.customer_id) {
-        await transaction.execute(sql`SELECT 1 FROM crm.partner_profiles WHERE company_id = ${actor.companyId} AND partner_id = ${current.customer_id} FOR UPDATE`);
-      }
-      const lines = await transaction.execute<{ line_no: number; variant_id: string; base_quantity: string; discount_percent: string; net_amount: string }>(sql`
-        SELECT line_no, variant_id, base_quantity::text, discount_percent::text, net_amount::text FROM sales.order_lines WHERE order_id = ${id} ORDER BY line_no`);
-      const documentNo = current.document_no ?? (await this.sequences.next(actor.companyId, documentTypeCode, transaction));
-      // Giữ hàng theo tổng số lượng cơ sở từng mặt hàng.
-      const totals = new Map<string, { quantity: number; index: number }>();
-      lines.rows.forEach((line, index) => {
-        const entry = totals.get(line.variant_id) ?? { quantity: 0, index };
-        entry.quantity += Number(line.base_quantity);
-        totals.set(line.variant_id, entry);
-      });
-      const expiresAt = new Date(Date.now() + hours * 3_600_000).toISOString();
-      // Thứ tự cố định theo mặt hàng để hai đơn gửi đồng thời không khóa chéo nhau.
-      for (const [variantId, total] of [...totals].sort(([left], [right]) => left.localeCompare(right))) {
-        await this.reservations
-          .reserve(transaction, {
-            warehouseId: current.warehouse_id,
-            companyId: actor.companyId,
-            variantId,
-            quantity: total.quantity.toFixed(4),
-            sourceType: salesOrderSource,
-            sourceId: id,
-            sourceNo: documentNo,
-            expiresAt,
-            userId: actor.userId,
-          })
-          .catch((error: unknown) => {
-            if (!(error instanceof ApiError) || error.messageKey !== "insufficientAvailableStock") throw error;
-            throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [`lines.${total.index}.quantity`]: "insufficientAvailableStock" } });
-          });
-      }
-      const exceptions = await this.exceptions(transaction, current, lines.rows);
-      let requestId: string | null = null;
-      if (exceptions.length > 0) {
-        try {
-          requestId = await this.approvals.submitWithin(transaction, actor.companyId, actor.userId, {
-            documentTypeCode,
-            documentId: id,
-            documentNo,
-            amount: current.total_amount,
-            currency: current.currency,
-            documentDate: this.permissionService.today(),
-          });
-        } catch (error) {
-          if (!(error instanceof ApiError && error.messageKey === "policyNotFound")) throw error;
-        }
-      }
-      await transaction.execute(sql`
-        UPDATE sales.orders SET status = ${requestId ? "pending" : "confirmed"}, document_no = ${documentNo}, approval_request_id = ${requestId}, exceptions = ${JSON.stringify(exceptions)}::jsonb,
-          submitted_at = now(), confirmed_at = CASE WHEN ${requestId === null} THEN now() END, updated_at = now(), version = version + 1
-        WHERE id = ${id}`);
-      await this.auditService.record(
-        { ...salesAudit(actor, "sales_order"), action: "sales_order.submit", entityId: id, afterData: { documentNo, exceptions, approvalRequestId: requestId } },
-        transaction,
-      );
+      await this.submitWithin(transaction, actor, current, hours);
     });
     return this.detail(actor, id);
+  }
+
+  // Dãy số chứng từ và thời hạn giữ hàng của công ty, đọc ngoài giao dịch gửi đơn.
+  private async beforeSubmit(actor: Actor): Promise<number> {
+    await ensureSequence(this.database, this.sequences, actor, documentTypeCode, "DBH");
+    return (await this.database.execute<{ hours: number }>(sql`SELECT coalesce((SELECT reservation_hours FROM inventory.settings WHERE company_id = ${actor.companyId}), 72) AS hours`)).rows[0]!.hours;
+  }
+
+  // Gửi đơn đã khóa: kiểm giao dịch nội bộ, giữ hàng, tính ngoại lệ, gửi duyệt hoặc xác nhận ngay.
+  private async submitWithin(transaction: Executor, actor: Actor, current: OrderRow, hours: number): Promise<void> {
+    const id = current.id;
+    // Khóa hồ sơ khách để hai đơn cùng khách gửi đồng thời không cùng lọt hạn mức.
+    if (current.customer_id) {
+      await transaction.execute(sql`SELECT 1 FROM crm.partner_profiles WHERE company_id = ${actor.companyId} AND partner_id = ${current.customer_id} FOR UPDATE`);
+    }
+    const lines = await transaction.execute<{ line_no: number; variant_id: string; base_quantity: string; discount_percent: string; net_amount: string }>(sql`
+      SELECT line_no, variant_id, base_quantity::text, discount_percent::text, net_amount::text FROM sales.order_lines WHERE order_id = ${id} ORDER BY line_no`);
+    if (current.customer_id) {
+      const internal = await internalSalesErrors(
+        transaction,
+        actor.companyId,
+        current.customer_id,
+        current.channel_id,
+        lines.rows.map((line) => line.variant_id),
+      );
+      if (Object.keys(internal).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: internal });
+    }
+    const documentNo = current.document_no ?? (await this.sequences.next(actor.companyId, documentTypeCode, transaction));
+    // Giữ hàng theo tổng số lượng cơ sở từng mặt hàng.
+    const totals = new Map<string, { quantity: number; index: number }>();
+    lines.rows.forEach((line, index) => {
+      const entry = totals.get(line.variant_id) ?? { quantity: 0, index };
+      entry.quantity += Number(line.base_quantity);
+      totals.set(line.variant_id, entry);
+    });
+    const expiresAt = new Date(Date.now() + hours * 3_600_000).toISOString();
+    // Thứ tự cố định theo mặt hàng để hai đơn gửi đồng thời không khóa chéo nhau.
+    for (const [variantId, total] of [...totals].sort(([left], [right]) => left.localeCompare(right))) {
+      await this.reservations
+        .reserve(transaction, {
+          warehouseId: current.warehouse_id!,
+          companyId: actor.companyId,
+          variantId,
+          quantity: total.quantity.toFixed(4),
+          sourceType: salesOrderSource,
+          sourceId: id,
+          sourceNo: documentNo,
+          expiresAt,
+          userId: actor.userId,
+        })
+        .catch((error: unknown) => {
+          if (!(error instanceof ApiError) || error.messageKey !== "insufficientAvailableStock") throw error;
+          throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [`lines.${total.index}.quantity`]: "insufficientAvailableStock" } });
+        });
+    }
+    const exceptions = await this.exceptions(transaction, current, lines.rows);
+    let requestId: string | null = null;
+    if (exceptions.length > 0) {
+      try {
+        requestId = await this.approvals.submitWithin(transaction, actor.companyId, actor.userId, {
+          documentTypeCode,
+          documentId: id,
+          documentNo,
+          amount: current.total_amount,
+          currency: current.currency,
+          documentDate: this.permissionService.today(),
+        });
+      } catch (error) {
+        if (!(error instanceof ApiError && error.messageKey === "policyNotFound")) throw error;
+      }
+    }
+    await transaction.execute(sql`
+      UPDATE sales.orders SET status = ${requestId ? "pending" : "confirmed"}, document_no = ${documentNo}, approval_request_id = ${requestId}, exceptions = ${JSON.stringify(exceptions)}::jsonb,
+        submitted_at = now(), confirmed_at = CASE WHEN ${requestId === null} THEN now() END, updated_at = now(), version = version + 1
+      WHERE id = ${id}`);
+    await this.auditService.record(
+      { ...salesAudit(actor, "sales_order"), action: "sales_order.submit", entityId: id, afterData: { documentNo, exceptions, approvalRequestId: requestId } },
+      transaction,
+    );
+    if (requestId === null) await this.internalHooks?.afterConfirmed(transaction, id);
   }
 
   async withdraw(actor: Actor, id: string): Promise<SalesOrderResponse> {
@@ -394,6 +445,7 @@ export class SalesOrdersService implements OnModuleInit {
       await transaction.execute(sql`UPDATE sales.orders SET status = 'cancelled', updated_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.reservations.closeBySource(transaction, salesOrderSource, id, "released");
       await this.auditService.record({ ...salesAudit(actor, "sales_order"), action: "sales_order.cancel", entityId: id }, transaction);
+      await this.internalHooks?.afterEnded(transaction, id, "Bên bán hủy đơn bán đối ứng");
     });
     return this.detail(actor, id);
   }
@@ -411,8 +463,96 @@ export class SalesOrdersService implements OnModuleInit {
         UPDATE sales.orders SET status = 'closed', closed_reason = ${reason}, closed_at = now(), closed_by = ${actor.userId}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.reservations.closeBySource(transaction, salesOrderSource, id, "released");
       await this.auditService.record({ ...salesAudit(actor, "sales_order"), action: "sales_order.close", entityId: id, afterData: { reason } }, transaction);
+      await this.internalHooks?.afterEnded(transaction, id, `Bên bán đóng đơn bán đối ứng: ${reason}`);
     });
     return this.detail(actor, id);
+  }
+
+  // Bên bán xác nhận đơn đối ứng nội bộ: chọn kho xuất rồi gửi như đơn thường (kiểm ngoại lệ, giữ hàng) (QUYTAC_NGHIEPVU_74).
+  async confirmCounterpart(actor: Actor, id: string, input: { warehouseId: string; version: number }): Promise<SalesOrderResponse> {
+    await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
+    const hours = await this.beforeSubmit(actor);
+    await this.database.transaction(async (transaction) => {
+      const locked = await transaction.execute(sql`
+        SELECT 1 FROM sales.orders WHERE id = ${id} AND company_id = ${actor.companyId} AND status = 'counterpart_pending' AND version = ${input.version} FOR UPDATE`);
+      if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      if (!(await isReceivingWarehouse(transaction, actor.companyId, input.warehouseId))) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { warehouseId: "invalidValue" } });
+      await transaction.execute(sql`UPDATE sales.orders SET warehouse_id = ${input.warehouseId}, status = 'draft', updated_at = now(), version = version + 1 WHERE id = ${id}`);
+      await this.auditService.record({ ...salesAudit(actor, "sales_order"), action: "sales_order.counterpart_confirm", entityId: id, afterData: input }, transaction);
+      await this.submitWithin(transaction, actor, await this.single(transaction, actor.companyId, id), hours);
+    });
+    return this.detail(actor, id);
+  }
+
+  // Bên bán từ chối đơn đối ứng: hủy, đơn mua bên kia đóng theo.
+  async rejectCounterpart(actor: Actor, id: string, input: { reason: string; version: number }): Promise<SalesOrderResponse> {
+    await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
+    await this.database.transaction(async (transaction) => {
+      const updated = await transaction.execute(sql`
+        UPDATE sales.orders SET status = 'cancelled', counterpart_rejected_reason = ${input.reason}, updated_at = now(), version = version + 1
+        WHERE id = ${id} AND company_id = ${actor.companyId} AND status = 'counterpart_pending' AND version = ${input.version} RETURNING id`);
+      if (updated.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      await this.auditService.record({ ...salesAudit(actor, "sales_order"), action: "sales_order.counterpart_reject", entityId: id, afterData: input }, transaction);
+      await this.internalHooks?.afterEnded(transaction, id, `Bên bán từ chối: ${input.reason}`);
+    });
+    return this.detail(actor, id);
+  }
+
+  // Sinh đơn bán đối ứng từ đơn mua nội bộ đã duyệt của công ty mua; giá tra theo bảng giá kênh Nội bộ tại ngày đơn (QUYTAC_NGHIEPVU_74, 75).
+  async createCounterpart(
+    transaction: Executor,
+    input: {
+      companyId: string;
+      customerId: string;
+      channelId: string;
+      orderDate: string;
+      purchaseOrderId: string;
+      createdBy: string;
+      lines: { variantId: string; unitId: string; quantity: string }[];
+    },
+  ): Promise<string> {
+    const groupId = await this.customerGroup(transaction, input.companyId, input.customerId);
+    const lines = await this.priceLines(
+      transaction,
+      input.companyId,
+      input.channelId,
+      groupId,
+      input.orderDate,
+      input.lines.map((line) => ({ ...line, discountPercent: "0" })),
+    );
+    const orderId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO sales.orders (company_id, customer_id, channel_id, customer_group_id, warehouse_id, order_date, currency, status, counterpart_order_id, is_counterpart, created_by)
+      VALUES (${input.companyId}, ${input.customerId}, ${input.channelId}, ${groupId}, NULL, ${input.orderDate}::date, ${await companyCurrency(transaction, input.companyId)}, 'counterpart_pending',
+        ${input.purchaseOrderId}, true, ${input.createdBy}) RETURNING id`)
+    ).rows[0]!.id;
+    await this.writeLines(transaction, orderId, lines);
+    return orderId;
+  }
+
+  async linkCounterpart(transaction: Executor, orderId: string, purchaseOrderId: string): Promise<void> {
+    await transaction.execute(sql`UPDATE sales.orders SET counterpart_order_id = ${purchaseOrderId} WHERE id = ${orderId}`);
+  }
+
+  // Bên mua đóng, từ chối, không duyệt đơn đối ứng: đơn bán chưa giao thì hủy, đã giao một phần thì đóng; nhả hàng giữ (QUYTAC_NGHIEPVU_78). Không lan ngược lại.
+  async endByCounterpart(transaction: Executor, orderId: string, reason: string, propagate = false): Promise<void> {
+    const row = (await transaction.execute<{ status: SalesOrderStatus }>(sql`SELECT status FROM sales.orders WHERE id = ${orderId} FOR UPDATE`)).rows[0];
+    if (!row || ["delivered", "cancelled", "closed"].includes(row.status)) {
+      if (propagate) await this.internalHooks?.afterEnded(transaction, orderId, reason);
+      return;
+    }
+    const issues = await transaction.execute<{ status: string }>(sql`SELECT status FROM inventory.documents WHERE type = 'sales_issue' AND source_id = ${orderId}`);
+    if (issues.rows.some((issue) => issue.status === "draft")) throw new ApiError("BUSINESS_RULE", "salesOrderHasOpenIssues");
+    const next = issues.rows.length > 0 ? "closed" : "cancelled";
+    await transaction.execute(sql`
+      UPDATE sales.orders SET status = ${next}, closed_reason = ${reason}, closed_at = CASE WHEN ${next} = 'closed' THEN now() END, updated_at = now(), version = version + 1
+      WHERE id = ${orderId}`);
+    await this.reservations.closeBySource(transaction, salesOrderSource, orderId, "released");
+    if (propagate) await this.internalHooks?.afterEnded(transaction, orderId, reason);
+  }
+
+  private async isCounterpart(executor: Executor, orderId: string): Promise<boolean> {
+    return (await executor.execute<{ is_counterpart: boolean }>(sql`SELECT is_counterpart FROM sales.orders WHERE id = ${orderId}`)).rows[0]?.is_counterpart ?? false;
   }
 
   // Gọi trong giao dịch ghi sổ phiếu xuất giao hàng của module Kho: giao đủ mọi dòng thì "Đã giao đủ", nhả phần giữ còn sót.
@@ -522,21 +662,41 @@ export class SalesOrdersService implements OnModuleInit {
     const channel = await transaction.execute(sql`SELECT 1 FROM catalog.sales_channels WHERE id = ${input.channelId} AND company_id = ${companyId} AND status = 'active'`);
     if (channel.rows.length === 0) fields.channelId = "invalidValue";
     if (!(await isReceivingWarehouse(transaction, companyId, input.warehouseId))) fields.warehouseId = "invalidValue";
+    if (input.customerId && !fields.customerId && !fields.channelId) {
+      Object.assign(
+        fields,
+        await internalSalesErrors(
+          transaction,
+          companyId,
+          input.customerId,
+          input.channelId,
+          input.lines.map((line) => line.variantId),
+        ),
+      );
+    }
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
+    return { lines: await this.priceLines(transaction, companyId, input.channelId, groupId, input.orderDate, input.lines), groupId };
+  }
+
+  // Tra giá từng dòng theo kênh, nhóm khách tại ngày đơn; tính tiền theo cách tính thuế của bảng giá.
+  private async priceLines(
+    transaction: Executor,
+    companyId: string,
+    channelId: string,
+    groupId: string | null,
+    orderDate: string,
+    inputLines: { variantId: string; unitId: string; quantity: string; discountPercent: string }[],
+  ): Promise<PreparedLine[]> {
+    const fields: FieldErrors = {};
     const currency = await companyCurrency(transaction, companyId);
     const lines: PreparedLine[] = [];
-    for (const [index, line] of input.lines.entries()) {
+    for (const [index, line] of inputLines.entries()) {
       const unit = await variantUnitFactor(transaction, companyId, line.variantId, line.unitId);
       if (!unit) {
         fields[`lines.${index}.unitId`] = "invalidValue";
         continue;
       }
-      const price = await lookupPrice(
-        transaction,
-        companyId,
-        { variantId: line.variantId, unitId: line.unitId, channelId: input.channelId, customerGroupId: groupId ?? undefined, currency },
-        input.orderDate,
-      );
+      const price = await lookupPrice(transaction, companyId, { variantId: line.variantId, unitId: line.unitId, channelId, customerGroupId: groupId ?? undefined, currency }, orderDate);
       if (!price || price === "variantNotFound") {
         fields[`lines.${index}.variantId`] = "priceNotFound";
         continue;
@@ -564,7 +724,7 @@ export class SalesOrdersService implements OnModuleInit {
       });
     }
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
-    return { lines, groupId };
+    return lines;
   }
 
   private async writeLines(transaction: Executor, orderId: string, lines: PreparedLine[]): Promise<void> {
@@ -596,13 +756,13 @@ export class SalesOrdersService implements OnModuleInit {
 
   private select(): SQL {
     return sql`SELECT o.id, o.company_id, o.document_no, o.customer_id, c.name AS customer_name, o.buyer_name, o.channel_id, ch.name AS channel_name, o.customer_group_id, o.warehouse_id,
-      w.name AS warehouse_name, o.order_date, o.delivery_address, o.note, o.currency, o.status, o.exceptions, o.approval_request_id, o.net_amount::text, o.tax_amount::text,
+      coalesce(w.name, '') AS warehouse_name, o.order_date, o.delivery_address, c.company_id AS customer_company_id, o.counterpart_order_id, o.is_counterpart, o.counterpart_rejected_reason, o.note, o.currency, o.status, o.exceptions, o.approval_request_id, o.net_amount::text, o.tax_amount::text,
       o.total_amount::text, o.closed_reason, o.created_by, cu.full_name AS created_by_name, o.version`;
   }
 
   private from(): SQL {
     return sql`FROM sales.orders o LEFT JOIN crm.partners c ON c.id = o.customer_id JOIN catalog.sales_channels ch ON ch.id = o.channel_id
-      JOIN inventory.warehouses w ON w.id = o.warehouse_id JOIN core.users cu ON cu.id = o.created_by`;
+      LEFT JOIN inventory.warehouses w ON w.id = o.warehouse_id JOIN core.users cu ON cu.id = o.created_by`;
   }
 }
 

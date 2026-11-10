@@ -15,6 +15,7 @@ import { apiFetch } from "ui/lib/api";
 import { formatDate, formatMoney, formatNumber } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 import { itemLabel } from "@/components/ItemPicker";
+import { CounterpartPanel } from "@/components/CounterpartPanel";
 import { OrderEditor } from "@/components/OrderEditor";
 import { PurchaseStatus } from "@/components/PurchaseStatus";
 
@@ -105,6 +106,7 @@ function Detail({ order, reload }: { order: PurchaseOrderResponse; reload: () =>
           </button>
         )}
       </div>
+      <CounterpartPanel order={order} reload={reload} />
       <section className="the">
         <div>
           <strong>{order.supplierName}</strong>

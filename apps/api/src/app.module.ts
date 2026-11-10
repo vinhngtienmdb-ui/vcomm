@@ -52,6 +52,7 @@ import { PartnersService } from "./crm/partners.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
+import { InternalTradeService } from "./sales/internal-trade.service";
 import { SupplierPricesService } from "./purchasing/supplier-prices.service";
 import { RequisitionsService } from "./purchasing/requisitions.service";
 import { PurchaseOrdersService } from "./purchasing/orders.service";
@@ -113,6 +114,7 @@ import { UsersService } from "./users/users.service";
     PartnersService,
     SupplierPricesService,
     SalesOrdersService,
+    InternalTradeService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

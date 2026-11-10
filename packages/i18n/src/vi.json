@@ -171,6 +171,13 @@
     "customerNotActive": "Đối tác chưa có hồ sơ khách hàng đang dùng ở công ty.",
     "salesOrderNotCancellable": "Đơn bán đã có phiếu xuất giao hàng hoặc không ở trạng thái hủy được; hãy đóng đơn.",
     "salesOrderHasOpenIssues": "Đơn bán còn phiếu xuất giao hàng nháp, chưa đóng được.",
+    "internalChannelRequired": "Đơn bán cho công ty con phải dùng kênh bán Nội bộ.",
+    "internalChannelMissing": "Công ty bán chưa có kênh bán Nội bộ đang dùng.",
+    "internalProfileMissing": "Công ty bên kia chưa có hồ sơ đối tác đang dùng cho công ty này (khách hàng ở công ty bán, nhà cung cấp ở công ty mua).",
+    "internalCurrencyMismatch": "Hai công ty dùng tiền tệ khác nhau, chưa giao dịch nội bộ được.",
+    "internalVariantNotLinked": "Mặt hàng chưa liên kết với sản phẩm của công ty bên kia.",
+    "internalCounterpartNotApproved": "Đơn mua đối ứng của công ty mua chưa được duyệt, chưa giao được.",
+    "internalCounterpartLocked": "Chứng từ đối ứng nội bộ chỉ xác nhận hoặc từ chối, không sửa được.",
     "salesOrderNotOpen": "Đơn bán chưa xác nhận hoặc đã đóng, không giao hàng được.",
     "salesIssueNotPosted": "Chỉ nhận hàng trả lại từ phiếu xuất giao hàng đã ghi sổ.",
     "salesOverDelivery": "Vượt số còn phải giao của đơn bán.",
@@ -1746,7 +1753,8 @@
     "status_rejected": "Bị từ chối",
     "status_withdrawn": "Đã rút",
     "status_received": "Đã nhận đủ",
-    "status_closed": "Đã đóng"
+    "status_closed": "Đã đóng",
+    "status_counterpart_pending": "Chờ xác nhận nội bộ"
   },
   "supplierPrices": {
     "title": "Bảng giá mua",
@@ -1867,7 +1875,17 @@
     "receiptStatus_rejected": "Bị từ chối",
     "receiptStatus_withdrawn": "Đã rút",
     "receiptType_purchase_receipt": "Phiếu nhập mua",
-    "receiptType_purchase_return": "Phiếu trả hàng"
+    "receiptType_purchase_return": "Phiếu trả hàng",
+    "internal": "Nội bộ",
+    "counterpartSales": "Đơn bán đối ứng của {company}: {number} ({status})",
+    "counterpartFromSales": "Sinh từ đơn bán của {company}: {number}",
+    "counterpartPendingHint": "Công ty bán đã bán cho công ty này. Chọn kho nhận rồi xác nhận (đơn mua đi luồng duyệt như thường), hoặc từ chối kèm lý do.",
+    "confirmCounterpart": "Xác nhận",
+    "rejectCounterpart": "Từ chối",
+    "rejectReason": "Lý do từ chối",
+    "counterpartRejected": "Đã từ chối: {reason}",
+    "noNumberYet": "chưa có số",
+    "internalPriceHint": "Nhà cung cấp nội bộ: giá theo bảng giá kênh Nội bộ của công ty bán, không sửa được."
   },
   "salesOrders": {
     "title": "Đơn bán",
@@ -1942,7 +1960,17 @@
     "status_withdrawn": "Đã rút",
     "status_delivered": "Đã giao đủ",
     "status_cancelled": "Đã hủy",
-    "status_closed": "Đã đóng"
+    "status_closed": "Đã đóng",
+    "status_counterpart_pending": "Chờ xác nhận nội bộ",
+    "internal": "Nội bộ",
+    "counterpartPurchase": "Đơn mua đối ứng của {company}: {number} ({status})",
+    "counterpartFromPurchase": "Sinh từ đơn mua của {company}: {number}",
+    "counterpartPendingHint": "Công ty mua đã đặt hàng. Chọn kho xuất rồi xác nhận (kiểm ngoại lệ, giữ hàng như đơn thường), hoặc từ chối kèm lý do.",
+    "confirmCounterpart": "Xác nhận",
+    "rejectCounterpart": "Từ chối",
+    "rejectReason": "Lý do từ chối",
+    "counterpartRejected": "Đã từ chối: {reason}",
+    "noNumberYet": "chưa có số"
   },
   "salesMenu": {
     "title": "Bán hàng",

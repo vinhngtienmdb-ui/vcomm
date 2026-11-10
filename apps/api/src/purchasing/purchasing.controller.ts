@@ -2,6 +2,8 @@
 import { Body, Controller, Get, Headers, Param, Patch, Post, Put, Query, Req } from "@nestjs/common";
 import {
   closePurchaseOrderSchema,
+  confirmCounterpartSchema,
+  rejectCounterpartSchema,
   purchaseListQuerySchema,
   savePurchaseOrderSchema,
   saveRequisitionSchema,
@@ -163,5 +165,20 @@ export class PurchasingController {
   async closeOrder(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PurchaseOrderResponse> {
     const parsed = closePurchaseOrderSchema.parse(body);
     return this.orders.close(await this.actor(request, companyId), id, parsed.reason, parsed.version);
+  }
+
+  @Post("orders/:id/counterpart-confirm")
+  async confirmCounterpart(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<PurchaseOrderResponse> {
+    return this.orders.confirmCounterpart(await this.actor(request, companyId), id, confirmCounterpartSchema.parse(body));
+  }
+
+  @Post("orders/:id/counterpart-reject")
+  async rejectCounterpart(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PurchaseOrderResponse> {
+    return this.orders.rejectCounterpart(await this.actor(request, companyId), id, rejectCounterpartSchema.parse(body));
   }
 }

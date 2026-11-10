@@ -2083,6 +2083,8 @@ export const supplierPriceLookupQuerySchema = z
 export interface SupplierPriceLookupResponse {
   unitPrice: string | null;
   priceId: string | null;
+  // CONG_VIEC_09: nhà cung cấp nội bộ thì giá theo bảng giá kênh "Nội bộ" bên bán, không sửa tay; vatRate theo bên bán.
+  internal?: { vatRate: VatRate } | undefined;
 }
 export interface PurchasingOptionsResponse {
   suppliers: { id: string; code: string; name: string }[];
@@ -2109,7 +2111,7 @@ export const updatePurchasingSettingsSchema = z
   })
   .strict();
 
-export const purchaseDocumentStatuses = ["draft", "pending", "approved", "rejected", "withdrawn", "received", "closed"] as const;
+export const purchaseDocumentStatuses = ["counterpart_pending", "draft", "pending", "approved", "rejected", "withdrawn", "received", "closed"] as const;
 export type PurchaseDocumentStatus = (typeof purchaseDocumentStatuses)[number];
 export const saveRequisitionSchema = z
   .object({
@@ -2251,7 +2253,13 @@ export interface PurchaseOrderLineResponse {
   receivableBaseQuantity: string;
 }
 export interface PurchaseOrderResponse extends PurchaseOrderListItem {
-  warehouseId: string;
+  warehouseId: string | null;
+  // CONG_VIEC_09: giao dịch nội bộ. counterpart là chứng từ đối ứng ở công ty bên kia (chỉ tên công ty, số, trạng thái).
+  isInternal: boolean;
+  isCounterpart: boolean;
+  counterpart: { companyName: string; documentNo: string | null; status: string } | null;
+  counterpartRejectedReason: string | null;
+  canConfirmCounterpart: boolean;
   note: string | null;
   approvalRequestId: string | null;
   closedReason: string | null;
@@ -2264,6 +2272,9 @@ export interface PurchaseOrderResponse extends PurchaseOrderListItem {
   canClose: boolean;
 }
 export const closePurchaseOrderSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();
+// CONG_VIEC_09, API_80, API_81: xác nhận (chọn kho), từ chối chứng từ đối ứng nội bộ.
+export const confirmCounterpartSchema = z.object({ warehouseId: z.uuid(), version: z.number().int().positive() }).strict();
+export const rejectCounterpartSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();
 
 // CONG_VIEC_07, API_76: phiếu nhập mua theo đơn mua, kết quả kiểm tra chất lượng, phiếu trả hàng nhà cung cấp (CHUC_NANG_52, 53; QUYTAC_NGHIEPVU_64 đến 66).
 const serialList = z.array(z.string().trim().min(1).max(100)).max(1000).default([]);
@@ -2335,7 +2346,7 @@ export const savePurchaseReturnSchema = z
 export type SavePurchaseReturnRequest = z.input<typeof savePurchaseReturnSchema>;
 
 // CONG_VIEC_08, API_77 đến API_79: Bán hàng (CHUC_NANG_54 đến 57; QUYTAC_NGHIEPVU_67 đến 72).
-export const salesOrderStatuses = ["draft", "pending", "confirmed", "rejected", "withdrawn", "delivered", "cancelled", "closed"] as const;
+export const salesOrderStatuses = ["counterpart_pending", "draft", "pending", "confirmed", "rejected", "withdrawn", "delivered", "cancelled", "closed"] as const;
 export type SalesOrderStatus = (typeof salesOrderStatuses)[number];
 export const salesExceptionKinds = ["discount", "below_cost", "credit_limit"] as const;
 export type SalesExceptionKind = (typeof salesExceptionKinds)[number];
@@ -2418,7 +2429,13 @@ export interface SalesOrderLineResponse {
 }
 export interface SalesOrderResponse extends SalesOrderListItem {
   channelId: string;
-  warehouseId: string;
+  warehouseId: string | null;
+  // CONG_VIEC_09: giao dịch nội bộ. counterpart là chứng từ đối ứng ở công ty bên kia (chỉ tên công ty, số, trạng thái).
+  isInternal: boolean;
+  isCounterpart: boolean;
+  counterpart: { companyName: string; documentNo: string | null; status: string } | null;
+  counterpartRejectedReason: string | null;
+  canConfirmCounterpart: boolean;
   deliveryAddress: string | null;
   note: string | null;
   approvalRequestId: string | null;

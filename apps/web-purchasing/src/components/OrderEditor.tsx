@@ -84,13 +84,17 @@ export function OrderEditor({
   const [lines, setLines] = useState<Line[]>(order ? toLines(order) : requisition ? fromRequisition(requisition) : []);
   const { submitting, fields, formError, run, inputClass } = useSubmit();
   const setLine = (index: number, change: Partial<Line>) => setLines((current) => current.map((line, position) => (position === index ? { ...line, ...change } : line)));
+  // Nhà cung cấp nội bộ (CONG_VIEC_09): giá, thuế suất theo bảng giá Nội bộ bên bán, không sửa tay.
+  const [internalSupplier, setInternalSupplier] = useState(false);
 
   // Giá gợi ý: dòng chưa có giá lấy theo bảng giá mua khi đổi nhà cung cấp, đơn vị, số lượng.
   async function suggest(index: number, line: Line) {
     if (!supplierId || !line.quantity) return;
     const parameters = new URLSearchParams({ supplierId, variantId: line.item.variantId, unitId: line.unitId, quantity: line.quantity, date: orderDate });
     const found = await apiFetch<SupplierPriceLookupResponse>(`/purchasing/supplier-prices/lookup?${parameters}`).catch(() => null);
-    if (found?.unitPrice) setLine(index, { unitPrice: found.unitPrice });
+    setInternalSupplier(Boolean(found?.internal));
+    if (found?.internal) setLine(index, { unitPrice: found.unitPrice ? String(Number(found.unitPrice)) : "", vatRate: found.internal.vatRate });
+    else if (found?.unitPrice) setLine(index, { unitPrice: found.unitPrice });
   }
   useEffect(() => {
     if (order) return;
@@ -165,6 +169,7 @@ export function OrderEditor({
         </Field>
       </section>
       <h2 style={{ margin: 0 }}>{t("lines")}</h2>
+      {internalSupplier && <div className="khoi-canh-bao thong-tin">{t("internalPriceHint")}</div>}
       {fields.lines && <div className="khoi-canh-bao loi">{fields.lines}</div>}
       {lines.map((line, index) => (
         <fieldset key={line.id ?? `moi-${index}`} className="the" style={{ margin: 0 }}>
@@ -206,11 +211,12 @@ export function OrderEditor({
                 className={inputClass(`lines.${index}.unitPrice`)}
                 inputMode="numeric"
                 value={line.unitPrice}
+                readOnly={internalSupplier}
                 onChange={(event) => setLine(index, { unitPrice: event.target.value })}
               />
             </Field>
             <Field id={`thue-${index}`} label={t("vatRate")}>
-              <select id={`thue-${index}`} className="o-nhap" value={line.vatRate} onChange={(event) => setLine(index, { vatRate: event.target.value as VatRate })}>
+              <select id={`thue-${index}`} className="o-nhap" value={line.vatRate} disabled={internalSupplier} onChange={(event) => setLine(index, { vatRate: event.target.value as VatRate })}>
                 {vatRates.map((rate) => (
                   <option key={rate} value={rate}>
                     {t(`vat_${rate}`)}

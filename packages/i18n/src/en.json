@@ -171,6 +171,13 @@
     "customerNotActive": "This partner has no active customer profile in the company.",
     "salesOrderNotCancellable": "The sales order has deliveries or cannot be cancelled in its status; close it instead.",
     "salesOrderHasOpenIssues": "The sales order has draft deliveries and cannot be closed.",
+    "internalChannelRequired": "A sales order to a subsidiary must use the Internal sales channel.",
+    "internalChannelMissing": "The selling company has no active Internal sales channel.",
+    "internalProfileMissing": "The other company has no active partner profile for this company (customer at the seller, supplier at the buyer).",
+    "internalCurrencyMismatch": "The two companies use different currencies; internal trade is not possible.",
+    "internalVariantNotLinked": "The item is not linked to a product of the other company.",
+    "internalCounterpartNotApproved": "The buyer's counterpart purchase order is not approved yet; delivery is not allowed.",
+    "internalCounterpartLocked": "An internal counterpart document can only be confirmed or rejected, not edited.",
     "salesOrderNotOpen": "The sales order is not confirmed or is closed; it cannot be delivered.",
     "salesIssueNotPosted": "Returns can only be received from posted deliveries.",
     "salesOverDelivery": "Exceeds the quantity still to deliver on the sales order.",
@@ -1746,7 +1753,8 @@
     "status_rejected": "Rejected",
     "status_withdrawn": "Withdrawn",
     "status_received": "Fully received",
-    "status_closed": "Closed"
+    "status_closed": "Closed",
+    "status_counterpart_pending": "Awaiting internal confirmation"
   },
   "supplierPrices": {
     "title": "Supplier prices",
@@ -1867,7 +1875,17 @@
     "receiptStatus_rejected": "Rejected",
     "receiptStatus_withdrawn": "Withdrawn",
     "receiptType_purchase_receipt": "Purchase receipt",
-    "receiptType_purchase_return": "Purchase return"
+    "receiptType_purchase_return": "Purchase return",
+    "internal": "Internal",
+    "counterpartSales": "Counterpart sales order at {company}: {number} ({status})",
+    "counterpartFromSales": "Created from the sales order of {company}: {number}",
+    "counterpartPendingHint": "The selling company sold to this company. Choose the receiving warehouse and confirm (the order goes through approval as usual), or reject with a reason.",
+    "confirmCounterpart": "Confirm",
+    "rejectCounterpart": "Reject",
+    "rejectReason": "Reason for rejection",
+    "counterpartRejected": "Rejected: {reason}",
+    "noNumberYet": "no number yet",
+    "internalPriceHint": "Internal supplier: price from the selling company's Internal channel price list, not editable."
   },
   "salesOrders": {
     "title": "Sales orders",
@@ -1942,7 +1960,17 @@
     "status_withdrawn": "Withdrawn",
     "status_delivered": "Fully delivered",
     "status_cancelled": "Cancelled",
-    "status_closed": "Closed"
+    "status_closed": "Closed",
+    "status_counterpart_pending": "Awaiting internal confirmation",
+    "internal": "Internal",
+    "counterpartPurchase": "Counterpart purchase order at {company}: {number} ({status})",
+    "counterpartFromPurchase": "Created from the purchase order of {company}: {number}",
+    "counterpartPendingHint": "The buying company placed this order. Choose the issuing warehouse and confirm (exceptions and reservation as usual), or reject with a reason.",
+    "confirmCounterpart": "Confirm",
+    "rejectCounterpart": "Reject",
+    "rejectReason": "Reason for rejection",
+    "counterpartRejected": "Rejected: {reason}",
+    "noNumberYet": "no number yet"
   },
   "salesMenu": {
     "title": "Sales",

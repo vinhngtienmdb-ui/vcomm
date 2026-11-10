@@ -16,6 +16,8 @@ import type { z } from "zod";
 import { searchText, trimDecimal } from "../catalog/catalog-context";
 import { day } from "../catalog/price-lists.service";
 import { searchVariantOptions } from "../catalog/variant-search";
+import { internalCompanyOf } from "../crm/partners.service";
+import { internalPrice } from "../sales/internal-trade-rules";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
@@ -136,6 +138,12 @@ export class SupplierPricesService {
   async lookupFor(actor: Actor, supplierId: string, variantId: string, unitId: string, quantity: string | undefined, date: string | undefined): Promise<SupplierPriceLookupResponse> {
     await requirePermission(this.permissionService, actor, ...anyPurchasingPermission);
     const quantityText = quantity && /^\d{1,12}(\.\d{1,4})?$/.test(quantity) ? quantity : "0";
+    // Nhà cung cấp nội bộ: giá theo bảng giá kênh Nội bộ của công ty bán, không sửa tay (QUYTAC_NGHIEPVU_75).
+    const sellerCompanyId = await internalCompanyOf(this.database, supplierId);
+    if (sellerCompanyId) {
+      const price = await internalPrice(this.database, actor.companyId, sellerCompanyId, variantId, unitId, date ?? this.permissionService.today());
+      return { unitPrice: price?.unitPrice ?? null, priceId: null, internal: { vatRate: price?.vatRate ?? "10" } };
+    }
     return this.lookup(this.database, actor.companyId, supplierId, variantId, unitId, quantityText, date ?? this.permissionService.today());
   }
 

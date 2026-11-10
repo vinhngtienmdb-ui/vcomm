@@ -106,6 +106,7 @@ export class SalesDeliveriesService {
   async createIssue(actor: Actor, input: IssueInput): Promise<StockDocumentResponse> {
     const order = await this.order(this.database, input.orderId);
     if (order.status !== "confirmed") throw new ApiError("BUSINESS_RULE", "salesOrderNotOpen");
+    await this.requireInternalReady(this.database, order.id);
     const { documentInput, sourceLines } = await this.issueInput(order, input);
     const prepared = await this.documents.prepare(actor, documentInput, inventoryPermissions.issueSales);
     const fields = await this.deliverableErrors(this.database, order.id, documentInput, sourceLines);
@@ -203,6 +204,7 @@ export class SalesDeliveriesService {
       if (row.type === "sales_issue") {
         const order = await this.order(transaction, row.source_id!, true);
         if (order.status !== "confirmed") throw new ApiError("BUSINESS_RULE", "salesOrderNotOpen");
+        await this.requireInternalReady(transaction, order.id);
         fields = await this.deliverableErrors(
           transaction,
           order.id,
@@ -349,6 +351,17 @@ export class SalesDeliveriesService {
     if (row.created_by !== actor.userId) throw new ApiError("FORBIDDEN", "forbidden");
     if (row.status !== "draft") throw new ApiError("BUSINESS_RULE", "documentNotDraft");
     return row;
+  }
+
+  // Đơn bán nội bộ chỉ giao khi đơn mua đối ứng của công ty mua đã duyệt (QUYTAC_NGHIEPVU_76).
+  private async requireInternalReady(executor: Executor, orderId: string): Promise<void> {
+    const row = (
+      await executor.execute<{ internal: boolean; purchase_status: string | null }>(sql`
+      SELECT c.company_id IS NOT NULL AS internal, po.status AS purchase_status
+      FROM sales.orders o LEFT JOIN crm.partners c ON c.id = o.customer_id LEFT JOIN purchasing.orders po ON po.id = o.counterpart_order_id
+      WHERE o.id = ${orderId}`)
+    ).rows[0];
+    if (row?.internal && row.purchase_status !== "approved") throw new ApiError("BUSINESS_RULE", "internalCounterpartNotApproved");
   }
 
   private async order(executor: Executor, id: string, lock = false): Promise<OrderRow> {

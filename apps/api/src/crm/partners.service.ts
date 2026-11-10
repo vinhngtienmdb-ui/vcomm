@@ -541,3 +541,11 @@ export class PartnersService implements OnApplicationBootstrap {
     };
   }
 }
+
+// CONG_VIEC_09: công ty con mà đối tác nội bộ đại diện (null nếu là đối tác bên ngoài) và đối tác nội bộ đại diện một công ty (QUYTAC_NGHIEPVU_58).
+export async function internalCompanyOf(executor: Pick<Database, "execute">, partnerId: string): Promise<string | null> {
+  return (await executor.execute<{ company_id: string | null }>(sql`SELECT company_id FROM crm.partners WHERE id = ${partnerId}`)).rows[0]?.company_id ?? null;
+}
+export async function internalPartnerOf(executor: Pick<Database, "execute">, companyId: string): Promise<string | null> {
+  return (await executor.execute<{ id: string }>(sql`SELECT id FROM crm.partners WHERE company_id = ${companyId} AND status = 'active'`)).rows[0]?.id ?? null;
+}
