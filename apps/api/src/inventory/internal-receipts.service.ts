@@ -24,6 +24,9 @@ type DocumentInput = z.output<typeof saveStockDocumentSchema>;
 
 @Injectable()
 export class InternalReceiptsService {
+  // Module khác đăng ký lúc khởi động: chạy khi biên bản chênh lệch được ghi tổn thất (công nợ, CONG_VIEC_13).
+  readonly writtenOffHooks: ((transaction: Pick<Database, "execute">, discrepancyId: string) => Promise<void>)[] = [];
+
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     private readonly permissionService: PermissionService,
@@ -227,10 +230,15 @@ export class InternalReceiptsService {
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
     await this.warehouses.operable(actor.userId, row.warehouse_id, inventoryPermissions.issueSales);
     // Giữ biên bản trước để hai người xử lý cùng lúc không cùng nhập lại kho.
-    const claimed = await this.database.execute(sql`
-      UPDATE inventory.internal_discrepancies SET status = ${input.action === "return" ? "returned" : "written_off"}, resolution_note = ${input.note}, resolved_by = ${actor.userId},
-        resolved_at = now(), version = version + 1
-      WHERE id = ${id} AND status = 'open' AND version = ${input.version} RETURNING id`);
+    // Ghi tổn thất: đóng biên bản và chạy móc nối (công nợ giảm phải thu bên bán) trong cùng giao dịch.
+    const claimed = await this.database.transaction(async (transaction) => {
+      const updated = await transaction.execute(sql`
+        UPDATE inventory.internal_discrepancies SET status = ${input.action === "return" ? "returned" : "written_off"}, resolution_note = ${input.note}, resolved_by = ${actor.userId},
+          resolved_at = now(), version = version + 1
+        WHERE id = ${id} AND status = 'open' AND version = ${input.version} RETURNING id`);
+      if (updated.rows.length > 0 && input.action === "write_off") for (const hook of this.writtenOffHooks) await hook(transaction, id);
+      return updated;
+    });
     if (claimed.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     if (input.action === "return") {
       let returnId: string | null = null;

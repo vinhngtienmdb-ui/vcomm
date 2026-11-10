@@ -2145,7 +2145,8 @@
     "paymentKind_customer_receipt": "Thu tiền khách hàng",
     "paymentKind_supplier_payment": "Trả tiền nhà cung cấp",
     "paymentKind_customer_refund": "Hoàn tiền cho khách hàng",
-    "paymentKind_supplier_refund": "Nhà cung cấp hoàn tiền"
+    "paymentKind_supplier_refund": "Nhà cung cấp hoàn tiền",
+    "source_internal_write_off": "Ghi tổn thất hàng thiếu nội bộ"
   },
   "funds": {
     "title": "Quỹ",
@@ -2250,6 +2251,7 @@
     "source_purchase_receipt": "Nhập mua",
     "source_purchase_return": "Trả hàng nhà cung cấp",
     "source_payment": "Phiếu thu chi",
-    "fundInactive": "đã ngừng dùng"
+    "fundInactive": "đã ngừng dùng",
+    "source_internal_write_off": "Ghi tổn thất hàng thiếu nội bộ"
   }
 }

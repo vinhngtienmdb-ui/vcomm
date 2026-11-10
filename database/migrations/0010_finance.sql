@@ -28,8 +28,8 @@ CREATE TABLE finance.debt_items (
     partner_id              uuid        NOT NULL REFERENCES crm.partners(id),
     side                    text        NOT NULL CHECK (side IN ('receivable', 'payable')),
     direction               text        NOT NULL CHECK (direction IN ('debit', 'credit')),
-    source_type             text        NOT NULL CHECK (source_type IN ('opening', 'sales_issue', 'sales_return', 'purchase_receipt', 'purchase_return', 'payment')),
-    source_id               uuid,                                                   -- phiếu kho hoặc phiếu thu chi; số dư đầu kỳ: trống
+    source_type             text        NOT NULL CHECK (source_type IN ('opening', 'sales_issue', 'sales_return', 'purchase_receipt', 'purchase_return', 'payment', 'internal_write_off')),
+    source_id               uuid,                                                   -- phiếu kho, phiếu thu chi hoặc biên bản chênh lệch nội bộ ghi tổn thất; số dư đầu kỳ: trống
     original_item_id        uuid        REFERENCES finance.debt_items(id),          -- trả hàng: khoản tăng của phiếu gốc, trừ trước
     document_no             text        NOT NULL,
     document_date           date        NOT NULL,

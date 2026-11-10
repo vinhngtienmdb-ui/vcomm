@@ -2145,7 +2145,8 @@
     "paymentKind_customer_receipt": "Customer receipt",
     "paymentKind_supplier_payment": "Supplier payment",
     "paymentKind_customer_refund": "Customer refund",
-    "paymentKind_supplier_refund": "Supplier refund"
+    "paymentKind_supplier_refund": "Supplier refund",
+    "source_internal_write_off": "Internal shortage write-off"
   },
   "funds": {
     "title": "Funds",
@@ -2250,6 +2251,7 @@
     "source_purchase_receipt": "Purchase receipt",
     "source_purchase_return": "Purchase return",
     "source_payment": "Receipt or payment",
-    "fundInactive": "inactive"
+    "fundInactive": "inactive",
+    "source_internal_write_off": "Internal shortage write-off"
   }
 }

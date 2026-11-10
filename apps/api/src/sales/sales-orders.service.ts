@@ -33,7 +33,7 @@ import { companyCurrency, ensureSequence } from "../purchasing/requisitions.serv
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { internalCompanyOf } from "../crm/partners.service";
 import { internalSalesErrors } from "./internal-trade-rules";
-import { receivableBalance } from "../finance/debts.service";
+import { receivableBalance } from "../finance/receivable-balance";
 import { applyPromotions, type GiftShortage, type PricedLine, withoutPromotion } from "./promotion-pricing";
 import { promotionGiftUsage, promotionUsage } from "./promotions.service";
 import { requireSalesPermission, salesAudit, salesPermissions } from "./sales-context";

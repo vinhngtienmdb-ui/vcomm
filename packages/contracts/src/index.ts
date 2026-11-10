@@ -2738,7 +2738,7 @@ export interface FundLedgerResponse {
 
 export const debtSides = ["receivable", "payable"] as const;
 export type DebtSide = (typeof debtSides)[number];
-export const debtSourceTypes = ["opening", "sales_issue", "sales_return", "purchase_receipt", "purchase_return", "payment"] as const;
+export const debtSourceTypes = ["opening", "sales_issue", "sales_return", "purchase_receipt", "purchase_return", "payment", "internal_write_off"] as const;
 export type DebtSourceType = (typeof debtSourceTypes)[number];
 export const debtSummaryQuerySchema = z
   .object({ side: z.enum(debtSides), search: z.string().trim().max(100).optional(), overdueOnly: z.enum(["true", "false"]).optional() })

@@ -19,6 +19,7 @@ import { day } from "../catalog/price-lists.service";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
+import { InternalReceiptsService } from "../inventory/internal-receipts.service";
 import { StockDocumentsService } from "../inventory/stock-documents.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
@@ -49,11 +50,6 @@ const toAgeing = (row: AgeingRow): DebtAgeing => ({
   overdueOver90: trimDecimal(row.overdue_over_90),
 });
 
-// Số dư công nợ phải thu của khách (trả trước làm giảm), dùng kiểm hạn mức công nợ của đơn bán (QUYTAC_NGHIEPVU_92).
-export const receivableBalance = (companyId: SQL | string, partnerId: SQL | string) => sql`
-  (SELECT coalesce(sum(CASE WHEN i.direction = 'debit' THEN i.open_amount ELSE -i.open_amount END), 0)
-   FROM finance.debt_items i WHERE i.company_id = ${companyId} AND i.side = 'receivable' AND i.partner_id = ${partnerId})`;
-
 @Injectable()
 export class DebtsService implements OnModuleInit {
   constructor(
@@ -61,10 +57,12 @@ export class DebtsService implements OnModuleInit {
     private readonly permissionService: PermissionService,
     private readonly auditService: AuditService,
     private readonly documents: StockDocumentsService,
+    private readonly internalReceipts: InternalReceiptsService,
   ) {}
 
   onModuleInit(): void {
     this.documents.postedHooks.push((transaction, documentId) => this.recordInventoryDocument(transaction, documentId));
+    this.internalReceipts.writtenOffHooks.push((transaction, discrepancyId) => this.recordInternalWriteOff(transaction, discrepancyId));
   }
 
   // Mọi thay đổi công nợ của một đối tác ở một phía chạy tuần tự (khóa đến hết giao dịch).
@@ -104,6 +102,29 @@ export class DebtsService implements OnModuleInit {
       ).rows[0]!.id;
       await this.matchCredit(executor, id, original ? [{ debitItemId: original, amount: null }] : [], true);
     }
+  }
+
+  // Giao nội bộ thiếu, bên bán ghi tổn thất: giảm phải thu của công ty mua theo giá đơn bán của phần thiếu, trừ trước vào phiếu xuất gốc (quyết định người dùng 2026-11-10).
+  async recordInternalWriteOff(executor: Executor, discrepancyId: string): Promise<void> {
+    const row = (
+      await executor.execute<{ company_id: string; partner_id: string | null; issue_document_id: string; document_no: string | null; amount: string }>(sql`
+      SELECT x.company_id, d.partner_id, x.issue_document_id, d.document_no,
+        round(sl.total_amount * x.shortage_base_quantity / sl.base_quantity, 4)::text AS amount
+      FROM inventory.internal_discrepancies x JOIN inventory.documents d ON d.id = x.issue_document_id
+      JOIN inventory.document_lines dl ON dl.id = x.issue_line_id JOIN sales.order_lines sl ON sl.id = dl.source_line_id
+      WHERE x.id = ${discrepancyId}`)
+    ).rows[0];
+    if (!row || !row.partner_id || Number(row.amount) <= 0) return;
+    await this.lockPartner(executor, row.company_id, "receivable", row.partner_id);
+    const original = (await executor.execute<{ id: string }>(sql`SELECT id FROM finance.debt_items WHERE source_id = ${row.issue_document_id} AND direction = 'debit'`)).rows[0]?.id;
+    const id = (
+      await executor.execute<{ id: string }>(sql`
+      INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, original_item_id, document_no, document_date, amount, open_amount, note)
+      VALUES (${row.company_id}, ${row.partner_id}, 'receivable', 'credit', 'internal_write_off', ${discrepancyId}, ${original ?? null}, ${row.document_no ?? ""}, ${this.permissionService.today()}::date,
+        ${row.amount}::numeric, ${row.amount}::numeric, 'Ghi tổn thất hàng thiếu giao nội bộ')
+      RETURNING id`)
+    ).rows[0]!.id;
+    await this.matchCredit(executor, id, original ? [{ debitItemId: original, amount: null }] : [], true);
   }
 
   // Trừ một khoản giảm vào một khoản tăng, không vượt số còn lại của cả hai và mức chỉ định; trả về số còn lại của hai khoản.

@@ -485,3 +485,21 @@ describe("TIEUCHI_NGHIEMTHU_95, 97: đơn mua nội bộ không nhận thường
     expect(await reserved()).toBe(before - 12);
   });
 });
+
+describe("TIEUCHI_NGHIEMTHU_106: công nợ khi ghi tổn thất hàng thiếu nội bộ (CONG_VIEC_13)", () => {
+  it("KICHBAN_KIEMTHU_209: bên bán ghi tổn thất thì phải thu của phiếu xuất giảm đúng giá trị phần thiếu theo giá đơn bán; bên mua không có phải trả cho phần không nhận", async () => {
+    const written = (
+      await pool.query<{ id: string; issue_document_id: string; receipt_document_id: string }>(
+        "SELECT id, issue_document_id, receipt_document_id FROM inventory.internal_discrepancies WHERE status = 'written_off'",
+      )
+    ).rows;
+    expect(written).toHaveLength(1);
+    const credit = (await pool.query("SELECT amount::text, open_amount::text, original_item_id FROM finance.debt_items WHERE source_type = 'internal_write_off' AND source_id = $1", [written[0]!.id]))
+      .rows[0];
+    const issue = (await pool.query("SELECT id, amount::text, open_amount::text FROM finance.debt_items WHERE source_id = $1 AND direction = 'debit'", [written[0]!.issue_document_id])).rows[0];
+    // Cả phiếu xuất (1 máy) thất lạc: khoản giảm bằng toàn bộ phải thu của phiếu xuất, phiếu xuất hết nợ.
+    expect(credit).toMatchObject({ amount: issue.amount, open_amount: "0.0000", original_item_id: issue.id });
+    expect(issue.open_amount).toBe("0.0000");
+    expect((await pool.query("SELECT 1 FROM finance.debt_items WHERE source_id = $1", [written[0]!.receipt_document_id])).rows).toHaveLength(0);
+  });
+});
