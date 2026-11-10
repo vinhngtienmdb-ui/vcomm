@@ -2886,6 +2886,7 @@ export interface PaymentResponse {
   note: string | null;
   status: PaymentStatus;
   approvalRequestId: string | null;
+  postError: string | null;
   lines: (OpenDebtResponse & { allocated: string })[];
   unallocated: string;
   createdByName: string;

@@ -57,6 +57,7 @@ import { PromotionsService } from "./sales/promotions.service";
 import { FinanceController } from "./finance/finance.controller";
 import { DebtsService } from "./finance/debts.service";
 import { FundsService } from "./finance/funds.service";
+import { PaymentsService } from "./finance/payments.service";
 import { SupplierPricesService } from "./purchasing/supplier-prices.service";
 import { RequisitionsService } from "./purchasing/requisitions.service";
 import { PurchaseOrdersService } from "./purchasing/orders.service";
@@ -124,6 +125,7 @@ import { UsersService } from "./users/users.service";
     PromotionsService,
     DebtsService,
     FundsService,
+    PaymentsService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

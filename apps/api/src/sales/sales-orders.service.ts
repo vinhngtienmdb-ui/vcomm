@@ -33,6 +33,7 @@ import { companyCurrency, ensureSequence } from "../purchasing/requisitions.serv
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { internalCompanyOf } from "../crm/partners.service";
 import { internalSalesErrors } from "./internal-trade-rules";
+import { receivableBalance } from "../finance/debts.service";
 import { applyPromotions, type GiftShortage, type PricedLine, withoutPromotion } from "./promotion-pricing";
 import { promotionGiftUsage, promotionUsage } from "./promotions.service";
 import { requireSalesPermission, salesAudit, salesPermissions } from "./sales-context";
@@ -625,7 +626,7 @@ export class SalesOrdersService implements OnModuleInit {
     return exception.detail;
   }
 
-  // Ngoại lệ: chiết khấu vượt mức; dưới giá vốn bình quân tại kho; vượt hạn mức công nợ theo dư nợ tạm tính, đã trừ hàng khách trả của các phiếu xuất trong số ngày được nợ (QUYTAC_NGHIEPVU_68, 69).
+  // Ngoại lệ: chiết khấu vượt mức; dưới giá vốn bình quân tại kho; vượt hạn mức công nợ theo số dư công nợ phải thu cộng phần chưa giao của đơn đã xác nhận (QUYTAC_NGHIEPVU_68, 92; THAY_DOI_09).
   // Gửi đơn: khóa chương trình đã áp, kiểm lại ngân sách, suất cùng các đơn khác; không đủ thì người bán lưu lại để tính lại (QUYTAC_NGHIEPVU_82).
   private async checkPromotionLimits(transaction: Executor, orderId: string): Promise<void> {
     const used = await transaction.execute<{ id: string }>(sql`
@@ -663,8 +664,8 @@ export class SalesOrdersService implements OnModuleInit {
     }
     if (order.customer_id) {
       const profile = (
-        await transaction.execute<{ credit_limit: string | null; payment_term_days: number }>(sql`
-        SELECT credit_limit::text, payment_term_days FROM crm.partner_profiles WHERE company_id = ${order.company_id} AND partner_id = ${order.customer_id}`)
+        await transaction.execute<{ credit_limit: string | null }>(sql`
+        SELECT credit_limit::text FROM crm.partner_profiles WHERE company_id = ${order.company_id} AND partner_id = ${order.customer_id}`)
       ).rows[0];
       if (profile?.credit_limit !== null && profile?.credit_limit !== undefined) {
         const exposure = (
@@ -673,17 +674,7 @@ export class SalesOrdersService implements OnModuleInit {
             coalesce((SELECT sum(l.total_amount * greatest(l.base_quantity - ${deliveredOnOrderLine(sql`l.id`)}, 0) / l.base_quantity)
                       FROM sales.order_lines l JOIN sales.orders o ON o.id = l.order_id
                       WHERE o.company_id = ${order.company_id} AND o.customer_id = ${order.customer_id} AND o.status = 'confirmed' AND o.id <> ${order.id}), 0)
-            + coalesce((SELECT sum(sl.total_amount * dl.base_quantity / sl.base_quantity)
-                      FROM inventory.document_lines dl JOIN inventory.documents d ON d.id = dl.document_id
-                      JOIN sales.order_lines sl ON sl.id = dl.source_line_id JOIN sales.orders o ON o.id = sl.order_id
-                      WHERE d.type = 'sales_issue' AND d.status = 'posted' AND o.company_id = ${order.company_id} AND o.customer_id = ${order.customer_id}
-                        AND d.document_date > ${this.permissionService.today()}::date - ${profile.payment_term_days}::int), 0)
-            - coalesce((SELECT sum(sl.total_amount * rl.base_quantity / sl.base_quantity)
-                      FROM inventory.document_lines rl JOIN inventory.documents r ON r.id = rl.document_id
-                      JOIN inventory.document_lines dl ON dl.id = rl.source_line_id JOIN inventory.documents d ON d.id = dl.document_id
-                      JOIN sales.order_lines sl ON sl.id = dl.source_line_id JOIN sales.orders o ON o.id = sl.order_id
-                      WHERE r.type = 'sales_return' AND r.status = 'posted' AND d.type = 'sales_issue' AND o.company_id = ${order.company_id} AND o.customer_id = ${order.customer_id}
-                        AND d.document_date > ${this.permissionService.today()}::date - ${profile.payment_term_days}::int), 0)
+            + ${receivableBalance(order.company_id, order.customer_id)}
           )::text AS value`)
         ).rows[0]!.value;
         const after = Number(exposure) + Number(order.total_amount);

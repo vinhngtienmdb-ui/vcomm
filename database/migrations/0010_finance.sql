@@ -72,6 +72,7 @@ CREATE TABLE finance.payments (
     note                    text,
     status                  text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'posted', 'rejected', 'withdrawn')),
     approval_request_id     uuid        REFERENCES core.approval_requests(id),
+    post_error              text,                                                   -- duyệt xong nhưng không ghi sổ được (số dư quỹ, số còn nợ đã đổi)
     posted_at               timestamptz,
     created_by              uuid        NOT NULL REFERENCES core.users(id),
     created_at              timestamptz NOT NULL DEFAULT now(),

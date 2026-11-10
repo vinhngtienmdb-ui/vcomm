@@ -8,6 +8,12 @@ import {
   openDebtQuerySchema,
   saveFundSchema,
   saveOpeningDebtSchema,
+  paymentListQuerySchema,
+  savePaymentSchema,
+  versionSchema,
+  type PaymentListItem,
+  type PaymentOptionsResponse,
+  type PaymentResponse,
   type DebtPartnerResponse,
   type DebtSummaryResponse,
   type FinancePartnerOption,
@@ -22,6 +28,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { DebtsService } from "./debts.service";
 import { FundsService } from "./funds.service";
+import { PaymentsService } from "./payments.service";
 
 @Controller("finance")
 export class FinanceController {
@@ -29,6 +36,7 @@ export class FinanceController {
     private readonly permissionService: PermissionService,
     private readonly debts: DebtsService,
     private readonly funds: FundsService,
+    private readonly payments: PaymentsService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -98,5 +106,40 @@ export class FinanceController {
   @Delete("debts/opening/:id")
   async openingDelete(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<DebtPartnerResponse> {
     return this.debts.deleteOpening(await this.actor(request, companyId), id);
+  }
+
+  @Get("payments/options")
+  async paymentOptions(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<PaymentOptionsResponse> {
+    return this.payments.options(await this.actor(request, companyId));
+  }
+
+  @Get("payments")
+  async paymentList(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentListItem[]> {
+    return this.payments.list(await this.actor(request, companyId), paymentListQuerySchema.parse(query));
+  }
+
+  @Get("payments/:id")
+  async paymentDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.payments.detail(await this.actor(request, companyId), id);
+  }
+
+  @Post("payments")
+  async paymentCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.payments.create(await this.actor(request, companyId), savePaymentSchema.parse(body));
+  }
+
+  @Patch("payments/:id")
+  async paymentUpdate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.payments.update(await this.actor(request, companyId), id, savePaymentSchema.parse(body));
+  }
+
+  @Post("payments/:id/submit")
+  async paymentSubmit(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.payments.submit(await this.actor(request, companyId), id, versionSchema.parse(body).version);
+  }
+
+  @Post("payments/:id/withdraw")
+  async paymentWithdraw(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.payments.withdraw(await this.actor(request, companyId), id);
   }
 }
