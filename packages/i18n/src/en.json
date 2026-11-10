@@ -188,7 +188,17 @@
     "internalShortageReasonRequired": "A reason is required when receiving less than shipped.",
     "internalLineMissing": "Enter the received quantity for every line.",
     "internalReceiptOnly": "An internal purchase order is received only through the receipt created from the seller's delivery.",
-    "promotionLimitExceeded": "The promotion has run out of budget or gift sets. Save the order again to recalculate promotions, then submit."
+    "promotionLimitExceeded": "The promotion has run out of budget or gift sets. Save the order again to recalculate promotions, then submit.",
+    "fundCodeExists": "Fund code already exists in this company.",
+    "fundHasPostings": "The fund already has receipts or payments; the opening balance cannot change.",
+    "fundInactive": "The fund is inactive.",
+    "partnerNotCustomer": "The partner is not a customer of this company.",
+    "partnerNotSupplier": "The partner is not a supplier of this company.",
+    "debtAllocationExceeded": "The amount exceeds the open amount of the document.",
+    "paymentAllocationExceeded": "Total allocations exceed the payment amount.",
+    "refundExceedsAdvance": "The refund exceeds the remaining advance.",
+    "insufficientFundBalance": "Insufficient fund balance.",
+    "openingDebtAllocated": "The opening balance has been settled and cannot be deleted."
   },
   "login": {
     "title": "Sign in",

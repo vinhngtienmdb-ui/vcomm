@@ -188,7 +188,17 @@
     "internalShortageReasonRequired": "Nhận thiếu phải ghi lý do.",
     "internalLineMissing": "Phải nhập số nhận cho mọi dòng của phiếu.",
     "internalReceiptOnly": "Đơn mua nội bộ chỉ nhận theo phiếu nhập sinh từ phiếu xuất của công ty bán.",
-    "promotionLimitExceeded": "Chương trình khuyến mãi đã hết ngân sách hoặc hết suất. Lưu lại đơn để tính lại khuyến mãi rồi gửi."
+    "promotionLimitExceeded": "Chương trình khuyến mãi đã hết ngân sách hoặc hết suất. Lưu lại đơn để tính lại khuyến mãi rồi gửi.",
+    "fundCodeExists": "Mã quỹ đã có trong công ty.",
+    "fundHasPostings": "Quỹ đã có phiếu thu chi, không sửa được số dư đầu.",
+    "fundInactive": "Quỹ đã ngừng dùng.",
+    "partnerNotCustomer": "Đối tác không phải khách hàng của công ty.",
+    "partnerNotSupplier": "Đối tác không phải nhà cung cấp của công ty.",
+    "debtAllocationExceeded": "Số trừ vượt số còn nợ của chứng từ.",
+    "paymentAllocationExceeded": "Tổng số trừ vượt số tiền phiếu.",
+    "refundExceedsAdvance": "Số tiền hoàn vượt tiền trả trước đang còn.",
+    "insufficientFundBalance": "Số dư quỹ không đủ.",
+    "openingDebtAllocated": "Khoản số dư đầu kỳ đã được trừ nợ, không xóa được."
   },
   "login": {
     "title": "Đăng nhập",

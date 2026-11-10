@@ -2682,3 +2682,225 @@ export interface InternalDiscrepancyItem {
 export const resolveInternalDiscrepancySchema = z
   .object({ action: z.enum(["return", "write_off"]), note: blankToNull(500), version: z.number().int().positive() })
   .strict();
+
+// CONG_VIEC_13: Công nợ phải thu, phải trả (MODULE_06, phần 1; API_84 đến API_86).
+export const fundKinds = ["cash", "bank"] as const;
+export type FundKind = (typeof fundKinds)[number];
+export const saveFundSchema = z
+  .object({
+    code: z.string().trim().min(1).max(20),
+    name: z.string().trim().min(1).max(200),
+    kind: z.enum(fundKinds),
+    bankName: blankToNull(200),
+    accountNo: blankToNull(50),
+    accountHolder: blankToNull(200),
+    openingBalance: decimalText(4).default("0"),
+    status: z.enum(["active", "inactive"]).default("active"),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveFundRequest = z.input<typeof saveFundSchema>;
+export interface FundResponse {
+  id: string;
+  code: string;
+  name: string;
+  kind: FundKind;
+  bankName: string | null;
+  accountNo: string | null;
+  accountHolder: string | null;
+  openingBalance: string;
+  balance: string;
+  status: "active" | "inactive";
+  hasPostings: boolean;
+  currency: string;
+  version: number;
+  canManage: boolean;
+}
+export const fundLedgerQuerySchema = z.object({ from: isoDate, to: isoDate }).strict();
+export interface FundLedgerEntry {
+  paymentId: string;
+  date: string;
+  documentNo: string;
+  kind: PaymentKind;
+  partnerName: string;
+  receipt: string;
+  payment: string;
+  balance: string;
+}
+export interface FundLedgerResponse {
+  fund: FundResponse;
+  from: string;
+  to: string;
+  openingBalance: string;
+  entries: FundLedgerEntry[];
+  closingBalance: string;
+}
+
+export const debtSides = ["receivable", "payable"] as const;
+export type DebtSide = (typeof debtSides)[number];
+export const debtSourceTypes = ["opening", "sales_issue", "sales_return", "purchase_receipt", "purchase_return", "payment"] as const;
+export type DebtSourceType = (typeof debtSourceTypes)[number];
+export const debtSummaryQuerySchema = z
+  .object({ side: z.enum(debtSides), search: z.string().trim().max(100).optional(), overdueOnly: z.enum(["true", "false"]).optional() })
+  .strict();
+export interface DebtAgeing {
+  notDue: string;
+  overdue1To30: string;
+  overdue31To60: string;
+  overdue61To90: string;
+  overdueOver90: string;
+}
+export interface DebtPartnerSummary extends DebtAgeing {
+  partnerId: string;
+  partnerCode: string;
+  partnerName: string;
+  balance: string;
+  advance: string;
+}
+export interface DebtSummaryResponse {
+  side: DebtSide;
+  currency: string;
+  partners: DebtPartnerSummary[];
+  totals: DebtAgeing & { balance: string; advance: string };
+}
+export interface DebtAllocationResponse {
+  itemId: string;
+  documentNo: string;
+  sourceType: DebtSourceType;
+  amount: string;
+  date: string;
+}
+export interface DebtItemResponse {
+  id: string;
+  direction: "debit" | "credit";
+  sourceType: DebtSourceType;
+  sourceId: string | null;
+  paymentKind: PaymentKind | null;
+  documentNo: string;
+  documentDate: string;
+  dueDate: string | null;
+  amount: string;
+  openAmount: string;
+  overdueDays: number;
+  note: string | null;
+  canDelete: boolean;
+  allocations: DebtAllocationResponse[];
+}
+export interface DebtPartnerResponse {
+  partner: { id: string; code: string; name: string };
+  side: DebtSide;
+  currency: string;
+  balance: string;
+  advance: string;
+  ageing: DebtAgeing;
+  items: DebtItemResponse[];
+  canManageOpening: boolean;
+  canManagePayments: boolean;
+}
+export const debtPartnerQuerySchema = z.object({ side: z.enum(debtSides) }).strict();
+export const saveOpeningDebtSchema = z
+  .object({
+    partnerId: z.uuid(),
+    side: z.enum(debtSides),
+    direction: z.enum(["debit", "credit"]),
+    documentNo: z.string().trim().min(1).max(50),
+    documentDate: isoDate,
+    dueDate: isoDate.nullable().optional(),
+    amount: positiveQuantity,
+    note: blankToNull(500),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (value.direction === "debit" && !value.dueDate) context.addIssue({ code: "custom", path: ["dueDate"], message: "required" });
+    if (value.dueDate && value.dueDate < value.documentDate) context.addIssue({ code: "custom", path: ["dueDate"], message: "invalidValue" });
+  });
+export type SaveOpeningDebtRequest = z.input<typeof saveOpeningDebtSchema>;
+export const financePartnerQuerySchema = z.object({ side: z.enum(debtSides), search: z.string().trim().max(100).optional() }).strict();
+export interface FinancePartnerOption {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export const paymentKinds = ["customer_receipt", "supplier_payment", "customer_refund", "supplier_refund"] as const;
+export type PaymentKind = (typeof paymentKinds)[number];
+export const paymentStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
+export type PaymentStatus = (typeof paymentStatuses)[number];
+// Phía công nợ và hướng của từng loại phiếu (QUYTAC_NGHIEPVU_88).
+export const paymentKindSide: Record<PaymentKind, DebtSide> = {
+  customer_receipt: "receivable",
+  customer_refund: "receivable",
+  supplier_payment: "payable",
+  supplier_refund: "payable",
+};
+export const paymentKindIsReceipt = (kind: PaymentKind) => kind === "customer_receipt" || kind === "supplier_refund";
+export const paymentKindSettles = (kind: PaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
+export const paymentListQuerySchema = z
+  .object({ kind: z.enum(paymentKinds).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
+  .strict();
+export const savePaymentSchema = z
+  .object({
+    kind: z.enum(paymentKinds),
+    partnerId: z.uuid(),
+    fundId: z.uuid(),
+    paymentDate: isoDate,
+    amount: positiveQuantity,
+    note: blankToNull(500),
+    lines: z
+      .array(z.object({ debitItemId: z.uuid(), amount: positiveQuantity }).strict())
+      .max(500)
+      .default([]),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePaymentRequest = z.input<typeof savePaymentSchema>;
+export interface PaymentListItem {
+  id: string;
+  documentNo: string | null;
+  kind: PaymentKind;
+  paymentDate: string;
+  partnerName: string;
+  fundName: string;
+  amount: string;
+  status: PaymentStatus;
+}
+export interface OpenDebtResponse {
+  id: string;
+  documentNo: string;
+  sourceType: DebtSourceType;
+  documentDate: string;
+  dueDate: string;
+  amount: string;
+  openAmount: string;
+  overdueDays: number;
+}
+export interface PaymentResponse {
+  id: string;
+  documentNo: string | null;
+  kind: PaymentKind;
+  partner: { id: string; code: string; name: string };
+  fund: { id: string; code: string; name: string };
+  paymentDate: string;
+  amount: string;
+  currency: string;
+  note: string | null;
+  status: PaymentStatus;
+  approvalRequestId: string | null;
+  lines: (OpenDebtResponse & { allocated: string })[];
+  unallocated: string;
+  createdByName: string;
+  postedAt: string | null;
+  version: number;
+  canEdit: boolean;
+  canSubmit: boolean;
+  canWithdraw: boolean;
+}
+export const openDebtQuerySchema = z.object({ side: z.enum(debtSides), partnerId: z.uuid(), paymentId: z.uuid().optional() }).strict();
+export interface PaymentOptionsResponse {
+  funds: { id: string; code: string; name: string; kind: FundKind; balance: string }[];
+  currency: string;
+}
+export interface OpenDebtsResponse {
+  items: OpenDebtResponse[];
+  advance: string;
+}

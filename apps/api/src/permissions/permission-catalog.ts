@@ -78,6 +78,10 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "sales.settings.manage", appCode: "sales", nameVi: "Cài đặt bán hàng", nameEn: "Manage sales settings", isSensitive: false },
   { code: "sales.promotion.view", appCode: "sales", nameVi: "Xem chương trình khuyến mãi", nameEn: "View promotions", isSensitive: false },
   { code: "sales.promotion.manage", appCode: "sales", nameVi: "Lập, gửi duyệt, dừng chương trình khuyến mãi", nameEn: "Manage promotions", isSensitive: false },
+  { code: "finance.debt.view", appCode: "finance", nameVi: "Xem quỹ, công nợ, phiếu thu chi", nameEn: "View funds, debts and payments", isSensitive: false },
+  { code: "finance.fund.manage", appCode: "finance", nameVi: "Quản lý quỹ", nameEn: "Manage funds", isSensitive: false },
+  { code: "finance.debt.manage", appCode: "finance", nameVi: "Nhập số dư đầu kỳ công nợ", nameEn: "Manage opening debt balances", isSensitive: false },
+  { code: "finance.payment.manage", appCode: "finance", nameVi: "Lập, gửi phiếu thu, phiếu chi", nameEn: "Manage receipts and payments", isSensitive: false },
   { code: "inventory.sales.issue", appCode: "inventory", nameVi: "Xuất giao hàng, nhận hàng trả lại", nameEn: "Issue sales deliveries and receive returns", isSensitive: false },
   { code: "inventory.purchase.receive", appCode: "inventory", nameVi: "Nhập mua, trả hàng nhà cung cấp", nameEn: "Receive purchases and return to suppliers", isSensitive: false },
 ];
@@ -120,6 +124,10 @@ const companyAdminPermissions = [
   "sales.settings.manage",
   "sales.promotion.view",
   "sales.promotion.manage",
+  "finance.debt.view",
+  "finance.fund.manage",
+  "finance.debt.manage",
+  "finance.payment.manage",
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [
@@ -127,9 +135,9 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     code: "group_admin",
     nameVi: "Quản trị tập đoàn",
     nameEn: "Group administrator",
-    // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), Đối tác (CONG_VIEC_06), Mua hàng (CONG_VIEC_07), Bán hàng (CONG_VIEC_08), cộng quyền truy cập mọi mini app.
+    // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), Đối tác (CONG_VIEC_06), Mua hàng (CONG_VIEC_07), Bán hàng (CONG_VIEC_08), Tài chính – Kế toán (CONG_VIEC_13), cộng quyền truy cập mọi mini app.
     permissionCodes: permissionCatalog
-      .filter((permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales"].includes(permission.appCode) || permission.code.endsWith(".access"))
+      .filter((permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance"].includes(permission.appCode) || permission.code.endsWith(".access"))
       .map((permission) => permission.code),
   },
   { code: "company_admin", nameVi: "Quản trị công ty", nameEn: "Company administrator", permissionCodes: companyAdminPermissions },
@@ -155,6 +163,12 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     nameEn: "Salesperson",
     permissionCodes: ["sales.access", "sales.order.view", "sales.order.manage", "sales.promotion.view", "crm.access", "crm.partner.view", "crm.partner.manage", "catalog.access", "catalog.price.view"],
   },
+  {
+    code: "accountant",
+    nameVi: "Kế toán",
+    nameEn: "Accountant",
+    permissionCodes: ["finance.access", "finance.debt.view", "finance.fund.manage", "finance.debt.manage", "finance.payment.manage", "crm.access", "crm.partner.view"],
+  },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },
 ];
 
@@ -175,6 +189,8 @@ export const documentTypeCatalog = [
   { code: "sales.promotion", appCode: "sales", nameVi: "Chương trình khuyến mãi", nameEn: "Promotion", requiresApproval: true },
   { code: "inventory.sales_issue", appCode: "inventory", nameVi: "Phiếu xuất giao hàng", nameEn: "Sales delivery", requiresApproval: false },
   { code: "inventory.sales_return", appCode: "inventory", nameVi: "Phiếu nhận hàng trả lại", nameEn: "Sales return", requiresApproval: false },
+  { code: "finance.receipt", appCode: "finance", nameVi: "Phiếu thu", nameEn: "Cash receipt", requiresApproval: false },
+  { code: "finance.payment", appCode: "finance", nameVi: "Phiếu chi", nameEn: "Cash payment", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.

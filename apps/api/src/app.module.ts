@@ -54,6 +54,9 @@ import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
 import { InternalTradeService } from "./sales/internal-trade.service";
 import { PromotionsService } from "./sales/promotions.service";
+import { FinanceController } from "./finance/finance.controller";
+import { DebtsService } from "./finance/debts.service";
+import { FundsService } from "./finance/funds.service";
 import { SupplierPricesService } from "./purchasing/supplier-prices.service";
 import { RequisitionsService } from "./purchasing/requisitions.service";
 import { PurchaseOrdersService } from "./purchasing/orders.service";
@@ -85,7 +88,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController],
   providers: [
     AuthService,
     ActivationService,
@@ -119,6 +122,8 @@ import { UsersService } from "./users/users.service";
     SalesOrdersService,
     InternalTradeService,
     PromotionsService,
+    DebtsService,
+    FundsService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

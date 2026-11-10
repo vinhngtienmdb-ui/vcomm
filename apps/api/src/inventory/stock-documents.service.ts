@@ -158,6 +158,9 @@ export const lineSign = (type: StockDocumentType, quantity: string) =>
 
 @Injectable()
 export class StockDocumentsService implements OnModuleInit {
+  // Module khác đăng ký lúc khởi động để chạy trong cùng giao dịch ghi sổ (công nợ, CONG_VIEC_13).
+  readonly postedHooks: ((transaction: Executor, documentId: string) => Promise<void>)[] = [];
+
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     private readonly permissionService: PermissionService,
@@ -535,6 +538,7 @@ export class StockDocumentsService implements OnModuleInit {
     }
     await transaction.execute(sql`UPDATE inventory.documents SET status = 'posted', posted_at = now(), updated_at = now() WHERE id = ${documentId}`);
     await this.reservations.closeBySource(transaction, documentSource, documentId, "consumed");
+    for (const hook of this.postedHooks) await hook(transaction, documentId);
   }
 
   // Lô gợi ý xuất: hết hạn trước, không có hạn dùng thì nhập trước xuất trước (QUYTAC_NGHIEPVU_51).
