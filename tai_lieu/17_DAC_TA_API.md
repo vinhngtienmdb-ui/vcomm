@@ -1,12 +1,12 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Hợp đồng API: endpoint, phương thức, dữ liệu gửi lên, dữ liệu trả về, xác thực, phân quyền, kiểm tra dữ liệu, lỗi, phân trang.
-- Phiên bản: 1.6
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65
+- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08).
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09).
 
 ## 1. Quy ước chung
 
@@ -172,6 +172,18 @@ Mọi đường dẫn có tiền tố `/api/v1`. API_77, API_78 nằm trong `app
 | API_79 | `GET /inventory/sales-orders?search=`, `GET /inventory/sales-orders/{id}`; `POST /inventory/sales-issues`; `POST /inventory/sales-returns`; `POST /inventory/documents/{id}/submit` (phiếu loại `sales_issue`, `sales_return`); xem, xóa nháp qua API_65 | CHUC_NANG_56, CHUC_NANG_57 | `inventory.sales.issue` tại kho xuất của đơn bán hoặc kho của phiếu xuất gốc; gửi, xóa nháp chỉ người lập | Phiếu xuất: `orderId`, `documentDate`, `note`, `lines[]` (1 đến 200: `orderLineId`, `quantity`, `lotId`, `lotOverrideReason`, `locationId`, `serials`). Phiếu trả: `issueId`, `documentDate`, `reason`, `note`, `lines[]` (1 đến 200: `issueLineId`, `quantity` theo đơn vị cơ sở, `serials`) | Đơn bán cần giao `{ id, documentNo, customerName, warehouseName }[]`; dòng đơn kèm `orderedQuantity`, `remainingQuantity`, `tracksLots`, `tracksSerials`; phiếu kho (`StockDocumentResponse`) |
 
 Bổ sung API_65 (CONG_VIEC_08): loại phiếu `sales_issue`, `sales_return`, lý do `sale`, `sales_return`; `POST /inventory/documents` từ chối hai loại phiếu này tại `type` ("Giá trị không hợp lệ."); `PATCH` phiếu loại đó trả lỗi `type` "Không đổi loại phiếu, kho, công ty chủ hàng của phiếu đã lập."; `submit`, `DELETE` phiếu loại đó chạy theo API_79 (xóa nháp chỉ cần `inventory.sales.issue` tại kho và là người lập); chi tiết phiếu: `partnerName` là khách hàng, `sourceNo` là số đơn bán (phiếu xuất) hoặc số phiếu xuất gốc (phiếu trả), `canReturn` đúng với phiếu xuất đã ghi sổ khi người xem có `inventory.sales.issue` tại kho; `canEdit` luôn `false`.
+
+## 2f. Danh sách endpoint giao dịch nội bộ (MODULE_05 phần 2, CONG_VIEC_09)
+
+API_80 nằm trong `apps/api/src/sales/sales.controller.ts`, API_81 trong `apps/api/src/purchasing/purchasing.controller.ts`, API_82 trong `apps/api/src/inventory/inventory.controller.ts`; kiểm quyền vào mini app như API_77, API_75, API_65. Không thêm quyền. Chứng từ của công ty khác trả `404`. Tra giá nội bộ không có endpoint riêng: dùng `GET /purchasing/supplier-prices/lookup` (API_73).
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_80 | `POST /sales/orders/{id}/counterpart-confirm`, `POST /sales/orders/{id}/counterpart-reject` | CHUC_NANG_59 | `sales.order.manage` ở công ty bán | Xác nhận: `warehouseId` (kho xuất), `version`. Từ chối: `reason` (1 đến 500 ký tự), `version` | Đơn bán (`SalesOrderResponse`) |
+| API_81 | `POST /purchasing/orders/{id}/counterpart-confirm`, `POST /purchasing/orders/{id}/counterpart-reject`; tra giá nội bộ qua `GET /purchasing/supplier-prices/lookup` (API_73) | CHUC_NANG_58, CHUC_NANG_59 | `purchasing.order.manage` ở công ty mua; tra giá như API_73 | Xác nhận: `warehouseId` (kho nhận), `version`. Từ chối: `reason`, `version` | Đơn mua (`PurchaseOrderResponse`); tra giá `{ unitPrice, priceId: null, internal: { vatRate } }` khi nhà cung cấp nội bộ |
+| API_82 | `POST /inventory/internal-receipts/{id}/receive`; `GET /inventory/internal-discrepancies?status=`; `POST /inventory/internal-discrepancies/{id}/resolve` | CHUC_NANG_60, CHUC_NANG_61 | Nhận: `inventory.purchase.receive` tại kho nhận. Biên bản: `inventory.sales.issue` tại kho xuất | Nhận: `lines[]` (1 đến 200: `lineId`, `receivedQuantity`, `locationId`, `serials`), `shortageReason`, `version`. Xử lý: `action` (`return`, `write_off`), `note`, `version`. Lọc `status` (`open`, `returned`, `written_off`) | Phiếu kho (`StockDocumentResponse`); danh sách biên bản (`InternalDiscrepancyItem[]`) |
+
+Bổ sung API_73, API_75, API_77, API_65, API_76, API_79 (CONG_VIEC_09): trạng thái `counterpart_pending` ở đơn bán, đơn mua (`warehouseId` `null` khi chưa xác nhận); `SalesOrderResponse`, `PurchaseOrderResponse` thêm `isInternal`, `isCounterpart`, `counterpart` (`{ companyName, documentNo, status }` hoặc `null`), `counterpartRejectedReason`, `canConfirmCounterpart`; `canEdit` `false` với đơn đối ứng và đơn mua nội bộ đã có đơn đối ứng; `PATCH` các đơn đó trả `409`. Lưu, gửi đơn nội bộ kiểm điều kiện QUYTAC_NGHIEPVU_73; đơn mua nội bộ lấy giá, thuế suất theo bảng giá Nội bộ, bỏ giá gửi lên. `StockDocumentResponse` thêm `internalReceipt` (`{ issueDocumentNo, sellerCompanyName, lines[] }`, dòng `{ lineId, shippedBaseQuantity, shippedSerials }` khi chờ nhận; `null` với phiếu thường) và `canReceiveInternal`. Lập phiếu xuất giao hàng, gửi phiếu xuất theo đơn bán nội bộ khi đơn mua đối ứng chưa duyệt trả `409`; ghi sổ phiếu xuất sinh phiếu nhập `in_transit` ở công ty mua. `GET /inventory/purchase-orders` không trả đơn mua nội bộ; `POST /inventory/purchase-receipts` với đơn mua nội bộ trả `409`.
 
 ## 3. Hợp đồng chi tiết
 
@@ -555,6 +567,41 @@ Gửi lên (`POST /inventory/sales-returns`):
 - `submit` (`201`): khóa phiếu; phiếu xuất khóa đơn bán, kiểm đơn còn `confirmed` và tổng đã giao không vượt số đặt, dùng phần giữ của đơn (`consumeFromSource`, theo thứ tự mã mặt hàng); phiếu trả khóa dòng gốc, kiểm tổng trả không vượt số đã giao trừ đã trả; kiểm như gửi phiếu kho (đủ hàng khả dụng, lô, hạn, serial, vị trí) trong giao dịch; cấp số dãy `inventory.sales_issue` (`XBH`), `inventory.sales_return` (`NTL`); không gửi duyệt; ghi sổ (`posted`); phiếu xuất làm mọi dòng đủ số đặt thì đơn `delivered`. Nhật ký `stock_document.create`, `stock_document.submit`, `stock_document.delete`.
 - Lỗi: `400` tại `lines.{i}.orderLineId`, `lines.{i}.issueLineId` "Giá trị không hợp lệ."; tại `lines.{i}.quantity` "Vượt số còn phải giao của đơn bán.", "Vượt số đã giao còn trả được của phiếu xuất gốc.", "Không đủ hàng khả dụng (một phần đang được giữ)."; tại `lines.{i}.serials` "Serial không có trong kho, vị trí này."; lỗi kiểm phiếu của API_65; `403`; `404`; `409 BUSINESS_RULE` "Đơn bán chưa xác nhận hoặc đã đóng, không giao hàng được.", "Chỉ nhận hàng trả lại từ phiếu xuất giao hàng đã ghi sổ.", "Chỉ sửa được chứng từ đang ở trạng thái nháp."; `409 CONFLICT_VERSION`.
 
+## 3f. Hợp đồng chi tiết giao dịch nội bộ (MODULE_05 phần 2, CONG_VIEC_09)
+
+### API_80, API_81 Xác nhận, từ chối chứng từ đối ứng
+Gửi lên (`counterpart-confirm`):
+```json
+{ "warehouseId": "01J...", "version": 1 }
+```
+Gửi lên (`counterpart-reject`):
+```json
+{ "reason": "Hết hàng", "version": 1 }
+```
+- Kiểm tra: `warehouseId` là UUID; `reason` 1 đến 500 ký tự sau khi bỏ khoảng trắng; `version` số nguyên dương; trường lạ bị từ chối.
+- Đơn đối ứng sinh tự động trong giao dịch xác nhận đơn bán (API_77 `submit` hoặc duyệt xong) hoặc duyệt đơn mua (API_75 `submit` hoặc duyệt xong): `status` `counterpart_pending`, `isCounterpart` `true`, `warehouseId` `null`, `documentNo` `null`, `canEdit` `false`, `canConfirmCounterpart` `true` với người có quyền quản lý.
+- `counterpart-confirm` (`201`): khóa đơn ở `counterpart_pending` đúng phiên bản; kiểm kho đang dùng nhận hàng của công ty; ghi kho, người lập là người gọi, về `draft`; rồi gửi trong cùng giao dịch: đơn bán như API_77 `submit` (cấp số `DBH`, giữ hàng, ngoại lệ, `confirmed` hoặc `pending`); đơn mua như API_75 `submit` (cấp số `DMH`, `approved` hoặc `pending`). Nhật ký `sales_order.counterpart_confirm`, `purchase_order.counterpart_confirm` (`afterData` là dữ liệu gửi lên).
+- `counterpart-reject` (`201`): đơn bán `cancelled`, đơn mua `closed` (`closedReason` bằng lý do), lưu `counterpartRejectedReason`; chứng từ khởi tạo bên kia kết thúc với lý do "Bên bán từ chối: <lý do>" hoặc "Bên mua từ chối: <lý do>". Nhật ký `sales_order.counterpart_reject`, `purchase_order.counterpart_reject`.
+- Kết thúc hai bên (API_75 `withdraw`, `close`; API_77 `withdraw`, `cancel`, `close`; duyệt bị từ chối, rút): bên kia kết thúc trong cùng giao dịch, `closedReason` ví dụ "Bên bán hủy đơn bán đối ứng", "Bên mua đóng đơn mua đối ứng: <lý do>", "Bên mua rút đơn mua đối ứng", "Đơn bán đối ứng không được duyệt"; yêu cầu duyệt còn chờ của bên kia chuyển `withdrawn`, không phát `core.approval.completed`.
+- Lỗi: `400` tại `warehouseId` "Giá trị không hợp lệ."; tại `customerId`, `supplierId`, `channelId`, `lines.{i}.variantId`, `lines.{i}.quantity` theo QUYTAC_NGHIEPVU_73, API_77 (ví dụ "Không đủ hàng khả dụng (một phần đang được giữ)."); `403`; `404`; `409 CONFLICT_VERSION` (sai phiên bản hoặc đơn không ở `counterpart_pending`); `409 BUSINESS_RULE` "Đơn bán còn phiếu xuất giao hàng nháp, chưa đóng được." khi kết thúc bên kia còn phiếu xuất nháp.
+
+Tra giá nội bộ (`GET /purchasing/supplier-prices/lookup?supplierId=<đối tác nội bộ>&variantId=&unitId=&date=`): `{ "unitPrice": "120000.0000", "priceId": null, "internal": { "vatRate": "10" } }`; không có giá: `unitPrice` `null`, `internal.vatRate` `"10"`.
+
+### API_82 Nhận hàng nội bộ, biên bản chênh lệch
+Gửi lên (`POST /inventory/internal-receipts/{id}/receive`):
+```json
+{ "lines": [ { "lineId": "01J...", "receivedQuantity": "1", "locationId": null, "serials": [] } ], "shortageReason": "Rách thùng", "version": 1 }
+```
+Gửi lên (`POST /inventory/internal-discrepancies/{id}/resolve`):
+```json
+{ "action": "return", "note": "Hàng về lại kho", "version": 1 }
+```
+- Kiểm tra: `receivedQuantity` từ 0, tối đa 12 chữ số phần nguyên, 4 chữ số lẻ, chấp nhận dấu phẩy thập phân; `serials` tối đa 5.000, mỗi serial 1 đến 100 ký tự; `shortageReason`, `note` tối đa 500 ký tự (chuỗi trống thành `null`); trường lạ bị từ chối.
+- `receive` (`201`): phiếu phải là phiếu nhập mua `in_transit` sinh từ phiếu xuất; mọi dòng phải có số nhận; số nhận không vượt số xuất; serial thuộc serial đã xuất; thiếu thì bắt buộc `shortageReason`; bỏ dòng nhận 0, kiểm như phiếu kho; khóa phiếu đúng phiên bản; cấp số dãy `inventory.purchase_receipt` của công ty mua (chưa có thì tự tạo tiền tố `NM`); ghi sổ (`posted`), ngày phiếu là hôm nay; cập nhật đơn mua; dòng thiếu sinh biên bản. Nhật ký `stock_document.receive_internal`. Trả chi tiết phiếu.
+- `internal-discrepancies` (`200`): biên bản của công ty đang làm việc tại kho người gọi có `inventory.sales.issue`, mới trước, tối đa 500: `{ id, warehouseName, issueId, issueDocumentNo, receiptId, receiptDocumentNo, buyerCompanyName, sku, productName, baseUnitName, shortageBaseQuantity, value, currency, serials, reason, status, returnDocumentId, resolutionNote, resolvedByName, createdAt, version, canResolve }`; `value` `null` khi người gọi không có `inventory.cost.view` tại kho hoặc công ty.
+- `resolve` (`201`): giữ biên bản (`open`, đúng phiên bản), ghi `returned` hoặc `written_off`, ghi chú, người, thời điểm; `return` lập và gửi phiếu nhận hàng trả lại theo API_79 (số thiếu, serial chưa nhận, lý do "Hàng thiếu khi giao nội bộ: <lý do>"), lưu `returnDocumentId`; lỗi thì xóa phiếu nháp, trả biên bản về `open` và trả lỗi đó. Nhật ký `internal_discrepancy.resolve`. Trả danh sách biên bản (mọi trạng thái).
+- Lỗi: `400` tại `lines.{i}.receivedQuantity` "Số nhận vượt số đã xuất.", "Phải nhập số nhận cho mọi dòng của phiếu."; tại `lines.{i}.serials` "Serial không có trong phiếu xuất gốc."; tại `shortageReason` "Nhận thiếu phải ghi lý do."; lỗi kiểm phiếu của API_65 theo vị trí dòng xuất; `403`; `404`; `409 BUSINESS_RULE` "Phiếu nhập nội bộ không ở trạng thái chờ nhận."; `409 CONFLICT_VERSION`.
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |
@@ -576,3 +623,5 @@ MODULE_07 phần tối thiểu (CONG_VIEC_06) không phát, không nghe sự ki�
 MODULE_04 phần 1 (CONG_VIEC_07) không phát sự kiện mới; mini app Mua hàng nghe `core.approval.completed` của loại chứng từ `purchasing.requisition`, `purchasing.order` để chuyển trạng thái đề nghị mua, đơn mua (API_74, API_75). Phiếu nhập mua, phiếu trả hàng không đi luồng duyệt; trạng thái "Đã nhận đủ" của đơn mua cập nhật trong cùng giao dịch ghi sổ (API_76).
 
 MODULE_05 phần 1 (CONG_VIEC_08) không phát sự kiện mới; mini app Bán hàng nghe `core.approval.completed` của loại chứng từ `sales.order` để chuyển đơn bán đã xác nhận, bị từ chối, đã rút (từ chối, rút thì nhả hàng giữ) (API_77). Phiếu xuất giao hàng, phiếu nhận hàng trả lại không đi luồng duyệt; trạng thái "Đã giao đủ" của đơn bán cập nhật trong cùng giao dịch ghi sổ (API_79).
+
+MODULE_05 phần 2 (CONG_VIEC_09) không phát sự kiện mới; dùng lại việc nghe `core.approval.completed` của `sales.order`, `purchasing.order`: duyệt xong thì sinh chứng từ đối ứng, từ chối hoặc rút đơn đối ứng thì kết thúc hai bên trong cùng giao dịch xử lý sự kiện. Yêu cầu duyệt bị rút do bên kia kết thúc không phát sự kiện.

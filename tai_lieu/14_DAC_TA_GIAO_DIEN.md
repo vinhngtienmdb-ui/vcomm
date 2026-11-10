@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 1.7
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -11,6 +11,7 @@
 - Cập nhật CONG_VIEC_06 (2026-11-10): thêm MODULE_07 Khách hàng và Đối tác phần tối thiểu, MAN_HINH_36, MAN_HINH_37 (mục 11 đến mục 13)
 - Cập nhật CONG_VIEC_07 (2026-11-10): thêm MODULE_04 Mua hàng phần 1, MAN_HINH_38 đến MAN_HINH_41 (mục 14 đến mục 16); sửa MAN_HINH_22, MAN_HINH_31, MAN_HINH_32
 - Cập nhật CONG_VIEC_08 (2026-11-10): thêm MODULE_05 Bán hàng phần 1, MAN_HINH_42, MAN_HINH_43 (mục 17 đến mục 19); sửa MAN_HINH_31, MAN_HINH_32
+- Cập nhật CONG_VIEC_09 (2026-11-10): thêm MODULE_05 phần 2 Giao dịch nội bộ, MAN_HINH_44 (mục 20 đến mục 22); sửa MAN_HINH_31, MAN_HINH_32, MAN_HINH_40, MAN_HINH_41, MAN_HINH_43
 
 ## MODULE_01 Nền tảng
 
@@ -686,6 +687,7 @@ flowchart TD
 - Responsive: bảng chuyển thành thẻ.
 - Bổ sung CONG_VIEC_07: nút "Nhập mua theo đơn" (mở `/inventory/purchase-receipts/new`) với `inventory.purchase.receive`; lọc, hiện thêm loại "Phiếu nhập mua", "Phiếu trả hàng nhà cung cấp", trạng thái "Chờ kiểm tra chất lượng". Phiếu nhập mua, trả hàng không lập bằng các nút lập phiếu thường.
 - Bổ sung CONG_VIEC_08: nút "Giao hàng theo đơn bán" (mở `/inventory/sales-issues/new`) với `inventory.sales.issue`; lọc, hiện thêm loại "Phiếu xuất giao hàng", "Phiếu nhận hàng trả lại". Hai loại phiếu này không lập bằng các nút lập phiếu thường.
+- Bổ sung CONG_VIEC_09: phiếu nhập mua nội bộ sinh từ phiếu xuất giao hàng của công ty bán hiện ở công ty mua với loại "Phiếu nhập mua", trạng thái "Đang vận chuyển" (chờ nhận; lọc được), chưa có số đến khi nhận.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
 
 ### MAN_HINH_32: Phiếu nhập khác, xuất khác, điều chỉnh
@@ -709,6 +711,9 @@ flowchart TD
   - Lập phiếu xuất giao hàng `/inventory/sales-issues/new`: tiêu đề "Giao hàng theo đơn bán"; chọn "Đơn bán" (đơn đã xác nhận xuất từ kho người dùng có quyền, hiện số đơn, khách hoặc người mua, kho; không có thì "Không có đơn bán đã xác nhận cần giao từ kho bạn quản lý."); ngày phiếu; câu "Nhập số giao cho dòng có hàng xuất lần này; dòng để trống không giao lần này."; mỗi dòng đơn: mặt hàng, "Đặt <số> <đơn vị>, còn phải giao <số> <đơn vị>", ô "Giao (<đơn vị>)", "Lô" (hàng theo lô; gợi ý lô hết hạn trước, chọn sẵn lô đầu, "Chọn lô…"), "Vị trí" (kho dùng vị trí), "Serial" (hàng serial, mỗi dòng một serial); nút "Lưu nháp" (chỉ bật khi có ít nhất một dòng nhập số giao), lưu xong mở chi tiết phiếu.
   - Lập phiếu nhận hàng trả lại `/inventory/sales-returns/new?issueId=<phiếu xuất>` (mở bằng nút "Nhận hàng trả lại" ở phiếu xuất giao hàng đã ghi sổ; thiếu `issueId` thì "Chọn phiếu xuất giao hàng để nhận hàng trả lại."): tiêu đề "Nhận hàng trả lại: <số phiếu xuất>", tên khách và câu "Hàng trả nhập lại theo giá vốn trên phiếu xuất gốc."; ngày phiếu, lý do (bắt buộc); mỗi dòng gốc "Đã giao <số> <đơn vị cơ sở>", ô "Số trả (<đơn vị cơ sở>)" hoặc ô chọn từng serial đã giao (số trả bằng số serial chọn); nút "Lưu nháp".
   - Chi tiết phiếu xuất giao hàng, nhận hàng trả lại `/inventory/documents/[id]`: thêm "Khách hàng", "Đơn bán" (liên kết sang MAN_HINH_43) hoặc "Phiếu xuất gốc" (liên kết sang phiếu xuất). Phiếu nháp chỉ có nút "Xóa nháp", "Gửi" (không sửa; cần sửa thì xóa, lập lại). Phiếu xuất đã ghi sổ có nút "Nhận hàng trả lại" theo `canReturn` của API.
+- Bổ sung CONG_VIEC_09 (CHUC_NANG_60; API_82):
+  - Chi tiết phiếu nhập mua nội bộ `/inventory/documents/[id]`: thêm "Phiếu xuất của bên bán" (<tên công ty bán>: <số phiếu xuất>).
+  - Phiếu "Đang vận chuyển" mà người dùng có quyền nhận tại kho nhận hiện khối "Nhận hàng nội bộ" ("Nhập số thực nhận theo đơn vị cơ sở; hàng serial chọn serial đã nhận. Nhận thiếu thì ghi lý do, công ty bán nhận biên bản chênh lệch để xử lý."): mỗi dòng mặt hàng (mã, tên), "Đã xuất <số> <đơn vị cơ sở>"; hàng không serial có ô "Số thực nhận (<đơn vị cơ sở>)" (mặc định bằng số xuất); hàng serial có ô chọn từng serial đã xuất (mặc định chọn hết, số nhận bằng số serial chọn); "Vị trí" (kho dùng vị trí); khi có dòng nhận thiếu hiện ô "Lý do nhận thiếu" (bắt buộc); nút "Xác nhận nhận hàng". Thông báo "Đã nhận hàng nội bộ."; lỗi dưới ô số nhận, serial, vị trí, lý do; lỗi lô, hạn dùng hiện kèm mã hàng. Quyền hiển thị theo `canReceiveInternal` của API.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
 
 ### MAN_HINH_33: Phiếu chuyển kho
@@ -912,6 +917,7 @@ flowchart TD
 - Thông báo: "Đã lưu đơn mua."; lỗi theo CHUC_NANG_51 dưới đúng ô, đúng dòng.
 - Quyền hiển thị: màn hình với `purchasing.order.view`; "Lập đơn mua" với `purchasing.order.manage`; "Cài đặt" với `purchasing.settings.manage`.
 - Responsive: bảng chuyển thành thẻ; dòng hàng xếp dọc.
+- Bổ sung CONG_VIEC_09 (CHUC_NANG_59; API_73): bộ lọc "Trạng thái" thêm "Chờ xác nhận nội bộ"; đơn đối ứng chưa xác nhận có kho nhận trống. Trang lập đơn: chọn nhà cung cấp nội bộ thì đơn giá, thuế suất tự lấy theo bảng giá kênh Nội bộ của công ty bán, ô đơn giá chỉ đọc, ô thuế suất khóa, hiện khối "Nhà cung cấp nội bộ: giá theo bảng giá kênh Nội bộ của công ty bán, không sửa được.".
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_07 mục 14)
 
 ### MAN_HINH_41: Chi tiết đơn mua
@@ -927,6 +933,7 @@ flowchart TD
 - Thông báo: "Đã lưu đơn mua."; lỗi theo CHUC_NANG_51.
 - Quyền hiển thị: theo `canEdit`, `canSubmit`, `canWithdraw`, `canClose` của API.
 - Responsive: bảng chuyển thành thẻ.
+- Bổ sung CONG_VIEC_09 (CHUC_NANG_58, CHUC_NANG_59; API_81): đơn nội bộ hiện thẻ có nhãn "Nội bộ" kèm "Đơn bán đối ứng của <công ty>: <số, chưa có thì "chưa có số"> (<trạng thái>)" (đơn khởi tạo) hoặc "Sinh từ đơn bán của <công ty>: <số>" (đơn đối ứng); bên kia đã từ chối thì khối cảnh báo "Đã từ chối: <lý do>". Đơn "Chờ xác nhận nội bộ" (theo `canConfirmCounterpart`) hiện câu "Công ty bán đã bán cho công ty này. Chọn kho nhận rồi xác nhận (đơn mua đi luồng duyệt như thường), hoặc từ chối kèm lý do.", ô "Kho nhận" (bắt buộc), nút "Xác nhận" (bật khi đã chọn kho), ô "Lý do từ chối", nút "Từ chối" (bật khi có lý do); lỗi không gắn ô hiện kèm "Dòng <số>". Đơn đối ứng, đơn nội bộ đã có đơn đối ứng không có nút "Sửa".
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_07 mục 14)
 
 ## MODULE_05 Bán hàng (phần 1, CONG_VIEC_08)
@@ -998,4 +1005,61 @@ flowchart TD
 - Thông báo: "Đã lưu đơn bán."; lỗi theo CHUC_NANG_54 dưới đúng ô, đúng dòng khi soạn; ở chi tiết, lỗi theo dòng khi gửi (ví dụ thiếu hàng) hiện trong thông báo kèm "dòng <số> (<mã hàng>)".
 - Quyền hiển thị: theo `canEdit`, `canSubmit`, `canWithdraw`, `canCancel`, `canClose` của API ("Đóng đơn" chỉ khi đơn đã xác nhận đã có giao hàng, không còn phiếu xuất nháp; "Hủy đơn" khi chưa có phiếu xuất).
 - Responsive: bảng chuyển thành thẻ; dòng hàng xếp dọc.
+- Bổ sung CONG_VIEC_09 (CHUC_NANG_58, CHUC_NANG_59; API_80): bộ lọc trạng thái ở MAN_HINH_42 thêm "Chờ xác nhận nội bộ". Chi tiết đơn nội bộ hiện thẻ có nhãn "Nội bộ" kèm "Đơn mua đối ứng của <công ty>: <số, chưa có thì "chưa có số"> (<trạng thái>)" (đơn khởi tạo) hoặc "Sinh từ đơn mua của <công ty>: <số>" (đơn đối ứng); bên kia đã từ chối thì khối cảnh báo "Đã từ chối: <lý do>". Đơn "Chờ xác nhận nội bộ" (theo `canConfirmCounterpart`) hiện câu "Công ty mua đã đặt hàng. Chọn kho xuất rồi xác nhận (kiểm ngoại lệ, giữ hàng như đơn thường), hoặc từ chối kèm lý do.", ô "Kho xuất" (bắt buộc), nút "Xác nhận" (bật khi đã chọn kho), ô "Lý do từ chối", nút "Từ chối" (bật khi có lý do); thông báo "Đã lưu đơn bán."; lỗi thiếu hàng, thiếu liên kết, hồ sơ đối tác hiện kèm "Dòng <số>". Đơn đối ứng không có nút "Sửa đơn bán"; khi "Chờ xác nhận nội bộ" không có nút "Hủy đơn".
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_08 mục 14)
+
+## MODULE_05 Bán hàng (phần 2: Giao dịch nội bộ, CONG_VIEC_09)
+
+Phần nội bộ của đơn bán, đơn mua nằm trên MAN_HINH_43, MAN_HINH_40, MAN_HINH_41 (khối chứng từ đối ứng); nhận hàng nội bộ trên MAN_HINH_32; biên bản chênh lệch là màn hình mới MAN_HINH_44 ở mini app Kho.
+
+## 20. Danh sách màn hình và điều hướng (MODULE_05 phần 2)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_44 | Biên bản chênh lệch giao nhận nội bộ | CHUC_NANG_61 | Quản trị tập đoàn, quản trị công ty, Quản lý kho, Thủ kho có `inventory.sales.issue` tại kho xuất | Menu Kho | Không lập (CONG_VIEC_09 mục 14) |
+| MAN_HINH_43 (sửa) | Chi tiết đơn bán: khối chứng từ đối ứng, xác nhận, từ chối | CHUC_NANG_58, CHUC_NANG_59 | Như MAN_HINH_42; xác nhận, từ chối với `sales.order.manage` | MAN_HINH_42 | Không lập |
+| MAN_HINH_40, MAN_HINH_41 (sửa) | Đơn mua: giá nội bộ; chi tiết: khối chứng từ đối ứng, xác nhận, từ chối | CHUC_NANG_58, CHUC_NANG_59 | Như MAN_HINH_40; xác nhận, từ chối với `purchasing.order.manage` | MAN_HINH_40 | Không lập |
+| MAN_HINH_31, MAN_HINH_32 (sửa) | Phiếu kho: phiếu nhập nội bộ chờ nhận, nhận hàng | CHUC_NANG_60 | Như MAN_HINH_32; nhận với `inventory.purchase.receive` tại kho nhận | MAN_HINH_31 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    SO[MAN_HINH_43 Chi tiết đơn bán nội bộ] -.->|đơn đối ứng ở công ty kia| PO[MAN_HINH_41 Chi tiết đơn mua nội bộ]
+    PO -.->|đơn đối ứng ở công ty kia| SO
+    MK{{Menu Kho}} --> D[MAN_HINH_31 Phiếu kho]
+    D -->|Phiếu nhập mua Đang vận chuyển| R[MAN_HINH_32 Nhận hàng nội bộ]
+    MK -->|Chênh lệch giao nội bộ| X[MAN_HINH_44 Biên bản chênh lệch nội bộ]
+    X -->|Số phiếu xuất| P[MAN_HINH_32 Phiếu xuất giao hàng]
+    X -->|Phiếu trả| T[MAN_HINH_32 Phiếu nhận hàng trả lại]
+    X -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+```
+
+- Đường nét đứt: chứng từ đối ứng thuộc công ty khác, chỉ hiện tên công ty, số, trạng thái, không có liên kết; người dùng chuyển công ty rồi mở ở mini app tương ứng.
+- Thứ tự menu Kho và quyền hiện mục: Tồn kho, Phiếu kho, Kiểm kê, Giữ hàng, tồn an toàn, Chênh lệch giao nội bộ (`inventory.sales.issue`), Kho và vị trí.
+
+## 21. Bảng vai trò – màn hình (MODULE_05 phần 2)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Nhân viên bán hàng | Nhân viên mua hàng | Thủ kho | Quản lý kho |
+|---|---|---|---|---|---|
+| MAN_HINH_43 khối đối ứng | Xem, Xác nhận, Từ chối (công ty bán) | Xem, Xác nhận, Từ chối | Không | Xem | Không |
+| MAN_HINH_40, MAN_HINH_41 phần nội bộ | Xem, Lập đơn giá nội bộ, Xác nhận, Từ chối (công ty mua) | Không | Xem, Lập đơn giá nội bộ, Xác nhận, Từ chối | Xem | Không |
+| MAN_HINH_32 Nhận hàng nội bộ | Nhận (kho của công ty mình) | Không | Không | Kho nhận trong phạm vi gán | Kho nhận trong phạm vi gán |
+| MAN_HINH_44 Biên bản chênh lệch nội bộ | Xem, Nhập lại kho, Ghi tổn thất, xem giá trị | Không | Không | Xem, Nhập lại kho, Ghi tổn thất ở kho xuất trong phạm vi gán; không thấy giá trị | Như Thủ kho, thấy giá trị |
+
+## 22. Đặc tả từng màn hình (MODULE_05 phần 2)
+
+### MAN_HINH_44: Biên bản chênh lệch giao nhận nội bộ
+- Mục đích: Công ty bán xem hàng giao nội bộ bị nhận thiếu và xử lý từng biên bản: nhập lại kho hoặc ghi tổn thất.
+- Chức năng thực hiện: CHUC_NANG_61
+- Đường dẫn: `/inventory/internal-discrepancies`
+- Bố cục: tiêu đề "Biên bản chênh lệch giao nhận nội bộ" kèm "Lịch sử"; câu "Công ty mua nhận thiếu so với phiếu xuất. Nhập lại kho: lập và ghi sổ phiếu nhận hàng trả lại vào kho xuất theo giá vốn phiếu xuất. Ghi tổn thất: chỉ đóng biên bản, hạch toán làm cùng Tài chính – Kế toán."; lọc "Trạng thái" (Chờ xử lý, mặc định; Đã nhập lại kho; Đã ghi tổn thất); bảng: "Mặt hàng" (mã · tên · kho), "Số thiếu" (số, đơn vị cơ sở, serial chưa nhận), "Phiếu xuất → phiếu nhập" (số phiếu xuất liên kết sang MAN_HINH_32 → <công ty mua>: <số phiếu nhập>), "Lý do bên nhận" (kèm thời điểm), "Giá trị" ("—" khi không xem được giá vốn), "Trạng thái" (nhãn, người xử lý, ghi chú, liên kết "Phiếu trả"), cột thao tác: ô "Ghi chú xử lý", nút "Nhập lại kho", "Ghi tổn thất".
+- Dữ liệu hiển thị: biên bản của công ty đang chọn tại các kho người dùng có `inventory.sales.issue`, mới trước, tối đa 500.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, ONhap, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_82.
+- Thao tác: đổi lọc tải lại danh sách; bấm "Nhập lại kho" hoặc "Ghi tổn thất" gửi ngay kèm ghi chú (không bắt buộc), xong tải lại danh sách.
+- Trạng thái: rỗng ("Không có biên bản.").
+- Thông báo: "Đã nhập lại kho." · "Đã ghi tổn thất."; lỗi (đã xử lý, lỗi phiếu trả) hiện ở thông báo lỗi.
+- Quyền hiển thị: mục menu với `inventory.sales.issue`; nút xử lý theo `canResolve` của API; giá trị theo quyền xem giá vốn.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_09 mục 14)

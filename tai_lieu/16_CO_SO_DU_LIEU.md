@@ -1,12 +1,12 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 1.7
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10)
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11)
 
-Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -1756,4 +1756,91 @@ ALTER TABLE inventory.documents ADD CONSTRAINT documents_trade_source_check
     CHECK (type NOT IN ('purchase_receipt', 'purchase_return', 'sales_issue', 'sales_return') OR source_id IS NOT NULL);
 ALTER TABLE inventory.documents ADD CONSTRAINT documents_purchase_partner_check
     CHECK (type NOT IN ('purchase_receipt', 'purchase_return') OR partner_id IS NOT NULL);
+```
+
+## 11. Database migration 0008 – CONG_VIEC_09 (giao dịch nội bộ)
+
+Tệp `database/migrations/0008_internal_trade.sql` thêm cột giao dịch nội bộ cho đơn bán, đơn mua, phiếu kho và bảng biên bản chênh lệch. Đơn bán và đơn mua đối ứng ở hai schema khác nhau trỏ nhau bằng mã, không đặt khóa ngoại (kiểm trong service). Không thêm quyền, loại chứng từ. Phiếu nhập mua nội bộ dùng trạng thái `in_transit` (đã có) cho "Chờ nhận", `source_type` `purchasing.order`, `source_id` là đơn mua đối ứng.
+
+| Bảng | Cột, ràng buộc | Mục đích |
+|---|---|---|
+| `sales.orders` | `status` thêm `counterpart_pending`; `warehouse_id` cho phép trống, ràng buộc `orders_warehouse_check` (trống chỉ khi `counterpart_pending`, `cancelled`, `closed`); thêm `counterpart_order_id` (đơn mua đối ứng ở công ty mua), `is_counterpart` (mặc định `false`; đơn sinh từ đơn mua), `counterpart_rejected_reason`; chỉ mục `counterpart_order_id` | Đơn bán nội bộ, đơn bán đối ứng (QUYTAC_NGHIEPVU_73, QUYTAC_NGHIEPVU_74). Đơn đối ứng: `price_list_id` của dòng trống, `list_price` = `unit_price` = giá chưa thuế theo đơn mua |
+| `purchasing.orders` | Như trên: `status` thêm `counterpart_pending`; `warehouse_id` cho phép trống (`orders_warehouse_check`); thêm `counterpart_order_id` (đơn bán đối ứng ở công ty bán), `is_counterpart`, `counterpart_rejected_reason`; chỉ mục `counterpart_order_id` | Đơn mua nội bộ, đơn mua đối ứng |
+| `inventory.documents` | Thêm `counterpart_document_id` (khóa ngoại `inventory.documents`; phiếu xuất giao hàng gốc bên bán); chỉ mục | Phiếu nhập mua nội bộ (QUYTAC_NGHIEPVU_76) |
+| `inventory.document_lines` | Thêm `counterpart_line_id` (khóa ngoại `inventory.document_lines`; dòng xuất gốc) | Ghép dòng nhập với dòng xuất, serial đã xuất |
+| `inventory.internal_discrepancies` (mới) | `company_id` (công ty bán), `warehouse_id` (kho xuất), `issue_document_id`, `issue_line_id`, `receipt_document_id`, `receipt_line_id` (trống khi dòng nhận 0), `variant_id` (mặt hàng bên bán), `shortage_base_quantity` (lớn hơn 0, đơn vị cơ sở bên bán), `value` (theo giá vốn phiếu xuất), `serials` (`text[]`, serial đã xuất chưa nhận), `reason`, `status` (`open`, `returned`, `written_off`), `return_document_id` (phiếu nhận hàng trả lại), `resolution_note`, `resolved_by`, `resolved_at`, `created_at`, `version` | Biên bản chênh lệch giao nhận nội bộ (QUYTAC_NGHIEPVU_77). Duy nhất `(receipt_document_id, issue_line_id)`; chỉ mục `(company_id, status, created_at DESC)` |
+
+Quy tắc xóa và lưu giữ bổ sung:
+- Không xóa đơn đối ứng: từ chối, kết thúc chuyển `cancelled` (đơn bán) hoặc `closed` (đơn mua), giữ lý do.
+- Phiếu nhập nội bộ "Chờ nhận" không xóa; khi nhận, dòng ghi lại theo số thực nhận (dòng nhận 0 bỏ).
+- Không xóa biên bản chênh lệch; xử lý chuyển `returned` hoặc `written_off`.
+
+```mermaid
+erDiagram
+    sales_orders |o--o| purchasing_orders : "đơn đối ứng (counterpart_order_id, kiểm trong service)"
+    documents |o--o| documents : "phiếu nhập nội bộ từ phiếu xuất (counterpart_document_id)"
+    document_lines |o--o| document_lines : "dòng nhập từ dòng xuất (counterpart_line_id)"
+    documents ||--o{ internal_discrepancies : "phiếu xuất, phiếu nhập"
+    document_lines ||--o{ internal_discrepancies : "dòng xuất, dòng nhập"
+    internal_discrepancies |o--o| documents : "phiếu nhận hàng trả lại"
+```
+
+Lược đồ (chép từ tệp `database/migrations/0008_internal_trade.sql`):
+
+```sql
+-- CONG_VIEC_09: Giao dịch nội bộ giữa công ty con (MODULE_05, phần 2; tài liệu 16).
+-- Đơn bán và đơn mua đối ứng trỏ nhau bằng mã, không khóa ngoại khác schema (kiểm trong service).
+-- Phiếu nhập mua nội bộ sinh khi bên bán ghi sổ phiếu xuất giao hàng, chờ bên mua nhận (trạng thái in_transit).
+
+-- Đơn bán: trạng thái chờ bên bán xác nhận đơn đối ứng; kho xuất chọn khi xác nhận, đơn đối ứng bị từ chối trước khi chọn kho không có kho (QUYTAC_NGHIEPVU_74).
+ALTER TABLE sales.orders DROP CONSTRAINT orders_status_check;
+ALTER TABLE sales.orders ADD CONSTRAINT orders_status_check
+    CHECK (status IN ('counterpart_pending', 'draft', 'pending', 'confirmed', 'rejected', 'withdrawn', 'delivered', 'cancelled', 'closed'));
+ALTER TABLE sales.orders ALTER COLUMN warehouse_id DROP NOT NULL;
+ALTER TABLE sales.orders ADD CONSTRAINT orders_warehouse_check CHECK (warehouse_id IS NOT NULL OR status IN ('counterpart_pending', 'cancelled', 'closed'));
+ALTER TABLE sales.orders ADD COLUMN counterpart_order_id uuid;                          -- đơn mua đối ứng ở công ty mua
+ALTER TABLE sales.orders ADD COLUMN is_counterpart boolean NOT NULL DEFAULT false;     -- đơn sinh từ đơn mua của công ty mua
+ALTER TABLE sales.orders ADD COLUMN counterpart_rejected_reason text;
+CREATE INDEX sales_orders_counterpart_idx ON sales.orders (counterpart_order_id);
+
+-- Đơn mua: như trên, kho nhận chọn khi xác nhận.
+ALTER TABLE purchasing.orders DROP CONSTRAINT orders_status_check;
+ALTER TABLE purchasing.orders ADD CONSTRAINT orders_status_check
+    CHECK (status IN ('counterpart_pending', 'draft', 'pending', 'approved', 'rejected', 'withdrawn', 'received', 'closed'));
+ALTER TABLE purchasing.orders ALTER COLUMN warehouse_id DROP NOT NULL;
+ALTER TABLE purchasing.orders ADD CONSTRAINT orders_warehouse_check CHECK (warehouse_id IS NOT NULL OR status IN ('counterpart_pending', 'cancelled', 'closed'));
+ALTER TABLE purchasing.orders ADD COLUMN counterpart_order_id uuid;                     -- đơn bán đối ứng ở công ty bán
+ALTER TABLE purchasing.orders ADD COLUMN is_counterpart boolean NOT NULL DEFAULT false; -- đơn sinh từ đơn bán của công ty bán
+ALTER TABLE purchasing.orders ADD COLUMN counterpart_rejected_reason text;
+CREATE INDEX purchasing_orders_counterpart_idx ON purchasing.orders (counterpart_order_id);
+
+-- Phiếu nhập mua nội bộ trỏ phiếu xuất giao hàng gốc bên bán; dòng nhập trỏ dòng xuất (QUYTAC_NGHIEPVU_76).
+ALTER TABLE inventory.documents ADD COLUMN counterpart_document_id uuid REFERENCES inventory.documents(id);
+ALTER TABLE inventory.document_lines ADD COLUMN counterpart_line_id uuid REFERENCES inventory.document_lines(id);
+CREATE INDEX documents_counterpart_idx ON inventory.documents (counterpart_document_id);
+
+-- Biên bản chênh lệch giao nhận nội bộ thuộc công ty bán (QUYTAC_NGHIEPVU_77).
+CREATE TABLE inventory.internal_discrepancies (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id              uuid        NOT NULL REFERENCES core.companies(id),        -- công ty bán
+    warehouse_id            uuid        NOT NULL REFERENCES inventory.warehouses(id),  -- kho xuất
+    issue_document_id       uuid        NOT NULL REFERENCES inventory.documents(id),
+    issue_line_id           uuid        NOT NULL REFERENCES inventory.document_lines(id),
+    receipt_document_id     uuid        NOT NULL REFERENCES inventory.documents(id),
+    receipt_line_id         uuid        REFERENCES inventory.document_lines(id),        -- dòng nhập; trống khi không nhận được gì của dòng xuất
+    variant_id              uuid        NOT NULL REFERENCES catalog.variants(id),      -- mặt hàng bên bán
+    shortage_base_quantity  numeric(20,4) NOT NULL CHECK (shortage_base_quantity > 0), -- đơn vị cơ sở bên bán
+    value                   numeric(20,4) NOT NULL,                                     -- theo giá vốn phiếu xuất
+    serials                 text[]      NOT NULL DEFAULT '{}',                          -- serial đã xuất chưa nhận
+    reason                  text        NOT NULL,                                       -- lý do của bên nhận
+    status                  text        NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'returned', 'written_off')),
+    return_document_id      uuid        REFERENCES inventory.documents(id),             -- phiếu nhận hàng trả lại khi nhập lại kho
+    resolution_note         text,
+    resolved_by             uuid        REFERENCES core.users(id),
+    resolved_at             timestamptz,
+    created_at              timestamptz NOT NULL DEFAULT now(),
+    version                 integer     NOT NULL DEFAULT 1,
+    UNIQUE (receipt_document_id, issue_line_id)
+);
+CREATE INDEX internal_discrepancies_company_idx ON inventory.internal_discrepancies (company_id, status, created_at DESC);
 ```
