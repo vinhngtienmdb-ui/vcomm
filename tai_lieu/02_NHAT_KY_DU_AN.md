@@ -21,7 +21,7 @@
 ### Quyết định
 
 - Mua hàng (MODULE_04) – người quyết định: người dùng, ngày 2026-11-10: chia công việc, CONG_VIEC_07 gồm bảng giá mua theo nhà cung cấp, đề nghị mua, đơn mua, nhận hàng, trả hàng nhà cung cấp; nhập khẩu, phân bổ chi phí là công việc sau; hóa đơn, so khớp ba bên, lịch thanh toán làm cùng Tài chính – Kế toán; giao dịch nội bộ làm cùng Bán hàng. Hàng thuộc ngành hàng cần kiểm tra chất lượng chưa vào tồn đến khi kiểm xong: phần đạt ghi sổ kho, phần không đạt ghi biên bản. Trả hàng nhà cung cấp xuất kho theo giá mua trên phiếu nhập gốc.
-- Bán hàng (MODULE_05) – người quyết định: người dùng, ngày 2026-11-10: chia công việc, CONG_VIEC_08 gồm đơn bán, giữ hàng, phiếu xuất giao hàng theo đơn, trả hàng bán; khuyến mãi, giao vận, hóa đơn điện tử, giao dịch nội bộ là công việc sau. Chiết khấu tay tối đa không cần duyệt là một mức phần trăm theo công ty (mặc định 0%). Giá tối thiểu là giá vốn bình quân hiện hành tại kho xuất.
+- Bán hàng (MODULE_05) – người quyết định: người dùng, ngày 2026-11-10: chia công việc, CONG_VIEC_08 gồm đơn bán, giữ hàng, phiếu xuất giao hàng theo đơn, trả hàng bán; khuyến mãi, giao vận, hóa đơn điện tử, giao dịch nội bộ là công việc sau. Chiết khấu tay tối đa không cần duyệt là một mức phần trăm theo công ty (mặc định 0%). Giá tối thiểu là giá vốn bình quân hiện hành tại kho xuất. Dư nợ tạm tính (đến khi có MODULE_06): giá trị đơn đã xác nhận chưa giao cộng giá trị đã giao trong số ngày được nợ gần nhất.
 - LOI_03 – người quyết định: người dùng, ngày 2026-11-10: thống nhất trả `400` gắn vào dòng hàng khi không đủ hàng khả dụng.
 
 ## 2026-11-09
