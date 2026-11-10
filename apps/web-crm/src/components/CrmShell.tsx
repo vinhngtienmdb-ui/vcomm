@@ -5,9 +5,7 @@ import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { AppShell } from "ui/components/AppShell";
 
-export const crmMenu = [
-  { href: "/partners", key: "partners", permission: "crm.partner.view" },
-] as const;
+export const crmMenu = [{ href: "/partners", key: "partners", permission: "crm.partner.view" }] as const;
 
 export function CrmShell({ children }: { children: ReactNode }) {
   const t = useTranslations("crmMenu");

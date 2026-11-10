@@ -15,11 +15,7 @@ const nunitoSans = Nunito_Sans({
 
 export const metadata: Metadata = { title: "VComm – Đối tác" };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
   const locale = await getLocale();
   return (
     <html lang={locale} className={nunitoSans.variable}>

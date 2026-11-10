@@ -1,11 +1,7 @@
 "use client";
 
 // MAN_HINH_36 Danh sách đối tác (CHUC_NANG_46, 47; API_71): tìm không dấu theo tên, mã, mã số thuế, điện thoại; lọc loại, vai trò với công ty đang chọn, trạng thái.
-import {
-  partnerKinds,
-  type PageResponse,
-  type PartnerListItem,
-} from "contracts";
+import { partnerKinds, type PageResponse, type PartnerListItem } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -46,25 +42,9 @@ export default function PartnersPage() {
   if (kind) parameters.set("kind", kind);
   if (role) parameters.set("role", role);
   if (status) parameters.set("status", status);
-  const { state, reload } = useApi<PageResponse<PartnerListItem>>(
-    `/crm/partners?${parameters}`,
-  );
-  const headings = [
-    t("code"),
-    t("name"),
-    t("kind"),
-    t("identity"),
-    t("phone"),
-    t("role"),
-    t("status"),
-  ];
-  const filter = (
-    id: string,
-    label: string,
-    value: string,
-    onChange: (value: string) => void,
-    options: { value: string; label: string }[],
-  ) => (
+  const { state, reload } = useApi<PageResponse<PartnerListItem>>(`/crm/partners?${parameters}`);
+  const headings = [t("code"), t("name"), t("kind"), t("identity"), t("phone"), t("role"), t("status")];
+  const filter = (id: string, label: string, value: string, onChange: (value: string) => void, options: { value: string; label: string }[]) => (
     <>
       <label className="an-nhan" htmlFor={id}>
         {label}
@@ -95,11 +75,7 @@ export default function PartnersPage() {
         <h1>{t("title")}</h1>
         <HistoryLink entityType="partner" />
         {can("crm.partner.manage") && (
-          <button
-            type="button"
-            className="nut chinh"
-            onClick={() => setAdding(true)}
-          >
+          <button type="button" className="nut chinh" onClick={() => setAdding(true)}>
             {t("add")}
           </button>
         )}
@@ -109,15 +85,7 @@ export default function PartnersPage() {
         <label className="an-nhan" htmlFor="tim-doi-tac">
           {common("search")}
         </label>
-        <input
-          id="tim-doi-tac"
-          className="o-nhap"
-          type="search"
-          placeholder={t("searchHint")}
-          value={searchInput}
-          onChange={(event) => setSearchInput(event.target.value)}
-          style={{ maxWidth: 360 }}
-        />
+        <input id="tim-doi-tac" className="o-nhap" type="search" placeholder={t("searchHint")} value={searchInput} onChange={(event) => setSearchInput(event.target.value)} style={{ maxWidth: 360 }} />
         {filter(
           "loc-loai",
           t("kind"),
@@ -146,13 +114,7 @@ export default function PartnersPage() {
       <Loaded state={state} onRetry={() => void reload()}>
         {(result) =>
           result.data.length === 0 ? (
-            <MessageView
-              text={
-                search || kind || role || status
-                  ? common("noResult")
-                  : t("none")
-              }
-            />
+            <MessageView text={search || kind || role || status ? common("noResult") : t("none")} />
           ) : (
             <div className="khung-bang">
               <table>
@@ -174,52 +136,27 @@ export default function PartnersPage() {
                       <td data-nhan={headings[1]}>
                         <span>
                           {item.name}
-                          {item.shortName && (
-                            <span className="chu-thich">
-                              {" "}
-                              · {item.shortName}
-                            </span>
-                          )}
+                          {item.shortName && <span className="chu-thich"> · {item.shortName}</span>}
                         </span>
                       </td>
                       <td data-nhan={headings[2]}>
                         <span>{t(`kind_${item.kind}`)}</span>
                       </td>
                       <td data-nhan={headings[3]}>
-                        <span>
-                          {item.taxCode ??
-                            item.citizenIdMasked ??
-                            common("none")}
-                        </span>
+                        <span>{item.taxCode ?? item.citizenIdMasked ?? common("none")}</span>
                       </td>
                       <td data-nhan={headings[4]}>
                         <span>{item.phone ?? common("none")}</span>
                       </td>
                       <td data-nhan={headings[5]}>
                         <span className="nhom-nut">
-                          {item.internalCompanyId && (
-                            <span className="nhan thong-tin">
-                              {t("internal")}
-                            </span>
-                          )}
-                          {item.isCustomer && (
-                            <span className="nhan thanh-cong">
-                              {t("role_customer")}
-                            </span>
-                          )}
-                          {item.isSupplier && (
-                            <span className="nhan canh-bao">
-                              {t("role_supplier")}
-                            </span>
-                          )}
+                          {item.internalCompanyId && <span className="nhan thong-tin">{t("internal")}</span>}
+                          {item.isCustomer && <span className="nhan thanh-cong">{t("role_customer")}</span>}
+                          {item.isSupplier && <span className="nhan canh-bao">{t("role_supplier")}</span>}
                         </span>
                       </td>
                       <td data-nhan={headings[6]}>
-                        <span
-                          className={`nhan ${item.status === "active" ? "thanh-cong" : "trung-tinh"}`}
-                        >
-                          {t(item.status)}
-                        </span>
+                        <span className={`nhan ${item.status === "active" ? "thanh-cong" : "trung-tinh"}`}>{t(item.status)}</span>
                       </td>
                     </tr>
                   ))}
@@ -228,20 +165,10 @@ export default function PartnersPage() {
               <div className="phan-trang">
                 <span>{common("total", { count: result.total })}</span>
                 <span className="nhom-nut">
-                  <button
-                    type="button"
-                    className="nut phu"
-                    disabled={page <= 1}
-                    onClick={() => setPage(page - 1)}
-                  >
+                  <button type="button" className="nut phu" disabled={page <= 1} onClick={() => setPage(page - 1)}>
                     ‹ {common("previous")}
                   </button>
-                  <button
-                    type="button"
-                    className="nut phu"
-                    disabled={page * result.pageSize >= result.total}
-                    onClick={() => setPage(page + 1)}
-                  >
+                  <button type="button" className="nut phu" disabled={page * result.pageSize >= result.total} onClick={() => setPage(page + 1)}>
                     {common("next")} ›
                   </button>
                 </span>

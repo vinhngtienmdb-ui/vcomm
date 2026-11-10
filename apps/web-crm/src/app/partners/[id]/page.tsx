@@ -47,13 +47,7 @@ export default function PartnerPage() {
   );
 }
 
-function PartnerDetail({
-  partner,
-  reload,
-}: {
-  partner: PartnerResponse;
-  reload: () => Promise<void>;
-}) {
+function PartnerDetail({ partner, reload }: { partner: PartnerResponse; reload: () => Promise<void> }) {
   const t = useTranslations("partners");
   const common = useTranslations("common");
   const { notify } = useAdmin();
@@ -65,10 +59,7 @@ function PartnerDetail({
   async function setStatus() {
     setBusy(true);
     try {
-      await apiFetch(
-        `/crm/partners/${partner.id}/${partner.status === "active" ? "deactivate" : "activate"}`,
-        { method: "POST", body: JSON.stringify({ version: partner.version }) },
-      );
+      await apiFetch(`/crm/partners/${partner.id}/${partner.status === "active" ? "deactivate" : "activate"}`, { method: "POST", body: JSON.stringify({ version: partner.version }) });
       setConfirming(false);
       notify(t("saved"));
       await reload();
@@ -81,13 +72,7 @@ function PartnerDetail({
 
   async function showIdentity() {
     try {
-      setCitizenId(
-        (
-          await apiFetch<{ citizenId: string | null }>(
-            `/crm/partners/${partner.id}/identity`,
-          )
-        ).citizenId,
-      );
+      setCitizenId((await apiFetch<{ citizenId: string | null }>(`/crm/partners/${partner.id}/identity`)).citizenId);
     } catch (error) {
       notify(failureOf(error).message, "loi");
     }
@@ -99,41 +84,21 @@ function PartnerDetail({
         <h1>
           {partner.code} · {partner.name}
         </h1>
-        <span
-          className={`nhan ${partner.status === "active" ? "thanh-cong" : "trung-tinh"}`}
-        >
-          {t(partner.status)}
-        </span>
-        {partner.internalCompanyId && (
-          <span className="nhan thong-tin">{t("internal")}</span>
-        )}
+        <span className={`nhan ${partner.status === "active" ? "thanh-cong" : "trung-tinh"}`}>{t(partner.status)}</span>
+        {partner.internalCompanyId && <span className="nhan thong-tin">{t("internal")}</span>}
         <HistoryLink entityId={partner.id} />
         {partner.canManage && (
           <>
-            <button
-              type="button"
-              className="nut phu"
-              onClick={() =>
-                partner.status === "active"
-                  ? setConfirming(true)
-                  : void setStatus()
-              }
-            >
+            <button type="button" className="nut phu" onClick={() => (partner.status === "active" ? setConfirming(true) : void setStatus())}>
               {partner.status === "active" ? t("deactivate") : t("activate")}
             </button>
-            <button
-              type="button"
-              className="nut chinh"
-              onClick={() => setEditing(true)}
-            >
+            <button type="button" className="nut chinh" onClick={() => setEditing(true)}>
               {t("edit")}
             </button>
           </>
         )}
       </div>
-      {partner.internalCompanyId && (
-        <div className="khoi-canh-bao thong-tin">{t("internalHint")}</div>
-      )}
+      {partner.internalCompanyId && <div className="khoi-canh-bao thong-tin">{t("internalHint")}</div>}
 
       <section className="the">
         <h2 style={{ margin: 0 }}>{t("general")}</h2>
@@ -141,16 +106,9 @@ function PartnerDetail({
         {partner.kind === "individual" ? (
           <Row label={t("citizenId")}>
             <span className="nhom-nut" style={{ alignItems: "center" }}>
-              <span>
-                {citizenId ?? partner.citizenIdMasked ?? common("none")}
-              </span>
+              <span>{citizenId ?? partner.citizenIdMasked ?? common("none")}</span>
               {partner.canViewIdentity && citizenId === null && (
-                <button
-                  type="button"
-                  className="nut chu"
-                  title={t("identityLogged")}
-                  onClick={() => void showIdentity()}
-                >
+                <button type="button" className="nut chu" title={t("identityLogged")} onClick={() => void showIdentity()}>
                   {t("showIdentity")}
                 </button>
               )}
@@ -173,15 +131,9 @@ function PartnerDetail({
           partner.contacts.map((contact, index) => (
             <div key={index}>
               <strong>{contact.fullName}</strong>
-              {contact.position && (
-                <span className="chu-thich"> · {contact.position}</span>
-              )}
-              {contact.isPrimary && (
-                <span className="nhan thong-tin"> {t("primary")}</span>
-              )}
-              <div className="chu-thich">
-                {[contact.phone, contact.email].filter(Boolean).join(" · ")}
-              </div>
+              {contact.position && <span className="chu-thich"> · {contact.position}</span>}
+              {contact.isPrimary && <span className="nhan thong-tin"> {t("primary")}</span>}
+              <div className="chu-thich">{[contact.phone, contact.email].filter(Boolean).join(" · ")}</div>
             </div>
           ))
         )}
@@ -197,14 +149,8 @@ function PartnerDetail({
               <strong>
                 {account.bankName} · {account.accountNo}
               </strong>
-              {account.isDefault && (
-                <span className="nhan thong-tin"> {t("default")}</span>
-              )}
-              <div className="chu-thich">
-                {[account.accountHolder, account.branch]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </div>
+              {account.isDefault && <span className="nhan thong-tin"> {t("default")}</span>}
+              <div className="chu-thich">{[account.accountHolder, account.branch].filter(Boolean).join(" · ")}</div>
             </div>
           ))
         )}
@@ -238,31 +184,19 @@ function PartnerDetail({
 }
 
 // Hồ sơ đối tác của công ty đang chọn (CHUC_NANG_48; QUYTAC_NGHIEPVU_60).
-function Profile({
-  partner,
-  reload,
-}: {
-  partner: PartnerResponse;
-  reload: () => Promise<void>;
-}) {
+function Profile({ partner, reload }: { partner: PartnerResponse; reload: () => Promise<void> }) {
   const t = useTranslations("partners");
   const common = useTranslations("common");
   const { me } = useAdmin();
   const [editing, setEditing] = useState(false);
   const profile = partner.profile;
-  const isSelf =
-    partner.internalCompanyId !== null &&
-    partner.internalCompanyId === me?.currentCompanyId;
+  const isSelf = partner.internalCompanyId !== null && partner.internalCompanyId === me?.currentCompanyId;
   return (
     <section className="the">
       <div className="tieu-de">
         <h2 style={{ margin: 0 }}>{t("profile")}</h2>
         {partner.canManageProfile && !isSelf && (
-          <button
-            type="button"
-            className="nut phu"
-            onClick={() => setEditing(true)}
-          >
+          <button type="button" className="nut phu" onClick={() => setEditing(true)}>
             {profile ? t("editProfile") : t("createProfile")}
           </button>
         )}
@@ -275,35 +209,17 @@ function Profile({
         <>
           <Row label={t("role")}>
             <span className="nhom-nut">
-              {profile.isCustomer && (
-                <span className="nhan thanh-cong">{t("role_customer")}</span>
-              )}
-              {profile.isSupplier && (
-                <span className="nhan canh-bao">{t("role_supplier")}</span>
-              )}
+              {profile.isCustomer && <span className="nhan thanh-cong">{t("role_customer")}</span>}
+              {profile.isSupplier && <span className="nhan canh-bao">{t("role_supplier")}</span>}
             </span>
           </Row>
-          <Row label={t("paymentTermDays")}>
-            {t("days", { count: profile.paymentTermDays })}
-          </Row>
-          <Row label={t("creditLimit")}>
-            {profile.creditLimit === null
-              ? t("unlimited")
-              : formatMoney(profile.creditLimit, "VND")}
-          </Row>
-          <Row label={t("customerGroup")}>
-            {profile.customerGroupName ?? common("none")}
-          </Row>
-          <Row label={t("owner")}>
-            {profile.ownerUserName ?? common("none")}
-          </Row>
+          <Row label={t("paymentTermDays")}>{t("days", { count: profile.paymentTermDays })}</Row>
+          <Row label={t("creditLimit")}>{profile.creditLimit === null ? t("unlimited") : formatMoney(profile.creditLimit, "VND")}</Row>
+          <Row label={t("customerGroup")}>{profile.customerGroupName ?? common("none")}</Row>
+          <Row label={t("owner")}>{profile.ownerUserName ?? common("none")}</Row>
           <Row label={t("note")}>{profile.note ?? common("none")}</Row>
           <Row label={t("profileStatus")}>
-            <span
-              className={`nhan ${profile.status === "active" ? "thanh-cong" : "trung-tinh"}`}
-            >
-              {t(profile.status)}
-            </span>
+            <span className={`nhan ${profile.status === "active" ? "thanh-cong" : "trung-tinh"}`}>{t(profile.status)}</span>
           </Row>
         </>
       )}
@@ -321,39 +237,22 @@ function Profile({
   );
 }
 
-function ProfileDrawer({
-  partner,
-  onClose,
-  onSaved,
-}: {
-  partner: PartnerResponse;
-  onClose: () => void;
-  onSaved: () => void;
-}) {
+function ProfileDrawer({ partner, onClose, onSaved }: { partner: PartnerResponse; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("partners");
   const common = useTranslations("common");
   const { notify } = useAdmin();
-  const options = useApi<PartnerProfileOptionsResponse>(
-    "/crm/partner-profile-options",
-  );
+  const options = useApi<PartnerProfileOptionsResponse>("/crm/partner-profile-options");
   const profile = partner.profile;
   const [isCustomer, setIsCustomer] = useState(profile?.isCustomer ?? true);
   const [isSupplier, setIsSupplier] = useState(profile?.isSupplier ?? false);
-  const [paymentTermDays, setPaymentTermDays] = useState(
-    String(profile?.paymentTermDays ?? 0),
-  );
+  const [paymentTermDays, setPaymentTermDays] = useState(String(profile?.paymentTermDays ?? 0));
   const [creditLimit, setCreditLimit] = useState(profile?.creditLimit ?? "");
-  const [customerGroupId, setCustomerGroupId] = useState(
-    profile?.customerGroupId ?? "",
-  );
+  const [customerGroupId, setCustomerGroupId] = useState(profile?.customerGroupId ?? "");
   const [ownerUserId, setOwnerUserId] = useState(profile?.ownerUserId ?? "");
   const [note, setNote] = useState(profile?.note ?? "");
   const [status, setStatus] = useState(profile?.status ?? "active");
   const { submitting, fields, formError, run, inputClass } = useSubmit();
-  const choices =
-    options.state.kind === "ready"
-      ? options.state.data
-      : { customerGroups: [], users: [] };
+  const choices = options.state.kind === "ready" ? options.state.data : { customerGroups: [], users: [] };
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -362,8 +261,7 @@ function ProfileDrawer({
         isCustomer,
         isSupplier,
         paymentTermDays: Number(paymentTermDays),
-        creditLimit:
-          creditLimit.trim() === "" ? null : creditLimit.replace(/\./g, ""),
+        creditLimit: creditLimit.trim() === "" ? null : creditLimit.replace(/\./g, ""),
         customerGroupId: customerGroupId || null,
         ownerUserId: ownerUserId || null,
         note,
@@ -381,73 +279,25 @@ function ProfileDrawer({
 
   return (
     <Drawer title={`${t("profile")}: ${partner.code}`} onClose={onClose}>
-      <form
-        onSubmit={submit}
-        noValidate
-        style={{ display: "grid", gap: "var(--khoang-4)" }}
-      >
+      <form onSubmit={submit} noValidate style={{ display: "grid", gap: "var(--khoang-4)" }}>
         <fieldset className="the" style={{ margin: 0 }}>
           <legend className="an-nhan">{t("role")}</legend>
           <label>
-            <input
-              type="checkbox"
-              checked={isCustomer}
-              onChange={(event) => setIsCustomer(event.target.checked)}
-            />{" "}
-            {t("isCustomer")}
+            <input type="checkbox" checked={isCustomer} onChange={(event) => setIsCustomer(event.target.checked)} /> {t("isCustomer")}
           </label>
           <label>
-            <input
-              type="checkbox"
-              checked={isSupplier}
-              onChange={(event) => setIsSupplier(event.target.checked)}
-            />{" "}
-            {t("isSupplier")}
+            <input type="checkbox" checked={isSupplier} onChange={(event) => setIsSupplier(event.target.checked)} /> {t("isSupplier")}
           </label>
-          {fields.isCustomer && (
-            <span className="loi-o">{fields.isCustomer}</span>
-          )}
+          {fields.isCustomer && <span className="loi-o">{fields.isCustomer}</span>}
         </fieldset>
-        <Field
-          id="so-ngay-no"
-          label={`${t("paymentTermDays")} *`}
-          error={fields.paymentTermDays}
-        >
-          <input
-            id="so-ngay-no"
-            className={inputClass("paymentTermDays")}
-            type="number"
-            min={0}
-            max={365}
-            value={paymentTermDays}
-            onChange={(event) => setPaymentTermDays(event.target.value)}
-          />
+        <Field id="so-ngay-no" label={`${t("paymentTermDays")} *`} error={fields.paymentTermDays}>
+          <input id="so-ngay-no" className={inputClass("paymentTermDays")} type="number" min={0} max={365} value={paymentTermDays} onChange={(event) => setPaymentTermDays(event.target.value)} />
         </Field>
-        <Field
-          id="han-muc"
-          label={t("creditLimit")}
-          hint={t("creditLimitHint")}
-          error={fields.creditLimit}
-        >
-          <input
-            id="han-muc"
-            className={inputClass("creditLimit")}
-            inputMode="numeric"
-            value={creditLimit}
-            onChange={(event) => setCreditLimit(event.target.value)}
-          />
+        <Field id="han-muc" label={t("creditLimit")} hint={t("creditLimitHint")} error={fields.creditLimit}>
+          <input id="han-muc" className={inputClass("creditLimit")} inputMode="numeric" value={creditLimit} onChange={(event) => setCreditLimit(event.target.value)} />
         </Field>
-        <Field
-          id="nhom-khach"
-          label={t("customerGroup")}
-          error={fields.customerGroupId}
-        >
-          <select
-            id="nhom-khach"
-            className={inputClass("customerGroupId")}
-            value={customerGroupId}
-            onChange={(event) => setCustomerGroupId(event.target.value)}
-          >
+        <Field id="nhom-khach" label={t("customerGroup")} error={fields.customerGroupId}>
+          <select id="nhom-khach" className={inputClass("customerGroupId")} value={customerGroupId} onChange={(event) => setCustomerGroupId(event.target.value)}>
             <option value="">{common("none")}</option>
             {choices.customerGroups.map((group) => (
               <option key={group.id} value={group.id}>
@@ -457,12 +307,7 @@ function ProfileDrawer({
           </select>
         </Field>
         <Field id="phu-trach" label={t("owner")} error={fields.ownerUserId}>
-          <select
-            id="phu-trach"
-            className={inputClass("ownerUserId")}
-            value={ownerUserId}
-            onChange={(event) => setOwnerUserId(event.target.value)}
-          >
+          <select id="phu-trach" className={inputClass("ownerUserId")} value={ownerUserId} onChange={(event) => setOwnerUserId(event.target.value)}>
             <option value="">{common("none")}</option>
             {choices.users.map((user) => (
               <option key={user.id} value={user.id}>
@@ -472,23 +317,10 @@ function ProfileDrawer({
           </select>
         </Field>
         <Field id="ghi-chu" label={t("note")} error={fields.note}>
-          <textarea
-            id="ghi-chu"
-            className={inputClass("note")}
-            rows={3}
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-          />
+          <textarea id="ghi-chu" className={inputClass("note")} rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
         </Field>
         <Field id="trang-thai-ho-so" label={t("profileStatus")}>
-          <select
-            id="trang-thai-ho-so"
-            className="o-nhap"
-            value={status}
-            onChange={(event) =>
-              setStatus(event.target.value as "active" | "inactive")
-            }
-          >
+          <select id="trang-thai-ho-so" className="o-nhap" value={status} onChange={(event) => setStatus(event.target.value as "active" | "inactive")}>
             <option value="active">{t("active")}</option>
             <option value="inactive">{t("inactive")}</option>
           </select>
