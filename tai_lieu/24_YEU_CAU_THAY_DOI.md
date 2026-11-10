@@ -253,3 +253,17 @@
 - Rủi ro: cao (đổi mô hình kinh doanh; ví tiền của người dùng cần kiểm soát chặt; hoa hồng một cấp để tránh rủi ro bán hàng đa cấp, cần kiểm tra pháp lý về khấu trừ thuế thu nhập cá nhân trên hoa hồng và chương trình giới thiệu).
 - Trạng thái: Đã phê duyệt 2026-11-10.
 
+### THAY_DOI_15: Tài khoản được đánh dấu nhân viên kinh doanh không có quyền bán B2B – 2026-11-10
+- Lý do: người dùng quyết định ngày 2026-11-10 khi nghiệm thu CONG_VIEC_23: nhân viên kinh doanh không bán B2B nên bỏ phần quyền này. Vai trò hệ thống Nhân viên bán hàng có quyền lập đơn bán, sửa đối tác (B2B); QUYTAC_NGHIEPVU_144 đang gán vai trò này khi đánh dấu.
+- Nội dung thay đổi: đánh dấu nhân viên kinh doanh chỉ thêm tài khoản vào công ty vận hành sàn với phòng ban (căn cứ hoa hồng nhiều cấp theo cơ cấu tổ chức), không gán vai trò Nhân viên bán hàng; bỏ đánh dấu bỏ phòng ban, ngừng thành viên do đánh dấu tạo khi không còn vai trò nào, trả lại phòng ban cũ cho thành viên có sẵn. Quyền xem hoa hồng của mình thêm ở CONG_VIEC_26.
+- Thành phần bị ảnh hưởng: QUYTAC_NGHIEPVU_144; CHUC_NANG_108; TIEUCHI_NGHIEMTHU_166; KICHBAN_KIEMTHU_299; tài liệu `07`, `08`, `16`, `22`, `27`; CONG_VIEC_23.
+- Dữ liệu bị ảnh hưởng: bỏ cột `marketplace.buyer_accounts.sales_role_assignment_id` (migration 0023 chưa phát hành).
+- API bị ảnh hưởng: không đổi hợp đồng API_119.
+- Giao diện bị ảnh hưởng: câu xác nhận bỏ đánh dấu trên MAN_HINH_80.
+- Quyền bị ảnh hưởng: tài khoản được đánh dấu không còn quyền của vai trò Nhân viên bán hàng.
+- Ảnh hưởng chức năng cũ: không (CONG_VIEC_23 chưa phát hành). Bỏ hẳn bán B2B của các công việc cũ (CONG_VIEC_08, 21) xử lý ở công việc sửa riêng theo THAY_DOI_14.
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_299 sửa theo hành vi mới (người dùng cho phép qua quyết định này); hồi quy toàn bộ.
+- Mức quy mô: Vừa.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-10.
+

@@ -198,7 +198,7 @@
   - C4 toàn vẹn dữ liệu: Đạt – đăng ký trùng số cùng lúc bị chỉ mục duy nhất chặn; làm mới cùng token đồng thời thu hồi chuỗi; đoán OTP song song không vượt 5 lượt; khóa cặp tài khoản khi gắn người giới thiệu; bỏ đánh dấu chỉ gỡ phần do đánh dấu tạo; quản trị thao tác theo phiên bản.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập không thấy lỗi Nghiêm trọng; tìm 2 lỗi Cao (làm mới phiên chưa nhập mã xác thực hai lớp để đếm lại số lần sai; bỏ đánh dấu gỡ vai trò, phòng ban do nhân sự gán), 4 mục Trung bình, các mục Thấp; đã sửa ở commit 70b9c29, kiểm thử lại đạt. Ghi nhận còn lại ở tài liệu 22 và đặc tả mục 16. Tệp tạm trong `tam_thoi/CONG_VIEC_23/` (Git bỏ qua).
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
-- Kết luận: Chờ người dùng nghiệm thu; pull request số 58 (nền pull request số 57).
+- Kết luận: Người dùng nghiệm thu 2026-11-10, kèm THAY_DOI_15 (bỏ vai trò Nhân viên bán hàng khi đánh dấu; kết quả kiểm thử lại ghi ở lần kiểm thử THAY_DOI_15); pull request số 58 (nền pull request số 57).
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_21
 
