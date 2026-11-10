@@ -253,11 +253,21 @@ describe("TIEUCHI_NGHIEMTHU_119, 120: Thông tư 133, xuất tệp", () => {
     const b01b = (await admin133(`/finance/statements?kind=balance_sheet&to=${today}&form=B01b-DNN`)).body as Report;
     expect(b01b.form).toBe("B01b-DNN");
 
-    const excel = await call(accountant, "get", `/finance/statements?kind=balance_sheet&to=${today}&format=xlsx`);
+    const excel = await call(accountant, "get", `/finance/statements?kind=balance_sheet&to=${today}&format=xlsx`).responseType("blob");
     expect(excel.status).toBe(200);
     expect(String(excel.headers["content-disposition"])).toContain("B01-DN");
-    const pdf = await call(accountant, "get", `/finance/statements?kind=income_statement&from=2026-01-01&to=${today}&format=pdf`);
+    expect(
+      Buffer.from(excel.body as Buffer)
+        .subarray(0, 2)
+        .toString(),
+    ).toBe("PK");
+    const pdf = await call(accountant, "get", `/finance/statements?kind=income_statement&from=2026-01-01&to=${today}&format=pdf`).responseType("blob");
     expect(pdf.status).toBe(200);
     expect(String(pdf.headers["content-type"])).toContain("application/pdf");
+    expect(
+      Buffer.from(pdf.body as Buffer)
+        .subarray(0, 5)
+        .toString(),
+    ).toBe("%PDF-");
   });
 });

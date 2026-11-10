@@ -2115,7 +2115,8 @@
     "funds": "Quỹ",
     "journals": "Bút toán",
     "books": "Sổ sách",
-    "accounts": "Hệ thống tài khoản"
+    "accounts": "Hệ thống tài khoản",
+    "statements": "Báo cáo tài chính"
   },
   "debts": {
     "title": "Công nợ",
@@ -2374,6 +2375,29 @@
     "closeAction": "Khóa sổ",
     "reopenAction": "Mở lại",
     "closed": "Đã khóa sổ.",
-    "reopened": "Đã mở lại sổ."
+    "reopened": "Đã mở lại sổ.",
+    "longTerm": "Dài hạn",
+    "longTermHint": "(số dư vào chỉ tiêu dài hạn trên báo cáo tình hình tài chính)"
+  },
+  "statements": {
+    "title": "Báo cáo tài chính",
+    "kind_balance_sheet": "Tình hình tài chính",
+    "kind_income_statement": "Kết quả kinh doanh",
+    "from": "Từ ngày",
+    "to": "Đến ngày",
+    "asOf": "Tại ngày",
+    "form": "Mẫu",
+    "invalidRange": "Chọn ngày hợp lệ; từ ngày không sau đến ngày.",
+    "code": "Mã số",
+    "item": "Chỉ tiêu",
+    "note": "Ghi chú",
+    "column_endOfPeriod": "Số cuối kỳ",
+    "column_startOfYear": "Số đầu năm",
+    "column_currentPeriod": "Kỳ này",
+    "column_previousPeriod": "Cùng kỳ năm trước",
+    "currencyLine": "Đơn vị tính: {currency}",
+    "exportExcel": "Xuất Excel",
+    "exportPdf": "Xuất PDF",
+    "howComputed": "Cách lấy số liệu"
   }
 }

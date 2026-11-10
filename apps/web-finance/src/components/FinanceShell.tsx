@@ -11,6 +11,7 @@ export const financeMenu = [
   { href: "/funds", key: "funds", permission: "finance.debt.view" },
   { href: "/journals", key: "journals", permission: "finance.ledger.view" },
   { href: "/books", key: "books", permission: "finance.ledger.view" },
+  { href: "/statements", key: "statements", permission: "finance.ledger.view" },
   { href: "/accounts", key: "accounts", permission: "finance.ledger.view" },
 ] as const;
 

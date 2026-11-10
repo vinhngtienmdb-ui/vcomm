@@ -2115,7 +2115,8 @@
     "funds": "Funds",
     "journals": "Journals",
     "books": "Books",
-    "accounts": "Chart of accounts"
+    "accounts": "Chart of accounts",
+    "statements": "Financial statements"
   },
   "debts": {
     "title": "Debts",
@@ -2374,6 +2375,29 @@
     "closeAction": "Close",
     "reopenAction": "Reopen",
     "closed": "Period closed.",
-    "reopened": "Period reopened."
+    "reopened": "Period reopened.",
+    "longTerm": "Long-term",
+    "longTermHint": "(balance goes to long-term items on the statement of financial position)"
+  },
+  "statements": {
+    "title": "Financial statements",
+    "kind_balance_sheet": "Financial position",
+    "kind_income_statement": "Income statement",
+    "from": "From",
+    "to": "To",
+    "asOf": "As of",
+    "form": "Form",
+    "invalidRange": "Choose valid dates; the start date must not be after the end date.",
+    "code": "Code",
+    "item": "Item",
+    "note": "Note",
+    "column_endOfPeriod": "End of period",
+    "column_startOfYear": "Start of year",
+    "column_currentPeriod": "This period",
+    "column_previousPeriod": "Same period last year",
+    "currencyLine": "Currency: {currency}",
+    "exportExcel": "Export Excel",
+    "exportPdf": "Export PDF",
+    "howComputed": "How it is computed"
   }
 }

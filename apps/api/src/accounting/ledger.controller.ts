@@ -1,5 +1,5 @@
 // API_87 đến API_89: khởi tạo kế toán, tài khoản, định khoản, bút toán, sổ sách (CONG_VIEC_14). Quyền chi tiết kiểm trong service.
-import { Body, Controller, Get, Headers, Param, Patch, Post, Put, Query, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, Headers, Param, Patch, Post, Put, Query, Req, Res, StreamableFile } from "@nestjs/common";
 import type { Response } from "express";
 import {
   closePeriodSchema,
@@ -147,13 +147,13 @@ export class LedgerController {
     @Query() query: unknown,
     @Res({ passthrough: true }) response: Response,
     @Headers("x-company-id") companyId?: string,
-  ): Promise<StatementResponse | Buffer> {
+  ): Promise<StatementResponse | StreamableFile> {
     const parsed = statementQuerySchema.parse(query);
     const report = await this.statements.statement(await this.actor(request, companyId), parsed.kind, parsed.from ?? parsed.to, parsed.to, parsed.form);
     if (!parsed.format) return report;
     const content = parsed.format === "xlsx" ? await statementXlsx(report) : await statementPdf(report);
     response.setHeader("content-type", parsed.format === "xlsx" ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : "application/pdf");
-    response.setHeader("content-disposition", `attachment; filename="${statementFileName(report, parsed.format)}"`);
-    return content;
+    response.setHeader("content-disposition", `${parsed.format === "pdf" ? "inline" : "attachment"}; filename="${statementFileName(report, parsed.format)}"`);
+    return new StreamableFile(content);
   }
 }

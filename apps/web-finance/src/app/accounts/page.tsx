@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_50 Hệ thống tài khoản (CHUC_NANG_69, 70; QUYTAC_NGHIEPVU_93, 94; API_87): khởi tạo kế toán, cây tài khoản, tài khoản chi tiết, định khoản mặc định.
+// MAN_HINH_50 Hệ thống tài khoản (CHUC_NANG_69, 70, 75; QUYTAC_NGHIEPVU_93, 94; API_87): khởi tạo kế toán, cây tài khoản, tài khoản chi tiết, định khoản mặc định.
 import type { AccountResponse, LedgerSetupResponse, PostingRuleResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
@@ -123,7 +123,10 @@ function Accounts() {
                         <span style={{ paddingLeft: `calc(var(--khoang-3) * ${depth.get(account.id) ?? 0})`, fontWeight: account.parentId ? undefined : 700 }}>{account.code}</span>
                       </td>
                       <td data-nhan={headings[1]}>
-                        <span>{account.name}</span>
+                        <span>
+                          {account.name}
+                          {account.isLongTerm && <span className="nhan thong-tin"> {t("longTerm")}</span>}
+                        </span>
                       </td>
                       <td data-nhan={headings[2]}>
                         <span>{t(`nature_${account.nature}`)}</span>
@@ -162,12 +165,16 @@ function AccountForm({ parent, account, onDone, onCancel }: { parent?: AccountRe
   const [code, setCode] = useState(parent ? parent.code : "");
   const [name, setName] = useState(account?.name ?? "");
   const [active, setActive] = useState(account ? account.status === "active" : true);
+  const [longTerm, setLongTerm] = useState(account?.isLongTerm ?? false);
   const { submitting, fields, formError, run, inputClass } = useSubmit();
   function submit(event: FormEvent) {
     event.preventDefault();
     void run(async () => {
       if (account) {
-        await apiFetch(`/finance/accounts/${account.id}`, { method: "PATCH", body: JSON.stringify({ name, status: active ? "active" : "inactive", version: account.version }) });
+        await apiFetch(`/finance/accounts/${account.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ name, status: active ? "active" : "inactive", ...(account.isSystem ? {} : { isLongTerm: longTerm }), version: account.version }),
+        });
       } else {
         await apiFetch("/finance/accounts", { method: "POST", body: JSON.stringify({ parentId: parent!.id, code, name }) });
       }
@@ -190,6 +197,11 @@ function AccountForm({ parent, account, onDone, onCancel }: { parent?: AccountRe
       {account && !account.isSystem && (
         <label>
           <input type="checkbox" checked={active} onChange={(event) => setActive(event.target.checked)} /> {t("active")}
+        </label>
+      )}
+      {account && !account.isSystem && (
+        <label>
+          <input type="checkbox" checked={longTerm} onChange={(event) => setLongTerm(event.target.checked)} /> {t("longTerm")} <span className="chu-thich">{t("longTermHint")}</span>
         </label>
       )}
       {fields.parentId && <span className="loi-o">{fields.parentId}</span>}
