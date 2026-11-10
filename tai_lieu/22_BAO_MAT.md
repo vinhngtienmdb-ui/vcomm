@@ -1,13 +1,13 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06). Các module sau bổ sung vào cùng tài liệu.
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07). Các module sau bổ sung vào cùng tài liệu.
 
 ## 1. Dữ liệu nhạy cảm
 
@@ -34,6 +34,8 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Số Căn cước công dân của đối tác cá nhân (CONG_VIEC_06) | Cá nhân | Cột `crm.partners.citizen_id`, lưu nguyên văn trong cơ sở dữ liệu mã hóa khi lưu (Aurora); chưa mã hóa cột (làm sau cùng giải pháp khóa ở mục 5). Danh sách, chi tiết, kết quả thêm, sửa chỉ trả dạng che `*********` + 3 số cuối; nhật ký thêm, sửa chỉ ghi 3 số cuối | Người có quyền nhạy cảm `crm.partner.identity.view` ở công ty đang làm việc xem số đầy đủ qua `GET /crm/partners/{id}/identity`, mỗi lần xem ghi nhật ký `partner.view_identity` (QUYTAC_NGHIEPVU_59) |
 | Đối tác: tên, mã số thuế, địa chỉ, điện thoại, email, người liên hệ, tài khoản ngân hàng (CONG_VIEC_06) | Tổ chức, cá nhân | Cơ sở dữ liệu schema `crm`; dùng chung tập đoàn | Người có `crm.partner.view` ở bất kỳ công ty nào; sửa: `crm.partner.manage` |
 | Hồ sơ đối tác của công ty: hạn mức công nợ, số ngày được nợ, nhân viên phụ trách (CONG_VIEC_06) | Tài chính, kinh doanh | Bảng `crm.partner_profiles` theo công ty | Xem: người có `crm.partner.view` của chính công ty đó; lập, sửa: quyền nhạy cảm `crm.profile.manage`. Công ty khác không đọc được |
+| Giá mua, bảng giá mua, giá trị đề nghị mua, đơn mua (CONG_VIEC_07) | Kinh doanh | Cơ sở dữ liệu schema `purchasing` theo công ty | Người có quyền Mua hàng của chính công ty (Thủ kho có `purchasing.order.view` thấy đơn giá trên đơn mua); công ty khác nhận `404` |
+| Giá nhập, giá trị dòng phiếu nhập mua, phiếu trả hàng (CONG_VIEC_07) | Tài chính | `inventory.document_lines.unit_cost`, `cost_value` | Như giá vốn: `inventory.cost.view` (API trả trống khi không có quyền) |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
 
@@ -55,6 +57,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Nhập sản phẩm, nhập dòng phiếu điều chỉnh giá từ Excel (API_58, API_62) | Tải tệp lên | Chỉ `.xlsx` đọc bằng `read-excel-file`; tối đa 5 MB (multer cắt ở 10 MB), 2.000 dòng; dòng tiêu đề phải đúng mẫu; xử lý trong bộ nhớ, không lưu tệp gốc; tệp lỗi trả về dạng `data:` | Có |
 | Mọi API mini app Kho (API_63 đến API_70) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn, danh sách `variantIds` phải là UUID; số lượng, tiền dạng chuỗi tối đa 12 (số lượng) hoặc 16 (tiền) chữ số phần nguyên, 4 chữ số lẻ; giới hạn số phần tử (1.000 dòng mỗi phiếu, 5.000 serial mỗi dòng, 500 vị trí mỗi lần thêm, 5.000 dòng đếm mỗi lần, 500 bản tem); không nhận tệp tải lên | Có, `inventory.access` hoặc `inventory.stock.view` và quyền chi tiết tại kho |
 | Mọi API mini app Khách hàng và Đối tác (API_71, API_72) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn, `customerGroupId`, `ownerUserId` phải là UUID; mã số thuế `^[0-9]{10}(-[0-9]{3})?$`, số Căn cước công dân `^[0-9]{12}$`, email đúng định dạng, số tài khoản 4 đến 30 ký tự chữ, số, `-`; độ dài tên 300, địa chỉ 500, ghi chú 1.000 ký tự; tối đa 50 người liên hệ, 20 tài khoản ngân hàng; từ khóa tìm tối đa 100 ký tự, ký tự `%`, `_`, `\` được thoát trong `LIKE`; hạn mức công nợ tối đa 16 chữ số phần nguyên, 4 chữ số lẻ, không âm; không nhận tệp tải lên | Có, `crm.access` hoặc `crm.partner.view` và quyền chi tiết ở công ty đang làm việc |
+| Mọi API mini app Mua hàng, nhập mua, trả hàng nhà cung cấp (API_73 đến API_76) | API | Lược đồ zod trong `packages/contracts`, trường thừa bị từ chối; mã định danh trong đường dẫn, mã nhà cung cấp, mặt hàng, đơn vị, kho, dòng phải là UUID; số lượng chuỗi tối đa 12 chữ số phần nguyên, tiền tối đa 16, 4 chữ số lẻ; dung sai 0 đến 100, 2 chữ số lẻ; tối đa 200 dòng mỗi chứng từ, 1.000 serial mỗi dòng; từ khóa tối đa 100 ký tự, ký tự `%`, `_`, `\` được thoát trong `LIKE`; lý do 500, ghi chú 1.000 ký tự; không nhận tệp tải lên | Có, `purchasing.access`, `purchasing.order.view` hoặc `purchasing.requisition.create` (API_73 đến API_75); quyền vào mini app Kho và `inventory.purchase.receive` tại kho (API_76) |
 | Gửi tin qua eSMS.vn (mã OTP, Zalo ZNS, kiểm tra kết nối) | Tích hợp | Chỉ đọc mã kết quả, mã tin, lỗi; gửi lỗi không chặn nghiệp vụ | Không áp dụng (hệ thống gọi ra) |
 
 ## 3. Xác thực và phiên đăng nhập
@@ -199,6 +202,41 @@ Ranh giới và kiểm soát riêng:
 - Đối tác nội bộ chỉ do hệ thống đồng bộ từ `core.companies`; API từ chối sửa, đổi trạng thái (KICHBAN_KIEMTHU_162).
 - Kiểm trùng (`lookup`) trả mã, tên đối tác khi biết đúng mã số thuế (người có `crm.partner.view`) hoặc đúng số Căn cước công dân (chỉ người có `crm.partner.manage`, tránh dò tìm danh tính; KICHBAN_KIEMTHU_163); không trả số Căn cước công dân.
 - Nhật ký thao tác ghi mọi thao tác ghi của mini app `crm` (thêm, sửa, ngừng giao dịch, giao dịch lại đối tác, lưu hồ sơ) và mỗi lần xem số Căn cước công dân; đồng bộ đối tác nội bộ không ghi nhật ký riêng.
+
+### Ma trận phân quyền MODULE_04 Mua hàng phần 1 (CONG_VIEC_07)
+
+Quyền mới (`apps/api/src/permissions/permission-catalog.ts`; `purchasing.access` đã có từ trước):
+
+| Quyền | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|
+| `purchasing.price.manage` | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng |
+| `purchasing.requisition.create` | Công ty, chi nhánh | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng, Thủ kho |
+| `purchasing.order.view` | Công ty, chi nhánh | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng, Thủ kho |
+| `purchasing.order.manage` | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng |
+| `purchasing.settings.manage` | Công ty | Không | Quản trị tập đoàn, quản trị công ty |
+| `inventory.purchase.receive` | Công ty, chi nhánh sở hữu kho | Không | Quản trị tập đoàn, quản trị công ty, Thủ kho, Quản lý kho |
+
+Vai trò hệ thống mới "Nhân viên mua hàng" (`purchaser`): `purchasing.access`, `purchasing.price.manage`, `purchasing.requisition.create`, `purchasing.order.view`, `purchasing.order.manage`, `crm.access`, `crm.partner.view`, `crm.partner.manage`. Vai trò "Thủ kho" có thêm `inventory.purchase.receive`, `purchasing.access`, `purchasing.requisition.create`, `purchasing.order.view`. Loại chứng từ mới: `purchasing.requisition`, `purchasing.order` (cần duyệt); `inventory.purchase_receipt`, `inventory.purchase_return` (không cần duyệt, có chứng từ gốc).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty | Nhân viên mua hàng | Thủ kho | Quản lý kho | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|---|
+| CHUC_NANG_49 Xem bảng giá mua | Được | Trong công ty mình | Được | Được | Không | Không |
+| CHUC_NANG_49 Thêm, sửa, ngừng dùng giá mua | Được | Trong công ty mình | Được | Không | Không | Không |
+| CHUC_NANG_50 Lập, sửa, gửi, rút đề nghị mua | Được | Trong công ty mình | Được | Được (gán ở chi nhánh vẫn dùng được) | Không | Có (sửa, gửi, rút chỉ người lập) |
+| CHUC_NANG_50 Đóng đề nghị mua | Được | Trong công ty mình | Được | Không | Không | Không |
+| CHUC_NANG_51 Xem đơn mua | Được | Trong công ty mình | Được | Được | Không | Không |
+| CHUC_NANG_51 Lập, sửa, gửi, đóng đơn mua | Được | Trong công ty mình | Được | Không | Không | Có (rút chỉ người lập) |
+| CHUC_NANG_51 Cài đặt dung sai | Được | Trong công ty mình | Không | Không | Không | Không |
+| CHUC_NANG_52, CHUC_NANG_53 Nhập mua, kiểm tra chất lượng, trả hàng | Được | Kho của công ty mình | Không | Kho trong phạm vi gán | Kho trong phạm vi gán | Có (sửa, gửi, xóa nháp chỉ người lập) |
+| CHUC_NANG_50, CHUC_NANG_51 Duyệt đề nghị mua, đơn mua | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Không (người lập không tự duyệt) |
+
+Ranh giới và kiểm soát riêng:
+- Dữ liệu Mua hàng theo công ty: mọi truy vấn bảng giá, đề nghị, đơn mua có điều kiện `company_id` của công ty đang làm việc; công ty khác nhận `404`, danh sách trống, đóng đơn của công ty khác bị từ chối (KICHBAN_KIEMTHU_165, KICHBAN_KIEMTHU_167).
+- Quyền theo chi nhánh: chỉ `purchasing.requisition.create`, `purchasing.order.view` gán ở chi nhánh được dùng trong cả công ty (thủ kho chi nhánh xem được mọi đơn mua của công ty, gồm đơn giá); quyền lập, sửa, đóng đơn, bảng giá, cài đặt cần lần gán ở tập đoàn hoặc công ty.
+- Nhận hàng theo kho: phiếu nhập mua, trả hàng kiểm `inventory.purchase.receive` tại kho nhận của đơn hoặc kho của phiếu gốc; thủ kho chi nhánh khác không thấy đơn trong danh sách cần nhận, không lập phiếu (KICHBAN_KIEMTHU_168).
+- Chống nhận vượt, trả vượt khi đồng thời: gửi phiếu nhập khóa dòng đơn mua (`FOR UPDATE`) rồi kiểm dung sai; gửi phiếu trả khóa dòng phiếu nhập gốc; giá mua kiểm chồng hiệu lực khi giữ khóa tư vấn.
+- Phiếu mua không lập, không sửa qua API phiếu kho thường (`POST`, `PATCH /inventory/documents` từ chối loại `purchase_receipt`, `purchase_return`).
+- Nhật ký thao tác ghi mọi thao tác ghi của mini app `purchasing` (giá mua, cài đặt, đề nghị, đơn mua) và của phiếu nhập mua, trả hàng (lập, sửa, gửi, kiểm tra chất lượng); chuyển trạng thái sau duyệt, chuyển "Đã nhận đủ" không ghi nhật ký riêng.
 
 ## 5. Quản lý khóa bí mật
 

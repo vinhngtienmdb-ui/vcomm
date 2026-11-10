@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web và MODULE_07 Khách hàng và Đối tác phần tối thiểu: đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 0.5
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu và MODULE_04 Mua hàng phần 1: đúng, sai, giá trị biên, từng vai trò.
+- Phiên bản: 0.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_170 của MODULE_04
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -1935,3 +1935,81 @@ Dữ liệu chung: công ty con VCR (`testIds.retailCompany`), VCT (`testIds.tra
 - Kết quả mong đợi: Bước 1: nhóm khách hàng chỉ có "Khách sỉ" của VCR. Bước 2: `400`, `400`, `400`; lỗi chỉ ở `customerGroupId`; lỗi chỉ ở `ownerUserId`. Bước 3: `403`. Bước 4: `200`, hồ sơ công ty VCR, khách hàng, hạn mức `50000000`, nhóm "Khách sỉ", 30 ngày, `version` 1, `currency` "VND"; lần hai `409`; danh sách chỉ có đối tác này; Thủ kho thấy khách hàng nhưng `creditLimit: null`, `creditLimitHidden: true`. Bước 5: `profile: null`, `isCustomer: false`; tổng 0. Bước 6: lỗi chỉ ở `partnerId`. Bước 7: đúng một dòng `partner_profile.save`.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c6-partners.test.ts`
 - Lát: L1
+
+## MODULE_04 Mua hàng (phần 1: Mua hàng trong nước, CONG_VIEC_07)
+
+Dữ liệu chung: công ty con VCR (`testIds.retailCompany`), VCT (`testIds.tradingCompany`); Quản trị tập đoàn `quantri.tapdoan@vcomm.test`, Quản trị công ty VCR `quantri.vcr@vcomm.test`, người duyệt `phuc.le@vcomm.test`; tạo trong tệp kiểm thử: Nhân viên mua hàng `muahang.vcr@vcomm.test` (vai trò `purchaser` ở VCR), `muahang.vct@vcomm.test` (`purchaser` ở VCT), Thủ kho `thukho.mua@vcomm.test` (`warehouse_keeper` gán ở chi nhánh VCR-BD), Thủ kho `thukho.hcm.mua@vcomm.test` (`warehouse_keeper` gán ở chi nhánh VCR-HCM). Kho `BDM` "Kho mua BD" của chi nhánh VCR-BD, không dùng vị trí. Mặt hàng của VCR: "Nước suối mua" (đơn vị cơ sở chai, thùng = 24 chai, thuế suất 10%), "Gạo mua" (kg, 5%), "Sữa tươi kiểm tra" (hộp, theo lô, ngành hàng `THUCM` cần kiểm tra chất lượng), "Điện thoại mua" (cái, theo serial); mặt hàng của VCT "Nước của VCT". Đối tác: "Công ty TNHH Nước Sạch Miền Nam" mã số thuế `0310000001` có hồ sơ nhà cung cấp ở VCR; "Công ty Khách Hàng Lẻ" `0310000002` chỉ là khách hàng. Các kịch bản chạy nối tiếp trong một tệp (dung sai 5% đặt ở KICHBAN_KIEMTHU_168 dùng tiếp ở KICHBAN_KIEMTHU_169, KICHBAN_KIEMTHU_170). Đường dẫn API có tiền tố `/api/v1`.
+
+## CHUC_NANG_49: Bảng giá mua (CONG_VIEC_07)
+
+### KICHBAN_KIEMTHU_165: Giá chồng hiệu lực bị từ chối; giá gợi ý theo ngày, số lượng tối thiểu; nhà cung cấp chưa có hồ sơ bị từ chối
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_80
+- Chức năng: CHUC_NANG_49
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Nhân viên mua hàng VCR, VCT; Thủ kho VCR-BD
+- Điều kiện ban đầu và dữ liệu: Giá mẫu: "Nước Sạch Miền Nam", "Nước suối mua", đơn vị thùng, đơn giá `96000`, hiệu lực từ 2026-01-01, không thời hạn.
+- Các bước: (1) Thủ kho thêm giá mẫu. (2) Nhân viên mua hàng thêm giá mẫu với nhà cung cấp "Công ty Khách Hàng Lẻ"; với đơn vị kg. (3) Thêm giá mẫu. (4) Thêm giá `95000` cùng số lượng tối thiểu 0, hiệu lực từ 2026-06-01. (5) Thêm giá số lượng tối thiểu 10, `90000`; sửa giá mẫu hiệu lực đến 2099-12-30 (phiên bản 1); thêm giá `99000` hiệu lực từ 2099-12-31. (6) Tra giá gợi ý hôm nay với 5 thùng, 10 thùng; ngày 2099-12-31 với 1 thùng; ngày 2025-12-31. (7) Ngừng dùng giá 10 thùng; tra lại 10 thùng; xem danh sách đang dùng của nhà cung cấp. (8) Nhân viên mua hàng VCT xem danh sách ở VCT; sửa giá mẫu ở VCT. (9) Nhân viên mua hàng VCR tải danh sách chọn.
+- Kết quả mong đợi: Bước 1: `403`. Bước 2: lỗi chỉ ở `supplierId` "Nhà cung cấp chưa có hồ sơ nhà cung cấp đang dùng ở công ty."; lỗi chỉ ở `unitId`. Bước 3: `201`, tên nhà cung cấp, đơn vị "Thùng", `minQuantity` "0", `unitPrice` "96000", `active`. Bước 4: lỗi chỉ ở `validFrom` "Đã có giá đang dùng cùng nhà cung cấp, mặt hàng, đơn vị, số lượng tối thiểu trùng thời gian hiệu lực.". Bước 5: `201`; `validTo` 2099-12-30, `version` 2; `201`. Bước 6: "96000"; "90000"; "99000"; `null`. Bước 7: `inactive`; "96000"; tổng 2. Bước 8: tổng 0; `404`. Bước 9: tiền tệ VND, nhà cung cấp chỉ "Nước Sạch Miền Nam", kho `BDM`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c7-purchasing.test.ts`
+- Lát: L0
+
+## CHUC_NANG_50, CHUC_NANG_51: Đề nghị mua, đơn mua (CONG_VIEC_07)
+
+### KICHBAN_KIEMTHU_166: Đề nghị mua đi luồng duyệt; đơn từ đề nghị đã duyệt không vượt giá trị duyệt ngay, vượt thì chờ duyệt; đặt quá số còn lại bị từ chối
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_81
+- Chức năng: CHUC_NANG_50, CHUC_NANG_51
+- Loại: Đúng, sai, phân quyền, luồng duyệt
+- Vai trò thực hiện: Thủ kho VCR-BD; Nhân viên mua hàng VCR; người duyệt
+- Điều kiện ban đầu và dữ liệu: Quản trị công ty VCR lập chính sách duyệt `purchasing.requisition`, `purchasing.order`: một cấp từ 0 đồng, người duyệt `phuc.le@vcomm.test`, người thay thế quản trị công ty VCR.
+- Các bước: (1) Nhân viên mua hàng lập đề nghị có dòng nước suối với đơn vị kg. (2) Thủ kho lập đề nghị: 10 thùng nước suối, giá ước tính `96000`, nhà cung cấp đề xuất "Nước Sạch Miền Nam"; 100 kg gạo, `20000`; gửi duyệt. (3) Nhân viên mua hàng lập đơn 10 thùng từ dòng nước của đề nghị đang chờ duyệt. (4) Người duyệt duyệt; Nhân viên mua hàng xem đề nghị; lọc `openOnly=true`. (5) Lập đơn 6 thùng × `95000` từ dòng nước; gửi; xem đề nghị. (6) Lập đơn 5 thùng từ dòng nước. (7) Lập đơn 4 thùng × `97000` từ dòng nước, gửi; người duyệt từ chối; xem đơn, xem đề nghị. (8) Lập đơn trực tiếp 1 thùng × `1000`, gửi. (9) Thủ kho lập đơn; xem đơn bước 8.
+- Kết quả mong đợi: Bước 1: `400`. Bước 2: `201`, nháp, giá trị ước tính "2960000", dòng nước `baseQuantity` "240", đã đặt "0", `canEdit: true`; gửi: chờ duyệt, số bắt đầu `DNM`. Bước 3: lỗi chỉ ở `lines.0.requisitionLineId`. Bước 4: `approved`, `canOrder: true`; tổng 1. Bước 5: `201`, nháp, tổng "570000", thuế "57000"; gửi: `approved`, `approvalRequestId: null`, số bắt đầu `DMH`; đã đặt "144". Bước 6: `lines.0.quantity` "Vượt số lượng còn lại của dòng đề nghị mua.". Bước 7: chờ duyệt kèm yêu cầu duyệt; sau từ chối `rejected`, `canEdit: true`; đã đặt vẫn "144". Bước 8: chờ duyệt. Bước 9: `403`; `canEdit: false`, `canClose: false`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c7-purchasing.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_167: Sửa tăng giá trị hoặc đổi nhà cung cấp về chờ duyệt; sửa giảm giữ trạng thái; đóng đơn; công ty khác không xem được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_82, TIEUCHI_NGHIEMTHU_86
+- Chức năng: CHUC_NANG_51
+- Loại: Đúng, sai, phân quyền, luồng duyệt
+- Vai trò thực hiện: Nhân viên mua hàng VCR, VCT; người duyệt; Quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Chính sách duyệt của KICHBAN_KIEMTHU_166.
+- Các bước: (1) Lập đơn 10 thùng × `96000`, ghi chú "Giao trong tuần"; gửi; người duyệt duyệt; xem đơn. (2) Sửa dòng còn 8 thùng. (3) Sửa thêm dòng 3 thùng × `96000`; người duyệt duyệt; xem đơn. (4) Quản trị công ty thêm "Nhà cung cấp thứ hai" mã số thuế `0310000003`, lập hồ sơ nhà cung cấp; sửa đơn đổi sang nhà cung cấp này, giữ dòng; người duyệt duyệt. (5) Nhân viên mua hàng VCT xem chi tiết đơn, xem danh sách đơn, đóng đơn ở VCT. (6) Nhân viên mua hàng VCR đóng đơn, lý do "Nhà cung cấp hết hàng". (7) Đọc nhật ký thao tác của đơn.
+- Kết quả mong đợi: Bước 1: `approved`, `canClose: true`, dòng còn nhận được "240". Bước 2: `200`, `approved`, tổng "768000". Bước 3: chờ duyệt, tổng "1056000"; sau duyệt `approved`, giữ số đơn. Bước 4: chờ duyệt, nhà cung cấp "Nhà cung cấp thứ hai". Bước 5: `404`; tổng 0; `409`. Bước 6: `closed`, lý do đóng đúng, `canEdit: false`, `canClose: false`, còn nhận được "0". Bước 7: theo thứ tự `purchase_order.create`, `purchase_order.submit`, `purchase_order.update`, `purchase_order.update`, `purchase_order.submit`, `purchase_order.update`, `purchase_order.submit`, `purchase_order.close`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c7-purchasing.test.ts`
+- Lát: L1
+
+## CHUC_NANG_52: Phiếu nhập mua, kiểm tra chất lượng (CONG_VIEC_07)
+
+### KICHBAN_KIEMTHU_168: Dung sai nhận vượt; đơn chưa duyệt, đã đóng không nhận; giá nhập theo đơn; đơn nhận đủ; thủ kho chi nhánh khác không nhận
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_83, TIEUCHI_NGHIEMTHU_86
+- Chức năng: CHUC_NANG_52
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Quản trị công ty VCR; Nhân viên mua hàng VCR; Thủ kho VCR-BD; Thủ kho VCR-HCM
+- Điều kiện ban đầu và dữ liệu: Chính sách duyệt của KICHBAN_KIEMTHU_166 (đơn mua gửi xong thì người duyệt duyệt).
+- Các bước: (1) Quản trị công ty đặt dung sai nhận vượt 5% (phiên bản 0). (2) Lập, duyệt đơn: 10 thùng nước × `96000`; 50 kg gạo × `20000`, thuế 5%. (3) Thủ kho VCR-HCM xem đơn cần nhận; lập, gửi phiếu nhập 1 thùng. Thủ kho VCR-BD xem đơn cần nhận. (4) Thủ kho VCR-BD lập phiếu nhập 11 thùng. (5) Lập, gửi phiếu nhập 6 thùng; Quản trị công ty xem tồn nước suối ở kho `BDM`. (6) Nhân viên mua hàng sửa dòng nước còn 5 thùng. (7) Nhập 4,5 thùng; xem đơn; nhập 50 kg gạo; xem đơn. (8) Nhập thêm 1 kg gạo; lập đơn nháp 1 thùng rồi nhập theo đơn đó. (9) Lập, duyệt đơn 2 thùng; nhập 1 thùng; đóng đơn lý do "Nhà cung cấp giao thiếu"; nhập thêm 1 thùng. (10) Thủ kho lập phiếu loại `purchase_receipt` qua `POST /inventory/documents`.
+- Kết quả mong đợi: Bước 2: `approved`, dòng nước còn nhận được "252". Bước 3: danh sách rỗng; `403` hoặc `404`; danh sách có đơn. Bước 4: lỗi chỉ ở `lines.0.quantity` "Vượt số còn nhận được của đơn mua (đã tính dung sai).". Bước 5: `201`, `purchase_receipt`, `posted`, số bắt đầu `NM`, nhà cung cấp, số đơn gốc; tồn 144 chai, giá vốn bình quân 4.000 (96.000 / 24), giá trị 576.000. Bước 6: lỗi chỉ ở `lines.0.quantity` "Số lượng nhỏ hơn số đã nhận.". Bước 7: `201`, đơn vẫn `approved`; `201`, đơn `received`, dòng nước đã nhận "252", còn nhận được "0", 3 phiếu liên quan. Bước 8: "Đơn mua chưa duyệt hoặc đã đóng, không nhận hàng được."; `409`. Bước 9: `201`; `closed`; `409`. Bước 10: `400`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c7-purchasing.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_169: Hàng cần kiểm tra chưa vào tồn khi chờ kiểm; ghi sổ phần đạt; phần không đạt không tính đã nhận
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_84
+- Chức năng: CHUC_NANG_52
+- Loại: Đúng, sai
+- Vai trò thực hiện: Thủ kho VCR-BD; Nhân viên mua hàng VCR; Quản trị công ty VCR (xem giá trị)
+- Điều kiện ban đầu và dữ liệu: Dung sai 5% từ KICHBAN_KIEMTHU_168; đơn đã duyệt 100 hộp "Sữa tươi kiểm tra" × `10000`, thuế 5%.
+- Các bước: (1) Thủ kho lập, gửi phiếu nhập 100 hộp, lô `L-SUA-01`, hạn dùng 2099-01-01. (2) Xem tồn sữa; xem đơn. (3) Đóng đơn. (4) Ghi kết quả 10 hộp không đạt, không lý do. (5) Ghi kết quả 10 hộp không đạt, lý do "Hộp móp, rò rỉ". (6) Đọc giá trị dòng phiếu, tồn sữa; xem đơn. (7) Ghi kết quả lần hai với phiên bản mới.
+- Kết quả mong đợi: Bước 1: `quality_check`, `canQualityCheck: true`, dòng `requiresQualityCheck: true`. Bước 2: tồn 0; đã nhận "0", còn nhận được "5" (105 − 100 đang chờ kiểm). Bước 3: "Đơn mua còn phiếu nhập nháp hoặc chờ kiểm tra, chưa đóng được.". Bước 4: lỗi chỉ ở `lines.0.rejectionReason` "Vui lòng nhập thông tin này.". Bước 5: `201`, `posted`, `canQualityCheck: false`, dòng `rejectedBaseQuantity` "10", lý do đúng. Bước 6: giá trị dòng "900000"; tồn 90 hộp, giá vốn 10.000; đã nhận "90", còn nhận được "15". Bước 7: `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c7-purchasing.test.ts`
+- Lát: L2
+
+## CHUC_NANG_53: Phiếu trả hàng nhà cung cấp (CONG_VIEC_07)
+
+### KICHBAN_KIEMTHU_170: Trả theo giá phiếu nhập gốc, giá vốn bình quân phần còn lại tính lại; trả quá số đã nhập, serial chưa nhập bị từ chối
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_85
+- Chức năng: CHUC_NANG_53
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Thủ kho VCR-BD; Quản trị công ty VCR (xem giá trị, Thủ kho không có `inventory.cost.view`)
+- Điều kiện ban đầu và dữ liệu: Đơn A 10 thùng nước × `96000`, đơn B 10 thùng × `120000`, cả hai đã duyệt và nhận đủ; đọc giá trị, số lượng tồn nước suối trước khi trả.
+- Các bước: (1) Lập phiếu trả 11 thùng từ phiếu nhập của đơn A, gửi; xóa nháp. (2) Lập, gửi phiếu trả 1 thùng từ cùng dòng; đọc giá trị dòng phiếu trả, tồn nước suối; xem đơn A. (3) Lập phiếu trả 10 thùng từ cùng dòng, gửi. (4) Lập, duyệt đơn 2 cái "Điện thoại mua" × `5000000`; nhận serial `IMEI-M1`, `IMEI-M2`. (5) Lập phiếu trả 1 cái serial `IMEI-KHAC`. (6) Lập, gửi phiếu trả 1 cái serial `IMEI-M2`; đọc giá trị dòng.
+- Kết quả mong đợi: Bước 1: lỗi chỉ ở `lines.0.quantity` "Vượt số đã nhập còn trả được của phiếu nhập gốc.". Bước 2: `purchase_return`, `posted`, số bắt đầu `TNCC`, số phiếu nhập gốc; giá trị dòng "96000"; giá trị tồn giảm đúng 96.000, số lượng giảm 24 chai, giá vốn bình quân = giá trị còn lại / số còn lại; đơn A đã trả "24". Bước 3: `400` (còn trả được 9 thùng). Bước 4: phiếu nhập `posted`. Bước 5: lỗi ở `lines.0.serials`. Bước 6: `posted`, serial `IMEI-M2`, giá trị dòng "5000000".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c7-purchasing.test.ts`
+- Lát: L2
