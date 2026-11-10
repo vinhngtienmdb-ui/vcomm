@@ -359,7 +359,7 @@ export class ConsolidationService implements OnModuleInit {
         const advance = await eliminate(of(creditor, debtor, true, false), of(debtor, creditor, false, true), -1, creditor, debtor, `Loại trừ trả trước nội bộ ${names}`);
         for (const [receivable, payable] of [
           [owed.leftTotal, owed.rightTotal],
-          [-advance.leftTotal, -advance.rightTotal],
+          [advance.leftTotal, advance.rightTotal],
         ] as const)
           if (Math.abs(receivable - payable) > 0.00005)
             warnings.push({
@@ -459,7 +459,7 @@ export class ConsolidationService implements OnModuleInit {
 
   private async roleAccount(executor: Executor, companyId: string, role: string): Promise<string> {
     const accountId = (await executor.execute<{ account_id: string }>(sql`SELECT account_id FROM accounting.posting_rules WHERE company_id = ${companyId} AND role = ${role}`)).rows[0]?.account_id;
-    if (!accountId) throw new ApiError("BUSINESS_RULE", "postingRuleMissing");
+    if (!accountId) throw new ApiError("BUSINESS_RULE", "consolidationPostingRuleMissing");
     return accountId;
   }
 

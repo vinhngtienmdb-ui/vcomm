@@ -262,7 +262,8 @@
     "collectionTooManyRows": "The file exceeds 5,000 rows.",
     "collectionPostingRuleMissing": "Posting rules for collector receivable, collection fee or customer receivable are missing.",
     "consolidationNoMembers": "No company can be consolidated (same currency, ledger initialized).",
-    "consolidationPeriodExists": "A consolidation already exists for this period."
+    "consolidationPeriodExists": "A consolidation already exists for this period.",
+    "consolidationPostingRuleMissing": "A member company is missing posting rules for revenue, cost of goods sold or goods."
   },
   "login": {
     "title": "Sign in",

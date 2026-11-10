@@ -4,7 +4,7 @@
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_276 của báo cáo tài chính hợp nhất (270 đến 275 tự động; 276 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -3250,6 +3250,17 @@ Dữ liệu chung: tập đoàn VComm (công ty gốc, chưa khởi tạo kế t
 - Kiểm thử tự động: Tự động API – `apps/api/test/c20-consolidation.test.ts`
 - Lát: L0
 
+### KICHBAN_KIEMTHU_277: Trả trước nội bộ được loại trừ; số dư ngược chiều của hai công ty không bù trừ khi cộng gộp
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_147
+- Chức năng: CHUC_NANG_93
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Kế toán trưởng tập đoàn; quản trị tập đoàn
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_271; đối tác VCT có hồ sơ khách hàng ở VCR, đối tác VCR có hồ sơ nhà cung cấp ở VCT; phiếu kế toán ghi sổ tháng 11/2026: VCT Nợ 1121 / Có 4111 1.000.000; VCR nhận trước của VCT Nợ 111 / Có 131 (đối tác VCT) 500.000; VCT trả trước Nợ 331 (đối tác VCR) / Có 1121 500.000; VCR Nợ 111 / Có 33311 100.000 (thuế còn phải nộp); VCT Nợ 33311 / Có 1121 30.000 (thuế nộp thừa).
+- Các bước: (1) Kế toán trưởng tập đoàn lập bảng hợp nhất từ 2026-11-01 đến 2026-11-30. (2) Xem bút toán, cảnh báo, B01-DN.
+- Kết quả mong đợi: Bước 1: `201`. Bước 2: bút toán "Loại trừ trả trước nội bộ…" Nợ 131 / Có 331 500.000; không có cảnh báo; chỉ tiêu 312 (người mua trả tiền trước) và 132 (trả trước cho người bán) cộng gộp 500.000, hợp nhất 0; chỉ tiêu 314 cộng gộp 100.000, chỉ tiêu 163 cộng gộp 30.000 (không bù trừ); chỉ tiêu 280 bằng 440 ở cột hợp nhất.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c20-consolidation.test.ts`
+- Lát: L1 (sửa sau rà soát)
+
 ## CHUC_NANG_93, CHUC_NANG_94: Loại trừ nội bộ, sửa lãi, điều chỉnh tay (CONG_VIEC_20)
 
 ### KICHBAN_KIEMTHU_272: Loại trừ công nợ nội bộ phần nhỏ hơn, cảnh báo chênh lệch; loại trừ doanh thu, giá vốn nội bộ; lãi chưa thực hiện ước tính
@@ -3269,21 +3280,21 @@ Dữ liệu chung: tập đoàn VComm (công ty gốc, chưa khởi tạo kế t
 - Loại: Đúng, sai, phân quyền
 - Vai trò thực hiện: Kế toán trưởng tập đoàn; quản trị công ty VCR
 - Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_272.
-- Các bước: (1) Sửa dòng lãi 90.000 không có lý do. (2) Sửa 90.000, lý do "Giảm giá hàng tồn". (3) Tính lại. (4) Thêm điều chỉnh tay Nợ 3388 100 / Có 1388 90. (5) Thêm điều chỉnh tay mã 9999. (6) Thêm điều chỉnh tay "Ghi nhận tiền đang chuyển nội bộ" Nợ 113 / Có 131 100.000. (7) Xóa bút toán vừa thêm. (8) Quản trị công ty VCR xem chi tiết bảng.
-- Kết quả mong đợi: Bước 1: `400`. Bước 2: ước tính 96.000, số dùng 90.000. Bước 3: số dùng vẫn 90.000. Bước 4, 5: `400`. Bước 6: `201`, bút toán điều chỉnh tay 113, 131; chỉ tiêu 280 bằng 440 ở cột hợp nhất. Bước 7: không còn điều chỉnh tay. Bước 8: `403`.
+- Các bước: (1) Sửa dòng lãi 90.000 không có lý do. (2) Sửa 90.000, lý do "Giảm giá hàng tồn". (3) Tính lại. (4) Thêm điều chỉnh tay Nợ 3388 100 / Có 1388 90. (5) Thêm điều chỉnh tay mã 9999. (6) Thêm điều chỉnh tay Nợ 113 / Có 131 100.000 không chọn đối tác. (7) Thêm điều chỉnh tay "Ghi nhận tiền đang chuyển nội bộ" Nợ 113 / Có 131 100.000, công ty VCR, dòng 131 đối tác VCT. (8) Xóa bút toán vừa thêm. (9) Quản trị công ty VCR xem chi tiết bảng.
+- Kết quả mong đợi: Bước 1: `400`. Bước 2: ước tính 96.000, số dùng 90.000. Bước 3: số dùng vẫn 90.000. Bước 4, 5: `400`. Bước 6: `400`, lỗi chỉ ở `lines.1.partnerId`. Bước 7: `201`, bút toán điều chỉnh tay 113, 131; chỉ tiêu 131 cột hợp nhất giảm đúng 100.000; chỉ tiêu 280 bằng 440 ở cột hợp nhất. Bước 8: không còn điều chỉnh tay. Bước 9: `403`.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c20-consolidation-eliminations.test.ts`
 - Lát: L1
 
 ## CHUC_NANG_95: Gửi, chốt số, xuất (CONG_VIEC_20)
 
-### KICHBAN_KIEMTHU_274: Chưa có chính sách duyệt thì gửi là chốt số; số đã chốt không đổi khi sổ thay đổi; không tính lại; xuất Excel, PDF
+### KICHBAN_KIEMTHU_274: Chưa có chính sách duyệt thì gửi tính lại rồi chốt số; số đã chốt không đổi khi sổ thay đổi; không tính lại; xuất Excel, PDF
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_149
 - Chức năng: CHUC_NANG_95
 - Loại: Đúng, sai
 - Vai trò thực hiện: Kế toán trưởng tập đoàn
 - Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_273; chưa có chính sách duyệt loại `finance.consolidation`.
 - Các bước: (1) Gửi bảng mới nhất. (2) VCR ghi sổ phiếu kế toán Nợ 111 / Có 41111 5.000 cùng ngày; xem lại bảng. (3) Tính lại bảng. (4) Xuất B01-DN dạng Excel. (5) Xuất B02-DN dạng PDF.
-- Kết quả mong đợi: Bước 1: `201`, `posted`, số `HN…`, `canEdit` `false`. Bước 2: chỉ tiêu 280 cột hợp nhất không đổi. Bước 3: `409`. Bước 4: `200`, tệp bắt đầu bằng "PK". Bước 5: tệp bắt đầu bằng "%PDF".
+- Kết quả mong đợi: Bước 1: `201`, `posted`, số `HN…`, `canEdit` `false`; thời điểm tính lại sau thời điểm tính trước khi gửi (gửi tự tính lại). Bước 2: chỉ tiêu 280 cột hợp nhất không đổi. Bước 3: `409`. Bước 4: `200`, tệp bắt đầu bằng "PK". Bước 5: tệp bắt đầu bằng "%PDF".
 - Kiểm thử tự động: Tự động API – `apps/api/test/c20-consolidation-eliminations.test.ts`
 - Lát: L2
 
@@ -3294,7 +3305,7 @@ Dữ liệu chung: tập đoàn VComm (công ty gốc, chưa khởi tạo kế t
 - Vai trò thực hiện: Kế toán trưởng tập đoàn; quản trị tập đoàn (người duyệt)
 - Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_274; chính sách duyệt của công ty gốc loại `finance.consolidation` một cấp, người duyệt là quản trị tập đoàn.
 - Các bước: (1) Lập bảng kỳ 2026-01-01 đến hôm nay; gửi. (2) Rút. (3) Gửi lại. (4) Quản trị tập đoàn duyệt; chạy sự kiện outbox. (5) Xem bảng.
-- Kết quả mong đợi: Bước 1: `pending`, `canWithdraw` `true`, `canEdit` `false`. Bước 2: `withdrawn`, `canEdit` `true`. Bước 3: `pending`, giữ số `HN…` của lần gửi đầu. Bước 4: `200`. Bước 5: `posted`.
+- Kết quả mong đợi: Bước 1: `pending`, `canWithdraw` `true`, `canEdit` `false`. Bước 2: `withdrawn`, `canEdit` `true`. Bước 3: `pending`, giữ số `HN…` của lần gửi đầu. Bước 4: `200`. Bước 5: `posted` (số đã lưu lúc gửi lại).
 - Kiểm thử tự động: Tự động API – `apps/api/test/c20-consolidation-eliminations.test.ts`
 - Lát: L2
 

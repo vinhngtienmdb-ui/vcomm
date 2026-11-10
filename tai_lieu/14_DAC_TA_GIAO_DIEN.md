@@ -20,7 +20,7 @@
 - Cập nhật CONG_VIEC_17 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 5, MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40); menu mini app Tài chính – Kế toán thêm mục "Hoa hồng", "Cài đặt hoa hồng"
 - Cập nhật CONG_VIEC_18 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 6, MAN_HINH_58, MAN_HINH_59 (mục 41 đến mục 43); menu mini app Tài chính – Kế toán thêm mục "Giao dịch ngân hàng", "Kết nối ngân hàng"
 - Cập nhật CONG_VIEC_19 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 7, MAN_HINH_60, MAN_HINH_61 (mục 44 đến mục 46); menu mini app Tài chính – Kế toán thêm mục "Đối soát thu hộ"; MAN_HINH_51 (Bút toán) bộ lọc, cột "Nguồn" thêm "Bảng hoa hồng" (sửa lỗi hiện mã thô `commission` từ CONG_VIEC_17), "Bảng đối soát thu hộ"
-- Cập nhật CONG_VIEC_20 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 8, MAN_HINH_62, MAN_HINH_63 (mục 47 đến mục 49); menu mini app Tài chính – Kế toán thêm mục "Báo cáo hợp nhất" sau "Báo cáo tài chính"
+- Cập nhật CONG_VIEC_20 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 8, MAN_HINH_62, MAN_HINH_63 (mục 47 đến mục 49); menu mini app Tài chính – Kế toán thêm mục "Báo cáo hợp nhất" sau "Báo cáo tài chính"; sửa sau rà soát: công ty, đối tác trong ngăn kéo điều chỉnh tay, lý do không chốt được hiện câu đã dịch, thẻ xem nhanh chỉ tải khi mở
 
 ## MODULE_01 Nền tảng
 
@@ -1727,7 +1727,7 @@ flowchart TD
   - Thẻ phạm vi: "Tập đoàn <tên> · đồng tiền <mã>"; danh sách thành viên: tên (đậm) · mã · "Thông tư 99" hoặc "Thông tư 133" · đồng tiền · "công ty gốc" (khi là công ty gốc); nhãn "Hợp nhất" hoặc "Không hợp nhất: khác đồng tiền", "Không hợp nhất: chưa khởi tạo kế toán".
   - Hai thẻ "Bảng hợp nhất" (mặc định), "Xem nhanh cộng gộp".
   - Thẻ "Bảng hợp nhất": ô "Từ ngày" (mặc định ngày 1 tháng 1 năm nay), "Đến ngày" (mặc định hôm nay), nút "Lập bảng hợp nhất" (khi có `canManage`); bảng "Kỳ" (liên kết sang MAN_HINH_63), "Số", "Trạng thái" (nhãn "Nháp", "Chờ duyệt", "Đã ghi sổ", "Bị từ chối", "Đã rút"), "Tính lại lúc".
-  - Thẻ "Xem nhanh cộng gộp": hai thẻ "Tình hình tài chính" (mặc định), "Kết quả kinh doanh"; ô "Từ ngày", "Đến ngày"; dòng "<tên báo cáo> (<mẫu>) · số cộng gộp của <thành viên>, chưa loại trừ nội bộ"; bảng chỉ tiêu (bảng chỉ tiêu hợp nhất như MAN_HINH_63).
+  - Thẻ "Xem nhanh cộng gộp": hai thẻ "Tình hình tài chính" (mặc định), "Kết quả kinh doanh"; ô "Từ ngày", "Đến ngày"; dòng "<tên báo cáo> (<mẫu>) · số cộng gộp của <thành viên>, chưa loại trừ nội bộ"; bảng chỉ tiêu (bảng chỉ tiêu hợp nhất như MAN_HINH_63). Chỉ gọi API xem trước khi mở thẻ này.
 - Dữ liệu hiển thị: bảng của tập đoàn, đến ngày mới nhất trước; số định dạng theo tiếng Việt, số âm trong ngoặc, số 0 để trống.
 - Thành phần: ThanhTrenCung, MenuMiniApp, The, NhanTrangThai, CacThe, BoLoc, ONhap, BangDuLieu, Nut, TrangThaiRong (tài liệu `15`).
 - API: API_106.
@@ -1743,16 +1743,16 @@ flowchart TD
 - Chức năng thực hiện: CHUC_NANG_93, CHUC_NANG_94, CHUC_NANG_95
 - Đường dẫn: `/finance/consolidation/<mã>`.
 - Bố cục: tiêu đề "Bảng hợp nhất <từ ngày> – <đến ngày>", nút "Danh sách".
-  - Thẻ thông tin: nhãn trạng thái, số `HN…` (khi có), "Thành viên: <danh sách> · tính lại lúc <thời điểm>"; khối cảnh báo "Công nợ nội bộ hai bên chưa khớp (đã loại trừ phần nhỏ hơn; đối chiếu rồi điều chỉnh tay nếu cần):" kèm từng dòng "<công ty A> phải thu <công ty B>: <số>; <công ty B> phải trả: <số>; chênh lệch <số>"; khối lỗi lý do không chốt được (khi có).
+  - Thẻ thông tin: nhãn trạng thái, số `HN…` (khi có), "Thành viên: <danh sách> · tính lại lúc <thời điểm>"; khối cảnh báo "Công nợ nội bộ hai bên chưa khớp (đã loại trừ phần nhỏ hơn; đối chiếu rồi điều chỉnh tay nếu cần):" kèm từng dòng "<công ty A> phải thu <công ty B>: <số>; <công ty B> phải trả: <số>; chênh lệch <số>"; khối lỗi lý do không chốt được (câu thông báo đã dịch theo khóa lý do; khi có).
   - Nút: "Gửi" (khi `canEdit`), "Rút" (khi `canWithdraw`), "Tình hình tài chính (Excel)", "Tình hình tài chính (PDF)", "Kết quả kinh doanh (Excel)", "Kết quả kinh doanh (PDF)" (mọi trạng thái); hàng thứ hai khi `canEdit`: "Tính lại", "Bỏ bảng nháp" (khi nháp chưa có số).
   - Bốn thẻ "Tình hình tài chính" (mặc định), "Kết quả kinh doanh", "Bút toán loại trừ", "Lãi chưa thực hiện".
   - Thẻ báo cáo: bảng "Mã số", "Chỉ tiêu" (thụt lề theo cấp, cấp 0 chữ đậm), "Cộng gộp", "Loại trừ", "Hợp nhất · Số cuối kỳ (<ngày>)" hoặc "Hợp nhất · Kỳ này (<từ ngày> – <đến ngày>)", "Cộng gộp · Số đầu năm (<ngày>)" hoặc "Cộng gộp · Cùng kỳ năm trước (<từ ngày> – <đến ngày>)".
   - Thẻ "Bút toán loại trừ": nút "Thêm điều chỉnh tay" (khi `canEdit`); bảng "Bút toán" (loại "Công nợ nội bộ", "Doanh thu, giá vốn nội bộ", "Lãi chưa thực hiện", "Điều chỉnh tay" · diễn giải; nút "Xóa" ở điều chỉnh tay khi `canEdit`), "Công ty" (bút toán lãi chưa thực hiện: "—"), "Tài khoản" (mã Thông tư 99), "Đối tác", "Nợ", "Có".
   - Thẻ "Lãi chưa thực hiện": chú thích "Lãi chưa thực hiện = số còn tồn cuối kỳ (tối đa số mua nội bộ trong kỳ) × lãi gộp mỗi đơn vị của bên bán; sửa được khi bảng còn nháp."; bảng "Công ty mua", "Công ty bán", "Mặt hàng" (tên · mã hàng), "Mua nội bộ", "Tồn cuối kỳ", "Lãi gộp mỗi đơn vị", "Ước tính", "Số dùng" (kèm "đã sửa: <lý do>"), cột nút "Sửa" (khi `canEdit`).
-  - Ngăn kéo "Thêm điều chỉnh tay": chú thích "Ghi theo mã tài khoản Thông tư 99, tổng Nợ bằng tổng Có; ví dụ loại trừ khoản đầu tư vào công ty con (Có 221) với vốn chủ sở hữu của công ty con (Nợ 411)."; "Diễn giải"; mỗi dòng "Tài khoản" (gợi ý danh sách tài khoản Thông tư 99), "Nợ", "Có"; mặc định hai dòng; nút "Thêm dòng" (tối đa 20 dòng), "Hủy", "Lưu".
+  - Ngăn kéo "Thêm điều chỉnh tay": chú thích "Ghi theo mã tài khoản Thông tư 99, tổng Nợ bằng tổng Có; ví dụ loại trừ khoản đầu tư vào công ty con (Có 221) với vốn chủ sở hữu của công ty con (Nợ 411)."; "Diễn giải"; mỗi dòng "Tài khoản" (gợi ý danh sách tài khoản Thông tư 99), "Nợ", "Công ty" (mặc định "Công ty gốc trước", hoặc chọn một thành viên), "Đối tác" (mặc định "Chọn đối tác (bắt buộc)" khi tài khoản lấy số dư theo đối tác, khác thì "Không chọn đối tác"; danh sách đối tác của các thành viên), "Có"; mặc định hai dòng; nút "Thêm dòng" (tối đa 20 dòng), "Hủy", "Lưu".
   - Ngăn kéo "Sửa" lãi chưa thực hiện: "<mặt hàng> · Ước tính: <số>"; "Số dùng" (điền sẵn số đang dùng), "Lý do"; nút "Hủy", "Dùng số ước tính" (khi đã sửa), "Lưu".
   - Hộp xác nhận "Bỏ bảng nháp": "Bảng hợp nhất nháp, bút toán điều chỉnh tay và số đã sửa sẽ bị xóa."; nút "Bỏ bảng nháp".
-- Dữ liệu hiển thị: bảng đã chốt hiện số đã lưu khi chốt; bảng khác tính khi mở; số định dạng theo tiếng Việt, số âm trong ngoặc.
+- Dữ liệu hiển thị: bảng chờ duyệt, đã chốt hiện số đã lưu lúc gửi; bảng khác tính khi mở; số định dạng theo tiếng Việt, số âm trong ngoặc.
 - Thành phần: ThanhTrenCung, MenuMiniApp, The, NhanTrangThai, KhoiCanhBao, CacThe, BangDuLieu, NganKeo, HopThoaiXacNhan, ONhap, Nut, TrangThaiRong (tài liệu `15`).
 - API: API_107, API_108, API_109.
 - Thao tác: "Gửi" báo "Đã gửi bảng hợp nhất." (chờ duyệt thì thêm "Bảng hợp nhất đang chờ duyệt."); "Rút" báo "Đã rút bảng hợp nhất."; "Tính lại" báo "Đã tính lại bảng hợp nhất."; thêm, xóa điều chỉnh tay báo "Đã thêm bút toán điều chỉnh.", "Đã xóa bút toán điều chỉnh." (xóa không hỏi lại); sửa lãi báo "Đã lưu lãi chưa thực hiện."; xuất Excel tải tệp `HN-<loại báo cáo>-<đến ngày>.xlsx`, xuất PDF mở thẻ trình duyệt mới; "Bỏ bảng nháp" về MAN_HINH_62; sau mỗi thao tác tải lại bảng.
