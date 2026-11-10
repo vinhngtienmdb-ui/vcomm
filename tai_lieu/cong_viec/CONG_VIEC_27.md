@@ -3,7 +3,7 @@
 - Mô tả: Đội kinh doanh của sàn VComm có bốn chức danh (Giám đốc Kinh doanh, Giám đốc Vùng, Trưởng phòng kinh doanh, Nhân viên kinh doanh) theo cây đơn vị kinh doanh (phòng ban) của công ty vận hành sàn; người quản lý xem nhánh của mình trên ứng dụng VComm và đề xuất thay đổi đội; quản trị thay đổi trực tiếp và duyệt đề xuất trên web-crm.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-10 (không làm bản mẫu riêng, xem trước từng lát). Đã làm L0 đến L3, sửa lỗi rà soát độc lập; chờ nghiệm thu.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-10 (không làm bản mẫu riêng, xem trước từng lát). Đã nghiệm thu 2026-11-10.
 - Nguồn: THAY_DOI_16; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`; CONG_VIEC_23 (đánh dấu nhân viên kinh doanh, THAY_DOI_15).
 
 ## 1. Mục tiêu
