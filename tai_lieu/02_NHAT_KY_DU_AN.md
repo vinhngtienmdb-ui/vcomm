@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_13: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_13-cong-no` (pull request số 48, tách từ nhánh CONG_VIEC_12). L0: database migration 0010 schema `finance`; mini app `apps/web-finance` đường dẫn `/finance`; vai trò Kế toán; quỹ, sổ quỹ; công nợ tự phát sinh khi ghi sổ phiếu kho, tính lại phiếu cũ; số dư đầu kỳ; tuổi nợ. L1: phiếu thu, phiếu chi trừ theo chứng từ, trả trước, hoàn tiền, phiếu chi qua luồng duyệt; ghi tổn thất hàng thiếu nội bộ giảm phải thu; đơn bán kiểm hạn mức theo dư nợ thật (THAY_DOI_09). Kiểm thử 223/223 đạt. Không thêm thư viện. Rà soát mã sửa 1 lỗi Cao, 1 lỗi Trung bình. Chờ người dùng nghiệm thu.
 - CONG_VIEC_13: Lập công việc Công nợ phải thu, phải trả (MODULE_06, phần 1), mức Lớn.
 - CONG_VIEC_12: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 - CONG_VIEC_12: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_12-khuyen-mai` (pull request số 47, tách từ nhánh CONG_VIEC_09). L0: database migration 0009; chương trình giảm theo sản phẩm, theo đơn, mua X tặng Y; điều kiện kênh, nhóm khách, thời gian; gửi duyệt, rút, dừng; quyền xem, quản lý khuyến mãi (MAN_HINH_45). L1: đơn bán tự áp khuyến mãi khi lưu, kiểm ngân sách và số suất khi gửi, hàng tặng giữ hàng và giao như dòng thường, tặng theo tồn còn lại tại kho xuất kèm cảnh báo thiếu suất. Kiểm thử 216/216 đạt. Không thêm thư viện. Cập nhật tài liệu 06 đến 12, 14, 16, 17, 21, 22, 27, mục lục trên nhánh. Chờ người dùng nghiệm thu.

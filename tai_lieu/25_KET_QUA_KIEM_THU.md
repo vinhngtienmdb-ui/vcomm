@@ -183,6 +183,21 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_13
+
+- Phạm vi: lát L0, L1 (quỹ, sổ quỹ; công nợ tự phát sinh từ phiếu xuất giao hàng, nhận hàng trả lại, nhập mua, trả hàng nhà cung cấp; tính lại phiếu cũ khi chạy database migration; số dư đầu kỳ; tuổi nợ; phiếu thu, phiếu chi trừ theo chứng từ, trả trước, hoàn tiền, phiếu chi qua luồng duyệt; ghi tổn thất hàng thiếu nội bộ giảm phải thu; đơn bán kiểm hạn mức theo dư nợ thật theo THAY_DOI_09); mini app `apps/web-finance`, MAN_HINH_46 đến 49; API_84 đến 86, sửa API_77. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --prod --audit-level high`; database migration 0010 trên cơ sở dữ liệu phát triển (tính lại 11 khoản công nợ của phiếu cũ, trả hàng trừ đúng phiếu gốc); thử trên trình duyệt bằng Playwright (Quản trị công ty VCR): công nợ phải thu, phải trả, tuổi nợ, nhập số dư đầu kỳ, quỹ, sổ quỹ, lập phiếu thu chia từ cũ nhất, phiếu chi (máy tính và điện thoại 375 điểm ảnh, không cuộn ngang).
+- Kết quả: 223 đạt / 0 không đạt / 223 kịch bản tự động (27 tệp; phần mới: `c13-debts` 6, KICHBAN_KIEMTHU_201 đến 206; KICHBAN_KIEMTHU_209 trong `c9-internal-trade`). KICHBAN_KIEMTHU_207, 208 (thủ công trên trình duyệt) đạt. KICHBAN_KIEMTHU_183, 184 vẫn đạt với dư nợ thật.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_105 đến 110 (bắt buộc) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod --audit-level high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 48): không có phát hiện.
+  - C3 phân quyền: Đạt – quyền tài chính cần phạm vi công ty; nhân viên bán hàng không xem, không lập được; chi tiết công nợ chỉ cho đối tác có quan hệ với công ty.
+  - C4 toàn vẹn dữ liệu: Đạt – công nợ tạo cùng giao dịch ghi sổ phiếu kho; trừ nợ tuần tự theo khóa đối tác, không vượt số còn lại; ghi sổ phiếu chi khóa quỹ rồi mới tính số dư.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 1 lỗi Cao (hai phiếu chi đồng thời làm quỹ âm), 1 lỗi Trung bình (xóa số dư đầu kỳ đang được chọn lỗi máy chủ), 3 lỗi Thấp; đã sửa cả. Rà soát bảo mật tài liệu 22 sửa thêm 2 điểm Thấp. Giữ lại (ghi tài liệu 22): so sánh tiền dùng số thực với sai số 0,00005 (giá trị rất lớn có thể lệch chữ số lẻ cuối, dữ liệu lưu đúng); ghi sổ phiếu chi sau duyệt không ghi dòng nhật ký riêng; phiếu chi ghi ngày quá khứ chỉ kiểm số dư quỹ hiện tại.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_10 (LOI_04)
 
 - Phạm vi: hàm tải dữ liệu dùng chung `useApi` (packages/ui). Hồi quy: kiểm tra kiểu, lint toàn dự án.
