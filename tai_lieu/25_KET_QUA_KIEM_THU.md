@@ -117,6 +117,22 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 39.
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_07
+
+- Phạm vi: lát L0 đến L2 (bảng giá mua; đề nghị mua, đơn mua, duyệt lại, đóng đơn, dung sai nhận vượt; phiếu nhập mua, kiểm tra chất lượng, trả hàng nhà cung cấp; ô cần kiểm tra chất lượng ở ngành hàng); MAN_HINH_38 đến 41, sửa MAN_HINH_22, 31, 32; API_73 đến API_76. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm --filter i18n test`, `pnpm audit --audit-level=high`; thử trên trình duyệt bằng Playwright: thêm giá mua, lập đơn mua có giá gợi ý, gửi (duyệt ngay khi chưa có chính sách), nhập mua hàng serial có vị trí kệ, trả hàng nhà cung cấp theo serial, xem đơn mua sau nhập (máy tính và điện thoại).
+- Kết quả: 198 đạt / 0 không đạt / 198 kịch bản tự động (23 tệp; phần mới: `c7-purchasing` 7, KICHBAN_KIEMTHU_165 đến 171).
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_80 đến 86 (bắt buộc) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --audit-level=high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 42): không có phát hiện.
+  - C3 phân quyền: Đạt – đơn mua, giá mua của công ty khác trả `404`; nhập mua, trả hàng chỉ ở kho thuộc chi nhánh được gán quyền nhập mua; thủ kho không lập đơn mua; phiếu nhập mua không lập được bằng màn hình phiếu kho thường.
+  - C4 toàn vẹn dữ liệu: Đạt – gửi phiếu nhập khóa đơn mua để hai phiếu đồng thời không nhận vượt dung sai; trả hàng khóa dòng phiếu nhập gốc; giá trị trả không vượt giá trị tồn.
+  - C6 OWASP Top 10: A01 kiểm quyền trong từng service; A04 sửa đơn đã nhận không giảm dưới số đã nhận, không đổi kho nhận.
+- Tự rà soát mã và dọn dẹp: Đạt. Tự rà soát sửa 1 điểm (mảng PostgreSQL); đối chiếu tài liệu với mã tìm 11 điểm, sửa 9, giữ 2 có lý do (đề nghị mua nhận vào kho bất kỳ của công ty vì là chứng từ cấp công ty; đơn mua nháp vẫn tính vào số đã đặt của đề nghị cho đến khi bị từ chối, rút).
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+
 ## Lỗi phát hiện 2026-11-10
 
 | Mã lỗi | Mô tả | Mức độ | Kịch bản liên quan | Quyết định xử lý | Trạng thái |

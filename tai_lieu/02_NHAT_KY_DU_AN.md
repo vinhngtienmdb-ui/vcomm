@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_07: Xong lát L0 đến L2 trên nhánh `chuc-nang/CONG_VIEC_07-mua-hang` (pull request số 42, tách từ nhánh CONG_VIEC_06). L0: database migration 0006 schema `purchasing`, mini app `apps/web-purchasing` đường dẫn `/purchasing`, vai trò Nhân viên mua hàng, bảng giá mua theo nhà cung cấp. L1: đề nghị mua, đơn mua qua luồng duyệt (miễn duyệt khi lấy từ đề nghị đã duyệt không vượt giá trị), duyệt lại khi tăng giá trị hoặc đổi nhà cung cấp, đóng đơn, dung sai nhận vượt. L2: phiếu nhập mua theo đơn, chờ kiểm tra chất lượng theo ngành hàng, phiếu trả hàng nhà cung cấp theo giá nhập gốc. Kiểm thử 198/198 đạt. Không thêm thư viện. Cập nhật tài liệu 06, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 27, mục lục trên nhánh. Đối chiếu tài liệu với mã sửa 9 điểm.
 - CONG_VIEC_07: Lập công việc Mua hàng trong nước (MODULE_04, phần 1), mức Lớn.
 - CONG_VIEC_06: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 39 (theo tài liệu 18, AI không tự hợp nhất vào `main`).
 - LOI_03: Kiểm thử đồng thời của Kho lỗi không đều trên CI (phiếu thua nhận `400` hoặc `409` tùy thời điểm). Người dùng quyết định thống nhất trả `400` gắn vào dòng hàng.
