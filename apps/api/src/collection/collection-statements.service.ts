@@ -1,5 +1,5 @@
 // Đối soát thu hộ COD, cổng thanh toán (CONG_VIEC_19; CHUC_NANG_88 đến 91; QUYTAC_NGHIEPVU_118 đến 122; API_102 đến API_105).
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
 import {
   collectionImportColumns,
   collectionImportMaximumBytes,
@@ -19,7 +19,13 @@ import { sql, type SQL } from "drizzle-orm";
 import { readSheet } from "read-excel-file/node";
 import writeXlsxFile from "write-excel-file/node";
 import type { z } from "zod";
+import { LedgerService } from "../accounting/ledger.service";
+import { ledgerSettings } from "../accounting/period-guard";
+import { collectionDraft } from "../accounting/postings";
+import { ApprovalRequestsService } from "../approvals/approval-requests.service";
 import { trimDecimal } from "../catalog/catalog-context";
+import { OutboxService } from "../common/outbox.service";
+import { NumberSequencesService } from "../settings/number-sequences.service";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
@@ -27,13 +33,14 @@ import { DebtsService } from "../finance/debts.service";
 import { financeAudit, requireFinancePermission } from "../finance/finance-context";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
-import { companyCurrency } from "../purchasing/requisitions.service";
+import { companyCurrency, ensureSequence } from "../purchasing/requisitions.service";
 
 export const collectionPermissions = { view: "finance.collection.view", manage: "finance.collection.manage", setup: "finance.collection.setup" } as const;
 export type Executor = Pick<Database, "execute">;
 type Cell = string | number | boolean | Date | null;
 // Trạng thái còn sửa được (nhập lại, bỏ dòng, gửi).
 export const editableStatuses = ["draft", "rejected", "withdrawn"] as const;
+const documentTypeCode = "finance.collection_statement";
 
 type StatementRow = {
   id: string;
@@ -70,13 +77,43 @@ export const orderOpenSql = (orderId: SQL) => sql`
    WHERE d.source_type = 'sales_issue' AND d.direction = 'debit' AND doc.source_type = 'sales.order' AND doc.source_id = ${orderId})`;
 
 @Injectable()
-export class CollectionStatementsService {
+export class CollectionStatementsService implements OnModuleInit {
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     private readonly permissionService: PermissionService,
     private readonly auditService: AuditService,
     private readonly debts: DebtsService,
+    private readonly sequences: NumberSequencesService,
+    private readonly approvals: ApprovalRequestsService,
+    private readonly outbox: OutboxService,
+    private readonly ledger: LedgerService,
   ) {}
+
+  // Duyệt xong thì ghi sổ; không ghi sổ được (kỳ đã khóa, lỗi dòng mới phát sinh) thì bảng về "Bị từ chối" kèm lý do.
+  onModuleInit(): void {
+    this.outbox.subscribe("core.approval.completed", async (event) => {
+      if (event.payload.documentTypeCode !== documentTypeCode) return;
+      const status = String(event.payload.status);
+      const statement = (
+        await this.database.execute<{ id: string }>(sql`SELECT id FROM finance.collection_statements WHERE approval_request_id = ${String(event.payload.requestId)} AND status = 'pending'`)
+      ).rows[0];
+      if (!statement) return;
+      if (status === "approved") {
+        try {
+          await this.database.transaction((transaction) => this.post(transaction, statement.id));
+        } catch (error) {
+          if (!(error instanceof ApiError)) throw error;
+          await this.close(this.database, statement.id, "rejected", error.messageKey);
+        }
+      } else if (status === "rejected" || status === "withdrawn") {
+        await this.close(this.database, statement.id, status, null);
+      }
+    });
+  }
+
+  private async close(executor: Executor, id: string, status: "rejected" | "withdrawn", postError: string | null): Promise<void> {
+    await executor.execute(sql`UPDATE finance.collection_statements SET status = ${status}, post_error = ${postError}, version = version + 1 WHERE id = ${id} AND status = 'pending'`);
+  }
 
   // ---------- Đơn vị thu hộ (CHUC_NANG_88; API_102) ----------
 
@@ -410,5 +447,132 @@ export class CollectionStatementsService {
       if ((removed.rowCount ?? 0) === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       await this.auditService.record({ ...financeAudit(actor, "collection_statement"), action: "collection_statement.discard", entityId: id, beforeData: null, afterData: null }, transaction);
     });
+  }
+
+  // ---------- Gửi, rút, ghi sổ (CHUC_NANG_90; QUYTAC_NGHIEPVU_120 đến 122; API_104) ----------
+
+  private async errorCount(executor: Executor, id: string): Promise<number> {
+    return Number(
+      (
+        await executor.execute<{ count: number }>(sql`
+        SELECT count(*)::int AS count FROM finance.collection_statement_lines l JOIN finance.collection_statements s ON s.id = l.statement_id
+        LEFT JOIN sales.orders o ON o.id = l.order_id WHERE l.statement_id = ${id} AND (${lineErrorSql}) IS NOT NULL`)
+      ).rows[0]!.count,
+    );
+  }
+
+  // Gửi: còn dòng lỗi thì chặn; cấp số, đi luồng duyệt; chưa có chính sách thì ghi sổ ngay.
+  async submit(actor: Actor, id: string, version: number): Promise<CollectionStatementResponse> {
+    await requireFinancePermission(this.permissionService, actor, collectionPermissions.manage);
+    await ensureSequence(this.database, this.sequences, actor, documentTypeCode, "DST");
+    await this.database.transaction(async (transaction) => {
+      const row = (
+        await transaction.execute<{ status: string; document_no: string | null; statement_date: string; total_collected: string; version: number }>(sql`
+        SELECT status, document_no, statement_date::text, total_collected::text, version FROM finance.collection_statements WHERE id = ${id} AND company_id = ${actor.companyId} FOR UPDATE`)
+      ).rows[0];
+      if (!row) throw new ApiError("NOT_FOUND", "notFound");
+      if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      if (!(editableStatuses as readonly string[]).includes(row.status)) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
+      if ((await this.errorCount(transaction, id)) > 0) throw new ApiError("BUSINESS_RULE", "collectionStatementHasErrors");
+      const documentNo = row.document_no ?? (await this.sequences.next(actor.companyId, documentTypeCode, transaction));
+      let requestId: string | null = null;
+      try {
+        requestId = await this.approvals.submitWithin(transaction, actor.companyId, actor.userId, {
+          documentTypeCode,
+          documentId: id,
+          documentNo,
+          amount: Number(row.total_collected).toFixed(4),
+          currency: await companyCurrency(transaction, actor.companyId),
+          documentDate: row.statement_date,
+        });
+      } catch (error) {
+        if (!(error instanceof ApiError && error.messageKey === "policyNotFound")) throw error;
+      }
+      await transaction.execute(sql`
+        UPDATE finance.collection_statements SET status = 'pending', document_no = ${documentNo}, approval_request_id = ${requestId}, post_error = NULL, submitted_at = now(), version = version + 1
+        WHERE id = ${id}`);
+      if (!requestId) await this.post(transaction, id);
+      await this.auditService.record(
+        { ...financeAudit(actor, "collection_statement"), action: "collection_statement.submit", entityId: id, beforeData: null, afterData: { documentNo, approvalRequestId: requestId } },
+        transaction,
+      );
+    });
+    return this.detail(actor, id);
+  }
+
+  async withdraw(actor: Actor, id: string): Promise<CollectionStatementResponse> {
+    await requireFinancePermission(this.permissionService, actor, collectionPermissions.manage);
+    const row = (
+      await this.database.execute<{ status: string; created_by: string; approval_request_id: string | null }>(sql`
+      SELECT status, created_by, approval_request_id FROM finance.collection_statements WHERE id = ${id} AND company_id = ${actor.companyId}`)
+    ).rows[0];
+    if (!row) throw new ApiError("NOT_FOUND", "notFound");
+    if (row.created_by !== actor.userId || !row.approval_request_id || row.status !== "pending") throw new ApiError("FORBIDDEN", "forbidden");
+    await this.approvals.withdraw(actor.userId, row.approval_request_id);
+    await this.database.transaction(async (transaction) => {
+      await this.close(transaction, id, "withdrawn", null);
+      await this.auditService.record({ ...financeAudit(actor, "collection_statement"), action: "collection_statement.withdraw", entityId: id, beforeData: null, afterData: null }, transaction);
+    });
+    return this.detail(actor, id);
+  }
+
+  // Ghi sổ (QUYTAC_NGHIEPVU_120, 121): trừ nợ khách theo đơn, nợ đơn vị thu hộ bằng thực nhận, bút toán ngày bảng.
+  private async post(executor: Executor, id: string): Promise<void> {
+    const row = (
+      await executor.execute<{ company_id: string; partner_id: string; document_no: string; statement_date: string; total_collected: string; total_fee: string }>(sql`
+      SELECT s.company_id, c.partner_id, s.document_no, s.statement_date::text, s.total_collected::text, s.total_fee::text
+      FROM finance.collection_statements s JOIN finance.collectors c ON c.id = s.collector_id WHERE s.id = ${id} AND s.status = 'pending' FOR UPDATE OF s`)
+    ).rows[0];
+    if (!row) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+    // Bảng khác cùng đơn vị có thể đã ghi sổ mã trùng sau khi gửi.
+    if ((await this.errorCount(executor, id)) > 0) throw new ApiError("BUSINESS_RULE", "collectionStatementHasErrors");
+    if (await ledgerSettings(executor, row.company_id)) {
+      const rules = await executor.execute(sql`
+        SELECT 1 FROM accounting.posting_rules WHERE company_id = ${row.company_id} AND role IN ('collector_receivable', 'collection_fee', 'receivable')`);
+      if (rules.rows.length < 3) throw new ApiError("BUSINESS_RULE", "postingRuleMissing");
+    }
+    const lines = (
+      await executor.execute<{ id: string; reference: string; order_id: string; customer_id: string; collected_amount: string }>(sql`
+      SELECT id, reference, order_id, customer_id, collected_amount::text FROM finance.collection_statement_lines
+      WHERE statement_id = ${id} AND customer_id IS NOT NULL AND collected_amount > 0 ORDER BY line_no`)
+    ).rows;
+    // Nguồn công nợ: khoản giảm nợ khách theo từng dòng, khoản nợ đơn vị thu hộ theo bảng.
+    for (const line of lines) {
+      const creditId = (
+        await executor.execute<{ id: string }>(sql`
+        INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, document_no, document_date, amount, open_amount, note)
+        VALUES (${row.company_id}, ${line.customer_id}, 'receivable', 'credit', 'collection_statement', ${line.id}, ${row.document_no}, ${row.statement_date}::date,
+          ${line.collected_amount}::numeric, ${line.collected_amount}::numeric, ${line.reference})
+        RETURNING id`)
+      ).rows[0]!.id;
+      // Trừ trước vào các phiếu xuất giao hàng của đơn; phần thừa là tiền trả trước của khách.
+      const issues = (
+        await executor.execute<{ id: string }>(sql`
+        SELECT d.id FROM finance.debt_items d JOIN inventory.documents doc ON doc.id = d.source_id
+        WHERE d.source_type = 'sales_issue' AND d.direction = 'debit' AND d.open_amount > 0 AND doc.source_type = 'sales.order' AND doc.source_id = ${line.order_id}
+        ORDER BY d.document_date, d.created_at, d.id`)
+      ).rows;
+      await this.debts.matchCredit(
+        executor,
+        creditId,
+        issues.map((issue) => ({ debitItemId: issue.id, amount: null })),
+        false,
+      );
+    }
+    const net = Number(row.total_collected) - Number(row.total_fee);
+    if (Math.abs(net) > 0.00005) {
+      const amount = Math.abs(net).toFixed(4);
+      const itemId = (
+        await executor.execute<{ id: string }>(sql`
+        INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, document_no, document_date, due_date, amount, open_amount)
+        VALUES (${row.company_id}, ${row.partner_id}, 'receivable', ${net > 0 ? "debit" : "credit"}, 'collection_statement', ${id}, ${row.document_no}, ${row.statement_date}::date,
+          ${net > 0 ? row.statement_date : null}::date, ${amount}::numeric, ${amount}::numeric)
+        RETURNING id`)
+      ).rows[0]!.id;
+      if (net > 0) await this.debts.matchDebit(executor, itemId);
+      else await this.debts.matchCredit(executor, itemId, [], true);
+    }
+    await this.ledger.record(executor, await collectionDraft(executor, id));
+    await executor.execute(sql`UPDATE finance.collection_statements SET status = 'posted', posted_at = now(), post_error = NULL, version = version + 1 WHERE id = ${id}`);
   }
 }

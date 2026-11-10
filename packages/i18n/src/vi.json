@@ -257,7 +257,8 @@
     "collectorDuplicate": "Đối tác đã là đơn vị thu hộ.",
     "fileEmpty": "Tệp không có dòng dữ liệu.",
     "collectionStatementDuplicate": "Số bảng đối soát đã có với đơn vị thu hộ này.",
-    "collectionLastLine": "Không bỏ được dòng cuối; hãy bỏ bảng nháp hoặc nhập lại tệp."
+    "collectionLastLine": "Không bỏ được dòng cuối; hãy bỏ bảng nháp hoặc nhập lại tệp.",
+    "collectionStatementHasErrors": "Bảng đối soát còn dòng lỗi; bỏ dòng hoặc nhập lại tệp."
   },
   "login": {
     "title": "Đăng nhập",
@@ -2432,7 +2433,8 @@
     "reopened": "Đã mở lại sổ.",
     "longTerm": "Dài hạn",
     "longTermHint": "(số dư vào chỉ tiêu dài hạn trên báo cáo tình hình tài chính)",
-    "source_collection_statement": "Bảng đối soát thu hộ"
+    "source_collection_statement": "Bảng đối soát thu hộ",
+    "source_commission": "Bảng hoa hồng"
   },
   "statements": {
     "title": "Báo cáo tài chính",
@@ -2863,6 +2865,11 @@
     "underpaid": "Thiếu so với còn nợ",
     "lineRemoved": "Đã bỏ dòng.",
     "removeLine": "Bỏ dòng",
-    "reimported": "Đã nhập lại bảng đối soát."
+    "reimported": "Đã nhập lại bảng đối soát.",
+    "submit": "Gửi",
+    "withdraw": "Rút",
+    "submitted": "Đã gửi bảng đối soát.",
+    "submittedPending": "Bảng đối soát đang chờ duyệt.",
+    "withdrawn": "Đã rút bảng đối soát."
   }
 }

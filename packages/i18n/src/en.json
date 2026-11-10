@@ -257,7 +257,8 @@
     "collectorDuplicate": "The partner is already a collector.",
     "fileEmpty": "The file has no data rows.",
     "collectionStatementDuplicate": "This statement number already exists for the collector.",
-    "collectionLastLine": "Cannot remove the last line; discard the draft or re-import."
+    "collectionLastLine": "Cannot remove the last line; discard the draft or re-import.",
+    "collectionStatementHasErrors": "The statement has line errors; remove them or re-import."
   },
   "login": {
     "title": "Sign in",
@@ -2432,7 +2433,8 @@
     "reopened": "Period reopened.",
     "longTerm": "Long-term",
     "longTermHint": "(balance goes to long-term items on the statement of financial position)",
-    "source_collection_statement": "Collection statement"
+    "source_collection_statement": "Collection statement",
+    "source_commission": "Commission statement"
   },
   "statements": {
     "title": "Financial statements",
@@ -2863,6 +2865,11 @@
     "underpaid": "Under open amount",
     "lineRemoved": "Line removed.",
     "removeLine": "Remove",
-    "reimported": "Statement re-imported."
+    "reimported": "Statement re-imported.",
+    "submit": "Submit",
+    "withdraw": "Withdraw",
+    "submitted": "Statement submitted.",
+    "submittedPending": "The statement is pending approval.",
+    "withdrawn": "Statement withdrawn."
   }
 }

@@ -14,7 +14,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { charts, defaultPostingRules, roleDescriptions } from "./charts";
 import { assertOpenPeriod, ledgerSettings } from "./period-guard";
-import { inventoryDraft, paymentDraft, postingRoles, writeOffDraft, type DraftJournal, type Executor, type PostingRole, commissionDraft } from "./postings";
+import { inventoryDraft, paymentDraft, postingRoles, writeOffDraft, type DraftJournal, type Executor, type PostingRole, commissionDraft, collectionDraft } from "./postings";
 
 export const ledgerPermissions = {
   view: "finance.ledger.view",
@@ -147,6 +147,8 @@ export class LedgerService implements OnModuleInit {
     // Bảng hoa hồng đã ghi sổ trước khi khởi tạo kế toán (CONG_VIEC_17).
     const statements = await executor.execute<{ id: string }>(sql`SELECT id FROM finance.commission_statements WHERE company_id = ${companyId} AND status = 'posted' ORDER BY posted_at`);
     for (const statement of statements.rows) await this.record(executor, await commissionDraft(executor, statement.id), false);
+    const collections = await executor.execute<{ id: string }>(sql`SELECT id FROM finance.collection_statements WHERE company_id = ${companyId} AND status = 'posted' ORDER BY posted_at`);
+    for (const statement of collections.rows) await this.record(executor, await collectionDraft(executor, statement.id), false);
   }
 
   private async requireInitialized(executor: Executor, companyId: string): Promise<void> {

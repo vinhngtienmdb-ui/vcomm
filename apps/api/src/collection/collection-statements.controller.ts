@@ -94,4 +94,14 @@ export class CollectionStatementsController {
   async discard(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<void> {
     await this.statements.discard(await this.actor(request, companyId), id, versionSchema.parse(body).version);
   }
+
+  @Post("collection-statements/:id/submit")
+  async submit(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<CollectionStatementResponse> {
+    return this.statements.submit(await this.actor(request, companyId), id, versionSchema.parse(body).version);
+  }
+
+  @Post("collection-statements/:id/withdraw")
+  async withdraw(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<CollectionStatementResponse> {
+    return this.statements.withdraw(await this.actor(request, companyId), id);
+  }
 }

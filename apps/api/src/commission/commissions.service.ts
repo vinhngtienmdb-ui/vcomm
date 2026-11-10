@@ -158,9 +158,12 @@ export class CommissionsService implements OnModuleInit {
     if (!row) return;
     // Thu trước rồi mới giao: ngày phát sinh là ngày muộn hơn.
     const eventDate = row.debit_date > row.credit_date ? row.debit_date : row.credit_date;
-    if (row.debit_source === "sales_issue" && row.credit_source === "payment") {
-      const kind = (await transaction.execute<{ kind: string }>(sql`SELECT kind FROM finance.payments WHERE id = ${row.credit_source_id}`)).rows[0]?.kind;
-      if (kind !== "customer_receipt") return;
+    // Bảng đối soát thu hộ trừ nợ khách cũng là tiền đã thu (CONG_VIEC_19; QUYTAC_NGHIEPVU_120).
+    if (row.debit_source === "sales_issue" && (row.credit_source === "payment" || row.credit_source === "collection_statement")) {
+      if (row.credit_source === "payment") {
+        const kind = (await transaction.execute<{ kind: string }>(sql`SELECT kind FROM finance.payments WHERE id = ${row.credit_source_id}`)).rows[0]?.kind;
+        if (kind !== "customer_receipt") return;
+      }
       const issue = (await transaction.execute<{ source_id: string }>(sql`SELECT source_id FROM inventory.documents WHERE id = ${row.debit_source_id} AND source_type = 'sales.order'`)).rows[0];
       if (!issue) return;
       await this.record(transaction, {

@@ -59,7 +59,7 @@ export interface DraftLine {
 }
 export interface DraftJournal {
   companyId: string;
-  sourceType: "inventory_document" | "payment" | "internal_write_off" | "commission";
+  sourceType: "inventory_document" | "payment" | "internal_write_off" | "commission" | "collection_statement";
   sourceId: string;
   journalNo: string;
   date: string;
@@ -239,5 +239,35 @@ export async function commissionDraft(executor: Executor, statementId: string, d
     date: date ?? new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10),
     description: `Hoa hồng tháng ${row.month.slice(5)}/${row.month.slice(0, 4)}`,
     lines: total >= 0 ? [debit("commission_expense", total), credit("staff_payable", total)] : [debit("staff_payable", -total), credit("commission_expense", -total)],
+  };
+}
+
+// Bảng đối soát thu hộ (CONG_VIEC_19; QUYTAC_NGHIEPVU_121): Nợ phải thu đơn vị thu hộ / Có phải thu khách theo từng khách; Nợ phí thu hộ / Có phải thu đơn vị thu hộ.
+export async function collectionDraft(executor: Executor, statementId: string): Promise<DraftJournal | null> {
+  const row = (
+    await executor.execute<{ company_id: string; partner_id: string; document_no: string; statement_no: string; statement_date: string; total_collected: string; total_fee: string }>(sql`
+    SELECT s.company_id, c.partner_id, s.document_no, s.statement_no, s.statement_date::text, s.total_collected::text, s.total_fee::text
+    FROM finance.collection_statements s JOIN finance.collectors c ON c.id = s.collector_id WHERE s.id = ${statementId}`)
+  ).rows[0];
+  if (!row) return null;
+  const customers = (
+    await executor.execute<{ customer_id: string | null; amount: string }>(sql`
+    SELECT customer_id, sum(collected_amount)::text AS amount FROM finance.collection_statement_lines WHERE statement_id = ${statementId} GROUP BY customer_id ORDER BY customer_id NULLS LAST`)
+  ).rows;
+  const collected = Number(row.total_collected);
+  const fee = Number(row.total_fee);
+  return {
+    companyId: row.company_id,
+    sourceType: "collection_statement",
+    sourceId: statementId,
+    journalNo: row.document_no,
+    date: row.statement_date,
+    description: `Đối soát thu hộ ${row.statement_no}`,
+    lines: [
+      debit("collector_receivable", collected, row.partner_id),
+      ...customers.map((customer) => credit("receivable", Number(customer.amount), customer.customer_id)),
+      debit("collection_fee", fee),
+      credit("collector_receivable", fee, row.partner_id),
+    ],
   };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_61 Chi tiết bảng đối soát thu hộ (CHUC_NANG_89, 90; QUYTAC_NGHIEPVU_119; API_104): tổng, các dòng có lỗi, cảnh báo; bỏ dòng, nhập lại, bỏ bảng nháp.
+// MAN_HINH_61 Chi tiết bảng đối soát thu hộ (CHUC_NANG_89, 90; QUYTAC_NGHIEPVU_119 đến 122; API_104): tổng, các dòng có lỗi, cảnh báo; bỏ dòng, nhập lại, bỏ bảng nháp, gửi, rút.
 import type { CollectionStatementResponse, CollectorsResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -85,12 +85,42 @@ function Statement({ statement, onChanged }: { statement: CollectionStatementRes
         {statement.warningCount > 0 && <div className="khoi-canh-bao canh-bao">{t("warnings", { count: statement.warningCount })}</div>}
         {statement.postError && <div className="khoi-canh-bao loi">{statement.postError}</div>}
         <FormError text={error} />
-        {canEdit && (
+        {(canEdit || statement.canWithdraw) && (
           <div className="nhom-nut">
-            <button type="button" className="nut phu" disabled={busy} onClick={() => setReimporting(true)}>
-              {t("reimport")}
-            </button>
-            {statement.status === "draft" && !statement.documentNo && (
+            {canEdit && (
+              <button
+                type="button"
+                className="nut chinh"
+                disabled={busy || statement.errorCount > 0}
+                onClick={() =>
+                  void act(async () => {
+                    const result = await apiFetch<CollectionStatementResponse>(`/finance/collection-statements/${statement.id}/submit`, {
+                      method: "POST",
+                      body: JSON.stringify({ version: statement.version }),
+                    });
+                    if (result.status === "pending") notify(t("submittedPending"));
+                  }, t("submitted"))
+                }
+              >
+                {t("submit")}
+              </button>
+            )}
+            {statement.canWithdraw && (
+              <button
+                type="button"
+                className="nut phu"
+                disabled={busy}
+                onClick={() => void act(() => apiFetch(`/finance/collection-statements/${statement.id}/withdraw`, { method: "POST" }), t("withdrawn"))}
+              >
+                {t("withdraw")}
+              </button>
+            )}
+            {canEdit && (
+              <button type="button" className="nut phu" disabled={busy} onClick={() => setReimporting(true)}>
+                {t("reimport")}
+              </button>
+            )}
+            {canEdit && statement.status === "draft" && !statement.documentNo && (
               <button type="button" className="nut phu" disabled={busy} onClick={() => setDiscarding(true)}>
                 {t("discard")}
               </button>
