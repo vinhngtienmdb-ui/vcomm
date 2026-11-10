@@ -258,7 +258,9 @@
     "fileEmpty": "Tệp không có dòng dữ liệu.",
     "collectionStatementDuplicate": "Số bảng đối soát đã có với đơn vị thu hộ này.",
     "collectionLastLine": "Không bỏ được dòng cuối; hãy bỏ bảng nháp hoặc nhập lại tệp.",
-    "collectionStatementHasErrors": "Bảng đối soát còn dòng lỗi; bỏ dòng hoặc nhập lại tệp."
+    "collectionStatementHasErrors": "Bảng đối soát còn dòng lỗi; bỏ dòng hoặc nhập lại tệp.",
+    "collectionTooManyRows": "Tệp vượt quá 5.000 dòng.",
+    "collectionPostingRuleMissing": "Chưa khai định khoản phải thu đơn vị thu hộ, phí thu hộ hoặc phải thu khách hàng (Hệ thống tài khoản)."
   },
   "login": {
     "title": "Đăng nhập",

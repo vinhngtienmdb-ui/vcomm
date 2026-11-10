@@ -258,7 +258,9 @@
     "fileEmpty": "The file has no data rows.",
     "collectionStatementDuplicate": "This statement number already exists for the collector.",
     "collectionLastLine": "Cannot remove the last line; discard the draft or re-import.",
-    "collectionStatementHasErrors": "The statement has line errors; remove them or re-import."
+    "collectionStatementHasErrors": "The statement has line errors; remove them or re-import.",
+    "collectionTooManyRows": "The file exceeds 5,000 rows.",
+    "collectionPostingRuleMissing": "Posting rules for collector receivable, collection fee or customer receivable are missing."
   },
   "login": {
     "title": "Sign in",

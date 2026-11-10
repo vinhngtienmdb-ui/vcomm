@@ -236,7 +236,7 @@ export class CollectionStatementsService implements OnModuleInit {
       lines.push({ lineNo, reference, orderNo, collected: collected ?? "0", fee: fee ?? "0", collectedDate: collectedDate || null });
     });
     if (lines.length === 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "fileEmpty" } });
-    if (lines.length > collectionImportMaximumRows) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "fileTooManyRows" } });
+    if (lines.length > collectionImportMaximumRows) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "collectionTooManyRows" } });
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
     return lines;
   }
@@ -551,7 +551,7 @@ export class CollectionStatementsService implements OnModuleInit {
     if (await ledgerSettings(executor, row.company_id)) {
       const rules = await executor.execute(sql`
         SELECT 1 FROM accounting.posting_rules WHERE company_id = ${row.company_id} AND role IN ('collector_receivable', 'collection_fee', 'receivable')`);
-      if (rules.rows.length < 3) throw new ApiError("BUSINESS_RULE", "postingRuleMissing");
+      if (rules.rows.length < 3) throw new ApiError("BUSINESS_RULE", "collectionPostingRuleMissing");
     }
     const lines = (
       await executor.execute<{ id: string; reference: string; order_id: string; customer_id: string; collected_amount: string }>(sql`

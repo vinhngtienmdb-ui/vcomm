@@ -1500,7 +1500,7 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 7:
 - Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_118, QUYTAC_NGHIEPVU_119, QUYTAC_NGHIEPVU_122
 - Trường hợp ngoại lệ: Tệp có ô sai: không lưu dòng nào. Đơn không có khách: dòng không có khách, không có cảnh báo.
 - Phân quyền: Không có `finance.collection.manage` nhận 403; không thấy nút "Nhập tệp", "Nhập lại tệp", "Bỏ dòng", "Bỏ bảng nháp".
-- Thông báo lỗi: "Tệp không đúng mẫu." · "Tệp không có dòng dữ liệu." · "Tệp vượt quá 5 MB." · khóa `fileTooManyRows` (quá 5.000 dòng) · "Dòng <số>, cột <tên cột>: Giá trị không hợp lệ." · "Vui lòng nhập thông tin này." · "Số bảng đối soát đã có với đơn vị thu hộ này." · "Không bỏ được dòng cuối; hãy bỏ bảng nháp hoặc nhập lại tệp." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Thông báo lỗi: "Tệp không đúng mẫu." · "Tệp không có dòng dữ liệu." · "Tệp vượt quá 5 MB." · "Tệp vượt quá 5.000 dòng." · "Dòng <số>, cột <tên cột>: Giá trị không hợp lệ." · "Vui lòng nhập thông tin này." · "Số bảng đối soát đã có với đơn vị thu hộ này." · "Không bỏ được dòng cuối; hãy bỏ bảng nháp hoặc nhập lại tệp." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_140, TIEUCHI_NGHIEMTHU_144
 
 ### CHUC_NANG_90: Gửi, duyệt, ghi sổ bảng đối soát
