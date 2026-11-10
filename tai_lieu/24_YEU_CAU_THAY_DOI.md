@@ -267,3 +267,21 @@
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-10; đã thực hiện trên nhánh CONG_VIEC_23 (commit eeaf0e9), chờ phát hành.
 
+### THAY_DOI_16: Đội kinh doanh nhiều cấp bậc chức danh – 2026-11-10
+- Lý do: người dùng bổ sung ngày 2026-11-10: đội ngũ kinh doanh có các chức danh Giám đốc Kinh doanh, Giám đốc Vùng, Trưởng phòng kinh doanh, Nhân viên kinh doanh, phân quyền và hoa hồng khác nhau.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-10):
+  - Quan hệ cấp trên theo cây phòng ban của công ty vận hành sàn (khối, vùng, phòng); người quản lý từng đơn vị mang chức danh tương ứng; cấp trên của một người là quản lý các đơn vị chứa đơn vị của người đó.
+  - Hoa hồng đội kinh doanh tính theo chức danh; chuỗi cấp trên thiếu chức danh nào thì phần của chức danh đó cộng cho người có chức danh cao hơn gần nhất; người quản lý tự phụ trách khách nhận cả phần của các chức danh dưới mình.
+  - Quyền xem trên ứng dụng: nhân viên xem khách, hoa hồng của mình; quản lý xem cấp dưới trong nhánh, khách (thông tin đầy đủ), doanh số, hoa hồng của từng người.
+  - Thêm người vào đội, đặt chức danh, đổi đơn vị: quản lý đề xuất trên ứng dụng, quản trị công ty vận hành sàn duyệt trên web.
+- Thành phần bị ảnh hưởng: CONG_VIEC_23 (đã nghiệm thu, chưa phát hành: đánh dấu nhân viên kinh doanh thêm chức danh; khách phụ trách; phần Kinh doanh trên ứng dụng); CONG_VIEC_26 (hoa hồng đội kinh doanh theo chức danh); tài liệu `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27`.
+- Dữ liệu bị ảnh hưởng: thêm chức danh, đề xuất thay đổi đội kinh doanh; dùng `core.departments` (cây đơn vị, người quản lý).
+- API bị ảnh hưởng: API_118, API_119 mở rộng; thêm API đội kinh doanh.
+- Giao diện bị ảnh hưởng: MAN_HINH_78, MAN_HINH_80; thêm màn hình đội của tôi, đề xuất, duyệt đề xuất.
+- Quyền bị ảnh hưởng: phạm vi xem theo nhánh của người quản lý.
+- Ảnh hưởng chức năng cũ: không (CONG_VIEC_23 chưa phát hành).
+- Kiểm thử cần thực hiện: kịch bản mới của công việc; hồi quy c23.
+- Mức quy mô: Lớn.
+- Rủi ro: trung bình (quyền xem dữ liệu khách theo nhánh; hoa hồng nhiều cấp chỉ theo cơ cấu tổ chức, không theo cây giới thiệu).
+- Trạng thái: Đã phê duyệt 2026-11-10.
+
