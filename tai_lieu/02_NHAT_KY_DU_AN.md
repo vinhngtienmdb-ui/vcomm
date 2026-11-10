@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_08: Lập công việc Bán hàng (MODULE_05, phần 1), mức Lớn.
 - CONG_VIEC_07: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 42 (sau số 39).
 - CONG_VIEC_07: Xong lát L0 đến L2 trên nhánh `chuc-nang/CONG_VIEC_07-mua-hang` (pull request số 42, tách từ nhánh CONG_VIEC_06). L0: database migration 0006 schema `purchasing`, mini app `apps/web-purchasing` đường dẫn `/purchasing`, vai trò Nhân viên mua hàng, bảng giá mua theo nhà cung cấp. L1: đề nghị mua, đơn mua qua luồng duyệt (miễn duyệt khi lấy từ đề nghị đã duyệt không vượt giá trị), duyệt lại khi tăng giá trị hoặc đổi nhà cung cấp, đóng đơn, dung sai nhận vượt. L2: phiếu nhập mua theo đơn, chờ kiểm tra chất lượng theo ngành hàng, phiếu trả hàng nhà cung cấp theo giá nhập gốc. Kiểm thử 198/198 đạt. Không thêm thư viện. Cập nhật tài liệu 06, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 27, mục lục trên nhánh. Đối chiếu tài liệu với mã sửa 9 điểm.
 - CONG_VIEC_07: Lập công việc Mua hàng trong nước (MODULE_04, phần 1), mức Lớn.
@@ -20,6 +21,7 @@
 ### Quyết định
 
 - Mua hàng (MODULE_04) – người quyết định: người dùng, ngày 2026-11-10: chia công việc, CONG_VIEC_07 gồm bảng giá mua theo nhà cung cấp, đề nghị mua, đơn mua, nhận hàng, trả hàng nhà cung cấp; nhập khẩu, phân bổ chi phí là công việc sau; hóa đơn, so khớp ba bên, lịch thanh toán làm cùng Tài chính – Kế toán; giao dịch nội bộ làm cùng Bán hàng. Hàng thuộc ngành hàng cần kiểm tra chất lượng chưa vào tồn đến khi kiểm xong: phần đạt ghi sổ kho, phần không đạt ghi biên bản. Trả hàng nhà cung cấp xuất kho theo giá mua trên phiếu nhập gốc.
+- Bán hàng (MODULE_05) – người quyết định: người dùng, ngày 2026-11-10: chia công việc, CONG_VIEC_08 gồm đơn bán, giữ hàng, phiếu xuất giao hàng theo đơn, trả hàng bán; khuyến mãi, giao vận, hóa đơn điện tử, giao dịch nội bộ là công việc sau. Chiết khấu tay tối đa không cần duyệt là một mức phần trăm theo công ty (mặc định 0%). Giá tối thiểu là giá vốn bình quân hiện hành tại kho xuất.
 - LOI_03 – người quyết định: người dùng, ngày 2026-11-10: thống nhất trả `400` gắn vào dòng hàng khi không đủ hàng khả dụng.
 
 ## 2026-11-09
