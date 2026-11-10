@@ -1,12 +1,12 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 2.0
+- Phiên bản: 2.1
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13)
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`) (mục 14)
 
-Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -2141,4 +2141,111 @@ BEGIN
         END IF;
     END LOOP;
 END $$;
+```
+
+## 14. Database migration 0011 – CONG_VIEC_14 (schema `accounting`)
+
+Tệp `database/migrations/0011_accounting.sql` tạo schema `accounting` của MODULE_06 Tài chính – Kế toán (phần 2), 5 bảng. Khóa ngoại từ `accounting` chỉ trỏ vào `accounting`, `core`, `crm`; chứng từ gốc (`source_id` của bút toán: phiếu kho, phiếu thu chi, biên bản chênh lệch nội bộ) không đặt khóa ngoại. Chế độ kế toán không lưu ở `accounting`: đọc từ `core.companies.accounting_regime` (`TT99_2025`, `TT133`). Danh mục tài khoản, định khoản mặc định của hai chế độ không nằm trong database migration mà nạp khi khởi tạo từ `apps/api/src/accounting/charts.ts`. Quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close` (nhạy cảm), vai trò `chief_accountant`, quyền thêm của `accountant`, loại chứng từ `accounting.journal` (cần duyệt) ghi vào bảng của `core` bằng hàm đồng bộ danh mục quyền (`apps/api/src/permissions/permission-catalog.ts`). Dãy số tiền tố `PKT` tạo khi gửi lần đầu.
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `settings` | Cài đặt kế toán của công ty đã khởi tạo (QUYTAC_NGHIEPVU_93, 97); không có dòng là chưa khởi tạo | `company_id` (khóa chính), `locked_through` (đã khóa sổ đến hết ngày), `initialized_by`, `initialized_at`, `version` | Ghi sổ chứng từ đọc với `FOR SHARE`; khóa sổ, mở lại với `FOR UPDATE` |
+| `accounts` | Hệ thống tài khoản (CHUC_NANG_69; QUYTAC_NGHIEPVU_93) | `company_id`, `code` (3 đến 20 chữ số hoặc chữ cái), `name`, `parent_id`, `nature` (`debit`, `credit`, `both`), `is_system` (nạp từ chế độ), `status` (`active`, `inactive`), `created_at`, `updated_at`, `version` | Duy nhất `(company_id, code)`; chỉ mục `parent_id`; service kiểm số hiệu bắt đầu bằng số hiệu cha |
+| `posting_rules` | Định khoản mặc định (CHUC_NANG_70; QUYTAC_NGHIEPVU_94) | `company_id`, `role` (19 vai trò ở `apps/api/src/accounting/postings.ts`), `account_id`, `updated_at`, `updated_by` | Khóa chính `(company_id, role)` |
+| `journals` | Bút toán: tự sinh, phiếu kế toán, kết chuyển (CHUC_NANG_71 đến 73; QUYTAC_NGHIEPVU_95 đến 97) | `company_id`, `journal_no` (phiếu kế toán: cấp khi gửi; tự sinh: số chứng từ gốc; kết chuyển: `KC-YYYY-MM`), `journal_date`, `source_type` (`manual`, `inventory_document`, `payment`, `internal_write_off`, `closing`), `source_id`, `description`, `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`), `approval_request_id` (`core.approval_requests`), `post_error` (khóa thông báo khi duyệt xong không ghi sổ được, ví dụ `periodLocked`), `total_amount` (tổng Nợ, `numeric(20,4)`), `created_by`, `posted_at`, `created_at`, `updated_at`, `version` | Không phải `manual` thì phải `posted`; duy nhất `(source_type, source_id)` khi có `source_id`; chỉ mục `(company_id, status, journal_date)`, `approval_request_id` |
+| `journal_lines` | Dòng bút toán | `journal_id` (xóa theo bút toán), `line_no`, `account_id`, `partner_id` (`crm.partners`), `debit`, `credit` (không âm, `numeric(20,4)`), `description` | Duy nhất `(journal_id, line_no)`; đúng một bên lớn hơn 0; chỉ mục `account_id`, `partner_id` |
+
+Quy tắc xóa và lưu giữ bổ sung:
+- Không xóa tài khoản; ngừng dùng chuyển `inactive`. Đổi chế độ kế toán khi công ty chưa có bút toán xóa toàn bộ `posting_rules`, `accounts`, `settings` của công ty (bỏ khởi tạo).
+- Bút toán tự sinh, phiếu kế toán đã ghi sổ không sửa, không xóa. Sửa phiếu kế toán chưa ghi sổ thay toàn bộ `journal_lines`.
+- Bút toán kết chuyển chỉ bị xóa khi mở lại tháng của nó.
+
+```mermaid
+erDiagram
+    accounts |o--o{ accounts : "tài khoản cha"
+    accounts ||--o{ posting_rules : "tài khoản của vai trò"
+    journals ||--o{ journal_lines : "dòng"
+    accounts ||--o{ journal_lines : "tài khoản"
+```
+
+Lược đồ (chép từ tệp `database/migrations/0011_accounting.sql`):
+
+```sql
+-- CONG_VIEC_14: Kế toán tổng hợp (MODULE_06, phần 2; tài liệu 16).
+CREATE SCHEMA IF NOT EXISTS accounting;
+
+-- Ngày khóa sổ của công ty đã khởi tạo kế toán (QUYTAC_NGHIEPVU_93, 97); chế độ kế toán lấy từ core.companies.accounting_regime. Không có dòng: chưa khởi tạo.
+CREATE TABLE accounting.settings (
+    company_id              uuid        PRIMARY KEY REFERENCES core.companies(id),
+    locked_through          date,                                                   -- đã khóa sổ đến hết ngày này
+    initialized_by          uuid        NOT NULL REFERENCES core.users(id),
+    initialized_at          timestamptz NOT NULL DEFAULT now(),
+    version                 integer     NOT NULL DEFAULT 1
+);
+
+-- Hệ thống tài khoản của công ty (QUYTAC_NGHIEPVU_93).
+CREATE TABLE accounting.accounts (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id              uuid        NOT NULL REFERENCES core.companies(id),
+    code                    text        NOT NULL CHECK (code ~ '^[0-9A-Za-z]{3,20}$'),
+    name                    text        NOT NULL,
+    parent_id               uuid        REFERENCES accounting.accounts(id),
+    nature                  text        NOT NULL CHECK (nature IN ('debit', 'credit', 'both')),
+    is_system               boolean     NOT NULL DEFAULT false,                     -- nạp từ chế độ kế toán
+    status                  text        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+    created_at              timestamptz NOT NULL DEFAULT now(),
+    updated_at              timestamptz NOT NULL DEFAULT now(),
+    version                 integer     NOT NULL DEFAULT 1,
+    UNIQUE (company_id, code)
+);
+CREATE INDEX accounts_parent_idx ON accounting.accounts (parent_id);
+
+-- Định khoản mặc định: vai trò tài khoản dùng khi sinh bút toán (QUYTAC_NGHIEPVU_94).
+CREATE TABLE accounting.posting_rules (
+    company_id              uuid        NOT NULL REFERENCES core.companies(id),
+    role                    text        NOT NULL,
+    account_id              uuid        NOT NULL REFERENCES accounting.accounts(id),
+    updated_at              timestamptz NOT NULL DEFAULT now(),
+    updated_by              uuid        REFERENCES core.users(id),
+    PRIMARY KEY (company_id, role)
+);
+
+-- Bút toán (chứng từ kế toán): tự sinh từ chứng từ nghiệp vụ, phiếu kế toán nhập tay, kết chuyển khóa sổ (QUYTAC_NGHIEPVU_95 đến 97).
+CREATE TABLE accounting.journals (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id              uuid        NOT NULL REFERENCES core.companies(id),
+    journal_no              text,                                                   -- phiếu kế toán: cấp khi gửi; tự sinh: số chứng từ gốc
+    journal_date            date        NOT NULL,
+    source_type             text        NOT NULL CHECK (source_type IN ('manual', 'inventory_document', 'payment', 'internal_write_off', 'closing')),
+    source_id               uuid,                                                   -- phiếu kho, phiếu thu chi, biên bản; kết chuyển, nhập tay: trống
+    description             text        NOT NULL,
+    status                  text        NOT NULL DEFAULT 'posted' CHECK (status IN ('draft', 'pending', 'posted', 'rejected', 'withdrawn')),
+    approval_request_id     uuid        REFERENCES core.approval_requests(id),
+    post_error              text,                                                   -- khóa thông báo khi duyệt xong nhưng không ghi sổ được (kỳ đã khóa)
+    total_amount            numeric(20,4) NOT NULL DEFAULT 0,                       -- tổng Nợ
+    created_by              uuid        REFERENCES core.users(id),
+    posted_at               timestamptz,
+    created_at              timestamptz NOT NULL DEFAULT now(),
+    updated_at              timestamptz NOT NULL DEFAULT now(),
+    version                 integer     NOT NULL DEFAULT 1,
+    CHECK (source_type = 'manual' OR status = 'posted')
+);
+CREATE UNIQUE INDEX journals_source_idx ON accounting.journals (source_type, source_id) WHERE source_id IS NOT NULL;
+CREATE INDEX journals_company_idx ON accounting.journals (company_id, status, journal_date);
+CREATE INDEX journals_approval_idx ON accounting.journals (approval_request_id);
+
+CREATE TABLE accounting.journal_lines (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    journal_id              uuid        NOT NULL REFERENCES accounting.journals(id) ON DELETE CASCADE,
+    line_no                 integer     NOT NULL,
+    account_id              uuid        NOT NULL REFERENCES accounting.accounts(id),
+    partner_id              uuid        REFERENCES crm.partners(id),
+    debit                   numeric(20,4) NOT NULL DEFAULT 0 CHECK (debit >= 0),
+    credit                  numeric(20,4) NOT NULL DEFAULT 0 CHECK (credit >= 0),
+    description             text,
+    UNIQUE (journal_id, line_no),
+    CHECK ((debit > 0) <> (credit > 0))
+);
+CREATE INDEX journal_lines_account_idx ON accounting.journal_lines (account_id);
+CREATE INDEX journal_lines_partner_idx ON accounting.journal_lines (partner_id);
 ```

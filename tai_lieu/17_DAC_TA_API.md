@@ -1,12 +1,12 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Hợp đồng API: endpoint, phương thức, dữ liệu gửi lên, dữ liệu trả về, xác thực, phân quyền, kiểm tra dữ liệu, lỗi, phân trang.
-- Phiên bản: 1.9
+- Phiên bản: 2.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79; CONG_VIEC_12 (2026-11-10): thêm API_83 khuyến mãi (mục 2g, 3g); bổ sung API_77; CONG_VIEC_13 (2026-11-10): thêm API_84 đến API_86 của MODULE_06 phần 1 (mục 2h, 3h); sửa API_77 kiểm hạn mức theo dư nợ thật
+- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79; CONG_VIEC_12 (2026-11-10): thêm API_83 khuyến mãi (mục 2g, 3g); bổ sung API_77; CONG_VIEC_13 (2026-11-10): thêm API_84 đến API_86 của MODULE_06 phần 1 (mục 2h, 3h); sửa API_77 kiểm hạn mức theo dư nợ thật; CONG_VIEC_14 (2026-11-10): thêm API_87 đến API_89 của MODULE_06 phần 2 (mục 2i, 3i); bổ sung API_20 (từ chối đổi chế độ kế toán khi đã có bút toán); ghi sổ chứng từ kiểm kỳ khóa sổ
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13).
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14).
 
 ## 1. Quy ước chung
 
@@ -208,6 +208,20 @@ Mọi đường dẫn có tiền tố `/api/v1`. API_84 đến API_86 nằm tron
 Sửa API_77 (CONG_VIEC_13, THAY_DOI_09): `submit` tính ngoại lệ `credit_limit` theo dư nợ thật (QUYTAC_NGHIEPVU_92): số dư công nợ phải thu của khách ở công ty (biểu thức `receivableBalance`, trả trước làm giảm) cộng giá trị gồm thuế phần chưa giao của các đơn khác đã xác nhận; thay dư nợ tạm tính (QUYTAC_NGHIEPVU_69). Hợp đồng không đổi; `detail` vẫn là "<dư nợ sau đơn> > <hạn mức>", chỉ trả cho người có `crm.profile.manage`.
 
 Bổ sung API_82 (CONG_VIEC_13): `resolve` với `action` `write_off` đóng biên bản và tạo khoản giảm phải thu `internal_write_off` của công ty mua (giá đơn bán của phần thiếu, trừ trước vào phiếu xuất gốc) trong cùng giao dịch; hợp đồng không đổi.
+
+## 2i. Danh sách endpoint kế toán tổng hợp (MODULE_06 phần 2, CONG_VIEC_14)
+
+Mọi đường dẫn có tiền tố `/api/v1`. API_87 đến API_89 nằm trong `apps/api/src/accounting/ledger.controller.ts`: mọi endpoint trước hết cần `finance.access` hoặc `finance.ledger.view` trong công ty đang làm việc (header `X-Company-Id`), không có thì `403 FORBIDDEN`. Quyền chi tiết kiểm trong service (`requireFinancePermission`): quyền phải gán ở phạm vi tập đoàn hoặc công ty đang làm việc. Dữ liệu công ty khác trả `404`. `POST` thành công trả `201`. Mã trong đường dẫn phải là UUID (trừ `role`).
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_87 | `GET /finance/ledger/setup`; `POST /finance/ledger/setup`; `GET /finance/accounts`; `POST /finance/accounts`; `PATCH /finance/accounts/{id}`; `GET /finance/posting-rules`; `PUT /finance/posting-rules/{role}` | CHUC_NANG_69, CHUC_NANG_70 | Trạng thái: `finance.ledger.view` hoặc `finance.ledger.setup`. Danh sách tài khoản: `finance.ledger.view`, `finance.ledger.setup` hoặc `finance.journal.manage`. Định khoản: `finance.ledger.view` hoặc `finance.ledger.setup`. Khởi tạo, thêm, sửa tài khoản, đổi định khoản: `finance.ledger.setup` | Khởi tạo: không có. Thêm tài khoản: `parentId`, `code`, `name`. Sửa: `name`, `status`, `version`. Đổi định khoản: `accountId` | `LedgerSetupResponse`; `AccountResponse[]`; `PostingRuleResponse[]` |
+| API_88 | `GET /finance/journals?sourceType=&status=&from=&to=`; `GET /finance/journals/{id}`; `POST /finance/journals`; `PATCH /finance/journals/{id}`; `POST /finance/journals/{id}/submit`, `/withdraw` | CHUC_NANG_71, CHUC_NANG_72 | Danh sách, chi tiết: `finance.ledger.view` hoặc `finance.journal.manage`. Lập, sửa, gửi: `finance.journal.manage`. Rút: `finance.journal.manage`, người lập, phiếu chờ duyệt | Lập, sửa: `journalDate`, `description`, `lines[]` (`accountId`, `partnerId`, `debit`, `credit`, `description`), `version` (khi sửa). Gửi: `version` | `JournalListItem[]`; `JournalResponse` |
+| API_89 | `GET /finance/ledger/periods`; `POST /finance/ledger/periods/close`; `POST /finance/ledger/periods/reopen`; `GET /finance/ledger/trial-balance?from=&to=`; `GET /finance/ledger/accounts/{id}?from=&to=` | CHUC_NANG_73 | Kỳ: `finance.ledger.view` hoặc `finance.period.close`. Khóa, mở lại: `finance.period.close`. Bảng cân đối, sổ cái: `finance.ledger.view` | Khóa sổ: `month` (`YYYY-MM`). Mở lại: không có. Bảng cân đối, sổ cái: `from`, `to` | `LedgerPeriodsResponse`; `TrialBalanceResponse`; `AccountLedgerResponse` |
+
+Bổ sung API_20 (CONG_VIEC_14): `PATCH /companies/{id}` đổi `accountingRegime` khác giá trị hiện tại thì trong cùng giao dịch gọi `beforeRegimeChange`: công ty đã có bút toán thì `400 VALIDATION_FAILED` tại `accountingRegime` "Công ty đã có bút toán, không đổi được chế độ kế toán."; đã khởi tạo kế toán nhưng chưa có bút toán thì xóa định khoản, tài khoản, cài đặt kế toán rồi lưu.
+
+Bổ sung ghi sổ chứng từ (CONG_VIEC_14): công ty đã khởi tạo kế toán thì ghi sổ phiếu kho sinh bút toán (API_65, API_76, API_79; trừ chuyển kho), phiếu thu chi (API_86), ghi tổn thất biên bản nội bộ (API_82) sinh bút toán trong cùng giao dịch; ngày chứng từ (ghi tổn thất: hôm nay) thuộc kỳ đã khóa thì cả lần ghi sổ không thực hiện, `409 BUSINESS_RULE` "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ."; phiếu chi duyệt xong rơi vào kỳ khóa thì `rejected`, `postError` `periodLocked`. Hợp đồng không đổi.
 
 ## 3. Hợp đồng chi tiết
 
@@ -695,6 +709,50 @@ Gửi lên (`POST /finance/payments/{id}/submit`): `{ "version": 1 }`.
 - Nghe `core.approval.completed` loại `finance.payment`: `approved` thì ghi sổ; lỗi nghiệp vụ thì phiếu `rejected`, `postError` là khóa lỗi; `rejected`, `withdrawn` thì chuyển tương ứng.
 - Lỗi: `400` tại `partnerId` "Đối tác không phải khách hàng của công ty." hoặc "Đối tác không phải nhà cung cấp của công ty."; tại `fundId` "Giá trị không hợp lệ." hoặc "Quỹ đã ngừng dùng."; tại `lines.{i}.debitItemId` "Giá trị không hợp lệ."; tại `lines.{i}.amount` "Số trừ vượt số còn nợ của chứng từ."; tại `amount` "Tổng số trừ vượt số tiền phiếu." hoặc "Số tiền hoàn vượt tiền trả trước đang còn."; tại `kind` "Giá trị không hợp lệ." (đổi giữa phiếu thu và phiếu chi sau khi cấp số); `403` (thiếu quyền; rút phiếu của người khác hoặc không chờ duyệt); `404`; `409 BUSINESS_RULE` "Chỉ sửa được chứng từ đang ở trạng thái nháp." (gửi phiếu không ở nháp, bị từ chối, đã rút), "Số dư quỹ không đủ.", "Quỹ đã ngừng dùng.", "Số trừ vượt số còn nợ của chứng từ.", "Số tiền hoàn vượt tiền trả trước đang còn." (khi ghi sổ ngay); `409 CONFLICT_VERSION`.
 
+## 3i. Hợp đồng chi tiết kế toán tổng hợp (MODULE_06 phần 2, CONG_VIEC_14)
+
+Quy ước: như mục 3h; số tiền dòng phiếu kế toán dạng chuỗi tối đa 12 chữ số phần nguyên, 4 chữ số lẻ, máy chủ từ chối số lẻ hơn đơn vị tiền tệ công ty; tháng `YYYY-MM`. Công ty chưa khởi tạo kế toán: thao tác cần cài đặt trả `409 BUSINESS_RULE` "Công ty chưa khởi tạo kế toán.".
+
+### API_87 Khởi tạo, tài khoản, định khoản
+Gửi lên (`POST /finance/accounts`):
+```json
+{ "parentId": "01J...", "code": "1311", "name": "Phải thu khách hàng trong nước" }
+```
+- Kiểm tra: `code` 3 đến 20 chữ số hoặc chữ cái; `name` 1 đến 200 ký tự; `status` `active`, `inactive`; `version` số nguyên dương; `accountId` là UUID; `role` thuộc 19 vai trò (khác thì `404`). Phía máy chủ: tài khoản cha thuộc công ty, đang dùng; `code` bắt đầu bằng số hiệu cha, dài hơn, chưa có trong công ty; tài khoản của định khoản đang dùng, không có con đang dùng.
+- `GET /finance/ledger/setup` (`200`): `{ initialized, regime, regimeName, lockedThrough, canSetup }`; `regime` lấy từ công ty.
+- `POST /finance/ledger/setup` (`201`): khóa công ty; đã khởi tạo thì `409`; ghi `settings`, nạp tài khoản của chế độ, định khoản mặc định, tạo bút toán cho chứng từ đã ghi sổ (không kiểm khóa sổ); nhật ký `ledger.setup` (chế độ); trả trạng thái.
+- `GET /finance/accounts` (`200`): `{ id, code, name, parentId, nature, isSystem, status, postable, hasLines, version, canEdit }[]`, theo số hiệu.
+- `POST /finance/accounts` (`201`): tính chất theo cha; định khoản đang dùng tài khoản cha chuyển sang tài khoản mới; nhật ký `account.create`; trả danh sách tài khoản.
+- `PATCH /finance/accounts/{id}` (`200`): khóa tài khoản, đúng phiên bản; `inactive` chỉ với tài khoản không phải hệ thống, không trong định khoản, không có con đang dùng; nhật ký `account.update` (kèm dữ liệu trước); trả danh sách tài khoản.
+- `GET /finance/posting-rules` (`200`): `{ role, description, accountId, accountCode, accountName, canEdit }[]` theo thứ tự vai trò.
+- `PUT /finance/posting-rules/{role}` (`200`): nhật ký `posting_rule.update`; trả danh sách định khoản.
+- Lỗi: `400` tại `parentId` "Giá trị không hợp lệ."; tại `code` "Số hiệu tài khoản chi tiết phải bắt đầu bằng số hiệu tài khoản cha và dài hơn." hoặc "Số hiệu tài khoản đã có trong công ty."; tại `status` "Tài khoản của chế độ kế toán không ngừng dùng được.", "Tài khoản đang dùng trong định khoản mặc định." hoặc "Tài khoản còn tài khoản chi tiết đang dùng."; tại `accountId` "Tài khoản không nhận bút toán (đã ngừng dùng hoặc có tài khoản chi tiết)."; `403`; `404`; `409 BUSINESS_RULE` "Công ty đã khởi tạo kế toán.", "Công ty chưa khởi tạo kế toán."; `409 CONFLICT_VERSION`.
+
+### API_88 Bút toán, phiếu kế toán
+Gửi lên (`POST /finance/journals`):
+```json
+{ "journalDate": "2026-10-01", "description": "Số dư đầu kỳ",
+  "lines": [ { "accountId": "01J...", "debit": "5000000", "credit": "0" }, { "accountId": "01J...", "partnerId": null, "debit": "0", "credit": "5000000", "description": "Vốn góp" } ] }
+```
+Gửi lên (`POST /finance/journals/{id}/submit`): `{ "version": 1 }`.
+- Kiểm tra: `description` 1 đến 500 ký tự; `lines` 2 đến 200; `debit`, `credit` mặc định `"0"`; `lines[].description` tối đa 300; lọc `sourceType` (`manual`, `inventory_document`, `payment`, `internal_write_off`, `closing`), `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`), `from`, `to`. Phía máy chủ: công ty đã khởi tạo; ngày không thuộc kỳ đã khóa; mỗi dòng đúng một bên lớn hơn 0, không lẻ hơn đơn vị tiền tệ; tài khoản thuộc công ty, nhận bút toán được; đối tác có hồ sơ ở công ty; tổng Nợ bằng tổng Có.
+- Danh sách (`200`): `{ id, journalNo, journalDate, sourceType, description, totalAmount, status }`, ngày mới trước, tối đa 500.
+- Chi tiết (`200`): danh sách thêm `{ sourceId, currency, lines[] ({ lineNo, accountId, accountCode, accountName, partnerId, partnerName, debit, credit, description }), approvalRequestId, postError, createdByName, version, canEdit, canSubmit, canWithdraw }`. `postError`: khóa thông báo lỗi chỉ khi `rejected` do không ghi sổ được. `canEdit`, `canSubmit`: phiếu `manual` ở `draft`, `rejected`, `withdrawn`, người có `finance.journal.manage`. `canWithdraw`: người lập, `pending`, cấp duyệt đầu chưa quyết định.
+- `POST` (`201`): lưu `draft`, `manual`; nhật ký `journal.create`. `PATCH` (`200`): phiếu `manual` ở `draft`, `rejected`, `withdrawn`, đúng phiên bản (khác thì `409 CONFLICT_VERSION`); về `draft`, xóa `postError`, thay toàn bộ dòng; nhật ký `journal.update`.
+- `submit` (`201`): phiếu `manual` ở `draft`, `rejected`, `withdrawn`, đúng phiên bản; kiểm lại kỳ; cấp số theo dãy `accounting.journal` (tự tạo tiền tố `PKT`) ở lần gửi đầu; gửi luồng duyệt với `totalAmount`; có chính sách thì `pending`; chưa có thì ghi sổ ngay trong cùng giao dịch (`posted`). Nhật ký `journal.submit` (số, mã yêu cầu duyệt).
+- `withdraw` (`201`): người lập, `pending`; rút yêu cầu duyệt, phiếu `withdrawn`; nhật ký `journal.withdraw`.
+- Nghe `core.approval.completed` loại `accounting.journal`: `approved` thì ghi sổ (kiểm kỳ); lỗi nghiệp vụ thì `rejected`, `postError` là khóa lỗi (ví dụ `periodLocked`); `rejected`, `withdrawn` thì chuyển tương ứng.
+- Lỗi: `400` tại `lines.{i}.debit` "Mỗi dòng ghi một bên Nợ hoặc Có, lớn hơn 0." hoặc "Giá trị không hợp lệ." (số lẻ); tại `lines.{i}.accountId` "Tài khoản không nhận bút toán (đã ngừng dùng hoặc có tài khoản chi tiết)."; tại `lines.{i}.partnerId` "Giá trị không hợp lệ."; tại `lines` "Tổng Nợ phải bằng tổng Có."; `403` (thiếu quyền; rút phiếu của người khác hoặc không chờ duyệt); `404`; `409 BUSINESS_RULE` "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ.", "Công ty chưa khởi tạo kế toán.", "Chỉ sửa được chứng từ đang ở trạng thái nháp." (gửi bút toán không phải phiếu kế toán nháp, bị từ chối, đã rút); `409 CONFLICT_VERSION`.
+
+### API_89 Kỳ khóa sổ, bảng cân đối số phát sinh, sổ cái
+Gửi lên (`POST /finance/ledger/periods/close`): `{ "month": "2026-10" }`.
+- `GET /finance/ledger/periods` (`200`): `{ lockedThrough, nextMonth, lastClosedMonth, canClose, canReopen }`. `nextMonth`: tháng sau `lockedThrough`; chưa khóa thì tháng của bút toán `posted` sớm nhất (không có thì `null`). `canClose`: có `finance.period.close`, có `nextMonth`, ngày cuối tháng trước hôm nay. `canReopen`: có `finance.period.close`, đã khóa.
+- `close` (`201`): `month` phải bằng `nextMonth` và `canClose`; khóa `settings` (`FOR UPDATE`), ngày khóa chưa đổi; không còn phiếu `pending` có ngày đến hết tháng; tạo bút toán `closing` số `KC-YYYY-MM` ngày cuối tháng: số dư lũy kế từng tài khoản có số hiệu bắt đầu 5 đến 8 (trừ tài khoản của vai trò `income_summary`) kết chuyển sang tài khoản đó, số dư của nó sang tài khoản của vai trò `retained_earnings`; ghi `locked_through`; nhật ký `period.close`; trả kỳ.
+- `reopen` (`201`): khóa `settings`; đã khóa; xóa bút toán `closing` ngày bằng `locked_through`; `locked_through` lùi về ngày của bút toán `closing` gần nhất trước đó (không có thì `null`); nhật ký `period.reopen`; trả kỳ.
+- `trial-balance` (`200`): `{ from, to, currency, rows[] ({ accountId, code, name, depth, openingDebit, openingCredit, debit, credit, closingDebit, closingCredit }), totals }`; chỉ bút toán `posted` đến `to`; tài khoản `both` có đối tác tách theo đối tác; cộng dồn lên cha; chỉ tài khoản có số; `totals` cộng các tài khoản cấp cao nhất.
+- `accounts/{id}` (`200`): `{ account ({ id, code, name, nature }), from, to, currency, openingBalance, entries[] ({ journalId, journalNo, journalDate, description, accountCode, counterAccounts[], partnerName, debit, credit, balance }), totalDebit, totalCredit, closingBalance }`; gồm tài khoản chi tiết; số dư theo bên Nợ (âm là dư Có); theo ngày, thời điểm tạo, số dòng; tối đa 10.000 dòng.
+- Lỗi: `400` tại `to` "Ngày kết thúc phải sau ngày bắt đầu."; `403`; `404` (tài khoản của công ty khác); `409 BUSINESS_RULE` "Không khóa được tháng này (khóa lần lượt từng tháng đã kết thúc).", "Còn phiếu kế toán chờ duyệt trong kỳ.", "Công ty chưa khởi tạo kế toán."; `409 CONFLICT_VERSION`.
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |
@@ -722,3 +780,5 @@ MODULE_05 phần 2 (CONG_VIEC_09) không phát sự kiện mới; dùng lại vi
 MODULE_05 phần 3 (CONG_VIEC_12) không phát sự kiện mới; mini app Bán hàng nghe `core.approval.completed` của loại chứng từ `sales.promotion` để chuyển chương trình `pending` sang `active` (duyệt xong), `rejected`, `withdrawn` (API_83).
 
 MODULE_06 phần 1 (CONG_VIEC_13) không phát sự kiện mới; mini app Tài chính – Kế toán nghe `core.approval.completed` của loại chứng từ `finance.payment` để ghi sổ phiếu chi duyệt xong (không ghi sổ được thì `rejected` kèm `postError`), chuyển `rejected`, `withdrawn` (API_86). Công nợ tự phát sinh không qua sự kiện mà qua móc nối `postedHooks` trong giao dịch ghi sổ phiếu kho và `writtenOffHooks` trong giao dịch ghi tổn thất biên bản chênh lệch nội bộ (API_82).
+
+MODULE_06 phần 2 (CONG_VIEC_14) không phát sự kiện mới; mini app Tài chính – Kế toán nghe `core.approval.completed` của loại chứng từ `accounting.journal` để ghi sổ phiếu kế toán duyệt xong (kỳ đã khóa thì `rejected` kèm `postError`), chuyển `rejected`, `withdrawn` (API_88). Bút toán tự sinh không qua sự kiện mà qua móc nối `postedHooks` (phiếu kho, phiếu thu chi), `writtenOffHooks` (ghi tổn thất biên bản nội bộ) trong cùng giao dịch ghi sổ.
