@@ -70,3 +70,5 @@ ALTER TABLE sales.order_lines ADD COLUMN is_gift boolean NOT NULL DEFAULT false;
 ALTER TABLE sales.order_lines ADD COLUMN gift_sets integer NOT NULL DEFAULT 0;                         -- số suất của dòng tặng
 CREATE INDEX sales_order_lines_promotion_idx ON sales.order_lines (promotion_id);
 CREATE INDEX sales_order_lines_order_promotion_idx ON sales.order_lines (order_promotion_id);
+-- Suất tặng thiếu do kho xuất không đủ hàng tặng lúc lưu đơn (tặng theo tồn còn lại): [{promotionName, missingSets}].
+ALTER TABLE sales.orders ADD COLUMN gift_shortages jsonb NOT NULL DEFAULT '[]'::jsonb;

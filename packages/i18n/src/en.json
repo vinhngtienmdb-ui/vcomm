@@ -1992,7 +1992,8 @@
     "giftLine": "Gift",
     "linePromotion": "{name}: {percent}% off",
     "orderPromotionShare": "{name}: {amount} off",
-    "promotionHint": "Active promotions apply when saved (line, order discounts, gifts); the estimate excludes promotions."
+    "promotionHint": "Active promotions apply when saved (line, order discounts, gifts); the estimate excludes promotions.",
+    "giftShortage": "{name}: {sets} gift sets missing because the warehouse lacks gift stock."
   },
   "salesMenu": {
     "title": "Sales",

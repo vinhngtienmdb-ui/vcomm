@@ -1992,7 +1992,8 @@
     "giftLine": "Hàng tặng",
     "linePromotion": "{name}: giảm {percent}%",
     "orderPromotionShare": "{name}: giảm {amount}",
-    "promotionHint": "Khuyến mãi đang chạy tự áp khi lưu (giảm theo dòng, theo đơn, hàng tặng); tổng tạm tính chưa gồm khuyến mãi."
+    "promotionHint": "Khuyến mãi đang chạy tự áp khi lưu (giảm theo dòng, theo đơn, hàng tặng); tổng tạm tính chưa gồm khuyến mãi.",
+    "giftShortage": "{name}: thiếu {sets} suất tặng do kho xuất không đủ hàng tặng."
   },
   "salesMenu": {
     "title": "Bán hàng",

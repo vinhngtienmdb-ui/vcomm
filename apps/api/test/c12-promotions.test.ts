@@ -309,7 +309,7 @@ describe("TIEUCHI_NGHIEMTHU_103: ngoại lệ, giữ hàng, giao hàng tặng", 
 });
 
 describe("TIEUCHI_NGHIEMTHU_100: hàng tặng không tính là hàng mua", () => {
-  it("KICHBAN_KIEMTHU_198: dòng tặng của chương trình này không làm đủ điều kiện mua của chương trình khác; mua X tặng Y không nhận ngân sách", async () => {
+  it("KICHBAN_KIEMTHU_198: dòng tặng của chương trình này không làm đủ điều kiện mua của chương trình khác; mua X tặng Y không nhận ngân sách; tặng theo tồn còn lại", async () => {
     await stopAll();
     await running({ name: "Mua 2 bánh tặng 2 kẹo", kind: "buy_get", buyVariantId: items.biscuit, buyQuantity: "2", giftVariantId: items.candy, giftQuantity: "2" });
     await running({ name: "Mua 2 kẹo tặng 1 quà", kind: "buy_get", buyVariantId: items.candy, buyQuantity: "2", giftVariantId: items.gift, giftQuantity: "1" });
@@ -327,6 +327,13 @@ describe("TIEUCHI_NGHIEMTHU_100: hàng tặng không tính là hàng mua", () =>
       budgetAmount: "100000",
     });
     expect(budget.body.error.fields).toEqual({ budgetAmount: expect.any(String) });
+    await stopAll();
+    // Hàng tặng chỉ tặng theo tồn còn lại tại kho xuất: tồn quà dưới 1.200, mỗi suất 600 → tặng 1 suất, ghi thiếu 1 suất.
+    await running({ name: "Mua 1 kẹo tặng 600 quà", kind: "buy_get", buyVariantId: items.candy, buyQuantity: "1", giftVariantId: items.gift, giftQuantity: "600" });
+    const short = await saved(order([line("candy", "2")]));
+    expect(short.lines.filter((item: { isGift: boolean }) => item.isGift)).toEqual([expect.objectContaining({ quantity: "600" })]);
+    expect(short.giftShortages).toEqual([{ promotionName: "Mua 1 kẹo tặng 600 quà", missingSets: 1 }]);
+    expect((await call(seller, "post", `/sales/orders/${short.id}/submit`)).body.status).toBe("confirmed");
     await stopAll();
   });
 });

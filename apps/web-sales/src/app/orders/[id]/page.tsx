@@ -117,6 +117,9 @@ function Detail({ order, reload }: { order: SalesOrderResponse; reload: () => Pr
         )}
       </div>
       <CounterpartPanel order={order} reload={reload} />
+      {order.giftShortages.length > 0 && (
+        <div className="khoi-canh-bao canh-bao">{order.giftShortages.map((item) => t("giftShortage", { name: item.promotionName, sets: item.missingSets })).join(" ")}</div>
+      )}
       {order.exceptions.length > 0 && (
         <div className="khoi-canh-bao canh-bao">
           <strong>{t("exceptions")}</strong>

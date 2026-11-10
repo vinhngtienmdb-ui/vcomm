@@ -30,8 +30,10 @@ export interface PricedLine {
   giftSets: number;
 }
 
+export type GiftShortage = { promotionName: string; missingSets: number };
 type Candidate = {
   id: string;
+  name: string;
   kind: "product_discount" | "order_discount" | "buy_get";
   min_order_amount: string | null;
   order_discount_percent: string | null;
@@ -67,16 +69,17 @@ export function withoutPromotion(
 
 export async function applyPromotions(
   executor: Reader,
-  context: { companyId: string; orderId: string | null; channelId: string; customerGroupId: string | null; orderDate: string; internal: boolean },
+  context: { companyId: string; orderId: string | null; channelId: string; customerGroupId: string | null; orderDate: string; internal: boolean; warehouseId: string },
   priced: PricedLine[],
-): Promise<PricedLine[]> {
+): Promise<{ lines: PricedLine[]; giftShortages: GiftShortage[] }> {
   const lines = priced.map((line) => ({ ...line }));
-  if (context.internal) return lines;
+  const giftShortages: GiftShortage[] = [];
+  if (context.internal) return { lines, giftShortages };
   const except = context.orderId ? sql`${context.orderId}::uuid` : sql`NULL::uuid`;
   // Chương trình đang chạy, trong thời gian, đúng kênh (trống: mọi kênh trừ Nội bộ), đúng nhóm khách (trống: mọi khách).
   const candidates = (
     await executor.execute<Candidate>(sql`
-    SELECT p.id, p.kind, p.min_order_amount::text, p.order_discount_percent::text, p.max_order_discount::text, p.buy_variant_id, p.buy_quantity::text, p.gift_variant_id,
+    SELECT p.id, p.name, p.kind, p.min_order_amount::text, p.order_discount_percent::text, p.max_order_discount::text, p.buy_variant_id, p.buy_quantity::text, p.gift_variant_id,
       p.gift_quantity::text, p.budget_amount::text, p.max_gift_sets, ${promotionUsage(sql`p.id`, except)}::text AS used_amount, ${promotionGiftUsage(sql`p.id`, except)} AS used_gift_sets
     FROM sales.promotions p
     WHERE p.company_id = ${context.companyId} AND p.status = 'active' AND ${context.orderDate}::date BETWEEN p.valid_from AND p.valid_to
@@ -87,7 +90,7 @@ export async function applyPromotions(
         OR EXISTS (SELECT 1 FROM sales.promotion_customer_groups g WHERE g.promotion_id = p.id AND g.customer_group_id = ${context.customerGroupId}))
     ORDER BY p.created_at, p.id`)
   ).rows;
-  if (candidates.length === 0) return lines;
+  if (candidates.length === 0) return { lines, giftShortages };
   const remaining = (candidate: Candidate) => (candidate.budget_amount === null ? Infinity : Number(candidate.budget_amount) - Number(candidate.used_amount));
 
   // Giảm theo sản phẩm: mỗi dòng phần trăm cao nhất; chương trình không đủ ngân sách cho cả đơn thì bỏ, chọn lại.
@@ -180,6 +183,20 @@ export async function applyPromotions(
       WHERE v.id = ${candidate.gift_variant_id} AND v.company_id = ${context.companyId} AND v.status = 'active' AND p.status = 'active'`)
     ).rows[0];
     if (!gift) continue;
+    // Tặng theo tồn còn lại của hàng tặng tại kho xuất (trừ phần đang giữ cho đơn khác và phần đơn này đã dùng); thiếu thì ghi số suất thiếu.
+    const stock = (
+      await executor.execute<{ available: string }>(sql`
+      SELECT (coalesce((SELECT quantity FROM inventory.costs WHERE warehouse_id = ${context.warehouseId} AND company_id = ${context.companyId} AND variant_id = ${candidate.gift_variant_id}), 0)
+        - coalesce((SELECT sum(quantity) FROM inventory.reservations WHERE warehouse_id = ${context.warehouseId} AND company_id = ${context.companyId}
+            AND variant_id = ${candidate.gift_variant_id} AND status = 'active' AND NOT (source_type = 'sales.order' AND source_id IS NOT DISTINCT FROM ${except})), 0))::text AS available`)
+    ).rows[0]!;
+    const usedHere = lines.filter((line) => line.variantId === candidate.gift_variant_id).reduce((sum, line) => sum + Number(line.baseQuantity), 0);
+    const affordable = Math.max(0, Math.floor((Number(stock.available) - usedHere + 0.00005) / Number(candidate.gift_quantity)));
+    if (affordable < sets) {
+      giftShortages.push({ promotionName: candidate.name, missingSets: sets - affordable });
+      sets = affordable;
+    }
+    if (sets <= 0) continue;
     const quantity = (sets * Number(candidate.gift_quantity)).toFixed(4);
     lines.push({
       variantId: candidate.gift_variant_id!,
@@ -204,5 +221,5 @@ export async function applyPromotions(
       giftSets: sets,
     });
   }
-  return lines;
+  return { lines, giftShortages };
 }

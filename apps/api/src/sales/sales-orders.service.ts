@@ -33,7 +33,7 @@ import { companyCurrency, ensureSequence } from "../purchasing/requisitions.serv
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { internalCompanyOf } from "../crm/partners.service";
 import { internalSalesErrors } from "./internal-trade-rules";
-import { applyPromotions, type PricedLine, withoutPromotion } from "./promotion-pricing";
+import { applyPromotions, type GiftShortage, type PricedLine, withoutPromotion } from "./promotion-pricing";
 import { promotionGiftUsage, promotionUsage } from "./promotions.service";
 import { requireSalesPermission, salesAudit, salesPermissions } from "./sales-context";
 
@@ -66,6 +66,7 @@ type OrderRow = {
   counterpart_order_id: string | null;
   is_counterpart: boolean;
   counterpart_rejected_reason: string | null;
+  gift_shortages: GiftShortage[];
   note: string | null;
   currency: string;
   status: SalesOrderStatus;
@@ -256,6 +257,7 @@ export class SalesOrdersService implements OnModuleInit {
       isCounterpart: row.is_counterpart,
       counterpart: counterpart ? { companyName: counterpart.company_name, documentNo: counterpart.document_no, status: counterpart.status } : null,
       counterpartRejectedReason: row.counterpart_rejected_reason,
+      giftShortages: row.gift_shortages,
       canConfirmCounterpart: manage && row.status === "counterpart_pending",
       closedReason: row.closed_reason,
       lines: lines.rows.map((line) => ({
@@ -300,12 +302,12 @@ export class SalesOrdersService implements OnModuleInit {
   async create(actor: Actor, input: Input): Promise<SalesOrderResponse> {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
     const id = await this.database.transaction(async (transaction) => {
-      const { lines, groupId } = await this.prepare(transaction, actor.companyId, input, null);
+      const { lines, groupId, giftShortages } = await this.prepare(transaction, actor.companyId, input, null);
       const orderId = (
         await transaction.execute<{ id: string }>(sql`
-        INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, customer_group_id, warehouse_id, order_date, delivery_address, note, currency, created_by)
+        INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, customer_group_id, warehouse_id, order_date, delivery_address, note, currency, gift_shortages, created_by)
         VALUES (${actor.companyId}, ${input.customerId ?? null}, ${input.buyerName}, ${input.channelId}, ${groupId}, ${input.warehouseId}, ${input.orderDate}::date, ${input.deliveryAddress},
-          ${input.note}, ${await companyCurrency(transaction, actor.companyId)}, ${actor.userId}) RETURNING id`)
+          ${input.note}, ${await companyCurrency(transaction, actor.companyId)}, ${JSON.stringify(giftShortages)}::jsonb, ${actor.userId}) RETURNING id`)
       ).rows[0]!.id;
       await this.writeLines(transaction, orderId, lines);
       await this.auditService.record({ ...salesAudit(actor, "sales_order"), action: "sales_order.create", entityId: orderId, afterData: input }, transaction);
@@ -320,10 +322,11 @@ export class SalesOrdersService implements OnModuleInit {
     const before = await this.detail(actor, id);
     if (!before.canEdit) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
     await this.database.transaction(async (transaction) => {
-      const { lines, groupId } = await this.prepare(transaction, actor.companyId, input, id);
+      const { lines, groupId, giftShortages } = await this.prepare(transaction, actor.companyId, input, id);
       const updated = await transaction.execute(sql`
         UPDATE sales.orders SET customer_id = ${input.customerId ?? null}, buyer_name = ${input.buyerName}, channel_id = ${input.channelId}, customer_group_id = ${groupId},
           warehouse_id = ${input.warehouseId}, order_date = ${input.orderDate}::date, delivery_address = ${input.deliveryAddress}, note = ${input.note}, status = 'draft',
+          gift_shortages = ${JSON.stringify(giftShortages)}::jsonb,
           approval_request_id = NULL, exceptions = '[]'::jsonb, updated_at = now(), version = version + 1
         WHERE id = ${id} AND company_id = ${actor.companyId} AND version = ${input.version ?? 0} AND status IN ('draft', 'rejected', 'withdrawn') AND NOT is_counterpart RETURNING id`);
       if (updated.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
@@ -693,7 +696,7 @@ export class SalesOrdersService implements OnModuleInit {
   }
 
   // Kiểm khách, kênh, kho; tra giá từng dòng theo kênh, nhóm khách tại ngày đơn; tính tiền theo cách tính thuế của bảng giá (QUYTAC_NGHIEPVU_67).
-  private async prepare(transaction: Executor, companyId: string, input: Input, orderId: string | null): Promise<{ lines: PreparedLine[]; groupId: string | null }> {
+  private async prepare(transaction: Executor, companyId: string, input: Input, orderId: string | null): Promise<{ lines: PreparedLine[]; groupId: string | null; giftShortages: GiftShortage[] }> {
     const fields: FieldErrors = {};
     let groupId: string | null = null;
     if (input.customerId) {
@@ -724,8 +727,12 @@ export class SalesOrdersService implements OnModuleInit {
     const priced = await this.priceLines(transaction, companyId, input.channelId, groupId, input.orderDate, input.lines);
     // Khuyến mãi tự áp khi lưu; đơn bán nội bộ không áp (QUYTAC_NGHIEPVU_81).
     const internal = input.customerId ? (await internalCompanyOf(transaction, input.customerId)) !== null : false;
-    const lines = await applyPromotions(transaction, { companyId, orderId, channelId: input.channelId, customerGroupId: groupId, orderDate: input.orderDate, internal }, priced);
-    return { lines, groupId };
+    const { lines, giftShortages } = await applyPromotions(
+      transaction,
+      { companyId, orderId, channelId: input.channelId, customerGroupId: groupId, orderDate: input.orderDate, internal, warehouseId: input.warehouseId },
+      priced,
+    );
+    return { lines, groupId, giftShortages };
   }
 
   // Tra giá từng dòng theo kênh, nhóm khách tại ngày đơn; tính tiền theo cách tính thuế của bảng giá.
@@ -810,7 +817,7 @@ export class SalesOrdersService implements OnModuleInit {
 
   private select(): SQL {
     return sql`SELECT o.id, o.company_id, o.document_no, o.customer_id, c.name AS customer_name, o.buyer_name, o.channel_id, ch.name AS channel_name, o.customer_group_id, o.warehouse_id,
-      coalesce(w.name, '') AS warehouse_name, o.order_date, o.delivery_address, c.company_id AS customer_company_id, o.counterpart_order_id, o.is_counterpart, o.counterpart_rejected_reason, o.note, o.currency, o.status, o.exceptions, o.approval_request_id, o.net_amount::text, o.tax_amount::text,
+      coalesce(w.name, '') AS warehouse_name, o.order_date, o.delivery_address, c.company_id AS customer_company_id, o.counterpart_order_id, o.is_counterpart, o.counterpart_rejected_reason, o.gift_shortages, o.note, o.currency, o.status, o.exceptions, o.approval_request_id, o.net_amount::text, o.tax_amount::text,
       o.total_amount::text, o.closed_reason, o.created_by, cu.full_name AS created_by_name, o.version`;
   }
 
