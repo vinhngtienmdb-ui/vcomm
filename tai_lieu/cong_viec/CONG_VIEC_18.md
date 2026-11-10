@@ -1,7 +1,7 @@
 # CONG_VIEC_18: Đối soát ngân hàng (MODULE_06, phần 6)
 
 - Mô tả: Nhận giao dịch ngân hàng qua dịch vụ trung gian chọn theo từng công ty (webhook), tự ghép với phiếu thu chi đã ghi sổ của quỹ ngân hàng; tiền vào chưa có phiếu thu thì gợi ý khách hàng, kế toán xác nhận tạo phiếu thu; đối chiếu số dư sổ sách với ngân hàng.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Bản nháp. Người dùng xác nhận thiết kế ngày 2026-11-10; đã lập trình lát L0, L1.
 - Nguồn: tài liệu `04` mục 6, `05` mục 2.1; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`.
@@ -73,11 +73,20 @@ Luồng 30 (tài liệu `09`): dịch vụ gửi webhook → kiểm khóa → l�
 
 ## 10. Tiêu chí nghiệm thu
 
-Lập sau khi người dùng xác nhận thiết kế (TIEUCHI_NGHIEMTHU_132 trở đi).
+| Mã | Tiêu chí | Mức | Kịch bản |
+|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_132 | Chỉ người có quyền cài đặt tạo, sửa kết nối; khóa sinh tự động, hiện đủ một lần, lưu mã hóa; đổi khóa thì khóa cũ hết hiệu lực; webhook sai khóa, kết nối không có hoặc đang tắt bị từ chối (401) | Bắt buộc | KICHBAN_KIEMTHU_246, 247 |
+| TIEUCHI_NGHIEMTHU_133 | Giao dịch nhận đúng ngày giờ Việt Nam, chiều, số tiền, nội dung; trùng mã chỉ lưu một lần và vẫn trả thành công; dữ liệu sai bị từ chối (400); số tài khoản khác quỹ bị từ chối (409) | Bắt buộc | KICHBAN_KIEMTHU_247 |
+| TIEUCHI_NGHIEMTHU_134 | Tự ghép đúng QUYTAC_NGHIEPVU_115: cùng quỹ, cùng chiều, cùng số tiền, lệch tối đa 3 ngày, duy nhất ở cả hai phía; phiếu ghi sổ sau giao dịch cũng được ghép; bộ giả lập đi đúng luồng này | Bắt buộc | KICHBAN_KIEMTHU_248 đến 251 |
+| TIEUCHI_NGHIEMTHU_135 | Gợi ý khách đúng thứ tự số đơn bán, mã khách, mã số thuế; nhiều khách hoặc tiền ra thì không gợi ý; kế toán xác nhận thì lập phiếu thu khách hàng của quỹ, ngày giao dịch, ghi chú nội dung, theo luồng duyệt phiếu thu, ghép khi phiếu ghi sổ | Bắt buộc | KICHBAN_KIEMTHU_252, 253 |
+| TIEUCHI_NGHIEMTHU_136 | Ghép tay chỉ với phiếu đủ điều kiện; một phiếu ghép tối đa một giao dịch; bỏ qua cần lý do; bỏ ghép đưa về chưa ghép, không đổi phiếu; mỗi thao tác có nhật ký; người không có quyền bị từ chối | Bắt buộc | KICHBAN_KIEMTHU_254 |
+| TIEUCHI_NGHIEMTHU_137 | Đối chiếu quỹ theo khoảng ngày: số dư sổ đến ngày cuối, số dư ngân hàng gần nhất (khi dịch vụ gửi), chênh lệch, số giao dịch chưa ghép hai chiều, số bỏ qua, danh sách phiếu chưa có giao dịch | Bắt buộc | KICHBAN_KIEMTHU_255 |
+| TIEUCHI_NGHIEMTHU_138 | MAN_HINH_58, 59 hiển thị đúng trên máy tính và điện thoại, không cuộn ngang trang, không lỗi trình duyệt | Mong muốn | KICHBAN_KIEMTHU_256 |
 
 ## 11. Kịch bản kiểm thử
 
-Lập sau khi người dùng xác nhận thiết kế (KICHBAN_KIEMTHU_246 trở đi).
+- KICHBAN_KIEMTHU_246 đến 255: tự động, tệp `apps/api/test/c18-bank-reconciliation.test.ts`.
+- KICHBAN_KIEMTHU_256: thủ công trên trình duyệt (tệp `tam_thoi/CONG_VIEC_18/xem_l0.js`, `xem_l1.js`): kết nối bộ giả lập, gửi thử, tự ghép, lập phiếu thu từ gợi ý, ghép tay, bỏ qua, ô đối chiếu; khổ 1360 và 375 điểm ảnh.
 
 ## 12. Ràng buộc kỹ thuật
 
@@ -95,3 +104,11 @@ Ghi sổ phiếu thu chi, công nợ, bút toán, luồng duyệt (chỉ dùng l
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
 Chưa đối chiếu.
+
+## 16. Giới hạn đã biết
+
+- Điểm nhận webhook dùng chung giới hạn 20 yêu cầu mỗi phút cho mỗi địa chỉ IP của các API không cần đăng nhập; công ty nhiều giao dịch có thể bị dịch vụ gửi lại chậm (dịch vụ tự gửi lại khi nhận lỗi 429).
+- Cách SePay gửi khóa (tiêu đề `Authorization: Apikey <khóa>`) và định dạng ngày giờ theo tài liệu công khai; phải thử với tài khoản SePay thật trước phát hành.
+- Gợi ý khách chỉ tính một lần khi nhận giao dịch; khách, đơn bán tạo sau không làm đổi gợi ý (kế toán vẫn chọn được khách khác khi xác nhận).
+- Số dư ngân hàng chỉ có khi dịch vụ gửi số dư sau giao dịch; bộ giả lập không gửi.
+- Lập phiếu thu từ gợi ý khi công ty có chính sách duyệt phiếu thu: kiểm thử tự động chưa có kịch bản phiếu chờ duyệt (đã có trong mã: giao dịch giữ phiếu chờ duyệt, ghép khi phiếu ghi sổ).
