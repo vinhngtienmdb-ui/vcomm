@@ -4,14 +4,17 @@ import type { Database } from "../database/database.module";
 
 type Executor = Pick<Database, "execute">;
 
-// Gửi đơn lần đầu: gán nhân viên hưởng theo cách gán của công ty (QUYTAC_NGHIEPVU_109). Đơn đã gán giữ nguyên.
+// Gửi đơn: gán nhân viên hưởng theo cách gán của công ty (QUYTAC_NGHIEPVU_109). Đơn đã gán giữ nguyên.
+// Đơn không có khách (bán lẻ) gán cho người lập đơn; đơn bán cho công ty con trong tập đoàn, đơn đối ứng nội bộ không gán (quyết định người dùng 2026-11-10).
 export async function assignCommissionUser(executor: Executor, orderId: string): Promise<void> {
   await executor.execute(sql`
-    UPDATE sales.orders o SET commission_user_id = CASE s.assignment
-        WHEN 'order_creator' THEN o.created_by
+    UPDATE sales.orders o SET commission_user_id = CASE
+        WHEN o.customer_id IS NULL OR s.assignment = 'order_creator' THEN o.created_by
         ELSE (SELECT p.owner_user_id FROM crm.partner_profiles p WHERE p.company_id = o.company_id AND p.partner_id = o.customer_id) END
     FROM finance.commission_settings s
-    WHERE o.id = ${orderId} AND o.commission_user_id IS NULL AND s.company_id = o.company_id AND s.enabled AND o.order_date >= s.start_date`);
+    WHERE o.id = ${orderId} AND o.commission_user_id IS NULL AND s.company_id = o.company_id AND s.enabled AND o.order_date >= s.start_date
+      AND NOT o.is_counterpart
+      AND NOT EXISTS (SELECT 1 FROM crm.partners c WHERE c.id = o.customer_id AND c.company_id IS NOT NULL)`);
 }
 
 export interface RateSettings {

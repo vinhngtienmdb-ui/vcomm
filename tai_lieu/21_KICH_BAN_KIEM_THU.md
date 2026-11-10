@@ -2903,6 +2903,17 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Kiểm thử tự động: Tự động API – `apps/api/test/c17-commissions.test.ts`
 - Lát: L0 (sửa sau rà soát)
 
+### KICHBAN_KIEMTHU_245: Bán lẻ gán cho người lập đơn; đơn bán cho công ty con trong tập đoàn không gán
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_128
+- Chức năng: CHUC_NANG_81
+- Loại: Đúng
+- Vai trò thực hiện: Kế toán trưởng; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Cài đặt gán theo nhân viên phụ trách khách; hồ sơ đối tác nội bộ (công ty con VComm Thương mại) có nhân viên phụ trách là người bán.
+- Các bước: (1) Nhân viên bán hàng lập, gửi đơn không có khách. (2) Gán nhân viên hưởng cho đơn nháp bán cho đối tác nội bộ.
+- Kết quả mong đợi: Bước 1: đơn gán cho người lập đơn. Bước 2: đơn không có nhân viên hưởng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c17-commissions.test.ts`
+- Lát: L0 (quyết định người dùng khi nghiệm thu)
+
 ## Kịch bản thủ công của hoa hồng đội kinh doanh (CONG_VIEC_17)
 
 ### KICHBAN_KIEMTHU_243: Cài đặt, chỉ tiêu, phát sinh, bảng hoa hồng trên trình duyệt (máy tính)

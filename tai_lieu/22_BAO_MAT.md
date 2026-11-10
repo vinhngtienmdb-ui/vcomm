@@ -499,8 +499,8 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10, gồm sửa l�
 - Ghi nhận, chưa sửa (Trung bình): phiếu chi hoàn tiền được trừ vào khoản giảm nợ cũ nhất còn mở, có thể là khoản trả trước thay vì phiếu nhận hàng trả lại; khi đó không ghi phát sinh âm, hoa hồng của hàng trả không bị trừ.
 - Ghi nhận, chưa sửa (Thấp): sửa cài đặt sau khi đã ghi phát sinh không tính lại phát sinh (mức cố định tại lúc ghi).
 - Ghi nhận, chưa sửa (Thấp): khoản giảm nợ của số dư đầu kỳ trừ vào phiếu xuất không phát sinh hoa hồng.
-- Ghi nhận, chưa sửa (Thấp): với cách gán nhân viên phụ trách khách, đơn không có khách (bán lẻ) không có nhân viên hưởng; chỉ cách gán người lập đơn tính hoa hồng cho bán lẻ.
-- Ghi nhận: đơn bán nội bộ (giao dịch nội bộ) phát sinh hoa hồng như đơn bán thường.
+- Đã sửa theo quyết định người dùng (2026-11-10): đơn không có khách gán cho người lập đơn; đơn bán cho công ty con trong tập đoàn, đơn đối ứng nội bộ không gán nhân viên hưởng.
+- Người dùng quyết định giữ (2026-11-10): phiếu chi hoàn tiền trừ vào khoản có cũ nhất, có thể là tiền trả trước, khi đó hoa hồng của hàng trả không bị trừ lại.
 - Ghi nhận: giá trị duyệt là trị tuyệt đối của tổng; bảng âm (hoàn tiền vượt) vẫn qua duyệt theo mức của trị tuyệt đối.
 - Ghi nhận: tháng tiếp theo bỏ qua tháng không có phát sinh; tháng đó không có bảng.
 - Ghi nhận: chi trả hoa hồng ngoài phạm vi (qua lương ở MODULE_08); bút toán chỉ ghi phải trả người lao động (334).

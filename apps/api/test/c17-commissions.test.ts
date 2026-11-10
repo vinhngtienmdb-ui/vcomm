@@ -4,7 +4,8 @@ import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
-import { commissionPercent } from "../src/commission/commission-rules";
+import { assignCommissionUser, commissionPercent } from "../src/commission/commission-rules";
+import { DATABASE } from "../src/database/database.module";
 import { OutboxService } from "../src/common/outbox.service";
 import { PermissionService } from "../src/permissions/permission.service";
 import { createTestUser, signIn, type Session } from "./helpers";
@@ -519,5 +520,26 @@ describe("TIEUCHI_NGHIEMTHU_129: phát sinh theo dòng (sau rà soát)", () => {
     await payment({ kind: "customer_receipt", partnerId: customer, amount: "55000", lines: [{ debitItemId: await debtItemOf(posted.id), amount: "55000" }] });
     const events = await eventsOf(order.id);
     expect(events.map((event) => event.baseAmount)).toEqual(["50000"]);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_128: gán đơn (quyết định khi nghiệm thu)", () => {
+  it("KICHBAN_KIEMTHU_245: bán lẻ không có khách gán cho người lập đơn kể cả khi gán theo người phụ trách; đơn bán cho công ty con trong tập đoàn không gán", async () => {
+    await saveSettings({ assignment: "customer_owner" });
+    const sellerId = await userIdOf("banhang.hh@vcomm.test");
+    const assigned = async (orderId: string) =>
+      (await pool.query<{ commission_user_id: string | null }>("SELECT commission_user_id FROM sales.orders WHERE id = $1", [orderId])).rows[0]!.commission_user_id;
+    expect(await assigned((await confirmedOrder("1", null)).id)).toBe(sellerId);
+    // Đối tác nội bộ của công ty con trong tập đoàn.
+    const internal = (await pool.query<{ id: string }>("SELECT id FROM crm.partners WHERE company_id = $1", [testIds.tradingCompany])).rows[0]!.id;
+    await pool.query("UPDATE crm.partner_profiles SET owner_user_id = $1 WHERE company_id = $2 AND partner_id = $3", [sellerId, retail, internal]);
+    const orderId = (
+      await pool.query<{ id: string }>(
+        "INSERT INTO sales.orders (company_id, customer_id, channel_id, warehouse_id, order_date, currency, status, created_by, net_amount, tax_amount, total_amount) VALUES ($1, $2, $3, $4, $5, 'VND', 'draft', $6, 0, 0, 0) RETURNING id",
+        [retail, internal, retailChannel, warehouseId, today, sellerId],
+      )
+    ).rows[0]!.id;
+    await assignCommissionUser(application.get(DATABASE), orderId);
+    expect(await assigned(orderId)).toBeNull();
   });
 });
