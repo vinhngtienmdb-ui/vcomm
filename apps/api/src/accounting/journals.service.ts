@@ -339,7 +339,7 @@ export class JournalsService implements OnModuleInit {
         SELECT l.account_id, sum(l.debit - l.credit)::text AS balance
         FROM accounting.journal_lines l JOIN accounting.journals j ON j.id = l.journal_id JOIN accounting.accounts a ON a.id = l.account_id
         WHERE j.company_id = ${actor.companyId} AND j.status = 'posted' AND j.journal_date <= ${end}::date AND substr(a.code, 1, 1) IN ('5', '6', '7', '8') AND l.account_id <> ${summary}
-        GROUP BY l.account_id HAVING sum(l.debit - l.credit) <> 0`);
+        GROUP BY l.account_id, a.code HAVING sum(l.debit - l.credit) <> 0 ORDER BY a.code`);
       const lines: { accountId: string; debit: number; credit: number }[] = [];
       let summaryBalance = 0;
       for (const row of balances.rows) {
