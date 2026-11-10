@@ -50,6 +50,7 @@
 ### Quyết định
 
 - Báo cáo hợp nhất – người quyết định: người dùng, ngày 2026-11-10: làm tiếp sau đối soát; cộng gộp và loại trừ nội bộ (công nợ, doanh thu, giá vốn nội bộ, lãi chưa thực hiện trong tồn kho); mọi công ty con coi như sở hữu 100%.
+- Báo cáo hợp nhất (tiếp) – người quyết định: người dùng, ngày 2026-11-10: lập theo mẫu B01-DN, B02-DN Thông tư 99 (công ty Thông tư 133 ghép theo mã tài khoản); công ty khác đồng tiền hạch toán chưa hợp nhất, báo rõ; lãi chưa thực hiện ước tính tự động, kế toán trưởng sửa được; lập bảng hợp nhất theo kỳ, gửi duyệt, đã duyệt thì giữ nguyên số.
 - Đối soát thu hộ – người quyết định: người dùng, ngày 2026-11-10: khách coi là đã trả khi ghi sổ bảng đối soát (nợ chuyển sang đơn vị thu hộ, 1388); tiền thu hộ khác số còn nợ cho ghi sổ kèm cảnh báo (thiếu còn nợ, thừa thành trả trước); duyệt theo chính sách duyệt công ty.
 - Đối soát ngân hàng – người quyết định: người dùng, ngày 2026-11-10: tự ghép lệch ngày tối đa 3 ngày; webhook ngân hàng đúng khóa không bị giới hạn tần suất, chỉ đếm lần sai khóa theo địa chỉ IP.
 - Đối soát (MODULE_06) – người quyết định: người dùng, ngày 2026-11-10: làm cả sao kê ngân hàng, COD, cổng thanh toán; giao dịch ngân hàng nhận qua dịch vụ trung gian chọn theo từng công ty (lớp kết nối chung, bộ giả lập); tiền vào chưa có phiếu thu thì hệ thống gợi ý, kế toán xác nhận; COD, cổng thanh toán nhập bảng đối soát từ tệp theo mẫu chung (chưa có tệp mẫu của đơn vị); phí thu hộ, phí cổng thanh toán vào chi phí bán hàng.
