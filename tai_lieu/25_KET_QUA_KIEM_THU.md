@@ -183,6 +183,23 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_23
+
+- Phạm vi: lát L0 đến L3 (đăng ký người mua bằng số điện thoại và OTP, mã và đường dẫn giới thiệu, đăng nhập bằng mật khẩu hoặc OTP, quên mật khẩu, người tôi giới thiệu, nhập mã người giới thiệu một lần; công ty vận hành sàn; quản trị người mua trên web-crm, đổi người giới thiệu, đánh dấu nhân viên kinh doanh; ứng dụng VComm `apps/mobile-vcomm`) và các bản sửa sau rà soát độc lập.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22; Expo bản web cổng 8083.
+- Lệnh đã chạy: `pnpm --filter api typecheck`, `pnpm --filter api lint`, `pnpm --filter web-crm typecheck`, `pnpm --filter web-crm lint`, `npx tsc --noEmit` (mobile-vcomm), `pnpm --filter api test`, `pnpm audit`; database migration 0023 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright: đường dẫn giới thiệu, đăng ký, trang chủ, tài khoản, đăng nhập OTP, người tôi giới thiệu, phần Kinh doanh (khổ iPhone 13); web-crm danh sách, chi tiết, đánh dấu (máy tính, điện thoại).
+- Kết quả: 305 đạt / 0 không đạt / 305 kịch bản tự động (38 tệp; phần mới: `c23-buyer-accounts` 9, KICHBAN_KIEMTHU_295 đến 299 kèm các trường hợp sửa lỗi rà soát). KICHBAN_KIEMTHU_300, 301 (thủ công trên trình duyệt) đạt, không lỗi trình duyệt, không cuộn ngang.
+- Kiểm thử đã duyệt được sửa: không. Bộ dựng cơ sở dữ liệu kiểm thử thêm schema `marketplace` vào danh sách dọn.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_163 đến 167 (bắt buộc) – Đạt. TIEUCHI_NGHIEMTHU_168 (mong muốn) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit`: 2 lỗ hổng mức Trung bình (glob, minimatch) trong `@expo/cli`, công cụ phát triển của Expo, không chạy trên môi trường thật; chờ quyết định của người dùng. Ứng dụng bỏ `expo-location`, `expo-image-picker`; không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 58) chưa chạy được do tài khoản GitHub lỗi thanh toán; đã rà các dòng thêm mới không có khóa bí mật.
+  - C3 phân quyền: Đạt – người mua không vào được API quản trị (`403`); quản trị người mua xét quyền tại công ty vận hành sàn và cần còn là thành viên khi quyền ở công ty; chỉ quyền phạm vi tập đoàn chọn được công ty vận hành sàn; khách tôi phụ trách chỉ nhân viên kinh doanh; số điện thoại che cho người giới thiệu.
+  - C4 toàn vẹn dữ liệu: Đạt – đăng ký trùng số cùng lúc bị chỉ mục duy nhất chặn; làm mới cùng token đồng thời thu hồi chuỗi; đoán OTP song song không vượt 5 lượt; khóa cặp tài khoản khi gắn người giới thiệu; bỏ đánh dấu chỉ gỡ phần do đánh dấu tạo; quản trị thao tác theo phiên bản.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập không thấy lỗi Nghiêm trọng; tìm 2 lỗi Cao (làm mới phiên chưa nhập mã xác thực hai lớp để đếm lại số lần sai; bỏ đánh dấu gỡ vai trò, phòng ban do nhân sự gán), 4 mục Trung bình, các mục Thấp; đã sửa ở commit 70b9c29, kiểm thử lại đạt. Ghi nhận còn lại ở tài liệu 22 và đặc tả mục 16. Tệp tạm trong `tam_thoi/CONG_VIEC_23/` (Git bỏ qua).
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
+- Kết luận: Chờ người dùng nghiệm thu; pull request số 58 (nền pull request số 57).
+
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_21
 
 - Phạm vi: lát L0, L1 (phạm vi xem khách hàng, đơn bán theo nhân viên phụ trách và phòng ban quản lý; quyền `crm.customer.view_all`, `crm.customer.assign`; nhân viên thêm đối tác mới hoặc nhận đối tác có sẵn thì tự phụ trách; hồ sơ chỉ đặt nhân viên phụ trách khi chưa có; phiếu giao khách theo chính sách duyệt, áp dụng có kiểm nhân viên phụ trách lúc gửi, báo nhân viên; lịch sử phụ trách); MAN_HINH_64, 65; sửa MAN_HINH_36, 37; API_110, API_111; THAY_DOI_12. Hồi quy: toàn bộ kiểm thử tự động của dự án.
