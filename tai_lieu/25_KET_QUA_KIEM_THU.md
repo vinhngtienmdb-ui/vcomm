@@ -149,6 +149,7 @@
   - C6 OWASP Top 10: A01 kiểm quyền trong từng service; A04 đơn đã giao không hủy, chỉ đóng.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 4 lỗi mức Trung bình (lộ hạn mức công nợ, giá vốn; trả vượt khi gửi đồng thời; không trả một phần theo đơn vị quy đổi; lỗi thiếu hàng không báo dòng) và 6 lỗi Thấp; đã sửa 4 lỗi Trung bình và 4 lỗi Thấp. Đối chiếu tài liệu với mã: dư nợ tạm tính cộng cả đơn chờ duyệt, lệch quyết định của người dùng, đã sửa. Giữ lại: khi sửa đơn không đổi được đơn vị của dòng đã có (xóa dòng, thêm lại); màn trả hàng chưa trừ số đã trả (chặn khi gửi).
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+- Kết luận: Người dùng nghiệm thu 2026-11-10. Sau nghiệm thu thêm trừ hàng khách trả khỏi dư nợ tạm tính theo quyết định của người dùng: 204 đạt / 0 không đạt (KICHBAN_KIEMTHU_184). Chờ người dùng hợp nhất pull request số 43 (sau số 42).
 
 ## Lỗi phát hiện 2026-11-10
 
