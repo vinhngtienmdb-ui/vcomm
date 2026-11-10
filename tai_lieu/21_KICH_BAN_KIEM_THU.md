@@ -4,7 +4,7 @@
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 220 tự động; 221, 222 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2632,6 +2632,19 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`) chế độ Thông tư
 - Kết quả mong đợi: Bước 1: `200`, `201`. Bước 2: phiếu `posted`. Bước 3: mẫu B02-DNN; 01 = 10 = 60 = 1.000.000. Bước 4: mẫu B01a-DNN, `forms` [B01a-DNN, B01b-DNN]; tổng tài sản (200) bằng tổng nguồn vốn (500) = 51.000.000. Bước 5: mẫu B01b-DNN. Bước 6: `200`, `content-disposition` chứa `B01-DN`; tệp bắt đầu bằng `PK` (tệp xlsx). Bước 7: `200`, `content-type` `application/pdf`; tệp bắt đầu bằng `%PDF-`.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c15-statements.test.ts`
 - Lát: L1
+
+## CHUC_NANG_74, CHUC_NANG_75: Trường hợp biên (CONG_VIEC_15)
+
+### KICHBAN_KIEMTHU_221: Phiếu kế toán kết chuyển thủ công qua 911 không làm sai kết quả kinh doanh; cùng kỳ năm trước giữ ngày cuối tháng; thiếu từ ngày, mẫu không hợp lệ bị từ chối
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_117, TIEUCHI_NGHIEMTHU_118
+- Chức năng: CHUC_NANG_74, CHUC_NANG_75
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Kế toán trưởng (công ty VCR)
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_220.
+- Các bước: (1) Xem kết quả kinh doanh từ 2026-01-01 đến hôm nay. (2) Lập, gửi phiếu kế toán ngày hôm nay: 911 Nợ 5.000 / 632 Có 5.000; xem lại kết quả kinh doanh. (3) Xem tình hình tài chính tại hôm nay. (4) Xem kết quả kinh doanh từ 2025-02-01 đến 2025-02-28. (5) Xem kết quả kinh doanh từ 2024-02-01 đến 2024-02-29. (6) Xem kết quả kinh doanh không có `from`. (7) Xem tình hình tài chính với `form=B09-XX`.
+- Kết quả mong đợi: Bước 2: phiếu `posted`; chỉ tiêu 01, 11, 60 bằng bước 1 (bút toán có dòng trên tài khoản xác định kết quả không tính). Bước 3: 280 bằng 440. Bước 4: cột cùng kỳ năm trước từ 2024-02-01 đến 2024-02-29. Bước 5: cột cùng kỳ năm trước từ 2023-02-01 đến 2023-02-28. Bước 6: `400` tại `from`. Bước 7: `400` tại `form`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c15-statements.test.ts`
+- Lát: L0
 
 ## Kịch bản thủ công của báo cáo tài chính (CONG_VIEC_15)
 
