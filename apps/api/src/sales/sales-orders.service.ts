@@ -483,12 +483,12 @@ export class SalesOrdersService implements OnModuleInit {
           SELECT (
             coalesce((SELECT sum(l.total_amount * greatest(l.base_quantity - ${deliveredOnOrderLine(sql`l.id`)}, 0) / l.base_quantity)
                       FROM sales.order_lines l JOIN sales.orders o ON o.id = l.order_id
-                      WHERE o.company_id = ${order.company_id} AND o.customer_id = ${order.customer_id} AND o.status IN ('confirmed', 'pending') AND o.id <> ${order.id}), 0)
+                      WHERE o.company_id = ${order.company_id} AND o.customer_id = ${order.customer_id} AND o.status = 'confirmed' AND o.id <> ${order.id}), 0)
             + coalesce((SELECT sum(sl.total_amount * dl.base_quantity / sl.base_quantity)
                       FROM inventory.document_lines dl JOIN inventory.documents d ON d.id = dl.document_id
                       JOIN sales.order_lines sl ON sl.id = dl.source_line_id JOIN sales.orders o ON o.id = sl.order_id
                       WHERE d.type = 'sales_issue' AND d.status = 'posted' AND o.company_id = ${order.company_id} AND o.customer_id = ${order.customer_id}
-                        AND d.document_date > current_date - ${profile.payment_term_days}::int), 0)
+                        AND d.document_date > ${this.permissionService.today()}::date - ${profile.payment_term_days}::int), 0)
           )::text AS value`)
         ).rows[0]!.value;
         const after = Number(exposure) + Number(order.total_amount);
