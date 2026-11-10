@@ -2906,3 +2906,45 @@ export interface OpenDebtsResponse {
   items: OpenDebtResponse[];
   advance: string;
 }
+
+// CONG_VIEC_14: Kế toán tổng hợp (MODULE_06, phần 2; API_87 đến API_89).
+export const accountingRegimes = ["tt99", "tt133"] as const;
+export type AccountingRegime = (typeof accountingRegimes)[number];
+export const ledgerSetupSchema = z.object({ regime: z.enum(accountingRegimes) }).strict();
+export interface LedgerSetupResponse {
+  initialized: boolean;
+  regime: AccountingRegime | null;
+  lockedThrough: string | null;
+  canChangeRegime: boolean;
+  canSetup: boolean;
+  regimes: { code: AccountingRegime; name: string }[];
+}
+export interface AccountResponse {
+  id: string;
+  code: string;
+  name: string;
+  parentId: string | null;
+  nature: "debit" | "credit" | "both";
+  isSystem: boolean;
+  status: "active" | "inactive";
+  postable: boolean;
+  hasLines: boolean;
+  version: number;
+  canEdit: boolean;
+}
+export const saveAccountSchema = z
+  .object({ parentId: z.uuid(), code: z.string().trim().regex(/^[0-9A-Za-z]{3,20}$/), name: z.string().trim().min(1).max(200) })
+  .strict();
+export type SaveAccountRequest = z.input<typeof saveAccountSchema>;
+export const updateAccountSchema = z
+  .object({ name: z.string().trim().min(1).max(200), status: z.enum(["active", "inactive"]), version: z.number().int().positive() })
+  .strict();
+export interface PostingRuleResponse {
+  role: string;
+  description: string;
+  accountId: string;
+  accountCode: string;
+  accountName: string;
+  canEdit: boolean;
+}
+export const updatePostingRuleSchema = z.object({ accountId: z.uuid() }).strict();

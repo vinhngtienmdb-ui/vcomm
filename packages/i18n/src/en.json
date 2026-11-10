@@ -198,7 +198,16 @@
     "paymentAllocationExceeded": "Total allocations exceed the payment amount.",
     "refundExceedsAdvance": "The refund exceeds the remaining advance.",
     "insufficientFundBalance": "Insufficient fund balance.",
-    "openingDebtAllocated": "The opening balance has been settled or is selected on a receipt or payment and cannot be deleted."
+    "openingDebtAllocated": "The opening balance has been settled or is selected on a receipt or payment and cannot be deleted.",
+    "periodLocked": "The document date falls in a closed accounting period.",
+    "ledgerHasJournals": "The company already has journal entries; the accounting regime cannot change.",
+    "ledgerNotInitialized": "Accounting has not been set up for this company.",
+    "accountCodePrefix": "A detail account code must start with the parent code and be longer.",
+    "accountCodeExists": "Account code already exists in this company.",
+    "accountSystem": "Regime accounts cannot be deactivated.",
+    "accountUsedByRule": "The account is used by a posting rule.",
+    "accountHasChildren": "The account still has active detail accounts.",
+    "accountNotPostable": "The account cannot take entries (inactive or has detail accounts)."
   },
   "login": {
     "title": "Sign in",

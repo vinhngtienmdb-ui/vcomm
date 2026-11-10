@@ -61,6 +61,9 @@ type PaymentRow = {
 
 @Injectable()
 export class PaymentsService implements OnModuleInit {
+  // Module khác đăng ký lúc khởi động để chạy trong cùng giao dịch ghi sổ phiếu thu chi (kế toán, CONG_VIEC_14).
+  readonly postedHooks: ((transaction: Executor, paymentId: string) => Promise<void>)[] = [];
+
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     private readonly permissionService: PermissionService,
@@ -378,5 +381,6 @@ export class PaymentsService implements OnModuleInit {
       await this.debts.matchDebit(transaction, itemId);
     }
     await transaction.execute(sql`UPDATE finance.payments SET status = 'posted', posted_at = now(), post_error = NULL, updated_at = now() WHERE id = ${id}`);
+    for (const hook of this.postedHooks) await hook(transaction, id);
   }
 }

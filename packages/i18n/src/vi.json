@@ -198,7 +198,16 @@
     "paymentAllocationExceeded": "Tổng số trừ vượt số tiền phiếu.",
     "refundExceedsAdvance": "Số tiền hoàn vượt tiền trả trước đang còn.",
     "insufficientFundBalance": "Số dư quỹ không đủ.",
-    "openingDebtAllocated": "Khoản số dư đầu kỳ đã được trừ nợ hoặc đang được chọn trên phiếu thu chi, không xóa được."
+    "openingDebtAllocated": "Khoản số dư đầu kỳ đã được trừ nợ hoặc đang được chọn trên phiếu thu chi, không xóa được.",
+    "periodLocked": "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ.",
+    "ledgerHasJournals": "Công ty đã có bút toán, không đổi được chế độ kế toán.",
+    "ledgerNotInitialized": "Công ty chưa khởi tạo kế toán.",
+    "accountCodePrefix": "Số hiệu tài khoản chi tiết phải bắt đầu bằng số hiệu tài khoản cha và dài hơn.",
+    "accountCodeExists": "Số hiệu tài khoản đã có trong công ty.",
+    "accountSystem": "Tài khoản của chế độ kế toán không ngừng dùng được.",
+    "accountUsedByRule": "Tài khoản đang dùng trong định khoản mặc định.",
+    "accountHasChildren": "Tài khoản còn tài khoản chi tiết đang dùng.",
+    "accountNotPostable": "Tài khoản không nhận bút toán (đã ngừng dùng hoặc có tài khoản chi tiết)."
   },
   "login": {
     "title": "Đăng nhập",
