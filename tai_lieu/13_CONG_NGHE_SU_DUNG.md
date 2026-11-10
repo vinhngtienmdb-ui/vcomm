@@ -1,10 +1,10 @@
 # 13. CÔNG NGHỆ SỬ DỤNG
 
 - Mô tả: Công nghệ, thư viện, dịch vụ hạ tầng và phân tích giải pháp có sẵn.
-- Phiên bản: 1.1
-- Ngày cập nhật: 2026-11-09
+- Phiên bản: 1.2
+- Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1)
 
 ## 1. Danh sách công nghệ
 
@@ -27,6 +27,7 @@
 | Gửi email | Amazon SES | Đường dẫn kích hoạt, đặt lại mật khẩu, mã OTP |
 | Gửi mã OTP, đường dẫn | Zalo ZNS trước, SMS thương hiệu dự phòng (người dùng chọn 2026-11-09); **CHƯA XÁC ĐỊNH:** nhà cung cấp SMS, Zalo Official Account | Mã OTP, đường dẫn kích hoạt |
 | Xác thực nhà bán qua VNeID | **CHƯA XÁC ĐỊNH:** tổ chức cung cấp dịch vụ xác thực điện tử | MODULE_02 (THAY_DOI_02) |
+| Hóa đơn điện tử | MISA meInvoice (REST, gọi bằng `fetch` của Node.js, không thêm thư viện); bộ giả lập tự viết cho môi trường không phải môi trường thật; nhà cung cấp chọn theo từng công ty | CONG_VIEC_16; tài liệu API chính thức chưa đối chiếu (đặc tả `cong_viec/CONG_VIEC_16.md` mục 9, 16) |
 | Bí mật hệ thống | AWS Secrets Manager | Tài liệu `22` mục 5 |
 | Kiểm thử | Vitest (đơn vị, tích hợp với PostgreSQL thật), Playwright (giao diện) | |
 | Giám sát | CloudWatch, Sentry | Log, lỗi, cảnh báo |

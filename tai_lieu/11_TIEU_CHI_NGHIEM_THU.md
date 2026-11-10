@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 2.2
+- Phiên bản: 2.3
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ); CONG_VIEC_14 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_111 đến TIEUCHI_NGHIEMTHU_116 của MODULE_06 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_117 đến TIEUCHI_NGHIEMTHU_120 của MODULE_06 (báo cáo tài chính)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ); CONG_VIEC_14 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_111 đến TIEUCHI_NGHIEMTHU_116 của MODULE_06 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_117 đến TIEUCHI_NGHIEMTHU_120 của MODULE_06 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_121 đến TIEUCHI_NGHIEMTHU_126 của MODULE_06 (hóa đơn điện tử)
 
 ## MODULE_01 Nền tảng
 
@@ -206,3 +206,16 @@ Dữ liệu mẫu: công ty VCR chế độ Thông tư 99/2025, tiền tệ đ�
 | TIEUCHI_NGHIEMTHU_118 | CHUC_NANG_75 | Báo cáo kết quả kinh doanh đúng mẫu, doanh thu, giảm trừ doanh thu, doanh thu thuần, giá vốn, lợi nhuận đúng; khớp lợi nhuận chưa phân phối tăng trong kỳ; không đổi sau khóa sổ | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_119 | CHUC_NANG_74, CHUC_NANG_75 | Tài khoản chi tiết đánh dấu dài hạn vào đúng chỉ tiêu dài hạn; tài khoản của chế độ không đánh dấu được; Thông tư 133 chọn được B01a-DNN, B01b-DNN, kết quả B02-DNN | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_120 | CHUC_NANG_74, CHUC_NANG_75 | Xuất Excel, PDF đúng số liệu, đúng loại tệp; MAN_HINH_53 (và ô "Dài hạn" ở MAN_HINH_50) đạt danh sách rà soát giao diện trên máy tính và điện thoại | Gọi API, trình duyệt | Bắt buộc |
+
+## MODULE_06 Tài chính – Kế toán (phần 4: Hóa đơn điện tử, CONG_VIEC_16)
+
+Dữ liệu mẫu: công ty VCR, tiền tệ đồng Việt Nam; "Hàng công nợ A" thuế 10%, giá bán gồm thuế 11.000; "Hàng hóa đơn B" thuế 10%, giá bán gồm thuế 12.000; khách "Khách công nợ" có mã số thuế; đơn không có khách; nhà cung cấp là bộ giả lập và máy chủ giả MISA meInvoice. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_121 | CHUC_NANG_76 | Cài đặt theo công ty: bật cần đủ thông tin, mật khẩu mã hóa không hiện lại (chỉ 4 ký tự cuối), ký hiệu đúng định dạng theo năm; chỉ người có quyền cài đặt sửa được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_122 | CHUC_NANG_77 | Phiếu xuất giao hàng ghi sổ lập đúng một hóa đơn, nội dung đúng (người bán, người mua kể cả đơn không có khách, dòng, thuế suất, đơn giá làm tròn, tổng theo thuế suất); tổng thanh toán bằng tiền công nợ của phiếu | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_123 | CHUC_NANG_77 | Gửi nền nhận số liên tục, mã của cơ quan thuế, PDF; lỗi tạm thời tự gửi lại không lập trùng; không biết kết quả thì tra trước khi gửi lại; lỗi dữ liệu dừng chờ kế toán gửi lại; thiếu ký hiệu thì lỗi cài đặt; quá hạn báo kế toán | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_124 | CHUC_NANG_78 | Trả hàng: điều chỉnh giảm đúng số âm, tham chiếu hóa đơn gốc; ghi được hóa đơn trả hàng của người mua có mã số thuế; hóa đơn gốc chưa phát hành thì chờ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_125 | CHUC_NANG_79 | Thay thế đúng điều kiện (không thay hóa đơn đã điều chỉnh, đã bị thay thế), tham chiếu hóa đơn bị thay thế; trả hàng sau đó tham chiếu hóa đơn thay thế | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_126 | CHUC_NANG_76, CHUC_NANG_77 | Lớp kết nối MISA meInvoice gửi đúng định dạng, xử lý phản hồi, lỗi trên máy chủ giả; MAN_HINH_54, MAN_HINH_55 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Gọi API, trình duyệt | Bắt buộc |

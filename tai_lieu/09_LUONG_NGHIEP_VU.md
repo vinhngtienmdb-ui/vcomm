@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.6
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26)
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng
 
 ## MODULE_01 Nền tảng
 
@@ -391,3 +391,58 @@ Trạng thái kỳ kế toán (theo tháng):
   5. Bấm "Xuất Excel" (tải tệp) hoặc "Xuất PDF" (mở ở thẻ mới).
 - Ngoại lệ: công ty chưa khởi tạo kế toán: "Công ty chưa khởi tạo kế toán."; từ ngày sau đến ngày: màn hình báo "Chọn ngày hợp lệ; từ ngày không sau đến ngày." và không gọi API; đánh dấu dài hạn tài khoản của chế độ: "Chỉ đánh dấu dài hạn cho tài khoản chi tiết do kế toán mở.".
 - Kết thúc: báo cáo hiện trên màn hình hoặc tệp Excel, PDF; không lưu báo cáo trong hệ thống.
+
+## MODULE_06 Tài chính – Kế toán (phần 4: Hóa đơn điện tử, CONG_VIEC_16)
+
+### Luồng 27. Lập, gửi hóa đơn điện tử khi giao hàng
+
+- Bắt đầu: Kế toán trưởng đã lưu cài đặt hóa đơn điện tử của công ty ("Cài đặt hóa đơn điện tử": bật, ngày bắt đầu, nhà cung cấp, thông tin kết nối, loại hóa đơn, ký hiệu mẫu số, ký hiệu theo năm; bấm "Kiểm tra kết nối" để thử thông tin đã lưu) (QUYTAC_NGHIEPVU_103).
+- Các bước:
+  1. Thủ kho ghi sổ phiếu xuất giao hàng. Trong cùng giao dịch ghi sổ, hệ thống lập hóa đơn gốc "Chờ gửi" với nội dung cố định (QUYTAC_NGHIEPVU_104); năm của hóa đơn chưa có ký hiệu thì "Lỗi cài đặt".
+  2. Tác vụ nền `einvoice-send` (mỗi 30 giây) lấy tối đa 20 hóa đơn đến giờ gửi; với mỗi hóa đơn ghi lần gửi, giữ chỗ, rồi gọi nhà cung cấp ngoài giao dịch (QUYTAC_NGHIEPVU_105).
+  3. Nhà cung cấp lập, ký số từ xa, gửi cơ quan thuế, trả số hóa đơn và mã của cơ quan thuế. Hệ thống ghi kết quả lần gửi, chuyển "Đã phát hành", lưu tệp PDF, XML.
+  4. Kế toán mở "Hóa đơn điện tử" xem danh sách, chi tiết; bấm "Tải PDF", "Tải XML".
+- Ngoại lệ:
+  - Có số nhưng chưa có mã của cơ quan thuế: "Chờ cấp mã"; lần sau tra trạng thái theo mã tham chiếu.
+  - Lỗi kết nối, lỗi máy chủ nhà cung cấp: "Chờ gửi lại", tự gửi lại sau 1, 5, 15, 60 phút rồi mỗi 60 phút, cùng mã tham chiếu nên không lập trùng. Hết thời gian chờ: lần sau tra trạng thái trước, tra không thấy mới gửi.
+  - Lỗi dữ liệu, lỗi xác thực: "Lỗi" kèm lỗi gần nhất; kế toán sửa cài đặt hoặc dữ liệu rồi bấm "Gửi lại". "Lỗi cài đặt": khai ký hiệu của năm trong cài đặt thì hóa đơn tự về "Chờ gửi".
+  - Cơ quan thuế từ chối: "Bị từ chối" kèm lý do.
+  - Chưa "Đã phát hành" sau ngày làm việc tiếp theo ngày hóa đơn: nhãn "Quá hạn"; tác vụ nền `einvoice-overdue` (mỗi giờ) báo người có quyền quản lý hóa đơn của công ty, mỗi hóa đơn một lần; thông báo mở danh sách lọc hóa đơn quá hạn.
+  - Công ty chưa bật hoặc ngày phiếu trước ngày bắt đầu: không lập hóa đơn.
+- Kết thúc: hóa đơn "Đã phát hành" có số, mã của cơ quan thuế (hóa đơn có mã), tệp PDF, XML.
+
+Trạng thái hóa đơn điện tử:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Ghi sổ phiếu xuất giao hàng; lập hóa đơn điều chỉnh, thay thế | Chờ gửi (`pending`); Lỗi cài đặt (`setup_error`) khi năm chưa có ký hiệu |
+| Lỗi cài đặt | Lưu cài đặt có ký hiệu của năm; "Gửi lại" | Chờ gửi |
+| Chờ gửi, Chờ gửi lại | Nhà cung cấp trả số và mã (hoặc số với hóa đơn không mã) | Đã phát hành (`issued`) |
+| Chờ gửi, Chờ gửi lại | Nhà cung cấp trả số, chưa có mã | Chờ cấp mã (`awaiting_code`) |
+| Chờ gửi, Chờ gửi lại, Chờ cấp mã | Lỗi tạm thời, hết thời gian chờ | Chờ gửi lại (`retrying`) |
+| Chờ gửi, Chờ gửi lại, Chờ cấp mã | Lỗi dữ liệu, lỗi xác thực, nhà cung cấp đã đổi trong cài đặt | Lỗi (`failed`) |
+| Chờ gửi, Chờ gửi lại, Chờ cấp mã | Cơ quan thuế từ chối | Bị từ chối (`rejected`) |
+| Chờ cấp mã | Tra trạng thái có mã | Đã phát hành |
+| Lỗi, Chờ gửi lại | "Gửi lại" | Chờ gửi, gửi ngay |
+| Đã phát hành | Lập hóa đơn thay thế | Đã phát hành, ghi "Đã bị thay thế" |
+
+### Luồng 28. Xử lý hóa đơn khi trả hàng; hóa đơn thay thế
+
+- Bắt đầu: Thủ kho ghi sổ phiếu nhận hàng trả lại của phiếu xuất có hóa đơn gốc; hoặc kế toán phát hiện hóa đơn đã phát hành sai thông tin người mua.
+- Các bước (trả hàng):
+  1. Ghi sổ phiếu nhận hàng trả lại tạo việc "Chờ xử lý" ở thẻ "Chờ xử lý trả hàng" của "Hóa đơn điện tử" (QUYTAC_NGHIEPVU_106).
+  2. Hóa đơn gốc hiện hành chưa "Đã phát hành": dòng ghi "chờ hóa đơn gốc phát hành", không có nút xử lý.
+  3. Kế toán bấm "Lập hóa đơn điều chỉnh giảm": hệ thống lập hóa đơn điều chỉnh ghi âm, tham chiếu hóa đơn gốc hiện hành, gửi ngay như Luồng 27; việc chuyển "Đã lập hóa đơn điều chỉnh".
+  4. Hoặc bấm "Ghi hóa đơn trả hàng của người mua", nhập ký hiệu, số, ngày, bấm "Lưu": việc chuyển "Người mua lập hóa đơn trả hàng".
+- Các bước (thay thế):
+  1. Ở chi tiết hóa đơn "Đã phát hành" (không phải hóa đơn điều chỉnh, chưa bị thay thế, chưa có hóa đơn điều chỉnh), kế toán bấm "Lập hóa đơn thay thế", sửa tên, mã số thuế, địa chỉ người mua, nhập lý do, bấm "Lập hóa đơn thay thế" (QUYTAC_NGHIEPVU_107).
+  2. Hệ thống lập hóa đơn thay thế cùng dòng hàng, gửi ngay như Luồng 27, mở chi tiết hóa đơn mới; hóa đơn cũ ghi "Đã bị thay thế".
+- Ngoại lệ: hóa đơn gốc chưa phát hành: "Hóa đơn gốc chưa phát hành; chờ hóa đơn gốc phát hành rồi xử lý."; người mua không có mã số thuế: "Chỉ ghi hóa đơn trả hàng của người mua là tổ chức có mã số thuế."; việc đã xử lý: "Việc trả hàng này đã được xử lý."; thay thế hóa đơn đã có điều chỉnh, đã bị thay thế, hóa đơn điều chỉnh: thông báo ở tài liệu `07` (QUYTAC_NGHIEPVU_107).
+- Kết thúc: việc trả hàng đã xử lý; hoặc hóa đơn thay thế được gửi. Công nợ, bút toán không đổi.
+
+Trạng thái việc chờ xử lý hóa đơn trả hàng:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| Chờ xử lý (`open`) | Lập hóa đơn điều chỉnh giảm | Đã lập hóa đơn điều chỉnh (`adjusted`) |
+| Chờ xử lý | Ghi hóa đơn trả hàng của người mua | Người mua lập hóa đơn trả hàng (`buyer_invoice`) |

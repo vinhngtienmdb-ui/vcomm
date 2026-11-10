@@ -1,12 +1,12 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 2.2
+- Phiên bản: 2.3
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14); CONG_VIEC_15 (2026-11-10): thêm cột `accounting.accounts.is_long_term` (mục 15)
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14); CONG_VIEC_15 (2026-11-10): thêm cột `accounting.accounts.is_long_term` (mục 15); CONG_VIEC_16 (2026-11-10): thêm bảng hóa đơn điện tử `finance.einvoice_settings`, `finance.einvoice_series`, `finance.einvoices`, `finance.einvoice_lines`, `finance.einvoice_attempts` (database migration 0013), `finance.einvoice_return_tasks` (database migration 0014) (mục 16)
 
-Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14); cột tài khoản dài hạn của MODULE_06 phần 3 (CONG_VIEC_15, mục 15). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14); cột tài khoản dài hạn của MODULE_06 phần 3 (CONG_VIEC_15, mục 15); bảng hóa đơn điện tử của MODULE_06 phần 4 trong schema `finance` (CONG_VIEC_16, mục 16). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -2327,4 +2327,162 @@ Lược đồ (chép từ tệp `database/migrations/0012_financial_statements.s
 -- CONG_VIEC_15: Báo cáo tài chính (MODULE_06, phần 3; tài liệu 16).
 -- Tài khoản chi tiết đánh dấu dài hạn: số dư vào chỉ tiêu dài hạn của báo cáo tình hình tài chính (QUYTAC_NGHIEPVU_101); tài khoản con kế thừa.
 ALTER TABLE accounting.accounts ADD COLUMN is_long_term boolean NOT NULL DEFAULT false;
+```
+
+## 16. Database migration 0013, 0014 – CONG_VIEC_16 (hóa đơn điện tử)
+
+Tệp `database/migrations/0013_einvoices.sql` (lát L0) thêm 5 bảng vào schema `finance`; tệp `database/migrations/0014_einvoice_returns.sql` (lát L1) thêm bảng việc chờ xử lý hóa đơn trả hàng và một chỉ mục của `einvoices`. Khóa ngoại trỏ vào `finance`, `core` (`companies`, `users`), `inventory.documents`. Tiền `numeric(20,4)`. Không thêm hàm; dòng hóa đơn tính bằng `finance.line_share`, `finance.company_minor_units` (mục 14), tiền hàng trả của việc chờ bằng `finance.inventory_amounts`.
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `einvoice_settings` | Cài đặt hóa đơn điện tử của công ty (CHUC_NANG_76; QUYTAC_NGHIEPVU_103); không có dòng là chưa cài đặt | `company_id` (khóa chính), `enabled`, `start_date`, `provider` (`simulator`, `misa`), `environment` (`test`, `production`), `with_tax_code`, `template_code` (`1`, `2`), `connection` (jsonb: `appId`, `taxCode`, `username`), `secret_value` (mật khẩu mã hóa AES-256-GCM), `simulation` (`normal`, `pending_code`, `temporary_error`, `data_error`, `timeout`, `rejected`), `updated_at`, `updated_by`, `version` | Bật thì phải có `start_date` |
+| `einvoice_series` | Ký hiệu hóa đơn theo năm (QUYTAC_NGHIEPVU_103) | `company_id`, `year` (2000 đến 2099), `series` | Khóa chính `(company_id, year)`; `series` khớp `^[CK][0-9]{2}T[A-Z]{2}$`; lưu cài đặt thay toàn bộ ký hiệu của công ty |
+| `einvoices` | Hóa đơn điện tử gốc, điều chỉnh, thay thế (CHUC_NANG_77 đến 79; QUYTAC_NGHIEPVU_104 đến 107); nội dung cố định khi lập | `company_id`, `source_document_id` (phiếu xuất giao hàng; phiếu nhận hàng trả lại với hóa đơn điều chỉnh), `kind` (`original`, `adjustment`, `replacement`), `related_invoice_id` (hóa đơn gốc của hóa đơn điều chỉnh, thay thế), `reference_id` (mã tham chiếu gửi nhà cung cấp), `provider`, `invoice_date`, `template_code`, `series` (trống khi năm chưa có ký hiệu), `invoice_no`, `with_tax_code`, `tax_authority_code`, `provider_transaction_id`, `seller`, `buyer` (jsonb), `currency`, `net_amount`, `tax_amount`, `total_amount`, `note`, `status` (`pending`, `retrying`, `awaiting_code`, `issued`, `failed`, `rejected`, `setup_error`), `replaced_by_id`, `last_error`, `attempt_count`, `next_attempt_at`, `due_date` (ngày làm việc tiếp theo ngày hóa đơn), `overdue_notified_at`, `issued_at`, `pdf_content`, `xml_content`, `created_at`, `version` | `reference_id` duy nhất; duy nhất `source_document_id` với `kind = 'original'` (một phiếu xuất một hóa đơn gốc); duy nhất `(company_id, series, invoice_no)` khi có số; chỉ mục `(company_id, invoice_date DESC)`, `next_attempt_at` với hóa đơn đang chờ gửi, `related_invoice_id` (0014) |
+| `einvoice_lines` | Dòng hóa đơn | `invoice_id` (xóa theo hóa đơn), `line_no`, `item_code`, `item_name`, `unit_name`, `quantity`, `unit_price` (chưa thuế), `vat_rate` (`0`, `5`, `8`, `10`, `exempt`, `not_declared`), `net_amount`, `tax_amount`, `total_amount`, `is_promotion` | Khóa chính `(invoice_id, line_no)`; hóa đơn điều chỉnh ghi tiền âm |
+| `einvoice_attempts` | Mỗi lần gọi nhà cung cấp, ghi trước khi gọi (QUYTAC_NGHIEPVU_105) | `invoice_id` (xóa theo hóa đơn), `operation` (`publish`, `status`), `started_at`, `finished_at`, `outcome` (`issued`, `awaiting_code`, `rejected`, `temporary_error`, `data_error`, `unknown`, `not_found`; trống là đang gọi), `error_code`, `message` | Chỉ mục `(invoice_id, started_at DESC)`; không lưu mật khẩu, mã truy cập |
+| `einvoice_return_tasks` (0014) | Việc chờ kế toán xử lý hóa đơn của phiếu nhận hàng trả lại (CHUC_NANG_78; QUYTAC_NGHIEPVU_106) | `company_id`, `return_document_id`, `original_invoice_id` (hóa đơn gốc của phiếu xuất), `status` (`open`, `adjusted`, `buyer_invoice`), `adjustment_invoice_id`, `buyer_invoice_series`, `buyer_invoice_no`, `buyer_invoice_date`, `resolved_by`, `resolved_at`, `created_at`, `version` | `return_document_id` duy nhất; `adjusted` phải có `adjustment_invoice_id`; `buyer_invoice` phải có số, ngày hóa đơn của người mua; chỉ mục `(company_id, status, created_at DESC)` |
+
+Quy tắc xóa và lưu giữ bổ sung:
+- Không xóa hóa đơn, lần gửi, việc chờ; hóa đơn bị thay thế giữ nguyên, ghi `replaced_by_id`.
+- Tệp PDF, XML lưu trong cơ sở dữ liệu (`bytea`) khi phát hành.
+- Ký hiệu theo năm được thay toàn bộ mỗi lần lưu cài đặt.
+
+```mermaid
+erDiagram
+    einvoices ||--o{ einvoice_lines : "dòng"
+    einvoices ||--o{ einvoice_attempts : "lần gửi"
+    einvoices |o--o{ einvoices : "hóa đơn liên quan, thay thế"
+    einvoices ||--o{ einvoice_return_tasks : "hóa đơn gốc"
+```
+
+Lược đồ (chép từ tệp `database/migrations/0013_einvoices.sql`):
+
+```sql
+-- CONG_VIEC_16: Hóa đơn điện tử (CHUC_NANG_76 đến 79; QUYTAC_NGHIEPVU_103 đến 107; tài liệu 16).
+
+-- Cài đặt hóa đơn điện tử theo công ty (CHUC_NANG_76; QUYTAC_NGHIEPVU_103).
+CREATE TABLE finance.einvoice_settings (
+    company_id          uuid        PRIMARY KEY REFERENCES core.companies(id),
+    enabled             boolean     NOT NULL DEFAULT false,
+    start_date          date,
+    provider            text        NOT NULL DEFAULT 'simulator' CHECK (provider IN ('simulator', 'misa')),
+    environment         text        NOT NULL DEFAULT 'test' CHECK (environment IN ('test', 'production')),
+    with_tax_code       boolean     NOT NULL DEFAULT true,              -- có mã của cơ quan thuế
+    template_code       text        NOT NULL DEFAULT '1' CHECK (template_code IN ('1', '2')),
+    connection          jsonb       NOT NULL DEFAULT '{}'::jsonb,       -- thông tin kết nối thường (mã ứng dụng, mã số thuế, tên đăng nhập)
+    secret_value        bytea,                                          -- mật khẩu mã hóa AES-256-GCM
+    simulation          text        NOT NULL DEFAULT 'normal' CHECK (simulation IN ('normal', 'pending_code', 'temporary_error', 'data_error', 'timeout', 'rejected')),
+    updated_at          timestamptz NOT NULL DEFAULT now(),
+    updated_by          uuid        REFERENCES core.users(id),
+    version             integer     NOT NULL DEFAULT 0,
+    CHECK (NOT enabled OR start_date IS NOT NULL)
+);
+
+-- Ký hiệu hóa đơn theo năm (6 ký tự: C hoặc K, 2 số năm, T, 2 chữ cái).
+CREATE TABLE finance.einvoice_series (
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    year                integer     NOT NULL CHECK (year BETWEEN 2000 AND 2099),
+    series              text        NOT NULL CHECK (series ~ '^[CK][0-9]{2}T[A-Z]{2}$'),
+    PRIMARY KEY (company_id, year)
+);
+
+-- Hóa đơn điện tử (CHUC_NANG_77 đến 79). Nội dung cố định khi lập.
+CREATE TABLE finance.einvoices (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    source_document_id  uuid        NOT NULL REFERENCES inventory.documents(id),
+    kind                text        NOT NULL DEFAULT 'original' CHECK (kind IN ('original', 'adjustment', 'replacement')),
+    related_invoice_id  uuid        REFERENCES finance.einvoices(id),   -- hóa đơn gốc của hóa đơn điều chỉnh, thay thế
+    reference_id        uuid        NOT NULL UNIQUE DEFAULT gen_random_uuid(),  -- mã tham chiếu gửi nhà cung cấp, chống lập trùng
+    provider            text        NOT NULL,
+    invoice_date        date        NOT NULL,
+    template_code       text        NOT NULL,
+    series              text,
+    invoice_no          text,
+    with_tax_code       boolean     NOT NULL,
+    tax_authority_code  text,
+    provider_transaction_id text,
+    seller              jsonb       NOT NULL,                           -- {name, taxCode, address}
+    buyer               jsonb       NOT NULL,                           -- {partnerId, name, taxCode, address, anonymous}
+    currency            text        NOT NULL,
+    net_amount          numeric(20,4) NOT NULL,
+    tax_amount          numeric(20,4) NOT NULL,
+    total_amount        numeric(20,4) NOT NULL,
+    note                text,
+    status              text        NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'retrying', 'awaiting_code', 'issued', 'failed', 'rejected', 'setup_error')),
+    replaced_by_id      uuid        REFERENCES finance.einvoices(id),
+    last_error          text,
+    attempt_count       integer     NOT NULL DEFAULT 0,
+    next_attempt_at     timestamptz NOT NULL DEFAULT now(),
+    due_date            date        NOT NULL,                           -- ngày làm việc tiếp theo ngày hóa đơn
+    overdue_notified_at timestamptz,
+    issued_at           timestamptz,
+    pdf_content         bytea,
+    xml_content         bytea,
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    version             integer     NOT NULL DEFAULT 0
+);
+CREATE UNIQUE INDEX einvoices_original_source_idx ON finance.einvoices (source_document_id) WHERE kind = 'original';
+CREATE UNIQUE INDEX einvoices_number_idx ON finance.einvoices (company_id, series, invoice_no) WHERE invoice_no IS NOT NULL;
+CREATE INDEX einvoices_company_idx ON finance.einvoices (company_id, invoice_date DESC);
+CREATE INDEX einvoices_sending_idx ON finance.einvoices (next_attempt_at) WHERE status IN ('pending', 'retrying', 'awaiting_code');
+
+CREATE TABLE finance.einvoice_lines (
+    invoice_id          uuid        NOT NULL REFERENCES finance.einvoices(id) ON DELETE CASCADE,
+    line_no             integer     NOT NULL,
+    item_code           text,
+    item_name           text        NOT NULL,
+    unit_name           text,
+    quantity            numeric(20,4) NOT NULL,
+    unit_price          numeric(20,4) NOT NULL,                         -- chưa thuế
+    vat_rate            text        NOT NULL CHECK (vat_rate IN ('0', '5', '8', '10', 'exempt', 'not_declared')),
+    net_amount          numeric(20,4) NOT NULL,
+    tax_amount          numeric(20,4) NOT NULL,
+    total_amount        numeric(20,4) NOT NULL,
+    is_promotion        boolean     NOT NULL DEFAULT false,
+    PRIMARY KEY (invoice_id, line_no)
+);
+
+-- Mỗi lần gọi nhà cung cấp; ghi trước khi gọi. Không lưu mật khẩu, mã truy cập.
+CREATE TABLE finance.einvoice_attempts (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    invoice_id          uuid        NOT NULL REFERENCES finance.einvoices(id) ON DELETE CASCADE,
+    operation           text        NOT NULL CHECK (operation IN ('publish', 'status')),
+    started_at          timestamptz NOT NULL DEFAULT now(),
+    finished_at         timestamptz,
+    outcome             text        CHECK (outcome IN ('issued', 'awaiting_code', 'rejected', 'temporary_error', 'data_error', 'unknown', 'not_found')),
+    error_code          text,
+    message             text
+);
+CREATE INDEX einvoice_attempts_invoice_idx ON finance.einvoice_attempts (invoice_id, started_at DESC);
+```
+
+Lược đồ (chép từ tệp `database/migrations/0014_einvoice_returns.sql`):
+
+```sql
+-- CONG_VIEC_16 lát L1: xử lý hóa đơn khi trả hàng, hóa đơn thay thế (CHUC_NANG_78, 79; QUYTAC_NGHIEPVU_106, 107; tài liệu 16).
+
+-- Việc chờ kế toán xử lý hóa đơn của phiếu nhận hàng trả lại.
+CREATE TABLE finance.einvoice_return_tasks (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id              uuid        NOT NULL REFERENCES core.companies(id),
+    return_document_id      uuid        NOT NULL UNIQUE REFERENCES inventory.documents(id),
+    original_invoice_id     uuid        NOT NULL REFERENCES finance.einvoices(id),   -- hóa đơn của phiếu xuất gốc
+    status                  text        NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'adjusted', 'buyer_invoice')),
+    adjustment_invoice_id   uuid        REFERENCES finance.einvoices(id),
+    buyer_invoice_series    text,
+    buyer_invoice_no        text,
+    buyer_invoice_date      date,
+    resolved_by             uuid        REFERENCES core.users(id),
+    resolved_at             timestamptz,
+    created_at              timestamptz NOT NULL DEFAULT now(),
+    version                 integer     NOT NULL DEFAULT 0,
+    CHECK (status <> 'adjusted' OR adjustment_invoice_id IS NOT NULL),
+    CHECK (status <> 'buyer_invoice' OR (buyer_invoice_no IS NOT NULL AND buyer_invoice_date IS NOT NULL))
+);
+CREATE INDEX einvoice_return_tasks_company_idx ON finance.einvoice_return_tasks (company_id, status, created_at DESC);
+
+-- Hóa đơn điều chỉnh có nguồn là phiếu nhận hàng trả lại; hóa đơn thay thế cùng nguồn với hóa đơn bị thay thế.
+CREATE INDEX einvoices_related_idx ON finance.einvoices (related_invoice_id) WHERE related_invoice_id IS NOT NULL;
 ```

@@ -1,10 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 2.0
+- Phiên bản: 2.1
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6); CONG_VIEC_14 (2026-11-10): schema `accounting`, thành phần phụ trợ kế toán tổng hợp của MODULE_06 phần 2 (mục 3i, 6); CONG_VIEC_15 (2026-11-10): thành phần phụ trợ báo cáo tài chính của MODULE_06 phần 3 (mục 3j)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6); CONG_VIEC_14 (2026-11-10): schema `accounting`, thành phần phụ trợ kế toán tổng hợp của MODULE_06 phần 2 (mục 3i, 6); CONG_VIEC_15 (2026-11-10): thành phần phụ trợ báo cáo tài chính của MODULE_06 phần 3 (mục 3j); CONG_VIEC_16 (2026-11-10): module `apps/api/src/einvoice`, lớp kết nối nhà cung cấp hóa đơn điện tử, tác vụ nền `einvoice-send`, `einvoice-overdue` của MODULE_06 phần 4 (mục 3k, 6)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -168,6 +168,21 @@ Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance de
 | Tài khoản dài hạn | Cột `accounting.accounts.is_long_term` (database migration `0012_financial_statements.sql`); `LedgerService.updateAccount` nhận `isLongTerm`, từ chối tài khoản hệ thống | CHUC_NANG_75, CHUC_NANG_69 |
 | Giao diện | `apps/web-finance`: trang `/statements`; `FinanceShell` thêm mục menu "Báo cáo tài chính"; trang `/accounts` thêm ô "Dài hạn", nhãn "Dài hạn"; tải tệp bằng `apiDownload` (`packages/ui/src/lib/api.ts`) | CHUC_NANG_74, CHUC_NANG_75 |
 
+## 3k. Thành phần phụ trợ cho MODULE_06 Tài chính – Kế toán (phần 4, CONG_VIEC_16)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Cài đặt | `EinvoiceSettingsService` (`apps/api/src/einvoice/einvoice-settings.service.ts`): ghi `finance.einvoice_settings`, `finance.einvoice_series`; mã hóa, giải mã mật khẩu bằng `encryptSecret`, `decryptSecret` (`apps/api/src/common/secret-box.ts`, AES-256-GCM); `simulatorAllowed` (bộ giả lập chỉ khi `NODE_ENV` khác `production`); `providerConfig` dựng cấu hình gọi nhà cung cấp | CHUC_NANG_76 |
+| Lập, gửi hóa đơn | `EinvoicesService` (`apps/api/src/einvoice/einvoices.service.ts`): `onModuleInit` đăng ký `StockDocumentsService.postedHooks` (phiếu xuất giao hàng lập hóa đơn; phiếu nhận hàng trả lại tạo việc chờ) trong giao dịch ghi sổ; `insertInvoice`, `documentItems` (dòng theo `finance.line_share`, đơn giá làm tròn theo `finance.company_minor_units`); `sendDue`, `process` (giữ chỗ bằng `FOR UPDATE SKIP LOCKED`, ghi `finance.einvoice_attempts` trước khi gọi, gọi ngoài giao dịch, thời gian chờ 30 giây, tra trạng thái khi chờ cấp mã hoặc lần trước không rõ kết quả, gửi lại 1, 5, 15, 60 phút); `notifyOverdue` (thông báo `einvoice_overdue` qua `apps/api/src/common/notifications.ts`); `nextWorkingDay` (bỏ thứ Bảy, Chủ nhật); số tiền bằng chữ `apps/api/src/einvoice/amount-in-words.ts` | CHUC_NANG_77 |
+| Trả hàng, thay thế | `EinvoiceCorrectionsService` (`apps/api/src/einvoice/einvoice-corrections.service.ts`): việc chờ `finance.einvoice_return_tasks`; hóa đơn gốc hiện hành theo chuỗi `replaced_by_id`; lập hóa đơn điều chỉnh, thay thế bằng `insertInvoice` rồi gửi ngay bằng `EinvoicesService.process` | CHUC_NANG_78, CHUC_NANG_79 |
+| Bộ điều khiển | `EinvoicesController` (`apps/api/src/einvoice/einvoices.controller.ts`): API_91, API_92; kiểm `finance.access` hoặc `finance.einvoice.view` bằng `PermissionService.authorize`, quyền chi tiết kiểm trong service bằng `requireFinancePermission`; tệp trả `StreamableFile` kèm `content-type`, `content-disposition` | CHUC_NANG_76 đến CHUC_NANG_79 |
+| Lớp kết nối nhà cung cấp | Giao diện `EinvoiceProviderAdapter` (`apps/api/src/einvoice/providers/provider.ts`): `testConnection`, `publish`, `status` (theo mã tham chiếu), `download` (PDF, XML); kết quả chuẩn hóa `issued`, `awaiting_code`, `rejected`, `temporary_error`, `data_error`, `unknown`, `not_found`. Thêm nhà cung cấp là thêm một bộ chuyển đổi | CHUC_NANG_76, CHUC_NANG_77 |
+| Bộ giả lập | `SimulatorProvider` (`apps/api/src/einvoice/providers/simulator.ts`): cấp số liên tục theo ký hiệu (số lớn nhất đã lưu cộng số đã cấp trong bộ nhớ), mã của cơ quan thuế giả, cùng mã tham chiếu trả lại hóa đơn đã lập; tình huống lỗi theo cài đặt `simulation`; PDF ghi "BẢN GIẢ LẬP – KHÔNG CÓ GIÁ TRỊ PHÁP LÝ" tạo bằng `apps/api/src/einvoice/invoice-pdf.ts`; XML rút gọn. Hóa đơn đã nhận giữ trong bộ nhớ tiến trình | CHUC_NANG_77 |
+| MISA meInvoice | `MisaProvider` (`apps/api/src/einvoice/providers/misa.ts`): REST JSON bằng `fetch` của Node.js, mỗi yêu cầu chờ tối đa 20 giây; địa chỉ `https://testapi.meinvoice.vn/api/integration` (thử nghiệm), `https://api.meinvoice.vn/api/integration` (chính thức), kiểm thử đổi bằng biến `MISA_EINVOICE_BASE_URL`; `/auth/token` lấy mã truy cập (giữ trong bộ nhớ theo công ty 12 giờ, lỗi xác thực thì lấy lại và gọi lại một lần); `/invoice` phát hành ký số từ xa đồng bộ (`SignType` 2), hóa đơn điều chỉnh (`ReferenceType` 2), thay thế (`ReferenceType` 1) kèm thông tin hóa đơn gốc; `/invoice/status` tra theo mã tham chiếu; `/invoice/Download` tải PDF, XML theo mã giao dịch; `/invoice/templates` dùng khi kiểm tra kết nối. HTTP 401 là lỗi xác thực; 5xx, 429, lỗi mạng là lỗi tạm thời; hết thời gian chờ là không rõ kết quả. Đường dẫn, tên trường theo nguồn thứ cấp, chưa đối chiếu tài liệu chính thức | CHUC_NANG_76, CHUC_NANG_77 |
+| Tạo PDF dùng chung | `apps/api/src/common/pdf.ts` (`renderPdf`): `pdfmake` với phông Roboto đi kèm, chặn tải tài nguyên theo URL, chỉ đọc thư mục phông; dùng chung với xuất báo cáo tài chính (`apps/api/src/accounting/statement-export.ts`) | CHUC_NANG_77, CHUC_NANG_75 |
+| Tác vụ nền | `apps/api/src/jobs/background-jobs.ts` (BullMQ, cùng hàng đợi `nen-tang`, một tác vụ chạy một lúc): `einvoice-send` mỗi 30 giây gọi `EinvoicesService.sendDue` (tối đa 20 hóa đơn mỗi lần); `einvoice-overdue` mỗi giờ gọi `notifyOverdue` | CHUC_NANG_77 |
+| Giao diện | `apps/web-finance`: trang `/einvoices` (thẻ "Hóa đơn", "Chờ xử lý trả hàng"), `/einvoices/[id]`, `/einvoice-settings`; `EinvoiceReturns`, `EinvoiceStatusBadge`; `FinanceShell` thêm mục menu "Hóa đơn điện tử", "Cài đặt hóa đơn điện tử"; tải tệp bằng `apiDownload` | CHUC_NANG_76 đến CHUC_NANG_79 |
+
 ## 4. Kiến trúc triển khai
 
 | Môi trường | Mục đích | Hạ tầng |
@@ -192,7 +207,7 @@ Chia theo phần chạy riêng của hệ thống, bên trong chia theo module. 
 
 ```
 apps/
-  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales, src/finance, src/accounting...
+  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales, src/finance, src/accounting, src/einvoice...
                         Không chứa mã giao diện.
   web-platform/         Mini app Nền tảng và trang chủ mini app.
   web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm, web-purchasing, web-sales, web-finance...).

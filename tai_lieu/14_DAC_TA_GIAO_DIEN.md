@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.2
+- Phiên bản: 2.3
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -16,6 +16,7 @@
 - Cập nhật CONG_VIEC_13 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 1, MAN_HINH_46 đến MAN_HINH_49 (mục 26 đến mục 28)
 - Cập nhật CONG_VIEC_14 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 2, MAN_HINH_50 đến MAN_HINH_52 (mục 29 đến mục 31); menu mini app Tài chính – Kế toán thêm ba mục
 - Cập nhật CONG_VIEC_15 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 3, MAN_HINH_53 (mục 32 đến mục 34); menu mini app Tài chính – Kế toán thêm mục "Báo cáo tài chính"; sửa MAN_HINH_50 (ô, nhãn "Dài hạn")
+- Cập nhật CONG_VIEC_16 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 4, MAN_HINH_54, MAN_HINH_55 (mục 35 đến mục 37); menu mini app Tài chính – Kế toán thêm mục "Hóa đơn điện tử", "Cài đặt hóa đơn điện tử"
 
 ## MODULE_01 Nền tảng
 
@@ -1372,3 +1373,78 @@ flowchart TD
 - Quyền hiển thị: mục menu, màn hình với `finance.ledger.view`.
 - Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; thẻ, bộ lọc, nút xuất xuống dòng; số không xuống dòng; không cuộn ngang.
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_15 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 4: Hóa đơn điện tử, CONG_VIEC_16)
+
+Cùng mini app `apps/web-finance` (mục 26).
+
+## 35. Danh sách màn hình và điều hướng (MODULE_06 phần 4)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_54 | Hóa đơn điện tử: danh sách, chờ xử lý trả hàng, chi tiết, hóa đơn thay thế | CHUC_NANG_77, CHUC_NANG_78, CHUC_NANG_79 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán | Menu Tài chính – Kế toán; thông báo hóa đơn quá hạn | Không lập (CONG_VIEC_16 mục 14) |
+| MAN_HINH_55 | Cài đặt hóa đơn điện tử | CHUC_NANG_76 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_16 mục 14) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> L[MAN_HINH_54 Hóa đơn điện tử]
+    M --> S[MAN_HINH_55 Cài đặt hóa đơn điện tử]
+    N{{Thông báo hóa đơn quá hạn}} -->|lọc quá hạn| L
+    L -->|Thẻ Hóa đơn, bấm ký hiệu · số| D[MAN_HINH_54 Chi tiết hóa đơn]
+    L -->|Thẻ Chờ xử lý trả hàng| R[Danh sách việc trả hàng]
+    R -->|Lập hóa đơn điều chỉnh giảm| R
+    R -->|Ghi hóa đơn trả hàng của người mua| R
+    R -->|Hóa đơn gốc, xem hóa đơn điều chỉnh| D
+    D -->|Lập hóa đơn thay thế| D2[Chi tiết hóa đơn thay thế]
+    D -->|Hóa đơn liên quan| D
+    D -->|Tải PDF| P[/PDF mở ở thẻ mới/]
+    D -->|Tải XML| X[/Tệp XML tải về/]
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Bút toán, Sổ sách, Báo cáo tài chính, Hệ thống tài khoản (`finance.ledger.view`); Hóa đơn điện tử (`finance.einvoice.view`); Cài đặt hóa đơn điện tử (`finance.einvoice.setup`).
+
+## 36. Bảng vai trò – màn hình (MODULE_06 phần 4)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_54 thẻ "Hóa đơn", chi tiết | Xem, Tải PDF, Tải XML, Gửi lại, Lập hóa đơn thay thế | Xem, Tải PDF, Tải XML, Gửi lại, Lập hóa đơn thay thế | Xem, Tải PDF, Tải XML, Gửi lại, Lập hóa đơn thay thế | Không |
+| MAN_HINH_54 thẻ "Chờ xử lý trả hàng" | Xem, Lập hóa đơn điều chỉnh giảm, Ghi hóa đơn trả hàng của người mua | Như bên trái | Như bên trái | Không |
+| MAN_HINH_55 Cài đặt hóa đơn điện tử | Xem, Lưu, Kiểm tra kết nối | Xem, Lưu, Kiểm tra kết nối | Không có mục menu; mở đường dẫn thì chỉ xem | Không |
+
+## 37. Đặc tả từng màn hình (MODULE_06 phần 4)
+
+### MAN_HINH_54: Hóa đơn điện tử
+- Mục đích: Theo dõi hóa đơn điện tử lập khi giao hàng; gửi lại hóa đơn lỗi; tải PDF, XML; xử lý hóa đơn khi trả hàng; lập hóa đơn thay thế.
+- Chức năng thực hiện: CHUC_NANG_77, CHUC_NANG_78, CHUC_NANG_79
+- Đường dẫn: `/finance/einvoices` (thẻ "Chờ xử lý trả hàng" mở bằng `?tab=returns`; thông báo quá hạn mở `?overdue=true`), chi tiết `/finance/einvoices/<mã>`.
+- Bố cục danh sách: tiêu đề "Hóa đơn điện tử"; hai thẻ "Hóa đơn" (mặc định), "Chờ xử lý trả hàng".
+  - Thẻ "Hóa đơn": bộ lọc ô chọn trạng thái ("Mọi trạng thái", "Chờ gửi", "Chờ gửi lại", "Chờ cấp mã", "Đã phát hành", "Lỗi", "Bị từ chối", "Lỗi cài đặt"), "Từ ngày", "Đến ngày", ô tìm (gợi ý "Người mua, mã số thuế, số hóa đơn, số phiếu"), ô chọn "Chỉ hóa đơn quá hạn". Bảng: "Ngày hóa đơn", "Ký hiệu · số" (liên kết tới chi tiết; chưa có số thì "Chưa có số"), "Người mua" (trống thì "Người mua không cung cấp thông tin"), "Phiếu kho", "Tổng thanh toán" (kèm tiền tệ), "Loại" (Gốc, Điều chỉnh, Thay thế), "Trạng thái" (nhãn trạng thái, kèm nhãn "Quá hạn", "Đã bị thay thế"); phân trang 20 dòng, tổng số dòng, nút trang trước, trang sau.
+  - Thẻ "Chờ xử lý trả hàng": ô chọn "Xử lý" ("Mọi trạng thái", "Chờ xử lý" mặc định, "Đã lập hóa đơn điều chỉnh", "Người mua lập hóa đơn trả hàng"). Bảng: "Phiếu nhận hàng trả lại" (số, ngày), "Người mua", "Tiền hàng trả", "Hóa đơn gốc" (liên kết; chưa phát hành thì kèm "chờ hóa đơn gốc phát hành"), "Xử lý" (trạng thái; kèm "xem hóa đơn điều chỉnh" hoặc "hóa đơn <ký hiệu> số <số> ngày <ngày>"), cột nút "Lập hóa đơn điều chỉnh giảm", "Ghi hóa đơn trả hàng của người mua" (khi xử lý được). Biểu mẫu "Hóa đơn trả hàng của <người mua> cho phiếu <số phiếu>": "Ký hiệu", "Số hóa đơn" *, "Ngày hóa đơn" *; nút "Lưu", "Hủy".
+- Bố cục chi tiết: liên kết "‹ Hóa đơn điện tử"; tiêu đề "Hóa đơn <ký hiệu> số <số>" (chưa có số: "Hóa đơn chưa có số"); nút "Gửi lại" (hóa đơn Lỗi, Lỗi cài đặt, Chờ gửi lại), "Lập hóa đơn thay thế" (hóa đơn đã phát hành, không phải điều chỉnh, chưa bị thay thế, chưa có điều chỉnh), "Tải PDF", "Tải XML" (khi có tệp). Dòng "Ghi chú: …"; thẻ "Hóa đơn liên quan" ("Hóa đơn gốc", "Hóa đơn thay thế", "Hóa đơn điều chỉnh" kèm liên kết, ngày); khối lỗi "Lỗi gần nhất: …"; khối cảnh báo "Hóa đơn gửi qua bộ giả lập, không có giá trị pháp lý." với nhà cung cấp bộ giả lập. Thẻ thông tin: "Trạng thái", "Ngày hóa đơn", "Mẫu số · ký hiệu", "Mã của cơ quan thuế" (hóa đơn không mã: "Hóa đơn không có mã"), "Hạn gửi cơ quan thuế", "Phiếu kho". Thẻ "Người bán", "Người mua" (tên, "Mã số thuế", "Địa chỉ"; người mua không cung cấp thông tin ghi rõ). Bảng dòng: "STT", "Tên hàng" (kèm "hàng khuyến mại"), "Đơn vị tính", "Số lượng", "Đơn giá", "Thuế suất" (`0%`, `5%`, `8%`, `10%`, `KCT`, `KKKNT`), "Tiền chưa thuế", "Tiền thuế". Thẻ tổng: "Thuế suất <x>: chưa thuế <…>, thuế <…>" từng thuế suất, "Tiền chưa thuế", "Tiền thuế", "Tổng thanh toán". Thẻ "Các lần gửi": thời điểm, "Phát hành" hoặc "Tra trạng thái", kết quả ("đã phát hành", "chờ cấp mã", "bị từ chối", "lỗi tạm thời", "lỗi dữ liệu", "không rõ kết quả", "không tìm thấy", "đang gửi"), thông báo; chưa có: "Chưa gửi lần nào.".
+- Biểu mẫu "Hóa đơn thay thế" (trên chi tiết): chú thích "Chỉ dùng khi sai tên, địa chỉ, mã số thuế người mua; dòng hàng, số tiền giữ nguyên. Hóa đơn này sẽ ghi "Đã bị thay thế"."; "Tên người mua" * (điền sẵn), "Mã số thuế", "Địa chỉ", "Lý do" *; nút "Lập hóa đơn thay thế", "Hủy".
+- Dữ liệu hiển thị: hóa đơn của công ty đang chọn, ngày hóa đơn mới nhất trước; số định dạng theo tiếng Việt; việc trả hàng mới nhất trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BoLoc, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, KhoiCanhBao, TrangThaiRong (tài liệu `15`).
+- API: API_91.
+- Thao tác: đổi bộ lọc về trang 1 và tải lại; "Gửi lại" gửi ngay, báo "Đã gửi lại hóa đơn.", tải lại chi tiết; "Tải PDF" mở thẻ mới, "Tải XML" tải tệp `<ký hiệu>-<số>.xml`; "Lập hóa đơn điều chỉnh giảm" báo "Đã lập hóa đơn điều chỉnh giảm (<trạng thái>)."; lưu hóa đơn của người mua báo "Đã ghi hóa đơn trả hàng của người mua."; lập hóa đơn thay thế báo "Đã lập hóa đơn thay thế." và mở chi tiết hóa đơn mới.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; danh sách rỗng "Chưa có hóa đơn.", "Không có phiếu trả hàng cần xử lý.".
+- Thông báo: lỗi gửi lại, tải tệp hiện dưới tiêu đề; lỗi biểu mẫu hiện tại trường và cuối biểu mẫu; lỗi nhà cung cấp hiện bằng thông báo của hệ thống nếu có, không thì câu chữ của nhà cung cấp.
+- Quyền hiển thị: mục menu, màn hình với `finance.einvoice.view`; "Gửi lại", "Lập hóa đơn thay thế", nút xử lý trả hàng theo `canManage`, `canResolve` của API.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; thẻ, bộ lọc, nút xuống dòng; số tiền không xuống dòng; mã của cơ quan thuế ngắt dòng; ô biểu mẫu xếp dọc; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_16 mục 14)
+
+### MAN_HINH_55: Cài đặt hóa đơn điện tử
+- Mục đích: Cài đặt nhà cung cấp, loại hóa đơn, ký hiệu, thông tin kết nối của công ty; kiểm tra kết nối.
+- Chức năng thực hiện: CHUC_NANG_76
+- Đường dẫn: `/finance/einvoice-settings`.
+- Bố cục: tiêu đề "Cài đặt hóa đơn điện tử" kèm "Lịch sử"; người chỉ xem thấy "Bạn chỉ xem được cài đặt." và mọi ô bị khóa. Ô chọn "Lập hóa đơn điện tử khi phiếu xuất giao hàng ghi sổ"; "Ngày bắt đầu" (gợi ý "Phiếu có ngày từ ngày này mới lập hóa đơn"); "Nhà cung cấp" ("Bộ giả lập (thử nghiệm)" chỉ hiện khi được dùng hoặc đang chọn, "MISA meInvoice"); "Môi trường" ("Thử nghiệm", "Chính thức"); "Loại hóa đơn" ("Có mã của cơ quan thuế", "Không có mã"); "Ký hiệu mẫu số" ("1 – Hóa đơn giá trị gia tăng", "2 – Hóa đơn bán hàng"). Khi chọn MISA: "Mã ứng dụng" *, "Mã số thuế" *, "Tên đăng nhập" *, "Mật khẩu" * (đã lưu thì gợi ý "Để trống: giữ mật khẩu ••••<4 ký tự cuối>"). Khi chọn bộ giả lập: "Tình huống giả lập" (gợi ý "Dùng để thử các trường hợp lỗi"; "Bình thường", "Cơ quan thuế cấp mã chậm", "Lỗi tạm thời lần đầu", "Lỗi dữ liệu", "Hết thời gian chờ lần đầu", "Cơ quan thuế từ chối"). Khối "Ký hiệu hóa đơn theo năm" (chú thích "6 ký tự: C (có mã) hoặc K (không mã), 2 số cuối năm, T, 2 chữ cái. Ví dụ C26TAA."): mỗi dòng "Năm", "Ký hiệu", nút "Bỏ"; nút "Thêm năm". Nút "Lưu", "Kiểm tra kết nối" (chỉ khi đã lưu cài đặt; chú thích "Kiểm tra theo cài đặt đã lưu.").
+- Dữ liệu hiển thị: cài đặt của công ty đang chọn; mật khẩu không hiện, chỉ 4 ký tự cuối trong gợi ý.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, ONhap, OChon, Nut, KhoiCanhBao (tài liệu `15`).
+- API: API_92.
+- Thao tác: "Lưu" gửi toàn bộ cài đặt kèm `version`, báo "Đã lưu cài đặt hóa đơn điện tử.", tải lại; "Kiểm tra kết nối" báo "Kết nối được với nhà cung cấp." hoặc "Không kết nối được: <lý do>".
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại".
+- Thông báo: lỗi tại từng trường (ngày bắt đầu, nhà cung cấp, thông tin kết nối, năm, ký hiệu) và cuối biểu mẫu.
+- Quyền hiển thị: mục menu với `finance.einvoice.setup`; người có `finance.einvoice.view` mở đường dẫn thì chỉ xem; nút theo `canSetup` của API.
+- Responsive: ô biểu mẫu xếp dọc, dòng ký hiệu xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_16 mục 14)

@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 2.2
+- Phiên bản: 2.3
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm YCAU_NGHIEPVU_38 của MODULE_06 (công nợ phải thu, phải trả), đối tượng quỹ, khoản công nợ, trừ nợ, phiếu thu chi; CONG_VIEC_14 (2026-11-10): thêm YCAU_NGHIEPVU_39 của MODULE_06 (kế toán tổng hợp), đối tượng tài khoản kế toán, định khoản mặc định, bút toán, cài đặt kế toán; CONG_VIEC_15 (2026-11-10): thêm YCAU_NGHIEPVU_40 của MODULE_06 (báo cáo tài chính), đối tượng báo cáo tài chính; tài khoản kế toán thêm thuộc tính dài hạn
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm YCAU_NGHIEPVU_38 của MODULE_06 (công nợ phải thu, phải trả), đối tượng quỹ, khoản công nợ, trừ nợ, phiếu thu chi; CONG_VIEC_14 (2026-11-10): thêm YCAU_NGHIEPVU_39 của MODULE_06 (kế toán tổng hợp), đối tượng tài khoản kế toán, định khoản mặc định, bút toán, cài đặt kế toán; CONG_VIEC_15 (2026-11-10): thêm YCAU_NGHIEPVU_40 của MODULE_06 (báo cáo tài chính), đối tượng báo cáo tài chính; tài khoản kế toán thêm thuộc tính dài hạn; CONG_VIEC_16 (2026-11-10): thêm YCAU_NGHIEPVU_41 của MODULE_06 (hóa đơn điện tử), đối tượng cài đặt hóa đơn điện tử, ký hiệu hóa đơn, hóa đơn điện tử, lần gửi hóa đơn, việc chờ xử lý hóa đơn trả hàng
 
 ## MODULE_01 Nền tảng
 
@@ -101,6 +101,12 @@
 |---|---|---|---|
 | YCAU_NGHIEPVU_40 | Lập báo cáo tình hình tài chính, báo cáo kết quả hoạt động kinh doanh theo mẫu của chế độ kế toán từng công ty từ số liệu sổ cái; xem trên màn hình, xuất Excel, PDF | Kế toán trưởng, Ban giám đốc | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`); Thông tư 99/2025/TT-BTC Điều 17, Phụ lục IV; Thông tư 133/2016/TT-BTC Điều 81 |
 
+## MODULE_06 Tài chính – Kế toán (phần 4: Hóa đơn điện tử, CONG_VIEC_16)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_41 | Lập, gửi hóa đơn điện tử cho mỗi lần giao hàng theo cài đặt của từng công ty; xử lý hóa đơn khi trả hàng, khi sai thông tin người mua | Kế toán, Kế toán trưởng | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`); THAY_DOI_11; Nghị định 254/2026/NĐ-CP; Thông tư 91/2026/TT-BTC |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -169,3 +175,8 @@
 | Định khoản mặc định | Vai trò (phải thu khách hàng, doanh thu, thuế đầu ra...), tài khoản, người và thời điểm sửa | Một tài khoản cho mỗi vai trò của công ty |
 | Bút toán | Số (số chứng từ gốc, `PKT`… với phiếu kế toán, `KC-YYYY-MM` với kết chuyển), ngày, nguồn (phiếu kế toán, phiếu kho, phiếu thu chi, ghi tổn thất hàng thiếu nội bộ, kết chuyển cuối kỳ), diễn giải, tổng tiền, trạng thái (nháp, chờ duyệt, đã ghi sổ, bị từ chối, đã rút; bút toán tự sinh luôn đã ghi sổ), lý do không ghi sổ được, người lập; các dòng (tài khoản, đối tác, Nợ, Có, diễn giải) | Thuộc công ty; bút toán tự sinh gắn một chứng từ gốc; phiếu kế toán có một yêu cầu duyệt khi gửi |
 | Báo cáo tài chính | Loại (tình hình tài chính, kết quả hoạt động kinh doanh), mẫu (B01-DN, B02-DN; B01a-DNN, B01b-DNN, B02-DNN), ngày báo cáo hoặc khoảng ngày; các chỉ tiêu (mã số, tên, cấp, ghi chú cách lấy số liệu, số kỳ này, số so sánh) | Không lưu; tính khi xem từ bút toán đã ghi sổ của công ty; mẫu theo chế độ kế toán của công ty, khai báo trong mã |
+| Cài đặt hóa đơn điện tử | Bật, ngày bắt đầu, nhà cung cấp (bộ giả lập, MISA meInvoice), môi trường (thử nghiệm, chính thức), có mã của cơ quan thuế hay không, ký hiệu mẫu số (1, 2), thông tin kết nối (mã ứng dụng, mã số thuế, tên đăng nhập), mật khẩu mã hóa, tình huống giả lập | Một bản mỗi công ty |
+| Ký hiệu hóa đơn | Năm, ký hiệu 6 ký tự (`C` hoặc `K`, 2 số cuối năm, `T`, 2 chữ cái in hoa) | Mỗi công ty một ký hiệu cho mỗi năm |
+| Hóa đơn điện tử | Loại (gốc, điều chỉnh, thay thế), mã tham chiếu duy nhất, nhà cung cấp, ngày, ký hiệu mẫu số, ký hiệu, số, có mã hay không, mã của cơ quan thuế, mã giao dịch nhà cung cấp, người bán, người mua (lưu cố định khi lập), tiền tệ, tiền chưa thuế, tiền thuế, tổng thanh toán, ghi chú, trạng thái (chờ gửi, chờ gửi lại, chờ cấp mã, đã phát hành, lỗi, bị từ chối, lỗi cài đặt), lỗi gần nhất, số lần gửi, giờ gửi lại, hạn gửi, đã báo quá hạn, thời điểm phát hành, tệp PDF, XML; các dòng (tên hàng, đơn vị tính, số lượng, đơn giá chưa thuế, thuế suất, tiền chưa thuế, tiền thuế, tiền gồm thuế, hàng khuyến mại) | Thuộc công ty; nguồn là một phiếu kho (phiếu xuất giao hàng với hóa đơn gốc, thay thế; phiếu nhận hàng trả lại với hóa đơn điều chỉnh); hóa đơn điều chỉnh, thay thế tham chiếu một hóa đơn liên quan; hóa đơn bị thay thế trỏ tới hóa đơn thay thế |
+| Lần gửi hóa đơn | Thao tác (phát hành, tra trạng thái), thời điểm bắt đầu, kết thúc, kết quả, mã lỗi, thông báo | Thuộc một hóa đơn điện tử |
+| Việc chờ xử lý hóa đơn trả hàng | Phiếu nhận hàng trả lại, hóa đơn gốc, trạng thái (chờ xử lý, đã lập hóa đơn điều chỉnh, người mua lập hóa đơn trả hàng), hóa đơn điều chỉnh hoặc hóa đơn trả hàng của người mua (ký hiệu, số, ngày), người và thời điểm xử lý | Một việc cho mỗi phiếu nhận hàng trả lại mà phiếu xuất gốc có hóa đơn gốc |

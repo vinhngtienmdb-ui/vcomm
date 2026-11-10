@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.3
+- Phiên bản: 2.4
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử)
 
 ## MODULE_01 Nền tảng
 
@@ -1245,6 +1245,81 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 3:
 | Toàn vẹn | Chỉ đọc bút toán đã ghi sổ; số liệu không đổi trước và sau khóa sổ; tổng tài sản bằng tổng nguồn vốn |
 | Ranh giới module | Thuộc module kế toán (`apps/api/src/accounting`); đọc `accounting.accounts`, `accounting.journals`, `accounting.journal_lines`, `accounting.posting_rules`, `core.companies`; mẫu báo cáo khai báo trong mã, không có bảng cấu hình |
 | Thư viện | Không thêm thư viện: Excel dùng `write-excel-file`, PDF dùng `pdfmake` có sẵn; PDF chỉ đọc phông chữ đi kèm `pdfmake`, chặn tải tài nguyên theo URL |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_06 Tài chính – Kế toán (phần 4: Hóa đơn điện tử, CONG_VIEC_16)
+
+Quy ước chung cho mọi chức năng của MODULE_06 phần 4:
+- Quyền (tài liệu `08` mục 19, 20): API trước hết cần `finance.access` hoặc `finance.einvoice.view` ở công ty đang chọn; quyền chi tiết phải gán ở phạm vi tập đoàn hoặc công ty. Dữ liệu công ty khác trả `404`.
+- Thao tác ghi dùng khóa lạc quan (`version`); ghi nhật ký thao tác: `einvoice_settings.update`, `einvoice_settings.test`, `einvoice.resend`, `einvoice.adjust_return`, `einvoice.buyer_return_invoice`, `einvoice.replace`. Nhật ký không chứa mật khẩu nhà cung cấp.
+- Gọi nhà cung cấp ngoài giao dịch cơ sở dữ liệu, qua lớp kết nối chung (`apps/api/src/einvoice/providers/provider.ts`): bộ giả lập hoặc MISA meInvoice.
+- Tiền trả về dạng chuỗi, bỏ số 0 thừa.
+
+### CHUC_NANG_76: Cài đặt hóa đơn điện tử của công ty
+- Mục đích: Mỗi công ty tự chọn nhà cung cấp, loại hóa đơn, ký hiệu; thông tin kết nối được giữ bí mật.
+- Người sử dụng: Kế toán trưởng, quản trị công ty, quản trị tập đoàn (sửa); Kế toán (xem).
+- Điều kiện thực hiện: Xem: `finance.einvoice.view` hoặc `finance.einvoice.setup`. Sửa, kiểm tra kết nối: `finance.einvoice.setup`.
+- Dữ liệu đầu vào: Bật; ngày bắt đầu; nhà cung cấp (`simulator`, `misa`); môi trường (`test`, `production`); loại hóa đơn (có mã, không mã); ký hiệu mẫu số (`1`, `2`); mã ứng dụng (tối đa 100 ký tự), mã số thuế (tối đa 20), tên đăng nhập (tối đa 100), mật khẩu (tối đa 200; để trống là giữ); tình huống giả lập (chỉ bộ giả lập); danh sách ký hiệu theo năm (tối đa 20 năm, năm 2000 đến 2099).
+- Quy trình xử lý: Kiểm tra theo QUYTAC_NGHIEPVU_103 (bộ giả lập ở môi trường thật, ngày bắt đầu khi bật, ký hiệu trùng năm, sai năm, sai loại, thông tin kết nối MISA, ký hiệu của năm bắt đầu), báo lỗi tại từng trường. Mã hóa mật khẩu mới bằng `common/secret-box` (AES-256-GCM). Lưu cài đặt, thay toàn bộ ký hiệu theo năm; hóa đơn "Lỗi cài đặt" chưa có ký hiệu mà năm đã có ký hiệu thì chuyển "Chờ gửi" với ký hiệu đó. Kiểm tra kết nối: dùng cài đặt đã lưu, gọi `testConnection` của nhà cung cấp (bộ giả lập luôn được; MISA lấy mã truy cập mới rồi đọc danh sách mẫu hóa đơn của năm).
+- Kết quả đầu ra: Cài đặt (mật khẩu chỉ trả 4 ký tự cuối), ký hiệu theo năm, `simulatorAllowed`, `canSetup`, `version`. Kiểm tra kết nối: `{ ok, message }`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_41
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_103
+- Trường hợp ngoại lệ: Chưa lưu cài đặt: xem trả giá trị mặc định (chưa bật, bộ giả lập ngoài môi trường thật, MISA ở môi trường thật; thử nghiệm; có mã; mẫu số 1); kiểm tra kết nối báo "Công ty chưa cài đặt hóa đơn điện tử.".
+- Phân quyền: Không có `finance.einvoice.setup` sửa, kiểm tra kết nối nhận 403; màn hình chỉ xem, không có nút "Lưu", "Kiểm tra kết nối"; không thấy mục menu "Cài đặt hóa đơn điện tử".
+- Thông báo lỗi: "Không dùng bộ giả lập ở môi trường thật." · "Vui lòng nhập thông tin này." · "Mỗi năm chỉ một ký hiệu." · "Hai số sau chữ đầu phải là hai số cuối của năm." · "Ký hiệu bắt đầu bằng C cho hóa đơn có mã, K cho hóa đơn không mã." · "Khai ký hiệu cho năm của ngày bắt đầu." · "Giá trị không hợp lệ." · "Công ty chưa cài đặt hóa đơn điện tử." · "Nhà cung cấp từ chối thông tin kết nối (mã ứng dụng, mã số thuế, tên đăng nhập, mật khẩu)." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_121, TIEUCHI_NGHIEMTHU_126
+
+### CHUC_NANG_77: Lập hóa đơn khi giao hàng; gửi nền; gửi lại; tải PDF, XML; cảnh báo quá hạn
+- Mục đích: Mỗi lần giao hàng có hóa đơn điện tử gửi cơ quan thuế đúng hạn mà không ai lập tay.
+- Người sử dụng: Thủ kho (ghi sổ phiếu xuất, gián tiếp); Kế toán, Kế toán trưởng, quản trị (xem, gửi lại).
+- Điều kiện thực hiện: Lập: công ty đang bật, ngày phiếu không trước ngày bắt đầu. Xem, tải tệp: `finance.einvoice.view`. Gửi lại: `finance.einvoice.manage`.
+- Dữ liệu đầu vào: Phiếu xuất giao hàng đã ghi sổ. Danh sách: trạng thái, chỉ quá hạn, từ ngày, đến ngày, từ khóa (người mua, mã số thuế, số hóa đơn, số phiếu; tối đa 100 ký tự), trang. Gửi lại: `version`.
+- Quy trình xử lý: Lập: móc nối `postedHooks` của phiếu kho gọi trong giao dịch ghi sổ, lập hóa đơn theo QUYTAC_NGHIEPVU_104 (dòng tính bằng `finance.line_share` như công nợ), hạn gửi là ngày làm việc tiếp theo. Gửi nền: tác vụ `einvoice-send` mỗi 30 giây gửi theo QUYTAC_NGHIEPVU_105 (giữ chỗ, ghi lần gửi, gọi ngoài giao dịch, thời gian chờ 30 giây, tra trạng thái trước khi gửi lại khi không rõ kết quả, tải PDF, XML khi phát hành). Gửi lại: chỉ hóa đơn "Lỗi", "Lỗi cài đặt", "Chờ gửi lại"; hóa đơn chưa có số lấy lại nhà cung cấp, ký hiệu, loại, mẫu số, người bán theo cài đặt hiện tại; gửi ngay rồi trả chi tiết. Quá hạn: tác vụ `einvoice-overdue` mỗi giờ đánh dấu đã báo và gửi thông báo `einvoice_overdue` (số hóa đơn quá hạn, đường dẫn `/finance/einvoices?overdue=true`) cho người có `finance.einvoice.manage` của công ty.
+- Kết quả đầu ra: Danh sách (ngày, ký hiệu, số, người mua, tổng thanh toán, tiền tệ, loại, trạng thái, quá hạn, đã bị thay thế, số phiếu kho) theo ngày hóa đơn mới nhất, 20 dòng mỗi trang (tối đa 100). Chi tiết: thêm nhà cung cấp, mẫu số, có mã hay không, mã của cơ quan thuế, mã tham chiếu, người bán, người mua, tiền chưa thuế, tiền thuế, ghi chú, lỗi gần nhất, hạn gửi, thời điểm phát hành, phiếu kho, hóa đơn liên quan, dòng, tổng theo thuế suất, 50 lần gửi gần nhất, có PDF, XML, `canManage`. Tệp PDF (mở trong trình duyệt), XML (tải về), tên `<ký hiệu>-<số>.pdf` hoặc `.xml`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_41
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_104, QUYTAC_NGHIEPVU_105
+- Trường hợp ngoại lệ: Năm chưa có ký hiệu: "Lỗi cài đặt". Nhà cung cấp trên hóa đơn khác cài đặt hiện tại: "Lỗi" với "Nhà cung cấp hóa đơn điện tử chưa sẵn sàng hoặc đã đổi trong cài đặt.". Không tải được tệp sau khi phát hành: vẫn "Đã phát hành", không có nút tải.
+- Phân quyền: Không có `finance.einvoice.view` nhận 403, không thấy mục menu "Hóa đơn điện tử". Không có `finance.einvoice.manage` không thấy "Gửi lại".
+- Thông báo lỗi: "Chỉ gửi lại được hóa đơn lỗi, lỗi cài đặt hoặc đang chờ gửi lại." · "Công ty chưa cài đặt hóa đơn điện tử." · "Chưa khai ký hiệu hóa đơn cho năm của hóa đơn." · "Chưa có tệp của hóa đơn này." · "Nhà cung cấp không phản hồi trong thời gian chờ." · "Nhà cung cấp từ chối yêu cầu." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_122, TIEUCHI_NGHIEMTHU_123, TIEUCHI_NGHIEMTHU_126
+
+### CHUC_NANG_78: Hóa đơn khi trả hàng
+- Mục đích: Phiếu nhận hàng trả lại được xử lý hóa đơn đúng quy định, không bị bỏ sót.
+- Người sử dụng: Kế toán, Kế toán trưởng, quản trị.
+- Điều kiện thực hiện: Xem: `finance.einvoice.view`. Xử lý: `finance.einvoice.manage`; việc "Chờ xử lý"; hóa đơn gốc hiện hành "Đã phát hành".
+- Dữ liệu đầu vào: Danh sách: trạng thái việc (`open`, `adjusted`, `buyer_invoice`, không chọn là tất cả). Điều chỉnh giảm: `version`. Hóa đơn của người mua: ký hiệu (tối đa 20 ký tự, không bắt buộc), số (1 đến 20 ký tự), ngày, `version`.
+- Quy trình xử lý: Ghi sổ phiếu nhận hàng trả lại (móc nối `postedHooks`) tạo việc khi phiếu xuất gốc có hóa đơn gốc. Hóa đơn gốc hiện hành theo chuỗi thay thế. Điều chỉnh giảm: lập hóa đơn `adjustment` theo QUYTAC_NGHIEPVU_106 (dòng của phiếu trả tính bằng `finance.line_share` theo lũy kế các lần trả, ghi âm), gửi ngay, trả chi tiết hóa đơn mới. Hóa đơn của người mua: kiểm người mua có mã số thuế, lưu ký hiệu, số, ngày; trả lại toàn bộ danh sách việc.
+- Kết quả đầu ra: Việc (phiếu nhận hàng trả lại, ngày, người mua, mã số thuế, tiền hàng trả gồm thuế, tiền tệ, hóa đơn gốc hiện hành và trạng thái, hóa đơn điều chỉnh, hóa đơn của người mua, `canResolve`), mới nhất trước, tối đa 500.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_41
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_106
+- Trường hợp ngoại lệ: Phiếu xuất gốc không có hóa đơn (trước ngày bắt đầu, công ty chưa bật): không tạo việc. Hóa đơn gốc chưa phát hành: việc chờ.
+- Phân quyền: Không có `finance.einvoice.manage` nhận 403, không thấy nút xử lý.
+- Thông báo lỗi: "Hóa đơn gốc chưa phát hành; chờ hóa đơn gốc phát hành rồi xử lý." · "Việc trả hàng này đã được xử lý." · "Chỉ ghi hóa đơn trả hàng của người mua là tổ chức có mã số thuế." · "Công ty chưa cài đặt hóa đơn điện tử." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_124
+
+### CHUC_NANG_79: Hóa đơn thay thế; danh sách, tra cứu hóa đơn
+- Mục đích: Sửa sai thông tin người mua bằng hóa đơn thay thế; tra cứu hóa đơn theo trạng thái, ngày, người mua, phiếu xuất.
+- Người sử dụng: Kế toán, Kế toán trưởng, quản trị.
+- Điều kiện thực hiện: Thay thế: `finance.einvoice.manage`; hóa đơn "Đã phát hành", không phải hóa đơn điều chỉnh, chưa bị thay thế, chưa có hóa đơn điều chỉnh. Tra cứu: `finance.einvoice.view`.
+- Dữ liệu đầu vào: Tên người mua (1 đến 300 ký tự), mã số thuế (10 chữ số hoặc 10 chữ số, gạch ngang, 3 chữ số; không bắt buộc), địa chỉ (tối đa 500 ký tự, không bắt buộc), lý do (1 đến 500 ký tự), `version`. Tra cứu: như danh sách ở CHUC_NANG_77.
+- Quy trình xử lý: Khóa hóa đơn bị thay thế, kiểm điều kiện QUYTAC_NGHIEPVU_107; chép dòng, số tiền; lập hóa đơn `replacement` ngày hôm nay, ghi chú là lý do, tham chiếu hóa đơn bị thay thế; ghi `replaced_by_id` vào hóa đơn bị thay thế; gửi ngay; trả chi tiết hóa đơn mới.
+- Kết quả đầu ra: Hóa đơn thay thế; hóa đơn cũ có nhãn "Đã bị thay thế", mục "Hóa đơn liên quan" ở hai hóa đơn.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_41
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_107
+- Trường hợp ngoại lệ: Hóa đơn đã thay thế muốn sửa tiếp: thay hóa đơn thay thế. Trả hàng sau khi thay thế: điều chỉnh tham chiếu hóa đơn thay thế.
+- Phân quyền: Không có `finance.einvoice.manage` nhận 403, không thấy nút "Lập hóa đơn thay thế".
+- Thông báo lỗi: "Không thay thế hóa đơn điều chỉnh." · "Hóa đơn chưa phát hành." · "Hóa đơn đã bị thay thế; thay thế hóa đơn thay thế." · "Hóa đơn đã có hóa đơn điều chỉnh; lần sau xử lý bằng điều chỉnh." · "Giá trị không hợp lệ." (mã số thuế) · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_125
+
+## Yêu cầu phi chức năng của MODULE_06 (phần 4)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Toàn vẹn | Hóa đơn gốc lập trong cùng giao dịch ghi sổ phiếu xuất (một phiếu một hóa đơn gốc, chỉ mục duy nhất); mã tham chiếu duy nhất chống lập trùng khi gửi lại; ghi lần gửi trước khi gọi; tổng thanh toán bằng tiền công nợ của phiếu; hóa đơn điều chỉnh, thay thế không đổi công nợ, bút toán |
+| Tích hợp | Gọi nhà cung cấp ngoài giao dịch cơ sở dữ liệu; thời gian chờ 30 giây mỗi lần gọi, 20 giây mỗi yêu cầu HTTP tới MISA; lỗi nhà cung cấp không chặn ghi sổ phiếu kho |
+| Bảo mật | Mật khẩu nhà cung cấp mã hóa AES-256-GCM, không trả về, không ghi nhật ký; mã truy cập MISA chỉ giữ trong bộ nhớ; bộ giả lập không dùng ở môi trường thật (tài liệu `22`) |
+| Ranh giới module | Module `apps/api/src/einvoice` đăng ký móc nối `StockDocumentsService.postedHooks`; module Kho không phụ thuộc module hóa đơn; đọc `inventory`, `sales`, `crm`, `core`, hàm `finance.line_share`, `finance.inventory_amounts` |
+| Thư viện | Không thêm thư viện: HTTP bằng `fetch` của Node.js, PDF của bộ giả lập bằng `pdfmake` có sẵn (`apps/api/src/common/pdf.ts`), mã hóa bằng `common/secret-box`, tác vụ nền bằng BullMQ có sẵn |
 | Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09

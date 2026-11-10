@@ -1,10 +1,10 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò mặc định, trách nhiệm và quyền hạn.
-- Phiên bản: 1.9
+- Phiên bản: 2.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18)
+- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18); CONG_VIEC_16 (2026-11-10): thêm quyền `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm); Kế toán có thêm `finance.einvoice.view`, `finance.einvoice.manage`; Kế toán trưởng có thêm cả ba (mục 19, 20)
 
 ## 1. Nguyên tắc
 
@@ -270,3 +270,29 @@ Không thêm quyền, vai trò. Báo cáo lập từ bút toán của công ty �
 |---|---|---|---|---|---|---|---|
 | Xem báo cáo tình hình tài chính, kết quả hoạt động kinh doanh; xuất Excel, PDF | `finance.ledger.view` | Có | Trong công ty mình | Có | Có | Không | Không |
 | Đánh dấu tài khoản chi tiết dài hạn | `finance.ledger.setup` | Có | Trong công ty mình | Có | Không | Không | Không |
+
+## 19. Quyền hóa đơn điện tử (MODULE_06 phần 4, CONG_VIEC_16)
+
+Không thêm vai trò. Ba quyền mới chỉ dùng được khi gán ở phạm vi tập đoàn hoặc công ty (như mục 16). Quản trị tập đoàn, quản trị công ty có sẵn ba quyền mới. Hóa đơn gốc lập tự động khi Thủ kho ghi sổ phiếu xuất giao hàng; việc chờ xử lý hóa đơn trả hàng tạo khi ghi sổ phiếu nhận hàng trả lại; không cần quyền hóa đơn. API của hóa đơn điện tử trước hết cần `finance.access` hoặc `finance.einvoice.view` trong công ty đang chọn.
+
+| Quyền | Tên | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|---|
+| `finance.einvoice.view` | Xem hóa đơn điện tử | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán, Kế toán trưởng |
+| `finance.einvoice.manage` | Gửi lại, điều chỉnh, thay thế hóa đơn điện tử | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán, Kế toán trưởng |
+| `finance.einvoice.setup` | Cài đặt hóa đơn điện tử | Công ty | Có | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng |
+
+| Vai trò | Mã | Quyền thêm |
+|---|---|---|
+| Kế toán | `accountant` | `finance.einvoice.view`, `finance.einvoice.manage` |
+| Kế toán trưởng | `chief_accountant` | `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` |
+
+## 20. Ma trận vai trò – thao tác của MODULE_06 (phần 4)
+
+| Thao tác | Quyền dùng | Quản trị tập đoàn | Quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng | Thủ kho |
+|---|---|---|---|---|---|---|---|
+| Xem cài đặt hóa đơn điện tử | `finance.einvoice.view` hoặc `finance.einvoice.setup` | Có | Trong công ty mình | Có | Có (qua API; không có mục menu) | Không | Không |
+| Sửa cài đặt, kiểm tra kết nối | `finance.einvoice.setup` | Có | Trong công ty mình | Có | Không | Không | Không |
+| Xem danh sách, chi tiết hóa đơn; tải PDF, XML; xem việc chờ xử lý trả hàng | `finance.einvoice.view` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Gửi lại hóa đơn; lập hóa đơn điều chỉnh giảm; ghi hóa đơn trả hàng của người mua; lập hóa đơn thay thế | `finance.einvoice.manage` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Nhận thông báo hóa đơn quá hạn | `finance.einvoice.manage` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Lập hóa đơn gốc khi ghi sổ phiếu xuất giao hàng; tạo việc chờ khi ghi sổ phiếu nhận hàng trả lại | Quyền ghi sổ phiếu kho (mục 10) | Có | Trong công ty mình | Không | Không | Không | Kho trong phạm vi gán |
