@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.8
+- Phiên bản: 2.9
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -22,6 +22,7 @@
 - Cập nhật CONG_VIEC_19 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 7, MAN_HINH_60, MAN_HINH_61 (mục 44 đến mục 46); menu mini app Tài chính – Kế toán thêm mục "Đối soát thu hộ"; MAN_HINH_51 (Bút toán) bộ lọc, cột "Nguồn" thêm "Bảng hoa hồng" (sửa lỗi hiện mã thô `commission` từ CONG_VIEC_17), "Bảng đối soát thu hộ"
 - Cập nhật CONG_VIEC_20 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 8, MAN_HINH_62, MAN_HINH_63 (mục 47 đến mục 49); menu mini app Tài chính – Kế toán thêm mục "Báo cáo hợp nhất" sau "Báo cáo tài chính"; sửa sau rà soát: công ty, đối tác trong ngăn kéo điều chỉnh tay, lý do không chốt được hiện câu đã dịch, thẻ xem nhanh chỉ tải khi mở
 - Cập nhật CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm MODULE_07 Khách hàng và Đối tác phần 2, MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52); menu mini app Khách hàng và Đối tác thêm mục "Giao khách hàng"; sơ đồ điều hướng MODULE_07 thay ở mục 50; sửa MAN_HINH_36 (lọc "Khách của tôi", cột nhân viên phụ trách, nút "Nhận làm khách của tôi" trong ngăn kéo thêm đối tác), MAN_HINH_37 (ô nhân viên phụ trách khóa khi đã có, thẻ lịch sử phụ trách)
+- Cập nhật CONG_VIEC_23 (2026-11-10): thêm MAN_HINH_73 đến MAN_HINH_80 (ứng dụng VComm cho người mua; web-crm người mua VComm); không làm bản mẫu riêng, xem trước từng lát thay cho bản mẫu (quyết định của người dùng)
 
 ## MODULE_01 Nền tảng
 
@@ -1844,3 +1845,103 @@ flowchart TD
 - Quyền hiển thị: nút theo `canEdit`, `canSubmit`, `canWithdraw`, `canDiscard` của API_110.
 - Responsive: bảng chuyển thành thẻ; nút xuống dòng; không cuộn ngang.
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_21 mục 14)
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 1: Tài khoản người mua, CONG_VIEC_23)
+
+Ứng dụng VComm `apps/mobile-vcomm` (Expo; khổ điện thoại; xem trước bằng bản web) thay ứng dụng kinh doanh của CONG_VIEC_22: MAN_HINH_66 đến MAN_HINH_71 không dùng nữa (THAY_DOI_14). Web-crm thêm mục "Người mua VComm". Màu, khoảng cách lấy từ tài liệu `15` (tệp chủ đề của ứng dụng sao giá trị từ `packages/ui/src/styles.css`).
+
+## 53. Danh sách màn hình và điều hướng (MODULE_09 phần lõi 1)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_73 | Ứng dụng: Đăng nhập (số điện thoại và mật khẩu, hoặc mã OTP; mã xác thực hai lớp với tài khoản nhân viên bắt buộc) | CHUC_NANG_105 | Mọi người | Mở ứng dụng khi chưa đăng nhập; phiên bị từ chối | Không làm (xem trước từng lát) |
+| MAN_HINH_74 | Ứng dụng: Đăng ký hai bước (số điện thoại, mã giới thiệu; mã OTP, họ tên, mật khẩu) | CHUC_NANG_104 | Mọi người | MAN_HINH_73; đường dẫn `/r/<số điện thoại>` | Không làm |
+| MAN_HINH_75 | Ứng dụng: Quên mật khẩu (số điện thoại; mã OTP, mật khẩu mới) | CHUC_NANG_105 | Mọi người | MAN_HINH_73 | Không làm |
+| MAN_HINH_76 | Ứng dụng: Tài khoản (họ tên, số điện thoại; mã, đường dẫn giới thiệu, Chia sẻ, Sao chép; người giới thiệu, nhập mã một lần; Đăng xuất) | CHUC_NANG_106 | Người mua | Thanh điều hướng dưới; đường dẫn giới thiệu khi đã đăng nhập | Không làm |
+| MAN_HINH_77 | Ứng dụng: Người tôi giới thiệu (thẻ trong MAN_HINH_76) | CHUC_NANG_106 | Người mua | MAN_HINH_76 | Không làm |
+| MAN_HINH_78 | Ứng dụng: Kinh doanh – khách tôi phụ trách (họ tên, số điện thoại, ngày đăng ký, nút Gọi) | CHUC_NANG_108 | Nhân viên kinh doanh | Thanh điều hướng dưới (chỉ hiện với nhân viên kinh doanh) | Không làm |
+| MAN_HINH_79 | Web-crm: Tài khoản người mua (công ty vận hành sàn; tìm, lọc loại tài khoản, bảng, phân trang) | CHUC_NANG_107 | `marketplace.buyer.view` | Menu "Người mua VComm" | Không làm |
+| MAN_HINH_80 | Web-crm: Chi tiết tài khoản người mua (thông tin; nhân viên kinh doanh; đổi người giới thiệu; lịch sử người giới thiệu, đánh dấu; người được giới thiệu) | CHUC_NANG_107, CHUC_NANG_108 | `marketplace.buyer.view`; thao tác cần `marketplace.buyer.manage` | MAN_HINH_79; liên kết người được giới thiệu | Không làm |
+
+```mermaid
+flowchart TD
+    A[Mở ứng dụng VComm] -->|chưa đăng nhập| L[MAN_HINH_73 Đăng nhập]
+    R[Đường dẫn /r/số điện thoại] -->|chưa đăng nhập| K[MAN_HINH_74 Đăng ký]
+    R -->|đã đăng nhập| T[MAN_HINH_76 Tài khoản]
+    L -->|Đăng ký| K
+    L -->|Quên mật khẩu?| Q[MAN_HINH_75 Quên mật khẩu]
+    Q -->|đặt xong| L
+    K -->|Đã có tài khoản? Đăng nhập| L
+    L -->|đăng nhập xong| H[Trang chủ]
+    K -->|tạo tài khoản xong| H
+    H --- B{Thanh điều hướng dưới}
+    B --> H
+    B -->|chỉ nhân viên kinh doanh| D[MAN_HINH_78 Kinh doanh]
+    B --> T
+    T --> G[MAN_HINH_77 Người tôi giới thiệu]
+    T -->|Đăng xuất| L
+    M{Menu web-crm} -->|Người mua VComm| W[MAN_HINH_79 Tài khoản người mua]
+    W -->|Họ tên| X[MAN_HINH_80 Chi tiết]
+    X -->|Danh sách người mua| W
+    X -->|người được giới thiệu| X
+```
+
+## 54. Bảng vai trò – màn hình (MODULE_09 phần lõi 1)
+
+| Màn hình | Người mua | Nhân viên kinh doanh | Quản trị công ty vận hành sàn | Quản trị tập đoàn |
+|---|---|---|---|---|
+| MAN_HINH_73 đến MAN_HINH_77 | Dùng | Dùng | Dùng (nếu có số điện thoại) | Dùng (nếu có số điện thoại) |
+| MAN_HINH_78 | Không | Xem, Gọi | Không | Không |
+| MAN_HINH_79 | Không | Không | Xem | Xem, chọn công ty vận hành sàn |
+| MAN_HINH_80 | Không | Không | Xem, Đổi người giới thiệu, Đánh dấu, Bỏ đánh dấu | Như quản trị công ty vận hành sàn |
+
+## 55. Đặc tả từng màn hình (MODULE_09 phần lõi 1)
+
+### MAN_HINH_73: Đăng nhập (ứng dụng)
+- Mục đích: Người mua, nhân viên kinh doanh đăng nhập ứng dụng VComm.
+- Chức năng thực hiện: CHUC_NANG_105
+- Đường dẫn: `/dang-nhap`.
+- Bố cục: chữ "VComm", tiêu đề "Đăng nhập"; thẻ: chọn "Mật khẩu" hoặc "Mã OTP"; ô Số điện thoại; Mật khẩu và nút Đăng nhập, hoặc nút Gửi mã, ô Mã OTP (6 số), nút Đăng nhập, nút Gửi lại (đếm ngược 60 giây); liên kết "Quên mật khẩu?"; "Chưa có tài khoản?" và nút Đăng ký. Tài khoản bắt buộc xác thực hai lớp: ô Mã xác thực hoặc Mã dự phòng, nút Xác nhận, Quay lại đăng nhập.
+- API: API_117, API_112 (xác thực hai lớp dùng API_06).
+- Trạng thái: đang gửi (nút xoay); lỗi chung hiện khối thông báo trong thẻ; lỗi theo ô hiện dưới ô; đặt lại mật khẩu xong hiện "Đã đặt mật khẩu mới. Hãy đăng nhập.".
+- Responsive: khổ điện thoại; cuộn khi bàn phím mở.
+- Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-10).
+
+### MAN_HINH_74: Đăng ký (ứng dụng)
+- Mục đích: Khách tự tạo tài khoản, gắn người giới thiệu.
+- Chức năng thực hiện: CHUC_NANG_104
+- Đường dẫn: `/dang-ky?ma=<mã>`; `/r/<số điện thoại>` chuyển tới đây với mã điền sẵn.
+- Bố cục: bước 1: Số điện thoại, "Số điện thoại của bạn sẽ là mã giới thiệu của bạn.", Mã giới thiệu (không bắt buộc), "Mã giới thiệu là số điện thoại của người giới thiệu bạn.", nút Gửi mã. Bước 2: "Mã đã gửi tới …", Mã OTP (6 số), Họ tên, Mật khẩu ("Ít nhất 10 ký tự."), Mã giới thiệu (sửa được), nút Tạo tài khoản, nút Gửi lại (đếm ngược 60 giây), liên kết Đổi số điện thoại; dưới thẻ: "Đã có tài khoản? Đăng nhập".
+- API: API_116.
+- Thông báo lỗi theo ô: "Số điện thoại đã có tài khoản. Hãy đăng nhập.", "Mã giới thiệu không đúng.", "Mã không đúng hoặc đã hết hạn.", mật khẩu quá ngắn.
+- Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.
+
+### MAN_HINH_75: Quên mật khẩu (ứng dụng)
+- Chức năng thực hiện: CHUC_NANG_105. Đường dẫn `/quen-mat-khau`.
+- Bố cục: Số điện thoại, nút Gửi mã; sau khi gửi: Mã OTP, Mật khẩu mới, nút Đặt lại mật khẩu, nút Gửi lại; liên kết Quay lại đăng nhập. Đặt xong về MAN_HINH_73 kèm thông báo thành công.
+- API: API_117. Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.
+
+### MAN_HINH_76, MAN_HINH_77: Tài khoản, người tôi giới thiệu (ứng dụng)
+- Chức năng thực hiện: CHUC_NANG_106. Đường dẫn `/tai-khoan` (thẻ Tài khoản).
+- Bố cục: thẻ họ tên, số điện thoại; thẻ "Mã giới thiệu của bạn" (số điện thoại cỡ lớn), "Đường dẫn giới thiệu" (chọn được để sao chép), nút Chia sẻ (hộp chia sẻ của máy; bản web: hộp chia sẻ của trình duyệt hoặc sao chép), nút Sao chép (bản web), thông báo "Đã sao chép."; thẻ "Người giới thiệu": tên và số che, hoặc "Chưa có người giới thiệu." kèm ô Mã người giới thiệu, "Bạn chỉ nhập được một lần.", nút Lưu người giới thiệu; thẻ "Người tôi giới thiệu (số lượng)": họ tên, số che, "Đăng ký dd/mm/yyyy", rỗng "Chưa có ai đăng ký bằng mã của bạn."; nút Đăng xuất.
+- API: API_118. Tải lại danh sách khi quay lại thẻ.
+- Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.
+
+### MAN_HINH_78: Kinh doanh – khách tôi phụ trách (ứng dụng)
+- Chức năng thực hiện: CHUC_NANG_108. Đường dẫn `/kinh-doanh`; thẻ chỉ hiện khi tài khoản đang được đánh dấu nhân viên kinh doanh.
+- Bố cục: thẻ "Khách tôi phụ trách", "n khách"; mỗi khách: họ tên, số điện thoại, ngày đăng ký, nút Gọi (mở ứng dụng gọi điện); rỗng "Chưa có khách nào.".
+- API: API_118. Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.
+
+### MAN_HINH_79: Tài khoản người mua (web-crm)
+- Chức năng thực hiện: CHUC_NANG_107. Đường dẫn `/crm/buyers`.
+- Bố cục: tiêu đề "Tài khoản người mua", câu giải thích; dòng "Công ty vận hành sàn: …" (quản trị tập đoàn có nút Chọn công ty); chưa chọn công ty: khối cảnh báo và ô chọn công ty, nút Lưu công ty vận hành sàn (chỉ quản trị tập đoàn; người khác thấy "Nhờ quản trị tập đoàn chọn công ty vận hành sàn."); bộ lọc: ô tìm theo tên hoặc số điện thoại, Loại tài khoản (tất cả, nhân viên kinh doanh, người mua); bảng: Họ tên (liên kết), Số điện thoại, Loại (nhãn), Người giới thiệu (tên · số), Đã giới thiệu, Ngày đăng ký; phân trang 20.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, OChon, BangDuLieu, Nhan, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_119. Trạng thái: đang tải; lỗi kèm "Thử lại"; rỗng "Chưa có tài khoản người mua." (có lọc: "Không có kết quả phù hợp.").
+- Responsive: bảng chuyển thành thẻ; không cuộn ngang.
+- Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.
+
+### MAN_HINH_80: Chi tiết tài khoản người mua (web-crm)
+- Chức năng thực hiện: CHUC_NANG_107, CHUC_NANG_108. Đường dẫn `/crm/buyers/{id}`.
+- Bố cục: liên kết "‹ Danh sách người mua"; tiêu đề họ tên; thẻ thông tin (Số điện thoại, Trạng thái, Ngày đăng ký, Người giới thiệu); thẻ "Nhân viên kinh doanh": "Đang là nhân viên kinh doanh, phòng …" và nút Bỏ đánh dấu (hộp xác nhận nêu hậu quả), hoặc "Chưa được đánh dấu nhân viên kinh doanh." và ô Phòng ban, nút Đánh dấu nhân viên kinh doanh (công ty chưa có phòng ban thì khối cảnh báo); thẻ "Đổi người giới thiệu" (chỉ người có quyền quản lý): Mã người giới thiệu mới (để trống để bỏ), Lý do *, nút Đổi người giới thiệu; thẻ "Lịch sử người giới thiệu" (cũ → mới · nguồn, lý do, thời điểm · bởi ai); thẻ "Lịch sử đánh dấu"; thẻ "Người được giới thiệu (n)" (liên kết sang chi tiết).
+- API: API_119. Thông báo: "Đã đổi người giới thiệu.", "Đã đánh dấu nhân viên kinh doanh.", "Đã bỏ đánh dấu."; lỗi phiên bản "Dữ liệu đã được người khác sửa…".
+- Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.

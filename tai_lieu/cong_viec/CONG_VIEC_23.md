@@ -1,9 +1,9 @@
 # CONG_VIEC_23: Tài khoản người mua VComm (MODULE_09, phần lõi 1)
 
 - Mô tả: Khách tự đăng ký tài khoản trên ứng dụng sàn VComm bằng số điện thoại và mã OTP, gắn với người giới thiệu qua mã giới thiệu (số điện thoại) hoặc đường dẫn giới thiệu. Tài khoản nhân viên kinh doanh là tài khoản người mua được quản trị đánh dấu. Ứng dụng Expo của CONG_VIEC_22 trở thành ứng dụng VComm cho người mua.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Bản nháp, chờ người dùng xác nhận thiết kế.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-10 (không làm bản mẫu giao diện riêng, xem trước từng lát thay cho bản mẫu). Đã làm L0 đến L3.
 - Nguồn: THAY_DOI_14; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`; tài liệu `05` (MODULE_09); CONG_VIEC_03 (OTP số điện thoại, eSMS); CONG_VIEC_22 (đăng nhập ứng dụng bằng token, khung Expo).
 
 ## 1. Mục tiêu
@@ -41,7 +41,7 @@ Các màn hình khách B2B, lập đơn bán, ghé thăm, hoa hồng tháng củ
 - QUYTAC_NGHIEPVU_144: Đánh dấu nhân viên kinh doanh: người có quyền `marketplace.buyer.manage` chọn tài khoản người mua đang hoạt động, chọn phòng ban thuộc công ty vận hành sàn; hệ thống thêm tài khoản vào công ty với vai trò Nhân viên bán hàng và phòng ban đã chọn (phòng ban là căn cứ hoa hồng nhiều cấp theo cơ cấu tổ chức). Bỏ đánh dấu: gỡ vai trò Nhân viên bán hàng và phòng ban, giữ tài khoản người mua. Ghi lịch sử đánh dấu.
 - QUYTAC_NGHIEPVU_145: Nhân viên kinh doanh phụ trách khách là người giới thiệu hiện tại của khách khi người đó đang được đánh dấu nhân viên kinh doanh; ngược lại khách không có nhân viên kinh doanh phụ trách (quyết định 2026-11-10). Bỏ đánh dấu thì các khách của người đó không còn nhân viên phụ trách.
 - QUYTAC_NGHIEPVU_146: Người giới thiệu xem người mình đã giới thiệu: họ tên, số điện thoại che (giữ 4 số đầu và 3 số cuối, ví dụ 0912***678), ngày đăng ký. Nhân viên kinh doanh xem khách mình phụ trách trong phần Kinh doanh: họ tên, số điện thoại đầy đủ, ngày đăng ký.
-- QUYTAC_NGHIEPVU_147: Công ty vận hành sàn là một công ty trong tập đoàn, đặt trong cài đặt hệ thống (mặc định chưa đặt; chưa đặt thì không đánh dấu được nhân viên kinh doanh). Tài khoản người mua không thuộc công ty nào trừ khi được đánh dấu nhân viên kinh doanh; không vào được các mini app quản trị. Phiên ứng dụng như QUYTAC_NGHIEPVU_136 (token truy cập 15 phút, token làm mới 90 ngày, xoay vòng). Quên mật khẩu: OTP rồi đặt mật khẩu mới; thu hồi mọi phiên cũ.
+- QUYTAC_NGHIEPVU_147: Công ty vận hành sàn là một công ty trong tập đoàn (cột trên công ty, tối đa một công ty); chỉ người có `marketplace.buyer.manage` ở phạm vi tập đoàn chọn, trên màn hình MAN_HINH_79; không đổi được khi còn nhân viên kinh doanh được đánh dấu ở công ty khác; chưa chọn thì chưa quản trị được người mua. Tài khoản người mua không thuộc công ty nào trừ khi được đánh dấu nhân viên kinh doanh; không vào được các mini app quản trị. Phiên ứng dụng như QUYTAC_NGHIEPVU_136 (token truy cập 15 phút, token làm mới 90 ngày, xoay vòng). Quên mật khẩu: OTP rồi đặt mật khẩu mới; thu hồi mọi phiên cũ.
 
 ## 5. Vai trò và quyền
 
@@ -73,11 +73,11 @@ Web-crm:
 
 ## 8. Dữ liệu và API
 
-- Database migration 0023: schema `marketplace`; `marketplace.buyer_accounts` (tài khoản, người giới thiệu, thời điểm đăng ký, là nhân viên kinh doanh); `marketplace.referrer_history`; `marketplace.sales_flag_history`; `core.otp_codes` thêm mục đích (`login`, `register`, `password_reset`); cài đặt công ty vận hành sàn; quyền mới.
+- Database migration 0023: schema `marketplace`; `marketplace.buyer_accounts` (tài khoản, người giới thiệu, thời điểm đăng ký, là nhân viên kinh doanh); `marketplace.referrer_history`; `marketplace.sales_flag_history`; `core.otp_codes` thêm mục đích (`login`, `register`, `password_reset`); cột `core.companies.is_marketplace_operator`; phiên `vcomm_app`; quyền mới.
 - API_116 đăng ký: `POST /buyer/register/otp`, `POST /buyer/register` (trả token).
 - API_117 đăng nhập người mua: `POST /buyer/login` (mật khẩu), `POST /buyer/login/otp`, `POST /buyer/login/otp/verify`, `POST /buyer/password-reset/otp`, `POST /buyer/password-reset`; làm mới, đăng xuất dùng API_112.
 - API_118 người mua: `GET /buyer/me`, `GET /buyer/referrals`, `POST /buyer/referrer`, `GET /buyer/sales/customers` (nhân viên kinh doanh).
-- API_119 quản trị: `GET /marketplace/buyers`, `GET /marketplace/buyers/:id`, `POST /marketplace/buyers/:id/referrer`, `POST /marketplace/buyers/:id/sales-flag`, `DELETE /marketplace/buyers/:id/sales-flag`.
+- API_119 quản trị: `GET /marketplace/settings`, `PUT /marketplace/operator-company`, `GET /marketplace/buyers`, `GET /marketplace/buyers/:id`, `POST /marketplace/buyers/:id/referrer`, `POST /marketplace/buyers/:id/sales-flag`, `DELETE /marketplace/buyers/:id/sales-flag`.
 
 ## 9. Điều kiện đặc biệt
 

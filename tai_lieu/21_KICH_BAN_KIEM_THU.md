@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng), phần 7 (Đối soát thu hộ), phần 8 (Báo cáo tài chính hợp nhất), MODULE_07 phần 2 (Gán khách hàng cho nhân viên kinh doanh): đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -3436,3 +3436,84 @@ Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DO
 - Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
 - Kết quả thực hiện: Đạt 2026-11-10 (ảnh chụp lát L0 trên máy tính và điện thoại, lát L1 trên máy tính và điện thoại, trong `tam_thoi/CONG_VIEC_21/`).
 - Lát: L0, L1
+
+## CHUC_NANG_104 đến CHUC_NANG_108: Tài khoản người mua VComm (CONG_VIEC_23)
+
+### KICHBAN_KIEMTHU_295: Đăng ký bằng số điện thoại và OTP; số đã có tài khoản bị từ chối; mã đăng ký không dùng để đăng nhập
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_163
+- Chức năng: CHUC_NANG_104
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Người mua chưa đăng nhập
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; môi trường kiểm thử không gửi SMS: sau khi gọi API gửi mã, kiểm thử đặt bản băm của mã đang hiệu lực thành mã đã biết.
+- Các bước: (1) Gửi mã đăng ký cho 0911000001; dùng mã đó gọi đăng nhập bằng OTP. (2) Đăng ký với mật khẩu "ngan". (3) Đăng ký với mã sai. (4) Đăng ký đúng (họ tên "Người Mua Một"). (5) Đăng ký lại với cùng mã. (6) Đọc tài khoản của tôi; gọi danh sách đối tác của web-crm bằng token người mua. (7) Gửi mã đăng ký lại cho 0911000001; gửi cho số +12025550123.
+- Kết quả mong đợi: Bước 1: `401`. Bước 2: `400` tại `password`. Bước 3: `400` tại `code` "Mã không đúng hoặc đã hết hạn.". Bước 4: `200`, `mfaRequired` sai, token làm mới còn trên 89 ngày, phiên loại `vcomm_app`. Bước 5: `400`. Bước 6: `referralCode` "0911000001", `referrer` null, `canSetReferrer` đúng, `isSalesStaff` sai; đối tác `403`. Bước 7: `400` tại `phone` "Số điện thoại đã có tài khoản. Hãy đăng nhập."; số nước ngoài `400`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c23-buyer-accounts.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_296: Mã giới thiệu đúng quy tắc; mã sai giữ mã OTP; người giới thiệu thấy số điện thoại che
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_163, TIEUCHI_NGHIEMTHU_165
+- Chức năng: CHUC_NANG_104, CHUC_NANG_106
+- Loại: Đúng, sai
+- Vai trò thực hiện: Người mua
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_295.
+- Các bước: (1) Đăng ký 0911000002 với mã giới thiệu 0999999999. (2) Đăng ký lại với cùng mã OTP, mã giới thiệu +84911000001. (3) Đọc lịch sử người giới thiệu, tài khoản của 0911000002. (4) 0911000001 đăng nhập bằng mật khẩu, xem người tôi giới thiệu, khách tôi phụ trách.
+- Kết quả mong đợi: Bước 1: `400` tại `referralCode` "Mã giới thiệu không đúng.". Bước 2: `200`. Bước 3: một dòng nguồn `registration`; `referrer` "Người Mua Một" "0911***001", `canSetReferrer` sai. Bước 4: `[{ "Người Mua Hai", "0911***002" }]`; khách phụ trách `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c23-buyer-accounts.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_297: Đăng nhập bằng mật khẩu, OTP; quên mật khẩu thu hồi phiên; làm mới đồng thời; bộ đếm đăng nhập chung
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_164
+- Chức năng: CHUC_NANG_105
+- Loại: Đúng, sai, đồng thời, giới hạn
+- Vai trò thực hiện: Người mua
+- Điều kiện ban đầu và dữ liệu: Người mua 0911000003 (sau KICHBAN_KIEMTHU_298 phần người mua).
+- Các bước: (1) Đăng nhập sai mật khẩu; đúng mật khẩu; bằng OTP. (2) Gọi làm mới hai lần cùng lúc với cùng token làm mới của phiên OTP; gọi làm mới bằng token mới của yêu cầu thành công. (3) Gửi mã đặt lại mật khẩu cho số không có tài khoản; cho 0911000003; đặt lại với mã sai; với mã đúng. (4) Gọi tài khoản của tôi bằng token của phiên mật khẩu; đăng nhập mật khẩu cũ, mới. (5) Đặt giới hạn 2 lần mỗi phút (đồng hồ cố định): gọi `/auth/login`, `/buyer/login`, `/auth/app/login`.
+- Kết quả mong đợi: Bước 1: `401`, `200`, `200`. Bước 2: một `200`, một `401`; token mới cũng `401` (chuỗi bị thu hồi). Bước 3: `204`, `204`, `400`, `204`. Bước 4: `401`; mật khẩu cũ `401`, mới `200`. Bước 5: `401`, `401`, lần ba `429`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c23-buyer-accounts.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_298: Nhập mã người giới thiệu một lần; quản trị đổi người giới thiệu có lý do, lịch sử; chưa chọn công ty vận hành sàn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_165
+- Chức năng: CHUC_NANG_106, CHUC_NANG_107
+- Loại: Đúng, sai, phân quyền, phiên bản
+- Vai trò thực hiện: Người mua; Quản trị tập đoàn; Quản trị công ty VCR; Trưởng phòng mua hàng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_296; chưa có công ty vận hành sàn.
+- Các bước: (1) 0911000001 nhập mã của chính mình; mã 0911000002; đăng ký 0911000003 không mã; 0911000001 nhập 0911000003; nhập lại 0911000002. (2) Quản trị công ty VCR xem danh sách người mua; chọn công ty vận hành sàn. (3) Quản trị tập đoàn chọn VCR. (4) Quản trị công ty tìm "0911000002", xem chi tiết; đổi người giới thiệu với lý do rỗng; sai phiên bản; đúng (0911000003, lý do); để trống người giới thiệu. (5) Trưởng phòng mua hàng xem danh sách.
+- Kết quả mong đợi: Bước 1: `referralSelf`, `referralCycle`; nhập 0911000003 `200`, `canSetReferrer` sai; lần sau `409` "Tài khoản đã có người giới thiệu.". Bước 2: `409`; `403`. Bước 3: `200`. Bước 4: dòng "Người Mua Hai", người giới thiệu "Người Mua Một"; `400`; `409`; `200`, phiên bản tăng 1, lịch sử mới nhất từ "Người Mua Một" sang "Người Mua Ba", nguồn `admin`, người đổi "Trần Minh Quân"; để trống `referrerName` null. Bước 5: `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c23-buyer-accounts.test.ts`
+- Lát: L0, L3
+
+### KICHBAN_KIEMTHU_299: Đánh dấu, bỏ đánh dấu nhân viên kinh doanh; khách tôi phụ trách; không đổi công ty vận hành sàn khi còn nhân viên được đánh dấu
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_166
+- Chức năng: CHUC_NANG_108
+- Loại: Đúng, sai, toàn vẹn dữ liệu
+- Vai trò thực hiện: Quản trị công ty VCR; Quản trị tập đoàn; Người mua 0911000001
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_298; phòng ban "Kinh doanh sàn" của VCR; một phòng ban của VCT.
+- Các bước: (1) Đánh dấu 0911000001 với phòng ban của VCT; với "Kinh doanh sàn". (2) Đọc thành viên, vai trò của 0911000001 tại VCR. (3) Quản trị gắn lại 0911000001 làm người giới thiệu của 0911000002; 0911000001 đăng nhập, đọc tài khoản, khách tôi phụ trách. (4) Quản trị tập đoàn đổi công ty vận hành sàn sang VCT. (5) Bỏ đánh dấu; đọc vai trò, thành viên; 0911000001 gọi khách tôi phụ trách.
+- Kết quả mong đợi: Bước 1: `400`; `200`, `isSalesStaff` đúng, phòng "Kinh doanh sàn". Bước 2: thành viên đang hoạt động, đúng phòng ban, là công ty mặc định; một vai trò `salesperson` còn hiệu lực. Bước 3: `isSalesStaff` đúng; khách là "Người Mua Hai" 0911000002. Bước 4: `409`. Bước 5: `200`, lịch sử "unflag", "flag"; không còn vai trò hiệu lực tại VCR; thành viên `inactive`; khách tôi phụ trách `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c23-buyer-accounts.test.ts`
+- Lát: L3
+
+## Kịch bản thủ công của tài khoản người mua (CONG_VIEC_23)
+
+### KICHBAN_KIEMTHU_300: Ứng dụng VComm trên bản xem trước web khổ điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_167
+- Chức năng: CHUC_NANG_104 đến CHUC_NANG_106, CHUC_NANG_108
+- Loại: Giao diện
+- Vai trò thực hiện: Người mua; Nhân viên kinh doanh
+- Điều kiện ban đầu và dữ liệu: Máy phát triển, Expo bản web cổng 8083, khổ iPhone 13; người giới thiệu 0912345601.
+- Các bước: (1) Mở `/r/0912345601`: đăng ký số mới (gửi mã, nhập mã, họ tên, mật khẩu). (2) Xem trang chủ, Tài khoản (mã, đường dẫn, người giới thiệu). (3) Đăng xuất; người giới thiệu đăng nhập bằng OTP; xem người tôi giới thiệu. (4) Sau khi được đánh dấu: thẻ Kinh doanh, khách tôi phụ trách.
+- Kết quả mong đợi: mã giới thiệu điền sẵn; tạo tài khoản xong vào trang chủ; Tài khoản hiện người giới thiệu với số che; người tôi giới thiệu có người mới; thẻ Kinh doanh chỉ hiện khi được đánh dấu; không lỗi trình duyệt.
+- Kiểm thử tự động: Không (thủ công; tập lệnh xem trước `tam_thoi/CONG_VIEC_23/xem_l1.js`, `xem_l3.js`)
+- Lát: L1, L2, L3
+
+### KICHBAN_KIEMTHU_301: Web-crm người mua VComm (máy tính, điện thoại)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_168
+- Chức năng: CHUC_NANG_107, CHUC_NANG_108
+- Loại: Giao diện
+- Vai trò thực hiện: Quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Máy phát triển; công ty vận hành sàn VCR; các người mua của KICHBAN_KIEMTHU_300.
+- Các bước: (1) Mở `/crm/buyers` khổ 1360 điểm ảnh, khổ điện thoại. (2) Mở chi tiết người giới thiệu; chọn phòng ban, đánh dấu.
+- Kết quả mong đợi: bảng đúng cột, chuyển thành thẻ trên điện thoại, không cuộn ngang; đánh dấu xong hiện "Đang là nhân viên kinh doanh, phòng …", lịch sử đánh dấu; không lỗi trình duyệt.
+- Kiểm thử tự động: Không (thủ công)
+- Lát: L3
