@@ -50,6 +50,11 @@ export class EinvoicesController {
     return this.settings.update(await this.actor(request, companyId), updateEinvoiceSettingsSchema.parse(body));
   }
 
+  @Post("einvoice-settings/test")
+  async testConnection(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<{ ok: boolean; message: string | null }> {
+    return this.einvoices.testConnection(await this.actor(request, companyId));
+  }
+
   @Get("einvoices")
   async list(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<PageResponse<EinvoiceListItem>> {
     return this.einvoices.list(await this.actor(request, companyId), einvoiceListQuerySchema.parse(query));

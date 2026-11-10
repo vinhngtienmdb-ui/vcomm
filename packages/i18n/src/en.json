@@ -232,7 +232,9 @@
     "einvoiceAdjustmentNotReplaceable": "Adjustment invoices cannot be replaced.",
     "einvoiceNotIssued": "The invoice is not issued.",
     "einvoiceAlreadyReplaced": "Already replaced; replace the replacement instead.",
-    "einvoiceAlreadyAdjusted": "The invoice has an adjustment; keep using adjustments."
+    "einvoiceAlreadyAdjusted": "The invoice has an adjustment; keep using adjustments.",
+    "einvoiceProviderAuthentication": "The provider rejected the connection details.",
+    "einvoiceProviderRejected": "The provider rejected the request."
   },
   "login": {
     "title": "Sign in",
@@ -2562,6 +2564,10 @@
     "addSeries": "Add year",
     "removeSeries": "Remove",
     "save": "Save",
-    "saved": "E-invoice settings saved."
+    "saved": "E-invoice settings saved.",
+    "testConnection": "Test connection",
+    "connectionOk": "Connected to the provider.",
+    "connectionFailed": "Connection failed: {message}",
+    "testHint": "Uses the saved settings."
   }
 }

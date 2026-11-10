@@ -1,6 +1,8 @@
 // CONG_VIEC_16: Hóa đơn điện tử (TIEUCHI_NGHIEMTHU_121 đến 123; KICHBAN_KIEMTHU_224 trở đi).
 // Hàng A thuế 10%: giá bán gồm thuế 11.000 (chưa thuế 10.000); giá vốn 8.000; giá mua chưa thuế 8.000.
 import type { NestExpressApplication } from "@nestjs/platform-express";
+import { createServer, type Server } from "node:http";
+import type { AddressInfo } from "node:net";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
@@ -431,5 +433,118 @@ describe("TIEUCHI_NGHIEMTHU_124, 125: trả hàng, thay thế", () => {
     const adjusted = await call(accountant, "post", `/finance/einvoice-returns/${task.id}/adjust`, { version: task.version });
     expect(adjusted.body.related).toEqual([expect.objectContaining({ id: replaced.body.id, relation: "original" })]);
     expect(adjusted.body.buyer).toMatchObject({ name: "Công ty Đúng Tên" });
+  });
+});
+
+// Máy chủ giả MISA meInvoice: ghi lại yêu cầu, trả phản hồi theo hàng đợi đặt trong kiểm thử.
+type MisaRequest = { method: string; path: string; authorization: string | undefined; body: unknown };
+const misaRequests: MisaRequest[] = [];
+const misaReplies: { path: string; status: number; body: unknown }[] = [];
+let misaServer: Server;
+async function startMisa(): Promise<string> {
+  misaServer = createServer((request, response) => {
+    let raw = "";
+    request.on("data", (chunk) => (raw += chunk));
+    request.on("end", () => {
+      const path = request.url ?? "";
+      misaRequests.push({ method: request.method ?? "", path, authorization: request.headers.authorization, body: raw ? JSON.parse(raw) : null });
+      const index = misaReplies.findIndex((reply) => path.startsWith(reply.path));
+      const reply =
+        index >= 0
+          ? misaReplies.splice(index, 1)[0]!
+          : path.startsWith("/auth/token")
+            ? { status: 200, body: { Success: true, Data: `token-${misaRequests.length}` } }
+            : { status: 200, body: { Success: true, Data: "[]" } };
+      response.writeHead(reply.status, { "content-type": "application/json" });
+      response.end(JSON.stringify(reply.body));
+    });
+  });
+  await new Promise<void>((resolve) => misaServer.listen(0, "127.0.0.1", resolve));
+  return `http://127.0.0.1:${(misaServer.address() as AddressInfo).port}`;
+}
+
+describe("TIEUCHI_NGHIEMTHU_126: kết nối MISA meInvoice", () => {
+  afterAll(async () => {
+    delete process.env.MISA_EINVOICE_BASE_URL;
+    await new Promise((resolve) => misaServer?.close(resolve));
+  });
+
+  it("KICHBAN_KIEMTHU_231: kiểm tra kết nối; phát hành đúng định dạng, kèm mã truy cập; lỗi máy chủ gửi lại; mã truy cập hết hạn lấy lại; chờ cấp mã; lỗi dữ liệu; tải PDF", async () => {
+    process.env.MISA_EINVOICE_BASE_URL = await startMisa();
+    const year = Number(today.slice(0, 4));
+    const series = `C${String(year).slice(2)}TMS`;
+    await saveSettings({ provider: "misa", appId: "APP-1", taxCode: "0312345678", username: "ketoan", password: "MatKhauMisa9", series: [{ year, series }] });
+    expect((await call(accountant, "post", "/finance/einvoice-settings/test")).status).toBe(403);
+    const tested = await call(chief, "post", "/finance/einvoice-settings/test");
+    expect(tested.body).toEqual({ ok: true, message: null });
+    expect(misaRequests.find((request) => request.path === "/auth/token")?.body).toEqual({ appid: "APP-1", taxcode: "0312345678", username: "ketoan", password: "MatKhauMisa9" });
+    misaReplies.push({ path: "/auth/token", status: 200, body: { Success: false, ErrorCode: "InvalidUser" } });
+    expect((await call(chief, "post", "/finance/einvoice-settings/test")).body).toEqual({ ok: false, message: "einvoiceProviderAuthentication" });
+
+    // Lỗi máy chủ: gửi lại; lần sau phát hành được.
+    const order = await confirmedOrder("10", customer);
+    const first = await deliver(order, "2");
+    misaReplies.push({ path: "/invoice", status: 503, body: {} });
+    await sendNow();
+    const retrying = (await invoiceOf(first.id))!;
+    expect(retrying).toMatchObject({ status: "retrying", invoiceNo: null });
+    const reference = (await pool.query<{ reference_id: string }>("SELECT reference_id FROM finance.einvoices WHERE id = $1", [retrying.id])).rows[0]!.reference_id;
+    misaRequests.length = 0;
+    misaReplies.push(
+      { path: "/invoice", status: 200, body: { Success: true, Data: JSON.stringify([{ RefID: reference, TransactionID: "T-1", InvNo: "1", InvSeries: series, InvoiceCode: "M1-26-ABC" }]) } },
+      { path: "/invoice/Download?downloadDataType=pdf", status: 200, body: { Success: true, Data: [{ TransactionID: "T-1", Data: Buffer.from("%PDF-1.4 misa").toString("base64") }] } },
+      { path: "/invoice/Download?downloadDataType=xml", status: 200, body: { Success: true, Data: [{ TransactionID: "T-1", Data: Buffer.from("<HDon/>").toString("base64") }] } },
+    );
+    await sendNow();
+    expect((await invoiceOf(first.id))!).toMatchObject({ status: "issued", invoiceNo: "1", taxAuthorityCode: "M1-26-ABC", hasPdf: true });
+    const publish = misaRequests.find((request) => request.path === "/invoice")!;
+    expect(publish.authorization).toMatch(/^Bearer token-/);
+    const data = (publish.body as { SignType: number; InvoiceData: Record<string, unknown>[] }).InvoiceData[0]!;
+    expect((publish.body as { SignType: number }).SignType).toBe(2);
+    expect(data).toMatchObject({
+      RefID: reference,
+      InvSeries: series,
+      InvTemplateNo: "1",
+      CurrencyCode: "VND",
+      BuyerLegalName: "Khách công nợ",
+      BuyerTaxCode: "0320001601",
+      TotalAmountWithoutVATOC: 20000,
+      TotalVATAmountOC: 2000,
+      TotalAmountOC: 22000,
+      TotalAmountInWords: "Hai mươi hai nghìn đồng",
+    });
+    expect(data.OriginalInvoiceDetail).toEqual([
+      expect.objectContaining({ ItemType: 1, ItemName: "Hàng công nợ A", Quantity: 2, UnitPrice: 10000, AmountOC: 20000, VATRateName: "10%", VATAmountOC: 2000 }),
+    ]);
+    expect(data.TaxRateInfo).toEqual([{ VATRateName: "10%", AmountWithoutVATOC: 20000, VATAmountOC: 2000 }]);
+    const pdf = await call(accountant, "get", `/finance/einvoices/${retrying.id}/file/pdf`).responseType("blob");
+    expect(Buffer.from(pdf.body as Buffer).toString()).toBe("%PDF-1.4 misa");
+
+    // Mã truy cập hết hạn: lấy mã mới, gọi lại; cơ quan thuế chưa cấp mã thì chờ, tra trạng thái sau.
+    const second = await deliver(order, "1");
+    const secondReference = (await pool.query<{ reference_id: string }>("SELECT e.reference_id FROM finance.einvoices e WHERE e.source_document_id = $1", [second.id])).rows[0]!.reference_id;
+    misaRequests.length = 0;
+    misaReplies.push(
+      { path: "/invoice", status: 401, body: {} },
+      { path: "/invoice", status: 200, body: { Success: true, Data: [{ RefID: secondReference, TransactionID: "T-2", InvNo: "2", InvSeries: series, InvoiceCode: null }] } },
+    );
+    await sendNow();
+    expect((await invoiceOf(second.id))!).toMatchObject({ status: "awaiting_code", invoiceNo: "2" });
+    expect(misaRequests.map((request) => request.path)).toEqual(["/invoice", "/auth/token", "/invoice"]);
+    misaReplies.push({ path: "/invoice/status", status: 200, body: { Success: true, Data: [{ RefID: secondReference, TransactionID: "T-2", InvNo: "2", InvoiceCode: "M1-26-DEF" }] } });
+    await sendNow();
+    expect((await invoiceOf(second.id))!).toMatchObject({ status: "issued", taxAuthorityCode: "M1-26-DEF" });
+    expect(misaRequests.find((request) => request.path.startsWith("/invoice/status"))?.body).toEqual([secondReference]);
+
+    // Lỗi dữ liệu: dừng chờ kế toán.
+    const third = await deliver(order, "1");
+    const thirdReference = (await pool.query<{ reference_id: string }>("SELECT e.reference_id FROM finance.einvoices e WHERE e.source_document_id = $1", [third.id])).rows[0]!.reference_id;
+    misaReplies.push({
+      path: "/invoice",
+      status: 200,
+      body: { Success: true, Data: [{ RefID: thirdReference, ErrorCode: "InvalidBuyerTaxCode", DescriptionErrorCode: "Mã số thuế người mua không hợp lệ" }] },
+    });
+    await sendNow();
+    expect((await invoiceOf(third.id))!).toMatchObject({ status: "failed", lastError: "Mã số thuế người mua không hợp lệ" });
   });
 });

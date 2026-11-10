@@ -232,7 +232,9 @@
     "einvoiceAdjustmentNotReplaceable": "Không thay thế hóa đơn điều chỉnh.",
     "einvoiceNotIssued": "Hóa đơn chưa phát hành.",
     "einvoiceAlreadyReplaced": "Hóa đơn đã bị thay thế; thay thế hóa đơn thay thế.",
-    "einvoiceAlreadyAdjusted": "Hóa đơn đã có hóa đơn điều chỉnh; lần sau xử lý bằng điều chỉnh."
+    "einvoiceAlreadyAdjusted": "Hóa đơn đã có hóa đơn điều chỉnh; lần sau xử lý bằng điều chỉnh.",
+    "einvoiceProviderAuthentication": "Nhà cung cấp từ chối thông tin kết nối (mã ứng dụng, mã số thuế, tên đăng nhập, mật khẩu).",
+    "einvoiceProviderRejected": "Nhà cung cấp từ chối yêu cầu."
   },
   "login": {
     "title": "Đăng nhập",
@@ -2562,6 +2564,10 @@
     "addSeries": "Thêm năm",
     "removeSeries": "Bỏ",
     "save": "Lưu",
-    "saved": "Đã lưu cài đặt hóa đơn điện tử."
+    "saved": "Đã lưu cài đặt hóa đơn điện tử.",
+    "testConnection": "Kiểm tra kết nối",
+    "connectionOk": "Kết nối được với nhà cung cấp.",
+    "connectionFailed": "Không kết nối được: {message}",
+    "testHint": "Kiểm tra theo cài đặt đã lưu."
   }
 }

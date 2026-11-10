@@ -9,7 +9,7 @@ import { Field, FormError, useSubmit } from "ui/components/Form";
 import { HistoryLink } from "ui/components/HistoryLink";
 import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
-import { useApi } from "ui/lib/use-api";
+import { failureOf, useApi } from "ui/lib/use-api";
 
 export default function EinvoiceSettingsPage() {
   const t = useTranslations("einvoiceSettings");
@@ -33,7 +33,21 @@ function SettingsForm({ settings, onSaved }: { settings: EinvoiceSettingsRespons
   const [form, setForm] = useState({ ...settings, password: "" });
   const [series, setSeries] = useState(settings.series.map((item) => ({ year: String(item.year), series: item.series })));
   const { submitting, fields, formError, run, inputClass } = useSubmit();
+  const [testing, setTesting] = useState(false);
+  const errors = useTranslations("errors");
   const disabled = !settings.canSetup;
+  async function testConnection() {
+    setTesting(true);
+    try {
+      const result = await apiFetch<{ ok: boolean; message: string | null }>("/finance/einvoice-settings/test", { method: "POST" });
+      const message = result.message && errors.has(result.message as never) ? errors(result.message as never) : (result.message ?? "");
+      notify(result.ok ? t("connectionOk") : t("connectionFailed", { message }), result.ok ? "thanh-cong" : "loi");
+    } catch (failure) {
+      notify(failureOf(failure).message, "loi");
+    } finally {
+      setTesting(false);
+    }
+  }
   const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => setForm((current) => ({ ...current, [key]: value }));
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -194,6 +208,11 @@ function SettingsForm({ settings, onSaved }: { settings: EinvoiceSettingsRespons
           <button type="submit" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting}>
             {t("save")}
           </button>
+          {settings.version > 0 && (
+            <button type="button" className={`nut phu${testing ? " dang-xu-ly" : ""}`} disabled={testing} title={t("testHint")} onClick={() => void testConnection()}>
+              {t("testConnection")}
+            </button>
+          )}
         </div>
       )}
     </form>

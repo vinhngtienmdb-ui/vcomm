@@ -18,6 +18,7 @@ import type { Actor } from "../permissions/roles.service";
 import { amountInWords } from "./amount-in-words";
 import { einvoicePermissions, providerConfig, seriesFor, settingsRow } from "./einvoice-settings.service";
 import type { EinvoiceProviderAdapter, ProviderInvoice, ProviderResult } from "./providers/provider";
+import { MisaProvider } from "./providers/misa";
 import { SimulatorProvider } from "./providers/simulator";
 
 type Executor = Pick<Database, "execute">;
@@ -195,7 +196,7 @@ export class EinvoicesService implements OnModuleInit {
     private readonly auditService: AuditService,
     private readonly documents: StockDocumentsService,
   ) {
-    this.providers = { simulator: new SimulatorProvider(database) };
+    this.providers = { simulator: new SimulatorProvider(database), misa: new MisaProvider() };
   }
 
   onModuleInit(): void {
@@ -575,6 +576,18 @@ export class EinvoicesService implements OnModuleInit {
     });
     await this.process(id);
     return this.detail(actor, id);
+  }
+
+  // Kiểm tra kết nối theo cài đặt đã lưu (CHUC_NANG_76).
+  async testConnection(actor: Actor): Promise<{ ok: boolean; message: string | null }> {
+    await requireFinancePermission(this.permissionService, actor, einvoicePermissions.setup);
+    const settings = await settingsRow(this.database, actor.companyId);
+    if (!settings) throw new ApiError("BUSINESS_RULE", "einvoiceNotConfigured");
+    const adapter = this.providers[settings.provider];
+    if (!adapter) throw new ApiError("BUSINESS_RULE", "einvoiceProviderNotAvailable");
+    const result = await adapter.testConnection(providerConfig(actor.companyId, settings));
+    await this.auditService.record({ ...financeAudit(actor, "einvoice_settings"), action: "einvoice_settings.test", entityId: actor.companyId, afterData: result });
+    return result;
   }
 
   async file(actor: Actor, id: string, format: "pdf" | "xml"): Promise<{ content: Buffer; fileName: string }> {
