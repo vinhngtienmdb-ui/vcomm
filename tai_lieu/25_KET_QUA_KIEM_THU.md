@@ -132,6 +132,7 @@
   - C6 OWASP Top 10: A01 kiểm quyền trong từng service; A04 sửa đơn đã nhận không giảm dưới số đã nhận, không đổi kho nhận.
 - Tự rà soát mã và dọn dẹp: Đạt. Tự rà soát sửa 1 điểm (mảng PostgreSQL); đối chiếu tài liệu với mã tìm 11 điểm, sửa 9, giữ 2 có lý do (đề nghị mua nhận vào kho bất kỳ của công ty vì là chứng từ cấp công ty; đơn mua nháp vẫn tính vào số đã đặt của đề nghị cho đến khi bị từ chối, rút).
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+- Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 42 (sau số 39).
 
 ## Lỗi phát hiện 2026-11-10
 
