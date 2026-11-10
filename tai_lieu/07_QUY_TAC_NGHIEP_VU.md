@@ -1,10 +1,10 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái và ngoại lệ, có mã định danh.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm QUYTAC_NGHIEPVU_45 đến QUYTAC_NGHIEPVU_55 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm QUYTAC_NGHIEPVU_56 đến QUYTAC_NGHIEPVU_60 của MODULE_07
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm QUYTAC_NGHIEPVU_37 đến QUYTAC_NGHIEPVU_44 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm QUYTAC_NGHIEPVU_45 đến QUYTAC_NGHIEPVU_55 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm QUYTAC_NGHIEPVU_56 đến QUYTAC_NGHIEPVU_60 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm QUYTAC_NGHIEPVU_61 đến QUYTAC_NGHIEPVU_66 của MODULE_04, quyết định AI tự đưa ra trong phạm vi đặc tả
 
 ## MODULE_01 Nền tảng
 
@@ -136,6 +136,29 @@
 | QUYTAC_NGHIEPVU_58 | Mỗi công ty con đang hoạt động là một đối tác nội bộ, đồng bộ tên, tên ngắn, mã số thuế, địa chỉ từ danh sách công ty (đối tác bên ngoài trùng mã số thuế được gắn thành đối tác nội bộ); công ty con ngừng hoạt động thì đối tác nội bộ ngừng giao dịch. Thông tin chung, trạng thái của đối tác nội bộ chỉ sửa ở màn hình công ty. Công ty không lập hồ sơ đối tác với chính mình | YCAU_NGHIEPVU_30 |
 | QUYTAC_NGHIEPVU_59 | Số Căn cước công dân là dữ liệu cá nhân: danh sách, chi tiết che, chỉ hiện 3 số cuối; xem đầy đủ cần quyền xem dữ liệu cá nhân đối tác, mỗi lần xem ghi nhật ký thao tác. Nhật ký thêm, sửa đối tác không chứa số đầy đủ. Sửa đối tác cá nhân để trống số Căn cước công dân thì giữ số đã lưu | YCAU_NGHIEPVU_30 |
 | QUYTAC_NGHIEPVU_60 | Hồ sơ đối tác của công ty: đánh dấu khách hàng, nhà cung cấp (ít nhất một), số ngày được nợ (0 đến 365), hạn mức công nợ theo tiền tệ công ty (không âm; để trống: không giới hạn), nhóm khách hàng đang dùng của công ty, nhân viên phụ trách là nhân viên đang làm ở công ty; trạng thái riêng từng công ty. Công ty khác không xem được hồ sơ của nhau | YCAU_NGHIEPVU_31 |
+
+## MODULE_04 Mua hàng (phần 1: Mua hàng trong nước, CONG_VIEC_07)
+
+| Mã | Quy tắc | Yêu cầu |
+|---|---|---|
+| QUYTAC_NGHIEPVU_61 | Bảng giá mua thuộc công ty, theo nhà cung cấp (đối tác đang giao dịch có hồ sơ nhà cung cấp đang dùng ở công ty), mặt hàng, đơn vị mua; không có hai giá đang dùng cùng nhà cung cấp, mặt hàng, đơn vị, số lượng tối thiểu có hiệu lực chồng nhau (giá ngừng dùng không tính; dùng lại thì kiểm lại). Dòng đơn mua lấy giá đang dùng có hiệu lực tại ngày đơn với số lượng tối thiểu lớn nhất không vượt số lượng đặt; sửa được | YCAU_NGHIEPVU_32 |
+| QUYTAC_NGHIEPVU_62 | Đề nghị mua chỉ chứa mặt hàng đang bán của công ty, kho nhận là kho đang dùng nhận hàng của công ty; gửi đi luồng duyệt (loại chứng từ `purchasing.requisition`, chưa có chính sách duyệt thì duyệt ngay). Đơn mua tạo từ dòng đề nghị đã duyệt; một dòng đề nghị đặt nhiều lần đến hết số lượng. Số đã đặt của dòng đề nghị = tổng dòng đơn mua chưa bị từ chối, chưa rút (đơn đã đóng chỉ tính phần đã nhận). Đề nghị đã duyệt đóng được; phần chưa đặt không đặt được nữa | YCAU_NGHIEPVU_32 |
+| QUYTAC_NGHIEPVU_63 | Đơn mua bắt buộc đi luồng duyệt (loại `purchasing.order`), trừ khi mọi dòng tạo từ đề nghị mua đã duyệt và tổng giá trị không vượt giá trị ước tính của các dòng đề nghị đó. Đơn đã duyệt sửa làm tăng tổng giá trị (so với lần duyệt gần nhất) hoặc đổi nhà cung cấp thì về chờ duyệt lại; sửa không tăng giá trị thì giữ trạng thái. Không giảm số lượng dòng dưới số đã nhận (gồm phần đang chờ kiểm tra); dòng đã có phiếu nhập không bỏ, không đổi mặt hàng, đơn vị | YCAU_NGHIEPVU_32 |
+| QUYTAC_NGHIEPVU_64 | Nhận hàng chỉ theo đơn mua đã duyệt chưa đóng; tổng đã nhận (đã ghi sổ phần đạt cộng đang chờ kiểm) của mỗi dòng không vượt số đặt cộng dung sai nhận vượt phần trăm cài đặt theo công ty (0 đến 100, mặc định 0). Giá nhập là đơn giá dòng đơn mua chưa gồm thuế giá trị gia tăng quy về đơn vị cơ sở. Đơn nhận đủ mọi dòng tự chuyển "Đã nhận đủ"; người có quyền đóng đơn còn thiếu kèm lý do, phần chưa nhận hủy; còn phiếu nhập nháp hoặc chờ kiểm tra thì chưa đóng được | YCAU_NGHIEPVU_33 |
+| QUYTAC_NGHIEPVU_65 | Mặt hàng thuộc ngành hàng đánh dấu cần kiểm tra chất lượng: phiếu nhập mua chuyển "Chờ kiểm tra", chưa ghi sổ kho. Kiểm xong nhập kết quả từng dòng (số không đạt; hàng serial ghi serial không đạt); phần đạt ghi sổ kho, phần không đạt ghi biên bản kèm lý do trên dòng phiếu, không tính vào số đã nhận của đơn mua | YCAU_NGHIEPVU_33 |
+| QUYTAC_NGHIEPVU_66 | Trả hàng nhà cung cấp lập từ phiếu nhập mua đã ghi sổ; tổng trả mỗi dòng không vượt số đã nhập (phần đạt); xuất kho theo đơn giá trên phiếu nhập gốc, cùng lô, vị trí của dòng gốc (hàng serial trả đúng serial đã nhập), giá vốn bình quân của phần còn lại tính lại. Phiếu nhập mua, phiếu trả hàng có chứng từ gốc nên không đi luồng duyệt | YCAU_NGHIEPVU_33 |
+
+### Quyết định AI tự đưa ra trong phạm vi đặc tả (CONG_VIEC_07, 2026-11-10, chưa xác nhận)
+
+| Vị trí | Nội dung |
+|---|---|
+| QUYTAC_NGHIEPVU_62, QUYTAC_NGHIEPVU_63 | Công ty chưa có chính sách duyệt loại `purchasing.requisition` hoặc `purchasing.order` thì đề nghị mua, đơn mua duyệt ngay khi gửi (như phiếu kho, phiếu điều chỉnh giá của các module trước) |
+| QUYTAC_NGHIEPVU_63 | Đơn mua miễn duyệt khi mọi dòng lấy từ dòng đề nghị mua đã duyệt và tổng chưa thuế không vượt giá trị ước tính (số lượng quy về đơn vị cơ sở × đơn giá ước tính của dòng đề nghị); đơn trực tiếp luôn qua luồng duyệt |
+| QUYTAC_NGHIEPVU_63 | Đơn đã duyệt sửa làm tăng tổng chưa thuế hoặc đổi nhà cung cấp thì hệ thống tự gửi duyệt lại ngay khi lưu (giữ số đơn); điều kiện miễn duyệt áp dụng như lần gửi đầu |
+| Tài liệu `08` | Thủ kho gán theo chi nhánh vẫn lập đề nghị mua, xem đơn mua của công ty: quyền `purchasing.requisition.create`, `purchasing.order.view` gán ở chi nhánh nào của công ty cũng dùng được; quyền Mua hàng khác cần gán ở phạm vi tập đoàn hoặc công ty |
+| QUYTAC_NGHIEPVU_65 | Một phiếu nhập mua có ít nhất một dòng hàng cần kiểm tra chất lượng thì cả phiếu chờ kiểm, chưa ghi sổ dòng nào |
+| CHUC_NANG_52, CHUC_NANG_53 | Phiếu nháp nhập mua, trả hàng trên giao diện chỉ gửi hoặc xóa; cần sửa thì xóa rồi lập lại từ đơn mua, phiếu nhập gốc |
+| QUYTAC_NGHIEPVU_66 | Trả làm tồn của mặt hàng về 0 thì xuất toàn bộ giá trị tồn còn lại; không xuất quá giá trị tồn đang có (giá trị tồn không âm) |
 
 ## Quy tắc do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 

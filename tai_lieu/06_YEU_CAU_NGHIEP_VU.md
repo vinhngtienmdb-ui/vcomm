@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04
 
 ## MODULE_01 Nền tảng
 
@@ -57,6 +57,13 @@
 | YCAU_NGHIEPVU_30 | Danh mục đối tác dùng chung tập đoàn, không trùng, định danh theo mã số thuế hoặc số Căn cước công dân; công ty con là đối tác nội bộ | Mua hàng, Bán hàng, Kế toán mọi công ty | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
 | YCAU_NGHIEPVU_31 | Mỗi công ty có hồ sơ riêng với đối tác: là khách hàng, nhà cung cấp, điều khoản thanh toán, hạn mức công nợ, nhóm khách, nhân viên phụ trách | Bán hàng, Mua hàng, Kế toán | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09 |
 
+## MODULE_04 Mua hàng (phần 1: Mua hàng trong nước, CONG_VIEC_07)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_32 | Đề nghị mua hàng trong danh mục được duyệt trước khi đặt; đơn mua có duyệt, sửa tăng giá trị hoặc đổi nhà cung cấp thì duyệt lại; giá mua gợi ý theo bảng giá nhà cung cấp | Mua hàng, quản lý | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
+| YCAU_NGHIEPVU_33 | Kho nhận hàng theo đơn mua, không vượt dung sai; hàng cần kiểm tra chất lượng chỉ vào tồn khi đạt; trả hàng nhà cung cấp theo phiếu nhập gốc | Thủ kho, Mua hàng, Kế toán | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -104,3 +111,9 @@
 | Người liên hệ của đối tác | Họ tên, chức vụ, điện thoại, email, liên hệ chính | Thuộc một đối tác |
 | Tài khoản ngân hàng của đối tác | Ngân hàng, số tài khoản, chủ tài khoản, chi nhánh, mặc định | Thuộc một đối tác |
 | Hồ sơ đối tác của công ty | Là khách hàng, là nhà cung cấp, số ngày được nợ, hạn mức công nợ, ghi chú, trạng thái | Một công ty với một đối tác; có nhóm khách hàng, nhân viên phụ trách của công ty |
+| Giá mua của nhà cung cấp | Nhà cung cấp, mặt hàng, đơn vị mua, số lượng tối thiểu, đơn giá chưa thuế, mã hàng nhà cung cấp, hiệu lực từ, đến, trạng thái | Thuộc công ty; nhà cung cấp là đối tác có hồ sơ nhà cung cấp ở công ty |
+| Cài đặt mua hàng | Dung sai nhận vượt (phần trăm, mặc định 0) | Một bản mỗi công ty |
+| Đề nghị mua | Số (`DNM`…), kho nhận, ngày cần, lý do, trạng thái (nháp, chờ duyệt, đã duyệt, bị từ chối, đã rút, đã đóng); các dòng (mặt hàng, đơn vị, số lượng, đơn giá ước tính, nhà cung cấp đề xuất, ghi chú) | Thuộc công ty; mỗi dòng được đặt qua một hoặc nhiều dòng đơn mua |
+| Đơn mua | Số (`DMH`…), nhà cung cấp, kho nhận, ngày đơn, ngày giao dự kiến, tiền tệ của công ty, ghi chú, tổng chưa thuế, thuế, trạng thái (nháp, chờ duyệt, đã duyệt, bị từ chối, đã rút, đã nhận đủ, đã đóng), lý do đóng; các dòng (mặt hàng, đơn vị, số lượng, đơn giá chưa thuế, thuế suất, thành tiền) | Thuộc công ty; dòng có thể lấy từ dòng đề nghị mua; số đã nhận, đã trả tính từ phiếu kho |
+| Phiếu nhập mua | Như phiếu kho; nhà cung cấp, đơn mua gốc, trạng thái thêm "Chờ kiểm tra chất lượng", số không đạt và lý do từng dòng, người và thời điểm kiểm | Phiếu kho của công ty đặt đơn ở kho nhận của đơn; mỗi dòng gắn một dòng đơn mua |
+| Phiếu trả hàng nhà cung cấp | Như phiếu kho; nhà cung cấp, phiếu nhập mua gốc, lý do | Mỗi dòng gắn một dòng phiếu nhập mua gốc |
