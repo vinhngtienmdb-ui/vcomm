@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_20: Người dùng nghiệm thu, chấp nhận giới hạn đã biết (cột so sánh chỉ là số cộng gộp; lãi chưa thực hiện chỉ xét hàng mua nội bộ trong kỳ; loại trừ đầu tư vào công ty con, thuế giá trị gia tăng nội bộ bằng điều chỉnh tay; chênh lệch công nợ nội bộ chỉ cảnh báo); chờ người dùng hợp nhất pull request số 55 (sau số 54).
 - CONG_VIEC_20: Xong lát L0 đến L2 trên nhánh `chuc-nang/CONG_VIEC_20-bao-cao-hop-nhat` (pull request số 55, tách từ nhánh CONG_VIEC_19). Database migration 0020; cộng gộp B01-DN, B02-DN theo Thông tư 99; bảng hợp nhất theo kỳ, loại trừ công nợ, trả trước, doanh thu và giá vốn nội bộ, lãi chưa thực hiện, điều chỉnh tay; gửi duyệt chốt số; xuất Excel, PDF; MAN_HINH_62, 63. Kiểm thử 281/281 đạt. Không thêm thư viện. Rà soát độc lập, sửa 2 lỗi Cao và các mục Trung bình, Thấp. Chờ người dùng nghiệm thu.
 - CONG_VIEC_20: Lập công việc Báo cáo tài chính hợp nhất (MODULE_06, phần 8), mức Lớn.
 - CONG_VIEC_19: Lập trình lát L0, L1 Đối soát thu hộ COD, cổng thanh toán; tài liệu; rà soát độc lập, sửa 8 mục; kiểm thử 274/274 đạt; pull request số 54; người dùng nghiệm thu 2026-11-10.

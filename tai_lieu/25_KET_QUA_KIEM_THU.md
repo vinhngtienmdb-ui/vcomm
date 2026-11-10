@@ -197,7 +197,7 @@
   - C4 toàn vẹn dữ liệu: Đạt – chỉ đọc sổ các công ty, không ghi bút toán vào sổ công ty; số chốt lúc gửi, bảng đã chốt không tính lại; một bảng đang dùng mỗi kỳ (chỉ mục duy nhất, lỗi nghiệp vụ khi trùng); điều chỉnh tay kiểm công ty thuộc thành viên, đối tác tồn tại, cân Nợ Có; truy vấn tham số ràng buộc.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 2 lỗi Cao (thiếu loại trừ trả trước nội bộ; gửi duyệt không chốt số nên người duyệt thấy số khác số ghi), các mục Trung bình (số dư ngược chiều giữa công ty bị bù trừ; lãi mỗi đơn vị sai khi giao thiếu; tồn cuối không chia khi nhiều bên bán; điều chỉnh tay thiếu công ty, đối tác; gửi lại trùng kỳ lỗi 500; thiếu chỉ mục), các mục Thấp (lỗi ghi sổ hiện khóa thô; câu thiếu định khoản nói về hoa hồng; xem nhanh tải khi chưa mở thẻ); đã sửa tất cả. Khi thử trên trình duyệt phát hiện ô Nợ, Có bị tách hai hàng trong ngăn kéo điều chỉnh tay, đã sửa. Bảng nháp thử trên dữ liệu phát triển đã xóa.
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
-- Kết luận: Chờ người dùng nghiệm thu.
+- Kết luận: Người dùng nghiệm thu 2026-11-10, chấp nhận các giới hạn đã biết (đặc tả mục 16); chờ người dùng hợp nhất pull request số 55 (sau số 54).
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_19
 
