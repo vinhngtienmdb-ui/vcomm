@@ -183,6 +183,21 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_14
+
+- Phạm vi: lát L0, L1 (khởi tạo kế toán theo chế độ của công ty, hệ thống tài khoản Thông tư 99/2025 và Thông tư 133/2016, tài khoản chi tiết, định khoản mặc định; bút toán tự sinh từ phiếu kho, phiếu thu chi, ghi tổn thất hàng thiếu nội bộ; phiếu kế toán qua luồng duyệt; khóa sổ, kết chuyển, mở lại; bảng cân đối số phát sinh, sổ cái; làm tròn chung công nợ và bút toán theo THAY_DOI_10); MAN_HINH_50 đến 52; API_87 đến 89, sửa API_20. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm --filter api test`, `pnpm --filter i18n test`, `pnpm audit --prod --audit-level high`; database migration 0011 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright (Quản trị công ty VCR): khởi tạo kế toán tạo bút toán cho chứng từ cũ, định khoản mặc định, danh sách và chi tiết bút toán, lập phiếu kế toán số dư đầu kỳ, bảng cân đối số phát sinh (cân ở mọi cột, số tiền làm tròn đến đồng), sổ cái, khóa sổ (máy tính và điện thoại 375 điểm ảnh, không cuộn ngang).
+- Kết quả: 229 đạt / 0 không đạt / 229 kịch bản tự động (28 tệp; phần mới: `c14-ledger` 6, KICHBAN_KIEMTHU_210 đến 214, 217). KICHBAN_KIEMTHU_215, 216 (thủ công trên trình duyệt) đạt.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_111 đến 116 (bắt buộc) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod --audit-level high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 49): không có phát hiện.
+  - C3 phân quyền: Đạt – quyền kế toán cần phạm vi công ty; khóa sổ là quyền nhạy cảm; nhân viên bán hàng không xem, không lập được.
+  - C4 toàn vẹn dữ liệu: Đạt – bút toán sinh cùng giao dịch ghi sổ chứng từ, kiểm cân Nợ Có; kỳ đã khóa chặn mọi đường ghi sổ có bút toán; khóa sổ và ghi sổ loại trừ nhau.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 1 lỗi Cao (khởi tạo tạo bút toán cho phiếu nhập nội bộ chưa nhận làm không nhận hàng được), 6 mục Trung bình, 7 mục Thấp; đã sửa lỗi Cao, các mục Trung bình (làm tròn theo quyết định người dùng) và 4 mục Thấp. Giữ lại (ghi tài liệu 22): danh mục tài khoản Thông tư 99/2025 lập từ bản chép Phụ lục II, phải so bản gốc trước khi phát hành; chuyển kho trong kỳ đã khóa chưa bị chặn (không sinh bút toán); 3388 là tài khoản tạm đối ứng nhập tồn đầu kỳ.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_13
 
 - Phạm vi: lát L0, L1 (quỹ, sổ quỹ; công nợ tự phát sinh từ phiếu xuất giao hàng, nhận hàng trả lại, nhập mua, trả hàng nhà cung cấp; tính lại phiếu cũ khi chạy database migration; số dư đầu kỳ; tuổi nợ; phiếu thu, phiếu chi trừ theo chứng từ, trả trước, hoàn tiền, phiếu chi qua luồng duyệt; ghi tổn thất hàng thiếu nội bộ giảm phải thu; đơn bán kiểm hạn mức theo dư nợ thật theo THAY_DOI_09); mini app `apps/web-finance`, MAN_HINH_46 đến 49; API_84 đến 86, sửa API_77. Hồi quy: toàn bộ kiểm thử tự động của dự án.

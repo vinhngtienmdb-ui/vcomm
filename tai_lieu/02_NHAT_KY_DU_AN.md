@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_14: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_14-ke-toan-tong-hop` (pull request số 49, tách từ nhánh CONG_VIEC_13). Database migration 0011 schema `accounting`; khởi tạo kế toán theo chế độ của công ty (Thông tư 99/2025: 184 tài khoản; Thông tư 133/2016: 121 tài khoản); định khoản mặc định sửa được; bút toán tự sinh từ phiếu kho, phiếu thu chi, ghi tổn thất nội bộ; phiếu kế toán qua luồng duyệt; khóa sổ theo tháng, kết chuyển, mở lại; bảng cân đối số phát sinh, sổ cái; vai trò Kế toán trưởng; làm tròn chung công nợ và bút toán (THAY_DOI_10). Kiểm thử 229/229 đạt. Không thêm thư viện. Rà soát mã sửa 1 lỗi Cao, 6 mục Trung bình. Chờ người dùng nghiệm thu.
 - CONG_VIEC_14, CONG_VIEC_15: Lập công việc Kế toán tổng hợp và Báo cáo tài chính (MODULE_06, phần 2, 3), mức Lớn.
 - CONG_VIEC_13: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 48 (sau số 47).
 - CONG_VIEC_13: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_13-cong-no` (pull request số 48, tách từ nhánh CONG_VIEC_12). L0: database migration 0010 schema `finance`; mini app `apps/web-finance` đường dẫn `/finance`; vai trò Kế toán; quỹ, sổ quỹ; công nợ tự phát sinh khi ghi sổ phiếu kho, tính lại phiếu cũ; số dư đầu kỳ; tuổi nợ. L1: phiếu thu, phiếu chi trừ theo chứng từ, trả trước, hoàn tiền, phiếu chi qua luồng duyệt; ghi tổn thất hàng thiếu nội bộ giảm phải thu; đơn bán kiểm hạn mức theo dư nợ thật (THAY_DOI_09). Kiểm thử 223/223 đạt. Không thêm thư viện. Rà soát mã sửa 1 lỗi Cao, 1 lỗi Trung bình. Chờ người dùng nghiệm thu.
