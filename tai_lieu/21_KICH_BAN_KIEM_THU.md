@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng), phần 7 (Đối soát thu hộ), phần 8 (Báo cáo tài chính hợp nhất), MODULE_07 phần 2 (Gán khách hàng cho nhân viên kinh doanh): đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 1.1
+- Phiên bản: 1.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -3517,3 +3517,63 @@ Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DO
 - Kết quả mong đợi: bảng đúng cột, chuyển thành thẻ trên điện thoại, không cuộn ngang; đánh dấu xong hiện "Đang là nhân viên kinh doanh, phòng …", lịch sử đánh dấu; không lỗi trình duyệt.
 - Kiểm thử tự động: Không (thủ công)
 - Lát: L3
+
+## CHUC_NANG_109 đến CHUC_NANG_112: Đội kinh doanh nhiều cấp (CONG_VIEC_27)
+
+Dữ liệu chung: công ty vận hành sàn VCR; phòng ban Khối Kinh doanh; Vùng Miền Nam (dưới Khối); Phòng Kinh doanh 1 (dưới Vùng); Phòng Kinh doanh Trực tiếp (dưới Khối); Hành chính (không phải đơn vị kinh doanh). Người mua 0922000001 (Giám Đốc Kinh Doanh), 0922000002 (Giám Đốc Vùng), 0922000003 (Trưởng Phòng Một), 0922000004 (Nhân Viên Một), 0922000005 (Nhân Viên Trực Tiếp).
+
+### KICHBAN_KIEMTHU_302: Gắn loại đơn vị đúng thứ bậc; đánh dấu chỉ vào đơn vị kinh doanh
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_169; Chức năng: CHUC_NANG_109; Loại: Đúng, sai, phân quyền
+- Các bước: gắn Khối; Vùng là Khối (sai); Vùng là Vùng; Phòng 1 là Phòng; Phòng Trực tiếp là Phòng (thiếu Vùng); đổi Vùng thành Phòng; đánh dấu 0922000001 vào Hành chính rồi vào Khối; bỏ loại Khối; người mua gọi xem đội.
+- Kết quả mong đợi: Vùng là Khối `409` "Sai thứ bậc đơn vị kinh doanh: Khối > Vùng > Phòng."; các gắn đúng `200`; đổi Vùng thành Phòng `409`; đánh dấu vào Hành chính `400`, vào Khối `200`; bỏ loại Khối `409` "Đơn vị còn thành viên đội kinh doanh…"; người mua `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c27-sales-team.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_303: Chức danh suy ra từ vị trí; chuỗi cấp trên kể cả thiếu chức danh
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_169, TIEUCHI_NGHIEMTHU_170; Chức năng: CHUC_NANG_109, CHUC_NANG_110; Loại: Đúng, sai
+- Các bước: bổ nhiệm 0922000001 quản lý Khối; đánh dấu 0922000002 vào Vùng, 0922000003, 0922000004 vào Phòng 1, 0922000005 vào Phòng Trực tiếp; bổ nhiệm 0922000003 quản lý Vùng (sai), 0922000002 quản lý Vùng, 0922000003 quản lý Phòng 1; đọc chức danh, chuỗi.
+- Kết quả mong đợi: trước bổ nhiệm 0922000002 là nhân viên; bổ nhiệm sai `409` "Người quản lý phải là thành viên…"; chức danh director, regional_director, team_head, staff; chuỗi của 0922000004 là team_head, regional_director, director; chuỗi của 0922000005 chỉ Giám đốc Kinh doanh.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c27-sales-team.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_304: Chuyển đơn vị, bổ nhiệm, bỏ quản lý, bỏ đánh dấu người quản lý; lịch sử
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_170; Chức năng: CHUC_NANG_110; Loại: Đúng, sai, phiên bản
+- Các bước: chuyển Trưởng phòng 1 sang Phòng Trực tiếp; chuyển vào Hành chính; chuyển với phiên bản cũ; đọc chuỗi của 0922000004; bổ nhiệm rồi bỏ quản lý Phòng Trực tiếp; bỏ đánh dấu Giám đốc Vùng.
+- Kết quả mong đợi: chuyển `200`, chức danh nhân viên, lịch sử mới nhất "move", "unappoint", Phòng 1 không còn quản lý; Hành chính `400`; phiên bản cũ `409`; chuỗi còn regional_director, director; bổ nhiệm thành team_head, bỏ thành staff; bỏ đánh dấu xong Vùng không còn quản lý, chuỗi của 0922000004 chỉ còn director.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c27-sales-team.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_305: Đội của tôi, khách của cấp dưới; ngoài nhánh, nhân viên, người rời đội
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_171; Chức năng: CHUC_NANG_111; Loại: Đúng, phân quyền
+- Các bước: khách 0922000010 đăng ký với mã 0922000004; Giám đốc Kinh doanh đọc tài khoản của tôi, đội của tôi, khách của 0922000004, của 0922000002 (đã rời đội), của chính mình; 0922000004 đọc đội, khách của 0922000005; 0922000002 đọc đội.
+- Kết quả mong đợi: chức danh director, đơn vị Khối Kinh doanh; đội gồm 0922000003, 0922000004, 0922000005, 0922000004 có 1 khách; khách của 0922000004 đủ họ tên, số điện thoại; người ngoài nhánh, chính mình `404`; nhân viên đội rỗng, khách người khác `404`; người rời đội `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c27-sales-team.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_306: Lập đề xuất đúng phạm vi; một đề xuất chờ; nhân viên không lập được; rút
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_172; Chức năng: CHUC_NANG_112; Loại: Đúng, sai, phân quyền
+- Các bước: Giám đốc Kinh doanh đọc lựa chọn; đề xuất thêm 0922000002 vào Vùng; lặp; thêm 0922000004 (đã là thành viên); thêm vào Hành chính; nhân viên đề xuất; chuyển 0922000004 sang Phòng Trực tiếp; bổ nhiệm 0922000003 quản lý Phòng Trực tiếp; bổ nhiệm 0922000005 vào Phòng 1 (sai đơn vị); đưa 0922000005 ra khỏi đội rồi rút; đọc đề xuất của tôi.
+- Kết quả mong đợi: lựa chọn gồm 4 đơn vị trong nhánh; thêm `201` chờ duyệt; lặp `409` "Người này đang có một đề xuất chờ duyệt."; đã là thành viên `400`; ngoài cây `400`; nhân viên `403`; chuyển, bổ nhiệm `201`; sai đơn vị `400`; rút trạng thái "withdrawn"; 4 đề xuất.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c27-sales-team.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_307: Duyệt áp dụng, từ chối, thông báo; duyệt kiểm lại điều kiện
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_172; Chức năng: CHUC_NANG_112; Loại: Đúng, sai, toàn vẹn dữ liệu
+- Các bước: quản trị xem đề xuất chờ; duyệt thêm người; duyệt bổ nhiệm; từ chối chuyển đơn vị kèm ghi chú; duyệt đề xuất đã từ chối; đọc thông báo của người đề xuất; Trưởng phòng Trực tiếp đề xuất đưa 0922000005 ra khỏi đội; quản trị bỏ quản lý của người đó; duyệt.
+- Kết quả mong đợi: 3 đề xuất chờ; duyệt thêm: 0922000002 là thành viên chức danh staff, người duyệt "Trần Minh Quân"; bổ nhiệm: 0922000003 là team_head; từ chối có ghi chú; duyệt lại `409`; thông báo approved, approved, rejected; duyệt sau khi người đề xuất bị bỏ quản lý `403`, đề xuất vẫn chờ, 0922000005 vẫn trong đội.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c27-sales-team.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_308: Ứng dụng: chức danh, đội của tôi, khách của cấp dưới, đề xuất
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_173; Chức năng: CHUC_NANG_111, CHUC_NANG_112; Loại: Giao diện
+- Các bước: máy phát triển, Expo bản web khổ iPhone 13; người quản lý 0912345601 mở Kinh doanh, Đội của tôi, khách của một cấp dưới; lập đề xuất thêm người; quản trị duyệt trên web.
+- Kết quả mong đợi: hiện chức danh, cấp dưới, khách đầy đủ; đề xuất gửi được, hiện trạng thái; không lỗi trình duyệt.
+- Kiểm thử tự động: Không (thủ công; `tam_thoi/CONG_VIEC_27/xem_l2.js`, `xem_l3.js`)
+- Lát: L2, L3
+
+### KICHBAN_KIEMTHU_309: Web-crm đội kinh doanh, đề xuất (máy tính, điện thoại)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_174; Chức năng: CHUC_NANG_110, CHUC_NANG_112; Loại: Giao diện
+- Các bước: mở `/crm/sales-team`, gắn loại, bổ nhiệm; mở `/crm/sales-proposals`, duyệt; mở trên khổ điện thoại.
+- Kết quả mong đợi: cây đúng thứ tự, chức danh đúng; duyệt xong đội cập nhật; điện thoại không cuộn ngang; không lỗi trình duyệt.
+- Kiểm thử tự động: Không (thủ công; `tam_thoi/CONG_VIEC_27/xem_l1.js`, `xem_l3.js`, `xem_dien_thoai.js`)
+- Lát: L1, L3

@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.10
+- Phiên bản: 2.11
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: trả trước nội bộ, số dư ngược chiều, chốt số khi gửi, công ty và đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm CHUC_NANG_96 đến CHUC_NANG_98 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh); phạm vi xem đối tác (CHUC_NANG_46, CHUC_NANG_48) và đơn bán theo nhân viên phụ trách; CONG_VIEC_23 (2026-11-10): thêm CHUC_NANG_104 đến CHUC_NANG_108 của MODULE_09 (tài khoản người mua)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: trả trước nội bộ, số dư ngược chiều, chốt số khi gửi, công ty và đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm CHUC_NANG_96 đến CHUC_NANG_98 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh); phạm vi xem đối tác (CHUC_NANG_46, CHUC_NANG_48) và đơn bán theo nhân viên phụ trách; CONG_VIEC_23 (2026-11-10): thêm CHUC_NANG_104 đến CHUC_NANG_108 của MODULE_09 (tài khoản người mua); CONG_VIEC_27 (2026-11-10): thêm CHUC_NANG_109 đến CHUC_NANG_112 (đội kinh doanh nhiều cấp)
 
 ## MODULE_01 Nền tảng
 
@@ -1722,6 +1722,32 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 8:
 
 - Bảo mật: OTP lưu bản băm, tách mục đích; giới hạn số lần gửi, số lần sai; giới hạn số lần gọi theo địa chỉ IP cho API công khai; token làm mới lưu trong bộ nhớ an toàn của máy (bản web: bộ nhớ phiên của trình duyệt).
 - Ứng dụng: khổ điện thoại 390 điểm ảnh; mất mạng, máy chủ bận (429, 5xx) không làm mất phiên.
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 1b: Đội kinh doanh nhiều cấp, CONG_VIEC_27)
+
+### CHUC_NANG_109: Cây đơn vị kinh doanh, chức danh, chuỗi cấp trên
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_49; Quy tắc: QUYTAC_NGHIEPVU_148 đến QUYTAC_NGHIEPVU_150
+- Vai trò: Quản trị công ty vận hành sàn
+- Xử lý: gắn, đổi, bỏ loại đơn vị đúng thứ bậc; chức danh suy ra từ vị trí; chuỗi cấp trên bỏ qua chức danh thiếu (căn cứ hoa hồng CONG_VIEC_26)
+- Màn hình: MAN_HINH_81, MAN_HINH_80; API: API_120
+
+### CHUC_NANG_110: Quản trị đội kinh doanh trên web
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_49; Quy tắc: QUYTAC_NGHIEPVU_152
+- Vai trò: Quản trị công ty vận hành sàn
+- Xử lý: đánh dấu vào đơn vị kinh doanh, chuyển đơn vị (bỏ quản lý đơn vị cũ), bổ nhiệm, bỏ quản lý, bỏ đánh dấu (bỏ quản lý); lịch sử
+- Màn hình: MAN_HINH_81, MAN_HINH_80; API: API_119, API_120
+
+### CHUC_NANG_111: Đội của tôi trên ứng dụng
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_49; Quy tắc: QUYTAC_NGHIEPVU_150, QUYTAC_NGHIEPVU_151
+- Vai trò: Thành viên đội kinh doanh
+- Xử lý: chức danh, đơn vị của tôi; người quản lý xem cấp dưới trong nhánh (chức danh, đơn vị, số khách) và khách của từng cấp dưới
+- Màn hình: MAN_HINH_78, MAN_HINH_83, MAN_HINH_84; API: API_122
+
+### CHUC_NANG_112: Đề xuất thay đổi đội, duyệt
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_49; Quy tắc: QUYTAC_NGHIEPVU_153
+- Vai trò: Người quản lý trong đội; Quản trị công ty vận hành sàn
+- Xử lý: lập, rút đề xuất trong nhánh; duyệt (kiểm lại, áp dụng), từ chối kèm ghi chú; thông báo
+- Màn hình: MAN_HINH_85, MAN_HINH_82; API: API_121
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 

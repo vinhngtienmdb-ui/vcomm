@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.9
+- Phiên bản: 2.10
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -23,6 +23,7 @@
 - Cập nhật CONG_VIEC_20 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 8, MAN_HINH_62, MAN_HINH_63 (mục 47 đến mục 49); menu mini app Tài chính – Kế toán thêm mục "Báo cáo hợp nhất" sau "Báo cáo tài chính"; sửa sau rà soát: công ty, đối tác trong ngăn kéo điều chỉnh tay, lý do không chốt được hiện câu đã dịch, thẻ xem nhanh chỉ tải khi mở
 - Cập nhật CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm MODULE_07 Khách hàng và Đối tác phần 2, MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52); menu mini app Khách hàng và Đối tác thêm mục "Giao khách hàng"; sơ đồ điều hướng MODULE_07 thay ở mục 50; sửa MAN_HINH_36 (lọc "Khách của tôi", cột nhân viên phụ trách, nút "Nhận làm khách của tôi" trong ngăn kéo thêm đối tác), MAN_HINH_37 (ô nhân viên phụ trách khóa khi đã có, thẻ lịch sử phụ trách)
 - Cập nhật CONG_VIEC_23 (2026-11-10): thêm MAN_HINH_73 đến MAN_HINH_80 (ứng dụng VComm cho người mua; web-crm người mua VComm); không làm bản mẫu riêng, xem trước từng lát thay cho bản mẫu (quyết định của người dùng)
+- Cập nhật CONG_VIEC_27 (2026-11-10): thêm MAN_HINH_81 đến MAN_HINH_85; sửa MAN_HINH_78, MAN_HINH_80; xem trước từng lát thay cho bản mẫu
 
 ## MODULE_01 Nền tảng
 
@@ -1945,3 +1946,38 @@ flowchart TD
 - Bố cục: liên kết "‹ Danh sách người mua"; tiêu đề họ tên; thẻ thông tin (Số điện thoại, Trạng thái, Ngày đăng ký, Người giới thiệu); thẻ "Nhân viên kinh doanh": "Đang là nhân viên kinh doanh, phòng …" và nút Bỏ đánh dấu (hộp xác nhận nêu hậu quả), hoặc "Chưa được đánh dấu nhân viên kinh doanh." và ô Phòng ban, nút Đánh dấu nhân viên kinh doanh (công ty chưa có phòng ban thì khối cảnh báo); thẻ "Đổi người giới thiệu" (chỉ người có quyền quản lý): Mã người giới thiệu mới (để trống để bỏ), Lý do *, nút Đổi người giới thiệu; thẻ "Lịch sử người giới thiệu" (cũ → mới · nguồn, lý do, thời điểm · bởi ai); thẻ "Lịch sử đánh dấu"; thẻ "Người được giới thiệu (n)" (liên kết sang chi tiết).
 - API: API_119. Thông báo: "Đã đổi người giới thiệu.", "Đã đánh dấu nhân viên kinh doanh.", "Đã bỏ đánh dấu."; lỗi phiên bản "Dữ liệu đã được người khác sửa…".
 - Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 1b: Đội kinh doanh nhiều cấp, CONG_VIEC_27)
+
+## 56. Danh sách màn hình và điều hướng (MODULE_09 phần lõi 1b)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_81 | Web-crm: Đội kinh doanh (cây phòng ban, loại đơn vị, quản lý, thành viên, chức danh, số khách; gắn loại, bổ nhiệm, bỏ quản lý, chuyển đơn vị) | CHUC_NANG_109, CHUC_NANG_110 | `marketplace.buyer.view`; thao tác cần `marketplace.buyer.manage` | Menu "Đội kinh doanh" | Không làm (xem trước từng lát) |
+| MAN_HINH_82 | Web-crm: Đề xuất đội kinh doanh (lọc trạng thái; duyệt, từ chối kèm ghi chú) | CHUC_NANG_112 | Như MAN_HINH_81 | Menu "Đề xuất đội kinh doanh" | Không làm |
+| MAN_HINH_83 | Ứng dụng: Đội của tôi (thẻ trong MAN_HINH_78; cấp dưới, chức danh, đơn vị, số khách; nút Đề xuất thay đổi đội) | CHUC_NANG_111 | Người quản lý trong đội | Thẻ Kinh doanh | Không làm |
+| MAN_HINH_84 | Ứng dụng: Khách của một cấp dưới | CHUC_NANG_111 | Người quản lý trong đội | MAN_HINH_83 | Không làm |
+| MAN_HINH_85 | Ứng dụng: Đề xuất thay đổi đội (lập đề xuất; đề xuất của tôi, trạng thái, rút) | CHUC_NANG_112 | Người quản lý trong đội | MAN_HINH_83 | Không làm |
+
+Sửa: MAN_HINH_78 thêm thẻ chức danh, đơn vị; MAN_HINH_80 thêm chức danh, chuỗi cấp trên, chỉ chọn đơn vị kinh doanh khi đánh dấu, lịch sử có chuyển đơn vị, bổ nhiệm, bỏ quản lý.
+
+```mermaid
+flowchart TD
+    K[MAN_HINH_78 Kinh doanh] --> D[MAN_HINH_83 Đội của tôi]
+    D -->|cấp dưới| C[MAN_HINH_84 Khách của cấp dưới]
+    D -->|Đề xuất thay đổi đội| P[MAN_HINH_85 Đề xuất]
+    C -->|Quay lại| K
+    P -->|Quay lại| K
+    M{Menu web-crm} -->|Đội kinh doanh| T[MAN_HINH_81 Đội kinh doanh]
+    M -->|Đề xuất đội kinh doanh| A[MAN_HINH_82 Đề xuất]
+    T -->|họ tên| B[MAN_HINH_80 Chi tiết người mua]
+    A -->|người được đề xuất| B
+```
+
+## 57. Đặc tả màn hình (MODULE_09 phần lõi 1b)
+
+- MAN_HINH_81 (`/crm/sales-team`): mỗi phòng ban là một thẻ thụt theo cấp; ô chọn loại đơn vị (Không phải đơn vị kinh doanh, Khối kinh doanh, Vùng, Phòng kinh doanh); với đơn vị kinh doanh: dòng Quản lý (tên hoặc "Chưa có quản lý", nút Bỏ quản lý), "Thành viên (n)": họ tên (liên kết MAN_HINH_80), số điện thoại, nhãn chức danh, số khách, nút Bổ nhiệm quản lý, ô Chuyển sang và nút Chuyển. Lỗi hiện ở khối lỗi đầu trang; lưu xong thông báo "Đã lưu.". API_120.
+- MAN_HINH_82 (`/crm/sales-proposals`): ô lọc trạng thái (mặc định Chờ duyệt); bảng Loại, Người được đề xuất (liên kết, số điện thoại), Đơn vị, Người đề xuất · thời điểm, Lý do, Trạng thái (nhãn; người duyệt, thời điểm, ghi chú), Xử lý (Duyệt; Từ chối mở ô ghi chú bắt buộc). Bảng chuyển thành thẻ trên điện thoại. API_121.
+- MAN_HINH_83, MAN_HINH_84 (ứng dụng): thẻ chức danh, đơn vị; "Đội của tôi (n)": họ tên (bấm mở MAN_HINH_84), chức danh · đơn vị · số khách; MAN_HINH_84: "‹ Quay lại", "Khách của <tên>", danh sách khách như khách tôi phụ trách. API_122.
+- MAN_HINH_85 (ứng dụng, `/de-xuat`): "Lập đề xuất": Loại đề xuất (Thêm người, Chuyển đơn vị, Bổ nhiệm quản lý, Đưa ra khỏi đội); Số điện thoại người được thêm hoặc chọn Thành viên; chọn Đơn vị (thêm người, chuyển đơn vị); Lý do; nút Gửi đề xuất; "Đã gửi đề xuất, chờ quản trị duyệt."; "Đề xuất của tôi": nhãn trạng thái, nội dung, lý do, ngày, ghi chú từ chối, nút Rút đề xuất khi chờ duyệt. API_121.
+- Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-10).
