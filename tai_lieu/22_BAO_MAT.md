@@ -1,10 +1,10 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 2.8
+- Phiên bản: 2.9
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 5 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 6 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 7 (đối soát thu hộ); CONG_VIEC_20 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 8 (báo cáo tài chính hợp nhất; sửa sau rà soát: công ty, đối tác của điều chỉnh tay, danh sách đối tác các thành viên); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: MODULE_07 Khách hàng và Đối tác phần 2 (gán khách hàng cho nhân viên kinh doanh: phân quyền theo nhân viên phụ trách, quyền mới, khóa đồng thời)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 5 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 6 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 7 (đối soát thu hộ); CONG_VIEC_20 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 8 (báo cáo tài chính hợp nhất; sửa sau rà soát: công ty, đối tác của điều chỉnh tay, danh sách đối tác các thành viên); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: MODULE_07 Khách hàng và Đối tác phần 2 (gán khách hàng cho nhân viên kinh doanh: phân quyền theo nhân viên phụ trách, quyền mới, khóa đồng thời); CONG_VIEC_23 (2026-11-10): điểm tiếp nhận, ma trận phân quyền, kết quả rà soát bảo mật tài khoản người mua
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
 Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16); MODULE_06 phần 5 Hoa hồng đội kinh doanh (CONG_VIEC_17); MODULE_06 phần 6 Đối soát ngân hàng (CONG_VIEC_18); MODULE_06 phần 7 Đối soát thu hộ (CONG_VIEC_19); MODULE_06 phần 8 Báo cáo tài chính hợp nhất (CONG_VIEC_20); MODULE_07 phần 2 Gán khách hàng cho nhân viên kinh doanh (CONG_VIEC_21). Các module sau bổ sung vào cùng tài liệu.
@@ -648,6 +648,40 @@ Ranh giới và kiểm soát riêng:
 Ghi nhận khi đối chiếu tài liệu với mã (2026-11-10):
 - Mục menu "Giao khách hàng" hiện theo `crm.partner.view`; người không phải trưởng phòng, không có quyền giao khách thấy danh sách phiếu giao cho mình, không thấy nút lập phiếu.
 - Kiểm thử đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` cho vai trò Nhân viên bán hàng quyền xem mọi khách (người dùng cho phép ngày 2026-11-10); chỉ trong cơ sở dữ liệu thử.
+
+### Ma trận phân quyền tài khoản người mua MODULE_09 phần lõi 1 (CONG_VIEC_23)
+
+Quyền mới `marketplace.buyer.view`, `marketplace.buyer.manage` (nhạy cảm) xét tại công ty vận hành sàn (tài liệu `08` mục 31, 32).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty vận hành sàn | Quản trị công ty khác | Nhân viên kinh doanh | Người mua | Chưa đăng nhập |
+|---|---|---|---|---|---|---|
+| CHUC_NANG_104, CHUC_NANG_105 Đăng ký, đăng nhập, quên mật khẩu | Được | Được | Được | Được | Được | Được (giới hạn số lần gọi) |
+| CHUC_NANG_106 Tài khoản, người tôi giới thiệu (số che), nhập mã một lần | Được | Được | Được | Được | Được | Không |
+| CHUC_NANG_108 Khách tôi phụ trách | Không | Không | Không | Được | Không | Không |
+| CHUC_NANG_107 Chọn công ty vận hành sàn | Được | Không | Không | Không | Không | Không |
+| CHUC_NANG_107, CHUC_NANG_108 Xem, đổi người giới thiệu, đánh dấu | Được | Được (còn là thành viên) | Không | Không | Không | Không |
+
+Ranh giới và kiểm soát riêng:
+- Điểm tiếp nhận công khai mới: `/buyer/register/otp`, `/buyer/register`, `/buyer/login`, `/buyer/login/otp`, `/buyer/login/otp/verify`, `/buyer/password-reset/otp`, `/buyer/password-reset`. Giới hạn theo địa chỉ IP; nhóm "login" (`/auth/login`, `/auth/app/login`, `/buyer/login`) và nhóm "otp-verify" (`/auth/otp/verify`, `/buyer/login/otp/verify`, `/buyer/register`, `/buyer/password-reset`) dùng chung bộ đếm.
+- OTP: lưu bản băm SHA-256, tách mục đích, 5 lần gửi mỗi giờ mỗi số (mọi mục đích), 300 mã đăng ký mỗi giờ toàn hệ thống, mỗi lượt thử giữ trước bằng lệnh nguyên tử (đoán song song không vượt 5 lượt), dùng mã nguyên tử.
+- Phiên: `vcomm_app` 90 ngày, xoay vòng; làm mới cùng token hai lần thì thu hồi chuỗi; phiên chưa nhập mã xác thực hai lớp không làm mới được; phiên web không làm mới qua đường dẫn ứng dụng.
+- Người mua không thuộc công ty nên không qua được kiểm tra công ty của các API quản trị (`403`).
+- Đánh dấu nhân viên kinh doanh ghi lại phần mình tạo; bỏ đánh dấu không gỡ vai trò, phòng ban do nhân sự gán.
+- Khóa cặp tài khoản theo thứ tự khi gắn người giới thiệu (chống vòng do thao tác đồng thời); khóa dòng tài khoản người mua và kiểm phiên bản khi quản trị thao tác.
+- Số điện thoại hiện cho người giới thiệu luôn che; số đầy đủ chỉ cho nhân viên kinh doanh (khách mình phụ trách) và quản trị.
+- Nhật ký thao tác: `buyer.register`, `buyer.referrer.self`, `buyer.referrer.change`, `buyer.sales.flag`, `buyer.sales.unflag`, `marketplace.operator.set`, `password.reset`.
+- Truy vấn dùng tham số của Drizzle; ô tìm kiếm thoát ký tự `%`, `_`. Không thêm thư viện phụ thuộc (ứng dụng bỏ `expo-location`, `expo-image-picker`).
+
+Kết quả rà soát bảo mật phần thay đổi (2026-11-10, rà soát độc lập; sửa ở commit 70b9c29):
+- Đã sửa (Cao): làm mới phiên chưa nhập mã xác thực hai lớp để đếm lại số lần nhập sai mã.
+- Đã sửa (Cao): bỏ đánh dấu gỡ cả vai trò, phòng ban do nhân sự gán, có thể ngừng thành viên của nhân viên có sẵn.
+- Đã sửa (Trung bình): đoán mã OTP song song vượt 5 lượt; bơm SMS đăng ký tới số chưa có tài khoản (thêm giới hạn toàn hệ thống); lỗi 500 khi đánh dấu người có công ty mặc định đã ngừng; ứng dụng không hiện lỗi của ô không hiển thị.
+- Đã sửa (Thấp): vòng giới thiệu do thao tác đồng thời; quản trị không còn là thành viên vẫn thao tác được; đặt lại mật khẩu bằng OTP cho tài khoản nhân viên có thư điện tử; đường dẫn xác minh mã chưa dùng chung bộ đếm; khách tự đặt lại người giới thiệu sau khi quản trị bỏ; ô tìm kiếm chưa thoát ký tự; chọn công ty vận hành sàn đồng thời trả lỗi 500; ứng dụng làm mới token ở đường dẫn đăng nhập, về đăng nhập khi khởi động lỗi tạm thời.
+- Ghi nhận, chưa sửa (Thấp): đăng ký kiểm mã giới thiệu trước mã OTP nên phân biệt được số có tài khoản đang hoạt động; `register/otp` vốn báo số đã có tài khoản theo QUYTAC_NGHIEPVU_141.
+- Ghi nhận, chưa sửa (Thấp): tin SMS mã đặt lại mật khẩu, mã đăng ký dùng chung mẫu tin mã đăng nhập của eSMS.
+- Ghi nhận, cần người dùng quyết định: vai trò hệ thống Nhân viên bán hàng có quyền ghi đơn bán, đối tác (B2B) ở công ty vận hành sàn; người mua được đánh dấu nhận đủ các quyền đó, trái với THAY_DOI_14 (nhân viên kinh doanh không tạo đơn giùm, không bán B2B). Đề xuất vai trò riêng hẹp hơn trong công việc sửa CONG_VIEC_21, CONG_VIEC_17.
+- Ghi nhận (Thấp): mục menu "Người mua VComm" theo quyền ở công ty đang chọn; người đang chọn công ty khác công ty vận hành sàn không thấy mục.
+- Quét thư viện phụ thuộc: 2 lỗ hổng mức Trung bình trong `@expo/cli` (công cụ phát triển, không chạy trên môi trường thật), chờ quyết định của người dùng. Quét khóa bí mật: các dòng thêm mới không có khóa bí mật; gitleaks trong CI chưa chạy được do tài khoản GitHub lỗi thanh toán.
 
 ## 5. Quản lý khóa bí mật
 
