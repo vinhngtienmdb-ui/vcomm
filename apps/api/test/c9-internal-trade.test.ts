@@ -430,3 +430,54 @@ describe("TIEUCHI_NGHIEMTHU_96: biên bản chênh lệch nội bộ", () => {
     expect(written.body.find((item: { id: string }) => item.id === lost[0].id)).toMatchObject({ status: "written_off", resolutionNote: "Ghi tổn thất", returnDocumentId: null });
   });
 });
+
+describe("TIEUCHI_NGHIEMTHU_95, 97: đơn mua nội bộ không nhận thường; rút, hủy khi đang chờ duyệt", () => {
+  it("KICHBAN_KIEMTHU_190: đơn mua nội bộ không lập phiếu nhập thường; bên bán hủy khi đơn mua đối ứng chờ duyệt thì yêu cầu duyệt bị rút; bên mua rút đơn đối ứng thì đơn bán hủy", async () => {
+    // Đơn mua nội bộ đã duyệt chỉ nhận theo phiếu xuất của công ty bán.
+    const internalPurchase = (await buy(groupAdmin, "/purchasing/orders", purchaseBody("1"))).body;
+    expect((await buy(groupAdmin, `/purchasing/orders/${internalPurchase.id}/submit`, {})).body.status).toBe("approved");
+    expect((await buy(groupAdmin, "/inventory/purchase-orders")).body.map((item: { id: string }) => item.id)).not.toContain(internalPurchase.id);
+    const normal = await buy(groupAdmin, "/inventory/purchase-receipts", {
+      orderId: internalPurchase.id,
+      documentDate: today,
+      lines: [{ orderLineId: internalPurchase.lines[0].id, quantity: "1" }],
+    });
+    expect(normal.status).toBe(409);
+    expect(normal.body.error.message).toBe("Đơn mua nội bộ chỉ nhận theo phiếu nhập sinh từ phiếu xuất của công ty bán.");
+
+    // Chính sách duyệt đơn mua ở VCT: đơn mua đối ứng xác nhận xong thì chờ duyệt.
+    const tradingApprover = (await pool.query<{ id: string }>("SELECT id FROM core.users WHERE email = 'banhang.vct.noibo@vcomm.test'")).rows[0]!.id;
+    const policy = await groupAdmin.call("post", "/approval-policies", {
+      companyId: trading,
+      body: {
+        documentTypeCode: "purchasing.order",
+        currency: "VND",
+        effectiveFrom: "2026-01-01",
+        levels: [{ levelNo: 1, minAmount: "0", approver: { type: "user", userId: tradingApprover }, substitute: { type: "user", userId: testIds.groupAdmin }, dueHours: 8 }],
+      },
+    });
+    expect(policy.status, JSON.stringify(policy.body)).toBe(201);
+    const confirmPending = async () => {
+      const order = (await sell(retailAdmin, "/sales/orders", salesBody("12"))).body;
+      const confirmed = (await sell(retailAdmin, `/sales/orders/${order.id}/submit`, {})).body;
+      const purchase = (await pool.query<{ id: string; version: number }>("SELECT id, version FROM purchasing.orders WHERE counterpart_order_id = $1", [order.id])).rows[0]!;
+      const pending = (await buy(groupAdmin, `/purchasing/orders/${purchase.id}/counterpart-confirm`, { warehouseId: buyerWarehouse, version: purchase.version })).body;
+      expect(pending).toMatchObject({ status: "pending", canWithdraw: true });
+      return { order: confirmed, purchase: pending };
+    };
+
+    // Bên bán hủy: đơn mua đóng, yêu cầu duyệt bị rút khỏi hộp duyệt.
+    const first = await confirmPending();
+    expect((await sell(retailAdmin, `/sales/orders/${first.order.id}/cancel`, { version: first.order.version })).body.status).toBe("cancelled");
+    expect((await buy(groupAdmin, `/purchasing/orders/${first.purchase.id}`)).body.status).toBe("closed");
+    expect((await pool.query("SELECT status FROM core.approval_requests WHERE id = $1", [first.purchase.approvalRequestId])).rows[0]).toEqual({ status: "withdrawn" });
+
+    // Bên mua rút đơn đối ứng đang chờ duyệt: đơn mua đóng, đơn bán hủy, nhả hàng giữ.
+    const second = await confirmPending();
+    const before = await reserved();
+    expect((await buy(groupAdmin, `/purchasing/orders/${second.purchase.id}/withdraw`, {})).status).toBe(201);
+    expect((await buy(groupAdmin, `/purchasing/orders/${second.purchase.id}`)).body).toMatchObject({ status: "closed", closedReason: "Bên mua rút đơn mua đối ứng" });
+    expect((await sell(retailAdmin, `/sales/orders/${second.order.id}`)).body).toMatchObject({ status: "cancelled", closedReason: "Bên mua rút đơn mua đối ứng" });
+    expect(await reserved()).toBe(before - 12);
+  });
+});

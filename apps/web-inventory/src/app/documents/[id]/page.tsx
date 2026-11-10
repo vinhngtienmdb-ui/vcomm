@@ -1075,6 +1075,18 @@ function InternalReceiveForm({ document, onReceived }: { document: StockDocument
         </Field>
       )}
       <FormError text={formError} />
+      {/* Lỗi lô, hạn dùng… không có ô trên form này: hiện kèm số dòng. */}
+      <FormError
+        text={
+          Object.entries(fields)
+            .filter(([key]) => key !== "shortageReason" && !/^lines\.\d+\.(receivedQuantity|serials|locationId)$/.test(key))
+            .map(([key, text]) => {
+              const line = /^lines\.(\d+)\./.exec(key);
+              return line ? `${document.lines[Number(line[1])]?.sku ?? ""}: ${text}` : text;
+            })
+            .join(" ") || null
+        }
+      />
       <button type="button" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting} style={{ justifySelf: "start" }} onClick={submit}>
         {t("confirmReceiveInternal")}
       </button>

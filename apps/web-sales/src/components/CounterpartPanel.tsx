@@ -74,6 +74,18 @@ function Decision({ order, reload }: { order: SalesOrderResponse; reload: () => 
         </button>
       </div>
       <FormError text={formError} />
+      {/* Lỗi không gắn ô trên khối này (thiếu hàng, thiếu liên kết, hồ sơ đối tác): hiện kèm số dòng. */}
+      <FormError
+        text={
+          Object.entries(fields)
+            .filter(([key]) => key !== "warehouseId" && key !== "reason")
+            .map(([key, text]) => {
+              const line = /^lines\.(\d+)\./.exec(key);
+              return line ? `${t("lineLabel", { number: Number(line[1]) + 1 })}: ${text}` : text;
+            })
+            .join(" ") || null
+        }
+      />
     </div>
   );
 }

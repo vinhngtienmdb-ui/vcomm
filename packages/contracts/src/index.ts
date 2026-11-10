@@ -2557,6 +2557,7 @@ export interface InternalDiscrepancyItem {
   baseUnitName: string;
   shortageBaseQuantity: string;
   value: string | null;
+  currency: string;
   serials: string[];
   reason: string;
   status: InternalDiscrepancyStatus;

@@ -87,7 +87,22 @@ export class InternalReceiptsService {
         };
       }),
     } as DocumentInput;
-    const prepared = kept.length > 0 ? await this.documents.prepare(actor, documentInput, inventoryPermissions.receivePurchases) : null;
+    // Lỗi theo dòng trả theo vị trí dòng xuất (dòng nhận 0 đã bỏ khỏi phiếu) để giao diện gắn đúng dòng.
+    const remap = (errors: FieldErrors): FieldErrors => {
+      const mapped: FieldErrors = {};
+      for (const [key, value] of Object.entries(errors)) {
+        const match = /^lines\.(\d+)\.(.+)$/.exec(key);
+        mapped[match ? `lines.${shipped.indexOf(kept[Number(match[1])]!)}.${match[2]}` : key] = value;
+      }
+      return mapped;
+    };
+    const prepared =
+      kept.length > 0
+        ? await this.documents.prepare(actor, documentInput, inventoryPermissions.receivePurchases).catch((error: unknown) => {
+            if (error instanceof ApiError && error.extra.fields) throw new ApiError(error.code, error.messageKey, { fields: remap(error.extra.fields as FieldErrors) });
+            throw error;
+          })
+        : null;
     const typeCode = documentTypeCodes.purchase_receipt;
     const configured = await this.database.execute(sql`SELECT 1 FROM core.number_sequences WHERE company_id = ${row.company_id} AND document_type_code = ${typeCode} LIMIT 1`);
     if (configured.rows.length === 0) await this.sequences.update({ ...actor, companyId: row.company_id }, typeCode, { prefix: prefixes.purchase_receipt, resetPeriod: "year", padding: 6 });
@@ -103,15 +118,7 @@ export class InternalReceiptsService {
             UPDATE inventory.document_lines SET source_line_id = ${line.source_line_id}, counterpart_line_id = ${line.counterpart_line_id} WHERE document_id = ${id} AND line_no = ${index + 1}`);
         }
         const errors = await this.documents.checkForSubmit(row, await this.documents.lines(id, transaction), transaction);
-        if (Object.keys(errors).length > 0) {
-          // Lỗi theo dòng ghi lại theo vị trí dòng xuất để giao diện gắn đúng dòng.
-          const mapped: FieldErrors = {};
-          for (const [key, value] of Object.entries(errors)) {
-            const match = /^lines\.(\d+)\.(.+)$/.exec(key);
-            mapped[match ? `lines.${shipped.indexOf(kept[Number(match[1])]!)}.${match[2]}` : key] = value;
-          }
-          throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: mapped });
-        }
+        if (Object.keys(errors).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: remap(errors) });
       }
       const documentNo = await this.sequences.next(row.company_id, typeCode, transaction);
       await transaction.execute(sql`
@@ -166,6 +173,7 @@ export class InternalReceiptsService {
       base_unit_name: string;
       shortage_base_quantity: string;
       value: string;
+      currency: string;
       serials: string[];
       reason: string;
       status: InternalDiscrepancyStatus;
@@ -176,10 +184,10 @@ export class InternalReceiptsService {
       version: number;
     }>(sql`
       SELECT x.id, x.company_id, x.warehouse_id, w.name AS warehouse_name, x.issue_document_id, i.document_no AS issue_document_no, x.receipt_document_id, r.document_no AS receipt_document_no,
-        bc.short_name AS buyer_company_name, v.sku, p.name AS product_name, bu.name_vi AS base_unit_name, x.shortage_base_quantity::text, x.value::text, x.serials, x.reason, x.status,
+        bc.short_name AS buyer_company_name, v.sku, p.name AS product_name, bu.name_vi AS base_unit_name, x.shortage_base_quantity::text, x.value::text, sc.base_currency AS currency, x.serials, x.reason, x.status,
         x.return_document_id, x.resolution_note, ru.full_name AS resolved_by_name, x.created_at, x.version
       FROM inventory.internal_discrepancies x JOIN inventory.warehouses w ON w.id = x.warehouse_id JOIN inventory.documents i ON i.id = x.issue_document_id
-      JOIN inventory.documents r ON r.id = x.receipt_document_id JOIN core.companies bc ON bc.id = r.company_id
+      JOIN inventory.documents r ON r.id = x.receipt_document_id JOIN core.companies bc ON bc.id = r.company_id JOIN core.companies sc ON sc.id = x.company_id
       JOIN catalog.variants v ON v.id = x.variant_id JOIN catalog.products p ON p.id = v.product_id JOIN catalog.units bu ON bu.id = p.base_unit_id
       LEFT JOIN core.users ru ON ru.id = x.resolved_by
       WHERE x.company_id = ${actor.companyId} AND x.warehouse_id = ANY(${pgArray(allowed)}::uuid[]) ${status ? sql`AND x.status = ${status}` : sql``}
@@ -197,6 +205,7 @@ export class InternalReceiptsService {
       baseUnitName: row.base_unit_name,
       shortageBaseQuantity: trimDecimal(row.shortage_base_quantity),
       value: costVisible(row) ? trimDecimal(row.value) : null,
+      currency: row.currency,
       serials: row.serials,
       reason: row.reason,
       status: row.status,

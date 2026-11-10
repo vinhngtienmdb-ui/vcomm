@@ -186,7 +186,8 @@
     "internalReceivedOverShipped": "The received quantity exceeds the shipped quantity.",
     "internalSerialNotShipped": "The serial is not on the original delivery.",
     "internalShortageReasonRequired": "A reason is required when receiving less than shipped.",
-    "internalLineMissing": "Enter the received quantity for every line."
+    "internalLineMissing": "Enter the received quantity for every line.",
+    "internalReceiptOnly": "An internal purchase order is received only through the receipt created from the seller's delivery."
   },
   "login": {
     "title": "Sign in",
@@ -1899,7 +1900,8 @@
     "rejectReason": "Reason for rejection",
     "counterpartRejected": "Rejected: {reason}",
     "noNumberYet": "no number yet",
-    "internalPriceHint": "Internal supplier: price from the selling company's Internal channel price list, not editable."
+    "internalPriceHint": "Internal supplier: price from the selling company's Internal channel price list, not editable.",
+    "lineLabel": "Line {number}"
   },
   "salesOrders": {
     "title": "Sales orders",
@@ -1984,7 +1986,8 @@
     "rejectCounterpart": "Reject",
     "rejectReason": "Reason for rejection",
     "counterpartRejected": "Rejected: {reason}",
-    "noNumberYet": "no number yet"
+    "noNumberYet": "no number yet",
+    "lineLabel": "Line {number}"
   },
   "salesMenu": {
     "title": "Sales",

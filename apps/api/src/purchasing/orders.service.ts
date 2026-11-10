@@ -285,7 +285,11 @@ export class PurchaseOrdersService implements OnModuleInit {
     const row = await this.single(this.database, actor.companyId, id);
     if (row.created_by !== actor.userId || !row.approval_request_id || row.status !== "pending") throw new ApiError("FORBIDDEN", "forbidden");
     await this.approvals.withdraw(actor.userId, row.approval_request_id);
-    await this.database.execute(sql`UPDATE purchasing.orders SET status = 'withdrawn', updated_at = now() WHERE id = ${id} AND status = 'pending'`);
+    await this.database.transaction(async (transaction) => {
+      await transaction.execute(sql`UPDATE purchasing.orders SET status = 'withdrawn', updated_at = now() WHERE id = ${id} AND status = 'pending'`);
+      // Đơn đối ứng nội bộ bị rút thì đóng, đơn bán bên kia hủy theo (không sửa, gửi lại được đơn đối ứng).
+      if (row.is_counterpart) await this.endByCounterpart(transaction, id, "Bên mua rút đơn mua đối ứng", true);
+    });
     return this.detail(actor, id);
   }
 
@@ -317,7 +321,9 @@ export class PurchaseOrdersService implements OnModuleInit {
         SELECT 1 FROM purchasing.orders WHERE id = ${id} AND company_id = ${actor.companyId} AND status = 'counterpart_pending' AND version = ${input.version} FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       if (!(await isReceivingWarehouse(transaction, actor.companyId, input.warehouseId))) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { warehouseId: "invalidValue" } });
-      await transaction.execute(sql`UPDATE purchasing.orders SET warehouse_id = ${input.warehouseId}, status = 'draft', updated_at = now(), version = version + 1 WHERE id = ${id}`);
+      // Người xác nhận là người lập đơn đối ứng ở công ty này (rút được yêu cầu duyệt của mình).
+      await transaction.execute(sql`
+        UPDATE purchasing.orders SET warehouse_id = ${input.warehouseId}, status = 'draft', created_by = ${actor.userId}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.auditService.record({ ...purchasingAudit(actor, "purchase_order"), action: "purchase_order.counterpart_confirm", entityId: id, afterData: input }, transaction);
       const current = await this.single(transaction, actor.companyId, id);
       const lines = await this.prepare(transaction, actor.companyId, await this.inputOf(transaction, current), id, true);
@@ -375,9 +381,12 @@ export class PurchaseOrdersService implements OnModuleInit {
 
   // Bên bán hủy, đóng, từ chối, không duyệt đơn đối ứng: đơn mua chưa kết thúc thì đóng phần chưa nhận (QUYTAC_NGHIEPVU_78).
   async endByCounterpart(transaction: Executor, orderId: string, reason: string, propagate = false): Promise<void> {
-    await transaction.execute(sql`
-      UPDATE purchasing.orders SET status = 'closed', closed_reason = ${reason}, closed_at = now(), updated_at = now(), version = version + 1
-      WHERE id = ${orderId} AND status NOT IN ('received', 'closed')`);
+    const closed = await transaction.execute<{ approval_request_id: string | null; previous: string }>(sql`
+      UPDATE purchasing.orders o SET status = 'closed', closed_reason = ${reason}, closed_at = now(), updated_at = now(), version = o.version + 1
+      FROM (SELECT id, status AS previous FROM purchasing.orders WHERE id = ${orderId} FOR UPDATE) p
+      WHERE o.id = p.id AND p.previous NOT IN ('received', 'closed') RETURNING o.approval_request_id, p.previous`);
+    const request = closed.rows[0];
+    if (request?.previous === "pending" && request.approval_request_id) await this.approvals.cancelWithin(transaction, request.approval_request_id);
     if (propagate) await this.internalHooks?.afterEnded(transaction, orderId, reason);
   }
 
@@ -390,7 +399,7 @@ export class PurchaseOrdersService implements OnModuleInit {
     await executor.execute(sql`
       UPDATE purchasing.orders o SET status = 'received', updated_at = now(), version = version + 1
       WHERE o.id = ${orderId} AND o.status = 'approved'
-        AND NOT EXISTS (SELECT 1 FROM purchasing.order_lines ol WHERE ol.order_id = o.id AND ${receivedOnOrderLine(sql`ol.id`)} < ol.base_quantity)`);
+        AND NOT EXISTS (SELECT 1 FROM purchasing.order_lines ol WHERE ol.order_id = o.id AND ${receivedOnOrderLine(sql`ol.id`)} < ol.base_quantity - 0.0005)`);
   }
 
   // Miễn duyệt khi mọi dòng lấy từ đề nghị mua đã duyệt và tổng không vượt giá trị ước tính; còn lại gửi luồng duyệt, chưa có chính sách thì duyệt ngay.

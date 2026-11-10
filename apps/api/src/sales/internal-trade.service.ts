@@ -70,7 +70,7 @@ export class InternalTradeService implements OnModuleInit {
     await this.salesOrders.linkCounterpart(transaction, orderId, purchaseOrderId);
   }
 
-  // Đơn mua nội bộ khởi tạo đã duyệt: sinh đơn bán đối ứng ở công ty bán, kênh Nội bộ, số lượng quy theo liên kết, giá tra lại theo bảng giá tại ngày đơn.
+  // Đơn mua nội bộ khởi tạo đã duyệt: sinh đơn bán đối ứng ở công ty bán, kênh Nội bộ, số lượng quy theo liên kết, giá chưa thuế, thuế suất theo đơn mua.
   private async purchaseApproved(transaction: Executor, orderId: string): Promise<void> {
     const order = (
       await transaction.execute<{ company_id: string; supplier_id: string; order_date: Date | string; created_by: string; counterpart_order_id: string | null; is_counterpart: boolean }>(
@@ -83,13 +83,14 @@ export class InternalTradeService implements OnModuleInit {
     const customerId = await internalPartnerOf(transaction, order.company_id);
     const channelId = await internalChannel(transaction, sellerCompanyId);
     if (!customerId || !channelId) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { supplierId: "internalChannelMissing" } });
-    const lines = await transaction.execute<{ variant_id: string; base_quantity: string }>(sql`
-      SELECT variant_id, base_quantity::text FROM purchasing.order_lines WHERE order_id = ${orderId} ORDER BY line_no`);
+    const lines = await transaction.execute<{ variant_id: string; base_quantity: string; amount: string; vat_rate: VatRate }>(sql`
+      SELECT variant_id, base_quantity::text, amount::text, vat_rate FROM purchasing.order_lines WHERE order_id = ${orderId} ORDER BY line_no`);
     const counterpartLines = [];
     for (const [index, line] of lines.rows.entries()) {
       const link = await linkedVariant(transaction, line.variant_id, sellerCompanyId);
       if (!link) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [`lines.${index}.variantId`]: "internalVariantNotLinked" } });
-      counterpartLines.push({ variantId: link.variantId, unitId: link.baseUnitId, quantity: (Number(line.base_quantity) * link.factor).toFixed(4) });
+      const quantity = (Number(line.base_quantity) * link.factor).toFixed(4);
+      counterpartLines.push({ variantId: link.variantId, unitId: link.baseUnitId, quantity, netUnitPrice: (Number(line.amount) / Number(quantity)).toFixed(4), vatRate: line.vat_rate });
     }
     const salesOrderId = await this.salesOrders.createCounterpart(transaction, {
       companyId: sellerCompanyId,

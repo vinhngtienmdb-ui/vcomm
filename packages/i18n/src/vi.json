@@ -186,7 +186,8 @@
     "internalReceivedOverShipped": "Số nhận vượt số đã xuất.",
     "internalSerialNotShipped": "Serial không có trong phiếu xuất gốc.",
     "internalShortageReasonRequired": "Nhận thiếu phải ghi lý do.",
-    "internalLineMissing": "Phải nhập số nhận cho mọi dòng của phiếu."
+    "internalLineMissing": "Phải nhập số nhận cho mọi dòng của phiếu.",
+    "internalReceiptOnly": "Đơn mua nội bộ chỉ nhận theo phiếu nhập sinh từ phiếu xuất của công ty bán."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1899,7 +1900,8 @@
     "rejectReason": "Lý do từ chối",
     "counterpartRejected": "Đã từ chối: {reason}",
     "noNumberYet": "chưa có số",
-    "internalPriceHint": "Nhà cung cấp nội bộ: giá theo bảng giá kênh Nội bộ của công ty bán, không sửa được."
+    "internalPriceHint": "Nhà cung cấp nội bộ: giá theo bảng giá kênh Nội bộ của công ty bán, không sửa được.",
+    "lineLabel": "Dòng {number}"
   },
   "salesOrders": {
     "title": "Đơn bán",
@@ -1984,7 +1986,8 @@
     "rejectCounterpart": "Từ chối",
     "rejectReason": "Lý do từ chối",
     "counterpartRejected": "Đã từ chối: {reason}",
-    "noNumberYet": "chưa có số"
+    "noNumberYet": "chưa có số",
+    "lineLabel": "Dòng {number}"
   },
   "salesMenu": {
     "title": "Bán hàng",

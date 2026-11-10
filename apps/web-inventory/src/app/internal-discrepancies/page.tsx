@@ -98,7 +98,7 @@ export default function InternalDiscrepanciesPage() {
                         </span>
                       </td>
                       <td data-nhan={headings[4]}>
-                        <span>{item.value === null ? "—" : formatMoney(item.value, "VND")}</span>
+                        <span>{item.value === null ? "—" : formatMoney(item.value, item.currency)}</span>
                       </td>
                       <td data-nhan={headings[5]}>
                         <span>

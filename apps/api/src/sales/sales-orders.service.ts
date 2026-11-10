@@ -82,7 +82,7 @@ type PreparedLine = {
   unitId: string;
   quantity: string;
   baseQuantity: string;
-  priceListId: string;
+  priceListId: string | null;
   listPrice: string;
   includesVat: boolean;
   discountPercent: string;
@@ -427,6 +427,8 @@ export class SalesOrdersService implements OnModuleInit {
     await this.database.transaction(async (transaction) => {
       const updated = await transaction.execute(sql`UPDATE sales.orders SET status = 'withdrawn', updated_at = now() WHERE id = ${id} AND status = 'pending' RETURNING id`);
       if (updated.rows.length > 0) await this.reservations.closeBySource(transaction, salesOrderSource, id, "released");
+      // Đơn đối ứng nội bộ bị rút thì hủy, đơn mua bên kia đóng theo.
+      if (updated.rows.length > 0 && row.is_counterpart) await this.endByCounterpart(transaction, id, "Bên bán rút đơn bán đối ứng", true);
     });
     return this.detail(actor, id);
   }
@@ -477,7 +479,9 @@ export class SalesOrdersService implements OnModuleInit {
         SELECT 1 FROM sales.orders WHERE id = ${id} AND company_id = ${actor.companyId} AND status = 'counterpart_pending' AND version = ${input.version} FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       if (!(await isReceivingWarehouse(transaction, actor.companyId, input.warehouseId))) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { warehouseId: "invalidValue" } });
-      await transaction.execute(sql`UPDATE sales.orders SET warehouse_id = ${input.warehouseId}, status = 'draft', updated_at = now(), version = version + 1 WHERE id = ${id}`);
+      // Người xác nhận là người lập đơn đối ứng ở công ty này (rút được yêu cầu duyệt của mình).
+      await transaction.execute(sql`
+        UPDATE sales.orders SET warehouse_id = ${input.warehouseId}, status = 'draft', created_by = ${actor.userId}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.auditService.record({ ...salesAudit(actor, "sales_order"), action: "sales_order.counterpart_confirm", entityId: id, afterData: input }, transaction);
       await this.submitWithin(transaction, actor, await this.single(transaction, actor.companyId, id), hours);
     });
@@ -498,7 +502,8 @@ export class SalesOrdersService implements OnModuleInit {
     return this.detail(actor, id);
   }
 
-  // Sinh đơn bán đối ứng từ đơn mua nội bộ đã duyệt của công ty mua; giá tra theo bảng giá kênh Nội bộ tại ngày đơn (QUYTAC_NGHIEPVU_74, 75).
+  // Sinh đơn bán đối ứng từ đơn mua nội bộ đã duyệt của công ty mua; giá chưa thuế, thuế suất lấy theo đơn mua (đã tra bảng giá kênh Nội bộ khi lập),
+  // không tra lại để đổi bảng giá trong lúc chờ duyệt không làm hỏng việc sinh đơn (QUYTAC_NGHIEPVU_74, 75).
   async createCounterpart(
     transaction: Executor,
     input: {
@@ -508,18 +513,29 @@ export class SalesOrdersService implements OnModuleInit {
       orderDate: string;
       purchaseOrderId: string;
       createdBy: string;
-      lines: { variantId: string; unitId: string; quantity: string }[];
+      lines: { variantId: string; unitId: string; quantity: string; netUnitPrice: string; vatRate: VatRate }[];
     },
   ): Promise<string> {
     const groupId = await this.customerGroup(transaction, input.companyId, input.customerId);
-    const lines = await this.priceLines(
-      transaction,
-      input.companyId,
-      input.channelId,
-      groupId,
-      input.orderDate,
-      input.lines.map((line) => ({ ...line, discountPercent: "0" })),
-    );
+    const lines: PreparedLine[] = input.lines.map((line) => {
+      const net = Number(line.quantity) * Number(line.netUnitPrice);
+      const tax = net * vatFraction(line.vatRate);
+      return {
+        variantId: line.variantId,
+        unitId: line.unitId,
+        quantity: line.quantity,
+        baseQuantity: line.quantity,
+        priceListId: null,
+        listPrice: line.netUnitPrice,
+        includesVat: false,
+        discountPercent: "0",
+        unitPrice: line.netUnitPrice,
+        vatRate: line.vatRate,
+        net: net.toFixed(4),
+        tax: tax.toFixed(4),
+        total: (Number(net.toFixed(4)) + Number(tax.toFixed(4))).toFixed(4),
+      };
+    });
     const orderId = (
       await transaction.execute<{ id: string }>(sql`
       INSERT INTO sales.orders (company_id, customer_id, channel_id, customer_group_id, warehouse_id, order_date, currency, status, counterpart_order_id, is_counterpart, created_by)
@@ -544,9 +560,11 @@ export class SalesOrdersService implements OnModuleInit {
     const issues = await transaction.execute<{ status: string }>(sql`SELECT status FROM inventory.documents WHERE type = 'sales_issue' AND source_id = ${orderId}`);
     if (issues.rows.some((issue) => issue.status === "draft")) throw new ApiError("BUSINESS_RULE", "salesOrderHasOpenIssues");
     const next = issues.rows.length > 0 ? "closed" : "cancelled";
-    await transaction.execute(sql`
+    const ended = await transaction.execute<{ approval_request_id: string | null }>(sql`
       UPDATE sales.orders SET status = ${next}, closed_reason = ${reason}, closed_at = CASE WHEN ${next} = 'closed' THEN now() END, updated_at = now(), version = version + 1
-      WHERE id = ${orderId}`);
+      WHERE id = ${orderId} RETURNING approval_request_id`);
+    const requestId = ended.rows[0]?.approval_request_id;
+    if (row.status === "pending" && requestId) await this.approvals.cancelWithin(transaction, requestId);
     await this.reservations.closeBySource(transaction, salesOrderSource, orderId, "released");
     if (propagate) await this.internalHooks?.afterEnded(transaction, orderId, reason);
   }

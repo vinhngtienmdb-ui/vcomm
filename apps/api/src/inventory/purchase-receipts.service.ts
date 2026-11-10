@@ -6,6 +6,7 @@ import type { qualityCheckSchema, savePurchaseReceiptSchema, savePurchaseReturnS
 import { sql } from "drizzle-orm";
 import type { Messages } from "i18n";
 import type { z } from "zod";
+import { internalCompanyOf } from "../crm/partners.service";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
@@ -52,7 +53,7 @@ export class PurchaseReceiptsService {
     const rows = await this.database.execute<{ id: string; document_no: string; supplier_name: string; warehouse_id: string; warehouse_name: string; company_name: string }>(sql`
       SELECT o.id, o.document_no, s.name AS supplier_name, o.warehouse_id, w.name AS warehouse_name, c.short_name AS company_name
       FROM purchasing.orders o JOIN crm.partners s ON s.id = o.supplier_id JOIN inventory.warehouses w ON w.id = o.warehouse_id JOIN core.companies c ON c.id = o.company_id
-      WHERE o.status = 'approved' AND o.warehouse_id = ANY(${pgArray(allowed)}::uuid[])
+      WHERE o.status = 'approved' AND o.warehouse_id = ANY(${pgArray(allowed)}::uuid[]) AND s.company_id IS NULL
         AND (${pattern}::text IS NULL OR o.document_no ILIKE ${pattern} OR s.name ILIKE ${pattern})
       ORDER BY o.expected_date NULLS LAST, o.document_no LIMIT 50`);
     return rows.rows.map((row) => ({
@@ -109,6 +110,8 @@ export class PurchaseReceiptsService {
   async createReceipt(actor: Actor, input: ReceiptInput): Promise<StockDocumentResponse> {
     const order = await this.order(this.database, input.orderId);
     if (order.status !== "approved") throw new ApiError("BUSINESS_RULE", "purchaseOrderNotOpen");
+    // Đơn mua nội bộ chỉ nhận qua phiếu nhập sinh từ phiếu xuất của công ty bán (QUYTAC_NGHIEPVU_76).
+    if (await internalCompanyOf(this.database, order.supplier_id)) throw new ApiError("BUSINESS_RULE", "internalReceiptOnly");
     const { documentInput, sourceLines } = await this.receiptInput(order, input);
     const prepared = await this.documents.prepare(actor, documentInput, inventoryPermissions.receivePurchases);
     await this.checkReceivable(this.database, order, input);
