@@ -13,6 +13,7 @@ import { StockDocumentsService } from "../inventory/stock-documents.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { charts, defaultPostingRules, roleDescriptions } from "./charts";
+import { assertOpenPeriod, ledgerSettings } from "./period-guard";
 import { inventoryDraft, paymentDraft, postingRoles, writeOffDraft, type DraftJournal, type Executor, type PostingRole } from "./postings";
 
 export const ledgerPermissions = {
@@ -55,15 +56,11 @@ export class LedgerService implements OnModuleInit {
 
   // Kỳ đã khóa thì từ chối ghi sổ (QUYTAC_NGHIEPVU_97). Công ty chưa khởi tạo kế toán: trả null.
   async lockedThrough(executor: Executor, companyId: string): Promise<{ locked: string | null } | null> {
-    const row = (await executor.execute<{ locked_through: string | null }>(sql`SELECT locked_through::text FROM accounting.settings WHERE company_id = ${companyId} FOR SHARE`)).rows[0];
-    return row ? { locked: row.locked_through } : null;
+    return ledgerSettings(executor, companyId);
   }
 
   async requireOpenPeriod(executor: Executor, companyId: string, date: string): Promise<boolean> {
-    const settings = await this.lockedThrough(executor, companyId);
-    if (!settings) return false;
-    if (settings.locked && date <= settings.locked) throw new ApiError("BUSINESS_RULE", "periodLocked");
-    return true;
+    return assertOpenPeriod(executor, companyId, date);
   }
 
   // Ghi bút toán tự sinh: đổi vai trò sang tài khoản theo định khoản của công ty, bỏ dòng 0, kiểm cân.
@@ -139,7 +136,7 @@ export class LedgerService implements OnModuleInit {
   // Chứng từ đã ghi sổ trước khi khởi tạo: tạo bút toán theo thứ tự ghi sổ.
   private async backfill(executor: Executor, companyId: string): Promise<void> {
     const documents = await executor.execute<{ id: string }>(sql`
-      SELECT id FROM inventory.documents WHERE company_id = ${companyId} AND status IN ('posted', 'in_transit', 'received') AND type <> 'transfer' ORDER BY posted_at, created_at`);
+      SELECT id FROM inventory.documents WHERE company_id = ${companyId} AND status = 'posted' AND type <> 'transfer' ORDER BY posted_at, created_at`);
     for (const document of documents.rows) await this.record(executor, await inventoryDraft(executor, document.id), false);
     const payments = await executor.execute<{ id: string }>(sql`SELECT id FROM finance.payments WHERE company_id = ${companyId} AND status = 'posted' ORDER BY posted_at`);
     for (const payment of payments.rows) await this.record(executor, await paymentDraft(executor, payment.id), false);

@@ -215,6 +215,11 @@ export class PaymentsService implements OnModuleInit {
     const side = paymentKindSide[input.kind];
     await this.debts.requirePartnerOnSide(executor, companyId, side, input.partnerId, "partnerId");
     const fields: FieldErrors = {};
+    // Số tiền không lẻ hơn đơn vị nhỏ nhất của tiền tệ công ty (THAY_DOI_10).
+    const units = Number((await executor.execute<{ units: number }>(sql`SELECT finance.company_minor_units(${companyId}) AS units`)).rows[0]!.units);
+    const fraction = (value: string) => (value.split(".")[1] ?? "").replace(/0+$/, "").length;
+    if (fraction(input.amount) > units) fields.amount = "invalidValue";
+    for (const [index, line] of input.lines.entries()) if (fraction(line.amount) > units) fields[`lines.${index}.amount`] = "invalidValue";
     const fund = (await executor.execute<{ status: string }>(sql`SELECT status FROM finance.funds WHERE id = ${input.fundId} AND company_id = ${companyId}`)).rows[0];
     if (!fund) fields.fundId = "invalidValue";
     else if (fund.status !== "active") fields.fundId = "fundInactive";

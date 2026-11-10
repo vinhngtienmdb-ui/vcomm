@@ -348,7 +348,6 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     shortage_pending: "1381",
     surplus_pending: "3381",
     opening_offset: "3388",
-    internal_shortage: "1381",
     income_summary: "911",
     retained_earnings: "4212",
   },
@@ -369,7 +368,6 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     shortage_pending: "1381",
     surplus_pending: "3381",
     opening_offset: "3388",
-    internal_shortage: "1381",
     income_summary: "911",
     retained_earnings: "4212",
   },
@@ -392,7 +390,6 @@ export const roleDescriptions: Record<PostingRole, string> = {
   shortage_pending: "Hàng thiếu chờ xử lý (xuất khác, kiểm kê thiếu)",
   surplus_pending: "Hàng thừa chờ giải quyết (nhập khác, kiểm kê thừa)",
   opening_offset: "Đối ứng nhập tồn kho đầu kỳ",
-  internal_shortage: "Hàng thiếu giao nội bộ ghi tổn thất",
   income_summary: "Xác định kết quả kinh doanh",
   retained_earnings: "Lợi nhuận chưa phân phối năm nay",
 };

@@ -212,7 +212,8 @@
     "journalLineSide": "Each line must have either a debit or a credit greater than 0.",
     "journalUnbalanced": "Total debits must equal total credits.",
     "periodNotClosable": "This month cannot be closed (close ended months in order).",
-    "periodHasPendingJournals": "There are pending journals in the period."
+    "periodHasPendingJournals": "There are pending journals in the period.",
+    "periodHasPendingDocuments": "There are pending inventory documents or payments dated in the period."
   },
   "login": {
     "title": "Sign in",

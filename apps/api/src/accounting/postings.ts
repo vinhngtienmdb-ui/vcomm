@@ -20,7 +20,6 @@ export type PostingRole =
   | "shortage_pending"
   | "surplus_pending"
   | "opening_offset"
-  | "internal_shortage"
   | "income_summary"
   | "retained_earnings";
 export const postingRoles: PostingRole[] = [
@@ -40,7 +39,6 @@ export const postingRoles: PostingRole[] = [
   "shortage_pending",
   "surplus_pending",
   "opening_offset",
-  "internal_shortage",
   "income_summary",
   "retained_earnings",
 ];
@@ -74,7 +72,6 @@ async function rounder(executor: Executor, companyId: string): Promise<(value: n
   const factor = 10 ** units;
   return (value: number) => Math.round(round(value) * factor) / factor;
 }
-const vatFraction = sql`(CASE WHEN pl.vat_rate IN ('0', '5', '8', '10') THEN pl.vat_rate::numeric / 100 ELSE 0 END)`;
 
 // Phiếu kho đã ghi sổ (QUYTAC_NGHIEPVU_95): doanh thu, thuế khi xuất giao hàng; giá vốn theo giá trị ghi sổ kho; nhập mua theo giá đơn mua phần đạt kiểm tra chất lượng.
 export async function inventoryDraft(executor: Executor, documentId: string): Promise<DraftJournal | null> {
@@ -84,37 +81,22 @@ export async function inventoryDraft(executor: Executor, documentId: string): Pr
   ).rows[0];
   if (!document || document.type === "transfer") return null;
   const values = (
-    await executor.execute<{ cost: string; cost_in: string; cost_out: string; sale_net: string; sale_tax: string; purchase_net: string; purchase_tax: string }>(sql`
-    SELECT
-      coalesce(sum(dl.cost_value), 0)::text AS cost,
+    await executor.execute<{ cost: string; cost_in: string; cost_out: string }>(sql`
+    SELECT coalesce(sum(dl.cost_value), 0)::text AS cost,
       coalesce(sum(CASE WHEN dl.quantity > 0 THEN dl.cost_value END), 0)::text AS cost_in,
-      coalesce(sum(CASE WHEN dl.quantity < 0 THEN dl.cost_value END), 0)::text AS cost_out,
-      coalesce(sum(CASE
-        WHEN d.type = 'sales_issue' THEN (SELECT sl.net_amount * abs(dl.base_quantity) / sl.base_quantity FROM sales.order_lines sl WHERE sl.id = dl.source_line_id)
-        WHEN d.type = 'sales_return' THEN (SELECT sl.net_amount * abs(dl.base_quantity) / sl.base_quantity FROM inventory.document_lines il JOIN sales.order_lines sl ON sl.id = il.source_line_id WHERE il.id = dl.source_line_id)
-      END), 0)::text AS sale_net,
-      coalesce(sum(CASE
-        WHEN d.type = 'sales_issue' THEN (SELECT sl.tax_amount * abs(dl.base_quantity) / sl.base_quantity FROM sales.order_lines sl WHERE sl.id = dl.source_line_id)
-        WHEN d.type = 'sales_return' THEN (SELECT sl.tax_amount * abs(dl.base_quantity) / sl.base_quantity FROM inventory.document_lines il JOIN sales.order_lines sl ON sl.id = il.source_line_id WHERE il.id = dl.source_line_id)
-      END), 0)::text AS sale_tax,
-      coalesce(sum(CASE
-        WHEN d.type = 'purchase_receipt' THEN (SELECT pl.amount * (abs(dl.base_quantity) - coalesce(dl.rejected_base_quantity, 0)) / pl.base_quantity FROM purchasing.order_lines pl WHERE pl.id = dl.source_line_id)
-        WHEN d.type = 'purchase_return' THEN (SELECT pl.amount * abs(dl.base_quantity) / pl.base_quantity FROM inventory.document_lines rl JOIN purchasing.order_lines pl ON pl.id = rl.source_line_id WHERE rl.id = dl.source_line_id)
-      END), 0)::text AS purchase_net,
-      coalesce(sum(CASE
-        WHEN d.type = 'purchase_receipt' THEN (SELECT pl.amount * ${vatFraction} * (abs(dl.base_quantity) - coalesce(dl.rejected_base_quantity, 0)) / pl.base_quantity FROM purchasing.order_lines pl WHERE pl.id = dl.source_line_id)
-        WHEN d.type = 'purchase_return' THEN (SELECT pl.amount * ${vatFraction} * abs(dl.base_quantity) / pl.base_quantity FROM inventory.document_lines rl JOIN purchasing.order_lines pl ON pl.id = rl.source_line_id WHERE rl.id = dl.source_line_id)
-      END), 0)::text AS purchase_tax
-    FROM inventory.document_lines dl JOIN inventory.documents d ON d.id = dl.document_id
-    WHERE dl.document_id = ${documentId}`)
+      coalesce(sum(CASE WHEN dl.quantity < 0 THEN dl.cost_value END), 0)::text AS cost_out
+    FROM inventory.document_lines dl WHERE dl.document_id = ${documentId}`)
   ).rows[0]!;
-  // Tổng gồm thuế làm tròn trước, thuế là phần còn lại sau khi làm tròn tiền chưa thuế, để Nợ Có cân.
+  // Tiền gồm thuế, chưa thuế theo đơn bán, đơn mua: cùng hàm làm tròn với công nợ (THAY_DOI_10), thuế là phần chênh lệch nên Nợ Có cân.
+  const amounts = (await executor.execute<{ gross: string; net: string }>(sql`SELECT gross::text, net::text FROM finance.inventory_amounts(${documentId})`)).rows[0]!;
   const money = await rounder(executor, document.company_id);
   const cost = money(Number(values.cost));
-  const saleNet = money(Number(values.sale_net));
-  const saleTax = money(Number(values.sale_net) + Number(values.sale_tax)) - saleNet;
-  const purchaseNet = money(Number(values.purchase_net));
-  const purchaseTax = money(Number(values.purchase_net) + Number(values.purchase_tax)) - purchaseNet;
+  const gross = Number(amounts.gross);
+  const net = Number(amounts.net);
+  const saleNet = net;
+  const saleTax = round(gross - net);
+  const purchaseNet = net;
+  const purchaseTax = round(gross - net);
   const partner = document.partner_id;
   let lines: DraftLine[] = [];
   let description = document.reason ?? "";
@@ -206,24 +188,28 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
   };
 }
 
-// Ghi tổn thất hàng thiếu giao nội bộ: hàng thiếu chờ xử lý đối ứng giảm phải thu của công ty mua, theo giá đơn bán của phần thiếu (cùng cách tính với công nợ).
+// Ghi tổn thất hàng thiếu giao nội bộ (quyết định người dùng 2026-11-10): hàng không đến bên mua nên giảm doanh thu, thuế đầu ra đối ứng giảm phải thu
+// theo giá đơn bán của phần thiếu; giá vốn đã xuất giữ ở giá vốn hàng bán.
 export async function writeOffDraft(executor: Executor, discrepancyId: string, date: string): Promise<DraftJournal | null> {
   const row = (
-    await executor.execute<{ company_id: string; partner_id: string | null; document_no: string | null; amount: string }>(sql`
-    SELECT x.company_id, d.partner_id, d.document_no, round(sl.total_amount * x.shortage_base_quantity / sl.base_quantity, 4)::text AS amount
+    await executor.execute<{ company_id: string; partner_id: string | null; document_no: string | null; gross: string; net: string }>(sql`
+    SELECT x.company_id, d.partner_id, d.document_no,
+      round(sl.total_amount * x.shortage_base_quantity / sl.base_quantity, finance.company_minor_units(x.company_id))::text AS gross,
+      round(sl.net_amount * x.shortage_base_quantity / sl.base_quantity, finance.company_minor_units(x.company_id))::text AS net
     FROM inventory.internal_discrepancies x JOIN inventory.documents d ON d.id = x.issue_document_id
     JOIN inventory.document_lines dl ON dl.id = x.issue_line_id JOIN sales.order_lines sl ON sl.id = dl.source_line_id
     WHERE x.id = ${discrepancyId}`)
   ).rows[0];
   if (!row) return null;
-  const amount = (await rounder(executor, row.company_id))(Number(row.amount));
+  const gross = Number(row.gross);
+  const net = Number(row.net);
   return {
     companyId: row.company_id,
     sourceType: "internal_write_off",
     sourceId: discrepancyId,
     journalNo: row.document_no ?? "",
     date,
-    description: "Ghi tổn thất hàng thiếu giao nội bộ",
-    lines: [debit("internal_shortage", amount), credit("receivable", amount, row.partner_id)],
+    description: "Ghi tổn thất hàng thiếu giao nội bộ: giảm doanh thu, thuế",
+    lines: [debit("sales_return", net), debit("vat_output", round(gross - net)), credit("receivable", gross, row.partner_id)],
   };
 }

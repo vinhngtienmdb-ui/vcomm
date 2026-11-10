@@ -212,7 +212,8 @@
     "journalLineSide": "Mỗi dòng ghi một bên Nợ hoặc Có, lớn hơn 0.",
     "journalUnbalanced": "Tổng Nợ phải bằng tổng Có.",
     "periodNotClosable": "Không khóa được tháng này (khóa lần lượt từng tháng đã kết thúc).",
-    "periodHasPendingJournals": "Còn phiếu kế toán chờ duyệt trong kỳ."
+    "periodHasPendingJournals": "Còn phiếu kế toán chờ duyệt trong kỳ.",
+    "periodHasPendingDocuments": "Còn phiếu kho hoặc phiếu chi đang chờ (duyệt, kiểm tra chất lượng, nhận hàng nội bộ) có ngày trong kỳ."
   },
   "login": {
     "title": "Đăng nhập",

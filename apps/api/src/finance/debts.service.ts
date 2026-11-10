@@ -109,7 +109,7 @@ export class DebtsService implements OnModuleInit {
     const row = (
       await executor.execute<{ company_id: string; partner_id: string | null; issue_document_id: string; document_no: string | null; amount: string }>(sql`
       SELECT x.company_id, d.partner_id, x.issue_document_id, d.document_no,
-        round(sl.total_amount * x.shortage_base_quantity / sl.base_quantity, 4)::text AS amount
+        round(sl.total_amount * x.shortage_base_quantity / sl.base_quantity, finance.company_minor_units(x.company_id))::text AS amount
       FROM inventory.internal_discrepancies x JOIN inventory.documents d ON d.id = x.issue_document_id
       JOIN inventory.document_lines dl ON dl.id = x.issue_line_id JOIN sales.order_lines sl ON sl.id = dl.source_line_id
       WHERE x.id = ${discrepancyId}`)
@@ -355,6 +355,8 @@ export class DebtsService implements OnModuleInit {
     await requireFinancePermission(this.permissionService, actor, financePermissions.manageDebts);
     await this.database.transaction(async (transaction) => {
       await this.requirePartnerOnSide(transaction, actor.companyId, input.side, input.partnerId, "partnerId");
+      const units = Number((await transaction.execute<{ units: number }>(sql`SELECT finance.company_minor_units(${actor.companyId}) AS units`)).rows[0]!.units);
+      if ((input.amount.split(".")[1] ?? "").replace(/0+$/, "").length > units) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { amount: "invalidValue" } });
       await this.lockPartner(transaction, actor.companyId, input.side, input.partnerId);
       const id = (
         await transaction.execute<{ id: string }>(sql`

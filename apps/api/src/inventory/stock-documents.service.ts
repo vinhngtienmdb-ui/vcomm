@@ -27,6 +27,7 @@ import { OutboxService } from "../common/outbox.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
+import { assertOpenPeriod } from "../accounting/period-guard";
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { searchText, trimDecimal } from "../catalog/catalog-context";
 import { inventoryAudit, inventoryPermissions } from "./inventory-context";
@@ -180,6 +181,23 @@ export class StockDocumentsService implements OnModuleInit {
       if (!Object.values(documentTypeCodes).includes(typeCode)) return;
       const status = String(event.payload.status);
       const requestId = String(event.payload.requestId);
+      try {
+        await this.applyDecision(requestId, status);
+      } catch (error) {
+        // Duyệt xong nhưng ngày phiếu đã thuộc kỳ khóa sổ: phiếu bị từ chối, nhả hàng giữ (lỗi khác, ví dụ đang kiểm kê, thì đẩy lại lần sau).
+        if (!(error instanceof ApiError && error.messageKey === "periodLocked")) throw error;
+        await this.database.transaction(async (transaction) => {
+          const updated = await transaction.execute<{ id: string }>(sql`
+            UPDATE inventory.documents SET status = 'rejected', note = concat_ws(' ', note, ${"(Không ghi sổ được: kỳ kế toán đã khóa sổ.)"}), updated_at = now()
+            WHERE approval_request_id = ${requestId} AND status = 'pending' RETURNING id`);
+          for (const document of updated.rows) await this.reservations.closeBySource(transaction, documentSource, document.id, "released");
+        });
+      }
+    });
+  }
+
+  private async applyDecision(requestId: string, status: string): Promise<void> {
+    {
       await this.database.transaction(async (transaction) => {
         const document = (
           await transaction.execute<{ id: string; type: StockDocumentType }>(sql`
@@ -197,7 +215,7 @@ export class StockDocumentsService implements OnModuleInit {
           await this.reservations.closeBySource(transaction, documentSource, document.id, "released");
         }
       });
-    });
+    }
   }
 
   async list(actor: Actor, query: z.output<typeof stockDocumentListQuerySchema>): Promise<PageResponse<StockDocumentListItem>> {
@@ -420,8 +438,11 @@ export class StockDocumentsService implements OnModuleInit {
     if (configured.rows.length === 0) await this.sequences.update(ownerActor, typeCode, { prefix: prefixes[row.type], resetPeriod: "year", padding: 6 });
     const today = this.permissionService.today();
     await this.database.transaction(async (transaction) => {
-      const locked = await transaction.execute(sql`SELECT 1 FROM inventory.documents WHERE id = ${row.id} AND status = 'draft' AND version = ${row.version} FOR UPDATE`);
+      const locked = await transaction.execute<{ document_date: string }>(sql`
+        SELECT document_date::text FROM inventory.documents WHERE id = ${row.id} AND status = 'draft' AND version = ${row.version} FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      // Ngày phiếu thuộc kỳ kế toán đã khóa thì không gửi được (QUYTAC_NGHIEPVU_97).
+      await assertOpenPeriod(transaction, row.company_id, locked.rows[0]!.document_date);
       const documentNo = await this.sequences.next(row.company_id, typeCode, transaction);
       // Giữ hàng cho tổng số giảm của từng mặt hàng.
       const decreases = new Map<string, number>();

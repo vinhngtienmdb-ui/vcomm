@@ -5,6 +5,7 @@ import { ApiError } from "../common/api-error";
 import type { Database } from "../database/database.module";
 
 export async function beforeRegimeChange(executor: Pick<Database, "execute">, companyId: string): Promise<void> {
+  await executor.execute(sql`SELECT 1 FROM accounting.settings WHERE company_id = ${companyId} FOR UPDATE`);
   const journals = await executor.execute(sql`SELECT 1 FROM accounting.journals WHERE company_id = ${companyId} LIMIT 1`);
   if (journals.rows.length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { accountingRegime: "ledgerHasJournals" } });
   await executor.execute(sql`DELETE FROM accounting.posting_rules WHERE company_id = ${companyId}`);

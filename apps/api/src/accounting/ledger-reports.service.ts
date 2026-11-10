@@ -138,13 +138,17 @@ export class LedgerReportsService {
       WHERE j.company_id = ${actor.companyId} AND j.status = 'posted' AND j.journal_date BETWEEN ${from}::date AND ${to}::date AND l.account_id IN ${scope}
       ORDER BY j.journal_date, j.created_at, l.line_no
       LIMIT 10000`);
+    // Tổng phát sinh, số dư cuối tính trên toàn khoảng ngày (danh sách dòng giới hạn 10.000 dòng đầu).
+    const totals = (
+      await this.database.execute<{ debit: string; credit: string }>(sql`
+      SELECT coalesce(sum(l.debit), 0)::text AS debit, coalesce(sum(l.credit), 0)::text AS credit FROM accounting.journal_lines l JOIN accounting.journals j ON j.id = l.journal_id
+      WHERE j.company_id = ${actor.companyId} AND j.status = 'posted' AND j.journal_date BETWEEN ${from}::date AND ${to}::date AND l.account_id IN ${scope}`)
+    ).rows[0]!;
+    const totalDebit = Number(totals.debit);
+    const totalCredit = Number(totals.credit);
     let balance = opening;
-    let totalDebit = 0;
-    let totalCredit = 0;
     const entries = rows.rows.map((row) => {
       balance += Number(row.debit) - Number(row.credit);
-      totalDebit += Number(row.debit);
-      totalCredit += Number(row.credit);
       return {
         journalId: row.journal_id,
         journalNo: row.journal_no,
@@ -167,7 +171,7 @@ export class LedgerReportsService {
       entries,
       totalDebit: text(totalDebit),
       totalCredit: text(totalCredit),
-      closingBalance: text(balance),
+      closingBalance: text(opening + totalDebit - totalCredit),
     };
   }
 }

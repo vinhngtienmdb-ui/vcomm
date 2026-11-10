@@ -75,3 +75,60 @@ CREATE TABLE accounting.journal_lines (
 );
 CREATE INDEX journal_lines_account_idx ON accounting.journal_lines (account_id);
 CREATE INDEX journal_lines_partner_idx ON accounting.journal_lines (partner_id);
+
+-- THAY_DOI_10: tiền công nợ, bút toán làm tròn theo đơn vị nhỏ nhất của tiền tệ công ty. Mỗi lần giao, nhận, trả của một dòng đơn lấy phần
+-- theo số lượng lũy kế (làm tròn lũy kế sau trừ làm tròn lũy kế trước) để tổng các lần đúng bằng tiền của dòng đơn.
+CREATE FUNCTION finance.company_minor_units(company uuid) RETURNS integer LANGUAGE sql STABLE AS $$
+    SELECT coalesce((SELECT cur.minor_units FROM core.companies c JOIN core.currencies cur ON cur.code = c.base_currency WHERE c.id = company), 0)
+$$;
+
+CREATE FUNCTION finance.line_share(amount numeric, before numeric, quantity numeric, base numeric, units integer) RETURNS numeric LANGUAGE sql IMMUTABLE AS $$
+    SELECT round(amount * least(before + quantity, base) / base, units) - round(amount * least(before, base) / base, units)
+$$;
+
+-- Tiền gồm thuế và chưa thuế của phiếu kho đã ghi sổ (phiếu đang ghi sổ đã có posted_at): xuất giao hàng, nhận hàng trả lại theo đơn bán;
+-- nhập mua (phần đạt kiểm tra chất lượng), trả hàng nhà cung cấp theo đơn mua.
+CREATE FUNCTION finance.inventory_amounts(document uuid, OUT gross numeric, OUT net numeric) LANGUAGE sql STABLE AS $$
+    WITH d AS (SELECT id, type, company_id, posted_at, finance.company_minor_units(company_id) AS units FROM inventory.documents WHERE id = document),
+    lines AS (
+        -- Xuất giao hàng: lũy kế các phiếu xuất ghi sổ trước của cùng dòng đơn bán.
+        SELECT sl.total_amount AS total, sl.net_amount AS net_total, sl.base_quantity AS base, abs(dl.base_quantity) AS quantity,
+            coalesce((SELECT sum(abs(o.base_quantity)) FROM inventory.document_lines o JOIN inventory.documents od ON od.id = o.document_id
+                      WHERE o.source_line_id = sl.id AND od.type = 'sales_issue' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)), 0) AS before
+        FROM d JOIN inventory.document_lines dl ON dl.document_id = d.id JOIN sales.order_lines sl ON sl.id = dl.source_line_id
+        WHERE d.type = 'sales_issue'
+        UNION ALL
+        -- Nhận hàng trả lại: lũy kế các phiếu trả ghi sổ trước của cùng dòng đơn bán.
+        SELECT sl.total_amount, sl.net_amount, sl.base_quantity, abs(rl.base_quantity),
+            coalesce((SELECT sum(abs(o.base_quantity)) FROM inventory.document_lines o JOIN inventory.documents od ON od.id = o.document_id
+                      JOIN inventory.document_lines oi ON oi.id = o.source_line_id
+                      WHERE oi.source_line_id = sl.id AND od.type = 'sales_return' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)), 0)
+        FROM d JOIN inventory.document_lines rl ON rl.document_id = d.id JOIN inventory.document_lines il ON il.id = rl.source_line_id
+        JOIN sales.order_lines sl ON sl.id = il.source_line_id
+        WHERE d.type = 'sales_return'
+        UNION ALL
+        -- Nhập mua: phần đạt kiểm tra chất lượng, lũy kế các phiếu nhập ghi sổ trước của cùng dòng đơn mua.
+        SELECT pl.amount * (1 + CASE WHEN pl.vat_rate IN ('0', '5', '8', '10') THEN pl.vat_rate::numeric / 100 ELSE 0 END), pl.amount, pl.base_quantity,
+            abs(dl.base_quantity) - coalesce(dl.rejected_base_quantity, 0),
+            coalesce((SELECT sum(abs(o.base_quantity) - coalesce(o.rejected_base_quantity, 0)) FROM inventory.document_lines o JOIN inventory.documents od ON od.id = o.document_id
+                      WHERE o.source_line_id = pl.id AND od.type = 'purchase_receipt' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)), 0)
+        FROM d JOIN inventory.document_lines dl ON dl.document_id = d.id JOIN purchasing.order_lines pl ON pl.id = dl.source_line_id
+        WHERE d.type = 'purchase_receipt'
+        UNION ALL
+        -- Trả hàng nhà cung cấp: lũy kế các phiếu trả ghi sổ trước của cùng dòng đơn mua.
+        SELECT pl.amount * (1 + CASE WHEN pl.vat_rate IN ('0', '5', '8', '10') THEN pl.vat_rate::numeric / 100 ELSE 0 END), pl.amount, pl.base_quantity, abs(rl.base_quantity),
+            coalesce((SELECT sum(abs(o.base_quantity)) FROM inventory.document_lines o JOIN inventory.documents od ON od.id = o.document_id
+                      JOIN inventory.document_lines oi ON oi.id = o.source_line_id
+                      WHERE oi.source_line_id = pl.id AND od.type = 'purchase_return' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)), 0)
+        FROM d JOIN inventory.document_lines rl ON rl.document_id = d.id JOIN inventory.document_lines il ON il.id = rl.source_line_id
+        JOIN purchasing.order_lines pl ON pl.id = il.source_line_id
+        WHERE d.type = 'purchase_return'
+    )
+    SELECT coalesce(sum(finance.line_share(total, before, quantity, base, (SELECT units FROM d))), 0),
+           coalesce(sum(finance.line_share(net_total, before, quantity, base, (SELECT units FROM d))), 0)
+    FROM lines
+$$;
+
+CREATE OR REPLACE FUNCTION finance.inventory_debt_amount(document uuid) RETURNS numeric LANGUAGE sql STABLE AS $$
+    SELECT gross FROM finance.inventory_amounts(document)
+$$;

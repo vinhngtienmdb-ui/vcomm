@@ -182,11 +182,13 @@ export class JournalsService implements OnModuleInit {
       if (lineDebit > 0 === lineCredit > 0) fields[`lines.${index}.debit`] = "journalLineSide";
       else if (fraction(line.debit) > units || fraction(line.credit) > units) fields[`lines.${index}.debit`] = "invalidValue";
       const account = (
-        await executor.execute<{ ok: boolean }>(sql`
-        SELECT a.status = 'active' AND NOT EXISTS (SELECT 1 FROM accounting.accounts c WHERE c.parent_id = a.id AND c.status = 'active') AS ok
+        await executor.execute<{ ok: boolean; code: string }>(sql`
+        SELECT a.status = 'active' AND NOT EXISTS (SELECT 1 FROM accounting.accounts c WHERE c.parent_id = a.id AND c.status = 'active') AS ok, a.code
         FROM accounting.accounts a WHERE a.id = ${line.accountId} AND a.company_id = ${companyId}`)
       ).rows[0];
       if (!account?.ok) fields[`lines.${index}.accountId`] = "accountNotPostable";
+      // Phải thu khách hàng, phải trả người bán theo dõi theo đối tác.
+      else if ((account.code.startsWith("131") || account.code.startsWith("331")) && !line.partnerId) fields[`lines.${index}.partnerId`] = "required";
       if (line.partnerId) {
         const partner = await executor.execute(sql`SELECT 1 FROM crm.partner_profiles WHERE company_id = ${companyId} AND partner_id = ${line.partnerId}`);
         if (partner.rows.length === 0) fields[`lines.${index}.partnerId`] = "invalidValue";
@@ -295,6 +297,11 @@ export class JournalsService implements OnModuleInit {
     ).rows[0];
     if (!row) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     await this.ledger.requireOpenPeriod(executor, row.company_id, row.journal_date);
+    // Tài khoản có thể đã có tài khoản chi tiết hoặc ngừng dùng sau khi lập phiếu.
+    const invalid = await executor.execute(sql`
+      SELECT 1 FROM accounting.journal_lines l JOIN accounting.accounts a ON a.id = l.account_id
+      WHERE l.journal_id = ${id} AND (a.status <> 'active' OR EXISTS (SELECT 1 FROM accounting.accounts c WHERE c.parent_id = a.id AND c.status = 'active')) LIMIT 1`);
+    if (invalid.rows.length > 0) throw new ApiError("BUSINESS_RULE", "accountNotPostable");
     await executor.execute(sql`UPDATE accounting.journals SET status = 'posted', posted_at = now(), post_error = NULL, updated_at = now() WHERE id = ${id}`);
   }
 
@@ -334,6 +341,13 @@ export class JournalsService implements OnModuleInit {
       const pending = await transaction.execute(sql`
         SELECT 1 FROM accounting.journals WHERE company_id = ${actor.companyId} AND status = 'pending' AND journal_date <= ${end}::date LIMIT 1`);
       if (pending.rows.length > 0) throw new ApiError("BUSINESS_RULE", "periodHasPendingJournals");
+      // Phiếu kho, phiếu chi đang chờ (duyệt, kiểm tra chất lượng, nhận nội bộ) có ngày trong kỳ sẽ không ghi sổ được sau khi khóa.
+      const waiting = await transaction.execute(sql`
+        SELECT 1 FROM inventory.documents WHERE company_id = ${actor.companyId} AND status IN ('pending', 'quality_check', 'in_transit') AND type <> 'transfer' AND document_date <= ${end}::date
+        UNION ALL
+        SELECT 1 FROM finance.payments WHERE company_id = ${actor.companyId} AND status = 'pending' AND payment_date <= ${end}::date
+        LIMIT 1`);
+      if (waiting.rows.length > 0) throw new ApiError("BUSINESS_RULE", "periodHasPendingDocuments");
       const rules = new Map(
         (
           await transaction.execute<{ role: string; account_id: string }>(sql`
@@ -349,7 +363,26 @@ export class JournalsService implements OnModuleInit {
         GROUP BY l.account_id, a.code HAVING sum(l.debit - l.credit) <> 0 ORDER BY a.code`);
       const lines: { accountId: string; debit: number; credit: number }[] = [];
       let summaryBalance = 0;
+      // Giảm trừ doanh thu (521) kết chuyển sang tài khoản doanh thu trước, doanh thu thuần mới sang xác định kết quả.
+      const revenueAccount = (await transaction.execute<{ account_id: string }>(sql`SELECT account_id FROM accounting.posting_rules WHERE company_id = ${actor.companyId} AND role = 'revenue'`))
+        .rows[0]!.account_id;
+      const codes = new Map(
+        (await transaction.execute<{ id: string; code: string }>(sql`SELECT id, code FROM accounting.accounts WHERE company_id = ${actor.companyId}`)).rows.map((row) => [row.id, row.code]),
+      );
+      let deductions = 0;
       for (const row of balances.rows) {
+        if (!codes.get(row.account_id)!.startsWith("521") || row.account_id === revenueAccount) continue;
+        const balance = round(Number(row.balance));
+        if (balance > 0) lines.push({ accountId: revenueAccount, debit: balance, credit: 0 }, { accountId: row.account_id, debit: 0, credit: balance });
+        else lines.push({ accountId: row.account_id, debit: -balance, credit: 0 }, { accountId: revenueAccount, debit: 0, credit: -balance });
+        deductions += balance;
+      }
+      const remaining = balances.rows
+        .filter((row) => !codes.get(row.account_id)!.startsWith("521") || row.account_id === revenueAccount)
+        .map((row) => ({ ...row, balance: String(round(Number(row.balance) + (row.account_id === revenueAccount ? deductions : 0))) }));
+      if (deductions !== 0 && !remaining.some((row) => row.account_id === revenueAccount)) remaining.push({ account_id: revenueAccount, balance: String(round(deductions)) });
+      for (const row of remaining) {
+        if (Number(row.balance) === 0) continue;
         const balance = round(Number(row.balance));
         if (balance > 0) lines.push({ accountId: summary, debit: balance, credit: 0 }, { accountId: row.account_id, debit: 0, credit: balance });
         else lines.push({ accountId: row.account_id, debit: -balance, credit: 0 }, { accountId: summary, debit: 0, credit: -balance });

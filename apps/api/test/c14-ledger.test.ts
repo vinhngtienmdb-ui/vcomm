@@ -382,3 +382,20 @@ describe("TIEUCHI_NGHIEMTHU_115: sổ sách", () => {
     ]);
   });
 });
+
+describe("TIEUCHI_NGHIEMTHU_112: làm tròn theo đơn vị tiền tệ (THAY_DOI_10)", () => {
+  it("KICHBAN_KIEMTHU_217: dòng đơn 3 cái chiết khấu 0,25% (tổng 32.917,5) giao 3 lần: công nợ và bút toán mỗi lần làm tròn đến đồng theo lũy kế, tổng ba lần bằng tổng dòng làm tròn, phải thu chi tiết khớp sổ cái", async () => {
+    const created = await call(seller, "post", "/sales/orders", {
+      channelId: retailChannel,
+      warehouseId,
+      orderDate: today,
+      customerId: customer,
+      lines: [{ variantId: itemA, unitId, quantity: "3", discountPercent: "0.25" }],
+    });
+    const order = (await call(seller, "post", `/sales/orders/${created.body.id}/submit`)).body;
+    const issues = [await deliver(order, "1"), await deliver(order, "1"), await deliver(order, "1")];
+    const debts = await Promise.all(issues.map(async (issue) => (await pool.query("SELECT amount::text FROM finance.debt_items WHERE source_id = $1", [issue.id])).rows[0].amount));
+    expect(debts.map(trim)).toEqual(["10973", "10972", "10973"]);
+    for (const [index, issue] of issues.entries()) expect((await entries(issue.id))[0]).toEqual(["1311", trim(debts[index]), "0"]);
+  });
+});
