@@ -10,6 +10,7 @@ import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Actor } from "../permissions/roles.service";
+import { linkedVariant } from "../catalog/variant-links.service";
 import { deliveredOnOrderLine, salesOrderSource, SalesOrdersService } from "../sales/sales-orders.service";
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { inventoryAudit, inventoryPermissions } from "./inventory-context";
@@ -231,7 +232,10 @@ export class SalesDeliveriesService {
       await transaction.execute(sql`
         UPDATE inventory.documents SET status = 'pending', document_no = ${documentNo}, submitted_at = now(), updated_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.documents.postDocument(transaction, id);
-      if (row.type === "sales_issue") await this.orders.refreshDelivered(transaction, row.source_id!);
+      if (row.type === "sales_issue") {
+        await this.orders.refreshDelivered(transaction, row.source_id!);
+        await this.createInternalReceipt(transaction, id);
+      }
       await this.auditService.record({ ...inventoryAudit(actor, "stock_document"), companyId: row.company_id, action: "stock_document.submit", entityId: id, afterData: { documentNo } }, transaction);
     });
     return this.documents.detail(actor, id);
@@ -351,6 +355,56 @@ export class SalesDeliveriesService {
     if (row.created_by !== actor.userId) throw new ApiError("FORBIDDEN", "forbidden");
     if (row.status !== "draft") throw new ApiError("BUSINESS_RULE", "documentNotDraft");
     return row;
+  }
+
+  // Phiếu xuất giao hàng nội bộ đã ghi sổ sinh phiếu nhập mua "Chờ nhận" ở kho nhận của đơn mua đối ứng; mặt hàng, số lượng quy theo liên kết,
+  // đơn giá theo đơn mua, lô theo phiếu xuất; dòng đơn bán và dòng đơn mua đối ứng cùng số dòng (QUYTAC_NGHIEPVU_76).
+  private async createInternalReceipt(transaction: Executor, issueId: string): Promise<void> {
+    const issue = (
+      await transaction.execute<{ document_no: string; document_date: string; created_by: string; purchase_order_id: string | null; buyer_company_id: string | null }>(sql`
+      SELECT d.document_no, d.document_date::text, d.created_by, o.counterpart_order_id AS purchase_order_id, c.company_id AS buyer_company_id
+      FROM inventory.documents d JOIN sales.orders o ON o.id = d.source_id LEFT JOIN crm.partners c ON c.id = o.customer_id WHERE d.id = ${issueId}`)
+    ).rows[0];
+    if (!issue?.buyer_company_id || !issue.purchase_order_id) return;
+    const order = (
+      await transaction.execute<{ company_id: string; warehouse_id: string; supplier_id: string }>(sql`
+      SELECT company_id, warehouse_id, supplier_id FROM purchasing.orders WHERE id = ${issue.purchase_order_id}`)
+    ).rows[0]!;
+    const receiptId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO inventory.documents (company_id, warehouse_id, type, document_date, reason_code, reason, status, source_type, source_id, partner_id, counterpart_document_id, created_by)
+      VALUES (${order.company_id}, ${order.warehouse_id}, 'purchase_receipt', ${issue.document_date}::date, 'purchase', ${`Nhận hàng nội bộ theo phiếu xuất ${issue.document_no}`}, 'in_transit',
+        'purchasing.order', ${issue.purchase_order_id}, ${order.supplier_id}, ${issueId}, ${issue.created_by}) RETURNING id`)
+    ).rows[0]!.id;
+    const lines = await transaction.execute<{
+      id: string;
+      variant_id: string;
+      base_quantity: string;
+      lot_no: string | null;
+      manufactured_on: string | null;
+      expires_on: string | null;
+      purchase_line_id: string;
+      purchase_variant_id: string;
+      unit_cost: string;
+      base_unit_id: string;
+    }>(sql`
+      SELECT dl.id, dl.variant_id, abs(dl.base_quantity)::text AS base_quantity, coalesce(lot.lot_no, dl.lot_no) AS lot_no,
+        coalesce(lot.manufactured_on, dl.manufactured_on)::text AS manufactured_on, coalesce(lot.expires_on, dl.expires_on)::text AS expires_on,
+        pl.id AS purchase_line_id, pl.variant_id AS purchase_variant_id, (pl.unit_price * pl.quantity / pl.base_quantity)::text AS unit_cost, p.base_unit_id
+      FROM inventory.document_lines dl JOIN sales.order_lines sl ON sl.id = dl.source_line_id
+      JOIN purchasing.order_lines pl ON pl.order_id = ${issue.purchase_order_id} AND pl.line_no = sl.line_no
+      JOIN catalog.variants v ON v.id = pl.variant_id JOIN catalog.products p ON p.id = v.product_id
+      LEFT JOIN inventory.lots lot ON lot.id = dl.lot_id
+      WHERE dl.document_id = ${issueId} ORDER BY dl.line_no`);
+    for (const [index, line] of lines.rows.entries()) {
+      const link = await linkedVariant(transaction, line.variant_id, order.company_id);
+      if (!link || link.variantId !== line.purchase_variant_id) throw new ApiError("BUSINESS_RULE", "internalVariantNotLinked");
+      const quantity = (Number(line.base_quantity) * link.factor).toFixed(4);
+      await transaction.execute(sql`
+        INSERT INTO inventory.document_lines (document_id, line_no, variant_id, unit_id, quantity, base_quantity, unit_cost, lot_no, manufactured_on, expires_on, source_line_id, counterpart_line_id)
+        VALUES (${receiptId}, ${index + 1}, ${line.purchase_variant_id}, ${line.base_unit_id}, ${quantity}::numeric, ${quantity}::numeric, ${Number(line.unit_cost).toFixed(4)}::numeric,
+          ${line.lot_no}, ${line.manufactured_on}::date, ${line.expires_on}::date, ${line.purchase_line_id}, ${line.id})`);
+    }
   }
 
   // Đơn bán nội bộ chỉ giao khi đơn mua đối ứng của công ty mua đã duyệt (QUYTAC_NGHIEPVU_76).

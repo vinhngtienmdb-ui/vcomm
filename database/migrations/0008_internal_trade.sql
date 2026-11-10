@@ -37,7 +37,7 @@ CREATE TABLE inventory.internal_discrepancies (
     issue_document_id       uuid        NOT NULL REFERENCES inventory.documents(id),
     issue_line_id           uuid        NOT NULL REFERENCES inventory.document_lines(id),
     receipt_document_id     uuid        NOT NULL REFERENCES inventory.documents(id),
-    receipt_line_id         uuid        NOT NULL REFERENCES inventory.document_lines(id),
+    receipt_line_id         uuid        REFERENCES inventory.document_lines(id),        -- dòng nhập; trống khi không nhận được gì của dòng xuất
     variant_id              uuid        NOT NULL REFERENCES catalog.variants(id),      -- mặt hàng bên bán
     shortage_base_quantity  numeric(20,4) NOT NULL CHECK (shortage_base_quantity > 0), -- đơn vị cơ sở bên bán
     value                   numeric(20,4) NOT NULL,                                     -- theo giá vốn phiếu xuất
@@ -50,6 +50,6 @@ CREATE TABLE inventory.internal_discrepancies (
     resolved_at             timestamptz,
     created_at              timestamptz NOT NULL DEFAULT now(),
     version                 integer     NOT NULL DEFAULT 1,
-    UNIQUE (receipt_line_id)
+    UNIQUE (receipt_document_id, issue_line_id)
 );
 CREATE INDEX internal_discrepancies_company_idx ON inventory.internal_discrepancies (company_id, status, created_at DESC);

@@ -1,6 +1,10 @@
 // API_63: kho, vị trí, cài đặt kho (CONG_VIEC_05). Quyền chi tiết kiểm trong service theo chi nhánh sở hữu kho.
 import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from "@nestjs/common";
 import {
+  internalDiscrepancyListQuerySchema,
+  receiveInternalSchema,
+  resolveInternalDiscrepancySchema,
+  type InternalDiscrepancyItem,
   saveSalesIssueSchema,
   saveSalesReturnSchema,
   qualityCheckSchema,
@@ -62,6 +66,7 @@ import { StockLevelsService } from "./stock-levels.service";
 import { StockService } from "./stock.service";
 import { PurchaseReceiptsService } from "./purchase-receipts.service";
 import { SalesDeliveriesService } from "./sales-deliveries.service";
+import { InternalReceiptsService } from "./internal-receipts.service";
 import { salesTypes, sourcedTypes } from "./stock-documents.service";
 import { StocktakesService } from "./stocktakes.service";
 import { TransfersService } from "./transfers.service";
@@ -83,6 +88,7 @@ export class InventoryController {
     private readonly labels: LabelsService,
     private readonly purchases: PurchaseReceiptsService,
     private readonly deliveries: SalesDeliveriesService,
+    private readonly internalReceipts: InternalReceiptsService,
   ) {}
 
   // Vào mini app Kho: quyền kho ở công ty đang chọn hoặc ở bất kỳ chi nhánh nào của công ty đó.
@@ -253,6 +259,27 @@ export class InventoryController {
   @Post("sales-returns")
   async createSalesReturn(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
     return this.deliveries.createReturn(await this.actor(request, companyId), saveSalesReturnSchema.parse(body));
+  }
+
+  // API_82 (CONG_VIEC_09): nhận hàng nội bộ; biên bản chênh lệch giao nhận nội bộ.
+  @Post("internal-receipts/:id/receive")
+  async receiveInternal(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.internalReceipts.receive(await this.actor(request, companyId), id, receiveInternalSchema.parse(body));
+  }
+
+  @Get("internal-discrepancies")
+  async internalDiscrepancies(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<InternalDiscrepancyItem[]> {
+    return this.internalReceipts.discrepancies(await this.actor(request, companyId), internalDiscrepancyListQuerySchema.parse(query).status);
+  }
+
+  @Post("internal-discrepancies/:id/resolve")
+  async resolveInternalDiscrepancy(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<InternalDiscrepancyItem[]> {
+    return this.internalReceipts.resolve(await this.actor(request, companyId), id, resolveInternalDiscrepancySchema.parse(body));
   }
 
   // API_76: đơn mua đã duyệt nhận vào kho người dùng nhập mua được; dòng còn nhận được.

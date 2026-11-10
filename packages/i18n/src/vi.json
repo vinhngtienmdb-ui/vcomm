@@ -181,7 +181,12 @@
     "salesOrderNotOpen": "Đơn bán chưa xác nhận hoặc đã đóng, không giao hàng được.",
     "salesIssueNotPosted": "Chỉ nhận hàng trả lại từ phiếu xuất giao hàng đã ghi sổ.",
     "salesOverDelivery": "Vượt số còn phải giao của đơn bán.",
-    "salesReturnExceeded": "Vượt số đã giao còn trả được của phiếu xuất gốc."
+    "salesReturnExceeded": "Vượt số đã giao còn trả được của phiếu xuất gốc.",
+    "internalReceiptNotPending": "Phiếu nhập nội bộ không ở trạng thái chờ nhận.",
+    "internalReceivedOverShipped": "Số nhận vượt số đã xuất.",
+    "internalSerialNotShipped": "Serial không có trong phiếu xuất gốc.",
+    "internalShortageReasonRequired": "Nhận thiếu phải ghi lý do.",
+    "internalLineMissing": "Phải nhập số nhận cho mọi dòng của phiếu."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1331,7 +1336,8 @@
     "stock": "Tồn kho",
     "documents": "Phiếu kho",
     "stocktakes": "Kiểm kê",
-    "reservations": "Giữ hàng, tồn an toàn"
+    "reservations": "Giữ hàng, tồn an toàn",
+    "internalDiscrepancies": "Chênh lệch giao nội bộ"
   },
   "warehouses": {
     "title": "Kho và vị trí",
@@ -1558,7 +1564,15 @@
     "chooseLot": "Chọn lô…",
     "chooseIssue": "Chọn phiếu xuất giao hàng để nhận hàng trả lại.",
     "salesReturnHint": "Hàng trả nhập lại theo giá vốn trên phiếu xuất gốc.",
-    "issuedOnIssue": "Đã giao {count} {unit}"
+    "issuedOnIssue": "Đã giao {count} {unit}",
+    "internalIssue": "Phiếu xuất của bên bán",
+    "receiveInternal": "Nhận hàng nội bộ",
+    "receiveInternalHint": "Nhập số thực nhận theo đơn vị cơ sở; hàng serial chọn serial đã nhận. Nhận thiếu thì ghi lý do, công ty bán nhận biên bản chênh lệch để xử lý.",
+    "internalShipped": "Đã xuất {count} {unit}",
+    "internalReceivedQuantity": "Số thực nhận ({unit})",
+    "shortageReason": "Lý do nhận thiếu",
+    "confirmReceiveInternal": "Xác nhận nhận hàng",
+    "internalReceived": "Đã nhận hàng nội bộ."
   },
   "stocktakes": {
     "title": "Kiểm kê",
@@ -1975,5 +1989,25 @@
   "salesMenu": {
     "title": "Bán hàng",
     "orders": "Đơn bán"
+  },
+  "internalDiscrepancies": {
+    "title": "Biên bản chênh lệch giao nhận nội bộ",
+    "hint": "Công ty mua nhận thiếu so với phiếu xuất. Nhập lại kho: lập và ghi sổ phiếu nhận hàng trả lại vào kho xuất theo giá vốn phiếu xuất. Ghi tổn thất: chỉ đóng biên bản, hạch toán làm cùng Tài chính – Kế toán.",
+    "status": "Trạng thái",
+    "status_open": "Chờ xử lý",
+    "status_returned": "Đã nhập lại kho",
+    "status_written_off": "Đã ghi tổn thất",
+    "none": "Không có biên bản.",
+    "item": "Mặt hàng",
+    "shortage": "Số thiếu",
+    "documents": "Phiếu xuất → phiếu nhập",
+    "reason": "Lý do bên nhận",
+    "value": "Giá trị",
+    "note": "Ghi chú xử lý",
+    "return": "Nhập lại kho",
+    "writeOff": "Ghi tổn thất",
+    "returned": "Đã nhập lại kho.",
+    "writtenOff": "Đã ghi tổn thất.",
+    "returnDocument": "Phiếu trả"
   }
 }

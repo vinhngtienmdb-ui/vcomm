@@ -181,7 +181,12 @@
     "salesOrderNotOpen": "The sales order is not confirmed or is closed; it cannot be delivered.",
     "salesIssueNotPosted": "Returns can only be received from posted deliveries.",
     "salesOverDelivery": "Exceeds the quantity still to deliver on the sales order.",
-    "salesReturnExceeded": "Exceeds the quantity still returnable on the original delivery."
+    "salesReturnExceeded": "Exceeds the quantity still returnable on the original delivery.",
+    "internalReceiptNotPending": "The internal receipt is not awaiting receipt.",
+    "internalReceivedOverShipped": "The received quantity exceeds the shipped quantity.",
+    "internalSerialNotShipped": "The serial is not on the original delivery.",
+    "internalShortageReasonRequired": "A reason is required when receiving less than shipped.",
+    "internalLineMissing": "Enter the received quantity for every line."
   },
   "login": {
     "title": "Sign in",
@@ -1331,7 +1336,8 @@
     "stock": "Stock",
     "documents": "Stock documents",
     "stocktakes": "Stocktakes",
-    "reservations": "Reservations, safety stock"
+    "reservations": "Reservations, safety stock",
+    "internalDiscrepancies": "Internal shortages"
   },
   "warehouses": {
     "title": "Warehouses and locations",
@@ -1558,7 +1564,15 @@
     "chooseLot": "Choose a lot…",
     "chooseIssue": "Choose a delivery to receive a return.",
     "salesReturnHint": "Returned goods are received at the original delivery cost.",
-    "issuedOnIssue": "Delivered {count} {unit}"
+    "issuedOnIssue": "Delivered {count} {unit}",
+    "internalIssue": "Seller's delivery",
+    "receiveInternal": "Receive internal goods",
+    "receiveInternalHint": "Enter the quantity actually received in base units; for serial items tick the serials received. If short, give a reason; the selling company gets a discrepancy record to handle.",
+    "internalShipped": "Shipped {count} {unit}",
+    "internalReceivedQuantity": "Received ({unit})",
+    "shortageReason": "Reason for shortage",
+    "confirmReceiveInternal": "Confirm receipt",
+    "internalReceived": "Internal goods received."
   },
   "stocktakes": {
     "title": "Stocktake",
@@ -1975,5 +1989,25 @@
   "salesMenu": {
     "title": "Sales",
     "orders": "Sales orders"
+  },
+  "internalDiscrepancies": {
+    "title": "Internal delivery discrepancies",
+    "hint": "The buying company received less than shipped. Return to stock: create and post a return into the issuing warehouse at the delivery cost. Write off: only close the record; accounting is handled with Finance.",
+    "status": "Status",
+    "status_open": "Open",
+    "status_returned": "Returned to stock",
+    "status_written_off": "Written off",
+    "none": "No records.",
+    "item": "Item",
+    "shortage": "Shortage",
+    "documents": "Delivery → receipt",
+    "reason": "Receiver's reason",
+    "value": "Value",
+    "note": "Resolution note",
+    "return": "Return to stock",
+    "writeOff": "Write off",
+    "returned": "Returned to stock.",
+    "writtenOff": "Written off.",
+    "returnDocument": "Return document"
   }
 }

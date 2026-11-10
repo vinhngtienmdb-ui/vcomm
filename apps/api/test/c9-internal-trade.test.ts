@@ -69,10 +69,20 @@ beforeAll(async () => {
   for (const row of (await pool.query("SELECT id, code FROM catalog.units")).rows) units[row.code] = row.id;
   const category = (companyId: string, code: string) => groupAdmin.call("post", "/catalog/categories", { companyId, body: { code, nameVi: code, nameEn: code } });
   const categoryId = (await category(retail, "BANHNB")).body.id;
-  const product = async (key: string, companyId: string, name: string, baseUnit: string) => {
+  const serialCategoryId = (await groupAdmin.call("post", "/catalog/categories", { companyId: retail, body: { code: "MAYNB", nameVi: "MAYNB", nameEn: "MAYNB", tracksSerials: true } })).body.id;
+  const product = async (key: string, companyId: string, name: string, baseUnit: string, serial = false) => {
     const created = await groupAdmin.call("post", "/catalog/products", {
       companyId,
-      body: { categoryId, name, vatRate: "10", tracksLots: false, tracksSerials: false, warrantyMonths: 0, baseUnitId: units[baseUnit], variants: [{ barcodes: [] }] },
+      body: {
+        categoryId: serial ? serialCategoryId : categoryId,
+        name,
+        vatRate: "10",
+        tracksLots: false,
+        tracksSerials: serial,
+        warrantyMonths: 0,
+        baseUnitId: units[baseUnit],
+        variants: [{ barcodes: [] }],
+      },
     });
     expect(created.status, JSON.stringify(created.body)).toBe(201);
     items[key] = created.body.variants[0].id;
@@ -80,6 +90,11 @@ beforeAll(async () => {
   await product("retailBiscuit", retail, "Bánh nội bộ", "CAI");
   await product("retailUnlinked", retail, "Bánh chưa liên kết", "CAI");
   await product("tradingBiscuit", trading, "Bánh nội bộ hộp", "HOP");
+  await product("retailMachine", retail, "Máy nội bộ", "CAI", true);
+  await product("tradingMachine", trading, "Máy nội bộ nhận", "CAI", true);
+  expect((await groupAdmin.call("post", "/catalog/variant-links", { companyId: retail, body: { variantId: items.retailMachine, linkedVariantId: items.tradingMachine, factor: "1" } })).status).toBe(
+    201,
+  );
   // Một hộp bên VCT bằng 12 cái bên VCR.
   const link = await groupAdmin.call("post", "/catalog/variant-links", { companyId: trading, body: { variantId: items.tradingBiscuit, linkedVariantId: items.retailBiscuit, factor: "12" } });
   expect(link.status, JSON.stringify(link.body)).toBe(201);
@@ -103,8 +118,9 @@ beforeAll(async () => {
       reasonCode: "opening_balance",
       reason: "Tồn đầu",
       lines: [
-        { variantId: items.retailBiscuit, unitId: units.CAI, quantity: "100", unitCost: "6000" },
+        { variantId: items.retailBiscuit, unitId: units.CAI, quantity: "500", unitCost: "6000" },
         { variantId: items.retailUnlinked, unitId: units.CAI, quantity: "10", unitCost: "6000" },
+        { variantId: items.retailMachine, unitId: units.CAI, quantity: "3", unitCost: "2000000", serials: ["MAY-01", "MAY-02", "MAY-03"] },
       ],
     },
   });
@@ -124,6 +140,7 @@ beforeAll(async () => {
   await price(await priceList("NB", { includesVat: false, channelId: internalChannelId }), [
     { variantId: items.retailBiscuit, unitId: units.CAI, price: "10000" },
     { variantId: items.retailUnlinked, unitId: units.CAI, price: "10000" },
+    { variantId: items.retailMachine, unitId: units.CAI, price: "3000000" },
   ]);
   await price(await priceList("LE", { includesVat: true }), [{ variantId: items.retailBiscuit, unitId: units.CAI, price: "15000" }]);
 
@@ -277,5 +294,139 @@ describe("TIEUCHI_NGHIEMTHU_97: hủy, đóng hai bên; phân quyền", () => {
     expect((await buy(groupAdmin, `/purchasing/orders/${purchase.id}/close`, { reason: "Đủ dùng", version: purchaseNow.version })).body.status).toBe("closed");
     expect((await sell(retailAdmin, `/sales/orders/${sales.id}`)).body).toMatchObject({ status: "closed", closedReason: "Bên mua đóng đơn mua đối ứng: Đủ dùng" });
     expect(await reserved()).toBe(beforeClose - 12);
+  });
+});
+
+// Bán nội bộ đã có đơn mua đối ứng được duyệt; trả về đơn bán và phiếu xuất đã ghi sổ.
+async function shipped(lines: { variantId: string | undefined; quantity: string; serials?: string[] }[]) {
+  const created = await sell(
+    retailAdmin,
+    "/sales/orders",
+    salesBody("1", { lines: lines.map((line) => ({ variantId: line.variantId, unitId: units.CAI, quantity: line.quantity, discountPercent: "0" })) }),
+  );
+  expect(created.status, JSON.stringify(created.body)).toBe(201);
+  const order = (await sell(retailAdmin, `/sales/orders/${created.body.id}/submit`, {})).body;
+  const purchase = (await pool.query<{ id: string; version: number }>("SELECT id, version FROM purchasing.orders WHERE counterpart_order_id = $1", [order.id])).rows[0]!;
+  expect((await buy(groupAdmin, `/purchasing/orders/${purchase.id}/counterpart-confirm`, { warehouseId: buyerWarehouse, version: purchase.version })).body.status).toBe("approved");
+  const draft = await keeper.call("post", "/inventory/sales-issues", {
+    companyId: retail,
+    body: {
+      orderId: order.id,
+      documentDate: today,
+      lines: lines.map((line, index) => ({ orderLineId: order.lines[index].id, quantity: line.quantity, serials: line.serials ?? [] })),
+    },
+  });
+  expect(draft.status, JSON.stringify(draft.body)).toBe(201);
+  const issue = (await keeper.call("post", `/inventory/documents/${draft.body.id}/submit`, { companyId: retail })).body;
+  expect(issue.status, JSON.stringify(issue)).toBe("posted");
+  const receiptId = (await pool.query<{ id: string }>("SELECT id FROM inventory.documents WHERE counterpart_document_id = $1", [issue.id])).rows[0]!.id;
+  return { order, purchaseId: purchase.id, issue, receipt: (await buy(groupAdmin, `/inventory/documents/${receiptId}`)).body };
+}
+const tradingStock = async (name: string) => (await buy(groupAdmin, `/inventory/stock?warehouseId=${buyerWarehouse}&onlyInStock=false&search=${encodeURIComponent(name)}`)).body.data[0];
+
+describe("TIEUCHI_NGHIEMTHU_95: xuất giao hàng nội bộ sinh phiếu nhập chờ nhận", () => {
+  it("KICHBAN_KIEMTHU_188: phiếu nhập chờ nhận đúng mặt hàng, số lượng, đơn giá, serial; nhận vượt, serial không xuất bị từ chối; nhận đủ thì đơn mua nhận đủ", async () => {
+    const { purchaseId, issue, receipt } = await shipped([
+      { variantId: items.retailBiscuit, quantity: "24" },
+      { variantId: items.retailMachine, quantity: "2", serials: ["MAY-01", "MAY-02"] },
+    ]);
+    expect(receipt).toMatchObject({
+      type: "purchase_receipt",
+      status: "in_transit",
+      companyId: trading,
+      warehouseId: buyerWarehouse,
+      canReceiveInternal: true,
+      internalReceipt: {
+        issueDocumentNo: issue.documentNo,
+        sellerCompanyName: "VComm Bán lẻ Miền Nam",
+        lines: [
+          { lineId: receipt.lines[0].id, shippedBaseQuantity: "2", shippedSerials: [] },
+          { lineId: receipt.lines[1].id, shippedBaseQuantity: "2", shippedSerials: ["MAY-01", "MAY-02"] },
+        ],
+      },
+    });
+    expect(receipt.lines[0]).toMatchObject({ variantId: items.tradingBiscuit, unitId: units.HOP, quantity: "2", unitCost: "120000" });
+    // Thủ kho công ty bán không nhận hàng ở kho của công ty mua.
+    expect((await keeper.call("post", `/inventory/internal-receipts/${receipt.id}/receive`, { companyId: retail, body: { lines: [], version: receipt.version } })).status).toBe(400);
+    const receive = (lines: Record<string, unknown>[], extra: Record<string, unknown> = {}) =>
+      buy(groupAdmin, `/inventory/internal-receipts/${receipt.id}/receive`, { lines, version: receipt.version, ...extra });
+    const over = await receive([
+      { lineId: receipt.lines[0].id, receivedQuantity: "3" },
+      { lineId: receipt.lines[1].id, receivedQuantity: "2", serials: ["MAY-01", "MAY-03"] },
+    ]);
+    expect(over.body.error.fields).toEqual({ "lines.0.receivedQuantity": "Số nhận vượt số đã xuất.", "lines.1.serials": "Serial không có trong phiếu xuất gốc." });
+    const received = await receive([
+      { lineId: receipt.lines[0].id, receivedQuantity: "2" },
+      { lineId: receipt.lines[1].id, receivedQuantity: "2", serials: ["MAY-01", "MAY-02"] },
+    ]);
+    expect(received.body).toMatchObject({ status: "posted", documentNo: expect.stringMatching(/^NM/), canReceiveInternal: false });
+    expect(await tradingStock("Bánh nội bộ hộp")).toMatchObject({ onHand: "2" });
+    expect(await tradingStock("Máy nội bộ nhận")).toMatchObject({ onHand: "2" });
+    expect((await buy(groupAdmin, `/purchasing/orders/${purchaseId}`)).body).toMatchObject({ status: "received" });
+    // Nhận lần nữa bị từ chối.
+    expect((await receive([{ lineId: receipt.lines[0].id, receivedQuantity: "2" }])).status).toBe(409);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_96: biên bản chênh lệch nội bộ", () => {
+  it("KICHBAN_KIEMTHU_189: nhận thiếu phải ghi lý do, sinh biên bản ở công ty bán; nhập lại kho ghi sổ phiếu trả; ghi tổn thất đóng biên bản; mỗi biên bản xử lý một lần", async () => {
+    const first = await shipped([{ variantId: items.retailBiscuit, quantity: "24" }]);
+    const receiveFirst = (extra: Record<string, unknown>) =>
+      buy(groupAdmin, `/inventory/internal-receipts/${first.receipt.id}/receive`, {
+        lines: [{ lineId: first.receipt.lines[0].id, receivedQuantity: "1" }],
+        version: first.receipt.version,
+        ...extra,
+      });
+    expect((await receiveFirst({})).body.error.fields).toEqual({ shortageReason: "Nhận thiếu phải ghi lý do." });
+    expect((await receiveFirst({ shortageReason: "Rách thùng" })).body.status).toBe("posted");
+
+    // Công ty mua không thấy biên bản của công ty bán; thủ kho công ty bán thấy, giá trị theo giá vốn phiếu xuất.
+    expect((await buy(groupAdmin, "/inventory/internal-discrepancies")).body).toEqual([]);
+    const list = (await keeper.call("get", "/inventory/internal-discrepancies?status=open", { companyId: retail })).body;
+    expect(list).toEqual([
+      expect.objectContaining({
+        issueDocumentNo: first.issue.documentNo,
+        buyerCompanyName: "VComm Thương mại",
+        sku: expect.any(String),
+        shortageBaseQuantity: "12",
+        value: null,
+        reason: "Rách thùng",
+        status: "open",
+        canResolve: true,
+      }),
+    ]);
+    // Giá trị chỉ hiện cho người xem được giá vốn.
+    expect((await sell(retailAdmin, "/inventory/internal-discrepancies?status=open")).body[0].value).toBe("72000");
+    const before = Number((await sell(retailAdmin, `/inventory/stock?warehouseId=${sellerWarehouse}&onlyInStock=false&search=${encodeURIComponent("Bánh nội bộ")}`)).body.data[0].onHand);
+    const resolved = await keeper.call("post", `/inventory/internal-discrepancies/${list[0].id}/resolve`, {
+      companyId: retail,
+      body: { action: "return", note: "Hàng về lại kho", version: list[0].version },
+    });
+    expect(resolved.status, JSON.stringify(resolved.body)).toBe(201);
+    const returnedItem = resolved.body.find((item: { id: string }) => item.id === list[0].id);
+    expect(returnedItem).toMatchObject({ status: "returned", returnDocumentId: expect.any(String), canResolve: false });
+    expect((await sell(retailAdmin, `/inventory/documents/${returnedItem.returnDocumentId}`)).body).toMatchObject({ type: "sales_return", status: "posted" });
+    expect(Number((await sell(retailAdmin, `/inventory/stock?warehouseId=${sellerWarehouse}&onlyInStock=false&search=${encodeURIComponent("Bánh nội bộ")}`)).body.data[0].onHand)).toBe(before + 12);
+    // Xử lý lần nữa bị từ chối.
+    expect(
+      (await keeper.call("post", `/inventory/internal-discrepancies/${list[0].id}/resolve`, { companyId: retail, body: { action: "write_off", note: null, version: list[0].version } })).status,
+    ).toBe(409);
+
+    // Không nhận được gì của máy có serial: biên bản giữ serial chưa nhận; ghi tổn thất.
+    const second = await shipped([{ variantId: items.retailMachine, quantity: "1", serials: ["MAY-03"] }]);
+    const nothing = await buy(groupAdmin, `/inventory/internal-receipts/${second.receipt.id}/receive`, {
+      lines: [{ lineId: second.receipt.lines[0].id, receivedQuantity: "0" }],
+      shortageReason: "Thất lạc",
+      version: second.receipt.version,
+    });
+    expect(nothing.body).toMatchObject({ status: "posted", lines: [] });
+    const lost = (await keeper.call("get", "/inventory/internal-discrepancies?status=open", { companyId: retail })).body;
+    expect(lost).toEqual([expect.objectContaining({ shortageBaseQuantity: "1", serials: ["MAY-03"] })]);
+    expect((await sell(retailAdmin, "/inventory/internal-discrepancies?status=open")).body[0].value).toBe("2000000");
+    const written = await keeper.call("post", `/inventory/internal-discrepancies/${lost[0].id}/resolve`, {
+      companyId: retail,
+      body: { action: "write_off", note: "Ghi tổn thất", version: lost[0].version },
+    });
+    expect(written.body.find((item: { id: string }) => item.id === lost[0].id)).toMatchObject({ status: "written_off", resolutionNote: "Ghi tổn thất", returnDocumentId: null });
   });
 });

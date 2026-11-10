@@ -102,6 +102,7 @@ type DocumentRow = {
   partner_id: string | null;
   partner_name: string | null;
   source_id: string | null;
+  counterpart_document_id: string | null;
   source_no: string | null;
 };
 
@@ -246,8 +247,34 @@ export class StockDocumentsService implements OnModuleInit {
       (await this.permissionService.permissionsCovering(actor.userId, { scopeType: "branch", companyId: warehouse.companyId, branchId: warehouse.branchId })).has(
         inventoryPermissions.receivePurchases,
       );
+    // Phiếu nhập mua nội bộ (CONG_VIEC_09): số phiếu xuất gốc, công ty bán; khi chờ nhận thì số xuất, serial xuất từng dòng.
+    const internalReceipt = row.counterpart_document_id
+      ? {
+          ...(
+            await this.database.execute<{ issue_document_no: string | null; seller_company_name: string }>(sql`
+            SELECT d.document_no AS issue_document_no, c.short_name AS seller_company_name FROM inventory.documents d JOIN core.companies c ON c.id = d.company_id
+            WHERE d.id = ${row.counterpart_document_id}`)
+          ).rows.map((item) => ({ issueDocumentNo: item.issue_document_no, sellerCompanyName: item.seller_company_name }))[0]!,
+          lines:
+            row.status === "in_transit"
+              ? await Promise.all(
+                  lines.map(async (line) => ({
+                    lineId: line.id,
+                    shippedBaseQuantity: trimDecimal(line.base_quantity),
+                    shippedSerials: (
+                      await this.database.execute<{ serial_no: string }>(sql`
+                      SELECT s.serial_no FROM inventory.document_line_serials s JOIN inventory.document_lines l ON l.counterpart_line_id = s.line_id
+                      WHERE l.id = ${line.id} ORDER BY s.serial_no`)
+                    ).rows.map((serial) => serial.serial_no),
+                  })),
+                )
+              : [],
+        }
+      : null;
     return {
       ...this.toItem(row, costVisible),
+      internalReceipt,
+      canReceiveInternal: internalReceipt !== null && row.status === "in_transit" && (await canReceivePurchases(sourceWarehouse)),
       destinationWarehouseId: row.destination_warehouse_id,
       note: row.note,
       approvalRequestId: row.approval_request_id,
@@ -807,7 +834,7 @@ export class StockDocumentsService implements OnModuleInit {
         d.company_id, c.short_name AS company_name, d.reason_code, d.reason, d.note, d.status, d.approval_request_id, d.stocktake_id,
         (SELECT count(*)::int FROM inventory.document_lines l WHERE l.document_id = d.id) AS line_count,
         (SELECT sum(l.cost_value)::text FROM inventory.document_lines l WHERE l.document_id = d.id) AS total_value,
-        d.created_by, u.full_name AS created_by_name, d.created_at, d.version, d.partner_id, pt.name AS partner_name, d.source_id,
+        d.created_by, u.full_name AS created_by_name, d.created_at, d.version, d.partner_id, pt.name AS partner_name, d.source_id, d.counterpart_document_id,
         CASE WHEN d.type = 'purchase_receipt' THEN (SELECT o.document_no FROM purchasing.orders o WHERE o.id = d.source_id)
              WHEN d.type = 'sales_issue' THEN (SELECT so.document_no FROM sales.orders so WHERE so.id = d.source_id)
              WHEN d.type IN ('purchase_return', 'sales_return') THEN (SELECT r.document_no FROM inventory.documents r WHERE r.id = d.source_id) END AS source_no

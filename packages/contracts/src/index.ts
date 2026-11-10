@@ -1583,6 +1583,9 @@ export interface StockDocumentResponse extends StockDocumentListItem {
   sourceNo: string | null;
   canQualityCheck: boolean;
   canReturn: boolean;
+  // CONG_VIEC_09: phiếu nhập mua nội bộ chờ nhận; số xuất, serial xuất theo phiếu xuất gốc bên bán (đơn vị cơ sở bên nhận).
+  internalReceipt: { issueDocumentNo: string | null; sellerCompanyName: string; lines: { lineId: string; shippedBaseQuantity: string; shippedSerials: string[] }[] } | null;
+  canReceiveInternal: boolean;
 }
 export const lotSuggestionQuerySchema = z
   .object({ warehouseId: z.uuid(), companyId: z.uuid(), variantId: z.uuid(), locationId: z.uuid().optional(), includeExpired: z.enum(["true", "false"]).optional() })
@@ -2509,3 +2512,61 @@ export const saveSalesReturnSchema = z
   })
   .strict();
 export type SaveSalesReturnRequest = z.input<typeof saveSalesReturnSchema>;
+
+// CONG_VIEC_09, API_82: nhận hàng nội bộ theo số thực nhận (đơn vị cơ sở bên nhận); biên bản chênh lệch nội bộ (QUYTAC_NGHIEPVU_76, 77).
+export const receiveInternalSchema = z
+  .object({
+    lines: z
+      .array(
+        z
+          .object({
+            lineId: z.uuid(),
+            receivedQuantity: z.union([z.number(), z.string()]).transform((value, context) => {
+              const text = String(value).trim().replace(",", ".");
+              if (!/^\d{1,12}(\.\d{1,4})?$/.test(text)) {
+                context.addIssue({ code: "custom", message: "invalidValue" });
+                return z.NEVER;
+              }
+              return text;
+            }),
+            locationId: z.uuid().nullable().optional(),
+            serials: z.array(z.string().trim().min(1).max(100)).max(5000).default([]),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    shortageReason: blankToNull(500),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export type ReceiveInternalRequest = z.input<typeof receiveInternalSchema>;
+export const internalDiscrepancyStatuses = ["open", "returned", "written_off"] as const;
+export type InternalDiscrepancyStatus = (typeof internalDiscrepancyStatuses)[number];
+export const internalDiscrepancyListQuerySchema = z.object({ status: z.enum(internalDiscrepancyStatuses).optional() }).strict();
+export interface InternalDiscrepancyItem {
+  id: string;
+  warehouseName: string;
+  issueId: string;
+  issueDocumentNo: string | null;
+  receiptId: string;
+  receiptDocumentNo: string | null;
+  buyerCompanyName: string;
+  sku: string;
+  productName: string;
+  baseUnitName: string;
+  shortageBaseQuantity: string;
+  value: string | null;
+  serials: string[];
+  reason: string;
+  status: InternalDiscrepancyStatus;
+  returnDocumentId: string | null;
+  resolutionNote: string | null;
+  resolvedByName: string | null;
+  createdAt: string;
+  version: number;
+  canResolve: boolean;
+}
+export const resolveInternalDiscrepancySchema = z
+  .object({ action: z.enum(["return", "write_off"]), note: blankToNull(500), version: z.number().int().positive() })
+  .strict();

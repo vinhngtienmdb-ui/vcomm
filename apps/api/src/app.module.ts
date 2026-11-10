@@ -67,6 +67,7 @@ import { TransfersService } from "./inventory/transfers.service";
 import { WarehousesService } from "./inventory/warehouses.service";
 import { PurchaseReceiptsService } from "./inventory/purchase-receipts.service";
 import { SalesDeliveriesService } from "./inventory/sales-deliveries.service";
+import { InternalReceiptsService } from "./inventory/internal-receipts.service";
 import { CategoriesService } from "./catalog/categories.service";
 import { UnitsService } from "./catalog/units.service";
 import { ProductsService } from "./catalog/products.service";
@@ -111,6 +112,7 @@ import { UsersService } from "./users/users.service";
     WarehousesService,
     PurchaseReceiptsService,
     SalesDeliveriesService,
+    InternalReceiptsService,
     PartnersService,
     SupplierPricesService,
     SalesOrdersService,

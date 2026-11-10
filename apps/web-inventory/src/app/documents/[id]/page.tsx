@@ -662,6 +662,14 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
               <dd>{document.partnerName}</dd>
             </>
           )}
+          {document.internalReceipt && (
+            <>
+              <dt>{t("internalIssue")}</dt>
+              <dd>
+                {document.internalReceipt.sellerCompanyName}: {document.internalReceipt.issueDocumentNo}
+              </dd>
+            </>
+          )}
           {document.sourceNo && (
             <>
               <dt>
@@ -756,6 +764,7 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
       </div>
       {document.canReceive && <ReceiveForm document={document} onReceived={onChanged} />}
       {document.canQualityCheck && <QualityCheckForm document={document} onChecked={onChanged} />}
+      {document.canReceiveInternal && <InternalReceiveForm document={document} onReceived={onChanged} />}
       {document.discrepancies.length > 0 && (
         <section className="the" style={{ marginTop: "var(--khoang-4)" }}>
           <h2>{t("discrepancies")}</h2>
@@ -959,6 +968,115 @@ function QualityCheckForm({ document, onChecked }: { document: StockDocumentResp
       <FormError text={formError} />
       <button type="button" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting} style={{ justifySelf: "start" }} onClick={submit}>
         {t("confirmQualityCheck")}
+      </button>
+    </section>
+  );
+}
+
+// CONG_VIEC_09 (MAN_HINH_32 sửa): nhận hàng nội bộ theo số thực nhận (đơn vị cơ sở), chọn serial đã xuất, vị trí; nhận thiếu ghi lý do (API_82).
+function InternalReceiveForm({ document, onReceived }: { document: StockDocumentResponse; onReceived: () => void }) {
+  const t = useTranslations("documents");
+  const { notify } = useAdmin();
+  const warehouse = useApi<WarehouseResponse>(`/inventory/warehouses/${document.warehouseId}`);
+  const usesLocations = warehouse.state.kind === "ready" && warehouse.state.data.usesLocations;
+  const locations = useApi<LocationResponse[]>(usesLocations ? `/inventory/warehouses/${document.warehouseId}/locations` : null);
+  const shipped = new Map((document.internalReceipt?.lines ?? []).map((line) => [line.lineId, line]));
+  const [entries, setEntries] = useState(() =>
+    document.lines.map((line) => ({ lineId: line.id, receivedQuantity: line.baseQuantity, locationId: "", serials: shipped.get(line.id)?.shippedSerials ?? [] })),
+  );
+  const [shortageReason, setShortageReason] = useState("");
+  const { submitting, fields, formError, run, inputClass } = useSubmit();
+  const change = (index: number, value: Partial<(typeof entries)[number]>) => setEntries(entries.map((entry, position) => (position === index ? { ...entry, ...value } : entry)));
+  const short = entries.some((entry) => Number(entry.receivedQuantity || 0) < Number(shipped.get(entry.lineId)?.shippedBaseQuantity ?? 0));
+
+  function submit() {
+    void run(async () => {
+      await apiFetch(`/inventory/internal-receipts/${document.id}/receive`, {
+        method: "POST",
+        body: JSON.stringify({
+          lines: entries.map((entry) => ({ ...entry, receivedQuantity: entry.receivedQuantity || "0", locationId: entry.locationId || null })),
+          shortageReason,
+          version: document.version,
+        }),
+      });
+      notify(t("internalReceived"));
+      onReceived();
+    });
+  }
+
+  return (
+    <section className="the" style={{ marginTop: "var(--khoang-4)" }}>
+      <h2 style={{ margin: 0 }}>{t("receiveInternal")}</h2>
+      <div className="chu-thich">{t("receiveInternalHint")}</div>
+      {document.lines.map((line, index) => {
+        const entry = entries[index]!;
+        const sent = shipped.get(line.id);
+        return (
+          <fieldset key={line.id} className="the" style={{ margin: 0 }}>
+            <legend className="an-nhan">{line.sku}</legend>
+            <strong>
+              {line.sku} · {line.productName}
+            </strong>
+            <span className="chu-thich">{t("internalShipped", { count: formatNumber(sent?.shippedBaseQuantity ?? line.baseQuantity), unit: line.baseUnitName })}</span>
+            {line.tracksSerials && (sent?.shippedSerials.length ?? 0) > 0 ? (
+              <Field id={`serial-nhan-${index}`} label={t("serials")} error={fields[`lines.${index}.serials`] ?? fields[`lines.${index}.receivedQuantity`]}>
+                <span className="nhom-nut">
+                  {sent!.shippedSerials.map((serial) => (
+                    <label key={serial}>
+                      <input
+                        type="checkbox"
+                        checked={entry.serials.includes(serial)}
+                        onChange={(event) => {
+                          const serials = event.target.checked ? [...entry.serials, serial] : entry.serials.filter((item) => item !== serial);
+                          change(index, { serials, receivedQuantity: String(serials.length) });
+                        }}
+                      />{" "}
+                      {serial}
+                    </label>
+                  ))}
+                </span>
+              </Field>
+            ) : (
+              <Field id={`so-nhan-${index}`} label={t("internalReceivedQuantity", { unit: line.baseUnitName })} error={fields[`lines.${index}.receivedQuantity`]}>
+                <input
+                  id={`so-nhan-${index}`}
+                  className={inputClass(`lines.${index}.receivedQuantity`)}
+                  inputMode="decimal"
+                  value={entry.receivedQuantity}
+                  onChange={(event) => change(index, { receivedQuantity: event.target.value })}
+                />
+              </Field>
+            )}
+            {usesLocations && (
+              <Field id={`vi-tri-nhan-${index}`} label={t("location")} error={fields[`lines.${index}.locationId`]}>
+                <select
+                  id={`vi-tri-nhan-${index}`}
+                  className={inputClass(`lines.${index}.locationId`)}
+                  value={entry.locationId}
+                  onChange={(event) => change(index, { locationId: event.target.value })}
+                >
+                  <option value="">—</option>
+                  {(locations.state.kind === "ready" ? locations.state.data : [])
+                    .filter((location) => location.status === "active")
+                    .map((location) => (
+                      <option key={location.id} value={location.id}>
+                        {location.code}
+                      </option>
+                    ))}
+                </select>
+              </Field>
+            )}
+          </fieldset>
+        );
+      })}
+      {short && (
+        <Field id="ly-do-thieu" label={`${t("shortageReason")} *`} error={fields.shortageReason}>
+          <input id="ly-do-thieu" className={inputClass("shortageReason")} value={shortageReason} onChange={(event) => setShortageReason(event.target.value)} />
+        </Field>
+      )}
+      <FormError text={formError} />
+      <button type="button" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting} style={{ justifySelf: "start" }} onClick={submit}>
+        {t("confirmReceiveInternal")}
       </button>
     </section>
   );
