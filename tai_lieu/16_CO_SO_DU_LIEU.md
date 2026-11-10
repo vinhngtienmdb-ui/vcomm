@@ -4,7 +4,7 @@
 - Phiên bản: 2.1
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`) (mục 14)
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14)
 
 Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
@@ -2145,15 +2145,21 @@ END $$;
 
 ## 14. Database migration 0011 – CONG_VIEC_14 (schema `accounting`)
 
-Tệp `database/migrations/0011_accounting.sql` tạo schema `accounting` của MODULE_06 Tài chính – Kế toán (phần 2), 5 bảng. Khóa ngoại từ `accounting` chỉ trỏ vào `accounting`, `core`, `crm`; chứng từ gốc (`source_id` của bút toán: phiếu kho, phiếu thu chi, biên bản chênh lệch nội bộ) không đặt khóa ngoại. Chế độ kế toán không lưu ở `accounting`: đọc từ `core.companies.accounting_regime` (`TT99_2025`, `TT133`). Danh mục tài khoản, định khoản mặc định của hai chế độ không nằm trong database migration mà nạp khi khởi tạo từ `apps/api/src/accounting/charts.ts`. Quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close` (nhạy cảm), vai trò `chief_accountant`, quyền thêm của `accountant`, loại chứng từ `accounting.journal` (cần duyệt) ghi vào bảng của `core` bằng hàm đồng bộ danh mục quyền (`apps/api/src/permissions/permission-catalog.ts`). Dãy số tiền tố `PKT` tạo khi gửi lần đầu.
+Tệp `database/migrations/0011_accounting.sql` tạo schema `accounting` của MODULE_06 Tài chính – Kế toán (phần 2), 5 bảng; thêm ba hàm của schema `finance` dùng chung cho công nợ và bút toán (THAY_DOI_10). Khóa ngoại từ `accounting` chỉ trỏ vào `accounting`, `core`, `crm`; chứng từ gốc (`source_id` của bút toán: phiếu kho, phiếu thu chi, biên bản chênh lệch nội bộ) không đặt khóa ngoại. Chế độ kế toán không lưu ở `accounting`: đọc từ `core.companies.accounting_regime` (`TT99_2025`, `TT133`). Danh mục tài khoản, định khoản mặc định của hai chế độ không nằm trong database migration mà nạp khi khởi tạo từ `apps/api/src/accounting/charts.ts`. Quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close` (nhạy cảm), vai trò `chief_accountant`, quyền thêm của `accountant`, loại chứng từ `accounting.journal` (cần duyệt) ghi vào bảng của `core` bằng hàm đồng bộ danh mục quyền (`apps/api/src/permissions/permission-catalog.ts`). Dãy số tiền tố `PKT` tạo khi gửi lần đầu.
 
 | Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
 |---|---|---|---|
 | `settings` | Cài đặt kế toán của công ty đã khởi tạo (QUYTAC_NGHIEPVU_93, 97); không có dòng là chưa khởi tạo | `company_id` (khóa chính), `locked_through` (đã khóa sổ đến hết ngày), `initialized_by`, `initialized_at`, `version` | Ghi sổ chứng từ đọc với `FOR SHARE`; khóa sổ, mở lại với `FOR UPDATE` |
 | `accounts` | Hệ thống tài khoản (CHUC_NANG_69; QUYTAC_NGHIEPVU_93) | `company_id`, `code` (3 đến 20 chữ số hoặc chữ cái), `name`, `parent_id`, `nature` (`debit`, `credit`, `both`), `is_system` (nạp từ chế độ), `status` (`active`, `inactive`), `created_at`, `updated_at`, `version` | Duy nhất `(company_id, code)`; chỉ mục `parent_id`; service kiểm số hiệu bắt đầu bằng số hiệu cha |
-| `posting_rules` | Định khoản mặc định (CHUC_NANG_70; QUYTAC_NGHIEPVU_94) | `company_id`, `role` (19 vai trò ở `apps/api/src/accounting/postings.ts`), `account_id`, `updated_at`, `updated_by` | Khóa chính `(company_id, role)` |
+| `posting_rules` | Định khoản mặc định (CHUC_NANG_70; QUYTAC_NGHIEPVU_94) | `company_id`, `role` (18 vai trò ở `apps/api/src/accounting/postings.ts`), `account_id`, `updated_at`, `updated_by` | Khóa chính `(company_id, role)` |
 | `journals` | Bút toán: tự sinh, phiếu kế toán, kết chuyển (CHUC_NANG_71 đến 73; QUYTAC_NGHIEPVU_95 đến 97) | `company_id`, `journal_no` (phiếu kế toán: cấp khi gửi; tự sinh: số chứng từ gốc; kết chuyển: `KC-YYYY-MM`), `journal_date`, `source_type` (`manual`, `inventory_document`, `payment`, `internal_write_off`, `closing`), `source_id`, `description`, `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`), `approval_request_id` (`core.approval_requests`), `post_error` (khóa thông báo khi duyệt xong không ghi sổ được, ví dụ `periodLocked`), `total_amount` (tổng Nợ, `numeric(20,4)`), `created_by`, `posted_at`, `created_at`, `updated_at`, `version` | Không phải `manual` thì phải `posted`; duy nhất `(source_type, source_id)` khi có `source_id`; chỉ mục `(company_id, status, journal_date)`, `approval_request_id` |
 | `journal_lines` | Dòng bút toán | `journal_id` (xóa theo bút toán), `line_no`, `account_id`, `partner_id` (`crm.partners`), `debit`, `credit` (không âm, `numeric(20,4)`), `description` | Duy nhất `(journal_id, line_no)`; đúng một bên lớn hơn 0; chỉ mục `account_id`, `partner_id` |
+
+Hàm làm tròn dùng chung (THAY_DOI_10, quyết định của người dùng 2026-11-10; QUYTAC_NGHIEPVU_86, QUYTAC_NGHIEPVU_95):
+- `finance.company_minor_units(company)`: số chữ số lẻ của tiền tệ công ty (`core.currencies.minor_units`, không có thì 0).
+- `finance.line_share(amount, before, quantity, base, units)`: phần tiền của một lần giao, nhận, trả = `round(amount × min(before + quantity, base) / base, units) − round(amount × min(before, base) / base, units)`; tổng các lần đúng bằng tiền dòng đơn làm tròn.
+- `finance.inventory_amounts(document)`: tiền gồm thuế (`gross`), chưa thuế (`net`) của phiếu kho đã ghi sổ, cộng `line_share` từng dòng: xuất giao hàng, nhận hàng trả lại theo `sales.order_lines.total_amount`, `net_amount`; nhập mua (phần đạt kiểm tra chất lượng), trả hàng nhà cung cấp theo `purchasing.order_lines.amount` (gồm thuế: nhân 1 + thuế suất); lũy kế trước tính từ các phiếu cùng loại cùng dòng đơn đã ghi sổ trước (theo `posted_at`, `id`).
+- `finance.inventory_debt_amount(document)` (mục 13) thay bằng `gross` của `finance.inventory_amounts`; công nợ phiếu kho, ghi tổn thất nội bộ làm tròn đến đơn vị tiền tệ thay cho 4 chữ số lẻ. Bút toán dùng `gross`, `net`; thuế là phần chênh lệch.
 
 Quy tắc xóa và lưu giữ bổ sung:
 - Không xóa tài khoản; ngừng dùng chuyển `inactive`. Đổi chế độ kế toán khi công ty chưa có bút toán xóa toàn bộ `posting_rules`, `accounts`, `settings` của công ty (bỏ khởi tạo).
@@ -2248,4 +2254,61 @@ CREATE TABLE accounting.journal_lines (
 );
 CREATE INDEX journal_lines_account_idx ON accounting.journal_lines (account_id);
 CREATE INDEX journal_lines_partner_idx ON accounting.journal_lines (partner_id);
+
+-- THAY_DOI_10: tiền công nợ, bút toán làm tròn theo đơn vị nhỏ nhất của tiền tệ công ty. Mỗi lần giao, nhận, trả của một dòng đơn lấy phần
+-- theo số lượng lũy kế (làm tròn lũy kế sau trừ làm tròn lũy kế trước) để tổng các lần đúng bằng tiền của dòng đơn.
+CREATE FUNCTION finance.company_minor_units(company uuid) RETURNS integer LANGUAGE sql STABLE AS $$
+    SELECT coalesce((SELECT cur.minor_units FROM core.companies c JOIN core.currencies cur ON cur.code = c.base_currency WHERE c.id = company), 0)
+$$;
+
+CREATE FUNCTION finance.line_share(amount numeric, before numeric, quantity numeric, base numeric, units integer) RETURNS numeric LANGUAGE sql IMMUTABLE AS $$
+    SELECT round(amount * least(before + quantity, base) / base, units) - round(amount * least(before, base) / base, units)
+$$;
+
+-- Tiền gồm thuế và chưa thuế của phiếu kho đã ghi sổ (phiếu đang ghi sổ đã có posted_at): xuất giao hàng, nhận hàng trả lại theo đơn bán;
+-- nhập mua (phần đạt kiểm tra chất lượng), trả hàng nhà cung cấp theo đơn mua.
+CREATE FUNCTION finance.inventory_amounts(document uuid, OUT gross numeric, OUT net numeric) LANGUAGE sql STABLE AS $$
+    WITH d AS (SELECT id, type, company_id, posted_at, finance.company_minor_units(company_id) AS units FROM inventory.documents WHERE id = document),
+    lines AS (
+        -- Xuất giao hàng: lũy kế các phiếu xuất ghi sổ trước của cùng dòng đơn bán.
+        SELECT sl.total_amount AS total, sl.net_amount AS net_total, sl.base_quantity AS base, abs(dl.base_quantity) AS quantity,
+            coalesce((SELECT sum(abs(o.base_quantity)) FROM inventory.document_lines o JOIN inventory.documents od ON od.id = o.document_id
+                      WHERE o.source_line_id = sl.id AND od.type = 'sales_issue' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)), 0) AS before
+        FROM d JOIN inventory.document_lines dl ON dl.document_id = d.id JOIN sales.order_lines sl ON sl.id = dl.source_line_id
+        WHERE d.type = 'sales_issue'
+        UNION ALL
+        -- Nhận hàng trả lại: lũy kế các phiếu trả ghi sổ trước của cùng dòng đơn bán.
+        SELECT sl.total_amount, sl.net_amount, sl.base_quantity, abs(rl.base_quantity),
+            coalesce((SELECT sum(abs(o.base_quantity)) FROM inventory.document_lines o JOIN inventory.documents od ON od.id = o.document_id
+                      JOIN inventory.document_lines oi ON oi.id = o.source_line_id
+                      WHERE oi.source_line_id = sl.id AND od.type = 'sales_return' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)), 0)
+        FROM d JOIN inventory.document_lines rl ON rl.document_id = d.id JOIN inventory.document_lines il ON il.id = rl.source_line_id
+        JOIN sales.order_lines sl ON sl.id = il.source_line_id
+        WHERE d.type = 'sales_return'
+        UNION ALL
+        -- Nhập mua: phần đạt kiểm tra chất lượng, lũy kế các phiếu nhập ghi sổ trước của cùng dòng đơn mua.
+        SELECT pl.amount * (1 + CASE WHEN pl.vat_rate IN ('0', '5', '8', '10') THEN pl.vat_rate::numeric / 100 ELSE 0 END), pl.amount, pl.base_quantity,
+            abs(dl.base_quantity) - coalesce(dl.rejected_base_quantity, 0),
+            coalesce((SELECT sum(abs(o.base_quantity) - coalesce(o.rejected_base_quantity, 0)) FROM inventory.document_lines o JOIN inventory.documents od ON od.id = o.document_id
+                      WHERE o.source_line_id = pl.id AND od.type = 'purchase_receipt' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)), 0)
+        FROM d JOIN inventory.document_lines dl ON dl.document_id = d.id JOIN purchasing.order_lines pl ON pl.id = dl.source_line_id
+        WHERE d.type = 'purchase_receipt'
+        UNION ALL
+        -- Trả hàng nhà cung cấp: lũy kế các phiếu trả ghi sổ trước của cùng dòng đơn mua.
+        SELECT pl.amount * (1 + CASE WHEN pl.vat_rate IN ('0', '5', '8', '10') THEN pl.vat_rate::numeric / 100 ELSE 0 END), pl.amount, pl.base_quantity, abs(rl.base_quantity),
+            coalesce((SELECT sum(abs(o.base_quantity)) FROM inventory.document_lines o JOIN inventory.documents od ON od.id = o.document_id
+                      JOIN inventory.document_lines oi ON oi.id = o.source_line_id
+                      WHERE oi.source_line_id = pl.id AND od.type = 'purchase_return' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)), 0)
+        FROM d JOIN inventory.document_lines rl ON rl.document_id = d.id JOIN inventory.document_lines il ON il.id = rl.source_line_id
+        JOIN purchasing.order_lines pl ON pl.id = il.source_line_id
+        WHERE d.type = 'purchase_return'
+    )
+    SELECT coalesce(sum(finance.line_share(total, before, quantity, base, (SELECT units FROM d))), 0),
+           coalesce(sum(finance.line_share(net_total, before, quantity, base, (SELECT units FROM d))), 0)
+    FROM lines
+$$;
+
+CREATE OR REPLACE FUNCTION finance.inventory_debt_amount(document uuid) RETURNS numeric LANGUAGE sql STABLE AS $$
+    SELECT gross FROM finance.inventory_amounts(document)
+$$;
 ```

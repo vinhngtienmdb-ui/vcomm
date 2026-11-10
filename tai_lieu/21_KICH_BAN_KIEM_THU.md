@@ -4,7 +4,7 @@
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_216 của kế toán tổng hợp (210 đến 214 tự động; 215, 216 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2519,6 +2519,17 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`) chế độ Thông tư
 - Kết quả mong đợi: Bước 1: 1311 Nợ 44.000; 511 Có 40.000; 33311 Có 4.000; 632 Nợ 32.000; 156 Có 32.000; dòng 1311 gắn "Khách công nợ". Bước 2: 521 Nợ 10.000; 33311 Nợ 1.000; 1311 Có 11.000; 156 Nợ 8.000; 632 Có 8.000. Bước 3: 156 Nợ 80.000; 1331 Nợ 8.000; 331 Có 88.000. Bước 4: 331 Nợ 17.600; 156 Có 16.000; 1331 Có 1.600. Bước 5: 6418 Nợ 8.000 / 156 Có 8.000. Bước 6: phiếu `posted`; 111 Nợ 20.000 / 1311 Có 20.000. Bước 7: dòng doanh thu 5111 Có 10.000. Bước 8: dòng doanh thu vẫn 511 Có 40.000.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c14-ledger.test.ts`
 - Lát: L0
+
+### KICHBAN_KIEMTHU_217: Dòng đơn có tiền lẻ giao nhiều lần: công nợ và bút toán mỗi lần làm tròn đến đồng theo lũy kế, tổng các lần bằng tiền dòng làm tròn, phải thu khớp sổ cái
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_112
+- Chức năng: CHUC_NANG_71, CHUC_NANG_66
+- Loại: Giá trị biên
+- Vai trò thực hiện: Nhân viên bán hàng; Thủ kho
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_214; THAY_DOI_10 (công nợ làm tròn theo đơn vị tiền tệ).
+- Các bước: (1) Nhân viên bán hàng lập, gửi đơn 3 cái cho "Khách công nợ", chiết khấu 0,25% (tổng dòng 32.917,5). (2) Thủ kho giao 3 lần, mỗi lần 1 cái. (3) Đọc khoản công nợ và dòng phải thu của bút toán từng phiếu xuất.
+- Kết quả mong đợi: Bước 3: công nợ ba phiếu lần lượt 10.973, 10.972, 10.973 (tổng 32.918 bằng tổng dòng làm tròn); dòng 1311 Nợ của mỗi bút toán bằng đúng khoản công nợ của phiếu đó.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c14-ledger.test.ts`
+- Lát: L1
 
 ## CHUC_NANG_72: Phiếu kế toán (CONG_VIEC_14)
 

@@ -331,9 +331,9 @@ Trạng thái phiếu thu, phiếu chi:
 - Các bước:
   1. Trong cùng giao dịch ghi sổ, hệ thống đọc cài đặt kế toán của công ty (khóa dòng chia sẻ). Chưa khởi tạo thì dừng.
   2. Ngày chứng từ thuộc kỳ đã khóa thì từ chối cả lần ghi sổ (QUYTAC_NGHIEPVU_97).
-  3. Tính số tiền theo vai trò (doanh thu, thuế, giá vốn, phải thu...), làm tròn theo tiền tệ công ty; đổi vai trò sang tài khoản theo định khoản của công ty (QUYTAC_NGHIEPVU_95).
+  3. Tính số tiền theo vai trò (doanh thu, thuế, giá vốn, phải thu...), làm tròn đến đơn vị tiền tệ công ty theo lũy kế từng dòng đơn, cùng cách với công nợ (THAY_DOI_10); đổi vai trò sang tài khoản theo định khoản của công ty (QUYTAC_NGHIEPVU_95).
   4. Bỏ dòng 0, kiểm tổng Nợ bằng tổng Có, ghi bút toán "Đã ghi sổ" số chứng từ gốc, gắn đối tác vào dòng phải thu, phải trả.
-- Ngoại lệ: kỳ đã khóa thì chứng từ không ghi sổ, báo "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ."; phiếu chi duyệt xong rơi vào kỳ khóa thì về "Bị từ chối" kèm lý do (Luồng 20). Phiếu chuyển kho không sinh bút toán.
+- Ngoại lệ: kỳ đã khóa thì chứng từ không gửi, không ghi sổ được, báo "Ngày chứng từ thuộc kỳ kế toán đã khóa sổ."; phiếu chi duyệt xong rơi vào kỳ khóa thì về "Bị từ chối" kèm lý do (Luồng 20); phiếu kho duyệt xong rơi vào kỳ khóa thì về "Bị từ chối", nhả hàng giữ. Phiếu chuyển kho không sinh bút toán. Ghi tổn thất hàng thiếu nội bộ ghi giảm doanh thu, thuế đầu ra, phải thu.
 - Kết thúc: bút toán hiện ở MAN_HINH_51 với nguồn "Phiếu kho", "Phiếu thu chi" hoặc "Ghi tổn thất hàng thiếu nội bộ".
 
 ### Luồng 24. Phiếu kế toán
@@ -344,7 +344,7 @@ Trạng thái phiếu thu, phiếu chi:
   2. Gửi: cấp số `PKT` lần đầu; gửi luồng duyệt (Luồng 5) loại `accounting.journal` với giá trị là tổng Nợ; phiếu "Chờ duyệt". Chưa có chính sách duyệt thì ghi sổ ngay.
   3. Người lập rút khi cấp duyệt đầu chưa quyết định: "Đã rút". Từ chối: "Bị từ chối".
   4. Duyệt xong: kiểm kỳ chưa khóa, ghi sổ.
-- Ngoại lệ: lệch Nợ Có, dòng ghi cả hai bên, số lẻ hơn đơn vị tiền tệ, tài khoản không nhận bút toán thì không lưu được; ngày thuộc kỳ đã khóa thì không lưu, gửi được; duyệt xong mà kỳ đã khóa thì phiếu về "Bị từ chối", chi tiết hiện "Duyệt xong nhưng không ghi sổ được: Ngày chứng từ thuộc kỳ kế toán đã khóa sổ. Sửa phiếu rồi gửi lại.".
+- Ngoại lệ: lệch Nợ Có, dòng ghi cả hai bên, số lẻ hơn đơn vị tiền tệ, tài khoản không nhận bút toán, dòng 131, 331 thiếu đối tác thì không lưu được; ngày thuộc kỳ đã khóa thì không lưu, gửi được; duyệt xong mà kỳ đã khóa thì phiếu về "Bị từ chối", chi tiết hiện "Duyệt xong nhưng không ghi sổ được: Ngày chứng từ thuộc kỳ kế toán đã khóa sổ. Sửa phiếu rồi gửi lại.".
 - Kết thúc: phiếu "Đã ghi sổ"; phiếu đã ghi sổ không sửa.
 
 Trạng thái phiếu kế toán:
@@ -366,14 +366,14 @@ Trạng thái phiếu kế toán:
 - Các bước:
   1. Thẻ "Bảng cân đối số phát sinh": chọn từ ngày, đến ngày của tháng, kiểm tổng Nợ bằng tổng Có (QUYTAC_NGHIEPVU_98).
   2. Thẻ "Khóa sổ": màn hình hiện "Đã khóa sổ đến", "Tháng tiếp theo cần khóa".
-  3. Bấm "Khóa sổ tháng <tháng>", xác nhận. Hệ thống khóa dòng cài đặt, kiểm tháng đúng thứ tự, đã kết thúc, không còn phiếu kế toán chờ duyệt; tạo bút toán kết chuyển `KC-YYYY-MM` ngày cuối tháng; ghi ngày khóa sổ (QUYTAC_NGHIEPVU_97).
+  3. Bấm "Khóa sổ tháng <tháng>", xác nhận. Hệ thống khóa dòng cài đặt, kiểm tháng đúng thứ tự, đã kết thúc, không còn phiếu kế toán, phiếu kho, phiếu chi đang chờ có ngày trong tháng; tạo bút toán kết chuyển (521 sang doanh thu trước, rồi sang 911, kết quả sang 4212) `KC-YYYY-MM` ngày cuối tháng; ghi ngày khóa sổ (QUYTAC_NGHIEPVU_97).
   4. Cần sửa số liệu tháng đã khóa: bấm "Mở lại tháng <tháng>" (tháng khóa gần nhất), xác nhận. Hệ thống xóa bút toán kết chuyển của tháng, lùi ngày khóa về lần khóa trước.
-- Ngoại lệ: tháng chưa kết thúc, không đúng thứ tự: báo "Không khóa được tháng này (khóa lần lượt từng tháng đã kết thúc)."; còn phiếu chờ duyệt: báo "Còn phiếu kế toán chờ duyệt trong kỳ.".
+- Ngoại lệ: tháng chưa kết thúc, không đúng thứ tự: báo "Không khóa được tháng này (khóa lần lượt từng tháng đã kết thúc)."; còn phiếu chờ: báo "Còn phiếu kế toán chờ duyệt trong kỳ." hoặc "Còn phiếu kho hoặc phiếu chi đang chờ (duyệt, kiểm tra chất lượng, nhận hàng nội bộ) có ngày trong kỳ.".
 - Kết thúc: "Đã khóa sổ." hoặc "Đã mở lại sổ."; chứng từ có ngày trong kỳ khóa không ghi sổ được.
 
 Trạng thái kỳ kế toán (theo tháng):
 
 | Từ | Sự kiện | Sang |
 |---|---|---|
-| Đang mở | Khóa sổ (tháng tiếp theo, đã kết thúc, không còn phiếu chờ duyệt) | Đã khóa |
+| Đang mở | Khóa sổ (tháng tiếp theo, đã kết thúc, không còn chứng từ đang chờ) | Đã khóa |
 | Đã khóa (tháng khóa gần nhất) | Mở lại | Đang mở |
