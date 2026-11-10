@@ -188,6 +188,22 @@ describe("TIEUCHI_NGHIEMTHU_99: chương trình khuyến mãi", () => {
     await application.get(OutboxService).dispatchPending();
     const active = (await call(admin, "get", `/sales/promotions/${created.body.id}`)).body;
     expect(active).toMatchObject({ status: "active", canEdit: false, canStop: true });
+    // Rút khi đang chờ duyệt: có nhật ký. Số suất vượt giới hạn bị từ chối, không lỗi máy chủ.
+    const draft = await call(admin, "post", "/sales/promotions", { ...base, name: "Sẽ rút", kind: "order_discount", minOrderAmount: "100000", orderDiscountPercent: "5" });
+    await call(admin, "post", `/sales/promotions/${draft.body.id}/submit`);
+    expect((await call(admin, "post", `/sales/promotions/${draft.body.id}/withdraw`)).body.status).toBe("withdrawn");
+    expect((await pool.query("SELECT 1 FROM core.audit_events WHERE entity_id = $1 AND action = 'promotion.withdraw'", [draft.body.id])).rowCount).toBe(1);
+    const huge = await call(admin, "post", "/sales/promotions", {
+      ...base,
+      name: "Quá nhiều suất",
+      kind: "buy_get",
+      buyVariantId: items.biscuit,
+      buyQuantity: "1",
+      giftVariantId: items.gift,
+      giftQuantity: "1",
+      maxGiftSets: 3000000000,
+    });
+    expect(huge.body.error.fields).toEqual({ maxGiftSets: expect.any(String) });
     expect(
       (
         await call(admin, "patch", `/sales/promotions/${created.body.id}`, {

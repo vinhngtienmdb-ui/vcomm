@@ -2553,7 +2553,7 @@ export const savePromotionSchema = z
     giftVariantId: z.uuid().nullable().optional(),
     giftQuantity: optionalPositive,
     budgetAmount: optionalPositive,
-    maxGiftSets: z.number().int().positive().nullable().optional(),
+    maxGiftSets: z.number().int().positive().max(1000000000).nullable().optional(),
     note: blankToNull(1000),
     version: z.number().int().positive().optional(),
   })

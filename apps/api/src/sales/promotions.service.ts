@@ -221,7 +221,10 @@ export class PromotionsService implements OnModuleInit {
     const row = await this.single(this.database, actor.companyId, id);
     if (row.created_by !== actor.userId || !row.approval_request_id || row.status !== "pending") throw new ApiError("FORBIDDEN", "forbidden");
     await this.approvals.withdraw(actor.userId, row.approval_request_id);
-    await this.database.execute(sql`UPDATE sales.promotions SET status = 'withdrawn', updated_at = now() WHERE id = ${id} AND status = 'pending'`);
+    await this.database.transaction(async (transaction) => {
+      await transaction.execute(sql`UPDATE sales.promotions SET status = 'withdrawn', updated_at = now() WHERE id = ${id} AND status = 'pending'`);
+      await this.auditService.record({ ...salesAudit(actor, "promotion"), action: "promotion.withdraw", entityId: id }, transaction);
+    });
     return this.detail(actor, id);
   }
 
