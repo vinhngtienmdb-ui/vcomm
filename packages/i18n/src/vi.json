@@ -3017,5 +3017,32 @@
     "previousOwner": "Phụ trách lúc gửi",
     "changedCustomers": "Khách đã đổi: {names}",
     "noAuthority": "Bạn không phải trưởng phòng và không có quyền giao khách."
+  },
+  "salesApp": {
+    "appName": "Ứng dụng kinh doanh",
+    "identifier": "Thư điện tử hoặc tên đăng nhập",
+    "password": "Mật khẩu",
+    "login": "Đăng nhập",
+    "mfaHint": "Nhập mã 6 số trong ứng dụng xác thực.",
+    "backupHint": "Nhập một mã dự phòng chưa dùng.",
+    "mfaCode": "Mã xác thực",
+    "backupCode": "Mã dự phòng",
+    "verify": "Xác nhận",
+    "useBackup": "Dùng mã dự phòng",
+    "useAuthenticator": "Dùng ứng dụng xác thực",
+    "backToLogin": "Quay lại đăng nhập",
+    "mfaEnrollOnWeb": "Tài khoản cần đăng ký xác thực hai lớp. Hãy đăng ký trên web rồi đăng nhập lại.",
+    "unknownError": "Có lỗi xảy ra. Vui lòng thử lại.",
+    "offline": "Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.",
+    "serverError": "Máy chủ báo lỗi {status}.",
+    "noAccess": "Tài khoản không có quyền bán hàng ở công ty này.",
+    "switchTo": "Chuyển sang {name}",
+    "logout": "Đăng xuất",
+    "company": "Công ty",
+    "tabCustomers": "Khách",
+    "tabAccount": "Tài khoản",
+    "searchCustomers": "Tìm tên, mã, mã số thuế, điện thoại",
+    "noResult": "Không có kết quả.",
+    "noCustomers": "Chưa có khách nào do bạn phụ trách."
   }
 }

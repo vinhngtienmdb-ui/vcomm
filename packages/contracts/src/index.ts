@@ -40,6 +40,15 @@ export interface LoginResponse {
   mfaEnrolled: boolean;
   user: { id: string; fullName: string; locale: "vi" | "en" };
 }
+// API_112: đăng nhập, làm mới phiên của ứng dụng di động; token trong thân phản hồi, gửi lại qua header Authorization (CONG_VIEC_22).
+export interface AppTokens {
+  accessToken: string;
+  refreshToken: string;
+  accessExpiresAt: string;
+  refreshExpiresAt: string;
+}
+export type AppLoginResponse = LoginResponse & { tokens: AppTokens };
+export const appRefreshSchema = z.object({ refreshToken: z.string().min(16).max(200) }).strict();
 
 // API_14
 export interface MeResponse {

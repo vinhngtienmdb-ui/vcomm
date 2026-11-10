@@ -3017,5 +3017,32 @@
     "previousOwner": "Owner when submitted",
     "changedCustomers": "Changed customers: {names}",
     "noAuthority": "You are not a department manager and cannot assign customers."
+  },
+  "salesApp": {
+    "appName": "Sales app",
+    "identifier": "Email or username",
+    "password": "Password",
+    "login": "Sign in",
+    "mfaHint": "Enter the 6-digit code from your authenticator app.",
+    "backupHint": "Enter an unused backup code.",
+    "mfaCode": "Verification code",
+    "backupCode": "Backup code",
+    "verify": "Verify",
+    "useBackup": "Use a backup code",
+    "useAuthenticator": "Use authenticator app",
+    "backToLogin": "Back to sign in",
+    "mfaEnrollOnWeb": "Your account must enrol in two-step verification. Enrol on the web, then sign in again.",
+    "unknownError": "Something went wrong. Please try again.",
+    "offline": "Cannot reach the server. Check your connection and try again.",
+    "serverError": "The server returned error {status}.",
+    "noAccess": "Your account has no sales access in this company.",
+    "switchTo": "Switch to {name}",
+    "logout": "Sign out",
+    "company": "Company",
+    "tabCustomers": "Customers",
+    "tabAccount": "Account",
+    "searchCustomers": "Search name, code, tax code, phone",
+    "noResult": "No results.",
+    "noCustomers": "You have no customers yet."
   }
 }
