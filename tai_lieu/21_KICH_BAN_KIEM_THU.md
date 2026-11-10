@@ -2224,10 +2224,10 @@ Dữ liệu chung: công ty bán VCR (`testIds.retailCompany`, tên ngắn "VCom
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_95
 - Chức năng: CHUC_NANG_60
 - Loại: Đúng, sai, phân quyền
-- Vai trò thực hiện: Quản trị công ty VCR; Quản trị tập đoàn (ở VCT); Thủ kho VCR
+- Vai trò thực hiện: Quản trị công ty VCR; Quản trị tập đoàn (ở VCT); Thủ kho VCR; Nhân viên bán hàng VCT
 - Điều kiện ban đầu và dữ liệu: Đơn bán nội bộ 24 cái bánh và 2 máy; bên mua xác nhận kho `NBM` (duyệt ngay); Thủ kho lập, gửi phiếu xuất 24 cái và máy `MAY-01`, `MAY-02`.
-- Các bước: (1) Quản trị tập đoàn xem phiếu nhập sinh từ phiếu xuất (ở VCT). (2) Thủ kho VCR gọi nhận phiếu đó ở VCR, danh sách dòng rỗng. (3) Nhận dòng bánh 3 hộp, dòng máy 2 với serial `MAY-01`, `MAY-03`. (4) Nhận dòng bánh 2 hộp, dòng máy `MAY-01`, `MAY-02`. (5) Xem tồn VCT ở kho `NBM`, đơn mua. (6) Nhận lần nữa.
-- Kết quả mong đợi: Bước 1: loại `purchase_receipt`, trạng thái `in_transit`, công ty VCT, kho `NBM`, `canReceiveInternal: true`; `internalReceipt` có số phiếu xuất, "VComm Bán lẻ Miền Nam", dòng bánh xuất "2" không serial, dòng máy xuất "2" serial `MAY-01`, `MAY-02`; dòng bánh: "Bánh nội bộ hộp", đơn vị hộp, số lượng "2", đơn giá "120000". Bước 2: `400`. Bước 3: lỗi `lines.0.receivedQuantity` "Số nhận vượt số đã xuất." và `lines.1.serials` "Serial không có trong phiếu xuất gốc.". Bước 4: `posted`, số bắt đầu `NM`, `canReceiveInternal: false`. Bước 5: bánh hộp tồn 2, máy tồn 2; đơn mua `received`. Bước 6: `409`.
+- Các bước: (1) Quản trị tập đoàn xem phiếu nhập sinh từ phiếu xuất (ở VCT). (2) Nhân viên bán hàng VCT (không có quyền nhập mua tại kho nhận) gọi nhận phiếu đó. (3) Nhận dòng bánh 3 hộp, dòng máy 2 với serial `MAY-01`, `MAY-03`. (4) Nhận dòng bánh 2 hộp, dòng máy `MAY-01`, `MAY-02`. (5) Xem tồn VCT ở kho `NBM`, đơn mua. (6) Nhận lần nữa.
+- Kết quả mong đợi: Bước 1: loại `purchase_receipt`, trạng thái `in_transit`, công ty VCT, kho `NBM`, `canReceiveInternal: true`; `internalReceipt` có số phiếu xuất, "VComm Bán lẻ Miền Nam", dòng bánh xuất "2" không serial, dòng máy xuất "2" serial `MAY-01`, `MAY-02`; dòng bánh: "Bánh nội bộ hộp", đơn vị hộp, số lượng "2", đơn giá "120000". Bước 2: `403` hoặc `404`. Bước 3: lỗi `lines.0.receivedQuantity` "Số nhận vượt số đã xuất." và `lines.1.serials` "Serial không có trong phiếu xuất gốc.". Bước 4: `posted`, số bắt đầu `NM`, `canReceiveInternal: false`. Bước 5: bánh hộp tồn 2, máy tồn 2; đơn mua `received`. Bước 6: `409`.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c9-internal-trade.test.ts`
 - Lát: L1
 

@@ -346,8 +346,12 @@ describe("TIEUCHI_NGHIEMTHU_95: xuất giao hàng nội bộ sinh phiếu nhập
       },
     });
     expect(receipt.lines[0]).toMatchObject({ variantId: items.tradingBiscuit, unitId: units.HOP, quantity: "2", unitCost: "120000" });
-    // Thủ kho công ty bán không nhận hàng ở kho của công ty mua.
-    expect((await keeper.call("post", `/inventory/internal-receipts/${receipt.id}/receive`, { companyId: retail, body: { lines: [], version: receipt.version } })).status).toBe(400);
+    // Người không có quyền nhập mua tại kho nhận không nhận được.
+    const forbidden = await tradingSeller.call("post", `/inventory/internal-receipts/${receipt.id}/receive`, {
+      companyId: trading,
+      body: { lines: receipt.lines.map((line: { id: string }) => ({ lineId: line.id, receivedQuantity: "1" })), version: receipt.version },
+    });
+    expect([403, 404]).toContain(forbidden.status);
     const receive = (lines: Record<string, unknown>[], extra: Record<string, unknown> = {}) =>
       buy(groupAdmin, `/inventory/internal-receipts/${receipt.id}/receive`, { lines, version: receipt.version, ...extra });
     const over = await receive([
