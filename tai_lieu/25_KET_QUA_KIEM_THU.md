@@ -197,7 +197,7 @@
   - C4 toàn vẹn dữ liệu: Đạt – tệp tối đa 5 MB, 5.000 dòng, chỉ đọc giá trị ô; ghép đơn trong công ty, bỏ đơn đối ứng; khóa theo đơn vị thu hộ khi nhập, gửi, ghi sổ; khóa công nợ khách, đơn vị khi ghi sổ; kiểm lại lỗi khi ghi sổ sau duyệt; bút toán cân Nợ Có; truy vấn tham số ràng buộc.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 1 lỗi Cao (phiếu thu của đơn vị thu hộ ghi Có 131 trong khi nợ đơn vị nằm ở 1388, sổ cái lệch sổ công nợ), 4 mục Trung bình (bảng nháp trùng mã làm bảng đã duyệt bị từ chối; hai bảng cùng mã gửi đồng thời cùng ghi sổ; thiếu khóa công nợ khi ghi sổ; người gửi khác người lập không rút được), 4 mục Thấp (đọc số tiền có dấu chấm khi tiền tệ có số lẻ; mã dạng số dài bị làm tròn; lý do lỗi hiện mã thô; giải nén toàn bộ tệp trước khi đếm dòng); đã sửa 8 mục, giữ lại mục giải nén tệp (rủi ro chung với nhập sản phẩm, ghi đặc tả mục 16). Khi cập nhật tài liệu phát hiện 2 câu thông báo sai ngữ cảnh (1.000 dòng, thiếu định khoản nói về hoa hồng), đã sửa. Khi thử trên trình duyệt phát hiện nhãn nguồn bút toán hoa hồng (CONG_VIEC_17) hiện mã thô, đã sửa.
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
-- Kết luận: Chờ người dùng nghiệm thu.
+- Kết luận: Người dùng nghiệm thu 2026-11-10, chấp nhận các giới hạn đã biết (đặc tả mục 16); chờ người dùng hợp nhất pull request số 54 (sau số 53).
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_18
 

@@ -9,7 +9,7 @@
 
 ### Công việc đã thực hiện
 
-- CONG_VIEC_19: Lập trình lát L0, L1 Đối soát thu hộ COD, cổng thanh toán; tài liệu; rà soát độc lập, sửa 8 mục; kiểm thử 274/274 đạt; pull request số 54; chờ nghiệm thu.
+- CONG_VIEC_19: Lập trình lát L0, L1 Đối soát thu hộ COD, cổng thanh toán; tài liệu; rà soát độc lập, sửa 8 mục; kiểm thử 274/274 đạt; pull request số 54; người dùng nghiệm thu 2026-11-10.
 - CONG_VIEC_18: Lập trình lát L0, L1 Đối soát ngân hàng (kết nối, webhook, tự ghép, gợi ý khách, lập phiếu thu, ghép tay, bỏ qua, đối chiếu số dư); tài liệu; tự rà soát, rà soát độc lập, sửa 14 mục; kiểm thử 266/266 đạt; pull request số 53; người dùng nghiệm thu 2026-11-10.
 - CONG_VIEC_18, CONG_VIEC_19: Lập công việc Đối soát ngân hàng và Đối soát thu hộ COD, cổng thanh toán (MODULE_06, phần 6, 7), mức Lớn.
 - CONG_VIEC_17: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 52 (sau số 51).
