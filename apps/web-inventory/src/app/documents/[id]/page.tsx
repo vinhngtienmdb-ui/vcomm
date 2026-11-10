@@ -545,7 +545,7 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
   const [busy, setBusy] = useState(false);
   const money = (value: string | null) => (value === null ? "—" : formatMoney(value, "VND"));
   // Phiếu nháp nhập mua, trả hàng: chỉ gửi hoặc xóa (lập lại từ đơn mua, phiếu nhập gốc).
-  const purchaseDraft = (document.type === "purchase_receipt" || document.type === "purchase_return") && document.status === "draft";
+  const purchaseDraft = ["purchase_receipt", "purchase_return", "sales_issue", "sales_return"].includes(document.type) && document.status === "draft";
 
   async function act(action: "submit" | "delete") {
     setBusy(true);
@@ -642,8 +642,8 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
           </>
         )}
         {document.canReturn && (
-          <Link className="nut phu" href={`/purchase-returns/new?receiptId=${document.id}`}>
-            {t("returnToSupplier")}
+          <Link className="nut phu" href={document.type === "sales_issue" ? `/sales-returns/new?issueId=${document.id}` : `/purchase-returns/new?receiptId=${document.id}`}>
+            {document.type === "sales_issue" ? t("receiveReturn") : t("returnToSupplier")}
           </Link>
         )}
       </div>
@@ -658,17 +658,19 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
           <dd>{document.companyName}</dd>
           {document.partnerName && (
             <>
-              <dt>{t("supplier")}</dt>
+              <dt>{t(document.type.startsWith("sales") ? "customer" : "supplier")}</dt>
               <dd>{document.partnerName}</dd>
             </>
           )}
           {document.sourceNo && (
             <>
-              <dt>{t(document.type === "purchase_receipt" ? "sourceOrder" : "sourceReceipt")}</dt>
+              <dt>
+                {t(document.type === "purchase_receipt" ? "sourceOrder" : document.type === "sales_issue" ? "sourceSalesOrder" : document.type === "sales_return" ? "sourceIssue" : "sourceReceipt")}
+              </dt>
               <dd>
-                {document.type === "purchase_receipt" ? (
-                  // Thẻ a thường: đơn mua nằm ở mini app Mua hàng.
-                  <a href={`/purchasing/orders/${document.sourceId}`}>{document.sourceNo}</a>
+                {document.type === "purchase_receipt" || document.type === "sales_issue" ? (
+                  // Thẻ a thường: đơn mua, đơn bán nằm ở mini app Mua hàng, Bán hàng.
+                  <a href={`/${document.type === "sales_issue" ? "sales" : "purchasing"}/orders/${document.sourceId}`}>{document.sourceNo}</a>
                 ) : (
                   <Link href={`/documents/${document.sourceId}`}>{document.sourceNo}</Link>
                 )}

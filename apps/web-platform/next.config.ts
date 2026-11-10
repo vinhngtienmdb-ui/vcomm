@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
     const inventoryOrigin = process.env.INVENTORY_ORIGIN ?? "http://localhost:3002";
     const crmOrigin = process.env.CRM_ORIGIN ?? "http://localhost:3003";
     const purchasingOrigin = process.env.PURCHASING_ORIGIN ?? "http://localhost:3004";
+    const salesOrigin = process.env.SALES_ORIGIN ?? "http://localhost:3005";
     return [
       { source: "/api/v1/:path*", destination: `${apiOrigin}/api/v1/:path*` },
       { source: "/catalog", destination: `${catalogOrigin}/catalog` },
@@ -24,6 +25,8 @@ const nextConfig: NextConfig = {
       { source: "/crm/:path*", destination: `${crmOrigin}/crm/:path*` },
       { source: "/purchasing", destination: `${purchasingOrigin}/purchasing` },
       { source: "/purchasing/:path*", destination: `${purchasingOrigin}/purchasing/:path*` },
+      { source: "/sales", destination: `${salesOrigin}/sales` },
+      { source: "/sales/:path*", destination: `${salesOrigin}/sales/:path*` },
     ];
   },
 };
