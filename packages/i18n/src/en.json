@@ -198,7 +198,7 @@
     "paymentAllocationExceeded": "Total allocations exceed the payment amount.",
     "refundExceedsAdvance": "The refund exceeds the remaining advance.",
     "insufficientFundBalance": "Insufficient fund balance.",
-    "openingDebtAllocated": "The opening balance has been settled and cannot be deleted."
+    "openingDebtAllocated": "The opening balance has been settled or is selected on a receipt or payment and cannot be deleted."
   },
   "login": {
     "title": "Sign in",
@@ -2249,6 +2249,7 @@
     "source_sales_return": "Sales return",
     "source_purchase_receipt": "Purchase receipt",
     "source_purchase_return": "Purchase return",
-    "source_payment": "Receipt or payment"
+    "source_payment": "Receipt or payment",
+    "fundInactive": "inactive"
   }
 }

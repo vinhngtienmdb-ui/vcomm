@@ -18,6 +18,7 @@ import { PaymentStatusBadge } from "@/components/PaymentStatusBadge";
 
 export default function PaymentPage() {
   const t = useTranslations("payments");
+  const errorText = useTranslations("errors");
   const { notify } = useAdmin();
   const { id } = useParams<{ id: string }>();
   const { state, reload } = useApi<PaymentResponse>(`/finance/payments/${id}`);
@@ -84,7 +85,7 @@ export default function PaymentPage() {
                 )}
               </div>
               <FormError text={error} />
-              {payment.postError && <div className="khoi-canh-bao loi">{t("postError", { reason: payment.postError })}</div>}
+              {payment.postError && <div className="khoi-canh-bao loi">{t("postError", { reason: errorText(payment.postError as Parameters<typeof errorText>[0]) })}</div>}
               <section className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
                 <strong>
                   <Link href={`/debts/${payment.partner.id}?side=${payment.kind.startsWith("customer") ? "receivable" : "payable"}`}>

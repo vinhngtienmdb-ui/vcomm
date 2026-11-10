@@ -242,7 +242,9 @@ describe("TIEUCHI_NGHIEMTHU_109: số dư đầu kỳ, tuổi nợ", () => {
     expect(advance.body).toMatchObject({ balance: "50400", advance: "0" });
     const advanceItem = advance.body.items.find((item: { documentNo: string }) => item.documentNo === "UT-01");
     expect(advanceItem).toMatchObject({ openAmount: "0", canDelete: false });
-    expect((await call(accountant, "delete", `/finance/debts/opening/${advanceItem.id}`)).body.error.message).toBe("Khoản số dư đầu kỳ đã được trừ nợ, không xóa được.");
+    expect((await call(accountant, "delete", `/finance/debts/opening/${advanceItem.id}`)).body.error.message).toBe(
+      "Khoản số dư đầu kỳ đã được trừ nợ hoặc đang được chọn trên phiếu thu chi, không xóa được.",
+    );
 
     const wrongSide = await call(accountant, "post", "/finance/debts/opening", {
       partnerId: supplier,
@@ -365,7 +367,7 @@ describe("TIEUCHI_NGHIEMTHU_108: phiếu chi qua luồng duyệt, hoàn tiền",
     // Vượt số dư quỹ: duyệt xong không ghi sổ được, phiếu về bị từ chối kèm lý do.
     const tooMuch = await payment(accountant, { kind: "supplier_payment", partnerId: supplier, amount: "5000000" });
     await decide(tooMuch.body.approvalRequestId, "approved");
-    expect((await call(accountant, "get", `/finance/payments/${tooMuch.body.id}`)).body).toMatchObject({ status: "rejected", postError: "Số dư quỹ không đủ.", canEdit: true });
+    expect((await call(accountant, "get", `/finance/payments/${tooMuch.body.id}`)).body).toMatchObject({ status: "rejected", postError: "insufficientFundBalance", canEdit: true });
 
     // Rút khi chờ duyệt.
     const withdrawn = await payment(accountant, { kind: "supplier_payment", partnerId: supplier, amount: "1000" });
@@ -409,5 +411,32 @@ describe("TIEUCHI_NGHIEMTHU_109: hạn mức công nợ theo dư nợ thật", (
     await payment(accountant, { kind: "customer_receipt", partnerId: customer, amount: "60000" });
     // Thu 60.000 (trừ 6.000 còn nợ, thừa 54.000): số dư −60.000, chưa giao 99.000: dư nợ 39.000 + 33.000 ≤ 80.000.
     expect((await draft()).exceptions).toEqual([]);
+
+    // Khoản đầu kỳ đang được chọn trên phiếu nháp: không xóa được (lỗi nghiệp vụ, không lỗi máy chủ).
+    const opening = await call(accountant, "post", "/finance/debts/opening", {
+      partnerId: supplier,
+      side: "payable",
+      direction: "debit",
+      documentNo: "HD-CU-03",
+      documentDate: today,
+      dueDate: today,
+      amount: "1000",
+    });
+    const openingItem = opening.body.items.find((item: { documentNo: string }) => item.documentNo === "HD-CU-03");
+    expect(openingItem.canDelete).toBe(true);
+    await call(accountant, "post", "/finance/payments", {
+      kind: "supplier_payment",
+      partnerId: supplier,
+      fundId: cashFund,
+      paymentDate: today,
+      amount: "1000",
+      lines: [{ debitItemId: openingItem.id, amount: "1000" }],
+    });
+    const blocked = await call(accountant, "delete", `/finance/debts/opening/${openingItem.id}`);
+    expect(blocked.status).toBe(409);
+    // Đối tác không có quan hệ với công ty: không xem được.
+    const stranger = (await pool.query<{ id: string }>("INSERT INTO crm.partners (kind, name, tax_code, search_text) VALUES ('organization', 'Đối tác lạ', '0320001399', 'doi tac la') RETURNING id"))
+      .rows[0]!.id;
+    expect((await call(accountant, "get", `/finance/debts/partners/${stranger}?side=receivable`)).status).toBe(404);
   });
 });

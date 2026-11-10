@@ -118,6 +118,11 @@ export function PaymentEditor({
         <Field id="quy-phieu" label={`${t("fund")} *`} error={fields.fundId}>
           <select id="quy-phieu" className={inputClass("fundId")} value={fundId} onChange={(event) => setFundId(event.target.value)}>
             {choices.funds.length === 0 && <option value="">{t("noFund")}</option>}
+            {payment && !choices.funds.some((fund) => fund.id === payment.fund.id) && (
+              <option value={payment.fund.id}>
+                {payment.fund.code} · {payment.fund.name} ({t("fundInactive")})
+              </option>
+            )}
             {choices.funds.map((fund) => (
               <option key={fund.id} value={fund.id}>
                 {fund.code} · {fund.name} ({money(fund.balance)})

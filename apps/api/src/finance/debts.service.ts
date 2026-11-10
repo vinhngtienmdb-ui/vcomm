@@ -186,7 +186,13 @@ export class DebtsService implements OnModuleInit {
 
   async partnerDetail(actor: Actor, partnerId: string, side: DebtSide): Promise<DebtPartnerResponse> {
     const granted = await requireFinancePermission(this.permissionService, actor, financePermissions.view);
-    const partner = (await this.database.execute<{ id: string; code: string; name: string }>(sql`SELECT id, code, name FROM crm.partners WHERE id = ${partnerId}`)).rows[0];
+    // Chỉ đối tác có hồ sơ hoặc có công nợ với công ty đang chọn.
+    const partner = (
+      await this.database.execute<{ id: string; code: string; name: string }>(sql`
+      SELECT p.id, p.code, p.name FROM crm.partners p WHERE p.id = ${partnerId}
+        AND (EXISTS (SELECT 1 FROM crm.partner_profiles pp WHERE pp.partner_id = p.id AND pp.company_id = ${actor.companyId})
+          OR EXISTS (SELECT 1 FROM finance.debt_items i WHERE i.partner_id = p.id AND i.company_id = ${actor.companyId}))`)
+    ).rows[0];
     if (!partner) throw new ApiError("NOT_FOUND", "notFound");
     const today = this.permissionService.today();
     const totals = (
@@ -208,7 +214,7 @@ export class DebtsService implements OnModuleInit {
       allocated: boolean;
     }>(sql`
       SELECT i.id, i.direction, i.source_type, i.source_id, pay.kind AS payment_kind, i.document_no, i.document_date::text, i.due_date::text, i.amount::text, i.open_amount::text, i.note,
-        EXISTS (SELECT 1 FROM finance.debt_allocations a WHERE a.debit_item_id = i.id OR a.credit_item_id = i.id) AS allocated
+        (EXISTS (SELECT 1 FROM finance.debt_allocations a WHERE a.debit_item_id = i.id OR a.credit_item_id = i.id) OR EXISTS (SELECT 1 FROM finance.payment_lines l WHERE l.debit_item_id = i.id)) AS allocated
       FROM finance.debt_items i LEFT JOIN finance.payments pay ON i.source_type = 'payment' AND pay.id = i.source_id
       WHERE i.company_id = ${actor.companyId} AND i.side = ${side} AND i.partner_id = ${partnerId}
       ORDER BY i.document_date DESC, i.created_at DESC
@@ -352,6 +358,7 @@ export class DebtsService implements OnModuleInit {
       const deleted = await transaction.execute<{ id: string; document_no: string; amount: string }>(sql`
         DELETE FROM finance.debt_items i WHERE i.id = ${id}
           AND NOT EXISTS (SELECT 1 FROM finance.debt_allocations a WHERE a.debit_item_id = i.id OR a.credit_item_id = i.id)
+          AND NOT EXISTS (SELECT 1 FROM finance.payment_lines l WHERE l.debit_item_id = i.id)
         RETURNING i.id, i.document_no, i.amount::text`);
       if (deleted.rows.length === 0) throw new ApiError("BUSINESS_RULE", "openingDebtAllocated");
       await this.auditService.record({ ...financeAudit(actor, "debt_item"), action: "debt.opening.delete", entityId: id, beforeData: deleted.rows[0] }, transaction);

@@ -198,7 +198,7 @@
     "paymentAllocationExceeded": "Tổng số trừ vượt số tiền phiếu.",
     "refundExceedsAdvance": "Số tiền hoàn vượt tiền trả trước đang còn.",
     "insufficientFundBalance": "Số dư quỹ không đủ.",
-    "openingDebtAllocated": "Khoản số dư đầu kỳ đã được trừ nợ, không xóa được."
+    "openingDebtAllocated": "Khoản số dư đầu kỳ đã được trừ nợ hoặc đang được chọn trên phiếu thu chi, không xóa được."
   },
   "login": {
     "title": "Đăng nhập",
@@ -2249,6 +2249,7 @@
     "source_sales_return": "Nhận hàng trả lại",
     "source_purchase_receipt": "Nhập mua",
     "source_purchase_return": "Trả hàng nhà cung cấp",
-    "source_payment": "Phiếu thu chi"
+    "source_payment": "Phiếu thu chi",
+    "fundInactive": "đã ngừng dùng"
   }
 }

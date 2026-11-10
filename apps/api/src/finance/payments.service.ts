@@ -14,7 +14,7 @@ import {
   type savePaymentSchema,
 } from "contracts";
 import { sql } from "drizzle-orm";
-import { messages, type Messages } from "i18n";
+import type { Messages } from "i18n";
 import type { z } from "zod";
 import { ApprovalRequestsService } from "../approvals/approval-requests.service";
 import { trimDecimal } from "../catalog/catalog-context";
@@ -85,7 +85,7 @@ export class PaymentsService implements OnModuleInit {
         } catch (error) {
           if (!(error instanceof ApiError)) throw error;
           await this.database.execute(sql`
-            UPDATE finance.payments SET status = 'rejected', post_error = ${messages.vi.errors[error.messageKey]}, updated_at = now(), version = version + 1
+            UPDATE finance.payments SET status = 'rejected', post_error = ${error.messageKey}, updated_at = now(), version = version + 1
             WHERE id = ${payment.id} AND status = 'pending'`);
         }
       } else if (status === "rejected" || status === "withdrawn") {
@@ -341,10 +341,9 @@ export class PaymentsService implements OnModuleInit {
     if (!payment) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     const side = paymentKindSide[payment.kind];
     await this.debts.lockPartner(transaction, payment.company_id, side, payment.partner_id);
-    const fund = (
-      await transaction.execute<{ status: string; balance: string }>(sql`
-      SELECT f.status, ${fundBalance(sql`f.id`)}::text AS balance FROM finance.funds f WHERE f.id = ${payment.fund_id} FOR UPDATE`)
-    ).rows[0]!;
+    // Khóa quỹ trước, tính số dư bằng câu lệnh sau để thấy phiếu giao dịch khác vừa ghi sổ (READ COMMITTED lấy ảnh chụp theo từng câu lệnh).
+    const fundStatus = (await transaction.execute<{ status: string }>(sql`SELECT status FROM finance.funds WHERE id = ${payment.fund_id} FOR UPDATE`)).rows[0]!.status;
+    const fund = { status: fundStatus, balance: (await transaction.execute<{ balance: string }>(sql`SELECT ${fundBalance(payment.fund_id)}::text AS balance`)).rows[0]!.balance };
     if (fund.status !== "active") throw new ApiError("BUSINESS_RULE", "fundInactive");
     if (!paymentKindIsReceipt(payment.kind) && Number(payment.amount) > Number(fund.balance) + 0.00005) throw new ApiError("BUSINESS_RULE", "insufficientFundBalance");
     if (paymentKindSettles(payment.kind)) {

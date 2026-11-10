@@ -2886,6 +2886,7 @@ export interface PaymentResponse {
   note: string | null;
   status: PaymentStatus;
   approvalRequestId: string | null;
+  // Khóa thông báo lỗi (nhóm errors) khi duyệt xong mà không ghi sổ được.
   postError: string | null;
   lines: (OpenDebtResponse & { allocated: string })[];
   unallocated: string;
