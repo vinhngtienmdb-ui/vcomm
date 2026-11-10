@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_12: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 - CONG_VIEC_12: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_12-khuyen-mai` (pull request số 47, tách từ nhánh CONG_VIEC_09). L0: database migration 0009; chương trình giảm theo sản phẩm, theo đơn, mua X tặng Y; điều kiện kênh, nhóm khách, thời gian; gửi duyệt, rút, dừng; quyền xem, quản lý khuyến mãi (MAN_HINH_45). L1: đơn bán tự áp khuyến mãi khi lưu, kiểm ngân sách và số suất khi gửi, hàng tặng giữ hàng và giao như dòng thường, tặng theo tồn còn lại tại kho xuất kèm cảnh báo thiếu suất. Kiểm thử 216/216 đạt. Không thêm thư viện. Cập nhật tài liệu 06 đến 12, 14, 16, 17, 21, 22, 27, mục lục trên nhánh. Chờ người dùng nghiệm thu.
 - CONG_VIEC_09: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 44 (sau số 43).
 - CONG_VIEC_12: Lập công việc Khuyến mãi (MODULE_05, phần 3), mức Lớn.
@@ -34,6 +35,7 @@
 - Khuyến mãi (CONG_VIEC_12) – người quyết định: người dùng, ngày 2026-11-10: mỗi dòng hàng một khuyến mãi sản phẩm (mức có lợi nhất cho khách) cộng tối đa một khuyến mãi theo đơn, mua X tặng Y tính riêng; chương trình đi luồng duyệt trước khi chạy; phần giảm do khuyến mãi đã duyệt và hàng tặng không tính ngoại lệ dưới giá vốn (chiết khấu tay vẫn kiểm); chương trình có thể đặt tổng tiền giảm tối đa, số suất tặng tối đa, để trống là không giới hạn.
 - Giao dịch nội bộ (CONG_VIEC_09) – người quyết định: người dùng, ngày 2026-11-10: làm giao dịch nội bộ trước khuyến mãi; chứng từ đối ứng chờ bên kia xác nhận, khi xác nhận đi luồng duyệt của bên đó nếu có chính sách; bên mua nhận thiếu thì ghi sổ số thực nhận, phần thiếu lập biên bản chênh lệch để bên bán xử lý (nhập lại kho bên bán hoặc ghi tổn thất); đơn bán nội bộ kiểm ngoại lệ như đơn bán thường.
 - Hàng tặng (CONG_VIEC_12) – người quyết định: người dùng, ngày 2026-11-10: kho xuất không đủ hàng tặng thì tặng theo tồn còn lại và ghi số suất thiếu trên đơn; chương trình hết số suất tối đa thì tặng phần suất còn lại.
+- Duyệt chương trình khuyến mãi (CONG_VIEC_12) – người quyết định: người dùng, ngày 2026-11-10: giữ giá trị gửi duyệt là ngân sách; công ty muốn duyệt mọi chương trình (kể cả không có ngân sách, mua X tặng Y) thì đặt cấp duyệt từ 0 đồng.
 - Dư nợ tạm tính – người quyết định: người dùng, ngày 2026-11-10: trừ giá trị hàng khách trả lại (theo giá trên đơn) khỏi phần đã giao.
 - LOI_03 – người quyết định: người dùng, ngày 2026-11-10: thống nhất trả `400` gắn vào dòng hàng khi không đủ hàng khả dụng.
 

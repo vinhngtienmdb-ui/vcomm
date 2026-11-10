@@ -179,8 +179,9 @@
   - C2 gitleaks trong CI trên các commit của công việc (pull request số 47): không có phát hiện.
   - C3 phân quyền: Đạt – lập, sửa, gửi, rút, dừng chương trình cần quyền quản lý khuyến mãi; Nhân viên bán hàng chỉ xem; chỉ người lập rút được chương trình chờ duyệt.
   - C4 toàn vẹn dữ liệu: Đạt – gửi đơn khóa các chương trình đã áp và từ chối khi vượt ngân sách hoặc số suất; suất tặng không vượt tồn khả dụng tại kho xuất; chương trình sửa theo phiên bản.
-- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập đã sửa các lỗi tìm được (commit `fix` 2c92a77). Rà soát bảo mật tài liệu 22 sửa thêm 2 điểm: rút chương trình không ghi nhật ký; số suất tặng quá lớn trả lỗi máy chủ (commit 57bbcd0). Giữ lại (ghi tài liệu 22): chương trình không có ngân sách gửi duyệt với giá trị 0, chính sách duyệt chỉ có cấp từ mức lớn hơn 0 sẽ không áp.
-- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập đã sửa các lỗi tìm được (commit `fix` 2c92a77). Rà soát bảo mật tài liệu 22 sửa thêm 2 điểm: rút chương trình không ghi nhật ký; số suất tặng quá lớn trả lỗi máy chủ (commit 57bbcd0). Giữ lại (ghi tài liệu 22): chương trình không có ngân sách gửi duyệt với giá trị 0, chính sách duyệt chỉ có cấp từ mức lớn hơn 0 sẽ không áp (người dùng quyết định giữ, công ty đặt cấp từ 0 đồng).
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
+- Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_10 (LOI_04)
 
