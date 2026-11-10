@@ -196,7 +196,8 @@
   - C3 phân quyền: Đạt – quyền kế toán cần phạm vi công ty; khóa sổ là quyền nhạy cảm; nhân viên bán hàng không xem, không lập được.
   - C4 toàn vẹn dữ liệu: Đạt – bút toán sinh cùng giao dịch ghi sổ chứng từ, kiểm cân Nợ Có; kỳ đã khóa chặn mọi đường ghi sổ có bút toán; khóa sổ và ghi sổ loại trừ nhau.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 1 lỗi Cao (khởi tạo tạo bút toán cho phiếu nhập nội bộ chưa nhận làm không nhận hàng được), 6 mục Trung bình, 7 mục Thấp; đã sửa lỗi Cao, các mục Trung bình (làm tròn theo quyết định người dùng) và 4 mục Thấp. Giữ lại (ghi tài liệu 22): danh mục tài khoản Thông tư 99/2025 lập từ bản chép Phụ lục II, phải so bản gốc trước khi phát hành; chuyển kho trong kỳ đã khóa chưa bị chặn (không sinh bút toán); 3388 là tài khoản tạm đối ứng nhập tồn đầu kỳ.
-- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
+- Kết luận: Người dùng nghiệm thu 2026-11-10, chấp nhận định khoản mặc định và các điểm AI tự quyết; so danh mục Thông tư 99/2025 với bản gốc là việc trước khi phát hành; chờ người dùng hợp nhất pull request số 49 (sau số 48).
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_13
 

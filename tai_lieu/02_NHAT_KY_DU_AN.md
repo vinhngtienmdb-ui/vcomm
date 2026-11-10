@@ -9,6 +9,8 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_15: Bắt đầu Báo cáo tài chính.
+- CONG_VIEC_14: Người dùng nghiệm thu, chấp nhận định khoản mặc định (hàng tặng 6418/6421, dùng nội bộ 6422, đối ứng tồn đầu kỳ 3388 tạm, hủy hỏng 632); việc trước phát hành: kế toán trưởng so danh mục Thông tư 99/2025 với bản gốc; chờ người dùng hợp nhất pull request số 49 (sau số 48).
 - CONG_VIEC_14: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_14-ke-toan-tong-hop` (pull request số 49, tách từ nhánh CONG_VIEC_13). Database migration 0011 schema `accounting`; khởi tạo kế toán theo chế độ của công ty (Thông tư 99/2025: 184 tài khoản; Thông tư 133/2016: 121 tài khoản); định khoản mặc định sửa được; bút toán tự sinh từ phiếu kho, phiếu thu chi, ghi tổn thất nội bộ; phiếu kế toán qua luồng duyệt; khóa sổ theo tháng, kết chuyển, mở lại; bảng cân đối số phát sinh, sổ cái; vai trò Kế toán trưởng; làm tròn chung công nợ và bút toán (THAY_DOI_10). Kiểm thử 229/229 đạt. Không thêm thư viện. Rà soát mã sửa 1 lỗi Cao, 6 mục Trung bình. Chờ người dùng nghiệm thu.
 - CONG_VIEC_14, CONG_VIEC_15: Lập công việc Kế toán tổng hợp và Báo cáo tài chính (MODULE_06, phần 2, 3), mức Lớn.
 - CONG_VIEC_13: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 48 (sau số 47).
