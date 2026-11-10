@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_16: Lập công việc Hóa đơn điện tử (MODULE_06, phần 4), mức Lớn.
 - CONG_VIEC_15: Người dùng nghiệm thu, chấp nhận ba giới hạn đã biết (lợi nhuận chưa kết chuyển mọi năm vào 4212; chỉ tiêu theo tài khoản đối ứng không chia bút toán nhiều đối ứng; "Từ ngày" mặc định 01/01); việc trước phát hành: kế toán trưởng so Phụ lục IV Thông tư 99/2025 với bản gốc; chờ người dùng hợp nhất pull request số 50 (sau số 49).
 - CONG_VIEC_15: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_15-bao-cao-tai-chinh` (pull request số 50, tách từ nhánh CONG_VIEC_14). Mẫu B01-DN, B02-DN (Thông tư 99/2025), B01a-DNN, B01b-DNN, B02-DNN (Thông tư 133/2016) khai báo trong mã; báo cáo lập được khi kỳ chưa khóa sổ; số đầu năm theo tháng bắt đầu năm tài chính, cùng kỳ năm trước; database migration 0012 cờ dài hạn của tài khoản chi tiết; MAN_HINH_53 xem, xuất Excel, PDF. Kiểm thử 233/233 đạt. Không thêm thư viện. Rà soát mã sửa 2 mục Trung bình, 4 mục Thấp; sửa lỗi tệp xuất hỏng phát hiện khi thử trên trình duyệt. Chờ người dùng nghiệm thu.
 - CONG_VIEC_15: Bắt đầu Báo cáo tài chính.
@@ -39,6 +40,7 @@
 
 ### Quyết định
 
+- Hóa đơn điện tử (MODULE_06) – người quyết định: người dùng, ngày 2026-11-10: nhà cung cấp hóa đơn điện tử cài đặt theo từng công ty (làm lớp kết nối chung, thêm từng nhà cung cấp khi có tài khoản); hóa đơn lập và gửi tự động khi phiếu xuất giao hàng ghi sổ; loại hóa đơn (có mã, không mã, khởi tạo từ máy tính tiền) và ký hiệu theo từng công ty; trả hàng sau khi có hóa đơn: kế toán chọn từng lần (điều chỉnh, thay thế hoặc không lập).
 - Mua hàng (MODULE_04) – người quyết định: người dùng, ngày 2026-11-10: chia công việc, CONG_VIEC_07 gồm bảng giá mua theo nhà cung cấp, đề nghị mua, đơn mua, nhận hàng, trả hàng nhà cung cấp; nhập khẩu, phân bổ chi phí là công việc sau; hóa đơn, so khớp ba bên, lịch thanh toán làm cùng Tài chính – Kế toán; giao dịch nội bộ làm cùng Bán hàng. Hàng thuộc ngành hàng cần kiểm tra chất lượng chưa vào tồn đến khi kiểm xong: phần đạt ghi sổ kho, phần không đạt ghi biên bản. Trả hàng nhà cung cấp xuất kho theo giá mua trên phiếu nhập gốc.
 - Bán hàng (MODULE_05) – người quyết định: người dùng, ngày 2026-11-10: chia công việc, CONG_VIEC_08 gồm đơn bán, giữ hàng, phiếu xuất giao hàng theo đơn, trả hàng bán; khuyến mãi, giao vận, hóa đơn điện tử, giao dịch nội bộ là công việc sau. Chiết khấu tay tối đa không cần duyệt là một mức phần trăm theo công ty (mặc định 0%). Giá tối thiểu là giá vốn bình quân hiện hành tại kho xuất. Dư nợ tạm tính (đến khi có MODULE_06): giá trị đơn đã xác nhận chưa giao cộng giá trị đã giao trong số ngày được nợ gần nhất.
 - Khuyến mãi (CONG_VIEC_12) – người quyết định: người dùng, ngày 2026-11-10: mỗi dòng hàng một khuyến mãi sản phẩm (mức có lợi nhất cho khách) cộng tối đa một khuyến mãi theo đơn, mua X tặng Y tính riêng; chương trình đi luồng duyệt trước khi chạy; phần giảm do khuyến mãi đã duyệt và hàng tặng không tính ngoại lệ dưới giá vốn (chiết khấu tay vẫn kiểm); chương trình có thể đặt tổng tiền giảm tối đa, số suất tặng tối đa, để trống là không giới hạn.
