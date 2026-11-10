@@ -3086,3 +3086,120 @@ export interface StatementResponse {
   columns: { label: "endOfPeriod" | "startOfYear" | "currentPeriod" | "previousPeriod" | string; from: string | null; to: string }[];
   lines: StatementLineResponse[];
 }
+
+// CONG_VIEC_16: Hóa đơn điện tử (API_91, API_92; CHUC_NANG_76 đến 79).
+export const einvoiceProviders = ["simulator", "misa"] as const;
+export type EinvoiceProvider = (typeof einvoiceProviders)[number];
+export const einvoiceSimulations = ["normal", "pending_code", "temporary_error", "data_error", "timeout", "rejected"] as const;
+export type EinvoiceSimulation = (typeof einvoiceSimulations)[number];
+export const einvoiceStatuses = ["pending", "retrying", "awaiting_code", "issued", "failed", "rejected", "setup_error"] as const;
+export type EinvoiceStatus = (typeof einvoiceStatuses)[number];
+export const einvoiceKinds = ["original", "adjustment", "replacement"] as const;
+export type EinvoiceKind = (typeof einvoiceKinds)[number];
+export const updateEinvoiceSettingsSchema = z
+  .object({
+    enabled: z.boolean(),
+    startDate: isoDate.nullable(),
+    provider: z.enum(einvoiceProviders),
+    environment: z.enum(["test", "production"]),
+    withTaxCode: z.boolean(),
+    templateCode: z.enum(["1", "2"]),
+    appId: blankToNull(100),
+    taxCode: blankToNull(20),
+    username: blankToNull(100),
+    // Để trống: giữ mật khẩu cũ.
+    password: z.string().max(200).optional(),
+    simulation: z.enum(einvoiceSimulations).default("normal"),
+    series: z
+      .array(z.object({ year: z.number().int().min(2000).max(2099), series: z.string().trim().toUpperCase().regex(/^[CK][0-9]{2}T[A-Z]{2}$/, "invalidValue") }).strict())
+      .max(20)
+      .default([]),
+    version: z.number().int().min(0),
+  })
+  .strict();
+export type UpdateEinvoiceSettingsRequest = z.input<typeof updateEinvoiceSettingsSchema>;
+export interface EinvoiceSettingsResponse {
+  enabled: boolean;
+  startDate: string | null;
+  provider: EinvoiceProvider;
+  environment: "test" | "production";
+  withTaxCode: boolean;
+  templateCode: "1" | "2";
+  appId: string | null;
+  taxCode: string | null;
+  username: string | null;
+  passwordLastFour: string | null;
+  simulation: EinvoiceSimulation;
+  series: { year: number; series: string }[];
+  simulatorAllowed: boolean;
+  canSetup: boolean;
+  version: number;
+}
+export const einvoiceListQuerySchema = z
+  .object({
+    status: z.enum(einvoiceStatuses).optional(),
+    overdue: z.enum(["true", "false"]).optional(),
+    from: isoDate.optional(),
+    to: isoDate.optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface EinvoiceListItem {
+  id: string;
+  kind: EinvoiceKind;
+  invoiceDate: string;
+  series: string | null;
+  invoiceNo: string | null;
+  buyerName: string;
+  totalAmount: string;
+  currency: string;
+  status: EinvoiceStatus;
+  overdue: boolean;
+  sourceDocumentNo: string | null;
+}
+export interface EinvoiceParty {
+  partnerId?: string | null;
+  name: string | null;
+  taxCode: string | null;
+  address: string | null;
+  anonymous?: boolean;
+}
+export interface EinvoiceLineResponse {
+  lineNo: number;
+  itemCode: string | null;
+  itemName: string;
+  unitName: string | null;
+  quantity: string;
+  unitPrice: string;
+  vatRate: "0" | "5" | "8" | "10" | "exempt" | "not_declared";
+  netAmount: string;
+  taxAmount: string;
+  totalAmount: string;
+  isPromotion: boolean;
+}
+export interface EinvoiceResponse extends EinvoiceListItem {
+  provider: EinvoiceProvider;
+  templateCode: string;
+  withTaxCode: boolean;
+  taxAuthorityCode: string | null;
+  referenceId: string;
+  seller: EinvoiceParty;
+  buyer: EinvoiceParty;
+  netAmount: string;
+  taxAmount: string;
+  note: string | null;
+  lastError: string | null;
+  dueDate: string;
+  issuedAt: string | null;
+  sourceDocumentId: string;
+  related: { id: string; kind: EinvoiceKind; series: string | null; invoiceNo: string | null; invoiceDate: string; relation: "original" | "replaced_by" }[];
+  lines: EinvoiceLineResponse[];
+  taxSummary: { vatRate: string; netAmount: string; taxAmount: string }[];
+  attempts: { operation: "publish" | "status"; startedAt: string; finishedAt: string | null; outcome: string | null; errorCode: string | null; message: string | null }[];
+  hasPdf: boolean;
+  hasXml: boolean;
+  canManage: boolean;
+  version: number;
+}

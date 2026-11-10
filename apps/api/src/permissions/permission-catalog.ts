@@ -86,6 +86,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "finance.ledger.setup", appCode: "finance", nameVi: "Khởi tạo kế toán, sửa tài khoản, định khoản", nameEn: "Set up accounts and posting rules", isSensitive: false },
   { code: "finance.journal.manage", appCode: "finance", nameVi: "Lập, gửi phiếu kế toán", nameEn: "Manage manual journals", isSensitive: false },
   { code: "finance.period.close", appCode: "finance", nameVi: "Khóa sổ, mở lại sổ", nameEn: "Close and reopen periods", isSensitive: true },
+  { code: "finance.einvoice.view", appCode: "finance", nameVi: "Xem hóa đơn điện tử", nameEn: "View e-invoices", isSensitive: false },
+  { code: "finance.einvoice.manage", appCode: "finance", nameVi: "Gửi lại, điều chỉnh, thay thế hóa đơn điện tử", nameEn: "Manage e-invoices", isSensitive: false },
+  { code: "finance.einvoice.setup", appCode: "finance", nameVi: "Cài đặt hóa đơn điện tử", nameEn: "Set up e-invoicing", isSensitive: true },
   { code: "inventory.sales.issue", appCode: "inventory", nameVi: "Xuất giao hàng, nhận hàng trả lại", nameEn: "Issue sales deliveries and receive returns", isSensitive: false },
   { code: "inventory.purchase.receive", appCode: "inventory", nameVi: "Nhập mua, trả hàng nhà cung cấp", nameEn: "Receive purchases and return to suppliers", isSensitive: false },
 ];
@@ -136,6 +139,9 @@ const companyAdminPermissions = [
   "finance.ledger.setup",
   "finance.journal.manage",
   "finance.period.close",
+  "finance.einvoice.view",
+  "finance.einvoice.manage",
+  "finance.einvoice.setup",
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [
@@ -157,13 +163,39 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     nameEn: "Product manager",
     permissionCodes: ["catalog.access", "catalog.product.view", "catalog.product.manage", "catalog.price.view"],
   },
-  { code: "warehouse_keeper", nameVi: "Thủ kho", nameEn: "Warehouse keeper", permissionCodes: ["inventory.access", "inventory.stock.view", "inventory.document.manage", "inventory.purchase.receive", "inventory.sales.issue", "crm.partner.view", "purchasing.access", "purchasing.requisition.create", "purchasing.order.view", "sales.access", "sales.order.view"] },
+  {
+    code: "warehouse_keeper",
+    nameVi: "Thủ kho",
+    nameEn: "Warehouse keeper",
+    permissionCodes: [
+      "inventory.access",
+      "inventory.stock.view",
+      "inventory.document.manage",
+      "inventory.purchase.receive",
+      "inventory.sales.issue",
+      "crm.partner.view",
+      "purchasing.access",
+      "purchasing.requisition.create",
+      "purchasing.order.view",
+      "sales.access",
+      "sales.order.view",
+    ],
+  },
   { code: "warehouse_manager", nameVi: "Quản lý kho", nameEn: "Warehouse manager", permissionCodes: inventoryPermissions },
   {
     code: "purchaser",
     nameVi: "Nhân viên mua hàng",
     nameEn: "Purchaser",
-    permissionCodes: ["purchasing.access", "purchasing.price.manage", "purchasing.requisition.create", "purchasing.order.view", "purchasing.order.manage", "crm.access", "crm.partner.view", "crm.partner.manage"],
+    permissionCodes: [
+      "purchasing.access",
+      "purchasing.price.manage",
+      "purchasing.requisition.create",
+      "purchasing.order.view",
+      "purchasing.order.manage",
+      "crm.access",
+      "crm.partner.view",
+      "crm.partner.manage",
+    ],
   },
   {
     code: "salesperson",
@@ -175,7 +207,19 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     code: "accountant",
     nameVi: "Kế toán",
     nameEn: "Accountant",
-    permissionCodes: ["finance.access", "finance.debt.view", "finance.fund.manage", "finance.debt.manage", "finance.payment.manage", "finance.ledger.view", "finance.journal.manage", "crm.access", "crm.partner.view"],
+    permissionCodes: [
+      "finance.access",
+      "finance.debt.view",
+      "finance.fund.manage",
+      "finance.debt.manage",
+      "finance.payment.manage",
+      "finance.ledger.view",
+      "finance.journal.manage",
+      "finance.einvoice.view",
+      "finance.einvoice.manage",
+      "crm.access",
+      "crm.partner.view",
+    ],
   },
   {
     code: "chief_accountant",
@@ -191,6 +235,9 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "finance.ledger.setup",
       "finance.journal.manage",
       "finance.period.close",
+      "finance.einvoice.view",
+      "finance.einvoice.manage",
+      "finance.einvoice.setup",
       "crm.access",
       "crm.partner.view",
     ],
@@ -239,15 +286,10 @@ export async function syncPermissionCatalog(database: Database): Promise<void> {
         });
     }
     for (const role of systemRoles) {
-      const existing = await transaction.execute<{ id: string }>(
-        sql`SELECT id FROM core.roles WHERE company_id IS NULL AND code = ${role.code}`,
-      );
+      const existing = await transaction.execute<{ id: string }>(sql`SELECT id FROM core.roles WHERE company_id IS NULL AND code = ${role.code}`);
       let roleId = existing.rows[0]?.id;
       if (!roleId) {
-        const inserted = await transaction
-          .insert(roles)
-          .values({ code: role.code, nameVi: role.nameVi, nameEn: role.nameEn, isSystem: true, status: "active" })
-          .returning({ id: roles.id });
+        const inserted = await transaction.insert(roles).values({ code: role.code, nameVi: role.nameVi, nameEn: role.nameEn, isSystem: true, status: "active" }).returning({ id: roles.id });
         roleId = inserted[0]!.id;
       }
       await transaction.delete(rolePermissions).where(sql`${rolePermissions.roleId} = ${roleId}`);

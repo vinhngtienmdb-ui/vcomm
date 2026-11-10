@@ -1,27 +1,7 @@
 // Xuất báo cáo tài chính Excel, PDF (CONG_VIEC_15; CHUC_NANG_75). Dùng write-excel-file, pdfmake đã có trong dự án.
 import type { StatementResponse } from "contracts";
-import { dirname, join } from "node:path";
 import writeXlsxFile from "write-excel-file/node";
-
-// pdfmake 0.3 không kèm khai báo kiểu.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfmake = require("pdfmake") as {
-  setFonts(fonts: Record<string, Record<string, string>>): void;
-  setUrlAccessPolicy(callback: (url: string) => boolean): void;
-  setLocalAccessPolicy(callback: (path: string) => boolean): void;
-  createPdf(definition: Record<string, unknown>): { getBuffer(): Promise<Buffer> };
-};
-const fontDirectory = join(dirname(require.resolve("pdfmake/package.json")), "fonts", "Roboto");
-pdfmake.setFonts({
-  Roboto: {
-    normal: join(fontDirectory, "Roboto-Regular.ttf"),
-    bold: join(fontDirectory, "Roboto-Medium.ttf"),
-    italics: join(fontDirectory, "Roboto-Italic.ttf"),
-    bolditalics: join(fontDirectory, "Roboto-MediumItalic.ttf"),
-  },
-});
-pdfmake.setUrlAccessPolicy(() => false);
-pdfmake.setLocalAccessPolicy((path) => path.startsWith(fontDirectory));
+import { renderPdf } from "../common/pdf";
 
 const columnTitles: Record<string, string> = { endOfPeriod: "Số cuối kỳ", startOfYear: "Số đầu năm", currentPeriod: "Kỳ này", previousPeriod: "Cùng kỳ năm trước" };
 const date = (value: string) => value.split("-").reverse().join("/");
@@ -92,5 +72,5 @@ export async function statementPdf(report: StatementResponse): Promise<Buffer> {
       },
     ],
   };
-  return pdfmake.createPdf(definition).getBuffer();
+  return renderPdf(definition);
 }
