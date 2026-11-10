@@ -197,7 +197,7 @@
   - C4 toàn vẹn dữ liệu: Đạt – khóa sinh ngẫu nhiên 192 bit, lưu mã hóa AES-256-GCM, chỉ trả về một lần; chống trùng theo mã giao dịch của dịch vụ; khóa dòng quỹ cùng thứ tự với ghi sổ phiếu; một phiếu ghép tối đa một giao dịch (chỉ mục duy nhất); mọi truy vấn lọc theo công ty, tham số ràng buộc.
 - Tự rà soát mã và dọn dẹp: Đạt. Tự rà soát sửa 2 mục (tạo được kết nối cho quỹ ngừng dùng; cột dữ liệu gốc lưu dữ liệu đã xử lý). Rà soát độc lập tìm 1 lỗi Nghiêm trọng (giới hạn 20 yêu cầu mỗi phút theo IP dùng chung cho mọi công ty, có thể mất giao dịch), 2 lỗi Cao (phiếu thu từ gợi ý bị sửa vẫn được ghép; xác nhận lại bỏ qua khách vừa chọn), 4 mục Trung bình (khóa chết giữa webhook và ghi sổ phiếu; ghép song song với bỏ qua gây lỗi; xác nhận song song có thể lập hai phiếu; chỉ mục theo công ty), 6 mục Thấp; đã sửa cả 13 mục trừ 1 mục Thấp (kết nối bộ giả lập còn lại trên môi trường thật không sửa được, không xảy ra vì không tạo được bộ giả lập trên môi trường thật). Lỗi Nghiêm trọng sửa theo quyết định của người dùng: webhook đúng khóa không giới hạn, chỉ đếm lần sai khóa (KICHBAN_KIEMTHU_260).
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
-- Kết luận: Chờ người dùng nghiệm thu.
+- Kết luận: Người dùng nghiệm thu 2026-11-10, chấp nhận các giới hạn đã biết (đặc tả mục 16); chờ người dùng hợp nhất pull request số 53 (sau số 52). Trước khi phát hành: thử với tài khoản SePay thật (cách gửi khóa, định dạng ngày giờ).
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_17
 
