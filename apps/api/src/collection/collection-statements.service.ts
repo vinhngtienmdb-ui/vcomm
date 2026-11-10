@@ -58,7 +58,7 @@ type StatementRow = {
   line_count: number;
   error_count: number;
   approval_request_id: string | null;
-  created_by: string;
+  submitted_by: string | null;
   version: number;
 };
 
@@ -69,7 +69,7 @@ export const lineErrorSql = sql`
     WHEN o.status = 'cancelled' THEN 'order_cancelled'
     WHEN (SELECT count(*) FROM finance.collection_statement_lines same WHERE same.statement_id = l.statement_id AND same.reference = l.reference) > 1 THEN 'duplicate_reference'
     WHEN EXISTS (SELECT 1 FROM finance.collection_statement_lines other JOIN finance.collection_statements os ON os.id = other.statement_id
-      WHERE other.reference = l.reference AND os.collector_id = s.collector_id AND os.id <> s.id AND os.status NOT IN ('rejected', 'withdrawn')) THEN 'reference_used'
+      WHERE other.reference = l.reference AND os.collector_id = s.collector_id AND os.id <> s.id AND os.status IN ('pending', 'posted')) THEN 'reference_used'
   END`;
 // Số khách còn nợ trên các phiếu xuất giao hàng của đơn.
 export const orderOpenSql = (orderId: SQL) => sql`
@@ -113,6 +113,11 @@ export class CollectionStatementsService implements OnModuleInit {
 
   private async close(executor: Executor, id: string, status: "rejected" | "withdrawn", postError: string | null): Promise<void> {
     await executor.execute(sql`UPDATE finance.collection_statements SET status = ${status}, post_error = ${postError}, version = version + 1 WHERE id = ${id} AND status = 'pending'`);
+  }
+
+  // Khóa theo đơn vị thu hộ: nhập, gửi, ghi sổ các bảng của cùng đơn vị lần lượt (mã giao dịch, số bảng không trùng).
+  private async lockCollector(executor: Executor, collectorId: string): Promise<void> {
+    await executor.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${`finance.collector:${collectorId}`}, 0))`);
   }
 
   // ---------- Đơn vị thu hộ (CHUC_NANG_88; API_102) ----------
@@ -191,12 +196,14 @@ export class CollectionStatementsService implements OnModuleInit {
     // Số dạng 550000, 550.000 hoặc 550,000 (dấu tách hàng nghìn); phần lẻ không quá đơn vị nhỏ nhất của tiền tệ.
     const amount = (value: Cell | undefined): string | null => {
       if (value === null || value === undefined || value === "") return "0";
-      const raw =
-        typeof value === "number"
-          ? String(value)
-          : String(value)
-              .trim()
-              .replace(/[.,\s](?=\d{3}(\D|$))/g, "");
+      // Ô số (kể cả kết quả công thức) làm tròn đến đơn vị nhỏ nhất khi sai lệch rất nhỏ.
+      if (typeof value === "number") {
+        const rounded = Number(value.toFixed(minorUnits));
+        return Number.isFinite(value) && value >= 0 && value < 1e16 && Math.abs(rounded - value) <= 1e-6 ? rounded.toFixed(minorUnits) : null;
+      }
+      // Ô chữ: tiền không có số lẻ thì dấu chấm, phẩy, khoảng trắng trước nhóm 3 chữ số là dấu tách hàng nghìn; có số lẻ thì chỉ bỏ khoảng trắng.
+      const trimmed = String(value).trim();
+      const raw = minorUnits === 0 ? trimmed.replace(/[.,\s](?=\d{3}(\D|$))/g, "") : trimmed.replace(/\s/g, "");
       if (!/^\d{1,16}(\.\d{1,4})?$/.test(raw)) return null;
       return (raw.split(".")[1] ?? "").replace(/0+$/, "").length > minorUnits ? null : raw;
     };
@@ -215,7 +222,8 @@ export class CollectionStatementsService implements OnModuleInit {
     sheet.slice(1).forEach((row, index) => {
       if (!row.some((cell) => text(cell))) return;
       const lineNo = index + 2;
-      const reference = text(row[0]);
+      // Mã dạng số quá dài bị Excel làm tròn: yêu cầu nhập dạng chữ.
+      const reference = typeof row[0] === "number" && Math.abs(row[0]) >= 1e15 ? "" : text(row[0]);
       const orderNo = text(row[1]).toUpperCase();
       const collected = amount(row[2]);
       const fee = amount(row[3]);
@@ -246,6 +254,7 @@ export class CollectionStatementsService implements OnModuleInit {
     const minorUnits = Number((await this.database.execute<{ units: number }>(sql`SELECT finance.company_minor_units(${actor.companyId}) AS units`)).rows[0]!.units);
     const lines = this.parseRows(sheet, minorUnits);
     const id = await this.database.transaction(async (transaction) => {
+      await this.lockCollector(transaction, input.collectorId);
       const collector = (await transaction.execute<{ status: string }>(sql`SELECT status FROM finance.collectors WHERE id = ${input.collectorId} AND company_id = ${actor.companyId}`)).rows[0];
       if (!collector || collector.status !== "active") throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { collectorId: "invalidValue" } });
       const duplicate = (
@@ -257,7 +266,7 @@ export class CollectionStatementsService implements OnModuleInit {
       let statementId = input.statementId;
       if (statementId) {
         const updated = await transaction.execute(sql`
-          UPDATE finance.collection_statements SET collector_id = ${input.collectorId}, statement_no = ${input.statementNo}, statement_date = ${input.statementDate}::date, version = version + 1
+          UPDATE finance.collection_statements SET collector_id = ${input.collectorId}, statement_no = ${input.statementNo}, statement_date = ${input.statementDate}::date, post_error = NULL, version = version + 1
           WHERE id = ${statementId} AND company_id = ${actor.companyId} AND status IN ('draft', 'rejected', 'withdrawn') AND version = ${input.version ?? -1}`);
         if ((updated.rowCount ?? 0) === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
         await transaction.execute(sql`DELETE FROM finance.collection_statement_lines WHERE statement_id = ${statementId}`);
@@ -309,7 +318,7 @@ export class CollectionStatementsService implements OnModuleInit {
   private statementSelect(): SQL {
     return sql`
       SELECT s.id, s.collector_id, c.partner_id, p.name AS collector_name, c.kind AS collector_kind, s.statement_no, s.document_no, s.statement_date::text, s.status,
-        s.total_collected::text, s.total_fee::text, s.post_error, s.approval_request_id, s.created_by, s.version,
+        s.total_collected::text, s.total_fee::text, s.post_error, s.approval_request_id, s.submitted_by, s.version,
         (SELECT count(*)::int FROM finance.collection_statement_lines l WHERE l.statement_id = s.id) AS line_count,
         (SELECT count(*)::int FROM finance.collection_statement_lines l LEFT JOIN sales.orders o ON o.id = l.order_id WHERE l.statement_id = s.id AND (${lineErrorSql}) IS NOT NULL) AS error_count
       FROM finance.collection_statements s JOIN finance.collectors c ON c.id = s.collector_id JOIN crm.partners p ON p.id = c.partner_id`;
@@ -412,7 +421,7 @@ export class CollectionStatementsService implements OnModuleInit {
       lines,
       warningCount: lines.filter((line) => line.amountDiffers).length,
       canManage,
-      canWithdraw: canManage && row.status === "pending" && row.created_by === actor.userId,
+      canWithdraw: canManage && row.status === "pending" && row.submitted_by === actor.userId && Boolean(row.approval_request_id),
       currency: await companyCurrency(this.database, actor.companyId),
       version: row.version,
     };
@@ -466,6 +475,10 @@ export class CollectionStatementsService implements OnModuleInit {
     await requireFinancePermission(this.permissionService, actor, collectionPermissions.manage);
     await ensureSequence(this.database, this.sequences, actor, documentTypeCode, "DST");
     await this.database.transaction(async (transaction) => {
+      const collectorId = (await transaction.execute<{ collector_id: string }>(sql`SELECT collector_id FROM finance.collection_statements WHERE id = ${id} AND company_id = ${actor.companyId}`))
+        .rows[0]?.collector_id;
+      if (!collectorId) throw new ApiError("NOT_FOUND", "notFound");
+      await this.lockCollector(transaction, collectorId);
       const row = (
         await transaction.execute<{ status: string; document_no: string | null; statement_date: string; total_collected: string; version: number }>(sql`
         SELECT status, document_no, statement_date::text, total_collected::text, version FROM finance.collection_statements WHERE id = ${id} AND company_id = ${actor.companyId} FOR UPDATE`)
@@ -489,7 +502,8 @@ export class CollectionStatementsService implements OnModuleInit {
         if (!(error instanceof ApiError && error.messageKey === "policyNotFound")) throw error;
       }
       await transaction.execute(sql`
-        UPDATE finance.collection_statements SET status = 'pending', document_no = ${documentNo}, approval_request_id = ${requestId}, post_error = NULL, submitted_at = now(), version = version + 1
+        UPDATE finance.collection_statements SET status = 'pending', document_no = ${documentNo}, approval_request_id = ${requestId}, post_error = NULL, submitted_at = now(),
+          submitted_by = ${actor.userId}, version = version + 1
         WHERE id = ${id}`);
       if (!requestId) await this.post(transaction, id);
       await this.auditService.record(
@@ -503,11 +517,11 @@ export class CollectionStatementsService implements OnModuleInit {
   async withdraw(actor: Actor, id: string): Promise<CollectionStatementResponse> {
     await requireFinancePermission(this.permissionService, actor, collectionPermissions.manage);
     const row = (
-      await this.database.execute<{ status: string; created_by: string; approval_request_id: string | null }>(sql`
-      SELECT status, created_by, approval_request_id FROM finance.collection_statements WHERE id = ${id} AND company_id = ${actor.companyId}`)
+      await this.database.execute<{ status: string; submitted_by: string | null; approval_request_id: string | null }>(sql`
+      SELECT status, submitted_by, approval_request_id FROM finance.collection_statements WHERE id = ${id} AND company_id = ${actor.companyId}`)
     ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
-    if (row.created_by !== actor.userId || !row.approval_request_id || row.status !== "pending") throw new ApiError("FORBIDDEN", "forbidden");
+    if (row.submitted_by !== actor.userId || !row.approval_request_id || row.status !== "pending") throw new ApiError("FORBIDDEN", "forbidden");
     await this.approvals.withdraw(actor.userId, row.approval_request_id);
     await this.database.transaction(async (transaction) => {
       await this.close(transaction, id, "withdrawn", null);
@@ -519,11 +533,19 @@ export class CollectionStatementsService implements OnModuleInit {
   // Ghi sổ (QUYTAC_NGHIEPVU_120, 121): trừ nợ khách theo đơn, nợ đơn vị thu hộ bằng thực nhận, bút toán ngày bảng.
   private async post(executor: Executor, id: string): Promise<void> {
     const row = (
-      await executor.execute<{ company_id: string; partner_id: string; document_no: string; statement_date: string; total_collected: string; total_fee: string }>(sql`
-      SELECT s.company_id, c.partner_id, s.document_no, s.statement_date::text, s.total_collected::text, s.total_fee::text
+      await executor.execute<{ company_id: string; collector_id: string; partner_id: string; document_no: string; statement_date: string; total_collected: string; total_fee: string }>(sql`
+      SELECT s.company_id, s.collector_id, c.partner_id, s.document_no, s.statement_date::text, s.total_collected::text, s.total_fee::text
       FROM finance.collection_statements s JOIN finance.collectors c ON c.id = s.collector_id WHERE s.id = ${id} AND s.status = 'pending' FOR UPDATE OF s`)
     ).rows[0];
     if (!row) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+    await this.lockCollector(executor, row.collector_id);
+    // Khóa công nợ các khách và đơn vị thu hộ theo thứ tự mã như các luồng công nợ khác.
+    const partners = (
+      await executor.execute<{ partner_id: string }>(sql`
+      SELECT DISTINCT customer_id AS partner_id FROM finance.collection_statement_lines WHERE statement_id = ${id} AND customer_id IS NOT NULL
+      UNION SELECT ${row.partner_id}::uuid ORDER BY 1`)
+    ).rows;
+    for (const partner of partners) await this.debts.lockPartner(executor, row.company_id, "receivable", partner.partner_id);
     // Bảng khác cùng đơn vị có thể đã ghi sổ mã trùng sau khi gửi.
     if ((await this.errorCount(executor, id)) > 0) throw new ApiError("BUSINESS_RULE", "collectionStatementHasErrors");
     if (await ledgerSettings(executor, row.company_id)) {

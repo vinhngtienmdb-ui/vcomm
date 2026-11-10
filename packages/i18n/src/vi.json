@@ -2870,6 +2870,7 @@
     "withdraw": "Rút",
     "submitted": "Đã gửi bảng đối soát.",
     "submittedPending": "Bảng đối soát đang chờ duyệt.",
-    "withdrawn": "Đã rút bảng đối soát."
+    "withdrawn": "Đã rút bảng đối soát.",
+    "postError": "Không ghi sổ được: {reason}"
   }
 }

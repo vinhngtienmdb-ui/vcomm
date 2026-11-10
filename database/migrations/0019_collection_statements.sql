@@ -29,6 +29,7 @@ CREATE TABLE finance.collection_statements (
     created_by          uuid        NOT NULL REFERENCES core.users(id),
     created_at          timestamptz NOT NULL DEFAULT now(),
     submitted_at        timestamptz,
+    submitted_by        uuid        REFERENCES core.users(id),     -- người gửi, được rút
     posted_at           timestamptz,
     version             integer     NOT NULL DEFAULT 0
 );

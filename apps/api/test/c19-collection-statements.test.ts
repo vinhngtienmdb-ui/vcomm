@@ -273,9 +273,9 @@ describe("CONG_VIEC_19 nhập bảng đối soát", () => {
     );
     expect(reimported.status, JSON.stringify(reimported.body)).toBe(201);
     expect(reimported.body).toMatchObject({ id: statement.id, lineCount: 2, errorCount: 0, warningCount: 0, netAmount: "132000" });
-    // Bảng thứ hai dùng lại mã V1 của cùng đơn vị: lỗi mã đã dùng; bỏ bảng nháp.
+    // Bảng nháp thứ hai dùng lại mã V1: chưa là lỗi khi bảng kia còn nháp (chỉ tính bảng chờ duyệt, đã ghi sổ); bỏ bảng nháp.
     const second = await upload(accountant, { ...fields, statementNo: "GHN-2026-11-02" }, await workbook([["V1", orderOne.documentNo, 110000, 0, null]]));
-    expect(second.body.lines[0].error).toBe("reference_used");
+    expect(second.body.lines[0].error).toBeNull();
     expect((await call(accountant, "post", `/finance/collection-statements/${second.body.id}/discard`, { version: second.body.version + 1 })).status).toBe(409);
     expect((await call(accountant, "post", `/finance/collection-statements/${second.body.id}/discard`, { version: second.body.version })).status).toBe(204);
     expect((await call(accountant, "get", `/finance/collection-statements/${second.body.id}`)).status).toBe(404);
@@ -335,6 +335,10 @@ describe("CONG_VIEC_19 gửi, ghi sổ", () => {
       ])
     ).rows[0]!;
     expect([Number(events.base), Number(events.amount)]).toEqual([150000, 3000]);
+    // Mã đã ghi sổ: bảng khác dùng lại là lỗi.
+    const reused = await upload(accountant, { collectorId: collector, statementNo: "GHN-TRUNG", statementDate: today }, await workbook([["V1", orderOne.documentNo, 1000, 0, null]]));
+    expect(reused.body.lines[0].error).toBe("reference_used");
+    await call(accountant, "post", `/finance/collection-statements/${reused.body.id}/discard`, { version: reused.body.version });
     // Đã ghi sổ: không sửa, không bỏ dòng, không gửi lại.
     expect((await accountant.call("delete", `/finance/collection-statements/${statement.id}/lines/${posted.body.lines[0].id}?version=${posted.body.version}`, { companyId: retail })).status).toBe(409);
     expect((await call(accountant, "post", `/finance/collection-statements/${statement.id}/submit`, { version: posted.body.version })).status).toBe(409);
@@ -383,6 +387,15 @@ describe("CONG_VIEC_19 gửi, ghi sổ", () => {
     expect(receipt.status, JSON.stringify(receipt.body)).toBe(201);
     expect((await call(accountant, "post", `/finance/payments/${receipt.body.id}/submit`, { version: receipt.body.version })).body.status).toBe("posted");
     expect((await collectorOpen()).items).toEqual([]);
+    // Bút toán phiếu thu: Có phải thu đơn vị thu hộ (1388), không phải 131.
+    const lines = (
+      await pool.query<{ code: string; credit: string }>(
+        `SELECT a.code, l.credit::text FROM accounting.journal_lines l JOIN accounting.journals j ON j.id = l.journal_id JOIN accounting.accounts a ON a.id = l.account_id
+         WHERE j.source_type = 'payment' AND j.source_id = $1 AND l.credit > 0`,
+        [receipt.body.id],
+      )
+    ).rows;
+    expect(lines).toEqual([{ code: "1388", credit: "127000.0000" }]);
   });
 
   it("KICHBAN_KIEMTHU_267: có chính sách duyệt thì chờ duyệt; rút; gửi lại; duyệt xong ghi sổ", async () => {
@@ -415,5 +428,34 @@ describe("CONG_VIEC_19 gửi, ghi sổ", () => {
     await application.get(OutboxService).dispatchPending();
     expect((await call(accountant, "get", `/finance/collection-statements/${imported.body.id}`)).body.status).toBe("posted");
     expect(await openOfOrder(third.id)).toBe(0);
+  });
+});
+
+describe("CONG_VIEC_19 sửa lỗi rà soát", () => {
+  it("KICHBAN_KIEMTHU_269: người gửi được rút; bảng nháp trùng mã không làm bảng đang chờ duyệt bị từ chối; đọc số tiền", async () => {
+    const fourth = await confirmedOrder("1", customer);
+    await deliver(fourth, "1");
+    const fourthNo = (await pool.query<{ document_no: string }>("SELECT document_no FROM sales.orders WHERE id = $1", [fourth.id])).rows[0]!.document_no;
+    // Số tiền: ô số kết quả công thức làm tròn; chữ có dấu tách hàng nghìn.
+    const imported = await upload(accountant, { collectorId: collector, statementNo: "GHN-2026-11-05", statementDate: today }, await workbook([["Y1", fourthNo, 11000.0000000001, "1.000", null]]));
+    expect(imported.body).toMatchObject({ totalCollected: "11000", totalFee: "1000", errorCount: 0 });
+    expect(
+      (await upload(accountant, { collectorId: collector, statementNo: "GHN-SO-DAI", statementDate: today }, await workbook([[1234567890123456, fourthNo, 1, 0, null]]))).body.error.fields,
+    ).toEqual({
+      "rows.2.reference": expect.any(String),
+    });
+    // Kế toán trưởng gửi bảng do kế toán nhập: kế toán trưởng được rút, kế toán thì không.
+    const pending = await call(chief, "post", `/finance/collection-statements/${imported.body.id}/submit`, { version: imported.body.version });
+    expect(pending.body).toMatchObject({ status: "pending", canWithdraw: true });
+    expect((await call(accountant, "get", `/finance/collection-statements/${imported.body.id}`)).body.canWithdraw).toBe(false);
+    expect((await call(accountant, "post", `/finance/collection-statements/${imported.body.id}/withdraw`)).status).toBe(403);
+    // Bảng nháp khác cùng mã Y1 không chặn ghi sổ bảng đang chờ duyệt; bảng nháp đó thì có lỗi mã đã dùng.
+    const draft = await upload(accountant, { collectorId: collector, statementNo: "GHN-2026-11-06", statementDate: today }, await workbook([["Y1", fourthNo, 11000, 0, null]]));
+    expect(draft.body.lines[0].error).toBe("reference_used");
+    const requestId = (await pool.query<{ approval_request_id: string }>("SELECT approval_request_id FROM finance.collection_statements WHERE id = $1", [imported.body.id])).rows[0]!
+      .approval_request_id;
+    expect((await admin.call("post", `/approval-requests/${requestId}/decisions`, { body: { decision: "approved", comment: "" } })).status).toBe(200);
+    await application.get(OutboxService).dispatchPending();
+    expect((await call(accountant, "get", `/finance/collection-statements/${imported.body.id}`)).body.status).toBe("posted");
   });
 });

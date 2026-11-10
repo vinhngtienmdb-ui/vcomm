@@ -2870,6 +2870,7 @@
     "withdraw": "Withdraw",
     "submitted": "Statement submitted.",
     "submittedPending": "The statement is pending approval.",
-    "withdrawn": "Statement withdrawn."
+    "withdrawn": "Statement withdrawn.",
+    "postError": "Could not post: {reason}"
   }
 }

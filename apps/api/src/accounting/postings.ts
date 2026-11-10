@@ -173,9 +173,12 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
   const amount = (await rounder(executor, payment.company_id))(Number(payment.amount));
   const fund: PostingRole = payment.fund_kind === "cash" ? "cash" : "bank";
   const partner = payment.partner_id;
+  // Đối tác là đơn vị thu hộ: tiền chuyển về trừ phải thu đơn vị thu hộ (1388), không phải 131 (CONG_VIEC_19; QUYTAC_NGHIEPVU_121).
+  const isCollector = (await executor.execute(sql`SELECT 1 FROM finance.collectors WHERE company_id = ${payment.company_id} AND partner_id = ${partner}`)).rows.length > 0;
+  const receivable: PostingRole = isCollector ? "collector_receivable" : "receivable";
   const lines: Record<string, DraftLine[]> = {
-    customer_receipt: [debit(fund, amount), credit("receivable", amount, partner)],
-    customer_refund: [debit("receivable", amount, partner), credit(fund, amount)],
+    customer_receipt: [debit(fund, amount), credit(receivable, amount, partner)],
+    customer_refund: [debit(receivable, amount, partner), credit(fund, amount)],
     supplier_payment: [debit("payable", amount, partner), credit(fund, amount)],
     supplier_refund: [debit(fund, amount), credit("payable", amount, partner)],
   };

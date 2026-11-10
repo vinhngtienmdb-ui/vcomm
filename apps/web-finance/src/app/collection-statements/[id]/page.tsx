@@ -30,6 +30,7 @@ export default function CollectionStatementPage() {
 
 function Statement({ statement, onChanged }: { statement: CollectionStatementResponse; onChanged: () => void }) {
   const t = useTranslations("collections");
+  const errors = useTranslations("errors");
   const router = useRouter();
   const { notify } = useAdmin();
   const collectors = useApi<CollectorsResponse>("/finance/collectors");
@@ -83,7 +84,9 @@ function Statement({ statement, onChanged }: { statement: CollectionStatementRes
         </div>
         {statement.errorCount > 0 && <div className="khoi-canh-bao loi">{t("errorsBlock", { count: statement.errorCount })}</div>}
         {statement.warningCount > 0 && <div className="khoi-canh-bao canh-bao">{t("warnings", { count: statement.warningCount })}</div>}
-        {statement.postError && <div className="khoi-canh-bao loi">{statement.postError}</div>}
+        {statement.postError && (
+          <div className="khoi-canh-bao loi">{t("postError", { reason: errors.has(statement.postError as never) ? errors(statement.postError as never) : statement.postError })}</div>
+        )}
         <FormError text={error} />
         {(canEdit || statement.canWithdraw) && (
           <div className="nhom-nut">
