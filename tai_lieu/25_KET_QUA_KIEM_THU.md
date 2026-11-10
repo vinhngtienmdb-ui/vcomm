@@ -198,7 +198,7 @@
   - C4 toàn vẹn dữ liệu: Đạt – thay đổi đội khóa theo công ty trước khóa dòng; duyệt kiểm lại trong cùng giao dịch; một đề xuất chờ mỗi người (chỉ mục duy nhất); cây phòng ban có vòng không treo máy chủ.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập không thấy lỗi Nghiêm trọng; tìm 2 lỗi Cao (đánh dấu lại người đã trong đội; thứ tự khóa ngược gây khóa chết), 6 Trung bình, các mục Thấp; đã sửa ở commit 09086c5, kiểm thử lại đạt. Ghi nhận còn lại ở tài liệu 22, đặc tả mục 16.
 - Kết luận cổng kiểm thử: Đạt.
-- Kết luận: Chờ người dùng nghiệm thu; pull request số 59 (nền pull request số 58).
+- Kết luận: Người dùng nghiệm thu 2026-11-10; pull request số 59 (nền pull request số 58).
 
 ## Lần kiểm thử 2026-11-10 – THAY_DOI_15 (CONG_VIEC_23)
 
