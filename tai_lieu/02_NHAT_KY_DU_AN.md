@@ -9,6 +9,8 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_09: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 44 (sau số 43).
+- LOI_04, CONG_VIEC_10: Danh sách hiện kết quả của bộ lọc trước khi đổi bộ lọc nhanh (hàm tải dữ liệu dùng chung không bỏ phản hồi cũ), mức Thấp; người dùng quyết định sửa ngay.
 - CONG_VIEC_09: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_09-giao-dich-noi-bo` (pull request số 44, tách từ nhánh CONG_VIEC_08). L0: database migration 0008; đơn bán cho công ty con sinh đơn mua đối ứng, đơn mua của công ty con (giá theo bảng giá kênh Nội bộ bên bán) sinh đơn bán đối ứng; bên kia chọn kho, xác nhận theo luồng duyệt riêng hoặc từ chối; hủy, đóng, rút lan hai bên. L1: phiếu xuất nội bộ sinh phiếu nhập chờ nhận; nhận theo số thực nhận; biên bản chênh lệch ở công ty bán, nhập lại kho hoặc ghi tổn thất (MAN_HINH_44). Kiểm thử 210/210 đạt. Không thêm thư viện. Cập nhật tài liệu 06 đến 12, 14, 16, 17, 21, 22, 27, mục lục trên nhánh. Rà soát mã sửa 1 lỗi Cao, 4 lỗi Trung bình.
 - CONG_VIEC_09: Lập công việc Giao dịch nội bộ (MODULE_05, phần 2), mức Lớn.
 - CONG_VIEC_08: Người dùng nghiệm thu; dư nợ tạm tính trừ hàng khách trả (KICHBAN_KIEMTHU_184), kiểm thử 204/204 đạt; chờ người dùng hợp nhất pull request số 43 (sau số 42).

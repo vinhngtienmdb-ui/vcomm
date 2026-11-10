@@ -165,9 +165,11 @@
   - C4 toàn vẹn dữ liệu: Đạt – đơn mua nội bộ không nhận bằng phiếu nhập thường; nhận hàng khóa theo phiên bản; biên bản duy nhất theo phiếu nhập và dòng xuất, xử lý giữ trước rồi mở lại khi lỗi; một bên kết thúc thì rút yêu cầu duyệt còn chờ của bên kia.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 1 lỗi Cao (đơn mua nội bộ lập được phiếu nhập thường), 4 lỗi Trung bình (yêu cầu duyệt treo, đơn đối ứng bị rút kẹt, đổi bảng giá lúc chờ duyệt làm treo đơn, lỗi xác nhận không hiện), 4 lỗi Thấp; đã sửa lỗi Cao, 4 lỗi Trung bình, 2 lỗi Thấp. Giữ lại (ghi tài liệu 22): hai bên hủy, đóng cùng lúc có thể khóa chéo (một giao dịch bị hủy, dữ liệu không hỏng); đơn giá đơn mua đối ứng làm tròn 4 chữ số có thể lệch vài đồng lẻ. Ghi nhận ngoài phạm vi: đổi bộ lọc nhanh trên danh sách có thể hiện kết quả của bộ lọc trước (hook `useApi` dùng chung không bỏ phản hồi cũ).
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
+- Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 44 (sau số 43).
 
 ## Lỗi phát hiện 2026-11-10
 
 | Mã lỗi | Mô tả | Mức độ | Kịch bản liên quan | Quyết định xử lý | Trạng thái |
 |---|---|---|---|---|---|
 | LOI_03 | KICHBAN_KIEMTHU_149 (CONG_VIEC_05) lỗi không đều trên CI: hai phiếu xuất đồng thời tranh món hàng cuối, phiếu thua nhận `400` khi bị chặn ở bước kiểm tra trước, nhận `409` khi bị chặn trong khóa giữ hàng. Dữ liệu đúng trong cả hai trường hợp (chỉ một phiếu giữ hàng); kiểm thử chờ cố định `409` nên thất bại theo thời điểm, kéo theo KICHBAN_KIEMTHU_152 | Thấp | KICHBAN_KIEMTHU_149 | Thống nhất trả `400` "Không đủ hàng khả dụng (một phần đang được giữ)." gắn vào dòng hàng, sửa kiểm thử chờ `400` (người dùng quyết định 2026-11-10) | Mở |
+| LOI_04 | Hàm tải dữ liệu dùng chung của giao diện (`useApi`) không bỏ phản hồi cũ: đổi bộ lọc nhanh trên danh sách thì phản hồi của bộ lọc trước về sau ghi đè kết quả mới (thấy khi thử MAN_HINH_44, có ở mọi mini app) | Thấp | KICHBAN_KIEMTHU_192 | Sửa hàm tải dữ liệu: chỉ nhận phản hồi của lần gọi mới nhất (người dùng quyết định 2026-11-10) | Mở |
