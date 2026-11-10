@@ -5,7 +5,10 @@ import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { AppShell } from "ui/components/AppShell";
 
-export const salesMenu = [{ href: "/orders", key: "orders", permission: "sales.order.view" }] as const;
+export const salesMenu = [
+  { href: "/orders", key: "orders", permission: "sales.order.view" },
+  { href: "/promotions", key: "promotions", permission: "sales.promotion.view" },
+] as const;
 
 export function SalesShell({ children }: { children: ReactNode }) {
   const t = useTranslations("salesMenu");

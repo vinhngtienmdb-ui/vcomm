@@ -164,7 +164,22 @@ function Detail({ order, reload }: { order: SalesOrderResponse; reload: () => Pr
             {order.lines.map((line) => (
               <tr key={line.id}>
                 <td data-nhan={headings[0]}>
-                  <span>{itemLabel(line)}</span>
+                  <span>
+                    {itemLabel(line)}
+                    {line.isGift && <span className="nhan thanh-cong"> {t("giftLine")}</span>}
+                    {line.promotionName && (
+                      <span className="chu-thich">
+                        {" · "}
+                        {line.isGift ? line.promotionName : t("linePromotion", { name: line.promotionName, percent: formatNumber(line.promotionPercent) })}
+                      </span>
+                    )}
+                    {line.orderPromotionName && Number(line.orderDiscountAmount) > 0 && (
+                      <span className="chu-thich">
+                        {" · "}
+                        {t("orderPromotionShare", { name: line.orderPromotionName, amount: formatMoney(line.orderDiscountAmount, order.currency) })}
+                      </span>
+                    )}
+                  </span>
                 </td>
                 <td data-nhan={headings[1]}>
                   <span>

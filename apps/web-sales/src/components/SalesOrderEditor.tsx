@@ -31,13 +31,16 @@ export function SalesOrderEditor({ order, onSaved, onCancel }: { order: SalesOrd
   const [deliveryAddress, setDeliveryAddress] = useState(order?.deliveryAddress ?? "");
   const [note, setNote] = useState(order?.note ?? "");
   const [lines, setLines] = useState<Line[]>(
-    order?.lines.map((line) => ({
-      item: { ...line, units: [{ unitId: line.unitId, unitName: line.unitName, factor: "" }] },
-      unitId: line.unitId,
-      quantity: line.quantity,
-      discountPercent: line.discountPercent,
-      price: { price: line.listPrice, priceListCode: line.priceListCode, includesVat: line.priceIncludesVat, vatRate: line.vatRate },
-    })) ?? [],
+    // Dòng hàng tặng do khuyến mãi tự tạo lại khi lưu, không sửa tay (QUYTAC_NGHIEPVU_81).
+    order?.lines
+      .filter((line) => !line.isGift)
+      .map((line) => ({
+        item: { ...line, units: [{ unitId: line.unitId, unitName: line.unitName, factor: "" }] },
+        unitId: line.unitId,
+        quantity: line.quantity,
+        discountPercent: line.discountPercent,
+        price: { price: line.listPrice, priceListCode: line.priceListCode, includesVat: line.priceIncludesVat, vatRate: line.vatRate },
+      })) ?? [],
   );
   const { submitting, fields, formError, run, inputClass } = useSubmit();
   const channel = channelId || choices.channels[0]?.id || "";
@@ -193,6 +196,7 @@ export function SalesOrderEditor({ order, onSaved, onCancel }: { order: SalesOrd
       <strong>
         {t("totalEstimate")}: {formatMoney(String(total), choices.currency)}
       </strong>
+      <div className="chu-thich">{t("promotionHint")}</div>
       <FormError text={formError} />
       <div className="nhom-nut">
         <button type="submit" className="nut chinh" disabled={submitting}>
