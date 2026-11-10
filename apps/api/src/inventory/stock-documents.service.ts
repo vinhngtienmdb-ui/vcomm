@@ -345,17 +345,24 @@ export class StockDocumentsService implements OnModuleInit {
         decreases.set(line.variant_id, (decreases.get(line.variant_id) ?? 0) + Math.abs(Number(line.base_quantity)));
       }
       for (const [variantId, quantity] of decreases) {
-        await this.reservations.reserve(transaction, {
-          warehouseId: row.warehouse_id,
-          companyId: row.company_id,
-          variantId,
-          quantity: quantity.toFixed(4),
-          sourceType: documentSource,
-          sourceId: row.id,
-          sourceNo: documentNo,
-          expiresAt: null,
-          userId: actor.userId,
-        });
+        await this.reservations
+          .reserve(transaction, {
+            warehouseId: row.warehouse_id,
+            companyId: row.company_id,
+            variantId,
+            quantity: quantity.toFixed(4),
+            sourceType: documentSource,
+            sourceId: row.id,
+            sourceNo: documentNo,
+            expiresAt: null,
+            userId: actor.userId,
+          })
+          .catch((error: unknown) => {
+            // Phiếu khác vừa giữ hết hàng sau bước kiểm tra: báo cùng lỗi gắn vào dòng hàng như bước kiểm tra (LOI_03).
+            if (!(error instanceof ApiError) || error.messageKey !== "insufficientAvailableStock") throw error;
+            const index = lines.findIndex((line) => line.variant_id === variantId);
+            throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [`lines.${index}.quantity`]: "insufficientAvailableStock" } });
+          });
       }
       const amount = await this.estimateValue(transaction, row);
       let requestId: string | null = null;

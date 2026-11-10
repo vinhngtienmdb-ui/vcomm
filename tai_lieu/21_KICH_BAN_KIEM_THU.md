@@ -1749,7 +1749,7 @@ Dữ liệu chung: kho `BD1` (không vị trí, chủ hàng VCR, VCT), `BD2` (v�
 - Vai trò thực hiện: Thủ kho; người duyệt `phuc.le@vcomm.test`
 - Điều kiện ban đầu và dữ liệu: Tồn Nước 200 Chai ở KICHBAN_KIEMTHU_148.
 - Các bước: (1) Gửi xuất 9 Thùng (216 Chai). (2) Tạo chính sách `inventory.issue_other`; gửi xuất 150 Chai; xem tồn. (3) Gửi xuất 60 Chai. (4) Rút phiếu 150 Chai; xem tồn. (5) Lập hai phiếu xuất 150 Chai, gửi đồng thời. (6) Duyệt phiếu được gửi; xem tồn; đếm dòng tồn âm.
-- Kết quả mong đợi: Bước 1: `400`, `lines.0.quantity` "Không đủ hàng trong kho.". Bước 2: `pending`; tồn 200, đang giữ 150, khả dụng 50. Bước 3: `lines.0.quantity` "Không đủ hàng khả dụng (một phần đang được giữ).". Bước 4: `withdrawn`; đang giữ 0, khả dụng 200. Bước 5: một `201`, một `409`; đang giữ 150. Bước 6: tồn 50, đang giữ 0; không có dòng tồn âm.
+- Kết quả mong đợi: Bước 1: `400`, `lines.0.quantity` "Không đủ hàng trong kho.". Bước 2: `pending`; tồn 200, đang giữ 150, khả dụng 50. Bước 3: `lines.0.quantity` "Không đủ hàng khả dụng (một phần đang được giữ).". Bước 4: `withdrawn`; đang giữ 0, khả dụng 200. Bước 5: một `201`, một `400` tại `lines.0.quantity` "Không đủ hàng khả dụng (một phần đang được giữ)." (LOI_03); đang giữ 150. Bước 6: tồn 50, đang giữ 0; không có dòng tồn âm.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c5-documents.test.ts`
 - Lát: L1
 
