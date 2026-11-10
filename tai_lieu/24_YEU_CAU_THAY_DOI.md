@@ -184,3 +184,17 @@
 - Mức quy mô: Vừa (gộp trong CONG_VIEC_14).
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-10.
+
+### THAY_DOI_11: Đơn bán không có khách vẫn lập hóa đơn điện tử – 2026-11-10
+- Lý do: Nghị định 254/2026/NĐ-CP Điều 9 bắt buộc lập hóa đơn khi chuyển giao quyền sở hữu hàng hóa, mỗi lần giao hàng một hóa đơn; người mua không cung cấp thông tin thì hóa đơn ghi người mua không cung cấp tên, địa chỉ, mã số thuế (Phụ lục, điểm 4.b). Người dùng chọn lập hóa đơn cho mọi phiếu xuất giao hàng (tài liệu `02`, 2026-11-10).
+- Nội dung thay đổi: đơn bán để trống khách nghĩa là "người mua không cung cấp thông tin" (thay cho "người mua không lấy hóa đơn"); phiếu xuất giao hàng của đơn này vẫn lập hóa đơn điện tử, ghi tên người mua nếu có. Bán cho công ty con trong tập đoàn cũng lập hóa đơn như bán thường.
+- Thành phần bị ảnh hưởng: tài liệu `07` QUYTAC_NGHIEPVU_56, 67, 79 (câu chữ); `16` (chú thích `sales.orders.customer_id`, `inventory.documents.partner_id`); `14` (nhãn trên màn hình đơn bán nếu có); CONG_VIEC_16.
+- Dữ liệu bị ảnh hưởng: không đổi cấu trúc; phiếu xuất đã ghi sổ trước khi bật hóa đơn điện tử không lập hóa đơn lùi.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: câu chữ "người mua không lấy hóa đơn" đổi thành "người mua không cung cấp thông tin".
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: khuyến mãi, công nợ, bút toán không đổi.
+- Kiểm thử cần thực hiện: kịch bản của CONG_VIEC_16 (đơn không có khách lập hóa đơn); hồi quy CONG_VIEC_08, 12.
+- Mức quy mô: Nhỏ (gộp trong CONG_VIEC_16).
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-10.
