@@ -214,3 +214,77 @@ describe("CONG_VIEC_22 hoa hồng của tôi", () => {
     expect((await bearer("get", "/finance/my-commissions?month=2026-11", accountant)).status).toBe(403);
   });
 });
+
+describe("CONG_VIEC_22 ghé thăm khách", () => {
+  const png = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(64, 1)]);
+  const jpeg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(64, 2)]);
+  const visit = (token: string, fields: Record<string, string>, photos: { content: Buffer; name: string }[] = []) => {
+    let call = http().post("/api/v1/crm/visits").set("authorization", `Bearer ${token}`).set("x-company-id", retail).set("accept-language", "vi");
+    for (const [key, value] of Object.entries(fields)) call = call.field(key, value);
+    for (const photo of photos) call = call.attach("photos", photo.content, photo.name);
+    return call;
+  };
+  const location = { latitude: "10.776889", longitude: "106.700806", accuracyMeters: "12.5" };
+
+  it("KICHBAN_KIEMTHU_290: ghi lượt ghé thăm bắt buộc vị trí, ghi chú; 0 đến 3 ảnh JPEG, PNG kiểm theo nội dung, tối đa 5 MB; chỉ khách trong phạm vi", async () => {
+    const token = (await appLogin("banhang.app@vcomm.test")).body.tokens.accessToken as string;
+    const partnerId = (await bearer("get", "/crm/partners?search=0322000002", token)).body.data[0].id as string;
+    const created = await visit(token, { partnerId, ...location, note: "Khách hẹn đặt hàng tuần sau" }, [
+      { content: png, name: "a.png" },
+      { content: jpeg, name: "b.jpg" },
+    ]);
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    expect(created.body).toMatchObject({ partnerId, userName: "Bán Hàng Ứng Dụng", latitude: "10.776889", longitude: "106.700806", accuracyMeters: "12.5", note: "Khách hẹn đặt hàng tuần sau" });
+    expect(created.body.photoIds).toHaveLength(2);
+    const photo = await bearer("get", `/crm/visits/${created.body.id}/photos/${created.body.photoIds[0]}`, token);
+    expect(photo.status).toBe(200);
+    expect(photo.headers["content-type"]).toBe("image/png");
+    // Thiếu vị trí, thiếu ghi chú, vĩ độ sai.
+    expect((await visit(token, { partnerId, note: "Không có vị trí" })).status).toBe(400);
+    expect((await visit(token, { partnerId, ...location, note: " " })).status).toBe(400);
+    expect((await visit(token, { partnerId, ...location, latitude: "91", note: "Sai vĩ độ" })).status).toBe(400);
+    // Ảnh giả (phần mở rộng .jpg nhưng nội dung không phải ảnh), quá nhiều ảnh, quá lớn.
+    const fake = await visit(token, { partnerId, ...location, note: "Ảnh giả" }, [{ content: Buffer.from("not an image"), name: "x.jpg" }]);
+    expect(fake.status).toBe(400);
+    expect(Object.keys(fake.body.error.fields)).toEqual(["photos.0"]);
+    const many = await visit(
+      token,
+      { partnerId, ...location, note: "Nhiều ảnh" },
+      [1, 2, 3, 4].map((index) => ({ content: png, name: `${index}.png` })),
+    );
+    expect(many.status).toBe(400);
+    expect(many.body.error.fields.photos).toBe("Tối đa 3 ảnh mỗi lượt ghé thăm.");
+    const large = await visit(token, { partnerId, ...location, note: "Ảnh lớn" }, [{ content: Buffer.concat([png, Buffer.alloc(5 * 1024 * 1024)]), name: "big.png" }]);
+    expect(large.status).toBe(400);
+    expect(large.body.error.fields["photos.0"]).toBe("Ảnh vượt quá 5 MB.");
+    // Khách ngoài phạm vi.
+    const other = (await pool.query<{ id: string }>("SELECT id FROM crm.partners WHERE company_id IS NOT NULL LIMIT 1")).rows[0]!.id;
+    const outside = await visit(token, { partnerId: other, ...location, note: "Ngoài phạm vi" });
+    expect(outside.status).toBe(400);
+    expect(outside.body.error.fields.partnerId).toBeDefined();
+    expect((await pool.query("SELECT count(*)::int AS total FROM crm.visits")).rows[0].total).toBe(1);
+  });
+
+  it("KICHBAN_KIEMTHU_291: xem ghé thăm theo phạm vi: người ghi, trưởng phòng của người ghi, người xem mọi khách thấy; nhân viên khác không thấy lượt, ảnh; lọc theo khách, ngày", async () => {
+    const seller = (await appLogin("banhang.app@vcomm.test")).body.tokens.accessToken as string;
+    const other = (await appLogin("banhang.khac@vcomm.test")).body.tokens.accessToken as string;
+    const mine = (await bearer("get", "/crm/visits", seller)).body;
+    expect(mine.total).toBe(1);
+    const visitId = mine.data[0].id as string;
+    expect((await bearer("get", "/crm/visits", other)).body.total).toBe(0);
+    expect((await bearer("get", `/crm/visits/${visitId}`, other)).status).toBe(404);
+    expect((await bearer("get", `/crm/visits/${visitId}/photos/${mine.data[0].photoIds[0]}`, other)).status).toBe(404);
+    // Trưởng phòng của người ghi thấy lượt ghé thăm.
+    const department = (
+      await pool.query<{ id: string }>("INSERT INTO core.departments (company_id, code, name, manager_user_id) VALUES ($1, 'KDUD', 'Kinh doanh ứng dụng', $2) RETURNING id", [retail, ids.other])
+    ).rows[0]!.id;
+    await pool.query("UPDATE core.user_company_memberships SET department_id = $1 WHERE user_id = $2 AND company_id = $3", [department, ids.seller, retail]);
+    expect((await bearer("get", "/crm/visits", other)).body.total).toBe(1);
+    const admin = await signIn(application, "quantri.vcr@vcomm.test");
+    const all = await admin.call("get", `/crm/visits?partnerId=${mine.data[0].partnerId}`, { companyId: retail });
+    expect(all.body.total).toBe(1);
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).format(new Date());
+    expect((await admin.call("get", `/crm/visits?from=${today}&to=${today}`, { companyId: retail })).body.total).toBe(1);
+    expect((await admin.call("get", "/crm/visits?from=2020-01-01&to=2020-01-31", { companyId: retail })).body.total).toBe(0);
+  });
+});

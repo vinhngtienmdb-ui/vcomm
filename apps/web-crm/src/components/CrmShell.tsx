@@ -8,6 +8,7 @@ import { AppShell } from "ui/components/AppShell";
 export const crmMenu = [
   { href: "/partners", key: "partners", permission: "crm.partner.view" },
   { href: "/customer-assignments", key: "customerAssignments", permission: "crm.partner.view" },
+  { href: "/visits", key: "visits", permission: "crm.partner.view" },
 ] as const;
 
 export function CrmShell({ children }: { children: ReactNode }) {

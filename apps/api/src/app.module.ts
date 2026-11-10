@@ -50,6 +50,7 @@ import { InventoryController } from "./inventory/inventory.controller";
 import { CrmController } from "./crm/crm.controller";
 import { PartnersService } from "./crm/partners.service";
 import { CustomerAssignmentsService } from "./crm/customer-assignments.service";
+import { VisitsService } from "./crm/visits.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
@@ -140,6 +141,7 @@ import { UsersService } from "./users/users.service";
     InternalReceiptsService,
     PartnersService,
     CustomerAssignmentsService,
+    VisitsService,
     SupplierPricesService,
     SalesOrdersService,
     InternalTradeService,

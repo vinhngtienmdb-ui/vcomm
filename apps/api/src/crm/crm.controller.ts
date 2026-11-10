@@ -1,6 +1,13 @@
 // API_71, API_72: đối tác dùng chung tập đoàn, hồ sơ đối tác của công ty (CONG_VIEC_06).
-import { Body, Controller, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import { FilesInterceptor } from "@nestjs/platform-express";
+import type { Response } from "express";
 import {
+  createVisitSchema,
+  visitListQuerySchema,
+  visitPhotoMaximumBytes,
+  visitPhotoMaximumCount,
+  type VisitItem,
   customerAssignmentListQuerySchema,
   saveCustomerAssignmentSchema,
   type CustomerAssignmentListItem,
@@ -26,6 +33,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { CustomerAssignmentsService } from "./customer-assignments.service";
 import { PartnersService } from "./partners.service";
+import { type UploadedPhoto, VisitsService } from "./visits.service";
 
 const statusOf = (request: AuthenticatedRequest) => (request.path.endsWith("/deactivate") ? "inactive" : "active");
 
@@ -35,7 +43,45 @@ export class CrmController {
     private readonly permissionService: PermissionService,
     private readonly partners: PartnersService,
     private readonly assignments: CustomerAssignmentsService,
+    private readonly visits: VisitsService,
   ) {}
+
+  // API_114: ghé thăm khách (CONG_VIEC_22). Ảnh giữ trong bộ nhớ rồi ghi kho tệp; giới hạn 5 MB kiểm ở dịch vụ để báo đúng thông báo.
+  @Post("visits")
+  @UseInterceptors(FilesInterceptor("photos", visitPhotoMaximumCount + 1, { limits: { fileSize: visitPhotoMaximumBytes * 2 } }))
+  async createVisit(
+    @Req() request: AuthenticatedRequest,
+    @Body() body: unknown,
+    @UploadedFiles() photos: UploadedPhoto[] | undefined,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<VisitItem> {
+    return this.visits.create(await this.actor(request, companyId), createVisitSchema.parse(body), photos ?? []);
+  }
+
+  @Get("visits")
+  async visitList(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<PageResponse<VisitItem>> {
+    return this.visits.list(await this.actor(request, companyId), visitListQuerySchema.parse(query));
+  }
+
+  @Get("visits/:id")
+  async visitDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<VisitItem> {
+    return this.visits.detail(await this.actor(request, companyId), id);
+  }
+
+  @Get("visits/:id/photos/:photoId")
+  async visitPhoto(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Param("photoId", UuidPipe) photoId: string,
+    @Res() response: Response,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<void> {
+    const file = await this.visits.photo(await this.actor(request, companyId), id, photoId);
+    response.setHeader("content-type", file.contentType);
+    response.setHeader("cache-control", "private, max-age=3600");
+    response.setHeader("x-content-type-options", "nosniff");
+    response.send(file.content);
+  }
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
     const companyId = await this.permissionService.authorize(request.auth.userId, requestedCompanyId, "crm.access", "crm.partner.view");

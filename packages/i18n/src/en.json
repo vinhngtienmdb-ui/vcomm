@@ -269,7 +269,10 @@
     "assignmentSameOwner": "This customer is already owned by this staff member.",
     "assignmentOwnersChanged": "Some customers changed owner or became inactive while the assignment was pending.",
     "partnerNotClaimable": "This partner already has a profile in the company or cannot be claimed; ask your manager to assign it.",
-    "assignmentTargetInactive": "The receiving staff member is no longer active in the company."
+    "assignmentTargetInactive": "The receiving staff member is no longer active in the company.",
+    "visitTooManyPhotos": "At most 3 photos per visit.",
+    "visitPhotoTooLarge": "The photo is larger than 5 MB.",
+    "visitPhotoTypeInvalid": "Photos must be JPEG or PNG."
   },
   "login": {
     "title": "Sign in",
@@ -1758,7 +1761,8 @@
   "crmMenu": {
     "title": "Customers and Partners",
     "partners": "Partners",
-    "customerAssignments": "Customer assignments"
+    "customerAssignments": "Customer assignments",
+    "visits": "Customer visits"
   },
   "partners": {
     "title": "Partners",
@@ -3102,6 +3106,35 @@
     "commissionStatements": "Monthly statements",
     "noCommissionStatements": "No statements yet.",
     "statementPosted": "Posted",
-    "statementPending": "Pending"
+    "statementPending": "Pending",
+    "tabVisits": "Visits",
+    "newVisit": "Visit",
+    "location": "Location",
+    "locating": "Getting location…",
+    "relocate": "Refresh location",
+    "locationDenied": "Allow location access to record a visit.",
+    "locationFailed": "Could not get your location. Turn on location and try again.",
+    "cameraDenied": "Allow camera access to take photos.",
+    "photos": "Photos ({count}/3)",
+    "photoNumber": "Photo {number}",
+    "takePhoto": "Take photo",
+    "visitNote": "Visit notes",
+    "saveVisit": "Save visit",
+    "photoCount": "{count} photos",
+    "openMap": "Open map",
+    "visitHint": "Record a visit from the customer page.",
+    "noVisits": "No visits yet.",
+    "recentVisits": "Recent visits"
+  },
+  "visits": {
+    "title": "Customer visits",
+    "hint": "Visits recorded in the sales app; shown within your scope.",
+    "staff": "Staff",
+    "from": "From",
+    "to": "To",
+    "none": "No visits yet.",
+    "recent": "Recent visits",
+    "photo": "Photo {number}",
+    "openMap": "View location on map (±{accuracy} m)"
   }
 }

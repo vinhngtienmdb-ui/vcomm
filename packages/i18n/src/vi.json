@@ -269,7 +269,10 @@
     "assignmentSameOwner": "Khách đã do nhân viên này phụ trách.",
     "assignmentOwnersChanged": "Có khách đã đổi nhân viên phụ trách hoặc ngừng giao dịch trong lúc chờ duyệt.",
     "partnerNotClaimable": "Đối tác đã có hồ sơ ở công ty hoặc không nhận được; đề nghị trưởng phòng giao khách.",
-    "assignmentTargetInactive": "Nhân viên nhận đã ngừng làm việc ở công ty."
+    "assignmentTargetInactive": "Nhân viên nhận đã ngừng làm việc ở công ty.",
+    "visitTooManyPhotos": "Tối đa 3 ảnh mỗi lượt ghé thăm.",
+    "visitPhotoTooLarge": "Ảnh vượt quá 5 MB.",
+    "visitPhotoTypeInvalid": "Ảnh phải là JPEG hoặc PNG."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1758,7 +1761,8 @@
   "crmMenu": {
     "title": "Khách hàng và Đối tác",
     "partners": "Đối tác",
-    "customerAssignments": "Giao khách hàng"
+    "customerAssignments": "Giao khách hàng",
+    "visits": "Ghé thăm khách"
   },
   "partners": {
     "title": "Đối tác",
@@ -3102,6 +3106,35 @@
     "commissionStatements": "Bảng hoa hồng tháng",
     "noCommissionStatements": "Chưa có bảng hoa hồng.",
     "statementPosted": "Đã ghi sổ",
-    "statementPending": "Chờ duyệt"
+    "statementPending": "Chờ duyệt",
+    "tabVisits": "Ghé thăm",
+    "newVisit": "Ghé thăm",
+    "location": "Vị trí",
+    "locating": "Đang lấy vị trí…",
+    "relocate": "Lấy lại vị trí",
+    "locationDenied": "Cần cho phép dùng vị trí để ghi lượt ghé thăm.",
+    "locationFailed": "Không lấy được vị trí. Bật định vị rồi thử lại.",
+    "cameraDenied": "Cần cho phép dùng máy ảnh để chụp ảnh.",
+    "photos": "Ảnh ({count}/3)",
+    "photoNumber": "Ảnh {number}",
+    "takePhoto": "Chụp ảnh",
+    "visitNote": "Kết quả ghé thăm",
+    "saveVisit": "Lưu ghé thăm",
+    "photoCount": "{count} ảnh",
+    "openMap": "Xem bản đồ",
+    "visitHint": "Ghi lượt ghé thăm từ trang chi tiết khách.",
+    "noVisits": "Chưa có lượt ghé thăm.",
+    "recentVisits": "Ghé thăm gần đây"
+  },
+  "visits": {
+    "title": "Ghé thăm khách",
+    "hint": "Lượt ghé thăm nhân viên ghi trên ứng dụng kinh doanh; xem theo phạm vi phụ trách.",
+    "staff": "Nhân viên",
+    "from": "Từ ngày",
+    "to": "Đến ngày",
+    "none": "Chưa có lượt ghé thăm.",
+    "recent": "Ghé thăm gần đây",
+    "photo": "Ảnh {number}",
+    "openMap": "Xem vị trí trên bản đồ (±{accuracy} m)"
   }
 }

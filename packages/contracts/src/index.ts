@@ -3817,3 +3817,40 @@ export interface MyCommissionsResponse {
   statements: { month: string; documentNo: string | null; status: "pending" | "posted"; baseAmount: string; achievedPercent: string | null; multiplier: string; amount: string }[];
 }
 
+// API_114: ghé thăm khách (CONG_VIEC_22; QUYTAC_NGHIEPVU_138, 139). Gửi multipart: các trường dưới đây và 0 đến 3 tệp "photos".
+export const visitPhotoMaximumBytes = 5 * 1024 * 1024;
+export const visitPhotoMaximumCount = 3;
+export const createVisitSchema = z
+  .object({
+    partnerId: z.uuid(),
+    latitude: z.coerce.number().min(-90).max(90),
+    longitude: z.coerce.number().min(-180).max(180),
+    accuracyMeters: z.coerce.number().min(0).max(10000),
+    note: z.string().trim().min(1).max(1000),
+  })
+  .strict();
+export const visitListQuerySchema = z
+  .object({
+    partnerId: z.uuid().optional(),
+    userId: z.uuid().optional(),
+    from: isoDate.optional(),
+    to: isoDate.optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface VisitItem {
+  id: string;
+  partnerId: string;
+  partnerCode: string;
+  partnerName: string;
+  userId: string;
+  userName: string;
+  visitedAt: string;
+  latitude: string;
+  longitude: string;
+  accuracyMeters: string;
+  note: string;
+  photoIds: string[];
+}
+

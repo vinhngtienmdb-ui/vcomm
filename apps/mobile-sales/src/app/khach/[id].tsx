@@ -1,9 +1,11 @@
 // MAN_HINH_68 Chi tiết khách (CHUC_NANG_100; API_113; QUYTAC_NGHIEPVU_137): liên hệ, gọi điện, chỉ đường, công nợ, đơn gần đây.
-import type { PartnerSummaryResponse } from "contracts";
-import { Link, Stack, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import type { PageResponse, PartnerSummaryResponse, VisitItem } from "contracts";
+import { Link, Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { Linking, ScrollView, Text, View } from "react-native";
 import { Button, Card, Loading, Muted, Notice, Screen } from "@/components/ui";
+import { VisitCard } from "@/components/VisitCard";
+import { useSession } from "@/lib/session";
 import { api, ApiFailure } from "@/lib/api";
 import { money, translator } from "@/lib/i18n";
 import { colors, space } from "@/lib/theme";
@@ -13,6 +15,17 @@ export default function CustomerScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [summary, setSummary] = useState<PartnerSummaryResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [visits, setVisits] = useState<VisitItem[]>([]);
+  const { can } = useSession();
+
+  // Ghé thăm gần đây của khách (API_114), tải lại khi quay về từ màn hình ghi ghé thăm.
+  useFocusEffect(
+    useCallback(() => {
+      api<PageResponse<VisitItem>>(`/crm/visits?partnerId=${id}&pageSize=5`)
+        .then((page) => setVisits(page.data))
+        .catch(() => setVisits([]));
+    }, [id]),
+  );
 
   useEffect(() => {
     api<PartnerSummaryResponse>(`/crm/partners/${id}/summary`)
@@ -75,9 +88,20 @@ export default function CustomerScreen() {
             ))}
           </Card>
         ) : null}
-        <Link href={{ pathname: "/don/moi", params: { customerId: summary.id } }} asChild>
-          <Button label={t("newOrder")} onPress={() => undefined} />
-        </Link>
+        <View style={{ flexDirection: "row", gap: space[2] }}>
+          {can("crm.visit.manage") ? (
+            <View style={{ flex: 1 }}>
+              <Link href={{ pathname: "/ghe-tham/moi", params: { partnerId: summary.id, partnerName: summary.name } }} asChild>
+                <Button label={t("newVisit")} kind="secondary" onPress={() => undefined} />
+              </Link>
+            </View>
+          ) : null}
+          <View style={{ flex: 1 }}>
+            <Link href={{ pathname: "/don/moi", params: { customerId: summary.id } }} asChild>
+              <Button label={t("newOrder")} onPress={() => undefined} />
+            </Link>
+          </View>
+        </View>
         <Card>
           <Text style={{ fontWeight: "700", color: colors.text }}>{t("recentOrders")}</Text>
           {summary.recentOrders.length === 0 ? (
@@ -92,6 +116,10 @@ export default function CustomerScreen() {
               </View>
             ))
           )}
+        </Card>
+        <Card>
+          <Text style={{ fontWeight: "700", color: colors.text }}>{t("recentVisits")}</Text>
+          {visits.length === 0 ? <Muted>{t("noVisits")}</Muted> : visits.map((visit) => <VisitCard key={visit.id} visit={visit} showCustomer={false} />)}
         </Card>
       </Screen>
     </ScrollView>

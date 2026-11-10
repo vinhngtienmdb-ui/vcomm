@@ -33,6 +33,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="khach" options={{ title: t("tabCustomers") }} />
       <Tabs.Screen name="don" options={{ title: t("tabOrders") }} />
+      <Tabs.Screen name="ghe-tham" options={{ title: t("tabVisits") }} />
       <Tabs.Screen name="hoa-hong" options={{ title: t("tabCommissions"), href: can("finance.commission.view_own") ? undefined : null }} />
       <Tabs.Screen name="tai-khoan" options={{ title: t("tabAccount") }} />
     </Tabs>
