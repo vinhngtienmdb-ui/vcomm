@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 1.9
+- Phiên bản: 2.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm YCAU_NGHIEPVU_38 của MODULE_06 (công nợ phải thu, phải trả), đối tượng quỹ, khoản công nợ, trừ nợ, phiếu thu chi
 
 ## MODULE_01 Nền tảng
 
@@ -83,6 +83,12 @@
 |---|---|---|---|
 | YCAU_NGHIEPVU_37 | Khai báo chương trình khuyến mãi (giảm theo sản phẩm, giảm theo đơn, mua X tặng Y) có điều kiện kênh, nhóm khách, thời gian, được duyệt, tự áp dụng vào đơn bán, có giới hạn ngân sách, số suất | Quản lý kinh doanh, Nhân viên bán hàng | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
 
+## MODULE_06 Tài chính – Kế toán (phần 1: Công nợ phải thu, phải trả, CONG_VIEC_13)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_38 | Theo dõi công nợ phải thu, phải trả theo đối tác và theo từng chứng từ (hạn thanh toán, quá hạn); thu, chi tiền qua quỹ có số dư; trả trước, hoàn tiền | Kế toán, Quản lý kinh doanh, Quản lý mua hàng | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`); THAY_DOI_09 |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -142,3 +148,7 @@
 | Phiếu nhận hàng trả lại | Như phiếu kho; khách hàng, phiếu xuất giao hàng gốc, lý do | Mỗi dòng gắn một dòng phiếu xuất giao hàng gốc |
 | Biên bản chênh lệch giao nhận nội bộ | Số thiếu (đơn vị cơ sở bên bán), giá trị theo giá vốn phiếu xuất, serial chưa nhận, lý do bên nhận, trạng thái (chờ xử lý, đã nhập lại kho, đã ghi tổn thất), ghi chú, người và thời điểm xử lý | Thuộc công ty bán, kho xuất; gắn một dòng phiếu xuất giao hàng và một phiếu nhập mua nội bộ; có phiếu nhận hàng trả lại khi nhập lại kho |
 | Chương trình khuyến mãi | Số (`KM`…), tên, loại (giảm theo sản phẩm, giảm theo đơn, mua X tặng Y), từ ngày, đến ngày, kênh áp dụng, nhóm khách áp dụng, mặt hàng và phần trăm giảm (giảm theo sản phẩm), ngưỡng tổng đơn gồm thuế, phần trăm, mức giảm tối đa (giảm theo đơn), mặt hàng mua, số lượng mua, mặt hàng tặng, số lượng tặng mỗi suất (mua X tặng Y), ngân sách gồm thuế, số suất tối đa, ghi chú, trạng thái (nháp, chờ duyệt, đang chạy, bị từ chối, đã rút, đã dừng), lý do dừng; đã dùng (tiền đã giảm, số suất đã tặng) | Thuộc công ty; đã dùng tính từ dòng đơn bán chờ duyệt, đã xác nhận, đã giao đủ, đã đóng |
+| Quỹ | Mã (duy nhất trong công ty), tên, loại (tiền mặt, ngân hàng), tên ngân hàng, số tài khoản, chủ tài khoản, số dư đầu, trạng thái (đang dùng, ngừng dùng); số dư hiện tại tính từ phiếu thu chi đã ghi sổ | Thuộc công ty; tiền tệ của công ty; có nhiều phiếu thu chi |
+| Khoản công nợ | Phía (phải thu, phải trả), hướng (tăng nợ, giảm nợ), nguồn (số dư đầu kỳ, xuất giao hàng, nhận hàng trả lại, nhập mua, trả hàng nhà cung cấp, phiếu thu chi), số chứng từ, ngày chứng từ, hạn thanh toán (khoản tăng nợ), số tiền gồm thuế, số còn lại, ghi chú | Thuộc công ty, một đối tác; sinh từ một phiếu kho đã ghi sổ, một phiếu thu chi đã ghi sổ hoặc nhập tay (số dư đầu kỳ); khoản giảm do trả hàng gắn khoản tăng của phiếu gốc |
+| Trừ nợ | Số tiền, thời điểm | Ghép một khoản giảm nợ với một khoản tăng nợ cùng công ty, đối tác, phía |
+| Phiếu thu, phiếu chi | Số (`PT`…, `PC`…), loại (thu tiền khách hàng, trả tiền nhà cung cấp, hoàn tiền cho khách hàng, nhận tiền nhà cung cấp hoàn), đối tác, quỹ, ngày, số tiền, nội dung, trạng thái (nháp, chờ duyệt, đã ghi sổ, bị từ chối, đã rút), lý do không ghi sổ được, thời điểm ghi sổ; các chứng từ chọn trừ (khoản tăng nợ, số trừ) | Thuộc công ty; phiếu chi có một yêu cầu duyệt khi gửi; ghi sổ sinh một khoản công nợ |

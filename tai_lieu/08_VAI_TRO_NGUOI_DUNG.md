@@ -1,10 +1,10 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò mặc định, trách nhiệm và quyền hạn.
-- Phiên bản: 1.6
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13)
+- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15)
 
 ## 1. Nguyên tắc
 
@@ -180,3 +180,42 @@ Chương trình khuyến mãi thuộc công ty đang chọn; quyền gán ở ph
 | Rút chương trình đang chờ duyệt | `sales.promotion.manage`, người lập, cấp duyệt đầu chưa quyết định | Chương trình của mình | Chương trình của mình | Không | Không | Không |
 | Tìm mặt hàng `/sales/items` | `sales.order.manage` hoặc `sales.promotion.manage` | Có | Trong công ty mình | Có | Không | Không |
 | Duyệt chương trình khuyến mãi | Theo chính sách duyệt `sales.promotion` | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định |
+
+## 14. Vai trò hệ thống của MODULE_06 Tài chính – Kế toán (phần 1, CONG_VIEC_13)
+
+Quỹ, công nợ, phiếu thu chi thuộc công ty đang chọn. Bốn quyền mới chỉ dùng được khi gán ở phạm vi tập đoàn hoặc công ty; gán ở chi nhánh không có tác dụng. Quản trị tập đoàn, quản trị công ty có sẵn mọi quyền `finance.*`. Phiếu thu dùng loại chứng từ `finance.receipt` (Phiếu thu, không duyệt); phiếu chi (trả tiền nhà cung cấp, hoàn tiền cho khách hàng) dùng loại chứng từ `finance.payment` (Phiếu chi, cần duyệt). Công nợ tự phát sinh khi Thủ kho ghi sổ phiếu kho, không cần quyền tài chính.
+
+| Vai trò | Mã | Phạm vi gán | Trách nhiệm | Quyền chính | Nhạy cảm |
+|---|---|---|---|---|---|
+| Kế toán | `accountant` | Công ty | Quản lý quỹ; nhập số dư đầu kỳ công nợ; lập, sửa, gửi, rút phiếu thu, phiếu chi; theo dõi công nợ, tuổi nợ; xem đối tác | `finance.access`, `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, `crm.access`, `crm.partner.view` | Không |
+
+Quyền của MODULE_06 phần 1:
+
+| Quyền | Tên | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|---|
+| `finance.access` | Truy cập mini app Tài chính – Kế toán (đã có) | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán |
+| `finance.debt.view` | Xem quỹ, công nợ, phiếu thu chi | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán |
+| `finance.fund.manage` | Quản lý quỹ | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán |
+| `finance.debt.manage` | Nhập số dư đầu kỳ công nợ | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán |
+| `finance.payment.manage` | Lập, gửi phiếu thu, phiếu chi | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán |
+
+Loại chứng từ của MODULE_06 phần 1:
+
+| Mã | Tên | Cần duyệt | Dãy số | Giá trị duyệt |
+|---|---|---|---|---|
+| `finance.receipt` | Phiếu thu | Không (ghi sổ ngay khi gửi) | `PT` | Không áp dụng |
+| `finance.payment` | Phiếu chi | Có (chưa có chính sách duyệt thì ghi sổ ngay) | `PC` | Số tiền phiếu |
+
+## 15. Ma trận vai trò – thao tác của MODULE_06 (phần 1)
+
+| Thao tác | Quyền dùng | Quản trị tập đoàn | Quản trị công ty | Kế toán | Nhân viên bán hàng | Thủ kho |
+|---|---|---|---|---|---|---|
+| Vào mini app Tài chính – Kế toán, xem công nợ, chi tiết đối tác, phiếu thu chi | `finance.debt.view` (danh sách, chi tiết phiếu thu chi: hoặc `finance.payment.manage`) | Có | Trong công ty mình | Có | Không | Không |
+| Xem danh sách quỹ | `finance.debt.view`, `finance.fund.manage` hoặc `finance.payment.manage` | Có | Trong công ty mình | Có | Không | Không |
+| Xem chi tiết quỹ, sổ quỹ | `finance.debt.view` hoặc `finance.fund.manage` | Có | Trong công ty mình | Có | Không | Không |
+| Thêm, sửa, ngừng dùng quỹ | `finance.fund.manage` | Có | Trong công ty mình | Có | Không | Không |
+| Nhập, xóa số dư đầu kỳ công nợ | `finance.debt.manage` | Có | Trong công ty mình | Có | Không | Không |
+| Lập, sửa, gửi phiếu thu, phiếu chi | `finance.payment.manage` | Có | Trong công ty mình | Có | Không | Không |
+| Rút phiếu chi đang chờ duyệt | `finance.payment.manage`, người lập, cấp duyệt đầu chưa quyết định | Phiếu của mình | Phiếu của mình | Phiếu của mình | Không | Không |
+| Duyệt phiếu chi | Theo chính sách duyệt `finance.payment` | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định |
+| Phát sinh công nợ khi ghi sổ phiếu kho | Quyền ghi sổ phiếu kho tương ứng (mục 4, 8, 10) | Có | Kho của công ty mình | Không | Không | Kho trong phạm vi gán |

@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.3
+- Phiên bản: 1.4
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09)
 
 ## MODULE_01 Nền tảng
 
@@ -111,7 +111,7 @@ Trạng thái tài khoản:
   1. Chọn khách hàng (đối tác có hồ sơ khách hàng ở công ty) hoặc để trống, ghi tên người mua; chọn kênh bán, kho xuất, ngày đơn.
   2. Thêm mặt hàng; hệ thống tra giá theo bảng giá với kênh, nhóm khách, ngày đơn (QUYTAC_NGHIEPVU_67); nhập số lượng, chiết khấu tay nếu có; lưu nháp (dòng không có giá bị từ chối).
   3. Gửi: hệ thống cấp số (`DBH`), khóa hồ sơ khách, giữ hàng tại kho xuất theo tổng số lượng cơ sở từng mặt hàng (QUYTAC_NGHIEPVU_70); không đủ hàng khả dụng thì báo lỗi, đơn giữ nháp.
-  4. Hệ thống tính ngoại lệ: chiết khấu vượt mức, dưới giá vốn, vượt hạn mức công nợ theo dư nợ tạm tính (QUYTAC_NGHIEPVU_68, QUYTAC_NGHIEPVU_69).
+  4. Hệ thống tính ngoại lệ: chiết khấu vượt mức, dưới giá vốn, vượt hạn mức công nợ theo dư nợ (QUYTAC_NGHIEPVU_68; từ CONG_VIEC_13 theo QUYTAC_NGHIEPVU_92 thay QUYTAC_NGHIEPVU_69, THAY_DOI_09).
   5. Không có ngoại lệ, hoặc công ty chưa có chính sách duyệt `sales.order`: đơn "Đã xác nhận". Có ngoại lệ: gửi luồng duyệt (Luồng 5) với tổng gồm thuế, đơn "Chờ duyệt" kèm danh sách ngoại lệ.
   6. Duyệt xong: đơn "Đã xác nhận". Từ chối hoặc người lập rút: đơn "Bị từ chối", "Đã rút", nhả hàng giữ; sửa được, sửa xong về nháp, gửi lại tính lại ngoại lệ và giữ hàng.
 - Ngoại lệ: hủy đơn nháp, bị từ chối, đã rút, đã xác nhận chưa có phiếu xuất giao hàng thì nhả hàng giữ; đơn đã có phiếu xuất chỉ đóng được (Luồng 10).
@@ -251,3 +251,61 @@ Trạng thái chương trình khuyến mãi:
 | Chờ duyệt | Người lập rút (cấp 1 chưa quyết định) | Đã rút |
 | Bị từ chối, Đã rút | Sửa | Nháp |
 | Đang chạy | Dừng kèm lý do | Đã dừng |
+
+## MODULE_06 Tài chính – Kế toán (phần 1: Công nợ phải thu, phải trả, CONG_VIEC_13)
+
+### Luồng 18. Công nợ tự phát sinh
+
+- Bắt đầu: Thủ kho ghi sổ phiếu xuất giao hàng, phiếu nhận hàng trả lại, phiếu nhập mua (ghi sổ ngay hoặc sau kiểm tra chất lượng), phiếu trả hàng nhà cung cấp (Luồng 10, Luồng 11; mua hàng ở MODULE_04).
+- Các bước:
+  1. Trong cùng giao dịch ghi sổ, hệ thống tính giá trị công nợ gồm thuế theo đơn bán, đơn mua của phần đã giao, đã nhận đạt kiểm tra chất lượng, đã trả (QUYTAC_NGHIEPVU_86). Phiếu không có đối tác (người mua không lấy hóa đơn) hoặc giá trị 0 thì dừng.
+  2. Khóa công nợ của đối tác ở phía đó (phải thu với phiếu bán, phải trả với phiếu mua).
+  3. Phiếu xuất giao hàng, nhập mua: tạo khoản tăng nợ, hạn thanh toán = ngày phiếu + số ngày được nợ của hồ sơ đối tác; tự trừ vào trả trước còn lại cũ nhất.
+  4. Phiếu nhận hàng trả lại, trả hàng nhà cung cấp: tạo khoản giảm nợ, trừ trước vào khoản tăng của phiếu gốc, phần còn lại trừ các khoản tăng cũ nhất; còn thừa là trả trước (QUYTAC_NGHIEPVU_87).
+- Ngoại lệ: tạo công nợ lỗi thì phiếu kho không ghi sổ.
+- Kết thúc: khoản công nợ hiện ở MAN_HINH_47, MAN_HINH_48.
+
+### Luồng 19. Thu tiền khách hàng
+
+- Bắt đầu: Kế toán mở "Phiếu thu chi", bấm "Lập phiếu" (hoặc "Lập phiếu thu" ở chi tiết công nợ khách).
+- Các bước:
+  1. Chọn loại "Thu tiền khách hàng", quỹ, ngày, số tiền, khách hàng. Hệ thống hiện trả trước đang còn và các chứng từ còn nợ, cũ nhất trước.
+  2. Kế toán nhập số trừ từng chứng từ, hoặc bấm "Chia lại từ cũ nhất", hoặc để trống (tự trừ cũ nhất trước khi ghi sổ). Lưu nháp (QUYTAC_NGHIEPVU_88).
+  3. Gửi: cấp số `PT` lần đầu, ghi sổ ngay (QUYTAC_NGHIEPVU_89): khóa công nợ của khách, khóa quỹ, kiểm lại số còn lại; tạo khoản giảm nợ, trừ chứng từ đã chọn (hoặc cũ nhất trước); phần thừa là trả trước; số dư quỹ tăng.
+- Ngoại lệ: số trừ vượt số còn nợ của chứng từ, tổng trừ vượt số tiền phiếu thì không lưu được; lúc gửi chứng từ đã bị trừ bởi phiếu khác thì báo lỗi, phiếu giữ trạng thái trước khi gửi để sửa.
+- Kết thúc: phiếu "Đã ghi sổ".
+
+### Luồng 20. Trả tiền nhà cung cấp
+
+- Bắt đầu: Kế toán lập phiếu loại "Trả tiền nhà cung cấp" (hoặc "Lập phiếu chi" ở chi tiết công nợ nhà cung cấp).
+- Các bước:
+  1. Chọn quỹ, ngày, số tiền, nhà cung cấp, chứng từ trừ như Luồng 19 bước 1, 2.
+  2. Gửi: cấp số `PC` lần đầu; gửi luồng duyệt (Luồng 5) loại `finance.payment` với giá trị là số tiền; phiếu "Chờ duyệt". Chưa có chính sách duyệt thì ghi sổ ngay như phiếu thu.
+  3. Người lập rút khi cấp duyệt đầu chưa quyết định: "Đã rút". Từ chối: "Bị từ chối".
+  4. Duyệt xong: ghi sổ; kiểm quỹ đang dùng, số dư quỹ đủ, số còn nợ của chứng từ (QUYTAC_NGHIEPVU_88); số dư quỹ giảm, công nợ giảm.
+- Ngoại lệ: duyệt xong mà không ghi sổ được (số dư quỹ không đủ, số còn nợ đã đổi, quỹ đã ngừng dùng) thì phiếu về "Bị từ chối", chi tiết phiếu hiện "Duyệt xong nhưng không ghi sổ được: <lý do> Sửa phiếu rồi gửi lại.". Bị từ chối, đã rút thì sửa (về nháp), gửi lại; số đã cấp giữ nguyên.
+- Kết thúc: phiếu "Đã ghi sổ".
+
+### Luồng 21. Hoàn tiền
+
+- Bắt đầu: đối tác có trả trước đang còn (thu thừa, trả thừa, hàng trả lại sau khi đã thanh toán).
+- Các bước:
+  1. Kế toán lập phiếu "Hoàn tiền cho khách hàng" (phiếu chi) hoặc "Nhà cung cấp hoàn tiền" (phiếu thu); số tiền không vượt trả trước đang còn ở phía đó.
+  2. Gửi: phiếu hoàn tiền cho khách đi như Luồng 20 (duyệt, kiểm số dư quỹ); phiếu nhà cung cấp hoàn ghi sổ ngay như Luồng 19.
+  3. Ghi sổ: kiểm lại trả trước; tạo khoản tăng nợ (hạn thanh toán bằng ngày phiếu), tự trừ vào trả trước cũ nhất.
+- Ngoại lệ: vượt trả trước thì không lưu được ("Số tiền hoàn vượt tiền trả trước đang còn."); lúc ghi sổ trả trước đã giảm thì như ngoại lệ của Luồng 19, Luồng 20.
+- Kết thúc: trả trước của đối tác giảm; số dư quỹ đổi theo.
+
+Trạng thái phiếu thu, phiếu chi:
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| (mới) | Lập | Nháp |
+| Nháp, Bị từ chối, Đã rút | Sửa | Nháp |
+| Nháp, Bị từ chối, Đã rút | Gửi phiếu thu, hoặc phiếu chi khi chưa có chính sách duyệt, ghi sổ được | Đã ghi sổ |
+| Nháp, Bị từ chối, Đã rút | Gửi phiếu thu, không ghi sổ được | Giữ trạng thái cũ, báo lỗi |
+| Nháp, Bị từ chối, Đã rút | Gửi phiếu chi, có chính sách duyệt | Chờ duyệt |
+| Chờ duyệt | Duyệt xong, ghi sổ được | Đã ghi sổ |
+| Chờ duyệt | Duyệt xong, không ghi sổ được | Bị từ chối (kèm lý do) |
+| Chờ duyệt | Từ chối | Bị từ chối |
+| Chờ duyệt | Người lập rút (cấp 1 chưa quyết định) | Đã rút |
