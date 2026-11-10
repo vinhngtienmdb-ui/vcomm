@@ -1,10 +1,10 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò mặc định, trách nhiệm và quyền hạn.
-- Phiên bản: 2.3
+- Phiên bản: 2.4
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18); CONG_VIEC_16 (2026-11-10): thêm quyền `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm); Kế toán có thêm `finance.einvoice.view`, `finance.einvoice.manage`; Kế toán trưởng có thêm cả ba (mục 19, 20); CONG_VIEC_17 (2026-11-10): thêm quyền `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` (nhạy cảm); Kế toán có thêm `finance.commission.view`, `finance.commission.manage`; Kế toán trưởng có thêm cả ba (mục 21, 22); CONG_VIEC_18 (2026-11-10): thêm quyền `finance.bank.view`, `finance.bank.manage`, `finance.bank.setup` (nhạy cảm); Kế toán có thêm `finance.bank.view`, `finance.bank.manage`; Kế toán trưởng có thêm cả ba (mục 23, 24); CONG_VIEC_19 (2026-11-10): thêm quyền `finance.collection.view`, `finance.collection.manage`, `finance.collection.setup` (nhạy cảm); Kế toán có thêm `finance.collection.view`, `finance.collection.manage`; Kế toán trưởng có thêm cả ba (mục 25, 26)
+- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18); CONG_VIEC_16 (2026-11-10): thêm quyền `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm); Kế toán có thêm `finance.einvoice.view`, `finance.einvoice.manage`; Kế toán trưởng có thêm cả ba (mục 19, 20); CONG_VIEC_17 (2026-11-10): thêm quyền `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` (nhạy cảm); Kế toán có thêm `finance.commission.view`, `finance.commission.manage`; Kế toán trưởng có thêm cả ba (mục 21, 22); CONG_VIEC_18 (2026-11-10): thêm quyền `finance.bank.view`, `finance.bank.manage`, `finance.bank.setup` (nhạy cảm); Kế toán có thêm `finance.bank.view`, `finance.bank.manage`; Kế toán trưởng có thêm cả ba (mục 23, 24); CONG_VIEC_19 (2026-11-10): thêm quyền `finance.collection.view`, `finance.collection.manage`, `finance.collection.setup` (nhạy cảm); Kế toán có thêm `finance.collection.view`, `finance.collection.manage`; Kế toán trưởng có thêm cả ba (mục 25, 26); CONG_VIEC_20 (2026-11-10): thêm quyền `finance.consolidation.view`, `finance.consolidation.manage` (nhạy cảm) chỉ hiệu lực ở phạm vi tập đoàn; Kế toán trưởng có thêm cả hai (mục 27, 28)
 
 ## 1. Nguyên tắc
 
@@ -378,3 +378,27 @@ Không thêm vai trò. Ba quyền mới chỉ dùng được khi gán ở phạm
 | Rút bảng chờ duyệt | `finance.collection.manage`, người gửi bảng | Bảng mình gửi | Bảng mình gửi | Bảng mình gửi | Bảng mình gửi | Không | Không |
 | Duyệt, từ chối bảng đối soát | Người duyệt theo chính sách duyệt loại `finance.collection_statement` | Theo chính sách | Theo chính sách | Theo chính sách | Theo chính sách | Không | Không |
 | Lập phiếu thu tiền đơn vị thu hộ chuyển về | Quyền phiếu thu chi (mục 14) | Có | Trong công ty mình | Có | Có | Không | Không |
+
+## 27. Quyền báo cáo tài chính hợp nhất (MODULE_06 phần 8, CONG_VIEC_20)
+
+Không thêm vai trò. Hai quyền mới chỉ có hiệu lực khi gán ở phạm vi tập đoàn: vai trò gán ở phạm vi công ty, chi nhánh không mở được báo cáo hợp nhất dù có quyền. Quản trị tập đoàn có sẵn hai quyền; quản trị công ty không có. Loại chứng từ mới `finance.consolidation` (Bảng hợp nhất, cần duyệt khi có chính sách); người duyệt theo chính sách duyệt của công ty gốc.
+
+| Quyền | Tên | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|---|
+| `finance.consolidation.view` | Xem báo cáo hợp nhất (phạm vi tập đoàn) | Tập đoàn | Không | Quản trị tập đoàn, Kế toán trưởng |
+| `finance.consolidation.manage` | Lập, gửi bảng hợp nhất (phạm vi tập đoàn) | Tập đoàn | Có | Quản trị tập đoàn, Kế toán trưởng |
+
+| Vai trò | Mã | Quyền thêm |
+|---|---|---|
+| Kế toán trưởng | `chief_accountant` | `finance.consolidation.view`, `finance.consolidation.manage` (chỉ hiệu lực khi vai trò gán ở phạm vi tập đoàn) |
+
+## 28. Ma trận vai trò – thao tác của MODULE_06 (phần 8)
+
+"Kế toán trưởng (tập đoàn)": vai trò Kế toán trưởng gán ở phạm vi tập đoàn; "Kế toán trưởng (công ty)": gán ở phạm vi công ty.
+
+| Thao tác | Quyền dùng | Quản trị tập đoàn | Quản trị công ty | Kế toán trưởng (tập đoàn) | Kế toán trưởng (công ty) | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|---|---|---|
+| Xem phạm vi thành viên, xem nhanh cộng gộp, danh sách, chi tiết bảng hợp nhất, xuất Excel, PDF | `finance.consolidation.view` hoặc `finance.consolidation.manage` ở phạm vi tập đoàn | Có | Không | Có | Không | Không | Không |
+| Lập, tính lại, sửa lãi chưa thực hiện, thêm, xóa điều chỉnh tay, bỏ bảng nháp, gửi | `finance.consolidation.manage` ở phạm vi tập đoàn | Có | Không | Có | Không | Không | Không |
+| Rút bảng chờ duyệt | `finance.consolidation.manage` ở phạm vi tập đoàn, người gửi bảng | Bảng mình gửi | Không | Bảng mình gửi | Không | Không | Không |
+| Duyệt, từ chối bảng hợp nhất | Người duyệt theo chính sách duyệt loại `finance.consolidation` của công ty gốc | Theo chính sách | Theo chính sách | Theo chính sách | Theo chính sách | Theo chính sách | Không |

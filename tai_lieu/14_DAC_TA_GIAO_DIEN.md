@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.6
+- Phiên bản: 2.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -20,6 +20,7 @@
 - Cập nhật CONG_VIEC_17 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 5, MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40); menu mini app Tài chính – Kế toán thêm mục "Hoa hồng", "Cài đặt hoa hồng"
 - Cập nhật CONG_VIEC_18 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 6, MAN_HINH_58, MAN_HINH_59 (mục 41 đến mục 43); menu mini app Tài chính – Kế toán thêm mục "Giao dịch ngân hàng", "Kết nối ngân hàng"
 - Cập nhật CONG_VIEC_19 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 7, MAN_HINH_60, MAN_HINH_61 (mục 44 đến mục 46); menu mini app Tài chính – Kế toán thêm mục "Đối soát thu hộ"; MAN_HINH_51 (Bút toán) bộ lọc, cột "Nguồn" thêm "Bảng hoa hồng" (sửa lỗi hiện mã thô `commission` từ CONG_VIEC_17), "Bảng đối soát thu hộ"
+- Cập nhật CONG_VIEC_20 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 8, MAN_HINH_62, MAN_HINH_63 (mục 47 đến mục 49); menu mini app Tài chính – Kế toán thêm mục "Báo cáo hợp nhất" sau "Báo cáo tài chính"
 
 ## MODULE_01 Nền tảng
 
@@ -1680,3 +1681,83 @@ flowchart TD
 - Quyền hiển thị: nút theo `canManage`, `canWithdraw` của API và trạng thái bảng.
 - Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; ô tổng xếp lưới tự co; nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_19 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 8: Báo cáo tài chính hợp nhất, CONG_VIEC_20)
+
+Cùng mini app `apps/web-finance` (mục 26).
+
+## 47. Danh sách màn hình và điều hướng (MODULE_06 phần 8)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_62 | Báo cáo tài chính hợp nhất: phạm vi thành viên; thẻ bảng hợp nhất (danh sách, lập bảng), thẻ xem nhanh cộng gộp | CHUC_NANG_92, CHUC_NANG_93 | Quản trị tập đoàn, Kế toán trưởng có phạm vi tập đoàn | Menu Tài chính – Kế toán | Không lập (xem trước trên ứng dụng, CONG_VIEC_20 mục 14) |
+| MAN_HINH_63 | Chi tiết bảng hợp nhất: báo cáo, bút toán loại trừ, lãi chưa thực hiện; tính lại, gửi, rút, xuất, bỏ bảng nháp | CHUC_NANG_93, CHUC_NANG_94, CHUC_NANG_95 | Quản trị tập đoàn, Kế toán trưởng có phạm vi tập đoàn | MAN_HINH_62 | Không lập (xem trước trên ứng dụng, CONG_VIEC_20 mục 14) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> H[MAN_HINH_62 Báo cáo tài chính hợp nhất]
+    H -->|Lập bảng hợp nhất| C[MAN_HINH_63 Chi tiết bảng hợp nhất]
+    H -->|Kỳ| C
+    C -->|Thêm điều chỉnh tay| D[Ngăn kéo điều chỉnh tay]
+    C -->|Sửa lãi chưa thực hiện| L[Ngăn kéo sửa lãi chưa thực hiện]
+    C -->|Bỏ bảng nháp| X[Hộp xác nhận]
+    X -->|Đã bỏ| H
+    C -->|Danh sách| H
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Giao dịch ngân hàng (`finance.bank.view`); Kết nối ngân hàng (`finance.bank.setup`); Đối soát thu hộ (`finance.collection.view`); Bút toán, Sổ sách, Báo cáo tài chính (`finance.ledger.view`); Báo cáo hợp nhất (`finance.consolidation.view`); Hệ thống tài khoản (`finance.ledger.view`); Hóa đơn điện tử (`finance.einvoice.view`); Cài đặt hóa đơn điện tử (`finance.einvoice.setup`); Hoa hồng (`finance.commission.view`); Cài đặt hoa hồng (`finance.commission.setup`).
+- Mục menu "Báo cáo hợp nhất" hiện theo quyền ở mọi phạm vi; người chỉ có quyền ở phạm vi công ty mở màn hình nhận lỗi không có quyền.
+
+## 48. Bảng vai trò – màn hình (MODULE_06 phần 8)
+
+| Màn hình | Quản trị tập đoàn | Kế toán trưởng (phạm vi tập đoàn) | Quản trị công ty, Kế toán trưởng (phạm vi công ty), Kế toán, Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|
+| MAN_HINH_62 Báo cáo tài chính hợp nhất | Xem, Lập bảng | Xem, Lập bảng | Không |
+| MAN_HINH_63 Chi tiết bảng hợp nhất | Xem, Xuất, Tính lại, Sửa lãi chưa thực hiện, Thêm, Xóa điều chỉnh tay, Bỏ bảng nháp, Gửi, Rút (bảng mình gửi) | Xem, Xuất, Tính lại, Sửa lãi chưa thực hiện, Thêm, Xóa điều chỉnh tay, Bỏ bảng nháp, Gửi, Rút (bảng mình gửi) | Không |
+
+## 49. Đặc tả từng màn hình (MODULE_06 phần 8)
+
+### MAN_HINH_62: Báo cáo tài chính hợp nhất
+- Mục đích: Xem phạm vi hợp nhất, các bảng hợp nhất theo kỳ, lập bảng mới; xem nhanh số cộng gộp.
+- Chức năng thực hiện: CHUC_NANG_92, CHUC_NANG_93
+- Đường dẫn: `/finance/consolidation`.
+- Bố cục: tiêu đề "Báo cáo tài chính hợp nhất".
+  - Thẻ phạm vi: "Tập đoàn <tên> · đồng tiền <mã>"; danh sách thành viên: tên (đậm) · mã · "Thông tư 99" hoặc "Thông tư 133" · đồng tiền · "công ty gốc" (khi là công ty gốc); nhãn "Hợp nhất" hoặc "Không hợp nhất: khác đồng tiền", "Không hợp nhất: chưa khởi tạo kế toán".
+  - Hai thẻ "Bảng hợp nhất" (mặc định), "Xem nhanh cộng gộp".
+  - Thẻ "Bảng hợp nhất": ô "Từ ngày" (mặc định ngày 1 tháng 1 năm nay), "Đến ngày" (mặc định hôm nay), nút "Lập bảng hợp nhất" (khi có `canManage`); bảng "Kỳ" (liên kết sang MAN_HINH_63), "Số", "Trạng thái" (nhãn "Nháp", "Chờ duyệt", "Đã ghi sổ", "Bị từ chối", "Đã rút"), "Tính lại lúc".
+  - Thẻ "Xem nhanh cộng gộp": hai thẻ "Tình hình tài chính" (mặc định), "Kết quả kinh doanh"; ô "Từ ngày", "Đến ngày"; dòng "<tên báo cáo> (<mẫu>) · số cộng gộp của <thành viên>, chưa loại trừ nội bộ"; bảng chỉ tiêu (bảng chỉ tiêu hợp nhất như MAN_HINH_63).
+- Dữ liệu hiển thị: bảng của tập đoàn, đến ngày mới nhất trước; số định dạng theo tiếng Việt, số âm trong ngoặc, số 0 để trống.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, NhanTrangThai, CacThe, BoLoc, ONhap, BangDuLieu, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_106.
+- Thao tác: "Lập bảng hợp nhất" thành công mở MAN_HINH_63 của bảng vừa lập; đổi ngày, đổi báo cáo ở thẻ xem nhanh tải lại số.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có bảng hợp nhất."; khoảng ngày sai ở thẻ xem nhanh: "Chọn ngày hợp lệ; từ ngày không sau đến ngày.".
+- Thông báo: lỗi lập bảng hiện dưới ô kỳ ("Kỳ này đã có bảng hợp nhất đang dùng.", "Ngày kết thúc phải sau ngày bắt đầu.").
+- Quyền hiển thị: mục menu với `finance.consolidation.view`; nội dung khi có quyền ở phạm vi tập đoàn (không có thì thông báo lỗi không có quyền); ô lập bảng theo `canManage` của API_106.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc, nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_20 mục 14)
+
+### MAN_HINH_63: Chi tiết bảng hợp nhất
+- Mục đích: Xem báo cáo hợp nhất của kỳ, kiểm bút toán loại trừ, sửa lãi chưa thực hiện, thêm điều chỉnh tay, gửi duyệt, xuất tệp.
+- Chức năng thực hiện: CHUC_NANG_93, CHUC_NANG_94, CHUC_NANG_95
+- Đường dẫn: `/finance/consolidation/<mã>`.
+- Bố cục: tiêu đề "Bảng hợp nhất <từ ngày> – <đến ngày>", nút "Danh sách".
+  - Thẻ thông tin: nhãn trạng thái, số `HN…` (khi có), "Thành viên: <danh sách> · tính lại lúc <thời điểm>"; khối cảnh báo "Công nợ nội bộ hai bên chưa khớp (đã loại trừ phần nhỏ hơn; đối chiếu rồi điều chỉnh tay nếu cần):" kèm từng dòng "<công ty A> phải thu <công ty B>: <số>; <công ty B> phải trả: <số>; chênh lệch <số>"; khối lỗi lý do không chốt được (khi có).
+  - Nút: "Gửi" (khi `canEdit`), "Rút" (khi `canWithdraw`), "Tình hình tài chính (Excel)", "Tình hình tài chính (PDF)", "Kết quả kinh doanh (Excel)", "Kết quả kinh doanh (PDF)" (mọi trạng thái); hàng thứ hai khi `canEdit`: "Tính lại", "Bỏ bảng nháp" (khi nháp chưa có số).
+  - Bốn thẻ "Tình hình tài chính" (mặc định), "Kết quả kinh doanh", "Bút toán loại trừ", "Lãi chưa thực hiện".
+  - Thẻ báo cáo: bảng "Mã số", "Chỉ tiêu" (thụt lề theo cấp, cấp 0 chữ đậm), "Cộng gộp", "Loại trừ", "Hợp nhất · Số cuối kỳ (<ngày>)" hoặc "Hợp nhất · Kỳ này (<từ ngày> – <đến ngày>)", "Cộng gộp · Số đầu năm (<ngày>)" hoặc "Cộng gộp · Cùng kỳ năm trước (<từ ngày> – <đến ngày>)".
+  - Thẻ "Bút toán loại trừ": nút "Thêm điều chỉnh tay" (khi `canEdit`); bảng "Bút toán" (loại "Công nợ nội bộ", "Doanh thu, giá vốn nội bộ", "Lãi chưa thực hiện", "Điều chỉnh tay" · diễn giải; nút "Xóa" ở điều chỉnh tay khi `canEdit`), "Công ty" (bút toán lãi chưa thực hiện: "—"), "Tài khoản" (mã Thông tư 99), "Đối tác", "Nợ", "Có".
+  - Thẻ "Lãi chưa thực hiện": chú thích "Lãi chưa thực hiện = số còn tồn cuối kỳ (tối đa số mua nội bộ trong kỳ) × lãi gộp mỗi đơn vị của bên bán; sửa được khi bảng còn nháp."; bảng "Công ty mua", "Công ty bán", "Mặt hàng" (tên · mã hàng), "Mua nội bộ", "Tồn cuối kỳ", "Lãi gộp mỗi đơn vị", "Ước tính", "Số dùng" (kèm "đã sửa: <lý do>"), cột nút "Sửa" (khi `canEdit`).
+  - Ngăn kéo "Thêm điều chỉnh tay": chú thích "Ghi theo mã tài khoản Thông tư 99, tổng Nợ bằng tổng Có; ví dụ loại trừ khoản đầu tư vào công ty con (Có 221) với vốn chủ sở hữu của công ty con (Nợ 411)."; "Diễn giải"; mỗi dòng "Tài khoản" (gợi ý danh sách tài khoản Thông tư 99), "Nợ", "Có"; mặc định hai dòng; nút "Thêm dòng" (tối đa 20 dòng), "Hủy", "Lưu".
+  - Ngăn kéo "Sửa" lãi chưa thực hiện: "<mặt hàng> · Ước tính: <số>"; "Số dùng" (điền sẵn số đang dùng), "Lý do"; nút "Hủy", "Dùng số ước tính" (khi đã sửa), "Lưu".
+  - Hộp xác nhận "Bỏ bảng nháp": "Bảng hợp nhất nháp, bút toán điều chỉnh tay và số đã sửa sẽ bị xóa."; nút "Bỏ bảng nháp".
+- Dữ liệu hiển thị: bảng đã chốt hiện số đã lưu khi chốt; bảng khác tính khi mở; số định dạng theo tiếng Việt, số âm trong ngoặc.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, NhanTrangThai, KhoiCanhBao, CacThe, BangDuLieu, NganKeo, HopThoaiXacNhan, ONhap, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_107, API_108, API_109.
+- Thao tác: "Gửi" báo "Đã gửi bảng hợp nhất." (chờ duyệt thì thêm "Bảng hợp nhất đang chờ duyệt."); "Rút" báo "Đã rút bảng hợp nhất."; "Tính lại" báo "Đã tính lại bảng hợp nhất."; thêm, xóa điều chỉnh tay báo "Đã thêm bút toán điều chỉnh.", "Đã xóa bút toán điều chỉnh." (xóa không hỏi lại); sửa lãi báo "Đã lưu lãi chưa thực hiện."; xuất Excel tải tệp `HN-<loại báo cáo>-<đến ngày>.xlsx`, xuất PDF mở thẻ trình duyệt mới; "Bỏ bảng nháp" về MAN_HINH_62; sau mỗi thao tác tải lại bảng.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Không có bút toán loại trừ.", "Không có hàng mua nội bộ trong kỳ.".
+- Thông báo: lỗi thao tác, lỗi xuất hiện trong thẻ thông tin; lỗi xóa điều chỉnh tay hiện trên bảng bút toán; lỗi tại trường, cuối ngăn kéo; lỗi bỏ bảng hiện trong hộp xác nhận.
+- Quyền hiển thị: nút theo `canEdit`, `canWithdraw` của API_107 và trạng thái bảng.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; dòng điều chỉnh tay xếp lưới tự co; nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_20 mục 14)

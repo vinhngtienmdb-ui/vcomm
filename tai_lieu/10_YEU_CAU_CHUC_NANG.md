@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.7
+- Phiên bản: 2.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất)
 
 ## MODULE_01 Nền tảng
 
@@ -1539,6 +1539,81 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 7:
 | Toàn vẹn | Gửi, ghi sổ trong một giao dịch cơ sở dữ liệu, khóa bảng (`FOR UPDATE`); nhập, gửi, ghi sổ khóa theo đơn vị thu hộ (`pg_advisory_xact_lock`); ghi sổ khóa công nợ khách, đơn vị (`DebtsService.lockPartner`); khoản công nợ duy nhất theo nguồn (`collection_statement`, mã dòng hoặc mã bảng); kiểm lại dòng lỗi khi ghi sổ; bút toán duy nhất theo nguồn |
 | Ranh giới module | Module `apps/api/src/collection` dùng `DebtsService` (trừ nợ), `LedgerService.record` (bút toán), `ApprovalRequestsService.submitWithin` (duyệt); module Hoa hồng tính khoản giảm nợ nguồn `collection_statement` như phiếu thu; khởi tạo kế toán lập bút toán cho bảng đã ghi sổ; bút toán phiếu thu chi (`paymentDraft`) dùng `collector_receivable` khi đối tác là đơn vị thu hộ |
 | Thư viện | Không thêm thư viện; đọc, ghi Excel bằng `read-excel-file`, `write-excel-file` đang dùng |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_06 Tài chính – Kế toán (phần 8: Báo cáo tài chính hợp nhất, CONG_VIEC_20)
+
+Quy ước chung cho mọi chức năng của MODULE_06 phần 8:
+- Quyền (tài liệu `08` mục 27, 28): API trước hết cần `finance.access`, `finance.consolidation.view` hoặc `finance.consolidation.manage` ở công ty đang chọn; sau đó service kiểm quyền hợp nhất gán ở phạm vi tập đoàn (quyền gán ở phạm vi công ty, chi nhánh không tính). Tập đoàn là công ty gốc của công ty đang chọn; bảng của tập đoàn khác trả `404`.
+- Ghi nhật ký thao tác (loại đối tượng `consolidation`): `consolidation.create`, `consolidation.recalculate`, `consolidation.profit_override`, `consolidation.manual_entry`, `consolidation.remove_manual_entry`, `consolidation.discard`, `consolidation.submit`, `consolidation.withdraw`.
+- Tiền trả về dạng chuỗi, bỏ số 0 thừa; số báo cáo làm tròn theo số lẻ tiền tệ của công ty gốc. Tính lại, sửa, gửi, bỏ bảng so `version`.
+- Không ghi bút toán vào sổ các công ty; số liệu đọc từ sổ cái các công ty khi tính.
+
+### CHUC_NANG_92: Phạm vi hợp nhất
+- Mục đích: Biết công ty nào được hợp nhất, công ty nào bị loại và vì sao.
+- Người sử dụng: Kế toán trưởng có phạm vi tập đoàn, quản trị tập đoàn.
+- Điều kiện thực hiện: `finance.consolidation.view` hoặc `finance.consolidation.manage` ở phạm vi tập đoàn.
+- Dữ liệu đầu vào: Công ty đang chọn (header `X-Company-Id`).
+- Quy trình xử lý: Tìm công ty gốc (không có công ty cha) của công ty đang chọn, lấy công ty gốc và mọi công ty con các cấp; công ty khác đồng tiền hạch toán với công ty gốc bị loại (`other_currency`), công ty chưa khởi tạo kế toán bị loại (`ledger_not_initialized`) (QUYTAC_NGHIEPVU_123).
+- Kết quả đầu ra: Tập đoàn (mã, tên), đồng tiền; thành viên (mã, tên, chế độ kế toán, đồng tiền, là công ty gốc, lý do bị loại), công ty gốc trước, theo mã; `canManage`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_45
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_123
+- Trường hợp ngoại lệ: Mọi công ty bị loại: lập bảng, xem nhanh cộng gộp báo "Tập đoàn chưa có công ty nào hợp nhất được (cùng đồng tiền, đã khởi tạo kế toán).".
+- Phân quyền: Không có quyền ở phạm vi tập đoàn nhận 403; mục menu "Báo cáo hợp nhất" hiện theo `finance.consolidation.view`.
+- Thông báo lỗi: "Bạn không có quyền thực hiện thao tác này."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_145, TIEUCHI_NGHIEMTHU_150
+
+### CHUC_NANG_93: Bảng hợp nhất theo kỳ; loại trừ tự động
+- Mục đích: Có số liệu cả tập đoàn như một đơn vị, đã loại giao dịch nội bộ.
+- Người sử dụng: Kế toán trưởng có phạm vi tập đoàn, quản trị tập đoàn.
+- Điều kiện thực hiện: Xem nhanh cộng gộp, danh sách, chi tiết: `finance.consolidation.view` hoặc `finance.consolidation.manage`. Lập, tính lại, bỏ bảng nháp: `finance.consolidation.manage`; tính lại khi bảng nháp, bị từ chối hoặc đã rút; bỏ bảng khi nháp chưa gửi lần nào.
+- Dữ liệu đầu vào: Xem nhanh: loại báo cáo (`balance_sheet`, `income_statement`), từ ngày, đến ngày. Lập: từ ngày, đến ngày. Tính lại, bỏ bảng: `version`.
+- Quy trình xử lý: Xem nhanh: đọc sổ cái các thành viên, ghép mã Thông tư 133 sang Thông tư 99, tính B01-DN hoặc B02-DN Thông tư 99 bằng phần tính của báo cáo tài chính (QUYTAC_NGHIEPVU_124). Lập: kỳ chưa có bảng không bị từ chối, không rút; tạo bảng nháp và tính trong cùng giao dịch. Tính: chốt danh sách thành viên; xóa bút toán tự động cũ; lập bút toán công nợ nội bộ theo cặp công ty, ghi cảnh báo chênh lệch (QUYTAC_NGHIEPVU_125); bút toán doanh thu, giá vốn nội bộ theo cặp công ty (QUYTAC_NGHIEPVU_126); lập lại dòng lãi chưa thực hiện, giữ số đã sửa (QUYTAC_NGHIEPVU_127); ghi thời điểm tính. Báo cáo: cột cộng gộp (không có bút toán loại trừ), cột hợp nhất (có bút toán loại trừ, điều chỉnh tay, lãi chưa thực hiện), cột loại trừ là hiệu hai cột; bút toán vào tài khoản loại 5, 7 ghi Nợ tính là giảm phát sinh Có, vào loại 6, 8 ghi Có tính là giảm phát sinh Nợ; cột so sánh (số đầu năm, cùng kỳ năm trước) chỉ cộng gộp.
+- Kết quả đầu ra: Xem nhanh: báo cáo (mẫu, tên, tập đoàn, đồng tiền, cột, tên thành viên, chỉ tiêu: mã, tên, cấp, thuyết minh, cộng gộp, loại trừ, hợp nhất, so sánh). Danh sách: kỳ, số, trạng thái, thời điểm tính, lý do không chốt được; theo đến ngày giảm dần, tối đa 200 bảng; `canManage`. Chi tiết: CHUC_NANG_95.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_45
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_124 đến QUYTAC_NGHIEPVU_126, QUYTAC_NGHIEPVU_128
+- Trường hợp ngoại lệ: Công nợ nội bộ hai bên lệch: chỉ loại trừ phần nhỏ hơn, cảnh báo. Doanh thu nội bộ thuần âm (trả lại nhiều hơn bán): bút toán ngược lại. Thành viên thiếu định khoản `revenue`, `cogs`: không lập, không tính lại được.
+- Phân quyền: Không có quyền ở phạm vi tập đoàn nhận 403; không có `finance.consolidation.manage` không thấy ô lập bảng, nút "Tính lại", "Bỏ bảng nháp".
+- Thông báo lỗi: "Ngày kết thúc phải sau ngày bắt đầu." · "Kỳ này đã có bảng hợp nhất đang dùng." · "Tập đoàn chưa có công ty nào hợp nhất được (cùng đồng tiền, đã khởi tạo kế toán)." · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · khóa `postingRuleMissing` · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_145, TIEUCHI_NGHIEMTHU_146, TIEUCHI_NGHIEMTHU_147, TIEUCHI_NGHIEMTHU_150
+
+### CHUC_NANG_94: Sửa lãi chưa thực hiện; điều chỉnh tay
+- Mục đích: Kế toán trưởng sửa số ước tính chưa sát thực tế và ghi các bút toán hợp nhất hệ thống chưa tự lập (ví dụ loại trừ khoản đầu tư vào công ty con với vốn chủ sở hữu).
+- Người sử dụng: Kế toán trưởng có phạm vi tập đoàn, quản trị tập đoàn.
+- Điều kiện thực hiện: `finance.consolidation.manage`; bảng nháp, bị từ chối hoặc đã rút.
+- Dữ liệu đầu vào: Sửa lãi: mã dòng, số dùng (không âm, tối đa 16 chữ số phần nguyên, 4 số lẻ; `null` là dùng số ước tính), lý do (tối đa 500 ký tự, bắt buộc khi có số), `version`. Điều chỉnh tay: diễn giải (1 đến 500 ký tự), 2 đến 20 dòng (mã tài khoản Thông tư 99 3 đến 10 ký tự, Nợ, Có), `version`. Xóa: số bút toán, `version`.
+- Quy trình xử lý: Sửa lãi: lưu số và lý do vào dòng; tính lại giữ số này (QUYTAC_NGHIEPVU_127). Điều chỉnh tay: mỗi dòng đúng một bên lớn hơn 0; tổng Nợ bằng tổng Có; mã tài khoản phải trùng mã đã ghép theo Thông tư 99 của một tài khoản thành viên (lấy tài khoản của thành viên đứng đầu trước); lưu một bút toán loại `manual`. Xóa: chỉ bút toán `manual`.
+- Kết quả đầu ra: Chi tiết bảng sau thao tác.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_45
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_124, QUYTAC_NGHIEPVU_127, QUYTAC_NGHIEPVU_128
+- Trường hợp ngoại lệ: Dòng lãi, bút toán điều chỉnh không có trong bảng: `404`.
+- Phân quyền: Không có `finance.consolidation.manage` nhận 403; không thấy nút "Sửa", "Thêm điều chỉnh tay", "Xóa".
+- Thông báo lỗi: "Vui lòng nhập thông tin này." (lý do) · "Tổng Nợ phải bằng tổng Có." · "Giá trị không hợp lệ." · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_148, TIEUCHI_NGHIEMTHU_150
+
+### CHUC_NANG_95: Báo cáo hợp nhất; gửi duyệt, chốt số; xuất Excel, PDF
+- Mục đích: Có B01-DN, B02-DN hợp nhất được duyệt, giữ nguyên số để báo cáo ban điều hành.
+- Người sử dụng: Kế toán trưởng có phạm vi tập đoàn, quản trị tập đoàn; người duyệt theo chính sách của công ty gốc.
+- Điều kiện thực hiện: Xem, xuất: `finance.consolidation.view` hoặc `finance.consolidation.manage`. Gửi: `finance.consolidation.manage`, bảng nháp, bị từ chối hoặc đã rút. Rút: người gửi lần gần nhất, bảng chờ duyệt.
+- Dữ liệu đầu vào: Chi tiết: mã bảng. Gửi: `version`. Rút: không có. Xuất: loại báo cáo, định dạng (`xlsx`, `pdf`).
+- Quy trình xử lý: Chi tiết: bảng đã chốt trả số đã lưu; bảng khác tính báo cáo theo thành viên đã chốt ở lần tính gần nhất. Gửi: khóa bảng, so `version`; tạo dãy số `HN` của công ty gốc nếu chưa có; cấp số lần đầu; tính báo cáo, tạo yêu cầu duyệt qua `approvals.submitWithin` (giá trị là tổng tài sản hợp nhất, ngày chứng từ là đến ngày); chưa có chính sách thì chốt ngay trong cùng giao dịch. Chốt: tính báo cáo lần cuối, lưu B01-DN, B02-DN vào bảng. Duyệt xong (nghe `core.approval.completed` loại `finance.consolidation`): chốt; lỗi quy tắc thì bị từ chối kèm khóa lý do. Từ chối, rút: bị từ chối, đã rút. Xuất: cột hợp nhất kỳ này và cột so sánh cộng gộp, tên công ty là tên tập đoàn kèm danh sách thành viên; dùng lại phần xuất Excel, PDF của báo cáo tài chính; tên tệp `HN-<mẫu>-<ngày>.<đuôi>`.
+- Kết quả đầu ra: Chi tiết: các trường danh sách và thành viên, cảnh báo, bút toán (theo số, kèm bút toán lãi chưa thực hiện tổng hợp), dòng lãi chưa thực hiện, B01-DN, B02-DN, danh sách tài khoản Thông tư 99 cho điều chỉnh tay, `canManage`, `canEdit`, `canWithdraw`, đồng tiền, `version`. Xuất: tệp `.xlsx` hoặc `.pdf`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_45
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_128
+- Trường hợp ngoại lệ: Bảng đã chốt: không sửa, không tính lại; sổ công ty thay đổi sau đó không làm đổi số đã chốt.
+- Phân quyền: Không có quyền ở phạm vi tập đoàn nhận 403; không có `finance.consolidation.manage` không thấy nút "Gửi"; nút "Rút" chỉ hiện với người gửi khi bảng chờ duyệt.
+- Thông báo lỗi: "Chỉ sửa được chứng từ đang ở trạng thái nháp." · khóa `postingRuleMissing` · "Bạn không có quyền thực hiện thao tác này." (rút) · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất." · "Không tìm thấy dữ liệu hoặc bạn không có quyền xem."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_146, TIEUCHI_NGHIEMTHU_147, TIEUCHI_NGHIEMTHU_149, TIEUCHI_NGHIEMTHU_150
+
+## Yêu cầu phi chức năng của MODULE_06 (phần 8)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Bảo mật | Quyền hợp nhất chỉ có hiệu lực ở phạm vi tập đoàn; mọi truy vấn bảng lọc theo công ty gốc của công ty đang chọn (tài liệu `22`) |
+| Toàn vẹn | Lập, tính lại, sửa, gửi, chốt trong một giao dịch cơ sở dữ liệu, khóa bảng (`FOR UPDATE`), so `version`; mỗi kỳ một bảng đang dùng (chỉ mục duy nhất có điều kiện); bảng đã chốt lưu số báo cáo, không tính lại |
+| Ranh giới module | Module `apps/api/src/consolidation` chỉ đọc sổ cái, phiếu kho, đơn bán các công ty; dùng `StatementsService` (đọc số liệu nhiều công ty, tính chỉ tiêu), `statement-export.ts` (xuất), `ApprovalRequestsService.submitWithin` (duyệt); không ghi vào schema `accounting` |
+| Tương thích | Báo cáo tài chính từng công ty (CHUC_NANG_74, CHUC_NANG_75) dùng chung phần đọc số liệu mới, kết quả không đổi |
+| Thư viện | Không thêm thư viện |
 | Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09

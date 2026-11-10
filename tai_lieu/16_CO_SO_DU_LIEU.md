@@ -1,12 +1,12 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 2.6
+- Phiên bản: 2.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14); CONG_VIEC_15 (2026-11-10): thêm cột `accounting.accounts.is_long_term` (mục 15); CONG_VIEC_16 (2026-11-10): thêm bảng hóa đơn điện tử `finance.einvoice_settings`, `finance.einvoice_series`, `finance.einvoices`, `finance.einvoice_lines`, `finance.einvoice_attempts` (database migration 0013), `finance.einvoice_return_tasks` (database migration 0014) (mục 16); CONG_VIEC_17 (2026-11-10): thêm cột `sales.orders.commission_user_id`, bảng hoa hồng `finance.commission_settings`, `finance.commission_rates`, `finance.commission_channel_factors`, `finance.commission_targets`, `finance.commission_statements`, `finance.commission_statement_lines`, `finance.commission_events` (database migration 0015), nguồn bút toán `commission`, vai trò định khoản `commission_expense`, `staff_payable` (database migration 0016), cột `finance.commission_events.gross_amount` (database migration 0017) (mục 17); CONG_VIEC_18 (2026-11-10): thêm bảng `finance.bank_connections`, `finance.bank_transactions` (database migration 0018) (mục 18); CONG_VIEC_19 (2026-11-10): thêm bảng `finance.collectors`, `finance.collection_statements`, `finance.collection_statement_lines`, nguồn công nợ, nguồn bút toán `collection_statement`, vai trò định khoản `collector_receivable`, `collection_fee` (database migration 0019) (mục 19)
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14); CONG_VIEC_15 (2026-11-10): thêm cột `accounting.accounts.is_long_term` (mục 15); CONG_VIEC_16 (2026-11-10): thêm bảng hóa đơn điện tử `finance.einvoice_settings`, `finance.einvoice_series`, `finance.einvoices`, `finance.einvoice_lines`, `finance.einvoice_attempts` (database migration 0013), `finance.einvoice_return_tasks` (database migration 0014) (mục 16); CONG_VIEC_17 (2026-11-10): thêm cột `sales.orders.commission_user_id`, bảng hoa hồng `finance.commission_settings`, `finance.commission_rates`, `finance.commission_channel_factors`, `finance.commission_targets`, `finance.commission_statements`, `finance.commission_statement_lines`, `finance.commission_events` (database migration 0015), nguồn bút toán `commission`, vai trò định khoản `commission_expense`, `staff_payable` (database migration 0016), cột `finance.commission_events.gross_amount` (database migration 0017) (mục 17); CONG_VIEC_18 (2026-11-10): thêm bảng `finance.bank_connections`, `finance.bank_transactions` (database migration 0018) (mục 18); CONG_VIEC_19 (2026-11-10): thêm bảng `finance.collectors`, `finance.collection_statements`, `finance.collection_statement_lines`, nguồn công nợ, nguồn bút toán `collection_statement`, vai trò định khoản `collector_receivable`, `collection_fee` (database migration 0019) (mục 19); CONG_VIEC_20 (2026-11-10): thêm bảng `finance.consolidations`, `finance.consolidation_entries`, `finance.consolidation_profit_lines` (database migration 0020) (mục 20)
 
-Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14); cột tài khoản dài hạn của MODULE_06 phần 3 (CONG_VIEC_15, mục 15); bảng hóa đơn điện tử của MODULE_06 phần 4 trong schema `finance` (CONG_VIEC_16, mục 16); bảng hoa hồng đội kinh doanh của MODULE_06 phần 5 trong schema `finance` (CONG_VIEC_17, mục 17); bảng đối soát ngân hàng của MODULE_06 phần 6 trong schema `finance` (CONG_VIEC_18, mục 18); bảng đối soát thu hộ của MODULE_06 phần 7 trong schema `finance` (CONG_VIEC_19, mục 19). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14); cột tài khoản dài hạn của MODULE_06 phần 3 (CONG_VIEC_15, mục 15); bảng hóa đơn điện tử của MODULE_06 phần 4 trong schema `finance` (CONG_VIEC_16, mục 16); bảng hoa hồng đội kinh doanh của MODULE_06 phần 5 trong schema `finance` (CONG_VIEC_17, mục 17); bảng đối soát ngân hàng của MODULE_06 phần 6 trong schema `finance` (CONG_VIEC_18, mục 18); bảng đối soát thu hộ của MODULE_06 phần 7 trong schema `finance` (CONG_VIEC_19, mục 19); bảng hợp nhất của MODULE_06 phần 8 trong schema `finance` (CONG_VIEC_20, mục 20). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -2829,4 +2829,94 @@ FROM accounting.settings s JOIN core.companies c ON c.id = s.company_id
 CROSS JOIN (VALUES ('collector_receivable', '1388', '1388'), ('collection_fee', '6418', '6421')) AS r(role, code_tt99, code_tt133)
 JOIN accounting.accounts a ON a.company_id = s.company_id AND a.code = CASE WHEN c.accounting_regime = 'TT133' THEN r.code_tt133 ELSE r.code_tt99 END
 ON CONFLICT DO NOTHING;
+```
+
+## 20. Database migration 0020 – CONG_VIEC_20 (báo cáo tài chính hợp nhất)
+
+Tệp `database/migrations/0020_consolidations.sql` (lát L1) thêm 3 bảng vào schema `finance`. Lát L0, L2 không thêm database migration; lát L2 thêm loại chứng từ `finance.consolidation` qua danh mục đồng bộ khi khởi động (`apps/api/src/permissions/permission-catalog.ts`), dãy số `HN` tạo khi gửi lần đầu. Khóa ngoại từ bảng mới trỏ vào `core`, `accounting`, `crm`, `catalog`, `finance`. Không ghi vào schema `accounting`: bút toán loại trừ chỉ nằm trong bảng hợp nhất.
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `consolidations` | Bảng hợp nhất theo kỳ (CHUC_NANG_93, CHUC_NANG_95; QUYTAC_NGHIEPVU_128) | `group_company_id` (công ty gốc), `from_date`, `to_date`, `document_no` (`HN…`, cấp khi gửi lần đầu), `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`), `member_ids` (thành viên lúc tính lại gần nhất), `warnings` (chênh lệch công nợ nội bộ, JSON), `report` (B01-DN, B02-DN đã chốt, JSON), `calculated_at`, `approval_request_id`, `post_error` (khóa thông báo khi duyệt xong không chốt được), `created_by`, `submitted_by` (người gửi lần gần nhất, được rút), `created_at`, `submitted_at`, `posted_at`, `version` | `to_date >= from_date`; duy nhất `(group_company_id, from_date, to_date)` khi `status` không phải `rejected`, `withdrawn`; chỉ mục `approval_request_id` |
+| `consolidation_entries` | Dòng bút toán loại trừ, điều chỉnh tay (CHUC_NANG_93, CHUC_NANG_94; QUYTAC_NGHIEPVU_125, QUYTAC_NGHIEPVU_126) | `consolidation_id` (xóa theo bảng), `entry_no` (các dòng cùng số là một bút toán cân), `kind` (`intercompany_balance`, `internal_sales`, `manual`), `company_id`, `account_id` (tài khoản của công ty), `partner_id`, `debit`, `credit`, `description`, `created_by` (trống: tự động) | `debit`, `credit` không âm, đúng một bên lớn hơn 0; chỉ mục `(consolidation_id, entry_no)` |
+| `consolidation_profit_lines` | Lãi chưa thực hiện từng mặt hàng mua nội bộ (CHUC_NANG_93, CHUC_NANG_94; QUYTAC_NGHIEPVU_127) | `consolidation_id` (xóa theo bảng), `buyer_company_id`, `seller_company_id`, `variant_id` (mặt hàng của bên mua), `internal_quantity`, `ending_quantity`, `unit_margin`, `estimated_amount`, `override_amount` (không âm), `override_reason` | Duy nhất `(consolidation_id, buyer_company_id, seller_company_id, variant_id)` |
+
+Bút toán lãi chưa thực hiện không lưu: khi tính báo cáo, mỗi công ty mua có tổng số dùng (`override_amount`, không có thì `estimated_amount`) lớn hơn 0 cộng Nợ tài khoản vai trò `cogs` / Có tài khoản vai trò `goods` của công ty đó. Bút toán đưa vào báo cáo như dòng bổ sung, chỉ ở cột kỳ này của cột hợp nhất.
+
+Quy tắc xóa và lưu giữ bổ sung:
+- Bỏ bảng nháp chưa gửi lần nào xóa bảng, bút toán, dòng lãi (xóa theo khóa ngoại).
+- Tính lại xóa và lập lại bút toán tự động (`kind` khác `manual`) và dòng lãi; giữ số sửa của dòng lãi cùng công ty mua, công ty bán, mặt hàng; giữ điều chỉnh tay.
+- Bảng đã chốt (`posted`) không sửa, không xóa; bảng bị từ chối, đã rút giữ lại.
+
+```mermaid
+erDiagram
+    companies ||--o{ consolidations : "công ty gốc"
+    consolidations ||--o{ consolidation_entries : "bút toán loại trừ, điều chỉnh"
+    consolidations ||--o{ consolidation_profit_lines : "lãi chưa thực hiện"
+    accounts ||--o{ consolidation_entries : "tài khoản của công ty"
+    partners |o--o{ consolidation_entries : "đối tác"
+    variants ||--o{ consolidation_profit_lines : "mặt hàng bên mua"
+```
+
+Lược đồ (chép từ tệp `database/migrations/0020_consolidations.sql`):
+
+```sql
+-- CONG_VIEC_20: Báo cáo tài chính hợp nhất (CHUC_NANG_92 đến 95; QUYTAC_NGHIEPVU_123 đến 128).
+
+-- Bảng hợp nhất theo kỳ của tập đoàn (QUYTAC_NGHIEPVU_128).
+CREATE TABLE finance.consolidations (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_company_id    uuid        NOT NULL REFERENCES core.companies(id),       -- công ty gốc
+    from_date           date        NOT NULL,
+    to_date             date        NOT NULL CHECK (to_date >= from_date),
+    document_no         text,
+    status              text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'posted', 'rejected', 'withdrawn')),
+    member_ids          uuid[]      NOT NULL DEFAULT '{}',                         -- thành viên lúc tính lại gần nhất
+    warnings            jsonb       NOT NULL DEFAULT '[]'::jsonb,                  -- chênh lệch công nợ nội bộ
+    report              jsonb,                                                     -- số báo cáo chốt khi duyệt
+    calculated_at       timestamptz,
+    approval_request_id uuid,
+    post_error          text,
+    created_by          uuid        NOT NULL REFERENCES core.users(id),
+    submitted_by        uuid        REFERENCES core.users(id),
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    submitted_at        timestamptz,
+    posted_at           timestamptz,
+    version             integer     NOT NULL DEFAULT 0
+);
+CREATE UNIQUE INDEX consolidations_period_idx ON finance.consolidations (group_company_id, from_date, to_date) WHERE status NOT IN ('rejected', 'withdrawn');
+CREATE INDEX consolidations_approval_idx ON finance.consolidations (approval_request_id);
+
+-- Bút toán loại trừ, điều chỉnh: các dòng cùng "entry_no" là một bút toán cân Nợ Có (QUYTAC_NGHIEPVU_125 đến 127).
+CREATE TABLE finance.consolidation_entries (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    consolidation_id    uuid        NOT NULL REFERENCES finance.consolidations(id) ON DELETE CASCADE,
+    entry_no            integer     NOT NULL,
+    kind                text        NOT NULL CHECK (kind IN ('intercompany_balance', 'internal_sales', 'manual')),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    account_id          uuid        NOT NULL REFERENCES accounting.accounts(id),
+    partner_id          uuid        REFERENCES crm.partners(id),
+    debit               numeric(20,4) NOT NULL DEFAULT 0 CHECK (debit >= 0),
+    credit              numeric(20,4) NOT NULL DEFAULT 0 CHECK (credit >= 0),
+    description         text        NOT NULL,
+    created_by          uuid        REFERENCES core.users(id),                    -- trống: tự động
+    CHECK ((debit > 0) <> (credit > 0))
+);
+CREATE INDEX consolidation_entries_idx ON finance.consolidation_entries (consolidation_id, entry_no);
+
+-- Lãi chưa thực hiện từng mặt hàng mua nội bộ (QUYTAC_NGHIEPVU_127).
+CREATE TABLE finance.consolidation_profit_lines (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    consolidation_id    uuid        NOT NULL REFERENCES finance.consolidations(id) ON DELETE CASCADE,
+    buyer_company_id    uuid        NOT NULL REFERENCES core.companies(id),
+    seller_company_id   uuid        NOT NULL REFERENCES core.companies(id),
+    variant_id          uuid        NOT NULL REFERENCES catalog.variants(id),      -- mặt hàng của bên mua
+    internal_quantity   numeric(20,4) NOT NULL,
+    ending_quantity     numeric(20,4) NOT NULL,
+    unit_margin         numeric(20,4) NOT NULL,
+    estimated_amount    numeric(20,4) NOT NULL,
+    override_amount     numeric(20,4) CHECK (override_amount >= 0),
+    override_reason     text,
+    UNIQUE (consolidation_id, buyer_company_id, seller_company_id, variant_id)
+);
 ```
