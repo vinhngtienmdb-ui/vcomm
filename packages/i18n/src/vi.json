@@ -2946,6 +2946,15 @@
     "profitHint": "Lãi chưa thực hiện = số còn tồn cuối kỳ (tối đa số mua nội bộ trong kỳ) × lãi gộp mỗi đơn vị của bên bán; sửa được khi bảng còn nháp.",
     "profitSaved": "Đã lưu lãi chưa thực hiện.",
     "reason": "Lý do",
-    "useEstimate": "Dùng số ước tính"
+    "useEstimate": "Dùng số ước tính",
+    "submit": "Gửi",
+    "withdraw": "Rút",
+    "submitted": "Đã gửi bảng hợp nhất.",
+    "submittedPending": "Bảng hợp nhất đang chờ duyệt.",
+    "withdrawn": "Đã rút bảng hợp nhất.",
+    "export_balance_sheet_xlsx": "Tình hình tài chính (Excel)",
+    "export_balance_sheet_pdf": "Tình hình tài chính (PDF)",
+    "export_income_statement_xlsx": "Kết quả kinh doanh (Excel)",
+    "export_income_statement_pdf": "Kết quả kinh doanh (PDF)"
   }
 }

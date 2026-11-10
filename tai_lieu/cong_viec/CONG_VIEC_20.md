@@ -1,9 +1,9 @@
 # CONG_VIEC_20: Báo cáo tài chính hợp nhất (MODULE_06, phần 8)
 
 - Mô tả: Lập bảng hợp nhất theo kỳ cho tập đoàn: cộng gộp số liệu sổ cái các công ty cùng đồng tiền hạch toán, tự lập bút toán loại trừ công nợ nội bộ, doanh thu và giá vốn bán nội bộ, lãi chưa thực hiện trong hàng tồn kho (ước tính, sửa được), điều chỉnh tay; lập B01-DN, B02-DN hợp nhất; gửi duyệt, đã duyệt giữ nguyên số; xuất Excel, PDF.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Bản nháp. Người dùng xác nhận thiết kế ngày 2026-11-10; đã lập trình lát L0, L1.
+- Trạng thái: Bản nháp. Người dùng xác nhận thiết kế ngày 2026-11-10; đã lập trình lát L0, L1, L2.
 - Nguồn: tài liệu `04` mục 6, `05` mục 2.1 (báo cáo hợp nhất); quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`.
 
 ## 1. Mục tiêu
@@ -71,11 +71,20 @@ Số liệu đọc từ sổ cái các công ty tại thời điểm tính; bả
 
 ## 10. Tiêu chí nghiệm thu
 
-Lập sau khi người dùng xác nhận thiết kế (TIEUCHI_NGHIEMTHU_145 trở đi).
+| Mã | Tiêu chí | Mức | Kịch bản |
+|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_145 | Chỉ người có quyền ở phạm vi tập đoàn xem, lập; thành viên đúng; công ty khác đồng tiền, chưa khởi tạo kế toán bị loại kèm lý do | Bắt buộc | KICHBAN_KIEMTHU_270 |
+| TIEUCHI_NGHIEMTHU_146 | Cộng gộp B01-DN, B02-DN theo mã Thông tư 99, công ty Thông tư 133 ghép mã; tổng tài sản bằng tổng nguồn vốn; báo cáo từng công ty không đổi | Bắt buộc | KICHBAN_KIEMTHU_271 |
+| TIEUCHI_NGHIEMTHU_147 | Loại trừ công nợ nội bộ phần nhỏ hơn, cảnh báo chênh lệch; loại trừ doanh thu thuần, giá vốn bán nội bộ; lãi chưa thực hiện ước tính đúng theo đơn vị bên mua; báo cáo hợp nhất cân | Bắt buộc | KICHBAN_KIEMTHU_272 |
+| TIEUCHI_NGHIEMTHU_148 | Sửa lãi chưa thực hiện cần lý do, giữ khi tính lại; điều chỉnh tay phải cân, đúng mã tài khoản; xóa điều chỉnh tay | Bắt buộc | KICHBAN_KIEMTHU_273 |
+| TIEUCHI_NGHIEMTHU_149 | Gửi theo chính sách duyệt của công ty gốc (không có thì chốt ngay); rút, gửi lại giữ số; đã chốt giữ nguyên số, không sửa; xuất Excel, PDF | Bắt buộc | KICHBAN_KIEMTHU_274, 275 |
+| TIEUCHI_NGHIEMTHU_150 | MAN_HINH_62, 63 hiển thị đúng trên máy tính và điện thoại, không cuộn ngang, không lỗi trình duyệt | Mong muốn | KICHBAN_KIEMTHU_276 |
 
 ## 11. Kịch bản kiểm thử
 
-Lập sau khi người dùng xác nhận thiết kế (KICHBAN_KIEMTHU_270 trở đi).
+- KICHBAN_KIEMTHU_270, 271: tự động, `apps/api/test/c20-consolidation.test.ts`.
+- KICHBAN_KIEMTHU_272 đến 275: tự động, `apps/api/test/c20-consolidation-eliminations.test.ts`.
+- KICHBAN_KIEMTHU_276: thủ công trên trình duyệt (`tam_thoi/CONG_VIEC_20/xem_l0.js`, `xem_l1.js`, `xem_l2.js`): phạm vi, cộng gộp, lập bảng, điều chỉnh tay, gửi chốt số, xuất; khổ 1360 và 375 điểm ảnh.
 
 ## 12. Ràng buộc kỹ thuật
 
@@ -94,3 +103,11 @@ Báo cáo tài chính từng công ty (CONG_VIEC_15) cho kết quả như cũ; k
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
 Chưa đối chiếu.
+
+## 16. Giới hạn đã biết
+
+- Cột so sánh (số đầu năm, cùng kỳ năm trước) chỉ là số cộng gộp, chưa loại trừ.
+- Lãi chưa thực hiện chỉ xét hàng mua nội bộ trong kỳ; lãi chưa thực hiện của kỳ trước chưa chuyển sang; ước tính khi giá vốn bình quân.
+- Không loại trừ tự động khoản đầu tư vào công ty con với vốn chủ sở hữu; làm bằng điều chỉnh tay.
+- Chênh lệch công nợ nội bộ chỉ cảnh báo, không tự xử lý.
+- Thuế giá trị gia tăng của giao dịch nội bộ không loại trừ.

@@ -1,5 +1,5 @@
 // API_106 đến API_109: báo cáo tài chính hợp nhất (CONG_VIEC_20). Quyền phạm vi tập đoàn kiểm trong service.
-import { Body, Controller, Delete, Get, Headers, HttpCode, Param, ParseIntPipe, Post, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Headers, HttpCode, Param, ParseIntPipe, Post, Put, Query, Req, Res, StreamableFile } from "@nestjs/common";
 import {
   consolidationManualEntrySchema,
   consolidationPreviewQuerySchema,
@@ -11,7 +11,9 @@ import {
   type ConsolidationScopeResponse,
   type ConsolidationsResponse,
 } from "contracts";
+import type { Response } from "express";
 import { z } from "zod";
+import { statementFileName, statementPdf, statementXlsx } from "../accounting/statement-export";
 import { UuidPipe } from "../common/uuid.pipe";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
@@ -93,5 +95,34 @@ export class ConsolidationController {
   @HttpCode(204)
   async discard(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<void> {
     await this.consolidation.discard(await this.actor(request, companyId), id, consolidationVersionSchema.parse(body).version);
+  }
+
+  @Post(":id/submit")
+  async submit(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<ConsolidationResponse> {
+    return this.consolidation.submit(await this.actor(request, companyId), id, consolidationVersionSchema.parse(body).version);
+  }
+
+  @Post(":id/withdraw")
+  async withdraw(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<ConsolidationResponse> {
+    return this.consolidation.withdraw(await this.actor(request, companyId), id);
+  }
+
+  @Get(":id/export")
+  async export(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Query() query: unknown,
+    @Res({ passthrough: true }) response: Response,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<StreamableFile> {
+    const parsed = z
+      .object({ kind: z.enum(["balance_sheet", "income_statement"]), format: z.enum(["xlsx", "pdf"]) })
+      .strict()
+      .parse(query);
+    const report = await this.consolidation.exportReport(await this.actor(request, companyId), id, parsed.kind);
+    const content = parsed.format === "xlsx" ? await statementXlsx(report) : await statementPdf(report);
+    response.setHeader("content-type", parsed.format === "xlsx" ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : "application/pdf");
+    response.setHeader("content-disposition", `${parsed.format === "pdf" ? "inline" : "attachment"}; filename="HN-${statementFileName(report, parsed.format)}"`);
+    return new StreamableFile(content);
   }
 }

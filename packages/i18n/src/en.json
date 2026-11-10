@@ -2946,6 +2946,15 @@
     "profitHint": "Unrealized profit = ending quantity (up to the quantity bought internally) × seller unit margin; editable while draft.",
     "profitSaved": "Unrealized profit saved.",
     "reason": "Reason",
-    "useEstimate": "Use estimate"
+    "useEstimate": "Use estimate",
+    "submit": "Submit",
+    "withdraw": "Withdraw",
+    "submitted": "Consolidation submitted.",
+    "submittedPending": "The consolidation is pending approval.",
+    "withdrawn": "Consolidation withdrawn.",
+    "export_balance_sheet_xlsx": "Financial position (Excel)",
+    "export_balance_sheet_pdf": "Financial position (PDF)",
+    "export_income_statement_xlsx": "Income statement (Excel)",
+    "export_income_statement_pdf": "Income statement (PDF)"
   }
 }

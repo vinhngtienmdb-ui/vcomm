@@ -12,7 +12,7 @@ import { useAdmin } from "ui/components/AppShell";
 import { ConfirmDialog, Drawer } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded, MessageView } from "ui/components/StatusViews";
-import { apiFetch } from "ui/lib/api";
+import { apiDownload, apiFetch } from "ui/lib/api";
 import { formatDate, formatDateTime, formatNumber } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 
@@ -86,6 +86,45 @@ function Detail({ data, onChanged }: { data: ConsolidationResponse; onChanged: (
         )}
         {data.postError && <div className="khoi-canh-bao loi">{data.postError}</div>}
         <FormError text={error} />
+        <div className="nhom-nut">
+          {data.canEdit && (
+            <button
+              type="button"
+              className="nut chinh"
+              disabled={busy}
+              onClick={() =>
+                void act(async () => {
+                  const result = await apiFetch<ConsolidationResponse>(`/finance/consolidation/${data.id}/submit`, { method: "POST", body: JSON.stringify({ version: data.version }) });
+                  if (result.status === "pending") notify(t("submittedPending"));
+                }, t("submitted"))
+              }
+            >
+              {t("submit")}
+            </button>
+          )}
+          {data.canWithdraw && (
+            <button type="button" className="nut phu" disabled={busy} onClick={() => void act(() => apiFetch(`/finance/consolidation/${data.id}/withdraw`, { method: "POST" }), t("withdrawn"))}>
+              {t("withdraw")}
+            </button>
+          )}
+          {(["balance_sheet", "income_statement"] as const).flatMap((kind) =>
+            (["xlsx", "pdf"] as const).map((format) => (
+              <button
+                key={`${kind}-${format}`}
+                type="button"
+                className="nut phu"
+                disabled={busy}
+                onClick={() =>
+                  void apiDownload(`/finance/consolidation/${data.id}/export?kind=${kind}&format=${format}`, `HN-${kind}-${data.toDate}.${format}`, format === "pdf").catch((failure) =>
+                    setError(failureOf(failure).message),
+                  )
+                }
+              >
+                {t(`export_${kind}_${format}`)}
+              </button>
+            )),
+          )}
+        </div>
         {data.canEdit && (
           <div className="nhom-nut">
             <button

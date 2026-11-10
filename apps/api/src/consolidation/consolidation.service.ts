@@ -1,5 +1,5 @@
 // Báo cáo tài chính hợp nhất (CONG_VIEC_20; CHUC_NANG_92 đến 95; QUYTAC_NGHIEPVU_123 đến 128; API_106 đến API_109).
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
 import type {
   AccountingRegime,
   ConsolidatedStatementResponse,
@@ -15,10 +15,15 @@ import type {
   consolidationPreviewQuerySchema,
   saveConsolidationProfitSchema,
   StatementKind,
+  StatementResponse,
 } from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import { charts } from "../accounting/charts";
+import { ApprovalRequestsService } from "../approvals/approval-requests.service";
 import { AuditService } from "../common/audit.service";
+import { OutboxService } from "../common/outbox.service";
+import { companyCurrency, ensureSequence } from "../purchasing/requisitions.service";
+import { NumberSequencesService } from "../settings/number-sequences.service";
 import { financeAudit } from "../finance/finance-context";
 import type { z } from "zod";
 import { consolidatedCode, StatementsService, type ExtraLine, type Ledger } from "../accounting/statements.service";
@@ -32,12 +37,14 @@ import type { Actor } from "../permissions/roles.service";
 export const consolidationPermissions = { view: "finance.consolidation.view", manage: "finance.consolidation.manage" } as const;
 // Mẫu hợp nhất: B01-DN, B02-DN Thông tư 99 (quyết định của người dùng ngày 2026-11-10).
 const consolidationRegime: AccountingRegime = "TT99_2025";
+const documentTypeCode = "finance.consolidation";
 
 type MemberRow = {
   id: string;
   code: string;
   short_name: string | null;
   legal_name: string;
+  tax_code: string | null;
   accounting_regime: AccountingRegime;
   base_currency: string;
   fiscal_year_start: number;
@@ -46,13 +53,41 @@ type MemberRow = {
 };
 
 @Injectable()
-export class ConsolidationService {
+export class ConsolidationService implements OnModuleInit {
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     private readonly permissionService: PermissionService,
     private readonly statements: StatementsService,
     private readonly auditService: AuditService,
+    private readonly sequences: NumberSequencesService,
+    private readonly approvals: ApprovalRequestsService,
+    private readonly outbox: OutboxService,
   ) {}
+
+  // Duyệt xong thì chốt số; bị từ chối, rút thì bảng về trạng thái tương ứng (QUYTAC_NGHIEPVU_128).
+  onModuleInit(): void {
+    this.outbox.subscribe("core.approval.completed", async (event) => {
+      if (event.payload.documentTypeCode !== documentTypeCode) return;
+      const status = String(event.payload.status);
+      const row = (
+        await this.database.execute<{ id: string; group_company_id: string }>(sql`
+        SELECT id, group_company_id FROM finance.consolidations WHERE approval_request_id = ${String(event.payload.requestId)} AND status = 'pending'`)
+      ).rows[0];
+      if (!row) return;
+      if (status === "approved") {
+        try {
+          await this.database.transaction((transaction) => this.post(transaction, row.group_company_id, row.id));
+        } catch (error) {
+          if (!(error instanceof ApiError)) throw error;
+          await this.close(this.database, row.id, "rejected", error.messageKey);
+        }
+      } else if (status === "rejected" || status === "withdrawn") await this.close(this.database, row.id, status, null);
+    });
+  }
+
+  private async close(executor: Executor, id: string, status: "rejected" | "withdrawn", postError: string | null): Promise<void> {
+    await executor.execute(sql`UPDATE finance.consolidations SET status = ${status}, post_error = ${postError}, version = version + 1 WHERE id = ${id} AND status = 'pending'`);
+  }
 
   // Quyền hợp nhất chỉ có hiệu lực khi gán ở phạm vi tập đoàn.
   async requireGroupPermission(actor: Actor, ...anyOf: string[]): Promise<Set<string>> {
@@ -73,7 +108,7 @@ export class ConsolidationService {
         SELECT id FROM root
         UNION ALL SELECT c.id FROM core.companies c JOIN down ON c.parent_id = down.id
       )
-      SELECT c.id, c.code, c.short_name, c.legal_name, c.accounting_regime, c.base_currency, c.fiscal_year_start, c.parent_id IS NULL AS is_root,
+      SELECT c.id, c.code, c.short_name, c.legal_name, c.tax_code, c.accounting_regime, c.base_currency, c.fiscal_year_start, c.parent_id IS NULL AS is_root,
         EXISTS (SELECT 1 FROM accounting.settings s WHERE s.company_id = c.id) AS initialized
       FROM core.companies c JOIN down ON down.id = c.id
       ORDER BY c.parent_id IS NOT NULL, c.code`)
@@ -121,7 +156,7 @@ export class ConsolidationService {
   }
 
   // Báo cáo hợp nhất: cột cộng gộp (không có dòng bổ sung), cột hợp nhất (có bút toán loại trừ), cột loại trừ là chênh lệch.
-  async report(actor: Actor, ledger: Ledger, root: MemberRow, included: MemberRow[], units: number, kind: StatementKind, from: string, to: string): Promise<ConsolidatedStatementResponse> {
+  async report(_actor: Actor | null, ledger: Ledger, root: MemberRow, included: MemberRow[], units: number, kind: StatementKind, from: string, to: string): Promise<ConsolidatedStatementResponse> {
     const template = this.statements.templateOf(consolidationRegime, kind);
     const combined = await this.statements.compute(ledger, template, kind, from, to, root.fiscal_year_start, units, false);
     const consolidated = ledger.extras.length > 0 ? await this.statements.compute(ledger, template, kind, from, to, root.fiscal_year_start, units, true) : combined;
@@ -612,6 +647,100 @@ export class ConsolidationService {
       if ((removed.rowCount ?? 0) === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       await this.auditService.record({ ...financeAudit(actor, "consolidation"), action: "consolidation.discard", entityId: id, beforeData: null, afterData: null }, transaction);
     });
+  }
+  // ---------- Gửi, rút, chốt số, xuất (CHUC_NANG_95; QUYTAC_NGHIEPVU_128; API_109) ----------
+
+  private async reports(executor: Executor, groupId: string, id: string, row: ConsolidationRow) {
+    const { ledger, root, included, units } = await this.ledgerOf(groupId, row.member_ids);
+    ledger.extras = await this.extras(executor, id, ledger);
+    const balanceSheet = await this.report(null, ledger, root, included, units, "balance_sheet", row.from_date, row.to_date);
+    const incomeStatement = await this.report(null, ledger, root, included, units, "income_statement", row.from_date, row.to_date);
+    return { balanceSheet, incomeStatement };
+  }
+
+  // Gửi theo chính sách duyệt của công ty gốc; chưa có chính sách thì chốt số ngay. Giá trị duyệt là tổng tài sản hợp nhất.
+  async submit(actor: Actor, id: string, version: number): Promise<ConsolidationResponse> {
+    await this.requireGroupPermission(actor, consolidationPermissions.manage);
+    const root = await this.rootOf(actor.companyId);
+    const rootActor = { ...actor, companyId: root.id };
+    await ensureSequence(this.database, this.sequences, rootActor, documentTypeCode, "HN");
+    await this.database.transaction(async (transaction) => {
+      const row = await this.row(transaction, root.id, id, true);
+      this.requireEditable(row, version);
+      const { balanceSheet } = await this.reports(transaction, root.id, id, row);
+      const totalAssets = balanceSheet.lines.find((line) => line.code === "280")?.consolidated ?? "0";
+      const documentNo = row.document_no ?? (await this.sequences.next(root.id, documentTypeCode, transaction));
+      let requestId: string | null = null;
+      try {
+        requestId = await this.approvals.submitWithin(transaction, root.id, actor.userId, {
+          documentTypeCode,
+          documentId: id,
+          documentNo,
+          amount: Math.abs(Number(totalAssets)).toFixed(4),
+          currency: await companyCurrency(transaction, root.id),
+          documentDate: row.to_date,
+        });
+      } catch (error) {
+        if (!(error instanceof ApiError && error.messageKey === "policyNotFound")) throw error;
+      }
+      await transaction.execute(sql`
+        UPDATE finance.consolidations SET status = 'pending', document_no = ${documentNo}, approval_request_id = ${requestId}, post_error = NULL, submitted_at = now(),
+          submitted_by = ${actor.userId}, version = version + 1
+        WHERE id = ${id}`);
+      if (!requestId) await this.post(transaction, root.id, id);
+      await this.auditService.record(
+        { ...financeAudit(rootActor, "consolidation"), action: "consolidation.submit", entityId: id, beforeData: null, afterData: { documentNo, approvalRequestId: requestId } },
+        transaction,
+      );
+    });
+    return this.detail(actor, id);
+  }
+
+  async withdraw(actor: Actor, id: string): Promise<ConsolidationResponse> {
+    await this.requireGroupPermission(actor, consolidationPermissions.manage);
+    const root = await this.rootOf(actor.companyId);
+    const row = await this.row(this.database, root.id, id);
+    if (row.submitted_by !== actor.userId || !row.approval_request_id || row.status !== "pending") throw new ApiError("FORBIDDEN", "forbidden");
+    await this.approvals.withdraw(actor.userId, row.approval_request_id);
+    await this.database.transaction(async (transaction) => {
+      await this.close(transaction, id, "withdrawn", null);
+      await this.auditService.record(
+        { ...financeAudit({ ...actor, companyId: root.id }, "consolidation"), action: "consolidation.withdraw", entityId: id, beforeData: null, afterData: null },
+        transaction,
+      );
+    });
+    return this.detail(actor, id);
+  }
+
+  // Chốt số: lưu báo cáo tại thời điểm duyệt, sau đó không tính lại.
+  private async post(executor: Executor, groupId: string, id: string): Promise<void> {
+    const row = await this.row(executor, groupId, id, true);
+    if (row.status !== "pending") throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+    const report = await this.reports(executor, groupId, id, row);
+    await executor.execute(sql`
+      UPDATE finance.consolidations SET status = 'posted', report = ${JSON.stringify(report)}::jsonb, posted_at = now(), post_error = NULL, version = version + 1 WHERE id = ${id}`);
+  }
+
+  async exportReport(actor: Actor, id: string, kind: StatementKind): Promise<StatementResponse> {
+    await this.requireGroupPermission(actor, consolidationPermissions.view, consolidationPermissions.manage);
+    const detail = await this.detail(actor, id);
+    const report = kind === "balance_sheet" ? detail.balanceSheet : detail.incomeStatement;
+    const root = await this.rootOf(actor.companyId);
+    // Cột hợp nhất kỳ này và cột cộng gộp so sánh (cột so sánh chưa loại trừ).
+    return {
+      kind,
+      form: report.form,
+      name: `${report.name} hợp nhất`,
+      forms: [report.form],
+      regime: consolidationRegime,
+      company: { name: `${report.group.name} (hợp nhất: ${report.memberNames.join(", ")})`, taxCode: root.tax_code, address: null },
+      currency: report.currency,
+      columns: [
+        { ...report.columns[0]!, label: kind === "balance_sheet" ? "Hợp nhất – số cuối kỳ" : "Hợp nhất – kỳ này" },
+        { ...report.columns[1]!, label: kind === "balance_sheet" ? "Cộng gộp – số đầu năm" : "Cộng gộp – cùng kỳ năm trước" },
+      ],
+      lines: report.lines.map((line) => ({ code: line.code, name: line.name, level: line.level, note: line.note, current: line.consolidated, previous: line.previous })),
+    };
   }
 }
 

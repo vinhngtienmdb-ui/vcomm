@@ -3,6 +3,7 @@
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
 import { createTestUser, signIn, type Session } from "./helpers";
@@ -325,5 +326,67 @@ describe("CONG_VIEC_20 loại trừ nội bộ", () => {
     expect(removed.body.entries.some((item: { kind: string }) => item.kind === "manual")).toBe(false);
     expect((await retailAdmin.call("get", `/finance/consolidation/${consolidation.id}`, { companyId: retail })).status).toBe(403);
     consolidation = removed.body;
+  });
+});
+
+describe("CONG_VIEC_20 gửi, chốt số, xuất", () => {
+  it("KICHBAN_KIEMTHU_274: chưa có chính sách duyệt thì gửi là chốt số; số đã chốt không đổi khi sổ thay đổi; không sửa, không tính lại; xuất Excel, PDF", async () => {
+    const current = (await group("get", "/finance/consolidation")).body.data[0];
+    const detail = (await group("get", `/finance/consolidation/${current.id}`)).body as Detail;
+    const posted = await group("post", `/finance/consolidation/${detail.id}/submit`, { version: detail.version });
+    expect(posted.status, JSON.stringify(posted.body)).toBe(201);
+    expect(posted.body).toMatchObject({ status: "posted", documentNo: expect.stringMatching(/^HN/), canEdit: false });
+    const frozen = line(posted.body.balanceSheet.lines, "280").consolidated;
+    // Sổ VCR thay đổi sau khi chốt: bảng đã chốt giữ nguyên số.
+    const account = async (code: string) => (await pool.query<{ id: string }>("SELECT id FROM accounting.accounts WHERE company_id = $1 AND code = $2", [retail, code])).rows[0]!.id;
+    const extra = await sell(groupAdmin, "/finance/journals", {
+      journalDate: today,
+      description: "Sau chốt",
+      lines: [
+        { accountId: await account("111"), debit: "5000", credit: "0" },
+        { accountId: await account("41111"), debit: "0", credit: "5000" },
+      ],
+    });
+    expect((await sell(groupAdmin, `/finance/journals/${extra.body.id}/submit`, { version: extra.body.version })).body.status).toBe("posted");
+    expect(line((await group("get", `/finance/consolidation/${detail.id}`)).body.balanceSheet.lines, "280").consolidated).toBe(frozen);
+    expect((await group("post", `/finance/consolidation/${detail.id}/recalculate`, { version: posted.body.version })).status).toBe(409);
+    const excel = await chief.call("get", `/finance/consolidation/${detail.id}/export?kind=balance_sheet&format=xlsx`, { companyId: retail }).responseType("blob");
+    expect(excel.status).toBe(200);
+    expect(
+      Buffer.from(excel.body as Buffer)
+        .subarray(0, 2)
+        .toString(),
+    ).toBe("PK");
+    const pdf = await chief.call("get", `/finance/consolidation/${detail.id}/export?kind=income_statement&format=pdf`, { companyId: retail }).responseType("blob");
+    expect(
+      Buffer.from(pdf.body as Buffer)
+        .subarray(0, 4)
+        .toString(),
+    ).toBe("%PDF");
+  });
+
+  it("KICHBAN_KIEMTHU_275: có chính sách duyệt của công ty gốc thì chờ duyệt; người gửi rút; gửi lại giữ số; duyệt xong chốt số", async () => {
+    const policy = await groupAdmin.call("post", "/approval-policies", {
+      companyId: testIds.groupCompany,
+      body: {
+        documentTypeCode: "finance.consolidation",
+        currency: "VND",
+        effectiveFrom: "2026-01-01",
+        levels: [{ levelNo: 1, minAmount: "0", approver: { type: "user", userId: testIds.groupAdmin }, substitute: { type: "user", userId: testIds.exchangeRateManager }, dueHours: 8 }],
+      },
+    });
+    expect(policy.status, JSON.stringify(policy.body)).toBe(201);
+    const created = (await group("post", "/finance/consolidation", { from: "2026-01-01", to: today })).body as Detail;
+    const pending = await group("post", `/finance/consolidation/${created.id}/submit`, { version: created.version });
+    expect(pending.body).toMatchObject({ status: "pending", canWithdraw: true, canEdit: false });
+    const withdrawn = await group("post", `/finance/consolidation/${created.id}/withdraw`);
+    expect(withdrawn.body).toMatchObject({ status: "withdrawn", canEdit: true });
+    const again = await group("post", `/finance/consolidation/${created.id}/submit`, { version: withdrawn.body.version });
+    expect(again.body).toMatchObject({ status: "pending", documentNo: pending.body.documentNo });
+    const requestId = (await pool.query<{ approval_request_id: string }>("SELECT approval_request_id FROM finance.consolidations WHERE id = $1", [created.id])).rows[0]!.approval_request_id;
+    const decided = await groupAdmin.call("post", `/approval-requests/${requestId}/decisions`, { body: { decision: "approved", comment: "" } });
+    expect(decided.status, JSON.stringify(decided.body)).toBe(200);
+    await application.get(OutboxService).dispatchPending();
+    expect((await group("get", `/finance/consolidation/${created.id}`)).body.status).toBe("posted");
   });
 });

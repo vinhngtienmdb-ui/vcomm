@@ -304,6 +304,7 @@ export const documentTypeCatalog = [
   { code: "accounting.journal", appCode: "finance", nameVi: "Phiếu kế toán", nameEn: "Manual journal", requiresApproval: true },
   { code: "finance.commission", appCode: "finance", nameVi: "Bảng hoa hồng", nameEn: "Commission statement", requiresApproval: true },
   { code: "finance.collection_statement", appCode: "finance", nameVi: "Bảng đối soát thu hộ", nameEn: "Collection statement", requiresApproval: true },
+  { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.
