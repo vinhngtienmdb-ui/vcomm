@@ -183,6 +183,22 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_20
+
+- Phạm vi: lát L0 đến L2 (phạm vi tập đoàn, quyền chỉ hiệu lực ở phạm vi tập đoàn; cộng gộp B01-DN, B02-DN theo mã Thông tư 99, công ty Thông tư 133 ghép mã; số dư theo từng công ty không bù trừ ngược chiều; bảng hợp nhất theo kỳ; loại trừ công nợ và trả trước nội bộ kèm cảnh báo chênh lệch; loại trừ doanh thu, giá vốn bán nội bộ; lãi chưa thực hiện ước tính theo phần bên mua thực nhận, sửa tay có lý do; điều chỉnh tay theo công ty, đối tác; gửi duyệt tính lại và chốt số; rút, gửi lại; xuất Excel, PDF); MAN_HINH_62, 63; API_106 đến API_109. Báo cáo tài chính từng công ty (API_90) dùng chung phần đọc số liệu mới. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm --filter api test`, `pnpm audit --prod`; database migration 0020 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright (Quản trị tập đoàn): phạm vi, xem nhanh cộng gộp, lập bảng, điều chỉnh tay (thiếu đối tác báo lỗi tại ô, chọn công ty, đối tác), gửi chốt số (máy tính và điện thoại 375 điểm ảnh, không cuộn ngang, không có yêu cầu lỗi ngoài lỗi kiểm tra cố ý).
+- Kết quả: 281 đạt / 0 không đạt / 281 kịch bản tự động (35 tệp; phần mới: `c20-consolidation` 3, `c20-consolidation-eliminations` 4; KICHBAN_KIEMTHU_270 đến 275, 277). KICHBAN_KIEMTHU_276 (thủ công trên trình duyệt) đạt.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_145 đến 149 (bắt buộc) – Đạt. TIEUCHI_NGHIEMTHU_150 (mong muốn) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc (pull request số 55) chưa chạy được do tài khoản GitHub lỗi thanh toán; đã rà các dòng thêm mới không có khóa bí mật.
+  - C3 phân quyền: Đạt – mọi thao tác cần quyền gán ở phạm vi tập đoàn; Kế toán trưởng phạm vi công ty nhận 403; `finance.consolidation.manage` là quyền nhạy cảm; chỉ người gửi được rút.
+  - C4 toàn vẹn dữ liệu: Đạt – chỉ đọc sổ các công ty, không ghi bút toán vào sổ công ty; số chốt lúc gửi, bảng đã chốt không tính lại; một bảng đang dùng mỗi kỳ (chỉ mục duy nhất, lỗi nghiệp vụ khi trùng); điều chỉnh tay kiểm công ty thuộc thành viên, đối tác tồn tại, cân Nợ Có; truy vấn tham số ràng buộc.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập tìm 2 lỗi Cao (thiếu loại trừ trả trước nội bộ; gửi duyệt không chốt số nên người duyệt thấy số khác số ghi), các mục Trung bình (số dư ngược chiều giữa công ty bị bù trừ; lãi mỗi đơn vị sai khi giao thiếu; tồn cuối không chia khi nhiều bên bán; điều chỉnh tay thiếu công ty, đối tác; gửi lại trùng kỳ lỗi 500; thiếu chỉ mục), các mục Thấp (lỗi ghi sổ hiện khóa thô; câu thiếu định khoản nói về hoa hồng; xem nhanh tải khi chưa mở thẻ); đã sửa tất cả. Khi thử trên trình duyệt phát hiện ô Nợ, Có bị tách hai hàng trong ngăn kéo điều chỉnh tay, đã sửa. Bảng nháp thử trên dữ liệu phát triển đã xóa.
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
+- Kết luận: Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_19
 
 - Phạm vi: lát L0, L1 (đơn vị thu hộ; nhập bảng đối soát từ tệp Excel mẫu chung, ghép đơn bán, lỗi chặn, cảnh báo chênh lệch, bỏ dòng, nhập lại, bỏ bảng nháp; gửi theo chính sách duyệt, rút; ghi sổ: trừ nợ khách theo đơn, trả trước, nợ đơn vị thu hộ bằng thực nhận, bút toán 1388, 131, 6418/6421; hoa hồng theo tiền thu hộ; phiếu thu của đơn vị thu hộ hạch toán 1388); MAN_HINH_60, 61; API_102 đến API_105. Sửa nhãn nguồn bút toán hoa hồng trên MAN_HINH_51. Hồi quy: toàn bộ kiểm thử tự động của dự án.
