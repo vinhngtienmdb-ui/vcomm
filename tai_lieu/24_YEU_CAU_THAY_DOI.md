@@ -170,3 +170,17 @@
 - Mức quy mô: Lớn (gộp trong CONG_VIEC_13).
 - Rủi ro: đơn đang chờ duyệt có thể đổi kết quả kiểm ngoại lệ ở lần gửi sau; thấp vì chưa phát hành.
 - Trạng thái: Đã phê duyệt 2026-11-10 (người dùng chọn đổi dư nợ tạm tính sang công nợ thật).
+
+### THAY_DOI_10: Công nợ làm tròn theo đơn vị tiền tệ công ty – 2026-11-10
+- Lý do: rà soát CONG_VIEC_14 phát hiện công nợ (CONG_VIEC_13) lưu 4 chữ số lẻ trong khi sổ cái 131, 331 làm tròn đến đồng, nên hai bên lệch vài đồng (ví dụ giao 3 lần mỗi lần một phần ba dòng đơn). Người dùng chọn làm tròn công nợ đến đồng (tài liệu `02`, 2026-11-10).
+- Nội dung thay đổi: QUYTAC_NGHIEPVU_86: tiền công nợ của mỗi phiếu kho làm tròn theo đơn vị nhỏ nhất của tiền tệ công ty, tính theo số lượng lũy kế của từng dòng đơn (làm tròn lũy kế sau trừ làm tròn lũy kế trước) để tổng các lần giao, nhận, trả đúng bằng tiền dòng đơn; bút toán dùng cùng cách tính. Phiếu thu chi, số dư đầu kỳ không nhận số lẻ hơn đơn vị tiền tệ.
+- Thành phần bị ảnh hưởng: tài liệu `07` QUYTAC_NGHIEPVU_86, 88, 90; `16` (hàm `finance.inventory_amounts`, `finance.line_share`, `finance.company_minor_units` trong database migration 0011); `17` API_85, API_86 (lỗi số tiền lẻ); `21`, `27`.
+- Dữ liệu bị ảnh hưởng: khoản công nợ đã tạo trước giữ nguyên; chưa có dữ liệu thật.
+- API bị ảnh hưởng: API_85 (số dư đầu kỳ), API_86 (phiếu thu chi) từ chối số tiền lẻ hơn đơn vị tiền tệ.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: công nợ của từng lần giao có thể chênh tối đa 1 đồng so với cách tính cũ; tổng theo dòng đơn đúng bằng tiền dòng đơn.
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_201 đến 206, 209; thêm KICHBAN_KIEMTHU_217.
+- Mức quy mô: Vừa (gộp trong CONG_VIEC_14).
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-10.
