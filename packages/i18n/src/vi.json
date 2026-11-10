@@ -236,7 +236,10 @@
     "einvoiceProviderAuthentication": "Nhà cung cấp từ chối thông tin kết nối (mã ứng dụng, mã số thuế, tên đăng nhập, mật khẩu).",
     "einvoiceProviderRejected": "Nhà cung cấp từ chối yêu cầu.",
     "einvoiceSending": "Hóa đơn đang được gửi; thử lại sau ít phút.",
-    "einvoiceReplacementPending": "Hóa đơn đang có hóa đơn thay thế chưa phát hành."
+    "einvoiceReplacementPending": "Hóa đơn đang có hóa đơn thay thế chưa phát hành.",
+    "commissionTierStart": "Bậc đầu tiên phải bắt đầu từ 0%.",
+    "commissionTierDuplicate": "Hai bậc trùng phần trăm bắt đầu.",
+    "commissionRateDuplicate": "Ngành hàng và kênh này đã có mức."
   },
   "login": {
     "title": "Đăng nhập",

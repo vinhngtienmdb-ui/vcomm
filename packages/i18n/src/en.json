@@ -236,7 +236,10 @@
     "einvoiceProviderAuthentication": "The provider rejected the connection details.",
     "einvoiceProviderRejected": "The provider rejected the request.",
     "einvoiceSending": "The invoice is being sent; try again in a few minutes.",
-    "einvoiceReplacementPending": "A replacement for this invoice is still being issued."
+    "einvoiceReplacementPending": "A replacement for this invoice is still being issued.",
+    "commissionTierStart": "The first tier must start at 0%.",
+    "commissionTierDuplicate": "Two tiers start at the same percent.",
+    "commissionRateDuplicate": "This category and channel already have a rate."
   },
   "login": {
     "title": "Sign in",

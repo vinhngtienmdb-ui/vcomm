@@ -88,6 +88,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "finance.period.close", appCode: "finance", nameVi: "Khóa sổ, mở lại sổ", nameEn: "Close and reopen periods", isSensitive: true },
   { code: "finance.einvoice.view", appCode: "finance", nameVi: "Xem hóa đơn điện tử", nameEn: "View e-invoices", isSensitive: false },
   { code: "finance.einvoice.manage", appCode: "finance", nameVi: "Gửi lại, điều chỉnh, thay thế hóa đơn điện tử", nameEn: "Manage e-invoices", isSensitive: false },
+  { code: "finance.commission.view", appCode: "finance", nameVi: "Xem hoa hồng", nameEn: "View commissions", isSensitive: false },
+  { code: "finance.commission.manage", appCode: "finance", nameVi: "Lập, gửi bảng hoa hồng", nameEn: "Manage commission statements", isSensitive: false },
+  { code: "finance.commission.setup", appCode: "finance", nameVi: "Cài đặt hoa hồng, chỉ tiêu", nameEn: "Set up commissions and targets", isSensitive: true },
   { code: "finance.einvoice.setup", appCode: "finance", nameVi: "Cài đặt hóa đơn điện tử", nameEn: "Set up e-invoicing", isSensitive: true },
   { code: "inventory.sales.issue", appCode: "inventory", nameVi: "Xuất giao hàng, nhận hàng trả lại", nameEn: "Issue sales deliveries and receive returns", isSensitive: false },
   { code: "inventory.purchase.receive", appCode: "inventory", nameVi: "Nhập mua, trả hàng nhà cung cấp", nameEn: "Receive purchases and return to suppliers", isSensitive: false },
@@ -142,6 +145,9 @@ const companyAdminPermissions = [
   "finance.einvoice.view",
   "finance.einvoice.manage",
   "finance.einvoice.setup",
+  "finance.commission.view",
+  "finance.commission.manage",
+  "finance.commission.setup",
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [
@@ -217,6 +223,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "finance.journal.manage",
       "finance.einvoice.view",
       "finance.einvoice.manage",
+      "finance.commission.view",
+      "finance.commission.manage",
       "crm.access",
       "crm.partner.view",
     ],
@@ -238,6 +246,9 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "finance.einvoice.view",
       "finance.einvoice.manage",
       "finance.einvoice.setup",
+      "finance.commission.view",
+      "finance.commission.manage",
+      "finance.commission.setup",
       "crm.access",
       "crm.partner.view",
     ],

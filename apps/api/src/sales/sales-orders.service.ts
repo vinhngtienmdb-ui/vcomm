@@ -1,5 +1,6 @@
 // Đơn bán (CHUC_NANG_54, 55; QUYTAC_NGHIEPVU_67 đến 71; API_77, API_78): giá theo bảng giá, ngoại lệ cần duyệt, giữ hàng, hủy, đóng.
 // Giữ hàng ghi qua ReservationsService của module Kho; số đã giao, đã trả tính từ phiếu kho.
+import { assignCommissionUser } from "../commission/commission-rules";
 import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
 import type {
   PageResponse,
@@ -380,6 +381,8 @@ export class SalesOrdersService implements OnModuleInit {
       if (Object.keys(internal).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: internal });
     }
     const documentNo = current.document_no ?? (await this.sequences.next(actor.companyId, documentTypeCode, transaction));
+    // Gán nhân viên hưởng hoa hồng khi gửi lần đầu (CONG_VIEC_17; QUYTAC_NGHIEPVU_109).
+    await assignCommissionUser(transaction, id);
     // Giữ hàng theo tổng số lượng cơ sở từng mặt hàng.
     const totals = new Map<string, { quantity: number; index: number }>();
     lines.rows.forEach((line, index) => {

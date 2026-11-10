@@ -63,6 +63,8 @@ import { LedgerController } from "./accounting/ledger.controller";
 import { JournalsService } from "./accounting/journals.service";
 import { LedgerReportsService } from "./accounting/ledger-reports.service";
 import { StatementsService } from "./accounting/statements.service";
+import { CommissionsController } from "./commission/commissions.controller";
+import { CommissionsService } from "./commission/commissions.service";
 import { EinvoiceCorrectionsService } from "./einvoice/einvoice-corrections.service";
 import { EinvoiceSettingsService } from "./einvoice/einvoice-settings.service";
 import { EinvoicesController } from "./einvoice/einvoices.controller";
@@ -98,7 +100,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, CommissionsController],
   providers: [
     AuthService,
     ActivationService,
@@ -142,6 +144,7 @@ import { UsersService } from "./users/users.service";
     EinvoiceSettingsService,
     EinvoicesService,
     EinvoiceCorrectionsService,
+    CommissionsService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,
