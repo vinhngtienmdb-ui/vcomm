@@ -3962,7 +3962,8 @@ export interface MarketplaceSettingsResponse {
   canSetOperator: boolean;
   companies: Array<{ id: string; shortName: string }>;
   canManage: boolean;
-  departments: Array<{ id: string; name: string }>;
+  // Đơn vị kinh doanh của công ty vận hành sàn (CONG_VIEC_27).
+  departments: Array<{ id: string; name: string; type: SalesUnitType }>;
 }
 
 // CONG_VIEC_27: đội kinh doanh nhiều cấp (API_120 đến 122; QUYTAC_NGHIEPVU_148 đến 153).

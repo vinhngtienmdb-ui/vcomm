@@ -1777,7 +1777,8 @@
     "partners": "Đối tác",
     "customerAssignments": "Giao khách hàng",
     "visits": "Ghé thăm khách",
-    "buyers": "Người mua VComm"
+    "buyers": "Người mua VComm",
+    "salesTeam": "Đội kinh doanh"
   },
   "partners": {
     "title": "Đối tác",
@@ -3159,7 +3160,7 @@
     "salesNo": "Chưa được đánh dấu nhân viên kinh doanh.",
     "department": "Phòng ban",
     "chooseDepartment": "Chọn phòng ban",
-    "noDepartments": "Công ty vận hành sàn chưa có phòng ban. Tạo phòng ban trước.",
+    "noDepartments": "Công ty vận hành sàn chưa có đơn vị kinh doanh. Gắn loại đơn vị ở màn hình Đội kinh doanh trước.",
     "flag": "Đánh dấu nhân viên kinh doanh",
     "unflag": "Bỏ đánh dấu",
     "unflagConfirm": "Bỏ đánh dấu {name}? Tài khoản rời phòng ban; các khách của người này không còn nhân viên kinh doanh phụ trách.",
@@ -3171,5 +3172,32 @@
     "referralsTitle": "Người được giới thiệu ({count})",
     "noReferrals": "Chưa giới thiệu ai.",
     "by": "bởi {name}"
+  },
+  "salesTeam": {
+    "title": "Đội kinh doanh",
+    "hint": "Gắn loại cho phòng ban của công ty vận hành sàn (Khối > Vùng > Phòng). Người quản lý đơn vị mang chức danh theo loại đơn vị; thành viên khác là Nhân viên kinh doanh.",
+    "type_none": "Không phải đơn vị kinh doanh",
+    "type_division": "Khối kinh doanh",
+    "type_region": "Vùng",
+    "type_team": "Phòng kinh doanh",
+    "title_director": "Giám đốc Kinh doanh",
+    "title_regional_director": "Giám đốc Vùng",
+    "title_team_head": "Trưởng phòng kinh doanh",
+    "title_staff": "Nhân viên kinh doanh",
+    "unitType": "Loại đơn vị",
+    "manager": "Quản lý",
+    "noManager": "Chưa có quản lý",
+    "removeManager": "Bỏ quản lý",
+    "appoint": "Bổ nhiệm quản lý",
+    "moveTo": "Chuyển sang",
+    "move": "Chuyển",
+    "members": "Thành viên ({count})",
+    "noMembers": "Chưa có thành viên.",
+    "customers": "{count} khách",
+    "saved": "Đã lưu.",
+    "noUnits": "Công ty vận hành sàn chưa có phòng ban. Tạo phòng ban ở mini app Quản trị hệ thống.",
+    "chain": "Cấp trên",
+    "noChain": "Không có cấp trên.",
+    "salesTitle": "Chức danh"
   }
 }

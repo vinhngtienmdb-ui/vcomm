@@ -152,7 +152,8 @@ export class SalesTeamService {
       const unit = team.unit(departmentId);
       if (!unit) throw new ApiError("NOT_FOUND", "notFound");
       if (unit.type === type) return;
-      if (team.members.some((member) => member.departmentId === departmentId)) throw new ApiError("BUSINESS_RULE", "salesUnitHasMembers");
+      // Chỉ chặn đổi, bỏ loại của đơn vị kinh doanh còn thành viên; gắn loại lần đầu cho phòng ban có người được.
+      if (unit.type && team.members.some((member) => member.departmentId === departmentId)) throw new ApiError("BUSINESS_RULE", "salesUnitHasMembers");
       if (type) {
         const parent = team.salesParent(unit);
         if (parent?.type && rank[parent.type] <= rank[type]) throw new ApiError("BUSINESS_RULE", "salesUnitOrderInvalid");

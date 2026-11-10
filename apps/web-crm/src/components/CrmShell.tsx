@@ -1,6 +1,6 @@
 "use client";
 
-// Khung mini app Khách hàng và Đối tác: menu MAN_HINH_36 (CONG_VIEC_06), MAN_HINH_64 (CONG_VIEC_21), MAN_HINH_79 (CONG_VIEC_23); mục thêm dần theo module.
+// Khung mini app Khách hàng và Đối tác: menu MAN_HINH_36 (CONG_VIEC_06), MAN_HINH_64 (CONG_VIEC_21), MAN_HINH_79 (CONG_VIEC_23), MAN_HINH_81 (CONG_VIEC_27); mục thêm dần theo module.
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { AppShell } from "ui/components/AppShell";
@@ -10,6 +10,7 @@ export const crmMenu = [
   { href: "/customer-assignments", key: "customerAssignments", permission: "crm.partner.view" },
   { href: "/visits", key: "visits", permission: "crm.partner.view" },
   { href: "/buyers", key: "buyers", permission: "marketplace.buyer.view" },
+  { href: "/sales-team", key: "salesTeam", permission: "marketplace.buyer.view" },
 ] as const;
 
 export function CrmShell({ children }: { children: ReactNode }) {

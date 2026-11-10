@@ -1777,7 +1777,8 @@
     "partners": "Partners",
     "customerAssignments": "Customer assignments",
     "visits": "Customer visits",
-    "buyers": "VComm buyers"
+    "buyers": "VComm buyers",
+    "salesTeam": "Sales team"
   },
   "partners": {
     "title": "Partners",
@@ -3159,7 +3160,7 @@
     "salesNo": "Not flagged as sales staff.",
     "department": "Department",
     "chooseDepartment": "Choose a department",
-    "noDepartments": "The operator company has no departments yet. Create one first.",
+    "noDepartments": "The operator company has no sales units yet. Mark them on the Sales team screen first.",
     "flag": "Flag as sales staff",
     "unflag": "Remove flag",
     "unflagConfirm": "Remove the flag from {name}? The account leaves the department and their customers no longer have a responsible salesperson.",
@@ -3171,5 +3172,32 @@
     "referralsTitle": "Referred people ({count})",
     "noReferrals": "No one referred yet.",
     "by": "by {name}"
+  },
+  "salesTeam": {
+    "title": "Sales team",
+    "hint": "Mark departments of the operator company as sales units (Division > Region > Team). Unit managers take the title of the unit type; other members are sales staff.",
+    "type_none": "Not a sales unit",
+    "type_division": "Sales division",
+    "type_region": "Region",
+    "type_team": "Sales team",
+    "title_director": "Sales director",
+    "title_regional_director": "Regional director",
+    "title_team_head": "Sales team head",
+    "title_staff": "Salesperson",
+    "unitType": "Unit type",
+    "manager": "Manager",
+    "noManager": "No manager",
+    "removeManager": "Remove manager",
+    "appoint": "Appoint as manager",
+    "moveTo": "Move to",
+    "move": "Move",
+    "members": "Members ({count})",
+    "noMembers": "No members.",
+    "customers": "{count} customers",
+    "saved": "Saved.",
+    "noUnits": "The operator company has no departments. Create them in the Administration app.",
+    "chain": "Superiors",
+    "noChain": "No superiors.",
+    "salesTitle": "Title"
   }
 }

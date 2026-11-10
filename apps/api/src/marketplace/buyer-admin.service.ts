@@ -1,7 +1,7 @@
 // Quản trị tài khoản người mua: danh sách, chi tiết, đổi người giới thiệu, đánh dấu nhân viên kinh doanh
 // (CONG_VIEC_23; CHUC_NANG_107, 108; QUYTAC_NGHIEPVU_143 đến 145, 147; API_119).
 import { Inject, Injectable } from "@nestjs/common";
-import type { BuyerAccountDetailResponse, BuyerAccountListItem, MarketplaceSettingsResponse, PageResponse } from "contracts";
+import type { BuyerAccountDetailResponse, BuyerAccountListItem, MarketplaceSettingsResponse, PageResponse, SalesUnitType } from "contracts";
 import { sql } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
 import { isUniqueViolation } from "../common/database-errors";
@@ -91,7 +91,7 @@ export class BuyerAdminService {
     const canManage = granted.includes("marketplace.buyer.manage");
     const departments =
       operatorCompanyId && canManage
-        ? (await this.database.execute<{ id: string; name: string }>(sql`SELECT id, name FROM core.departments WHERE company_id = ${operatorCompanyId} AND status = 'active' ORDER BY name`)).rows
+        ? (await this.database.execute<{ id: string; name: string; type: SalesUnitType }>(sql`SELECT id, name, sales_unit_type AS type FROM core.departments WHERE company_id = ${operatorCompanyId} AND status = 'active' AND sales_unit_type IS NOT NULL ORDER BY name`)).rows
         : [];
     return {
       operatorCompany: operator ? { id: operator.id, shortName: operator.short_name } : null,

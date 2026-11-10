@@ -63,6 +63,7 @@ function ReferrerForm({ buyer, onSaved }: { buyer: BuyerAccountDetailResponse; o
 
 function SalesFlag({ buyer, settings, onSaved }: { buyer: BuyerAccountDetailResponse; settings: MarketplaceSettingsResponse; onSaved: (saved: BuyerAccountDetailResponse) => void }) {
   const t = useTranslations("buyers");
+  const team = useTranslations("salesTeam");
   const common = useTranslations("common");
   const { notify } = useAdmin();
   const [departmentId, setDepartmentId] = useState("");
@@ -89,6 +90,14 @@ function SalesFlag({ buyer, settings, onSaved }: { buyer: BuyerAccountDetailResp
     return (
       <>
         <span>{t("salesYes", { department: buyer.salesDepartmentName ?? "—" })}</span>
+        {buyer.salesTitle && (
+          <span>
+            {team("salesTitle")}: <strong>{team(`title_${buyer.salesTitle}`)}</strong>
+          </span>
+        )}
+        <span className="chu-thich">
+          {team("chain")}: {buyer.salesChain.length === 0 ? team("noChain") : buyer.salesChain.map((item) => `${item.fullName} (${team(`title_${item.title}`)})`).join(" › ")}
+        </span>
         {settings.canManage && (
           <div className="nhom-nut">
             <button type="button" className="nut phu" onClick={() => setConfirming(true)}>
@@ -122,7 +131,7 @@ function SalesFlag({ buyer, settings, onSaved }: { buyer: BuyerAccountDetailResp
               <option value="">{t("chooseDepartment")}</option>
               {settings.departments.map((department) => (
                 <option key={department.id} value={department.id}>
-                  {department.name}
+                  {department.name} ({team(`type_${department.type}`)})
                 </option>
               ))}
             </select>
