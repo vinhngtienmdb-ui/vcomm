@@ -1,10 +1,10 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, đánh dấu Bắt buộc hoặc Mong muốn.
-- Phiên bản: 2.7
+- Phiên bản: 2.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ); CONG_VIEC_14 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_111 đến TIEUCHI_NGHIEMTHU_116 của MODULE_06 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_117 đến TIEUCHI_NGHIEMTHU_120 của MODULE_06 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_121 đến TIEUCHI_NGHIEMTHU_126 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_127 đến TIEUCHI_NGHIEMTHU_131 của MODULE_06 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_132 đến TIEUCHI_NGHIEMTHU_138 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_139 đến TIEUCHI_NGHIEMTHU_144 của MODULE_06 (đối soát thu hộ); CONG_VIEC_20 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_145 đến TIEUCHI_NGHIEMTHU_150 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: TIEUCHI_NGHIEMTHU_147 thêm trả trước nội bộ, số dư ngược chiều; TIEUCHI_NGHIEMTHU_148 thêm đối tác của điều chỉnh tay
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm TIEUCHI_NGHIEMTHU_56 đến TIEUCHI_NGHIEMTHU_64 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_65 đến TIEUCHI_NGHIEMTHU_74 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_75 đến TIEUCHI_NGHIEMTHU_79 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_80 đến TIEUCHI_NGHIEMTHU_86 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_87 đến TIEUCHI_NGHIEMTHU_92 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_93 đến TIEUCHI_NGHIEMTHU_98 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_99 đến TIEUCHI_NGHIEMTHU_104 của MODULE_05 (khuyến mãi); CONG_VIEC_13 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_105 đến TIEUCHI_NGHIEMTHU_110 của MODULE_06 (công nợ); CONG_VIEC_14 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_111 đến TIEUCHI_NGHIEMTHU_116 của MODULE_06 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_117 đến TIEUCHI_NGHIEMTHU_120 của MODULE_06 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_121 đến TIEUCHI_NGHIEMTHU_126 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_127 đến TIEUCHI_NGHIEMTHU_131 của MODULE_06 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_132 đến TIEUCHI_NGHIEMTHU_138 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_139 đến TIEUCHI_NGHIEMTHU_144 của MODULE_06 (đối soát thu hộ); CONG_VIEC_20 (2026-11-10): thêm TIEUCHI_NGHIEMTHU_145 đến TIEUCHI_NGHIEMTHU_150 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: TIEUCHI_NGHIEMTHU_147 thêm trả trước nội bộ, số dư ngược chiều; TIEUCHI_NGHIEMTHU_148 thêm đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm TIEUCHI_NGHIEMTHU_151 đến TIEUCHI_NGHIEMTHU_156 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh)
 
 ## MODULE_01 Nền tảng
 
@@ -116,6 +116,19 @@ Dữ liệu mẫu: công ty con VCR (VComm Bán lẻ Miền Nam), VCT (VComm Th�
 | TIEUCHI_NGHIEMTHU_77 | CHUC_NANG_47 | Mỗi công ty con đang hoạt động có đúng một đối tác nội bộ; sửa thông tin chung của đối tác nội bộ bị từ chối | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_78 | CHUC_NANG_46 | Danh sách chỉ hiện 3 số cuối Căn cước công dân; xem đầy đủ cần quyền và ghi nhật ký | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_79 | CHUC_NANG_48 | Hồ sơ của công ty A không đọc được từ công ty B; không chọn khách hàng hay nhà cung cấp bị từ chối; hạn mức âm, nhóm khách công ty khác bị từ chối | Gọi API | Bắt buộc |
+
+## MODULE_07 Khách hàng và Đối tác (phần 2: Gán khách hàng cho nhân viên kinh doanh, CONG_VIEC_21)
+
+Dữ liệu mẫu: công ty con VCR; trưởng phòng kinh doanh, nhân viên bán hàng ở phòng con và ở phòng khác, kế toán; khách hàng, đơn bán, đối tác giả lập. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_151 | CHUC_NANG_96 | Nhân viên không có quyền xem mọi khách chỉ thấy khách mình (và phòng mình quản lý) phụ trách, đơn bán của các khách đó, đơn mình lập, đơn mình hưởng hoa hồng; mở khách, đơn khác nhận 404; người có quyền xem như cũ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_152 | CHUC_NANG_96, CHUC_NANG_97 | Trưởng phòng xem khách của nhân viên phòng mình và phòng con, giao khách trong phòng; không giao được khách, nhân viên ngoài phòng | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_153 | CHUC_NANG_97 | Phiếu giao khách theo chính sách duyệt; không có chính sách thì áp dụng ngay; rút, gửi lại; khách đổi nhân viên hoặc nhân viên nhận ngừng làm việc trong lúc chờ duyệt thì phiếu bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_154 | CHUC_NANG_97, CHUC_NANG_98 | Áp dụng đổi nhân viên phụ trách, ghi lịch sử, báo nhân viên; đơn đã gán hoa hồng giữ nhân viên cũ, đơn gửi sau gán nhân viên mới | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_155 | CHUC_NANG_96, CHUC_NANG_98 | Hồ sơ chỉ đặt nhân viên phụ trách khi chưa có; nhân viên bán hàng thêm đối tác mới hoặc nhận đối tác có sẵn thì tự có hồ sơ khách hàng do mình phụ trách, hạn mức 0; lịch sử hiện đúng | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_156 | CHUC_NANG_96 đến CHUC_NANG_98 | MAN_HINH_64, MAN_HINH_65 và phần sửa MAN_HINH_36, MAN_HINH_37 hiển thị đúng trên máy tính và điện thoại, không cuộn ngang trang, không lỗi trình duyệt | Trình duyệt | Mong muốn |
 
 ## MODULE_04 Mua hàng (phần 1: Mua hàng trong nước, CONG_VIEC_07)
 

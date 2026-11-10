@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng), phần 7 (Đối soát thu hộ), phần 8 (Báo cáo tài chính hợp nhất): đúng, sai, giá trị biên, từng vai trò.
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng), phần 7 (Đối soát thu hộ), phần 8 (Báo cáo tài chính hợp nhất), MODULE_07 phần 2 (Gán khách hàng cho nhân viên kinh doanh): đúng, sai, giá trị biên, từng vai trò.
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -3322,3 +3322,117 @@ Dữ liệu chung: tập đoàn VComm (công ty gốc, chưa khởi tạo kế t
 - Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
 - Kết quả thực hiện: Đạt 2026-11-10 (ảnh chụp lát L0 trên máy tính và điện thoại, lát L1, L2 trên máy tính, trong `tam_thoi/CONG_VIEC_20/`).
 - Lát: L0, L1, L2
+
+## MODULE_07 Khách hàng và Đối tác (phần 2: Gán khách hàng cho nhân viên kinh doanh, CONG_VIEC_21)
+
+Dữ liệu chung: công ty VCR; tài khoản thử "Bán Hàng A", "Bán Hàng B", "Trưởng Phòng KD" (vai trò Nhân viên bán hàng), "Kế Toán Giao" (vai trò Kế toán), quản trị công ty VCR; phòng "KD" (trưởng phòng là Trưởng Phòng KD) có phòng con "KD1" (Bán Hàng A); Bán Hàng B không thuộc phòng nào; khách A (Bán Hàng A phụ trách), khách B (Bán Hàng B phụ trách), khách "none" (chưa có người phụ trách); đơn bán của khách A, khách B do quản trị lập, đơn bán lẻ do Bán Hàng A lập, đơn của khách "none" do quản trị lập, Bán Hàng A hưởng hoa hồng.
+
+Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DOI_12): kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12, CONG_VIEC_13, CONG_VIEC_14, CONG_VIEC_15, CONG_VIEC_16, CONG_VIEC_17, CONG_VIEC_19 (`c8-sales`, `c12-promotions`, `c13-debts`, `c14-ledger`, `c15-statements`, `c16-einvoices`, `c17-commissions`, `c19-collection-statements`) thêm bước chuẩn bị `salespersonSeesAllCustomers` (`apps/api/test/helpers.ts`): gán `crm.customer.view_all` cho vai trò Nhân viên bán hàng để giữ hành vi viết kịch bản lúc trước (xem mọi khách). Bước chuẩn bị không đổi kịch bản, bước, kết quả mong đợi của các kịch bản đó; phạm vi xem mới kiểm ở `c21-customer-assignment`.
+
+## CHUC_NANG_96: Phạm vi xem khách hàng, đơn bán (CONG_VIEC_21)
+
+### KICHBAN_KIEMTHU_278: Nhân viên chỉ thấy khách mình phụ trách, đơn của khách đó, đơn mình lập, đơn mình hưởng hoa hồng; khách, đơn khác nhận 404; thêm đối tác thì tự phụ trách
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_151, TIEUCHI_NGHIEMTHU_155
+- Chức năng: CHUC_NANG_96
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Bán Hàng A; Bán Hàng B
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung.
+- Các bước: (1) Bán Hàng A xem danh sách đối tác; mở khách B, khách A. (2) Xem tùy chọn lập đơn bán; danh sách đơn bán; mở, hủy đơn của khách B; mở đơn của khách "none" (mình hưởng hoa hồng). (3) Lập đơn bán cho khách B. (4) Thêm đối tác mới "Khách tự tìm"; lọc "Khách của tôi". (5) Bán Hàng B xem danh sách đối tác.
+- Kết quả mong đợi: Bước 1: danh sách chỉ có khách A; khách B `404`, khách A `200`. Bước 2: tùy chọn chỉ có khách A; danh sách đơn gồm đơn của khách A, đơn bán lẻ mình lập, đơn mình hưởng hoa hồng; đơn của khách B mở, hủy đều `404`; đơn hưởng hoa hồng `200`. Bước 3: `400`, lỗi tại `customerId`. Bước 4: `201`, hồ sơ khách hàng, 0 ngày được nợ, hạn mức 0, nhân viên phụ trách Bán Hàng A, có dòng lịch sử đang mở; có trong lọc "Khách của tôi". Bước 5: chỉ có khách B.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c21-customer-assignment.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_279: Người có quyền xem mọi khách xem như cũ; lọc theo nhân viên phụ trách
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_151
+- Chức năng: CHUC_NANG_96, CHUC_NANG_98
+- Loại: Đúng, phân quyền
+- Vai trò thực hiện: Quản trị công ty VCR; Kế Toán Giao
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_278.
+- Các bước: (1) Quản trị, kế toán xem danh sách đối tác, mở khách B. (2) Quản trị xem danh sách đơn bán. (3) Quản trị lọc `owner` là Bán Hàng B, rồi Bán Hàng A.
+- Kết quả mong đợi: Bước 1: danh sách có khách A, B, "none"; khách B `200`. Bước 2: đủ mọi đơn. Bước 3: lọc Bán Hàng B chỉ có khách B; lọc Bán Hàng A có khách A với `ownerUserName` "Bán Hàng A".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c21-customer-assignment.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_280: Trưởng phòng xem khách của nhân viên phòng mình và phòng con, giao khách trong phòng; không giao được khách, nhân viên ngoài phòng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_152
+- Chức năng: CHUC_NANG_96, CHUC_NANG_97
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Trưởng Phòng KD; Bán Hàng B
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_279.
+- Các bước: (1) Trưởng phòng xem danh sách đối tác; mở đơn của khách A, khách B. (2) Trưởng phòng xem tùy chọn phiếu giao khách. (3) Trưởng phòng lập phiếu giao khách B cho Bán Hàng B. (4) Bán Hàng B xem tùy chọn, lập phiếu. (5) Trưởng phòng lập phiếu giao khách A cho mình; bỏ phiếu nháp; mở lại phiếu.
+- Kết quả mong đợi: Bước 1: có khách A, không có khách B; đơn khách A `200`, đơn khách B `404`. Bước 2: `200`, `canAssignAll` `false`, nhân viên nhận là Trưởng Phòng KD, Bán Hàng A. Bước 3: `400`, lỗi tại `partnerIds.0`, `targetUserId`. Bước 4: `403`. Bước 5: `201`, `draft`, `canDiscard` `true`, 1 khách; bỏ `204`; mở lại `404`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c21-customer-assignment.test.ts` (hai phần "phần xem", "phần giao")
+- Lát: L0 (phần xem), L1 (phần giao)
+
+## CHUC_NANG_97: Phiếu giao khách (CONG_VIEC_21)
+
+### KICHBAN_KIEMTHU_281: Chưa có chính sách duyệt thì áp dụng ngay; nhân viên cũ không còn thấy khách; đơn đã gán hoa hồng giữ nhân viên cũ; báo nhân viên
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_153, TIEUCHI_NGHIEMTHU_154
+- Chức năng: CHUC_NANG_97
+- Loại: Đúng
+- Vai trò thực hiện: Trưởng Phòng KD; Bán Hàng A
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_280; chưa có chính sách duyệt loại `crm.customer_assignment`.
+- Các bước: (1) Trưởng phòng lập phiếu giao khách A cho mình, gửi. (2) Bán Hàng A xem danh sách đối tác, mở đơn của khách A, đơn mình hưởng hoa hồng. (3) Xem nhân viên hưởng hoa hồng của đơn đó, thông báo. (4) Trưởng phòng xem danh sách phiếu.
+- Kết quả mong đợi: Bước 1: `201`, `applied`, số `GK…`; dòng khách A "Phụ trách lúc gửi" Bán Hàng A, "Đang phụ trách" Trưởng Phòng KD. Bước 2: không còn khách A; đơn khách A `404`; đơn hưởng hoa hồng `200`. Bước 3: nhân viên hưởng hoa hồng vẫn là Bán Hàng A; Bán Hàng A nhận "1 khách hàng của bạn đã chuyển cho nhân viên khác theo phiếu GK…", trưởng phòng nhận "Bạn được giao 1 khách hàng theo phiếu GK…". Bước 4: tổng 1 phiếu.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c21-customer-assignment.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_282: Có chính sách duyệt thì chờ duyệt; rút, gửi lại giữ số; khách đổi nhân viên trong lúc chờ thì bị từ chối; sửa, gửi lại, duyệt thì áp dụng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_153
+- Chức năng: CHUC_NANG_97
+- Loại: Đúng, sai
+- Vai trò thực hiện: Trưởng Phòng KD; quản trị công ty VCR (người duyệt)
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_281; chính sách duyệt loại `crm.customer_assignment` một cấp, người duyệt là quản trị công ty VCR.
+- Các bước: (1) Trưởng phòng lập phiếu giao khách A cho Bán Hàng A, gửi. (2) Rút. (3) Gửi lại. (4) Đổi nhân viên phụ trách khách A sang Bán Hàng B trong cơ sở dữ liệu thử; quản trị duyệt; chạy sự kiện outbox. (5) Trả khách A về trưởng phòng; sửa phiếu (lý do "Trả khách cho nhân viên A"), gửi, duyệt. (6) Bán Hàng A xem danh sách đối tác.
+- Kết quả mong đợi: Bước 1: `pending`, `canWithdraw` `true`, `canEdit` `false`; khách A chưa đổi. Bước 2: `withdrawn`, `canEdit` `true`. Bước 3: `pending`, giữ số. Bước 4: `rejected`, `applyError` `assignmentOwnersChanged`, `applyErrorDetail` "Khách A"; khách A vẫn của Bán Hàng B. Bước 5: sửa xong `draft`, `applyError` `null`; duyệt xong `applied`, khách A của Bán Hàng A. Bước 6: có khách A.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c21-customer-assignment.test.ts`
+- Lát: L1
+
+## CHUC_NANG_98: Lịch sử phụ trách; hồ sơ; nhận đối tác (CONG_VIEC_21)
+
+### KICHBAN_KIEMTHU_283: Lịch sử phụ trách ghi đủ các lần, kèm số phiếu; người không thấy khách không xem được lịch sử
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_154, TIEUCHI_NGHIEMTHU_155
+- Chức năng: CHUC_NANG_98
+- Loại: Đúng, phân quyền
+- Vai trò thực hiện: Quản trị công ty VCR; Bán Hàng A; Bán Hàng B
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_282.
+- Các bước: (1) Quản trị xem lịch sử phụ trách khách A. (2) Bán Hàng B, Bán Hàng A xem lịch sử khách A.
+- Kết quả mong đợi: Bước 1: `200`, mới trước: Bán Hàng A (đang phụ trách, có số `GK…`), Trưởng Phòng KD (đã kết thúc, có số `GK…`), Bán Hàng A (đã kết thúc, không có phiếu). Bước 2: Bán Hàng B `404`; Bán Hàng A `200`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c21-customer-assignment.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_284: Hồ sơ chỉ đặt nhân viên phụ trách khi chưa có, có lịch sử; đổi, bỏ phải dùng phiếu giao khách
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_155
+- Chức năng: CHUC_NANG_98
+- Loại: Đúng, sai
+- Vai trò thực hiện: Quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_279 (khách A của Bán Hàng A, khách "none" chưa có người phụ trách).
+- Các bước: (1) Sửa hồ sơ khách A, đổi nhân viên phụ trách sang Bán Hàng B. (2) Sửa hồ sơ khách A, bỏ nhân viên phụ trách. (3) Sửa hồ sơ khách A giữ Bán Hàng A, đổi số ngày được nợ 15. (4) Đặt Bán Hàng B cho khách "none"; xem lịch sử khách "none" trong cơ sở dữ liệu.
+- Kết quả mong đợi: Bước 1: `400`, tại `ownerUserId` "Khách đã có nhân viên phụ trách; đổi nhân viên bằng phiếu giao khách.". Bước 2: `400`. Bước 3: `200`. Bước 4: `200`; một dòng lịch sử Bán Hàng B đang mở.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c21-customer-assignment.test.ts` (phần hồ sơ)
+- Lát: L0
+
+### KICHBAN_KIEMTHU_286: Nhận đối tác có sẵn làm khách; nhân viên nhận ngừng làm việc thì phiếu bị từ chối; sửa đơn nháp của khách đã chuyển đi
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_153, TIEUCHI_NGHIEMTHU_155
+- Chức năng: CHUC_NANG_96, CHUC_NANG_97, CHUC_NANG_98
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Quản trị công ty VCR; Bán Hàng A; Bán Hàng B; Trưởng Phòng KD
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_283; chính sách duyệt của KICHBAN_KIEMTHU_282 còn hiệu lực.
+- Các bước: (1) Quản trị thêm đối tác "Đối tác dùng chung" (công ty chưa có hồ sơ vì quản trị xem mọi khách). (2) Bán Hàng B, quản trị kiểm trùng mã số thuế đó. (3) Bán Hàng B nhận đối tác; Bán Hàng A nhận lại; Bán Hàng A kiểm trùng. (4) Trưởng phòng lập, gửi phiếu giao khách A cho mình; ngừng thành viên của trưởng phòng ở công ty; quản trị duyệt; chạy sự kiện outbox; cho trưởng phòng làm lại. (5) Bán Hàng B có đơn nháp của khách B; chuyển khách B cho Bán Hàng A trong cơ sở dữ liệu thử; Bán Hàng B sửa đơn giữ khách B; sửa đơn đổi sang khách A.
+- Kết quả mong đợi: Bước 2: Bán Hàng B `canClaim` `true`; quản trị `canClaim` `false`. Bước 3: Bán Hàng B `201`, hồ sơ khách hàng, 0 ngày được nợ, phụ trách Bán Hàng B; Bán Hàng A `409`; kiểm trùng `canClaim` `false`. Bước 4: phiếu `rejected`, `applyError` `assignmentTargetInactive`; khách A vẫn của Bán Hàng A. Bước 5: sửa giữ khách B không có lỗi tại `customerId` (lỗi khác do dòng thử không hợp lệ); đổi sang khách A có lỗi tại `customerId`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c21-customer-assignment.test.ts`
+- Lát: L1 (sửa sau rà soát)
+
+## Kịch bản thủ công của gán khách hàng (CONG_VIEC_21)
+
+### KICHBAN_KIEMTHU_285: Gán khách hàng trên trình duyệt (máy tính, điện thoại)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_156
+- Chức năng: CHUC_NANG_96, CHUC_NANG_97, CHUC_NANG_98
+- Loại: Đúng, giao diện
+- Vai trò thực hiện: Nhân viên bán hàng (tài khoản thử `banhang.xemtruoc@vcomm.test`); quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Môi trường phát triển; mini app Nền tảng, Khách hàng và Đối tác, Bán hàng, backend đang chạy; có khách hàng do nhân viên bán hàng phụ trách và khách của người khác; tệp `tam_thoi/CONG_VIEC_21/xem_l0.js`, `xem_l1.js`.
+- Các bước: (1) Khổ 1360 điểm ảnh, nhân viên bán hàng mở "Đối tác", rồi trang lập đơn bán. (2) Quản trị mở "Đối tác", chọn lọc "Khách của tôi". (3) Khổ 375 điểm ảnh, xem lại danh sách đối tác (lát L0). (4) Khổ 1360 điểm ảnh, quản trị mở "Giao khách hàng", bấm "Lập phiếu giao khách", chọn nhân viên nhận, nhập lý do, tìm khách theo mã, bấm "Thêm", "Lưu", "Gửi" (chưa có chính sách duyệt). (5) Mở chi tiết khách vừa giao, xem thẻ "Lịch sử phụ trách". (6) Khổ 375 điểm ảnh, xem danh sách phiếu (lát L1).
+- Kết quả mong đợi: Bước 1: danh sách đối tác và danh sách chọn khách trên đơn bán chỉ có khách mình phụ trách; cột "Nhân viên phụ trách" hiện đúng. Bước 2: lọc chỉ còn khách do quản trị phụ trách. Bước 3: bảng chuyển thành thẻ, không cuộn ngang. Bước 4: phiếu hiện "Đã áp dụng", số `GK…`, cột "Đang phụ trách", "Phụ trách lúc gửi" đúng. Bước 5: thẻ lịch sử hiện nhân viên mới "– nay" kèm số phiếu (liên kết). Bước 6: bảng chuyển thành thẻ, không cuộn ngang. Mọi bước không lỗi trình duyệt.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Kết quả thực hiện: Đạt 2026-11-10 (ảnh chụp lát L0 trên máy tính và điện thoại, lát L1 trên máy tính và điện thoại, trong `tam_thoi/CONG_VIEC_21/`).
+- Lát: L0, L1

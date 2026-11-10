@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.8
+- Phiên bản: 2.9
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: trả trước nội bộ, số dư ngược chiều, chốt số khi gửi, công ty và đối tác của điều chỉnh tay
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: trả trước nội bộ, số dư ngược chiều, chốt số khi gửi, công ty và đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm CHUC_NANG_96 đến CHUC_NANG_98 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh); phạm vi xem đối tác (CHUC_NANG_46, CHUC_NANG_48) và đơn bán theo nhân viên phụ trách
 
 ## MODULE_01 Nền tảng
 
@@ -746,6 +746,69 @@ Quy ước chung cho mọi chức năng của MODULE_07 phần tối thiểu:
 | Tìm kiếm | Tìm tên không phân biệt dấu tiếng Việt, không cần extension PostgreSQL |
 | Toàn vẹn | Mã số thuế, số Căn cước công dân, đối tác nội bộ duy nhất (ràng buộc cơ sở dữ liệu); khóa ngoại từ `crm` chỉ trỏ vào `crm`, `core` |
 | Bảo mật | Số Căn cước công dân che trong danh sách, chi tiết, nhật ký thêm, sửa; xem đầy đủ cần quyền nhạy cảm và ghi nhật ký |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_07 Khách hàng và Đối tác (phần 2: Gán khách hàng cho nhân viên kinh doanh, CONG_VIEC_21)
+
+Quy ước chung cho mọi chức năng của MODULE_07 phần 2:
+- Quyền (tài liệu `08` mục 29, 30): API trước hết cần `crm.access`, `crm.partner.view` ở công ty đang chọn (đơn bán: quyền Bán hàng như trước); phạm vi xem theo `crm.customer.view_all`; lập phiếu cần `crm.customer.assign` ở phạm vi công ty hoặc tập đoàn, hoặc là trưởng phòng.
+- Phạm vi xem dùng chung một điều kiện SQL cho đối tác và đơn bán (`apps/api/src/crm/customer-scope.ts`); đối tác, đơn bán, phiếu ngoài phạm vi trả `404`.
+- Ghi nhật ký thao tác (loại đối tượng `customer_assignment`): `customer_assignment.create`, `customer_assignment.update`, `customer_assignment.discard`, `customer_assignment.submit`, `customer_assignment.withdraw`; loại `partner_profile`: `partner_profile.claim`.
+- Thông báo trong ứng dụng khi áp dụng phiếu: `crm.customer_assignment.received` (nhân viên nhận), `crm.customer_assignment.removed` (nhân viên cũ).
+- Sửa, gửi, bỏ phiếu so `version`.
+
+### CHUC_NANG_96: Phạm vi xem khách hàng, đơn bán theo nhân viên phụ trách và phòng ban
+- Mục đích: Nhân viên kinh doanh chỉ làm việc với khách mình phụ trách; trưởng phòng theo dõi khách của nhân viên phòng mình.
+- Người sử dụng: Nhân viên bán hàng, trưởng phòng kinh doanh; mọi người xem đối tác, đơn bán.
+- Điều kiện thực hiện: Quyền xem đối tác hoặc đơn bán như trước (CHUC_NANG_46, CHUC_NANG_54).
+- Dữ liệu đầu vào: Người dùng, công ty đang chọn; đối tác: thêm mới hoặc nhận đối tác có sẵn (CHUC_NANG_98).
+- Quy trình xử lý: Có `crm.customer.view_all` ở bất kỳ phạm vi nào trong công ty: xem mọi đối tác, đơn bán. Không có: lấy danh sách nhân viên gồm mình và thành viên đang hoạt động thuộc các phòng đang hoạt động mình làm trưởng phòng (kể cả phòng con các cấp) (QUYTAC_NGHIEPVU_130); đối tác chỉ hiện khi có hồ sơ khách hàng tại công ty với nhân viên phụ trách trong danh sách; đơn bán hiện khi khách thuộc phạm vi, hoặc người lập, nhân viên hưởng hoa hồng trong danh sách (QUYTAC_NGHIEPVU_129). Áp dụng cho danh sách, chi tiết đối tác, xem số Căn cước công dân, sửa hồ sơ; tùy chọn lập đơn (danh sách khách), tra giá (khách ngoài phạm vi tra như không có khách), danh sách, chi tiết, lập, sửa (giữ được khách đang có trên đơn), gửi, rút, hủy, đóng đơn bán, xác nhận, từ chối đơn đối ứng. Kiểm trùng mã số thuế, số Căn cước công dân vẫn tìm toàn danh mục. Người không xem mọi khách thêm đối tác mới thì tự lập hồ sơ khách hàng do mình phụ trách, 0 ngày được nợ, hạn mức 0, ghi lịch sử (QUYTAC_NGHIEPVU_135).
+- Kết quả đầu ra: Danh sách, chi tiết chỉ gồm khách, đơn trong phạm vi.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_46
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_129, QUYTAC_NGHIEPVU_130, QUYTAC_NGHIEPVU_135
+- Trường hợp ngoại lệ: Khách chưa có nhân viên phụ trách chỉ người có quyền xem mọi khách thấy. Đơn bán đối ứng nội bộ (khách là công ty trong tập đoàn) chỉ hiện với nhân viên khi mình lập hoặc hưởng hoa hồng. Phạm vi xem của kế toán, kho, mua hàng không đổi (vai trò của họ có `crm.customer.view_all`).
+- Phân quyền: Tài liệu `08` mục 29, 30.
+- Thông báo lỗi: "Không tìm thấy dữ liệu hoặc bạn không có quyền xem." · "Đối tác chưa có hồ sơ khách hàng đang dùng ở công ty." (chọn khách ngoài phạm vi trên đơn bán)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_151, TIEUCHI_NGHIEMTHU_152, TIEUCHI_NGHIEMTHU_155
+
+### CHUC_NANG_97: Phiếu giao khách: lập, gửi duyệt, rút, áp dụng
+- Mục đích: Giao, chuyển khách cho nhân viên có kiểm soát, theo chính sách duyệt của công ty.
+- Người sử dụng: Trưởng phòng, Quản trị công ty, Quản trị tập đoàn (người có `crm.customer.assign`); người duyệt theo chính sách.
+- Điều kiện thực hiện: Lập, sửa, gửi, bỏ: có `crm.customer.assign` ở phạm vi công ty hoặc tập đoàn, hoặc đang là trưởng phòng; sửa, gửi khi phiếu nháp, bị từ chối hoặc đã rút và mình là người lập (người có quyền giao khách sửa được mọi phiếu); bỏ khi nháp chưa gửi lần nào. Rút: người gửi, phiếu chờ duyệt có yêu cầu duyệt.
+- Dữ liệu đầu vào: Nhân viên nhận, lý do (1 đến 500 ký tự), danh sách khách (1 đến 500 mã đối tác, không trùng), `version` (sửa, gửi, bỏ). Danh sách: trạng thái, trang.
+- Quy trình xử lý: Tùy chọn: danh sách nhân viên nhận (mọi thành viên đang hoạt động hoặc nhân viên phòng mình quản lý), `canAssignAll`. Lưu: kiểm nhân viên nhận, từng khách (khách hàng đang giao dịch của công ty, nhân viên phụ trách hiện tại trong phạm vi giao của người lập, khác nhân viên nhận) (QUYTAC_NGHIEPVU_131); sửa phiếu bị từ chối, đã rút đưa phiếu về nháp. Gửi: khóa phiếu, so `version`; tạo dãy số `GK` nếu chưa có; khóa hồ sơ các khách theo thứ tự, kiểm lại, ghi nhân viên phụ trách lúc gửi; cấp số lần đầu; tạo yêu cầu duyệt qua `approvals.submitWithin` (loại `crm.customer_assignment`, giá trị 0); chưa có chính sách thì áp dụng ngay trong cùng giao dịch (QUYTAC_NGHIEPVU_132). Áp dụng (ngay hoặc khi nghe `core.approval.completed` đã duyệt): khóa phiếu, hồ sơ các khách; kiểm nhân viên nhận, nhân viên phụ trách từng khách so với lúc gửi; đạt thì đổi nhân viên phụ trách, ghi lịch sử, chuyển đã áp dụng, gửi thông báo; không đạt thì phiếu chờ duyệt về bị từ chối kèm khóa lý do, danh sách khách đã đổi (QUYTAC_NGHIEPVU_133). Từ chối, rút: bị từ chối, đã rút.
+- Kết quả đầu ra: Danh sách: số, trạng thái, nhân viên nhận, lý do, số khách, người lập, thời điểm lập; theo thời điểm lập giảm dần, phân trang. Chi tiết: thêm nhân viên nhận (mã), các khách (mã, tên, nhân viên phụ trách hiện tại, lúc gửi), lý do không áp dụng được, thời điểm gửi, áp dụng, `version`, `canEdit`, `canSubmit`, `canWithdraw`, `canDiscard`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_46
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_130 đến QUYTAC_NGHIEPVU_133
+- Trường hợp ngoại lệ: Hai phiếu cùng khách gửi đồng thời: khóa hồ sơ theo thứ tự, phiếu sau thấy nhân viên phụ trách đã đổi. Khách đổi nhân viên hoặc nhân viên nhận ngừng làm việc trong lúc chờ duyệt: phiếu bị từ chối. Không có chính sách duyệt mà áp dụng không được: báo lỗi, không lưu lần gửi.
+- Phân quyền: Không phải trưởng phòng, không có `crm.customer.assign` nhận 403 khi lập, sửa, gửi, bỏ, lấy tùy chọn; không thấy nút "Lập phiếu giao khách". Người không có quyền giao khách chỉ xem phiếu mình lập, mình gửi, giao cho mình.
+- Thông báo lỗi: "Bạn không có quyền thực hiện thao tác này." · "Vui lòng nhập thông tin này." · "Giá trị không hợp lệ." · khóa `assignmentCustomerInvalid`, `assignmentSameOwner`, `assignmentOwnersChanged`, `assignmentTargetInactive` · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất." · "Không tìm thấy dữ liệu hoặc bạn không có quyền xem."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_152, TIEUCHI_NGHIEMTHU_153, TIEUCHI_NGHIEMTHU_154, TIEUCHI_NGHIEMTHU_156
+
+### CHUC_NANG_98: Lịch sử phụ trách; lọc khách theo nhân viên phụ trách
+- Mục đích: Biết khách do ai phụ trách trong từng giai đoạn; nhân viên tìm nhanh khách của mình.
+- Người sử dụng: Mọi người xem đối tác; nhân viên bán hàng.
+- Điều kiện thực hiện: `crm.access`, `crm.partner.view`; khách trong phạm vi xem. Đặt nhân viên phụ trách: quyền sửa hồ sơ (`crm.profile.manage`). Nhận đối tác: `crm.partner.manage`, không có `crm.customer.view_all`.
+- Dữ liệu đầu vào: Lọc danh sách đối tác: `owner` (`mine` hoặc mã nhân viên). Lịch sử: mã đối tác. Hồ sơ: nhân viên phụ trách. Nhận: mã đối tác.
+- Quy trình xử lý: Lọc: hồ sơ của công ty có nhân viên phụ trách là mình hoặc nhân viên đã chọn; danh sách trả thêm tên nhân viên phụ trách. Lịch sử: các dòng của khách tại công ty, mới trước (QUYTAC_NGHIEPVU_134). Sửa hồ sơ: chỉ đặt nhân viên phụ trách khi chưa có, mở dòng lịch sử; đã có mà đổi, bỏ thì báo lỗi (QUYTAC_NGHIEPVU_134). Kiểm trùng trả thêm `canClaim` khi người dùng không xem mọi khách, có `crm.partner.manage`, đối tác đang giao dịch, không phải công ty trong tập đoàn, chưa có hồ sơ tại công ty; nhận: lập hồ sơ khách hàng do mình phụ trách, 0 ngày được nợ, hạn mức 0, ghi lịch sử (QUYTAC_NGHIEPVU_135).
+- Kết quả đầu ra: Lịch sử: nhân viên, từ, đến (trống: đang phụ trách), phiếu giao khách (mã, số). Nhận: chi tiết đối tác.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_46
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_129, QUYTAC_NGHIEPVU_134, QUYTAC_NGHIEPVU_135
+- Trường hợp ngoại lệ: Hồ sơ có nhân viên phụ trách trước CONG_VIEC_21: lịch sử bắt đầu từ thời điểm cập nhật hồ sơ gần nhất. Hai người nhận cùng đối tác cùng lúc: một người nhận được, người kia báo không nhận được.
+- Phân quyền: Khách ngoài phạm vi: `404`. Nút "Nhận làm khách của tôi" chỉ hiện khi `canClaim`.
+- Thông báo lỗi: "Khách đã có nhân viên phụ trách; đổi nhân viên bằng phiếu giao khách." · "Đối tác đã có hồ sơ ở công ty hoặc không nhận được; đề nghị trưởng phòng giao khách." · "Không tìm thấy dữ liệu hoặc bạn không có quyền xem."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_155, TIEUCHI_NGHIEMTHU_156
+
+## Yêu cầu phi chức năng của MODULE_07 (phần 2)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Bảo mật | Điều kiện phạm vi nằm trong truy vấn SQL (không lọc sau khi đọc); đối tác, đơn bán ngoài phạm vi trả `404`, không lộ sự tồn tại (tài liệu `22`) |
+| Toàn vẹn | Gửi, áp dụng trong một giao dịch, khóa phiếu và hồ sơ các khách theo thứ tự mã đối tác (`FOR UPDATE`), so `version`; mỗi khách tại mỗi công ty một dòng lịch sử đang mở (chỉ mục duy nhất có điều kiện) |
+| Hiệu năng | Chỉ mục `partner_profiles (company_id, owner_user_id)` cho điều kiện phạm vi |
+| Ranh giới module | Đơn bán dùng `customer-scope.ts` của module CRM; duyệt qua `ApprovalRequestsService.submitWithin` |
+| Tương thích | THAY_DOI_12: vai trò hệ thống, vai trò tự tạo đang xem đối tác hoặc đơn bán (trừ Nhân viên bán hàng) giữ phạm vi xem như cũ |
+| Thư viện | Không thêm thư viện |
 | Giao diện | Dùng được trên điện thoại |
 
 ## MODULE_04 Mua hàng (phần 1: Mua hàng trong nước, CONG_VIEC_07)

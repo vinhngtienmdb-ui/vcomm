@@ -1,7 +1,7 @@
 "use client";
 
 // MAN_HINH_36 Danh sách đối tác (CHUC_NANG_46, 47, 98; API_71): tìm không dấu theo tên, mã, mã số thuế, điện thoại; lọc loại, vai trò với công ty đang chọn, trạng thái, khách của tôi.
-import { partnerKinds, type PageResponse, type PartnerListItem } from "contracts";
+import { partnerKinds, type CustomerAssignmentOptionsResponse, type PageResponse, type PartnerListItem } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -45,6 +45,9 @@ export default function PartnersPage() {
   if (status) parameters.set("status", status);
   if (owner) parameters.set("owner", owner);
   const { state, reload } = useApi<PageResponse<PartnerListItem>>(`/crm/partners?${parameters}`);
+  // Trưởng phòng, người có quyền giao khách lọc được theo từng nhân viên phụ trách.
+  const staff = useApi<CustomerAssignmentOptionsResponse>("/crm/customer-assignment-options");
+  const ownerChoices = [{ value: "mine", label: t("mine") }, ...(staff.state.kind === "ready" ? staff.state.data.users.map((user) => ({ value: user.id, label: user.fullName })) : [])];
   const headings = [t("code"), t("name"), t("kind"), t("identity"), t("phone"), t("role"), t("owner"), t("status")];
   const filter = (id: string, label: string, value: string, onChange: (value: string) => void, options: { value: string; label: string }[]) => (
     <>
@@ -112,7 +115,7 @@ export default function PartnersPage() {
           { value: "active", label: t("active") },
           { value: "inactive", label: t("inactive") },
         ])}
-        {filter("loc-phu-trach", t("owner"), owner, setOwner, [{ value: "mine", label: t("mine") }])}
+        {filter("loc-phu-trach", t("owner"), owner, setOwner, ownerChoices)}
       </div>
       <Loaded state={state} onRetry={() => void reload()}>
         {(result) =>

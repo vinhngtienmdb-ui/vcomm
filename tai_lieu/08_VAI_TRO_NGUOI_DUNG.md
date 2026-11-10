@@ -1,10 +1,10 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò mặc định, trách nhiệm và quyền hạn.
-- Phiên bản: 2.4
+- Phiên bản: 2.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18); CONG_VIEC_16 (2026-11-10): thêm quyền `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm); Kế toán có thêm `finance.einvoice.view`, `finance.einvoice.manage`; Kế toán trưởng có thêm cả ba (mục 19, 20); CONG_VIEC_17 (2026-11-10): thêm quyền `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` (nhạy cảm); Kế toán có thêm `finance.commission.view`, `finance.commission.manage`; Kế toán trưởng có thêm cả ba (mục 21, 22); CONG_VIEC_18 (2026-11-10): thêm quyền `finance.bank.view`, `finance.bank.manage`, `finance.bank.setup` (nhạy cảm); Kế toán có thêm `finance.bank.view`, `finance.bank.manage`; Kế toán trưởng có thêm cả ba (mục 23, 24); CONG_VIEC_19 (2026-11-10): thêm quyền `finance.collection.view`, `finance.collection.manage`, `finance.collection.setup` (nhạy cảm); Kế toán có thêm `finance.collection.view`, `finance.collection.manage`; Kế toán trưởng có thêm cả ba (mục 25, 26); CONG_VIEC_20 (2026-11-10): thêm quyền `finance.consolidation.view`, `finance.consolidation.manage` (nhạy cảm) chỉ hiệu lực ở phạm vi tập đoàn; Kế toán trưởng có thêm cả hai (mục 27, 28)
+- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18); CONG_VIEC_16 (2026-11-10): thêm quyền `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm); Kế toán có thêm `finance.einvoice.view`, `finance.einvoice.manage`; Kế toán trưởng có thêm cả ba (mục 19, 20); CONG_VIEC_17 (2026-11-10): thêm quyền `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` (nhạy cảm); Kế toán có thêm `finance.commission.view`, `finance.commission.manage`; Kế toán trưởng có thêm cả ba (mục 21, 22); CONG_VIEC_18 (2026-11-10): thêm quyền `finance.bank.view`, `finance.bank.manage`, `finance.bank.setup` (nhạy cảm); Kế toán có thêm `finance.bank.view`, `finance.bank.manage`; Kế toán trưởng có thêm cả ba (mục 23, 24); CONG_VIEC_19 (2026-11-10): thêm quyền `finance.collection.view`, `finance.collection.manage`, `finance.collection.setup` (nhạy cảm); Kế toán có thêm `finance.collection.view`, `finance.collection.manage`; Kế toán trưởng có thêm cả ba (mục 25, 26); CONG_VIEC_20 (2026-11-10): thêm quyền `finance.consolidation.view`, `finance.consolidation.manage` (nhạy cảm) chỉ hiệu lực ở phạm vi tập đoàn; Kế toán trưởng có thêm cả hai (mục 27, 28); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm quyền `crm.customer.view_all`, `crm.customer.assign`; Nhân viên bán hàng chỉ xem khách mình (và nhân viên phòng mình quản lý) phụ trách, đơn bán của các khách đó; mọi vai trò hệ thống khác đang xem đối tác hoặc đơn bán có thêm `crm.customer.view_all`; trưởng phòng giao khách trong phòng mình (mục 7, 10, 11, 29, 30)
 
 ## 1. Nguyên tắc
 
@@ -89,6 +89,8 @@ Quyền của MODULE_07:
 | Xem đầy đủ số Căn cước công dân (ghi nhật ký) | Có | Có | Không | Không |
 | Lập, sửa hồ sơ đối tác của công ty | Có | Trong công ty mình | Không | Không |
 
+Từ CONG_VIEC_21 (THAY_DOI_12): người không có quyền `crm.customer.view_all` (Nhân viên bán hàng) chỉ xem đối tác có hồ sơ khách hàng do mình hoặc nhân viên phòng mình quản lý phụ trách; nhân viên phụ trách đã có chỉ đổi bằng phiếu giao khách (mục 29, 30).
+
 ## 8. Vai trò hệ thống của MODULE_04 Mua hàng (phần 1, CONG_VIEC_07)
 
 Bảng giá mua, đề nghị mua, đơn mua thuộc công ty đang chọn. `purchasing.requisition.create`, `purchasing.order.view` gán ở chi nhánh nào của công ty cũng dùng được trong công ty đó (thủ kho thường gán theo chi nhánh); quyền Mua hàng khác cần gán ở phạm vi tập đoàn hoặc công ty. `inventory.purchase.receive` tính theo kho như quyền kho khác (QUYTAC_NGHIEPVU_46). Quản trị tập đoàn, quản trị công ty có sẵn mọi quyền `purchasing.*` và `inventory.purchase.receive`; Quản lý kho có `inventory.purchase.receive` (mọi quyền `inventory.*`).
@@ -129,7 +131,7 @@ Quyền của MODULE_04 phần 1:
 
 | Vai trò | Mã | Phạm vi gán | Trách nhiệm | Quyền chính | Nhạy cảm |
 |---|---|---|---|---|---|
-| Nhân viên bán hàng | `salesperson` | Công ty | Lập, sửa, gửi, rút, hủy, đóng đơn bán; xem giá bán; xem chương trình khuyến mãi (CONG_VIEC_12); thêm, sửa khách hàng | `sales.access`, `sales.order.view`, `sales.order.manage`, `sales.promotion.view`, `crm.access`, `crm.partner.view`, `crm.partner.manage`, `catalog.access`, `catalog.price.view` | Không |
+| Nhân viên bán hàng | `salesperson` | Công ty | Lập, sửa, gửi, rút, hủy, đóng đơn bán; xem giá bán; xem chương trình khuyến mãi (CONG_VIEC_12); thêm, sửa khách hàng. Từ CONG_VIEC_21 (THAY_DOI_12) chỉ trong phạm vi khách mình phụ trách (mục 29) | `sales.access`, `sales.order.view`, `sales.order.manage`, `sales.promotion.view`, `crm.access`, `crm.partner.view`, `crm.partner.manage`, `catalog.access`, `catalog.price.view` | Không |
 
 Quyền của MODULE_05 phần 1:
 
@@ -145,8 +147,8 @@ Quyền của MODULE_05 phần 1:
 
 | Thao tác | Quản trị tập đoàn | Quản trị công ty | Nhân viên bán hàng | Thủ kho | Quản lý kho |
 |---|---|---|---|---|---|
-| Xem đơn bán, cài đặt bán hàng | Có | Trong công ty mình | Có | Có (kể cả khi gán ở chi nhánh) | Không |
-| Tra giá dòng, lập, sửa, gửi, hủy, đóng đơn bán | Có | Trong công ty mình | Có | Không | Không |
+| Xem đơn bán, cài đặt bán hàng | Có | Trong công ty mình | Có; đơn bán chỉ trong phạm vi khách mình phụ trách từ CONG_VIEC_21 (mục 29) | Có (kể cả khi gán ở chi nhánh) | Không |
+| Tra giá dòng, lập, sửa, gửi, hủy, đóng đơn bán | Có | Trong công ty mình | Có (đơn, khách trong phạm vi từ CONG_VIEC_21) | Không | Không |
 | Rút đơn bán đang chờ duyệt | Đơn của mình | Đơn của mình | Đơn của mình | Không | Không |
 | Cài đặt chiết khấu tay tối đa | Có | Trong công ty mình | Không | Không | Không |
 | Lập, gửi phiếu xuất giao hàng; lập, gửi phiếu nhận hàng trả lại | Có | Kho của công ty mình | Không | Kho trong phạm vi gán | Kho trong phạm vi gán |
@@ -402,3 +404,41 @@ Không thêm vai trò. Hai quyền mới chỉ có hiệu lực khi gán ở ph�
 | Lập, tính lại, sửa lãi chưa thực hiện, thêm, xóa điều chỉnh tay, bỏ bảng nháp, gửi | `finance.consolidation.manage` ở phạm vi tập đoàn | Có | Không | Có | Không | Không | Không |
 | Rút bảng chờ duyệt | `finance.consolidation.manage` ở phạm vi tập đoàn, người gửi bảng | Bảng mình gửi | Không | Bảng mình gửi | Không | Không | Không |
 | Duyệt, từ chối bảng hợp nhất | Người duyệt theo chính sách duyệt loại `finance.consolidation` của công ty gốc | Theo chính sách | Theo chính sách | Theo chính sách | Theo chính sách | Theo chính sách | Không |
+
+## 29. Quyền gán khách hàng cho nhân viên kinh doanh (MODULE_07 phần 2, CONG_VIEC_21)
+
+Không thêm vai trò. Theo THAY_DOI_12, vai trò Nhân viên bán hàng đổi phạm vi xem ngay khi phát hành: chỉ xem đối tác có hồ sơ khách hàng tại công ty do mình hoặc nhân viên phòng mình quản lý phụ trách, đơn bán của các khách đó, đơn mình (hoặc nhân viên đó) lập, đơn mình (hoặc nhân viên đó) hưởng hoa hồng (QUYTAC_NGHIEPVU_129, QUYTAC_NGHIEPVU_130). `crm.customer.view_all` gán ở bất kỳ phạm vi nào trong công ty (tập đoàn, công ty, chi nhánh) cũng có hiệu lực trong công ty đó; `crm.customer.assign` chỉ có hiệu lực khi gán ở phạm vi công ty hoặc tập đoàn. Loại chứng từ mới `crm.customer_assignment` (Phiếu giao khách, cần duyệt khi có chính sách).
+
+| Quyền | Tên | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|---|
+| `crm.customer.view_all` | Xem mọi khách hàng, đơn bán của công ty | Tập đoàn, công ty, chi nhánh | Không | Quản trị tập đoàn, quản trị công ty, Thủ kho, Nhân viên mua hàng, Kế toán, Kế toán trưởng, Quản lý đối tác (mọi vai trò hệ thống đang có `crm.partner.view` hoặc `sales.order.view`, trừ Nhân viên bán hàng) |
+| `crm.customer.assign` | Giao, chuyển khách hàng cho nhân viên | Tập đoàn, công ty | Không | Quản trị tập đoàn, quản trị công ty |
+
+| Vai trò | Mã | Quyền thêm |
+|---|---|---|
+| Thủ kho | `warehouse_keeper` | `crm.customer.view_all` |
+| Nhân viên mua hàng | `purchaser` | `crm.customer.view_all` |
+| Kế toán | `accountant` | `crm.customer.view_all` |
+| Kế toán trưởng | `chief_accountant` | `crm.customer.view_all` |
+| Quản lý đối tác | `partner_manager` | `crm.customer.view_all` |
+| Vai trò tự tạo đang có `crm.partner.view` hoặc `sales.order.view` | – | `crm.customer.view_all` (database migration 0021 thêm, để không đổi hành vi) |
+
+Vai trò hệ thống nhận `crm.customer.view_all` khi đồng bộ danh mục quyền lúc khởi động (`apps/api/src/permissions/permission-catalog.ts`); vai trò tự tạo nhận qua database migration 0021.
+
+Trưởng phòng: không cần quyền riêng. Người đang là trưởng phòng của ít nhất một phòng đang hoạt động của công ty được lập, sửa, gửi phiếu giao khách cho khách do nhân viên phòng mình quản lý (gồm phòng con các cấp, kể cả mình) phụ trách, nhân viên nhận trong phòng mình quản lý (QUYTAC_NGHIEPVU_131); xem khách, đơn bán của nhân viên các phòng đó (QUYTAC_NGHIEPVU_130). Để tìm khách, trưởng phòng cần quyền xem đối tác (`crm.partner.view`, vai trò Nhân viên bán hàng có sẵn). Kiểm thử viết trước CONG_VIEC_21 của CONG_VIEC_08, 12, 13, 14, 15, 16, 17, 19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (cho vai trò Nhân viên bán hàng quyền xem mọi khách như trước; người dùng cho phép ngày 2026-11-10).
+
+## 30. Ma trận vai trò – thao tác của MODULE_07 (phần 2)
+
+"Trưởng phòng": người dùng đang là trưởng phòng (vai trò nào cũng được) và không có `crm.customer.assign`.
+
+| Thao tác | Quyền dùng | Quản trị tập đoàn | Quản trị công ty | Trưởng phòng | Nhân viên bán hàng | Kế toán, Kế toán trưởng, Thủ kho, Nhân viên mua hàng, Quản lý đối tác |
+|---|---|---|---|---|---|---|
+| Xem đối tác, đơn bán của công ty | `crm.partner.view`, `sales.order.view`; phạm vi theo `crm.customer.view_all` | Mọi khách, mọi đơn | Mọi khách, mọi đơn trong công ty mình | Khách, đơn của nhân viên phòng mình quản lý | Khách mình phụ trách, đơn của khách đó, đơn mình lập, đơn mình hưởng hoa hồng | Mọi khách, mọi đơn (theo quyền có sẵn) |
+| Lọc "Khách của tôi", lọc theo nhân viên phụ trách | `crm.partner.view` | Có | Có | Có | Có | Có |
+| Thêm đối tác mới, nhận đối tác có sẵn làm khách của mình | `crm.partner.manage` | Thêm (không tự lập hồ sơ) | Thêm (không tự lập hồ sơ) | Theo quyền | Có, tự lập hồ sơ khách hàng do mình phụ trách | Quản lý đối tác: thêm (không tự lập hồ sơ) |
+| Đặt nhân viên phụ trách cho khách chưa có | `crm.profile.manage` | Có | Trong công ty mình | Theo quyền | Không | Không |
+| Xem lịch sử phụ trách | `crm.partner.view`, khách trong phạm vi | Có | Trong công ty mình | Khách trong phạm vi | Khách trong phạm vi | Có |
+| Lập, sửa, gửi, bỏ phiếu giao khách | `crm.access`, `crm.partner.view`; `crm.customer.assign` hoặc là trưởng phòng | Mọi khách, mọi nhân viên | Mọi khách, mọi nhân viên trong công ty mình | Khách, nhân viên phòng mình quản lý; phiếu mình lập | Không (trừ khi là trưởng phòng) | Không |
+| Xem danh sách, chi tiết phiếu giao khách | `crm.access`, `crm.partner.view`; phạm vi theo `crm.customer.assign` | Mọi phiếu | Mọi phiếu trong công ty mình | Phiếu mình lập, mình gửi, giao cho mình | Phiếu giao cho mình | Phiếu giao cho mình |
+| Rút phiếu chờ duyệt | Người gửi phiếu | Phiếu mình gửi | Phiếu mình gửi | Phiếu mình gửi | Không | Không |
+| Duyệt, từ chối phiếu giao khách | Người duyệt theo chính sách duyệt loại `crm.customer_assignment` | Theo chính sách | Theo chính sách | Theo chính sách | Theo chính sách | Theo chính sách |

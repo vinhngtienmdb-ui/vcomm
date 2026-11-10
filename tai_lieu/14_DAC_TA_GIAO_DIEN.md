@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.7
+- Phiên bản: 2.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -21,6 +21,7 @@
 - Cập nhật CONG_VIEC_18 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 6, MAN_HINH_58, MAN_HINH_59 (mục 41 đến mục 43); menu mini app Tài chính – Kế toán thêm mục "Giao dịch ngân hàng", "Kết nối ngân hàng"
 - Cập nhật CONG_VIEC_19 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 7, MAN_HINH_60, MAN_HINH_61 (mục 44 đến mục 46); menu mini app Tài chính – Kế toán thêm mục "Đối soát thu hộ"; MAN_HINH_51 (Bút toán) bộ lọc, cột "Nguồn" thêm "Bảng hoa hồng" (sửa lỗi hiện mã thô `commission` từ CONG_VIEC_17), "Bảng đối soát thu hộ"
 - Cập nhật CONG_VIEC_20 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 8, MAN_HINH_62, MAN_HINH_63 (mục 47 đến mục 49); menu mini app Tài chính – Kế toán thêm mục "Báo cáo hợp nhất" sau "Báo cáo tài chính"; sửa sau rà soát: công ty, đối tác trong ngăn kéo điều chỉnh tay, lý do không chốt được hiện câu đã dịch, thẻ xem nhanh chỉ tải khi mở
+- Cập nhật CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm MODULE_07 Khách hàng và Đối tác phần 2, MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52); menu mini app Khách hàng và Đối tác thêm mục "Giao khách hàng"; sơ đồ điều hướng MODULE_07 thay ở mục 50; sửa MAN_HINH_36 (lọc "Khách của tôi", cột nhân viên phụ trách, nút "Nhận làm khách của tôi" trong ngăn kéo thêm đối tác), MAN_HINH_37 (ô nhân viên phụ trách khóa khi đã có, thẻ lịch sử phụ trách)
 
 ## MODULE_01 Nền tảng
 
@@ -796,7 +797,7 @@ flowchart TD
     D -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
 ```
 
-- Thứ tự menu và quyền hiện mục: Đối tác (`crm.partner.view`).
+- Thứ tự menu và quyền hiện mục: Đối tác (`crm.partner.view`). Từ CONG_VIEC_21 thêm "Giao khách hàng" (`crm.partner.view`); sơ đồ điều hướng đầy đủ ở mục 50.
 - Danh sách và chi tiết có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng.
 
 ## 12. Bảng vai trò – màn hình (MODULE_07)
@@ -822,6 +823,7 @@ flowchart TD
 - Quyền hiển thị: màn hình với `crm.partner.view`; nút "Thêm đối tác" với `crm.partner.manage`.
 - Responsive: bảng chuyển thành thẻ.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_06 mục 14)
+- Bổ sung CONG_VIEC_21 (CHUC_NANG_96, CHUC_NANG_98; API_71, API_111): bộ lọc thêm "Nhân viên phụ trách" với lựa chọn "Khách của tôi"; trưởng phòng, người có quyền giao khách chọn thêm được từng nhân viên trong phạm vi giao của mình; bảng thêm cột "Nhân viên phụ trách" (trước cột trạng thái; trống hiện "—"). Người không có quyền xem mọi khách chỉ thấy khách mình (và nhân viên phòng mình quản lý) phụ trách (QUYTAC_NGHIEPVU_129); thêm đối tác mới thì tự có hồ sơ khách hàng do mình phụ trách. Ngăn kéo "Thêm đối tác": kiểm trùng trả `canClaim` thì khối "Đã có đối tác <mã> · <tên>." hiện nút "Nhận làm khách của tôi" thay cho "Mở"; bấm thì nhận đối tác, mở MAN_HINH_37; lỗi hiện trong khối đó (QUYTAC_NGHIEPVU_135).
 
 ### MAN_HINH_37: Chi tiết đối tác
 - Mục đích: Xem, sửa thông tin chung của đối tác; xem, lập hồ sơ đối tác của công ty đang chọn.
@@ -837,6 +839,7 @@ flowchart TD
 - Quyền hiển thị: nút sửa, ngừng giao dịch theo `canManage` (có `crm.partner.manage`, không phải đối tác nội bộ); "Xem đầy đủ" theo `canViewIdentity`; nút hồ sơ theo `canManageProfile`.
 - Responsive: thẻ xếp dọc; nhãn và giá trị xếp hai cột.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_06 mục 14)
+- Bổ sung CONG_VIEC_21 (CHUC_NANG_96, CHUC_NANG_98; API_72, API_111): đối tác ngoài phạm vi xem hiện "Không tìm thấy dữ liệu hoặc bạn không có quyền xem.". Ngăn kéo hồ sơ: ô "Nhân viên phụ trách" chỉ chọn được khi hồ sơ chưa có nhân viên phụ trách; đã có thì khóa, kèm gợi ý "Đổi nhân viên phụ trách bằng phiếu giao khách." (QUYTAC_NGHIEPVU_134). Hồ sơ là khách hàng: thêm thẻ "Lịch sử phụ trách" sau thẻ hồ sơ, mỗi dòng "<nhân viên> · <từ thời điểm> – <đến thời điểm hoặc "nay">" kèm số phiếu giao khách (liên kết mở MAN_HINH_65) khi có; trống: "Chưa có nhân viên phụ trách.".
 
 ## MODULE_04 Mua hàng (phần 1: Mua hàng trong nước, CONG_VIEC_07)
 
@@ -1761,3 +1764,83 @@ flowchart TD
 - Quyền hiển thị: nút theo `canEdit`, `canWithdraw` của API_107 và trạng thái bảng.
 - Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; dòng điều chỉnh tay xếp lưới tự co; nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_20 mục 14)
+
+## MODULE_07 Khách hàng và Đối tác (phần 2: Gán khách hàng cho nhân viên kinh doanh, CONG_VIEC_21)
+
+Cùng mini app `apps/web-crm` (mục 11). Phạm vi xem đối tác theo nhân viên phụ trách (QUYTAC_NGHIEPVU_129) áp dụng cho MAN_HINH_36, MAN_HINH_37 và màn hình đơn bán MAN_HINH_42, MAN_HINH_43 (không đổi giao diện đơn bán; danh sách chọn khách chỉ gồm khách trong phạm vi).
+
+## 50. Danh sách màn hình và điều hướng (MODULE_07 phần 2)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_64 | Danh sách phiếu giao khách: lọc trạng thái; nút lập phiếu | CHUC_NANG_97 | Mọi người có `crm.partner.view`; lập phiếu: trưởng phòng, người có `crm.customer.assign` (Quản trị tập đoàn, quản trị công ty) | Menu Khách hàng và Đối tác | Không lập (xem trước trên ứng dụng, CONG_VIEC_21 mục 14) |
+| MAN_HINH_65 | Phiếu giao khách: lập, sửa (chọn khách, nhân viên nhận, lý do); gửi, rút, bỏ phiếu nháp; trạng thái, lý do không áp dụng được | CHUC_NANG_97 | Như MAN_HINH_64 | MAN_HINH_64; liên kết số phiếu ở thẻ lịch sử phụ trách của MAN_HINH_37; thông báo áp dụng phiếu | Không lập (xem trước trên ứng dụng, CONG_VIEC_21 mục 14) |
+
+Sơ đồ điều hướng (thay sơ đồ mục 11):
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Khách hàng và Đối tác| M{{Menu Khách hàng và Đối tác}}
+    M --> L[MAN_HINH_36 Danh sách đối tác]
+    M --> G[MAN_HINH_64 Danh sách phiếu giao khách]
+    L -->|Mã đối tác| D[MAN_HINH_37 Chi tiết đối tác]
+    L -->|Thêm đối tác, lưu xong| D
+    L -->|Đã có đối tác: Mở| D
+    L -->|Đã có đối tác: Nhận làm khách của tôi| D
+    D -->|Danh sách đối tác| L
+    D -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+    D -->|Số phiếu ở thẻ lịch sử phụ trách| P[MAN_HINH_65 Phiếu giao khách]
+    G -->|Lập phiếu giao khách, lưu xong| P
+    G -->|Số phiếu| P
+    P -->|Danh sách| G
+    P -->|Bỏ phiếu nháp| X[Hộp xác nhận]
+    X -->|Đã bỏ| G
+    N[Thông báo trong ứng dụng] -->|Được giao, bị chuyển khách| P
+```
+
+- Thứ tự menu và quyền hiện mục: Đối tác (`crm.partner.view`); Giao khách hàng (`crm.partner.view`).
+- Nút "Lập phiếu giao khách" chỉ hiện khi người dùng là trưởng phòng hoặc có `crm.customer.assign` (API tùy chọn phiếu trả được).
+
+## 51. Bảng vai trò – màn hình (MODULE_07 phần 2)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Trưởng phòng | Nhân viên bán hàng | Kế toán, Kế toán trưởng, Thủ kho, Nhân viên mua hàng, Quản lý đối tác |
+|---|---|---|---|---|
+| MAN_HINH_36 Danh sách đối tác (phần sửa) | Xem mọi đối tác, lọc "Khách của tôi" | Xem khách của nhân viên phòng mình quản lý | Xem khách mình phụ trách, Thêm, Nhận làm khách của tôi | Xem mọi đối tác (Quản lý đối tác: Thêm) |
+| MAN_HINH_37 Chi tiết đối tác (phần sửa) | Xem lịch sử phụ trách; đặt nhân viên phụ trách khi chưa có | Xem lịch sử phụ trách (khách trong phạm vi) | Xem lịch sử phụ trách (khách mình phụ trách) | Xem lịch sử phụ trách |
+| MAN_HINH_64 Danh sách phiếu giao khách | Xem mọi phiếu, Lập phiếu | Xem phiếu mình lập, mình gửi, giao cho mình; Lập phiếu | Xem phiếu giao cho mình | Xem phiếu giao cho mình |
+| MAN_HINH_65 Phiếu giao khách | Xem, Sửa, Gửi, Bỏ phiếu nháp, Rút (phiếu mình gửi) | Xem, Sửa, Gửi, Bỏ phiếu nháp (phiếu mình lập), Rút (phiếu mình gửi) | Xem | Xem |
+
+## 52. Đặc tả từng màn hình (MODULE_07 phần 2)
+
+### MAN_HINH_64: Danh sách phiếu giao khách
+- Mục đích: Theo dõi các phiếu giao, chuyển khách; lập phiếu mới.
+- Chức năng thực hiện: CHUC_NANG_97
+- Đường dẫn: `/crm/customer-assignments`.
+- Bố cục: tiêu đề "Giao khách hàng", nút "Lập phiếu giao khách" (khi là trưởng phòng hoặc có quyền giao khách); câu "Giao, chuyển khách cho nhân viên kinh doanh; đi theo chính sách duyệt của công ty."; bộ lọc "Trạng thái: Tất cả" (Nháp, Chờ duyệt, Đã áp dụng, Bị từ chối, Đã rút); bảng "Số phiếu" (liên kết mở MAN_HINH_65; chưa có số hiện "(nháp)"), "Nhân viên nhận", "Số khách", "Lý do", "Người lập" (kèm thời điểm lập), "Trạng thái" (nhãn màu: Nháp, Đã rút trung tính; Chờ duyệt cảnh báo; Đã áp dụng thành công; Bị từ chối nguy hiểm); phân trang 20 dòng.
+- Dữ liệu hiển thị: phiếu của công ty đang chọn trong phạm vi xem (QUYTAC_NGHIEPVU_132), mới lập trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, OChon, BangDuLieu, NhanTrangThai, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_110.
+- Thao tác: đổi trạng thái về trang 1; "Lập phiếu giao khách" mở `/crm/customer-assignments/new` (MAN_HINH_65 ở chế độ lập).
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có phiếu giao khách." (có lọc thì "Không có kết quả phù hợp.").
+- Thông báo: không có.
+- Quyền hiển thị: mục menu với `crm.partner.view`; nút lập phiếu khi API tùy chọn phiếu trả được (không phải trưởng phòng, không có quyền giao khách thì API trả 403, nút ẩn).
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_21 mục 14)
+
+### MAN_HINH_65: Phiếu giao khách
+- Mục đích: Lập, sửa phiếu giao khách; gửi duyệt; xem kết quả áp dụng.
+- Chức năng thực hiện: CHUC_NANG_97
+- Đường dẫn: `/crm/customer-assignments/new` (lập), `/crm/customer-assignments/<mã>` (chi tiết, sửa).
+- Bố cục:
+  - Chế độ lập (tiêu đề "Lập phiếu giao khách") và sửa (nút "Sửa" trên chi tiết): biểu mẫu "Nhân viên nhận *" (danh sách chọn "Chọn nhân viên": mọi thành viên đang hoạt động hoặc nhân viên phòng mình quản lý), "Lý do *" (tối đa 500 ký tự); khối "Khách đã chọn: <số>" liệt kê "<mã> · <tên> · <nhân viên phụ trách hoặc "chưa có người phụ trách">" kèm nút "Bỏ", lỗi từng khách hiện dưới khách đó (trống: "Chưa chọn khách nào."); ô "Tìm khách để thêm" (gợi ý "Tên, mã, mã số thuế, điện thoại"; tìm khách hàng đang giao dịch trong phạm vi xem, 20 kết quả, bỏ khách đã chọn) mỗi dòng "<mã> · <tên> · <nhân viên phụ trách>" kèm nút "Thêm" (tối đa 500 khách); nút "Lưu", "Hủy". Không phải trưởng phòng, không có quyền giao khách: khối cảnh báo "Bạn không phải trưởng phòng và không có quyền giao khách.".
+  - Chế độ xem: tiêu đề "Phiếu giao khách <số hoặc "(nháp)">", nút "Danh sách"; thẻ thông tin: "Trạng thái" (nhãn), "Nhân viên nhận", "Lý do", "Người lập" (kèm thời điểm), "Áp dụng lúc" (khi đã áp dụng); khối lỗi lý do không áp dụng được (câu đã dịch theo khóa) kèm "Khách đã đổi: <tên các khách>"; nút "Gửi", "Sửa" (khi `canSubmit`, `canEdit`), "Rút" (khi `canWithdraw`), "Bỏ phiếu nháp" (khi `canDiscard`); bảng "Khách hàng" (mã · tên), "Đang phụ trách" (hoặc "chưa có người phụ trách"), "Phụ trách lúc gửi" (chưa gửi hiện "—").
+  - Hộp xác nhận "Bỏ phiếu nháp": "Bỏ phiếu nháp này? Không khôi phục được."; nút "Bỏ phiếu nháp".
+- Dữ liệu hiển thị: phiếu trong phạm vi xem; khách theo tên.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, NhanTrangThai, KhoiCanhBao, ONhap, OChon, BangDuLieu, HopThoaiXacNhan, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_110, API_71 (tìm khách).
+- Thao tác: lưu phiếu mới báo "Đã lưu phiếu giao khách." rồi mở chi tiết; "Gửi" báo "Đã gửi phiếu giao khách."; "Rút" báo "Đã rút phiếu."; "Bỏ phiếu nháp" báo "Đã bỏ phiếu nháp." rồi về MAN_HINH_64; gõ ô tìm thì tìm sau 300 mili giây; sau mỗi thao tác tải lại phiếu.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; không tìm thấy phiếu: "Không tìm thấy dữ liệu hoặc bạn không có quyền xem.".
+- Thông báo: lỗi gửi, rút hiện trong thẻ thông tin; lỗi tại trường, cuối biểu mẫu; lỗi bỏ phiếu hiện trong hộp xác nhận.
+- Quyền hiển thị: nút theo `canEdit`, `canSubmit`, `canWithdraw`, `canDiscard` của API_110.
+- Responsive: bảng chuyển thành thẻ; nút xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_21 mục 14)

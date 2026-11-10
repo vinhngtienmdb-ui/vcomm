@@ -3,7 +3,7 @@
 - Mô tả: Nhân viên kinh doanh chỉ xem khách hàng mình phụ trách và đơn bán của các khách đó; trưởng phòng xem, giao khách của nhân viên trong phòng; giao, chuyển khách bằng phiếu giao khách theo chính sách duyệt của công ty; lưu lịch sử phụ trách.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Bản nháp. Người dùng xác nhận thiết kế ngày 2026-11-10.
+- Trạng thái: Chờ nghiệm thu. Người dùng xác nhận thiết kế ngày 2026-11-10.
 - Nguồn: tài liệu `05` mục 2.1 (gán khách hàng cho nhân viên kinh doanh); THAY_DOI_12; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`.
 
 ## 1. Mục tiêu
@@ -105,7 +105,15 @@ Quy tắc gán nhân viên hưởng hoa hồng (QUYTAC_NGHIEPVU_109); phạm vi 
 
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa đối chiếu.
+- Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: Đạt (TIEUCHI_NGHIEMTHU_151 đến 155; THAY_DOI_12).
+- Đúng giao diện: Đạt (thành phần, biến dùng chung đã có; máy tính và điện thoại 375 điểm ảnh không cuộn ngang). Không có bản mẫu riêng, theo cách làm các màn hình trước.
+- Đã xử lý lỗi: Đạt (thông báo tiếng Việt, tiếng Anh; lỗi từng khách trong phiếu; lý do từ chối khi áp dụng).
+- Đã kiểm thử: Đạt (tài liệu `25`, lần kiểm thử 2026-11-10 – CONG_VIEC_21).
+- Không phá vỡ chức năng cũ: Đạt (hồi quy toàn bộ; vai trò Nhân viên bán hàng đổi phạm vi xem theo THAY_DOI_12; kiểm thử cũ thêm bước chuẩn bị theo phép người dùng).
+- Tiêu chí nghiệm thu bắt buộc: Đạt.
+- Cổng bảo mật: Đạt (không lỗ hổng thư viện; không lỗ hổng Nghiêm trọng, Cao còn lại).
+- Tự rà soát mã, dọn dẹp: Đạt (rà soát độc lập, đã sửa; tệp tạm trong `tam_thoi/`; tài khoản thử trên dữ liệu phát triển ghi trong `tam_thoi/CONG_VIEC_02/da_tao.md`).
+- Tài liệu `27` và tài liệu liên quan: Đạt.
 
 ## 16. Giới hạn đã biết
 

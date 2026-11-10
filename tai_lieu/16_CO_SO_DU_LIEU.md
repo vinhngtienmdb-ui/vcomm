@@ -1,12 +1,12 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 2.7
+- Phiên bản: 2.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14); CONG_VIEC_15 (2026-11-10): thêm cột `accounting.accounts.is_long_term` (mục 15); CONG_VIEC_16 (2026-11-10): thêm bảng hóa đơn điện tử `finance.einvoice_settings`, `finance.einvoice_series`, `finance.einvoices`, `finance.einvoice_lines`, `finance.einvoice_attempts` (database migration 0013), `finance.einvoice_return_tasks` (database migration 0014) (mục 16); CONG_VIEC_17 (2026-11-10): thêm cột `sales.orders.commission_user_id`, bảng hoa hồng `finance.commission_settings`, `finance.commission_rates`, `finance.commission_channel_factors`, `finance.commission_targets`, `finance.commission_statements`, `finance.commission_statement_lines`, `finance.commission_events` (database migration 0015), nguồn bút toán `commission`, vai trò định khoản `commission_expense`, `staff_payable` (database migration 0016), cột `finance.commission_events.gross_amount` (database migration 0017) (mục 17); CONG_VIEC_18 (2026-11-10): thêm bảng `finance.bank_connections`, `finance.bank_transactions` (database migration 0018) (mục 18); CONG_VIEC_19 (2026-11-10): thêm bảng `finance.collectors`, `finance.collection_statements`, `finance.collection_statement_lines`, nguồn công nợ, nguồn bút toán `collection_statement`, vai trò định khoản `collector_receivable`, `collection_fee` (database migration 0019) (mục 19); CONG_VIEC_20 (2026-11-10): thêm bảng `finance.consolidations`, `finance.consolidation_entries`, `finance.consolidation_profit_lines` (database migration 0020) (mục 20); sửa sau rà soát: chỉ mục `inventory.movements_company_variant_idx`, `report` lưu lúc gửi, đối tác của dòng điều chỉnh tay
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14); CONG_VIEC_15 (2026-11-10): thêm cột `accounting.accounts.is_long_term` (mục 15); CONG_VIEC_16 (2026-11-10): thêm bảng hóa đơn điện tử `finance.einvoice_settings`, `finance.einvoice_series`, `finance.einvoices`, `finance.einvoice_lines`, `finance.einvoice_attempts` (database migration 0013), `finance.einvoice_return_tasks` (database migration 0014) (mục 16); CONG_VIEC_17 (2026-11-10): thêm cột `sales.orders.commission_user_id`, bảng hoa hồng `finance.commission_settings`, `finance.commission_rates`, `finance.commission_channel_factors`, `finance.commission_targets`, `finance.commission_statements`, `finance.commission_statement_lines`, `finance.commission_events` (database migration 0015), nguồn bút toán `commission`, vai trò định khoản `commission_expense`, `staff_payable` (database migration 0016), cột `finance.commission_events.gross_amount` (database migration 0017) (mục 17); CONG_VIEC_18 (2026-11-10): thêm bảng `finance.bank_connections`, `finance.bank_transactions` (database migration 0018) (mục 18); CONG_VIEC_19 (2026-11-10): thêm bảng `finance.collectors`, `finance.collection_statements`, `finance.collection_statement_lines`, nguồn công nợ, nguồn bút toán `collection_statement`, vai trò định khoản `collector_receivable`, `collection_fee` (database migration 0019) (mục 19); CONG_VIEC_20 (2026-11-10): thêm bảng `finance.consolidations`, `finance.consolidation_entries`, `finance.consolidation_profit_lines` (database migration 0020) (mục 20); sửa sau rà soát: chỉ mục `inventory.movements_company_variant_idx`, `report` lưu lúc gửi, đối tác của dòng điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm bảng `crm.customer_assignments`, `crm.customer_assignment_lines`, `crm.partner_owner_history`, chỉ mục `crm.partner_profiles_owner_idx`, quyền `crm.customer.view_all`, `crm.customer.assign` (database migration 0021) (mục 21)
 
-Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14); cột tài khoản dài hạn của MODULE_06 phần 3 (CONG_VIEC_15, mục 15); bảng hóa đơn điện tử của MODULE_06 phần 4 trong schema `finance` (CONG_VIEC_16, mục 16); bảng hoa hồng đội kinh doanh của MODULE_06 phần 5 trong schema `finance` (CONG_VIEC_17, mục 17); bảng đối soát ngân hàng của MODULE_06 phần 6 trong schema `finance` (CONG_VIEC_18, mục 18); bảng đối soát thu hộ của MODULE_06 phần 7 trong schema `finance` (CONG_VIEC_19, mục 19); bảng hợp nhất của MODULE_06 phần 8 trong schema `finance` (CONG_VIEC_20, mục 20). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14); cột tài khoản dài hạn của MODULE_06 phần 3 (CONG_VIEC_15, mục 15); bảng hóa đơn điện tử của MODULE_06 phần 4 trong schema `finance` (CONG_VIEC_16, mục 16); bảng hoa hồng đội kinh doanh của MODULE_06 phần 5 trong schema `finance` (CONG_VIEC_17, mục 17); bảng đối soát ngân hàng của MODULE_06 phần 6 trong schema `finance` (CONG_VIEC_18, mục 18); bảng đối soát thu hộ của MODULE_06 phần 7 trong schema `finance` (CONG_VIEC_19, mục 19); bảng hợp nhất của MODULE_06 phần 8 trong schema `finance` (CONG_VIEC_20, mục 20); phiếu giao khách, lịch sử phụ trách của MODULE_07 phần 2 trong schema `crm` (CONG_VIEC_21, mục 21). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -2923,4 +2923,102 @@ CREATE TABLE finance.consolidation_profit_lines (
 
 -- Tồn cuối kỳ theo công ty, mặt hàng cho lãi chưa thực hiện.
 CREATE INDEX movements_company_variant_idx ON inventory.movements (company_id, variant_id, moved_at) INCLUDE (quantity);
+```
+
+## 21. Database migration 0021 – CONG_VIEC_21 (gán khách hàng cho nhân viên kinh doanh)
+
+Tệp `database/migrations/0021_customer_assignments.sql` thêm 3 bảng vào schema `crm`, chỉ mục `crm.partner_profiles_owner_idx`, ghi lịch sử cho hồ sơ đã có nhân viên phụ trách, thêm quyền `crm.customer.view_all`, `crm.customer.assign` và thêm `crm.customer.view_all` vào vai trò tự tạo đang có `crm.partner.view` hoặc `sales.order.view` (THAY_DOI_12). Vai trò hệ thống nhận quyền mới, loại chứng từ `crm.customer_assignment` qua danh mục đồng bộ khi khởi động (`apps/api/src/permissions/permission-catalog.ts`); dãy số `GK` tạo khi gửi lần đầu. Khóa ngoại từ bảng mới trỏ vào `core`, `crm`. Cột `crm.partner_profiles.owner_user_id` (mục 8) giữ nguyên; từ CONG_VIEC_21 chỉ đổi qua phiếu giao khách khi đã có giá trị (QUYTAC_NGHIEPVU_134).
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `customer_assignments` | Phiếu giao khách (CHUC_NANG_97; QUYTAC_NGHIEPVU_131 đến QUYTAC_NGHIEPVU_133) | `company_id`, `document_no` (`GK…`, cấp khi gửi lần đầu), `target_user_id` (nhân viên nhận), `reason`, `status` (`draft`, `pending`, `applied`, `rejected`, `withdrawn`), `approval_request_id`, `apply_error` (khóa thông báo lý do không áp dụng được), `apply_error_detail` (danh sách khách đã đổi nhân viên phụ trách), `created_by`, `submitted_by` (người gửi lần gần nhất, được rút), `created_at`, `submitted_at`, `applied_at`, `updated_at`, `version` | `status` trong 5 giá trị; chỉ mục `(company_id, created_at DESC)`, `approval_request_id` |
+| `customer_assignment_lines` | Khách trong phiếu (CHUC_NANG_97; QUYTAC_NGHIEPVU_131, QUYTAC_NGHIEPVU_133) | `assignment_id` (xóa theo phiếu), `partner_id`, `previous_user_id` (nhân viên phụ trách lúc gửi, ghi khi gửi) | Khóa chính `(assignment_id, partner_id)` |
+| `partner_owner_history` | Lịch sử phụ trách (CHUC_NANG_98; QUYTAC_NGHIEPVU_133 đến QUYTAC_NGHIEPVU_135) | `company_id`, `partner_id`, `user_id`, `valid_from`, `valid_to` (trống: đang phụ trách), `assignment_id` (trống: đặt trên hồ sơ, tự lập khi thêm, nhận đối tác, hoặc ghi từ database migration), `created_by` | Chỉ mục `(company_id, partner_id, valid_from DESC)`; duy nhất `(company_id, partner_id)` khi `valid_to IS NULL` (mỗi khách tại mỗi công ty một dòng đang mở) |
+| `partner_profiles` (0021) | Điều kiện phạm vi xem theo nhân viên phụ trách (QUYTAC_NGHIEPVU_129) | `company_id`, `owner_user_id` | Chỉ mục `partner_profiles_owner_idx (company_id, owner_user_id)` |
+
+Dữ liệu thêm khi chạy:
+- Mỗi hồ sơ đối tác có `owner_user_id` được một dòng lịch sử đang mở từ `updated_at` của hồ sơ, `created_by` là `updated_by` (QUYTAC_NGHIEPVU_134).
+- `core.permissions`: `crm.customer.view_all` ("Xem mọi khách hàng, đơn bán của công ty"), `crm.customer.assign` ("Giao, chuyển khách hàng cho nhân viên"), không nhạy cảm; đã có thì bỏ qua.
+- `core.role_permissions`: vai trò tự tạo (`is_system` sai) đang có `crm.partner.view` hoặc `sales.order.view` thêm `crm.customer.view_all`.
+
+Quy tắc xóa và lưu giữ bổ sung:
+- Bỏ phiếu nháp chưa gửi lần nào xóa phiếu và các dòng khách (xóa theo khóa ngoại).
+- Phiếu đã gửi không xóa; phiếu đã áp dụng không sửa. Lịch sử phụ trách không xóa, không sửa (chỉ đóng dòng đang mở bằng `valid_to`).
+
+```mermaid
+erDiagram
+    companies ||--o{ customer_assignments : "công ty"
+    users ||--o{ customer_assignments : "nhân viên nhận"
+    customer_assignments ||--o{ customer_assignment_lines : "khách"
+    partners ||--o{ customer_assignment_lines : "đối tác"
+    partners ||--o{ partner_owner_history : "lịch sử phụ trách"
+    users ||--o{ partner_owner_history : "nhân viên phụ trách"
+    customer_assignments |o--o{ partner_owner_history : "áp dụng phiếu"
+```
+
+Lược đồ (chép từ tệp `database/migrations/0021_customer_assignments.sql`):
+
+```sql
+-- CONG_VIEC_21: Gán khách hàng cho nhân viên kinh doanh (CHUC_NANG_96 đến 98; QUYTAC_NGHIEPVU_129 đến 135; THAY_DOI_12).
+
+-- Phiếu giao khách (QUYTAC_NGHIEPVU_131, 132).
+CREATE TABLE crm.customer_assignments (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    document_no         text,
+    target_user_id      uuid        NOT NULL REFERENCES core.users(id),           -- nhân viên nhận
+    reason              text        NOT NULL,
+    status              text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'applied', 'rejected', 'withdrawn')),
+    approval_request_id uuid,
+    apply_error         text,                                                     -- khóa thông báo lý do không áp dụng được
+    apply_error_detail  text,                                                     -- danh sách khách đã đổi nhân viên phụ trách
+    created_by          uuid        NOT NULL REFERENCES core.users(id),
+    submitted_by        uuid        REFERENCES core.users(id),
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    submitted_at        timestamptz,
+    applied_at          timestamptz,
+    updated_at          timestamptz NOT NULL DEFAULT now(),
+    version             integer     NOT NULL DEFAULT 1
+);
+CREATE INDEX customer_assignments_company_idx ON crm.customer_assignments (company_id, created_at DESC);
+CREATE INDEX customer_assignments_approval_idx ON crm.customer_assignments (approval_request_id);
+
+-- Khách trong phiếu; nhân viên phụ trách lúc gửi để kiểm khi áp dụng (QUYTAC_NGHIEPVU_133).
+CREATE TABLE crm.customer_assignment_lines (
+    assignment_id       uuid        NOT NULL REFERENCES crm.customer_assignments(id) ON DELETE CASCADE,
+    partner_id          uuid        NOT NULL REFERENCES crm.partners(id),
+    previous_user_id    uuid        REFERENCES core.users(id),
+    PRIMARY KEY (assignment_id, partner_id)
+);
+
+-- Lịch sử phụ trách: mỗi khách tại mỗi công ty một dòng đang mở (valid_to trống).
+CREATE TABLE crm.partner_owner_history (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    partner_id          uuid        NOT NULL REFERENCES crm.partners(id),
+    user_id             uuid        NOT NULL REFERENCES core.users(id),
+    valid_from          timestamptz NOT NULL DEFAULT now(),
+    valid_to            timestamptz,
+    assignment_id       uuid        REFERENCES crm.customer_assignments(id),
+    created_by          uuid        REFERENCES core.users(id)
+);
+CREATE INDEX partner_owner_history_partner_idx ON crm.partner_owner_history (company_id, partner_id, valid_from DESC);
+CREATE UNIQUE INDEX partner_owner_history_open_idx ON crm.partner_owner_history (company_id, partner_id) WHERE valid_to IS NULL;
+
+CREATE INDEX partner_profiles_owner_idx ON crm.partner_profiles (company_id, owner_user_id);
+
+-- Hồ sơ đã có nhân viên phụ trách: lịch sử bắt đầu từ lần cập nhật hồ sơ gần nhất (QUYTAC_NGHIEPVU_134).
+INSERT INTO crm.partner_owner_history (company_id, partner_id, user_id, valid_from, created_by)
+SELECT company_id, partner_id, owner_user_id, updated_at, updated_by FROM crm.partner_profiles WHERE owner_user_id IS NOT NULL;
+
+-- Quyền mới; vai trò tự tạo đang xem đối tác hoặc đơn bán giữ được phạm vi xem như cũ (THAY_DOI_12).
+-- Vai trò hệ thống được đồng bộ từ danh mục quyền khi khởi động.
+INSERT INTO core.permissions (code, app_code, name_vi, name_en, is_sensitive) VALUES
+    ('crm.customer.view_all', 'crm', 'Xem mọi khách hàng, đơn bán của công ty', 'View all customers and sales orders of the company', false),
+    ('crm.customer.assign', 'crm', 'Giao, chuyển khách hàng cho nhân viên', 'Assign customers to staff', false)
+ON CONFLICT (code) DO NOTHING;
+INSERT INTO core.role_permissions (role_id, permission_code)
+SELECT DISTINCT rp.role_id, 'crm.customer.view_all' FROM core.role_permissions rp JOIN core.roles r ON r.id = rp.role_id
+WHERE NOT r.is_system AND rp.permission_code IN ('crm.partner.view', 'sales.order.view')
+ON CONFLICT DO NOTHING;
 ```

@@ -19,6 +19,7 @@ export function AssignmentForm({ current, onSaved, onCancel }: { current: Custom
   const [picked, setPicked] = useState<Picked[]>(current?.lines.map((line) => ({ id: line.partnerId, code: line.code, name: line.name, ownerUserName: line.currentOwnerName })) ?? []);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
+  const [currentOwner, setCurrentOwner] = useState("");
   const { submitting, fields, formError, run, inputClass } = useSubmit();
 
   useEffect(() => {
@@ -27,6 +28,7 @@ export function AssignmentForm({ current, onSaved, onCancel }: { current: Custom
   }, [searchInput]);
   const parameters = new URLSearchParams({ role: "customer", status: "active", pageSize: "20" });
   if (search) parameters.set("search", search);
+  if (currentOwner) parameters.set("owner", currentOwner);
   const found = useApi<PageResponse<PartnerListItem>>(`/crm/partners?${parameters}`);
   const users = options.state.kind === "ready" ? options.state.data.users : [];
   // Lỗi từng khách trả theo vị trí trong lần gửi gần nhất: đổi về mã khách để không lệch khi bỏ khách.
@@ -90,6 +92,17 @@ export function AssignmentForm({ current, onSaved, onCancel }: { current: Custom
       </div>
       <div style={{ display: "grid", gap: "var(--khoang-2)" }}>
         <label htmlFor="gk-tim">{t("findCustomers")}</label>
+        <label className="an-nhan" htmlFor="gk-loc-phu-trach">
+          {t("currentOwner")}
+        </label>
+        <select id="gk-loc-phu-trach" className="o-nhap" value={currentOwner} onChange={(event) => setCurrentOwner(event.target.value)}>
+          <option value="">{`${t("currentOwner")}: ${common("all")}`}</option>
+          {users.map((user) => (
+            <option key={user.id} value={user.id}>
+              {user.fullName}
+            </option>
+          ))}
+        </select>
         <input id="gk-tim" className="o-nhap" type="search" placeholder={t("searchHint")} value={searchInput} onChange={(event) => setSearchInput(event.target.value)} />
         {found.state.kind === "ready" &&
           (found.state.data.data.length === 0 ? (

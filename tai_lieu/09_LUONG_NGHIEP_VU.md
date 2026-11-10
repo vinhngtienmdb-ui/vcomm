@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.11
+- Phiên bản: 1.12
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách
 
 ## MODULE_01 Nền tảng
 
@@ -598,5 +598,47 @@ Trạng thái bảng hợp nhất:
 | Nháp, Bị từ chối, Đã rút | Gửi, chưa có chính sách duyệt | Đã chốt số (`posted`, nhãn "Đã ghi sổ") |
 | Chờ duyệt | Duyệt xong, chốt được | Đã chốt số |
 | Chờ duyệt | Duyệt xong, không chốt được | Bị từ chối (`rejected`) kèm lý do |
+| Chờ duyệt | Từ chối | Bị từ chối |
+| Chờ duyệt | Người gửi rút | Đã rút (`withdrawn`) |
+
+## MODULE_07 Khách hàng và Đối tác (phần 2: Gán khách hàng cho nhân viên kinh doanh, CONG_VIEC_21)
+
+### Luồng 33. Giao, chuyển khách hàng cho nhân viên kinh doanh
+
+- Bắt đầu: trưởng phòng (khách, nhân viên trong phòng mình quản lý) hoặc người có quyền `crm.customer.assign` (mọi khách, mọi nhân viên của công ty) cần giao khách chưa có người phụ trách hoặc chuyển khách sang nhân viên khác (nhân viên nghỉ việc, đổi địa bàn) (QUYTAC_NGHIEPVU_131).
+- Các bước:
+  1. Mở mini app Khách hàng và Đối tác, mục menu "Giao khách hàng", bấm "Lập phiếu giao khách".
+  2. Chọn nhân viên nhận, nhập lý do; tìm khách (tên, mã, mã số thuế, điện thoại), bấm "Thêm" từng khách (hiện nhân viên đang phụ trách); bấm "Lưu" (phiếu nháp). Khách ngoài phạm vi giao, khách đã do nhân viên nhận phụ trách báo lỗi tại từng khách.
+  3. Bấm "Gửi": hệ thống khóa hồ sơ các khách, kiểm lại phạm vi, ghi nhân viên phụ trách lúc gửi, cấp số `GK…`, gửi duyệt theo chính sách duyệt loại `crm.customer_assignment` của công ty; chưa có chính sách thì áp dụng ngay (QUYTAC_NGHIEPVU_132).
+  4. Người duyệt duyệt phiếu.
+  5. Hệ thống áp dụng: kiểm nhân viên nhận còn làm việc, mỗi khách còn đúng nhân viên phụ trách lúc gửi và còn giao dịch; đổi nhân viên phụ trách trong hồ sơ, đóng dòng lịch sử cũ, mở dòng mới kèm số phiếu; báo cho nhân viên nhận và nhân viên cũ (QUYTAC_NGHIEPVU_133).
+  6. Nhân viên nhận thấy khách trong danh sách đối tác (lọc "Khách của tôi"), chọn được khách khi lập đơn bán; nhân viên cũ không còn thấy khách (trừ đơn mình lập hoặc hưởng hoa hồng).
+- Luồng phụ:
+  - Nhân viên bán hàng thêm đối tác mới: hệ thống tự lập hồ sơ khách hàng do mình phụ trách, thanh toán ngay, hạn mức 0 (QUYTAC_NGHIEPVU_135).
+  - Nhân viên bán hàng nhập mã số thuế, số Căn cước công dân trùng đối tác đã có trong tập đoàn mà công ty chưa có hồ sơ: bấm "Nhận làm khách của tôi"; hệ thống lập hồ sơ như trên (QUYTAC_NGHIEPVU_135).
+  - Người có quyền quản lý hồ sơ đặt nhân viên phụ trách cho khách chưa có trên hồ sơ đối tác; ghi lịch sử (QUYTAC_NGHIEPVU_134).
+- Ngoại lệ:
+  - Không phải trưởng phòng và không có quyền giao khách: không thấy nút "Lập phiếu giao khách"; mở trang lập phiếu báo "Bạn không phải trưởng phòng và không có quyền giao khách.".
+  - Trong lúc chờ duyệt có khách đổi nhân viên phụ trách (phiếu khác áp dụng trước, hồ sơ được đặt người phụ trách) hoặc ngừng giao dịch: phiếu "Bị từ chối" kèm "Khách đã đổi: …"; người lập bỏ khách đó, sửa rồi gửi lại (giữ số phiếu).
+  - Nhân viên nhận ngừng làm việc ở công ty trong lúc chờ duyệt: phiếu "Bị từ chối" kèm "Nhân viên nhận đã ngừng làm việc ở công ty.".
+  - Không có chính sách duyệt mà áp dụng không được: báo lỗi, phiếu giữ nguyên trạng thái trước khi gửi.
+  - Bị từ chối, người gửi rút: sửa (phiếu về nháp), gửi lại, giữ số phiếu.
+  - Phiếu nháp lập nhầm, chưa gửi lần nào: "Bỏ phiếu nháp".
+  - Đổi, bỏ nhân viên phụ trách trên hồ sơ khi khách đã có người phụ trách: "Khách đã có nhân viên phụ trách; đổi nhân viên bằng phiếu giao khách.".
+  - Đối tác đã có hồ sơ tại công ty do người khác phụ trách: nhân viên không tự nhận được, đề nghị trưởng phòng hoặc người có quyền giao khách lập phiếu.
+- Kết thúc: phiếu "Đã áp dụng"; khách có nhân viên phụ trách mới, lịch sử phụ trách ghi đủ; đơn bán đã gán nhân viên hưởng hoa hồng giữ nguyên, đơn gửi sau gán theo nhân viên mới.
+
+Trạng thái phiếu giao khách:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Lưu phiếu mới | Nháp (`draft`) |
+| Nháp (chưa gửi lần nào) | Bỏ phiếu nháp | (Xóa phiếu) |
+| Nháp, Bị từ chối, Đã rút | Sửa | Nháp |
+| Nháp, Bị từ chối, Đã rút | Gửi, có chính sách duyệt | Chờ duyệt (`pending`) |
+| Nháp, Bị từ chối, Đã rút | Gửi, chưa có chính sách duyệt, áp dụng được | Đã áp dụng (`applied`) |
+| Nháp, Bị từ chối, Đã rút | Gửi, chưa có chính sách duyệt, áp dụng không được | Giữ trạng thái (báo lỗi) |
+| Chờ duyệt | Duyệt xong, áp dụng được | Đã áp dụng |
+| Chờ duyệt | Duyệt xong, áp dụng không được | Bị từ chối (`rejected`) kèm lý do |
 | Chờ duyệt | Từ chối | Bị từ chối |
 | Chờ duyệt | Người gửi rút | Đã rút (`withdrawn`) |
