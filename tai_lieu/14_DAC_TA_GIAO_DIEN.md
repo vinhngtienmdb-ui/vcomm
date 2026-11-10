@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 1.6
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -10,6 +10,7 @@
 - Cập nhật CONG_VIEC_05 (2026-11-10): thêm MODULE_03 Kho phần web, MAN_HINH_28 đến MAN_HINH_35 (mục 8 đến mục 10)
 - Cập nhật CONG_VIEC_06 (2026-11-10): thêm MODULE_07 Khách hàng và Đối tác phần tối thiểu, MAN_HINH_36, MAN_HINH_37 (mục 11 đến mục 13)
 - Cập nhật CONG_VIEC_07 (2026-11-10): thêm MODULE_04 Mua hàng phần 1, MAN_HINH_38 đến MAN_HINH_41 (mục 14 đến mục 16); sửa MAN_HINH_22, MAN_HINH_31, MAN_HINH_32
+- Cập nhật CONG_VIEC_08 (2026-11-10): thêm MODULE_05 Bán hàng phần 1, MAN_HINH_42, MAN_HINH_43 (mục 17 đến mục 19); sửa MAN_HINH_31, MAN_HINH_32
 
 ## MODULE_01 Nền tảng
 
@@ -684,6 +685,7 @@ flowchart TD
 - Quyền hiển thị: màn hình với `inventory.stock.view`; nút lập phiếu với `inventory.document.manage`.
 - Responsive: bảng chuyển thành thẻ.
 - Bổ sung CONG_VIEC_07: nút "Nhập mua theo đơn" (mở `/inventory/purchase-receipts/new`) với `inventory.purchase.receive`; lọc, hiện thêm loại "Phiếu nhập mua", "Phiếu trả hàng nhà cung cấp", trạng thái "Chờ kiểm tra chất lượng". Phiếu nhập mua, trả hàng không lập bằng các nút lập phiếu thường.
+- Bổ sung CONG_VIEC_08: nút "Giao hàng theo đơn bán" (mở `/inventory/sales-issues/new`) với `inventory.sales.issue`; lọc, hiện thêm loại "Phiếu xuất giao hàng", "Phiếu nhận hàng trả lại". Hai loại phiếu này không lập bằng các nút lập phiếu thường.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
 
 ### MAN_HINH_32: Phiếu nhập khác, xuất khác, điều chỉnh
@@ -703,6 +705,10 @@ flowchart TD
   - Lập phiếu nhập mua `/inventory/purchase-receipts/new`: chọn "Đơn mua" ("Chọn đơn mua…"; đơn đã duyệt nhận vào kho người dùng có quyền; không có thì "Không có đơn mua đã duyệt cần nhận vào kho bạn quản lý."); ngày phiếu; câu "Nhập số thực nhận cho dòng có hàng về; dòng để trống không nhận lần này."; mỗi dòng đơn: mặt hàng, nhãn "Cần kiểm tra chất lượng", "Đặt <số> <đơn vị>, còn nhận được <số> <đơn vị>", ô "Thực nhận (<đơn vị>)", số lô, hạn dùng (hàng theo lô), vị trí (kho dùng vị trí), serial (hàng serial); nút "Lưu nháp".
   - Lập phiếu trả hàng `/inventory/purchase-returns/new?receiptId=<phiếu nhập>` (mở bằng nút "Trả hàng nhà cung cấp" ở phiếu nhập mua đã ghi sổ): tiêu đề "Trả hàng nhà cung cấp: <số phiếu nhập>", nhà cung cấp và câu "Hàng trả xuất theo giá trên phiếu nhập gốc."; ngày phiếu, lý do; mỗi dòng gốc "Đã nhập <số> <đơn vị cơ sở>", ô "Số trả (<đơn vị>)" hoặc chọn serial; nút "Lưu nháp".
   - Chi tiết phiếu nhập mua, trả hàng `/inventory/documents/[id]`: thêm "Nhà cung cấp", "Đơn mua" (liên kết sang MAN_HINH_41) hoặc "Phiếu nhập gốc"; dòng có phần không đạt hiện nhãn "không đạt <số> <đơn vị>: <lý do>". Phiếu nháp chỉ có nút "Xóa nháp", "Gửi" (không sửa; cần sửa thì xóa, lập lại); thông báo "Đã gửi phiếu.". Phiếu chờ kiểm tra hiện khối "Kiểm tra chất lượng" ("Nhập số không đạt từng dòng; phần đạt ghi sổ kho, phần không đạt ghi biên bản kèm lý do."): mỗi dòng "Số không đạt (<đơn vị>)" hoặc "Serial không đạt", "Lý do không đạt"; nút "Ghi kết quả kiểm tra"; thông báo "Đã ghi kết quả kiểm tra, phần đạt đã vào tồn.". Quyền hiển thị theo `canQualityCheck`, `canReturn` của API.
+- Bổ sung CONG_VIEC_08 (CHUC_NANG_56, CHUC_NANG_57; API_79):
+  - Lập phiếu xuất giao hàng `/inventory/sales-issues/new`: tiêu đề "Giao hàng theo đơn bán"; chọn "Đơn bán" (đơn đã xác nhận xuất từ kho người dùng có quyền, hiện số đơn, khách hoặc người mua, kho; không có thì "Không có đơn bán đã xác nhận cần giao từ kho bạn quản lý."); ngày phiếu; câu "Nhập số giao cho dòng có hàng xuất lần này; dòng để trống không giao lần này."; mỗi dòng đơn: mặt hàng, "Đặt <số> <đơn vị>, còn phải giao <số> <đơn vị>", ô "Giao (<đơn vị>)", "Lô" (hàng theo lô; gợi ý lô hết hạn trước, chọn sẵn lô đầu, "Chọn lô…"), "Vị trí" (kho dùng vị trí), "Serial" (hàng serial, mỗi dòng một serial); nút "Lưu nháp" (chỉ bật khi có ít nhất một dòng nhập số giao), lưu xong mở chi tiết phiếu.
+  - Lập phiếu nhận hàng trả lại `/inventory/sales-returns/new?issueId=<phiếu xuất>` (mở bằng nút "Nhận hàng trả lại" ở phiếu xuất giao hàng đã ghi sổ; thiếu `issueId` thì "Chọn phiếu xuất giao hàng để nhận hàng trả lại."): tiêu đề "Nhận hàng trả lại: <số phiếu xuất>", tên khách và câu "Hàng trả nhập lại theo giá vốn trên phiếu xuất gốc."; ngày phiếu, lý do (bắt buộc); mỗi dòng gốc "Đã giao <số> <đơn vị cơ sở>", ô "Số trả (<đơn vị cơ sở>)" hoặc ô chọn từng serial đã giao (số trả bằng số serial chọn); nút "Lưu nháp".
+  - Chi tiết phiếu xuất giao hàng, nhận hàng trả lại `/inventory/documents/[id]`: thêm "Khách hàng", "Đơn bán" (liên kết sang MAN_HINH_43) hoặc "Phiếu xuất gốc" (liên kết sang phiếu xuất). Phiếu nháp chỉ có nút "Xóa nháp", "Gửi" (không sửa; cần sửa thì xóa, lập lại). Phiếu xuất đã ghi sổ có nút "Nhận hàng trả lại" theo `canReturn` của API.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
 
 ### MAN_HINH_33: Phiếu chuyển kho
@@ -922,3 +928,74 @@ flowchart TD
 - Quyền hiển thị: theo `canEdit`, `canSubmit`, `canWithdraw`, `canClose` của API.
 - Responsive: bảng chuyển thành thẻ.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_07 mục 14)
+
+## MODULE_05 Bán hàng (phần 1, CONG_VIEC_08)
+
+Mini app `apps/web-sales`, tên "Bán hàng", đường dẫn gốc `/sales` (mini app Nền tảng chuyển tiếp `/sales` sang ứng dụng này, cùng tên miền và cookie phiên). Khung trang, thành phần dùng chung lấy từ `packages/ui`; quy ước chung như mục 3 của MODULE_01. Mở `/sales` thì chuyển tới mục menu đầu tiên có quyền; không có mục nào thì hiện "Bạn không có quyền xem trang này". Phiếu xuất giao hàng, phiếu nhận hàng trả lại làm ở mini app Kho (MAN_HINH_31, MAN_HINH_32).
+
+## 17. Danh sách màn hình và điều hướng (MODULE_05)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_42 | Đơn bán: danh sách (kèm ngăn kéo cài đặt chiết khấu tay tối đa) | CHUC_NANG_54, CHUC_NANG_55 | Quản trị tập đoàn, quản trị công ty, Nhân viên bán hàng (lập); Thủ kho (xem) | Menu Bán hàng | Không lập (CONG_VIEC_08 mục 14) |
+| MAN_HINH_43 | Chi tiết, soạn đơn bán (lập, sửa; kèm ngăn kéo đóng đơn) | CHUC_NANG_54 | Như MAN_HINH_42 | MAN_HINH_42; liên kết "Đơn bán" ở MAN_HINH_32 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Bán hàng| M{{Menu Bán hàng}}
+    M --> O[MAN_HINH_42 Đơn bán]
+    O -->|Lập đơn bán| N[MAN_HINH_43 Lập đơn bán]
+    N -->|lưu xong| D[MAN_HINH_43 Chi tiết đơn bán]
+    O -->|Số đơn| D
+    D -->|Sửa| N
+    D -->|Phiếu kho liên quan| K[MAN_HINH_32 Phiếu kho]
+    K -->|Đơn bán| D
+    D -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+    Q[MAN_HINH_31 Phiếu kho] -->|Giao hàng theo đơn bán| G[MAN_HINH_32 Lập phiếu xuất giao hàng]
+    K -->|Nhận hàng trả lại| R[MAN_HINH_32 Lập phiếu nhận hàng trả lại]
+```
+
+- Thứ tự menu và quyền hiện mục: Đơn bán (`sales.order.view`).
+- Danh sách và chi tiết có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng.
+
+## 18. Bảng vai trò – màn hình (MODULE_05)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Nhân viên bán hàng | Thủ kho | Quản lý kho |
+|---|---|---|---|---|
+| MAN_HINH_42 Đơn bán | Xem, Lập đơn, Cài đặt | Xem, Lập đơn | Xem | Không |
+| MAN_HINH_43 Chi tiết, soạn đơn bán | Xem, Sửa, Gửi, Rút (của mình), Hủy, Đóng đơn | Xem, Sửa, Gửi, Rút (của mình), Hủy, Đóng đơn | Xem | Không |
+| MAN_HINH_31, MAN_HINH_32 phần giao hàng, nhận hàng trả lại | Lập, Gửi, Xóa nháp (kho của công ty mình) | Không | Kho trong phạm vi gán | Kho trong phạm vi gán |
+
+## 19. Đặc tả từng màn hình (MODULE_05)
+
+### MAN_HINH_42: Đơn bán
+- Mục đích: Tìm đơn bán theo trạng thái, khách; lập đơn; cài đặt chiết khấu tay tối đa không cần duyệt.
+- Chức năng thực hiện: CHUC_NANG_54, CHUC_NANG_55
+- Đường dẫn: `/sales/orders`
+- Bố cục: tiêu đề "Đơn bán" kèm "Lịch sử", nút "Cài đặt", "Lập đơn bán"; bộ lọc: ô tìm "Số đơn, khách, người mua", "Khách hàng" (khách có hồ sơ khách hàng ở công ty), "Trạng thái" (Nháp, Chờ duyệt, Đã xác nhận, Bị từ chối, Đã rút, Đã giao đủ, Đã hủy, Đã đóng); bảng số (nháp hiện "(nháp)"), khách hàng (trống: tên người mua hoặc "Người mua không lấy hóa đơn"), kênh bán, kho xuất, ngày đơn, tổng gồm thuế, trạng thái; phân trang 20 dòng. Ngăn kéo "Cài đặt": "Chiết khấu tay tối đa không cần duyệt (%)" ("Dòng có chiết khấu lớn hơn mức này thì đơn phải duyệt. Mặc định 0.").
+- Dữ liệu hiển thị: đơn bán của công ty đang chọn, mới lập trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_77 (danh sách, danh sách chọn), API_78.
+- Thao tác: gõ ô tìm thì tìm sau 300 mili giây; đổi bộ lọc về trang 1; số đơn mở MAN_HINH_43; "Lập đơn bán" mở `/sales/orders/new`.
+- Trạng thái: rỗng ("Chưa có đơn bán."; có lọc thì "Không có kết quả phù hợp.").
+- Thông báo: "Đã lưu." (cài đặt); lỗi dưới ô chiết khấu.
+- Quyền hiển thị: màn hình với `sales.order.view`; "Lập đơn bán" với `sales.order.manage`; "Cài đặt" với `sales.settings.manage`.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_08 mục 14)
+
+### MAN_HINH_43: Chi tiết, soạn đơn bán
+- Mục đích: Lập, sửa đơn bán với giá tự lấy theo bảng giá; xem ngoại lệ cần duyệt, đã giao, đã trả, phiếu kho liên quan; gửi, rút, hủy, đóng đơn.
+- Chức năng thực hiện: CHUC_NANG_54
+- Đường dẫn: `/sales/orders/new` (lập); `/sales/orders/[id]` (chi tiết; "Sửa" mở biểu mẫu trên cùng trang).
+- Bố cục: biểu mẫu soạn: "Khách hàng" (mặc định "Người mua không lấy hóa đơn"; gợi ý "Để trống: người mua không lấy hóa đơn."), "Tên người mua" (chỉ hiện khi không chọn khách), "Kênh bán" (mặc định kênh đầu), "Kho xuất" (mặc định kho đầu), "Ngày đơn" (mặc định hôm nay), "Địa chỉ giao", "Ghi chú"; khối "Dòng hàng" mỗi dòng: mặt hàng, câu "Giá <giá> theo bảng giá <mã> (gồm thuế | chưa thuế)" hoặc "Chưa có giá trong bảng giá cho kênh, nhóm khách này.", "Đơn vị", "Số lượng", "Chiết khấu (%)", "Thành tiền gồm thuế", "Bỏ dòng"; ô "Thêm mặt hàng" (tìm mã vạch, mã hàng, tên); "Tổng gồm thuế (tạm tính)"; nút "Lưu", "Hủy". Giá dòng tra lại khi đổi kênh, khách, ngày đơn, đơn vị. Chi tiết: liên kết "Danh sách đơn bán"; số đơn (nháp: "(nháp)"), nhãn trạng thái, "Lịch sử", nút "Sửa đơn bán", "Rút", "Hủy đơn", "Đóng đơn", "Gửi"; khối cảnh báo "Ngoại lệ cần duyệt" liệt kê "Chiết khấu vượt mức (dòng <số>)", "Dưới giá vốn (dòng <số>)", "Vượt hạn mức công nợ" kèm diễn giải số (người không có quyền xem hạn mức công nợ, giá vốn chỉ thấy loại ngoại lệ, không thấy số); thẻ khách hoặc người mua, kênh, kho xuất, ngày đơn, người lập, địa chỉ giao, ghi chú, "Lý do đóng" (đơn đã đóng), "Chưa thuế", "Thuế", "Tổng gồm thuế"; bảng dòng: mặt hàng, số lượng, giá bảng giá (kèm gồm thuế hay chưa thuế), chiết khấu, thuế suất, thành tiền gồm thuế, đã giao ("<đã giao> / <số lượng cơ sở>", kèm "đã trả <số>"); chú thích "Đã giao tính theo đơn vị cơ sở."; khối "Phiếu kho liên quan" (số phiếu liên kết sang MAN_HINH_32, loại, ngày; trống: "Chưa có phiếu xuất giao hàng."). "Đóng đơn" mở ngăn kéo "Lý do đóng" (bắt buộc) kèm "Phần chưa giao bị hủy, hàng đang giữ được nhả.".
+- Dữ liệu hiển thị: đơn của công ty đang chọn; số đã giao, đã trả tính từ phiếu kho.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, KhoiCanhBao (tài liệu `15`).
+- API: API_77.
+- Thao tác: lưu đơn mới thì mở chi tiết; gửi, rút, hủy, đóng xong tải lại đơn.
+- Trạng thái: chưa có phiếu kho ("Chưa có phiếu xuất giao hàng.").
+- Thông báo: "Đã lưu đơn bán."; lỗi theo CHUC_NANG_54 dưới đúng ô, đúng dòng (gửi thiếu hàng báo ở dòng đầu của mặt hàng).
+- Quyền hiển thị: theo `canEdit`, `canSubmit`, `canWithdraw`, `canCancel`, `canClose` của API ("Đóng đơn" chỉ khi đơn đã xác nhận đã có giao hàng, không còn phiếu xuất nháp; "Hủy đơn" khi chưa có phiếu xuất).
+- Responsive: bảng chuyển thành thẻ; dòng hàng xếp dọc.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_08 mục 14)
