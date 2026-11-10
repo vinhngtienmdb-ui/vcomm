@@ -502,7 +502,7 @@ Trạng thái bảng hoa hồng:
   6. Kế toán lập phiếu thu chi cho khoản chưa có chứng từ theo chức năng đã có; phiếu ghi sổ thì hệ thống thử ghép lại (QUYTAC_NGHIEPVU_115).
   7. Cuối kỳ, kế toán chọn quỹ, khoảng ngày; ô đối chiếu hiện số dư sổ, số dư ngân hàng, chênh lệch, giao dịch chưa ghép hai chiều, số giao dịch bỏ qua, phiếu chưa có giao dịch.
 - Ngoại lệ:
-  - Sai khóa, kết nối không có hoặc đang tắt: 401, không lưu. Dữ liệu sai: 400. Khác số tài khoản của quỹ: 409. Vượt 20 yêu cầu mỗi phút mỗi địa chỉ IP: 429, dịch vụ gửi lại.
+  - Sai khóa, kết nối không có hoặc đang tắt: 401, không lưu. Dữ liệu sai: 400. Khác số tài khoản của quỹ: 409. Webhook đúng khóa không bị giới hạn tần suất; quá 20 lần sai khóa mỗi phút từ một địa chỉ IP: 429.
   - Nhiều phiếu hoặc nhiều giao dịch cùng thỏa điều kiện: không tự ghép, kế toán ghép tay.
   - Ghép sai: "Bỏ ghép" đưa giao dịch về "Chưa ghép", phiếu không đổi. Bỏ qua nhầm: "Thôi bỏ qua".
   - Phiếu thu lập từ gợi ý bị sửa (quỹ, số tiền, loại, ngày) không còn khớp giao dịch: khi ghi sổ không ghép với giao dịch đó, bỏ liên kết; giao dịch xét tự ghép như thường.

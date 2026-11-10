@@ -1462,7 +1462,7 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 6:
 
 | Nhóm | Yêu cầu |
 |---|---|
-| Bảo mật | Webhook công khai: khóa sinh ngẫu nhiên, lưu mã hóa AES-256-GCM, so sánh thời gian cố định; giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP; chỉ chấp nhận đúng số tài khoản của quỹ (tài liệu `22`) |
+| Bảo mật | Webhook công khai: khóa sinh ngẫu nhiên, lưu mã hóa AES-256-GCM, so sánh thời gian cố định; đúng khóa không giới hạn tần suất, sai khóa tối đa 20 lần mỗi phút mỗi địa chỉ IP (quyết định của người dùng ngày 2026-11-10); chỉ chấp nhận đúng số tài khoản của quỹ (tài liệu `22`) |
 | Toàn vẹn | Chỉ mục duy nhất (kết nối, mã giao dịch của dịch vụ) chống lưu trùng; chỉ mục duy nhất phiếu đã ghép (một phiếu một giao dịch); ràng buộc đã ghép khi và chỉ khi có phiếu, bỏ qua khi và chỉ khi có lý do; khóa theo quỹ khi lưu, ghép |
 | Ranh giới module | Module `apps/api/src/bank` đăng ký móc nối `PaymentsService.postedHooks`; module Tài chính (`apps/api/src/finance`) không phụ thuộc module ngân hàng; lập phiếu thu qua `PaymentsService.create`, `submit` (không đổi ghi sổ, công nợ, bút toán, luồng duyệt) |
 | Thư viện | Không thêm thư viện |

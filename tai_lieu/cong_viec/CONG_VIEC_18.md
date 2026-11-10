@@ -35,7 +35,7 @@ Ngoài phạm vi:
 
 ## 4. Quy tắc nghiệp vụ
 
-- QUYTAC_NGHIEPVU_113: Mỗi quỹ ngân hàng có tối đa một kết nối; quỹ ngừng dùng không tạo được kết nối mới. Hệ thống sinh khóa xác thực, chỉ hiện đủ một lần khi tạo hoặc đổi khóa; sau đó chỉ hiện bốn ký tự cuối; khóa lưu mã hóa; đổi khóa thì khóa cũ hết hiệu lực. Webhook gửi khóa trong tiêu đề `Authorization: Apikey <khóa>`; sai khóa, kết nối không có hoặc đang tắt trả lỗi 401, không lưu dữ liệu.
+- QUYTAC_NGHIEPVU_113: Mỗi quỹ ngân hàng có tối đa một kết nối; quỹ ngừng dùng không tạo được kết nối mới. Hệ thống sinh khóa xác thực, chỉ hiện đủ một lần khi tạo hoặc đổi khóa; sau đó chỉ hiện bốn ký tự cuối; khóa lưu mã hóa; đổi khóa thì khóa cũ hết hiệu lực. Webhook gửi khóa trong tiêu đề `Authorization: Apikey <khóa>`; sai khóa, kết nối không có hoặc đang tắt trả lỗi 401, không lưu dữ liệu. Webhook đúng khóa không bị giới hạn tần suất; chỉ đếm lần sai khóa theo địa chỉ IP, tối đa 20 lần mỗi phút, vượt trả 429 (quyết định của người dùng ngày 2026-11-10).
 - QUYTAC_NGHIEPVU_114: Giao dịch trùng mã giao dịch của dịch vụ trên cùng kết nối chỉ lưu một lần và vẫn trả thành công. Số tiền tối đa 16 chữ số phần nguyên, 4 chữ số lẻ, ngoài giới hạn trả 400; ký tự rỗng trong chữ bị bỏ. Số tài khoản chỉ so khi webhook và quỹ đều có. Nội dung giao dịch đã lưu không sửa, không xóa; lưu kèm dữ liệu webhook gốc.
 - QUYTAC_NGHIEPVU_115: Tự ghép khi có đúng một phiếu thu chi đã ghi sổ, cùng quỹ, cùng chiều (tiền vào: thu khách, nhà cung cấp hoàn tiền; tiền ra: chi nhà cung cấp, hoàn tiền khách), cùng số tiền, ngày phiếu cách ngày giao dịch không quá 3 ngày, chưa ghép giao dịch khác; đồng thời phiếu đó chỉ hợp với đúng giao dịch này trong các giao dịch chưa ghép (duy nhất ở cả hai phía). Nhiều phiếu hoặc nhiều giao dịch thỏa thì không tự ghép, kế toán ghép tay. Phiếu ghi sổ sau giao dịch cũng được thử ghép lại.
 - QUYTAC_NGHIEPVU_116: Gợi ý khách cho tiền vào chưa ghép, chỉ trong đối tác là khách hàng của công ty, theo thứ tự: số đơn bán trong nội dung chuyển khoản (nội dung có từ 6 chữ, số trở lên; đơn đã có số, không bị hủy); mã khách hàng đứng riêng trong nội dung; mã số thuế. Mỗi bậc chỉ gợi ý khi ra đúng một khách. Kế toán xác nhận (sửa được khách, số tiền không sửa; cần thêm quyền `finance.payment.manage`) thì hệ thống lập phiếu thu khách hàng của quỹ, ngày giao dịch, ghi chú nội dung chuyển khoản, theo luồng duyệt phiếu thu đã có; phiếu ghi sổ thì giao dịch chuyển sang đã ghép, nhưng chỉ khi phiếu còn khớp quỹ, số tiền, loại phiếu thu khách hàng và ngày lệch tối đa 3 ngày; phiếu bị sửa không còn khớp thì bỏ liên kết, giao dịch xét tự ghép như thường. Phiếu thu đang chờ duyệt thì không lập lại. Còn phiếu nháp của lần xác nhận trước (gửi lỗi) thì xác nhận lại đặt phiếu nháp theo khách vừa chọn rồi gửi lại. Hai lần xác nhận cùng lúc chỉ một lần gắn được phiếu; lần còn lại trả 409, phiếu nháp vừa lập bị xóa.
@@ -75,7 +75,7 @@ Luồng 30 (tài liệu `09`): dịch vụ gửi webhook → kiểm khóa → l�
 
 | Mã | Tiêu chí | Mức | Kịch bản |
 |---|---|---|---|
-| TIEUCHI_NGHIEMTHU_132 | Chỉ người có quyền cài đặt tạo, sửa kết nối; khóa sinh tự động, hiện đủ một lần, lưu mã hóa; đổi khóa thì khóa cũ hết hiệu lực; webhook sai khóa, kết nối không có hoặc đang tắt bị từ chối (401) | Bắt buộc | KICHBAN_KIEMTHU_246, 247 |
+| TIEUCHI_NGHIEMTHU_132 | Chỉ người có quyền cài đặt tạo, sửa kết nối; khóa sinh tự động, hiện đủ một lần, lưu mã hóa; đổi khóa thì khóa cũ hết hiệu lực; webhook sai khóa, kết nối không có hoặc đang tắt bị từ chối (401) | Bắt buộc | KICHBAN_KIEMTHU_246, 247, 260 |
 | TIEUCHI_NGHIEMTHU_133 | Giao dịch nhận đúng ngày giờ Việt Nam, chiều, số tiền, nội dung; trùng mã chỉ lưu một lần và vẫn trả thành công; dữ liệu sai bị từ chối (400); số tài khoản khác quỹ bị từ chối (409) | Bắt buộc | KICHBAN_KIEMTHU_247, 259 |
 | TIEUCHI_NGHIEMTHU_134 | Tự ghép đúng QUYTAC_NGHIEPVU_115: cùng quỹ, cùng chiều, cùng số tiền, lệch tối đa 3 ngày, duy nhất ở cả hai phía; phiếu ghi sổ sau giao dịch cũng được ghép; bộ giả lập đi đúng luồng này | Bắt buộc | KICHBAN_KIEMTHU_248 đến 251 |
 | TIEUCHI_NGHIEMTHU_135 | Gợi ý khách đúng thứ tự số đơn bán, mã khách, mã số thuế; nhiều khách hoặc tiền ra thì không gợi ý; kế toán xác nhận thì lập phiếu thu khách hàng của quỹ, ngày giao dịch, ghi chú nội dung, theo luồng duyệt phiếu thu, ghép khi phiếu ghi sổ | Bắt buộc | KICHBAN_KIEMTHU_252, 253, 257, 258 |
@@ -87,6 +87,7 @@ Luồng 30 (tài liệu `09`): dịch vụ gửi webhook → kiểm khóa → l�
 
 - KICHBAN_KIEMTHU_246 đến 255: tự động, tệp `apps/api/test/c18-bank-reconciliation.test.ts`.
 - KICHBAN_KIEMTHU_257 đến 259 (sửa sau rà soát độc lập): tự động, cùng tệp: phiếu nháp cũ gửi lại theo khách vừa chọn (257); phiếu nháp bị sửa số tiền không ghép, bỏ liên kết (258); số tiền ngoài giới hạn trả 400, bỏ ký tự rỗng, gửi thử số tiền 0 bị từ chối (259).
+- KICHBAN_KIEMTHU_260: tự động, cùng tệp: webhook đúng khóa không bị giới hạn tần suất; vượt giới hạn lần sai khóa thì trả 429.
 - KICHBAN_KIEMTHU_256: thủ công trên trình duyệt (tệp `tam_thoi/CONG_VIEC_18/xem_l0.js`, `xem_l1.js`): kết nối bộ giả lập, gửi thử, tự ghép, lập phiếu thu từ gợi ý, ghép tay, bỏ qua, ô đối chiếu; khổ 1360 và 375 điểm ảnh. Đạt ngày 2026-11-10.
 
 ## 12. Ràng buộc kỹ thuật
@@ -108,7 +109,6 @@ Chưa đối chiếu.
 
 ## 16. Giới hạn đã biết
 
-- Điểm nhận webhook dùng chung giới hạn 20 yêu cầu mỗi phút cho mỗi địa chỉ IP của các API không cần đăng nhập; công ty nhiều giao dịch có thể bị dịch vụ gửi lại chậm (dịch vụ tự gửi lại khi nhận lỗi 429).
 - Cách SePay gửi khóa (tiêu đề `Authorization: Apikey <khóa>`) và định dạng ngày giờ theo tài liệu công khai; phải thử với tài khoản SePay thật trước phát hành.
 - Gợi ý khách chỉ tính một lần khi nhận giao dịch; khách, đơn bán tạo sau không làm đổi gợi ý (kế toán vẫn chọn được khách khác khi xác nhận).
 - Số dư ngân hàng chỉ có khi dịch vụ gửi số dư sau giao dịch; bộ giả lập không gửi.
