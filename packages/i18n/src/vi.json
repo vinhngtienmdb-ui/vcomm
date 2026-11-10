@@ -2955,6 +2955,9 @@
     "export_balance_sheet_xlsx": "Tình hình tài chính (Excel)",
     "export_balance_sheet_pdf": "Tình hình tài chính (PDF)",
     "export_income_statement_xlsx": "Kết quả kinh doanh (Excel)",
-    "export_income_statement_pdf": "Kết quả kinh doanh (PDF)"
+    "export_income_statement_pdf": "Kết quả kinh doanh (PDF)",
+    "anyCompany": "Công ty gốc trước",
+    "choosePartner": "Chọn đối tác (bắt buộc)",
+    "noPartner": "Không chọn đối tác"
   }
 }

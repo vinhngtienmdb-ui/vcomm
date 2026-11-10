@@ -2955,6 +2955,9 @@
     "export_balance_sheet_xlsx": "Financial position (Excel)",
     "export_balance_sheet_pdf": "Financial position (PDF)",
     "export_income_statement_xlsx": "Income statement (Excel)",
-    "export_income_statement_pdf": "Income statement (PDF)"
+    "export_income_statement_pdf": "Income statement (PDF)",
+    "anyCompany": "Parent first",
+    "choosePartner": "Choose partner (required)",
+    "noPartner": "No partner"
   }
 }

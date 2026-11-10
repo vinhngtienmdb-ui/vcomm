@@ -200,6 +200,7 @@ afterAll(async () => {
 type Line = { code: string; combined: string; eliminations: string; consolidated: string };
 type Detail = {
   id: string;
+  calculatedAt: string;
   version: number;
   status: string;
   warnings: { receivable: string; payable: string; difference: string }[];
@@ -310,15 +311,28 @@ describe("CONG_VIEC_20 loại trừ nội bộ", () => {
         })
       ).status,
     ).toBe(400);
-    const manual = await group("post", `/finance/consolidation/${consolidation.id}/entries`, {
-      description: "Ghi nhận tiền đang chuyển nội bộ",
+    // Tài khoản 131 lấy theo đối tác trên báo cáo: phải chọn đối tác.
+    const withoutPartner = await group("post", `/finance/consolidation/${consolidation.id}/entries`, {
+      description: "Thiếu đối tác",
       lines: [
         { accountCode: "113", debit: "100000", credit: "0" },
         { accountCode: "131", debit: "0", credit: "100000" },
       ],
       version: again.body.version,
     });
+    expect(Object.keys(withoutPartner.body.error.fields)).toEqual(["lines.1.partnerId"]);
+    const before = line(again.body.balanceSheet.lines, "131").consolidated;
+    const manual = await group("post", `/finance/consolidation/${consolidation.id}/entries`, {
+      description: "Ghi nhận tiền đang chuyển nội bộ",
+      lines: [
+        { accountCode: "113", companyId: retail, debit: "100000", credit: "0" },
+        { accountCode: "131", companyId: retail, partnerId: tradingAsPartner, debit: "0", credit: "100000" },
+      ],
+      version: again.body.version,
+    });
     expect(manual.status, JSON.stringify(manual.body)).toBe(201);
+    // Phải thu khách hàng giảm đúng 100.000 (không đẩy sang người mua trả tiền trước).
+    expect(Number(line(manual.body.balanceSheet.lines, "131").consolidated)).toBe(Number(before) - 100000);
     const entry = manual.body.entries.find((item: { kind: string }) => item.kind === "manual");
     expect(entry.lines.map((item: { accountCode: string }) => item.accountCode)).toEqual(["113", "131"]);
     expect(line(manual.body.balanceSheet.lines, "280").consolidated).toBe(line(manual.body.balanceSheet.lines, "440").consolidated);
@@ -336,6 +350,8 @@ describe("CONG_VIEC_20 gửi, chốt số, xuất", () => {
     const posted = await group("post", `/finance/consolidation/${detail.id}/submit`, { version: detail.version });
     expect(posted.status, JSON.stringify(posted.body)).toBe(201);
     expect(posted.body).toMatchObject({ status: "posted", documentNo: expect.stringMatching(/^HN/), canEdit: false });
+    // Gửi thì tính lại theo sổ hiện tại.
+    expect(Date.parse(posted.body.calculatedAt)).toBeGreaterThan(Date.parse(detail.calculatedAt));
     const frozen = line(posted.body.balanceSheet.lines, "280").consolidated;
     // Sổ VCR thay đổi sau khi chốt: bảng đã chốt giữ nguyên số.
     const account = async (code: string) => (await pool.query<{ id: string }>("SELECT id FROM accounting.accounts WHERE company_id = $1 AND code = $2", [retail, code])).rows[0]!.id;

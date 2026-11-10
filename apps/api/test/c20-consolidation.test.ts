@@ -29,11 +29,11 @@ const as = (session: Session, companyId: string, method: "get" | "post", path: s
 async function accountId(companyId: string, code: string): Promise<string> {
   return (await pool.query<{ id: string }>("SELECT id FROM accounting.accounts WHERE company_id = $1 AND code = $2", [companyId, code])).rows[0]!.id;
 }
-async function journal(companyId: string, date: string, lines: [string, string, string][]) {
+async function journal(companyId: string, date: string, lines: [string, string, string, string?][]) {
   const body = {
     journalDate: date,
     description: "Thử hợp nhất",
-    lines: await Promise.all(lines.map(async ([code, debit, credit]) => ({ accountId: await accountId(companyId, code), debit, credit }))),
+    lines: await Promise.all(lines.map(async ([code, debit, credit, partnerId]) => ({ accountId: await accountId(companyId, code), debit, credit, partnerId: partnerId ?? null }))),
   };
   const created = await as(groupAdmin, companyId, "post", "/finance/journals", body);
   expect(created.status, JSON.stringify(created.body)).toBe(201);
@@ -113,5 +113,59 @@ describe("CONG_VIEC_20 phạm vi hợp nhất", () => {
     // Báo cáo từng công ty không đổi.
     const own = (await as(groupAdmin, trading, "get", "/finance/statements?kind=income_statement&from=2026-10-01&to=2026-10-31")).body as { lines: { code: string; current: string }[] };
     expect(own.lines.length).toBeGreaterThan(0);
+  });
+});
+
+describe("CONG_VIEC_20 trả trước nội bộ, số dư ngược chiều", () => {
+  it("KICHBAN_KIEMTHU_277: trả trước giữa hai công ty được loại trừ; số dư ngược chiều của hai công ty không bù trừ nhau khi cộng gộp", async () => {
+    const partnerOf = async (companyId: string) => (await pool.query<{ id: string }>("SELECT id FROM crm.partners WHERE company_id = $1", [companyId])).rows[0]!.id;
+    const profile = async (companyId: string, partnerId: string, body: Record<string, unknown>) => {
+      const saved = await groupAdmin.call("put", `/crm/partners/${partnerId}/profile`, {
+        companyId,
+        body: { isCustomer: false, isSupplier: false, paymentTermDays: 30, creditLimit: null, version: 0, ...body },
+      });
+      expect(saved.status, JSON.stringify(saved.body)).toBe(200);
+    };
+    await profile(retail, await partnerOf(trading), { isCustomer: true });
+    await profile(trading, await partnerOf(retail), { isSupplier: true });
+    // VCT góp thêm vốn để tiền không âm.
+    await journal(trading, "2026-11-01", [
+      ["1121", "1000000", "0"],
+      ["4111", "0", "1000000"],
+    ]);
+    // VCT ứng trước cho VCR 500.000: VCR dư Có 131 (đối tác VCT), VCT dư Nợ 331 (đối tác VCR).
+    await journal(retail, "2026-11-05", [
+      ["111", "500000", "0"],
+      ["131", "0", "500000", await partnerOf(trading)],
+    ]);
+    await journal(trading, "2026-11-05", [
+      ["331", "500000", "0", await partnerOf(retail)],
+      ["1121", "0", "500000"],
+    ]);
+    // Thuế: VCR còn phải nộp 100.000 (dư Có), VCT nộp thừa 30.000 (dư Nợ).
+    await journal(retail, "2026-11-06", [
+      ["111", "100000", "0"],
+      ["33311", "0", "100000"],
+    ]);
+    await journal(trading, "2026-11-06", [
+      ["33311", "30000", "0"],
+      ["1121", "0", "30000"],
+    ]);
+    const created = await as(groupChief, retail, "post", "/finance/consolidation", { from: "2026-11-01", to: "2026-11-30" });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    const advance = created.body.entries.find((entry: { description: string }) => entry.description.startsWith("Loại trừ trả trước"));
+    expect(advance.lines.map((item: { accountCode: string; debit: string; credit: string }) => [item.accountCode, item.debit, item.credit])).toEqual([
+      ["131", "500000", "0"],
+      ["331", "0", "500000"],
+    ]);
+    expect(created.body.warnings).toEqual([]);
+    const sheet = created.body.balanceSheet as Report;
+    // Người mua trả tiền trước (312), trả trước cho người bán (132) về 0 sau loại trừ.
+    expect(value(sheet, "312")).toMatchObject({ combined: "500000", consolidated: "0" });
+    expect(value(sheet, "132")).toMatchObject({ combined: "500000", consolidated: "0" });
+    // Thuế phải nộp 100.000 và thuế nộp thừa 30.000 giữ riêng.
+    expect(value(sheet, "314").combined).toBe("100000");
+    expect(value(sheet, "163").combined).toBe("30000");
+    expect(value(sheet, "280").consolidated).toBe(value(sheet, "440").consolidated);
   });
 });

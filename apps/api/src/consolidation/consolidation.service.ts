@@ -30,6 +30,7 @@ import { consolidatedCode, StatementsService, type ExtraLine, type Ledger } from
 import { statementTemplates } from "../accounting/statement-templates";
 import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
+import { isUniqueViolation } from "../common/database-errors";
 import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
@@ -38,6 +39,14 @@ export const consolidationPermissions = { view: "finance.consolidation.view", ma
 // Mẫu hợp nhất: B01-DN, B02-DN Thông tư 99 (quyết định của người dùng ngày 2026-11-10).
 const consolidationRegime: AccountingRegime = "TT99_2025";
 const documentTypeCode = "finance.consolidation";
+// Mã tài khoản mà B01-DN lấy số dư theo từng đối tác (điều chỉnh tay trên các tài khoản này phải chọn đối tác).
+const byPartnerCodes = (() => {
+  const codes = new Set<string>();
+  for (const line of statementTemplates[consolidationRegime].balanceSheet.lines)
+    for (const code of [...(line.formula?.debitBalanceByPartner ?? []), ...(line.formula?.creditBalanceByPartner ?? [])]) codes.add(code);
+  return [...codes];
+})();
+const byPartnerCode = (code: string) => byPartnerCodes.some((prefix) => code.startsWith(prefix));
 
 type MemberRow = {
   id: string;
@@ -243,8 +252,15 @@ export class ConsolidationService implements OnModuleInit {
       ).rows[0];
       if (existing) throw new ApiError("BUSINESS_RULE", "consolidationPeriodExists");
       const created = (
-        await transaction.execute<{ id: string }>(sql`
-        INSERT INTO finance.consolidations (group_company_id, from_date, to_date, created_by) VALUES (${root.id}, ${from}::date, ${to}::date, ${actor.userId}) RETURNING id`)
+        await transaction
+          .execute<{ id: string }>(
+            sql`
+          INSERT INTO finance.consolidations (group_company_id, from_date, to_date, created_by) VALUES (${root.id}, ${from}::date, ${to}::date, ${actor.userId}) RETURNING id`,
+          )
+          .catch((error: unknown) => {
+            if (isUniqueViolation(error)) throw new ApiError("BUSINESS_RULE", "consolidationPeriodExists");
+            throw error;
+          })
       ).rows[0]!.id;
       await this.calculate(transaction, actor, created);
       await this.auditService.record({ ...financeAudit(actor, "consolidation"), action: "consolidation.create", entityId: created, beforeData: null, afterData: { from, to } }, transaction);
@@ -302,39 +318,57 @@ export class ConsolidationService implements OnModuleInit {
     ).rows;
     const isReceivable = (code: string) => code.startsWith("131") || code.startsWith("1388") || code.startsWith("136");
     const warnings: ConsolidationWarning[] = [];
+    // Loại trừ phần nhỏ hơn của hai bên: phải thu (dư Nợ) với phải trả (dư Có); trả trước: phải thu dư Có với phải trả dư Nợ.
+    const eliminate = async (
+      left: typeof balances,
+      right: typeof balances,
+      leftSign: 1 | -1,
+      leftCompany: string,
+      rightCompany: string,
+      description: string,
+    ): Promise<{ leftTotal: number; rightTotal: number }> => {
+      const leftTotal = left.reduce((total, item) => total + leftSign * Number(item.net), 0);
+      const rightTotal = right.reduce((total, item) => total - leftSign * Number(item.net), 0);
+      const amount = Math.min(leftTotal, rightTotal);
+      if (amount > 0) {
+        entryNo += 1;
+        let remaining = amount;
+        for (const item of left) {
+          const part = Math.min(remaining, leftSign * Number(item.net));
+          if (part > 0) await insertLine("intercompany_balance", leftCompany, item.account_id, item.partner_id, leftSign > 0 ? 0 : part, leftSign > 0 ? part : 0, description);
+          remaining -= part;
+        }
+        remaining = amount;
+        for (const item of right) {
+          const part = Math.min(remaining, -leftSign * Number(item.net));
+          if (part > 0) await insertLine("intercompany_balance", rightCompany, item.account_id, item.partner_id, leftSign > 0 ? part : 0, leftSign > 0 ? 0 : part, description);
+          remaining -= part;
+        }
+      }
+      return { leftTotal, rightTotal };
+    };
     for (const creditor of memberIds)
       for (const debtor of memberIds) {
         if (creditor === debtor) continue;
-        const receivables = balances.filter((item) => item.company_id === creditor && item.other_id === debtor && isReceivable(item.code) && Number(item.net) > 0);
-        const payables = balances.filter((item) => item.company_id === debtor && item.other_id === creditor && !isReceivable(item.code) && Number(item.net) < 0);
-        const receivable = receivables.reduce((total, item) => total + Number(item.net), 0);
-        const payable = payables.reduce((total, item) => total - Number(item.net), 0);
-        if (receivable === 0 && payable === 0) continue;
-        const amount = Math.min(receivable, payable);
-        if (amount > 0) {
-          entryNo += 1;
-          const description = `Loại trừ công nợ nội bộ ${nameOf.get(creditor)} – ${nameOf.get(debtor)}`;
-          let left = amount;
-          for (const item of receivables) {
-            const part = Math.min(left, Number(item.net));
-            if (part > 0) await insertLine("intercompany_balance", creditor, item.account_id, item.partner_id, 0, part, description);
-            left -= part;
-          }
-          left = amount;
-          for (const item of payables) {
-            const part = Math.min(left, -Number(item.net));
-            if (part > 0) await insertLine("intercompany_balance", debtor, item.account_id, item.partner_id, part, 0, description);
-            left -= part;
-          }
-        }
-        if (Math.abs(receivable - payable) > 0.00005)
-          warnings.push({
-            receivableCompany: nameOf.get(creditor)!,
-            payableCompany: nameOf.get(debtor)!,
-            receivable: trimDecimal(receivable.toFixed(4)),
-            payable: trimDecimal(payable.toFixed(4)),
-            difference: trimDecimal((receivable - payable).toFixed(4)),
-          });
+        const of = (company: string, other: string, receivableSide: boolean, positive: boolean) =>
+          balances.filter(
+            (item) => item.company_id === company && item.other_id === other && isReceivable(item.code) === receivableSide && Number(item.net) > 0 === positive && Number(item.net) !== 0,
+          );
+        const names = `${nameOf.get(creditor)} – ${nameOf.get(debtor)}`;
+        const owed = await eliminate(of(creditor, debtor, true, true), of(debtor, creditor, false, false), 1, creditor, debtor, `Loại trừ công nợ nội bộ ${names}`);
+        const advance = await eliminate(of(creditor, debtor, true, false), of(debtor, creditor, false, true), -1, creditor, debtor, `Loại trừ trả trước nội bộ ${names}`);
+        for (const [receivable, payable] of [
+          [owed.leftTotal, owed.rightTotal],
+          [-advance.leftTotal, -advance.rightTotal],
+        ] as const)
+          if (Math.abs(receivable - payable) > 0.00005)
+            warnings.push({
+              receivableCompany: nameOf.get(creditor)!,
+              payableCompany: nameOf.get(debtor)!,
+              receivable: trimDecimal(receivable.toFixed(4)),
+              payable: trimDecimal(payable.toFixed(4)),
+              difference: trimDecimal((receivable - payable).toFixed(4)),
+            });
       }
 
     // 2. Doanh thu thuần bán nội bộ trong kỳ (trừ hàng bán bị trả lại): Nợ doanh thu / Có giá vốn (QUYTAC_NGHIEPVU_126).
@@ -379,32 +413,38 @@ export class ConsolidationService implements OnModuleInit {
         seller_id: string;
         variant_id: string;
         internal_quantity: string;
-        issue_quantity: string;
         revenue: string;
         cost: string;
         ending_quantity: string;
       }>(sql`
       WITH received AS (
-        SELECT r.company_id AS buyer_id, i.company_id AS seller_id, rl.variant_id, abs(rl.base_quantity) AS quantity, abs(il.base_quantity) AS issue_quantity,
-          abs(il.base_quantity) * ol.net_amount / nullif(ol.base_quantity, 0) AS revenue, abs(il.cost_value) AS cost
+        SELECT r.company_id AS buyer_id, i.company_id AS seller_id, rl.variant_id, abs(rl.base_quantity) AS quantity,
+          -- Doanh thu, giá vốn của phần bên mua thực nhận (giao thiếu không làm tăng lãi mỗi đơn vị): doanh thu = giá nhập nội bộ × số nhận;
+          -- giá vốn quy theo tỷ lệ giá trị đã nhận trên giá trị đã xuất.
+          abs(rl.base_quantity) * rl.unit_cost AS revenue,
+          abs(il.cost_value) * abs(rl.base_quantity) * rl.unit_cost / nullif(abs(il.base_quantity) * ol.net_amount / nullif(ol.base_quantity, 0), 0) AS cost
         FROM inventory.documents r JOIN inventory.document_lines rl ON rl.document_id = r.id
         JOIN inventory.document_lines il ON il.id = rl.counterpart_line_id JOIN inventory.documents i ON i.id = il.document_id
         JOIN sales.order_lines ol ON ol.id = il.source_line_id
         WHERE r.type = 'purchase_receipt' AND r.status = 'posted' AND r.counterpart_document_id IS NOT NULL
           AND r.company_id IN ${members} AND i.company_id IN ${members} AND r.document_date BETWEEN ${row.from_date}::date AND ${row.to_date}::date
       )
-      SELECT buyer_id, seller_id, variant_id, sum(quantity)::text AS internal_quantity, sum(issue_quantity)::text AS issue_quantity,
+      SELECT buyer_id, seller_id, variant_id, sum(quantity)::text AS internal_quantity,
         coalesce(sum(revenue), 0)::text AS revenue, coalesce(sum(cost), 0)::text AS cost,
         (SELECT coalesce(sum(m.quantity), 0) FROM inventory.movements m
          WHERE m.company_id = received.buyer_id AND m.variant_id = received.variant_id
            AND m.moved_at < ((${row.to_date}::date + 1)::timestamp AT TIME ZONE 'Asia/Ho_Chi_Minh'))::text AS ending_quantity
       FROM received GROUP BY buyer_id, seller_id, variant_id`)
     ).rows;
+    // Tổng mua nội bộ của mỗi bên mua, mặt hàng (nhiều công ty bán): tồn cuối phân bổ theo tỷ lệ số đã mua của từng bên bán.
+    const boughtTotal = new Map<string, number>();
+    for (const item of items) boughtTotal.set(`${item.buyer_id}:${item.variant_id}`, (boughtTotal.get(`${item.buyer_id}:${item.variant_id}`) ?? 0) + Number(item.internal_quantity));
     for (const item of items) {
       // Lãi gộp mỗi đơn vị tính theo đơn vị của bên mua (hai bên có thể khác đơn vị, ví dụ hộp và cái).
       const received = Number(item.internal_quantity);
       const margin = received > 0 ? Math.max((Number(item.revenue) - Number(item.cost)) / received, 0) : 0;
-      const remaining = Math.min(Math.max(Number(item.ending_quantity), 0), Number(item.internal_quantity));
+      const total = boughtTotal.get(`${item.buyer_id}:${item.variant_id}`)!;
+      const remaining = total > 0 ? (Math.min(Math.max(Number(item.ending_quantity), 0), total) * received) / total : 0;
       const estimated = Math.round(remaining * margin * 10 ** units) / 10 ** units;
       const kept = overrides.find((override) => override.buyer_company_id === item.buyer_id && override.seller_company_id === item.seller_id && override.variant_id === item.variant_id);
       await executor.execute(sql`
@@ -459,7 +499,7 @@ export class ConsolidationService implements OnModuleInit {
     const nameOf = new Map(included.map((member) => [member.id, member.short_name ?? member.legal_name]));
     let balanceSheet: ConsolidatedStatementResponse;
     let incomeStatement: ConsolidatedStatementResponse;
-    if (row.status === "posted" && row.report) {
+    if ((row.status === "posted" || row.status === "pending") && row.report) {
       ({ balanceSheet, incomeStatement } = row.report);
     } else {
       ledger.extras = await this.extras(this.database, id, ledger);
@@ -547,7 +587,15 @@ export class ConsolidationService implements OnModuleInit {
       profitLines,
       balanceSheet,
       incomeStatement,
-      accountOptions: charts[consolidationRegime].accounts.map((account) => ({ code: account.code, name: account.name })),
+      accountOptions: charts[consolidationRegime].accounts.map((account) => ({ code: account.code, name: account.name, byPartner: byPartnerCode(account.code) })),
+      memberOptions: included.map((member) => ({ companyId: member.id, name: member.short_name ?? member.legal_name })),
+      partnerOptions: (
+        await this.database.execute<{ id: string; name: string }>(sql`
+        SELECT id, name FROM crm.partners WHERE company_id IN (${sql.join(
+          included.map((member) => sql`${member.id}::uuid`),
+          sql`, `,
+        )}) ORDER BY name`)
+      ).rows.map((partner) => ({ partnerId: partner.id, name: partner.name })),
       canManage,
       canEdit: canManage && ["draft", "rejected", "withdrawn"].includes(row.status),
       canWithdraw: canManage && row.status === "pending" && row.submitted_by === actor.userId && Boolean(row.approval_request_id),
@@ -582,7 +630,7 @@ export class ConsolidationService implements OnModuleInit {
     await this.database.transaction(async (transaction) => {
       const row = await this.row(transaction, root.id, id, true);
       this.requireEditable(row, input.version);
-      const fields: Record<string, "invalidValue"> = {};
+      const fields: Record<string, "invalidValue" | "required"> = {};
       let debit = 0;
       let credit = 0;
       for (const [index, line] of input.lines.entries()) {
@@ -603,9 +651,25 @@ export class ConsolidationService implements OnModuleInit {
         )})`)
       ).rows.sort((first, second) => order.get(first.company_id)! - order.get(second.company_id)!);
       const regimeOf = new Map(included.map((member) => [member.id, member.accounting_regime]));
+      // Có chọn công ty thì lấy tài khoản của công ty đó; tài khoản lấy theo đối tác trên báo cáo (131, 331...) bắt buộc chọn đối tác.
+      const partners = new Set(
+        (
+          await transaction.execute<{ id: string }>(
+            sql`SELECT id FROM crm.partners WHERE id IN (${sql.join(
+              [...input.lines.map((line) => line.partnerId).filter((partnerId): partnerId is string => Boolean(partnerId)), "00000000-0000-0000-0000-000000000000"].map(
+                (partnerId) => sql`${partnerId}::uuid`,
+              ),
+              sql`, `,
+            )})`,
+          )
+        ).rows.map((partner) => partner.id),
+      );
       const resolved = input.lines.map((line, index) => {
-        const account = accounts.find((item) => consolidatedCode(regimeOf.get(item.company_id)!, item.code) === line.accountCode);
+        if (line.companyId && !order.has(line.companyId)) fields[`lines.${index}.companyId`] = "invalidValue";
+        const account = accounts.find((item) => (!line.companyId || item.company_id === line.companyId) && consolidatedCode(regimeOf.get(item.company_id)!, item.code) === line.accountCode);
         if (!account) fields[`lines.${index}.accountCode`] = "invalidValue";
+        if (line.partnerId && !partners.has(line.partnerId)) fields[`lines.${index}.partnerId`] = "invalidValue";
+        if (!line.partnerId && byPartnerCode(line.accountCode)) fields[`lines.${index}.partnerId`] = "required";
         return { ...line, account };
       });
       if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
@@ -613,8 +677,9 @@ export class ConsolidationService implements OnModuleInit {
         Number((await transaction.execute<{ next: number }>(sql`SELECT coalesce(max(entry_no), 0)::int AS next FROM finance.consolidation_entries WHERE consolidation_id = ${id}`)).rows[0]!.next) + 1;
       for (const line of resolved)
         await transaction.execute(sql`
-          INSERT INTO finance.consolidation_entries (consolidation_id, entry_no, kind, company_id, account_id, debit, credit, description, created_by)
-          VALUES (${id}, ${entryNo}, 'manual', ${line.account!.company_id}, ${line.account!.id}, ${line.debit}::numeric, ${line.credit}::numeric, ${input.description}, ${actor.userId})`);
+          INSERT INTO finance.consolidation_entries (consolidation_id, entry_no, kind, company_id, account_id, partner_id, debit, credit, description, created_by)
+          VALUES (${id}, ${entryNo}, 'manual', ${line.account!.company_id}, ${line.account!.id}, ${line.partnerId}, ${line.debit}::numeric, ${line.credit}::numeric, ${input.description},
+            ${actor.userId})`);
       await transaction.execute(sql`UPDATE finance.consolidations SET version = version + 1 WHERE id = ${id}`);
       await this.auditService.record(
         { ...financeAudit(actor, "consolidation"), action: "consolidation.manual_entry", entityId: id, beforeData: null, afterData: { entryNo, description: input.description, lines: input.lines } },
@@ -665,9 +730,13 @@ export class ConsolidationService implements OnModuleInit {
     const rootActor = { ...actor, companyId: root.id };
     await ensureSequence(this.database, this.sequences, rootActor, documentTypeCode, "HN");
     await this.database.transaction(async (transaction) => {
-      const row = await this.row(transaction, root.id, id, true);
-      this.requireEditable(row, version);
-      const { balanceSheet } = await this.reports(transaction, root.id, id, row);
+      const current = await this.row(transaction, root.id, id, true);
+      this.requireEditable(current, version);
+      // Tính lại theo sổ hiện tại rồi chốt số gửi duyệt: người duyệt thấy đúng số sẽ được chốt.
+      await this.calculate(transaction, actor, id);
+      const row = await this.row(transaction, root.id, id);
+      const report = await this.reports(transaction, root.id, id, row);
+      const { balanceSheet } = report;
       const totalAssets = balanceSheet.lines.find((line) => line.code === "280")?.consolidated ?? "0";
       const documentNo = row.document_no ?? (await this.sequences.next(root.id, documentTypeCode, transaction));
       let requestId: string | null = null;
@@ -683,10 +752,17 @@ export class ConsolidationService implements OnModuleInit {
       } catch (error) {
         if (!(error instanceof ApiError && error.messageKey === "policyNotFound")) throw error;
       }
-      await transaction.execute(sql`
+      await transaction
+        .execute(
+          sql`
         UPDATE finance.consolidations SET status = 'pending', document_no = ${documentNo}, approval_request_id = ${requestId}, post_error = NULL, submitted_at = now(),
-          submitted_by = ${actor.userId}, version = version + 1
-        WHERE id = ${id}`);
+          submitted_by = ${actor.userId}, report = ${JSON.stringify(report)}::jsonb, version = version + 1
+        WHERE id = ${id}`,
+        )
+        .catch((error: unknown) => {
+          if (isUniqueViolation(error)) throw new ApiError("BUSINESS_RULE", "consolidationPeriodExists");
+          throw error;
+        });
       if (!requestId) await this.post(transaction, root.id, id);
       await this.auditService.record(
         { ...financeAudit(rootActor, "consolidation"), action: "consolidation.submit", entityId: id, beforeData: null, afterData: { documentNo, approvalRequestId: requestId } },
@@ -716,7 +792,8 @@ export class ConsolidationService implements OnModuleInit {
   private async post(executor: Executor, groupId: string, id: string): Promise<void> {
     const row = await this.row(executor, groupId, id, true);
     if (row.status !== "pending") throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-    const report = await this.reports(executor, groupId, id, row);
+    // Số đã chốt khi gửi; bảng cũ chưa có số chốt thì tính tại lúc duyệt.
+    const report = row.report ?? (await this.reports(executor, groupId, id, row));
     await executor.execute(sql`
       UPDATE finance.consolidations SET status = 'posted', report = ${JSON.stringify(report)}::jsonb, posted_at = now(), post_error = NULL, version = version + 1 WHERE id = ${id}`);
   }

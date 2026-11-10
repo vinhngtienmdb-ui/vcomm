@@ -11,7 +11,7 @@ import type { Actor } from "../permissions/roles.service";
 import { ledgerPermissions } from "./ledger.service";
 import { statementTemplates, type StatementFormula, type StatementLine, type StatementTemplate } from "./statement-templates";
 
-type Account = { id: string; code: string; parentId: string | null; longTerm: boolean };
+type Account = { id: string; companyId: string; code: string; parentId: string | null; longTerm: boolean };
 // Số liệu sổ cái dùng để lập báo cáo: một công ty, hoặc nhiều công ty cộng gộp (CONG_VIEC_20); dòng bổ sung là bút toán loại trừ hợp nhất.
 export type ExtraLine = { accountId: string; partnerKey: string; debit: number; credit: number };
 export type Ledger = { companyIds: string[]; accounts: Account[]; retained: string; incomeSummary: string[]; extras: ExtraLine[] };
@@ -84,7 +84,7 @@ export class StatementsService {
     // Dài hạn: tài khoản được đánh dấu hoặc nằm dưới tài khoản được đánh dấu.
     const longTerm = (id: string | null): boolean => (id ? (byId.get(id)!.is_long_term ? true : longTerm(byId.get(id)!.parent_id)) : false);
     const code = (row: { company_id: string; code: string }) => (consolidated ? consolidatedCode(regimeOf.get(row.company_id)!, row.code) : row.code);
-    const accounts: Account[] = rows.rows.map((row) => ({ id: row.id, code: code(row), parentId: row.parent_id, longTerm: longTerm(row.id) }));
+    const accounts: Account[] = rows.rows.map((row) => ({ id: row.id, companyId: row.company_id, code: code(row), parentId: row.parent_id, longTerm: longTerm(row.id) }));
     const rules = (
       await this.database.execute<{ company_id: string; role: string; account_id: string }>(sql`
       SELECT company_id, role, account_id FROM accounting.posting_rules WHERE company_id IN (${ids}) AND role IN ('retained_earnings', 'income_summary')`)
@@ -148,8 +148,14 @@ export class StatementsService {
     const byPartner = (items: Account[], sign: 1 | -1) =>
       items.reduce((total, account) => total + [...(balances.get(account.id)?.values() ?? [])].reduce((sum, value) => sum + Math.max(sign * value, 0), 0), 0);
     let value = 0;
-    for (const items of this.groups(accounts, formula.debitBalance ?? [], scope).values()) value += Math.max(net(items), 0);
-    for (const items of this.groups(accounts, formula.creditBalance ?? [], scope).values()) value += Math.max(-net(items), 0);
+    // Dư Nợ, dư Có lấy theo từng công ty rồi cộng (hợp nhất không bù trừ số dư ngược chiều giữa các công ty).
+    const byCompany = (items: Account[]) => {
+      const parts = new Map<string, Account[]>();
+      for (const account of items) parts.set(account.companyId, [...(parts.get(account.companyId) ?? []), account]);
+      return [...parts.values()];
+    };
+    for (const items of this.groups(accounts, formula.debitBalance ?? [], scope).values()) for (const part of byCompany(items)) value += Math.max(net(part), 0);
+    for (const items of this.groups(accounts, formula.creditBalance ?? [], scope).values()) for (const part of byCompany(items)) value += Math.max(-net(part), 0);
     for (const items of this.groups(accounts, formula.debitBalanceByPartner ?? [], scope).values()) value += byPartner(items, 1);
     for (const items of this.groups(accounts, formula.creditBalanceByPartner ?? [], scope).values()) value += byPartner(items, -1);
     // Bù trừ Nợ trừ Có; chỉ tiêu bên nguồn vốn dùng "negative" để dư Có thành số dương.

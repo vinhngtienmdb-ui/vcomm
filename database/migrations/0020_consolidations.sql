@@ -56,3 +56,6 @@ CREATE TABLE finance.consolidation_profit_lines (
     override_reason     text,
     UNIQUE (consolidation_id, buyer_company_id, seller_company_id, variant_id)
 );
+
+-- Tồn cuối kỳ theo công ty, mặt hàng cho lãi chưa thực hiện.
+CREATE INDEX movements_company_variant_idx ON inventory.movements (company_id, variant_id, moved_at) INCLUDE (quantity);

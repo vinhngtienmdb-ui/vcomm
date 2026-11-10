@@ -26,7 +26,7 @@ export default function ConsolidationPage() {
   const [from, setFrom] = useState(`${today.slice(0, 5)}01-01`);
   const [to, setTo] = useState(today);
   const valid = Boolean(from) && Boolean(to) && from <= to;
-  const preview = useApi<ConsolidatedStatementResponse>(valid && scope.state.kind === "ready" ? `/finance/consolidation/preview?kind=${kind}&from=${from}&to=${to}` : null);
+  const preview = useApi<ConsolidatedStatementResponse>(valid && view === "preview" && scope.state.kind === "ready" ? `/finance/consolidation/preview?kind=${kind}&from=${from}&to=${to}` : null);
   return (
     <>
       <div className="tieu-de">

@@ -30,18 +30,19 @@ export default function ConsolidationPage() {
 
 function Detail({ data, onChanged }: { data: ConsolidationResponse; onChanged: () => void }) {
   const t = useTranslations("consolidation");
+  const errors = useTranslations("errors");
   const { notify } = useAdmin();
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("balance_sheet");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [discarding, setDiscarding] = useState(false);
-  async function act(action: () => Promise<unknown>, message: string) {
+  // Thao tác trả câu thông báo riêng thì dùng câu đó thay câu mặc định.
+  async function act(action: () => Promise<string | void>, message: string) {
     setBusy(true);
     setError(null);
     try {
-      await action();
-      notify(message);
+      notify((await action()) ?? message);
       onChanged();
     } catch (failure) {
       setError(failureOf(failure).message);
@@ -84,7 +85,7 @@ function Detail({ data, onChanged }: { data: ConsolidationResponse; onChanged: (
             </ul>
           </div>
         )}
-        {data.postError && <div className="khoi-canh-bao loi">{data.postError}</div>}
+        {data.postError && <div className="khoi-canh-bao loi">{errors.has(data.postError as never) ? errors(data.postError as never) : data.postError}</div>}
         <FormError text={error} />
         <div className="nhom-nut">
           {data.canEdit && (
@@ -95,7 +96,7 @@ function Detail({ data, onChanged }: { data: ConsolidationResponse; onChanged: (
               onClick={() =>
                 void act(async () => {
                   const result = await apiFetch<ConsolidationResponse>(`/finance/consolidation/${data.id}/submit`, { method: "POST", body: JSON.stringify({ version: data.version }) });
-                  if (result.status === "pending") notify(t("submittedPending"));
+                  if (result.status === "pending") return t("submittedPending");
                 }, t("submitted"))
               }
             >
@@ -103,7 +104,12 @@ function Detail({ data, onChanged }: { data: ConsolidationResponse; onChanged: (
             </button>
           )}
           {data.canWithdraw && (
-            <button type="button" className="nut phu" disabled={busy} onClick={() => void act(() => apiFetch(`/finance/consolidation/${data.id}/withdraw`, { method: "POST" }), t("withdrawn"))}>
+            <button
+              type="button"
+              className="nut phu"
+              disabled={busy}
+              onClick={() => void act(async () => void (await apiFetch(`/finance/consolidation/${data.id}/withdraw`, { method: "POST" })), t("withdrawn"))}
+            >
               {t("withdraw")}
             </button>
           )}
@@ -131,7 +137,9 @@ function Detail({ data, onChanged }: { data: ConsolidationResponse; onChanged: (
               type="button"
               className="nut phu"
               disabled={busy}
-              onClick={() => void act(() => apiFetch(`/finance/consolidation/${data.id}/recalculate`, { method: "POST", body: JSON.stringify({ version: data.version }) }), t("recalculated"))}
+              onClick={() =>
+                void act(async () => void (await apiFetch(`/finance/consolidation/${data.id}/recalculate`, { method: "POST", body: JSON.stringify({ version: data.version }) })), t("recalculated"))
+              }
             >
               {t("recalculate")}
             </button>
@@ -270,18 +278,27 @@ function ManualEntryDrawer({ data, onClose, onSaved }: { data: ConsolidationResp
   const common = useTranslations("common");
   const { notify } = useAdmin();
   const [description, setDescription] = useState("");
-  const [lines, setLines] = useState([
-    { accountCode: "", debit: "", credit: "" },
-    { accountCode: "", debit: "", credit: "" },
-  ]);
+  const empty = { accountCode: "", companyId: "", partnerId: "", debit: "", credit: "" };
+  const [lines, setLines] = useState([empty, empty]);
   const { submitting, fields, formError, run, inputClass } = useSubmit();
-  const update = (index: number, key: "accountCode" | "debit" | "credit", value: string) => setLines(lines.map((line, position) => (position === index ? { ...line, [key]: value } : line)));
+  const update = (index: number, key: "accountCode" | "companyId" | "partnerId" | "debit" | "credit", value: string) =>
+    setLines(lines.map((line, position) => (position === index ? { ...line, [key]: value } : line)));
   function submit(event: FormEvent) {
     event.preventDefault();
     void run(async () => {
       await apiFetch(`/finance/consolidation/${data.id}/entries`, {
         method: "POST",
-        body: JSON.stringify({ description, lines: lines.map((line) => ({ accountCode: line.accountCode, debit: line.debit || "0", credit: line.credit || "0" })), version: data.version }),
+        body: JSON.stringify({
+          description,
+          lines: lines.map((line) => ({
+            accountCode: line.accountCode,
+            companyId: line.companyId || null,
+            partnerId: line.partnerId || null,
+            debit: line.debit || "0",
+            credit: line.credit || "0",
+          })),
+          version: data.version,
+        }),
       });
       notify(t("entryAdded"));
       onSaved();
@@ -323,6 +340,26 @@ function ManualEntryDrawer({ data, onClose, onSaved }: { data: ConsolidationResp
                 onChange={(event) => update(index, "debit", event.target.value.trim())}
               />
             </Field>
+            <Field id={`dc-cty-${index}`} label={t("company")} error={fields[`lines.${index}.companyId`]}>
+              <select id={`dc-cty-${index}`} className={inputClass(`lines.${index}.companyId`)} value={line.companyId} onChange={(event) => update(index, "companyId", event.target.value)}>
+                <option value="">{t("anyCompany")}</option>
+                {data.memberOptions.map((member) => (
+                  <option key={member.companyId} value={member.companyId}>
+                    {member.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field id={`dc-dt-${index}`} label={t("partner")} error={fields[`lines.${index}.partnerId`]}>
+              <select id={`dc-dt-${index}`} className={inputClass(`lines.${index}.partnerId`)} value={line.partnerId} onChange={(event) => update(index, "partnerId", event.target.value)}>
+                <option value="">{data.accountOptions.find((account) => account.code === line.accountCode)?.byPartner ? t("choosePartner") : t("noPartner")}</option>
+                {data.partnerOptions.map((partner) => (
+                  <option key={partner.partnerId} value={partner.partnerId}>
+                    {partner.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
             <Field id={`dc-co-${index}`} label={t("credit")} error={fields[`lines.${index}.credit`]}>
               <input
                 id={`dc-co-${index}`}
@@ -335,7 +372,7 @@ function ManualEntryDrawer({ data, onClose, onSaved }: { data: ConsolidationResp
           </div>
         ))}
         {fields.lines && <p className="loi-o">{fields.lines}</p>}
-        <button type="button" className="nut phu" style={{ justifySelf: "start" }} disabled={lines.length >= 20} onClick={() => setLines([...lines, { accountCode: "", debit: "", credit: "" }])}>
+        <button type="button" className="nut phu" style={{ justifySelf: "start" }} disabled={lines.length >= 20} onClick={() => setLines([...lines, empty])}>
           {t("addLine")}
         </button>
         <FormError text={formError} />

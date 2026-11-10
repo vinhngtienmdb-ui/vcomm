@@ -3632,7 +3632,17 @@ export const consolidationManualEntrySchema = z
   .object({
     description: z.string().trim().min(1).max(500),
     lines: z
-      .array(z.object({ accountCode: z.string().trim().min(3).max(10), debit: z.string().regex(/^\d{1,16}(\.\d{1,4})?$/), credit: z.string().regex(/^\d{1,16}(\.\d{1,4})?$/) }).strict())
+      .array(
+        z
+          .object({
+            accountCode: z.string().trim().min(3).max(10),
+            companyId: z.uuid().nullable().default(null),
+            partnerId: z.uuid().nullable().default(null),
+            debit: z.string().regex(/^\d{1,16}(\.\d{1,4})?$/),
+            credit: z.string().regex(/^\d{1,16}(\.\d{1,4})?$/),
+          })
+          .strict(),
+      )
       .min(2)
       .max(20),
     version: z.number().int().min(0),
@@ -3684,7 +3694,9 @@ export interface ConsolidationResponse extends ConsolidationListItem {
   profitLines: ConsolidationProfitLine[];
   balanceSheet: ConsolidatedStatementResponse;
   incomeStatement: ConsolidatedStatementResponse;
-  accountOptions: { code: string; name: string }[];
+  accountOptions: { code: string; name: string; byPartner: boolean }[];
+  memberOptions: { companyId: string; name: string }[];
+  partnerOptions: { partnerId: string; name: string }[];
   canManage: boolean;
   canEdit: boolean;
   canWithdraw: boolean;
