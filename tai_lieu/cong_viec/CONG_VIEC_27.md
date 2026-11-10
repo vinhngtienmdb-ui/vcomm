@@ -1,9 +1,9 @@
 # CONG_VIEC_27: Đội kinh doanh nhiều cấp (MODULE_09, phần lõi 1b)
 
 - Mô tả: Đội kinh doanh của sàn VComm có bốn chức danh (Giám đốc Kinh doanh, Giám đốc Vùng, Trưởng phòng kinh doanh, Nhân viên kinh doanh) theo cây đơn vị kinh doanh (phòng ban) của công ty vận hành sàn; người quản lý xem nhánh của mình trên ứng dụng VComm và đề xuất thay đổi đội; quản trị thay đổi trực tiếp và duyệt đề xuất trên web-crm.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-10
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-10 (không làm bản mẫu riêng, xem trước từng lát).
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-10 (không làm bản mẫu riêng, xem trước từng lát). Đã làm L0 đến L3, sửa lỗi rà soát độc lập; chờ nghiệm thu.
 - Nguồn: THAY_DOI_16; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`; CONG_VIEC_23 (đánh dấu nhân viên kinh doanh, THAY_DOI_15).
 
 ## 1. Mục tiêu
@@ -32,10 +32,10 @@ Ngoài phạm vi: doanh số, hoa hồng của cấp dưới (hiện khi có đ�
 
 - QUYTAC_NGHIEPVU_148: Đơn vị kinh doanh là phòng ban đang hoạt động của công ty vận hành sàn được gắn loại Khối kinh doanh, Vùng hoặc Phòng kinh doanh. Thứ bậc Khối > Vùng > Phòng: đơn vị kinh doanh con phải có loại thấp hơn đơn vị kinh doanh cha gần nhất (được thiếu cấp giữa, ví dụ Phòng ngay dưới Khối). Bỏ loại hoặc đổi loại không được làm sai thứ bậc của đơn vị con và không được khi đơn vị kinh doanh còn thành viên đội kinh doanh (gắn loại lần đầu cho phòng ban đang có người thì được).
 - QUYTAC_NGHIEPVU_149: Thành viên đội kinh doanh là tài khoản được đánh dấu nhân viên kinh doanh, thuộc đúng một đơn vị kinh doanh. Chức danh suy ra từ vị trí: quản lý (người quản lý của phòng ban) một Khối là Giám đốc Kinh doanh, một Vùng là Giám đốc Vùng, một Phòng là Trưởng phòng kinh doanh; còn lại là Nhân viên kinh doanh. Chỉ thành viên thuộc chính đơn vị đó được bổ nhiệm làm quản lý; mỗi người quản lý tối đa một đơn vị.
-- QUYTAC_NGHIEPVU_150: Chuỗi cấp trên của một thành viên: đi từ đơn vị của người đó lên các đơn vị kinh doanh cha, lấy người quản lý của từng đơn vị (bỏ chính người đó, bỏ người không còn là thành viên đội). Nhánh của một người quản lý: mọi thành viên thuộc đơn vị mình quản lý và các đơn vị kinh doanh con, trừ chính mình. Hoa hồng đội kinh doanh (CONG_VIEC_26) chia theo chức danh trong chuỗi; chức danh thiếu thì người có chức danh cao hơn gần nhất trong chuỗi nhận (người quản lý tự phụ trách khách nhận cả phần các chức danh dưới mình).
+- QUYTAC_NGHIEPVU_150: Chuỗi cấp trên của một thành viên: đi từ đơn vị của người đó lên các đơn vị kinh doanh cha, lấy người quản lý của từng đơn vị kinh doanh (bỏ chính người đó, người không còn là thành viên đội, người không thuộc chính đơn vị đó); phòng ban ngừng hoạt động coi là nút trung gian không phải đơn vị kinh doanh. Nhánh của một người quản lý: mọi thành viên thuộc đơn vị mình quản lý và các đơn vị kinh doanh con, trừ chính mình. Hoa hồng đội kinh doanh (CONG_VIEC_26) chia theo chức danh trong chuỗi; chức danh thiếu thì người có chức danh cao hơn gần nhất trong chuỗi nhận (người quản lý tự phụ trách khách nhận cả phần các chức danh dưới mình).
 - QUYTAC_NGHIEPVU_151: Quyền xem trên ứng dụng: thành viên xem khách mình phụ trách; người quản lý xem thêm danh sách cấp dưới trong nhánh (họ tên, chức danh, đơn vị, số khách) và khách của từng cấp dưới với thông tin đầy đủ.
-- QUYTAC_NGHIEPVU_152: Quản trị (quyền `marketplace.buyer.manage` tại công ty vận hành sàn) thay đổi trực tiếp: gắn loại đơn vị, đánh dấu (chọn đơn vị kinh doanh), chuyển đơn vị, bổ nhiệm, bỏ quản lý, bỏ đánh dấu; Giám đốc Kinh doanh đầu tiên do quản trị đặt. Chuyển đơn vị người đang quản lý thì bỏ quản lý đơn vị cũ. Bỏ đánh dấu người đang quản lý thì bỏ quản lý. Mọi thay đổi ghi lịch sử (người làm, thời điểm, đề xuất nếu có).
-- QUYTAC_NGHIEPVU_153: Đề xuất (người quản lý trên ứng dụng): thêm người (tài khoản đang hoạt động chưa là thành viên đội, tìm theo số điện thoại) vào đơn vị trong nhánh; chuyển cấp dưới sang đơn vị khác trong nhánh; bổ nhiệm cấp dưới làm quản lý một đơn vị con trong nhánh; đưa cấp dưới ra khỏi đội. Lý do 1 đến 500 ký tự. Mỗi người chỉ có một đề xuất chờ duyệt. Người đề xuất rút được khi chờ duyệt. Quản trị duyệt thì áp dụng (kiểm lại điều kiện; không còn đúng thì báo lỗi, đề xuất vẫn chờ) hoặc từ chối kèm ghi chú. Kết quả báo cho người đề xuất bằng thông báo trong ứng dụng.
+- QUYTAC_NGHIEPVU_152: Quản trị (quyền `marketplace.buyer.manage` tại công ty vận hành sàn) thay đổi trực tiếp: gắn loại đơn vị, đánh dấu (chọn đơn vị kinh doanh), chuyển đơn vị, bổ nhiệm, bỏ quản lý, bỏ đánh dấu; Giám đốc Kinh doanh đầu tiên do quản trị đặt. Chuyển đơn vị người đang quản lý thì bỏ quản lý đơn vị cũ. Bỏ đánh dấu người đang quản lý thì bỏ quản lý. Người đã thuộc đội không đánh dấu lại được (dùng chuyển đơn vị). Mọi thay đổi ghi lịch sử (người làm, thời điểm, đề xuất nếu có).
+- QUYTAC_NGHIEPVU_153: Đề xuất (người quản lý trên ứng dụng): thêm người (tài khoản đang hoạt động chưa là thành viên đội, tìm theo số điện thoại) vào đơn vị trong nhánh; chuyển cấp dưới sang đơn vị khác trong nhánh; bổ nhiệm cấp dưới làm quản lý một đơn vị con trong nhánh; đưa cấp dưới ra khỏi đội. Lý do 1 đến 500 ký tự. Mỗi người chỉ có một đề xuất chờ duyệt; mỗi người đề xuất tối đa 20 đề xuất mỗi ngày; đề xuất thêm người chưa duyệt chỉ hiện tên, số điện thoại đã che cho người đề xuất. Người đề xuất rút được khi chờ duyệt. Quản trị duyệt thì áp dụng (kiểm lại điều kiện; không còn đúng thì báo “Đề xuất không còn đúng với đội hiện tại”, đề xuất vẫn chờ để quản trị từ chối) hoặc từ chối kèm ghi chú. Kết quả báo cho người đề xuất bằng thông báo trong ứng dụng.
 
 ## 5. Vai trò và quyền
 
@@ -102,8 +102,20 @@ Màn hình, API phòng ban của mini app Nền tảng; phạm vi xem theo phòn
 
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa đối chiếu.
+| Mục | Kết quả |
+|---|---|
+| Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Đạt: QUYTAC_NGHIEPVU_148 đến 153 có kiểm thử tự động (KICHBAN_KIEMTHU_302 đến 307) |
+| Đúng giao diện | Đạt: xem trước ứng dụng khổ iPhone 13, web-crm máy tính và điện thoại không cuộn ngang, không lỗi trình duyệt (KICHBAN_KIEMTHU_308, 309) |
+| Đã xử lý lỗi | Đạt: lỗi nghiệp vụ có thông báo riêng; xác nhận trước thao tác áp dụng ngay; ứng dụng tải riêng từng phần |
+| Đã kiểm thử, có kết quả trong tài liệu `25`, đạt cổng kiểm thử | Đạt: c27-sales-team 7/7, toàn bộ 312/312; không còn lỗi Nghiêm trọng, Cao |
+| Không phá vỡ chức năng cũ | Đạt: kiểm thử cũ đạt; c23 thêm bước gắn loại Phòng kinh doanh cho phòng ban dùng trong KICHBAN_KIEMTHU_299 (người dùng cho phép 2026-11-10); không sửa mini app Nền tảng |
+| Đạt tiêu chí nghiệm thu bắt buộc | Đạt: TIEUCHI_NGHIEMTHU_169 đến 173; mong muốn TIEUCHI_NGHIEMTHU_174 đạt |
+| Đạt cổng bảo mật | Đạt: lỗi Cao, Trung bình của rà soát đã sửa; không thêm thư viện; gitleaks trong CI chưa chạy do tài khoản GitHub lỗi thanh toán |
+| Đã tự rà soát mã, dọn dẹp | Đạt: rà soát độc lập, sửa ở commit 09086c5; tệp tạm trong `tam_thoi/CONG_VIEC_27/` (Git bỏ qua) |
+| Đã cập nhật tài liệu `27` và tài liệu liên quan | Đạt: 06 đến 11, 14, 16, 17, 21, 22, 27, mục lục |
 
 ## 16. Giới hạn đã biết
 
-Chưa có.
+- Mini app Nền tảng đổi cha, người quản lý phòng ban không kiểm thứ bậc Khối > Vùng > Phòng; thành viên ở đơn vị không còn hoạt động hiện riêng trên MAN_HINH_81 để quản trị chuyển.
+- Đề xuất chờ của người bị bỏ đánh dấu không tự hủy; duyệt báo không còn đúng, quản trị từ chối.
+- Doanh số, hoa hồng của cấp dưới hiện ở CONG_VIEC_24, CONG_VIEC_26.

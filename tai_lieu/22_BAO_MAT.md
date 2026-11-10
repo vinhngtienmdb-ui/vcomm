@@ -1,10 +1,10 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 2.9
+- Phiên bản: 2.10
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 5 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 6 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 7 (đối soát thu hộ); CONG_VIEC_20 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 8 (báo cáo tài chính hợp nhất; sửa sau rà soát: công ty, đối tác của điều chỉnh tay, danh sách đối tác các thành viên); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: MODULE_07 Khách hàng và Đối tác phần 2 (gán khách hàng cho nhân viên kinh doanh: phân quyền theo nhân viên phụ trách, quyền mới, khóa đồng thời); CONG_VIEC_23 (2026-11-10): điểm tiếp nhận, ma trận phân quyền, kết quả rà soát bảo mật tài khoản người mua
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 5 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 6 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 7 (đối soát thu hộ); CONG_VIEC_20 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 8 (báo cáo tài chính hợp nhất; sửa sau rà soát: công ty, đối tác của điều chỉnh tay, danh sách đối tác các thành viên); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: MODULE_07 Khách hàng và Đối tác phần 2 (gán khách hàng cho nhân viên kinh doanh: phân quyền theo nhân viên phụ trách, quyền mới, khóa đồng thời); CONG_VIEC_23 (2026-11-10): điểm tiếp nhận, ma trận phân quyền, kết quả rà soát bảo mật tài khoản người mua; CONG_VIEC_27 (2026-11-10): ma trận phân quyền đội kinh doanh, kết quả rà soát bảo mật
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
 Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16); MODULE_06 phần 5 Hoa hồng đội kinh doanh (CONG_VIEC_17); MODULE_06 phần 6 Đối soát ngân hàng (CONG_VIEC_18); MODULE_06 phần 7 Đối soát thu hộ (CONG_VIEC_19); MODULE_06 phần 8 Báo cáo tài chính hợp nhất (CONG_VIEC_20); MODULE_07 phần 2 Gán khách hàng cho nhân viên kinh doanh (CONG_VIEC_21). Các module sau bổ sung vào cùng tài liệu.
@@ -682,6 +682,27 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10, rà soát đ�
 - Đã xử lý theo quyết định của người dùng (THAY_DOI_15): đánh dấu không còn gán vai trò Nhân viên bán hàng (quyền ghi đơn bán, đối tác B2B).
 - Ghi nhận (Thấp): mục menu "Người mua VComm" theo quyền ở công ty đang chọn; người đang chọn công ty khác công ty vận hành sàn không thấy mục.
 - Quét thư viện phụ thuộc: 2 lỗ hổng mức Trung bình trong `@expo/cli` (công cụ phát triển, không chạy trên môi trường thật), người dùng chấp nhận rủi ro có thời hạn (mục 8). Quét khóa bí mật: các dòng thêm mới không có khóa bí mật; gitleaks trong CI chưa chạy được do tài khoản GitHub lỗi thanh toán.
+
+### Ma trận phân quyền đội kinh doanh MODULE_09 phần lõi 1b (CONG_VIEC_27)
+
+| Chức năng | Quản trị công ty vận hành sàn, Quản trị tập đoàn | Giám đốc Kinh doanh, Giám đốc Vùng, Trưởng phòng | Nhân viên kinh doanh | Người mua |
+|---|---|---|---|---|
+| CHUC_NANG_109, CHUC_NANG_110 Xem, thay đổi đội trên web | Có (`marketplace.buyer.view`, `marketplace.buyer.manage`) | Không | Không | Không |
+| CHUC_NANG_111 Xem cấp dưới, khách của cấp dưới | Không áp dụng | Trong nhánh mình quản lý | Không | Không |
+| CHUC_NANG_112 Lập, rút đề xuất | Không áp dụng | Trong nhánh mình quản lý | Không | Không |
+| CHUC_NANG_112 Duyệt, từ chối đề xuất | Có (`marketplace.buyer.manage`) | Không | Không | Không |
+
+Ranh giới và kiểm soát riêng:
+- Phạm vi theo nhánh tính lại mỗi yêu cầu từ cây phòng ban và người quản lý (chỉ người quản lý thuộc chính đơn vị); khách của người ngoài nhánh, của chính mình, của cấp trên trả `404`.
+- Đề xuất chỉ nhắm cấp dưới trong nhánh, đơn vị trong cây con; không tự bổ nhiệm, không bổ nhiệm vào đơn vị mình đang quản lý. Duyệt kiểm lại trong cùng giao dịch dưới khóa đội và khóa dòng đề xuất.
+- Chống dò thông tin: đề xuất thêm người dùng một thông báo cho không có tài khoản và đã trong đội; đề xuất chưa duyệt chỉ hiện tên, số điện thoại đã che cho người đề xuất; tối đa 20 đề xuất mỗi ngày mỗi người.
+- Khóa: thay đổi đội lấy khóa tư vấn theo công ty trước, rồi mới khóa dòng (tránh khóa chết). Cây phòng ban có vòng không làm treo máy chủ.
+- Nhật ký thao tác: `sales_unit.type`, `sales_unit.manager`, `buyer.sales.move`, `buyer.sales.flag`, `buyer.sales.unflag`; lịch sử đội có mã đề xuất.
+
+Kết quả rà soát bảo mật phần thay đổi (2026-11-10, rà soát độc lập; sửa ở commit 09086c5):
+- Đã sửa (Cao): đánh dấu lại người đã trong đội làm treo quản lý, mất phòng ban nhân sự; thứ tự khóa ngược gây khóa chết.
+- Đã sửa (Trung bình): chuỗi cấp trên nhận người quản lý do mini app Nền tảng đặt mà không thuộc đơn vị; phòng ban ngừng hoạt động cắt cây; vòng lặp cây phòng ban; lịch sử thiếu nhãn, thiếu đề xuất; dò họ tên qua đề xuất thêm người; bổ nhiệm bị chặn vì quản lý phòng ban không phải đơn vị kinh doanh.
+- Ghi nhận, chưa sửa (Thấp): mini app Nền tảng đổi cha, người quản lý phòng ban không lấy khóa đội, không kiểm thứ bậc Khối > Vùng > Phòng (không sửa mini app Nền tảng theo mục 13 đặc tả); đề xuất chờ của người bị bỏ đánh dấu không tự hủy (duyệt báo không còn đúng); lỗi trên MAN_HINH_81 hiện ở đầu trang.
 
 ## 5. Quản lý khóa bí mật
 
