@@ -99,3 +99,19 @@
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát toàn nhánh tìm 10 điểm, sửa 9, giữ 1 (lô và serial không bật cùng lúc nên không xảy ra); đối chiếu tài liệu với mã sửa thêm 6 lỗi.
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
 - Kết luận: Người dùng nghiệm thu; hợp nhất vào `main` (commit `9c3d7c8`), kiểm thử lại 186/186 đạt trên commit hợp nhất; CI đạt.
+
+## Lần kiểm thử 2026-11-10 – CONG_VIEC_06
+
+- Phạm vi: lát L0, L1 (đối tác dùng chung tập đoàn, người liên hệ, tài khoản ngân hàng, đối tác nội bộ, che số Căn cước công dân; hồ sơ đối tác của công ty); MAN_HINH_36, 37; API_71, API_72. Hồi quy: toàn bộ kiểm thử tự động của dự án.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm --filter i18n test`, `pnpm audit --audit-level=high`; thử trên trình duyệt bằng Playwright: danh sách đối tác, thêm tổ chức có người liên hệ và tài khoản ngân hàng, cảnh báo trùng mã số thuế khi gõ, lập hồ sơ của công ty, thêm cá nhân che số và xem đầy đủ (máy tính và điện thoại).
+- Kết quả: 191 đạt / 0 không đạt / 191 kịch bản tự động (22 tệp; phần mới: `c6-partners` 5). Khớp khóa dịch tiếng Việt, tiếng Anh: 1527 khóa.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_75 đến 79 (bắt buộc) – Đạt. Vế "đối tác ngừng giao dịch không chọn được trên chứng từ mới" của QUYTAC_NGHIEPVU_57 kiểm khi làm MODULE_04, MODULE_05.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --audit-level=high`: không có lỗ hổng đã biết. Không thêm thư viện.
+  - C2 gitleaks trong CI trên các commit của công việc: chờ kết quả CI của pull request số 39.
+  - C3 phân quyền: Đạt – thêm, sửa đối tác cần `crm.partner.manage`; xem số Căn cước công dân đầy đủ, hạn mức công nợ, lưu hồ sơ cần quyền nhạy cảm; tra theo số Căn cước công dân cần quyền quản lý đối tác; hồ sơ công ty khác không đọc được; đối tác nội bộ không sửa được ở mini app Đối tác.
+  - C4 dữ liệu cá nhân: Đạt – danh sách, chi tiết, kết quả thêm, sửa, nhật ký chỉ có 3 số cuối Căn cước công dân; mỗi lần xem đầy đủ ghi nhật ký.
+  - C6 OWASP Top 10: A01 kiểm quyền trong từng service; A04 hai người lưu cùng lúc trùng mã số thuế, số Căn cước công dân nhận lỗi đúng trường, không lỗi hệ thống.
+- Tự rà soát mã và dọn dẹp: Đạt. Tự rà soát sửa 3 điểm (tra theo số Căn cước công dân, lỗi trùng đồng thời, đồng bộ gặp mã số thuế trùng); đối chiếu tài liệu với mã sửa thêm 5 điểm (ẩn hạn mức công nợ, tiền tệ công ty, đồng bộ khi khởi động và khi xem chi tiết, nhật ký đồng bộ, nhật ký xem số khi không có số).
+- Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao; mọi tiêu chí bắt buộc trong phạm vi đạt). Chờ người dùng nghiệm thu.
