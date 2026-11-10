@@ -9,10 +9,16 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_07: Lập công việc Mua hàng trong nước (MODULE_04, phần 1), mức Lớn.
 - CONG_VIEC_06: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 39 (theo tài liệu 18, AI không tự hợp nhất vào `main`).
 - LOI_03: Kiểm thử đồng thời của Kho lỗi không đều trên CI (phiếu thua nhận `400` hoặc `409` tùy thời điểm). Người dùng quyết định thống nhất trả `400` gắn vào dòng hàng.
 - CONG_VIEC_06: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_06-doi-tac` (pull request số 39). L0: database migration 0005 schema `crm`; mini app `apps/web-crm` đường dẫn `/crm`; đối tác dùng chung tập đoàn (tổ chức, hộ kinh doanh, cá nhân), người liên hệ, tài khoản ngân hàng; kiểm trùng mã số thuế, số Căn cước công dân; công ty con là đối tác nội bộ tự đồng bộ; che số Căn cước công dân, xem đầy đủ cần quyền và ghi nhật ký; vai trò Quản lý đối tác. L1: hồ sơ đối tác của từng công ty (khách hàng, nhà cung cấp, số ngày được nợ, hạn mức công nợ theo tiền tệ công ty, nhóm khách, nhân viên phụ trách). Kiểm thử 191/191 đạt. Không thêm thư viện. Cập nhật tài liệu 06, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 27, mục lục trên nhánh. Tự rà soát mã sửa 3 điểm; đối chiếu tài liệu với mã sửa thêm 5 điểm.
 - AI tự quyết trong phạm vi đặc tả (CONG_VIEC_06): kiểm mã số thuế theo định dạng, không kiểm số kiểm tra; sửa cá nhân để trống số Căn cước công dân là giữ số cũ; tra trùng theo số Căn cước công dân chỉ dành cho người có quyền quản lý đối tác; hạn mức công nợ ẩn với người không có quyền quản lý hồ sơ đối tác; công ty mẹ không là đối tác nội bộ.
+
+### Quyết định
+
+- Mua hàng (MODULE_04) – người quyết định: người dùng, ngày 2026-11-10: chia công việc, CONG_VIEC_07 gồm bảng giá mua theo nhà cung cấp, đề nghị mua, đơn mua, nhận hàng, trả hàng nhà cung cấp; nhập khẩu, phân bổ chi phí là công việc sau; hóa đơn, so khớp ba bên, lịch thanh toán làm cùng Tài chính – Kế toán; giao dịch nội bộ làm cùng Bán hàng. Hàng thuộc ngành hàng cần kiểm tra chất lượng chưa vào tồn đến khi kiểm xong: phần đạt ghi sổ kho, phần không đạt ghi biên bản. Trả hàng nhà cung cấp xuất kho theo giá mua trên phiếu nhập gốc.
+- LOI_03 – người quyết định: người dùng, ngày 2026-11-10: thống nhất trả `400` gắn vào dòng hàng khi không đủ hàng khả dụng.
 
 ## 2026-11-09
 
