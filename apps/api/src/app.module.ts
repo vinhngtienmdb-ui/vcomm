@@ -58,6 +58,8 @@ import { FinanceController } from "./finance/finance.controller";
 import { DebtsService } from "./finance/debts.service";
 import { FundsService } from "./finance/funds.service";
 import { PaymentsService } from "./finance/payments.service";
+import { LedgerService } from "./accounting/ledger.service";
+import { LedgerController } from "./accounting/ledger.controller";
 import { SupplierPricesService } from "./purchasing/supplier-prices.service";
 import { RequisitionsService } from "./purchasing/requisitions.service";
 import { PurchaseOrdersService } from "./purchasing/orders.service";
@@ -89,7 +91,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController],
   providers: [
     AuthService,
     ActivationService,
@@ -126,6 +128,7 @@ import { UsersService } from "./users/users.service";
     DebtsService,
     FundsService,
     PaymentsService,
+    LedgerService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

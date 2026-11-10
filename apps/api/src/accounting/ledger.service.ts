@@ -96,37 +96,26 @@ export class LedgerService implements OnModuleInit {
     }
   }
 
-  async setupStatus(actor: Actor): Promise<LedgerSetupResponse> {
-    const granted = await requireFinancePermission(this.permissionService, actor, ledgerPermissions.view, ledgerPermissions.setup);
-    const settings = (
-      await this.database.execute<{ regime: AccountingRegime; locked_through: string | null; has_journals: boolean }>(sql`
-      SELECT s.regime, s.locked_through::text, EXISTS (SELECT 1 FROM accounting.journals j WHERE j.company_id = s.company_id) AS has_journals
-      FROM accounting.settings s WHERE s.company_id = ${actor.companyId}`)
-    ).rows[0];
-    return {
-      initialized: Boolean(settings),
-      regime: settings?.regime ?? null,
-      lockedThrough: settings?.locked_through ?? null,
-      canChangeRegime: Boolean(settings) && !settings!.has_journals,
-      canSetup: granted.has(ledgerPermissions.setup),
-      regimes: (Object.keys(charts) as AccountingRegime[]).map((code) => ({ code, name: charts[code].name })),
-    };
+  private async companyRegime(executor: Executor, companyId: string): Promise<AccountingRegime> {
+    return (await executor.execute<{ accounting_regime: AccountingRegime }>(sql`SELECT accounting_regime FROM core.companies WHERE id = ${companyId}`)).rows[0]!.accounting_regime;
   }
 
-  // Khởi tạo: nạp tài khoản, định khoản mặc định, tạo bút toán cho chứng từ đã ghi sổ trước đó (CHUC_NANG_69). Đổi chế độ khi chưa có bút toán.
-  async setup(actor: Actor, regime: AccountingRegime): Promise<LedgerSetupResponse> {
+  async setupStatus(actor: Actor): Promise<LedgerSetupResponse> {
+    const granted = await requireFinancePermission(this.permissionService, actor, ledgerPermissions.view, ledgerPermissions.setup);
+    const regime = await this.companyRegime(this.database, actor.companyId);
+    const settings = (await this.database.execute<{ locked_through: string | null }>(sql`SELECT locked_through::text FROM accounting.settings WHERE company_id = ${actor.companyId}`)).rows[0];
+    return { initialized: Boolean(settings), regime, regimeName: charts[regime].name, lockedThrough: settings?.locked_through ?? null, canSetup: granted.has(ledgerPermissions.setup) };
+  }
+
+  // Khởi tạo theo chế độ kế toán của công ty: nạp tài khoản, định khoản mặc định, tạo bút toán cho chứng từ đã ghi sổ trước đó (CHUC_NANG_69).
+  async setup(actor: Actor): Promise<LedgerSetupResponse> {
     await requireFinancePermission(this.permissionService, actor, ledgerPermissions.setup);
     await this.database.transaction(async (transaction) => {
-      const existing = (await transaction.execute<{ regime: string }>(sql`SELECT regime FROM accounting.settings WHERE company_id = ${actor.companyId} FOR UPDATE`)).rows[0];
-      if (existing) {
-        const journals = await transaction.execute(sql`SELECT 1 FROM accounting.journals WHERE company_id = ${actor.companyId} LIMIT 1`);
-        if (journals.rows.length > 0) throw new ApiError("BUSINESS_RULE", "ledgerHasJournals");
-        await transaction.execute(sql`DELETE FROM accounting.posting_rules WHERE company_id = ${actor.companyId}`);
-        await transaction.execute(sql`DELETE FROM accounting.accounts WHERE company_id = ${actor.companyId}`);
-        await transaction.execute(sql`UPDATE accounting.settings SET regime = ${regime}, version = version + 1 WHERE company_id = ${actor.companyId}`);
-      } else {
-        await transaction.execute(sql`INSERT INTO accounting.settings (company_id, regime, initialized_by) VALUES (${actor.companyId}, ${regime}, ${actor.userId})`);
-      }
+      await transaction.execute(sql`SELECT 1 FROM core.companies WHERE id = ${actor.companyId} FOR UPDATE`);
+      const existing = await transaction.execute(sql`SELECT 1 FROM accounting.settings WHERE company_id = ${actor.companyId}`);
+      if (existing.rows.length > 0) throw new ApiError("BUSINESS_RULE", "ledgerInitialized");
+      const regime = await this.companyRegime(transaction, actor.companyId);
+      await transaction.execute(sql`INSERT INTO accounting.settings (company_id, initialized_by) VALUES (${actor.companyId}, ${actor.userId})`);
       const ids = new Map<string, string>();
       for (const account of charts[regime].accounts) {
         const id = (
@@ -138,11 +127,11 @@ export class LedgerService implements OnModuleInit {
         ids.set(account.code, id);
       }
       for (const role of postingRoles) {
-        const code = defaultPostingRules[regime][role];
-        await transaction.execute(sql`INSERT INTO accounting.posting_rules (company_id, role, account_id, updated_by) VALUES (${actor.companyId}, ${role}, ${ids.get(code)!}, ${actor.userId})`);
+        await transaction.execute(sql`
+          INSERT INTO accounting.posting_rules (company_id, role, account_id, updated_by) VALUES (${actor.companyId}, ${role}, ${ids.get(defaultPostingRules[regime][role])!}, ${actor.userId})`);
       }
-      if (!existing) await this.backfill(transaction, actor.companyId);
-      await this.auditService.record({ ...financeAudit(actor, "ledger"), action: existing ? "ledger.regime.change" : "ledger.setup", entityId: actor.companyId, afterData: { regime } }, transaction);
+      await this.backfill(transaction, actor.companyId);
+      await this.auditService.record({ ...financeAudit(actor, "ledger"), action: "ledger.setup", entityId: actor.companyId, afterData: { regime } }, transaction);
     });
     return this.setupStatus(actor);
   }

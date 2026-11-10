@@ -20,7 +20,7 @@ export type PostingRole =
   | "shortage_pending"
   | "surplus_pending"
   | "opening_offset"
-  | "other_expense"
+  | "internal_shortage"
   | "income_summary"
   | "retained_earnings";
 export const postingRoles: PostingRole[] = [
@@ -40,7 +40,7 @@ export const postingRoles: PostingRole[] = [
   "shortage_pending",
   "surplus_pending",
   "opening_offset",
-  "other_expense",
+  "internal_shortage",
   "income_summary",
   "retained_earnings",
 ];
@@ -194,7 +194,7 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
   };
 }
 
-// Ghi tổn thất hàng thiếu giao nội bộ: chi phí khác đối ứng giảm phải thu của công ty mua, theo giá đơn bán của phần thiếu (cùng cách tính với công nợ).
+// Ghi tổn thất hàng thiếu giao nội bộ: hàng thiếu chờ xử lý đối ứng giảm phải thu của công ty mua, theo giá đơn bán của phần thiếu (cùng cách tính với công nợ).
 export async function writeOffDraft(executor: Executor, discrepancyId: string, date: string): Promise<DraftJournal | null> {
   const row = (
     await executor.execute<{ company_id: string; partner_id: string | null; document_no: string | null; amount: string }>(sql`
@@ -212,6 +212,6 @@ export async function writeOffDraft(executor: Executor, discrepancyId: string, d
     journalNo: row.document_no ?? "",
     date,
     description: "Ghi tổn thất hàng thiếu giao nội bộ",
-    lines: [debit("other_expense", amount), credit("receivable", amount, row.partner_id)],
+    lines: [debit("internal_shortage", amount), credit("receivable", amount, row.partner_id)],
   };
 }

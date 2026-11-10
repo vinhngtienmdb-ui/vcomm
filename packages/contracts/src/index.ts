@@ -2908,16 +2908,14 @@ export interface OpenDebtsResponse {
 }
 
 // CONG_VIEC_14: Kế toán tổng hợp (MODULE_06, phần 2; API_87 đến API_89).
-export const accountingRegimes = ["tt99", "tt133"] as const;
+// Chế độ kế toán lấy theo công ty (accountingRegimes, API_20).
 export type AccountingRegime = (typeof accountingRegimes)[number];
-export const ledgerSetupSchema = z.object({ regime: z.enum(accountingRegimes) }).strict();
 export interface LedgerSetupResponse {
   initialized: boolean;
   regime: AccountingRegime | null;
   lockedThrough: string | null;
-  canChangeRegime: boolean;
+  regimeName: string;
   canSetup: boolean;
-  regimes: { code: AccountingRegime; name: string }[];
 }
 export interface AccountResponse {
   id: string;

@@ -1,10 +1,9 @@
 -- CONG_VIEC_14: Kế toán tổng hợp (MODULE_06, phần 2; tài liệu 16).
 CREATE SCHEMA IF NOT EXISTS accounting;
 
--- Chế độ kế toán, ngày khóa sổ của công ty (QUYTAC_NGHIEPVU_93, 97). Không có dòng: chưa khởi tạo kế toán.
+-- Ngày khóa sổ của công ty đã khởi tạo kế toán (QUYTAC_NGHIEPVU_93, 97); chế độ kế toán lấy từ core.companies.accounting_regime. Không có dòng: chưa khởi tạo.
 CREATE TABLE accounting.settings (
     company_id              uuid        PRIMARY KEY REFERENCES core.companies(id),
-    regime                  text        NOT NULL CHECK (regime IN ('tt99', 'tt133')),
     locked_through          date,                                                   -- đã khóa sổ đến hết ngày này
     initialized_by          uuid        NOT NULL REFERENCES core.users(id),
     initialized_at          timestamptz NOT NULL DEFAULT now(),

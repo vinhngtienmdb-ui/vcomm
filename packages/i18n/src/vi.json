@@ -207,7 +207,8 @@
     "accountSystem": "Tài khoản của chế độ kế toán không ngừng dùng được.",
     "accountUsedByRule": "Tài khoản đang dùng trong định khoản mặc định.",
     "accountHasChildren": "Tài khoản còn tài khoản chi tiết đang dùng.",
-    "accountNotPostable": "Tài khoản không nhận bút toán (đã ngừng dùng hoặc có tài khoản chi tiết)."
+    "accountNotPostable": "Tài khoản không nhận bút toán (đã ngừng dùng hoặc có tài khoản chi tiết).",
+    "ledgerInitialized": "Công ty đã khởi tạo kế toán."
   },
   "login": {
     "title": "Đăng nhập",

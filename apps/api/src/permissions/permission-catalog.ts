@@ -82,6 +82,10 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "finance.fund.manage", appCode: "finance", nameVi: "Quản lý quỹ", nameEn: "Manage funds", isSensitive: false },
   { code: "finance.debt.manage", appCode: "finance", nameVi: "Nhập số dư đầu kỳ công nợ", nameEn: "Manage opening debt balances", isSensitive: false },
   { code: "finance.payment.manage", appCode: "finance", nameVi: "Lập, gửi phiếu thu, phiếu chi", nameEn: "Manage receipts and payments", isSensitive: false },
+  { code: "finance.ledger.view", appCode: "finance", nameVi: "Xem tài khoản, bút toán, sổ cái", nameEn: "View accounts, journals and ledgers", isSensitive: false },
+  { code: "finance.ledger.setup", appCode: "finance", nameVi: "Khởi tạo kế toán, sửa tài khoản, định khoản", nameEn: "Set up accounts and posting rules", isSensitive: false },
+  { code: "finance.journal.manage", appCode: "finance", nameVi: "Lập, gửi phiếu kế toán", nameEn: "Manage manual journals", isSensitive: false },
+  { code: "finance.period.close", appCode: "finance", nameVi: "Khóa sổ, mở lại sổ", nameEn: "Close and reopen periods", isSensitive: true },
   { code: "inventory.sales.issue", appCode: "inventory", nameVi: "Xuất giao hàng, nhận hàng trả lại", nameEn: "Issue sales deliveries and receive returns", isSensitive: false },
   { code: "inventory.purchase.receive", appCode: "inventory", nameVi: "Nhập mua, trả hàng nhà cung cấp", nameEn: "Receive purchases and return to suppliers", isSensitive: false },
 ];
@@ -128,6 +132,10 @@ const companyAdminPermissions = [
   "finance.fund.manage",
   "finance.debt.manage",
   "finance.payment.manage",
+  "finance.ledger.view",
+  "finance.ledger.setup",
+  "finance.journal.manage",
+  "finance.period.close",
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [
@@ -167,7 +175,25 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     code: "accountant",
     nameVi: "Kế toán",
     nameEn: "Accountant",
-    permissionCodes: ["finance.access", "finance.debt.view", "finance.fund.manage", "finance.debt.manage", "finance.payment.manage", "crm.access", "crm.partner.view"],
+    permissionCodes: ["finance.access", "finance.debt.view", "finance.fund.manage", "finance.debt.manage", "finance.payment.manage", "finance.ledger.view", "finance.journal.manage", "crm.access", "crm.partner.view"],
+  },
+  {
+    code: "chief_accountant",
+    nameVi: "Kế toán trưởng",
+    nameEn: "Chief accountant",
+    permissionCodes: [
+      "finance.access",
+      "finance.debt.view",
+      "finance.fund.manage",
+      "finance.debt.manage",
+      "finance.payment.manage",
+      "finance.ledger.view",
+      "finance.ledger.setup",
+      "finance.journal.manage",
+      "finance.period.close",
+      "crm.access",
+      "crm.partner.view",
+    ],
   },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },
 ];
@@ -191,6 +217,7 @@ export const documentTypeCatalog = [
   { code: "inventory.sales_return", appCode: "inventory", nameVi: "Phiếu nhận hàng trả lại", nameEn: "Sales return", requiresApproval: false },
   { code: "finance.receipt", appCode: "finance", nameVi: "Phiếu thu", nameEn: "Cash receipt", requiresApproval: false },
   { code: "finance.payment", appCode: "finance", nameVi: "Phiếu chi", nameEn: "Cash payment", requiresApproval: true },
+  { code: "accounting.journal", appCode: "finance", nameVi: "Phiếu kế toán", nameEn: "Manual journal", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.

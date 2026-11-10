@@ -207,7 +207,8 @@
     "accountSystem": "Regime accounts cannot be deactivated.",
     "accountUsedByRule": "The account is used by a posting rule.",
     "accountHasChildren": "The account still has active detail accounts.",
-    "accountNotPostable": "The account cannot take entries (inactive or has detail accounts)."
+    "accountNotPostable": "The account cannot take entries (inactive or has detail accounts).",
+    "ledgerInitialized": "Accounting is already set up for this company."
   },
   "login": {
     "title": "Sign in",
