@@ -13,6 +13,7 @@ import { OutboxService } from "../common/outbox.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
+import { pgArray } from "../inventory/stock-ledger.service";
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { isActiveSupplier, isReceivingWarehouse, purchasingAudit, purchasingPermissions, requirePermission, variantUnitFactor, type Executor, type FieldErrors } from "./purchasing-context";
 import { companyCurrency, ensureSequence, orderedOnRequisitionLine } from "./requisitions.service";
@@ -363,7 +364,7 @@ export class PurchaseOrdersService implements OnModuleInit {
 
   private async writeLines(transaction: Executor, orderId: string, input: Input, lines: PreparedLine[]): Promise<void> {
     const kept = lines.map((line) => line.id).filter((lineId): lineId is string => lineId !== null);
-    await transaction.execute(sql`DELETE FROM purchasing.order_lines WHERE order_id = ${orderId} AND NOT (id = ANY(${`{${kept.join(",")}}`}::uuid[]))`);
+    await transaction.execute(sql`DELETE FROM purchasing.order_lines WHERE order_id = ${orderId} AND NOT (id = ANY(${pgArray(kept)}::uuid[]))`);
     // Đánh số lại dòng: dời số dòng cũ ra chỗ trống trước để không vướng ràng buộc duy nhất.
     await transaction.execute(sql`UPDATE purchasing.order_lines SET line_no = line_no + 10000 WHERE order_id = ${orderId}`);
     for (const [index, line] of input.lines.entries()) {

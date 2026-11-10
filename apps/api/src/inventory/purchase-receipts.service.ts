@@ -16,6 +16,7 @@ import { readSettings } from "../purchasing/supplier-prices.service";
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { inventoryAudit, inventoryPermissions } from "./inventory-context";
 import { documentTypeCodes, prefixes, StockDocumentsService } from "./stock-documents.service";
+import { pgArray } from "./stock-ledger.service";
 import { WarehousesService } from "./warehouses.service";
 
 type Executor = Pick<Database, "execute" | "insert">;
@@ -51,7 +52,7 @@ export class PurchaseReceiptsService {
     const rows = await this.database.execute<{ id: string; document_no: string; supplier_name: string; warehouse_id: string; warehouse_name: string; company_name: string }>(sql`
       SELECT o.id, o.document_no, s.name AS supplier_name, o.warehouse_id, w.name AS warehouse_name, c.short_name AS company_name
       FROM purchasing.orders o JOIN crm.partners s ON s.id = o.supplier_id JOIN inventory.warehouses w ON w.id = o.warehouse_id JOIN core.companies c ON c.id = o.company_id
-      WHERE o.status = 'approved' AND o.warehouse_id = ANY(${`{${allowed.join(",")}}`}::uuid[])
+      WHERE o.status = 'approved' AND o.warehouse_id = ANY(${pgArray(allowed)}::uuid[])
         AND (${pattern}::text IS NULL OR o.document_no ILIKE ${pattern} OR s.name ILIKE ${pattern})
       ORDER BY o.expected_date NULLS LAST, o.document_no LIMIT 50`);
     return rows.rows.map((row) => ({
@@ -261,7 +262,7 @@ export class PurchaseReceiptsService {
         await transaction.execute(sql`UPDATE inventory.document_lines SET rejected_base_quantity = ${rejected.toFixed(4)}::numeric, rejection_reason = ${reason} WHERE id = ${line.id}`);
         if (line.tracks_serials) {
           await transaction.execute(
-            sql`DELETE FROM inventory.document_line_serials WHERE line_id = ${line.id} AND serial_no = ANY(${`{${result.rejectedSerials.map((serial) => `"${serial.replace(/"/g, '\\"')}"`).join(",")}}`}::text[])`,
+            sql`DELETE FROM inventory.document_line_serials WHERE line_id = ${line.id} AND serial_no = ANY(${pgArray(result.rejectedSerials)}::text[])`,
           );
         }
       }
