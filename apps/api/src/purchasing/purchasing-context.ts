@@ -15,7 +15,7 @@ export const purchasingPermissions = {
 } as const;
 
 export type FieldErrors = Record<string, keyof Messages["errors"]>;
-export type Executor = Pick<Database, "execute">;
+export type Executor = Pick<Database, "execute" | "insert">;
 
 export const purchasingAudit = (actor: Actor, entityType: string) => ({
   actorUserId: actor.userId,
@@ -27,8 +27,13 @@ export const purchasingAudit = (actor: Actor, entityType: string) => ({
   requestId: actor.client.requestId,
 });
 
+// Lập đề nghị mua, xem đơn mua: được gán ở chi nhánh nào của công ty cũng dùng được (thủ kho thường được gán theo chi nhánh).
+// Quyền khác cần phạm vi bao trùm công ty.
+const branchUsable: string[] = [purchasingPermissions.createRequisition, purchasingPermissions.viewOrders];
 export async function grantedPermissions(permissionService: PermissionService, actor: Actor): Promise<Set<string>> {
-  return permissionService.permissionsCovering(actor.userId, { scopeType: "company", companyId: actor.companyId });
+  const granted = await permissionService.permissionsCovering(actor.userId, { scopeType: "company", companyId: actor.companyId });
+  for (const code of await permissionService.permissionsInCompany(actor.userId, actor.companyId)) if (branchUsable.includes(code)) granted.add(code);
+  return granted;
 }
 
 export async function requirePermission(permissionService: PermissionService, actor: Actor, ...anyOf: string[]): Promise<Set<string>> {

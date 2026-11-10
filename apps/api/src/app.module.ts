@@ -51,6 +51,8 @@ import { CrmController } from "./crm/crm.controller";
 import { PartnersService } from "./crm/partners.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SupplierPricesService } from "./purchasing/supplier-prices.service";
+import { RequisitionsService } from "./purchasing/requisitions.service";
+import { PurchaseOrdersService } from "./purchasing/orders.service";
 import { ReservationsService } from "./inventory/reservations.service";
 import { StockDocumentsService } from "./inventory/stock-documents.service";
 import { StockLedgerService } from "./inventory/stock-ledger.service";
@@ -104,6 +106,8 @@ import { UsersService } from "./users/users.service";
     WarehousesService,
     PartnersService,
     SupplierPricesService,
+    RequisitionsService,
+    PurchaseOrdersService,
     StockLedgerService,
     ReservationsService,
     StockService,

@@ -148,3 +148,145 @@ describe("TIEUCHI_NGHIEMTHU_80: bảng giá mua theo nhà cung cấp", () => {
     expect(options.body).toMatchObject({ currency: "VND", suppliers: [{ id: supplierId }], warehouses: [{ id: warehouseId }] });
   });
 });
+
+const orderBody = (lines: Record<string, unknown>[], extra: Record<string, unknown> = {}) => ({ supplierId, warehouseId, orderDate: today, lines, ...extra });
+const waterLine = (quantity: string, unitPrice: string, extra: Record<string, unknown> = {}) => ({
+  variantId: items.water!.variantId,
+  unitId: units.THUNG,
+  quantity,
+  unitPrice,
+  vatRate: "10",
+  ...extra,
+});
+
+describe("TIEUCHI_NGHIEMTHU_81: đề nghị mua, đơn mua có duyệt", () => {
+  it("KICHBAN_KIEMTHU_166: đề nghị mua đi luồng duyệt; đơn từ đề nghị đã duyệt không vượt giá trị duyệt ngay, vượt thì chờ duyệt; đặt quá số còn lại bị từ chối", async () => {
+    await policy("purchasing.requisition");
+    await policy("purchasing.order");
+    const requisitionBody = {
+      warehouseId,
+      neededBy: today,
+      reason: "Bổ sung hàng bán Tết",
+      lines: [
+        { variantId: items.water!.variantId, unitId: units.THUNG, quantity: "10", estimatedUnitPrice: "96000", suggestedSupplierId: supplierId },
+        { variantId: items.rice!.variantId, unitId: units.KG, quantity: "100", estimatedUnitPrice: "20000" },
+      ],
+    };
+    expect((await purchaser.call("post", "/purchasing/requisitions", { companyId: retail, body: { ...requisitionBody, lines: [{ ...requisitionBody.lines[0], unitId: units.KG }] } })).status).toBe(
+      400,
+    );
+    const requisition = await keeper.call("post", "/purchasing/requisitions", { companyId: retail, body: requisitionBody });
+    expect(requisition.status, JSON.stringify(requisition.body)).toBe(201);
+    expect(requisition.body).toMatchObject({ status: "draft", estimatedTotal: "2960000", canEdit: true });
+    expect(requisition.body.lines[0]).toMatchObject({ baseQuantity: "240", orderedBaseQuantity: "0" });
+    const submitted = await keeper.call("post", `/purchasing/requisitions/${requisition.body.id}/submit`, { companyId: retail });
+    expect(submitted.body).toMatchObject({ status: "pending", documentNo: expect.stringMatching(/^DNM/) });
+    // Đề nghị chưa duyệt chưa đặt được.
+    const early = await purchaser.call("post", "/purchasing/orders", {
+      companyId: retail,
+      body: orderBody([waterLine("10", "96000", { requisitionLineId: requisition.body.lines[0].id })]),
+    });
+    expect(Object.keys(early.body.error.fields)).toEqual(["lines.0.requisitionLineId"]);
+    await decide(submitted.body.approvalRequestId, "approved");
+    const approved = await purchaser.call("get", `/purchasing/requisitions/${requisition.body.id}`, { companyId: retail });
+    expect(approved.body).toMatchObject({ status: "approved", canOrder: true });
+    expect((await purchaser.call("get", "/purchasing/requisitions?openOnly=true", { companyId: retail })).body.total).toBe(1);
+
+    // Đơn từ đề nghị, giá không vượt ước tính: duyệt ngay không qua luồng duyệt.
+    const fromRequisition = await purchaser.call("post", "/purchasing/orders", {
+      companyId: retail,
+      body: orderBody([waterLine("6", "95000", { requisitionLineId: requisition.body.lines[0].id })]),
+    });
+    expect(fromRequisition.status, JSON.stringify(fromRequisition.body)).toBe(201);
+    expect(fromRequisition.body).toMatchObject({ status: "draft", totalAmount: "570000", taxAmount: "57000" });
+    const exempt = await purchaser.call("post", `/purchasing/orders/${fromRequisition.body.id}/submit`, { companyId: retail });
+    expect(exempt.body).toMatchObject({ status: "approved", approvalRequestId: null, documentNo: expect.stringMatching(/^DMH/) });
+    expect((await purchaser.call("get", `/purchasing/requisitions/${requisition.body.id}`, { companyId: retail })).body.lines[0].orderedBaseQuantity).toBe("144");
+
+    // Đặt quá số còn lại (còn 4 thùng) bị từ chối.
+    const tooMany = await purchaser.call("post", "/purchasing/orders", {
+      companyId: retail,
+      body: orderBody([waterLine("5", "95000", { requisitionLineId: requisition.body.lines[0].id })]),
+    });
+    expect(tooMany.body.error.fields).toEqual({ "lines.0.quantity": "Vượt số lượng còn lại của dòng đề nghị mua." });
+
+    // Giá vượt ước tính: phải duyệt.
+    const pricier = await purchaser.call("post", "/purchasing/orders", {
+      companyId: retail,
+      body: orderBody([waterLine("4", "97000", { requisitionLineId: requisition.body.lines[0].id })]),
+    });
+    const pending = await purchaser.call("post", `/purchasing/orders/${pricier.body.id}/submit`, { companyId: retail });
+    expect(pending.body).toMatchObject({ status: "pending", approvalRequestId: expect.any(String) });
+    await decide(pending.body.approvalRequestId, "rejected");
+    expect((await purchaser.call("get", `/purchasing/orders/${pricier.body.id}`, { companyId: retail })).body).toMatchObject({ status: "rejected", canEdit: true });
+    // Đơn bị từ chối không giữ số lượng của đề nghị.
+    expect((await purchaser.call("get", `/purchasing/requisitions/${requisition.body.id}`, { companyId: retail })).body.lines[0].orderedBaseQuantity).toBe("144");
+
+    // Đơn trực tiếp (không từ đề nghị) luôn qua luồng duyệt.
+    const direct = await purchaser.call("post", "/purchasing/orders", { companyId: retail, body: orderBody([waterLine("1", "1000")]) });
+    expect((await purchaser.call("post", `/purchasing/orders/${direct.body.id}/submit`, { companyId: retail })).body.status).toBe("pending");
+    // Thủ kho chỉ xem đơn, không lập đơn.
+    expect((await keeper.call("post", "/purchasing/orders", { companyId: retail, body: orderBody([waterLine("1", "1000")]) })).status).toBe(403);
+    expect((await keeper.call("get", `/purchasing/orders/${direct.body.id}`, { companyId: retail })).body).toMatchObject({ canEdit: false, canClose: false });
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_82, 86: sửa đơn đã duyệt, đóng đơn, phạm vi công ty", () => {
+  it("KICHBAN_KIEMTHU_167: sửa tăng giá trị hoặc đổi nhà cung cấp về chờ duyệt; sửa giảm giữ trạng thái; đóng đơn; công ty khác không xem được", async () => {
+    const created = await purchaser.call("post", "/purchasing/orders", { companyId: retail, body: orderBody([waterLine("10", "96000")], { note: "Giao trong tuần" }) });
+    const submitted = await purchaser.call("post", `/purchasing/orders/${created.body.id}/submit`, { companyId: retail });
+    await decide(submitted.body.approvalRequestId, "approved");
+    let order = (await purchaser.call("get", `/purchasing/orders/${created.body.id}`, { companyId: retail })).body;
+    expect(order).toMatchObject({ status: "approved", canClose: true });
+    expect(order.lines[0]).toMatchObject({ receivableBaseQuantity: "240" });
+
+    // Giảm số lượng: vẫn đã duyệt.
+    const lineId = order.lines[0].id;
+    const decreased = await purchaser.call("patch", `/purchasing/orders/${order.id}`, { companyId: retail, body: orderBody([waterLine("8", "96000", { id: lineId })], { version: order.version }) });
+    expect(decreased.status, JSON.stringify(decreased.body)).toBe(200);
+    expect(decreased.body).toMatchObject({ status: "approved", totalAmount: "768000" });
+    // Tăng giá trị so với lần duyệt gần nhất: về chờ duyệt.
+    const increased = await purchaser.call("patch", `/purchasing/orders/${order.id}`, {
+      companyId: retail,
+      body: orderBody([waterLine("8", "96000", { id: lineId }), waterLine("3", "96000")], { version: decreased.body.version }),
+    });
+    expect(increased.body).toMatchObject({ status: "pending", totalAmount: "1056000" });
+    await decide(increased.body.approvalRequestId, "approved");
+    order = (await purchaser.call("get", `/purchasing/orders/${order.id}`, { companyId: retail })).body;
+    expect(order).toMatchObject({ status: "approved", documentNo: created.body.documentNo ?? submitted.body.documentNo });
+
+    // Đổi nhà cung cấp: về chờ duyệt dù giá trị không tăng.
+    const secondSupplier = (await retailAdmin.call("post", "/crm/partners", { companyId: retail, body: { kind: "organization", name: "Nhà cung cấp thứ hai", taxCode: "0310000003" } })).body.id;
+    await retailAdmin.call("put", `/crm/partners/${secondSupplier}/profile`, { companyId: retail, body: { isCustomer: false, isSupplier: true, paymentTermDays: 0, creditLimit: null, version: 0 } });
+    const switched = await purchaser.call("patch", `/purchasing/orders/${order.id}`, {
+      companyId: retail,
+      body: orderBody(
+        order.lines.map((line: { id: string; quantity: string }) => waterLine(line.quantity, "96000", { id: line.id })),
+        { supplierId: secondSupplier, version: order.version },
+      ),
+    });
+    expect(switched.body).toMatchObject({ status: "pending", supplierName: "Nhà cung cấp thứ hai" });
+    await decide(switched.body.approvalRequestId, "approved");
+    order = (await purchaser.call("get", `/purchasing/orders/${order.id}`, { companyId: retail })).body;
+
+    // Công ty khác không xem, không đóng được.
+    expect((await tradingPurchaser.call("get", `/purchasing/orders/${order.id}`, { companyId: trading })).status).toBe(404);
+    expect((await tradingPurchaser.call("get", "/purchasing/orders", { companyId: trading })).body.total).toBe(0);
+    expect((await tradingPurchaser.call("post", `/purchasing/orders/${order.id}/close`, { companyId: trading, body: { reason: "Thử", version: order.version } })).status).toBe(409);
+
+    const closed = await purchaser.call("post", `/purchasing/orders/${order.id}/close`, { companyId: retail, body: { reason: "Nhà cung cấp hết hàng", version: order.version } });
+    expect(closed.body).toMatchObject({ status: "closed", closedReason: "Nhà cung cấp hết hàng", canEdit: false, canClose: false });
+    expect(closed.body.lines[0].receivableBaseQuantity).toBe("0");
+    const audit = await pool.query("SELECT action FROM core.audit_events WHERE entity_id = $1 ORDER BY occurred_at", [order.id]);
+    expect(audit.rows.map((row: { action: string }) => row.action)).toEqual([
+      "purchase_order.create",
+      "purchase_order.submit",
+      "purchase_order.update",
+      "purchase_order.update",
+      "purchase_order.submit",
+      "purchase_order.update",
+      "purchase_order.submit",
+      "purchase_order.close",
+    ]);
+  });
+});

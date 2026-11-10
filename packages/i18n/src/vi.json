@@ -158,7 +158,11 @@
     "partnerInternalLocked": "Đối tác nội bộ lấy thông tin từ công ty, sửa ở màn hình Công ty.",
     "partnerIsSelf": "Không lập hồ sơ đối tác cho chính công ty đang chọn.",
     "supplierNotActive": "Nhà cung cấp chưa có hồ sơ nhà cung cấp đang dùng ở công ty.",
-    "supplierPriceOverlaps": "Đã có giá đang dùng cùng nhà cung cấp, mặt hàng, đơn vị, số lượng tối thiểu trùng thời gian hiệu lực."
+    "supplierPriceOverlaps": "Đã có giá đang dùng cùng nhà cung cấp, mặt hàng, đơn vị, số lượng tối thiểu trùng thời gian hiệu lực.",
+    "purchaseOrderHasOpenReceipts": "Đơn mua còn phiếu nhập nháp hoặc chờ kiểm tra, chưa đóng được.",
+    "purchaseLineHasReceipts": "Dòng đã có phiếu nhập, không bỏ hoặc đổi mặt hàng, đơn vị được.",
+    "purchaseQuantityBelowReceived": "Số lượng nhỏ hơn số đã nhận.",
+    "requisitionQuantityExceeded": "Vượt số lượng còn lại của dòng đề nghị mua."
   },
   "login": {
     "title": "Đăng nhập",
@@ -701,7 +705,9 @@
     "entity_partner": "Đối tác",
     "entity_partner_profile": "Hồ sơ đối tác",
     "entity_supplier_price": "Giá mua",
-    "entity_purchasing_settings": "Cài đặt mua hàng"
+    "entity_purchasing_settings": "Cài đặt mua hàng",
+    "entity_requisition": "Đề nghị mua",
+    "entity_purchase_order": "Đơn mua"
   },
   "auditActions": {
     "login": "Đăng nhập",
@@ -822,7 +828,15 @@
     "supplier_price_update": "Sửa giá mua",
     "supplier_price_deactivate": "Ngừng dùng giá mua",
     "supplier_price_activate": "Dùng lại giá mua",
-    "purchasing_settings_update": "Sửa cài đặt mua hàng"
+    "purchasing_settings_update": "Sửa cài đặt mua hàng",
+    "requisition_create": "Lập đề nghị mua",
+    "requisition_update": "Sửa đề nghị mua",
+    "requisition_submit": "Gửi đề nghị mua",
+    "requisition_close": "Đóng đề nghị mua",
+    "purchase_order_create": "Lập đơn mua",
+    "purchase_order_update": "Sửa đơn mua",
+    "purchase_order_submit": "Gửi đơn mua",
+    "purchase_order_close": "Đóng đơn mua"
   },
   "notifications": {
     "title": "Thông báo",

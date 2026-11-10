@@ -158,7 +158,11 @@
     "partnerInternalLocked": "Internal partners take their details from the company; edit them on the Companies screen.",
     "partnerIsSelf": "A company cannot have a partner profile for itself.",
     "supplierNotActive": "This partner has no active supplier profile in the company.",
-    "supplierPriceOverlaps": "An active price for the same supplier, item, unit and minimum quantity overlaps this validity period."
+    "supplierPriceOverlaps": "An active price for the same supplier, item, unit and minimum quantity overlaps this validity period.",
+    "purchaseOrderHasOpenReceipts": "The purchase order has draft or quality-check receipts and cannot be closed.",
+    "purchaseLineHasReceipts": "This line already has receipts; it cannot be removed or change item or unit.",
+    "purchaseQuantityBelowReceived": "The quantity is below the quantity already received.",
+    "requisitionQuantityExceeded": "The quantity exceeds what remains on the requisition line."
   },
   "login": {
     "title": "Sign in",
@@ -701,7 +705,9 @@
     "entity_partner": "Partner",
     "entity_partner_profile": "Partner profile",
     "entity_supplier_price": "Supplier price",
-    "entity_purchasing_settings": "Purchasing settings"
+    "entity_purchasing_settings": "Purchasing settings",
+    "entity_requisition": "Purchase requisition",
+    "entity_purchase_order": "Purchase order"
   },
   "auditActions": {
     "login": "Sign in",
@@ -822,7 +828,15 @@
     "supplier_price_update": "Edit supplier price",
     "supplier_price_deactivate": "Deactivate supplier price",
     "supplier_price_activate": "Reactivate supplier price",
-    "purchasing_settings_update": "Edit purchasing settings"
+    "purchasing_settings_update": "Edit purchasing settings",
+    "requisition_create": "Create requisition",
+    "requisition_update": "Edit requisition",
+    "requisition_submit": "Submit requisition",
+    "requisition_close": "Close requisition",
+    "purchase_order_create": "Create purchase order",
+    "purchase_order_update": "Edit purchase order",
+    "purchase_order_submit": "Submit purchase order",
+    "purchase_order_close": "Close purchase order"
   },
   "notifications": {
     "title": "Notifications",
