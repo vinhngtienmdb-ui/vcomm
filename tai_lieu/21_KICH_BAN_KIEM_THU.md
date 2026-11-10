@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử): đúng, sai, giá trị biên, từng vai trò.
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh): đúng, sai, giá trị biên, từng vai trò.
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2795,3 +2795,136 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
 - Kết quả thực hiện: Đạt 2026-11-10 các bước cài đặt, lưu; danh sách, chi tiết hóa đơn phát hành qua bộ giả lập; PDF; thẻ "Chờ xử lý trả hàng" lập hóa đơn điều chỉnh giảm. Bước 5 (thay thế) chưa chạy trên trình duyệt vì dữ liệu phát triển thiếu hàng tồn; đã kiểm bằng KICHBAN_KIEMTHU_230.
 - Lát: L0, L1, L2
+
+## CHUC_NANG_80, CHUC_NANG_81: Cài đặt hoa hồng, gán đơn (CONG_VIEC_17)
+
+### KICHBAN_KIEMTHU_234: Kiểm cài đặt, bậc, mức; chỉ tiêu; chỉ người có quyền cài đặt sửa được
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_127
+- Chức năng: CHUC_NANG_80
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Kế toán; Kế toán trưởng; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; công ty VCR chưa có cài đặt hoa hồng; ngành hàng "HHT"; kênh "Bán lẻ"; "Hàng công nợ A" giá gồm thuế 11.000, "Hàng hoa hồng B" giá gồm thuế 12.000, thuế 10%; khách "Khách công nợ".
+- Các bước: (1) Kế toán xem cài đặt; sửa cài đặt. (2) Nhân viên bán hàng xem cài đặt. (3) Kế toán trưởng lưu bật, không có ngày bắt đầu, một bậc từ 50%, hai mức "HHT" mọi kênh (5%, 6%), mức mặc định 101. (4) Như bước 3 với mức mặc định 2. (5) Lưu bật, ngày bắt đầu 2026-01-01, mức mặc định 2%, mức "HHT" kênh "Bán lẻ" 3%, "HHT" mọi kênh 5%. (6) Lưu lại với `version` 0. (7) Kế toán lưu chỉ tiêu tháng này của nhân viên bán hàng 100.000. (8) Kế toán trưởng lưu chỉ tiêu đó. (9) Kế toán trưởng lưu chỉ tiêu cho mã nhân viên không thuộc công ty.
+- Kết quả mong đợi: Bước 1: `200` với `enabled` `false`, `canSetup` `false`, `version` 0; sửa `403`. Bước 2: `403`. Bước 3: `400`. Bước 4: `400`, lỗi tại đúng `rates.1.categoryId`, `startDate`, `tiers`. Bước 5: `200`, `enabled` `true`, `defaultPercent` "2", `version` 1, 2 mức. Bước 6: `409`. Bước 7: `403`. Bước 8: `200`, chỉ tiêu của nhân viên bán hàng "100000". Bước 9: `400`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c17-commissions.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_235: Gán theo nhân viên phụ trách khách hoặc người lập đơn; khách không có người phụ trách thì không gán; đổi cài đặt không đổi đơn đã gán
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_128
+- Chức năng: CHUC_NANG_81
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Nhân viên bán hàng; Kế toán trưởng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_234 (cách gán nhân viên phụ trách khách); khách "Khách có người phụ trách" có nhân viên phụ trách là nhân viên bán hàng; "Khách công nợ" không có nhân viên phụ trách; chưa có chính sách duyệt đơn bán.
+- Các bước: (1) Nhân viên bán hàng lập, gửi đơn 1 cái A cho "Khách có người phụ trách" và một đơn cho "Khách công nợ"; đọc nhân viên hưởng của hai đơn. (2) Kế toán trưởng đổi cách gán sang "Người lập đơn"; nhân viên bán hàng lập, gửi đơn mới cho "Khách công nợ"; đọc lại đơn "Khách công nợ" ở bước 1. (3) Kế toán trưởng tắt hoa hồng; lập, gửi đơn mới.
+- Kết quả mong đợi: Bước 1: đơn của "Khách có người phụ trách" gán nhân viên bán hàng; đơn của "Khách công nợ" không gán. Bước 2: đơn mới gán người lập đơn (nhân viên bán hàng); đơn cũ vẫn không gán. Bước 3: đơn mới không gán.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c17-commissions.test.ts`
+- Lát: L0
+
+## CHUC_NANG_82: Phát sinh hoa hồng (CONG_VIEC_17)
+
+### KICHBAN_KIEMTHU_236: Thu tiền chia theo dòng, tiền chưa thuế, mức theo ngành hàng và kênh; trả hàng phần chưa thu không phát sinh; hoàn tiền ghi âm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_129
+- Chức năng: CHUC_NANG_82
+- Loại: Đúng, giá trị biên, phân quyền
+- Vai trò thực hiện: Nhân viên bán hàng; Thủ kho; Kế toán
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_235; quỹ tiền mặt "TM"; cài đặt bật, người lập đơn, bảng ngành hàng và kênh: "HHT" kênh "Bán lẻ" 3%, "HHT" mọi kênh 5%.
+- Các bước: (1) Lập, gửi đơn 10 cái A kênh "Bán lẻ" cho "Khách công nợ"; Thủ kho giao 4 cái (44.000); xem phát sinh của đơn. (2) Kế toán ghi sổ phiếu thu 22.000 trừ nợ phiếu xuất. (3) Thủ kho nhận lại 1 cái khi còn nợ. (4) Ghi sổ phiếu thu 11.000 trừ nợ phiếu xuất; nhận lại thêm 1 cái; ghi sổ phiếu chi hoàn tiền 11.000. (5) Nhân viên bán hàng xem phát sinh.
+- Kết quả mong đợi: Bước 1: chưa có phát sinh. Bước 2: một phát sinh "thu tiền", tiền chưa thuế 20.000, mức 3, hoa hồng 600. Bước 3: không thêm phát sinh. Bước 4: ba phát sinh: thu tiền 20.000 (600), thu tiền 10.000 (300), hoàn tiền -10.000 (-300). Bước 5: `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c17-commissions.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_237: Kênh nhân hệ số; thu trước giao sau; bán lẻ không có khách tính khi giao, trả hàng ghi âm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_129
+- Chức năng: CHUC_NANG_82
+- Loại: Đúng
+- Vai trò thực hiện: Kế toán trưởng; Nhân viên bán hàng; Thủ kho; Kế toán
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_236; cài đặt kênh nhân hệ số: "HHT" mọi kênh 5%, hệ số kênh "Bán lẻ" 0,5.
+- Các bước: (1) Lập, gửi đơn 1 cái A cho "Khách công nợ"; ghi sổ phiếu thu 11.000 không trừ nợ phiếu nào (trả trước); Thủ kho giao 1 cái. (2) Lập, gửi đơn 2 cái A không có khách (người mua "Khách lẻ"); giao 2 cái. (3) Nhận lại 1 cái của phiếu xuất bước 2.
+- Kết quả mong đợi: Bước 1: khoản trả trước tự trừ khi phiếu xuất ghi sổ; một phát sinh "thu tiền", tiền chưa thuế 10.000, mức 2,5, hoa hồng 250. Bước 2: một phát sinh "bán lẻ giao hàng", 20.000, mức 2,5, hoa hồng 500. Bước 3: thêm "bán lẻ trả hàng" hoa hồng -250.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c17-commissions.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_238: Mức theo ngành hàng cha gần nhất; hai cách kết hợp
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_129
+- Chức năng: CHUC_NANG_82
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Không áp dụng (hàm `commissionPercent`)
+- Điều kiện ban đầu và dữ liệu: Cài đặt trong bộ nhớ: ngành hàng "root" mức mọi kênh 4%, kênh "kenh-a" 6%; ngành hàng "child" con của "root"; ngành hàng "other" không có mức; mức mặc định 1%; hệ số kênh "kenh-b" 2.
+- Các bước: Kiểu bảng ngành hàng và kênh: (1) "child", "kenh-a"; (2) "child", "kenh-b"; (3) "other", "kenh-a". Kiểu kênh nhân hệ số: (4) "child", "kenh-b"; (5) "child", "kenh-a".
+- Kết quả mong đợi: Bước 1: 6. Bước 2: 4. Bước 3: 1. Bước 4: 8. Bước 5: 4.
+- Kiểm thử tự động: Tự động đơn vị – `apps/api/test/c17-commissions.test.ts`
+- Lát: L0
+
+## CHUC_NANG_83: Bảng hoa hồng tháng (CONG_VIEC_17)
+
+### KICHBAN_KIEMTHU_239: Lập lần lượt theo tháng; cơ sở, phần trăm đạt, hệ số; bỏ bảng nháp trả phát sinh; ghi sổ có bút toán chi phí, phải trả người lao động
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_130
+- Chức năng: CHUC_NANG_83
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Kế toán trưởng; Kế toán; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_238; Kế toán trưởng khởi tạo kế toán công ty VCR (Thông tư 99/2025); mọi phát sinh của các kịch bản trước dời về ngày 2026-09-15; bậc: từ 0% hệ số 0,5, từ 100% hệ số 1,2; chỉ tiêu tháng 9 của nhân viên bán hàng bằng nửa tổng tiền chưa thuế của phát sinh; chưa có chính sách duyệt `finance.commission`.
+- Các bước: (1) Kế toán xem danh sách bảng. (2) Lập bảng tháng 10/2026. (3) Nhân viên bán hàng lập bảng tháng 9. (4) Kế toán lập bảng tháng 9. (5) Lập lại bảng tháng 9. (6) Bỏ bảng nháp. (7) Lập lại bảng tháng 9; gửi. (8) Đọc bút toán nguồn `commission` của bảng; xem phát sinh.
+- Kết quả mong đợi: Bước 1: `nextMonth` "2026-09", `canCreate` `true`. Bước 2: `409`. Bước 3: `403`. Bước 4: `201`; một dòng của nhân viên bán hàng: cơ sở bằng tổng tiền chưa thuế, hoa hồng trước hệ số bằng tổng hoa hồng phát sinh, đạt 200, hệ số 1,2, hoa hồng bằng hoa hồng trước hệ số × 1,2 làm tròn. Bước 5: `409`. Bước 6: `200`; không còn phát sinh nào thuộc bảng. Bước 7: `201`, `posted`, số bắt đầu bằng `HH`. Bước 8: Nợ 6411, Có 334 bằng tổng bảng; mọi phát sinh ghi số bảng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c17-commissions.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_240: Phát sinh của tháng đã chốt về sau (hoàn tiền) vào bảng kỳ sau; tháng chưa kết thúc không lập; bị từ chối trả phát sinh, lập lại được; tổng âm đảo bên
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_130
+- Chức năng: CHUC_NANG_83
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Kế toán; quản trị công ty (lập chính sách duyệt); người duyệt
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_239; thêm một phát sinh hoàn tiền ngày 2026-09-20 (tiền chưa thuế -10.000, mức 3, hoa hồng -300) sau khi đã chốt tháng 9; chính sách duyệt `finance.commission` một cấp từ 0 (người duyệt chính, người thay thế); tháng 10 không có chỉ tiêu.
+- Các bước: (1) Xem danh sách bảng. (2) Lập bảng tháng 10; gửi. (3) Xem danh sách. (4) Người duyệt được giao từ chối; xử lý sự kiện outbox; xem bảng, phát sinh. (5) Lập lại bảng tháng 10, gửi; người duyệt duyệt; xử lý sự kiện outbox. (6) Đọc bút toán của bảng. (7) Xem danh sách; lập bảng tháng hiện tại.
+- Kết quả mong đợi: Bước 1: `nextMonth` "2026-10". Bước 2: tổng -300, 1 phát sinh; dòng cơ sở -10.000, trước hệ số -300, hệ số 1, hoa hồng -300; gửi: `pending`, `canWithdraw` `true`. Bước 3: `canCreate` `false`. Bước 4: `rejected`; phát sinh trả về chưa vào bảng. Bước 5: `posted`. Bước 6: Nợ 334 300, Có 6411 300. Bước 7: `nextMonth` `null`; lập `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c17-commissions.test.ts`
+- Lát: L1
+
+## CHUC_NANG_82: Phát sinh theo dòng đơn, sau rà soát (CONG_VIEC_17)
+
+### KICHBAN_KIEMTHU_241: Trả hết một dòng khi còn nợ, thu phần còn lại: chỉ dòng còn lại có hoa hồng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_129
+- Chức năng: CHUC_NANG_82
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Nhân viên bán hàng; Thủ kho; Kế toán
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_240.
+- Các bước: (1) Lập, gửi đơn 1 cái A, 1 cái B cho "Khách công nợ"; Thủ kho giao đủ hai dòng (23.000). (2) Nhận lại 1 cái A khi chưa thu (trừ vào nợ phiếu xuất). (3) Kế toán ghi sổ phiếu thu 12.000 trừ nợ phiếu xuất.
+- Kết quả mong đợi: Bước 3: một phát sinh "thu tiền" của dòng B, tiền chưa thuế 10.909; dòng A không có phát sinh.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c17-commissions.test.ts`
+- Lát: L0 (sửa sau rà soát)
+
+### KICHBAN_KIEMTHU_242: Một dòng đơn giao bằng hai dòng phiếu: hoa hồng tính đủ cả hai dòng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_129
+- Chức năng: CHUC_NANG_82
+- Loại: Giá trị biên
+- Vai trò thực hiện: Nhân viên bán hàng; Thủ kho; Kế toán
+- Điều kiện ban đầu và dữ liệu: Sau KICHBAN_KIEMTHU_241.
+- Các bước: (1) Lập, gửi đơn 5 cái A cho "Khách công nợ"; Thủ kho lập phiếu xuất hai dòng cùng dòng đơn (3 cái, 2 cái). (2) Ghi sổ phiếu xuất; ghi sổ phiếu thu 55.000 trừ nợ phiếu xuất.
+- Kết quả mong đợi: Bước 1: phiếu lập được; nếu phiếu không nhận hai dòng cùng dòng đơn thì `400` và kịch bản dừng (không có tình huống tách dòng). Bước 2: một phát sinh của dòng đơn, tiền chưa thuế 50.000.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c17-commissions.test.ts`
+- Lát: L0 (sửa sau rà soát)
+
+## Kịch bản thủ công của hoa hồng đội kinh doanh (CONG_VIEC_17)
+
+### KICHBAN_KIEMTHU_243: Cài đặt, chỉ tiêu, phát sinh, bảng hoa hồng trên trình duyệt (máy tính)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_131, TIEUCHI_NGHIEMTHU_127, TIEUCHI_NGHIEMTHU_129, TIEUCHI_NGHIEMTHU_130
+- Chức năng: CHUC_NANG_80, CHUC_NANG_82, CHUC_NANG_83
+- Loại: Đúng, giao diện
+- Vai trò thực hiện: Người có cả ba quyền hoa hồng (Kế toán trưởng hoặc quản trị công ty)
+- Điều kiện ban đầu và dữ liệu: Môi trường phát triển (không phải môi trường thật); mini app Nền tảng, Tài chính – Kế toán, backend đang chạy; dữ liệu phát triển có phát sinh hoa hồng tháng 10/2026; chưa có chính sách duyệt `finance.commission`.
+- Các bước: (1) Mở "Cài đặt hoa hồng"; bật, ngày bắt đầu, mức mặc định; thêm một mức theo ngành hàng; thêm một bậc; bấm "Lưu". (2) Mở thẻ "Chỉ tiêu", nhập chỉ tiêu một nhân viên, bấm "Lưu". (3) Mở "Hoa hồng", thẻ "Phát sinh". (4) Thẻ "Bảng hoa hồng", bấm "Lập bảng tháng 10/2026". (5) Bấm "Gửi".
+- Kết quả mong đợi: Bước 1: "Đã lưu cài đặt hoa hồng."; mức, bậc giữ sau khi tải lại. Bước 2: "Đã lưu chỉ tiêu.". Bước 3: bảng phát sinh có ngày, nhân viên, nguồn kèm số chứng từ, đơn, mặt hàng, số tiền. Bước 4: "Đã lập bảng hoa hồng tháng 10/2026.", chi tiết theo nhân viên. Bước 5: "Đã ghi sổ bảng hoa hồng.", trạng thái "Đã ghi sổ", có số `HH…`.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Kết quả thực hiện: Đạt 2026-11-10: lưu cài đặt có mức và bậc; lưu chỉ tiêu; thẻ "Phát sinh"; lập bảng tháng 10/2026; gửi chuyển "Đã ghi sổ" ngay vì dữ liệu phát triển chưa có chính sách duyệt.
+- Lát: L0, L1
+
+### KICHBAN_KIEMTHU_244: Hoa hồng, cài đặt hoa hồng trên điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_131
+- Chức năng: CHUC_NANG_80, CHUC_NANG_82, CHUC_NANG_83
+- Loại: Giao diện
+- Vai trò thực hiện: Như KICHBAN_KIEMTHU_243
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_243.
+- Các bước: (1) Mở trình duyệt chiều rộng 375 điểm ảnh; mở "Cài đặt hoa hồng" hai thẻ. (2) Mở "Hoa hồng" thẻ "Bảng hoa hồng", mở chi tiết bảng. (3) Mở thẻ "Phát sinh".
+- Kết quả mong đợi: Bước 1: ô biểu mẫu xếp dọc, dòng mức, bậc xuống dòng; không cuộn ngang. Bước 2: bảng chuyển thành thẻ, nhãn cột hiện đủ, nút bấm được; không cuộn ngang. Bước 3: bộ lọc xuống dòng, số tiền không xuống dòng; không cuộn ngang.
+- Kiểm thử tự động: Thủ công – kiểm tra trên trình duyệt
+- Kết quả thực hiện: Đạt 2026-11-10: chiều rộng điện thoại không cuộn ngang trên cả hai màn hình.
+- Lát: L0, L1

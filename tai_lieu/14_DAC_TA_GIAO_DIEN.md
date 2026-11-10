@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.3
+- Phiên bản: 2.4
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -17,6 +17,7 @@
 - Cập nhật CONG_VIEC_14 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 2, MAN_HINH_50 đến MAN_HINH_52 (mục 29 đến mục 31); menu mini app Tài chính – Kế toán thêm ba mục
 - Cập nhật CONG_VIEC_15 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 3, MAN_HINH_53 (mục 32 đến mục 34); menu mini app Tài chính – Kế toán thêm mục "Báo cáo tài chính"; sửa MAN_HINH_50 (ô, nhãn "Dài hạn")
 - Cập nhật CONG_VIEC_16 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 4, MAN_HINH_54, MAN_HINH_55 (mục 35 đến mục 37); menu mini app Tài chính – Kế toán thêm mục "Hóa đơn điện tử", "Cài đặt hóa đơn điện tử"
+- Cập nhật CONG_VIEC_17 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 5, MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40); menu mini app Tài chính – Kế toán thêm mục "Hoa hồng", "Cài đặt hoa hồng"
 
 ## MODULE_01 Nền tảng
 
@@ -1448,3 +1449,76 @@ flowchart TD
 - Quyền hiển thị: mục menu với `finance.einvoice.setup`; người có `finance.einvoice.view` mở đường dẫn thì chỉ xem; nút theo `canSetup` của API.
 - Responsive: ô biểu mẫu xếp dọc, dòng ký hiệu xuống dòng; không cuộn ngang.
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_16 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 5: Hoa hồng đội kinh doanh, CONG_VIEC_17)
+
+Cùng mini app `apps/web-finance` (mục 26).
+
+## 38. Danh sách màn hình và điều hướng (MODULE_06 phần 5)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_56 | Hoa hồng: bảng hoa hồng tháng, chi tiết bảng, phát sinh | CHUC_NANG_82, CHUC_NANG_83 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_17 mục 14) |
+| MAN_HINH_57 | Cài đặt hoa hồng: cài đặt, chỉ tiêu | CHUC_NANG_80 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_17 mục 14) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> H[MAN_HINH_56 Hoa hồng]
+    M --> C[MAN_HINH_57 Cài đặt hoa hồng]
+    H -->|Thẻ Bảng hoa hồng, Lập bảng tháng| B[Chi tiết bảng hoa hồng]
+    H -->|Thẻ Bảng hoa hồng, bấm tháng| B
+    B -->|Gửi, Rút| B
+    B -->|Bỏ bảng nháp, Đóng| H
+    H -->|Thẻ Phát sinh| P[Danh sách phát sinh]
+    C -->|Thẻ Chỉ tiêu| T[Chỉ tiêu tháng]
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Bút toán, Sổ sách, Báo cáo tài chính, Hệ thống tài khoản (`finance.ledger.view`); Hóa đơn điện tử (`finance.einvoice.view`); Cài đặt hóa đơn điện tử (`finance.einvoice.setup`); Hoa hồng (`finance.commission.view`); Cài đặt hoa hồng (`finance.commission.setup`).
+
+## 39. Bảng vai trò – màn hình (MODULE_06 phần 5)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_56 thẻ "Bảng hoa hồng", chi tiết | Xem, Lập bảng, Gửi, Bỏ bảng nháp, Rút (của mình) | Xem, Lập bảng, Gửi, Bỏ bảng nháp, Rút (của mình) | Xem, Lập bảng, Gửi, Bỏ bảng nháp, Rút (của mình) | Không |
+| MAN_HINH_56 thẻ "Phát sinh" | Xem | Xem | Xem | Không |
+| MAN_HINH_57 Cài đặt hoa hồng (cả hai thẻ) | Xem, Lưu | Xem, Lưu | Không có mục menu; mở đường dẫn thì chỉ xem | Không |
+
+## 40. Đặc tả từng màn hình (MODULE_06 phần 5)
+
+### MAN_HINH_56: Hoa hồng
+- Mục đích: Xem phát sinh hoa hồng; lập, gửi, rút, bỏ bảng hoa hồng tháng.
+- Chức năng thực hiện: CHUC_NANG_82, CHUC_NANG_83
+- Đường dẫn: `/finance/commissions`.
+- Bố cục: tiêu đề "Hoa hồng"; hai thẻ "Bảng hoa hồng" (mặc định), "Phát sinh".
+  - Thẻ "Bảng hoa hồng": chú thích "Tháng tiếp theo cần chốt: <tháng/năm>" hoặc "Chưa có tháng nào cần chốt."; nút "Lập bảng tháng <tháng/năm>" (khi lập được). Bảng: "Tháng" (nút mở chi tiết), "Số", "Trạng thái" (nhãn "Nháp", "Chờ duyệt", "Đã ghi sổ", "Bị từ chối", "Đã rút"; kèm lý do không ghi sổ được), "Tổng hoa hồng" (kèm tiền tệ).
+  - Chi tiết bảng (khối hiện trên danh sách trong cùng thẻ): tiêu đề "Bảng hoa hồng tháng <tháng/năm> (<số> phát sinh)"; nút "Gửi", "Bỏ bảng nháp" (bảng nháp), "Rút" (người lập, bảng chờ duyệt), "Đóng". Bảng: "Nhân viên", "Tiền chưa thuế", "Hoa hồng trước hệ số", "Chỉ tiêu" (không có: "Không có"), "Đạt" (phần trăm; không có chỉ tiêu: "—"), "Hệ số", "Hoa hồng". Dòng "Tổng hoa hồng: <số> <tiền tệ>".
+  - Thẻ "Phát sinh": bộ lọc "Từ ngày", "Đến ngày". Bảng: "Ngày", "Nhân viên", "Nguồn" ("Thu tiền", "Hoàn tiền trả hàng", "Bán lẻ giao hàng", "Bán lẻ trả hàng", kèm số chứng từ), "Đơn bán", "Mặt hàng", "Tiền chưa thuế", "Mức" (phần trăm), "Hoa hồng", "Bảng hoa hồng" (số bảng hoặc "Chưa vào bảng"); phân trang 50 dòng, tổng số dòng, nút trang trước, trang sau.
+- Dữ liệu hiển thị: bảng của công ty đang chọn, tháng mới nhất trước (tối đa 120 bảng); phát sinh ngày mới nhất trước; số âm với hoàn tiền, trả hàng; số định dạng theo tiếng Việt.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BoLoc, BangDuLieu, NhanTrangThai, The, ONhap, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_94.
+- Thao tác: "Lập bảng tháng" báo "Đã lập bảng hoa hồng tháng <tháng/năm>." và mở chi tiết; "Gửi" báo "Đã ghi sổ bảng hoa hồng." (chưa có chính sách duyệt) hoặc "Đã gửi duyệt bảng hoa hồng.", tải lại chi tiết và danh sách; "Bỏ bảng nháp" báo "Đã bỏ bảng nháp.", đóng chi tiết; "Rút" báo "Đã rút bảng hoa hồng."; đổi ngày lọc về trang 1.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; danh sách rỗng "Chưa có bảng hoa hồng.", "Chưa có phát sinh hoa hồng.".
+- Thông báo: lỗi lập bảng hiện dưới dòng tháng tiếp theo; lỗi gửi, rút, bỏ hiện trong khối chi tiết.
+- Quyền hiển thị: mục menu, màn hình với `finance.commission.view`; nút theo `canCreate`, `canManage`, `canWithdraw` của API.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; nút, bộ lọc xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Chưa có: ô lọc theo nhân viên (API có `userId`).
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_17 mục 14)
+
+### MAN_HINH_57: Cài đặt hoa hồng
+- Mục đích: Cài đặt chính sách hoa hồng đội kinh doanh của công ty; nhập chỉ tiêu tháng của nhân viên.
+- Chức năng thực hiện: CHUC_NANG_80
+- Đường dẫn: `/finance/commission-settings`.
+- Bố cục: tiêu đề "Cài đặt hoa hồng" kèm "Lịch sử"; hai thẻ "Cài đặt" (mặc định), "Chỉ tiêu".
+  - Thẻ "Cài đặt": người chỉ xem thấy "Bạn chỉ xem được cài đặt.", mọi ô bị khóa, không có nút thêm, bỏ, lưu. Ô chọn "Tính hoa hồng đội kinh doanh"; "Ngày bắt đầu"; "Đơn bán tính cho" ("Nhân viên phụ trách khách", "Người lập đơn"); "Kết hợp ngành hàng và kênh" ("Bảng ngành hàng và kênh", "Kênh nhân hệ số"); "Mức mặc định (%)". Khối "Mức theo ngành hàng" (chú thích theo cách kết hợp): mỗi dòng "Ngành hàng" ("Chọn ngành hàng"), "Kênh bán" (chỉ khi bảng ngành hàng và kênh; "Mọi kênh"), "Phần trăm", nút "Bỏ"; nút "Thêm mức". Khối "Hệ số kênh" (chỉ khi kênh nhân hệ số): mỗi dòng "Kênh bán" ("Chọn kênh"), "Hệ số", nút "Bỏ"; nút "Thêm hệ số kênh". Khối "Hệ số theo phần trăm đạt chỉ tiêu" (chú thích "Bậc đầu từ 0%. Nhân viên không có chỉ tiêu tháng thì hệ số 1."): mỗi dòng "Từ % đạt", "Hệ số", nút "Bỏ" (khi có hơn một bậc); nút "Thêm bậc". Nút "Lưu".
+  - Thẻ "Chỉ tiêu": "Tháng" (mặc định tháng hiện tại); chú thích "Để trống: không có chỉ tiêu (hệ số 1)."; bảng "Nhân viên", "Chỉ tiêu tiền thu chưa thuế" (ô nhập); nút "Lưu" (người có quyền cài đặt).
+- Dữ liệu hiển thị: cài đặt của công ty đang chọn; ngành hàng đang dùng của tập đoàn; kênh đang dùng của công ty; nhân viên đang làm việc của công ty theo họ tên.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, The, ONhap, OChon, BangDuLieu, Nut (tài liệu `15`).
+- API: API_93.
+- Thao tác: "Lưu" cài đặt gửi toàn bộ cài đặt kèm `version`, báo "Đã lưu cài đặt hoa hồng.", tải lại; "Lưu" chỉ tiêu báo "Đã lưu chỉ tiêu."; đổi tháng tải chỉ tiêu của tháng đó.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại".
+- Thông báo: lỗi tại từng trường (ngày bắt đầu, mức mặc định, ngành hàng, kênh, phần trăm, hệ số, bậc, chỉ tiêu) và cuối biểu mẫu.
+- Quyền hiển thị: mục menu với `finance.commission.setup`; người có `finance.commission.view` mở đường dẫn thì chỉ xem; nút theo `canSetup` của API.
+- Responsive: ô biểu mẫu xếp dọc, dòng mức, hệ số, bậc xuống dòng; bảng chỉ tiêu chuyển thành thẻ; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_17 mục 14)

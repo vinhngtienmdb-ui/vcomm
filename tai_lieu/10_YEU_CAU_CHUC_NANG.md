@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.4
+- Phiên bản: 2.5
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản
 
 ## MODULE_01 Nền tảng
 
@@ -1141,7 +1141,7 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 2:
 - Mục đích: Bút toán tự sinh ghi đúng tài khoản công ty muốn dùng.
 - Người sử dụng: Kế toán trưởng, quản trị công ty, quản trị tập đoàn; Kế toán (xem).
 - Điều kiện thực hiện: Xem: `finance.ledger.view` hoặc `finance.ledger.setup`. Đổi: `finance.ledger.setup`.
-- Dữ liệu đầu vào: Vai trò (một trong 18 vai trò ở đặc tả `cong_viec/CONG_VIEC_14.md` mục 8), tài khoản.
+- Dữ liệu đầu vào: Vai trò (một trong 20 vai trò: 18 vai trò ở đặc tả `cong_viec/CONG_VIEC_14.md` mục 8, `commission_expense`, `staff_payable` thêm ở CONG_VIEC_17), tài khoản.
 - Quy trình xử lý: Khởi tạo ghi tài khoản mặc định của chế độ cho mọi vai trò. Đổi: vai trò phải có trong danh mục; tài khoản thuộc công ty, đang dùng, không có con đang dùng; ghi người, thời điểm sửa (QUYTAC_NGHIEPVU_94). Bút toán sinh sau đó dùng tài khoản mới; bút toán cũ không đổi.
 - Kết quả đầu ra: Danh sách theo thứ tự vai trò: vai trò, mô tả, tài khoản (số hiệu, tên), được đổi hay không.
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_39
@@ -1320,6 +1320,78 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 4:
 | Bảo mật | Mật khẩu nhà cung cấp mã hóa AES-256-GCM, không trả về (4 ký tự cuối chỉ cho người có quyền cài đặt), không ghi nhật ký; mã truy cập MISA chỉ giữ trong bộ nhớ, theo công ty và thông tin kết nối; bộ giả lập không dùng ở môi trường thật (tài liệu `22`) |
 | Ranh giới module | Module `apps/api/src/einvoice` đăng ký móc nối `StockDocumentsService.postedHooks`; module Kho không phụ thuộc module hóa đơn; đọc `inventory`, `sales`, `crm`, `core`, hàm `finance.line_share`, `finance.inventory_amounts` |
 | Thư viện | Không thêm thư viện: HTTP bằng `fetch` của Node.js, PDF của bộ giả lập bằng `pdfmake` có sẵn (`apps/api/src/common/pdf.ts`), mã hóa bằng `common/secret-box`, tác vụ nền bằng BullMQ có sẵn |
+| Giao diện | Dùng được trên điện thoại |
+
+## MODULE_06 Tài chính – Kế toán (phần 5: Hoa hồng đội kinh doanh, CONG_VIEC_17)
+
+Quy ước chung cho mọi chức năng của MODULE_06 phần 5:
+- Quyền (tài liệu `08` mục 21, 22): API trước hết cần `finance.access` hoặc `finance.commission.view` ở công ty đang chọn; quyền chi tiết phải gán ở phạm vi tập đoàn hoặc công ty. Dữ liệu công ty khác trả `404`.
+- Ghi nhật ký thao tác: `commission_settings.update`, `commission_targets.update`, `commission_statement.create`, `commission_statement.submit`, `commission_statement.withdraw`, `commission_statement.discard`.
+- Tiền trả về dạng chuỗi, bỏ số 0 thừa; tiền tính làm tròn theo đơn vị tiền tệ công ty (`finance.company_minor_units`).
+
+### CHUC_NANG_80: Cài đặt hoa hồng của công ty; chỉ tiêu tháng
+- Mục đích: Mỗi công ty tự đặt chính sách hoa hồng đội kinh doanh và chỉ tiêu tháng của từng nhân viên.
+- Người sử dụng: Kế toán trưởng, quản trị công ty, quản trị tập đoàn (sửa); Kế toán (xem).
+- Điều kiện thực hiện: Xem: `finance.commission.view` hoặc `finance.commission.setup`. Sửa cài đặt, chỉ tiêu: `finance.commission.setup`.
+- Dữ liệu đầu vào: Cài đặt: bật; ngày bắt đầu; cách gán (`customer_owner`, `order_creator`); cách kết hợp (`matrix`, `channel_factor`); mức mặc định (0 đến 100, tối đa 4 chữ số lẻ); bậc (1 đến 20 dòng: từ phần trăm đạt tối đa 4 chữ số phần nguyên, 2 chữ số lẻ; hệ số 0 đến 10, tối đa 4 chữ số lẻ); mức (tối đa 2.000 dòng: ngành hàng, kênh hoặc mọi kênh, phần trăm); hệ số kênh (tối đa 200 dòng: kênh, hệ số); `version`. Chỉ tiêu: tháng `YYYY-MM`; tối đa 500 dòng (nhân viên, tiền tối đa 16 chữ số phần nguyên, 4 chữ số lẻ; trống là bỏ chỉ tiêu).
+- Quy trình xử lý: Kiểm theo QUYTAC_NGHIEPVU_108 (ngày bắt đầu khi bật; bậc sắp tăng dần, bậc đầu từ 0, không trùng; mức không trùng ngành hàng và kênh; ngành hàng tồn tại; kênh thuộc công ty), báo lỗi tại từng trường. Khóa cài đặt (`FOR UPDATE`), so `version`; lưu cài đặt, thay toàn bộ mức, hệ số kênh. Chỉ tiêu: nhân viên phải là thành viên đang làm việc của công ty; tiền trống thì xóa chỉ tiêu, có thì ghi đè.
+- Kết quả đầu ra: Cài đặt, bậc, mức, hệ số kênh, ngành hàng đang dùng (dùng chung tập đoàn), kênh đang dùng của công ty, `canSetup`, `version`. Chỉ tiêu: tháng, nhân viên đang làm việc của công ty (họ tên, chỉ tiêu), `canSetup`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_42
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_108
+- Trường hợp ngoại lệ: Chưa lưu cài đặt: xem trả giá trị mặc định (chưa bật, nhân viên phụ trách khách, bảng ngành hàng và kênh, mức mặc định 0, một bậc từ 0 hệ số 1, `version` 0).
+- Phân quyền: Không có `finance.commission.setup` sửa nhận 403; màn hình chỉ xem, không có nút "Lưu"; không thấy mục menu "Cài đặt hoa hồng".
+- Thông báo lỗi: "Vui lòng nhập thông tin này." · "Bậc đầu tiên phải bắt đầu từ 0%." · "Hai bậc trùng phần trăm bắt đầu." · "Ngành hàng và kênh này đã có mức." · "Giá trị không hợp lệ." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_127, TIEUCHI_NGHIEMTHU_131
+
+### CHUC_NANG_81: Gán nhân viên hưởng hoa hồng cho đơn bán
+- Mục đích: Đơn bán biết ai hưởng hoa hồng ngay khi gửi, không đổi về sau.
+- Người sử dụng: Nhân viên bán hàng (gửi đơn, gián tiếp).
+- Điều kiện thực hiện: Công ty đang bật; ngày đơn không trước ngày bắt đầu; đơn chưa có nhân viên hưởng.
+- Dữ liệu đầu vào: Đơn bán được gửi (API_77 `submit`).
+- Quy trình xử lý: Trong giao dịch gửi đơn, sau khi cấp số, hàm `assignCommissionUser` ghi `sales.orders.commission_user_id`: cách gán `order_creator` lấy người lập đơn; `customer_owner` lấy nhân viên phụ trách trong hồ sơ khách tại công ty (`crm.partner_profiles.owner_user_id`). Đơn đã gán giữ nguyên (QUYTAC_NGHIEPVU_109).
+- Kết quả đầu ra: Nhân viên hưởng lưu trên đơn bán; API đơn bán chưa trả trường này.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_42
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_109
+- Trường hợp ngoại lệ: Khách không có nhân viên phụ trách, đơn không có khách với cách gán nhân viên phụ trách khách: không gán. Công ty tắt hoặc ngày đơn trước ngày bắt đầu: không gán; gửi lại khi đủ điều kiện thì gán.
+- Phân quyền: Theo quyền gửi đơn bán (`sales.order.manage`); không cần quyền hoa hồng.
+- Thông báo lỗi: Không có.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_128
+
+### CHUC_NANG_82: Ghi phát sinh hoa hồng khi thu tiền; xem phát sinh
+- Mục đích: Hoa hồng tính tự động theo tiền đã thu của từng dòng đơn.
+- Người sử dụng: Kế toán (ghi sổ phiếu thu chi, gián tiếp); Thủ kho (ghi sổ phiếu kho, gián tiếp); Kế toán, Kế toán trưởng, quản trị (xem).
+- Điều kiện thực hiện: Ghi: công ty đang bật, đơn có nhân viên hưởng, ngày phát sinh không trước ngày bắt đầu. Xem: `finance.commission.view`.
+- Dữ liệu đầu vào: Lần trừ nợ phải thu; phiếu xuất giao hàng, phiếu nhận hàng trả lại đã ghi sổ. Xem: `userId`, `from`, `to`, `page`, `pageSize` (1 đến 100, mặc định 50).
+- Quy trình xử lý: `CommissionsService` đăng ký móc nối `DebtsService.allocatedHooks` (gọi trong cùng giao dịch sau mỗi lần ghi `finance.debt_allocations`) và `StockDocumentsService.postedHooks`. Trừ nợ khoản phải thu của phiếu xuất giao hàng bằng phiếu thu `customer_receipt`: nguồn `receipt`, dương. Trừ khoản giảm nợ của phiếu nhận hàng trả lại bằng phiếu chi: nguồn `refund`, âm. Phiếu kho của đơn không có khách: `retail_delivery` dương, `retail_return` âm. Tiền gồm thuế, chưa thuế của từng dòng đơn trên phiếu tính bằng `finance.line_share` theo lũy kế như công nợ, cộng các dòng phiếu cùng dòng đơn. Chia số tiền trừ nợ theo phần còn phải thu của từng dòng, quy về tiền chưa thuế (QUYTAC_NGHIEPVU_110). Mức tính bằng `commissionPercent` (ngành hàng của sản phẩm, ngành hàng cha gần nhất, hai cách kết hợp). Ghi `finance.commission_events`; trùng chứng từ nguồn và dòng đơn thì bỏ qua. Xem: lọc theo công ty, nhân viên, khoảng ngày phát sinh; số chứng từ nguồn là số phiếu thu chi (thu tiền, hoàn tiền) hoặc số phiếu kho (bán lẻ).
+- Kết quả đầu ra: Phát sinh theo dòng đơn. Danh sách (ngày, nhân viên, nguồn, số chứng từ nguồn, đơn, mặt hàng, tiền chưa thuế, phần trăm, hoa hồng, số bảng hoa hồng) theo ngày giảm dần, rồi thời điểm ghi giảm dần.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_42
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_108, QUYTAC_NGHIEPVU_110
+- Trường hợp ngoại lệ: Trả hàng trừ vào phần chưa thu: không phát sinh. Dòng đã thu đủ không nhận thêm. Sửa cài đặt không tính lại phát sinh đã ghi. Phiếu chi hoàn tiền trừ vào khoản giảm nợ cũ nhất (có thể là khoản trả trước, không phải phiếu trả hàng) thì không ghi phát sinh âm. Số dư đầu kỳ không phát sinh hoa hồng.
+- Phân quyền: Không có `finance.commission.view` xem nhận 403, không thấy mục menu "Hoa hồng". Ghi phát sinh không cần quyền hoa hồng.
+- Thông báo lỗi: "Giá trị không hợp lệ." (bộ lọc)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_129, TIEUCHI_NGHIEMTHU_131
+
+### CHUC_NANG_83: Bảng hoa hồng tháng
+- Mục đích: Chốt hoa hồng tháng đúng chính sách, có duyệt và bút toán.
+- Người sử dụng: Kế toán, Kế toán trưởng, quản trị (lập, bỏ, gửi, rút); người duyệt theo chính sách.
+- Điều kiện thực hiện: Xem: `finance.commission.view`. Lập, bỏ bảng nháp, gửi: `finance.commission.manage`. Rút: người lập, bảng chờ duyệt có yêu cầu duyệt.
+- Dữ liệu đầu vào: Lập: `month` (`YYYY-MM`). Gửi: `version`.
+- Quy trình xử lý: Danh sách: 120 bảng mới nhất, tháng tiếp theo (`nextMonth`, QUYTAC_NGHIEPVU_111), `canCreate` (có quyền, không có bảng nháp, chờ duyệt, có tháng tiếp theo). Lập: khóa cài đặt của công ty (`FOR UPDATE`) để hai người lập cùng lúc không trùng; kiểm không có bảng nháp, chờ duyệt, tháng bằng tháng tiếp theo; gắn phát sinh chưa vào bảng có ngày đến hết tháng; tính dòng theo nhân viên, tổng. Bỏ bảng nháp: xóa bảng, dòng; phát sinh trả về. Gửi: tạo dãy số `HH` nếu chưa có; khóa bảng, so `version`, kiểm nháp; cấp số; tạo yêu cầu duyệt (`submitWithin`; giá trị là trị tuyệt đối của tổng, tiền tệ công ty, ngày cuối tháng); chưa có chính sách thì ghi sổ ngay trong cùng giao dịch. Nghe `core.approval.completed` loại `finance.commission`: duyệt thì ghi sổ (lỗi quy tắc thì `rejected` kèm khóa thông báo); từ chối, rút thì trả phát sinh. Ghi sổ: công ty đã khởi tạo kế toán thì kiểm định khoản hai vai trò, lập bút toán bằng `commissionDraft` và `LedgerService.record` (QUYTAC_NGHIEPVU_112); khởi tạo kế toán về sau lập bút toán cho bảng đã ghi sổ.
+- Kết quả đầu ra: Bảng (tháng, số, trạng thái, tổng, lý do không ghi sổ được), dòng theo nhân viên (cơ sở, hoa hồng trước hệ số, chỉ tiêu, phần trăm đạt, hệ số, hoa hồng), số phát sinh, tiền tệ, `canManage`, `canWithdraw`, `version`; bút toán nguồn `commission`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_42
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_111, QUYTAC_NGHIEPVU_112
+- Trường hợp ngoại lệ: Tổng âm: bút toán đảo bên. Tháng đã khóa sổ: bút toán ngày sau ngày khóa sổ. Công ty chưa khởi tạo kế toán: ghi sổ không có bút toán đến khi khởi tạo.
+- Phân quyền: Không có `finance.commission.manage` lập, bỏ, gửi, rút nhận 403, không thấy nút "Lập bảng tháng …", "Gửi", "Bỏ bảng nháp"; rút bảng của người khác nhận 403, không thấy nút "Rút".
+- Thông báo lỗi: "Đang có bảng hoa hồng nháp hoặc chờ duyệt; xử lý bảng đó trước." · "Chỉ lập được bảng của tháng tiếp theo đã kết thúc." · "Chỉ sửa được chứng từ đang ở trạng thái nháp." · "Chưa có định khoản cho chi phí hoa hồng hoặc phải trả người lao động; kế toán trưởng khai ở Hệ thống tài khoản." · "Bạn không có quyền thực hiện thao tác này." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_130, TIEUCHI_NGHIEMTHU_131
+
+## Yêu cầu phi chức năng của MODULE_06 (phần 5)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Toàn vẹn | Phát sinh ghi trong cùng giao dịch trừ nợ, ghi sổ phiếu kho; chỉ mục duy nhất (nguồn, chứng từ nguồn, dòng đơn) chống ghi trùng; phát sinh vào nhiều nhất một bảng; mỗi tháng một bảng đang dùng (chỉ mục duy nhất có điều kiện); bảng đã ghi sổ không sửa |
+| Ranh giới module | Module `apps/api/src/commission` đăng ký móc nối `DebtsService.allocatedHooks`, `StockDocumentsService.postedHooks`; module Công nợ, Kho không phụ thuộc module hoa hồng; module Bán hàng gọi hàm dùng chung `assignCommissionUser` (`commission-rules.ts`, không phụ thuộc dịch vụ khác); bút toán qua `commissionDraft`, `LedgerService.record` |
+| Thư viện | Không thêm thư viện |
 | Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09

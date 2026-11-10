@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 2.3
+- Phiên bản: 2.4
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm YCAU_NGHIEPVU_38 của MODULE_06 (công nợ phải thu, phải trả), đối tượng quỹ, khoản công nợ, trừ nợ, phiếu thu chi; CONG_VIEC_14 (2026-11-10): thêm YCAU_NGHIEPVU_39 của MODULE_06 (kế toán tổng hợp), đối tượng tài khoản kế toán, định khoản mặc định, bút toán, cài đặt kế toán; CONG_VIEC_15 (2026-11-10): thêm YCAU_NGHIEPVU_40 của MODULE_06 (báo cáo tài chính), đối tượng báo cáo tài chính; tài khoản kế toán thêm thuộc tính dài hạn; CONG_VIEC_16 (2026-11-10): thêm YCAU_NGHIEPVU_41 của MODULE_06 (hóa đơn điện tử), đối tượng cài đặt hóa đơn điện tử, ký hiệu hóa đơn, hóa đơn điện tử, lần gửi hóa đơn, việc chờ xử lý hóa đơn trả hàng
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm YCAU_NGHIEPVU_38 của MODULE_06 (công nợ phải thu, phải trả), đối tượng quỹ, khoản công nợ, trừ nợ, phiếu thu chi; CONG_VIEC_14 (2026-11-10): thêm YCAU_NGHIEPVU_39 của MODULE_06 (kế toán tổng hợp), đối tượng tài khoản kế toán, định khoản mặc định, bút toán, cài đặt kế toán; CONG_VIEC_15 (2026-11-10): thêm YCAU_NGHIEPVU_40 của MODULE_06 (báo cáo tài chính), đối tượng báo cáo tài chính; tài khoản kế toán thêm thuộc tính dài hạn; CONG_VIEC_16 (2026-11-10): thêm YCAU_NGHIEPVU_41 của MODULE_06 (hóa đơn điện tử), đối tượng cài đặt hóa đơn điện tử, ký hiệu hóa đơn, hóa đơn điện tử, lần gửi hóa đơn, việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm YCAU_NGHIEPVU_42 của MODULE_06 (hoa hồng đội kinh doanh), đối tượng cài đặt hoa hồng, chỉ tiêu hoa hồng, phát sinh hoa hồng, bảng hoa hồng; đơn bán thêm nhân viên hưởng hoa hồng
 
 ## MODULE_01 Nền tảng
 
@@ -107,6 +107,12 @@
 |---|---|---|---|
 | YCAU_NGHIEPVU_41 | Lập, gửi hóa đơn điện tử cho mỗi lần giao hàng theo cài đặt của từng công ty; xử lý hóa đơn khi trả hàng, khi sai thông tin người mua | Kế toán, Kế toán trưởng | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`); THAY_DOI_11; Nghị định 254/2026/NĐ-CP; Thông tư 91/2026/TT-BTC |
 
+## MODULE_06 Tài chính – Kế toán (phần 5: Hoa hồng đội kinh doanh, CONG_VIEC_17)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_42 | Tính, chốt, hạch toán hoa hồng đội kinh doanh theo tiền đã thu, theo chính sách của từng công ty | Kế toán, Kế toán trưởng, Nhân viên kinh doanh | Tài liệu `04` mục 6; tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`) |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -180,3 +186,8 @@
 | Hóa đơn điện tử | Loại (gốc, điều chỉnh, thay thế), mã tham chiếu duy nhất, nhà cung cấp, ngày, ký hiệu mẫu số, ký hiệu, số, có mã hay không, mã của cơ quan thuế, mã giao dịch nhà cung cấp, người bán, người mua (lưu cố định khi lập), tiền tệ, tiền chưa thuế, tiền thuế, tổng thanh toán, ghi chú, trạng thái (chờ gửi, chờ gửi lại, chờ cấp mã, đã phát hành, lỗi, bị từ chối, lỗi cài đặt), lỗi gần nhất, số lần gửi, giờ gửi lại, hạn gửi, đã báo quá hạn, thời điểm phát hành, tệp PDF, XML; các dòng (tên hàng, đơn vị tính, số lượng, đơn giá chưa thuế, thuế suất, tiền chưa thuế, tiền thuế, tiền gồm thuế, hàng khuyến mại) | Thuộc công ty; nguồn là một phiếu kho (phiếu xuất giao hàng với hóa đơn gốc, thay thế; phiếu nhận hàng trả lại với hóa đơn điều chỉnh); hóa đơn điều chỉnh, thay thế tham chiếu một hóa đơn liên quan; hóa đơn bị thay thế trỏ tới hóa đơn thay thế |
 | Lần gửi hóa đơn | Thao tác (phát hành, tra trạng thái), thời điểm bắt đầu, kết thúc, kết quả, mã lỗi, thông báo | Thuộc một hóa đơn điện tử |
 | Việc chờ xử lý hóa đơn trả hàng | Phiếu nhận hàng trả lại, hóa đơn gốc, trạng thái (chờ xử lý, đã lập hóa đơn điều chỉnh, người mua lập hóa đơn trả hàng), hóa đơn điều chỉnh hoặc hóa đơn trả hàng của người mua (ký hiệu, số, ngày), người và thời điểm xử lý | Một việc cho mỗi phiếu nhận hàng trả lại mà phiếu xuất gốc có hóa đơn gốc |
+| Cài đặt hoa hồng | Bật, ngày bắt đầu, cách gán (nhân viên phụ trách khách, người lập đơn), cách kết hợp (bảng ngành hàng và kênh, kênh nhân hệ số), mức mặc định, bậc hệ số theo phần trăm đạt chỉ tiêu; mức theo ngành hàng (và kênh); hệ số kênh; người và thời điểm sửa | Một bản mỗi công ty; mức tham chiếu ngành hàng dùng chung tập đoàn, kênh của công ty |
+| Chỉ tiêu hoa hồng | Nhân viên, tháng, tiền thu chưa thuế | Mỗi công ty, nhân viên, tháng một chỉ tiêu |
+| Phát sinh hoa hồng | Nhân viên, đơn bán, dòng đơn, nguồn (thu tiền, hoàn tiền trả hàng, bán lẻ giao hàng, bán lẻ trả hàng), chứng từ nguồn (lần trừ nợ hoặc phiếu kho), phiếu xuất hoặc phiếu trả, ngày, tiền gồm thuế, tiền chưa thuế, phần trăm, hoa hồng (có dấu), bảng hoa hồng | Thuộc công ty; mỗi chứng từ nguồn một phát sinh cho mỗi dòng đơn; vào nhiều nhất một bảng hoa hồng |
+| Bảng hoa hồng | Tháng, số (`HH`…), trạng thái (nháp, chờ duyệt, đã ghi sổ, bị từ chối, đã rút), tổng hoa hồng, lý do không ghi sổ được, người lập; các dòng theo nhân viên (cơ sở, hoa hồng trước hệ số, chỉ tiêu, phần trăm đạt, hệ số, hoa hồng) | Thuộc công ty; mỗi tháng một bảng đang dùng; có một yêu cầu duyệt khi gửi; ghi sổ sinh một bút toán |
+| Đơn bán (bổ sung) | Nhân viên hưởng hoa hồng | Gán khi gửi đơn (CONG_VIEC_17) |

@@ -1,12 +1,12 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Hợp đồng API: endpoint, phương thức, dữ liệu gửi lên, dữ liệu trả về, xác thực, phân quyền, kiểm tra dữ liệu, lỗi, phân trang.
-- Phiên bản: 2.2
+- Phiên bản: 2.3
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79; CONG_VIEC_12 (2026-11-10): thêm API_83 khuyến mãi (mục 2g, 3g); bổ sung API_77; CONG_VIEC_13 (2026-11-10): thêm API_84 đến API_86 của MODULE_06 phần 1 (mục 2h, 3h); sửa API_77 kiểm hạn mức theo dư nợ thật; CONG_VIEC_14 (2026-11-10): thêm API_87 đến API_89 của MODULE_06 phần 2 (mục 2i, 3i); bổ sung API_20 (từ chối đổi chế độ kế toán khi đã có bút toán); ghi sổ chứng từ kiểm kỳ khóa sổ; CONG_VIEC_15 (2026-11-10): thêm API_90 báo cáo tài chính của MODULE_06 phần 3 (mục 2j, 3j); bổ sung API_87 (`isLongTerm`); CONG_VIEC_16 (2026-11-10): thêm API_91, API_92 hóa đơn điện tử của MODULE_06 phần 4 (mục 2k, 3k); bổ sung ghi sổ phiếu xuất giao hàng, phiếu nhận hàng trả lại (API_65)
+- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79; CONG_VIEC_12 (2026-11-10): thêm API_83 khuyến mãi (mục 2g, 3g); bổ sung API_77; CONG_VIEC_13 (2026-11-10): thêm API_84 đến API_86 của MODULE_06 phần 1 (mục 2h, 3h); sửa API_77 kiểm hạn mức theo dư nợ thật; CONG_VIEC_14 (2026-11-10): thêm API_87 đến API_89 của MODULE_06 phần 2 (mục 2i, 3i); bổ sung API_20 (từ chối đổi chế độ kế toán khi đã có bút toán); ghi sổ chứng từ kiểm kỳ khóa sổ; CONG_VIEC_15 (2026-11-10): thêm API_90 báo cáo tài chính của MODULE_06 phần 3 (mục 2j, 3j); bổ sung API_87 (`isLongTerm`); CONG_VIEC_16 (2026-11-10): thêm API_91, API_92 hóa đơn điện tử của MODULE_06 phần 4 (mục 2k, 3k); bổ sung ghi sổ phiếu xuất giao hàng, phiếu nhận hàng trả lại (API_65); CONG_VIEC_17 (2026-11-10): thêm API_93, API_94 hoa hồng đội kinh doanh của MODULE_06 phần 5 (mục 2l, 3l); bổ sung gửi đơn bán (API_77), ghi sổ phiếu thu chi, phiếu kho (API_65, API_86), vai trò định khoản (API_87)
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16).
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16); MODULE_06 phần 5 Hoa hồng đội kinh doanh (CONG_VIEC_17).
 
 ## 1. Quy ước chung
 
@@ -245,6 +245,17 @@ Mọi đường dẫn có tiền tố `/api/v1`. API_91, API_92 nằm trong `app
 | API_92 | `GET /finance/einvoice-settings`; `PUT /finance/einvoice-settings`; `POST /finance/einvoice-settings/test` | CHUC_NANG_76 | Xem: `finance.einvoice.view` hoặc `finance.einvoice.setup`. Sửa, kiểm tra kết nối: `finance.einvoice.setup` | Sửa: `UpdateEinvoiceSettingsRequest`. Kiểm tra: không có | `EinvoiceSettingsResponse`; `{ ok, message }` |
 
 Bổ sung API_65 (CONG_VIEC_16): ghi sổ phiếu xuất giao hàng (gửi phiếu, hoặc duyệt xong) của công ty đang bật hóa đơn điện tử, ngày phiếu không trước ngày bắt đầu, lập hóa đơn gốc `pending` (hoặc `setup_error`) trong cùng giao dịch; ghi sổ phiếu nhận hàng trả lại mà phiếu xuất gốc có hóa đơn gốc tạo việc chờ xử lý hóa đơn. Hợp đồng không đổi; lỗi nhà cung cấp không ảnh hưởng ghi sổ.
+
+## 2l. Danh sách endpoint hoa hồng đội kinh doanh (MODULE_06 phần 5, CONG_VIEC_17)
+
+Mọi đường dẫn có tiền tố `/api/v1`. API_93, API_94 nằm trong `apps/api/src/commission/commissions.controller.ts`: mọi endpoint trước hết cần `finance.access` hoặc `finance.commission.view` trong công ty đang làm việc (header `X-Company-Id`), không có thì `403 FORBIDDEN`. Quyền chi tiết kiểm trong service (`requireFinancePermission`): quyền phải gán ở phạm vi tập đoàn hoặc công ty đang làm việc. Dữ liệu công ty khác trả `404`. `POST` thành công trả `201`; `DELETE` trả `200`. Mã trong đường dẫn phải là UUID. Lỗi quy tắc nghiệp vụ trả `409 BUSINESS_RULE`.
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_93 | `GET`, `PUT /finance/commission-settings`; `GET /finance/commission-targets?month=`; `PUT /finance/commission-targets` | CHUC_NANG_80 | Xem: `finance.commission.view` hoặc `finance.commission.setup`. Sửa: `finance.commission.setup` | Cài đặt: `UpdateCommissionSettingsRequest`. Chỉ tiêu: `month`, `targets[]` (`userId`, `amount`) | `CommissionSettingsResponse`; `CommissionTargetsResponse` |
+| API_94 | `GET /finance/commissions/events?userId=&from=&to=&page=&pageSize=`; `GET`, `POST /finance/commissions/statements`; `GET /finance/commissions/statements/{id}`; `POST /finance/commissions/statements/{id}/submit`, `/withdraw`; `DELETE /finance/commissions/statements/{id}` | CHUC_NANG_82, CHUC_NANG_83 | Xem: `finance.commission.view`. Lập, gửi, rút, bỏ bảng nháp: `finance.commission.manage`; rút: người lập | Lập: `month`. Gửi: `version`. Rút, bỏ: không có | `PageResponse<CommissionEventItem>`; `CommissionStatementsResponse`; `CommissionStatementResponse` |
+
+Bổ sung (CONG_VIEC_17), hợp đồng không đổi: gửi đơn bán (API_77 `submit`) gán nhân viên hưởng hoa hồng trong cùng giao dịch, không trả trường này; ghi sổ phiếu thu chi (API_86), phiếu kho (API_65) ghi phát sinh hoa hồng trong cùng giao dịch trừ nợ; trừ nợ với số dư đầu kỳ (API_85) không phát sinh; ghi sổ phiếu kho của đơn không có khách ghi phát sinh bán lẻ.
 
 ## 3. Hợp đồng chi tiết
 
@@ -741,7 +752,7 @@ Gửi lên (`POST /finance/accounts`):
 ```json
 { "parentId": "01J...", "code": "1311", "name": "Phải thu khách hàng trong nước" }
 ```
-- Kiểm tra: `code` 3 đến 20 chữ số hoặc chữ cái; `name` 1 đến 200 ký tự; `status` `active`, `inactive`; `version` số nguyên dương; `accountId` là UUID; `role` thuộc 18 vai trò (khác thì `404`). Phía máy chủ: tài khoản cha thuộc công ty, đang dùng; `code` bắt đầu bằng số hiệu cha, dài hơn, chưa có trong công ty; tài khoản của định khoản đang dùng, không có con đang dùng.
+- Kiểm tra: `code` 3 đến 20 chữ số hoặc chữ cái; `name` 1 đến 200 ký tự; `status` `active`, `inactive`; `version` số nguyên dương; `accountId` là UUID; `role` thuộc 20 vai trò (18 vai trò của CONG_VIEC_14, `commission_expense`, `staff_payable` của CONG_VIEC_17; khác thì `404`). Phía máy chủ: tài khoản cha thuộc công ty, đang dùng; `code` bắt đầu bằng số hiệu cha, dài hơn, chưa có trong công ty; tài khoản của định khoản đang dùng, không có con đang dùng.
 - `GET /finance/ledger/setup` (`200`): `{ initialized, regime, regimeName, lockedThrough, canSetup }`; `regime` lấy từ công ty.
 - `POST /finance/ledger/setup` (`201`): khóa công ty; đã khởi tạo thì `409`; ghi `settings`, nạp tài khoản của chế độ, định khoản mặc định, tạo bút toán cho chứng từ đã ghi sổ (không kiểm khóa sổ); nhật ký `ledger.setup` (chế độ); trả trạng thái.
 - `GET /finance/accounts` (`200`): `{ id, code, name, parentId, nature, isSystem, status, postable, hasLines, version, canEdit }[]`, theo số hiệu.
@@ -834,6 +845,47 @@ Lược đồ, kiểu trong `packages/contracts/src/index.ts` (phần CONG_VIEC_
 - `POST /finance/einvoice-settings/test` (`201`): kiểm tra theo cài đặt đã lưu; `{ "ok": true, "message": null }` hoặc `{ "ok": false, "message": "einvoiceProviderAuthentication" }` (khóa thông báo hoặc mã lỗi của nhà cung cấp). Ghi nhật ký `einvoice_settings.test`.
 - Lỗi: `400 VALIDATION_FAILED`; `403`; `409 CONFLICT_VERSION`; `409 BUSINESS_RULE` `einvoiceNotConfigured` "Công ty chưa cài đặt hóa đơn điện tử.", `einvoiceProviderNotAvailable` "Nhà cung cấp hóa đơn điện tử chưa sẵn sàng hoặc đã đổi trong cài đặt." (kiểm tra kết nối).
 
+## 3l. Hợp đồng chi tiết hoa hồng đội kinh doanh (MODULE_06 phần 5, CONG_VIEC_17)
+
+Lược đồ, kiểu trong `packages/contracts/src/index.ts` (phần CONG_VIEC_17); trường thừa bị từ chối. Tiền, phần trăm, hệ số trả về dạng chuỗi, bỏ số 0 thừa. Ngày `YYYY-MM-DD`, tháng `YYYY-MM`. `status` của bảng: `draft` (Nháp), `pending` (Chờ duyệt), `posted` (Đã ghi sổ), `rejected` (Bị từ chối), `withdrawn` (Đã rút).
+
+### API_93 Cài đặt hoa hồng, chỉ tiêu
+- `GET /finance/commission-settings` (`200`), `CommissionSettingsResponse`:
+```json
+{ "enabled": true, "startDate": "2026-01-01", "assignment": "order_creator", "combination": "matrix", "defaultPercent": "2",
+  "tiers": [ { "fromPercent": "0", "multiplier": "0.5" }, { "fromPercent": "100", "multiplier": "1.2" } ],
+  "rates": [ { "categoryId": "…", "channelId": "…", "percent": "3" }, { "categoryId": "…", "channelId": null, "percent": "5" } ],
+  "channelFactors": [ { "channelId": "…", "factor": "0.5" } ],
+  "categories": [ { "id": "…", "parentId": null, "code": "HHT", "name": "HHT" } ], "channels": [ { "id": "…", "code": "BAN_LE", "name": "Bán lẻ" } ],
+  "canSetup": true, "version": 3 }
+```
+- Chưa lưu cài đặt: `enabled` `false`, `startDate` `null`, `assignment` `customer_owner`, `combination` `matrix`, `defaultPercent` `0`, `tiers` một bậc từ `0` hệ số `1`, `version` `0`. `categories`: ngành hàng đang dùng (dùng chung tập đoàn) theo mã; `channels`: kênh đang dùng của công ty theo mã.
+- `PUT /finance/commission-settings` (`200`), lược đồ `updateCommissionSettingsSchema`: `enabled`, `startDate` (ngày hoặc `null`), `assignment` (`customer_owner`, `order_creator`), `combination` (`matrix`, `channel_factor`), `defaultPercent` (chuỗi 0 đến 100, tối đa 3 chữ số phần nguyên, 4 chữ số lẻ), `tiers` (1 đến 20 dòng `{ fromPercent, multiplier }`: `fromPercent` tối đa 4 chữ số phần nguyên, 2 chữ số lẻ; `multiplier` 0 đến 10, tối đa 4 chữ số lẻ), `rates` (tối đa 2.000 dòng `{ categoryId, channelId (UUID hoặc null), percent }`, mặc định rỗng), `channelFactors` (tối đa 200 dòng `{ channelId, factor }`, mặc định rỗng), `version`. Phía máy chủ: `400 VALIDATION_FAILED` tại `startDate` (`required` khi bật), `tiers` (`commissionTierStart` khi bậc nhỏ nhất khác 0, `commissionTierDuplicate`), `rates.<i>.categoryId` (`commissionRateDuplicate` khi trùng ngành hàng và kênh; `invalidValue` khi ngành hàng không tồn tại), `rates.<i>.channelId`, `channelFactors.<i>.channelId` (`invalidValue` khi kênh không thuộc công ty). Bậc lưu theo thứ tự tăng dần. Lưu xong thay toàn bộ mức, hệ số kênh; trả `CommissionSettingsResponse`. Ghi nhật ký `commission_settings.update`.
+- `GET /finance/commission-targets?month=2026-09` (`200`), lược đồ `commissionTargetsQuerySchema` (`month` bắt buộc): `{ "month": "2026-09", "staff": [ { "userId": "…", "fullName": "…", "amount": "100000" } ], "canSetup": true }`; `staff` là nhân viên đang làm việc của công ty theo họ tên, `amount` `null` khi không có chỉ tiêu. Quyền như xem cài đặt.
+- `PUT /finance/commission-targets` (`200`), lược đồ `saveCommissionTargetsSchema`: `month`, `targets` (tối đa 500 dòng `{ userId, amount }`; `amount` tối đa 16 chữ số phần nguyên, 4 chữ số lẻ, `null` là xóa chỉ tiêu). Phía máy chủ: `400` tại `targets.<i>.userId` (không phải thành viên đang làm việc của công ty), `targets.<i>.amount` (không lớn hơn 0). Trả `CommissionTargetsResponse`. Ghi nhật ký `commission_targets.update`.
+- Lỗi: `400 VALIDATION_FAILED` tại trường ("Vui lòng nhập thông tin này.", "Giá trị không hợp lệ.", "Bậc đầu tiên phải bắt đầu từ 0%.", "Hai bậc trùng phần trăm bắt đầu.", "Ngành hàng và kênh này đã có mức."); `403`; `409 CONFLICT_VERSION` (cài đặt).
+
+### API_94 Phát sinh, bảng hoa hồng
+- `GET /finance/commissions/events` (`200`), lược đồ `commissionEventsQuerySchema`: `userId`, `from`, `to` (ngày phát sinh), `page` (từ 1, mặc định 1), `pageSize` (1 đến 100, mặc định 50). Trả `{ data: CommissionEventItem[], page, pageSize, total }`, theo ngày phát sinh giảm dần, rồi thời điểm ghi giảm dần:
+```json
+{ "id": "…", "eventDate": "2026-11-10", "userId": "…", "userName": "…", "sourceType": "receipt", "sourceNo": "PT…", "orderId": "…", "orderNo": "DBH…",
+  "itemName": "Hàng công nợ A", "baseAmount": "20000", "percent": "3", "amount": "600", "statementNo": null }
+```
+- `sourceType`: `receipt` (thu tiền), `refund` (hoàn tiền trả hàng), `retail_delivery`, `retail_return` (đơn không có khách). `sourceNo`: số phiếu thu chi với `receipt`, `refund`; số phiếu kho với bán lẻ. `baseAmount`, `amount` âm với hoàn tiền, trả hàng. `statementNo`: số bảng hoa hồng chứa phát sinh, `null` khi chưa vào bảng hoặc bảng chưa có số.
+- `GET /finance/commissions/statements` (`200`), `CommissionStatementsResponse`:
+```json
+{ "statements": [ { "id": "…", "month": "2026-09", "documentNo": "HH…", "status": "posted", "totalAmount": "1500", "postError": null } ],
+  "nextMonth": "2026-10", "canCreate": true, "canManage": true, "currency": "VND" }
+```
+- `statements`: 120 bảng mới nhất theo tháng giảm dần. `nextMonth`: tháng lập được (QUYTAC_NGHIEPVU_111), `null` khi đang có bảng `draft`, `pending` hoặc không có tháng đã kết thúc có phát sinh chưa vào bảng. `canCreate`: có `finance.commission.manage`, không có bảng `draft`, `pending`, có `nextMonth`. `postError`: khóa thông báo khi duyệt xong không ghi sổ được.
+- `POST /finance/commissions/statements` (`201`), lược đồ `createCommissionStatementSchema`: `{ "month": "2026-09" }`. Khóa cài đặt của công ty; gắn phát sinh chưa vào bảng có ngày đến hết tháng; tính dòng theo nhân viên; trả `CommissionStatementResponse` của bảng `draft`. Ghi nhật ký `commission_statement.create`.
+- `GET /finance/commissions/statements/{id}` (`200`), `CommissionStatementResponse`: các trường của dòng danh sách và `lines[]` (`{ userId, fullName, baseAmount, commissionBefore, targetAmount, achievedPercent, multiplier, amount }`, `targetAmount`, `achievedPercent` `null` khi không có chỉ tiêu; theo họ tên), `eventCount`, `currency`, `canManage`, `canWithdraw` (bảng `pending` có yêu cầu duyệt, người gọi là người lập), `version`.
+- `POST /finance/commissions/statements/{id}/submit` (`201`): `{ "version": 0 }`. Tạo dãy số `HH` nếu công ty chưa có (đặt lại theo năm, 6 chữ số); cấp số; tạo yêu cầu duyệt loại `finance.commission` (giá trị là trị tuyệt đối của `totalAmount`, tiền tệ công ty, ngày chứng từ là ngày cuối tháng); chuyển `pending`. Chưa có chính sách duyệt thì ghi sổ ngay, trả `posted`. Ghi sổ: công ty đã khởi tạo kế toán thì lập bút toán `commission` (QUYTAC_NGHIEPVU_112). Ghi nhật ký `commission_statement.submit`.
+- `POST /finance/commissions/statements/{id}/withdraw` (`201`): không có thân. Chỉ người lập, bảng `pending` có yêu cầu duyệt (khác thì `403`); rút yêu cầu duyệt, chuyển `withdrawn`, trả phát sinh về chưa vào bảng; trả `CommissionStatementResponse`. Ghi nhật ký `commission_statement.withdraw`.
+- `DELETE /finance/commissions/statements/{id}` (`200`): chỉ bảng `draft` của công ty (khác hoặc không tồn tại thì `409 BUSINESS_RULE` `documentNotDraft`); xóa bảng, dòng; phát sinh trả về chưa vào bảng; trả `CommissionStatementsResponse`. Ghi nhật ký `commission_statement.discard`.
+- Duyệt xong (nghe `core.approval.completed`): ghi sổ, chuyển `posted`; lỗi quy tắc khi ghi sổ thì `rejected` kèm `postError`, trả phát sinh. Từ chối, rút: `rejected`, `withdrawn`, trả phát sinh.
+- Lỗi: `400 VALIDATION_FAILED` (`month` sai định dạng, `version`, bộ lọc); `403`; `404` (bảng của công ty khác, không tồn tại; trừ `DELETE`); `409 CONFLICT_VERSION`; `409 BUSINESS_RULE` với khóa thông báo: `commissionStatementOpen` "Đang có bảng hoa hồng nháp hoặc chờ duyệt; xử lý bảng đó trước.", `commissionMonthNotNext` "Chỉ lập được bảng của tháng tiếp theo đã kết thúc.", `documentNotDraft` "Chỉ sửa được chứng từ đang ở trạng thái nháp." (gửi, bỏ bảng không phải nháp), `postingRuleMissing` "Chưa có định khoản cho chi phí hoa hồng hoặc phải trả người lao động; kế toán trưởng khai ở Hệ thống tài khoản."; lỗi luồng duyệt như chứng từ khác.
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |
@@ -867,3 +919,5 @@ MODULE_06 phần 2 (CONG_VIEC_14) không phát sự kiện mới; mini app Tài 
 MODULE_06 phần 3 (CONG_VIEC_15) không phát, không nghe sự kiện; API_90 chỉ đọc.
 
 MODULE_06 phần 4 (CONG_VIEC_16) không phát, không nghe sự kiện outbox. Hóa đơn gốc lập và việc chờ trả hàng tạo qua móc nối `postedHooks` trong giao dịch ghi sổ phiếu kho; gửi nhà cung cấp chạy bằng tác vụ nền `einvoice-send`, báo quá hạn bằng `einvoice-overdue` (thông báo `einvoice_overdue`), cả hai trên hàng đợi BullMQ riêng `hoa-don-dien-tu`.
+
+MODULE_06 phần 5 (CONG_VIEC_17) không phát sự kiện mới; mini app Tài chính – Kế toán nghe `core.approval.completed` của loại chứng từ `finance.commission` để ghi sổ bảng hoa hồng duyệt xong (không ghi sổ được thì `rejected` kèm `postError`), chuyển `rejected`, `withdrawn` (API_94). Phát sinh hoa hồng không qua sự kiện mà qua móc nối `allocatedHooks` trong giao dịch trừ nợ và `postedHooks` trong giao dịch ghi sổ phiếu kho; gán nhân viên hưởng trong giao dịch gửi đơn bán.

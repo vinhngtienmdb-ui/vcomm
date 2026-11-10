@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.7
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng
 
 ## MODULE_01 Nền tảng
 
@@ -447,3 +447,40 @@ Trạng thái việc chờ xử lý hóa đơn trả hàng:
 |---|---|---|
 | Chờ xử lý (`open`) | Lập hóa đơn điều chỉnh giảm | Đã lập hóa đơn điều chỉnh (`adjusted`) |
 | Chờ xử lý | Ghi hóa đơn trả hàng của người mua | Người mua lập hóa đơn trả hàng (`buyer_invoice`) |
+
+## MODULE_06 Tài chính – Kế toán (phần 5: Hoa hồng đội kinh doanh, CONG_VIEC_17)
+
+### Luồng 29. Gán nhân viên hưởng, ghi phát sinh, chốt bảng hoa hồng tháng
+
+- Bắt đầu: Kế toán trưởng đã lưu cài đặt hoa hồng của công ty ("Cài đặt hoa hồng" thẻ "Cài đặt": bật, ngày bắt đầu, cách gán, cách kết hợp, mức mặc định, mức theo ngành hàng, hệ số kênh, bậc hệ số) và chỉ tiêu tháng (thẻ "Chỉ tiêu") (QUYTAC_NGHIEPVU_108).
+- Các bước:
+  1. Nhân viên bán hàng gửi đơn bán. Hệ thống gán nhân viên hưởng hoa hồng theo cách gán (QUYTAC_NGHIEPVU_109).
+  2. Thủ kho ghi sổ phiếu xuất giao hàng. Đơn không có khách: ghi phát sinh ngay theo các dòng đơn của phiếu. Khách đã trả trước: khoản trả trước tự trừ vào khoản phải thu mới, ghi phát sinh (QUYTAC_NGHIEPVU_110).
+  3. Kế toán ghi sổ phiếu thu khách hàng trừ nợ phiếu xuất; mỗi lần trừ nợ ghi phát sinh theo dòng đơn, chia theo phần còn phải thu của từng dòng.
+  4. Khách trả hàng đã thanh toán, kế toán ghi sổ phiếu chi hoàn tiền: phát sinh âm. Trả hàng trừ vào phần chưa thu: không phát sinh.
+  5. Kế toán xem thẻ "Phát sinh" của "Hoa hồng".
+  6. Sau khi tháng kết thúc, kế toán mở thẻ "Bảng hoa hồng", bấm "Lập bảng tháng <tháng>": bảng nháp gom phát sinh chưa vào bảng có ngày đến hết tháng, tính theo nhân viên (QUYTAC_NGHIEPVU_111).
+  7. Kế toán mở bảng, bấm "Gửi": cấp số `HH…`, gửi duyệt; chưa có chính sách duyệt thì ghi sổ ngay (QUYTAC_NGHIEPVU_112).
+  8. Người duyệt duyệt: bảng ghi sổ, lập bút toán Nợ chi phí hoa hồng / Có phải trả người lao động.
+- Ngoại lệ:
+  - Bảng nháp chưa đúng: bấm "Bỏ bảng nháp", phát sinh trả về, lập lại.
+  - Bị từ chối, người lập rút: phát sinh trả về, lập lại bảng tháng đó.
+  - Đang có bảng nháp hoặc chờ duyệt: "Đang có bảng hoa hồng nháp hoặc chờ duyệt; xử lý bảng đó trước."; tháng chưa kết thúc hoặc không phải tháng tiếp theo: "Chỉ lập được bảng của tháng tiếp theo đã kết thúc.".
+  - Thiếu định khoản `commission_expense` hoặc `staff_payable`: gửi báo "Chưa có định khoản cho chi phí hoa hồng hoặc phải trả người lao động; kế toán trưởng khai ở Hệ thống tài khoản."; nếu xảy ra khi duyệt xong thì bảng "Bị từ chối" kèm lý do.
+  - Tháng của bảng đã khóa sổ: bút toán lấy ngày sau ngày khóa sổ.
+  - Phát sinh có ngày của tháng đã chốt (hoàn tiền về sau): vào bảng kỳ sau.
+  - Công ty chưa bật, đơn không có nhân viên hưởng, ngày phát sinh trước ngày bắt đầu: không ghi phát sinh.
+- Kết thúc: bảng "Đã ghi sổ", phát sinh ghi số bảng, bút toán chi phí hoa hồng. Chi trả cho nhân viên ngoài phạm vi (qua lương ở MODULE_08).
+
+Trạng thái bảng hoa hồng:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Lập bảng | Nháp (`draft`) |
+| Nháp | Bỏ bảng nháp | (Xóa bảng; phát sinh trả về chưa vào bảng) |
+| Nháp | Gửi, có chính sách duyệt | Chờ duyệt (`pending`) |
+| Nháp | Gửi, chưa có chính sách duyệt | Đã ghi sổ (`posted`) |
+| Chờ duyệt | Duyệt xong, ghi sổ được | Đã ghi sổ |
+| Chờ duyệt | Duyệt xong, không ghi sổ được | Bị từ chối (`rejected`) kèm lý do; phát sinh trả về |
+| Chờ duyệt | Từ chối | Bị từ chối; phát sinh trả về |
+| Chờ duyệt | Người lập rút | Đã rút (`withdrawn`); phát sinh trả về |

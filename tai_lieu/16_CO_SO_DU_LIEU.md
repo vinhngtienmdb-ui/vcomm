@@ -1,12 +1,12 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 2.3
+- Phiên bản: 2.4
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14); CONG_VIEC_15 (2026-11-10): thêm cột `accounting.accounts.is_long_term` (mục 15); CONG_VIEC_16 (2026-11-10): thêm bảng hóa đơn điện tử `finance.einvoice_settings`, `finance.einvoice_series`, `finance.einvoices`, `finance.einvoice_lines`, `finance.einvoice_attempts` (database migration 0013), `finance.einvoice_return_tasks` (database migration 0014) (mục 16)
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14); CONG_VIEC_15 (2026-11-10): thêm cột `accounting.accounts.is_long_term` (mục 15); CONG_VIEC_16 (2026-11-10): thêm bảng hóa đơn điện tử `finance.einvoice_settings`, `finance.einvoice_series`, `finance.einvoices`, `finance.einvoice_lines`, `finance.einvoice_attempts` (database migration 0013), `finance.einvoice_return_tasks` (database migration 0014) (mục 16); CONG_VIEC_17 (2026-11-10): thêm cột `sales.orders.commission_user_id`, bảng hoa hồng `finance.commission_settings`, `finance.commission_rates`, `finance.commission_channel_factors`, `finance.commission_targets`, `finance.commission_statements`, `finance.commission_statement_lines`, `finance.commission_events` (database migration 0015), nguồn bút toán `commission`, vai trò định khoản `commission_expense`, `staff_payable` (database migration 0016), cột `finance.commission_events.gross_amount` (database migration 0017) (mục 17)
 
-Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14); cột tài khoản dài hạn của MODULE_06 phần 3 (CONG_VIEC_15, mục 15); bảng hóa đơn điện tử của MODULE_06 phần 4 trong schema `finance` (CONG_VIEC_16, mục 16). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14); cột tài khoản dài hạn của MODULE_06 phần 3 (CONG_VIEC_15, mục 15); bảng hóa đơn điện tử của MODULE_06 phần 4 trong schema `finance` (CONG_VIEC_16, mục 16); bảng hoa hồng đội kinh doanh của MODULE_06 phần 5 trong schema `finance` (CONG_VIEC_17, mục 17). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -2151,8 +2151,8 @@ Tệp `database/migrations/0011_accounting.sql` tạo schema `accounting` của 
 |---|---|---|---|
 | `settings` | Cài đặt kế toán của công ty đã khởi tạo (QUYTAC_NGHIEPVU_93, 97); không có dòng là chưa khởi tạo | `company_id` (khóa chính), `locked_through` (đã khóa sổ đến hết ngày), `initialized_by`, `initialized_at`, `version` | Ghi sổ chứng từ đọc với `FOR SHARE`; khóa sổ, mở lại với `FOR UPDATE` |
 | `accounts` | Hệ thống tài khoản (CHUC_NANG_69; QUYTAC_NGHIEPVU_93) | `company_id`, `code` (3 đến 20 chữ số hoặc chữ cái), `name`, `parent_id`, `nature` (`debit`, `credit`, `both`), `is_system` (nạp từ chế độ), `status` (`active`, `inactive`), `created_at`, `updated_at`, `version` | Duy nhất `(company_id, code)`; chỉ mục `parent_id`; service kiểm số hiệu bắt đầu bằng số hiệu cha |
-| `posting_rules` | Định khoản mặc định (CHUC_NANG_70; QUYTAC_NGHIEPVU_94) | `company_id`, `role` (18 vai trò ở `apps/api/src/accounting/postings.ts`), `account_id`, `updated_at`, `updated_by` | Khóa chính `(company_id, role)` |
-| `journals` | Bút toán: tự sinh, phiếu kế toán, kết chuyển (CHUC_NANG_71 đến 73; QUYTAC_NGHIEPVU_95 đến 97) | `company_id`, `journal_no` (phiếu kế toán: cấp khi gửi; tự sinh: số chứng từ gốc; kết chuyển: `KC-YYYY-MM`), `journal_date`, `source_type` (`manual`, `inventory_document`, `payment`, `internal_write_off`, `closing`), `source_id`, `description`, `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`), `approval_request_id` (`core.approval_requests`), `post_error` (khóa thông báo khi duyệt xong không ghi sổ được, ví dụ `periodLocked`), `total_amount` (tổng Nợ, `numeric(20,4)`), `created_by`, `posted_at`, `created_at`, `updated_at`, `version` | Không phải `manual` thì phải `posted`; duy nhất `(source_type, source_id)` khi có `source_id`; chỉ mục `(company_id, status, journal_date)`, `approval_request_id` |
+| `posting_rules` | Định khoản mặc định (CHUC_NANG_70; QUYTAC_NGHIEPVU_94) | `company_id`, `role` (18 vai trò ở `apps/api/src/accounting/postings.ts`; CONG_VIEC_17 thêm `commission_expense`, `staff_payable`: 20 vai trò), `account_id`, `updated_at`, `updated_by` | Khóa chính `(company_id, role)` |
+| `journals` | Bút toán: tự sinh, phiếu kế toán, kết chuyển (CHUC_NANG_71 đến 73; QUYTAC_NGHIEPVU_95 đến 97) | `company_id`, `journal_no` (phiếu kế toán: cấp khi gửi; tự sinh: số chứng từ gốc; kết chuyển: `KC-YYYY-MM`), `journal_date`, `source_type` (`manual`, `inventory_document`, `payment`, `internal_write_off`, `closing`; database migration 0016 thêm `commission`), `source_id`, `description`, `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`), `approval_request_id` (`core.approval_requests`), `post_error` (khóa thông báo khi duyệt xong không ghi sổ được, ví dụ `periodLocked`), `total_amount` (tổng Nợ, `numeric(20,4)`), `created_by`, `posted_at`, `created_at`, `updated_at`, `version` | Không phải `manual` thì phải `posted`; duy nhất `(source_type, source_id)` khi có `source_id`; chỉ mục `(company_id, status, journal_date)`, `approval_request_id` |
 | `journal_lines` | Dòng bút toán | `journal_id` (xóa theo bút toán), `line_no`, `account_id`, `partner_id` (`crm.partners`), `debit`, `credit` (không âm, `numeric(20,4)`), `description` | Duy nhất `(journal_id, line_no)`; đúng một bên lớn hơn 0; chỉ mục `account_id`, `partner_id` |
 
 Hàm làm tròn dùng chung (THAY_DOI_10, quyết định của người dùng 2026-11-10; QUYTAC_NGHIEPVU_86, QUYTAC_NGHIEPVU_95):
@@ -2485,4 +2485,164 @@ CREATE INDEX einvoice_return_tasks_company_idx ON finance.einvoice_return_tasks 
 
 -- Hóa đơn điều chỉnh có nguồn là phiếu nhận hàng trả lại; hóa đơn thay thế cùng nguồn với hóa đơn bị thay thế.
 CREATE INDEX einvoices_related_idx ON finance.einvoices (related_invoice_id) WHERE related_invoice_id IS NOT NULL;
+```
+
+## 17. Database migration 0015, 0016, 0017 – CONG_VIEC_17 (hoa hồng đội kinh doanh)
+
+Tệp `database/migrations/0015_commissions.sql` (lát L0) thêm cột nhân viên hưởng hoa hồng vào `sales.orders` và 7 bảng vào schema `finance`; tệp `database/migrations/0016_commission_postings.sql` (lát L1) thêm nguồn bút toán `commission` vào ràng buộc `accounting.journals.source_type` và định khoản mặc định hai vai trò mới cho công ty đã khởi tạo kế toán (`commission_expense`: 6411 với Thông tư 99/2025, 6421 với Thông tư 133; `staff_payable`: 334; công ty thiếu tài khoản thì không thêm); tệp `database/migrations/0017_commission_line_basis.sql` (sửa sau rà soát) thêm tiền gồm thuế của phát sinh. Khóa ngoại trỏ vào `finance`, `core` (`companies`, `users`), `catalog` (`categories`, `sales_channels`), `sales` (`orders`, `order_lines`), `inventory.documents`; chứng từ nguồn của phát sinh (`source_id`: lần trừ nợ hoặc phiếu kho) không đặt khóa ngoại. Tiền `numeric(20,4)`, phần trăm, hệ số `numeric(7,4)`. Không thêm hàm; tiền từng dòng tính bằng `finance.line_share`, `finance.company_minor_units` (mục 14). Quyền `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` (nhạy cảm), loại chứng từ `finance.commission` (cần duyệt) ghi vào bảng của `core` bằng hàm đồng bộ danh mục quyền (`apps/api/src/permissions/permission-catalog.ts`). Dãy số tiền tố `HH` tạo khi gửi lần đầu. Công ty khởi tạo kế toán về sau nhận định khoản hai vai trò từ `apps/api/src/accounting/charts.ts`.
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `sales.orders` (cột mới) | Nhân viên hưởng hoa hồng gán khi gửi đơn (CHUC_NANG_81; QUYTAC_NGHIEPVU_109) | `commission_user_id` (`core.users`) | Đơn cũ nhận `NULL`; đã gán thì giữ |
+| `commission_settings` | Cài đặt hoa hồng của công ty (CHUC_NANG_80; QUYTAC_NGHIEPVU_108); không có dòng là chưa cài đặt | `company_id` (khóa chính), `enabled`, `start_date`, `assignment` (`customer_owner`, `order_creator`), `combination` (`matrix`, `channel_factor`), `default_percent`, `tiers` (jsonb: `[{fromPercent, multiplier}]` tăng dần), `updated_at`, `updated_by`, `version` | Bật thì phải có `start_date`; `default_percent` 0 đến 100; lập bảng hoa hồng khóa dòng này (`FOR UPDATE`) |
+| `commission_rates` | Mức theo ngành hàng (kênh trống: mọi kênh), theo ngành hàng và kênh | `company_id`, `category_id`, `channel_id`, `percent` | Duy nhất `(company_id, category_id, kênh hoặc UUID 0)`; `percent` 0 đến 100; lưu cài đặt thay toàn bộ |
+| `commission_channel_factors` | Hệ số theo kênh (kết hợp kênh nhân hệ số) | `company_id`, `channel_id`, `factor` | Khóa chính `(company_id, channel_id)`; `factor` 0 đến 10; lưu cài đặt thay toàn bộ |
+| `commission_targets` | Chỉ tiêu tiền thu chưa thuế theo tháng | `company_id`, `user_id`, `month` (`YYYY-MM`), `amount` | Khóa chính `(company_id, user_id, month)`; `amount` lớn hơn 0 |
+| `commission_statements` | Bảng hoa hồng tháng (CHUC_NANG_83; QUYTAC_NGHIEPVU_111, 112) | `company_id`, `month`, `document_no` (cấp khi gửi), `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`), `total_amount`, `approval_request_id`, `post_error` (khóa thông báo khi duyệt xong không ghi sổ được), `created_by`, `created_at`, `submitted_at`, `posted_at`, `version` | Duy nhất `(company_id, month)` với bảng không ở `rejected`, `withdrawn` |
+| `commission_statement_lines` | Dòng bảng theo nhân viên | `statement_id` (xóa theo bảng), `user_id`, `base_amount` (có dấu), `commission_before`, `target_amount`, `achieved_percent`, `multiplier`, `amount` | Khóa chính `(statement_id, user_id)` |
+| `commission_events` | Phát sinh hoa hồng theo dòng đơn, có dấu (CHUC_NANG_82; QUYTAC_NGHIEPVU_110) | `company_id`, `user_id`, `order_id`, `source_type` (`receipt`, `refund`, `retail_delivery`, `retail_return`), `source_id` (lần trừ nợ `finance.debt_allocations` hoặc phiếu kho), `document_id` (phiếu xuất hoặc phiếu trả), `order_line_id`, `event_date`, `base_amount` (tiền chưa thuế), `gross_amount` (tiền gồm thuế, 0017), `percent`, `amount`, `statement_id` (bảng xóa thì trả về `NULL`), `created_at` | Duy nhất `(source_type, source_id, order_line_id)`; chỉ mục `(company_id, event_date)` với phát sinh chưa vào bảng, `(company_id, user_id, event_date)`, `statement_id` |
+| `accounting.journals` (0016) | Bút toán bảng hoa hồng | `source_type` thêm `commission`, `source_id` là bảng hoa hồng | Duy nhất `(source_type, source_id)` như cũ |
+| `accounting.posting_rules` (0016) | Định khoản mặc định vai trò `commission_expense`, `staff_payable` của công ty đã khởi tạo kế toán | `company_id`, `role`, `account_id` | Bỏ qua khi đã có (`ON CONFLICT DO NOTHING`) |
+
+Quy tắc xóa và lưu giữ bổ sung:
+- Không xóa phát sinh. Bỏ bảng nháp xóa bảng và dòng; phát sinh trả về chưa vào bảng (`ON DELETE SET NULL`). Bảng bị từ chối, đã rút giữ lại, phát sinh trả về.
+- Bảng đã ghi sổ không sửa, không xóa.
+- Mức, hệ số kênh được thay toàn bộ mỗi lần lưu cài đặt; chỉ tiêu để trống thì xóa dòng chỉ tiêu.
+- Phát sinh ghi trước database migration 0017 có `gross_amount` bằng 0.
+
+```mermaid
+erDiagram
+    commission_settings ||--o{ commission_rates : "mức"
+    commission_settings ||--o{ commission_channel_factors : "hệ số kênh"
+    commission_statements ||--o{ commission_statement_lines : "dòng theo nhân viên"
+    commission_statements |o--o{ commission_events : "phát sinh đã chốt"
+    orders ||--o{ commission_events : "đơn bán"
+    order_lines ||--o{ commission_events : "dòng đơn"
+    commission_statements ||--o| journals : "bút toán (source_type commission)"
+```
+
+Lược đồ (chép từ tệp `database/migrations/0015_commissions.sql`):
+
+```sql
+-- CONG_VIEC_17: Hoa hồng đội kinh doanh (CHUC_NANG_80 đến 83; QUYTAC_NGHIEPVU_108 đến 112; tài liệu 16).
+
+-- Nhân viên hưởng hoa hồng gán khi gửi đơn lần đầu (QUYTAC_NGHIEPVU_109).
+ALTER TABLE sales.orders ADD COLUMN commission_user_id uuid REFERENCES core.users(id);
+
+-- Cài đặt hoa hồng theo công ty (QUYTAC_NGHIEPVU_108).
+CREATE TABLE finance.commission_settings (
+    company_id          uuid        PRIMARY KEY REFERENCES core.companies(id),
+    enabled             boolean     NOT NULL DEFAULT false,
+    start_date          date,
+    assignment          text        NOT NULL DEFAULT 'customer_owner' CHECK (assignment IN ('customer_owner', 'order_creator')),
+    combination         text        NOT NULL DEFAULT 'matrix' CHECK (combination IN ('matrix', 'channel_factor')),
+    default_percent     numeric(7,4) NOT NULL DEFAULT 0 CHECK (default_percent BETWEEN 0 AND 100),
+    tiers               jsonb       NOT NULL DEFAULT '[{"fromPercent": 0, "multiplier": 1}]'::jsonb,   -- [{fromPercent, multiplier}] tăng dần, bậc đầu từ 0
+    updated_at          timestamptz NOT NULL DEFAULT now(),
+    updated_by          uuid        REFERENCES core.users(id),
+    version             integer     NOT NULL DEFAULT 0,
+    CHECK (NOT enabled OR start_date IS NOT NULL)
+);
+
+-- Mức hoa hồng: theo ngành hàng (kênh trống: mọi kênh), theo ngành hàng và kênh (chỉ dùng khi kết hợp kiểu bảng).
+CREATE TABLE finance.commission_rates (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    category_id         uuid        NOT NULL REFERENCES catalog.categories(id),
+    channel_id          uuid        REFERENCES catalog.sales_channels(id),
+    percent             numeric(7,4) NOT NULL CHECK (percent BETWEEN 0 AND 100)
+);
+CREATE UNIQUE INDEX commission_rates_key_idx ON finance.commission_rates (company_id, category_id, coalesce(channel_id, '00000000-0000-0000-0000-000000000000'::uuid));
+
+-- Hệ số theo kênh (kết hợp kiểu kênh nhân hệ số; kênh không khai là 1).
+CREATE TABLE finance.commission_channel_factors (
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    channel_id          uuid        NOT NULL REFERENCES catalog.sales_channels(id),
+    factor              numeric(7,4) NOT NULL CHECK (factor BETWEEN 0 AND 10),
+    PRIMARY KEY (company_id, channel_id)
+);
+
+-- Chỉ tiêu tiền thu (chưa thuế) theo tháng từng nhân viên.
+CREATE TABLE finance.commission_targets (
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    user_id             uuid        NOT NULL REFERENCES core.users(id),
+    month               text        NOT NULL CHECK (month ~ '^[0-9]{4}-(0[1-9]|1[0-2])$'),
+    amount              numeric(20,4) NOT NULL CHECK (amount > 0),
+    PRIMARY KEY (company_id, user_id, month)
+);
+
+-- Bảng hoa hồng tháng (CHUC_NANG_83; QUYTAC_NGHIEPVU_111, 112).
+CREATE TABLE finance.commission_statements (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    month               text        NOT NULL CHECK (month ~ '^[0-9]{4}-(0[1-9]|1[0-2])$'),
+    document_no         text,
+    status              text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'posted', 'rejected', 'withdrawn')),
+    total_amount        numeric(20,4) NOT NULL DEFAULT 0,
+    approval_request_id uuid,
+    post_error          text,
+    created_by          uuid        REFERENCES core.users(id),
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    submitted_at        timestamptz,
+    posted_at           timestamptz,
+    version             integer     NOT NULL DEFAULT 0
+);
+-- Mỗi tháng một bảng đang dùng (bị từ chối, đã rút thì lập lại).
+CREATE UNIQUE INDEX commission_statements_month_idx ON finance.commission_statements (company_id, month) WHERE status NOT IN ('rejected', 'withdrawn');
+
+CREATE TABLE finance.commission_statement_lines (
+    statement_id        uuid        NOT NULL REFERENCES finance.commission_statements(id) ON DELETE CASCADE,
+    user_id             uuid        NOT NULL REFERENCES core.users(id),
+    base_amount         numeric(20,4) NOT NULL,          -- tiền chưa thuế đã thu (có dấu)
+    commission_before   numeric(20,4) NOT NULL,          -- hoa hồng trước hệ số
+    target_amount       numeric(20,4),
+    achieved_percent    numeric(9,4),
+    multiplier          numeric(7,4) NOT NULL,
+    amount              numeric(20,4) NOT NULL,
+    PRIMARY KEY (statement_id, user_id)
+);
+
+-- Phát sinh hoa hồng theo dòng hàng, có dấu (CHUC_NANG_82; QUYTAC_NGHIEPVU_110).
+CREATE TABLE finance.commission_events (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    user_id             uuid        NOT NULL REFERENCES core.users(id),
+    order_id            uuid        NOT NULL REFERENCES sales.orders(id),
+    source_type         text        NOT NULL CHECK (source_type IN ('receipt', 'refund', 'retail_delivery', 'retail_return')),
+    source_id           uuid        NOT NULL,                       -- phiếu thu chi hoặc phiếu kho
+    document_id         uuid        NOT NULL REFERENCES inventory.documents(id),   -- phiếu xuất hoặc phiếu trả của dòng
+    order_line_id       uuid        NOT NULL REFERENCES sales.order_lines(id),
+    event_date          date        NOT NULL,
+    base_amount         numeric(20,4) NOT NULL,                     -- tiền chưa thuế
+    percent             numeric(9,4) NOT NULL,
+    amount              numeric(20,4) NOT NULL,
+    statement_id        uuid        REFERENCES finance.commission_statements(id) ON DELETE SET NULL,
+    created_at          timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX commission_events_open_idx ON finance.commission_events (company_id, event_date) WHERE statement_id IS NULL;
+CREATE INDEX commission_events_user_idx ON finance.commission_events (company_id, user_id, event_date);
+CREATE INDEX commission_events_statement_idx ON finance.commission_events (statement_id);
+-- Mỗi lần trừ nợ (hoặc phiếu kho bán lẻ) ghi một lần cho mỗi dòng đơn.
+CREATE UNIQUE INDEX commission_events_source_idx ON finance.commission_events (source_type, source_id, order_line_id);
+```
+
+Lược đồ (chép từ tệp `database/migrations/0016_commission_postings.sql`):
+
+```sql
+-- CONG_VIEC_17 lát L1: bút toán bảng hoa hồng (QUYTAC_NGHIEPVU_112; tài liệu 16).
+ALTER TABLE accounting.journals DROP CONSTRAINT journals_source_type_check;
+ALTER TABLE accounting.journals ADD CONSTRAINT journals_source_type_check CHECK (source_type IN ('manual', 'inventory_document', 'payment', 'internal_write_off', 'closing', 'commission'));
+INSERT INTO accounting.posting_rules (company_id, role, account_id)
+SELECT s.company_id, r.role, a.id
+FROM accounting.settings s JOIN core.companies c ON c.id = s.company_id
+CROSS JOIN (VALUES ('commission_expense', '6411', '6421'), ('staff_payable', '334', '334')) AS r(role, code_tt99, code_tt133)
+JOIN accounting.accounts a ON a.company_id = s.company_id AND a.code = CASE WHEN c.accounting_regime = 'TT133' THEN r.code_tt133 ELSE r.code_tt99 END
+ON CONFLICT DO NOTHING;
+```
+
+Lược đồ (chép từ tệp `database/migrations/0017_commission_line_basis.sql`):
+
+```sql
+-- CONG_VIEC_17 sửa sau rà soát: tiền gồm thuế đã thu của từng dòng đơn, để chia lần thu sau theo phần còn phải thu của từng dòng (QUYTAC_NGHIEPVU_110).
+ALTER TABLE finance.commission_events ADD COLUMN gross_amount numeric(20,4) NOT NULL DEFAULT 0;
 ```

@@ -1,13 +1,13 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 2.3
+- Phiên bản: 2.4
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 5 (hoa hồng đội kinh doanh)
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16). Các module sau bổ sung vào cùng tài liệu.
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16); MODULE_06 phần 5 Hoa hồng đội kinh doanh (CONG_VIEC_17). Các module sau bổ sung vào cùng tài liệu.
 
 ## 1. Dữ liệu nhạy cảm
 
@@ -47,6 +47,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Mật khẩu kết nối nhà cung cấp hóa đơn điện tử (CONG_VIEC_16) | Khóa bí mật | Cột `finance.einvoice_settings.secret_value`, mã hóa AES-256-GCM bằng `apps/api/src/common/secret-box.ts` (khóa như Cài đặt tích hợp); không trả về qua API (4 ký tự cuối chỉ cho người có `finance.einvoice.setup`); nhật ký thao tác ghi `••••` và `passwordChanged`, không ghi mật khẩu; không lưu trong lần gửi | Chỉ máy chủ khi gọi nhà cung cấp; người có `finance.einvoice.setup` nhập, thay nhưng không đọc lại được |
 | Mã truy cập MISA meInvoice (CONG_VIEC_16) | Khóa bí mật | Chỉ trong bộ nhớ tiến trình API, theo khóa băm của công ty và thông tin kết nối, tối đa 12 giờ; không lưu cơ sở dữ liệu, không ghi log | Chỉ máy chủ |
 | Hóa đơn điện tử: người mua (tên, mã số thuế, địa chỉ), dòng hàng, số tiền, tệp PDF, XML; lần gửi (CONG_VIEC_16) | Tài chính, tổ chức | Bảng `finance.einvoices`, `einvoice_lines`, `einvoice_attempts`, `einvoice_return_tasks` theo công ty; tệp lưu `bytea` | `finance.einvoice.view` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; công ty khác nhận `404`; tệp gửi cho nhà cung cấp, cơ quan thuế theo quy định |
+| Cài đặt hoa hồng, chỉ tiêu, phát sinh, bảng hoa hồng theo nhân viên (CONG_VIEC_17) | Tài chính, thu nhập của nhân viên | Schema `finance` theo công ty (`commission_settings`, `commission_rates`, `commission_channel_factors`, `commission_targets`, `commission_events`, `commission_statements`, `commission_statement_lines`); cột `sales.orders.commission_user_id` | `finance.commission.view` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; công ty khác nhận `404`; sửa cài đặt, chỉ tiêu cần `finance.commission.setup` (nhạy cảm). Người có quyền xem thấy hoa hồng, chỉ tiêu của mọi nhân viên trong công ty |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
 
@@ -76,6 +77,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | API kế toán tổng hợp (API_87 đến API_89) | API | Lược đồ zod `saveAccountSchema`, `updateAccountSchema`, `updatePostingRuleSchema`, `journalListQuerySchema`, `saveJournalSchema`, `versionSchema`, `closePeriodSchema`, `ledgerRangeQuerySchema` trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn, tài khoản, đối tác là UUID; vai trò định khoản so với danh mục cố định (khác thì `404`); số hiệu 3 đến 20 chữ số hoặc chữ cái, tên 200, diễn giải 500, diễn giải dòng 300 ký tự; 2 đến 200 dòng mỗi phiếu; tiền dạng chuỗi tối đa 12 chữ số phần nguyên, 4 chữ số lẻ, máy chủ từ chối số lẻ hơn đơn vị tiền tệ; tháng `YYYY-MM`; máy chủ kiểm tài khoản, đối tác thuộc công ty; không nhận tệp tải lên | Có, `finance.access` hoặc `finance.ledger.view` và quyền chi tiết |
 | API báo cáo tài chính (API_90); `isLongTerm` của API_87 | API | Lược đồ zod `statementQuerySchema` trong `packages/contracts`, trường thừa bị từ chối; `kind`, `format` so với danh sách cố định; `from`, `to` là ngày `YYYY-MM-DD`; `form` tối đa 20 ký tự, chỉ dùng để chọn trong các mẫu của chế độ; `isLongTerm` kiểu đúng sai trong `updateAccountSchema`; chỉ đọc, không nhận tệp tải lên | Có, `finance.access` hoặc `finance.ledger.view`; xem, xuất cần `finance.ledger.view` |
 | API hóa đơn điện tử (API_91, API_92) | API | Lược đồ zod `updateEinvoiceSettingsSchema`, `einvoiceListQuerySchema`, `einvoiceReturnQuerySchema`, `recordBuyerInvoiceSchema`, `replaceEinvoiceSchema` trong `packages/contracts`, lược đồ `version` trong bộ điều khiển; trường thừa bị từ chối; mã trong đường dẫn là UUID; `format` chỉ `pdf`, `xml`; nhà cung cấp, môi trường, trạng thái so với danh sách cố định; ký hiệu khớp `^[CK][0-9]{2}T[A-Z]{2}$`; mã số thuế người mua 10 chữ số hoặc 10 chữ số, gạch ngang, 3 chữ số; độ dài tên 300, địa chỉ 500, lý do 500, mật khẩu 200, từ khóa 100 ký tự; từ khóa tìm kiếm thoát `%`, `_`; không nhận tệp tải lên | Có, `finance.access` hoặc `finance.einvoice.view` và quyền chi tiết |
+| API hoa hồng (API_93, API_94) | API | Lược đồ zod `updateCommissionSettingsSchema`, `commissionTargetsQuerySchema`, `saveCommissionTargetsSchema`, `commissionEventsQuerySchema`, `createCommissionStatementSchema` trong `packages/contracts`, lược đồ `version` trong bộ điều khiển; trường thừa bị từ chối; mã trong đường dẫn, ngành hàng, kênh, nhân viên là UUID; phần trăm 0 đến 100, hệ số 0 đến 10, tối đa 4 chữ số lẻ; tháng `YYYY-MM`; giới hạn số dòng (bậc 20, mức 2.000, hệ số kênh 200, chỉ tiêu 500, trang 100); phía máy chủ kiểm ngành hàng tồn tại, kênh thuộc công ty, nhân viên là thành viên đang làm việc của công ty | Có, `finance.access` hoặc `finance.commission.view` trong công ty đang làm việc; quyền chi tiết kiểm trong service |
 | Phản hồi nhà cung cấp hóa đơn điện tử (MISA meInvoice, bộ giả lập) | Tích hợp (hệ thống gọi ra) | Chỉ đọc số, mã của cơ quan thuế, mã giao dịch, mã lỗi, tệp PDF, XML (base64) của đúng mã tham chiếu, mã giao dịch; JSON lỗi coi là lỗi; câu chữ lỗi của nhà cung cấp lưu như văn bản, giao diện hiện dạng văn bản | Không áp dụng (hệ thống gọi ra) |
 | Gửi tin qua eSMS.vn (mã OTP, Zalo ZNS, kiểm tra kết nối) | Tích hợp | Chỉ đọc mã kết quả, mã tin, lỗi; gửi lỗi không chặn nghiệp vụ | Không áp dụng (hệ thống gọi ra) |
 
@@ -471,6 +473,39 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10, gồm sửa l�
 - Ghi nhận, chưa sửa (Thấp): tác vụ nền hóa đơn chạy một tác vụ một lúc trên hàng đợi riêng `hoa-don-dien-tu`, nên nhà cung cấp chậm làm chậm các hóa đơn khác trong lượt (không còn làm chậm tác vụ nền khác).
 - Ghi nhận, chưa sửa (Thấp): ngày làm việc tiếp theo chỉ bỏ thứ Bảy, Chủ nhật, chưa tính ngày nghỉ lễ; hóa đơn có thể bị báo quá hạn sớm hoặc muộn quanh ngày lễ.
 - Ghi nhận: bộ giả lập giữ hóa đơn đã nhận trong bộ nhớ tiến trình; khởi động lại API thì tra trạng thái không thấy và phát hành lại với số mới (chỉ ảnh hưởng môi trường không phải môi trường thật).
+
+### Ma trận phân quyền hoa hồng đội kinh doanh MODULE_06 phần 5 (CONG_VIEC_17)
+
+Quyền mới `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` (nhạy cảm) (tài liệu `08` mục 21, 22).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng | Thủ kho | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|---|---|
+| CHUC_NANG_80 Xem cài đặt, chỉ tiêu | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+| CHUC_NANG_80 Sửa cài đặt, chỉ tiêu | Được | Trong công ty mình | Được | Không | Không | Không | Không |
+| CHUC_NANG_82, CHUC_NANG_83 Xem phát sinh, bảng hoa hồng | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+| CHUC_NANG_83 Lập, bỏ bảng nháp, gửi | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+| CHUC_NANG_83 Rút bảng chờ duyệt | Của mình | Của mình | Của mình | Của mình | Không | Không | Có (người lập) |
+
+Ranh giới và kiểm soát riêng:
+- Tách dữ liệu công ty: mọi truy vấn lọc theo `company_id` của công ty đang làm việc (`actor.companyId`); bảng của công ty khác trả `404`. Ngành hàng dùng chung tập đoàn; kênh, nhân viên trong dữ liệu gửi lên được kiểm thuộc công ty.
+- Quyền kiểm hai lớp: bộ điều khiển cần `finance.access` hoặc `finance.commission.view`; service kiểm quyền chi tiết bằng `requireFinancePermission` (bao trùm công ty; quyền gán ở chi nhánh không dùng được). `finance.commission.setup` là quyền nhạy cảm.
+- Phát sinh ghi trong cùng giao dịch trừ nợ, ghi sổ phiếu kho; chỉ mục duy nhất chống ghi trùng; lập bảng khóa cài đặt của công ty chống lập trùng; bảng đã ghi sổ không sửa, không xóa; rút chỉ người lập.
+- Truy vấn dùng tham số của Drizzle (`sql`, `sql.join`), không ghép chuỗi SQL.
+- Không thêm thư viện phụ thuộc.
+
+Kết quả rà soát bảo mật phần thay đổi (2026-11-10, gồm sửa lỗi rà soát commit 458d55d):
+- Không có mục rủi ro cao còn mở. Đã kiểm: endpoint kiểm quyền và giới hạn công ty; ngành hàng, kênh, nhân viên gửi lên được kiểm ở máy chủ; không ghi trùng phát sinh; hàng trả trừ vào phần chưa thu không được tính hoa hồng; bảng của tháng đã khóa sổ không chặn các tháng sau.
+- Ghi nhận: người có `finance.commission.view` (Kế toán có sẵn) thấy hoa hồng, chỉ tiêu của mọi nhân viên trong công ty; nhân viên chưa tự xem được hoa hồng của mình (ngoài phạm vi).
+- Ghi nhận, chưa sửa (Trung bình): phiếu chi hoàn tiền được trừ vào khoản giảm nợ cũ nhất còn mở, có thể là khoản trả trước thay vì phiếu nhận hàng trả lại; khi đó không ghi phát sinh âm, hoa hồng của hàng trả không bị trừ.
+- Ghi nhận, chưa sửa (Thấp): sửa cài đặt sau khi đã ghi phát sinh không tính lại phát sinh (mức cố định tại lúc ghi).
+- Ghi nhận, chưa sửa (Thấp): khoản giảm nợ của số dư đầu kỳ trừ vào phiếu xuất không phát sinh hoa hồng.
+- Ghi nhận, chưa sửa (Thấp): với cách gán nhân viên phụ trách khách, đơn không có khách (bán lẻ) không có nhân viên hưởng; chỉ cách gán người lập đơn tính hoa hồng cho bán lẻ.
+- Ghi nhận: đơn bán nội bộ (giao dịch nội bộ) phát sinh hoa hồng như đơn bán thường.
+- Ghi nhận: giá trị duyệt là trị tuyệt đối của tổng; bảng âm (hoàn tiền vượt) vẫn qua duyệt theo mức của trị tuyệt đối.
+- Ghi nhận: tháng tiếp theo bỏ qua tháng không có phát sinh; tháng đó không có bảng.
+- Ghi nhận: chi trả hoa hồng ngoài phạm vi (qua lương ở MODULE_08); bút toán chỉ ghi phải trả người lao động (334).
+- Ghi nhận, chưa sửa (Thấp): bộ tính cộng tiền bằng số thực của JavaScript rồi làm tròn theo đơn vị tiền tệ (như công nợ, bảng cân đối số phát sinh).
+- Ghi nhận, chưa sửa (Thấp): chi tiết đơn bán chưa hiện nhân viên hưởng hoa hồng; màn hình phát sinh chưa có ô lọc theo nhân viên (API có).
 
 ## 5. Quản lý khóa bí mật
 

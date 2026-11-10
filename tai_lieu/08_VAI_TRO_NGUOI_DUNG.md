@@ -1,10 +1,10 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò mặc định, trách nhiệm và quyền hạn.
-- Phiên bản: 2.0
+- Phiên bản: 2.1
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18); CONG_VIEC_16 (2026-11-10): thêm quyền `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm); Kế toán có thêm `finance.einvoice.view`, `finance.einvoice.manage`; Kế toán trưởng có thêm cả ba (mục 19, 20)
+- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18); CONG_VIEC_16 (2026-11-10): thêm quyền `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm); Kế toán có thêm `finance.einvoice.view`, `finance.einvoice.manage`; Kế toán trưởng có thêm cả ba (mục 19, 20); CONG_VIEC_17 (2026-11-10): thêm quyền `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` (nhạy cảm); Kế toán có thêm `finance.commission.view`, `finance.commission.manage`; Kế toán trưởng có thêm cả ba (mục 21, 22)
 
 ## 1. Nguyên tắc
 
@@ -296,3 +296,31 @@ Không thêm vai trò. Ba quyền mới chỉ dùng được khi gán ở phạm
 | Gửi lại hóa đơn; lập hóa đơn điều chỉnh giảm; ghi hóa đơn trả hàng của người mua; lập hóa đơn thay thế | `finance.einvoice.manage` | Có | Trong công ty mình | Có | Có | Không | Không |
 | Nhận thông báo hóa đơn quá hạn | `finance.einvoice.manage` | Có | Trong công ty mình | Có | Có | Không | Không |
 | Lập hóa đơn gốc khi ghi sổ phiếu xuất giao hàng; tạo việc chờ khi ghi sổ phiếu nhận hàng trả lại | Quyền ghi sổ phiếu kho (mục 10) | Có | Trong công ty mình | Không | Không | Không | Kho trong phạm vi gán |
+
+## 21. Quyền hoa hồng đội kinh doanh (MODULE_06 phần 5, CONG_VIEC_17)
+
+Không thêm vai trò. Ba quyền mới chỉ dùng được khi gán ở phạm vi tập đoàn hoặc công ty (như mục 16). Quản trị tập đoàn, quản trị công ty có sẵn ba quyền mới. Nhân viên hưởng hoa hồng gán khi Nhân viên bán hàng gửi đơn; phát sinh ghi khi trừ nợ (ghi sổ phiếu thu chi, phiếu kho tự trừ khoản trả trước) và khi ghi sổ phiếu kho của đơn không có khách; không cần quyền hoa hồng. Nhân viên bán hàng chưa xem được hoa hồng của mình (ngoài phạm vi). API của hoa hồng trước hết cần `finance.access` hoặc `finance.commission.view` trong công ty đang chọn. Loại chứng từ mới `finance.commission` (Bảng hoa hồng, cần duyệt, dãy số `HH`).
+
+| Quyền | Tên | Phạm vi | Nhạy cảm | Vai trò mặc định |
+|---|---|---|---|---|
+| `finance.commission.view` | Xem hoa hồng | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán, Kế toán trưởng |
+| `finance.commission.manage` | Lập, gửi bảng hoa hồng | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Kế toán, Kế toán trưởng |
+| `finance.commission.setup` | Cài đặt hoa hồng, chỉ tiêu | Công ty | Có | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng |
+
+| Vai trò | Mã | Quyền thêm |
+|---|---|---|
+| Kế toán | `accountant` | `finance.commission.view`, `finance.commission.manage` |
+| Kế toán trưởng | `chief_accountant` | `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` |
+
+## 22. Ma trận vai trò – thao tác của MODULE_06 (phần 5)
+
+| Thao tác | Quyền dùng | Quản trị tập đoàn | Quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng | Thủ kho |
+|---|---|---|---|---|---|---|---|
+| Xem cài đặt hoa hồng, chỉ tiêu | `finance.commission.view` hoặc `finance.commission.setup` | Có | Trong công ty mình | Có | Có (không có mục menu; mở đường dẫn thì chỉ xem) | Không | Không |
+| Sửa cài đặt, mức, hệ số kênh, bậc, chỉ tiêu | `finance.commission.setup` | Có | Trong công ty mình | Có | Không | Không | Không |
+| Xem phát sinh, bảng hoa hồng | `finance.commission.view` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Lập, bỏ bảng nháp, gửi bảng hoa hồng | `finance.commission.manage` | Có | Trong công ty mình | Có | Có | Không | Không |
+| Rút bảng hoa hồng chờ duyệt | `finance.commission.manage`, người lập | Của mình | Của mình | Của mình | Của mình | Không | Không |
+| Duyệt, từ chối bảng hoa hồng | Người duyệt theo chính sách duyệt loại `finance.commission` | Theo chính sách | Theo chính sách | Theo chính sách | Theo chính sách | Không | Không |
+| Gán nhân viên hưởng hoa hồng khi gửi đơn | Quyền gửi đơn bán (mục 10) | Có | Trong công ty mình | Không | Không | Có | Không |
+| Ghi phát sinh khi trừ nợ, ghi sổ phiếu kho của đơn không có khách | Quyền ghi sổ phiếu thu chi (mục 14), phiếu kho (mục 10) | Có | Trong công ty mình | Có | Có | Không | Kho trong phạm vi gán |

@@ -1,10 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 2.1
+- Phiên bản: 2.2
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6); CONG_VIEC_14 (2026-11-10): schema `accounting`, thành phần phụ trợ kế toán tổng hợp của MODULE_06 phần 2 (mục 3i, 6); CONG_VIEC_15 (2026-11-10): thành phần phụ trợ báo cáo tài chính của MODULE_06 phần 3 (mục 3j); CONG_VIEC_16 (2026-11-10): module `apps/api/src/einvoice`, lớp kết nối nhà cung cấp hóa đơn điện tử, tác vụ nền `einvoice-send`, `einvoice-overdue` của MODULE_06 phần 4 (mục 3k, 6)
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6); CONG_VIEC_14 (2026-11-10): schema `accounting`, thành phần phụ trợ kế toán tổng hợp của MODULE_06 phần 2 (mục 3i, 6); CONG_VIEC_15 (2026-11-10): thành phần phụ trợ báo cáo tài chính của MODULE_06 phần 3 (mục 3j); CONG_VIEC_16 (2026-11-10): module `apps/api/src/einvoice`, lớp kết nối nhà cung cấp hóa đơn điện tử, tác vụ nền `einvoice-send`, `einvoice-overdue` của MODULE_06 phần 4 (mục 3k, 6); CONG_VIEC_17 (2026-11-10): module `apps/api/src/commission`, móc nối `DebtsService.allocatedHooks`, gán nhân viên hưởng khi gửi đơn, bút toán bảng hoa hồng của MODULE_06 phần 5 (mục 3l, 6)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -183,6 +183,18 @@ Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance de
 | Tác vụ nền | `apps/api/src/jobs/background-jobs.ts` (BullMQ): hàng đợi riêng `hoa-don-dien-tu`, một tác vụ chạy một lúc, tách khỏi hàng đợi `nen-tang` để gọi nhà cung cấp chậm không làm chậm tác vụ khác; `einvoice-send` mỗi 30 giây gọi `EinvoicesService.sendDue` (tối đa 20 hóa đơn mỗi lần); `einvoice-overdue` mỗi giờ gọi `notifyOverdue` | CHUC_NANG_77 |
 | Giao diện | `apps/web-finance`: trang `/einvoices` (thẻ "Hóa đơn", "Chờ xử lý trả hàng"), `/einvoices/[id]`, `/einvoice-settings`; `EinvoiceReturns`, `EinvoiceStatusBadge`; `FinanceShell` thêm mục menu "Hóa đơn điện tử", "Cài đặt hóa đơn điện tử"; tải tệp bằng `apiDownload` | CHUC_NANG_76 đến CHUC_NANG_79 |
 
+## 3l. Thành phần phụ trợ cho MODULE_06 Tài chính – Kế toán (phần 5, CONG_VIEC_17)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Cài đặt, chỉ tiêu, phát sinh | `CommissionsService` (`apps/api/src/commission/commissions.service.ts`): ghi `finance.commission_settings`, `commission_rates`, `commission_channel_factors`, `commission_targets`; `onModuleInit` đăng ký `DebtsService.allocatedHooks` (`recordAllocation`: phiếu thu trừ nợ phiếu xuất, phiếu chi trừ phiếu trả) và `StockDocumentsService.postedHooks` (`recordRetail`: phiếu kho của đơn không có khách); `lineShares` (tiền gồm thuế, chưa thuế từng dòng đơn trên phiếu theo `finance.line_share`, cộng các dòng phiếu cùng dòng đơn); `record` (chia theo phần còn phải thu của từng dòng, ghi `finance.commission_events`); danh sách phát sinh | CHUC_NANG_80, CHUC_NANG_82 |
+| Quy tắc dùng chung | `apps/api/src/commission/commission-rules.ts`, không phụ thuộc dịch vụ khác: `assignCommissionUser` (gọi trong giao dịch gửi đơn của `SalesOrdersService`, `apps/api/src/sales/sales-orders.service.ts`), `loadRateSettings`, `commissionPercent` (ngành hàng cha gần nhất, hai cách kết hợp), `tierMultiplier` | CHUC_NANG_80 đến CHUC_NANG_83 |
+| Móc nối trừ nợ | `DebtsService.allocatedHooks` (`apps/api/src/finance/debts.service.ts`, thêm ở CONG_VIEC_17): danh sách hàm gọi trong cùng giao dịch sau mỗi lần ghi `finance.debt_allocations` (phiếu thu chi ghi sổ, phiếu kho tự trừ khoản đối ứng). Module Công nợ không phụ thuộc module hoa hồng | CHUC_NANG_82 |
+| Bảng hoa hồng | `CommissionStatementsService` (`apps/api/src/commission/commission-statements.service.ts`): lập (khóa `finance.commission_settings` bằng `FOR UPDATE`), bỏ, gửi, rút; dãy số `ensureSequence` tiền tố `HH`; luồng duyệt `ApprovalRequestsService.submitWithin`, `withdraw`; nghe `core.approval.completed` qua outbox, loại `finance.commission`; ghi sổ bằng `commissionDraft` (`apps/api/src/accounting/postings.ts`) và `LedgerService.record`; ngày bút toán theo `ledgerSettings` (`apps/api/src/accounting/period-guard.ts`). `LedgerService` khi khởi tạo kế toán lập bút toán cho bảng đã ghi sổ trước đó | CHUC_NANG_83 |
+| Định khoản | `apps/api/src/accounting/charts.ts`, `postings.ts`: vai trò `commission_expense` (6411 Thông tư 99/2025, 6421 Thông tư 133), `staff_payable` (334); nguồn bút toán `commission` | CHUC_NANG_83 |
+| Bộ điều khiển | `CommissionsController` (`apps/api/src/commission/commissions.controller.ts`): API_93, API_94; kiểm `finance.access` hoặc `finance.commission.view` bằng `PermissionService.authorize`, quyền chi tiết kiểm trong service bằng `requireFinancePermission` | CHUC_NANG_80 đến CHUC_NANG_83 |
+| Giao diện | `apps/web-finance`: trang `/commissions` (thẻ "Bảng hoa hồng", "Phát sinh"), `/commission-settings` (thẻ "Cài đặt", "Chỉ tiêu"); `CommissionStatements`; `FinanceShell` thêm mục menu "Hoa hồng", "Cài đặt hoa hồng" | CHUC_NANG_80, CHUC_NANG_82, CHUC_NANG_83 |
+
 ## 4. Kiến trúc triển khai
 
 | Môi trường | Mục đích | Hạ tầng |
@@ -207,7 +219,7 @@ Chia theo phần chạy riêng của hệ thống, bên trong chia theo module. 
 
 ```
 apps/
-  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales, src/finance, src/accounting, src/einvoice...
+  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales, src/finance, src/accounting, src/einvoice, src/commission...
                         Không chứa mã giao diện.
   web-platform/         Mini app Nền tảng và trang chủ mini app.
   web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm, web-purchasing, web-sales, web-finance...).
