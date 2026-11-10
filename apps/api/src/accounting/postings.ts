@@ -217,3 +217,23 @@ export async function writeOffDraft(executor: Executor, discrepancyId: string, d
     lines: [debit("sales_return", net), debit("vat_output", round(gross - net)), credit("receivable", gross, row.partner_id)],
   };
 }
+
+// Bảng hoa hồng đã ghi sổ (CONG_VIEC_17; QUYTAC_NGHIEPVU_112): Nợ chi phí hoa hồng / Có phải trả người lao động; tổng âm thì đảo bên.
+export async function commissionDraft(executor: Executor, statementId: string, date?: string): Promise<DraftJournal | null> {
+  const row = (
+    await executor.execute<{ company_id: string; month: string; document_no: string; total_amount: string }>(sql`
+    SELECT company_id, month, document_no, total_amount::text FROM finance.commission_statements WHERE id = ${statementId}`)
+  ).rows[0];
+  if (!row) return null;
+  const [year, month] = row.month.split("-").map(Number) as [number, number];
+  const total = Number(row.total_amount);
+  return {
+    companyId: row.company_id,
+    sourceType: "commission",
+    sourceId: statementId,
+    journalNo: row.document_no,
+    date: date ?? new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10),
+    description: `Hoa hồng tháng ${row.month.slice(5)}/${row.month.slice(0, 4)}`,
+    lines: total >= 0 ? [debit("commission_expense", total), credit("staff_payable", total)] : [debit("staff_payable", -total), credit("commission_expense", -total)],
+  };
+}

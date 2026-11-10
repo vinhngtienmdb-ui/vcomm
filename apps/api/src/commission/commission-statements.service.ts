@@ -3,6 +3,8 @@ import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
 import type { CommissionStatementResponse, CommissionStatementStatus, CommissionStatementsResponse } from "contracts";
 import { sql } from "drizzle-orm";
 import { LedgerService } from "../accounting/ledger.service";
+import { ledgerSettings } from "../accounting/period-guard";
+import { commissionDraft } from "../accounting/postings";
 import { ApprovalRequestsService } from "../approvals/approval-requests.service";
 import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
@@ -214,7 +216,6 @@ export class CommissionStatementsService implements OnModuleInit {
       if (!row) throw new ApiError("NOT_FOUND", "notFound");
       if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       if (row.status !== "draft") throw new ApiError("BUSINESS_RULE", "documentNotDraft");
-      await this.ledger.requireOpenPeriod(transaction, actor.companyId, monthEnd(row.month));
       const documentNo = row.document_no ?? (await this.sequences.next(actor.companyId, documentTypeCode, transaction));
       let requestId: string | null = null;
       try {
@@ -271,34 +272,22 @@ export class CommissionStatementsService implements OnModuleInit {
     return this.list(actor);
   }
 
-  // Ghi sổ: bút toán Nợ chi phí hoa hồng / Có phải trả người lao động, ngày cuối tháng; tổng âm thì đảo bên.
+  // Ghi sổ: bút toán ngày cuối tháng; tháng đã khóa sổ thì ghi ngày đầu kỳ chưa khóa, để tháng sau vẫn chốt được.
   private async post(executor: Executor, id: string): Promise<void> {
     const row = (
-      await executor.execute<{ company_id: string; month: string; document_no: string; total_amount: string }>(sql`
-      SELECT company_id, month, document_no, total_amount::text FROM finance.commission_statements WHERE id = ${id} AND status = 'pending' FOR UPDATE`)
+      await executor.execute<{ company_id: string; month: string }>(sql`
+      SELECT company_id, month FROM finance.commission_statements WHERE id = ${id} AND status = 'pending' FOR UPDATE`)
     ).rows[0];
     if (!row) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-    const date = monthEnd(row.month);
-    await this.ledger.requireOpenPeriod(executor, row.company_id, date);
-    const total = Number(row.total_amount);
-    await this.ledger.record(executor, {
-      companyId: row.company_id,
-      sourceType: "commission",
-      sourceId: id,
-      journalNo: row.document_no,
-      date,
-      description: `Hoa hồng tháng ${row.month.slice(5)}/${row.month.slice(0, 4)}`,
-      lines:
-        total >= 0
-          ? [
-              { role: "commission_expense", partnerId: null, debit: total, credit: 0 },
-              { role: "staff_payable", partnerId: null, debit: 0, credit: total },
-            ]
-          : [
-              { role: "staff_payable", partnerId: null, debit: -total, credit: 0 },
-              { role: "commission_expense", partnerId: null, debit: 0, credit: -total },
-            ],
-    });
+    const ledger = await ledgerSettings(executor, row.company_id);
+    if (ledger) {
+      const rules = await executor.execute(sql`
+        SELECT 1 FROM accounting.posting_rules WHERE company_id = ${row.company_id} AND role IN ('commission_expense', 'staff_payable')`);
+      if (rules.rows.length < 2) throw new ApiError("BUSINESS_RULE", "postingRuleMissing");
+      let date = monthEnd(row.month);
+      if (ledger.locked && date <= ledger.locked) date = new Date(Date.parse(`${ledger.locked}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
+      await this.ledger.record(executor, await commissionDraft(executor, id, date));
+    }
     await executor.execute(sql`UPDATE finance.commission_statements SET status = 'posted', posted_at = now(), post_error = NULL, version = version + 1 WHERE id = ${id}`);
   }
 }

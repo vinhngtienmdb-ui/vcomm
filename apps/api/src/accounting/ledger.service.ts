@@ -14,7 +14,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { charts, defaultPostingRules, roleDescriptions } from "./charts";
 import { assertOpenPeriod, ledgerSettings } from "./period-guard";
-import { inventoryDraft, paymentDraft, postingRoles, writeOffDraft, type DraftJournal, type Executor, type PostingRole } from "./postings";
+import { inventoryDraft, paymentDraft, postingRoles, writeOffDraft, type DraftJournal, type Executor, type PostingRole, commissionDraft } from "./postings";
 
 export const ledgerPermissions = {
   view: "finance.ledger.view",
@@ -144,6 +144,9 @@ export class LedgerService implements OnModuleInit {
     const writeOffs = await executor.execute<{ id: string; resolved_at: string }>(sql`
       SELECT id, (resolved_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS resolved_at FROM inventory.internal_discrepancies WHERE company_id = ${companyId} AND status = 'written_off'`);
     for (const writeOff of writeOffs.rows) await this.record(executor, await writeOffDraft(executor, writeOff.id, writeOff.resolved_at), false);
+    // Bảng hoa hồng đã ghi sổ trước khi khởi tạo kế toán (CONG_VIEC_17).
+    const statements = await executor.execute<{ id: string }>(sql`SELECT id FROM finance.commission_statements WHERE company_id = ${companyId} AND status = 'posted' ORDER BY posted_at`);
+    for (const statement of statements.rows) await this.record(executor, await commissionDraft(executor, statement.id), false);
   }
 
   private async requireInitialized(executor: Executor, companyId: string): Promise<void> {

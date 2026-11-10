@@ -241,7 +241,8 @@
     "commissionTierDuplicate": "Two tiers start at the same percent.",
     "commissionRateDuplicate": "This category and channel already have a rate.",
     "commissionStatementOpen": "A draft or pending commission statement exists; finish it first.",
-    "commissionMonthNotNext": "Only the next finished month can be closed."
+    "commissionMonthNotNext": "Only the next finished month can be closed.",
+    "postingRuleMissing": "Posting rules for commission expense or staff payable are missing."
   },
   "login": {
     "title": "Sign in",

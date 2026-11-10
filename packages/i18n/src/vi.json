@@ -241,7 +241,8 @@
     "commissionTierDuplicate": "Hai bậc trùng phần trăm bắt đầu.",
     "commissionRateDuplicate": "Ngành hàng và kênh này đã có mức.",
     "commissionStatementOpen": "Đang có bảng hoa hồng nháp hoặc chờ duyệt; xử lý bảng đó trước.",
-    "commissionMonthNotNext": "Chỉ lập được bảng của tháng tiếp theo đã kết thúc."
+    "commissionMonthNotNext": "Chỉ lập được bảng của tháng tiếp theo đã kết thúc.",
+    "postingRuleMissing": "Chưa có định khoản cho chi phí hoa hồng hoặc phải trả người lao động; kế toán trưởng khai ở Hệ thống tài khoản."
   },
   "login": {
     "title": "Đăng nhập",

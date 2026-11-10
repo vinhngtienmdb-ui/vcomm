@@ -54,16 +54,19 @@ export class CommissionsService implements OnModuleInit {
         : sql`SELECT coalesce(sum(abs(o.base_quantity)), 0) AS before FROM inventory.document_lines o JOIN inventory.documents od ON od.id = o.document_id
             JOIN inventory.document_lines oi ON oi.id = o.source_line_id
             WHERE oi.source_line_id = sl.id AND od.type = 'sales_return' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)`;
+    // Một dòng đơn có thể tách nhiều dòng phiếu (nhiều lô): cộng theo dòng đơn.
     return (
       await transaction.execute<LineShare>(sql`
-      WITH d AS (SELECT id, posted_at, finance.company_minor_units(company_id) AS units FROM inventory.documents WHERE id = ${documentId})
-      SELECT sl.id AS order_line_id, p.category_id,
+      WITH d AS (SELECT id, posted_at, finance.company_minor_units(company_id) AS units FROM inventory.documents WHERE id = ${documentId}),
+      parts AS (
+      SELECT sl.id AS order_line_id, p.category_id, dl.line_no,
         finance.line_share(sl.total_amount, b.before, abs(dl.base_quantity), sl.base_quantity, d.units)::text AS gross,
         finance.line_share(sl.net_amount, b.before, abs(dl.base_quantity), sl.base_quantity, d.units)::text AS net
       FROM d JOIN inventory.document_lines dl ON dl.document_id = d.id JOIN sales.order_lines sl ON ${orderLine}
       JOIN catalog.variants v ON v.id = dl.variant_id JOIN catalog.products p ON p.id = v.product_id
-      CROSS JOIN LATERAL (${before}) b
-      ORDER BY dl.line_no`)
+      CROSS JOIN LATERAL (${before}) b)
+      SELECT order_line_id, category_id, sum(gross::numeric)::text AS gross, sum(net::numeric)::text AS net FROM parts
+      GROUP BY order_line_id, category_id ORDER BY min(line_no)`)
     ).rows;
   }
 
@@ -80,6 +83,7 @@ export class CommissionsService implements OnModuleInit {
       eventDate: string;
       amount: number | null;
       sign: 1 | -1;
+      debitItemId?: string;
     },
   ): Promise<void> {
     const order = (await transaction.execute<{ commission_user_id: string | null; channel_id: string }>(sql`SELECT commission_user_id, channel_id FROM sales.orders WHERE id = ${input.orderId}`))
@@ -95,15 +99,39 @@ export class CommissionsService implements OnModuleInit {
     const lines = await this.lineShares(transaction, input.documentId, input.type);
     const grossTotal = lines.reduce((sum, line) => sum + Number(line.gross), 0);
     if (grossTotal <= 0) return;
-    // Cả phiếu (bán lẻ): tiền chưa thuế của dòng; một phần (trừ nợ): phần tiền × tiền chưa thuế dòng / tổng gồm thuế.
-    const fraction = input.amount === null ? 1 : Math.min(input.amount / grossTotal, 1);
+    // Trọng số chia tiền theo dòng: cả phiếu thì tiền gồm thuế của dòng; thu tiền phiếu xuất thì phần còn phải thu của dòng
+    // (trừ hàng trả đã trừ vào nợ của phiếu này và phần đã thu trước), để hàng trả trừ vào phần chưa thu không được tính hoa hồng.
+    const weights = new Map(lines.map((line) => [line.order_line_id, Number(line.gross)]));
+    if (input.amount !== null && input.debitItemId && input.type === "sales_issue") {
+      const offsets = await transaction.execute<{ amount: string; return_id: string }>(sql`
+        SELECT a.amount::text, c.source_id AS return_id FROM finance.debt_allocations a JOIN finance.debt_items c ON c.id = a.credit_item_id
+        WHERE a.debit_item_id = ${input.debitItemId} AND c.source_type = 'sales_return'`);
+      for (const offset of offsets.rows) {
+        const returned = await this.lineShares(transaction, offset.return_id, "sales_return");
+        const returnedTotal = returned.reduce((sum, line) => sum + Number(line.gross), 0);
+        if (returnedTotal <= 0) continue;
+        for (const line of returned) weights.set(line.order_line_id, (weights.get(line.order_line_id) ?? 0) - (Number(offset.amount) * Number(line.gross)) / returnedTotal);
+      }
+      const collected = await transaction.execute<{ order_line_id: string; gross: string }>(sql`
+        SELECT order_line_id, sum(gross_amount)::text AS gross FROM finance.commission_events
+        WHERE document_id = ${input.documentId} AND source_type = 'receipt' AND source_id <> ${input.sourceId} GROUP BY order_line_id`);
+      for (const row of collected.rows) weights.set(row.order_line_id, (weights.get(row.order_line_id) ?? 0) - Number(row.gross));
+      for (const [key, value] of weights) weights.set(key, Math.max(value, 0));
+    }
+    const weightTotal = [...weights.values()].reduce((sum, value) => sum + value, 0);
+    if (weightTotal <= 0) return;
+    const amount = input.amount === null ? grossTotal : input.amount;
     for (const line of lines) {
-      const base = round(Number(line.net) * fraction) * input.sign;
+      const gross = Number(line.gross);
+      // Phần tiền (gồm thuế) của dòng, không vượt phần còn của dòng; quy về tiền chưa thuế theo tỷ lệ của dòng.
+      const share = Math.min((amount * (weights.get(line.order_line_id) ?? 0)) / weightTotal, weights.get(line.order_line_id) ?? 0);
+      if (share <= 0 || gross <= 0) continue;
+      const base = round((share * Number(line.net)) / gross) * input.sign;
       const percent = commissionPercent(rates, line.category_id, order.channel_id);
       await transaction.execute(sql`
-        INSERT INTO finance.commission_events (company_id, user_id, order_id, source_type, source_id, document_id, order_line_id, event_date, base_amount, percent, amount)
+        INSERT INTO finance.commission_events (company_id, user_id, order_id, source_type, source_id, document_id, order_line_id, event_date, base_amount, gross_amount, percent, amount)
         VALUES (${input.companyId}, ${order.commission_user_id}, ${input.orderId}, ${input.sourceType}, ${input.sourceId}, ${input.documentId}, ${line.order_line_id},
-          ${input.eventDate}::date, ${base}, ${percent}, ${round((base * percent) / 100)})
+          ${input.eventDate}::date, ${base}, ${round(share) * input.sign}, ${percent}, ${round((base * percent) / 100)})
         ON CONFLICT (source_type, source_id, order_line_id) DO NOTHING`);
     }
   }
@@ -114,6 +142,7 @@ export class CommissionsService implements OnModuleInit {
       await transaction.execute<{
         company_id: string;
         amount: string;
+        debit_item_id: string;
         debit_source: string;
         debit_source_id: string | null;
         credit_source: string;
@@ -121,7 +150,7 @@ export class CommissionsService implements OnModuleInit {
         debit_date: string;
         credit_date: string;
       }>(sql`
-      SELECT a.company_id, a.amount::text, d.source_type AS debit_source, d.source_id AS debit_source_id, c.source_type AS credit_source, c.source_id AS credit_source_id,
+      SELECT a.company_id, a.amount::text, a.debit_item_id, d.source_type AS debit_source, d.source_id AS debit_source_id, c.source_type AS credit_source, c.source_id AS credit_source_id,
         d.document_date::text AS debit_date, c.document_date::text AS credit_date
       FROM finance.debt_allocations a JOIN finance.debt_items d ON d.id = a.debit_item_id JOIN finance.debt_items c ON c.id = a.credit_item_id
       WHERE a.id = ${allocationId} AND d.side = 'receivable'`)
@@ -144,6 +173,7 @@ export class CommissionsService implements OnModuleInit {
         eventDate,
         amount: Number(row.amount),
         sign: 1,
+        debitItemId: row.debit_item_id,
       });
     } else if (row.credit_source === "sales_return" && row.debit_source === "payment") {
       const order = (
@@ -254,6 +284,22 @@ export class CommissionsService implements OnModuleInit {
       });
       input.channelFactors.forEach((factor, index) => {
         if (!valid.has(factor.channelId)) fields[`channelFactors.${index}.channelId`] = "invalidValue";
+      });
+    }
+    const categoryIds = [...new Set(input.rates.map((rate) => rate.categoryId))];
+    if (categoryIds.length > 0) {
+      const known = new Set(
+        (
+          await this.database.execute<{ id: string }>(
+            sql`SELECT id FROM catalog.categories WHERE id IN (${sql.join(
+              categoryIds.map((id) => sql`${id}::uuid`),
+              sql`, `,
+            )})`,
+          )
+        ).rows.map((row) => row.id),
+      );
+      input.rates.forEach((rate, index) => {
+        if (!known.has(rate.categoryId)) fields[`rates.${index}.categoryId`] = "invalidValue";
       });
     }
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });

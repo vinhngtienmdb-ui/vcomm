@@ -462,3 +462,62 @@ describe("TIEUCHI_NGHIEMTHU_130: bảng hoa hồng tháng", () => {
     expect((await call(accountant, "post", "/finance/commissions/statements", { month: today.slice(0, 7) })).status).toBe(409);
   });
 });
+
+describe("TIEUCHI_NGHIEMTHU_129: phát sinh theo dòng (sau rà soát)", () => {
+  it("KICHBAN_KIEMTHU_241: trả hết một dòng khi còn nợ, thu phần còn lại: chỉ dòng còn lại có hoa hồng", async () => {
+    const created = await call(seller, "post", "/sales/orders", {
+      channelId: retailChannel,
+      warehouseId,
+      orderDate: today,
+      customerId: customer,
+      lines: [
+        { variantId: itemA, unitId, quantity: "1", discountPercent: "0" },
+        { variantId: itemB, unitId, quantity: "1", discountPercent: "0" },
+      ],
+    });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    const order = (await call(seller, "post", `/sales/orders/${created.body.id}/submit`)).body as { id: string; lines: { id: string }[] };
+    const issue = await keeper.call("post", "/inventory/sales-issues", {
+      companyId: retail,
+      body: { orderId: order.id, documentDate: today, lines: order.lines.map((line) => ({ orderLineId: line.id, quantity: "1" })) },
+    });
+    const posted = (await keeper.call("post", `/inventory/documents/${issue.body.id}/submit`, { companyId: retail })).body as { id: string; lines: { id: string; variantId: string }[] };
+    // Trả hết dòng hàng A (11.000) khi chưa thu: trừ vào nợ phiếu xuất.
+    const lineA = posted.lines.find((line) => line.variantId === itemA)!;
+    const returned = await keeper.call("post", "/inventory/sales-returns", {
+      companyId: retail,
+      body: { issueId: posted.id, documentDate: today, reason: "Khách trả", lines: [{ issueLineId: lineA.id, quantity: "1" }] },
+    });
+    expect((await keeper.call("post", `/inventory/documents/${returned.body.id}/submit`, { companyId: retail })).body.status).toBe("posted");
+    // Thu 12.000 còn lại: chỉ dòng B (chưa thuế 10.909).
+    await payment({ kind: "customer_receipt", partnerId: customer, amount: "12000", lines: [{ debitItemId: await debtItemOf(posted.id), amount: "12000" }] });
+    const events = await eventsOf(order.id);
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({ sourceType: "receipt", baseAmount: "10909" });
+  });
+
+  it("KICHBAN_KIEMTHU_242: một dòng đơn giao bằng hai dòng phiếu: hoa hồng tính đủ cả hai dòng", async () => {
+    const order = await confirmedOrder("5", customer);
+    const issue = await keeper.call("post", "/inventory/sales-issues", {
+      companyId: retail,
+      body: {
+        orderId: order.id,
+        documentDate: today,
+        lines: [
+          { orderLineId: order.lines[0]!.id, quantity: "3" },
+          { orderLineId: order.lines[0]!.id, quantity: "2" },
+        ],
+      },
+    });
+    if (issue.status !== 201) {
+      // Phiếu không nhận hai dòng cùng dòng đơn: không có tình huống tách dòng.
+      expect(issue.status).toBe(400);
+      return;
+    }
+    const posted = (await keeper.call("post", `/inventory/documents/${issue.body.id}/submit`, { companyId: retail })).body as { id: string; status: string };
+    expect(posted.status).toBe("posted");
+    await payment({ kind: "customer_receipt", partnerId: customer, amount: "55000", lines: [{ debitItemId: await debtItemOf(posted.id), amount: "55000" }] });
+    const events = await eventsOf(order.id);
+    expect(events.map((event) => event.baseAmount)).toEqual(["50000"]);
+  });
+});
