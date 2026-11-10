@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_17: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 52 (sau số 51).
 - CONG_VIEC_17: Xong lát L0, L1 trên nhánh `chuc-nang/CONG_VIEC_17-hoa-hong` (pull request số 52, tách từ nhánh CONG_VIEC_16). Database migration 0015 đến 0017; cài đặt, chỉ tiêu, gán đơn, phát sinh theo tiền thu, bảng hoa hồng tháng qua luồng duyệt, bút toán. Kiểm thử 250/250 đạt. Không thêm thư viện. Rà soát mã sửa 2 lỗi Cao, 2 mục Trung bình. Chờ người dùng nghiệm thu.
 - CONG_VIEC_17: Lập công việc Hoa hồng đội kinh doanh (MODULE_06, phần 5), mức Lớn.
 - CONG_VIEC_16: Người dùng nghiệm thu, chấp nhận giới hạn: kết nối MISA theo nguồn thứ cấp (thử tài khoản thử MISA trước phát hành), cơ quan thuế từ chối qua MISA chưa nhận ra, tệp tải lỗi không tự tải lại, ngày làm việc tiếp theo chưa tính ngày lễ; chờ người dùng hợp nhất pull request số 51 (sau số 50).
@@ -44,6 +45,7 @@
 
 ### Quyết định
 
+- Hoa hồng (CONG_VIEC_17) – người quyết định: người dùng, ngày 2026-11-10, khi nghiệm thu: đơn không có khách gán cho người lập đơn bất kể cách gán; đơn bán cho công ty con trong tập đoàn không tính hoa hồng; phiếu chi hoàn tiền giữ cách trừ vào khoản có cũ nhất (giới hạn đã biết).
 - Hoa hồng (MODULE_06) – người quyết định: người dùng, ngày 2026-11-10: làm hoa hồng đội kinh doanh trước, cộng tác viên, nhà bán, cửa hàng liên kết làm cùng các module đó; đơn bán gán cho nhân viên phụ trách khách hoặc người lập đơn, công ty chọn trong cài đặt; hoa hồng tính trên tiền đã thu; mức theo phần trăm ngành hàng và kênh bán, cách kết hợp công ty chọn trong cài đặt; hệ số theo phần trăm đạt chỉ tiêu tháng; chốt tháng, qua luồng duyệt, hạch toán; khách được hoàn tiền sau khi đã chốt thì trừ vào kỳ sau.
 - Hóa đơn điện tử (CONG_VIEC_16) – người quyết định: người dùng, ngày 2026-11-10, khi xem trước lát L0: đơn giá chưa thuế trên hóa đơn làm tròn đến đồng; tiền chưa thuế, thuế, tổng giữ theo công nợ.
 - Hóa đơn điện tử (MODULE_06) – người quyết định: người dùng, ngày 2026-11-10: nhà cung cấp hóa đơn điện tử cài đặt theo từng công ty (làm lớp kết nối chung, thêm từng nhà cung cấp khi có tài khoản); hóa đơn lập và gửi tự động khi phiếu xuất giao hàng ghi sổ; loại hóa đơn (có mã, không mã, khởi tạo từ máy tính tiền) và ký hiệu theo từng công ty; trả hàng sau khi có hóa đơn: kế toán chọn từng lần (điều chỉnh, thay thế hoặc không lập). Bổ sung cùng ngày sau khi tra Nghị định 254/2026/NĐ-CP, Thông tư 91/2026/TT-BTC: lập hóa đơn cho mọi phiếu xuất giao hàng, kể cả đơn không có khách (THAY_DOI_11); bán cho công ty con trong tập đoàn lập hóa đơn như bán thường; trả hàng thì kế toán chọn lập hóa đơn điều chỉnh giảm hoặc ghi hóa đơn trả hàng của người mua (hóa đơn thay thế chỉ dùng khi sai sót); các công ty sẽ đăng ký chữ ký số từ xa (HSM) để ký tự động, trong lúc chờ dùng bộ giả lập.
