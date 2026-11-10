@@ -226,3 +226,22 @@
 - Mức quy mô: Lớn (gộp trong CONG_VIEC_22).
 - Rủi ro: trung bình (lưu vị trí, ảnh là dữ liệu cá nhân của nhân viên và khách; cần tài liệu `22`).
 - Trạng thái: Đã phê duyệt 2026-11-10.
+
+### THAY_DOI_14: Mô hình kinh doanh B2C qua sàn VComm, giới thiệu khách và hoa hồng theo đơn – 2026-11-10
+- Lý do: người dùng bổ sung mô hình kinh doanh (tài liệu `02`, 2026-11-10): khách hàng tự đăng ký tài khoản trên ứng dụng sàn VComm (ứng dụng cho người mua), gắn với tài khoản giới thiệu cấp trên qua đường dẫn hoặc mã giới thiệu là số điện thoại; tài khoản nhân viên kinh doanh là tài khoản thường được đánh dấu để cấp quyền; hoa hồng đến từ việc khách mua hàng; nhân viên kinh doanh chỉ bán B2C, không tạo đơn giùm khách (khách tự đặt trên ứng dụng VComm); các công ty nội bộ chỉ bán dịch vụ cho nhau, không bán hàng hóa; chỉ VComm là sàn bán hàng hóa; hoa hồng chi trả khi đơn hoàn tất (sau 7 ngày trả hàng).
+- Nội dung thay đổi (quyết định của người dùng 2026-11-10):
+  - Hoa hồng chỉ tính cho người giới thiệu trực tiếp của khách (một cấp).
+  - Đơn hoàn tất (hết 7 ngày trả hàng) thì hoa hồng cộng vào ví của người giới thiệu; người được hưởng tự tạo yêu cầu rút tiền về tài khoản ngân hàng.
+  - Không làm ứng dụng nhân viên kinh doanh riêng: phần kinh doanh gộp vào ứng dụng VComm, tài khoản được đánh dấu nhân viên kinh doanh thấy thêm phần kinh doanh.
+  - Làm phần lõi MODULE_09 trước (tài khoản người mua tự đăng ký, giới thiệu, đánh dấu nhân viên kinh doanh, đơn của người mua, hoa hồng vào ví, rút tiền); sửa các công việc đã làm bằng công việc riêng sau.
+- Thành phần bị ảnh hưởng: tài liệu `01` (thứ tự module), `04` đến `11`, `12` (ứng dụng `apps/mobile-sales` thành phần kinh doanh của ứng dụng VComm), `14`, `16`, `17`, `22`; CONG_VIEC_08 (đơn bán: không dùng cho nhân viên kinh doanh bán B2C), CONG_VIEC_09 (giao dịch nội bộ hàng hóa không còn dùng; nội bộ chỉ bán dịch vụ), CONG_VIEC_17 (hoa hồng theo tiền thu, bảng tháng, chỉ tiêu thay bằng hoa hồng theo đơn hoàn tất vào ví), CONG_VIEC_20 (loại trừ doanh thu, giá vốn hàng hóa nội bộ, lãi chưa thực hiện không còn phát sinh), CONG_VIEC_21 (khách thuộc người giới thiệu thay cho giao khách), CONG_VIEC_22 (dừng ứng dụng riêng; dùng lại API đăng nhập bằng token, ghé thăm, tóm tắt khách).
+- Dữ liệu bị ảnh hưởng: thêm tài khoản người mua, quan hệ giới thiệu, ví, giao dịch ví, yêu cầu rút tiền; dữ liệu cũ chưa có trên môi trường thật.
+- API bị ảnh hưởng: thêm API đăng ký, giới thiệu, ví, rút tiền, đơn của người mua; API cũ đánh giá lại theo từng công việc sửa.
+- Giao diện bị ảnh hưởng: ứng dụng VComm cho người mua (mới), phần kinh doanh trong ứng dụng; web quản trị ví, rút tiền.
+- Quyền bị ảnh hưởng: đánh dấu tài khoản nhân viên kinh doanh; quyền duyệt rút tiền.
+- Ảnh hưởng chức năng cũ: như mục thành phần bị ảnh hưởng; xử lý bằng các công việc sửa riêng, có phiếu thay đổi riêng khi đổi hành vi đã nghiệm thu.
+- Kiểm thử cần thực hiện: kịch bản của các công việc mới; hồi quy CONG_VIEC_08, 09, 17, 20, 21 khi sửa.
+- Mức quy mô: Lớn.
+- Rủi ro: cao (đổi mô hình kinh doanh; ví tiền của người dùng cần kiểm soát chặt; hoa hồng một cấp để tránh rủi ro bán hàng đa cấp, cần kiểm tra pháp lý về khấu trừ thuế thu nhập cá nhân trên hoa hồng và chương trình giới thiệu).
+- Trạng thái: Đã phê duyệt 2026-11-10.
+
