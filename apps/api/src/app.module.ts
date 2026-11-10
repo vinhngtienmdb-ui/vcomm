@@ -62,6 +62,7 @@ import { LedgerService } from "./accounting/ledger.service";
 import { LedgerController } from "./accounting/ledger.controller";
 import { JournalsService } from "./accounting/journals.service";
 import { LedgerReportsService } from "./accounting/ledger-reports.service";
+import { StatementsService } from "./accounting/statements.service";
 import { SupplierPricesService } from "./purchasing/supplier-prices.service";
 import { RequisitionsService } from "./purchasing/requisitions.service";
 import { PurchaseOrdersService } from "./purchasing/orders.service";
@@ -133,6 +134,7 @@ import { UsersService } from "./users/users.service";
     LedgerService,
     JournalsService,
     LedgerReportsService,
+    StatementsService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

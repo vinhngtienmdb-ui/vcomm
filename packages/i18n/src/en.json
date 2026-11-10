@@ -213,7 +213,8 @@
     "journalUnbalanced": "Total debits must equal total credits.",
     "periodNotClosable": "This month cannot be closed (close ended months in order).",
     "periodHasPendingJournals": "There are pending journals in the period.",
-    "periodHasPendingDocuments": "There are pending inventory documents or payments dated in the period."
+    "periodHasPendingDocuments": "There are pending inventory documents or payments dated in the period.",
+    "accountSystemLongTerm": "Only detail accounts opened by accountants can be marked long-term."
   },
   "login": {
     "title": "Sign in",

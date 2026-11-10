@@ -2926,6 +2926,7 @@ export interface AccountResponse {
   isSystem: boolean;
   status: "active" | "inactive";
   postable: boolean;
+  isLongTerm: boolean;
   hasLines: boolean;
   version: number;
   canEdit: boolean;
@@ -2935,7 +2936,7 @@ export const saveAccountSchema = z
   .strict();
 export type SaveAccountRequest = z.input<typeof saveAccountSchema>;
 export const updateAccountSchema = z
-  .object({ name: z.string().trim().min(1).max(200), status: z.enum(["active", "inactive"]), version: z.number().int().positive() })
+  .object({ name: z.string().trim().min(1).max(200), status: z.enum(["active", "inactive"]), isLongTerm: z.boolean().optional(), version: z.number().int().positive() })
   .strict();
 export interface PostingRuleResponse {
   role: string;
@@ -3057,4 +3058,30 @@ export interface AccountLedgerResponse {
   totalDebit: string;
   totalCredit: string;
   closingBalance: string;
+}
+
+// CONG_VIEC_15: Báo cáo tài chính (API_90).
+export const statementKinds = ["balance_sheet", "income_statement"] as const;
+export type StatementKind = (typeof statementKinds)[number];
+export const statementQuerySchema = z
+  .object({ kind: z.enum(statementKinds), from: isoDate.optional(), to: isoDate, form: z.string().trim().max(20).optional(), format: z.enum(["xlsx", "pdf"]).optional() })
+  .strict();
+export interface StatementLineResponse {
+  code: string;
+  name: string;
+  level: number;
+  note: string | null;
+  current: string;
+  previous: string;
+}
+export interface StatementResponse {
+  kind: StatementKind;
+  form: string;
+  name: string;
+  forms: string[];
+  regime: AccountingRegime;
+  company: { name: string; taxCode: string | null; address: string | null };
+  currency: string;
+  columns: { label: "endOfPeriod" | "startOfYear" | "currentPeriod" | "previousPeriod" | string; from: string | null; to: string }[];
+  lines: StatementLineResponse[];
 }

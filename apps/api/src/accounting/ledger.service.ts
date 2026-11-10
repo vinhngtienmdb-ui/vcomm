@@ -31,6 +31,7 @@ type AccountRow = {
   nature: "debit" | "credit" | "both";
   is_system: boolean;
   status: "active" | "inactive";
+  is_long_term: boolean;
   has_children: boolean;
   has_lines: boolean;
   version: number;
@@ -152,7 +153,7 @@ export class LedgerService implements OnModuleInit {
   async accounts(actor: Actor): Promise<AccountResponse[]> {
     const granted = await requireFinancePermission(this.permissionService, actor, ledgerPermissions.view, ledgerPermissions.setup, ledgerPermissions.manageJournals);
     const rows = await this.database.execute<AccountRow>(sql`
-      SELECT a.id, a.code, a.name, a.parent_id, a.nature, a.is_system, a.status, a.version,
+      SELECT a.id, a.code, a.name, a.parent_id, a.nature, a.is_system, a.status, a.is_long_term, a.version,
         EXISTS (SELECT 1 FROM accounting.accounts c WHERE c.parent_id = a.id AND c.status = 'active') AS has_children,
         EXISTS (SELECT 1 FROM accounting.journal_lines l WHERE l.account_id = a.id) AS has_lines
       FROM accounting.accounts a WHERE a.company_id = ${actor.companyId} ORDER BY a.code`);
@@ -166,6 +167,7 @@ export class LedgerService implements OnModuleInit {
       isSystem: row.is_system,
       status: row.status,
       postable: row.status === "active" && !row.has_children,
+      isLongTerm: row.is_long_term,
       hasLines: row.has_lines,
       version: row.version,
       canEdit: manage,
@@ -199,7 +201,7 @@ export class LedgerService implements OnModuleInit {
   }
 
   // Sửa tên, ngừng dùng tài khoản chi tiết; tài khoản hệ thống chỉ đổi tên được, không ngừng dùng.
-  async updateAccount(actor: Actor, id: string, input: { name: string; status: "active" | "inactive"; version: number }): Promise<AccountResponse[]> {
+  async updateAccount(actor: Actor, id: string, input: { name: string; status: "active" | "inactive"; isLongTerm?: boolean; version: number }): Promise<AccountResponse[]> {
     await requireFinancePermission(this.permissionService, actor, ledgerPermissions.setup);
     await this.database.transaction(async (transaction) => {
       const row = (
@@ -215,7 +217,10 @@ export class LedgerService implements OnModuleInit {
         const children = await transaction.execute(sql`SELECT 1 FROM accounting.accounts WHERE parent_id = ${id} AND status = 'active' LIMIT 1`);
         if (children.rows.length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { status: "accountHasChildren" } });
       }
-      await transaction.execute(sql`UPDATE accounting.accounts SET name = ${input.name}, status = ${input.status}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
+      // Đánh dấu dài hạn chỉ cho tài khoản chi tiết do kế toán mở (QUYTAC_NGHIEPVU_101).
+      if (input.isLongTerm && row.is_system) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { isLongTerm: "accountSystemLongTerm" } });
+      await transaction.execute(sql`
+        UPDATE accounting.accounts SET name = ${input.name}, status = ${input.status}, is_long_term = coalesce(${input.isLongTerm ?? null}::boolean, is_long_term), updated_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.auditService.record({ ...financeAudit(actor, "account"), action: "account.update", entityId: id, beforeData: row, afterData: input }, transaction);
     });
     return this.accounts(actor);

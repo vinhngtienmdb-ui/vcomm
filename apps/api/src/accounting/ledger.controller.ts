@@ -1,9 +1,12 @@
 // API_87 đến API_89: khởi tạo kế toán, tài khoản, định khoản, bút toán, sổ sách (CONG_VIEC_14). Quyền chi tiết kiểm trong service.
-import { Body, Controller, Get, Headers, Param, Patch, Post, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Get, Headers, Param, Patch, Post, Put, Query, Req, Res } from "@nestjs/common";
+import type { Response } from "express";
 import {
   closePeriodSchema,
   journalListQuerySchema,
   ledgerRangeQuerySchema,
+  statementQuerySchema,
+  type StatementResponse,
   saveJournalSchema,
   versionSchema,
   type AccountLedgerResponse,
@@ -24,6 +27,8 @@ import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { JournalsService } from "./journals.service";
+import { statementFileName, statementPdf, statementXlsx } from "./statement-export";
+import { StatementsService } from "./statements.service";
 import { LedgerReportsService } from "./ledger-reports.service";
 import { LedgerService } from "./ledger.service";
 import type { PostingRole } from "./postings";
@@ -35,6 +40,7 @@ export class LedgerController {
     private readonly ledger: LedgerService,
     private readonly journals: JournalsService,
     private readonly reports: LedgerReportsService,
+    private readonly statements: StatementsService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -132,5 +138,22 @@ export class LedgerController {
   async accountLedger(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<AccountLedgerResponse> {
     const parsed = ledgerRangeQuerySchema.parse(query);
     return this.reports.accountLedger(await this.actor(request, companyId), id, parsed.from, parsed.to);
+  }
+
+  // API_90: báo cáo tài chính; format=xlsx hoặc pdf thì trả tệp.
+  @Get("statements")
+  async statement(
+    @Req() request: AuthenticatedRequest,
+    @Query() query: unknown,
+    @Res({ passthrough: true }) response: Response,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<StatementResponse | Buffer> {
+    const parsed = statementQuerySchema.parse(query);
+    const report = await this.statements.statement(await this.actor(request, companyId), parsed.kind, parsed.from ?? parsed.to, parsed.to, parsed.form);
+    if (!parsed.format) return report;
+    const content = parsed.format === "xlsx" ? await statementXlsx(report) : await statementPdf(report);
+    response.setHeader("content-type", parsed.format === "xlsx" ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : "application/pdf");
+    response.setHeader("content-disposition", `attachment; filename="${statementFileName(report, parsed.format)}"`);
+    return content;
   }
 }
