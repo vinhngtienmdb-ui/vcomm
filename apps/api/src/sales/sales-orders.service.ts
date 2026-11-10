@@ -212,6 +212,7 @@ export class SalesOrdersService implements OnModuleInit {
     const manage = granted.has(salesPermissions.manageOrders);
     const own = row.created_by === actor.userId;
     const delivered = lines.rows.some((line) => Number(line.delivered) > 0) || documents.rows.some((document) => document.type === "sales_issue");
+    const draftIssue = documents.rows.some((document) => document.type === "sales_issue" && document.status === "draft");
     const firstStepDecided = row.approval_request_id
       ? (await this.database.execute(sql`SELECT 1 FROM core.approval_steps WHERE request_id = ${row.approval_request_id} AND level_no = 1 AND decision IS NOT NULL`)).rows.length > 0
       : true;
@@ -222,7 +223,7 @@ export class SalesOrdersService implements OnModuleInit {
       deliveryAddress: row.delivery_address,
       note: row.note,
       approvalRequestId: row.approval_request_id,
-      exceptions: row.exceptions,
+      exceptions: row.exceptions.map((exception) => ({ ...exception, detail: this.visibleDetail(exception, granted) })),
       closedReason: row.closed_reason,
       lines: lines.rows.map((line) => ({
         id: line.id,
@@ -253,7 +254,7 @@ export class SalesOrdersService implements OnModuleInit {
       canSubmit: manage && row.status === "draft",
       canWithdraw: manage && own && row.status === "pending" && !firstStepDecided,
       canCancel: manage && (["draft", "rejected", "withdrawn"].includes(row.status) || (row.status === "confirmed" && !delivered)),
-      canClose: manage && row.status === "confirmed" && delivered,
+      canClose: manage && row.status === "confirmed" && delivered && !draftIssue,
     };
   }
 
@@ -320,7 +321,8 @@ export class SalesOrdersService implements OnModuleInit {
         totals.set(line.variant_id, entry);
       });
       const expiresAt = new Date(Date.now() + hours * 3_600_000).toISOString();
-      for (const [variantId, total] of totals) {
+      // Thứ tự cố định theo mặt hàng để hai đơn gửi đồng thời không khóa chéo nhau.
+      for (const [variantId, total] of [...totals].sort(([left], [right]) => left.localeCompare(right))) {
         await this.reservations
           .reserve(transaction, {
             warehouseId: current.warehouse_id,
@@ -442,6 +444,13 @@ export class SalesOrdersService implements OnModuleInit {
       await this.auditService.record({ ...salesAudit(actor, "sales_settings"), action: "sales_settings.update", entityId: actor.companyId, beforeData: before, afterData: input }, transaction);
     });
     return readSettings(this.database, actor.companyId);
+  }
+
+  // Hạn mức công nợ, giá vốn chỉ hiện cho người có quyền xem (như hồ sơ đối tác, giá vốn kho).
+  private visibleDetail(exception: SalesException, granted: Set<string>): string {
+    if (exception.kind === "credit_limit" && !granted.has("crm.profile.manage")) return "";
+    if (exception.kind === "below_cost" && !granted.has("inventory.cost.view")) return "";
+    return exception.detail;
   }
 
   // Ngoại lệ: chiết khấu vượt mức; dưới giá vốn bình quân tại kho; vượt hạn mức công nợ theo dư nợ tạm tính (QUYTAC_NGHIEPVU_68, 69).

@@ -44,7 +44,7 @@ export default function NewSalesIssuePage() {
             <>
               <Field id="don-ban" label={t("salesOrder")}>
                 <select id="don-ban" className="o-nhap" value={orderId} onChange={(event) => setOrderId(event.target.value)}>
-                  <option value="">{t("chooseOrder")}</option>
+                  <option value="">{t("chooseSalesOrder")}</option>
                   {list.map((order) => (
                     <option key={order.id} value={order.id}>
                       {order.documentNo} · {order.customerName ?? "—"} · {order.warehouseName}

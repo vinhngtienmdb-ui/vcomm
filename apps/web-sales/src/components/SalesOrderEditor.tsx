@@ -72,7 +72,7 @@ export function SalesOrderEditor({ order, onSaved, onCancel }: { order: SalesOrd
     void run(async () => {
       const body: SaveSalesOrderRequest = {
         customerId: customerId || null,
-        buyerName,
+        buyerName: customerId ? "" : buyerName,
         channelId: channel,
         warehouseId: warehouse,
         orderDate,

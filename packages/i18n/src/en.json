@@ -1523,6 +1523,7 @@
     "noOpenOrders": "No approved purchase orders to receive into your warehouses.",
     "purchaseOrder": "Purchase order",
     "chooseOrder": "Choose a purchase order…",
+    "chooseSalesOrder": "Choose a sales order…",
     "needsQualityCheck": "Quality check required",
     "orderedReceivable": "Ordered {ordered} {unit}, still receivable {receivable} {unit}",
     "chooseReceipt": "Choose a purchase receipt to return goods.",

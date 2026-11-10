@@ -1523,6 +1523,7 @@
     "noOpenOrders": "Không có đơn mua đã duyệt cần nhận vào kho bạn quản lý.",
     "purchaseOrder": "Đơn mua",
     "chooseOrder": "Chọn đơn mua…",
+    "chooseSalesOrder": "Chọn đơn bán…",
     "needsQualityCheck": "Cần kiểm tra chất lượng",
     "orderedReceivable": "Đặt {ordered} {unit}, còn nhận được {receivable} {unit}",
     "chooseReceipt": "Chọn phiếu nhập mua để trả hàng.",

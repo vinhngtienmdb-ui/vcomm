@@ -2485,6 +2485,7 @@ export const saveSalesReturnSchema = z
     reason: z.string().trim().min(1).max(500),
     note: blankToNull(1000),
     lines: z
+      // Số lượng trả theo đơn vị cơ sở của mặt hàng.
       .array(z.object({ issueLineId: z.uuid(), quantity: positiveQuantity, serials: serialList }).strict())
       .min(1)
       .max(200),

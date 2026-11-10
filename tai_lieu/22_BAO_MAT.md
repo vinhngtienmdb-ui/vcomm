@@ -276,7 +276,7 @@ Ranh giới và kiểm soát riêng:
 
 Kết quả rà soát bảo mật phần thay đổi (2026-11-10):
 - Đã sửa trong mã: diễn giải ngoại lệ ban đầu trả nguyên số hạn mức công nợ, dư nợ, giá vốn bình quân cho mọi người xem đơn (Nhân viên bán hàng, Thủ kho); nay che theo quyền như trên.
-- Ghi nhận, chưa sửa: `GET /inventory/sales-orders`, `GET /inventory/sales-orders/{id}` lọc theo kho người dùng có `inventory.sales.issue`, không lọc theo công ty đang làm việc; kho dùng chung nhiều công ty chủ hàng thì thủ kho thấy đơn đã xác nhận của các công ty chủ hàng đó (đúng phạm vi vận hành kho, như nhập mua). `GET /inventory/sales-orders/{id}` không kiểm trạng thái đơn: thủ kho có quyền tại kho đọc được mặt hàng, số lượng của đơn nháp (không có giá).
+- Ghi nhận (đúng phạm vi vận hành kho): `GET /inventory/sales-orders`, `GET /inventory/sales-orders/{id}` lọc theo kho người dùng có `inventory.sales.issue`, không lọc theo công ty đang làm việc; kho dùng chung nhiều công ty chủ hàng thì thủ kho thấy đơn đã xác nhận của các công ty chủ hàng đó (đúng phạm vi vận hành kho, như nhập mua). Đã sửa: `GET /inventory/sales-orders/{id}` chỉ trả đơn đã xác nhận, đã giao đủ, đã đóng; đơn khác trả `404`.
 - Không có mục rủi ro cao còn mở.
 
 ## 5. Quản lý khóa bí mật

@@ -48,7 +48,14 @@ function Detail({ order, reload }: { order: SalesOrderResponse; reload: () => Pr
       notify(t("saved"));
       await reload();
     } catch (error) {
-      notify(failureOf(error).message, "loi");
+      // Lỗi theo dòng (ví dụ thiếu hàng khi gửi) ghi kèm số dòng vì màn chi tiết không có ô nhập.
+      const failure = failureOf(error);
+      const lineErrors = Object.entries(failure.fields).flatMap(([key, text]) => {
+        const match = /^lines\.(\d+)\./.exec(key);
+        const line = match ? order.lines[Number(match[1])] : undefined;
+        return line ? [`${t("line", { number: line.lineNo })} (${line.sku}): ${text}`] : [];
+      });
+      notify(lineErrors.length > 0 ? lineErrors.join(" ") : failure.message, "loi");
     } finally {
       setBusy(false);
     }
@@ -115,7 +122,8 @@ function Detail({ order, reload }: { order: SalesOrderResponse; reload: () => Pr
             {order.exceptions.map((exception, index) => (
               <li key={index}>
                 {t(`exception_${exception.kind}`)}
-                {exception.lineNo !== null && ` (${t("line", { number: exception.lineNo })})`}: {exception.detail}
+                {exception.lineNo !== null && ` (${t("line", { number: exception.lineNo })})`}
+                {exception.detail && `: ${exception.detail}`}
               </li>
             ))}
           </ul>

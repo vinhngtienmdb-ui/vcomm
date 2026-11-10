@@ -49,7 +49,7 @@ function ReturnForm({ issue }: { issue: StockDocumentResponse }) {
         reason,
         lines: chosen.map((line) => ({
           issueLineId: line.id,
-          quantity: line.tracksSerials ? String((serials[line.id] ?? []).length / (Math.abs(Number(line.baseQuantity)) / Math.abs(Number(line.quantity)))) : quantities[line.id]!,
+          quantity: line.tracksSerials ? String((serials[line.id] ?? []).length) : quantities[line.id]!,
           serials: line.tracksSerials ? (serials[line.id] ?? []) : [],
         })),
       };
@@ -102,7 +102,7 @@ function ReturnForm({ issue }: { issue: StockDocumentResponse }) {
                 </span>
               </Field>
             ) : (
-              <Field id={`so-luong-${line.id}`} label={t("returnQuantity", { unit: line.unitName })} error={index >= 0 ? fields[`lines.${index}.quantity`] : undefined}>
+              <Field id={`so-luong-${line.id}`} label={t("returnQuantity", { unit: line.baseUnitName })} error={index >= 0 ? fields[`lines.${index}.quantity`] : undefined}>
                 <input
                   id={`so-luong-${line.id}`}
                   className="o-nhap"

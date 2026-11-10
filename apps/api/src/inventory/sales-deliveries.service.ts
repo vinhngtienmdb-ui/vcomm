@@ -58,6 +58,8 @@ export class SalesDeliveriesService {
   // Dòng đơn bán kèm số còn phải giao, để lập phiếu xuất.
   async orderLines(actor: Actor, orderId: string) {
     const order = await this.order(this.database, orderId);
+    // Kho chỉ xem đơn đã xác nhận trở đi; đơn nháp, chờ duyệt chưa phải việc của kho.
+    if (!["confirmed", "delivered", "closed"].includes(order.status)) throw new ApiError("NOT_FOUND", "notFound");
     await this.warehouses.operable(actor.userId, order.warehouse_id, inventoryPermissions.issueSales);
     const rows = await this.database.execute<{
       id: string;
@@ -122,7 +124,7 @@ export class SalesDeliveriesService {
     return this.documents.detail(actor, id);
   }
 
-  // Phiếu nhận hàng trả lại lập từ phiếu xuất giao hàng đã ghi sổ; đơn giá là giá vốn phiếu xuất gốc theo đơn vị của dòng; lô, vị trí theo dòng gốc (QUYTAC_NGHIEPVU_72).
+  // Phiếu nhận hàng trả lại lập từ phiếu xuất giao hàng đã ghi sổ; số lượng, đơn giá theo đơn vị cơ sở, đơn giá là giá vốn phiếu xuất gốc; lô, vị trí theo dòng gốc (QUYTAC_NGHIEPVU_72).
   async createReturn(actor: Actor, input: ReturnInput): Promise<StockDocumentResponse> {
     const issue = await this.documents.visibleRow(actor, input.issueId);
     if (issue.type !== "sales_issue" || issue.status !== "posted") throw new ApiError("BUSINESS_RULE", "salesIssueNotPosted");
@@ -134,13 +136,13 @@ export class SalesDeliveriesService {
         fields[`lines.${index}.issueLineId`] = "invalidValue";
         return null;
       }
+      // Trả theo đơn vị cơ sở để trả được một phần của dòng giao theo đơn vị quy đổi (ví dụ giao 1 hộp, trả 1 cái).
       const issued = Math.abs(Number(source.base_quantity));
-      const factor = issued / Math.abs(Number(source.quantity));
-      const unitCost = issued > 0 ? ((Number(source.cost_value ?? 0) / issued) * factor).toFixed(4) : "0";
+      const unitCost = issued > 0 ? (Math.abs(Number(source.cost_value ?? 0)) / issued).toFixed(4) : "0";
       if (line.serials.some((serial) => !source.serials.includes(serial))) fields[`lines.${index}.serials`] = "serialNotInStock";
       return {
         variantId: source.variant_id,
-        unitId: source.unit_id,
+        unitId: source.base_unit_id,
         quantity: line.quantity,
         unitCost,
         lotId: null,
@@ -212,7 +214,8 @@ export class SalesDeliveriesService {
           // Dùng phần đang giữ cho đơn trước khi kiểm hàng khả dụng (QUYTAC_NGHIEPVU_70).
           const totals = new Map<string, number>();
           for (const line of lines) totals.set(line.variant_id, (totals.get(line.variant_id) ?? 0) + Math.abs(Number(line.base_quantity)));
-          for (const [variantId, quantity] of totals) await this.reservations.consumeFromSource(transaction, salesOrderSource, order.id, row.warehouse_id, variantId, quantity.toFixed(4));
+          for (const [variantId, quantity] of [...totals].sort(([left], [right]) => left.localeCompare(right)))
+            await this.reservations.consumeFromSource(transaction, salesOrderSource, order.id, row.warehouse_id, variantId, quantity.toFixed(4));
         }
       } else {
         fields = await this.returnableErrors(
@@ -317,13 +320,16 @@ export class SalesDeliveriesService {
   private async returnableErrors(executor: Executor, lines: { issueLineId: string; baseQuantity: number }[]): Promise<FieldErrors> {
     const fields: FieldErrors = {};
     const totals = new Map<string, number>();
+    // Khóa các dòng phiếu xuất trước bằng câu lệnh riêng để câu tính số đã trả sau đó thấy phiếu trả vừa ghi sổ của giao dịch khác.
+    const issueLineIds = [...new Set(lines.map((line) => line.issueLineId))].sort();
+    if (issueLineIds.length > 0) await executor.execute(sql`SELECT 1 FROM inventory.document_lines WHERE id = ANY(${pgArray(issueLineIds)}::uuid[]) ORDER BY id FOR UPDATE`);
     for (const [index, line] of lines.entries()) {
       const row = (
         await executor.execute<{ issued: string; returned: string }>(sql`
         SELECT abs(dl.base_quantity)::text AS issued,
           coalesce((SELECT sum(rl.base_quantity) FROM inventory.document_lines rl JOIN inventory.documents r ON r.id = rl.document_id
                     WHERE rl.source_line_id = dl.id AND r.type = 'sales_return' AND r.status = 'posted'), 0)::text AS returned
-        FROM inventory.document_lines dl WHERE dl.id = ${line.issueLineId} FOR UPDATE`)
+        FROM inventory.document_lines dl WHERE dl.id = ${line.issueLineId}`)
       ).rows[0];
       if (!row) {
         fields[`lines.${index}.issueLineId`] = "invalidValue";

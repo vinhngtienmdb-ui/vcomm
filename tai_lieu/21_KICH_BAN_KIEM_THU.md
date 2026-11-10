@@ -4,7 +4,7 @@
 - Phiên bản: 0.7
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_182 của MODULE_05 (172 đến 175 tự động, 176 đến 182 thủ công)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_183 của MODULE_05 (172 đến 175, 183 tự động; 176 đến 182 thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2155,4 +2155,15 @@ Dữ liệu chung: công ty con VCR (`testIds.retailCompany`), VCT (`testIds.tra
 - Các bước: (1) Hủy đơn nháp; hủy đơn bị từ chối. (2) Đơn bị từ chối: sửa giảm chiết khấu về 5%, gửi lại; xem số giữ. (3) Đơn đã xác nhận 2 thùng: Thủ kho lập phiếu xuất nháp 1 thùng (chưa gửi); Nhân viên bán hàng hủy đơn, xem nút trên chi tiết. (4) Thủ kho gửi phiếu nháp; lập thêm phiếu nháp 1 thùng; Nhân viên bán hàng đóng đơn. (5) Thủ kho xóa phiếu nháp; Nhân viên bán hàng đóng đơn với lý do trống, rồi lý do "Khách đổi ý". (6) Hủy, đóng đơn đã giao đủ, đã hủy.
 - Kết quả mong đợi: Bước 1: `cancelled`. Bước 2: về nháp khi sửa; gửi lại `confirmed`, không ngoại lệ; giữ hàng lại đúng số của đơn. Bước 3: `409` "Đơn bán đã có phiếu xuất giao hàng hoặc không ở trạng thái hủy được; hãy đóng đơn."; không có "Hủy đơn", "Đóng đơn". Bước 4: `409` "Đơn bán còn phiếu xuất giao hàng nháp, chưa đóng được."; nút "Đóng đơn" ẩn. Bước 5: lý do trống `400`; `closed`, nhả phần giữ còn lại. Bước 6: hủy `409`; đóng `409 CONFLICT_VERSION`.
 - Kiểm thử tự động: Thủ công – gọi API và kiểm tra trên trình duyệt
+- Lát: L0, L1
+
+### KICHBAN_KIEMTHU_183: Trả một phần theo đơn vị cơ sở; hai phiếu trả gửi đồng thời; che giá vốn trong ngoại lệ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_88, TIEUCHI_NGHIEMTHU_91
+- Chức năng: CHUC_NANG_55, CHUC_NANG_57
+- Loại: Đúng, sai, giá trị biên, đồng thời
+- Vai trò thực hiện: Nhân viên bán hàng VCR; Thủ kho VCR-BD; Quản trị VCR
+- Điều kiện ban đầu và dữ liệu: Nước suối đơn vị cơ sở chai, thùng 24 chai, giá vốn 4.000 một chai; chiết khấu tối đa 60%.
+- Các bước: (1) Đơn 1 thùng, giao 1 thùng. (2) Lập phiếu trả 5 chai, gửi. (3) Lập hai phiếu trả 15 chai, gửi cùng lúc. (4) Đơn 1 thùng chiết khấu 50%, gửi; Nhân viên bán hàng và Quản trị xem chi tiết đơn. (5) Thủ kho mở dòng của một đơn nháp và của đơn ở bước 1 qua `GET /inventory/sales-orders/{id}`.
+- Kết quả mong đợi: Bước 2: phiếu trả 5 chai, giá trị 20.000. Bước 3: một phiếu ghi sổ, phiếu kia `400` "vượt số đã giao"; tổng đã trả 20 chai. Bước 4: ngoại lệ dưới giá vốn; Nhân viên bán hàng không thấy diễn giải, Quản trị thấy giá bán và giá vốn. Bước 5: đơn nháp `404`; đơn đã giao `200`.
+- Kiểm thử tự động: `apps/api/test/c8-sales.test.ts`
 - Lát: L0, L1

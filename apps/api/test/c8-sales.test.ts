@@ -315,3 +315,41 @@ describe("TIEUCHI_NGHIEMTHU_91: nhận hàng trả lại", () => {
     expect(againSubmit.status).toBe(400);
   });
 });
+
+describe("TIEUCHI_NGHIEMTHU_88, 91: trả một phần theo đơn vị cơ sở, gửi đồng thời, che giá vốn", () => {
+  it("KICHBAN_KIEMTHU_183: giao 1 thùng trả 5 chai; hai phiếu trả gửi cùng lúc không vượt số đã giao; nhân viên bán hàng không thấy giá vốn trong ngoại lệ; kho không xem đơn chưa xác nhận", async () => {
+    const order = (await submitted(orderBody([water("1")]))).body;
+    const issued = await deliver(keeper, order.id, [{ orderLineId: order.lines[0].id, quantity: "1" }]);
+    expect(issued.body.status, JSON.stringify(issued.body)).toBe("posted");
+    const issueLine = issued.body.lines[0];
+    const draftReturn = async (quantity: string) => {
+      const created = await keeper.call("post", "/inventory/sales-returns", {
+        companyId: retail,
+        body: { issueId: issued.body.id, documentDate: today, reason: "Khách trả", lines: [{ issueLineId: issueLine.id, quantity, serials: [] }] },
+      });
+      expect(created.status, JSON.stringify(created.body)).toBe(201);
+      return created.body.id as string;
+    };
+    // Trả 5 chai của thùng 24 chai: nhập lại 5 chai theo giá vốn 4.000.
+    const partial = await draftReturn("5");
+    expect((await keeper.call("post", `/inventory/documents/${partial}/submit`, { companyId: retail })).body.status).toBe("posted");
+    const partialLine = (await retailAdmin.call("get", `/inventory/documents/${partial}`, { companyId: retail })).body.lines[0];
+    expect(partialLine).toMatchObject({ quantity: "5", baseQuantity: "5", costValue: "20000" });
+
+    // Còn 19 chai trả được: hai phiếu 15 chai gửi cùng lúc, chỉ một phiếu ghi sổ.
+    const [first, second] = [await draftReturn("15"), await draftReturn("15")];
+    const results = await Promise.all([first, second].map((id) => keeper.call("post", `/inventory/documents/${id}/submit`, { companyId: retail })));
+    expect(results.map((result) => result.status).sort()).toEqual([201, 400]);
+    expect((await seller.call("get", `/sales/orders/${order.id}`, { companyId: retail })).body.lines[0].returnedBaseQuantity).toBe("20");
+
+    // Ngoại lệ dưới giá vốn: người có quyền xem giá vốn thấy chi tiết, nhân viên bán hàng không thấy.
+    const belowCost = await submitted(orderBody([water("1", { discountPercent: "50" })]));
+    expect(belowCost.body.exceptions).toEqual([{ kind: "below_cost", lineNo: 1, detail: "" }]);
+    expect((await retailAdmin.call("get", `/sales/orders/${belowCost.body.id}`, { companyId: retail })).body.exceptions[0].detail).toMatch(/</);
+
+    // Kho không xem dòng đơn chưa xác nhận.
+    const draft = await seller.call("post", "/sales/orders", { companyId: retail, body: orderBody([water("1")]) });
+    expect((await keeper.call("get", `/inventory/sales-orders/${draft.body.id}`, { companyId: retail })).status).toBe(404);
+    expect((await keeper.call("get", `/inventory/sales-orders/${order.id}`, { companyId: retail })).status).toBe(200);
+  });
+});

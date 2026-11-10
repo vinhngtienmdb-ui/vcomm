@@ -118,6 +118,7 @@ export type LineRow = {
   unit_name: string;
   quantity: string;
   base_quantity: string;
+  base_unit_id: string;
   base_unit_name: string;
   unit_cost: string | null;
   cost_value: string | null;
@@ -739,7 +740,7 @@ export class StockDocumentsService implements OnModuleInit {
     return (
       await executor.execute<LineRow>(sql`
       SELECT l.id, l.line_no, l.variant_id, v.sku, p.name AS product_name, v.option_values, p.tracks_lots, p.tracks_serials, l.unit_id, u.name_vi AS unit_name,
-        l.quantity::text, l.base_quantity::text, bu.name_vi AS base_unit_name, l.unit_cost::text, l.cost_value::text, l.lot_id, coalesce(lot.lot_no, l.lot_no) AS lot_no,
+        l.quantity::text, l.base_quantity::text, p.base_unit_id, bu.name_vi AS base_unit_name, l.unit_cost::text, l.cost_value::text, l.lot_id, coalesce(lot.lot_no, l.lot_no) AS lot_no,
         coalesce(lot.manufactured_on, l.manufactured_on)::text AS manufactured_on, coalesce(lot.expires_on, l.expires_on)::text AS expires_on, l.lot_override_reason,
         l.location_id, loc.code AS location_code, l.destination_location_id, dloc.code AS destination_location_code,
         coalesce((SELECT array_agg(s.serial_no ORDER BY s.serial_no) FROM inventory.document_line_serials s WHERE s.line_id = l.id), '{}') AS serials,
