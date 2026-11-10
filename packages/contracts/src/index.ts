@@ -1993,3 +1993,253 @@ export interface PartnerProfileOptionsResponse {
   customerGroups: { id: string; name: string }[];
   users: { id: string; fullName: string }[];
 }
+
+// CONG_VIEC_07, API_73 đến API_75: Mua hàng trong nước (CHUC_NANG_49 đến 51; QUYTAC_NGHIEPVU_61 đến 64).
+const requiredMoney = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^\d{1,16}(\.\d{1,4})?$/.test(text)) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+export const saveSupplierPriceSchema = z
+  .object({
+    supplierId: z.uuid(),
+    variantId: z.uuid(),
+    unitId: z.uuid(),
+    minQuantity: z
+      .union([z.number(), z.string()])
+      .optional()
+      .transform((value, context) => {
+        const text = value === undefined || String(value).trim() === "" ? "0" : String(value).trim().replace(",", ".");
+        if (!/^\d{1,12}(\.\d{1,4})?$/.test(text)) {
+          context.addIssue({ code: "custom", message: "invalidValue" });
+          return z.NEVER;
+        }
+        return text;
+      }),
+    unitPrice: requiredMoney,
+    supplierSku: blankToNull(50),
+    validFrom: isoDate,
+    validTo: isoDate.nullable().optional(),
+    version: z.number().int().positive().optional(),
+  })
+  .strict()
+  .refine((value) => !value.validTo || value.validTo >= value.validFrom, { path: ["validTo"], message: "invalidValue" });
+export type SaveSupplierPriceRequest = z.input<typeof saveSupplierPriceSchema>;
+export const supplierPriceListQuerySchema = z
+  .object({
+    supplierId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    status: z.enum(["active", "inactive"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface SupplierPriceResponse {
+  id: string;
+  supplierId: string;
+  supplierCode: string;
+  supplierName: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  unitId: string;
+  unitName: string;
+  minQuantity: string;
+  unitPrice: string;
+  supplierSku: string | null;
+  validFrom: string;
+  validTo: string | null;
+  status: "active" | "inactive";
+  version: number;
+}
+export const supplierPriceLookupQuerySchema = z
+  .object({ supplierId: z.uuid(), variantId: z.uuid(), unitId: z.uuid(), quantity: z.string().trim().optional(), date: isoDate.optional() })
+  .strict();
+export interface SupplierPriceLookupResponse {
+  unitPrice: string | null;
+  priceId: string | null;
+}
+export interface PurchasingOptionsResponse {
+  suppliers: { id: string; code: string; name: string }[];
+  warehouses: { id: string; code: string; name: string }[];
+  currency: string;
+}
+export interface PurchasingSettingsResponse {
+  overReceiptTolerancePercent: string;
+  version: number;
+}
+export const updatePurchasingSettingsSchema = z
+  .object({
+    overReceiptTolerancePercent: z
+      .union([z.number(), z.string()])
+      .transform((value, context) => {
+        const text = String(value).trim().replace(",", ".");
+        if (!/^\d{1,3}(\.\d{1,2})?$/.test(text) || Number(text) > 100) {
+          context.addIssue({ code: "custom", message: "invalidValue" });
+          return z.NEVER;
+        }
+        return text;
+      }),
+    version: z.number().int().min(0),
+  })
+  .strict();
+
+export const purchaseDocumentStatuses = ["draft", "pending", "approved", "rejected", "withdrawn", "received", "closed"] as const;
+export type PurchaseDocumentStatus = (typeof purchaseDocumentStatuses)[number];
+export const saveRequisitionSchema = z
+  .object({
+    warehouseId: z.uuid(),
+    neededBy: isoDate,
+    reason: z.string().trim().min(1).max(500),
+    lines: z
+      .array(
+        z
+          .object({
+            variantId: z.uuid(),
+            unitId: z.uuid(),
+            quantity: positiveQuantity,
+            estimatedUnitPrice: optionalMoney,
+            suggestedSupplierId: z.uuid().nullable().optional(),
+            note: blankToNull(300),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveRequisitionRequest = z.input<typeof saveRequisitionSchema>;
+export const purchaseListQuerySchema = z
+  .object({
+    status: z.enum(purchaseDocumentStatuses).optional(),
+    supplierId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    openOnly: z
+      .enum(["true", "false"])
+      .optional()
+      .transform((value) => value === "true"),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface RequisitionListItem {
+  id: string;
+  documentNo: string | null;
+  warehouseName: string;
+  neededBy: string;
+  reason: string;
+  status: PurchaseDocumentStatus;
+  lineCount: number;
+  estimatedTotal: string;
+  createdByName: string;
+  createdAt: string;
+}
+export interface RequisitionLineResponse {
+  id: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  unitId: string;
+  unitName: string;
+  quantity: string;
+  baseQuantity: string;
+  estimatedUnitPrice: string;
+  suggestedSupplierId: string | null;
+  suggestedSupplierName: string | null;
+  note: string | null;
+  // Đã đặt trên đơn mua chưa hủy, theo đơn vị cơ sở.
+  orderedBaseQuantity: string;
+}
+export interface RequisitionResponse extends RequisitionListItem {
+  warehouseId: string;
+  approvalRequestId: string | null;
+  lines: RequisitionLineResponse[];
+  version: number;
+  canEdit: boolean;
+  canWithdraw: boolean;
+  canOrder: boolean;
+}
+
+export const savePurchaseOrderSchema = z
+  .object({
+    supplierId: z.uuid(),
+    warehouseId: z.uuid(),
+    orderDate: isoDate,
+    expectedDate: isoDate.nullable().optional(),
+    note: blankToNull(1000),
+    lines: z
+      .array(
+        z
+          .object({
+            id: z.uuid().optional(),
+            variantId: z.uuid(),
+            unitId: z.uuid(),
+            quantity: positiveQuantity,
+            unitPrice: requiredMoney,
+            vatRate: z.enum(vatRates),
+            requisitionLineId: z.uuid().nullable().optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePurchaseOrderRequest = z.input<typeof savePurchaseOrderSchema>;
+export interface PurchaseOrderListItem {
+  id: string;
+  documentNo: string | null;
+  supplierId: string;
+  supplierName: string;
+  warehouseName: string;
+  orderDate: string;
+  expectedDate: string | null;
+  currency: string;
+  totalAmount: string;
+  taxAmount: string;
+  status: PurchaseDocumentStatus;
+  createdByName: string;
+}
+export interface PurchaseOrderLineResponse {
+  id: string;
+  lineNo: number;
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  unitId: string;
+  unitName: string;
+  factor: string;
+  quantity: string;
+  baseQuantity: string;
+  unitPrice: string;
+  vatRate: VatRate;
+  amount: string;
+  requisitionLineId: string | null;
+  // Theo đơn vị cơ sở, tính từ phiếu kho.
+  receivedBaseQuantity: string;
+  returnedBaseQuantity: string;
+  // Còn nhận được (đã trừ đã nhận, cộng dung sai) theo đơn vị cơ sở.
+  receivableBaseQuantity: string;
+}
+export interface PurchaseOrderResponse extends PurchaseOrderListItem {
+  warehouseId: string;
+  note: string | null;
+  approvalRequestId: string | null;
+  closedReason: string | null;
+  lines: PurchaseOrderLineResponse[];
+  receipts: { id: string; documentNo: string | null; type: "purchase_receipt" | "purchase_return"; status: string; documentDate: string }[];
+  version: number;
+  canEdit: boolean;
+  canSubmit: boolean;
+  canWithdraw: boolean;
+  canClose: boolean;
+}
+export const closePurchaseOrderSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();

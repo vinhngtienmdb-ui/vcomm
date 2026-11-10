@@ -156,7 +156,9 @@
     "partnerTaxCodeExists": "Mã số thuế đã có ở đối tác khác trong tập đoàn.",
     "partnerCitizenIdExists": "Số Căn cước công dân đã có ở đối tác khác trong tập đoàn.",
     "partnerInternalLocked": "Đối tác nội bộ lấy thông tin từ công ty, sửa ở màn hình Công ty.",
-    "partnerIsSelf": "Không lập hồ sơ đối tác cho chính công ty đang chọn."
+    "partnerIsSelf": "Không lập hồ sơ đối tác cho chính công ty đang chọn.",
+    "supplierNotActive": "Nhà cung cấp chưa có hồ sơ nhà cung cấp đang dùng ở công ty.",
+    "supplierPriceOverlaps": "Đã có giá đang dùng cùng nhà cung cấp, mặt hàng, đơn vị, số lượng tối thiểu trùng thời gian hiệu lực."
   },
   "login": {
     "title": "Đăng nhập",
@@ -697,7 +699,9 @@
     "entity_reservation": "Giữ hàng",
     "entity_stock_level": "Tồn an toàn",
     "entity_partner": "Đối tác",
-    "entity_partner_profile": "Hồ sơ đối tác"
+    "entity_partner_profile": "Hồ sơ đối tác",
+    "entity_supplier_price": "Giá mua",
+    "entity_purchasing_settings": "Cài đặt mua hàng"
   },
   "auditActions": {
     "login": "Đăng nhập",
@@ -813,7 +817,12 @@
     "partner_activate": "Giao dịch lại đối tác",
     "partner_view_identity": "Xem số Căn cước công dân",
     "partner_profile_save": "Lưu hồ sơ đối tác",
-    "partner_sync": "Đồng bộ đối tác nội bộ"
+    "partner_sync": "Đồng bộ đối tác nội bộ",
+    "supplier_price_create": "Thêm giá mua",
+    "supplier_price_update": "Sửa giá mua",
+    "supplier_price_deactivate": "Ngừng dùng giá mua",
+    "supplier_price_activate": "Dùng lại giá mua",
+    "purchasing_settings_update": "Sửa cài đặt mua hàng"
   },
   "notifications": {
     "title": "Thông báo",
@@ -1629,5 +1638,47 @@
     "profileSaved": "Đã lưu hồ sơ.",
     "selfProfile": "Đây là công ty đang chọn, không lập hồ sơ đối tác.",
     "days": "{count} ngày"
+  },
+  "purchasingMenu": {
+    "title": "Mua hàng",
+    "orders": "Đơn mua",
+    "requisitions": "Đề nghị mua",
+    "supplierPrices": "Bảng giá mua"
+  },
+  "purchasing": {
+    "itemSearchHint": "Mã vạch, mã hàng hoặc tên rồi nhấn Enter",
+    "find": "Tìm",
+    "noItem": "Không tìm thấy mặt hàng.",
+    "chooseItem": "Chọn mặt hàng…"
+  },
+  "supplierPrices": {
+    "title": "Bảng giá mua",
+    "add": "Thêm giá mua",
+    "edit": "Sửa giá mua",
+    "hint": "Giá chưa gồm thuế giá trị gia tăng, theo tiền tệ công ty. Đơn mua gợi ý giá có hiệu lực tại ngày đơn với số lượng tối thiểu lớn nhất không vượt số lượng đặt.",
+    "searchHint": "Mã hàng, tên, mã hàng nhà cung cấp",
+    "none": "Chưa có giá mua.",
+    "supplier": "Nhà cung cấp",
+    "supplierHint": "Chỉ hiện đối tác có hồ sơ nhà cung cấp ở công ty.",
+    "item": "Mặt hàng",
+    "unit": "Đơn vị mua",
+    "minQuantity": "Số lượng tối thiểu",
+    "minQuantityHint": "Mua từ số lượng này trở lên thì áp dụng giá. 0: mọi số lượng.",
+    "unitPrice": "Đơn giá",
+    "unitPriceHint": "Chưa gồm thuế giá trị gia tăng.",
+    "supplierSku": "Mã hàng nhà cung cấp",
+    "validity": "Hiệu lực",
+    "validFrom": "Hiệu lực từ",
+    "validTo": "Hiệu lực đến",
+    "validToHint": "Để trống: không có ngày kết thúc.",
+    "noEnd": "không thời hạn",
+    "status": "Trạng thái",
+    "active": "Đang dùng",
+    "inactive": "Ngừng dùng",
+    "deactivate": "Ngừng dùng",
+    "activate": "Dùng lại",
+    "saved": "Đã lưu giá mua.",
+    "choose": "Chọn…",
+    "changeItem": "Đổi mặt hàng"
   }
 }

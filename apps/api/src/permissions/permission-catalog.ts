@@ -66,6 +66,13 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "crm.partner.manage", appCode: "crm", nameVi: "Thêm, sửa đối tác dùng chung", nameEn: "Manage shared partners", isSensitive: false },
   { code: "crm.partner.identity.view", appCode: "crm", nameVi: "Xem số Căn cước công dân của đối tác", nameEn: "View partner citizen identity numbers", isSensitive: true },
   { code: "crm.profile.manage", appCode: "crm", nameVi: "Quản lý hồ sơ đối tác của công ty (hạn mức công nợ)", nameEn: "Manage company partner profiles (credit limits)", isSensitive: true },
+  // CONG_VIEC_07: Mua hàng trong nước (MODULE_04, phần 1).
+  { code: "purchasing.price.manage", appCode: "purchasing", nameVi: "Quản lý bảng giá mua", nameEn: "Manage supplier prices", isSensitive: false },
+  { code: "purchasing.requisition.create", appCode: "purchasing", nameVi: "Lập đề nghị mua", nameEn: "Create purchase requisitions", isSensitive: false },
+  { code: "purchasing.order.view", appCode: "purchasing", nameVi: "Xem đơn mua", nameEn: "View purchase orders", isSensitive: false },
+  { code: "purchasing.order.manage", appCode: "purchasing", nameVi: "Lập, sửa, đóng đơn mua", nameEn: "Manage purchase orders", isSensitive: false },
+  { code: "purchasing.settings.manage", appCode: "purchasing", nameVi: "Cài đặt mua hàng", nameEn: "Manage purchasing settings", isSensitive: false },
+  { code: "inventory.purchase.receive", appCode: "inventory", nameVi: "Nhập mua, trả hàng nhà cung cấp", nameEn: "Receive purchases and return to suppliers", isSensitive: false },
 ];
 
 const inventoryPermissions = permissionCatalog.filter((permission) => permission.appCode === "inventory").map((permission) => permission.code);
@@ -96,6 +103,11 @@ const companyAdminPermissions = [
   "crm.partner.manage",
   "crm.partner.identity.view",
   "crm.profile.manage",
+  "purchasing.price.manage",
+  "purchasing.requisition.create",
+  "purchasing.order.view",
+  "purchasing.order.manage",
+  "purchasing.settings.manage",
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [
@@ -103,9 +115,9 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     code: "group_admin",
     nameVi: "Quản trị tập đoàn",
     nameEn: "Group administrator",
-    // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), Đối tác (CONG_VIEC_06), cộng quyền truy cập mọi mini app.
+    // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), Đối tác (CONG_VIEC_06), Mua hàng (CONG_VIEC_07), cộng quyền truy cập mọi mini app.
     permissionCodes: permissionCatalog
-      .filter((permission) => ["platform", "catalog", "inventory", "crm"].includes(permission.appCode) || permission.code.endsWith(".access"))
+      .filter((permission) => ["platform", "catalog", "inventory", "crm", "purchasing"].includes(permission.appCode) || permission.code.endsWith(".access"))
       .map((permission) => permission.code),
   },
   { code: "company_admin", nameVi: "Quản trị công ty", nameEn: "Company administrator", permissionCodes: companyAdminPermissions },
@@ -117,8 +129,14 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     nameEn: "Product manager",
     permissionCodes: ["catalog.access", "catalog.product.view", "catalog.product.manage", "catalog.price.view"],
   },
-  { code: "warehouse_keeper", nameVi: "Thủ kho", nameEn: "Warehouse keeper", permissionCodes: ["inventory.access", "inventory.stock.view", "inventory.document.manage", "crm.partner.view"] },
+  { code: "warehouse_keeper", nameVi: "Thủ kho", nameEn: "Warehouse keeper", permissionCodes: ["inventory.access", "inventory.stock.view", "inventory.document.manage", "inventory.purchase.receive", "crm.partner.view", "purchasing.access", "purchasing.requisition.create", "purchasing.order.view"] },
   { code: "warehouse_manager", nameVi: "Quản lý kho", nameEn: "Warehouse manager", permissionCodes: inventoryPermissions },
+  {
+    code: "purchaser",
+    nameVi: "Nhân viên mua hàng",
+    nameEn: "Purchaser",
+    permissionCodes: ["purchasing.access", "purchasing.price.manage", "purchasing.requisition.create", "purchasing.order.view", "purchasing.order.manage", "crm.access", "crm.partner.view", "crm.partner.manage"],
+  },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },
 ];
 
@@ -131,6 +149,10 @@ export const documentTypeCatalog = [
   { code: "inventory.adjustment", appCode: "inventory", nameVi: "Phiếu điều chỉnh kho", nameEn: "Stock adjustment", requiresApproval: true },
   { code: "inventory.transfer", appCode: "inventory", nameVi: "Phiếu chuyển kho", nameEn: "Stock transfer", requiresApproval: true },
   { code: "inventory.stocktake", appCode: "inventory", nameVi: "Phiếu kiểm kê", nameEn: "Stocktake", requiresApproval: false },
+  { code: "inventory.purchase_receipt", appCode: "inventory", nameVi: "Phiếu nhập mua", nameEn: "Purchase receipt", requiresApproval: false },
+  { code: "inventory.purchase_return", appCode: "inventory", nameVi: "Phiếu trả hàng nhà cung cấp", nameEn: "Purchase return", requiresApproval: false },
+  { code: "purchasing.requisition", appCode: "purchasing", nameVi: "Đề nghị mua", nameEn: "Purchase requisition", requiresApproval: true },
+  { code: "purchasing.order", appCode: "purchasing", nameVi: "Đơn mua", nameEn: "Purchase order", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.

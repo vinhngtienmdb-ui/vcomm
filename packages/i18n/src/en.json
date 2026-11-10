@@ -156,7 +156,9 @@
     "partnerTaxCodeExists": "This tax code already belongs to another partner in the group.",
     "partnerCitizenIdExists": "This citizen ID already belongs to another partner in the group.",
     "partnerInternalLocked": "Internal partners take their details from the company; edit them on the Companies screen.",
-    "partnerIsSelf": "A company cannot have a partner profile for itself."
+    "partnerIsSelf": "A company cannot have a partner profile for itself.",
+    "supplierNotActive": "This partner has no active supplier profile in the company.",
+    "supplierPriceOverlaps": "An active price for the same supplier, item, unit and minimum quantity overlaps this validity period."
   },
   "login": {
     "title": "Sign in",
@@ -697,7 +699,9 @@
     "entity_reservation": "Reservation",
     "entity_stock_level": "Safety stock",
     "entity_partner": "Partner",
-    "entity_partner_profile": "Partner profile"
+    "entity_partner_profile": "Partner profile",
+    "entity_supplier_price": "Supplier price",
+    "entity_purchasing_settings": "Purchasing settings"
   },
   "auditActions": {
     "login": "Sign in",
@@ -813,7 +817,12 @@
     "partner_activate": "Resume trading with partner",
     "partner_view_identity": "View citizen ID",
     "partner_profile_save": "Save partner profile",
-    "partner_sync": "Sync internal partner"
+    "partner_sync": "Sync internal partner",
+    "supplier_price_create": "Add supplier price",
+    "supplier_price_update": "Edit supplier price",
+    "supplier_price_deactivate": "Deactivate supplier price",
+    "supplier_price_activate": "Reactivate supplier price",
+    "purchasing_settings_update": "Edit purchasing settings"
   },
   "notifications": {
     "title": "Notifications",
@@ -1629,5 +1638,47 @@
     "profileSaved": "Profile saved.",
     "selfProfile": "This is the selected company; it cannot have a partner profile.",
     "days": "{count} days"
+  },
+  "purchasingMenu": {
+    "title": "Purchasing",
+    "orders": "Purchase orders",
+    "requisitions": "Purchase requisitions",
+    "supplierPrices": "Supplier prices"
+  },
+  "purchasing": {
+    "itemSearchHint": "Barcode, SKU or name, then press Enter",
+    "find": "Find",
+    "noItem": "No item found.",
+    "chooseItem": "Choose an item…"
+  },
+  "supplierPrices": {
+    "title": "Supplier prices",
+    "add": "Add supplier price",
+    "edit": "Edit supplier price",
+    "hint": "Prices exclude VAT and use the company currency. Purchase orders suggest the price valid on the order date with the largest minimum quantity not above the ordered quantity.",
+    "searchHint": "SKU, name, supplier SKU",
+    "none": "No supplier prices yet.",
+    "supplier": "Supplier",
+    "supplierHint": "Only partners with a supplier profile in the company are listed.",
+    "item": "Item",
+    "unit": "Purchase unit",
+    "minQuantity": "Minimum quantity",
+    "minQuantityHint": "The price applies from this quantity upward. 0: any quantity.",
+    "unitPrice": "Unit price",
+    "unitPriceHint": "Excluding VAT.",
+    "supplierSku": "Supplier SKU",
+    "validity": "Validity",
+    "validFrom": "Valid from",
+    "validTo": "Valid to",
+    "validToHint": "Leave blank for no end date.",
+    "noEnd": "no end",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "deactivate": "Deactivate",
+    "activate": "Reactivate",
+    "saved": "Supplier price saved.",
+    "choose": "Choose…",
+    "changeItem": "Change item"
   }
 }
