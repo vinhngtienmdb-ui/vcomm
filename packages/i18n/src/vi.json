@@ -252,7 +252,8 @@
     "bankTransactionAlreadyOpen": "Giao dịch đang ở trạng thái chưa ghép.",
     "bankReceiptOnlyIncoming": "Chỉ lập phiếu thu cho tiền vào.",
     "bankReceiptPending": "Giao dịch đã có phiếu thu đang chờ duyệt hoặc đã ghi sổ.",
-    "bankPaymentNotMatchable": "Phiếu không ghép được: phải đã ghi sổ, cùng quỹ, cùng chiều tiền, cùng số tiền và chưa ghép giao dịch khác."
+    "bankPaymentNotMatchable": "Phiếu không ghép được: phải đã ghi sổ, cùng quỹ, cùng chiều tiền, cùng số tiền và chưa ghép giao dịch khác.",
+    "bankFundInactive": "Quỹ đã ngừng dùng, không tạo được kết nối."
   },
   "login": {
     "title": "Đăng nhập",

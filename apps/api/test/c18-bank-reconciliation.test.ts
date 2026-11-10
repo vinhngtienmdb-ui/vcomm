@@ -120,6 +120,15 @@ describe("CONG_VIEC_18 kết nối ngân hàng", () => {
   });
 });
 
+describe("CONG_VIEC_18 quỹ ngừng dùng", () => {
+  it("KICHBAN_KIEMTHU_246: quỹ ngừng dùng không tạo được kết nối mới", async () => {
+    const inactive = (await call(accountant, "post", "/finance/funds", { code: "TCB", name: "Techcombank", kind: "bank", bankName: "Techcombank", accountNo: "1903", accountHolder: "VCR" })).body.id;
+    await pool.query("UPDATE finance.funds SET status = 'inactive' WHERE id = $1", [inactive]);
+    const refused = await call(chief, "put", `/finance/bank-connections/${inactive}`, { provider: "sepay", enabled: true, version: null });
+    expect(refused.body.error.message).toBe("Quỹ đã ngừng dùng, không tạo được kết nối.");
+  });
+});
+
 describe("CONG_VIEC_18 webhook", () => {
   it("KICHBAN_KIEMTHU_247: kiểm khóa, dữ liệu, số tài khoản; trùng mã chỉ lưu một lần", async () => {
     expect((await webhook(payload("in", 1000, today), null)).status).toBe(401);
@@ -137,6 +146,8 @@ describe("CONG_VIEC_18 webhook", () => {
     const stored = (await pool.query("SELECT transaction_date::text, direction, amount::text, content, reference_code FROM finance.bank_transactions WHERE external_id = $1", [String(body.id)]))
       .rows[0];
     expect(stored).toEqual({ transaction_date: today, direction: "in", amount: "123456.0000", content: body.content, reference_code: body.referenceCode });
+    // Lưu nội dung webhook gốc.
+    expect((await pool.query("SELECT raw_payload FROM finance.bank_transactions WHERE external_id = $1", [String(body.id)])).rows[0].raw_payload).toEqual(body);
     // Kết nối tắt: từ chối.
     await call(chief, "put", `/finance/bank-connections/${bankFund}`, { provider: "sepay", enabled: false, version: 2 });
     expect((await webhook(payload("in", 1000, today))).status).toBe(401);

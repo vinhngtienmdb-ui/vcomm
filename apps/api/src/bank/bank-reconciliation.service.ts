@@ -95,8 +95,10 @@ export class BankReconciliationService implements OnModuleInit {
 
   private async fundRows(executor: Executor, companyId: string, fundId?: string) {
     return (
-      await executor.execute<{ fund_id: string; code: string; name: string; bank_name: string | null; account_no: string | null; connection_id: string | null } & Partial<ConnectionRow>>(sql`
-      SELECT f.id AS fund_id, f.code, f.name, f.bank_name, f.account_no, c.id AS connection_id, c.provider, c.enabled, c.secret_hint, c.last_received_at::text, c.version
+      await executor.execute<
+        { fund_id: string; code: string; name: string; fund_status: string; bank_name: string | null; account_no: string | null; connection_id: string | null } & Partial<ConnectionRow>
+      >(sql`
+      SELECT f.id AS fund_id, f.code, f.name, f.status AS fund_status, f.bank_name, f.account_no, c.id AS connection_id, c.provider, c.enabled, c.secret_hint, c.last_received_at::text, c.version
       FROM finance.funds f LEFT JOIN finance.bank_connections c ON c.fund_id = f.id
       WHERE f.company_id = ${companyId} AND f.kind = 'bank' ${fundId ? sql`AND f.id = ${fundId}` : sql`AND (f.status = 'active' OR c.id IS NOT NULL)`}
       ORDER BY f.code`)
@@ -117,6 +119,7 @@ export class BankReconciliationService implements OnModuleInit {
       const fund = (await this.fundRows(transaction, actor.companyId, fundId))[0];
       if (!fund) throw new ApiError("NOT_FOUND", "notFound");
       if (fund.connection_id === null) {
+        if (fund.fund_status !== "active") throw new ApiError("BUSINESS_RULE", "bankFundInactive");
         if (input.version !== null) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
         secret = randomBytes(24).toString("base64url");
         await transaction.execute(sql`
@@ -154,7 +157,7 @@ export class BankReconciliationService implements OnModuleInit {
     if (!connection || connection.provider !== "simulator") throw new ApiError("BUSINESS_RULE", "bankSimulatorNotConnected");
     const now = this.clock.now();
     const transactionAt = input.transactionDate ? new Date(`${input.transactionDate}T${now.toISOString().slice(11, 19)}+07:00`) : now;
-    const id = await this.store(connection, {
+    const parsed: ParsedTransaction = {
       externalId: `SIM-${randomUUID()}`,
       transactionAt,
       direction: input.direction,
@@ -163,7 +166,8 @@ export class BankReconciliationService implements OnModuleInit {
       referenceCode: `SIM${now.getTime()}`,
       balanceAfter: null,
       accountNumber: null,
-    });
+    };
+    const id = await this.store(connection, parsed, parsed);
     return (await this.items(sql`b.id = ${id}`, 1, 0))[0]!;
   }
 
@@ -182,19 +186,20 @@ export class BankReconciliationService implements OnModuleInit {
     if (!parsed) throw new ApiError("VALIDATION_FAILED", "bankWebhookInvalid");
     const fundAccount = accountDigits(connection.account_no);
     if (parsed.accountNumber && fundAccount && accountDigits(parsed.accountNumber) !== fundAccount) throw new ApiError("BUSINESS_RULE", "bankAccountMismatch");
-    await this.store(connection, parsed);
+    await this.store(connection, parsed, body);
     return { success: true };
   }
 
   // Lưu giao dịch (trùng mã thì bỏ qua) rồi thử tự ghép.
-  private async store(connection: ConnectionRow, parsed: ParsedTransaction): Promise<string> {
+  // Lưu nội dung webhook gốc để đối chiếu khi có khiếu nại.
+  private async store(connection: ConnectionRow, parsed: ParsedTransaction, raw: unknown): Promise<string> {
     return this.database.transaction(async (transaction) => {
       await this.lockFund(transaction, connection.fund_id);
       const inserted = (
         await transaction.execute<{ id: string }>(sql`
         INSERT INTO finance.bank_transactions (company_id, connection_id, fund_id, external_id, transaction_at, transaction_date, direction, amount, content, reference_code, balance_after, raw_payload)
         VALUES (${connection.company_id}, ${connection.id}, ${connection.fund_id}, ${parsed.externalId}, ${parsed.transactionAt.toISOString()}::timestamptz, ${vietnamDate(parsed.transactionAt)}::date,
-          ${parsed.direction}, ${parsed.amount}::numeric, ${parsed.content}, ${parsed.referenceCode}, ${parsed.balanceAfter}::numeric, ${JSON.stringify(parsed)}::jsonb)
+          ${parsed.direction}, ${parsed.amount}::numeric, ${parsed.content}, ${parsed.referenceCode}, ${parsed.balanceAfter}::numeric, ${JSON.stringify(raw)}::jsonb)
         ON CONFLICT (connection_id, external_id) DO NOTHING RETURNING id`)
       ).rows[0];
       await transaction.execute(sql`UPDATE finance.bank_connections SET last_received_at = now() WHERE id = ${connection.id}`);

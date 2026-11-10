@@ -252,7 +252,8 @@
     "bankTransactionAlreadyOpen": "The transaction is already unmatched.",
     "bankReceiptOnlyIncoming": "Receipts can only be created for incoming money.",
     "bankReceiptPending": "The transaction already has a receipt pending approval or posted.",
-    "bankPaymentNotMatchable": "The document cannot be matched: it must be posted, in the same fund and direction, with the same amount, and not matched yet."
+    "bankPaymentNotMatchable": "The document cannot be matched: it must be posted, in the same fund and direction, with the same amount, and not matched yet.",
+    "bankFundInactive": "The fund is inactive and cannot be connected."
   },
   "login": {
     "title": "Sign in",
