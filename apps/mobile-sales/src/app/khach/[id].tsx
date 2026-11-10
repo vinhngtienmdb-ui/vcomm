@@ -1,6 +1,6 @@
 // MAN_HINH_68 Chi tiết khách (CHUC_NANG_100; API_113; QUYTAC_NGHIEPVU_137): liên hệ, gọi điện, chỉ đường, công nợ, đơn gần đây.
 import type { PartnerSummaryResponse } from "contracts";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Linking, ScrollView, Text, View } from "react-native";
 import { Button, Card, Loading, Muted, Notice, Screen } from "@/components/ui";
@@ -75,6 +75,9 @@ export default function CustomerScreen() {
             ))}
           </Card>
         ) : null}
+        <Link href={{ pathname: "/don/moi", params: { customerId: summary.id } }} asChild>
+          <Button label={t("newOrder")} onPress={() => undefined} />
+        </Link>
         <Card>
           <Text style={{ fontWeight: "700", color: colors.text }}>{t("recentOrders")}</Text>
           {summary.recentOrders.length === 0 ? (

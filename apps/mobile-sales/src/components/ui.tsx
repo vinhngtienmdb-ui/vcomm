@@ -89,4 +89,45 @@ export const styles = StyleSheet.create({
   primaryText: { color: colors.surface, fontWeight: "700", fontSize: 16 },
   secondaryText: { color: colors.text, fontWeight: "600", fontSize: 16 },
   notice: { borderRadius: radius.small, padding: space[3] },
+  chip: { borderWidth: 1, borderColor: colors.inputBorder, borderRadius: radius.round, paddingHorizontal: space[3], paddingVertical: space[2], minHeight: 40, justifyContent: "center" },
 });
+
+// Chọn một trong ít lựa chọn (kênh, kho): các nút xếp hàng.
+export function Choice<T extends string>({ label, value, options, onChange }: { label: string; value: T | null; options: { value: T; label: string }[]; onChange: (value: T) => void }) {
+  return (
+    <View style={{ gap: space[1] }}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space[2] }}>
+        {options.map((option) => {
+          const selected = option.value === value;
+          return (
+            <Pressable
+              key={option.value}
+              accessibilityRole="radio"
+              accessibilityState={{ selected }}
+              onPress={() => onChange(option.value)}
+              style={[styles.chip, selected ? { backgroundColor: colors.primary, borderColor: colors.primary } : null]}
+            >
+              <Text style={{ color: selected ? colors.surface : colors.text, fontWeight: "600" }}>{option.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+export function StatusBadge({ text, tone }: { text: string; tone: "success" | "warning" | "error" | "neutral" | "info" }) {
+  const palette = {
+    success: [colors.successBackground, colors.success],
+    warning: [colors.warningBackground, colors.warning],
+    error: [colors.errorBackground, colors.error],
+    info: [colors.infoBackground, colors.info],
+    neutral: [colors.border, colors.textMuted],
+  }[tone];
+  return (
+    <View style={{ backgroundColor: palette[0], borderRadius: radius.round, paddingHorizontal: space[2], paddingVertical: 2, alignSelf: "flex-start" }}>
+      <Text style={{ color: palette[1], fontSize: 12, fontWeight: "700" }}>{text}</Text>
+    </View>
+  );
+}
