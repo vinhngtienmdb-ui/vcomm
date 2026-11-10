@@ -4,7 +4,7 @@
 - Phiên bản: 2.1
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu
 
 ## MODULE_01 Nền tảng
 
@@ -972,6 +972,7 @@ Quy ước chung cho mọi chức năng của MODULE_05 phần 2:
 - Phân quyền: Không có `inventory.sales.issue` tại kho xuất: danh sách không có biên bản của kho đó, xử lý nhận 403 (không có quyền vào kho thì 404).
 - Thông báo lỗi: "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất." · lỗi phiếu nhận hàng trả lại theo CHUC_NANG_57
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_96, TIEUCHI_NGHIEMTHU_98
+- Bổ sung CONG_VIEC_13: "Ghi tổn thất" giảm phải thu của công ty mua đúng giá trị phần thiếu theo giá đơn bán, trừ trước vào phiếu xuất gốc, cùng giao dịch đóng biên bản (CHUC_NANG_66, QUYTAC_NGHIEPVU_86, quyết định của người dùng 2026-11-10).
 
 ## Yêu cầu phi chức năng của MODULE_05 (phần 2)
 
@@ -1066,7 +1067,7 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 1:
 - Người sử dụng: Kế toán, quản trị công ty, quản trị tập đoàn; Thủ kho (gián tiếp: ghi sổ phiếu kho sinh công nợ).
 - Điều kiện thực hiện: Danh sách, chi tiết đối tác: `finance.debt.view`. Chứng từ còn nợ: `finance.debt.view` hoặc `finance.payment.manage`. Chọn đối tác: `finance.debt.view`, `finance.payment.manage` hoặc `finance.debt.manage`. Nhập, xóa số dư đầu kỳ: `finance.debt.manage`. Phát sinh tự động: khi phiếu kho ghi sổ.
 - Dữ liệu đầu vào: Danh sách: phía (phải thu, phải trả), từ khóa (tên không dấu hoặc mã đối tác, tối đa 100 ký tự), chỉ đối tác quá hạn. Số dư đầu kỳ: đối tác, phía, loại (còn nợ, trả trước), số chứng từ (1 đến 50 ký tự), ngày, hạn thanh toán (bắt buộc với còn nợ, không trước ngày chứng từ), số tiền (lớn hơn 0), ghi chú (tối đa 500 ký tự).
-- Quy trình xử lý: Phiếu kho ghi sổ gọi móc nối của module Tài chính trong cùng giao dịch: tính giá trị gồm thuế (hàm `finance.inventory_debt_amount`), tạo khoản tăng hoặc giảm nợ, trừ nợ (QUYTAC_NGHIEPVU_86, QUYTAC_NGHIEPVU_87). Số dư đầu kỳ: kiểm đối tác là khách hàng (phải thu) hoặc nhà cung cấp (phải trả) theo hồ sơ của công ty; khóa công nợ của đối tác; tạo khoản, tự trừ (QUYTAC_NGHIEPVU_90). Xóa: chỉ khoản số dư đầu kỳ chưa trừ nợ, chưa được chọn trên phiếu thu chi. Danh sách: đối tác có khoản còn số còn lại, sắp số dư giảm dần (tối đa 1.000), kèm dòng tổng; tuổi nợ theo QUYTAC_NGHIEPVU_91.
+- Quy trình xử lý: Phiếu kho ghi sổ gọi móc nối của module Tài chính trong cùng giao dịch: tính giá trị gồm thuế (hàm `finance.inventory_debt_amount`), tạo khoản tăng hoặc giảm nợ, trừ nợ (QUYTAC_NGHIEPVU_86, QUYTAC_NGHIEPVU_87). Biên bản chênh lệch nội bộ ghi tổn thất (CHUC_NANG_61) gọi móc nối trong cùng giao dịch đóng biên bản: tạo khoản giảm phải thu của công ty mua theo giá đơn bán của phần thiếu, trừ trước vào phiếu xuất gốc. Số dư đầu kỳ: kiểm đối tác là khách hàng (phải thu) hoặc nhà cung cấp (phải trả) theo hồ sơ của công ty; khóa công nợ của đối tác; tạo khoản, tự trừ (QUYTAC_NGHIEPVU_90). Xóa: chỉ khoản số dư đầu kỳ chưa trừ nợ, chưa được chọn trên phiếu thu chi. Danh sách: đối tác có khoản còn số còn lại, sắp số dư giảm dần (tối đa 1.000), kèm dòng tổng; tuổi nợ theo QUYTAC_NGHIEPVU_91.
 - Kết quả đầu ra: Danh sách: tiền tệ, đối tác (mã, tên), số dư, trả trước, chưa đến hạn, quá hạn 1 đến 30, 31 đến 60, 61 đến 90, trên 90 ngày; tổng. Chi tiết đối tác: đối tác, phía, số dư, trả trước, tuổi nợ, được nhập số dư đầu kỳ, được lập phiếu; khoản (số chứng từ, nguồn, loại phiếu thu chi, ngày, hạn, số tiền, còn lại, số ngày quá hạn, ghi chú, được xóa, các lần trừ nợ: chứng từ bên kia, số tiền, ngày), mới trước, tối đa 1.000. Chứng từ còn nợ: trả trước đang còn; khoản tăng còn lại, cũ nhất trước. Chọn đối tác: tối đa 20 (mã, tên).
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_38
 - Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_86, QUYTAC_NGHIEPVU_87, QUYTAC_NGHIEPVU_90, QUYTAC_NGHIEPVU_91
@@ -1108,7 +1109,7 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 1:
 | Nhóm | Yêu cầu |
 |---|---|
 | Toàn vẹn | Công nợ phát sinh trong cùng giao dịch ghi sổ phiếu kho; mọi thay đổi công nợ của một đối tác ở một phía chạy tuần tự (khóa theo công ty, phía, đối tác); ghi sổ phiếu thu chi khóa công nợ trước, quỹ sau; số dư quỹ, số dư công nợ tính từ dữ liệu, không lưu trùng; tiền `numeric`; khóa ngoại từ `finance` chỉ trỏ vào `finance`, `core`, `crm` |
-| Ranh giới module | Module Kho gọi công nợ qua móc nối `postedHooks` đăng ký lúc khởi động; đơn bán chỉ đọc số dư công nợ qua biểu thức `receivableBalance`; dùng lại luồng duyệt, dãy số chứng từ có sẵn |
+| Ranh giới module | Module Kho gọi công nợ qua móc nối `postedHooks` (ghi sổ phiếu kho), `writtenOffHooks` (ghi tổn thất biên bản nội bộ) đăng ký lúc khởi động; đơn bán chỉ đọc số dư công nợ qua biểu thức `receivableBalance` (`apps/api/src/finance/receivable-balance.ts`); dùng lại luồng duyệt, dãy số chứng từ có sẵn |
 | Giao diện | Dùng được trên điện thoại |
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09

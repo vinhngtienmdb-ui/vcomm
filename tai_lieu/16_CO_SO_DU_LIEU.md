@@ -1,12 +1,12 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thiết kế cơ sở dữ liệu: schema, bảng, quan hệ, ràng buộc, chỉ mục, chính sách xóa dữ liệu.
-- Phiên bản: 1.9
+- Phiên bản: 2.0
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12)
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13)
 
-Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
+Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07.
 
 ## 1. Quy ước chung
 
@@ -1948,4 +1948,197 @@ CREATE INDEX sales_order_lines_promotion_idx ON sales.order_lines (promotion_id)
 CREATE INDEX sales_order_lines_order_promotion_idx ON sales.order_lines (order_promotion_id);
 -- Suất tặng thiếu do kho xuất không đủ hàng tặng lúc lưu đơn (tặng theo tồn còn lại): [{promotionName, missingSets}].
 ALTER TABLE sales.orders ADD COLUMN gift_shortages jsonb NOT NULL DEFAULT '[]'::jsonb;
+```
+
+## 13. Database migration 0010 – CONG_VIEC_13 (schema `finance`)
+
+Tệp `database/migrations/0010_finance.sql` tạo schema `finance` của MODULE_06 Tài chính – Kế toán (phần 1), 5 bảng và một hàm. Khóa ngoại từ `finance` chỉ trỏ vào `finance`, `core`, `crm`; phiếu kho, biên bản chênh lệch nội bộ (`source_id` của khoản công nợ) không đặt khóa ngoại. Khoản `internal_write_off` là khoản giảm phải thu của công ty bán khi biên bản chênh lệch nội bộ được ghi tổn thất (giá đơn bán của phần thiếu, quyết định của người dùng 2026-11-10). Số dư quỹ, số dư công nợ, tiền trả trước tính từ dữ liệu, không lưu trùng. Quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, vai trò `accountant`, loại chứng từ `finance.receipt` (không duyệt), `finance.payment` (cần duyệt) ghi vào bảng của `core` bằng hàm đồng bộ danh mục quyền (`apps/api/src/permissions/permission-catalog.ts`). Dãy số tiền tố `PT`, `PC` tạo khi gửi lần đầu (không có trong database migration).
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `funds` | Quỹ tiền mặt, tài khoản ngân hàng (CHUC_NANG_65; QUYTAC_NGHIEPVU_85) | `company_id`, `code` (1 đến 20 ký tự), `name`, `kind` (`cash`, `bank`), `bank_name`, `account_no`, `account_holder`, `opening_balance` (`numeric(20,4)`, không âm), `status` (`active`, `inactive`), `created_by`, `created_at`, `updated_at`, `version` | Duy nhất `(company_id, code)` (service kiểm thêm không phân biệt hoa thường); `bank` phải có `bank_name`, `account_no` |
+| `debt_items` | Khoản công nợ (CHUC_NANG_66; QUYTAC_NGHIEPVU_86, 87, 90) | `company_id`, `partner_id` (`crm.partners`), `side` (`receivable`, `payable`), `direction` (`debit` tăng nợ, `credit` giảm nợ), `source_type` (`opening`, `sales_issue`, `sales_return`, `purchase_receipt`, `purchase_return`, `payment`, `internal_write_off`), `source_id` (phiếu kho, phiếu thu chi hoặc biên bản chênh lệch nội bộ ghi tổn thất; số dư đầu kỳ trống), `original_item_id` (khoản tăng của phiếu gốc khi trả hàng, ghi tổn thất), `document_no`, `document_date`, `due_date` (chỉ khoản tăng), `amount` (lớn hơn 0, gồm thuế), `open_amount` (0 đến `amount`), `note`, `created_by`, `created_at` | `due_date` có khi và chỉ khi `debit`; `source_id` trống khi và chỉ khi `opening`; duy nhất `(source_type, source_id)` khi có `source_id`; chỉ mục `(company_id, side, partner_id, direction)`, `(company_id, side, partner_id)` với `open_amount > 0` |
+| `debt_allocations` | Trừ nợ: ghép khoản giảm với khoản tăng (QUYTAC_NGHIEPVU_87) | `company_id`, `debit_item_id`, `credit_item_id` (xóa theo khoản), `amount` (lớn hơn 0), `created_at` | Chỉ mục `debit_item_id`, `credit_item_id`; service chỉ ghép hai khoản cùng công ty, đối tác, phía |
+| `payments` | Phiếu thu, phiếu chi (CHUC_NANG_67; QUYTAC_NGHIEPVU_88, 89) | `company_id`, `document_no` (cấp khi gửi lần đầu), `kind` (`customer_receipt`, `supplier_payment`, `customer_refund`, `supplier_refund`), `partner_id`, `fund_id`, `payment_date`, `amount` (lớn hơn 0), `note`, `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`), `approval_request_id` (`core.approval_requests`), `post_error` (khóa thông báo lỗi khi duyệt xong không ghi sổ được, ví dụ `insufficientFundBalance`), `posted_at`, `created_by`, `created_at`, `updated_at`, `version` | Duy nhất `(company_id, kind, document_no)`; chỉ mục `(company_id, status, payment_date)`, `(fund_id, status)`, `approval_request_id` |
+| `payment_lines` | Chứng từ còn nợ người lập chọn trừ | `payment_id` (xóa theo phiếu), `debit_item_id`, `amount` (lớn hơn 0) | Khóa chính `(payment_id, debit_item_id)` |
+
+Hàm `finance.inventory_debt_amount(document)`: giá trị công nợ gồm thuế của một phiếu kho, làm tròn 4 chữ số (QUYTAC_NGHIEPVU_86): xuất giao hàng, nhận hàng trả lại theo `sales.order_lines.total_amount` tỷ lệ số lượng cơ sở; nhập mua, trả hàng nhà cung cấp theo `purchasing.order_lines.amount` nhân (1 + thuế suất 0, 5, 8, 10%; miễn thuế, không kê khai tính 0) tỷ lệ số lượng cơ sở, nhập mua trừ phần không đạt kiểm tra chất lượng. Dùng chung cho mã ứng dụng (khi ghi sổ) và tính lại phiếu cũ.
+
+Tính lại phiếu cũ (chạy một lần trong database migration): tạo khoản tăng cho phiếu xuất giao hàng, nhập mua đã ghi sổ có đối tác (hạn thanh toán theo số ngày được nợ hiện tại của hồ sơ); tạo khoản giảm cho phiếu nhận hàng trả lại, trả hàng nhà cung cấp, gắn khoản tăng của phiếu gốc; trừ khoản giảm vào khoản tăng của phiếu gốc theo ngày chứng từ, không vượt số còn lại. Phần còn lại của khoản giảm giữ làm trả trước.
+
+Quy tắc xóa và lưu giữ bổ sung:
+- Không xóa quỹ; ngừng dùng chuyển `inactive`.
+- Không xóa phiếu thu chi; phiếu đã ghi sổ không sửa. Sửa phiếu chưa ghi sổ thay toàn bộ dòng `payment_lines`.
+- Khoản công nợ từ phiếu kho, phiếu thu chi không xóa, không sửa số tiền; `open_amount` chỉ giảm khi trừ nợ. Chỉ xóa được khoản số dư đầu kỳ chưa trừ nợ, chưa được chọn trên phiếu thu chi.
+- Trừ nợ không xóa (chỉ mất theo khoản số dư đầu kỳ bị xóa, khi chưa có trừ nợ).
+
+```mermaid
+erDiagram
+    funds ||--o{ payments : "quỹ của phiếu"
+    payments ||--o{ payment_lines : "chứng từ chọn trừ"
+    debt_items ||--o{ payment_lines : "khoản tăng được chọn"
+    payments |o--o| debt_items : "ghi sổ sinh một khoản (source_type payment)"
+    debt_items ||--o{ debt_allocations : "khoản tăng (debit_item_id)"
+    debt_items ||--o{ debt_allocations : "khoản giảm (credit_item_id)"
+    debt_items |o--o{ debt_items : "khoản giảm trả hàng gắn khoản tăng phiếu gốc"
+```
+
+Lược đồ (chép từ tệp `database/migrations/0010_finance.sql`):
+
+```sql
+-- CONG_VIEC_13: Công nợ phải thu, phải trả (MODULE_06, phần 1; tài liệu 16).
+CREATE SCHEMA IF NOT EXISTS finance;
+
+-- Quỹ tiền mặt, tài khoản ngân hàng của công ty (CHUC_NANG_65; QUYTAC_NGHIEPVU_85). Số dư hiện tại tính từ phiếu thu chi đã ghi sổ.
+CREATE TABLE finance.funds (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id              uuid        NOT NULL REFERENCES core.companies(id),
+    code                    text        NOT NULL CHECK (length(code) BETWEEN 1 AND 20),
+    name                    text        NOT NULL,
+    kind                    text        NOT NULL CHECK (kind IN ('cash', 'bank')),
+    bank_name               text,
+    account_no              text,
+    account_holder          text,
+    opening_balance         numeric(20,4) NOT NULL DEFAULT 0 CHECK (opening_balance >= 0),
+    status                  text        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+    created_by              uuid        NOT NULL REFERENCES core.users(id),
+    created_at              timestamptz NOT NULL DEFAULT now(),
+    updated_at              timestamptz NOT NULL DEFAULT now(),
+    version                 integer     NOT NULL DEFAULT 1,
+    UNIQUE (company_id, code),
+    CHECK (kind <> 'bank' OR (bank_name IS NOT NULL AND account_no IS NOT NULL))
+);
+
+-- Khoản công nợ (CHUC_NANG_66; QUYTAC_NGHIEPVU_86, 87, 90): tăng nợ (debit) hoặc giảm nợ (credit) của một đối tác ở phía phải thu hoặc phải trả.
+CREATE TABLE finance.debt_items (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id              uuid        NOT NULL REFERENCES core.companies(id),
+    partner_id              uuid        NOT NULL REFERENCES crm.partners(id),
+    side                    text        NOT NULL CHECK (side IN ('receivable', 'payable')),
+    direction               text        NOT NULL CHECK (direction IN ('debit', 'credit')),
+    source_type             text        NOT NULL CHECK (source_type IN ('opening', 'sales_issue', 'sales_return', 'purchase_receipt', 'purchase_return', 'payment', 'internal_write_off')),
+    source_id               uuid,                                                   -- phiếu kho, phiếu thu chi hoặc biên bản chênh lệch nội bộ ghi tổn thất; số dư đầu kỳ: trống
+    original_item_id        uuid        REFERENCES finance.debt_items(id),          -- trả hàng: khoản tăng của phiếu gốc, trừ trước
+    document_no             text        NOT NULL,
+    document_date           date        NOT NULL,
+    due_date                date,                                                   -- chỉ khoản tăng nợ
+    amount                  numeric(20,4) NOT NULL CHECK (amount > 0),              -- tiền tệ công ty, gồm thuế
+    open_amount             numeric(20,4) NOT NULL CHECK (open_amount >= 0),
+    note                    text,
+    created_by              uuid        REFERENCES core.users(id),
+    created_at              timestamptz NOT NULL DEFAULT now(),
+    CHECK (open_amount <= amount),
+    CHECK ((direction = 'debit') = (due_date IS NOT NULL)),
+    CHECK ((source_type = 'opening') = (source_id IS NULL))
+);
+CREATE UNIQUE INDEX debt_items_source_idx ON finance.debt_items (source_type, source_id) WHERE source_id IS NOT NULL;
+CREATE INDEX debt_items_partner_idx ON finance.debt_items (company_id, side, partner_id, direction);
+CREATE INDEX debt_items_open_idx ON finance.debt_items (company_id, side, partner_id) WHERE open_amount > 0;
+
+-- Trừ nợ: ghép một khoản giảm với một khoản tăng (QUYTAC_NGHIEPVU_87).
+CREATE TABLE finance.debt_allocations (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id              uuid        NOT NULL REFERENCES core.companies(id),
+    debit_item_id           uuid        NOT NULL REFERENCES finance.debt_items(id) ON DELETE CASCADE,
+    credit_item_id          uuid        NOT NULL REFERENCES finance.debt_items(id) ON DELETE CASCADE,
+    amount                  numeric(20,4) NOT NULL CHECK (amount > 0),
+    created_at              timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX debt_allocations_debit_idx ON finance.debt_allocations (debit_item_id);
+CREATE INDEX debt_allocations_credit_idx ON finance.debt_allocations (credit_item_id);
+
+-- Phiếu thu, phiếu chi (CHUC_NANG_67; QUYTAC_NGHIEPVU_88, 89).
+CREATE TABLE finance.payments (
+    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id              uuid        NOT NULL REFERENCES core.companies(id),
+    document_no             text,                                                   -- cấp khi gửi lần đầu
+    kind                    text        NOT NULL CHECK (kind IN ('customer_receipt', 'supplier_payment', 'customer_refund', 'supplier_refund')),
+    partner_id              uuid        NOT NULL REFERENCES crm.partners(id),
+    fund_id                 uuid        NOT NULL REFERENCES finance.funds(id),
+    payment_date            date        NOT NULL,
+    amount                  numeric(20,4) NOT NULL CHECK (amount > 0),
+    note                    text,
+    status                  text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'posted', 'rejected', 'withdrawn')),
+    approval_request_id     uuid        REFERENCES core.approval_requests(id),
+    post_error              text,                                                   -- duyệt xong nhưng không ghi sổ được (số dư quỹ, số còn nợ đã đổi)
+    posted_at               timestamptz,
+    created_by              uuid        NOT NULL REFERENCES core.users(id),
+    created_at              timestamptz NOT NULL DEFAULT now(),
+    updated_at              timestamptz NOT NULL DEFAULT now(),
+    version                 integer     NOT NULL DEFAULT 1,
+    UNIQUE (company_id, kind, document_no)
+);
+CREATE INDEX payments_company_idx ON finance.payments (company_id, status, payment_date);
+CREATE INDEX payments_fund_idx ON finance.payments (fund_id, status);
+CREATE INDEX payments_approval_idx ON finance.payments (approval_request_id);
+
+-- Chứng từ còn nợ người lập chọn trừ (thu tiền khách hàng, trả tiền nhà cung cấp).
+CREATE TABLE finance.payment_lines (
+    payment_id              uuid        NOT NULL REFERENCES finance.payments(id) ON DELETE CASCADE,
+    debit_item_id           uuid        NOT NULL REFERENCES finance.debt_items(id),
+    amount                  numeric(20,4) NOT NULL CHECK (amount > 0),
+    PRIMARY KEY (payment_id, debit_item_id)
+);
+
+-- Giá trị công nợ của phiếu kho đã ghi sổ (QUYTAC_NGHIEPVU_86): gồm thuế theo đơn bán, đơn mua; nhập mua chỉ phần đạt kiểm tra chất lượng.
+-- Dùng chung cho mã ứng dụng (khi ghi sổ) và tính lại phiếu cũ bên dưới.
+CREATE FUNCTION finance.inventory_debt_amount(document uuid) RETURNS numeric LANGUAGE sql STABLE AS $$
+    SELECT round(coalesce(CASE d.type
+        WHEN 'sales_issue' THEN (
+            SELECT sum(sl.total_amount * abs(dl.base_quantity) / sl.base_quantity)
+            FROM inventory.document_lines dl JOIN sales.order_lines sl ON sl.id = dl.source_line_id
+            WHERE dl.document_id = d.id)
+        WHEN 'sales_return' THEN (
+            SELECT sum(sl.total_amount * abs(rl.base_quantity) / sl.base_quantity)
+            FROM inventory.document_lines rl JOIN inventory.document_lines dl ON dl.id = rl.source_line_id
+            JOIN sales.order_lines sl ON sl.id = dl.source_line_id
+            WHERE rl.document_id = d.id)
+        WHEN 'purchase_receipt' THEN (
+            SELECT sum(pl.amount * (1 + CASE WHEN pl.vat_rate IN ('0', '5', '8', '10') THEN pl.vat_rate::numeric / 100 ELSE 0 END)
+                       * (abs(dl.base_quantity) - coalesce(dl.rejected_base_quantity, 0)) / pl.base_quantity)
+            FROM inventory.document_lines dl JOIN purchasing.order_lines pl ON pl.id = dl.source_line_id
+            WHERE dl.document_id = d.id)
+        WHEN 'purchase_return' THEN (
+            SELECT sum(pl.amount * (1 + CASE WHEN pl.vat_rate IN ('0', '5', '8', '10') THEN pl.vat_rate::numeric / 100 ELSE 0 END)
+                       * abs(rl.base_quantity) / pl.base_quantity)
+            FROM inventory.document_lines rl JOIN inventory.document_lines dl ON dl.id = rl.source_line_id
+            JOIN purchasing.order_lines pl ON pl.id = dl.source_line_id
+            WHERE rl.document_id = d.id)
+    END, 0), 4)
+    FROM inventory.documents d WHERE d.id = document
+$$;
+
+-- Tính lại công nợ của phiếu kho đã ghi sổ trước khi nâng cấp: khoản tăng trước, rồi khoản giảm do trả hàng trừ vào phiếu gốc.
+INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, document_no, document_date, due_date, amount, open_amount)
+SELECT d.company_id, d.partner_id,
+    CASE WHEN d.type = 'sales_issue' THEN 'receivable' ELSE 'payable' END, 'debit', d.type, d.id, coalesce(d.document_no, ''), d.document_date,
+    d.document_date + coalesce((SELECT p.payment_term_days FROM crm.partner_profiles p WHERE p.company_id = d.company_id AND p.partner_id = d.partner_id), 0),
+    finance.inventory_debt_amount(d.id), finance.inventory_debt_amount(d.id)
+FROM inventory.documents d
+WHERE d.type IN ('sales_issue', 'purchase_receipt') AND d.status = 'posted' AND d.partner_id IS NOT NULL AND finance.inventory_debt_amount(d.id) > 0;
+
+INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, original_item_id, document_no, document_date, amount, open_amount)
+SELECT d.company_id, d.partner_id,
+    CASE WHEN d.type = 'sales_return' THEN 'receivable' ELSE 'payable' END, 'credit', d.type, d.id, o.id, coalesce(d.document_no, ''), d.document_date,
+    finance.inventory_debt_amount(d.id), finance.inventory_debt_amount(d.id)
+FROM inventory.documents d
+LEFT JOIN finance.debt_items o ON o.source_id = d.source_id AND o.direction = 'debit'
+WHERE d.type IN ('sales_return', 'purchase_return') AND d.status = 'posted' AND d.partner_id IS NOT NULL AND finance.inventory_debt_amount(d.id) > 0
+ORDER BY d.posted_at;
+
+-- Trừ khoản giảm vào khoản tăng của phiếu gốc (theo thứ tự ghi sổ, không vượt số còn lại).
+DO $$
+DECLARE
+    credit record;
+    applied numeric;
+BEGIN
+    FOR credit IN SELECT c.id, c.company_id, c.original_item_id, c.open_amount FROM finance.debt_items c
+                  WHERE c.direction = 'credit' AND c.original_item_id IS NOT NULL ORDER BY c.document_date, c.created_at LOOP
+        SELECT least(credit.open_amount, open_amount) INTO applied FROM finance.debt_items WHERE id = credit.original_item_id;
+        IF applied > 0 THEN
+            INSERT INTO finance.debt_allocations (company_id, debit_item_id, credit_item_id, amount) VALUES (credit.company_id, credit.original_item_id, credit.id, applied);
+            UPDATE finance.debt_items SET open_amount = open_amount - applied WHERE id IN (credit.id, credit.original_item_id);
+        END IF;
+    END LOOP;
+END $$;
 ```

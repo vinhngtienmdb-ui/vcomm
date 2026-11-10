@@ -4,7 +4,7 @@
 - Phiên bản: 1.4
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09)
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu
 
 ## MODULE_01 Nền tảng
 
@@ -198,6 +198,7 @@ b) Xử lý biên bản chênh lệch (QUYTAC_NGHIEPVU_77):
 - Bắt đầu: Thủ kho A (quyền `inventory.sales.issue` tại kho xuất) mở "Chênh lệch giao nội bộ" ở mini app Kho, lọc "Chờ xử lý".
 - Các bước: nhập ghi chú nếu cần, chọn "Nhập lại kho" (lập, ghi sổ phiếu nhận hàng trả lại vào kho xuất theo giá vốn phiếu xuất, serial chưa nhận) hoặc "Ghi tổn thất" (chỉ đóng biên bản).
 - Ngoại lệ: biên bản đã xử lý thì từ chối lần xử lý sau; nhập lại kho không ghi sổ được thì biên bản trở lại "Chờ xử lý".
+- Bổ sung CONG_VIEC_13: "Ghi tổn thất" giảm phải thu của công ty mua đúng giá trị phần thiếu theo giá đơn bán, trừ trước vào phiếu xuất gốc, cùng giao dịch đóng biên bản; "Nhập lại kho" giảm phải thu qua phiếu nhận hàng trả lại (Luồng 18, QUYTAC_NGHIEPVU_86).
 - Kết thúc: biên bản "Đã nhập lại kho" hoặc "Đã ghi tổn thất".
 
 Trạng thái đơn đối ứng (đơn bán, đơn mua sinh tự động):
@@ -262,7 +263,7 @@ Trạng thái chương trình khuyến mãi:
   2. Khóa công nợ của đối tác ở phía đó (phải thu với phiếu bán, phải trả với phiếu mua).
   3. Phiếu xuất giao hàng, nhập mua: tạo khoản tăng nợ, hạn thanh toán = ngày phiếu + số ngày được nợ của hồ sơ đối tác; tự trừ vào trả trước còn lại cũ nhất.
   4. Phiếu nhận hàng trả lại, trả hàng nhà cung cấp: tạo khoản giảm nợ, trừ trước vào khoản tăng của phiếu gốc, phần còn lại trừ các khoản tăng cũ nhất; còn thừa là trả trước (QUYTAC_NGHIEPVU_87).
-- Ngoại lệ: tạo công nợ lỗi thì phiếu kho không ghi sổ.
+- Ngoại lệ: tạo công nợ lỗi thì phiếu kho không ghi sổ. Biên bản chênh lệch nội bộ ghi tổn thất cũng tạo khoản giảm phải thu như bước 4 (Luồng 15).
 - Kết thúc: khoản công nợ hiện ở MAN_HINH_47, MAN_HINH_48.
 
 ### Luồng 19. Thu tiền khách hàng

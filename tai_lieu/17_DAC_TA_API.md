@@ -1,12 +1,12 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Hợp đồng API: endpoint, phương thức, dữ liệu gửi lên, dữ liệu trả về, xác thực, phân quyền, kiểm tra dữ liệu, lỗi, phân trang.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-11-10
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79; CONG_VIEC_12 (2026-11-10): thêm API_83 khuyến mãi (mục 2g, 3g); bổ sung API_77
+- Thay đổi theo: THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09): thêm API_49 đến API_54; bổ sung API_02 đến API_05; CONG_VIEC_04 (2026-11-09): thêm API_55 đến API_62 của MODULE_02 (mục 2a, 3a); CONG_VIEC_05 (2026-11-10): thêm API_63 đến API_70 của MODULE_03 (mục 2b, 3b); CONG_VIEC_06 (2026-11-10): thêm API_71, API_72 của MODULE_07 (mục 2c, 3c); CONG_VIEC_07 (2026-11-10): thêm API_73 đến API_76 của MODULE_04 (mục 2d, 3d); bổ sung API_55, API_65; CONG_VIEC_08 (2026-11-10): thêm API_77 đến API_79 của MODULE_05 (mục 2e, 3e); bổ sung API_65; CONG_VIEC_09 (2026-11-10): thêm API_80 đến API_82 giao dịch nội bộ (mục 2f, 3f); bổ sung API_65, API_73, API_75, API_76, API_77, API_79; CONG_VIEC_12 (2026-11-10): thêm API_83 khuyến mãi (mục 2g, 3g); bổ sung API_77; CONG_VIEC_13 (2026-11-10): thêm API_84 đến API_86 của MODULE_06 phần 1 (mục 2h, 3h); sửa API_77 kiểm hạn mức theo dư nợ thật
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12).
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13).
 
 ## 1. Quy ước chung
 
@@ -194,6 +194,20 @@ API_83 nằm trong `apps/api/src/sales/sales.controller.ts`, gọi `PromotionsSe
 | API_83 | `GET /sales/promotions/options`; `GET /sales/promotions?status=`; `GET /sales/promotions/{id}`; `POST /sales/promotions`; `PATCH /sales/promotions/{id}`; `POST /sales/promotions/{id}/submit`, `/withdraw`, `/stop` | CHUC_NANG_62, CHUC_NANG_64 | Lựa chọn, danh sách, chi tiết: `sales.promotion.view` hoặc `sales.promotion.manage`. Lập, sửa, gửi, rút, dừng: `sales.promotion.manage`; rút: người lập, cấp duyệt đầu chưa quyết định | Lập, sửa: `name`, `kind`, `validFrom`, `validTo`, `channelIds`, `customerGroupIds`, `items[]` (`variantId`, `discountPercent`), `minOrderAmount`, `orderDiscountPercent`, `maxOrderDiscount`, `buyVariantId`, `buyQuantity`, `giftVariantId`, `giftQuantity`, `budgetAmount`, `maxGiftSets`, `note`, `version` (khi sửa). Dừng: `reason`, `version`. Lọc `status` | `{ channels, customerGroups, currency }`; danh sách `PromotionListItem[]`; chương trình `PromotionResponse` |
 
 Bổ sung API_77 (CONG_VIEC_12): `GET /sales/items` cần `sales.order.manage` hoặc `sales.promotion.manage` (trước chỉ `sales.order.manage`), để soạn chương trình khuyến mãi tìm được mặt hàng. Lập, sửa đơn bán tự áp khuyến mãi (CHUC_NANG_63); dòng gửi lên không có trường khuyến mãi, dòng hàng tặng do hệ thống thêm. Dòng `SalesOrderResponse.lines[]` thêm `isGift`, `promotionName` (chương trình giảm theo sản phẩm, hoặc chương trình tặng của dòng tặng; `null` nếu không có), `promotionPercent`, `orderPromotionName`, `orderDiscountAmount` (gồm thuế); `SalesOrderResponse` thêm `giftShortages` (`[{ promotionName, missingSets }]`, suất tặng thiếu do kho xuất không đủ hàng tặng lúc lưu; rỗng khi đủ). `submit` kiểm giới hạn khuyến mãi: vượt ngân sách hoặc số suất trả `409 BUSINESS_RULE` "Chương trình khuyến mãi đã hết ngân sách hoặc hết suất. Lưu lại đơn để tính lại khuyến mãi rồi gửi.".
+
+## 2h. Danh sách endpoint công nợ (MODULE_06 phần 1, CONG_VIEC_13)
+
+Mọi đường dẫn có tiền tố `/api/v1`. API_84 đến API_86 nằm trong `apps/api/src/finance/finance.controller.ts`: mọi endpoint trước hết cần `finance.access` hoặc `finance.debt.view` trong công ty đang làm việc (header `X-Company-Id`), không có thì `403 FORBIDDEN`. Quyền chi tiết kiểm trong service (`requireFinancePermission`, `apps/api/src/finance/finance-context.ts`): quyền phải gán ở phạm vi tập đoàn hoặc công ty đang làm việc. Dữ liệu công ty khác trả `404`. `POST` thành công trả `201`. Mã trong đường dẫn phải là UUID.
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_84 | `GET /finance/funds`; `GET /finance/funds/{id}`; `GET /finance/funds/{id}/ledger?from=&to=`; `POST /finance/funds`; `PATCH /finance/funds/{id}` | CHUC_NANG_65 | Danh sách: `finance.debt.view`, `finance.fund.manage` hoặc `finance.payment.manage`. Chi tiết, sổ quỹ: `finance.debt.view` hoặc `finance.fund.manage`. Thêm, sửa: `finance.fund.manage` | `code`, `name`, `kind`, `bankName`, `accountNo`, `accountHolder`, `openingBalance`, `status`, `version` (khi sửa). Sổ quỹ: `from`, `to` | `FundResponse[]`; `FundResponse`; `FundLedgerResponse` |
+| API_85 | `GET /finance/partners?side=&search=`; `GET /finance/debts?side=&search=&overdueOnly=`; `GET /finance/debts/open?side=&partnerId=`; `GET /finance/debts/partners/{partnerId}?side=`; `POST /finance/debts/opening`; `DELETE /finance/debts/opening/{id}` | CHUC_NANG_66 | Chọn đối tác: `finance.debt.view`, `finance.payment.manage` hoặc `finance.debt.manage`. Danh sách, chi tiết đối tác: `finance.debt.view`. Chứng từ còn nợ: `finance.debt.view` hoặc `finance.payment.manage`. Số dư đầu kỳ: `finance.debt.manage` | Số dư đầu kỳ: `partnerId`, `side`, `direction`, `documentNo`, `documentDate`, `dueDate`, `amount`, `note` | `FinancePartnerOption[]`; `DebtSummaryResponse`; `OpenDebtsResponse`; `DebtPartnerResponse` |
+| API_86 | `GET /finance/payments/options`; `GET /finance/payments?kind=&status=&partnerId=`; `GET /finance/payments/{id}`; `POST /finance/payments`; `PATCH /finance/payments/{id}`; `POST /finance/payments/{id}/submit`, `/withdraw` | CHUC_NANG_67 | Tùy chọn, danh sách, chi tiết: `finance.debt.view` hoặc `finance.payment.manage`. Lập, sửa, gửi: `finance.payment.manage`. Rút: `finance.payment.manage`, người lập, phiếu chờ duyệt | Lập, sửa: `kind`, `partnerId`, `fundId`, `paymentDate`, `amount`, `note`, `lines[]` (`debitItemId`, `amount`), `version` (khi sửa). Gửi: `version` | `PaymentOptionsResponse`; `PaymentListItem[]`; `PaymentResponse` |
+
+Sửa API_77 (CONG_VIEC_13, THAY_DOI_09): `submit` tính ngoại lệ `credit_limit` theo dư nợ thật (QUYTAC_NGHIEPVU_92): số dư công nợ phải thu của khách ở công ty (biểu thức `receivableBalance`, trả trước làm giảm) cộng giá trị gồm thuế phần chưa giao của các đơn khác đã xác nhận; thay dư nợ tạm tính (QUYTAC_NGHIEPVU_69). Hợp đồng không đổi; `detail` vẫn là "<dư nợ sau đơn> > <hạn mức>", chỉ trả cho người có `crm.profile.manage`.
+
+Bổ sung API_82 (CONG_VIEC_13): `resolve` với `action` `write_off` đóng biên bản và tạo khoản giảm phải thu `internal_write_off` của công ty mua (giá đơn bán của phần thiếu, trừ trước vào phiếu xuất gốc) trong cùng giao dịch; hợp đồng không đổi.
 
 ## 3. Hợp đồng chi tiết
 
@@ -636,6 +650,51 @@ Gửi lên (`POST /sales/promotions/{id}/stop`):
 - `stop` (`201`): chương trình `active` đúng phiên bản; `stopped`, ghi lý do, người, thời điểm. Nhật ký `promotion.stop`.
 - Lỗi: `400` tại `items`, `minOrderAmount`, `orderDiscountPercent`, `buyVariantId`, `buyQuantity`, `giftVariantId`, `giftQuantity` "Vui lòng nhập thông tin này."; tại `validTo`, `items`, `items.{i}.variantId`, `items.{i}.discountPercent`, `channelIds`, `customerGroupIds`, `buyVariantId`, `giftVariantId`, `budgetAmount` "Giá trị không hợp lệ."; `403` (thiếu quyền; rút không phải người lập); `404`; `409 BUSINESS_RULE` "Chỉ sửa được chứng từ đang ở trạng thái nháp." (sửa, gửi chương trình đang chờ duyệt, đang chạy, đã dừng); `409 CONFLICT_VERSION` (sai phiên bản; dừng chương trình không đang chạy).
 
+## 3h. Hợp đồng chi tiết công nợ (MODULE_06 phần 1, CONG_VIEC_13)
+
+Quy ước: tiền dạng chuỗi số không âm hoặc dương tối đa 12 chữ số phần nguyên, 4 chữ số lẻ, chấp nhận dấu phẩy thập phân; số trả về dạng chuỗi bỏ số 0 thừa; ngày `YYYY-MM-DD`; trường lạ bị từ chối; chuỗi trống của trường không bắt buộc thành `null`.
+
+### API_84 Quỹ
+Gửi lên (`POST /finance/funds`):
+```json
+{ "code": "NH", "name": "Ngân hàng A", "kind": "bank", "bankName": "Ngân hàng A", "accountNo": "0123456789", "accountHolder": "VComm Bán lẻ", "openingBalance": "500000", "status": "active" }
+```
+- Kiểm tra: `code` 1 đến 20 ký tự, `name` 1 đến 200, `bankName` tối đa 200, `accountNo` tối đa 50, `accountHolder` tối đa 200; `openingBalance` không âm (mặc định `"0"`); `status` `active`, `inactive` (mặc định `active`); `version` số nguyên dương khi sửa. Phía máy chủ: `bank` phải có `bankName`, `accountNo`; mã không trùng trong công ty (không phân biệt hoa thường); loại `cash` bỏ thông tin ngân hàng.
+- Kết quả quỹ: `{ id, code, name, kind, bankName, accountNo, accountHolder, openingBalance, balance, status, hasPostings, currency, version, canManage }`; danh sách quỹ đang dùng trước, theo mã.
+- `POST` (`201`): nhật ký `fund.create`. `PATCH` (`200`): khóa quỹ, đúng phiên bản; quỹ có phiếu `pending` hoặc `posted` thì không đổi `openingBalance`. Nhật ký `fund.update` (kèm dữ liệu trước).
+- `ledger` (`200`): `{ fund, from, to, openingBalance, entries[] ({ paymentId, date, documentNo, kind, partnerName, receipt, payment, balance }), closingBalance }`; chỉ phiếu `posted`, theo ngày rồi thời điểm ghi sổ, tối đa 5.000 dòng.
+- Lỗi: `400` tại `bankName`, `accountNo` "Vui lòng nhập thông tin này."; tại `code` "Mã quỹ đã có trong công ty."; tại `openingBalance` "Quỹ đã có phiếu thu chi, không sửa được số dư đầu."; `403`; `404`; `409 CONFLICT_VERSION`.
+
+### API_85 Công nợ
+Gửi lên (`POST /finance/debts/opening`):
+```json
+{ "partnerId": "01J...", "side": "receivable", "direction": "debit", "documentNo": "HD-CU-01", "documentDate": "2026-01-01", "dueDate": "2026-02-01", "amount": "50000", "note": null }
+```
+- Kiểm tra: `side` `receivable`, `payable`; `direction` `debit` (còn nợ), `credit` (trả trước); `documentNo` 1 đến 50 ký tự; `dueDate` bắt buộc với `debit`, không trước `documentDate`; `amount` lớn hơn 0; `note` tối đa 500; `search` tối đa 100 ký tự; `overdueOnly` `true`, `false`. Phía máy chủ: đối tác có hồ sơ khách hàng (`receivable`) hoặc nhà cung cấp (`payable`) ở công ty.
+- `GET /finance/partners` (`200`): tối đa 20 `{ id, code, name }` là khách hàng hoặc nhà cung cấp của công ty theo `side`, tìm theo tên không dấu hoặc mã.
+- `GET /finance/debts` (`200`): `{ side, currency, partners[] ({ partnerId, partnerCode, partnerName, balance, advance, notDue, overdue1To30, overdue31To60, overdue61To90, overdueOver90 }), totals }`; đối tác có khoản còn số còn lại, số dư giảm dần, tối đa 1.000; `overdueOnly=true` chỉ đối tác có khoản tăng quá hạn.
+- `GET /finance/debts/partners/{partnerId}` (`200`): `{ partner, side, currency, balance, advance, ageing, items[] ({ id, direction, sourceType (`opening`, `sales_issue`, `sales_return`, `purchase_receipt`, `purchase_return`, `payment`, `internal_write_off`), sourceId, paymentKind, documentNo, documentDate, dueDate, amount, openAmount, overdueDays, note, canDelete, allocations[] ({ itemId, documentNo, sourceType, amount, date }) }), canManageOpening, canManagePayments }`; mới trước, tối đa 1.000. Đối tác không có hồ sơ và không có công nợ ở công ty đang chọn: `404`.
+- `GET /finance/debts/open` (`200`): `{ advance, items[] ({ id, documentNo, sourceType, documentDate, dueDate, amount, openAmount, overdueDays }) }`; khoản tăng còn lại, cũ nhất trước.
+- `POST /finance/debts/opening` (`201`): khóa công nợ của đối tác; tạo khoản `opening`, tự trừ (QUYTAC_NGHIEPVU_90); nhật ký `debt.opening.create`; trả chi tiết đối tác. `DELETE /finance/debts/opening/{id}` (`200`): chỉ khoản `opening` chưa trừ nợ, chưa được chọn trên phiếu thu chi; nhật ký `debt.opening.delete` (kèm dữ liệu trước); trả chi tiết đối tác.
+- Lỗi: `400` tại `partnerId` "Đối tác không phải khách hàng của công ty." hoặc "Đối tác không phải nhà cung cấp của công ty."; tại `dueDate` "Vui lòng nhập thông tin này." hoặc "Giá trị không hợp lệ."; `403`; `404` (khoản không phải số dư đầu kỳ, của công ty khác); `409 BUSINESS_RULE` "Khoản số dư đầu kỳ đã được trừ nợ hoặc đang được chọn trên phiếu thu chi, không xóa được.".
+
+### API_86 Phiếu thu, phiếu chi
+Gửi lên (`POST /finance/payments`):
+```json
+{ "kind": "customer_receipt", "partnerId": "01J...", "fundId": "01J...", "paymentDate": "2026-11-10", "amount": "20000", "note": "Thu tiền hàng",
+  "lines": [ { "debitItemId": "01J...", "amount": "10000" } ] }
+```
+Gửi lên (`POST /finance/payments/{id}/submit`): `{ "version": 1 }`.
+- Kiểm tra: `kind` `customer_receipt`, `supplier_payment`, `customer_refund`, `supplier_refund`; `amount`, `lines[].amount` lớn hơn 0; `lines` tối đa 500 (mặc định rỗng; bỏ qua với hoàn tiền); `note` tối đa 500. Phía máy chủ: đối tác đúng phía theo loại (khách hàng với `customer_*`, nhà cung cấp với `supplier_*`); quỹ của công ty, đang dùng; mỗi dòng là khoản tăng còn nợ của đối tác ở phía đó, không trùng, không vượt số còn lại; tổng dòng không vượt `amount`; hoàn tiền không vượt trả trước đang còn.
+- `options` (`200`): `{ funds[] ({ id, code, name, kind, balance }), currency }` (quỹ đang dùng).
+- Danh sách (`200`): `{ id, documentNo, kind, paymentDate, partnerName, fundName, amount, status }`, ngày mới trước, tối đa 500.
+- Chi tiết (`200`): `{ id, documentNo, kind, partner, fund, paymentDate, amount, currency, note, status, approvalRequestId, postError, lines[] ({ id, documentNo, sourceType, documentDate, dueDate, amount, openAmount, overdueDays, allocated }), unallocated, createdByName, postedAt, version, canEdit, canSubmit, canWithdraw }`. `lines`: chưa ghi sổ là chứng từ đã chọn kèm số trừ; đã ghi sổ là khoản tăng thực trừ. `unallocated`: phần thành trả trước. `postError`: khóa thông báo lỗi (nhóm `errors`, ví dụ `insufficientFundBalance`) chỉ khi `status` `rejected` do không ghi sổ được; giao diện dịch theo ngôn ngữ. `canWithdraw`: người lập, `pending`, cấp duyệt đầu chưa quyết định.
+- `POST` (`201`): lưu `draft`; nhật ký `payment.create`. `PATCH` (`200`): phiếu `draft`, `rejected`, `withdrawn`, đúng phiên bản; về `draft`, xóa `postError`, thay toàn bộ dòng; phiếu đã có số không đổi được giữa loại phiếu thu (`customer_receipt`, `supplier_refund`) và phiếu chi (`supplier_payment`, `customer_refund`). Nhật ký `payment.update` (kèm dữ liệu trước).
+- `submit` (`201`): phiếu `draft`, `rejected`, `withdrawn`, đúng phiên bản; cấp số theo dãy `finance.receipt` (tự tạo tiền tố `PT`) hoặc `finance.payment` (`PC`) ở lần gửi đầu, đặt lại theo năm. Phiếu chi gửi luồng duyệt với `amount`; có chính sách thì `pending`; chưa có chính sách, hoặc phiếu thu, thì ghi sổ ngay trong cùng giao dịch (`posted`). Ghi sổ: khóa công nợ của đối tác, khóa quỹ, tính số dư quỹ sau khi khóa; kiểm quỹ đang dùng, số dư quỹ (phiếu chi), số còn lại từng dòng, trả trước (hoàn tiền); tạo khoản công nợ `payment`, trừ nợ (không chọn dòng thì cũ nhất trước). Ghi sổ lỗi thì cả lần gửi không thực hiện, phiếu giữ trạng thái cũ, trả lỗi. Nhật ký `payment.submit` (số, mã yêu cầu duyệt).
+- `withdraw` (`201`): người lập, `pending`; rút yêu cầu duyệt (API duyệt), phiếu `withdrawn`. Nhật ký `payment.withdraw`.
+- Nghe `core.approval.completed` loại `finance.payment`: `approved` thì ghi sổ; lỗi nghiệp vụ thì phiếu `rejected`, `postError` là khóa lỗi; `rejected`, `withdrawn` thì chuyển tương ứng.
+- Lỗi: `400` tại `partnerId` "Đối tác không phải khách hàng của công ty." hoặc "Đối tác không phải nhà cung cấp của công ty."; tại `fundId` "Giá trị không hợp lệ." hoặc "Quỹ đã ngừng dùng."; tại `lines.{i}.debitItemId` "Giá trị không hợp lệ."; tại `lines.{i}.amount` "Số trừ vượt số còn nợ của chứng từ."; tại `amount` "Tổng số trừ vượt số tiền phiếu." hoặc "Số tiền hoàn vượt tiền trả trước đang còn."; tại `kind` "Giá trị không hợp lệ." (đổi giữa phiếu thu và phiếu chi sau khi cấp số); `403` (thiếu quyền; rút phiếu của người khác hoặc không chờ duyệt); `404`; `409 BUSINESS_RULE` "Chỉ sửa được chứng từ đang ở trạng thái nháp." (gửi phiếu không ở nháp, bị từ chối, đã rút), "Số dư quỹ không đủ.", "Quỹ đã ngừng dùng.", "Số trừ vượt số còn nợ của chứng từ.", "Số tiền hoàn vượt tiền trả trước đang còn." (khi ghi sổ ngay); `409 CONFLICT_VERSION`.
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |
@@ -661,3 +720,5 @@ MODULE_05 phần 1 (CONG_VIEC_08) không phát sự kiện mới; mini app Bán 
 MODULE_05 phần 2 (CONG_VIEC_09) không phát sự kiện mới; dùng lại việc nghe `core.approval.completed` của `sales.order`, `purchasing.order`: duyệt xong thì sinh chứng từ đối ứng, từ chối hoặc rút đơn đối ứng thì kết thúc hai bên trong cùng giao dịch xử lý sự kiện. Yêu cầu duyệt bị rút do bên kia kết thúc không phát sự kiện.
 
 MODULE_05 phần 3 (CONG_VIEC_12) không phát sự kiện mới; mini app Bán hàng nghe `core.approval.completed` của loại chứng từ `sales.promotion` để chuyển chương trình `pending` sang `active` (duyệt xong), `rejected`, `withdrawn` (API_83).
+
+MODULE_06 phần 1 (CONG_VIEC_13) không phát sự kiện mới; mini app Tài chính – Kế toán nghe `core.approval.completed` của loại chứng từ `finance.payment` để ghi sổ phiếu chi duyệt xong (không ghi sổ được thì `rejected` kèm `postError`), chuyển `rejected`, `withdrawn` (API_86). Công nợ tự phát sinh không qua sự kiện mà qua móc nối `postedHooks` trong giao dịch ghi sổ phiếu kho và `writtenOffHooks` trong giao dịch ghi tổn thất biên bản chênh lệch nội bộ (API_82).
