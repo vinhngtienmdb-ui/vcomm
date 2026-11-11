@@ -183,6 +183,13 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_53 (lát L0 đến L5)
+
+- Phạm vi: Bán lẻ tại quầy phần 1, nhánh `chuc-nang/CONG_VIEC_53-ban-le-tai-quay` (pull request #100, commit `f500d84`, đã hợp nhất main 0.4.0).
+- Kết quả: `c53-retail-setup` 8/8 (KICHBAN_KIEMTHU_510, 511, 516), `c53-retail-sales` 9/9 (512 đến 516), `c53-retail-returns` 5/5 (517), `c53-retail-einvoice` 7/7 (518) đạt; KICHBAN_KIEMTHU_519 (điểm) chưa chạy, thuộc L6; 520, 521 (giao diện, in) kiểm tra bằng ảnh xem trước L1 đến L5, đạt. Hồi quy toàn API 89 tệp, 510/510 đạt. Kiểm tra kiểu api, web-platform, web-retail, web-finance, web-hr, web-analytics, web-sales đạt; khóa dịch khớp.
+- Kiểm tra bảo mật: `pnpm audit` 2 lỗ hổng Trung bình ở mobile-vcomm (đã chấp nhận, không thuộc công việc); gitleaks không có phát hiện.
+- Kết luận cổng kiểm thử: Đạt cho L0 đến L5, chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_45
 
 - Phạm vi: nhập khẩu và phân bổ chi phí mua hàng, lát L0 đến L2, nhánh `chuc-nang/CONG_VIEC_45-nhap-khau` (pull request #85, head `322d283`, đã hợp nhất main 0.4.0).
