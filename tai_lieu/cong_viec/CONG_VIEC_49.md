@@ -3,7 +3,7 @@
 - Mô tả: Cộng tác viên (gồm nhãn KOL, KOC) chia sẻ đường dẫn sản phẩm nhận hoa hồng; thưởng giới thiệu bạn bè một lần; mua chung bậc giá theo tổng số lượng, trả trước, hoàn tiền dư vào ví mua sắm; bảng tin cộng đồng mở (bài đăng, đánh giá đã mua hàng, bình luận, thích) có hậu kiểm. Trên ứng dụng VComm (`apps/mobile-vcomm`) và web quản trị (`apps/web-crm`).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu, dữ liệu và API, phần bổ sung THAY_DOI_22, xem trước L1, L2, L3 ngày 2026-11-11. Chờ nghiệm thu (pull request #97; kiểm thử 346/346, kết quả gửi phiên cha ghi tài liệu `25`).
+- Trạng thái: Người dùng nghiệm thu ngày 2026-11-11 (chấp nhận các quyết định AI tự đưa ra ở mục 16 và việc sửa kỳ vọng kiểm thử c26). Đã nghiệm thu, chờ phát hành (pull request #97; kiểm thử 493/493 sau khi hợp nhất main).
 - Nguồn: tài liệu `04`, `05` (mục 2.2, 2.4); THAY_DOI_14, 16, 17; quyết định của người dùng ngày 2026-11-11 (mục 17); CONG_VIEC_23 (tài khoản người mua, giới thiệu), CONG_VIEC_24 (đặt hàng), CONG_VIEC_25 (thanh toán, hoàn tiền), CONG_VIEC_26 (hoa hồng theo đơn, ví hoa hồng), CONG_VIEC_27 (đội kinh doanh).
 - Mức: Lớn (module mới, dữ liệu mới, sửa cách đặt hàng, thanh toán, hoa hồng).
 
