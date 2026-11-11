@@ -47,15 +47,15 @@ export class SalesDeliveriesService {
     }
     if (allowed.length === 0) return [];
     const pattern = search ? `%${search.replace(/[%_\\]/g, (character) => `\\${character}`)}%` : null;
-    const rows = await this.database.execute<{ id: string; document_no: string; customer_name: string | null; buyer_name: string | null; warehouse_name: string }>(sql`
-      SELECT o.id, o.document_no, c.name AS customer_name, o.buyer_name, w.name AS warehouse_name
+    const rows = await this.database.execute<{ id: string; document_no: string; customer_name: string | null; buyer_name: string | null; warehouse_id: string; warehouse_name: string }>(sql`
+      SELECT o.id, o.document_no, c.name AS customer_name, o.buyer_name, o.warehouse_id, w.name AS warehouse_name
       FROM sales.orders o LEFT JOIN crm.partners c ON c.id = o.customer_id JOIN inventory.warehouses w ON w.id = o.warehouse_id
       WHERE o.status = 'confirmed' AND o.warehouse_id = ANY(${pgArray(allowed)}::uuid[])
         -- Đơn chỉ gồm dịch vụ không qua kho (QUYTAC_NGHIEPVU_275).
         AND EXISTS (SELECT 1 FROM sales.order_lines gl JOIN catalog.variants gv ON gv.id = gl.variant_id JOIN catalog.products gp ON gp.id = gv.product_id WHERE gl.order_id = o.id AND gp.kind = 'goods')
         AND (${pattern}::text IS NULL OR o.document_no ILIKE ${pattern} OR c.name ILIKE ${pattern} OR o.buyer_name ILIKE ${pattern})
       ORDER BY o.order_date, o.document_no LIMIT 50`);
-    return rows.rows.map((row) => ({ id: row.id, documentNo: row.document_no, customerName: row.customer_name ?? row.buyer_name, warehouseName: row.warehouse_name }));
+    return rows.rows.map((row) => ({ id: row.id, documentNo: row.document_no, customerName: row.customer_name ?? row.buyer_name, warehouseId: row.warehouse_id, warehouseName: row.warehouse_name }));
   }
 
   // Dòng đơn bán kèm số còn phải giao, để lập phiếu xuất.

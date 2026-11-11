@@ -91,3 +91,13 @@ Quy tắc phân biệt: mau-chinh và màu thành công đều là xanh lục. T
 | MaTranQuyen | Một biến thể | chọn, bỏ chọn, vô hiệu | Vai trò |
 | OMiniApp | Một biến thể | có, không có số việc chờ | Trang chủ |
 | NutDangNhapLienKet | google, microsoft, zalo | thường, đang xử lý | Màn hình đăng nhập |
+
+### Thành phần thêm cho chấm công (CONG_VIEC_47)
+
+Chỉ dùng giá trị màu, khoảng cách, bo góc đã có; lớp trong `packages/ui/src/styles.css`.
+
+| Thành phần | Lớp | Trạng thái | Ghi chú sử dụng |
+|---|---|---|---|
+| LuoiCong | `luoi-cong`, `o-cong`, `o-ca` | ký hiệu công theo màu NhanTrangThai | Lưới nhân viên × ngày (MAN_HINH_121), lưới xếp ca (MAN_HINH_120); điện thoại giữ dạng bảng, cuộn ngang trong khung bảng |
+| TrangDienThoai | `trang-dien-thoai`, `cham-nhanh`, `nut-lon` | thường, đang xử lý | Trang thiết kế cho điện thoại, nút Vào ca, Ra ca lớn (MAN_HINH_122) |
+| ManHinhMaQr | `man-hinh-qr`, `khung-qr` | đổi mã mỗi 30 giây | Toàn màn hình trên thiết bị đặt tại địa điểm |

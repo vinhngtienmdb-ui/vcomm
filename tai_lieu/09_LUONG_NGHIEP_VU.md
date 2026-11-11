@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.19
+- Phiên bản: 1.20
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm luồng 40 (đơn bán dịch vụ lập tay), luồng 41 (giao dịch nội bộ dịch vụ); Luồng 9, 10, 12, 13, 14 bổ sung; đánh dấu Luồng 29 (CONG_VIEC_17) đã bỏ, Luồng 33 (CONG_VIEC_21) đã tắt; CONG_VIEC_53 (2026-11-11), THAY_DOI_24: thêm luồng 43 (bán, trả hàng, đóng ca tại quầy của MODULE_14 phần 1), trạng thái ca thu ngân; phần điểm tại quầy chưa làm, chờ CONG_VIEC_51
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm luồng 40 (đơn bán dịch vụ lập tay), luồng 41 (giao dịch nội bộ dịch vụ); Luồng 9, 10, 12, 13, 14 bổ sung; đánh dấu Luồng 29 (CONG_VIEC_17) đã bỏ, Luồng 33 (CONG_VIEC_21) đã tắt; CONG_VIEC_50 (2026-11-11): thêm Luồng 49 xem và xuất báo cáo quản trị của MODULE_15; CONG_VIEC_53 (2026-11-11), THAY_DOI_24: thêm luồng 43 (bán, trả hàng, đóng ca tại quầy của MODULE_14 phần 1), trạng thái ca thu ngân; phần điểm tại quầy chưa làm, chờ CONG_VIEC_51
 
 ## MODULE_01 Nền tảng
 
@@ -865,3 +865,67 @@ Trạng thái ca thu ngân:
 | Đang mở | Người mở ca hoặc người quản lý ca đóng ca (lập chứng từ quỹ) | Đã đóng (`closed`) |
 
 Ca đã đóng không sửa, không mở lại. Hóa đơn bán lẻ, phiếu trả hàng bán lẻ không có trạng thái (ghi xong là hoàn tất, không sửa, không hủy).
+## MODULE_08 Nhân sự (phần 2: Ca làm, chấm công, nghỉ phép, tăng ca, bảng công tháng, CONG_VIEC_47)
+
+### Luồng 46. Chấm công, nghỉ phép, tăng ca, chốt bảng công tháng
+
+- Bắt đầu: quản trị tập đoàn khai báo ngày lễ năm; nhân sự công ty (`hr.attendance.manage`) khai báo ca, lịch tuần mặc định, lịch phòng ban, cài đặt chấm công, địa điểm chấm công (GPS, mạng công ty, mã QR động), mã chấm công của hồ sơ; nhân sự (`hr.leave.manage`) chọn chế độ phép, nhập số dư phép ban đầu (MAN_HINH_120, 123; QUYTAC_NGHIEPVU_302 đến 304, 307, 308).
+- Các bước:
+  1. Trưởng phòng hoặc nhân sự xếp ca tuần tới; người lao động xem lịch ca trên Chấm công của tôi (MAN_HINH_120, 122; QUYTAC_NGHIEPVU_303).
+  2. Hằng ngày người lao động bấm Vào ca, Ra ca trên điện thoại (hoặc quét mã QR tại địa điểm) hoặc chấm máy; nhân sự nhập tệp máy chấm công, ghi thủ công khi cần; hệ thống tính công ngày (MAN_HINH_121, 122; QUYTAC_NGHIEPVU_304, 305).
+  3. Quên chấm, đi công tác: người lao động lập đơn giải trình → luồng duyệt → lượt giải trình, công cập nhật (QUYTAC_NGHIEPVU_306).
+  4. Nghỉ: người lao động xem số dư, lập đơn nghỉ → luồng duyệt → công các ngày ghi nghỉ, sổ phép trừ; nhân sự ghi nhận nghỉ ốm, thai sản kèm giấy tờ, có hiệu lực ngay (MAN_HINH_122, 123; QUYTAC_NGHIEPVU_309).
+  5. Tăng ca: trưởng phòng lập phiếu → người lao động đồng ý trên ứng dụng (hoặc tự lập) → luồng duyệt → hôm đó chấm công → giờ tăng ca tính theo thời gian có mặt (MAN_HINH_124, 122; QUYTAC_NGHIEPVU_310).
+  6. Đầu tháng sau nhân sự (`hr.timesheet.manage`) rà soát bảng công, mở xác nhận có hạn → người lao động xác nhận hoặc giải trình → nhân sự sửa dữ liệu, trả lời → hết hạn hệ thống tự xác nhận (MAN_HINH_125, 122; QUYTAC_NGHIEPVU_311).
+  7. Nhân sự chốt bảng công: khóa dữ liệu tháng, trừ phép tháng không đủ 50% công, thanh toán phép người nghỉ việc, phát `hr.timesheet.closed`; CONG_VIEC_48 tính lương từ dòng bảng công.
+- Nhánh: sai sau khi chốt mà bảng lương kỳ đó chưa chốt thì nhân sự mở lại (lý do), sửa, chốt lại; người lao động không đồng ý tăng ca thì phiếu kết thúc; người không có tài khoản thì nhân sự ghi nhận tăng ca kèm văn bản đồng ý.
+- Ngoại lệ: vượt giới hạn giờ tăng ca, vượt số dư phép, trùng đơn, ghi dữ liệu tháng đã chốt, chấm ngoài địa điểm hoặc mã QR hết hạn: thông báo ở tài liệu `07` mục CONG_VIEC_47.
+- Kết thúc: bảng công tháng đã chốt, là đầu vào tính lương.
+
+Trạng thái kỳ bảng công:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Mở bảng công tháng lần đầu hoặc ghi dữ liệu thuộc tháng | Đang mở (`open`) |
+| Đang mở | Nhân sự mở xác nhận (tháng đã kết thúc) | Đang xác nhận (`confirming`) |
+| Đang mở, Đang xác nhận | Nhân sự chốt (không còn giải trình chờ trả lời) | Đã chốt (`closed`) |
+| Đã chốt | Nhân sự mở lại khi bảng lương chưa chốt | Đang mở |
+
+Trạng thái phiếu tăng ca: Chờ đồng ý → (đồng ý) Chờ duyệt → Đã duyệt; Chờ đồng ý → (không đồng ý) Người lao động không đồng ý; Chờ duyệt → Bị từ chối hoặc Đã rút; Chờ đồng ý, Đã duyệt → Đã hủy. Chưa có chính sách duyệt thì gửi xong là Đã duyệt.
+## MODULE_08 Nhân sự (phần 3: Lương, CONG_VIEC_48)
+
+### Luồng 47. Tính, duyệt, trả lương tháng
+
+- Bắt đầu: bảng công tháng của công ty đã chốt (CONG_VIEC_47); nhân sự có `hr.payroll.manage` mở "Bảng lương".
+- Các bước:
+  1. Một lần đầu: quản trị tập đoàn nhập bộ tham số pháp luật theo ngày hiệu lực; nhân sự công ty chọn vùng cho chi nhánh, nhóm chi phí phòng ban, loại phụ cấp; khai lương đóng bảo hiểm, cách tính thuế cho nhân viên; hợp đồng mới chọn loại phụ cấp (QUYTAC_NGHIEPVU_312 đến 315).
+  2. Lập bảng lương tháng: hệ thống tính từng nhân viên có hợp đồng đã ký trong tháng từ hợp đồng, phụ lục, bảng công, hồ sơ lương, tham số hiệu lực ngày cuối tháng (QUYTAC_NGHIEPVU_316 đến 320).
+  3. Nhân sự xem cảnh báo, thêm thưởng, tạm ứng (khoản nhập tay); bảng lương tính lại (QUYTAC_NGHIEPVU_321).
+  4. Gửi duyệt: hệ thống tính lại, kiểm bảng công đã chốt, kỳ kế toán mở, công ty đã khởi tạo kế toán, không còn cảnh báo chặn; cấp số `BL`; đi luồng duyệt chung loại `hr.payroll` (QUYTAC_NGHIEPVU_322).
+  5. Duyệt xong: khóa mở lại bảng công tháng; ghi bút toán trích lương ngày cuối tháng; thông báo chuông và email phiếu lương cho nhân viên (QUYTAC_NGHIEPVU_323).
+  6. Kế toán chi lương; nhân sự ghi "Đã trả lương" (ngày, quỹ): bút toán Nợ 334 / Có quỹ.
+- Ngoại lệ: bảng công chưa chốt, chi nhánh chưa chọn vùng, thực lĩnh âm, chưa khởi tạo kế toán, kỳ đã khóa: không gửi được. Bị từ chối, đã rút: sửa, tính lại, gửi lại. Nháp hủy được (lý do). Đã duyệt không sửa, không hủy; sai thì điều chỉnh bằng khoản nhập tay tháng sau. Kỳ cuối tháng khóa sổ sau khi gửi: bút toán ghi ngày duyệt. Email lỗi: gửi lại.
+- Kết thúc: bảng lương "Đã trả"; có bút toán trích lương, trả lương; nhân viên xem phiếu lương trong "Hồ sơ của tôi".
+
+Trạng thái (CONG_VIEC_48):
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| Nháp, Bị từ chối, Đã rút | Gửi duyệt (có chính sách duyệt) | Chờ duyệt |
+| Nháp, Bị từ chối, Đã rút | Gửi duyệt (không có chính sách duyệt) | Đã duyệt |
+| Chờ duyệt | Duyệt, từ chối, rút | Đã duyệt, Bị từ chối, Đã rút |
+| Nháp, Bị từ chối, Đã rút | Hủy (lý do) | Đã hủy |
+| Đã duyệt | Ghi đã trả lương | Đã trả |
+## MODULE_15 Phân tích dữ liệu (phần 1: Báo cáo quản trị, CONG_VIEC_50)
+
+### Luồng 49. Xem và xuất báo cáo quản trị
+
+- Bắt đầu: người có quyền truy cập mini app Báo cáo quản trị (`analytics.access`) mở ô "Báo cáo quản trị" trên trang chủ.
+- Các bước:
+  1. Trang tổng quan (MAN_HINH_140) hiện thẻ chỉ tiêu của các nhóm báo cáo người dùng được xem: doanh số, giá trị tồn cuối kỳ, phải thu, phải trả, hoa hồng đã ghi có (QUYTAC_NGHIEPVU_336).
+  2. Người dùng chọn báo cáo (bán hàng, tồn kho và luân chuyển, công nợ theo tuổi nợ, hoa hồng và ví); hệ thống chỉ liệt kê công ty được xem của nhóm đó: quyền gán ở phạm vi tập đoàn xem mọi công ty của tập đoàn, phạm vi công ty xem công ty đó.
+  3. Chọn công ty, khoảng ngày (bắt buộc với báo cáo theo kỳ, tối đa 366 ngày), cách nhóm, bộ lọc phụ (kênh, chỉ đơn VComm, kho, phải thu hoặc phải trả) rồi xem (QUYTAC_NGHIEPVU_343).
+  4. Hệ thống tính từ dữ liệu đã có, cùng cách tính của các module: doanh số theo hàng đã giao (QUYTAC_NGHIEPVU_337, 338), tồn kho theo thẻ kho (QUYTAC_NGHIEPVU_340), tuổi nợ theo sổ công nợ tại hôm nay (QUYTAC_NGHIEPVU_341), hoa hồng và ví (QUYTAC_NGHIEPVU_342); dòng tổng chỉ cộng công ty cùng đồng tiền với công ty gốc (QUYTAC_NGHIEPVU_339).
+  5. Xuất Excel: tệp cùng bộ lọc, đủ dòng; hệ thống ghi nhật ký thao tác.
+- Ngoại lệ: không có quyền nhóm báo cáo hoặc chọn công ty ngoài phạm vi: từ chối (không có quyền); khoảng ngày đảo hoặc quá 366 ngày, ngày không có thật: báo tại ô đến ngày hoặc từ ngày; quá 20.000 dòng khi xuất: báo "Quá 20.000 dòng. Hãy thu hẹp bộ lọc rồi xuất lại."; bảng trên 500 dòng: hiện 500 dòng đầu kèm ghi chú, dòng tổng tính trên toàn bộ.
+- Kết thúc: người dùng xem hoặc tải báo cáo; không có dữ liệu nghiệp vụ nào bị ghi, không có trạng thái mới.

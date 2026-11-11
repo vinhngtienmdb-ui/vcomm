@@ -359,12 +359,53 @@
 
 ### THAY_DOI_22: Chặn rút tiền ví hoa hồng theo từng tài khoản – 2026-11-11
 - Lý do: quyết định của người dùng khi duyệt CONG_VIEC_49 (ví mua sắm có rủi ro bị coi là ví điện tử): cần chặn rút tiền theo từng tài khoản cho cả ví mua sắm (CONG_VIEC_49) và ví hoa hồng.
-- Nội dung thay đổi (quyết định của người dùng 2026-11-11): quản trị bật, tắt chặn rút tiền cho từng tài khoản, có lý do, ghi nhật ký; tài khoản bị chặn không gửi được yêu cầu rút mới từ ví hoa hồng; cách xử lý yêu cầu đang chờ do đặc tả CONG_VIEC_49 đề xuất, người dùng duyệt.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11, chốt chi tiết trong CONG_VIEC_49):
+  - Khóa ví mua sắm toàn hệ thống: không thanh toán bằng ví; mua hàng, mua chung vẫn chạy, tiền hoàn vẫn cộng vào ví và giữ đến khi mở khóa.
+  - Chặn theo từng tài khoản, riêng từng ví, không liên thông: chặn ví mua sắm thì không dùng số dư trả đơn; chặn ví hoa hồng thì không tạo yêu cầu rút.
+  - Khi chặn ví hoa hồng: yêu cầu rút đang chờ duyệt tự bị từ chối; yêu cầu đã duyệt chưa chi bị khóa ghi đã chi đến khi gỡ chặn.
+  - Quyền chặn: `marketplace.payment.manage`; lý do 1 đến 500 ký tự; lưu lịch sử; gửi thông báo cho người dùng.
+  - Mã cấp thêm ngoài dải CONG_VIEC_49: QUYTAC_NGHIEPVU_390 (khóa ví mua sắm toàn hệ thống), QUYTAC_NGHIEPVU_391 (chặn ví theo tài khoản), TIEUCHI_NGHIEMTHU_367, KICHBAN_KIEMTHU_532; dữ liệu trong database migration 0080; API gộp vào API_166 và sửa hành vi API_136.
 - Thành phần bị ảnh hưởng: CONG_VIEC_26 (đã phát hành 0.3.0): rút tiền ví hoa hồng (CHUC_NANG_137, API_136); quản trị web-crm.
 - Dữ liệu, API, giao diện, quyền: thêm dữ liệu chặn rút theo tài khoản; API rút tiền trả lỗi nghiệp vụ khi bị chặn.
 - Ảnh hưởng chức năng cũ: tài khoản không bị chặn giữ nguyên hành vi.
 - Kiểm thử cần thực hiện: kịch bản chặn, bỏ chặn, gửi yêu cầu khi bị chặn; hồi quy c26-*.
 - Mức quy mô: Vừa; làm trong CONG_VIEC_49.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-11.
+
+### THAY_DOI_23: Bỏ giới hạn yêu cầu theo IP cho API nộp hồ sơ ứng tuyển công khai – 2026-11-11
+- Lý do: CONG_VIEC_54 (tuyển dụng): người dùng không muốn chặn ứng viên nộp hồ sơ vì giới hạn theo IP (nhiều ứng viên dùng chung mạng).
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11): API_204 `/careers` (trang tuyển dụng công khai chung tập đoàn) không áp giới hạn yêu cầu theo IP (tài liệu 22 mục 3, LOI_02), không OTP, không giới hạn số lần nộp. Các API công khai khác giữ nguyên giới hạn.
+- Thành phần bị ảnh hưởng: tài liệu 22 mục 3 (ngoại lệ cho API_204); CONG_VIEC_54.
+- Dữ liệu, API, giao diện, quyền: không đổi API khác.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: API_204 nhận nhiều yêu cầu liên tiếp từ cùng IP; API công khai khác vẫn bị giới hạn.
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_54.
+- Rủi ro (người dùng chấp nhận): hồ sơ rác hàng loạt, đầy kho lưu tệp đính kèm, tốn tài nguyên máy chủ; giảm thiểu đề xuất trong tài liệu 22 (giới hạn kích thước, loại tệp, theo dõi dung lượng).
+- Trạng thái: Đã phê duyệt 2026-11-11.
+
+### THAY_DOI_24: Bán lẻ tại quầy dùng lại hóa đơn điện tử, quỹ, đơn bán – 2026-11-11
+- Lý do: CONG_VIEC_53 (bán lẻ tại quầy) cần mở rộng hành vi đã duyệt của các công việc đã phát hành 0.3.0.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11):
+  - CONG_VIEC_16 (hóa đơn điện tử): thêm loại hóa đơn khởi tạo từ máy tính tiền; hóa đơn bán lẻ tại quầy luôn dùng loại này.
+  - CONG_VIEC_13 (quỹ, công nợ): thêm chứng từ quỹ không gắn đối tượng: thu bán lẻ (`retail_receipt`), chi trả lại bán lẻ (`retail_refund`), thiếu quỹ (`cash_shortage`, hạch toán 1388), thừa quỹ (`cash_surplus`, hạch toán 3381); tiền vào quỹ bằng phiếu thu tổng khi đóng ca.
+  - CONG_VIEC_08 (bán hàng): đơn bán có cờ bán lẻ (`is_retail`) và thông tin người mua lấy hóa đơn.
+- Thành phần bị ảnh hưởng: CONG_VIEC_08, 13, 16; tài liệu 07, 10, 16, 17 phần liên quan.
+- Dữ liệu, API, giao diện, quyền: thêm cột, giá trị loại chứng từ; không đổi hành vi cũ.
+- Ảnh hưởng chức năng cũ: không; đơn và chứng từ cũ giữ nguyên.
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_53; hồi quy c8-*, c13-*, c16-*.
+- Mức quy mô: Vừa; làm trong CONG_VIEC_53.
+- Rủi ro: chưa đối chiếu nguyên văn quy định hóa đơn khởi tạo từ máy tính tiền (phải tra trước lát hóa đơn).
+- Trạng thái: Đã phê duyệt 2026-11-11.
+
+### THAY_DOI_25: Ứng viên tự trả lời đề nghị nhận việc, email mời phỏng vấn kèm lịch – 2026-11-11
+- Lý do: người dùng thay đổi đặc tả CONG_VIEC_54 đã duyệt (bản 0.1) sau khi xem lát L0.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11): ứng viên tự trả lời đề nghị nhận việc qua liên kết dùng một lần trong email (bản 0.1 chỉ có nhân sự ghi tay); email mời, đổi, hủy phỏng vấn kèm tệp lịch `.ics`.
+- Thành phần bị ảnh hưởng: CONG_VIEC_54 (đặc tả bản 0.2 mục 17); API công khai trả lời đề nghị giữ giới hạn yêu cầu theo IP mặc định.
+- Dữ liệu, API, giao diện, quyền: thêm liên kết dùng một lần, API công khai trả lời đề nghị; tệp đính kèm trong thư gửi đi (không bắt buộc, tương thích ngược).
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_54.
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_54.
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-11.
 

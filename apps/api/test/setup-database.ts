@@ -14,6 +14,7 @@ import { OAUTH_CLIENT, type OauthClient, type OauthProfile } from "../src/auth/o
 import { MESSAGE_GATEWAY, type EsmsCredentials, type MessageGateway } from "../src/integrations/esms-gateway";
 import { seedTestData } from "../src/database/seed";
 import { configureApplication } from "../src/main";
+import { DatabaseTimesheetReader, PAYROLL_TIMESHEET, type MonthTimesheet, type PayrollTimesheetReader } from "../src/hr/payroll-timesheet";
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL ?? "postgres://vcomm_ung_dung:mat_khau_phat_trien@localhost:5432/vcomm_test";
 
@@ -86,6 +87,20 @@ export const testStorage = {
   },
 } satisfies FileStorage & { files: Map<string, Buffer> };
 
+// Bảng công tháng cho kiểm thử bảng lương (CONG_VIEC_48): khi có dữ liệu thì dùng thay nguồn thật; null thì đọc nguồn thật.
+export const testTimesheet: { data: Map<string, MonthTimesheet> | null; locks: string[] } & PayrollTimesheetReader = {
+  data: null,
+  locks: [],
+  async read(executor, companyId, month) {
+    if (this.data) return this.data.get(`${companyId}:${month}`) ?? null;
+    return new DatabaseTimesheetReader().read(executor, companyId, month);
+  },
+  async lock(executor, companyId, month, locked) {
+    this.locks.push(`${companyId}:${month}:${locked}`);
+    if (!this.data) await new DatabaseTimesheetReader().lock(executor, companyId, month, locked);
+  },
+};
+
 export async function startTestApplication(): Promise<{ application: NestExpressApplication; pool: Pool }> {
   if (!new URL(testDatabaseUrl).pathname.endsWith("_test")) {
     throw new Error("TEST_DATABASE_URL phải trỏ tới cơ sở dữ liệu có tên kết thúc bằng _test.");
@@ -97,7 +112,7 @@ export async function startTestApplication(): Promise<{ application: NestExpress
   process.env.MFA_SECRET_KEY ??= randomBytes(32).toString("hex");
   const pool = new Pool({ connectionString: testDatabaseUrl, max: 2 });
   await pool.query(
-    "DROP SCHEMA IF EXISTS retail CASCADE; DROP SCHEMA IF EXISTS marketplace CASCADE; DROP SCHEMA IF EXISTS accounting CASCADE; DROP SCHEMA IF EXISTS finance CASCADE; DROP SCHEMA IF EXISTS sales CASCADE; DROP SCHEMA IF EXISTS purchasing CASCADE; DROP SCHEMA IF EXISTS crm CASCADE; DROP SCHEMA IF EXISTS inventory CASCADE; DROP SCHEMA IF EXISTS catalog CASCADE; DROP SCHEMA IF EXISTS core CASCADE; DROP TABLE IF EXISTS public.schema_migrations",
+    "DROP SCHEMA IF EXISTS retail CASCADE; DROP SCHEMA IF EXISTS hr CASCADE; DROP SCHEMA IF EXISTS marketplace CASCADE; DROP SCHEMA IF EXISTS accounting CASCADE; DROP SCHEMA IF EXISTS finance CASCADE; DROP SCHEMA IF EXISTS sales CASCADE; DROP SCHEMA IF EXISTS purchasing CASCADE; DROP SCHEMA IF EXISTS crm CASCADE; DROP SCHEMA IF EXISTS inventory CASCADE; DROP SCHEMA IF EXISTS catalog CASCADE; DROP SCHEMA IF EXISTS core CASCADE; DROP TABLE IF EXISTS public.schema_migrations",
   );
   await runMigrations(pool);
   await seedTestData(pool);
@@ -117,6 +132,8 @@ export async function startTestApplication(): Promise<{ application: NestExpress
     .useValue(testRateLimit)
     .overrideProvider(EXCHANGE_RATE_FEED)
     .useValue(testRateFeed)
+    .overrideProvider(PAYROLL_TIMESHEET)
+    .useValue(testTimesheet)
     .compile();
   const application = configureApplication(moduleReference.createNestApplication<NestExpressApplication>());
   await application.init();

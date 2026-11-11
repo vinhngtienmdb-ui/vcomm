@@ -2,7 +2,17 @@
 // Bắt đầu: chụp tồn sổ sách, khóa mặt hàng (và vị trí) trong phạm vi. Kết thúc: chênh lệch sinh phiếu điều chỉnh đi luồng duyệt,
 // dòng thiếu ghi người chịu trách nhiệm, tiền bồi thường (mặc định bằng giá trị thiếu).
 import { Inject, Injectable } from "@nestjs/common";
-import type { createStocktakeSchema, finishStocktakeSchema, saveStocktakeCountsSchema, StocktakeListItem, StocktakeOptionsResponse, StocktakeResponse, stockDocumentLineSchema } from "contracts";
+import type {
+  addStocktakeCountsSchema,
+  createStocktakeSchema,
+  finishStocktakeSchema,
+  saveStocktakeCountsSchema,
+  StocktakeCountEntry,
+  StocktakeListItem,
+  StocktakeOptionsResponse,
+  StocktakeResponse,
+  stockDocumentLineSchema,
+} from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import type { Messages } from "i18n";
 import type { z } from "zod";
@@ -86,8 +96,11 @@ export class StocktakesService {
   async detail(actor: Actor, id: string): Promise<StocktakeResponse> {
     const row = await this.visibleRow(actor, id);
     const showCost = (await this.warehouses.costVisibility(actor))({ warehouse_id: row.warehouse_id, company_id: row.company_id });
-    const canManage = (await this.permissionService.permissionsCovering(actor.userId, { scopeType: "branch", ...(await this.branchOf(row.warehouse_id)) })).has(inventoryPermissions.manageStocktakes);
-    const lines = await this.lines(this.database, id);
+    const granted = await this.permissionService.permissionsCovering(actor.userId, { scopeType: "branch", ...(await this.branchOf(row.warehouse_id)) });
+    const canManage = granted.has(inventoryPermissions.manageStocktakes);
+    const canCount = canManage || granted.has(inventoryPermissions.countStocktakes);
+    // Đếm mù: người không quản lý kiểm kê không thấy tồn sổ sách, chênh lệch, dòng chưa ai đếm (QUYTAC_NGHIEPVU_283).
+    const lines = (await this.lines(this.database, id)).filter((line) => canManage || line.counted_quantity !== null);
     return {
       ...this.toItem(row),
       scopeIds: row.scope_ids,
@@ -95,7 +108,7 @@ export class StocktakesService {
       adjustmentDocumentId: row.adjustment_document_id,
       adjustmentDocumentNo: row.adjustment_document_no,
       lines: lines.map((line) => {
-        const difference = line.counted_quantity === null ? null : Number(line.counted_quantity) - Number(line.system_quantity);
+        const difference = line.counted_quantity === null || !canManage ? null : Number(line.counted_quantity) - Number(line.system_quantity);
         return {
           id: line.id,
           variantId: line.variant_id,
@@ -109,7 +122,7 @@ export class StocktakesService {
           expiresOn: line.expires_on,
           locationId: line.location_id,
           locationCode: line.location_code,
-          systemQuantity: trimDecimal(line.system_quantity),
+          systemQuantity: canManage ? trimDecimal(line.system_quantity) : null,
           countedQuantity: decimal(line.counted_quantity),
           countedSerials: line.counted_serials,
           difference: difference === null ? null : trimDecimal(difference.toFixed(4)),
@@ -121,6 +134,7 @@ export class StocktakesService {
       }),
       version: row.version,
       canManage,
+      canCount,
     };
   }
 
@@ -262,6 +276,146 @@ export class StocktakesService {
       await transaction.execute(sql`UPDATE inventory.stocktakes SET version = version + 1 WHERE id = ${id}`);
     });
     return this.detail(actor, id);
+  }
+
+  // API_138: cộng dồn số đếm (QUYTAC_NGHIEPVU_284). Khóa đợt kiểm kê để các lần cộng đồng thời chạy lần lượt, không mất số.
+  async addCounts(actor: Actor, id: string, input: z.output<typeof addStocktakeCountsSchema>, sessionId: string): Promise<StocktakeResponse> {
+    const row = await this.visibleRow(actor, id);
+    await this.requireCounter(actor, row.warehouse_id);
+    if (row.status !== "counting") throw new ApiError("BUSINESS_RULE", "stocktakeNotCounting");
+    const warehouse = (await this.warehouses.find(row.warehouse_id))!;
+    const locations = new Set(
+      (await this.database.execute<{ id: string }>(sql`SELECT id FROM inventory.locations WHERE warehouse_id = ${row.warehouse_id} AND status = 'active'`)).rows.map((item) => item.id),
+    );
+    const fields: Record<string, keyof Messages["errors"]> = {};
+    const tracking = new Map<number, { tracksSerials: boolean }>();
+    for (const [index, addition] of input.additions.entries()) {
+      const at = (field: string) => `additions.${index}.${field}`;
+      const tracksSerials = await this.variantTracksSerials(addition.variantId, row.company_id);
+      if (tracksSerials === null) {
+        fields[at("variantId")] = "stockItemNotOwned";
+        continue;
+      }
+      tracking.set(index, { tracksSerials });
+      if (warehouse.usesLocations && (!addition.locationId || !locations.has(addition.locationId))) fields[at("locationId")] = addition.locationId ? "invalidValue" : "required";
+      if (!warehouse.usesLocations && addition.locationId) fields[at("locationId")] = "invalidValue";
+      if (addition.lotId) {
+        const lot = await this.database.execute(sql`SELECT 1 FROM inventory.lots WHERE id = ${addition.lotId} AND variant_id = ${addition.variantId} AND company_id = ${row.company_id}`);
+        if (lot.rows.length === 0) fields[at("lotId")] = "invalidValue";
+      } else if (await this.variantTracksLots(addition.variantId, row.company_id)) {
+        fields[at("lotId")] = "stocktakeLotRequired";
+      }
+      if (tracksSerials) {
+        const all = [...addition.serials, ...addition.removedSerials];
+        if (all.length === 0) fields[at("serials")] = "required";
+        else if (new Set(all).size !== all.length) fields[at("serials")] = "serialDuplicate";
+      } else {
+        if (Number(addition.quantity) === 0) fields[at("quantity")] = "invalidValue";
+        if (addition.serials.length > 0 || addition.removedSerials.length > 0) fields[at("serials")] = "invalidValue";
+      }
+    }
+    if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
+    const session = await this.database.execute<{ client_type: string }>(sql`SELECT client_type FROM core.sessions WHERE id = ${sessionId}`);
+    const clientType = session.rows[0]?.client_type ?? "web";
+    await this.database.transaction(async (transaction) => {
+      const locked = await transaction.execute<{ status: string }>(sql`SELECT status FROM inventory.stocktakes WHERE id = ${id} FOR UPDATE`);
+      if (locked.rows[0]?.status !== "counting") throw new ApiError("BUSINESS_RULE", "stocktakeNotCounting");
+      for (const [index, addition] of input.additions.entries()) {
+        const at = (field: string) => `additions.${index}.${field}`;
+        const fail = (field: string, key: keyof Messages["errors"]) => {
+          throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [at(field)]: key } });
+        };
+        let line = (
+          await transaction.execute<{ id: string; counted_quantity: string | null; counted_serials: string[] | null }>(sql`
+          SELECT id, counted_quantity::text, counted_serials FROM inventory.stocktake_lines
+          WHERE stocktake_id = ${id} AND variant_id = ${addition.variantId} AND lot_id IS NOT DISTINCT FROM ${addition.lotId} AND location_id IS NOT DISTINCT FROM ${addition.locationId}`)
+        ).rows[0];
+        if (!line) {
+          // Hàng có thực tế nhưng sổ sách không có: thêm dòng tồn sổ sách 0, giá vốn hiện hành như API_67.
+          line = (
+            await transaction.execute<{ id: string; counted_quantity: string | null; counted_serials: string[] | null }>(sql`
+            INSERT INTO inventory.stocktake_lines (stocktake_id, variant_id, lot_id, location_id, system_quantity, unit_cost)
+            VALUES (${id}, ${addition.variantId}, ${addition.lotId}, ${addition.locationId}, 0,
+              coalesce((SELECT average_cost FROM inventory.costs WHERE warehouse_id = ${row.warehouse_id} AND company_id = ${row.company_id} AND variant_id = ${addition.variantId}), 0))
+            RETURNING id, counted_quantity::text, counted_serials`)
+          ).rows[0]!;
+        }
+        const before = Number(line.counted_quantity ?? 0);
+        let quantity = addition.quantity;
+        let serials: string[] | null = line.counted_serials;
+        if (tracking.get(index)!.tracksSerials) {
+          if (addition.serials.length > 0) {
+            const elsewhere = await transaction.execute<{ serial: string }>(sql`
+              SELECT unnest(counted_serials) AS serial FROM inventory.stocktake_lines WHERE stocktake_id = ${id} AND id <> ${line.id}
+              INTERSECT SELECT unnest(${pgArray(addition.serials)}::text[])`);
+            if (elsewhere.rows.length > 0) fail("serials", "stocktakeSerialCounted");
+          }
+          const current = new Set(line.counted_serials ?? []);
+          for (const serial of addition.serials) current.add(serial);
+          for (const serial of addition.removedSerials) current.delete(serial);
+          serials = [...current].sort();
+          quantity = String(serials.length - before);
+        }
+        const after = before + Number(quantity);
+        if (after < 0) fail("quantity", "stocktakeCountNegative");
+        await transaction.execute(sql`
+          UPDATE inventory.stocktake_lines SET counted_quantity = coalesce(counted_quantity, 0) + ${quantity}::numeric, counted_serials = ${serials === null ? null : pgArray(serials)}::text[]
+          WHERE id = ${line.id}`);
+        await transaction.execute(sql`
+          INSERT INTO inventory.stocktake_count_entries (stocktake_id, stocktake_line_id, counted_by, quantity, added_serials, removed_serials, client_type)
+          VALUES (${id}, ${line.id}, ${actor.userId}, ${quantity}::numeric, ${pgArray(addition.serials)}::text[], ${pgArray(addition.removedSerials)}::text[], ${clientType})`);
+      }
+      await transaction.execute(sql`UPDATE inventory.stocktakes SET version = version + 1 WHERE id = ${id}`);
+    });
+    return this.detail(actor, id);
+  }
+
+  // API_139: lịch sử đếm, mới nhất trước.
+  async countEntries(actor: Actor, id: string, mine: boolean): Promise<StocktakeCountEntry[]> {
+    const row = await this.visibleRow(actor, id);
+    await this.requireCounter(actor, row.warehouse_id);
+    const rows = await this.database.execute<{
+      id: string;
+      stocktake_line_id: string;
+      variant_id: string;
+      sku: string;
+      product_name: string;
+      lot_no: string | null;
+      location_code: string | null;
+      quantity: string;
+      added_serials: string[];
+      removed_serials: string[];
+      counted_by: string;
+      counted_by_name: string;
+      counted_at: Date;
+    }>(sql`
+      SELECT e.id, e.stocktake_line_id, l.variant_id, v.sku, p.name AS product_name, lot.lot_no, loc.code AS location_code, e.quantity::text, e.added_serials, e.removed_serials,
+        e.counted_by, u.full_name AS counted_by_name, e.counted_at
+      FROM inventory.stocktake_count_entries e JOIN inventory.stocktake_lines l ON l.id = e.stocktake_line_id
+      JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id JOIN core.users u ON u.id = e.counted_by
+      LEFT JOIN inventory.lots lot ON lot.id = l.lot_id LEFT JOIN inventory.locations loc ON loc.id = l.location_id
+      WHERE e.stocktake_id = ${id} ${mine ? sql`AND e.counted_by = ${actor.userId}` : sql``}
+      ORDER BY e.counted_at DESC, e.id LIMIT 200`);
+    return rows.rows.map((entry) => ({
+      id: entry.id,
+      lineId: entry.stocktake_line_id,
+      variantId: entry.variant_id,
+      sku: entry.sku,
+      productName: entry.product_name,
+      lotNo: entry.lot_no,
+      locationCode: entry.location_code,
+      quantity: trimDecimal(entry.quantity),
+      addedSerials: entry.added_serials,
+      removedSerials: entry.removed_serials,
+      countedById: entry.counted_by,
+      countedByName: entry.counted_by_name,
+      countedAt: new Date(entry.counted_at).toISOString(),
+    }));
+  }
+
+  private async requireCounter(actor: Actor, warehouseId: string): Promise<void> {
+    const granted = await this.permissionService.permissionsCovering(actor.userId, { scopeType: "branch", ...(await this.branchOf(warehouseId)) });
+    if (!granted.has(inventoryPermissions.countStocktakes) && !granted.has(inventoryPermissions.manageStocktakes)) throw new ApiError("FORBIDDEN", "forbidden");
   }
 
   // Kết thúc: mọi dòng phải có số đếm; chênh lệch sinh phiếu điều chỉnh rồi gửi duyệt (chưa có chính sách thì ghi sổ ngay).
