@@ -1,0 +1,205 @@
+# CONG_VIEC_57: Trạm giao hàng O2O (MODULE_14 phần 2)
+
+- Mô tả: Đơn đặt trên ứng dụng VComm được khách tự đến nhận tại trạm hoặc được trạm giao tận nơi. Trạm là cửa hàng bán lẻ (CONG_VIEC_53) hoặc điểm giao nhận riêng của công ty vận hành sàn, có kho riêng. Khách chọn trạm còn đủ hàng; trạm soạn hàng, báo sẵn sàng, giao bằng mã nhận hàng, thu tiền trong ca thu ngân; giữ hàng có hạn rồi tự hủy; trả hàng nhận về kho trạm.
+- Phiên bản: 0.1
+- Ngày cập nhật: 2026-11-11
+- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả và bản mẫu.
+- Mức: Lớn (sửa cấu trúc dữ liệu, API, trạng thái đơn VComm đang dùng; nhiều module: VComm, Bán lẻ, Kho, Tài chính – Kế toán; thêm quyền, vai trò).
+- Nhánh: `chuc-nang/CONG_VIEC_57-tram-giao-hang-ngan-sach`.
+- Nguồn: tài liệu `01` mục 4 (MODULE_14), `05` mục 3, `24` THAY_DOI_04; quyết định của người dùng ngày 2026-11-11 (mục 14).
+- Phụ thuộc: mã của CONG_VIEC_53 (bản phát hành 0.5.0). Chỉ lập trình sau khi 0.5.0 vào `main`.
+
+## 1. Mục tiêu
+
+Khách mua trên VComm nhận hàng trong ngày tại trạm gần mình hoặc được trạm giao tận nơi, không qua đơn vị vận chuyển. Hàng xuất từ kho của trạm, tiền thu tại trạm vào quỹ của trạm qua ca thu ngân, kế toán không phải nhập tay.
+
+## 2. Phạm vi
+
+Trong phạm vi: CHUC_NANG_200 đến CHUC_NANG_203.
+
+Ngoài phạm vi:
+
+- Kế hoạch mua theo ngân sách (Open-to-Buy): tách thành công việc riêng theo quyết định người dùng ngày 2026-11-11.
+- Trạm thuộc công ty khác công ty vận hành sàn (giao dịch nội bộ giữa công ty).
+- Tự chọn trạm theo khoảng cách, tọa độ, bản đồ, chỉ đường.
+- Điều chuyển hàng từ kho trung tâm tới trạm cho từng đơn; trạm thiếu hàng không hiện cho khách.
+- Đơn vị vận chuyển lấy hàng tại trạm (địa chỉ gửi theo trạm).
+- Tách một đơn ra nhiều trạm hoặc nhiều kho.
+- Trả hàng tại quầy không qua yêu cầu trả hàng trên ứng dụng.
+
+## 3. Yêu cầu nghiệp vụ
+
+| Mã                | Yêu cầu                                                                                                                                                                                    | Người cần                                 |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
+| YCAU_NGHIEPVU_131 | Khai báo trạm giao hàng: cửa hàng bán lẻ hoặc điểm giao nhận riêng có kho, cách phục vụ (nhận tại trạm, trạm giao), thông tin hiển thị cho khách, xã được giao, phí giao, số ngày giữ hàng | Quản trị công ty, Cửa hàng trưởng         |
+| YCAU_NGHIEPVU_132 | Khách chọn cách nhận hàng (đơn vị vận chuyển, nhận tại trạm, trạm giao) và chọn trạm còn đủ hàng khi đặt trên ứng dụng VComm                                                               | Khách mua                                 |
+| YCAU_NGHIEPVU_133 | Trạm soạn hàng, báo đơn sẵn sàng, giao cho khách bằng mã nhận hàng, thu tiền nếu khách chưa trả                                                                                            | Thu ngân, Cửa hàng trưởng, Khách mua      |
+| YCAU_NGHIEPVU_134 | Trạm giao tận nơi bằng nhân viên của trạm; ghi giao không thành công, giao lại hoặc hủy                                                                                                    | Nhân viên giao hàng trạm, Cửa hàng trưởng |
+| YCAU_NGHIEPVU_135 | Giữ hàng tại trạm có thời hạn; báo khách khi sẵn sàng, nhắc trước khi hết hạn; quá hạn tự hủy, trả hàng về tồn, hoàn tiền đã thu                                                           | Khách mua, Cửa hàng trưởng                |
+| YCAU_NGHIEPVU_136 | Trả hàng của đơn O2O theo yêu cầu trả hàng VComm, khách mang hàng ra trạm, trạm nhận vào kho của trạm                                                                                      | Khách mua, Cửa hàng trưởng                |
+| YCAU_NGHIEPVU_137 | Mỗi đơn O2O tự trừ kho trạm, ghi giá vốn, doanh thu, tiền thu tại trạm vào quỹ của trạm qua ca thu ngân                                                                                    | Kế toán, Thủ kho                          |
+
+## 4. Chức năng
+
+| Mã            | Chức năng                                                                                                                                                                                                                                                                          | Yêu cầu                                                                    |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| CHUC_NANG_200 | Cài đặt trạm: loại trạm (cửa hàng, điểm giao nhận), bật nhận tại trạm, trạm giao; tên, địa chỉ, số điện thoại, giờ mở cửa hiển thị cho khách; xã được giao, phí giao, mức miễn phí; số ngày giữ hàng                                                                               | YCAU_NGHIEPVU_131                                                          |
+| CHUC_NANG_201 | Đặt hàng có trạm trên ứng dụng VComm: chọn cách nhận, danh sách trạm đủ hàng, phí giao theo trạm, thanh toán khi nhận tại trạm; giữ hàng tại kho trạm; chi tiết đơn có trạm, hạn giữ, mã nhận hàng                                                                                 | YCAU_NGHIEPVU_132, YCAU_NGHIEPVU_135                                       |
+| CHUC_NANG_202 | Xử lý đơn tại trạm: danh sách đơn của trạm, in phiếu soạn hàng, báo sẵn sàng, giao tại trạm bằng mã, thu tiền trong ca; trạm giao tận nơi, giao không thành công; tự hủy khi hết hạn giữ; thông báo trong ứng dụng và Zalo ZNS; ghi phiếu xuất, bút toán, tiền vào quỹ khi đóng ca | YCAU_NGHIEPVU_133, YCAU_NGHIEPVU_134, YCAU_NGHIEPVU_135, YCAU_NGHIEPVU_137 |
+| CHUC_NANG_203 | Nhận hàng trả của đơn O2O tại trạm vào kho trạm; lọc đơn theo cách nhận, trạm ở màn hình đơn VComm của nhân viên vận hành sàn                                                                                                                                                      | YCAU_NGHIEPVU_136                                                          |
+
+## 5. Quy tắc nghiệp vụ
+
+| Mã                  | Quy tắc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Yêu cầu                              |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
+| QUYTAC_NGHIEPVU_418 | Trạm là cửa hàng bán lẻ (`retail.stores`, QUYTAC_NGHIEPVU_368) của công ty vận hành sàn, có loại: Cửa hàng (`store`, bán tại quầy như CONG_VIEC_53) hoặc Điểm giao nhận (`pickup_point`, không bán tại quầy; vẫn có quầy và ca để thu tiền, giao đơn). Điểm giao nhận gắn chi nhánh loại "Cửa hàng" hoặc "Khác" của công ty; kho, quỹ, mã ngân hàng VietQR theo QUYTAC_NGHIEPVU_368. Cửa hàng thuộc công ty khác công ty vận hành sàn không bật được O2O                                                                                                                                                                                                                                                                                               | YCAU_NGHIEPVU_131                    |
+| QUYTAC_NGHIEPVU_419 | Thông tin trạm hiện cho khách: tên hiển thị (1 đến 100 ký tự), tỉnh, xã (danh mục hai cấp của VComm, QUYTAC_NGHIEPVU_156), địa chỉ chi tiết (1 đến 200 ký tự), số điện thoại, giờ mở cửa (1 đến 200 ký tự). Bật "Nhận tại trạm" hoặc "Trạm giao" cần đủ các thông tin này; tắt cả hai thì trạm không hiện. Tắt khi còn đơn chưa kết thúc: đơn cũ vẫn xử lý được, chỉ chặn đơn mới                                                                                                                                                                                                                                                                                                                                                                      | YCAU_NGHIEPVU_131                    |
+| QUYTAC_NGHIEPVU_420 | Trạm giao: danh sách xã được giao (1 đến 200 xã, thuộc bất kỳ tỉnh nào), phí giao mỗi đơn (≥ 0), mức tiền hàng được miễn phí giao (để trống: không miễn), số lần giao tối đa 3. Số ngày giữ hàng: 1 đến 14, mặc định 3, áp cho cả nhận tại trạm và trạm giao                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | YCAU_NGHIEPVU_131, YCAU_NGHIEPVU_135 |
+| QUYTAC_NGHIEPVU_421 | Đặt hàng: khách chọn cách nhận "Giao qua đơn vị vận chuyển" (như hiện có), "Nhận tại trạm" hoặc "Trạm giao tận nơi". Hai cách sau hiện danh sách trạm: đang hoạt động, bật cách nhận đó, kho trạm đủ tồn khả dụng cho mọi dòng của đơn (gồm hàng tặng) lúc xem; "Trạm giao" chỉ gồm trạm có xã của địa chỉ đã chọn trong danh sách xã được giao. Sắp xếp: cùng xã, cùng tỉnh với địa chỉ đã chọn, rồi theo tên; lọc theo tỉnh. Không trạm nào đủ hàng thì báo và chỉ cho chọn đơn vị vận chuyển. Địa chỉ trong sổ vẫn bắt buộc (lấy tên, số điện thoại người nhận; trạm giao lấy cả địa chỉ)                                                                                                                                                           | YCAU_NGHIEPVU_132                    |
+| QUYTAC_NGHIEPVU_422 | Giá, khuyến mãi theo kênh VComm như đơn hiện có (QUYTAC_NGHIEPVU_158). Phí giao: nhận tại trạm bằng 0; trạm giao theo cài đặt trạm; đơn vị vận chuyển như hiện có. Đặt thành công thì giữ hàng tại kho của trạm; lúc đặt kho trạm không còn đủ thì chặn, báo khách chọn trạm khác                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | YCAU_NGHIEPVU_132                    |
+| QUYTAC_NGHIEPVU_423 | Thanh toán: các phương thức trực tuyến đang bật (QUYTAC_NGHIEPVU_163, 165) hoặc "Thanh toán khi nhận tại trạm" (mã `pay_at_station`, chỉ cho hai cách nhận của trạm, bật tắt trong danh sách phương thức). Thanh toán khi nhận hàng qua đơn vị vận chuyển (`cod`) không dùng cho đơn của trạm. Đơn trả trước chờ thanh toán quá hạn 15 phút thì hủy như hiện có                                                                                                                                                                                                                                                                                                                                                                                        | YCAU_NGHIEPVU_132                    |
+| QUYTAC_NGHIEPVU_424 | Trạng thái đơn của trạm: Chờ soạn hàng (đã giữ hàng, đã thanh toán nếu trả trước) → Sẵn sàng nhận (nhân viên trạm bấm "Đã soạn xong": lập phiếu xuất giao hàng nháp toàn đơn tại kho trạm, cấp mã nhận hàng, hạn giữ đến 23 giờ 59 giờ Việt Nam của ngày thứ N kể từ ngày sẵn sàng) → Đang giao (chỉ trạm giao: nhân viên giao nhận đơn đi giao) → Đã giao (giao thành công: ghi sổ phiếu xuất nháp) → Hoàn tất (như QUYTAC_NGHIEPVU_162). Hủy: khách hủy được khi Chờ soạn hàng hoặc Sẵn sàng nhận; nhân viên trạm hủy (lý do 1 đến 500 ký tự) khi chưa Đã giao; hệ thống hủy khi hết hạn giữ (QUYTAC_NGHIEPVU_428). Hủy thì xóa phiếu xuất nháp, nhả giữ hàng, hoàn phần đã thu (QUYTAC_NGHIEPVU_168). Đơn của trạm không giao qua đơn vị vận chuyển | YCAU_NGHIEPVU_133                    |
+| QUYTAC_NGHIEPVU_425 | Mã nhận hàng: 6 chữ số ngẫu nhiên, cấp khi Sẵn sàng nhận, không trùng trong các đơn Sẵn sàng nhận, Đang giao của cùng trạm; mã QR chứa số đơn và mã. Chỉ người mua thấy trong chi tiết đơn; không ghi vào log, nhật ký thao tác, nội dung Zalo ZNS. Nhập sai 5 lần cho một đơn thì khóa nhập mã đơn đó 15 phút                                                                                                                                                                                                                                                                                                                                                                                                                                         | YCAU_NGHIEPVU_133                    |
+| QUYTAC_NGHIEPVU_426 | Giao tại trạm: người có quyền xử lý đơn trực tuyến tại chi nhánh của trạm quét hoặc nhập mã, xem dòng hàng, bấm "Giao cho khách". Đơn chưa thu đủ tiền: phải có ca đang mở của chính người đó tại quầy của trạm; thu tiền mặt (có tiền thừa) hoặc chuyển khoản VietQR, hoặc kết hợp, theo QUYTAC_NGHIEPVU_373 (không có điểm). Ghi trong một giao dịch: ghi sổ phiếu xuất, đã thu của đơn, khoản thu tại trạm gắn ca, trạng thái Đã giao. Hóa đơn điện tử của đơn theo luồng đơn VComm hiện có                                                                                                                                                                                                                                                         | YCAU_NGHIEPVU_133, YCAU_NGHIEPVU_137 |
+| QUYTAC_NGHIEPVU_427 | Trạm giao: Cửa hàng trưởng giao đơn Sẵn sàng nhận cho một nhân viên giao (người có quyền giao hàng tại chi nhánh), hoặc nhân viên giao tự nhận; đơn chưa thu tiền thì nhân viên giao phải có ca đang mở. Đơn chuyển Đang giao. Giao thành công: nhập mã do khách đọc hoặc quét QR, thu tiền như QUYTAC_NGHIEPVU_426 vào ca của nhân viên giao → Đã giao. Không thành công: lý do (khách vắng, khách từ chối nhận, sai địa chỉ, khác kèm ghi chú 1 đến 500 ký tự) → đơn về Sẵn sàng nhận, cộng số lần giao; khách từ chối nhận hoặc đủ 3 lần không thành công thì hủy, hàng còn ở kho trạm                                                                                                                                                              | YCAU_NGHIEPVU_134                    |
+| QUYTAC_NGHIEPVU_428 | Việc nền mỗi giờ: đơn Sẵn sàng nhận còn 24 giờ tới hạn giữ thì nhắc khách một lần; đơn Sẵn sàng nhận quá hạn giữ thì hệ thống hủy (QUYTAC_NGHIEPVU_424). Đơn Đang giao không tự hủy                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | YCAU_NGHIEPVU_135                    |
+| QUYTAC_NGHIEPVU_429 | Thông báo cho khách trong ứng dụng VComm và Zalo ZNS (khi công ty đã cài đặt Zalo ZNS và có mẫu được duyệt; không có thì chỉ trong ứng dụng): đơn sẵn sàng nhận (tên, địa chỉ, giờ mở cửa của trạm, hạn giữ), nhắc sắp hết hạn, đang giao, đã hủy do hết hạn hoặc giao không thành công. Nhân viên trạm nhận thông báo trong hệ thống khi có đơn mới của trạm                                                                                                                                                                                                                                                                                                                                                                                          | YCAU_NGHIEPVU_135                    |
+| QUYTAC_NGHIEPVU_430 | Trả hàng đơn của trạm theo QUYTAC_NGHIEPVU_161; khi duyệt, nơi nhận hàng trả là trạm của đơn (ứng dụng hiện địa chỉ trạm). Người có quyền xử lý đơn trực tuyến tại trạm xác nhận đã nhận: phiếu nhận hàng trả lại vào kho trạm theo giá vốn lúc xuất (`returnAsSystem`), hoàn tiền theo QUYTAC_NGHIEPVU_168 như hiện có                                                                                                                                                                                                                                                                                                                                                                                                                                | YCAU_NGHIEPVU_136                    |
+| QUYTAC_NGHIEPVU_431 | Đóng ca (QUYTAC_NGHIEPVU_375): tiền mặt hệ thống tính cộng tiền mặt thu đơn trực tuyến (đã trừ tiền thừa); phiếu thu theo quỹ gồm cả khoản thu đơn trực tuyến (Nợ tiền mặt hoặc tiền gửi ngân hàng / Có phải thu khách hàng không đối tượng, khớp bút toán phiếu xuất đơn VComm QUYTAC_NGHIEPVU_169); biên bản đóng ca tách dòng "Thu đơn trực tuyến". Phạm vi: nhân viên chỉ thấy đơn của trạm thuộc chi nhánh trong phạm vi quyền; nhân viên vận hành sàn xem mọi đơn, lọc theo cách nhận, trạm, không thao tác thay trạm                                                                                                                                                                                                                            | YCAU_NGHIEPVU_137                    |
+
+## 6. Vai trò và quyền
+
+| Quyền                | Ý nghĩa                                                                                                     | Phạm vi gán        | Nhạy cảm |
+| -------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------ | -------- |
+| `retail.o2o`         | Xem, soạn, giao tại trạm, thu tiền, hủy đơn trực tuyến của trạm, nhận hàng trả, giao đơn cho nhân viên giao | Công ty, chi nhánh | Không    |
+| `retail.o2o.deliver` | Nhận đơn đi giao, ghi giao thành công, không thành công; mở, đóng ca của mình để giữ tiền thu khi giao      | Công ty, chi nhánh | Không    |
+
+Cài đặt trạm dùng `retail.setup`. Vai trò: Thu ngân thêm `retail.o2o`; Cửa hàng trưởng thêm `retail.o2o`, `retail.o2o.deliver`; vai trò mới Nhân viên giao hàng trạm (`station_courier`: `retail.access`, `retail.o2o.deliver`). Mở ca (QUYTAC_NGHIEPVU_369) cho phép người có `retail.sale` hoặc `retail.o2o.deliver`; người chỉ có `retail.o2o.deliver` không bán tại quầy. Điểm giao nhận không có màn hình Bán hàng tại quầy.
+
+## 7. Luồng nghiệp vụ
+
+Luồng 53 (tài liệu `09`): đơn VComm nhận tại trạm hoặc trạm giao.
+
+- Đặt hàng: Khách chọn hàng → chọn cách nhận → chọn trạm đủ hàng → chọn thanh toán (trực tuyến hoặc khi nhận tại trạm) → hệ thống giữ hàng ở kho trạm, báo trạm.
+- Nhận tại trạm: Nhân viên trạm in phiếu soạn hàng, soạn → "Đã soạn xong" → hệ thống lập phiếu xuất nháp, cấp mã, báo khách → khách đến đưa mã → nhân viên quét mã, thu tiền nếu chưa trả → hệ thống ghi sổ phiếu xuất, Đã giao.
+- Trạm giao: Sẵn sàng nhận → giao cho nhân viên giao → Đang giao → giao thành công (mã, thu tiền) hoặc không thành công (về Sẵn sàng nhận; từ chối hoặc lần thứ 3 thì hủy).
+- Ngoại lệ: hết hạn giữ → hệ thống hủy, nhả hàng, hoàn tiền đã thu; khách hoặc trạm hủy trước khi giao.
+- Đóng ca: tiền thu đơn trực tuyến cộng vào tiền hệ thống tính, phiếu thu theo quỹ.
+- Trả hàng: khách gửi yêu cầu → nhân viên vận hành duyệt → khách mang hàng ra trạm → trạm xác nhận nhận → phiếu nhận hàng trả lại vào kho trạm, hoàn tiền.
+
+## 8. Màn hình
+
+| Mã           | Màn hình                                                           | Nội dung                                                                                                                                                                                                                                                                                                 |
+| ------------ | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MAN_HINH_188 | Đơn trực tuyến tại trạm (web-retail)                               | Danh sách lọc trạm, trạng thái, cách nhận, thanh toán, sắp hết hạn giữ, tìm số đơn, số điện thoại; số đơn mới ở menu. Chi tiết: khách, dòng hàng, thanh toán, hạn giữ, số lần giao, nhân viên giao, lịch sử; nút "In phiếu soạn hàng", "Đã soạn xong", "Giao cho khách", "Giao cho nhân viên", "Hủy đơn" |
+| MAN_HINH_189 | Giao cho khách tại trạm (web-retail)                               | Ô quét, nhập mã nhận hàng (luôn nhận bàn phím); hiện đơn, dòng hàng, số còn phải thu; thu tiền mặt, VietQR, tiền thừa; nút "Giao cho khách" (F9), in phiếu giao hàng khổ 80 mm                                                                                                                           |
+| MAN_HINH_190 | Đơn tôi đang giao (web-retail, tối ưu điện thoại)                  | Đơn sẵn sàng của trạm để nhận đi giao, đơn đang giao của tôi: địa chỉ, số điện thoại (gọi), số tiền phải thu; nút "Nhận đi giao", "Giao thành công" (mã, thu tiền), "Không giao được" (lý do)                                                                                                            |
+| MAN_HINH_191 | Cài đặt trạm (phần thêm trong MAN_HINH_166)                        | Loại trạm; công tắc nhận tại trạm, trạm giao; tên, tỉnh, xã, địa chỉ, số điện thoại, giờ mở cửa; số ngày giữ hàng; xã được giao (chọn nhiều theo tỉnh), phí giao, mức miễn phí                                                                                                                           |
+| MAN_HINH_192 | Ứng dụng VComm – Đặt hàng (sửa màn hình đặt hàng)                  | Chọn cách nhận; danh sách trạm (tên, địa chỉ, giờ mở cửa, cùng xã, cùng tỉnh, lọc tỉnh); phí giao; phương thức "Thanh toán khi nhận tại trạm"                                                                                                                                                            |
+| MAN_HINH_193 | Ứng dụng VComm – Chi tiết đơn của trạm (sửa màn hình chi tiết đơn) | Trạm, địa chỉ, giờ mở cửa, số điện thoại; trạng thái; mã nhận hàng 6 số và mã QR khi Sẵn sàng nhận; hạn giữ; nơi mang hàng trả                                                                                                                                                                           |
+| MAN_HINH_194 | Nhận hàng trả tại trạm (web-retail)                                | Yêu cầu trả hàng đã duyệt của đơn thuộc trạm: khách, dòng, số lượng; nút "Đã nhận hàng trả"                                                                                                                                                                                                              |
+| MAN_HINH_195 | Đơn VComm của nhân viên vận hành (sửa màn hình hiện có)            | Thêm cột, bộ lọc cách nhận, trạm; chi tiết hiện trạm, hạn giữ, lần giao; ẩn "Giao cho đơn vị vận chuyển" với đơn của trạm                                                                                                                                                                                |
+
+Menu web-retail thêm: Đơn trực tuyến, Đơn tôi đang giao, Nhận hàng trả (hiện theo quyền).
+
+## 9. Dữ liệu
+
+- `0109_o2o_stations.sql`: `retail.stores` thêm `kind` (`store`, `pickup_point`), `pickup_enabled`, `delivery_enabled`, `display_name`, `province_code`, `ward_code`, `street_address`, `phone`, `opening_hours`, `hold_days`, `delivery_fee`, `free_delivery_threshold`; bảng `retail.station_wards` (trạm, mã xã). Ràng buộc: bật một trong hai thì đủ thông tin hiển thị.
+- `0110_o2o_orders.sql`: `marketplace.orders` thêm `fulfillment_mode` (`carrier`, `station_pickup`, `station_delivery`, mặc định `carrier` cho đơn cũ), `warehouse_id` (kho xuất của đơn); ràng buộc trạng thái thêm `ready_for_pickup` (gồm mọi giá trị trên `main` mới nhất); phương thức `pay_at_station`; bảng `retail.station_orders` (đơn VComm, trạm, mã nhận hàng, thời điểm sẵn sàng, hạn giữ, đã nhắc, số lần nhập sai, khóa đến, nhân viên giao, số lần giao).
+- `0111_o2o_handover.sql`: `retail.station_collections` (đơn, ca, phương thức `cash`/`bank_transfer`, số tiền, quỹ, mã giao dịch, tiền khách đưa, tiền thừa), `retail.delivery_attempts` (đơn, lần, nhân viên, kết quả, lý do, ghi chú, thời điểm).
+- `0112_o2o_returns_notifications.sql`: `marketplace.return_requests` thêm trạm nhận, người nhận, thời điểm nhận tại trạm; mẫu thông báo, mẫu Zalo ZNS cho bốn sự kiện của QUYTAC_NGHIEPVU_429.
+
+Chi tiết cột, chỉ mục ghi vào tài liệu `16` khi lập trình từng lát.
+
+## 10. API
+
+| Mã      | Đường dẫn                                                                                                                                                                                 | Nội dung                                                           |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| API_220 | `GET`, `PATCH /retail/stores/{id}/station`                                                                                                                                                | Cài đặt trạm                                                       |
+| API_221 | `GET /shop/stations?mode=&addressId=&provinceCode=`                                                                                                                                       | Trạm đủ hàng cho giỏ đang đặt                                      |
+| API_222 | `POST /shop/orders/quote`, `POST /shop/orders` (thêm trường `fulfillmentMode`, `stationId`, không bắt buộc; thiếu thì như cũ); `GET /shop/orders/{id}` (thêm trạm, hạn giữ, mã nhận hàng) | Đặt hàng có trạm (sửa API của CONG_VIEC_24, tương thích ngược)     |
+| API_223 | `GET /retail/station-orders`; `GET /retail/station-orders/{id}`; `POST /retail/station-orders/{id}/ready`; `POST /retail/station-orders/{id}/cancel`                                      | Danh sách, chi tiết, sẵn sàng, hủy                                 |
+| API_224 | `GET /retail/station-orders/by-code?storeId=&code=`; `POST /retail/station-orders/{id}/handover`                                                                                          | Tìm đơn theo mã, giao và thu tiền                                  |
+| API_225 | `POST /retail/station-orders/{id}/assign`; `POST /retail/station-orders/{id}/dispatch`; `POST /retail/station-orders/{id}/attempts`                                                       | Trạm giao: giao cho nhân viên, nhận đi giao, giao không thành công |
+| API_226 | `GET /retail/station-returns`; `POST /retail/station-returns/{id}/receive`                                                                                                                | Nhận hàng trả tại trạm                                             |
+| API_227 | Việc nền `station-orders.expire` (mỗi giờ); sự kiện thông báo                                                                                                                             | Nhắc, hủy hết hạn giữ                                              |
+
+## 11. Tiêu chí nghiệm thu
+
+| Mã                    | Tiêu chí                                                                                                                                                                                | Mức       |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| TIEUCHI_NGHIEMTHU_390 | Bật O2O cho cửa hàng, điểm giao nhận của công ty vận hành sàn với đủ thông tin; thiếu thông tin hoặc công ty khác thì bị chặn với thông báo rõ                                          | Bắt buộc  |
+| TIEUCHI_NGHIEMTHU_391 | Khi đặt, chỉ trạm đang bật, đủ hàng cho cả đơn (và có xã của địa chỉ khi trạm giao) được hiện, sắp cùng xã, cùng tỉnh trước                                                             | Bắt buộc  |
+| TIEUCHI_NGHIEMTHU_392 | Đặt đơn nhận tại trạm: phí giao 0, giữ hàng tại kho trạm; kho trạm hết hàng lúc đặt thì chặn                                                                                            | Bắt buộc  |
+| TIEUCHI_NGHIEMTHU_393 | Đơn trạm giao tính phí, miễn phí theo cài đặt trạm                                                                                                                                      | Bắt buộc  |
+| TIEUCHI_NGHIEMTHU_394 | "Đã soạn xong" lập phiếu xuất nháp ở kho trạm, cấp mã 6 số không trùng, hạn giữ đúng N ngày, khách thấy mã                                                                              | Bắt buộc  |
+| TIEUCHI_NGHIEMTHU_395 | Giao tại trạm với mã đúng: ghi sổ phiếu xuất, giá vốn, bút toán, Đã giao; mã sai 5 lần thì khóa 15 phút                                                                                 | Bắt buộc  |
+| TIEUCHI_NGHIEMTHU_396 | Đơn thanh toán khi nhận: thu tiền mặt, VietQR, kết hợp trong ca của người giao; không có ca thì chặn; đóng ca cộng đúng tiền hệ thống tính và phiếu thu theo quỹ                        | Bắt buộc  |
+| TIEUCHI_NGHIEMTHU_397 | Trạm giao: giao cho nhân viên, Đang giao, giao thành công; không thành công về Sẵn sàng nhận; từ chối hoặc lần thứ 3 thì hủy                                                            | Bắt buộc  |
+| TIEUCHI_NGHIEMTHU_398 | Quá hạn giữ: nhắc trước 24 giờ một lần; hết hạn hệ thống hủy, nhả hàng, xóa phiếu xuất nháp, lập việc hoàn tiền đã thu trực tuyến                                                       | Bắt buộc  |
+| TIEUCHI_NGHIEMTHU_399 | Thông báo trong ứng dụng cho bốn sự kiện; Zalo ZNS gửi khi đã cài đặt; mã nhận hàng không có trong ZNS, log                                                                             | Mong muốn |
+| TIEUCHI_NGHIEMTHU_400 | Trả hàng đơn của trạm: trạm xác nhận nhận, phiếu nhận hàng trả lại vào kho trạm, hoàn tiền                                                                                              | Bắt buộc  |
+| TIEUCHI_NGHIEMTHU_401 | Phân quyền, phạm vi: nhân viên chỉ thấy, thao tác đơn của trạm trong phạm vi chi nhánh; người chỉ có quyền giao không bán tại quầy; đơn cũ, đơn qua đơn vị vận chuyển không đổi hành vi | Bắt buộc  |
+
+Kịch bản kiểm thử KICHBAN_KIEMTHU_559 đến KICHBAN_KIEMTHU_572 lập ở tài liệu `21` theo từng lát (đúng, sai, giá trị biên, từng vai trò).
+
+## 12. Dùng lại mã đã có
+
+| Việc                                | Mã dùng lại                                                                                                           | Thay đổi cần thiết                                                |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Đặt hàng, giá, khuyến mãi, giữ hàng | `MarketplaceOrdersService.quote`, `place`, `SalesOrdersService.placeMarketplaceWithin`, `ReservationsService.reserve` | Nhận kho xuất theo trạm thay kho cố định; phí giao theo cách nhận |
+| Tồn khả dụng theo kho               | Hàm tính tồn khả dụng đang dùng cho giỏ hàng                                                                          | Tính cho nhiều kho một lần để lọc trạm                            |
+| Phiếu xuất nháp, ghi sổ, trả hàng   | `deliveries.createIssue`, `postDraftAsSystem`, `returnAsSystem` (như `ShipmentsService`)                              | Không đổi                                                         |
+| Hủy, hoàn tiền                      | `cancelMarketplaceWithin`, `refundRemainingPaid`, `removeDraftIssues`                                                 | Dùng chung cho hủy tại trạm, hết hạn                              |
+| Ca, quỹ, VietQR, in 80 mm           | Mã của CONG_VIEC_53 (`retail-shifts.service.ts`, mẫu in, tạo VietQR)                                                  | Đóng ca cộng khoản thu đơn trực tuyến                             |
+| Trả hàng                            | `ReturnRequestsService`                                                                                               | Nơi nhận theo trạm, xác nhận nhận tại trạm                        |
+| Thông báo                           | `common/notifications` (`notify`), `zns-notifier.ts`                                                                  | Thêm mẫu                                                          |
+| Việc nền                            | Bộ việc nền đang chạy `completeDue`                                                                                   | Thêm việc hết hạn giữ                                             |
+| Giao diện                           | `packages/ui`, `qrcode-generator` 2.0.4                                                                               | Không thêm thư viện                                               |
+
+## 13. Phân tích giải pháp có sẵn – CONG_VIEC_57 – 2026-11-11
+
+- Yêu cầu cần đáp ứng: YCAU_NGHIEPVU_131 đến 137.
+- Nguồn đã tìm: mã nguồn dự án (VComm, giao vận, kho, bán lẻ); nguồn riêng V-com-ERP chưa đọc được trong phiên này (không có quyền truy cập kho, `specs/018-o2o-tach-hai-san-pham`); hiểu biết về các nền tảng thương mại điện tử nguồn mở.
+
+| Ứng viên                                 | Nguồn  | Giấy phép    | Tương thích công nghệ                                                | Công sức điều chỉnh        |
+| ---------------------------------------- | ------ | ------------ | -------------------------------------------------------------------- | -------------------------- |
+| Mã đơn VComm, kho, bán lẻ của dự án      | Dự án  | Của dự án    | Đầy đủ                                                               | Thấp                       |
+| Medusa (điểm lưu kho, nhận tại cửa hàng) | GitHub | MIT          | TypeScript nhưng là nền tảng thương mại trọn bộ, cơ sở dữ liệu riêng | Cao, chỉ tham khảo mô hình |
+| Saleor (click and collect theo kho)      | GitHub | BSD-3-Clause | Python                                                               | Cao, chỉ tham khảo mô hình |
+
+Đề xuất: mở rộng mã của dự án; không thêm thư viện. Mô hình "kho có cờ nhận tại chỗ, chỉ hiện kho đủ hàng" của Saleor, Medusa trùng với quyết định của người dùng.
+
+## 14. Quyết định của người dùng – 2026-11-11
+
+| Câu hỏi               | Quyết định                                                                                                     |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Tách công việc        | Tách hai công việc; CONG_VIEC_57 chỉ làm trạm giao hàng O2O, kế hoạch mua theo ngân sách thành công việc riêng |
+| Trạm là gì            | Cả cửa hàng bán lẻ của CONG_VIEC_53 và điểm giao nhận riêng                                                    |
+| Cách nhận             | Khách tự đến nhận và trạm giao tận nơi                                                                         |
+| Chọn trạm             | Khách chọn trạm                                                                                                |
+| Pháp nhân             | Chỉ trạm của công ty vận hành sàn                                                                              |
+| Điểm giao nhận        | Có kho riêng như chi nhánh                                                                                     |
+| Trạm thiếu hàng       | Chỉ hiện trạm đủ hàng, không điều chuyển cho đơn                                                               |
+| Trạm giao             | Nhân viên của trạm, phí cố định, miễn phí từ mức tiền hàng                                                     |
+| Thanh toán            | Trả trước hoặc trả khi nhận tại trạm (tiền mặt, VietQR trong ca)                                               |
+| Khách không đến nhận  | Giữ N ngày, nhắc, tự hủy                                                                                       |
+| Xác nhận giao         | Mã nhận hàng 6 số và mã QR                                                                                     |
+| Nơi xử lý             | Mini app Bán lẻ                                                                                                |
+| Trả hàng              | Theo luồng trả hàng VComm, nhận về kho trạm                                                                    |
+| Giao không thành công | Mang về, giao lại tối đa 3 lần hoặc hủy                                                                        |
+| Thông báo             | Trong ứng dụng và Zalo ZNS                                                                                     |
+
+Điểm chờ người dùng xác nhận khi duyệt đặc tả: chi nhánh của điểm giao nhận gồm loại "Cửa hàng" và "Khác" (QUYTAC_NGHIEPVU_418); phiếu xuất ghi sổ khi giao thành công, không ghi khi nhân viên mang hàng đi (QUYTAC_NGHIEPVU_424); mã nhận hàng không gửi qua Zalo ZNS (QUYTAC_NGHIEPVU_425); vai trò mới Nhân viên giao hàng trạm (mục 6).
+
+## 15. Lát và điểm xem trước
+
+| Lát | Nội dung                                                                                    | Điểm xem trước                                                                |
+| --- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| L0  | Đặc tả, bản mẫu MAN_HINH_188 đến 194                                                        | Người dùng duyệt đặc tả, bản mẫu                                              |
+| L1  | Cài đặt trạm (0109, API_220, MAN_HINH_191)                                                  | Bật O2O cho cửa hàng, điểm giao nhận trên web-retail                          |
+| L2  | Đặt hàng có trạm (0110, API_221, 222, MAN_HINH_192, 193)                                    | Đặt đơn nhận tại trạm, trạm giao trên ứng dụng VComm, xem giữ hàng ở kho trạm |
+| L3  | Xử lý tại trạm, giao tại trạm, thu tiền, đóng ca (0111, API_223, 224, MAN_HINH_188, 189)    | Soạn, sẵn sàng, quét mã, thu tiền, đóng ca                                    |
+| L4  | Trạm giao tận nơi (API_225, MAN_HINH_190)                                                   | Nhận đi giao, thành công, không thành công trên điện thoại                    |
+| L5  | Hết hạn giữ, thông báo (0112 phần thông báo, API_227)                                       | Chạy việc nền với đơn quá hạn, xem thông báo                                  |
+| L6  | Trả hàng tại trạm, lọc ở màn hình vận hành (0112 phần trả hàng, API_226, MAN_HINH_194, 195) | Trả hàng đơn của trạm về kho trạm                                             |
