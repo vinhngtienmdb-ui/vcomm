@@ -22,6 +22,7 @@ export interface MarketplaceFixture {
   channelId: string;
   // Kem 250.000 gồm thuế (tồn 20), xà phòng 44.000 gồm thuế (tồn 10).
   variants: { cream: string; soap: string };
+  products: { cream: string; soap: string };
   call: (method: "get" | "post" | "put" | "delete", path: string, body?: object) => request.Test;
   register: (phone: string, fullName: string) => Promise<string>;
   buyerSession: (phone: string) => Promise<BuyerCall>;
@@ -120,7 +121,18 @@ export async function prepareMarketplace(application: NestExpressApplication, po
     const saved = await buyer("post", "/buyer/addresses", { recipientName: "Người Nhận Hàng", phone: "0911222444", provinceCode: hanoi.code, wardCode: ward.code, streetAddress: "1 Tràng Tiền" });
     return saved.body[0].id as string;
   };
-  return { admin, today, warehouseId, channelId, variants: { cream: cream.variantId, soap: soap.variantId }, call, register, buyerSession, addressOf };
+  return {
+    admin,
+    today,
+    warehouseId,
+    channelId,
+    variants: { cream: cream.variantId, soap: soap.variantId },
+    products: { cream: cream.productId, soap: soap.productId },
+    call,
+    register,
+    buyerSession,
+    addressOf,
+  };
 }
 
 // Máy chủ GHN giả lập: tạo vận đơn, chi tiết vận đơn; trạng thái và ngày thu tiền thu hộ do kiểm thử đặt.

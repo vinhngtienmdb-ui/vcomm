@@ -1,7 +1,8 @@
 "use client";
 
 // MAN_HINH_87 Đăng bán (CHUC_NANG_113; API_123; QUYTAC_NGHIEPVU_155): sản phẩm của công ty vận hành sàn, bật tắt đăng bán, mô tả cho người mua, lý do chưa hiện trên ứng dụng.
-import type { ListingItem, PageResponse, StoreSettingsResponse } from "contracts";
+// MAN_HINH_101 Thiết lập hoa hồng sản phẩm (CONG_VIEC_26; CHUC_NANG_134; API_134; QUYTAC_NGHIEPVU_200).
+import type { CommissionCalculation, ListingItem, PageResponse, ProductCommission, StoreSettingsResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
@@ -10,6 +11,80 @@ import { Loaded, MessageView } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { formatNumber } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
+
+const levels = ["referral", "staff", "teamHead", "regionalDirector", "director"] as const;
+type Level = (typeof levels)[number];
+
+function CommissionForm({ item, onDone }: { item: ListingItem; onDone: (saved: boolean) => void }) {
+  const t = useTranslations("listings");
+  const common = useTranslations("common");
+  const { notify } = useAdmin();
+  const [calculation, setCalculation] = useState<CommissionCalculation>(item.commission?.calculation ?? "percent");
+  const [values, setValues] = useState<Record<Level, string>>({
+    referral: item.commission?.referral ?? "0",
+    staff: item.commission?.staff ?? "0",
+    teamHead: item.commission?.teamHead ?? "0",
+    regionalDirector: item.commission?.regionalDirector ?? "0",
+    director: item.commission?.director ?? "0",
+  });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function save() {
+    setBusy(true);
+    setError(null);
+    try {
+      await apiFetch<ProductCommission>(`/marketplace/listings/${item.productId}/commission`, {
+        method: "PUT",
+        body: JSON.stringify({ calculation, ...values, version: item.commission?.version ?? 0 }),
+      });
+      notify(t("commissionSaved"));
+      onDone(true);
+    } catch (failure) {
+      setError(failureOf(failure).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="the" style={{ display: "grid", gap: "var(--khoang-3)" }}>
+      <h2>{t("commissionTitle", { name: item.name })}</h2>
+      <div className="chu-thich">{t("commissionHint")}</div>
+      <FormError text={error} />
+      <fieldset style={{ border: 0, padding: 0, margin: 0, display: "flex", gap: "var(--khoang-3)", flexWrap: "wrap" }}>
+        <legend style={{ marginBottom: "var(--khoang-1)" }}>{t("calculation")}</legend>
+        {(["percent", "fixed"] as const).map((value) => (
+          <label key={value} style={{ display: "flex", gap: "var(--khoang-1)", alignItems: "center" }}>
+            <input type="radio" name="hh-cach-tinh" checked={calculation === value} onChange={() => setCalculation(value)} />
+            {t(`calculation_${value}`)}
+          </label>
+        ))}
+      </fieldset>
+      <div style={{ display: "grid", gap: "var(--khoang-2)", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
+        {levels.map((level) => (
+          <span key={level} style={{ display: "grid", gap: "var(--khoang-1)" }}>
+            <label htmlFor={`hh-${level}`}>{`${t(`level_${level}`)}${calculation === "percent" ? " (%)" : ""}`}</label>
+            <input id={`hh-${level}`} className="o-nhap" inputMode="decimal" value={values[level]} onChange={(event) => setValues((current) => ({ ...current, [level]: event.target.value }))} />
+          </span>
+        ))}
+      </div>
+      <span className="nhom-nut">
+        <button type="button" className="nut chinh" disabled={busy} onClick={() => void save()}>
+          {common("save")}
+        </button>
+        <button type="button" className="nut phu" onClick={() => onDone(false)}>
+          {common("cancel")}
+        </button>
+      </span>
+    </div>
+  );
+}
+
+function commissionSummary(commission: ProductCommission, t: ReturnType<typeof useTranslations>) {
+  const total = levels.reduce((sum, level) => sum + Number(commission[level]), 0);
+  return commission.calculation === "percent"
+    ? t("commissionSummary_percent", { total: formatNumber(String(total), 2), referral: formatNumber(commission.referral, 2) })
+    : t("commissionSummary_fixed", { total: formatNumber(String(total), 0), referral: formatNumber(commission.referral, 0) });
+}
 
 export default function ListingsPage() {
   const t = useTranslations("listings");
@@ -23,6 +98,7 @@ export default function ListingsPage() {
   const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [commissionFor, setCommissionFor] = useState<ListingItem | null>(null);
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearch(searchInput.trim());
@@ -35,7 +111,7 @@ export default function ListingsPage() {
   const settings = useApi<StoreSettingsResponse>("/marketplace/store-settings");
   const { state, reload } = useApi<PageResponse<ListingItem>>(`/marketplace/listings?${parameters}`);
   const canManage = settings.state.kind === "ready" && settings.state.data.canManage;
-  const headings = [t("product"), t("price"), t("available"), t("state"), t("actions")];
+  const headings = [t("product"), t("price"), t("available"), t("state"), t("commission"), t("actions")];
 
   async function save(item: ListingItem, isPublished: boolean, text: string | null) {
     setBusy(true);
@@ -84,6 +160,16 @@ export default function ListingsPage() {
         </select>
       </div>
       <FormError text={error} />
+      {commissionFor && (
+        <CommissionForm
+          key={commissionFor.productId}
+          item={commissionFor}
+          onDone={(saved) => {
+            setCommissionFor(null);
+            if (saved) void reload();
+          }}
+        />
+      )}
       <Loaded state={state} onRetry={() => void reload()}>
         {(result) =>
           result.data.length === 0 ? (
@@ -134,6 +220,16 @@ export default function ListingsPage() {
                         </span>
                       </td>
                       <td data-nhan={headings[4]}>
+                        <span style={{ display: "grid", gap: "var(--khoang-1)" }}>
+                          <span className={item.commission ? "" : "chu-thich"}>{item.commission ? commissionSummary(item.commission, t) : t("commissionNone")}</span>
+                          {canManage && (
+                            <button type="button" className="nut phu" style={{ justifySelf: "start" }} onClick={() => setCommissionFor(item)}>
+                              {t("commissionEdit")}
+                            </button>
+                          )}
+                        </span>
+                      </td>
+                      <td data-nhan={headings[5]}>
                         {canManage ? (
                           editing === item.productId ? (
                             <span style={{ display: "grid", gap: "var(--khoang-2)" }}>

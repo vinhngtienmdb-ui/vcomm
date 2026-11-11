@@ -2,6 +2,7 @@
 
 // MAN_HINH_86 Cài đặt bán hàng VComm (CHUC_NANG_113, 117; API_123; QUYTAC_NGHIEPVU_154, 160): kênh bán, kho xuất, phí giao hàng, kích thước gói; bật tắt đơn vị vận chuyển.
 // Mở đặt hàng, phương thức thanh toán (CONG_VIEC_25; CHUC_NANG_120; API_130; QUYTAC_NGHIEPVU_163, 164).
+// Cài đặt hoa hồng chung: ngưỡng, tỷ lệ khấu trừ thuế, mức rút tối thiểu (CONG_VIEC_26; API_134; QUYTAC_NGHIEPVU_204, 205).
 import type { StoreSettingsResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -256,6 +257,64 @@ function Payments({ settings, onSaved }: { settings: StoreSettingsResponse; onSa
   );
 }
 
+function CommissionSettingsCard({ settings, onSaved }: { settings: StoreSettingsResponse; onSaved: (value: StoreSettingsResponse) => void }) {
+  const t = useTranslations("storeSettings");
+  const common = useTranslations("common");
+  const { notify } = useAdmin();
+  const current = settings.commissionSettings;
+  const [form, setForm] = useState({ taxThreshold: current.taxThreshold, taxRate: current.taxRate, minimumWithdrawal: current.minimumWithdrawal });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fields, setFields] = useState<Record<string, string>>({});
+  async function save() {
+    setBusy(true);
+    setError(null);
+    setFields({});
+    try {
+      onSaved(await apiFetch<StoreSettingsResponse>("/marketplace/commission-settings", { method: "PUT", body: JSON.stringify({ ...form, version: current.version }) }));
+      notify(t("commissionSettingsSaved"));
+    } catch (failure) {
+      const problem = failureOf(failure);
+      setError(problem.message);
+      setFields(problem.fields ?? {});
+    } finally {
+      setBusy(false);
+    }
+  }
+  const field = (key: keyof typeof form) => (
+    <span style={{ display: "grid", gap: "var(--khoang-1)" }}>
+      <label htmlFor={`hh-cd-${key}`}>{t(key)}</label>
+      <input
+        id={`hh-cd-${key}`}
+        className="o-nhap"
+        inputMode="decimal"
+        disabled={!settings.canManage}
+        aria-invalid={fields[key] ? true : undefined}
+        value={form[key]}
+        onChange={(event) => setForm((value) => ({ ...value, [key]: event.target.value }))}
+      />
+    </span>
+  );
+  return (
+    <div className="the" style={{ display: "grid", gap: "var(--khoang-3)" }}>
+      <h2>{t("commissionTitle")}</h2>
+      <FormError text={error} />
+      <div style={{ display: "grid", gap: "var(--khoang-2)", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+        {field("taxThreshold")}
+        {field("taxRate")}
+        {field("minimumWithdrawal")}
+      </div>
+      {settings.canManage && (
+        <span className="nhom-nut">
+          <button type="button" className="nut chinh" disabled={busy} onClick={() => void save()}>
+            {common("save")}
+          </button>
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function StoreSettingsPage() {
   const t = useTranslations("storeSettings");
   const { state, reload } = useApi<StoreSettingsResponse>("/marketplace/store-settings");
@@ -272,6 +331,7 @@ export default function StoreSettingsPage() {
             <div style={{ display: "grid", gap: "var(--khoang-4)" }}>
               <SettingsForm settings={settings} onSaved={setSaved} />
               <Payments settings={settings} onSaved={setSaved} />
+              <CommissionSettingsCard key={settings.commissionSettings.version} settings={settings} onSaved={setSaved} />
               <Carriers settings={settings} onSaved={setSaved} />
             </div>
           );

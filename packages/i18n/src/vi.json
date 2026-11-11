@@ -327,7 +327,9 @@
     "orderNotAwaitingPayment": "Đơn không còn chờ thanh toán (đã thanh toán, đã hủy hoặc quá hạn).",
     "paymentAttemptLimit": "Đơn này đã mở trang thanh toán quá 10 lần. Vui lòng đặt lại đơn mới.",
     "codNotRecordable": "Đơn không thanh toán khi nhận hàng, chưa giao cho đơn vị vận chuyển hoặc đã ghi đã thu.",
-    "refundNotPending": "Việc hoàn tiền không còn chờ xử lý."
+    "refundNotPending": "Việc hoàn tiền không còn chờ xử lý.",
+    "commissionPercentOver": "Tổng năm mức hoa hồng theo phần trăm không được quá 100%.",
+    "commissionFixedOverPrice": "Tổng năm mức hoa hồng cố định không được vượt giá bán thấp nhất của sản phẩm."
   },
   "login": {
     "title": "Đăng nhập",
@@ -3498,7 +3500,12 @@
     "orderingClosedSaved": "Đã đóng đặt hàng.",
     "paymentMethodsHint": "Người mua chỉ thấy phương thức đang bật. Thông tin kết nối cổng thanh toán do quản trị hệ thống đặt trên máy chủ.",
     "paymentMethodEnabled": "Đã bật phương thức thanh toán.",
-    "paymentMethodDisabled": "Đã tắt phương thức thanh toán."
+    "paymentMethodDisabled": "Đã tắt phương thức thanh toán.",
+    "commissionTitle": "Hoa hồng và rút tiền",
+    "taxThreshold": "Khấu trừ thuế thu nhập cá nhân khi rút trên",
+    "taxRate": "Tỷ lệ khấu trừ (%)",
+    "minimumWithdrawal": "Số tiền rút tối thiểu",
+    "commissionSettingsSaved": "Đã lưu cài đặt hoa hồng."
   },
   "listings": {
     "title": "Đăng bán",
@@ -3530,7 +3537,23 @@
     "descriptionHint": "Để trống: dùng mô tả của sản phẩm.",
     "publishedNotice": "Đã đăng bán sản phẩm.",
     "unpublishedNotice": "Đã ngừng đăng bán sản phẩm.",
-    "descriptionSaved": "Đã lưu mô tả."
+    "descriptionSaved": "Đã lưu mô tả.",
+    "commission": "Hoa hồng",
+    "commissionNone": "Chưa thiết lập",
+    "commissionEdit": "Thiết lập hoa hồng",
+    "commissionTitle": "Hoa hồng: {name}",
+    "commissionHint": "Sản phẩm chưa thiết lập thì không có hoa hồng. Thay đổi chỉ áp dụng cho đơn đặt sau. Phần trăm tính trên tiền hàng chưa thuế sau khuyến mãi; số tiền tính trên mỗi đơn vị.",
+    "calculation": "Cách tính",
+    "calculation_percent": "Phần trăm",
+    "calculation_fixed": "Số tiền mỗi đơn vị",
+    "level_referral": "Người giới thiệu",
+    "level_staff": "Nhân viên kinh doanh",
+    "level_teamHead": "Trưởng phòng kinh doanh",
+    "level_regionalDirector": "Giám đốc Vùng",
+    "level_director": "Giám đốc Kinh doanh",
+    "commissionSaved": "Đã lưu thiết lập hoa hồng.",
+    "commissionSummary_percent": "{total}% (giới thiệu {referral}%)",
+    "commissionSummary_fixed": "{total} mỗi đơn vị (giới thiệu {referral})"
   },
   "marketplaceOrders": {
     "title": "Đơn VComm",

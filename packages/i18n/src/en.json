@@ -327,7 +327,9 @@
     "orderNotAwaitingPayment": "The order is no longer awaiting payment (paid, cancelled or expired).",
     "paymentAttemptLimit": "This order has opened the payment page more than 10 times. Please place a new order.",
     "codNotRecordable": "The order is not cash on delivery, not yet handed to the carrier, or already recorded as collected.",
-    "refundNotPending": "The refund is no longer pending."
+    "refundNotPending": "The refund is no longer pending.",
+    "commissionPercentOver": "The five percentage commission levels must not total more than 100%.",
+    "commissionFixedOverPrice": "The five fixed commission levels must not exceed the product's lowest selling price."
   },
   "login": {
     "title": "Sign in",
@@ -3498,7 +3500,12 @@
     "orderingClosedSaved": "Ordering closed.",
     "paymentMethodsHint": "Buyers only see enabled methods. Gateway connection settings are set on the server by the system administrator.",
     "paymentMethodEnabled": "Payment method enabled.",
-    "paymentMethodDisabled": "Payment method disabled."
+    "paymentMethodDisabled": "Payment method disabled.",
+    "commissionTitle": "Commission and withdrawals",
+    "taxThreshold": "Withhold personal income tax on withdrawals above",
+    "taxRate": "Withholding rate (%)",
+    "minimumWithdrawal": "Minimum withdrawal",
+    "commissionSettingsSaved": "Commission settings saved."
   },
   "listings": {
     "title": "Listings",
@@ -3530,7 +3537,23 @@
     "descriptionHint": "Leave empty to use the product description.",
     "publishedNotice": "Product listed.",
     "unpublishedNotice": "Product unlisted.",
-    "descriptionSaved": "Description saved."
+    "descriptionSaved": "Description saved.",
+    "commission": "Commission",
+    "commissionNone": "Not set",
+    "commissionEdit": "Set commission",
+    "commissionTitle": "Commission: {name}",
+    "commissionHint": "Products without settings pay no commission. Changes apply to orders placed afterwards. Percentages apply to the pre-tax amount after promotions; fixed amounts are per unit.",
+    "calculation": "Calculation",
+    "calculation_percent": "Percentage",
+    "calculation_fixed": "Amount per unit",
+    "level_referral": "Referrer",
+    "level_staff": "Sales staff",
+    "level_teamHead": "Sales team head",
+    "level_regionalDirector": "Regional director",
+    "level_director": "Sales director",
+    "commissionSaved": "Commission settings saved.",
+    "commissionSummary_percent": "{total}% (referral {referral}%)",
+    "commissionSummary_fixed": "{total} per unit (referral {referral})"
   },
   "marketplaceOrders": {
     "title": "VComm orders",

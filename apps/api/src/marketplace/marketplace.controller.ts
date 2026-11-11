@@ -22,6 +22,9 @@ import {
   type StoreSettingsResponse,
   testBuyerSchema,
   updateCarrierSchema,
+  productCommissionSchema,
+  type ProductCommission,
+  commissionSettingsSchema,
   recordCodCollectedSchema,
   updateOrderingOpenSchema,
   updatePaymentMethodSchema,
@@ -178,6 +181,17 @@ export class MarketplaceController {
   @HttpCode(204)
   async listing(@Req() request: AuthenticatedRequest, @Param("productId", UuidPipe) productId: string, @Body() body: unknown): Promise<void> {
     await this.store.updateListing(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage"), productId, updateListingSchema.parse(body));
+  }
+
+  // API_134: thiết lập hoa hồng sản phẩm, cài đặt hoa hồng chung (CONG_VIEC_26).
+  @Put("listings/:productId/commission")
+  async commission(@Req() request: AuthenticatedRequest, @Param("productId", UuidPipe) productId: string, @Body() body: unknown): Promise<ProductCommission> {
+    return this.store.setCommission(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage"), productId, productCommissionSchema.parse(body));
+  }
+
+  @Put("commission-settings")
+  async commissionSettings(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<StoreSettingsResponse> {
+    return this.store.updateCommissionSettings(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage"), commissionSettingsSchema.parse(body));
   }
 
   @Put("buyers/:id/test-buyer")

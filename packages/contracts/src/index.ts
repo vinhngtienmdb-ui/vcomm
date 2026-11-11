@@ -4117,6 +4117,7 @@ export interface StoreSettingsResponse {
   // API_130: mở đặt hàng cho mọi người mua (QUYTAC_NGHIEPVU_164).
   orderingOpen: boolean;
   paymentMethods: PaymentMethodItem[];
+  commissionSettings: CommissionSettings;
 }
 
 const packageSize = z.number().int().min(1).max(200);
@@ -4142,6 +4143,48 @@ export const updateOrderingOpenSchema = z.object({ orderingOpen: z.boolean() }).
 export const listingBlockers = ["storeNotReady", "notApproved", "inactive", "lotOrSerial", "noPrice"] as const;
 export type ListingBlocker = (typeof listingBlockers)[number];
 
+// CONG_VIEC_26: thiết lập hoa hồng từng sản phẩm (QUYTAC_NGHIEPVU_200).
+export const commissionCalculations = ["percent", "fixed"] as const;
+export type CommissionCalculation = (typeof commissionCalculations)[number];
+export interface ProductCommission {
+  calculation: CommissionCalculation;
+  referral: string;
+  staff: string;
+  teamHead: string;
+  regionalDirector: string;
+  director: string;
+  version: number;
+}
+const commissionValue = requiredMoney;
+export const productCommissionSchema = z
+  .object({
+    calculation: z.enum(commissionCalculations),
+    referral: commissionValue,
+    staff: commissionValue,
+    teamHead: commissionValue,
+    regionalDirector: commissionValue,
+    director: commissionValue,
+    // 0: lần thiết lập đầu tiên.
+    version: z.number().int().min(0),
+  })
+  .strict();
+
+// Cài đặt hoa hồng chung (QUYTAC_NGHIEPVU_204, 205).
+export interface CommissionSettings {
+  taxThreshold: string;
+  taxRate: string;
+  minimumWithdrawal: string;
+  version: number;
+}
+export const commissionSettingsSchema = z
+  .object({
+    taxThreshold: requiredMoney,
+    taxRate: z.string().trim().regex(/^\d{1,3}(\.\d{1,2})?$/),
+    minimumWithdrawal: requiredMoney,
+    version: z.number().int().min(0),
+  })
+  .strict();
+
 export interface ListingItem {
   productId: string;
   name: string;
@@ -4153,6 +4196,8 @@ export interface ListingItem {
   priceFrom: string | null;
   available: string;
   blockers: ListingBlocker[];
+  // Chưa thiết lập: sản phẩm không có hoa hồng.
+  commission: ProductCommission | null;
 }
 export const listingListQuerySchema = z
   .object({

@@ -1,15 +1,21 @@
 // Cài đặt bán hàng VComm, đăng bán, đơn vị vận chuyển, người mua thử (CONG_VIEC_24; CHUC_NANG_113; QUYTAC_NGHIEPVU_154, 155, 160; API_123).
 // Phương thức thanh toán, mở đặt hàng (CONG_VIEC_25; CHUC_NANG_120; QUYTAC_NGHIEPVU_163, 164; API_130).
+// Thiết lập hoa hồng từng sản phẩm, cài đặt hoa hồng chung (CONG_VIEC_26; CHUC_NANG_134; QUYTAC_NGHIEPVU_200, 204, 205; API_134).
 import { Inject, Injectable } from "@nestjs/common";
 import type {
   CarrierCode,
   CarrierItem,
+  CommissionCalculation,
+  CommissionSettings,
+  commissionSettingsSchema,
   ListingBlocker,
   ListingItem,
   PageResponse,
   PaymentGatewayCode,
   PaymentMethodCode,
   PaymentMethodItem,
+  ProductCommission,
+  productCommissionSchema,
   StoreSettingsResponse,
   updateListingSchema,
   updateStoreSettingsSchema,
@@ -101,6 +107,20 @@ export async function loadStoreContext(executor: Executor): Promise<StoreContext
     packageHeightCm: row.package_height_cm,
     minimumWeightGrams: row.minimum_weight_grams,
     orderingOpen: row.ordering_open,
+  };
+}
+
+// Cài đặt hoa hồng chung; chưa lưu thì dùng mặc định (thuế 10% trên 5.000.000 đồng, rút tối thiểu 100.000 đồng).
+export async function commissionSettings(executor: Executor, companyId: string): Promise<CommissionSettings> {
+  const row = (
+    await executor.execute<{ tax_threshold: string; tax_rate: string; minimum_withdrawal: string; version: number }>(sql`
+    SELECT tax_threshold::text, tax_rate::text, minimum_withdrawal::text, version FROM marketplace.commission_settings WHERE company_id = ${companyId}`)
+  ).rows[0];
+  return {
+    taxThreshold: trimDecimal(row?.tax_threshold ?? "5000000"),
+    taxRate: trimDecimal(row?.tax_rate ?? "10"),
+    minimumWithdrawal: trimDecimal(row?.minimum_withdrawal ?? "100000"),
+    version: row?.version ?? 0,
   };
 }
 
@@ -202,6 +222,7 @@ export class StoreService {
       carriers: await this.carriers(),
       orderingOpen: row?.ordering_open ?? false,
       paymentMethods: await this.paymentMethods(),
+      commissionSettings: await commissionSettings(this.database, actor.operatorCompanyId),
     };
   }
 
@@ -301,11 +322,20 @@ export class StoreService {
       is_published: boolean | null;
       description: string | null;
       image_id: string | null;
+      calculation: CommissionCalculation | null;
+      referral: string | null;
+      staff: string | null;
+      team_head: string | null;
+      regional_director: string | null;
+      director: string | null;
+      commission_version: number | null;
     }>(sql`
       SELECT p.id, p.name, c.name_vi AS category_name, p.review_status, p.status, (p.tracks_lots OR p.tracks_serials OR c.tracks_lots OR c.tracks_serials) AS tracks,
-        l.is_published, l.description,
+        l.is_published, l.description, pc.calculation, pc.referral::text, pc.staff::text, pc.team_head::text, pc.regional_director::text, pc.director::text,
+        pc.version AS commission_version,
         (SELECT i.id FROM catalog.product_images i WHERE i.product_id = p.id ORDER BY i.sort_order LIMIT 1) AS image_id
       FROM catalog.products p JOIN catalog.categories c ON c.id = p.category_id LEFT JOIN marketplace.listings l ON l.product_id = p.id
+      LEFT JOIN marketplace.product_commissions pc ON pc.product_id = p.id
       WHERE ${where} ORDER BY p.name, p.id LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`);
     const context = await loadStoreContext(this.database);
     const today = (await this.database.execute<{ today: string }>(sql`SELECT (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS today`)).rows[0]!.today;
@@ -339,6 +369,18 @@ export class StoreService {
           priceFrom: prices.length > 0 ? trimDecimal(Math.min(...prices).toFixed(4)) : null,
           available: trimDecimal(variants.reduce((sum, variant) => sum + Number(available.get(variant.variantId) ?? 0), 0).toFixed(4)),
           blockers,
+          commission:
+            row.calculation === null
+              ? null
+              : {
+                  calculation: row.calculation,
+                  referral: trimDecimal(row.referral!),
+                  staff: trimDecimal(row.staff!),
+                  teamHead: trimDecimal(row.team_head!),
+                  regionalDirector: trimDecimal(row.regional_director!),
+                  director: trimDecimal(row.director!),
+                  version: row.commission_version!,
+                },
         };
       }),
       page: query.page,
@@ -357,6 +399,70 @@ export class StoreService {
         ON CONFLICT (product_id) DO UPDATE SET is_published = excluded.is_published, description = excluded.description, updated_by = excluded.updated_by, updated_at = now()`);
       await this.record(transaction, actor, "marketplace.listing.update", "catalog.products", productId, before, input);
     });
+  }
+
+  // Thiết lập hoa hồng sản phẩm (QUYTAC_NGHIEPVU_200): phần trăm tổng năm mức không quá 100%; số tiền cố định tổng năm mức không vượt giá bán gồm thuế thấp nhất của sản phẩm.
+  async setCommission(actor: BuyerAdminActor, productId: string, input: z.output<typeof productCommissionSchema>): Promise<ProductCommission> {
+    const total = [input.referral, input.staff, input.teamHead, input.regionalDirector, input.director].reduce((sum, value) => sum + Number(value), 0);
+    await this.database.transaction(async (transaction) => {
+      const product = await transaction.execute(sql`SELECT 1 FROM catalog.products WHERE id = ${productId} AND company_id = ${actor.operatorCompanyId} AND seller_id IS NULL FOR UPDATE`);
+      if (product.rows.length === 0) throw new ApiError("NOT_FOUND", "notFound");
+      if (input.calculation === "percent" && total > 100) throw new ApiError("BUSINESS_RULE", "commissionPercentOver");
+      if (input.calculation === "fixed") {
+        const context = await loadStoreContext(transaction);
+        const today = (await transaction.execute<{ today: string }>(sql`SELECT (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS today`)).rows[0]!.today;
+        const prices = context ? ((await pricedVariants(transaction, context, [productId], today)).get(productId) ?? []).map((variant) => Number(variant.grossPrice)) : [];
+        if (prices.length > 0 && total > Math.min(...prices)) throw new ApiError("BUSINESS_RULE", "commissionFixedOverPrice");
+      }
+      const before = (await transaction.execute(sql`SELECT * FROM marketplace.product_commissions WHERE product_id = ${productId}`)).rows[0] ?? null;
+      const saved = before
+        ? await transaction.execute(sql`
+          UPDATE marketplace.product_commissions SET calculation = ${input.calculation}, referral = ${input.referral}::numeric, staff = ${input.staff}::numeric,
+            team_head = ${input.teamHead}::numeric, regional_director = ${input.regionalDirector}::numeric, director = ${input.director}::numeric,
+            updated_by = ${actor.userId}, updated_at = now(), version = version + 1
+          WHERE product_id = ${productId} AND version = ${input.version} RETURNING product_id`)
+        : await transaction.execute(sql`
+          INSERT INTO marketplace.product_commissions (product_id, company_id, calculation, referral, staff, team_head, regional_director, director, updated_by)
+          SELECT ${productId}, ${actor.operatorCompanyId}, ${input.calculation}, ${input.referral}::numeric, ${input.staff}::numeric, ${input.teamHead}::numeric,
+            ${input.regionalDirector}::numeric, ${input.director}::numeric, ${actor.userId}
+          WHERE ${input.version} = 0 RETURNING product_id`);
+      if (saved.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      await this.record(transaction, actor, "marketplace.product_commission.update", "catalog.products", productId, before, input);
+    });
+    const row = (
+      await this.database.execute<{ calculation: CommissionCalculation; referral: string; staff: string; team_head: string; regional_director: string; director: string; version: number }>(sql`
+      SELECT calculation, referral::text, staff::text, team_head::text, regional_director::text, director::text, version FROM marketplace.product_commissions WHERE product_id = ${productId}`)
+    ).rows[0]!;
+    return {
+      calculation: row.calculation,
+      referral: trimDecimal(row.referral),
+      staff: trimDecimal(row.staff),
+      teamHead: trimDecimal(row.team_head),
+      regionalDirector: trimDecimal(row.regional_director),
+      director: trimDecimal(row.director),
+      version: row.version,
+    };
+  }
+
+  async updateCommissionSettings(actor: BuyerAdminActor, input: z.output<typeof commissionSettingsSchema>): Promise<StoreSettingsResponse> {
+    if (Number(input.taxRate) > 100) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { taxRate: "invalidValue" } });
+    if (Number(input.minimumWithdrawal) <= 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { minimumWithdrawal: "invalidValue" } });
+    await this.database.transaction(async (transaction) => {
+      const before = await commissionSettings(transaction, actor.operatorCompanyId);
+      const saved =
+        before.version === 0
+          ? await transaction.execute(sql`
+            INSERT INTO marketplace.commission_settings (company_id, tax_threshold, tax_rate, minimum_withdrawal, updated_by)
+            SELECT ${actor.operatorCompanyId}, ${input.taxThreshold}::numeric, ${input.taxRate}::numeric, ${input.minimumWithdrawal}::numeric, ${actor.userId}
+            WHERE ${input.version} = 0 ON CONFLICT DO NOTHING RETURNING company_id`)
+          : await transaction.execute(sql`
+            UPDATE marketplace.commission_settings SET tax_threshold = ${input.taxThreshold}::numeric, tax_rate = ${input.taxRate}::numeric,
+              minimum_withdrawal = ${input.minimumWithdrawal}::numeric, updated_by = ${actor.userId}, updated_at = now(), version = version + 1
+            WHERE company_id = ${actor.operatorCompanyId} AND version = ${input.version} RETURNING company_id`);
+      if (saved.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      await this.record(transaction, actor, "marketplace.commission_settings.update", "marketplace.commission_settings", actor.operatorCompanyId, before, input);
+    });
+    return this.settings(actor, true);
   }
 
   // Người mua thử đặt được hàng khi chưa mở đặt hàng (QUYTAC_NGHIEPVU_158).
