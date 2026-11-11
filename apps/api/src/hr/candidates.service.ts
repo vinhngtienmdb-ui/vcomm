@@ -1,5 +1,6 @@
 // Ứng viên, tệp, đồng ý, hồ sơ ứng tuyển, trang tuyển dụng công khai (CONG_VIEC_54; CHUC_NANG_190, 191; QUYTAC_NGHIEPVU_382, 383, 388; API_202, API_204).
 import { Inject, Injectable } from "@nestjs/common";
+import { CLOCK, type Clock } from "../common/clock";
 import type {
   CandidateEmailItem,
   CandidateConsentItem,
@@ -85,6 +86,7 @@ export class CandidatesService {
   constructor(
     @Inject(DATABASE) readonly database: Database,
     @Inject(FILE_STORAGE) private readonly storage: FileStorage,
+    @Inject(CLOCK) private readonly clock: Clock,
     private readonly permissionService: PermissionService,
     private readonly auditService: AuditService,
     private readonly recruitment: RecruitmentService,
@@ -428,7 +430,7 @@ export class CandidatesService {
       if (row.ended_at) throw new ApiError("BUSINESS_RULE", "applicationEnded");
       if (row.stage === "hired") throw new ApiError("BUSINESS_RULE", "applicationStageInvalid");
       await transaction.execute(sql`
-        UPDATE hr.applications SET outcome = ${input.outcome}, outcome_reason = ${input.reason ?? null}, outcome_note = ${input.note}, ended_at = now(), updated_at = now(), version = version + 1
+        UPDATE hr.applications SET outcome = ${input.outcome}, outcome_reason = ${input.reason ?? null}, outcome_note = ${input.note}, ended_at = ${this.clock.now().toISOString()}, updated_at = now(), version = version + 1
         WHERE id = ${applicationId}`);
       if (afterEnd) await afterEnd(transaction, row.candidate_id);
       await recomputeEraseDue(transaction, row.candidate_id);
@@ -627,7 +629,7 @@ export class CandidatesService {
       await transaction.execute(sql`
         UPDATE hr.interviews SET status = 'cancelled', updated_at = now() WHERE status = 'scheduled' AND application_id IN (SELECT id FROM hr.applications WHERE candidate_id = ${id})`);
       await transaction.execute(sql`
-        UPDATE hr.applications SET outcome = 'withdrawn', outcome_reason = NULL, ended_at = now(), updated_at = now(), version = version + 1 WHERE candidate_id = ${id} AND ended_at IS NULL`);
+        UPDATE hr.applications SET outcome = 'withdrawn', outcome_reason = NULL, ended_at = ${this.clock.now().toISOString()}, updated_at = now(), version = version + 1 WHERE candidate_id = ${id} AND ended_at IS NULL`);
       await this.auditService.record(
         { ...hrAudit(actor, "candidate"), action: "candidate.erasure_request", entityId: id, afterData: { receivedOn: input.receivedOn, channel: input.channel } },
         transaction,

@@ -1,5 +1,6 @@
 // Nhu cầu tuyển dụng, tin tuyển dụng (CONG_VIEC_54; CHUC_NANG_190; QUYTAC_NGHIEPVU_380, 381, 383; API_200, API_201).
 import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
+import { CLOCK, type Clock } from "../common/clock";
 import type {
   ApplicationItem,
   JobPostingItem,
@@ -126,6 +127,7 @@ export async function stageCounts(executor: Executor, postingIds: string[]): Pro
 @Injectable()
 export class RecruitmentService implements OnModuleInit {
   constructor(
+    @Inject(CLOCK) private readonly clock: Clock,
     @Inject(DATABASE) private readonly database: Database,
     private readonly permissionService: PermissionService,
     private readonly auditService: AuditService,
@@ -643,7 +645,7 @@ export class RecruitmentService implements OnModuleInit {
       sql`, `,
     );
     const ended = await transaction.execute<{ candidate_id: string }>(sql`
-      UPDATE hr.applications SET outcome = 'rejected', outcome_reason = 'posting_closed', ended_at = now(), updated_at = now(), version = version + 1
+      UPDATE hr.applications SET outcome = 'rejected', outcome_reason = 'posting_closed', ended_at = ${this.clock.now().toISOString()}, updated_at = now(), version = version + 1
       WHERE posting_id IN (${ids}) AND ended_at IS NULL AND stage IN ('new', 'screening') RETURNING candidate_id`);
     for (const candidateId of new Set(ended.rows.map((row) => row.candidate_id))) await recomputeEraseDue(transaction, candidateId);
   }

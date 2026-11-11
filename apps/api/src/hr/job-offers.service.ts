@@ -1,5 +1,6 @@
 // Đề nghị nhận việc, liên kết trả lời, lập hồ sơ nhân sự từ ứng viên (CONG_VIEC_54; CHUC_NANG_191; QUYTAC_NGHIEPVU_386, 387; API_203).
 import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
+import { CLOCK, type Clock } from "../common/clock";
 import type { EmployeeDraftResponse, JobOfferResponse, OfferAnswerPageResponse, recordOfferResponseSchema, saveEmployeeSchema, saveJobOfferSchema } from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import { messages } from "i18n";
@@ -68,6 +69,7 @@ export class JobOffersService implements OnModuleInit {
     @Inject(DATABASE) private readonly database: Database,
     @Inject(FILE_STORAGE) private readonly storage: FileStorage,
     @Inject(OUTBOUND_MESSAGES) private readonly outbound: OutboundMessages,
+    @Inject(CLOCK) private readonly clock: Clock,
     private readonly permissionService: PermissionService,
     private readonly auditService: AuditService,
     private readonly sequences: NumberSequencesService,
@@ -342,7 +344,7 @@ export class JobOffersService implements OnModuleInit {
     if (accepted) await transaction.execute(sql`UPDATE hr.applications SET stage = 'hired', updated_at = now(), version = version + 1 WHERE id = ${row.application_id}`);
     else {
       await transaction.execute(sql`
-        UPDATE hr.applications SET outcome = 'rejected', outcome_reason = 'declined_offer', ended_at = now(), updated_at = now(), version = version + 1 WHERE id = ${row.application_id} AND ended_at IS NULL`);
+        UPDATE hr.applications SET outcome = 'rejected', outcome_reason = 'declined_offer', ended_at = ${this.clock.now().toISOString()}, updated_at = now(), version = version + 1 WHERE id = ${row.application_id} AND ended_at IS NULL`);
       await recomputeEraseDue(transaction, row.candidate_id);
     }
   }
