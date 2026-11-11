@@ -34,6 +34,8 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Hồ sơ nhân sự: số căn cước, hộ chiếu, tài khoản ngân hàng, mã số thuế, số sổ bảo hiểm xã hội, giấy phép lao động, số định danh người phụ thuộc (CONG_VIEC_46) | Cá nhân (cơ bản theo Nghị định 356/2025/NĐ-CP Điều 3) | Mã hóa AES-256-GCM ở máy chủ (`secret-box`), 4 ký tự cuối để che, HMAC kiểm trùng số giấy tờ | `hr.identity.view` hiện từng trường (ghi nhật ký); chính người lao động |
 | Ảnh căn cước, giấy khám sức khỏe, văn bằng, văn bản đồng ý (CONG_VIEC_46) | Cá nhân nhạy cảm (Nghị định 356/2025/NĐ-CP Điều 4 khoản 1 điểm d, i) | Tệp trên S3 (SSE) hoặc thư mục cục bộ khi phát triển, khóa do hệ thống sinh | Tải: `hr.identity.view` (ghi nhật ký); danh sách tệp: `hr.employee.view` |
 | Mức lương, phụ cấp, hợp đồng lao động (CONG_VIEC_46) | Tài chính cá nhân | Cơ sở dữ liệu schema `hr` | `hr.contract.manage` của công ty; chính người lao động (hợp đồng đã ký) |
+| Vị trí GPS, địa chỉ IP tại lượt chấm công; giờ vào, ra, nghỉ, lý do nghỉ (CONG_VIEC_47) | Cá nhân (Nghị định 356/2025/NĐ-CP Điều 3; vị trí là dữ liệu nhạy cảm theo Điều 4 khi theo dõi người) | Cơ sở dữ liệu schema `hr`; tọa độ chỉ lưu tại lượt chấm, không theo dõi liên tục | API không trả tọa độ, IP cho bất kỳ ai; người xem lượt chấm chỉ thấy cách xác thực, địa điểm, khoảng cách tới địa điểm |
+| Tệp chứng từ nghỉ ốm, thai sản, văn bản đồng ý làm thêm giờ, tệp đơn giải trình (CONG_VIEC_47) | Cá nhân nhạy cảm (sức khỏe) | Tệp qua `FILE_STORAGE`, khóa do hệ thống sinh | Người có `hr.leave.manage` hoặc `hr.attendance.manage`; người lập; tải ghi nhật ký |
 | Số Căn cước công dân của đối tác cá nhân (CONG_VIEC_06) | Cá nhân | Cột `crm.partners.citizen_id`, lưu nguyên văn trong cơ sở dữ liệu mã hóa khi lưu (Aurora); chưa mã hóa cột (làm sau cùng giải pháp khóa ở mục 5). Danh sách, chi tiết, kết quả thêm, sửa chỉ trả dạng che `*********` + 3 số cuối; nhật ký thêm, sửa chỉ ghi 3 số cuối | Người có quyền nhạy cảm `crm.partner.identity.view` ở công ty đang làm việc xem số đầy đủ qua `GET /crm/partners/{id}/identity`, mỗi lần xem ghi nhật ký `partner.view_identity` (QUYTAC_NGHIEPVU_59) |
 | Đối tác: tên, mã số thuế, địa chỉ, điện thoại, email, người liên hệ, tài khoản ngân hàng (CONG_VIEC_06) | Tổ chức, cá nhân | Cơ sở dữ liệu schema `crm`; dùng chung tập đoàn | Người có `crm.partner.view` ở bất kỳ công ty nào; sửa: `crm.partner.manage` |
 | Hồ sơ đối tác của công ty: hạn mức công nợ, số ngày được nợ, nhân viên phụ trách (CONG_VIEC_06) | Tài chính, kinh doanh | Bảng `crm.partner_profiles` theo công ty | Xem: người có `crm.partner.view` của chính công ty đó; lập, sửa: quyền nhạy cảm `crm.profile.manage`. Công ty khác không đọc được |
@@ -826,6 +828,26 @@ Ranh giới và kiểm soát riêng:
 - Mức lương chỉ trả cho người có `hr.contract.manage` hoặc chính người lao động.
 - Khóa đồng thời: lập, sửa hồ sơ khóa theo công ty (`pg_advisory_xact_lock`) để không trùng số giấy tờ, mã; gửi, ký hợp đồng khóa hồ sơ để kiểm chồng thời gian, giới hạn ký.
 
+### Ma trận phân quyền Nhân sự MODULE_08 phần 2 (CONG_VIEC_47)
+
+Thêm quyền `hr.attendance.view`, `hr.attendance.manage`, `hr.leave.manage`, `hr.timesheet.manage` (ba quyền sau nhạy cảm); vai trò Quản lý nhân sự, Nhân viên nhân sự có cả bốn (tài liệu `08` mục 41).
+
+| Chức năng | Quản trị, nhân sự có quyền | Chỉ `hr.attendance.view` | Trưởng phòng | Chính mình |
+|---|---|---|---|---|
+| CHUC_NANG_165 Xem lưới công, lượt chấm (cách xác thực, khoảng cách; không trả tọa độ) | Được | Được | Phòng mình | Lượt của mình |
+| CHUC_NANG_165 Ca, lịch, ngày lễ, địa điểm, nhập tệp, ghi thủ công, màn hình mã QR | `hr.attendance.manage` | Không | Xếp ca phòng mình | Không |
+| CHUC_NANG_166 Ghi nhận nghỉ, sổ phép, loại nghỉ | `hr.leave.manage` | Xem | Xem, duyệt theo chính sách | Đơn, sổ phép của mình |
+| CHUC_NANG_167 Phiếu tăng ca | Lập, kèm văn bản, hủy | Xem | Lập phòng mình | Lập, đồng ý, rút, hủy |
+| CHUC_NANG_167 Bảng công: mở xác nhận, trả lời, chốt, mở lại | `hr.timesheet.manage` | Xem, xuất Excel | Xem phòng mình | Xác nhận, giải trình dòng của mình |
+
+Ranh giới và kiểm soát riêng:
+- Tách dữ liệu công ty: mọi truy vấn lọc `company_id` của công ty đang chọn; hồ sơ, lượt, đơn công ty khác trả `404` hoặc không có trong danh sách.
+- Mã QR động: HMAC-SHA256 trên mã địa điểm và khung 30 giây, khóa dẫn xuất từ `MFA_SECRET_KEY`; nhận khung hiện tại và liền trước; mã không chứa dữ liệu người dùng. Màn hình mã chỉ người có `hr.attendance.manage` mở.
+- Lượt chấm ứng dụng chỉ cho chính người có hồ sơ liên kết; hai lượt cách nhau ít nhất 1 phút; địa chỉ IP lấy từ kết nối qua proxy tin cậy của ứng dụng.
+- Giả vị trí GPS trên điện thoại không phát hiện được (ngoài phạm vi): công ty nên bật thêm mạng công ty hoặc mã QR cho địa điểm cần chặt; lượt lưu cách xác thực và độ chính xác để đối chiếu.
+- Thông báo xin quyền vị trí hiện trước khi trình duyệt hỏi; không lấy vị trí khi chấm bằng mã QR hoặc mạng công ty.
+- Khóa đồng thời: gửi đơn nghỉ, phiếu tăng ca khóa hồ sơ (`FOR UPDATE`); chốt kỳ khóa dòng kỳ; mọi ghi dữ liệu thuộc tháng kiểm kỳ đã chốt trong cùng giao dịch.
+
 ## 5. Quản lý khóa bí mật
 
 | Khóa | Nơi lưu | Môi trường | Ngày đổi gần nhất | Trạng thái |
@@ -859,6 +881,8 @@ Chưa có.
 - RUIRO CONG_VIEC_23 (người dùng chấp nhận 2026-11-10): 2 lỗ hổng mức Trung bình (glob GHSA, minimatch GHSA-g3hv-75wg-m249) trong `@expo/cli`, công cụ phát triển của Expo SDK 58, không chạy trên môi trường thật. Thời hạn: đến khi Expo phát hành bản sửa tương thích, rà lại mỗi lần nâng Expo, chậm nhất 2027-02-10. Biện pháp giảm thiểu: chỉ chạy công cụ trên máy phát triển, không đưa vào ảnh triển khai máy chủ.
 
 - RUIRO CONG_VIEC_46 (người dùng quyết định 2026-11-11, chưa xử lý xong): hồ sơ người lao động đã nghỉ được giữ nguyên, khóa truy cập; Luật 91/2025/QH15 Điều 25 khoản 2 điểm c yêu cầu xóa, hủy dữ liệu khi chấm dứt hợp đồng, trừ thỏa thuận hoặc luật khác quy định. Biện pháp giảm thiểu: chỉ người có `hr.employee.manage` xem hồ sơ đã nghỉ; người dùng chốt thời hạn lưu với luật sư, đưa điều khoản lưu giữ vào mẫu hợp đồng; làm chức năng xóa, khử nhận dạng ở công việc sau. Thời hạn: trước khi triển khai MODULE_08 lên môi trường thật.
+- RUIRO CONG_VIEC_47 (người dùng chấp nhận 2026-11-11): chấm công bằng GPS có thể bị giả vị trí bằng ứng dụng giả lập; hệ thống không ràng buộc thiết bị, không chụp ảnh. Biện pháp giảm thiểu: cấu hình địa điểm kết hợp mạng công ty hoặc mã QR động; lưu độ chính xác, cách xác thực để rà soát; trưởng phòng duyệt đơn giải trình. Thời hạn: xem lại khi có yêu cầu chấm công bằng khuôn mặt hoặc thiết bị.
+- Ghi nhận (CONG_VIEC_47): vị trí GPS tại lượt chấm là dữ liệu cá nhân; doanh nghiệp cần thông báo mục đích, có đồng ý của người lao động (nội quy hoặc văn bản) trước khi bật chấm công GPS; đưa vào hồ sơ đánh giá tác động xử lý dữ liệu cá nhân.
 - Ghi nhận (CONG_VIEC_46): đánh giá tác động xử lý dữ liệu cá nhân (Luật 91/2025/QH15 Điều 21; Nghị định 356/2025/NĐ-CP Điều 19) là nghĩa vụ của doanh nghiệp, cần lập hồ sơ gửi cơ quan chuyên trách trong 60 ngày kể từ khi bắt đầu xử lý; ngoài phạm vi phần mềm.
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09

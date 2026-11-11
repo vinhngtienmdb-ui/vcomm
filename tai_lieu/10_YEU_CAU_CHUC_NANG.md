@@ -1919,6 +1919,16 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 8:
 
 Yêu cầu phi chức năng: số giấy tờ, tài khoản ngân hàng, mã số thuế, số sổ bảo hiểm xã hội mã hóa khi lưu, mỗi lần hiện hoặc tải tệp ghi nhật ký thao tác; việc nền áp dụng quyết định công tác lúc 0 giờ 5 phút, nhắc hết hạn lúc 7 giờ giờ Việt Nam. Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md`.
 
+## MODULE_08 Nhân sự (phần 2, CONG_VIEC_47)
+
+| Mã | Chức năng | Yêu cầu |
+|---|---|---|
+| CHUC_NANG_165 | Ca làm, lịch tuần, xếp ca theo ngày, ngày lễ, cài đặt chấm công và địa điểm chấm công; lượt chấm (nhập tệp, thủ công, ứng dụng, mã QR động); tính công ngày; đơn giải trình công | YCAU_NGHIEPVU_66, 67, 68 |
+| CHUC_NANG_166 | Nghỉ phép: loại nghỉ, chế độ phép năm của nhân viên, sổ phép (cộng dần, điều chỉnh, hết hạn, thanh toán), đơn nghỉ qua luồng duyệt, nhân sự ghi nhận nghỉ | YCAU_NGHIEPVU_69 |
+| CHUC_NANG_167 | Tăng ca (phiếu đăng ký, đồng ý, luồng duyệt, giới hạn); bảng công tháng (kỳ, tổng hợp, xác nhận, giải trình, chốt, mở lại, xuất Excel); trang "Chấm công của tôi" | YCAU_NGHIEPVU_70, 71 |
+
+Yêu cầu phi chức năng: tính lại công ngày, sổ phép, trạng thái đơn trong cùng giao dịch; gửi đơn nghỉ, phiếu tăng ca khóa hồ sơ để kiểm số dư, giới hạn; mọi ghi dữ liệu thuộc tháng kiểm kỳ bảng công đã chốt; việc nền giờ Việt Nam: tính lại công 1 giờ, cộng phép 0 giờ 15 phút, tự xác nhận bảng công 0 giờ 30 phút; tọa độ GPS chỉ lưu tại lượt chấm. Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_47.md`.
+
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Vị trí | Nội dung |

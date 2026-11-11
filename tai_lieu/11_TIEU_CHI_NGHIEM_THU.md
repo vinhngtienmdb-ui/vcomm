@@ -384,3 +384,18 @@ Dữ liệu mẫu: công ty VCR, phòng ban có trưởng phòng; tài khoản Q
 | TIEUCHI_NGHIEMTHU_292 | CHUC_NANG_164 | Nhắc đúng mốc, mỗi mốc một lần, đúng người nhận; hợp đồng có hợp đồng tiếp theo hoặc đã chấm dứt không nhắc; danh sách sắp hết hạn, nhãn quá 30 ngày đúng | Gọi API, việc nền | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_293 | CHUC_NANG_162, CHUC_NANG_163 | Nghỉ việc chấm dứt hợp đồng, hủy hợp đồng chưa ký; hồ sơ đã nghỉ chỉ người có `hr.employee.manage` thấy; nhân viên xem đúng hồ sơ, hợp đồng của mình | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_294 | CHUC_NANG_162 đến CHUC_NANG_164 | MAN_HINH_114 đến MAN_HINH_119 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |
+
+## MODULE_08 Nhân sự (phần 2, CONG_VIEC_47)
+
+Dữ liệu mẫu: công ty VCR và VCT (cách ly); phòng ban có trưởng phòng; tài khoản nhân sự, người không quyền, người lao động có hồ sơ liên kết, lao động chưa thành niên, người không có tài khoản; ca hành chính, ca nửa ngày thứ bảy. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_295 | CHUC_NANG_165 | Ca, lịch tuần, xếp ca, ngày lễ: giới hạn 8/10 giờ ca, 48 giờ tuần (40 giờ chưa thành niên), thứ tự lấy ca dự kiến đúng; ngày lễ chung và riêng, ngày lễ người nước ngoài đúng đối tượng; không sửa ngày thuộc kỳ đã chốt | Gọi API, việc nền | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_296 | CHUC_NANG_165 | Lượt chấm thủ công, nhập tệp (xem trước lỗi, bỏ trùng, kỳ đã chốt bị chặn); công ngày tính đúng giờ thực tế, ân hạn, muộn, sớm, thiếu lượt, vắng, giờ đêm, ca qua ngày; đơn giải trình qua luồng duyệt cập nhật công | Gọi API, việc nền | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_297 | CHUC_NANG_165 | Chấm công ứng dụng: nhận khi đạt GPS hoặc IP hoặc mã QR còn hạn của địa điểm được phép, từ chối khi không đạt, mã QR quá hạn, giả mã; chỉ chấm cho chính mình; công ty khác nhận `404` | Gọi API, việc nền | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_298 | CHUC_NANG_166 | Phép năm: số ngày theo chế độ, thâm niên, cộng dần mỗi tháng một lần, trừ tháng dưới 50%, phép tồn hết hạn đúng cài đặt, nghỉ trừ năm cũ trước, thanh toán khi nghỉ việc | Gọi API, việc nền | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_299 | CHUC_NANG_166 | Đơn nghỉ: số ngày theo lịch (nửa ngày, ca nửa công, bỏ ngày lễ, nghỉ tuần), chặn trùng, vượt số dư, vượt số ngày theo luật; qua luồng duyệt; nhân sự ghi nhận có hiệu lực ngay; hủy hoàn số dư và tính lại công | Gọi API, việc nền | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_300 | CHUC_NANG_167 | Tăng ca: cần đồng ý, qua luồng duyệt; chặn vượt 50% giờ ngày, 12 giờ ngày nghỉ, 40 giờ tháng, 200 hoặc 300 giờ năm, chưa thành niên; loại ngày và giờ đêm đúng; giờ được tính theo thời gian có mặt | Gọi API, việc nền | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_301 | CHUC_NANG_167 | Bảng công tháng: dòng tổng hợp khớp công ngày; xác nhận, giải trình, tự xác nhận khi hết hạn; chốt đóng băng và chặn sửa dữ liệu tháng; mở lại bị chặn khi lương đã chốt; người lao động chỉ thấy dòng của mình; quyền, cách ly công ty đúng | Gọi API, việc nền | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_302 | CHUC_NANG_165 đến CHUC_NANG_167 | MAN_HINH_120 đến MAN_HINH_125 đạt danh sách rà soát giao diện trên máy tính và điện thoại (MAN_HINH_122 ưu tiên điện thoại) | Trình duyệt | Bắt buộc |

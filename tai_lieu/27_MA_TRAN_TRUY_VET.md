@@ -496,3 +496,23 @@
 - Kịch bản chưa chạy hoặc kết quả Không đạt: kết quả gửi phiên cha ghi tài liệu `25`
 - Mã nguồn không truy được về yêu cầu nào: Không có
 
+## 27. Kiểm tra bao phủ CONG_VIEC_47 – 2026-11-11
+
+| Yêu cầu nghiệp vụ | Quy tắc | Chức năng | Màn hình | Tiêu chí | Kịch bản | Mã nguồn |
+|---|---|---|---|---|---|---|
+| YCAU_NGHIEPVU_66 | QUYTAC_NGHIEPVU_302, QUYTAC_NGHIEPVU_303 | CHUC_NANG_165 | MAN_HINH_120 | TIEUCHI_NGHIEMTHU_295 | KICHBAN_KIEMTHU_444 | database/migrations/0073_hr_attendance.sql, apps/api/src/hr/attendance-setup.service.ts, apps/web-hr/src/components/AttendanceSetup.tsx, apps/web-hr/src/app/work-schedules |
+| YCAU_NGHIEPVU_67 | QUYTAC_NGHIEPVU_304, QUYTAC_NGHIEPVU_306 | CHUC_NANG_165 | MAN_HINH_121, MAN_HINH_122, MAN_HINH_120 | TIEUCHI_NGHIEMTHU_296, TIEUCHI_NGHIEMTHU_297 | KICHBAN_KIEMTHU_445, KICHBAN_KIEMTHU_447 | apps/api/src/hr/attendance.service.ts, apps/api/src/hr/attendance-locations.service.ts, apps/api/src/hr/my-attendance.service.ts, apps/web-hr/src/app/my-attendance |
+| YCAU_NGHIEPVU_68 | QUYTAC_NGHIEPVU_305 | CHUC_NANG_165 | MAN_HINH_121 | TIEUCHI_NGHIEMTHU_296 | KICHBAN_KIEMTHU_446 | apps/api/src/hr/attendance-calculator.ts, apps/api/src/hr/attendance-days.service.ts, apps/web-hr/src/app/attendance |
+| YCAU_NGHIEPVU_69 | QUYTAC_NGHIEPVU_307, QUYTAC_NGHIEPVU_308, QUYTAC_NGHIEPVU_309 | CHUC_NANG_166 | MAN_HINH_123, MAN_HINH_122 | TIEUCHI_NGHIEMTHU_298, TIEUCHI_NGHIEMTHU_299 | KICHBAN_KIEMTHU_448, KICHBAN_KIEMTHU_449 | database/migrations/0074_hr_leave.sql, apps/api/src/hr/leave.service.ts, apps/web-hr/src/app/leave, apps/web-hr/src/components/LeaveParts.tsx |
+| YCAU_NGHIEPVU_70 | QUYTAC_NGHIEPVU_310 | CHUC_NANG_167 | MAN_HINH_124, MAN_HINH_122 | TIEUCHI_NGHIEMTHU_300 | KICHBAN_KIEMTHU_450 | database/migrations/0075_hr_overtime_timesheets.sql, apps/api/src/hr/overtime.service.ts, apps/web-hr/src/app/overtime, apps/web-hr/src/components/OvertimeParts.tsx |
+| YCAU_NGHIEPVU_71 | QUYTAC_NGHIEPVU_311 | CHUC_NANG_167 | MAN_HINH_125, MAN_HINH_122 | TIEUCHI_NGHIEMTHU_301 | KICHBAN_KIEMTHU_451 | apps/api/src/hr/timesheets.service.ts, apps/web-hr/src/app/timesheets, apps/web-hr/src/components/TimesheetParts.tsx |
+| YCAU_NGHIEPVU_66 đến YCAU_NGHIEPVU_71 | – | CHUC_NANG_165 đến CHUC_NANG_167 | MAN_HINH_120 đến MAN_HINH_125 | TIEUCHI_NGHIEMTHU_302 | KICHBAN_KIEMTHU_452, KICHBAN_KIEMTHU_453 | apps/web-hr |
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có
+- Chức năng chưa có tiêu chí nghiệm thu: Không có
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có
+- Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_452, KICHBAN_KIEMTHU_453 (giao diện, thủ công bằng trình duyệt tự động chụp màn hình)
+- Kịch bản chưa chạy hoặc kết quả Không đạt: kết quả gửi phiên cha ghi tài liệu `25`
+- Mã nguồn không truy được về yêu cầu nào: Không có

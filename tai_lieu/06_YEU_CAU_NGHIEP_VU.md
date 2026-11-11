@@ -185,6 +185,19 @@
 
 Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md`.
 
+## MODULE_08 Nhân sự (phần 2: Ca làm, chấm công, nghỉ phép, tăng ca, bảng công tháng, CONG_VIEC_47)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_66 | Khai báo ca làm, lịch làm việc theo tuần cho công ty, phòng ban, nhân viên; xếp ca theo ngày; lịch ngày lễ chung tập đoàn và ngày nghỉ riêng của công ty | Nhân sự, Trưởng phòng | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_67 | Ghi nhận giờ vào, giờ ra từ máy chấm công (nhập tệp), ghi thủ công, chấm trên ứng dụng (GPS, mạng công ty, mã QR động, cấu hình theo địa điểm); bổ sung công bằng đơn giải trình qua luồng duyệt | Nhân sự, người lao động | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_68 | Tính công từng ngày theo giờ làm thực tế, ghi đi muộn, về sớm, vắng; giờ làm ban đêm | Nhân sự | Bộ luật Lao động Điều 105, 106 |
+| YCAU_NGHIEPVU_69 | Nghỉ phép đúng luật: loại nghỉ, phép năm cộng dần theo tháng, thâm niên, phép tồn, đơn nghỉ qua luồng duyệt chung | Người lao động, Trưởng phòng, Nhân sự | Bộ luật Lao động Điều 113–115 |
+| YCAU_NGHIEPVU_70 | Tăng ca có đồng ý của người lao động, đăng ký trước qua luồng duyệt, không vượt giới hạn luật | Người lao động, Trưởng phòng, Nhân sự | Bộ luật Lao động Điều 107 |
+| YCAU_NGHIEPVU_71 | Bảng công tháng: người lao động xác nhận hoặc giải trình, nhân sự chốt; đầu vào tính lương | Nhân sự, Kế toán lương, người lao động | Quyết định người dùng 2026-11-11 |
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_47.md`.
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -310,3 +323,13 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md`.
 | Quyết định công tác | Loại, ngày hiệu lực, số quyết định, phòng ban, chi nhánh, chức danh | Không trùng ngày trong một hồ sơ; đã hiệu lực thì không sửa (CONG_VIEC_46) |
 | Hợp đồng lao động | Số, loại, thời hạn, vị trí, lương, phụ cấp, người ký, trạng thái, ngày ký, bản đã ký, chấm dứt | Không chồng thời gian trong một hồ sơ (CONG_VIEC_46) |
 | Phụ lục hợp đồng | Số, ngày hiệu lực, mục đổi, điều khoản sửa đổi, trạng thái, bản đã ký | Thuộc hợp đồng đã ký; không có thời hạn (CONG_VIEC_46) |
+| Ca làm, lịch tuần, xếp ca | Mã ca, giờ bắt đầu, kết thúc, nghỉ giữa ca, hệ số công; lịch 7 ngày; gán phòng ban hoặc hồ sơ từ ngày; ca từng ngày | Thuộc công ty; mỗi công ty một lịch mặc định (CONG_VIEC_47) |
+| Ngày lễ | Ngày, tên, áp dụng người nước ngoài | Công ty trống là lịch chung tập đoàn (CONG_VIEC_47) |
+| Địa điểm chấm công | Tên, chi nhánh, tọa độ và bán kính, dải IP, mã QR động | Thuộc công ty (CONG_VIEC_47) |
+| Lượt chấm | Hồ sơ, thời điểm (làm tròn phút), nguồn (máy, thủ công, ứng dụng, giải trình), cách xác thực, tọa độ, IP | Không sửa; chỉ lượt thủ công xóa mềm được (CONG_VIEC_47) |
+| Công ngày | Ca, giờ vào, ra, giờ làm, công, muộn, sớm, giờ đêm, nghỉ, tăng ca, trạng thái | Mỗi hồ sơ mỗi ngày một dòng, tính lại khi dữ liệu đổi (CONG_VIEC_47) |
+| Đơn giải trình công | Số, ngày, loại, giờ vào, ra, lý do, tệp, trạng thái | Qua luồng duyệt `hr.attendance_correction` (CONG_VIEC_47) |
+| Loại nghỉ, sổ phép | Loại theo luật hoặc của công ty, nhóm hưởng lương; sổ phép theo năm phát sinh (cộng dần, trừ tháng, nghỉ, điều chỉnh, hết hạn, thanh toán) | Không xóa giao dịch, đảo bằng giao dịch mới (CONG_VIEC_47) |
+| Đơn nghỉ | Số, loại, từ ngày, đến ngày, nửa ngày, số ngày, nguồn, tệp, trạng thái | Qua luồng duyệt `hr.leave_request` hoặc nhân sự ghi nhận (CONG_VIEC_47) |
+| Phiếu tăng ca | Số, ngày, khoảng giờ, số giờ, loại ngày, công việc, địa điểm, đồng ý, văn bản đồng ý, trạng thái | Qua luồng duyệt `hr.overtime_request` (CONG_VIEC_47) |
+| Kỳ và dòng bảng công tháng | Kỳ theo công ty, tháng: trạng thái, hạn xác nhận, chốt, khóa bảng lương; dòng theo hồ sơ: công, nghỉ, tăng ca 7 nhóm, muộn, sớm, phép, xác nhận | Kỳ đã chốt thì dòng đóng băng, là đầu vào CONG_VIEC_48 (CONG_VIEC_47) |

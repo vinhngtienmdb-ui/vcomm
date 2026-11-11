@@ -298,6 +298,21 @@ Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance de
 | Nhắc hết hạn | `ContractRemindersService` (`apps/api/src/hr/contract-reminders.service.ts`); việc nền `hr-contract-reminders` lúc 7 giờ; bảng `hr.contract_reminders` giữ mốc đã gửi | CHUC_NANG_164 |
 | Giao diện | Mini app `apps/web-hr`: trang `/employees`, `/employees/new`, `/employees/[id]`, `/employees/[id]/edit`, `/contracts`, `/contracts/new`, `/contracts/[id]`, `/me` | CHUC_NANG_162 đến CHUC_NANG_164 |
 
+## 3x. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 2, CONG_VIEC_47)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Thiết lập chấm công | `AttendanceSetupService` (`apps/api/src/hr/attendance-setup.service.ts`): cài đặt, ca, lịch tuần, gán lịch, xếp ca, ngày lễ | CHUC_NANG_165 |
+| Lượt chấm, công ngày | `AttendanceService`, `AttendanceDaysService`, hàm thuần `attendance-calculator.ts` (tính công, giờ đêm, tăng ca); đọc CSV tự viết, Excel bằng `read-excel-file`; việc nền `hr-attendance-recalculate` lúc 1 giờ | CHUC_NANG_165 |
+| Chấm công ứng dụng | `AttendanceLocationsService` (mã QR ký HMAC-SHA256 bằng khóa dẫn xuất từ `MFA_SECRET_KEY`, khung 30 giây, nhận khung liền trước; khoảng cách theo công thức haversine; so dải CIDR), `MyAttendanceService`; trình duyệt dùng API định vị, `qrcode-generator` vẽ mã | CHUC_NANG_165 |
+| Quyền theo phạm vi | `attendance-access.ts`: quyền bao trùm công ty hoặc trưởng phòng (phòng ban đệ quy theo `core.departments.manager_user_id`) | CHUC_NANG_165 đến CHUC_NANG_167 |
+| Nghỉ phép | `LeaveService` (luồng duyệt `hr.leave_request`, sổ phép); việc nền `hr-leave-accrual` lúc 0 giờ 15 phút (cộng phép tháng, hết hạn phép tồn) | CHUC_NANG_166 |
+| Tăng ca | `OvertimeService` (luồng duyệt `hr.overtime_request`, kiểm giới hạn, thông báo đồng ý, nhắc vượt 200 giờ) | CHUC_NANG_167 |
+| Bảng công tháng | `TimesheetsService` (tổng hợp dòng, xác nhận, chốt, mở lại, xuất Excel `write-excel-file`; phát `hr.timesheet.closed`, `hr.timesheet.reopened`); việc nền `hr-timesheet-confirmation` lúc 0 giờ 30 phút | CHUC_NANG_167 |
+| Giao diện | `apps/web-hr`: `/attendance`, `/work-schedules`, `/work-schedules/qr/[id]`, `/my-attendance`, `/leave`, `/overtime`, `/timesheets` | CHUC_NANG_165 đến CHUC_NANG_167 |
+
+CONG_VIEC_48 (lương) đọc `hr.timesheet_lines` của kỳ đã chốt, ghi `hr.timesheet_periods.payroll_locked_at` khi chốt lương; nghe `hr.timesheet.closed`, `hr.timesheet.reopened`.
+
 ## 5. Sao lưu, phục hồi, ghi log, giám sát
 
 - Sao lưu: Aurora tự sao lưu hằng ngày, giữ 35 ngày, phục hồi về một thời điểm bất kỳ trong khoảng đó; sao lưu được mã hóa.
