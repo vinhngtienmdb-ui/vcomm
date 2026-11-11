@@ -4097,6 +4097,8 @@ export interface ShopProductDetail {
   currency: string;
   // CONG_VIEC_49: mức hoa hồng cộng tác viên của sản phẩm (QUYTAC_NGHIEPVU_326); không có hoặc bằng 0 thì null.
   collaboratorCommission: { calculation: CommissionCalculation; rate: string } | null;
+  // CONG_VIEC_49: điểm đánh giá đã mua hàng đang hiện (QUYTAC_NGHIEPVU_333); chưa có thì count 0, average null.
+  rating: { average: string | null; count: number };
 }
 
 export const shopProductQuerySchema = z
@@ -4823,3 +4825,142 @@ export const groupBuyListQuerySchema = z
   })
   .strict();
 export const cancelGroupBuySchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
+
+// Bảng tin cộng đồng (QUYTAC_NGHIEPVU_333 đến 335).
+export const postKinds = ["member", "review", "official"] as const;
+export type PostKind = (typeof postKinds)[number];
+export const contentStatuses = ["visible", "auto_hidden", "hidden", "deleted"] as const;
+export type ContentStatus = (typeof contentStatuses)[number];
+export const reportReasons = ["spam", "scam", "abuse", "prohibited", "other"] as const;
+export type ReportReason = (typeof reportReasons)[number];
+export interface PostProductItem {
+  productId: string;
+  name: string;
+  imageUrl: string | null;
+  priceFrom: string | null;
+}
+export interface PostItem {
+  id: string;
+  kind: PostKind;
+  authorId: string;
+  authorName: string;
+  content: string;
+  rating: number | null;
+  images: string[];
+  products: PostProductItem[];
+  isPinned: boolean;
+  likeCount: number;
+  commentCount: number;
+  likedByMe: boolean;
+  isMine: boolean;
+  status: ContentStatus;
+  createdAt: string;
+}
+export interface CommentItem {
+  id: string;
+  authorId: string;
+  authorName: string;
+  // Bình luận bị ẩn: nội dung null, ứng dụng hiện câu thay thế.
+  content: string | null;
+  isMine: boolean;
+  status: ContentStatus;
+  createdAt: string;
+}
+export interface PostDetail extends PostItem {
+  comments: CommentItem[];
+}
+export interface CommunityStatus {
+  postingEnabled: boolean;
+  commentsEnabled: boolean;
+  // Đang bị khóa đăng bài, bình luận: until null là vĩnh viễn.
+  ban: { until: string | null; reason: string } | null;
+}
+export interface ReviewableLine {
+  orderLineId: string;
+  orderId: string;
+  documentNo: string;
+  productId: string;
+  productName: string;
+  variantLabel: string;
+}
+export const postListQuerySchema = z
+  .object({
+    productId: z.uuid().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(50).default(20),
+  })
+  .strict();
+export const createPostSchema = z
+  .object({
+    content: z.string().trim().min(1).max(2000),
+    imageIds: z.array(z.uuid()).max(5).default([]),
+    productIds: z.array(z.uuid()).max(3).default([]),
+    orderLineId: z.uuid().nullable().default(null),
+    rating: z.number().int().min(1).max(5).nullable().default(null),
+  })
+  .strict()
+  .refine((value) => (value.orderLineId === null) === (value.rating === null), { message: "invalidValue", path: ["rating"] });
+export const createCommentSchema = z.object({ content: z.string().trim().min(1).max(1000) }).strict();
+export const createReportSchema = z
+  .object({
+    postId: z.uuid().nullable().default(null),
+    commentId: z.uuid().nullable().default(null),
+    reason: z.enum(reportReasons),
+    description: z.string().trim().max(500).nullable().default(null),
+  })
+  .strict()
+  .refine((value) => (value.postId === null) !== (value.commentId === null), { message: "invalidValue", path: ["postId"] });
+
+// Kiểm duyệt (quản trị).
+export interface ModerationItem {
+  target: "post" | "comment";
+  id: string;
+  postId: string;
+  authorId: string;
+  authorName: string;
+  authorPhone: string;
+  content: string;
+  status: ContentStatus;
+  hiddenReason: string | null;
+  pendingReports: number;
+  topReason: ReportReason | null;
+  latestReportAt: string | null;
+  createdAt: string;
+}
+export const moderationQuerySchema = z
+  .object({
+    view: z.enum(["reported", "hidden"]).default("reported"),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const hideContentSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export interface CommunityBanItem {
+  id: string;
+  userId: string;
+  userName: string;
+  userPhone: string;
+  until: string | null;
+  reason: string;
+  bannedByName: string;
+  createdAt: string;
+}
+export const createBanSchema = z
+  .object({ userId: z.uuid(), days: z.number().int().min(1).max(365).nullable(), reason: z.string().trim().min(1).max(500) })
+  .strict();
+export interface CommunitySettings {
+  postingEnabled: boolean;
+  commentsEnabled: boolean;
+  bannedWords: string[];
+  version: number;
+}
+export const communitySettingsSchema = z
+  .object({
+    postingEnabled: z.boolean(),
+    commentsEnabled: z.boolean(),
+    bannedWords: z.array(z.string().trim().min(1).max(100)).max(500),
+    version: z.number().int().min(0),
+  })
+  .strict();
+export const officialPostSchema = z.object({ content: z.string().trim().min(1).max(2000), isPinned: z.boolean() }).strict();
+export const pinPostSchema = z.object({ isPinned: z.boolean() }).strict();

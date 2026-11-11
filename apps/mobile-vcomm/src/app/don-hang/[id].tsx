@@ -1,7 +1,7 @@
 // MAN_HINH_96 Chi tiết đơn (CHUC_NANG_116; API_126; QUYTAC_NGHIEPVU_159): trạng thái, vận đơn, dòng hàng, tiền, lịch sử, hủy đơn.
-// CONG_VIEC_49: phần trả bằng ví mua sắm, kết quả nhóm mua chung (MAN_HINH_134, 135).
+// CONG_VIEC_49: phần trả bằng ví mua sắm, kết quả nhóm mua chung (MAN_HINH_134, 135); viết đánh giá dòng hàng đã giao (MAN_HINH_136).
 // MAN_HINH_99 khối Thanh toán (CONG_VIEC_25; API_131; QUYTAC_NGHIEPVU_165, 167): hạn thanh toán, mở trang VNPAY, thanh toán lại, trạng thái thanh toán.
-import type { BuyerOrderDetail, BuyerPaymentStart } from "contracts";
+import type { BuyerOrderDetail, BuyerPaymentStart, ReviewableLine } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import * as Linking from "expo-linking";
 import { useCallback, useState } from "react";
@@ -21,6 +21,7 @@ const dateTime = (iso: string) =>
 export default function OrderScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [order, setOrder] = useState<BuyerOrderDetail | null>(null);
+  const [reviewable, setReviewable] = useState<ReviewableLine[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [reason, setReason] = useState("");
@@ -32,6 +33,9 @@ export default function OrderScreen() {
     api<BuyerOrderDetail>(`/buyer/orders/${encodeURIComponent(String(id))}`)
       .then(setOrder)
       .catch((failure: unknown) => setError(failure instanceof ApiFailure ? failure.message : t("unknownError")));
+    api<ReviewableLine[]>("/buyer/reviewable-lines")
+      .then((lines) => setReviewable(lines.filter((line) => line.orderId === String(id))))
+      .catch(() => setReviewable([]));
   }, [id]);
   useFocusEffect(load);
 
@@ -115,6 +119,14 @@ export default function OrderScreen() {
             </Card>
             <Card>
               <OrderLines lines={order.lines} />
+              {reviewable.map((line) => (
+                <Button
+                  key={line.orderLineId}
+                  label={t("communityReviewProduct", { product: line.productName })}
+                  kind="secondary"
+                  onPress={() => router.push({ pathname: "/dang-bai", params: { dongDon: line.orderLineId } })}
+                />
+              ))}
             </Card>
             <Card>
               <AmountRow label={t("goodsAmount")} value={money(order.goodsAmount)} />

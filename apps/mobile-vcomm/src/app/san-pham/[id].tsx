@@ -1,9 +1,10 @@
 // MAN_HINH_91 Chi tiết sản phẩm (CHUC_NANG_115; API_124): ảnh, giá gồm thuế, chọn phân loại, số lượng, mô tả, thêm vào giỏ hàng.
-// CONG_VIEC_49: cộng tác viên đã duyệt chia sẻ đường dẫn có mã của mình, xem mức hoa hồng cộng tác viên (QUYTAC_NGHIEPVU_325, 326).
+// CONG_VIEC_49: điểm đánh giá đã mua hàng, mở bảng tin lọc theo sản phẩm (MAN_HINH_136); cộng tác viên đã duyệt chia sẻ đường dẫn có mã của mình, xem mức hoa hồng cộng tác viên (QUYTAC_NGHIEPVU_325, 326).
 import type { BuyerCollaboratorResponse, ShopProductDetail } from "contracts";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { Image, Platform, ScrollView, Share, Text, View } from "react-native";
+import { Image, Platform, Pressable, ScrollView, Share, Text, View } from "react-native";
+import { Stars } from "@/components/Community";
 import { Button, Card, Choice, Loading, Muted, Notice, QuantityStepper, Screen, Title } from "@/components/ui";
 import { api, ApiFailure, appBase, assetUrl } from "@/lib/api";
 import { money, translator } from "@/lib/i18n";
@@ -86,6 +87,16 @@ export default function ProductScreen() {
               </ScrollView>
             ) : null}
             <Title>{product.name}</Title>
+            <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/bang-tin", params: { sanPham: product.id, ten: product.name } })}>
+              {product.rating.count > 0 ? (
+                <View style={{ flexDirection: "row", gap: space[2], alignItems: "center", flexWrap: "wrap" }}>
+                  <Stars value={Math.round(Number(product.rating.average))} />
+                  <Muted>{t("communityProductRating", { average: Number(product.rating.average).toLocaleString("vi-VN", { maximumFractionDigits: 1 }), count: product.rating.count })}</Muted>
+                </View>
+              ) : (
+                <Muted>{t("communityProductNoRating")}</Muted>
+              )}
+            </Pressable>
             <Text style={{ color: colors.primary, fontSize: 22, fontWeight: "700" }}>{variant ? money(variant.price) : "—"}</Text>
             <Muted>{t("priceIncludesTax", { unit: product.unitName.toLocaleLowerCase("vi") })}</Muted>
             {product.options.map((option, index) => (

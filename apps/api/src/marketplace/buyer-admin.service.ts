@@ -13,7 +13,14 @@ import { BuyerAccountsService, localPhone } from "./buyer-accounts.service";
 import { SalesTeamService } from "./sales-team.service";
 
 type Executor = Pick<Database, "execute">;
-export type MarketplacePermission = "marketplace.buyer.view" | "marketplace.buyer.manage" | "marketplace.order.view" | "marketplace.order.manage" | "marketplace.payment.manage";
+export type MarketplacePermission =
+  | "marketplace.buyer.view"
+  | "marketplace.buyer.manage"
+  | "marketplace.order.view"
+  | "marketplace.order.manage"
+  | "marketplace.payment.manage"
+  // CONG_VIEC_49: kiểm duyệt bảng tin (QUYTAC_NGHIEPVU_335).
+  | "marketplace.community.manage";
 
 export interface BuyerAdminActor {
   userId: string;

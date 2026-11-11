@@ -132,6 +132,11 @@ export class ShopService {
       await this.database.execute<{ calculation: "percent" | "fixed"; rate: string }>(sql`
       SELECT calculation, collaborator::text AS rate FROM marketplace.product_commissions WHERE product_id = ${productId} AND collaborator > 0`)
     ).rows[0];
+    // Điểm đánh giá đã mua hàng đang hiện (CONG_VIEC_49; QUYTAC_NGHIEPVU_333).
+    const rating = (
+      await this.database.execute<{ average: string | null; count: number }>(sql`
+      SELECT round(avg(rating), 1)::text AS average, count(*)::int AS count FROM marketplace.posts WHERE reviewed_product_id = ${productId} AND kind = 'review' AND status = 'visible'`)
+    ).rows[0]!;
     return {
       id: row.id,
       name: row.name,
@@ -148,6 +153,7 @@ export class ShopService {
       })),
       currency: context.currency,
       collaboratorCommission: commission ? { calculation: commission.calculation, rate: trimDecimal(commission.rate) } : null,
+      rating: { average: rating.average === null ? null : trimDecimal(rating.average), count: rating.count },
     };
   }
 
