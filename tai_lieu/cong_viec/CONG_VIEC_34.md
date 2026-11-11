@@ -4,7 +4,7 @@
 - Mức: Vừa.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11. Đã lập trình, kiểm thử hồi quy đạt; chờ nghiệm thu.
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-11); trước khi phát hành phải thử với tài khoản thử nghiệm của nhà cung cấp.
 - Nguồn: người dùng yêu cầu 2026-11-11 tích hợp MoMo, SePay, PayOS, chuyển khoản, VietQR, BIDV, Ecopay, GPay; CONG_VIEC_32; CONG_VIEC_18 (đọc webhook SePay).
 
 ## 1. Mục tiêu
