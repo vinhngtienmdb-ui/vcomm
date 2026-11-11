@@ -9,6 +9,9 @@
 
 ### Công việc đã thực hiện
 
+- Người dùng yêu cầu tự hợp nhất và tiếp tục tự động. Phát hành 0.3.0 (pull request #79, `main` commit `b623969`): CONG_VIEC_04 đến 21, 23 đến 27, 43, LOI_03, CONG_VIEC_10, 11; kiểm thử 334/334 đạt; tag `v0.3.0` gắn tự động khi CI trên `main` đạt. Người dùng nghiệm thu THAY_DOI_19, CONG_VIEC_10, 11, 25 qua yêu cầu hợp nhất.
+- Gộp 9 cổng thanh toán (CONG_VIEC_34 đến 42) vào nhánh CONG_VIEC_32; sửa phần gộp `payments.service.ts`; kiểm thử 371 kịch bản đạt. Cổng chưa phát hành vì phải thử với tài khoản thử nghiệm của nhà cung cấp.
+- Sửa ghi sổ: trạng thái THAY_DOI_19 trước đó ghi nhầm vào THAY_DOI_17.
 - THAY_DOI_19 thực hiện trên CONG_VIEC_26 (`399018b`): ngưỡng thuế thu nhập cá nhân xét trên tổng yêu cầu đã duyệt trong tháng cộng yêu cầu đang xét; hợp nhất vào nhánh CONG_VIEC_43. Lưu trữ 10 phiên con cổng thanh toán (CONG_VIEC_33 đến 42); phiên chính theo dõi CI các PR thay. CI của 9 PR cổng thanh toán đều xanh.
 - Người dùng nghiệm thu CONG_VIEC_26, CONG_VIEC_43 và các cổng thanh toán CONG_VIEC_34 đến 42 (trạng thái Đã nghiệm thu, chờ phát hành; cổng phải thử với tài khoản thử nghiệm trước khi phát hành). THAY_DOI_19: ngưỡng thuế thu nhập cá nhân cộng dồn theo tháng; giữ từ chối khi thực nhận bằng 0.
 - CONG_VIEC_43: xong lát L0 đến L4 trên nhánh `chuc-nang/CONG_VIEC_43-sua-theo-thay-doi-14`; database migration 0061 đến 0063; người dùng quyết định thêm: phiếu xuất, nhập dịch vụ không ghi thẻ kho; dịch vụ mua vào hạch toán 642; giữ giao dịch nội bộ hàng hóa theo cài đặt; sửa loại trừ dịch vụ nội bộ trong báo cáo hợp nhất; giữ tự lập hồ sơ khách; tự nhận dịch vụ khi duyệt đơn mua. Kiểm thử 334/334. Chờ nghiệm thu.

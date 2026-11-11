@@ -196,6 +196,20 @@
 - Kết luận cổng kiểm thử: Đạt.
 - Kết luận: Chờ người dùng nghiệm thu.
 
+## Lần kiểm thử 2026-11-11 – Phát hành 0.3.0
+
+- Phạm vi: nhánh `phat-hanh/v0.3.0` (đầu nhánh CONG_VIEC_43, hợp nhất thêm `main`, LOI_03, LOI_04, LOI_05, CONG_VIEC_06); pull request #79.
+- Lệnh đã chạy: `pnpm lint`, `pnpm typecheck`, `pnpm --filter api test`.
+- Kết quả: 334 đạt / 0 không đạt (52 tệp). CI của pull request #79 (kiểm tra kiểu, lint, kiểm thử; quét bảo mật gồm gitleaks): Đạt. Hợp nhất vào `main` commit `b623969`.
+- Kiểm thử đã duyệt được sửa: không.
+- Kết luận cổng kiểm thử: Đạt.
+
+## Lần kiểm thử 2026-11-11 – Gộp cổng thanh toán vào nhánh CONG_VIEC_32
+
+- Phạm vi: hợp nhất CONG_VIEC_34 đến 42 vào nhánh CONG_VIEC_32 (đã có CONG_VIEC_33). Xung đột dạng hai bên cùng thêm (biến môi trường, danh sách cổng, contracts, i18n) giữ cả hai; `payments.service.ts` gộp tay cách tìm lần thanh toán của PayOS (mã đơn riêng) và BIDV (mã riêng của cổng), bước ghi nhận dùng chung của VietQR.
+- Kết quả: lần chạy toàn bộ đầu tiên 370/371 đạt; KICHBAN_KIEMTHU_397 thất bại do nhật ký kết quả BIDV ghi số tham chiếu chung thay cho mã BIDV (lỗi của bước gộp), đã sửa (`455e29f`); chạy lại `c32` đến `c42` 64/64 đạt.
+- Kết luận: các pull request #67 đến 71, 73 đến 75, 77 được ghi nhận đã hợp nhất. Các cổng chưa phát hành (thử với tài khoản thử nghiệm của nhà cung cấp trước).
+
 ## Lần kiểm thử 2026-11-11 – CONG_VIEC_26 theo THAY_DOI_19 (ngưỡng thuế cộng dồn theo tháng)
 
 - Phạm vi: QUYTAC_NGHIEPVU_205 sửa theo THAY_DOI_19; API_135 thêm `approvedThisMonth`; màn hình rút tiền của ứng dụng tính thuế dự kiến theo cộng dồn. Commit `399018b` trên nhánh CONG_VIEC_26; hợp nhất vào nhánh CONG_VIEC_43 (`33bf005`).
