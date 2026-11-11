@@ -122,6 +122,14 @@ function TaskDetail({ task, onChanged }: { task: OfficeTaskResponse; onChanged: 
           </dd>
           <dt>{t("progress")}</dt>
           <dd>{task.progress}%</dd>
+          {task.incomingDocumentId && (
+            <>
+              <dt>{t("incomingDocument")}</dt>
+              <dd>
+                <Link href={`/incoming/${task.incomingDocumentId}`}>{t("openIncomingDocument")}</Link>
+              </dd>
+            </>
+          )}
           {task.parentId && (
             <>
               <dt>{t("parent")}</dt>

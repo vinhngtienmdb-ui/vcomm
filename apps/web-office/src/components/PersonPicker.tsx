@@ -36,7 +36,7 @@ export function PersonPicker({ id, value, onChange, multiple, invalid }: { id: s
       {value.length > 0 && (
         <div className="nhom-nut" style={{ marginBottom: "var(--khoang-2)" }}>
           {value.map((person) => (
-            <span key={person.id} className="nhan thong-tin">
+            <span key={person.id} className="nhan thong-tin" style={{ whiteSpace: "normal" }}>
               {personLabel(person)}{" "}
               <button type="button" className="nut chu" aria-label={t("removePerson", { name: person.fullName })} onClick={() => onChange(value.filter((item) => item.id !== person.id))}>
                 ×

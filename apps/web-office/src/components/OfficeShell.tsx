@@ -8,7 +8,10 @@ import { AppShell } from "ui/components/AppShell";
 export const officeMenu = [
   { href: "/tasks", key: "tasks", permission: "office.access" },
   { href: "/workflow-runs", key: "workflowRuns", permission: "office.access" },
+  { href: "/incoming", key: "incoming", permission: "office.access" },
+  { href: "/outgoing", key: "outgoing", permission: "office.access" },
   { href: "/workflow-templates", key: "workflowTemplates", permission: "office.workflow.manage" },
+  { href: "/settings", key: "documentSettings", permission: "office.document.clerk" },
 ] as const;
 
 export function OfficeShell({ children }: { children: ReactNode }) {

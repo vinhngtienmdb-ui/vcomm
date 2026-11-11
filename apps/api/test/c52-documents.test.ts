@@ -6,6 +6,7 @@ import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { readSheet } from "read-excel-file/node";
+import type { Response as SupertestResponse } from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
@@ -27,10 +28,12 @@ const retail = testIds.retailCompany;
 const trading = testIds.tradingCompany;
 const pdf = Buffer.from("%PDF-1.4\n%âãÏÓ\n1 0 obj<<>>endobj\n");
 // Đọc phản hồi nhị phân (Word, Excel) thành Buffer.
-const binary = (response: NodeJS.ReadableStream, callback: (error: Error | null, body: Buffer) => void) => {
+// Supertest không gom thân docx, xlsx: tự gom thành Buffer.
+const binary = (response: SupertestResponse, callback: (error: Error | null, body: Buffer) => void) => {
   const chunks: Buffer[] = [];
-  response.on("data", (chunk: Buffer) => chunks.push(chunk));
-  response.on("end", () => callback(null, Buffer.concat(chunks)));
+  const stream = response as unknown as NodeJS.ReadableStream;
+  stream.on("data", (chunk: Buffer) => chunks.push(chunk));
+  stream.on("end", () => callback(null, Buffer.concat(chunks)));
 };
 const year = Number(new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric" }).format(new Date()));
 const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
@@ -38,7 +41,8 @@ const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh", y
 async function user(email: string, name: string, companyId: string, roleCodes: string[], departmentId?: string): Promise<string> {
   const id = await createTestUser(pool, email, name, [{ companyId }]);
   for (const code of roleCodes) {
-    const role = (await pool.query<{ id: string }>("SELECT id FROM core.roles WHERE code = $1 AND (company_id IS NULL OR company_id = $2) ORDER BY company_id NULLS LAST LIMIT 1", [code, companyId])).rows[0]!.id;
+    const role = (await pool.query<{ id: string }>("SELECT id FROM core.roles WHERE code = $1 AND (company_id IS NULL OR company_id = $2) ORDER BY company_id NULLS LAST LIMIT 1", [code, companyId]))
+      .rows[0]!.id;
     await pool.query("INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, valid_from) VALUES ($1, $2, 'company', $3, '2026-01-01')", [id, role, companyId]);
   }
   if (departmentId) await pool.query("UPDATE core.user_company_memberships SET department_id = $1 WHERE user_id = $2", [departmentId, id]);
@@ -70,7 +74,10 @@ const outgoingBody = (extra: Record<string, unknown> = {}) => ({
   urgency: "urgent",
   composeMode: "compose",
   recipientLine: "Kính gửi: Cục Thuế Thành phố Hồ Chí Minh.",
-  body: [{ kind: "paragraph", text: "Căn cứ Công văn số 125/TCT-KK ngày 06/11/2026 của Cục Thuế, Công ty giải trình như sau:" }, { kind: "bullet", text: "Hóa đơn đã lập đúng thời điểm." }],
+  body: [
+    { kind: "paragraph", text: "Căn cứ Công văn số 125/TCT-KK ngày 06/11/2026 của Cục Thuế, Công ty giải trình như sau:" },
+    { kind: "bullet", text: "Hóa đơn đã lập đúng thời điểm." },
+  ],
   signerUserId: ids.signer,
   signerAuthority: "",
   signerTitle: "Giám đốc",
@@ -254,7 +261,10 @@ describe("KICHBAN_KIEMTHU_504: công văn đi", () => {
     const detail = await tradingClerk.call("get", `/office/incoming/${waiting.body.data[0].id}`, { companyId: trading });
     expect(detail.body).toMatchObject({ allowedActions: ["accept"], files: [{ fileName: "quyet-dinh.pdf" }], sourceCompanyName: "VComm Bán lẻ Miền Nam" });
     const tradingRegister = (await tradingClerk.call("get", "/office/registers", { companyId: trading })).body.find((item: { direction: string }) => item.direction === "incoming");
-    const accepted = await tradingClerk.call("post", `/office/incoming/${detail.body.id}/accept`, { companyId: trading, body: { registerId: tradingRegister.id, receivedOn: today, version: detail.body.version } });
+    const accepted = await tradingClerk.call("post", `/office/incoming/${detail.body.id}/accept`, {
+      companyId: trading,
+      body: { registerId: tradingRegister.id, receivedOn: today, version: detail.body.version },
+    });
     expect(accepted.body).toMatchObject({ status: "registered", incomingNo: 1 });
     // Công ty bán lẻ không thấy công văn đến của công ty thương mại.
     expect((await clerk.call("get", `/office/incoming/${detail.body.id}`, { companyId: retail })).status).toBe(404);
@@ -317,7 +327,10 @@ describe("KICHBAN_KIEMTHU_505: thể thức PDF, Word; xuất sổ", () => {
     const saved = await clerk.call("put", "/office/document-settings", { companyId: retail, body: { ...settings, fontScheme: 14, marginRight: 15, parentOrgName: "Tập đoàn VComm" } });
     expect(saved.body).toMatchObject({ fontScheme: 14, marginRight: 15 });
     expect((await clerk.call("put", "/office/document-settings", { companyId: retail, body: { ...saved.body, marginLeft: 40 } })).status).toBe(400);
-    const draft = await drafter.call("post", "/office/outgoing", { companyId: retail, body: outgoingBody({ summary: "Dự thảo thử", signerAuthority: "KT.", signerAuthorityOf: "Giám đốc", signerTitle: "Phó giám đốc" }) });
+    const draft = await drafter.call("post", "/office/outgoing", {
+      companyId: retail,
+      body: outgoingBody({ summary: "Dự thảo thử", signerAuthority: "KT.", signerAuthorityOf: "Giám đốc", signerTitle: "Phó giám đốc" }),
+    });
     const file = await drafter.call("get", `/office/outgoing/${draft.body.id}/render?format=docx`, { companyId: retail }).buffer(true).parse(binary);
     if (existsSync("/usr/bin/unzip")) {
       const folder = mkdtempSync(join(tmpdir(), "du-thao-"));

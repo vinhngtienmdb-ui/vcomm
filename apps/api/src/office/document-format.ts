@@ -34,6 +34,9 @@ export interface FormattedDocument {
 const urgencyText: Record<DocumentUrgency, string | null> = { normal: null, urgent: "KHẨN", very_urgent: "THƯỢNG KHẨN", flash: "HỎA TỐC" };
 
 // Ngày dưới 10 và tháng 1, 2 ghi thêm số 0 phía trước (Phụ lục I).
+// Công văn có dòng "Kính gửi:" trước tên nơi nhận (Nghị định 30, Phụ lục I); người soạn đã gõ sẵn thì giữ nguyên.
+export const recipientText = (line: string) => (/^kính gửi/i.test(line.trim()) ? line.trim() : `Kính gửi: ${line.trim()}`);
+
 export function dateLine(place: string, issuedOn: string | null, year: number): string {
   if (!issuedOn) return `${place}, ngày     tháng     năm ${year}`;
   const [y, m, d] = issuedOn.split("-").map(Number) as [number, number, number];
@@ -62,7 +65,13 @@ export async function renderDocumentPdf(document: FormattedDocument): Promise<Bu
   const left: unknown[] = [];
   if (document.parentOrgName) left.push({ text: document.parentOrgName.toUpperCase(), fontSize: size.nationalTitle, alignment: "center" });
   left.push({ text: document.companyName.toUpperCase(), bold: true, fontSize: size.nationalTitle, alignment: "center" });
-  left.push({ columns: [{ width: "*", text: "" }, { width: 60, ...shortLine(60) }, { width: "*", text: "" }] });
+  left.push({
+    columns: [
+      { width: "*", text: "" },
+      { width: 60, ...shortLine(60) },
+      { width: "*", text: "" },
+    ],
+  });
   left.push({ text: numberLine(document), fontSize: 13, alignment: "center" });
   if (document.isOfficialLetter) left.push({ text: `V/v ${document.summary}`, fontSize: size.smallCaption, alignment: "center", margin: [0, 2, 0, 0] });
   const urgency = urgencyText[document.urgency];
@@ -70,18 +79,38 @@ export async function renderDocumentPdf(document: FormattedDocument): Promise<Bu
   const right: unknown[] = [
     { text: "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM", bold: true, fontSize: size.nationalTitle, alignment: "center" },
     { text: "Độc lập - Tự do - Hạnh phúc", bold: true, fontSize: size.body, alignment: "center" },
-    { columns: [{ width: "*", text: "" }, { width: 150, ...shortLine(150) }, { width: "*", text: "" }] },
+    {
+      columns: [
+        { width: "*", text: "" },
+        { width: 150, ...shortLine(150) },
+        { width: "*", text: "" },
+      ],
+    },
     // Địa danh, ngày tháng trên một dòng (Phụ lục I).
     { text: dateLine(document.placeName, document.issuedOn, document.year), italics: true, fontSize: size.body, alignment: "center", noWrap: true, margin: [0, 4, 0, 0] },
   ];
-  const content: unknown[] = [{ columns: [{ width: leftWidth, stack: left }, { width: rightWidth, stack: right }], columnGap: 0 }];
+  const content: unknown[] = [
+    {
+      columns: [
+        { width: leftWidth, stack: left },
+        { width: rightWidth, stack: right },
+      ],
+      columnGap: 0,
+    },
+  ];
   if (!document.numberText) content.push({ text: "DỰ THẢO", bold: true, fontSize: size.body, alignment: "center", margin: [0, 10, 0, 0] });
   if (!document.isOfficialLetter) {
     content.push({ text: document.typeName.toUpperCase(), bold: true, fontSize: size.body, alignment: "center", margin: [0, 18, 0, 0] });
     content.push({ text: document.summary, bold: true, fontSize: size.body, alignment: "center" });
-    content.push({ columns: [{ width: "*", text: "" }, { width: 80, ...shortLine(80) }, { width: "*", text: "" }] });
+    content.push({
+      columns: [
+        { width: "*", text: "" },
+        { width: 80, ...shortLine(80) },
+        { width: "*", text: "" },
+      ],
+    });
   }
-  if (document.recipientLine) content.push({ text: document.recipientLine, fontSize: size.body, alignment: "center", margin: [0, 14, 0, 6] });
+  if (document.recipientLine) content.push({ text: recipientText(document.recipientLine), fontSize: size.body, alignment: "center", margin: [0, 14, 0, 6] });
   else content.push({ text: "", margin: [0, 8, 0, 0] });
   for (const paragraph of document.body) {
     content.push({
@@ -128,13 +157,24 @@ export async function renderDocumentPdf(document: FormattedDocument): Promise<Bu
 // Word: phông Times New Roman, cỡ tính bằng nửa điểm.
 export async function renderDocumentWord(document: FormattedDocument): Promise<Buffer> {
   const size = sizes(document.fontScheme);
-  const run = (text: string, options: { size: number; bold?: boolean; italics?: boolean }) => new TextRun({ text, font: "Times New Roman", size: options.size * 2, bold: options.bold ?? false, italics: options.italics ?? false });
+  const run = (text: string, options: { size: number; bold?: boolean; italics?: boolean }) =>
+    new TextRun({ text, font: "Times New Roman", size: options.size * 2, bold: options.bold ?? false, italics: options.italics ?? false });
   const centered = (text: string, options: { size: number; bold?: boolean; italics?: boolean }, spacingBefore = 0) =>
     new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: spacingBefore * 20, after: 0 }, children: [run(text, options)] });
   // Dòng kẻ ngắn dưới tên công ty, tiêu ngữ, trích yếu: đoạn trống có viền dưới, thu hẹp bằng thụt lề hai bên.
   const rule = (indentMillimeters: number) =>
-    new Paragraph({ indent: { left: convertMillimetersToTwip(indentMillimeters), right: convertMillimetersToTwip(indentMillimeters) }, border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "000000", space: 1 } }, spacing: { after: 80 }, children: [] });
-  const noBorders = { top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }, bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }, left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }, right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" } };
+    new Paragraph({
+      indent: { left: convertMillimetersToTwip(indentMillimeters), right: convertMillimetersToTwip(indentMillimeters) },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "000000", space: 1 } },
+      spacing: { after: 80 },
+      children: [],
+    });
+  const noBorders = {
+    top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+  };
   const contentWidth = 210 - document.margins.left - document.margins.right;
   const cell = (widthMillimeters: number, children: Paragraph[]) => new TableCell({ width: { size: convertMillimetersToTwip(widthMillimeters), type: WidthType.DXA }, borders: noBorders, children });
   const twoColumns = (leftWidth: number, left: Paragraph[], right: Paragraph[]) =>
@@ -167,7 +207,7 @@ export async function renderDocumentWord(document: FormattedDocument): Promise<B
     children.push(centered(document.summary, { size: size.body, bold: true }));
     children.push(rule(contentWidth / 2 - 15));
   }
-  if (document.recipientLine) children.push(centered(document.recipientLine, { size: size.body }, 14));
+  if (document.recipientLine) children.push(centered(recipientText(document.recipientLine), { size: size.body }, 14));
   for (const paragraph of document.body) {
     children.push(
       new Paragraph({
@@ -189,7 +229,10 @@ export async function renderDocumentWord(document: FormattedDocument): Promise<B
   children.push(
     twoColumns(
       footerLeftWidth,
-      [new Paragraph({ children: [run("Nơi nhận:", { size: size.recipientsLabel, bold: true, italics: true })] }), ...recipients.map((line) => new Paragraph({ children: [run(line, { size: size.recipientsList })] }))],
+      [
+        new Paragraph({ children: [run("Nơi nhận:", { size: size.recipientsLabel, bold: true, italics: true })] }),
+        ...recipients.map((line) => new Paragraph({ children: [run(line, { size: size.recipientsList })] })),
+      ],
       signer,
     ),
   );
