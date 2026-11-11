@@ -1,7 +1,7 @@
 "use client";
 
 // MAN_HINH_170 chi tiết ứng viên (CHUC_NANG_191; API_202): thông tin, tệp, hồ sơ ứng tuyển (chuyển giai đoạn, loại, rút), đồng ý và lưu giữ.
-import type { ApplicationItem, CandidateResponse } from "contracts";
+import type { ApplicationItem, CandidateProcessResponse, CandidateResponse, RecruitmentOptionsResponse } from "contracts";
 import { applicationOutcomeReasons } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -15,16 +15,22 @@ import { Loaded, MessageView } from "ui/components/StatusViews";
 import { apiDownload, apiFetch } from "ui/lib/api";
 import { formatDate, formatDateTime } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
+import { EmailsTab, InterviewsTab, OffersTab, RetentionActions } from "@/components/CandidateProcess";
 import { CandidateLink, money, StageBadge, Table } from "@/components/RecruitmentParts";
 
-const tabs = ["info", "applications", "consents"] as const;
+const tabs = ["info", "applications", "interviews", "offers", "emails", "consents"] as const;
 const formatSize = (bytes: number) => `${(bytes / 1024 / 1024).toLocaleString("vi-VN", { maximumFractionDigits: 1 })} MB`;
 
 export default function CandidatePage() {
   const t = useTranslations("candidates");
   const { notify } = useAdmin();
   const { id } = useParams<{ id: string }>();
-  const { state, reload } = useApi<CandidateResponse>(`/hr/candidates/${id}`);
+  const { state, reload: reloadCandidate } = useApi<CandidateResponse>(`/hr/candidates/${id}`);
+  const process = useApi<CandidateProcessResponse>(`/hr/candidates/${id}/process`);
+  const options = useApi<RecruitmentOptionsResponse>("/hr/recruitment-options");
+  const reload = async () => {
+    await Promise.all([reloadCandidate(), process.reload()]);
+  };
   const [tab, setTab] = useState<(typeof tabs)[number]>("info");
   const [ending, setEnding] = useState<{ application: ApplicationItem; outcome: "rejected" | "withdrawn" } | null>(null);
   const download = async (fileId: string, fileName: string) => {
@@ -54,7 +60,8 @@ export default function CandidatePage() {
             </p>
             <div className="tieu-de">
               <h1>
-                {candidate.fullName} {latest && <StageBadge application={latest} />} {candidate.possibleDuplicate && <span className="nhan canh-bao">{t("possibleDuplicate")}</span>}
+                {candidate.erasedAt ? t("erasedName") : candidate.fullName} {latest && <StageBadge application={latest} />}{" "}
+                {candidate.possibleDuplicate && <span className="nhan canh-bao">{t("possibleDuplicate")}</span>}
               </h1>
               <HistoryLink entityType="candidate" entityId={candidate.id} />
             </div>
@@ -170,8 +177,22 @@ export default function CandidatePage() {
                 ))}
               </div>
             )}
+            {(tab === "interviews" || tab === "offers" || tab === "emails") && (
+              <Loaded state={process.state} onRetry={() => void process.reload()}>
+                {(loaded) =>
+                  tab === "interviews" ? (
+                    <InterviewsTab candidate={candidate} process={loaded} onChanged={() => void reload()} />
+                  ) : tab === "offers" ? (
+                    <OffersTab candidate={candidate} process={loaded} options={options.state.kind === "ready" ? options.state.data : null} onChanged={() => void reload()} />
+                  ) : (
+                    <EmailsTab process={loaded} />
+                  )
+                }
+              </Loaded>
+            )}
             {tab === "consents" && (
               <div className="the" style={{ display: "grid", gap: "var(--khoang-3)" }}>
+                <RetentionActions candidate={candidate} onChanged={() => void reload()} />
                 <dl className="thong-tin-dong">
                   <dt>{t("poolStatus")}</dt>
                   <dd>{candidate.poolUntil ? t("poolUntil", { date: formatDate(candidate.poolUntil) }) : t("noPool")}</dd>
@@ -227,10 +248,13 @@ function EndDrawer({ application, outcome, onClose, onDone }: { application: App
   const { submitting, fields, formError, run, inputClass } = useSubmit();
   const [reason, setReason] = useState<string>(outcome === "rejected" ? "not_qualified" : "");
   const [note, setNote] = useState("");
+  const [sendEmail, setSendEmail] = useState(true);
+  const [message, setMessage] = useState("");
+  const canEmail = outcome === "rejected" && (reason === "not_qualified" || reason === "failed_interview");
   const submit = (event: FormEvent) => {
     event.preventDefault();
     void run(async () => {
-      await apiFetch(`/hr/applications/${application.id}/end`, { method: "POST", body: JSON.stringify({ outcome, reason: reason || null, note }) });
+      await apiFetch(`/hr/applications/${application.id}/end`, { method: "POST", body: JSON.stringify({ outcome, reason: reason || null, note, sendEmail: canEmail && sendEmail, message }) });
       notify(t("ended"));
       onDone();
     });
@@ -254,6 +278,18 @@ function EndDrawer({ application, outcome, onClose, onDone }: { application: App
         <Field id="ket-thuc-ghi-chu" label={t("outcomeNote")} error={fields.note}>
           <textarea id="ket-thuc-ghi-chu" rows={2} className={inputClass("note")} value={note} onChange={(event) => setNote(event.target.value)} maxLength={1000} />
         </Field>
+        {canEmail && (
+          <div className="truong">
+            <label>
+              <input type="checkbox" checked={sendEmail} onChange={(event) => setSendEmail(event.target.checked)} /> {t("sendRejection")}
+            </label>
+          </div>
+        )}
+        {canEmail && sendEmail && (
+          <Field id="ket-thuc-loi-nhan" label={t("message")} error={fields.message}>
+            <textarea id="ket-thuc-loi-nhan" rows={2} className={inputClass("message")} value={message} onChange={(event) => setMessage(event.target.value)} maxLength={2000} />
+          </Field>
+        )}
         <div className="khoi-canh-bao thong-tin">{t("endHint")}</div>
         <div className="nhom-nut">
           <button type="button" className="nut phu" onClick={onClose}>

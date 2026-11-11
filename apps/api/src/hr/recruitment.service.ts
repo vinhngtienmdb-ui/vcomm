@@ -484,6 +484,7 @@ export class RecruitmentService implements OnModuleInit {
       id: string;
       candidate_id: string;
       full_name: string;
+      erased: boolean;
       posting_id: string;
       posting_title: string;
       source: ApplicationItem["source"];
@@ -496,7 +497,7 @@ export class RecruitmentService implements OnModuleInit {
       created_at: string;
       ended_at: string | null;
     }>(sql`
-      SELECT a.id, a.candidate_id, c.full_name, a.posting_id, p.title AS posting_title, c.source, c.experience_years, a.stage, a.outcome, a.outcome_reason,
+      SELECT a.id, a.candidate_id, c.full_name, c.erased_at IS NOT NULL AS erased, a.posting_id, p.title AS posting_title, c.source, c.experience_years, a.stage, a.outcome, a.outcome_reason,
         ${duplicateCondition(sql`c`)} AS possible_duplicate, a.employee_id, a.created_at::text, a.ended_at::text
       FROM hr.applications a JOIN hr.candidates c ON c.id = a.candidate_id JOIN hr.job_postings p ON p.id = a.posting_id
       WHERE ${where} ORDER BY a.created_at DESC`);
@@ -504,6 +505,7 @@ export class RecruitmentService implements OnModuleInit {
       id: row.id,
       candidateId: row.candidate_id,
       candidateName: row.full_name,
+      candidateErased: row.erased,
       postingId: row.posting_id,
       postingTitle: row.posting_title,
       source: row.source,

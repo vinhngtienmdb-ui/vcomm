@@ -1,6 +1,7 @@
 // Ứng viên, tệp, đồng ý, hồ sơ ứng tuyển, trang tuyển dụng công khai (CONG_VIEC_54; CHUC_NANG_190, 191; QUYTAC_NGHIEPVU_382, 383, 388; API_202, API_204).
 import { Inject, Injectable } from "@nestjs/common";
 import type {
+  CandidateEmailItem,
   CandidateConsentItem,
   CandidateFileItem,
   CandidateListItem,
@@ -15,12 +16,14 @@ import type {
   careersListQuerySchema,
   createCandidateSchema,
   endApplicationSchema,
+  erasureRequestSchema,
   updateCandidateSchema,
 } from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import { messages } from "i18n";
 import { randomInt, randomUUID } from "node:crypto";
 import type { z } from "zod";
+import { ApprovalRequestsService } from "../approvals/approval-requests.service";
 import { ApiError, type ErrorMessageKey } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { FILE_STORAGE, type FileStorage } from "../common/file-storage";
@@ -80,11 +83,12 @@ const fill = (template: string, values: Record<string, string | number>) => temp
 @Injectable()
 export class CandidatesService {
   constructor(
-    @Inject(DATABASE) private readonly database: Database,
+    @Inject(DATABASE) readonly database: Database,
     @Inject(FILE_STORAGE) private readonly storage: FileStorage,
     private readonly permissionService: PermissionService,
     private readonly auditService: AuditService,
     private readonly recruitment: RecruitmentService,
+    private readonly approvals: ApprovalRequestsService,
   ) {}
 
   // ---------- Tệp ----------
@@ -567,6 +571,129 @@ export class CandidatesService {
         return { reference: candidate.reference, contactEmail: row.contact_email };
       }),
     );
+  }
+
+  // ---------- Đồng ý kho ứng viên, xóa dữ liệu (QUYTAC_NGHIEPVU_388) ----------
+
+  async recordPoolConsent(actor: Actor, id: string, consentDate: string, file: UploadedFile | undefined): Promise<CandidateResponse> {
+    await requireRecruitmentPermission(this.permissionService, actor, recruitmentPermission.manage);
+    if (consentDate > this.permissionService.today()) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { consentDate: "invalidValue" } });
+    const current = await this.requireCandidate(this.database, actor, id);
+    if (current.erased_at) throw new ApiError("BUSINESS_RULE", "candidateErased");
+    const stored = await this.storeFile(actor.companyId, file, evidenceExtensions, "file");
+    await this.withFiles([stored], () =>
+      this.database.transaction(async (transaction) => {
+        await this.requireCandidate(transaction, actor, id, true);
+        const evidenceId = await this.insertFile(transaction, actor.companyId, id, "consent_evidence", stored, actor.userId);
+        await transaction.execute(sql`
+          INSERT INTO hr.candidate_consents (company_id, candidate_id, purpose, channel, consented_on, evidence_file_id, recorded_by)
+          VALUES (${actor.companyId}, ${id}, 'talent_pool', 'manual', ${consentDate}, ${evidenceId}, ${actor.userId})`);
+        await recomputeEraseDue(transaction, id);
+        await this.auditService.record({ ...hrAudit(actor, "candidate"), action: "candidate.pool_consent.record", entityId: id, afterData: { consentDate } }, transaction);
+      }),
+    );
+    return this.detail(actor, id);
+  }
+
+  // Rút đồng ý kho: tính lại ngày xóa (Luật 91/2025/QH15 Điều 10).
+  async withdrawPoolConsent(actor: Actor, id: string): Promise<CandidateResponse> {
+    await requireRecruitmentPermission(this.permissionService, actor, recruitmentPermission.manage);
+    await this.database.transaction(async (transaction) => {
+      const row = await this.requireCandidate(transaction, actor, id, true);
+      if (row.erased_at) throw new ApiError("BUSINESS_RULE", "candidateErased");
+      await transaction.execute(sql`UPDATE hr.candidate_consents SET withdrawn_at = now() WHERE candidate_id = ${id} AND purpose = 'talent_pool' AND withdrawn_at IS NULL`);
+      await recomputeEraseDue(transaction, id);
+      await this.auditService.record({ ...hrAudit(actor, "candidate"), action: "candidate.pool_consent.withdraw", entityId: id }, transaction);
+    });
+    return this.detail(actor, id);
+  }
+
+  // Yêu cầu xóa của ứng viên: kết thúc hồ sơ đang xử lý ("ứng viên rút"), hủy đề nghị, hủy vòng phỏng vấn, rồi xóa ngay (Nghị định 356/2025/NĐ-CP Điều 5 khoản 4).
+  async requestErasure(actor: Actor, id: string, input: z.output<typeof erasureRequestSchema>): Promise<CandidateResponse> {
+    await requireRecruitmentPermission(this.permissionService, actor, recruitmentPermission.manage);
+    if (input.receivedOn > this.permissionService.today()) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { receivedOn: "invalidValue" } });
+    await this.database.transaction(async (transaction) => {
+      const row = await this.requireCandidate(transaction, actor, id, true);
+      if (row.erased_at) throw new ApiError("BUSINESS_RULE", "candidateErased");
+      const hired = await transaction.execute(sql`SELECT 1 FROM hr.applications WHERE candidate_id = ${id} AND employee_id IS NOT NULL`);
+      if (hired.rows.length) throw new ApiError("BUSINESS_RULE", "candidateHired");
+      const offers = await transaction.execute<{ id: string; status: string; approval_request_id: string | null }>(sql`
+        SELECT o.id, o.status, o.approval_request_id FROM hr.job_offers o JOIN hr.applications a ON a.id = o.application_id
+        WHERE a.candidate_id = ${id} AND o.status <> ALL (ARRAY['declined', 'expired', 'cancelled']) FOR UPDATE OF o`);
+      for (const offer of offers.rows) {
+        if (offer.status === "pending" && offer.approval_request_id) await this.approvals.cancelWithin(transaction, offer.approval_request_id);
+        await transaction.execute(sql`UPDATE hr.job_offers SET status = 'cancelled', cancel_reason = 'erasure_request', response_token_expires_at = NULL, updated_at = now() WHERE id = ${offer.id}`);
+      }
+      await transaction.execute(sql`
+        UPDATE hr.interviews SET status = 'cancelled', updated_at = now() WHERE status = 'scheduled' AND application_id IN (SELECT id FROM hr.applications WHERE candidate_id = ${id})`);
+      await transaction.execute(sql`
+        UPDATE hr.applications SET outcome = 'withdrawn', outcome_reason = NULL, ended_at = now(), updated_at = now(), version = version + 1 WHERE candidate_id = ${id} AND ended_at IS NULL`);
+      await this.auditService.record(
+        { ...hrAudit(actor, "candidate"), action: "candidate.erasure_request", entityId: id, afterData: { receivedOn: input.receivedOn, channel: input.channel } },
+        transaction,
+      );
+    });
+    await this.erase(id, "request", actor.userId);
+    return this.detail(actor, id);
+  }
+
+  // Khử nhận dạng không khôi phục: xóa tệp trên kho lưu trữ trước (lỗi thì để việc nền chạy lại), rồi xóa trường cá nhân; giữ số liệu thống kê.
+  async erase(candidateId: string, reason: "retention" | "request", actorUserId: string | null): Promise<void> {
+    const files = await this.database.execute<{ id: string; storage_key: string }>(sql`SELECT id, storage_key FROM hr.candidate_files WHERE candidate_id = ${candidateId} AND storage_key IS NOT NULL`);
+    for (const file of files.rows) await this.storage.remove(file.storage_key);
+    await this.database.transaction(async (transaction) => {
+      const row = (await transaction.execute<{ company_id: string; erased_at: string | null }>(sql`SELECT company_id, erased_at FROM hr.candidates WHERE id = ${candidateId} FOR UPDATE`)).rows[0];
+      if (!row || row.erased_at) return;
+      await transaction.execute(sql`
+        UPDATE hr.candidates SET full_name = '-', email = NULL, phone = NULL, email_key = NULL, phone_key = NULL, province = NULL, cover_letter = NULL, expected_salary = NULL,
+          source_note = NULL, erase_due = NULL, erased_at = now(), erasure_reason = ${reason}, updated_at = now(), version = version + 1 WHERE id = ${candidateId}`);
+      await transaction.execute(sql`UPDATE hr.candidate_files SET storage_key = NULL, file_name = '-' WHERE candidate_id = ${candidateId}`);
+      await transaction.execute(sql`UPDATE hr.candidate_consents SET terms_text = NULL, ip = NULL, user_agent = NULL WHERE candidate_id = ${candidateId}`);
+      await transaction.execute(sql`UPDATE hr.applications SET outcome_note = NULL WHERE candidate_id = ${candidateId}`);
+      await transaction.execute(sql`
+        UPDATE hr.interview_evaluations SET comment = NULL WHERE interview_id IN (
+          SELECT i.id FROM hr.interviews i JOIN hr.applications a ON a.id = i.application_id WHERE a.candidate_id = ${candidateId})`);
+      await transaction.execute(sql`UPDATE hr.candidate_emails SET recipient = NULL, body = NULL WHERE candidate_id = ${candidateId}`);
+      await transaction.execute(sql`
+        UPDATE hr.job_offers SET note = NULL, response_note = NULL, response_ip = NULL, response_user_agent = NULL, response_token_hash = NULL
+        WHERE application_id IN (SELECT id FROM hr.applications WHERE candidate_id = ${candidateId})`);
+      await this.auditService.record(
+        { actorUserId, companyId: row.company_id, appCode: "hr", entityType: "candidate", action: "candidate.erase", entityId: candidateId, afterData: { reason } },
+        transaction,
+      );
+    });
+  }
+
+  // Việc nền 1 giờ: xóa ứng viên đến ngày xóa; một ứng viên lỗi không chặn ứng viên khác.
+  async eraseDue(): Promise<{ erased: number; failed: number }> {
+    const due = await this.database.execute<{ id: string }>(sql`
+      SELECT id FROM hr.candidates WHERE erased_at IS NULL AND erase_due IS NOT NULL AND erase_due <= ${this.permissionService.today()} ORDER BY erase_due LIMIT 1000`);
+    let erased = 0;
+    let failed = 0;
+    for (const candidate of due.rows) {
+      try {
+        await this.erase(candidate.id, "retention", null);
+        erased += 1;
+      } catch {
+        failed += 1;
+      }
+    }
+    return { erased, failed };
+  }
+
+  async emails(actor: Actor, candidateId: string): Promise<CandidateEmailItem[]> {
+    const rows = await this.database.execute<{ id: string; kind: CandidateEmailItem["kind"]; subject: string; recipient: string | null; sent_at: string; full_name: string }>(sql`
+      SELECT e.id, e.kind, e.subject, e.recipient, e.sent_at::text, u.full_name FROM hr.candidate_emails e JOIN core.users u ON u.id = e.sent_by
+      WHERE e.candidate_id = ${candidateId} AND e.company_id = ${actor.companyId} ORDER BY e.sent_at DESC`);
+    return rows.rows.map((row) => ({ id: row.id, kind: row.kind, subject: row.subject, recipient: row.recipient, sentAt: row.sent_at, sentByName: row.full_name }));
+  }
+
+  // Thành viên đang hoạt động của công ty để chọn người phỏng vấn.
+  async members(actor: Actor): Promise<{ id: string; fullName: string; email: string | null }[]> {
+    const rows = await this.database.execute<{ id: string; full_name: string; email: string | null }>(sql`
+      SELECT u.id, u.full_name, u.email::text FROM core.user_company_memberships m JOIN core.users u ON u.id = m.user_id
+      WHERE m.company_id = ${actor.companyId} AND m.status = 'active' AND u.status = 'active' ORDER BY u.full_name LIMIT 1000`);
+    return rows.rows.map((row) => ({ id: row.id, fullName: row.full_name, email: row.email }));
   }
 }
 

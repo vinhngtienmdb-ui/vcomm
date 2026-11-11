@@ -137,7 +137,7 @@ export default function JobPostingPage() {
                 rows={shown.map((item) => ({
                   key: item.id,
                   cells: [
-                    <CandidateLink key="ten" id={item.candidateId} name={item.candidateName} />,
+                    <CandidateLink key="ten" id={item.candidateId} name={item.candidateErased ? candidateText("erasedName") : item.candidateName} />,
                     candidateText(`source_${item.source}`),
                     formatDateTime(item.createdAt),
                     item.experienceYears === null ? "—" : candidateText("years", { count: item.experienceYears }),

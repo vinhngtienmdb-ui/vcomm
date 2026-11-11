@@ -1,8 +1,20 @@
 // API_200 đến API_202: nhu cầu tuyển dụng, tin tuyển dụng, ứng viên (CONG_VIEC_54). Quyền chi tiết kiểm trong service.
-import { Body, Controller, Get, Headers, Param, Patch, Post, Put, Query, Req, Res, UploadedFiles, UseInterceptors } from "@nestjs/common";
-import { FileFieldsInterceptor } from "@nestjs/platform-express";
+import { Body, Controller, Get, Headers, Param, Patch, Post, Put, Query, Req, Res, UploadedFile as UploadedSingleFile, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import { FileFieldsInterceptor, FileInterceptor } from "@nestjs/platform-express";
 import {
   addApplicationSchema,
+  cancelInterviewSchema,
+  erasureRequestSchema,
+  poolConsentSchema,
+  recordOfferResponseSchema,
+  saveEmployeeSchema,
+  saveInterviewSchema,
+  saveJobOfferSchema,
+  sendJobOfferSchema,
+  type CandidateProcessResponse,
+  type EmployeeDraftResponse,
+  type EmployeeResponse,
+  type JobOfferResponse,
   candidateListQuerySchema,
   createCandidateSchema,
   endApplicationSchema,
@@ -24,6 +36,7 @@ import {
   type RecruitmentRequestResponse,
   type RecruitmentSettings,
 } from "contracts";
+import { sql } from "drizzle-orm";
 import type { Response } from "express";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
@@ -34,6 +47,8 @@ import type { Actor } from "../permissions/roles.service";
 import { CandidatesService } from "./candidates.service";
 import type { UploadedFile } from "./employees.service";
 import { contentDisposition } from "./hr.controller";
+import { InterviewsService } from "./interviews.service";
+import { JobOffersService } from "./job-offers.service";
 import { RecruitmentService } from "./recruitment.service";
 
 type CandidateUploads = { resume?: UploadedFile[]; consentEvidence?: UploadedFile[]; poolEvidence?: UploadedFile[] };
@@ -63,6 +78,8 @@ export class RecruitmentController {
     private readonly permissionService: PermissionService,
     private readonly recruitment: RecruitmentService,
     private readonly candidates: CandidatesService,
+    private readonly interviews: InterviewsService,
+    private readonly offers: JobOffersService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -230,6 +247,125 @@ export class RecruitmentController {
 
   @Post("applications/:id/end")
   async endApplication(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<CandidateResponse> {
-    return this.candidates.endApplication(await this.actor(request, companyId), id, endApplicationSchema.parse(body));
+    const actor = await this.actor(request, companyId);
+    const input = endApplicationSchema.parse(body);
+    const result = await this.candidates.endApplication(actor, id, input);
+    // Email báo kết quả khi loại vì không đạt (QUYTAC_NGHIEPVU_385).
+    if (input.sendEmail && input.outcome === "rejected" && (input.reason === "not_qualified" || input.reason === "failed_interview")) {
+      await this.interviews.sendRejection(actor, id, input.message);
+      return this.candidates.detail(actor, result.id);
+    }
+    return result;
+  }
+
+  // ---------- API_202 lát L1: phỏng vấn, đồng ý kho, xóa dữ liệu ----------
+  @Get("candidates/:id/process")
+  async process(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<CandidateProcessResponse> {
+    const actor = await this.actor(request, companyId);
+    await this.candidates.detail(actor, id);
+    return {
+      interviews: await this.interviews.items(this.candidates.database, sql`a.candidate_id = ${id} AND i.company_id = ${actor.companyId}`),
+      offers: await this.offers.forCandidate(actor, id),
+      emails: await this.candidates.emails(actor, id),
+      members: await this.candidates.members(actor),
+    };
+  }
+
+  @Post("applications/:id/interviews")
+  async createInterview(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<CandidateResponse> {
+    const actor = await this.actor(request, companyId);
+    return this.candidates.detail(actor, await this.interviews.create(actor, id, saveInterviewSchema.parse(body)));
+  }
+
+  @Patch("interviews/:id")
+  async updateInterview(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<CandidateResponse> {
+    const actor = await this.actor(request, companyId);
+    return this.candidates.detail(actor, await this.interviews.update(actor, id, saveInterviewSchema.parse(body)));
+  }
+
+  @Post("interviews/:id/cancel")
+  async cancelInterview(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<CandidateResponse> {
+    const actor = await this.actor(request, companyId);
+    return this.candidates.detail(actor, await this.interviews.cancel(actor, id, cancelInterviewSchema.parse(body ?? {})));
+  }
+
+  @Post("interviews/:id/complete")
+  async completeInterview(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<CandidateResponse> {
+    const actor = await this.actor(request, companyId);
+    return this.candidates.detail(actor, await this.interviews.complete(actor, id));
+  }
+
+  @Post("candidates/:id/pool-consents")
+  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: 20 * 1024 * 1024, files: 1 } }))
+  async recordPoolConsent(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @UploadedSingleFile() file: UploadedFile | undefined,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<CandidateResponse> {
+    return this.candidates.recordPoolConsent(await this.actor(request, companyId), id, poolConsentSchema.parse(body).consentDate, file);
+  }
+
+  @Post("candidates/:id/pool-consents/withdraw")
+  async withdrawPoolConsent(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<CandidateResponse> {
+    return this.candidates.withdrawPoolConsent(await this.actor(request, companyId), id);
+  }
+
+  @Post("candidates/:id/erasure")
+  async requestErasure(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<CandidateResponse> {
+    return this.candidates.requestErasure(await this.actor(request, companyId), id, erasureRequestSchema.parse(body));
+  }
+
+  // ---------- API_203 đề nghị nhận việc ----------
+  @Post("job-offers")
+  async createOffer(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<JobOfferResponse> {
+    return this.offers.create(await this.actor(request, companyId), saveJobOfferSchema.parse(body));
+  }
+
+  @Get("job-offers/:id")
+  async offerDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<JobOfferResponse> {
+    return this.offers.detail(await this.actor(request, companyId), id);
+  }
+
+  @Patch("job-offers/:id")
+  async updateOffer(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<JobOfferResponse> {
+    return this.offers.update(await this.actor(request, companyId), id, saveJobOfferSchema.parse(body));
+  }
+
+  @Post("job-offers/:id/submit")
+  async submitOffer(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<JobOfferResponse> {
+    return this.offers.submit(await this.actor(request, companyId), id);
+  }
+
+  @Post("job-offers/:id/withdraw")
+  async withdrawOffer(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<JobOfferResponse> {
+    return this.offers.withdraw(await this.actor(request, companyId), id);
+  }
+
+  @Post("job-offers/:id/cancel")
+  async cancelOffer(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<JobOfferResponse> {
+    return this.offers.cancel(await this.actor(request, companyId), id, recruitmentReasonSchema.parse(body).reason);
+  }
+
+  @Post("job-offers/:id/send")
+  async sendOffer(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<JobOfferResponse> {
+    const input = sendJobOfferSchema.parse(body ?? {});
+    return this.offers.send(await this.actor(request, companyId), id, input.sendEmail, input.message);
+  }
+
+  @Post("job-offers/:id/response")
+  async recordOfferResponse(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<JobOfferResponse> {
+    return this.offers.recordResponse(await this.actor(request, companyId), id, recordOfferResponseSchema.parse(body));
+  }
+
+  @Get("job-offers/:id/employee-draft")
+  async employeeDraft(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<EmployeeDraftResponse> {
+    return this.offers.employeeDraft(await this.actor(request, companyId), id);
+  }
+
+  @Post("job-offers/:id/hire")
+  async hire(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<EmployeeResponse> {
+    return this.offers.hire(await this.actor(request, companyId), id, saveEmployeeSchema.parse(body));
   }
 }

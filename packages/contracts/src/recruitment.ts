@@ -184,6 +184,7 @@ export interface ApplicationItem {
   id: string;
   candidateId: string;
   candidateName: string;
+  candidateErased: boolean;
   postingId: string;
   postingTitle: string;
   source: CandidateSource;
@@ -259,6 +260,9 @@ export const endApplicationSchema = z
     outcome: z.enum(applicationOutcomes),
     reason: z.enum(applicationOutcomeReasons).nullable().optional(),
     note: optionalText(1000),
+    // Gửi email báo kết quả khi loại vì không đạt (QUYTAC_NGHIEPVU_385).
+    sendEmail: z.boolean().default(false),
+    message: optionalText(2000),
   })
   .strict();
 export const recruitmentSettingsSchema = z
@@ -394,3 +398,184 @@ export interface RecruitmentOptionsResponse {
   approvedRequests: { id: string; documentNo: string | null; jobTitle: string; salaryMin: string; salaryMax: string }[];
   openPostings: { id: string; title: string }[];
 }
+
+// ---------- Lát L1: phỏng vấn, email, đề nghị nhận việc, xóa dữ liệu (API_202, API_203) ----------
+export const interviewModes = ["onsite", "online"] as const;
+export const interviewStatuses = ["scheduled", "completed", "cancelled"] as const;
+export const interviewRecommendations = ["pass", "consider", "fail"] as const;
+export const candidateEmailKinds = ["interview_invitation", "interview_update", "interview_cancellation", "rejection", "offer"] as const;
+export const jobOfferStatuses = ["draft", "pending", "approved", "rejected", "withdrawn", "sent", "accepted", "declined", "expired", "cancelled"] as const;
+export type InterviewMode = (typeof interviewModes)[number];
+export type InterviewStatus = (typeof interviewStatuses)[number];
+export type InterviewRecommendation = (typeof interviewRecommendations)[number];
+export type CandidateEmailKind = (typeof candidateEmailKinds)[number];
+export type JobOfferStatus = (typeof jobOfferStatuses)[number];
+
+const emailOption = { sendEmail: z.boolean().default(false), message: optionalText(2000) };
+export const saveInterviewSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    startsAt: z.iso.datetime({ offset: true }),
+    durationMinutes: z.coerce.number().int().min(15).max(480),
+    mode: z.enum(interviewModes),
+    location: optionalText(300),
+    meetingUrl: z
+      .string()
+      .trim()
+      .max(500)
+      .nullable()
+      .optional()
+      .transform((value) => value || null)
+      .refine((value) => value === null || /^https:\/\/\S+$/.test(value), "invalidValue"),
+    interviewerIds: z.array(z.string().uuid()).min(1).max(5),
+    ...emailOption,
+  })
+  .strict();
+export type SaveInterviewRequest = z.input<typeof saveInterviewSchema>;
+export const cancelInterviewSchema = z.object(emailOption).strict();
+export const interviewEvaluationSchema = z.object({ score: z.coerce.number().int().min(1).max(5), recommendation: z.enum(interviewRecommendations), comment: optionalText(4000) }).strict();
+
+export interface InterviewEvaluationItem {
+  interviewerId: string;
+  interviewerName: string;
+  score: number;
+  recommendation: InterviewRecommendation;
+  comment: string | null;
+  submittedAt: string;
+}
+export interface InterviewItem {
+  id: string;
+  applicationId: string;
+  postingTitle: string;
+  name: string;
+  startsAt: string;
+  durationMinutes: number;
+  mode: InterviewMode;
+  location: string | null;
+  meetingUrl: string | null;
+  status: InterviewStatus;
+  interviewers: { id: string; fullName: string }[];
+  evaluations: InterviewEvaluationItem[];
+}
+export interface CandidateEmailItem {
+  id: string;
+  kind: CandidateEmailKind;
+  subject: string;
+  recipient: string | null;
+  sentAt: string;
+  sentByName: string;
+}
+
+// Người phỏng vấn được giao (không cần quyền tuyển dụng; QUYTAC_NGHIEPVU_384).
+export interface MyInterviewItem {
+  interviewId: string;
+  candidateName: string;
+  postingTitle: string;
+  name: string;
+  startsAt: string;
+  status: InterviewStatus;
+  submitted: boolean;
+}
+export interface MyInterviewResponse {
+  interview: InterviewItem;
+  candidate: {
+    fullName: string;
+    province: string | null;
+    educationLevel: CandidateEducationLevel | null;
+    experienceYears: number | null;
+    coverLetter: string | null;
+    resumeFileId: string | null;
+    resumeFileName: string | null;
+  };
+  myEvaluation: InterviewEvaluationItem | null;
+  canEvaluate: boolean;
+}
+
+export const saveJobOfferSchema = z
+  .object({
+    applicationId: z.string().uuid(),
+    jobTitle: z.string().trim().min(1).max(100),
+    departmentId: z.string().uuid(),
+    branchId: z.string().uuid(),
+    contractKind: z.enum(recruitmentContractKinds),
+    salary: money,
+    startDate: isoDate,
+    responseDeadline: isoDate,
+    note: optionalText(2000),
+    outsideRangeReason: optionalText(500),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveJobOfferRequest = z.input<typeof saveJobOfferSchema>;
+export const sendJobOfferSchema = z.object(emailOption).strict();
+export const recordOfferResponseSchema = z.object({ accepted: z.boolean(), respondedOn: isoDate, note: optionalText(500) }).strict();
+export const offerAnswerSchema = z.object({ accepted: z.boolean(), note: optionalText(500) }).strict();
+export const rejectEmailSchema = z.object(emailOption).strict();
+
+export interface JobOfferResponse {
+  id: string;
+  applicationId: string;
+  documentNo: string | null;
+  jobTitle: string;
+  departmentId: string;
+  departmentName: string;
+  branchId: string;
+  branchName: string;
+  contractKind: RecruitmentContractKind;
+  salary: string;
+  startDate: string;
+  responseDeadline: string;
+  note: string | null;
+  outsideRangeReason: string | null;
+  requestSalaryMin: string;
+  requestSalaryMax: string;
+  status: JobOfferStatus;
+  approvalRequestId: string | null;
+  sentAt: string | null;
+  respondedAt: string | null;
+  responseChannel: "link" | "manual" | null;
+  responseNote: string | null;
+  cancelReason: string | null;
+  employeeId: string | null;
+  version: number;
+  canEdit: boolean;
+  canSubmit: boolean;
+  canWithdraw: boolean;
+  canCancel: boolean;
+  canSend: boolean;
+  canRecordResponse: boolean;
+  canHire: boolean;
+}
+
+// Giá trị điền sẵn biểu mẫu hồ sơ nhân sự khi lập từ ứng viên (QUYTAC_NGHIEPVU_387).
+export interface EmployeeDraftResponse {
+  fullName: string;
+  phone: string | null;
+  personalEmail: string | null;
+  educationLevel: CandidateEducationLevel | null;
+  departmentId: string;
+  branchId: string;
+  jobTitle: string;
+  hireDate: string;
+}
+
+// Trang trả lời đề nghị công khai qua liên kết (QUYTAC_NGHIEPVU_386).
+export interface OfferAnswerPageResponse {
+  companyName: string;
+  candidateName: string;
+  jobTitle: string;
+  departmentName: string;
+  branchName: string;
+  salary: string;
+  startDate: string;
+  responseDeadline: string;
+  answered: "accepted" | "declined" | null;
+}
+
+export interface CandidateProcessResponse {
+  interviews: InterviewItem[];
+  offers: JobOfferResponse[];
+  emails: CandidateEmailItem[];
+  members: { id: string; fullName: string; email: string | null }[];
+}
+export const erasureRequestSchema = z.object({ receivedOn: isoDate, channel: z.enum(["email", "phone", "in_person", "other"]), note: optionalText(500) }).strict();
