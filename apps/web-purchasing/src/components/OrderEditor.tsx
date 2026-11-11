@@ -3,6 +3,7 @@
 // Soạn đơn mua (CHUC_NANG_51): nhà cung cấp, kho nhận, ngày, dòng hàng; giá gợi ý theo bảng giá mua; lấy dòng từ đề nghị mua đã duyệt.
 import {
   vatRates,
+  type CurrencyResponse,
   type PurchaseOrderResponse,
   type PurchasingOptionsResponse,
   type RequisitionResponse,
@@ -81,6 +82,14 @@ export function OrderEditor({
   const [orderDate, setOrderDate] = useState(order?.orderDate ?? vietnamToday());
   const [expectedDate, setExpectedDate] = useState(order?.expectedDate ?? requisition?.neededBy ?? "");
   const [note, setNote] = useState(order?.note ?? "");
+  // Đơn nhập khẩu (CONG_VIEC_45; QUYTAC_NGHIEPVU_285): chọn ngoại tệ, thuế suất dòng là "Không kê khai", không gợi ý giá khi khác tiền tệ công ty.
+  const [isImport, setIsImport] = useState(order?.isImport ?? false);
+  const [currency, setCurrency] = useState(order?.currency ?? "");
+  const currencies = useApi<CurrencyResponse[]>("/currencies");
+  const orderCurrency = isImport && currency ? currency : choices.currency;
+  const foreign = orderCurrency !== choices.currency;
+  // Tiền tệ công ty viết dấu chấm phân cách hàng nghìn; ngoại tệ dùng dấu chấm thập phân.
+  const plainPrice = (value: string) => (foreign ? value.replace(/,/g, "") : value.replace(/\./g, ""));
   const [lines, setLines] = useState<Line[]>(order ? toLines(order) : requisition ? fromRequisition(requisition) : []);
   const { submitting, fields, formError, run, inputClass } = useSubmit();
   const setLine = (index: number, change: Partial<Line>) => setLines((current) => current.map((line, position) => (position === index ? { ...line, ...change } : line)));
@@ -89,7 +98,7 @@ export function OrderEditor({
 
   // Giá gợi ý: dòng chưa có giá lấy theo bảng giá mua khi đổi nhà cung cấp, đơn vị, số lượng.
   async function suggest(index: number, line: Line) {
-    if (!supplierId || !line.quantity) return;
+    if (!supplierId || !line.quantity || foreign) return;
     const parameters = new URLSearchParams({ supplierId, variantId: line.item.variantId, unitId: line.unitId, quantity: line.quantity, date: orderDate });
     const found = await apiFetch<SupplierPriceLookupResponse>(`/purchasing/supplier-prices/lookup?${parameters}`).catch(() => null);
     setInternalSupplier(Boolean(found?.internal));
@@ -103,7 +112,7 @@ export function OrderEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supplierId, orderDate]);
 
-  const total = lines.reduce((sum, line) => sum + Number(line.quantity || 0) * Number(line.unitPrice.replace(/\./g, "") || 0), 0);
+  const total = lines.reduce((sum, line) => sum + Number(line.quantity || 0) * Number(plainPrice(line.unitPrice) || 0), 0);
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -114,13 +123,15 @@ export function OrderEditor({
         orderDate,
         expectedDate: expectedDate || null,
         note,
+        isImport,
+        currency: isImport ? orderCurrency : null,
         lines: lines.map((line) => ({
           ...(line.id ? { id: line.id } : {}),
           variantId: line.item.variantId,
           unitId: line.unitId,
           quantity: line.quantity,
-          unitPrice: line.unitPrice.replace(/\./g, ""),
-          vatRate: line.vatRate,
+          unitPrice: plainPrice(line.unitPrice),
+          vatRate: isImport ? "not_declared" : line.vatRate,
           requisitionLineId: line.requisitionLineId,
         })),
         ...(order ? { version: order.version } : {}),
@@ -164,6 +175,21 @@ export function OrderEditor({
         <Field id="ngay-giao" label={t("expectedDate")} error={fields.expectedDate}>
           <input id="ngay-giao" className={inputClass("expectedDate")} type="date" value={expectedDate} onChange={(event) => setExpectedDate(event.target.value)} />
         </Field>
+        <label className="nhom-nut" style={{ alignItems: "center" }}>
+          <input type="checkbox" checked={isImport} disabled={order?.currencyLocked} onChange={(event) => setIsImport(event.target.checked)} />
+          {t("isImport")}
+        </label>
+        {isImport && (
+          <Field id="tien-te" label={t("currency")} error={fields.currency ?? fields.isImport} hint={t("currencyHint")}>
+            <select id="tien-te" className={inputClass("currency")} value={orderCurrency} disabled={order?.currencyLocked} onChange={(event) => setCurrency(event.target.value)}>
+              {(currencies.state.kind === "ready" ? currencies.state.data : [{ code: choices.currency, nameVi: choices.currency, nameEn: choices.currency, minorUnits: 0 }]).map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.code} · {option.nameVi}
+                </option>
+              ))}
+            </select>
+          </Field>
+        )}
         <Field id="ghi-chu" label={t("note")} error={fields.note}>
           <textarea id="ghi-chu" className={inputClass("note")} rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
         </Field>
@@ -209,14 +235,20 @@ export function OrderEditor({
               <input
                 id={`don-gia-${index}`}
                 className={inputClass(`lines.${index}.unitPrice`)}
-                inputMode="numeric"
+                inputMode={foreign ? "decimal" : "numeric"}
                 value={line.unitPrice}
                 readOnly={internalSupplier}
                 onChange={(event) => setLine(index, { unitPrice: event.target.value })}
               />
             </Field>
             <Field id={`thue-${index}`} label={t("vatRate")}>
-              <select id={`thue-${index}`} className="o-nhap" value={line.vatRate} disabled={internalSupplier} onChange={(event) => setLine(index, { vatRate: event.target.value as VatRate })}>
+              <select
+                id={`thue-${index}`}
+                className="o-nhap"
+                value={isImport ? "not_declared" : line.vatRate}
+                disabled={internalSupplier || isImport}
+                onChange={(event) => setLine(index, { vatRate: event.target.value as VatRate })}
+              >
                 {vatRates.map((rate) => (
                   <option key={rate} value={rate}>
                     {t(`vat_${rate}`)}
@@ -251,7 +283,7 @@ export function OrderEditor({
         />
       </Field>
       <strong>
-        {t("total")}: {formatMoney(String(total), choices.currency)}
+        {t("total")}: {formatMoney(String(total), orderCurrency)}
       </strong>
       <FormError text={formError} />
       <div className="nhom-nut">

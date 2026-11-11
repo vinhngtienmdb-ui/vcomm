@@ -69,7 +69,7 @@ export class ShopController {
   @Post("orders/preview")
   @HttpCode(200)
   previewOrder(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<BuyerOrderPreview> {
-    return this.orders.preview(request.auth.userId, buyerOrderPreviewSchema.parse(body).lines);
+    return this.orders.preview(request.auth.userId, buyerOrderPreviewSchema.parse(body));
   }
 
   @Post("orders")

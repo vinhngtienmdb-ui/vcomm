@@ -39,6 +39,7 @@ describe("CONG_VIEC_26 rút tiền hoa hồng", () => {
       approvedThisMonth: "0",
       bankAccount: null,
       open: null,
+      blocked: false,
     });
     const create = (amount: string) => user("post", "/buyer/withdrawals", { amount });
     expect((await create("50000")).body.error.fields.amount).toBe("Số tiền rút thấp hơn mức tối thiểu.");

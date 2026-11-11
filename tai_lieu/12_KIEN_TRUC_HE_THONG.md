@@ -1,10 +1,10 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, kiến trúc thành phần, cấu trúc thư mục, ràng buộc kỹ thuật.
-- Phiên bản: 2.9
+- Phiên bản: 2.10
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6); CONG_VIEC_14 (2026-11-10): schema `accounting`, thành phần phụ trợ kế toán tổng hợp của MODULE_06 phần 2 (mục 3i, 6); CONG_VIEC_15 (2026-11-10): thành phần phụ trợ báo cáo tài chính của MODULE_06 phần 3 (mục 3j); CONG_VIEC_16 (2026-11-10): module `apps/api/src/einvoice`, lớp kết nối nhà cung cấp hóa đơn điện tử, tác vụ nền `einvoice-send`, `einvoice-overdue` của MODULE_06 phần 4 (mục 3k, 6); CONG_VIEC_17 (2026-11-10): module `apps/api/src/commission`, móc nối `DebtsService.allocatedHooks`, gán nhân viên hưởng khi gửi đơn, bút toán bảng hoa hồng của MODULE_06 phần 5 (mục 3l, 6); CONG_VIEC_18 (2026-11-10): module `apps/api/src/bank`, webhook công khai, móc nối `PaymentsService.postedHooks` của MODULE_06 phần 6 (mục 3m, 6); CONG_VIEC_19 (2026-11-10): module `apps/api/src/collection`, đọc tệp Excel đối soát, bút toán bảng đối soát, hoa hồng tính khoản giảm nợ của bảng đối soát của MODULE_06 phần 7 (mục 3n, 6); CONG_VIEC_20 (2026-11-10): module `apps/api/src/consolidation`, tách phần đọc số liệu của báo cáo tài chính dùng chung cho báo cáo hợp nhất của MODULE_06 phần 8 (mục 3o, 6); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: điều kiện phạm vi xem khách hàng dùng chung `apps/api/src/crm/customer-scope.ts` cho đối tác và đơn bán, `CustomerAssignmentsService` phiếu giao khách của MODULE_07 phần 2 (mục 3p); CONG_VIEC_24 (2026-11-11): thành phần đặt hàng trên VComm (mục 3q): khung đơn vị vận chuyển, kết nối GHN, webhook, việc nền tự hoàn tất đơn; CONG_VIEC_25 (2026-11-11): thành phần thanh toán đơn người mua (mục 3r): khung cổng thanh toán, kết nối VNPAY, IPN, việc nền hủy đơn quá hạn thanh toán, hoàn tiền, bút toán; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thành phần phiếu dịch vụ, loại sản phẩm, đơn bán tay chỉ dịch vụ (mục 3s); mục 3l (CONG_VIEC_17) đã bỏ, thư mục `apps/api/src/commission` đã xóa; mục 3p (CONG_VIEC_21) đã tắt; mục 3n bỏ móc nối hoa hồng
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_05 (2026-11-10): mini app Kho `apps/web-inventory`, thành phần phụ trợ của MODULE_03 (mục 3a, 3b); CONG_VIEC_06 (2026-11-10): mini app Khách hàng và Đối tác `apps/web-crm`, thành phần phụ trợ của MODULE_07 (mục 3a, 3c); CONG_VIEC_07 (2026-11-10): mini app Mua hàng `apps/web-purchasing`, thành phần phụ trợ của MODULE_04 (mục 3a, 3d, 6); CONG_VIEC_08 (2026-11-10): mini app Bán hàng `apps/web-sales`, thành phần phụ trợ của MODULE_05 (mục 3a, 3e, 6); CONG_VIEC_09 (2026-11-10): thành phần phụ trợ giao dịch nội bộ của MODULE_05 phần 2 (mục 3f); CONG_VIEC_12 (2026-11-10): thành phần phụ trợ khuyến mãi của MODULE_05 phần 3 (mục 3g); CONG_VIEC_13 (2026-11-10): mini app Tài chính – Kế toán `apps/web-finance`, schema `finance`, thành phần phụ trợ của MODULE_06 phần 1 (mục 3a, 3h, 6); CONG_VIEC_14 (2026-11-10): schema `accounting`, thành phần phụ trợ kế toán tổng hợp của MODULE_06 phần 2 (mục 3i, 6); CONG_VIEC_15 (2026-11-10): thành phần phụ trợ báo cáo tài chính của MODULE_06 phần 3 (mục 3j); CONG_VIEC_16 (2026-11-10): module `apps/api/src/einvoice`, lớp kết nối nhà cung cấp hóa đơn điện tử, tác vụ nền `einvoice-send`, `einvoice-overdue` của MODULE_06 phần 4 (mục 3k, 6); CONG_VIEC_17 (2026-11-10): module `apps/api/src/commission`, móc nối `DebtsService.allocatedHooks`, gán nhân viên hưởng khi gửi đơn, bút toán bảng hoa hồng của MODULE_06 phần 5 (mục 3l, 6); CONG_VIEC_18 (2026-11-10): module `apps/api/src/bank`, webhook công khai, móc nối `PaymentsService.postedHooks` của MODULE_06 phần 6 (mục 3m, 6); CONG_VIEC_19 (2026-11-10): module `apps/api/src/collection`, đọc tệp Excel đối soát, bút toán bảng đối soát, hoa hồng tính khoản giảm nợ của bảng đối soát của MODULE_06 phần 7 (mục 3n, 6); CONG_VIEC_20 (2026-11-10): module `apps/api/src/consolidation`, tách phần đọc số liệu của báo cáo tài chính dùng chung cho báo cáo hợp nhất của MODULE_06 phần 8 (mục 3o, 6); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: điều kiện phạm vi xem khách hàng dùng chung `apps/api/src/crm/customer-scope.ts` cho đối tác và đơn bán, `CustomerAssignmentsService` phiếu giao khách của MODULE_07 phần 2 (mục 3p); CONG_VIEC_24 (2026-11-11): thành phần đặt hàng trên VComm (mục 3q): khung đơn vị vận chuyển, kết nối GHN, webhook, việc nền tự hoàn tất đơn; CONG_VIEC_25 (2026-11-11): thành phần thanh toán đơn người mua (mục 3r): khung cổng thanh toán, kết nối VNPAY, IPN, việc nền hủy đơn quá hạn thanh toán, hoàn tiền, bút toán; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thành phần phiếu dịch vụ, loại sản phẩm, đơn bán tay chỉ dịch vụ (mục 3s); mục 3l (CONG_VIEC_17) đã bỏ, thư mục `apps/api/src/commission` đã xóa; mục 3p (CONG_VIEC_21) đã tắt; mục 3n bỏ móc nối hoa hồng; CONG_VIEC_53 (2026-11-11): mini app Bán lẻ `apps/web-retail` (đường dẫn `/retail`, cổng 3012), module `apps/api/src/retail`, schema `retail`, thành phần bán lẻ tại quầy của MODULE_14 phần 1 (mục 3a, 3t)
 
 Đã rà soát theo tài liệu `10`, `11` của MODULE_01 ngày 2026-11-09.
 
@@ -65,6 +65,7 @@ Mini app Nền tảng (`apps/web-platform`) là cửa vào chung: chuyển tiế
 | Mua hàng (CONG_VIEC_07) | `apps/web-purchasing` | `/purchasing` | 3004 | `PURCHASING_ORIGIN` (`http://localhost:3004`) |
 | Bán hàng (CONG_VIEC_08) | `apps/web-sales` | `/sales` | 3005 | `SALES_ORIGIN` (`http://localhost:3005`) |
 | Tài chính – Kế toán (CONG_VIEC_13) | `apps/web-finance` | `/finance` | 3006 | `FINANCE_ORIGIN` (`http://localhost:3006`) |
+| Bán lẻ (CONG_VIEC_53) | `apps/web-retail` | `/retail` | 3012 | `RETAIL_ORIGIN` (`http://localhost:3012`) |
 | Nhân sự (CONG_VIEC_46) | `apps/web-hr` | `/hr` | 3007 | `HR_ORIGIN` (`http://localhost:3007`) |
 | Báo cáo quản trị (CONG_VIEC_50) | `apps/web-analytics` | `/analytics` | 3009 | `ANALYTICS_ORIGIN` (`http://localhost:3009`) |
 
@@ -78,6 +79,7 @@ Chạy riêng mini app Bán hàng: `pnpm --filter web-sales dev` (cổng 3005), 
 
 Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance dev` (cổng 3006), vào qua `http://localhost:3000/finance` khi mini app Nền tảng và backend đang chạy. Công nợ tự phát sinh khi ghi sổ phiếu kho ở mini app Kho.
 
+Chạy riêng mini app Bán lẻ: `pnpm --filter web-retail dev` (cổng 3012; mục `web-retail` trong `.claude/launch.json`), vào qua `http://localhost:3000/retail` khi mini app Nền tảng và backend đang chạy. Phiếu kho, chứng từ quỹ, bút toán, hóa đơn điện tử sinh ra xem ở mini app Kho, Tài chính – Kế toán.
 Chạy riêng mini app Báo cáo quản trị: `pnpm --filter web-analytics dev` (cổng 3009), vào qua `http://localhost:3000/analytics` khi mini app Nền tảng và backend đang chạy. Báo cáo chỉ đọc dữ liệu của các module khác.
 
 ## 3b. Thành phần phụ trợ cho MODULE_03 Kho (CONG_VIEC_05)
@@ -280,6 +282,35 @@ Chạy riêng mini app Báo cáo quản trị: `pnpm --filter web-analytics dev`
 | Phạm vi xem, ghé thăm | `PartnersService`, `SalesOrdersService`, `VisitsService` bỏ điều kiện phạm vi; `VisitsService.staffOptions` cho `GET /crm/visit-options` | CHUC_NANG_158 |
 | Giao diện | `apps/web-catalog`: chọn loại ở chi tiết sản phẩm; `apps/web-sales`: công tắc cài đặt, bỏ người hưởng hoa hồng; `apps/web-inventory`: nhãn "Phiếu dịch vụ"; `apps/web-crm`: bỏ giao khách, lọc người phụ trách, nhận khách, lịch sử phụ trách; `apps/web-finance`: bỏ Hoa hồng, Cài đặt hoa hồng | CHUC_NANG_157, CHUC_NANG_158 |
 
+## Thành phần điểm thưởng (MODULE_11, CONG_VIEC_51)
+
+Schema `loyalty`; mã nguồn `apps/api/src/loyalty/`. Giao diện quản trị nằm trong mini app `apps/web-crm` (nhóm Điểm thưởng), không tạo mini app mới.
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Chương trình, bảng hạng | `LoyaltyProgramService` (`program.service.ts`), `tiers.ts` (khóa ví, tính lại hạng); ràng buộc loại trừ của PostgreSQL chặn giai đoạn chồng lấn | CHUC_NANG_178 |
+| Sổ cái điểm | `ledger.service.ts`: hàm dùng chung theo nguồn chứng từ (đơn VComm, bán, trả hàng tại quầy, phiếu điều chỉnh), `LoyaltyLedgerService` cho CONG_VIEC_53; trigger chặn sửa, xóa | CHUC_NANG_179, CHUC_NANG_180 |
+| Đơn VComm | `MarketplaceOrdersService` gọi dùng điểm khi đặt, tích khi hoàn tất; `releaseSalePoints` ở mọi đường hủy; `refund-amounts.ts` hoàn điểm khi nhận hàng trả; `payments.service.ts` trừ tiền điểm khỏi số tiền gửi cổng | CHUC_NANG_179, CHUC_NANG_180 |
+| Hạch toán | `LoyaltyPostingsService` (`postings.service.ts`) đăng ký ghi bút toán cho mỗi bút toán điểm qua `LedgerService.record`; vai trò định khoản điểm trong `apps/api/src/accounting/charts.ts` | CHUC_NANG_181 |
+| Quản trị | `LoyaltyAdminService` (`admin.service.ts`): ví điểm, khóa, phiếu điều chỉnh (nhận `core.approval.completed`), cảnh báo; `LoyaltyAccountsService`: điểm của tôi, nghĩa vụ điểm | CHUC_NANG_181 |
+| Tác vụ nền | `background-jobs.ts`: `loyalty-daily` lúc 0 giờ 10 phút giờ Việt Nam gọi `LoyaltyJobsService.runDaily` (hết hạn, nhắc hạn, xét hạng) | CHUC_NANG_179 |
+| Giao diện | `apps/web-crm`: `/loyalty/program`, `/loyalty/accounts`, `/loyalty/adjustments`, `/loyalty/alerts`, `/loyalty/liability`, thẻ điểm ở `/orders/[id]`; `apps/mobile-vcomm`: `diem-thuong.tsx`, `hang-thanh-vien.tsx`, khối dùng điểm ở `dat-hang.tsx`, `don-hang/[id].tsx`, thẻ điểm ở `(tabs)/tai-khoan.tsx` | MAN_HINH_146 đến MAN_HINH_152 |
+## 3t. Thành phần bán lẻ tại quầy (MODULE_14 phần 1, CONG_VIEC_53)
+
+Schema mới `retail` đứng sau `core`, `catalog`, `inventory`, `sales`, `finance` trong thứ tự phụ thuộc (khóa ngoại chỉ trỏ vào các schema này). Module Bán lẻ chỉ ghi schema `retail`; đơn bán, phiếu kho, chứng từ quỹ, hóa đơn điện tử ghi qua service của module đó, trong cùng giao dịch của lần thanh toán, trả hàng, đóng ca.
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Quyền, phạm vi | `apps/api/src/retail/retail-context.ts`: `requireRetailSetup` (quyền cài đặt phạm vi công ty), `retailPermissionsAt` (quyền tại chi nhánh của cửa hàng), `retailScope`, `scopeCondition` (lọc chi nhánh ngay trong truy vấn), nhật ký `retailAudit`; danh mục quyền, vai trò `cashier`, `store_manager` trong `apps/api/src/permissions/permission-catalog.ts` | CHUC_NANG_186 đến CHUC_NANG_188 |
+| Cửa hàng, quầy | `RetailStoresService` (`retail-stores.service.ts`), `RetailController` (`retail.controller.ts`, API_192 đến API_197) | CHUC_NANG_186 |
+| Ca thu ngân | `RetailShiftsService` (`retail-shifts.service.ts`): mở, đóng ca, khóa ca `FOR UPDATE`, tiền mặt hệ thống tính; chứng từ quỹ khi đóng ca qua `PaymentsService.recordRetailWithin` (`apps/api/src/finance/payments.service.ts`, dãy số chuẩn bị bằng `prepareRetailNumbering`; loại `retail_receipt`, `retail_refund`, `cash_shortage`, `cash_surplus`; không đối tượng, ghi sổ ngay) | CHUC_NANG_186 |
+| Bán hàng tại quầy | `RetailSalesService` (`retail-sales.service.ts`) dùng `SalesOrdersService.quoteMarketplace` (tính giỏ theo kênh, kho của cửa hàng: `lookupPrice`, `applyPromotions`, `lineAmounts`), `placeRetailWithin` (giảm tay trong mức, chặn dưới giá vốn, xác nhận ngay; theo mẫu `placeMarketplaceWithin`) và `SalesDeliveriesService.issueRetailWithin` (lập và ghi sổ phiếu xuất trong giao dịch của bên gọi, lô hết hạn trước, serial thu ngân quét); dãy số chuẩn bị trước giao dịch (`prepareNumbering`, `ensureSequences`) | CHUC_NANG_187 |
+| Trả hàng | `RetailReturnsService` (`retail-returns.service.ts`) dùng `SalesDeliveriesService.returnAsSystem` (phiếu nhận hàng trả lại theo giá vốn lúc xuất); bút toán, việc chờ xử lý hóa đơn chạy qua móc nối ghi sổ phiếu kho hiện có | CHUC_NANG_188 |
+| Định khoản | `inventoryDraft` không đổi (phiếu xuất bán lẻ Nợ phải thu không đối tượng); `paymentDraft` (`apps/api/src/accounting/postings.ts`) thêm bốn loại chứng từ quỹ; vai trò định khoản `staff_receivable` (1388) trong `charts.ts`, dùng lại `surplus_pending` (3381) | CHUC_NANG_186, CHUC_NANG_187 |
+| Hóa đơn máy tính tiền | `EinvoicesService` (`apps/api/src/einvoice/einvoices.service.ts`): `nextCashRegisterNumber` (cấp số tại quầy, khóa dòng ký hiệu), `lookupCode` (`node:crypto`), hạn gửi cuối ngày; `cashRegisterSupported` (`einvoice-settings.service.ts`, chỉ bộ giả lập); bộ giả lập giữ số đã cấp (`providers/simulator.ts`); MISA trả "chưa hỗ trợ" (`providers/misa.ts`); gửi nền bằng tác vụ `einvoice-send` hiện có | CHUC_NANG_189 |
+| Giao diện | `apps/web-retail` (Next.js, `basePath` `/retail`): trang `/counter` (`Counter`, `PaymentDialog`, `BuyerDialog`, `OpenShiftForm`, `Receipt`), `/sales`, `/sales/[id]`, `/returns` (`ReturnSlip`), `/shifts`, `/shifts/[id]` (`ShiftDifference`), `/stores` (`StoreEditor`, `RegisterEditor`); `RetailShell` (menu theo quyền); `src/lib/vietqr.ts` tự tạo chuỗi VietQR theo chuẩn EMVCo của NAPAS (CRC16-CCITT), mã QR vẽ bằng `qrcode-generator` 2.0.4 (đã dùng ở `web-platform`); in bằng `window.print` với CSS `@page { size: 80mm auto }`; lớp giao diện bán, mẫu in trong `packages/ui/src/styles.css`. Dùng lại `packages/ui` (AppShell, Drawer, ConfirmDialog, Field, StatusBadge, StatusViews, format); không thêm thư viện. `apps/web-finance` sửa Phiếu thu chi, Quỹ (chứng từ không đối tượng), Hóa đơn điện tử, Cài đặt hóa đơn điện tử (ký hiệu máy tính tiền) | MAN_HINH_161 đến MAN_HINH_167 |
+| Điểm tại quầy | `LoyaltyLedgerService` của CONG_VIEC_51 (`quoteRedemption`, `redeemWithin`, `earnWithin`, `returnWithin`). Chưa làm, chờ CONG_VIEC_51 hợp nhất (lát L6) | CHUC_NANG_189 (phần điểm) |
+
 ## 4. Kiến trúc triển khai
 
 | Môi trường | Mục đích | Hạ tầng |
@@ -315,7 +346,6 @@ Chạy riêng mini app Báo cáo quản trị: `pnpm --filter web-analytics dev`
 | Giao diện | `apps/web-hr`: `/attendance`, `/work-schedules`, `/work-schedules/qr/[id]`, `/my-attendance`, `/leave`, `/overtime`, `/timesheets` | CHUC_NANG_165 đến CHUC_NANG_167 |
 
 CONG_VIEC_48 (lương) đọc `hr.timesheet_lines` của kỳ đã chốt, ghi `hr.timesheet_periods.payroll_locked_at` khi chốt lương; nghe `hr.timesheet.closed`, `hr.timesheet.reopened`.
-
 ## 5. Sao lưu, phục hồi, ghi log, giám sát
 
 - Sao lưu: Aurora tự sao lưu hằng ngày, giữ 35 ngày, phục hồi về một thời điểm bất kỳ trong khoảng đó; sao lưu được mã hóa.
@@ -329,10 +359,10 @@ Chia theo phần chạy riêng của hệ thống, bên trong chia theo module. 
 
 ```
 apps/
-  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales, src/finance, src/accounting, src/einvoice, src/bank, src/collection, src/consolidation...
+  api/                  Backend NestJS. Mỗi module một thư mục: src/core, src/catalog, src/inventory, src/crm, src/purchasing, src/sales, src/finance, src/accounting, src/einvoice, src/bank, src/collection, src/consolidation, src/retail...
                         Không chứa mã giao diện.
   web-platform/         Mini app Nền tảng và trang chủ mini app.
-  web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm, web-purchasing, web-sales, web-finance...).
+  web-<module>/         Mỗi mini app quản trị doanh nghiệp một thư mục (web-catalog, web-inventory, web-crm, web-purchasing, web-sales, web-finance, web-retail...).
                         Chỉ gọi API, không truy cập cơ sở dữ liệu.
   mobile-warehouse/     Ứng dụng kho (Expo).
   mobile-vcomm/         Ứng dụng VComm cho người mua, có phần kinh doanh cho nhân viên kinh doanh (Expo; CONG_VIEC_23).
@@ -359,7 +389,7 @@ tai_lieu/               Bộ tài liệu dự án.
 | Mục 4 | Có môi trường thử nghiệm (staging) riêng; môi trường thật chạy tối thiểu 2 bản mỗi dịch vụ, Aurora nhiều vùng sẵn sàng |
 | Mục 5 | Giữ sao lưu 35 ngày; diễn tập phục hồi mỗi quý |
 
-## 3x. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
+## 3y. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
 
 | Thành phần | Công nghệ | Chức năng dùng |
 |---|---|---|
@@ -370,3 +400,17 @@ tai_lieu/               Bộ tài liệu dự án.
 | Bút toán lương | `payrollDraft`, `payrollPaymentDraft` (`apps/api/src/accounting/postings.ts`) ghi qua `LedgerService.record`; vai trò định khoản mới theo Thông tư 99/2025, Thông tư 133 | CHUC_NANG_170 |
 | Phiếu lương | Thông báo chuông (`notify`), email qua `OUTBOUND_MESSAGES` sau khi giao dịch duyệt xong | CHUC_NANG_170 |
 | Giao diện | Mini app `apps/web-hr`: `/payrolls`, `/payrolls/[id]`, `/payroll-settings`, thẻ "Lương, thuế" của `/employees/[id]`, thẻ "Phiếu lương" của `/me` | CHUC_NANG_168 đến CHUC_NANG_170 |
+
+## 3z. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 4: tuyển dụng, đánh giá hiệu suất, CONG_VIEC_54)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Nhu cầu, tin tuyển dụng | `RecruitmentService` (`apps/api/src/hr/recruitment.service.ts`), bộ điều khiển `RecruitmentController` (`apps/api/src/hr/recruitment.controller.ts`, API_200 đến API_203, kiểm `hr.access` rồi quyền chi tiết trong service); luồng duyệt chung (`submitWithin`, `withdraw`, `cancelWithin`; nghe `core.approval.completed`, loại `hr.recruitment_request`); dãy số `hr.recruitment_request` (mặc định `TD`) | CHUC_NANG_190 |
+| Trang tuyển dụng công khai | `CareersController` (`apps/api/src/hr/careers.controller.ts`, API_204) đánh dấu `@Public()` và `@NoRateLimit()` (`apps/api/src/auth/auth.guard.ts`): không đăng nhập, không giới hạn theo IP (THAY_DOI_23); giao diện `apps/web-hr/src/app/careers` ở đường dẫn `/hr/careers`, khung `CareersFrame` thay khung mini app (`HrShell` bỏ qua đường dẫn `/careers`) | CHUC_NANG_190 |
+| Ứng viên, đồng ý, lưu giữ, xóa | `CandidatesService` (`apps/api/src/hr/candidates.service.ts`); tệp qua `FILE_STORAGE` khóa `hr/<công ty>/candidates/<mã ngẫu nhiên>`; kiểm chữ ký đầu tệp PDF, DOCX, JPG, PNG; việc nền `hr-candidate-erasure` lúc 1 giờ (xóa tệp trước, khử nhận dạng trong giao dịch; ứng viên lỗi không chặn ứng viên khác) | CHUC_NANG_191 |
+| Vòng phỏng vấn, email ứng viên | `InterviewsService` (`apps/api/src/hr/interviews.service.ts`); `InterviewerController` (`apps/api/src/hr/interviewer.controller.ts`, `/hr/my-interviews`, chỉ cần là thành viên công ty); mẫu email, tệp lịch iCalendar `invite.ics` (`apps/api/src/hr/recruitment-emails.ts`, SEQUENCE tăng khi đổi giờ, METHOD:CANCEL khi hủy); gửi qua `OUTBOUND_MESSAGES` của Nền tảng, mở rộng tệp đính kèm không bắt buộc (trình ghi log chỉ ghi tên tệp) | CHUC_NANG_191 |
+| Đề nghị nhận việc, lập hồ sơ nhân sự | `JobOffersService` (`apps/api/src/hr/job-offers.service.ts`); luồng duyệt chung loại `hr.job_offer`, dãy số `DNNV`; liên kết trả lời: mã 32 byte ngẫu nhiên (`randomBytes`), chỉ lưu mã băm SHA-256; `OfferAnswersController` (`apps/api/src/hr/offer-answers.controller.ts`, `/job-offer-responses/{mã}`) `@Public()` giữ giới hạn 20 yêu cầu mỗi phút mỗi IP; lập hồ sơ qua `EmployeesService.create` với tham số `afterCreate` (cùng giao dịch: liên kết hồ sơ ứng tuyển, chép sơ yếu lý lịch, khóa nhu cầu `FOR UPDATE` tăng số đã tuyển); việc nền `hr-recruitment-daily` lúc 0 giờ 10 phút (đóng tin quá hạn, đề nghị hết hạn) | CHUC_NANG_190, CHUC_NANG_191 |
+| Đánh giá hiệu suất | `ReviewsService` (`apps/api/src/hr/reviews.service.ts`), `ReviewsController` (`apps/api/src/hr/reviews.controller.ts`, API_205; quyền `hr.review.manage`, người chấm, nhân viên kiểm trong service); việc nền `hr-review-reminders` lúc 8 giờ, bảng `hr.review_reminders` giữ lần đã nhắc | CHUC_NANG_192 |
+| Giao diện | Mini app `apps/web-hr`: trang `/recruitment`, `/recruitment/[id]`, `/recruitment/postings/[id]`, `/candidates`, `/candidates/[id]`, `/candidates/[id]/hire`, `/interviews`, `/interviews/[id]`, `/careers`, `/careers/[id]`, `/careers/offers/[token]`, `/reviews`, `/reviews/[id]`, `/my-reviews`, `/my-reviews/[id]`; menu `HrShell` thêm Tuyển dụng, Ứng viên, Phỏng vấn của tôi, Đánh giá hiệu suất, Đánh giá của tôi | CHUC_NANG_190 đến CHUC_NANG_192 |
+
+Việc nền mới đăng ký trong `apps/api/src/jobs/background-jobs.ts` (BullMQ, múi giờ `Asia/Ho_Chi_Minh`): `hr-recruitment-daily` (`10 0 * * *`), `hr-candidate-erasure` (`0 1 * * *`), `hr-review-reminders` (`0 8 * * *`). Module chỉ ghi schema `hr`; không thêm thư viện.

@@ -11,8 +11,10 @@ import { DATABASE, type Database } from "../../database/database.module";
 import type { Actor } from "../../permissions/roles.service";
 import { SalesOrdersService } from "../../sales/sales-orders.service";
 import { MarketplaceOrdersService, refundRemainingPaid } from "../marketplace-orders.service";
+import { orderDeductions, returnWalletPart } from "../shopping-wallet";
 import type { GatewayNotification, GatewayRequest, InquiryOutcome, NotificationOutcome } from "./payment-gateway";
 import { gatewayAdapter, isOnlineMethod } from "./payment-gateway-registry";
+import { releaseSalePoints } from "../../loyalty/ledger.service";
 
 // Mỗi đơn mở trang thanh toán tối đa 10 lần.
 const attemptLimit = 10;
@@ -64,7 +66,7 @@ export class MarketplacePaymentsService {
           buyer_phone: string | null;
           buyer_email: string | null;
         }>(sql`
-        SELECT m.status, m.payment_method, pm.gateway_code, m.payment_deadline, (m.goods_amount + m.shipping_fee)::text AS total, so.document_no, m.payment_deadline <= now() AS expired,
+        SELECT m.status, m.payment_method, pm.gateway_code, m.payment_deadline, (m.goods_amount + m.shipping_fee - ${orderDeductions(sql`m`)})::text AS total, so.document_no, m.payment_deadline <= now() AS expired,
           u.full_name AS buyer_name, u.phone AS buyer_phone, u.email::text AS buyer_email
         FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id JOIN marketplace.payment_methods pm ON pm.code = m.payment_method JOIN core.users u ON u.id = m.buyer_user_id
         WHERE m.id = ${orderId} AND m.buyer_user_id = ${userId} FOR UPDATE OF m`)
@@ -195,7 +197,7 @@ export class MarketplacePaymentsService {
     const order = (await transaction.execute<{ status: string; buyer_user_id: string }>(sql`SELECT status, buyer_user_id FROM marketplace.orders WHERE id = ${orderId} FOR UPDATE`)).rows[0]!;
     await transaction.execute(sql`
       UPDATE marketplace.orders SET paid_amount = paid_amount + ${result.amount}, paid_at = coalesce(paid_at, now()), version = version + 1,
-        status = CASE WHEN status = 'awaiting_payment' THEN 'awaiting_shipment' ELSE status END
+        status = CASE WHEN status = 'awaiting_payment' THEN (CASE WHEN group_buy_id IS NULL THEN 'awaiting_shipment' ELSE 'awaiting_group' END) ELSE status END
       WHERE id = ${orderId}`);
     const note = result.transactionNo ? `${gatewayCode.toUpperCase()} ${result.transactionNo}` : null;
     if (order.status === "awaiting_payment") {
@@ -256,6 +258,10 @@ export class MarketplacePaymentsService {
         await this.orders.event(transaction, order.id, "cancelled", "Quá hạn thanh toán", null);
         // Phòng trường hợp đã ghi nhận tiền mà đơn chưa chuyển trạng thái.
         await refundRemainingPaid(transaction, order.id, "paid_after_cancel");
+        // Điểm thưởng của đơn hủy (CONG_VIEC_51; QUYTAC_NGHIEPVU_347, 349).
+        await releaseSalePoints(transaction, "marketplace_order", order.id);
+        // Phần đã trả bằng ví mua sắm hoàn về ví (CONG_VIEC_49; QUYTAC_NGHIEPVU_332).
+        await returnWalletPart(transaction, order.id);
         expired += 1;
       });
     }

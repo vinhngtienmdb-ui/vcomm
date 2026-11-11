@@ -43,6 +43,7 @@ type OrderRow = {
   order_date: Date | string;
   expected_date: Date | string | null;
   currency: string;
+  is_import: boolean;
   note: string | null;
   status: PurchaseDocumentStatus;
   approval_request_id: string | null;
@@ -160,6 +161,8 @@ export class PurchaseOrdersService implements OnModuleInit {
       ORDER BY d.created_at`);
     const manage = granted.has(purchasingPermissions.manageOrders);
     const own = row.created_by === actor.userId;
+    const baseCurrency = await companyCurrency(this.database, row.company_id);
+    const convertedTotal = row.currency === baseCurrency ? null : await convertToCompanyCurrency(this.database, row.company_id, row.currency, row.total_amount, this.permissionService.today());
     const counterpart = row.counterpart_order_id
       ? ((
           await this.database.execute<{ company_name: string; document_no: string | null; status: string }>(sql`
@@ -177,6 +180,9 @@ export class PurchaseOrdersService implements OnModuleInit {
       note: row.note,
       approvalRequestId: row.approval_request_id,
       closedReason: row.closed_reason,
+      companyCurrency: baseCurrency,
+      convertedTotal,
+      currencyLocked: receipts.rows.length > 0,
       isInternal: row.supplier_company_id !== null,
       isCounterpart: row.is_counterpart,
       counterpart: counterpart ? { companyName: counterpart.company_name, documentNo: counterpart.document_no, status: counterpart.status } : null,
@@ -220,11 +226,11 @@ export class PurchaseOrdersService implements OnModuleInit {
     await requirePermission(this.permissionService, actor, purchasingPermissions.manageOrders);
     const id = await this.database.transaction(async (transaction) => {
       const lines = await this.prepare(transaction, actor.companyId, input, null, false);
-      const currency = await companyCurrency(transaction, actor.companyId);
+      const currency = await orderCurrency(transaction, actor.companyId, input);
       const orderId = (
         await transaction.execute<{ id: string }>(sql`
-        INSERT INTO purchasing.orders (company_id, supplier_id, warehouse_id, order_date, expected_date, currency, note, created_by)
-        VALUES (${actor.companyId}, ${input.supplierId}, ${input.warehouseId}, ${input.orderDate}::date, ${input.expectedDate ?? null}::date, ${currency}, ${input.note}, ${actor.userId})
+        INSERT INTO purchasing.orders (company_id, supplier_id, warehouse_id, order_date, expected_date, currency, is_import, note, created_by)
+        VALUES (${actor.companyId}, ${input.supplierId}, ${input.warehouseId}, ${input.orderDate}::date, ${input.expectedDate ?? null}::date, ${currency}, ${input.isImport}, ${input.note}, ${actor.userId})
         RETURNING id`)
       ).rows[0]!.id;
       await this.writeLines(transaction, orderId, input, lines);
@@ -240,17 +246,23 @@ export class PurchaseOrdersService implements OnModuleInit {
     const before = await this.detail(actor, id);
     if (!before.canEdit) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
     await this.database.transaction(async (transaction) => {
-      const locked = await transaction.execute<{ status: PurchaseDocumentStatus; approved_total: string | null; warehouse_id: string }>(sql`
-        SELECT status, approved_total::text, warehouse_id FROM purchasing.orders WHERE id = ${id} AND company_id = ${actor.companyId} AND version = ${input.version ?? 0} FOR UPDATE`);
+      const locked = await transaction.execute<{ status: PurchaseDocumentStatus; approved_total: string | null; warehouse_id: string; currency: string; is_import: boolean }>(sql`
+        SELECT status, approved_total::text, warehouse_id, currency, is_import FROM purchasing.orders
+        WHERE id = ${id} AND company_id = ${actor.companyId} AND version = ${input.version ?? 0} FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       // Đơn đã từng được duyệt (kể cả lần duyệt lại bị từ chối, bị rút): sửa vẫn so với lần duyệt gần nhất, không về nháp.
       const wasApproved = locked.rows[0]!.approved_total !== null;
       // Kho nhận đã duyệt không đổi được: phiếu nhập đã lập, đang mở gắn với kho cũ.
       if (wasApproved && input.warehouseId !== locked.rows[0]!.warehouse_id) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { warehouseId: "documentHeaderLocked" } });
       const lines = await this.prepare(transaction, actor.companyId, input, id, false);
+      const currency = await orderCurrency(transaction, actor.companyId, input);
+      // Đã có phiếu nhập: không đổi tiền tệ, không bỏ đánh dấu nhập khẩu (QUYTAC_NGHIEPVU_285).
+      if ((currency !== locked.rows[0]!.currency || input.isImport !== locked.rows[0]!.is_import) && (await hasReceipts(transaction, id))) {
+        throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { currency: "purchaseLineHasReceipts" } });
+      }
       await transaction.execute(sql`
         UPDATE purchasing.orders SET supplier_id = ${input.supplierId}, warehouse_id = ${input.warehouseId}, order_date = ${input.orderDate}::date, expected_date = ${input.expectedDate ?? null}::date,
-          note = ${input.note}, status = ${wasApproved ? "approved" : "draft"}, approval_request_id = CASE WHEN ${wasApproved} THEN approval_request_id END,
+          currency = ${currency}, is_import = ${input.isImport}, note = ${input.note}, status = ${wasApproved ? "approved" : "draft"}, approval_request_id = CASE WHEN ${wasApproved} THEN approval_request_id END,
           updated_at = now(), version = version + 1
         WHERE id = ${id}`);
       await this.writeLines(transaction, id, input, lines);
@@ -413,7 +425,8 @@ export class PurchaseOrdersService implements OnModuleInit {
   private async sendForApproval(transaction: Executor, actor: Actor, row: OrderRow, lines: PreparedLine[]): Promise<void> {
     const totals = await this.totals(transaction, row.id);
     const estimate = lines.every((line) => line.estimate !== null) ? lines.reduce((sum, line) => sum + (line.estimate ?? 0), 0) : null;
-    const exempt = estimate !== null && Number(totals.total) <= estimate + 0.00005;
+    // Đơn nhập khẩu luôn đi luồng duyệt (QUYTAC_NGHIEPVU_285).
+    const exempt = !row.is_import && estimate !== null && Number(totals.total) <= estimate + 0.00005;
     const documentNo = row.document_no ?? (await this.sequences.next(actor.companyId, documentTypeCode, transaction));
     let requestId: string | null = null;
     if (!exempt) {
@@ -453,7 +466,10 @@ export class PurchaseOrdersService implements OnModuleInit {
     const fields: FieldErrors = {};
     if (!(await isActiveSupplier(transaction, companyId, input.supplierId))) fields.supplierId = "supplierNotActive";
     const sellerCompanyId = await internalCompanyOf(transaction, input.supplierId);
-    if (sellerCompanyId && !fields.supplierId) {
+    // Nhà cung cấp nội bộ không lập đơn nhập khẩu; đơn nhập khẩu không kê khai thuế giá trị gia tăng trên dòng, thuế tính trên tờ khai (QUYTAC_NGHIEPVU_285).
+    if (input.isImport && sellerCompanyId) fields.isImport = "invalidValue";
+    if (input.isImport) for (const line of input.lines) line.vatRate = "not_declared";
+    if (sellerCompanyId && !fields.supplierId && !input.isImport) {
       Object.assign(
         fields,
         await internalPurchaseErrors(
@@ -562,6 +578,8 @@ export class PurchaseOrdersService implements OnModuleInit {
       orderDate: day(row.order_date),
       expectedDate: row.expected_date === null ? null : day(row.expected_date),
       note: row.note,
+      isImport: row.is_import,
+      currency: row.currency,
       lines: lines.rows.map((line) => ({
         id: line.id,
         variantId: line.variant_id,
@@ -583,7 +601,7 @@ export class PurchaseOrdersService implements OnModuleInit {
 
   private select(): SQL {
     return sql`SELECT o.id, o.company_id, o.document_no, o.supplier_id, s.name AS supplier_name, s.company_id AS supplier_company_id, o.warehouse_id, coalesce(w.name, '') AS warehouse_name,
-      o.counterpart_order_id, o.is_counterpart, o.counterpart_rejected_reason, o.order_date, o.expected_date, o.currency, o.note,
+      o.counterpart_order_id, o.is_counterpart, o.counterpart_rejected_reason, o.order_date, o.expected_date, o.currency, o.is_import, o.note,
       o.status, o.approval_request_id, o.approved_total::text, o.approved_supplier_id, o.total_amount::text, o.tax_amount::text, o.closed_reason, o.created_by,
       cu.full_name AS created_by_name, o.version`;
   }
@@ -603,9 +621,41 @@ function toItem(row: OrderRow): PurchaseOrderListItem {
     orderDate: day(row.order_date),
     expectedDate: row.expected_date === null ? null : day(row.expected_date),
     currency: row.currency,
+    isImport: row.is_import,
     totalAmount: trimDecimal(row.total_amount),
     taxAmount: trimDecimal(row.tax_amount),
     status: row.status,
     createdByName: row.created_by_name,
   };
+}
+
+// Tiền tệ đơn: đơn nhập khẩu theo tiền tệ đã chọn (đang dùng), mặc định tiền tệ công ty; đơn không nhập khẩu theo tiền tệ công ty (QUYTAC_NGHIEPVU_285).
+async function orderCurrency(executor: Executor, companyId: string, input: Input): Promise<string> {
+  const base = await companyCurrency(executor, companyId);
+  if (!input.isImport || !input.currency) return base;
+  const active = await executor.execute(sql`SELECT 1 FROM core.currencies WHERE code = ${input.currency} AND is_active`);
+  if (active.rows.length === 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { currency: "invalidValue" } });
+  return input.currency;
+}
+
+async function hasReceipts(executor: Executor, orderId: string): Promise<boolean> {
+  return (await executor.execute(sql`SELECT 1 FROM inventory.documents WHERE type = 'purchase_receipt' AND source_id = ${orderId} LIMIT 1`)).rows.length > 0;
+}
+
+// Tỷ giá hạch toán (ưu tiên nhập tay) của ngày, từ tiền tệ chứng từ sang tiền tệ công ty (QUYTAC_NGHIEPVU_19, 286); trống khi chưa có.
+export async function accountingRate(executor: Executor, companyId: string, currency: string, date: string): Promise<string | null> {
+  const base = await companyCurrency(executor, companyId);
+  if (currency === base) return "1";
+  const row = (
+    await executor.execute<{ rate: string }>(sql`
+    SELECT rate::text FROM core.exchange_rates WHERE rate_date = ${date}::date AND from_currency = ${currency} AND to_currency = ${base} AND rate_type = 'accounting'
+    ORDER BY source = 'manual' DESC, created_at DESC LIMIT 1`)
+  ).rows[0];
+  return row?.rate ?? null;
+}
+
+async function convertToCompanyCurrency(executor: Executor, companyId: string, currency: string, amount: string, date: string): Promise<string | null> {
+  const rate = await accountingRate(executor, companyId, currency, date);
+  if (rate === null) return null;
+  return trimDecimal((await executor.execute<{ value: string }>(sql`SELECT round(${amount}::numeric * ${rate}::numeric, finance.company_minor_units(${companyId}))::text AS value`)).rows[0]!.value);
 }

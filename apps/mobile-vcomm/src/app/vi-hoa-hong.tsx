@@ -61,7 +61,9 @@ export default function WalletScreen() {
               <Text style={{ fontSize: 28, fontWeight: "700", color: colors.text }}>{money(wallet.balance)}</Text>
               <Muted>{t("walletPending", { amount: money(wallet.pendingAmount) })}</Muted>
               <Muted>{t("walletPendingHint")}</Muted>
-              {wallet.withdrawal.open ? null : <Button label={t("withdrawTitle")} disabled={Number(wallet.balance) <= 0} onPress={() => router.push("/rut-tien")} />}
+              {/* THAY_DOI_22: ví hoa hồng bị chặn thì không tạo yêu cầu rút. */}
+              {wallet.withdrawal.blocked ? <Notice tone="warning" text={t("commissionWalletBlockedNotice")} /> : null}
+              {wallet.withdrawal.open ? null : <Button label={t("withdrawTitle")} disabled={Number(wallet.balance) <= 0 || wallet.withdrawal.blocked} onPress={() => router.push("/rut-tien")} />}
             </Card>
             {wallet.withdrawal.open ? <OpenWithdrawal item={wallet.withdrawal.open} onCancelled={reload} /> : null}
             <Card>
@@ -81,7 +83,7 @@ export default function WalletScreen() {
                 >
                   <View style={{ flexShrink: 1 }}>
                     <Text style={{ color: colors.text, fontWeight: "600" }}>
-                      {item.kind === "commission" ? t("walletCommission", { order: item.orderDocumentNo ?? "" }) : t(`walletKind_${item.kind}`)}
+                      {item.kind === "commission" ? t("walletCommission", { order: item.orderDocumentNo ?? "" }) : t(`walletKind_${item.kind}`, { order: item.orderDocumentNo ?? "" })}
                     </Text>
                     <Muted>{shortDate(item.createdAt)}</Muted>
                   </View>
