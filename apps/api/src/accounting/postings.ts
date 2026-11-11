@@ -29,7 +29,11 @@ export type PostingRole =
   | "commission_payable"
   | "personal_income_tax"
   | "other_income"
-  | "service_expense";
+  | "service_expense"
+  | "loyalty_expense"
+  | "loyalty_liability"
+  | "loyalty_intercompany_receivable"
+  | "loyalty_intercompany_payable";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -57,6 +61,10 @@ export const postingRoles: PostingRole[] = [
   "personal_income_tax",
   "other_income",
   "service_expense",
+  "loyalty_expense",
+  "loyalty_liability",
+  "loyalty_intercompany_receivable",
+  "loyalty_intercompany_payable",
 ];
 
 export interface DraftLine {
@@ -67,7 +75,18 @@ export interface DraftLine {
 }
 export interface DraftJournal {
   companyId: string;
-  sourceType: "inventory_document" | "payment" | "internal_write_off" | "collection_statement" | "marketplace_payment" | "marketplace_refund" | "marketplace_commission" | "marketplace_withdrawal";
+  sourceType:
+    | "inventory_document"
+    | "payment"
+    | "internal_write_off"
+    | "collection_statement"
+    | "marketplace_payment"
+    | "marketplace_refund"
+    | "marketplace_commission"
+    | "marketplace_withdrawal"
+    | "loyalty_entry"
+    | "loyalty_seller_entry"
+    | "loyalty_order_redeem";
   sourceId: string;
   journalNo: string;
   date: string;

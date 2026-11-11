@@ -49,22 +49,39 @@ export const pointsFor = (value: number, phase: Pick<ActivePhase, "earnPercent" 
   return phase.orderCapPoints === null ? raw : Math.min(raw, phase.orderCapPoints);
 };
 
+// Bút toán kế toán của từng bút toán điểm (QUYTAC_NGHIEPVU_355): LoyaltyPostingsService đăng ký khi khởi động; kiểm thử đơn vị không cần.
+type EntryPoster = (executor: Executor, entryId: string) => Promise<void>;
+let entryPoster: EntryPoster | null = null;
+export const setEntryPoster = (poster: EntryPoster | null) => {
+  entryPoster = poster;
+};
+
 // Ghi một bút toán điểm, cập nhật số dư (dòng ví đã khóa); trả mã bút toán.
 async function addEntry(
   executor: Executor,
-  input: { userId: string; kind: EntryKind; points: number; sourceType: LoyaltySourceType | null; sourceId: string | null; companyId: string | null; allocations: Allocation[] },
+  input: {
+    userId: string;
+    kind: EntryKind;
+    points: number;
+    amount?: number;
+    sourceType: LoyaltySourceType | null;
+    sourceId: string | null;
+    companyId: string | null;
+    allocations: Allocation[];
+  },
 ): Promise<string> {
   const balance = (
     await executor.execute<{ balance: number }>(sql`UPDATE loyalty.accounts SET balance = balance + ${input.points}, updated_at = now() WHERE user_id = ${input.userId} RETURNING balance`)
   ).rows[0]!.balance;
   const entryId = (
     await executor.execute<{ id: string }>(sql`
-    INSERT INTO loyalty.entries (user_id, kind, points, balance_after, source_type, source_id, company_id)
-    VALUES (${input.userId}, ${input.kind}, ${input.points}, ${balance}, ${input.sourceType}, ${input.sourceId}::uuid, ${input.companyId}::uuid) RETURNING id`)
+    INSERT INTO loyalty.entries (user_id, kind, points, amount, balance_after, source_type, source_id, company_id)
+    VALUES (${input.userId}, ${input.kind}, ${input.points}, ${input.amount ?? 0}, ${balance}, ${input.sourceType}, ${input.sourceId}::uuid, ${input.companyId}::uuid) RETURNING id`)
   ).rows[0]!.id;
   for (const allocation of input.allocations) {
     await executor.execute(sql`INSERT INTO loyalty.entry_lots (entry_id, lot_id, points, point_value) VALUES (${entryId}, ${allocation.lotId}, ${allocation.points}, ${allocation.pointValue})`);
   }
+  if (entryPoster) await entryPoster(executor, entryId);
   return entryId;
 }
 
@@ -109,6 +126,29 @@ export async function takeFromLots(executor: Executor, userId: string, points: n
   }
   if (left > 0) throw new ApiError("BUSINESS_RULE", "loyaltyRedeemInvalid");
   return allocations;
+}
+
+// Hết hạn một lô (QUYTAC_NGHIEPVU_350): trừ hết phần còn lại của lô; dòng ví khóa trước, lô khóa sau để cùng thứ tự với dùng điểm.
+export async function expireLot(executor: Executor, lotId: string, day: string): Promise<number> {
+  const peek = (await executor.execute<{ user_id: string }>(sql`SELECT user_id FROM loyalty.lots WHERE id = ${lotId}`)).rows[0];
+  if (!peek) return 0;
+  await lockAccount(executor, peek.user_id);
+  const lot = (
+    await executor.execute<{ remaining: number; point_value: string; company_id: string }>(sql`
+    SELECT remaining, point_value::text, company_id FROM loyalty.lots WHERE id = ${lotId} AND remaining > 0 AND expires_on < ${day}::date FOR UPDATE`)
+  ).rows[0];
+  if (!lot) return 0;
+  await executor.execute(sql`UPDATE loyalty.lots SET remaining = 0 WHERE id = ${lotId}`);
+  await addEntry(executor, {
+    userId: peek.user_id,
+    kind: "expire",
+    points: -lot.remaining,
+    sourceType: null,
+    sourceId: null,
+    companyId: null,
+    allocations: [{ lotId, points: -lot.remaining, pointValue: Number(lot.point_value) }],
+  });
+  return lot.remaining;
 }
 
 // Hoàn điểm đã dùng vào đúng các lô đã lấy (QUYTAC_NGHIEPVU_349): lô hạn xa trước; lô đã hết hạn được hạn mới = hôm nay + 30 ngày.
@@ -157,7 +197,15 @@ export async function returnSalePoints(
     input.saleSourceType === "retail_sale" ? { sourceType: "retail_return" as const, sourceId: input.returnSourceId } : { sourceType: input.saleSourceType, sourceId: input.saleSourceId };
   if (refundedPoints > 0) {
     const allocations = await refundToLots(executor, { userId: document.user_id, saleSourceType: input.saleSourceType, saleSourceId: input.saleSourceId, points: refundedPoints, day: input.day });
-    const entryId = await addEntry(executor, { userId: document.user_id, kind: "redeem_refund", points: refundedPoints, ...entrySource, companyId: input.companyId, allocations });
+    const entryId = await addEntry(executor, {
+      userId: document.user_id,
+      kind: "redeem_refund",
+      points: refundedPoints,
+      amount: refundedPointsAmount,
+      ...entrySource,
+      companyId: input.companyId,
+      allocations,
+    });
     await executor.execute(sql`INSERT INTO loyalty.refund_links (entry_id, sale_source_type, sale_source_id) VALUES (${entryId}, ${input.saleSourceType}, ${input.saleSourceId})`);
   }
   let reversedPoints = 0;
@@ -172,9 +220,18 @@ export async function returnSalePoints(
       ).rows[0];
       const balance = (await executor.execute<{ balance: number }>(sql`SELECT balance FROM loyalty.accounts WHERE user_id = ${document.user_id}`)).rows[0]!.balance;
       const taken = Math.min(toReverse, balance);
-      if (taken > 0) {
-        const allocations = await takeFromLots(executor, document.user_id, taken, lot?.id ?? null);
-        await addEntry(executor, { userId: document.user_id, kind: "earn_reversal", points: -taken, ...entrySource, companyId: input.companyId, allocations });
+      // Luôn ghi bút toán (kể cả 0 điểm khi số dư bằng 0) để phần thiếu quy tiền có bút toán kế toán.
+      {
+        const allocations = taken > 0 ? await takeFromLots(executor, document.user_id, taken, lot?.id ?? null) : [];
+        await addEntry(executor, {
+          userId: document.user_id,
+          kind: "earn_reversal",
+          points: -taken,
+          amount: Math.round((toReverse - taken) * Number(lot?.point_value ?? 0)),
+          ...entrySource,
+          companyId: input.companyId,
+          allocations,
+        });
       }
       reversedPoints = taken;
       // Phần điểm thiếu quy ra tiền theo giá trị một điểm lúc tích (quyết định người dùng 2026-11-11).
@@ -331,7 +388,7 @@ export class LoyaltyLedgerService {
     if (input.points < quote.minPoints || input.points > quote.maxPoints) throw new ApiError("BUSINESS_RULE", "loyaltyRedeemInvalid");
     const amount = Math.floor(input.points * quote.pointValue!);
     const allocations = await takeFromLots(executor, input.userId, input.points, null, input.day);
-    await addEntry(executor, { userId: input.userId, kind: "redeem", points: -input.points, sourceType: input.sourceType, sourceId: input.sourceId, companyId: input.companyId, allocations });
+    await addEntry(executor, { userId: input.userId, kind: "redeem", points: -input.points, amount, sourceType: input.sourceType, sourceId: input.sourceId, companyId: input.companyId, allocations });
     const snapshot = await snapshotWithin(executor, { ...input, redeemedPoints: input.points, redeemedAmount: amount });
     return { points: input.points, amount, ...snapshot };
   }

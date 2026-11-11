@@ -1,6 +1,6 @@
 // Ví điểm: điểm của tôi, hạng thành viên trên ứng dụng; điểm của chứng từ (CONG_VIEC_51; CHUC_NANG_179; API_177).
 import { Inject, Injectable } from "@nestjs/common";
-import type { BuyerLoyaltyResponse, LoyaltyDocumentPoints, LoyaltyEntryItem, LoyaltyTier, LoyaltyTierProgress, PageResponse } from "contracts";
+import type { BuyerLoyaltyResponse, LoyaltyDocumentPoints, LoyaltyEntryItem, LoyaltyLiabilityResponse, LoyaltyTier, LoyaltyTierProgress, PageResponse } from "contracts";
 import { sql } from "drizzle-orm";
 import { trimDecimal } from "../catalog/catalog-context";
 import { DATABASE, type Database } from "../database/database.module";
@@ -136,6 +136,49 @@ export class LoyaltyAccountsService {
       multiplier: trimDecimal(row.multiplier),
       earnPercent: row.earn_percent === null ? null : trimDecimal(row.earn_percent),
       pointValue: row.point_value === null ? null : trimDecimal(row.point_value),
+    };
+  }
+
+  // API_182 (MAN_HINH_150): theo tháng của năm; phát hành = tích trừ trừ lại, đã dùng = dùng trừ hoàn, hết hạn, điều chỉnh; số dư cuối tháng lũy kế từ đầu.
+  async liability(year: number): Promise<LoyaltyLiabilityResponse> {
+    const today = await vietnamToday(this.database);
+    const rows = await this.database.execute<{ month: string; issued: number; used: number; expired: number; adjusted: number; closing_points: number; closing_value: string }>(sql`
+      WITH months AS (
+        SELECT to_char(m, 'YYYY-MM') AS month, (m + interval '1 month') AS month_end FROM generate_series(make_date(${year}, 1, 1), make_date(${year}, 12, 1), interval '1 month') AS m
+        WHERE m <= ${today}::date
+      ), movements AS (
+        SELECT to_char(e.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'YYYY-MM') AS month, e.kind, e.points FROM loyalty.entries e
+        WHERE extract(year FROM e.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh') = ${year}
+      )
+      SELECT months.month,
+        coalesce((SELECT sum(points) FROM movements WHERE movements.month = months.month AND kind IN ('earn', 'earn_reversal')), 0)::int AS issued,
+        coalesce((SELECT sum(points) FROM movements WHERE movements.month = months.month AND kind IN ('redeem', 'redeem_refund')), 0)::int AS used,
+        coalesce((SELECT sum(points) FROM movements WHERE movements.month = months.month AND kind = 'expire'), 0)::int AS expired,
+        coalesce((SELECT sum(points) FROM movements WHERE movements.month = months.month AND kind IN ('adjust_add', 'adjust_subtract')), 0)::int AS adjusted,
+        coalesce((SELECT sum(e.points) FROM loyalty.entries e WHERE e.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh' < months.month_end), 0)::int AS closing_points,
+        coalesce((SELECT sum(el.points * el.point_value) FROM loyalty.entry_lots el JOIN loyalty.entries e ON e.id = el.entry_id
+          WHERE e.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh' < months.month_end), 0)::text AS closing_value
+      FROM months ORDER BY months.month DESC`);
+    const current = (
+      await this.database.execute<{ points: number; value: string; expiring: number }>(sql`
+      SELECT coalesce(sum(remaining), 0)::int AS points, coalesce(sum(remaining * point_value), 0)::text AS value,
+        coalesce(sum(remaining) FILTER (WHERE expires_on BETWEEN ${today}::date AND ${today}::date + 30), 0)::int AS expiring
+      FROM loyalty.lots WHERE remaining > 0`)
+    ).rows[0]!;
+    return {
+      year,
+      months: rows.rows.map((row) => ({
+        month: row.month,
+        issued: row.issued,
+        used: row.used,
+        expired: row.expired,
+        adjusted: row.adjusted,
+        closingPoints: row.closing_points,
+        closingValue: trimDecimal(String(Math.round(Number(row.closing_value)))),
+      })),
+      currentPoints: current.points,
+      currentValue: trimDecimal(String(Math.round(Number(current.value)))),
+      expiringPoints: current.expiring,
     };
   }
 

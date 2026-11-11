@@ -34,11 +34,12 @@ CREATE INDEX loyalty_document_points_user_idx ON loyalty.document_points (user_i
 -- Tiền phải trả của đơn VComm = tiền hàng + phí giao hàng − tiền điểm (QUYTAC_NGHIEPVU_348).
 ALTER TABLE marketplace.orders ADD COLUMN points_amount numeric(18,4) NOT NULL DEFAULT 0 CHECK (points_amount >= 0);
 
--- Bút toán tự sinh của điểm thưởng (QUYTAC_NGHIEPVU_355).
+-- Bút toán tự sinh của điểm thưởng (QUYTAC_NGHIEPVU_355): mỗi bút toán điểm một bút toán ở công ty vận hành sàn (loyalty_entry), thêm một ở công ty bán
+-- khi khác công ty vận hành sàn (loyalty_seller_entry); điểm dùng của đơn VComm ghi gộp khi đơn hoàn tất (loyalty_order_redeem).
 ALTER TABLE accounting.journals DROP CONSTRAINT journals_source_type_check;
 ALTER TABLE accounting.journals ADD CONSTRAINT journals_source_type_check
     CHECK (source_type IN ('manual', 'inventory_document', 'payment', 'internal_write_off', 'closing', 'commission', 'collection_statement', 'marketplace_payment', 'marketplace_refund',
-        'marketplace_commission', 'marketplace_withdrawal', 'loyalty_entry'));
+        'marketplace_commission', 'marketplace_withdrawal', 'loyalty_entry', 'loyalty_seller_entry', 'loyalty_order_redeem'));
 INSERT INTO accounting.posting_rules (company_id, role, account_id)
 SELECT s.company_id, r.role, a.id
 FROM accounting.settings s

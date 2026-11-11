@@ -1847,7 +1847,8 @@
     "returnRequests": "Return requests",
     "refunds": "Refunds",
     "withdrawals": "Commission withdrawals",
-    "loyaltyProgram": "Loyalty program"
+    "loyaltyProgram": "Loyalty program",
+    "loyaltyLiability": "Points liability"
   },
   "partners": {
     "title": "Partners",
@@ -3779,6 +3780,21 @@
     "addTier": "Add tier",
     "saveTiers": "Save tiers",
     "tiersSaved": "Tiers saved; buyer tiers recalculated",
-    "tiersHint": "Spend thresholds increase with order. Changing tiers recalculates buyer tiers immediately; placed orders keep the multiplier at ordering time."
+    "tiersHint": "Spend thresholds increase with order. Changing tiers recalculates buyer tiers immediately; placed orders keep the multiplier at ordering time.",
+    "liabilityTitle": "Points liability",
+    "year": "Year",
+    "currentLiability": "Current liability",
+    "currentLiabilityValue": "Value at earning {value} VND · account 3388",
+    "pointsValue": "{points} points",
+    "expiringSoon": "Expiring within 30 days",
+    "noLiability": "No points activity this year.",
+    "liability_month": "Month",
+    "liability_issued": "Issued (points)",
+    "liability_used": "Used",
+    "liability_expired": "Expired",
+    "liability_adjusted": "Adjusted",
+    "liability_closingPoints": "Closing balance (points)",
+    "liability_closingValue": "Closing value at earning (VND)",
+    "liabilityHint": "Figures come from the points ledger. Issued is earned minus reversals on returns; used is redeemed minus refunds. The value matches account 3388 for the points liability role once accounting is initialised."
   }
 }

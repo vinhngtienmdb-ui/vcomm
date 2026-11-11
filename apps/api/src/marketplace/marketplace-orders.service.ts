@@ -31,6 +31,7 @@ import { isOnlineMethod } from "./payments/payment-gateway-registry";
 import { carrierConfigured } from "./carriers/carrier-registry";
 import { buyerReturnRequests, returnWindowHours } from "./return-requests.service";
 import { LoyaltyAccountsService } from "../loyalty/accounts.service";
+import { LoyaltyPostingsService } from "../loyalty/postings.service";
 import { LoyaltyLedgerService, pointsFor, quoteRedemption, releaseSalePoints } from "../loyalty/ledger.service";
 import { phaseOn } from "../loyalty/program.service";
 
@@ -147,6 +148,7 @@ export class MarketplaceOrdersService {
     private readonly commissions: MarketplaceCommissionsService,
     private readonly loyalty: LoyaltyLedgerService,
     private readonly loyaltyAccounts: LoyaltyAccountsService,
+    private readonly loyaltyPostings: LoyaltyPostingsService,
   ) {}
 
   private async storeContext(): Promise<StoreContext> {
@@ -624,6 +626,8 @@ export class MarketplaceOrdersService {
         day: completed.today,
         goodsAmount: Number(completed.completed_amount),
       });
+      // Bút toán điểm đã dùng của đơn (QUYTAC_NGHIEPVU_355).
+      await this.loyaltyPostings.postOrderRedeem(transaction, order.id);
       onCompleted();
     });
   }

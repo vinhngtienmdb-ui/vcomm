@@ -4663,3 +4663,22 @@ export interface LoyaltyDocumentPoints {
   earnPercent: string | null;
   pointValue: string | null;
 }
+
+// API_182: nghĩa vụ điểm theo tháng (CONG_VIEC_51; QUYTAC_NGHIEPVU_355). Điểm là số nguyên có dấu; giá trị theo giá trị một điểm lúc cộng.
+export const loyaltyLiabilityQuerySchema = z.object({ year: z.coerce.number().int().min(2020).max(2100) }).strict();
+export interface LoyaltyLiabilityMonth {
+  month: string;
+  issued: number;
+  used: number;
+  expired: number;
+  adjusted: number;
+  closingPoints: number;
+  closingValue: string;
+}
+export interface LoyaltyLiabilityResponse {
+  year: number;
+  months: LoyaltyLiabilityMonth[];
+  currentPoints: number;
+  currentValue: string;
+  expiringPoints: number;
+}

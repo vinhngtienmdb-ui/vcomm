@@ -40,8 +40,11 @@ CREATE TABLE loyalty.entries (
     id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id        uuid        NOT NULL REFERENCES loyalty.accounts(user_id),
     kind           text        NOT NULL CHECK (kind IN ('earn', 'redeem', 'redeem_refund', 'earn_reversal', 'expire', 'adjust_add', 'adjust_subtract')),
-    points         integer     NOT NULL CHECK (points <> 0),
+    -- Trừ lại điểm đã tích khi số dư bằng 0: bút toán 0 điểm chỉ mang phần thiếu quy tiền.
+    points         integer     NOT NULL CHECK (points <> 0 OR (kind = 'earn_reversal' AND amount > 0)),
     balance_after  integer     NOT NULL CHECK (balance_after >= 0),
+    -- Tiền tương ứng: tiền điểm khi dùng, hoàn; phần thiếu quy tiền khi trừ lại điểm đã tích (QUYTAC_NGHIEPVU_349, 355).
+    amount         numeric(18,4) NOT NULL DEFAULT 0 CHECK (amount >= 0),
     source_type    text        CHECK (source_type IN ('marketplace_order', 'retail_sale', 'retail_return', 'adjustment')),
     source_id      uuid,
     company_id     uuid        REFERENCES core.companies(id),

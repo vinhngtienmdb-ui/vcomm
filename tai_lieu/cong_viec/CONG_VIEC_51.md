@@ -3,7 +3,7 @@
 - Mô tả: Sổ cái điểm ghi một chiều; tích điểm khi đơn VComm hoàn tất; đổi điểm trừ vào đơn; hạn dùng điểm theo từng lần tích; hạng thành viên theo chi tiêu năm dương lịch; cấu hình theo giai đoạn; chống gian lận cơ bản; hạch toán nghĩa vụ điểm. Trên ứng dụng VComm (`apps/mobile-vcomm`) và web quản trị (`apps/web-crm`).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu, dữ liệu và API ngày 2026-11-11; bổ sung nguồn chứng từ chung (quyết định 10 đến 12). Đã xong lát L0; đang làm lát L1.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu, dữ liệu và API ngày 2026-11-11; bổ sung nguồn chứng từ chung (quyết định 10 đến 12). Đã xong lát L0 đến L3; đang làm lát L4.
 - Nguồn: tài liệu `04` (mục 63), `05` (mục 2.3), `01` (rủi ro ví điện tử); quyết định của người dùng ngày 2026-11-11 (mục 17); CONG_VIEC_23 (tài khoản người mua), CONG_VIEC_24 (đặt hàng, hủy, trả hàng, hoàn tất), CONG_VIEC_25 (thanh toán, hoàn tiền, bút toán), CONG_VIEC_26 (mẫu ví, giao dịch ví một chiều); CONG_VIEC_49 (ví mua sắm, đang làm song song).
 - Mức: Lớn (module mới, schema mới `loyalty`, sửa cách đặt hàng, hoàn tiền, hoàn tất đơn).
 
@@ -120,7 +120,7 @@ Database migration 0087 (`0087_loyalty_ledger.sql`):
 Database migration 0088 (`0088_loyalty_orders.sql`):
 - `loyalty.document_points` (điểm của chứng từ bán): khóa chính `source_type` (`marketplace_order`, `retail_sale`), `source_id`; `company_id`, `user_id`, `phase_id`, `tier_id`, `multiplier`, `earn_percent`, `point_value` (chụp lúc đặt; trống khi không có giai đoạn), `redeemed_points`, `redeemed_amount`, `refunded_points`, `expected_points`, `earned_points`, `reversed_points`, `shortfall_amount`, `earn_status` (`pending`, `earned`, `skipped`, `cancelled`), `skip_reason` (`test_buyer`, `locked`, `inactive`, `no_phase`, `zero`), `earned_at`.
 - `marketplace.orders.points_amount` (tiền điểm, ≥ 0, mặc định 0); tiền phải trả = `goods_amount` + `shipping_fee` − `points_amount`.
-- Nguồn bút toán `loyalty_earn`, `loyalty_redeem`, `loyalty_expire`, `loyalty_adjustment`; vai trò định khoản `loyalty_expense` (6418 theo Thông tư 99, 6421 theo Thông tư 133), `loyalty_liability` (3388), `loyalty_intercompany_receivable` (1368), `loyalty_intercompany_payable` (3368); thêm cho công ty đã khởi tạo kế toán.
+- Nguồn bút toán `loyalty_entry` (mỗi bút toán điểm, ở công ty vận hành sàn hoặc gộp khi cùng công ty), `loyalty_seller_entry` (phía công ty bán khi khác công ty vận hành sàn), `loyalty_order_redeem` (điểm đã dùng của đơn VComm, ghi gộp khi hoàn tất); `loyalty.entries.amount` (tiền điểm khi dùng, hoàn; phần thiếu quy tiền); `loyalty.refund_links`; vai trò định khoản `loyalty_expense` (6418 theo Thông tư 99, 6421 theo Thông tư 133), `loyalty_liability` (3388), `loyalty_intercompany_receivable` (1368), `loyalty_intercompany_payable` (3368); thêm cho công ty đã khởi tạo kế toán.
 
 Database migration 0089 (`0089_loyalty_adjustments.sql`):
 - `loyalty.adjustments`: `id`, `company_id`, `document_no` (cấp khi gửi duyệt lần đầu, tiền tố `DD`), `user_id`, `direction` (`add`, `subtract`), `points` (1 đến 10.000.000), `reason`, `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`, `post_failed`), `failure_reason`, `approval_request_id`, `entry_id`, người, thời điểm tạo, sửa, `version`. Ghi sổ khi nhận sự kiện `core.approval.completed` đã duyệt.

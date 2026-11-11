@@ -1847,7 +1847,8 @@
     "returnRequests": "Yêu cầu trả hàng",
     "refunds": "Hoàn tiền",
     "withdrawals": "Rút tiền hoa hồng",
-    "loyaltyProgram": "Chương trình điểm"
+    "loyaltyProgram": "Chương trình điểm",
+    "loyaltyLiability": "Nghĩa vụ điểm"
   },
   "partners": {
     "title": "Đối tác",
@@ -3779,6 +3780,21 @@
     "addTier": "Thêm hạng",
     "saveTiers": "Lưu bảng hạng",
     "tiersSaved": "Đã lưu bảng hạng, đã tính lại hạng người mua",
-    "tiersHint": "Mức chi tiêu tăng dần theo thứ tự. Đổi bảng hạng: hạng người mua tính lại ngay; đơn đã đặt giữ hệ số lúc đặt."
+    "tiersHint": "Mức chi tiêu tăng dần theo thứ tự. Đổi bảng hạng: hạng người mua tính lại ngay; đơn đã đặt giữ hệ số lúc đặt.",
+    "liabilityTitle": "Nghĩa vụ điểm",
+    "year": "Năm",
+    "currentLiability": "Số dư nghĩa vụ hiện tại",
+    "currentLiabilityValue": "Giá trị lúc tích {value} ₫ · tài khoản 3388",
+    "pointsValue": "{points} điểm",
+    "expiringSoon": "Sắp hết hạn 30 ngày",
+    "noLiability": "Chưa phát sinh điểm trong năm này.",
+    "liability_month": "Tháng",
+    "liability_issued": "Phát hành (điểm)",
+    "liability_used": "Đã dùng",
+    "liability_expired": "Hết hạn",
+    "liability_adjusted": "Điều chỉnh",
+    "liability_closingPoints": "Số dư cuối (điểm)",
+    "liability_closingValue": "Giá trị số dư lúc tích (₫)",
+    "liabilityHint": "Số liệu lấy từ sổ cái điểm. Phát hành gồm tích trừ phần trừ lại do trả hàng; đã dùng gồm dùng trừ phần hoàn. Giá trị số dư khớp số dư tài khoản 3388 vai trò nghĩa vụ điểm khi công ty đã khởi tạo kế toán."
   }
 }
