@@ -3,7 +3,7 @@
 - Mô tả: Đơn đặt trên ứng dụng VComm được khách tự đến nhận tại trạm hoặc được trạm giao tận nơi. Trạm là cửa hàng bán lẻ (CONG_VIEC_53) hoặc điểm giao nhận riêng của công ty vận hành sàn, có kho riêng. Khách chọn trạm còn đủ hàng; trạm soạn hàng, báo sẵn sàng, giao bằng mã nhận hàng, thu tiền trong ca thu ngân; giữ hàng có hạn rồi tự hủy; trả hàng nhận về kho trạm.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả và bản mẫu.
+- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; lập trình chờ bản 0.5.0 (CONG_VIEC_53) vào `main`.
 - Mức: Lớn (sửa cấu trúc dữ liệu, API, trạng thái đơn VComm đang dùng; nhiều module: VComm, Bán lẻ, Kho, Tài chính – Kế toán; thêm quyền, vai trò).
 - Nhánh: `chuc-nang/CONG_VIEC_57-tram-giao-hang-ngan-sach`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_14), `05` mục 3, `24` THAY_DOI_04; quyết định của người dùng ngày 2026-11-11 (mục 14).
@@ -172,25 +172,27 @@ Kịch bản kiểm thử KICHBAN_KIEMTHU_559 đến KICHBAN_KIEMTHU_572 lập �
 
 ## 14. Quyết định của người dùng – 2026-11-11
 
-| Câu hỏi               | Quyết định                                                                                                     |
-| --------------------- | -------------------------------------------------------------------------------------------------------------- |
-| Tách công việc        | Tách hai công việc; CONG_VIEC_57 chỉ làm trạm giao hàng O2O, kế hoạch mua theo ngân sách thành công việc riêng |
-| Trạm là gì            | Cả cửa hàng bán lẻ của CONG_VIEC_53 và điểm giao nhận riêng                                                    |
-| Cách nhận             | Khách tự đến nhận và trạm giao tận nơi                                                                         |
-| Chọn trạm             | Khách chọn trạm                                                                                                |
-| Pháp nhân             | Chỉ trạm của công ty vận hành sàn                                                                              |
-| Điểm giao nhận        | Có kho riêng như chi nhánh                                                                                     |
-| Trạm thiếu hàng       | Chỉ hiện trạm đủ hàng, không điều chuyển cho đơn                                                               |
-| Trạm giao             | Nhân viên của trạm, phí cố định, miễn phí từ mức tiền hàng                                                     |
-| Thanh toán            | Trả trước hoặc trả khi nhận tại trạm (tiền mặt, VietQR trong ca)                                               |
-| Khách không đến nhận  | Giữ N ngày, nhắc, tự hủy                                                                                       |
-| Xác nhận giao         | Mã nhận hàng 6 số và mã QR                                                                                     |
-| Nơi xử lý             | Mini app Bán lẻ                                                                                                |
-| Trả hàng              | Theo luồng trả hàng VComm, nhận về kho trạm                                                                    |
-| Giao không thành công | Mang về, giao lại tối đa 3 lần hoặc hủy                                                                        |
-| Thông báo             | Trong ứng dụng và Zalo ZNS                                                                                     |
-
-Điểm chờ người dùng xác nhận khi duyệt đặc tả: chi nhánh của điểm giao nhận gồm loại "Cửa hàng" và "Khác" (QUYTAC_NGHIEPVU_418); phiếu xuất ghi sổ khi giao thành công, không ghi khi nhân viên mang hàng đi (QUYTAC_NGHIEPVU_424); mã nhận hàng không gửi qua Zalo ZNS (QUYTAC_NGHIEPVU_425); vai trò mới Nhân viên giao hàng trạm (mục 6).
+| Câu hỏi                         | Quyết định                                                                                                     |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Tách công việc                  | Tách hai công việc; CONG_VIEC_57 chỉ làm trạm giao hàng O2O, kế hoạch mua theo ngân sách thành công việc riêng |
+| Trạm là gì                      | Cả cửa hàng bán lẻ của CONG_VIEC_53 và điểm giao nhận riêng                                                    |
+| Cách nhận                       | Khách tự đến nhận và trạm giao tận nơi                                                                         |
+| Chọn trạm                       | Khách chọn trạm                                                                                                |
+| Pháp nhân                       | Chỉ trạm của công ty vận hành sàn                                                                              |
+| Điểm giao nhận                  | Có kho riêng như chi nhánh                                                                                     |
+| Trạm thiếu hàng                 | Chỉ hiện trạm đủ hàng, không điều chuyển cho đơn                                                               |
+| Trạm giao                       | Nhân viên của trạm, phí cố định, miễn phí từ mức tiền hàng                                                     |
+| Thanh toán                      | Trả trước hoặc trả khi nhận tại trạm (tiền mặt, VietQR trong ca)                                               |
+| Khách không đến nhận            | Giữ N ngày, nhắc, tự hủy                                                                                       |
+| Xác nhận giao                   | Mã nhận hàng 6 số và mã QR                                                                                     |
+| Nơi xử lý                       | Mini app Bán lẻ                                                                                                |
+| Trả hàng                        | Theo luồng trả hàng VComm, nhận về kho trạm                                                                    |
+| Giao không thành công           | Mang về, giao lại tối đa 3 lần hoặc hủy                                                                        |
+| Thông báo                       | Trong ứng dụng và Zalo ZNS                                                                                     |
+| Duyệt đặc tả (2026-11-11)       | Duyệt đặc tả, bản mẫu MAN_HINH_188 đến 194                                                                     |
+| Chi nhánh của điểm giao nhận    | Loại "Cửa hàng" hoặc "Khác" (QUYTAC_NGHIEPVU_418)                                                              |
+| Ghi sổ phiếu xuất khi trạm giao | Khi giao thành công, không ghi khi nhân viên mang hàng đi (QUYTAC_NGHIEPVU_424)                                |
+| Mã nhận hàng, vai trò           | Không gửi mã qua Zalo ZNS (QUYTAC_NGHIEPVU_425); thêm vai trò Nhân viên giao hàng trạm (mục 6)                 |
 
 ## 15. Lát và điểm xem trước
 
