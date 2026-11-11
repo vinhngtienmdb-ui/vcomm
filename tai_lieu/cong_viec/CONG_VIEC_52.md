@@ -3,7 +3,7 @@
 - Mô tả: Mini app Văn phòng số `apps/web-office`: quản lý công việc (giao việc, hạn, người theo dõi, bình luận, đính kèm, việc liên công ty trong tập đoàn); quy trình công việc theo mẫu có nhánh rẽ, song song; công văn đến, đi theo Nghị định 30/2020/NĐ-CP (sổ, số đến, số đi, ký hiệu, độ khẩn, soạn đúng thể thức, xuất PDF và Word, trình ký qua luồng duyệt chung); bảng tin nội bộ.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Chờ nghiệm thu (2026-11-12). Đặc tả đã duyệt ngày 2026-11-11 (gồm quyết định AI tự đưa ra ở mục 16). Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ.
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-12; trước phát hành đối chiếu nguyên văn Phụ lục I, III Nghị định 30/2020/NĐ-CP). Đặc tả đã duyệt ngày 2026-11-11 (gồm quyết định AI tự đưa ra ở mục 16). Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ.
 - Mức: Lớn (module mới, mini app mới, thêm thư viện `docx`, dữ liệu liên công ty).
 - Nguồn: tài liệu `01` mục 4 (MODULE_13), tài liệu `05` (Văn phòng số: công việc, quy trình, công văn, bảng tin nội bộ); quyết định của người dùng ngày 2026-11-11 (mục 17).
 

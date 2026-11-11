@@ -2610,4 +2610,4 @@ Mini app Văn phòng số `apps/web-office`, đường dẫn `/office`. Bản m�
 
 Điều hướng: trang chủ → Văn phòng số → menu Công việc (153 → 154), Quy trình (156), Mẫu quy trình (155), Công văn đến (157), Công văn đi (158), Bảng tin (159), Cài đặt văn thư (160). Thông báo công việc mở 154, công văn mở 157 hoặc 158, tin mở 159. Không dùng giá trị mới ngoài tài liệu `15`; xem trước công văn đi hiện chính tệp PDF do máy chủ tạo (phông, cỡ chữ của tệp theo Nghị định 30, không phải giá trị giao diện).
 
-- Trạng thái phê duyệt: bản mẫu đã duyệt ngày 2026-11-11; lát L0 đến L3 đã duyệt (2026-11-12); chờ nghiệm thu.
+- Trạng thái phê duyệt: bản mẫu đã duyệt ngày 2026-11-11; lát L0 đến L3 đã duyệt; người dùng nghiệm thu 2026-11-12.
