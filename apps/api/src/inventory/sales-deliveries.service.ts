@@ -194,51 +194,132 @@ export class SalesDeliveriesService {
   // Gửi phiếu xuất: khóa đơn bán, kiểm số còn phải giao, dùng phần hàng đã giữ rồi ghi sổ. Gửi phiếu trả: kiểm số đã giao còn trả được rồi ghi sổ.
   async submit(actor: Actor, id: string): Promise<StockDocumentResponse> {
     const row = await this.ownDraft(actor, id);
-    const typeCode = documentTypeCodes[row.type];
-    const configured = await this.database.execute(sql`SELECT 1 FROM core.number_sequences WHERE company_id = ${row.company_id} AND document_type_code = ${typeCode} LIMIT 1`);
-    if (configured.rows.length === 0) await this.sequences.update({ ...actor, companyId: row.company_id }, typeCode, { prefix: prefixes[row.type], resetPeriod: "year", padding: 6 });
+    await this.ensureSequences(actor, row.company_id);
     await this.database.transaction(async (transaction) => {
       const locked = await transaction.execute(sql`SELECT 1 FROM inventory.documents WHERE id = ${id} AND status = 'draft' AND version = ${row.version} FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-      const lines = await this.documents.lines(id, transaction);
-      let fields: FieldErrors = {};
-      if (row.type === "sales_issue") {
-        const order = await this.order(transaction, row.source_id!, true);
-        if (order.status !== "confirmed") throw new ApiError("BUSINESS_RULE", "salesOrderNotOpen");
-        await this.requireInternalReady(transaction, order.id);
-        fields = await this.deliverableErrors(
-          transaction,
-          order.id,
-          null,
-          lines.map((line) => line.source_line_id!),
-          lines.map((line) => Math.abs(Number(line.base_quantity))),
-        );
-        if (Object.keys(fields).length === 0) {
-          // Dùng phần đang giữ cho đơn trước khi kiểm hàng khả dụng (QUYTAC_NGHIEPVU_70).
-          const totals = new Map<string, number>();
-          for (const line of lines) totals.set(line.variant_id, (totals.get(line.variant_id) ?? 0) + Math.abs(Number(line.base_quantity)));
-          for (const [variantId, quantity] of [...totals].sort(([left], [right]) => left.localeCompare(right)))
-            await this.reservations.consumeFromSource(transaction, salesOrderSource, order.id, row.warehouse_id, variantId, quantity.toFixed(4));
-        }
-      } else {
-        fields = await this.returnableErrors(
-          transaction,
-          lines.map((line) => ({ issueLineId: line.source_line_id!, baseQuantity: Math.abs(Number(line.base_quantity)) })),
-        );
-      }
-      if (Object.keys(fields).length === 0) Object.assign(fields, await this.documents.checkForSubmit(row, lines, transaction));
-      if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
-      const documentNo = await this.sequences.next(row.company_id, typeCode, transaction);
-      await transaction.execute(sql`
-        UPDATE inventory.documents SET status = 'pending', document_no = ${documentNo}, submitted_at = now(), updated_at = now(), version = version + 1 WHERE id = ${id}`);
-      await this.documents.postDocument(transaction, id);
-      if (row.type === "sales_issue") {
-        await this.orders.refreshDelivered(transaction, row.source_id!);
-        await this.createInternalReceipt(transaction, id);
-      }
-      await this.auditService.record({ ...inventoryAudit(actor, "stock_document"), companyId: row.company_id, action: "stock_document.submit", entityId: id, afterData: { documentNo } }, transaction);
+      await this.postDraft(transaction, row, actor);
     });
     return this.documents.detail(actor, id);
+  }
+
+  // Dãy số phiếu xuất giao hàng, phiếu nhận hàng trả lại của công ty; tạo ngoài giao dịch ghi sổ.
+  async ensureSequences(actor: Actor, companyId: string): Promise<void> {
+    for (const type of ["sales_issue", "sales_return"] as const) {
+      const typeCode = documentTypeCodes[type];
+      const configured = await this.database.execute(sql`SELECT 1 FROM core.number_sequences WHERE company_id = ${companyId} AND document_type_code = ${typeCode} LIMIT 1`);
+      if (configured.rows.length === 0) await this.sequences.update({ ...actor, companyId }, typeCode, { prefix: prefixes[type], resetPeriod: "year", padding: 6 });
+    }
+  }
+
+  // Gửi phiếu nháp đã khóa: phiếu xuất khóa đơn bán, kiểm số còn phải giao, dùng phần hàng đã giữ; phiếu trả kiểm số đã giao còn trả được; rồi ghi sổ.
+  private async postDraft(transaction: Executor, row: { id: string; type: string; company_id: string; warehouse_id: string; source_id: string | null }, actor: Actor): Promise<void> {
+    const id = row.id;
+    const typeCode = documentTypeCodes[row.type as "sales_issue" | "sales_return"];
+    const lines = await this.documents.lines(id, transaction);
+    let fields: FieldErrors = {};
+    if (row.type === "sales_issue") {
+      const order = await this.order(transaction, row.source_id!, true);
+      if (order.status !== "confirmed") throw new ApiError("BUSINESS_RULE", "salesOrderNotOpen");
+      await this.requireInternalReady(transaction, order.id);
+      fields = await this.deliverableErrors(
+        transaction,
+        order.id,
+        null,
+        lines.map((line) => line.source_line_id!),
+        lines.map((line) => Math.abs(Number(line.base_quantity))),
+      );
+      if (Object.keys(fields).length === 0) {
+        // Dùng phần đang giữ cho đơn trước khi kiểm hàng khả dụng (QUYTAC_NGHIEPVU_70).
+        const totals = new Map<string, number>();
+        for (const line of lines) totals.set(line.variant_id, (totals.get(line.variant_id) ?? 0) + Math.abs(Number(line.base_quantity)));
+        for (const [variantId, quantity] of [...totals].sort(([left], [right]) => left.localeCompare(right)))
+          await this.reservations.consumeFromSource(transaction, salesOrderSource, order.id, row.warehouse_id, variantId, quantity.toFixed(4));
+      }
+    } else {
+      fields = await this.returnableErrors(
+        transaction,
+        lines.map((line) => ({ issueLineId: line.source_line_id!, baseQuantity: Math.abs(Number(line.base_quantity)) })),
+      );
+    }
+    if (Object.keys(fields).length === 0) Object.assign(fields, await this.documents.checkForSubmit(row as never, lines, transaction));
+    if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
+    const documentNo = await this.sequences.next(row.company_id, typeCode, transaction);
+    await transaction.execute(sql`
+      UPDATE inventory.documents SET status = 'pending', document_no = ${documentNo}, submitted_at = now(), updated_at = now(), version = version + 1 WHERE id = ${id}`);
+    await this.documents.postDocument(transaction, id);
+    if (row.type === "sales_issue") {
+      await this.orders.refreshDelivered(transaction, row.source_id!);
+      await this.createInternalReceipt(transaction, id);
+    }
+    await this.auditService.record({ ...inventoryAudit(actor, "stock_document"), companyId: row.company_id, action: "stock_document.submit", entityId: id, afterData: { documentNo } }, transaction);
+  }
+
+  // Đơn VComm (CONG_VIEC_24): ghi sổ phiếu xuất nháp khi đơn vị vận chuyển lấy hàng, không xét quyền kho; dãy số đã tạo lúc giao đơn.
+  async postDraftAsSystem(transaction: Executor, documentId: string, actor: Actor): Promise<void> {
+    const row = (
+      await transaction.execute<{ id: string; type: string; company_id: string; warehouse_id: string; source_id: string | null }>(sql`
+      SELECT id, type, company_id, warehouse_id, source_id FROM inventory.documents WHERE id = ${documentId} AND status = 'draft' FOR UPDATE`)
+    ).rows[0];
+    if (!row) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
+    await this.postDraft(transaction, row, actor);
+  }
+
+  // Đơn VComm (CONG_VIEC_24): nhận hàng trả lại theo dòng phiếu xuất (hàng hoàn về, yêu cầu trả hàng đã duyệt), không xét quyền kho; ghi sổ ngay.
+  async returnAsSystem(transaction: Executor, actor: Actor, input: { issueId: string; documentDate: string; reason: string; lines: { issueLineId: string; quantity: string }[] }): Promise<string> {
+    const issue = (
+      await transaction.execute<{ id: string; company_id: string; warehouse_id: string; partner_id: string | null; status: string; type: string }>(sql`
+      SELECT id, company_id, warehouse_id, partner_id, status, type FROM inventory.documents WHERE id = ${input.issueId}`)
+    ).rows[0];
+    if (!issue || issue.type !== "sales_issue" || issue.status !== "posted") throw new ApiError("BUSINESS_RULE", "salesIssueNotPosted");
+    const issueLines = new Map((await this.documents.lines(issue.id, transaction)).map((line) => [line.id, line]));
+    const lines = input.lines.map((line) => {
+      const source = issueLines.get(line.issueLineId);
+      if (!source) throw new ApiError("BUSINESS_RULE", "salesIssueNotPosted");
+      const issued = Math.abs(Number(source.base_quantity));
+      return {
+        variantId: source.variant_id,
+        unitId: source.base_unit_id,
+        quantity: line.quantity,
+        unitCost: issued > 0 ? (Math.abs(Number(source.cost_value ?? 0)) / issued).toFixed(4) : "0",
+        lotId: null,
+        lotNo: source.lot_no,
+        manufacturedOn: source.manufactured_on,
+        expiresOn: source.expires_on,
+        lotOverrideReason: null,
+        locationId: source.location_id,
+        destinationLocationId: null,
+        serials: [],
+        responsibleUserId: null,
+        compensationAmount: null,
+      };
+    });
+    const documentInput = {
+      type: "sales_return",
+      warehouseId: issue.warehouse_id,
+      companyId: issue.company_id,
+      documentDate: input.documentDate,
+      reasonCode: "sales_return",
+      reason: input.reason,
+      note: null,
+      lines,
+    } as DocumentInput;
+    const prepared = await this.documents.prepare(null, documentInput);
+    const documentId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO inventory.documents (company_id, warehouse_id, type, document_date, reason_code, reason, note, source_type, source_id, partner_id, created_by)
+      VALUES (${issue.company_id}, ${issue.warehouse_id}, 'sales_return', ${input.documentDate}::date, 'sales_return', ${input.reason}, NULL, 'inventory.document', ${issue.id},
+        ${issue.partner_id}, ${actor.userId}) RETURNING id`)
+    ).rows[0]!.id;
+    await this.writeLines(
+      transaction,
+      documentId,
+      documentInput,
+      prepared,
+      input.lines.map((line) => line.issueLineId),
+    );
+    await this.postDraft(transaction, { id: documentId, type: "sales_return", company_id: issue.company_id, warehouse_id: issue.warehouse_id, source_id: issue.id }, actor);
+    return documentId;
   }
 
   async remove(actor: Actor, id: string): Promise<void> {

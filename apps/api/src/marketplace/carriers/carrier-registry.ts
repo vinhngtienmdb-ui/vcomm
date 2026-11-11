@@ -1,5 +1,7 @@
 // Khung đơn vị vận chuyển chung (CONG_VIEC_24; QUYTAC_NGHIEPVU_160). Thông tin kết nối chỉ ở biến môi trường.
 import type { CarrierCode } from "contracts";
+import type { CarrierAdapter } from "./carrier";
+import { GhnCarrier } from "./ghn-carrier";
 
 export interface GhnConfiguration {
   baseUrl: string;
@@ -20,4 +22,14 @@ export function ghnConfiguration(): GhnConfiguration | null {
 export function carrierConfigured(code: CarrierCode): boolean {
   if (code === "ghn") return ghnConfiguration() !== null;
   return false;
+}
+
+// Lớp kết nối của đơn vị vận chuyển; null khi chưa có thông tin kết nối.
+export function carrierAdapter(code: CarrierCode): CarrierAdapter | null {
+  const configuration = code === "ghn" ? ghnConfiguration() : null;
+  return configuration ? new GhnCarrier(configuration) : null;
+}
+
+export function webhookKeyOf(code: CarrierCode): string | null {
+  return code === "ghn" ? (ghnConfiguration()?.webhookKey ?? null) : null;
 }

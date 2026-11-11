@@ -618,8 +618,10 @@ export class StockDocumentsService implements OnModuleInit {
   }
 
   // Kiểm phiếu khi lưu nháp: kho, chủ hàng, lý do, mặt hàng, đơn vị, vị trí, lô, serial.
-  async prepare(actor: Actor, input: Input, permission: string = inventoryPermissions.manageDocuments): Promise<{ variants: Map<string, VariantInfo>; warehouse: Warehouse }> {
-    const warehouse = await this.warehouses.operable(actor.userId, input.warehouseId, permission);
+  // actor null: chứng từ hệ thống tự lập (đơn VComm, CONG_VIEC_24), không xét quyền kho của người dùng.
+  async prepare(actor: Actor | null, input: Input, permission: string = inventoryPermissions.manageDocuments): Promise<{ variants: Map<string, VariantInfo>; warehouse: Warehouse }> {
+    const warehouse = actor ? await this.warehouses.operable(actor.userId, input.warehouseId, permission) : await this.warehouses.find(input.warehouseId);
+    if (!warehouse) throw new ApiError("NOT_FOUND", "notFound");
     const fields: FieldErrors = {};
     if (warehouse.status !== "active") fields.warehouseId = "invalidValue";
     if (!warehouse.ownerIds.includes(input.companyId)) fields.companyId = "warehouseOwnerNotAllowed";

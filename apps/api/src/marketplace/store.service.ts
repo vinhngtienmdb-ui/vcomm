@@ -172,10 +172,13 @@ export class StoreService {
 
   async updateSettings(actor: BuyerAdminActor, input: z.output<typeof updateStoreSettingsSchema>): Promise<StoreSettingsResponse> {
     await this.database.transaction(async (transaction) => {
-      const fields: Record<string, "invalidValue"> = {};
+      const fields: Record<string, "invalidValue" | "warehouseUsesLocations"> = {};
       const channel = await transaction.execute(sql`SELECT 1 FROM catalog.sales_channels WHERE id = ${input.channelId} AND company_id = ${actor.operatorCompanyId} AND status = 'active'`);
       if (channel.rows.length === 0) fields.channelId = "invalidValue";
       if (!(await isReceivingWarehouse(transaction, actor.operatorCompanyId, input.warehouseId))) fields.warehouseId = "invalidValue";
+      // Giao qua đơn vị vận chuyển lập phiếu xuất tự động nên kho xuất không quản lý vị trí.
+      else if ((await transaction.execute<{ uses_locations: boolean }>(sql`SELECT uses_locations FROM inventory.warehouses WHERE id = ${input.warehouseId}`)).rows[0]?.uses_locations)
+        fields.warehouseId = "warehouseUsesLocations";
       if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
       const before = await readSettings(transaction, actor.operatorCompanyId);
       const values = sql`${input.channelId}, ${input.warehouseId}, ${input.shippingFee}::numeric, ${input.freeShippingThreshold}::numeric, ${input.packageLengthCm}, ${input.packageWidthCm},

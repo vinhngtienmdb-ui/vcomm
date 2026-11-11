@@ -26,6 +26,7 @@ import {
   updateStoreSettingsSchema,
   cancelMarketplaceOrderSchema,
   marketplaceOrderListQuerySchema,
+  shipMarketplaceOrderSchema,
   type MarketplaceOrderDetail,
   type MarketplaceOrderListItem,
 } from "contracts";
@@ -36,6 +37,7 @@ import { BuyerAdminService } from "./buyer-admin.service";
 import { SalesProposalsService } from "./sales-proposals.service";
 import { SalesTeamService } from "./sales-team.service";
 import { MarketplaceOrdersService } from "./marketplace-orders.service";
+import { ShipmentsService } from "./shipments.service";
 import { StoreService } from "./store.service";
 
 @Controller("marketplace")
@@ -46,7 +48,21 @@ export class MarketplaceController {
     private readonly proposals: SalesProposalsService,
     private readonly store: StoreService,
     private readonly orders: MarketplaceOrdersService,
+    private readonly shipments: ShipmentsService,
   ) {}
+
+  @Post("orders/:id/ship")
+  @HttpCode(200)
+  async ship(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<MarketplaceOrderDetail> {
+    const input = shipMarketplaceOrderSchema.parse(body);
+    return this.shipments.ship(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage"), id, input.carrierCode, input.version);
+  }
+
+  @Post("orders/:id/refresh-shipment")
+  @HttpCode(200)
+  async refreshShipment(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<MarketplaceOrderDetail> {
+    return this.shipments.refresh(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage"), id);
+  }
 
   // API_127: đơn VComm trên web (CONG_VIEC_24).
   @Get("orders")

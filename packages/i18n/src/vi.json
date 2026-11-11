@@ -305,7 +305,13 @@
     "orderPriceChanged": "Giá hoặc khuyến mãi đã thay đổi. Xem lại tổng tiền mới rồi đặt hàng.",
     "orderOutOfStock": "Một số sản phẩm không còn đủ hàng. Giảm số lượng hoặc bỏ sản phẩm đó.",
     "marketplaceOrderNeedsReview": "Đơn này cần VComm kiểm tra giá trước khi bán. Vui lòng liên hệ VComm.",
-    "orderNotCancellable": "Đơn đã được đơn vị vận chuyển lấy hàng hoặc đã kết thúc, không hủy được."
+    "orderNotCancellable": "Đơn đã được đơn vị vận chuyển lấy hàng hoặc đã kết thúc, không hủy được.",
+    "carrierDisabled": "Đơn vị vận chuyển này đang tắt.",
+    "carrierRejected": "Đơn vị vận chuyển từ chối yêu cầu. Kiểm tra địa chỉ, số điện thoại người nhận rồi thử lại.",
+    "carrierCancelRejected": "Đơn vị vận chuyển không hủy được vận đơn (có thể đã lấy hàng). Tra lại vận đơn rồi xử lý.",
+    "carrierUnavailable": "Không kết nối được đơn vị vận chuyển. Thử lại sau ít phút.",
+    "orderNotShippable": "Đơn không ở trạng thái Chờ giao.",
+    "warehouseUsesLocations": "Kho xuất của VComm đang quản lý vị trí; giao qua đơn vị vận chuyển chỉ hỗ trợ kho không quản lý vị trí."
   },
   "login": {
     "title": "Đăng nhập",

@@ -305,7 +305,13 @@
     "orderPriceChanged": "Prices or promotions have changed. Review the new total, then order.",
     "orderOutOfStock": "Some items are no longer in stock. Reduce the quantity or remove them.",
     "marketplaceOrderNeedsReview": "This order needs a price check by VComm. Please contact VComm.",
-    "orderNotCancellable": "The order has been picked up or has ended and cannot be cancelled."
+    "orderNotCancellable": "The order has been picked up or has ended and cannot be cancelled.",
+    "carrierDisabled": "This carrier is disabled.",
+    "carrierRejected": "The carrier rejected the request. Check the recipient address and phone, then retry.",
+    "carrierCancelRejected": "The carrier could not cancel the shipment (it may be picked up). Refresh the shipment and handle it.",
+    "carrierUnavailable": "Cannot reach the carrier. Try again in a few minutes.",
+    "orderNotShippable": "The order is not awaiting shipment.",
+    "warehouseUsesLocations": "The VComm warehouse uses bin locations; carrier shipping only supports warehouses without locations."
   },
   "login": {
     "title": "Sign in",
