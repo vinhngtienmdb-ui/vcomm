@@ -3,7 +3,7 @@
 - Mô tả: Mini app Báo cáo quản trị (`web-analytics`) cho toàn tập đoàn, chỉ đọc dữ liệu đã có: doanh số bán hàng (theo kênh, công ty, sản phẩm, thời gian, gồm đơn VComm), tồn kho và luân chuyển, công nợ phải thu, phải trả theo tuổi nợ, hoa hồng và ví; lọc theo công ty con trong phạm vi quyền; xuất Excel.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Đặc tả đã duyệt 2026-11-11; đang làm bản mẫu giao diện.
+- Trạng thái: Chờ nghiệm thu.
 - Mức: Lớn (module mới, mini app mới, quyền mới, dữ liệu nhiều công ty).
 - Nhánh: `chuc-nang/CONG_VIEC_50-bao-cao-quan-tri` tách từ `origin/main`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_15), `05` mục 2 (MODULE_15 Báo cáo quản trị toàn tập đoàn); quyết định của người dùng ngày 2026-11-11 (mục 16).
@@ -153,15 +153,23 @@ Mọi cách tính, dữ liệu, API hiện có của Kho, Bán hàng, Tài chín
 
 | Lát | Nội dung | Người dùng xem, thử | Phản hồi |
 |---|---|---|---|
-| L0 | Mini app `web-analytics`, ô trang chủ, quyền, database migration 0083, API_170, khung menu | Mở mini app bằng tài khoản quản trị tập đoàn và quản trị công ty: menu theo quyền, bộ lọc công ty | |
-| L1 | Báo cáo bán hàng: API_171, MAN_HINH_141, xuất Excel | Xem doanh số dữ liệu thử theo từng cách nhóm, xuất Excel | |
-| L2 | Tồn kho và luân chuyển: API_172, MAN_HINH_142 | Xem nhập xuất tồn theo kho, vòng quay | |
-| L3 | Công nợ theo tuổi nợ: API_173, MAN_HINH_143 | So với sổ công nợ ở mini app Tài chính | |
-| L4 | Hoa hồng và ví: API_174, MAN_HINH_144; tổng quan: API_175, MAN_HINH_140; kiểm thử hiệu năng | Xem tổng quan, hoa hồng | |
+| L0 | Mini app `web-analytics`, ô trang chủ, quyền, database migration 0083, API_170, khung menu | Mở mini app bằng tài khoản quản trị tập đoàn và quản trị công ty: menu theo quyền, bộ lọc công ty | Đồng ý, 2026-11-11 |
+| L1 | Báo cáo bán hàng: API_171, MAN_HINH_141, xuất Excel | Xem doanh số dữ liệu thử theo từng cách nhóm, xuất Excel | Đồng ý giữ nút xuất Excel trên bảng, không hiện dòng doanh số 0 (bản mẫu đã sửa theo), 2026-11-11 |
+| L2 | Tồn kho và luân chuyển: API_172, MAN_HINH_142 | Xem nhập xuất tồn theo kho, vòng quay | Đồng ý, 2026-11-11 |
+| L3 | Công nợ theo tuổi nợ: API_173, MAN_HINH_143 | So với sổ công nợ ở mini app Tài chính | Đồng ý, 2026-11-11 |
+| L4 | Hoa hồng và ví: API_174, MAN_HINH_144; tổng quan: API_175, MAN_HINH_140; kiểm thử hiệu năng | Xem tổng quan, hoa hồng | Đồng ý, 2026-11-11 |
 
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa thực hiện.
+- [x] Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: TIEUCHI_NGHIEMTHU_321 đến 328 có kịch bản tự động đạt.
+- [x] Đúng giao diện: khớp bản mẫu đã duyệt (bản mẫu cập nhật theo phản hồi lát L1); chỉ dùng biến tài liệu `15`; đủ trạng thái có dữ liệu, rỗng, đang tải, lỗi, không có quyền; bảng rộng cuộn ngang trong khung.
+- [x] Đã xử lý lỗi: khoảng ngày sai, ngày không có thật, công ty ngoài phạm vi, xuất quá 20.000 dòng báo lỗi rõ.
+- [x] Đã kiểm thử: kiểm thử c50 12/12; kiểm thử toàn bộ `pnpm --filter api test` đạt (kết quả ghi trong nội dung gửi phiên cha để ghi tài liệu `25`).
+- [x] Không phá vỡ chức năng cũ: sổ công nợ, hoa hồng chỉ thêm `export`; danh mục quyền, vai trò chỉ thêm.
+- [x] Hiệu năng (Mong muốn của TIEUCHI_NGHIEMTHU_328): khoảng 366 ngày trên 1.000.000 dòng thẻ kho, 200.000 dòng phiếu: bán hàng khoảng 2,1 giây, tồn kho 1,5 giây, công nợ và hoa hồng dưới 0,1 giây, tổng quan 2,0 giây.
+- [x] Cổng bảo mật: không có lỗ hổng Nghiêm trọng, Cao. `pnpm audit`: 2 mức Trung bình có sẵn trong `apps/mobile-vcomm` (glob, minimatch qua expo), không do công việc này. Quét khóa bí mật: không tải được gitleaks trong môi trường làm việc (bị chặn tải mã ngoài); đã quét thủ công phần thay đổi theo mẫu khóa, không phát hiện; gitleaks chạy trong CI của pull request. C3 phân quyền, C4 đầu vào độc hại có kiểm thử tự động; C5 không áp dụng (không đổi phiên đăng nhập).
+- [x] Tự rà soát mã và rà soát độc lập: 0 Nghiêm trọng, 0 Cao, 1 Trung bình (đã sửa), 8 Thấp (đã sửa 4; giữ 4: menu theo quyền gán ở chi nhánh hiện thông báo chưa được xem công ty nào thay vì ẩn mục; công ty ngừng hoạt động vẫn có trong bộ lọc như báo cáo hợp nhất; ô số Excel dùng số thực, đúng với VND; giới hạn 20.000 dòng kiểm sau khi truy vấn).
+- [x] Đã cập nhật tài liệu `06`, `07`, `08`, `10`, `11`, `12`, `14`, `16`, `17`, `21`, `22`, `27`, `index.md`; nội dung tài liệu `02`, `03`, `25` gửi phiên cha.
 
 ## 16. Quyết định của người dùng
 

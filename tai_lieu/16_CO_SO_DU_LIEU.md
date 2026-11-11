@@ -3132,7 +3132,7 @@ Quy tắc xóa và lưu giữ bổ sung:
 
 ## 28. Database migration 0083 – CONG_VIEC_50 (báo cáo quản trị)
 
-Tệp `database/migrations/0083_analytics.sql`. Không thêm bảng nghiệp vụ: báo cáo quản trị chỉ đọc dữ liệu của Kho, Bán hàng, Tài chính – Kế toán, VComm (`inventory.documents`, `inventory.document_lines`, `inventory.movements`, hàm `finance.inventory_amounts`, khoản công nợ của schema `finance`, `marketplace.order_commissions`, `marketplace.wallets`, `marketplace.withdrawals`), không lưu số liệu tính sẵn. Quyền `analytics.*` thêm qua danh mục quyền đồng bộ lúc khởi động. Database migration 0084, 0085 chưa dùng.
+Tệp `database/migrations/0083_analytics.sql`. Không thêm bảng nghiệp vụ: báo cáo quản trị chỉ đọc dữ liệu của Kho, Bán hàng, Tài chính – Kế toán, VComm (`inventory.documents`, `inventory.document_lines`, `inventory.movements`, hàm `finance.inventory_amounts`, `finance.debt_items`, `finance.debt_allocations`, `marketplace.order_commissions`, `marketplace.wallets`, `marketplace.withdrawals`), không lưu số liệu tính sẵn. Quyền `analytics.*` thêm qua danh mục quyền đồng bộ lúc khởi động. Database migration 0084, 0085 chưa dùng.
 
 | Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
 |---|---|---|---|
