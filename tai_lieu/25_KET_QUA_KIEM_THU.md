@@ -196,6 +196,14 @@
 - Kết luận cổng kiểm thử: Đạt.
 - Kết luận: Chờ người dùng nghiệm thu.
 
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_46
+
+- Phạm vi: MODULE_08 phần 1 (hồ sơ nhân sự, giấy tờ, người phụ thuộc, quá trình công tác, hợp đồng, phụ lục, nghỉ việc, nhắc hết hạn); mini app `apps/web-hr`; database migration 0070 đến 0072; nhánh `chuc-nang/CONG_VIEC_46-nhan-su-ho-so` (pull request #84, `e5029e8`).
+- Kết quả: KICHBAN_KIEMTHU_434, 435, 436 (`c46-employees.test.ts`), 437, 438, 439, 441 (`c46-contracts.test.ts`), 440 (`c46-reminders.test.ts`) Đạt; 442, 443 (Playwright khổ 1366 và 390 điểm ảnh) Đạt, không lỗi trình duyệt, không cuộn ngang; hồi quy `pnpm --filter api test` 345/345 Đạt.
+- Kiểm thử đã duyệt được sửa: không.
+- Kiểm tra bảo mật phần B, C: Đạt; `pnpm audit` còn 2 lỗ hổng Trung bình đã chấp nhận rủi ro; gitleaks trên CI đạt. Không có lỗi mới. Rủi ro mở: thời hạn lưu, xóa hồ sơ người đã nghỉ (tài liệu 22 mục 8).
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-11 – CONG_VIEC_44
 
 - Phạm vi: ứng dụng kho `apps/mobile-warehouse`, API_137 đến 139, database migration 0064, đếm mù API_67; nhánh `chuc-nang/CONG_VIEC_44-ung-dung-kho` (pull request #88, `89e09b2`).
