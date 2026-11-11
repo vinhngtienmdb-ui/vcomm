@@ -178,7 +178,7 @@ describe("CONG_VIEC_24 cài đặt bán hàng, đăng bán", () => {
     expect((await call("put", "/marketplace/store-settings", { ...body, version: 0 })).status).toBe(409);
 
     const listed = await call("get", "/marketplace/listings?pageSize=50");
-    const item = (key: string) => listed.body.data.find((row: { productId: string }) => row.productId === products[key]);
+    const item = (key: ProductKey) => listed.body.data.find((row: { productId: string }) => row.productId === products[key]);
     expect(item("cream")).toMatchObject({ isPublished: false, priceFrom: "250000", available: "10", blockers: [] });
     // Bảng giá chung chưa thuế: giá gồm thuế 44.000.
     expect(item("soap")).toMatchObject({ priceFrom: "44000", available: "5", blockers: [] });
