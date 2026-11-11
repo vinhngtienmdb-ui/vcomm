@@ -3,7 +3,7 @@
 - Mô tả: Sổ cái điểm ghi một chiều; tích điểm khi đơn VComm hoàn tất; đổi điểm trừ vào đơn; hạn dùng điểm theo từng lần tích; hạng thành viên theo chi tiêu năm dương lịch; cấu hình theo giai đoạn; chống gian lận cơ bản; hạch toán nghĩa vụ điểm. Trên ứng dụng VComm (`apps/mobile-vcomm`) và web quản trị (`apps/web-crm`).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Đã xong lát L0 đến L4, chờ nghiệm thu (pull request #103; kết quả kiểm thử gửi phiên cha ghi tài liệu `25`).
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu ngày 2026-11-11; pull request #103).
 - Nguồn: tài liệu `04` (mục 63), `05` (mục 2.3), `01` (rủi ro ví điện tử); quyết định của người dùng ngày 2026-11-11 (mục 17); CONG_VIEC_23 (tài khoản người mua), CONG_VIEC_24 (đặt hàng, hủy, trả hàng, hoàn tất), CONG_VIEC_25 (thanh toán, hoàn tiền, bút toán), CONG_VIEC_26 (mẫu ví, giao dịch ví một chiều); CONG_VIEC_49 (ví mua sắm, đang làm song song).
 - Mức: Lớn (module mới, schema mới `loyalty`, sửa cách đặt hàng, hoàn tiền, hoàn tất đơn).
 
@@ -208,7 +208,7 @@ Ví hoa hồng, hoa hồng (CONG_VIEC_26); luồng trạng thái đơn VComm, v�
 11. Trả hàng tại quầy khi số dư không đủ trừ lại điểm đã tích: phần thiếu quy tiền theo giá trị lúc tích, trừ vào tiền hoàn.
 12. Hạch toán nguồn quầy ở công ty con khác: công ty bán chịu chi phí, nợ nội bộ với công ty vận hành sàn (1368 / 3368); nghĩa vụ điểm ở công ty vận hành sàn.
 
-## 18. Quyết định AI tự đưa ra trong phạm vi đặc tả (chờ người dùng xác nhận khi nghiệm thu)
+## 18. Quyết định AI tự đưa ra trong phạm vi đặc tả (người dùng xác nhận khi nghiệm thu ngày 2026-11-11)
 
 1. Giai đoạn mới chỉ bắt đầu từ hôm nay trở đi, không áp ngược cho đơn đã đặt.
 2. Bảng hạng chỉ bỏ được hạng chưa có ví hoặc lịch sử hạng.
