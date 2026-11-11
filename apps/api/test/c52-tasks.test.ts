@@ -164,6 +164,17 @@ describe("KICHBAN_KIEMTHU_499: quyền xem, việc liên công ty, cách ly", ()
     expect((await crossCompany.call("get", "/office/tasks", { companyId: retail })).status).toBe(403);
   });
 
+  it("người công ty khác tham gia việc cha chỉ thấy việc con mình tham gia", async () => {
+    const parent = await createTask(assigner, { title: "Kiểm kê cuối năm", ownerUserId: ids.owner, followerIds: [ids.crossCompany], dueAt: inHours(96) });
+    const hidden = await createTask(owner, { title: "Kiểm kê kho lạnh nội bộ", ownerUserId: ids.owner, parentId: parent.body.id, dueAt: inHours(48) });
+    const shared = await createTask(owner, { title: "Đối chiếu hàng gửi VCT", ownerUserId: ids.owner, collaboratorIds: [ids.crossCompany], parentId: parent.body.id, dueAt: inHours(48) });
+    const seen = await crossCompany.call("get", `/office/tasks/${parent.body.id}`, { companyId: trading });
+    expect(seen.status).toBe(200);
+    expect(seen.body.children.map((child: { id: string }) => child.id)).toEqual([shared.body.id]);
+    expect((await owner.call("get", `/office/tasks/${parent.body.id}`, { companyId: retail })).body.children).toHaveLength(2);
+    expect(hidden.status).toBe(201);
+  });
+
   it("người không tham gia nhận 404; thẻ Của công ty cần quyền xem mọi việc", async () => {
     expect((await bystander.call("get", `/office/tasks/${ids.privateTask}`, { companyId: retail })).status).toBe(404);
     expect((await bystander.call("get", "/office/tasks?view=company", { companyId: retail })).status).toBe(403);

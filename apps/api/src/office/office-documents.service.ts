@@ -248,7 +248,11 @@ export class OfficeDocumentsService implements OnModuleInit {
         SELECT c.legal_name, c.code, (SELECT province_code FROM core.branches b WHERE b.company_id = c.id AND b.branch_type = 'head_office' ORDER BY b.created_at LIMIT 1) AS province_code
         FROM core.companies c WHERE c.id = ${companyId}`)
     ).rows[0]!;
-    const abbreviation = company.code.toUpperCase().replace(/[^A-ZĐ0-9]/g, "").slice(0, 20) || "CT";
+    const abbreviation =
+      company.code
+        .toUpperCase()
+        .replace(/[^A-ZĐ0-9]/g, "")
+        .slice(0, 20) || "CT";
     await executor.execute(sql`
       INSERT INTO office.document_settings (company_id, company_display_name, company_abbreviation, place_name)
       VALUES (${companyId}, ${company.legal_name}, ${abbreviation}, ${placeByProvince[company.province_code ?? ""] ?? "Hà Nội"}) ON CONFLICT DO NOTHING`);
@@ -288,12 +292,13 @@ export class OfficeDocumentsService implements OnModuleInit {
 
   async saveSettings(actor: Actor, input: z.infer<typeof documentSettingsSchema>): Promise<DocumentSettings> {
     await this.requireClerk(actor);
+    if (input.version === undefined) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { version: "required" } });
     await this.ensureDefaults(this.database, actor.companyId);
     const updated = await this.database.execute(sql`
       UPDATE office.document_settings SET parent_org_name = ${input.parentOrgName ?? null}, company_display_name = ${input.companyDisplayName},
         company_abbreviation = ${input.companyAbbreviation}, place_name = ${input.placeName}, font_scheme = ${input.fontScheme}, margin_top = ${input.marginTop},
         margin_bottom = ${input.marginBottom}, margin_left = ${input.marginLeft}, margin_right = ${input.marginRight}, updated_by = ${actor.userId}, updated_at = now(), version = version + 1
-      WHERE company_id = ${actor.companyId} ${input.version !== undefined ? sql`AND version = ${input.version}` : sql``} RETURNING company_id`);
+      WHERE company_id = ${actor.companyId} AND version = ${input.version} RETURNING company_id`);
     if (updated.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     await this.auditService.record({ ...this.audit(actor, "office_document_settings"), action: "office.document_settings.update", afterData: input });
     return this.settings(actor);
@@ -301,11 +306,27 @@ export class OfficeDocumentsService implements OnModuleInit {
 
   async registers(actor: Actor): Promise<RegisterItem[]> {
     await this.ensureDefaults(this.database, actor.companyId);
-    const rows = await this.database.execute<{ id: string; direction: "incoming" | "outgoing"; name: string; is_default: boolean; status: "active" | "inactive"; next_value: number | null; version: number }>(sql`
+    const rows = await this.database.execute<{
+      id: string;
+      direction: "incoming" | "outgoing";
+      name: string;
+      is_default: boolean;
+      status: "active" | "inactive";
+      next_value: number | null;
+      version: number;
+    }>(sql`
       SELECT r.id, r.direction, r.name, r.is_default, r.status, c.next_value, r.version FROM office.registers r
       LEFT JOIN office.register_counters c ON c.register_id = r.id AND c.year = ${this.year()}
       WHERE r.company_id = ${actor.companyId} ORDER BY r.direction, r.is_default DESC, r.name`);
-    return rows.rows.map((row) => ({ id: row.id, direction: row.direction, name: row.name, isDefault: row.is_default, status: row.status, nextNumberThisYear: row.next_value ?? 1, version: row.version }));
+    return rows.rows.map((row) => ({
+      id: row.id,
+      direction: row.direction,
+      name: row.name,
+      isDefault: row.is_default,
+      status: row.status,
+      nextNumberThisYear: row.next_value ?? 1,
+      version: row.version,
+    }));
   }
 
   async createRegister(actor: Actor, input: { name: string; direction: "incoming" | "outgoing" }): Promise<RegisterItem[]> {
@@ -319,7 +340,8 @@ export class OfficeDocumentsService implements OnModuleInit {
 
   async updateRegister(actor: Actor, id: string, input: { name: string; status: "active" | "inactive"; version: number }): Promise<RegisterItem[]> {
     await this.requireClerk(actor);
-    const row = (await this.database.execute<{ is_default: boolean; version: number }>(sql`SELECT is_default, version FROM office.registers WHERE id = ${id} AND company_id = ${actor.companyId}`)).rows[0];
+    const row = (await this.database.execute<{ is_default: boolean; version: number }>(sql`SELECT is_default, version FROM office.registers WHERE id = ${id} AND company_id = ${actor.companyId}`))
+      .rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
     if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     if (row.is_default && input.status === "inactive") throw new ApiError("BUSINESS_RULE", "officeDefaultRegister");
@@ -359,7 +381,10 @@ export class OfficeDocumentsService implements OnModuleInit {
   async options(actor: Actor): Promise<DocumentOptions> {
     const companies = await groupCompanyIds(this.database, actor.companyId);
     const companyRows = await this.database.execute<{ id: string; name: string }>(sql`
-      SELECT id, short_name AS name FROM core.companies WHERE id IN (${sql.join(companies.map((id) => sql`${id}::uuid`), sql`, `)}) AND id <> ${actor.companyId} ORDER BY short_name`);
+      SELECT id, short_name AS name FROM core.companies WHERE id IN (${sql.join(
+        companies.map((id) => sql`${id}::uuid`),
+        sql`, `,
+      )}) AND id <> ${actor.companyId} ORDER BY short_name`);
     const departments = await this.database.execute<{ id: string; name: string; code: string }>(sql`
       SELECT id, name, code FROM core.departments WHERE company_id = ${actor.companyId} AND status = 'active' ORDER BY name`);
     const leaderIds = await this.permissionHolders(this.database, actor.companyId, "office.document.direct");
@@ -391,7 +416,10 @@ export class OfficeDocumentsService implements OnModuleInit {
 
   private async notifyClerks(executor: Executor, companyId: string, outgoingOrIncomingId: string, title: string, link = `/office/outgoing/${outgoingOrIncomingId}`): Promise<void> {
     const clerks = await this.permissionHolders(executor, companyId, "office.document.clerk");
-    await notify(executor, clerks.map((userId) => ({ userId, companyId, kind: "office_document", title, link, payload: { documentId: outgoingOrIncomingId } })));
+    await notify(
+      executor,
+      clerks.map((userId) => ({ userId, companyId, kind: "office_document", title, link, payload: { documentId: outgoingOrIncomingId } })),
+    );
   }
 
   // Cấp số tiếp theo của sổ trong năm: khóa dòng bộ đếm trong cùng giao dịch, không trùng, không bỏ số (QUYTAC_NGHIEPVU_363).
@@ -413,7 +441,11 @@ export class OfficeDocumentsService implements OnModuleInit {
       await this.database.execute<{ id: string; file_name: string; content_type: string; size_bytes: number; uploaded_by: string; created_at: string }>(sql`
         SELECT id, file_name, content_type, size_bytes, uploaded_by, created_at FROM office.files WHERE owner_type = ${ownerType} AND owner_id = ${ownerId} AND deleted_at IS NULL ORDER BY created_at`)
     ).rows;
-    const people = await peopleById(this.database, rows.map((row) => row.uploaded_by), null);
+    const people = await peopleById(
+      this.database,
+      rows.map((row) => row.uploaded_by),
+      null,
+    );
     return rows.map((row) => ({
       id: row.id,
       fileName: row.file_name,
@@ -446,7 +478,10 @@ export class OfficeDocumentsService implements OnModuleInit {
     const file = (
       await this.database.execute<{ file_name: string; content_type: string; storage_key: string }>(sql`
         SELECT file_name, content_type, storage_key FROM office.files
-        WHERE id = ${fileId} AND owner_id = ${ownerId} AND owner_type IN (${sql.join(ownerTypes.map((type) => sql`${type}`), sql`, `)}) AND deleted_at IS NULL`)
+        WHERE id = ${fileId} AND owner_id = ${ownerId} AND owner_type IN (${sql.join(
+          ownerTypes.map((type) => sql`${type}`),
+          sql`, `,
+        )}) AND deleted_at IS NULL`)
     ).rows[0];
     if (!file) throw new ApiError("NOT_FOUND", "notFound");
     return { fileName: file.file_name, contentType: file.content_type, content: await this.storage.get(file.storage_key) };
@@ -512,7 +547,11 @@ export class OfficeDocumentsService implements OnModuleInit {
       await this.database.execute<IncomingRow>(sql`${incomingSelect} WHERE ${where}
         ORDER BY i.year DESC NULLS FIRST, i.incoming_no DESC NULLS FIRST, i.created_at DESC LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`)
     ).rows;
-    const people = await peopleById(this.database, rows.map((row) => row.task_owner ?? ""), actor.companyId);
+    const people = await peopleById(
+      this.database,
+      rows.map((row) => row.task_owner ?? ""),
+      actor.companyId,
+    );
     return { data: rows.map((row) => this.incomingItem(row, people)), page: query.page, pageSize: query.pageSize, total };
   }
 
@@ -654,7 +693,14 @@ export class OfficeDocumentsService implements OnModuleInit {
     await executor.execute(sql`UPDATE office.incoming_documents SET status = 'awaiting_direction', leader_user_id = ${leaderUserId}, updated_at = now(), version = version + 1 WHERE id = ${row.id}`);
     await this.routing(executor, row.id, action, actor.userId, leaderUserId, note);
     await notify(executor, [
-      { userId: leaderUserId, companyId: row.company_id, kind: "office_document", title: `Công văn đến số ${row.incoming_no} chờ ý kiến: ${row.summary}`, link: `/office/incoming/${row.id}`, payload: { incomingId: row.id } },
+      {
+        userId: leaderUserId,
+        companyId: row.company_id,
+        kind: "office_document",
+        title: `Công văn đến số ${row.incoming_no} chờ ý kiến: ${row.summary}`,
+        link: `/office/incoming/${row.id}`,
+        payload: { incomingId: row.id },
+      },
     ]);
   }
 
@@ -690,13 +736,22 @@ export class OfficeDocumentsService implements OnModuleInit {
       for (const userId of [...new Set(input.collaboratorIds)].filter((item) => item !== input.ownerUserId)) {
         await transaction.execute(sql`INSERT INTO office.task_participants (task_id, user_id, role) VALUES (${taskId}, ${userId}, 'collaborator')`);
       }
-      await transaction.execute(sql`INSERT INTO office.task_events (task_id, actor_id, action, details) VALUES (${taskId}, ${actor.userId}, 'created', ${JSON.stringify({ incomingNo: row.incoming_no })}::jsonb)`);
+      await transaction.execute(
+        sql`INSERT INTO office.task_events (task_id, actor_id, action, details) VALUES (${taskId}, ${actor.userId}, 'created', ${JSON.stringify({ incomingNo: row.incoming_no })}::jsonb)`,
+      );
       await transaction.execute(sql`UPDATE office.incoming_documents SET status = 'processing', task_id = ${taskId}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.routing(transaction, id, "assigned", actor.userId, input.ownerUserId, input.note ?? null);
       const recipients = [input.ownerUserId, ...input.collaboratorIds].filter((userId) => userId !== actor.userId);
       await notify(
         transaction,
-        [...new Set(recipients)].map((userId) => ({ userId, companyId: row.company_id, kind: "office_task_assigned", title: `Việc mới: ${title}`, link: `/office/tasks/${taskId}`, payload: { taskId } })),
+        [...new Set(recipients)].map((userId) => ({
+          userId,
+          companyId: row.company_id,
+          kind: "office_task_assigned",
+          title: `Việc mới: ${title}`,
+          link: `/office/tasks/${taskId}`,
+          payload: { taskId },
+        })),
       );
     });
     return this.incoming(actor, id);
@@ -708,7 +763,9 @@ export class OfficeDocumentsService implements OnModuleInit {
       const row = await this.loadIncoming(transaction, actor, id, true);
       if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       if (row.status !== "registered" && row.status !== "awaiting_direction") throw new ApiError("BUSINESS_RULE", "officeIncomingLocked");
-      await transaction.execute(sql`UPDATE office.incoming_documents SET status = 'voided', void_reason = ${reason}, leader_user_id = NULL, updated_at = now(), version = version + 1 WHERE id = ${id}`);
+      await transaction.execute(
+        sql`UPDATE office.incoming_documents SET status = 'voided', void_reason = ${reason}, leader_user_id = NULL, updated_at = now(), version = version + 1 WHERE id = ${id}`,
+      );
       await this.routing(transaction, id, "voided", actor.userId, null, reason);
       await this.auditService.record({ ...this.audit(actor, "office_incoming"), action: "office.incoming.void", entityId: id, afterData: { reason } }, transaction);
     });
@@ -788,9 +845,20 @@ export class OfficeDocumentsService implements OnModuleInit {
       await this.database.execute<OutgoingRow>(sql`${outgoingSelect} WHERE ${where}
         ORDER BY o.year DESC NULLS FIRST, o.outgoing_no DESC NULLS FIRST, o.created_at DESC LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`)
     ).rows;
-    const people = await peopleById(this.database, rows.map((row) => row.signer_user_id), actor.companyId);
+    const people = await peopleById(
+      this.database,
+      rows.map((row) => row.signer_user_id),
+      actor.companyId,
+    );
     const data: OutgoingListItem[] = [];
-    for (const row of rows) data.push(this.outgoingItem(row, people, (await this.recipients(row.id)).map((item) => item.name)));
+    for (const row of rows)
+      data.push(
+        this.outgoingItem(
+          row,
+          people,
+          (await this.recipients(row.id)).map((item) => item.name),
+        ),
+      );
     return { data, page: query.page, pageSize: query.pageSize, total };
   }
 
@@ -801,7 +869,11 @@ export class OfficeDocumentsService implements OnModuleInit {
     const recipients = await this.recipients(id);
     const settings = await this.settings(actor);
     const reply = row.reply_to_incoming_id
-      ? ((await this.database.execute<{ id: string; incoming_no: number | null; symbol: string | null }>(sql`SELECT id, incoming_no, symbol FROM office.incoming_documents WHERE id = ${row.reply_to_incoming_id}`)).rows[0] ?? null)
+      ? ((
+          await this.database.execute<{ id: string; incoming_no: number | null; symbol: string | null }>(
+            sql`SELECT id, incoming_no, symbol FROM office.incoming_documents WHERE id = ${row.reply_to_incoming_id}`,
+          )
+        ).rows[0] ?? null)
       : null;
     const creator = row.created_by === actor.userId;
     const actions: OutgoingResponse["allowedActions"] = [];
@@ -811,7 +883,11 @@ export class OfficeDocumentsService implements OnModuleInit {
     if (clerk && row.status === "awaiting_number") actions.push("number", "cancel");
     if (clerk && row.status === "numbered") actions.push("issue");
     return {
-      ...this.outgoingItem(row, people, recipients.map((item) => item.name)),
+      ...this.outgoingItem(
+        row,
+        people,
+        recipients.map((item) => item.name),
+      ),
       registerId: row.register_id,
       documentTypeId: row.document_type_id,
       departmentId: row.department_id,
@@ -900,7 +976,9 @@ export class OfficeDocumentsService implements OnModuleInit {
       const row = await this.loadOutgoing(transaction, actor, id, true);
       if (row.created_by !== actor.userId) throw new ApiError("FORBIDDEN", "forbidden");
       if (!["draft", "rejected", "withdrawn"].includes(row.status)) throw new ApiError("BUSINESS_RULE", "officeOutgoingLocked");
-      if (input.version !== undefined && input.version !== row.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      // Sửa phải gửi phiên bản đang xem (khóa lạc quan).
+      if (input.version === undefined) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { version: "required" } });
+      if (input.version !== row.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       await this.checkOutgoing(transaction, actor, input);
       await transaction.execute(sql`
         UPDATE office.outgoing_documents SET register_id = ${input.registerId}, document_type_id = ${input.documentTypeId}, department_id = ${input.departmentId ?? null},
@@ -960,7 +1038,14 @@ export class OfficeDocumentsService implements OnModuleInit {
         await transaction.execute(sql`
           UPDATE office.outgoing_documents SET status = 'pending', approval_mode = 'signer', approval_request_id = NULL, decision_note = NULL, updated_at = now(), version = version + 1 WHERE id = ${id}`);
         await notify(transaction, [
-          { userId: row.signer_user_id, companyId: row.company_id, kind: "office_document", title: `Công văn chờ bạn duyệt ký: ${row.summary}`, link: `/office/outgoing/${id}`, payload: { outgoingId: id } },
+          {
+            userId: row.signer_user_id,
+            companyId: row.company_id,
+            kind: "office_document",
+            title: `Công văn chờ bạn duyệt ký: ${row.summary}`,
+            link: `/office/outgoing/${id}`,
+            payload: { outgoingId: id },
+          },
         ]);
       }
       await this.auditService.record({ ...this.audit(actor, "office_outgoing"), action: "office.outgoing.submit", entityId: id }, transaction);
@@ -969,15 +1054,19 @@ export class OfficeDocumentsService implements OnModuleInit {
   }
 
   async withdrawOutgoing(actor: Actor, id: string, version: number): Promise<OutgoingResponse> {
-    const row = await this.loadOutgoing(this.database, actor, id);
-    if (row.created_by !== actor.userId) throw new ApiError("FORBIDDEN", "forbidden");
-    if (row.status !== "pending") throw new ApiError("BUSINESS_RULE", "officeOutgoingLocked");
-    if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-    if (row.approval_mode === "policy" && row.approval_request_id) {
-      await this.approvals.withdraw(actor.userId, row.approval_request_id);
+    // Kiểm và đổi trạng thái trong giao dịch có khóa dòng; luồng duyệt chung tự kiểm trạng thái yêu cầu duyệt khi rút.
+    const approvalRequestId = await this.database.transaction(async (transaction) => {
+      const row = await this.loadOutgoing(transaction, actor, id, true);
+      if (row.created_by !== actor.userId) throw new ApiError("FORBIDDEN", "forbidden");
+      if (row.status !== "pending") throw new ApiError("BUSINESS_RULE", "officeOutgoingLocked");
+      if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      if (row.approval_mode === "policy" && row.approval_request_id) return row.approval_request_id;
+      await transaction.execute(sql`UPDATE office.outgoing_documents SET status = 'withdrawn', updated_at = now(), version = version + 1 WHERE id = ${id}`);
+      return null;
+    });
+    if (approvalRequestId) {
+      await this.approvals.withdraw(actor.userId, approvalRequestId);
       await this.outbox.dispatchPending();
-    } else {
-      await this.database.execute(sql`UPDATE office.outgoing_documents SET status = 'withdrawn', updated_at = now(), version = version + 1 WHERE id = ${id} AND status = 'pending'`);
     }
     return this.outgoing(actor, id);
   }
@@ -1053,7 +1142,9 @@ export class OfficeDocumentsService implements OnModuleInit {
       if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       await this.storeFile(transaction, row.company_id, "outgoing_signed", id, actor.userId, file, true);
       await transaction.execute(sql`UPDATE office.outgoing_documents SET status = 'issued', issued_at = now(), updated_at = now(), version = version + 1 WHERE id = ${id}`);
-      const recipients = await transaction.execute<{ kind: "user" | "department" | "company"; target_id: string }>(sql`SELECT kind, target_id FROM office.outgoing_recipients WHERE outgoing_id = ${id}`);
+      const recipients = await transaction.execute<{ kind: "user" | "department" | "company"; target_id: string }>(
+        sql`SELECT kind, target_id FROM office.outgoing_recipients WHERE outgoing_id = ${id}`,
+      );
       const users = new Set<string>();
       for (const recipient of recipients.rows) {
         if (recipient.kind === "user") users.add(recipient.target_id);
@@ -1074,14 +1165,23 @@ export class OfficeDocumentsService implements OnModuleInit {
       }
       const items: NotificationInput[] = [...users]
         .filter((userId) => userId !== actor.userId)
-        .map((userId) => ({ userId, companyId: row.company_id, kind: "office_document", title: `Công văn ${row.symbol}: ${row.summary}`, link: `/office/outgoing/${id}`, payload: { outgoingId: id } }));
+        .map((userId) => ({
+          userId,
+          companyId: row.company_id,
+          kind: "office_document",
+          title: `Công văn ${row.symbol}: ${row.summary}`,
+          link: `/office/outgoing/${id}`,
+          payload: { outgoingId: id },
+        }));
       await notify(transaction, items);
       for (const copy of copies) await this.notifyClerks(transaction, copy.companyId, copy.incomingId, `Công văn đến chờ vào sổ: ${row.symbol}`, `/office/incoming/${copy.incomingId}`);
       await this.auditService.record({ ...this.audit(actor, "office_outgoing"), action: "office.outgoing.issue", entityId: id }, transaction);
     });
     // Tệp bản đã ký chép sang công văn đến của công ty nhận (khóa lưu trữ riêng).
-    const signed = (await this.database.execute<{ file_name: string; content_type: string; size_bytes: number; storage_key: string }>(sql`
-      SELECT file_name, content_type, size_bytes, storage_key FROM office.files WHERE owner_type = 'outgoing_signed' AND owner_id = ${id} AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1`)).rows[0]!;
+    const signed = (
+      await this.database.execute<{ file_name: string; content_type: string; size_bytes: number; storage_key: string }>(sql`
+      SELECT file_name, content_type, size_bytes, storage_key FROM office.files WHERE owner_type = 'outgoing_signed' AND owner_id = ${id} AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1`)
+    ).rows[0]!;
     const content = await this.storage.get(signed.storage_key);
     for (const copy of copies) {
       const storageKey = `office/${copy.companyId}/incoming/${copy.incomingId}/${randomUUID()}`;
@@ -1131,8 +1231,10 @@ export class OfficeDocumentsService implements OnModuleInit {
   // ===== Xuất sổ ra Excel theo năm, khoảng ngày (QUYTAC_NGHIEPVU_363) =====
   async exportRegister(actor: Actor, registerId: string, year: number): Promise<{ fileName: string; content: Buffer }> {
     await this.requireClerk(actor);
-    const register = (await this.database.execute<{ name: string; direction: "incoming" | "outgoing" }>(sql`
-      SELECT name, direction FROM office.registers WHERE id = ${registerId} AND company_id = ${actor.companyId}`)).rows[0];
+    const register = (
+      await this.database.execute<{ name: string; direction: "incoming" | "outgoing" }>(sql`
+      SELECT name, direction FROM office.registers WHERE id = ${registerId} AND company_id = ${actor.companyId}`)
+    ).rows[0];
     if (!register) throw new ApiError("NOT_FOUND", "notFound");
     const header = (value: string) => ({ value, fontWeight: "bold" as const });
     let rows: { value: string | number | null; fontWeight?: "bold" }[][];
@@ -1158,10 +1260,13 @@ export class OfficeDocumentsService implements OnModuleInit {
         ]),
       ];
     } else {
-      const data = (
-        await this.database.execute<OutgoingRow>(sql`${outgoingSelect} WHERE o.register_id = ${registerId} AND o.year = ${year} AND o.outgoing_no IS NOT NULL ORDER BY o.outgoing_no`)
-      ).rows;
-      const people = await peopleById(this.database, data.map((row) => row.signer_user_id), actor.companyId);
+      const data = (await this.database.execute<OutgoingRow>(sql`${outgoingSelect} WHERE o.register_id = ${registerId} AND o.year = ${year} AND o.outgoing_no IS NOT NULL ORDER BY o.outgoing_no`))
+        .rows;
+      const people = await peopleById(
+        this.database,
+        data.map((row) => row.signer_user_id),
+        actor.companyId,
+      );
       rows = [["Số", "Ký hiệu", "Ngày văn bản", "Tên loại và trích yếu", "Người ký", "Nơi nhận", "Số bản", "Ghi chú"].map(header)];
       for (const row of data) {
         rows.push([

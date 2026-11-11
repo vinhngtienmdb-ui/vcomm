@@ -203,6 +203,8 @@ describe("KICHBAN_KIEMTHU_506: bảng tin nội bộ", () => {
     expect(edited.status).toBe(200);
     expect(edited.body.editedAt).not.toBeNull();
     expect((await poster.call("patch", `/office/posts/${id}`, { companyId: retail, body: post({ version: created.body.version }) })).status).toBe(409);
+    // Thiếu phiên bản khi sửa: báo cần nhập, không ghi đè.
+    expect((await poster.call("patch", `/office/posts/${id}`, { companyId: retail, body: post() })).status).toBe(400);
     // Tệp: người đăng tải lên, người nhận tải xuống.
     const withFile = await poster.call("post", `/office/posts/${id}/files`, { companyId: retail }).attach("file", pdf, "chuong-trinh.pdf");
     expect(withFile.status).toBe(201);

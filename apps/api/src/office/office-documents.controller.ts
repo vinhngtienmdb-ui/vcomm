@@ -132,7 +132,12 @@ export class OfficeDocumentsController {
   // Vào sổ: multipart gồm "data" (JSON) và một hoặc nhiều tệp "files".
   @Post("incoming")
   @UseInterceptors(FilesInterceptor("files", 10, { limits: { fileSize: officeFileMaximumBytes * 2 } }))
-  async registerIncoming(@Req() request: AuthenticatedRequest, @Body("data") data: unknown, @UploadedFiles() files: Upload[] | undefined, @Headers("x-company-id") companyId?: string): Promise<IncomingResponse> {
+  async registerIncoming(
+    @Req() request: AuthenticatedRequest,
+    @Body("data") data: unknown,
+    @UploadedFiles() files: Upload[] | undefined,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<IncomingResponse> {
     return this.documents.registerIncoming(await this.actor(request, companyId, "office.document.clerk"), registerIncomingSchema.parse(jsonField(data)), files ?? []);
   }
 

@@ -272,7 +272,7 @@ export class OfficePostsService {
     const audience = (await this.database.execute<{ kind: string; target_id: string }>(sql`SELECT kind, target_id FROM office.post_audiences WHERE post_id = ${row.id}`)).rows;
     const active = row.status === "active";
     const actions: PostResponse["allowedActions"] = [];
-    if (isAuthor && active) actions.push("edit", "revoke", "upload");
+    if (isAuthor && active && row.company_id === actor.companyId) actions.push("edit", "revoke", "upload");
     if (isRecipient && !isAuthor && row.requires_acknowledgement && row.acknowledged_at === null) actions.push("acknowledge");
     if (row.allow_comments && active && (isRecipient || canManage)) actions.push("comment");
     if (canManage) actions.push("view_readers");
@@ -344,6 +344,8 @@ export class OfficePostsService {
         throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { audienceType: "officePostAudienceRequired" } });
     }
     if (input.expiresAt && new Date(input.expiresAt).toISOString() <= publishAt) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { expiresAt: "officePostExpiryInvalid" } });
+    // Khóa theo công ty trong giao dịch để hai tin ghim đồng thời không vượt giới hạn.
+    if (input.pinned) await executor.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`office.post.pin:${actor.companyId}`}))`);
     if (input.pinned && (await this.pinnedCount(executor, actor.companyId, exceptId)) >= postMaximumPinned) throw new ApiError("BUSINESS_RULE", "officePostPinLimit");
   }
 
@@ -382,8 +384,12 @@ export class OfficePostsService {
     await this.database.transaction(async (transaction) => {
       const { row, isAuthor } = await this.loadVisible(transaction, actor, id, true);
       if (!isAuthor) throw new ApiError("FORBIDDEN", "forbidden");
+      // Sửa, thu hồi khi đang chọn công ty của tin để quyền, đối tượng, giới hạn ghim xét đúng công ty.
+      if (row.company_id !== actor.companyId) throw new ApiError("NOT_FOUND", "notFound");
       if (row.status === "revoked") throw new ApiError("BUSINESS_RULE", "officePostRevoked");
-      if (input.version !== undefined && input.version !== row.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      // Sửa phải gửi phiên bản đang xem (khóa lạc quan).
+      if (input.version === undefined) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { version: "required" } });
+      if (input.version !== row.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       const now = this.now();
       const published = new Date(row.publish_at).toISOString() <= now;
       // Tin đã đăng giữ thời điểm đăng; tin hẹn giờ đổi được giờ đăng.
@@ -408,6 +414,8 @@ export class OfficePostsService {
     await this.database.transaction(async (transaction) => {
       const { row, isAuthor } = await this.loadVisible(transaction, actor, id, true);
       if (!isAuthor) throw new ApiError("FORBIDDEN", "forbidden");
+      // Sửa, thu hồi khi đang chọn công ty của tin để quyền, đối tượng, giới hạn ghim xét đúng công ty.
+      if (row.company_id !== actor.companyId) throw new ApiError("NOT_FOUND", "notFound");
       if (row.status === "revoked") throw new ApiError("BUSINESS_RULE", "officePostRevoked");
       if (version !== row.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       await transaction.execute(sql`UPDATE office.posts SET status = 'revoked', revoked_at = now(), revoked_by = ${actor.userId}, pinned = false, version = version + 1 WHERE id = ${id}`);
@@ -547,6 +555,7 @@ export class OfficePostsService {
     const checked = checkOfficeFile(file);
     const { row, isAuthor } = await this.loadVisible(this.database, actor, id);
     if (!isAuthor) throw new ApiError("FORBIDDEN", "forbidden");
+    if (row.company_id !== actor.companyId) throw new ApiError("NOT_FOUND", "notFound");
     if (row.status === "revoked") throw new ApiError("BUSINESS_RULE", "officePostRevoked");
     const storageKey = `office/${row.company_id}/post/${id}/${randomUUID()}`;
     await this.storage.put(storageKey, file!.buffer, checked.contentType);
@@ -564,6 +573,7 @@ export class OfficePostsService {
   async removeFile(actor: Actor, id: string, fileId: string): Promise<PostResponse> {
     const { row, isAuthor } = await this.loadVisible(this.database, actor, id);
     if (!isAuthor) throw new ApiError("FORBIDDEN", "forbidden");
+    if (row.company_id !== actor.companyId) throw new ApiError("NOT_FOUND", "notFound");
     if (row.status === "revoked") throw new ApiError("BUSINESS_RULE", "officePostRevoked");
     const result = await this.database.execute(sql`
       UPDATE office.files SET deleted_at = now(), deleted_by = ${actor.userId} WHERE id = ${fileId} AND owner_type = 'post' AND owner_id = ${id} AND deleted_at IS NULL RETURNING id`);

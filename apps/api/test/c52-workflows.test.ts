@@ -28,6 +28,8 @@ async function employee(email: string, name: string, departmentId?: string): Pro
 }
 
 // Mẫu "Mua văn phòng phẩm": rẽ nhánh theo kết quả và số tiền, song song, gộp, quay lại bước trước.
+// Phiên bản hiện tại của mẫu để gửi khi sửa (khóa lạc quan).
+const templateVersion = async () => (await admin.call("get", `/office/workflow-templates/${ids.template}`, { companyId: retail })).body.version as number;
 const definition = () => ({
   fields: [
     { key: "noi_dung", label: "Nội dung cần mua", type: "text", required: true },
@@ -135,10 +137,16 @@ describe("KICHBAN_KIEMTHU_501: kiểm tra hợp lệ, phiên bản mẫu", () =>
 
     const join = definition();
     join.steps[3]!.otherwise = ["end"];
-    const oneInput = await admin.call("patch", `/office/workflow-templates/${ids.template}`, { companyId: retail, body: { name: "Mua văn phòng phẩm", definition: join } });
+    const oneInput = await admin.call("patch", `/office/workflow-templates/${ids.template}`, {
+      companyId: retail,
+      body: { name: "Mua văn phòng phẩm", version: await templateVersion(), definition: join },
+    });
     expect(oneInput.body.issues).toEqual([{ stepKey: "nhan_hang", code: "joinNeedsTwoInputs" }]);
 
-    const fixed = await admin.call("patch", `/office/workflow-templates/${ids.template}`, { companyId: retail, body: { name: "Mua văn phòng phẩm", definition: definition() } });
+    const fixed = await admin.call("patch", `/office/workflow-templates/${ids.template}`, {
+      companyId: retail,
+      body: { name: "Mua văn phòng phẩm", version: await templateVersion(), definition: definition() },
+    });
     expect(fixed.body.issues).toEqual([]);
     const activated = await admin.call("post", `/office/workflow-templates/${ids.template}/activate`, { companyId: retail });
     expect(activated.status).toBe(200);
@@ -151,7 +159,10 @@ describe("KICHBAN_KIEMTHU_501: kiểm tra hợp lệ, phiên bản mẫu", () =>
     ids.versionRun = first.body.id;
     const changed = definition();
     changed.steps[0]!.name = "Trưởng phòng xem xét (bản 2)";
-    const draft = await admin.call("patch", `/office/workflow-templates/${ids.template}`, { companyId: retail, body: { name: "Mua văn phòng phẩm", definition: changed } });
+    const draft = await admin.call("patch", `/office/workflow-templates/${ids.template}`, {
+      companyId: retail,
+      body: { name: "Mua văn phòng phẩm", version: await templateVersion(), definition: changed },
+    });
     expect(draft.body).toMatchObject({ editingVersionNo: 2, editingIsDraft: true, activeVersionNo: 1 });
     expect((await admin.call("post", `/office/workflow-templates/${ids.template}/activate`, { companyId: retail })).body.activeVersionNo).toBe(2);
     const old = await run(initiator, ids.versionRun);
@@ -166,7 +177,7 @@ describe("KICHBAN_KIEMTHU_501: kiểm tra hợp lệ, phiên bản mẫu", () =>
     expect(missing.status).toBe(400);
     expect(missing.body.error.fields).toMatchObject({ "values.noi_dung": expect.any(String), "values.so_tien": expect.any(String) });
     const limited = { ...definition(), starterDepartmentIds: [ids.department] };
-    await admin.call("patch", `/office/workflow-templates/${ids.template}`, { companyId: retail, body: { name: "Mua văn phòng phẩm", definition: limited } });
+    await admin.call("patch", `/office/workflow-templates/${ids.template}`, { companyId: retail, body: { name: "Mua văn phòng phẩm", version: await templateVersion(), definition: limited } });
     await admin.call("post", `/office/workflow-templates/${ids.template}/activate`, { companyId: retail });
     expect((await outsider.call("get", "/office/workflow-start-options", { companyId: retail })).body).toEqual([]);
     expect((await start(outsider, "Không được", "1000")).status).toBe(404);
@@ -206,6 +217,12 @@ describe("KICHBAN_KIEMTHU_502: chạy quy trình", () => {
     const roleTask = await openTask(director, runId, "giam_doc");
     expect(roleTask).toMatchObject({ owner: null, allowedActions: ["claim"], workflow: { candidateRoleName: "Giám đốc" } });
     expect((await outsider.call("get", `/office/tasks/${roleTask.id}`, { companyId: retail })).status).toBe(404);
+    // Người khởi tạo (người giao việc của bước) không sửa trực tiếp việc của bước để đổi người làm, hạn.
+    const bypass = await initiator.call("patch", `/office/tasks/${roleTask.id}`, {
+      companyId: retail,
+      body: { title: roleTask.title, ownerUserId: ids.director, priority: "normal", version: roleTask.version },
+    });
+    expect(bypass.status).toBe(403);
     const claimed = await director.call("post", `/office/tasks/${roleTask.id}/transition`, { companyId: retail, body: { action: "claim", version: roleTask.version } });
     expect(claimed.body.owner.id).toBe(ids.director);
     await finish(director, runId, "giam_doc", "Xem lại");

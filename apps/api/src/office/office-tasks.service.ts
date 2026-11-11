@@ -230,7 +230,8 @@ export class OfficeTasksService {
     ).rows;
     const children = (
       await this.database.execute<TaskRow>(sql`
-        SELECT ${taskColumns} FROM office.tasks t JOIN core.companies c ON c.id = t.company_id WHERE t.parent_id = ${id} ORDER BY t.created_at`)
+        SELECT ${taskColumns} FROM office.tasks t JOIN core.companies c ON c.id = t.company_id
+        WHERE t.parent_id = ${id} AND ${await this.visibleCondition(actor.userId)} ORDER BY t.created_at`)
     ).rows;
     const people = await peopleById(
       this.database,
@@ -359,7 +360,8 @@ export class OfficeTasksService {
     this.checkDates(input.startDate, input.dueAt);
     await this.database.transaction(async (transaction) => {
       const row = await this.loadVisible(transaction, actor, id, true);
-      if (row.assigned_by !== actor.userId) throw new ApiError("FORBIDDEN", "forbidden");
+      // Việc của bước quy trình do quy trình quản lý (người làm, hạn theo bước), không sửa trực tiếp (QUYTAC_NGHIEPVU_362).
+      if (row.assigned_by !== actor.userId || row.workflow_step_instance_id) throw new ApiError("FORBIDDEN", "forbidden");
       if (closedStatuses.includes(row.status)) throw new ApiError("BUSINESS_RULE", "officeTaskClosed");
       if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       if (row.parent_id) {

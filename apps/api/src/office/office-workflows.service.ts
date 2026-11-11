@@ -314,7 +314,9 @@ export class OfficeWorkflowsService implements OnModuleInit {
   async saveTemplate(actor: Actor, id: string, input: SaveWorkflowTemplateInput): Promise<WorkflowTemplateResponse> {
     await this.database.transaction(async (transaction) => {
       const row = await this.loadTemplate(transaction, actor, id, true);
-      if (input.version !== undefined && input.version !== row.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      // Sửa phải gửi phiên bản đang xem (khóa lạc quan).
+      if (input.version === undefined) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { version: "required" } });
+      if (input.version !== row.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       await transaction.execute(sql`UPDATE office.workflow_templates SET name = ${input.name}, description = ${input.description ?? null}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
       if (row.draft_version_id) {
         await transaction.execute(sql`UPDATE office.workflow_template_versions SET definition = ${JSON.stringify(input.definition)}::jsonb WHERE id = ${row.draft_version_id}`);
@@ -754,6 +756,10 @@ export class OfficeWorkflowsService implements OnModuleInit {
 
   async cancel(actor: Actor, id: string, reason: string, version: number): Promise<WorkflowRunResponse> {
     await this.database.transaction(async (transaction) => {
+      // Khóa việc trước rồi mới khóa phiên, cùng thứ tự với báo xong việc của bước để không khóa chéo.
+      await transaction.execute(sql`
+        SELECT t.id FROM office.tasks t JOIN office.workflow_step_instances s ON s.id = t.workflow_step_instance_id
+        WHERE s.run_id = ${id} AND t.status NOT IN ('completed', 'cancelled') ORDER BY t.id FOR UPDATE OF t`);
       const run = await this.loadRun(transaction, id, true);
       const access = await this.canView(actor, run);
       if (!access.view) throw new ApiError("NOT_FOUND", "notFound");
