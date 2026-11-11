@@ -4,7 +4,7 @@
 - Mức: Vừa.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (cổng G-Pay theo developers.g-pay.vn; chọn ba phương thức riêng; đối chiếu số tiền qua `embed_data`). Đã có mã và kiểm thử; chờ thử với tài khoản môi trường thử nghiệm G-Pay.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (cổng G-Pay theo developers.g-pay.vn; chọn ba phương thức riêng; đối chiếu số tiền qua `embed_data`). Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-11); trước khi phát hành phải thử với tài khoản thử nghiệm của nhà cung cấp (G-Pay), xem mục 7.
 - Nguồn: người dùng yêu cầu ngày 2026-11-11 (tích hợp GPay); CONG_VIEC_32 (khung nhiều cổng); CONG_VIEC_25 (thanh toán đơn người mua).
 
 ## 1. Mục tiêu
