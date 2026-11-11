@@ -4,7 +4,7 @@
 - Mức: Vừa (lớp kết nối mới trong module đã có; không đổi API, màn hình; thêm một giá trị mã đơn vị vận chuyển).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 trong phiên CONG_VIEC_31. Chờ nghiệm thu.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 trong phiên CONG_VIEC_31. Đã nghiệm thu 2026-11-11 (gồm việc sửa kỳ vọng kiểm thử C24 và tạm chấp nhận không có CI).
 - Nguồn: yêu cầu của người dùng ngày 2026-11-11 (phiên chính CONG_VIEC_25 mở phiên con); CONG_VIEC_24 (khung đơn vị vận chuyển, QUYTAC_NGHIEPVU_160, 162).
 - Nhánh: `chuc-nang/CONG_VIEC_31-giao-van-ghtk`, tách từ `chuc-nang/CONG_VIEC_24-dat-hang-vcomm`.
 
