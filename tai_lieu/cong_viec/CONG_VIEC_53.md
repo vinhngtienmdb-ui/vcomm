@@ -3,7 +3,7 @@
 - Mô tả: Bán hàng tại quầy cho cửa hàng tập đoàn tự vận hành: cửa hàng, quầy, ca thu ngân; quét mã vạch, giá theo bảng giá kênh Bán lẻ, khuyến mãi, giảm giá tay trong mức; thanh toán tiền mặt, chuyển khoản VietQR, nhiều phương thức; in hóa đơn bán lẻ; trừ kho, giá vốn, bút toán qua module đã có; trả hàng theo hóa đơn; hóa đơn điện tử khởi tạo từ máy tính tiền; tích, đổi điểm cho khách có tài khoản VComm.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; L1, L2 đạt; L3, L4 đã trình xem trước; L5 đã lập trình, chờ xem trước; L6 chờ CONG_VIEC_51 hợp nhất.
+- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; L1 đến L5 đạt xem trước; chờ nghiệm thu L0 đến L5; L6 chờ CONG_VIEC_51 hợp nhất.
 - Mức: Lớn (module mới, mini app mới, sửa cấu trúc dữ liệu của bán hàng, tài chính, hóa đơn điện tử).
 - Nhánh: `chuc-nang/CONG_VIEC_53-ban-le-tai-quay`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_14), `05` mục 3 (MODULE_14), `05` mục 5 (phiên bản 5.x); quyết định của người dùng ngày 2026-11-11 (mục 17).
@@ -241,4 +241,16 @@ Ghi sổ phiếu kho, sổ kho, công nợ, luồng duyệt, luồng đơn bán 
 
 ## 20. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa đối chiếu.
+Đối chiếu ngày 2026-11-11 cho lát L0 đến L5 (người dùng chọn nghiệm thu L0 đến L5 trước, L6 làm khi CONG_VIEC_51 hợp nhất vào `main`).
+
+- [x] Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: YCAU_NGHIEPVU_105 đến 110, QUYTAC_NGHIEPVU_368 đến 378 (trừ phần điểm). Không áp dụng cho YCAU_NGHIEPVU_111, QUYTAC_NGHIEPVU_379, phần điểm của QUYTAC_NGHIEPVU_373, 374, 377, API_198, API_199: lát L6, chờ CONG_VIEC_51.
+- [x] Đúng giao diện: người dùng duyệt bản mẫu MAN_HINH_161 đến 167 và ảnh xem trước từng lát L1 đến L5; màn hình máy tính, máy tính bảng, điện thoại; bản in 80mm một trang.
+- [x] Đã xử lý lỗi: lỗi quy tắc trả `409 BUSINESS_RULE` kèm câu thông báo tiếng Việt; tổng đổi thì tính lại giỏ; gửi lại cùng khóa trả chứng từ đã ghi; mọi bước ghi trong một giao dịch.
+- [x] Đã kiểm thử: `c53-retail-setup`, `c53-retail-sales`, `c53-retail-returns`, `c53-retail-einvoice` (29 kiểm thử); toàn bộ API sau khi hợp nhất `main` 0.4.0: 89 tệp, 510/510 đạt. Kết quả gửi phiên cha ghi tài liệu `25`.
+- [x] Không phá vỡ chức năng cũ: hồi quy đủ sau từng lát (L1 342, L2 349, L3 351, L4 356, L5 363, sau hợp nhất 510, đều đạt); quy tắc in 80mm chỉ áp dụng trang có hóa đơn bán lẻ.
+- [x] Đạt tiêu chí nghiệm thu bắt buộc: TIEUCHI_NGHIEMTHU_349 đến 356, 358. TIEUCHI_NGHIEMTHU_357 (điểm) không áp dụng ở lần này: lát L6.
+- [x] Đạt cổng bảo mật: phân quyền theo chi nhánh cửa hàng, kiểm tra quyền ở máy chủ; không lưu dữ liệu thẻ; không khóa bí mật trong mã; kiểm tra lỗ hổng phụ thuộc chỉ còn 2 mức trung bình ở `apps/mobile-vcomm` (expo, không thuộc công việc này); thư viện QR dùng lại bản đã có.
+- [x] Đã tự rà soát mã: rà soát toàn nhánh, đã sửa 5 lỗi (dòng trả trùng, đổi quỹ khi ca mở, gửi lại sau đóng ca, cài đặt thiếu ký hiệu máy tính tiền, nhà cung cấp chưa hỗ trợ máy tính tiền); dọn tệp tạm trong `tam_thoi/` (thư mục bị bỏ qua khi commit).
+- [x] Đã cập nhật tài liệu 06, 07, 08, 09 (Luồng 43), 10, 11, 12, 14, 16, 17, 21, 22, 27. Tài liệu 02, 03, 25 do phiên cha ghi.
+
+Giới hạn còn lại (mục 16): đối soát ngân hàng chưa tự ghép chuyển khoản VietQR với phiếu thu bán lẻ; tiền đầu ca chưa lập chứng từ quỹ; MISA chưa có hóa đơn máy tính tiền (lập hóa đơn thường); KICHBAN_KIEMTHU_521 (giao diện) kiểm tra bằng ảnh xem trước, chưa có kiểm thử Playwright tự động.
