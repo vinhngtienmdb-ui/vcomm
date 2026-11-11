@@ -2174,3 +2174,20 @@ Không thêm màn hình. Không làm bản mẫu; xem trước từng lát thay 
 
 - Màn hình Ghé thăm khách của web-crm (`/crm/visits`): lọc "Nhân viên" lấy mọi nhân viên đang làm việc của công ty qua `GET /crm/visit-options` (thay danh sách nhân viên của phiếu giao khách); xem mọi lượt của công ty.
 - Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
+
+## MODULE_08 Nhân sự phần 1 (CONG_VIEC_46)
+
+Mini app Nhân sự `apps/web-hr`, đường dẫn `/hr`. Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_114` đến `MAN_HINH_119` (tệp `nhan_su.js`). Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md` mục 8.
+
+| Mã | Tên màn hình | Đường dẫn | Chức năng (10) | Vai trò, quyền được truy cập |
+|---|---|---|---|---|
+| MAN_HINH_114 | Danh sách hồ sơ nhân sự | `/hr/employees` | CHUC_NANG_162 | `hr.employee.view`; lọc "Đã nghỉ" cần `hr.employee.manage` |
+| MAN_HINH_115 | Biểu mẫu hồ sơ | `/hr/employees/new`, `/hr/employees/[id]/edit` | CHUC_NANG_162 | `hr.employee.manage` |
+| MAN_HINH_116 | Chi tiết hồ sơ | `/hr/employees/[id]` | CHUC_NANG_162, CHUC_NANG_163 | `hr.employee.view`; nút "Hiện", tải tệp cần `hr.identity.view`; cột lương cần `hr.contract.manage` |
+| MAN_HINH_117 | Hợp đồng lao động | `/hr/contracts` | CHUC_NANG_163, CHUC_NANG_164 | `hr.employee.view` (không có cột lương), `hr.contract.manage` |
+| MAN_HINH_118 | Chi tiết, biểu mẫu hợp đồng, phụ lục | `/hr/contracts/[id]`, `/hr/contracts/new` | CHUC_NANG_163 | `hr.contract.manage` |
+| MAN_HINH_119 | Hồ sơ của tôi | `/hr/me` | CHUC_NANG_162 | Người có tài khoản liên kết với hồ sơ của công ty đang chọn |
+
+Điều hướng: trang chủ → Nhân sự → menu Hồ sơ nhân sự (114 → 116 → 115, 118), Hợp đồng (117 → 118), Hồ sơ của tôi (119). Thông báo nhắc hết hạn mở 118. Không dùng giá trị mới ngoài tài liệu `15`.
+
+- Trạng thái phê duyệt: chờ người dùng duyệt bản mẫu.
