@@ -4158,7 +4158,9 @@ export interface ProductCommission {
   director: string;
   version: number;
 }
-const commissionValue = requiredMoney;
+// Số tiền vừa cột numeric(18,4) với dư địa khi nhân số lượng: tối đa 13 chữ số phần nguyên.
+const commissionMoney = requiredMoney.refine((value) => Number(value) < 1e13, "invalidValue");
+const commissionValue = commissionMoney;
 export const productCommissionSchema = z
   .object({
     calculation: z.enum(commissionCalculations),
@@ -4204,11 +4206,11 @@ export interface CommissionSettings {
 const feePercent = z.string().trim().regex(/^\d{1,3}(\.\d{1,2})?$/).refine((value) => Number(value) <= 100, "invalidValue");
 export const withdrawalFeeRulesSchema = z
   .object({
-    byCount: z.array(z.object({ fromCount: z.number().int().min(1).max(1000), fee: requiredMoney }).strict()).max(20),
+    byCount: z.array(z.object({ fromCount: z.number().int().min(1).max(1000), fee: commissionMoney }).strict()).max(20),
     byAmount: z
       .array(
         z
-          .object({ fromAmount: requiredMoney, fixedFee: requiredMoney, percent: feePercent, minimumFee: requiredMoney, maximumFee: requiredMoney.nullable() })
+          .object({ fromAmount: commissionMoney, fixedFee: commissionMoney, percent: feePercent, minimumFee: commissionMoney, maximumFee: commissionMoney.nullable() })
           .strict()
           .refine((tier) => tier.maximumFee === null || Number(tier.maximumFee) >= Number(tier.minimumFee), { message: "invalidValue", path: ["maximumFee"] }),
       )
@@ -4219,9 +4221,9 @@ export const withdrawalFeeRulesSchema = z
   .refine((rules) => new Set(rules.byAmount.map((tier) => Number(tier.fromAmount))).size === rules.byAmount.length, { message: "invalidValue", path: ["byAmount"] });
 export const commissionSettingsSchema = z
   .object({
-    taxThreshold: requiredMoney,
+    taxThreshold: commissionMoney,
     taxRate: z.string().trim().regex(/^\d{1,3}(\.\d{1,2})?$/),
-    minimumWithdrawal: requiredMoney,
+    minimumWithdrawal: commissionMoney,
     // Không gửi thì giữ bảng phí đang có.
     withdrawalFees: withdrawalFeeRulesSchema.optional(),
     version: z.number().int().min(0),

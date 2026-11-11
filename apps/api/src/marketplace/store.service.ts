@@ -2,6 +2,7 @@
 // Phương thức thanh toán, mở đặt hàng (CONG_VIEC_25; CHUC_NANG_120; QUYTAC_NGHIEPVU_163, 164; API_130).
 // Thiết lập hoa hồng từng sản phẩm, cài đặt hoa hồng chung (CONG_VIEC_26; CHUC_NANG_134; QUYTAC_NGHIEPVU_200, 204, 205; API_134).
 import { Inject, Injectable } from "@nestjs/common";
+import { emptyWithdrawalFeeRules, type WithdrawalFeeRules } from "contracts";
 import type {
   CarrierCode,
   CarrierItem,
@@ -113,13 +114,14 @@ export async function loadStoreContext(executor: Executor): Promise<StoreContext
 // Cài đặt hoa hồng chung; chưa lưu thì dùng mặc định (thuế 10% trên 5.000.000 đồng, rút tối thiểu 100.000 đồng).
 export async function commissionSettings(executor: Executor, companyId: string): Promise<CommissionSettings> {
   const row = (
-    await executor.execute<{ tax_threshold: string; tax_rate: string; minimum_withdrawal: string; version: number }>(sql`
-    SELECT tax_threshold::text, tax_rate::text, minimum_withdrawal::text, version FROM marketplace.commission_settings WHERE company_id = ${companyId}`)
+    await executor.execute<{ tax_threshold: string; tax_rate: string; minimum_withdrawal: string; withdrawal_fees: WithdrawalFeeRules; version: number }>(sql`
+    SELECT tax_threshold::text, tax_rate::text, minimum_withdrawal::text, withdrawal_fees, version FROM marketplace.commission_settings WHERE company_id = ${companyId}`)
   ).rows[0];
   return {
     taxThreshold: trimDecimal(row?.tax_threshold ?? "5000000"),
     taxRate: trimDecimal(row?.tax_rate ?? "10"),
     minimumWithdrawal: trimDecimal(row?.minimum_withdrawal ?? "100000"),
+    withdrawalFees: row?.withdrawal_fees ?? emptyWithdrawalFeeRules,
     version: row?.version ?? 0,
   };
 }
@@ -412,7 +414,9 @@ export class StoreService {
         const context = await loadStoreContext(transaction);
         const today = (await transaction.execute<{ today: string }>(sql`SELECT (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS today`)).rows[0]!.today;
         const prices = context ? ((await pricedVariants(transaction, context, [productId], today)).get(productId) ?? []).map((variant) => Number(variant.grossPrice)) : [];
-        if (prices.length > 0 && total > Math.min(...prices)) throw new ApiError("BUSINESS_RULE", "commissionFixedOverPrice");
+        // Chưa có giá thì không kiểm được giới hạn giá bán (QUYTAC_NGHIEPVU_200): chưa cho đặt mức cố định.
+        if (prices.length === 0) throw new ApiError("BUSINESS_RULE", "commissionNeedsPrice");
+        if (total > Math.min(...prices)) throw new ApiError("BUSINESS_RULE", "commissionFixedOverPrice");
       }
       const before = (await transaction.execute(sql`SELECT * FROM marketplace.product_commissions WHERE product_id = ${productId}`)).rows[0] ?? null;
       const saved = before
@@ -449,15 +453,17 @@ export class StoreService {
     if (Number(input.minimumWithdrawal) <= 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { minimumWithdrawal: "invalidValue" } });
     await this.database.transaction(async (transaction) => {
       const before = await commissionSettings(transaction, actor.operatorCompanyId);
+      // Không gửi bảng phí thì giữ bảng đang có (THAY_DOI_17).
+      const fees = JSON.stringify(input.withdrawalFees ?? before.withdrawalFees);
       const saved =
         before.version === 0
           ? await transaction.execute(sql`
-            INSERT INTO marketplace.commission_settings (company_id, tax_threshold, tax_rate, minimum_withdrawal, updated_by)
-            SELECT ${actor.operatorCompanyId}, ${input.taxThreshold}::numeric, ${input.taxRate}::numeric, ${input.minimumWithdrawal}::numeric, ${actor.userId}
+            INSERT INTO marketplace.commission_settings (company_id, tax_threshold, tax_rate, minimum_withdrawal, withdrawal_fees, updated_by)
+            SELECT ${actor.operatorCompanyId}, ${input.taxThreshold}::numeric, ${input.taxRate}::numeric, ${input.minimumWithdrawal}::numeric, ${fees}::jsonb, ${actor.userId}
             WHERE ${input.version} = 0 ON CONFLICT DO NOTHING RETURNING company_id`)
           : await transaction.execute(sql`
             UPDATE marketplace.commission_settings SET tax_threshold = ${input.taxThreshold}::numeric, tax_rate = ${input.taxRate}::numeric,
-              minimum_withdrawal = ${input.minimumWithdrawal}::numeric, updated_by = ${actor.userId}, updated_at = now(), version = version + 1
+              minimum_withdrawal = ${input.minimumWithdrawal}::numeric, withdrawal_fees = ${fees}::jsonb, updated_by = ${actor.userId}, updated_at = now(), version = version + 1
             WHERE company_id = ${actor.operatorCompanyId} AND version = ${input.version} RETURNING company_id`);
       if (saved.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       await this.record(transaction, actor, "marketplace.commission_settings.update", "marketplace.commission_settings", actor.operatorCompanyId, before, input);

@@ -1,5 +1,5 @@
 // Đơn VComm: xem trước, đặt hàng, đơn của tôi, hủy; quản trị đơn trên web (CONG_VIEC_24; CHUC_NANG_116; QUYTAC_NGHIEPVU_158, 159; API_126, API_127).
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import type {
   BuyerOrderDetail,
   BuyerOrderListItem,
@@ -132,6 +132,8 @@ export interface ShipmentCanceller {
 
 @Injectable()
 export class MarketplaceOrdersService {
+  private readonly logger = new Logger(MarketplaceOrdersService.name);
+
   shipmentCanceller: ShipmentCanceller | null = null;
 
   constructor(
@@ -535,11 +537,23 @@ export class MarketplaceOrdersService {
       ORDER BY m.delivered_at LIMIT 500`);
     let completed = 0;
     for (const order of due.rows) {
-      await this.database.transaction(async (transaction) => {
-        // Khóa đơn trước rồi mới xét yêu cầu trả hàng: yêu cầu gửi đồng thời phải chờ hoặc được thấy.
-        const locked = await transaction.execute(sql`SELECT 1 FROM marketplace.orders WHERE id = ${order.id} AND status = 'delivered' FOR UPDATE`);
-        if (locked.rows.length === 0) return;
-        const updated = await transaction.execute(sql`
+      // Một đơn lỗi (ví dụ kỳ kế toán đã khóa, thiếu định khoản) không chặn các đơn sau: ghi nhật ký, lượt sau thử lại.
+      try {
+        await this.completeOne(order.id, () => (completed += 1));
+      } catch (error) {
+        this.logger.error(`Không hoàn tất được đơn VComm ${order.id}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+    return completed;
+  }
+
+  private async completeOne(orderId: string, onCompleted: () => void): Promise<void> {
+    const order = { id: orderId };
+    await this.database.transaction(async (transaction) => {
+      // Khóa đơn trước rồi mới xét yêu cầu trả hàng: yêu cầu gửi đồng thời phải chờ hoặc được thấy.
+      const locked = await transaction.execute(sql`SELECT 1 FROM marketplace.orders WHERE id = ${order.id} AND status = 'delivered' FOR UPDATE`);
+      if (locked.rows.length === 0) return;
+      const updated = await transaction.execute(sql`
           UPDATE marketplace.orders m SET status = 'completed', completed_at = now(), version = version + 1,
             completed_amount = round(coalesce((
               SELECT sum(l.total_amount * greatest(l.base_quantity - ${returnedOnOrderLine(sql`l.id`)}, 0) / l.base_quantity)
@@ -547,13 +561,11 @@ export class MarketplaceOrdersService {
           WHERE m.id = ${order.id} AND m.status = 'delivered'
             AND NOT EXISTS (SELECT 1 FROM marketplace.return_requests r WHERE r.order_id = m.id AND r.status IN ('pending', 'approved'))
           RETURNING m.id`);
-        if (updated.rows.length === 0) return;
-        await this.event(transaction, order.id, "completed", null, null);
-        // Cộng ví hoa hồng theo hàng thực bán (CONG_VIEC_26; QUYTAC_NGHIEPVU_202).
-        await this.commissions.credit(transaction, order.id);
-        completed += 1;
-      });
-    }
-    return completed;
+      if (updated.rows.length === 0) return;
+      await this.event(transaction, order.id, "completed", null, null);
+      // Cộng ví hoa hồng theo hàng thực bán (CONG_VIEC_26; QUYTAC_NGHIEPVU_202).
+      await this.commissions.credit(transaction, order.id);
+      onCompleted();
+    });
   }
 }

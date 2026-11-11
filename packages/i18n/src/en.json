@@ -335,7 +335,10 @@
     "withdrawalNeedsBankAccount": "Add a bank account to receive the money before withdrawing.",
     "withdrawalAlreadyOpen": "You already have a withdrawal request in progress.",
     "withdrawalNotPending": "The withdrawal request is no longer pending.",
-    "withdrawalNotApproved": "The withdrawal request is not approved or is already paid."
+    "withdrawalNotApproved": "The withdrawal request is not approved or is already paid.",
+    "withdrawalFeeOverAmount": "Tax and fee exceed the amount. Please withdraw a larger amount.",
+    "withdrawalSelfDecision": "You cannot decide on or pay your own withdrawal request.",
+    "commissionNeedsPrice": "The product has no VComm price yet, so a fixed commission cannot be set."
   },
   "login": {
     "title": "Sign in",
@@ -3357,7 +3360,7 @@
     "withdrawAmount": "Amount to withdraw (VND)",
     "withdrawMinimum": "Minimum {amount}.",
     "withdrawTaxRule": "Above {threshold}, {rate}% personal income tax is withheld on the whole amount; the tax is fixed when accounting approves.",
-    "withdrawEstimate": "Estimated tax {tax} · you receive {net}",
+    "withdrawEstimate": "Estimated tax {tax} · fee {fee} · you receive {net}",
     "withdrawTo": "Paid to: {account}",
     "withdrawSubmit": "Send withdrawal request",
     "withdrawNeedsBank": "Add a bank account to receive the money before withdrawing.",
@@ -3366,8 +3369,9 @@
     "withdrawStatus_rejected": "Withdrawal rejected",
     "withdrawStatus_cancelled": "Withdrawal cancelled",
     "withdrawStatus_paid": "Paid",
-    "withdrawOpenLine": "Amount {amount} · tax {tax} · you receive {net}",
-    "withdrawCancel": "Cancel request"
+    "withdrawOpenLine": "Amount {amount} · tax {tax} · fee {fee} · you receive {net}",
+    "withdrawCancel": "Cancel request",
+    "withdrawCount": "You have sent {count} withdrawal requests this month."
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -3542,7 +3546,21 @@
     "taxThreshold": "Withhold personal income tax on withdrawals above",
     "taxRate": "Withholding rate (%)",
     "minimumWithdrawal": "Minimum withdrawal",
-    "commissionSettingsSaved": "Commission settings saved."
+    "commissionSettingsSaved": "Commission settings saved.",
+    "feeTitle": "Withdrawal fee",
+    "feeHint": "Fee = fee by withdrawals this month + fee by amount; an empty table charges nothing. The fee is deducted from the net amount and fixed when accounting approves. Rejected or cancelled requests are not counted.",
+    "feeByCount": "By withdrawals this month",
+    "feeByAmount": "By amount",
+    "feeFromCount": "From withdrawal number",
+    "feeFixed": "Fee (VND)",
+    "fee_fromAmount": "From amount",
+    "fee_fixedFee": "Fixed fee",
+    "fee_percent": "Percent",
+    "fee_minimumFee": "Percent minimum",
+    "fee_maximumFee": "Percent maximum (empty: no limit)",
+    "feeRemove": "Remove",
+    "feeAddCount": "Add count tier",
+    "feeAddAmount": "Add amount tier"
   },
   "listings": {
     "title": "Listings",
@@ -3769,6 +3787,8 @@
     "month": "Payment month",
     "noTax": "No tax withheld this month.",
     "person": "Recipient",
-    "totals": "Total amount {amount} · total tax {tax}"
+    "totals": "Total amount {amount} · total tax {tax}",
+    "projectedFee": "Estimated fee",
+    "fee": "Withdrawal fee"
   }
 }

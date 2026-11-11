@@ -30,7 +30,15 @@ afterAll(async () => {
 describe("CONG_VIEC_26 rút tiền hoa hồng", () => {
   it("KICHBAN_KIEMTHU_359: tối thiểu, số dư, tài khoản nhận, một yêu cầu đang chờ, giữ tiền, rút lại và từ chối cộng lại; thuế trên ngưỡng chốt khi duyệt; ghi đã chi; bảng kê; phân quyền", async () => {
     const wallet = (await user("get", "/buyer/wallet")).body;
-    expect(wallet.withdrawal).toEqual({ minimumWithdrawal: "100000", taxThreshold: "5000000", taxRate: "10", bankAccount: null, open: null });
+    expect(wallet.withdrawal).toEqual({
+      minimumWithdrawal: "100000",
+      taxThreshold: "5000000",
+      taxRate: "10",
+      withdrawalFees: { byCount: [], byAmount: [] },
+      withdrawalsThisMonth: 0,
+      bankAccount: null,
+      open: null,
+    });
     const create = (amount: string) => user("post", "/buyer/withdrawals", { amount });
     expect((await create("50000")).body.error.fields.amount).toBe("Số tiền rút thấp hơn mức tối thiểu.");
     expect((await create("7000000")).body.error.fields.amount).toBe("Số tiền rút vượt số dư ví.");
@@ -91,7 +99,9 @@ describe("CONG_VIEC_26 rút tiền hoa hồng", () => {
     const month = store.today.slice(0, 7);
     expect((await store.call("get", `/marketplace/withdrawals/tax-report?month=${month}`)).body).toEqual({
       month,
-      rows: [{ userName: "Người Nhận Hoa Hồng", userPhone: "0937000001", amount: "5500000", taxAmount: "550000", netAmount: "4950000", paidOn: store.today, bankTransactionNo: "FT001" }],
+      rows: [
+        { userName: "Người Nhận Hoa Hồng", userPhone: "0937000001", amount: "5500000", taxAmount: "550000", feeAmount: "0", netAmount: "4950000", paidOn: store.today, bankTransactionNo: "FT001" },
+      ],
       totalAmount: "5500000",
       totalTax: "550000",
     });

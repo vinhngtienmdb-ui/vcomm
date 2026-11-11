@@ -46,12 +46,12 @@ describe("CONG_VIEC_26 thiết lập hoa hồng", () => {
 
     // Cài đặt chung: mặc định, sửa, phiên bản.
     const settings = (await store.call("get", "/marketplace/store-settings")).body.commissionSettings;
-    expect(settings).toEqual({ taxThreshold: "5000000", taxRate: "10", minimumWithdrawal: "100000", version: 0 });
+    expect(settings).toEqual({ taxThreshold: "5000000", taxRate: "10", minimumWithdrawal: "100000", withdrawalFees: { byCount: [], byAmount: [] }, version: 0 });
     expect((await store.call("put", "/marketplace/commission-settings", { taxThreshold: "5000000", taxRate: "120", minimumWithdrawal: "100000", version: 0 })).status).toBe(400);
     expect((await store.call("put", "/marketplace/commission-settings", { taxThreshold: "5000000", taxRate: "10", minimumWithdrawal: "0", version: 0 })).status).toBe(400);
     const updated = await store.call("put", "/marketplace/commission-settings", { taxThreshold: "2000000", taxRate: "10", minimumWithdrawal: "50000", version: 0 });
     expect(updated.status, JSON.stringify(updated.body)).toBe(200);
-    expect(updated.body.commissionSettings).toEqual({ taxThreshold: "2000000", taxRate: "10", minimumWithdrawal: "50000", version: 1 });
+    expect(updated.body.commissionSettings).toEqual({ taxThreshold: "2000000", taxRate: "10", minimumWithdrawal: "50000", withdrawalFees: { byCount: [], byAmount: [] }, version: 1 });
     expect((await store.call("put", "/marketplace/commission-settings", { taxThreshold: "1", taxRate: "10", minimumWithdrawal: "50000", version: 0 })).status).toBe(409);
 
     // Người mua không có quyền.

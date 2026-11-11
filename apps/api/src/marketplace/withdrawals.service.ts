@@ -1,6 +1,6 @@
 // Rút tiền hoa hồng (CONG_VIEC_26; CHUC_NANG_137; API_136; QUYTAC_NGHIEPVU_204 đến 206): người dùng yêu cầu, kế toán duyệt (chốt thuế), từ chối, ghi đã chi.
 import { Inject, Injectable } from "@nestjs/common";
-import type { BuyerWithdrawalInfo, PageResponse, WithdrawalItem, WithdrawalStatus, WithdrawalTaxReport } from "contracts";
+import { type BuyerWithdrawalInfo, type CommissionSettings, type PageResponse, type WithdrawalItem, type WithdrawalStatus, type WithdrawalTaxReport, withdrawalFee } from "contracts";
 import { sql } from "drizzle-orm";
 import { LedgerService } from "../accounting/ledger.service";
 import { marketplaceWithdrawalDraft } from "../accounting/postings";
@@ -26,7 +26,10 @@ type WithdrawalRow = {
   user_phone: string | null;
   amount: string;
   tax_amount: string | null;
+  fee_amount: string | null;
   net_amount: string | null;
+  // Thứ tự của yêu cầu trong tháng tạo (giờ Việt Nam), không tính yêu cầu bị từ chối, đã rút lại (THAY_DOI_17).
+  sequence: number;
   bank_name: string;
   account_number: string;
   account_holder: string;
@@ -44,6 +47,15 @@ export function withdrawalTax(amount: number, threshold: number, rate: number): 
   return amount > threshold ? Math.round((amount * rate) / 100) : 0;
 }
 
+// Thuế, phí theo cài đặt hiện tại cho yêu cầu có số tiền amount, là lần rút thứ sequence trong tháng (QUYTAC_NGHIEPVU_205, 208).
+function deductions(settings: CommissionSettings, amount: number, sequence: number): { tax: number; fee: number } {
+  return { tax: withdrawalTax(amount, Number(settings.taxThreshold), Number(settings.taxRate)), fee: withdrawalFee(amount, sequence, settings.withdrawalFees) };
+}
+const counted = sql`('pending', 'approved', 'paid')`;
+const vietnamMonth = (column: ReturnType<typeof sql>) => sql`date_trunc('month', ${column} AT TIME ZONE 'Asia/Ho_Chi_Minh')`;
+// Ngày Việt Nam của một thời điểm.
+const vietnamDate = (value: Date) => new Date(new Date(value).getTime() + 7 * 3_600_000).toISOString().slice(0, 10);
+
 @Injectable()
 export class WithdrawalsService {
   constructor(
@@ -53,18 +65,22 @@ export class WithdrawalsService {
   ) {}
 
   private readonly select = sql`
-    SELECT w.id, w.company_id, w.user_id, u.full_name AS user_name, u.phone AS user_phone, w.amount::text, w.tax_amount::text, w.net_amount::text, w.bank_name, w.account_number,
-      w.account_holder, w.status, w.reject_reason, w.bank_transaction_no, w.paid_on::text, w.created_at, w.decided_at, w.version
+    SELECT w.id, w.company_id, w.user_id, u.full_name AS user_name, u.phone AS user_phone, w.amount::text, w.tax_amount::text, w.fee_amount::text, w.net_amount::text, w.bank_name,
+      w.account_number, w.account_holder, w.status, w.reject_reason, w.bank_transaction_no, w.paid_on::text, w.created_at, w.decided_at, w.version,
+      (SELECT count(*) FROM marketplace.withdrawals o WHERE o.user_id = w.user_id AND o.status IN ${counted}
+        AND ${vietnamMonth(sql`o.created_at`)} = ${vietnamMonth(sql`w.created_at`)} AND (o.created_at, o.id) <= (w.created_at, w.id))::int AS sequence
     FROM marketplace.withdrawals w JOIN core.users u ON u.id = w.user_id`;
 
   private async item(executor: Executor, row: WithdrawalRow): Promise<WithdrawalItem> {
     let tax = row.tax_amount;
+    let fee = row.fee_amount;
     let net = row.net_amount;
-    if (tax === null) {
-      const settings = await commissionSettings(executor, row.company_id);
-      const projected = withdrawalTax(Number(row.amount), Number(settings.taxThreshold), Number(settings.taxRate));
-      tax = String(projected);
-      net = String(Number(row.amount) - projected);
+    if (tax === null || fee === null) {
+      // Chưa duyệt: thuế, phí dự kiến theo cài đặt hiện tại.
+      const projected = deductions(await commissionSettings(executor, row.company_id), Number(row.amount), Math.max(row.sequence, 1));
+      tax = String(projected.tax);
+      fee = String(projected.fee);
+      net = String(Number(row.amount) - projected.tax - projected.fee);
     }
     return {
       id: row.id,
@@ -72,6 +88,7 @@ export class WithdrawalsService {
       userPhone: localPhone(row.user_phone ?? ""),
       amount: trimDecimal(row.amount),
       taxAmount: trimDecimal(tax),
+      feeAmount: trimDecimal(fee),
       netAmount: trimDecimal(net!),
       bankAccount: { bankName: row.bank_name, accountNumber: row.account_number, accountHolder: row.account_holder },
       status: row.status,
@@ -84,16 +101,29 @@ export class WithdrawalsService {
     };
   }
 
+  private async operatorCompanyOrNull(executor: Executor): Promise<string | null> {
+    return (await executor.execute<{ id: string }>(sql`SELECT id FROM core.companies WHERE is_marketplace_operator AND status = 'active'`)).rows[0]?.id ?? null;
+  }
+
   private async operatorCompany(executor: Executor): Promise<string> {
-    const row = (await executor.execute<{ id: string }>(sql`SELECT id FROM core.companies WHERE is_marketplace_operator AND status = 'active'`)).rows[0];
-    if (!row) throw new ApiError("BUSINESS_RULE", "storeNotReady");
-    return row.id;
+    const id = await this.operatorCompanyOrNull(executor);
+    if (!id) throw new ApiError("BUSINESS_RULE", "storeNotReady");
+    return id;
+  }
+
+  // Số yêu cầu đã gửi trong tháng này (giờ Việt Nam), không tính bị từ chối, đã rút lại.
+  private async countThisMonth(executor: Executor, userId: string): Promise<number> {
+    return (
+      await executor.execute<{ total: number }>(sql`
+      SELECT count(*)::int AS total FROM marketplace.withdrawals WHERE user_id = ${userId} AND status IN ${counted} AND ${vietnamMonth(sql`created_at`)} = ${vietnamMonth(sql`now()`)}`)
+    ).rows[0]!.total;
   }
 
   // Phần rút tiền trên ví: cài đặt, tài khoản nhận, yêu cầu đang chờ.
   async info(executor: Executor, userId: string): Promise<BuyerWithdrawalInfo> {
-    const companyId = await this.operatorCompany(executor);
-    const settings = await commissionSettings(executor, companyId);
+    // Chưa có công ty vận hành sàn thì vẫn xem được ví, phần rút tiền theo cài đặt mặc định.
+    const companyId = await this.operatorCompanyOrNull(executor);
+    const settings = await commissionSettings(executor, companyId ?? "00000000-0000-0000-0000-000000000000");
     const bank = (
       await executor.execute<{ bank_name: string; account_number: string; account_holder: string }>(
         sql`SELECT bank_name, account_number, account_holder FROM marketplace.buyer_bank_accounts WHERE buyer_user_id = ${userId}`,
@@ -104,6 +134,8 @@ export class WithdrawalsService {
       minimumWithdrawal: settings.minimumWithdrawal,
       taxThreshold: settings.taxThreshold,
       taxRate: settings.taxRate,
+      withdrawalFees: settings.withdrawalFees,
+      withdrawalsThisMonth: await this.countThisMonth(executor, userId),
       bankAccount: bank ? { bankName: bank.bank_name, accountNumber: bank.account_number, accountHolder: bank.account_holder } : null,
       open: open ? await this.item(executor, open) : null,
     };
@@ -136,6 +168,9 @@ export class WithdrawalsService {
         )
       ).rows[0];
       if (!bank) throw new ApiError("BUSINESS_RULE", "withdrawalNeedsBankAccount");
+      // Thuế, phí dự kiến không được hết số tiền rút (QUYTAC_NGHIEPVU_208).
+      const projected = deductions(settings, amount, (await this.countThisMonth(transaction, userId)) + 1);
+      if (amount - projected.tax - projected.fee <= 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { amount: "withdrawalFeeOverAmount" } });
       const created = (
         await transaction.execute<{ id: string }>(sql`
         INSERT INTO marketplace.withdrawals (company_id, user_id, amount, bank_name, account_number, account_holder)
@@ -178,11 +213,14 @@ export class WithdrawalsService {
       const row = await this.adminLock(transaction, actor, withdrawalId, version, "pending");
       const settings = await commissionSettings(transaction, actor.operatorCompanyId);
       const amount = Number(row.amount);
-      const tax = withdrawalTax(amount, Number(settings.taxThreshold), Number(settings.taxRate));
+      // Chốt thuế, phí theo cài đặt lúc duyệt và thứ tự lần rút trong tháng (QUYTAC_NGHIEPVU_205, 208).
+      const { tax, fee } = deductions(settings, amount, row.sequence);
+      const net = amount - tax - fee;
+      if (net <= 0) throw new ApiError("BUSINESS_RULE", "withdrawalFeeOverAmount");
       await transaction.execute(sql`
-        UPDATE marketplace.withdrawals SET status = 'approved', tax_amount = ${tax}, net_amount = ${amount - tax}, decided_by = ${actor.userId}, decided_at = now(), version = version + 1
-        WHERE id = ${withdrawalId}`);
-      await this.finish(transaction, actor, row, "approve", { taxAmount: String(tax), netAmount: String(amount - tax) }, "Yêu cầu rút tiền hoa hồng đã được duyệt");
+        UPDATE marketplace.withdrawals SET status = 'approved', tax_amount = ${tax}, fee_amount = ${fee}, net_amount = ${net}, decided_by = ${actor.userId}, decided_at = now(),
+          version = version + 1 WHERE id = ${withdrawalId}`);
+      await this.finish(transaction, actor, row, "approve", { taxAmount: String(tax), feeAmount: String(fee), netAmount: String(net) }, "Yêu cầu rút tiền hoa hồng đã được duyệt");
     });
     return this.one(this.database, withdrawalId);
   }
@@ -204,7 +242,10 @@ export class WithdrawalsService {
   async pay(actor: BuyerAdminActor, withdrawalId: string, input: { bankTransactionNo: string; paidOn: string; version: number }): Promise<WithdrawalItem> {
     await this.database.transaction(async (transaction) => {
       const row = await this.adminLock(transaction, actor, withdrawalId, input.version, "approved");
-      if (input.paidOn > (await vietnamToday(transaction))) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { paidOn: "invalidValue" } });
+      // Ngày chi từ ngày duyệt đến hôm nay (giờ Việt Nam): không ghi lùi về kỳ trước khi duyệt.
+      if (input.paidOn > (await vietnamToday(transaction)) || (row.decided_at && input.paidOn < vietnamDate(row.decided_at))) {
+        throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { paidOn: "invalidValue" } });
+      }
       await transaction.execute(sql`
         UPDATE marketplace.withdrawals SET status = 'paid', bank_transaction_no = ${input.bankTransactionNo}, paid_on = ${input.paidOn}::date, paid_by = ${actor.userId}, paid_at = now(),
           version = version + 1 WHERE id = ${withdrawalId}`);
@@ -232,6 +273,7 @@ export class WithdrawalsService {
         userPhone: localPhone(row.user_phone ?? ""),
         amount: trimDecimal(row.amount),
         taxAmount: trimDecimal(row.tax_amount!),
+        feeAmount: trimDecimal(row.fee_amount!),
         netAmount: trimDecimal(row.net_amount!),
         paidOn: row.paid_on!,
         bankTransactionNo: row.bank_transaction_no!,
@@ -252,6 +294,8 @@ export class WithdrawalsService {
   private async adminLock(executor: Executor, actor: BuyerAdminActor, withdrawalId: string, version: number, status: WithdrawalStatus): Promise<WithdrawalRow> {
     const row = await this.lock(executor, withdrawalId);
     if (!row || row.company_id !== actor.operatorCompanyId) throw new ApiError("NOT_FOUND", "notFound");
+    // Người duyệt không tự xử lý yêu cầu của chính mình.
+    if (row.user_id === actor.userId) throw new ApiError("BUSINESS_RULE", "withdrawalSelfDecision");
     if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     if (row.status !== status) throw new ApiError("BUSINESS_RULE", status === "pending" ? "withdrawalNotPending" : "withdrawalNotApproved");
     return row;

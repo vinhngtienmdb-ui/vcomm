@@ -28,7 +28,8 @@ export type PostingRole =
   | "collection_fee"
   | "service_revenue"
   | "commission_payable"
-  | "personal_income_tax";
+  | "personal_income_tax"
+  | "other_income";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -55,6 +56,7 @@ export const postingRoles: PostingRole[] = [
   "service_revenue",
   "commission_payable",
   "personal_income_tax",
+  "other_income",
 ];
 
 export interface DraftLine {
@@ -266,11 +268,12 @@ export async function marketplaceCommissionDraft(executor: Executor, orderId: st
   };
 }
 
-// Chi trả rút tiền hoa hồng đã ghi đã chi (QUYTAC_NGHIEPVU_207): Nợ 3388 số tiền yêu cầu / Có tiền gửi ngân hàng số thực nhận / Có thuế thu nhập cá nhân (3335), ngày chi.
+// Chi trả rút tiền hoa hồng đã ghi đã chi (QUYTAC_NGHIEPVU_207, 208): Nợ 3388 số tiền yêu cầu / Có tiền gửi ngân hàng số thực nhận / Có thuế thu nhập cá nhân (3335)
+// / Có thu nhập khác (711) phí rút tiền, ngày chi.
 export async function marketplaceWithdrawalDraft(executor: Executor, withdrawalId: string): Promise<DraftJournal | null> {
   const row = (
-    await executor.execute<{ company_id: string; amount: string; tax_amount: string; net_amount: string; paid_on: string; bank_transaction_no: string; full_name: string }>(sql`
-    SELECT w.company_id, w.amount::text, w.tax_amount::text, w.net_amount::text, w.paid_on::text, w.bank_transaction_no, u.full_name
+    await executor.execute<{ company_id: string; amount: string; tax_amount: string; fee_amount: string; net_amount: string; paid_on: string; bank_transaction_no: string; full_name: string }>(sql`
+    SELECT w.company_id, w.amount::text, w.tax_amount::text, w.fee_amount::text, w.net_amount::text, w.paid_on::text, w.bank_transaction_no, u.full_name
     FROM marketplace.withdrawals w JOIN core.users u ON u.id = w.user_id WHERE w.id = ${withdrawalId} AND w.status = 'paid'`)
   ).rows[0];
   if (!row) return null;
@@ -281,7 +284,12 @@ export async function marketplaceWithdrawalDraft(executor: Executor, withdrawalI
     journalNo: `RTHH-${withdrawalId.slice(0, 8).toUpperCase()}`,
     date: row.paid_on,
     description: `Chi hoa hồng cho ${row.full_name}, giao dịch ${row.bank_transaction_no}`,
-    lines: [debit("commission_payable", Number(row.amount)), credit("bank", Number(row.net_amount)), credit("personal_income_tax", Number(row.tax_amount))],
+    lines: [
+      debit("commission_payable", Number(row.amount)),
+      credit("bank", Number(row.net_amount)),
+      credit("personal_income_tax", Number(row.tax_amount)),
+      credit("other_income", Number(row.fee_amount)),
+    ],
   };
 }
 
