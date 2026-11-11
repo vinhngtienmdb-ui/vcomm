@@ -104,7 +104,8 @@ export class MarketplaceCommissionsService {
   }
 
   // Tổng hoa hồng theo người hưởng (QUYTAC_NGHIEPVU_203): đã cộng ví; đang chờ là ước tính của đơn chưa hoàn tất, không tính đơn hủy.
-  async totals(executor: Executor, userIds: string[]): Promise<Map<string, { credited: string; pending: string }>> {
+  // buyerUserId: chỉ tính đơn của một khách (chi tiết khách, CONG_VIEC_22 QUYTAC_NGHIEPVU_433).
+  async totals(executor: Executor, userIds: string[], buyerUserId?: string): Promise<Map<string, { credited: string; pending: string }>> {
     if (userIds.length === 0) return new Map();
     const rows = await executor.execute<{ user_id: string; credited: string; pending: string }>(sql`
       SELECT c.beneficiary_user_id AS user_id,
@@ -114,7 +115,7 @@ export class MarketplaceCommissionsService {
       WHERE c.beneficiary_user_id IN (${sql.join(
         userIds.map((id) => sql`${id}::uuid`),
         sql`, `,
-      )})
+      )})${buyerUserId ? sql` AND m.buyer_user_id = ${buyerUserId}` : sql``}
       GROUP BY c.beneficiary_user_id`);
     return new Map(rows.rows.map((row) => [row.user_id, { credited: row.credited, pending: row.pending }]));
   }

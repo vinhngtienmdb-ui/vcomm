@@ -3774,6 +3774,20 @@ export interface BuyerSalesCustomerItem {
   registeredAt: string;
 }
 
+// API_228: chi tiết khách trên ứng dụng VComm (CONG_VIEC_22; QUYTAC_NGHIEPVU_432, 433). Không có địa chỉ giao hàng, người nhận.
+export interface BuyerSalesCustomerDetail extends BuyerSalesCustomerItem {
+  ownerUserId: string;
+  ownerName: string;
+  ownerTitle: SalesTitle;
+  completedOrderCount: number;
+  completedAmount: string;
+  openOrderCount: number;
+  openAmount: string;
+  recentOrders: Array<{ id: string; documentNo: string; orderedAt: string; goodsAmount: string; status: MarketplaceOrderStatus }>;
+  // Hoa hồng của chính người xem từ đơn của khách này.
+  myCommission: { credited: string; pending: string };
+}
+
 export interface BuyerAccountListItem {
   id: string;
   fullName: string;

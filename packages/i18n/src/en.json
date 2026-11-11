@@ -259,6 +259,7 @@
     "consolidationPeriodExists": "A consolidation already exists for this period.",
     "consolidationPostingRuleMissing": "A member company is missing posting rules for revenue, cost of goods sold or goods.",
     "visitTooManyPhotos": "At most 3 photos per visit.",
+    "visitDisabled": "Customer visits are turned off; new visits cannot be recorded.",
     "visitPhotoTooLarge": "The photo is larger than 5 MB.",
     "visitPhotoTypeInvalid": "Photos must be JPEG or PNG.",
     "phoneTaken": "This phone number already has an account. Please sign in.",
@@ -1931,7 +1932,6 @@
   "crmMenu": {
     "title": "Customers and Partners",
     "partners": "Partners",
-    "visits": "Customer visits",
     "buyers": "VComm buyers",
     "salesTeam": "Sales team",
     "salesProposals": "Sales team proposals",
@@ -3075,17 +3075,6 @@
     "choosePartner": "Choose partner (required)",
     "noPartner": "No partner"
   },
-  "visits": {
-    "title": "Customer visits",
-    "hint": "Visits recorded in the sales app across the company.",
-    "staff": "Staff",
-    "from": "From",
-    "to": "To",
-    "none": "No visits yet.",
-    "recent": "Recent visits",
-    "photo": "Photo {number}",
-    "openMap": "View location on map (±{accuracy} m)"
-  },
   "vcommApp": {
     "appName": "VComm",
     "tagline": "VComm marketplace",
@@ -3351,7 +3340,19 @@
     "transferBank": "Bank: {bank}",
     "transferAccount": "Account: {account} · {name}",
     "transferAmount": "Amount: {amount}",
-    "transferContent": "Content: {content}"
+    "transferContent": "Content: {content}",
+    "customerOwner": "Customer of {name} · {title}",
+    "customerPurchases": "Purchases",
+    "completedOrders": "Completed orders",
+    "completedOrdersHint": "Returns deducted",
+    "orderCountAmount": "{count} orders · {amount}",
+    "openOrders": "In progress",
+    "myCommissionFromCustomer": "My commission from this customer",
+    "commissionCredited": "Credited to wallet",
+    "commissionPending": "Pending",
+    "commissionPendingHint": "Orders still within the 7-day return period",
+    "recentOrders": "Recent orders",
+    "noCustomerOrders": "No orders yet."
   },
   "buyers": {
     "title": "Buyer accounts",

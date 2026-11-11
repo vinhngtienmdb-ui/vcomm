@@ -259,6 +259,7 @@
     "consolidationPeriodExists": "Kỳ này đã có bảng hợp nhất đang dùng.",
     "consolidationPostingRuleMissing": "Công ty thành viên chưa khai định khoản doanh thu, giá vốn hoặc hàng hóa (Hệ thống tài khoản).",
     "visitTooManyPhotos": "Tối đa 3 ảnh mỗi lượt ghé thăm.",
+    "visitDisabled": "Chức năng ghé thăm khách đã tắt, không ghi được lượt mới.",
     "visitPhotoTooLarge": "Ảnh vượt quá 5 MB.",
     "visitPhotoTypeInvalid": "Ảnh phải là JPEG hoặc PNG.",
     "phoneTaken": "Số điện thoại đã có tài khoản. Hãy đăng nhập.",
@@ -1931,7 +1932,6 @@
   "crmMenu": {
     "title": "Khách hàng và Đối tác",
     "partners": "Đối tác",
-    "visits": "Ghé thăm khách",
     "buyers": "Người mua VComm",
     "salesTeam": "Đội kinh doanh",
     "salesProposals": "Đề xuất đội kinh doanh",
@@ -3075,17 +3075,6 @@
     "choosePartner": "Chọn đối tác (bắt buộc)",
     "noPartner": "Không chọn đối tác"
   },
-  "visits": {
-    "title": "Ghé thăm khách",
-    "hint": "Lượt ghé thăm nhân viên ghi trên ứng dụng kinh doanh của công ty.",
-    "staff": "Nhân viên",
-    "from": "Từ ngày",
-    "to": "Đến ngày",
-    "none": "Chưa có lượt ghé thăm.",
-    "recent": "Ghé thăm gần đây",
-    "photo": "Ảnh {number}",
-    "openMap": "Xem vị trí trên bản đồ (±{accuracy} m)"
-  },
   "vcommApp": {
     "appName": "VComm",
     "tagline": "Sàn thương mại điện tử VComm",
@@ -3351,7 +3340,19 @@
     "transferBank": "Ngân hàng: {bank}",
     "transferAccount": "Số tài khoản: {account} · {name}",
     "transferAmount": "Số tiền: {amount}",
-    "transferContent": "Nội dung: {content}"
+    "transferContent": "Nội dung: {content}",
+    "customerOwner": "Khách của {name} · {title}",
+    "customerPurchases": "Mua hàng",
+    "completedOrders": "Đơn hoàn tất",
+    "completedOrdersHint": "Đã trừ hàng trả",
+    "orderCountAmount": "{count} đơn · {amount}",
+    "openOrders": "Đang xử lý",
+    "myCommissionFromCustomer": "Hoa hồng của tôi từ khách này",
+    "commissionCredited": "Đã cộng ví",
+    "commissionPending": "Đang chờ",
+    "commissionPendingHint": "Đơn chưa hết 7 ngày trả hàng",
+    "recentOrders": "Đơn gần nhất",
+    "noCustomerOrders": "Khách chưa có đơn."
   },
   "buyers": {
     "title": "Tài khoản người mua",

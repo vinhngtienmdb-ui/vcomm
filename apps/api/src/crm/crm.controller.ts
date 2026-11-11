@@ -3,7 +3,6 @@ import { Body, Controller, Get, Headers, HttpCode, Param, Patch, Post, Put, Quer
 import { FilesInterceptor } from "@nestjs/platform-express";
 import type { Response } from "express";
 import {
-  createVisitSchema,
   visitListQuerySchema,
   visitPhotoMaximumBytes,
   visitPhotoMaximumCount,
@@ -23,6 +22,7 @@ import {
 } from "contracts";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
+import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
@@ -39,16 +39,13 @@ export class CrmController {
     private readonly visits: VisitsService,
   ) {}
 
-  // API_114: ghé thăm khách (CONG_VIEC_22). Ảnh giữ trong bộ nhớ rồi ghi kho tệp; giới hạn 5 MB kiểm ở dịch vụ để báo đúng thông báo.
+  // API_114: ghé thăm khách (CONG_VIEC_22). Ghi mới đã tắt theo THAY_DOI_26 (QUYTAC_NGHIEPVU_441): vẫn nhận tệp để đọc hết thân yêu cầu rồi từ chối;
+  // giữ VisitsService.create và bảng crm.visits để bật lại bằng phiếu thay đổi.
   @Post("visits")
   @UseInterceptors(FilesInterceptor("photos", visitPhotoMaximumCount + 1, { limits: { fileSize: visitPhotoMaximumBytes * 2 } }))
-  async createVisit(
-    @Req() request: AuthenticatedRequest,
-    @Body() body: unknown,
-    @UploadedFiles() photos: UploadedPhoto[] | undefined,
-    @Headers("x-company-id") companyId?: string,
-  ): Promise<VisitItem> {
-    return this.visits.create(await this.actor(request, companyId), createVisitSchema.parse(body), photos ?? []);
+  async createVisit(@Req() request: AuthenticatedRequest, @UploadedFiles() _photos: UploadedPhoto[] | undefined, @Headers("x-company-id") companyId?: string): Promise<VisitItem> {
+    await this.actor(request, companyId);
+    throw new ApiError("BUSINESS_RULE", "visitDisabled");
   }
 
   @Get("visits")

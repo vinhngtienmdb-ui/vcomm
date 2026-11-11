@@ -55,7 +55,7 @@ Ngoài phạm vi: tạo đơn hoặc giỏ hàng hộ khách; thông báo đẩy
 - QUYTAC_NGHIEPVU_438: Mục Thông báo trên ứng dụng VComm dùng API_48 (30 thông báo mới nhất của chính mình, số chưa đọc); bấm thông báo thì đánh dấu đã đọc và mở liên kết nếu liên kết thuộc ứng dụng. Biểu tượng mục Thông báo hiện số chưa đọc.
 - QUYTAC_NGHIEPVU_439: Doanh số tháng của một nhân viên = tổng `completed_amount` của các đơn VComm hoàn tất trong tháng (theo `completed_at`, giờ Việt Nam) mà nhân viên đó là người phụ trách khách lúc đặt đơn (quyết định của người dùng 2026-11-12; khớp người hưởng hoa hồng, QUYTAC_NGHIEPVU_201). Khách đổi người phụ trách thì doanh số của các đơn đã đặt vẫn thuộc người cũ. Kèm số đơn hoàn tất, số khách có đơn hoàn tất, số đơn đang xử lý (chưa hoàn tất, chưa hủy) và tiền hàng của các đơn đó, tính tại thời điểm xem. Tiền làm tròn theo đơn vị tiền tệ của công ty vận hành sàn.
 - QUYTAC_NGHIEPVU_440: Doanh số nhánh: người quản lý xem doanh số tháng của chính mình và của từng người trong nhánh (một dòng mỗi người, có tổng nhánh); nhân viên không có cấp dưới chỉ thấy của mình. Chọn tháng từ tháng đăng ký đánh dấu đầu tiên đến tháng hiện tại, tối đa 24 tháng gần nhất.
-- QUYTAC_NGHIEPVU_441: Ẩn ghé thăm khách: web-crm bỏ menu Ghé thăm, MAN_HINH_72 trả về trang không tìm thấy, bỏ thẻ "Ghé thăm gần đây" trên MAN_HINH_37. `POST /crm/visits` trả 409 mã `VISIT_DISABLED`. API đọc giữ nguyên quyền, không còn giao diện dùng. Bảng `crm.visits`, ảnh, quyền `crm.visit.manage` giữ nguyên để có thể bật lại bằng phiếu thay đổi.
+- QUYTAC_NGHIEPVU_441: Ẩn ghé thăm khách: web-crm bỏ menu Ghé thăm, MAN_HINH_72 trả về trang không tìm thấy, bỏ thẻ "Ghé thăm gần đây" trên MAN_HINH_37. `POST /crm/visits` trả 409 mã `BUSINESS_RULE`, thông báo "Chức năng ghé thăm khách đã tắt, không ghi được lượt mới." (mô hình lỗi tài liệu `17` không có mã riêng). API đọc giữ nguyên quyền, không còn giao diện dùng. Bảng `crm.visits`, ảnh, quyền `crm.visit.manage`, dịch vụ ghi lượt ở máy chủ giữ nguyên để có thể bật lại bằng phiếu thay đổi; mã giao diện ghé thăm trên web-crm gỡ (khôi phục từ lịch sử Git khi bật lại).
 
 ## 5. Vai trò và quyền
 
@@ -88,7 +88,7 @@ MAN_HINH_202, 203 để dự phòng.
 - API_231 `GET /buyer/sales/revenue?month=YYYY-MM`: doanh số của tôi và nhánh (QUYTAC_NGHIEPVU_439, 440).
 - API_48 dùng lại cho thông báo trên ứng dụng. API_232 đến 234 để dự phòng.
 - Việc nền `marketplace-sales-follow-ups` (BullMQ, `0 7 * * *` giờ Việt Nam) tạo thông báo nhắc hẹn.
-- Sửa API_114: `POST /crm/visits` trả 409 `VISIT_DISABLED`.
+- Sửa API_114: `POST /crm/visits` trả 409 `BUSINESS_RULE` (QUYTAC_NGHIEPVU_441).
 
 ## 9. Điều kiện đặc biệt
 
@@ -109,16 +109,19 @@ Không còn. Câu hỏi 1 (gán đơn khi tính doanh số) người dùng chọ
 | TIEUCHI_NGHIEMTHU_405 | Hẹn của tôi đúng nhóm quá hạn, hôm nay, 7 ngày tới theo giờ Việt Nam; chỉ người ghi đánh dấu đã xong; mất phạm vi thì không hiện | Bắt buộc | KICHBAN_KIEMTHU_576 |
 | TIEUCHI_NGHIEMTHU_406 | Nhắc hẹn tạo đúng một thông báo mỗi người mỗi ngày, đúng số; chạy lại không trùng; không nhắc người hết phạm vi | Bắt buộc | KICHBAN_KIEMTHU_577 |
 | TIEUCHI_NGHIEMTHU_407 | Doanh số tháng đúng định nghĩa, đúng ranh giới tháng giờ Việt Nam, trừ trả hàng; nhánh đúng người, tổng khớp | Bắt buộc | KICHBAN_KIEMTHU_578, 579 |
-| TIEUCHI_NGHIEMTHU_408 | Ghé thăm: ghi mới trả 409 `VISIT_DISABLED`; web-crm không còn menu, trang, thẻ ghé thăm | Bắt buộc | KICHBAN_KIEMTHU_580 |
+| TIEUCHI_NGHIEMTHU_408 | Ghé thăm: ghi mới trả 409 `BUSINESS_RULE`; lượt đã có vẫn đọc được; web-crm không còn menu, trang, thẻ ghé thăm | Bắt buộc | KICHBAN_KIEMTHU_290, 291, 580 |
 | TIEUCHI_NGHIEMTHU_409 | Đường dẫn chia sẻ: chưa đăng nhập đăng ký xong mở đúng sản phẩm; đã đăng nhập mở sản phẩm, không đổi người giới thiệu | Bắt buộc | KICHBAN_KIEMTHU_581 |
 | TIEUCHI_NGHIEMTHU_410 | Ứng dụng: Kinh doanh, chi tiết khách, ghi chú, hẹn, doanh số, thông báo, chia sẻ chạy được trên bản xem trước web khổ 390 điểm ảnh | Bắt buộc | KICHBAN_KIEMTHU_582 |
 | TIEUCHI_NGHIEMTHU_411 | Danh sách khách, chi tiết khách, doanh số nhánh trả lời dưới 1 giây với 1.000 khách, 20.000 đơn | Mong muốn | KICHBAN_KIEMTHU_583 |
 
 ## 12. Kịch bản kiểm thử
 
-- KICHBAN_KIEMTHU_573 đến 581, 583: tự động, `apps/api/test/c22-kinh-doanh-vcomm.test.ts` (chia sẻ: kiểm phần máy chủ; phần điều hướng thủ công ở 582).
+- KICHBAN_KIEMTHU_573 đến 579, 581, 583: tự động, `apps/api/test/c22-kinh-doanh-vcomm.test.ts` (chia sẻ: kiểm phần máy chủ; phần điều hướng thủ công ở 582).
+- TIEUCHI_NGHIEMTHU_408: kiểm bằng KICHBAN_KIEMTHU_290, 291 đã sửa (`apps/api/test/c22-sales-app.test.ts`); KICHBAN_KIEMTHU_580 kiểm thủ công web-crm không còn menu, trang, thẻ ghé thăm.
 - KICHBAN_KIEMTHU_582: thủ công trên bản xem trước web của ứng dụng VComm khổ 390 điểm ảnh.
 - KICHBAN_KIEMTHU_584 dự phòng.
+
+Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt).
 - Sửa KICHBAN_KIEMTHU_290, 291 (ghé thăm): ghi mới bị từ chối; đọc giữ nguyên.
 
 ## 13. Ràng buộc kỹ thuật

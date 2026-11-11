@@ -12,6 +12,7 @@ import {
   type AppLoginResponse,
   type BuyerMeResponse,
   type BuyerReferralItem,
+  type BuyerSalesCustomerDetail,
   type BuyerSalesCustomerItem,
   type MySalesTeamResponse,
   type BuyerWalletResponse,
@@ -114,6 +115,12 @@ export class BuyerController {
   @Get("sales/customers")
   async salesCustomers(@Req() request: AuthenticatedRequest): Promise<BuyerSalesCustomerItem[]> {
     return this.buyers.salesCustomers(request.auth.userId);
+  }
+
+  // API_228: chi tiết khách (CONG_VIEC_22).
+  @Get("sales/customers/:id")
+  async salesCustomerDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<BuyerSalesCustomerDetail> {
+    return this.buyers.salesCustomerDetail(request.auth.userId, id);
   }
 
   // API_135: ví hoa hồng của chính người gọi (CONG_VIEC_26).
