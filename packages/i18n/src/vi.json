@@ -3681,7 +3681,11 @@
     "gateway_bidv": "BIDV",
     "ecopay_wallet": "Ví Ecopay",
     "ecopay_atm": "Thẻ ATM nội địa qua Ecopay",
-    "gateway_ecopay": "Ecopay"
+    "gateway_ecopay": "Ecopay",
+    "gpay_atm": "Thẻ ATM, tài khoản ngân hàng nội địa (G-Pay)",
+    "gpay_international": "Thẻ quốc tế Visa, Mastercard (G-Pay)",
+    "gpay_va": "Chuyển khoản tài khoản ảo (G-Pay)",
+    "gateway_gpay": "G-Pay"
   },
   "refunds": {
     "title": "Hoàn tiền đơn VComm",

@@ -7,6 +7,7 @@ import { PayosGateway } from "./gateways/payos-gateway";
 import { BankTransferGateway } from "./gateways/bank-transfer-gateway";
 import { BidvGateway } from "./gateways/bidv-gateway";
 import { EcopayGateway } from "./gateways/ecopay-gateway";
+import { GpayGateway } from "./gateways/gpay-gateway";
 import type { PaymentGatewayAdapter } from "./payment-gateway";
 import { SepayGateway } from "./gateways/sepay-gateway";
 
@@ -18,6 +19,7 @@ export const paymentGateways: PaymentGatewayAdapter[] = [
   new BankTransferGateway(),
   new BidvGateway(),
   new EcopayGateway(),
+  new GpayGateway(),
 ];
 
 export function gatewayAdapter(code: string): PaymentGatewayAdapter | null {

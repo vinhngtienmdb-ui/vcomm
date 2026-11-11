@@ -3681,7 +3681,11 @@
     "gateway_bidv": "BIDV",
     "ecopay_wallet": "Ecopay wallet",
     "ecopay_atm": "Domestic ATM card via Ecopay",
-    "gateway_ecopay": "Ecopay"
+    "gateway_ecopay": "Ecopay",
+    "gpay_atm": "Domestic ATM card, bank account (G-Pay)",
+    "gpay_international": "International card (Visa, Mastercard) (G-Pay)",
+    "gpay_va": "Virtual account transfer (G-Pay)",
+    "gateway_gpay": "G-Pay"
   },
   "refunds": {
     "title": "VComm refunds",
