@@ -426,3 +426,14 @@
 - Mức quy mô: Lớn; làm trong CONG_VIEC_22.
 - Rủi ro: trung bình (dữ liệu cá nhân khách, phạm vi xem theo nhánh).
 - Trạng thái: Đã phê duyệt 2026-11-12 (người dùng chọn qua câu hỏi trong phiên CONG_VIEC_22).
+
+### THAY_DOI_27: Kích hoạt lời mời cửa hàng liên kết bằng số điện thoại và mã OTP – 2026-11-12
+- Lý do: đặc tả CONG_VIEC_55 đã duyệt ghi kích hoạt lời mời bằng đường dẫn gửi qua SMS; SMS thương hiệu hiện chỉ gửi được mẫu OTP.
+- Nội dung thay đổi (người dùng chấp nhận 2026-11-12): chủ cửa hàng và thu ngân kích hoạt lời mời bằng số điện thoại kèm mã OTP trên cổng cửa hàng; dùng phiên web hiện có, không thêm loại phiên.
+- Thành phần bị ảnh hưởng: CONG_VIEC_55 (đặc tả, MAN_HINH_177, 178, API_206, 207).
+- Dữ liệu, API, giao diện, quyền: không thêm bảng; API kích hoạt nhận số điện thoại và mã OTP thay mã trong đường dẫn.
+- Ảnh hưởng chức năng cũ: không (chưa phát hành).
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_55 (kích hoạt lời mời).
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_55.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-12.

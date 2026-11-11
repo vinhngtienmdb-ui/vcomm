@@ -22,6 +22,9 @@
 
 ### Quyết định
 
+- THAY_DOI_27 (đã phê duyệt): CONG_VIEC_55 kích hoạt lời mời cửa hàng bằng số điện thoại và mã OTP.
+- CONG_VIEC_56: người dùng duyệt đặc tả và bản mẫu (pull request #119), cho lập trình toàn bộ; phần thời hạn nộp thuế, tiền chậm nộp, khai bổ sung ghi rủi ro, phải đối chiếu nguyên văn luật trước khi nghiệm thu.
+- Người dùng đồng ý xem trước CONG_VIEC_52 lát L3 (cho trình nghiệm thu), CONG_VIEC_57 lát L1, L2, CONG_VIEC_58 lát L0, CONG_VIEC_22 lát L0.
 - CONG_VIEC_22: người dùng duyệt đặc tả bản 0.2 (THAY_DOI_26) và bản mẫu MAN_HINH_196 đến 201; doanh số gán theo người phụ trách lúc đặt đơn (thêm cột người phụ trách vào đơn VComm).
 - CONG_VIEC_55, người dùng quyết định: cửa hàng liên kết là đối tác ngoài, trả sau trong hạn mức; định danh bằng mã QR cửa hàng, mã QR khách, số điện thoại kèm xác nhận trên ứng dụng; tỷ lệ tích theo cửa hàng; đối soát tuần có bù trừ; ba loại voucher, mọi voucher qua duyệt; phí theo hợp đồng; hủy trước khi chốt tuần; chỉ khách có tài khoản; hạch toán 131/3388, 3388/331, 641/331, 331/511, bù trừ 331/131; duyệt thêm thư viện jsqr 1.4.0 (Apache-2.0).
 - CONG_VIEC_56, người dùng quyết định: quỹ ngoại tệ riêng và vẫn cho chi từ quỹ tiền Việt; Nợ 331 theo tỷ giá đích danh, Có quỹ ngoại tệ theo bình quân gia quyền di động, chênh lệch vào 515, 635; đánh giá lại cuối tháng theo tỷ giá chuyển khoản trung bình, cảnh báo khi khóa sổ tháng 12 chưa đánh giá lại; phiếu nộp thuế hải quan gắn tờ khai, đi luồng duyệt, không cần đối tác, tiền chậm nộp tự tính; tờ khai bổ sung chỉ sửa số thuế từng dòng; theo dõi số nộp thừa, phiếu thu nhận hoàn thuế; thêm phiếu mua ngoại tệ.
