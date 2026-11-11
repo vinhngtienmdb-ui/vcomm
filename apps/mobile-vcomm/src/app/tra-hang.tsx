@@ -1,5 +1,6 @@
-// MAN_HINH_97 Yêu cầu trả hàng (CHUC_NANG_118; API_129; QUYTAC_NGHIEPVU_161): chọn dòng, số lượng, lý do, mô tả, ảnh (bản web).
+// MAN_HINH_97 Yêu cầu trả hàng (CHUC_NANG_118; API_129; QUYTAC_NGHIEPVU_161): chọn dòng, số lượng, lý do, mô tả, ảnh.
 import { returnReasons, type BuyerOrderDetail, type ReturnReason } from "contracts";
+import * as ImagePicker from "expo-image-picker";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Platform, ScrollView, Text, View } from "react-native";
@@ -38,25 +39,24 @@ export default function ReturnRequestScreen() {
       .filter((line) => line.orderLineId === orderLineId)
       .reduce((sum, line) => sum + Number(line.quantity), 0);
 
-  function pickImage() {
-    const input = globalThis.document?.createElement("input");
-    if (!input) return;
-    input.type = "file";
-    input.accept = "image/jpeg,image/png";
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
-      setError(null);
-      try {
-        const form = new FormData();
-        form.append("file", file);
-        const uploaded = await api<{ id: string }>("/buyer/return-requests/images", { method: "POST", body: form });
-        setImages((current) => [...current, { id: uploaded.id, name: file.name }]);
-      } catch (failure) {
-        setError(failure instanceof ApiFailure ? (Object.values(failure.fields)[0] ?? failure.message) : t("unknownError"));
-      }
-    };
-    input.click();
+  // Chọn ảnh từ thư viện ảnh (điện thoại, bản web); JPEG hoặc PNG, máy chủ kiểm lại theo nội dung tệp.
+  async function pickImage() {
+    setError(null);
+    const permission = Platform.OS === "web" ? { granted: true } : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) return setError(t("returnPhotoPermission"));
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7, allowsMultipleSelection: false });
+    const asset = result.canceled ? null : result.assets[0];
+    if (!asset) return;
+    try {
+      const form = new FormData();
+      const name = asset.fileName ?? `anh-${Date.now()}.jpg`;
+      if (asset.file) form.append("file", asset.file);
+      else form.append("file", { uri: asset.uri, name, type: asset.mimeType ?? "image/jpeg" } as unknown as Blob);
+      const uploaded = await api<{ id: string }>("/buyer/return-requests/images", { method: "POST", body: form });
+      setImages((current) => [...current, { id: uploaded.id, name }]);
+    } catch (failure) {
+      setError(failure instanceof ApiFailure ? (Object.values(failure.fields)[0] ?? failure.message) : t("unknownError"));
+    }
   }
 
   async function submit() {
@@ -134,7 +134,7 @@ export default function ReturnRequestScreen() {
               {images.map((image) => (
                 <Muted key={image.id}>{image.name}</Muted>
               ))}
-              {Platform.OS === "web" ? images.length < 5 ? <Button label={t("returnAddImage")} kind="secondary" onPress={pickImage} /> : null : <Muted>{t("returnImagesWebOnly")}</Muted>}
+              {images.length < 5 ? <Button label={t("returnAddImage")} kind="secondary" onPress={() => void pickImage()} /> : null}
             </Card>
             <Button label={t("returnSubmit")} busy={busy} disabled={!chosen || !reason || !description.trim()} onPress={() => void submit()} />
           </>

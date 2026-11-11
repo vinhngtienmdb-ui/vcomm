@@ -3276,7 +3276,6 @@
     "returnDescription": "Mô tả",
     "returnImages": "Ảnh ({count}/5)",
     "returnAddImage": "Thêm ảnh",
-    "returnImagesWebOnly": "Đính kèm ảnh hiện chỉ có trên bản web của ứng dụng.",
     "returnSubmit": "Gửi yêu cầu",
     "returnRequests": "Yêu cầu trả hàng",
     "returnStatus_pending": "Chờ duyệt",
@@ -3288,7 +3287,8 @@
     "returnNote": "Ghi chú của VComm: {note}",
     "returnSendBack": "Vui lòng đóng gói và gửi hàng về VComm. Nhân viên sẽ liên hệ hướng dẫn.",
     "returnWithdraw": "Rút yêu cầu",
-    "requestReturn": "Yêu cầu trả hàng"
+    "requestReturn": "Yêu cầu trả hàng",
+    "returnPhotoPermission": "Chưa có quyền truy cập ảnh. Cho phép VComm truy cập ảnh trong cài đặt của điện thoại."
   },
   "buyers": {
     "title": "Tài khoản người mua",

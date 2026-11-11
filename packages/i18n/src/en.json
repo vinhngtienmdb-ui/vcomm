@@ -3276,7 +3276,6 @@
     "returnDescription": "Description",
     "returnImages": "Photos ({count}/5)",
     "returnAddImage": "Add photo",
-    "returnImagesWebOnly": "Photos can currently be attached only in the web version.",
     "returnSubmit": "Send request",
     "returnRequests": "Return requests",
     "returnStatus_pending": "Pending",
@@ -3288,7 +3287,8 @@
     "returnNote": "VComm note: {note}",
     "returnSendBack": "Please pack and send the items back to VComm. Staff will contact you.",
     "returnWithdraw": "Withdraw request",
-    "requestReturn": "Request a return"
+    "requestReturn": "Request a return",
+    "returnPhotoPermission": "Photo access is not allowed. Allow VComm to access photos in your phone settings."
   },
   "buyers": {
     "title": "Buyer accounts",

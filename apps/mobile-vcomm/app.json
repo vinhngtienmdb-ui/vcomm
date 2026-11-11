@@ -20,7 +20,15 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "VComm cần truy cập ảnh để bạn đính kèm ảnh khi yêu cầu trả hàng.",
+          "cameraPermission": "VComm cần dùng máy ảnh để bạn chụp ảnh hàng khi yêu cầu trả hàng.",
+          "microphonePermission": false
+        }
+      ]
     ]
   }
 }

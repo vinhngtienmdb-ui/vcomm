@@ -3,7 +3,7 @@
 - Mô tả: Người mua xem hàng đăng bán, cho vào giỏ, đặt hàng giao tận nơi trên ứng dụng VComm; VComm giao qua đơn vị vận chuyển (GHN đầu tiên), nhận yêu cầu trả hàng trong 7 ngày; đơn tự hoàn tất làm cơ sở hoa hồng.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (không làm bản mẫu riêng, xem trước từng lát). Chờ nghiệm thu.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (không làm bản mẫu riêng, xem trước từng lát). Đã nghiệm thu 2026-11-11.
 - Nguồn: THAY_DOI_14; quyết định của người dùng ngày 2026-11-11 trong tài liệu `02`; CONG_VIEC_23 (tài khoản người mua), CONG_VIEC_27 (đội kinh doanh); CONG_VIEC_04, 05, 08, 12 (sản phẩm, bảng giá, kho, đơn bán, khuyến mãi).
 
 ## 1. Mục tiêu
@@ -128,7 +128,7 @@ Web-crm:
 
 ## 12. Ràng buộc kỹ thuật
 
-Không thêm thư viện. Dùng lại: `lookupPrice`, `applyPromotions`, `SalesOrdersService` (lập, gửi, hủy, đóng đơn), `ReservationsService`, `SalesDeliveriesService` (phiếu xuất, phiếu nhận hàng trả lại), lưu ảnh như ảnh sản phẩm, BullMQ, thông báo trong ứng dụng, bộ đếm giới hạn tần suất. Gọi GHN qua `fetch` có thời gian chờ.
+Thêm `expo-image-picker` (Expo, giấy phép MIT; người dùng đồng ý khi nghiệm thu 2026-11-11) để chọn ảnh trả hàng trên điện thoại. Dùng lại: `lookupPrice`, `applyPromotions`, `SalesOrdersService` (lập, gửi, hủy, đóng đơn), `ReservationsService`, `SalesDeliveriesService` (phiếu xuất, phiếu nhận hàng trả lại), lưu ảnh như ảnh sản phẩm, BullMQ, thông báo trong ứng dụng, bộ đếm giới hạn tần suất. Gọi GHN qua `fetch` có thời gian chờ.
 
 ## 13. Thành phần không được thay đổi
 
@@ -160,7 +160,6 @@ Màn hình, API đơn bán, kho, sản phẩm, bảng giá đã có; luồng duy
 
 - Kết nối GHN viết theo tài liệu công khai, kiểm thử bằng máy chủ giả lập; trước khi phát hành phải thử với tài khoản GHN môi trường thử nghiệm (tạo vận đơn theo địa chỉ hai cấp, tra theo số đơn, hủy, webhook). Khóa webhook nằm trên đường dẫn (GHN không ký webhook) nên có thể xuất hiện trong nhật ký máy chủ trung gian.
 - Kho xuất của VComm không được quản lý vị trí; hàng quản lý lô, serial chưa bán trên ứng dụng; bán theo đơn vị cơ sở.
-- Ảnh trả hàng chỉ đính kèm trên bản web của ứng dụng; trên điện thoại cần thêm thư viện chọn ảnh (chờ người dùng quyết định).
 - Danh sách cửa hàng tính giá từng biến thể khi tải; số sản phẩm đăng bán lớn sẽ chậm, cần tối ưu khi có số liệu thực.
 - Trạng thái vận chuyển hiện là trạng thái nhận gần nhất; webhook đến trễ có thể ghi đè trạng thái hiển thị (không đổi trạng thái đơn).
 - Phí giao hàng chỉ lưu trên đơn; hạch toán, thu COD, đối soát, hoàn tiền làm ở CONG_VIEC_25; hoa hồng theo đơn hoàn tất ở CONG_VIEC_26.
