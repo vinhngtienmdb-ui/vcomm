@@ -4641,3 +4641,42 @@ export interface AnalyticsInventoryResponse {
   totals: Pick<AnalyticsInventoryFigures, "openingValue" | "inValue" | "outValue" | "closingValue" | "costOfSales" | "turnover" | "daysOfInventory">;
   totalRows: number | null;
 }
+
+// API_173
+export const analyticsDebtGroupings = ["company", "partner"] as const;
+export type AnalyticsDebtGrouping = (typeof analyticsDebtGroupings)[number];
+export const analyticsDebtQuerySchema = z
+  .object({
+    companyIds: analyticsCompanyIdsSchema,
+    side: z.enum(["receivable", "payable"]).default("receivable"),
+    groupBy: z.enum(analyticsDebtGroupings).default("company"),
+    format: analyticsFormatSchema,
+  })
+  .strict();
+export interface AnalyticsDebtFigures {
+  balance: string;
+  notDue: string;
+  overdue1To30: string;
+  overdue31To60: string;
+  overdue61To90: string;
+  overdueOver90: string;
+  advance: string;
+  // Số dư với đối tác nội bộ thuộc tập đoàn (QUYTAC_NGHIEPVU_338).
+  internalBalance: string;
+}
+export interface AnalyticsDebtRow extends AnalyticsMoneyRow, AnalyticsDebtFigures {
+  key: string;
+  label: string;
+}
+export interface AnalyticsDebtResponse {
+  today: string;
+  side: DebtSide;
+  groupBy: AnalyticsDebtGrouping;
+  currency: string;
+  companies: AnalyticsCompany[];
+  // Thẻ phải thu, phải trả của các công ty cùng đồng tiền với công ty gốc.
+  summary: Record<DebtSide, { balance: string; overdue: string }>;
+  rows: AnalyticsDebtRow[];
+  totals: AnalyticsDebtFigures & { balanceExcludingInternal: string };
+  totalRows: number | null;
+}

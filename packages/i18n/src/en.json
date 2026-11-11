@@ -3710,6 +3710,23 @@
     "costOfSales": "Cost of sales",
     "turnover": "Turnover",
     "daysOfInventory": "Days of inventory",
-    "total": "Total"
+    "total": "Total",
+    "debtTitle": "Debt ageing",
+    "debtSide": "Debt type",
+    "side_receivable": "Receivables",
+    "side_payable": "Payables",
+    "debt_company": "By company",
+    "debt_partner": "By partner",
+    "debtNote": "As of today {date}, using the same ageing as the debt ledger (by due date, on open amounts).",
+    "overdueAmount": "Of which overdue: {amount}",
+    "balance": "Balance",
+    "notDue": "Not due",
+    "overdue1To30": "Overdue 1–30 days",
+    "overdue31To60": "31–60 days",
+    "overdue61To90": "61–90 days",
+    "overdueOver90": "Over 90 days",
+    "advance": "Advance",
+    "internalBalance": "Of which intra-group",
+    "debtEmpty": "No open debts in the selected companies."
   }
 }

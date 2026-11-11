@@ -1,7 +1,9 @@
 // API_170 đến API_175: báo cáo quản trị (CONG_VIEC_50). Chỉ đọc; quyền từng nhóm báo cáo kiểm trong service.
 import { Controller, Get, Headers, Query, Req, Res, StreamableFile } from "@nestjs/common";
 import {
+  analyticsDebtQuerySchema,
   analyticsInventoryQuerySchema,
+  type AnalyticsDebtResponse,
   analyticsSalesQuerySchema,
   type AnalyticsInventoryResponse,
   type AnalyticsReportKind,
@@ -16,6 +18,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { reportXlsx, xlsxContentType, type ExportTable } from "./analytics-export";
 import { AnalyticsScopeService } from "./analytics-scope.service";
+import { DebtReportService } from "./debt-report.service";
 import { InventoryReportService } from "./inventory-report.service";
 import { SalesReportService } from "./sales-report.service";
 
@@ -27,6 +30,7 @@ export class AnalyticsController {
     private readonly scopeService: AnalyticsScopeService,
     private readonly sales: SalesReportService,
     private readonly inventory: InventoryReportService,
+    private readonly debts: DebtReportService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -84,5 +88,19 @@ export class AnalyticsController {
     const report = await this.inventory.report(actor, parsed, parsed.format === "xlsx");
     if (parsed.format === "json") return report;
     return this.export(actor, response, "inventory", parsed, [this.inventory.exportTable(report)], `bao-cao-ton-kho-${parsed.from}-${parsed.to}`);
+  }
+
+  @Get("debts")
+  async debtReport(
+    @Req() request: AuthenticatedRequest,
+    @Query() query: unknown,
+    @Res({ passthrough: true }) response: Response,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<AnalyticsDebtResponse | StreamableFile> {
+    const parsed = analyticsDebtQuerySchema.parse(query);
+    const actor = await this.actor(request, companyId);
+    const report = await this.debts.report(actor, parsed, parsed.format === "xlsx");
+    if (parsed.format === "json") return report;
+    return this.export(actor, response, "debt", parsed, [this.debts.exportTable(report)], `bao-cao-cong-no-${parsed.side === "receivable" ? "phai-thu" : "phai-tra"}-${report.today}`);
   }
 }

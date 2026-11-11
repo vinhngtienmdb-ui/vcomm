@@ -3710,6 +3710,23 @@
     "costOfSales": "Giá vốn hàng bán",
     "turnover": "Vòng quay",
     "daysOfInventory": "Số ngày tồn",
-    "total": "Tổng"
+    "total": "Tổng",
+    "debtTitle": "Công nợ theo tuổi nợ",
+    "debtSide": "Loại công nợ",
+    "side_receivable": "Phải thu",
+    "side_payable": "Phải trả",
+    "debt_company": "Theo công ty",
+    "debt_partner": "Theo đối tác",
+    "debtNote": "Tính tại hôm nay {date}, cùng cách tính tuổi nợ của sổ công nợ (theo hạn thanh toán, trên số còn lại).",
+    "overdueAmount": "Trong đó quá hạn: {amount}",
+    "balance": "Số dư",
+    "notDue": "Chưa đến hạn",
+    "overdue1To30": "Quá hạn 1–30 ngày",
+    "overdue31To60": "31–60 ngày",
+    "overdue61To90": "61–90 ngày",
+    "overdueOver90": "Trên 90 ngày",
+    "advance": "Trả trước",
+    "internalBalance": "Trong đó nội bộ",
+    "debtEmpty": "Không có công nợ còn lại ở các công ty đã chọn."
   }
 }
