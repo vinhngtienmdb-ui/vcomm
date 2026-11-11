@@ -43,7 +43,13 @@ type SettingsRow = {
 
 export type PricedVariant = { variantId: string; sku: string; optionValues: string[]; unitId: string; price: string; includesVat: boolean; grossPrice: string };
 
-export const carrierNames: Record<CarrierCode, string> = { ghn: "Giao Hàng Nhanh (GHN)" };
+export const carrierNames: Record<CarrierCode, string> = {
+  ghn: "Giao Hàng Nhanh (GHN)",
+  vnpost: "Bưu điện Việt Nam (VNPost)",
+  viettel_post: "Viettel Post",
+  jt: "J&T Express",
+  ghtk: "Giao Hàng Tiết Kiệm (GHTK)",
+};
 const vatFraction = (rate: VatRate) => (["0", "5", "8", "10"].includes(rate) ? Number(rate) / 100 : 0);
 
 // Giá gồm thuế giá trị gia tăng của một đơn vị cơ sở, cùng cách tính với dòng đơn bán không chiết khấu.

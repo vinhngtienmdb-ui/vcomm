@@ -178,12 +178,16 @@ export class ShipmentsService implements OnModuleInit {
 
   // Hủy vận đơn đang hoạt động khi hủy đơn chờ lấy hàng; xóa phiếu xuất nháp (QUYTAC_NGHIEPVU_159).
   async cancelActive(transaction: Executor, orderId: string): Promise<void> {
-    const shipment = (await transaction.execute<ShipmentRow>(sql`SELECT id, carrier_code, tracking_code FROM marketplace.shipments WHERE order_id = ${orderId} AND is_active FOR UPDATE`)).rows[0];
+    const shipment = (
+      await transaction.execute<ShipmentRow & { document_no: string }>(sql`
+      SELECT s.id, s.carrier_code, s.tracking_code, so.document_no FROM marketplace.shipments s JOIN marketplace.orders m ON m.id = s.order_id JOIN sales.orders so ON so.id = m.sales_order_id
+      WHERE s.order_id = ${orderId} AND s.is_active FOR UPDATE OF s`)
+    ).rows[0];
     // Chưa rõ kết quả tạo vận đơn: phải tra lại trước khi hủy.
     if (shipment && shipment.tracking_code === null) throw new ApiError("BUSINESS_RULE", "shipmentRequesting");
     if (shipment) {
       await this.adapterOf(shipment.carrier_code)
-        .cancelShipment(shipment.tracking_code!)
+        .cancelShipment(shipment.tracking_code!, shipment.document_no)
         .catch((error: unknown) => {
           throw this.failure(error, "carrierCancelRejected");
         });
@@ -230,7 +234,7 @@ export class ShipmentsService implements OnModuleInit {
 
   // Webhook (API_128): chỉ nhận khi đúng khóa trên đường dẫn; trạng thái lấy theo kết quả tra lại vận đơn, không theo nội dung gửi tới.
   // Không giới hạn yêu cầu đúng khóa; chỉ đếm lần sai khóa theo địa chỉ IP (như webhook ngân hàng của CONG_VIEC_18).
-  async webhook(code: string, key: string, payload: unknown, ip: string): Promise<{ result: string }> {
+  async webhook(code: string, key: string, payload: unknown, ip: string): Promise<unknown> {
     if (!(carrierCodes as readonly string[]).includes(code)) throw new ApiError("NOT_FOUND", "notFound");
     const carrier = code as CarrierCode;
     const expected = webhookKeyOf(carrier);
@@ -241,6 +245,8 @@ export class ShipmentsService implements OnModuleInit {
       throw new ApiError("FORBIDDEN", "forbidden");
     }
     const adapter = this.adapterOf(carrier);
+    // Nội dung trả lời theo yêu cầu của đơn vị vận chuyển (CONG_VIEC_30; J&T cần { code: "1" }).
+    const reply = (result: string) => (adapter.webhookReply ? adapter.webhookReply(result) : { result });
     const trackingCode = adapter.trackingCodeOf(payload);
     const record = (result: string) =>
       this.database.execute(sql`
@@ -253,12 +259,12 @@ export class ShipmentsService implements OnModuleInit {
       : undefined;
     if (!shipment) {
       await record("unknown_shipment");
-      return { result: "ignored" };
+      return reply("ignored");
     }
     try {
       await this.apply(shipment, await adapter.shipmentStatus(shipment.tracking_code!));
       await record("applied");
-      return { result: "applied" };
+      return reply("applied");
     } catch (error) {
       await record(`failed: ${(error as Error).message}`.slice(0, 500));
       throw error instanceof ApiError ? error : this.failure(error, "carrierRejected");

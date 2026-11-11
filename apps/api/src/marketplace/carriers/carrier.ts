@@ -29,13 +29,16 @@ export type CarrierPhase = "waiting_pickup" | "picked" | "delivered" | "returned
 export interface CarrierAdapter {
   code: CarrierCode;
   createShipment(request: ShipmentRequest): Promise<CreatedShipment>;
-  cancelShipment(trackingCode: string): Promise<void>;
+  // clientOrderCode: số đơn đã gửi khi tạo vận đơn (J&T bắt buộc khi hủy; CONG_VIEC_30).
+  cancelShipment(trackingCode: string, clientOrderCode: string): Promise<void>;
   shipmentStatus(trackingCode: string): Promise<string>;
   // Tra vận đơn theo mã đơn của bên gửi khi không rõ lần tạo trước đã thành công chưa; null khi không có.
   findShipment(clientOrderCode: string): Promise<CreatedShipment | null>;
   phaseOf(status: string): CarrierPhase;
   // Mã vận đơn trong nội dung webhook; không tin trạng thái trong nội dung, luôn tra lại.
   trackingCodeOf(payload: unknown): string | null;
+  // Nội dung trả lời webhook theo yêu cầu của đơn vị vận chuyển; không có thì trả { result } (CONG_VIEC_30).
+  webhookReply?(result: string): unknown;
 }
 
 // Đơn vị vận chuyển trả lỗi nghiệp vụ (từ chối tạo, hủy) hoặc không trả lời.
