@@ -334,3 +334,15 @@
 - Mức quy mô: Nhỏ.
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-11; đã thực hiện 2026-11-11 (commit `399018b`), người dùng nghiệm thu khi yêu cầu hợp nhất 2026-11-11; đã phát hành trong phiên bản 0.3.0 (2026-11-11).
+
+### THAY_DOI_20: Tự ghi đã thu COD khi Viettel Post báo giao thành công – 2026-11-11
+- Lý do: gộp các đơn vị vận chuyển (pull request #82): webhook Viettel Post không gửi ngày thu tiền hộ nên đơn COD giao qua Viettel Post không tự ghi đã thu COD.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11): khi webhook Viettel Post báo giao thành công đơn COD, tự ghi đã thu COD, ngày thu là thời điểm nhận webhook; webhook lặp không ghi lần hai.
+- Thành phần bị ảnh hưởng: CONG_VIEC_29 (đã nghiệm thu, chưa phát hành): đặc tả, quy tắc, kịch bản kiểm thử; `shipments.service.ts`.
+- Dữ liệu, API, giao diện, quyền: không đổi.
+- Ảnh hưởng chức năng cũ: không; GHN và các đơn vị khác giữ cách cũ.
+- Kiểm thử cần thực hiện: kịch bản giao thành công đơn COD, đơn không COD, webhook lặp; chạy lại toàn bộ kiểm thử API.
+- Mức quy mô: Nhỏ.
+- Rủi ro: ngày thu ghi sổ có thể sớm hơn ngày Viettel Post chuyển tiền; đối soát thu hộ (CONG_VIEC_19) vẫn đối chiếu số tiền thật.
+- Trạng thái: Đã phê duyệt 2026-11-11.
+
