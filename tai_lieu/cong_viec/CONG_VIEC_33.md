@@ -3,7 +3,7 @@
 - Mô tả: Kết nối MoMo vào khung nhiều cổng thanh toán (CONG_VIEC_32): ví MoMo (ứng dụng, mã QR MoMo), thẻ ATM nội địa qua MoMo, thẻ quốc tế qua MoMo.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11. Đã lập trình, kiểm thử tự động bằng máy chủ MoMo giả lập; chờ nghiệm thu.
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu ngày 2026-11-11). Trước khi phát hành phải thử với tài khoản môi trường thử nghiệm MoMo theo mục 7.
 - Nguồn: người dùng yêu cầu 2026-11-11 tích hợp MoMo; CONG_VIEC_25, CONG_VIEC_32.
 - Mức: Vừa (một module; thêm phương thức, biến môi trường; sửa nhỏ khung dùng chung, không đổi API).
 
