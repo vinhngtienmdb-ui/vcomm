@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_26: Bắt đầu Hoa hồng theo đơn và ví hoa hồng (mức Lớn), nhánh `chuc-nang/CONG_VIEC_26-hoa-hong-vi` tách từ nhánh CONG_VIEC_25.
 - CONG_VIEC_25: Xong lát L0 đến L4 trên nhánh `chuc-nang/CONG_VIEC_25-thanh-toan-vcomm`: database migration 0027 đến 0031; API_130 đến 133; MAN_HINH_86, 88, 93, 96 sửa, MAN_HINH_98 đến 100 mới; VNPAY 2.1.0 (giả lập trong kiểm thử), chờ thanh toán 15 phút, tự hủy; đối soát COD theo API GHN; hoàn tiền; bút toán tiền thu, phí giao hàng (doanh thu dịch vụ, thuế 10%), hoàn tiền; hóa đơn có dòng phí giao hàng; quyền `marketplace.payment.manage`. Kiểm thử 332/332 đạt. Không thêm thư viện. Rà soát độc lập, sửa 2 lỗi Cao, 4 Trung bình, 1 Thấp. Chờ người dùng nghiệm thu.
 - CONG_VIEC_28 đến 31: Người dùng yêu cầu kết nối thêm VNPost, Viettel Post, J&T, GHTK bằng các phiên con chạy song song (mỗi đơn vị một công việc, nhánh tách từ nhánh CONG_VIEC_24). Cấp sẵn dải mã và số database migration cho từng công việc để không trùng; tài liệu đánh số (06 đến 27) cập nhật khi hợp nhất. CONG_VIEC_25 dành QUYTAC_NGHIEPVU đến 179, CHUC_NANG đến 129, TIEUCHI_NGHIEMTHU đến 199, KICHBAN_KIEMTHU đến 339, database migration 0027 đến 0039.
 - CONG_VIEC_25: Bắt đầu Thanh toán đơn người mua (mức Lớn), nhánh `chuc-nang/CONG_VIEC_25-thanh-toan-vcomm` tách từ nhánh CONG_VIEC_24.
@@ -23,6 +24,11 @@
 
 ### Quyết định
 
+- CONG_VIEC_26 (người dùng, 2026-11-11):
+  - Căn cứ tính hoa hồng theo phần trăm: tiền hàng chưa thuế giá trị gia tăng sau khuyến mãi của dòng hàng (không tính phí giao hàng, quà tặng), trừ phần hàng trả.
+  - Thuế thu nhập cá nhân: khấu trừ 10% khi chi trả trên 5.000.000 đồng; mức và tỷ lệ cấu hình được, không khóa cứng.
+  - Rút tiền từ ví: tối thiểu 100.000 đồng; kế toán duyệt chi, chuyển khoản rồi ghi đã chi.
+  - Thiết lập hoa hồng (giới thiệu và từng chức danh đội kinh doanh): bắt buộc đặt từng sản phẩm; sản phẩm chưa thiết lập thì không có hoa hồng.
 - CONG_VIEC_25 (người dùng, 2026-11-11):
   - Cổng kết nối thật đầu tiên: VNPAY (QR VNPAY, thẻ ATM nội địa, thẻ Visa/Master), trong khung chung bật tắt từng cổng, từng phương thức; thanh toán khi nhận hàng là một phương thức.
   - Đơn thanh toán trực tuyến chưa trả: giữ hàng 15 phút, quá hạn tự hủy, nhả hàng.
