@@ -46,7 +46,6 @@ type OrderRow = {
   goods_amount: string;
   shipping_fee: string;
   cod_amount: string;
-  total_amount: string;
   payment_method: PaymentMethodCode;
   status: MarketplaceOrderStatus;
   delivered_at: Date | null;
@@ -70,7 +69,7 @@ const iso = (value: Date | null) => (value ? new Date(value).toISOString() : nul
 
 const orderSelect = sql`
   SELECT m.id, m.sales_order_id, so.document_no, m.buyer_user_id, u.full_name AS buyer_name, u.phone AS buyer_phone, m.recipient_name, m.recipient_phone, m.province_name,
-    m.ward_name, m.street_address, m.goods_amount::text, m.shipping_fee::text, m.cod_amount::text, m.total_amount::text, m.payment_method, m.status, m.delivered_at, m.completed_at, m.completed_amount::text,
+    m.ward_name, m.street_address, m.goods_amount::text, m.shipping_fee::text, m.cod_amount::text, m.payment_method, m.status, m.delivered_at, m.completed_at, m.completed_amount::text,
     m.cancel_reason, m.created_at, m.version,
     (SELECT count(*)::int FROM sales.order_lines l WHERE l.order_id = so.id AND NOT l.is_gift) AS item_count,
     (SELECT p.name FROM sales.order_lines l JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id
@@ -86,7 +85,7 @@ const listItem = (row: OrderRow): BuyerOrderListItem => ({
   documentNo: row.document_no,
   status: row.status,
   createdAt: iso(row.created_at)!,
-  total: trimDecimal(row.total_amount),
+  total: money(Number(row.goods_amount) + Number(row.shipping_fee)),
   itemCount: row.item_count,
   firstProductName: row.first_product_name,
   imageUrl: shopImagePath(row.first_image_id),
@@ -229,9 +228,9 @@ export class MarketplaceOrdersService {
       const id = (
         await transaction.execute<{ id: string }>(sql`
         INSERT INTO marketplace.orders (sales_order_id, company_id, buyer_user_id, recipient_name, recipient_phone, province_code, province_name, ward_code, ward_name, street_address,
-          goods_amount, shipping_fee, cod_amount, total_amount, payment_method)
+          goods_amount, shipping_fee, cod_amount, payment_method)
         VALUES (${sale.orderId}, ${context.companyId}, ${userId}, ${address.recipient_name}, ${address.phone}, ${address.province_code}, ${address.province_name}, ${address.ward_code},
-          ${address.ward_name}, ${address.street_address}, ${quoted.goods}, ${quoted.shippingFee}, ${input.paymentMethod === "cod" ? total : 0}, ${total}, ${input.paymentMethod}) RETURNING id`)
+          ${address.ward_name}, ${address.street_address}, ${quoted.goods}, ${quoted.shippingFee}, ${input.paymentMethod === "cod" ? total : 0}, ${input.paymentMethod}) RETURNING id`)
       ).rows[0]!.id;
       await this.event(transaction, id, "awaiting_shipment", null, userId);
       await transaction.execute(sql`

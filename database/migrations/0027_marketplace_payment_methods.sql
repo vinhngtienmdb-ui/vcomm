@@ -17,12 +17,7 @@ INSERT INTO marketplace.payment_methods (code, gateway_code, sort_order, is_enab
 
 ALTER TABLE marketplace.store_settings ADD COLUMN ordering_open boolean NOT NULL DEFAULT false;
 
--- Tổng thanh toán của đơn; tiền thu hộ chỉ còn ở đơn thanh toán khi nhận hàng.
-ALTER TABLE marketplace.orders ADD COLUMN total_amount numeric(18,4);
-UPDATE marketplace.orders SET total_amount = cod_amount;
-ALTER TABLE marketplace.orders ALTER COLUMN total_amount SET NOT NULL;
-ALTER TABLE marketplace.orders ADD CONSTRAINT orders_total_amount_check CHECK (total_amount >= 0);
+-- Tổng thanh toán = tiền hàng + phí giao hàng; tiền thu hộ chỉ còn ở đơn thanh toán khi nhận hàng.
 ALTER TABLE marketplace.orders DROP CONSTRAINT orders_payment_method_check;
 ALTER TABLE marketplace.orders ADD CONSTRAINT orders_payment_method_check CHECK (payment_method IN ('cod', 'vnpay_qr', 'vnpay_atm', 'vnpay_card'));
-ALTER TABLE marketplace.orders ALTER COLUMN payment_method DROP DEFAULT;
 ALTER TABLE marketplace.orders ADD CONSTRAINT orders_cod_amount_method_check CHECK (payment_method = 'cod' OR cod_amount = 0);
