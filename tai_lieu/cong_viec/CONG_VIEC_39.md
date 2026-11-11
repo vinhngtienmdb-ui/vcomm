@@ -97,4 +97,4 @@ Khung `payment-gateway.ts`, `payments.service.ts`, `payments.controller.ts` (CON
 - Kiểm tra kiểu toàn dự án (`pnpm typecheck`), `pnpm lint`: đạt.
 - `c39-payment-gpay.test.ts`: 4/4 đạt.
 - Kiểm thử hồi quy `pnpm --filter api test`: 47 tệp, 337 kiểm thử đạt (2026-11-11, trước khi hợp nhất CONG_VIEC_33).
-- Sau khi merge nhánh nền có CONG_VIEC_33 (MoMo): theo khung mới dùng `pending` cho trạng thái chưa kết thúc và gửi thông tin người mua; `c39`, `c25-*`, `c32`, `c33` đạt; kiểm thử hồi quy toàn bộ: xem dưới.
+- Sau khi merge nhánh nền có CONG_VIEC_33 (MoMo): theo khung mới dùng `pending` cho trạng thái chưa kết thúc và gửi thông tin người mua; `c39`, `c25-*`, `c32`, `c33` đạt; kiểm thử hồi quy toàn bộ 48 tệp, 340 kiểm thử đạt.
