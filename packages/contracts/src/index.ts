@@ -4518,3 +4518,35 @@ export interface BuyerWithdrawalInfo {
   // Yêu cầu đang chờ duyệt hoặc đã duyệt chưa chi.
   open: WithdrawalItem | null;
 }
+
+// CONG_VIEC_50: báo cáo quản trị (MODULE_15; API_170 đến API_175).
+export const analyticsReportKinds = ["sales", "inventory", "debt", "commission"] as const;
+export type AnalyticsReportKind = (typeof analyticsReportKinds)[number];
+
+export interface AnalyticsCompany {
+  id: string;
+  code: string;
+  name: string;
+  currency: string;
+  // QUYTAC_NGHIEPVU_339: chỉ công ty cùng đồng tiền hạch toán với công ty gốc được cộng vào dòng tổng.
+  inTotal: boolean;
+}
+
+// API_170
+export interface AnalyticsScopeResponse {
+  group: { id: string; name: string; currency: string };
+  today: string;
+  companies: AnalyticsCompany[];
+  // Công ty được xem theo từng nhóm báo cáo; mảng rỗng khi không có quyền nhóm đó.
+  reports: Record<AnalyticsReportKind, string[]>;
+}
+
+// QUYTAC_NGHIEPVU_343: khoảng ngày bắt buộc, từ ngày không sau đến ngày, tối đa 366 ngày.
+export const analyticsMaximumDays = 366;
+export const analyticsCompanyIdsSchema = z
+  .string()
+  .optional()
+  .transform((value) => (value ? value.split(",").filter(Boolean) : undefined))
+  .pipe(z.array(z.uuid()).max(100).optional());
+export const analyticsPeriodSchema = { from: isoDate, to: isoDate };
+export const analyticsFormatSchema = z.enum(["json", "xlsx"]).default("json");

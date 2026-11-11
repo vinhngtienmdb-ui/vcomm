@@ -258,6 +258,9 @@
     "consolidationNoMembers": "Tập đoàn chưa có công ty nào hợp nhất được (cùng đồng tiền, đã khởi tạo kế toán).",
     "consolidationPeriodExists": "Kỳ này đã có bảng hợp nhất đang dùng.",
     "consolidationPostingRuleMissing": "Công ty thành viên chưa khai định khoản doanh thu, giá vốn hoặc hàng hóa (Hệ thống tài khoản).",
+    "analyticsPeriodReversed": "Từ ngày không được sau đến ngày.",
+    "analyticsPeriodTooLong": "Khoảng ngày tối đa 366 ngày. Hãy thu hẹp khoảng ngày.",
+    "analyticsExportTooLarge": "Quá 20.000 dòng. Hãy thu hẹp bộ lọc rồi xuất lại.",
     "visitTooManyPhotos": "Tối đa 3 ảnh mỗi lượt ghé thăm.",
     "visitPhotoTooLarge": "Ảnh vượt quá 5 MB.",
     "visitPhotoTypeInvalid": "Ảnh phải là JPEG hoặc PNG.",
@@ -3646,5 +3649,23 @@
     "totals": "Tổng số tiền {amount} · tổng thuế {tax}",
     "projectedFee": "Phí dự kiến",
     "fee": "Phí rút tiền"
+  },
+  "analyticsMenu": {
+    "title": "Báo cáo quản trị",
+    "overview": "Tổng quan",
+    "sales": "Bán hàng",
+    "inventory": "Tồn kho và luân chuyển",
+    "debts": "Công nợ theo tuổi nợ",
+    "commissions": "Hoa hồng và ví"
+  },
+  "analytics": {
+    "company": "Công ty",
+    "allCompanies": "Tất cả công ty được xem ({count})",
+    "from": "Từ ngày",
+    "to": "Đến ngày",
+    "view": "Xem",
+    "noCompany": "Bạn chưa được xem công ty nào ở báo cáo này. Liên hệ quản trị công ty nếu cần quyền.",
+    "overviewTitle": "Tổng quan báo cáo quản trị",
+    "currencyNote": "Đơn vị tiền: {currency}. Công ty khác đồng tiền hạch toán hiện dòng riêng, không cộng vào tổng."
   }
 }

@@ -114,7 +114,15 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "finance.consolidation.manage", appCode: "finance", nameVi: "Lập, gửi bảng hợp nhất (phạm vi tập đoàn)", nameEn: "Manage consolidation", isSensitive: true },
   { code: "inventory.sales.issue", appCode: "inventory", nameVi: "Xuất giao hàng, nhận hàng trả lại", nameEn: "Issue sales deliveries and receive returns", isSensitive: false },
   { code: "inventory.purchase.receive", appCode: "inventory", nameVi: "Nhập mua, trả hàng nhà cung cấp", nameEn: "Receive purchases and return to suppliers", isSensitive: false },
+  // CONG_VIEC_50 (QUYTAC_NGHIEPVU_336): phạm vi tập đoàn xem mọi công ty của tập đoàn, phạm vi công ty xem công ty đó.
+  accessPermission("analytics", "Báo cáo quản trị", "Management reports"),
+  { code: "analytics.sales.view", appCode: "analytics", nameVi: "Xem báo cáo bán hàng", nameEn: "View sales reports", isSensitive: false },
+  { code: "analytics.inventory.view", appCode: "analytics", nameVi: "Xem báo cáo tồn kho và luân chuyển", nameEn: "View inventory reports", isSensitive: false },
+  { code: "analytics.debt.view", appCode: "analytics", nameVi: "Xem báo cáo công nợ", nameEn: "View debt reports", isSensitive: true },
+  { code: "analytics.commission.view", appCode: "analytics", nameVi: "Xem báo cáo hoa hồng và ví", nameEn: "View commission and wallet reports", isSensitive: true },
 ];
+
+const analyticsPermissions = permissionCatalog.filter((permission) => permission.appCode === "analytics").map((permission) => permission.code);
 
 const inventoryPermissions = permissionCatalog.filter((permission) => permission.appCode === "inventory").map((permission) => permission.code);
 
@@ -135,6 +143,7 @@ const companyAdminPermissions = [
   "platform.number_sequence.manage",
   "platform.audit.view",
   "platform.proposal_template.manage",
+  ...analyticsPermissions.filter((code) => code !== "analytics.access"),
   "catalog.product.view",
   "catalog.product.manage",
   "catalog.price.view",
@@ -186,7 +195,7 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     nameEn: "Group administrator",
     // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), Đối tác (CONG_VIEC_06), Mua hàng (CONG_VIEC_07), Bán hàng (CONG_VIEC_08), Tài chính – Kế toán (CONG_VIEC_13), cộng quyền truy cập mọi mini app.
     permissionCodes: permissionCatalog
-      .filter((permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance"].includes(permission.appCode) || permission.code.endsWith(".access"))
+      .filter((permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance", "analytics"].includes(permission.appCode) || permission.code.endsWith(".access"))
       .map((permission) => permission.code),
   },
   { code: "company_admin", nameVi: "Quản trị công ty", nameEn: "Company administrator", permissionCodes: companyAdminPermissions },
@@ -216,7 +225,7 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "sales.order.view",
     ],
   },
-  { code: "warehouse_manager", nameVi: "Quản lý kho", nameEn: "Warehouse manager", permissionCodes: inventoryPermissions },
+  { code: "warehouse_manager", nameVi: "Quản lý kho", nameEn: "Warehouse manager", permissionCodes: [...inventoryPermissions, "analytics.access", "analytics.inventory.view"] },
   {
     code: "purchaser",
     nameVi: "Nhân viên mua hàng",
@@ -276,6 +285,10 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "sales.access",
       "sales.order.view",
       "sales.order.manage",
+      // CONG_VIEC_50: báo cáo công nợ, hoa hồng và ví.
+      "analytics.access",
+      "analytics.debt.view",
+      "analytics.commission.view",
     ],
   },
   {
@@ -311,6 +324,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "sales.access",
       "sales.order.view",
       "sales.order.manage",
+      // CONG_VIEC_50: mọi báo cáo quản trị.
+      ...analyticsPermissions,
     ],
   },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },

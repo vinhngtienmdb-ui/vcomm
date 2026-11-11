@@ -258,6 +258,9 @@
     "consolidationNoMembers": "No company can be consolidated (same currency, ledger initialized).",
     "consolidationPeriodExists": "A consolidation already exists for this period.",
     "consolidationPostingRuleMissing": "A member company is missing posting rules for revenue, cost of goods sold or goods.",
+    "analyticsPeriodReversed": "The start date must not be after the end date.",
+    "analyticsPeriodTooLong": "The period can be at most 366 days. Narrow the dates.",
+    "analyticsExportTooLarge": "More than 20,000 rows. Narrow the filters and export again.",
     "visitTooManyPhotos": "At most 3 photos per visit.",
     "visitPhotoTooLarge": "The photo is larger than 5 MB.",
     "visitPhotoTypeInvalid": "Photos must be JPEG or PNG.",
@@ -3646,5 +3649,23 @@
     "totals": "Total amount {amount} · total tax {tax}",
     "projectedFee": "Estimated fee",
     "fee": "Withdrawal fee"
+  },
+  "analyticsMenu": {
+    "title": "Management reports",
+    "overview": "Overview",
+    "sales": "Sales",
+    "inventory": "Inventory and turnover",
+    "debts": "Debt ageing",
+    "commissions": "Commissions and wallets"
+  },
+  "analytics": {
+    "company": "Company",
+    "allCompanies": "All companies you can view ({count})",
+    "from": "From",
+    "to": "To",
+    "view": "View",
+    "noCompany": "You cannot view any company in this report. Ask your company administrator for access.",
+    "overviewTitle": "Management reports overview",
+    "currencyNote": "Currency: {currency}. Companies with another accounting currency are shown separately and not added to totals."
   }
 }

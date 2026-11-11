@@ -65,6 +65,7 @@ Mini app Nền tảng (`apps/web-platform`) là cửa vào chung: chuyển tiế
 | Mua hàng (CONG_VIEC_07) | `apps/web-purchasing` | `/purchasing` | 3004 | `PURCHASING_ORIGIN` (`http://localhost:3004`) |
 | Bán hàng (CONG_VIEC_08) | `apps/web-sales` | `/sales` | 3005 | `SALES_ORIGIN` (`http://localhost:3005`) |
 | Tài chính – Kế toán (CONG_VIEC_13) | `apps/web-finance` | `/finance` | 3006 | `FINANCE_ORIGIN` (`http://localhost:3006`) |
+| Báo cáo quản trị (CONG_VIEC_50) | `apps/web-analytics` | `/analytics` | 3009 | `ANALYTICS_ORIGIN` (`http://localhost:3009`) |
 
 Chạy riêng mini app Kho: `pnpm --filter web-inventory dev` (cổng 3002), vào qua `http://localhost:3000/inventory` khi mini app Nền tảng và backend đang chạy.
 
@@ -75,6 +76,8 @@ Chạy riêng mini app Mua hàng: `pnpm --filter web-purchasing dev` (cổng 300
 Chạy riêng mini app Bán hàng: `pnpm --filter web-sales dev` (cổng 3005), vào qua `http://localhost:3000/sales` khi mini app Nền tảng và backend đang chạy. Phiếu xuất giao hàng, phiếu nhận hàng trả lại làm ở mini app Kho.
 
 Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance dev` (cổng 3006), vào qua `http://localhost:3000/finance` khi mini app Nền tảng và backend đang chạy. Công nợ tự phát sinh khi ghi sổ phiếu kho ở mini app Kho.
+
+Chạy riêng mini app Báo cáo quản trị: `pnpm --filter web-analytics dev` (cổng 3009), vào qua `http://localhost:3000/analytics` khi mini app Nền tảng và backend đang chạy. Báo cáo chỉ đọc dữ liệu của các module khác.
 
 ## 3b. Thành phần phụ trợ cho MODULE_03 Kho (CONG_VIEC_05)
 
