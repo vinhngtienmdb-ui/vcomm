@@ -329,7 +329,13 @@
     "codNotRecordable": "The order is not cash on delivery, not yet handed to the carrier, or already recorded as collected.",
     "refundNotPending": "The refund is no longer pending.",
     "commissionPercentOver": "The five percentage commission levels must not total more than 100%.",
-    "commissionFixedOverPrice": "The five fixed commission levels must not exceed the product's lowest selling price."
+    "commissionFixedOverPrice": "The five fixed commission levels must not exceed the product's lowest selling price.",
+    "withdrawalBelowMinimum": "The amount is below the minimum withdrawal.",
+    "withdrawalOverBalance": "The amount exceeds the wallet balance.",
+    "withdrawalNeedsBankAccount": "Add a bank account to receive the money before withdrawing.",
+    "withdrawalAlreadyOpen": "You already have a withdrawal request in progress.",
+    "withdrawalNotPending": "The withdrawal request is no longer pending.",
+    "withdrawalNotApproved": "The withdrawal request is not approved or is already paid."
   },
   "login": {
     "title": "Sign in",
@@ -1827,7 +1833,8 @@
     "listings": "Listings",
     "orders": "VComm orders",
     "returnRequests": "Return requests",
-    "refunds": "Refunds"
+    "refunds": "Refunds",
+    "withdrawals": "Commission withdrawals"
   },
   "partners": {
     "title": "Partners",
@@ -3342,7 +3349,23 @@
     "walletKind_withdrawal_reversal": "Withdrawal returned",
     "walletBalanceAfter": "Balance {amount}",
     "commissionWallet": "Commission wallet",
-    "memberCommission": "Commission received {credited} · pending {pending}"
+    "memberCommission": "Commission received {credited} · pending {pending}",
+    "withdrawTitle": "Withdraw",
+    "withdrawAvailable": "Available to withdraw: {amount}",
+    "withdrawAmount": "Amount to withdraw (VND)",
+    "withdrawMinimum": "Minimum {amount}.",
+    "withdrawTaxRule": "Above {threshold}, {rate}% personal income tax is withheld on the whole amount; the tax is fixed when accounting approves.",
+    "withdrawEstimate": "Estimated tax {tax} · you receive {net}",
+    "withdrawTo": "Paid to: {account}",
+    "withdrawSubmit": "Send withdrawal request",
+    "withdrawNeedsBank": "Add a bank account to receive the money before withdrawing.",
+    "withdrawStatus_pending": "Withdrawal request awaiting approval",
+    "withdrawStatus_approved": "Withdrawal approved, awaiting transfer",
+    "withdrawStatus_rejected": "Withdrawal rejected",
+    "withdrawStatus_cancelled": "Withdrawal cancelled",
+    "withdrawStatus_paid": "Paid",
+    "withdrawOpenLine": "Amount {amount} · tax {tax} · you receive {net}",
+    "withdrawCancel": "Cancel request"
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -3714,5 +3737,36 @@
     "reason_duplicate_payment": "Duplicate payment",
     "reason_order_cancelled": "Paid order cancelled",
     "reason_return_received": "Returned goods received"
+  },
+  "withdrawals": {
+    "title": "Commission withdrawals",
+    "hint": "Approving fixes the personal income tax and the net amount from the commission settings at that time. Transfer the net amount, then record the transaction number and date.",
+    "status_pending": "Pending",
+    "status_approved": "Approved, awaiting payment",
+    "status_rejected": "Rejected",
+    "status_cancelled": "Cancelled by user",
+    "status_paid": "Paid",
+    "none": "No withdrawal requests.",
+    "createdAt": "Sent at",
+    "decidedAt": "decided at",
+    "bankAccount": "Receiving account",
+    "projectedTax": "Estimated tax",
+    "tax": "Personal income tax",
+    "netAmount": "Net amount",
+    "amount": "Amount",
+    "rejectReason": "Rejection reason",
+    "approve": "Approve",
+    "reject": "Reject",
+    "pay": "Record payment",
+    "bankTransactionNo": "Bank transaction number",
+    "paidOn": "Paid on",
+    "approvedSaved": "Withdrawal approved.",
+    "rejectedSaved": "Rejected; the amount was returned to the wallet.",
+    "paidSaved": "Payment recorded.",
+    "taxReport": "Personal income tax withheld",
+    "month": "Payment month",
+    "noTax": "No tax withheld this month.",
+    "person": "Recipient",
+    "totals": "Total amount {amount} · total tax {tax}"
   }
 }

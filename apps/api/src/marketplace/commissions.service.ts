@@ -114,7 +114,7 @@ export class MarketplaceCommissionsService {
   }
 
   // API_135: ví của chính người gọi; lịch sử mới nhất trước.
-  async wallet(executor: Executor, userId: string, query: { page: number; pageSize: number }): Promise<BuyerWalletResponse> {
+  async wallet(executor: Executor, userId: string, query: { page: number; pageSize: number }): Promise<Omit<BuyerWalletResponse, "withdrawal">> {
     const balance = (await executor.execute<{ balance: string }>(sql`SELECT balance::float::text AS balance FROM marketplace.wallets WHERE user_id = ${userId}`)).rows[0]?.balance ?? "0";
     const pending = (await this.totals(executor, [userId])).get(userId)?.pending ?? "0";
     const total = (await executor.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM marketplace.wallet_transactions WHERE user_id = ${userId}`)).rows[0]!.total;

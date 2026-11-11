@@ -4605,4 +4605,58 @@ export interface BuyerWalletResponse {
   balance: string;
   pendingAmount: string;
   transactions: PageResponse<BuyerWalletTransaction>;
+  withdrawal: BuyerWithdrawalInfo;
+}
+
+// API_136: rút tiền hoa hồng (CONG_VIEC_26; QUYTAC_NGHIEPVU_204 đến 206).
+export const withdrawalStatuses = ["pending", "approved", "rejected", "cancelled", "paid"] as const;
+export type WithdrawalStatus = (typeof withdrawalStatuses)[number];
+
+// Số tiền rút là số đồng nguyên.
+export const createWithdrawalSchema = z.object({ amount: z.string().trim().regex(/^\d{1,13}$/) }).strict();
+export const withdrawalVersionSchema = z.object({ version: z.number().int().min(1) }).strict();
+export const rejectWithdrawalSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
+export const payWithdrawalSchema = z.object({ bankTransactionNo: z.string().trim().min(1).max(100), paidOn: isoDate, version: z.number().int().min(1) }).strict();
+export const withdrawalListQuerySchema = z
+  .object({
+    status: z.enum(withdrawalStatuses).default("pending"),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const withdrawalTaxReportQuerySchema = z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/) }).strict();
+
+export interface WithdrawalItem {
+  id: string;
+  userName: string;
+  userPhone: string;
+  amount: string;
+  // Thuế dự kiến khi chưa duyệt; đã duyệt thì là số chốt.
+  taxAmount: string;
+  netAmount: string;
+  bankAccount: BuyerBankAccount;
+  status: WithdrawalStatus;
+  rejectReason: string | null;
+  bankTransactionNo: string | null;
+  paidOn: string | null;
+  createdAt: string;
+  decidedAt: string | null;
+  version: number;
+}
+
+export interface WithdrawalTaxReport {
+  month: string;
+  rows: { userName: string; userPhone: string; amount: string; taxAmount: string; netAmount: string; paidOn: string; bankTransactionNo: string }[];
+  totalAmount: string;
+  totalTax: string;
+}
+
+// Phần rút tiền trên ví ứng dụng.
+export interface BuyerWithdrawalInfo {
+  minimumWithdrawal: string;
+  taxThreshold: string;
+  taxRate: string;
+  bankAccount: BuyerBankAccount | null;
+  // Yêu cầu đang chờ duyệt hoặc đã duyệt chưa chi.
+  open: WithdrawalItem | null;
 }

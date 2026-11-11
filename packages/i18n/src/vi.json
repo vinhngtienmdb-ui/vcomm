@@ -329,7 +329,13 @@
     "codNotRecordable": "Đơn không thanh toán khi nhận hàng, chưa giao cho đơn vị vận chuyển hoặc đã ghi đã thu.",
     "refundNotPending": "Việc hoàn tiền không còn chờ xử lý.",
     "commissionPercentOver": "Tổng năm mức hoa hồng theo phần trăm không được quá 100%.",
-    "commissionFixedOverPrice": "Tổng năm mức hoa hồng cố định không được vượt giá bán thấp nhất của sản phẩm."
+    "commissionFixedOverPrice": "Tổng năm mức hoa hồng cố định không được vượt giá bán thấp nhất của sản phẩm.",
+    "withdrawalBelowMinimum": "Số tiền rút thấp hơn mức tối thiểu.",
+    "withdrawalOverBalance": "Số tiền rút vượt số dư ví.",
+    "withdrawalNeedsBankAccount": "Nhập tài khoản ngân hàng nhận tiền trước khi rút.",
+    "withdrawalAlreadyOpen": "Bạn đang có một yêu cầu rút tiền chưa xử lý xong.",
+    "withdrawalNotPending": "Yêu cầu rút tiền không còn chờ duyệt.",
+    "withdrawalNotApproved": "Yêu cầu rút tiền chưa được duyệt hoặc đã ghi đã chi."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1827,7 +1833,8 @@
     "listings": "Đăng bán",
     "orders": "Đơn VComm",
     "returnRequests": "Yêu cầu trả hàng",
-    "refunds": "Hoàn tiền"
+    "refunds": "Hoàn tiền",
+    "withdrawals": "Rút tiền hoa hồng"
   },
   "partners": {
     "title": "Đối tác",
@@ -3342,7 +3349,23 @@
     "walletKind_withdrawal_reversal": "Hoàn lại yêu cầu rút",
     "walletBalanceAfter": "Số dư {amount}",
     "commissionWallet": "Ví hoa hồng",
-    "memberCommission": "Hoa hồng đã nhận {credited} · đang chờ {pending}"
+    "memberCommission": "Hoa hồng đã nhận {credited} · đang chờ {pending}",
+    "withdrawTitle": "Rút tiền",
+    "withdrawAvailable": "Số dư có thể rút: {amount}",
+    "withdrawAmount": "Số tiền rút (đồng)",
+    "withdrawMinimum": "Tối thiểu {amount}.",
+    "withdrawTaxRule": "Trên {threshold} thì khấu trừ thuế thu nhập cá nhân {rate}% trên toàn bộ số tiền; số thuế chốt khi kế toán duyệt.",
+    "withdrawEstimate": "Thuế dự kiến {tax} · thực nhận {net}",
+    "withdrawTo": "Chuyển vào: {account}",
+    "withdrawSubmit": "Gửi yêu cầu rút tiền",
+    "withdrawNeedsBank": "Nhập tài khoản ngân hàng nhận tiền trước khi rút.",
+    "withdrawStatus_pending": "Yêu cầu rút tiền đang chờ duyệt",
+    "withdrawStatus_approved": "Yêu cầu rút tiền đã duyệt, chờ chuyển khoản",
+    "withdrawStatus_rejected": "Yêu cầu rút tiền bị từ chối",
+    "withdrawStatus_cancelled": "Yêu cầu rút tiền đã rút lại",
+    "withdrawStatus_paid": "Đã chuyển tiền",
+    "withdrawOpenLine": "Số tiền {amount} · thuế {tax} · thực nhận {net}",
+    "withdrawCancel": "Rút lại yêu cầu"
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -3714,5 +3737,36 @@
     "reason_duplicate_payment": "Thanh toán trùng",
     "reason_order_cancelled": "Hủy đơn đã thanh toán",
     "reason_return_received": "Nhận hàng trả"
+  },
+  "withdrawals": {
+    "title": "Rút tiền hoa hồng",
+    "hint": "Duyệt yêu cầu thì chốt thuế thu nhập cá nhân và số thực nhận theo cài đặt hoa hồng lúc duyệt. Chuyển khoản số thực nhận rồi ghi mã giao dịch, ngày chi.",
+    "status_pending": "Chờ duyệt",
+    "status_approved": "Đã duyệt, chờ chi",
+    "status_rejected": "Từ chối",
+    "status_cancelled": "Người dùng rút lại",
+    "status_paid": "Đã chi",
+    "none": "Không có yêu cầu rút tiền.",
+    "createdAt": "Gửi lúc",
+    "decidedAt": "xử lý lúc",
+    "bankAccount": "Tài khoản nhận",
+    "projectedTax": "Thuế dự kiến",
+    "tax": "Thuế thu nhập cá nhân",
+    "netAmount": "Thực nhận",
+    "amount": "Số tiền",
+    "rejectReason": "Lý do từ chối",
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "pay": "Ghi đã chi",
+    "bankTransactionNo": "Mã giao dịch ngân hàng",
+    "paidOn": "Ngày chi",
+    "approvedSaved": "Đã duyệt yêu cầu rút tiền.",
+    "rejectedSaved": "Đã từ chối, số tiền đã trả lại ví người dùng.",
+    "paidSaved": "Đã ghi đã chi.",
+    "taxReport": "Bảng kê thuế thu nhập cá nhân đã khấu trừ",
+    "month": "Tháng chi",
+    "noTax": "Tháng này không có khoản khấu trừ thuế.",
+    "person": "Người nhận",
+    "totals": "Tổng số tiền {amount} · tổng thuế {tax}"
   }
 }

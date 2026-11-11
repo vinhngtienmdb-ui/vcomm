@@ -27,6 +27,7 @@ import { DATABASE, type Database } from "../database/database.module";
 import { BuyerAccountsService } from "./buyer-accounts.service";
 import { MarketplaceCommissionsService } from "./commissions.service";
 import { SalesProposalsService } from "./sales-proposals.service";
+import { WithdrawalsService } from "./withdrawals.service";
 
 @Controller("buyer")
 export class BuyerController {
@@ -34,6 +35,7 @@ export class BuyerController {
     private readonly buyers: BuyerAccountsService,
     private readonly proposals: SalesProposalsService,
     private readonly commissions: MarketplaceCommissionsService,
+    private readonly withdrawals: WithdrawalsService,
     @Inject(DATABASE) private readonly database: Database,
   ) {}
 
@@ -117,7 +119,8 @@ export class BuyerController {
   // API_135: ví hoa hồng của chính người gọi (CONG_VIEC_26).
   @Get("wallet")
   async wallet(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<BuyerWalletResponse> {
-    return this.commissions.wallet(this.database, request.auth.userId, buyerWalletQuerySchema.parse(query));
+    const parsed = buyerWalletQuerySchema.parse(query);
+    return { ...(await this.commissions.wallet(this.database, request.auth.userId, parsed)), withdrawal: await this.withdrawals.info(this.database, request.auth.userId) };
   }
 
   // API_122: đội của tôi (CONG_VIEC_27).

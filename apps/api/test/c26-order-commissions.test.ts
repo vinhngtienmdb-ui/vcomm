@@ -165,7 +165,7 @@ describe("CONG_VIEC_26 hoa hồng theo đơn", () => {
     expect(await walletOf(staff)).toBeNull();
     // Đang chờ của nhân viên: đơn ở kịch bản 357 (kem 1: 11.364 + 22.727) và đơn này theo hàng còn lại (41.363).
     const staffSession = await store.buyerSession("0938000004");
-    expect((await staffSession("get", "/buyer/wallet")).body).toEqual({ balance: "0", pendingAmount: "75454", transactions: { data: [], page: 1, pageSize: 20, total: 0 } });
+    expect((await staffSession("get", "/buyer/wallet")).body).toMatchObject({ balance: "0", pendingAmount: "75454", transactions: { data: [], page: 1, pageSize: 20, total: 0 } });
 
     await pool.query("UPDATE marketplace.orders SET delivered_at = now() - interval '169 hours' WHERE id = $1", [order.id]);
     const service = application.get(MarketplaceOrdersService);
@@ -198,7 +198,7 @@ describe("CONG_VIEC_26 hoa hồng theo đơn", () => {
     expect(wallet.transactions.data[0]).toMatchObject({ kind: "commission", amount: "41363", balanceAfter: "41363", orderId: order.id, orderDocumentNo: expect.any(String), note: null });
     expect((await staffSession("get", "/buyer/wallet?page=2&pageSize=1")).body.transactions).toMatchObject({ data: [], page: 2, pageSize: 1, total: 1 });
     expect((await staffSession("get", "/buyer/wallet?pageSize=500")).status).toBe(400);
-    expect((await buyers.alone("get", "/buyer/wallet")).body).toEqual({ balance: "0", pendingAmount: "0", transactions: { data: [], page: 1, pageSize: 20, total: 0 } });
+    expect((await buyers.alone("get", "/buyer/wallet")).body).toMatchObject({ balance: "0", pendingAmount: "0", transactions: { data: [], page: 1, pageSize: 20, total: 0 } });
     // Giám đốc Kinh doanh xem hoa hồng từng cấp dưới trong nhánh.
     const members = (await (await store.buyerSession("0938000001"))("get", "/buyer/sales/team")).body.members as { userId: string; creditedCommission: string; pendingCommission: string }[];
     expect(members.find((item) => item.userId === staff)).toMatchObject({ creditedCommission: "41363", pendingCommission: "34091" });
