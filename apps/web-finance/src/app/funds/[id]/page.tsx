@@ -108,7 +108,7 @@ export default function FundPage() {
                             <Link href={`/payments/${entry.paymentId}`}>{entry.documentNo}</Link>
                           </td>
                           <td data-nhan={headings[2]}>
-                            <span>{entry.partnerName ?? payments("noPartner")}</span>
+                            <span>{entry.partnerName ?? payments("withoutPartner")}</span>
                           </td>
                           <td data-nhan={headings[3]}>
                             <span>{entry.receipt === "0" ? "—" : money(entry.receipt)}</span>

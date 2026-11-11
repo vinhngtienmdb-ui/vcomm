@@ -94,7 +94,7 @@ export default function PaymentPage() {
                       {payment.partner.code} · {payment.partner.name}
                     </Link>
                   ) : (
-                    t("noPartner")
+                    t("withoutPartner")
                   )}
                 </strong>
                 <div className="thong-tin-dong">
