@@ -3,7 +3,7 @@
 - Mô tả: Người mua chuyển khoản thẳng vào tài khoản ngân hàng của công ty vận hành sàn theo thông tin và mã VietQR do VComm tự sinh, không qua cổng trung gian. Tiền về được ghi nhận khi đối soát ngân hàng (CONG_VIEC_18) ghép được giao dịch, hoặc khi kế toán xác nhận tay trên web.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Chờ nghiệm thu.
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-11); trước khi phát hành phải thử với tài khoản thử nghiệm của nhà cung cấp.
 - Mức: Vừa. Nhánh: `chuc-nang/CONG_VIEC_36-cong-chuyen-khoan-vietqr` (tách từ `chuc-nang/CONG_VIEC_32-khung-nhieu-cong-thanh-toan`).
 - Nguồn: người dùng yêu cầu 2026-11-11 tích hợp "chuyển khoản" và "VietQR" (gộp một cổng vì cùng cơ chế); khung CONG_VIEC_32; quyết định của người dùng ngày 2026-11-11 (mục 13).
 
