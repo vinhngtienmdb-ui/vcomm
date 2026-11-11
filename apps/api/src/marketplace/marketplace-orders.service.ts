@@ -281,7 +281,8 @@ export class MarketplaceOrdersService {
   }
 
   async event(executor: Pick<Database, "execute">, orderId: string, status: string, note: string | null, actorUserId: string | null): Promise<void> {
-    await executor.execute(sql`INSERT INTO marketplace.order_events (order_id, status, note, actor_user_id) VALUES (${orderId}, ${status}, ${note}, ${actorUserId})`);
+    // clock_timestamp: nhiều sự kiện trong cùng giao dịch (đã giao rồi đã thu COD) vẫn giữ đúng thứ tự trên dòng thời gian (LOI_06).
+    await executor.execute(sql`INSERT INTO marketplace.order_events (order_id, status, note, actor_user_id, created_at) VALUES (${orderId}, ${status}, ${note}, ${actorUserId}, clock_timestamp())`);
   }
 
   async buyerList(userId: string, query: { status?: MarketplaceOrderStatus | undefined; page: number; pageSize: number }): Promise<PageResponse<BuyerOrderListItem>> {
