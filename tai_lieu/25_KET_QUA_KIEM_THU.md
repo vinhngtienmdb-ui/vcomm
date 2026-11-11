@@ -183,6 +183,19 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_43
+
+- Phạm vi: lát L0 đến L4 (xóa hoa hồng đội kinh doanh cũ; tắt giao khách, đổi quyền lập đơn bán; loại sản phẩm, đơn bán tay chỉ dịch vụ, giao dịch nội bộ chỉ dịch vụ; phiếu kho dịch vụ không ghi thẻ kho, công nợ, hóa đơn, bút toán; sửa sau rà soát gồm loại trừ dịch vụ nội bộ trong báo cáo hợp nhất, tự nhận dịch vụ khi duyệt đơn mua).
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22.
+- Lệnh đã chạy: `pnpm typecheck` (13/13), `pnpm lint`, `pnpm --filter api test`; database migration 0061 đến 0063 trên cơ sở dữ liệu kiểm thử và thử trong giao dịch rồi hủy trên cơ sở dữ liệu phát triển.
+- Kết quả: 334 đạt / 0 không đạt / 334 kịch bản tự động (52 tệp; phần mới: `c43-scope-and-roles`, `c43-service-orders`, `c43-internal-services`, `c43-consolidation-services` – KICHBAN_KIEMTHU_419 đến 422).
+- Kiểm thử đã duyệt được sửa (người dùng đồng ý xóa, tắt chức năng và bật cài đặt ở phần chuẩn bị, 2026-11-11): xóa `c17-commissions`, `c21-customer-assignment`; `c22-sales-app` bỏ phần hoa hồng của tôi, ghé thăm xem toàn công ty, hồ sơ khách tự lập; `c19-collection-statements` bỏ phần hoa hồng; c8, c9, c12, c13, c14, c15, c16, c18, c19, c20 chỉ thêm bước cấp quyền lập đơn bán và bật cài đặt cho phép đơn bán tay có hàng hóa ở phần chuẩn bị, nội dung kiểm tra không đổi.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_274 đến 277 (bắt buộc) – Đạt.
+- Kiểm tra bảo mật phần B, C: C1 không thêm thư viện; C2 gitleaks trong CI; C3 phân quyền: Đạt – bỏ quyền hoa hồng cũ, giao khách; Nhân viên bán hàng không lập đơn bán (403), Kế toán lập được; C4 toàn vẹn dữ liệu: Đạt – migration xóa đúng thứ tự, không đụng vai trò công ty tự tạo, giữ dữ liệu giao khách cũ; phiếu dịch vụ không lập hai lần (khóa đơn); bút toán cân.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập không thấy lỗi Nghiêm trọng, Cao; tìm 3 Trung bình, 2 Trung bình–Thấp, 2 Thấp; đã sửa ở commit 7765063 theo quyết định người dùng, kiểm thử lại đạt.
+- Kết luận cổng kiểm thử: Đạt.
+- Kết luận: Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-11 – CONG_VIEC_26
 
 - Phạm vi: lát L0 đến L5 (thiết lập hoa hồng sản phẩm, cài đặt chung; chốt người hưởng khi đặt, cộng ví khi hoàn tất, đơn hủy bỏ hoa hồng; ví, hoa hồng cấp dưới; rút tiền, duyệt chi, thuế thu nhập cá nhân, bảng kê; bút toán 3388, 3335; phí rút tiền theo THAY_DOI_17, Có 711) và các bản sửa sau rà soát độc lập.
