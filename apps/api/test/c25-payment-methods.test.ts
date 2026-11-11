@@ -26,7 +26,7 @@ describe("CONG_VIEC_25 phương thức thanh toán, mở đặt hàng", () => {
   it("KICHBAN_KIEMTHU_321: bật tắt theo cổng; mở đặt hàng chỉ khi có phương thức bật; người mua chỉ chọn phương thức đang bật", async () => {
     const settings = await store.call("get", "/marketplace/store-settings");
     expect(settings.body.orderingOpen).toBe(false);
-    // Chỉ so phương thức của COD, VNPAY: các cổng khác (CONG_VIEC_33 đến 39) thêm phương thức vào danh mục.
+    // Chỉ so các phương thức của cổng cod, vnpay; cổng thêm sau (CONG_VIEC_33 đến 39) có kiểm thử riêng.
     expect(settings.body.paymentMethods.filter((item: { gatewayCode: string }) => ["cod", "vnpay"].includes(item.gatewayCode))).toEqual([
       { code: "cod", gatewayCode: "cod", isEnabled: true, isConfigured: true },
       { code: "vnpay_qr", gatewayCode: "vnpay", isEnabled: false, isConfigured: false },

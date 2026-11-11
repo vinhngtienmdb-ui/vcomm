@@ -108,6 +108,8 @@ const resultCodes = {
   invalid_amount: ["022", "So tien khong dung voi hoa don"],
   already_confirmed: ["023", "Hoa don da gach no"],
   error: ["031", "Loi he thong"],
+  // BIDV chỉ gạch nợ giao dịch đã hạch toán nên không có trạng thái đang xử lý; giữ cho đủ kiểu.
+  pending: ["031", "Loi he thong"],
 } as const;
 const answer = (key: keyof typeof resultCodes) => ({ result_code: resultCodes[key][0], result_desc: resultCodes[key][1] });
 
