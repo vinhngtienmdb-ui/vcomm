@@ -100,6 +100,15 @@ function ReceiptContent({ sale, className }: { sale: RetailSaleResponse; classNa
           {sale.buyer.taxCode && <div>{t("buyerTaxCode", { taxCode: sale.buyer.taxCode })}</div>}
         </>
       )}
+      {sale.einvoice && (
+        <>
+          <hr />
+          <div className="giua dam">{t("einvoiceTitle")}</div>
+          <div>{t("einvoiceNumber", { template: sale.einvoice.templateCode, series: sale.einvoice.series ?? "", number: sale.einvoice.invoiceNo ?? "" })}</div>
+          {sale.einvoice.lookupCode && <div>{t("einvoiceLookup", { code: sale.einvoice.lookupCode })}</div>}
+          {sale.einvoice.taxAuthorityCode && <div style={{ wordBreak: "break-all" }}>{t("einvoiceTaxAuthorityCode", { code: sale.einvoice.taxAuthorityCode })}</div>}
+        </>
+      )}
       <hr />
       <img className="qr" src={qrDataUrl(sale.documentNo)} alt={sale.documentNo} />
       {sale.store.returnDays > 0 && <div className="giua">{t("returnPolicy", { days: sale.store.returnDays })}</div>}

@@ -3145,6 +3145,11 @@ export const updateEinvoiceSettingsSchema = z
       .array(z.object({ year: z.number().int().min(2000).max(2099), series: z.string().trim().toUpperCase().regex(/^[CK][0-9]{2}T[A-Z]{2}$/, "invalidValue") }).strict())
       .max(20)
       .default([]),
+    // Ký hiệu hóa đơn khởi tạo từ máy tính tiền theo năm (CONG_VIEC_53; ký tự thứ tư `M`).
+    cashRegisterSeries: z
+      .array(z.object({ year: z.number().int().min(2000).max(2099), series: z.string().trim().toUpperCase().regex(/^[CK][0-9]{2}M[A-Z]{2}$/, "invalidValue") }).strict())
+      .max(20)
+      .default([]),
     version: z.number().int().min(0),
   })
   .strict();
@@ -3162,6 +3167,7 @@ export interface EinvoiceSettingsResponse {
   passwordLastFour: string | null;
   simulation: EinvoiceSimulation;
   series: { year: number; series: string }[];
+  cashRegisterSeries: { year: number; series: string; lastNo: number }[];
   simulatorAllowed: boolean;
   canSetup: boolean;
   version: number;
@@ -3177,9 +3183,12 @@ export const einvoiceListQuerySchema = z
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
   })
   .strict();
+export const einvoiceOrigins = ["standard", "cash_register"] as const;
+export type EinvoiceOrigin = (typeof einvoiceOrigins)[number];
 export interface EinvoiceListItem {
   id: string;
   kind: EinvoiceKind;
+  origin: EinvoiceOrigin;
   invoiceDate: string;
   series: string | null;
   invoiceNo: string | null;
@@ -3196,6 +3205,7 @@ export interface EinvoiceParty {
   name: string | null;
   taxCode: string | null;
   address: string | null;
+  identityNo?: string | null;
   anonymous?: boolean;
 }
 export interface EinvoiceLineResponse {
@@ -3216,6 +3226,7 @@ export interface EinvoiceResponse extends EinvoiceListItem {
   templateCode: string;
   withTaxCode: boolean;
   taxAuthorityCode: string | null;
+  lookupCode: string | null;
   referenceId: string;
   seller: EinvoiceParty;
   buyer: EinvoiceParty;
@@ -4795,6 +4806,16 @@ export interface RetailSaleResponse {
   stockDocument: { id: string; documentNo: string };
   // Các lần trả hàng của hóa đơn (CHUC_NANG_188).
   returns: { id: string; documentNo: string; returnedAt: string; refundAmount: string }[];
+  // Hóa đơn điện tử khởi tạo từ máy tính tiền (QUYTAC_NGHIEPVU_378); null khi công ty chưa bật hóa đơn điện tử.
+  einvoice: {
+    id: string;
+    templateCode: string;
+    series: string | null;
+    invoiceNo: string | null;
+    lookupCode: string | null;
+    taxAuthorityCode: string | null;
+    status: EinvoiceStatus;
+  } | null;
   currency: string;
 }
 export const retailSaleListQuerySchema = z

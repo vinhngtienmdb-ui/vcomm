@@ -1,7 +1,8 @@
 // Hóa đơn điện tử (CONG_VIEC_16; CHUC_NANG_77; QUYTAC_NGHIEPVU_104, 105; API_91): lập khi phiếu xuất giao hàng ghi sổ,
 // gửi nền qua nhà cung cấp của công ty (ngoài giao dịch cơ sở dữ liệu), gửi lại khi lỗi tạm thời, tra trạng thái, báo quá hạn.
 import { Inject, Injectable, Logger, type OnModuleInit } from "@nestjs/common";
-import type { EinvoiceKind, EinvoiceListItem, EinvoiceProvider, EinvoiceResponse, EinvoiceStatus, PageResponse, einvoiceListQuerySchema } from "contracts";
+import { randomBytes } from "node:crypto";
+import type { EinvoiceKind, EinvoiceListItem, EinvoiceOrigin, EinvoiceProvider, EinvoiceResponse, EinvoiceStatus, PageResponse, einvoiceListQuerySchema } from "contracts";
 import { type SQL, sql } from "drizzle-orm";
 import type { z } from "zod";
 import { marketplaceShippingFee, shippingVatRate } from "../accounting/postings";
@@ -17,7 +18,7 @@ import { StockDocumentsService } from "../inventory/stock-documents.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { amountInWords } from "./amount-in-words";
-import { einvoicePermissions, providerConfig, seriesFor, settingsRow } from "./einvoice-settings.service";
+import { einvoicePermissions, nextCashRegisterNumber, providerConfig, seriesFor, settingsRow } from "./einvoice-settings.service";
 import type { EinvoiceProviderAdapter, ProviderInvoice, ProviderResult } from "./providers/provider";
 import { MisaProvider } from "./providers/misa";
 import { SimulatorProvider } from "./providers/simulator";
@@ -36,6 +37,12 @@ export function nextWorkingDay(date: string): string {
   do moment.setUTCDate(moment.getUTCDate() + 1);
   while (moment.getUTCDay() === 0 || moment.getUTCDay() === 6);
   return moment.toISOString().slice(0, 10);
+}
+
+// Mã tra cứu 12 ký tự in trên hóa đơn bán lẻ (bỏ các ký tự dễ nhầm 0, O, 1, I).
+const lookupAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+export function lookupCode(): string {
+  return [...randomBytes(12)].map((value) => lookupAlphabet[value % lookupAlphabet.length]).join("");
 }
 
 export interface InvoiceItem {
@@ -63,21 +70,25 @@ export async function insertInvoice(
     invoiceDate: string;
     settings: { provider: EinvoiceProvider; template_code: string; with_tax_code: boolean };
     seller: { name: string | null; taxCode: string | null; address: string | null };
-    buyer: { partnerId: string | null; name: string | null; taxCode: string | null; address: string | null; anonymous: boolean };
+    buyer: { partnerId: string | null; name: string | null; taxCode: string | null; address: string | null; identityNo?: string | null; anonymous: boolean };
     currency: string;
     items: InvoiceItem[];
     note: string | null;
+    // Khởi tạo từ máy tính tiền: ký hiệu, số cấp tại quầy, mã tra cứu; hạn gửi cuối ngày hóa đơn (CONG_VIEC_53; QUYTAC_NGHIEPVU_378).
+    cashRegister?: { series: string; invoiceNo: string; lookupCode: string; setupError: string | null };
   },
 ): Promise<string> {
   const total = (key: "netAmount" | "taxAmount" | "totalAmount") => Math.round(input.items.reduce((sum, item) => sum + item[key], 0) * 10000) / 10000;
-  const series = await seriesFor(transaction, input.companyId, Number(input.invoiceDate.slice(0, 4)));
+  const cashRegister = input.cashRegister;
+  const series = cashRegister ? cashRegister.series : await seriesFor(transaction, input.companyId, Number(input.invoiceDate.slice(0, 4)));
+  const setupError = cashRegister ? cashRegister.setupError : series ? null : "einvoiceSeriesMissing";
   const inserted = await transaction.execute<{ id: string }>(sql`
-    INSERT INTO finance.einvoices (company_id, source_document_id, kind, related_invoice_id, provider, invoice_date, template_code, series, with_tax_code, seller, buyer, currency,
-      net_amount, tax_amount, total_amount, note, status, last_error, due_date)
+    INSERT INTO finance.einvoices (company_id, source_document_id, kind, related_invoice_id, provider, invoice_date, template_code, series, invoice_no, with_tax_code, seller, buyer,
+      currency, net_amount, tax_amount, total_amount, note, status, last_error, due_date, origin, lookup_code)
     VALUES (${input.companyId}, ${input.sourceDocumentId}, ${input.kind}, ${input.relatedInvoiceId}, ${input.settings.provider}, ${input.invoiceDate}::date, ${input.settings.template_code},
-      ${series}, ${input.settings.with_tax_code}, ${JSON.stringify(input.seller)}::jsonb, ${JSON.stringify(input.buyer)}::jsonb, ${input.currency},
-      ${total("netAmount")}, ${total("taxAmount")}, ${total("totalAmount")}, ${input.note}, ${series ? "pending" : "setup_error"}, ${series ? null : "einvoiceSeriesMissing"},
-      ${nextWorkingDay(input.invoiceDate)}::date)
+      ${series}, ${cashRegister?.invoiceNo ?? null}, ${input.settings.with_tax_code}, ${JSON.stringify(input.seller)}::jsonb, ${JSON.stringify(input.buyer)}::jsonb, ${input.currency},
+      ${total("netAmount")}, ${total("taxAmount")}, ${total("totalAmount")}, ${input.note}, ${setupError ? "setup_error" : "pending"}, ${setupError},
+      ${cashRegister ? input.invoiceDate : nextWorkingDay(input.invoiceDate)}::date, ${cashRegister ? "cash_register" : "standard"}, ${cashRegister?.lookupCode ?? null})
     RETURNING id`);
   const invoiceId = inserted.rows[0]!.id;
   for (const item of input.items)
@@ -147,9 +158,11 @@ type InvoiceRow = {
   invoice_no: string | null;
   with_tax_code: boolean;
   tax_authority_code: string | null;
+  origin: EinvoiceOrigin;
+  lookup_code: string | null;
   provider_transaction_id: string | null;
   seller: { name: string | null; taxCode: string | null; address: string | null };
-  buyer: { partnerId: string | null; name: string | null; taxCode: string | null; address: string | null; anonymous: boolean };
+  buyer: { partnerId: string | null; name: string | null; taxCode: string | null; address: string | null; identityNo?: string | null; anonymous: boolean };
   currency: string;
   net_amount: string;
   tax_amount: string;
@@ -182,7 +195,7 @@ type LineRow = {
 
 const invoiceColumns = sql`
   e.id, e.company_id, e.source_document_id, d.document_no AS source_document_no, e.kind, e.related_invoice_id, e.reference_id, e.provider, e.invoice_date::text, e.template_code,
-  e.series, e.invoice_no, e.with_tax_code, e.tax_authority_code, e.provider_transaction_id, e.seller, e.buyer, e.currency, e.net_amount::text, e.tax_amount::text, e.total_amount::text,
+  e.series, e.invoice_no, e.with_tax_code, e.tax_authority_code, e.origin, e.lookup_code, e.provider_transaction_id, e.seller, e.buyer, e.currency, e.net_amount::text, e.tax_amount::text, e.total_amount::text,
   e.note, e.status, e.replaced_by_id, e.last_error, e.attempt_count, e.due_date::text, e.issued_at, e.pdf_content IS NOT NULL AS has_pdf, e.xml_content IS NOT NULL AS has_xml,
   (e.status <> 'issued' AND e.due_date < (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date) AS overdue, e.version`;
 
@@ -207,8 +220,20 @@ export class EinvoicesService implements OnModuleInit {
   // Phiếu xuất giao hàng ghi sổ: lập hóa đơn "Chờ gửi" trong cùng giao dịch ghi sổ (QUYTAC_NGHIEPVU_104).
   async recordDelivery(transaction: Executor, documentId: string): Promise<void> {
     const document = (
-      await transaction.execute<{ id: string; type: string; company_id: string; document_date: string; partner_id: string | null; buyer_name: string | null; currency: string }>(sql`
-      SELECT d.id, d.type, d.company_id, d.document_date::text, d.partner_id, o.buyer_name, o.currency
+      await transaction.execute<{
+        id: string;
+        type: string;
+        company_id: string;
+        document_date: string;
+        partner_id: string | null;
+        buyer_name: string | null;
+        buyer_tax_code: string | null;
+        buyer_address: string | null;
+        buyer_identity_no: string | null;
+        is_retail: boolean;
+        currency: string;
+      }>(sql`
+      SELECT d.id, d.type, d.company_id, d.document_date::text, d.partner_id, o.buyer_name, o.buyer_tax_code, o.buyer_address, o.buyer_identity_no, o.is_retail, o.currency
       FROM inventory.documents d JOIN sales.orders o ON o.id = d.source_id AND d.source_type = 'sales.order' WHERE d.id = ${documentId}`)
     ).rows[0];
     if (!document) {
@@ -228,9 +253,27 @@ export class EinvoicesService implements OnModuleInit {
           SELECT name, tax_code, address FROM crm.partners WHERE id = ${document.partner_id}`)
         ).rows[0]
       : undefined;
+    // Bán lẻ: thông tin người mua chỉ khi khách yêu cầu (Nghị định 254/2026/NĐ-CP Điều 10 khoản 4 điểm b).
+    const retailBuyer = document.buyer_name || document.buyer_tax_code || document.buyer_identity_no;
     const buyer = partner
       ? { partnerId: document.partner_id, name: partner.name, taxCode: partner.tax_code, address: partner.address, anonymous: false }
-      : { partnerId: null, name: document.buyer_name, taxCode: null, address: null, anonymous: true };
+      : document.is_retail
+        ? {
+            partnerId: null,
+            name: document.buyer_name,
+            taxCode: document.buyer_tax_code,
+            address: document.buyer_address,
+            identityNo: document.buyer_identity_no,
+            anonymous: !retailBuyer,
+          }
+        : { partnerId: null, name: document.buyer_name, taxCode: null, address: null, anonymous: true };
+    let cashRegister: { series: string; invoiceNo: string; lookupCode: string; setupError: string | null } | undefined;
+    if (document.is_retail) {
+      // Hóa đơn khởi tạo từ máy tính tiền: năm chưa khai ký hiệu thì chặn bán (QUYTAC_NGHIEPVU_378).
+      const numbered = await nextCashRegisterNumber(transaction, document.company_id, Number(document.document_date.slice(0, 4)));
+      if (!numbered) throw new ApiError("BUSINESS_RULE", "retailEinvoiceSeriesMissing");
+      cashRegister = { ...numbered, lookupCode: lookupCode(), setupError: settings.provider === "simulator" ? null : "einvoiceCashRegisterUnsupported" };
+    }
     const items = await documentItems(transaction, documentId, "sales_issue");
     // Phí giao hàng của đơn VComm: dòng dịch vụ thuế 10%, phí đã gồm thuế (CONG_VIEC_25; QUYTAC_NGHIEPVU_169).
     const shippingFee = await marketplaceShippingFee(transaction, documentId);
@@ -262,6 +305,7 @@ export class EinvoicesService implements OnModuleInit {
       currency: document.currency,
       items,
       note: null,
+      cashRegister,
     });
   }
 
@@ -298,6 +342,8 @@ export class EinvoicesService implements OnModuleInit {
       invoiceDate: row.invoice_date,
       templateCode: row.template_code,
       series: row.series!,
+      invoiceNo: row.origin === "cash_register" ? row.invoice_no : null,
+      cashRegister: row.origin === "cash_register",
       currency: row.currency,
       seller: row.seller,
       buyer: { name: row.buyer.name, taxCode: row.buyer.taxCode, address: row.buyer.address, anonymous: row.buyer.anonymous },
@@ -494,6 +540,7 @@ export class EinvoicesService implements OnModuleInit {
     return {
       id: row.id,
       kind: row.kind,
+      origin: row.origin,
       invoiceDate: day(row.invoice_date),
       series: row.series,
       invoiceNo: row.invoice_no,
@@ -547,6 +594,7 @@ export class EinvoicesService implements OnModuleInit {
       templateCode: row.template_code,
       withTaxCode: row.with_tax_code,
       taxAuthorityCode: row.tax_authority_code,
+      lookupCode: row.lookup_code,
       referenceId: row.reference_id,
       seller: row.seller,
       buyer: row.buyer,
@@ -600,8 +648,16 @@ export class EinvoicesService implements OnModuleInit {
     await requireFinancePermission(this.permissionService, actor, einvoicePermissions.manage);
     await this.database.transaction(async (transaction) => {
       const row = (
-        await transaction.execute<{ status: EinvoiceStatus; version: number; invoice_date: string; invoice_no: string | null; last_outcome: string | null; in_flight: boolean }>(sql`
-        SELECT e.status, e.version, e.invoice_date::text, e.invoice_no,
+        await transaction.execute<{
+          status: EinvoiceStatus;
+          version: number;
+          invoice_date: string;
+          invoice_no: string | null;
+          origin: EinvoiceOrigin;
+          last_outcome: string | null;
+          in_flight: boolean;
+        }>(sql`
+        SELECT e.status, e.version, e.invoice_date::text, e.invoice_no, e.origin,
           (SELECT a.outcome FROM finance.einvoice_attempts a WHERE a.invoice_id = e.id ORDER BY a.started_at DESC, a.id DESC LIMIT 1) AS last_outcome,
           EXISTS (SELECT 1 FROM finance.einvoice_attempts a WHERE a.invoice_id = e.id AND a.finished_at IS NULL AND a.started_at > now() - interval '10 minutes') AS in_flight
         FROM finance.einvoices e WHERE e.id = ${id} AND e.company_id = ${actor.companyId} FOR UPDATE`)
@@ -613,6 +669,15 @@ export class EinvoicesService implements OnModuleInit {
       if (row.in_flight) throw new ApiError("BUSINESS_RULE", "einvoiceSending");
       const settings = await settingsRow(transaction, actor.companyId);
       if (!settings) throw new ApiError("BUSINESS_RULE", "einvoiceNotConfigured");
+      // Khởi tạo từ máy tính tiền: ký hiệu, số đã in cho khách giữ nguyên; bị từ chối thì gửi lại với mã tham chiếu mới.
+      if (row.origin === "cash_register") {
+        await transaction.execute(sql`
+          UPDATE finance.einvoices SET status = 'pending', next_attempt_at = now(), last_error = NULL, version = version + 1, provider = ${settings.provider},
+            reference_id = CASE WHEN ${row.status === "rejected"} THEN gen_random_uuid() ELSE reference_id END, tax_authority_code = NULL
+          WHERE id = ${id}`);
+        await this.auditService.record({ ...financeAudit(actor, "einvoice"), action: "einvoice.resend", entityId: id, beforeData: { status: row.status } }, transaction);
+        return;
+      }
       const series = await seriesFor(transaction, actor.companyId, Number(row.invoice_date.slice(0, 4)));
       if (!series) throw new ApiError("BUSINESS_RULE", "einvoiceSeriesMissing");
       const company = (

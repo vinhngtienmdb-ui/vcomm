@@ -3,6 +3,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import type {
   createRetailSaleSchema,
+  EinvoiceStatus,
   RetailItemOption,
   RetailPricedLine,
   RetailQuoteResponse,
@@ -402,8 +403,36 @@ export class RetailSalesService {
         await this.database.execute<{ id: string; document_no: string; returned_at: Date; refund_amount: string }>(sql`
         SELECT id, document_no, returned_at, refund_amount::text FROM retail.returns WHERE sale_id = ${id} ORDER BY returned_at`)
       ).rows.map((item) => ({ id: item.id, documentNo: item.document_no, returnedAt: new Date(item.returned_at).toISOString(), refundAmount: trimDecimal(item.refund_amount) })),
+      einvoice: await this.einvoice(row.stock_document_id),
       currency: await companyCurrency(this.database, actor.companyId),
     };
+  }
+
+  // Hóa đơn điện tử khởi tạo từ máy tính tiền của phiếu xuất (QUYTAC_NGHIEPVU_378) để in trên hóa đơn bán lẻ.
+  private async einvoice(stockDocumentId: string): Promise<RetailSaleResponse["einvoice"]> {
+    const row = (
+      await this.database.execute<{
+        id: string;
+        template_code: string;
+        series: string | null;
+        invoice_no: string | null;
+        lookup_code: string | null;
+        tax_authority_code: string | null;
+        status: EinvoiceStatus;
+      }>(sql`
+      SELECT id, template_code, series, invoice_no, lookup_code, tax_authority_code, status FROM finance.einvoices WHERE source_document_id = ${stockDocumentId} AND kind = 'original'`)
+    ).rows[0];
+    return row
+      ? {
+          id: row.id,
+          templateCode: row.template_code,
+          series: row.series,
+          invoiceNo: row.invoice_no,
+          lookupCode: row.lookup_code,
+          taxAuthorityCode: row.tax_authority_code,
+          status: row.status,
+        }
+      : null;
   }
 
   async list(actor: Actor, query: ListQuery): Promise<RetailSaleListResponse> {
