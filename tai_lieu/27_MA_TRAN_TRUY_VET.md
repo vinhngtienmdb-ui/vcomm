@@ -215,6 +215,13 @@
 | YCAU_NGHIEPVU_64 | QUYTAC_NGHIEPVU_300 | CHUC_NANG_163 | MAN_HINH_118 | TIEUCHI_NGHIEMTHU_291 | KICHBAN_KIEMTHU_439 | apps/api/src/hr/contracts.service.ts, apps/web-hr/src/app/contracts/[id]/page.tsx |
 | YCAU_NGHIEPVU_65 | QUYTAC_NGHIEPVU_301 | CHUC_NANG_164, CHUC_NANG_162 | MAN_HINH_117, MAN_HINH_119 | TIEUCHI_NGHIEMTHU_292, TIEUCHI_NGHIEMTHU_293 | KICHBAN_KIEMTHU_440, KICHBAN_KIEMTHU_441 | database/migrations/0072_hr_contract_reminders.sql, apps/api/src/hr/contract-reminders.service.ts, apps/api/src/hr/contracts.service.ts, apps/web-hr/src/app/me/page.tsx |
 | YCAU_NGHIEPVU_59 đến YCAU_NGHIEPVU_65 | – | CHUC_NANG_162 đến CHUC_NANG_164 | MAN_HINH_114 đến MAN_HINH_119 | TIEUCHI_NGHIEMTHU_294 | KICHBAN_KIEMTHU_442, KICHBAN_KIEMTHU_443 | apps/web-hr |
+| YCAU_NGHIEPVU_72 | QUYTAC_NGHIEPVU_312, QUYTAC_NGHIEPVU_313 | CHUC_NANG_168 | MAN_HINH_131 | TIEUCHI_NGHIEMTHU_303 | KICHBAN_KIEMTHU_454 | database/migrations/0076_hr_payroll_setup.sql, apps/api/src/hr/payroll-setup.service.ts, apps/web-hr/src/app/payroll-settings/page.tsx |
+| YCAU_NGHIEPVU_73 | QUYTAC_NGHIEPVU_314, QUYTAC_NGHIEPVU_315 | CHUC_NANG_168 | MAN_HINH_118, MAN_HINH_129, MAN_HINH_131 | TIEUCHI_NGHIEMTHU_304 | KICHBAN_KIEMTHU_455 | apps/api/src/hr/payroll-setup.service.ts, apps/api/src/hr/contracts.service.ts, apps/web-hr/src/components/PayrollProfileTab.tsx, apps/web-hr/src/components/ContractParts.tsx |
+| YCAU_NGHIEPVU_74 | QUYTAC_NGHIEPVU_316 đến QUYTAC_NGHIEPVU_321 | CHUC_NANG_169 | MAN_HINH_126, MAN_HINH_127, MAN_HINH_128 | TIEUCHI_NGHIEMTHU_305, TIEUCHI_NGHIEMTHU_306, TIEUCHI_NGHIEMTHU_307 | KICHBAN_KIEMTHU_456 đến KICHBAN_KIEMTHU_460 | database/migrations/0077_hr_payrolls.sql, apps/api/src/hr/payroll-calculation.ts, apps/api/src/hr/payrolls.service.ts, apps/api/src/hr/payroll-timesheet.ts |
+| YCAU_NGHIEPVU_75 | QUYTAC_NGHIEPVU_322 | CHUC_NANG_169 | MAN_HINH_127 | TIEUCHI_NGHIEMTHU_308 | KICHBAN_KIEMTHU_460 | apps/api/src/hr/payrolls.service.ts, apps/web-hr/src/app/payrolls/[id]/page.tsx |
+| YCAU_NGHIEPVU_76 | QUYTAC_NGHIEPVU_323 | CHUC_NANG_170 | MAN_HINH_127 | TIEUCHI_NGHIEMTHU_309 | KICHBAN_KIEMTHU_461 | database/migrations/0078_hr_payroll_postings.sql, apps/api/src/accounting/postings.ts, apps/api/src/accounting/charts.ts |
+| YCAU_NGHIEPVU_77 | QUYTAC_NGHIEPVU_323 | CHUC_NANG_170 | MAN_HINH_130 | TIEUCHI_NGHIEMTHU_309 | KICHBAN_KIEMTHU_461 | apps/api/src/hr/payrolls.service.ts, apps/web-hr/src/components/MyPayslips.tsx |
+| YCAU_NGHIEPVU_72 đến YCAU_NGHIEPVU_77 | – | CHUC_NANG_168 đến CHUC_NANG_170 | MAN_HINH_126 đến MAN_HINH_131 | TIEUCHI_NGHIEMTHU_310 | KICHBAN_KIEMTHU_462, KICHBAN_KIEMTHU_463 | apps/web-hr |
 
 ## 2. Kiểm tra bao phủ – 2026-11-09
 
@@ -514,5 +521,14 @@
 - Chức năng cần giao diện nhưng chưa có màn hình: Không có
 - Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có
 - Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_452, KICHBAN_KIEMTHU_453 (giao diện, thủ công bằng trình duyệt tự động chụp màn hình)
+## 27. Kiểm tra bao phủ CONG_VIEC_48 – 2026-11-11
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_72, 73 → CHUC_NANG_168; YCAU_NGHIEPVU_74, 75 → CHUC_NANG_169; YCAU_NGHIEPVU_76, 77 → CHUC_NANG_170)
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_312 đến 315 → CHUC_NANG_168; QUYTAC_NGHIEPVU_316 đến 322 → CHUC_NANG_169; QUYTAC_NGHIEPVU_323 → CHUC_NANG_170)
+- Chức năng chưa có tiêu chí nghiệm thu: Không có (CHUC_NANG_168 → TIEUCHI_NGHIEMTHU_303, 304; CHUC_NANG_169 → TIEUCHI_NGHIEMTHU_305 đến 308; CHUC_NANG_170 → TIEUCHI_NGHIEMTHU_309; giao diện → TIEUCHI_NGHIEMTHU_310)
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có (MAN_HINH_126 đến MAN_HINH_131)
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_303 → KICHBAN_KIEMTHU_454; 304 → 455; 305 → 456, 457; 306 → 458; 307 → 459; 308 → 460; 309 → 461; 310 → 462, 463)
+- Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_462, KICHBAN_KIEMTHU_463 (giao diện, thủ công bằng trình duyệt tự động chụp màn hình)
+- Kịch bản chưa chạy với dữ liệu thật của chấm công: KICHBAN_KIEMTHU_456 đến 460 dùng bảng công giả lập cho đến khi hợp nhất CONG_VIEC_47
 - Kịch bản chưa chạy hoặc kết quả Không đạt: kết quả gửi phiên cha ghi tài liệu `25`
 - Mã nguồn không truy được về yêu cầu nào: Không có

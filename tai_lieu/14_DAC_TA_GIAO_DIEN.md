@@ -2208,3 +2208,19 @@ Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_120` đến `MAN_HINH_125` (tệp `cham_
 Điều hướng: menu Nhân sự thêm Chấm công (121), Ca và lịch (120), Nghỉ phép (123), Tăng ca (124), Bảng công (125), Chấm công của tôi (122). Trưởng phòng không có quyền nhân sự mở 121, 120, 124 qua nút trên 122. Thành phần mới ở tài liệu `15` mục 6.
 
 - Trạng thái phê duyệt: người dùng duyệt bản mẫu ngày 2026-11-11; duyệt điểm xem trước từng lát L0 đến L3.
+## MODULE_08 Nhân sự phần 3 – Lương (CONG_VIEC_48)
+
+Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_126` đến `MAN_HINH_131` (tệp `luong.js`); MAN_HINH_118 thêm cột loại phụ cấp. Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_48.md` mục 8.
+
+| Mã | Tên màn hình | Đường dẫn | Chức năng (10) | Vai trò, quyền được truy cập |
+|---|---|---|---|---|
+| MAN_HINH_126 | Danh sách bảng lương | `/hr/payrolls` | CHUC_NANG_169 | `hr.payroll.view`; lập cần `hr.payroll.manage` |
+| MAN_HINH_127 | Chi tiết bảng lương | `/hr/payrolls/[id]` | CHUC_NANG_169, CHUC_NANG_170 | `hr.payroll.view`; thao tác cần `hr.payroll.manage` |
+| MAN_HINH_128 | Chi tiết dòng lương | Ngăn kéo trong `/hr/payrolls/[id]` | CHUC_NANG_169 | `hr.payroll.view`; khoản nhập tay cần `hr.payroll.manage` |
+| MAN_HINH_129 | Hồ sơ lương nhân viên | Thẻ "Lương, thuế" của `/hr/employees/[id]` | CHUC_NANG_168 | `hr.payroll.manage` |
+| MAN_HINH_130 | Phiếu lương của tôi | Thẻ "Phiếu lương" của `/hr/me` (`?tab=payslips`) | CHUC_NANG_170 | Người có hồ sơ liên kết |
+| MAN_HINH_131 | Thiết lập lương | `/hr/payroll-settings` | CHUC_NANG_168 | `hr.payroll.setup`; tham số pháp luật chỉ sửa khi gán ở phạm vi tập đoàn |
+
+Điều hướng: menu Nhân sự thêm "Bảng lương" (126 → 127 → 128) và "Thiết lập lương" (131); thông báo phiếu lương mở 130.
+
+- Trạng thái phê duyệt: người dùng duyệt bản mẫu ngày 2026-11-11.

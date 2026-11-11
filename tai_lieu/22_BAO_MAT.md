@@ -892,3 +892,23 @@ Chưa có.
 | Mục 2 | Tệp Excel tối đa 5 MB |
 | Mục 3 | Đổi mới token làm mới mỗi lần dùng; giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP cho API không cần đăng nhập |
 | Mục 5 | Gửi email qua Amazon SES; tự đổi mật khẩu cơ sở dữ liệu mỗi 90 ngày |
+
+### Ma trận phân quyền Nhân sự MODULE_08 phần 3 – Lương (CONG_VIEC_48)
+
+Thêm quyền `hr.payroll.view`, `hr.payroll.manage`, `hr.payroll.setup` (nhạy cảm, gán ở phạm vi tập đoàn hoặc công ty). Dữ liệu mới: mức lương đóng bảo hiểm, bảng lương, phiếu lương, cam kết 08/CK-TNCN (tài chính cá nhân).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty, Quản lý nhân sự | Nhân viên nhân sự | Kế toán trưởng | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|
+| CHUC_NANG_168 Tham số pháp luật | Được | Xem | Xem | Không | Không |
+| CHUC_NANG_168 Thiết lập công ty, loại phụ cấp | Được | Được | Xem | Không | Không |
+| CHUC_NANG_168 Hồ sơ lương nhân viên | Được | Được | Được | Không | Không |
+| CHUC_NANG_169 Lập, tính, gửi, hủy bảng lương | Được | Được | Được | Không | Không |
+| CHUC_NANG_169 Xem bảng lương, xuất Excel | Được | Được | Được | Được | Không |
+| CHUC_NANG_170 Ghi đã trả lương | Được | Được | Được | Không | Không |
+| CHUC_NANG_170 Phiếu lương | Được | Được | Được | Được | Có (API_161, phiếu người khác `404`) |
+
+Ranh giới và kiểm soát riêng:
+- Mọi truy vấn lọc `company_id` của công ty đang chọn; bảng lương công ty khác `404`.
+- Nhật ký thao tác không ghi số tiền lương, lương đóng bảo hiểm (chỉ tháng, loại khoản, nội dung).
+- Email phiếu lương chỉ gửi tới email cá nhân trong hồ sơ, sau khi giao dịch duyệt xong. Trình gửi `EMAIL_DRIVER=log` khi phát triển ghi nội dung email (có số tiền) ra log: chỉ dùng trên máy phát triển; môi trường thật dùng nhà cung cấp thật, không ghi nội dung.
+- Bút toán lương ghi qua module Kế toán, kiểm kỳ đã khóa; kỳ cuối tháng đã khóa sau khi gửi duyệt thì bút toán ghi ngày duyệt.

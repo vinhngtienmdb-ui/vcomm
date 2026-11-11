@@ -14,6 +14,9 @@ export const hrMenu = [
   { href: "/overtime", key: "overtime", permission: "hr.attendance.view" },
   { href: "/timesheets", key: "timesheets", permission: "hr.attendance.view" },
   { href: "/my-attendance", key: "myAttendance", permission: "platform.access" },
+  // CONG_VIEC_48: MAN_HINH_126, MAN_HINH_131.
+  { href: "/payrolls", key: "payrolls", permission: "hr.payroll.view" },
+  { href: "/payroll-settings", key: "payrollSettings", permission: "hr.payroll.setup" },
   { href: "/me", key: "me", permission: "platform.access" },
 ] as const;
 

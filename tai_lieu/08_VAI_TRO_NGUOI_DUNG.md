@@ -608,3 +608,16 @@ Quyền mới gán ở phạm vi tập đoàn hoặc công ty như mục 40; vai
 | Bảng công tháng | Mở xác nhận, trả lời, chốt, mở lại (`hr.timesheet.manage`); xuất Excel | Xem, xuất Excel | Xem phòng mình | Xác nhận hoặc giải trình dòng của mình |
 
 Loại chứng từ mới: `hr.leave_request` (Đơn nghỉ, giá trị duyệt là số ngày), `hr.overtime_request` (Phiếu tăng ca, số giờ), `hr.attendance_correction` (Đơn giải trình công, 1).
+## 41. Quyền lương của MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
+
+Quyền mới (nhạy cảm, gán ở phạm vi tập đoàn hoặc công ty): `hr.payroll.view` (xem bảng lương, phiếu lương), `hr.payroll.manage` (lập, tính, gửi, ghi đã trả bảng lương; hồ sơ lương), `hr.payroll.setup` (thiết lập lương, loại phụ cấp; tham số pháp luật khi gán ở phạm vi tập đoàn). Vai trò `hr_manager` thêm cả ba quyền; `hr_staff` thêm `hr.payroll.view`, `hr.payroll.manage`; `chief_accountant` thêm `hr.access`, `hr.payroll.view`. Quản trị tập đoàn, quản trị công ty có mọi quyền mới.
+
+| Thao tác | Quản trị tập đoàn | Quản trị công ty, Quản lý nhân sự | Nhân viên nhân sự | Kế toán trưởng | Nhân viên có hồ sơ liên kết |
+|---|---|---|---|---|---|
+| Sửa tham số pháp luật | Có | Không | Không | Không | Không |
+| Thiết lập công ty, vùng, nhóm chi phí, loại phụ cấp | Có | Có | Không | Không | Không |
+| Hồ sơ lương nhân viên | Có | Có | Có | Không | Không |
+| Lập, tính, khoản nhập tay, gửi, rút, hủy, ghi đã trả bảng lương | Có | Có | Có | Không | Không |
+| Xem bảng lương, xuất Excel | Có | Có | Có | Có | Không |
+| Duyệt bảng lương | Theo chính sách duyệt loại `hr.payroll` | | | | |
+| Xem phiếu lương | Có | Có | Có | Có | Chỉ phiếu của mình |

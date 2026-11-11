@@ -15,7 +15,7 @@ import { failureOf, useApi } from "ui/lib/use-api";
 
 const formatSize = (bytes: number) => `${(bytes / 1024 / 1024).toLocaleString("vi-VN", { maximumFractionDigits: 1 })} MB`;
 
-function Table({ headings, rows }: { headings: string[]; rows: { key: string; cells: React.ReactNode[] }[] }) {
+export function Table({ headings, rows }: { headings: string[]; rows: { key: string; cells: React.ReactNode[] }[] }) {
   return (
     <div className="khung-bang">
       <table>

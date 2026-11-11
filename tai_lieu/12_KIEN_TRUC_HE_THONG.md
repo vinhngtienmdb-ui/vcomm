@@ -355,3 +355,15 @@ tai_lieu/               Bộ tài liệu dự án.
 |---|---|
 | Mục 4 | Có môi trường thử nghiệm (staging) riêng; môi trường thật chạy tối thiểu 2 bản mỗi dịch vụ, Aurora nhiều vùng sẵn sàng |
 | Mục 5 | Giữ sao lưu 35 ngày; diễn tập phục hồi mỗi quý |
+
+## 3x. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Thiết lập lương | `PayrollSetupService` (`apps/api/src/hr/payroll-setup.service.ts`); bảng tham số dùng chung tập đoàn trong schema `hr` | CHUC_NANG_168 |
+| Tính lương | Hàm thuần `calculateLine` (`apps/api/src/hr/payroll-calculation.ts`), tiền bằng `bigint` | CHUC_NANG_169 |
+| Bảng lương | `PayrollsService` (`apps/api/src/hr/payrolls.service.ts`); luồng duyệt chung (loại `hr.payroll`, nghe `core.approval.completed`); dãy số `BL`; xuất Excel bằng `write-excel-file` | CHUC_NANG_169 |
+| Đọc bảng công | `PayrollTimesheetReader` (`apps/api/src/hr/payroll-timesheet.ts`), token `PAYROLL_TIMESHEET`; đọc bảng công tháng của CONG_VIEC_47 | CHUC_NANG_169 |
+| Bút toán lương | `payrollDraft`, `payrollPaymentDraft` (`apps/api/src/accounting/postings.ts`) ghi qua `LedgerService.record`; vai trò định khoản mới theo Thông tư 99/2025, Thông tư 133 | CHUC_NANG_170 |
+| Phiếu lương | Thông báo chuông (`notify`), email qua `OUTBOUND_MESSAGES` sau khi giao dịch duyệt xong | CHUC_NANG_170 |
+| Giao diện | Mini app `apps/web-hr`: `/payrolls`, `/payrolls/[id]`, `/payroll-settings`, thẻ "Lương, thuế" của `/employees/[id]`, thẻ "Phiếu lương" của `/me` | CHUC_NANG_168 đến CHUC_NANG_170 |

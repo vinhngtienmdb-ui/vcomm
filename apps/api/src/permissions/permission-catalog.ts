@@ -124,10 +124,14 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "hr.attendance.manage", appCode: "hr", nameVi: "Ca làm, lịch, xếp ca, ngày lễ, địa điểm chấm công, nhập và ghi công", nameEn: "Manage attendance", isSensitive: true },
   { code: "hr.leave.manage", appCode: "hr", nameVi: "Loại nghỉ, sổ phép, ghi nhận và hủy đơn nghỉ", nameEn: "Manage leave", isSensitive: true },
   { code: "hr.timesheet.manage", appCode: "hr", nameVi: "Mở xác nhận, chốt, mở lại bảng công tháng", nameEn: "Manage monthly timesheets", isSensitive: true },
+  // CONG_VIEC_48: lương (MODULE_08 phần 3).
+  { code: "hr.payroll.view", appCode: "hr", nameVi: "Xem bảng lương, phiếu lương", nameEn: "View payrolls and payslips", isSensitive: true },
+  { code: "hr.payroll.manage", appCode: "hr", nameVi: "Lập, tính, gửi, ghi đã trả bảng lương; hồ sơ lương nhân viên", nameEn: "Manage payrolls", isSensitive: true },
+  { code: "hr.payroll.setup", appCode: "hr", nameVi: "Thiết lập lương, loại phụ cấp; tham số pháp luật khi gán ở phạm vi tập đoàn", nameEn: "Set up payroll", isSensitive: true },
 ];
 
 const attendancePermissions = ["hr.attendance.view", "hr.attendance.manage", "hr.leave.manage", "hr.timesheet.manage"];
-export const hrPermissions = ["hr.employee.view", "hr.employee.manage", "hr.identity.view", "hr.contract.manage", ...attendancePermissions];
+export const hrPermissions = ["hr.employee.view", "hr.employee.manage", "hr.identity.view", "hr.contract.manage", ...attendancePermissions, "hr.payroll.view", "hr.payroll.manage", "hr.payroll.setup"];
 
 const inventoryPermissions = permissionCatalog.filter((permission) => permission.appCode === "inventory").map((permission) => permission.code);
 
@@ -325,12 +329,15 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "sales.access",
       "sales.order.view",
       "sales.order.manage",
+      // CONG_VIEC_48: kế toán trưởng xem bảng lương để duyệt, đối chiếu bút toán.
+      "hr.access",
+      "hr.payroll.view",
     ],
   },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },
   // CONG_VIEC_46 (tài liệu 08): gán ở phạm vi công ty.
   { code: "hr_manager", nameVi: "Quản lý nhân sự", nameEn: "HR manager", permissionCodes: ["hr.access", ...hrPermissions, "platform.proposal.create"] },
-  { code: "hr_staff", nameVi: "Nhân viên nhân sự", nameEn: "HR staff", permissionCodes: ["hr.access", "hr.employee.view", "hr.employee.manage", "hr.contract.manage", ...attendancePermissions] },
+  { code: "hr_staff", nameVi: "Nhân viên nhân sự", nameEn: "HR staff", permissionCodes: ["hr.access", "hr.employee.view", "hr.employee.manage", "hr.contract.manage", ...attendancePermissions, "hr.payroll.view", "hr.payroll.manage"] },
 ];
 
 // Loại chứng từ do mã khai báo. Chứng từ thử của Nền tảng dùng để thử luồng duyệt khi chưa có module khác (CONG_VIEC_02 lát L7).
@@ -363,6 +370,8 @@ export const documentTypeCatalog = [
   { code: "hr.leave_request", appCode: "hr", nameVi: "Đơn nghỉ", nameEn: "Leave request", requiresApproval: true },
   { code: "hr.overtime_request", appCode: "hr", nameVi: "Phiếu tăng ca", nameEn: "Overtime request", requiresApproval: true },
   { code: "hr.attendance_correction", appCode: "hr", nameVi: "Đơn giải trình công", nameEn: "Attendance correction", requiresApproval: true },
+  // CONG_VIEC_48 (QUYTAC_NGHIEPVU_322).
+  { code: "hr.payroll", appCode: "hr", nameVi: "Bảng lương", nameEn: "Payroll", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.

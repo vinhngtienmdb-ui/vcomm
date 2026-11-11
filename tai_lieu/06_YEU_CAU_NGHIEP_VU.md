@@ -333,3 +333,23 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_47.md`.
 | Đơn nghỉ | Số, loại, từ ngày, đến ngày, nửa ngày, số ngày, nguồn, tệp, trạng thái | Qua luồng duyệt `hr.leave_request` hoặc nhân sự ghi nhận (CONG_VIEC_47) |
 | Phiếu tăng ca | Số, ngày, khoảng giờ, số giờ, loại ngày, công việc, địa điểm, đồng ý, văn bản đồng ý, trạng thái | Qua luồng duyệt `hr.overtime_request` (CONG_VIEC_47) |
 | Kỳ và dòng bảng công tháng | Kỳ theo công ty, tháng: trạng thái, hạn xác nhận, chốt, khóa bảng lương; dòng theo hồ sơ: công, nghỉ, tăng ca 7 nhóm, muộn, sớm, phép, xác nhận | Kỳ đã chốt thì dòng đóng băng, là đầu vào CONG_VIEC_48 (CONG_VIEC_47) |
+
+## MODULE_08 Nhân sự (phần 3: Lương, bảo hiểm, thuế thu nhập cá nhân, CONG_VIEC_48)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_72 | Mức lương cơ sở, lương tối thiểu vùng, tỷ lệ bảo hiểm, kinh phí công đoàn, giảm trừ gia cảnh, biểu thuế cấu hình được theo ngày hiệu lực; thay đổi pháp luật không cần sửa phần mềm | Nhân sự, Kế toán trưởng | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_73 | Mỗi nhân viên có mức lương đóng bảo hiểm khai riêng theo thời gian, cách tính thuế (lũy tiến hoặc khấu trừ 10%, có cam kết), miễn đóng loại bảo hiểm theo luật; phụ cấp trên hợp đồng có loại để biết chịu thuế, tính theo ngày công | Nhân sự | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_74 | Tính bảng lương tháng của công ty từ hợp đồng hiện hành, bảng công tháng, khoản cộng thêm, khấu trừ nhập tay; ra lương thực lĩnh, bảo hiểm hai phía, kinh phí công đoàn, thuế | Nhân sự | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_75 | Bảng lương qua luồng duyệt chung trước khi trả | Ban giám đốc, Kế toán trưởng | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_76 | Kế toán nhận bút toán chi phí lương, các khoản phải nộp, phải trả, trả lương đúng chế độ kế toán của công ty | Kế toán | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_77 | Nhân viên xem phiếu lương của mình trong hệ thống và nhận qua email | Người lao động | Quyết định người dùng 2026-11-11 |
+
+| Đối tượng nghiệp vụ | Thông tin chính | Ràng buộc |
+|---|---|---|
+| Tham số pháp luật | Lương cơ sở, lương tối thiểu 4 vùng, tỷ lệ bảo hiểm hai phía, hệ số trần, giảm trừ gia cảnh, biểu thuế, ngày hiệu lực | Dùng chung tập đoàn; bộ đã dùng không sửa (CONG_VIEC_48) |
+| Loại phụ cấp | Tên, cách tính thuế, theo ngày công, tính vào đơn giá làm thêm | Theo công ty; dòng phụ cấp hợp đồng chọn loại (CONG_VIEC_48) |
+| Hồ sơ lương | Lương đóng bảo hiểm theo tháng, miễn đóng, cách tính thuế, cam kết 08/CK-TNCN | Thuộc hồ sơ nhân sự (CONG_VIEC_48) |
+| Bảng lương tháng | Tháng, số, trạng thái, dòng lương từng nhân viên, khoản nhập tay, bút toán | Một bảng chưa hủy mỗi công ty mỗi tháng; đã duyệt không sửa (CONG_VIEC_48) |
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_48.md`.

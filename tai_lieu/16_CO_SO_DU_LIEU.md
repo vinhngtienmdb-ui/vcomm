@@ -3155,3 +3155,14 @@ Quy tắc xóa và lưu giữ bổ sung:
 - Không xóa cứng lượt chấm, đơn, phiếu, kỳ; lượt thủ công xóa mềm. Giao dịch sổ phép do hệ thống sinh khi chốt (trừ tháng, thanh toán phép) được xóa khi mở lại kỳ và tính lại khi chốt lần sau (ghi nhật ký `timesheet.reopen`); giao dịch khác không xóa, đảo bằng giao dịch điều chỉnh.
 - Dòng bảng công (`hr.timesheet_lines`) tính lại khi kỳ chưa chốt; kỳ đã chốt thì đóng băng.
 - Số ngày, giờ: `numeric(6,2)`; phút: `integer`. Tọa độ GPS: `numeric(9,6)`, chỉ lưu tại lượt chấm.
+## 29. Database migration 0076 đến 0078 – CONG_VIEC_48 (schema `hr`, Nhân sự phần 3: lương)
+
+| Tệp | Nội dung |
+|---|---|
+| `0076_hr_payroll_setup.sql` | `hr.payroll_parameters` (tham số pháp luật dùng chung tập đoàn, duy nhất ngày hiệu lực là ngày đầu tháng; nạp bộ 2026-07-01, 2027-01-01), `hr.payroll_tax_brackets` (biểu thuế, bậc cuối không ngưỡng), `hr.payroll_company_settings`, `hr.payroll_branch_regions` (vùng 1 đến 4), `hr.payroll_department_groups` (`selling`, `admin`), `hr.allowance_types` (duy nhất tên không phân biệt hoa thường trong công ty; miễn đến mức cần số tiền), cột `allowance_type_id` của `hr.contract_allowances` (trống với dòng cũ), `hr.employee_insurance_salaries` (duy nhất hồ sơ và tháng hiệu lực), `hr.employee_payroll_profiles` (miễn đóng cần lý do), `hr.employee_tax_commitments` (duy nhất hồ sơ và năm) |
+| `0077_hr_payrolls.sql` | `hr.payrolls` (duy nhất công ty và tháng khi chưa hủy; số chứng từ duy nhất trong công ty; đã hủy có lý do), `hr.payroll_lines` (số liệu chụp lại khi tính, cảnh báo `text[]`, giải trình `jsonb`; duy nhất bảng lương và hồ sơ), `hr.payroll_adjustments` (cộng thêm hoặc khấu trừ, khấu trừ không chịu thuế) |
+| `0078_hr_payroll_postings.sql` | Nguồn bút toán `payroll`, `payroll_payment` trong `accounting.journals`; 8 vai trò định khoản lương cho công ty đã khởi tạo kế toán (Thông tư 99/2025: 334, 6411, 6421, 3383, 3384, 3386, 3382, 3388; Thông tư 133: 334, 6421, 6422, 3383, 3384, 3385, 3382, 3388); cột trả lương (`payment_date`, `fund_id`, `paid_by`) của `hr.payrolls`; cột gửi email phiếu lương của `hr.payroll_lines` |
+
+- Khóa ngoại trỏ `core`, `hr`, `finance.funds` (quỹ chi lương). Module Nhân sự chỉ ghi schema `hr`; bút toán ghi qua `LedgerService` của module Kế toán.
+- Không xóa cứng bảng lương (hủy có lý do); dòng lương tính lại được tạo lại khi bảng lương còn sửa được; đã duyệt thì không sửa.
+- Tiền `numeric(20,4)`, tỷ lệ `numeric(7,4)` dạng phần.
