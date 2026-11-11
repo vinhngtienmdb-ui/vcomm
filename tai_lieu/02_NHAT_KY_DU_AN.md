@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- Tag `v0.3.0` đã gắn trên `main` (`b623969`). Người dùng yêu cầu tiếp tục mở phiên song song: cấp CONG_VIEC_44 (ứng dụng kho), 45 (nhập khẩu, phân bổ chi phí), 46 (Nhân sự phần 1) kèm dải mã riêng; phiên con gộp đơn vị vận chuyển CONG_VIEC_28 đến 31 lên `main`.
 - Người dùng yêu cầu tự hợp nhất và tiếp tục tự động. Phát hành 0.3.0 (pull request #79, `main` commit `b623969`): CONG_VIEC_04 đến 21, 23 đến 27, 43, LOI_03, CONG_VIEC_10, 11; kiểm thử 334/334 đạt; tag `v0.3.0` gắn tự động khi CI trên `main` đạt. Người dùng nghiệm thu THAY_DOI_19, CONG_VIEC_10, 11, 25 qua yêu cầu hợp nhất.
 - Gộp 9 cổng thanh toán (CONG_VIEC_34 đến 42) vào nhánh CONG_VIEC_32; sửa phần gộp `payments.service.ts`; kiểm thử 371 kịch bản đạt. Cổng chưa phát hành vì phải thử với tài khoản thử nghiệm của nhà cung cấp.
 - Sửa ghi sổ: trạng thái THAY_DOI_19 trước đó ghi nhầm vào THAY_DOI_17.
