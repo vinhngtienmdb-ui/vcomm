@@ -65,6 +65,7 @@ import { ReturnRequestsService } from "./marketplace/return-requests.service";
 import { CarrierWebhookController } from "./marketplace/carrier-webhook.controller";
 import { PaymentsController } from "./marketplace/payments/payments.controller";
 import { MarketplacePaymentsService } from "./marketplace/payments/payments.service";
+import { BankTransferService } from "./marketplace/payments/bank-transfer.service";
 import { RefundsController } from "./marketplace/payments/refunds.controller";
 import { RefundsService } from "./marketplace/payments/refunds.service";
 import { WithdrawalsController } from "./marketplace/withdrawals.controller";
@@ -84,6 +85,27 @@ import { SalesOrdersService } from "./sales/sales-orders.service";
 import { InternalTradeService } from "./sales/internal-trade.service";
 import { PromotionsService } from "./sales/promotions.service";
 import { FinanceController } from "./finance/finance.controller";
+import { ContractRemindersService } from "./hr/contract-reminders.service";
+import { ContractsService } from "./hr/contracts.service";
+import { EmployeesService } from "./hr/employees.service";
+import { HrController } from "./hr/hr.controller";
+import { AttendanceController } from "./hr/attendance.controller";
+import { AttendanceDaysService } from "./hr/attendance-days.service";
+import { AttendanceSetupService } from "./hr/attendance-setup.service";
+import { AttendanceService } from "./hr/attendance.service";
+import { AttendanceLocationsService } from "./hr/attendance-locations.service";
+import { MyAttendanceController } from "./hr/my-attendance.controller";
+import { MyAttendanceService } from "./hr/my-attendance.service";
+import { PayrollController } from "./hr/payroll.controller";
+import { PayrollSetupService } from "./hr/payroll-setup.service";
+import { DatabaseTimesheetReader, PAYROLL_TIMESHEET } from "./hr/payroll-timesheet";
+import { PayrollsService } from "./hr/payrolls.service";
+import { LeaveController } from "./hr/leave.controller";
+import { LeaveService } from "./hr/leave.service";
+import { OvertimeTimesheetsController } from "./hr/overtime-timesheets.controller";
+import { OvertimeService } from "./hr/overtime.service";
+import { TimesheetsService } from "./hr/timesheets.service";
+import { WorkEventsService } from "./hr/work-events.service";
 import { DebtsService } from "./finance/debts.service";
 import { FundsService } from "./finance/funds.service";
 import { PaymentsService } from "./finance/payments.service";
@@ -98,6 +120,13 @@ import { CollectionStatementsController } from "./collection/collection-statemen
 import { CollectionStatementsService } from "./collection/collection-statements.service";
 import { ConsolidationController } from "./consolidation/consolidation.controller";
 import { ConsolidationService } from "./consolidation/consolidation.service";
+import { AnalyticsController } from "./analytics/analytics.controller";
+import { AnalyticsScopeService } from "./analytics/analytics-scope.service";
+import { SalesReportService } from "./analytics/sales-report.service";
+import { InventoryReportService } from "./analytics/inventory-report.service";
+import { DebtReportService } from "./analytics/debt-report.service";
+import { CommissionReportService } from "./analytics/commission-report.service";
+import { OverviewService } from "./analytics/overview.service";
 import { EinvoiceCorrectionsService } from "./einvoice/einvoice-corrections.service";
 import { EinvoiceSettingsService } from "./einvoice/einvoice-settings.service";
 import { EinvoicesController } from "./einvoice/einvoices.controller";
@@ -134,7 +163,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, LoyaltyController, BuyerLoyaltyController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, LoyaltyController, BuyerLoyaltyController],
   providers: [
     AuthService,
     ActivationService,
@@ -150,6 +179,21 @@ import { UsersService } from "./users/users.service";
     ZnsNotifier,
     { provide: FILE_STORAGE, useFactory: createFileStorage },
     ProposalTemplatesService,
+    EmployeesService,
+    WorkEventsService,
+    AttendanceDaysService,
+    AttendanceSetupService,
+    AttendanceService,
+    AttendanceLocationsService,
+    MyAttendanceService,
+    LeaveService,
+    OvertimeService,
+    TimesheetsService,
+    ContractsService,
+    PayrollSetupService,
+    PayrollsService,
+    { provide: PAYROLL_TIMESHEET, useClass: DatabaseTimesheetReader },
+    ContractRemindersService,
     CategoriesService,
     UnitsService,
     ProductsService,
@@ -174,6 +218,7 @@ import { UsersService } from "./users/users.service";
     MarketplaceOrdersService,
     ShipmentsService,
     MarketplacePaymentsService,
+    BankTransferService,
     RefundsService,
     WithdrawalsService,
     MarketplaceCommissionsService,
@@ -202,6 +247,12 @@ import { UsersService } from "./users/users.service";
     BankReconciliationService,
     CollectionStatementsService,
     ConsolidationService,
+    AnalyticsScopeService,
+    SalesReportService,
+    InventoryReportService,
+    DebtReportService,
+    CommissionReportService,
+    OverviewService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

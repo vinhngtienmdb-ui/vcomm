@@ -14,6 +14,7 @@ export const inventoryPermissions = {
   receivePurchases: "inventory.purchase.receive",
   issueSales: "inventory.sales.issue",
   manageStocktakes: "inventory.stocktake.manage",
+  countStocktakes: "inventory.stocktake.count",
   manageReservations: "inventory.reservation.manage",
 } as const;
 

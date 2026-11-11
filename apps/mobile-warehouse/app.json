@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "VComm Kho",
+    "slug": "vcomm-kho",
+    "scheme": "vcommkho",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "vn.vcomm.kho",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "vn.vcomm.kho"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-status-bar",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "VComm Kho cần dùng máy ảnh để quét mã vạch hàng hóa, vị trí kệ.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ]
+    ]
+  }
+}

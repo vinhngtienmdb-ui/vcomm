@@ -65,6 +65,8 @@ Mini app Nền tảng (`apps/web-platform`) là cửa vào chung: chuyển tiế
 | Mua hàng (CONG_VIEC_07) | `apps/web-purchasing` | `/purchasing` | 3004 | `PURCHASING_ORIGIN` (`http://localhost:3004`) |
 | Bán hàng (CONG_VIEC_08) | `apps/web-sales` | `/sales` | 3005 | `SALES_ORIGIN` (`http://localhost:3005`) |
 | Tài chính – Kế toán (CONG_VIEC_13) | `apps/web-finance` | `/finance` | 3006 | `FINANCE_ORIGIN` (`http://localhost:3006`) |
+| Nhân sự (CONG_VIEC_46) | `apps/web-hr` | `/hr` | 3007 | `HR_ORIGIN` (`http://localhost:3007`) |
+| Báo cáo quản trị (CONG_VIEC_50) | `apps/web-analytics` | `/analytics` | 3009 | `ANALYTICS_ORIGIN` (`http://localhost:3009`) |
 
 Chạy riêng mini app Kho: `pnpm --filter web-inventory dev` (cổng 3002), vào qua `http://localhost:3000/inventory` khi mini app Nền tảng và backend đang chạy.
 
@@ -75,6 +77,8 @@ Chạy riêng mini app Mua hàng: `pnpm --filter web-purchasing dev` (cổng 300
 Chạy riêng mini app Bán hàng: `pnpm --filter web-sales dev` (cổng 3005), vào qua `http://localhost:3000/sales` khi mini app Nền tảng và backend đang chạy. Phiếu xuất giao hàng, phiếu nhận hàng trả lại làm ở mini app Kho.
 
 Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance dev` (cổng 3006), vào qua `http://localhost:3000/finance` khi mini app Nền tảng và backend đang chạy. Công nợ tự phát sinh khi ghi sổ phiếu kho ở mini app Kho.
+
+Chạy riêng mini app Báo cáo quản trị: `pnpm --filter web-analytics dev` (cổng 3009), vào qua `http://localhost:3000/analytics` khi mini app Nền tảng và backend đang chạy. Báo cáo chỉ đọc dữ liệu của các module khác.
 
 ## 3b. Thành phần phụ trợ cho MODULE_03 Kho (CONG_VIEC_05)
 
@@ -301,6 +305,31 @@ Schema `loyalty`; mã nguồn `apps/api/src/loyalty/`. Giao diện quản trị 
 - Mọi môi trường AWS dựng bằng AWS CDK; khóa bí mật mỗi môi trường khác nhau.
 - Database migration chạy một lần trước khi bật phiên bản mới, cùng thứ tự ở mọi môi trường.
 
+## 3w. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 1, CONG_VIEC_46)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Hồ sơ, giấy tờ, người phụ thuộc | `EmployeesService` (`apps/api/src/hr/employees.service.ts`); ghi schema `hr`; mã hóa cột bằng `apps/api/src/common/secret-box.ts` (thêm `blindIndex` HMAC-SHA256 để kiểm trùng); tệp qua `FILE_STORAGE` khóa `hr/<công ty>/employees/<hồ sơ>/<mã ngẫu nhiên>` | CHUC_NANG_162 |
+| Quá trình công tác | `WorkEventsService` (`apps/api/src/hr/work-events.service.ts`); cập nhật `core.user_company_memberships` qua `updateMembershipPlacement` (`apps/api/src/users/membership-placement.ts`) trong giao dịch của Nhân sự; việc nền `hr-work-events` lúc 0 giờ 5 phút | CHUC_NANG_162 |
+| Hợp đồng, phụ lục, nghỉ việc | `ContractsService` (`apps/api/src/hr/contracts.service.ts`); luồng duyệt chung (`submitWithin`, `withdraw`, `cancelWithin`; nghe `core.approval.completed`, loại `hr.contract`, `hr.contract_appendix`); dãy số `hr.contract`; thông báo quản trị khi nghỉ việc | CHUC_NANG_163 |
+| Nhắc hết hạn | `ContractRemindersService` (`apps/api/src/hr/contract-reminders.service.ts`); việc nền `hr-contract-reminders` lúc 7 giờ; bảng `hr.contract_reminders` giữ mốc đã gửi | CHUC_NANG_164 |
+| Giao diện | Mini app `apps/web-hr`: trang `/employees`, `/employees/new`, `/employees/[id]`, `/employees/[id]/edit`, `/contracts`, `/contracts/new`, `/contracts/[id]`, `/me` | CHUC_NANG_162 đến CHUC_NANG_164 |
+
+## 3x. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 2, CONG_VIEC_47)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Thiết lập chấm công | `AttendanceSetupService` (`apps/api/src/hr/attendance-setup.service.ts`): cài đặt, ca, lịch tuần, gán lịch, xếp ca, ngày lễ | CHUC_NANG_165 |
+| Lượt chấm, công ngày | `AttendanceService`, `AttendanceDaysService`, hàm thuần `attendance-calculator.ts` (tính công, giờ đêm, tăng ca); đọc CSV tự viết, Excel bằng `read-excel-file`; việc nền `hr-attendance-recalculate` lúc 1 giờ | CHUC_NANG_165 |
+| Chấm công ứng dụng | `AttendanceLocationsService` (mã QR ký HMAC-SHA256 bằng khóa dẫn xuất từ `MFA_SECRET_KEY`, khung 30 giây, nhận khung liền trước; khoảng cách theo công thức haversine; so dải CIDR), `MyAttendanceService`; trình duyệt dùng API định vị, `qrcode-generator` vẽ mã | CHUC_NANG_165 |
+| Quyền theo phạm vi | `attendance-access.ts`: quyền bao trùm công ty hoặc trưởng phòng (phòng ban đệ quy theo `core.departments.manager_user_id`) | CHUC_NANG_165 đến CHUC_NANG_167 |
+| Nghỉ phép | `LeaveService` (luồng duyệt `hr.leave_request`, sổ phép); việc nền `hr-leave-accrual` lúc 0 giờ 15 phút (cộng phép tháng, hết hạn phép tồn) | CHUC_NANG_166 |
+| Tăng ca | `OvertimeService` (luồng duyệt `hr.overtime_request`, kiểm giới hạn, thông báo đồng ý, nhắc vượt 200 giờ) | CHUC_NANG_167 |
+| Bảng công tháng | `TimesheetsService` (tổng hợp dòng, xác nhận, chốt, mở lại, xuất Excel `write-excel-file`; phát `hr.timesheet.closed`, `hr.timesheet.reopened`); việc nền `hr-timesheet-confirmation` lúc 0 giờ 30 phút | CHUC_NANG_167 |
+| Giao diện | `apps/web-hr`: `/attendance`, `/work-schedules`, `/work-schedules/qr/[id]`, `/my-attendance`, `/leave`, `/overtime`, `/timesheets` | CHUC_NANG_165 đến CHUC_NANG_167 |
+
+CONG_VIEC_48 (lương) đọc `hr.timesheet_lines` của kỳ đã chốt, ghi `hr.timesheet_periods.payroll_locked_at` khi chốt lương; nghe `hr.timesheet.closed`, `hr.timesheet.reopened`.
+
 ## 5. Sao lưu, phục hồi, ghi log, giám sát
 
 - Sao lưu: Aurora tự sao lưu hằng ngày, giữ 35 ngày, phục hồi về một thời điểm bất kỳ trong khoảng đó; sao lưu được mã hóa.
@@ -343,3 +372,15 @@ tai_lieu/               Bộ tài liệu dự án.
 |---|---|
 | Mục 4 | Có môi trường thử nghiệm (staging) riêng; môi trường thật chạy tối thiểu 2 bản mỗi dịch vụ, Aurora nhiều vùng sẵn sàng |
 | Mục 5 | Giữ sao lưu 35 ngày; diễn tập phục hồi mỗi quý |
+
+## 3x. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Thiết lập lương | `PayrollSetupService` (`apps/api/src/hr/payroll-setup.service.ts`); bảng tham số dùng chung tập đoàn trong schema `hr` | CHUC_NANG_168 |
+| Tính lương | Hàm thuần `calculateLine` (`apps/api/src/hr/payroll-calculation.ts`), tiền bằng `bigint` | CHUC_NANG_169 |
+| Bảng lương | `PayrollsService` (`apps/api/src/hr/payrolls.service.ts`); luồng duyệt chung (loại `hr.payroll`, nghe `core.approval.completed`); dãy số `BL`; xuất Excel bằng `write-excel-file` | CHUC_NANG_169 |
+| Đọc bảng công | `PayrollTimesheetReader` (`apps/api/src/hr/payroll-timesheet.ts`), token `PAYROLL_TIMESHEET`; đọc bảng công tháng của CONG_VIEC_47 | CHUC_NANG_169 |
+| Bút toán lương | `payrollDraft`, `payrollPaymentDraft` (`apps/api/src/accounting/postings.ts`) ghi qua `LedgerService.record`; vai trò định khoản mới theo Thông tư 99/2025, Thông tư 133 | CHUC_NANG_170 |
+| Phiếu lương | Thông báo chuông (`notify`), email qua `OUTBOUND_MESSAGES` sau khi giao dịch duyệt xong | CHUC_NANG_170 |
+| Giao diện | Mini app `apps/web-hr`: `/payrolls`, `/payrolls/[id]`, `/payroll-settings`, thẻ "Lương, thuế" của `/employees/[id]`, thẻ "Phiếu lương" của `/me` | CHUC_NANG_168 đến CHUC_NANG_170 |

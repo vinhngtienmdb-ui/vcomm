@@ -1,13 +1,13 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 2.14
+- Phiên bản: 2.15
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 5 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 6 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 7 (đối soát thu hộ); CONG_VIEC_20 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 8 (báo cáo tài chính hợp nhất; sửa sau rà soát: công ty, đối tác của điều chỉnh tay, danh sách đối tác các thành viên); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: MODULE_07 Khách hàng và Đối tác phần 2 (gán khách hàng cho nhân viên kinh doanh: phân quyền theo nhân viên phụ trách, quyền mới, khóa đồng thời); CONG_VIEC_23 (2026-11-10): điểm tiếp nhận, ma trận phân quyền, kết quả rà soát bảo mật tài khoản người mua; CONG_VIEC_27 (2026-11-10): ma trận phân quyền đội kinh doanh, kết quả rà soát bảo mật; CONG_VIEC_24 (2026-11-11): dữ liệu địa chỉ người nhận, ảnh trả hàng, thông tin kết nối GHN; điểm tiếp nhận API_123 đến API_129, webhook vận chuyển; ma trận phân quyền đặt hàng trên VComm; CONG_VIEC_25 (2026-11-11): dữ liệu tài khoản nhận hoàn tiền của người mua, thông tin kết nối VNPAY; điểm tiếp nhận API_130 đến API_133, IPN và trang trả về VNPAY; ma trận phân quyền thanh toán, hoàn tiền; CONG_VIEC_26 (2026-11-11): dữ liệu ví hoa hồng, giao dịch ví, yêu cầu rút tiền (tài khoản nhận, thuế, phí); điểm tiếp nhận API_134 đến API_136; ma trận phân quyền hoa hồng, ví, rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: bỏ dữ liệu, điểm tiếp nhận, ma trận hoa hồng đội kinh doanh cũ (CONG_VIEC_17); tắt giao khách, phạm vi xem theo nhân viên phụ trách (CONG_VIEC_21); quyền đơn bán mới (Nhân viên bán hàng bỏ `sales.order.manage`; Kế toán, Kế toán trưởng thêm `sales.access`, `sales.order.view`, `sales.order.manage`); điểm tiếp nhận `GET /crm/visit-options`, trường `kind`, `allowManualGoodsOrders`; ma trận sửa theo mô hình B2C
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 5 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 6 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 7 (đối soát thu hộ); CONG_VIEC_20 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 8 (báo cáo tài chính hợp nhất; sửa sau rà soát: công ty, đối tác của điều chỉnh tay, danh sách đối tác các thành viên); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: MODULE_07 Khách hàng và Đối tác phần 2 (gán khách hàng cho nhân viên kinh doanh: phân quyền theo nhân viên phụ trách, quyền mới, khóa đồng thời); CONG_VIEC_23 (2026-11-10): điểm tiếp nhận, ma trận phân quyền, kết quả rà soát bảo mật tài khoản người mua; CONG_VIEC_27 (2026-11-10): ma trận phân quyền đội kinh doanh, kết quả rà soát bảo mật; CONG_VIEC_24 (2026-11-11): dữ liệu địa chỉ người nhận, ảnh trả hàng, thông tin kết nối GHN; điểm tiếp nhận API_123 đến API_129, webhook vận chuyển; ma trận phân quyền đặt hàng trên VComm; CONG_VIEC_25 (2026-11-11): dữ liệu tài khoản nhận hoàn tiền của người mua, thông tin kết nối VNPAY; điểm tiếp nhận API_130 đến API_133, IPN và trang trả về VNPAY; ma trận phân quyền thanh toán, hoàn tiền; CONG_VIEC_26 (2026-11-11): dữ liệu ví hoa hồng, giao dịch ví, yêu cầu rút tiền (tài khoản nhận, thuế, phí); điểm tiếp nhận API_134 đến API_136; ma trận phân quyền hoa hồng, ví, rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: bỏ dữ liệu, điểm tiếp nhận, ma trận hoa hồng đội kinh doanh cũ (CONG_VIEC_17); tắt giao khách, phạm vi xem theo nhân viên phụ trách (CONG_VIEC_21); quyền đơn bán mới (Nhân viên bán hàng bỏ `sales.order.manage`; Kế toán, Kế toán trưởng thêm `sales.access`, `sales.order.view`, `sales.order.manage`); điểm tiếp nhận `GET /crm/visit-options`, trường `kind`, `allowManualGoodsOrders`; ma trận sửa theo mô hình B2C; CONG_VIEC_50 (2026-11-11): MODULE_15 Báo cáo quản trị phần 1: dữ liệu báo cáo quản trị, điểm tiếp nhận API_170 đến API_175, ma trận phân quyền báo cáo quản trị
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
-Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16); MODULE_06 phần 5 Hoa hồng đội kinh doanh (CONG_VIEC_17); MODULE_06 phần 6 Đối soát ngân hàng (CONG_VIEC_18); MODULE_06 phần 7 Đối soát thu hộ (CONG_VIEC_19); MODULE_06 phần 8 Báo cáo tài chính hợp nhất (CONG_VIEC_20); MODULE_07 phần 2 Gán khách hàng cho nhân viên kinh doanh (CONG_VIEC_21). Các module sau bổ sung vào cùng tài liệu.
+Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16); MODULE_06 phần 5 Hoa hồng đội kinh doanh (CONG_VIEC_17); MODULE_06 phần 6 Đối soát ngân hàng (CONG_VIEC_18); MODULE_06 phần 7 Đối soát thu hộ (CONG_VIEC_19); MODULE_06 phần 8 Báo cáo tài chính hợp nhất (CONG_VIEC_20); MODULE_07 phần 2 Gán khách hàng cho nhân viên kinh doanh (CONG_VIEC_21); MODULE_15 phần 1 Báo cáo quản trị (CONG_VIEC_50). Các module sau bổ sung vào cùng tài liệu.
 
 ## 1. Dữ liệu nhạy cảm
 
@@ -31,6 +31,11 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Sản phẩm, ảnh sản phẩm (CONG_VIEC_04) | Kinh doanh | Cơ sở dữ liệu schema `catalog`; ảnh lưu S3 hoặc thư mục cục bộ theo khóa `products/<công ty>/<sản phẩm>/<mã ngẫu nhiên>` | Người có quyền `catalog.product.view` của công ty |
 | Giá vốn, giá trị tồn kho, giá trị phiếu kho, biên bản chênh lệch, tiền bồi thường (CONG_VIEC_05) | Tài chính | Cơ sở dữ liệu schema `inventory`; API trả trống khi người xem không có quyền | Người có quyền nhạy cảm `inventory.cost.view` tại kho (mọi chủ hàng) hoặc ở công ty chủ hàng (hàng của công ty đó) |
 | Tồn kho, phiếu kho, thẻ kho (CONG_VIEC_05) | Kinh doanh | Cơ sở dữ liệu schema `inventory`; thẻ kho chỉ thêm | Người có quyền kho tại kho; nhân viên công ty chủ hàng có `inventory.stock.view` chỉ thấy hàng của công ty mình |
+| Hồ sơ nhân sự: số căn cước, hộ chiếu, tài khoản ngân hàng, mã số thuế, số sổ bảo hiểm xã hội, giấy phép lao động, số định danh người phụ thuộc (CONG_VIEC_46) | Cá nhân (cơ bản theo Nghị định 356/2025/NĐ-CP Điều 3) | Mã hóa AES-256-GCM ở máy chủ (`secret-box`), 4 ký tự cuối để che, HMAC kiểm trùng số giấy tờ | `hr.identity.view` hiện từng trường (ghi nhật ký); chính người lao động |
+| Ảnh căn cước, giấy khám sức khỏe, văn bằng, văn bản đồng ý (CONG_VIEC_46) | Cá nhân nhạy cảm (Nghị định 356/2025/NĐ-CP Điều 4 khoản 1 điểm d, i) | Tệp trên S3 (SSE) hoặc thư mục cục bộ khi phát triển, khóa do hệ thống sinh | Tải: `hr.identity.view` (ghi nhật ký); danh sách tệp: `hr.employee.view` |
+| Mức lương, phụ cấp, hợp đồng lao động (CONG_VIEC_46) | Tài chính cá nhân | Cơ sở dữ liệu schema `hr` | `hr.contract.manage` của công ty; chính người lao động (hợp đồng đã ký) |
+| Vị trí GPS, địa chỉ IP tại lượt chấm công; giờ vào, ra, nghỉ, lý do nghỉ (CONG_VIEC_47) | Cá nhân (Nghị định 356/2025/NĐ-CP Điều 3; vị trí là dữ liệu nhạy cảm theo Điều 4 khi theo dõi người) | Cơ sở dữ liệu schema `hr`; tọa độ chỉ lưu tại lượt chấm, không theo dõi liên tục | API không trả tọa độ, IP cho bất kỳ ai; người xem lượt chấm chỉ thấy cách xác thực, địa điểm, khoảng cách tới địa điểm |
+| Tệp chứng từ nghỉ ốm, thai sản, văn bản đồng ý làm thêm giờ, tệp đơn giải trình (CONG_VIEC_47) | Cá nhân nhạy cảm (sức khỏe) | Tệp qua `FILE_STORAGE`, khóa do hệ thống sinh | Người có `hr.leave.manage` hoặc `hr.attendance.manage`; người lập; tải ghi nhật ký |
 | Số Căn cước công dân của đối tác cá nhân (CONG_VIEC_06) | Cá nhân | Cột `crm.partners.citizen_id`, lưu nguyên văn trong cơ sở dữ liệu mã hóa khi lưu (Aurora); chưa mã hóa cột (làm sau cùng giải pháp khóa ở mục 5). Danh sách, chi tiết, kết quả thêm, sửa chỉ trả dạng che `*********` + 3 số cuối; nhật ký thêm, sửa chỉ ghi 3 số cuối | Người có quyền nhạy cảm `crm.partner.identity.view` ở công ty đang làm việc xem số đầy đủ qua `GET /crm/partners/{id}/identity`, mỗi lần xem ghi nhật ký `partner.view_identity` (QUYTAC_NGHIEPVU_59) |
 | Đối tác: tên, mã số thuế, địa chỉ, điện thoại, email, người liên hệ, tài khoản ngân hàng (CONG_VIEC_06) | Tổ chức, cá nhân | Cơ sở dữ liệu schema `crm`; dùng chung tập đoàn | Người có `crm.partner.view` ở bất kỳ công ty nào; sửa: `crm.partner.manage` |
 | Hồ sơ đối tác của công ty: hạn mức công nợ, số ngày được nợ, nhân viên phụ trách (CONG_VIEC_06) | Tài chính, kinh doanh | Bảng `crm.partner_profiles` theo công ty | Xem: người có `crm.partner.view` của chính công ty đó; lập, sửa: quyền nhạy cảm `crm.profile.manage`. Công ty khác không đọc được |
@@ -58,6 +63,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Tài khoản nhận hoàn tiền của người mua: ngân hàng, số tài khoản, tên chủ tài khoản; lần thanh toán, kết quả cổng gửi về (CONG_VIEC_25) | Cá nhân, tài chính | Schema `marketplace` (`buyer_bank_accounts`, `payments`, `payment_notifications`, `refunds`); người mua chỉ đọc, sửa tài khoản của mình; tài khoản ngân hàng của người mua chỉ hiện cho người có `marketplace.payment.manage` tại công ty vận hành sàn (MAN_HINH_98), không có trong chi tiết đơn của quản trị; không lưu thông tin thẻ (người mua nhập thẻ trên trang VNPAY) | Theo chính sách lưu đơn bán |
 | Thông tin kết nối VNPAY: mã website, khóa bí mật (CONG_VIEC_25) | Khóa bí mật | Biến môi trường `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, `VNPAY_RETURN_URL`, `VNPAY_PAYMENT_URL`; không lưu trong cơ sở dữ liệu, không trả qua API (chỉ trả đã có kết nối hay chưa) | Đổi khi lộ |
 | Hoa hồng của đơn, ví hoa hồng, giao dịch ví, yêu cầu rút tiền (tài khoản nhận chụp lại, thuế, phí, mã giao dịch ngân hàng) (CONG_VIEC_26) | Cá nhân, tài chính | Schema `marketplace` (`order_commissions`, `wallets`, `wallet_transactions`, `withdrawals`); người dùng chỉ đọc ví, yêu cầu của mình (theo người đăng nhập, không nhận mã người dùng từ bên ngoài); yêu cầu rút tiền kèm tài khoản nhận chỉ hiện cho người có `marketplace.payment.manage` tại công ty vận hành sàn (MAN_HINH_102); hoa hồng của đơn (tên, số điện thoại người hưởng) cần `marketplace.order.view`; người quản lý chỉ thấy tổng hoa hồng của cấp dưới trong nhánh, không thấy lịch sử ví | Không xóa; theo chính sách lưu chứng từ kế toán |
+| Báo cáo quản trị: doanh số, giá vốn, lãi gộp, tồn kho, công nợ theo tuổi nợ, hoa hồng, ví của nhiều công ty trong tập đoàn; tệp Excel xuất ra (CONG_VIEC_50) | Tài chính, kinh doanh | Không lưu; tính khi xem từ schema `inventory`, `sales`, `finance`, `marketplace`; tệp trả thẳng, không lưu trên máy chủ; mỗi lần xuất ghi nhật ký thao tác | Người có `analytics.access` và quyền của nhóm báo cáo: phạm vi tập đoàn xem mọi công ty của tập đoàn, phạm vi công ty xem công ty đó; công nợ (`analytics.debt.view`), hoa hồng và ví (`analytics.commission.view`) là quyền nhạy cảm; người hưởng hoa hồng chỉ hiện họ tên, không hiện số điện thoại, tài khoản ngân hàng |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
 
@@ -103,6 +109,7 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Kết quả VNPAY gửi về: IPN, trang trả về (API_132, CONG_VIEC_25) | Tích hợp (cổng thanh toán gọi vào), API công khai | Kiểm chữ ký HMAC SHA512 các tham số `vnp_` sắp xếp theo tên, so sánh thời gian cố định (`timingSafeEqual`), đúng mã website; số tiền phải bằng số tiền của lần thanh toán; mỗi lần thanh toán ghi nhận một lần trong giao dịch có khóa dòng; sai chữ ký trả `97` và đếm theo địa chỉ IP (`vnpay-ipn-invalid`, quá giới hạn `429`, không ghi lại); chỉ lưu tham số `vnp_` dạng chuỗi (tối đa 30 tham số, mỗi giá trị 255 ký tự); lỗi khi ghi nhận trả `99` để cổng gửi lại; trang trả về chỉ hiển thị, không ghi nhận tiền, giới hạn theo địa chỉ IP (`vnpay-return`), nội dung thoát ký tự HTML, `Cache-Control: no-store` | Không (chữ ký bằng khóa bí mật) |
 | Phản hồi GHN chi tiết đơn: ngày thu tiền người mua (CONG_VIEC_25) | Tích hợp (hệ thống gọi ra) | Chỉ đọc `cod_collect_date`; ngày không đọc được hoặc trước năm 2000 coi như chưa thu; ghi đã thu một lần bằng tiền thu hộ của đơn (không lấy số tiền từ GHN) | Token, mã cửa hàng trong tiêu đề |
 | API hoa hồng, ví, rút tiền (API_134 đến API_136, CONG_VIEC_26) | API | Lược đồ zod trong `packages/contracts` (`productCommissionSchema`, `commissionSettingsSchema`, `withdrawalFeeRulesSchema`, `buyerWalletQuerySchema`, `createWithdrawalSchema` số đồng nguyên, `withdrawalVersionSchema`, `rejectWithdrawalSchema`, `payWithdrawalSchema`, `withdrawalListQuerySchema`, `withdrawalTaxReportQuerySchema`), mã UUID qua `UuidPipe`; số dư, thuế, phí, thực nhận luôn tính ở máy chủ | Phiên web (quản trị), token ứng dụng (người dùng) |
+| API báo cáo quản trị (API_170 đến API_175, CONG_VIEC_50) | API | Lược đồ zod `strict` trong `packages/contracts` (`analyticsSalesQuerySchema`, `analyticsInventoryQuerySchema`, `analyticsDebtQuerySchema`, `analyticsCommissionQuerySchema`, `analyticsOverviewQuerySchema`): `companyIds` là danh sách UUID (tối đa 100), `channelId`, `warehouseId` là UUID, `groupBy`, `side`, `format` trong danh sách cho phép, ngày `YYYY-MM-DD`; tham số thừa bị từ chối; truy vấn Drizzle `sql` có tham số, không ghép chuỗi | Có (phiên web) |
 
 ## 3. Xác thực và phiên đăng nhập
 
@@ -800,6 +807,87 @@ Ranh giới và kiểm soát riêng:
 - Phiếu dịch vụ không lập tay qua API; chỉ lập trong giao dịch xác nhận đơn, kiểm kỳ khóa sổ.
 - Cài đặt "Cho phép lập đơn bán tay có hàng hóa" là công tắc nghiệp vụ, cần `sales.settings.manage`, ghi nhật ký `sales_settings.update`.
 
+### Ma trận phân quyền Nhân sự MODULE_08 phần 1 (CONG_VIEC_46)
+
+Thêm quyền `hr.employee.view`, `hr.employee.manage`, `hr.identity.view`, `hr.contract.manage` (nhạy cảm, chỉ dùng được khi gán ở phạm vi tập đoàn hoặc công ty), vai trò Quản lý nhân sự, Nhân viên nhân sự (tài liệu `08` mục 40).
+
+| Chức năng | Quản trị tập đoàn, công ty | Quản lý nhân sự | Nhân viên nhân sự | Người chỉ có `hr.employee.view` | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|
+| CHUC_NANG_162 Xem hồ sơ đang làm (số che) | Được | Được | Được | Được | Có (hồ sơ liên kết, API_149) |
+| CHUC_NANG_162 Xem hồ sơ đã nghỉ | Được | Được | Được | Không (`404`) | Không |
+| CHUC_NANG_162 Hiện số giấy tờ, tải tệp giấy tờ | Được | Được | Không | Không | Có (số của mình) |
+| CHUC_NANG_162 Lập, sửa hồ sơ, giấy tờ, người phụ thuộc, quá trình công tác, nghỉ việc | Được | Được | Được | Không | Không |
+| CHUC_NANG_163 Hợp đồng, phụ lục; xem lương | Được | Được | Được | Xem không có lương | Có (hợp đồng đã ký của mình) |
+| CHUC_NANG_163 Tải bản hợp đồng đã ký | Được | Được | Không | Không | Có |
+| CHUC_NANG_164 Nhận nhắc hết hạn | Được | Được | Được | Không | Trưởng phòng trên hợp đồng nhận thông báo |
+
+Ranh giới và kiểm soát riêng:
+- Tách dữ liệu công ty: mọi truy vấn lọc `company_id` của công ty đang chọn; hồ sơ thuộc công ty ký hợp đồng; công ty khác nhận `404`.
+- Quyền nhân sự kiểm bằng `requireHrPermission` (bao trùm công ty): gán ở chi nhánh không mở được dữ liệu nhân sự.
+- Dữ liệu cá nhân (Luật 91/2025/QH15; Nghị định 356/2025/NĐ-CP Điều 3, 4): số căn cước, hộ chiếu, tài khoản ngân hàng, mã số thuế, số sổ bảo hiểm xã hội, giấy phép lao động, số định danh người phụ thuộc mã hóa AES-256-GCM; nhật ký thao tác chỉ ghi dạng che; hiện, tải ghi nhật ký `employee.reveal`, `employee.reveal_own`, `employee.document.download`, `contract.download`, `contract.download_own`.
+- Tệp giấy tờ, bản đã ký: khóa lưu trữ do hệ thống sinh, kiểm phần mở rộng và chữ ký đầu tệp, tối đa 10 MB, tải xuống `no-store`, `nosniff`; S3 mã hóa khi lưu (SSE).
+- Không lưu chi tiết tình trạng sức khỏe; chỉ lưu tệp giấy khám sức khỏe (nhạy cảm). Ghi nhận văn bản đồng ý xử lý dữ liệu nhạy cảm; thiếu thì cảnh báo.
+- Mức lương chỉ trả cho người có `hr.contract.manage` hoặc chính người lao động.
+- Khóa đồng thời: lập, sửa hồ sơ khóa theo công ty (`pg_advisory_xact_lock`) để không trùng số giấy tờ, mã; gửi, ký hợp đồng khóa hồ sơ để kiểm chồng thời gian, giới hạn ký.
+
+### Ma trận phân quyền Nhân sự MODULE_08 phần 2 (CONG_VIEC_47)
+
+Thêm quyền `hr.attendance.view`, `hr.attendance.manage`, `hr.leave.manage`, `hr.timesheet.manage` (ba quyền sau nhạy cảm); vai trò Quản lý nhân sự, Nhân viên nhân sự có cả bốn (tài liệu `08` mục 41).
+
+| Chức năng | Quản trị, nhân sự có quyền | Chỉ `hr.attendance.view` | Trưởng phòng | Chính mình |
+|---|---|---|---|---|
+| CHUC_NANG_165 Xem lưới công, lượt chấm (cách xác thực, khoảng cách; không trả tọa độ) | Được | Được | Phòng mình | Lượt của mình |
+| CHUC_NANG_165 Ca, lịch, ngày lễ, địa điểm, nhập tệp, ghi thủ công, màn hình mã QR | `hr.attendance.manage` | Không | Xếp ca phòng mình | Không |
+| CHUC_NANG_166 Ghi nhận nghỉ, sổ phép, loại nghỉ | `hr.leave.manage` | Xem | Xem, duyệt theo chính sách | Đơn, sổ phép của mình |
+| CHUC_NANG_167 Phiếu tăng ca | Lập, kèm văn bản, hủy | Xem | Lập phòng mình | Lập, đồng ý, rút, hủy |
+| CHUC_NANG_167 Bảng công: mở xác nhận, trả lời, chốt, mở lại | `hr.timesheet.manage` | Xem, xuất Excel | Xem phòng mình | Xác nhận, giải trình dòng của mình |
+
+Ranh giới và kiểm soát riêng:
+- Tách dữ liệu công ty: mọi truy vấn lọc `company_id` của công ty đang chọn; hồ sơ, lượt, đơn công ty khác trả `404` hoặc không có trong danh sách.
+- Mã QR động: HMAC-SHA256 trên mã địa điểm và khung 30 giây, khóa dẫn xuất từ `MFA_SECRET_KEY`; nhận khung hiện tại và liền trước; mã không chứa dữ liệu người dùng. Màn hình mã chỉ người có `hr.attendance.manage` mở.
+- Lượt chấm ứng dụng chỉ cho chính người có hồ sơ liên kết; hai lượt cách nhau ít nhất 1 phút; địa chỉ IP lấy từ kết nối qua proxy tin cậy của ứng dụng.
+- Giả vị trí GPS trên điện thoại không phát hiện được (ngoài phạm vi): công ty nên bật thêm mạng công ty hoặc mã QR cho địa điểm cần chặt; lượt lưu cách xác thực và độ chính xác để đối chiếu.
+- Thông báo xin quyền vị trí hiện trước khi trình duyệt hỏi; không lấy vị trí khi chấm bằng mã QR hoặc mạng công ty.
+- Khóa đồng thời: gửi đơn nghỉ, phiếu tăng ca khóa hồ sơ (`FOR UPDATE`); chốt kỳ khóa dòng kỳ; mọi ghi dữ liệu thuộc tháng kiểm kỳ đã chốt trong cùng giao dịch.
+### Ma trận phân quyền ứng dụng kho (CONG_VIEC_44)
+
+Quyền mới `inventory.stocktake.count` "Đếm kiểm kê" (công ty, chi nhánh; không nhạy cảm): Thủ kho (`warehouse_keeper`); Quản lý kho và quản trị có qua danh sách `inventory.*`.
+
+| Chức năng | Quản trị tập đoàn, quản trị công ty | Quản lý kho | Thủ kho | Nhân viên không có quyền kho |
+|---|---|---|---|---|
+| CHUC_NANG_159 Đăng nhập ứng dụng kho | Được | Được | Được | Bị từ chối, phiên bị thu hồi |
+| CHUC_NANG_159 Thao tác phiếu, nhận, xuất | Như web | Như web | Như web (kho trong phạm vi gán) | Không |
+| CHUC_NANG_159 Cộng số đếm, xem lịch sử đếm | Được | Kho trong phạm vi gán | Kho trong phạm vi gán | Không |
+| CHUC_NANG_159 Xem tồn sổ sách, chênh lệch kiểm kê | Được | Được | Không (đếm mù) | Không |
+
+Ranh giới và kiểm soát riêng:
+- Ứng dụng gửi token qua header Authorization, không dùng cookie nên không cần CSRF; token lưu bằng `expo-secure-store` (bản web: `sessionStorage`); không ghi log token.
+- Mọi quyền kiểm ở máy chủ theo chi nhánh sở hữu kho; ứng dụng ẩn nút chỉ để dễ dùng.
+- Cộng số đếm khóa dòng đợt kiểm kê, chỉ mục duy nhất dòng kiểm kê chống trùng dòng; lịch sử đếm chỉ thêm.
+- Camera chỉ đọc mã, không lưu ảnh; quyền camera xin khi người dùng bấm nút camera.
+### Ma trận phân quyền báo cáo quản trị MODULE_15 phần 1 (CONG_VIEC_50)
+
+Quyền mới `analytics.access`, `analytics.sales.view`, `analytics.inventory.view`, `analytics.debt.view` (nhạy cảm), `analytics.commission.view` (nhạy cảm); gán ở phạm vi tập đoàn: mọi công ty của tập đoàn; phạm vi công ty: chỉ công ty đó; phạm vi chi nhánh: không có hiệu lực (tài liệu `08` mục 40, 41).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty | Kế toán trưởng | Kế toán | Quản lý kho | Nhân viên bán hàng, Thủ kho | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|---|---|
+| CHUC_NANG_175 Mở mini app, phạm vi xem, tổng quan (`analytics.access`) | Được | Trong công ty mình | Được | Được | Được | Không | Không |
+| CHUC_NANG_176 Báo cáo bán hàng, xuất Excel (`analytics.sales.view`) | Được | Trong công ty mình | Được | Không | Không | Không | Không |
+| CHUC_NANG_176 Báo cáo tồn kho và luân chuyển, xuất Excel (`analytics.inventory.view`) | Được | Trong công ty mình | Được | Không | Được | Không | Không |
+| CHUC_NANG_177 Báo cáo công nợ theo tuổi nợ, xuất Excel (`analytics.debt.view`, nhạy cảm) | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+| CHUC_NANG_177 Báo cáo hoa hồng và ví, xuất Excel (`analytics.commission.view`, nhạy cảm) | Được | Trong công ty mình | Được | Được | Không | Không | Không |
+
+Quyền nhạy cảm: `analytics.debt.view` (công nợ phải thu, phải trả theo đối tác của nhiều công ty), `analytics.commission.view` (thu nhập hoa hồng, rút tiền, thuế của từng người hưởng).
+
+Ranh giới và kiểm soát riêng:
+- Phạm vi xem: bộ điều khiển kiểm `analytics.access` trong công ty đang làm việc; service kiểm quyền của nhóm báo cáo bằng `PermissionService.permissionsCovering` với phạm vi `group`, rồi phạm vi `company` của công ty đang làm việc; quyền xét riêng từng nhóm. Điều kiện phạm vi công ty nằm trong truy vấn; `companyIds` hoặc `warehouseId` ngoài phạm vi trả `403` cho cả yêu cầu, không trả số liệu một phần.
+- Chỉ đọc: không ghi dữ liệu nghiệp vụ, không phát sự kiện; báo cáo không có thao tác sửa, xóa.
+- Nhật ký xuất: mỗi lần xuất Excel ghi nhật ký thao tác `analytics.<sales|inventory|debt|commission>.export` (người xuất, công ty, đối tượng `analytics_report`, bộ lọc, số dòng, địa chỉ IP, thiết bị).
+- Không lộ dữ liệu cá nhân người hưởng: báo cáo hoa hồng và tệp Excel chỉ có họ tên người hưởng, không có số điện thoại, tài khoản ngân hàng.
+- Giới hạn: khoảng ngày tối đa 366 ngày, bảng hiện tối đa 500 dòng, xuất tối đa 20.000 dòng (chống truy vấn quá tải).
+- Truy vấn dùng tham số của Drizzle (`sql`), không ghép chuỗi SQL; dữ liệu đầu vào độc hại bị từ chối ở bước kiểm tra lược đồ (`400`), lỗi không trả chi tiết kỹ thuật.
+- Không thêm thư viện phụ thuộc; xuất Excel bằng `write-excel-file` đã có.
+
 ## 5. Quản lý khóa bí mật
 
 | Khóa | Nơi lưu | Môi trường | Ngày đổi gần nhất | Trạng thái |
@@ -832,6 +920,11 @@ Chưa có.
 
 - RUIRO CONG_VIEC_23 (người dùng chấp nhận 2026-11-10): 2 lỗ hổng mức Trung bình (glob GHSA, minimatch GHSA-g3hv-75wg-m249) trong `@expo/cli`, công cụ phát triển của Expo SDK 58, không chạy trên môi trường thật. Thời hạn: đến khi Expo phát hành bản sửa tương thích, rà lại mỗi lần nâng Expo, chậm nhất 2027-02-10. Biện pháp giảm thiểu: chỉ chạy công cụ trên máy phát triển, không đưa vào ảnh triển khai máy chủ.
 
+- RUIRO CONG_VIEC_46 (người dùng quyết định 2026-11-11, chưa xử lý xong): hồ sơ người lao động đã nghỉ được giữ nguyên, khóa truy cập; Luật 91/2025/QH15 Điều 25 khoản 2 điểm c yêu cầu xóa, hủy dữ liệu khi chấm dứt hợp đồng, trừ thỏa thuận hoặc luật khác quy định. Biện pháp giảm thiểu: chỉ người có `hr.employee.manage` xem hồ sơ đã nghỉ; người dùng chốt thời hạn lưu với luật sư, đưa điều khoản lưu giữ vào mẫu hợp đồng; làm chức năng xóa, khử nhận dạng ở công việc sau. Thời hạn: trước khi triển khai MODULE_08 lên môi trường thật.
+- RUIRO CONG_VIEC_47 (người dùng chấp nhận 2026-11-11): chấm công bằng GPS có thể bị giả vị trí bằng ứng dụng giả lập; hệ thống không ràng buộc thiết bị, không chụp ảnh. Biện pháp giảm thiểu: cấu hình địa điểm kết hợp mạng công ty hoặc mã QR động; lưu độ chính xác, cách xác thực để rà soát; trưởng phòng duyệt đơn giải trình. Thời hạn: xem lại khi có yêu cầu chấm công bằng khuôn mặt hoặc thiết bị.
+- Ghi nhận (CONG_VIEC_47): vị trí GPS tại lượt chấm là dữ liệu cá nhân; doanh nghiệp cần thông báo mục đích, có đồng ý của người lao động (nội quy hoặc văn bản) trước khi bật chấm công GPS; đưa vào hồ sơ đánh giá tác động xử lý dữ liệu cá nhân.
+- Ghi nhận (CONG_VIEC_46): đánh giá tác động xử lý dữ liệu cá nhân (Luật 91/2025/QH15 Điều 21; Nghị định 356/2025/NĐ-CP Điều 19) là nghĩa vụ của doanh nghiệp, cần lập hồ sơ gửi cơ quan chuyên trách trong 60 ngày kể từ khi bắt đầu xử lý; ngoài phạm vi phần mềm.
+
 ## Kiểm soát điểm thưởng (CONG_VIEC_51)
 
 | Điểm tiếp nhận | Kiểm soát |
@@ -849,3 +942,23 @@ Chưa có.
 | Mục 2 | Tệp Excel tối đa 5 MB |
 | Mục 3 | Đổi mới token làm mới mỗi lần dùng; giới hạn 20 yêu cầu mỗi phút mỗi địa chỉ IP cho API không cần đăng nhập |
 | Mục 5 | Gửi email qua Amazon SES; tự đổi mật khẩu cơ sở dữ liệu mỗi 90 ngày |
+
+### Ma trận phân quyền Nhân sự MODULE_08 phần 3 – Lương (CONG_VIEC_48)
+
+Thêm quyền `hr.payroll.view`, `hr.payroll.manage`, `hr.payroll.setup` (nhạy cảm, gán ở phạm vi tập đoàn hoặc công ty). Dữ liệu mới: mức lương đóng bảo hiểm, bảng lương, phiếu lương, cam kết 08/CK-TNCN (tài chính cá nhân).
+
+| Chức năng | Quản trị tập đoàn | Quản trị công ty, Quản lý nhân sự | Nhân viên nhân sự | Kế toán trưởng | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|
+| CHUC_NANG_168 Tham số pháp luật | Được | Xem | Xem | Không | Không |
+| CHUC_NANG_168 Thiết lập công ty, loại phụ cấp | Được | Được | Xem | Không | Không |
+| CHUC_NANG_168 Hồ sơ lương nhân viên | Được | Được | Được | Không | Không |
+| CHUC_NANG_169 Lập, tính, gửi, hủy bảng lương | Được | Được | Được | Không | Không |
+| CHUC_NANG_169 Xem bảng lương, xuất Excel | Được | Được | Được | Được | Không |
+| CHUC_NANG_170 Ghi đã trả lương | Được | Được | Được | Không | Không |
+| CHUC_NANG_170 Phiếu lương | Được | Được | Được | Được | Có (API_161, phiếu người khác `404`) |
+
+Ranh giới và kiểm soát riêng:
+- Mọi truy vấn lọc `company_id` của công ty đang chọn; bảng lương công ty khác `404`.
+- Nhật ký thao tác không ghi số tiền lương, lương đóng bảo hiểm (chỉ tháng, loại khoản, nội dung).
+- Email phiếu lương chỉ gửi tới email cá nhân trong hồ sơ, sau khi giao dịch duyệt xong. Trình gửi `EMAIL_DRIVER=log` khi phát triển ghi nội dung email (có số tiền) ra log: chỉ dùng trên máy phát triển; môi trường thật dùng nhà cung cấp thật, không ghi nội dung.
+- Bút toán lương ghi qua module Kế toán, kiểm kỳ đã khóa; kỳ cuối tháng đã khóa sau khi gửi duyệt thì bút toán ghi ngày duyệt.

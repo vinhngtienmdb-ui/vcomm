@@ -39,7 +39,7 @@ ALTER TABLE marketplace.orders ADD COLUMN points_amount numeric(18,4) NOT NULL D
 ALTER TABLE accounting.journals DROP CONSTRAINT journals_source_type_check;
 ALTER TABLE accounting.journals ADD CONSTRAINT journals_source_type_check
     CHECK (source_type IN ('manual', 'inventory_document', 'payment', 'internal_write_off', 'closing', 'commission', 'collection_statement', 'marketplace_payment', 'marketplace_refund',
-        'marketplace_commission', 'marketplace_withdrawal', 'loyalty_entry', 'loyalty_seller_entry', 'loyalty_order_redeem'));
+        'marketplace_commission', 'marketplace_withdrawal', 'payroll', 'payroll_payment', 'loyalty_entry', 'loyalty_seller_entry', 'loyalty_order_redeem'));
 INSERT INTO accounting.posting_rules (company_id, role, account_id)
 SELECT s.company_id, r.role, a.id
 FROM accounting.settings s
