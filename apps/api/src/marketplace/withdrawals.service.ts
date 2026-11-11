@@ -42,14 +42,18 @@ type WithdrawalRow = {
   version: number;
 };
 
-// Thuế thu nhập cá nhân (QUYTAC_NGHIEPVU_205): số tiền trên ngưỡng thì khấu trừ theo tỷ lệ trên toàn bộ số tiền, làm tròn đến đồng.
-export function withdrawalTax(amount: number, threshold: number, rate: number): number {
-  return amount > threshold ? Math.round((amount * rate) / 100) : 0;
+// Thuế thu nhập cá nhân (QUYTAC_NGHIEPVU_205, THAY_DOI_19): tổng số tiền đã duyệt trong tháng (approvedThisMonth) cộng số tiền yêu cầu này
+// vượt ngưỡng thì khấu trừ theo tỷ lệ trên toàn bộ số tiền yêu cầu này, làm tròn đến đồng.
+export function withdrawalTax(amount: number, threshold: number, rate: number, approvedThisMonth = 0): number {
+  return approvedThisMonth + amount > threshold ? Math.round((amount * rate) / 100) : 0;
 }
 
 // Thuế, phí theo cài đặt hiện tại cho yêu cầu có số tiền amount, là lần rút thứ sequence trong tháng (QUYTAC_NGHIEPVU_205, 208).
-function deductions(settings: CommissionSettings, amount: number, sequence: number): { tax: number; fee: number } {
-  return { tax: withdrawalTax(amount, Number(settings.taxThreshold), Number(settings.taxRate)), fee: withdrawalFee(amount, sequence, settings.withdrawalFees) };
+function deductions(settings: CommissionSettings, amount: number, sequence: number, approvedThisMonth: number): { tax: number; fee: number } {
+  return {
+    tax: withdrawalTax(amount, Number(settings.taxThreshold), Number(settings.taxRate), approvedThisMonth),
+    fee: withdrawalFee(amount, sequence, settings.withdrawalFees),
+  };
 }
 const counted = sql`('pending', 'approved', 'paid')`;
 const vietnamMonth = (column: ReturnType<typeof sql>) => sql`date_trunc('month', ${column} AT TIME ZONE 'Asia/Ho_Chi_Minh')`;
@@ -77,7 +81,7 @@ export class WithdrawalsService {
     let net = row.net_amount;
     if (tax === null || fee === null) {
       // Chưa duyệt: thuế, phí dự kiến theo cài đặt hiện tại.
-      const projected = deductions(await commissionSettings(executor, row.company_id), Number(row.amount), Math.max(row.sequence, 1));
+      const projected = deductions(await commissionSettings(executor, row.company_id), Number(row.amount), Math.max(row.sequence, 1), await this.approvedThisMonth(executor, row.user_id));
       tax = String(projected.tax);
       fee = String(projected.fee);
       net = String(Number(row.amount) - projected.tax - projected.fee);
@@ -119,6 +123,16 @@ export class WithdrawalsService {
     ).rows[0]!.total;
   }
 
+  // Tổng số tiền các yêu cầu đã duyệt (kể cả đã chi) trong tháng hiện tại theo ngày duyệt, giờ Việt Nam (THAY_DOI_19).
+  private async approvedThisMonth(executor: Executor, userId: string): Promise<number> {
+    const row = (
+      await executor.execute<{ total: string }>(sql`
+      SELECT coalesce(sum(amount), 0)::text AS total FROM marketplace.withdrawals
+      WHERE user_id = ${userId} AND status IN ('approved', 'paid') AND ${vietnamMonth(sql`decided_at`)} = ${vietnamMonth(sql`now()`)}`)
+    ).rows[0]!;
+    return Number(row.total);
+  }
+
   // Phần rút tiền trên ví: cài đặt, tài khoản nhận, yêu cầu đang chờ.
   async info(executor: Executor, userId: string): Promise<BuyerWithdrawalInfo> {
     // Chưa có công ty vận hành sàn thì vẫn xem được ví, phần rút tiền theo cài đặt mặc định.
@@ -136,6 +150,7 @@ export class WithdrawalsService {
       taxRate: settings.taxRate,
       withdrawalFees: settings.withdrawalFees,
       withdrawalsThisMonth: await this.countThisMonth(executor, userId),
+      approvedThisMonth: String(await this.approvedThisMonth(executor, userId)),
       bankAccount: bank ? { bankName: bank.bank_name, accountNumber: bank.account_number, accountHolder: bank.account_holder } : null,
       open: open ? await this.item(executor, open) : null,
     };
@@ -169,7 +184,7 @@ export class WithdrawalsService {
       ).rows[0];
       if (!bank) throw new ApiError("BUSINESS_RULE", "withdrawalNeedsBankAccount");
       // Thuế, phí dự kiến không được hết số tiền rút (QUYTAC_NGHIEPVU_208).
-      const projected = deductions(settings, amount, (await this.countThisMonth(transaction, userId)) + 1);
+      const projected = deductions(settings, amount, (await this.countThisMonth(transaction, userId)) + 1, await this.approvedThisMonth(transaction, userId));
       if (amount - projected.tax - projected.fee <= 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { amount: "withdrawalFeeOverAmount" } });
       const created = (
         await transaction.execute<{ id: string }>(sql`
@@ -214,7 +229,7 @@ export class WithdrawalsService {
       const settings = await commissionSettings(transaction, actor.operatorCompanyId);
       const amount = Number(row.amount);
       // Chốt thuế, phí theo cài đặt lúc duyệt và thứ tự lần rút trong tháng (QUYTAC_NGHIEPVU_205, 208).
-      const { tax, fee } = deductions(settings, amount, row.sequence);
+      const { tax, fee } = deductions(settings, amount, row.sequence, await this.approvedThisMonth(transaction, row.user_id));
       const net = amount - tax - fee;
       if (net <= 0) throw new ApiError("BUSINESS_RULE", "withdrawalFeeOverAmount");
       await transaction.execute(sql`

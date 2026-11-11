@@ -3359,7 +3359,7 @@
     "withdrawAvailable": "Số dư có thể rút: {amount}",
     "withdrawAmount": "Số tiền rút (đồng)",
     "withdrawMinimum": "Tối thiểu {amount}.",
-    "withdrawTaxRule": "Trên {threshold} thì khấu trừ thuế thu nhập cá nhân {rate}% trên toàn bộ số tiền; số thuế chốt khi kế toán duyệt.",
+    "withdrawTaxRule": "Tổng số tiền rút đã duyệt trong tháng cộng lần này trên {threshold} thì khấu trừ thuế thu nhập cá nhân {rate}% trên toàn bộ số tiền lần này; số thuế chốt khi kế toán duyệt.",
     "withdrawEstimate": "Thuế dự kiến {tax} · phí {fee} · thực nhận {net}",
     "withdrawTo": "Chuyển vào: {account}",
     "withdrawSubmit": "Gửi yêu cầu rút tiền",
