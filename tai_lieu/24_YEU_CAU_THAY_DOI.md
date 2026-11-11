@@ -346,3 +346,14 @@
 - Rủi ro: ngày thu ghi sổ có thể sớm hơn ngày Viettel Post chuyển tiền; đối soát thu hộ (CONG_VIEC_19) vẫn đối chiếu số tiền thật.
 - Trạng thái: Đã phê duyệt 2026-11-11; đã thực hiện 2026-11-11 (commit `af6df92`, pull request #82), chờ phát hành.
 
+### THAY_DOI_21: Loại phụ cấp cho dòng phụ cấp của hợp đồng, phụ lục – 2026-11-11
+- Lý do: CONG_VIEC_48 (lương) cần biết loại từng khoản phụ cấp để tính bảo hiểm xã hội, thuế thu nhập cá nhân (khoản nào tính, khoản nào miễn).
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11): dòng phụ cấp của hợp đồng, phụ lục (CONG_VIEC_46) có thêm loại phụ cấp chọn từ danh mục; bắt buộc khi lập hoặc sửa mới, dữ liệu cũ được để trống.
+- Thành phần bị ảnh hưởng: CONG_VIEC_46 (chờ nghiệm thu, chưa phát hành): QUYTAC_NGHIEPVU_297, 300; CHUC_NANG_163; MAN_HINH_118; API_147, 148; bảng `hr.contract_allowances` (thêm cột `allowance_type_id` cho phép trống).
+- Dữ liệu, API, giao diện, quyền: thêm cột, thêm trường; tương thích dữ liệu cũ.
+- Ảnh hưởng chức năng cũ: lập, sửa phụ cấp phải chọn loại.
+- Kiểm thử cần thực hiện: `c46-contracts` (cập nhật), kiểm thử lương của CONG_VIEC_48.
+- Mức quy mô: Vừa; làm trong CONG_VIEC_48 (database migration 0076).
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-11.
+
