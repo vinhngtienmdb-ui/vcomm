@@ -250,6 +250,8 @@
     "bankSimulatorNotConnected": "Quỹ chưa kết nối bộ giả lập.",
     "bankTransactionNotOpen": "Giao dịch không còn ở trạng thái chưa ghép.",
     "bankTransactionAlreadyOpen": "Giao dịch đang ở trạng thái chưa ghép.",
+    "bankTransactionMarketplaceLinked": "Giao dịch đã ghi nhận tiền đơn VComm, không bỏ ghép được.",
+    "bankTransferNotPending": "Lần thanh toán không còn chờ xác nhận.",
     "bankReceiptOnlyIncoming": "Chỉ lập phiếu thu cho tiền vào.",
     "bankReceiptPending": "Giao dịch đã có phiếu thu đang chờ duyệt hoặc đã ghi sổ.",
     "bankPaymentNotMatchable": "Phiếu không ghép được: phải đã ghi sổ, cùng quỹ, cùng chiều tiền, cùng số tiền và chưa ghép giao dịch khác.",
@@ -2840,6 +2842,7 @@
     "content": "Nội dung",
     "payment": "Phiếu thu chi",
     "autoMatched": "Tự ghép",
+    "marketplacePayment": "Đơn VComm {document} · lần thanh toán {reference}",
     "createReceipt": "Lập phiếu thu",
     "matchManually": "Ghép tay",
     "ignore": "Bỏ qua",
@@ -3613,6 +3616,13 @@
     "codReference": "Số phiên đối soát",
     "recordCod": "Ghi đã thu",
     "codRecorded": "Đã ghi đã thu tiền thu hộ.",
+    "confirmTransferTitle": "Xác nhận đã nhận chuyển khoản",
+    "confirmTransferHint": "Dùng khi tiền đã về tài khoản nhưng hệ thống không tự ghép được (người mua ghi sai nội dung). Số tiền ghi nhận là số tiền của lần thanh toán.",
+    "transferAttempt": "Lần thanh toán",
+    "bankTransactionNo": "Mã giao dịch ngân hàng",
+    "confirmTransfer": "Xác nhận đã nhận",
+    "confirmTransferAsk": "Xác nhận đã nhận tiền chuyển khoản của lần thanh toán này?",
+    "transferConfirmed": "Đã ghi nhận tiền chuyển khoản.",
     "status_refunded": "Đã hoàn tiền"
   },
   "returnRequests": {
@@ -3653,7 +3663,9 @@
     "vnpay_atm": "Thẻ ATM nội địa",
     "vnpay_card": "Thẻ quốc tế Visa, Mastercard",
     "gateway_cod": "Thu hộ khi giao",
-    "gateway_vnpay": "VNPAY"
+    "gateway_vnpay": "VNPAY",
+    "bank_transfer_vietqr": "Chuyển khoản ngân hàng (VietQR)",
+    "gateway_bank_transfer": "Chuyển khoản ngân hàng"
   },
   "refunds": {
     "title": "Hoàn tiền đơn VComm",

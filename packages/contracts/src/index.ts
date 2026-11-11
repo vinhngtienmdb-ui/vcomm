@@ -3463,6 +3463,8 @@ export interface BankTransactionItem {
   status: BankTransactionStatus;
   payment: { id: string; documentNo: string | null; kind: PaymentKind; partnerName: string; paymentDate: string } | null;
   autoMatched: boolean;
+  // Lần thanh toán đơn VComm bằng chuyển khoản đã ghép (CONG_VIEC_36).
+  marketplacePayment: { reference: string; documentNo: string } | null;
   suggestion: { partnerId: string; partnerName: string; reason: BankSuggestionReason } | null;
   receipt: { id: string; documentNo: string | null; status: string } | null;
   ignoreReason: string | null;
@@ -4091,11 +4093,13 @@ export const paymentMethodCodes = [
   "vnpay_qr",
   "vnpay_atm",
   "vnpay_card",
+  "bank_transfer_vietqr",
 ] as const;
 export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
 export const paymentGatewayCodes = [
   "cod",
   "vnpay",
+  "bank_transfer",
 ] as const;
 export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];
 
@@ -4471,6 +4475,8 @@ export interface MarketplaceOrderDetail extends BuyerOrderDetail {
   payments: MarketplacePaymentItem[];
   // Ghi tay đã thu tiền thu hộ khi đơn vị vận chuyển không có API (QUYTAC_NGHIEPVU_167).
   canRecordCod: boolean;
+  // Có lần thanh toán chuyển khoản đang chờ và người xem có quyền xác nhận (CONG_VIEC_36).
+  canConfirmTransfer: boolean;
   canShip: boolean;
   canRefreshShipment: boolean;
   carriers: CarrierItem[];
@@ -4495,6 +4501,8 @@ export const cancelMarketplaceOrderSchema = z.object({ reason: z.string().trim()
 export const recordCodCollectedSchema = z
   .object({ collectedOn: isoDate, reference: z.string().trim().min(1).max(100), version: z.number().int().min(1) })
   .strict();
+// Kế toán xác nhận đã nhận tiền chuyển khoản của một lần thanh toán (CONG_VIEC_36; QUYTAC_NGHIEPVU_242).
+export const confirmBankTransferSchema = z.object({ reference: z.string().trim().min(1).max(100), bankTransactionNo: z.string().trim().min(1).max(100) }).strict();
 export const shipMarketplaceOrderSchema = z.object({ carrierCode: z.enum(carrierCodes), version: z.number().int().min(1) }).strict();
 
 // API_129: trả hàng trong 7 ngày (QUYTAC_NGHIEPVU_161).

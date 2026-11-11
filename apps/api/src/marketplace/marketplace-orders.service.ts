@@ -443,9 +443,12 @@ export class MarketplaceOrdersService {
       status: "pending" | "succeeded" | "failed";
       response_code: string | null;
       gateway_transaction_no: string | null;
+      gateway_code: string;
       created_at: Date;
       completed_at: Date | null;
-    }>(sql`SELECT reference, method, amount::text, status, response_code, gateway_transaction_no, created_at, completed_at FROM marketplace.payments WHERE order_id = ${orderId} ORDER BY created_at`);
+    }>(
+      sql`SELECT reference, method, amount::text, status, response_code, gateway_transaction_no, gateway_code, created_at, completed_at FROM marketplace.payments WHERE order_id = ${orderId} ORDER BY created_at`,
+    );
     const detail = await this.detailOf(row);
     return {
       ...detail,
@@ -475,6 +478,7 @@ export class MarketplaceOrdersService {
         completedAt: iso(payment.completed_at),
       })),
       canRecordCod: canRecordPayment && codRecordable(row),
+      canConfirmTransfer: canRecordPayment && payments.rows.some((payment) => payment.gateway_code === "bank_transfer" && payment.status === "pending"),
       canShip: canManage && row.status === "awaiting_shipment" && !shipments.rows.some((shipment) => shipment.is_active),
       canRefreshShipment: canManage && shipments.rows.some((shipment) => shipment.is_active) && ["awaiting_shipment", "awaiting_pickup", "shipping"].includes(row.status),
       carriers: carriers.rows.map((carrier) => ({ code: carrier.code, name: carrierNames[carrier.code], isEnabled: carrier.is_enabled, isConfigured: carrierConfigured(carrier.code) })),

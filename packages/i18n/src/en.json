@@ -250,6 +250,8 @@
     "bankSimulatorNotConnected": "The fund is not connected to the simulator.",
     "bankTransactionNotOpen": "The transaction is no longer unmatched.",
     "bankTransactionAlreadyOpen": "The transaction is already unmatched.",
+    "bankTransactionMarketplaceLinked": "The transaction has been recorded as a VComm order payment and cannot be unmatched.",
+    "bankTransferNotPending": "The payment is no longer awaiting confirmation.",
     "bankReceiptOnlyIncoming": "Receipts can only be created for incoming money.",
     "bankReceiptPending": "The transaction already has a receipt pending approval or posted.",
     "bankPaymentNotMatchable": "The document cannot be matched: it must be posted, in the same fund and direction, with the same amount, and not matched yet.",
@@ -2840,6 +2842,7 @@
     "content": "Content",
     "payment": "Receipt or payment",
     "autoMatched": "Auto",
+    "marketplacePayment": "VComm order {document} · payment {reference}",
     "createReceipt": "Create receipt",
     "matchManually": "Match manually",
     "ignore": "Ignore",
@@ -3613,6 +3616,13 @@
     "codReference": "Statement reference",
     "recordCod": "Record collected",
     "codRecorded": "Cash collected recorded.",
+    "confirmTransferTitle": "Confirm bank transfer received",
+    "confirmTransferHint": "Use when the money has reached the account but was not matched automatically (wrong transfer content). The recorded amount is the payment amount.",
+    "transferAttempt": "Payment",
+    "bankTransactionNo": "Bank transaction number",
+    "confirmTransfer": "Confirm received",
+    "confirmTransferAsk": "Confirm that the bank transfer for this payment has been received?",
+    "transferConfirmed": "Bank transfer recorded.",
     "status_refunded": "Refunded"
   },
   "returnRequests": {
@@ -3653,7 +3663,9 @@
     "vnpay_atm": "Domestic ATM card",
     "vnpay_card": "International card (Visa, Mastercard)",
     "gateway_cod": "Collected on delivery",
-    "gateway_vnpay": "VNPAY"
+    "gateway_vnpay": "VNPAY",
+    "bank_transfer_vietqr": "Bank transfer (VietQR)",
+    "gateway_bank_transfer": "Bank transfer"
   },
   "refunds": {
     "title": "VComm refunds",

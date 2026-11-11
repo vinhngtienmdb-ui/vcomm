@@ -93,23 +93,26 @@ export class MarketplacePaymentsService {
     }
     // Lỗi khi ghi nhận (kỳ kế toán đã khóa, cơ sở dữ liệu lỗi): trả lỗi để cổng gửi lại, ghi lại để tra soát.
     const outcome = await this.database
-      .transaction(async (transaction): Promise<NotificationOutcome> => {
-        const payment = (
-          await transaction.execute<{ id: string; order_id: string; amount: string; status: string }>(sql`
-          SELECT id, order_id, amount::text, status FROM marketplace.payments WHERE reference = ${result.reference} AND gateway_code = ${gateway.code} FOR UPDATE`)
-        ).rows[0];
-        if (!payment) return "not_found";
-        if (Math.round(Number(payment.amount)) !== Math.round(result.amount)) return "invalid_amount";
-        if (payment.status !== "pending") return "already_confirmed";
-        await this.complete(transaction, payment.id, payment.order_id, result, gateway.code);
-        return "success";
-      })
+      .transaction((transaction) => this.record(transaction, gateway.code, result))
       .catch((error: unknown): NotificationOutcome => {
         this.logger.error(`Kết quả cổng ${gateway.code} ${result.reference}: ${(error as Error).message}`);
         return "error";
       });
     await this.log(gateway.code, result.reference, request, outcome);
     return gateway.reply(outcome);
+  }
+
+  // Ghi nhận kết quả đã xác thực trong giao dịch cơ sở dữ liệu của bên gọi; dùng chung cho đường dẫn nhận kết quả và cổng chuyển khoản (CONG_VIEC_36).
+  async record(transaction: Pick<Database, "execute">, gatewayCode: string, result: GatewayNotification): Promise<NotificationOutcome> {
+    const payment = (
+      await transaction.execute<{ id: string; order_id: string; amount: string; status: string }>(sql`
+      SELECT id, order_id, amount::text, status FROM marketplace.payments WHERE reference = ${result.reference} AND gateway_code = ${gatewayCode} FOR UPDATE`)
+    ).rows[0];
+    if (!payment) return "not_found";
+    if (Math.round(Number(payment.amount)) !== Math.round(result.amount)) return "invalid_amount";
+    if (payment.status !== "pending") return "already_confirmed";
+    await this.complete(transaction, payment.id, payment.order_id, result, gatewayCode);
+    return "success";
   }
 
   private async complete(transaction: Pick<Database, "execute">, paymentId: string, orderId: string, result: GatewayNotification, gatewayCode: string): Promise<void> {

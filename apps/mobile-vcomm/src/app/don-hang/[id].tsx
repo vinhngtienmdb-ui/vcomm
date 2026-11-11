@@ -1,10 +1,12 @@
 // MAN_HINH_96 Chi tiết đơn (CHUC_NANG_116; API_126; QUYTAC_NGHIEPVU_159): trạng thái, vận đơn, dòng hàng, tiền, lịch sử, hủy đơn.
 // MAN_HINH_99 khối Thanh toán (CONG_VIEC_25; API_131; QUYTAC_NGHIEPVU_165, 167): hạn thanh toán, mở trang VNPAY, thanh toán lại, trạng thái thanh toán.
+// Mã QR chuyển khoản vẽ từ chuỗi VietQR khi cổng không cấp ảnh (CONG_VIEC_36; QUYTAC_NGHIEPVU_240).
 import type { BuyerOrderDetail, BuyerPaymentStart, PaymentTransferInstruction } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import * as Linking from "expo-linking";
 import { useCallback, useState } from "react";
 import { Image, ScrollView, Text, View } from "react-native";
+import QRCode from "react-native-qrcode-svg";
 import { AmountRow, OrderLines, orderStatusTone } from "@/components/OrderLines";
 import { Button, Card, Field, Loading, Muted, Notice, Screen, StatusBadge, Title } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
@@ -143,7 +145,13 @@ export default function OrderScreen() {
                 {transfer ? (
                   <View style={{ gap: space[1] }}>
                     <Notice tone="info" text={t("transferHint")} />
-                    {transfer.qrImageUrl ? <Image source={{ uri: transfer.qrImageUrl }} style={{ width: 220, height: 220, alignSelf: "center" }} accessibilityLabel={t("transferQr")} /> : null}
+                    {transfer.qrImageUrl ? (
+                      <Image source={{ uri: transfer.qrImageUrl }} style={{ width: 220, height: 220, alignSelf: "center" }} accessibilityLabel={t("transferQr")} />
+                    ) : transfer.qrData ? (
+                      <View style={{ alignSelf: "center", padding: space[2], backgroundColor: colors.surface }} accessible accessibilityLabel={t("transferQr")}>
+                        <QRCode value={transfer.qrData} size={220} ecl="M" />
+                      </View>
+                    ) : null}
                     <Text style={{ color: colors.text }}>{t("transferBank", { bank: transfer.bankName })}</Text>
                     <Text style={{ color: colors.text }} selectable>
                       {t("transferAccount", { account: transfer.accountNumber, name: transfer.accountName })}
