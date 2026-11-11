@@ -294,7 +294,8 @@
     "buyerAlreadySalesStaff": "This account is already in the sales team. Use Move to change its unit.",
     "salesProposalTargetUnavailable": "This phone number cannot be added to the team.",
     "salesProposalStale": "The proposal no longer matches the current team (the proposer no longer manages the unit, or the person changed). Reject the proposal.",
-    "salesProposalTooMany": "You have sent too many proposals today. Try again tomorrow."
+    "salesProposalTooMany": "You have sent too many proposals today. Try again tomorrow.",
+    "carrierNotConfigured": "The carrier has no connection settings (token, shop ID, webhook key) on the server."
   },
   "login": {
     "title": "Sign in",
@@ -1787,7 +1788,9 @@
     "visits": "Customer visits",
     "buyers": "VComm buyers",
     "salesTeam": "Sales team",
-    "salesProposals": "Sales team proposals"
+    "salesProposals": "Sales team proposals",
+    "storeSettings": "VComm store settings",
+    "listings": "Listings"
   },
   "partners": {
     "title": "Partners",
@@ -3212,7 +3215,14 @@
     "action_move": "Moved",
     "action_appoint": "Appointed manager",
     "action_unappoint": "Manager removed",
-    "byProposal": "by proposal"
+    "byProposal": "by proposal",
+    "testBuyerTitle": "Test buyer",
+    "testBuyerYes": "This account is a test buyer: it can order before VComm opens ordering.",
+    "testBuyerNo": "Not a test buyer.",
+    "testBuyerMark": "Mark as test buyer",
+    "testBuyerUnmark": "Unmark test buyer",
+    "testBuyerOn": "Marked as test buyer.",
+    "testBuyerOff": "Test buyer removed."
   },
   "salesTeam": {
     "title": "Sales team",
@@ -3273,5 +3283,66 @@
     "status_rejected": "Rejected",
     "status_withdrawn": "Withdrawn",
     "confirmApprove": "Approve the proposal? The change applies immediately."
+  },
+  "storeSettings": {
+    "title": "VComm store settings",
+    "storeTitle": "Store",
+    "storeHint": "Goods sold in the VComm app belong to {company}. The app shows no goods until a channel and warehouse are chosen.",
+    "choose": "Choose",
+    "channel": "Sales channel",
+    "channelHint": "Prices come from the price list for this channel.",
+    "warehouse": "Fulfilment warehouse",
+    "shippingFee": "Shipping fee per order",
+    "freeShippingThreshold": "Free shipping from (goods amount)",
+    "freeShippingHint": "Leave empty for no free shipping.",
+    "packageTitle": "Default parcel for carriers",
+    "packageLengthCm": "Length (cm)",
+    "packageWidthCm": "Width (cm)",
+    "packageHeightCm": "Height (cm)",
+    "minimumWeightGrams": "Minimum weight (g)",
+    "minimumWeightHint": "Used when products weigh less or have no weight.",
+    "saved": "Store settings saved.",
+    "carriersTitle": "Carriers",
+    "carriersHint": "Connection settings (token, shop ID, webhook key) are set on the server by the system administrator.",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "configured": "Connected",
+    "notConfigured": "Not connected",
+    "enable": "Enable",
+    "disable": "Disable",
+    "carrierEnabled": "Carrier enabled.",
+    "carrierDisabled": "Carrier disabled."
+  },
+  "listings": {
+    "title": "Listings",
+    "hint": "A product shows in the VComm app when listed, approved, active, not lot or serial tracked and priced on the VComm channel.",
+    "search": "Search product name or code",
+    "filter": "Listing filter",
+    "filter_all": "All products",
+    "filter_published": "Listed",
+    "filter_unpublished": "Not listed",
+    "none": "The operator company has no products.",
+    "product": "Product",
+    "price": "Price incl. tax",
+    "priceFrom": "From {price}",
+    "available": "Available",
+    "state": "Status",
+    "actions": "Actions",
+    "onApp": "Shown in the app",
+    "publishedHidden": "Listed, not shown",
+    "notPublished": "Not listed",
+    "blocker_storeNotReady": "Store channel or warehouse not set.",
+    "blocker_notApproved": "Product not approved.",
+    "blocker_inactive": "Product inactive.",
+    "blocker_lotOrSerial": "Lot or serial tracked goods cannot be sold in the app yet.",
+    "blocker_noPrice": "No price on the VComm channel.",
+    "publish": "List",
+    "unpublish": "Unlist",
+    "editDescription": "Description",
+    "description": "Description for buyers",
+    "descriptionHint": "Leave empty to use the product description.",
+    "publishedNotice": "Product listed.",
+    "unpublishedNotice": "Product unlisted.",
+    "descriptionSaved": "Description saved."
   }
 }

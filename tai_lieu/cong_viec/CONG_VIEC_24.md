@@ -52,10 +52,10 @@ Ngoài phạm vi: thanh toán trực tuyến, công tắc mở đặt hàng cho 
 ## 5. Vai trò và quyền
 
 Quyền mới:
-- `marketplace.order.view`: xem đơn VComm, yêu cầu trả hàng (quản trị công ty, quản trị tập đoàn, nhân viên bán hàng VComm).
+- `marketplace.order.view`: xem đơn VComm, yêu cầu trả hàng.
 - `marketplace.order.manage`: giao đơn, hủy đơn, duyệt, từ chối, nhận hàng trả, cài đặt bán hàng, đăng bán, đánh dấu người mua thử.
 
-Chỉ dùng tại công ty vận hành sàn. Người mua dùng API người mua, chỉ thấy giỏ, địa chỉ, đơn của chính mình.
+Quản trị tập đoàn, quản trị công ty có sẵn hai quyền; giao cho nhân viên qua vai trò tùy chỉnh. Chỉ dùng tại công ty vận hành sàn. Người mua dùng API người mua, chỉ thấy giỏ, địa chỉ, đơn của chính mình.
 
 ## 6. Luồng nghiệp vụ
 

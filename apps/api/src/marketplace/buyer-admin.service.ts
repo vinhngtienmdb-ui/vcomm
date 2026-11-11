@@ -13,6 +13,7 @@ import { BuyerAccountsService, localPhone } from "./buyer-accounts.service";
 import { SalesTeamService } from "./sales-team.service";
 
 type Executor = Pick<Database, "execute">;
+export type MarketplacePermission = "marketplace.buyer.view" | "marketplace.buyer.manage" | "marketplace.order.view" | "marketplace.order.manage";
 
 export interface BuyerAdminActor {
   userId: string;
@@ -64,17 +65,28 @@ export class BuyerAdminService {
   }
 
   // Quyền xét tại công ty vận hành sàn (QUYTAC_NGHIEPVU_147); chưa đặt công ty thì chưa quản trị được.
-  async actor(userId: string, client: ClientInfo, permission: "marketplace.buyer.view" | "marketplace.buyer.manage"): Promise<BuyerAdminActor> {
+  // Quyền xem được thay bằng quyền quản lý cùng nhóm (người mua; đơn VComm của CONG_VIEC_24).
+  async actor(userId: string, client: ClientInfo, permission: MarketplacePermission): Promise<BuyerAdminActor> {
     const operatorCompanyId = await this.operatorCompanyId();
     if (!operatorCompanyId) throw new ApiError("BUSINESS_RULE", "marketplaceOperatorNotSet");
     const allowedBy = (codes: { has: (code: string) => boolean }) =>
-      permission === "marketplace.buyer.view" ? codes.has("marketplace.buyer.view") || codes.has("marketplace.buyer.manage") : codes.has(permission);
+      permission.endsWith(".view") ? codes.has(permission) || codes.has(permission.replace(/\.view$/, ".manage")) : codes.has(permission);
     // Quyền ở phạm vi tập đoàn dùng được không cần là thành viên; quyền ở công ty cần còn là thành viên đang hoạt động (rà soát CONG_VIEC_23).
     if (!allowedBy(await this.permissions.permissionsCovering(userId, { scopeType: "group" }))) {
       await this.permissions.resolveCompany(userId, operatorCompanyId);
       if (!allowedBy(new Set(await this.permissions.permissionsInCompany(userId, operatorCompanyId)))) throw new ApiError("FORBIDDEN", "forbidden");
     }
     return { userId, operatorCompanyId, client };
+  }
+
+  async allows(userId: string, client: ClientInfo, permission: MarketplacePermission): Promise<boolean> {
+    return this.actor(userId, client, permission).then(
+      () => true,
+      (error: unknown) => {
+        if (error instanceof ApiError && error.code === "FORBIDDEN") return false;
+        throw error;
+      },
+    );
   }
 
   private async canSetOperator(userId: string): Promise<boolean> {
@@ -153,8 +165,8 @@ export class BuyerAdminService {
 
   async detail(actor: BuyerAdminActor, buyerId: string): Promise<BuyerAccountDetailResponse> {
     const row = (
-      await this.database.execute<ListRow & { version: number; referrer_user_id: string | null; sales_department_id: string | null; department_name: string | null }>(sql`
-      SELECT ${listColumns}, b.version, b.referrer_user_id, b.sales_department_id, d.name AS department_name
+      await this.database.execute<ListRow & { version: number; referrer_user_id: string | null; sales_department_id: string | null; department_name: string | null; is_test_buyer: boolean }>(sql`
+      SELECT ${listColumns}, b.version, b.referrer_user_id, b.sales_department_id, d.name AS department_name, b.is_test_buyer
       FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id LEFT JOIN core.users r ON r.id = b.referrer_user_id
       LEFT JOIN core.departments d ON d.id = b.sales_department_id
       WHERE b.user_id = ${buyerId}`)
@@ -188,6 +200,7 @@ export class BuyerAdminService {
     return {
       ...listItem(row),
       version: row.version,
+      isTestBuyer: row.is_test_buyer,
       salesTitle: team.titleOf(buyerId),
       salesChain: team.chain(buyerId),
       referrerId: row.referrer_user_id,

@@ -3947,6 +3947,8 @@ export interface BuyerSalesFlagHistoryItem {
 
 export interface BuyerAccountDetailResponse extends BuyerAccountListItem {
   version: number;
+  // Người mua thử đặt được hàng khi chưa mở đặt hàng (CONG_VIEC_24).
+  isTestBuyer: boolean;
   // Chức danh, chuỗi cấp trên khi là thành viên đội kinh doanh (CONG_VIEC_27).
   salesTitle: SalesTitle | null;
   salesChain: SalesChainItem[];
@@ -4069,3 +4071,77 @@ export interface SalesProposalOptionsResponse {
   units: Array<{ id: string; name: string; type: SalesUnitType }>;
   members: Array<{ userId: string; fullName: string; departmentId: string; title: SalesTitle }>;
 }
+
+// CONG_VIEC_24: đặt hàng trên VComm (API_123 đến 129; QUYTAC_NGHIEPVU_154 đến 162).
+export const carrierCodes = ["ghn"] as const;
+export type CarrierCode = (typeof carrierCodes)[number];
+
+export interface CarrierItem {
+  code: CarrierCode;
+  name: string;
+  isEnabled: boolean;
+  // Đã có thông tin kết nối trong biến môi trường.
+  isConfigured: boolean;
+}
+
+// API_123: cài đặt bán hàng VComm (QUYTAC_NGHIEPVU_154).
+export interface StoreSettingsResponse {
+  companyName: string;
+  channelId: string | null;
+  warehouseId: string | null;
+  shippingFee: string;
+  freeShippingThreshold: string | null;
+  packageLengthCm: number;
+  packageWidthCm: number;
+  packageHeightCm: number;
+  minimumWeightGrams: number;
+  version: number;
+  canManage: boolean;
+  channels: Array<{ id: string; name: string }>;
+  warehouses: Array<{ id: string; name: string }>;
+  carriers: CarrierItem[];
+}
+
+const packageSize = z.number().int().min(1).max(200);
+export const updateStoreSettingsSchema = z
+  .object({
+    channelId: z.uuid(),
+    warehouseId: z.uuid(),
+    shippingFee: requiredMoney,
+    freeShippingThreshold: optionalMoney,
+    packageLengthCm: packageSize,
+    packageWidthCm: packageSize,
+    packageHeightCm: packageSize,
+    minimumWeightGrams: z.number().int().min(1).max(50000),
+    // 0: lần lưu đầu tiên.
+    version: z.number().int().min(0),
+  })
+  .strict();
+export const updateCarrierSchema = z.object({ isEnabled: z.boolean() }).strict();
+
+// Lý do sản phẩm không hiện trên ứng dụng (QUYTAC_NGHIEPVU_155).
+export const listingBlockers = ["storeNotReady", "notApproved", "inactive", "lotOrSerial", "noPrice"] as const;
+export type ListingBlocker = (typeof listingBlockers)[number];
+
+export interface ListingItem {
+  productId: string;
+  name: string;
+  categoryName: string;
+  imageUrl: string | null;
+  isPublished: boolean;
+  description: string | null;
+  // Giá thấp nhất gồm thuế trong các biến thể có giá.
+  priceFrom: string | null;
+  available: string;
+  blockers: ListingBlocker[];
+}
+export const listingListQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    published: z.enum(["all", "published", "unpublished"]).default("all"),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const updateListingSchema = z.object({ isPublished: z.boolean(), description: z.string().trim().max(5000).nullable() }).strict();
+export const testBuyerSchema = z.object({ isTestBuyer: z.boolean() }).strict();

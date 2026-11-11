@@ -17,6 +17,13 @@ import {
   type BuyerAccountListItem,
   type MarketplaceSettingsResponse,
   type PageResponse,
+  listingListQuerySchema,
+  type ListingItem,
+  type StoreSettingsResponse,
+  testBuyerSchema,
+  updateCarrierSchema,
+  updateListingSchema,
+  updateStoreSettingsSchema,
 } from "contracts";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
@@ -24,6 +31,7 @@ import { UuidPipe } from "../common/uuid.pipe";
 import { BuyerAdminService } from "./buyer-admin.service";
 import { SalesProposalsService } from "./sales-proposals.service";
 import { SalesTeamService } from "./sales-team.service";
+import { StoreService } from "./store.service";
 
 @Controller("marketplace")
 export class MarketplaceController {
@@ -31,7 +39,43 @@ export class MarketplaceController {
     private readonly admin: BuyerAdminService,
     private readonly salesTeam: SalesTeamService,
     private readonly proposals: SalesProposalsService,
+    private readonly store: StoreService,
   ) {}
+
+  // API_123: cài đặt bán hàng VComm, đơn vị vận chuyển, đăng bán, người mua thử (CONG_VIEC_24).
+  @Get("store-settings")
+  async storeSettings(@Req() request: AuthenticatedRequest): Promise<StoreSettingsResponse> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.view");
+    return this.store.settings(actor, await this.admin.allows(request.auth.userId, clientInfo(request), "marketplace.order.manage"));
+  }
+
+  @Put("store-settings")
+  async updateStoreSettings(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<StoreSettingsResponse> {
+    return this.store.updateSettings(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage"), updateStoreSettingsSchema.parse(body));
+  }
+
+  @Put("carriers/:code")
+  async carrier(@Req() request: AuthenticatedRequest, @Param("code") code: string, @Body() body: unknown): Promise<StoreSettingsResponse> {
+    return this.store.setCarrier(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage"), code, updateCarrierSchema.parse(body).isEnabled);
+  }
+
+  @Get("listings")
+  async listings(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<ListingItem>> {
+    return this.store.listings(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.view"), listingListQuerySchema.parse(query));
+  }
+
+  @Put("listings/:productId")
+  @HttpCode(204)
+  async listing(@Req() request: AuthenticatedRequest, @Param("productId", UuidPipe) productId: string, @Body() body: unknown): Promise<void> {
+    await this.store.updateListing(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage"), productId, updateListingSchema.parse(body));
+  }
+
+  @Put("buyers/:id/test-buyer")
+  async testBuyer(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<BuyerAccountDetailResponse> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage");
+    await this.store.setTestBuyer(actor, id, testBuyerSchema.parse(body).isTestBuyer);
+    return this.admin.detail(actor, id);
+  }
 
   // API_121: duyệt đề xuất đội kinh doanh.
   @Get("sales-proposals")

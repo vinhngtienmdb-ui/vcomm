@@ -294,7 +294,8 @@
     "buyerAlreadySalesStaff": "Tài khoản đã thuộc đội kinh doanh. Dùng Chuyển đơn vị để đổi đơn vị.",
     "salesProposalTargetUnavailable": "Không thêm được người có số điện thoại này vào đội.",
     "salesProposalStale": "Đề xuất không còn đúng với đội hiện tại (người đề xuất không còn quản lý, hoặc người được đề xuất đã thay đổi). Hãy từ chối đề xuất.",
-    "salesProposalTooMany": "Bạn đã gửi quá nhiều đề xuất hôm nay. Thử lại vào ngày mai."
+    "salesProposalTooMany": "Bạn đã gửi quá nhiều đề xuất hôm nay. Thử lại vào ngày mai.",
+    "carrierNotConfigured": "Đơn vị vận chuyển chưa có thông tin kết nối (token, mã cửa hàng, khóa webhook) trên máy chủ."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1787,7 +1788,9 @@
     "visits": "Ghé thăm khách",
     "buyers": "Người mua VComm",
     "salesTeam": "Đội kinh doanh",
-    "salesProposals": "Đề xuất đội kinh doanh"
+    "salesProposals": "Đề xuất đội kinh doanh",
+    "storeSettings": "Cài đặt bán hàng VComm",
+    "listings": "Đăng bán"
   },
   "partners": {
     "title": "Đối tác",
@@ -3212,7 +3215,14 @@
     "action_move": "Chuyển đơn vị",
     "action_appoint": "Bổ nhiệm quản lý",
     "action_unappoint": "Bỏ quản lý",
-    "byProposal": "theo đề xuất"
+    "byProposal": "theo đề xuất",
+    "testBuyerTitle": "Người mua thử",
+    "testBuyerYes": "Tài khoản này là người mua thử: đặt được hàng khi VComm chưa mở đặt hàng.",
+    "testBuyerNo": "Không phải người mua thử.",
+    "testBuyerMark": "Đánh dấu người mua thử",
+    "testBuyerUnmark": "Bỏ người mua thử",
+    "testBuyerOn": "Đã đánh dấu người mua thử.",
+    "testBuyerOff": "Đã bỏ người mua thử."
   },
   "salesTeam": {
     "title": "Đội kinh doanh",
@@ -3273,5 +3283,66 @@
     "status_rejected": "Bị từ chối",
     "status_withdrawn": "Đã rút",
     "confirmApprove": "Duyệt đề xuất? Thay đổi được áp dụng ngay."
+  },
+  "storeSettings": {
+    "title": "Cài đặt bán hàng VComm",
+    "storeTitle": "Bán hàng",
+    "storeHint": "Hàng bán trên ứng dụng VComm là hàng của {company}. Chưa chọn kênh bán và kho xuất thì ứng dụng không hiện hàng.",
+    "choose": "Chọn",
+    "channel": "Kênh bán",
+    "channelHint": "Giá lấy theo bảng giá áp dụng cho kênh này.",
+    "warehouse": "Kho xuất",
+    "shippingFee": "Phí giao hàng mỗi đơn",
+    "freeShippingThreshold": "Miễn phí giao hàng từ (tiền hàng)",
+    "freeShippingHint": "Để trống: không miễn phí giao hàng.",
+    "packageTitle": "Gói hàng mặc định gửi đơn vị vận chuyển",
+    "packageLengthCm": "Dài (cm)",
+    "packageWidthCm": "Rộng (cm)",
+    "packageHeightCm": "Cao (cm)",
+    "minimumWeightGrams": "Khối lượng tối thiểu (g)",
+    "minimumWeightHint": "Dùng khi tổng khối lượng sản phẩm nhỏ hơn hoặc sản phẩm chưa có khối lượng.",
+    "saved": "Đã lưu cài đặt bán hàng.",
+    "carriersTitle": "Đơn vị vận chuyển",
+    "carriersHint": "Thông tin kết nối (token, mã cửa hàng, khóa webhook) do quản trị hệ thống đặt trên máy chủ.",
+    "enabled": "Đang bật",
+    "disabled": "Đang tắt",
+    "configured": "Đã có kết nối",
+    "notConfigured": "Chưa có kết nối",
+    "enable": "Bật",
+    "disable": "Tắt",
+    "carrierEnabled": "Đã bật đơn vị vận chuyển.",
+    "carrierDisabled": "Đã tắt đơn vị vận chuyển."
+  },
+  "listings": {
+    "title": "Đăng bán",
+    "hint": "Sản phẩm hiện trên ứng dụng VComm khi được đăng bán, đã duyệt, đang hoạt động, không quản lý lô hoặc serial và có giá trên kênh bán VComm.",
+    "search": "Tìm tên, mã sản phẩm",
+    "filter": "Lọc đăng bán",
+    "filter_all": "Tất cả sản phẩm",
+    "filter_published": "Đã đăng bán",
+    "filter_unpublished": "Chưa đăng bán",
+    "none": "Công ty vận hành sàn chưa có sản phẩm.",
+    "product": "Sản phẩm",
+    "price": "Giá gồm thuế",
+    "priceFrom": "Từ {price}",
+    "available": "Có thể bán",
+    "state": "Trạng thái",
+    "actions": "Thao tác",
+    "onApp": "Đang hiện trên ứng dụng",
+    "publishedHidden": "Đã đăng bán, chưa hiện",
+    "notPublished": "Chưa đăng bán",
+    "blocker_storeNotReady": "Chưa cài đặt kênh bán, kho xuất.",
+    "blocker_notApproved": "Sản phẩm chưa được duyệt.",
+    "blocker_inactive": "Sản phẩm ngừng hoạt động.",
+    "blocker_lotOrSerial": "Hàng quản lý lô hoặc serial chưa bán được trên ứng dụng.",
+    "blocker_noPrice": "Chưa có giá trên kênh bán VComm.",
+    "publish": "Đăng bán",
+    "unpublish": "Ngừng đăng bán",
+    "editDescription": "Mô tả",
+    "description": "Mô tả cho người mua",
+    "descriptionHint": "Để trống: dùng mô tả của sản phẩm.",
+    "publishedNotice": "Đã đăng bán sản phẩm.",
+    "unpublishedNotice": "Đã ngừng đăng bán sản phẩm.",
+    "descriptionSaved": "Đã lưu mô tả."
   }
 }

@@ -57,6 +57,7 @@ import { BuyerAdminService } from "./marketplace/buyer-admin.service";
 import { MarketplaceController } from "./marketplace/marketplace.controller";
 import { SalesTeamService } from "./marketplace/sales-team.service";
 import { SalesProposalsService } from "./marketplace/sales-proposals.service";
+import { StoreService } from "./marketplace/store.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
@@ -152,6 +153,7 @@ import { UsersService } from "./users/users.service";
     BuyerAdminService,
     SalesTeamService,
     SalesProposalsService,
+    StoreService,
     SupplierPricesService,
     SalesOrdersService,
     InternalTradeService,

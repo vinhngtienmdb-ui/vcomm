@@ -149,12 +149,45 @@ function SalesFlag({ buyer, settings, onSaved }: { buyer: BuyerAccountDetailResp
   );
 }
 
+// Người mua thử đặt được hàng khi chưa mở đặt hàng (CONG_VIEC_24; QUYTAC_NGHIEPVU_158).
+function TestBuyer({ buyer, onSaved }: { buyer: BuyerAccountDetailResponse; onSaved: (saved: BuyerAccountDetailResponse) => void }) {
+  const t = useTranslations("buyers");
+  const { notify } = useAdmin();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function toggle() {
+    setBusy(true);
+    setError(null);
+    try {
+      onSaved(await apiFetch<BuyerAccountDetailResponse>(`/marketplace/buyers/${buyer.id}/test-buyer`, { method: "PUT", body: JSON.stringify({ isTestBuyer: !buyer.isTestBuyer }) }));
+      notify(t(buyer.isTestBuyer ? "testBuyerOff" : "testBuyerOn"));
+    } catch (failure) {
+      setError(failureOf(failure).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="the" style={{ display: "grid", gap: "var(--khoang-3)" }}>
+      <h2>{t("testBuyerTitle")}</h2>
+      <span className="chu-thich">{t(buyer.isTestBuyer ? "testBuyerYes" : "testBuyerNo")}</span>
+      <FormError text={error} />
+      <div className="nhom-nut">
+        <button type="button" className="nut phu" disabled={busy} onClick={() => void toggle()}>
+          {t(buyer.isTestBuyer ? "testBuyerUnmark" : "testBuyerMark")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function BuyerPage() {
   const t = useTranslations("buyers");
   const { id } = useParams<{ id: string }>();
   const { state, reload } = useApi<BuyerAccountDetailResponse>(`/marketplace/buyers/${id}`);
   const settings = useApi<MarketplaceSettingsResponse>("/marketplace/settings");
   const [saved, setSaved] = useState<BuyerAccountDetailResponse | null>(null);
+  const { can } = useAdmin();
   return (
     <Loaded state={state} onRetry={() => void reload()}>
       {(loaded) => {
@@ -178,6 +211,7 @@ export default function BuyerPage() {
               <h2>{t("salesTitle")}</h2>
               {settings.state.kind === "ready" && <SalesFlag buyer={buyer} settings={settings.state.data} onSaved={setSaved} />}
             </div>
+            {can("marketplace.order.manage") && <TestBuyer buyer={buyer} onSaved={setSaved} />}
             {canManage && (
               <div className="the" style={{ display: "grid", gap: "var(--khoang-3)" }}>
                 <h2>{t("changeReferrer")}</h2>
