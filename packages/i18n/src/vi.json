@@ -348,7 +348,16 @@
     "workflowInvalid": "Mẫu chưa hợp lệ. Sửa các lỗi trong kết quả kiểm tra rồi kích hoạt lại.",
     "workflowNotActive": "Mẫu không ở trạng thái đang dùng.",
     "workflowStepLimit": "Phiên đã mở quá 100 bước; chỉ hủy được phiên.",
-    "workflowRunClosed": "Phiên quy trình đã kết thúc."
+    "workflowRunClosed": "Phiên quy trình đã kết thúc.",
+    "officeScanTypeInvalid": "Bản quét chỉ nhận tệp PDF, JPG, PNG.",
+    "officeRegisterDuplicate": "Đã có sổ cùng tên.",
+    "officeDefaultRegister": "Không ngừng dùng sổ mặc định.",
+    "officeDocumentTypeDuplicate": "Đã có loại văn bản cùng tên.",
+    "officeIncomingLocked": "Không làm được thao tác này ở trạng thái hiện tại của công văn đến.",
+    "officeIncomingYearLocked": "Ngày đến phải cùng năm với số đến đã cấp.",
+    "officeNotLeader": "Người được chọn không có quyền cho ý kiến công văn đến.",
+    "officeOutgoingLocked": "Không làm được thao tác này ở trạng thái hiện tại của công văn đi.",
+    "officeSignerInvalid": "Người ký phải là thành viên đang hoạt động của công ty."
   },
   "login": {
     "title": "Đăng nhập",

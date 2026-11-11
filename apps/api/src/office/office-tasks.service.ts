@@ -51,6 +51,7 @@ type TaskRow = {
   version: number;
   workflow_step_instance_id: string | null;
   candidate_role_id: string | null;
+  incoming_document_id: string | null;
   can_claim?: boolean;
 };
 
@@ -61,7 +62,7 @@ export type WorkflowTaskInfoProvider = (stepInstanceId: string, candidateRoleId:
 
 const taskColumns = sql`t.id, t.company_id, c.short_name AS company_name, t.parent_id, t.title, t.description, t.status, t.priority, t.progress,
   to_char(t.start_date, 'YYYY-MM-DD') AS start_date, t.due_at, t.assigned_by, t.owner_user_id, t.status_reason, t.completed_at, t.created_at, t.version,
-  t.workflow_step_instance_id, t.candidate_role_id`;
+  t.workflow_step_instance_id, t.candidate_role_id, t.incoming_document_id`;
 
 // Cơ sở dữ liệu trả thời điểm dạng chuỗi; đổi về ISO 8601 thống nhất.
 const isoOrNull = (value: Date | string | null): string | null => (value === null ? null : new Date(value).toISOString());
@@ -94,7 +95,9 @@ export function checkOfficeFile(file: { buffer: Buffer; size: number; originalna
     throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "officeFileTypeInvalid" } });
   }
   // Tên tệp gốc giữ để hiển thị; bỏ ký tự điều khiển và đường dẫn.
-  const fileName = (file.originalname.split(/[\\/]/).pop() ?? "tep").replace(/[\u0000-\u001f]/g, "").slice(0, 200) || "tep";
+  // multer đọc tên tệp theo latin1; đổi lại UTF-8 để giữ tên tiếng Việt.
+  const decoded = Buffer.from(file.originalname, "latin1").toString("utf8");
+  const fileName = (decoded.split(/[\\/]/).pop() ?? "tep").replace(/[\u0000-\u001f"]/g, "").slice(-200) || "tep";
   return { fileName, contentType: kind.type };
 }
 
@@ -109,6 +112,8 @@ export class OfficeTasksService {
   ) {}
 
   readonly workflowCompletedHooks: WorkflowTaskCompletedHook[] = [];
+  // Móc nối khi việc hoàn thành hoặc hủy (công văn đến gắn việc xử lý); chạy trong cùng giao dịch.
+  readonly statusChangedHooks: ((transaction: Executor, task: { id: string; status: OfficeTaskStatus; actorId: string }) => Promise<void>)[] = [];
   workflowInfo: WorkflowTaskInfoProvider | null = null;
 
   // Người dùng giữ vai trò ứng viên của việc (gán ở tập đoàn hoặc công ty của việc, còn hiệu lực).
@@ -243,6 +248,7 @@ export class OfficeTasksService {
       createdAt: isoOrNull(row.created_at)!,
       version: row.version,
       children: children.map((child) => this.listItem(child, people)),
+      incomingDocumentId: row.incoming_document_id,
       workflow: row.workflow_step_instance_id && this.workflowInfo ? await this.workflowInfo(row.workflow_step_instance_id, row.candidate_role_id) : null,
       allowedActions: this.allowedActions(actor.userId, row),
     };
@@ -438,6 +444,9 @@ export class OfficeTasksService {
           UPDATE office.tasks SET status = 'cancelled', status_reason = ${reason ?? null}, cancelled_at = now(), updated_at = now(), version = version + 1
           WHERE parent_id = ${id} AND status NOT IN ('completed', 'cancelled') RETURNING id`);
         for (const child of children.rows) await this.event(transaction, child.id, actor.userId, "status_cancel", { reason, byParent: true });
+      }
+      if (next === "completed" || next === "cancelled") {
+        for (const hook of this.statusChangedHooks) await hook(transaction, { id, status: next, actorId: actor.userId });
       }
       // Đổi trạng thái: báo người giao và người theo dõi; trả lại, hủy báo cả người chủ trì.
       const followers = (await transaction.execute<{ user_id: string }>(sql`SELECT user_id FROM office.task_participants WHERE task_id = ${id} AND role = 'follower'`)).rows.map(

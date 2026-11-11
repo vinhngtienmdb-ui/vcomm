@@ -348,7 +348,16 @@
     "workflowInvalid": "The template is not valid yet. Fix the validation issues, then activate again.",
     "workflowNotActive": "The template is not in use.",
     "workflowStepLimit": "The run has opened more than 100 steps; it can only be cancelled.",
-    "workflowRunClosed": "The workflow run has already ended."
+    "workflowRunClosed": "The workflow run has already ended.",
+    "officeScanTypeInvalid": "Scanned copies must be PDF, JPG or PNG files.",
+    "officeRegisterDuplicate": "A register with this name already exists.",
+    "officeDefaultRegister": "The default register cannot be stopped.",
+    "officeDocumentTypeDuplicate": "A document type with this name already exists.",
+    "officeIncomingLocked": "This action is not available in the incoming document's current status.",
+    "officeIncomingYearLocked": "The received date must be in the same year as the assigned number.",
+    "officeNotLeader": "The selected person cannot direct incoming documents.",
+    "officeOutgoingLocked": "This action is not available in the outgoing document's current status.",
+    "officeSignerInvalid": "The signer must be an active member of the company."
   },
   "login": {
     "title": "Sign in",

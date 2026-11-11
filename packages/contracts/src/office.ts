@@ -126,6 +126,8 @@ export interface OfficeTaskResponse extends OfficeTaskListItem {
   createdAt: string;
   version: number;
   children: OfficeTaskListItem[];
+  // Công văn đến được giao xử lý bằng việc này.
+  incomingDocumentId: string | null;
   // Việc của bước quy trình: phiên, tên bước, các kết quả để chọn khi báo xong; vai trò được nhận việc khi chưa có chủ trì.
   workflow: { runId: string; runNo: string; stepName: string; outcomes: string[]; instructions: string | null; candidateRoleName: string | null } | null;
   // Thao tác người xem được làm: theo vai trò trên việc và trạng thái.
@@ -338,4 +340,234 @@ export const cancelWorkflowRunSchema = z.object({ reason: z.string().trim().min(
 export interface WorkflowDesignOptions {
   roles: { id: string; name: string }[];
   departments: { id: string; name: string }[];
+}
+
+// Công văn đến, đi theo Nghị định 30/2020/NĐ-CP (QUYTAC_NGHIEPVU_363 đến 366; API_188 đến API_190).
+export const documentUrgencies = ["normal", "urgent", "very_urgent", "flash"] as const;
+export type DocumentUrgency = (typeof documentUrgencies)[number];
+export const incomingChannels = ["paper", "email", "group", "other"] as const;
+export const signerAuthorities = ["", "TM.", "KT.", "TL.", "TUQ.", "Q."] as const;
+export type IncomingStatus = "awaiting_registration" | "registered" | "awaiting_direction" | "processing" | "processed" | "archived" | "voided";
+export type OutgoingStatus = "draft" | "pending" | "rejected" | "withdrawn" | "awaiting_number" | "numbered" | "issued" | "cancelled";
+
+export const documentSettingsSchema = z
+  .object({
+    parentOrgName: z.string().trim().max(200).nullish(),
+    companyDisplayName: z.string().trim().min(1).max(200),
+    companyAbbreviation: z.string().trim().regex(/^[A-ZĐ0-9]{1,20}$/),
+    placeName: z.string().trim().min(1).max(100),
+    fontScheme: z.union([z.literal(13), z.literal(14)]),
+    marginTop: z.number().int().min(20).max(25),
+    marginBottom: z.number().int().min(20).max(25),
+    marginLeft: z.number().int().min(30).max(35),
+    marginRight: z.number().int().min(15).max(20),
+    version: z.number().int().min(1).optional(),
+  })
+  .strict();
+export type DocumentSettings = Omit<z.infer<typeof documentSettingsSchema>, "version"> & { version: number };
+
+export const registerSchema = z.object({ name: z.string().trim().min(1).max(100), direction: z.enum(["incoming", "outgoing"]) }).strict();
+export const updateRegisterSchema = z.object({ name: z.string().trim().min(1).max(100), status: z.enum(["active", "inactive"]), version: z.number().int().min(1) }).strict();
+export interface RegisterItem {
+  id: string;
+  direction: "incoming" | "outgoing";
+  name: string;
+  isDefault: boolean;
+  status: "active" | "inactive";
+  nextNumberThisYear: number;
+  version: number;
+}
+
+export const documentTypeSchema = z.object({ name: z.string().trim().min(1).max(100), abbreviation: z.string().trim().regex(/^[A-ZĐa-z0-9]{1,10}$/) }).strict();
+export const updateDocumentTypeSchema = z.object({ status: z.enum(["active", "inactive"]) }).strict();
+export interface DocumentTypeItem {
+  id: string;
+  name: string;
+  abbreviation: string | null;
+  isOfficialLetter: boolean;
+  isCustom: boolean;
+  status: "active" | "inactive";
+}
+
+export const registerIncomingSchema = z
+  .object({
+    registerId: z.uuid(),
+    receivedOn: isoDate,
+    sender: z.string().trim().min(1).max(300),
+    symbol: z.string().trim().max(50).nullish(),
+    documentDate: isoDate.nullish(),
+    documentTypeName: z.string().trim().min(1).max(100),
+    summary: z.string().trim().min(1).max(500),
+    urgency: z.enum(documentUrgencies).default("normal"),
+    dueOn: isoDate.nullish(),
+    channel: z.enum(incomingChannels),
+  })
+  .strict();
+export type RegisterIncomingInput = z.infer<typeof registerIncomingSchema>;
+export const updateIncomingSchema = registerIncomingSchema.omit({ registerId: true }).extend({ version: z.number().int().min(1) }).strict();
+// Vào sổ công văn liên công ty đang chờ: chọn sổ, ngày đến.
+export const acceptIncomingSchema = z.object({ registerId: z.uuid(), receivedOn: isoDate, version: z.number().int().min(1) }).strict();
+export const submitIncomingSchema = z.object({ leaderUserId: z.uuid(), note: z.string().trim().max(2000).nullish(), version: z.number().int().min(1) }).strict();
+export const directIncomingSchema = z
+  .object({
+    action: z.enum(["assign", "forward", "archive"]),
+    note: z.string().trim().max(2000).nullish(),
+    ownerUserId: z.uuid().nullish(),
+    collaboratorIds: z.array(z.uuid()).max(officeTaskParticipantMaximum).default([]),
+    dueAt: z.iso.datetime({ offset: true }).nullish(),
+    leaderUserId: z.uuid().nullish(),
+    version: z.number().int().min(1),
+  })
+  .strict();
+export const voidIncomingSchema = z.object({ reason: z.string().trim().min(1).max(1000), version: z.number().int().min(1) }).strict();
+
+export const incomingListQuerySchema = z
+  .object({
+    registerId: z.uuid().optional(),
+    year: z.coerce.number().int().min(2000).max(2100).optional(),
+    status: z.enum(["awaiting_registration", "registered", "awaiting_direction", "processing", "processed", "archived", "voided", "all"]).default("all"),
+    urgency: z.enum(documentUrgencies).optional(),
+    search: z.string().trim().max(200).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export interface IncomingListItem {
+  id: string;
+  registerName: string | null;
+  year: number | null;
+  incomingNo: number | null;
+  receivedOn: string | null;
+  sender: string;
+  symbol: string | null;
+  documentDate: string | null;
+  documentTypeName: string;
+  summary: string;
+  urgency: DocumentUrgency;
+  dueOn: string | null;
+  handler: OfficePerson | null;
+  status: IncomingStatus;
+}
+
+export interface IncomingRouting {
+  id: string;
+  action: string;
+  actor: OfficePerson | null;
+  toUser: OfficePerson | null;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface IncomingResponse extends IncomingListItem {
+  channel: (typeof incomingChannels)[number];
+  registerId: string | null;
+  leader: OfficePerson | null;
+  taskId: string | null;
+  sourceCompanyName: string | null;
+  voidReason: string | null;
+  files: OfficeFileItem[];
+  routings: IncomingRouting[];
+  duplicateOf: { id: string; incomingNo: number | null }[];
+  allowedActions: ("edit" | "submit" | "direct" | "void" | "accept" | "upload")[];
+  version: number;
+}
+
+// Nội dung soạn theo thể thức: danh sách đoạn; đoạn danh sách bắt đầu bằng gạch đầu dòng.
+export const documentParagraphSchema = z.object({ kind: z.enum(["paragraph", "bullet"]), text: z.string().max(5000), bold: z.boolean().default(false), italic: z.boolean().default(false) }).strict();
+export type DocumentParagraph = z.infer<typeof documentParagraphSchema>;
+
+export const saveOutgoingSchema = z
+  .object({
+    registerId: z.uuid(),
+    documentTypeId: z.uuid(),
+    departmentId: z.uuid().nullish(),
+    summary: z.string().trim().min(1).max(500),
+    urgency: z.enum(documentUrgencies).default("normal"),
+    composeMode: z.enum(["compose", "upload"]),
+    recipientLine: z.string().trim().max(500).nullish(),
+    body: z.array(documentParagraphSchema).max(500).default([]),
+    signerUserId: z.uuid(),
+    signerAuthority: z.enum(signerAuthorities).default(""),
+    signerAuthorityOf: z.string().trim().max(100).nullish(),
+    signerTitle: z.string().trim().min(1).max(100),
+    externalRecipients: z.array(z.string().trim().min(1).max(200)).max(30).default([]),
+    internalRecipients: z
+      .array(z.object({ kind: z.enum(["user", "department", "company"]), id: z.uuid() }).strict())
+      .max(50)
+      .default([]),
+    copies: z.number().int().min(1).max(999).default(1),
+    drafterCode: z.string().trim().max(20).nullish(),
+    replyToIncomingId: z.uuid().nullish(),
+    version: z.number().int().min(1).optional(),
+  })
+  .strict();
+export type SaveOutgoingInput = z.infer<typeof saveOutgoingSchema>;
+
+export const outgoingListQuerySchema = z
+  .object({
+    registerId: z.uuid().optional(),
+    year: z.coerce.number().int().min(2000).max(2100).optional(),
+    status: z.enum(["draft", "pending", "rejected", "withdrawn", "awaiting_number", "numbered", "issued", "cancelled", "all"]).default("all"),
+    search: z.string().trim().max(200).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export interface OutgoingListItem {
+  id: string;
+  registerName: string;
+  outgoingNo: number | null;
+  symbol: string | null;
+  issuedOn: string | null;
+  documentTypeName: string;
+  summary: string;
+  signer: OfficePerson;
+  recipientsText: string;
+  urgency: DocumentUrgency;
+  status: OutgoingStatus;
+}
+
+export interface OutgoingResponse extends OutgoingListItem {
+  registerId: string;
+  documentTypeId: string;
+  departmentId: string | null;
+  departmentName: string | null;
+  composeMode: "compose" | "upload";
+  recipientLine: string | null;
+  body: DocumentParagraph[];
+  signerAuthority: (typeof signerAuthorities)[number];
+  signerAuthorityOf: string | null;
+  signerTitle: string;
+  externalRecipients: string[];
+  internalRecipients: { kind: "user" | "department" | "company"; id: string; name: string }[];
+  copies: number;
+  drafterCode: string | null;
+  replyTo: { id: string; incomingNo: number | null; symbol: string | null } | null;
+  approvalMode: "policy" | "signer" | null;
+  approvalRequestId: string | null;
+  decisionNote: string | null;
+  cancelReason: string | null;
+  createdBy: OfficePerson;
+  draftFiles: OfficeFileItem[];
+  signedFiles: OfficeFileItem[];
+  // Ký hiệu dự kiến nếu cấp số bây giờ (văn thư).
+  expectedSymbol: string | null;
+  allowedActions: ("edit" | "submit" | "withdraw" | "cancel" | "decide" | "number" | "issue" | "upload_draft")[];
+  version: number;
+}
+
+export const outgoingDecisionSchema = z.object({ decision: z.enum(["approved", "rejected"]), note: z.string().trim().max(1000).nullish(), version: z.number().int().min(1) }).strict();
+export const outgoingCancelSchema = z.object({ reason: z.string().trim().min(1).max(1000), version: z.number().int().min(1) }).strict();
+export const outgoingVersionSchema = z.object({ version: z.number().int().min(1) }).strict();
+
+export interface DocumentOptions {
+  registers: RegisterItem[];
+  documentTypes: DocumentTypeItem[];
+  departments: { id: string; name: string; code: string }[];
+  companies: { id: string; name: string }[];
+  leaders: OfficePerson[];
+  settings: DocumentSettings;
+  canClerk: boolean;
 }

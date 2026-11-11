@@ -120,6 +120,8 @@ import { ProposalsService } from "./proposals/proposals.service";
 import { OfficeController } from "./office/office.controller";
 import { OfficeTasksService } from "./office/office-tasks.service";
 import { OfficeWorkflowsService } from "./office/office-workflows.service";
+import { OfficeDocumentsController } from "./office/office-documents.controller";
+import { OfficeDocumentsService } from "./office/office-documents.service";
 import { EXCHANGE_RATE_FEED, VietcombankFeed } from "./settings/vietcombank-rates";
 import { DeactivationService } from "./users/deactivation.service";
 import { UsersController } from "./users/users.controller";
@@ -129,7 +131,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, OfficeController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, OfficeController, OfficeDocumentsController],
   providers: [
     AuthService,
     ActivationService,
@@ -204,6 +206,7 @@ import { UsersService } from "./users/users.service";
     ProposalsService,
     OfficeTasksService,
     OfficeWorkflowsService,
+    OfficeDocumentsService,
     ProposalPdfService,
     PhoneOtpService,
     OauthService,

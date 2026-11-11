@@ -150,3 +150,10 @@
 ### Zalo Login (THAY_DOI_01)
 - OAuth phiên bản 4: `https://oauth.zaloapp.com/v4/permission`, `https://oauth.zaloapp.com/v4/access_token`, thông tin người dùng `https://graph.zalo.me/v2.0/me` với `fields=id,name,picture` (`https://github.com/zaloplatform/zalo-php-sdk`). SDK chính thức dùng PKCE (`code_challenge`).
 - Zalo Login trên web không trả số điện thoại; số điện thoại chỉ lấy được trong Zalo Mini App qua `getPhoneNumber` có sự đồng ý của người dùng. Phù hợp quy tắc đã duyệt: nhân viên liên kết Zalo sau khi kích hoạt (QUYTAC_NGHIEPVU_08); người mua đăng ký bằng Zalo vẫn cần xác minh số điện thoại bằng OTP.
+
+## Phân tích giải pháp có sẵn – Xuất công văn PDF, Word cho MODULE_13 (CONG_VIEC_52) – 2026-11-11
+
+- Yêu cầu cần đáp ứng: QUYTAC_NGHIEPVU_366 (thể thức Nghị định 30/2020/NĐ-CP: khổ A4, lề, phông Times New Roman, cỡ, kiểu chữ từng thành phần), xuất PDF và Word.
+- PDF: dùng `pdfmake` 0.3.12 đang có; phông Liberation Serif (SIL OFL 1.1, kích thước chữ tương đương Times New Roman, có đủ chữ tiếng Việt) đóng gói trong `apps/api/assets/fonts` kèm tệp giấy phép. Times New Roman có bản quyền, không đóng gói được.
+- Word: thêm `docx` 9.15.3 (giấy phép MIT, cập nhật 2026-11-06; phụ thuộc `fflate`, `nanoid` giấy phép MIT), tạo tệp `.docx` ghi phông Times New Roman.
+- Quyết định của người dùng: xuất cả PDF và Word, thêm thư viện `docx` – 2026-11-11.
