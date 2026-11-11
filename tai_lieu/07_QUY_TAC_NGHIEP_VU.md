@@ -794,6 +794,31 @@ Ngoại lệ:
 
 Quyết định của người dùng, quyết định AI tự đưa ra và chỗ chỉnh cho khớp mã: `tai_lieu/cong_viec/CONG_VIEC_54.md` mục 16, 17, 18. THAY_DOI_23 (bỏ giới hạn yêu cầu theo IP ở trang tuyển dụng công khai), THAY_DOI_25 (ứng viên tự trả lời đề nghị qua liên kết dùng một lần; email mời phỏng vấn kèm tệp lịch).
 
+## MODULE_11 Điểm thưởng (phần 1, CONG_VIEC_51)
+
+Nội dung đầy đủ: đặc tả `cong_viec/CONG_VIEC_51.md` mục 5 (quyết định người dùng 2026-11-11 ở mục 17).
+
+| Mã | Quy tắc | Nguồn |
+|---|---|---|
+| QUYTAC_NGHIEPVU_344 | Sổ cái: một ví điểm mỗi người mua; bút toán điểm chỉ thêm (trigger chặn sửa, xóa), số dư ≥ 0; lô điểm cho mỗi lần cộng; dùng, hết hạn, điều chỉnh trừ lấy lô hạn sớm trước; nguồn chứng từ chung (đơn VComm, bán, trả hàng tại quầy, phiếu điều chỉnh) | Người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_345 | Giai đoạn chương trình (không chồng lấn, bắt đầu từ hôm nay trở đi; đã bắt đầu chỉ sửa ngày kết thúc); không có giai đoạn hiệu lực thì không tích, không đổi | Người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_346 | Chốt giai đoạn ngày đặt, hạng và hệ số lúc đặt; điểm dự kiến | Người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_347 | Tích khi đơn hoàn tất (bán tại quầy: ngay khi bán) theo giá trị trừ tiền điểm, tỷ lệ, hệ số, trần đơn, trần tháng; không tích với người mua thử, ví khóa, tài khoản ngưng hoạt động | Người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_348 | Dùng điểm khi đặt đơn thường: tối thiểu, số dư lô còn hạn, tỷ lệ tối đa tiền hàng; tiền thu hộ, tiền cổng trừ tiền điểm; ô dùng điểm mặc định tắt | Người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_349 | Hoàn điểm khi hủy (đúng lô, lô quá hạn thêm 30 ngày), khi trả hàng theo tỷ lệ; trả hàng tại quầy trừ lại điểm đã tích, thiếu thì quy tiền trừ vào tiền hoàn | Người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_350 | Hết hạn hằng ngày theo lô; nhắc trước 30 ngày một lần mỗi lô | Người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_351 | Hạng theo chi tiêu năm dương lịch: cao hơn giữa năm trước và năm nay, lên hạng ngay, 1/1 xét lại; hệ số tích theo hạng | Người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_352 | Khóa, mở ví điểm kèm lý do, lưu lịch sử | Người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_353 | Phiếu điều chỉnh qua luồng duyệt, người lập không tự duyệt; trừ không vượt số dư lúc duyệt | Người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_354 | Cảnh báo bất thường 90 ngày: trùng số nhận, địa chỉ (≥ 3 người mua); ≥ 5 đơn và ≥ 50% hủy hoặc trả; ≥ 5 chứng từ đổi điểm một ngày | Người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_355 | Hạch toán: tích Nợ 641 / Có 3388; dùng Nợ 3388 / Có 131, chênh lệch giá trị vào 641; hết hạn Nợ 3388 / Có 641; quầy ở công ty con khác cân bằng bằng 1368 / 3368; báo cáo nghĩa vụ điểm | Người dùng 2026-11-11 |
+
+Quyết định AI tự đưa ra trong phạm vi đặc tả (CONG_VIEC_51), chờ người dùng xác nhận khi nghiệm thu:
+- Giai đoạn mới chỉ bắt đầu từ hôm nay trở đi (không áp ngược cho đơn đã đặt).
+- Bảng hạng chỉ bỏ được hạng chưa có ví hoặc lịch sử hạng.
+- Đơn trực tuyến mà điểm trả hết tổng thanh toán thì chuyển Chờ giao ngay, không cần thanh toán.
+- Bút toán điểm dùng của đơn VComm ghi gộp khi đơn hoàn tất; điều chỉnh, hết hạn chỉ ở công ty vận hành sàn.
+
 ## Quy tắc do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Mã | Nội dung đề xuất |

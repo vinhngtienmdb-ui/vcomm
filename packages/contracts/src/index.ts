@@ -4240,7 +4240,9 @@ export const marketplaceOrderStatuses = ["awaiting_payment", "awaiting_shipment"
 export type MarketplaceOrderStatus = (typeof marketplaceOrderStatuses)[number];
 
 const orderLinesInput = z.array(z.object({ variantId: z.uuid(), quantity: z.number().int().min(1).max(999) }).strict()).min(1).max(50);
-export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput }).strict();
+// pointsToRedeem: số điểm thưởng dùng cho đơn (CONG_VIEC_51; QUYTAC_NGHIEPVU_348), mặc định 0.
+const pointsToRedeem = z.number().int().min(0).max(1_000_000_000).default(0);
+export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput, pointsToRedeem }).strict();
 // Mã phương thức theo định dạng; phương thức có thật, đang bật hay không do máy chủ kiểm theo danh mục (CONG_VIEC_32).
 const paymentMethodInput = z
   .string()
@@ -4248,7 +4250,7 @@ const paymentMethodInput = z
   .default("cod")
   .transform((value) => value as PaymentMethodCode);
 // expectedTotal: tổng thanh toán người mua đã thấy; khác tổng tính lại thì báo giá đã thay đổi. paymentMethod mặc định thanh toán khi nhận hàng (ứng dụng bản CONG_VIEC_24).
-export const buyerOrderPlaceSchema = z.object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: paymentMethodInput }).strict();
+export const buyerOrderPlaceSchema = z.object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: paymentMethodInput, pointsToRedeem }).strict();
 
 export interface MarketplaceOrderLine {
   variantId: string;
@@ -4274,6 +4276,12 @@ export interface BuyerOrderPreview {
   canOrder: boolean;
   // Phương thức đang bật, theo thứ tự hiển thị.
   paymentMethods: PaymentMethodCode[];
+  // Điểm thưởng (CONG_VIEC_51): khả năng dùng điểm, tiền điểm của số điểm đang chọn, tổng sau trừ điểm, điểm dự kiến tích.
+  loyalty: { balance: number; minPoints: number; maxPoints: number; pointValue: string | null; redeemable: boolean; blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null };
+  pointsToRedeem: number;
+  pointsAmount: string;
+  payable: string;
+  expectedPoints: number;
 }
 
 export interface MarketplaceOrderEvent {
@@ -4416,6 +4424,9 @@ export interface BuyerOrderDetail extends BuyerOrderListItem {
   // Trả hàng trong 7 ngày (QUYTAC_NGHIEPVU_161).
   returnRequests: ReturnRequestItem[];
   canRequestReturn: boolean;
+  // Tiền điểm thưởng trừ vào đơn; điểm dùng, hoàn, tích của đơn (CONG_VIEC_51).
+  pointsAmount: string;
+  points: LoyaltyDocumentPoints | null;
   version: number;
 }
 
@@ -6123,3 +6134,258 @@ export interface AnalyticsOverviewResponse {
 }
 export * from "./recruitment";
 export * from "./reviews";
+
+// ---------------------------------------------------------------------------
+// CONG_VIEC_51: Điểm thưởng (MODULE_11). Điểm là số nguyên; tiền, phần trăm là chuỗi số thập phân.
+// ---------------------------------------------------------------------------
+const loyaltyPercent = z
+  .string()
+  .trim()
+  .regex(/^\d{1,3}(\.\d{1,4})?$/, "invalidValue")
+  .refine((value) => Number(value) <= 100, "invalidValue");
+const loyaltyPointValue = z
+  .string()
+  .trim()
+  .regex(/^\d{1,9}(\.\d{1,4})?$/, "invalidValue")
+  .refine((value) => Number(value) > 0, "invalidValue");
+const loyaltyPointCount = z.number().int().min(1).max(1_000_000_000);
+
+// QUYTAC_NGHIEPVU_345: giai đoạn chương trình điểm.
+export const loyaltyPhaseSchema = z
+  .object({
+    startsOn: isoDate,
+    endsOn: isoDate.nullable(),
+    earnPercent: loyaltyPercent,
+    pointValue: loyaltyPointValue,
+    redeemMaxPercent: loyaltyPercent,
+    redeemMinPoints: loyaltyPointCount,
+    validityMonths: z.number().int().min(1).max(60),
+    orderCapPoints: loyaltyPointCount.nullable(),
+    monthlyCapPoints: loyaltyPointCount.nullable(),
+  })
+  .strict();
+export type LoyaltyPhaseInput = z.infer<typeof loyaltyPhaseSchema>;
+export const loyaltyPhaseUpdateSchema = loyaltyPhaseSchema.extend({ version: z.number().int().min(0) }).strict();
+
+// QUYTAC_NGHIEPVU_351: bảng hạng, thay cả bảng; hạng đầu mức 0, mức tăng dần.
+export const loyaltyTiersSchema = z
+  .object({
+    tiers: z
+      .array(
+        z
+          .object({
+            nameVi: z.string().trim().min(1).max(50),
+            nameEn: z.string().trim().min(1).max(50),
+            minAnnualSpend: z.string().trim().regex(/^\d{1,14}(\.\d{1,4})?$/, "invalidValue"),
+            multiplier: z
+              .string()
+              .trim()
+              .regex(/^\d(\.\d{1,3})?$/, "invalidValue")
+              .refine((value) => Number(value) >= 1 && Number(value) <= 5, "invalidValue"),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(10),
+  })
+  .strict();
+export type LoyaltyTiersInput = z.infer<typeof loyaltyTiersSchema>;
+
+export type LoyaltyPhaseStatus = "upcoming" | "active" | "ended";
+export interface LoyaltyPhase {
+  id: string;
+  startsOn: string;
+  endsOn: string | null;
+  earnPercent: string;
+  pointValue: string;
+  redeemMaxPercent: string;
+  redeemMinPoints: number;
+  validityMonths: number;
+  orderCapPoints: number | null;
+  monthlyCapPoints: number | null;
+  status: LoyaltyPhaseStatus;
+  version: number;
+}
+export interface LoyaltyTier {
+  id: string;
+  sortOrder: number;
+  nameVi: string;
+  nameEn: string;
+  minAnnualSpend: string;
+  multiplier: string;
+}
+export interface LoyaltyProgramResponse {
+  today: string;
+  phases: LoyaltyPhase[];
+  tiers: LoyaltyTier[];
+  canManage: boolean;
+}
+
+export type LoyaltyEntryKind = "earn" | "redeem" | "redeem_refund" | "earn_reversal" | "expire" | "adjust_add" | "adjust_subtract";
+export type LoyaltySourceType = "marketplace_order" | "retail_sale" | "retail_return" | "adjustment";
+export interface LoyaltyEntryItem {
+  id: string;
+  kind: LoyaltyEntryKind;
+  points: number;
+  balanceAfter: number;
+  sourceType: LoyaltySourceType | null;
+  sourceId: string | null;
+  // Số chứng từ để hiện (số đơn bán của đơn VComm, số phiếu điều chỉnh); trống khi không có.
+  documentNo: string | null;
+  // Hạn dùng của lô khi bút toán là cộng điểm.
+  expiresOn: string | null;
+  createdAt: string;
+}
+export interface LoyaltyTierProgress {
+  tier: LoyaltyTier | null;
+  spendCurrentYear: string;
+  spendPreviousYear: string;
+  year: number;
+  // Hạng kế tiếp và số tiền còn thiếu trong năm nay; trống khi đã ở hạng cao nhất.
+  nextTier: LoyaltyTier | null;
+  remainingToNext: string | null;
+}
+export interface BuyerLoyaltyResponse extends LoyaltyTierProgress {
+  balance: number;
+  locked: boolean;
+  // Giá trị một điểm của giai đoạn đang hiệu lực; trống khi không có giai đoạn.
+  pointValue: string | null;
+  expiringPoints: number;
+  expiringOn: string | null;
+  tiers: LoyaltyTier[];
+}
+export interface LoyaltyDocumentPoints {
+  redeemedPoints: number;
+  redeemedAmount: string;
+  refundedPoints: number;
+  expectedPoints: number;
+  earnedPoints: number | null;
+  earnStatus: "pending" | "earned" | "skipped" | "cancelled";
+  skipReason: "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | null;
+  expiresOn: string | null;
+  tierName: string | null;
+  multiplier: string;
+  earnPercent: string | null;
+  pointValue: string | null;
+}
+
+// API_182: nghĩa vụ điểm theo tháng (CONG_VIEC_51; QUYTAC_NGHIEPVU_355). Điểm là số nguyên có dấu; giá trị theo giá trị một điểm lúc cộng.
+export const loyaltyLiabilityQuerySchema = z.object({ year: z.coerce.number().int().min(2020).max(2100) }).strict();
+export interface LoyaltyLiabilityMonth {
+  month: string;
+  issued: number;
+  used: number;
+  expired: number;
+  adjusted: number;
+  closingPoints: number;
+  closingValue: string;
+}
+export interface LoyaltyLiabilityResponse {
+  year: number;
+  months: LoyaltyLiabilityMonth[];
+  currentPoints: number;
+  currentValue: string;
+  expiringPoints: number;
+}
+
+// API_179: ví điểm (quản trị).
+export const loyaltyAccountListQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    tierId: z.uuid().optional(),
+    locked: z.enum(["true", "false"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const loyaltyLockSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export interface LoyaltyAccountListItem {
+  userId: string;
+  fullName: string;
+  phone: string;
+  tierName: string | null;
+  balance: number;
+  expiringPoints: number;
+  spendCurrentYear: string;
+  locked: boolean;
+}
+export interface LoyaltyLotItem {
+  id: string;
+  sourceType: LoyaltySourceType;
+  documentNo: string | null;
+  earnedOn: string;
+  expiresOn: string;
+  points: number;
+  remaining: number;
+  pointValue: string;
+}
+export interface LoyaltyAccountDetail extends LoyaltyTierProgress {
+  userId: string;
+  fullName: string;
+  phone: string;
+  balance: number;
+  locked: boolean;
+  lockReason: string | null;
+  lots: LoyaltyLotItem[];
+  tierHistory: { fromTierName: string | null; toTierName: string; reason: "order_completed" | "year_start" | "tiers_changed"; createdAt: string }[];
+  lockHistory: { action: "lock" | "unlock"; reason: string; actorName: string; createdAt: string }[];
+  canManage: boolean;
+}
+
+// API_180: phiếu điều chỉnh điểm (QUYTAC_NGHIEPVU_353).
+export const loyaltyAdjustmentStatuses = ["draft", "pending", "posted", "rejected", "withdrawn", "post_failed"] as const;
+export type LoyaltyAdjustmentStatus = (typeof loyaltyAdjustmentStatuses)[number];
+export const loyaltyAdjustmentSchema = z
+  .object({
+    phone: vietnamPhone,
+    direction: z.enum(["add", "subtract"]),
+    points: z.number().int().min(1).max(10_000_000),
+    reason: z.string().trim().min(1).max(500),
+  })
+  .strict();
+export const loyaltyAdjustmentUpdateSchema = loyaltyAdjustmentSchema.extend({ version: z.number().int().min(0) }).strict();
+export const loyaltyAdjustmentListQuerySchema = z
+  .object({
+    status: z.enum(loyaltyAdjustmentStatuses).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const loyaltyAdjustmentVersionSchema = z.object({ version: z.number().int().min(0) }).strict();
+export interface LoyaltyAdjustmentItem {
+  id: string;
+  documentNo: string | null;
+  userId: string;
+  buyerName: string;
+  buyerPhone: string;
+  direction: "add" | "subtract";
+  points: number;
+  // Giá trị gửi duyệt = điểm × giá trị một điểm (chốt khi gửi; nháp: theo giai đoạn hiện hành).
+  value: string | null;
+  reason: string;
+  status: LoyaltyAdjustmentStatus;
+  failureReason: string | null;
+  approvalRequestId: string | null;
+  createdByName: string;
+  createdAt: string;
+  version: number;
+  canEdit: boolean;
+  canWithdraw: boolean;
+}
+
+// API_181: cảnh báo bất thường trong 90 ngày (QUYTAC_NGHIEPVU_354).
+export const loyaltyAlertKinds = ["shared_contact", "cancel_return", "redeem_burst"] as const;
+export type LoyaltyAlertKind = (typeof loyaltyAlertKinds)[number];
+export const loyaltyAlertQuerySchema = z.object({ kind: z.enum(loyaltyAlertKinds).default("shared_contact") }).strict();
+export interface LoyaltyAlertItem {
+  // Thông tin trùng (số nhận, địa chỉ) hoặc ngày đổi dồn dập; trống với hủy, trả nhiều.
+  label: string | null;
+  buyers: { userId: string; fullName: string; phone: string }[];
+  orderCount: number;
+  cancelledOrReturned: number | null;
+  points: number;
+}
+export interface LoyaltyAlertResponse {
+  kind: LoyaltyAlertKind;
+  items: LoyaltyAlertItem[];
+}

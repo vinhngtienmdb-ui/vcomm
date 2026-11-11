@@ -83,6 +83,15 @@ export const permissionCatalog: PermissionDefinition[] = [
   },
   // CONG_VIEC_25: ghi đã thu tiền thu hộ, đã hoàn tiền đơn VComm.
   { code: "marketplace.payment.manage", appCode: "crm", nameVi: "Ghi đã thu tiền thu hộ, đã hoàn tiền đơn VComm", nameEn: "Record VComm cash collected and refunds", isSensitive: true },
+  // CONG_VIEC_51: điểm thưởng (xét tại công ty vận hành sàn).
+  { code: "loyalty.view", appCode: "crm", nameVi: "Xem chương trình điểm, ví điểm, nghĩa vụ điểm", nameEn: "View loyalty program, point accounts and liability", isSensitive: false },
+  {
+    code: "loyalty.manage",
+    appCode: "crm",
+    nameVi: "Cài chương trình điểm, khóa ví điểm, lập phiếu điều chỉnh điểm",
+    nameEn: "Manage loyalty program, lock point accounts, adjust points",
+    isSensitive: true,
+  },
   // CONG_VIEC_07: Mua hàng trong nước (MODULE_04, phần 1).
   { code: "purchasing.price.manage", appCode: "purchasing", nameVi: "Quản lý bảng giá mua", nameEn: "Manage supplier prices", isSensitive: false },
   { code: "purchasing.requisition.create", appCode: "purchasing", nameVi: "Lập đề nghị mua", nameEn: "Create purchase requisitions", isSensitive: false },
@@ -183,6 +192,8 @@ const companyAdminPermissions = [
   "marketplace.order.view",
   "marketplace.order.manage",
   "marketplace.payment.manage",
+  "loyalty.view",
+  "loyalty.manage",
   "purchasing.price.manage",
   "purchasing.requisition.create",
   "purchasing.order.view",
@@ -402,6 +413,8 @@ export const documentTypeCatalog = [
   { code: "accounting.journal", appCode: "finance", nameVi: "Phiếu kế toán", nameEn: "Manual journal", requiresApproval: true },
   { code: "finance.collection_statement", appCode: "finance", nameVi: "Bảng đối soát thu hộ", nameEn: "Collection statement", requiresApproval: true },
   { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },
+  // CONG_VIEC_51: phiếu điều chỉnh điểm thưởng (QUYTAC_NGHIEPVU_353).
+  { code: "loyalty.adjustment", appCode: "crm", nameVi: "Phiếu điều chỉnh điểm thưởng", nameEn: "Loyalty points adjustment", requiresApproval: true },
   // CONG_VIEC_46: mã nhân viên chỉ dùng dãy số; hợp đồng, phụ lục qua luồng duyệt.
   { code: "hr.employee", appCode: "hr", nameVi: "Mã nhân viên", nameEn: "Employee code", requiresApproval: false },
   { code: "hr.contract", appCode: "hr", nameVi: "Hợp đồng lao động", nameEn: "Labour contract", requiresApproval: true },

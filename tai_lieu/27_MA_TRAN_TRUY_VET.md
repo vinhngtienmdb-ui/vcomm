@@ -243,6 +243,16 @@
 | YCAU_NGHIEPVU_116 | QUYTAC_NGHIEPVU_388 | CHUC_NANG_191 | MAN_HINH_170 | TIEUCHI_NGHIEMTHU_364 | KICHBAN_KIEMTHU_528 | apps/api/src/hr/candidates.service.ts (`erase`, `eraseDue`, `requestErasure`), apps/api/src/jobs/background-jobs.ts (`hr-candidate-erasure`) | apps/api/test/c54-process.test.ts | Chờ nghiệm thu; kết quả gửi phiên cha ghi tài liệu `25` | |
 | YCAU_NGHIEPVU_117 | QUYTAC_NGHIEPVU_389 | CHUC_NANG_192 | MAN_HINH_172, MAN_HINH_173 | TIEUCHI_NGHIEMTHU_365 | KICHBAN_KIEMTHU_529 | database/migrations/0100_hr_performance.sql, apps/api/src/hr/reviews.service.ts, apps/api/src/hr/reviews.controller.ts (API_205), apps/api/src/jobs/background-jobs.ts (`hr-review-reminders`), apps/web-hr/src/app/reviews, apps/web-hr/src/app/my-reviews | apps/api/test/c54-reviews.test.ts | Chờ nghiệm thu; kết quả gửi phiên cha ghi tài liệu `25` | |
 | YCAU_NGHIEPVU_112 đến YCAU_NGHIEPVU_117 | – | CHUC_NANG_190 đến CHUC_NANG_192 | MAN_HINH_168 đến MAN_HINH_173 | TIEUCHI_NGHIEMTHU_366 | KICHBAN_KIEMTHU_530, KICHBAN_KIEMTHU_531 | apps/web-hr | Không (kiểm bằng xem trước giao diện) | Chờ nghiệm thu; kết quả gửi phiên cha ghi tài liệu `25` | |
+| YCAU_NGHIEPVU_92, YCAU_NGHIEPVU_95 | QUYTAC_NGHIEPVU_345, QUYTAC_NGHIEPVU_351 | CHUC_NANG_178 | MAN_HINH_146 | TIEUCHI_NGHIEMTHU_329 | KICHBAN_KIEMTHU_486 | database/migrations/0086_loyalty_programs.sql, apps/api/src/loyalty/program.service.ts, apps/web-crm/src/app/loyalty/program/page.tsx |
+| YCAU_NGHIEPVU_91 | QUYTAC_NGHIEPVU_344 | CHUC_NANG_179 | MAN_HINH_151 | TIEUCHI_NGHIEMTHU_330 | KICHBAN_KIEMTHU_487 | database/migrations/0087_loyalty_ledger.sql, apps/api/src/loyalty/ledger.service.ts |
+| YCAU_NGHIEPVU_92 | QUYTAC_NGHIEPVU_346, QUYTAC_NGHIEPVU_347 | CHUC_NANG_179 | MAN_HINH_88, MAN_HINH_96, MAN_HINH_151 | TIEUCHI_NGHIEMTHU_331 | KICHBAN_KIEMTHU_488, KICHBAN_KIEMTHU_489 | database/migrations/0088_loyalty_documents.sql, apps/api/src/loyalty/ledger.service.ts, apps/api/src/marketplace/marketplace-orders.service.ts |
+| YCAU_NGHIEPVU_93 | QUYTAC_NGHIEPVU_348 | CHUC_NANG_180 | MAN_HINH_93 | TIEUCHI_NGHIEMTHU_332 | KICHBAN_KIEMTHU_490 | apps/api/src/loyalty/ledger.service.ts, apps/api/src/marketplace/marketplace-orders.service.ts, apps/api/src/marketplace/payments/payments.service.ts, apps/mobile-vcomm/src/app/dat-hang.tsx |
+| YCAU_NGHIEPVU_93 | QUYTAC_NGHIEPVU_349 | CHUC_NANG_180 | MAN_HINH_96 | TIEUCHI_NGHIEMTHU_333 | KICHBAN_KIEMTHU_491 | apps/api/src/loyalty/ledger.service.ts, apps/api/src/marketplace/payments/refund-amounts.ts |
+| YCAU_NGHIEPVU_94 | QUYTAC_NGHIEPVU_350 | CHUC_NANG_179 | MAN_HINH_151 | TIEUCHI_NGHIEMTHU_334 | KICHBAN_KIEMTHU_492 | apps/api/src/loyalty/jobs.service.ts, apps/api/src/jobs/background-jobs.ts |
+| YCAU_NGHIEPVU_95 | QUYTAC_NGHIEPVU_351 | CHUC_NANG_179 | MAN_HINH_152 | TIEUCHI_NGHIEMTHU_335 | KICHBAN_KIEMTHU_493 | apps/api/src/loyalty/tiers.ts, apps/api/src/loyalty/accounts.service.ts, apps/mobile-vcomm/src/app/hang-thanh-vien.tsx |
+| YCAU_NGHIEPVU_96 | QUYTAC_NGHIEPVU_352, QUYTAC_NGHIEPVU_353, QUYTAC_NGHIEPVU_354 | CHUC_NANG_181 | MAN_HINH_147, MAN_HINH_148, MAN_HINH_149 | TIEUCHI_NGHIEMTHU_336 | KICHBAN_KIEMTHU_494, KICHBAN_KIEMTHU_495 | database/migrations/0089_loyalty_adjustments.sql, apps/api/src/loyalty/admin.service.ts, apps/web-crm/src/app/loyalty/ |
+| YCAU_NGHIEPVU_97 | QUYTAC_NGHIEPVU_355 | CHUC_NANG_181 | MAN_HINH_150 | TIEUCHI_NGHIEMTHU_337 | KICHBAN_KIEMTHU_496 | apps/api/src/loyalty/postings.service.ts, apps/api/src/accounting/charts.ts |
+| YCAU_NGHIEPVU_91 đến YCAU_NGHIEPVU_97 | | CHUC_NANG_178 đến CHUC_NANG_181 | MAN_HINH_146 đến MAN_HINH_152 | TIEUCHI_NGHIEMTHU_338 | KICHBAN_KIEMTHU_497 | apps/web-crm/src/app/loyalty/, apps/mobile-vcomm/src/app/diem-thuong.tsx |
 
 ## 2. Kiểm tra bao phủ – 2026-11-09
 
@@ -581,4 +591,14 @@
 - Kịch bản kiểm thử và tệp kiểm thử tự động: KICHBAN_KIEMTHU_522, 523, 524 → `apps/api/test/c54-recruitment.test.ts`; KICHBAN_KIEMTHU_525 → `apps/api/test/c54-recruitment.test.ts` (nhập tay, giai đoạn, kho, quyền) và `apps/api/test/c54-process.test.ts` (phỏng vấn); KICHBAN_KIEMTHU_526, 527, 528 → `apps/api/test/c54-process.test.ts`; KICHBAN_KIEMTHU_529 → `apps/api/test/c54-reviews.test.ts`
 - Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_530, KICHBAN_KIEMTHU_531 (giao diện, kiểm bằng xem trước giao diện từng lát)
 - Kịch bản chưa chạy hoặc kết quả Không đạt: chờ nghiệm thu; kết quả gửi phiên cha ghi tài liệu `25`
+
+## Kiểm tra bao phủ CONG_VIEC_51 – 2026-11-12
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_91 đến YCAU_NGHIEPVU_97 → CHUC_NANG_178 đến CHUC_NANG_181)
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_344 đến QUYTAC_NGHIEPVU_355)
+- Chức năng chưa có tiêu chí nghiệm thu: Không có
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có
+- Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_497 (thủ công trên trình duyệt, phần quyền có tự động)
+- Kịch bản chưa chạy hoặc kết quả Không đạt: Không có (kết quả gửi phiên cha ghi tài liệu `25`)
 - Mã nguồn không truy được về yêu cầu nào: Không có

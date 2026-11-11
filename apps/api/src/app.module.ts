@@ -71,6 +71,14 @@ import { RefundsService } from "./marketplace/payments/refunds.service";
 import { WithdrawalsController } from "./marketplace/withdrawals.controller";
 import { WithdrawalsService } from "./marketplace/withdrawals.service";
 import { MarketplaceCommissionsService } from "./marketplace/commissions.service";
+import { LoyaltyController } from "./loyalty/loyalty.controller";
+import { LoyaltyProgramService } from "./loyalty/program.service";
+import { LoyaltyLedgerService } from "./loyalty/ledger.service";
+import { LoyaltyAccountsService } from "./loyalty/accounts.service";
+import { BuyerLoyaltyController } from "./loyalty/buyer-loyalty.controller";
+import { LoyaltyPostingsService } from "./loyalty/postings.service";
+import { LoyaltyJobsService } from "./loyalty/jobs.service";
+import { LoyaltyAdminService } from "./loyalty/admin.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
@@ -165,7 +173,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController],
   providers: [
     AuthService,
     ActivationService,
@@ -229,6 +237,12 @@ import { UsersService } from "./users/users.service";
     RefundsService,
     WithdrawalsService,
     MarketplaceCommissionsService,
+    LoyaltyProgramService,
+    LoyaltyLedgerService,
+    LoyaltyAccountsService,
+    LoyaltyPostingsService,
+    LoyaltyJobsService,
+    LoyaltyAdminService,
     ReturnRequestsService,
     SupplierPricesService,
     SalesOrdersService,

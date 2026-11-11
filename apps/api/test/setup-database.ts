@@ -112,7 +112,7 @@ export async function startTestApplication(): Promise<{ application: NestExpress
   process.env.MFA_SECRET_KEY ??= randomBytes(32).toString("hex");
   const pool = new Pool({ connectionString: testDatabaseUrl, max: 2 });
   await pool.query(
-    "DROP SCHEMA IF EXISTS hr CASCADE; DROP SCHEMA IF EXISTS marketplace CASCADE; DROP SCHEMA IF EXISTS accounting CASCADE; DROP SCHEMA IF EXISTS finance CASCADE; DROP SCHEMA IF EXISTS sales CASCADE; DROP SCHEMA IF EXISTS purchasing CASCADE; DROP SCHEMA IF EXISTS crm CASCADE; DROP SCHEMA IF EXISTS inventory CASCADE; DROP SCHEMA IF EXISTS catalog CASCADE; DROP SCHEMA IF EXISTS core CASCADE; DROP TABLE IF EXISTS public.schema_migrations",
+    "DROP SCHEMA IF EXISTS loyalty CASCADE; DROP SCHEMA IF EXISTS hr CASCADE; DROP SCHEMA IF EXISTS marketplace CASCADE; DROP SCHEMA IF EXISTS accounting CASCADE; DROP SCHEMA IF EXISTS finance CASCADE; DROP SCHEMA IF EXISTS sales CASCADE; DROP SCHEMA IF EXISTS purchasing CASCADE; DROP SCHEMA IF EXISTS crm CASCADE; DROP SCHEMA IF EXISTS inventory CASCADE; DROP SCHEMA IF EXISTS catalog CASCADE; DROP SCHEMA IF EXISTS core CASCADE; DROP TABLE IF EXISTS public.schema_migrations",
   );
   await runMigrations(pool);
   await seedTestData(pool);

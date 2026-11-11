@@ -1,4 +1,4 @@
-// MAN_HINH_96 Chi tiết đơn (CHUC_NANG_116; API_126; QUYTAC_NGHIEPVU_159): trạng thái, vận đơn, dòng hàng, tiền, lịch sử, hủy đơn.
+// MAN_HINH_96 Chi tiết đơn (CHUC_NANG_116; API_126; QUYTAC_NGHIEPVU_159): trạng thái, vận đơn, dòng hàng, tiền, lịch sử, hủy đơn. Điểm thưởng của đơn: CONG_VIEC_51.
 // MAN_HINH_99 khối Thanh toán (CONG_VIEC_25; API_131; QUYTAC_NGHIEPVU_165, 167): hạn thanh toán, mở trang VNPAY, thanh toán lại, trạng thái thanh toán.
 // Mã QR chuyển khoản vẽ từ chuỗi VietQR khi cổng không cấp ảnh (CONG_VIEC_36; QUYTAC_NGHIEPVU_240).
 import type { BuyerOrderDetail, BuyerPaymentStart, PaymentTransferInstruction } from "contracts";
@@ -114,11 +114,32 @@ export default function OrderScreen() {
             <Card>
               <AmountRow label={t("goodsAmount")} value={money(order.goodsAmount)} />
               <AmountRow label={t("shippingFee")} value={Number(order.shippingFee) === 0 ? t("free") : money(order.shippingFee)} />
-              <AmountRow label={t("orderTotal")} value={money(order.total)} strong />
+              {Number(order.pointsAmount) > 0 ? (
+                <AmountRow label={t("pointsDeduction", { points: (order.points?.redeemedPoints ?? 0).toLocaleString("vi-VN") })} value={`−${money(order.pointsAmount)}`} />
+              ) : null}
+              <AmountRow label={t("orderTotal")} value={money(Number(order.total) - Number(order.pointsAmount))} strong />
               <Muted>{`${t("paidBy", { method: method(order.paymentMethod) })} · ${t(`paymentStatus_${order.paymentStatus}`)}`}</Muted>
               {Number(order.paidAmount) > 0 ? <Muted>{t("paidAmountLine", { amount: money(order.paidAmount) })}</Muted> : null}
               {Number(order.refundedAmount) > 0 ? <Muted>{t("refundedAmountLine", { amount: money(order.refundedAmount) })}</Muted> : null}
             </Card>
+            {order.points ? (
+              <Card>
+                <Text style={{ fontWeight: "700", color: colors.text }}>{t("orderPointsTitle")}</Text>
+                {order.points.redeemedPoints > 0 ? (
+                  <Muted>{t("orderPointsUsed", { points: order.points.redeemedPoints.toLocaleString("vi-VN"), amount: money(order.points.redeemedAmount) })}</Muted>
+                ) : null}
+                {order.points.refundedPoints > 0 ? <Muted>{t("orderPointsRefunded", { points: order.points.refundedPoints.toLocaleString("vi-VN") })}</Muted> : null}
+                <Muted>
+                  {order.points.earnStatus === "earned"
+                    ? t("orderPointsEarned", { points: (order.points.earnedPoints ?? 0).toLocaleString("vi-VN"), date: (order.points.expiresOn ?? "").split("-").reverse().join("/") })
+                    : order.points.earnStatus === "pending"
+                      ? t("orderPointsExpected", { points: order.points.expectedPoints.toLocaleString("vi-VN") })
+                      : order.points.earnStatus === "skipped"
+                        ? t(`orderPointsSkipped_${order.points.skipReason ?? "zero"}`)
+                        : t("orderPointsCancelled")}
+                </Muted>
+              </Card>
+            ) : null}
             {order.refunds.length > 0 ? (
               <Card>
                 <Text style={{ fontWeight: "700", color: colors.text }}>{t("refundTitle")}</Text>

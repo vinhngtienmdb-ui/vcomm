@@ -451,3 +451,20 @@ Dữ liệu mẫu: công ty VCR (và công ty khác để kiểm cách ly), phò
 | TIEUCHI_NGHIEMTHU_364 | CHUC_NANG_191 | Lưu giữ: ngày xóa tính đúng (không tuyển, kho, rút đồng ý kho, cài đặt công ty); việc nền xóa đúng hạn, xóa hết tệp và trường cá nhân, giữ trường thống kê, chạy lại không lỗi; yêu cầu xóa xóa ngay; ứng viên đã thành nhân viên không bị xóa | Gọi API, việc nền, truy vấn cơ sở dữ liệu | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_365 | CHUC_NANG_192 | Đánh giá hiệu suất: trọng số tổng 100; mở kỳ tạo phiếu đúng đối tượng, người chấm; điểm, xếp loại đúng công thức và ngưỡng; hạn tự đánh giá khóa đúng; hiệu chỉnh cần lý do; chốt chỉ khi đủ phiếu; nhân viên chỉ thấy kết quả sau công bố; người chấm chỉ phiếu được giao; nhắc quá hạn mỗi hạn một lần | Gọi API, việc nền | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_366 | CHUC_NANG_190 đến CHUC_NANG_192 | MAN_HINH_168 đến MAN_HINH_173 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |
+
+## MODULE_11 Điểm thưởng (phần 1, CONG_VIEC_51)
+
+Dữ liệu mẫu: dữ liệu mẫu của CONG_VIEC_24 (`apps/api/test/marketplace-fixture.ts`); giai đoạn tích 2%, 1 điểm = 1 đồng; lô điểm cộng qua service.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_329 | CHUC_NANG_178 | Giai đoạn không chồng lấn, đã bắt đầu chỉ sửa ngày kết thúc; bảng hạng hợp lệ; phân quyền | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_330 | CHUC_NANG_179 | Sổ cái chỉ thêm; số dư = tổng bút toán = tổng lô còn lại; không âm | Gọi API, truy vấn cơ sở dữ liệu | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_331 | CHUC_NANG_179 | Tích khi hoàn tất đúng số điểm (tỷ lệ, hệ số, trừ hàng trả, trừ tiền điểm, trần đơn, trần tháng); đơn hủy, người mua thử, ví khóa không tích | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_332 | CHUC_NANG_180 | Dùng điểm khi đặt: tối thiểu, số dư, giới hạn phần trăm, ví khóa; tiền thu hộ, tiền cổng đúng | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_333 | CHUC_NANG_180 | Hoàn điểm khi hủy (đúng lô, lô quá hạn thêm 30 ngày), khi trả hàng theo tỷ lệ; trả hàng tại quầy trừ lại điểm, thiếu quy tiền | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_334 | CHUC_NANG_179 | Hết hạn đúng lô; nhắc một lần trước 30 ngày | Gọi dịch vụ việc nền | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_335 | CHUC_NANG_179 | Hạng theo chi tiêu năm trước, năm nay; lên hạng ngay; đầu năm xét lại; hệ số theo hạng lúc đặt | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_336 | CHUC_NANG_181 | Khóa, mở ví; điều chỉnh qua duyệt, người lập không tự duyệt, trừ không vượt số dư; cảnh báo đúng ba loại | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_337 | CHUC_NANG_181 | Bút toán tích, dùng (chênh lệch giá trị), hết hạn, điều chỉnh, nợ nội bộ đúng tài khoản; nghĩa vụ khớp sổ cái | Gọi API, truy vấn sổ cái | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_338 | CHUC_NANG_178 đến CHUC_NANG_181 | Web, ứng dụng chạy được (máy tính, khổ điện thoại); người mua chỉ thấy ví của mình | Trình duyệt, gọi API | Bắt buộc |

@@ -958,6 +958,16 @@ Chưa có.
 - RUIRO THAY_DOI_23 (người dùng chấp nhận 2026-11-11, CONG_VIEC_54): API_204 trang tuyển dụng công khai không giới hạn số yêu cầu theo IP, không OTP, không giới hạn số lần nộp. Rủi ro: hồ sơ rác hàng loạt, đầy kho lưu trữ tệp, tốn tài nguyên máy chủ, ứng viên giả mạo dữ liệu người khác. Biện pháp giảm thiểu: tệp tối đa 10 MB, chỉ PDF hoặc DOCX, kiểm chữ ký đầu tệp; lược đồ dữ liệu chặt (từ chối trường lạ); chỉ nhận cho tin đang đăng công khai, chưa quá hạn; nộp công khai không gộp vào ứng viên có sẵn, chỉ đánh dấu trùng; hồ sơ không trúng tuyển tự xóa sau 30 ngày; theo dõi dung lượng kho tệp và số hồ sơ mỗi ngày khi vận hành (tài liệu `26`). Các API công khai khác giữ giới hạn 20 yêu cầu mỗi phút. Thời hạn: rà lại sau 3 tháng vận hành hoặc khi có dấu hiệu lạm dụng.
 - Ghi nhận (CONG_VIEC_46): đánh giá tác động xử lý dữ liệu cá nhân (Luật 91/2025/QH15 Điều 21; Nghị định 356/2025/NĐ-CP Điều 19) là nghĩa vụ của doanh nghiệp, cần lập hồ sơ gửi cơ quan chuyên trách trong 60 ngày kể từ khi bắt đầu xử lý; ngoài phạm vi phần mềm.
 
+## Kiểm soát điểm thưởng (CONG_VIEC_51)
+
+| Điểm tiếp nhận | Kiểm soát |
+|---|---|
+| API_176, API_179 đến API_182 (`/loyalty/*`) | Phiên nhân viên, CSRF; quyền `loyalty.view` hoặc `loyalty.manage` tại công ty vận hành sàn; nhật ký thao tác cho mọi thao tác ghi |
+| API_177 (`/buyer/loyalty`) | Token người mua; chỉ dữ liệu của người gọi |
+| API_178 (đặt đơn dùng điểm) | Điểm kiểm lại trên máy chủ trong giao dịch, khóa dòng ví điểm; không tin số điểm, tiền điểm từ ứng dụng |
+| Sổ cái điểm | Trigger cơ sở dữ liệu chặn sửa, xóa bút toán; số dư không âm; điều chỉnh tay qua luồng duyệt, người lập không tự duyệt |
+| Rủi ro pháp lý | Điểm không quy ra tiền mặt, không chuyển, không rút; giới hạn phần trăm đơn theo giai đoạn; chờ ý kiến luật sư trước khi phát hành lên môi trường thật (tài liệu `04`) |
+
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Vị trí | Nội dung |

@@ -2015,6 +2015,32 @@ Yêu cầu phi chức năng:
 - Việc nền (BullMQ, múi giờ `Asia/Ho_Chi_Minh`): `hr-recruitment-daily` lúc 0 giờ 10 phút (đóng tin quá hạn nộp, đề nghị quá hạn trả lời), `hr-candidate-erasure` lúc 1 giờ (xóa ứng viên đến ngày xóa), `hr-review-reminders` lúc 8 giờ (nhắc quá hạn đặt mục tiêu, quá hạn chấm).
 - Không thêm thư viện. Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_54.md`.
 
+## MODULE_11 Điểm thưởng (phần 1, CONG_VIEC_51)
+
+### CHUC_NANG_178: Chương trình điểm theo giai đoạn và bảng hạng
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_92, YCAU_NGHIEPVU_95; Quy tắc: QUYTAC_NGHIEPVU_345, QUYTAC_NGHIEPVU_351
+- Vai trò: quản trị công ty vận hành sàn (`loyalty.view`, `loyalty.manage`)
+- Xử lý: thêm, sửa, xóa giai đoạn (không chồng lấn; đã bắt đầu chỉ sửa ngày kết thúc); thay bảng hạng, tính lại hạng mọi ví
+- Màn hình: MAN_HINH_146; API: API_176
+
+### CHUC_NANG_179: Sổ cái điểm, tích khi hoàn tất, hết hạn, hạng; điểm của tôi
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_91, YCAU_NGHIEPVU_92, YCAU_NGHIEPVU_94, YCAU_NGHIEPVU_95; Quy tắc: QUYTAC_NGHIEPVU_344, 346, 347, 350, 351
+- Vai trò: người mua (ví của mình); hệ thống (việc nền)
+- Xử lý: chốt khi đặt, tích khi hoàn tất hoặc khi bán tại quầy, hết hạn, nhắc hạn, xét hạng
+- Màn hình: MAN_HINH_151, MAN_HINH_152, sửa MAN_HINH_76, 88, 96; API: API_177
+
+### CHUC_NANG_180: Đổi điểm khi đặt hàng; hoàn điểm khi hủy, trả hàng
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_93; Quy tắc: QUYTAC_NGHIEPVU_348, QUYTAC_NGHIEPVU_349
+- Vai trò: người mua; CONG_VIEC_53 gọi service điểm
+- Xử lý: xem trước, dùng điểm, tiền phải trả, hoàn điểm theo lô, trừ lại điểm đã tích, phần thiếu quy tiền
+- Màn hình: sửa MAN_HINH_93, 96; API: API_178 (sửa API_126)
+
+### CHUC_NANG_181: Quản trị điểm, hạch toán, nghĩa vụ điểm
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_96, YCAU_NGHIEPVU_97; Quy tắc: QUYTAC_NGHIEPVU_352 đến QUYTAC_NGHIEPVU_355
+- Vai trò: `loyalty.view`, `loyalty.manage`; người duyệt theo chính sách duyệt loại chứng từ `loyalty.adjustment`
+- Xử lý: ví điểm, khóa, mở; phiếu điều chỉnh qua duyệt; cảnh báo; bút toán tự sinh; báo cáo nghĩa vụ
+- Màn hình: MAN_HINH_147 đến MAN_HINH_150; API: API_179 đến API_182
+
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Vị trí | Nội dung |

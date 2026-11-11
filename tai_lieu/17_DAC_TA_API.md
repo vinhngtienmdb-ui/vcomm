@@ -1416,6 +1416,21 @@ Sự kiện: không phát, không nghe sự kiện outbox.
 
 Sự kiện: không phát sự kiện mới; nghe `core.approval.completed` (loại `hr.recruitment_request`, `hr.job_offer`). Thông báo mới: `hr.interview.assigned`, `hr.job_offer.answered`, `hr.review.published`, `hr.review.reminder`.
 
+## Hợp đồng chi tiết điểm thưởng (MODULE_11, CONG_VIEC_51)
+
+Điểm là số nguyên; tiền, phần trăm là chuỗi số thập phân. Quản trị xét quyền tại công ty vận hành sàn.
+
+- API_176 `GET /loyalty/program` → `{ today, phases: [{ id, startsOn, endsOn, earnPercent, pointValue, redeemMaxPercent, redeemMinPoints, validityMonths, orderCapPoints, monthlyCapPoints, status, version }], tiers: [{ id, sortOrder, nameVi, nameEn, minAnnualSpend, multiplier }], canManage }`; `POST /loyalty/phases`, `PUT /loyalty/phases/{id}` (thêm `version`), `DELETE /loyalty/phases/{id}`; `PUT /loyalty/tiers` `{ tiers: [{ nameVi, nameEn, minAnnualSpend, multiplier }] }`. Lỗi: chồng lấn, đã bắt đầu (409); ngày quá khứ, hạng không tăng dần (400).
+- API_177 `GET /buyer/loyalty` → `{ balance, locked, pointValue, expiringPoints, expiringOn, tier, year, spendCurrentYear, spendPreviousYear, nextTier, remainingToNext, tiers }`; `GET /buyer/loyalty/entries?page&pageSize` → bút toán `{ id, kind, points, balanceAfter, sourceType, sourceId, documentNo, expiresOn, createdAt }`.
+- API_178 (sửa API_126) `POST /buyer/orders/preview`, `POST /buyer/orders` nhận `pointsToRedeem` (mặc định 0); xem trước trả thêm `loyalty`, `pointsToRedeem`, `pointsAmount`, `payable`, `expectedPoints`; chi tiết đơn (API_126, API_127) thêm `pointsAmount`, `points`.
+- API_179 `GET /loyalty/accounts?search&tierId&locked&page&pageSize`; `GET /loyalty/accounts/{userId}` (lô, lịch sử hạng, lịch sử khóa, `canManage`); `GET /loyalty/accounts/{userId}/entries`; `POST /loyalty/accounts/{userId}/lock`, `/unlock` `{ reason }`.
+- API_180 `GET /loyalty/adjustments?status&page&pageSize`; `GET /loyalty/adjustments/{id}`; `POST /loyalty/adjustments` `{ phone, direction, points, reason }`; `PUT /loyalty/adjustments/{id}` (thêm `version`); `POST /loyalty/adjustments/{id}/submit` `{ version }`; `POST /loyalty/adjustments/{id}/withdraw`.
+- API_181 `GET /loyalty/alerts?kind=shared_contact|cancel_return|redeem_burst` → `{ kind, items: [{ label, buyers, orderCount, cancelledOrReturned, points }] }`.
+- API_182 `GET /loyalty/liability?year` → `{ year, months: [{ month, issued, used, expired, adjusted, closingPoints, closingValue }], currentPoints, currentValue, expiringPoints }`.
+- API_183: dự phòng, chưa dùng.
+- Service trong backend cho CONG_VIEC_53 (`LoyaltyLedgerService`): `quoteRedemption`, `redeemWithin`, `earnWithin`, `returnWithin`, `cancelWithin` (đặc tả `cong_viec/CONG_VIEC_51.md` mục 9).
+- Thông báo trong ứng dụng: `loyalty.earned`, `loyalty.tier_up`, `loyalty.returned`, `loyalty.expiring`. Phiếu điều chỉnh nhận sự kiện `core.approval.completed`.
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |

@@ -30,6 +30,10 @@ export type PostingRole =
   | "personal_income_tax"
   | "other_income"
   | "service_expense"
+  | "loyalty_expense"
+  | "loyalty_liability"
+  | "loyalty_intercompany_receivable"
+  | "loyalty_intercompany_payable"
   // CONG_VIEC_48: lương.
   | "salary_payable"
   | "salary_expense_selling"
@@ -66,6 +70,10 @@ export const postingRoles: PostingRole[] = [
   "personal_income_tax",
   "other_income",
   "service_expense",
+  "loyalty_expense",
+  "loyalty_liability",
+  "loyalty_intercompany_receivable",
+  "loyalty_intercompany_payable",
   "salary_payable",
   "salary_expense_selling",
   "salary_expense_admin",
@@ -93,6 +101,9 @@ export interface DraftJournal {
     | "marketplace_refund"
     | "marketplace_commission"
     | "marketplace_withdrawal"
+    | "loyalty_entry"
+    | "loyalty_seller_entry"
+    | "loyalty_order_redeem"
     | "payroll"
     | "payroll_payment";
   sourceId: string;

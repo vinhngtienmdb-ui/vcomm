@@ -30,6 +30,10 @@ import { carrierNames, enabledPaymentMethods, loadStoreContext, type StoreContex
 import { isOnlineMethod } from "./payments/payment-gateway-registry";
 import { carrierConfigured } from "./carriers/carrier-registry";
 import { buyerReturnRequests, returnWindowHours } from "./return-requests.service";
+import { LoyaltyAccountsService } from "../loyalty/accounts.service";
+import { LoyaltyPostingsService } from "../loyalty/postings.service";
+import { LoyaltyLedgerService, pointsFor, quoteRedemption, releaseSalePoints } from "../loyalty/ledger.service";
+import { phaseOn } from "../loyalty/program.service";
 
 type Executor = Pick<Database, "execute" | "insert">;
 type Line = { variantId: string; quantity: number };
@@ -49,6 +53,7 @@ type OrderRow = {
   street_address: string;
   goods_amount: string;
   shipping_fee: string;
+  points_amount: string;
   cod_amount: string;
   payment_method: PaymentMethodCode;
   payment_deadline: Date | null;
@@ -77,7 +82,7 @@ const iso = (value: Date | null) => (value ? new Date(value).toISOString() : nul
 
 const orderSelect = sql`
   SELECT m.id, m.sales_order_id, so.document_no, m.buyer_user_id, u.full_name AS buyer_name, u.phone AS buyer_phone, m.recipient_name, m.recipient_phone, m.province_name,
-    m.ward_name, m.street_address, m.goods_amount::text, m.shipping_fee::text, m.cod_amount::text, m.payment_method, m.payment_deadline, m.paid_amount::text, m.refunded_amount::text,
+    m.ward_name, m.street_address, m.goods_amount::text, m.shipping_fee::text, m.points_amount::text, m.cod_amount::text, m.payment_method, m.payment_deadline, m.paid_amount::text, m.refunded_amount::text,
     (SELECT coalesce(sum(f.amount), 0)::text FROM marketplace.refunds f WHERE f.order_id = m.id AND f.status = 'pending') AS pending_refund_amount, m.status, m.delivered_at, m.completed_at, m.completed_amount::text,
     m.cancel_reason, m.created_at, m.version,
     (SELECT count(*)::int FROM sales.order_lines l WHERE l.order_id = so.id AND NOT l.is_gift) AS item_count,
@@ -141,6 +146,9 @@ export class MarketplaceOrdersService {
     private readonly salesOrders: SalesOrdersService,
     private readonly audit: AuditService,
     private readonly commissions: MarketplaceCommissionsService,
+    private readonly loyalty: LoyaltyLedgerService,
+    private readonly loyaltyAccounts: LoyaltyAccountsService,
+    private readonly loyaltyPostings: LoyaltyPostingsService,
   ) {}
 
   private async storeContext(): Promise<StoreContext> {
@@ -200,12 +208,27 @@ export class MarketplaceOrdersService {
     return result;
   }
 
-  async preview(userId: string, lines: Line[]): Promise<BuyerOrderPreview> {
+  async preview(userId: string, lines: Line[], pointsToRedeem = 0): Promise<BuyerOrderPreview> {
     const account = await buyerAccount(this.database, userId);
     const context = await this.storeContext();
     const quoted = await this.quote(this.database, context, lines);
     const paymentMethods = await enabledPaymentMethods(this.database);
+    // Điểm thưởng (CONG_VIEC_51; QUYTAC_NGHIEPVU_346, 348): xem trước không trừ điểm; số điểm vượt giới hạn thì hạ về mức tối đa dùng được.
+    const today = await vietnamToday(this.database);
+    const loyalty = await quoteRedemption(this.database, { userId, day: today, goodsAmount: quoted.goods });
+    const points = loyalty.redeemable && pointsToRedeem >= loyalty.minPoints ? Math.min(pointsToRedeem, loyalty.maxPoints) : 0;
+    const pointsAmount = loyalty.pointValue === null ? 0 : Math.floor(points * loyalty.pointValue);
+    const phase = await phaseOn(this.database, today);
+    const multiplier = Number(
+      (await this.database.execute<{ multiplier: string | null }>(sql`SELECT t.multiplier::text FROM loyalty.accounts a JOIN loyalty.tiers t ON t.id = a.tier_id WHERE a.user_id = ${userId}`)).rows[0]
+        ?.multiplier ?? 1,
+    );
     return {
+      loyalty: { ...loyalty, pointValue: loyalty.pointValue === null ? null : trimDecimal(String(loyalty.pointValue)) },
+      pointsToRedeem: points,
+      pointsAmount: String(pointsAmount),
+      payable: String(quoted.goods + quoted.shippingFee - pointsAmount),
+      expectedPoints: phase ? pointsFor(quoted.goods - pointsAmount, phase, multiplier) : 0,
       lines: quoted.lines,
       goodsAmount: String(quoted.goods),
       shippingFee: String(quoted.shippingFee),
@@ -217,7 +240,11 @@ export class MarketplaceOrdersService {
   }
 
   // Đặt hàng (QUYTAC_NGHIEPVU_158, 164): chưa mở đặt hàng thì chỉ người mua thử; phương thức phải đang bật; tính lại giá, so với tổng người mua đã thấy; lập đơn bán, giữ hàng.
-  async place(userId: string, client: ClientInfo, input: { addressId: string; lines: Line[]; expectedTotal: string; paymentMethod: PaymentMethodCode }): Promise<BuyerOrderDetail> {
+  async place(
+    userId: string,
+    client: ClientInfo,
+    input: { addressId: string; lines: Line[]; expectedTotal: string; paymentMethod: PaymentMethodCode; pointsToRedeem?: number },
+  ): Promise<BuyerOrderDetail> {
     const account = await buyerAccount(this.database, userId);
     const context = await this.storeContext();
     if (!context.orderingOpen && !account.isTestBuyer) throw new ApiError("BUSINESS_RULE", "orderingNotOpen");
@@ -267,7 +294,25 @@ export class MarketplaceOrdersService {
           ${address.ward_name}, ${address.street_address}, ${quoted.goods}, ${quoted.shippingFee}, ${online ? 0 : total}, ${input.paymentMethod},
           ${online ? "awaiting_payment" : "awaiting_shipment"}, ${online ? sql`now() + make_interval(mins => ${paymentWindowMinutes})` : null}) RETURNING id`)
       ).rows[0]!.id;
-      await this.event(transaction, id, online ? "awaiting_payment" : "awaiting_shipment", null, userId);
+      // Dùng điểm, chốt giai đoạn, hạng lúc đặt (CONG_VIEC_51; QUYTAC_NGHIEPVU_346, 348): tiền phải trả, tiền thu hộ trừ tiền điểm.
+      const redeemed = await this.loyalty.redeemWithin(transaction, {
+        userId,
+        companyId: context.companyId,
+        sourceType: "marketplace_order",
+        sourceId: id,
+        day: today,
+        goodsAmount: quoted.goods,
+        points: input.pointsToRedeem ?? 0,
+      });
+      // Điểm trả hết tổng thanh toán: đơn trực tuyến không cần thanh toán, chuyển Chờ giao ngay.
+      const paidByPoints = online && redeemed.amount >= total;
+      if (redeemed.amount > 0) {
+        await transaction.execute(sql`
+          UPDATE marketplace.orders SET points_amount = ${redeemed.amount}, cod_amount = CASE WHEN payment_method = 'cod' THEN cod_amount - ${redeemed.amount} ELSE 0 END,
+            status = CASE WHEN ${paidByPoints} THEN 'awaiting_shipment' ELSE status END, payment_deadline = CASE WHEN ${paidByPoints} THEN NULL ELSE payment_deadline END
+          WHERE id = ${id}`);
+      }
+      await this.event(transaction, id, online && !paidByPoints ? "awaiting_payment" : "awaiting_shipment", null, userId);
       // Chốt người hưởng, mức hoa hồng lúc đặt (CONG_VIEC_26; QUYTAC_NGHIEPVU_201).
       await this.commissions.snapshot(transaction, { orderId: id, salesOrderId: sale.orderId, buyerUserId: userId, companyId: context.companyId });
       await transaction.execute(sql`
@@ -352,6 +397,8 @@ export class MarketplaceOrdersService {
       events: events.rows.map((event) => ({ status: event.status, note: event.note, at: iso(event.created_at)! })),
       canCancel: cancellableStatuses.includes(row.status),
       returnRequests,
+      pointsAmount: trimDecimal(row.points_amount),
+      points: await this.loyaltyAccounts.documentPoints(this.database, "marketplace_order", row.id),
       // Trong 7 ngày từ lúc giao thành công và không có yêu cầu đang xử lý (QUYTAC_NGHIEPVU_161).
       canRequestReturn:
         row.status === "delivered" &&
@@ -387,6 +434,7 @@ export class MarketplaceOrdersService {
         UPDATE marketplace.orders SET status = 'cancelled', cancel_reason = ${reason}, cancelled_by_kind = ${kind}, version = version + 1 WHERE id = ${orderId}`);
       await this.event(transaction, orderId, "cancelled", reason, actor.userId);
       await refundRemainingPaid(transaction, orderId, "order_cancelled");
+      await releaseSalePoints(transaction, "marketplace_order", orderId);
     });
   }
 
@@ -570,6 +618,21 @@ export class MarketplaceOrdersService {
       await this.event(transaction, order.id, "completed", null, null);
       // Cộng ví hoa hồng theo hàng thực bán (CONG_VIEC_26; QUYTAC_NGHIEPVU_202).
       await this.commissions.credit(transaction, order.id);
+      // Tích điểm theo giá trị hoàn tất (CONG_VIEC_51; QUYTAC_NGHIEPVU_347).
+      const completed = (
+        await transaction.execute<{ buyer_user_id: string; company_id: string; completed_amount: string; today: string }>(sql`
+        SELECT buyer_user_id, company_id, completed_amount::text, (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS today FROM marketplace.orders WHERE id = ${order.id}`)
+      ).rows[0]!;
+      await this.loyalty.earnWithin(transaction, {
+        sourceType: "marketplace_order",
+        sourceId: order.id,
+        userId: completed.buyer_user_id,
+        companyId: completed.company_id,
+        day: completed.today,
+        goodsAmount: Number(completed.completed_amount),
+      });
+      // Bút toán điểm đã dùng của đơn (QUYTAC_NGHIEPVU_355).
+      await this.loyaltyPostings.postOrderRedeem(transaction, order.id);
       onCompleted();
     });
   }

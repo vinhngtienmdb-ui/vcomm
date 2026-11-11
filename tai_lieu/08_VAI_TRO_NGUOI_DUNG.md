@@ -694,3 +694,14 @@ Thêm quyền `hr.recruitment.request` (không nhạy cảm), `hr.recruitment.ma
 | Lập mục tiêu, tự đánh giá; xem kết quả sau công bố, xác nhận đã xem, ghi ý kiến | Phiếu của mình | Phiếu của mình | Phiếu của mình | Phiếu của mình | Phiếu của mình | Phiếu của mình | Không |
 
 Người phỏng vấn, người chấm, nhân viên xem phiếu của mình không cần quyền nhân sự, chỉ cần là thành viên công ty đang chọn (menu "Phỏng vấn của tôi", "Đánh giá của tôi" dùng `platform.access`). Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_54.md` mục 6, 18.
+
+## MODULE_11 Điểm thưởng (CONG_VIEC_51)
+
+- Quyền xét tại công ty vận hành sàn. Quản trị tập đoàn, Quản trị công ty có sẵn hai quyền; giao cho nhân viên qua vai trò tùy chỉnh.
+- Duyệt phiếu điều chỉnh theo chính sách duyệt loại chứng từ `loyalty.adjustment` của công ty vận hành sàn; người lập không tự duyệt.
+- Người mua chỉ xem ví điểm, lịch sử điểm, hạng của chính mình.
+
+| Quyền | Thao tác | Vai trò có sẵn |
+|---|---|---|
+| `loyalty.view` | Xem chương trình điểm, ví điểm, sổ cái điểm, phiếu điều chỉnh, cảnh báo, nghĩa vụ điểm | Quản trị tập đoàn, Quản trị công ty |
+| `loyalty.manage` (nhạy cảm) | Cài giai đoạn, bảng hạng; khóa, mở ví điểm; lập, sửa, gửi duyệt, rút phiếu điều chỉnh | Quản trị tập đoàn, Quản trị công ty |
