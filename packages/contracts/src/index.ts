@@ -4597,3 +4597,47 @@ export interface AnalyticsSalesResponse {
   // Số dòng có dữ liệu khi bảng bị cắt; null khi hiện đủ.
   totalRows: number | null;
 }
+
+// API_172
+export const analyticsInventoryGroupings = ["company", "warehouse", "product"] as const;
+export type AnalyticsInventoryGrouping = (typeof analyticsInventoryGroupings)[number];
+export const analyticsInventoryQuerySchema = z
+  .object({
+    companyIds: analyticsCompanyIdsSchema,
+    ...analyticsPeriodSchema,
+    groupBy: z.enum(analyticsInventoryGroupings).default("warehouse"),
+    warehouseId: z.uuid().optional(),
+    format: analyticsFormatSchema,
+  })
+  .strict();
+export interface AnalyticsInventoryFigures {
+  openingQuantity: string;
+  openingValue: string;
+  inQuantity: string;
+  inValue: string;
+  outQuantity: string;
+  outValue: string;
+  closingQuantity: string;
+  closingValue: string;
+  // Giá vốn hàng bán trong kỳ (QUYTAC_NGHIEPVU_337), vòng quay, số ngày tồn; null khi chia cho 0 (QUYTAC_NGHIEPVU_340).
+  costOfSales: string;
+  turnover: string | null;
+  daysOfInventory: string | null;
+}
+export interface AnalyticsInventoryRow extends AnalyticsMoneyRow, AnalyticsInventoryFigures {
+  key: string;
+  label: string;
+}
+export interface AnalyticsInventoryResponse {
+  from: string;
+  to: string;
+  days: number;
+  groupBy: AnalyticsInventoryGrouping;
+  currency: string;
+  companies: AnalyticsCompany[];
+  warehouses: { id: string; label: string }[];
+  rows: AnalyticsInventoryRow[];
+  // Tổng giá trị các công ty cùng đồng tiền với công ty gốc; số lượng không cộng vì khác đơn vị giữa sản phẩm.
+  totals: Pick<AnalyticsInventoryFigures, "openingValue" | "inValue" | "outValue" | "closingValue" | "costOfSales" | "turnover" | "daysOfInventory">;
+  totalRows: number | null;
+}

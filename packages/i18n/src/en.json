@@ -3691,6 +3691,25 @@
     "totalExcludingInternal": "Total excluding intra-group",
     "truncated": "Showing {shown} of {total} rows, by amount descending. Totals cover all rows. Export to Excel for every row.",
     "export": "Export Excel",
-    "exported": "Downloaded {fileName}."
+    "exported": "Downloaded {fileName}.",
+    "inventoryTitle": "Inventory and turnover",
+    "warehouse": "Warehouse",
+    "allWarehouses": "Warehouse: all",
+    "inventoryNote": "From the stock ledger, Vietnam time. Turnover = cost of sales ÷ average inventory value ((opening + closing) ÷ 2); days of inventory = days in period ÷ turnover. A transfer is an issue from the source and a receipt at the destination.",
+    "inventory_company": "Company",
+    "inventory_warehouse": "Warehouse",
+    "inventory_product": "Product",
+    "openingQuantity": "Opening (qty)",
+    "openingValue": "Opening (value)",
+    "inQuantity": "In (qty)",
+    "inValue": "In (value)",
+    "outQuantity": "Out (qty)",
+    "outValue": "Out (value)",
+    "closingQuantity": "Closing (qty)",
+    "closingValue": "Closing (value)",
+    "costOfSales": "Cost of sales",
+    "turnover": "Turnover",
+    "daysOfInventory": "Days of inventory",
+    "total": "Total"
   }
 }

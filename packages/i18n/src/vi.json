@@ -3691,6 +3691,25 @@
     "totalExcludingInternal": "Tổng loại trừ nội bộ",
     "truncated": "Hiện {shown} trên {total} dòng, xếp theo số tiền giảm dần. Dòng tổng tính trên toàn bộ. Xuất Excel để có đủ dòng.",
     "export": "Xuất Excel",
-    "exported": "Đã tải tệp {fileName}."
+    "exported": "Đã tải tệp {fileName}.",
+    "inventoryTitle": "Tồn kho và luân chuyển",
+    "warehouse": "Kho",
+    "allWarehouses": "Kho: tất cả",
+    "inventoryNote": "Theo thẻ kho, ngày giờ Việt Nam. Vòng quay = giá vốn hàng bán ÷ giá trị tồn bình quân ((đầu kỳ + cuối kỳ) ÷ 2); số ngày tồn = số ngày của kỳ ÷ vòng quay. Chuyển kho là xuất của kho đi, nhập của kho đến.",
+    "inventory_company": "Công ty",
+    "inventory_warehouse": "Kho",
+    "inventory_product": "Sản phẩm",
+    "openingQuantity": "Tồn đầu kỳ (SL)",
+    "openingValue": "Tồn đầu kỳ (giá trị)",
+    "inQuantity": "Nhập (SL)",
+    "inValue": "Nhập (giá trị)",
+    "outQuantity": "Xuất (SL)",
+    "outValue": "Xuất (giá trị)",
+    "closingQuantity": "Tồn cuối kỳ (SL)",
+    "closingValue": "Tồn cuối kỳ (giá trị)",
+    "costOfSales": "Giá vốn hàng bán",
+    "turnover": "Vòng quay",
+    "daysOfInventory": "Số ngày tồn",
+    "total": "Tổng"
   }
 }

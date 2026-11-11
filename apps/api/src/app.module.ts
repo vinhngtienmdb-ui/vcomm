@@ -93,6 +93,7 @@ import { ConsolidationService } from "./consolidation/consolidation.service";
 import { AnalyticsController } from "./analytics/analytics.controller";
 import { AnalyticsScopeService } from "./analytics/analytics-scope.service";
 import { SalesReportService } from "./analytics/sales-report.service";
+import { InventoryReportService } from "./analytics/inventory-report.service";
 import { EinvoiceCorrectionsService } from "./einvoice/einvoice-corrections.service";
 import { EinvoiceSettingsService } from "./einvoice/einvoice-settings.service";
 import { EinvoicesController } from "./einvoice/einvoices.controller";
@@ -193,6 +194,7 @@ import { UsersService } from "./users/users.service";
     ConsolidationService,
     AnalyticsScopeService,
     SalesReportService,
+    InventoryReportService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

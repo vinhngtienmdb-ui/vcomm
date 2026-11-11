@@ -11,9 +11,17 @@ import { AnalyticsScopeService, requirePeriod, type ReportScope } from "./analyt
 import { periodNote, type ExportTable } from "./analytics-export";
 
 type SalesQuery = z.infer<typeof analyticsSalesQuerySchema>;
-const uuidList = (ids: string[]) =>
+export interface DeliveredFilter {
+  from: string;
+  to: string;
+  channelId?: string | undefined;
+  marketplaceOnly?: boolean;
+  warehouseId?: string | undefined;
+}
+// Danh sách rỗng thành một mã không tồn tại để câu lệnh IN vẫn hợp lệ.
+export const uuidList = (ids: string[]) =>
   sql.join(
-    ids.map((id) => sql`${id}::uuid`),
+    (ids.length > 0 ? ids : ["00000000-0000-0000-0000-000000000000"]).map((id) => sql`${id}::uuid`),
     sql`, `,
   );
 
@@ -27,12 +35,13 @@ export class SalesReportService {
   ) {}
 
   // Dòng phiếu xuất giao hàng (dấu +) và nhận hàng trả lại (dấu −) đã ghi sổ, ngày phiếu trong kỳ, kèm tiền chưa thuế, giá vốn, cờ bán nội bộ.
-  private base(scope: ReportScope, query: SalesQuery): SQL {
+  // Báo cáo tồn kho dùng lại để lấy giá vốn hàng bán (QUYTAC_NGHIEPVU_340).
+  base(scope: ReportScope, query: DeliveredFilter): SQL {
     const companies = uuidList(scope.companies.map((company) => company.id));
     const group = uuidList(scope.groupCompanyIds);
     const filter = sql`d.status = 'posted' AND d.company_id IN (${companies}) AND d.document_date BETWEEN ${query.from}::date AND ${query.to}::date`;
     return sql`
-      SELECT d.company_id, d.document_date, line.variant_id, line.sign, line.quantity, line.cost,
+      SELECT d.company_id, d.warehouse_id, d.document_date, line.variant_id, line.sign, line.quantity, line.cost,
         finance.line_share(sl.net_amount, line.before, line.quantity, sl.base_quantity, finance.company_minor_units(d.company_id)) AS revenue,
         so.channel_id, (mo.id IS NOT NULL) AS is_marketplace,
         coalesce(p.company_id IN (${group}), false) AS is_internal
@@ -57,7 +66,8 @@ export class SalesReportService {
       WHERE d.type IN ('sales_issue', 'sales_return') AND ${filter}
         AND NOT coalesce(ba.is_test_buyer, false)
         ${query.channelId ? sql`AND so.channel_id = ${query.channelId}` : sql``}
-        ${query.marketplaceOnly ? sql`AND mo.id IS NOT NULL` : sql``}`;
+        ${query.marketplaceOnly ? sql`AND mo.id IS NOT NULL` : sql``}
+        ${query.warehouseId ? sql`AND d.warehouse_id = ${query.warehouseId}` : sql``}`;
   }
 
   private keyOf(groupBy: AnalyticsSalesGrouping): SQL {
@@ -79,7 +89,6 @@ export class SalesReportService {
   async report(actor: Actor, query: SalesQuery, allRows = false): Promise<AnalyticsSalesResponse> {
     requirePeriod(query.from, query.to);
     const scope = await this.scopeService.resolve(actor, "sales", query.companyIds);
-    const currencyOf = new Map(scope.companies.map((company) => [company.id, company.currency]));
     const figures = sql`
       sum(b.sign * b.quantity)::text AS quantity, sum(b.sign * b.revenue)::text AS revenue, sum(b.sign * b.cost)::text AS cost,
       coalesce(sum(b.sign * b.revenue) FILTER (WHERE b.is_internal), 0)::text AS internal_revenue`;
@@ -112,12 +121,7 @@ export class SalesReportService {
     const totals = (
       await this.database.execute<FigureRow>(sql`
       WITH b AS (${this.base(scope, query)})
-      SELECT ${figures} FROM b WHERE b.company_id IN (${uuidList(
-        [...currencyOf]
-          .filter(([, currency]) => currency === scope.group.currency)
-          .map(([id]) => id)
-          .concat("00000000-0000-0000-0000-000000000000"),
-      )})`)
+      SELECT ${figures} FROM b WHERE b.company_id IN (${uuidList(scope.companies.filter((company) => company.inTotal).map((company) => company.id))})`)
     ).rows[0]!;
     const totalFigures = this.figures(totals);
     return {
@@ -144,7 +148,7 @@ export class SalesReportService {
     };
   }
 
-  private async labels(groupBy: AnalyticsSalesGrouping, keys: string[]): Promise<Map<string, string>> {
+  async labels(groupBy: AnalyticsSalesGrouping, keys: string[]): Promise<Map<string, string>> {
     const ids = keys.filter((key) => /^[0-9a-f-]{36}$/.test(key));
     if (ids.length === 0 || groupBy === "day" || groupBy === "month")
       return new Map(keys.map((key) => [key, groupBy === "day" ? key.split("-").reverse().join("/") : groupBy === "month" ? key.split("-").reverse().join("/") : key]));

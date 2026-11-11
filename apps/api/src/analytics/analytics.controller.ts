@@ -1,6 +1,13 @@
 // API_170 đến API_175: báo cáo quản trị (CONG_VIEC_50). Chỉ đọc; quyền từng nhóm báo cáo kiểm trong service.
 import { Controller, Get, Headers, Query, Req, Res, StreamableFile } from "@nestjs/common";
-import { analyticsSalesQuerySchema, type AnalyticsReportKind, type AnalyticsSalesResponse, type AnalyticsScopeResponse } from "contracts";
+import {
+  analyticsInventoryQuerySchema,
+  analyticsSalesQuerySchema,
+  type AnalyticsInventoryResponse,
+  type AnalyticsReportKind,
+  type AnalyticsSalesResponse,
+  type AnalyticsScopeResponse,
+} from "contracts";
 import type { Response } from "express";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
@@ -9,6 +16,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { reportXlsx, xlsxContentType, type ExportTable } from "./analytics-export";
 import { AnalyticsScopeService } from "./analytics-scope.service";
+import { InventoryReportService } from "./inventory-report.service";
 import { SalesReportService } from "./sales-report.service";
 
 @Controller("analytics")
@@ -18,6 +26,7 @@ export class AnalyticsController {
     private readonly auditService: AuditService,
     private readonly scopeService: AnalyticsScopeService,
     private readonly sales: SalesReportService,
+    private readonly inventory: InventoryReportService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -61,5 +70,19 @@ export class AnalyticsController {
     const report = await this.sales.report(actor, parsed, parsed.format === "xlsx");
     if (parsed.format === "json") return report;
     return this.export(actor, response, "sales", parsed, [this.sales.exportTable(report)], `bao-cao-ban-hang-${parsed.from}-${parsed.to}`);
+  }
+
+  @Get("inventory")
+  async inventoryReport(
+    @Req() request: AuthenticatedRequest,
+    @Query() query: unknown,
+    @Res({ passthrough: true }) response: Response,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<AnalyticsInventoryResponse | StreamableFile> {
+    const parsed = analyticsInventoryQuerySchema.parse(query);
+    const actor = await this.actor(request, companyId);
+    const report = await this.inventory.report(actor, parsed, parsed.format === "xlsx");
+    if (parsed.format === "json") return report;
+    return this.export(actor, response, "inventory", parsed, [this.inventory.exportTable(report)], `bao-cao-ton-kho-${parsed.from}-${parsed.to}`);
   }
 }
