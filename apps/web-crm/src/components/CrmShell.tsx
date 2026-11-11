@@ -1,6 +1,6 @@
 "use client";
 
-// Khung mini app Khách hàng và Đối tác: menu MAN_HINH_36 (CONG_VIEC_06), MAN_HINH_64 (CONG_VIEC_21), MAN_HINH_79 (CONG_VIEC_23), MAN_HINH_81, MAN_HINH_82 (CONG_VIEC_27), MAN_HINH_86 đến MAN_HINH_89 (CONG_VIEC_24), MAN_HINH_98 (CONG_VIEC_25), MAN_HINH_102 (CONG_VIEC_26); mục thêm dần theo module.
+// Khung mini app Khách hàng và Đối tác: menu MAN_HINH_36 (CONG_VIEC_06), MAN_HINH_64 (CONG_VIEC_21), MAN_HINH_79 (CONG_VIEC_23), MAN_HINH_81, MAN_HINH_82 (CONG_VIEC_27), MAN_HINH_86 đến MAN_HINH_89 (CONG_VIEC_24), MAN_HINH_98 (CONG_VIEC_25), MAN_HINH_102 (CONG_VIEC_26), MAN_HINH_146 đến MAN_HINH_150 (CONG_VIEC_51), MAN_HINH_137, MAN_HINH_138 (CONG_VIEC_49); mục thêm dần theo module.
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { AppShell } from "ui/components/AppShell";
@@ -16,6 +16,14 @@ export const crmMenu = [
   { href: "/return-requests", key: "returnRequests", permission: "marketplace.order.view" },
   { href: "/refunds", key: "refunds", permission: "marketplace.payment.manage" },
   { href: "/withdrawals", key: "withdrawals", permission: "marketplace.payment.manage" },
+  { href: "/loyalty/program", key: "loyaltyProgram", permission: "loyalty.view" },
+  { href: "/loyalty/accounts", key: "loyaltyAccounts", permission: "loyalty.view" },
+  { href: "/loyalty/adjustments", key: "loyaltyAdjustments", permission: "loyalty.view" },
+  { href: "/loyalty/alerts", key: "loyaltyAlerts", permission: "loyalty.view" },
+  { href: "/loyalty/liability", key: "loyaltyLiability", permission: "loyalty.view" },
+  { href: "/collaborators", key: "collaborators", permission: "marketplace.buyer.view" },
+  { href: "/group-buys", key: "groupBuys", permission: "marketplace.order.view" },
+  { href: "/community", key: "community", permission: "marketplace.community.manage" },
 ] as const;
 
 export function CrmShell({ children }: { children: ReactNode }) {

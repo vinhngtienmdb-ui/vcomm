@@ -1,5 +1,6 @@
 // Nhật ký thao tác chỉ thêm (QUYTAC_NGHIEPVU_30, CHUC_NANG_23).
 import { Inject, Injectable } from "@nestjs/common";
+import { sql } from "drizzle-orm";
 import { DATABASE, type Database } from "../database/database.module";
 import { auditEvents } from "../database/schema";
 
@@ -34,6 +35,8 @@ export class AuditService {
       ip: entry.ip ?? null,
       userAgent: entry.userAgent ?? null,
       requestId: entry.requestId ?? null,
+      // clock_timestamp: nhiều thao tác trong cùng giao dịch vẫn giữ đúng thứ tự trên nhật ký (LOI_08, như LOI_06).
+      occurredAt: sql`clock_timestamp()`,
     });
   }
 }

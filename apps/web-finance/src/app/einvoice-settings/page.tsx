@@ -31,7 +31,8 @@ function SettingsForm({ settings, onSaved }: { settings: EinvoiceSettingsRespons
   const t = useTranslations("einvoiceSettings");
   const { notify } = useAdmin();
   const [form, setForm] = useState({ ...settings, password: "" });
-  const [series, setSeries] = useState(settings.series.map((item) => ({ year: String(item.year), series: item.series })));
+  const [series, setSeries] = useState<SeriesRow[]>(settings.series.map((item) => ({ year: String(item.year), series: item.series, lastNo: 0 })));
+  const [cashRegisterSeries, setCashRegisterSeries] = useState<SeriesRow[]>(settings.cashRegisterSeries.map((item) => ({ year: String(item.year), series: item.series, lastNo: item.lastNo })));
   const { submitting, fields, formError, run, inputClass } = useSubmit();
   const [testing, setTesting] = useState(false);
   const errors = useTranslations("errors");
@@ -67,6 +68,7 @@ function SettingsForm({ settings, onSaved }: { settings: EinvoiceSettingsRespons
           ...(form.password ? { password: form.password } : {}),
           simulation: form.simulation,
           series: series.filter((item) => item.year || item.series).map((item) => ({ year: Number(item.year), series: item.series })),
+          cashRegisterSeries: cashRegisterSeries.filter((item) => item.year || item.series).map((item) => ({ year: Number(item.year), series: item.series })),
           version: settings.version,
         }),
       });
@@ -162,46 +164,17 @@ function SettingsForm({ settings, onSaved }: { settings: EinvoiceSettingsRespons
           </select>
         </Field>
       )}
-      <div style={{ display: "grid", gap: "var(--khoang-2)" }}>
-        <strong>{t("series")}</strong>
-        <span className="chu-thich">{t("seriesHint")}</span>
-        {fields.series && <span className="loi-o">{fields.series}</span>}
-        {series.map((item, index) => (
-          <div key={index} className="nhom-nut" style={{ alignItems: "flex-start" }}>
-            <Field id={`hd-nam-${index}`} label={t("year")} error={fields[`series.${index}.year`]}>
-              <input
-                id={`hd-nam-${index}`}
-                inputMode="numeric"
-                disabled={disabled}
-                className={inputClass(`series.${index}.year`)}
-                style={{ width: "7rem" }}
-                value={item.year}
-                onChange={(event) => setSeries(series.map((current, position) => (position === index ? { ...current, year: event.target.value } : current)))}
-              />
-            </Field>
-            <Field id={`hd-ky-hieu-${index}`} label={t("seriesCode")} error={fields[`series.${index}.series`]}>
-              <input
-                id={`hd-ky-hieu-${index}`}
-                disabled={disabled}
-                className={inputClass(`series.${index}.series`)}
-                style={{ width: "9rem", textTransform: "uppercase" }}
-                value={item.series}
-                onChange={(event) => setSeries(series.map((current, position) => (position === index ? { ...current, series: event.target.value.toUpperCase() } : current)))}
-              />
-            </Field>
-            {!disabled && (
-              <button type="button" className="nut chu" style={{ alignSelf: "end" }} onClick={() => setSeries(series.filter((_, position) => position !== index))}>
-                {t("removeSeries")}
-              </button>
-            )}
-          </div>
-        ))}
-        {!disabled && (
-          <button type="button" className="nut phu" style={{ justifySelf: "start" }} onClick={() => setSeries([...series, { year: String(new Date().getFullYear()), series: "" }])}>
-            {t("addSeries")}
-          </button>
-        )}
-      </div>
+      <SeriesRows field="series" title={t("series")} hint={t("seriesHint")} rows={series} onChange={setSeries} disabled={disabled} fields={fields} inputClass={inputClass} />
+      <SeriesRows
+        field="cashRegisterSeries"
+        title={t("cashRegisterSeries")}
+        hint={t("cashRegisterSeriesHint")}
+        rows={cashRegisterSeries}
+        onChange={setCashRegisterSeries}
+        disabled={disabled}
+        fields={fields}
+        inputClass={inputClass}
+      />
       <FormError text={formError} />
       {!disabled && (
         <div className="nhom-nut">
@@ -216,5 +189,81 @@ function SettingsForm({ settings, onSaved }: { settings: EinvoiceSettingsRespons
         </div>
       )}
     </form>
+  );
+}
+
+type SeriesRow = { year: string; series: string; lastNo: number };
+
+// Ký hiệu theo năm: hóa đơn thường (ký tự thứ tư T) hoặc khởi tạo từ máy tính tiền (M, CONG_VIEC_53). Ký hiệu máy tính tiền đã cấp số thì khóa.
+function SeriesRows({
+  field,
+  title,
+  hint,
+  rows,
+  onChange,
+  disabled,
+  fields,
+  inputClass,
+}: {
+  field: "series" | "cashRegisterSeries";
+  title: string;
+  hint: string;
+  rows: SeriesRow[];
+  onChange: (rows: SeriesRow[]) => void;
+  disabled: boolean;
+  fields: Record<string, string>;
+  inputClass: (name: string) => string;
+}) {
+  const t = useTranslations("einvoiceSettings");
+  const update = (index: number, change: Partial<SeriesRow>) => onChange(rows.map((current, position) => (position === index ? { ...current, ...change } : current)));
+  return (
+    <div style={{ display: "grid", gap: "var(--khoang-2)" }}>
+      <strong>{title}</strong>
+      <span className="chu-thich">{hint}</span>
+      {fields[field] && <span className="loi-o">{fields[field]}</span>}
+      {rows.map((item, index) => {
+        const locked = disabled || item.lastNo > 0;
+        return (
+          <div key={index} className="nhom-nut" style={{ alignItems: "flex-start" }}>
+            <Field id={`${field}-nam-${index}`} label={t("year")} error={fields[`${field}.${index}.year`]}>
+              <input
+                id={`${field}-nam-${index}`}
+                inputMode="numeric"
+                disabled={locked}
+                className={inputClass(`${field}.${index}.year`)}
+                style={{ width: "7rem" }}
+                value={item.year}
+                onChange={(event) => update(index, { year: event.target.value })}
+              />
+            </Field>
+            <Field id={`${field}-ky-hieu-${index}`} label={t("seriesCode")} error={fields[`${field}.${index}.series`]}>
+              <input
+                id={`${field}-ky-hieu-${index}`}
+                disabled={locked}
+                className={inputClass(`${field}.${index}.series`)}
+                style={{ width: "9rem", textTransform: "uppercase" }}
+                value={item.series}
+                onChange={(event) => update(index, { series: event.target.value.toUpperCase() })}
+              />
+            </Field>
+            {item.lastNo > 0 && (
+              <span className="chu-thich" style={{ alignSelf: "end" }}>
+                {t("lastNo", { number: item.lastNo })}
+              </span>
+            )}
+            {!locked && (
+              <button type="button" className="nut chu" style={{ alignSelf: "end" }} onClick={() => onChange(rows.filter((_, position) => position !== index))}>
+                {t("removeSeries")}
+              </button>
+            )}
+          </div>
+        );
+      })}
+      {!disabled && (
+        <button type="button" className="nut phu" style={{ justifySelf: "start" }} onClick={() => onChange([...rows, { year: String(new Date().getFullYear()), series: "", lastNo: 0 }])}>
+          {t("addSeries")}
+        </button>
+      )}
+    </div>
   );
 }

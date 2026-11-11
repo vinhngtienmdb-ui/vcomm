@@ -8,6 +8,8 @@ export interface OutboundMessage {
   to: string;
   subject: string;
   body: string;
+  // Tệp đính kèm email, ví dụ tệp lịch .ics mời phỏng vấn (CONG_VIEC_54); không bắt buộc.
+  attachments?: { fileName: string; contentType: string; content: string }[];
 }
 
 export interface OutboundMessages {
@@ -20,7 +22,8 @@ export class LogOutboundMessages implements OutboundMessages {
 
   async send(message: OutboundMessage): Promise<void> {
     // Chỉ dùng trên máy phát triển và môi trường thử: đường dẫn kích hoạt nằm trong log.
-    this.logger.log(`[${message.channel}] tới ${message.to} | ${message.subject} | ${message.body}`);
+    const attached = message.attachments?.length ? ` | tệp: ${message.attachments.map((attachment) => attachment.fileName).join(", ")}` : "";
+    this.logger.log(`[${message.channel}] tới ${message.to} | ${message.subject} | ${message.body}${attached}`);
   }
 }
 

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MAN_HINH_113 Chi tiết chi phí nhập khẩu – VComm</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" />
+    <link rel="stylesheet" href="chung.css" />
+  </head>
+  <body>
+    <header class="thanh-tren"><a class="logo" href="index.html">VComm</a><span class="gian"></span><button>Công ty VCR ▾</button><button>Lê Phúc</button></header>
+    <div class="than">
+      <nav class="menu" aria-label="Mua hàng">
+        <div class="ten-app">Mua hàng</div>
+        <a href="#">Đơn mua</a>
+        <a href="MAN_HINH_110_TO_KHAI_NHAP_KHAU.html">Tờ khai nhập khẩu</a>
+        <a href="MAN_HINH_112_CHI_PHI_NHAP_KHAU.html" class="chon">Chi phí nhập khẩu</a>
+        <a href="#">Đề nghị mua</a>
+        <a href="#">Bảng giá mua</a>
+      </nav>
+      <main class="noi-dung">
+        <a href="MAN_HINH_112_CHI_PHI_NHAP_KHAU.html">← Danh sách chi phí nhập khẩu</a>
+        <div class="tieu-de">
+          <h1>Chứng từ chi phí (nháp)</h1>
+          <span class="nhan trung-tinh">Nháp</span><button class="nut phu">Lịch sử</button><button class="nut nguy-hiem">Hủy</button><button class="nut phu">Lưu</button
+          ><button class="nut chinh">Ghi sổ</button>
+        </div>
+        <div class="the">
+          <div class="hai-cot" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))">
+            <div class="truong">
+              <label>Tờ khai</label
+              ><select class="o-nhap">
+                <option>107012345670 · DM-2026-0012</option></select
+              ><span class="chu-thich">Chỉ tờ khai đã ghi sổ.</span>
+            </div>
+            <div class="truong">
+              <label>Nhà cung cấp dịch vụ</label
+              ><select class="o-nhap">
+                <option>Công ty Vận tải Mẫu</option>
+              </select>
+            </div>
+            <div class="truong"><label>Số hóa đơn</label><input class="o-nhap" value="00001234" /></div>
+            <div class="truong"><label>Ngày chứng từ</label><input class="o-nhap" type="date" value="2026-11-09" /></div>
+            <div class="truong">
+              <label>Tiền tệ</label
+              ><select class="o-nhap">
+                <option>VND</option>
+                <option>USD</option></select
+              ><span class="chu-thich">Ngoại tệ: quy đổi theo tỷ giá hạch toán ngày chứng từ.</span>
+            </div>
+          </div>
+        </div>
+        <div class="khung-bang">
+          <table>
+            <thead>
+              <tr>
+                <th>Loại</th>
+                <th>Diễn giải</th>
+                <th>Chưa thuế</th>
+                <th>Thuế suất</th>
+                <th>Tiêu thức</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-nhan="Loại">
+                  <select class="o-nhap">
+                    <option>Vận chuyển quốc tế</option>
+                  </select>
+                </td>
+                <td data-nhan="Diễn giải"><input class="o-nhap" value="Cước biển Thâm Quyến – Cát Lái" /></td>
+                <td data-nhan="Chưa thuế"><input class="o-nhap" value="30.456.000" style="width: 120px" /></td>
+                <td data-nhan="Thuế suất">
+                  <select class="o-nhap">
+                    <option>Không kê khai</option>
+                  </select>
+                </td>
+                <td data-nhan="Tiêu thức">
+                  <select class="o-nhap">
+                    <option>Theo giá trị</option>
+                    <option>Theo số lượng</option>
+                  </select>
+                </td>
+                <td data-nhan=""><button class="nut chu">Bỏ dòng</button></td>
+              </tr>
+              <tr>
+                <td data-nhan="Loại">
+                  <select class="o-nhap">
+                    <option>Bảo hiểm</option>
+                  </select>
+                </td>
+                <td data-nhan="Diễn giải"><input class="o-nhap" value="Bảo hiểm hàng hóa" /></td>
+                <td data-nhan="Chưa thuế"><input class="o-nhap" value="4.540.000" style="width: 120px" /></td>
+                <td data-nhan="Thuế suất">
+                  <select class="o-nhap">
+                    <option>10%</option>
+                  </select>
+                </td>
+                <td data-nhan="Tiêu thức">
+                  <select class="o-nhap">
+                    <option>Theo giá trị</option>
+                  </select>
+                </td>
+                <td data-nhan=""><button class="nut chu">Bỏ dòng</button></td>
+              </tr>
+              <tr>
+                <td data-nhan="Loại">
+                  <select class="o-nhap">
+                    <option>Vận chuyển nội địa</option>
+                  </select>
+                </td>
+                <td data-nhan="Diễn giải"><input class="o-nhap" value="Cảng Cát Lái – kho Bình Dương" /></td>
+                <td data-nhan="Chưa thuế"><input class="o-nhap" value="6.000.000" style="width: 120px" /></td>
+                <td data-nhan="Thuế suất">
+                  <select class="o-nhap">
+                    <option>8%</option>
+                  </select>
+                </td>
+                <td data-nhan="Tiêu thức">
+                  <select class="o-nhap">
+                    <option>Theo số lượng</option>
+                  </select>
+                </td>
+                <td data-nhan=""><button class="nut chu">Bỏ dòng</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="phan-trang"><button class="nut chu">+ Thêm khoản chi phí</button><span>Chưa thuế 41.010.000 · Thuế 934.000 · Gồm thuế 41.944.000</span></div>
+        </div>
+        <h2>Xem trước phân bổ</h2>
+        <div class="khung-bang">
+          <table>
+            <thead>
+              <tr>
+                <th>Mặt hàng</th>
+                <th>Trị giá quy đổi</th>
+                <th>Số lượng</th>
+                <th>Vận chuyển quốc tế</th>
+                <th>Bảo hiểm</th>
+                <th>Vận chuyển nội địa</th>
+                <th>Cộng</th>
+                <th>Vào tồn kho</th>
+                <th>Vào giá vốn hàng bán</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-nhan="Mặt hàng">TN-01 Tai nghe không dây</td>
+                <td data-nhan="Trị giá quy đổi">215.900.000</td>
+                <td data-nhan="Số lượng">1.000</td>
+                <td data-nhan="Vận chuyển quốc tế">17.374.228</td>
+                <td data-nhan="Bảo hiểm">2.589.933</td>
+                <td data-nhan="Vận chuyển nội địa">2.000.000</td>
+                <td data-nhan="Cộng">21.964.161</td>
+                <td data-nhan="Vào tồn kho">17.571.329<br /><span class="chu-thich">tồn 800 / 1.000</span></td>
+                <td data-nhan="Vào giá vốn hàng bán">4.392.832</td>
+              </tr>
+              <tr>
+                <td data-nhan="Mặt hàng">SN-20 Sạc nhanh 20W</td>
+                <td data-nhan="Trị giá quy đổi">162.560.000</td>
+                <td data-nhan="Số lượng">2.000</td>
+                <td data-nhan="Vận chuyển quốc tế">13.081.772</td>
+                <td data-nhan="Bảo hiểm">1.950.067</td>
+                <td data-nhan="Vận chuyển nội địa">4.000.000</td>
+                <td data-nhan="Cộng">19.031.839</td>
+                <td data-nhan="Vào tồn kho">19.031.839<br /><span class="chu-thich">tồn 2.000 / 2.000</span></td>
+                <td data-nhan="Vào giá vốn hàng bán">0</td>
+              </tr>
+              <tr>
+                <td data-nhan=""><strong>Tổng</strong></td>
+                <td></td>
+                <td></td>
+                <td data-nhan="Vận chuyển quốc tế"><strong>30.456.000</strong></td>
+                <td data-nhan="Bảo hiểm"><strong>4.540.000</strong></td>
+                <td data-nhan="Vận chuyển nội địa"><strong>6.000.000</strong></td>
+                <td data-nhan="Cộng"><strong>41.010.000</strong></td>
+                <td data-nhan="Vào tồn kho"><strong>36.603.168</strong></td>
+                <td data-nhan="Vào giá vốn hàng bán"><strong>4.392.832</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="chu-thich">
+          Theo giá trị: tỷ lệ trị giá quy đổi trên tờ khai; theo số lượng: tỷ lệ số lượng đơn vị cơ sở. Phần lẻ làm tròn cộng vào dòng có phần lớn nhất. Phần tồn tính tại lúc ghi sổ; số trên có thể
+          đổi nếu kho xuất thêm trước khi ghi sổ.
+        </p>
+        <div class="the"><strong>Bút toán khi ghi sổ:</strong> Nợ 156 36.603.168, Nợ 632 4.392.832, Nợ 1331 934.000 / Có 331 (Công ty Vận tải Mẫu) 41.944.000.</div>
+      </main>
+    </div>
+    <div class="dieu-khien">Bản mẫu CONG_VIEC_45 · dữ liệu giả · <a href="index.html">Mục lục</a></div>
+  </body>
+</html>

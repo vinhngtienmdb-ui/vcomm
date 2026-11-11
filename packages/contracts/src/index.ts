@@ -1439,7 +1439,7 @@ export interface WarehouseOptionsResponse {
 }
 
 // CONG_VIEC_05, API_64, API_65: phiếu kho, tồn kho, thẻ kho (CHUC_NANG_39, 40; QUYTAC_NGHIEPVU_47 đến 51).
-export const stockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer", "purchase_receipt", "purchase_return", "sales_issue", "sales_return"] as const;
+export const stockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer", "purchase_receipt", "purchase_return", "sales_issue", "sales_return", "cost_adjustment"] as const;
 // Loại phiếu lập tay ở màn hình phiếu kho; phiếu nhập mua, trả hàng nhà cung cấp lập từ đơn mua, phiếu nhập mua (CONG_VIEC_07).
 export const manualStockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer"] as const;
 export type StockDocumentType = (typeof stockDocumentTypes)[number];
@@ -1455,6 +1455,7 @@ export const stockReasonCodes = {
   purchase_return: ["purchase_return"],
   sales_issue: ["sale"],
   sales_return: ["sales_return"],
+  cost_adjustment: ["import_cost"],
 } as const satisfies Record<StockDocumentType, readonly string[]>;
 export type StockReasonCode = (typeof stockReasonCodes)[StockDocumentType][number];
 const signedDecimal = z.union([z.number(), z.string()]).transform((value, context) => {
@@ -1601,6 +1602,10 @@ export interface StockDocumentResponse extends StockDocumentListItem {
   sourceNo: string | null;
   canQualityCheck: boolean;
   canReturn: boolean;
+  // CONG_VIEC_45: phiếu nhập mua, trả hàng theo đơn ngoại tệ (QUYTAC_NGHIEPVU_286); trống khi theo tiền tệ công ty.
+  currency: string | null;
+  exchangeRate: string | null;
+  foreignAmount: string | null;
   // CONG_VIEC_09: phiếu nhập mua nội bộ chờ nhận; số xuất, serial xuất theo phiếu xuất gốc bên bán (đơn vị cơ sở bên nhận).
   internalReceipt: { issueDocumentNo: string | null; sellerCompanyName: string; lines: { lineId: string; shippedBaseQuantity: string; shippedSerials: string[] }[] } | null;
   canReceiveInternal: boolean;
@@ -2267,6 +2272,15 @@ export const savePurchaseOrderSchema = z
     orderDate: isoDate,
     expectedDate: isoDate.nullable().optional(),
     note: blankToNull(1000),
+    // CONG_VIEC_45 (QUYTAC_NGHIEPVU_285): đơn nhập khẩu chọn được ngoại tệ; đơn không nhập khẩu theo tiền tệ công ty.
+    isImport: z.boolean().default(false),
+    currency: z
+      .string()
+      .trim()
+      .regex(/^[A-Za-z]{3}$/)
+      .transform((value) => value.toUpperCase())
+      .nullable()
+      .optional(),
     lines: z
       .array(
         z
@@ -2296,6 +2310,7 @@ export interface PurchaseOrderListItem {
   orderDate: string;
   expectedDate: string | null;
   currency: string;
+  isImport: boolean;
   totalAmount: string;
   taxAmount: string;
   status: PurchaseDocumentStatus;
@@ -2334,6 +2349,11 @@ export interface PurchaseOrderResponse extends PurchaseOrderListItem {
   note: string | null;
   approvalRequestId: string | null;
   closedReason: string | null;
+  // CONG_VIEC_45: tiền tệ công ty; tổng chưa thuế quy đổi theo tỷ giá hạch toán hôm nay (trống khi cùng tiền tệ hoặc chưa có tỷ giá).
+  companyCurrency: string;
+  convertedTotal: string | null;
+  // Đã có phiếu nhập: không đổi tiền tệ, không bỏ đánh dấu nhập khẩu.
+  currencyLocked: boolean;
   lines: PurchaseOrderLineResponse[];
   receipts: { id: string; documentNo: string | null; type: "purchase_receipt" | "purchase_return"; status: string; documentDate: string }[];
   version: number;
@@ -2346,6 +2366,223 @@ export const closePurchaseOrderSchema = z.object({ reason: z.string().trim().min
 // CONG_VIEC_09, API_80, API_81: xác nhận (chọn kho), từ chối chứng từ đối ứng nội bộ.
 export const confirmCounterpartSchema = z.object({ warehouseId: z.uuid(), version: z.number().int().positive() }).strict();
 export const rejectCounterpartSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();
+
+// CONG_VIEC_45, API_140, API_141: tờ khai hải quan nhập khẩu (CHUC_NANG_160; QUYTAC_NGHIEPVU_287, 288, 291).
+export const importDeclarationStatuses = ["draft", "posted", "cancelled"] as const;
+export type ImportDeclarationStatus = (typeof importDeclarationStatuses)[number];
+const taxPercent = z
+  .union([z.number(), z.string()])
+  .transform((value) => String(value).trim().replace(",", "."))
+  .pipe(
+    z
+      .string()
+      .regex(/^\d{1,3}(\.\d{1,4})?$/)
+      .refine((value) => Number(value) <= 100, "invalidValue"),
+  );
+export const saveImportDeclarationSchema = z
+  .object({
+    orderId: z.uuid(),
+    declarationNo: z.string().trim().min(1).max(50),
+    registeredOn: isoDate,
+    postingDate: isoDate,
+    customsRate: rateValue.refine((value) => Number(value) > 0, "invalidValue"),
+    note: blankToNull(1000),
+    lines: z
+      .array(
+        z
+          .object({
+            orderLineId: z.uuid(),
+            quantity: positiveQuantity,
+            customsValue: requiredMoney,
+            importDutyRate: taxPercent.default("0"),
+            // Trống: lấy số gợi ý; có số khác gợi ý thì đánh dấu đã sửa.
+            importDuty: requiredMoney.nullable().optional(),
+            exciseTax: requiredMoney.default("0"),
+            environmentalTax: requiredMoney.default("0"),
+            vatRate: taxPercent.default("0"),
+            vatAmount: requiredMoney.nullable().optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveImportDeclarationRequest = z.input<typeof saveImportDeclarationSchema>;
+export const importDeclarationListQuerySchema = z
+  .object({
+    status: z.enum(importDeclarationStatuses).optional(),
+    orderId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const postImportDeclarationSchema = z.object({ version: z.number().int().positive() }).strict();
+export interface ImportDeclarationListItem {
+  id: string;
+  declarationNo: string;
+  registeredOn: string;
+  postingDate: string;
+  orderId: string;
+  orderNo: string | null;
+  supplierName: string;
+  currency: string;
+  customsValue: string;
+  customsValueConverted: string;
+  totalTax: string;
+  status: ImportDeclarationStatus;
+}
+export interface ImportDeclarationLineResponse {
+  id: string;
+  lineNo: number;
+  orderLineId: string;
+  sku: string;
+  productName: string;
+  unitName: string;
+  quantity: string;
+  baseQuantity: string;
+  customsValue: string;
+  customsValueConverted: string;
+  importDutyRate: string;
+  importDuty: string;
+  suggestedImportDuty: string;
+  importDutyEdited: boolean;
+  exciseTax: string;
+  environmentalTax: string;
+  vatRate: string;
+  vatAmount: string;
+  suggestedVatAmount: string;
+  vatEdited: boolean;
+  // Sau ghi sổ: thuế (nhập khẩu, tiêu thụ đặc biệt, bảo vệ môi trường) vào giá trị tồn kho, vào giá vốn hàng bán.
+  stockValue: string | null;
+  expensedValue: string | null;
+}
+export interface ImportDeclarationResponse extends ImportDeclarationListItem {
+  warehouseName: string;
+  customsRate: string;
+  note: string | null;
+  companyCurrency: string;
+  lines: ImportDeclarationLineResponse[];
+  version: number;
+  canEdit: boolean;
+  canPost: boolean;
+}
+// Dòng đơn mua nhập khẩu còn khai được: số đặt, đã khai trên tờ khai chưa hủy, đã nhận (đơn vị cơ sở).
+export interface ImportOrderLineOption {
+  orderLineId: string;
+  sku: string;
+  productName: string;
+  unitName: string;
+  factor: string;
+  quantity: string;
+  unitPrice: string;
+  orderedBaseQuantity: string;
+  declaredBaseQuantity: string;
+  receivedBaseQuantity: string;
+}
+export interface ImportOrderOption {
+  id: string;
+  documentNo: string;
+  supplierName: string;
+  currency: string;
+  lines: ImportOrderLineOption[];
+}
+// Xem trước phân bổ: theo dòng tờ khai, phần vào tồn, phần vào giá vốn hàng bán tại lúc xem.
+// CONG_VIEC_45, API_142, API_143: chứng từ chi phí nhập khẩu (CHUC_NANG_161; QUYTAC_NGHIEPVU_289 đến 291).
+export const landedCostKinds = ["international_freight", "insurance", "domestic_freight", "customs_fee", "other"] as const;
+export type LandedCostKind = (typeof landedCostKinds)[number];
+export const landedCostBases = ["value", "quantity"] as const;
+export type LandedCostBasis = (typeof landedCostBases)[number];
+export const saveLandedCostSchema = z
+  .object({
+    declarationId: z.uuid(),
+    supplierId: z.uuid(),
+    invoiceNo: z.string().trim().min(1).max(50),
+    documentDate: isoDate,
+    currency: currencyCode.nullable().optional(),
+    note: blankToNull(1000),
+    lines: z
+      .array(
+        z
+          .object({
+            kind: z.enum(landedCostKinds),
+            description: blankToNull(200),
+            amount: requiredMoney.refine((value) => Number(value) > 0, "invalidValue"),
+            vatRate: z.enum(vatRates),
+            basis: z.enum(landedCostBases).default("value"),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(50),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveLandedCostRequest = z.input<typeof saveLandedCostSchema>;
+export const landedCostListQuerySchema = z
+  .object({
+    status: z.enum(importDeclarationStatuses).optional(),
+    declarationId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface LandedCostListItem {
+  id: string;
+  documentNo: string | null;
+  invoiceNo: string;
+  documentDate: string;
+  declarationId: string;
+  declarationNo: string;
+  supplierId: string;
+  supplierName: string;
+  currency: string;
+  // Tiền tệ công ty.
+  netAmount: string;
+  vatAmount: string;
+  status: ImportDeclarationStatus;
+}
+export interface LandedCostLineResponse {
+  id: string;
+  lineNo: number;
+  kind: LandedCostKind;
+  description: string | null;
+  amount: string;
+  amountConverted: string;
+  vatRate: VatRate;
+  vatAmount: string;
+  basis: LandedCostBasis;
+}
+// Phân bổ theo dòng tờ khai: phần của từng khoản (theo thứ tự khoản), cộng, phần vào tồn, vào giá vốn hàng bán.
+export interface LandedCostAllocation {
+  lines: {
+    declarationLineId: string;
+    sku: string;
+    productName: string;
+    customsValueConverted: string;
+    baseQuantity: string;
+    byCostLine: string[];
+    amount: string;
+    onHand: string | null;
+    stockValue: string;
+    expensedValue: string;
+  }[];
+}
+export interface LandedCostResponse extends LandedCostListItem {
+  exchangeRate: string;
+  companyCurrency: string;
+  note: string | null;
+  lines: LandedCostLineResponse[];
+  version: number;
+  canEdit: boolean;
+  canPost: boolean;
+}
+export interface ImportAllocationPreview {
+  lines: { orderLineId: string; sku: string; productName: string; amount: string; onHand: string; baseQuantity: string; stockValue: string; expensedValue: string }[];
+}
 
 // CONG_VIEC_07, API_76: phiếu nhập mua theo đơn mua, kết quả kiểm tra chất lượng, phiếu trả hàng nhà cung cấp (CHUC_NANG_52, 53; QUYTAC_NGHIEPVU_64 đến 66).
 const serialList = z.array(z.string().trim().min(1).max(100)).max(1000).default([]);
@@ -2796,8 +3033,8 @@ export interface FundLedgerEntry {
   paymentId: string;
   date: string;
   documentNo: string;
-  kind: PaymentKind;
-  partnerName: string;
+  kind: AnyPaymentKind;
+  partnerName: string | null;
   receipt: string;
   payment: string;
   balance: string;
@@ -2813,7 +3050,7 @@ export interface FundLedgerResponse {
 
 export const debtSides = ["receivable", "payable"] as const;
 export type DebtSide = (typeof debtSides)[number];
-export const debtSourceTypes = ["opening", "sales_issue", "sales_return", "purchase_receipt", "purchase_return", "payment", "internal_write_off", "collection_statement"] as const;
+export const debtSourceTypes = ["opening", "sales_issue", "sales_return", "purchase_receipt", "purchase_return", "payment", "internal_write_off", "collection_statement", "landed_cost"] as const;
 export type DebtSourceType = (typeof debtSourceTypes)[number];
 export const debtSummaryQuerySchema = z
   .object({ side: z.enum(debtSides), search: z.string().trim().max(100).optional(), overdueOnly: z.enum(["true", "false"]).optional() })
@@ -2858,6 +3095,8 @@ export interface DebtItemResponse {
   openAmount: string;
   overdueDays: number;
   note: string | null;
+  // CONG_VIEC_45: khoản theo đơn ngoại tệ, kèm số ngoại tệ (gồm thuế) và tỷ giá để đối chiếu; công nợ vẫn theo tiền tệ công ty.
+  foreign: { currency: string; amount: string; exchangeRate: string } | null;
   canDelete: boolean;
   allocations: DebtAllocationResponse[];
 }
@@ -2908,8 +3147,12 @@ export const paymentKindSide: Record<PaymentKind, DebtSide> = {
   supplier_payment: "payable",
   supplier_refund: "payable",
 };
-export const paymentKindIsReceipt = (kind: PaymentKind) => kind === "customer_receipt" || kind === "supplier_refund";
-export const paymentKindSettles = (kind: PaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
+// THAY_DOI_24 (CONG_VIEC_53): chứng từ quỹ bán lẻ do hệ thống lập khi đóng ca, không đối tượng, không trừ nợ; không lập tay.
+export const retailFundDocumentKinds = ["retail_receipt", "retail_refund", "cash_shortage", "cash_surplus"] as const;
+export type RetailFundDocumentKind = (typeof retailFundDocumentKinds)[number];
+export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind;
+export const paymentKindIsReceipt = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_refund" || kind === "retail_receipt" || kind === "cash_surplus";
+export const paymentKindSettles = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
 export const paymentListQuerySchema = z
   .object({ kind: z.enum(paymentKinds).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
   .strict();
@@ -2932,9 +3175,9 @@ export type SavePaymentRequest = z.input<typeof savePaymentSchema>;
 export interface PaymentListItem {
   id: string;
   documentNo: string | null;
-  kind: PaymentKind;
+  kind: AnyPaymentKind;
   paymentDate: string;
-  partnerName: string;
+  partnerName: string | null;
   fundName: string;
   amount: string;
   status: PaymentStatus;
@@ -2952,8 +3195,8 @@ export interface OpenDebtResponse {
 export interface PaymentResponse {
   id: string;
   documentNo: string | null;
-  kind: PaymentKind;
-  partner: { id: string; code: string; name: string };
+  kind: AnyPaymentKind;
+  partner: { id: string; code: string; name: string } | null;
   fund: { id: string; code: string; name: string };
   paymentDate: string;
   amount: string;
@@ -3022,7 +3265,7 @@ export interface PostingRuleResponse {
   canEdit: boolean;
 }
 export const updatePostingRuleSchema = z.object({ accountId: z.uuid() }).strict();
-export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal", "payroll", "payroll_payment"] as const;
+export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal", "payroll", "payroll_payment", "import_declaration", "landed_cost"] as const;
 export type JournalSourceType = (typeof journalSourceTypes)[number];
 export const journalStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
 export type JournalStatus = (typeof journalStatuses)[number];
@@ -3189,6 +3432,11 @@ export const updateEinvoiceSettingsSchema = z
       .array(z.object({ year: z.number().int().min(2000).max(2099), series: z.string().trim().toUpperCase().regex(/^[CK][0-9]{2}T[A-Z]{2}$/, "invalidValue") }).strict())
       .max(20)
       .default([]),
+    // Ký hiệu hóa đơn khởi tạo từ máy tính tiền theo năm (CONG_VIEC_53; ký tự thứ tư `M`).
+    cashRegisterSeries: z
+      .array(z.object({ year: z.number().int().min(2000).max(2099), series: z.string().trim().toUpperCase().regex(/^[CK][0-9]{2}M[A-Z]{2}$/, "invalidValue") }).strict())
+      .max(20)
+      .default([]),
     version: z.number().int().min(0),
   })
   .strict();
@@ -3206,6 +3454,7 @@ export interface EinvoiceSettingsResponse {
   passwordLastFour: string | null;
   simulation: EinvoiceSimulation;
   series: { year: number; series: string }[];
+  cashRegisterSeries: { year: number; series: string; lastNo: number }[];
   simulatorAllowed: boolean;
   canSetup: boolean;
   version: number;
@@ -3221,9 +3470,12 @@ export const einvoiceListQuerySchema = z
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
   })
   .strict();
+export const einvoiceOrigins = ["standard", "cash_register"] as const;
+export type EinvoiceOrigin = (typeof einvoiceOrigins)[number];
 export interface EinvoiceListItem {
   id: string;
   kind: EinvoiceKind;
+  origin: EinvoiceOrigin;
   invoiceDate: string;
   series: string | null;
   invoiceNo: string | null;
@@ -3240,6 +3492,7 @@ export interface EinvoiceParty {
   name: string | null;
   taxCode: string | null;
   address: string | null;
+  identityNo?: string | null;
   anonymous?: boolean;
 }
 export interface EinvoiceLineResponse {
@@ -3260,6 +3513,7 @@ export interface EinvoiceResponse extends EinvoiceListItem {
   templateCode: string;
   withTaxCode: boolean;
   taxAuthorityCode: string | null;
+  lookupCode: string | null;
   referenceId: string;
   seller: EinvoiceParty;
   buyer: EinvoiceParty;
@@ -4065,6 +4319,8 @@ export interface ProductCommission {
   teamHead: string;
   regionalDirector: string;
   director: string;
+  // CONG_VIEC_49 (QUYTAC_NGHIEPVU_326).
+  collaborator: string;
   version: number;
 }
 // Số tiền vừa cột numeric(18,4) với dư địa khi nhân số lượng: tối đa 13 chữ số phần nguyên.
@@ -4078,6 +4334,8 @@ export const productCommissionSchema = z
     teamHead: commissionValue,
     regionalDirector: commissionValue,
     director: commissionValue,
+    // CONG_VIEC_49: mức cộng tác viên; không gửi thì 0 (giữ tương thích bên gọi cũ).
+    collaborator: commissionValue.optional(),
     // 0: lần thiết lập đầu tiên.
     version: z.number().int().min(0),
   })
@@ -4191,6 +4449,10 @@ export interface ShopProductDetail {
   options: Array<{ name: string; values: string[] }>;
   variants: ShopVariant[];
   currency: string;
+  // CONG_VIEC_49: mức hoa hồng cộng tác viên của sản phẩm (QUYTAC_NGHIEPVU_326); không có hoặc bằng 0 thì null.
+  collaboratorCommission: { calculation: CommissionCalculation; rate: string } | null;
+  // CONG_VIEC_49: điểm đánh giá đã mua hàng đang hiện (QUYTAC_NGHIEPVU_333); chưa có thì count 0, average null.
+  rating: { average: string | null; count: number };
 }
 
 export const shopProductQuerySchema = z
@@ -4250,11 +4512,16 @@ export const buyerAddressSchema = z
   .strict();
 
 // API_126, API_127: đơn VComm (QUYTAC_NGHIEPVU_158, 159, 162).
-export const marketplaceOrderStatuses = ["awaiting_payment", "awaiting_shipment", "awaiting_pickup", "shipping", "delivered", "completed", "cancelled"] as const;
+// CONG_VIEC_49: Chờ chốt nhóm mua chung (QUYTAC_NGHIEPVU_330).
+export const marketplaceOrderStatuses = ["awaiting_payment", "awaiting_group", "awaiting_shipment", "awaiting_pickup", "shipping", "delivered", "completed", "cancelled"] as const;
 export type MarketplaceOrderStatus = (typeof marketplaceOrderStatuses)[number];
 
 const orderLinesInput = z.array(z.object({ variantId: z.uuid(), quantity: z.number().int().min(1).max(999) }).strict()).min(1).max(50);
-export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput }).strict();
+// pointsToRedeem: số điểm thưởng dùng cho đơn (CONG_VIEC_51; QUYTAC_NGHIEPVU_348), mặc định 0.
+const pointsToRedeem = z.number().int().min(0).max(1_000_000_000).default(0);
+// CONG_VIEC_49: dùng ví mua sắm (QUYTAC_NGHIEPVU_332), đặt đơn tham gia nhóm mua chung (QUYTAC_NGHIEPVU_330).
+const orderWalletInput = { useShoppingWallet: z.boolean().default(false), groupBuyId: z.uuid().nullable().default(null) };
+export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput, pointsToRedeem, ...orderWalletInput }).strict();
 // Mã phương thức theo định dạng; phương thức có thật, đang bật hay không do máy chủ kiểm theo danh mục (CONG_VIEC_32).
 const paymentMethodInput = z
   .string()
@@ -4262,7 +4529,9 @@ const paymentMethodInput = z
   .default("cod")
   .transform((value) => value as PaymentMethodCode);
 // expectedTotal: tổng thanh toán người mua đã thấy; khác tổng tính lại thì báo giá đã thay đổi. paymentMethod mặc định thanh toán khi nhận hàng (ứng dụng bản CONG_VIEC_24).
-export const buyerOrderPlaceSchema = z.object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: paymentMethodInput }).strict();
+export const buyerOrderPlaceSchema = z
+  .object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: paymentMethodInput, pointsToRedeem, ...orderWalletInput })
+  .strict();
 
 export interface MarketplaceOrderLine {
   variantId: string;
@@ -4286,8 +4555,17 @@ export interface BuyerOrderPreview {
   currency: string;
   // Chưa mở đặt hàng: chỉ người mua thử đặt được.
   canOrder: boolean;
-  // Phương thức đang bật, theo thứ tự hiển thị.
+  // Phương thức đang bật, theo thứ tự hiển thị. Đơn mua chung chỉ gồm phương thức trực tuyến.
   paymentMethods: PaymentMethodCode[];
+  // Điểm thưởng (CONG_VIEC_51): khả năng dùng điểm, tiền điểm của số điểm đang chọn, tổng sau trừ điểm, điểm dự kiến tích.
+  loyalty: { balance: number; minPoints: number; maxPoints: number; pointValue: string | null; redeemable: boolean; blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null };
+  pointsToRedeem: number;
+  pointsAmount: string;
+  expectedPoints: number;
+  // CONG_VIEC_49: số dư ví mua sắm, dùng được không (khóa toàn hệ thống, chặn tài khoản); phần trả bằng ví nếu chọn dùng; số còn phải trả (tổng − tiền điểm − phần ví).
+  shoppingWallet: { balance: string; usable: boolean };
+  walletAmount: string;
+  payable: string;
 }
 
 export interface MarketplaceOrderEvent {
@@ -4411,6 +4689,10 @@ export interface BuyerOrderDetail extends BuyerOrderListItem {
   paymentStatus: OrderPaymentStatus;
   paidAmount: string;
   refundedAmount: string;
+  // CONG_VIEC_49: phần trả bằng ví mua sắm, phần đã hoàn về ví; nhóm mua chung của đơn.
+  walletAmount: string;
+  walletRefundedAmount: string;
+  groupBuy: { id: string; status: GroupBuyStatus; endsAt: string; finalPrice: string | null } | null;
   // Hạn thanh toán của đơn chờ thanh toán; quá hạn đơn tự hủy.
   paymentDeadline: string | null;
   canPay: boolean;
@@ -4430,6 +4712,9 @@ export interface BuyerOrderDetail extends BuyerOrderListItem {
   // Trả hàng trong 7 ngày (QUYTAC_NGHIEPVU_161).
   returnRequests: ReturnRequestItem[];
   canRequestReturn: boolean;
+  // Tiền điểm thưởng trừ vào đơn; điểm dùng, hoàn, tích của đơn (CONG_VIEC_51).
+  pointsAmount: string;
+  points: LoyaltyDocumentPoints | null;
   version: number;
 }
 
@@ -4453,7 +4738,8 @@ export interface MarketplaceShipmentItem {
 }
 
 // CONG_VIEC_26: hoa hồng của đơn theo người hưởng và phần (QUYTAC_NGHIEPVU_201, 202).
-export const commissionShares = ["referral", "staff", "team_head", "regional_director", "director"] as const;
+// CONG_VIEC_49: thêm phần cộng tác viên (QUYTAC_NGHIEPVU_326).
+export const commissionShares = ["referral", "staff", "team_head", "regional_director", "director", "collaborator"] as const;
 export type CommissionShare = (typeof commissionShares)[number];
 export interface MarketplaceOrderCommission {
   beneficiaryName: string;
@@ -4556,7 +4842,8 @@ export const returnRequestListQuerySchema = z
   .strict();
 
 // API_135: ví hoa hồng của người dùng (CONG_VIEC_26; QUYTAC_NGHIEPVU_203).
-export const walletTransactionKinds = ["commission", "withdrawal", "withdrawal_reversal"] as const;
+// CONG_VIEC_49: thưởng giới thiệu bạn bè (QUYTAC_NGHIEPVU_327).
+export const walletTransactionKinds = ["commission", "withdrawal", "withdrawal_reversal", "referral_bonus"] as const;
 export type WalletTransactionKind = (typeof walletTransactionKinds)[number];
 
 export const buyerWalletQuerySchema = z.object({
@@ -4617,6 +4904,8 @@ export interface WithdrawalItem {
   paidOn: string | null;
   createdAt: string;
   decidedAt: string | null;
+  // THAY_DOI_22: ví hoa hồng của người này đang bị chặn (không ghi được đã chi).
+  walletBlocked: boolean;
   version: number;
 }
 
@@ -4640,8 +4929,825 @@ export interface BuyerWithdrawalInfo {
   bankAccount: BuyerBankAccount | null;
   // Yêu cầu đang chờ duyệt hoặc đã duyệt chưa chi.
   open: WithdrawalItem | null;
+  // THAY_DOI_22: ví hoa hồng bị chặn rút tiền.
+  blocked: boolean;
 }
 
+// ---------------------------------------------------------------------------
+// CONG_VIEC_49: Cộng đồng phần 1 (MODULE_10).
+
+// Cộng tác viên (QUYTAC_NGHIEPVU_324, 325).
+export const collaboratorStatuses = ["pending", "approved", "rejected", "suspended"] as const;
+export type CollaboratorStatus = (typeof collaboratorStatuses)[number];
+export const collaboratorLabels = ["kol", "koc"] as const;
+export type CollaboratorLabel = (typeof collaboratorLabels)[number];
+// Phiên bản điều khoản cộng tác viên hiện hành; người mua đồng ý phiên bản này khi gửi đăng ký.
+export const collaboratorTermsVersion = 1;
+export const collaboratorCodePattern = /^[A-HJ-NP-Z2-9]{8}$/;
+
+export interface CollaboratorProfile {
+  status: CollaboratorStatus;
+  code: string | null;
+  label: CollaboratorLabel | null;
+  channel: string | null;
+  reason: string | null;
+  submittedAt: string;
+  version: number;
+}
+// Thống kê 30 ngày gần nhất của cộng tác viên đã duyệt.
+export interface CollaboratorStats {
+  clicks: number;
+  orders: number;
+  pendingAmount: string;
+  creditedAmount: string;
+}
+export interface BuyerCollaboratorResponse {
+  profile: CollaboratorProfile | null;
+  stats: CollaboratorStats | null;
+  termsVersion: number;
+}
+export const submitCollaboratorSchema = z
+  .object({
+    channel: z.string().trim().max(200).nullable(),
+    acceptTerms: z.literal(true),
+    // 0: gửi lần đầu; gửi lại sau khi bị từ chối dùng phiên bản hiện tại.
+    version: z.number().int().min(0),
+  })
+  .strict();
+export const collaboratorClickSchema = z
+  .object({
+    code: z.string().trim().toUpperCase().regex(collaboratorCodePattern),
+    productId: z.string().uuid(),
+  })
+  .strict();
+export interface BuyerCollaboratorOrderItem {
+  orderId: string;
+  documentNo: string;
+  productName: string;
+  // Đơn hủy không hiện (QUYTAC_NGHIEPVU_202).
+  credited: boolean;
+  amount: string;
+  createdAt: string;
+}
+
+// Mời bạn bè, thưởng giới thiệu (QUYTAC_NGHIEPVU_327).
+export const invitationBonusStatuses = ["credited", "in_progress", "not_qualified", "no_order"] as const;
+export type InvitationBonusStatus = (typeof invitationBonusStatuses)[number];
+export interface ReferralBonusSettings {
+  isEnabled: boolean;
+  // Chưa lưu lần nào thì null.
+  bonusAmount: string | null;
+  minimumOrder: string;
+  version: number;
+}
+const bonusMoney = requiredMoney.refine((value) => Number(value) >= 1 && Number(value) <= 10000000 && Number.isInteger(Number(value)), "invalidValue");
+const minimumOrderMoney = requiredMoney.refine((value) => Number(value) < 1e13, "invalidValue");
+export const referralBonusSettingsSchema = z
+  .object({
+    isEnabled: z.boolean(),
+    bonusAmount: bonusMoney,
+    minimumOrder: minimumOrderMoney,
+    version: z.number().int().min(0),
+  })
+  .strict();
+export interface BuyerInvitationItem {
+  fullName: string;
+  // Che số như QUYTAC_NGHIEPVU_146.
+  phone: string;
+  registeredAt: string;
+  bonusStatus: InvitationBonusStatus;
+  bonusAmount: string | null;
+}
+export interface BuyerInvitationsResponse {
+  program: { isEnabled: boolean; bonusAmount: string | null; minimumOrder: string };
+  invitees: BuyerInvitationItem[];
+}
+
+// Quản trị cộng tác viên (API_163).
+export interface CollaboratorListItem {
+  userId: string;
+  fullName: string;
+  phone: string;
+  code: string | null;
+  label: CollaboratorLabel | null;
+  status: CollaboratorStatus;
+  orders: number;
+  creditedAmount: string;
+  submittedAt: string;
+}
+export interface CollaboratorHistoryItem {
+  action: "submit" | "approve" | "reject" | "suspend" | "restore" | "label";
+  label: CollaboratorLabel | null;
+  reason: string | null;
+  changedByName: string;
+  changedAt: string;
+}
+export interface CollaboratorDetail extends CollaboratorListItem {
+  channel: string | null;
+  termsVersion: number;
+  reason: string | null;
+  decidedAt: string | null;
+  clicks: number;
+  pendingAmount: string;
+  history: CollaboratorHistoryItem[];
+  version: number;
+}
+export const collaboratorListQuerySchema = z
+  .object({
+    status: z.enum(collaboratorStatuses).optional(),
+    label: z.enum(collaboratorLabels).optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const collaboratorVersionSchema = z.object({ version: z.number().int().min(1) }).strict();
+export const collaboratorReasonSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
+export const collaboratorLabelSchema = z.object({ label: z.enum(collaboratorLabels).nullable(), version: z.number().int().min(1) }).strict();
+
+// Ví mua sắm (QUYTAC_NGHIEPVU_332; THAY_DOI_22).
+export const shoppingWalletTransactionKinds = ["group_buy_refund", "group_buy_difference", "order_payment", "order_refund", "return_refund"] as const;
+export type ShoppingWalletTransactionKind = (typeof shoppingWalletTransactionKinds)[number];
+export interface ShoppingWalletTransaction {
+  id: string;
+  kind: ShoppingWalletTransactionKind;
+  amount: string;
+  balanceAfter: string;
+  orderId: string;
+  orderDocumentNo: string;
+  createdAt: string;
+}
+export interface ShoppingWalletResponse {
+  balance: string;
+  // Khóa toàn hệ thống hoặc tài khoản bị chặn ví mua sắm: không dùng được số dư.
+  isLocked: boolean;
+  isBlocked: boolean;
+  transactions: PageResponse<ShoppingWalletTransaction>;
+}
+export interface ShoppingWalletSettings {
+  isLocked: boolean;
+  version: number;
+}
+export const shoppingWalletSettingsSchema = z.object({ isLocked: z.boolean(), version: z.number().int().min(0) }).strict();
+export const walletKinds = ["shopping", "commission"] as const;
+export type WalletKind = (typeof walletKinds)[number];
+export interface WalletBlockItem {
+  wallet: WalletKind;
+  isBlocked: boolean;
+  reason: string | null;
+  updatedAt: string | null;
+  // 0: chưa từng chặn.
+  version: number;
+}
+export interface WalletBlocksResponse {
+  blocks: WalletBlockItem[];
+  history: { wallet: WalletKind; action: "block" | "unblock"; reason: string; changedByName: string; changedAt: string }[];
+}
+export const walletBlockSchema = z.object({ isBlocked: z.boolean(), reason: z.string().trim().min(1).max(500), version: z.number().int().min(0) }).strict();
+
+// Mua chung (QUYTAC_NGHIEPVU_328 đến 331).
+export const groupBuyStatuses = ["open", "succeeded", "failed", "cancelled"] as const;
+export type GroupBuyStatus = (typeof groupBuyStatuses)[number];
+export interface GroupBuyTier {
+  minQuantity: number;
+  unitPrice: string;
+}
+export interface GroupBuySettingsItem {
+  variantId: string;
+  productId: string;
+  productName: string;
+  variantLabel: string;
+  // Giá bán gồm thuế hiện tại; không có giá thì null.
+  currentPrice: string | null;
+  isEnabled: boolean;
+  tiers: GroupBuyTier[];
+  maxDurationHours: number;
+  maxPerBuyer: number;
+  // 0: chưa cài đặt.
+  version: number;
+}
+const groupBuyPrice = requiredMoney.refine((value) => Number(value) > 0 && Number(value) < 1e13, "invalidValue");
+export const groupBuySettingsSchema = z
+  .object({
+    isEnabled: z.boolean(),
+    tiers: z
+      .array(z.object({ minQuantity: z.number().int().min(2).max(100000), unitPrice: groupBuyPrice }).strict())
+      .min(1)
+      .max(5)
+      .refine((tiers) => tiers.every((tier, index) => index === 0 || (tier.minQuantity > tiers[index - 1]!.minQuantity && Number(tier.unitPrice) < Number(tiers[index - 1]!.unitPrice))), {
+        message: "groupBuyTierOrder",
+      }),
+    maxDurationHours: z.number().int().min(1).max(168),
+    maxPerBuyer: z.number().int().min(1).max(999),
+    version: z.number().int().min(0),
+  })
+  .strict();
+export const groupBuySettingsQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface GroupBuyItem {
+  id: string;
+  variantId: string;
+  productId: string;
+  productName: string;
+  variantLabel: string;
+  imageUrl: string | null;
+  openerName: string;
+  openerKind: "collaborator" | "staff";
+  openerLabel: CollaboratorLabel | null;
+  status: GroupBuyStatus;
+  startsAt: string;
+  endsAt: string;
+  tiers: GroupBuyTier[];
+  maxPerBuyer: number;
+  // Tổng số lượng các đơn Chờ chốt nhóm (đang mở) hoặc số lượng chốt.
+  quantity: number;
+  // Đơn giá theo bậc đạt được nếu chốt ngay; dưới mốc tối thiểu thì null.
+  currentPrice: string | null;
+  finalPrice: string | null;
+  cancelReason: string | null;
+  // Số lượng của người xem trong nhóm (đơn chưa hủy).
+  myQuantity: number;
+  version: number;
+}
+export interface GroupBuyOrderItem {
+  orderId: string;
+  documentNo: string;
+  buyerName: string;
+  buyerPhone: string;
+  quantity: number;
+  paidAmount: string;
+  status: MarketplaceOrderStatus;
+}
+export interface GroupBuyDetail extends GroupBuyItem {
+  orders: GroupBuyOrderItem[];
+}
+export interface GroupBuyOption {
+  variantId: string;
+  productId: string;
+  productName: string;
+  variantLabel: string;
+  tiers: GroupBuyTier[];
+  maxDurationHours: number;
+  maxPerBuyer: number;
+}
+export const openGroupBuySchema = z.object({ variantId: z.uuid(), durationHours: z.number().int().min(1).max(168) }).strict();
+export const buyerGroupBuyQuerySchema = z
+  .object({
+    scope: z.enum(["open", "mine"]).default("open"),
+    productId: z.uuid().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(50).default(20),
+  })
+  .strict();
+export const groupBuyListQuerySchema = z
+  .object({
+    status: z.enum(groupBuyStatuses).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const cancelGroupBuySchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
+
+// Bảng tin cộng đồng (QUYTAC_NGHIEPVU_333 đến 335).
+export const postKinds = ["member", "review", "official"] as const;
+export type PostKind = (typeof postKinds)[number];
+export const contentStatuses = ["visible", "auto_hidden", "hidden", "deleted"] as const;
+export type ContentStatus = (typeof contentStatuses)[number];
+export const reportReasons = ["spam", "scam", "abuse", "prohibited", "other"] as const;
+export type ReportReason = (typeof reportReasons)[number];
+export interface PostProductItem {
+  productId: string;
+  name: string;
+  imageUrl: string | null;
+  priceFrom: string | null;
+}
+export interface PostItem {
+  id: string;
+  kind: PostKind;
+  authorId: string;
+  authorName: string;
+  content: string;
+  rating: number | null;
+  images: string[];
+  products: PostProductItem[];
+  isPinned: boolean;
+  likeCount: number;
+  commentCount: number;
+  likedByMe: boolean;
+  isMine: boolean;
+  status: ContentStatus;
+  createdAt: string;
+}
+export interface CommentItem {
+  id: string;
+  authorId: string;
+  authorName: string;
+  // Bình luận bị ẩn: nội dung null, ứng dụng hiện câu thay thế.
+  content: string | null;
+  isMine: boolean;
+  status: ContentStatus;
+  createdAt: string;
+}
+export interface PostDetail extends PostItem {
+  comments: CommentItem[];
+}
+export interface CommunityStatus {
+  postingEnabled: boolean;
+  commentsEnabled: boolean;
+  // Đang bị khóa đăng bài, bình luận: until null là vĩnh viễn.
+  ban: { until: string | null; reason: string } | null;
+}
+export interface ReviewableLine {
+  orderLineId: string;
+  orderId: string;
+  documentNo: string;
+  productId: string;
+  productName: string;
+  variantLabel: string;
+}
+export const postListQuerySchema = z
+  .object({
+    productId: z.uuid().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(50).default(20),
+  })
+  .strict();
+export const createPostSchema = z
+  .object({
+    content: z.string().trim().min(1).max(2000),
+    imageIds: z.array(z.uuid()).max(5).default([]),
+    productIds: z.array(z.uuid()).max(3).default([]),
+    orderLineId: z.uuid().nullable().default(null),
+    rating: z.number().int().min(1).max(5).nullable().default(null),
+  })
+  .strict()
+  .refine((value) => (value.orderLineId === null) === (value.rating === null), { message: "invalidValue", path: ["rating"] });
+export const createCommentSchema = z.object({ content: z.string().trim().min(1).max(1000) }).strict();
+export const createReportSchema = z
+  .object({
+    postId: z.uuid().nullable().default(null),
+    commentId: z.uuid().nullable().default(null),
+    reason: z.enum(reportReasons),
+    description: z.string().trim().max(500).nullable().default(null),
+  })
+  .strict()
+  .refine((value) => (value.postId === null) !== (value.commentId === null), { message: "invalidValue", path: ["postId"] });
+
+// Kiểm duyệt (quản trị).
+export interface ModerationItem {
+  target: "post" | "comment";
+  id: string;
+  postId: string;
+  authorId: string;
+  authorName: string;
+  authorPhone: string;
+  content: string;
+  status: ContentStatus;
+  hiddenReason: string | null;
+  pendingReports: number;
+  topReason: ReportReason | null;
+  latestReportAt: string | null;
+  createdAt: string;
+}
+export const moderationQuerySchema = z
+  .object({
+    view: z.enum(["reported", "hidden"]).default("reported"),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const hideContentSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export interface CommunityBanItem {
+  id: string;
+  userId: string;
+  userName: string;
+  userPhone: string;
+  until: string | null;
+  reason: string;
+  bannedByName: string;
+  createdAt: string;
+}
+export const createBanSchema = z
+  .object({ userId: z.uuid(), days: z.number().int().min(1).max(365).nullable(), reason: z.string().trim().min(1).max(500) })
+  .strict();
+export interface CommunitySettings {
+  postingEnabled: boolean;
+  commentsEnabled: boolean;
+  bannedWords: string[];
+  version: number;
+}
+export const communitySettingsSchema = z
+  .object({
+    postingEnabled: z.boolean(),
+    commentsEnabled: z.boolean(),
+    bannedWords: z.array(z.string().trim().min(1).max(100)).max(500),
+    version: z.number().int().min(0),
+  })
+  .strict();
+export const officialPostSchema = z.object({ content: z.string().trim().min(1).max(2000), isPinned: z.boolean() }).strict();
+export const pinPostSchema = z.object({ isPinned: z.boolean() }).strict();
+
+// CONG_VIEC_53, API_192, API_193: bán lẻ tại quầy – cửa hàng, quầy, ca thu ngân (CHUC_NANG_186; QUYTAC_NGHIEPVU_368, 369, 375).
+export const retailPermissions = {
+  access: "retail.access",
+  sale: "retail.sale",
+  return: "retail.return",
+  manageShifts: "retail.shift.manage",
+  setup: "retail.setup",
+} as const;
+export const saveRetailStoreSchema = z
+  .object({
+    branchId: z.uuid(),
+    warehouseId: z.uuid(),
+    channelId: z.uuid(),
+    cashFundId: z.uuid(),
+    bankFundId: z
+      .uuid()
+      .nullable()
+      .optional()
+      .transform((value) => value ?? null),
+    vietqrBankBin: blankToNull(6).refine((value) => value === null || /^[0-9]{6}$/.test(value), "invalidValue"),
+    vietqrAccountName: blankToNull(50).refine((value) => value === null || /^[A-Z0-9 ]{1,50}$/.test(value), "invalidValue"),
+    returnDays: z.number().int().min(0).max(90).default(7),
+    receiptFooter: blankToNull(300),
+    status: z.enum(["active", "inactive"]).default("active"),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveRetailStoreRequest = z.input<typeof saveRetailStoreSchema>;
+export const saveRetailRegisterSchema = z
+  .object({
+    code: z
+      .string()
+      .trim()
+      .toUpperCase()
+      .regex(/^[A-Z0-9_]{1,20}$/, "invalidValue"),
+    name: z.string().trim().min(1).max(100),
+    status: z.enum(["active", "inactive"]).default("active"),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveRetailRegisterRequest = z.input<typeof saveRetailRegisterSchema>;
+export interface RetailRegisterResponse {
+  id: string;
+  code: string;
+  name: string;
+  status: "active" | "inactive";
+  openShift: { id: string; cashierName: string; openedAt: string } | null;
+  version: number;
+}
+export interface RetailStoreResponse {
+  id: string;
+  branch: { id: string; code: string; name: string; address: string | null; phone: string | null };
+  warehouse: { id: string; code: string; name: string };
+  channel: { id: string; code: string; name: string };
+  cashFund: { id: string; code: string; name: string };
+  bankFund: { id: string; code: string; name: string; bankName: string | null; accountNo: string | null } | null;
+  vietqrBankBin: string | null;
+  vietqrAccountName: string | null;
+  returnDays: number;
+  receiptFooter: string | null;
+  status: "active" | "inactive";
+  currency: string;
+  registers: RetailRegisterResponse[];
+  version: number;
+  canSetup: boolean;
+}
+export interface RetailSetupOptions {
+  branches: { id: string; code: string; name: string; hasStore: boolean }[];
+  warehouses: { id: string; code: string; name: string; branchId: string }[];
+  channels: { id: string; code: string; name: string }[];
+  cashFunds: { id: string; code: string; name: string }[];
+  bankFunds: { id: string; code: string; name: string; bankName: string | null; accountNo: string | null }[];
+}
+export const openRetailShiftSchema = z
+  .object({
+    registerId: z.uuid(),
+    openingCash: decimalText(4),
+    openingNote: blankToNull(500),
+  })
+  .strict();
+export type OpenRetailShiftRequest = z.input<typeof openRetailShiftSchema>;
+export const closeRetailShiftSchema = z
+  .object({
+    countedCash: decimalText(4),
+    differenceReason: blankToNull(500),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export type CloseRetailShiftRequest = z.input<typeof closeRetailShiftSchema>;
+export const retailShiftListQuerySchema = z
+  .object({
+    storeId: z.uuid().optional(),
+    status: z.enum(["open", "closed"]).optional(),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
+    differenceOnly: z
+      .enum(["true", "false"])
+      .optional()
+      .transform((value) => value === "true"),
+    page: z.coerce.number().int().min(1).default(1),
+  })
+  .strict();
+export type RetailShiftStatus = "open" | "closed";
+export interface RetailShiftSummaryLine {
+  method: "cash" | "bank_transfer" | "points";
+  sales: string;
+  refunds: string;
+  net: string;
+}
+export interface RetailShiftResponse {
+  id: string;
+  // Thông tin nhận chuyển khoản để tạo mã VietQR tại quầy; null khi cửa hàng không nhận chuyển khoản.
+  store: { id: string; name: string; bankTransfer: { bankBin: string; accountNo: string; accountName: string } | null };
+  register: { id: string; code: string; name: string };
+  cashier: { id: string; name: string };
+  openedAt: string;
+  openingCash: string;
+  openingNote: string | null;
+  status: RetailShiftStatus;
+  closedAt: string | null;
+  closedBy: string | null;
+  expectedCash: string;
+  countedCash: string | null;
+  difference: string | null;
+  differenceReason: string | null;
+  saleCount: number;
+  summary: RetailShiftSummaryLine[];
+  currency: string;
+  version: number;
+  canClose: boolean;
+  // Chứng từ quỹ lập khi đóng ca (QUYTAC_NGHIEPVU_375).
+  fundDocuments: { id: string; documentNo: string; kind: RetailFundDocumentKind; fundName: string; amount: string }[];
+}
+export interface RetailShiftListItem {
+  id: string;
+  storeName: string;
+  registerCode: string;
+  cashierName: string;
+  openedAt: string;
+  closedAt: string | null;
+  status: RetailShiftStatus;
+  openingCash: string;
+  expectedCash: string | null;
+  countedCash: string | null;
+  difference: string | null;
+  openedLong: boolean;
+  currency: string;
+}
+export interface RetailShiftListResponse {
+  items: RetailShiftListItem[];
+  total: number;
+  page: number;
+}
+// Nơi thu ngân được bán: cửa hàng, quầy đang hoạt động trong phạm vi quyền; ca đang mở của người đang đăng nhập; gợi ý tiền cuối ca trước theo quầy.
+export interface RetailCounterContext {
+  stores: { id: string; name: string; registers: { id: string; code: string; name: string; busy: boolean; lastClosingCash: string | null }[] }[];
+  currentShift: RetailShiftResponse | null;
+  currency: string;
+}
+
+// CONG_VIEC_53, API_194 đến API_196: tìm hàng tại quầy, tính giỏ, hóa đơn bán lẻ (CHUC_NANG_187; QUYTAC_NGHIEPVU_370 đến 374).
+export const retailItemsQuerySchema = z.object({ shiftId: z.uuid(), search: z.string().trim().min(1).max(100) }).strict();
+export interface RetailItemOption {
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  unitId: string;
+  units: { unitId: string; unitName: string; factor: string }[];
+  tracksLots: boolean;
+  tracksSerials: boolean;
+  // Quét trúng serial còn trong kho bán thì trả serial đó.
+  serial: string | null;
+  // Quét trúng đúng mã vạch, mã hàng hoặc serial thì thêm ngay vào giỏ.
+  exact: boolean;
+  available: string;
+}
+const retailCartLine = z
+  .object({
+    variantId: z.uuid(),
+    unitId: z.uuid(),
+    quantity: decimalText(4).refine((value) => Number(value) > 0, "invalidValue"),
+    discountPercent: decimalText(4)
+      .refine((value) => Number(value) <= 100, "invalidValue")
+      .default("0"),
+    serials: z.array(z.string().trim().min(1).max(100)).max(1000).default([]),
+  })
+  .strict();
+export const retailQuoteSchema = z.object({ shiftId: z.uuid(), lines: z.array(retailCartLine).min(1).max(200) }).strict();
+export type RetailQuoteRequest = z.input<typeof retailQuoteSchema>;
+export type RetailCartLine = z.input<typeof retailCartLine>;
+export interface RetailPricedLine {
+  variantId: string;
+  sku: string;
+  productName: string;
+  unitId: string;
+  unitName: string;
+  quantity: string;
+  listPrice: string;
+  discountPercent: string;
+  promotionName: string | null;
+  isGift: boolean;
+  total: string;
+}
+export interface RetailQuoteResponse {
+  lines: RetailPricedLine[];
+  goodsAmount: string;
+  promotionAmount: string;
+  manualDiscount: string;
+  taxAmount: string;
+  totalAmount: string;
+  // Chương trình mua tặng thiếu hàng tặng tại kho bán.
+  giftShortages: { promotionName: string; missingSets: number }[];
+  maxManualDiscountPercent: string;
+  currency: string;
+}
+export const retailPaymentMethods = ["cash", "bank_transfer", "points"] as const;
+export type RetailPaymentMethod = (typeof retailPaymentMethods)[number];
+export const createRetailSaleSchema = z
+  .object({
+    shiftId: z.uuid(),
+    clientKey: z.uuid(),
+    lines: z.array(retailCartLine).min(1).max(200),
+    buyer: z
+      .object({
+        name: blankToNull(200),
+        taxCode: blankToNull(14).refine((value) => value === null || /^[0-9]{10}(-[0-9]{3})?$/.test(value), "invalidValue"),
+        address: blankToNull(400),
+        identityNo: blankToNull(12).refine((value) => value === null || /^[0-9]{12}$/.test(value), "invalidValue"),
+      })
+      .strict()
+      .optional(),
+    payments: z
+      .array(
+        z
+          .object({
+            method: z.enum(["cash", "bank_transfer"]),
+            amount: decimalText(4).refine((value) => Number(value) > 0, "invalidValue"),
+            bankReference: blankToNull(50),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(5),
+    expectedTotal: decimalText(4),
+  })
+  .strict();
+export type CreateRetailSaleRequest = z.input<typeof createRetailSaleSchema>;
+export interface RetailSaleResponse {
+  id: string;
+  documentNo: string;
+  soldAt: string;
+  saleDate: string;
+  company: { legalName: string; taxCode: string | null; address: string | null };
+  store: { id: string; name: string; address: string | null; phone: string | null; receiptFooter: string | null; returnDays: number };
+  register: { code: string; name: string };
+  shiftId: string;
+  cashierName: string;
+  buyer: { name: string | null; taxCode: string | null; address: string | null; identityNo: string | null };
+  lines: RetailPricedLine[];
+  goodsAmount: string;
+  promotionAmount: string;
+  manualDiscount: string;
+  taxAmount: string;
+  totalAmount: string;
+  tenderedAmount: string;
+  changeAmount: string;
+  payments: { method: RetailPaymentMethod; amount: string; bankReference: string | null; points: string | null }[];
+  salesOrder: { id: string; documentNo: string };
+  stockDocument: { id: string; documentNo: string };
+  // Các lần trả hàng của hóa đơn (CHUC_NANG_188).
+  returns: { id: string; documentNo: string; returnedAt: string; refundAmount: string }[];
+  // Hóa đơn điện tử khởi tạo từ máy tính tiền (QUYTAC_NGHIEPVU_378); null khi công ty chưa bật hóa đơn điện tử.
+  einvoice: {
+    id: string;
+    templateCode: string;
+    series: string | null;
+    invoiceNo: string | null;
+    lookupCode: string | null;
+    taxAuthorityCode: string | null;
+    status: EinvoiceStatus;
+  } | null;
+  currency: string;
+}
+export const retailSaleListQuerySchema = z
+  .object({
+    storeId: z.uuid().optional(),
+    shiftId: z.uuid().optional(),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+  })
+  .strict();
+export interface RetailSaleListItem {
+  id: string;
+  documentNo: string;
+  soldAt: string;
+  storeName: string;
+  registerCode: string;
+  cashierName: string;
+  buyerName: string | null;
+  totalAmount: string;
+  methods: RetailPaymentMethod[];
+  currency: string;
+}
+export interface RetailSaleListResponse {
+  items: RetailSaleListItem[];
+  total: number;
+  page: number;
+}
+
+// CONG_VIEC_53, API_197: trả hàng theo hóa đơn bán lẻ (CHUC_NANG_188; QUYTAC_NGHIEPVU_376, 377).
+export interface RetailReturnableLine {
+  orderLineId: string;
+  productName: string;
+  sku: string;
+  unitName: string;
+  isGift: boolean;
+  tracksSerials: boolean;
+  // Số lượng theo đơn vị bán của dòng.
+  soldQuantity: string;
+  returnedQuantity: string;
+  remainingQuantity: string;
+  lineTotal: string;
+  // Serial đã bán còn trả được (hàng theo serial).
+  serials: string[];
+}
+export interface RetailReturnableResponse {
+  saleId: string;
+  documentNo: string;
+  soldAt: string;
+  storeName: string;
+  registerCode: string;
+  cashierName: string;
+  buyerName: string | null;
+  returnUntil: string;
+  // Lý do không trả được: hết hạn, cửa hàng khác, cửa hàng không nhận trả; null là trả được.
+  blockedReason: "expired" | "otherStore" | "returnsDisabled" | null;
+  lines: RetailReturnableLine[];
+  currency: string;
+}
+export const createRetailReturnSchema = z
+  .object({
+    shiftId: z.uuid(),
+    saleId: z.uuid(),
+    clientKey: z.uuid(),
+    reason: z.string().trim().min(1).max(500),
+    lines: z
+      .array(
+        z
+          .object({
+            orderLineId: z.uuid(),
+            quantity: decimalText(4).refine((value) => Number(value) > 0, "invalidValue"),
+            serials: z.array(z.string().trim().min(1).max(100)).max(1000).default([]),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    refund: z
+      .object({
+        method: z.enum(["cash", "bank_transfer"]),
+        bankReference: blankToNull(50),
+        recipient: blankToNull(300),
+      })
+      .strict(),
+    expectedRefund: decimalText(4),
+  })
+  .strict();
+export type CreateRetailReturnRequest = z.input<typeof createRetailReturnSchema>;
+export const retailReturnQuoteSchema = createRetailReturnSchema.pick({ shiftId: true, saleId: true, lines: true });
+export type RetailReturnQuoteRequest = z.input<typeof retailReturnQuoteSchema>;
+export interface RetailReturnQuoteResponse {
+  lines: { orderLineId: string; quantity: string; amount: string }[];
+  goodsAmount: string;
+  refundAmount: string;
+  currency: string;
+}
+export interface RetailReturnResponse {
+  id: string;
+  documentNo: string;
+  returnedAt: string;
+  sale: { id: string; documentNo: string };
+  store: { name: string; address: string | null; phone: string | null };
+  company: { legalName: string; taxCode: string | null; address: string | null };
+  registerCode: string;
+  cashierName: string;
+  reason: string;
+  lines: { productName: string; unitName: string; quantity: string; amount: string }[];
+  goodsAmount: string;
+  refundAmount: string;
+  refunds: { method: RetailPaymentMethod; amount: string; bankReference: string | null; recipient: string | null; points: string | null }[];
+  stockDocument: { id: string; documentNo: string };
+  currency: string;
+}
 // CONG_VIEC_46: Nhân sự phần 1 (MODULE_08) – hồ sơ nhân sự (API_144 đến API_146, API_149).
 export const employeeGenders = ["male", "female"] as const;
 export const maritalStatuses = ["single", "married", "other"] as const;
@@ -6134,4 +7240,261 @@ export interface AnalyticsOverviewResponse {
   inventory: AnalyticsInventoryResponse["totals"] | null;
   debt: AnalyticsDebtResponse["summary"] | null;
   commission: Pick<AnalyticsCommissionResponse["summary"], "credited" | "pending" | "walletBalance"> | null;
+}
+export * from "./recruitment";
+export * from "./reviews";
+
+// ---------------------------------------------------------------------------
+// CONG_VIEC_51: Điểm thưởng (MODULE_11). Điểm là số nguyên; tiền, phần trăm là chuỗi số thập phân.
+// ---------------------------------------------------------------------------
+const loyaltyPercent = z
+  .string()
+  .trim()
+  .regex(/^\d{1,3}(\.\d{1,4})?$/, "invalidValue")
+  .refine((value) => Number(value) <= 100, "invalidValue");
+const loyaltyPointValue = z
+  .string()
+  .trim()
+  .regex(/^\d{1,9}(\.\d{1,4})?$/, "invalidValue")
+  .refine((value) => Number(value) > 0, "invalidValue");
+const loyaltyPointCount = z.number().int().min(1).max(1_000_000_000);
+
+// QUYTAC_NGHIEPVU_345: giai đoạn chương trình điểm.
+export const loyaltyPhaseSchema = z
+  .object({
+    startsOn: isoDate,
+    endsOn: isoDate.nullable(),
+    earnPercent: loyaltyPercent,
+    pointValue: loyaltyPointValue,
+    redeemMaxPercent: loyaltyPercent,
+    redeemMinPoints: loyaltyPointCount,
+    validityMonths: z.number().int().min(1).max(60),
+    orderCapPoints: loyaltyPointCount.nullable(),
+    monthlyCapPoints: loyaltyPointCount.nullable(),
+  })
+  .strict();
+export type LoyaltyPhaseInput = z.infer<typeof loyaltyPhaseSchema>;
+export const loyaltyPhaseUpdateSchema = loyaltyPhaseSchema.extend({ version: z.number().int().min(0) }).strict();
+
+// QUYTAC_NGHIEPVU_351: bảng hạng, thay cả bảng; hạng đầu mức 0, mức tăng dần.
+export const loyaltyTiersSchema = z
+  .object({
+    tiers: z
+      .array(
+        z
+          .object({
+            nameVi: z.string().trim().min(1).max(50),
+            nameEn: z.string().trim().min(1).max(50),
+            minAnnualSpend: z.string().trim().regex(/^\d{1,14}(\.\d{1,4})?$/, "invalidValue"),
+            multiplier: z
+              .string()
+              .trim()
+              .regex(/^\d(\.\d{1,3})?$/, "invalidValue")
+              .refine((value) => Number(value) >= 1 && Number(value) <= 5, "invalidValue"),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(10),
+  })
+  .strict();
+export type LoyaltyTiersInput = z.infer<typeof loyaltyTiersSchema>;
+
+export type LoyaltyPhaseStatus = "upcoming" | "active" | "ended";
+export interface LoyaltyPhase {
+  id: string;
+  startsOn: string;
+  endsOn: string | null;
+  earnPercent: string;
+  pointValue: string;
+  redeemMaxPercent: string;
+  redeemMinPoints: number;
+  validityMonths: number;
+  orderCapPoints: number | null;
+  monthlyCapPoints: number | null;
+  status: LoyaltyPhaseStatus;
+  version: number;
+}
+export interface LoyaltyTier {
+  id: string;
+  sortOrder: number;
+  nameVi: string;
+  nameEn: string;
+  minAnnualSpend: string;
+  multiplier: string;
+}
+export interface LoyaltyProgramResponse {
+  today: string;
+  phases: LoyaltyPhase[];
+  tiers: LoyaltyTier[];
+  canManage: boolean;
+}
+
+export type LoyaltyEntryKind = "earn" | "redeem" | "redeem_refund" | "earn_reversal" | "expire" | "adjust_add" | "adjust_subtract";
+export type LoyaltySourceType = "marketplace_order" | "retail_sale" | "retail_return" | "adjustment";
+export interface LoyaltyEntryItem {
+  id: string;
+  kind: LoyaltyEntryKind;
+  points: number;
+  balanceAfter: number;
+  sourceType: LoyaltySourceType | null;
+  sourceId: string | null;
+  // Số chứng từ để hiện (số đơn bán của đơn VComm, số phiếu điều chỉnh); trống khi không có.
+  documentNo: string | null;
+  // Hạn dùng của lô khi bút toán là cộng điểm.
+  expiresOn: string | null;
+  createdAt: string;
+}
+export interface LoyaltyTierProgress {
+  tier: LoyaltyTier | null;
+  spendCurrentYear: string;
+  spendPreviousYear: string;
+  year: number;
+  // Hạng kế tiếp và số tiền còn thiếu trong năm nay; trống khi đã ở hạng cao nhất.
+  nextTier: LoyaltyTier | null;
+  remainingToNext: string | null;
+}
+export interface BuyerLoyaltyResponse extends LoyaltyTierProgress {
+  balance: number;
+  locked: boolean;
+  // Giá trị một điểm của giai đoạn đang hiệu lực; trống khi không có giai đoạn.
+  pointValue: string | null;
+  expiringPoints: number;
+  expiringOn: string | null;
+  tiers: LoyaltyTier[];
+}
+export interface LoyaltyDocumentPoints {
+  redeemedPoints: number;
+  redeemedAmount: string;
+  refundedPoints: number;
+  expectedPoints: number;
+  earnedPoints: number | null;
+  earnStatus: "pending" | "earned" | "skipped" | "cancelled";
+  skipReason: "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | null;
+  expiresOn: string | null;
+  tierName: string | null;
+  multiplier: string;
+  earnPercent: string | null;
+  pointValue: string | null;
+}
+
+// API_182: nghĩa vụ điểm theo tháng (CONG_VIEC_51; QUYTAC_NGHIEPVU_355). Điểm là số nguyên có dấu; giá trị theo giá trị một điểm lúc cộng.
+export const loyaltyLiabilityQuerySchema = z.object({ year: z.coerce.number().int().min(2020).max(2100) }).strict();
+export interface LoyaltyLiabilityMonth {
+  month: string;
+  issued: number;
+  used: number;
+  expired: number;
+  adjusted: number;
+  closingPoints: number;
+  closingValue: string;
+}
+export interface LoyaltyLiabilityResponse {
+  year: number;
+  months: LoyaltyLiabilityMonth[];
+  currentPoints: number;
+  currentValue: string;
+  expiringPoints: number;
+}
+
+// API_179: ví điểm (quản trị).
+export const loyaltyAccountListQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    tierId: z.uuid().optional(),
+    locked: z.enum(["true", "false"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const loyaltyLockSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export interface LoyaltyAccountListItem {
+  userId: string;
+  fullName: string;
+  phone: string;
+  tierName: string | null;
+  balance: number;
+  expiringPoints: number;
+  spendCurrentYear: string;
+  locked: boolean;
+}
+export interface LoyaltyLotItem {
+  id: string;
+  sourceType: LoyaltySourceType;
+  documentNo: string | null;
+  earnedOn: string;
+  expiresOn: string;
+  points: number;
+  remaining: number;
+  pointValue: string;
+}
+export interface LoyaltyAccountDetail extends LoyaltyTierProgress {
+  userId: string;
+  fullName: string;
+  phone: string;
+  balance: number;
+  locked: boolean;
+  lockReason: string | null;
+  lots: LoyaltyLotItem[];
+  tierHistory: { fromTierName: string | null; toTierName: string; reason: "order_completed" | "year_start" | "tiers_changed"; createdAt: string }[];
+  lockHistory: { action: "lock" | "unlock"; reason: string; actorName: string; createdAt: string }[];
+  canManage: boolean;
+}
+
+// API_180: phiếu điều chỉnh điểm (QUYTAC_NGHIEPVU_353).
+export const loyaltyAdjustmentStatuses = ["draft", "pending", "posted", "rejected", "withdrawn", "post_failed"] as const;
+export type LoyaltyAdjustmentStatus = (typeof loyaltyAdjustmentStatuses)[number];
+export const loyaltyAdjustmentSchema = z
+  .object({
+    phone: vietnamPhone,
+    direction: z.enum(["add", "subtract"]),
+    points: z.number().int().min(1).max(10_000_000),
+    reason: z.string().trim().min(1).max(500),
+  })
+  .strict();
+export const loyaltyAdjustmentUpdateSchema = loyaltyAdjustmentSchema.extend({ version: z.number().int().min(0) }).strict();
+export const loyaltyAdjustmentListQuerySchema = z
+  .object({
+    status: z.enum(loyaltyAdjustmentStatuses).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const loyaltyAdjustmentVersionSchema = z.object({ version: z.number().int().min(0) }).strict();
+export interface LoyaltyAdjustmentItem {
+  id: string;
+  documentNo: string | null;
+  userId: string;
+  buyerName: string;
+  buyerPhone: string;
+  direction: "add" | "subtract";
+  points: number;
+  // Giá trị gửi duyệt = điểm × giá trị một điểm (chốt khi gửi; nháp: theo giai đoạn hiện hành).
+  value: string | null;
+  reason: string;
+  status: LoyaltyAdjustmentStatus;
+  failureReason: string | null;
+  approvalRequestId: string | null;
+  createdByName: string;
+  createdAt: string;
+  version: number;
+  canEdit: boolean;
+  canWithdraw: boolean;
+}
+
+// API_181: cảnh báo bất thường trong 90 ngày (QUYTAC_NGHIEPVU_354).
+export const loyaltyAlertKinds = ["shared_contact", "cancel_return", "redeem_burst"] as const;
+export type LoyaltyAlertKind = (typeof loyaltyAlertKinds)[number];
+export const loyaltyAlertQuerySchema = z.object({ kind: z.enum(loyaltyAlertKinds).default("shared_contact") }).strict();
+export interface LoyaltyAlertItem {
+  // Thông tin trùng (số nhận, địa chỉ) hoặc ngày đổi dồn dập; trống với hủy, trả nhiều.
+  label: string | null;
+  buyers: { userId: string; fullName: string; phone: string }[];
+  orderCount: number;
+  cancelledOrReturned: number | null;
+  points: number;
+}
+export interface LoyaltyAlertResponse {
+  kind: LoyaltyAlertKind;
+  items: LoyaltyAlertItem[];
 }

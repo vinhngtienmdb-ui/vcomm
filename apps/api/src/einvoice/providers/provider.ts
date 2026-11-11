@@ -32,6 +32,9 @@ export interface ProviderInvoice {
   invoiceDate: string;
   templateCode: string;
   series: string;
+  // Hóa đơn khởi tạo từ máy tính tiền: số đã cấp tại quầy, nhà cung cấp giữ nguyên số (CONG_VIEC_53).
+  invoiceNo: string | null;
+  cashRegister: boolean;
   currency: string;
   seller: { name: string | null; taxCode: string | null; address: string | null };
   buyer: { name: string | null; taxCode: string | null; address: string | null; anonymous: boolean };

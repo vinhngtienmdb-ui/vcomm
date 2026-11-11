@@ -2,7 +2,7 @@
 
 // MAN_HINH_80 Chi tiết tài khoản người mua (CHUC_NANG_107, 108; API_119; QUYTAC_NGHIEPVU_143 đến 145):
 // người giới thiệu, đổi người giới thiệu có lý do, lịch sử; người được giới thiệu; đánh dấu, bỏ đánh dấu nhân viên kinh doanh.
-import type { BuyerAccountDetailResponse, MarketplaceSettingsResponse } from "contracts";
+import type { BuyerAccountDetailResponse, MarketplaceSettingsResponse, WalletBlockItem, WalletBlocksResponse, WalletKind } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -181,6 +181,93 @@ function TestBuyer({ buyer, onSaved }: { buyer: BuyerAccountDetailResponse; onSa
   );
 }
 
+// THAY_DOI_22 (CONG_VIEC_49): chặn ví mua sắm, ví hoa hồng theo tài khoản; hai ví độc lập; bắt buộc lý do; lịch sử.
+function WalletBlocks({ userId, canManage }: { userId: string; canManage: boolean }) {
+  const t = useTranslations("walletBlocks");
+  const { notify } = useAdmin();
+  const { state, reload } = useApi<WalletBlocksResponse>(`/marketplace/buyers/${userId}/wallet-blocks`);
+  const [reasons, setReasons] = useState<Record<WalletKind, string>>({ shopping: "", commission: "" });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<WalletBlockItem | null>(null);
+  async function change(block: WalletBlockItem) {
+    setBusy(true);
+    setError(null);
+    try {
+      await apiFetch(`/marketplace/buyers/${userId}/wallet-blocks/${block.wallet}`, {
+        method: "PUT",
+        body: JSON.stringify({ isBlocked: !block.isBlocked, reason: reasons[block.wallet].trim(), version: block.version }),
+      });
+      notify(t(block.isBlocked ? "unblockedSaved" : "blockedSaved"));
+      setReasons((current) => ({ ...current, [block.wallet]: "" }));
+      setConfirming(null);
+      await reload();
+    } catch (failure) {
+      setError(failureOf(failure).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="the" style={{ display: "grid", gap: "var(--khoang-3)" }}>
+      <h2>{t("title")}</h2>
+      <div className="chu-thich">{t("hint")}</div>
+      {confirming ? null : <FormError text={error} />}
+      {confirming ? (
+        <ConfirmDialog
+          title={t(confirming.isBlocked ? "unblock" : "block")}
+          text={t(confirming.isBlocked ? "unblockConfirm" : "blockConfirm", { wallet: t(`wallet_${confirming.wallet}`) })}
+          confirmLabel={t(confirming.isBlocked ? "unblock" : "block")}
+          busy={busy}
+          error={error}
+          onConfirm={() => void change(confirming)}
+          onClose={() => setConfirming(null)}
+        />
+      ) : null}
+      <Loaded state={state} onRetry={() => void reload()}>
+        {(data) => (
+          <>
+            {data.blocks.map((block) => (
+              <div key={block.wallet} style={{ display: "flex", flexWrap: "wrap", gap: "var(--khoang-2)", alignItems: "end" }}>
+                <span style={{ minWidth: "200px" }}>
+                  <strong>{t(`wallet_${block.wallet}`)}</strong> <span className={`nhan ${block.isBlocked ? "loi" : "thanh-cong"}`}>{block.isBlocked ? t("blocked") : t("open")}</span>
+                  {block.isBlocked && block.reason ? <div className="chu-thich">{block.reason}</div> : null}
+                </span>
+                {canManage ? (
+                  <>
+                    <span style={{ display: "grid", gap: "var(--khoang-1)", flex: 1, minWidth: "220px" }}>
+                      <label htmlFor={`chan-${block.wallet}`}>{t(block.isBlocked ? "unblockReason" : "blockReason")}</label>
+                      <input
+                        id={`chan-${block.wallet}`}
+                        className="o-nhap"
+                        maxLength={500}
+                        value={reasons[block.wallet]}
+                        onChange={(event) => setReasons((current) => ({ ...current, [block.wallet]: event.target.value }))}
+                      />
+                    </span>
+                    <button type="button" className={`nut ${block.isBlocked ? "chinh" : "nguy-hiem"}`} disabled={busy || !reasons[block.wallet].trim()} onClick={() => setConfirming(block)}>
+                      {block.isBlocked ? t("unblock") : t("block")}
+                    </button>
+                  </>
+                ) : null}
+              </div>
+            ))}
+            {data.history.length > 0 ? (
+              <ul style={{ margin: 0, paddingLeft: "var(--khoang-4)" }}>
+                {data.history.map((item) => (
+                  <li key={`${item.changedAt}-${item.wallet}`} className="chu-thich">
+                    {`${formatDateTime(item.changedAt)} · ${t(`wallet_${item.wallet}`)} · ${t(`action_${item.action}`)} · ${item.changedByName} · ${item.reason}`}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </>
+        )}
+      </Loaded>
+    </div>
+  );
+}
+
 export default function BuyerPage() {
   const t = useTranslations("buyers");
   const { id } = useParams<{ id: string }>();
@@ -212,6 +299,7 @@ export default function BuyerPage() {
               {settings.state.kind === "ready" && <SalesFlag buyer={buyer} settings={settings.state.data} onSaved={setSaved} />}
             </div>
             {can("marketplace.order.manage") && <TestBuyer buyer={buyer} onSaved={setSaved} />}
+            {can("marketplace.payment.manage") || can("marketplace.buyer.view") ? <WalletBlocks userId={buyer.id} canManage={can("marketplace.payment.manage")} /> : null}
             {canManage && (
               <div className="the" style={{ display: "grid", gap: "var(--khoang-3)" }}>
                 <h2>{t("changeReferrer")}</h2>

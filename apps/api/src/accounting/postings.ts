@@ -30,6 +30,11 @@ export type PostingRole =
   | "personal_income_tax"
   | "other_income"
   | "service_expense"
+  | "loyalty_expense"
+  | "loyalty_liability"
+  | "loyalty_intercompany_receivable"
+  | "loyalty_intercompany_payable"
+  | "staff_receivable"
   // CONG_VIEC_48: lương.
   | "salary_payable"
   | "salary_expense_selling"
@@ -38,7 +43,11 @@ export type PostingRole =
   | "health_insurance_payable"
   | "unemployment_insurance_payable"
   | "union_fee_payable"
-  | "payroll_deduction_payable";
+  | "payroll_deduction_payable"
+  | "import_duty"
+  | "excise_tax"
+  | "environmental_tax"
+  | "import_vat";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -66,6 +75,11 @@ export const postingRoles: PostingRole[] = [
   "personal_income_tax",
   "other_income",
   "service_expense",
+  "loyalty_expense",
+  "loyalty_liability",
+  "loyalty_intercompany_receivable",
+  "loyalty_intercompany_payable",
+  "staff_receivable",
   "salary_payable",
   "salary_expense_selling",
   "salary_expense_admin",
@@ -74,6 +88,10 @@ export const postingRoles: PostingRole[] = [
   "unemployment_insurance_payable",
   "union_fee_payable",
   "payroll_deduction_payable",
+  "import_duty",
+  "excise_tax",
+  "environmental_tax",
+  "import_vat",
 ];
 
 export interface DraftLine {
@@ -93,8 +111,14 @@ export interface DraftJournal {
     | "marketplace_refund"
     | "marketplace_commission"
     | "marketplace_withdrawal"
+    | "loyalty_entry"
+    | "loyalty_seller_entry"
+    | "loyalty_order_redeem"
+    | "marketplace_referral_bonus"
     | "payroll"
-    | "payroll_payment";
+    | "payroll_payment"
+    | "import_declaration"
+    | "landed_cost";
   sourceId: string;
   journalNo: string;
   date: string;
@@ -103,11 +127,11 @@ export interface DraftJournal {
 }
 
 const round = (value: number) => Math.round(value * 10000) / 10000;
-const debit = (role: PostingRole, amount: number, partnerId: string | null = null): DraftLine => ({ role, partnerId, debit: round(amount), credit: 0 });
-const credit = (role: PostingRole, amount: number, partnerId: string | null = null): DraftLine => ({ role, partnerId, debit: 0, credit: round(amount) });
+export const debit = (role: PostingRole, amount: number, partnerId: string | null = null): DraftLine => ({ role, partnerId, debit: round(amount), credit: 0 });
+export const credit = (role: PostingRole, amount: number, partnerId: string | null = null): DraftLine => ({ role, partnerId, debit: 0, credit: round(amount) });
 
 // Bút toán ghi theo đơn vị nhỏ nhất của tiền tệ công ty (đồng Việt Nam: không có số lẻ).
-async function rounder(executor: Executor, companyId: string): Promise<(value: number) => number> {
+export async function rounder(executor: Executor, companyId: string): Promise<(value: number) => number> {
   const units = Number(
     (await executor.execute<{ minor_units: number }>(sql`SELECT cur.minor_units FROM core.companies c JOIN core.currencies cur ON cur.code = c.base_currency WHERE c.id = ${companyId}`)).rows[0]
       ?.minor_units ?? 0,
@@ -306,6 +330,25 @@ export async function marketplaceCommissionDraft(executor: Executor, orderId: st
   };
 }
 
+// Thưởng giới thiệu bạn bè (CONG_VIEC_49; QUYTAC_NGHIEPVU_327): Nợ chi phí hoa hồng / Có phải trả hoa hồng, ngày đơn hoàn tất, số bút toán `<số đơn>-TG`.
+export async function marketplaceReferralBonusDraft(executor: Executor, orderId: string): Promise<DraftJournal | null> {
+  const row = (
+    await executor.execute<{ company_id: string; document_no: string; completed_on: string; amount: string }>(sql`
+    SELECT m.company_id, so.document_no, (m.completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS completed_on, b.amount::text
+    FROM marketplace.referral_bonuses b JOIN marketplace.orders m ON m.id = b.order_id JOIN sales.orders so ON so.id = m.sales_order_id WHERE b.order_id = ${orderId}`)
+  ).rows[0];
+  if (!row) return null;
+  return {
+    companyId: row.company_id,
+    sourceType: "marketplace_referral_bonus",
+    sourceId: orderId,
+    journalNo: `${row.document_no}-TG`,
+    date: row.completed_on,
+    description: `Thưởng giới thiệu đơn VComm ${row.document_no}`,
+    lines: [debit("commission_expense", Number(row.amount)), credit("commission_payable", Number(row.amount))],
+  };
+}
+
 // Chi trả rút tiền hoa hồng đã ghi đã chi (QUYTAC_NGHIEPVU_207, 208): Nợ 3388 số tiền yêu cầu / Có tiền gửi ngân hàng số thực nhận / Có thuế thu nhập cá nhân (3335)
 // / Có thu nhập khác (711) phí rút tiền, ngày chi.
 export async function marketplaceWithdrawalDraft(executor: Executor, withdrawalId: string): Promise<DraftJournal | null> {
@@ -334,7 +377,16 @@ export async function marketplaceWithdrawalDraft(executor: Executor, withdrawalI
 // Phiếu thu chi đã ghi sổ: quỹ tiền mặt hoặc ngân hàng đối ứng phải thu, phải trả của đối tác.
 export async function paymentDraft(executor: Executor, paymentId: string): Promise<DraftJournal | null> {
   const payment = (
-    await executor.execute<{ company_id: string; kind: string; partner_id: string; fund_kind: "cash" | "bank"; document_no: string; payment_date: string; amount: string; note: string | null }>(sql`
+    await executor.execute<{
+      company_id: string;
+      kind: string;
+      partner_id: string | null;
+      fund_kind: "cash" | "bank";
+      document_no: string;
+      payment_date: string;
+      amount: string;
+      note: string | null;
+    }>(sql`
     SELECT p.company_id, p.kind, p.partner_id, f.kind AS fund_kind, p.document_no, p.payment_date::text, p.amount::text, p.note
     FROM finance.payments p JOIN finance.funds f ON f.id = p.fund_id WHERE p.id = ${paymentId}`)
   ).rows[0];
@@ -350,12 +402,21 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
     customer_refund: [debit(receivable, amount, partner), credit(fund, amount)],
     supplier_payment: [debit("payable", amount, partner), credit(fund, amount)],
     supplier_refund: [debit(fund, amount), credit("payable", amount, partner)],
+    // THAY_DOI_24 (CONG_VIEC_53; QUYTAC_NGHIEPVU_375): chứng từ quỹ bán lẻ lập khi đóng ca; phải thu không đối tượng của phiếu xuất bán lẻ.
+    retail_receipt: [debit(fund, amount), credit("receivable", amount)],
+    retail_refund: [debit("receivable", amount), credit(fund, amount)],
+    cash_shortage: [debit("staff_receivable", amount), credit(fund, amount)],
+    cash_surplus: [debit(fund, amount), credit("surplus_pending", amount)],
   };
   const descriptions: Record<string, string> = {
     customer_receipt: "Thu tiền khách hàng",
     customer_refund: "Hoàn tiền cho khách hàng",
     supplier_payment: "Trả tiền nhà cung cấp",
     supplier_refund: "Nhà cung cấp hoàn tiền",
+    retail_receipt: "Thu tiền bán lẻ tại quầy",
+    retail_refund: "Hoàn tiền trả hàng bán lẻ",
+    cash_shortage: "Thiếu tiền mặt khi đóng ca thu ngân",
+    cash_surplus: "Thừa tiền mặt khi đóng ca thu ngân",
   };
   return {
     companyId: payment.company_id,
