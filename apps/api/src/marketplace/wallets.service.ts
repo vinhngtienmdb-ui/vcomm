@@ -51,7 +51,7 @@ export class WalletsService {
     };
   }
 
-  // Khóa ví mua sắm toàn hệ thống (THAY_DOI_22).
+  // Khóa ví mua sắm toàn hệ thống (THAY_DOI_22; QUYTAC_NGHIEPVU_390).
   async settings(actor: BuyerAdminActor): Promise<ShoppingWalletSettings> {
     const row = (
       await this.database.execute<{ is_locked: boolean; version: number }>(sql`
@@ -76,7 +76,7 @@ export class WalletsService {
     return this.settings(actor);
   }
 
-  // Chặn ví theo tài khoản (THAY_DOI_22): người mua của công ty vận hành sàn (có tài khoản người mua).
+  // Chặn ví theo tài khoản (THAY_DOI_22; QUYTAC_NGHIEPVU_391): người mua của công ty vận hành sàn (có tài khoản người mua).
   async blocks(actor: BuyerAdminActor, userId: string): Promise<WalletBlocksResponse> {
     await this.requireBuyer(this.database, userId);
     const rows = await this.database.execute<{ wallet: WalletKind; is_blocked: boolean; reason: string; updated_at: Date; version: number }>(sql`

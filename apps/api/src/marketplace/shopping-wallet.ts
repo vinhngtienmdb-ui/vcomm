@@ -1,18 +1,22 @@
 // Ví mua sắm (CONG_VIEC_49; CHUC_NANG_173; QUYTAC_NGHIEPVU_332; THAY_DOI_22): số dư chỉ đổi qua giao dịch có khóa dòng ví; dùng trả đơn, nhận tiền hoàn.
 // Tách riêng để đặt hàng, thanh toán, hoàn tiền, mua chung dùng chung không nạp vòng giữa các dịch vụ.
 import type { ShoppingWalletTransactionKind, WalletKind } from "contracts";
-import { sql } from "drizzle-orm";
+import { sql, type SQL } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
 import type { Database } from "../database/database.module";
 
 type Executor = Pick<Database, "execute">;
 
-// Khóa ví mua sắm toàn hệ thống của công ty vận hành sàn (THAY_DOI_22).
+// Các khoản khấu trừ trả trước của đơn (alias của marketplace.orders): hiện là phần trả bằng ví mua sắm.
+// Tiền còn phải trả qua cổng hoặc COD = tiền hàng + phí giao hàng − khấu trừ. Nhánh điểm thưởng (CONG_VIEC_51) cộng thêm điểm vào đây khi ghép.
+export const orderDeductions = (order: SQL): SQL => sql`(${order}.wallet_amount)`;
+
+// Khóa ví mua sắm toàn hệ thống của công ty vận hành sàn (THAY_DOI_22; QUYTAC_NGHIEPVU_390).
 export async function shoppingWalletLocked(executor: Executor, companyId: string): Promise<boolean> {
   return (await executor.execute<{ is_locked: boolean }>(sql`SELECT is_locked FROM marketplace.shopping_wallet_settings WHERE company_id = ${companyId}`)).rows[0]?.is_locked ?? false;
 }
 
-// Tài khoản bị chặn ví (THAY_DOI_22): chặn ví nào chỉ ảnh hưởng ví đó.
+// Tài khoản bị chặn ví (THAY_DOI_22; QUYTAC_NGHIEPVU_391): chặn ví nào chỉ ảnh hưởng ví đó.
 export async function walletBlocked(executor: Executor, userId: string, wallet: WalletKind): Promise<boolean> {
   return (await executor.execute(sql`SELECT 1 FROM marketplace.wallet_blocks WHERE user_id = ${userId} AND wallet = ${wallet} AND is_blocked`)).rows.length > 0;
 }

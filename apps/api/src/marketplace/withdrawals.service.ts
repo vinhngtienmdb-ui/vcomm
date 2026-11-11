@@ -258,7 +258,7 @@ export class WithdrawalsService {
     return this.one(this.database, withdrawalId);
   }
 
-  // Chặn ví hoa hồng (THAY_DOI_22): yêu cầu chờ duyệt của người đó tự bị từ chối với lý do chặn, cộng lại số dư; gọi trong giao dịch của bên chặn.
+  // Chặn ví hoa hồng (THAY_DOI_22; QUYTAC_NGHIEPVU_391): yêu cầu chờ duyệt của người đó tự bị từ chối với lý do chặn, cộng lại số dư; gọi trong giao dịch của bên chặn.
   async rejectPendingWithin(executor: Transaction, actor: BuyerAdminActor, userId: string, reason: string): Promise<void> {
     const pending = await executor.execute<WithdrawalRow>(sql`${this.select} WHERE w.user_id = ${userId} AND w.status = 'pending' FOR UPDATE OF w`);
     for (const row of pending.rows) {

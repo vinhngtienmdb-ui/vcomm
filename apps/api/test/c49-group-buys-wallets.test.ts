@@ -1,4 +1,4 @@
-// CONG_VIEC_49 L2: mua chung, ví mua sắm, khóa và chặn ví (KICHBAN_KIEMTHU_467 đến 472; THAY_DOI_22).
+// CONG_VIEC_49 L2: mua chung, ví mua sắm, khóa và chặn ví (KICHBAN_KIEMTHU_467 đến 472, KICHBAN_KIEMTHU_532; THAY_DOI_22).
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { Pool } from "pg";
 import request from "supertest";
@@ -326,7 +326,7 @@ describe("CONG_VIEC_49 mua chung, ví mua sắm", () => {
     expect(unblocked.history.map((item: { action: string }) => item.action)).toEqual(["unblock", "block"]);
   });
 
-  it("THAY_DOI_22: chặn ví hoa hồng tự từ chối yêu cầu chờ duyệt, chặn tạo mới và ghi đã chi; gỡ chặn thì chi được; không ảnh hưởng ví mua sắm", async () => {
+  it("KICHBAN_KIEMTHU_532 (THAY_DOI_22): chặn ví hoa hồng tự từ chối yêu cầu chờ duyệt, chặn tạo mới và ghi đã chi; gỡ chặn thì chi được; không ảnh hưởng ví mua sắm", async () => {
     await store.register("0948000031", "Người Rút Hoa Hồng");
     const user = await store.buyerSession("0948000031");
     const userId = await userIdOf("0948000031");

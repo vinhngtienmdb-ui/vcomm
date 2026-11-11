@@ -1,7 +1,7 @@
 // Lập việc chờ hoàn tiền khi nhận hàng trả (CONG_VIEC_25; QUYTAC_NGHIEPVU_168). Tách riêng để dịch vụ trả hàng dùng không phụ thuộc dịch vụ hoàn tiền.
 import { sql } from "drizzle-orm";
 import type { Database } from "../../database/database.module";
-import { returnWalletPart } from "../shopping-wallet";
+import { orderDeductions, returnWalletPart } from "../shopping-wallet";
 
 type Executor = Pick<Database, "execute">;
 
@@ -13,7 +13,7 @@ export async function refundReturnedGoods(executor: Executor, orderId: string, r
       SELECT round(coalesce(sum(l.total_amount * rl.quantity / l.base_quantity), 0)) AS value
       FROM marketplace.return_request_lines rl JOIN sales.order_lines l ON l.id = rl.order_line_id WHERE rl.request_id = ${requestId}
     ), remaining AS (
-      SELECT greatest(m.paid_amount, CASE WHEN m.payment_method = 'cod' THEN m.goods_amount + m.shipping_fee - m.wallet_amount ELSE 0 END) - m.refunded_amount
+      SELECT greatest(m.paid_amount, CASE WHEN m.payment_method = 'cod' THEN m.goods_amount + m.shipping_fee - ${orderDeductions(sql`m`)} ELSE 0 END) - m.refunded_amount
         - coalesce((SELECT sum(f.amount) FROM marketplace.refunds f WHERE f.order_id = m.id AND f.status = 'pending'), 0) AS value
       FROM marketplace.orders m WHERE m.id = ${orderId}
     )
