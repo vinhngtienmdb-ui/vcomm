@@ -648,7 +648,7 @@ export class SalesOrdersService implements OnModuleInit {
   async quoteMarketplace(
     transaction: Executor,
     companyId: string,
-    input: { channelId: string; warehouseId: string; orderDate: string; lines: { variantId: string; unitId: string; quantity: string }[]; groupPrice?: string | null },
+    input: { channelId: string; warehouseId: string; orderDate: string; lines: { variantId: string; unitId: string; quantity: string; discountPercent?: string }[]; groupPrice?: string | null },
   ): Promise<{ lines: PreparedLine[]; giftShortages: GiftShortage[] }> {
     const priced = await this.priceLines(
       transaction,
@@ -656,7 +656,7 @@ export class SalesOrdersService implements OnModuleInit {
       input.channelId,
       null,
       input.orderDate,
-      input.lines.map((line) => ({ ...line, discountPercent: "0" })),
+      input.lines.map((line) => ({ ...line, discountPercent: line.discountPercent ?? "0" })),
     );
     // Đơn mua chung (CONG_VIEC_49; QUYTAC_NGHIEPVU_330): đơn giá bậc gồm thuế thay giá bảng giá, không khuyến mãi.
     if (input.groupPrice) return { lines: priced.map((line) => groupPriced(line, input.groupPrice!)), giftShortages: [] };
@@ -686,12 +686,54 @@ export class SalesOrdersService implements OnModuleInit {
       groupPrice?: string | null;
     },
   ): Promise<{ orderId: string; documentNo: string }> {
+    return this.placeConfirmedWithin(transaction, actor, { ...input, retail: null }, () => {
+      throw new ApiError("BUSINESS_RULE", "marketplaceOrderNeedsReview");
+    });
+  }
+
+  // Hóa đơn bán lẻ tại quầy (CONG_VIEC_53; QUYTAC_NGHIEPVU_371, 372, 374; THAY_DOI_24): như đơn VComm, có giảm tay; vượt mức giảm tay, dưới giá vốn thì chặn, không gửi duyệt.
+  async placeRetailWithin(
+    transaction: Executor,
+    actor: Actor,
+    input: {
+      channelId: string;
+      warehouseId: string;
+      orderDate: string;
+      buyerName: string | null;
+      buyerTaxCode: string | null;
+      buyerAddress: string | null;
+      buyerIdentityNo: string | null;
+      lines: { variantId: string; unitId: string; quantity: string; discountPercent: string }[];
+    },
+  ): Promise<{ orderId: string; documentNo: string }> {
+    return this.placeConfirmedWithin(transaction, actor, { ...input, deliveryAddress: null, retail: { taxCode: input.buyerTaxCode, address: input.buyerAddress, identityNo: input.buyerIdentityNo } }, (exceptions) => {
+      const first = exceptions[0]!;
+      throw new ApiError("BUSINESS_RULE", first.kind === "discount" ? "retailDiscountOverLimit" : "retailBelowCost");
+    });
+  }
+
+  private async placeConfirmedWithin(
+    transaction: Executor,
+    actor: Actor,
+    input: {
+      channelId: string;
+      warehouseId: string;
+      orderDate: string;
+      buyerName: string | null;
+      deliveryAddress: string | null;
+      retail: { taxCode: string | null; address: string | null; identityNo: string | null } | null;
+      lines: { variantId: string; unitId: string; quantity: string; discountPercent?: string }[];
+    },
+    rejectExceptions: (exceptions: SalesException[]) => never,
+  ): Promise<{ orderId: string; documentNo: string }> {
     const { lines, giftShortages } = await this.quoteMarketplace(transaction, actor.companyId, input);
     const orderId = (
       await transaction.execute<{ id: string }>(sql`
-      INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, customer_group_id, warehouse_id, order_date, delivery_address, note, currency, gift_shortages, created_by)
+      INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, customer_group_id, warehouse_id, order_date, delivery_address, note, currency, gift_shortages, created_by,
+        is_retail, buyer_tax_code, buyer_address, buyer_identity_no)
       VALUES (${actor.companyId}, NULL, ${input.buyerName}, ${input.channelId}, NULL, ${input.warehouseId}, ${input.orderDate}::date, ${input.deliveryAddress}, NULL,
-        ${await companyCurrency(transaction, actor.companyId)}, ${JSON.stringify(giftShortages)}::jsonb, ${actor.userId}) RETURNING id`)
+        ${await companyCurrency(transaction, actor.companyId)}, ${JSON.stringify(giftShortages)}::jsonb, ${actor.userId},
+        ${input.retail !== null}, ${input.retail?.taxCode ?? null}, ${input.retail?.address ?? null}, ${input.retail?.identityNo ?? null}) RETURNING id`)
     ).rows[0]!.id;
     await this.writeLines(transaction, orderId, lines);
     await this.checkPromotionLimits(transaction, orderId);
@@ -720,10 +762,12 @@ export class SalesOrdersService implements OnModuleInit {
     const exceptionLines = await transaction.execute<ExceptionLine>(sql`
       SELECT line_no, variant_id, base_quantity::text, discount_percent::text, net_amount::text, is_gift, promotion_discount_total::text, vat_rate
       FROM sales.order_lines WHERE order_id = ${orderId} ORDER BY line_no`);
-    if ((await this.exceptions(transaction, current, exceptionLines.rows)).length > 0) throw new ApiError("BUSINESS_RULE", "marketplaceOrderNeedsReview");
+    const exceptions = await this.exceptions(transaction, current, exceptionLines.rows);
+    if (exceptions.length > 0) rejectExceptions(exceptions);
     await transaction.execute(sql`
       UPDATE sales.orders SET status = 'confirmed', document_no = ${documentNo}, submitted_at = now(), confirmed_at = now(), updated_at = now(), version = version + 1 WHERE id = ${orderId}`);
-    await this.auditService.record({ ...salesAudit(actor, "sales_order"), action: "sales_order.marketplace_place", entityId: orderId, afterData: { documentNo, input } }, transaction);
+    const action = input.retail ? "sales_order.retail_place" : "sales_order.marketplace_place";
+    await this.auditService.record({ ...salesAudit(actor, "sales_order"), action, entityId: orderId, afterData: { documentNo, input } }, transaction);
     return { orderId, documentNo };
   }
 

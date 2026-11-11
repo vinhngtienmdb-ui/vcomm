@@ -3033,8 +3033,8 @@ export interface FundLedgerEntry {
   paymentId: string;
   date: string;
   documentNo: string;
-  kind: PaymentKind;
-  partnerName: string;
+  kind: AnyPaymentKind;
+  partnerName: string | null;
   receipt: string;
   payment: string;
   balance: string;
@@ -3147,8 +3147,12 @@ export const paymentKindSide: Record<PaymentKind, DebtSide> = {
   supplier_payment: "payable",
   supplier_refund: "payable",
 };
-export const paymentKindIsReceipt = (kind: PaymentKind) => kind === "customer_receipt" || kind === "supplier_refund";
-export const paymentKindSettles = (kind: PaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
+// THAY_DOI_24 (CONG_VIEC_53): chứng từ quỹ bán lẻ do hệ thống lập khi đóng ca, không đối tượng, không trừ nợ; không lập tay.
+export const retailFundDocumentKinds = ["retail_receipt", "retail_refund", "cash_shortage", "cash_surplus"] as const;
+export type RetailFundDocumentKind = (typeof retailFundDocumentKinds)[number];
+export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind;
+export const paymentKindIsReceipt = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_refund" || kind === "retail_receipt" || kind === "cash_surplus";
+export const paymentKindSettles = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
 export const paymentListQuerySchema = z
   .object({ kind: z.enum(paymentKinds).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
   .strict();
@@ -3171,9 +3175,9 @@ export type SavePaymentRequest = z.input<typeof savePaymentSchema>;
 export interface PaymentListItem {
   id: string;
   documentNo: string | null;
-  kind: PaymentKind;
+  kind: AnyPaymentKind;
   paymentDate: string;
-  partnerName: string;
+  partnerName: string | null;
   fundName: string;
   amount: string;
   status: PaymentStatus;
@@ -3191,8 +3195,8 @@ export interface OpenDebtResponse {
 export interface PaymentResponse {
   id: string;
   documentNo: string | null;
-  kind: PaymentKind;
-  partner: { id: string; code: string; name: string };
+  kind: AnyPaymentKind;
+  partner: { id: string; code: string; name: string } | null;
   fund: { id: string; code: string; name: string };
   paymentDate: string;
   amount: string;
@@ -3428,6 +3432,11 @@ export const updateEinvoiceSettingsSchema = z
       .array(z.object({ year: z.number().int().min(2000).max(2099), series: z.string().trim().toUpperCase().regex(/^[CK][0-9]{2}T[A-Z]{2}$/, "invalidValue") }).strict())
       .max(20)
       .default([]),
+    // Ký hiệu hóa đơn khởi tạo từ máy tính tiền theo năm (CONG_VIEC_53; ký tự thứ tư `M`).
+    cashRegisterSeries: z
+      .array(z.object({ year: z.number().int().min(2000).max(2099), series: z.string().trim().toUpperCase().regex(/^[CK][0-9]{2}M[A-Z]{2}$/, "invalidValue") }).strict())
+      .max(20)
+      .default([]),
     version: z.number().int().min(0),
   })
   .strict();
@@ -3445,6 +3454,7 @@ export interface EinvoiceSettingsResponse {
   passwordLastFour: string | null;
   simulation: EinvoiceSimulation;
   series: { year: number; series: string }[];
+  cashRegisterSeries: { year: number; series: string; lastNo: number }[];
   simulatorAllowed: boolean;
   canSetup: boolean;
   version: number;
@@ -3460,9 +3470,12 @@ export const einvoiceListQuerySchema = z
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
   })
   .strict();
+export const einvoiceOrigins = ["standard", "cash_register"] as const;
+export type EinvoiceOrigin = (typeof einvoiceOrigins)[number];
 export interface EinvoiceListItem {
   id: string;
   kind: EinvoiceKind;
+  origin: EinvoiceOrigin;
   invoiceDate: string;
   series: string | null;
   invoiceNo: string | null;
@@ -3479,6 +3492,7 @@ export interface EinvoiceParty {
   name: string | null;
   taxCode: string | null;
   address: string | null;
+  identityNo?: string | null;
   anonymous?: boolean;
 }
 export interface EinvoiceLineResponse {
@@ -3499,6 +3513,7 @@ export interface EinvoiceResponse extends EinvoiceListItem {
   templateCode: string;
   withTaxCode: boolean;
   taxAuthorityCode: string | null;
+  lookupCode: string | null;
   referenceId: string;
   seller: EinvoiceParty;
   buyer: EinvoiceParty;
@@ -5323,6 +5338,402 @@ export const communitySettingsSchema = z
 export const officialPostSchema = z.object({ content: z.string().trim().min(1).max(2000), isPinned: z.boolean() }).strict();
 export const pinPostSchema = z.object({ isPinned: z.boolean() }).strict();
 
+// CONG_VIEC_53, API_192, API_193: bán lẻ tại quầy – cửa hàng, quầy, ca thu ngân (CHUC_NANG_186; QUYTAC_NGHIEPVU_368, 369, 375).
+export const retailPermissions = {
+  access: "retail.access",
+  sale: "retail.sale",
+  return: "retail.return",
+  manageShifts: "retail.shift.manage",
+  setup: "retail.setup",
+} as const;
+export const saveRetailStoreSchema = z
+  .object({
+    branchId: z.uuid(),
+    warehouseId: z.uuid(),
+    channelId: z.uuid(),
+    cashFundId: z.uuid(),
+    bankFundId: z
+      .uuid()
+      .nullable()
+      .optional()
+      .transform((value) => value ?? null),
+    vietqrBankBin: blankToNull(6).refine((value) => value === null || /^[0-9]{6}$/.test(value), "invalidValue"),
+    vietqrAccountName: blankToNull(50).refine((value) => value === null || /^[A-Z0-9 ]{1,50}$/.test(value), "invalidValue"),
+    returnDays: z.number().int().min(0).max(90).default(7),
+    receiptFooter: blankToNull(300),
+    status: z.enum(["active", "inactive"]).default("active"),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveRetailStoreRequest = z.input<typeof saveRetailStoreSchema>;
+export const saveRetailRegisterSchema = z
+  .object({
+    code: z
+      .string()
+      .trim()
+      .toUpperCase()
+      .regex(/^[A-Z0-9_]{1,20}$/, "invalidValue"),
+    name: z.string().trim().min(1).max(100),
+    status: z.enum(["active", "inactive"]).default("active"),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveRetailRegisterRequest = z.input<typeof saveRetailRegisterSchema>;
+export interface RetailRegisterResponse {
+  id: string;
+  code: string;
+  name: string;
+  status: "active" | "inactive";
+  openShift: { id: string; cashierName: string; openedAt: string } | null;
+  version: number;
+}
+export interface RetailStoreResponse {
+  id: string;
+  branch: { id: string; code: string; name: string; address: string | null; phone: string | null };
+  warehouse: { id: string; code: string; name: string };
+  channel: { id: string; code: string; name: string };
+  cashFund: { id: string; code: string; name: string };
+  bankFund: { id: string; code: string; name: string; bankName: string | null; accountNo: string | null } | null;
+  vietqrBankBin: string | null;
+  vietqrAccountName: string | null;
+  returnDays: number;
+  receiptFooter: string | null;
+  status: "active" | "inactive";
+  currency: string;
+  registers: RetailRegisterResponse[];
+  version: number;
+  canSetup: boolean;
+}
+export interface RetailSetupOptions {
+  branches: { id: string; code: string; name: string; hasStore: boolean }[];
+  warehouses: { id: string; code: string; name: string; branchId: string }[];
+  channels: { id: string; code: string; name: string }[];
+  cashFunds: { id: string; code: string; name: string }[];
+  bankFunds: { id: string; code: string; name: string; bankName: string | null; accountNo: string | null }[];
+}
+export const openRetailShiftSchema = z
+  .object({
+    registerId: z.uuid(),
+    openingCash: decimalText(4),
+    openingNote: blankToNull(500),
+  })
+  .strict();
+export type OpenRetailShiftRequest = z.input<typeof openRetailShiftSchema>;
+export const closeRetailShiftSchema = z
+  .object({
+    countedCash: decimalText(4),
+    differenceReason: blankToNull(500),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export type CloseRetailShiftRequest = z.input<typeof closeRetailShiftSchema>;
+export const retailShiftListQuerySchema = z
+  .object({
+    storeId: z.uuid().optional(),
+    status: z.enum(["open", "closed"]).optional(),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
+    differenceOnly: z
+      .enum(["true", "false"])
+      .optional()
+      .transform((value) => value === "true"),
+    page: z.coerce.number().int().min(1).default(1),
+  })
+  .strict();
+export type RetailShiftStatus = "open" | "closed";
+export interface RetailShiftSummaryLine {
+  method: "cash" | "bank_transfer" | "points";
+  sales: string;
+  refunds: string;
+  net: string;
+}
+export interface RetailShiftResponse {
+  id: string;
+  // Thông tin nhận chuyển khoản để tạo mã VietQR tại quầy; null khi cửa hàng không nhận chuyển khoản.
+  store: { id: string; name: string; bankTransfer: { bankBin: string; accountNo: string; accountName: string } | null };
+  register: { id: string; code: string; name: string };
+  cashier: { id: string; name: string };
+  openedAt: string;
+  openingCash: string;
+  openingNote: string | null;
+  status: RetailShiftStatus;
+  closedAt: string | null;
+  closedBy: string | null;
+  expectedCash: string;
+  countedCash: string | null;
+  difference: string | null;
+  differenceReason: string | null;
+  saleCount: number;
+  summary: RetailShiftSummaryLine[];
+  currency: string;
+  version: number;
+  canClose: boolean;
+  // Chứng từ quỹ lập khi đóng ca (QUYTAC_NGHIEPVU_375).
+  fundDocuments: { id: string; documentNo: string; kind: RetailFundDocumentKind; fundName: string; amount: string }[];
+}
+export interface RetailShiftListItem {
+  id: string;
+  storeName: string;
+  registerCode: string;
+  cashierName: string;
+  openedAt: string;
+  closedAt: string | null;
+  status: RetailShiftStatus;
+  openingCash: string;
+  expectedCash: string | null;
+  countedCash: string | null;
+  difference: string | null;
+  openedLong: boolean;
+  currency: string;
+}
+export interface RetailShiftListResponse {
+  items: RetailShiftListItem[];
+  total: number;
+  page: number;
+}
+// Nơi thu ngân được bán: cửa hàng, quầy đang hoạt động trong phạm vi quyền; ca đang mở của người đang đăng nhập; gợi ý tiền cuối ca trước theo quầy.
+export interface RetailCounterContext {
+  stores: { id: string; name: string; registers: { id: string; code: string; name: string; busy: boolean; lastClosingCash: string | null }[] }[];
+  currentShift: RetailShiftResponse | null;
+  currency: string;
+}
+
+// CONG_VIEC_53, API_194 đến API_196: tìm hàng tại quầy, tính giỏ, hóa đơn bán lẻ (CHUC_NANG_187; QUYTAC_NGHIEPVU_370 đến 374).
+export const retailItemsQuerySchema = z.object({ shiftId: z.uuid(), search: z.string().trim().min(1).max(100) }).strict();
+export interface RetailItemOption {
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  unitId: string;
+  units: { unitId: string; unitName: string; factor: string }[];
+  tracksLots: boolean;
+  tracksSerials: boolean;
+  // Quét trúng serial còn trong kho bán thì trả serial đó.
+  serial: string | null;
+  // Quét trúng đúng mã vạch, mã hàng hoặc serial thì thêm ngay vào giỏ.
+  exact: boolean;
+  available: string;
+}
+const retailCartLine = z
+  .object({
+    variantId: z.uuid(),
+    unitId: z.uuid(),
+    quantity: decimalText(4).refine((value) => Number(value) > 0, "invalidValue"),
+    discountPercent: decimalText(4)
+      .refine((value) => Number(value) <= 100, "invalidValue")
+      .default("0"),
+    serials: z.array(z.string().trim().min(1).max(100)).max(1000).default([]),
+  })
+  .strict();
+export const retailQuoteSchema = z.object({ shiftId: z.uuid(), lines: z.array(retailCartLine).min(1).max(200) }).strict();
+export type RetailQuoteRequest = z.input<typeof retailQuoteSchema>;
+export type RetailCartLine = z.input<typeof retailCartLine>;
+export interface RetailPricedLine {
+  variantId: string;
+  sku: string;
+  productName: string;
+  unitId: string;
+  unitName: string;
+  quantity: string;
+  listPrice: string;
+  discountPercent: string;
+  promotionName: string | null;
+  isGift: boolean;
+  total: string;
+}
+export interface RetailQuoteResponse {
+  lines: RetailPricedLine[];
+  goodsAmount: string;
+  promotionAmount: string;
+  manualDiscount: string;
+  taxAmount: string;
+  totalAmount: string;
+  // Chương trình mua tặng thiếu hàng tặng tại kho bán.
+  giftShortages: { promotionName: string; missingSets: number }[];
+  maxManualDiscountPercent: string;
+  currency: string;
+}
+export const retailPaymentMethods = ["cash", "bank_transfer", "points"] as const;
+export type RetailPaymentMethod = (typeof retailPaymentMethods)[number];
+export const createRetailSaleSchema = z
+  .object({
+    shiftId: z.uuid(),
+    clientKey: z.uuid(),
+    lines: z.array(retailCartLine).min(1).max(200),
+    buyer: z
+      .object({
+        name: blankToNull(200),
+        taxCode: blankToNull(14).refine((value) => value === null || /^[0-9]{10}(-[0-9]{3})?$/.test(value), "invalidValue"),
+        address: blankToNull(400),
+        identityNo: blankToNull(12).refine((value) => value === null || /^[0-9]{12}$/.test(value), "invalidValue"),
+      })
+      .strict()
+      .optional(),
+    payments: z
+      .array(
+        z
+          .object({
+            method: z.enum(["cash", "bank_transfer"]),
+            amount: decimalText(4).refine((value) => Number(value) > 0, "invalidValue"),
+            bankReference: blankToNull(50),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(5),
+    expectedTotal: decimalText(4),
+  })
+  .strict();
+export type CreateRetailSaleRequest = z.input<typeof createRetailSaleSchema>;
+export interface RetailSaleResponse {
+  id: string;
+  documentNo: string;
+  soldAt: string;
+  saleDate: string;
+  company: { legalName: string; taxCode: string | null; address: string | null };
+  store: { id: string; name: string; address: string | null; phone: string | null; receiptFooter: string | null; returnDays: number };
+  register: { code: string; name: string };
+  shiftId: string;
+  cashierName: string;
+  buyer: { name: string | null; taxCode: string | null; address: string | null; identityNo: string | null };
+  lines: RetailPricedLine[];
+  goodsAmount: string;
+  promotionAmount: string;
+  manualDiscount: string;
+  taxAmount: string;
+  totalAmount: string;
+  tenderedAmount: string;
+  changeAmount: string;
+  payments: { method: RetailPaymentMethod; amount: string; bankReference: string | null; points: string | null }[];
+  salesOrder: { id: string; documentNo: string };
+  stockDocument: { id: string; documentNo: string };
+  // Các lần trả hàng của hóa đơn (CHUC_NANG_188).
+  returns: { id: string; documentNo: string; returnedAt: string; refundAmount: string }[];
+  // Hóa đơn điện tử khởi tạo từ máy tính tiền (QUYTAC_NGHIEPVU_378); null khi công ty chưa bật hóa đơn điện tử.
+  einvoice: {
+    id: string;
+    templateCode: string;
+    series: string | null;
+    invoiceNo: string | null;
+    lookupCode: string | null;
+    taxAuthorityCode: string | null;
+    status: EinvoiceStatus;
+  } | null;
+  currency: string;
+}
+export const retailSaleListQuerySchema = z
+  .object({
+    storeId: z.uuid().optional(),
+    shiftId: z.uuid().optional(),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+  })
+  .strict();
+export interface RetailSaleListItem {
+  id: string;
+  documentNo: string;
+  soldAt: string;
+  storeName: string;
+  registerCode: string;
+  cashierName: string;
+  buyerName: string | null;
+  totalAmount: string;
+  methods: RetailPaymentMethod[];
+  currency: string;
+}
+export interface RetailSaleListResponse {
+  items: RetailSaleListItem[];
+  total: number;
+  page: number;
+}
+
+// CONG_VIEC_53, API_197: trả hàng theo hóa đơn bán lẻ (CHUC_NANG_188; QUYTAC_NGHIEPVU_376, 377).
+export interface RetailReturnableLine {
+  orderLineId: string;
+  productName: string;
+  sku: string;
+  unitName: string;
+  isGift: boolean;
+  tracksSerials: boolean;
+  // Số lượng theo đơn vị bán của dòng.
+  soldQuantity: string;
+  returnedQuantity: string;
+  remainingQuantity: string;
+  lineTotal: string;
+  // Serial đã bán còn trả được (hàng theo serial).
+  serials: string[];
+}
+export interface RetailReturnableResponse {
+  saleId: string;
+  documentNo: string;
+  soldAt: string;
+  storeName: string;
+  registerCode: string;
+  cashierName: string;
+  buyerName: string | null;
+  returnUntil: string;
+  // Lý do không trả được: hết hạn, cửa hàng khác, cửa hàng không nhận trả; null là trả được.
+  blockedReason: "expired" | "otherStore" | "returnsDisabled" | null;
+  lines: RetailReturnableLine[];
+  currency: string;
+}
+export const createRetailReturnSchema = z
+  .object({
+    shiftId: z.uuid(),
+    saleId: z.uuid(),
+    clientKey: z.uuid(),
+    reason: z.string().trim().min(1).max(500),
+    lines: z
+      .array(
+        z
+          .object({
+            orderLineId: z.uuid(),
+            quantity: decimalText(4).refine((value) => Number(value) > 0, "invalidValue"),
+            serials: z.array(z.string().trim().min(1).max(100)).max(1000).default([]),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    refund: z
+      .object({
+        method: z.enum(["cash", "bank_transfer"]),
+        bankReference: blankToNull(50),
+        recipient: blankToNull(300),
+      })
+      .strict(),
+    expectedRefund: decimalText(4),
+  })
+  .strict();
+export type CreateRetailReturnRequest = z.input<typeof createRetailReturnSchema>;
+export const retailReturnQuoteSchema = createRetailReturnSchema.pick({ shiftId: true, saleId: true, lines: true });
+export type RetailReturnQuoteRequest = z.input<typeof retailReturnQuoteSchema>;
+export interface RetailReturnQuoteResponse {
+  lines: { orderLineId: string; quantity: string; amount: string }[];
+  goodsAmount: string;
+  refundAmount: string;
+  currency: string;
+}
+export interface RetailReturnResponse {
+  id: string;
+  documentNo: string;
+  returnedAt: string;
+  sale: { id: string; documentNo: string };
+  store: { name: string; address: string | null; phone: string | null };
+  company: { legalName: string; taxCode: string | null; address: string | null };
+  registerCode: string;
+  cashierName: string;
+  reason: string;
+  lines: { productName: string; unitName: string; quantity: string; amount: string }[];
+  goodsAmount: string;
+  refundAmount: string;
+  refunds: { method: RetailPaymentMethod; amount: string; bankReference: string | null; recipient: string | null; points: string | null }[];
+  stockDocument: { id: string; documentNo: string };
+  currency: string;
+}
 // CONG_VIEC_46: Nhân sự phần 1 (MODULE_08) – hồ sơ nhân sự (API_144 đến API_146, API_149).
 export const employeeGenders = ["male", "female"] as const;
 export const maritalStatuses = ["single", "married", "other"] as const;
