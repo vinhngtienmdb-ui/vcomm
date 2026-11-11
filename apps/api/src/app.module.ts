@@ -65,6 +65,7 @@ import { ReturnRequestsService } from "./marketplace/return-requests.service";
 import { CarrierWebhookController } from "./marketplace/carrier-webhook.controller";
 import { PaymentsController } from "./marketplace/payments/payments.controller";
 import { MarketplacePaymentsService } from "./marketplace/payments/payments.service";
+import { BankTransferService } from "./marketplace/payments/bank-transfer.service";
 import { RefundsController } from "./marketplace/payments/refunds.controller";
 import { RefundsService } from "./marketplace/payments/refunds.service";
 import { WithdrawalsController } from "./marketplace/withdrawals.controller";
@@ -209,6 +210,7 @@ import { UsersService } from "./users/users.service";
     MarketplaceOrdersService,
     ShipmentsService,
     MarketplacePaymentsService,
+    BankTransferService,
     RefundsService,
     WithdrawalsService,
     MarketplaceCommissionsService,
