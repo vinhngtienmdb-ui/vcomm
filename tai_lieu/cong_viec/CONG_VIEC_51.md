@@ -3,7 +3,7 @@
 - Mô tả: Sổ cái điểm ghi một chiều; tích điểm khi đơn VComm hoàn tất; đổi điểm trừ vào đơn; hạn dùng điểm theo từng lần tích; hạng thành viên theo chi tiêu năm dương lịch; cấu hình theo giai đoạn; chống gian lận cơ bản; hạch toán nghĩa vụ điểm. Trên ứng dụng VComm (`apps/mobile-vcomm`) và web quản trị (`apps/web-crm`).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả ngày 2026-11-11. Đang làm bản mẫu giao diện.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu ngày 2026-11-11. Chờ duyệt dữ liệu và API (mục 9).
 - Nguồn: tài liệu `04` (mục 63), `05` (mục 2.3), `01` (rủi ro ví điện tử); quyết định của người dùng ngày 2026-11-11 (mục 17); CONG_VIEC_23 (tài khoản người mua), CONG_VIEC_24 (đặt hàng, hủy, trả hàng, hoàn tất), CONG_VIEC_25 (thanh toán, hoàn tiền, bút toán), CONG_VIEC_26 (mẫu ví, giao dịch ví một chiều); CONG_VIEC_49 (ví mua sắm, đang làm song song).
 - Mức: Lớn (module mới, schema mới `loyalty`, sửa cách đặt hàng, hoàn tiền, hoàn tất đơn).
 
@@ -61,7 +61,7 @@ Thứ tự trừ trên một đơn (quyết định người dùng): điểm tr�
 - QUYTAC_NGHIEPVU_350 Hết hạn: việc nền hằng ngày (0 giờ 10 phút giờ Việt Nam) ghi bút toán hết hạn cho mỗi lô đã quá hạn còn điểm (mỗi lần tối đa 1.000 lô). Lô còn điểm, hạn trong 30 ngày tới: thông báo trong ứng dụng một lần mỗi lô.
 - QUYTAC_NGHIEPVU_351 Hạng thành viên: bảng hạng (tên tiếng Việt, tiếng Anh, mức chi tiêu tối thiểu một năm, hệ số tích 1 đến 5, thứ tự); hạng thấp nhất mức 0. Chi tiêu năm = tổng giá trị hoàn tất các đơn hoàn tất trong năm dương lịch (giờ Việt Nam). Hạng hiện tại = hạng cao hơn giữa hạng theo chi tiêu năm trước và hạng theo chi tiêu năm nay; tính lại khi đơn hoàn tất và ngày 1/1 (việc nền); lưu lịch sử đổi hạng; lên hạng thì thông báo. Mặc định: Thành viên 0, Bạc 5.000.000, Vàng 20.000.000, Kim cương 50.000.000 đồng; hệ số 1; 1,2; 1,5; 2.
 - QUYTAC_NGHIEPVU_352 Khóa ví điểm: người có `loyalty.manage` khóa, mở ví điểm của người mua kèm lý do (1 đến 500 ký tự); lưu lịch sử. Ví khóa hoặc tài khoản người dùng ngưng hoạt động: không tích, không đổi; đơn đã đặt vẫn hoàn điểm khi hủy, trả hàng; điểm vẫn hết hạn.
-- QUYTAC_NGHIEPVU_353 Điều chỉnh tay: phiếu điều chỉnh (số `DD`…, người mua, cộng hoặc trừ, số điểm 1 đến 10.000.000, lý do 1 đến 500 ký tự) do người có `loyalty.manage` lập, gửi duyệt qua luồng duyệt chứng từ (loại chứng từ `loyalty.adjustment`, giá trị = điểm × giá trị một điểm của giai đoạn hiện hành; người lập không tự duyệt, QUYTAC_NGHIEPVU_20). Được duyệt thì ghi sổ: cộng tạo lô với hạn theo giai đoạn hiện hành (không có giai đoạn: 12 tháng) và giá trị một điểm hiện hành; trừ không vượt số dư lúc duyệt (thiếu thì không ghi, báo lỗi, phiếu giữ trạng thái chờ ghi sổ để lập lại). Trạng thái: nháp, chờ duyệt, đã ghi sổ, bị từ chối, đã rút.
+- QUYTAC_NGHIEPVU_353 Điều chỉnh tay: phiếu điều chỉnh (số `DD`…, người mua, cộng hoặc trừ, số điểm 1 đến 10.000.000, lý do 1 đến 500 ký tự) do người có `loyalty.manage` lập, gửi duyệt qua luồng duyệt chứng từ (loại chứng từ `loyalty.adjustment`, giá trị = điểm × giá trị một điểm của giai đoạn hiện hành, không có thì giai đoạn gần nhất đã kết thúc, không có giai đoạn nào thì không lập được; công ty chưa có chính sách duyệt loại chứng từ này thì không gửi được; người lập không tự duyệt, QUYTAC_NGHIEPVU_20). Được duyệt thì ghi sổ: cộng tạo lô với hạn, giá trị một điểm của giai đoạn dùng khi gửi duyệt; trừ không vượt số dư lúc duyệt (thiếu thì không ghi, phiếu chuyển Không ghi sổ được kèm lý do, lập phiếu mới). Trạng thái: nháp, chờ duyệt, đã ghi sổ, bị từ chối, đã rút, không ghi sổ được.
 - QUYTAC_NGHIEPVU_354 Cảnh báo bất thường (chỉ cảnh báo, không tự chặn), tính trong 90 ngày gần nhất: nhiều người mua (≥ 3) dùng cùng số điện thoại nhận hoặc cùng địa chỉ giao (tỉnh, xã, địa chỉ chi tiết chuẩn hóa chữ thường, bỏ khoảng trắng thừa); người mua có ≥ 5 đơn và tỷ lệ đơn hủy hoặc có hàng trả ≥ 50%; người mua đổi điểm ≥ 5 đơn trong một ngày. Danh sách hiện người mua, loại cảnh báo, số liệu, đường dẫn tới ví điểm.
 - QUYTAC_NGHIEPVU_355 Hạch toán (công ty vận hành sàn đã khởi tạo kế toán; bút toán tự sinh): tích điểm Nợ chi phí bán hàng (641, vai trò `loyalty_expense`) / Có phải trả khác (3388, vai trò `loyalty_liability`) theo giá trị lô (điểm × giá trị một điểm lúc tích), ngày hoàn tất. Đơn hoàn tất có dùng điểm: Nợ 3388 theo giá trị lúc tích của các lô đã dùng còn lại / Có phải thu khách hàng (131) tiền điểm còn lại; chênh lệch ghi Nợ hoặc Có 641. Hết hạn: Nợ 3388 / Có 641 theo giá trị lúc tích. Điều chỉnh cộng như tích; điều chỉnh trừ như hết hạn; ngày ghi sổ. Báo cáo nghĩa vụ điểm theo tháng: phát hành, dùng, hết hạn, điều chỉnh, số dư cuối (số điểm và giá trị lúc tích).
 
@@ -96,21 +96,45 @@ Web (`apps/web-crm`, nhóm menu "Điểm thưởng"):
 - Sửa MAN_HINH_96 Chi tiết đơn: điểm đã dùng, điểm hoàn, điểm dự kiến hoặc đã tích.
 - Sửa MAN_HINH_76 Tài khoản: thẻ điểm (số dư, hạng) mở MAN_HINH_151.
 
-## 9. Dữ liệu và API (sơ bộ, chi tiết ở bước thiết kế dữ liệu và API)
+## 9. Dữ liệu và API
 
-- Database migration 0086: schema `loyalty`; `loyalty.program_phases`, `loyalty.tiers` (nạp bốn hạng mặc định); quyền `loyalty.view`, `loyalty.manage`.
-- Database migration 0087: `loyalty.accounts` (ví điểm: số dư, hạng, khóa), `loyalty.lots`, `loyalty.entries` (trigger chặn sửa, xóa), `loyalty.tier_history`, `loyalty.lock_history`.
-- Database migration 0088: `loyalty.order_points` (đơn, giai đoạn, hạng, hệ số, điểm dùng, tiền điểm, điểm hoàn, điểm tích, lý do không tích); `marketplace.orders.points_amount` (tiền điểm, ≥ 0); nguồn bút toán, vai trò định khoản `loyalty_expense` (641), `loyalty_liability` (3388).
-- Database migration 0089: `loyalty.adjustments`; loại chứng từ `loyalty.adjustment`, dãy số `DD`.
-- API_176 chương trình: giai đoạn, bảng hạng (quản trị).
-- API_177 điểm của tôi, hạng (người mua).
-- API_178 đặt hàng dùng điểm: sửa API_126 (xem trước, đặt, chi tiết đơn).
-- API_179 ví điểm (quản trị): danh sách, chi tiết, sổ cái, khóa, mở.
-- API_180 phiếu điều chỉnh: danh sách, lập, gửi duyệt, rút, chi tiết; ghi sổ khi được duyệt.
-- API_181 cảnh báo bất thường.
-- API_182 báo cáo nghĩa vụ điểm.
+Schema mới `loyalty` (tài liệu `12` mục 2). Điểm là số nguyên (`integer`); tiền dùng `numeric(18,4)`. Chương trình điểm thuộc công ty vận hành sàn (một chương trình cho cả sàn).
+
+Database migration 0086 (`0086_loyalty_programs.sql`):
+- `loyalty.program_phases`: `id`, `company_id`, `starts_on`, `ends_on` (trống: không thời hạn, ≥ `starts_on`), `earn_percent` (0 đến 100), `point_value` (> 0), `redeem_max_percent` (0 đến 100), `redeem_min_points` (≥ 1), `validity_months` (1 đến 60), `order_cap_points`, `monthly_cap_points` (trống hoặc > 0), người, thời điểm tạo, sửa, `version`. Ràng buộc loại trừ trên `daterange(starts_on, ends_on, '[]')` chặn chồng lấn.
+- `loyalty.tiers`: `id`, `sort_order` (duy nhất), `name_vi`, `name_en`, `min_annual_spend` (≥ 0; hạng thứ tự 1 bằng 0), `multiplier` (1 đến 5), người, thời điểm sửa. Nạp bốn hạng mặc định.
+- Quyền `loyalty.view`, `loyalty.manage` (mini app `crm`) và loại chứng từ `loyalty.adjustment` (cần duyệt) khai báo trong `permission-catalog.ts`.
+
+Database migration 0087 (`0087_loyalty_ledger.sql`):
+- `loyalty.accounts` (ví điểm): `user_id` khóa chính, `balance` (≥ 0), `tier_id`, `spend_year`, `spend_current_year`, `spend_previous_year`, `locked`, `lock_reason`, `updated_at`.
+- `loyalty.lots`: `id`, `user_id`, `source` (`order`, `adjustment`), `order_id` hoặc `adjustment_id`, `points` (> 0), `remaining` (0 đến `points`), `point_value` (giá trị một điểm lúc cộng), `earned_on`, `expires_on`, `expiry_notified_at`, `created_at`. Chỉ mục theo người, hạn dùng khi còn điểm.
+- `loyalty.entries` (bút toán điểm): `id`, `user_id`, `kind` (`earn`, `redeem`, `redeem_refund`, `expire`, `adjust_add`, `adjust_subtract`), `points` (≠ 0; dấu theo loại), `balance_after` (≥ 0), `order_id`, `adjustment_id`, `created_at`.
+- `loyalty.entry_lots` (phân bổ bút toán vào lô): `entry_id`, `lot_id`, `points` (≠ 0), `point_value` (giá trị lúc cộng của lô).
+- Trigger chặn `UPDATE`, `DELETE` trên `loyalty.entries`, `loyalty.entry_lots` (QUYTAC_NGHIEPVU_344).
+- `loyalty.tier_history`: người, hạng cũ, hạng mới, lý do (`order_completed`, `year_start`, `tiers_changed`), thời điểm.
+- `loyalty.lock_history`: người, `lock` hoặc `unlock`, lý do, người làm, thời điểm.
+
+Database migration 0088 (`0088_loyalty_orders.sql`):
+- `loyalty.order_points`: `order_id` khóa chính (đơn VComm), `user_id`, `phase_id`, `tier_id`, `multiplier`, `earn_percent`, `point_value` (chụp lúc đặt; trống khi không có giai đoạn), `redeemed_points`, `redeemed_amount`, `refunded_points`, `expected_points`, `earned_points`, `earn_status` (`pending`, `earned`, `skipped`, `cancelled`), `skip_reason` (`test_buyer`, `locked`, `inactive`, `no_phase`, `zero`), `earned_at`.
+- `marketplace.orders.points_amount` (tiền điểm, ≥ 0, mặc định 0); tiền phải trả = `goods_amount` + `shipping_fee` − `points_amount`.
+- Nguồn bút toán `loyalty_earn`, `loyalty_redeem`, `loyalty_expire`, `loyalty_adjustment`; vai trò định khoản `loyalty_expense` (6418 theo Thông tư 99, 6421 theo Thông tư 133), `loyalty_liability` (3388); thêm cho công ty đã khởi tạo kế toán.
+
+Database migration 0089 (`0089_loyalty_adjustments.sql`):
+- `loyalty.adjustments`: `id`, `company_id`, `document_no` (cấp khi gửi duyệt lần đầu, tiền tố `DD`), `user_id`, `direction` (`add`, `subtract`), `points` (1 đến 10.000.000), `reason`, `status` (`draft`, `pending`, `posted`, `rejected`, `withdrawn`, `post_failed`), `failure_reason`, `approval_request_id`, `entry_id`, người, thời điểm tạo, sửa, `version`. Ghi sổ khi nhận sự kiện `core.approval.completed` đã duyệt.
+
+API (tiền tố `/api/v1`; quản trị dùng công ty vận hành sàn):
+- API_176 chương trình (`loyalty.view` xem, `loyalty.manage` sửa): `GET /loyalty/program` (giai đoạn kèm trạng thái, bảng hạng); `POST /loyalty/phases`; `PUT /loyalty/phases/{id}` (có `version`); `DELETE /loyalty/phases/{id}` (chỉ chưa bắt đầu); `PUT /loyalty/tiers` (thay cả bảng).
+- API_177 người mua: `GET /buyer/loyalty` (số dư, giá trị một điểm hiện hành, khóa hay không, sắp hết hạn 30 ngày, hạng, hệ số, chi tiêu năm nay, năm trước, bảng hạng); `GET /buyer/loyalty/entries` (phân trang).
+- API_178 sửa API_126: `POST /buyer/orders/preview` nhận `pointsToRedeem` (mặc định 0), trả thêm `loyalty` (`balance`, `minPoints`, `maxPoints`, `pointValue`, `redeemable`, `blockedReason`), `pointsAmount`, `expectedPoints`; `POST /buyer/orders` nhận `pointsToRedeem`; `GET /buyer/orders/{id}`, `GET /marketplace/orders/{id}` trả thêm `points` (điểm dùng, tiền điểm, điểm hoàn, dự kiến, đã tích, trạng thái tích, lý do).
+- API_179 ví điểm (`loyalty.view`; khóa mở cần `loyalty.manage`): `GET /loyalty/accounts` (tìm, lọc hạng, khóa; phân trang); `GET /loyalty/accounts/{userId}` (tóm tắt, lô còn điểm, lịch sử hạng, lịch sử khóa); `GET /loyalty/accounts/{userId}/entries`; `POST /loyalty/accounts/{userId}/lock`, `/unlock` (lý do).
+- API_180 phiếu điều chỉnh: `GET /loyalty/adjustments`, `GET /loyalty/adjustments/{id}`, `POST /loyalty/adjustments` (nháp), `PUT /loyalty/adjustments/{id}` (nháp), `POST /loyalty/adjustments/{id}/submit`, `POST /loyalty/adjustments/{id}/withdraw`.
+- API_181 `GET /loyalty/alerts?kind=shared_contact|cancel_return|redeem_burst`.
+- API_182 `GET /loyalty/liability?year=` (theo tháng; số dư hiện tại, sắp hết hạn).
 - API_183: dự phòng.
-- Việc nền: hết hạn, nhắc hạn (hằng ngày), xét hạng (1/1).
+
+Việc nền (`apps/api/src/jobs/background-jobs.ts`): hết hạn, nhắc hạn lúc 0 giờ 10 phút giờ Việt Nam; xét hạng ngày 1/1 cùng lượt chạy đầu năm.
+
+Giao diện: `apps/web-crm` trang `/loyalty/program`, `/loyalty/accounts`, `/loyalty/accounts/[userId]`, `/loyalty/adjustments`, `/loyalty/alerts`, `/loyalty/liability`; chi tiết đơn `/orders/[id]`. `apps/mobile-vcomm` màn hình `diem-thuong.tsx`, `hang-thanh-vien.tsx`; sửa `dat-hang.tsx`, `don-hang/[id].tsx`, `(tabs)/tai-khoan.tsx`. Chuỗi trong `packages/i18n`, lược đồ trong `packages/contracts`.
 
 Ghép với CONG_VIEC_49: tiền phải trả = tiền hàng + phí giao hàng − `points_amount` − `wallet_amount`; hoàn tiền mặt khi trả hàng trừ phần điểm trước, rồi phần ví. Nhánh hợp nhất sau sửa công thức trong `refund-amounts.ts`, `marketplace-orders.service.ts`, kiểm thử của cả hai.
 
