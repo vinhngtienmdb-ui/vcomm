@@ -4518,3 +4518,160 @@ export interface BuyerWithdrawalInfo {
   // Yêu cầu đang chờ duyệt hoặc đã duyệt chưa chi.
   open: WithdrawalItem | null;
 }
+
+// CONG_VIEC_53, API_192, API_193: bán lẻ tại quầy – cửa hàng, quầy, ca thu ngân (CHUC_NANG_186; QUYTAC_NGHIEPVU_368, 369, 375).
+export const retailPermissions = {
+  access: "retail.access",
+  sale: "retail.sale",
+  return: "retail.return",
+  manageShifts: "retail.shift.manage",
+  setup: "retail.setup",
+} as const;
+export const saveRetailStoreSchema = z
+  .object({
+    branchId: z.uuid(),
+    warehouseId: z.uuid(),
+    channelId: z.uuid(),
+    cashFundId: z.uuid(),
+    bankFundId: z
+      .uuid()
+      .nullable()
+      .optional()
+      .transform((value) => value ?? null),
+    vietqrBankBin: blankToNull(6).refine((value) => value === null || /^[0-9]{6}$/.test(value), "invalidValue"),
+    vietqrAccountName: blankToNull(50).refine((value) => value === null || /^[A-Z0-9 ]{1,50}$/.test(value), "invalidValue"),
+    returnDays: z.number().int().min(0).max(90).default(7),
+    receiptFooter: blankToNull(300),
+    status: z.enum(["active", "inactive"]).default("active"),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveRetailStoreRequest = z.input<typeof saveRetailStoreSchema>;
+export const saveRetailRegisterSchema = z
+  .object({
+    code: z
+      .string()
+      .trim()
+      .toUpperCase()
+      .regex(/^[A-Z0-9_]{1,20}$/, "invalidValue"),
+    name: z.string().trim().min(1).max(100),
+    status: z.enum(["active", "inactive"]).default("active"),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveRetailRegisterRequest = z.input<typeof saveRetailRegisterSchema>;
+export interface RetailRegisterResponse {
+  id: string;
+  code: string;
+  name: string;
+  status: "active" | "inactive";
+  openShift: { id: string; cashierName: string; openedAt: string } | null;
+  version: number;
+}
+export interface RetailStoreResponse {
+  id: string;
+  branch: { id: string; code: string; name: string; address: string | null; phone: string | null };
+  warehouse: { id: string; code: string; name: string };
+  channel: { id: string; code: string; name: string };
+  cashFund: { id: string; code: string; name: string };
+  bankFund: { id: string; code: string; name: string; bankName: string | null; accountNo: string | null } | null;
+  vietqrBankBin: string | null;
+  vietqrAccountName: string | null;
+  returnDays: number;
+  receiptFooter: string | null;
+  status: "active" | "inactive";
+  currency: string;
+  registers: RetailRegisterResponse[];
+  version: number;
+  canSetup: boolean;
+}
+export interface RetailSetupOptions {
+  branches: { id: string; code: string; name: string; hasStore: boolean }[];
+  warehouses: { id: string; code: string; name: string; branchId: string }[];
+  channels: { id: string; code: string; name: string }[];
+  cashFunds: { id: string; code: string; name: string }[];
+  bankFunds: { id: string; code: string; name: string; bankName: string | null; accountNo: string | null }[];
+}
+export const openRetailShiftSchema = z
+  .object({
+    registerId: z.uuid(),
+    openingCash: decimalText(4),
+    openingNote: blankToNull(500),
+  })
+  .strict();
+export type OpenRetailShiftRequest = z.input<typeof openRetailShiftSchema>;
+export const closeRetailShiftSchema = z
+  .object({
+    countedCash: decimalText(4),
+    differenceReason: blankToNull(500),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export type CloseRetailShiftRequest = z.input<typeof closeRetailShiftSchema>;
+export const retailShiftListQuerySchema = z
+  .object({
+    storeId: z.uuid().optional(),
+    status: z.enum(["open", "closed"]).optional(),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
+    differenceOnly: z
+      .enum(["true", "false"])
+      .optional()
+      .transform((value) => value === "true"),
+    page: z.coerce.number().int().min(1).default(1),
+  })
+  .strict();
+export type RetailShiftStatus = "open" | "closed";
+export interface RetailShiftSummaryLine {
+  method: "cash" | "bank_transfer" | "points";
+  sales: string;
+  refunds: string;
+  net: string;
+}
+export interface RetailShiftResponse {
+  id: string;
+  store: { id: string; name: string };
+  register: { id: string; code: string; name: string };
+  cashier: { id: string; name: string };
+  openedAt: string;
+  openingCash: string;
+  openingNote: string | null;
+  status: RetailShiftStatus;
+  closedAt: string | null;
+  closedBy: string | null;
+  expectedCash: string;
+  countedCash: string | null;
+  difference: string | null;
+  differenceReason: string | null;
+  saleCount: number;
+  summary: RetailShiftSummaryLine[];
+  currency: string;
+  version: number;
+  canClose: boolean;
+}
+export interface RetailShiftListItem {
+  id: string;
+  storeName: string;
+  registerCode: string;
+  cashierName: string;
+  openedAt: string;
+  closedAt: string | null;
+  status: RetailShiftStatus;
+  openingCash: string;
+  expectedCash: string | null;
+  countedCash: string | null;
+  difference: string | null;
+  openedLong: boolean;
+  currency: string;
+}
+export interface RetailShiftListResponse {
+  items: RetailShiftListItem[];
+  total: number;
+  page: number;
+}
+// Nơi thu ngân được bán: cửa hàng, quầy đang hoạt động trong phạm vi quyền; ca đang mở của người đang đăng nhập; gợi ý tiền cuối ca trước theo quầy.
+export interface RetailCounterContext {
+  stores: { id: string; name: string; registers: { id: string; code: string; name: string; busy: boolean; lastClosingCash: string | null }[] }[];
+  currentShift: RetailShiftResponse | null;
+  currency: string;
+}

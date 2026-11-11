@@ -3,7 +3,7 @@
 - Mô tả: Bán hàng tại quầy cho cửa hàng tập đoàn tự vận hành: cửa hàng, quầy, ca thu ngân; quét mã vạch, giá theo bảng giá kênh Bán lẻ, khuyến mãi, giảm giá tay trong mức; thanh toán tiền mặt, chuyển khoản VietQR, nhiều phương thức; in hóa đơn bán lẻ; trừ kho, giá vốn, bút toán qua module đã có; trả hàng theo hóa đơn; hóa đơn điện tử khởi tạo từ máy tính tiền; tích, đổi điểm cho khách có tài khoản VComm.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả.
+- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; đang lập trình lát L1.
 - Mức: Lớn (module mới, mini app mới, sửa cấu trúc dữ liệu của bán hàng, tài chính, hóa đơn điện tử).
 - Nhánh: `chuc-nang/CONG_VIEC_53-ban-le-tai-quay`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_14), `05` mục 3 (MODULE_14), `05` mục 5 (phiên bản 5.x); quyết định của người dùng ngày 2026-11-11 (mục 17).
@@ -154,7 +154,7 @@ Chi tiết cột, chỉ mục ghi vào tài liệu `16` khi lập trình từng 
   3. Tham khảo cách làm, tự viết: chuỗi VietQR theo đặc tả công khai của NAPAS, mã QR vẽ bằng `qrcode-generator` đã có.
   4. Tự viết mới hoàn toàn: không cần.
 - Đề xuất: phương án 2 kết hợp 3 – không thêm thư viện, dùng toàn bộ luồng kho, kế toán, hóa đơn đã nghiệm thu.
-- Quyết định của người dùng: chờ duyệt đặc tả.
+- Quyết định của người dùng: phương án 2 kết hợp 3 (duyệt cùng đặc tả) – 2026-11-11.
 
 ## 13. Tiêu chí nghiệm thu
 
@@ -224,7 +224,7 @@ Ghi sổ phiếu kho, sổ kho, công nợ, luồng duyệt, luồng đơn bán 
 
 | Lát | Nội dung | Điểm xem trước |
 |---|---|---|
-| L0 | Bản mẫu MAN_HINH_161, 162, 164, 167 (HTML tĩnh) | Người dùng xem bố cục bán hàng, đóng ca, trả hàng, mẫu in |
+| L0 | Bản mẫu MAN_HINH_161, 162, 164, 167 (HTML tĩnh) | Người dùng xem bố cục bán hàng, đóng ca, trả hàng, mẫu in – đã duyệt 2026-11-11 |
 | L1 | Mini app `web-retail` cổng 3012, quyền, vai trò; cài đặt cửa hàng, quầy; mở ca, đóng ca (chưa lập chứng từ quỹ); danh sách ca | Tạo cửa hàng trên dữ liệu phát triển, mở ca, đóng ca |
 | L2 | Bán hàng tiền mặt: quét, tìm, giá, khuyến mãi, giảm tay, ghi sổ đủ, in hóa đơn bán lẻ; danh sách, chi tiết hóa đơn | Bán một đơn bằng bàn phím, xem phiếu xuất, bút toán, bản in |
 | L3 | Chuyển khoản VietQR, nhiều phương thức; đóng ca lập phiếu thu, phiếu chi, bút toán lệch | Bán kết hợp, đóng ca lệch, xem quỹ và sổ cái |
