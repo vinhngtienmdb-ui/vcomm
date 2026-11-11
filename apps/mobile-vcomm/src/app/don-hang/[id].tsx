@@ -114,6 +114,24 @@ export default function OrderScreen() {
               {Number(order.paidAmount) > 0 ? <Muted>{t("paidAmountLine", { amount: money(order.paidAmount) })}</Muted> : null}
               {Number(order.refundedAmount) > 0 ? <Muted>{t("refundedAmountLine", { amount: money(order.refundedAmount) })}</Muted> : null}
             </Card>
+            {order.refunds.length > 0 ? (
+              <Card>
+                <Text style={{ fontWeight: "700", color: colors.text }}>{t("refundTitle")}</Text>
+                {order.refunds.map((refund, index) => (
+                  <Muted key={index}>
+                    {refund.status === "completed"
+                      ? t("refundLine_completed", { amount: money(refund.amount), date: (refund.refundedOn ?? "").split("-").reverse().join("/") })
+                      : t("refundLine_pending", { amount: money(refund.amount) })}
+                  </Muted>
+                ))}
+                {order.needsBankAccount ? (
+                  <>
+                    <Notice tone="warning" text={t("needsBankAccount")} />
+                    <Button label={t("enterBankAccount")} onPress={() => router.push("/tai-khoan-hoan-tien")} />
+                  </>
+                ) : null}
+              </Card>
+            ) : null}
             {order.canPay && order.paymentDeadline ? (
               <Card>
                 <Text style={{ fontWeight: "700", color: colors.text }}>{method(order.paymentMethod)}</Text>

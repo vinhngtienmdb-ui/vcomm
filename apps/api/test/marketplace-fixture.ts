@@ -1,6 +1,8 @@
 // Dữ liệu dùng chung cho kiểm thử thanh toán đơn VComm (CONG_VIEC_25): cửa hàng đã cài đặt, hàng đăng bán, người mua trên ứng dụng.
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { createHash } from "node:crypto";
+import { createServer } from "node:http";
+import type { AddressInfo } from "node:net";
 import type { Pool } from "pg";
 import request from "supertest";
 import { expect } from "vitest";
@@ -119,4 +121,40 @@ export async function prepareMarketplace(application: NestExpressApplication, po
     return saved.body[0].id as string;
   };
   return { admin, today, warehouseId, channelId, variants: { cream: cream.variantId, soap: soap.variantId }, call, register, buyerSession, addressOf };
+}
+
+// Máy chủ GHN giả lập: tạo vận đơn, chi tiết vận đơn; trạng thái và ngày thu tiền thu hộ do kiểm thử đặt.
+export interface GhnMock {
+  url: string;
+  orders: Map<string, { status: string; codCollectDate: string | null }>;
+  close: () => void;
+}
+
+export async function startGhnMock(): Promise<GhnMock> {
+  const orders = new Map<string, { status: string; codCollectDate: string | null }>();
+  let counter = 0;
+  const server = createServer((incoming, response) => {
+    let raw = "";
+    incoming.on("data", (chunk) => (raw += chunk));
+    incoming.on("end", () => {
+      const body = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+      const reply = (payload: unknown) => {
+        response.setHeader("content-type", "application/json");
+        response.end(JSON.stringify(payload));
+      };
+      if (incoming.url?.endsWith("/shipping-order/create")) {
+        counter += 1;
+        const code = `GHNTT${counter}`;
+        orders.set(code, { status: "ready_to_pick", codCollectDate: null });
+        return reply({ code: 200, data: { order_code: code, total_fee: 22000 } });
+      }
+      if (incoming.url?.endsWith("/shipping-order/detail")) {
+        const order = orders.get(body.order_code as string);
+        return reply({ code: 200, data: { status: order?.status ?? "unknown", cod_collect_date: order?.codCollectDate ?? null, cod_transfer_date: null } });
+      }
+      reply({ code: 404, message: "Không có" });
+    });
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  return { url: `http://127.0.0.1:${(server.address() as AddressInfo).port}`, orders, close: () => server.close() };
 }

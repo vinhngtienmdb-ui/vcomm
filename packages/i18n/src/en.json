@@ -326,7 +326,8 @@
     "paymentMethodUnavailable": "This payment method is not available. Choose another method.",
     "orderNotAwaitingPayment": "The order is no longer awaiting payment (paid, cancelled or expired).",
     "paymentAttemptLimit": "This order has opened the payment page more than 10 times. Please place a new order.",
-    "codNotRecordable": "The order is not cash on delivery, not yet handed to the carrier, or already recorded as collected."
+    "codNotRecordable": "The order is not cash on delivery, not yet handed to the carrier, or already recorded as collected.",
+    "refundNotPending": "The refund is no longer pending."
   },
   "login": {
     "title": "Sign in",
@@ -1823,7 +1824,8 @@
     "storeSettings": "VComm store settings",
     "listings": "Listings",
     "orders": "VComm orders",
-    "returnRequests": "Return requests"
+    "returnRequests": "Return requests",
+    "refunds": "Refunds"
   },
   "partners": {
     "title": "Partners",
@@ -3311,7 +3313,20 @@
     "paymentStatus_partially_refunded": "Partially refunded",
     "paymentStatus_refunded": "Refunded",
     "paidAmountLine": "Paid: {amount}",
-    "refundedAmountLine": "Refunded: {amount}"
+    "refundedAmountLine": "Refunded: {amount}",
+    "orderStatus_refunded": "Refunded",
+    "refundTitle": "Refunds",
+    "refundLine_pending": "{amount} · Pending",
+    "refundLine_completed": "{amount} · Refunded on {date}",
+    "needsBankAccount": "VComm needs your bank account to refund you.",
+    "bankAccountTitle": "Refund bank account",
+    "bankAccountHint": "VComm transfers refunds to this account. Enter the holder name as on the card.",
+    "bankName": "Bank",
+    "accountNumber": "Account number",
+    "accountHolder": "Account holder",
+    "bankAccountSaved": "Refund account saved.",
+    "enterBankAccount": "Enter refund account",
+    "invalidField": "Invalid value."
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -3589,7 +3604,8 @@
     "collectedOn": "Collected on",
     "codReference": "Statement reference",
     "recordCod": "Record collected",
-    "codRecorded": "Cash collected recorded."
+    "codRecorded": "Cash collected recorded.",
+    "status_refunded": "Refunded"
   },
   "returnRequests": {
     "title": "Return requests",
@@ -3630,5 +3646,28 @@
     "vnpay_card": "International card (Visa, Mastercard)",
     "gateway_cod": "Collected on delivery",
     "gateway_vnpay": "VNPAY"
+  },
+  "refunds": {
+    "title": "VComm refunds",
+    "pending": "Pending",
+    "completed": "Refunded",
+    "none": "No refunds.",
+    "order": "Order",
+    "buyer": "Buyer",
+    "reasonLabel": "Reason",
+    "amount": "Amount",
+    "bankAccount": "Receiving account",
+    "noBankAccount": "Buyer has not entered an account",
+    "createdAt": "Created at",
+    "bankTransactionNo": "Bank transaction number",
+    "refundedOn": "Transfer date",
+    "note": "Note",
+    "complete": "Record refunded",
+    "completedSaved": "Refund recorded.",
+    "hint": "Transfer to the account the buyer entered in the app, then record the transaction number and date.",
+    "reason_paid_after_cancel": "Paid after the order was cancelled",
+    "reason_duplicate_payment": "Duplicate payment",
+    "reason_order_cancelled": "Paid order cancelled",
+    "reason_return_received": "Returned goods received"
   }
 }

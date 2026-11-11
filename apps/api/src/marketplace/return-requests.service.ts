@@ -13,6 +13,7 @@ import { SalesDeliveriesService } from "../inventory/sales-deliveries.service";
 import type { Actor } from "../permissions/roles.service";
 import { localPhone } from "./buyer-accounts.service";
 import type { BuyerAdminActor } from "./buyer-admin.service";
+import { refundReturnedGoods } from "./payments/refund-amounts";
 import { vietnamToday } from "./shop.service";
 
 type Executor = Pick<Database, "execute">;
@@ -245,6 +246,8 @@ export class ReturnRequestsService {
           reason: "Người mua trả hàng trong 7 ngày",
           lines: lines.rows.map((line) => ({ issueLineId: line.issue_line_id, quantity: line.quantity })),
         });
+        // Lập việc chờ hoàn tiền phần hàng trả (CONG_VIEC_25; QUYTAC_NGHIEPVU_168).
+        await refundReturnedGoods(transaction, row.order_id, requestId);
       }
       const status = { approve: "approved", reject: "rejected", receive: "received", not_received: "not_received" }[action];
       const decided = action === "approve" || action === "reject";

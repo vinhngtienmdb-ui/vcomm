@@ -11,6 +11,7 @@ import type {
   MarketplaceOrderStatus,
   PageResponse,
   OrderPaymentStatus,
+  RefundReason,
   PaymentMethodCode,
 } from "contracts";
 import { sql } from "drizzle-orm";
@@ -311,6 +312,10 @@ export class MarketplaceOrdersService {
 
   private async detailOf(row: OrderRow): Promise<BuyerOrderDetail> {
     const returnRequests = await buyerReturnRequests(this.database, row.id);
+    const refunds = await this.database.execute<{ amount: string; reason: RefundReason; status: "pending" | "completed"; refunded_on: string | null }>(
+      sql`SELECT amount::text, reason, status, refunded_on::text FROM marketplace.refunds WHERE order_id = ${row.id} ORDER BY created_at`,
+    );
+    const hasBankAccount = (await this.database.execute(sql`SELECT 1 FROM marketplace.buyer_bank_accounts WHERE buyer_user_id = ${row.buyer_user_id}`)).rows.length > 0;
     const events = await this.database.execute<{ status: string; note: string | null; created_at: Date }>(
       sql`SELECT status, note, created_at FROM marketplace.order_events WHERE order_id = ${row.id} ORDER BY created_at, id`,
     );
@@ -327,6 +332,8 @@ export class MarketplaceOrdersService {
       paidAmount: trimDecimal(row.paid_amount),
       refundedAmount: trimDecimal(row.refunded_amount),
       paymentDeadline: row.status === "awaiting_payment" ? iso(row.payment_deadline) : null,
+      refunds: refunds.rows.map((refund) => ({ amount: trimDecimal(refund.amount), reason: refund.reason, status: refund.status, refundedOn: refund.refunded_on })),
+      needsBankAccount: !hasBankAccount && refunds.rows.some((refund) => refund.status === "pending"),
       canPay: row.status === "awaiting_payment" && row.payment_deadline !== null && new Date(row.payment_deadline).getTime() > Date.now(),
       carrierName: row.carrier_code ? carrierNames[row.carrier_code] : null,
       trackingCode: row.tracking_code,

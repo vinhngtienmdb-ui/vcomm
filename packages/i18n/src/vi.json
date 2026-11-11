@@ -326,7 +326,8 @@
     "paymentMethodUnavailable": "Phương thức thanh toán này hiện không dùng được. Chọn phương thức khác.",
     "orderNotAwaitingPayment": "Đơn không còn chờ thanh toán (đã thanh toán, đã hủy hoặc quá hạn).",
     "paymentAttemptLimit": "Đơn này đã mở trang thanh toán quá 10 lần. Vui lòng đặt lại đơn mới.",
-    "codNotRecordable": "Đơn không thanh toán khi nhận hàng, chưa giao cho đơn vị vận chuyển hoặc đã ghi đã thu."
+    "codNotRecordable": "Đơn không thanh toán khi nhận hàng, chưa giao cho đơn vị vận chuyển hoặc đã ghi đã thu.",
+    "refundNotPending": "Việc hoàn tiền không còn chờ xử lý."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1823,7 +1824,8 @@
     "storeSettings": "Cài đặt bán hàng VComm",
     "listings": "Đăng bán",
     "orders": "Đơn VComm",
-    "returnRequests": "Yêu cầu trả hàng"
+    "returnRequests": "Yêu cầu trả hàng",
+    "refunds": "Hoàn tiền"
   },
   "partners": {
     "title": "Đối tác",
@@ -3311,7 +3313,20 @@
     "paymentStatus_partially_refunded": "Đã hoàn một phần",
     "paymentStatus_refunded": "Đã hoàn tiền",
     "paidAmountLine": "Đã thanh toán: {amount}",
-    "refundedAmountLine": "Đã hoàn: {amount}"
+    "refundedAmountLine": "Đã hoàn: {amount}",
+    "orderStatus_refunded": "Đã hoàn tiền",
+    "refundTitle": "Hoàn tiền",
+    "refundLine_pending": "{amount} · Chờ hoàn",
+    "refundLine_completed": "{amount} · Đã hoàn ngày {date}",
+    "needsBankAccount": "VComm cần tài khoản ngân hàng của bạn để hoàn tiền.",
+    "bankAccountTitle": "Tài khoản nhận hoàn tiền",
+    "bankAccountHint": "VComm chuyển khoản hoàn tiền vào tài khoản này. Tên chủ tài khoản viết không dấu như trên thẻ.",
+    "bankName": "Ngân hàng",
+    "accountNumber": "Số tài khoản",
+    "accountHolder": "Tên chủ tài khoản",
+    "bankAccountSaved": "Đã lưu tài khoản nhận hoàn tiền.",
+    "enterBankAccount": "Nhập tài khoản nhận hoàn tiền",
+    "invalidField": "Giá trị không hợp lệ."
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -3589,7 +3604,8 @@
     "collectedOn": "Ngày thu",
     "codReference": "Số phiên đối soát",
     "recordCod": "Ghi đã thu",
-    "codRecorded": "Đã ghi đã thu tiền thu hộ."
+    "codRecorded": "Đã ghi đã thu tiền thu hộ.",
+    "status_refunded": "Đã hoàn tiền"
   },
   "returnRequests": {
     "title": "Yêu cầu trả hàng",
@@ -3630,5 +3646,28 @@
     "vnpay_card": "Thẻ quốc tế Visa, Mastercard",
     "gateway_cod": "Thu hộ khi giao",
     "gateway_vnpay": "VNPAY"
+  },
+  "refunds": {
+    "title": "Hoàn tiền đơn VComm",
+    "pending": "Chờ hoàn",
+    "completed": "Đã hoàn",
+    "none": "Không có việc hoàn tiền.",
+    "order": "Đơn",
+    "buyer": "Người mua",
+    "reasonLabel": "Lý do",
+    "amount": "Số tiền",
+    "bankAccount": "Tài khoản nhận",
+    "noBankAccount": "Người mua chưa nhập tài khoản",
+    "createdAt": "Lập lúc",
+    "bankTransactionNo": "Mã giao dịch ngân hàng",
+    "refundedOn": "Ngày chuyển",
+    "note": "Ghi chú",
+    "complete": "Ghi đã hoàn tiền",
+    "completedSaved": "Đã ghi đã hoàn tiền.",
+    "hint": "Kế toán chuyển khoản cho người mua theo tài khoản người mua đã nhập trên ứng dụng, rồi ghi mã giao dịch và ngày chuyển.",
+    "reason_paid_after_cancel": "Tiền về sau khi đơn đã hủy",
+    "reason_duplicate_payment": "Thanh toán trùng",
+    "reason_order_cancelled": "Hủy đơn đã thanh toán",
+    "reason_return_received": "Nhận hàng trả"
   }
 }

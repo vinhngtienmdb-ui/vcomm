@@ -66,6 +66,8 @@ import { ReturnRequestsService } from "./marketplace/return-requests.service";
 import { CarrierWebhookController } from "./marketplace/carrier-webhook.controller";
 import { PaymentsController } from "./marketplace/payments/payments.controller";
 import { MarketplacePaymentsService } from "./marketplace/payments/payments.service";
+import { RefundsController } from "./marketplace/payments/refunds.controller";
+import { RefundsService } from "./marketplace/payments/refunds.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
@@ -125,7 +127,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, CommissionsController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, CommissionsController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController],
   providers: [
     AuthService,
     ActivationService,
@@ -166,6 +168,7 @@ import { UsersService } from "./users/users.service";
     MarketplaceOrdersService,
     ShipmentsService,
     MarketplacePaymentsService,
+    RefundsService,
     ReturnRequestsService,
     SupplierPricesService,
     SalesOrdersService,

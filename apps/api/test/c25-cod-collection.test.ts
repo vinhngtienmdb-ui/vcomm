@@ -1,11 +1,9 @@
 // CONG_VIEC_25 L2: đối soát COD theo API GHN, ghi tay đã thu tiền thu hộ (KICHBAN_KIEMTHU_327).
 import type { NestExpressApplication } from "@nestjs/platform-express";
-import { createServer, type Server } from "node:http";
-import type { AddressInfo } from "node:net";
 import type { Pool } from "pg";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { prepareMarketplace, type BuyerCall, type MarketplaceFixture } from "./marketplace-fixture";
+import { prepareMarketplace, startGhnMock, type BuyerCall, type GhnMock, type MarketplaceFixture } from "./marketplace-fixture";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -13,11 +11,8 @@ let pool: Pool;
 let store: MarketplaceFixture;
 let buyer: BuyerCall;
 let addressId: string;
-let ghn: Server;
+let ghn: GhnMock;
 const webhookKey = "khoa-webhook-kiem-thu-cod-0123456789";
-// Máy chủ GHN giả lập: trạng thái và ngày thu tiền thu hộ do kiểm thử đặt.
-const ghnOrders = new Map<string, { status: string; codCollectDate: string | null }>();
-let counter = 0;
 
 const webhook = (trackingCode: string) => request(application.getHttpServer()).post(`/api/v1/public/carriers/ghn/webhook/${webhookKey}`).send({ OrderCode: trackingCode, Type: "switch_status" });
 
@@ -32,30 +27,8 @@ async function shippedCodOrder(): Promise<{ id: string; trackingCode: string; to
 }
 
 beforeAll(async () => {
-  ghn = createServer((incoming, response) => {
-    let raw = "";
-    incoming.on("data", (chunk) => (raw += chunk));
-    incoming.on("end", () => {
-      const body = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
-      const reply = (payload: unknown) => {
-        response.setHeader("content-type", "application/json");
-        response.end(JSON.stringify(payload));
-      };
-      if (incoming.url?.endsWith("/shipping-order/create")) {
-        counter += 1;
-        const code = `GHNCOD${counter}`;
-        ghnOrders.set(code, { status: "ready_to_pick", codCollectDate: null });
-        return reply({ code: 200, data: { order_code: code, total_fee: 22000 } });
-      }
-      if (incoming.url?.endsWith("/shipping-order/detail")) {
-        const order = ghnOrders.get(body.order_code as string);
-        return reply({ code: 200, data: { status: order?.status ?? "unknown", cod_amount: 280000, cod_collect_date: order?.codCollectDate ?? null, cod_transfer_date: null } });
-      }
-      reply({ code: 404, message: "Không có" });
-    });
-  });
-  await new Promise<void>((resolve) => ghn.listen(0, "127.0.0.1", resolve));
-  Object.assign(process.env, { GHN_API_TOKEN: "token-kiem-thu", GHN_SHOP_ID: "885", GHN_WEBHOOK_KEY: webhookKey, GHN_BASE_URL: `http://127.0.0.1:${(ghn.address() as AddressInfo).port}` });
+  ghn = await startGhnMock();
+  Object.assign(process.env, { GHN_API_TOKEN: "token-kiem-thu", GHN_SHOP_ID: "885", GHN_WEBHOOK_KEY: webhookKey, GHN_BASE_URL: ghn.url });
   ({ application, pool } = await startTestApplication());
   store = await prepareMarketplace(application, pool);
   expect((await store.call("put", "/marketplace/carriers/ghn", { isEnabled: true })).status).toBe(200);
@@ -76,11 +49,11 @@ describe("CONG_VIEC_25 đối soát COD", () => {
     // Đơn 250.000 + phí 30.000 = 280.000, thu hộ toàn bộ.
     const first = await shippedCodOrder();
     expect(first.total).toBe("280000");
-    ghnOrders.set(first.trackingCode, { status: "picked", codCollectDate: null });
+    ghn.orders.set(first.trackingCode, { status: "picked", codCollectDate: null });
     expect((await webhook(first.trackingCode)).body.result).toBe("applied");
     let detail = (await buyer("get", `/buyer/orders/${first.id}`)).body;
     expect(detail).toMatchObject({ status: "shipping", paymentStatus: "unpaid", paidAmount: "0" });
-    ghnOrders.set(first.trackingCode, { status: "delivered", codCollectDate: "2026-11-11T03:15:00Z" });
+    ghn.orders.set(first.trackingCode, { status: "delivered", codCollectDate: "2026-11-11T03:15:00Z" });
     expect((await webhook(first.trackingCode)).body.result).toBe("applied");
     detail = (await buyer("get", `/buyer/orders/${first.id}`)).body;
     expect(detail).toMatchObject({ status: "delivered", paymentStatus: "paid", paidAmount: "280000" });
@@ -93,7 +66,7 @@ describe("CONG_VIEC_25 đối soát COD", () => {
 
     // GHN chưa báo thu: kế toán ghi tay kèm số phiên đối soát.
     const second = await shippedCodOrder();
-    ghnOrders.set(second.trackingCode, { status: "delivered", codCollectDate: null });
+    ghn.orders.set(second.trackingCode, { status: "delivered", codCollectDate: null });
     expect((await webhook(second.trackingCode)).body.result).toBe("applied");
     const before = (await store.call("get", `/marketplace/orders/${second.id}`)).body;
     expect(before).toMatchObject({ status: "delivered", paymentStatus: "unpaid", canRecordCod: true });
@@ -109,7 +82,7 @@ describe("CONG_VIEC_25 đối soát COD", () => {
     const again = await store.call("post", `/marketplace/orders/${second.id}/cod-collected`, { collectedOn: store.today, reference: "PH02", version: recorded.body.version });
     expect(again.body.error.message).toBe("Đơn không thanh toán khi nhận hàng, chưa giao cho đơn vị vận chuyển hoặc đã ghi đã thu.");
     // GHN báo thu sau khi đã ghi tay: không ghi thêm.
-    ghnOrders.set(second.trackingCode, { status: "delivered", codCollectDate: "2026-11-11T05:00:00Z" });
+    ghn.orders.set(second.trackingCode, { status: "delivered", codCollectDate: "2026-11-11T05:00:00Z" });
     expect((await webhook(second.trackingCode)).body.result).toBe("applied");
     expect((await store.call("get", `/marketplace/orders/${second.id}`)).body.paidAmount).toBe("280000");
     // Đơn chưa giao cho đơn vị vận chuyển không ghi được.

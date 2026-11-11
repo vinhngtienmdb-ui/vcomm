@@ -4323,6 +4323,65 @@ export interface MarketplacePaymentItem {
   completedAt: string | null;
 }
 
+// API_133: hoàn tiền (QUYTAC_NGHIEPVU_168).
+export const refundReasons = ["paid_after_cancel", "duplicate_payment", "order_cancelled", "return_received"] as const;
+export type RefundReason = (typeof refundReasons)[number];
+export const refundStatuses = ["pending", "completed"] as const;
+export type RefundStatus = (typeof refundStatuses)[number];
+
+export interface BuyerRefundItem {
+  amount: string;
+  reason: RefundReason;
+  status: RefundStatus;
+  refundedOn: string | null;
+}
+
+export interface BuyerBankAccount {
+  bankName: string;
+  accountNumber: string;
+  accountHolder: string;
+}
+export const buyerBankAccountSchema = z
+  .object({
+    bankName: z.string().trim().min(2).max(100),
+    accountNumber: z.string().trim().regex(/^[0-9]{6,20}$/),
+    accountHolder: z.string().trim().min(2).max(100),
+  })
+  .strict();
+
+export interface RefundItem {
+  id: string;
+  orderId: string;
+  documentNo: string;
+  buyerName: string;
+  buyerPhone: string;
+  reason: RefundReason;
+  amount: string;
+  status: RefundStatus;
+  bankAccount: BuyerBankAccount | null;
+  bankTransactionNo: string | null;
+  refundedOn: string | null;
+  note: string | null;
+  createdAt: string;
+  completedAt: string | null;
+  version: number;
+}
+export const refundListQuerySchema = z
+  .object({
+    status: z.enum(refundStatuses).default("pending"),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const completeRefundSchema = z
+  .object({
+    bankTransactionNo: z.string().trim().min(1).max(100),
+    refundedOn: isoDate,
+    note: z.string().trim().max(500).nullable(),
+    version: z.number().int().min(1),
+  })
+  .strict();
+
 export interface BuyerOrderDetail extends BuyerOrderListItem {
   recipientName: string;
   recipientPhone: string;
@@ -4337,6 +4396,9 @@ export interface BuyerOrderDetail extends BuyerOrderListItem {
   // Hạn thanh toán của đơn chờ thanh toán; quá hạn đơn tự hủy.
   paymentDeadline: string | null;
   canPay: boolean;
+  refunds: BuyerRefundItem[];
+  // Có việc chờ hoàn mà người mua chưa nhập tài khoản ngân hàng.
+  needsBankAccount: boolean;
   carrierName: string | null;
   trackingCode: string | null;
   deliveredAt: string | null;

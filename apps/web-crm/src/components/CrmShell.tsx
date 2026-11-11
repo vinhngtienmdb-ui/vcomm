@@ -16,6 +16,7 @@ export const crmMenu = [
   { href: "/listings", key: "listings", permission: "marketplace.order.view" },
   { href: "/orders", key: "orders", permission: "marketplace.order.view" },
   { href: "/return-requests", key: "returnRequests", permission: "marketplace.order.view" },
+  { href: "/refunds", key: "refunds", permission: "marketplace.payment.manage" },
 ] as const;
 
 export function CrmShell({ children }: { children: ReactNode }) {
