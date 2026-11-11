@@ -62,8 +62,8 @@ Web-crm:
 
 Ứng dụng:
 - Sửa MAN_HINH_93: chọn phương thức thanh toán.
-- MAN_HINH_99 Thanh toán: mở trang cổng, chờ kết quả, thời gian còn lại, thanh toán lại.
-- Sửa MAN_HINH_96: trạng thái thanh toán, nút thanh toán khi Chờ thanh toán, hoàn tiền.
+- Sửa MAN_HINH_96: trạng thái thanh toán, hoàn tiền; chứa MAN_HINH_99.
+- MAN_HINH_99 Thanh toán: khối thanh toán trong màn hình chi tiết đơn (MAN_HINH_96), hiện khi đơn Chờ thanh toán còn hạn: hạn thanh toán, "Thanh toán", "Thanh toán lại", "Kiểm tra lại"; mở trang VNPAY.
 - MAN_HINH_100 Tài khoản nhận hoàn tiền (từ màn hình tài khoản).
 
 ## 8. Dữ liệu và API
@@ -112,3 +112,40 @@ Luồng đơn bán, công nợ, phiếu thu chi của các kênh khác; đơn CO
 - L2: đối soát COD với GHN theo API (callback, chi tiết đơn), ghi tay "Đã thu COD" khi cần.
 - L3: hoàn tiền (API_133; MAN_HINH_98, 100).
 - L4: bút toán, hóa đơn phí giao hàng.
+
+## 15. Kết quả thực hiện
+
+| Lát | Nội dung đã làm | Commit |
+|---|---|---|
+| L0 | Database migration 0027; phương thức thanh toán theo cổng, công tắc mở đặt hàng (API_130); chọn phương thức khi đặt; sửa MAN_HINH_86, MAN_HINH_93 | 0417c38, a4478cf |
+| L1 | Database migration 0028; VNPAY (đường dẫn, IPN, trang trả về; API_131, API_132), Chờ thanh toán 15 phút, việc nền `marketplace-payment-expiry` mỗi phút; MAN_HINH_99, sửa MAN_HINH_88, MAN_HINH_96 | 427d5e0 |
+| L2 | Đối soát COD theo API chi tiết đơn GHN (`cod_collect_date`), ghi tay "Đã thu COD" (API_133) | 77b97bf |
+| L3 | Database migration 0029; việc hoàn tiền, tài khoản nhận hoàn tiền, ghi đã hoàn (API_133); quyền `marketplace.payment.manage`; MAN_HINH_98, MAN_HINH_100 | 74bf9f3 |
+| L4 | Database migration 0030; bút toán tiền thu, phí giao hàng, hoàn tiền; hóa đơn điện tử có dòng "Phí giao hàng" | 9690917 |
+| Sửa sau rà soát độc lập | Database migration 0031 (`shipping_fee_document_id`: phiếu xuất ghi sổ đầu tiên giữ phí giao hàng, ghi sổ và lên hóa đơn một lần); đơn vị vận chuyển hủy vận đơn hoặc hàng hoàn về của đơn đã thu lập việc chờ hoàn (`order_cancelled`); IPN sai chữ ký giới hạn theo địa chỉ IP (`vnpay-ipn-invalid`), chỉ lưu tham số `vnp_` dạng chuỗi (tối đa 30, mỗi giá trị 255 ký tự); trang trả về giới hạn theo địa chỉ IP (`vnpay-return`); lỗi khi ghi nhận IPN trả `99`; hoàn tiền khi nhận hàng trả tối đa bằng tiền đã thu (đơn COD đã giao: tổng thanh toán); số bút toán hoàn tiền `<số đơn>-HT`, mã giao dịch ngân hàng ở diễn giải; ngày thu của GHN trước năm 2000 coi như chưa thu | 8b18a3b |
+
+Tệp chính:
+- Cơ sở dữ liệu: `database/migrations/0027_marketplace_payment_methods.sql` đến `0031_marketplace_shipping_fee_document.sql`.
+- API: `apps/api/src/marketplace/payments/` (`payment-gateway-registry.ts`, `vnpay.ts`, `payments.service.ts`, `payments.controller.ts`, `refunds.service.ts`, `refunds.controller.ts`, `refund-amounts.ts`); `apps/api/src/marketplace/store.service.ts`, `marketplace-orders.service.ts`, `marketplace.controller.ts`, `shipments.service.ts`, `return-requests.service.ts`, `carriers/carrier.ts`, `carriers/ghn-carrier.ts`; `apps/api/src/accounting/postings.ts`, `charts.ts`, `ledger.service.ts`; `apps/api/src/einvoice/einvoices.service.ts`; `apps/api/src/jobs/background-jobs.ts`; `apps/api/src/permissions/permission-catalog.ts`; `packages/contracts/src/index.ts`; `packages/i18n/src/vi.json`, `en.json`.
+- Ứng dụng: `apps/mobile-vcomm/src/app/dat-hang.tsx`, `don-hang/[id].tsx`, `tai-khoan-hoan-tien.tsx`, `(tabs)/tai-khoan.tsx`, `components/OrderLines.tsx`.
+- Web-crm: `apps/web-crm/src/app/store-settings/page.tsx`, `orders/[id]/page.tsx`, `refunds/page.tsx`, `components/CrmShell.tsx`, `components/OrderStatus.ts`.
+
+Kiểm thử:
+
+| Kịch bản | Tệp | Kết quả |
+|---|---|---|
+| KICHBAN_KIEMTHU_321 | `apps/api/test/c25-payment-methods.test.ts` | Đạt |
+| KICHBAN_KIEMTHU_322, 323 | `apps/api/test/c25-vnpay-payments.test.ts` | Đạt |
+| KICHBAN_KIEMTHU_323 (sửa sau rà soát), 325 | `apps/api/test/c25-payment-postings.test.ts` | Đạt |
+| KICHBAN_KIEMTHU_324 | `apps/api/test/c25-refunds.test.ts` | Đạt |
+| KICHBAN_KIEMTHU_327 | `apps/api/test/c25-cod-collection.test.ts` | Đạt |
+| KICHBAN_KIEMTHU_326 | Thủ công trên trình duyệt, VNPAY giả lập; ảnh `tam_thoi/CONG_VIEC_25/1-cai-dat-thanh-toan.png` đến `13-ung-dung-da-hoan.png` | Đạt |
+
+Sai khác so với thiết kế ban đầu:
+- Doanh thu cung cấp dịch vụ theo Thông tư 99 dùng tài khoản 511 (Thông tư 133: 5113), vai trò định khoản `service_revenue`; tiền gửi ngân hàng theo chế độ (112 hoặc 1121).
+- Bật tắt phương thức, mở đặt hàng dùng `marketplace.order.manage`; Kế toán, Kế toán trưởng có thêm `marketplace.order.view`, `marketplace.payment.manage`.
+- Database migration tách thành 0027 đến 0031 thay vì một database migration 0027.
+
+Tài liệu đã cập nhật: 06 đến 14, 16, 17, 21, 22, 27, mục lục.
+
+Giới hạn đã biết: VNPAY chưa thử với tài khoản môi trường thử nghiệm (cần `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET` do người dùng cấp); đối soát COD theo API GHN chưa thử với tài khoản GHN thử nghiệm; hoàn tiền làm tay bằng chuyển khoản.
