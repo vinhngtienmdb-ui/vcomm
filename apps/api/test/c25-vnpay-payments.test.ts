@@ -104,7 +104,7 @@ describe("CONG_VIEC_25 thanh toán VNPAY", () => {
     expect((await ipn(vnpayQuery("KHONGCO01", 74000))).body).toEqual({ RspCode: "01", Message: "Order not found" });
     // Trang trả về chỉ hiển thị, không ghi nhận tiền.
     const returned = await request(application.getHttpServer()).get("/api/v1/public/payments/vnpay/return").query(vnpayQuery(reference, 74000));
-    expect(returned.text).toContain("VComm đang chờ kết quả từ VNPAY");
+    expect(returned.text).toContain("VComm đang chờ kết quả từ cổng thanh toán");
     expect((await buyer("get", `/buyer/orders/${order.id}`)).body.status).toBe("awaiting_payment");
 
     expect((await ipn(vnpayQuery(reference, 74000))).body).toEqual({ RspCode: "00", Message: "Confirm Success" });
@@ -120,7 +120,9 @@ describe("CONG_VIEC_25 thanh toán VNPAY", () => {
     expect(admin.payments).toEqual([expect.objectContaining({ reference, method: "vnpay_qr", amount: "74000", status: "succeeded", transactionNo: "14000001", responseCode: "00" })]);
     expect(admin.canShip).toBe(true);
     const logged = (await pool.query("SELECT result_code FROM marketplace.payment_notifications WHERE reference = $1 ORDER BY received_at", [reference])).rows.map((row) => row.result_code);
-    expect(logged).toEqual(["97", "97", "04", "00", "02"]);
+    expect(logged).toEqual(["invalid_amount", "success", "already_confirmed"]);
+    // Sai chữ ký: không tin số tham chiếu trong yêu cầu, ghi không kèm số tham chiếu (CONG_VIEC_32).
+    expect((await pool.query("SELECT count(*)::int AS count FROM marketplace.payment_notifications WHERE reference IS NULL AND result_code = 'invalid_signature'")).rows[0].count).toBe(2);
   });
 
   it("KICHBAN_KIEMTHU_322 (thất bại, thanh toán lại): cổng báo không thành công thì đơn vẫn chờ thanh toán, mở lại với số tham chiếu mới", async () => {

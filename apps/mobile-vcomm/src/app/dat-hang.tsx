@@ -3,7 +3,7 @@
 import type { BuyerAddressItem, BuyerOrderDetail, BuyerOrderPreview, CartResponse, PaymentMethodCode } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Platform, ScrollView, Text, View } from "react-native";
 import { AmountRow, OrderLines } from "@/components/OrderLines";
 import { Button, Card, Choice, Loading, Muted, Notice, Screen, Title } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
@@ -13,6 +13,8 @@ import { colors, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
 const method = translator("paymentMethods");
+// Apple Pay không dùng được trên Android (CONG_VIEC_41; QUYTAC_NGHIEPVU_268): ẩn phương thức của cổng apple_pay.
+const usableMethods = (codes: PaymentMethodCode[]) => (Platform.OS === "android" ? codes.filter((code) => !code.startsWith("apple_pay")) : codes);
 
 export default function CheckoutScreen() {
   const params = useLocalSearchParams<{ lines?: string }>();
@@ -37,7 +39,8 @@ export default function CheckoutScreen() {
       const current = book.find((item) => item.id === wanted) ?? book.find((item) => item.id === address?.id) ?? book.find((item) => item.isDefault) ?? null;
       setAddress(current);
       if (picked.length > 0) {
-        const next = await api<BuyerOrderPreview>("/buyer/orders/preview", { method: "POST", json: { addressId: current?.id ?? null, lines: picked } });
+        const fetched = await api<BuyerOrderPreview>("/buyer/orders/preview", { method: "POST", json: { addressId: current?.id ?? null, lines: picked } });
+        const next = { ...fetched, paymentMethods: usableMethods(fetched.paymentMethods) };
         setPreview(next);
         // Giữ phương thức đã chọn nếu còn bật; chưa chọn thì lấy phương thức đầu tiên.
         setPaymentMethod((selected) => (selected && next.paymentMethods.includes(selected) ? selected : (next.paymentMethods[0] ?? null)));

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_107 Việc cần làm – Ứng dụng kho</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="kho_dien_thoai.css">
+</head>
+<body>
+<div class="dien-thoai">
+  <div class="dau"><button>‹</button><span class="tieu">Chuyển kho<span class="phu">Kho Bình Dương</span></span></div>
+  <div class="than-dt">
+    <div class="the-chon"><a class="chon" href="#">Chờ nhận (2)</a><a href="#">Chờ xuất (1)</a><a href="#">Nháp, bị từ chối (1)</a></div>
+    <div class="o-quet"><input placeholder="Quét số phiếu, số đơn" aria-label="Quét số phiếu"><button class="nut-camera" aria-label="Quét bằng camera">📷</button></div>
+    <div class="the">
+      <a class="dong" href="MAN_HINH_108_PHIEU_QUET.html" style="text-decoration:none;color:inherit"><div class="chinh-dong"><div class="ten">CK-2026-00041</div><span class="phu-chu">Từ Kho Hồ Chí Minh · xuất 10/11/2026 · 6 dòng</span></div><span class="nhan lam">Đang vận chuyển</span></a>
+      <a class="dong" href="MAN_HINH_108_PHIEU_QUET.html" style="text-decoration:none;color:inherit"><div class="chinh-dong"><div class="ten">CK-2026-00043</div><span class="phu-chu">Từ Kho Hà Nội · xuất 11/11/2026 · 2 dòng</span></div><span class="nhan lam">Đang vận chuyển</span></a>
+    </div>
+    <span class="phu-chu">Nhận hàng: đơn mua đã duyệt còn hàng chưa nhận về kho này. Xuất giao hàng: đơn bán đã xác nhận còn hàng chưa xuất từ kho này. Nhập khác, Xuất khác: phiếu nháp, bị từ chối, chờ duyệt của tôi.</span>
+  </div>
+  <div class="chan"><button class="nut chinh">Lập phiếu chuyển kho mới</button></div>
+</div>
+<div class="ghi-chu-ban-mau"><h2>MAN_HINH_107 Việc cần làm</h2><p>Một màn hình cho mọi thao tác; thẻ lọc đổi theo thao tác. Nhận hàng: API <code>/inventory/purchase-orders</code>. Xuất giao hàng: <code>/inventory/sales-orders</code>. Phiếu: API_65 lọc loại, trạng thái, kho. Kiểm kê: API_67 lọc đợt đang đếm. Nút "Lập phiếu mới" chỉ có ở Nhập khác, Xuất khác, Chuyển kho.</p><p><a href="index.html">Mục lục bản mẫu</a></p></div>
+</body>
+</html>
