@@ -175,7 +175,9 @@ describe("TIEUCHI_NGHIEMTHU_67: không xuất quá tồn khả dụng, tồn kh�
 
     const drafts = await Promise.all([1, 2].map(() => draft(keeper, document("issue_other", "gift", [{ variantId: items.water!.variantId, unitId: units.CHAI, quantity: "150" }]))));
     const results = await Promise.all(drafts.map((created) => keeper.call("post", `/inventory/documents/${created.body.id}/submit`, { companyId: retail })));
-    expect(results.map((result) => result.status).sort()).toEqual([201, 409]);
+    // Phiếu thua luôn nhận lỗi gắn vào dòng hàng, dù bị chặn ở bước kiểm tra hay trong khóa giữ hàng (LOI_03).
+    expect(results.map((result) => result.status).sort()).toEqual([201, 400]);
+    expect(results.find((result) => result.status === 400)!.body.error.fields).toEqual({ "lines.0.quantity": "Không đủ hàng khả dụng (một phần đang được giữ)." });
     expect(await stock("NUOCK")).toMatchObject({ onHand: "200", reserved: "150", available: "50" });
     const pending = results.find((result) => result.status === 201)!.body;
     await decide(pending.approvalRequestId, "approved");
