@@ -24,7 +24,7 @@ export interface MarketplaceFixture {
   variants: { cream: string; soap: string };
   products: { cream: string; soap: string };
   call: (method: "get" | "post" | "put" | "delete", path: string, body?: object) => request.Test;
-  register: (phone: string, fullName: string) => Promise<string>;
+  register: (phone: string, fullName: string, referralCode?: string) => Promise<string>;
   buyerSession: (phone: string) => Promise<BuyerCall>;
   addressOf: (buyer: BuyerCall) => Promise<string>;
 }
@@ -97,10 +97,12 @@ export async function prepareMarketplace(application: NestExpressApplication, po
   expect(saved.status, JSON.stringify(saved.body)).toBe(200);
   for (const item of [cream, soap]) expect((await call("put", `/marketplace/listings/${item.productId}`, { isPublished: true, description: null })).status).toBe(204);
 
-  const register = async (phone: string, fullName: string) => {
+  const register = async (phone: string, fullName: string, referralCode?: string) => {
     expect((await http().post("/api/v1/buyer/register/otp").send({ phone })).status).toBe(204);
     await pool.query("UPDATE core.otp_codes SET code_hash = $1 WHERE phone = $2 AND consumed_at IS NULL", [createHash("sha256").update("246810").digest("hex"), `+84${phone.slice(1)}`]);
-    const created = await http().post("/api/v1/buyer/register").send({ phone, code: "246810", fullName, password });
+    const created = await http()
+      .post("/api/v1/buyer/register")
+      .send({ phone, code: "246810", fullName, password, ...(referralCode ? { referralCode } : {}) });
     expect(created.status, JSON.stringify(created.body)).toBe(200);
     return created.body.user.id as string;
   };

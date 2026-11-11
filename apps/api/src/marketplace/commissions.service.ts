@@ -86,12 +86,13 @@ export class MarketplaceCommissionsService {
     }
   }
 
-  // Hoa hồng của đơn theo người hưởng, phần: đã cộng thì số thực, chưa thì ước tính theo hàng hiện tại.
+  // Hoa hồng của đơn theo người hưởng, phần: đã cộng thì số thực, chưa thì ước tính theo hàng hiện tại. Đơn hủy thì bỏ (QUYTAC_NGHIEPVU_202).
   async ofOrder(executor: Executor, orderId: string): Promise<{ name: string; phone: string | null; share: CommissionShare; amount: string; credited: boolean }[]> {
     const rows = await executor.execute<{ name: string; phone: string | null; share: CommissionShare; amount: string; credited: boolean }>(sql`
       SELECT u.full_name AS name, u.phone, c.share, sum(coalesce(c.amount, ${estimate})) ::text AS amount, bool_and(c.status = 'credited') AS credited
       FROM marketplace.order_commissions c JOIN sales.order_lines l ON l.id = c.order_line_id JOIN core.users u ON u.id = c.beneficiary_user_id
-      WHERE c.order_id = ${orderId} GROUP BY u.full_name, u.phone, c.share, c.beneficiary_user_id
+        JOIN marketplace.orders m ON m.id = c.order_id
+      WHERE c.order_id = ${orderId} AND m.status <> 'cancelled' GROUP BY u.full_name, u.phone, c.share, c.beneficiary_user_id
       ORDER BY array_position(ARRAY['referral', 'staff', 'team_head', 'regional_director', 'director'], c.share), u.full_name`);
     return rows.rows;
   }

@@ -64,6 +64,7 @@ export default function AccountScreen() {
           <Title>{me.fullName}</Title>
           <Muted>{me.phone}</Muted>
           <Button label={t("addressBook")} kind="secondary" onPress={() => router.push("/so-dia-chi")} />
+          <Button label={t("commissionWallet")} kind="secondary" onPress={() => router.push("/vi-hoa-hong")} />
           <Button label={t("bankAccountTitle")} kind="secondary" onPress={() => router.push("/tai-khoan-hoan-tien")} />
         </Card>
         {me.referralCode ? (

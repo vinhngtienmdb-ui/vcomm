@@ -1,5 +1,5 @@
-// MAN_HINH_78 Kinh doanh, MAN_HINH_83 Đội của tôi (CHUC_NANG_108, 111; API_118, 122; QUYTAC_NGHIEPVU_145, 149 đến 151):
-// chức danh, đơn vị của tôi; khách tôi phụ trách; người quản lý xem cấp dưới trong nhánh.
+// MAN_HINH_78 Kinh doanh, MAN_HINH_83 Đội của tôi (CHUC_NANG_108, 111, 136; API_118, 122, 135; QUYTAC_NGHIEPVU_145, 149 đến 151, 203):
+// chức danh, đơn vị của tôi; khách tôi phụ trách; người quản lý xem cấp dưới trong nhánh và hoa hồng của từng người.
 import type { BuyerSalesCustomerItem, MySalesTeamResponse } from "contracts";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
@@ -7,7 +7,7 @@ import { Pressable, ScrollView, Text } from "react-native";
 import { CustomerList } from "@/components/CustomerList";
 import { Button, Card, Loading, Muted, Notice, Screen, Title } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
-import { translator } from "@/lib/i18n";
+import { money, translator } from "@/lib/i18n";
 import { colors, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
@@ -76,6 +76,7 @@ export default function SalesScreen() {
                 <Muted>
                   {t(`title_${member.title}`)} · {member.unitName} · {t("customerCount", { count: member.customerCount })}
                 </Muted>
+                <Muted>{t("memberCommission", { credited: money(member.creditedCommission), pending: money(member.pendingCommission) })}</Muted>
               </Pressable>
             ))}
           </Card>

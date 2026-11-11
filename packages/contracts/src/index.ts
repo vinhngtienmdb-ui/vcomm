@@ -4021,6 +4021,9 @@ export interface MySalesTeamMember {
   title: SalesTitle;
   unitName: string;
   customerCount: number;
+  // CONG_VIEC_26 (QUYTAC_NGHIEPVU_203): hoa hồng đã cộng ví và đang chờ của cấp dưới.
+  creditedCommission: string;
+  pendingCommission: string;
 }
 
 export interface MySalesTeamResponse {
@@ -4577,3 +4580,29 @@ export const returnRequestListQuerySchema = z
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
   })
   .strict();
+
+// API_135: ví hoa hồng của người dùng (CONG_VIEC_26; QUYTAC_NGHIEPVU_203).
+export const walletTransactionKinds = ["commission", "withdrawal", "withdrawal_reversal"] as const;
+export type WalletTransactionKind = (typeof walletTransactionKinds)[number];
+
+export const buyerWalletQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(50).default(20),
+});
+
+export interface BuyerWalletTransaction {
+  id: string;
+  kind: WalletTransactionKind;
+  amount: string;
+  balanceAfter: string;
+  orderId: string | null;
+  orderDocumentNo: string | null;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface BuyerWalletResponse {
+  balance: string;
+  pendingAmount: string;
+  transactions: PageResponse<BuyerWalletTransaction>;
+}

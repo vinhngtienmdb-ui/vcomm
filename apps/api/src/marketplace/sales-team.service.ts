@@ -6,7 +6,7 @@ import { sql } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
-import { localPhone } from "./buyer-accounts.service";
+import { localPhone } from "./local-phone";
 import type { BuyerAdminActor } from "./buyer-admin.service";
 
 type Executor = Pick<Database, "execute">;

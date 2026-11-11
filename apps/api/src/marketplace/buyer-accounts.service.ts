@@ -25,7 +25,9 @@ const appTokens = (session: IssuedSession) => ({
 });
 
 // Số điện thoại lưu dạng +84…; mã giới thiệu, số hiển thị dùng dạng 0… (QUYTAC_NGHIEPVU_142).
-export const localPhone = (phone: string) => (phone.startsWith("+84") ? `0${phone.slice(3)}` : phone);
+import { localPhone } from "./local-phone";
+
+export { localPhone };
 // Che số điện thoại: giữ 4 số đầu, 3 số cuối (QUYTAC_NGHIEPVU_146).
 export const maskPhone = (phone: string) => {
   const local = localPhone(phone);
