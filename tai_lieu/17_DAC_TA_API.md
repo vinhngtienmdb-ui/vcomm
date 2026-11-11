@@ -332,6 +332,8 @@ Mọi đường dẫn có tiền tố `/api/v1`, nằm trong `apps/api/src/crm/c
 | API_135 | `GET /buyer/wallet` | CHUC_NANG_136 | Đăng nhập (API người mua); chỉ ví của mình |
 | API_136 | `POST /buyer/withdrawals`; `POST /buyer/withdrawals/{id}/cancel`; `GET /marketplace/withdrawals`; `GET /marketplace/withdrawals/tax-report`; `POST /marketplace/withdrawals/{id}/approve`, `/reject`, `/pay` | CHUC_NANG_137 | Người dùng (yêu cầu của mình; của người khác `404`); quản trị `marketplace.payment.manage` tại công ty vận hành sàn, không xử lý yêu cầu của chính mình |
 | API_129 | `POST /buyer/return-requests/images` (multipart `file`); `GET /buyer/return-requests/images/{id}`; `POST /buyer/orders/{id}/return-requests`; `POST /buyer/return-requests/{id}/withdraw`; `GET /marketplace/return-requests`, `/marketplace/return-requests/{id}`, `/marketplace/return-requests/images/{id}`; `POST /marketplace/return-requests/{id}/approve`, `/reject`, `/receive`, `/not-received` | CHUC_NANG_118 | Người mua (yêu cầu, ảnh của mình); quản trị như API_123 |
+| API_184 | `GET /office/people`; `GET`, `POST /office/tasks`; `GET`, `PATCH /office/tasks/{id}`; `POST /office/tasks/{id}/transition`, `/progress`; `GET /office/tasks/{id}/history` | CHUC_NANG_182 | `office.access`; thẻ `company` cần `office.task.view_all`; thao tác theo vai trò trên việc |
+| API_185 | `GET`, `POST /office/tasks/{id}/comments`; `PATCH`, `DELETE /office/tasks/{id}/comments/{commentId}`; `GET`, `POST` (multipart `file`) `/office/tasks/{id}/files`; `GET`, `DELETE /office/tasks/{id}/files/{fileId}` | CHUC_NANG_182 | `office.access`; người xem được việc (QUYTAC_NGHIEPVU_357), sửa, xóa của mình |
 
 Sửa API_71, API_72, API_77 (CONG_VIEC_21, THAY_DOI_12), hợp đồng thêm trường, không bỏ trường:
 - API_71 danh sách: thêm lọc `owner` (`mine` hoặc UUID nhân viên; lọc hồ sơ của công ty đang làm việc có `owner_user_id` tương ứng); dòng danh sách, chi tiết thêm `ownerUserName` (nhân viên phụ trách tại công ty đang làm việc, `null` khi không có). Người không có `crm.customer.view_all`: danh sách, chi tiết, `identity` chỉ gồm đối tác có hồ sơ khách hàng do mình hoặc nhân viên phòng mình quản lý phụ trách; khác thì `404`. `lookup` vẫn tìm toàn danh mục, chỉ trả mã, tên; có đối tác thì trả thêm `canClaim` (người dùng không có `crm.customer.view_all`, có `crm.partner.manage`; đối tác đang giao dịch, không phải công ty trong tập đoàn, chưa có hồ sơ tại công ty). `POST /crm/partners` của người không có `crm.customer.view_all`: tự lập hồ sơ khách hàng (`isCustomer` đúng, `paymentTermDays` 0, `creditLimit` 0, `ownerUserId` là người gọi), mở dòng lịch sử phụ trách.
@@ -1256,6 +1258,24 @@ Lỗi mới:
 | `productKindLocked` | `409 BUSINESS_RULE` | API_56 `PATCH` đổi `kind` | "Sản phẩm đã phát sinh tồn kho, chứng từ kho; không đổi loại được." |
 
 Sự kiện: không phát, không nghe sự kiện outbox mới. Phiếu dịch vụ lập qua móc nối `SalesOrdersService.confirmedHooks`, `PurchaseOrdersService.approvedHooks` trong giao dịch xác nhận, duyệt đơn.
+
+## 3w. Hợp đồng chi tiết Văn phòng số (MODULE_13 phần 1, CONG_VIEC_52)
+
+Lược đồ, kiểu trong `packages/contracts/src/office.ts`. Mọi endpoint cần `office.access` ở công ty đang chọn; người tham gia việc ở công ty khác trong tập đoàn gọi với công ty của mình. Việc không xem được trả `404`.
+
+| Endpoint | Gửi lên | Trả về, quy tắc |
+|---|---|---|
+| `GET /office/people?search=` | `search` 1 đến 100 ký tự | Tối đa 20 `OfficePerson` (`id`, `fullName`, `companyId`, `companyName`, `departmentName`): người đang hoạt động, thành viên công ty trong tập đoàn; tìm theo họ tên, email nhưng không trả email |
+| `GET /office/tasks` | `view` (`mine`, `assigned`, `following`, `company`), `status` (trạng thái, `open`, `all`; mặc định `open`), `due` (`overdue`, `today`, `week`), `priority`, `search`, `page`, `pageSize` | Trang `OfficeTaskListItem`; `mine` gồm việc chủ trì, phối hợp ở mọi công ty; `company` cần `office.task.view_all` bao trùm công ty (không thì `403`) |
+| `POST /office/tasks` | `title`, `description`, `ownerUserId`, `collaboratorIds`, `followerIds` (tối đa 20), `startDate`, `dueAt` (ISO 8601 có múi giờ), `priority`, `parentId` | `201 OfficeTaskResponse` (thêm `allowedActions`). Lỗi: `400` tại trường khi người ngoài tập đoàn (`officeParticipantOutsideGroup`), hạn trước ngày bắt đầu (`officeDueBeforeStart`), việc con hạn sau việc cha (`officeSubtaskDueAfterParent`); `400 officeParticipantDuplicate`; `409 officeSubtaskDepth`, `officeTaskClosed` |
+| `PATCH /office/tasks/{id}` | Như lập, bỏ `parentId`, thêm `version` | Chỉ người giao (`403`); việc xong, hủy `409 officeTaskClosed`; sai phiên bản `409 CONFLICT_VERSION`; đổi hạn thì nhắc lại từ đầu |
+| `POST /office/tasks/{id}/transition` | `action` (`start`, `report_done`, `confirm`, `return`, `cancel`), `reason` (bắt buộc với `return`, `cancel`), `version` | QUYTAC_NGHIEPVU_356, 358; thao tác không hợp lệ với người giao, chủ trì `409 officeTaskActionInvalid`, người khác `403`; còn việc con chưa xong `409 officeSubtasksOpen` |
+| `POST /office/tasks/{id}/progress` | `progress` 0 đến 100, `version` | Chỉ chủ trì khi việc mới hoặc đang làm |
+| `GET /office/tasks/{id}/history` | | `OfficeTaskEvent[]` mới nhất trước |
+| `…/comments` | `body` 1 đến 5.000 ký tự | `OfficeTaskComment[]`; xóa trả bình luận `deleted`, `body` rỗng |
+| `…/files` | multipart `file` tối đa 20 MB; PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, TXT, ZIP (kiểm chữ ký đầu tệp) | `OfficeFileItem[]`; lỗi `400` tại `file` (`officeFileTooLarge`, `officeFileTypeInvalid`); tải xuống `content-disposition: attachment`, `x-content-type-options: nosniff` |
+
+Thông báo trong ứng dụng (`core.notifications`, đường dẫn `/office/tasks/{id}`): `office_task_assigned`, `office_task_status`, `office_task_comment`, `office_task_due_soon`, `office_task_overdue`. Không phát, không nghe sự kiện outbox mới. Tác vụ nền `office-task-reminders` mỗi 15 phút.
 
 ## 4. Sự kiện phát ra (outbox)
 

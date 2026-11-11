@@ -3129,3 +3129,18 @@ Quy tắc xóa và lưu giữ bổ sung:
 - Bút toán cũ nguồn `commission` (nếu có) giữ nguyên trong sổ.
 - Không xóa dữ liệu giao khách, lịch sử phụ trách, giao dịch nội bộ đã có.
 - Phiếu dịch vụ không sửa, không xóa (ghi sổ ngay khi lập).
+
+## Database migration 0090 đến 0093 – CONG_VIEC_52 (MODULE_13 Văn phòng số phần 1)
+
+Schema `office`, chỉ mini app Văn phòng số ghi (tài liệu `12` mục 2). Tệp `database/migrations/0090_office_tasks.sql` (lát L0); 0091 đến 0093 bổ sung khi làm lát L1 đến L3.
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `core.apps` (0090) | Thêm mini app `office` (Văn phòng số, `/office`) | | Đã có thì bỏ qua |
+| `office.tasks` (0090) | Công việc (QUYTAC_NGHIEPVU_356 đến 358) | `company_id` (công ty nơi lập), `parent_id` (việc cha, một cấp), `title` (1 đến 200 ký tự), `description` (tối đa 10.000), `status` (`new`, `in_progress`, `pending_confirmation`, `completed`, `cancelled`), `priority` (`low`, `normal`, `high`, `urgent`), `progress` (0 đến 100), `start_date`, `due_at`, `assigned_by`, `owner_user_id` (chủ trì; trống khi bước quy trình chờ người nhận), `status_reason`, `completed_at`, `cancelled_at`, `due_soon_notified_at`, `overdue_notified_at`, `created_at`, `updated_at`, `version` | Chỉ mục (`company_id`, `created_at`), `owner_user_id` và `due_at` khi chưa xong, `assigned_by`, `parent_id` |
+| `office.task_participants` (0090) | Người phối hợp, người theo dõi (QUYTAC_NGHIEPVU_357) | `task_id`, `user_id`, `role` (`collaborator`, `follower`), `created_at` | Khóa chính (`task_id`, `user_id`): một người một vai trò; chỉ mục `user_id` |
+| `office.task_comments` (0090) | Bình luận (QUYTAC_NGHIEPVU_359) | `task_id`, `author_id`, `body` (1 đến 5.000 ký tự), `created_at`, `edited_at`, `deleted_at` | Xóa mềm |
+| `office.task_events` (0090) | Lịch sử việc | `task_id`, `actor_id`, `action`, `details` (jsonb), `created_at` | Chỉ thêm |
+| `office.files` (0090) | Tệp của Văn phòng số, nội dung ở kho tệp chung (S3 hoặc thư mục cục bộ) | `company_id`, `owner_type` (`task`; thêm giá trị ở lát sau), `owner_id`, `file_name`, `content_type`, `size_bytes`, `storage_key` (duy nhất), `uploaded_by`, `created_at`, `deleted_at`, `deleted_by` | Xóa mềm; chỉ mục (`owner_type`, `owner_id`) |
+
+Quy tắc xóa và lưu giữ: không xóa cứng việc, bình luận, tệp, lịch sử; việc hủy giữ nguyên dữ liệu.

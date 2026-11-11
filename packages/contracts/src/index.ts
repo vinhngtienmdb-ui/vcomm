@@ -4518,3 +4518,4 @@ export interface BuyerWithdrawalInfo {
   // Yêu cầu đang chờ duyệt hoặc đã duyệt chưa chi.
   open: WithdrawalItem | null;
 }
+export * from "./office";

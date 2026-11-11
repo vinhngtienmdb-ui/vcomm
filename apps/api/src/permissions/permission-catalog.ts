@@ -114,7 +114,20 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "finance.consolidation.manage", appCode: "finance", nameVi: "Lập, gửi bảng hợp nhất (phạm vi tập đoàn)", nameEn: "Manage consolidation", isSensitive: true },
   { code: "inventory.sales.issue", appCode: "inventory", nameVi: "Xuất giao hàng, nhận hàng trả lại", nameEn: "Issue sales deliveries and receive returns", isSensitive: false },
   { code: "inventory.purchase.receive", appCode: "inventory", nameVi: "Nhập mua, trả hàng nhà cung cấp", nameEn: "Receive purchases and return to suppliers", isSensitive: false },
+  // CONG_VIEC_52: mini app Văn phòng số (MODULE_13).
+  accessPermission("office", "Văn phòng số", "Digital Office"),
+  { code: "office.task.view_all", appCode: "office", nameVi: "Xem mọi công việc, quy trình của công ty", nameEn: "View all company tasks and workflows", isSensitive: false },
+  { code: "office.workflow.manage", appCode: "office", nameVi: "Thiết kế, quản lý quy trình", nameEn: "Manage workflow templates and runs", isSensitive: false },
+  { code: "office.document.clerk", appCode: "office", nameVi: "Văn thư: sổ, vào sổ, cấp số, phát hành công văn", nameEn: "Records clerk", isSensitive: true },
+  { code: "office.document.direct", appCode: "office", nameVi: "Cho ý kiến, giao xử lý công văn đến", nameEn: "Direct incoming documents", isSensitive: false },
+  { code: "office.document.draft", appCode: "office", nameVi: "Soạn, trình ký công văn đi", nameEn: "Draft outgoing documents", isSensitive: false },
+  { code: "office.document.view_all", appCode: "office", nameVi: "Xem mọi công văn của công ty", nameEn: "View all company documents", isSensitive: true },
+  { code: "office.bulletin.post", appCode: "office", nameVi: "Đăng tin bảng tin nội bộ", nameEn: "Post bulletin news", isSensitive: false },
 ];
+
+// Quyền Văn phòng số của nhân viên và quản trị (CONG_VIEC_52 mục 6).
+const officeEmployeePermissions = ["office.access", "office.document.draft"];
+const officePermissions = permissionCatalog.filter((permission) => permission.appCode === "office").map((permission) => permission.code);
 
 const inventoryPermissions = permissionCatalog.filter((permission) => permission.appCode === "inventory").map((permission) => permission.code);
 
@@ -186,12 +199,18 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     nameEn: "Group administrator",
     // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), Đối tác (CONG_VIEC_06), Mua hàng (CONG_VIEC_07), Bán hàng (CONG_VIEC_08), Tài chính – Kế toán (CONG_VIEC_13), cộng quyền truy cập mọi mini app.
     permissionCodes: permissionCatalog
-      .filter((permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance"].includes(permission.appCode) || permission.code.endsWith(".access"))
+      .filter((permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance", "office"].includes(permission.appCode) || permission.code.endsWith(".access"))
       .map((permission) => permission.code),
   },
-  { code: "company_admin", nameVi: "Quản trị công ty", nameEn: "Company administrator", permissionCodes: companyAdminPermissions },
+  { code: "company_admin", nameVi: "Quản trị công ty", nameEn: "Company administrator", permissionCodes: [...new Set([...companyAdminPermissions, ...officePermissions])] },
   { code: "exchange_rate_manager", nameVi: "Quản lý tỷ giá", nameEn: "Exchange rate manager", permissionCodes: ["platform.access", "platform.exchange_rate.manage"] },
-  { code: "employee", nameVi: "Nhân viên", nameEn: "Employee", permissionCodes: employeePermissions },
+  { code: "employee", nameVi: "Nhân viên", nameEn: "Employee", permissionCodes: [...employeePermissions, ...officeEmployeePermissions] },
+  {
+    code: "office_clerk",
+    nameVi: "Văn thư",
+    nameEn: "Records clerk",
+    permissionCodes: [...employeePermissions, "office.access", "office.document.clerk", "office.document.draft", "office.document.view_all", "office.bulletin.post"],
+  },
   {
     code: "catalog_manager",
     nameVi: "Quản lý sản phẩm",
@@ -338,6 +357,8 @@ export const documentTypeCatalog = [
   { code: "accounting.journal", appCode: "finance", nameVi: "Phiếu kế toán", nameEn: "Manual journal", requiresApproval: true },
   { code: "finance.collection_statement", appCode: "finance", nameVi: "Bảng đối soát thu hộ", nameEn: "Collection statement", requiresApproval: true },
   { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },
+  { code: "office.outgoing_document", appCode: "office", nameVi: "Công văn đi", nameEn: "Outgoing document", requiresApproval: true },
+  { code: "office.workflow_run", appCode: "office", nameVi: "Phiên quy trình", nameEn: "Workflow run", requiresApproval: false },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.
