@@ -61,6 +61,8 @@ function referenceOf(transactionId: unknown): string | null {
 const replies: Record<NotificationOutcome, { return_code: number; return_message: string }> = {
   success: { return_code: 1, return_message: "success" },
   already_confirmed: { return_code: 1, return_message: "already confirmed" },
+  // ZaloPay không gửi trạng thái đang xử lý; có thì xác nhận đã nhận.
+  pending: { return_code: 1, return_message: "received" },
   not_found: { return_code: 2, return_message: "order not found" },
   invalid_amount: { return_code: 2, return_message: "invalid amount" },
   invalid_signature: { return_code: 2, return_message: "mac not equal" },

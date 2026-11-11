@@ -33,7 +33,7 @@ Hệ quả của phương án 1:
 - QUYTAC_NGHIEPVU_260: Phương thức `google_pay_card` thuộc cổng `google_pay`, mặc định tắt; chỉ bật được khi có đủ biến môi trường `GOOGLE_PAY_ZALOPAY_APP_ID`, `GOOGLE_PAY_ZALOPAY_MAC_KEY`, `GOOGLE_PAY_ZALOPAY_CALLBACK_KEY`, `GOOGLE_PAY_PUBLIC_API_URL`.
 - QUYTAC_NGHIEPVU_261: Mở thanh toán tạo đơn ZaloPay (`POST {GOOGLE_PAY_ZALOPAY_API_URL}/create`): `app_trans_id` = ngày theo giờ Việt Nam `yymmdd` + `_` + số tham chiếu; `mac` = HMAC-SHA256(key1, `app_id|app_trans_id|app_user|amount|app_time|embed_data|item`); `embed_data` gồm `preferred_payment_method` (mặc định `international_card`) và `redirecturl` về trang trả về; `callback_url` về đường dẫn nhận kết quả chung; hạn đơn ZaloPay theo hạn thanh toán của đơn (300 giây đến 30 ngày). ZaloPay không trả `return_code` 1 kèm `order_url` https thì báo lỗi, không ghi lần thanh toán.
 - QUYTAC_NGHIEPVU_262: Kết quả ZaloPay gửi về `/api/v1/public/payments/google_pay/notify` (POST JSON `data`, `mac`, `type`) chỉ nhận khi `mac` = HMAC-SHA256(key2, `data`) (so sánh an toàn thời gian), `app_id` khớp, `app_trans_id` đúng định dạng; số tiền `amount`, số tham chiếu khớp lần thanh toán, ghi nhận một lần (QUYTAC_NGHIEPVU_166, 221). ZaloPay chỉ gửi khi thanh toán thành công.
-- QUYTAC_NGHIEPVU_263: Trả lời ZaloPay luôn HTTP 200: `return_code` 1 khi ghi nhận hoặc đã ghi nhận trước đó; 2 khi sai chữ ký, không có lần thanh toán, sai số tiền; 0 khi lỗi ghi nhận để ZaloPay gửi lại.
+- QUYTAC_NGHIEPVU_263: Trả lời ZaloPay luôn HTTP 200: `return_code` 1 khi ghi nhận, đã ghi nhận trước đó hoặc đang xử lý (`pending` của khung, ZaloPay không gửi); 2 khi sai chữ ký, không có lần thanh toán, sai số tiền; 0 khi lỗi ghi nhận để ZaloPay gửi lại.
 - QUYTAC_NGHIEPVU_264: Trang trả về `/api/v1/public/payments/google_pay/return` kiểm `checksum` = HMAC-SHA256(key2, `appid|apptransid|pmcid|bankcode|amount|discountamount|status`), `status` 1 là thành công; chỉ hiển thị, không ghi nhận tiền.
 
 ## 4. Chức năng
@@ -88,3 +88,4 @@ Tra cứu trạng thái đơn ZaloPay (`POST /v2/query`, `mac` = HMAC(key1, `app
 ## 11. Kết quả thực hiện
 
 - Kiểm thử ngày 2026-11-11: `c40-payment-google-pay.test.ts` 4/4 đạt; hồi quy `pnpm --filter api test` 47 tệp, 337 kiểm thử đạt; `pnpm typecheck`, `pnpm lint` đạt.
+- Sau khi hợp nhất nhánh nền có CONG_VIEC_33 (MoMo), ngày 2026-11-11: thêm câu trả lời cho kết quả `pending` của khung; kiểm thử `c25-*`, `c32-*`, `c33-*`, `c40-*` 8 tệp, 16 kiểm thử đạt; hồi quy `pnpm --filter api test` 48 tệp, 340 kiểm thử đạt; `pnpm typecheck`, `pnpm lint` đạt.
