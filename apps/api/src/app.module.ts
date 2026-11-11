@@ -85,16 +85,12 @@ import { LedgerController } from "./accounting/ledger.controller";
 import { JournalsService } from "./accounting/journals.service";
 import { LedgerReportsService } from "./accounting/ledger-reports.service";
 import { StatementsService } from "./accounting/statements.service";
-import { CommissionStatementsService } from "./commission/commission-statements.service";
-import { CommissionsController } from "./commission/commissions.controller";
 import { BankReconciliationController } from "./bank/bank-reconciliation.controller";
 import { BankReconciliationService } from "./bank/bank-reconciliation.service";
 import { CollectionStatementsController } from "./collection/collection-statements.controller";
 import { CollectionStatementsService } from "./collection/collection-statements.service";
 import { ConsolidationController } from "./consolidation/consolidation.controller";
 import { ConsolidationService } from "./consolidation/consolidation.service";
-import { CommissionsService } from "./commission/commissions.service";
-import { MyCommissionsService } from "./commission/my-commissions.service";
 import { EinvoiceCorrectionsService } from "./einvoice/einvoice-corrections.service";
 import { EinvoiceSettingsService } from "./einvoice/einvoice-settings.service";
 import { EinvoicesController } from "./einvoice/einvoices.controller";
@@ -130,7 +126,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, CommissionsController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController],
   providers: [
     AuthService,
     ActivationService,
@@ -189,9 +185,6 @@ import { UsersService } from "./users/users.service";
     EinvoiceSettingsService,
     EinvoicesService,
     EinvoiceCorrectionsService,
-    CommissionsService,
-    MyCommissionsService,
-    CommissionStatementsService,
     BankReconciliationService,
     CollectionStatementsService,
     ConsolidationService,

@@ -22,7 +22,6 @@ import {
   type DraftJournal,
   type Executor,
   type PostingRole,
-  commissionDraft,
   collectionDraft,
   marketplacePaymentDraft,
   marketplaceRefundDraft,
@@ -158,9 +157,6 @@ export class LedgerService implements OnModuleInit {
     const writeOffs = await executor.execute<{ id: string; resolved_at: string }>(sql`
       SELECT id, (resolved_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS resolved_at FROM inventory.internal_discrepancies WHERE company_id = ${companyId} AND status = 'written_off'`);
     for (const writeOff of writeOffs.rows) await this.record(executor, await writeOffDraft(executor, writeOff.id, writeOff.resolved_at), false);
-    // Bảng hoa hồng đã ghi sổ trước khi khởi tạo kế toán (CONG_VIEC_17).
-    const statements = await executor.execute<{ id: string }>(sql`SELECT id FROM finance.commission_statements WHERE company_id = ${companyId} AND status = 'posted' ORDER BY posted_at`);
-    for (const statement of statements.rows) await this.record(executor, await commissionDraft(executor, statement.id), false);
     const collections = await executor.execute<{ id: string }>(sql`SELECT id FROM finance.collection_statements WHERE company_id = ${companyId} AND status = 'posted' ORDER BY posted_at`);
     for (const statement of collections.rows) await this.record(executor, await collectionDraft(executor, statement.id), false);
     // Tiền thu trực tuyến, hoàn tiền đơn VComm (CONG_VIEC_25).

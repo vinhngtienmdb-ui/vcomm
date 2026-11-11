@@ -44,12 +44,12 @@ async function customer(key: string, taxCode: string, owner: string | null) {
   expect(saved.status, JSON.stringify(saved.body)).toBe(200);
   customers[key] = created.body.id;
 }
-async function order(key: string, customerId: string | null, createdBy: string, commissionUserId: string | null = null) {
+async function order(key: string, customerId: string | null, createdBy: string) {
   orders[key] = (
     await pool.query<{ id: string }>(
-      `INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, warehouse_id, order_date, currency, created_by, commission_user_id)
-       VALUES ($1, $2, $3, $4, $5, $6, 'VND', $7, $8) RETURNING id`,
-      [retail, customerId, customerId ? null : "Khách lẻ", channelId, warehouseId, today, createdBy, commissionUserId],
+      `INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, warehouse_id, order_date, currency, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, 'VND', $7) RETURNING id`,
+      [retail, customerId, customerId ? null : "Khách lẻ", channelId, warehouseId, today, createdBy],
     )
   ).rows[0]!.id;
 }
@@ -86,7 +86,6 @@ beforeAll(async () => {
   await order("ofA", customers.A!, ids.admin!);
   await order("ofB", customers.B!, ids.admin!);
   await order("walkIn", null, ids.sellerA!);
-  await order("commission", customers.none!, ids.admin!, ids.sellerA!);
 });
 
 afterAll(async () => {
@@ -95,15 +94,14 @@ afterAll(async () => {
 });
 
 describe("CONG_VIEC_21 phạm vi xem theo nhân viên phụ trách", () => {
-  it("KICHBAN_KIEMTHU_278: nhân viên chỉ thấy khách mình phụ trách, đơn của khách đó, đơn mình lập, đơn mình hưởng hoa hồng; khách, đơn khác nhận 404; thêm đối tác thì tự phụ trách", async () => {
+  it("KICHBAN_KIEMTHU_278: nhân viên chỉ thấy khách mình phụ trách, đơn của khách đó, đơn mình lập; khách, đơn khác nhận 404; thêm đối tác thì tự phụ trách", async () => {
     expect(await listed(sellerA, "/crm/partners")).toEqual([customers.A]);
     expect((await as(sellerA, "get", `/crm/partners/${customers.B}`)).status).toBe(404);
     expect((await as(sellerA, "get", `/crm/partners/${customers.A}`)).status).toBe(200);
     expect(((await as(sellerA, "get", "/sales/options")).body.customers as { id: string }[]).map((item) => item.id)).toEqual([customers.A]);
-    expect((await listed(sellerA, "/sales/orders")).sort()).toEqual([orders.ofA, orders.walkIn, orders.commission].sort());
+    expect((await listed(sellerA, "/sales/orders")).sort()).toEqual([orders.ofA, orders.walkIn].sort());
     expect((await as(sellerA, "get", `/sales/orders/${orders.ofB}`)).status).toBe(404);
     expect((await as(sellerA, "post", `/sales/orders/${orders.ofB}/cancel`, { version: 1 })).status).toBe(404);
-    expect((await as(sellerA, "get", `/sales/orders/${orders.commission}`)).status).toBe(200);
     // Lập đơn cho khách người khác phụ trách bị từ chối.
     const foreign = await as(sellerA, "post", "/sales/orders", {
       customerId: customers.B,
@@ -185,7 +183,7 @@ describe("CONG_VIEC_21 phiếu giao khách", () => {
     expect((await as(manager, "get", `/crm/customer-assignments/${draft.body.id}`)).status).toBe(404);
   });
 
-  it("KICHBAN_KIEMTHU_281: chưa có chính sách duyệt thì áp dụng ngay; nhân viên cũ không còn thấy khách; đơn đã gán hoa hồng giữ nhân viên cũ", async () => {
+  it("KICHBAN_KIEMTHU_281: chưa có chính sách duyệt thì áp dụng ngay; nhân viên cũ không còn thấy khách", async () => {
     const draft = await as(manager, "post", "/crm/customer-assignments", assignment(ids.manager!, [customers.A!]));
     const applied = await as(manager, "post", `/crm/customer-assignments/${draft.body.id}/submit`, { version: draft.body.version });
     expect(applied.status, JSON.stringify(applied.body)).toBe(201);
@@ -194,9 +192,6 @@ describe("CONG_VIEC_21 phiếu giao khách", () => {
     expect(await ownerOf(customers.A!)).toBe(ids.manager);
     expect(await listed(sellerA, "/crm/partners")).not.toContain(customers.A);
     expect((await as(sellerA, "get", `/sales/orders/${orders.ofA}`)).status).toBe(404);
-    expect((await as(sellerA, "get", `/sales/orders/${orders.commission}`)).status).toBe(200);
-    const commission = await pool.query("SELECT commission_user_id FROM sales.orders WHERE id = $1", [orders.commission]);
-    expect(commission.rows[0].commission_user_id).toBe(ids.sellerA);
     const notices = await pool.query<{ user_id: string; title: string }>("SELECT user_id, title FROM core.notifications WHERE kind LIKE 'crm.customer_assignment.%' ORDER BY title");
     expect(notices.rows).toEqual([
       { user_id: ids.sellerA, title: `1 khách hàng của bạn đã chuyển cho nhân viên khác theo phiếu ${applied.body.documentNo}` },

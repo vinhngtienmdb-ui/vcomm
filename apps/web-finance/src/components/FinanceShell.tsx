@@ -19,8 +19,6 @@ export const financeMenu = [
   { href: "/accounts", key: "accounts", permission: "finance.ledger.view" },
   { href: "/einvoices", key: "einvoices", permission: "finance.einvoice.view" },
   { href: "/einvoice-settings", key: "einvoiceSettings", permission: "finance.einvoice.setup" },
-  { href: "/commissions", key: "commissions", permission: "finance.commission.view" },
-  { href: "/commission-settings", key: "commissionSettings", permission: "finance.commission.setup" },
 ] as const;
 
 export function FinanceShell({ children }: { children: ReactNode }) {

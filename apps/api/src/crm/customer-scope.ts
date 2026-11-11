@@ -41,12 +41,11 @@ export function ownedCustomer(scope: CustomerScope, companyId: SQL, partnerId: S
     AND scope_profile.is_customer AND scope_profile.owner_user_id IN (${userList(scope.userIds)}))`;
 }
 
-// Đơn bán thuộc phạm vi: khách thuộc phạm vi, hoặc người lập, người hưởng hoa hồng thuộc phạm vi.
+// Đơn bán thuộc phạm vi: khách thuộc phạm vi, hoặc người lập thuộc phạm vi.
 export function visibleOrder(scope: CustomerScope, order: string): SQL {
   if (scope.kind === "all") return sql`TRUE`;
   const column = (name: string) => sql.raw(`${order}.${name}`);
-  return sql`(${ownedCustomer(scope, column("company_id"), column("customer_id"))} OR ${column("created_by")} IN (${userList(scope.userIds)})
-    OR ${column("commission_user_id")} IN (${userList(scope.userIds)}))`;
+  return sql`(${ownedCustomer(scope, column("company_id"), column("customer_id"))} OR ${column("created_by")} IN (${userList(scope.userIds)}))`;
 }
 
 // Mở, đóng dòng lịch sử phụ trách khi nhân viên phụ trách đổi (QUYTAC_NGHIEPVU_133, 134).

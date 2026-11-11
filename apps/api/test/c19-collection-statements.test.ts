@@ -176,21 +176,8 @@ describe("CONG_VIEC_19 đơn vị thu hộ", () => {
 
 describe("CONG_VIEC_19 nhập bảng đối soát", () => {
   beforeAll(async () => {
-    // Kế toán đã khởi tạo; hoa hồng tính cho người lập đơn (kiểm tra tiền thu hộ là tiền đã thu).
+    // Kế toán đã khởi tạo.
     expect((await call(chief, "post", "/finance/ledger/setup")).status).toBe(201);
-    const settings = (await call(chief, "get", "/finance/commission-settings")).body as { version: number };
-    const saved = await call(chief, "put", "/finance/commission-settings", {
-      enabled: true,
-      startDate: "2026-01-01",
-      assignment: "order_creator",
-      combination: "matrix",
-      defaultPercent: "2",
-      tiers: [{ fromPercent: "0", multiplier: "1" }],
-      rates: [],
-      channelFactors: [],
-      version: settings.version,
-    });
-    expect(saved.status, JSON.stringify(saved.body)).toBe(200);
     const first = await confirmedOrder("10", customer);
     await deliver(first, "10");
     const second = await confirmedOrder("5", customer);
@@ -304,7 +291,7 @@ const openOfOrder = async (orderId: string) =>
 const collectorOpen = async () => (await call(accountant, "get", `/finance/debts/open?side=receivable&partnerId=${collectorPartner}`)).body as { advance: string; items: { openAmount: string }[] };
 
 describe("CONG_VIEC_19 gửi, ghi sổ", () => {
-  it("KICHBAN_KIEMTHU_264: còn dòng lỗi thì không gửi được; gửi khi chưa có chính sách thì ghi sổ: trừ nợ đơn, nợ đơn vị thu hộ bằng thực nhận, bút toán, hoa hồng", async () => {
+  it("KICHBAN_KIEMTHU_264: còn dòng lỗi thì không gửi được; gửi khi chưa có chính sách thì ghi sổ: trừ nợ đơn, nợ đơn vị thu hộ bằng thực nhận, bút toán", async () => {
     const fields = { collectorId: collector, statementDate: today };
     const broken = await upload(accountant, { ...fields, statementNo: "GHN-LOI" }, await workbook([["E1", "DBH-KHONG-CO", 1000, 0, null]]));
     expect((await call(accountant, "post", `/finance/collection-statements/${broken.body.id}/submit`, { version: broken.body.version })).body.error.message).toBe(
@@ -329,13 +316,6 @@ describe("CONG_VIEC_19 gửi, ghi sổ", () => {
       ["6418", null, 33000, 0],
       ["1388", collectorPartner, 0, 33000],
     ]);
-    // Tiền thu hộ là tiền đã thu: hoa hồng 2% trên tiền chưa thuế 150.000.
-    const events = (
-      await pool.query<{ base: string; amount: string }>("SELECT sum(base_amount)::text AS base, sum(amount)::text AS amount FROM finance.commission_events WHERE order_id = ANY($1)", [
-        [orderOne.id, orderTwo.id],
-      ])
-    ).rows[0]!;
-    expect([Number(events.base), Number(events.amount)]).toEqual([150000, 3000]);
     // Mã đã ghi sổ: bảng khác dùng lại là lỗi.
     const reused = await upload(accountant, { collectorId: collector, statementNo: "GHN-TRUNG", statementDate: today }, await workbook([["V1", orderOne.documentNo, 1000, 0, null]]));
     expect(reused.body.lines[0].error).toBe("reference_used");

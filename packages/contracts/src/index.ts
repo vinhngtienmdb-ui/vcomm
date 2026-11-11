@@ -2452,8 +2452,6 @@ export interface SalesOrderLineResponse {
   orderDiscountAmount: string;
 }
 export interface SalesOrderResponse extends SalesOrderListItem {
-  // CONG_VIEC_17: nhân viên hưởng hoa hồng (gán khi gửi).
-  commissionUserName: string | null;
   // CONG_VIEC_12: suất tặng thiếu do kho xuất không đủ hàng tặng lúc lưu đơn.
   giftShortages: { promotionName: string; missingSets: number }[];
   channelId: string;
@@ -3259,131 +3257,6 @@ export const replaceEinvoiceSchema = z
   })
   .strict();
 
-// CONG_VIEC_17: Hoa hồng đội kinh doanh (API_93, API_94; CHUC_NANG_80 đến 83).
-export const commissionAssignments = ["customer_owner", "order_creator"] as const;
-export const commissionCombinations = ["matrix", "channel_factor"] as const;
-const commissionPercentText = z
-  .string()
-  .trim()
-  .regex(/^\d{1,3}(\.\d{1,4})?$/, "invalidValue")
-  .refine((value) => Number(value) <= 100, "invalidValue");
-const factorText = z
-  .string()
-  .trim()
-  .regex(/^\d{1,2}(\.\d{1,4})?$/, "invalidValue")
-  .refine((value) => Number(value) <= 10, "invalidValue");
-export const updateCommissionSettingsSchema = z
-  .object({
-    enabled: z.boolean(),
-    startDate: isoDate.nullable(),
-    assignment: z.enum(commissionAssignments),
-    combination: z.enum(commissionCombinations),
-    defaultPercent: commissionPercentText,
-    tiers: z
-      .array(z.object({ fromPercent: z.string().trim().regex(/^\d{1,4}(\.\d{1,2})?$/, "invalidValue"), multiplier: factorText }).strict())
-      .min(1)
-      .max(20),
-    rates: z
-      .array(z.object({ categoryId: z.uuid(), channelId: z.uuid().nullable(), percent: commissionPercentText }).strict())
-      .max(2000)
-      .default([]),
-    channelFactors: z
-      .array(z.object({ channelId: z.uuid(), factor: factorText }).strict())
-      .max(200)
-      .default([]),
-    version: z.number().int().min(0),
-  })
-  .strict();
-export type UpdateCommissionSettingsRequest = z.input<typeof updateCommissionSettingsSchema>;
-export interface CommissionSettingsResponse {
-  enabled: boolean;
-  startDate: string | null;
-  assignment: (typeof commissionAssignments)[number];
-  combination: (typeof commissionCombinations)[number];
-  defaultPercent: string;
-  tiers: { fromPercent: string; multiplier: string }[];
-  rates: { categoryId: string; channelId: string | null; percent: string }[];
-  channelFactors: { channelId: string; factor: string }[];
-  categories: { id: string; parentId: string | null; code: string; name: string }[];
-  channels: { id: string; code: string; name: string }[];
-  canSetup: boolean;
-  version: number;
-}
-const monthText = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, "invalidValue");
-export const commissionTargetsQuerySchema = z.object({ month: monthText }).strict();
-export const saveCommissionTargetsSchema = z
-  .object({
-    month: monthText,
-    targets: z
-      .array(z.object({ userId: z.uuid(), amount: z.string().trim().regex(/^\d{1,16}(\.\d{1,4})?$/, "invalidValue").nullable() }).strict())
-      .max(500),
-  })
-  .strict();
-export interface CommissionTargetsResponse {
-  month: string;
-  staff: { userId: string; fullName: string; amount: string | null }[];
-  canSetup: boolean;
-}
-export const commissionEventsQuerySchema = z
-  .object({
-    userId: z.uuid().optional(),
-    from: isoDate.optional(),
-    to: isoDate.optional(),
-    page: z.coerce.number().int().min(1).default(1),
-    pageSize: z.coerce.number().int().min(1).max(100).default(50),
-  })
-  .strict();
-export interface CommissionEventItem {
-  id: string;
-  eventDate: string;
-  userId: string;
-  userName: string;
-  sourceType: "receipt" | "refund" | "retail_delivery" | "retail_return";
-  sourceNo: string | null;
-  orderId: string;
-  orderNo: string | null;
-  itemName: string;
-  baseAmount: string;
-  percent: string;
-  amount: string;
-  statementNo: string | null;
-}
-export const commissionStatementStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
-export type CommissionStatementStatus = (typeof commissionStatementStatuses)[number];
-export const createCommissionStatementSchema = z.object({ month: monthText }).strict();
-export interface CommissionStatementListItem {
-  id: string;
-  month: string;
-  documentNo: string | null;
-  status: CommissionStatementStatus;
-  totalAmount: string;
-  postError: string | null;
-}
-export interface CommissionStatementsResponse {
-  statements: CommissionStatementListItem[];
-  nextMonth: string | null;
-  canCreate: boolean;
-  canManage: boolean;
-  currency: string;
-}
-export interface CommissionStatementResponse extends CommissionStatementListItem {
-  lines: {
-    userId: string;
-    fullName: string;
-    baseAmount: string;
-    commissionBefore: string;
-    targetAmount: string | null;
-    achievedPercent: string | null;
-    multiplier: string;
-    amount: string;
-  }[];
-  eventCount: number;
-  currency: string;
-  canManage: boolean;
-  canWithdraw: boolean;
-  version: number;
-}
-
 // CONG_VIEC_18: Đối soát ngân hàng (API_95 đến API_101).
 export const bankProviders = ["simulator", "sepay"] as const;
 export type BankProvider = (typeof bankProviders)[number];
@@ -3801,20 +3674,6 @@ export interface PartnerSummaryResponse {
   receivable: string;
   overdue: string;
   recentOrders: { id: string; documentNo: string | null; orderDate: string; status: string; totalAmount: string }[];
-}
-
-// API_115: hoa hồng của chính người đang đăng nhập (CONG_VIEC_22; QUYTAC_NGHIEPVU_140).
-export const myCommissionsQuerySchema = z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/) }).strict();
-export interface MyCommissionsResponse {
-  month: string;
-  currency: string;
-  // Tổng tiền thu chưa thuế tính hoa hồng, hoa hồng trước hệ số chỉ tiêu (tạm tính), chỉ tiêu tháng.
-  baseAmount: string;
-  commissionAmount: string;
-  targetAmount: string | null;
-  achievedPercent: string | null;
-  events: { date: string; orderNo: string | null; customerName: string | null; baseAmount: string; percent: string; amount: string }[];
-  statements: { month: string; documentNo: string | null; status: "pending" | "posted"; baseAmount: string; achievedPercent: string | null; multiplier: string; amount: string }[];
 }
 
 // API_114: ghé thăm khách (CONG_VIEC_22; QUYTAC_NGHIEPVU_138, 139). Gửi multipart: các trường dưới đây và 0 đến 3 tệp "photos".

@@ -60,9 +60,6 @@ export class DebtsService implements OnModuleInit {
     private readonly internalReceipts: InternalReceiptsService,
   ) {}
 
-  // Module khác đăng ký lúc khởi động để chạy trong cùng giao dịch mỗi khi trừ nợ (hoa hồng, CONG_VIEC_17).
-  readonly allocatedHooks: ((transaction: Executor, allocationId: string) => Promise<void>)[] = [];
-
   onModuleInit(): void {
     this.documents.postedHooks.push((transaction, documentId) => this.recordInventoryDocument(transaction, documentId));
     this.internalReceipts.writtenOffHooks.push((transaction, discrepancyId) => this.recordInternalWriteOff(transaction, discrepancyId));
@@ -132,7 +129,7 @@ export class DebtsService implements OnModuleInit {
 
   // Trừ một khoản giảm vào một khoản tăng, không vượt số còn lại của cả hai và mức chỉ định; trả về số còn lại của hai khoản.
   private async allocate(executor: Executor, debitId: string, creditId: string, cap: string | null): Promise<{ debit: number; credit: number }> {
-    const rows = await executor.execute<{ id: string; open_amount: string; allocation_id: string | null }>(sql`
+    const rows = await executor.execute<{ id: string; open_amount: string }>(sql`
       WITH value AS (
         SELECT c.company_id, least(c.open_amount, d.open_amount, coalesce(${cap}::numeric, c.open_amount)) AS amount
         FROM finance.debt_items c, finance.debt_items d
@@ -143,9 +140,7 @@ export class DebtsService implements OnModuleInit {
         SELECT company_id, ${debitId}, ${creditId}, amount FROM value WHERE amount > 0 RETURNING id, amount)
       UPDATE finance.debt_items SET open_amount = open_amount - coalesce((SELECT amount FROM inserted), 0)
       WHERE id IN (${debitId}, ${creditId})
-      RETURNING id, open_amount::text, (SELECT id FROM inserted) AS allocation_id`);
-    const allocationId = rows.rows[0]?.allocation_id;
-    if (allocationId) for (const hook of this.allocatedHooks) await hook(executor, allocationId);
+      RETURNING id, open_amount::text`);
     const open = (id: string) => Number(rows.rows.find((row) => row.id === id)?.open_amount ?? 0);
     return { debit: open(debitId), credit: open(creditId) };
   }
