@@ -1928,6 +1928,20 @@ Yêu cầu phi chức năng: số giấy tờ, tài khoản ngân hàng, mã s�
 | CHUC_NANG_167 | Tăng ca (phiếu đăng ký, đồng ý, luồng duyệt, giới hạn); bảng công tháng (kỳ, tổng hợp, xác nhận, giải trình, chốt, mở lại, xuất Excel); trang "Chấm công của tôi" | YCAU_NGHIEPVU_70, 71 |
 
 Yêu cầu phi chức năng: tính lại công ngày, sổ phép, trạng thái đơn trong cùng giao dịch; gửi đơn nghỉ, phiếu tăng ca khóa hồ sơ để kiểm số dư, giới hạn; mọi ghi dữ liệu thuộc tháng kiểm kỳ bảng công đã chốt; việc nền giờ Việt Nam: tính lại công 1 giờ, cộng phép 0 giờ 15 phút, tự xác nhận bảng công 0 giờ 30 phút; tọa độ GPS chỉ lưu tại lượt chấm. Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_47.md`.
+## Ứng dụng kho trên điện thoại (CONG_VIEC_44)
+
+### CHUC_NANG_159: Ứng dụng kho trên điện thoại, máy quét cầm tay
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_53, YCAU_NGHIEPVU_54, YCAU_NGHIEPVU_55; Quy tắc: QUYTAC_NGHIEPVU_280 đến QUYTAC_NGHIEPVU_284 (áp dụng cùng QUYTAC_NGHIEPVU_45 đến 55)
+- Vai trò: Thủ kho, Quản lý kho, quản trị công ty, quản trị tập đoàn
+- Xử lý: đăng nhập phiên `warehouse_app`; chọn công ty, kho thao tác được; quét mã bằng máy quét chế độ bàn phím hoặc camera; tra tồn theo lô, vị trí, serial; nhận hàng đơn mua, xuất giao hàng đơn bán, phiếu nhập khác, xuất khác, chuyển kho (lập, gửi, rút, xác nhận xuất, nhận) qua API kho có sẵn; đếm kiểm kê cộng dồn, lịch sử đếm, đếm mù
+- Màn hình: MAN_HINH_105 đến MAN_HINH_109; API: API_137, API_138, API_139; dùng lại API_15, API_63 đến API_67, API_76, API_79
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_278 đến TIEUCHI_NGHIEMTHU_281
+
+## Yêu cầu phi chức năng của ứng dụng kho (CONG_VIEC_44)
+
+- Bắt buộc có mạng; dữ liệu đang nhập giữ trên màn hình khi gửi lỗi.
+- Token trong bộ nhớ an toàn của máy; phiên ứng dụng 90 ngày.
+- Thư viện mới duy nhất: `expo-camera`.
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 

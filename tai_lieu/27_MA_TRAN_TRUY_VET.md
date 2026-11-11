@@ -222,6 +222,10 @@
 | YCAU_NGHIEPVU_76 | QUYTAC_NGHIEPVU_323 | CHUC_NANG_170 | MAN_HINH_127 | TIEUCHI_NGHIEMTHU_309 | KICHBAN_KIEMTHU_461 | database/migrations/0078_hr_payroll_postings.sql, apps/api/src/accounting/postings.ts, apps/api/src/accounting/charts.ts |
 | YCAU_NGHIEPVU_77 | QUYTAC_NGHIEPVU_323 | CHUC_NANG_170 | MAN_HINH_130 | TIEUCHI_NGHIEMTHU_309 | KICHBAN_KIEMTHU_461 | apps/api/src/hr/payrolls.service.ts, apps/web-hr/src/components/MyPayslips.tsx |
 | YCAU_NGHIEPVU_72 đến YCAU_NGHIEPVU_77 | – | CHUC_NANG_168 đến CHUC_NANG_170 | MAN_HINH_126 đến MAN_HINH_131 | TIEUCHI_NGHIEMTHU_310 | KICHBAN_KIEMTHU_462, KICHBAN_KIEMTHU_463 | apps/web-hr |
+| YCAU_NGHIEPVU_55 | QUYTAC_NGHIEPVU_280 | CHUC_NANG_159 | MAN_HINH_105, MAN_HINH_106 | TIEUCHI_NGHIEMTHU_278 | KICHBAN_KIEMTHU_423 | apps/api/src/auth/auth.controller.ts (`warehouseAppLogin`), apps/mobile-warehouse/src/lib/api.ts, apps/mobile-warehouse/src/lib/session.tsx, apps/mobile-warehouse/src/app/dang-nhap.tsx, apps/mobile-warehouse/src/app/kho.tsx | apps/api/test/c44-warehouse-app.test.ts | Đạt; kết quả ghi ở tài liệu `25` khi phiên cha ghi sổ | |
+| YCAU_NGHIEPVU_53 | QUYTAC_NGHIEPVU_280, QUYTAC_NGHIEPVU_281 | CHUC_NANG_159 | MAN_HINH_106, MAN_HINH_107, MAN_HINH_108 | TIEUCHI_NGHIEMTHU_279 | KICHBAN_KIEMTHU_424 | apps/mobile-warehouse/src/app/viec/[thaoTac].tsx, apps/mobile-warehouse/src/app/don.tsx, apps/mobile-warehouse/src/app/phieu.tsx, apps/mobile-warehouse/src/components/ActionGrid.tsx, apps/mobile-warehouse/src/components/LineList.tsx, apps/mobile-warehouse/src/components/useLeaveGuard.tsx, apps/api/src/inventory/sales-deliveries.service.ts (`warehouseId`) | apps/api/test/c44-warehouse-app.test.ts; xem trước bản web | Đạt; kết quả ghi ở tài liệu `25` khi phiên cha ghi sổ | |
+| YCAU_NGHIEPVU_54 | QUYTAC_NGHIEPVU_283, QUYTAC_NGHIEPVU_284 | CHUC_NANG_159 | MAN_HINH_109, MAN_HINH_34 | TIEUCHI_NGHIEMTHU_280 | KICHBAN_KIEMTHU_425, KICHBAN_KIEMTHU_426 | database/migrations/0064_stocktake_count_entries.sql, apps/api/src/permissions/permission-catalog.ts, apps/api/src/inventory/stocktakes.service.ts (`addCounts`, `countEntries`, `detail`), apps/api/src/inventory/inventory.controller.ts, packages/contracts/src/index.ts (`addStocktakeCountsSchema`), apps/mobile-warehouse/src/app/kiem-ke/[id].tsx, apps/web-inventory/src/app/stocktakes/[id]/page.tsx | apps/api/test/c44-warehouse-app.test.ts | Đạt; kết quả ghi ở tài liệu `25` khi phiên cha ghi sổ | |
+| YCAU_NGHIEPVU_53 | QUYTAC_NGHIEPVU_282 | CHUC_NANG_159 | MAN_HINH_106, MAN_HINH_108, MAN_HINH_109 | TIEUCHI_NGHIEMTHU_281 | KICHBAN_KIEMTHU_427 | apps/mobile-warehouse/src/lib/scan.ts, apps/mobile-warehouse/src/components/ScanInput.tsx, apps/mobile-warehouse/src/components/CameraScanner.tsx, apps/mobile-warehouse/src/components/useScanner.ts, apps/mobile-warehouse/src/components/ScanPanel.tsx | apps/mobile-warehouse/src/lib/scan.test.ts; xem trước bản web | Đạt (camera: chờ người dùng thử trên điện thoại) | |
 
 ## 2. Kiểm tra bao phủ – 2026-11-09
 
@@ -531,4 +535,13 @@
 - Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_462, KICHBAN_KIEMTHU_463 (giao diện, thủ công bằng trình duyệt tự động chụp màn hình)
 - Kịch bản chưa chạy với dữ liệu thật của chấm công: KICHBAN_KIEMTHU_456 đến 460 dùng bảng công giả lập cho đến khi hợp nhất CONG_VIEC_47
 - Kịch bản chưa chạy hoặc kết quả Không đạt: kết quả gửi phiên cha ghi tài liệu `25`
+## 26. Kiểm tra bao phủ CONG_VIEC_44 – 2026-11-11
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_53 đến YCAU_NGHIEPVU_55 → CHUC_NANG_159)
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_280 đến QUYTAC_NGHIEPVU_284 → CHUC_NANG_159)
+- Chức năng chưa có tiêu chí nghiệm thu: Không có (CHUC_NANG_159 → TIEUCHI_NGHIEMTHU_278 đến TIEUCHI_NGHIEMTHU_281)
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có (MAN_HINH_105 đến MAN_HINH_109; sửa MAN_HINH_34)
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_278 → KICHBAN_KIEMTHU_423; TIEUCHI_NGHIEMTHU_279 → KICHBAN_KIEMTHU_424; TIEUCHI_NGHIEMTHU_280 → KICHBAN_KIEMTHU_425, KICHBAN_KIEMTHU_426; TIEUCHI_NGHIEMTHU_281 → KICHBAN_KIEMTHU_427)
+- Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_424 phần nhận đơn mua, xuất giao hàng bằng token ứng dụng chỉ xem trước bản web (API_76, API_79 có kiểm thử riêng); KICHBAN_KIEMTHU_427 phần camera chỉ thử được trên điện thoại thật; giao diện ứng dụng chưa có kiểm thử Playwright tự động (xem trước bằng kịch bản tạm)
+- Kịch bản chưa chạy hoặc kết quả Không đạt: camera trên điện thoại thật chờ người dùng thử
 - Mã nguồn không truy được về yêu cầu nào: Không có

@@ -413,3 +413,13 @@ Dữ liệu mẫu: công ty VCR đã khởi tạo kế toán (Thông tư 99/2025
 | TIEUCHI_NGHIEMTHU_308 | CHUC_NANG_169 | Bảng lương qua luồng duyệt; chặn gửi khi bảng công chưa chốt, kỳ khóa, thực lĩnh âm; đã duyệt không sửa; công ty khác nhận `404`; người không quyền nhận `403` | Gọi API, kiểm thử tự động | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_309 | CHUC_NANG_170 | Bút toán trích lương, trả lương cân Nợ Có, đúng tài khoản theo Thông tư 99, Thông tư 133 và nhóm phòng ban; phiếu lương, chuông, email đúng người; nhân viên không xem được phiếu của người khác | Gọi API, kiểm thử tự động | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_310 | CHUC_NANG_168 đến CHUC_NANG_170 | MAN_HINH_126 đến MAN_HINH_131 và thay đổi MAN_HINH_118 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |
+## MODULE_03 Kho (ứng dụng kho trên điện thoại, CONG_VIEC_44)
+
+Dữ liệu mẫu: công ty VCR, kho thuộc chi nhánh Bình Dương và trụ sở; Thủ kho, Quản lý kho thử; sản phẩm thường, theo lô, theo serial có mã vạch. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_278 | CHUC_NANG_159 | Đăng nhập ứng dụng kho tạo phiên `warehouse_app` làm mới được bằng token; tài khoản không có `inventory.access` bị từ chối và phiên bị thu hồi; tài khoản bắt buộc xác thực hai lớp phải nhập mã trước khi gọi API kho | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_279 | CHUC_NANG_159 | Trên ứng dụng: nhận đơn mua, xuất giao hàng, nhập khác, xuất khác, chuyển kho xuất và nhận bằng quét mã cho tồn, thẻ kho như web; Thủ kho chi nhánh khác không thấy kho, bị từ chối khi gọi | Gọi API; xem trước bản web | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_280 | CHUC_NANG_159 | Hai người cộng số đếm đồng thời vào cùng dòng thì số đếm bằng tổng; cộng làm âm, serial trùng dòng khác, đợt không đang đếm bị từ chối; Thủ kho cộng được nhưng không lập, kết thúc, sửa số tuyệt đối; người chỉ có quyền đếm không thấy tồn sổ sách, chênh lệch; lịch sử đếm đủ từng lần | Kiểm thử tự động | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_281 | CHUC_NANG_159 | Quét bằng máy quét bàn phím và camera: mã vị trí đổi vị trí hiện tại, mã vạch thêm đúng mặt hàng và đơn vị, quét lại cộng số lượng, serial ghi vào dòng đang chờ; mã không khớp báo lỗi | Kiểm thử tự động phần tra mã; xem trước bản web (máy quét bàn phím); người dùng thử camera trên điện thoại | Bắt buộc (camera: Mong muốn) |

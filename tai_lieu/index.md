@@ -57,5 +57,6 @@
 | CONG_VIEC_21 | [cong_viec/CONG_VIEC_21.md](cong_viec/CONG_VIEC_21.md) | Bản nháp |
 | CONG_VIEC_46 | [cong_viec/CONG_VIEC_46.md](cong_viec/CONG_VIEC_46.md) | Đã nghiệm thu, chờ phát hành |
 | CONG_VIEC_47 | [cong_viec/CONG_VIEC_47.md](cong_viec/CONG_VIEC_47.md) | Đã nghiệm thu, chờ phát hành |
+| CONG_VIEC_44 | [cong_viec/CONG_VIEC_44.md](cong_viec/CONG_VIEC_44.md) | Đã nghiệm thu, chờ phát hành |
 
 Tài liệu `26` chưa lập; tạo khi triển khai.

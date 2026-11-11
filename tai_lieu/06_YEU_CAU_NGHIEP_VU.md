@@ -197,6 +197,13 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md`.
 | YCAU_NGHIEPVU_71 | Bảng công tháng: người lao động xác nhận hoặc giải trình, nhân sự chốt; đầu vào tính lương | Nhân sự, Kế toán lương, người lao động | Quyết định người dùng 2026-11-11 |
 
 Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_47.md`.
+## MODULE_03 Kho (ứng dụng kho trên điện thoại, CONG_VIEC_44)
+
+| Mã | Yêu cầu | Nguồn |
+|---|---|---|
+| YCAU_NGHIEPVU_53 | Thủ kho nhập, xuất, chuyển kho, tra tồn ngay tại kệ trên điện thoại hoặc máy quét cầm tay, quét mã vạch thay gõ tay; kết quả ghi sổ như trên web | CONG_VIEC_05 mục 2; quyết định của người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_54 | Nhiều Thủ kho cùng đếm một đợt kiểm kê bằng quét mã, số đếm cộng dồn không ghi đè lẫn nhau; người đếm không thấy tồn sổ sách; chỉ Quản lý kho lập và kết thúc kiểm kê | CONG_VIEC_05 mục 2; quyết định của người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_55 | Ứng dụng kho dùng chung tài khoản, phân quyền theo chi nhánh, xác thực hai lớp như web; phiên dài để không đăng nhập lại mỗi ca | CONG_VIEC_05 mục 2; quyết định của người dùng 2026-11-11 |
 
 ## Đối tượng nghiệp vụ
 

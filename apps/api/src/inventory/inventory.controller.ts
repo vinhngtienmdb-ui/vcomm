@@ -20,6 +20,9 @@ import {
   stockLevelQuerySchema,
   type ReservationResponse,
   type StockLevelRow,
+  addStocktakeCountsSchema,
+  stocktakeCountEntryQuerySchema,
+  type StocktakeCountEntry,
   createStocktakeSchema,
   finishStocktakeSchema,
   saveStocktakeCountsSchema,
@@ -378,6 +381,19 @@ export class InventoryController {
   @Put("stocktakes/:id/counts")
   async saveCounts(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StocktakeResponse> {
     return this.stocktakes.saveCounts(await this.actor(request, companyId), id, saveStocktakeCountsSchema.parse(body));
+  }
+
+  // API_138: cộng dồn số đếm (CONG_VIEC_44).
+  @Post("stocktakes/:id/count-additions")
+  @HttpCode(200)
+  async addCounts(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StocktakeResponse> {
+    return this.stocktakes.addCounts(await this.actor(request, companyId), id, addStocktakeCountsSchema.parse(body), request.auth.sessionId);
+  }
+
+  // API_139: lịch sử đếm của đợt kiểm kê.
+  @Get("stocktakes/:id/count-entries")
+  async countEntries(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<StocktakeCountEntry[]> {
+    return this.stocktakes.countEntries(await this.actor(request, companyId), id, stocktakeCountEntryQuerySchema.parse(query).mine === "true");
   }
 
   @Post("stocktakes/:id/finish")

@@ -152,7 +152,8 @@ function Stocktake({ stocktake, onChanged }: { stocktake: StocktakeResponse; onC
             <tbody>
               {stocktake.lines.map((line, index) => {
                 const counted = counts[line.id]!;
-                const difference = counted.quantity === "" ? null : Number(counted.quantity.replace(",", ".")) - Number(line.systemQuantity);
+                // Đếm mù: không có tồn sổ sách thì không tính chênh lệch (QUYTAC_NGHIEPVU_283).
+                const difference = counted.quantity === "" || line.systemQuantity === null ? null : Number(counted.quantity.replace(",", ".")) - Number(line.systemQuantity);
                 return (
                   <tr key={line.id}>
                     <td data-nhan={headings[0]}>
@@ -168,9 +169,7 @@ function Stocktake({ stocktake, onChanged }: { stocktake: StocktakeResponse; onC
                       <span>{line.locationCode ?? "—"}</span>
                     </td>
                     <td data-nhan={headings[3]}>
-                      <span>
-                        {formatNumber(line.systemQuantity)} {line.baseUnitName}
-                      </span>
+                      <span>{line.systemQuantity === null ? "—" : `${formatNumber(line.systemQuantity)} ${line.baseUnitName}`}</span>
                     </td>
                     <td data-nhan={headings[4]}>
                       {counting ? (

@@ -4186,3 +4186,59 @@ Dữ liệu chung: công ty VCR, phòng Kinh doanh (nhóm bán hàng), phòng K�
 - Kết quả mong đợi: Đạt danh sách rà soát giao diện; không lỗi trình duyệt; không cuộn ngang trang.
 - Kiểm thử tự động: Thủ công bằng trình duyệt tự động chụp màn hình (`tam_thoi/`, không commit)
 - Lát: L0 đến L2
+## Ứng dụng kho trên điện thoại (CONG_VIEC_44)
+
+### KICHBAN_KIEMTHU_423: Đăng nhập ứng dụng kho
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_278
+- Chức năng: CHUC_NANG_159
+- Loại: Chức năng
+- Vai trò thực hiện: Thủ kho; Quản lý kho (bắt buộc xác thực hai lớp); tài khoản không có quyền kho
+- Điều kiện ban đầu và dữ liệu: Tài khoản thử đã gán vai trò Thủ kho, Quản lý kho ở chi nhánh Bình Dương; một tài khoản chỉ là thành viên công ty
+- Các bước: Gọi `POST /auth/warehouse-app/login` đúng, sai mật khẩu; làm mới bằng `/auth/app/refresh`; tài khoản không có quyền kho; Quản lý kho gọi API kho trước và sau khi nhập mã xác thực hai lớp
+- Kết quả mong đợi: Phiên `warehouse_app`, token làm mới 90 ngày, đổi mới khi làm mới; sai mật khẩu `401`; không có quyền kho `403` "Tài khoản không có quyền dùng ứng dụng kho." và phiên bị thu hồi; trước khi nhập mã `MFA_REQUIRED`, sau đó gọi được
+- Kiểm thử tự động: apps/api/test/c44-warehouse-app.test.ts
+- Lát: L0
+
+### KICHBAN_KIEMTHU_424: Thao tác kho bằng token ứng dụng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_279
+- Chức năng: CHUC_NANG_159
+- Loại: Chức năng
+- Vai trò thực hiện: Thủ kho chi nhánh Bình Dương; Thủ kho trụ sở
+- Điều kiện ban đầu và dữ liệu: Kho UDK1 (Bình Dương), UDK2 (trụ sở); công ty chưa có chính sách duyệt phiếu kho
+- Các bước: Bằng header Authorization (không cookie, không CSRF): lập, gửi phiếu nhập khác 30, xuất khác 4; Thủ kho trụ sở lập phiếu ở UDK1; chuyển kho 6 sang UDK2, kho nguồn xác nhận xuất, kho đích nhận đủ; xem thẻ kho
+- Kết quả mong đợi: Phiếu ghi sổ ngay; tồn UDK1 30 → 26 → 20, UDK2 6; Thủ kho trụ sở không thao tác UDK1 (`404`), không xác nhận xuất được; thẻ kho tồn sau 30, 26, 20. Nhận đơn mua, xuất giao hàng dùng API_76, API_79 đã có kiểm thử riêng; xem trước bản web ghi sổ nhận đơn mua
+- Kiểm thử tự động: apps/api/test/c44-warehouse-app.test.ts; xem trước bản web
+- Lát: L0, L2
+
+### KICHBAN_KIEMTHU_425: Cộng dồn số đếm kiểm kê
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_280
+- Chức năng: CHUC_NANG_159
+- Loại: Chức năng
+- Vai trò thực hiện: Hai Thủ kho; Quản lý công ty
+- Điều kiện ban đầu và dữ liệu: Đợt kiểm kê theo danh sách mặt hàng ở UDK1
+- Các bước: Cộng khi đợt chưa bắt đầu; bắt đầu; cộng 12, 5, −2; cộng −16; cộng 0; hàng theo lô không ghi lô; 6 lần cộng đồng thời vào cùng dòng; hai người cùng thêm dòng mặt hàng mới
+- Kết quả mong đợi: Chưa bắt đầu `409`; số đếm 17 rồi 15; làm âm `400` "Số đếm sau khi cộng không được âm."; 0 bị từ chối; thiếu lô bị từ chối; số đếm 6; chỉ một dòng mới tồn sổ sách 0, số đếm 3
+- Kiểm thử tự động: apps/api/test/c44-warehouse-app.test.ts
+- Lát: L0
+
+### KICHBAN_KIEMTHU_426: Serial, quyền đếm, đếm mù, lịch sử đếm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_280
+- Chức năng: CHUC_NANG_159
+- Loại: Chức năng
+- Vai trò thực hiện: Thủ kho; Thủ kho trụ sở; Quản lý công ty
+- Điều kiện ban đầu và dữ liệu: Tiếp kịch bản 425
+- Các bước: Thêm 3 serial, bỏ 1; serial lặp; serial đã có ở dòng khác; Thủ kho lưu số tuyệt đối, kết thúc, hủy, lập đợt; Thủ kho trụ sở cộng; xem chi tiết đợt bằng Thủ kho và quản lý; lịch sử đếm toàn bộ và của tôi; kết thúc đợt
+- Kết quả mong đợi: Số đếm bằng số serial; lặp, trùng dòng khác bị từ chối; Thủ kho bị từ chối `403` các thao tác quản lý; Thủ kho trụ sở `404`; Thủ kho không thấy tồn sổ sách, chênh lệch, dòng chưa đếm; quản lý thấy đủ; lịch sử 13 lần, của tôi 6 lần, mới nhất trước; kết thúc dùng số cộng dồn
+- Kiểm thử tự động: apps/api/test/c44-warehouse-app.test.ts
+- Lát: L0
+
+### KICHBAN_KIEMTHU_427: Tra mã quét trên ứng dụng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_281
+- Chức năng: CHUC_NANG_159
+- Loại: Chức năng
+- Vai trò thực hiện: Thủ kho
+- Điều kiện ban đầu và dữ liệu: Mặt hàng có mã vạch chai và thùng 24 chai; hàng serial; vị trí A-01-02
+- Các bước: Kiểm thử đơn vị bộ tra mã; xem trước bản web: quét vị trí, mã vạch thùng, quét lại, mã không tồn tại, hàng serial rồi serial; người dùng thử camera trên điện thoại
+- Kết quả mong đợi: Mã vị trí đổi vị trí hiện tại; thùng thêm 1 thùng (theo đơn quy đổi 24 chai), quét lại cộng dồn; mã không khớp báo "Không tìm thấy mã …"; serial ghi vào dòng đang chờ, trùng bị từ chối
+- Kiểm thử tự động: apps/mobile-warehouse/src/lib/scan.test.ts; xem trước bản web
+- Lát: L1, L2

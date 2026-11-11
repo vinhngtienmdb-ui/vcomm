@@ -847,6 +847,22 @@ Ranh giới và kiểm soát riêng:
 - Giả vị trí GPS trên điện thoại không phát hiện được (ngoài phạm vi): công ty nên bật thêm mạng công ty hoặc mã QR cho địa điểm cần chặt; lượt lưu cách xác thực và độ chính xác để đối chiếu.
 - Thông báo xin quyền vị trí hiện trước khi trình duyệt hỏi; không lấy vị trí khi chấm bằng mã QR hoặc mạng công ty.
 - Khóa đồng thời: gửi đơn nghỉ, phiếu tăng ca khóa hồ sơ (`FOR UPDATE`); chốt kỳ khóa dòng kỳ; mọi ghi dữ liệu thuộc tháng kiểm kỳ đã chốt trong cùng giao dịch.
+### Ma trận phân quyền ứng dụng kho (CONG_VIEC_44)
+
+Quyền mới `inventory.stocktake.count` "Đếm kiểm kê" (công ty, chi nhánh; không nhạy cảm): Thủ kho (`warehouse_keeper`); Quản lý kho và quản trị có qua danh sách `inventory.*`.
+
+| Chức năng | Quản trị tập đoàn, quản trị công ty | Quản lý kho | Thủ kho | Nhân viên không có quyền kho |
+|---|---|---|---|---|
+| CHUC_NANG_159 Đăng nhập ứng dụng kho | Được | Được | Được | Bị từ chối, phiên bị thu hồi |
+| CHUC_NANG_159 Thao tác phiếu, nhận, xuất | Như web | Như web | Như web (kho trong phạm vi gán) | Không |
+| CHUC_NANG_159 Cộng số đếm, xem lịch sử đếm | Được | Kho trong phạm vi gán | Kho trong phạm vi gán | Không |
+| CHUC_NANG_159 Xem tồn sổ sách, chênh lệch kiểm kê | Được | Được | Không (đếm mù) | Không |
+
+Ranh giới và kiểm soát riêng:
+- Ứng dụng gửi token qua header Authorization, không dùng cookie nên không cần CSRF; token lưu bằng `expo-secure-store` (bản web: `sessionStorage`); không ghi log token.
+- Mọi quyền kiểm ở máy chủ theo chi nhánh sở hữu kho; ứng dụng ẩn nút chỉ để dễ dùng.
+- Cộng số đếm khóa dòng đợt kiểm kê, chỉ mục duy nhất dòng kiểm kê chống trùng dòng; lịch sử đếm chỉ thêm.
+- Camera chỉ đọc mã, không lưu ảnh; quyền camera xin khi người dùng bấm nút camera.
 
 ## 5. Quản lý khóa bí mật
 

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_106 Trang kho – Ứng dụng kho</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="kho_dien_thoai.css">
+</head>
+<body>
+<div class="dien-thoai">
+  <div class="dau"><span class="tieu">Kho Bình Dương<span class="phu">VCR · Lê Văn Thủ</span></span><button>Đổi kho</button></div>
+  <div class="than-dt">
+    <div class="o-quet"><input placeholder="Quét hoặc nhập mã hàng để tra tồn" value="8936012345678" aria-label="Quét mã tra tồn"><button class="nut-camera" aria-label="Quét bằng camera">📷</button></div>
+    <div class="the">
+      <h3>Sữa tắm Thảo Mộc 500 ml</h3>
+      <span class="phu-chu">SP-00123 · Chủ hàng VCR · Đơn vị cơ sở: Chai</span>
+      <div class="dong"><div class="chinh-dong"><div class="ten">Lô L2611-01 · HSD 15/03/2027</div><span class="phu-chu">Vị trí A-01-02</span></div><div>Tồn 120 · Giữ 20 · <b>Khả dụng 100</b></div></div>
+      <div class="dong"><div class="chinh-dong"><div class="ten">Lô L2612-04 · HSD 30/06/2027</div><span class="phu-chu">Vị trí A-01-03</span></div><div>Tồn 48 · <b>Khả dụng 48</b></div></div>
+    </div>
+    <div class="luoi">
+      <a class="o-thao-tac" href="MAN_HINH_107_VIEC_CAN_LAM.html">Nhận hàng<span class="so">3 đơn mua chờ nhận</span></a>
+      <a class="o-thao-tac" href="MAN_HINH_107_VIEC_CAN_LAM.html">Xuất giao hàng<span class="so">5 đơn bán chờ xuất</span></a>
+      <a class="o-thao-tac" href="MAN_HINH_107_VIEC_CAN_LAM.html">Nhập khác<span class="so">1 phiếu nháp</span></a>
+      <a class="o-thao-tac" href="MAN_HINH_107_VIEC_CAN_LAM.html">Xuất khác<span class="so">&nbsp;</span></a>
+      <a class="o-thao-tac" href="MAN_HINH_107_VIEC_CAN_LAM.html">Chuyển kho<span class="so">2 phiếu chờ nhận</span></a>
+      <a class="o-thao-tac" href="MAN_HINH_109_DEM_KIEM_KE.html">Kiểm kê<span class="so">1 đợt đang đếm</span></a>
+    </div>
+    <div class="the"><span class="phu-chu">Chọn công ty, kho</span>
+      <div class="truong"><label for="ct">Công ty</label><select id="ct"><option>VCR – Công ty Bán lẻ VComm</option></select></div>
+      <div class="truong"><label for="kho">Kho</label><select id="kho"><option>KHO-BD – Kho Bình Dương</option><option>KHO-HCM – Kho Hồ Chí Minh</option></select></div>
+    </div>
+    <button class="nut phu">Đăng xuất</button>
+  </div>
+</div>
+<div class="ghi-chu-ban-mau"><h2>MAN_HINH_106 Trang kho</h2><p>Ô quét tra tồn gọi API_65 (<code>/inventory/items</code>) rồi API_64 chi tiết. Ô thao tác chỉ hiện khi có quyền tương ứng tại kho. Số đếm trên ô lấy từ danh sách hiện có. Giá vốn không hiện. Thẻ "Chọn công ty, kho" mở khi bấm "Đổi kho" hoặc lần đầu đăng nhập.</p><p><a href="index.html">Mục lục bản mẫu</a></p></div>
+</body>
+</html>

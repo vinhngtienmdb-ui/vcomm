@@ -2224,3 +2224,40 @@ Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_126` đến `MAN_HINH_131` (tệp `luong
 Điều hướng: menu Nhân sự thêm "Bảng lương" (126 → 127 → 128) và "Thiết lập lương" (131); thông báo phiếu lương mở 130.
 
 - Trạng thái phê duyệt: người dùng duyệt bản mẫu ngày 2026-11-11.
+## MODULE_03 Kho (ứng dụng kho trên điện thoại, CONG_VIEC_44)
+
+## 65. Danh sách màn hình và điều hướng (ứng dụng kho)
+
+Ứng dụng `apps/mobile-warehouse` (Expo, khổ điện thoại; xem trước bằng bản web cổng 8084). Màu, khoảng cách lấy từ tài liệu `15` (tệp chủ đề chép giá trị từ `packages/ui/src/styles.css`). Câu chữ nhóm `warehouseApp` trong `packages/i18n`; nhãn trạng thái, lý do phiếu dùng nhóm `documents`. Bản mẫu: `ban_mau/MAN_HINH_105_DANG_NHAP_KHO.html` đến `MAN_HINH_109_DEM_KIEM_KE.html`.
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_105 | Ứng dụng kho: Đăng nhập (tài khoản, mật khẩu; mã xác thực hai lớp, mã dự phòng) | CHUC_NANG_159 | Nhân viên có `inventory.access` | Mở ứng dụng khi chưa đăng nhập | Có |
+| MAN_HINH_106 | Ứng dụng kho: Trang kho (chọn công ty, kho; quét tra tồn; lưới thao tác theo quyền; đăng xuất) | CHUC_NANG_159 | Nhân viên có `inventory.access` | Sau đăng nhập | Có |
+| MAN_HINH_107 | Ứng dụng kho: Việc cần làm theo thao tác | CHUC_NANG_159 | Theo quyền của thao tác | MAN_HINH_106, ô thao tác | Có |
+| MAN_HINH_108 | Ứng dụng kho: Phiếu quét (nhận đơn mua, xuất giao hàng, nhập khác, xuất khác, chuyển kho) | CHUC_NANG_159 | `inventory.purchase.receive`, `inventory.sales.issue`, `inventory.document.manage` tại kho | MAN_HINH_107 | Có |
+| MAN_HINH_109 | Ứng dụng kho: Đếm kiểm kê | CHUC_NANG_159 | `inventory.stocktake.count` hoặc `inventory.stocktake.manage` tại kho | MAN_HINH_107 (Kiểm kê) | Có |
+
+```mermaid
+flowchart TD
+    L[MAN_HINH_105 Đăng nhập] --> H[MAN_HINH_106 Trang kho]
+    H -->|Nhận hàng, Xuất giao hàng, Nhập khác, Xuất khác, Chuyển kho, Kiểm kê| V[MAN_HINH_107 Việc cần làm]
+    V -->|chọn đơn, phiếu; Lập phiếu mới| P[MAN_HINH_108 Phiếu quét]
+    V -->|chọn đợt kiểm kê| K[MAN_HINH_109 Đếm kiểm kê]
+```
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Quản lý kho | Thủ kho | Nhân viên không có quyền kho |
+|---|---|---|---|---|
+| MAN_HINH_105, MAN_HINH_106 | Dùng | Dùng | Dùng | Bị từ chối khi đăng nhập |
+| MAN_HINH_107, MAN_HINH_108 | Mọi thao tác | Mọi thao tác | Mọi thao tác trừ kiểm kê quản lý | Không thấy |
+| MAN_HINH_109 | Đếm, thấy tồn sổ sách | Đếm, thấy tồn sổ sách | Đếm (đếm mù) | Không thấy |
+
+## 66. Đặc tả màn hình (ứng dụng kho)
+
+- MAN_HINH_105 (`/dang-nhap`): thanh đầu "VComm Kho"; tiêu đề "Đăng nhập"; ô "Email, tên đăng nhập hoặc số điện thoại", "Mật khẩu", nút "Đăng nhập" (API_137). Tài khoản bắt buộc xác thực hai lớp: "Mã xác thực hai lớp", "Nhập mã 6 số trong ứng dụng xác thực.", "Xác nhận", "Dùng mã dự phòng", "Quay lại đăng nhập"; chưa đăng ký: "Tài khoản của bạn bắt buộc xác thực hai lớp. Hãy đăng ký trên trang web VComm rồi đăng nhập lại.". Không có quyền kho: "Tài khoản không có quyền dùng ứng dụng kho.".
+- MAN_HINH_106 (`/kho`): thanh đầu tên kho, "<công ty> · <họ tên>", nút "Đổi kho"; chưa chọn: thẻ "Công ty" (khi nhiều công ty), "Kho" (kho thao tác được, đang dùng); ô quét "Quét hoặc nhập mã hàng để tra tồn" và nút "Camera"; thẻ kết quả: tên hàng, "<mã hàng> · Chủ hàng <công ty> · Đơn vị cơ sở: <đơn vị>", "Tồn … · Giữ … · Khả dụng …", từng dòng lô, vị trí, số lượng, serial; không hiện giá vốn; lưới thao tác "Nhận hàng", "Xuất giao hàng", "Nhập khác", "Xuất khác", "Chuyển kho", "Kiểm kê" theo quyền; "Đăng xuất".
+- MAN_HINH_107 (`/viec/<thao tác>`): thanh đầu tên thao tác, tên kho, "‹"; Chuyển kho có lựa chọn "Chờ nhận", "Chờ xuất", "Nháp, chờ duyệt, bị từ chối"; ô quét "Quét hoặc nhập số đơn, số phiếu" mở đúng đơn, phiếu; danh sách số đơn hoặc số phiếu, nhãn trạng thái, "<ngày> · <lý do hoặc kho> · <số dòng> dòng"; danh sách trống có câu riêng từng thao tác; nút cuối "Lập phiếu … mới" với Nhập khác, Xuất khác, Chuyển kho.
+- MAN_HINH_108 (`/don?loai=&donId=`, `/phieu?loai=&phieuId=`): thanh vị trí "Vị trí hiện tại: <mã>" hoặc "Quét mã vị trí trước khi quét hàng." (kho dùng vị trí); ô quét "Quét mã hàng, vị trí, serial", nút "Camera"; thông báo "Đã thêm: …", "Không tìm thấy mã …", "Đã ghi serial …"; phiếu không theo đơn có "Công ty chủ hàng" (khi nhiều), "Loại lý do", "Lý do", "Kho đích" (chuyển kho); mỗi dòng: tên, mã hàng, vị trí, "Còn phải nhận/xuất …" (theo đơn), nút "Bỏ", tăng giảm số lượng và đơn vị; hàng serial: "Đã quét … (serial)", "Đang chờ quét serial", thẻ serial bỏ được; nhập: "Số lô", "Hạn dùng (năm-tháng-ngày)", "Đơn giá (mỗi <đơn vị>)" (nhập khác); xuất: chọn lô "<lô> · HSD … · còn …" có nhãn "gợi ý", chọn lô khác thì "Lý do chọn lô khác gợi ý". Nút cuối: theo đơn "Ghi nhận nhập kho", "Ghi nhận xuất kho" (lập phiếu rồi gửi; thành công "Đã ghi sổ phiếu …"); phiếu kho "Lưu nháp", "Gửi", "Rút phiếu", "Xác nhận xuất"; nhận chuyển kho: số thực nhận từng dòng (quét cộng dần), "Điền đủ theo số đã xuất", "Xác nhận nhận"; biên bản chênh lệch sau khi nhận. Rời màn hình khi còn dữ liệu chưa gửi: "Còn dữ liệu chưa gửi. Rời màn hình thì phần này sẽ mất." với "Ở lại", "Rời màn hình".
+- MAN_HINH_109 (`/kiem-ke/<id>`): thanh đầu "Kiểm kê <số>", "<kho> · <chủ hàng>"; vị trí hiện tại, ô quét; thẻ "Chưa gửi (<n> dòng)" (số lượng theo đơn vị cơ sở, nhập số âm để trừ, chọn lô kể cả lô hết hạn, serial); "Số đếm được cộng vào số của mọi người cùng đếm. Đếm nhầm thì nhập số âm để trừ lại."; nút "Gửi số đếm" (API_138), thành công "Đã gửi <n> dòng số đếm."; thẻ "Đã gửi của tôi" (API_139: mặt hàng, số cộng có dấu, lô, vị trí, serial, giờ); thẻ "Tổng số đếm của đợt": "Đã đếm …", người quản lý thêm "Sổ sách … · chênh lệch …"; người đếm mù thấy "Bạn chỉ thấy số đã đếm; tồn sổ sách và chênh lệch chỉ người quản lý kiểm kê thấy.".
+- MAN_HINH_34 (web, sửa): người không có `inventory.stocktake.manage` tại kho thấy cột tồn sổ sách "—", không thấy dòng chưa ai đếm (đếm mù, QUYTAC_NGHIEPVU_283).
+- Trạng thái phê duyệt: bản mẫu được người dùng duyệt ngày 2026-11-11; ảnh xem trước ở `tam_thoi/CONG_VIEC_44/`.

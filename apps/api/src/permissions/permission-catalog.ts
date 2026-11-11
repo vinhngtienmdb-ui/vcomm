@@ -60,6 +60,8 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "inventory.cost.view", appCode: "inventory", nameVi: "Xem giá vốn, giá trị tồn", nameEn: "View stock cost and value", isSensitive: true },
   { code: "inventory.document.manage", appCode: "inventory", nameVi: "Lập phiếu kho", nameEn: "Manage stock documents", isSensitive: false },
   { code: "inventory.stocktake.manage", appCode: "inventory", nameVi: "Kiểm kê", nameEn: "Manage stocktakes", isSensitive: false },
+  // QUYTAC_NGHIEPVU_283: chỉ cộng số đếm khi đợt đang đếm (CONG_VIEC_44).
+  { code: "inventory.stocktake.count", appCode: "inventory", nameVi: "Đếm kiểm kê", nameEn: "Count stocktakes", isSensitive: false },
   { code: "inventory.reservation.manage", appCode: "inventory", nameVi: "Quản lý giữ hàng, tồn an toàn", nameEn: "Manage reservations and stock levels", isSensitive: false },
   // CONG_VIEC_06: danh mục đối tác (MODULE_07, phần tối thiểu).
   { code: "crm.partner.view", appCode: "crm", nameVi: "Xem đối tác", nameEn: "View partners", isSensitive: false },
@@ -226,6 +228,7 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "inventory.document.manage",
       "inventory.purchase.receive",
       "inventory.sales.issue",
+      "inventory.stocktake.count",
       "crm.partner.view",
       "purchasing.access",
       "purchasing.requisition.create",

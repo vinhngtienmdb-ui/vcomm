@@ -1,0 +1,49 @@
+/* Bản mẫu ứng dụng kho (CONG_VIEC_44) – khổ điện thoại; biến lấy từ chung.css (tài liệu 15). */
+@import url("chung.css");
+body { display: flex; justify-content: center; padding: var(--khoang-4); }
+.dien-thoai { width: 390px; max-width: 100%; min-height: 780px; background: var(--mau-nen); border: 1px solid var(--mau-vien); border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--bong-noi); }
+.dau { background: var(--mau-thanh-tren); color: #fff; padding: var(--khoang-3) var(--khoang-4); display: flex; align-items: center; gap: var(--khoang-2); }
+.dau .tieu { flex: 1; font-weight: 700; font-size: 16px; }
+.dau .phu { font-size: 12px; opacity: .85; display: block; font-weight: 400; }
+.dau button { background: rgba(255,255,255,.14); color: #fff; border: 0; border-radius: var(--bo-tron); padding: 4px 12px; font: inherit; font-size: 13px; }
+.than-dt { flex: 1; padding: var(--khoang-4); display: grid; gap: var(--khoang-3); align-content: start; }
+.the { background: var(--mau-be-mat); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); padding: var(--khoang-3) var(--khoang-4); display: grid; gap: var(--khoang-2); }
+.the h3 { font-size: 15px; }
+.phu-chu { color: var(--mau-chu-phu); font-size: 13px; }
+.o-quet { display: flex; gap: var(--khoang-2); }
+.o-quet input { flex: 1; min-height: 48px; border: 2px solid var(--mau-chinh); border-radius: var(--bo-vua); padding: 0 var(--khoang-3); font: inherit; font-size: 16px; }
+.nut-camera { min-width: 48px; min-height: 48px; border-radius: var(--bo-vua); border: 1px solid var(--mau-vien-o-nhap); background: var(--mau-be-mat); font: inherit; }
+.nut { text-align: center; justify-content: center; min-height: 44px; border-radius: var(--bo-vua); border: 0; font: inherit; font-weight: 700; padding: 0 var(--khoang-4); }
+.nut.chinh { background: var(--mau-chinh); color: #fff; }
+.nut.phu { background: var(--mau-be-mat); color: var(--mau-chinh); border: 1px solid var(--mau-chinh); }
+.nut.khoa { opacity: .5; }
+.luoi { display: grid; grid-template-columns: 1fr 1fr; gap: var(--khoang-3); }
+.o-thao-tac { background: var(--mau-be-mat); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); padding: var(--khoang-4) var(--khoang-3); text-align: center; font-weight: 700; color: var(--mau-chinh-dam); text-decoration: none; display: grid; gap: var(--khoang-1); }
+.o-thao-tac .so { font-size: 12px; font-weight: 400; color: var(--mau-chu-phu); }
+.dong { display: flex; flex-wrap: wrap; align-items: center; gap: var(--khoang-2); border-top: 1px solid var(--mau-vien); padding-top: var(--khoang-2); }
+.dong:first-of-type { border-top: 0; padding-top: 0; }
+.dong .chinh-dong { flex: 1 1 200px; min-width: 0; display: grid; gap: var(--khoang-1); }
+.dong .ten { font-weight: 700; }
+.so-luong { margin-left: auto; display: flex; align-items: center; gap: var(--khoang-1); }
+.so-luong button { width: 36px; height: 36px; border-radius: var(--bo-nho); border: 1px solid var(--mau-vien-o-nhap); background: var(--mau-be-mat); font: inherit; font-weight: 700; }
+.so-luong input { width: 56px; height: 36px; text-align: center; border: 1px solid var(--mau-vien-o-nhap); border-radius: var(--bo-nho); font: inherit; }
+.nhan { display: inline-block; padding: 0 8px; border-radius: var(--bo-tron); font-size: 12px; font-weight: 700; line-height: 20px; }
+.nhan.xanh { background: var(--mau-thanh-cong-nen); color: var(--mau-thanh-cong); }
+.nhan.vang { background: var(--mau-canh-bao-nen); color: var(--mau-canh-bao); }
+.nhan.lam { background: var(--mau-thong-tin-nen); color: var(--mau-thong-tin); }
+.thong-bao { border-radius: var(--bo-vua); padding: var(--khoang-2) var(--khoang-3); font-size: 13px; }
+.thong-bao.loi { background: var(--mau-loi-nen); color: var(--mau-loi); }
+.thong-bao.tot { background: var(--mau-thanh-cong-nen); color: var(--mau-thanh-cong); }
+.thong-bao.tin { background: var(--mau-thong-tin-nen); color: var(--mau-thong-tin); }
+.vi-tri { background: var(--mau-chinh-nhat); color: var(--mau-chinh-dam); border-radius: var(--bo-vua); padding: var(--khoang-2) var(--khoang-3); font-weight: 700; }
+.chan { position: sticky; bottom: 0; background: var(--mau-be-mat); border-top: 1px solid var(--mau-vien); padding: var(--khoang-3) var(--khoang-4); display: flex; gap: var(--khoang-2); }
+.chan .nut { flex: 1; }
+.truong { display: grid; gap: var(--khoang-1); }
+.truong label { font-weight: 600; font-size: 13px; }
+.truong input, .truong select { min-height: 44px; border: 1px solid var(--mau-vien-o-nhap); border-radius: var(--bo-nho); padding: 0 var(--khoang-3); font: inherit; background: var(--mau-be-mat); }
+.the-chon { display: flex; gap: var(--khoang-2); overflow-x: auto; }
+.the-chon a { white-space: nowrap; padding: 6px 12px; border-radius: var(--bo-tron); border: 1px solid var(--mau-vien); color: var(--mau-chu-phu); text-decoration: none; font-size: 13px; background: var(--mau-be-mat); }
+.the-chon a.chon { background: var(--mau-chinh); color: #fff; border-color: var(--mau-chinh); }
+.ghi-chu-ban-mau { max-width: 360px; margin-left: var(--khoang-5); font-size: 13px; color: var(--mau-chu-phu); }
+.ghi-chu-ban-mau h2 { font-size: 16px; color: var(--mau-chu); }
+@media (max-width: 820px) { body { flex-direction: column; align-items: center; } .ghi-chu-ban-mau { margin: var(--khoang-4) 0 0; } }

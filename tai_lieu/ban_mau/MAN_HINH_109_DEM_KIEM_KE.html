@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_109 Đếm kiểm kê – Ứng dụng kho</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="kho_dien_thoai.css">
+</head>
+<body>
+<div class="dien-thoai">
+  <div class="dau"><button>‹</button><span class="tieu">Kiểm kê KK-2026-00007<span class="phu">Kho Bình Dương · chủ hàng VCR · Đang đếm</span></span></div>
+  <div class="than-dt">
+    <div class="vi-tri">Vị trí hiện tại: B-02-01</div>
+    <div class="o-quet"><input placeholder="Quét mã hàng, vị trí, serial" autofocus aria-label="Ô quét"><button class="nut-camera" aria-label="Quét bằng camera">📷</button></div>
+    <div class="the">
+      <h3>Chưa gửi (3 lần quét)</h3>
+      <div class="dong"><div class="chinh-dong"><div class="ten">Dầu gội Thảo Mộc 300 ml</div><span class="phu-chu">Lô L2610-02 · B-02-01</span></div><div class="so-luong"><button>−</button><input value="12" aria-label="Số đếm thêm"><button>+</button></div></div>
+      <div class="dong"><div class="chinh-dong"><div class="ten">Máy sấy tóc HD-200</div><span class="phu-chu">B-02-01 · SN-HD200-0101</span></div><button class="nut phu">Bỏ</button></div>
+    </div>
+    <div class="thong-bao tin">Số đếm được cộng vào số của mọi người cùng đếm. Đếm nhầm thì nhập số âm để trừ lại.</div>
+    <div class="the">
+      <h3>Đã gửi của tôi</h3>
+      <div class="dong"><div class="chinh-dong"><div class="ten">Dầu gội Thảo Mộc 300 ml · +24</div><span class="phu-chu">Lô L2610-02 · B-02-01 · 09:42</span></div></div>
+      <div class="dong"><div class="chinh-dong"><div class="ten">Kem xả Thảo Mộc 300 ml · +6</div><span class="phu-chu">Lô L2609-11 · B-02-02 · 09:35</span></div></div>
+    </div>
+    <div class="the">
+      <h3>Tổng số đếm của đợt</h3>
+      <div class="dong"><div class="chinh-dong"><div class="ten">Dầu gội Thảo Mộc 300 ml</div><span class="phu-chu">Lô L2610-02 · B-02-01</span></div><div>Đã đếm <b>36</b></div></div>
+      <span class="phu-chu">Quản lý kho thấy thêm tồn sổ sách và chênh lệch; Thủ kho chỉ thấy số đã đếm (đếm mù).</span>
+    </div>
+  </div>
+  <div class="chan"><button class="nut chinh">Gửi số đếm</button></div>
+</div>
+<div class="ghi-chu-ban-mau"><h2>MAN_HINH_109 Đếm kiểm kê</h2><p>Quét thêm vào danh sách chưa gửi; "Gửi số đếm" gọi API_138 cộng dồn. "Đã gửi của tôi" từ API_139. Hàng theo lô: quét mã hàng rồi chọn lô trong hộp chọn (lô đã có của mặt hàng). Hàng serial: quét serial, số đếm bằng số serial. Lập, bắt đầu, kết thúc đợt làm trên web.</p><p><a href="index.html">Mục lục bản mẫu</a></p></div>
+</body>
+</html>
