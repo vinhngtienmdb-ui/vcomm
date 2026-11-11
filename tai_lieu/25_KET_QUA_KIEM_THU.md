@@ -2,7 +2,7 @@
 
 - Mô tả: Kết quả từng lần kiểm thử và danh sách lỗi.
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-09
+- Ngày cập nhật: 2026-11-11
 - Trạng thái: Đang cập nhật
 
 ## Lần kiểm thử 2026-11-09 – CONG_VIEC_02
@@ -182,6 +182,23 @@
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập đã sửa các lỗi tìm được (commit `fix` 2c92a77). Rà soát bảo mật tài liệu 22 sửa thêm 2 điểm: rút chương trình không ghi nhật ký; số suất tặng quá lớn trả lỗi máy chủ (commit 57bbcd0). Giữ lại (ghi tài liệu 22): chương trình không có ngân sách gửi duyệt với giá trị 0, chính sách duyệt chỉ có cấp từ mức lớn hơn 0 sẽ không áp (người dùng quyết định giữ, công ty đặt cấp từ 0 đồng).
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
+
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_24
+
+- Phạm vi: lát L0 đến L4 (cài đặt bán hàng VComm, đăng bán, người mua thử, danh mục tỉnh xã hai cấp, sổ địa chỉ, cửa hàng, giỏ hàng, đặt hàng thanh toán khi nhận hàng, hủy đơn, giao GHN qua khung đơn vị vận chuyển, webhook, hoàn hàng, trả hàng trong 7 ngày, tự hoàn tất) và các bản sửa sau rà soát độc lập.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22; Expo bản web cổng 8083; GHN giả lập (máy chủ HTTP trong kiểm thử; `tam_thoi/CONG_VIEC_24/ghn_gia_lap.js` khi xem trước).
+- Lệnh đã chạy: `pnpm --filter api typecheck`, `pnpm lint` (api, web-crm, mobile-vcomm), `pnpm --filter web-crm typecheck`, `pnpm --filter api test`, `pnpm audit`; database migration 0025, 0026 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright: cài đặt bán hàng, đăng bán, người mua thử, đơn VComm, yêu cầu trả hàng (web-crm máy tính, điện thoại); ứng dụng: cửa hàng, chi tiết, giỏ, sổ địa chỉ, đặt hàng, đơn của tôi, chi tiết đơn, trả hàng kèm ảnh (khổ iPhone 13).
+- Kết quả: 324 đạt / 0 không đạt / 324 kịch bản tự động (40 tệp; phần mới: `c24-marketplace-orders` 12, KICHBAN_KIEMTHU_310 đến 318 kèm phần bổ sung sau rà soát). KICHBAN_KIEMTHU_319, 320 (thủ công) đạt, không lỗi trình duyệt, không cuộn ngang.
+- Kiểm thử đã duyệt được sửa: không.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_175 đến 182 (bắt buộc) – Đạt. TIEUCHI_NGHIEMTHU_183 (mong muốn) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit`: không thêm thư viện; 2 lỗ hổng Trung bình đã biết trong `@expo/cli` (rủi ro đã chấp nhận, tài liệu 22 mục 8).
+  - C2 gitleaks trong CI (pull request số 60) chưa chạy được do tài khoản GitHub lỗi thanh toán; đã rà các dòng thêm mới không có khóa bí mật; token GHN ở biến môi trường.
+  - C3 phân quyền: Đạt – người mua chỉ xem, sửa giỏ, địa chỉ, đơn, yêu cầu trả hàng, ảnh của mình (`404` với của người khác); người mua không vào API quản trị; quản trị thao tác trong công ty vận hành sàn; webhook sai khóa `403`, đếm lần sai theo IP; trạng thái lấy theo tra lại từ GHN.
+  - C4 toàn vẹn dữ liệu: Đạt – đặt hàng khóa tài khoản người mua, so tổng đã thấy; giữ hàng không thời hạn tới khi xuất; vận đơn chờ xác nhận chặn giao trùng, chỉ một lần tạo ở GHN khi mất phản hồi; nhận webhook trùng không đổi kết quả; hoàn hàng nhập lại kho đúng số đã xuất; một yêu cầu trả hàng đang xử lý mỗi đơn; hoàn tất khóa đơn trước khi xét yêu cầu.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập không thấy lỗi Nghiêm trọng; tìm 2 lỗi Cao (gọi GHN trong giao dịch có thể để lại vận đơn ngoài hệ thống; đơn VComm xử lý được từ màn hình đơn bán, phiếu kho làm kẹt hàng giữ), 3 Trung bình, các mục Thấp; đã sửa ở commit d8e3f7c, kiểm thử lại đạt. Ghi nhận còn lại ở đặc tả mục 16. Tệp tạm trong `tam_thoi/CONG_VIEC_24/` (Git bỏ qua).
+- Kết luận cổng kiểm thử: Đạt.
+- Kết luận: Chờ người dùng nghiệm thu; pull request số 60 (nền pull request số 59).
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_27
 
