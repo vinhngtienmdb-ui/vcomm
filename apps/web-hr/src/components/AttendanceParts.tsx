@@ -50,19 +50,25 @@ export function Tabs({ labels, selected, onSelect }: { labels: string[]; selecte
 // Ký hiệu và màu của một ô công (bản mẫu MAN_HINH_121).
 export function dayTone(day: AttendanceDayCell): "thanh-cong" | "canh-bao" | "loi" | "thong-tin" | "trung-tinh" {
   if (day.status === "absent" || day.status === "missing_punch") return "loi";
+  if (day.status === "leave") return "thong-tin";
   if (day.status === "rest" || day.status === "holiday" || day.status === "scheduled") return "trung-tinh";
   if (day.lateMinutes > 0 || day.earlyMinutes > 0) return "canh-bao";
   return Number(day.plannedUnits) < 1 ? "thong-tin" : "thanh-cong";
 }
 
 export function daySymbol(day: AttendanceDayCell): string {
-  if (day.status === "absent") return "V";
+  if (day.status === "leave") return leaveSymbol(day.leavePayGroup);
+  if (day.status === "absent") return Number(day.leaveUnits) > 0 ? `V/${leaveSymbol(day.leavePayGroup)}` : "V";
   if (day.status === "missing_punch") return "!";
   if (day.status === "holiday") return "L";
   if (day.status === "rest") return "–";
   if (day.status === "scheduled") return day.shiftCode ?? "·";
-  return Number(day.workedUnits).toLocaleString("vi-VN", { maximumFractionDigits: 2 });
+  const worked = Number(day.workedUnits).toLocaleString("vi-VN", { maximumFractionDigits: 2 });
+  return Number(day.leaveUnits) > 0 ? `${worked}/${leaveSymbol(day.leavePayGroup)}` : worked;
 }
+
+// Ký hiệu nghỉ: P phép năm, R việc riêng có lương, N nghỉ có lương khác, KL không lương, Ô bảo hiểm xã hội.
+const leaveSymbol = (group: AttendanceDayCell["leavePayGroup"]) => ({ annual: "P", paid_personal: "R", paid_other: "N", unpaid: "KL", social_insurance: "Ô" })[group ?? "annual"];
 
 export function DayLegend() {
   const t = useTranslations("attendance");
@@ -72,6 +78,10 @@ export function DayLegend() {
     ["0,5", "thong-tin", t("legendHalf")],
     ["L", "trung-tinh", t("legendHoliday")],
     ["–", "trung-tinh", t("legendRest")],
+    ["P", "thong-tin", t("legendAnnual")],
+    ["R", "thong-tin", t("legendPersonal")],
+    ["KL", "thong-tin", t("legendUnpaid")],
+    ["Ô", "thong-tin", t("legendInsurance")],
     ["V", "loi", t("legendAbsent")],
     ["!", "loi", t("legendMissing")],
   ];

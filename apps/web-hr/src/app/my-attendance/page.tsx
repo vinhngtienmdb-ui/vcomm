@@ -2,7 +2,7 @@
 
 // MAN_HINH_122 Chấm công của tôi (CHUC_NANG_165, 167; API_152, API_155): thiết kế cho điện thoại. Vào ca, ra ca bằng GPS, mạng công ty hoặc mã QR;
 // lịch ca tuần, công tháng, đơn giải trình. Mở từ mã QR: đường dẫn có l (địa điểm), t (mã), c (công ty).
-import type { CorrectionItem, CorrectionKind, MyAttendanceMonthResponse, MyAttendanceResponse, MyWeekResponse } from "contracts";
+import type { CorrectionItem, CorrectionKind, MyLeaveResponse, MyAttendanceMonthResponse, MyAttendanceResponse, MyWeekResponse } from "contracts";
 import { correctionKinds } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -14,6 +14,7 @@ import { Loaded, MessageView } from "ui/components/StatusViews";
 import { apiFetch, apiUpload, rememberCompany, selectedCompanyId } from "ui/lib/api";
 import { formatDate, vietnamToday } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
+import { LeaveRequestDrawer, LeaveStatusBadge, leavePeriod } from "@/components/LeaveParts";
 import { CorrectionStatusBadge, Table, Tabs, currentMonth, dayTone, daySymbol, mondayOf, vietnamClock, weekdayLabel } from "@/components/AttendanceParts";
 
 type Position = { latitude: number; longitude: number; accuracyMeters: number };
@@ -54,6 +55,8 @@ function MyAttendance() {
   const [message, setMessage] = useState<{ tone: "thong-tin" | "loi"; text: string } | null>(null);
   const [locationConsent, setLocationConsent] = useState(false);
   const [correction, setCorrection] = useState<string | null>(null);
+  const leave = useApi<MyLeaveResponse>(companyReady ? "/hr/me/leave" : null);
+  const [leaving, setLeaving] = useState(false);
   const punch = async (useQr: boolean) => {
     setBusy(true);
     setMessage(null);
@@ -119,7 +122,24 @@ function MyAttendance() {
                     : t("punchesToday", { list: today.punches.map((item) => `${vietnamClock(item.punchedAt).slice(0, 5)} (${t(`source_${item.source}`)})`).join(", ") })}
                 </span>
               </div>
+              {leave.state.kind === "ready" && leave.state.data.balance && (
+                <div className="the">
+                  <dl className="thong-tin-dong">
+                    <dt>{t("annualAvailable")}</dt>
+                    <dd>
+                      {Number(leave.state.data.balance.available).toLocaleString("vi-VN")}
+                      {leave.state.data.balance.years
+                        .filter((year) => Number(year.balance) !== 0 && year.expiresOn)
+                        .map((year) => ` · ${year.leaveYear}: ${Number(year.balance).toLocaleString("vi-VN")} (${t("until", { date: formatDate(year.expiresOn) })})`)
+                        .join("")}
+                    </dd>
+                  </dl>
+                </div>
+              )}
               <div className="nhom-nut">
+                <button type="button" className="nut phu" onClick={() => setLeaving(true)}>
+                  {t("newLeave")}
+                </button>
                 <button type="button" className="nut phu" onClick={() => setCorrection(vietnamToday())}>
                   {t("newCorrection")}
                 </button>
@@ -137,11 +157,23 @@ function MyAttendance() {
               <Tabs labels={[t("tabWeek"), t("tabMonth"), t("tabRequests")]} selected={tab} onSelect={setTab} />
               {tab === 0 && <WeekTab />}
               {tab === 1 && <MonthTab key={today.punches.length} onCorrect={setCorrection} />}
-              {tab === 2 && <RequestsTab />}
+              {tab === 2 && <RequestsTab leave={leave.state.kind === "ready" ? leave.state.data : null} onChanged={() => void leave.reload()} />}
             </>
           )
         }
       </Loaded>
+      {leaving && leave.state.kind === "ready" && (
+        <LeaveRequestDrawer
+          self
+          types={leave.state.data.types}
+          onClose={() => setLeaving(false)}
+          onSaved={() => {
+            setLeaving(false);
+            setTab(2);
+            void leave.reload();
+          }}
+        />
+      )}
       {correction && <CorrectionDrawer date={correction} onClose={() => setCorrection(null)} onSaved={() => (setCorrection(null), setTab(2))} />}
     </div>
   );
@@ -244,51 +276,98 @@ function MonthTab({ onCorrect }: { onCorrect: (date: string) => void }) {
   );
 }
 
-function RequestsTab() {
+function RequestsTab({ leave, onChanged }: { leave: MyLeaveResponse | null; onChanged: () => void }) {
   const t = useTranslations("myAttendance");
+  const leaveText = useTranslations("leave");
   const { state, reload } = useApi<CorrectionItem[]>("/hr/me/attendance/corrections");
   const [busy, setBusy] = useState<string | null>(null);
+  const act = async (id: string, path: string, body?: unknown) => {
+    setBusy(id);
+    try {
+      await apiFetch(path, { method: "POST", ...(body ? { body: JSON.stringify(body) } : {}) });
+      onChanged();
+    } finally {
+      setBusy(null);
+    }
+  };
   return (
-    <Loaded state={state} onRetry={() => void reload()}>
-      {(items) =>
-        items.length === 0 ? (
-          <MessageView text={t("noRequests")} />
-        ) : (
-          <Table
-            headings={[t("number"), t("type"), t("time"), t("status"), ""]}
-            rows={items.map((item) => ({
-              key: item.id,
-              cells: [
-                item.correctionNo ?? "—",
-                `${t("correction")} · ${t(`kind_${item.kind}`)}`,
-                `${formatDate(item.workDate)} · ${item.checkIn ?? "—"} → ${item.checkOut ?? "—"}`,
-                <CorrectionStatusBadge status={item.status} />,
-                item.canWithdraw ? (
-                  <button
-                    type="button"
-                    className={`nut chu${busy === item.id ? " dang-xu-ly" : ""}`}
-                    disabled={busy !== null}
-                    onClick={async () => {
-                      setBusy(item.id);
-                      try {
-                        await apiFetch(`/hr/me/attendance/corrections/${item.id}/withdraw`, { method: "POST" });
-                        await reload();
-                      } finally {
-                        setBusy(null);
-                      }
-                    }}
-                  >
-                    {t("withdraw")}
-                  </button>
-                ) : (
-                  ""
-                ),
-              ],
-            }))}
-          />
-        )
-      }
-    </Loaded>
+    <>
+      {leave && leave.requests.length > 0 && (
+        <Table
+          headings={[t("number"), t("type"), t("time"), t("status"), ""]}
+          rows={leave.requests.map((item) => ({
+            key: item.id,
+            cells: [
+              item.requestNo,
+              `${leaveText("leaveShort")} · ${item.leaveTypeName}`,
+              `${leavePeriod(item, (key) => leaveText(`half_${key}`))} · ${Number(item.days).toLocaleString("vi-VN")} ${leaveText("daysUnit")}`,
+              <LeaveStatusBadge status={item.status} />,
+              item.canWithdraw ? (
+                <button type="button" className="nut chu" disabled={busy !== null} onClick={() => void act(item.id, `/hr/me/leave/requests/${item.id}/withdraw`)}>
+                  {t("withdraw")}
+                </button>
+              ) : item.canCancel ? (
+                <button
+                  type="button"
+                  className="nut chu"
+                  disabled={busy !== null}
+                  onClick={() => {
+                    const reason = window.prompt(leaveText("cancelPrompt"));
+                    if (reason) void act(item.id, `/hr/me/leave/requests/${item.id}/cancel`, { reason });
+                  }}
+                >
+                  {leaveText("cancelRequest")}
+                </button>
+              ) : (
+                ""
+              ),
+            ],
+          }))}
+        />
+      )}
+      <Loaded state={state} onRetry={() => void reload()}>
+        {(items) =>
+          items.length === 0 ? (
+            leave && leave.requests.length > 0 ? null : (
+              <MessageView text={t("noRequests")} />
+            )
+          ) : (
+            <Table
+              headings={[t("number"), t("type"), t("time"), t("status"), ""]}
+              rows={items.map((item) => ({
+                key: item.id,
+                cells: [
+                  item.correctionNo ?? "—",
+                  `${t("correction")} · ${t(`kind_${item.kind}`)}`,
+                  `${formatDate(item.workDate)} · ${item.checkIn ?? "—"} → ${item.checkOut ?? "—"}`,
+                  <CorrectionStatusBadge status={item.status} />,
+                  item.canWithdraw ? (
+                    <button
+                      type="button"
+                      className={`nut chu${busy === item.id ? " dang-xu-ly" : ""}`}
+                      disabled={busy !== null}
+                      onClick={async () => {
+                        setBusy(item.id);
+                        try {
+                          await apiFetch(`/hr/me/attendance/corrections/${item.id}/withdraw`, { method: "POST" });
+                          await reload();
+                        } finally {
+                          setBusy(null);
+                        }
+                      }}
+                    >
+                      {t("withdraw")}
+                    </button>
+                  ) : (
+                    ""
+                  ),
+                ],
+              }))}
+            />
+          )
+        }
+      </Loaded>
+    </>
   );
 }
 
