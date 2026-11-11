@@ -1909,6 +1909,16 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 8:
 - Dữ liệu: không xóa dữ liệu giao khách, giao dịch nội bộ đã có; bút toán cũ nguồn hoa hồng giữ nguyên.
 - Không thêm thư viện.
 
+## MODULE_08 Nhân sự (phần 1, CONG_VIEC_46)
+
+| Mã | Chức năng | Yêu cầu |
+|---|---|---|
+| CHUC_NANG_162 | Hồ sơ nhân sự: danh sách, lập, sửa; liên kết tài khoản; giấy tờ và tệp; ghi nhận đồng ý xử lý dữ liệu nhạy cảm; người phụ thuộc; quá trình công tác (tự cập nhật thành viên công ty khi đến ngày hiệu lực); nghỉ việc; trang "Hồ sơ của tôi" | YCAU_NGHIEPVU_59, 60, 61, 62, 65 |
+| CHUC_NANG_163 | Hợp đồng lao động, hợp đồng thử việc, phụ lục: lập, sửa, gửi duyệt, rút, xác nhận đã ký (tải bản đã ký), chấm dứt, hủy; giá trị hiện hành sau phụ lục | YCAU_NGHIEPVU_63, 64 |
+| CHUC_NANG_164 | Nhắc hết hạn hợp đồng: danh sách sắp hết hạn, đã hết hạn chưa xử lý; thông báo theo mốc | YCAU_NGHIEPVU_65 |
+
+Yêu cầu phi chức năng: số giấy tờ, tài khoản ngân hàng, mã số thuế, số sổ bảo hiểm xã hội mã hóa khi lưu, mỗi lần hiện hoặc tải tệp ghi nhật ký thao tác; việc nền áp dụng quyết định công tác lúc 0 giờ 5 phút, nhắc hết hạn lúc 7 giờ giờ Việt Nam. Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md`.
+
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Vị trí | Nội dung |

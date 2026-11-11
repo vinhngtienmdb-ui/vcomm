@@ -3129,3 +3129,16 @@ Quy tắc xóa và lưu giữ bổ sung:
 - Bút toán cũ nguồn `commission` (nếu có) giữ nguyên trong sổ.
 - Không xóa dữ liệu giao khách, lịch sử phụ trách, giao dịch nội bộ đã có.
 - Phiếu dịch vụ không sửa, không xóa (ghi sổ ngay khi lập).
+
+## 28. Database migration 0070 đến 0072 – CONG_VIEC_46 (schema `hr`, Nhân sự phần 1)
+
+| Tệp | Nội dung |
+|---|---|
+| `0070_hr_employees.sql` | Schema `hr`; `hr.employees` (cột `*_encrypted` mã hóa AES-256-GCM ở máy chủ, `*_last4` để che, `identity_hash` HMAC kiểm trùng; chỉ mục duy nhất mã không phân biệt hoa thường theo công ty, tài khoản theo công ty, số giấy tờ của hồ sơ đang làm); `hr.employee_documents`; `hr.dependents`; `hr.work_events` (duy nhất hồ sơ và ngày hiệu lực; `applied_at`) |
+| `0071_hr_contracts.sql` | `hr.contracts` (kiểm loại và ngày kết thúc, thử việc có mức công việc và lương chính thức, đã ký có ngày ký và tệp, đã chấm dứt có ngày và lý do), `hr.contract_appendices` (không có thời hạn), `hr.contract_allowances` |
+| `0072_hr_contract_reminders.sql` | `hr.contract_reminders` (duy nhất hợp đồng và mốc) |
+
+- Khóa ngoại chỉ trỏ `core` (công ty, người dùng, phòng ban, chi nhánh, yêu cầu duyệt). Module Nhân sự chỉ ghi schema `hr`; cập nhật thành viên công ty qua hàm của module người dùng.
+- Không xóa cứng hồ sơ, hợp đồng, phụ lục; quyết định công tác chưa hiệu lực nhập tay được xóa; khi nghỉ việc xóa quyết định chưa áp dụng từ ngày nghỉ.
+- Lưu giữ: hồ sơ đã nghỉ giữ nguyên, khóa truy cập; thời hạn lưu, khử nhận dạng chưa xác định (tài liệu `22` mục 8).
+- Tiền: `numeric(20,4)`.

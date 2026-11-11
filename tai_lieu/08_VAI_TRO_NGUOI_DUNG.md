@@ -568,3 +568,21 @@ Quyền đã xóa: `finance.commission.view`, `finance.commission.manage`, `fina
 | Đặt, đổi, bỏ nhân viên phụ trách trên hồ sơ đối tác | `crm.profile.manage` | Có | Trong công ty mình | Không | Không | Không |
 | Chọn loại sản phẩm Hàng hóa, Dịch vụ | Quyền sửa sản phẩm (CONG_VIEC_04) | Có | Trong công ty mình | Theo quyền | Không | Không |
 | Phiếu xuất, phiếu nhập dịch vụ | Hệ thống tự lập khi đơn xác nhận; không ai lập tay | – | – | – | – | – |
+
+## 40. Vai trò hệ thống của MODULE_08 Nhân sự (phần 1, CONG_VIEC_46)
+
+Quyền nhân sự gán ở phạm vi tập đoàn hoặc công ty (gán ở chi nhánh không dùng được). Quản trị tập đoàn, quản trị công ty có mọi quyền mới. Mọi quyền mới là nhạy cảm (dữ liệu cá nhân), người được gán bắt buộc xác thực hai lớp.
+
+| Vai trò | Mã | Phạm vi gán | Trách nhiệm | Quyền chính | Nhạy cảm |
+|---|---|---|---|---|---|
+| Quản lý nhân sự | `hr_manager` | Công ty | Hồ sơ, giấy tờ (xem số đầy đủ, tải tệp), hợp đồng, nghỉ việc | `hr.access`, `hr.employee.view`, `hr.employee.manage`, `hr.identity.view`, `hr.contract.manage`, `platform.proposal.create` | Có |
+| Nhân viên nhân sự | `hr_staff` | Công ty | Hồ sơ, hợp đồng; không xem số giấy tờ đầy đủ, không tải tệp giấy tờ | `hr.access`, `hr.employee.view`, `hr.employee.manage`, `hr.contract.manage` | Có |
+
+| Thao tác | Quản trị tập đoàn, công ty | Quản lý nhân sự | Nhân viên nhân sự | Người có `hr.employee.view` | Nhân viên có hồ sơ liên kết |
+|---|---|---|---|---|---|
+| Xem hồ sơ đang làm (số che) | Có | Có | Có | Có | Chỉ hồ sơ của mình |
+| Xem hồ sơ đã nghỉ | Có | Có | Có | Không | Không |
+| Lập, sửa hồ sơ, giấy tờ, người phụ thuộc, quá trình công tác, nghỉ việc | Có | Có | Có | Không | Không |
+| Hiện số giấy tờ đầy đủ, tải tệp giấy tờ, bản hợp đồng đã ký | Có | Có | Không | Không | Của chính mình |
+| Lập, gửi, ký, chấm dứt hợp đồng, phụ lục; xem lương | Có | Có | Có | Không (không thấy lương) | Xem hợp đồng đã ký của mình kèm lương |
+| Nhận nhắc hết hạn hợp đồng | Có | Có | Có | Không | Trưởng phòng của phòng ban trên hợp đồng |

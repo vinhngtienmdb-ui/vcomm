@@ -4518,3 +4518,366 @@ export interface BuyerWithdrawalInfo {
   // Yêu cầu đang chờ duyệt hoặc đã duyệt chưa chi.
   open: WithdrawalItem | null;
 }
+
+// CONG_VIEC_46: Nhân sự phần 1 (MODULE_08) – hồ sơ nhân sự (API_144 đến API_146, API_149).
+export const employeeGenders = ["male", "female"] as const;
+export const maritalStatuses = ["single", "married", "other"] as const;
+export const educationLevels = ["none", "elementary", "intermediate", "college", "university", "master", "doctorate"] as const;
+export const employeeDocumentKinds = ["identity_image", "qualification", "health_certificate", "resume", "data_consent", "guardian_consent", "other"] as const;
+export const dependentRelationships = ["child", "spouse", "parent", "other"] as const;
+export const workEventKinds = ["hire", "transfer", "title_change", "contract", "termination"] as const;
+export type EmployeeGender = (typeof employeeGenders)[number];
+export type MaritalStatus = (typeof maritalStatuses)[number];
+export type EducationLevel = (typeof educationLevels)[number];
+export type EmployeeDocumentKind = (typeof employeeDocumentKinds)[number];
+export type DependentRelationship = (typeof dependentRelationships)[number];
+export type WorkEventKind = (typeof workEventKinds)[number];
+// Trường mã hóa: bỏ trống (undefined) khi sửa là giữ giá trị cũ; null hoặc chuỗi rỗng là xóa.
+const protectedText = (maximum: number) => z.string().trim().max(maximum).nullable().optional();
+const monthStart = isoDate.refine((value) => value.endsWith("-01"), { message: "invalidValue" });
+
+export const saveEmployeeSchema = z
+  .object({
+    code: blankToNull(20),
+    fullName: z.string().trim().min(1).max(200),
+    gender: z.enum(employeeGenders),
+    birthDate: isoDate,
+    nationality: z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/).default("VN"),
+    identityNumber: protectedText(20),
+    residence: z.string().trim().min(1).max(500),
+    phone: blankToNull(20),
+    personalEmail: blankToNull(200),
+    contactAddress: blankToNull(500),
+    maritalStatus: z.enum(maritalStatuses).nullable().optional(),
+    educationLevel: z.enum(educationLevels).nullable().optional(),
+    major: blankToNull(200),
+    taxCode: protectedText(20),
+    socialInsuranceNumber: protectedText(20),
+    bankName: blankToNull(200),
+    bankAccountNumber: protectedText(30),
+    bankAccountHolder: blankToNull(200),
+    workPermitNumber: protectedText(30),
+    workPermitExpiry: isoDate.nullable().optional(),
+    emergencyContact: blankToNull(300),
+    // Chỉ khi lập: vị trí ban đầu, tạo quyết định "Vào làm".
+    hireDate: isoDate.optional(),
+    departmentId: z.string().uuid().optional(),
+    branchId: z.string().uuid().optional(),
+    jobTitle: z.string().trim().min(1).max(100).optional(),
+    userId: z.string().uuid().nullable().optional(),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveEmployeeRequest = z.input<typeof saveEmployeeSchema>;
+
+export const employeeListQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    departmentId: z.string().uuid().optional(),
+    branchId: z.string().uuid().optional(),
+    status: z.enum(["active", "terminated", "all"]).default("active"),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export interface EmployeePosition {
+  departmentId: string | null;
+  departmentName: string | null;
+  branchId: string | null;
+  branchName: string | null;
+  jobTitle: string | null;
+}
+export interface EmployeeListItem extends EmployeePosition {
+  id: string;
+  code: string;
+  fullName: string;
+  hireDate: string;
+  status: "active" | "terminated";
+  isMinor: boolean;
+  missingConsent: boolean;
+}
+export type EmployeeListResponse = PageResponse<EmployeeListItem>;
+
+export interface EmployeeResponse extends EmployeePosition {
+  id: string;
+  code: string;
+  fullName: string;
+  gender: EmployeeGender;
+  birthDate: string;
+  nationality: string;
+  identityKind: "citizen_id" | "passport";
+  // Dạng che "********1234"; giá trị đầy đủ lấy qua API hiện số (QUYTAC_NGHIEPVU_295).
+  identityNumber: string;
+  residence: string;
+  phone: string | null;
+  personalEmail: string | null;
+  contactAddress: string | null;
+  maritalStatus: MaritalStatus | null;
+  educationLevel: EducationLevel | null;
+  major: string | null;
+  taxCode: string | null;
+  socialInsuranceNumber: string | null;
+  bankName: string | null;
+  bankAccountNumber: string | null;
+  bankAccountHolder: string | null;
+  workPermitNumber: string | null;
+  workPermitExpiry: string | null;
+  emergencyContact: string | null;
+  hireDate: string;
+  status: "active" | "terminated";
+  terminationDate: string | null;
+  terminationReason: string | null;
+  userId: string | null;
+  userEmail: string | null;
+  isMinor: boolean;
+  missingConsent: boolean;
+  consentDate: string | null;
+  version: number;
+  canManage: boolean;
+  canViewIdentity: boolean;
+}
+
+export const revealFields = ["identityNumber", "taxCode", "socialInsuranceNumber", "bankAccountNumber", "workPermitNumber"] as const;
+export type RevealField = (typeof revealFields)[number];
+export const revealSchema = z.object({ field: z.enum(revealFields) }).strict();
+export interface RevealResponse {
+  field: string;
+  value: string | null;
+}
+
+export interface EmployeeOptionsResponse {
+  departments: { id: string; code: string; name: string }[];
+  branches: { id: string; code: string; name: string }[];
+  // Thành viên đang hoạt động của công ty chưa có hồ sơ (để liên kết).
+  users: { id: string; fullName: string; email: string | null }[];
+}
+
+export const uploadEmployeeDocumentSchema = z
+  .object({
+    kind: z.enum(employeeDocumentKinds),
+    consentDate: isoDate.optional(),
+  })
+  .strict();
+export interface EmployeeDocumentItem {
+  id: string;
+  kind: EmployeeDocumentKind;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  consentDate: string | null;
+  uploadedByName: string;
+  uploadedAt: string;
+}
+
+export const saveDependentSchema = z
+  .object({
+    fullName: z.string().trim().min(1).max(200),
+    relationship: z.enum(dependentRelationships),
+    birthDate: isoDate,
+    identityNumber: protectedText(20),
+    deductionFrom: monthStart,
+    deductionTo: monthStart.nullable().optional(),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export interface DependentItem {
+  id: string;
+  fullName: string;
+  relationship: DependentRelationship;
+  birthDate: string;
+  identityNumber: string | null;
+  deductionFrom: string;
+  deductionTo: string | null;
+  version: number;
+}
+
+export const saveWorkEventSchema = z
+  .object({
+    kind: z.enum(["transfer", "title_change"]),
+    effectiveDate: isoDate,
+    decisionNo: blankToNull(50),
+    departmentId: z.string().uuid().nullable().optional(),
+    branchId: z.string().uuid().nullable().optional(),
+    jobTitle: blankToNull(100),
+    note: blankToNull(500),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export interface WorkEventItem {
+  id: string;
+  kind: WorkEventKind;
+  effectiveDate: string;
+  decisionNo: string | null;
+  departmentName: string | null;
+  branchName: string | null;
+  jobTitle: string | null;
+  note: string | null;
+  sourceType: "manual" | "contract" | "appendix";
+  effective: boolean;
+  appliedAt: string | null;
+  version: number;
+}
+
+// API_149: hồ sơ của tôi.
+export interface MyEmployeeResponse {
+  employee: EmployeeResponse;
+  workEvents: WorkEventItem[];
+}
+
+// CONG_VIEC_46 lát L1: hợp đồng lao động, phụ lục, nghỉ việc (API_144, API_147, API_148).
+export const contractKinds = ["probation", "fixed_term", "indefinite"] as const;
+export const contractStatuses = ["draft", "pending", "approved", "signed", "rejected", "withdrawn", "cancelled", "terminated"] as const;
+export const probationLevels = ["manager", "college", "intermediate", "other"] as const;
+export const salaryPaymentMethods = ["transfer", "cash"] as const;
+export const terminationReasons = ["expired", "completed", "mutual", "employee_unilateral", "employer_unilateral", "redundancy", "disciplinary", "probation_failed", "death", "other"] as const;
+export type ContractKind = (typeof contractKinds)[number];
+export type ContractStatus = (typeof contractStatuses)[number];
+export type ProbationLevel = (typeof probationLevels)[number];
+export type SalaryPaymentMethod = (typeof salaryPaymentMethods)[number];
+export type TerminationReason = (typeof terminationReasons)[number];
+// Tình trạng hiệu lực tính theo ngày (QUYTAC_NGHIEPVU_299).
+export type ContractValidity = "not_started" | "active" | "expired" | "terminated" | null;
+
+const allowanceSchema = z.object({ name: z.string().trim().min(1).max(100), amount: decimalText(4) }).strict();
+
+export const saveContractSchema = z
+  .object({
+    employeeId: z.string().uuid(),
+    kind: z.enum(contractKinds),
+    effectiveDate: isoDate,
+    endDate: isoDate.nullable().optional(),
+    jobTitle: z.string().trim().min(1).max(100),
+    departmentId: z.string().uuid(),
+    branchId: z.string().uuid(),
+    salary: decimalText(4),
+    probationLevel: z.enum(probationLevels).nullable().optional(),
+    officialSalary: decimalText(4).nullable().optional(),
+    paymentMethod: z.enum(salaryPaymentMethods).default("transfer"),
+    allowances: z.array(allowanceSchema).max(20).default([]),
+    signerName: z.string().trim().min(1).max(200),
+    signerTitle: z.string().trim().min(1).max(100),
+    otherTerms: blankToNull(4000),
+    legalExceptionReason: blankToNull(500),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveContractRequest = z.input<typeof saveContractSchema>;
+
+export const contractListQuerySchema = z
+  .object({
+    employeeId: z.string().uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    kind: z.enum(contractKinds).optional(),
+    status: z.enum(contractStatuses).optional(),
+    expiring: z.enum(["true", "false"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export const signContractSchema = z.object({ signDate: isoDate }).strict();
+export const cancelContractSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export const terminateContractSchema = z
+  .object({ terminationDate: isoDate, reason: z.enum(terminationReasons), note: blankToNull(1000) })
+  .strict();
+export const terminateEmployeeSchema = terminateContractSchema;
+
+export interface ContractAllowance {
+  name: string;
+  amount: string;
+}
+export interface ContractTerms {
+  jobTitle: string;
+  departmentId: string;
+  departmentName: string;
+  branchId: string;
+  branchName: string;
+  // null khi người xem không có quyền xem mức lương.
+  salary: string | null;
+  paymentMethod: SalaryPaymentMethod;
+  allowances: ContractAllowance[] | null;
+}
+export interface ContractListItem {
+  id: string;
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  documentNo: string | null;
+  kind: ContractKind;
+  status: ContractStatus;
+  validity: ContractValidity;
+  effectiveDate: string;
+  endDate: string | null;
+  terminationDate: string | null;
+  salary: string | null;
+  // Số ngày đến ngày kết thúc (âm là đã quá hạn); chỉ hợp đồng có ngày kết thúc chưa xử lý.
+  daysToEnd: number | null;
+  overThirtyDays: boolean;
+}
+export type ContractListResponse = PageResponse<ContractListItem>;
+
+export interface AppendixResponse {
+  id: string;
+  documentNo: string | null;
+  status: Exclude<ContractStatus, "terminated">;
+  effectiveDate: string;
+  jobTitle: string | null;
+  departmentId: string | null;
+  departmentName: string | null;
+  branchId: string | null;
+  branchName: string | null;
+  salary: string | null;
+  paymentMethod: SalaryPaymentMethod | null;
+  allowances: ContractAllowance[] | null;
+  description: string;
+  signDate: string | null;
+  hasSignedFile: boolean;
+  approvalRequestId: string | null;
+  cancelReason: string | null;
+  canWithdraw: boolean;
+  version: number;
+}
+
+export interface ContractResponse extends ContractListItem {
+  currency: string;
+  original: ContractTerms;
+  // Giá trị hiện hành tại hôm nay sau các phụ lục đã ký có hiệu lực (QUYTAC_NGHIEPVU_300).
+  current: ContractTerms;
+  probationLevel: ProbationLevel | null;
+  officialSalary: string | null;
+  signerName: string;
+  signerTitle: string;
+  otherTerms: string | null;
+  legalExceptionReason: string | null;
+  approvalRequestId: string | null;
+  signDate: string | null;
+  hasSignedFile: boolean;
+  cancelReason: string | null;
+  terminationReason: TerminationReason | null;
+  terminationNote: string | null;
+  appendices: AppendixResponse[];
+  canManage: boolean;
+  canWithdraw: boolean;
+  version: number;
+}
+
+export const saveAppendixSchema = z
+  .object({
+    effectiveDate: isoDate,
+    jobTitle: blankToNull(100),
+    departmentId: z.string().uuid().nullable().optional(),
+    branchId: z.string().uuid().nullable().optional(),
+    salary: decimalText(4).nullable().optional(),
+    paymentMethod: z.enum(salaryPaymentMethods).nullable().optional(),
+    allowances: z.array(allowanceSchema).max(20).nullable().optional(),
+    description: z.string().trim().min(1).max(4000),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveAppendixRequest = z.input<typeof saveAppendixSchema>;
+
+export interface MyContractsResponse {
+  currency: string;
+  contracts: ContractResponse[];
+}

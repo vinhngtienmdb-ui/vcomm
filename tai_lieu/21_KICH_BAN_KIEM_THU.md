@@ -3845,3 +3845,117 @@ Dữ liệu chung: công ty VCR, VTH; sản phẩm hàng hóa và dịch vụ (`
 - Kết quả mong đợi: Bước 1: `400` tại đúng dòng `internalServicesOnly`. Bước 2: đơn bán "Đã giao đủ", đơn mua "Đã nhận đủ" bằng phiếu xuất, phiếu nhập dịch vụ; không giữ hàng, không ghi thẻ kho, không phiếu nhập chờ nhận. Bước 3: bên bán xác nhận không giữ hàng. Bước 4: Nợ 6427 / Nợ 1331 / Có 331.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c43-internal-services.test.ts`
 - Lát: L2, L3
+
+## MODULE_08 Nhân sự phần 1 (CONG_VIEC_46)
+
+Dữ liệu chung: công ty VCR; phòng ban có trưởng phòng; tài khoản Quản lý nhân sự, Nhân viên nhân sự, người chỉ có `hr.employee.view`, nhân viên có hồ sơ liên kết. Dữ liệu giả, không dùng dữ liệu thật.
+
+### KICHBAN_KIEMTHU_434: Lập hồ sơ, mã tự cấp, kiểm dữ liệu, liên kết tài khoản
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_287
+- Chức năng: CHUC_NANG_162
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Phòng ban, chi nhánh VCR; tài khoản thành viên chưa có hồ sơ
+- Các bước: (1) Lập hồ sơ thiếu phòng ban, căn cước 3 số. (2) Ngày sinh còn 14 tuổi tại ngày vào làm. (3) Lập hồ sơ đủ, liên kết tài khoản. (4) Lập hồ sơ trùng căn cước; liên kết tài khoản đã liên kết. (5) Mã nhập tay, mã trùng khác hoa thường.
+- Kết quả mong đợi: (1) `400` tại đúng ô. (2) `400` employeeUnderFifteen. (3) Mã NV-VCR-000001, số che, phòng ban, chức danh của tài khoản cập nhật. (4) `400` employeeIdentityExists, employeeUserLinked. (5) Lập được; mã trùng `400`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c46-employees.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_435: Mã hóa, che số, hiện có nhật ký, tệp giấy tờ, quyền, cách ly công ty
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_288
+- Chức năng: CHUC_NANG_162
+- Loại: Đúng, sai, từng vai trò
+- Vai trò thực hiện: Quản lý nhân sự; Nhân viên nhân sự; quản trị công ty khác; Thủ kho
+- Điều kiện ban đầu và dữ liệu: Hồ sơ đã lập ở KICHBAN_KIEMTHU_434
+- Các bước: (1) Đọc cột mã hóa trong cơ sở dữ liệu. (2) Nhân viên nhân sự, Quản lý nhân sự hiện số căn cước. (3) Tải lên ảnh căn cước, tệp sai loại, văn bản đồng ý thiếu ngày, đủ ngày. (4) Tải xuống. (5) Thêm người phụ thuộc, tháng không phải ngày 01. (6) Công ty khác, Thủ kho xem hồ sơ.
+- Kết quả mong đợi: (1) Không có giá trị rõ; nhật ký không có số đầy đủ. (2) `403`; `201` kèm số, nhật ký employee.reveal. (3) Cảnh báo thiếu đồng ý; `400`; `400`; hết cảnh báo. (4) `403` với nhân viên nhân sự; `200`, no-store, nhật ký. (5) Số che; `400`. (6) `404`; `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c46-employees.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_436: Quyết định công tác cập nhật thành viên công ty khi đến ngày hiệu lực
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_289
+- Chức năng: CHUC_NANG_162
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Hồ sơ có tài khoản liên kết
+- Các bước: (1) Ghi điều chuyển ngày tương lai. (2) Ghi đổi chức danh lùi ngày. (3) Ghi trùng ngày, trước ngày vào làm. (4) Xóa quyết định đã hiệu lực. (5) Đặt ngày hiện tại bằng ngày hiệu lực, chạy việc nền hai lần.
+- Kết quả mong đợi: (1) Chưa hiệu lực, tài khoản giữ phòng ban cũ. (2) Áp dụng ngay. (3) `400`. (4) `409`. (5) Tài khoản đổi phòng ban đúng một lần; lần hai không đổi gì.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c46-employees.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_437: Kiểm luật hợp đồng, luồng duyệt, xác nhận ký, quyền xem lương
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_290
+- Chức năng: CHUC_NANG_163
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Vai trò thực hiện: Nhân viên nhân sự; người duyệt; người chỉ xem hồ sơ; nhân viên có hồ sơ
+- Điều kiện ban đầu và dữ liệu: Chính sách duyệt hr.contract một cấp
+- Các bước: (1) Xác định thời hạn quá 36 tháng; đúng 36 tháng; chồng thời gian. (2) Thử việc 61 ngày mức cao đẳng; lương 80%; 7 ngày làm việc mức khác. (3) Gửi, từ chối, gửi lại, duyệt, ký thiếu tệp, ký đủ. (4) Sửa hợp đồng đã ký. (5) Người chỉ xem hồ sơ xem, lập. (6) Thử việc lần hai cùng chức danh. (7) Nhân viên xem hợp đồng của mình.
+- Kết quả mong đợi: (1) `400`; `201`; `400`. (2) `400` từng ô. (3) Số HDLD-VCR-2026-…, giữ số khi gửi lại; ký thiếu tệp `400`; đã ký có tệp. (4) `409`. (5) Không có lương; `403`. (6) `400`. (7) Thấy lương, tải được bản đã ký.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c46-contracts.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_438: Chỉ ký thêm 01 lần hợp đồng xác định thời hạn; ngoại lệ; người nước ngoài
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_290
+- Chức năng: CHUC_NANG_163
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Hai hợp đồng xác định thời hạn đã ký nối tiếp
+- Các bước: (1) Gửi hợp đồng xác định thời hạn thứ ba. (2) Đánh dấu ngoại lệ có lý do, gửi. (3) Người nước ngoài: hợp đồng vượt hạn giấy phép; hợp đồng thứ ba trong hạn giấy phép.
+- Kết quả mong đợi: (1) `400` fixedTermLimitReached. (2) Đã duyệt, lý do lưu trên hợp đồng. (3) `400`; ký được.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c46-contracts.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_439: Phụ lục không đổi thời hạn, giá trị hiện hành, tạo quyết định công tác
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_291
+- Chức năng: CHUC_NANG_163
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Hợp đồng đã ký có tài khoản liên kết
+- Các bước: (1) Phụ lục ngày ngoài thời hạn; có trường thời hạn. (2) Phụ lục tăng lương, đổi chức danh, thay phụ cấp: gửi, ký. (3) Phụ lục tương lai đổi phòng ban, ký; chạy việc nền ngày hiệu lực.
+- Kết quả mong đợi: (1) `400`. (2) Số …/PL01; giá trị hiện hành đổi, giá trị gốc giữ, ngày kết thúc giữ; quyết định Theo hợp đồng, tài khoản đổi chức danh. (3) Tài khoản chỉ đổi phòng ban khi đến ngày.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c46-contracts.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_440: Nhắc hết hạn hợp đồng, danh sách sắp hết hạn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_292
+- Chức năng: CHUC_NANG_164
+- Loại: Đúng, giá trị biên, từng vai trò
+- Vai trò thực hiện: Việc nền; Nhân viên nhân sự; trưởng phòng; Thủ kho
+- Điều kiện ban đầu và dữ liệu: Hợp đồng còn 30 ngày, thử việc hết 2 ngày, hợp đồng hết 42 ngày
+- Các bước: (1) Chạy việc nền hai lần cùng ngày. (2) Xem danh sách sắp hết hạn. (3) Chạy ngày còn 6 ngày, ngày sau hạn 1 ngày. (4) Ký hợp đồng tiếp theo, chạy tuần sau.
+- Kết quả mong đợi: (1) Hai thông báo cho người quản lý hợp đồng và trưởng phòng, Thủ kho không nhận; lần hai không gửi. (2) Sắp xếp theo số ngày, nhãn quá 30 ngày đúng. (3) Mốc trước 7 ngày, sau 1 ngày kèm số ngày còn lại. (4) Không nhắc, rời danh sách.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c46-reminders.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_441: Nghỉ việc; hồ sơ đã nghỉ; hồ sơ của tôi; lao động chưa thành niên
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_293
+- Chức năng: CHUC_NANG_162, CHUC_NANG_163
+- Loại: Đúng, sai, từng vai trò
+- Vai trò thực hiện: Nhân viên nhân sự; người chỉ xem hồ sơ; nhân viên có hồ sơ
+- Điều kiện ban đầu và dữ liệu: Hồ sơ có hợp đồng đã ký và hợp đồng nháp; người lao động 17 tuổi
+- Các bước: (1) Ghi nghỉ việc ngày tương lai. (2) Đến ngày nghỉ, chạy việc nền; người chỉ xem hồ sơ xem. (3) Nhân viên mở hồ sơ của tôi, hiện số tài khoản; xem hồ sơ người khác. (4) Ký hợp đồng của lao động chưa thành niên khi chưa có, đã có văn bản đồng ý của người đại diện.
+- Kết quả mong đợi: (1) Hợp đồng đã ký chấm dứt, nháp hủy, quản trị nhận thông báo. (2) Hồ sơ Đã nghỉ; người chỉ xem nhận `404`. (3) Thấy hồ sơ của mình, số đầy đủ; `403`. (4) `409` guardianConsentMissing; ký được.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c46-contracts.test.ts`, `apps/api/test/c46-employees.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_442: Giao diện MAN_HINH_114 đến 119 trên máy tính
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_294
+- Chức năng: CHUC_NANG_162 đến CHUC_NANG_164
+- Loại: Giao diện
+- Vai trò thực hiện: Quản trị công ty
+- Điều kiện ban đầu và dữ liệu: Dữ liệu thử của lát L0, L1, L2
+- Các bước: Mở từng màn hình khổ 1366 điểm ảnh; thao tác lập hồ sơ, hiện số, quyết định công tác, lập hợp đồng có lỗi, phụ lục, nghỉ việc, thẻ Sắp hết hạn.
+- Kết quả mong đợi: Không lỗi trình duyệt, không cuộn ngang; lỗi hiện đúng ô; khớp bản mẫu đã duyệt.
+- Kiểm thử tự động: Thủ công – Playwright chụp màn hình
+- Lát: L0, L1, L2
+
+### KICHBAN_KIEMTHU_443: Giao diện MAN_HINH_114 đến 119 trên điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_294
+- Chức năng: CHUC_NANG_162 đến CHUC_NANG_164
+- Loại: Giao diện
+- Vai trò thực hiện: Quản trị công ty
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_442
+- Các bước: Như KICHBAN_KIEMTHU_442 ở khổ 390 điểm ảnh.
+- Kết quả mong đợi: Không cuộn ngang; bảng chuyển dạng thẻ; ngăn kéo dùng được.
+- Kiểm thử tự động: Thủ công – Playwright chụp màn hình
+- Lát: L0, L1, L2

@@ -369,3 +369,18 @@ Dữ liệu mẫu: công ty con VCR, VTH (giao dịch nội bộ); sản phẩm 
 | TIEUCHI_NGHIEMTHU_275 | CHUC_NANG_158 | Không lập được phiếu giao khách, nhận khách; nhân viên bán hàng xem mọi đối tác, đơn bán; Nhân viên bán hàng không lập đơn bán, Kế toán lập được | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_276 | CHUC_NANG_157, CHUC_NANG_158 | Đơn bán tay có hàng hóa bị từ chối; đơn chỉ dịch vụ xác nhận là đã giao, có hóa đơn, công nợ; đơn VComm hàng hóa vẫn chạy | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_277 | CHUC_NANG_157 | Giao dịch nội bộ chỉ dịch vụ: hàng hóa bị từ chối; đơn dịch vụ sinh đơn mua đối ứng, xác nhận là đã nhận, không phiếu kho ghi thẻ kho | Gọi API | Bắt buộc |
+
+## MODULE_08 Nhân sự (phần 1, CONG_VIEC_46)
+
+Dữ liệu mẫu: công ty VCR, phòng ban có trưởng phòng; tài khoản Quản lý nhân sự, Nhân viên nhân sự, người chỉ xem hồ sơ, nhân viên có hồ sơ liên kết; người lao động thử (công dân Việt Nam, người nước ngoài, lao động chưa thành niên). Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_287 | CHUC_NANG_162 | Lập, sửa hồ sơ: mã tự cấp hoặc nhập tay không trùng; trường bắt buộc, định dạng căn cước, trùng căn cước bị chặn; dưới 15 tuổi bị chặn; liên kết tài khoản đúng QUYTAC_NGHIEPVU_293 | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_288 | CHUC_NANG_162 | Dữ liệu nhạy cảm lưu mã hóa; API trả dạng che khi không có `hr.identity.view`; hiện, tải tệp ghi nhật ký; công ty khác nhận `404`; người không có quyền nhận `403` | Gọi API, truy vấn cơ sở dữ liệu | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_289 | CHUC_NANG_162 | Vị trí hiện tại đúng; quyết định đến ngày hiệu lực cập nhật thành viên công ty đúng một lần; không sửa quyết định đã hiệu lực | Gọi API, việc nền | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_290 | CHUC_NANG_163 | Kiểm loại, 36 tháng, thử việc (số ngày, 85%), chồng thời gian, giới hạn ký xác định thời hạn và ngoại lệ, giấy phép lao động, đồng ý của người đại diện; qua luồng duyệt; ký cần tệp; đã ký không sửa | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_291 | CHUC_NANG_163 | Phụ lục chỉ cho hợp đồng đã ký còn hiệu lực; không có thời hạn; giá trị hiện hành đúng theo ngày; ký phụ lục đổi vị trí tạo quyết định công tác | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_292 | CHUC_NANG_164 | Nhắc đúng mốc, mỗi mốc một lần, đúng người nhận; hợp đồng có hợp đồng tiếp theo hoặc đã chấm dứt không nhắc; danh sách sắp hết hạn, nhãn quá 30 ngày đúng | Gọi API, việc nền | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_293 | CHUC_NANG_162, CHUC_NANG_163 | Nghỉ việc chấm dứt hợp đồng, hủy hợp đồng chưa ký; hồ sơ đã nghỉ chỉ người có `hr.employee.manage` thấy; nhân viên xem đúng hồ sơ, hợp đồng của mình | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_294 | CHUC_NANG_162 đến CHUC_NANG_164 | MAN_HINH_114 đến MAN_HINH_119 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |

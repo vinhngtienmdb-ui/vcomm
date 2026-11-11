@@ -65,6 +65,7 @@ Mini app Nền tảng (`apps/web-platform`) là cửa vào chung: chuyển tiế
 | Mua hàng (CONG_VIEC_07) | `apps/web-purchasing` | `/purchasing` | 3004 | `PURCHASING_ORIGIN` (`http://localhost:3004`) |
 | Bán hàng (CONG_VIEC_08) | `apps/web-sales` | `/sales` | 3005 | `SALES_ORIGIN` (`http://localhost:3005`) |
 | Tài chính – Kế toán (CONG_VIEC_13) | `apps/web-finance` | `/finance` | 3006 | `FINANCE_ORIGIN` (`http://localhost:3006`) |
+| Nhân sự (CONG_VIEC_46) | `apps/web-hr` | `/hr` | 3007 | `HR_ORIGIN` (`http://localhost:3007`) |
 
 Chạy riêng mini app Kho: `pnpm --filter web-inventory dev` (cổng 3002), vào qua `http://localhost:3000/inventory` khi mini app Nền tảng và backend đang chạy.
 
@@ -286,6 +287,16 @@ Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance de
 
 - Mọi môi trường AWS dựng bằng AWS CDK; khóa bí mật mỗi môi trường khác nhau.
 - Database migration chạy một lần trước khi bật phiên bản mới, cùng thứ tự ở mọi môi trường.
+
+## 3w. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 1, CONG_VIEC_46)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Hồ sơ, giấy tờ, người phụ thuộc | `EmployeesService` (`apps/api/src/hr/employees.service.ts`); ghi schema `hr`; mã hóa cột bằng `apps/api/src/common/secret-box.ts` (thêm `blindIndex` HMAC-SHA256 để kiểm trùng); tệp qua `FILE_STORAGE` khóa `hr/<công ty>/employees/<hồ sơ>/<mã ngẫu nhiên>` | CHUC_NANG_162 |
+| Quá trình công tác | `WorkEventsService` (`apps/api/src/hr/work-events.service.ts`); cập nhật `core.user_company_memberships` qua `updateMembershipPlacement` (`apps/api/src/users/membership-placement.ts`) trong giao dịch của Nhân sự; việc nền `hr-work-events` lúc 0 giờ 5 phút | CHUC_NANG_162 |
+| Hợp đồng, phụ lục, nghỉ việc | `ContractsService` (`apps/api/src/hr/contracts.service.ts`); luồng duyệt chung (`submitWithin`, `withdraw`, `cancelWithin`; nghe `core.approval.completed`, loại `hr.contract`, `hr.contract_appendix`); dãy số `hr.contract`; thông báo quản trị khi nghỉ việc | CHUC_NANG_163 |
+| Nhắc hết hạn | `ContractRemindersService` (`apps/api/src/hr/contract-reminders.service.ts`); việc nền `hr-contract-reminders` lúc 7 giờ; bảng `hr.contract_reminders` giữ mốc đã gửi | CHUC_NANG_164 |
+| Giao diện | Mini app `apps/web-hr`: trang `/employees`, `/employees/new`, `/employees/[id]`, `/employees/[id]/edit`, `/contracts`, `/contracts/new`, `/contracts/[id]`, `/me` | CHUC_NANG_162 đến CHUC_NANG_164 |
 
 ## 5. Sao lưu, phục hồi, ghi log, giám sát
 

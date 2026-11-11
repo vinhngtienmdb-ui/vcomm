@@ -76,6 +76,11 @@ import { SalesOrdersService } from "./sales/sales-orders.service";
 import { InternalTradeService } from "./sales/internal-trade.service";
 import { PromotionsService } from "./sales/promotions.service";
 import { FinanceController } from "./finance/finance.controller";
+import { ContractRemindersService } from "./hr/contract-reminders.service";
+import { ContractsService } from "./hr/contracts.service";
+import { EmployeesService } from "./hr/employees.service";
+import { HrController } from "./hr/hr.controller";
+import { WorkEventsService } from "./hr/work-events.service";
 import { DebtsService } from "./finance/debts.service";
 import { FundsService } from "./finance/funds.service";
 import { PaymentsService } from "./finance/payments.service";
@@ -126,7 +131,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController],
   providers: [
     AuthService,
     ActivationService,
@@ -142,6 +147,10 @@ import { UsersService } from "./users/users.service";
     ZnsNotifier,
     { provide: FILE_STORAGE, useFactory: createFileStorage },
     ProposalTemplatesService,
+    EmployeesService,
+    WorkEventsService,
+    ContractsService,
+    ContractRemindersService,
     CategoriesService,
     UnitsService,
     ProductsService,

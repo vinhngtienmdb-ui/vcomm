@@ -31,6 +31,9 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Sản phẩm, ảnh sản phẩm (CONG_VIEC_04) | Kinh doanh | Cơ sở dữ liệu schema `catalog`; ảnh lưu S3 hoặc thư mục cục bộ theo khóa `products/<công ty>/<sản phẩm>/<mã ngẫu nhiên>` | Người có quyền `catalog.product.view` của công ty |
 | Giá vốn, giá trị tồn kho, giá trị phiếu kho, biên bản chênh lệch, tiền bồi thường (CONG_VIEC_05) | Tài chính | Cơ sở dữ liệu schema `inventory`; API trả trống khi người xem không có quyền | Người có quyền nhạy cảm `inventory.cost.view` tại kho (mọi chủ hàng) hoặc ở công ty chủ hàng (hàng của công ty đó) |
 | Tồn kho, phiếu kho, thẻ kho (CONG_VIEC_05) | Kinh doanh | Cơ sở dữ liệu schema `inventory`; thẻ kho chỉ thêm | Người có quyền kho tại kho; nhân viên công ty chủ hàng có `inventory.stock.view` chỉ thấy hàng của công ty mình |
+| Hồ sơ nhân sự: số căn cước, hộ chiếu, tài khoản ngân hàng, mã số thuế, số sổ bảo hiểm xã hội, giấy phép lao động, số định danh người phụ thuộc (CONG_VIEC_46) | Cá nhân (cơ bản theo Nghị định 356/2025/NĐ-CP Điều 3) | Mã hóa AES-256-GCM ở máy chủ (`secret-box`), 4 ký tự cuối để che, HMAC kiểm trùng số giấy tờ | `hr.identity.view` hiện từng trường (ghi nhật ký); chính người lao động |
+| Ảnh căn cước, giấy khám sức khỏe, văn bằng, văn bản đồng ý (CONG_VIEC_46) | Cá nhân nhạy cảm (Nghị định 356/2025/NĐ-CP Điều 4 khoản 1 điểm d, i) | Tệp trên S3 (SSE) hoặc thư mục cục bộ khi phát triển, khóa do hệ thống sinh | Tải: `hr.identity.view` (ghi nhật ký); danh sách tệp: `hr.employee.view` |
+| Mức lương, phụ cấp, hợp đồng lao động (CONG_VIEC_46) | Tài chính cá nhân | Cơ sở dữ liệu schema `hr` | `hr.contract.manage` của công ty; chính người lao động (hợp đồng đã ký) |
 | Số Căn cước công dân của đối tác cá nhân (CONG_VIEC_06) | Cá nhân | Cột `crm.partners.citizen_id`, lưu nguyên văn trong cơ sở dữ liệu mã hóa khi lưu (Aurora); chưa mã hóa cột (làm sau cùng giải pháp khóa ở mục 5). Danh sách, chi tiết, kết quả thêm, sửa chỉ trả dạng che `*********` + 3 số cuối; nhật ký thêm, sửa chỉ ghi 3 số cuối | Người có quyền nhạy cảm `crm.partner.identity.view` ở công ty đang làm việc xem số đầy đủ qua `GET /crm/partners/{id}/identity`, mỗi lần xem ghi nhật ký `partner.view_identity` (QUYTAC_NGHIEPVU_59) |
 | Đối tác: tên, mã số thuế, địa chỉ, điện thoại, email, người liên hệ, tài khoản ngân hàng (CONG_VIEC_06) | Tổ chức, cá nhân | Cơ sở dữ liệu schema `crm`; dùng chung tập đoàn | Người có `crm.partner.view` ở bất kỳ công ty nào; sửa: `crm.partner.manage` |
 | Hồ sơ đối tác của công ty: hạn mức công nợ, số ngày được nợ, nhân viên phụ trách (CONG_VIEC_06) | Tài chính, kinh doanh | Bảng `crm.partner_profiles` theo công ty | Xem: người có `crm.partner.view` của chính công ty đó; lập, sửa: quyền nhạy cảm `crm.profile.manage`. Công ty khác không đọc được |
@@ -800,6 +803,29 @@ Ranh giới và kiểm soát riêng:
 - Phiếu dịch vụ không lập tay qua API; chỉ lập trong giao dịch xác nhận đơn, kiểm kỳ khóa sổ.
 - Cài đặt "Cho phép lập đơn bán tay có hàng hóa" là công tắc nghiệp vụ, cần `sales.settings.manage`, ghi nhật ký `sales_settings.update`.
 
+### Ma trận phân quyền Nhân sự MODULE_08 phần 1 (CONG_VIEC_46)
+
+Thêm quyền `hr.employee.view`, `hr.employee.manage`, `hr.identity.view`, `hr.contract.manage` (nhạy cảm, chỉ dùng được khi gán ở phạm vi tập đoàn hoặc công ty), vai trò Quản lý nhân sự, Nhân viên nhân sự (tài liệu `08` mục 40).
+
+| Chức năng | Quản trị tập đoàn, công ty | Quản lý nhân sự | Nhân viên nhân sự | Người chỉ có `hr.employee.view` | Chỉ dữ liệu của chính mình |
+|---|---|---|---|---|---|
+| CHUC_NANG_162 Xem hồ sơ đang làm (số che) | Được | Được | Được | Được | Có (hồ sơ liên kết, API_149) |
+| CHUC_NANG_162 Xem hồ sơ đã nghỉ | Được | Được | Được | Không (`404`) | Không |
+| CHUC_NANG_162 Hiện số giấy tờ, tải tệp giấy tờ | Được | Được | Không | Không | Có (số của mình) |
+| CHUC_NANG_162 Lập, sửa hồ sơ, giấy tờ, người phụ thuộc, quá trình công tác, nghỉ việc | Được | Được | Được | Không | Không |
+| CHUC_NANG_163 Hợp đồng, phụ lục; xem lương | Được | Được | Được | Xem không có lương | Có (hợp đồng đã ký của mình) |
+| CHUC_NANG_163 Tải bản hợp đồng đã ký | Được | Được | Không | Không | Có |
+| CHUC_NANG_164 Nhận nhắc hết hạn | Được | Được | Được | Không | Trưởng phòng trên hợp đồng nhận thông báo |
+
+Ranh giới và kiểm soát riêng:
+- Tách dữ liệu công ty: mọi truy vấn lọc `company_id` của công ty đang chọn; hồ sơ thuộc công ty ký hợp đồng; công ty khác nhận `404`.
+- Quyền nhân sự kiểm bằng `requireHrPermission` (bao trùm công ty): gán ở chi nhánh không mở được dữ liệu nhân sự.
+- Dữ liệu cá nhân (Luật 91/2025/QH15; Nghị định 356/2025/NĐ-CP Điều 3, 4): số căn cước, hộ chiếu, tài khoản ngân hàng, mã số thuế, số sổ bảo hiểm xã hội, giấy phép lao động, số định danh người phụ thuộc mã hóa AES-256-GCM; nhật ký thao tác chỉ ghi dạng che; hiện, tải ghi nhật ký `employee.reveal`, `employee.reveal_own`, `employee.document.download`, `contract.download`, `contract.download_own`.
+- Tệp giấy tờ, bản đã ký: khóa lưu trữ do hệ thống sinh, kiểm phần mở rộng và chữ ký đầu tệp, tối đa 10 MB, tải xuống `no-store`, `nosniff`; S3 mã hóa khi lưu (SSE).
+- Không lưu chi tiết tình trạng sức khỏe; chỉ lưu tệp giấy khám sức khỏe (nhạy cảm). Ghi nhận văn bản đồng ý xử lý dữ liệu nhạy cảm; thiếu thì cảnh báo.
+- Mức lương chỉ trả cho người có `hr.contract.manage` hoặc chính người lao động.
+- Khóa đồng thời: lập, sửa hồ sơ khóa theo công ty (`pg_advisory_xact_lock`) để không trùng số giấy tờ, mã; gửi, ký hợp đồng khóa hồ sơ để kiểm chồng thời gian, giới hạn ký.
+
 ## 5. Quản lý khóa bí mật
 
 | Khóa | Nơi lưu | Môi trường | Ngày đổi gần nhất | Trạng thái |
@@ -831,6 +857,9 @@ Chưa có.
 Chưa có.
 
 - RUIRO CONG_VIEC_23 (người dùng chấp nhận 2026-11-10): 2 lỗ hổng mức Trung bình (glob GHSA, minimatch GHSA-g3hv-75wg-m249) trong `@expo/cli`, công cụ phát triển của Expo SDK 58, không chạy trên môi trường thật. Thời hạn: đến khi Expo phát hành bản sửa tương thích, rà lại mỗi lần nâng Expo, chậm nhất 2027-02-10. Biện pháp giảm thiểu: chỉ chạy công cụ trên máy phát triển, không đưa vào ảnh triển khai máy chủ.
+
+- RUIRO CONG_VIEC_46 (người dùng quyết định 2026-11-11, chưa xử lý xong): hồ sơ người lao động đã nghỉ được giữ nguyên, khóa truy cập; Luật 91/2025/QH15 Điều 25 khoản 2 điểm c yêu cầu xóa, hủy dữ liệu khi chấm dứt hợp đồng, trừ thỏa thuận hoặc luật khác quy định. Biện pháp giảm thiểu: chỉ người có `hr.employee.manage` xem hồ sơ đã nghỉ; người dùng chốt thời hạn lưu với luật sư, đưa điều khoản lưu giữ vào mẫu hợp đồng; làm chức năng xóa, khử nhận dạng ở công việc sau. Thời hạn: trước khi triển khai MODULE_08 lên môi trường thật.
+- Ghi nhận (CONG_VIEC_46): đánh giá tác động xử lý dữ liệu cá nhân (Luật 91/2025/QH15 Điều 21; Nghị định 356/2025/NĐ-CP Điều 19) là nghĩa vụ của doanh nghiệp, cần lập hồ sơ gửi cơ quan chuyên trách trong 60 ngày kể từ khi bắt đầu xử lý; ngoài phạm vi phần mềm.
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 

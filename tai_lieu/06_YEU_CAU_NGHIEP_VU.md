@@ -171,6 +171,20 @@
 |---|---|---|
 | YCAU_NGHIEPVU_52 | Người giới thiệu và đội kinh doanh nhiều cấp nhận hoa hồng theo đơn VComm hoàn tất vào ví; rút về tài khoản ngân hàng, có kế toán duyệt chi, khấu trừ thuế thu nhập cá nhân và thu phí rút tiền | THAY_DOI_14, THAY_DOI_16, THAY_DOI_17; người dùng 2026-11-11 |
 
+## MODULE_08 Nhân sự (phần 1: Hồ sơ nhân sự, hợp đồng lao động, CONG_VIEC_46)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_59 | Mỗi công ty con có hồ sơ nhân sự của người lao động mình, đủ nội dung sổ quản lý lao động điện tử (Nghị định 145/2020/NĐ-CP Điều 3) | Nhân sự, Quản lý | Tài liệu `05` mục 2.1 |
+| YCAU_NGHIEPVU_60 | Hồ sơ gắn với tài khoản đăng nhập (không bắt buộc) và cơ cấu công ty, chi nhánh, phòng ban đã có | Nhân sự, Quản trị công ty | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_61 | Lưu giấy tờ, người phụ thuộc; bảo vệ dữ liệu cá nhân nhạy cảm (Luật 91/2025/QH15, Nghị định 356/2025/NĐ-CP) | Nhân sự, người lao động | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_62 | Ghi quá trình công tác; phòng ban, chức danh trong hệ thống tự khớp quyết định | Nhân sự, Quản trị công ty | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_63 | Hợp đồng lao động, thử việc đúng Bộ luật Lao động, qua luồng duyệt, ghi nhận đã ký, chấm dứt | Nhân sự, Ban giám đốc | Tài liệu `05` mục 2.1 |
+| YCAU_NGHIEPVU_64 | Phụ lục sửa đổi hợp đồng có ngày hiệu lực | Nhân sự | Bộ luật Lao động Điều 22 |
+| YCAU_NGHIEPVU_65 | Không bỏ sót hợp đồng hết hạn; nhân viên xem hồ sơ, hợp đồng của mình | Nhân sự, Trưởng phòng, người lao động | Quyết định người dùng 2026-11-11 |
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md`.
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -290,3 +304,9 @@
 | Ví hoa hồng | Người dùng, số dư | Mỗi người một ví; số dư chỉ đổi qua giao dịch ví (CONG_VIEC_26) |
 | Giao dịch ví | Ví, loại (hoa hồng, rút tiền, hoàn lại rút tiền), số tiền, số dư sau giao dịch, đơn VComm hoặc yêu cầu rút tiền, ghi chú | Không sửa, không xóa; mỗi đơn mỗi người một giao dịch hoa hồng (CONG_VIEC_26) |
 | Yêu cầu rút tiền | Người dùng, số tiền, tài khoản nhận chụp lúc tạo, trạng thái (chờ duyệt, đã duyệt, bị từ chối, đã rút lại, đã chi), thuế, phí rút tiền (THAY_DOI_17), số thực nhận, lý do từ chối, mã giao dịch ngân hàng, ngày chi, người duyệt, người ghi đã chi | Mỗi người tối đa một yêu cầu chờ duyệt hoặc đã duyệt chưa chi (CONG_VIEC_26) |
+| Hồ sơ nhân sự | Mã, họ tên, giới tính, ngày sinh, quốc tịch, số căn cước hoặc hộ chiếu (mã hóa), nơi cư trú, liên hệ, trình độ, ngân hàng, mã số thuế, số sổ bảo hiểm xã hội (mã hóa), giấy phép lao động, ngày vào làm, tài khoản liên kết, trạng thái, ngày nghỉ | Mỗi công ty một hồ sơ cho một người; một tài khoản tối đa một hồ sơ mỗi công ty (CONG_VIEC_46) |
+| Giấy tờ | Loại, tệp, ngày đồng ý (văn bản đồng ý xử lý dữ liệu) | Thuộc hồ sơ; không xóa (CONG_VIEC_46) |
+| Người phụ thuộc | Họ tên, quan hệ, ngày sinh, số định danh (mã hóa), giảm trừ từ tháng, đến tháng | Thuộc hồ sơ (CONG_VIEC_46) |
+| Quyết định công tác | Loại, ngày hiệu lực, số quyết định, phòng ban, chi nhánh, chức danh | Không trùng ngày trong một hồ sơ; đã hiệu lực thì không sửa (CONG_VIEC_46) |
+| Hợp đồng lao động | Số, loại, thời hạn, vị trí, lương, phụ cấp, người ký, trạng thái, ngày ký, bản đã ký, chấm dứt | Không chồng thời gian trong một hồ sơ (CONG_VIEC_46) |
+| Phụ lục hợp đồng | Số, ngày hiệu lực, mục đổi, điều khoản sửa đổi, trạng thái, bản đã ký | Thuộc hợp đồng đã ký; không có thời hạn (CONG_VIEC_46) |
