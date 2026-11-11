@@ -188,14 +188,14 @@
 - Phạm vi: Bán lẻ tại quầy phần 1, nhánh `chuc-nang/CONG_VIEC_53-ban-le-tai-quay` (pull request #100, commit `f500d84`, đã hợp nhất main 0.4.0).
 - Kết quả: `c53-retail-setup` 8/8 (KICHBAN_KIEMTHU_510, 511, 516), `c53-retail-sales` 9/9 (512 đến 516), `c53-retail-returns` 5/5 (517), `c53-retail-einvoice` 7/7 (518) đạt; KICHBAN_KIEMTHU_519 (điểm) chưa chạy, thuộc L6; 520, 521 (giao diện, in) kiểm tra bằng ảnh xem trước L1 đến L5, đạt. Hồi quy toàn API 89 tệp, 510/510 đạt. Kiểm tra kiểu api, web-platform, web-retail, web-finance, web-hr, web-analytics, web-sales đạt; khóa dịch khớp.
 - Kiểm tra bảo mật: `pnpm audit` 2 lỗ hổng Trung bình ở mobile-vcomm (đã chấp nhận, không thuộc công việc); gitleaks không có phát hiện.
-- Kết luận cổng kiểm thử: Đạt cho L0 đến L5, chờ người dùng nghiệm thu.
+- Kết luận cổng kiểm thử: Đạt cho L0 đến L5. Người dùng nghiệm thu 2026-11-12.
 
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_45
 
 - Phạm vi: nhập khẩu và phân bổ chi phí mua hàng, lát L0 đến L2, nhánh `chuc-nang/CONG_VIEC_45-nhap-khau` (pull request #85, head `322d283`, đã hợp nhất main 0.4.0).
 - Kết quả: KICHBAN_KIEMTHU_428 đến 433 Đạt (`c45-imports.test.ts` 6/6); hồi quy toàn bộ API 86 tệp, 487/487 đạt. Một lần chạy trước hợp nhất gặp LOI_08 (có sẵn), chạy lại đạt.
 - Kiểm tra bảo mật: không thêm thư viện; CI quét bảo mật (gitleaks, `pnpm audit`) đạt.
-- Kết luận cổng kiểm thử: Đạt, chờ người dùng nghiệm thu.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
 
 ## Lần kiểm thử 2026-11-12 – Phát hành 0.4.0
 
@@ -220,7 +220,7 @@
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_311 đến 319, 367 – Đạt (tự động). TIEUCHI_NGHIEMTHU_320 (giao diện) – Đạt qua xem trước, người dùng duyệt L1, L2, L3.
 - Kiểm tra bảo mật phần B, C: không thêm phụ thuộc mới; gitleaks không có phát hiện (khóa ký VNPAY giả của kiểm thử thêm vào `.github/gitleaksignore` theo tiền lệ CONG_VIEC_25); phân quyền: API quản trị bằng người không có quyền trả 403, thao tác trên nội dung của người khác trả 404; dữ liệu độc hại: ảnh kiểm theo nội dung tệp, nội dung giới hạn độ dài, trường thừa trả 400, từ cấm không phân biệt hoa thường và dấu; số dư ví đổi trong giao dịch khóa dòng ví.
 - Lỗi phát hiện: "hiện lại, bỏ qua báo cáo" với nội dung đang hiện trả 409 – đã sửa trong công việc (commit `cdecf24`), thêm bước vào KICHBAN_KIEMTHU_475.
-- Kết luận cổng kiểm thử: Đạt, chờ người dùng nghiệm thu.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
 
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_51
 
