@@ -10,6 +10,7 @@ export const officeMenu = [
   { href: "/workflow-runs", key: "workflowRuns", permission: "office.access" },
   { href: "/incoming", key: "incoming", permission: "office.access" },
   { href: "/outgoing", key: "outgoing", permission: "office.access" },
+  { href: "/bulletin", key: "bulletin", permission: "office.access" },
   { href: "/workflow-templates", key: "workflowTemplates", permission: "office.workflow.manage" },
   { href: "/settings", key: "documentSettings", permission: "office.document.clerk" },
 ] as const;

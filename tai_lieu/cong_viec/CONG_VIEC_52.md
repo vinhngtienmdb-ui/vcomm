@@ -177,7 +177,10 @@ Luồng duyệt chung, dãy số chứng từ, mẫu đề xuất, tệp đính 
 - PDF dùng Liberation Serif thay Times New Roman (Times New Roman có bản quyền, không đóng gói được); Word ghi phông Times New Roman.
 - Công văn đi gửi công ty khác trong tập đoàn tự sinh công văn đến chờ vào sổ ở công ty nhận.
 - Công ty chưa có chính sách duyệt công văn đi thì một cấp do người ký duyệt (người ký phải đồng ý trước khi cấp số).
-- Nội dung có định dạng lưu dạng cấu trúc, không lưu HTML (chống chèn mã).
+- Nội dung có định dạng lưu dạng cấu trúc, không lưu HTML (chống chèn mã). Bảng tin lưu văn bản đánh dấu đơn giản (`**đậm**`, `*nghiêng*`, `[chữ](https://…)`, dòng `- `), giao diện dựng phần tử từ văn bản, không chèn HTML; đường dẫn chỉ nhận http, https.
+- Bảng tin: người đăng không tính vào danh sách người nhận, không được ghi đã đọc, không xác nhận tin của mình; chỉ người đăng sửa, thu hồi tin (người có quyền đăng cùng phạm vi chỉ xem thống kê đọc).
+- Đối tượng chi nhánh tính theo chi nhánh mặc định của thành viên, phòng ban theo phòng ban của thành viên tại công ty đăng; tin toàn tập đoàn hiện ở mọi công ty trong tập đoàn.
+- Số trang PDF, Word ghi giữa phía trên từ trang 2; ngày nhỏ hơn 10 và tháng 1, 2 thêm số 0 (Phụ lục I).
 
 ## 17. Quyết định của người dùng (2026-11-11)
 
@@ -191,7 +194,7 @@ Luồng duyệt chung, dãy số chứng từ, mẫu đề xuất, tệp đính 
 ## 18. Rủi ro
 
 - Nội dung Nghị định 30 chưa đối chiếu bản gốc trong phiên (mục 3); phải đối chiếu điều 8, 15, 16, 20 đến 24, Phụ lục I, III, IV trước khi phát hành.
-- Thêm thư viện `docx` cần người dùng duyệt ghi tài liệu `13` (đã chọn 2026-11-11).
+- Thư viện `docx` 9.15.3 và phông Liberation Serif: người dùng đã duyệt 2026-11-11 (tài liệu `13`).
 
 ## 19. Kết quả đối chiếu định nghĩa hoàn thành
 

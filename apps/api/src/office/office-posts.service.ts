@@ -259,7 +259,7 @@ export class OfficePostsService {
   async detail(actor: Actor, id: string): Promise<PostResponse> {
     const loaded = await this.loadVisible(this.database, actor, id);
     // Người nhận mở tin lần đầu: ghi đã đọc.
-    if (loaded.isRecipient && loaded.row.read_at === null) {
+    if (loaded.isRecipient && !loaded.isAuthor && loaded.row.read_at === null) {
       await this.database.execute(sql`INSERT INTO office.post_reads (post_id, user_id) VALUES (${id}, ${actor.userId}) ON CONFLICT DO NOTHING`);
       loaded.row.read_at = this.now();
     }
@@ -273,7 +273,7 @@ export class OfficePostsService {
     const active = row.status === "active";
     const actions: PostResponse["allowedActions"] = [];
     if (isAuthor && active) actions.push("edit", "revoke", "upload");
-    if (isRecipient && row.requires_acknowledgement && row.acknowledged_at === null) actions.push("acknowledge");
+    if (isRecipient && !isAuthor && row.requires_acknowledgement && row.acknowledged_at === null) actions.push("acknowledge");
     if (row.allow_comments && active && (isRecipient || canManage)) actions.push("comment");
     if (canManage) actions.push("view_readers");
     return {
@@ -291,12 +291,12 @@ export class OfficePostsService {
     };
   }
 
-  // Người nhận hiện tại của tin: dùng cho thống kê đọc và thông báo.
+  // Người nhận hiện tại của tin (trừ người đăng): dùng cho thống kê đọc và thông báo.
   private async recipientIds(executor: Executor, postId: string): Promise<string[]> {
     const result = await executor.execute<{ id: string }>(sql`
       SELECT DISTINCT m.user_id AS id FROM office.posts p
       JOIN core.user_company_memberships m ON m.status = 'active'
-      WHERE p.id = ${postId} AND ${this.recipientCondition(sql`m.user_id`, sql`m.company_id`)}`);
+      WHERE p.id = ${postId} AND m.user_id <> p.created_by AND ${this.recipientCondition(sql`m.user_id`, sql`m.company_id`)}`);
     return result.rows.map((row) => row.id);
   }
 
@@ -418,7 +418,7 @@ export class OfficePostsService {
 
   async acknowledge(actor: Actor, id: string): Promise<PostResponse> {
     const loaded = await this.loadVisible(this.database, actor, id);
-    if (!loaded.isRecipient || !loaded.row.requires_acknowledgement) throw new ApiError("BUSINESS_RULE", "officePostNotAcknowledgeable");
+    if (!loaded.isRecipient || loaded.isAuthor || !loaded.row.requires_acknowledgement) throw new ApiError("BUSINESS_RULE", "officePostNotAcknowledgeable");
     await this.database.execute(sql`
       INSERT INTO office.post_reads (post_id, user_id, acknowledged_at) VALUES (${id}, ${actor.userId}, now())
       ON CONFLICT (post_id, user_id) DO UPDATE SET acknowledged_at = coalesce(office.post_reads.acknowledged_at, now())`);

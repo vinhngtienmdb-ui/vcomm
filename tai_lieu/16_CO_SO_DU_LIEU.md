@@ -3205,7 +3205,7 @@ Quy tắc xóa và lưu giữ bổ sung:
 - Không có dữ liệu mới cần xóa, lưu giữ; nhật ký xuất Excel ghi vào nhật ký thao tác (`core.audit_events`, hành động `analytics.<nhóm báo cáo>.export`) theo quy tắc lưu giữ của nhật ký thao tác.
 ## Database migration 0090 đến 0093 – CONG_VIEC_52 (MODULE_13 Văn phòng số phần 1)
 
-Schema `office`, chỉ mini app Văn phòng số ghi (tài liệu `12` mục 2). Tệp `database/migrations/0090_office_tasks.sql` (lát L0), `0091_office_workflows.sql` (lát L1), `0092_office_documents.sql` (lát L2); 0093 bổ sung khi làm lát L3.
+Schema `office`, chỉ mini app Văn phòng số ghi (tài liệu `12` mục 2). Tệp `database/migrations/0090_office_tasks.sql` (lát L0), `0091_office_workflows.sql` (lát L1), `0092_office_documents.sql` (lát L2), `0093_office_bulletin.sql` (lát L3).
 
 | Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
 |---|---|---|---|
@@ -3228,6 +3228,10 @@ Schema `office`, chỉ mini app Văn phòng số ghi (tài liệu `12` mục 2).
 | `office.outgoing_documents` (0092) | Công văn đi (QUYTAC_NGHIEPVU_366, 367) | `company_id`, `register_id`, `document_type_id`, `department_id`, `year`, `outgoing_no`, `symbol`, `issued_on`, `summary`, `urgency`, `compose_mode` (`compose`, `upload`), `recipient_line`, `body` (jsonb đoạn văn), `signer_user_id`, `signer_authority` (`''`, `TM.`, `KT.`, `TL.`, `TUQ.`, `Q.`), `signer_authority_of`, `signer_title`, `external_recipients`, `copies`, `drafter_code`, `reply_to_incoming_id`, `status` (`draft`, `pending`, `rejected`, `withdrawn`, `awaiting_number`, `numbered`, `issued`, `cancelled`), `approval_mode` (`policy`, `signer`), `approval_request_id`, `decision_note`, `cancel_reason`, `created_by`, `created_at`, `version` | Duy nhất (`register_id`, `year`, `outgoing_no`) khi có số; đã cấp số thì có ký hiệu, ngày ban hành |
 | `office.outgoing_recipients` (0092) | Nơi nhận trong tập đoàn | `outgoing_id`, `kind` (`user`, `department`, `company`), `target_id` | Khóa chính (`outgoing_id`, `kind`, `target_id`) |
 | `office.tasks` (0092) | Việc xử lý công văn đến | Thêm `incoming_document_id` | |
-| `office.files` (0090) | Tệp của Văn phòng số, nội dung ở kho tệp chung (S3 hoặc thư mục cục bộ) | `company_id`, `owner_type` (`task`; 0092 thêm `incoming`, `outgoing_draft`, `outgoing_signed`), `owner_id`, `file_name`, `content_type`, `size_bytes`, `storage_key` (duy nhất), `uploaded_by`, `created_at`, `deleted_at`, `deleted_by` | Xóa mềm; chỉ mục (`owner_type`, `owner_id`) |
+| `office.posts` (0093) | Tin bảng tin (QUYTAC_NGHIEPVU_367) | `company_id` (công ty đăng), `group_company_id` (công ty gốc của tập đoàn), `title` (1 đến 200 ký tự), `body` (1 đến 20.000 ký tự, đánh dấu đơn giản), `audience_type` (`company`, `units`, `group`), `pinned`, `publish_at`, `expires_at`, `requires_acknowledgement`, `allow_comments`, `status` (`active`, `revoked`), `notified_at`, `created_by`, `created_at`, `edited_at`, `revoked_at`, `revoked_by`, `version` | Hết hạn sau giờ đăng; thu hồi phải có thời điểm; chỉ mục theo công ty, tập đoàn, tin chờ thông báo |
+| `office.post_audiences` (0093) | Chi nhánh, phòng ban nhận tin | `post_id`, `kind` (`branch`, `department`), `target_id` | Khóa chính (`post_id`, `kind`, `target_id`) |
+| `office.post_reads` (0093) | Đã đọc, xác nhận đã đọc | `post_id`, `user_id`, `read_at`, `acknowledged_at` | Khóa chính (`post_id`, `user_id`) |
+| `office.post_comments` (0093) | Bình luận tin | `post_id`, `author_id`, `body` (1 đến 5.000 ký tự), `created_at`, `edited_at`, `deleted_at`, `deleted_by` | Xóa mềm |
+| `office.files` (0090) | Tệp của Văn phòng số, nội dung ở kho tệp chung (S3 hoặc thư mục cục bộ) | `company_id`, `owner_type` (`task`; 0092 thêm `incoming`, `outgoing_draft`, `outgoing_signed`; 0093 thêm `post`), `owner_id`, `file_name`, `content_type`, `size_bytes`, `storage_key` (duy nhất), `uploaded_by`, `created_at`, `deleted_at`, `deleted_by` | Xóa mềm; chỉ mục (`owner_type`, `owner_id`) |
 
 Quy tắc xóa và lưu giữ: không xóa cứng việc, bình luận, tệp, lịch sử; việc hủy giữ nguyên dữ liệu.

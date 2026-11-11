@@ -343,6 +343,7 @@ Mọi đường dẫn có tiền tố `/api/v1`, nằm trong `apps/api/src/crm/c
 | API_188 | `GET`, `POST /office/incoming`; `GET`, `PATCH /office/incoming/{id}`; `POST /office/incoming/{id}/files`, `/accept`, `/submit`, `/direct`, `/void`; `GET /office/incoming/{id}/files/{fileId}` | CHUC_NANG_184 | Vào sổ, sửa, hủy, nhận liên công ty: `office.document.clerk`; chỉ đạo: lãnh đạo được trình có `office.document.direct`; xem: văn thư, `office.document.view_all`, lãnh đạo, người được chuyển, người tham gia việc xử lý |
 | API_189 | `GET`, `POST /office/outgoing`; `GET`, `PATCH /office/outgoing/{id}`; `GET /office/outgoing/{id}/render?format=pdf\|docx`; `POST /office/outgoing/{id}/files`, `/submit`, `/withdraw`, `/decide`, `/cancel`, `/number`, `/issue`; `GET /office/outgoing/{id}/files/{fileId}` | CHUC_NANG_184 | Soạn, trình, rút: `office.document.draft`, người soạn; quyết định: người ký (khi không có chính sách duyệt); cấp số, phát hành: `office.document.clerk`; xem: người soạn, người ký, người duyệt, nơi nhận đã phát hành, văn thư |
 | API_190 | `GET /office/document-options`; `GET`, `PUT /office/document-settings`; `GET`, `POST /office/registers`; `PATCH /office/registers/{id}`; `GET /office/registers/{id}/export?year=`; `GET`, `POST /office/document-types`; `PATCH /office/document-types/{id}` | CHUC_NANG_184 | Tùy chọn, xem loại văn bản: `office.access`; còn lại `office.document.clerk` |
+| API_191 | `GET /office/post-options`; `GET`, `POST /office/posts`; `GET`, `PATCH /office/posts/{id}`; `POST /office/posts/{id}/revoke`, `/acknowledge`; `GET /office/posts/{id}/readers`; `POST`, `PATCH`, `DELETE /office/posts/{id}/comments[/{commentId}]`; `POST /office/posts/{id}/files`; `GET`, `DELETE /office/posts/{id}/files/{fileId}` | CHUC_NANG_185 | `office.access`; đăng: `office.bulletin.post` ở công ty (toàn tập đoàn: ở phạm vi tập đoàn); sửa, thu hồi, tệp: người đăng; danh sách đã đọc: người đăng, người có quyền đăng cùng phạm vi; xem, xác nhận, bình luận: người nhận |
 
 Sửa API_71, API_72, API_77 (CONG_VIEC_21, THAY_DOI_12), hợp đồng thêm trường, không bỏ trường:
 - API_71 danh sách: thêm lọc `owner` (`mine` hoặc UUID nhân viên; lọc hồ sơ của công ty đang làm việc có `owner_user_id` tương ứng); dòng danh sách, chi tiết thêm `ownerUserName` (nhân viên phụ trách tại công ty đang làm việc, `null` khi không có). Người không có `crm.customer.view_all`: danh sách, chi tiết, `identity` chỉ gồm đối tác có hồ sơ khách hàng do mình hoặc nhân viên phòng mình quản lý phụ trách; khác thì `404`. `lookup` vẫn tìm toàn danh mục, chỉ trả mã, tên; có đối tác thì trả thêm `canClaim` (người dùng không có `crm.customer.view_all`, có `crm.partner.manage`; đối tác đang giao dịch, không phải công ty trong tập đoàn, chưa có hồ sơ tại công ty). `POST /crm/partners` của người không có `crm.customer.view_all`: tự lập hồ sơ khách hàng (`isCustomer` đúng, `paymentTermDays` 0, `creditLimit` 0, `ownerUserId` là người gọi), mở dòng lịch sử phụ trách.
@@ -1461,6 +1462,21 @@ Công văn (lát L2, Nghị định 30/2020/NĐ-CP):
 | `GET /office/outgoing/{id}/render?format=pdf\|docx` | | Văn bản theo thể thức (quốc hiệu, tiêu ngữ, tên cơ quan, số ký hiệu, địa danh ngày tháng, V/v, Kính gửi, nội dung, thẩm quyền ký, nơi nhận); chưa cấp số ghi “DỰ THẢO”; PDF phông Liberation Serif, Word phông Times New Roman |
 
 Thông báo công văn dùng loại `office_document` (trình lãnh đạo, chuyển, trình người ký, quyết định, chờ cấp số, phát hành), đường dẫn `/office/incoming/{id}` hoặc `/office/outgoing/{id}`; giao xử lý dùng `office_task_assigned` của công việc.
+
+Bảng tin (lát L3, QUYTAC_NGHIEPVU_367):
+
+| Endpoint | Gửi lên | Trả về, quy tắc |
+|---|---|---|
+| `GET /office/post-options` | | `PostOptions`: chi nhánh, phòng ban đang dùng của công ty, `canPost`, `canPostGroup`, số tin đang ghim |
+| `GET /office/posts` | `view` (`feed`: tin mình nhận; `manage`: tin của công ty, kể cả hẹn giờ, hết hạn, thu hồi), `unread`, `search`, `page`, `pageSize` | Trang `PostListItem`; tin ghim còn hiệu lực lên đầu, rồi mới nhất trước; `isRead`, `acknowledgedAt` của người xem |
+| `POST /office/posts`, `PATCH /office/posts/{id}` | `savePostSchema`: `title`, `body` (đánh dấu `**đậm**`, `*nghiêng*`, `[chữ](https://…)`, dòng `- `; đường dẫn chỉ http, https), `audienceType` (`company`, `units` với `branchIds`, `departmentIds`, `group`), `pinned`, `publishAt` (không gửi là đăng ngay), `expiresAt`, `requiresAcknowledgement`, `allowComments`, `version` khi sửa | Không có quyền `403`; toàn tập đoàn khi không có quyền phạm vi tập đoàn `400` tại `audienceType`; đối tượng trống hoặc không thuộc công ty `400`; hết hạn không sau giờ đăng `400` tại `expiresAt`; quá 5 tin ghim `409 officePostPinLimit`; sửa: chỉ người đăng, tin đã đăng giữ giờ đăng và hiện “đã sửa” |
+| `GET /office/posts/{id}` | | `PostResponse`; người nhận mở lần đầu ghi đã đọc; không thuộc đối tượng, tin hẹn giờ, hết hạn, thu hồi với người nhận `404` |
+| `POST /office/posts/{id}/revoke` | `version` | Chỉ người đăng; tin ẩn với người nhận, bỏ ghim |
+| `POST /office/posts/{id}/acknowledge` | | Người nhận tin cần xác nhận; không cần xác nhận `409 officePostNotAcknowledgeable` |
+| `GET /office/posts/{id}/readers` | | `PostReader[]` người nhận hiện tại (trừ người đăng), chưa đọc trước; người nhận khác `403` |
+| `…/comments` | `body` 1 đến 5.000 ký tự | Tin không cho bình luận `409 officePostCommentsClosed`; người đăng xóa được bình luận bất kỳ; người đăng nhận thông báo `office_post_comment` |
+
+Việc nền `office-post-publish` mỗi phút: tin cần xác nhận đọc đến giờ đăng thì gửi thông báo `office_post` (đường dẫn `/office/bulletin/{id}`) cho người nhận, mỗi tin một lần; tin thường không gửi thông báo.
 
 ## 4. Sự kiện phát ra (outbox)
 

@@ -92,6 +92,10 @@ describe("KICHBAN_KIEMTHU_506: bảng tin nội bộ", () => {
       body: post({ title: "Kiểm kê kho Bình Dương", audienceType: "units", branchIds: [testIds.binhDuongWarehouse] }),
     });
     expect(salesOnly.body.audienceText).toBe("Phòng Kinh doanh");
+    // Người đăng không tính là người nhận, không ghi đã đọc cho chính mình.
+    const companyReaders = (await poster.call("get", `/office/posts/${all.body.id}/readers`, { companyId: retail })).body as { person: { id: string } }[];
+    expect(companyReaders.map((reader) => reader.person.id)).toEqual(expect.arrayContaining([ids.sales, ids.accountant, ids.warehouse]));
+    expect(companyReaders.map((reader) => reader.person.id)).not.toContain(ids.poster);
     expect(await feedIds(sales)).toEqual(expect.arrayContaining([all.body.id, salesOnly.body.id]));
     expect(await feedIds(sales)).not.toContain(warehouseOnly.body.id);
     expect(await feedIds(accountant)).not.toContain(salesOnly.body.id);
