@@ -4100,6 +4100,8 @@ export const paymentMethodCodes = [
   "payos_vietqr",
   "bank_transfer_vietqr",
   "bidv_va_qr",
+  "ecopay_wallet",
+  "ecopay_atm",
 ] as const;
 export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
 export const paymentGatewayCodes = [
@@ -4110,6 +4112,7 @@ export const paymentGatewayCodes = [
   "payos",
   "bank_transfer",
   "bidv",
+  "ecopay",
 ] as const;
 export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];
 

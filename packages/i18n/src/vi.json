@@ -3678,7 +3678,10 @@
     "bank_transfer_vietqr": "Chuyển khoản ngân hàng (VietQR)",
     "gateway_bank_transfer": "Chuyển khoản ngân hàng",
     "bidv_va_qr": "Chuyển khoản BIDV qua mã VietQR",
-    "gateway_bidv": "BIDV"
+    "gateway_bidv": "BIDV",
+    "ecopay_wallet": "Ví Ecopay",
+    "ecopay_atm": "Thẻ ATM nội địa qua Ecopay",
+    "gateway_ecopay": "Ecopay"
   },
   "refunds": {
     "title": "Hoàn tiền đơn VComm",

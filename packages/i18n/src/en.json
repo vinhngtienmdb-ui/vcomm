@@ -3678,7 +3678,10 @@
     "bank_transfer_vietqr": "Bank transfer (VietQR)",
     "gateway_bank_transfer": "Bank transfer",
     "bidv_va_qr": "BIDV bank transfer via VietQR",
-    "gateway_bidv": "BIDV"
+    "gateway_bidv": "BIDV",
+    "ecopay_wallet": "Ecopay wallet",
+    "ecopay_atm": "Domestic ATM card via Ecopay",
+    "gateway_ecopay": "Ecopay"
   },
   "refunds": {
     "title": "VComm refunds",
