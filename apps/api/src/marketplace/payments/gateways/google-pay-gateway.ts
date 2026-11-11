@@ -12,27 +12,33 @@ export interface GooglePayConfiguration {
   requestSigningValue: string;
   // Khóa kiểm kết quả ZaloPay gửi về và trang trả về (key2).
   callbackSigningValue: string;
-  // Địa chỉ API ZaloPay, mặc định môi trường thử nghiệm.
-  apiUrl: string;
+  // Địa chỉ máy chủ ZaloPay (không kèm /v2), mặc định môi trường thử nghiệm.
+  endpoint: string;
   // Địa chỉ công khai của API VComm, ghép đường dẫn nhận kết quả và trang trả về.
   publicApiUrl: string;
   // Nhóm phương thức hiện trên trang ZaloPay (preferred_payment_method), mặc định thẻ quốc tế (có Google Pay).
-  preferredMethod: string;
+  preferredMethods: string[];
 }
 
+// Một bộ thông tin kết nối ZaloPay dùng chung cho các cổng đi qua ZaloPay (Apple Pay CONG_VIEC_41, Google Pay, ZaloPay CONG_VIEC_42).
+// ZALOPAY_ENDPOINT mặc định là môi trường thử nghiệm của ZaloPay.
 export function googlePayConfiguration(): GooglePayConfiguration | null {
-  const applicationId = process.env.GOOGLE_PAY_ZALOPAY_APP_ID?.trim();
-  const requestSigningValue = process.env.GOOGLE_PAY_ZALOPAY_MAC_KEY?.trim();
-  const callbackSigningValue = process.env.GOOGLE_PAY_ZALOPAY_CALLBACK_KEY?.trim();
-  const publicApiUrl = process.env.GOOGLE_PAY_PUBLIC_API_URL?.trim().replace(/\/+$/, "");
+  const applicationId = process.env.ZALOPAY_APP_ID?.trim();
+  const requestSigningValue = process.env.ZALOPAY_KEY1?.trim();
+  const callbackSigningValue = process.env.ZALOPAY_KEY2?.trim();
+  const publicApiUrl = process.env.ZALOPAY_PUBLIC_API_URL?.trim().replace(/\/+$/, "");
   if (!applicationId || !/^\d+$/.test(applicationId) || !requestSigningValue || !callbackSigningValue || !publicApiUrl) return null;
+  const preferredMethods = (process.env.ZALOPAY_GOOGLE_PAY_PREFERRED_METHODS ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
   return {
     applicationId,
     requestSigningValue,
     callbackSigningValue,
-    apiUrl: (process.env.GOOGLE_PAY_ZALOPAY_API_URL?.trim() || "https://sb-openapi.zalopay.vn/v2").replace(/\/+$/, ""),
+    endpoint: (process.env.ZALOPAY_ENDPOINT?.trim() || "https://sb-openapi.zalopay.vn").replace(/\/+$/, ""),
     publicApiUrl,
-    preferredMethod: process.env.GOOGLE_PAY_ZALOPAY_PREFERRED_METHOD?.trim() || "international_card",
+    preferredMethods: preferredMethods.length > 0 ? preferredMethods : ["international_card"],
   };
 }
 
@@ -76,14 +82,14 @@ export class GooglePayGateway implements PaymentGatewayAdapter {
     return googlePayConfiguration() !== null;
   }
 
-  // Tạo đơn trên ZaloPay (POST {apiUrl}/create), trả trang thanh toán order_url.
+  // Tạo đơn trên ZaloPay (POST {endpoint}/v2/create), trả trang thanh toán order_url.
   async start(input: PaymentStartInput): Promise<PaymentInstruction> {
     const configuration = googlePayConfiguration()!;
     const transactionId = zalopayTransactionId(input.reference, input.createdAt);
     const applicationTime = String(input.createdAt.getTime());
     const applicationUser = "VComm";
     const amount = String(input.amount);
-    const embedData = JSON.stringify({ preferred_payment_method: [configuration.preferredMethod], redirecturl: `${configuration.publicApiUrl}/api/v1/public/payments/google_pay/return` });
+    const embedData = JSON.stringify({ preferred_payment_method: configuration.preferredMethods, redirecturl: `${configuration.publicApiUrl}/api/v1/public/payments/google_pay/return` });
     const item = "[]";
     const remainingSeconds = Math.floor((input.expiresAt.getTime() - input.createdAt.getTime()) / 1000);
     const fields: Record<string, string> = {
@@ -100,7 +106,7 @@ export class GooglePayGateway implements PaymentGatewayAdapter {
       expire_duration_seconds: String(Math.min(2592000, Math.max(300, remainingSeconds))),
     };
     fields.mac = zalopaySignature(configuration.requestSigningValue, [configuration.applicationId, transactionId, applicationUser, amount, applicationTime, embedData, item].join("|"));
-    const response = await fetch(`${configuration.apiUrl}/create`, {
+    const response = await fetch(`${configuration.endpoint}/v2/create`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams(fields).toString(),

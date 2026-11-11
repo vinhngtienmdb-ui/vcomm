@@ -30,8 +30,8 @@ Hệ quả của phương án 1:
 
 ## 3. Quy tắc nghiệp vụ
 
-- QUYTAC_NGHIEPVU_260: Phương thức `google_pay_card` thuộc cổng `google_pay`, mặc định tắt; chỉ bật được khi có đủ biến môi trường `GOOGLE_PAY_ZALOPAY_APP_ID`, `GOOGLE_PAY_ZALOPAY_MAC_KEY`, `GOOGLE_PAY_ZALOPAY_CALLBACK_KEY`, `GOOGLE_PAY_PUBLIC_API_URL`.
-- QUYTAC_NGHIEPVU_261: Mở thanh toán tạo đơn ZaloPay (`POST {GOOGLE_PAY_ZALOPAY_API_URL}/create`): `app_trans_id` = ngày theo giờ Việt Nam `yymmdd` + `_` + số tham chiếu; `mac` = HMAC-SHA256(key1, `app_id|app_trans_id|app_user|amount|app_time|embed_data|item`); `embed_data` gồm `preferred_payment_method` (mặc định `international_card`) và `redirecturl` về trang trả về; `callback_url` về đường dẫn nhận kết quả chung; hạn đơn ZaloPay theo hạn thanh toán của đơn (300 giây đến 30 ngày). ZaloPay không trả `return_code` 1 kèm `order_url` https thì báo lỗi, không ghi lần thanh toán.
+- QUYTAC_NGHIEPVU_260: Phương thức `google_pay_card` thuộc cổng `google_pay`, mặc định tắt; chỉ bật được khi có đủ biến môi trường ZaloPay dùng chung `ZALOPAY_APP_ID`, `ZALOPAY_KEY1`, `ZALOPAY_KEY2`, `ZALOPAY_PUBLIC_API_URL`.
+- QUYTAC_NGHIEPVU_261: Mở thanh toán tạo đơn ZaloPay (`POST {ZALOPAY_ENDPOINT}/v2/create`): `app_trans_id` = ngày theo giờ Việt Nam `yymmdd` + `_` + số tham chiếu; `mac` = HMAC-SHA256(key1, `app_id|app_trans_id|app_user|amount|app_time|embed_data|item`); `embed_data` gồm `preferred_payment_method` (mặc định `international_card`) và `redirecturl` về trang trả về; `callback_url` về đường dẫn nhận kết quả chung; hạn đơn ZaloPay theo hạn thanh toán của đơn (300 giây đến 30 ngày). ZaloPay không trả `return_code` 1 kèm `order_url` https thì báo lỗi, không ghi lần thanh toán.
 - QUYTAC_NGHIEPVU_262: Kết quả ZaloPay gửi về `/api/v1/public/payments/google_pay/notify` (POST JSON `data`, `mac`, `type`) chỉ nhận khi `mac` = HMAC-SHA256(key2, `data`) (so sánh an toàn thời gian), `app_id` khớp, `app_trans_id` đúng định dạng; số tiền `amount`, số tham chiếu khớp lần thanh toán, ghi nhận một lần (QUYTAC_NGHIEPVU_166, 221). ZaloPay chỉ gửi khi thanh toán thành công.
 - QUYTAC_NGHIEPVU_263: Trả lời ZaloPay luôn HTTP 200: `return_code` 1 khi ghi nhận, đã ghi nhận trước đó hoặc đang xử lý (`pending` của khung, ZaloPay không gửi); 2 khi sai chữ ký, không có lần thanh toán, sai số tiền; 0 khi lỗi ghi nhận để ZaloPay gửi lại.
 - QUYTAC_NGHIEPVU_264: Trang trả về `/api/v1/public/payments/google_pay/return` kiểm `checksum` = HMAC-SHA256(key2, `appid|apptransid|pmcid|bankcode|amount|discountamount|status`), `status` 1 là thành công; chỉ hiển thị, không ghi nhận tiền.
@@ -44,7 +44,7 @@ Hệ quả của phương án 1:
 
 - Database migration `database/migrations/0058_payment_google_pay.sql`: thêm phương thức `google_pay_card` (cổng `google_pay`, sort_order 80, tắt).
 - API: dùng API_131 (trả `paymentUrl`), API_132 (đường dẫn chung). Không có API mới.
-- Biến môi trường (`.env.example`, để trống): `GOOGLE_PAY_ZALOPAY_APP_ID`, `GOOGLE_PAY_ZALOPAY_MAC_KEY` (key1), `GOOGLE_PAY_ZALOPAY_CALLBACK_KEY` (key2), `GOOGLE_PAY_ZALOPAY_API_URL` (mặc định `https://sb-openapi.zalopay.vn/v2`; môi trường thật `https://openapi.zalopay.vn/v2`), `GOOGLE_PAY_ZALOPAY_PREFERRED_METHOD` (mặc định `international_card`), `GOOGLE_PAY_PUBLIC_API_URL` (địa chỉ công khai của API, không kèm `/api/v1`).
+- Biến môi trường (`.env.example`, để trống): một bộ thông tin kết nối ZaloPay dùng chung với Apple Pay (CONG_VIEC_41) và cổng ZaloPay (CONG_VIEC_42), theo phiên chính ngày 2026-11-11: `ZALOPAY_APP_ID`, `ZALOPAY_KEY1`, `ZALOPAY_KEY2`, `ZALOPAY_ENDPOINT` (mặc định `https://sb-openapi.zalopay.vn`; môi trường thật `https://openapi.zalopay.vn`), `ZALOPAY_PUBLIC_API_URL` (địa chỉ công khai của API, không kèm `/api/v1`); riêng Google Pay: `ZALOPAY_GOOGLE_PAY_PREFERRED_METHODS` (cách nhau dấu phẩy, mặc định `international_card`).
 - Mã: `apps/api/src/marketplace/payments/gateways/google-pay-gateway.ts`; thêm một dòng vào `payment-gateway-registry.ts`; `packages/contracts/src/index.ts` (`google_pay_card`, `google_pay`); `packages/i18n/src/vi.json`, `en.json` (nhóm `paymentMethods`).
 - Sửa kiểm thử hồi quy `apps/api/test/c25-payment-methods.test.ts`: chỉ so 4 phương thức đầu danh sách (danh mục có thêm phương thức của cổng mới).
 
@@ -63,7 +63,7 @@ KICHBAN_KIEMTHU_407 đến 410: tự động, `apps/api/test/c40-payment-google-
 
 ## 8. Điểm chưa xác minh (thử bằng tài khoản thử nghiệm ZaloPay trước khi phát hành)
 
-- Tài liệu ZaloPay không nêu giá trị `preferred_payment_method` riêng cho Google Pay; giả định nút Google Pay nằm trong nhóm thẻ quốc tế (`international_card`). Đổi được bằng `GOOGLE_PAY_ZALOPAY_PREFERRED_METHOD` theo giá trị ZaloPay cung cấp.
+- Tài liệu ZaloPay không nêu giá trị `preferred_payment_method` riêng cho Google Pay; giả định nút Google Pay nằm trong nhóm thẻ quốc tế (`international_card`). Đổi được bằng `ZALOPAY_GOOGLE_PAY_PREFERRED_METHODS` theo giá trị ZaloPay cung cấp.
 - Địa chỉ API `sb-openapi.zalopay.vn/v2`, `openapi.zalopay.vn/v2` theo mã mẫu công khai của ZaloPay; trang đặc tả không ghi.
 - Ý nghĩa `return_code` trả lời kết quả gửi về chưa thống nhất giữa các trang tài liệu (trang đặc tả: 1 thành công, 2 không hợp lệ; mã mẫu: 0 để gửi lại). Thuật toán ký mặc định HmacSHA256, có thể khác nếu đăng ký khác với ZaloPay.
 - Trang ZaloPay bắt buộc mở Google Pay trong hợp đồng; Google Pay chỉ nhận thẻ Visa, Mastercard (DPAN).
@@ -89,3 +89,4 @@ Tra cứu trạng thái đơn ZaloPay (`POST /v2/query`, `mac` = HMAC(key1, `app
 
 - Kiểm thử ngày 2026-11-11: `c40-payment-google-pay.test.ts` 4/4 đạt; hồi quy `pnpm --filter api test` 47 tệp, 337 kiểm thử đạt; `pnpm typecheck`, `pnpm lint` đạt.
 - Sau khi hợp nhất nhánh nền có CONG_VIEC_33 (MoMo), ngày 2026-11-11: thêm câu trả lời cho kết quả `pending` của khung; kiểm thử `c25-*`, `c32-*`, `c33-*`, `c40-*` 8 tệp, 16 kiểm thử đạt; hồi quy `pnpm --filter api test` 48 tệp, 340 kiểm thử đạt; `pnpm typecheck`, `pnpm lint` đạt.
+- Đổi tên biến môi trường sang bộ `ZALOPAY_*` dùng chung (CONG_VIEC_41, 42), ngày 2026-11-11.

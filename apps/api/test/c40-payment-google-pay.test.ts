@@ -24,11 +24,11 @@ const received: Record<string, string>[] = [];
 let failNext = false;
 
 const environment = () => ({
-  GOOGLE_PAY_ZALOPAY_APP_ID: applicationId,
-  GOOGLE_PAY_ZALOPAY_MAC_KEY: requestSigning,
-  GOOGLE_PAY_ZALOPAY_CALLBACK_KEY: callbackSigning,
-  GOOGLE_PAY_ZALOPAY_API_URL: `http://127.0.0.1:${(zalopay.address() as AddressInfo).port}/v2`,
-  GOOGLE_PAY_PUBLIC_API_URL: "https://api.vcomm.test/",
+  ZALOPAY_APP_ID: applicationId,
+  ZALOPAY_KEY1: requestSigning,
+  ZALOPAY_KEY2: callbackSigning,
+  ZALOPAY_ENDPOINT: `http://127.0.0.1:${(zalopay.address() as AddressInfo).port}`,
+  ZALOPAY_PUBLIC_API_URL: "https://api.vcomm.test/",
 });
 
 // Kết quả ZaloPay gửi về: data là chuỗi JSON, mac = HMAC-SHA256(key2, data).
@@ -101,12 +101,12 @@ afterAll(async () => {
 
 describe("CONG_VIEC_40 cổng Google Pay", () => {
   it("KICHBAN_KIEMTHU_407: phương thức Google Pay chỉ bật được khi có thông tin kết nối; bật thì người mua thấy, đặt được", async () => {
-    const saved = process.env.GOOGLE_PAY_ZALOPAY_CALLBACK_KEY;
-    delete process.env.GOOGLE_PAY_ZALOPAY_CALLBACK_KEY;
+    const saved = process.env.ZALOPAY_KEY2;
+    delete process.env.ZALOPAY_KEY2;
     const missing = (await store.call("get", "/marketplace/store-settings")).body.paymentMethods.find((item: { code: string }) => item.code === "google_pay_card");
     expect(missing).toEqual({ code: "google_pay_card", gatewayCode: "google_pay", isEnabled: false, isConfigured: false });
     expect((await store.call("put", "/marketplace/payment-methods/google_pay_card", { isEnabled: true })).status).toBe(409);
-    process.env.GOOGLE_PAY_ZALOPAY_CALLBACK_KEY = saved;
+    process.env.ZALOPAY_KEY2 = saved;
     expect((await store.call("put", "/marketplace/payment-methods/google_pay_card", { isEnabled: true })).status).toBe(200);
     const order = await placeOrder();
     expect(order.status).toBe("awaiting_payment");
