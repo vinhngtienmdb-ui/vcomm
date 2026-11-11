@@ -2,8 +2,27 @@
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày.
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-10
+- Ngày cập nhật: 2026-11-11
 - Trạng thái: Đang cập nhật
+
+## 2026-11-11
+
+### Công việc đã thực hiện
+
+- CONG_VIEC_24: Bắt đầu Đặt hàng trên VComm (mức Lớn), nhánh `chuc-nang/CONG_VIEC_24-dat-hang-vcomm` tách từ nhánh CONG_VIEC_27.
+
+### Quyết định
+
+- CONG_VIEC_24 (người dùng, 2026-11-11):
+  - Hàng bán: quản trị bật đăng bán từng sản phẩm đã duyệt, kèm mô tả cho người mua; giá lấy từ bảng giá của kênh bán VComm.
+  - Giao hàng: làm khung chung cho mọi đơn vị vận chuyển (bật tắt từng đơn vị), kết nối API GHN đầu tiên ngay trong công việc này; token qua biến môi trường; kiểm thử tự động dùng máy chủ giả lập.
+  - Phí giao hàng: một mức phí cố định mỗi đơn, miễn phí từ mức giá trị đơn do quản trị thiết lập.
+  - Thanh toán: chưa mở đặt hàng thật cho đến khi xong CONG_VIEC_25; công tắc "Mở đặt hàng" mặc định tắt, khi tắt chỉ tài khoản được đánh dấu "Người mua thử" đặt được (thanh toán khi nhận hàng).
+  - Xác nhận đơn: tự xác nhận và giữ hàng khi đủ tồn; không đủ tồn thì không cho đặt.
+  - Trả hàng: trong 7 ngày từ lúc giao thành công, người mua gửi yêu cầu trên ứng dụng (dòng hàng, số lượng, trả một phần được, lý do, ảnh), VComm duyệt hoặc từ chối; hoàn tiền làm ở CONG_VIEC_25.
+  - Địa chỉ: chọn tỉnh, xã theo đơn vị hành chính hai cấp từ 01/07/2025 cộng địa chỉ chi tiết; sổ nhiều địa chỉ, một địa chỉ mặc định. Danh mục lấy từ bộ dữ liệu công khai kèm mã (kho `thanglequoc/vietnamese-provinces-database`, giấy phép MIT, mã của Tổng cục Thống kê).
+  - Hủy, hoàn tất: người mua tự hủy trước khi đơn vị vận chuyển lấy hàng; giao thất bại, hàng hoàn về thì đơn hủy, hàng nhập lại kho; đơn hoàn tất khi đủ 7 ngày từ lúc giao thành công và không còn yêu cầu trả hàng đang xử lý; trả một phần thì đơn hoàn tất với giá trị phần còn giữ (cơ sở hoa hồng ở CONG_VIEC_26).
+  - Xác nhận thiết kế: đơn người mua dùng lại đơn bán của công ty vận hành sàn trên kênh VComm; năm lát L0 đến L4; phí giao hàng chỉ lưu trên đơn, hạch toán khi thu tiền ở CONG_VIEC_25; chưa có mã giảm giá.
 
 ## 2026-11-10
 
