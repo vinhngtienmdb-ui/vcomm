@@ -398,3 +398,14 @@
 - Rủi ro: chưa đối chiếu nguyên văn quy định hóa đơn khởi tạo từ máy tính tiền (phải tra trước lát hóa đơn).
 - Trạng thái: Đã phê duyệt 2026-11-11.
 
+### THAY_DOI_25: Ứng viên tự trả lời đề nghị nhận việc, email mời phỏng vấn kèm lịch – 2026-11-11
+- Lý do: người dùng thay đổi đặc tả CONG_VIEC_54 đã duyệt (bản 0.1) sau khi xem lát L0.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11): ứng viên tự trả lời đề nghị nhận việc qua liên kết dùng một lần trong email (bản 0.1 chỉ có nhân sự ghi tay); email mời, đổi, hủy phỏng vấn kèm tệp lịch `.ics`.
+- Thành phần bị ảnh hưởng: CONG_VIEC_54 (đặc tả bản 0.2 mục 17); API công khai trả lời đề nghị giữ giới hạn yêu cầu theo IP mặc định.
+- Dữ liệu, API, giao diện, quyền: thêm liên kết dùng một lần, API công khai trả lời đề nghị; tệp đính kèm trong thư gửi đi (không bắt buộc, tương thích ngược).
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_54.
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_54.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-11.
+
