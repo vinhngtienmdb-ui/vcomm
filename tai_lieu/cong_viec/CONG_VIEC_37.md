@@ -76,4 +76,4 @@ Ngoài phạm vi:
 ## 9. Kết quả kiểm thử
 
 - `apps/api/test/c37-payment-bidv.test.ts`: 4/4 đạt (giả lập BIDV gọi getbill, paybill ký checksum).
-- Hồi quy: `c32-payment-gateway-framework`, `c25-vnpay-payments` đạt; toàn bộ `pnpm --filter api test`: xem pull request.
+- Hồi quy toàn bộ `pnpm --filter api test` (2026-11-11): 47 tệp, 337 kiểm thử đạt sau khi sửa `c25-payment-methods.test.ts` (KICHBAN_KIEMTHU_321 so nguyên danh sách phương thức, nay chỉ so phương thức của cổng COD, VNPAY). Các phiên cổng khác (CONG_VIEC_33 đến 39) cũng gặp lỗi này; phiên chính giữ một bản sửa khi hợp nhất.
