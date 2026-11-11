@@ -106,7 +106,7 @@ Không thêm thư viện; gọi GHTK bằng `fetch` có thời gian chờ 15 gi�
 |---|---|---|---|
 | 1 | 2026-11-11 | `c31-carrier-ghtk.test.ts` | 3/3 đạt (KICHBAN_KIEMTHU_352 đến 354) |
 | 1 | 2026-11-11 | `c24-marketplace-orders.test.ts` | 12/12 đạt (sửa kỳ vọng danh sách đơn vị vận chuyển có thêm GHTK) |
-| 1 | 2026-11-11 | Kiểm thử hồi quy `pnpm --filter api test` | Đang chạy, cập nhật ở commit sau |
+| 1 | 2026-11-11 | Kiểm thử hồi quy `pnpm --filter api test` | 327/327 đạt (41 tệp) |
 | 1 | 2026-11-11 | Kiểm tra kiểu `api`, `web-crm` | Đạt |
 
 Kiểm tra kiểm thử bắt lỗi: chuyển mã 123 sang "đã lấy hàng" thì KICHBAN_KIEMTHU_352, 353 thất bại (đã khôi phục).
@@ -118,7 +118,7 @@ Kiểm tra kiểm thử bắt lỗi: chuyển mã 123 sang "đã lấy hàng" th
 | Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Đạt: QUYTAC_NGHIEPVU_195 có kiểm thử tự động; phân quyền dùng lại của CONG_VIEC_24 |
 | Đúng giao diện | Không áp dụng: không đổi giao diện; danh sách đơn vị vận chuyển tự hiện GHTK |
 | Đã xử lý lỗi | Đạt: từ chối, sai token, không trả lời, mã trạng thái chưa biết đều có xử lý |
-| Đã kiểm thử, đạt cổng kiểm thử | Xem mục 15 |
+| Đã kiểm thử, đạt cổng kiểm thử | Đạt: mục 15; toàn bộ 327/327; không có lỗi Nghiêm trọng, Cao. CI trên GitHub chưa chạy do tài khoản lỗi thanh toán Actions |
 | Không phá vỡ chức năng cũ | Đạt: GHN không đổi; kiểm thử C24 đạt |
 | Đạt tiêu chí nghiệm thu bắt buộc | Đạt (giả lập): TIEUCHI_NGHIEMTHU_212 đến 214 |
 | Đạt cổng bảo mật | Đạt: không thêm thư viện; token, khóa ở biến môi trường, `.env.example` để trống; khóa webhook so sánh an toàn thời gian; trạng thái luôn tra lại từ GHTK; quét khóa bí mật trên commit không có phát hiện |
