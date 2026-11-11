@@ -3,7 +3,7 @@
 - Mô tả: Mini app Nhân sự `apps/web-hr`: hồ sơ nhân sự theo công ty (thông tin cá nhân, giấy tờ, người phụ thuộc, quá trình công tác) gắn với tài khoản người dùng và cơ cấu công ty, chi nhánh, phòng ban đã có; hợp đồng lao động, phụ lục qua luồng duyệt; nhắc hết hạn hợp đồng; nhân viên tự xem hồ sơ của mình.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11. Đang thực hiện lát L0.
+- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; xác nhận điểm xem trước L0, L1. Lát L2 xong, chờ nghiệm thu.
 - Mức: Lớn (module mới, mini app mới, dữ liệu cá nhân nhạy cảm, đổi dữ liệu thành viên công ty ở `core`).
 - Nguồn: tài liệu `01` mục 4 (MODULE_08), tài liệu `05` mục 2.1 (Nhân sự: hồ sơ nhân viên, hợp đồng); quyết định của người dùng ngày 2026-11-11 (mục 17).
 
@@ -191,7 +191,17 @@ Luồng duyệt chung, dãy số chứng từ, đăng nhập, phân quyền hi�
 
 ## 18. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa đối chiếu.
+| Mục | Kết quả |
+|---|---|
+| Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Đạt: QUYTAC_NGHIEPVU_292 đến 301 có kiểm thử tự động; chỗ chỉnh cho khớp mã ghi ở mục 19, 20 |
+| Đúng giao diện | Đạt: MAN_HINH_114 đến 119 khớp bản mẫu đã duyệt; xem trước khổ 1366 và 390 điểm ảnh không lỗi trình duyệt, không cuộn ngang (KICHBAN_KIEMTHU_442, 443) |
+| Đã xử lý lỗi | Đạt: lỗi theo ô, lỗi nghiệp vụ có câu dịch vi, en; tệp lưu lỗi thì xóa tệp vừa lưu |
+| Đã kiểm thử, có kết quả trong tài liệu `25` | Kiểm thử tự động c46-employees, c46-contracts, c46-reminders đạt; toàn bộ kiểm thử API đạt; kết quả gửi phiên cha ghi tài liệu `25` (sổ dùng chung) |
+| Không phá vỡ chức năng cũ | Đạt: toàn bộ kiểm thử API đạt; API người dùng, cơ cấu cũ giữ nguyên hành vi |
+| Đạt tiêu chí nghiệm thu bắt buộc | TIEUCHI_NGHIEMTHU_287 đến 294 có kịch bản và kết quả đạt |
+| Đạt cổng bảo mật | Đạt: không còn lỗ hổng Nghiêm trọng, Cao; quét thư viện còn 2 mức Trung bình đã chấp nhận (RUIRO CONG_VIEC_23); gitleaks trên CI đạt; rủi ro lưu giữ hồ sơ đã nghỉ ghi tài liệu `22` mục 8 chờ người dùng chốt |
+| Đã tự rà soát mã, dọn dẹp | Đạt: rà soát truy vấn (không ghép chuỗi người dùng nhập, `sql.raw` chỉ với tên cột cố định), phạm vi công ty, quyền, khóa đồng thời; tệp tạm trong `tam_thoi/` (Git bỏ qua) |
+| Đã cập nhật tài liệu `27` và tài liệu liên quan | Đạt: tài liệu 06, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 27, `index.md` |
 
 ## 19. Chỗ chỉnh cho khớp mã (lát L0)
 

@@ -1257,6 +1257,21 @@ Lỗi mới:
 
 Sự kiện: không phát, không nghe sự kiện outbox mới. Phiếu dịch vụ lập qua móc nối `SalesOrdersService.confirmedHooks`, `PurchaseOrdersService.approvedHooks` trong giao dịch xác nhận, duyệt đơn.
 
+## 3w. Hợp đồng chi tiết Nhân sự phần 1 (MODULE_08, CONG_VIEC_46)
+
+Mọi đường dẫn dưới `/api/v1/hr`, cần đăng nhập, công ty đang chọn qua `x-company-id`; trừ `/hr/me*`, mọi đường dẫn cần `hr.access`. Lược đồ zod trong `packages/contracts` (mục CONG_VIEC_46). Lỗi theo mục 1.
+
+| Mã | Phương thức, đường dẫn | Quyền | Nội dung |
+|---|---|---|---|
+| API_144 | `GET /hr/employee-options`; `GET /hr/employees`; `GET /hr/employees/{id}`; `POST /hr/employees`; `PATCH /hr/employees/{id}`; `POST /hr/employees/{id}/reveal`; `POST /hr/employees/{id}/terminate` | Xem: `hr.employee.view`; ghi, nghỉ việc: `hr.employee.manage`; hiện số: `hr.identity.view` | Tùy chọn (phòng ban, chi nhánh, thành viên chưa có hồ sơ), danh sách phân trang (tìm, lọc phòng ban, chi nhánh, trạng thái), chi tiết (số che), lập, sửa (trường mã hóa bỏ trống là giữ), hiện một trường (`{field}` → `{value}`, ghi nhật ký), nghỉ việc (`204`) |
+| API_145 | `GET`, `POST /hr/employees/{id}/documents` (multipart `file`, `kind`, `consentDate`); `GET /hr/documents/{id}` | Xem danh sách: `hr.employee.view`; tải lên: `hr.employee.manage`; tải xuống: `hr.identity.view` | PDF, JPG, PNG tối đa 10 MB, kiểm chữ ký đầu tệp; tải xuống `cache-control: no-store`, ghi nhật ký |
+| API_146 | `GET`, `POST /hr/employees/{id}/dependents`; `PATCH /hr/employees/{id}/dependents/{dependentId}`; `GET`, `POST /hr/employees/{id}/work-events`; `PATCH`, `DELETE /hr/employees/{id}/work-events/{eventId}` | Xem: `hr.employee.view`; ghi: `hr.employee.manage` | Người phụ thuộc (tháng giảm trừ là ngày 01); quyết định công tác (sửa, xóa khi chưa hiệu lực và nhập tay) |
+| API_147 | `GET /hr/contracts` (`employeeId`, `search`, `kind`, `status`, `expiring`, phân trang); `GET /hr/contracts/{id}`; `POST /hr/contracts`; `PATCH /hr/contracts/{id}`; `POST /hr/contracts/{id}/submit`, `/withdraw`, `/sign` (multipart `signDate`, `file`), `/cancel` (`reason`), `/terminate` (`terminationDate`, `reason`, `note`); `GET /hr/contracts/{id}/signed-file` | Xem: `hr.employee.view` (không có lương); ghi, xem lương: `hr.contract.manage`; tải bản đã ký: `hr.identity.view` | Trả giá trị gốc, giá trị hiện hành sau phụ lục, tình trạng hiệu lực, số ngày đến hạn, nhãn quá 30 ngày |
+| API_148 | `POST /hr/contracts/{id}/appendices`; `PATCH /hr/contracts/{id}/appendices/{appendixId}`; `POST .../{appendixId}/submit`, `/withdraw`, `/sign`, `/cancel`; `GET .../{appendixId}/signed-file` | `hr.contract.manage`; tải: `hr.identity.view` | Phụ lục không có trường thời hạn; trả lại hợp đồng đầy đủ |
+| API_149 | `GET /hr/me`; `POST /hr/me/reveal`; `GET /hr/me/contracts`; `GET /hr/me/contracts/{id}/signed-file?appendixId=` | Thành viên công ty có hồ sơ liên kết | Hồ sơ, quá trình công tác, hợp đồng và phụ lục đã ký của chính mình (kèm lương); không có hồ sơ trả `404` |
+
+Sự kiện: không phát sự kiện mới; nghe `core.approval.completed` (loại `hr.contract`, `hr.contract_appendix`). Thông báo mới: `hr.employee.terminated`, `hr.contract.expiring`.
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |

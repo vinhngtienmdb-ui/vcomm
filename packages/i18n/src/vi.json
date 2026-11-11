@@ -3944,6 +3944,10 @@
     "terminateEmployeeWarning": "Hợp đồng đã ký còn hiệu lực sẽ chấm dứt cùng ngày, cùng lý do; hợp đồng chưa ký bị hủy. Hồ sơ chuyển \"Đã nghỉ\" khi đến ngày nghỉ. Quản trị công ty nhận thông báo để vô hiệu hóa tài khoản liên kết.",
     "terminateEmployeeDone": "Đã ghi nghỉ việc.",
     "terminationScheduled": "Nghỉ việc từ {date}",
-    "mine": "Hợp đồng của tôi"
+    "mine": "Hợp đồng của tôi",
+    "tab_all": "Tất cả",
+    "tab_expiring": "Sắp hết hạn",
+    "expiringNone": "Không có hợp đồng sắp hết hạn hoặc đã hết hạn chưa xử lý.",
+    "expiringHint": "Hợp đồng thử việc, xác định thời hạn đã ký còn 30 ngày trở xuống hoặc đã hết hạn mà chưa có hợp đồng tiếp theo. Quá 30 ngày sau hết hạn, hợp đồng xác định thời hạn theo luật đã thành không xác định thời hạn: lập hợp đồng mới."
   }
 }

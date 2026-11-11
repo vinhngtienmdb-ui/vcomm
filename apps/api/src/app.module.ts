@@ -76,6 +76,7 @@ import { SalesOrdersService } from "./sales/sales-orders.service";
 import { InternalTradeService } from "./sales/internal-trade.service";
 import { PromotionsService } from "./sales/promotions.service";
 import { FinanceController } from "./finance/finance.controller";
+import { ContractRemindersService } from "./hr/contract-reminders.service";
 import { ContractsService } from "./hr/contracts.service";
 import { EmployeesService } from "./hr/employees.service";
 import { HrController } from "./hr/hr.controller";
@@ -149,6 +150,7 @@ import { UsersService } from "./users/users.service";
     EmployeesService,
     WorkEventsService,
     ContractsService,
+    ContractRemindersService,
     CategoriesService,
     UnitsService,
     ProductsService,

@@ -3944,6 +3944,10 @@
     "terminateEmployeeWarning": "Signed contracts in effect end on the same date with the same reason; unsigned contracts are cancelled. The record becomes \"Left\" on that date. Company administrators are notified to disable the linked account.",
     "terminateEmployeeDone": "Leaving recorded.",
     "terminationScheduled": "Leaving from {date}",
-    "mine": "My contracts"
+    "mine": "My contracts",
+    "tab_all": "All",
+    "tab_expiring": "Expiring",
+    "expiringNone": "No contracts expiring or expired without follow-up.",
+    "expiringHint": "Signed probation and fixed-term contracts with 30 days or less left, or expired without a next contract. Over 30 days after expiry a fixed-term contract has become indefinite by law: create a new contract."
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_117 Hợp đồng lao động (CHUC_NANG_163; API_147): lọc loại, trạng thái; cột lương chỉ khi có quyền quản lý hợp đồng.
+// MAN_HINH_117 Hợp đồng lao động (CHUC_NANG_163, 164; API_147): thẻ Tất cả (lọc loại, trạng thái), Sắp hết hạn; cột lương chỉ khi có quyền quản lý hợp đồng.
 import type { ContractKind, ContractListResponse, ContractStatus } from "contracts";
 import { contractKinds, contractStatuses } from "contracts";
 import { useTranslations } from "next-intl";
@@ -21,10 +21,15 @@ export default function ContractsPage() {
   const [kind, setKind] = useState<ContractKind | "">("");
   const [status, setStatus] = useState<ContractStatus | "">("");
   const [page, setPage] = useState(1);
+  const [expiring, setExpiring] = useState(false);
+  const expiringCount = useApi<ContractListResponse>("/hr/contracts?expiring=true&pageSize=1");
   const parameters = new URLSearchParams({ page: String(page), pageSize: "20" });
   if (search.trim()) parameters.set("search", search.trim());
-  if (kind) parameters.set("kind", kind);
-  if (status) parameters.set("status", status);
+  if (expiring) parameters.set("expiring", "true");
+  else {
+    if (kind) parameters.set("kind", kind);
+    if (status) parameters.set("status", status);
+  }
   const { state, reload } = useApi<ContractListResponse>(`/hr/contracts?${parameters}`);
   const headings = [t("documentNo"), t("employee"), t("kind"), t("effectiveDate"), t("endDate"), ...(canManage ? [t("salary")] : []), t("status")];
   return (
@@ -38,6 +43,25 @@ export default function ContractsPage() {
           </Link>
         )}
       </div>
+      <div className="cac-the" role="tablist">
+        {[false, true].map((value) => (
+          <button
+            key={String(value)}
+            type="button"
+            role="tab"
+            aria-selected={expiring === value}
+            className={expiring === value ? "chon" : ""}
+            onClick={() => {
+              setExpiring(value);
+              setPage(1);
+            }}
+          >
+            {value ? t("tab_expiring") : t("tab_all")}
+            {value && expiringCount.state.kind === "ready" && expiringCount.state.data.total > 0 && <span className="huy-hieu">{expiringCount.state.data.total}</span>}
+          </button>
+        ))}
+      </div>
+      {expiring && <div className="khoi-canh-bao thong-tin">{t("expiringHint")}</div>}
       <div className="bo-loc">
         <label className="an-nhan" htmlFor="tim-hop-dong">
           {t("searchPlaceholder")}
@@ -52,43 +76,47 @@ export default function ContractsPage() {
             setPage(1);
           }}
         />
-        <select
-          className="o-nhap"
-          aria-label={t("kind")}
-          value={kind}
-          onChange={(event) => {
-            setKind(event.target.value as ContractKind | "");
-            setPage(1);
-          }}
-        >
-          <option value="">{t("allKinds")}</option>
-          {contractKinds.map((value) => (
-            <option key={value} value={value}>
-              {t(`kind_${value}`)}
-            </option>
-          ))}
-        </select>
-        <select
-          className="o-nhap"
-          aria-label={t("status")}
-          value={status}
-          onChange={(event) => {
-            setStatus(event.target.value as ContractStatus | "");
-            setPage(1);
-          }}
-        >
-          <option value="">{t("allStatuses")}</option>
-          {contractStatuses.map((value) => (
-            <option key={value} value={value}>
-              {t(`status_${value}`)}
-            </option>
-          ))}
-        </select>
+        {!expiring && (
+          <>
+            <select
+              className="o-nhap"
+              aria-label={t("kind")}
+              value={kind}
+              onChange={(event) => {
+                setKind(event.target.value as ContractKind | "");
+                setPage(1);
+              }}
+            >
+              <option value="">{t("allKinds")}</option>
+              {contractKinds.map((value) => (
+                <option key={value} value={value}>
+                  {t(`kind_${value}`)}
+                </option>
+              ))}
+            </select>
+            <select
+              className="o-nhap"
+              aria-label={t("status")}
+              value={status}
+              onChange={(event) => {
+                setStatus(event.target.value as ContractStatus | "");
+                setPage(1);
+              }}
+            >
+              <option value="">{t("allStatuses")}</option>
+              {contractStatuses.map((value) => (
+                <option key={value} value={value}>
+                  {t(`status_${value}`)}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
       </div>
       <Loaded state={state} onRetry={() => void reload()}>
         {(result) =>
           result.data.length === 0 ? (
-            <MessageView text={t("none")} />
+            <MessageView text={expiring ? t("expiringNone") : t("none")} />
           ) : (
             <div className="khung-bang">
               <table>
