@@ -3845,3 +3845,62 @@ Dữ liệu chung: công ty VCR, VTH; sản phẩm hàng hóa và dịch vụ (`
 - Kết quả mong đợi: Bước 1: `400` tại đúng dòng `internalServicesOnly`. Bước 2: đơn bán "Đã giao đủ", đơn mua "Đã nhận đủ" bằng phiếu xuất, phiếu nhập dịch vụ; không giữ hàng, không ghi thẻ kho, không phiếu nhập chờ nhận. Bước 3: bên bán xác nhận không giữ hàng. Bước 4: Nợ 6427 / Nợ 1331 / Có 331.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c43-internal-services.test.ts`
 - Lát: L2, L3
+
+## MODULE_04 Mua hàng (phần 2: Nhập khẩu và phân bổ chi phí, CONG_VIEC_45)
+
+Dữ liệu chung: công ty VCR đã khởi tạo kế toán Thông tư 99; tỷ giá hạch toán USD hôm nay 25.000, hôm qua chưa có; chính sách duyệt đơn mua cấp 1 từ 0 đồng; nhà cung cấp nước ngoài, nhà cung cấp dịch vụ có hồ sơ nhà cung cấp. Kiểm thử tự động: `apps/api/test/c45-imports.test.ts`.
+
+### KICHBAN_KIEMTHU_428: Đơn USD, nhập kho, trả hàng theo tỷ giá
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_282
+- Chức năng: CHUC_NANG_160
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Nhân viên mua hàng, Thủ kho, Kế toán trưởng
+- Các bước: (1) Lập đơn 100 cái × 8,5 USD, thuế suất 10%; tiền tệ XYZ. (2) Gửi, duyệt. (3) Nhận 60 cái ngày hôm qua, rồi hôm nay. (4) Đổi tiền tệ khi đã có phiếu nhập. (5) Trả 10 cái. (6) Lập đơn trong nước kèm tiền tệ khác.
+- Kết quả mong đợi: thuế suất dòng "Không kê khai", tổng 850 USD, quy đổi 21.250.000; XYZ bị từ chối; yêu cầu duyệt quy đổi 21.250.000; hôm qua `409` thiếu tỷ giá; hôm nay giá vốn 212.500, công nợ 12.750.000 kèm 510 USD, bút toán Nợ 156 / Có 331; đổi tiền tệ bị từ chối; trả hàng giảm nợ 2.125.000 kèm 85 USD; đơn trong nước theo VND, thuế 10%.
+- Kiểm thử tự động: Tự động API
+- Lát: L0
+
+### KICHBAN_KIEMTHU_429: Thuế gợi ý, sửa, trùng, vượt
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_283
+- Chức năng: CHUC_NANG_160
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Các bước: (1) Thủ kho lập tờ khai. (2) Lập tờ khai 50 cái, 425 USD, tỷ giá 25.400, thuế 10%, 10%. (3) Sửa thuế nhập khẩu 1.080.000. (4) Tờ khai thuế suất 0. (5) Khai thêm 60 cái; trùng số tờ khai.
+- Kết quả mong đợi: `403`; trị giá 10.795.000, thuế nhập khẩu 1.079.500, giá trị gia tăng 1.187.450; sau sửa đánh dấu đã sửa, giá trị gia tăng 1.187.500; thuế 0; vượt số đặt, trùng số bị từ chối đúng ô.
+- Kiểm thử tự động: Tự động API
+- Lát: L1
+
+### KICHBAN_KIEMTHU_430: Ghi sổ tờ khai khi đã xuất một phần
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_284
+- Chức năng: CHUC_NANG_160, CHUC_NANG_161
+- Loại: Đúng, sai
+- Các bước: (1) Xuất 10 cái (còn 40 trên 50 khai). (2) Xem trước, ghi sổ. (3) Sửa tờ khai đã ghi sổ. (4) Tờ khai thứ hai 30 cái ngày trong kỳ đã khóa, rồi ngày hôm nay.
+- Kết quả mong đợi: 864.000 vào tồn, 216.000 vào 632; tồn 9.364.000, giá vốn 234.100; bút toán Nợ 156, 632, 1331 / Có 3333, 33312; thẻ kho dòng số lượng 0; sửa bị từ chối; kỳ khóa `409`; chưa nhập đủ bị từ chối tại dòng.
+- Kiểm thử tự động: Tự động API
+- Lát: L1
+
+### KICHBAN_KIEMTHU_431: Hàng serial; Thông tư 133
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_284
+- Chức năng: CHUC_NANG_160
+- Loại: Đúng
+- Các bước: (1) Nhập 3 serial 100 USD, xuất 1. (2) Tờ khai 300 USD, thuế 10%, ghi sổ. (3) Khởi tạo kế toán công ty Thông tư 133.
+- Kết quả mong đợi: 508.000 vào tồn (mỗi serial còn trong kho thêm 254.000), 254.000 vào 632; định khoản bảo vệ môi trường 3338 (Thông tư 133), 33381 (Thông tư 99).
+- Kiểm thử tự động: Tự động API
+- Lát: L1
+
+### KICHBAN_KIEMTHU_432: Chứng từ chi phí, phân bổ hai tiêu thức
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_285
+- Chức năng: CHUC_NANG_161
+- Loại: Đúng, sai, giá trị biên
+- Các bước: (1) Đơn 3 dòng, nhập đủ, xuất 5 trên 30 dòng thứ ba; tờ khai trị giá 100, 60, 30 USD. (2) Lập chi phí khi tờ khai chưa ghi sổ. (3) Ghi sổ tờ khai; lập chi phí 1.000.000 theo giá trị, 100.000 (10%) theo giá trị, 100.001 (8%) theo số lượng. (4) Xem trước, ghi sổ. (5) Chi phí 40 USD ngày chưa có tỷ giá, rồi hôm nay.
+- Kết quả mong đợi: bị từ chối khi tờ khai chưa ghi sổ; phân bổ 595.615 / 380.702 / 223.684, tổng đúng 1.200.001; dòng thứ ba 186.403 vào tồn, 37.281 vào 632; công nợ 1.218.001; bút toán Nợ 156 1.162.720, 632 37.281, 1331 18.000 / Có 331; chi phí USD bị từ chối khi thiếu tỷ giá, quy đổi 1.000.000, công nợ kèm 40 USD.
+- Kiểm thử tự động: Tự động API
+- Lát: L2
+
+### KICHBAN_KIEMTHU_433: Phân quyền tờ khai, chi phí
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_286
+- Chức năng: CHUC_NANG_160, CHUC_NANG_161
+- Loại: Từng vai trò
+- Các bước: (1) Kế toán công ty VCT xem, ghi sổ tờ khai của VCR. (2) Thủ kho xem danh sách, chi tiết tờ khai; lập chứng từ chi phí.
+- Kết quả mong đợi: `404` theo công ty mình, `403` khi chọn công ty không thuộc; danh sách rỗng; Thủ kho `403`.
+- Kiểm thử tự động: Tự động API (KICHBAN_KIEMTHU_429, 432 kiểm thêm Thủ kho)
+- Lát: L1, L2

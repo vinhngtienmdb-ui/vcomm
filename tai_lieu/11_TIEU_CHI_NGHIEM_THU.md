@@ -369,3 +369,13 @@ Dữ liệu mẫu: công ty con VCR, VTH (giao dịch nội bộ); sản phẩm 
 | TIEUCHI_NGHIEMTHU_275 | CHUC_NANG_158 | Không lập được phiếu giao khách, nhận khách; nhân viên bán hàng xem mọi đối tác, đơn bán; Nhân viên bán hàng không lập đơn bán, Kế toán lập được | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_276 | CHUC_NANG_157, CHUC_NANG_158 | Đơn bán tay có hàng hóa bị từ chối; đơn chỉ dịch vụ xác nhận là đã giao, có hóa đơn, công nợ; đơn VComm hàng hóa vẫn chạy | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_277 | CHUC_NANG_157 | Giao dịch nội bộ chỉ dịch vụ: hàng hóa bị từ chối; đơn dịch vụ sinh đơn mua đối ứng, xác nhận là đã nhận, không phiếu kho ghi thẻ kho | Gọi API | Bắt buộc |
+
+## MODULE_04 Mua hàng (phần 2: Nhập khẩu và phân bổ chi phí, CONG_VIEC_45)
+
+| Mã | Chức năng | Tiêu chí | Cách kiểm tra | Mức |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_282 | CHUC_NANG_160 | Đơn nhập khẩu ngoại tệ đi luồng duyệt, giá trị duyệt quy đổi đúng; phiếu nhập ghi sổ theo tỷ giá hạch toán ngày phiếu; thiếu tỷ giá không gửi được; công nợ, bút toán theo tiền tệ công ty kèm ngoại tệ; trả hàng theo tỷ giá phiếu gốc; đơn trong nước không đổi | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_283 | CHUC_NANG_160 | Thuế gợi ý đúng QUYTAC_NGHIEPVU_287; sửa số thuế được, có đánh dấu; khai vượt số đặt, trùng số tờ khai bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_284 | CHUC_NANG_160, CHUC_NANG_161 | Ghi sổ tờ khai khi chưa nhập đủ, kỳ đã khóa bị từ chối; giá vốn bình quân tăng đúng phần tồn, phần đã xuất vào 632, serial cộng giá đích danh; bút toán đúng tài khoản Thông tư 99, Thông tư 133; đã ghi sổ không sửa | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_285 | CHUC_NANG_161 | Phân bổ theo giá trị, số lượng đúng tỷ lệ, tổng bằng đúng khoản; chi phí ngoại tệ quy đổi; công nợ nhà cung cấp dịch vụ gồm thuế, bút toán đúng; tờ khai chưa ghi sổ không chọn được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_286 | CHUC_NANG_160, CHUC_NANG_161 | Công ty khác không xem, không ghi sổ được; người không có `purchasing.import.manage` không lập, không ghi sổ; Thủ kho không xem tờ khai, chi phí | Gọi API, giao diện | Bắt buộc |

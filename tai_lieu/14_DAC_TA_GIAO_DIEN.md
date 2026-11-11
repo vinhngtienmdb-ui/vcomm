@@ -2174,3 +2174,22 @@ Không thêm màn hình. Không làm bản mẫu; xem trước từng lát thay 
 
 - Màn hình Ghé thăm khách của web-crm (`/crm/visits`): lọc "Nhân viên" lấy mọi nhân viên đang làm việc của công ty qua `GET /crm/visit-options` (thay danh sách nhân viên của phiếu giao khách); xem mọi lượt của công ty.
 - Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
+
+## 65. Màn hình nhập khẩu (MODULE_04 phần 2, CONG_VIEC_45)
+
+Bản mẫu: `ban_mau/MAN_HINH_110_TO_KHAI_NHAP_KHAU.html` đến `MAN_HINH_113_CHI_TIET_CHI_PHI_NHAP_KHAU.html`, người dùng duyệt 2026-11-11. Menu Mua hàng thêm "Tờ khai nhập khẩu", "Chi phí nhập khẩu" (quyền `purchasing.import.view`) sau "Đơn mua".
+
+| Mã | Tên màn hình | Đường dẫn | Chức năng (10) | Vai trò được truy cập (08) |
+|---|---|---|---|---|
+| MAN_HINH_110 | Tờ khai nhập khẩu: danh sách, lập tờ khai (chọn đơn nhập khẩu) | `/purchasing/import-declarations`, `/purchasing/import-declarations/new` | CHUC_NANG_160 | Quản trị, Nhân viên mua hàng, Kế toán, Kế toán trưởng |
+| MAN_HINH_111 | Chi tiết tờ khai: dòng, thuế (gợi ý, đã sửa), xem trước hoặc kết quả phân bổ; sửa, hủy, ghi sổ | `/purchasing/import-declarations/[id]` | CHUC_NANG_160 | Như MAN_HINH_110 |
+| MAN_HINH_112 | Chi phí nhập khẩu: danh sách, lập chứng từ | `/purchasing/landed-costs`, `/purchasing/landed-costs/new` | CHUC_NANG_161 | Như MAN_HINH_110 |
+| MAN_HINH_113 | Chi tiết chi phí nhập khẩu: khoản chi phí, phân bổ theo dòng tờ khai; sửa, hủy, ghi sổ | `/purchasing/landed-costs/[id]` | CHUC_NANG_161 | Như MAN_HINH_110 |
+| MAN_HINH_40, MAN_HINH_41 (sửa) | Đơn mua | Ô "Nhập khẩu", "Tiền tệ"; nhãn "Nhập khẩu · USD"; tổng quy đổi | CHUC_NANG_160 | Như trước |
+| MAN_HINH_32 (sửa) | Chi tiết phiếu kho | Dòng "Tỷ giá" và số ngoại tệ; loại "Phiếu điều chỉnh giá trị" | CHUC_NANG_160 | Như trước |
+| Công nợ đối tác (mini app Tài chính, sửa) | Chi tiết công nợ | Khoản theo đơn ngoại tệ hiện số ngoại tệ, tỷ giá; nguồn "Chi phí nhập khẩu" | CHUC_NANG_160, CHUC_NANG_161 | Như trước |
+
+- Thông báo: "Đã lưu tờ khai.", "Đã ghi sổ tờ khai.", "Đã hủy tờ khai.", "Đã lưu chứng từ chi phí.", "Đã ghi sổ chứng từ chi phí."; lỗi dưới đúng ô, đúng dòng.
+- Quyền hiển thị: nút lập, sửa, ghi sổ, hủy theo `purchasing.import.manage` và `canEdit`, `canPost` của API.
+- Responsive: bảng chuyển thành thẻ; dòng tờ khai, khoản chi phí xếp lưới tự co.
+- Trạng thái phê duyệt: bản mẫu đã duyệt; màn hình xem trước từng lát.

@@ -828,3 +828,23 @@ Trạng thái bổ sung (CONG_VIEC_43):
 | Đơn mua đối ứng nội bộ Đã duyệt | Phiếu nhập dịch vụ tự lập làm mọi dòng đủ số đặt | Đã nhận đủ |
 
 Không còn trạng thái của bảng hoa hồng (Luồng 29) và phiếu giao khách (Luồng 33).
+
+## MODULE_04 Mua hàng (phần 2: Nhập khẩu và phân bổ chi phí, CONG_VIEC_45)
+
+### Luồng 50. Nhập khẩu, tờ khai, chi phí vào giá vốn
+
+- Bắt đầu: Nhân viên mua hàng lập đơn mua, đánh dấu "Nhập khẩu", chọn tiền tệ.
+- Các bước:
+  1. Gửi đơn: luôn đi luồng duyệt, giá trị quy đổi theo tỷ giá hạch toán (QUYTAC_NGHIEPVU_285, QUYTAC_NGHIEPVU_19).
+  2. Thủ kho nhận hàng như Luồng nhập mua; khi gửi, hệ thống lấy tỷ giá hạch toán ngày phiếu, ghi sổ kho, công nợ, bút toán theo tiền tệ công ty (QUYTAC_NGHIEPVU_286).
+  3. Nhân viên mua hàng hoặc kế toán lập tờ khai từ đơn: số, ngày, tỷ giá tính thuế, dòng hàng; thuế gợi ý, sửa khớp tờ khai (QUYTAC_NGHIEPVU_287).
+  4. Kế toán ghi sổ tờ khai khi hàng đã nhập đủ: thuế vào giá vốn (phần tồn) hoặc giá vốn hàng bán (phần đã xuất), bút toán thuế (QUYTAC_NGHIEPVU_288, QUYTAC_NGHIEPVU_291).
+  5. Khi có hóa đơn vận chuyển, bảo hiểm, phí: lập chứng từ chi phí theo tờ khai, xem trước phân bổ, ghi sổ (QUYTAC_NGHIEPVU_289 đến QUYTAC_NGHIEPVU_291).
+  6. Kế toán trả nhà cung cấp dịch vụ bằng phiếu chi có sẵn; nộp thuế bằng phiếu kế toán nhập tay.
+- Ngoại lệ: thiếu tỷ giá ngày phiếu, ngày chứng từ: không gửi, không lưu; hàng chưa nhập đủ số khai, kỳ đã khóa, kiểm kê đang đếm: không ghi sổ; tờ khai chưa ghi sổ: không lập chứng từ chi phí.
+- Kết thúc: giá vốn mặt hàng nhập gồm giá mua quy đổi, thuế không được hoàn, chi phí phân bổ; công nợ nhà cung cấp, nhà cung cấp dịch vụ; bút toán đầy đủ.
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| Tờ khai, chứng từ chi phí Nháp | Ghi sổ | Đã ghi sổ |
+| Tờ khai, chứng từ chi phí Nháp | Hủy | Đã hủy |
