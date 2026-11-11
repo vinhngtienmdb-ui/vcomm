@@ -3,7 +3,7 @@
 - Mô tả: Trong mini app Nhân sự `apps/web-hr`: ca làm, lịch làm việc, xếp ca; ngày lễ; ghi nhận chấm công từ máy chấm công (nhập tệp), ghi thủ công, chấm công trên ứng dụng (GPS, mạng công ty, mã QR động); đơn giải trình công; nghỉ phép (loại nghỉ, phép năm, đơn nghỉ); tăng ca (phiếu đăng ký, giới hạn theo luật); bảng công tháng có nhân viên xác nhận, nhân sự chốt, làm đầu vào cho lương (CONG_VIEC_48).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; đang làm lát L0.
+- Trạng thái: Chờ nghiệm thu (người dùng duyệt đặc tả, bản mẫu và điểm xem trước lát L0 đến L3 ngày 2026-11-11).
 - Mức: Lớn (nghiệp vụ mới, dữ liệu mới, quyền mới, việc nền mới, dữ liệu vị trí).
 - Nguồn: tài liệu `01` mục 4 (MODULE_08: chấm công), tài liệu `05` mục 2.1; quyết định của người dùng ngày 2026-11-11 (mục 17). Nền: CONG_VIEC_46 (hồ sơ, hợp đồng, schema `hr`, mini app `apps/web-hr`).
 
@@ -27,7 +27,7 @@ Ngoài phạm vi (công việc sau):
 
 | Văn bản | Điều | Nội dung dùng trong đặc tả |
 |---|---|---|
-| Bộ luật Lao động 45/2019/QH14 (hết hiệu lực một phần; đối chiếu văn bản hợp nhất 125/VBHN-VPQH ngày 27/08/2025 trước khi trình nghiệm thu) | Điều 98 | Làm thêm ngày thường ít nhất 150%, ngày nghỉ hằng tuần 200%, ngày lễ, tết, ngày nghỉ có hưởng lương 300%; làm việc ban đêm trả thêm ít nhất 30%; làm thêm vào ban đêm trả thêm 20% |
+| Bộ luật Lao động 45/2019/QH14 (văn bản hợp nhất 125/VBHN-VPQH ngày 27/08/2025 đã đối chiếu: Luật 71/2025/QH15 chỉ thêm khoản 8a Điều 154; các điều dưới đây không đổi) | Điều 98 | Làm thêm ngày thường ít nhất 150%, ngày nghỉ hằng tuần 200%, ngày lễ, tết, ngày nghỉ có hưởng lương 300%; làm việc ban đêm trả thêm ít nhất 30%; làm thêm vào ban đêm trả thêm 20% |
 | | Điều 105 | Thời giờ làm việc bình thường không quá 08 giờ/ngày, 48 giờ/tuần; quy định theo tuần thì không quá 10 giờ/ngày, 48 giờ/tuần; phải thông báo cho người lao động |
 | | Điều 106 | Giờ làm việc ban đêm từ 22 giờ đến 06 giờ sáng hôm sau |
 | | Điều 107 | Làm thêm phải được người lao động đồng ý; không quá 50% số giờ làm việc bình thường trong 01 ngày (theo tuần: tổng không quá 12 giờ/ngày); không quá 40 giờ/tháng; không quá 200 giờ/năm, 300 giờ với ngành, nghề, trường hợp ở khoản 3 (phải thông báo cơ quan chuyên môn về lao động cấp tỉnh) |
@@ -188,3 +188,36 @@ Luồng duyệt chung, dãy số chứng từ, đăng nhập, phân quyền hi�
 - Quên chấm công, công tác: đơn giải trình qua luồng duyệt.
 - Ngày lễ tập đoàn khai báo chung, công ty thêm riêng.
 - Lịch tuần mặc định + xếp ca theo ngày.
+
+## 18. Kết quả đối chiếu định nghĩa hoàn thành
+
+| Mục | Kết quả |
+|---|---|
+| Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Đạt: QUYTAC_NGHIEPVU_302 đến 311 có kiểm thử tự động; chỗ chỉnh cho khớp mã ghi ở mục 19 |
+| Đúng giao diện | Đạt: MAN_HINH_120 đến 125 khớp bản mẫu đã duyệt; người dùng duyệt điểm xem trước từng lát; khổ 1366 và 390 điểm ảnh không lỗi trình duyệt, không cuộn ngang (KICHBAN_KIEMTHU_452, 453) |
+| Đã xử lý lỗi | Đạt: lỗi theo ô, lỗi nghiệp vụ có câu dịch vi, en; vi phạm giới hạn tăng ca hiện ngay khi nhập |
+| Đã kiểm thử, có kết quả trong tài liệu `25` | Kiểm thử tự động c47-calculator, c47-attendance, c47-app-attendance, c47-leave, c47-overtime-timesheet đạt; kết quả toàn bộ kiểm thử API gửi phiên cha ghi tài liệu `25` (sổ dùng chung) |
+| Không phá vỡ chức năng cũ | Toàn bộ kiểm thử API (ghi ở báo cáo nghiệm thu); dữ liệu, API của CONG_VIEC_46 chỉ thêm cột `attendance_code` và mục menu |
+| Đạt tiêu chí nghiệm thu bắt buộc | TIEUCHI_NGHIEMTHU_295 đến 302 có kịch bản và kết quả đạt |
+| Đạt cổng bảo mật | Rà soát quyền, phạm vi công ty, mã QR, dữ liệu vị trí (tài liệu `22`); rủi ro giả vị trí GPS chờ người dùng chấp nhận (tài liệu `22` mục 8) |
+| Đã tự rà soát mã, dọn dẹp | Đạt: truy vấn tham số hóa, khóa đồng thời khi gửi đơn, phiếu, chốt kỳ; không thêm thư viện mới; `qrcode-generator` 2.0.4 dùng lại bản mini app Nền tảng đang dùng cho mã MFA |
+| Đã cập nhật tài liệu `27` và tài liệu liên quan | Đạt: tài liệu 06, 07, 08, 10, 11, 12, 14, 15, 16, 17, 21, 22, 27, `index.md` |
+
+## 19. Chỗ chỉnh cho khớp mã (lát L0 đến L3)
+
+| Vị trí | Đặc tả 0.1 | Mã đã làm |
+|---|---|---|
+| Mục 9, database migration 0073 | `hr.work_schedules` + `hr.work_schedule_days` | `hr.work_schedules` có 7 cột ca (`monday_shift_id` … `sunday_shift_id`), không có bảng ngày |
+| Mục 9 | `hr.timesheet_periods` ở 0075 | Tạo ở 0073 để mọi ghi dữ liệu kiểm kỳ đã chốt từ lát L0 |
+| Mục 8, MAN_HINH_120 | Đường dẫn chưa ghi | `/hr/work-schedules`; màn hình mã QR `/hr/work-schedules/qr/[id]`; trưởng phòng không có quyền nhân sự mở 120, 121, 124 qua nút trên 122 |
+| QUYTAC_NGHIEPVU_304 | Lỗi nhập tệp theo dòng | Số dòng là số dòng của tệp (tính cả dòng tiêu đề) |
+| QUYTAC_NGHIEPVU_304 | Liên kết mã QR tới trang chấm công | `/hr/my-attendance?l=<địa điểm>&t=<mã>&c=<công ty>`; trang tự chọn công ty của mã |
+| Mục 10 | Tọa độ GPS: người có `hr.attendance.manage` và chính người lao động xem | API không trả tọa độ, IP cho ai; chỉ trả cách xác thực, địa điểm, khoảng cách tới địa điểm |
+| QUYTAC_NGHIEPVU_308 | Điều kiện 50% công chuẩn | Ngày nghỉ bảo hiểm xã hội tính như ngày có lương (thời gian coi là làm việc theo Nghị định 145 Điều 65); nghỉ không lương không tính |
+| QUYTAC_NGHIEPVU_309 | Nửa ngày | Hai đơn nửa ngày (sáng, chiều) cùng ngày được phép; loại bảo hiểm xã hội người lao động không tự lập (chỉ nhân sự ghi nhận kèm tệp) |
+| QUYTAC_NGHIEPVU_311 | Công chuẩn, giờ chuẩn | Công chuẩn gồm ngày lễ có ca theo lịch; giờ chuẩn không gồm ngày lễ |
+| QUYTAC_NGHIEPVU_311 | Trạng thái đang mở → đang xác nhận → đã chốt | Nhân sự chốt được cả khi chưa mở xác nhận (sau khi tháng kết thúc, không còn giải trình) |
+| QUYTAC_NGHIEPVU_311 | Mở lại hoàn phần trừ phép | Giao dịch trừ tháng và thanh toán phép do lần chốt sinh ra bị xóa khi mở lại (ghi nhật ký `timesheet.reopen`), chốt lại thì tính lại |
+| QUYTAC_NGHIEPVU_310 | Hủy phiếu tăng ca | Hủy sau giờ bắt đầu chỉ nhân sự; dùng lại câu lỗi của đơn nghỉ (`leaveNotCancellable`) |
+| Mục 6 | Menu Tăng ca, Bảng công | Hiện với `hr.attendance.view`; thao tác bảng công cần `hr.timesheet.manage` |
+

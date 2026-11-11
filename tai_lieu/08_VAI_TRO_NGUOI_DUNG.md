@@ -586,3 +586,25 @@ Quyền nhân sự gán ở phạm vi tập đoàn hoặc công ty (gán ở chi
 | Hiện số giấy tờ đầy đủ, tải tệp giấy tờ, bản hợp đồng đã ký | Có | Có | Không | Không | Của chính mình |
 | Lập, gửi, ký, chấm dứt hợp đồng, phụ lục; xem lương | Có | Có | Có | Không (không thấy lương) | Xem hợp đồng đã ký của mình kèm lương |
 | Nhận nhắc hết hạn hợp đồng | Có | Có | Có | Không | Trưởng phòng của phòng ban trên hợp đồng |
+
+## 41. Quyền chấm công, nghỉ phép, tăng ca, bảng công (MODULE_08 phần 2, CONG_VIEC_47)
+
+Quyền mới gán ở phạm vi tập đoàn hoặc công ty như mục 40; vai trò Quản lý nhân sự (`hr_manager`), Nhân viên nhân sự (`hr_staff`) có thêm cả bốn quyền. Quản trị tập đoàn, quản trị công ty có mọi quyền mới. Trưởng phòng (người quản lý phòng ban trong cơ cấu) không cần quyền thêm, phạm vi là phòng mình và phòng con.
+
+| Quyền | Ý nghĩa | Nhạy cảm |
+|---|---|---|
+| `hr.attendance.view` | Xem chấm công, công ngày, đơn nghỉ, phiếu tăng ca, bảng công của công ty | Không |
+| `hr.attendance.manage` | Ca, lịch, xếp ca, ngày nghỉ riêng, cài đặt và địa điểm chấm công, mã chấm công, nhập tệp, ghi thủ công, màn hình mã QR, ghi nhận tăng ca kèm văn bản, hủy phiếu; ở tập đoàn: ngày lễ chung | Có |
+| `hr.leave.manage` | Loại nghỉ, chế độ phép, điều chỉnh sổ phép, ghi nhận nghỉ thay, hủy đơn đã duyệt | Có |
+| `hr.timesheet.manage` | Mở xác nhận, trả lời giải trình, chốt, mở lại bảng công | Có |
+
+| Thao tác | Quản trị, nhân sự có quyền | Người chỉ có `hr.attendance.view` | Trưởng phòng | Người có hồ sơ liên kết |
+|---|---|---|---|---|
+| Xem lưới công, đơn nghỉ, phiếu tăng ca, bảng công | Cả công ty | Cả công ty | Phòng mình | Của chính mình (MAN_HINH_122) |
+| Ca, lịch, ngày lễ, cài đặt, địa điểm | `hr.attendance.manage` | Không | Xếp ca phòng mình | Xem lịch ca của mình |
+| Ghi thủ công, nhập tệp máy chấm công | `hr.attendance.manage` | Không | Không | Chấm trên ứng dụng, đơn giải trình |
+| Đơn nghỉ | Ghi nhận thay, hủy (`hr.leave.manage`) | Không | Duyệt theo chính sách duyệt | Lập, rút, hủy trước ngày bắt đầu |
+| Phiếu tăng ca | Lập; kèm văn bản đồng ý, hủy (`hr.attendance.manage`) | Không | Lập cho phòng mình (chờ người lao động đồng ý), duyệt | Lập (là đồng ý), đồng ý hoặc không, rút, hủy trước giờ bắt đầu |
+| Bảng công tháng | Mở xác nhận, trả lời, chốt, mở lại (`hr.timesheet.manage`); xuất Excel | Xem, xuất Excel | Xem phòng mình | Xác nhận hoặc giải trình dòng của mình |
+
+Loại chứng từ mới: `hr.leave_request` (Đơn nghỉ, giá trị duyệt là số ngày), `hr.overtime_request` (Phiếu tăng ca, số giờ), `hr.attendance_correction` (Đơn giải trình công, 1).

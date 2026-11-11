@@ -3959,3 +3959,117 @@ Dữ liệu chung: công ty VCR; phòng ban có trưởng phòng; tài khoản Q
 - Kết quả mong đợi: Không cuộn ngang; bảng chuyển dạng thẻ; ngăn kéo dùng được.
 - Kiểm thử tự động: Thủ công – Playwright chụp màn hình
 - Lát: L0, L1, L2
+
+## MODULE_08 Nhân sự phần 2 (CONG_VIEC_47)
+
+Dữ liệu chung: công ty VCR (và VCT kiểm cách ly); phòng ban có trưởng phòng; tài khoản Nhân viên nhân sự, người không quyền, người lao động có hồ sơ liên kết; ca hành chính 08:00–17:00 nghỉ trưa 60 phút, ca nửa ngày thứ bảy. Dữ liệu giả, giờ cố định bằng đồng hồ kiểm thử.
+
+### KICHBAN_KIEMTHU_444: Ca, lịch tuần, xếp ca, ngày lễ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_295
+- Chức năng: CHUC_NANG_165
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Vai trò thực hiện: Nhân viên nhân sự; trưởng phòng; người không quyền; quản trị tập đoàn
+- Điều kiện ban đầu và dữ liệu: Phòng ban có trưởng phòng; hồ sơ thường và chưa thành niên
+- Các bước: (1) Lập ca 9 giờ chuẩn khi thời giờ theo ngày; nghỉ ngoài ca; trùng mã. (2) Chuyển theo tuần, lập ca 10 giờ; lịch tuần 50 giờ. (3) Ngày lễ chung bằng quyền công ty, quyền tập đoàn; ngày riêng công ty. (4) Trưởng phòng xếp ca phòng mình, phòng khác; người chưa thành niên 44 giờ; ngày thuộc kỳ đã chốt. (5) Gán lịch cho phòng ban từ ngày; công ty khác xem.
+- Kết quả mong đợi: (1) `400`. (2) Ca lưu được; lịch `400`. (3) `403`; lưu được; lưới hiện ngày lễ. (4) Lưu được; `403`; `400`; `409`. (5) Ca dự kiến đổi từ ngày gán; công ty khác không thấy.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c47-attendance.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_445: Lượt chấm thủ công, nhập tệp máy chấm công
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_296
+- Chức năng: CHUC_NANG_165
+- Loại: Đúng, sai, trùng
+- Vai trò thực hiện: Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Hồ sơ có mã chấm công; tệp CSV có dòng lỗi, dòng trùng
+- Các bước: (1) Nhập tệp xem trước. (2) Xác nhận. (3) Nhập lại cùng tệp. (4) Ghi thủ công lượt ra; xóa lượt thủ công; xóa lượt máy.
+- Kết quả mong đợi: (1) Lỗi theo số dòng tệp. (2) Ghi lượt đạt, lưu lần nhập. (3) Bỏ qua trùng. (4) Công cập nhật; xóa được; `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c47-attendance.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_446: Tính công ngày
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_296
+- Chức năng: CHUC_NANG_165
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Hệ thống
+- Điều kiện ban đầu và dữ liệu: Ca hành chính, ca nửa ngày, ca đêm qua ngày; ân hạn 5 phút
+- Các bước: (1) Vào trước, ra sau giờ ca. (2) Muộn quá, trong ân hạn; về sớm. (3) Thiếu lượt, vắng, ngày lễ, ngày nghỉ. (4) Ca đêm 22–6 giờ. (5) Đổi ân hạn.
+- Kết quả mong đợi: (1) 1 công. (2) Công theo giờ thực tế, ghi phút. (3) Trạng thái đúng. (4) Lượt sáng hôm sau thuộc ca hôm trước, 8 giờ đêm. (5) Tính lại.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c47-calculator.test.ts`, `apps/api/test/c47-attendance.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_447: Chấm công ứng dụng, mã QR động, đơn giải trình
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_296, TIEUCHI_NGHIEMTHU_297
+- Chức năng: CHUC_NANG_165
+- Loại: Đúng, sai, bảo mật
+- Vai trò thực hiện: Người lao động; nhân sự; trưởng phòng
+- Điều kiện ban đầu và dữ liệu: Địa điểm GPS bán kính 150 m, dải IP, mã QR
+- Các bước: (1) GPS ngoài bán kính, độ chính xác kém, trong bán kính; chấm lại trong 1 phút. (2) Mã QR hiện tại, liền trước, cũ hơn, giả; người không quyền mở màn hình mã. (3) IP thuộc dải; địa điểm chi nhánh khác. (4) Đơn giải trình khi chưa có chính sách, có chính sách trưởng phòng; rút; giới hạn số đơn.
+- Kết quả mong đợi: (1) `400`, `400`, nhận; `409`. (2) Nhận, nhận, `400`, `400`; `403`. (3) Nhận không cần GPS; `400`. (4) Duyệt ngay ghi lượt giải trình; chờ duyệt, duyệt xong ghi lượt; vượt giới hạn `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c47-app-attendance.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_448: Sổ phép năm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_298
+- Chức năng: CHUC_NANG_166
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Hệ thống; nhân sự
+- Điều kiện ban đầu và dữ liệu: Hồ sơ thường, chưa thành niên, thâm niên 5 năm
+- Các bước: (1) Số ngày theo chế độ, thâm niên; cộng dần 12 tháng. (2) Chạy việc nền hai lần cùng tháng. (3) Điều chỉnh số dư ban đầu. (4) Qua hạn phép tồn.
+- Kết quả mong đợi: (1) Đúng 12, 14, 13 ngày cả năm. (2) Cộng một lần. (3) Số dư đổi, ghi nhật ký. (4) Ghi hết hạn phần còn dư.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c47-leave.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_449: Đơn nghỉ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_299
+- Chức năng: CHUC_NANG_166
+- Loại: Đúng, sai, từng vai trò
+- Vai trò thực hiện: Người lao động; trưởng phòng; nhân sự
+- Điều kiện ban đầu và dữ liệu: Sổ phép có dư năm trước và năm nay
+- Các bước: (1) Lập đơn nửa ngày, qua ngày nghỉ tuần, ca nửa công. (2) Trùng, vượt dư, vượt số ngày theo luật; loại bảo hiểm xã hội tự lập. (3) Có chính sách duyệt: chờ duyệt, rút, duyệt. (4) Hủy trước ngày bắt đầu; nhân sự hủy; kỳ đã chốt.
+- Kết quả mong đợi: (1) Số ngày đúng, trừ năm cũ trước, công ghi nghỉ. (2) `409`/`400`; `403`. (3) Giữ chỗ dư; hoàn; trừ phép. (4) Hoàn phép, tính lại công; `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c47-leave.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_450: Tăng ca và giới hạn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_300
+- Chức năng: CHUC_NANG_167
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Vai trò thực hiện: Người lao động; trưởng phòng; nhân sự; người không quyền
+- Điều kiện ban đầu và dữ liệu: Ca hành chính 8 giờ; nửa ngày thứ bảy; hồ sơ chưa thành niên; hồ sơ không có tài khoản
+- Các bước: (1) Tự lập 18–21 giờ, chấm ra 20 giờ. (2) Ngày thường 4,5 giờ; trùng ca; trùng phiếu; ba ngày nghỉ 12 giờ rồi thêm 2 giờ; người chưa thành niên. (3) Trưởng phòng lập; người khác bấm đồng ý; người lao động đồng ý, không đồng ý. (4) Người không tài khoản: trưởng phòng gửi tệp, nhân sự gửi tệp. (5) Tính công đêm sau tăng ca ngày.
+- Kết quả mong đợi: (1) Đã duyệt, đồng ý; giờ được tính 2. (2) `409` từng giới hạn; 40 giờ tháng chặn. (3) Chờ đồng ý, thông báo; `403`; đã duyệt; không đồng ý. (4) `403`; đã duyệt kèm văn bản. (5) 4 giờ ngày, 0,5 giờ đêm sau tăng ca ngày.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c47-overtime-timesheet.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_451: Bảng công tháng, quyền, cách ly
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_301
+- Chức năng: CHUC_NANG_167
+- Loại: Đúng, sai, từng vai trò, bảo mật
+- Vai trò thực hiện: Nhân sự; người lao động; trưởng phòng; người không quyền; quản trị công ty khác
+- Điều kiện ban đầu và dữ liệu: Tháng 10 có ngày công, phép năm, tăng ca ngày nghỉ
+- Các bước: (1) Xem bảng công; mở xác nhận tháng chưa hết, hạn hôm nay, trưởng phòng mở. (2) Người lao động giải trình; chốt; nhân sự sửa công và trả lời; xác nhận; đổi dữ liệu. (3) Hết hạn chạy việc nền. (4) Chốt; ghi lượt tháng đã chốt; lập phiếu tháng đã chốt. (5) Mở lại khi lương đã chốt, chưa chốt; xuất Excel. (6) Công ty khác xem.
+- Kết quả mong đợi: (1) Dòng đúng (công chuẩn 24,5, 196 giờ, phép, tăng ca); `409`, `400`, `403`. (2) Chặn chốt còn giải trình; dòng về chờ; xác nhận; về chờ xác nhận. (3) Tự xác nhận. (4) Trừ phép tháng dưới 50%, sự kiện `hr.timesheet.closed`; `409`; `409`. (5) `409 timesheetPayrollLocked`; về đang mở, hoàn trừ phép; tệp xlsx. (6) Không thấy dòng, phiếu; `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c47-overtime-timesheet.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_452: Giao diện MAN_HINH_120 đến 125 trên máy tính
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_302
+- Chức năng: CHUC_NANG_165 đến CHUC_NANG_167
+- Loại: Giao diện
+- Vai trò thực hiện: Quản trị công ty (có hồ sơ liên kết)
+- Điều kiện ban đầu và dữ liệu: Dữ liệu thử của lát L0 đến L3
+- Các bước: Mở từng màn hình khổ 1366 điểm ảnh; khai báo ca, lịch, xếp ca, màn hình mã QR; lưới công, nhập tệp; chấm công, đơn giải trình, đơn nghỉ, phiếu tăng ca có vi phạm giới hạn; sổ phép; bảng công, chi tiết dòng, xác nhận.
+- Kết quả mong đợi: Không lỗi trình duyệt, không cuộn ngang trang; lỗi hiện đúng ô; khớp bản mẫu đã duyệt.
+- Kiểm thử tự động: Thủ công – Playwright chụp màn hình
+- Lát: L0, L1, L2, L3
+
+### KICHBAN_KIEMTHU_453: Giao diện MAN_HINH_120 đến 125 trên điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_302
+- Chức năng: CHUC_NANG_165 đến CHUC_NANG_167
+- Loại: Giao diện
+- Vai trò thực hiện: Quản trị công ty (có hồ sơ liên kết)
+- Điều kiện ban đầu và dữ liệu: Dữ liệu thử của lát L0 đến L3
+- Các bước: Mở từng màn hình khổ 390 điểm ảnh; khai báo ca, lịch, xếp ca, màn hình mã QR; lưới công, nhập tệp; chấm công, đơn giải trình, đơn nghỉ, phiếu tăng ca có vi phạm giới hạn; sổ phép; bảng công, chi tiết dòng, xác nhận.
+- Kết quả mong đợi: Không lỗi trình duyệt, không cuộn ngang trang; lỗi hiện đúng ô; khớp bản mẫu đã duyệt; MAN_HINH_122 nút lớn, bảng chuyển dạng thẻ.
+- Kiểm thử tự động: Thủ công – Playwright chụp màn hình
+- Lát: L0, L1, L2, L3

@@ -2191,3 +2191,20 @@ Mini app Nhân sự `apps/web-hr`, đường dẫn `/hr`. Bản mẫu: `tai_lieu
 Điều hướng: trang chủ → Nhân sự → menu Hồ sơ nhân sự (114 → 116 → 115, 118), Hợp đồng (117 → 118), Hồ sơ của tôi (119). Thông báo nhắc hết hạn mở 118. Không dùng giá trị mới ngoài tài liệu `15`.
 
 - Trạng thái phê duyệt: người dùng duyệt bản mẫu ngày 2026-11-11.
+
+## MODULE_08 Nhân sự phần 2 (CONG_VIEC_47)
+
+Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_120` đến `MAN_HINH_125` (tệp `cham_cong.js`). Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_47.md` mục 8.
+
+| Mã | Tên màn hình | Đường dẫn | Chức năng (10) | Vai trò, quyền được truy cập |
+|---|---|---|---|---|
+| MAN_HINH_120 | Ca làm và lịch làm việc | `/hr/work-schedules`, màn hình mã QR `/hr/work-schedules/qr/[id]` | CHUC_NANG_165 | `hr.attendance.view` xem; `hr.attendance.manage` sửa; trưởng phòng thẻ Xếp ca phòng mình |
+| MAN_HINH_121 | Chấm công | `/hr/attendance` | CHUC_NANG_165 | `hr.attendance.view`; trưởng phòng phòng mình; ghi thủ công, nhập tệp cần `hr.attendance.manage` |
+| MAN_HINH_122 | Chấm công của tôi | `/hr/my-attendance` (mở từ mã QR: `?l=&t=&c=`) | CHUC_NANG_165 đến CHUC_NANG_167 | Người có hồ sơ liên kết |
+| MAN_HINH_123 | Nghỉ phép | `/hr/leave` | CHUC_NANG_166 | `hr.attendance.view`; ghi nhận, sổ phép, loại nghỉ cần `hr.leave.manage`; trưởng phòng phòng mình |
+| MAN_HINH_124 | Tăng ca | `/hr/overtime` | CHUC_NANG_167 | `hr.attendance.view`; trưởng phòng phòng mình; văn bản đồng ý, hủy cần `hr.attendance.manage` |
+| MAN_HINH_125 | Bảng công tháng | `/hr/timesheets` | CHUC_NANG_167 | `hr.attendance.view`; thao tác cần `hr.timesheet.manage` |
+
+Điều hướng: menu Nhân sự thêm Chấm công (121), Ca và lịch (120), Nghỉ phép (123), Tăng ca (124), Bảng công (125), Chấm công của tôi (122). Trưởng phòng không có quyền nhân sự mở 121, 120, 124 qua nút trên 122. Thành phần mới ở tài liệu `15` mục 6.
+
+- Trạng thái phê duyệt: người dùng duyệt bản mẫu ngày 2026-11-11; duyệt điểm xem trước từng lát L0 đến L3.

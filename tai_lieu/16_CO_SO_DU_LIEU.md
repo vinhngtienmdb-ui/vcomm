@@ -3142,3 +3142,16 @@ Quy tắc xóa và lưu giữ bổ sung:
 - Không xóa cứng hồ sơ, hợp đồng, phụ lục; quyết định công tác chưa hiệu lực nhập tay được xóa; khi nghỉ việc xóa quyết định chưa áp dụng từ ngày nghỉ.
 - Lưu giữ: hồ sơ đã nghỉ giữ nguyên, khóa truy cập; thời hạn lưu, khử nhận dạng chưa xác định (tài liệu `22` mục 8).
 - Tiền: `numeric(20,4)`.
+
+## 29. Database migration 0073 đến 0075 – CONG_VIEC_47 (Nhân sự phần 2: chấm công, nghỉ phép, tăng ca, bảng công)
+
+| Tệp | Nội dung |
+|---|---|
+| `0073_hr_attendance.sql` | `hr.attendance_settings` (theo công ty: thời giờ theo ngày hoặc tuần, ân hạn, phép tồn, nghỉ trước, giới hạn năm 200 hoặc 300 giờ, số đơn giải trình); `hr.shifts` (mã duy nhất không phân biệt hoa thường); `hr.work_schedules` (7 cột ca thứ hai đến chủ nhật, một lịch mặc định mỗi công ty); `hr.work_schedule_assignments` (phòng ban hoặc hồ sơ, từ ngày); `hr.shift_assignments` (hồ sơ, ngày, ca hoặc nghỉ); `hr.holidays` (công ty trống là lịch chung tập đoàn; ngày dành cho người nước ngoài); cột `hr.employees.attendance_code`; `hr.attendance_locations` (tọa độ, bán kính 50–1000 m, `cidr[]`, mã QR); `hr.attendance_imports`; `hr.attendance_corrections`; `hr.attendance_punches` (thời điểm làm tròn phút, duy nhất theo hồ sơ và phút khi chưa xóa; xóa mềm); `hr.attendance_days` (kết quả từng ngày); `hr.timesheet_periods` (duy nhất công ty, năm, tháng; `payroll_locked_at` do CONG_VIEC_48 ghi) |
+| `0074_hr_leave.sql` | `hr.leave_types` (loại theo luật có `system_code`); `hr.employee_leave_policies`; `hr.leave_requests`, `hr.leave_request_days`; `hr.leave_ledger` (năm phát sinh, loại giao dịch cộng dần, trừ tháng, nghỉ, điều chỉnh, hết hạn, thanh toán; duy nhất cộng dần, trừ tháng theo hồ sơ và tháng; hết hạn theo hồ sơ và năm); cột nghỉ trên `hr.attendance_days` |
+| `0075_hr_overtime_timesheets.sql` | `hr.overtime_requests` (tối đa 12 giờ; văn bản đồng ý bắt buộc khi trạng thái đồng ý là `document`); cột giờ tăng ca ban ngày, đêm, đêm sau tăng ca ngày trên `hr.attendance_days`; `hr.timesheet_lines` (duy nhất kỳ và hồ sơ) |
+
+- Khóa ngoại chỉ trỏ `core` và bảng `hr`. Module chỉ ghi schema `hr`.
+- Không xóa cứng lượt chấm, đơn, phiếu, kỳ; lượt thủ công xóa mềm. Giao dịch sổ phép do hệ thống sinh khi chốt (trừ tháng, thanh toán phép) được xóa khi mở lại kỳ và tính lại khi chốt lần sau (ghi nhật ký `timesheet.reopen`); giao dịch khác không xóa, đảo bằng giao dịch điều chỉnh.
+- Dòng bảng công (`hr.timesheet_lines`) tính lại khi kỳ chưa chốt; kỳ đã chốt thì đóng băng.
+- Số ngày, giờ: `numeric(6,2)`; phút: `integer`. Tọa độ GPS: `numeric(9,6)`, chỉ lưu tại lượt chấm.
