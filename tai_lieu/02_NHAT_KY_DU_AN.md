@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_45 (nhập khẩu) xong lát L0 đến L2, trình nghiệm thu (pull request #85; kiểm thử 487/487). Hợp nhất main 0.4.0, thêm database migration 0084 gộp ràng buộc nguồn bút toán. Cấp LOI_08 (lỗi không đều có sẵn ở KICHBAN_KIEMTHU_167).
 - Phát hành 0.4.0 (pull request #112): CONG_VIEC_28 đến 42 (cổng thanh toán, đơn vị vận chuyển, tắt mặc định), 44, 46, 47, 48, 50; LOI_06, LOI_07; THAY_DOI_20, 21. Kiểm thử API 481/481 sau khi sửa LOI_07 (ngày duyệt bảng lương ghi theo đồng hồ cơ sở dữ liệu). Chờ người dùng phê duyệt triển khai.
 - CONG_VIEC_51 (điểm thưởng phần 1) xong lát L0 đến L4; người dùng nghiệm thu, xác nhận các quyết định AI ở đặc tả mục 18 (pull request #103; kiểm thử 346/346).
 - Người dùng nghiệm thu CONG_VIEC_54 (Nhân sự phần 4), pull request #105 (kiểm thử 354/354): tuyển dụng (nhu cầu qua luồng duyệt, tin, trang tuyển dụng công khai, ứng viên, phỏng vấn kèm email lịch, đề nghị nhận việc qua luồng duyệt và liên kết trả lời dùng một lần, lập hồ sơ nhân sự từ ứng viên, khử nhận dạng ứng viên theo hạn 30 ngày, 12 tháng và theo yêu cầu) và đánh giá hiệu suất (mẫu tiêu chí, kỳ, mục tiêu, tự đánh giá, người chấm, điều chỉnh, công bố, xác nhận; xếp loại A đến D); THAY_DOI_23, THAY_DOI_25. Khi trình sửa 3 lỗi: thời điểm kết thúc hồ sơ ứng tuyển theo đồng hồ ứng dụng; xóa theo yêu cầu chạy lại khi kho lưu trữ lỗi; hiển thị điểm điều chỉnh.
@@ -16,11 +17,14 @@
 
 ### Quyết định
 
+- CONG_VIEC_45, người dùng quyết định: (1) nợ nhà cung cấp nước ngoài ghi VND kèm ngoại tệ; phiếu chi ngoại tệ, chênh lệch tỷ giá, đánh giá lại là công việc sau MODULE_06; (2) chi phí về sau phân bổ bằng chứng từ sau nhập, phần tồn vào giá trị tồn kho, phần đã xuất vào 632; (3) tiêu thức phân bổ chọn theo từng khoản (giá trị hoặc số lượng); (4) thuế tờ khai tự tính, sửa được. Người dùng duyệt đặc tả và bản mẫu MAN_HINH_110 đến 113.
 - CONG_VIEC_51, người dùng quyết định 2026-11-11: (1) tích điểm khi đơn hoàn tất; (2) tỷ lệ tích, giá trị một điểm, giới hạn đổi cấu hình theo giai đoạn, giai đoạn áp dụng theo ngày đặt, giá trị điểm đổi theo giai đoạn; (3) hạn dùng 12 tháng theo lần tích; (4) hạng theo năm dương lịch, lên hạng ngay, có hệ số tích; (5) hoàn điểm khi hủy, trả hàng theo tỷ lệ; (6) được dùng cả điểm và ví mua sắm trên một đơn, điểm trừ trước, đơn mua chung không dùng điểm; (7) chống gian lận: trần điểm, khóa ví, điều chỉnh có duyệt, cảnh báo; (8) hạch toán 641 / 3388; (9) nguồn chứng từ chung cho bán tại quầy (CONG_VIEC_53); (10) trả hàng tại quầy thiếu số dư thì phần thiếu quy tiền trừ vào tiền hoàn; (11) quầy ở công ty con khác: công ty bán chịu chi phí, nợ nội bộ 1368 / 3368; (12) ô dùng điểm mặc định tắt.
 - CONG_VIEC_51, quyết định AI tự đưa ra, người dùng đã xác nhận khi nghiệm thu (đặc tả mục 18): giai đoạn chỉ bắt đầu từ hôm nay; bảng hạng không bỏ được hạng đã dùng; đơn trực tuyến điểm trả hết thì chuyển Chờ giao ngay; bút toán điểm dùng của đơn VComm ghi gộp khi hoàn tất; số dư đổi điểm chỉ tính lô còn hạn.
 
 ### Vấn đề tồn đọng
 
+- CONG_VIEC_45 đề xuất công việc sau, chờ người dùng: phiếu chi ngoại tệ và chênh lệch tỷ giá; phiếu chi nộp thuế hải quan; tờ khai bổ sung.
+- Tài liệu 08, 12, 14, 16, 17, 27 trên main có mục trùng số giữa các công việc song song; đánh lại số trong nhánh phát hành kế tiếp.
 - Hai rủi ro pháp lý của CONG_VIEC_49 (ví mua sắm có thể là ví điện tử; bảng tin mở có thể cần giấy phép mạng xã hội) chặn triển khai môi trường thật, chờ ý kiến luật sư (người dùng xác nhận hỏi sau).
 - CONG_VIEC_49, quyết định AI tự đưa ra chờ xác nhận khi nghiệm thu (ghi ở tài liệu 07): tối đa 30 ảnh chưa đăng trong 24 giờ; bài đã xóa vẫn tính giới hạn 10 bài/ngày; mở khóa cộng đồng cũng báo người dùng; nhân viên mở nhóm trên web không giới hạn số nhóm; người mở nhóm không còn Đã duyệt thì đơn không có phần cộng tác viên; gắn nhãn KOL/KOC được cả khi đang Tạm ngừng.
 - CONG_VIEC_49: số mục mới trong tài liệu 08 (mục 40), 14 (mục 65, 66), 16 (mục 28), 17, 27 (mục 26) có thể trùng với nhánh song song khi hợp nhất.

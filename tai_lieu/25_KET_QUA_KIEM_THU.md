@@ -183,6 +183,13 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_45
+
+- Phạm vi: nhập khẩu và phân bổ chi phí mua hàng, lát L0 đến L2, nhánh `chuc-nang/CONG_VIEC_45-nhap-khau` (pull request #85, head `322d283`, đã hợp nhất main 0.4.0).
+- Kết quả: KICHBAN_KIEMTHU_428 đến 433 Đạt (`c45-imports.test.ts` 6/6); hồi quy toàn bộ API 86 tệp, 487/487 đạt. Một lần chạy trước hợp nhất gặp LOI_08 (có sẵn), chạy lại đạt.
+- Kiểm tra bảo mật: không thêm thư viện; CI quét bảo mật (gitleaks, `pnpm audit`) đạt.
+- Kết luận cổng kiểm thử: Đạt, chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-12 – Phát hành 0.4.0
 
 - Phạm vi: nhánh `phat-hanh/v0.4.0` gộp CONG_VIEC_28 đến 42, 44, 46, 47, 48, 50; LOI_06, LOI_07; THAY_DOI_20, 21 (pull request #112, commit hợp nhất `fcf9ab5`).
@@ -556,3 +563,4 @@
 | LOI_05 | Bước chuẩn bị của tệp kiểm thử API (dựng lại cơ sở dữ liệu thử, chạy toàn bộ database migration) đôi khi vượt giới hạn mặc định 10 giây trên CI, cả tệp bị bỏ qua (`l8-settings` trên pull request số 40, commit chỉ có tài liệu; một lần ở máy phát triển khi làm CONG_VIEC_08) | Thấp | Toàn bộ kiểm thử tự động | Nâng giới hạn thời gian bước chuẩn bị lên 60 giây, không đổi nội dung kiểm thử; đã sửa (pull request số 46, 186/186 đạt), chờ nghiệm thu | Đã sửa |
 | LOI_06 | Dòng thời gian đơn VComm: hai sự kiện ghi trong cùng giao dịch cơ sở dữ liệu (ví dụ Đã giao và Đã thanh toán khi ghi đã thu COD) có cùng thời điểm (`now()` là thời điểm bắt đầu giao dịch), sắp xếp phụ theo uuid ngẫu nhiên nên hiển thị đảo thứ tự; phát hiện khi CI pull request #82 thất bại không đều ở KICHBAN_KIEMTHU_345. Có từ phát hành 0.3.0 | Thấp | KICHBAN_KIEMTHU_345 | Sửa: ghi `created_at = clock_timestamp()` khi thêm sự kiện (commit `1c9a57b` trên nhánh `gop/giao-van`, pull request #82); phát hành cùng đơn vị vận chuyển | Đã sửa, đã phát hành v0.4.0 |
 | LOI_07 | Ghi đã trả lương (CONG_VIEC_48): ngày duyệt bảng lương ghi theo đồng hồ cơ sở dữ liệu (`now()`), còn ngày hôm nay so sánh theo đồng hồ ứng dụng; khi hai đồng hồ khác ngày (kiểm thử cố định đồng hồ, chạy sau nửa đêm giờ Việt Nam) thì ngày trả hợp lệ bị báo sai. Phát hiện khi chạy toàn bộ kiểm thử nhánh phát hành 0.4.0 ở KICHBAN_KIEMTHU_461. Chưa phát hành | Thấp | KICHBAN_KIEMTHU_461 | Sửa: ghi `approved_at` theo đồng hồ ứng dụng trên nhánh `phat-hanh/v0.4.0` | Đã sửa, đã phát hành v0.4.0 |
+| LOI_08 | KICHBAN_KIEMTHU_167 (`c7-purchasing.test.ts`) lỗi không đều: nhật ký thao tác sắp theo `occurred_at`, hai thao tác `purchase_order.update` và `purchase_order.submit` ghi trong cùng giao dịch có cùng `now()` nên thứ tự đôi khi đảo. Phát hiện khi CONG_VIEC_45 chạy toàn bộ kiểm thử (339/340, chạy lại đạt). Có sẵn trên main, không do nhánh mới | Thấp | KICHBAN_KIEMTHU_167 | Chưa sửa; cách sửa đề xuất: ghi thời điểm bằng `clock_timestamp()` như LOI_06 hoặc sắp thêm theo khóa ổn định | Chưa xử lý |
