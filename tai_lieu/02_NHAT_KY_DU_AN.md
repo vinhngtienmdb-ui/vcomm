@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- THAY_DOI_17 (CONG_VIEC_26): phí rút tiền hoa hồng. Người dùng quyết định: hai bảng phí cộng dồn (theo lần rút trong tháng, theo số tiền); trừ vào thực nhận, thuế vẫn trên toàn bộ số tiền; không đếm yêu cầu bị từ chối, rút lại; hạch toán 711 không thuế; làm trong CONG_VIEC_26 (lát L5). Cấp QUYTAC_NGHIEPVU_208, TIEUCHI_NGHIEMTHU_222, KICHBAN_KIEMTHU_362 (trong dải dành cho CONG_VIEC_26), database migration 0048.
 - CONG_VIEC_42: Người dùng yêu cầu thêm cổng ZaloPay bằng phiên con trên khung CONG_VIEC_32. Cấp dải mã, database migration 0060.
 - CONG_VIEC_40, 41: Người dùng yêu cầu thêm Google Pay, Apple Pay bằng phiên con trên khung CONG_VIEC_32. Cả hai cần đơn vị xử lý thẻ (chờ người dùng chọn trong phiên con). Cấp dải mã, database migration 0058, 0059.
 - CONG_VIEC_32 đến 39: Người dùng yêu cầu tích hợp đầy đủ MoMo, SePay, PayOS, chuyển khoản, VietQR, BIDV, Ecopay, GPay bằng phiên con. Làm trước CONG_VIEC_32 (khung nhiều cổng) để các phiên con không sửa chồng; chuyển khoản và VietQR gộp CONG_VIEC_36 (cùng cơ chế chuyển khoản có mã QR). Cấp sẵn dải mã, số database migration 0050 đến 0057. CONG_VIEC_26 dành QUYTAC_NGHIEPVU đến 219, CHUC_NANG đến 145, TIEUCHI_NGHIEMTHU đến 230, KICHBAN_KIEMTHU đến 375, database migration 0044 đến 0049.

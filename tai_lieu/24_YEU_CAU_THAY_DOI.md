@@ -285,3 +285,22 @@
 - Rủi ro: trung bình (quyền xem dữ liệu khách theo nhánh; hoa hồng nhiều cấp chỉ theo cơ cấu tổ chức, không theo cây giới thiệu).
 - Trạng thái: Đã phê duyệt 2026-11-10.
 
+
+### THAY_DOI_17: Phí rút tiền hoa hồng cấu hình được – 2026-11-11
+- Lý do: người dùng bổ sung ngày 2026-11-11: thu phí rút tiền, cấu hình động theo số lần rút trong tháng hoặc theo số tiền.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11):
+  - Hai bảng phí, cộng dồn: bảng theo lần rút trong tháng (từ lần thứ N thu số tiền cố định) và bảng theo số tiền (từ mức số tiền: phí cố định cộng phần trăm, phần phần trăm có mức tối thiểu, tối đa). Phí = phí theo lần + phí theo số tiền; bảng để trống thì không thu.
+  - Số lần rút đếm theo tháng dương lịch, không tính yêu cầu bị từ chối hoặc người dùng đã rút lại.
+  - Phí trừ vào thực nhận: thực nhận = số tiền yêu cầu − thuế − phí; thuế vẫn tính trên toàn bộ số tiền yêu cầu. Phí dự kiến hiện khi gửi yêu cầu, chốt khi kế toán duyệt.
+  - Hạch toán phí vào thu nhập khác (711), không thuế giá trị gia tăng: ghi đã chi Nợ 3388 / Có ngân hàng / Có 3335 / Có 711.
+  - Làm trong CONG_VIEC_26 (thêm lát L5), trình nghiệm thu cả công việc một lần.
+- Thành phần bị ảnh hưởng: CONG_VIEC_26 (đang thực hiện): QUYTAC_NGHIEPVU_204 đến 207, thêm QUYTAC_NGHIEPVU_208; CHUC_NANG_134, 137, 138; tài liệu `07`, `10`, `11`, `14`, `16`, `17`, `21`, `27`.
+- Dữ liệu bị ảnh hưởng: cài đặt hoa hồng thêm bảng phí rút tiền; yêu cầu rút tiền thêm số phí; định khoản thêm thu nhập khác.
+- API bị ảnh hưởng: API_134 (cài đặt chung thêm bảng phí), API_135 (ví thêm bảng phí, số lần rút trong tháng), API_136 (yêu cầu rút có phí).
+- Giao diện bị ảnh hưởng: sửa MAN_HINH_86 (bảng phí), MAN_HINH_102, MAN_HINH_104 (phí dự kiến, thực nhận).
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không (CONG_VIEC_26 chưa nghiệm thu).
+- Kiểm thử cần thực hiện: thêm KICHBAN_KIEMTHU_362; chạy lại KICHBAN_KIEMTHU_359, 360.
+- Mức quy mô: Vừa.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-11.
