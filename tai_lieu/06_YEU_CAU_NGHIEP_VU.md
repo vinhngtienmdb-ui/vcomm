@@ -185,6 +185,19 @@
 
 Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md`.
 
+## MODULE_08 Nhân sự (phần 4: Tuyển dụng, đánh giá hiệu suất, CONG_VIEC_54)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_112 | Phòng ban đề xuất nhu cầu tuyển dụng (vị trí, số lượng, khoảng lương, lý do) và được duyệt trước khi tuyển | Trưởng phòng, Ban giám đốc, Nhân sự | Tài liệu `01` mục 4; quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_113 | Đăng tin tuyển dụng của mọi công ty con trên một trang công khai chung; người tìm việc nộp hồ sơ không cần tài khoản; nhân sự nhập được hồ sơ từ nguồn khác | Nhân sự, ứng viên | Quyết định người dùng 2026-11-11; THAY_DOI_23 |
+| YCAU_NGHIEPVU_114 | Theo dõi ứng viên qua các giai đoạn, vòng phỏng vấn, đánh giá của người phỏng vấn; gửi email mời phỏng vấn (kèm tệp lịch) và báo kết quả | Nhân sự, người phỏng vấn, ứng viên | Quyết định người dùng 2026-11-11; THAY_DOI_25 |
+| YCAU_NGHIEPVU_115 | Đề nghị nhận việc được duyệt trước khi gửi; ứng viên tự trả lời qua liên kết trong email; ứng viên nhận việc trở thành hồ sơ nhân sự không phải nhập lại | Nhân sự, Ban giám đốc, ứng viên | Quyết định người dùng 2026-11-11; THAY_DOI_25 |
+| YCAU_NGHIEPVU_116 | Dữ liệu ứng viên chỉ thu thông tin cần cho tuyển dụng, có đồng ý kiểm chứng được, xóa khi không tuyển theo thời hạn hoặc theo yêu cầu; giữ lâu hơn chỉ khi ứng viên đồng ý vào kho ứng viên | Công ty (bên kiểm soát dữ liệu), ứng viên | Luật 91/2025/QH15 Điều 25 khoản 1; Nghị định 356/2025/NĐ-CP Điều 5, 6 |
+| YCAU_NGHIEPVU_117 | Đánh giá hiệu suất theo kỳ: mục tiêu cá nhân và tiêu chí năng lực có trọng số, tự đánh giá, người quản lý chấm, nhân sự chốt và công bố; nhân viên xem kết quả của mình | Nhân sự, Trưởng phòng, người lao động | Tài liệu `01` mục 4; quyết định người dùng 2026-11-11 |
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_54.md`.
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -310,3 +323,17 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md`.
 | Quyết định công tác | Loại, ngày hiệu lực, số quyết định, phòng ban, chi nhánh, chức danh | Không trùng ngày trong một hồ sơ; đã hiệu lực thì không sửa (CONG_VIEC_46) |
 | Hợp đồng lao động | Số, loại, thời hạn, vị trí, lương, phụ cấp, người ký, trạng thái, ngày ký, bản đã ký, chấm dứt | Không chồng thời gian trong một hồ sơ (CONG_VIEC_46) |
 | Phụ lục hợp đồng | Số, ngày hiệu lực, mục đổi, điều khoản sửa đổi, trạng thái, bản đã ký | Thuộc hợp đồng đã ký; không có thời hạn (CONG_VIEC_46) |
+| Cài đặt lưu giữ dữ liệu ứng viên | Số ngày giữ sau khi không tuyển (mặc định 30, từ 0 đến 90), số tháng giữ trong kho ứng viên (mặc định 12, từ 1 đến 24) | Mỗi công ty một bản ghi; chưa lưu thì dùng mặc định (CONG_VIEC_54) |
+| Nhu cầu tuyển dụng | Số, phòng ban, chi nhánh, chức danh, số lượng, loại hợp đồng dự kiến, lương tối thiểu, tối đa, ngày cần người, lý do, mô tả, trạng thái, số đã tuyển | Thuộc một công ty; qua luồng duyệt; có nhiều tin tuyển dụng (CONG_VIEC_54) |
+| Tin tuyển dụng | Tiêu đề, nơi làm việc, hình thức, mô tả, yêu cầu, quyền lợi, cách hiển thị lương, hạn nộp, email liên hệ, đăng công khai, trạng thái | Thuộc nhu cầu đã duyệt; có nhiều hồ sơ ứng tuyển (CONG_VIEC_54) |
+| Ứng viên | Mã hồ sơ, họ tên, email, điện thoại, tỉnh hoặc thành nơi ở, trình độ, số năm kinh nghiệm, lương mong muốn, thư giới thiệu, nguồn, ngôn ngữ, ngày xóa dự kiến, ngày đã xóa | Thuộc công ty của tin; không gộp tự động, chỉ đánh dấu "Có thể trùng"; xóa là khử nhận dạng (CONG_VIEC_54) |
+| Tệp ứng viên | Loại (sơ yếu lý lịch, bằng chứng đồng ý), tên tệp, loại nội dung, kích thước | Thuộc ứng viên; xóa cùng ứng viên (CONG_VIEC_54) |
+| Bằng chứng đồng ý của ứng viên | Mục đích (tuyển dụng cho tin, kho ứng viên), kênh (trang tuyển dụng, nhập tay), phiên bản và nguyên văn điều khoản, ngôn ngữ, ngày đồng ý, địa chỉ IP, trình duyệt, tệp bằng chứng, ngày rút | Thuộc ứng viên; nhập tay bắt buộc có tệp bằng chứng (CONG_VIEC_54) |
+| Hồ sơ ứng tuyển | Ứng viên, tin, giai đoạn (mới, sàng lọc, phỏng vấn, đề nghị, nhận việc), kết quả (bị loại, ứng viên rút), lý do, ngày kết thúc, hồ sơ nhân sự đã lập | Một ứng viên mỗi tin tối đa một hồ sơ chưa kết thúc; kết thúc không mở lại (CONG_VIEC_54) |
+| Vòng phỏng vấn | Tên vòng, thời điểm, thời lượng, hình thức (trực tiếp, trực tuyến), địa điểm hoặc liên kết, người phỏng vấn, trạng thái | Thuộc hồ sơ ứng tuyển chưa kết thúc; 1 đến 5 người phỏng vấn (CONG_VIEC_54) |
+| Phiếu đánh giá phỏng vấn | Người phỏng vấn, điểm 1 đến 5, đề xuất (đạt, cân nhắc, không đạt), nhận xét | Mỗi người phỏng vấn một phiếu mỗi vòng (CONG_VIEC_54) |
+| Email gửi ứng viên | Loại (mời phỏng vấn, cập nhật, hủy, báo kết quả, thư đề nghị), người nhận, tiêu đề, thân thư, người gửi, thời điểm | Thuộc ứng viên; xóa thân thư, người nhận khi xóa ứng viên (CONG_VIEC_54) |
+| Đề nghị nhận việc | Số, chức danh, phòng ban, chi nhánh, loại hợp đồng dự kiến, mức lương, ngày bắt đầu, hạn trả lời, ghi chú, lý do ngoài khoảng lương, trạng thái, kênh trả lời, mã băm liên kết trả lời | Mỗi hồ sơ ứng tuyển tối đa một đề nghị chưa kết thúc; qua luồng duyệt (CONG_VIEC_54) |
+| Mẫu đánh giá | Tên, tiêu chí năng lực (tên, mô tả, trọng số) | Thuộc công ty; tổng trọng số 100; đã dùng thì không sửa tiêu chí (CONG_VIEC_54) |
+| Kỳ đánh giá | Tên, từ ngày, đến ngày, mẫu, tỷ trọng mục tiêu, tỷ trọng năng lực, ngưỡng xếp loại A, B, C, ba hạn, đối tượng, trạng thái | Thuộc công ty; có nhiều phiếu đánh giá (CONG_VIEC_54) |
+| Phiếu đánh giá hiệu suất | Hồ sơ nhân sự, phòng ban, người chấm, mục tiêu (tên, chỉ tiêu, trọng số, điểm tự đánh giá, điểm người chấm), điểm tiêu chí, điểm mục tiêu, điểm năng lực, điểm tổng, điểm hiệu chỉnh và lý do, nhận xét, xác nhận đã xem, ý kiến | Mỗi hồ sơ nhân sự một phiếu mỗi kỳ (CONG_VIEC_54) |

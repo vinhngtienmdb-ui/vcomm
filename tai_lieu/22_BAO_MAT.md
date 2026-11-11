@@ -108,6 +108,9 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Kết quả VNPAY gửi về: IPN, trang trả về (API_132, CONG_VIEC_25) | Tích hợp (cổng thanh toán gọi vào), API công khai | Kiểm chữ ký HMAC SHA512 các tham số `vnp_` sắp xếp theo tên, so sánh thời gian cố định (`timingSafeEqual`), đúng mã website; số tiền phải bằng số tiền của lần thanh toán; mỗi lần thanh toán ghi nhận một lần trong giao dịch có khóa dòng; sai chữ ký trả `97` và đếm theo địa chỉ IP (`vnpay-ipn-invalid`, quá giới hạn `429`, không ghi lại); chỉ lưu tham số `vnp_` dạng chuỗi (tối đa 30 tham số, mỗi giá trị 255 ký tự); lỗi khi ghi nhận trả `99` để cổng gửi lại; trang trả về chỉ hiển thị, không ghi nhận tiền, giới hạn theo địa chỉ IP (`vnpay-return`), nội dung thoát ký tự HTML, `Cache-Control: no-store` | Không (chữ ký bằng khóa bí mật) |
 | Phản hồi GHN chi tiết đơn: ngày thu tiền người mua (CONG_VIEC_25) | Tích hợp (hệ thống gọi ra) | Chỉ đọc `cod_collect_date`; ngày không đọc được hoặc trước năm 2000 coi như chưa thu; ghi đã thu một lần bằng tiền thu hộ của đơn (không lấy số tiền từ GHN) | Token, mã cửa hàng trong tiêu đề |
 | API hoa hồng, ví, rút tiền (API_134 đến API_136, CONG_VIEC_26) | API | Lược đồ zod trong `packages/contracts` (`productCommissionSchema`, `commissionSettingsSchema`, `withdrawalFeeRulesSchema`, `buyerWalletQuerySchema`, `createWithdrawalSchema` số đồng nguyên, `withdrawalVersionSchema`, `rejectWithdrawalSchema`, `payWithdrawalSchema`, `withdrawalListQuerySchema`, `withdrawalTaxReportQuerySchema`), mã UUID qua `UuidPipe`; số dư, thuế, phí, thực nhận luôn tính ở máy chủ | Phiên web (quản trị), token ứng dụng (người dùng) |
+| Trang tuyển dụng công khai: danh sách, chi tiết tin, nộp hồ sơ (API_204, CONG_VIEC_54) | API công khai, tải tệp lên | Lược đồ zod `careersListQuerySchema`, `careersApplySchema` trong `packages/contracts`, trường thừa (kể cả giới tính, ngày sinh) bị từ chối; mã tin là UUID; họ tên tối đa 200, email, điện thoại Việt Nam 10 số hoặc dạng quốc tế, thư giới thiệu tối đa 2.000 ký tự; ô đồng ý tuyển dụng bắt buộc, không đánh sẵn; phiên bản điều khoản phải là bản hiện hành; một tệp `resume` PDF hoặc DOCX, tối đa 10 MB (multer cắt ở 20 MB), chữ ký đầu tệp phải khớp đuôi, khóa lưu trữ do hệ thống sinh; tin không công khai, đã đóng, quá hạn, của công ty ngừng hoạt động trả `404` chung; lưu tệp trước, ghi cơ sở dữ liệu trong giao dịch, lỗi thì xóa tệp. Không giới hạn số yêu cầu theo IP (`@NoRateLimit()`, THAY_DOI_23, rủi ro ở mục 8) | Không |
+| Trang trả lời đề nghị nhận việc (`/job-offer-responses/{mã}`, API_203, CONG_VIEC_54) | API công khai | Mã đúng mẫu 43 ký tự base64url, tra theo mã băm SHA-256; mã sai, hết hạn, đã hủy, đã gửi lại thư, ứng viên đã xóa trả `404` như nhau; lược đồ `offerAnswerSchema` (`accepted`, ghi chú tối đa 500); trả lời một lần (khóa dòng `FOR UPDATE`), lần hai `409`; ghi IP, trình duyệt; giữ giới hạn 20 yêu cầu mỗi phút mỗi IP | Không (mã liên kết dùng một lần) |
+| Mọi API tuyển dụng, ứng viên, đánh giá hiệu suất (API_200 đến API_203, API_205, CONG_VIEC_54) | API, tải tệp lên | Lược đồ zod trong `packages/contracts/src/recruitment.ts`, trường thừa bị từ chối; mã trong đường dẫn là UUID; mô tả tin chữ thường, từ chối HTML; tệp bằng chứng đồng ý PDF, JPG, PNG tối đa 10 MB, kiểm chữ ký đầu tệp; tải xuống `no-store`, `nosniff` | Có |
 
 ## 3. Xác thực và phiên đăng nhập
 
@@ -827,6 +830,34 @@ Ranh giới và kiểm soát riêng:
 - Không lưu chi tiết tình trạng sức khỏe; chỉ lưu tệp giấy khám sức khỏe (nhạy cảm). Ghi nhận văn bản đồng ý xử lý dữ liệu nhạy cảm; thiếu thì cảnh báo.
 - Mức lương chỉ trả cho người có `hr.contract.manage` hoặc chính người lao động.
 - Khóa đồng thời: lập, sửa hồ sơ khóa theo công ty (`pg_advisory_xact_lock`) để không trùng số giấy tờ, mã; gửi, ký hợp đồng khóa hồ sơ để kiểm chồng thời gian, giới hạn ký.
+
+### Ma trận phân quyền Nhân sự MODULE_08 phần 4: tuyển dụng, đánh giá hiệu suất (CONG_VIEC_54)
+
+Thêm quyền `hr.recruitment.request` (không nhạy cảm), `hr.recruitment.manage`, `hr.review.manage` (nhạy cảm, chỉ dùng được khi gán ở phạm vi tập đoàn hoặc công ty), thêm vào vai trò Quản lý nhân sự, Nhân viên nhân sự (tài liệu `08` mục 41); loại chứng từ `hr.recruitment_request`, `hr.job_offer` qua luồng duyệt chung.
+
+| Chức năng | Quản trị tập đoàn, công ty | Quản lý nhân sự, Nhân viên nhân sự | Người chỉ có `hr.recruitment.request` | Người phỏng vấn, người chấm được giao | Chỉ dữ liệu của chính mình | Không đăng nhập |
+|---|---|---|---|---|---|---|
+| CHUC_NANG_190 Nhu cầu tuyển dụng | Được | Được | Nhu cầu của mình (người khác `404`) | Không | Không | Không |
+| CHUC_NANG_190 Tin tuyển dụng | Được | Được | Không (`403`) | Không | Không | Không |
+| CHUC_NANG_190 Trang tuyển dụng công khai, nộp hồ sơ | – | – | – | – | – | Được (tin công khai đang đăng) |
+| CHUC_NANG_191 Ứng viên, tệp, đồng ý, giai đoạn, phỏng vấn, email, đề nghị, yêu cầu xóa, cài đặt lưu giữ | Được | Được | Không (`403`) | Không | Không | Không |
+| CHUC_NANG_191 Xem ứng viên rút gọn, tải sơ yếu lý lịch, ghi phiếu phỏng vấn | Được | Được | Không | Người phỏng vấn: vòng được giao, chưa hủy (khác `404`) | Không | Không |
+| CHUC_NANG_191 Trả lời đề nghị nhận việc | Ghi thay | Ghi thay | Không | Không | Không | Ứng viên có liên kết, một lần |
+| CHUC_NANG_191 Lập hồ sơ nhân sự từ ứng viên | Được | Được (cần cả `hr.employee.manage`) | Không | Không | Không | Không |
+| CHUC_NANG_192 Mẫu, kỳ, mọi phiếu, gán người chấm, hiệu chỉnh, chốt, công bố | Được | Được | Không | Không | Không | Không |
+| CHUC_NANG_192 Đặt, chốt mục tiêu, chấm phiếu | Như người chấm | Như người chấm | Không | Người chấm: phiếu được giao (khác `404`) | Không | Không |
+| CHUC_NANG_192 Lập mục tiêu, tự đánh giá, xem kết quả, xác nhận | Phiếu của mình | Phiếu của mình | Phiếu của mình | Phiếu của mình | Có (điểm người chấm chỉ sau công bố) | Không |
+
+Ranh giới và kiểm soát riêng:
+- Tách dữ liệu công ty: ứng viên thuộc công ty của tin (bên kiểm soát dữ liệu), không chia sẻ giữa công ty con; mọi truy vấn lọc `company_id` của công ty đang chọn; công ty khác nhận `404`. Quyền tuyển dụng, đánh giá kiểm bao trùm công ty trong service (gán ở chi nhánh không mở được).
+- Tối thiểu hóa dữ liệu (Luật 91/2025/QH15 Điều 25 khoản 1 điểm a): trang công khai không thu giới tính, ngày sinh, số giấy tờ, ảnh; API công khai không trả mã nhu cầu, lương nội bộ, số lượng, người lập. Người phỏng vấn chỉ nhận họ tên, nơi ở, trình độ, kinh nghiệm, thư giới thiệu, sơ yếu lý lịch; không nhận email, điện thoại, mức lương.
+- Đồng ý (Nghị định 356/2025/NĐ-CP Điều 6): hai ô đồng ý riêng không đánh sẵn; bằng chứng lưu nguyên văn điều khoản, phiên bản, ngôn ngữ, thời điểm, IP, trình duyệt (`hr.candidate_consents`); nhập tay bắt buộc tệp bằng chứng.
+- Liên kết trả lời đề nghị: mã 32 byte ngẫu nhiên (`randomBytes`), chỉ lưu mã băm SHA-256 (`response_token_hash`, duy nhất); dùng một lần, mất hiệu lực sau hạn trả lời (cuối ngày giờ Việt Nam), khi đã trả lời, hủy, hết hạn, gửi lại thư; lịch sử email không lưu liên kết; khi xóa ứng viên mã băm bị xóa.
+- Khử nhận dạng khi xóa ứng viên (QUYTAC_NGHIEPVU_388; Luật 91/2025/QH15 Điều 14 khoản 3): xóa tệp trên kho lưu trữ trước (lỗi thì giữ ứng viên ở hàng chờ, việc nền chạy lại, không lỗi khi tệp đã mất), rồi trong một giao dịch xóa họ tên, email, điện thoại, nơi ở, thư giới thiệu, lương mong muốn, ghi chú, nguyên văn điều khoản, IP, trình duyệt, nhận xét phỏng vấn, thân email, ghi chú đề nghị; không khôi phục; nhật ký ghi `candidate.erase` không kèm dữ liệu đã xóa. Ứng viên đã thành nhân viên không bị xóa (`409 candidateHired`), theo thời hạn lưu của hồ sơ nhân sự (RUIRO CONG_VIEC_46).
+- Tệp: sơ yếu lý lịch PDF, DOCX; bằng chứng đồng ý PDF, JPG, PNG; tối đa 10 MB (kiểm ở service để báo lỗi theo ô, multer cắt ở 20 MB); kiểm chữ ký đầu tệp; khóa lưu trữ `hr/<công ty>/candidates/<mã ngẫu nhiên>`; tải xuống `no-store`, `nosniff`; S3 mã hóa khi lưu (SSE).
+- Giới hạn yêu cầu: chỉ API_204 (`/careers`) bỏ giới hạn theo IP (THAY_DOI_23); `/job-offer-responses` và các API công khai khác giữ 20 yêu cầu mỗi phút mỗi IP.
+- Khóa đồng thời: lập hồ sơ nhân sự từ ứng viên khóa nhu cầu (`FOR UPDATE`) để không vượt số lượng; trả lời đề nghị khóa dòng đề nghị.
+- Mức lương (nhu cầu, đề nghị) chỉ trả cho người có `hr.recruitment.manage` hoặc người lập nhu cầu; điểm người chấm chỉ trả cho nhân viên sau công bố.
 
 ## 5. Quản lý khóa bí mật
 

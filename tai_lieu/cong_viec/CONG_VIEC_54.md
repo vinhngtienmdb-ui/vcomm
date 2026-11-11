@@ -204,3 +204,21 @@ Luồng duyệt chung, dãy số chứng từ, đăng nhập, phân quyền; h�
 | QUYTAC_NGHIEPVU_389 | Người chấm là trưởng phòng | Khi mở kỳ giao người quản lý phòng ban của nhân viên; phòng chưa có trưởng hoặc trưởng phòng chính là nhân viên thì để trống, nhân sự chọn trong bảng kỳ. Người chấm đặt, chốt mục tiêu; nhân viên cũng sửa được mục tiêu trước khi chốt |
 | QUYTAC_NGHIEPVU_389 | Điểm | Điểm mục tiêu, năng lực = tổng (trọng số × điểm)/100; điểm người chấm = (trọng số mục tiêu × điểm mục tiêu + trọng số năng lực × điểm năng lực)/100, làm tròn 2 chữ số; điểm điều chỉnh (kèm lý do) thay điểm người chấm khi xếp loại |
 | MAN_HINH_173 | Phiếu đánh giá | Một trang `/hr/my-reviews/:id` hiện theo vai trò (nhân viên, người chấm, nhân sự); nhân sự mở từ bảng kỳ |
+| QUYTAC_NGHIEPVU_388 | Xóa theo yêu cầu, kho lưu trữ lỗi thì chạy lại | Yêu cầu xóa ghi lý do "theo yêu cầu" và ngày xóa là hôm nay trong cùng giao dịch, rồi mới xóa tệp; kho lưu trữ lỗi thì phản hồi vẫn thành công (ứng viên chưa xóa), việc nền 1 giờ xóa lại với lý do "theo yêu cầu" |
+| Mục 9 | Database migration 0098 chứa quyền, vai trò, loại chứng từ, dãy số; bảng `hr.review_scores` | Quyền, vai trò, loại chứng từ khai trong danh mục quyền, đồng bộ khi khởi động; dãy số tự tạo khi gửi lần đầu. Điểm mục tiêu lưu ở `hr.review_goals`, điểm năng lực ở `hr.review_criterion_scores`; người phỏng vấn của vòng ở `hr.interview_interviewers` |
+| API_202, API_204 | Đường dẫn riêng xem trước email, điều khoản theo ngôn ngữ | Email gửi bằng cờ `sendEmail`, `message` khi lập, đổi giờ, hủy vòng, loại hồ sơ, gửi thư đề nghị; điều khoản trả kèm chi tiết tin công khai |
+
+## 19. Định nghĩa hoàn thành (2026-11-12)
+
+| Hạng mục | Kết quả |
+|---|---|
+| Đặc tả, bản mẫu duyệt | Đặc tả 0.2, bản mẫu MAN_HINH_168–173 được người dùng duyệt 2026-11-11 |
+| Lát L0, L1, L2 | Người dùng duyệt từng lát sau xem trước (máy tính 1366, điện thoại 390) |
+| Kiểm thử tự động | `pnpm --filter api test` (một tiến trình): 58 tệp, 354 kiểm thử đạt; riêng CONG_VIEC_54: c54-recruitment, c54-process, c54-reviews 9 kiểm thử đạt (KICHBAN_KIEMTHU_522–529) |
+| Kịch bản kiểm bằng giao diện | KICHBAN_KIEMTHU_530, 531: xem trước lát L1, L2 |
+| Kiểm tra kiểu | `pnpm --filter api typecheck`, `pnpm --filter web-hr typecheck` đạt |
+| Khóa dịch | Đủ tiếng Việt, tiếng Anh (kiểm khóa thiếu 0) |
+| Bảo mật | Không thêm thư viện; không có bí mật trong mã; trang công khai không giới hạn theo IP (THAY_DOI_23, rủi ro ghi tài liệu `22` mục 8); liên kết trả lời đề nghị lưu băm SHA-256, dùng một lần; khử nhận dạng khi xóa ứng viên |
+| Rà soát mã | Tự rà soát phân quyền phiếu đánh giá, trang công khai; sửa 3 lỗi phát hiện khi nghiệm thu: ngày kết thúc theo đồng hồ ứng dụng, xóa theo yêu cầu khi kho lưu trữ lỗi, hiển thị điểm điều chỉnh |
+| Tài liệu | Cập nhật 06, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 27, index; nội dung cho 02, 03, 25 gửi phiên cha |
+| Lint | Dự án chưa có cấu hình ESLint: không chạy |
