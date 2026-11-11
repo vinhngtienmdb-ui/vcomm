@@ -3685,7 +3685,11 @@
     "gpay_atm": "Thẻ ATM, tài khoản ngân hàng nội địa (G-Pay)",
     "gpay_international": "Thẻ quốc tế Visa, Mastercard (G-Pay)",
     "gpay_va": "Chuyển khoản tài khoản ảo (G-Pay)",
-    "gateway_gpay": "G-Pay"
+    "gateway_gpay": "G-Pay",
+    "zalopay_wallet": "Ví ZaloPay (ứng dụng ZaloPay, mã QR)",
+    "zalopay_atm": "Thẻ ATM, tài khoản ngân hàng qua ZaloPay",
+    "zalopay_card": "Thẻ quốc tế Visa, Mastercard, JCB qua ZaloPay",
+    "gateway_zalopay": "ZaloPay"
   },
   "refunds": {
     "title": "Hoàn tiền đơn VComm",

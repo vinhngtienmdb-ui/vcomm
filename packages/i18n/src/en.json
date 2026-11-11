@@ -3685,7 +3685,11 @@
     "gpay_atm": "Domestic ATM card, bank account (G-Pay)",
     "gpay_international": "International card (Visa, Mastercard) (G-Pay)",
     "gpay_va": "Virtual account transfer (G-Pay)",
-    "gateway_gpay": "G-Pay"
+    "gateway_gpay": "G-Pay",
+    "zalopay_wallet": "ZaloPay wallet (ZaloPay app, QR code)",
+    "zalopay_atm": "ATM card or bank account via ZaloPay",
+    "zalopay_card": "International card (Visa, Mastercard, JCB) via ZaloPay",
+    "gateway_zalopay": "ZaloPay"
   },
   "refunds": {
     "title": "VComm refunds",

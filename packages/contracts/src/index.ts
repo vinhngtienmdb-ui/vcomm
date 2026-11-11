@@ -4105,6 +4105,9 @@ export const paymentMethodCodes = [
   "gpay_atm",
   "gpay_international",
   "gpay_va",
+  "zalopay_wallet",
+  "zalopay_atm",
+  "zalopay_card",
 ] as const;
 export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
 export const paymentGatewayCodes = [
@@ -4117,6 +4120,7 @@ export const paymentGatewayCodes = [
   "bidv",
   "ecopay",
   "gpay",
+  "zalopay",
 ] as const;
 export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];
 

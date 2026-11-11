@@ -8,6 +8,7 @@ import { BankTransferGateway } from "./gateways/bank-transfer-gateway";
 import { BidvGateway } from "./gateways/bidv-gateway";
 import { EcopayGateway } from "./gateways/ecopay-gateway";
 import { GpayGateway } from "./gateways/gpay-gateway";
+import { ZalopayGateway } from "./gateways/zalopay-gateway";
 import type { PaymentGatewayAdapter } from "./payment-gateway";
 import { SepayGateway } from "./gateways/sepay-gateway";
 
@@ -20,6 +21,7 @@ export const paymentGateways: PaymentGatewayAdapter[] = [
   new BidvGateway(),
   new EcopayGateway(),
   new GpayGateway(),
+  new ZalopayGateway(),
 ];
 
 export function gatewayAdapter(code: string): PaymentGatewayAdapter | null {
