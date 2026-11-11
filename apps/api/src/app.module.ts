@@ -72,6 +72,9 @@ import { WithdrawalsService } from "./marketplace/withdrawals.service";
 import { MarketplaceCommissionsService } from "./marketplace/commissions.service";
 import { LoyaltyController } from "./loyalty/loyalty.controller";
 import { LoyaltyProgramService } from "./loyalty/program.service";
+import { LoyaltyLedgerService } from "./loyalty/ledger.service";
+import { LoyaltyAccountsService } from "./loyalty/accounts.service";
+import { BuyerLoyaltyController } from "./loyalty/buyer-loyalty.controller";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
@@ -128,7 +131,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, LoyaltyController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, LoyaltyController, BuyerLoyaltyController],
   providers: [
     AuthService,
     ActivationService,
@@ -172,6 +175,8 @@ import { UsersService } from "./users/users.service";
     WithdrawalsService,
     MarketplaceCommissionsService,
     LoyaltyProgramService,
+    LoyaltyLedgerService,
+    LoyaltyAccountsService,
     ReturnRequestsService,
     SupplierPricesService,
     SalesOrdersService,

@@ -15,13 +15,14 @@ CREATE TABLE loyalty.accounts (
 );
 CREATE INDEX loyalty_accounts_tier_idx ON loyalty.accounts (tier_id);
 
--- Lô điểm: mỗi lần cộng (tích theo đơn, điều chỉnh cộng); dùng, hết hạn, điều chỉnh trừ lấy lô hạn sớm nhất trước.
+-- Lô điểm: mỗi lần cộng (tích theo chứng từ bán, điều chỉnh cộng); dùng, hết hạn, điều chỉnh trừ lấy lô hạn sớm nhất trước.
+-- Nguồn chứng từ chung (CONG_VIEC_51, quyết định 10): đơn VComm, bán, trả hàng tại quầy (CONG_VIEC_53), phiếu điều chỉnh; không khóa ngoại vì thuộc schema khác.
 CREATE TABLE loyalty.lots (
     id                  uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id             uuid          NOT NULL REFERENCES loyalty.accounts(user_id),
-    source              text          NOT NULL CHECK (source IN ('order', 'adjustment')),
-    order_id            uuid          REFERENCES marketplace.orders(id),
-    adjustment_id       uuid,
+    source_type         text          NOT NULL CHECK (source_type IN ('marketplace_order', 'retail_sale', 'adjustment')),
+    source_id           uuid          NOT NULL,
+    company_id          uuid          NOT NULL REFERENCES core.companies(id),
     points              integer       NOT NULL CHECK (points > 0),
     remaining           integer       NOT NULL CHECK (remaining BETWEEN 0 AND points),
     point_value         numeric(18,4) NOT NULL CHECK (point_value > 0),
@@ -29,29 +30,28 @@ CREATE TABLE loyalty.lots (
     expires_on          date          NOT NULL CHECK (expires_on > earned_on),
     expiry_notified_at  timestamptz,
     created_at          timestamptz   NOT NULL DEFAULT now(),
-    CHECK ((source = 'order') = (order_id IS NOT NULL)),
-    CHECK ((source = 'adjustment') = (adjustment_id IS NOT NULL))
+    UNIQUE (source_type, source_id)
 );
 CREATE INDEX loyalty_lots_open_idx ON loyalty.lots (user_id, expires_on, created_at) WHERE remaining > 0;
 CREATE INDEX loyalty_lots_expiry_idx ON loyalty.lots (expires_on) WHERE remaining > 0;
-CREATE UNIQUE INDEX loyalty_lots_order_idx ON loyalty.lots (order_id) WHERE source = 'order';
 
 -- Bút toán điểm: cộng dương, trừ âm theo loại; chỉ thêm.
 CREATE TABLE loyalty.entries (
     id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id        uuid        NOT NULL REFERENCES loyalty.accounts(user_id),
-    kind           text        NOT NULL CHECK (kind IN ('earn', 'redeem', 'redeem_refund', 'expire', 'adjust_add', 'adjust_subtract')),
+    kind           text        NOT NULL CHECK (kind IN ('earn', 'redeem', 'redeem_refund', 'earn_reversal', 'expire', 'adjust_add', 'adjust_subtract')),
     points         integer     NOT NULL CHECK (points <> 0),
     balance_after  integer     NOT NULL CHECK (balance_after >= 0),
-    order_id       uuid        REFERENCES marketplace.orders(id),
-    adjustment_id  uuid,
+    source_type    text        CHECK (source_type IN ('marketplace_order', 'retail_sale', 'retail_return', 'adjustment')),
+    source_id      uuid,
+    company_id     uuid        REFERENCES core.companies(id),
     created_at     timestamptz NOT NULL DEFAULT now(),
     CHECK ((kind IN ('earn', 'redeem_refund', 'adjust_add')) = (points > 0)),
-    CHECK ((kind IN ('earn', 'redeem', 'redeem_refund')) = (order_id IS NOT NULL)),
-    CHECK ((kind IN ('adjust_add', 'adjust_subtract')) = (adjustment_id IS NOT NULL))
+    CHECK ((kind = 'expire') = (source_type IS NULL)),
+    CHECK ((source_type IS NULL) = (source_id IS NULL) AND (source_type IS NULL) = (company_id IS NULL))
 );
 CREATE INDEX loyalty_entries_user_idx ON loyalty.entries (user_id, created_at DESC);
-CREATE INDEX loyalty_entries_order_idx ON loyalty.entries (order_id) WHERE order_id IS NOT NULL;
+CREATE INDEX loyalty_entries_source_idx ON loyalty.entries (source_type, source_id) WHERE source_id IS NOT NULL;
 CREATE INDEX loyalty_entries_created_idx ON loyalty.entries (created_at);
 
 -- Phân bổ bút toán vào lô: để hoàn điểm đúng lô và hạch toán theo giá trị lúc cộng.

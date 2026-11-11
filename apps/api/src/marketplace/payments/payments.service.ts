@@ -13,6 +13,7 @@ import { SalesOrdersService } from "../../sales/sales-orders.service";
 import { MarketplaceOrdersService, refundRemainingPaid } from "../marketplace-orders.service";
 import { gatewayOf, isOnlineMethod, vnpayConfiguration } from "./payment-gateway-registry";
 import { paymentUrl, verifiedResult, type VnpayResult } from "./vnpay";
+import { releaseSalePoints } from "../../loyalty/ledger.service";
 
 // Mỗi đơn mở trang thanh toán tối đa 10 lần.
 const attemptLimit = 10;
@@ -168,6 +169,8 @@ export class MarketplacePaymentsService {
         await this.orders.event(transaction, order.id, "cancelled", "Quá hạn thanh toán", null);
         // Phòng trường hợp đã ghi nhận tiền mà đơn chưa chuyển trạng thái.
         await refundRemainingPaid(transaction, order.id, "paid_after_cancel");
+        // Điểm thưởng của đơn hủy (CONG_VIEC_51; QUYTAC_NGHIEPVU_347, 349).
+        await releaseSalePoints(transaction, "marketplace_order", order.id);
         expired += 1;
       });
     }

@@ -1,6 +1,6 @@
-// MAN_HINH_76 Tài khoản, MAN_HINH_77 Người tôi giới thiệu (CHUC_NANG_106; API_118; QUYTAC_NGHIEPVU_142, 146):
+// MAN_HINH_76 Tài khoản (thẻ điểm thưởng: CONG_VIEC_51), MAN_HINH_77 Người tôi giới thiệu (CHUC_NANG_106; API_118; QUYTAC_NGHIEPVU_142, 146):
 // mã và đường dẫn giới thiệu, chia sẻ, sao chép; nhập mã người giới thiệu khi chưa có (một lần); người tôi giới thiệu; đăng xuất.
-import type { BuyerMeResponse, BuyerReferralItem } from "contracts";
+import type { BuyerLoyaltyResponse, BuyerMeResponse, BuyerReferralItem } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import { Platform, ScrollView, Share, Text, View } from "react-native";
@@ -9,7 +9,7 @@ import { Button, Card, Field, Muted, Notice, Screen, Title } from "@/components/
 import { api, appBase } from "@/lib/api";
 import { shortDate, translator } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
-import { colors, space } from "@/lib/theme";
+import { colors, radius, space } from "@/lib/theme";
 
 export default function AccountScreen() {
   const t = translator("vcommApp");
@@ -67,6 +67,7 @@ export default function AccountScreen() {
           <Button label={t("commissionWallet")} kind="secondary" onPress={() => router.push("/vi-hoa-hong")} />
           <Button label={t("bankAccountTitle")} kind="secondary" onPress={() => router.push("/tai-khoan-hoan-tien")} />
         </Card>
+        <LoyaltyCard />
         {me.referralCode ? (
           <Card>
             <Text style={{ fontWeight: "700", color: colors.text }}>{t("yourReferralCode")}</Text>
@@ -132,5 +133,32 @@ export default function AccountScreen() {
         <Button label={t("logout")} kind="secondary" onPress={() => void logout()} />
       </Screen>
     </ScrollView>
+  );
+}
+
+// Thẻ điểm thưởng: số dư, hạng; mở MAN_HINH_151 (CONG_VIEC_51).
+function LoyaltyCard() {
+  const t = translator("vcommApp");
+  const [summary, setSummary] = useState<BuyerLoyaltyResponse | null>(null);
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      api<BuyerLoyaltyResponse>("/buyer/loyalty")
+        .then((loaded) => active && setSummary(loaded))
+        .catch(() => undefined);
+      return () => {
+        active = false;
+      };
+    }, []),
+  );
+  if (!summary) return null;
+  return (
+    <Text
+      accessibilityRole="link"
+      onPress={() => router.push("/diem-thuong")}
+      style={{ backgroundColor: colors.primary, borderRadius: radius.medium, padding: space[4], color: "#FFFFFF", fontWeight: "800", fontSize: 20 }}
+    >
+      {`${t("loyaltyCardLabel", { tier: summary.tier?.nameVi ?? "" })}\n${t("loyaltyPoints", { points: summary.balance.toLocaleString("vi-VN") })} ›`}
+    </Text>
   );
 }

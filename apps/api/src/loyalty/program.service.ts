@@ -57,23 +57,29 @@ const phaseOf = (row: PhaseRow, today: string): LoyaltyPhase => ({
   version: row.version,
 });
 
+const activePhaseOf = (row: PhaseRow): ActivePhase => ({
+  id: row.id,
+  earnPercent: Number(row.earn_percent),
+  pointValue: Number(row.point_value),
+  redeemMaxPercent: Number(row.redeem_max_percent),
+  redeemMinPoints: row.redeem_min_points,
+  validityMonths: row.validity_months,
+  orderCapPoints: row.order_cap_points,
+  monthlyCapPoints: row.monthly_cap_points,
+});
+
 // Giai đoạn hiệu lực tại một ngày (giờ Việt Nam); không có thì không tích, không đổi điểm.
 export async function phaseOn(executor: Executor, day: string): Promise<ActivePhase | null> {
   const row = (
     await executor.execute<PhaseRow>(sql`
     SELECT ${phaseColumns} FROM loyalty.program_phases WHERE starts_on <= ${day}::date AND (ends_on IS NULL OR ends_on >= ${day}::date)`)
   ).rows[0];
-  if (!row) return null;
-  return {
-    id: row.id,
-    earnPercent: Number(row.earn_percent),
-    pointValue: Number(row.point_value),
-    redeemMaxPercent: Number(row.redeem_max_percent),
-    redeemMinPoints: row.redeem_min_points,
-    validityMonths: row.validity_months,
-    orderCapPoints: row.order_cap_points,
-    monthlyCapPoints: row.monthly_cap_points,
-  };
+  return row ? activePhaseOf(row) : null;
+}
+
+// Giai đoạn đã chốt trên chứng từ; tham số của giai đoạn đã bắt đầu không đổi (QUYTAC_NGHIEPVU_345).
+export async function phaseById(executor: Executor, id: string): Promise<ActivePhase> {
+  return activePhaseOf((await executor.execute<PhaseRow>(sql`SELECT ${phaseColumns} FROM loyalty.program_phases WHERE id = ${id}`)).rows[0]!);
 }
 
 const isExclusionViolation = (error: unknown) => {

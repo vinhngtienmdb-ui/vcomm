@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_88 Chi tiết đơn VComm (CHUC_NANG_116, 117; API_127; QUYTAC_NGHIEPVU_159, 160): người mua, địa chỉ, dòng hàng, vận đơn, lịch sử; giao cho đơn vị vận chuyển, tra lại vận đơn, hủy.
+// MAN_HINH_88 Chi tiết đơn VComm (CHUC_NANG_116, 117; API_127; QUYTAC_NGHIEPVU_159, 160): người mua, địa chỉ, dòng hàng, vận đơn, lịch sử; giao cho đơn vị vận chuyển, tra lại vận đơn, hủy. Điểm thưởng của đơn: CONG_VIEC_51.
 // Thanh toán, các lần thanh toán, ghi tay đã thu tiền thu hộ (CONG_VIEC_25; API_133; QUYTAC_NGHIEPVU_167).
 // Hoa hồng của đơn theo người hưởng (CONG_VIEC_26; QUYTAC_NGHIEPVU_201, 202).
 import type { MarketplaceOrderDetail } from "contracts";
@@ -256,6 +256,31 @@ export default function MarketplaceOrderPage() {
                 ))}
               </div>
             )}
+            {order.points ? (
+              <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
+                <h2>{t("pointsTitle")}</h2>
+                <span>
+                  {order.points.earnPercent === null ? t("pointsNoPhase") : t("pointsPhase", { percent: formatNumber(order.points.earnPercent), value: formatNumber(order.points.pointValue ?? "0") })}
+                  {` · ${t("pointsTier", { tier: order.points.tierName ?? "—", multiplier: formatNumber(order.points.multiplier) })}`}
+                </span>
+                <span>
+                  {t("pointsRedeemed", {
+                    points: formatNumber(order.points.redeemedPoints, 0),
+                    amount: formatNumber(order.points.redeemedAmount, 0),
+                    refunded: formatNumber(order.points.refundedPoints, 0),
+                  })}
+                </span>
+                <span>
+                  {order.points.earnStatus === "earned"
+                    ? t("pointsEarned", { points: formatNumber(order.points.earnedPoints ?? 0, 0) })
+                    : order.points.earnStatus === "pending"
+                      ? t("pointsExpected", { points: formatNumber(order.points.expectedPoints, 0) })
+                      : order.points.earnStatus === "skipped"
+                        ? t(`pointsSkipped_${order.points.skipReason ?? "zero"}`)
+                        : t("pointsCancelled")}
+                </span>
+              </div>
+            ) : null}
             {order.payments.length > 0 && (
               <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
                 <h2>{t("paymentAttempts")}</h2>

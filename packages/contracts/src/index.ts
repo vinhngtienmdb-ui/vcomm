@@ -4311,6 +4311,9 @@ export interface BuyerOrderDetail extends BuyerOrderListItem {
   // Trả hàng trong 7 ngày (QUYTAC_NGHIEPVU_161).
   returnRequests: ReturnRequestItem[];
   canRequestReturn: boolean;
+  // Tiền điểm thưởng trừ vào đơn; điểm dùng, hoàn, tích của đơn (CONG_VIEC_51).
+  pointsAmount: string;
+  points: LoyaltyDocumentPoints | null;
   version: number;
 }
 
@@ -4603,4 +4606,52 @@ export interface LoyaltyProgramResponse {
   phases: LoyaltyPhase[];
   tiers: LoyaltyTier[];
   canManage: boolean;
+}
+
+export type LoyaltyEntryKind = "earn" | "redeem" | "redeem_refund" | "earn_reversal" | "expire" | "adjust_add" | "adjust_subtract";
+export type LoyaltySourceType = "marketplace_order" | "retail_sale" | "retail_return" | "adjustment";
+export interface LoyaltyEntryItem {
+  id: string;
+  kind: LoyaltyEntryKind;
+  points: number;
+  balanceAfter: number;
+  sourceType: LoyaltySourceType | null;
+  sourceId: string | null;
+  // Số chứng từ để hiện (số đơn bán của đơn VComm, số phiếu điều chỉnh); trống khi không có.
+  documentNo: string | null;
+  // Hạn dùng của lô khi bút toán là cộng điểm.
+  expiresOn: string | null;
+  createdAt: string;
+}
+export interface LoyaltyTierProgress {
+  tier: LoyaltyTier | null;
+  spendCurrentYear: string;
+  spendPreviousYear: string;
+  year: number;
+  // Hạng kế tiếp và số tiền còn thiếu trong năm nay; trống khi đã ở hạng cao nhất.
+  nextTier: LoyaltyTier | null;
+  remainingToNext: string | null;
+}
+export interface BuyerLoyaltyResponse extends LoyaltyTierProgress {
+  balance: number;
+  locked: boolean;
+  // Giá trị một điểm của giai đoạn đang hiệu lực; trống khi không có giai đoạn.
+  pointValue: string | null;
+  expiringPoints: number;
+  expiringOn: string | null;
+  tiers: LoyaltyTier[];
+}
+export interface LoyaltyDocumentPoints {
+  redeemedPoints: number;
+  redeemedAmount: string;
+  refundedPoints: number;
+  expectedPoints: number;
+  earnedPoints: number | null;
+  earnStatus: "pending" | "earned" | "skipped" | "cancelled";
+  skipReason: "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | null;
+  expiresOn: string | null;
+  tierName: string | null;
+  multiplier: string;
+  earnPercent: string | null;
+  pointValue: string | null;
 }

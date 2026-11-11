@@ -15,6 +15,7 @@ import { carrierAdapter, webhookKeyOf } from "./carriers/carrier-registry";
 import { MarketplaceOrdersService, refundRemainingPaid } from "./marketplace-orders.service";
 import { vietnamToday } from "./shop.service";
 import { loadStoreContext } from "./store.service";
+import { releaseSalePoints } from "../loyalty/ledger.service";
 
 type Executor = Pick<Database, "execute" | "insert">;
 const systemClient = { ip: null, userAgent: "carrier-webhook", requestId: null };
@@ -332,6 +333,8 @@ export class ShipmentsService implements OnModuleInit {
         await this.orders.event(transaction, shipment.order_id, "cancelled", reason, null);
         // Đơn đã thu tiền trực tuyến: lập việc chờ hoàn (CONG_VIEC_25; QUYTAC_NGHIEPVU_168).
         await refundRemainingPaid(transaction, shipment.order_id, "order_cancelled");
+        // Điểm thưởng của đơn hủy (CONG_VIEC_51; QUYTAC_NGHIEPVU_347, 349).
+        await releaseSalePoints(transaction, "marketplace_order", shipment.order_id);
       } else if (phase === "cancelled" && state === "awaiting_pickup") {
         // Đơn vị vận chuyển hủy vận đơn trước khi lấy hàng: hủy đơn, nhả hàng giữ.
         await this.removeDraftIssues(transaction, shipment.order_id);
@@ -343,6 +346,8 @@ export class ShipmentsService implements OnModuleInit {
         await this.orders.event(transaction, shipment.order_id, "cancelled", reason, null);
         // Đơn đã thu tiền trực tuyến: lập việc chờ hoàn (CONG_VIEC_25; QUYTAC_NGHIEPVU_168).
         await refundRemainingPaid(transaction, shipment.order_id, "order_cancelled");
+        // Điểm thưởng của đơn hủy (CONG_VIEC_51; QUYTAC_NGHIEPVU_347, 349).
+        await releaseSalePoints(transaction, "marketplace_order", shipment.order_id);
       } else if (phase === "attention" && current.carrier_status !== status) {
         // Bất thường, mất hàng: hiện cho nhân viên, đơn giữ trạng thái.
         await this.orders.event(transaction, shipment.order_id, state, note, null);
