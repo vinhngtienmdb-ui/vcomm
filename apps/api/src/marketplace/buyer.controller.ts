@@ -1,6 +1,6 @@
 // API_116 đến 118: đăng ký, đăng nhập, tài khoản người mua trên ứng dụng VComm (CONG_VIEC_23).
 // Người mua không thuộc công ty nào nên các API này không dùng header X-Company-Id.
-import { Body, Controller, Get, HttpCode, Param, Post, Req } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Inject, Param, Post, Query, Req } from "@nestjs/common";
 import { UuidPipe } from "../common/uuid.pipe";
 import {
   buyerLoginSchema,
@@ -14,6 +14,8 @@ import {
   type BuyerReferralItem,
   type BuyerSalesCustomerItem,
   type MySalesTeamResponse,
+  type BuyerWalletResponse,
+  buyerWalletQuerySchema,
   createSalesProposalSchema,
   type SalesProposalItem,
   type SalesProposalOptionsResponse,
@@ -21,7 +23,9 @@ import {
 import type { Request } from "express";
 import { clientInfo } from "../auth/auth.controller";
 import { Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.guard";
+import { DATABASE, type Database } from "../database/database.module";
 import { BuyerAccountsService } from "./buyer-accounts.service";
+import { MarketplaceCommissionsService } from "./commissions.service";
 import { SalesProposalsService } from "./sales-proposals.service";
 
 @Controller("buyer")
@@ -29,6 +33,8 @@ export class BuyerController {
   constructor(
     private readonly buyers: BuyerAccountsService,
     private readonly proposals: SalesProposalsService,
+    private readonly commissions: MarketplaceCommissionsService,
+    @Inject(DATABASE) private readonly database: Database,
   ) {}
 
   @Public()
@@ -106,6 +112,12 @@ export class BuyerController {
   @Get("sales/customers")
   async salesCustomers(@Req() request: AuthenticatedRequest): Promise<BuyerSalesCustomerItem[]> {
     return this.buyers.salesCustomers(request.auth.userId);
+  }
+
+  // API_135: ví hoa hồng của chính người gọi (CONG_VIEC_26).
+  @Get("wallet")
+  async wallet(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<BuyerWalletResponse> {
+    return this.commissions.wallet(this.database, request.auth.userId, buyerWalletQuerySchema.parse(query));
   }
 
   // API_122: đội của tôi (CONG_VIEC_27).

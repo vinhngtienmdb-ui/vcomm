@@ -13,6 +13,7 @@ import { AuthService, type ClientInfo, type IssuedSession } from "../auth/auth.s
 import { setPassword } from "../auth/password.service";
 import { PhoneOtpService } from "../auth/phone-otp.service";
 import { users } from "../database/schema";
+import { MarketplaceCommissionsService } from "./commissions.service";
 import { SalesTeamService, type SalesTeam } from "./sales-team.service";
 
 type Executor = Pick<Database, "execute">;
@@ -45,6 +46,7 @@ export class BuyerAccountsService {
     private readonly phoneOtp: PhoneOtpService,
     private readonly audit: AuditService,
     private readonly salesTeam: SalesTeamService,
+    private readonly commissions: MarketplaceCommissionsService,
   ) {}
 
   // API_116: gửi mã đăng ký. Số đã có tài khoản thì báo để khách chuyển sang đăng nhập (QUYTAC_NGHIEPVU_141).
@@ -238,6 +240,10 @@ export class BuyerAccountsService {
     const team = await this.myTeam(userId);
     const members = team.branch(userId);
     const counts = await this.salesTeam.customerCounts(members.map((member) => member.userId));
+    const commissions = await this.commissions.totals(
+      this.database,
+      members.map((member) => member.userId),
+    );
     return {
       title: team.titleOf(userId)!,
       unitName: team.unit(team.member(userId)!.departmentId)?.name ?? "",
@@ -247,6 +253,8 @@ export class BuyerAccountsService {
         title: team.titleOf(member.userId)!,
         unitName: team.unit(member.departmentId)?.name ?? "",
         customerCount: counts.get(member.userId) ?? 0,
+        creditedCommission: commissions.get(member.userId)?.credited ?? "0",
+        pendingCommission: commissions.get(member.userId)?.pending ?? "0",
       })),
     };
   }

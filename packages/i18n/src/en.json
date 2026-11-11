@@ -3330,7 +3330,19 @@
     "accountHolder": "Account holder",
     "bankAccountSaved": "Refund account saved.",
     "enterBankAccount": "Enter refund account",
-    "invalidField": "Invalid value."
+    "invalidField": "Invalid value.",
+    "walletTitle": "Commission wallet",
+    "walletBalance": "Balance",
+    "walletPending": "Pending: {amount}",
+    "walletPendingHint": "Commission of orders not yet completed, estimated from current items; added to the balance when the order completes.",
+    "walletHistory": "History",
+    "walletEmpty": "No transactions yet.",
+    "walletCommission": "Commission for order {order}",
+    "walletKind_withdrawal": "Withdrawal",
+    "walletKind_withdrawal_reversal": "Withdrawal returned",
+    "walletBalanceAfter": "Balance {amount}",
+    "commissionWallet": "Commission wallet",
+    "memberCommission": "Commission received {credited} · pending {pending}"
   },
   "buyers": {
     "title": "Buyer accounts",

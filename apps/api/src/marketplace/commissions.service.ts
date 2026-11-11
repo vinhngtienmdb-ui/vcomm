@@ -1,6 +1,6 @@
 // Hoa hồng đơn VComm (CONG_VIEC_26; CHUC_NANG_135; QUYTAC_NGHIEPVU_201 đến 203): chốt người hưởng, mức lúc đặt; tính và cộng ví khi đơn hoàn tất.
 import { Injectable } from "@nestjs/common";
-import type { SalesTitle } from "contracts";
+import type { BuyerWalletResponse, SalesTitle, WalletTransactionKind } from "contracts";
 import { sql } from "drizzle-orm";
 import type { Database } from "../database/database.module";
 import { returnedOnOrderLine } from "../sales/sales-orders.service";
@@ -95,6 +95,62 @@ export class MarketplaceCommissionsService {
       WHERE c.order_id = ${orderId} AND m.status <> 'cancelled' GROUP BY u.full_name, u.phone, c.share, c.beneficiary_user_id
       ORDER BY array_position(ARRAY['referral', 'staff', 'team_head', 'regional_director', 'director'], c.share), u.full_name`);
     return rows.rows;
+  }
+
+  // Tổng hoa hồng theo người hưởng (QUYTAC_NGHIEPVU_203): đã cộng ví; đang chờ là ước tính của đơn chưa hoàn tất, không tính đơn hủy.
+  async totals(executor: Executor, userIds: string[]): Promise<Map<string, { credited: string; pending: string }>> {
+    if (userIds.length === 0) return new Map();
+    const rows = await executor.execute<{ user_id: string; credited: string; pending: string }>(sql`
+      SELECT c.beneficiary_user_id AS user_id,
+        coalesce(sum(c.amount) FILTER (WHERE c.status = 'credited'), 0)::float::text AS credited,
+        coalesce(sum(${estimate}) FILTER (WHERE c.status = 'pending' AND m.status <> 'cancelled'), 0)::float::text AS pending
+      FROM marketplace.order_commissions c JOIN sales.order_lines l ON l.id = c.order_line_id JOIN marketplace.orders m ON m.id = c.order_id
+      WHERE c.beneficiary_user_id IN (${sql.join(
+        userIds.map((id) => sql`${id}::uuid`),
+        sql`, `,
+      )})
+      GROUP BY c.beneficiary_user_id`);
+    return new Map(rows.rows.map((row) => [row.user_id, { credited: row.credited, pending: row.pending }]));
+  }
+
+  // API_135: ví của chính người gọi; lịch sử mới nhất trước.
+  async wallet(executor: Executor, userId: string, query: { page: number; pageSize: number }): Promise<BuyerWalletResponse> {
+    const balance = (await executor.execute<{ balance: string }>(sql`SELECT balance::float::text AS balance FROM marketplace.wallets WHERE user_id = ${userId}`)).rows[0]?.balance ?? "0";
+    const pending = (await this.totals(executor, [userId])).get(userId)?.pending ?? "0";
+    const total = (await executor.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM marketplace.wallet_transactions WHERE user_id = ${userId}`)).rows[0]!.total;
+    const rows = await executor.execute<{
+      id: string;
+      kind: WalletTransactionKind;
+      amount: string;
+      balance_after: string;
+      order_id: string | null;
+      document_no: string | null;
+      note: string | null;
+      created_at: Date;
+    }>(sql`
+      SELECT t.id, t.kind, t.amount::float::text AS amount, t.balance_after::float::text AS balance_after, t.order_id, so.document_no, t.note, t.created_at
+      FROM marketplace.wallet_transactions t LEFT JOIN marketplace.orders m ON m.id = t.order_id LEFT JOIN sales.orders so ON so.id = m.sales_order_id
+      WHERE t.user_id = ${userId} ORDER BY t.created_at DESC, t.id DESC
+      LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`);
+    return {
+      balance,
+      pendingAmount: pending,
+      transactions: {
+        data: rows.rows.map((row) => ({
+          id: row.id,
+          kind: row.kind,
+          amount: row.amount,
+          balanceAfter: row.balance_after,
+          orderId: row.order_id,
+          orderDocumentNo: row.document_no,
+          note: row.note,
+          createdAt: new Date(row.created_at).toISOString(),
+        })),
+        page: query.page,
+        pageSize: query.pageSize,
+        total,
+      },
+    };
   }
 
   // Gọi trong giao dịch chuyển đơn sang Hoàn tất: tính số tiền từng dòng theo phần không trả (QUYTAC_NGHIEPVU_202: phần trăm trên tiền hàng chưa thuế

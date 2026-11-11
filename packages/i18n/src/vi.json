@@ -3330,7 +3330,19 @@
     "accountHolder": "Tên chủ tài khoản",
     "bankAccountSaved": "Đã lưu tài khoản nhận hoàn tiền.",
     "enterBankAccount": "Nhập tài khoản nhận hoàn tiền",
-    "invalidField": "Giá trị không hợp lệ."
+    "invalidField": "Giá trị không hợp lệ.",
+    "walletTitle": "Ví hoa hồng",
+    "walletBalance": "Số dư",
+    "walletPending": "Đang chờ: {amount}",
+    "walletPendingHint": "Hoa hồng của đơn chưa hoàn tất, ước tính theo hàng hiện tại; cộng vào số dư khi đơn hoàn tất.",
+    "walletHistory": "Lịch sử",
+    "walletEmpty": "Chưa có giao dịch.",
+    "walletCommission": "Hoa hồng đơn {order}",
+    "walletKind_withdrawal": "Rút tiền",
+    "walletKind_withdrawal_reversal": "Hoàn lại yêu cầu rút",
+    "walletBalanceAfter": "Số dư {amount}",
+    "commissionWallet": "Ví hoa hồng",
+    "memberCommission": "Hoa hồng đã nhận {credited} · đang chờ {pending}"
   },
   "buyers": {
     "title": "Tài khoản người mua",
