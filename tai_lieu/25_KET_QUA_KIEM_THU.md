@@ -183,6 +183,23 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_26
+
+- Phạm vi: lát L0 đến L5 (thiết lập hoa hồng sản phẩm, cài đặt chung; chốt người hưởng khi đặt, cộng ví khi hoàn tất, đơn hủy bỏ hoa hồng; ví, hoa hồng cấp dưới; rút tiền, duyệt chi, thuế thu nhập cá nhân, bảng kê; bút toán 3388, 3335; phí rút tiền theo THAY_DOI_17, Có 711) và các bản sửa sau rà soát độc lập.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22; Expo bản web cổng 8083; GHN giả lập.
+- Lệnh đã chạy: `pnpm lint` (kiểm tra kiểu API, web-crm, ứng dụng), `pnpm --filter api test`, `pnpm audit --prod`; database migration 0044 đến 0048 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright: thiết lập hoa hồng, cài đặt hoa hồng và bảng phí, hoa hồng của đơn, Rút tiền hoa hồng (duyệt, ghi đã chi, bảng kê; máy tính và khổ 390 điểm ảnh); ứng dụng: ví, hoa hồng cấp dưới, gửi yêu cầu rút có thuế, phí dự kiến (khổ iPhone 13).
+- Kết quả: 338 đạt / 0 không đạt / 338 kịch bản tự động (50 tệp; phần mới: `c26-commission-settings` 1, `c26-order-commissions` 2, `c26-withdrawals` 1, `c26-commission-postings` 1, `c26-withdrawal-fees` 1 – KICHBAN_KIEMTHU_356 đến 360, 362). KICHBAN_KIEMTHU_361 (thủ công) đạt, không lỗi trình duyệt (ảnh trong `tam_thoi/CONG_VIEC_26/`).
+- Kiểm thử đã duyệt được sửa: không. Kiểm thử của chính công việc được sửa trong lúc làm khi thêm trường mới (ví thêm phần rút tiền, cài đặt thêm bảng phí).
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_216 đến 222 (bắt buộc) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit --prod`: không thêm thư viện; 2 lỗ hổng Trung bình đã biết trong `@expo/cli` (rủi ro đã chấp nhận, tài liệu 22 mục 8).
+  - C2 gitleaks trong CI (`--log-opts=HEAD`): Đạt; không có khóa bí mật mới.
+  - C3 phân quyền: Đạt – người dùng chỉ xem ví, gửi, rút lại yêu cầu của mình (`404` với yêu cầu người khác); thiết lập hoa hồng, cài đặt chung cần quyền quản lý đơn VComm; danh sách, duyệt, từ chối, ghi đã chi, bảng kê cần `marketplace.payment.manage` (người dùng thường `403`); không tự xử lý yêu cầu của chính mình.
+  - C4 toàn vẹn dữ liệu: Đạt – số dư chỉ đổi qua giao dịch ví có khóa dòng ví; một yêu cầu đang chờ mỗi người (chỉ mục duy nhất); cộng ví một lần mỗi đơn mỗi người (chỉ mục duy nhất); ràng buộc thực nhận + thuế + phí = số tiền; bút toán cân Nợ Có; một đơn lỗi khi hoàn tất không chặn các đơn khác.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập không thấy lỗi Nghiêm trọng, Cao; tìm 1 Trung bình (một đơn lỗi khi hoàn tất chặn các đơn sau), 5 Thấp (tự duyệt yêu cầu của mình, ngày chi lùi về trước ngày duyệt, hoa hồng cố định khi chưa có giá, số quá lớn gây lỗi hệ thống, ví lỗi khi chưa có công ty vận hành sàn, giao dịch trùng khi xem thêm); đã sửa ở commit 5ce3a69, kiểm thử lại đạt. Tệp tạm trong `tam_thoi/CONG_VIEC_26/` (Git bỏ qua).
+- Kết luận cổng kiểm thử: Đạt.
+- Kết luận: Chờ người dùng nghiệm thu; hai điểm nghiệp vụ chờ người dùng quyết (cộng dồn số tiền rút theo tháng để xét ngưỡng thuế; từ chối khi thực nhận bằng 0).
+
 ## Lần kiểm thử 2026-11-11 – CONG_VIEC_25
 
 - Phạm vi: lát L0 đến L4 (phương thức thanh toán theo cổng, mở đặt hàng; VNPAY, chờ thanh toán 15 phút, tự hủy; đối soát COD theo API GHN, ghi tay đã thu; hoàn tiền; bút toán tiền thu, phí giao hàng, hoàn tiền, hóa đơn có dòng phí giao hàng) và các bản sửa sau rà soát độc lập.

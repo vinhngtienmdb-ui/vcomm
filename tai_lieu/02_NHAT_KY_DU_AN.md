@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_26: Xong lát L0 đến L5 trên nhánh `chuc-nang/CONG_VIEC_26-hoa-hong-vi` (pull request #76): database migration 0044 đến 0048; API_134 đến 136; MAN_HINH_101 đến 104, sửa 83, 86, 88; hoa hồng theo đơn, ví, rút tiền, thuế thu nhập cá nhân, phí rút tiền, bút toán 3388, 3335, 711. Rà soát độc lập: 1 Trung bình, 5 Thấp, đã sửa. Kiểm thử 338/338. Chờ người dùng nghiệm thu; hai điểm chờ quyết định (cộng dồn ngưỡng thuế theo tháng; thực nhận bằng 0).
 - THAY_DOI_17 (CONG_VIEC_26): phí rút tiền hoa hồng. Người dùng quyết định: hai bảng phí cộng dồn (theo lần rút trong tháng, theo số tiền); trừ vào thực nhận, thuế vẫn trên toàn bộ số tiền; không đếm yêu cầu bị từ chối, rút lại; hạch toán 711 không thuế; làm trong CONG_VIEC_26 (lát L5). Cấp QUYTAC_NGHIEPVU_208, TIEUCHI_NGHIEMTHU_222, KICHBAN_KIEMTHU_362 (trong dải dành cho CONG_VIEC_26), database migration 0048.
 - CONG_VIEC_42: Người dùng yêu cầu thêm cổng ZaloPay bằng phiên con trên khung CONG_VIEC_32. Cấp dải mã, database migration 0060.
 - CONG_VIEC_40, 41: Người dùng yêu cầu thêm Google Pay, Apple Pay bằng phiên con trên khung CONG_VIEC_32. Cả hai cần đơn vị xử lý thẻ (chờ người dùng chọn trong phiên con). Cấp dải mã, database migration 0058, 0059.
