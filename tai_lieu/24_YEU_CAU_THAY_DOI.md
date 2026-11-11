@@ -323,3 +323,14 @@
 - Mức quy mô: Lớn.
 - Rủi ro: trung bình (xóa chức năng, đổi quyền xem).
 - Trạng thái: Đã phê duyệt 2026-11-11 (thiết kế chi tiết chờ xác nhận trong đặc tả CONG_VIEC_43).
+
+### THAY_DOI_19: Ngưỡng thuế thu nhập cá nhân khi rút hoa hồng cộng dồn theo tháng – 2026-11-11
+- Lý do: rà soát CONG_VIEC_26: xét ngưỡng thuế từng lần rút thì người nhận chia nhỏ yêu cầu dưới ngưỡng để không bị khấu trừ.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11): khi duyệt, xét ngưỡng trên tổng số tiền các yêu cầu đã duyệt (kể cả đã chi) của người đó trong cùng tháng duyệt (giờ Việt Nam) cộng số tiền yêu cầu đang duyệt; vượt ngưỡng thì khấu trừ theo tỷ lệ trên toàn bộ số tiền yêu cầu đang duyệt. Thuế dự kiến khi gửi yêu cầu tính theo cùng cách với tháng hiện tại. Giữ từ chối khi thực nhận bằng 0.
+- Thành phần bị ảnh hưởng: CONG_VIEC_26 (đã nghiệm thu, chưa phát hành): QUYTAC_NGHIEPVU_205; tài liệu `07`, `11`, `21`.
+- Dữ liệu, API, giao diện, quyền: không đổi cấu trúc; câu hướng dẫn thuế trên ứng dụng.
+- Ảnh hưởng chức năng cũ: số thuế với người rút nhiều lần trong tháng.
+- Kiểm thử cần thực hiện: bổ sung kịch bản cộng dồn vào KICHBAN_KIEMTHU_359; chạy lại c26-*.
+- Mức quy mô: Nhỏ.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-11.

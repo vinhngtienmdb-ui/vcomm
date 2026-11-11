@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- Người dùng nghiệm thu CONG_VIEC_26, CONG_VIEC_43 và các cổng thanh toán CONG_VIEC_34 đến 42 (trạng thái Đã nghiệm thu, chờ phát hành; cổng phải thử với tài khoản thử nghiệm trước khi phát hành). THAY_DOI_19: ngưỡng thuế thu nhập cá nhân cộng dồn theo tháng; giữ từ chối khi thực nhận bằng 0.
 - CONG_VIEC_43: xong lát L0 đến L4 trên nhánh `chuc-nang/CONG_VIEC_43-sua-theo-thay-doi-14`; database migration 0061 đến 0063; người dùng quyết định thêm: phiếu xuất, nhập dịch vụ không ghi thẻ kho; dịch vụ mua vào hạch toán 642; giữ giao dịch nội bộ hàng hóa theo cài đặt; sửa loại trừ dịch vụ nội bộ trong báo cáo hợp nhất; giữ tự lập hồ sơ khách; tự nhận dịch vụ khi duyệt đơn mua. Kiểm thử 334/334. Chờ nghiệm thu.
 - CONG_VIEC_43 (THAY_DOI_18): người dùng quyết định sửa theo THAY_DOI_14: giao dịch nội bộ chỉ dịch vụ; xóa hẳn hoa hồng đội kinh doanh cũ (CONG_VIEC_17); tắt giao khách (CONG_VIEC_21) và chặn đơn bán tay hàng hóa (CONG_VIEC_08); báo cáo hợp nhất giữ nguyên. Cấp mã, database migration 0061, 0062.
 - CONG_VIEC_26: Xong lát L0 đến L5 trên nhánh `chuc-nang/CONG_VIEC_26-hoa-hong-vi` (pull request #76): database migration 0044 đến 0048; API_134 đến 136; MAN_HINH_101 đến 104, sửa 83, 86, 88; hoa hồng theo đơn, ví, rút tiền, thuế thu nhập cá nhân, phí rút tiền, bút toán 3388, 3335, 711. Rà soát độc lập: 1 Trung bình, 5 Thấp, đã sửa. Kiểm thử 338/338. Chờ người dùng nghiệm thu; hai điểm chờ quyết định (cộng dồn ngưỡng thuế theo tháng; thực nhận bằng 0).
