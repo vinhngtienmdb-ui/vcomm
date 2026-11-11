@@ -1,6 +1,7 @@
 // CONG_VIEC_50: phạm vi xem báo cáo quản trị (KICHBAN_KIEMTHU_476, 477).
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { Pool } from "pg";
+import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { createTestUser, signIn, type Session } from "./helpers";
@@ -72,5 +73,25 @@ describe("CONG_VIEC_50 phạm vi xem", () => {
     for (const kind of ["sales", "inventory", "debt", "commission"]) expect(all.body.reports[kind]).toHaveLength(3);
     const employee = await signIn(application, "phuc.le@vcomm.test");
     expect((await get(employee, retail, "/analytics/scope")).status).toBe(403);
+  });
+
+  it("KICHBAN_KIEMTHU_476: chưa đăng nhập bị từ chối; dữ liệu đầu vào độc hại bị từ chối ở bước kiểm tra", async () => {
+    for (const path of [
+      "scope",
+      "sales?from=2026-11-01&to=2026-11-11",
+      "inventory?from=2026-11-01&to=2026-11-11",
+      "debts",
+      "commissions?from=2026-11-01&to=2026-11-11",
+      "overview?from=2026-11-01&to=2026-11-11",
+    ]) {
+      expect((await request(application.getHttpServer()).get(`/api/v1/analytics/${path}`)).status).toBe(401);
+    }
+    const groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
+    const bad = ["companyIds=x'%20OR%201%3D1--", "groupBy=1;DROP%20TABLE%20x", "channelId=abc", "from=2026-13-01", "marketplaceOnly=yes", "extra=1", "format=pdf"];
+    for (const query of bad) {
+      const response = await get(groupAdmin, retail, `/analytics/sales?from=2026-11-01&to=2026-11-11&${query}`);
+      expect(response.status, query).toBe(400);
+      expect(JSON.stringify(response.body)).not.toMatch(/select|syntax|stack/i);
+    }
   });
 });

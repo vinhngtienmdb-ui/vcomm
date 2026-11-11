@@ -29,6 +29,8 @@
   const menu = () => `<nav class="menu" aria-label="Báo cáo quản trị"><div class="ten-app">Báo cáo quản trị</div>${
     MENU.filter(([m]) => m === "140" || coQuyen(NHOM_CUA[m])).map(([m, t]) => `<a href="${duongDan(m)}" class="${m === ma ? "chon" : ""}">${t}</a>`).join("")}</nav>`;
   const tieuDe = (chu, cacNut) => `<div class="tieu-de"><h1>${chu}</h1>${cacNut || ""}</div>`;
+  // Nút xuất Excel đặt trên bảng (người dùng chọn khi xem trước lát L1, 2026-11-11).
+  const hangXuat = () => `<div class="nhom-nut" style="justify-content:flex-end">${nutXuat()}</div>`;
   const nutXuat = () => `<button type="button" class="nut phu" data-hanh-dong="xuat">Xuất Excel</button>`;
   const phai = 'style="text-align:right;white-space:nowrap"';
   const cotDau = 'style="min-width:240px"';
@@ -48,10 +50,10 @@
 
   // Dữ liệu giả.
   const BAN_HANG = {
-    "cong-ty": [["VCR · VComm Bán lẻ Miền Nam", 4210, 1985400000, 1402100000, 0], ["VCT · VComm Thương mại và Phân phối Hàng tiêu dùng Toàn quốc", 1630, 1240000000, 1012500000, 312000000], ["VCG · Tập đoàn VCG", 0, 0, 0, 0]],
+    "cong-ty": [["VCR · VComm Bán lẻ Miền Nam", 4210, 1985400000, 1402100000, 0], ["VCT · VComm Thương mại và Phân phối Hàng tiêu dùng Toàn quốc", 1630, 1240000000, 1012500000, 312000000]],
     "kenh": [["Bán buôn", 1630, 1240000000, 1012500000, 312000000], ["Bán lẻ cửa hàng", 2875, 1210300000, 860400000, 0], ["VComm (ứng dụng người mua)", 1335, 775100000, 541700000, 0]],
     "san-pham": [["SP-00125 · Nước giặt hữu cơ Bảo Ngọc hương sả chanh can 3,8 lít (thùng 4 can)", 820, 410000000, 296000000, 82000000], ["SP-00418 · Gạo ST25 túi 5 kg", 1450, 362500000, 290000000, 0], ["SP-00977 · Dầu ăn hướng dương 1 lít", 900, 81000000, 64800000, 0], ["SP-01020 · Combo quà Tết (hàng tặng)", 40, 0, 6400000, 0]],
-    "ngay": [["01/11/2026", 520, 301200000, 220100000, 0], ["02/11/2026", 610, 355800000, 251400000, 41000000], ["03/11/2026", 0, 0, 0, 0], ["04/11/2026", 702, 420500000, 300900000, 62000000]],
+    "ngay": [["01/11/2026", 520, 301200000, 220100000, 0], ["02/11/2026", 610, 355800000, 251400000, 41000000], ["04/11/2026", 702, 420500000, 300900000, 62000000]],
     "thang": [["09/2026", 15200, 8204000000, 5992000000, 1150000000], ["10/2026", 16950, 9120500000, 6604000000, 1312000000], ["11/2026 (đến 11/11)", 5860, 3225400000, 2414600000, 312000000]]
   };
   const veBanHang = () => {
@@ -64,14 +66,14 @@
     const chan = [["Cộng các công ty", so(cong[0]), so(cong[1]), so(cong[2]), so(cong[1] - cong[2]), so(((cong[1] - cong[2]) / (cong[1] || 1)) * 100) + "%", so(cong[3])]];
     if (vaiTro === "tap-doan") chan.push(["Tổng loại trừ nội bộ", "", so(cong[1] - cong[3]), "", "", "", ""]);
     const ngoaiTe = vaiTro === "tap-doan" && nhomTheo === "cong-ty" ? [["VCS · VComm Singapore Pte. Ltd. (USD, không cộng vào tổng)", so(310), so(48250.5), so(31020), so(17230.5), "35,71%", so(0)]] : [];
-    return `${tieuDe("Báo cáo bán hàng", nutXuat())}
+    return `${tieuDe("Báo cáo bán hàng")}
       <div class="the"><div class="bo-loc">${chonCongTy()}${khoangNgay()}
         <label for="kenh" class="an-nhan">Kênh</label><select id="kenh" class="o-nhap"><option>Kênh: tất cả</option><option>Bán buôn</option><option>Bán lẻ cửa hàng</option><option>VComm (ứng dụng người mua)</option></select>
         <label style="display:flex;gap:6px;align-items:center"><input type="checkbox"> Chỉ đơn VComm</label>
         <button type="button" class="nut chinh" data-hanh-dong="xem">Xem</button></div>${loiNgay()}
         <span class="chu-thich">Doanh số theo hàng đã giao: phiếu xuất giao hàng đã ghi sổ trừ hàng trả lại, theo ngày phiếu; chưa thuế giá trị gia tăng; không gồm phí giao hàng và đơn của người mua thử.</span></div><!--het-loc-->
       ${chonNhom([["cong-ty", "Công ty"], ["kenh", "Kênh"], ["san-pham", "Sản phẩm"], ["ngay", "Ngày"], ["thang", "Tháng"]])}
-      ${ghiChuTien()}${bang(cot, dong.map(hang).concat(ngoaiTe), chan, nhomTheo === "san-pham" ? "Hiện 500 trên 1.284 sản phẩm, xếp theo doanh số giảm dần. Dòng tổng tính trên toàn bộ. Xuất Excel để có đủ dòng." : "")}`;
+      ${hangXuat()}${ghiChuTien()}${bang(cot, dong.map(hang).concat(ngoaiTe), chan, nhomTheo === "san-pham" ? "Hiện 500 trên 1.284 sản phẩm, xếp theo doanh số giảm dần. Dòng tổng tính trên toàn bộ. Xuất Excel để có đủ dòng." : "")}`;
   };
 
   const TON_KHO = {
@@ -86,12 +88,12 @@
       const binhQuan = (d[2] + d[8]) / 2; const vong = binhQuan && d[9] ? d[9] / binhQuan : null;
       return [d[0], so(d[1]), so(d[2]), so(d[3]), so(d[4]), so(d[5]), so(d[6]), so(d[7]), so(d[8]), so(d[9]), vong === null ? "—" : so(vong), vong === null ? "—" : so(11 / vong)];
     };
-    return `${tieuDe("Tồn kho và luân chuyển", nutXuat())}
+    return `${tieuDe("Tồn kho và luân chuyển")}
       <div class="the"><div class="bo-loc">${chonCongTy()}<label for="kho" class="an-nhan">Kho</label><select id="kho" class="o-nhap"><option>Kho: tất cả</option><option>KHO-HCM-01 · Kho tổng Thủ Đức</option></select>${khoangNgay()}
         <button type="button" class="nut chinh" data-hanh-dong="xem">Xem</button></div>${loiNgay()}
         <span class="chu-thich">Theo thẻ kho, ngày giờ Việt Nam. Vòng quay = giá vốn hàng bán ÷ giá trị tồn bình quân ((đầu kỳ + cuối kỳ) ÷ 2); số ngày tồn = số ngày của kỳ (11) ÷ vòng quay. Chuyển kho trong cùng công ty triệt tiêu khi nhóm theo công ty.</span></div><!--het-loc-->
       ${chonNhom([["cong-ty", "Công ty"], ["kho", "Kho"], ["san-pham", "Sản phẩm"]])}
-      ${bang(cot, TON_KHO[nhomTheo].map(hang), [["Tổng", "", so(2205000000), "", so(980000000), "", so(1402100000), "", so(1782900000), so(1402100000), so(0.71), so(15.49)]])}`;
+      ${hangXuat()}${bang(cot, TON_KHO[nhomTheo].map(hang), [["Tổng", "", so(2205000000), "", so(980000000), "", so(1402100000), "", so(1782900000), so(1402100000), so(0.71), so(15.49)]])}`;
   };
 
   const CONG_NO = {
@@ -103,13 +105,13 @@
     let dong = CONG_NO[nhomTheo];
     if (vaiTro !== "tap-doan") dong = dong.filter(d => d[0].includes("VCR") && !d[0].includes("nội bộ"));
     const cot = [nhomTheo === "cong-ty" ? "Công ty" : "Đối tác", "Số dư", "Chưa đến hạn", "Quá hạn 1–30 ngày", "31–60 ngày", "61–90 ngày", "Trên 90 ngày", "Trả trước", "Trong đó nội bộ"];
-    return `${tieuDe("Công nợ theo tuổi nợ", nutXuat())}
+    return `${tieuDe("Công nợ theo tuổi nợ")}
       ${luoiThe([theChiTieu("Phải thu", so(2160500000) + " ₫", "Trong đó quá hạn: " + so(340500000) + " ₫", "143"), theChiTieu("Phải trả", so(1874000000) + " ₫", "Trong đó quá hạn: " + so(122000000) + " ₫", "143")])}
       <div class="the"><div class="bo-loc">${chonCongTy()}
         <div class="cac-the" role="tablist" aria-label="Loại công nợ"><button type="button" class="${phia === "phai-thu" ? "chon" : ""}" data-phia="phai-thu">Phải thu</button><button type="button" class="${phia === "phai-tra" ? "chon" : ""}" data-phia="phai-tra">Phải trả</button></div>
         <button type="button" class="nut chinh" data-hanh-dong="xem">Xem</button></div>
         <span class="chu-thich">Tính tại hôm nay 11/11/2026, cùng cách tính tuổi nợ của sổ công nợ (theo hạn thanh toán, trên số còn lại).</span></div><!--het-loc-->
-      ${chonNhom([["cong-ty", "Theo công ty"], ["doi-tac", "Theo đối tác"]])}${ghiChuTien()}
+      ${chonNhom([["cong-ty", "Theo công ty"], ["doi-tac", "Theo đối tác"]])}${hangXuat()}${ghiChuTien()}
       ${bang(cot, dong.map(d => [d[0], ...d.slice(1).map(so)]), vaiTro === "tap-doan" ? [["Cộng các công ty", so(2160500000), so(1310000000), so(510000000), so(195000000), so(100500000), so(45000000), so(12000000), so(312000000)], ["Tổng loại trừ nội bộ", so(1848500000), "", "", "", "", "", "", ""]] : null)}`;
   };
 
@@ -119,12 +121,12 @@
   };
   const veHoaHong = () => {
     const cot = [nhomTheo === "phan-huong" ? "Loại phần hưởng" : "Người hưởng", "Số dòng hoa hồng", "Hoa hồng đã ghi có"];
-    return `${tieuDe("Hoa hồng và ví", nutXuat())}
+    return `${tieuDe("Hoa hồng và ví")}
       <div class="the"><div class="bo-loc">${khoangNgay()}<button type="button" class="nut chinh" data-hanh-dong="xem">Xem</button></div>${loiNgay()}
         <span class="chu-thich">Công ty vận hành VComm: VComm Bán lẻ Miền Nam. Đã ghi có, đã chi theo kỳ; đang chờ và số dư ví tại hôm nay.</span></div><!--het-loc-->
       ${luoiThe([theChiTieu("Hoa hồng đã ghi có trong kỳ", so(51800000) + " ₫", "298 dòng", "144"), theChiTieu("Hoa hồng đang chờ", so(14250000) + " ₫", "Đơn chưa hoàn tất", "144"),
         theChiTieu("Rút tiền đã chi trong kỳ", so(38000000) + " ₫", "Thuế " + so(1200000) + " ₫ · Phí " + so(55000) + " ₫ · Thực nhận " + so(36745000) + " ₫", "144"), theChiTieu("Tổng số dư ví", so(27630000) + " ₫", "Rút đang chờ duyệt: 2 yêu cầu, " + so(4500000) + " ₫", "144")])}
-      ${chonNhom([["phan-huong", "Theo loại phần hưởng"], ["nguoi-huong", "Theo người hưởng"]])}
+      ${chonNhom([["phan-huong", "Theo loại phần hưởng"], ["nguoi-huong", "Theo người hưởng"]])}${hangXuat()}
       ${bang(cot, HOA_HONG[nhomTheo].map(d => [d[0], so(d[1]), so(d[2])]), [["Tổng", so(298), so(51800000)]])}
       <h2>Rút tiền đã chi trong kỳ</h2>
       ${bang(["Người hưởng", "Ngày chi", "Số tiền", "Thuế thu nhập cá nhân", "Phí", "Thực nhận"], [["Trần Thị Ngọc Bích", "05/11/2026", so(12000000), so(1200000), so(22000), so(10778000)], ["Lê Hoàng Phương Nam", "08/11/2026", so(26000000), so(0), so(33000), so(25967000)]], [["Tổng", "", so(38000000), so(1200000), so(55000), so(36745000)]])}`;
