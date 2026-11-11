@@ -3,7 +3,7 @@
 - Mô tả: Bảng lương tháng của mỗi công ty: lương theo hợp đồng hiện hành, phụ cấp, ngày công và tăng ca từ bảng công tháng (CONG_VIEC_47); bảo hiểm xã hội, bảo hiểm y tế, bảo hiểm thất nghiệp phần người lao động và người sử dụng lao động có mức trần; kinh phí công đoàn; thuế thu nhập cá nhân lũy tiến từng phần có giảm trừ gia cảnh theo người phụ thuộc; duyệt qua luồng duyệt chung; phiếu lương cho nhân viên; bút toán lương qua module Kế toán theo Thông tư 99/2025, Thông tư 133.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu ngày 2026-11-11; xác nhận điểm xem trước L0, L1. Lát L2 xong; còn chờ nối bảng công của CONG_VIEC_47.
+- Trạng thái: Chờ nghiệm thu. Người dùng duyệt đặc tả, bản mẫu ngày 2026-11-11; xác nhận điểm xem trước L0, L1. Lát L2 xong; đã nối bảng công thật của CONG_VIEC_47 (database migration 0075).
 - Mức: Lớn (nhiều module, bút toán, sửa dữ liệu và API hợp đồng của CONG_VIEC_46).
 - Nền: nhánh `chuc-nang/CONG_VIEC_46-nhan-su-ho-so` (chưa hợp nhất vào `main`); CONG_VIEC_47 làm song song, hợp nhất nhánh 47 vào trước khi viết phần đọc bảng công.
 
@@ -205,3 +205,17 @@ Phiếu THAY_DOI_21: "Thêm loại phụ cấp cho dòng phụ cấp hợp đồ
 | QUYTAC_NGHIEPVU_323 | Khoản khấu trừ ghi Có 3388 | Vai trò định khoản riêng `payroll_deduction_payable` (mặc định 3388) để kế toán đổi được tài khoản |
 | Mục 9 | Đọc bảng công qua dịch vụ của CONG_VIEC_47 | Đọc thẳng `hr.timesheet_periods` (kỳ, trạng thái chốt) và `hr.timesheet_lines` theo cấu trúc phiên CONG_VIEC_47 gửi ngày 2026-11-11: công chuẩn = `month_standard_units`, ngày công hưởng lương = `paid_units`, ngày không lương = nghỉ không lương + nghỉ bảo hiểm xã hội + vắng, 7 nhóm giờ tăng ca, `night_hours`, `annual_leave_payout_units`. Nhân viên không có dòng trong kỳ thì cảnh báo "Chưa có bảng công", không gửi duyệt được. Kiểm thử tính lương dùng bảng công giả lập; đọc dòng thật (database migration 0075) kiểm ở `c48-payroll-timesheet.test.ts` |
 | QUYTAC_NGHIEPVU_322 | Bảng công khóa mở lại khi lương duyệt | Khi duyệt gọi `lock` của nguồn bảng công (ghi `payroll_locked_at` của kỳ công; CONG_VIEC_47 chặn mở lại kỳ khi cột này có giá trị) |
+
+## 20. Kết quả đối chiếu định nghĩa hoàn thành
+
+| Mục | Kết quả |
+|---|---|
+| Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Đạt: QUYTAC_NGHIEPVU_312 đến 323 có kiểm thử tự động; quyền `hr.payroll.view`, `hr.payroll.manage`, `hr.payroll.setup`; mọi truy vấn lọc theo công ty; tiền lưu `numeric`, tính bằng số nguyên đồng; chỗ chỉnh cho khớp mã ghi ở mục 19 |
+| Đúng giao diện | Đạt: MAN_HINH_126 đến 131 và thay đổi MAN_HINH_118 khớp bản mẫu đã duyệt; xem trước khổ 1366 và 390 điểm ảnh không lỗi trình duyệt, không cuộn ngang (KICHBAN_KIEMTHU_462, 463); người dùng duyệt điểm xem trước L0, L1, L2 |
+| Đã xử lý lỗi | Đạt: lỗi theo ô, lỗi nghiệp vụ có câu dịch vi, en (bộ tham số đã dùng, bảng lương đã có, chưa có tham số, bảng công chưa chốt, bảng lương trống, cảnh báo chặn, chưa duyệt); gửi email lỗi thì ghi lỗi trên dòng, gửi lại được |
+| Đã kiểm thử, có kết quả trong tài liệu `25` | Đạt: c48-payroll-setup, c48-payroll-calculation, c48-payrolls, c48-payroll-timesheet; toàn bộ kiểm thử API đạt 64 tệp, 410 bài sau khi hợp nhất CONG_VIEC_47 lát L3; kết quả gửi phiên cha ghi tài liệu `25` (sổ dùng chung) |
+| Không phá vỡ chức năng cũ | Đạt: toàn bộ kiểm thử API đạt; hợp đồng CONG_VIEC_46 nhận thêm loại phụ cấp (THAY_DOI_21), dữ liệu cũ không hỏng; kiểm tra kiểu 14 gói đạt |
+| Đạt tiêu chí nghiệm thu bắt buộc | TIEUCHI_NGHIEMTHU_303 đến 310 có kịch bản KICHBAN_KIEMTHU_454 đến 463 và kết quả đạt |
+| Đạt cổng bảo mật | Đạt: không thêm thư viện; quét thư viện còn 2 mức Trung bình đã chấp nhận (RUIRO CONG_VIEC_23); nhật ký kiểm toán lương đóng bảo hiểm không ghi số tiền; nhân viên chỉ xem phiếu lương của mình; gitleaks trên CI |
+| Đã tự rà soát mã, dọn dẹp | Đạt: không ghép chuỗi người dùng nhập vào truy vấn; phạm vi công ty, quyền, khóa bảng công khi duyệt; tệp tạm trong `tam_thoi/` (Git bỏ qua) |
+| Đã cập nhật tài liệu `27` và tài liệu liên quan | Đạt: tài liệu 06, 07, 08, 09, 10, 11, 12, 14, 16, 17, 21, 22, 27; sổ 02, 03, 25 gửi phiên cha ghi |
