@@ -32,7 +32,7 @@ describe("CONG_VIEC_26 thiết lập hoa hồng", () => {
     expect((await store.call("put", `/marketplace/listings/${store.products.cream}/commission`, { ...body, referral: "-1" })).status).toBe(400);
     const saved = await store.call("put", `/marketplace/listings/${store.products.cream}/commission`, body);
     expect(saved.status, JSON.stringify(saved.body)).toBe(200);
-    expect(saved.body).toEqual({ calculation: "percent", referral: "5", staff: "10", teamHead: "3", regionalDirector: "2", director: "1", version: 1 });
+    expect(saved.body).toEqual({ calculation: "percent", referral: "5", staff: "10", teamHead: "3", regionalDirector: "2", director: "1", collaborator: "0", version: 1 });
     // Sửa với phiên bản cũ bị từ chối.
     expect((await store.call("put", `/marketplace/listings/${store.products.cream}/commission`, body)).status).toBe(409);
     // Số tiền cố định: tổng không vượt giá bán thấp nhất (xà phòng 44.000).

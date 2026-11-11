@@ -118,11 +118,18 @@ export default function EinvoicePage() {
                 <div>
                   {invoice.templateCode} · {invoice.series ?? "—"}
                 </div>
+                {invoice.origin === "cash_register" && <span className="chu-thich">{t("origin_cash_register")}</span>}
               </div>
               <div>
                 <span className="chu-thich">{t("taxAuthorityCode")}</span>
                 <div style={{ wordBreak: "break-all" }}>{invoice.taxAuthorityCode ?? (invoice.withTaxCode ? "—" : t("withoutCode"))}</div>
               </div>
+              {invoice.origin === "cash_register" && (
+                <div>
+                  <span className="chu-thich">{t("lookupCode")}</span>
+                  <div>{invoice.lookupCode}</div>
+                </div>
+              )}
               <div>
                 <span className="chu-thich">{t("dueDate")}</span>
                 <div>{formatDate(invoice.dueDate)}</div>

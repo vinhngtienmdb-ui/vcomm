@@ -26,6 +26,7 @@ import {
   marketplacePaymentDraft,
   marketplaceRefundDraft,
   marketplaceCommissionDraft,
+  marketplaceReferralBonusDraft,
   marketplaceWithdrawalDraft,
 } from "./postings";
 
@@ -170,6 +171,10 @@ export class LedgerService implements OnModuleInit {
     const completed = await executor.execute<{ id: string }>(sql`
       SELECT id FROM marketplace.orders WHERE company_id = ${companyId} AND status = 'completed' ORDER BY completed_at`);
     for (const order of completed.rows) await this.record(executor, await marketplaceCommissionDraft(executor, order.id), false);
+    // Thưởng giới thiệu (CONG_VIEC_49).
+    const bonuses = await executor.execute<{ order_id: string }>(sql`
+      SELECT b.order_id FROM marketplace.referral_bonuses b JOIN marketplace.orders m ON m.id = b.order_id WHERE m.company_id = ${companyId} ORDER BY b.credited_at`);
+    for (const bonus of bonuses.rows) await this.record(executor, await marketplaceReferralBonusDraft(executor, bonus.order_id), false);
     const withdrawals = await executor.execute<{ id: string }>(sql`SELECT id FROM marketplace.withdrawals WHERE company_id = ${companyId} AND status = 'paid' ORDER BY paid_at`);
     for (const withdrawal of withdrawals.rows) await this.record(executor, await marketplaceWithdrawalDraft(executor, withdrawal.id), false);
   }

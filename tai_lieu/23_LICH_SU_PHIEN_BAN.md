@@ -2,8 +2,37 @@
 
 - Mô tả: Các phiên bản đã phát hành, nội dung và phương án quay lui riêng của từng phiên bản.
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-09
+- Ngày cập nhật: 2026-11-11
 - Trạng thái: Đang cập nhật
+
+## Phiên bản 0.5.0 – 2026-11-11 – Chờ phát hành
+
+- Chức năng mới:
+  - Nhân sự phần 4 (MODULE_08, mini app `apps/web-hr`, CONG_VIEC_54): nhu cầu tuyển dụng qua luồng duyệt, tin tuyển dụng, trang tuyển dụng công khai, ứng viên, phỏng vấn, đề nghị nhận việc, lưu giữ dữ liệu ứng viên; đánh giá hiệu suất (mẫu, kỳ, phiếu, hiệu chỉnh, công bố).
+  - Điểm thưởng phần 1 (MODULE_11, CONG_VIEC_51): chương trình theo giai đoạn, sổ cái điểm, lô điểm có hạn dùng, hạng thành viên, dùng điểm khi đặt đơn VComm, hoàn điểm khi hủy, trả hàng, điều chỉnh qua luồng duyệt, cảnh báo bất thường, nghĩa vụ điểm, bút toán điểm.
+  - Cộng đồng phần 1 (MODULE_10, CONG_VIEC_49, THAY_DOI_22): cộng tác viên một tầng, thưởng giới thiệu bạn bè, mua chung, ví mua sắm (khóa toàn hệ thống, chặn từng tài khoản), bảng tin, đánh giá đã mua, kiểm duyệt.
+  - Nhập khẩu (MODULE_04 phần 2, CONG_VIEC_45): đơn mua ngoại tệ, nhập kho quy đổi tỷ giá, tờ khai hải quan, thuế nhập khẩu, phân bổ chi phí vào giá vốn, bút toán.
+  - Bán lẻ tại quầy phần 1, lát L0 đến L5 (MODULE_14, mini app `apps/web-retail`, CONG_VIEC_53, THAY_DOI_24): cửa hàng, quầy, ca thu ngân, bán hàng, hóa đơn bán lẻ, trả hàng, tiền mặt, chứng từ quỹ, hóa đơn điện tử từ máy tính tiền. Lát L6 (điểm thưởng tại quầy) chưa có, không thuộc phiên bản này.
+- Ghép giữa các công việc: tiền người mua phải trả = tiền hàng + phí giao hàng − tiền điểm − phần ví mua sắm; điểm trừ trước, ví mua sắm trả phần còn lại; đơn mua chung không dùng điểm; hoàn tiền trả hàng: phần điểm trước, tiền mặt, rồi phần ví (CONG_VIEC_51 mục 19).
+- Lỗi đã sửa: LOI_08 (nhật ký thao tác ghi thời điểm bằng `clock_timestamp()`, giữ đúng thứ tự nhiều thao tác trong một giao dịch).
+- Thay đổi dữ liệu, database migration theo thứ tự chạy: `0067` đến `0069` (nhập khẩu), `0079` đến `0082` (cộng đồng), `0084` (nguồn bút toán nhập khẩu), `0086` đến `0089` (điểm thưởng), `0094` đến `0097` (bán lẻ tại quầy), `0098` đến `0100` (tuyển dụng, đánh giá), `0101` (phát hành: đặt lại ràng buộc `accounting.journals_source_type_check` bằng hợp của mọi nguồn bút toán, vì `0079`, `0084`, `0088` mỗi tệp định nghĩa lại theo nhánh riêng). Các tệp số nhỏ hơn `0083` vẫn được chạy vì trình chạy database migration ghi nhận theo tên tệp.
+- Thay đổi API: thêm API theo tài liệu `17` của CONG_VIEC_45, 49, 51, 53, 54; `POST /buyer/orders/preview`, `POST /buyer/orders` nhận thêm `pointsToRedeem`, `useShoppingWallet`, `groupBuyId` (đều có mặc định, tương thích); xem trước đơn trả thêm `loyalty`, `pointsAmount`, `expectedPoints`, `shoppingWallet`, `walletAmount`, `payable`.
+- Thư viện mới: không thêm thư viện bên ngoài; mini app `apps/web-retail` dùng các thư viện, phiên bản đã có (`next`, `next-intl`, `qrcode-generator` 2.0.4).
+- Biến môi trường mới: `RETAIL_ORIGIN` ở `apps/web-platform` (địa chỉ mini app Bán lẻ, mặc định `http://localhost:3012`).
+- Rủi ro:
+  - Pháp lý CONG_VIEC_49: ví mua sắm có thể bị coi là ví điện tử cần giấy phép trung gian thanh toán; bảng tin mở có thể thuộc diện mạng xã hội cần giấy phép. Chặn triển khai lên môi trường thật cho đến khi có ý kiến luật sư (người dùng xác nhận 2026-11-11).
+  - Pháp lý CONG_VIEC_51: điểm thưởng cần ý kiến luật sư (rủi ro bị coi là ví điện tử); chặn triển khai lên môi trường thật cho đến khi có ý kiến luật sư.
+  - Nhập khẩu: định khoản theo phụ lục Thông tư 99/2025/TT-BTC chưa đối chiếu nguyên văn; phải đối chiếu trước khi dùng thật.
+  - Bán lẻ: đối soát ngân hàng chưa tự ghép chuyển khoản VietQR với phiếu thu bán lẻ; tiền đầu ca chưa lập chứng từ quỹ; chưa có điểm thưởng tại quầy (L6).
+  - Tuyển dụng: trang tuyển dụng công khai không giới hạn theo IP (THAY_DOI_23, rủi ro đã chấp nhận ở tài liệu `22` mục 8).
+- Khả năng tương thích: tương thích ngược với 0.4.0; database migration thêm schema `loyalty`, `retail`, bảng, cột, và đặt lại ràng buộc kiểm tra theo tập giá trị rộng hơn.
+- Công việc gộp trong phiên bản: CONG_VIEC_54 (pull request #105), CONG_VIEC_51 (#103), CONG_VIEC_49 (#97), CONG_VIEC_45 (#85), CONG_VIEC_53 lát L0 đến L5 (#100); LOI_08; THAY_DOI_22, 23, 24. Thứ tự hợp nhất: 54, 51, 49, 45, 53.
+- Kiểm thử trên nhánh phát hành: xem tài liệu `25`.
+- Tag: `v0.5.0` trên commit hợp nhất nhánh `phat-hanh/v0.5.0` vào `main` (gắn tự động khi CI trên `main` đạt).
+- Phương án quay lui riêng của phiên bản:
+  - Mã nguồn: triển khai lại tag `v0.4.0`.
+  - Database migration: bản 0.4.0 không đọc schema `loyalty`, `retail`, bảng mới của tuyển dụng, đánh giá, cộng đồng, nhập khẩu; giữ nguyên khi quay lui mã. Ràng buộc kiểm tra đã mở rộng (`0068`, `0069`, `0079`, `0081`, `0096`, `0101`) chỉ thêm giá trị nên bản 0.4.0 vẫn ghi được. Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.5.0.
+  - Dữ liệu cần sao lưu thêm: tệp sơ yếu lý lịch, bằng chứng đồng ý của ứng viên, ảnh bài đăng bảng tin trong thư mục hoặc bucket lưu tệp.
 
 ## Phiên bản 0.4.0 – 2026-11-11 – Đã phát hành
 
