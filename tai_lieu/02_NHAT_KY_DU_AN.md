@@ -9,6 +9,8 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_44 (ứng dụng kho) trình nghiệm thu, pull request #88. Quyết định người dùng: đủ mọi thao tác kho trên ứng dụng (duyệt trên web), bắt buộc có mạng, quyền `inventory.stocktake.count` cho Thủ kho, số đếm cộng dồn, đếm mù cả web, thêm thư viện `expo-camera`; duyệt đặc tả, bản mẫu MAN_HINH_105 đến 109. Đã làm: ứng dụng `apps/mobile-warehouse` (Expo SDK 58), API_137 đến 139, database migration 0064, đếm mù API_67, `GET /inventory/sales-orders` thêm `warehouseId`. Tồn đọng: chưa thử camera trên điện thoại thật; chưa xem trước xuất giao hàng và nhận chuyển kho trên ứng dụng; ứng dụng chưa có kiểm thử Playwright; 3 quyết định AI tự đưa ra ghi ở tài liệu 07 chờ người dùng xác nhận.
+- Gộp đơn vị vận chuyển (pull request #82): sửa LOI_06; CI đạt.
 - Gộp đơn vị vận chuyển CONG_VIEC_28 đến 31 (pull request #82, 349/349 kiểm thử đạt). Người dùng nghiệm thu CONG_VIEC_28, 30; quyết định THAY_DOI_20 (Viettel Post giao thành công thì tự ghi đã thu COD).
 - Tag `v0.3.0` đã gắn trên `main` (`b623969`). Người dùng yêu cầu tiếp tục mở phiên song song: cấp CONG_VIEC_44 (ứng dụng kho), 45 (nhập khẩu, phân bổ chi phí), 46 (Nhân sự phần 1) kèm dải mã riêng; phiên con gộp đơn vị vận chuyển CONG_VIEC_28 đến 31 lên `main`.
 - Người dùng yêu cầu tự hợp nhất và tiếp tục tự động. Phát hành 0.3.0 (pull request #79, `main` commit `b623969`): CONG_VIEC_04 đến 21, 23 đến 27, 43, LOI_03, CONG_VIEC_10, 11; kiểm thử 334/334 đạt; tag `v0.3.0` gắn tự động khi CI trên `main` đạt. Người dùng nghiệm thu THAY_DOI_19, CONG_VIEC_10, 11, 25 qua yêu cầu hợp nhất.

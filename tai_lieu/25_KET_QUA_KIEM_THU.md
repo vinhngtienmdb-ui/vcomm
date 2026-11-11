@@ -196,6 +196,14 @@
 - Kết luận cổng kiểm thử: Đạt.
 - Kết luận: Chờ người dùng nghiệm thu.
 
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_44
+
+- Phạm vi: ứng dụng kho `apps/mobile-warehouse`, API_137 đến 139, database migration 0064, đếm mù API_67; nhánh `chuc-nang/CONG_VIEC_44-ung-dung-kho` (pull request #88, `89e09b2`).
+- Kết quả: KICHBAN_KIEMTHU_423, 424, 425, 426 Đạt (`apps/api/test/c44-warehouse-app.test.ts`); KICHBAN_KIEMTHU_427 Đạt phần tra mã (`apps/mobile-warehouse/src/lib/scan.test.ts` 5/5) và xem trước bản web, phần camera chưa thử trên điện thoại thật; hồi quy toàn bộ API 338/338 Đạt (53 tệp).
+- Kiểm thử đã duyệt được sửa: không.
+- Kiểm tra bảo mật phần B, C: Đạt; `pnpm audit` chỉ còn 2 lỗ hổng Trung bình đã chấp nhận rủi ro trong `@expo/cli`; không có khóa bí mật mới. Không có lỗi mới.
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-11 – Gộp đơn vị vận chuyển CONG_VIEC_28 đến 31, THAY_DOI_20
 
 - Phạm vi: nhánh `gop/giao-van` (pull request #82) từ `main`, hợp nhất CONG_VIEC_31, 29, 28, 30; gộp tay `carrier-registry.ts` (đủ 5 đơn vị), giao diện lớp kết nối (thông tin vận đơn, báo cáo webhook, trả lời webhook, hủy vận đơn), xử lý webhook. THAY_DOI_20: Viettel Post báo giao thành công đơn COD thì ghi đã thu COD, ngày thu là lúc nhận webhook (commit `af6df92`).
