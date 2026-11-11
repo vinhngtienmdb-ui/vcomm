@@ -344,5 +344,5 @@
 - Kiểm thử cần thực hiện: kịch bản giao thành công đơn COD, đơn không COD, webhook lặp; chạy lại toàn bộ kiểm thử API.
 - Mức quy mô: Nhỏ.
 - Rủi ro: ngày thu ghi sổ có thể sớm hơn ngày Viettel Post chuyển tiền; đối soát thu hộ (CONG_VIEC_19) vẫn đối chiếu số tiền thật.
-- Trạng thái: Đã phê duyệt 2026-11-11.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã thực hiện 2026-11-11 (commit `af6df92`, pull request #82), chờ phát hành.
 
