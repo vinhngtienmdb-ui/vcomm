@@ -183,6 +183,13 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_54
+
+- Phạm vi: Nhân sự phần 4 (tuyển dụng, đánh giá hiệu suất), nhánh `chuc-nang/CONG_VIEC_54-tuyen-dung-danh-gia` (pull request #105, head `bbe6c73`): MAN_HINH_168 đến 173, API_200 đến 205, database migration 0098 đến 0100.
+- Kết quả: `pnpm --filter api test` một tiến trình 58 tệp, 354 kiểm thử đạt; KICHBAN_KIEMTHU_522 đến 531 đạt; kiểm tra kiểu api, web-hr đạt; CI xanh. Người dùng duyệt xem trước L0, L1, L2.
+- Lỗi phát hiện và sửa trong công việc: thời điểm kết thúc hồ sơ ứng tuyển lệch ngày quanh nửa đêm (ghi theo đồng hồ ứng dụng); xóa theo yêu cầu không chạy lại khi kho lưu trữ lỗi; điểm điều chỉnh không hiển thị.
+- Kết luận cổng kiểm thử: Đạt, chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_49
 
 - Phạm vi: Cộng đồng phần 1 (MODULE_10), lát L1 đến L3: MAN_HINH_132 đến 139; API_162 đến 169; sửa API_123, 124, 126, 127, 134, 135, 136. Hồi quy: toàn bộ kiểm thử tự động API. Nhánh `chuc-nang/CONG_VIEC_49-cong-dong` (pull request #97, head `42e04f9`).
