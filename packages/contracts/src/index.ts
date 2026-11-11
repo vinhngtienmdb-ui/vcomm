@@ -5348,6 +5348,7 @@ export const retailPermissions = {
 } as const;
 export const saveRetailStoreSchema = z
   .object({
+    kind: z.enum(["store", "pickup_point"]).default("store"),
     branchId: z.uuid(),
     warehouseId: z.uuid(),
     channelId: z.uuid(),
@@ -5387,8 +5388,49 @@ export interface RetailRegisterResponse {
   openShift: { id: string; cashierName: string; openedAt: string } | null;
   version: number;
 }
+export interface RetailStationResponse {
+  pickupEnabled: boolean;
+  deliveryEnabled: boolean;
+  displayName: string | null;
+  province: { code: string; name: string } | null;
+  ward: { code: string; name: string } | null;
+  streetAddress: string | null;
+  phone: string | null;
+  openingHours: string | null;
+  holdDays: number;
+  deliveryFee: string;
+  freeDeliveryThreshold: string | null;
+  deliveryWards: { code: string; name: string; provinceCode: string; provinceName: string }[];
+  version: number;
+}
+// Cài đặt trạm giao hàng O2O (CONG_VIEC_57; QUYTAC_NGHIEPVU_419, 420; API_220).
+export const saveRetailStationSchema = z
+  .object({
+    pickupEnabled: z.boolean(),
+    deliveryEnabled: z.boolean(),
+    displayName: blankToNull(100),
+    provinceCode: blankToNull(10),
+    wardCode: blankToNull(10),
+    streetAddress: blankToNull(200),
+    phone: blankToNull(20).transform((value) => (value === null ? null : value.replace(/[\s.]/g, ""))).refine((value) => value === null || /^[0-9]{8,11}$/.test(value), "invalidValue"),
+    openingHours: blankToNull(200),
+    holdDays: z.number().int().min(1).max(14).default(3),
+    deliveryFee: decimalText(4),
+    freeDeliveryThreshold: optionalDecimal(4),
+    deliveryWardCodes: z.array(z.string().trim().min(1).max(10)).max(200).default([]),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export type SaveRetailStationRequest = z.input<typeof saveRetailStationSchema>;
+export interface RetailRegionItem {
+  code: string;
+  name: string;
+}
 export interface RetailStoreResponse {
   id: string;
+  kind: "store" | "pickup_point";
+  station: RetailStationResponse;
+  isMarketplaceOperator: boolean;
   branch: { id: string; code: string; name: string; address: string | null; phone: string | null };
   warehouse: { id: string; code: string; name: string };
   channel: { id: string; code: string; name: string };
@@ -5405,7 +5447,7 @@ export interface RetailStoreResponse {
   canSetup: boolean;
 }
 export interface RetailSetupOptions {
-  branches: { id: string; code: string; name: string; hasStore: boolean }[];
+  branches: { id: string; code: string; name: string; branchType: "store" | "other"; hasStore: boolean }[];
   warehouses: { id: string; code: string; name: string; branchId: string }[];
   channels: { id: string; code: string; name: string }[];
   cashFunds: { id: string; code: string; name: string }[];

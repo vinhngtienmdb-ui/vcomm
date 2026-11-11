@@ -12,10 +12,12 @@ import {
   retailPermissions,
   retailShiftListQuerySchema,
   saveRetailRegisterSchema,
+  saveRetailStationSchema,
   saveRetailStoreSchema,
   type RetailCounterContext,
   type RetailItemOption,
   type RetailQuoteResponse,
+  type RetailRegionItem,
   type RetailReturnableResponse,
   type RetailReturnQuoteResponse,
   type RetailReturnResponse,
@@ -74,6 +76,22 @@ export class RetailController {
   @Patch("stores/:id")
   async storeUpdate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<RetailStoreResponse> {
     return this.stores.update(await this.actor(request, companyId), id, saveRetailStoreSchema.parse(body));
+  }
+
+  // API_220: cài đặt trạm giao hàng O2O (CONG_VIEC_57).
+  @Patch("stores/:id/station")
+  async stationUpdate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<RetailStoreResponse> {
+    return this.stores.saveStation(await this.actor(request, companyId), id, saveRetailStationSchema.parse(body));
+  }
+
+  @Get("regions/provinces")
+  async provinces(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<RetailRegionItem[]> {
+    return this.stores.provinces(await this.actor(request, companyId));
+  }
+
+  @Get("regions/provinces/:code/wards")
+  async wards(@Req() request: AuthenticatedRequest, @Param("code") code: string, @Headers("x-company-id") companyId?: string): Promise<RetailRegionItem[]> {
+    return this.stores.wards(await this.actor(request, companyId), code);
   }
 
   @Post("stores/:id/registers")

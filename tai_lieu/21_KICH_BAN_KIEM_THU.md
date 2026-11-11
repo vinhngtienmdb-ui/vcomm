@@ -3985,6 +3985,28 @@ Dữ liệu chung: `apps/api/test/retail-fixture.ts` (`createRetailFixture`, `cr
 
 Dữ liệu chung: công ty VCR; phòng ban có trưởng phòng; tài khoản Quản lý nhân sự, Nhân viên nhân sự, người chỉ có `hr.employee.view`, nhân viên có hồ sơ liên kết. Dữ liệu giả, không dùng dữ liệu thật.
 
+### KICHBAN_KIEMTHU_559: Cài đặt trạm giao hàng O2O
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_390
+- Chức năng: CHUC_NANG_200
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Quản trị công ty; Cửa hàng trưởng
+- Điều kiện ban đầu và dữ liệu: Cửa hàng Thủ Đức đã khai (CONG_VIEC_53), chưa bật trạm.
+- Các bước: (1) Công ty không vận hành sàn: bật trạm; tắt cả hai cách nhận rồi lưu. (2) Đặt công ty vận hành sàn; Cửa hàng trưởng lưu cài đặt trạm, xem danh mục tỉnh. (3) Bật cả hai cách nhận với tên, địa chỉ, giờ mở cửa trống, không tỉnh, xã, số điện thoại, không xã giao; tỉnh `01` với xã của tỉnh `79`, xã giao `99999`; số ngày giữ 15; số điện thoại `12345`; phiên bản cũ. (4) Lưu đúng với xã giao trùng; Cửa hàng trưởng xem danh sách cửa hàng.
+- Kết quả mong đợi: Bước 1: `409` "Chỉ cửa hàng, điểm giao nhận của công ty vận hành sàn VComm bật được trạm giao hàng."; tắt thì `200`. Bước 2: `403`. Bước 3: `400` tại `displayName`, `provinceCode`, `wardCode`, `streetAddress`, `phone`, `openingHours`, `deliveryWardCodes`; `400` tại `wardCode`, `deliveryWardCodes`; `400`; `400`; `409`. Bước 4: `200`, số điện thoại bỏ dấu cách, hai xã giao, nhật ký `retail_store.station`; Cửa hàng trưởng thấy cài đặt trạm.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-stations.test.ts`
+- Lát: L1 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_560: Điểm giao nhận
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_390, TIEUCHI_NGHIEMTHU_401
+- Chức năng: CHUC_NANG_200
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Quản trị công ty; Thu ngân của điểm giao nhận
+- Điều kiện ban đầu và dữ liệu: Chi nhánh loại "Khác" có kho không quản lý vị trí.
+- Các bước: (1) Xem tùy chọn cài đặt. (2) Thêm cửa hàng loại Cửa hàng gắn chi nhánh "Khác". (3) Thêm điểm giao nhận gắn chi nhánh "Khác", thêm quầy. (4) Thu ngân của điểm giao nhận mở ca, tìm hàng để bán.
+- Kết quả mong đợi: Bước 1: chi nhánh có `branchType` `other`. Bước 2: `400` "Chọn chi nhánh loại Cửa hàng đang hoạt động của công ty.". Bước 3: `201`, `kind` `pickup_point`. Bước 4: mở ca `201`; tìm hàng `409` "Điểm giao nhận không bán hàng tại quầy.".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-stations.test.ts`
+- Lát: L1 (CONG_VIEC_57)
+
 ### KICHBAN_KIEMTHU_434: Lập hồ sơ, mã tự cấp, kiểm dữ liệu, liên kết tài khoản
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_287
 - Chức năng: CHUC_NANG_162
