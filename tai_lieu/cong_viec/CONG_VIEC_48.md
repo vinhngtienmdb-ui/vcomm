@@ -157,9 +157,9 @@ Ví dụ kiểm tra tay (tham số 2026-11): lương 30.000.000, đủ công, l�
 
 Luồng duyệt chung, dãy số chứng từ, module Kế toán (chỉ thêm nguồn bút toán, vai trò định khoản), dữ liệu hồ sơ, hợp đồng của CONG_VIEC_46 (chỉ thêm cột loại phụ cấp, hành vi khác giữ nguyên), dữ liệu bảng công của CONG_VIEC_47 (chỉ đọc).
 
-## 15. Thay đổi phần đã duyệt (cần phiếu tài liệu `24`, gửi phiên cha ghi sổ)
+## 15. Thay đổi phần đã duyệt (THAY_DOI_21, phiên cha ghi tài liệu `24` qua pull request #92)
 
-Phiếu đề xuất: "Thêm loại phụ cấp cho dòng phụ cấp hợp đồng, phụ lục (CONG_VIEC_46)". Lý do: người dùng chọn ngày 2026-11-11 để bảng lương biết phụ cấp chịu thuế, tính theo ngày công. Ảnh hưởng: QUYTAC_NGHIEPVU_297, 300; CHUC_NANG_163; MAN_HINH_118; API_147, API_148; bảng `hr.contract_allowances`; kiểm thử `c46-contracts`. Tương thích: cột cho phép trống với dữ liệu cũ; bắt buộc khi lập, sửa mới. Mức: Vừa, làm trong CONG_VIEC_48.
+Phiếu THAY_DOI_21: "Thêm loại phụ cấp cho dòng phụ cấp hợp đồng, phụ lục (CONG_VIEC_46)". Lý do: người dùng chọn ngày 2026-11-11 để bảng lương biết phụ cấp chịu thuế, tính theo ngày công. Ảnh hưởng: QUYTAC_NGHIEPVU_297, 300; CHUC_NANG_163; MAN_HINH_118; API_147, API_148; bảng `hr.contract_allowances`; kiểm thử `c46-contracts`. Tương thích: cột cho phép trống với dữ liệu cũ; bắt buộc khi lập, sửa mới. Mức: Vừa, làm trong CONG_VIEC_48.
 
 ## 16. Các lát và điểm xem trước
 
