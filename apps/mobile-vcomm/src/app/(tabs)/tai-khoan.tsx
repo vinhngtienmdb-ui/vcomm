@@ -54,6 +54,7 @@ export default function AccountScreen() {
           <Button label={t("addressBook")} kind="secondary" onPress={() => router.push("/so-dia-chi")} />
           <Button label={t("commissionWallet")} kind="secondary" onPress={() => router.push("/vi-hoa-hong")} />
           <Button label={t("bankAccountTitle")} kind="secondary" onPress={() => router.push("/tai-khoan-hoan-tien")} />
+          <Button label={t("shoppingWalletTitle")} kind="secondary" onPress={() => router.push("/vi-mua-sam")} />
           <Button label={t("inviteTitle")} kind="secondary" onPress={() => router.push("/moi-ban-be")} />
           <Button label={t("collaboratorTitle")} kind="secondary" onPress={() => router.push("/cong-tac-vien")} />
         </Card>

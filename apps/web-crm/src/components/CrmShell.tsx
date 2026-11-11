@@ -1,6 +1,6 @@
 "use client";
 
-// Khung mini app Khách hàng và Đối tác: menu MAN_HINH_36 (CONG_VIEC_06), MAN_HINH_64 (CONG_VIEC_21), MAN_HINH_79 (CONG_VIEC_23), MAN_HINH_81, MAN_HINH_82 (CONG_VIEC_27), MAN_HINH_86 đến MAN_HINH_89 (CONG_VIEC_24), MAN_HINH_98 (CONG_VIEC_25), MAN_HINH_102 (CONG_VIEC_26), MAN_HINH_137 (CONG_VIEC_49); mục thêm dần theo module.
+// Khung mini app Khách hàng và Đối tác: menu MAN_HINH_36 (CONG_VIEC_06), MAN_HINH_64 (CONG_VIEC_21), MAN_HINH_79 (CONG_VIEC_23), MAN_HINH_81, MAN_HINH_82 (CONG_VIEC_27), MAN_HINH_86 đến MAN_HINH_89 (CONG_VIEC_24), MAN_HINH_98 (CONG_VIEC_25), MAN_HINH_102 (CONG_VIEC_26), MAN_HINH_137, MAN_HINH_138 (CONG_VIEC_49); mục thêm dần theo module.
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { AppShell } from "ui/components/AppShell";
@@ -18,6 +18,7 @@ export const crmMenu = [
   { href: "/refunds", key: "refunds", permission: "marketplace.payment.manage" },
   { href: "/withdrawals", key: "withdrawals", permission: "marketplace.payment.manage" },
   { href: "/collaborators", key: "collaborators", permission: "marketplace.buyer.view" },
+  { href: "/group-buys", key: "groupBuys", permission: "marketplace.order.view" },
 ] as const;
 
 export function CrmShell({ children }: { children: ReactNode }) {

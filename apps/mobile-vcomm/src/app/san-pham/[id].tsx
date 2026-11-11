@@ -121,6 +121,7 @@ export default function ProductScreen() {
             ) : (
               <Button label={t("addToCart")} busy={busy} disabled={!variant || available <= 0} onPress={() => void add()} />
             )}
+            <Button label={t("groupBuyOfProduct")} kind="secondary" onPress={() => router.push({ pathname: "/mua-chung", params: { sanPham: product.id } })} />
             {collaboratorCode ? (
               <View style={{ gap: space[2] }}>
                 <Button label={t("collaboratorShare")} kind="secondary" onPress={() => void shareAsCollaborator()} />

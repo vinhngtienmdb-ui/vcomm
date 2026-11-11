@@ -71,6 +71,10 @@ import { WithdrawalsController } from "./marketplace/withdrawals.controller";
 import { WithdrawalsService } from "./marketplace/withdrawals.service";
 import { CollaboratorsController } from "./marketplace/collaborators.controller";
 import { CollaboratorsService } from "./marketplace/collaborators.service";
+import { GroupBuysController } from "./marketplace/group-buys.controller";
+import { GroupBuysService } from "./marketplace/group-buys.service";
+import { WalletsController } from "./marketplace/wallets.controller";
+import { WalletsService } from "./marketplace/wallets.service";
 import { MarketplaceCommissionsService } from "./marketplace/commissions.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
@@ -128,7 +132,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, CollaboratorsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, CollaboratorsController, GroupBuysController, WalletsController],
   providers: [
     AuthService,
     ActivationService,
@@ -171,6 +175,8 @@ import { UsersService } from "./users/users.service";
     RefundsService,
     WithdrawalsService,
     CollaboratorsService,
+    GroupBuysService,
+    WalletsService,
     MarketplaceCommissionsService,
     ReturnRequestsService,
     SupplierPricesService,

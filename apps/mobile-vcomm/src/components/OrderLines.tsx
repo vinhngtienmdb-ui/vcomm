@@ -42,6 +42,7 @@ export function AmountRow({ label, value, strong }: { label: string; value: stri
 
 export const orderStatusTone = {
   awaiting_payment: "warning",
+  awaiting_group: "warning",
   awaiting_shipment: "info",
   awaiting_pickup: "info",
   shipping: "warning",

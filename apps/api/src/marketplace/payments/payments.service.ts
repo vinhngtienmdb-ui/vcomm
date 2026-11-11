@@ -11,6 +11,7 @@ import { DATABASE, type Database } from "../../database/database.module";
 import type { Actor } from "../../permissions/roles.service";
 import { SalesOrdersService } from "../../sales/sales-orders.service";
 import { MarketplaceOrdersService, refundRemainingPaid } from "../marketplace-orders.service";
+import { returnWalletPart } from "../shopping-wallet";
 import { gatewayOf, isOnlineMethod, vnpayConfiguration } from "./payment-gateway-registry";
 import { paymentUrl, verifiedResult, type VnpayResult } from "./vnpay";
 
@@ -39,7 +40,7 @@ export class MarketplacePaymentsService {
     return this.database.transaction(async (transaction) => {
       const order = (
         await transaction.execute<{ status: string; payment_method: PaymentMethodCode; payment_deadline: Date | null; total: string; document_no: string; expired: boolean }>(sql`
-        SELECT m.status, m.payment_method, m.payment_deadline, (m.goods_amount + m.shipping_fee)::text AS total, so.document_no, m.payment_deadline <= now() AS expired
+        SELECT m.status, m.payment_method, m.payment_deadline, (m.goods_amount + m.shipping_fee - m.wallet_amount)::text AS total, so.document_no, m.payment_deadline <= now() AS expired
         FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id WHERE m.id = ${orderId} AND m.buyer_user_id = ${userId} FOR UPDATE OF m`)
       ).rows[0];
       if (!order) throw new ApiError("NOT_FOUND", "notFound");
@@ -111,7 +112,7 @@ export class MarketplacePaymentsService {
     const order = (await transaction.execute<{ status: string; buyer_user_id: string }>(sql`SELECT status, buyer_user_id FROM marketplace.orders WHERE id = ${orderId} FOR UPDATE`)).rows[0]!;
     await transaction.execute(sql`
       UPDATE marketplace.orders SET paid_amount = paid_amount + ${result.amount}, paid_at = coalesce(paid_at, now()), version = version + 1,
-        status = CASE WHEN status = 'awaiting_payment' THEN 'awaiting_shipment' ELSE status END
+        status = CASE WHEN status = 'awaiting_payment' THEN (CASE WHEN group_buy_id IS NULL THEN 'awaiting_shipment' ELSE 'awaiting_group' END) ELSE status END
       WHERE id = ${orderId}`);
     if (order.status === "awaiting_payment") {
       await this.orders.event(transaction, orderId, "paid", result.transactionNo ? `VNPAY ${result.transactionNo}` : null, null);
@@ -168,6 +169,8 @@ export class MarketplacePaymentsService {
         await this.orders.event(transaction, order.id, "cancelled", "Quá hạn thanh toán", null);
         // Phòng trường hợp đã ghi nhận tiền mà đơn chưa chuyển trạng thái.
         await refundRemainingPaid(transaction, order.id, "paid_after_cancel");
+        // Phần đã trả bằng ví mua sắm hoàn về ví (CONG_VIEC_49; QUYTAC_NGHIEPVU_332).
+        await returnWalletPart(transaction, order.id);
         expired += 1;
       });
     }

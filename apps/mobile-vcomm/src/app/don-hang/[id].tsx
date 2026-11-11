@@ -1,4 +1,5 @@
 // MAN_HINH_96 Chi tiết đơn (CHUC_NANG_116; API_126; QUYTAC_NGHIEPVU_159): trạng thái, vận đơn, dòng hàng, tiền, lịch sử, hủy đơn.
+// CONG_VIEC_49: phần trả bằng ví mua sắm, kết quả nhóm mua chung (MAN_HINH_134, 135).
 // MAN_HINH_99 khối Thanh toán (CONG_VIEC_25; API_131; QUYTAC_NGHIEPVU_165, 167): hạn thanh toán, mở trang VNPAY, thanh toán lại, trạng thái thanh toán.
 import type { BuyerOrderDetail, BuyerPaymentStart } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -95,6 +96,15 @@ export default function OrderScreen() {
               <StatusBadge text={t(`orderStatus_${order.status}`)} tone={orderStatusTone[order.status]} />
             </View>
             <Muted>{t("orderedAt", { time: dateTime(order.createdAt) })}</Muted>
+            {order.groupBuy ? (
+              <Card>
+                <Text style={{ fontWeight: "700", color: colors.text }}>{t("groupBuyOfOrder")}</Text>
+                <StatusBadge text={t(`groupBuyStatus_${order.groupBuy.status}`)} tone={order.groupBuy.status === "succeeded" ? "success" : order.groupBuy.status === "open" ? "warning" : "error"} />
+                {order.groupBuy.status === "open" ? <Muted>{t("groupBuyEndsAt", { time: dateTime(order.groupBuy.endsAt) })}</Muted> : null}
+                {order.groupBuy.finalPrice ? <Muted>{t("groupBuyFinalPrice", { price: money(order.groupBuy.finalPrice) })}</Muted> : null}
+                <Button label={t("groupBuyView")} kind="secondary" onPress={() => router.push(`/mua-chung/${order.groupBuy!.id}`)} />
+              </Card>
+            ) : null}
             {order.status === "cancelled" && order.cancelReason ? <Notice tone="info" text={t("cancelledBecause", { reason: order.cancelReason })} /> : null}
             {order.returnDeadline && order.status === "delivered" ? <Notice tone="info" text={t("returnUntil", { time: dateTime(order.returnDeadline) })} /> : null}
             <Card>
@@ -113,6 +123,8 @@ export default function OrderScreen() {
               <Muted>{`${t("paidBy", { method: method(order.paymentMethod) })} · ${t(`paymentStatus_${order.paymentStatus}`)}`}</Muted>
               {Number(order.paidAmount) > 0 ? <Muted>{t("paidAmountLine", { amount: money(order.paidAmount) })}</Muted> : null}
               {Number(order.refundedAmount) > 0 ? <Muted>{t("refundedAmountLine", { amount: money(order.refundedAmount) })}</Muted> : null}
+              {Number(order.walletAmount) > 0 ? <Muted>{t("walletPaidLine", { amount: money(order.walletAmount) })}</Muted> : null}
+              {Number(order.walletRefundedAmount) > 0 ? <Muted>{t("walletRefundedLine", { amount: money(order.walletRefundedAmount) })}</Muted> : null}
             </Card>
             {order.refunds.length > 0 ? (
               <Card>

@@ -4156,13 +4156,18 @@ export const buyerAddressSchema = z
   .strict();
 
 // API_126, API_127: đơn VComm (QUYTAC_NGHIEPVU_158, 159, 162).
-export const marketplaceOrderStatuses = ["awaiting_payment", "awaiting_shipment", "awaiting_pickup", "shipping", "delivered", "completed", "cancelled"] as const;
+// CONG_VIEC_49: Chờ chốt nhóm mua chung (QUYTAC_NGHIEPVU_330).
+export const marketplaceOrderStatuses = ["awaiting_payment", "awaiting_group", "awaiting_shipment", "awaiting_pickup", "shipping", "delivered", "completed", "cancelled"] as const;
 export type MarketplaceOrderStatus = (typeof marketplaceOrderStatuses)[number];
 
 const orderLinesInput = z.array(z.object({ variantId: z.uuid(), quantity: z.number().int().min(1).max(999) }).strict()).min(1).max(50);
-export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput }).strict();
+// CONG_VIEC_49: dùng ví mua sắm (QUYTAC_NGHIEPVU_332), đặt đơn tham gia nhóm mua chung (QUYTAC_NGHIEPVU_330).
+const orderWalletInput = { useShoppingWallet: z.boolean().default(false), groupBuyId: z.uuid().nullable().default(null) };
+export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput, ...orderWalletInput }).strict();
 // expectedTotal: tổng thanh toán người mua đã thấy; khác tổng tính lại thì báo giá đã thay đổi. paymentMethod mặc định thanh toán khi nhận hàng (ứng dụng bản CONG_VIEC_24).
-export const buyerOrderPlaceSchema = z.object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: z.enum(paymentMethodCodes).default("cod") }).strict();
+export const buyerOrderPlaceSchema = z
+  .object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: z.enum(paymentMethodCodes).default("cod"), ...orderWalletInput })
+  .strict();
 
 export interface MarketplaceOrderLine {
   variantId: string;
@@ -4186,8 +4191,12 @@ export interface BuyerOrderPreview {
   currency: string;
   // Chưa mở đặt hàng: chỉ người mua thử đặt được.
   canOrder: boolean;
-  // Phương thức đang bật, theo thứ tự hiển thị.
+  // Phương thức đang bật, theo thứ tự hiển thị. Đơn mua chung chỉ gồm phương thức trực tuyến.
   paymentMethods: PaymentMethodCode[];
+  // CONG_VIEC_49: số dư ví mua sắm, dùng được không (khóa toàn hệ thống, chặn tài khoản); phần trả bằng ví nếu chọn dùng; số còn phải trả.
+  shoppingWallet: { balance: string; usable: boolean };
+  walletAmount: string;
+  payable: string;
 }
 
 export interface MarketplaceOrderEvent {
@@ -4298,6 +4307,10 @@ export interface BuyerOrderDetail extends BuyerOrderListItem {
   paymentStatus: OrderPaymentStatus;
   paidAmount: string;
   refundedAmount: string;
+  // CONG_VIEC_49: phần trả bằng ví mua sắm, phần đã hoàn về ví; nhóm mua chung của đơn.
+  walletAmount: string;
+  walletRefundedAmount: string;
+  groupBuy: { id: string; status: GroupBuyStatus; endsAt: string; finalPrice: string | null } | null;
   // Hạn thanh toán của đơn chờ thanh toán; quá hạn đơn tự hủy.
   paymentDeadline: string | null;
   canPay: boolean;
@@ -4502,6 +4515,8 @@ export interface WithdrawalItem {
   paidOn: string | null;
   createdAt: string;
   decidedAt: string | null;
+  // THAY_DOI_22: ví hoa hồng của người này đang bị chặn (không ghi được đã chi).
+  walletBlocked: boolean;
   version: number;
 }
 
@@ -4525,6 +4540,8 @@ export interface BuyerWithdrawalInfo {
   bankAccount: BuyerBankAccount | null;
   // Yêu cầu đang chờ duyệt hoặc đã duyệt chưa chi.
   open: WithdrawalItem | null;
+  // THAY_DOI_22: ví hoa hồng bị chặn rút tiền.
+  blocked: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -4658,3 +4675,151 @@ export const collaboratorListQuerySchema = z
 export const collaboratorVersionSchema = z.object({ version: z.number().int().min(1) }).strict();
 export const collaboratorReasonSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
 export const collaboratorLabelSchema = z.object({ label: z.enum(collaboratorLabels).nullable(), version: z.number().int().min(1) }).strict();
+
+// Ví mua sắm (QUYTAC_NGHIEPVU_332; THAY_DOI_22).
+export const shoppingWalletTransactionKinds = ["group_buy_refund", "group_buy_difference", "order_payment", "order_refund", "return_refund"] as const;
+export type ShoppingWalletTransactionKind = (typeof shoppingWalletTransactionKinds)[number];
+export interface ShoppingWalletTransaction {
+  id: string;
+  kind: ShoppingWalletTransactionKind;
+  amount: string;
+  balanceAfter: string;
+  orderId: string;
+  orderDocumentNo: string;
+  createdAt: string;
+}
+export interface ShoppingWalletResponse {
+  balance: string;
+  // Khóa toàn hệ thống hoặc tài khoản bị chặn ví mua sắm: không dùng được số dư.
+  isLocked: boolean;
+  isBlocked: boolean;
+  transactions: PageResponse<ShoppingWalletTransaction>;
+}
+export interface ShoppingWalletSettings {
+  isLocked: boolean;
+  version: number;
+}
+export const shoppingWalletSettingsSchema = z.object({ isLocked: z.boolean(), version: z.number().int().min(0) }).strict();
+export const walletKinds = ["shopping", "commission"] as const;
+export type WalletKind = (typeof walletKinds)[number];
+export interface WalletBlockItem {
+  wallet: WalletKind;
+  isBlocked: boolean;
+  reason: string | null;
+  updatedAt: string | null;
+  // 0: chưa từng chặn.
+  version: number;
+}
+export interface WalletBlocksResponse {
+  blocks: WalletBlockItem[];
+  history: { wallet: WalletKind; action: "block" | "unblock"; reason: string; changedByName: string; changedAt: string }[];
+}
+export const walletBlockSchema = z.object({ isBlocked: z.boolean(), reason: z.string().trim().min(1).max(500), version: z.number().int().min(0) }).strict();
+
+// Mua chung (QUYTAC_NGHIEPVU_328 đến 331).
+export const groupBuyStatuses = ["open", "succeeded", "failed", "cancelled"] as const;
+export type GroupBuyStatus = (typeof groupBuyStatuses)[number];
+export interface GroupBuyTier {
+  minQuantity: number;
+  unitPrice: string;
+}
+export interface GroupBuySettingsItem {
+  variantId: string;
+  productId: string;
+  productName: string;
+  variantLabel: string;
+  // Giá bán gồm thuế hiện tại; không có giá thì null.
+  currentPrice: string | null;
+  isEnabled: boolean;
+  tiers: GroupBuyTier[];
+  maxDurationHours: number;
+  maxPerBuyer: number;
+  // 0: chưa cài đặt.
+  version: number;
+}
+const groupBuyPrice = requiredMoney.refine((value) => Number(value) > 0 && Number(value) < 1e13, "invalidValue");
+export const groupBuySettingsSchema = z
+  .object({
+    isEnabled: z.boolean(),
+    tiers: z
+      .array(z.object({ minQuantity: z.number().int().min(2).max(100000), unitPrice: groupBuyPrice }).strict())
+      .min(1)
+      .max(5)
+      .refine((tiers) => tiers.every((tier, index) => index === 0 || (tier.minQuantity > tiers[index - 1]!.minQuantity && Number(tier.unitPrice) < Number(tiers[index - 1]!.unitPrice))), {
+        message: "groupBuyTierOrder",
+      }),
+    maxDurationHours: z.number().int().min(1).max(168),
+    maxPerBuyer: z.number().int().min(1).max(999),
+    version: z.number().int().min(0),
+  })
+  .strict();
+export const groupBuySettingsQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface GroupBuyItem {
+  id: string;
+  variantId: string;
+  productId: string;
+  productName: string;
+  variantLabel: string;
+  imageUrl: string | null;
+  openerName: string;
+  openerKind: "collaborator" | "staff";
+  openerLabel: CollaboratorLabel | null;
+  status: GroupBuyStatus;
+  startsAt: string;
+  endsAt: string;
+  tiers: GroupBuyTier[];
+  maxPerBuyer: number;
+  // Tổng số lượng các đơn Chờ chốt nhóm (đang mở) hoặc số lượng chốt.
+  quantity: number;
+  // Đơn giá theo bậc đạt được nếu chốt ngay; dưới mốc tối thiểu thì null.
+  currentPrice: string | null;
+  finalPrice: string | null;
+  cancelReason: string | null;
+  // Số lượng của người xem trong nhóm (đơn chưa hủy).
+  myQuantity: number;
+  version: number;
+}
+export interface GroupBuyOrderItem {
+  orderId: string;
+  documentNo: string;
+  buyerName: string;
+  buyerPhone: string;
+  quantity: number;
+  paidAmount: string;
+  status: MarketplaceOrderStatus;
+}
+export interface GroupBuyDetail extends GroupBuyItem {
+  orders: GroupBuyOrderItem[];
+}
+export interface GroupBuyOption {
+  variantId: string;
+  productId: string;
+  productName: string;
+  variantLabel: string;
+  tiers: GroupBuyTier[];
+  maxDurationHours: number;
+  maxPerBuyer: number;
+}
+export const openGroupBuySchema = z.object({ variantId: z.uuid(), durationHours: z.number().int().min(1).max(168) }).strict();
+export const buyerGroupBuyQuerySchema = z
+  .object({
+    scope: z.enum(["open", "mine"]).default("open"),
+    productId: z.uuid().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(50).default(20),
+  })
+  .strict();
+export const groupBuyListQuerySchema = z
+  .object({
+    status: z.enum(groupBuyStatuses).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const cancelGroupBuySchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
