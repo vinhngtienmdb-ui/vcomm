@@ -1,7 +1,7 @@
 "use client";
 
 // Thành phần dùng chung của màn hình chấm công (CONG_VIEC_47): bảng, thẻ, ô công, tháng.
-import type { AttendanceDayCell } from "contracts";
+import type { AttendanceDayCell, CorrectionItem } from "contracts";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
@@ -102,3 +102,9 @@ export const shiftDate = (date: string, days: number) => {
 export const hours = (minutes: number) => (minutes / 60).toLocaleString("vi-VN", { maximumFractionDigits: 2 });
 export const vietnamClock = (iso: string | null) =>
   iso ? new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }).format(new Date(iso)) : "—";
+
+export function CorrectionStatusBadge({ status }: { status: CorrectionItem["status"] }) {
+  const t = useTranslations("myAttendance");
+  const tone = { pending: "canh-bao", approved: "thanh-cong", rejected: "loi", withdrawn: "trung-tinh" }[status];
+  return <span className={`nhan ${tone}`}>{t(`requestStatus_${status}`)}</span>;
+}

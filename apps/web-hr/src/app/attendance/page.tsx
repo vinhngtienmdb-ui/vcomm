@@ -1,19 +1,20 @@
 "use client";
 
 // MAN_HINH_121 Chấm công (CHUC_NANG_165; API_151): lưới công tháng, chi tiết ngày, ghi thủ công, nhập tệp máy chấm công, lịch sử nhập.
-import type { AttendanceDayResponse, AttendanceGridResponse, AttendanceImportItem, AttendanceImportResponse, EmployeeOptionsResponse } from "contracts";
+import type { CorrectionItem, AttendanceDayResponse, AttendanceGridResponse, AttendanceImportItem, AttendanceImportResponse, EmployeeOptionsResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 import { Drawer } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { apiDownload, apiFetch, apiUpload } from "ui/lib/api";
-import { formatDateTime, vietnamToday } from "ui/lib/format";
+import { formatDate, formatDateTime, vietnamToday } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
-import { DayLegend, Table, Tabs, currentMonth, dayTone, daySymbol, hours, vietnamClock, weekdayLabel } from "@/components/AttendanceParts";
+import { CorrectionStatusBadge, DayLegend, Table, Tabs, currentMonth, dayTone, daySymbol, hours, vietnamClock, weekdayLabel } from "@/components/AttendanceParts";
 
 export default function AttendancePage() {
   const t = useTranslations("attendance");
+  const mine = useTranslations("myAttendance");
   const [tab, setTab] = useState(0);
   const [month, setMonth] = useState(currentMonth(vietnamToday()));
   const [departmentId, setDepartmentId] = useState("");
@@ -25,7 +26,8 @@ export default function AttendancePage() {
   if (status) parameters.set("status", status);
   const { state, reload } = useApi<AttendanceGridResponse>(`/hr/attendance/grid?${parameters}`);
   const options = useApi<EmployeeOptionsResponse>("/hr/employee-options");
-  const imports = useApi<AttendanceImportItem[]>(tab === 1 ? "/hr/attendance/imports" : null);
+  const imports = useApi<AttendanceImportItem[]>(tab === 2 ? "/hr/attendance/imports" : null);
+  const corrections = useApi<CorrectionItem[]>(tab === 1 ? `/hr/attendance/corrections?month=${month}` : null);
   const canManage = state.kind === "ready" && state.data.canManage && !state.data.monthClosed;
   const weekdays = t("weekdays").split(",");
   return (
@@ -53,7 +55,7 @@ export default function AttendancePage() {
           </>
         )}
       </div>
-      <Tabs labels={[t("tabDays"), t("tabImports")]} selected={tab} onSelect={setTab} />
+      <Tabs labels={[t("tabDays"), t("tabCorrections"), t("tabImports")]} selected={tab} onSelect={setTab} />
       {tab === 0 && (
         <>
           <div className="bo-loc">
@@ -150,6 +152,38 @@ export default function AttendancePage() {
         </>
       )}
       {tab === 1 && (
+        <Loaded state={corrections.state} onRetry={() => void corrections.reload()}>
+          {(items) =>
+            items.length === 0 ? (
+              <MessageView text={t("noCorrections")} />
+            ) : (
+              <Table
+                headings={[t("correctionNo"), t("employee"), t("workDate"), t("correctionKind"), t("inOut"), t("reason"), t("status")]}
+                rows={items.map((item) => ({
+                  key: item.id,
+                  cells: [
+                    item.correctionNo ?? "—",
+                    item.employeeName,
+                    formatDate(item.workDate),
+                    mine(`kind_${item.kind}`),
+                    `${item.checkIn ?? "—"} → ${item.checkOut ?? "—"}`,
+                    <>
+                      {item.reason}{" "}
+                      {item.hasAttachment && (
+                        <button type="button" className="nut chu" onClick={() => void apiDownload(`/hr/attendance/corrections/${item.id}/attachment`, `giai-trinh-${item.correctionNo}`, true)}>
+                          {t("attachment")}
+                        </button>
+                      )}
+                    </>,
+                    <CorrectionStatusBadge status={item.status} />,
+                  ],
+                }))}
+              />
+            )
+          }
+        </Loaded>
+      )}
+      {tab === 2 && (
         <Loaded state={imports.state} onRetry={() => void imports.reload()}>
           {(items) =>
             items.length === 0 ? (

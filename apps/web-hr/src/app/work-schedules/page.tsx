@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
 import { Tabs } from "@/components/AttendanceParts";
-import { HolidaysTab, RosterTab, ScheduleTab, SettingsTab, ShiftTab } from "@/components/AttendanceSetup";
+import { HolidaysTab, LocationsTab, RosterTab, ScheduleTab, SettingsTab, ShiftTab } from "@/components/AttendanceSetup";
 
 export default function AttendanceSetupPage() {
   const t = useTranslations("attendance");
@@ -19,6 +19,7 @@ export default function AttendanceSetupPage() {
         ["roster", t("tabRoster")],
         ["holidays", t("tabHolidays")],
         ["settings", t("tabSettings")],
+        ["locations", t("tabLocations")],
       ] as const)
     : ([["roster", t("tabRoster")]] as const);
   const [selected, setSelected] = useState(companyView ? 2 : 0);
@@ -34,6 +35,7 @@ export default function AttendanceSetupPage() {
       {current === "roster" && <RosterTab />}
       {current === "holidays" && <HolidaysTab />}
       {current === "settings" && <SettingsTab />}
+      {current === "locations" && <LocationsTab />}
     </>
   );
 }

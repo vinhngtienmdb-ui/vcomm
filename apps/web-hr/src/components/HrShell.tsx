@@ -10,6 +10,7 @@ export const hrMenu = [
   { href: "/contracts", key: "contracts", permission: "hr.employee.view" },
   { href: "/attendance", key: "attendance", permission: "hr.attendance.view" },
   { href: "/work-schedules", key: "attendanceSetup", permission: "hr.attendance.view" },
+  { href: "/my-attendance", key: "myAttendance", permission: "platform.access" },
   { href: "/me", key: "me", permission: "platform.access" },
 ] as const;
 

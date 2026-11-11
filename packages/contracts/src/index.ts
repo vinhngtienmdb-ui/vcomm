@@ -5103,3 +5103,104 @@ export interface AttendanceImportItem {
   duplicates: number;
   errors: number;
 }
+
+// CONG_VIEC_47 lát L1: địa điểm chấm công, chấm công trên ứng dụng, đơn giải trình (API_150, API_152, API_155).
+export const saveAttendanceLocationSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    branchId: z.string().uuid(),
+    latitude: z.number().min(-90).max(90).nullable().optional(),
+    longitude: z.number().min(-180).max(180).nullable().optional(),
+    radiusMeters: z.number().int().min(50).max(1000).nullable().optional(),
+    ipRanges: z.array(z.string().trim().min(1).max(50)).max(20),
+    qrEnabled: z.boolean(),
+    status: z.enum(["active", "inactive"]).optional(),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveAttendanceLocationRequest = z.input<typeof saveAttendanceLocationSchema>;
+export interface AttendanceLocationItem {
+  id: string;
+  name: string;
+  branchId: string;
+  branchName: string;
+  latitude: number | null;
+  longitude: number | null;
+  radiusMeters: number | null;
+  ipRanges: string[];
+  qrEnabled: boolean;
+  status: "active" | "inactive";
+  version: number;
+}
+export interface AttendanceQrResponse {
+  locationName: string;
+  token: string;
+  // Đường dẫn tương đối trong mini app Nhân sự; giao diện ghép với địa chỉ trang.
+  path: string;
+  expiresInSeconds: number;
+}
+export const appPunchSchema = z
+  .object({
+    latitude: z.number().min(-90).max(90).nullable().optional(),
+    longitude: z.number().min(-180).max(180).nullable().optional(),
+    accuracyMeters: z.number().min(0).max(100000).nullable().optional(),
+    locationId: z.string().uuid().nullable().optional(),
+    qrToken: z.string().trim().max(64).nullable().optional(),
+  })
+  .strict();
+export type AppPunchRequest = z.input<typeof appPunchSchema>;
+export interface MyAttendanceResponse {
+  employee: { id: string; code: string; fullName: string } | null;
+  today: string;
+  shift: { code: string; start: string; end: string } | null;
+  holiday: boolean;
+  punches: { punchedAt: string; source: PunchSource; method: "gps" | "ip" | "qr" | null; locationName: string | null }[];
+  nextAction: "in" | "out";
+  locations: { id: string; name: string; gps: boolean; ip: boolean; qr: boolean; latitude: number | null; longitude: number | null; radiusMeters: number | null }[];
+  networkMatched: boolean;
+  // Trưởng phòng hoặc có quyền xem chấm công công ty: hiện liên kết Chấm công, Xếp ca.
+  canViewTeam: boolean;
+  canViewCompany: boolean;
+}
+export interface MyAttendanceMonthResponse {
+  month: string;
+  days: (AttendanceDayCell & { firstIn: string | null; lastOut: string | null })[];
+  workedUnits: string;
+  lateCount: number;
+  lateMinutes: number;
+}
+export interface MyWeekResponse {
+  weekStart: string;
+  days: { date: string; shiftCode: string | null; start: string | null; end: string | null; holiday: boolean }[];
+}
+export const correctionKinds = ["forgot", "business_trip", "off_site", "device_error", "other"] as const;
+export type CorrectionKind = (typeof correctionKinds)[number];
+export const createCorrectionSchema = z
+  .object({
+    workDate: isoDate,
+    kind: z.enum(correctionKinds),
+    checkIn: z.preprocess((value) => (value === "" ? null : value), clockTime.nullable().optional()),
+    checkOut: z.preprocess((value) => (value === "" ? null : value), clockTime.nullable().optional()),
+    reason: z.string().trim().min(1).max(1000),
+  })
+  .strict()
+  .refine((value) => Boolean(value.checkIn || value.checkOut), { path: ["checkIn"], message: "required" });
+export type CorrectionStatus = "pending" | "approved" | "rejected" | "withdrawn";
+export interface CorrectionItem {
+  id: string;
+  correctionNo: string | null;
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  workDate: string;
+  kind: CorrectionKind;
+  checkIn: string | null;
+  checkOut: string | null;
+  reason: string;
+  hasAttachment: boolean;
+  status: CorrectionStatus;
+  approvalRequestId: string | null;
+  requestedAt: string;
+  canWithdraw: boolean;
+}
+export const correctionListQuerySchema = z.object({ status: z.enum(["pending", "approved", "rejected", "withdrawn"]).optional(), month: yearMonth.optional() }).strict();

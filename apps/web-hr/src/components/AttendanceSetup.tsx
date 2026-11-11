@@ -1,8 +1,9 @@
 "use client";
 
-// Các thẻ của MAN_HINH_120 (API_150): ca làm, lịch tuần, xếp ca theo tuần, ngày lễ, cài đặt chấm công.
-import type { AttendanceSettingsResponse, EmployeeOptionsResponse, HolidayListResponse, RosterResponse, ScheduleItem, ShiftItem } from "contracts";
+// Các thẻ của MAN_HINH_120 (API_150): ca làm, lịch tuần, xếp ca theo tuần, ngày lễ, cài đặt, địa điểm chấm công.
+import type { AttendanceLocationItem, AttendanceSettingsResponse, EmployeeOptionsResponse, HolidayListResponse, RosterResponse, ScheduleItem, ShiftItem } from "contracts";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
 import { ConfirmDialog, Drawer } from "ui/components/Dialogs";
@@ -735,5 +736,181 @@ export function SettingsTab() {
         </form>
       )}
     </Loaded>
+  );
+}
+
+// ---- Địa điểm chấm công ----
+
+export function LocationsTab() {
+  const t = useTranslations("attendance");
+  const { can } = useAdmin();
+  const canManage = can("hr.attendance.manage");
+  const { state, reload } = useApi<AttendanceLocationItem[]>("/hr/attendance/locations");
+  const [editing, setEditing] = useState<AttendanceLocationItem | "new" | null>(null);
+  return (
+    <>
+      <div className="tieu-de">
+        <h2>{t("tabLocations")}</h2>
+        {canManage && (
+          <button type="button" className="nut chinh" onClick={() => setEditing("new")}>
+            {t("addLocation")}
+          </button>
+        )}
+      </div>
+      <Loaded state={state} onRetry={() => void reload()}>
+        {(locations) =>
+          locations.length === 0 ? (
+            <MessageView text={t("noLocations")} />
+          ) : (
+            <Table
+              headings={[t("locationName"), t("branch"), t("gps"), t("network"), t("qr"), ""]}
+              rows={locations.map((location) => ({
+                key: location.id,
+                cells: [
+                  <>
+                    {location.name} {location.status === "inactive" && <span className="nhan trung-tinh">{t("shiftStatus_inactive")}</span>}
+                  </>,
+                  location.branchName,
+                  location.latitude !== null ? `${location.latitude}, ${location.longitude} · ${location.radiusMeters} m` : t("no"),
+                  location.ipRanges.length > 0 ? location.ipRanges.join(", ") : t("no"),
+                  <span className={`nhan ${location.qrEnabled ? "thanh-cong" : "trung-tinh"}`}>{location.qrEnabled ? t("enabled") : t("disabled")}</span>,
+                  canManage ? (
+                    <span className="nhom-nut">
+                      <button type="button" className="nut chu" onClick={() => setEditing(location)}>
+                        {t("edit")}
+                      </button>
+                      {location.qrEnabled && location.status === "active" && (
+                        <Link className="nut chu" href={`/work-schedules/qr/${location.id}`} target="_blank">
+                          {t("openQr")}
+                        </Link>
+                      )}
+                    </span>
+                  ) : (
+                    ""
+                  ),
+                ],
+              }))}
+            />
+          )
+        }
+      </Loaded>
+      {editing && (
+        <LocationDrawer
+          location={editing === "new" ? null : editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            void reload();
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+function LocationDrawer({ location, onClose, onSaved }: { location: AttendanceLocationItem | null; onClose: () => void; onSaved: () => void }) {
+  const t = useTranslations("attendance");
+  const submit = useSubmit();
+  const options = useApi<EmployeeOptionsResponse>("/hr/employee-options");
+  const [gps, setGps] = useState(location ? location.latitude !== null : true);
+  const [coordinates, setCoordinates] = useState({ latitude: location?.latitude?.toString() ?? "", longitude: location?.longitude?.toString() ?? "" });
+  const [locating, setLocating] = useState(false);
+  const locate = () => {
+    if (!navigator.geolocation) return;
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCoordinates({ latitude: position.coords.latitude.toFixed(6), longitude: position.coords.longitude.toFixed(6) });
+        setLocating(false);
+      },
+      () => setLocating(false),
+      { enableHighAccuracy: true, timeout: 15000 },
+    );
+  };
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const body = {
+      name: text(form, "name"),
+      branchId: text(form, "branchId"),
+      latitude: gps && coordinates.latitude ? Number(coordinates.latitude) : null,
+      longitude: gps && coordinates.longitude ? Number(coordinates.longitude) : null,
+      radiusMeters: gps ? Number(text(form, "radiusMeters") || 0) || null : null,
+      ipRanges: text(form, "ipRanges").split(/\s+/).filter(Boolean),
+      qrEnabled: form.get("qrEnabled") === "on",
+      status: text(form, "status") || "active",
+      ...(location ? { version: location.version } : {}),
+    };
+    void submit.run(async () => {
+      await apiFetch(location ? `/hr/attendance/locations/${location.id}` : "/hr/attendance/locations", { method: location ? "PATCH" : "POST", body: JSON.stringify(body) });
+      onSaved();
+    });
+  };
+  return (
+    <Drawer title={location ? location.name : t("addLocation")} onClose={onClose}>
+      <form className="the" style={{ boxShadow: "none", border: 0, padding: 0 }} onSubmit={onSubmit}>
+        <Field id="dd-ten" label={t("locationName")} error={submit.fields.name}>
+          <input id="dd-ten" name="name" className={submit.inputClass("name")} defaultValue={location?.name} maxLength={100} />
+        </Field>
+        <Field id="dd-cn" label={t("branch")} error={submit.fields.branchId}>
+          <select id="dd-cn" name="branchId" className="o-nhap" defaultValue={location?.branchId}>
+            {options.state.kind === "ready" &&
+              options.state.data.branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.name}
+                </option>
+              ))}
+          </select>
+        </Field>
+        <label>
+          <input type="checkbox" checked={gps} onChange={(event) => setGps(event.target.checked)} /> {t("useGps")}
+        </label>
+        {gps && (
+          <>
+            <Field id="dd-vd" label={t("latitude")} error={submit.fields.latitude}>
+              <input
+                id="dd-vd"
+                className={submit.inputClass("latitude")}
+                inputMode="decimal"
+                value={coordinates.latitude}
+                onChange={(event) => setCoordinates({ ...coordinates, latitude: event.target.value })}
+              />
+            </Field>
+            <Field id="dd-kd" label={t("longitude")} error={submit.fields.longitude}>
+              <input
+                id="dd-kd"
+                className={submit.inputClass("longitude")}
+                inputMode="decimal"
+                value={coordinates.longitude}
+                onChange={(event) => setCoordinates({ ...coordinates, longitude: event.target.value })}
+              />
+            </Field>
+            <button type="button" className={`nut phu${locating ? " dang-xu-ly" : ""}`} disabled={locating} onClick={locate}>
+              {t("useCurrentPosition")}
+            </button>
+            <Field id="dd-bk" label={t("radius")} error={submit.fields.radiusMeters} hint={t("radiusHint")}>
+              <input id="dd-bk" name="radiusMeters" type="number" min={50} max={1000} className={submit.inputClass("radiusMeters")} defaultValue={location?.radiusMeters ?? 150} />
+            </Field>
+          </>
+        )}
+        <Field id="dd-ip" label={t("ipRanges")} error={Object.entries(submit.fields).find(([key]) => key.startsWith("ipRanges"))?.[1]} hint={t("ipHint")}>
+          <textarea id="dd-ip" name="ipRanges" rows={3} className="o-nhap" defaultValue={location?.ipRanges.join("\n")} />
+        </Field>
+        <label>
+          <input type="checkbox" name="qrEnabled" defaultChecked={location?.qrEnabled ?? false} /> {t("qrEnabled")}
+        </label>
+        {submit.fields.qrEnabled && <span className="loi-o">{submit.fields.qrEnabled}</span>}
+        {location && (
+          <Field id="dd-tt" label={t("status")}>
+            <select id="dd-tt" name="status" className="o-nhap" defaultValue={location.status}>
+              <option value="active">{t("shiftStatus_active")}</option>
+              <option value="inactive">{t("shiftStatus_inactive")}</option>
+            </select>
+          </Field>
+        )}
+        <FormError text={submit.formError} />
+        <DrawerActions submitting={submit.submitting} label={t("save")} onClose={onClose} />
+      </form>
+    </Drawer>
   );
 }

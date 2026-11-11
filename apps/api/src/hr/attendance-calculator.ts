@@ -208,3 +208,16 @@ export function calculateDay(day: PlannedDay, punches: Date[], graceMinutes: num
     workedUnits,
   };
 }
+
+// Giờ vào, giờ ra nhập theo ngày công: giờ ra không sau giờ vào, hoặc ca dự kiến qua đêm mà giờ ra không sau giờ bắt đầu ca, thì là ngày hôm sau.
+export function punchInstants(day: PlannedDay, checkIn: string | null | undefined, checkOut: string | null | undefined): Date[] {
+  const instants: Date[] = [];
+  if (checkIn) instants.push(vietnamTime(day.date, checkIn));
+  if (checkOut) {
+    let out = vietnamTime(day.date, checkOut);
+    const overnight = day.shift ? shiftInterval(day.date, day.shift)[1] > vietnamTime(addDays(day.date, 1), "00:00").getTime() : false;
+    if ((instants[0] && out <= instants[0]) || (!instants[0] && overnight && checkOut <= day.shift!.startTime.slice(0, 5))) out = vietnamTime(addDays(day.date, 1), checkOut);
+    instants.push(out);
+  }
+  return instants;
+}

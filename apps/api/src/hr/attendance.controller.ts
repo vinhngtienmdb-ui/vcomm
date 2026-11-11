@@ -3,6 +3,11 @@
 import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
+  correctionListQuerySchema,
+  saveAttendanceLocationSchema,
+  type AttendanceLocationItem,
+  type AttendanceQrResponse,
+  type CorrectionItem,
   assignScheduleSchema,
   attendanceCodeSchema,
   attendanceGridQuerySchema,
@@ -36,7 +41,9 @@ import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
+import { AttendanceLocationsService } from "./attendance-locations.service";
 import { AttendanceSetupService } from "./attendance-setup.service";
+import { MyAttendanceService } from "./my-attendance.service";
 import { AttendanceService, importMaximumBytes, type UploadedSheet } from "./attendance.service";
 import { contentDisposition } from "./hr.controller";
 
@@ -48,6 +55,8 @@ export class AttendanceController {
     private readonly permissionService: PermissionService,
     private readonly setup: AttendanceSetupService,
     private readonly attendance: AttendanceService,
+    private readonly locations: AttendanceLocationsService,
+    private readonly corrections: MyAttendanceService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -198,5 +207,40 @@ export class AttendanceController {
   ): Promise<AttendanceImportResponse> {
     if (!file) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "required" } });
     return this.attendance.importPunches(await this.actor(request, companyId), file, body?.confirm === "true");
+  }
+
+  @Get("locations")
+  async listLocations(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<AttendanceLocationItem[]> {
+    return this.locations.list(await this.actor(request, companyId));
+  }
+
+  @Post("locations")
+  async createLocation(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<AttendanceLocationItem> {
+    return this.locations.create(await this.actor(request, companyId), saveAttendanceLocationSchema.parse(body));
+  }
+
+  @Patch("locations/:id")
+  async updateLocation(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<AttendanceLocationItem> {
+    return this.locations.update(await this.actor(request, companyId), id, saveAttendanceLocationSchema.parse(body));
+  }
+
+  @Get("locations/:id/qr")
+  async qr(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<AttendanceQrResponse> {
+    return this.locations.qr(await this.actor(request, companyId), id);
+  }
+
+  @Get("corrections")
+  async listCorrections(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<CorrectionItem[]> {
+    return this.corrections.corrections(await this.actor(request, companyId), correctionListQuerySchema.parse(query));
+  }
+
+  @Get("corrections/:id/attachment")
+  async attachment(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Res() response: Response, @Headers("x-company-id") companyId?: string): Promise<void> {
+    const file = await this.corrections.attachment(await this.actor(request, companyId), id);
+    response.setHeader("content-type", file.contentType);
+    response.setHeader("content-disposition", contentDisposition(file.fileName));
+    response.setHeader("x-content-type-options", "nosniff");
+    response.setHeader("cache-control", "no-store");
+    response.send(file.content);
   }
 }

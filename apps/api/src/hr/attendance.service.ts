@@ -18,7 +18,7 @@ import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
-import { addDays, shiftInterval, vietnamDateOf, vietnamTime } from "./attendance-calculator";
+import { addDays, punchInstants, vietnamDateOf, vietnamTime } from "./attendance-calculator";
 import { attendanceAccess, employeeScope, requireAttendanceManage, requireAttendanceView, type AttendanceAccess } from "./attendance-access";
 import { AttendanceDaysService, assertMonthsOpen, datesBetween } from "./attendance-days.service";
 import { hrAudit } from "./hr-context";
@@ -276,14 +276,7 @@ export class AttendanceService {
       }
       await assertMonthsOpen(transaction, actor.companyId, [input.workDate]);
       const planned = (await this.days.calendars(transaction, actor.companyId, [input.employeeId], input.workDate, input.workDate)).get(input.employeeId)!.days[0]!;
-      const instants: Date[] = [];
-      if (input.checkIn) instants.push(vietnamTime(input.workDate, input.checkIn));
-      if (input.checkOut) {
-        let out = vietnamTime(input.workDate, input.checkOut);
-        const overnight = planned.shift ? shiftInterval(input.workDate, planned.shift)[1] > vietnamTime(addDays(input.workDate, 1), "00:00").getTime() : false;
-        if ((instants[0] && out <= instants[0]) || (!instants[0] && overnight && input.checkOut <= planned.shift!.startTime.slice(0, 5))) out = vietnamTime(addDays(input.workDate, 1), input.checkOut);
-        instants.push(out);
-      }
+      const instants = punchInstants(planned, input.checkIn, input.checkOut);
       for (const instant of instants) {
         const inserted = await transaction.execute(sql`
           INSERT INTO hr.attendance_punches (company_id, employee_id, punched_at, source, reason, created_by)

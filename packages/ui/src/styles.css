@@ -187,3 +187,9 @@ td a { white-space: nowrap; }
   .khung-bang .luoi-cong td, .khung-bang .luoi-cong th { display: table-cell; width: auto; }
   .khung-bang .luoi-cong td::before { content: none; }
 }
+/* Chấm công của tôi, màn hình mã QR (CONG_VIEC_47, MAN_HINH_120, 122). */
+.trang-dien-thoai { width: 100%; max-width: 560px; margin: 0 auto; display: grid; gap: var(--khoang-4); }
+.cham-nhanh { justify-items: start; }
+.nut-lon { width: 100%; justify-content: center; font-size: 18px; padding: var(--khoang-4); }
+.man-hinh-qr { justify-items: center; text-align: center; }
+.khung-qr { width: min(360px, 80vw); height: auto; image-rendering: pixelated; border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); }
