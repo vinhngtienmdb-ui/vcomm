@@ -3,7 +3,7 @@
 - Mô tả: Bán hàng tại quầy cho cửa hàng tập đoàn tự vận hành: cửa hàng, quầy, ca thu ngân; quét mã vạch, giá theo bảng giá kênh Bán lẻ, khuyến mãi, giảm giá tay trong mức; thanh toán tiền mặt, chuyển khoản VietQR, nhiều phương thức; in hóa đơn bán lẻ; trừ kho, giá vốn, bút toán qua module đã có; trả hàng theo hóa đơn; hóa đơn điện tử khởi tạo từ máy tính tiền; tích, đổi điểm cho khách có tài khoản VComm.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; người dùng nghiệm thu lát L0 đến L5 ngày 2026-11-11 (sổ ghi ở PR #115); CONG_VIEC_51 đã vào `main` (bản 0.5.0); đang trình đặc tả, bản mẫu lát L6.
+- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; người dùng nghiệm thu lát L0 đến L5 ngày 2026-11-11 (sổ ghi ở PR #115) và lát L6 ngày 2026-11-11 (điểm tại quầy với Smart OTP, PR #125). L0 đến L6 đã nghiệm thu.
 - Mức: Lớn (module mới, mini app mới, sửa cấu trúc dữ liệu của bán hàng, tài chính, hóa đơn điện tử).
 - Nhánh: `chuc-nang/CONG_VIEC_53-ban-le-tai-quay`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_14), `05` mục 3 (MODULE_14), `05` mục 5 (phiên bản 5.x); quyết định của người dùng ngày 2026-11-11 (mục 17).
@@ -256,3 +256,17 @@ Ghi sổ phiếu kho, sổ kho, công nợ, luồng duyệt, luồng đơn bán 
 - [x] Đã cập nhật tài liệu 06, 07, 08, 09 (Luồng 43), 10, 11, 12, 14, 16, 17, 21, 22, 27. Tài liệu 02, 03, 25 do phiên cha ghi.
 
 Giới hạn còn lại (mục 16): đối soát ngân hàng chưa tự ghép chuyển khoản VietQR với phiếu thu bán lẻ; tiền đầu ca chưa lập chứng từ quỹ; MISA chưa có hóa đơn máy tính tiền (lập hóa đơn thường); KICHBAN_KIEMTHU_521 (giao diện) kiểm tra bằng ảnh xem trước, chưa có kiểm thử Playwright tự động.
+
+Đối chiếu lát L6 ngày 2026-11-11 (người dùng nghiệm thu với điều kiện hồi quy toàn bộ kiểm thử API đạt):
+
+- [x] Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: YCAU_NGHIEPVU_111, QUYTAC_NGHIEPVU_377, 379 (phần điểm), API_198, API_199; database migration 0119_retail_loyalty.sql.
+- [x] Đúng giao diện: bản mẫu MAN_HINH_161_L6_DIEM_SMART_OTP.html đã duyệt; ảnh xem trước chạy thật (ứng dụng VComm trước, sau kích hoạt; quầy tra khách F3; thanh toán dùng điểm kèm mã Smart OTP; hóa đơn in phần điểm).
+- [x] Đã xử lý lỗi: mã sai, mã dùng lại, chưa kích hoạt, tạm khóa 15 phút sau 5 lần sai (lần sai ghi trong giao dịch riêng); khách đổi, tạm khóa thì tra lại.
+- [x] Đã kiểm thử: c53-retail-loyalty.test.ts 8/8; hồi quy toàn bộ API 102 tệp, 557/557 đạt; typecheck api, web-retail, mobile-vcomm.
+- [x] Không phá vỡ chức năng cũ: hồi quy toàn bộ đạt; sổ cái điểm của CONG_VIEC_51 dùng qua giao diện công khai, không sửa.
+- [x] Đạt tiêu chí nghiệm thu bắt buộc: TIEUCHI_NGHIEMTHU_357.
+- [x] Đạt cổng bảo mật: khóa TOTP mã hóa AES-256-GCM, chỉ trả một lần khi kích hoạt, lưu bộ nhớ an toàn của máy; kích hoạt cần mã SMS; mỗi bước dùng một lần; chống dò mã bằng khóa 15 phút; tên, số điện thoại khách che một phần tại quầy; thư viện otpauth 9.6.0 cùng bản máy chủ.
+- [x] Đã tự rà soát mã: hai lỗi phát hiện khi chạy thật đã sửa (số dư sau giao dịch, phím F9 sau khi chọn khách).
+- [x] Tài liệu: đặc tả, bản mẫu; tài liệu 02, 03, 25 do phiên cha ghi.
+
+Giới hạn: tin nhắn kích hoạt Smart OTP dùng mẫu mã xác thực đăng nhập hiện có; bản web của ứng dụng VComm giữ khóa Smart OTP trong phiên trình duyệt.
