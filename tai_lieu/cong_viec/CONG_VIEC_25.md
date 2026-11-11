@@ -3,7 +3,7 @@
 - Mô tả: Khung cổng thanh toán chung bật tắt từng cổng, từng phương thức; kết nối VNPAY; đơn chờ thanh toán 15 phút; sổ thanh toán của đơn VComm (không công nợ); hoàn tiền do kế toán chuyển khoản; hạch toán tiền thu, phí giao hàng; công tắc mở đặt hàng cho mọi người mua.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (không làm bản mẫu riêng, xem trước từng lát). Lát đối soát COD tạm dừng chờ người dùng lấy tài liệu API đối soát của GHN. Đang thực hiện.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (không làm bản mẫu riêng, xem trước từng lát). Đối soát COD: theo API GHN ghi đã thu, tiền và phí qua tệp đối soát của CONG_VIEC_19 (người dùng chọn ngày 2026-11-11). Đang thực hiện.
 - Nguồn: THAY_DOI_14; quyết định của người dùng ngày 2026-11-11 trong tài liệu `02`; CONG_VIEC_24 (đơn VComm), CONG_VIEC_14 (bút toán), CONG_VIEC_16 (hóa đơn điện tử).
 
 ## 1. Mục tiêu
@@ -19,9 +19,10 @@ Trong phạm vi:
 - Sổ thanh toán đơn VComm: lần thanh toán, tiền đã thu, đã hoàn; đơn gắn tài khoản người mua trên ứng dụng, không tạo đối tác, không công nợ.
 - Hoàn tiền: việc chờ hoàn khi hủy đơn đã thu tiền, khi nhận hàng trả; tài khoản ngân hàng của người mua trên ứng dụng; kế toán ghi "Đã hoàn tiền".
 - Hạch toán: tiền thu trực tuyến vào ngân hàng; phí giao hàng là doanh thu cung cấp dịch vụ, thuế 10%, lên hóa đơn điện tử; hoàn tiền.
+- Đối soát COD với GHN: theo API chi tiết đơn, GHN đã thu tiền người mua thì đơn ghi đã thu.
 - Công tắc mở đặt hàng cho mọi người mua.
 
-Tạm dừng: đối soát COD với GHN qua API (chờ tài liệu API của GHN).
+Ngoài phạm vi: tiền, phí, bút toán COD làm bằng tệp đối soát GHN ở CONG_VIEC_19 như hiện có.
 Ngoài phạm vi: cổng MoMo, SePay, PayOS và hoàn tiền tự động qua cổng (thêm sau theo khung); hoa hồng, ví (CONG_VIEC_26).
 
 ## 3. Yêu cầu nghiệp vụ và chức năng
@@ -31,7 +32,7 @@ Ngoài phạm vi: cổng MoMo, SePay, PayOS và hoàn tiền tự động qua c�
 - CHUC_NANG_121: Thanh toán trực tuyến VNPAY, chờ thanh toán, tự hủy.
 - CHUC_NANG_122: Sổ thanh toán đơn VComm, hoàn tiền.
 - CHUC_NANG_123: Hạch toán tiền thu, phí giao hàng, hoàn tiền; hóa đơn phí giao hàng.
-- CHUC_NANG_124: Đối soát COD với GHN (tạm dừng).
+- CHUC_NANG_124: Đối soát COD với GHN theo API.
 
 ## 4. Quy tắc nghiệp vụ
 
@@ -39,9 +40,9 @@ Ngoài phạm vi: cổng MoMo, SePay, PayOS và hoàn tiền tự động qua c�
 - QUYTAC_NGHIEPVU_164: Mở đặt hàng: công tắc trong cài đặt bán hàng VComm, người có quyền quản lý đơn VComm bật hoặc tắt; chỉ bật được khi có ít nhất một phương thức đang bật. Đang mở thì mọi người mua đặt được; đang đóng thì chỉ người mua thử (QUYTAC_NGHIEPVU_158).
 - QUYTAC_NGHIEPVU_165: Đơn thanh toán trực tuyến: tạo ở trạng thái Chờ thanh toán, giữ hàng hết hạn sau 15 phút. Người mua mở thanh toán (tạo lần thanh toán mới, số tham chiếu duy nhất) được nhiều lần trong thời hạn. Cổng báo thành công đúng số tiền, đơn còn Chờ thanh toán thì ghi đã thu, giữ hàng không hết hạn, đơn chuyển Chờ giao. Quá hạn chưa thu thì việc nền (mỗi phút) hủy đơn, nhả hàng. Cổng báo thành công sau khi đơn đã hủy thì ghi tiền thu và lập việc chờ hoàn tiền. Người mua tự hủy đơn Chờ thanh toán được.
 - QUYTAC_NGHIEPVU_166: Kết quả từ cổng chỉ nhận khi đúng chữ ký; số tiền phải bằng tổng thanh toán của đơn; mỗi lần thanh toán chỉ ghi nhận một lần (nhận trùng trả lời đã xác nhận). Trang kết quả trả về ứng dụng chỉ để hiển thị, không ghi nhận tiền.
-- QUYTAC_NGHIEPVU_167: Sổ thanh toán đơn VComm: mỗi đơn có tiền phải thu (tổng thanh toán), tiền đã thu, tiền đã hoàn; trạng thái thanh toán Chưa thu, Đã thu, Chờ hoàn, Đã hoàn một phần, Đã hoàn. Đơn COD ghi đã thu khi đối soát COD (tạm dừng: kế toán ghi tay "Đã thu COD" kèm số phiên GHN). Không phát sinh công nợ đối tác.
+- QUYTAC_NGHIEPVU_167: Sổ thanh toán đơn VComm: mỗi đơn có tiền phải thu (tổng thanh toán), tiền đã thu, tiền đã hoàn; trạng thái thanh toán Chưa thu, Đã thu, Chờ hoàn, Đã hoàn một phần, Đã hoàn. Đơn COD ghi đã thu khi API chi tiết đơn của GHN có ngày thu tiền người mua (`cod_collect_date`), số tiền là tiền thu hộ của vận đơn; hãng không có API này thì người có quyền ghi tay "Đã thu COD". Không phát sinh công nợ đối tác.
 - QUYTAC_NGHIEPVU_168: Hoàn tiền: đơn đã thu bị hủy thì hoàn toàn bộ tiền đã thu; kho nhận hàng trả thì hoàn phần tiền hàng trả (tiền dòng gồm thuế theo tỷ lệ số lượng; phí giao hàng không hoàn). Việc chờ hoàn có số tiền, lý do; người mua nhập tài khoản ngân hàng (ngân hàng, số tài khoản, tên chủ tài khoản) trên ứng dụng; kế toán chuyển khoản rồi ghi "Đã hoàn tiền" kèm mã giao dịch ngân hàng, ngày. Báo người mua bằng thông báo trong ứng dụng.
-- QUYTAC_NGHIEPVU_169: Hạch toán (công ty đã khởi tạo kế toán): thu trực tuyến Nợ tiền gửi ngân hàng (1121) / Có phải thu khách hàng (131, không đối tác); thu COD Nợ 1121 / Có 131; giao hàng có phí giao hàng: Nợ 131 / Có doanh thu cung cấp dịch vụ (5113), thuế giá trị gia tăng đầu ra (33311) 10%, cùng ngày phiếu xuất; hoàn tiền Nợ 131 / Có 1121. Hóa đơn điện tử của phiếu xuất có thêm dòng "Phí giao hàng".
+- QUYTAC_NGHIEPVU_169: Hạch toán (công ty đã khởi tạo kế toán): thu trực tuyến Nợ tiền gửi ngân hàng (1121) / Có phải thu khách hàng (131, không đối tác); thu COD hạch toán bằng bảng đối soát thu hộ (CONG_VIEC_19: Nợ 1388 / Có 131, phí 6418); giao hàng có phí giao hàng: Nợ 131 / Có doanh thu cung cấp dịch vụ (5113), thuế giá trị gia tăng đầu ra (33311) 10%, cùng ngày phiếu xuất; hoàn tiền Nợ 131 / Có 1121. Hóa đơn điện tử của phiếu xuất có thêm dòng "Phí giao hàng".
 
 ## 5. Vai trò và quyền
 
@@ -88,11 +89,13 @@ Web-crm:
 | TIEUCHI_NGHIEMTHU_187 | Hoàn tiền: hủy đơn đã thu, nhận hàng trả lập việc hoàn đúng số tiền; người mua nhập tài khoản; kế toán ghi đã hoàn; phân quyền | Bắt buộc | KICHBAN_KIEMTHU_324 |
 | TIEUCHI_NGHIEMTHU_188 | Bút toán tiền thu, phí giao hàng, hoàn tiền đúng tài khoản; hóa đơn có dòng phí giao hàng | Bắt buộc | KICHBAN_KIEMTHU_325 |
 | TIEUCHI_NGHIEMTHU_189 | Ứng dụng: chọn phương thức, thanh toán, thanh toán lại, tài khoản nhận hoàn tiền chạy được trên bản xem trước web khổ điện thoại; web hiện thanh toán, hoàn tiền | Bắt buộc | KICHBAN_KIEMTHU_326 |
+| TIEUCHI_NGHIEMTHU_190 | Đơn COD tự ghi đã thu khi GHN báo đã thu tiền người mua (callback, làm mới vận đơn), ghi một lần; ghi tay "Đã thu COD" có phân quyền | Bắt buộc | KICHBAN_KIEMTHU_327 |
 
 ## 11. Kịch bản kiểm thử
 
 - KICHBAN_KIEMTHU_321 đến 325: tự động, `apps/api/test/c25-*.test.ts` (VNPAY giả lập, đồng hồ kiểm thử).
 - KICHBAN_KIEMTHU_326: thủ công trên trình duyệt.
+- KICHBAN_KIEMTHU_327: tự động, giả lập GHN.
 
 ## 12. Ràng buộc kỹ thuật
 
@@ -106,6 +109,6 @@ Luồng đơn bán, công nợ, phiếu thu chi của các kênh khác; đơn CO
 
 - L0: database migration, phương thức thanh toán, mở đặt hàng, chọn phương thức khi đặt (API_130; sửa MAN_HINH_86, 93).
 - L1: VNPAY, chờ thanh toán, tự hủy (API_131, 132; MAN_HINH_99, sửa 96).
-- L2: đối soát COD với GHN – tạm dừng; tạm thời kế toán ghi "Đã thu COD".
+- L2: đối soát COD với GHN theo API (callback, chi tiết đơn), ghi tay "Đã thu COD" khi cần.
 - L3: hoàn tiền (API_133; MAN_HINH_98, 100).
 - L4: bút toán, hóa đơn phí giao hàng.
