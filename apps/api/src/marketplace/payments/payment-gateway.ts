@@ -11,14 +11,18 @@ export interface PaymentStartInput {
   ipAddress: string;
   createdAt: Date;
   expiresAt: Date;
+  // Mã đơn riêng của cổng (cổng chỉ nhận mã đơn dạng số như PayOS); null khi cổng dùng số tham chiếu.
+  gatewayOrderCode: string | null;
 }
 
 // Cổng chuyển trang: địa chỉ trang thanh toán; cổng chuyển khoản: thông tin chuyển khoản, mã QR.
 export type PaymentInstruction = { kind: "redirect"; url: string } | { kind: "transfer"; transfer: PaymentTransferInstruction };
 
 // Kết quả cổng gửi về đã kiểm chữ ký (hoặc khóa xác thực).
+// Cổng gửi lại số tham chiếu hoặc mã đơn riêng của cổng (CONG_VIEC_35), ít nhất một trong hai.
 export interface GatewayNotification {
-  reference: string;
+  reference: string | null;
+  gatewayOrderCode?: string | null;
   amount: number;
   success: boolean;
   responseCode: string;
@@ -39,6 +43,8 @@ export type NotificationOutcome = "success" | "not_found" | "invalid_amount" | "
 export interface PaymentGatewayAdapter {
   readonly code: PaymentGatewayCode;
   configured(): boolean;
+  // Cổng không nhận số tham chiếu chữ và số: cấp mã đơn riêng, lưu cùng lần thanh toán để đối chiếu kết quả (CONG_VIEC_35).
+  createOrderCode?(): string;
   start(input: PaymentStartInput): Promise<PaymentInstruction>;
   // Kiểm chữ ký, đọc kết quả; sai chữ ký hoặc không đọc được trả null.
   verify(request: GatewayRequest): Promise<GatewayNotification | null>;
