@@ -359,7 +359,12 @@
 
 ### THAY_DOI_22: Chặn rút tiền ví hoa hồng theo từng tài khoản – 2026-11-11
 - Lý do: quyết định của người dùng khi duyệt CONG_VIEC_49 (ví mua sắm có rủi ro bị coi là ví điện tử): cần chặn rút tiền theo từng tài khoản cho cả ví mua sắm (CONG_VIEC_49) và ví hoa hồng.
-- Nội dung thay đổi (quyết định của người dùng 2026-11-11): quản trị bật, tắt chặn rút tiền cho từng tài khoản, có lý do, ghi nhật ký; tài khoản bị chặn không gửi được yêu cầu rút mới từ ví hoa hồng; cách xử lý yêu cầu đang chờ do đặc tả CONG_VIEC_49 đề xuất, người dùng duyệt.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11, chốt chi tiết trong CONG_VIEC_49):
+  - Khóa ví mua sắm toàn hệ thống: không thanh toán bằng ví; mua hàng, mua chung vẫn chạy, tiền hoàn vẫn cộng vào ví và giữ đến khi mở khóa.
+  - Chặn theo từng tài khoản, riêng từng ví, không liên thông: chặn ví mua sắm thì không dùng số dư trả đơn; chặn ví hoa hồng thì không tạo yêu cầu rút.
+  - Khi chặn ví hoa hồng: yêu cầu rút đang chờ duyệt tự bị từ chối; yêu cầu đã duyệt chưa chi bị khóa ghi đã chi đến khi gỡ chặn.
+  - Quyền chặn: `marketplace.payment.manage`; lý do 1 đến 500 ký tự; lưu lịch sử; gửi thông báo cho người dùng.
+  - Mã cấp thêm ngoài dải CONG_VIEC_49: QUYTAC_NGHIEPVU_390 (khóa ví mua sắm toàn hệ thống), QUYTAC_NGHIEPVU_391 (chặn ví theo tài khoản), TIEUCHI_NGHIEMTHU_367, KICHBAN_KIEMTHU_532; dữ liệu trong database migration 0080; API gộp vào API_166 và sửa hành vi API_136.
 - Thành phần bị ảnh hưởng: CONG_VIEC_26 (đã phát hành 0.3.0): rút tiền ví hoa hồng (CHUC_NANG_137, API_136); quản trị web-crm.
 - Dữ liệu, API, giao diện, quyền: thêm dữ liệu chặn rút theo tài khoản; API rút tiền trả lỗi nghiệp vụ khi bị chặn.
 - Ảnh hưởng chức năng cũ: tài khoản không bị chặn giữ nguyên hành vi.
