@@ -20,6 +20,7 @@
 
 ### Quyết định
 
+- THAY_DOI_26 (đã phê duyệt): CONG_VIEC_22 làm lại thành phần Kinh doanh trong ứng dụng VComm, ẩn ghé thăm khách, không tạo đơn hộ khách; nhánh mới `chuc-nang/CONG_VIEC_22-kinh-doanh-vcomm`.
 - Người dùng quyết định chưa triển khai bản 0.4.0; triển khai khi gộp thêm các công việc đã nghiệm thu và có khóa thử của nhà cung cấp.
 - CONG_VIEC_53, người dùng quyết định 2026-11-11: luôn trực tuyến; tích và đổi điểm ngay (L6); hóa đơn điện tử luôn khởi tạo từ máy tính tiền; trả hàng theo hóa đơn; phiếu thu tổng khi đóng ca; lệch tiền ghi lý do và hạch toán; giảm tay trong mức tối đa; VietQR thu ngân xác nhận; phần 1 chỉ bán hàng hóa; lô tự chọn FEFO, serial quét; kho bán không dùng vị trí; nghiệm thu L0 đến L5 trước, L6 khi CONG_VIEC_51 hợp nhất. QUYTAC_NGHIEPVU_378 bỏ ý mã do người bán tự tạo (Nghị định 254/2026/NĐ-CP không quy định), người dùng xác nhận khi duyệt L5.
 - CONG_VIEC_45, người dùng quyết định: (1) nợ nhà cung cấp nước ngoài ghi VND kèm ngoại tệ; phiếu chi ngoại tệ, chênh lệch tỷ giá, đánh giá lại là công việc sau MODULE_06; (2) chi phí về sau phân bổ bằng chứng từ sau nhập, phần tồn vào giá trị tồn kho, phần đã xuất vào 632; (3) tiêu thức phân bổ chọn theo từng khoản (giá trị hoặc số lượng); (4) thuế tờ khai tự tính, sửa được. Người dùng duyệt đặc tả và bản mẫu MAN_HINH_110 đến 113.
