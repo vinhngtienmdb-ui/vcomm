@@ -196,6 +196,14 @@
 - Kết luận cổng kiểm thử: Đạt.
 - Kết luận: Chờ người dùng nghiệm thu.
 
+## Lần kiểm thử 2026-11-11 – Gộp đơn vị vận chuyển CONG_VIEC_28 đến 31, THAY_DOI_20
+
+- Phạm vi: nhánh `gop/giao-van` (pull request #82) từ `main`, hợp nhất CONG_VIEC_31, 29, 28, 30; gộp tay `carrier-registry.ts` (đủ 5 đơn vị), giao diện lớp kết nối (thông tin vận đơn, báo cáo webhook, trả lời webhook, hủy vận đơn), xử lý webhook. THAY_DOI_20: Viettel Post báo giao thành công đơn COD thì ghi đã thu COD, ngày thu là lúc nhận webhook (commit `af6df92`).
+- Lệnh đã chạy: `pnpm lint`, `pnpm typecheck`, `pnpm --filter api test`.
+- Kết quả: 349/349 đạt (56 tệp); CI pull request #82 đạt.
+- Kiểm thử đã duyệt được sửa: `c24-marketplace-orders`, `c31` chỉ sửa kỳ vọng danh sách đơn vị vận chuyển cho đủ 5 dòng (do gộp); KICHBAN_KIEMTHU_345 bổ sung ba trường hợp theo THAY_DOI_20 (đơn COD ghi đã thu, webhook lặp không ghi lần hai, đơn không COD không ghi). Nội dung THAY_DOI_20 ghi vào QUYTAC_NGHIEPVU_185, TIEUCHI_NGHIEMTHU_205, KICHBAN_KIEMTHU_345 sẵn có.
+- Kết luận cổng kiểm thử: Đạt. Chưa phát hành: thử với tài khoản thử nghiệm của từng hãng trước.
+
 ## Lần kiểm thử 2026-11-11 – Phát hành 0.3.0
 
 - Phạm vi: nhánh `phat-hanh/v0.3.0` (đầu nhánh CONG_VIEC_43, hợp nhất thêm `main`, LOI_03, LOI_04, LOI_05, CONG_VIEC_06); pull request #79.
