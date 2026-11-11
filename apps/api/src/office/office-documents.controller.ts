@@ -1,13 +1,11 @@
 // API_188 Công văn đến; API_189 Công văn đi; API_190 Sổ, loại văn bản, thông tin thể thức, xuất sổ (CHUC_NANG_184).
 import { Body, Controller, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res, UploadedFile, UploadedFiles, UseInterceptors } from "@nestjs/common";
-import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import {
   acceptIncomingSchema,
   directIncomingSchema,
   documentSettingsSchema,
   documentTypeSchema,
   incomingListQuerySchema,
-  officeFileMaximumBytes,
   outgoingCancelSchema,
   outgoingDecisionSchema,
   outgoingListQuerySchema,
@@ -39,6 +37,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { OfficeDocumentsService } from "./office-documents.service";
 import { officeContentDisposition } from "./office.controller";
+import { OfficeFileUpload, OfficeFilesUpload } from "./office-upload";
 
 type Upload = { buffer: Buffer; size: number; originalname: string };
 
@@ -131,7 +130,7 @@ export class OfficeDocumentsController {
 
   // Vào sổ: multipart gồm "data" (JSON) và một hoặc nhiều tệp "files".
   @Post("incoming")
-  @UseInterceptors(FilesInterceptor("files", 10, { limits: { fileSize: officeFileMaximumBytes * 2 } }))
+  @UseInterceptors(OfficeFilesUpload())
   async registerIncoming(
     @Req() request: AuthenticatedRequest,
     @Body("data") data: unknown,
@@ -152,7 +151,7 @@ export class OfficeDocumentsController {
   }
 
   @Post("incoming/:id/files")
-  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: officeFileMaximumBytes * 2, files: 1 } }))
+  @UseInterceptors(OfficeFileUpload())
   async addIncomingFile(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @UploadedFile() file: Upload | undefined, @Headers("x-company-id") companyId?: string) {
     return this.documents.addIncomingFile(await this.actor(request, companyId, "office.document.clerk"), id, file);
   }
@@ -221,7 +220,7 @@ export class OfficeDocumentsController {
   }
 
   @Post("outgoing/:id/files")
-  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: officeFileMaximumBytes * 2, files: 1 } }))
+  @UseInterceptors(OfficeFileUpload())
   async addDraftFile(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @UploadedFile() file: Upload | undefined, @Headers("x-company-id") companyId?: string) {
     return this.documents.addDraftFile(await this.actor(request, companyId, "office.document.draft"), id, file);
   }
@@ -272,7 +271,7 @@ export class OfficeDocumentsController {
   // Phát hành: multipart gồm tệp "file" (bản đã ký, đóng dấu) và trường "version".
   @Post("outgoing/:id/issue")
   @HttpCode(200)
-  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: officeFileMaximumBytes * 2, files: 1 } }))
+  @UseInterceptors(OfficeFileUpload())
   async issue(
     @Req() request: AuthenticatedRequest,
     @Param("id", UuidPipe) id: string,

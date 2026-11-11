@@ -457,19 +457,26 @@ export class OfficeDocumentsService implements OnModuleInit {
     }));
   }
 
-  private async storeFile(executor: Executor, companyId: string, ownerType: string, ownerId: string, userId: string, file: Upload, onlyScan = false): Promise<void> {
+  private async storeFile(executor: Executor, staged: string[], companyId: string, ownerType: string, ownerId: string, userId: string, file: Upload, onlyScan = false): Promise<void> {
     const checked = checkOfficeFile(file);
     if (onlyScan && !["application/pdf", "image/jpeg", "image/png"].includes(checked.contentType)) {
       throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "officeScanTypeInvalid" } });
     }
     const storageKey = `office/${companyId}/${ownerType}/${ownerId}/${randomUUID()}`;
     await this.storage.put(storageKey, file!.buffer, checked.contentType);
+    staged.push(storageKey);
+    await executor.execute(sql`
+      INSERT INTO office.files (company_id, owner_type, owner_id, file_name, content_type, size_bytes, storage_key, uploaded_by)
+      VALUES (${companyId}, ${ownerType}, ${ownerId}, ${checked.fileName}, ${checked.contentType}, ${file!.size}, ${storageKey}, ${userId})`);
+  }
+
+  // Tệp lưu lên kho trong lúc ghi: giao dịch lỗi ở bất kỳ bước nào thì xóa mọi tệp vừa lưu, không để tệp mồ côi.
+  private async withStagedFiles<T>(work: (staged: string[]) => Promise<T>): Promise<T> {
+    const staged: string[] = [];
     try {
-      await executor.execute(sql`
-        INSERT INTO office.files (company_id, owner_type, owner_id, file_name, content_type, size_bytes, storage_key, uploaded_by)
-        VALUES (${companyId}, ${ownerType}, ${ownerId}, ${checked.fileName}, ${checked.contentType}, ${file!.size}, ${storageKey}, ${userId})`);
+      return await work(staged);
     } catch (error) {
-      await this.storage.remove(storageKey);
+      await Promise.allSettled(staged.map((key) => this.storage.remove(key)));
       throw error;
     }
   }
@@ -605,23 +612,25 @@ export class OfficeDocumentsService implements OnModuleInit {
   async registerIncoming(actor: Actor, input: RegisterIncomingInput, files: NonNullable<Upload>[]): Promise<IncomingResponse> {
     await this.requireClerk(actor);
     if (files.length === 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "required" } });
-    const id = await this.database.transaction(async (transaction) => {
-      await this.ensureDefaults(transaction, actor.companyId);
-      await this.activeRegister(transaction, actor.companyId, input.registerId, "incoming");
-      const year = Number(input.receivedOn.slice(0, 4));
-      const number = await this.nextNumber(transaction, input.registerId, year);
-      const inserted = await transaction.execute<{ id: string }>(sql`
+    const id = await this.withStagedFiles((staged) =>
+      this.database.transaction(async (transaction) => {
+        await this.ensureDefaults(transaction, actor.companyId);
+        await this.activeRegister(transaction, actor.companyId, input.registerId, "incoming");
+        const year = Number(input.receivedOn.slice(0, 4));
+        const number = await this.nextNumber(transaction, input.registerId, year);
+        const inserted = await transaction.execute<{ id: string }>(sql`
         INSERT INTO office.incoming_documents (company_id, register_id, year, incoming_no, received_on, sender, symbol, document_date, document_type_name, summary, urgency, due_on,
           channel, status, registered_by)
         VALUES (${actor.companyId}, ${input.registerId}, ${year}, ${number}, ${input.receivedOn}, ${input.sender}, ${input.symbol ?? null}, ${input.documentDate ?? null},
           ${input.documentTypeName}, ${input.summary}, ${input.urgency}, ${input.dueOn ?? null}, ${input.channel}, 'registered', ${actor.userId})
         RETURNING id`);
-      const incomingId = inserted.rows[0]!.id;
-      for (const file of files) await this.storeFile(transaction, actor.companyId, "incoming", incomingId, actor.userId, file, true);
-      await this.routing(transaction, incomingId, "registered", actor.userId, null, null);
-      await this.auditService.record({ ...this.audit(actor, "office_incoming"), action: "office.incoming.register", entityId: incomingId, afterData: { year, number } }, transaction);
-      return incomingId;
-    });
+        const incomingId = inserted.rows[0]!.id;
+        for (const file of files) await this.storeFile(transaction, staged, actor.companyId, "incoming", incomingId, actor.userId, file, true);
+        await this.routing(transaction, incomingId, "registered", actor.userId, null, null);
+        await this.auditService.record({ ...this.audit(actor, "office_incoming"), action: "office.incoming.register", entityId: incomingId, afterData: { year, number } }, transaction);
+        return incomingId;
+      }),
+    );
     return this.incoming(actor, id);
   }
 
@@ -644,11 +653,13 @@ export class OfficeDocumentsService implements OnModuleInit {
 
   async addIncomingFile(actor: Actor, id: string, file: Upload): Promise<IncomingResponse> {
     await this.requireClerk(actor);
-    await this.database.transaction(async (transaction) => {
-      const row = await this.loadIncoming(transaction, actor, id, true);
-      if (row.status !== "registered") throw new ApiError("BUSINESS_RULE", "officeIncomingLocked");
-      await this.storeFile(transaction, actor.companyId, "incoming", id, actor.userId, file, true);
-    });
+    await this.withStagedFiles((staged) =>
+      this.database.transaction(async (transaction) => {
+        const row = await this.loadIncoming(transaction, actor, id, true);
+        if (row.status !== "registered") throw new ApiError("BUSINESS_RULE", "officeIncomingLocked");
+        await this.storeFile(transaction, staged, actor.companyId, "incoming", id, actor.userId, file, true);
+      }),
+    );
     return this.incoming(actor, id);
   }
 
@@ -993,12 +1004,14 @@ export class OfficeDocumentsService implements OnModuleInit {
   }
 
   async addDraftFile(actor: Actor, id: string, file: Upload): Promise<OutgoingResponse> {
-    await this.database.transaction(async (transaction) => {
-      const row = await this.loadOutgoing(transaction, actor, id, true);
-      if (row.created_by !== actor.userId) throw new ApiError("FORBIDDEN", "forbidden");
-      if (!["draft", "rejected", "withdrawn"].includes(row.status)) throw new ApiError("BUSINESS_RULE", "officeOutgoingLocked");
-      await this.storeFile(transaction, actor.companyId, "outgoing_draft", id, actor.userId, file);
-    });
+    await this.withStagedFiles((staged) =>
+      this.database.transaction(async (transaction) => {
+        const row = await this.loadOutgoing(transaction, actor, id, true);
+        if (row.created_by !== actor.userId) throw new ApiError("FORBIDDEN", "forbidden");
+        if (!["draft", "rejected", "withdrawn"].includes(row.status)) throw new ApiError("BUSINESS_RULE", "officeOutgoingLocked");
+        await this.storeFile(transaction, staged, actor.companyId, "outgoing_draft", id, actor.userId, file);
+      }),
+    );
     return this.outgoing(actor, id);
   }
 
@@ -1136,60 +1149,53 @@ export class OfficeDocumentsService implements OnModuleInit {
   async issueOutgoing(actor: Actor, id: string, file: Upload, version: number): Promise<OutgoingResponse> {
     await this.requireClerk(actor);
     const copies: { companyId: string; incomingId: string }[] = [];
-    await this.database.transaction(async (transaction) => {
-      const row = await this.loadOutgoing(transaction, actor, id, true);
-      if (row.status !== "numbered") throw new ApiError("BUSINESS_RULE", "officeOutgoingLocked");
-      if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-      await this.storeFile(transaction, row.company_id, "outgoing_signed", id, actor.userId, file, true);
-      await transaction.execute(sql`UPDATE office.outgoing_documents SET status = 'issued', issued_at = now(), updated_at = now(), version = version + 1 WHERE id = ${id}`);
-      const recipients = await transaction.execute<{ kind: "user" | "department" | "company"; target_id: string }>(
-        sql`SELECT kind, target_id FROM office.outgoing_recipients WHERE outgoing_id = ${id}`,
-      );
-      const users = new Set<string>();
-      for (const recipient of recipients.rows) {
-        if (recipient.kind === "user") users.add(recipient.target_id);
-        if (recipient.kind === "department") {
-          const members = await transaction.execute<{ user_id: string }>(sql`
+    await this.withStagedFiles((staged) =>
+      this.database.transaction(async (transaction) => {
+        const row = await this.loadOutgoing(transaction, actor, id, true);
+        if (row.status !== "numbered") throw new ApiError("BUSINESS_RULE", "officeOutgoingLocked");
+        if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+        await this.storeFile(transaction, staged, row.company_id, "outgoing_signed", id, actor.userId, file, true);
+        await transaction.execute(sql`UPDATE office.outgoing_documents SET status = 'issued', issued_at = now(), updated_at = now(), version = version + 1 WHERE id = ${id}`);
+        const recipients = await transaction.execute<{ kind: "user" | "department" | "company"; target_id: string }>(
+          sql`SELECT kind, target_id FROM office.outgoing_recipients WHERE outgoing_id = ${id}`,
+        );
+        const users = new Set<string>();
+        for (const recipient of recipients.rows) {
+          if (recipient.kind === "user") users.add(recipient.target_id);
+          if (recipient.kind === "department") {
+            const members = await transaction.execute<{ user_id: string }>(sql`
             SELECT user_id FROM core.user_company_memberships WHERE company_id = ${row.company_id} AND department_id = ${recipient.target_id} AND status = 'active'`);
-          for (const member of members.rows) users.add(member.user_id);
-        }
-        if (recipient.kind === "company") {
-          await this.ensureDefaults(transaction, recipient.target_id);
-          const company = (await transaction.execute<{ short_name: string }>(sql`SELECT short_name FROM core.companies WHERE id = ${row.company_id}`)).rows[0]!;
-          const incoming = await transaction.execute<{ id: string }>(sql`
+            for (const member of members.rows) users.add(member.user_id);
+          }
+          if (recipient.kind === "company") {
+            await this.ensureDefaults(transaction, recipient.target_id);
+            const company = (await transaction.execute<{ short_name: string }>(sql`SELECT short_name FROM core.companies WHERE id = ${row.company_id}`)).rows[0]!;
+            const incoming = await transaction.execute<{ id: string }>(sql`
             INSERT INTO office.incoming_documents (company_id, sender, symbol, document_date, document_type_name, summary, urgency, channel, status, source_outgoing_id)
             VALUES (${recipient.target_id}, ${company.short_name}, ${row.symbol}, ${row.issued_on}, ${row.type_name}, ${row.summary}, ${row.urgency}, 'group', 'awaiting_registration', ${id})
             ON CONFLICT DO NOTHING RETURNING id`);
-          if (incoming.rows[0]) copies.push({ companyId: recipient.target_id, incomingId: incoming.rows[0].id });
+            if (incoming.rows[0]) {
+              copies.push({ companyId: recipient.target_id, incomingId: incoming.rows[0].id });
+              // Bản đã ký chép sang công văn đến chờ vào sổ của công ty nhận trong cùng giao dịch (khóa lưu trữ riêng).
+              await this.storeFile(transaction, staged, recipient.target_id, "incoming", incoming.rows[0].id, actor.userId, file, true);
+            }
+          }
         }
-      }
-      const items: NotificationInput[] = [...users]
-        .filter((userId) => userId !== actor.userId)
-        .map((userId) => ({
-          userId,
-          companyId: row.company_id,
-          kind: "office_document",
-          title: `Công văn ${row.symbol}: ${row.summary}`,
-          link: `/office/outgoing/${id}`,
-          payload: { outgoingId: id },
-        }));
-      await notify(transaction, items);
-      for (const copy of copies) await this.notifyClerks(transaction, copy.companyId, copy.incomingId, `Công văn đến chờ vào sổ: ${row.symbol}`, `/office/incoming/${copy.incomingId}`);
-      await this.auditService.record({ ...this.audit(actor, "office_outgoing"), action: "office.outgoing.issue", entityId: id }, transaction);
-    });
-    // Tệp bản đã ký chép sang công văn đến của công ty nhận (khóa lưu trữ riêng).
-    const signed = (
-      await this.database.execute<{ file_name: string; content_type: string; size_bytes: number; storage_key: string }>(sql`
-      SELECT file_name, content_type, size_bytes, storage_key FROM office.files WHERE owner_type = 'outgoing_signed' AND owner_id = ${id} AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1`)
-    ).rows[0]!;
-    const content = await this.storage.get(signed.storage_key);
-    for (const copy of copies) {
-      const storageKey = `office/${copy.companyId}/incoming/${copy.incomingId}/${randomUUID()}`;
-      await this.storage.put(storageKey, content, signed.content_type);
-      await this.database.execute(sql`
-        INSERT INTO office.files (company_id, owner_type, owner_id, file_name, content_type, size_bytes, storage_key, uploaded_by)
-        VALUES (${copy.companyId}, 'incoming', ${copy.incomingId}, ${signed.file_name}, ${signed.content_type}, ${signed.size_bytes}, ${storageKey}, ${actor.userId})`);
-    }
+        const items: NotificationInput[] = [...users]
+          .filter((userId) => userId !== actor.userId)
+          .map((userId) => ({
+            userId,
+            companyId: row.company_id,
+            kind: "office_document",
+            title: `Công văn ${row.symbol}: ${row.summary}`,
+            link: `/office/outgoing/${id}`,
+            payload: { outgoingId: id },
+          }));
+        await notify(transaction, items);
+        for (const copy of copies) await this.notifyClerks(transaction, copy.companyId, copy.incomingId, `Công văn đến chờ vào sổ: ${row.symbol}`, `/office/incoming/${copy.incomingId}`);
+        await this.auditService.record({ ...this.audit(actor, "office_outgoing"), action: "office.outgoing.issue", entityId: id }, transaction);
+      }),
+    );
     return this.outgoing(actor, id);
   }
 

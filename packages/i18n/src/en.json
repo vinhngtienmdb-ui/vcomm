@@ -589,7 +589,8 @@
     "officePostPinLimit": "The company already has 5 pinned posts; unpin one first.",
     "officePostRevoked": "The post has been revoked.",
     "officePostNotAcknowledgeable": "This post does not need acknowledgement or you are not a recipient.",
-    "officePostCommentsClosed": "This post does not accept comments."
+    "officePostCommentsClosed": "This post does not accept comments.",
+    "officeTooManyFiles": "Upload at most 5 files at a time."
   },
   "login": {
     "title": "Sign in",

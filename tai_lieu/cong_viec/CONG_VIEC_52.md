@@ -193,12 +193,12 @@ Luồng duyệt chung, dãy số chứng từ, mẫu đề xuất, tệp đính 
 
 ## 18. Rủi ro
 
-- Nội dung Nghị định 30 chưa đối chiếu bản gốc trong phiên (mục 3); phải đối chiếu điều 8, 15, 16, 20 đến 24, Phụ lục I, III, IV trước khi phát hành.
+- Nội dung Nghị định 30 chưa đối chiếu bản gốc trong phiên (mục 3); phải đối chiếu điều 8, 15, 16, 20 đến 24, Phụ lục I, III, IV trước khi phát hành (người dùng chọn nghiệm thu trước, đối chiếu trước phát hành, 2026-11-12).
 - Thư viện `docx` 9.15.3 và phông Liberation Serif: người dùng đã duyệt 2026-11-11 (tài liệu `13`).
-- Rủi ro mức Thấp còn lại sau tự rà soát (đề xuất người dùng chấp nhận khi nghiệm thu):
-  - Tệp đã lưu lên kho mà giao dịch ghi cơ sở dữ liệu lỗi ở bước sau (ví dụ ghi nhật ký) có thể để lại tệp mồ côi trên kho; không lộ dữ liệu, chỉ tốn chỗ.
-  - Phát hành công văn đi: sao tệp bản đã ký sang công văn đến chờ vào sổ của công ty khác chạy sau khi ghi; nếu sao lỗi, công văn đã phát hành nhưng bản chờ vào sổ thiếu tệp (văn thư công ty nhận tải lại bản quét được).
-  - Vào sổ công văn đến nhận tối đa 10 tệp mỗi lần, mỗi tệp đọc vào bộ nhớ (giới hạn 20 MB mỗi tệp kiểm ở dịch vụ); một yêu cầu lớn dùng nhiều bộ nhớ máy chủ.
+- Ba rủi ro mức Thấp tìm khi tự rà soát, người dùng chọn sửa cả ba (2026-11-12), đã sửa:
+  - Tệp mồ côi: tệp lưu lên kho trong lúc ghi được gom lại, giao dịch lỗi ở bất kỳ bước nào thì xóa hết.
+  - Phát hành công văn đi: bản đã ký chép sang công văn đến chờ vào sổ của công ty nhận trong cùng giao dịch phát hành.
+  - Bộ nhớ khi tải tệp: multer dừng ngay khi tệp vượt 20 MB; vào sổ công văn đến tối đa 5 tệp mỗi lần (`officeTooManyFiles`).
 
 ## 19. Kết quả đối chiếu định nghĩa hoàn thành
 
@@ -208,9 +208,9 @@ Luồng duyệt chung, dãy số chứng từ, mẫu đề xuất, tệp đính 
 - [x] Đúng giao diện: MAN_HINH_153 đến 160 xem trước từng lát ở 1366 px và 390 px, không lỗi trình duyệt, không cuộn ngang; người dùng duyệt lát L0 đến L3.
 - [x] Đã xử lý lỗi: lỗi hiện đúng ô, mã lỗi nghiệp vụ có câu chữ vi, en.
 - [x] Đã kiểm thử: `apps/api/test/c52-*.test.ts` 40 kiểm thử; toàn bộ kiểm thử API sau khi hợp nhất main 0.5.0; kết quả gửi phiên cha ghi tài liệu `25`.
-- [x] Không phá vỡ chức năng cũ: toàn bộ kiểm thử API đạt. Sửa giá trị mong đợi trong `l1-authentication.test.ts` (trang chủ thêm mini app `office` vì vai trò Nhân viên có `office.access` theo mục 6) – cần người dùng phê duyệt khi nghiệm thu.
+- [x] Không phá vỡ chức năng cũ: toàn bộ kiểm thử API đạt. Sửa giá trị mong đợi trong `l1-authentication.test.ts` (trang chủ thêm mini app `office` vì vai trò Nhân viên có `office.access` theo mục 6): người dùng phê duyệt 2026-11-12.
 - [x] Đạt tiêu chí nghiệm thu bắt buộc: TIEUCHI_NGHIEMTHU_339 đến 348 có kịch bản KICHBAN_KIEMTHU_498 đến 509, kết quả Đạt.
-- [x] Đạt cổng bảo mật: rà soát độc lập không thấy SQL injection, XSS, đi đường dẫn; ba lỗi phân quyền mức Trung bình, bốn lỗi đồng thời mức Thấp đã sửa (commit bed83a7); ba rủi ro mức Thấp ở mục 18 chờ người dùng chấp nhận.
+- [x] Đạt cổng bảo mật: rà soát độc lập không thấy SQL injection, XSS, đi đường dẫn; ba lỗi phân quyền mức Trung bình, bốn lỗi đồng thời mức Thấp đã sửa (commit bed83a7); ba rủi ro mức Thấp còn lại người dùng chọn sửa, đã sửa (mục 18).
 - [x] Đã tự rà soát mã và dọn dẹp: không còn mã gỡ lỗi; ảnh, kịch bản xem trước ở `tam_thoi/` (không commit).
 - [x] Đã cập nhật tài liệu `27` và tài liệu liên quan: 06, 07, 08, 10, 11, 13, 14, 16, 17, 21, 22, 27. Tài liệu `02`, `03`, `25` do phiên cha ghi.
 - Rủi ro chưa đóng: nội dung Nghị định 30/2020/NĐ-CP chưa đối chiếu nguyên văn (mục 18).

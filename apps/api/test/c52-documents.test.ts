@@ -11,7 +11,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { createTestUser, signIn, type Session } from "./helpers";
-import { startTestApplication } from "./setup-database";
+import { startTestApplication, testStorage } from "./setup-database";
 
 let application: NestExpressApplication;
 let pool: Pool;
@@ -133,6 +133,17 @@ describe("KICHBAN_KIEMTHU_503: công văn đến", () => {
   it("vào sổ: số đến theo sổ, theo năm, bắt đầu từ 1, không trùng khi đồng thời; cần bản quét", async () => {
     expect((await registerIncoming(clerk, incomingData("Thiếu tệp"), [])).status).toBe(400);
     expect((await registerIncoming(outsider, incomingData("Không phải văn thư"))).status).toBe(403);
+    // Quá 5 tệp, tệp quá 20 MB: báo lỗi theo ô; tệp thứ hai sai loại thì tệp thứ nhất đã lưu bị xóa (không để tệp mồ côi).
+    const tooMany = await registerIncoming(clerk, incomingData("Quá nhiều tệp"), [pdf, pdf, pdf, pdf, pdf, pdf]);
+    expect(tooMany.status).toBe(400);
+    expect(tooMany.body.error.fields.file).toBeTruthy();
+    const tooLarge = await registerIncoming(clerk, incomingData("Tệp quá lớn"), [Buffer.concat([pdf, Buffer.alloc(20 * 1024 * 1024)])]);
+    expect(tooLarge.status).toBe(400);
+    expect(tooLarge.body.error.fields.file).toBe("Tệp vượt quá 20 MB.");
+    const storedBefore = testStorage.files.size;
+    const mixed = await registerIncoming(clerk, incomingData("Tệp thứ hai sai loại"), [pdf, Buffer.from("MZ khong phai pdf")]);
+    expect(mixed.status).toBe(400);
+    expect(testStorage.files.size).toBe(storedBefore);
     const first = await registerIncoming(clerk, incomingData("V/v rà soát hóa đơn điện tử quý 3"));
     expect(first.status).toBe(201);
     expect(first.body).toMatchObject({ incomingNo: 1, year, status: "registered", files: [{ fileName: "cong-van-0.pdf" }] });

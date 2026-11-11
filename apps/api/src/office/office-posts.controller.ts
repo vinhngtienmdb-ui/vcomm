@@ -1,9 +1,7 @@
 // API_191 Bảng tin nội bộ (CHUC_NANG_185; QUYTAC_NGHIEPVU_367).
 import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
-import { FileInterceptor } from "@nestjs/platform-express";
 import {
   officeCommentSchema,
-  officeFileMaximumBytes,
   officePostListQuerySchema,
   postRevokeSchema,
   savePostSchema,
@@ -21,6 +19,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { officeContentDisposition } from "./office.controller";
 import { OfficePostsService } from "./office-posts.service";
+import { OfficeFileUpload, OfficeFilesUpload } from "./office-upload";
 
 type Upload = { buffer: Buffer; size: number; originalname: string };
 
@@ -105,7 +104,7 @@ export class OfficePostsController {
   }
 
   @Post("posts/:id/files")
-  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: officeFileMaximumBytes * 2, files: 1 } }))
+  @UseInterceptors(OfficeFileUpload())
   async addFile(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @UploadedFile() file: Upload | undefined, @Headers("x-company-id") companyId?: string): Promise<PostResponse> {
     return this.posts.addFile(await this.actor(request, companyId), id, file);
   }

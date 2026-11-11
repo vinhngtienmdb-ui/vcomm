@@ -1,6 +1,5 @@
 // API_184 Công việc; API_185 Bình luận, tệp của công việc (CHUC_NANG_182).
 import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
-import { FileInterceptor } from "@nestjs/platform-express";
 import {
   assignWorkflowStepSchema,
   cancelWorkflowRunSchema,
@@ -15,7 +14,6 @@ import {
   type WorkflowTemplateResponse,
   createOfficeTaskSchema,
   officeCommentSchema,
-  officeFileMaximumBytes,
   officePeopleQuerySchema,
   officeTaskListQuerySchema,
   officeTaskProgressSchema,
@@ -37,6 +35,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { OfficeTasksService } from "./office-tasks.service";
 import { OfficeWorkflowsService } from "./office-workflows.service";
+import { OfficeFileUpload, OfficeFilesUpload } from "./office-upload";
 
 type UploadedOfficeFile = { buffer: Buffer; size: number; originalname: string };
 
@@ -143,7 +142,7 @@ export class OfficeController {
 
   // Tệp giữ trong bộ nhớ rồi ghi S3; giới hạn 20 MB kiểm ở dịch vụ để báo đúng thông báo, multer chỉ cắt tệp quá lớn bất thường.
   @Post("tasks/:id/files")
-  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: officeFileMaximumBytes * 2, files: 1 } }))
+  @UseInterceptors(OfficeFileUpload())
   async addFile(
     @Req() request: AuthenticatedRequest,
     @Param("id", UuidPipe) id: string,
