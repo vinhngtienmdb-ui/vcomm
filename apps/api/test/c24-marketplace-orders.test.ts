@@ -28,8 +28,9 @@ const webhookKey = "khoa-webhook-kiem-thu-0123456789";
 const retail: string = testIds.retailCompany;
 const password = "MatKhauNguoiMua@2026";
 const units: Record<string, string> = {};
-const products: Record<string, string> = {};
-const variants: Record<string, string> = {};
+type ProductKey = "cream" | "soap" | "noPrice" | "phone";
+const products: Record<ProductKey, string> = { cream: "", soap: "", noPrice: "", phone: "" };
+const variants: Record<ProductKey, string> = { cream: "", soap: "", noPrice: "", phone: "" };
 const http = () => request(application.getHttpServer());
 const call = (method: "get" | "post" | "put" | "delete", path: string, body?: object) => admin.call(method, path, { companyId: retail, ...(body ? { body } : {}) });
 
@@ -95,7 +96,7 @@ beforeAll(async () => {
   for (const row of (await pool.query("SELECT id, code FROM catalog.units")).rows) units[row.code] = row.id;
   const category = async (code: string, extra: Record<string, unknown> = {}) =>
     (await groupAdmin.call("post", "/catalog/categories", { companyId: retail, body: { code, nameVi: code, nameEn: code, ...extra } })).body.id;
-  const product = async (key: string, name: string, categoryId: string, extra: Record<string, unknown> = {}) => {
+  const product = async (key: ProductKey, name: string, categoryId: string, extra: Record<string, unknown> = {}) => {
     const created = await call("post", "/catalog/products", {
       categoryId,
       name,
