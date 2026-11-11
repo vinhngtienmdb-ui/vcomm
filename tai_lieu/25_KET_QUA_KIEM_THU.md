@@ -208,7 +208,7 @@
 - Kiểm tra bảo mật: thêm phụ thuộc docx 9.15.3 (MIT; fflate, nanoid MIT), phông Liberation Serif (SIL OFL 1.1); rà soát độc lập không thấy chèn mã truy vấn, chèn mã trang, đi đường dẫn; phân quyền: thiếu quyền 403, không thuộc bản ghi 404; tệp kiểm phần mở rộng, chữ ký đầu tệp, 20 MB, tối đa 5 tệp mỗi lần vào sổ.
 - Lỗi phát hiện và sửa trong công việc: việc con hiện cho người không tham gia (công ty khác); người khởi tạo sửa được việc của bước quy trình; sửa, thu hồi tin khi chọn công ty khác; sửa không gửi phiên bản ghi đè; rút công văn đi không khóa; vượt giới hạn ghim khi đồng thời; khóa chéo khi hủy phiên; tệp mồ côi khi giao dịch lỗi; bản chờ vào sổ liên công ty có thể thiếu tệp; tải tệp tốn bộ nhớ (commit `bed83a7`, `6cf71d3`).
 - Rủi ro còn mở: thể thức Nghị định 30/2020/NĐ-CP chưa đối chiếu nguyên văn Phụ lục I, III (người dùng chọn đối chiếu trước phát hành).
-- Kết luận cổng kiểm thử: Đạt, chờ người dùng nghiệm thu.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
 
 ## Lần kiểm thử 2026-11-12 – Phát hành 0.5.0
 
