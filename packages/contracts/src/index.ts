@@ -4881,3 +4881,4 @@ export interface MyContractsResponse {
   currency: string;
   contracts: ContractResponse[];
 }
+export * from "./recruitment";

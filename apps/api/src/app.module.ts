@@ -80,6 +80,10 @@ import { ContractRemindersService } from "./hr/contract-reminders.service";
 import { ContractsService } from "./hr/contracts.service";
 import { EmployeesService } from "./hr/employees.service";
 import { HrController } from "./hr/hr.controller";
+import { CandidatesService } from "./hr/candidates.service";
+import { CareersController } from "./hr/careers.controller";
+import { RecruitmentController } from "./hr/recruitment.controller";
+import { RecruitmentService } from "./hr/recruitment.service";
 import { WorkEventsService } from "./hr/work-events.service";
 import { DebtsService } from "./finance/debts.service";
 import { FundsService } from "./finance/funds.service";
@@ -131,7 +135,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, RecruitmentController, CareersController],
   providers: [
     AuthService,
     ActivationService,
@@ -151,6 +155,8 @@ import { UsersService } from "./users/users.service";
     WorkEventsService,
     ContractsService,
     ContractRemindersService,
+    RecruitmentService,
+    CandidatesService,
     CategoriesService,
     UnitsService,
     ProductsService,

@@ -18,6 +18,7 @@ import { AuditEventsService } from "../settings/audit-events.service";
 import { ExchangeRatesService } from "../settings/exchange-rates.service";
 import { ContractRemindersService } from "../hr/contract-reminders.service";
 import { WorkEventsService } from "../hr/work-events.service";
+import { RecruitmentService } from "../hr/recruitment.service";
 
 const queueName = "nen-tang";
 const einvoiceQueueName = "hoa-don-dien-tu";
@@ -42,6 +43,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const payments = application.get(MarketplacePaymentsService);
   const workEvents = application.get(WorkEventsService);
   const contractReminders = application.get(ContractRemindersService);
+  const recruitment = application.get(RecruitmentService);
   const queue = new Queue(queueName, { connection });
   await queue.upsertJobScheduler("approval-overdue", { every: 15 * 60_000 }, { name: "approval-overdue" });
   await queue.upsertJobScheduler("outbox-dispatch", { every: 10_000 }, { name: "outbox-dispatch" });
@@ -51,6 +53,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("inventory-stock-alerts", { pattern: "0 7 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "inventory-stock-alerts" });
   await queue.upsertJobScheduler("hr-work-events", { pattern: "5 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-work-events" });
   await queue.upsertJobScheduler("hr-contract-reminders", { pattern: "0 7 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-contract-reminders" });
+  // Tuyển dụng (CONG_VIEC_54): đóng tin quá hạn nộp lúc 0 giờ 10 phút.
+  await queue.upsertJobScheduler("hr-recruitment-daily", { pattern: "10 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-recruitment-daily" });
   // Tự hoàn tất đơn VComm hết hạn trả hàng (CONG_VIEC_24; QUYTAC_NGHIEPVU_162).
   await queue.upsertJobScheduler("marketplace-order-completion", { every: 60 * 60_000 }, { name: "marketplace-order-completion" });
   // Hủy đơn VComm quá hạn thanh toán, nhả hàng (CONG_VIEC_25; QUYTAC_NGHIEPVU_165).
@@ -80,6 +84,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "inventory-stock-alerts") return stockLevels.notifyAlerts();
       if (job.name === "hr-work-events") return workEvents.applyDue();
       if (job.name === "hr-contract-reminders") return contractReminders.sendDue();
+      if (job.name === "hr-recruitment-daily") return recruitment.runDaily();
       if (job.name === "marketplace-order-completion") return marketplaceOrders.completeDue();
       if (job.name === "marketplace-payment-expiry") return payments.expireDue();
       return null;
