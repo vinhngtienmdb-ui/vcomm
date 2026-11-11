@@ -28,7 +28,8 @@ export type PostingRole =
   | "service_revenue"
   | "commission_payable"
   | "personal_income_tax"
-  | "other_income";
+  | "other_income"
+  | "service_expense";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -55,6 +56,7 @@ export const postingRoles: PostingRole[] = [
   "commission_payable",
   "personal_income_tax",
   "other_income",
+  "service_expense",
 ];
 
 export interface DraftLine {
@@ -90,8 +92,17 @@ async function rounder(executor: Executor, companyId: string): Promise<(value: n
 // Phiếu kho đã ghi sổ (QUYTAC_NGHIEPVU_95): doanh thu, thuế khi xuất giao hàng; giá vốn theo giá trị ghi sổ kho; nhập mua theo giá đơn mua phần đạt kiểm tra chất lượng.
 export async function inventoryDraft(executor: Executor, documentId: string): Promise<DraftJournal | null> {
   const document = (
-    await executor.execute<{ type: string; company_id: string; partner_id: string | null; document_no: string | null; document_date: string; reason_code: string | null; reason: string | null }>(sql`
-    SELECT type, company_id, partner_id, document_no, document_date::text, reason_code, reason FROM inventory.documents WHERE id = ${documentId}`)
+    await executor.execute<{
+      type: string;
+      company_id: string;
+      partner_id: string | null;
+      document_no: string | null;
+      document_date: string;
+      reason_code: string | null;
+      reason: string | null;
+      is_service: boolean;
+    }>(sql`
+    SELECT type, company_id, partner_id, document_no, document_date::text, reason_code, reason, is_service FROM inventory.documents WHERE id = ${documentId}`)
   ).rows[0];
   if (!document || document.type === "transfer") return null;
   const values = (
@@ -115,19 +126,30 @@ export async function inventoryDraft(executor: Executor, documentId: string): Pr
   let lines: DraftLine[] = [];
   let description = document.reason ?? "";
   switch (document.type) {
+    // Phiếu dịch vụ tự lập khi đơn xác nhận (CONG_VIEC_43; QUYTAC_NGHIEPVU_276, 277): không giá vốn, không hàng tồn kho.
     case "sales_issue":
-      lines = [debit("receivable", saleNet + saleTax, partner), credit("revenue", saleNet), credit("vat_output", saleTax), debit("cogs", cost), credit("goods", cost)];
-      description = "Xuất bán hàng";
-      // Phí giao hàng của đơn VComm (CONG_VIEC_25; QUYTAC_NGHIEPVU_169): doanh thu cung cấp dịch vụ, thuế 10% đã gồm trong phí, ghi ở phiếu xuất đầu tiên của đơn.
-      lines.push(...(await shippingFeeLines(executor, documentId, money)));
+      if (!document.is_service) {
+        lines = [debit("receivable", saleNet + saleTax, partner), credit("revenue", saleNet), credit("vat_output", saleTax), debit("cogs", cost), credit("goods", cost)];
+        description = "Xuất bán hàng";
+        // Phí giao hàng của đơn VComm (CONG_VIEC_25; QUYTAC_NGHIEPVU_169): doanh thu cung cấp dịch vụ, thuế 10% đã gồm trong phí, ghi ở phiếu xuất đầu tiên của đơn.
+        lines.push(...(await shippingFeeLines(executor, documentId, money)));
+        break;
+      }
+      lines = [debit("receivable", saleNet + saleTax, partner), credit("service_revenue", saleNet), credit("vat_output", saleTax)];
+      description = "Cung cấp dịch vụ";
+      break;
+    case "purchase_receipt":
+      if (!document.is_service) {
+        lines = [debit("goods", purchaseNet), debit("vat_input", purchaseTax), credit("payable", purchaseNet + purchaseTax, partner)];
+        description = "Nhập mua hàng hóa";
+        break;
+      }
+      lines = [debit("service_expense", purchaseNet), debit("vat_input", purchaseTax), credit("payable", purchaseNet + purchaseTax, partner)];
+      description = "Nhận dịch vụ mua vào";
       break;
     case "sales_return":
       lines = [debit("sales_return", saleNet), debit("vat_output", saleTax), credit("receivable", saleNet + saleTax, partner), debit("goods", cost), credit("cogs", cost)];
       description = "Nhận hàng bán bị trả lại";
-      break;
-    case "purchase_receipt":
-      lines = [debit("goods", purchaseNet), debit("vat_input", purchaseTax), credit("payable", purchaseNet + purchaseTax, partner)];
-      description = "Nhập mua hàng hóa";
       break;
     case "purchase_return":
       lines = [debit("payable", purchaseNet + purchaseTax, partner), credit("goods", purchaseNet), credit("vat_input", purchaseTax)];

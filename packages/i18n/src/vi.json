@@ -1722,7 +1722,8 @@
     "internalReceivedQuantity": "Số thực nhận ({unit})",
     "shortageReason": "Lý do nhận thiếu",
     "confirmReceiveInternal": "Xác nhận nhận hàng",
-    "internalReceived": "Đã nhận hàng nội bộ."
+    "internalReceived": "Đã nhận hàng nội bộ.",
+    "serviceDocument": "Phiếu dịch vụ"
   },
   "stocktakes": {
     "title": "Kiểm kê",

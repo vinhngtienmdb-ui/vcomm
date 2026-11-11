@@ -1722,7 +1722,8 @@
     "internalReceivedQuantity": "Received ({unit})",
     "shortageReason": "Reason for shortage",
     "confirmReceiveInternal": "Confirm receipt",
-    "internalReceived": "Internal goods received."
+    "internalReceived": "Internal goods received.",
+    "serviceDocument": "Service document"
   },
   "stocktakes": {
     "title": "Stocktake",

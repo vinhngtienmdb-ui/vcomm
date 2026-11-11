@@ -28,7 +28,7 @@ import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { assertOpenPeriod } from "../accounting/period-guard";
-import { NumberSequencesService } from "../settings/number-sequences.service";
+import { NumberSequencesService, periodKey } from "../settings/number-sequences.service";
 import { searchText, trimDecimal } from "../catalog/catalog-context";
 import { inventoryAudit, inventoryPermissions } from "./inventory-context";
 import { ReservationsService } from "./reservations.service";
@@ -106,6 +106,7 @@ type DocumentRow = {
   source_id: string | null;
   counterpart_document_id: string | null;
   source_no: string | null;
+  is_service: boolean;
 };
 
 export type LineRow = {
@@ -563,6 +564,48 @@ export class StockDocumentsService implements OnModuleInit {
     for (const hook of this.postedHooks) await hook(transaction, documentId);
   }
 
+  // Phiếu dịch vụ do hệ thống tự lập khi đơn xác nhận (CONG_VIEC_43; QUYTAC_NGHIEPVU_275 đến 277): cấp số, ghi sổ ngay, không ghi thẻ kho, tồn, giữ hàng,
+  // giá vốn bằng 0; chạy các hook hạ nguồn (công nợ, hóa đơn điện tử, bút toán) như phiếu ghi sổ. Người dùng không lập tay được phiếu này.
+  async postServiceDocument(
+    transaction: Executor,
+    input: {
+      type: "sales_issue" | "purchase_receipt";
+      companyId: string;
+      warehouseId: string;
+      documentDate: string;
+      reason: string;
+      sourceType: string;
+      sourceId: string;
+      partnerId: string | null;
+      createdBy: string;
+      lines: { variantId: string; unitId: string; quantity: string; baseQuantity: string; unitCost: string | null; sourceLineId: string }[];
+    },
+  ): Promise<string> {
+    await assertOpenPeriod(transaction, input.companyId, input.documentDate);
+    const typeCode = documentTypeCodes[input.type];
+    // Công ty chưa cấu hình dãy số loại phiếu này: tạo mặc định trong cùng giao dịch (giống cấu hình khi gửi phiếu đầu tiên).
+    await transaction.execute(sql`
+      INSERT INTO core.number_sequences (company_id, document_type_code, period_key, prefix, reset_period, padding, next_value)
+      SELECT ${input.companyId}, ${typeCode}, ${periodKey("year", this.permissionService.today())}, ${prefixes[input.type]}, 'year', 6, 1
+      WHERE NOT EXISTS (SELECT 1 FROM core.number_sequences WHERE company_id = ${input.companyId} AND document_type_code = ${typeCode})
+      ON CONFLICT DO NOTHING`);
+    const documentNo = await this.sequences.next(input.companyId, typeCode, transaction);
+    const documentId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO inventory.documents (company_id, warehouse_id, type, document_no, document_date, reason_code, reason, source_type, source_id, partner_id, status, is_service,
+        created_by, submitted_at, posted_at)
+      VALUES (${input.companyId}, ${input.warehouseId}, ${input.type}, ${documentNo}, ${input.documentDate}::date, ${input.type === "sales_issue" ? "sale" : "purchase"}, ${input.reason},
+        ${input.sourceType}, ${input.sourceId}, ${input.partnerId}, 'posted', true, ${input.createdBy}, now(), now())
+      RETURNING id`)
+    ).rows[0]!.id;
+    for (const [index, line] of input.lines.entries())
+      await transaction.execute(sql`
+        INSERT INTO inventory.document_lines (document_id, line_no, variant_id, unit_id, quantity, base_quantity, unit_cost, cost_value, source_line_id)
+        VALUES (${documentId}, ${index + 1}, ${line.variantId}, ${line.unitId}, ${line.quantity}::numeric, ${line.baseQuantity}::numeric, ${line.unitCost}::numeric, 0, ${line.sourceLineId})`);
+    for (const hook of this.postedHooks) await hook(transaction, documentId);
+    return documentId;
+  }
+
   // Lô gợi ý xuất: hết hạn trước, không có hạn dùng thì nhập trước xuất trước (QUYTAC_NGHIEPVU_51).
   async lotSuggestions(actor: Actor, query: z.output<typeof lotSuggestionQuerySchema>): Promise<LotSuggestion[]> {
     await this.warehouses.operable(actor.userId, query.warehouseId, inventoryPermissions.manageDocuments);
@@ -858,6 +901,7 @@ export class StockDocumentsService implements OnModuleInit {
       totalValue: costVisible ? decimal(row.total_value) : null,
       createdByName: row.created_by_name,
       createdAt: new Date(row.created_at).toISOString(),
+      isService: row.is_service,
     };
   }
 
@@ -867,7 +911,7 @@ export class StockDocumentsService implements OnModuleInit {
         d.company_id, c.short_name AS company_name, d.reason_code, d.reason, d.note, d.status, d.approval_request_id, d.stocktake_id,
         (SELECT count(*)::int FROM inventory.document_lines l WHERE l.document_id = d.id) AS line_count,
         (SELECT sum(l.cost_value)::text FROM inventory.document_lines l WHERE l.document_id = d.id) AS total_value,
-        d.created_by, u.full_name AS created_by_name, d.created_at, d.version, d.partner_id, pt.name AS partner_name, d.source_id, d.counterpart_document_id,
+        d.created_by, u.full_name AS created_by_name, d.created_at, d.version, d.partner_id, pt.name AS partner_name, d.source_id, d.counterpart_document_id, d.is_service,
         CASE WHEN d.type = 'purchase_receipt' THEN (SELECT o.document_no FROM purchasing.orders o WHERE o.id = d.source_id)
              WHEN d.type = 'sales_issue' THEN (SELECT so.document_no FROM sales.orders so WHERE so.id = d.source_id)
              WHEN d.type IN ('purchase_return', 'sales_return') THEN (SELECT r.document_no FROM inventory.documents r WHERE r.id = d.source_id) END AS source_no

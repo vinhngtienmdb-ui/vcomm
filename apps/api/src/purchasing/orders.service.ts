@@ -72,6 +72,8 @@ export const returnedOnOrderLine = (lineId: SQL) => sql`coalesce((
 @Injectable()
 export class PurchaseOrdersService implements OnModuleInit {
   internalHooks: PurchasingInternalHooks | null = null;
+  // Gọi sau khi đơn mua sang đã duyệt, trong cùng giao dịch: nhận dịch vụ của đơn mua đối ứng nội bộ (CONG_VIEC_43; QUYTAC_NGHIEPVU_277).
+  readonly approvedHooks: ((transaction: Executor, orderId: string) => Promise<void>)[] = [];
 
   constructor(
     @Inject(DATABASE) private readonly database: Database,
@@ -98,6 +100,7 @@ export class PurchaseOrdersService implements OnModuleInit {
         if (status === "approved") {
           await this.refreshReceived(transaction, orderId);
           await this.internalHooks?.afterApproved(transaction, orderId);
+          for (const hook of this.approvedHooks) await hook(transaction, orderId);
         } else if (await this.isCounterpart(transaction, orderId)) {
           // Đơn mua đối ứng nội bộ không được duyệt thì đóng, đơn bán bên kia hủy theo (QUYTAC_NGHIEPVU_74).
           await this.endByCounterpart(transaction, orderId, "Đơn mua đối ứng không được duyệt", true);
@@ -433,7 +436,10 @@ export class PurchaseOrdersService implements OnModuleInit {
       { ...purchasingAudit(actor, "purchase_order"), action: "purchase_order.submit", entityId: row.id, afterData: { documentNo, amount: totals.total, approvalRequestId: requestId, exempt } },
       transaction,
     );
-    if (requestId === null) await this.internalHooks?.afterApproved(transaction, row.id);
+    if (requestId === null) {
+      await this.internalHooks?.afterApproved(transaction, row.id);
+      for (const hook of this.approvedHooks) await hook(transaction, row.id);
+    }
   }
 
   // Kiểm nhà cung cấp, kho, dòng hàng; dòng từ đề nghị mua không vượt số còn lại; dòng đã có phiếu nhập không đổi mặt hàng, đơn vị, không giảm dưới số đã nhận.

@@ -357,6 +357,7 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     commission_payable: "3388",
     personal_income_tax: "3335",
     other_income: "711",
+    service_expense: "6427",
   },
   TT133: {
     receivable: "131",
@@ -384,6 +385,7 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     commission_payable: "3388",
     personal_income_tax: "3335",
     other_income: "711",
+    service_expense: "6422",
   },
 };
 
@@ -409,8 +411,9 @@ export const roleDescriptions: Record<PostingRole, string> = {
   commission_expense: "Chi phí hoa hồng nhân viên bán hàng",
   collector_receivable: "Phải thu đơn vị thu hộ",
   collection_fee: "Phí thu hộ, phí cổng thanh toán",
-  service_revenue: "Doanh thu cung cấp dịch vụ (phí giao hàng)",
+  service_revenue: "Doanh thu cung cấp dịch vụ (phí giao hàng, đơn bán dịch vụ)",
   commission_payable: "Phải trả hoa hồng người giới thiệu, đội kinh doanh",
   personal_income_tax: "Thuế thu nhập cá nhân khấu trừ",
   other_income: "Thu nhập khác (phí rút tiền hoa hồng)",
+  service_expense: "Chi phí dịch vụ mua vào (giao dịch nội bộ dịch vụ)",
 };

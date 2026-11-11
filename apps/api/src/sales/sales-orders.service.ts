@@ -112,6 +112,8 @@ export const returnedOnOrderLine = (lineId: SQL) => sql`coalesce((
 @Injectable()
 export class SalesOrdersService implements OnModuleInit {
   internalHooks: SalesInternalHooks | null = null;
+  // Gọi sau khi đơn bán (đơn tay, đơn đối ứng nội bộ; không gồm đơn VComm) sang đã xác nhận, trong cùng giao dịch: lập phiếu xuất dịch vụ (CONG_VIEC_43; QUYTAC_NGHIEPVU_276).
+  readonly confirmedHooks: ((transaction: Executor, orderId: string) => Promise<void>)[] = [];
 
   constructor(
     @Inject(DATABASE) private readonly database: Database,
@@ -136,7 +138,7 @@ export class SalesOrdersService implements OnModuleInit {
           WHERE approval_request_id = ${String(event.payload.requestId)} AND status = 'pending' RETURNING id`);
         const orderId = updated.rows[0]?.id;
         if (!orderId) return;
-        if (next === "confirmed") await this.internalHooks?.afterConfirmed(transaction, orderId);
+        if (next === "confirmed") await this.afterConfirmed(transaction, orderId);
         else await this.reservations.closeBySource(transaction, salesOrderSource, orderId, "released");
         // Đơn đối ứng nội bộ không được duyệt thì hủy, đơn mua bên kia đóng theo (QUYTAC_NGHIEPVU_74).
         if (next !== "confirmed" && (await this.isCounterpart(transaction, orderId))) await this.endByCounterpart(transaction, orderId, "Đơn bán đối ứng không được duyệt", true);
@@ -451,7 +453,12 @@ export class SalesOrdersService implements OnModuleInit {
       { ...salesAudit(actor, "sales_order"), action: "sales_order.submit", entityId: id, afterData: { documentNo, exceptions, approvalRequestId: requestId } },
       transaction,
     );
-    if (requestId === null) await this.internalHooks?.afterConfirmed(transaction, id);
+    if (requestId === null) await this.afterConfirmed(transaction, id);
+  }
+
+  private async afterConfirmed(transaction: Executor, orderId: string): Promise<void> {
+    await this.internalHooks?.afterConfirmed(transaction, orderId);
+    for (const hook of this.confirmedHooks) await hook(transaction, orderId);
   }
 
   async withdraw(actor: Actor, id: string): Promise<SalesOrderResponse> {

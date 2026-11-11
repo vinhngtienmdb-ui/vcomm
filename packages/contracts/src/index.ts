@@ -1533,6 +1533,8 @@ export interface StockDocumentListItem {
   totalValue: string | null;
   createdByName: string;
   createdAt: string;
+  // CONG_VIEC_43: phiếu dịch vụ hệ thống tự lập, không ghi thẻ kho (QUYTAC_NGHIEPVU_275).
+  isService: boolean;
 }
 export interface StockDocumentLineResponse {
   id: string;

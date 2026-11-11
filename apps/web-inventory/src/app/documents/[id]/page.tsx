@@ -252,6 +252,8 @@ function DocumentForm({ type, document, onChanged }: { type: StockDocumentType; 
     <>
       <div className="tieu-de">
         <h1>{document?.documentNo ?? t(`new_${type}`)}</h1>
+        {/* Phiếu dịch vụ hệ thống tự lập, không ghi thẻ kho (QUYTAC_NGHIEPVU_275). */}
+        {document?.isService && <span className="nhan trung-tinh">{t("serviceDocument")}</span>}
         <Link className="nut phu" href="/documents">
           {t("backToList")}
         </Link>

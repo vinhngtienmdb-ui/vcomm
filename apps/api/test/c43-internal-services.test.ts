@@ -37,7 +37,14 @@ const purchaseBody = (variantId: string) => ({
   orderDate: today,
   lines: [{ variantId, unitId: units.CAI, quantity: "3", unitPrice: "1", vatRate: "0" }],
 });
-const stockDocuments = async () => Number((await pool.query("SELECT count(*)::int AS total FROM inventory.documents")).rows[0].total);
+const movements = async () => Number((await pool.query("SELECT count(*)::int AS total FROM inventory.movements")).rows[0].total);
+const documentsOf = async (sourceId: string) =>
+  (
+    await pool.query<{ id: string; company_id: string; type: string; status: string; is_service: boolean; counterpart_document_id: string | null }>(
+      "SELECT id, company_id, type, status, is_service, counterpart_document_id FROM inventory.documents WHERE source_id = $1",
+      [sourceId],
+    )
+  ).rows;
 const reservations = async (orderId: string) => Number((await pool.query("SELECT count(*)::int AS total FROM inventory.reservations WHERE source_id = $1", [orderId])).rows[0].total);
 
 beforeAll(async () => {
@@ -118,22 +125,38 @@ describe("TIEUCHI_NGHIEMTHU_277: giao dịch nội bộ chỉ dịch vụ", () =
     expect(purchase.body.error.fields).toEqual({ "lines.0.variantId": "Giao dịch nội bộ chỉ gồm mặt hàng dịch vụ." });
   });
 
-  it("KICHBAN_KIEMTHU_422: đơn bán dịch vụ sinh đơn mua đối ứng; bên mua xác nhận; không giữ hàng, không phiếu kho", async () => {
-    const documentsBefore = await stockDocuments();
+  it("KICHBAN_KIEMTHU_422: đơn bán dịch vụ sinh đơn mua đối ứng; bên mua xác nhận thì giao, nhận đủ bằng phiếu dịch vụ; không giữ hàng, không ghi thẻ kho, không phiếu nhập chờ", async () => {
+    const movementsBefore = await movements();
     const created = await sell("/sales/orders", salesBody(items.retailService!));
     expect(created.status, JSON.stringify(created.body)).toBe(201);
     const confirmed = (await sell(`/sales/orders/${created.body.id}/submit`, {})).body;
     expect(confirmed).toMatchObject({ status: "confirmed", isInternal: true, counterpart: { status: "counterpart_pending" } });
     expect(await reservations(created.body.id)).toBe(0);
+    // Chưa duyệt đơn mua đối ứng thì chưa giao (như luồng hàng hóa).
+    expect(await documentsOf(created.body.id)).toEqual([]);
     const purchase = (await pool.query<{ id: string; version: number }>("SELECT id, version FROM purchasing.orders WHERE counterpart_order_id = $1", [created.body.id])).rows[0]!;
     const pending = (await buy(`/purchasing/orders/${purchase.id}`)).body;
     expect(pending.lines).toEqual([expect.objectContaining({ variantId: items.tradingService, quantity: "2", unitPrice: "500000" })]);
     const approved = await buy(`/purchasing/orders/${purchase.id}/counterpart-confirm`, { warehouseId: buyerWarehouse, version: purchase.version });
-    expect(approved.body).toMatchObject({ status: "approved" });
-    // Kho không có việc xuất giao cho đơn chỉ dịch vụ.
-    const open = (await groupAdmin.call("get", "/inventory/sales-orders", { companyId: retail })).body as { id: string }[];
-    expect(open.map((order) => order.id)).not.toContain(created.body.id);
-    expect(await stockDocuments()).toBe(documentsBefore);
+    // Bên mua xác nhận: đơn mua nhận đủ, đơn bán giao đủ.
+    expect(approved.body).toMatchObject({ status: "received" });
+    expect((await sell(`/sales/orders/${created.body.id}`)).body.status).toBe("delivered");
+    expect(await documentsOf(created.body.id)).toEqual([expect.objectContaining({ company_id: retail, type: "sales_issue", status: "posted", is_service: true, counterpart_document_id: null })]);
+    expect(await documentsOf(purchase.id)).toEqual([expect.objectContaining({ company_id: trading, type: "purchase_receipt", status: "posted", is_service: true, counterpart_document_id: null })]);
+    // Không ghi thẻ kho, không phiếu nhập chờ nhận, không biên bản chênh lệch.
+    expect(await movements()).toBe(movementsBefore);
+    expect((await pool.query("SELECT count(*)::int AS total FROM inventory.internal_discrepancies")).rows[0].total).toBe(0);
+    // Công nợ hai bên: phải thu ở công ty bán, phải trả ở công ty mua (2 × 500.000, thuế 10%).
+    const debts = (
+      await pool.query("SELECT company_id, side, amount::text FROM finance.debt_items WHERE source_id IN (SELECT id FROM inventory.documents WHERE source_id IN ($1, $2)) ORDER BY side", [
+        created.body.id,
+        purchase.id,
+      ])
+    ).rows;
+    expect(debts).toEqual([
+      { company_id: trading, side: "payable", amount: "1100000.0000" },
+      { company_id: retail, side: "receivable", amount: "1100000.0000" },
+    ]);
   });
 
   it("KICHBAN_KIEMTHU_422: đơn mua dịch vụ sinh đơn bán đối ứng; bên bán xác nhận không giữ hàng", async () => {
@@ -142,10 +165,31 @@ describe("TIEUCHI_NGHIEMTHU_277: giao dịch nội bộ chỉ dịch vụ", () =
     expect((await buy(`/purchasing/orders/${created.body.id}/submit`, {})).body.status).toBe("approved");
     const sales = (await pool.query<{ id: string; version: number }>("SELECT id, version FROM sales.orders WHERE counterpart_order_id = $1", [created.body.id])).rows[0]!;
     const confirmed = await sell(`/sales/orders/${sales.id}/counterpart-confirm`, { warehouseId: sellerWarehouse, version: sales.version });
-    expect(confirmed.body).toMatchObject({ status: "confirmed" });
+    // Đơn mua khởi tạo đã duyệt: bên bán xác nhận thì giao, nhận đủ ngay.
+    expect(confirmed.body).toMatchObject({ status: "delivered" });
     expect(await reservations(sales.id)).toBe(0);
+    expect((await buy(`/purchasing/orders/${created.body.id}`)).body.status).toBe("received");
   });
 
-  // Đơn mua đối ứng chỉ dịch vụ khi bên mua xác nhận coi là đã nhận đủ, đơn bán coi là đã giao đủ (QUYTAC_NGHIEPVU_276, 277): chưa làm, chờ người dùng chọn phương án (báo cáo lát L2).
-  it.todo("KICHBAN_KIEMTHU_422: bên mua xác nhận đơn mua đối ứng chỉ dịch vụ thì coi là đã nhận đủ, có công nợ phải trả");
+  it("KICHBAN_KIEMTHU_422: phiếu nhập dịch vụ hạch toán Nợ 6427 / Nợ 1331 / Có 331 (TT99)", async () => {
+    expect((await groupAdmin.call("post", "/finance/ledger/setup", { companyId: trading })).status).toBe(201);
+    const created = await buy("/purchasing/orders", purchaseBody(items.tradingService!));
+    await buy(`/purchasing/orders/${created.body.id}/submit`, {});
+    const sales = (await pool.query<{ id: string; version: number }>("SELECT id, version FROM sales.orders WHERE counterpart_order_id = $1", [created.body.id])).rows[0]!;
+    expect((await sell(`/sales/orders/${sales.id}/counterpart-confirm`, { warehouseId: sellerWarehouse, version: sales.version })).body.status).toBe("delivered");
+    const receipt = (await documentsOf(created.body.id))[0]!;
+    // 3 × 500.000 chưa thuế, thuế 10%.
+    const journal = (
+      await pool.query<{ code: string; debit: string; credit: string }>(
+        `SELECT a.code, jl.debit::text, jl.credit::text FROM accounting.journals j JOIN accounting.journal_lines jl ON jl.journal_id = j.id JOIN accounting.accounts a ON a.id = jl.account_id
+         WHERE j.source_type = 'inventory_document' AND j.source_id = $1 ORDER BY jl.line_no`,
+        [receipt.id],
+      )
+    ).rows;
+    expect(journal).toEqual([
+      { code: "6427", debit: "1500000.0000", credit: "0.0000" },
+      { code: "1331", debit: "150000.0000", credit: "0.0000" },
+      { code: "331", debit: "0.0000", credit: "1650000.0000" },
+    ]);
+  });
 });

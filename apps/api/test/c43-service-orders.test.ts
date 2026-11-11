@@ -107,7 +107,7 @@ describe("TIEUCHI_NGHIEMTHU_276: sản phẩm dịch vụ, đơn bán tay chỉ 
     expect(changed.body.error.message).toBe("Sản phẩm đã phát sinh tồn kho, chứng từ kho; không đổi loại được.");
   });
 
-  it("KICHBAN_KIEMTHU_421: đơn bán tay có hàng hóa bị từ chối khi tắt cài đặt, được khi bật; đơn chỉ dịch vụ lập, gửi không giữ hàng", async () => {
+  it("KICHBAN_KIEMTHU_421: đơn bán tay có hàng hóa bị từ chối khi tắt cài đặt, được khi bật; đơn chỉ dịch vụ lập, gửi không giữ hàng, giao đủ", async () => {
     const goods = await as(accountant, "post", "/sales/orders", orderBody([{ variantId: store.variants.cream, quantity: "1" }]));
     expect(goods.status).toBe(409);
     expect(goods.body.error.message).toBe("Đơn bán lập tay chỉ gồm mặt hàng dịch vụ. Hàng hóa bán qua sàn VComm.");
@@ -115,7 +115,8 @@ describe("TIEUCHI_NGHIEMTHU_276: sản phẩm dịch vụ, đơn bán tay chỉ 
     expect(service.status, JSON.stringify(service.body)).toBe(201);
     const submitted = await as(accountant, "post", `/sales/orders/${service.body.id}/submit`);
     expect(submitted.status, JSON.stringify(submitted.body)).toBe(201);
-    expect(submitted.body.status).toBe("confirmed");
+    // Đơn chỉ dịch vụ xác nhận là giao đủ ngay (lát L3).
+    expect(submitted.body.status).toBe("delivered");
     expect((await pool.query("SELECT count(*)::int AS total FROM inventory.reservations WHERE source_id = $1", [service.body.id])).rows[0].total).toBe(0);
     // Bật cài đặt: đơn có hàng hóa lập được.
     const settings = (await store.call("get", "/sales/settings")).body;
@@ -145,6 +146,62 @@ describe("TIEUCHI_NGHIEMTHU_276: sản phẩm dịch vụ, đơn bán tay chỉ 
     expect((await pool.query("SELECT count(*)::int AS total FROM inventory.reservations WHERE source_id = $1 AND status = 'active'", [order.id])).rows[0].total).toBe(1);
   });
 
-  // Đơn chỉ dịch vụ khi xác nhận coi là đã giao đủ, có công nợ, hóa đơn, bút toán (QUYTAC_NGHIEPVU_276): chưa làm, chờ người dùng chọn phương án (báo cáo lát L2).
-  it.todo("KICHBAN_KIEMTHU_421: đơn chỉ dịch vụ xác nhận là đã giao, có công nợ phải thu, hóa đơn điện tử, bút toán doanh thu");
+  it("KICHBAN_KIEMTHU_421: đơn chỉ dịch vụ xác nhận: phiếu xuất dịch vụ ghi sổ, không đổi tồn, giao đủ; công nợ phải thu, hóa đơn điện tử, bút toán Nợ 131 / Có 511 / Có 33311", async () => {
+    // Khởi tạo kế toán (TT99), bật hóa đơn điện tử giả lập.
+    expect((await store.call("post", "/finance/ledger/setup")).status).toBe(201);
+    const year = Number(store.today.slice(0, 4));
+    const einvoice = await store.call("put", "/finance/einvoice-settings", {
+      enabled: true,
+      startDate: "2026-01-01",
+      provider: "simulator",
+      environment: "test",
+      withTaxCode: true,
+      templateCode: "1",
+      appId: null,
+      taxCode: null,
+      username: null,
+      simulation: "normal",
+      series: [{ year, series: `C${store.today.slice(2, 4)}TAA` }],
+      version: 0,
+    });
+    expect(einvoice.status, JSON.stringify(einvoice.body)).toBe(200);
+    const movementsBefore = Number((await pool.query("SELECT count(*)::int AS total FROM inventory.movements")).rows[0].total);
+    // 3 lần × 1.100.000 gồm thuế (1.000.000 chưa thuế, thuế 10%).
+    const created = await as(accountant, "post", "/sales/orders", orderBody([{ variantId: serviceProduct.variantId, quantity: "3" }]));
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    const order = (await as(accountant, "post", `/sales/orders/${created.body.id}/submit`)).body;
+    expect(order).toMatchObject({ status: "delivered" });
+    expect(order.lines[0]).toMatchObject({ deliveredBaseQuantity: "3" });
+    const documents = (
+      await pool.query<{ id: string; type: string; status: string; is_service: boolean; document_no: string }>(
+        "SELECT id, type, status, is_service, document_no FROM inventory.documents WHERE source_id = $1",
+        [order.id],
+      )
+    ).rows;
+    expect(documents).toEqual([expect.objectContaining({ type: "sales_issue", status: "posted", is_service: true, document_no: expect.stringMatching(/^XBH/) })]);
+    const documentId = documents[0]!.id;
+    // Không ghi thẻ kho, không giá vốn.
+    expect(Number((await pool.query("SELECT count(*)::int AS total FROM inventory.movements")).rows[0].total)).toBe(movementsBefore);
+    expect((await pool.query("SELECT cost_value::text FROM inventory.document_lines WHERE document_id = $1", [documentId])).rows).toEqual([{ cost_value: "0.0000" }]);
+    // Công nợ phải thu, hạn theo hồ sơ khách 15 ngày.
+    const debt = (await pool.query("SELECT side, direction, amount::text, open_amount::text FROM finance.debt_items WHERE source_id = $1", [documentId])).rows;
+    expect(debt).toEqual([{ side: "receivable", direction: "debit", amount: "3300000.0000", open_amount: "3300000.0000" }]);
+    // Hóa đơn điện tử chờ gửi.
+    expect((await pool.query("SELECT kind, total_amount::text FROM finance.einvoices WHERE source_document_id = $1", [documentId])).rows).toEqual([{ kind: "original", total_amount: "3300000.0000" }]);
+    // Bút toán Nợ 131 / Có 511 / Có 33311, không giá vốn, không hàng hóa.
+    const journal = (
+      await pool.query<{ code: string; debit: string; credit: string }>(
+        `SELECT a.code, jl.debit::text, jl.credit::text FROM accounting.journals j JOIN accounting.journal_lines jl ON jl.journal_id = j.id JOIN accounting.accounts a ON a.id = jl.account_id
+         WHERE j.source_type = 'inventory_document' AND j.source_id = $1 ORDER BY jl.line_no`,
+        [documentId],
+      )
+    ).rows;
+    expect(journal).toEqual([
+      { code: "131", debit: "3300000.0000", credit: "0.0000" },
+      { code: "511", debit: "0.0000", credit: "3000000.0000" },
+      { code: "33311", debit: "0.0000", credit: "300000.0000" },
+    ]);
+    // Đơn đã giao đủ không hủy được (luật cũ); kho không lập tay phiếu cho dịch vụ.
+    expect((await as(accountant, "post", `/sales/orders/${order.id}/cancel`, { version: order.version })).status).toBe(409);
+  });
 });
