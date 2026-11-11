@@ -1367,7 +1367,15 @@
     "testPhoneHint": "Uses the registered OTP template (Zalo first, then SMS); message fees apply.",
     "testSent": "Test message sent. Check the phone and the delivery log below.",
     "testFailed": "Test message failed. See the error in the delivery log below.",
-    "purpose_test": "Test message"
+    "purpose_test": "Test message",
+    "key_esms_template_station_order_ready": "ZNS template: order ready at station",
+    "key_esms_template_station_hold_reminder": "ZNS template: station hold ending soon",
+    "key_esms_template_station_order_shipping": "ZNS template: station delivering order",
+    "key_esms_template_station_order_cancelled": "ZNS template: station order cancelled",
+    "purpose_station_order_ready": "Order ready at station",
+    "purpose_station_hold_reminder": "Station hold reminder",
+    "purpose_station_order_shipping": "Station delivering order",
+    "purpose_station_order_cancelled": "Station order cancelled"
   },
   "proposals": {
     "title": "Proposals",

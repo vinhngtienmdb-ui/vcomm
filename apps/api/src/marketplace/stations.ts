@@ -3,6 +3,7 @@ import type { FulfillmentMode, StationOption } from "contracts";
 import { sql } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
 import type { Database } from "../database/database.module";
+import { notify } from "../common/notifications";
 import { availableQuantities } from "./store.service";
 
 type Executor = Pick<Database, "execute">;
@@ -122,4 +123,26 @@ export function neededQuantities(lines: { variantId: string; quantity: string }[
   const needed = new Map<string, number>();
   for (const line of lines) needed.set(line.variantId, (needed.get(line.variantId) ?? 0) + Number(line.quantity));
   return needed;
+}
+
+// Báo nhân viên xử lý đơn trực tuyến của trạm (quyền retail.o2o ở chi nhánh của trạm hoặc cả công ty) khi có đơn mới (QUYTAC_NGHIEPVU_429).
+export async function notifyStationStaff(executor: Executor, input: { storeId: string; orderId: string; companyId: string; title: string }): Promise<void> {
+  const staff = await executor.execute<{ user_id: string }>(sql`
+    SELECT DISTINCT a.user_id FROM retail.stores s
+    JOIN core.user_role_assignments a ON a.company_id = s.company_id AND (a.branch_id = s.branch_id OR a.scope_type = 'company')
+    JOIN core.role_permissions rp ON rp.role_id = a.role_id AND rp.permission_code = 'retail.o2o'
+    JOIN core.users u ON u.id = a.user_id AND u.status = 'active'
+    WHERE s.id = ${input.storeId} AND a.valid_from <= (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date
+      AND (a.valid_to IS NULL OR a.valid_to >= (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date)`);
+  await notify(
+    executor,
+    staff.rows.map((row) => ({
+      userId: row.user_id,
+      companyId: input.companyId,
+      kind: "station_order.new",
+      title: input.title,
+      link: `/retail/online-orders/${input.orderId}`,
+      payload: { orderId: input.orderId },
+    })),
+  );
 }

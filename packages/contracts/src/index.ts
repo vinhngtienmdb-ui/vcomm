@@ -807,6 +807,11 @@ export const integrationSettingKeys = [
   "esms.template.approval_assigned",
   "esms.template.approval_reminder",
   "esms.template.approval_completed",
+  // CONG_VIEC_57: tin Zalo ZNS của đơn trạm giao hàng.
+  "esms.template.station_order_ready",
+  "esms.template.station_hold_reminder",
+  "esms.template.station_order_shipping",
+  "esms.template.station_order_cancelled",
 ] as const;
 export type IntegrationSettingKey = (typeof integrationSettingKeys)[number];
 export const secretIntegrationKeys: readonly IntegrationSettingKey[] = ["google.client_secret", "microsoft.client_secret", "zalo.app_secret", "esms.api_key", "esms.secret_key"];

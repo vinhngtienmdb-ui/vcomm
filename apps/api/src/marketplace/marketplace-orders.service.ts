@@ -37,7 +37,7 @@ import { LoyaltyAccountsService } from "../loyalty/accounts.service";
 import { LoyaltyPostingsService } from "../loyalty/postings.service";
 import { LoyaltyLedgerService, pointsFor, quoteRedemption, releaseSalePoints } from "../loyalty/ledger.service";
 import { phaseOn } from "../loyalty/program.service";
-import { chosenStation, neededQuantities, stationById, stationFee, stationOptions, type Station, type StationMode, stationView } from "./stations";
+import { chosenStation, neededQuantities, notifyStationStaff, stationById, stationFee, stationOptions, type Station, type StationMode, stationView } from "./stations";
 import { chargeWallet, refundOrderToWallet, returnWalletPart, shoppingWalletState, walletAmountFor } from "./shopping-wallet";
 
 type Executor = Pick<Database, "execute" | "insert">;
@@ -428,6 +428,8 @@ export class MarketplaceOrdersService {
           ${mode}, ${station?.id ?? null}, ${warehouseId})`);
       await chargeWallet(transaction, userId, id, walletAmount);
       await this.event(transaction, id, status, null, userId);
+      // Báo nhân viên trạm có đơn mới (CONG_VIEC_57; QUYTAC_NGHIEPVU_429).
+      if (station) await notifyStationStaff(transaction, { storeId: station.id, orderId: id, companyId: context.companyId, title: `Đơn trực tuyến mới ${sale.documentNo} tại ${station.name}` });
       // Chốt người hưởng, mức hoa hồng lúc đặt (CONG_VIEC_26; QUYTAC_NGHIEPVU_201); người mở nhóm là cộng tác viên nhận phần cộng tác viên (QUYTAC_NGHIEPVU_326).
       await this.commissions.snapshot(transaction, {
         orderId: id,
@@ -548,7 +550,7 @@ export class MarketplaceOrdersService {
   }
 
   // Hủy đơn (QUYTAC_NGHIEPVU_159): người mua hoặc nhân viên VComm, khi chưa có đơn vị vận chuyển lấy hàng.
-  private async cancelWithin(actor: Actor, orderId: string, version: number, reason: string, kind: "buyer" | "staff", buyerUserId: string | null): Promise<void> {
+  private async cancelWithin(actor: Actor, orderId: string, version: number, reason: string, kind: "buyer" | "staff" | "system", buyerUserId: string | null): Promise<void> {
     await this.database.transaction(async (transaction) => {
       const locked = (
         await transaction.execute<{ status: MarketplaceOrderStatus; sales_order_id: string; buyer_user_id: string; version: number; company_id: string; group_buy_id: string | null }>(sql`
@@ -584,8 +586,8 @@ export class MarketplaceOrdersService {
   }
 
   // Nhân viên trạm hủy đơn của trạm (CONG_VIEC_57; QUYTAC_NGHIEPVU_424); quyền, phạm vi trạm kiểm ở mini app Bán lẻ.
-  async stationCancel(actor: Actor, orderId: string, version: number, reason: string): Promise<void> {
-    await this.cancelWithin(actor, orderId, version, reason, "staff", null);
+  async stationCancel(actor: Actor, orderId: string, version: number, reason: string, kind: "staff" | "system" = "staff"): Promise<void> {
+    await this.cancelWithin(actor, orderId, version, reason, kind, null);
   }
 
   async adminCancel(actor: BuyerAdminActor, orderId: string, version: number, reason: string): Promise<MarketplaceOrderDetail> {

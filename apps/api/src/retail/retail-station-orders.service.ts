@@ -21,6 +21,7 @@ import { AuditService } from "../common/audit.service";
 import { CLOCK, type Clock } from "../common/clock";
 import { DATABASE, type Database } from "../database/database.module";
 import { SalesDeliveriesService } from "../inventory/sales-deliveries.service";
+import { notify } from "../common/notifications";
 import { MarketplaceOrdersService } from "../marketplace/marketplace-orders.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
@@ -83,6 +84,8 @@ const openStatuses = ["awaiting_shipment", "ready_for_pickup", "shipping"];
 const maximumWrongCodes = 5;
 const codeLockMinutes = 15;
 const maximumDeliveryAttempts = 3;
+const systemClient = { ip: null, userAgent: "system:station-hold", requestId: null };
+type StationNotificationKind = "station_order.ready" | "station_order.reminder" | "station_order.shipping" | "station_order.cancelled";
 const localPhone = (phone: string | null) => (phone ? phone.replace(/^\+84/, "0") : "");
 
 @Injectable()
@@ -238,6 +241,7 @@ export class RetailStationOrdersService {
         FROM retail.stores s WHERE s.id = ${row.store_id}`);
       await transaction.execute(sql`UPDATE marketplace.orders SET status = 'ready_for_pickup', version = version + 1 WHERE id = ${id}`);
       await this.orders.event(transaction, id, "ready_for_pickup", row.store_name, actor.userId);
+      await this.notifyBuyer(transaction, id, "station_order.ready");
       // Mã nhận hàng không ghi vào nhật ký thao tác (QUYTAC_NGHIEPVU_425).
       await this.auditService.record({ ...retailAudit(actor, "station_order"), action: "station_order.ready", entityId: id, afterData: { storeId: row.store_id } }, transaction);
     });
@@ -400,6 +404,7 @@ export class RetailStationOrdersService {
       await transaction.execute(sql`UPDATE retail.station_orders SET courier_user_id = ${actor.userId} WHERE order_id = ${id}`);
       await transaction.execute(sql`UPDATE marketplace.orders SET status = 'shipping', version = version + 1 WHERE id = ${id}`);
       await this.orders.event(transaction, id, "shipping", row.store_name, actor.userId);
+      await this.notifyBuyer(transaction, id, "station_order.shipping");
       await this.auditService.record({ ...retailAudit(actor, "station_order"), action: "station_order.dispatch", entityId: id }, transaction);
     });
     return this.detail(actor, id);
@@ -454,7 +459,10 @@ export class RetailStationOrdersService {
       );
       return { cancel: input.reason === "refused" || attempts >= maximumDeliveryAttempts, version };
     });
-    if (outcome.cancel) await this.orders.stationCancel(actor, id, outcome.version, `Giao không thành công: ${note}`);
+    if (outcome.cancel) {
+      await this.orders.stationCancel(actor, id, outcome.version, `Giao không thành công: ${note}`);
+      await this.notifyBuyer(this.database, id, "station_order.cancelled");
+    }
     return this.detail(actor, id);
   }
 
@@ -483,5 +491,62 @@ export class RetailStationOrdersService {
       available: details.filter((order) => order.status === "ready_for_pickup"),
       mine: details.filter((order) => order.status === "shipping"),
     };
+  }
+
+  // Thông báo cho người mua trong ứng dụng; bộ gửi Zalo ZNS gửi theo loại thông báo. Không chứa mã nhận hàng (QUYTAC_NGHIEPVU_425, 429).
+  private async notifyBuyer(executor: Pick<Database, "execute">, orderId: string, kind: StationNotificationKind): Promise<void> {
+    const row = (
+      await executor.execute<{
+        buyer_user_id: string;
+        company_id: string;
+        document_no: string;
+        store_name: string;
+        address: string;
+        opening_hours: string;
+        hold_until: string | null;
+        cancel_reason: string | null;
+      }>(sql`
+      SELECT m.buyer_user_id, m.company_id, so.document_no, s.display_name AS store_name, s.street_address || ', ' || w.name || ', ' || p.name AS address, s.opening_hours,
+        to_char(st.hold_until AT TIME ZONE 'Asia/Ho_Chi_Minh', 'HH24:MI DD/MM/YYYY') AS hold_until, m.cancel_reason
+      FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id JOIN retail.stores s ON s.id = m.station_id
+      JOIN marketplace.wards w ON w.code = s.ward_code JOIN marketplace.provinces p ON p.code = s.province_code
+      LEFT JOIN retail.station_orders st ON st.order_id = m.id WHERE m.id = ${orderId}`)
+    ).rows[0];
+    if (!row) return;
+    const titles: Record<StationNotificationKind, string> = {
+      "station_order.ready": `Đơn ${row.document_no} đã sẵn sàng tại ${row.store_name} (${row.address}, ${row.opening_hours}). Hạn giữ hàng đến ${row.hold_until ?? ""}.`,
+      "station_order.reminder": `Đơn ${row.document_no} sẽ hết hạn giữ lúc ${row.hold_until ?? ""}. Mời bạn đến ${row.store_name} nhận hàng.`,
+      "station_order.shipping": `Đơn ${row.document_no} đang được ${row.store_name} giao tới bạn.`,
+      "station_order.cancelled": `Đơn ${row.document_no} đã hủy: ${row.cancel_reason ?? ""}.`,
+    };
+    await notify(executor, [{ userId: row.buyer_user_id, companyId: row.company_id, kind, title: titles[kind], payload: { orderId } }]);
+  }
+
+  // Việc nền mỗi giờ (QUYTAC_NGHIEPVU_428): nhắc một lần khi còn 24 giờ tới hạn giữ; quá hạn giữ thì hệ thống hủy đơn Sẵn sàng nhận. Đơn Đang giao không tự hủy.
+  async expireDue(limit = 500): Promise<{ reminded: number; cancelled: number }> {
+    const remind = await this.database.execute<{ order_id: string }>(sql`
+      UPDATE retail.station_orders st SET reminded_at = now()
+      FROM marketplace.orders m
+      WHERE m.id = st.order_id AND m.status = 'ready_for_pickup' AND st.is_active AND st.reminded_at IS NULL
+        AND st.hold_until > now() AND st.hold_until <= now() + interval '24 hours'
+        AND st.order_id IN (SELECT order_id FROM retail.station_orders WHERE is_active AND reminded_at IS NULL ORDER BY hold_until LIMIT ${limit})
+      RETURNING st.order_id`);
+    for (const row of remind.rows) await this.notifyBuyer(this.database, row.order_id, "station_order.reminder");
+    const due = await this.database.execute<{ order_id: string; company_id: string; ready_by: string; version: number }>(sql`
+      SELECT st.order_id, st.company_id, st.ready_by, m.version FROM retail.station_orders st JOIN marketplace.orders m ON m.id = st.order_id
+      WHERE st.is_active AND m.status = 'ready_for_pickup' AND st.hold_until < now() ORDER BY st.hold_until LIMIT ${limit}`);
+    let cancelled = 0;
+    for (const row of due.rows) {
+      // Hệ thống hủy thay người đã báo sẵn sàng (như chứng từ hệ thống của đơn VComm).
+      const system: Actor = { userId: row.ready_by, companyId: row.company_id, client: systemClient };
+      try {
+        await this.orders.stationCancel(system, row.order_id, row.version, "Quá hạn giữ hàng tại trạm", "system");
+        await this.notifyBuyer(this.database, row.order_id, "station_order.cancelled");
+        cancelled += 1;
+      } catch {
+        // Đơn vừa đổi trạng thái (khách đến nhận, nhân viên hủy): lần chạy sau xét lại.
+      }
+    }
+    return { reminded: remind.rows.length, cancelled };
   }
 }

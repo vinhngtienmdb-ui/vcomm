@@ -4095,6 +4095,39 @@ Dữ liệu chung: công ty VCR; phòng ban có trưởng phòng; tài khoản Q
 - Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-delivery.test.ts`
 - Lát: L4 (CONG_VIEC_57)
 
+### KICHBAN_KIEMTHU_569: Thông báo đơn mới, đơn sẵn sàng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_399
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng
+- Vai trò thực hiện: Khách mua; Cửa hàng trưởng của trạm
+- Điều kiện ban đầu và dữ liệu: Dữ liệu của KICHBAN_KIEMTHU_561.
+- Các bước: Khách đặt nhận tại trạm; cửa hàng trưởng bấm Đã soạn xong.
+- Kết quả mong đợi: Cửa hàng trưởng có thông báo "Đơn trực tuyến mới …"; khách có thông báo sẵn sàng gồm tên, địa chỉ, giờ mở cửa của trạm, hạn giữ, không có mã nhận hàng; có sự kiện outbox để gửi Zalo ZNS.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-hold.test.ts`
+- Lát: L5 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_570: Nhắc, hủy khi hết hạn giữ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_398
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Hệ thống (việc nền)
+- Điều kiện ban đầu và dữ liệu: Đơn nhận tại trạm Sẵn sàng nhận; đơn trạm giao Đang giao.
+- Các bước: (1) Hạn giữ còn 30 giờ: chạy việc nền. (2) Còn 10 giờ: chạy hai lần. (3) Hạn giữ hai đơn đã qua: chạy việc nền.
+- Kết quả mong đợi: Bước 1: không nhắc, không hủy. Bước 2: nhắc một lần. Bước 3: đơn nhận tại trạm Đã hủy (người hủy hệ thống, lý do "Quá hạn giữ hàng tại trạm"), nhả giữ hàng, khách có thông báo hủy; đơn Đang giao giữ nguyên.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-hold.test.ts`
+- Lát: L5 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_571: Zalo ZNS của đơn trạm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_399
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, sai
+- Vai trò thực hiện: Quản trị tập đoàn; Khách mua
+- Điều kiện ban đầu và dữ liệu: Bộ gửi tin giả lập.
+- Các bước: (1) Chưa cài mẫu: đơn sẵn sàng, đẩy outbox. (2) Cài khóa eSMS, mẫu `station_order_ready` = 571: đơn sẵn sàng, đẩy outbox.
+- Kết quả mong đợi: Bước 1: không gửi. Bước 2: một tin mẫu 571 tới số điện thoại khách, có tên trạm, giờ mở cửa, không có mã nhận hàng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-hold.test.ts`
+- Lát: L5 (CONG_VIEC_57)
+
 ### KICHBAN_KIEMTHU_434: Lập hồ sơ, mã tự cấp, kiểm dữ liệu, liên kết tài khoản
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_287
 - Chức năng: CHUC_NANG_162

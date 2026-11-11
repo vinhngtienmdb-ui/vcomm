@@ -1367,7 +1367,15 @@
     "testPhoneHint": "Gửi theo mẫu mã OTP đã đăng ký (Zalo trước, SMS sau); có tính phí tin.",
     "testSent": "Đã gửi tin thử. Kiểm tra điện thoại và nhật ký gửi tin bên dưới.",
     "testFailed": "Gửi tin thử thất bại. Xem lỗi trong nhật ký gửi tin bên dưới.",
-    "purpose_test": "Tin thử"
+    "purpose_test": "Tin thử",
+    "key_esms_template_station_order_ready": "Mã mẫu ZNS: đơn sẵn sàng nhận tại trạm",
+    "key_esms_template_station_hold_reminder": "Mã mẫu ZNS: nhắc sắp hết hạn giữ hàng tại trạm",
+    "key_esms_template_station_order_shipping": "Mã mẫu ZNS: trạm đang giao đơn",
+    "key_esms_template_station_order_cancelled": "Mã mẫu ZNS: đơn của trạm đã hủy",
+    "purpose_station_order_ready": "Đơn sẵn sàng nhận tại trạm",
+    "purpose_station_hold_reminder": "Nhắc hết hạn giữ hàng tại trạm",
+    "purpose_station_order_shipping": "Trạm đang giao đơn",
+    "purpose_station_order_cancelled": "Đơn của trạm đã hủy"
   },
   "proposals": {
     "title": "Đề xuất",
