@@ -78,6 +78,7 @@ Vai trò hệ thống mới: Thu ngân (`cashier`: `retail.access`, `retail.sale
 
 ## 7. Luồng nghiệp vụ
 
+- Luồng 43 (tài liệu `09`): bán, trả hàng, đóng ca tại quầy.
 - Luồng bán: Thu ngân mở ca → quét hàng → (tìm khách VComm, nhập người mua lấy hóa đơn) → thanh toán (tiền mặt, VietQR, điểm) → hệ thống ghi hóa đơn bán lẻ, đơn bán, phiếu xuất, bút toán, hóa đơn điện tử, điểm → in hóa đơn bán lẻ.
 - Luồng trả hàng: Thu ngân có quyền trả hàng tìm hóa đơn → chọn hàng, số lượng, lý do → hoàn điểm, hoàn tiền → hệ thống ghi phiếu trả hàng bán lẻ, phiếu nhận hàng trả lại, bút toán, việc chờ xử lý hóa đơn điện tử → in phiếu trả hàng.
 - Luồng đóng ca: Thu ngân đếm tiền → nhập tiền đếm được, lý do lệch → hệ thống lập phiếu thu, phiếu chi theo quỹ, ghi sổ → in biên bản đóng ca.
@@ -203,7 +204,7 @@ KICHBAN_KIEMTHU_510 đến KICHBAN_KIEMTHU_521, ghi trong tài liệu `21` khi l
 - Quy định hóa đơn điện tử khởi tạo từ máy tính tiền (điều kiện áp dụng, ký tự thứ tư `M` của ký hiệu, cấu trúc mã của cơ quan thuế do người bán tạo, thời hạn chuyển dữ liệu) chưa tra được nguyên văn Nghị định 254/2026/NĐ-CP, Thông tư 91/2026/TT-BTC ngày 2026-11-11. Nguồn thứ cấp (trang hướng dẫn của MISA, ihoadon) thống nhất chữ `M` ở ký tự thứ tư của ký hiệu 6 ký tự (ví dụ mẫu số 1, ký hiệu `C25MAA`), nhưng không thống nhất về văn bản áp dụng và độ dài mã của cơ quan thuế. Sẽ tra nguyên văn trước lát L5. Kế toán trưởng đối chiếu trước khi phát hành.
 - MISA meInvoice cho hóa đơn máy tính tiền: chưa có tài liệu API; lát L5 chỉ làm bộ giả lập, hóa đơn chọn MISA báo "Lỗi cài đặt" với thông báo chưa hỗ trợ.
 - Điểm phụ thuộc CONG_VIEC_51 (đang làm song song): lát L6 làm sau khi CONG_VIEC_51 hợp nhất vào `main`; nếu chưa kịp, trình người dùng chọn nghiệm thu L0 đến L5 trước.
-- Thay đổi hành vi đã duyệt của CONG_VIEC_16 (loại hóa đơn mới), CONG_VIEC_13 (loại chứng từ quỹ không đối tượng), CONG_VIEC_08 (đơn bán lẻ): cần phiếu tài liệu `24`, nhờ phiên cha cấp số THAY_DOI.
+- Thay đổi hành vi đã duyệt của CONG_VIEC_16 (loại hóa đơn mới), CONG_VIEC_13 (loại chứng từ quỹ không đối tượng), CONG_VIEC_08 (đơn bán lẻ): phiếu THAY_DOI_24 (phiên cha ghi vào tài liệu `24` trên `main`, pull request #101, ngày 2026-11-11).
 
 ## 17. Quyết định của người dùng (2026-11-11)
 
