@@ -100,4 +100,4 @@ CREATE UNIQUE INDEX wallet_transactions_referral_bonus_idx ON marketplace.wallet
 ALTER TABLE accounting.journals DROP CONSTRAINT journals_source_type_check;
 ALTER TABLE accounting.journals ADD CONSTRAINT journals_source_type_check
     CHECK (source_type IN ('manual', 'inventory_document', 'payment', 'internal_write_off', 'closing', 'commission', 'collection_statement', 'marketplace_payment', 'marketplace_refund',
-        'marketplace_commission', 'marketplace_withdrawal', 'marketplace_referral_bonus'));
+        'marketplace_commission', 'marketplace_withdrawal', 'payroll', 'payroll_payment', 'marketplace_referral_bonus'));

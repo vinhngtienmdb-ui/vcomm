@@ -167,3 +167,29 @@ td a { white-space: nowrap; }
   .khung-bang td[data-nhan=""]::before { content: none; }
   .khung-bang td[data-nhan=""] { display: block; padding-top: var(--khoang-2); }
 }
+
+/* Lưới công, xếp ca (CONG_VIEC_47, MAN_HINH_120, 121): chỉ dùng biến sẵn có. */
+.luoi-cong th, .luoi-cong td { padding: 6px; text-align: center; white-space: nowrap; }
+.luoi-cong th[scope="row"] { text-align: left; display: grid; min-width: 180px; text-transform: none; letter-spacing: 0; font-size: 14px; color: var(--mau-chu); }
+.ten-dong { font-weight: 700; white-space: normal; }
+.o-cong { min-width: 36px; border-radius: var(--bo-nho); border: 1px solid transparent; font: inherit; font-weight: 700; font-size: 12px; line-height: 20px; cursor: pointer; padding: 2px 4px; }
+.o-cong.thanh-cong { background: var(--mau-thanh-cong-nen); color: var(--mau-thanh-cong); }
+.o-cong.canh-bao { background: var(--mau-canh-bao-nen); color: var(--mau-canh-bao); }
+.o-cong.loi { background: var(--mau-loi-nen); color: var(--mau-loi); }
+.o-cong.thong-tin { background: var(--mau-thong-tin-nen); color: var(--mau-thong-tin); }
+.o-cong.trung-tinh { background: var(--mau-nen); color: var(--mau-chu-phu); border-color: var(--mau-vien); }
+.o-ca { min-width: 96px; padding: 4px 6px; }
+@media (max-width: 767px) {
+  .khung-bang .luoi-cong { display: table; }
+  .khung-bang .luoi-cong thead { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
+  .khung-bang .luoi-cong tbody { display: table-row-group; }
+  .khung-bang .luoi-cong tr { display: table-row; padding: 0; }
+  .khung-bang .luoi-cong td, .khung-bang .luoi-cong th { display: table-cell; width: auto; }
+  .khung-bang .luoi-cong td::before { content: none; }
+}
+/* Chấm công của tôi, màn hình mã QR (CONG_VIEC_47, MAN_HINH_120, 122). */
+.trang-dien-thoai { width: 100%; max-width: 560px; margin: 0 auto; display: grid; gap: var(--khoang-4); }
+.cham-nhanh { justify-items: start; }
+.nut-lon { width: 100%; justify-content: center; font-size: 18px; padding: var(--khoang-4); }
+.man-hinh-qr { justify-items: center; text-align: center; }
+.khung-qr { width: min(360px, 80vw); height: auto; image-rendering: pixelated; border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); }

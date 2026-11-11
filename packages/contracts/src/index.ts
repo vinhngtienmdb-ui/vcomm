@@ -1768,6 +1768,51 @@ export const saveStocktakeCountsSchema = z
       .max(5000),
   })
   .strict();
+// API_138: cộng dồn số đếm từ ứng dụng kho (QUYTAC_NGHIEPVU_284). Số cộng có dấu theo đơn vị cơ sở; hàng serial gửi serial thêm, serial bỏ.
+const signedCountQuantity = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^-?\d{1,12}(\.\d{1,4})?$/.test(text)) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+export const addStocktakeCountsSchema = z
+  .object({
+    additions: z
+      .array(
+        z
+          .object({
+            variantId: z.uuid(),
+            lotId: z.uuid().nullable().default(null),
+            locationId: z.uuid().nullable().default(null),
+            quantity: signedCountQuantity.default("0"),
+            serials: z.array(z.string().trim().min(1).max(100)).max(1000).default([]),
+            removedSerials: z.array(z.string().trim().min(1).max(100)).max(1000).default([]),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(500),
+  })
+  .strict();
+export const stocktakeCountEntryQuerySchema = z.object({ mine: z.enum(["true", "false"]).default("false") }).strict();
+// API_139: lịch sử đếm của đợt kiểm kê.
+export interface StocktakeCountEntry {
+  id: string;
+  lineId: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  lotNo: string | null;
+  locationCode: string | null;
+  quantity: string;
+  addedSerials: string[];
+  removedSerials: string[];
+  countedById: string;
+  countedByName: string;
+  countedAt: string;
+}
 export const finishStocktakeSchema = z
   .object({
     responsibilities: z
@@ -1809,7 +1854,8 @@ export interface StocktakeResponse extends StocktakeListItem {
     expiresOn: string | null;
     locationId: string | null;
     locationCode: string | null;
-    systemQuantity: string;
+    // Đếm mù: null với người không có quyền quản lý kiểm kê tại kho (QUYTAC_NGHIEPVU_283).
+    systemQuantity: string | null;
     countedQuantity: string | null;
     countedSerials: string[] | null;
     difference: string | null;
@@ -1820,6 +1866,8 @@ export interface StocktakeResponse extends StocktakeListItem {
   }[];
   version: number;
   canManage: boolean;
+  // Có quyền đếm hoặc quản lý kiểm kê tại kho (API_138).
+  canCount: boolean;
 }
 // Lựa chọn khi kiểm kê: ngành hàng (phạm vi kiểm), nhân viên công ty sở hữu kho (người chịu trách nhiệm phần thiếu).
 export interface StocktakeOptionsResponse {
@@ -2974,7 +3022,7 @@ export interface PostingRuleResponse {
   canEdit: boolean;
 }
 export const updatePostingRuleSchema = z.object({ accountId: z.uuid() }).strict();
-export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal"] as const;
+export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal", "payroll", "payroll_payment"] as const;
 export type JournalSourceType = (typeof journalSourceTypes)[number];
 export const journalStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
 export type JournalStatus = (typeof journalStatuses)[number];
@@ -3348,6 +3396,8 @@ export interface BankTransactionItem {
   status: BankTransactionStatus;
   payment: { id: string; documentNo: string | null; kind: PaymentKind; partnerName: string; paymentDate: string } | null;
   autoMatched: boolean;
+  // Lần thanh toán đơn VComm bằng chuyển khoản đã ghép (CONG_VIEC_36).
+  marketplacePayment: { reference: string; documentNo: string } | null;
   suggestion: { partnerId: string; partnerName: string; reason: BankSuggestionReason } | null;
   receipt: { id: string; documentNo: string | null; status: string } | null;
   ignoreReason: string | null;
@@ -3885,7 +3935,7 @@ export interface SalesProposalOptionsResponse {
 }
 
 // CONG_VIEC_24: đặt hàng trên VComm (API_123 đến 129; QUYTAC_NGHIEPVU_154 đến 162).
-export const carrierCodes = ["ghn"] as const;
+export const carrierCodes = ["ghn", "vnpost", "viettel_post", "jt", "ghtk"] as const;
 export type CarrierCode = (typeof carrierCodes)[number];
 
 export interface CarrierItem {
@@ -3897,9 +3947,45 @@ export interface CarrierItem {
 }
 
 // CONG_VIEC_25: phương thức thanh toán theo cổng (QUYTAC_NGHIEPVU_163).
-export const paymentMethodCodes = ["cod", "vnpay_qr", "vnpay_atm", "vnpay_card"] as const;
+// CONG_VIEC_32: mỗi cổng thêm mã của mình trên dòng riêng (CONG_VIEC_33 đến 39), không sắp xếp lại các dòng khác.
+export const paymentMethodCodes = [
+  "cod",
+  "vnpay_qr",
+  "vnpay_atm",
+  "vnpay_card",
+  "momo_wallet",
+  "momo_atm",
+  "momo_card",
+  "sepay_bank_transfer",
+  "payos_vietqr",
+  "bank_transfer_vietqr",
+  "bidv_va_qr",
+  "ecopay_wallet",
+  "ecopay_atm",
+  "gpay_atm",
+  "gpay_international",
+  "gpay_va",
+  "zalopay_wallet",
+  "zalopay_atm",
+  "zalopay_card",
+  "google_pay_card",
+  "apple_pay_wallet",
+] as const;
 export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
-export const paymentGatewayCodes = ["cod", "vnpay"] as const;
+export const paymentGatewayCodes = [
+  "cod",
+  "vnpay",
+  "momo",
+  "sepay",
+  "payos",
+  "bank_transfer",
+  "bidv",
+  "ecopay",
+  "gpay",
+  "zalopay",
+  "google_pay",
+  "apple_pay",
+] as const;
 export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];
 
 export interface PaymentMethodItem {
@@ -4166,9 +4252,15 @@ const orderLinesInput = z.array(z.object({ variantId: z.uuid(), quantity: z.numb
 // CONG_VIEC_49: dùng ví mua sắm (QUYTAC_NGHIEPVU_332), đặt đơn tham gia nhóm mua chung (QUYTAC_NGHIEPVU_330).
 const orderWalletInput = { useShoppingWallet: z.boolean().default(false), groupBuyId: z.uuid().nullable().default(null) };
 export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput, ...orderWalletInput }).strict();
+// Mã phương thức theo định dạng; phương thức có thật, đang bật hay không do máy chủ kiểm theo danh mục (CONG_VIEC_32).
+const paymentMethodInput = z
+  .string()
+  .regex(/^[a-z][a-z0-9_]{1,39}$/)
+  .default("cod")
+  .transform((value) => value as PaymentMethodCode);
 // expectedTotal: tổng thanh toán người mua đã thấy; khác tổng tính lại thì báo giá đã thay đổi. paymentMethod mặc định thanh toán khi nhận hàng (ứng dụng bản CONG_VIEC_24).
 export const buyerOrderPlaceSchema = z
-  .object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: z.enum(paymentMethodCodes).default("cod"), ...orderWalletInput })
+  .object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: paymentMethodInput, ...orderWalletInput })
   .strict();
 
 export interface MarketplaceOrderLine {
@@ -4222,9 +4314,22 @@ export interface BuyerOrderListItem {
 export const orderPaymentStatuses = ["unpaid", "paid", "refund_pending", "partially_refunded", "refunded"] as const;
 export type OrderPaymentStatus = (typeof orderPaymentStatuses)[number];
 
-// API_131: mở trang thanh toán của cổng.
+// API_131: mở thanh toán của cổng. Cổng chuyển trang trả paymentUrl; cổng chuyển khoản (VietQR, tài khoản định danh) trả transfer.
+export interface PaymentTransferInstruction {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  amount: string;
+  // Nội dung chuyển khoản bắt buộc để đối chiếu tự động.
+  content: string;
+  // Chuỗi mã QR theo chuẩn VietQR (EMVCo) để ứng dụng vẽ; null khi cổng không cấp.
+  qrData: string | null;
+  // Ảnh mã QR do cổng cấp; null khi không có.
+  qrImageUrl: string | null;
+}
 export interface BuyerPaymentStart {
-  paymentUrl: string;
+  paymentUrl: string | null;
+  transfer: PaymentTransferInstruction | null;
   deadline: string;
 }
 
@@ -4377,6 +4482,8 @@ export interface MarketplaceOrderDetail extends BuyerOrderDetail {
   commissions: MarketplaceOrderCommission[];
   // Ghi tay đã thu tiền thu hộ khi đơn vị vận chuyển không có API (QUYTAC_NGHIEPVU_167).
   canRecordCod: boolean;
+  // Có lần thanh toán chuyển khoản đang chờ và người xem có quyền xác nhận (CONG_VIEC_36).
+  canConfirmTransfer: boolean;
   canShip: boolean;
   canRefreshShipment: boolean;
   carriers: CarrierItem[];
@@ -4401,6 +4508,8 @@ export const cancelMarketplaceOrderSchema = z.object({ reason: z.string().trim()
 export const recordCodCollectedSchema = z
   .object({ collectedOn: isoDate, reference: z.string().trim().min(1).max(100), version: z.number().int().min(1) })
   .strict();
+// Kế toán xác nhận đã nhận tiền chuyển khoản của một lần thanh toán (CONG_VIEC_36; QUYTAC_NGHIEPVU_242).
+export const confirmBankTransferSchema = z.object({ reference: z.string().trim().min(1).max(100), bankTransactionNo: z.string().trim().min(1).max(100) }).strict();
 export const shipMarketplaceOrderSchema = z.object({ carrierCode: z.enum(carrierCodes), version: z.number().int().min(1) }).strict();
 
 // API_129: trả hàng trong 7 ngày (QUYTAC_NGHIEPVU_161).
@@ -4868,7 +4977,6 @@ export interface CommentItem {
 }
 export interface PostDetail extends PostItem {
   comments: CommentItem[];
-}
 export interface CommunityStatus {
   postingEnabled: boolean;
   commentsEnabled: boolean;
@@ -4964,3 +5072,1497 @@ export const communitySettingsSchema = z
   .strict();
 export const officialPostSchema = z.object({ content: z.string().trim().min(1).max(2000), isPinned: z.boolean() }).strict();
 export const pinPostSchema = z.object({ isPinned: z.boolean() }).strict();
+
+// CONG_VIEC_46: Nhân sự phần 1 (MODULE_08) – hồ sơ nhân sự (API_144 đến API_146, API_149).
+export const employeeGenders = ["male", "female"] as const;
+export const maritalStatuses = ["single", "married", "other"] as const;
+export const educationLevels = ["none", "elementary", "intermediate", "college", "university", "master", "doctorate"] as const;
+export const employeeDocumentKinds = ["identity_image", "qualification", "health_certificate", "resume", "data_consent", "guardian_consent", "other"] as const;
+export const dependentRelationships = ["child", "spouse", "parent", "other"] as const;
+export const workEventKinds = ["hire", "transfer", "title_change", "contract", "termination"] as const;
+export type EmployeeGender = (typeof employeeGenders)[number];
+export type MaritalStatus = (typeof maritalStatuses)[number];
+export type EducationLevel = (typeof educationLevels)[number];
+export type EmployeeDocumentKind = (typeof employeeDocumentKinds)[number];
+export type DependentRelationship = (typeof dependentRelationships)[number];
+export type WorkEventKind = (typeof workEventKinds)[number];
+// Trường mã hóa: bỏ trống (undefined) khi sửa là giữ giá trị cũ; null hoặc chuỗi rỗng là xóa.
+const protectedText = (maximum: number) => z.string().trim().max(maximum).nullable().optional();
+const monthStart = isoDate.refine((value) => value.endsWith("-01"), { message: "invalidValue" });
+
+export const saveEmployeeSchema = z
+  .object({
+    code: blankToNull(20),
+    fullName: z.string().trim().min(1).max(200),
+    gender: z.enum(employeeGenders),
+    birthDate: isoDate,
+    nationality: z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/).default("VN"),
+    identityNumber: protectedText(20),
+    residence: z.string().trim().min(1).max(500),
+    phone: blankToNull(20),
+    personalEmail: blankToNull(200),
+    contactAddress: blankToNull(500),
+    maritalStatus: z.enum(maritalStatuses).nullable().optional(),
+    educationLevel: z.enum(educationLevels).nullable().optional(),
+    major: blankToNull(200),
+    taxCode: protectedText(20),
+    socialInsuranceNumber: protectedText(20),
+    bankName: blankToNull(200),
+    bankAccountNumber: protectedText(30),
+    bankAccountHolder: blankToNull(200),
+    workPermitNumber: protectedText(30),
+    workPermitExpiry: isoDate.nullable().optional(),
+    emergencyContact: blankToNull(300),
+    // Chỉ khi lập: vị trí ban đầu, tạo quyết định "Vào làm".
+    hireDate: isoDate.optional(),
+    departmentId: z.string().uuid().optional(),
+    branchId: z.string().uuid().optional(),
+    jobTitle: z.string().trim().min(1).max(100).optional(),
+    userId: z.string().uuid().nullable().optional(),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveEmployeeRequest = z.input<typeof saveEmployeeSchema>;
+
+export const employeeListQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    departmentId: z.string().uuid().optional(),
+    branchId: z.string().uuid().optional(),
+    status: z.enum(["active", "terminated", "all"]).default("active"),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export interface EmployeePosition {
+  departmentId: string | null;
+  departmentName: string | null;
+  branchId: string | null;
+  branchName: string | null;
+  jobTitle: string | null;
+}
+export interface EmployeeListItem extends EmployeePosition {
+  id: string;
+  code: string;
+  fullName: string;
+  hireDate: string;
+  status: "active" | "terminated";
+  isMinor: boolean;
+  missingConsent: boolean;
+}
+export type EmployeeListResponse = PageResponse<EmployeeListItem>;
+
+export interface EmployeeResponse extends EmployeePosition {
+  id: string;
+  code: string;
+  fullName: string;
+  gender: EmployeeGender;
+  birthDate: string;
+  nationality: string;
+  identityKind: "citizen_id" | "passport";
+  // Dạng che "********1234"; giá trị đầy đủ lấy qua API hiện số (QUYTAC_NGHIEPVU_295).
+  identityNumber: string;
+  residence: string;
+  phone: string | null;
+  personalEmail: string | null;
+  contactAddress: string | null;
+  maritalStatus: MaritalStatus | null;
+  educationLevel: EducationLevel | null;
+  major: string | null;
+  taxCode: string | null;
+  socialInsuranceNumber: string | null;
+  bankName: string | null;
+  bankAccountNumber: string | null;
+  bankAccountHolder: string | null;
+  workPermitNumber: string | null;
+  workPermitExpiry: string | null;
+  emergencyContact: string | null;
+  hireDate: string;
+  status: "active" | "terminated";
+  terminationDate: string | null;
+  terminationReason: string | null;
+  userId: string | null;
+  userEmail: string | null;
+  isMinor: boolean;
+  missingConsent: boolean;
+  consentDate: string | null;
+  version: number;
+  canManage: boolean;
+  canViewIdentity: boolean;
+}
+
+export const revealFields = ["identityNumber", "taxCode", "socialInsuranceNumber", "bankAccountNumber", "workPermitNumber"] as const;
+export type RevealField = (typeof revealFields)[number];
+export const revealSchema = z.object({ field: z.enum(revealFields) }).strict();
+export interface RevealResponse {
+  field: string;
+  value: string | null;
+}
+
+export interface EmployeeOptionsResponse {
+  departments: { id: string; code: string; name: string }[];
+  branches: { id: string; code: string; name: string }[];
+  // Thành viên đang hoạt động của công ty chưa có hồ sơ (để liên kết).
+  users: { id: string; fullName: string; email: string | null }[];
+}
+
+export const uploadEmployeeDocumentSchema = z
+  .object({
+    kind: z.enum(employeeDocumentKinds),
+    consentDate: isoDate.optional(),
+  })
+  .strict();
+export interface EmployeeDocumentItem {
+  id: string;
+  kind: EmployeeDocumentKind;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  consentDate: string | null;
+  uploadedByName: string;
+  uploadedAt: string;
+}
+
+export const saveDependentSchema = z
+  .object({
+    fullName: z.string().trim().min(1).max(200),
+    relationship: z.enum(dependentRelationships),
+    birthDate: isoDate,
+    identityNumber: protectedText(20),
+    deductionFrom: monthStart,
+    deductionTo: monthStart.nullable().optional(),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export interface DependentItem {
+  id: string;
+  fullName: string;
+  relationship: DependentRelationship;
+  birthDate: string;
+  identityNumber: string | null;
+  deductionFrom: string;
+  deductionTo: string | null;
+  version: number;
+}
+
+export const saveWorkEventSchema = z
+  .object({
+    kind: z.enum(["transfer", "title_change"]),
+    effectiveDate: isoDate,
+    decisionNo: blankToNull(50),
+    departmentId: z.string().uuid().nullable().optional(),
+    branchId: z.string().uuid().nullable().optional(),
+    jobTitle: blankToNull(100),
+    note: blankToNull(500),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export interface WorkEventItem {
+  id: string;
+  kind: WorkEventKind;
+  effectiveDate: string;
+  decisionNo: string | null;
+  departmentName: string | null;
+  branchName: string | null;
+  jobTitle: string | null;
+  note: string | null;
+  sourceType: "manual" | "contract" | "appendix";
+  effective: boolean;
+  appliedAt: string | null;
+  version: number;
+}
+
+// API_149: hồ sơ của tôi.
+export interface MyEmployeeResponse {
+  employee: EmployeeResponse;
+  workEvents: WorkEventItem[];
+}
+
+// CONG_VIEC_46 lát L1: hợp đồng lao động, phụ lục, nghỉ việc (API_144, API_147, API_148).
+export const contractKinds = ["probation", "fixed_term", "indefinite"] as const;
+export const contractStatuses = ["draft", "pending", "approved", "signed", "rejected", "withdrawn", "cancelled", "terminated"] as const;
+export const probationLevels = ["manager", "college", "intermediate", "other"] as const;
+export const salaryPaymentMethods = ["transfer", "cash"] as const;
+export const terminationReasons = ["expired", "completed", "mutual", "employee_unilateral", "employer_unilateral", "redundancy", "disciplinary", "probation_failed", "death", "other"] as const;
+export type ContractKind = (typeof contractKinds)[number];
+export type ContractStatus = (typeof contractStatuses)[number];
+export type ProbationLevel = (typeof probationLevels)[number];
+export type SalaryPaymentMethod = (typeof salaryPaymentMethods)[number];
+export type TerminationReason = (typeof terminationReasons)[number];
+// Tình trạng hiệu lực tính theo ngày (QUYTAC_NGHIEPVU_299).
+export type ContractValidity = "not_started" | "active" | "expired" | "terminated" | null;
+
+// CONG_VIEC_48 (THAY_DOI_21): mỗi dòng phụ cấp lưu mới phải có loại phụ cấp (QUYTAC_NGHIEPVU_314).
+const allowanceSchema = z.object({ name: z.string().trim().min(1).max(100), amount: decimalText(4), allowanceTypeId: z.string().uuid() }).strict();
+
+export const saveContractSchema = z
+  .object({
+    employeeId: z.string().uuid(),
+    kind: z.enum(contractKinds),
+    effectiveDate: isoDate,
+    endDate: isoDate.nullable().optional(),
+    jobTitle: z.string().trim().min(1).max(100),
+    departmentId: z.string().uuid(),
+    branchId: z.string().uuid(),
+    salary: decimalText(4),
+    probationLevel: z.enum(probationLevels).nullable().optional(),
+    officialSalary: decimalText(4).nullable().optional(),
+    paymentMethod: z.enum(salaryPaymentMethods).default("transfer"),
+    allowances: z.array(allowanceSchema).max(20).default([]),
+    signerName: z.string().trim().min(1).max(200),
+    signerTitle: z.string().trim().min(1).max(100),
+    otherTerms: blankToNull(4000),
+    legalExceptionReason: blankToNull(500),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveContractRequest = z.input<typeof saveContractSchema>;
+
+export const contractListQuerySchema = z
+  .object({
+    employeeId: z.string().uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    kind: z.enum(contractKinds).optional(),
+    status: z.enum(contractStatuses).optional(),
+    expiring: z.enum(["true", "false"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export const signContractSchema = z.object({ signDate: isoDate }).strict();
+export const cancelContractSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export const terminateContractSchema = z
+  .object({ terminationDate: isoDate, reason: z.enum(terminationReasons), note: blankToNull(1000) })
+  .strict();
+export const terminateEmployeeSchema = terminateContractSchema;
+
+export interface ContractAllowance {
+  name: string;
+  amount: string;
+  // null với dòng lập trước CONG_VIEC_48.
+  allowanceTypeId: string | null;
+  allowanceTypeName: string | null;
+}
+export interface ContractTerms {
+  jobTitle: string;
+  departmentId: string;
+  departmentName: string;
+  branchId: string;
+  branchName: string;
+  // null khi người xem không có quyền xem mức lương.
+  salary: string | null;
+  paymentMethod: SalaryPaymentMethod;
+  allowances: ContractAllowance[] | null;
+}
+export interface ContractListItem {
+  id: string;
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  documentNo: string | null;
+  kind: ContractKind;
+  status: ContractStatus;
+  validity: ContractValidity;
+  effectiveDate: string;
+  endDate: string | null;
+  terminationDate: string | null;
+  salary: string | null;
+  // Số ngày đến ngày kết thúc (âm là đã quá hạn); chỉ hợp đồng có ngày kết thúc chưa xử lý.
+  daysToEnd: number | null;
+  overThirtyDays: boolean;
+}
+export type ContractListResponse = PageResponse<ContractListItem>;
+
+export interface AppendixResponse {
+  id: string;
+  documentNo: string | null;
+  status: Exclude<ContractStatus, "terminated">;
+  effectiveDate: string;
+  jobTitle: string | null;
+  departmentId: string | null;
+  departmentName: string | null;
+  branchId: string | null;
+  branchName: string | null;
+  salary: string | null;
+  paymentMethod: SalaryPaymentMethod | null;
+  allowances: ContractAllowance[] | null;
+  description: string;
+  signDate: string | null;
+  hasSignedFile: boolean;
+  approvalRequestId: string | null;
+  cancelReason: string | null;
+  canWithdraw: boolean;
+  version: number;
+}
+
+export interface ContractResponse extends ContractListItem {
+  currency: string;
+  original: ContractTerms;
+  // Giá trị hiện hành tại hôm nay sau các phụ lục đã ký có hiệu lực (QUYTAC_NGHIEPVU_300).
+  current: ContractTerms;
+  probationLevel: ProbationLevel | null;
+  officialSalary: string | null;
+  signerName: string;
+  signerTitle: string;
+  otherTerms: string | null;
+  legalExceptionReason: string | null;
+  approvalRequestId: string | null;
+  signDate: string | null;
+  hasSignedFile: boolean;
+  cancelReason: string | null;
+  terminationReason: TerminationReason | null;
+  terminationNote: string | null;
+  appendices: AppendixResponse[];
+  canManage: boolean;
+  canWithdraw: boolean;
+  version: number;
+}
+
+export const saveAppendixSchema = z
+  .object({
+    effectiveDate: isoDate,
+    jobTitle: blankToNull(100),
+    departmentId: z.string().uuid().nullable().optional(),
+    branchId: z.string().uuid().nullable().optional(),
+    salary: decimalText(4).nullable().optional(),
+    paymentMethod: z.enum(salaryPaymentMethods).nullable().optional(),
+    allowances: z.array(allowanceSchema).max(20).nullable().optional(),
+    description: z.string().trim().min(1).max(4000),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveAppendixRequest = z.input<typeof saveAppendixSchema>;
+
+export interface MyContractsResponse {
+  currency: string;
+  contracts: ContractResponse[];
+}
+
+// CONG_VIEC_47: Nhân sự phần 2 (MODULE_08) – ca làm, lịch làm việc, ngày lễ, chấm công (API_150, API_151).
+const clockTime = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+const yearMonth = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
+
+export const attendanceSettingsSchema = z
+  .object({
+    workingTimeMode: z.enum(["daily", "weekly"]),
+    graceMinutes: z.number().int().min(0).max(30),
+    appLocationScope: z.enum(["branch", "company"]),
+    carryoverMode: z.enum(["expire", "never"]),
+    carryoverMonths: z.number().int().min(1).max(36),
+    allowAdvanceLeave: z.boolean(),
+    overtimeAnnualLimit: z.union([z.literal(200), z.literal(300)]),
+    overtimeExtendedReason: blankToNull(500),
+    correctionMonthlyLimit: z.number().int().min(0).max(31),
+    // 0: công ty chưa lưu cài đặt.
+    version: z.number().int().min(0).optional(),
+  })
+  .strict();
+export type AttendanceSettingsRequest = z.input<typeof attendanceSettingsSchema>;
+export type AttendanceSettingsResponse = Omit<z.output<typeof attendanceSettingsSchema>, "version"> & { version: number };
+
+export const saveShiftSchema = z
+  .object({
+    code: z.string().trim().min(1).max(20),
+    name: z.string().trim().min(1).max(100),
+    startTime: clockTime,
+    endTime: clockTime,
+    breakStart: clockTime.nullable().optional(),
+    breakMinutes: z.number().int().min(0).max(240),
+    breakPaid: z.boolean(),
+    workUnits: z.enum(["1", "0.5"]),
+    status: z.enum(["active", "inactive"]).optional(),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveShiftRequest = z.input<typeof saveShiftSchema>;
+export interface ShiftItem {
+  id: string;
+  code: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  breakStart: string | null;
+  breakMinutes: number;
+  breakPaid: boolean;
+  workUnits: "1" | "0.5";
+  status: "active" | "inactive";
+  standardMinutes: number;
+  nightMinutes: number;
+  // Ca từ 6 giờ chuẩn mà nghỉ giữa ca ngắn hơn luật (Bộ luật Lao động Điều 109): chỉ cảnh báo.
+  shortBreakWarning: boolean;
+  version: number;
+}
+
+export const saveScheduleSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    isDefault: z.boolean(),
+    shiftIds: z.array(z.string().uuid().nullable()).length(7),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveScheduleRequest = z.input<typeof saveScheduleSchema>;
+export const assignScheduleSchema = z
+  .object({
+    departmentId: z.string().uuid().nullable().optional(),
+    employeeId: z.string().uuid().nullable().optional(),
+    effectiveFrom: isoDate,
+  })
+  .strict();
+export type AssignScheduleRequest = z.input<typeof assignScheduleSchema>;
+export interface ScheduleItem {
+  id: string;
+  name: string;
+  isDefault: boolean;
+  shiftIds: (string | null)[];
+  shiftCodes: (string | null)[];
+  weeklyMinutes: number;
+  assignments: { id: string; departmentId: string | null; departmentName: string | null; employeeId: string | null; employeeName: string | null; effectiveFrom: string }[];
+  version: number;
+}
+
+export const rosterQuerySchema = z.object({ weekStart: isoDate, departmentId: z.string().uuid().optional() }).strict();
+export type RosterWarning = "weeklyHoursExceeded" | "noRestDay" | "shortRestBetweenShifts";
+export interface RosterRow {
+  employeeId: string;
+  code: string;
+  fullName: string;
+  departmentName: string | null;
+  isMinor: boolean;
+  cells: { date: string; shiftId: string | null; fromRoster: boolean; holiday: boolean; locked: boolean }[];
+  weeklyMinutes: number;
+  warnings: RosterWarning[];
+}
+export interface RosterResponse {
+  weekStart: string;
+  dates: string[];
+  shifts: ShiftItem[];
+  rows: RosterRow[];
+  canEditAll: boolean;
+}
+export const saveRosterSchema = z
+  .object({
+    cells: z
+      .array(z.object({ employeeId: z.string().uuid(), date: isoDate, shiftId: z.string().uuid().nullable(), clear: z.boolean().optional() }).strict())
+      .min(1)
+      .max(2000),
+  })
+  .strict();
+export type SaveRosterRequest = z.input<typeof saveRosterSchema>;
+
+export interface HolidayItem {
+  id: string;
+  date: string;
+  name: string;
+  foreignersOnly: boolean;
+  scope: "group" | "company";
+  canDelete: boolean;
+}
+export interface HolidayListResponse {
+  year: number;
+  canManageGroup: boolean;
+  canManageCompany: boolean;
+  items: HolidayItem[];
+}
+export const saveHolidaySchema = z
+  .object({ date: isoDate, name: z.string().trim().min(1).max(100), foreignersOnly: z.boolean(), scope: z.enum(["group", "company"]) })
+  .strict();
+export type SaveHolidayRequest = z.input<typeof saveHolidaySchema>;
+export const generateHolidaysSchema = z.object({ year: z.number().int().min(2000).max(2100) }).strict();
+
+export type AttendanceDayStatus = "scheduled" | "present" | "missing_punch" | "absent" | "rest" | "holiday" | "leave";
+export interface AttendanceDayCell {
+  date: string;
+  status: AttendanceDayStatus;
+  dayKind: "workday" | "rest_day" | "holiday";
+  shiftCode: string | null;
+  plannedUnits: string;
+  workedUnits: string;
+  lateMinutes: number;
+  earlyMinutes: number;
+  leaveUnits: string;
+  leavePayGroup: "annual" | "paid_personal" | "paid_other" | "unpaid" | "social_insurance" | null;
+}
+export const attendanceGridQuerySchema = z
+  .object({
+    month: yearMonth,
+    departmentId: z.string().uuid().optional(),
+    branchId: z.string().uuid().optional(),
+    status: z.enum(["missing_punch", "absent", "late"]).optional(),
+  })
+  .strict();
+export interface AttendanceGridRow {
+  employeeId: string;
+  code: string;
+  fullName: string;
+  departmentName: string | null;
+  attendanceCode: string | null;
+  days: AttendanceDayCell[];
+  workedUnits: string;
+}
+export interface AttendanceGridResponse {
+  month: string;
+  dates: string[];
+  canManage: boolean;
+  monthClosed: boolean;
+  rows: AttendanceGridRow[];
+}
+export type PunchSource = "device" | "manual" | "app" | "correction";
+export interface AttendancePunchItem {
+  id: string;
+  punchedAt: string;
+  source: PunchSource;
+  deviceCode: string | null;
+  method: "gps" | "ip" | "qr" | null;
+  locationName: string | null;
+  distanceMeters: number | null;
+  reason: string | null;
+  createdByName: string;
+  canDelete: boolean;
+}
+export interface AttendanceDayResponse {
+  employeeId: string;
+  code: string;
+  fullName: string;
+  date: string;
+  day: (AttendanceDayCell & { firstIn: string | null; lastOut: string | null; workedMinutes: number; standardMinutes: number; nightMinutes: number; plannedStart: string | null; plannedEnd: string | null }) | null;
+  punches: AttendancePunchItem[];
+  canManage: boolean;
+}
+export const manualPunchSchema = z
+  .object({
+    employeeId: z.string().uuid(),
+    workDate: isoDate,
+    checkIn: clockTime.nullable().optional(),
+    checkOut: clockTime.nullable().optional(),
+    reason: z.string().trim().min(1).max(500),
+  })
+  .strict()
+  .refine((value) => Boolean(value.checkIn || value.checkOut), { path: ["checkIn"], message: "required" });
+export type ManualPunchRequest = z.input<typeof manualPunchSchema>;
+export const deletePunchSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export const attendanceCodeSchema = z.object({ attendanceCode: blankToNull(20) }).strict();
+export const recalculateAttendanceSchema = z.object({ month: yearMonth }).strict();
+export interface AttendanceImportResponse {
+  fileName: string;
+  totalRows: number;
+  accepted: number;
+  duplicates: number;
+  // messageKey là khóa trong nhóm `errors` của tệp dịch.
+  errors: { row: number; messageKey: string }[];
+  imported: boolean;
+}
+export interface AttendanceImportItem {
+  id: string;
+  fileName: string;
+  importedAt: string;
+  importedByName: string;
+  accepted: number;
+  duplicates: number;
+  errors: number;
+}
+
+// CONG_VIEC_47 lát L1: địa điểm chấm công, chấm công trên ứng dụng, đơn giải trình (API_150, API_152, API_155).
+export const saveAttendanceLocationSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    branchId: z.string().uuid(),
+    latitude: z.number().min(-90).max(90).nullable().optional(),
+    longitude: z.number().min(-180).max(180).nullable().optional(),
+    radiusMeters: z.number().int().min(50).max(1000).nullable().optional(),
+    ipRanges: z.array(z.string().trim().min(1).max(50)).max(20),
+    qrEnabled: z.boolean(),
+    status: z.enum(["active", "inactive"]).optional(),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveAttendanceLocationRequest = z.input<typeof saveAttendanceLocationSchema>;
+export interface AttendanceLocationItem {
+  id: string;
+  name: string;
+  branchId: string;
+  branchName: string;
+  latitude: number | null;
+  longitude: number | null;
+  radiusMeters: number | null;
+  ipRanges: string[];
+  qrEnabled: boolean;
+  status: "active" | "inactive";
+  version: number;
+}
+export interface AttendanceQrResponse {
+  locationName: string;
+  token: string;
+  // Đường dẫn tương đối trong mini app Nhân sự; giao diện ghép với địa chỉ trang.
+  path: string;
+  expiresInSeconds: number;
+}
+export const appPunchSchema = z
+  .object({
+    latitude: z.number().min(-90).max(90).nullable().optional(),
+    longitude: z.number().min(-180).max(180).nullable().optional(),
+    accuracyMeters: z.number().min(0).max(100000).nullable().optional(),
+    locationId: z.string().uuid().nullable().optional(),
+    qrToken: z.string().trim().max(64).nullable().optional(),
+  })
+  .strict();
+export type AppPunchRequest = z.input<typeof appPunchSchema>;
+export interface MyAttendanceResponse {
+  employee: { id: string; code: string; fullName: string } | null;
+  today: string;
+  shift: { code: string; start: string; end: string } | null;
+  holiday: boolean;
+  punches: { punchedAt: string; source: PunchSource; method: "gps" | "ip" | "qr" | null; locationName: string | null }[];
+  nextAction: "in" | "out";
+  locations: { id: string; name: string; gps: boolean; ip: boolean; qr: boolean; latitude: number | null; longitude: number | null; radiusMeters: number | null }[];
+  networkMatched: boolean;
+  // Trưởng phòng hoặc có quyền xem chấm công công ty: hiện liên kết Chấm công, Xếp ca.
+  canViewTeam: boolean;
+  canViewCompany: boolean;
+}
+export interface MyAttendanceMonthResponse {
+  month: string;
+  days: (AttendanceDayCell & { firstIn: string | null; lastOut: string | null })[];
+  workedUnits: string;
+  lateCount: number;
+  lateMinutes: number;
+}
+export interface MyWeekResponse {
+  weekStart: string;
+  days: { date: string; shiftCode: string | null; start: string | null; end: string | null; holiday: boolean }[];
+}
+export const correctionKinds = ["forgot", "business_trip", "off_site", "device_error", "other"] as const;
+export type CorrectionKind = (typeof correctionKinds)[number];
+export const createCorrectionSchema = z
+  .object({
+    workDate: isoDate,
+    kind: z.enum(correctionKinds),
+    checkIn: z.preprocess((value) => (value === "" ? null : value), clockTime.nullable().optional()),
+    checkOut: z.preprocess((value) => (value === "" ? null : value), clockTime.nullable().optional()),
+    reason: z.string().trim().min(1).max(1000),
+  })
+  .strict()
+  .refine((value) => Boolean(value.checkIn || value.checkOut), { path: ["checkIn"], message: "required" });
+export type CorrectionStatus = "pending" | "approved" | "rejected" | "withdrawn";
+export interface CorrectionItem {
+  id: string;
+  correctionNo: string | null;
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  workDate: string;
+  kind: CorrectionKind;
+  checkIn: string | null;
+  checkOut: string | null;
+  reason: string;
+  hasAttachment: boolean;
+  status: CorrectionStatus;
+  approvalRequestId: string | null;
+  requestedAt: string;
+  canWithdraw: boolean;
+}
+export const correctionListQuerySchema = z.object({ status: z.enum(["pending", "approved", "rejected", "withdrawn"]).optional(), month: yearMonth.optional() }).strict();
+// CONG_VIEC_48 lát L0: thiết lập lương, loại phụ cấp, hồ sơ lương (API_156 đến API_158; QUYTAC_NGHIEPVU_312 đến 315).
+const firstOfMonth = isoDate.refine((value) => value.endsWith("-01"), { message: "invalidValue" });
+const rateText = decimalText(4);
+const taxBracketSchema = z.object({ upperBound: decimalText(4).nullable(), rate: rateText }).strict();
+export const savePayrollParametersSchema = z
+  .object({
+    effectiveFrom: firstOfMonth,
+    baseSalary: decimalText(4),
+    insuranceReference: decimalText(4).nullable().optional(),
+    regionMinimums: z.tuple([decimalText(4), decimalText(4), decimalText(4), decimalText(4)]),
+    employeeSocialRate: rateText,
+    employeeHealthRate: rateText,
+    employeeUnemploymentRate: rateText,
+    employerRetirementRate: rateText,
+    employerSicknessRate: rateText,
+    employerHealthRate: rateText,
+    employerUnemploymentRate: rateText,
+    socialCapMultiplier: rateText,
+    healthCapMultiplier: rateText,
+    unemploymentCapMultiplier: rateText,
+    personalDeduction: decimalText(4),
+    dependentDeduction: decimalText(4),
+    flatWithholdingRate: rateText,
+    unpaidDaysThreshold: z.number().int().min(1).max(31),
+    taxBrackets: z.array(taxBracketSchema).min(1).max(10),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePayrollParametersRequest = z.input<typeof savePayrollParametersSchema>;
+export interface PayrollParametersItem {
+  id: string;
+  effectiveFrom: string;
+  baseSalary: string;
+  insuranceReference: string | null;
+  regionMinimums: [string, string, string, string];
+  employeeSocialRate: string;
+  employeeHealthRate: string;
+  employeeUnemploymentRate: string;
+  employerRetirementRate: string;
+  employerSicknessRate: string;
+  employerHealthRate: string;
+  employerUnemploymentRate: string;
+  socialCapMultiplier: string;
+  healthCapMultiplier: string;
+  unemploymentCapMultiplier: string;
+  personalDeduction: string;
+  dependentDeduction: string;
+  flatWithholdingRate: string;
+  unpaidDaysThreshold: number;
+  taxBrackets: { upperBound: string | null; rate: string }[];
+  // Đang áp dụng: bộ có ngày hiệu lực gần nhất không sau hôm nay.
+  current: boolean;
+  // Đã được bảng lương đã duyệt dùng thì không sửa, không xóa (QUYTAC_NGHIEPVU_312).
+  used: boolean;
+  version: number;
+}
+
+export const savePayrollCompanySettingsSchema = z
+  .object({
+    unionFeeEnabled: z.boolean(),
+    unionFeeRate: rateText,
+    accidentRate: rateText,
+    withholdingThreshold: decimalText(4),
+    fallbackStandardDays: z.number().int().min(1).max(31),
+    overtimeWeekdayRate: rateText,
+    overtimeWeeklyRestRate: rateText,
+    overtimeHolidayRate: rateText,
+    nightRate: rateText,
+    nightOvertimeRate: rateText,
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePayrollCompanySettingsRequest = z.input<typeof savePayrollCompanySettingsSchema>;
+export type PayrollCompanySettings = z.output<typeof savePayrollCompanySettingsSchema> & { version: number };
+
+export const payrollCostGroups = ["selling", "admin"] as const;
+export type PayrollCostGroup = (typeof payrollCostGroups)[number];
+export const saveBranchRegionsSchema = z
+  .object({ items: z.array(z.object({ branchId: z.string().uuid(), region: z.number().int().min(1).max(4).nullable() }).strict()).max(500) })
+  .strict();
+export const saveDepartmentGroupsSchema = z
+  .object({ items: z.array(z.object({ departmentId: z.string().uuid(), costGroup: z.enum(payrollCostGroups) }).strict()).max(500) })
+  .strict();
+export interface PayrollSettingsResponse {
+  parameters: PayrollParametersItem[];
+  canEditParameters: boolean;
+  canEditCompany: boolean;
+  company: PayrollCompanySettings;
+  branches: { branchId: string; code: string; name: string; region: number | null }[];
+  departments: { departmentId: string; name: string; costGroup: PayrollCostGroup }[];
+}
+
+export const allowanceTaxModes = ["taxable", "exempt", "exempt_up_to"] as const;
+export type AllowanceTaxMode = (typeof allowanceTaxModes)[number];
+export const saveAllowanceTypeSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    taxMode: z.enum(allowanceTaxModes),
+    exemptLimit: decimalText(4).nullable().optional(),
+    prorated: z.boolean(),
+    overtimeBase: z.boolean(),
+    status: z.enum(["active", "inactive"]).default("active"),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveAllowanceTypeRequest = z.input<typeof saveAllowanceTypeSchema>;
+export interface AllowanceTypeItem {
+  id: string;
+  name: string;
+  taxMode: AllowanceTaxMode;
+  exemptLimit: string | null;
+  prorated: boolean;
+  overtimeBase: boolean;
+  status: "active" | "inactive";
+  version: number;
+}
+
+export const payrollTaxMethods = ["auto", "progressive", "flat"] as const;
+export type PayrollTaxMethod = (typeof payrollTaxMethods)[number];
+export const savePayrollProfileSchema = z
+  .object({
+    socialExempt: z.boolean(),
+    healthExempt: z.boolean(),
+    unemploymentExempt: z.boolean(),
+    exemptionReason: blankToNull(500),
+    taxMethod: z.enum(payrollTaxMethods),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePayrollProfileRequest = z.input<typeof savePayrollProfileSchema>;
+export const saveInsuranceSalarySchema = z.object({ effectiveMonth: firstOfMonth, amount: decimalText(4), note: blankToNull(500) }).strict();
+export type SaveInsuranceSalaryRequest = z.input<typeof saveInsuranceSalarySchema>;
+export const uploadTaxCommitmentSchema = z.object({ year: z.coerce.number().int().min(2000).max(2100) }).strict();
+export interface InsuranceSalaryItem {
+  id: string;
+  effectiveMonth: string;
+  amount: string;
+  note: string | null;
+  createdByName: string;
+  createdAt: string;
+  // Thấp hơn lương tối thiểu vùng của chi nhánh làm việc tại tháng hiệu lực (cảnh báo, không chặn).
+  belowRegionalMinimum: boolean;
+}
+export interface PayrollProfileResponse {
+  employeeId: string;
+  socialExempt: boolean;
+  healthExempt: boolean;
+  unemploymentExempt: boolean;
+  exemptionReason: string | null;
+  taxMethod: PayrollTaxMethod;
+  hasTaxCode: boolean;
+  insuranceSalaries: InsuranceSalaryItem[];
+  taxCommitments: { id: string; year: number; fileName: string; uploadedAt: string }[];
+  version: number | null;
+}
+export interface MissingInsuranceItem {
+  employeeId: string;
+  code: string;
+  fullName: string;
+  contractKind: ContractKind | null;
+  contractEndDate: string | null;
+}
+
+// CONG_VIEC_48 lát L1: bảng lương tháng (API_159, API_160; QUYTAC_NGHIEPVU_316 đến 322).
+export const payrollStatuses = ["draft", "pending", "rejected", "withdrawn", "approved", "paid", "cancelled"] as const;
+export type PayrollStatus = (typeof payrollStatuses)[number];
+export const payrollWarnings = [
+  "timesheetMissing",
+  "branchRegionMissing",
+  "negativeNet",
+  "allowanceTypeMissing",
+  "missingInsuranceSalary",
+  "insuranceBelowMinimum",
+  "unpaidDaysNoInsurance",
+  "probationNoInsurance",
+  "missingTaxCode",
+  "flatWithholding",
+] as const;
+export type PayrollWarningCode = (typeof payrollWarnings)[number];
+export const payrollAdjustmentCategories = ["bonus", "arrears", "commission", "advance", "compensation", "union_dues", "other"] as const;
+export type PayrollAdjustmentCategory = (typeof payrollAdjustmentCategories)[number];
+
+export const createPayrollSchema = z.object({ month: firstOfMonth }).strict();
+export const payrollListQuerySchema = z
+  .object({
+    year: z.coerce.number().int().min(2000).max(2100).optional(),
+    status: z.enum(payrollStatuses).optional(),
+  })
+  .strict();
+export const payrollLineQuerySchema = z
+  .object({
+    departmentId: z.string().uuid().optional(),
+    warningsOnly: z.enum(["true", "false"]).optional(),
+  })
+  .strict();
+export const savePayrollAdjustmentSchema = z
+  .object({
+    employeeId: z.string().uuid(),
+    kind: z.enum(["addition", "deduction"]),
+    category: z.enum(payrollAdjustmentCategories),
+    taxable: z.boolean().default(false),
+    description: z.string().trim().min(1).max(200),
+    amount: decimalText(4),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePayrollAdjustmentRequest = z.input<typeof savePayrollAdjustmentSchema>;
+export const cancelPayrollSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export const payPayrollSchema = z.object({ paymentDate: isoDate, fundId: z.string().uuid() }).strict();
+
+export interface PayrollTotals {
+  employeeCount: number;
+  grossIncome: string;
+  employeeInsurance: string;
+  personalIncomeTax: string;
+  deductions: string;
+  netPay: string;
+  employerInsurance: string;
+  unionFee: string;
+  employerCost: string;
+}
+export interface PayrollListItem extends PayrollTotals {
+  id: string;
+  month: string;
+  documentNo: string | null;
+  status: PayrollStatus;
+}
+export interface PayrollListResponse {
+  data: PayrollListItem[];
+  canManage: boolean;
+}
+export interface PayrollLineItem {
+  id: string;
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  departmentId: string | null;
+  departmentName: string | null;
+  costGroup: PayrollCostGroup;
+  taxMethod: "progressive" | "flat";
+  standardDays: string;
+  paidDays: string;
+  timePay: string;
+  allowancePay: string;
+  overtimePay: string;
+  nightPremium: string;
+  settledLeavePay: string;
+  additions: string;
+  deductions: string;
+  grossIncome: string;
+  taxableIncome: string;
+  employeeInsurance: string;
+  personalIncomeTax: string;
+  netPay: string;
+  employerCost: string;
+  warnings: PayrollWarningCode[];
+}
+export interface PayrollAdjustmentItem {
+  id: string;
+  employeeId: string;
+  kind: "addition" | "deduction";
+  category: PayrollAdjustmentCategory;
+  taxable: boolean;
+  description: string;
+  amount: string;
+  version: number;
+}
+export interface PayrollLineDetail extends PayrollLineItem {
+  monthlySalary: string;
+  socialBase: string;
+  healthBase: string;
+  unemploymentBase: string;
+  employeeSocial: string;
+  employeeHealth: string;
+  employeeUnemployment: string;
+  employerSocial: string;
+  employerHealth: string;
+  employerUnemployment: string;
+  unionFee: string;
+  familyDeduction: string;
+  assessableIncome: string;
+  explanation: Record<string, unknown>;
+  adjustments: PayrollAdjustmentItem[];
+  canEdit: boolean;
+}
+export interface PayrollResponse extends PayrollTotals, PayrollPostingInfo {
+  id: string;
+  month: string;
+  documentNo: string | null;
+  status: PayrollStatus;
+  parameterEffectiveFrom: string;
+  baseSalary: string;
+  standardDays: string | null;
+  timesheetClosed: boolean;
+  calculatedAt: string;
+  calculatedByName: string;
+  approvalRequestId: string | null;
+  cancelReason: string | null;
+  // Số dòng có cảnh báo chặn gửi duyệt (chưa có bảng công, chi nhánh chưa chọn vùng, thực lĩnh âm).
+  blockingCount: number;
+  warningCount: number;
+  lines: PayrollLineItem[];
+  canEdit: boolean;
+  canSubmit: boolean;
+  canWithdraw: boolean;
+  canCancel: boolean;
+  version: number;
+}
+
+// CONG_VIEC_48 lát L2: bút toán, trả lương, phiếu lương (API_160, API_161; QUYTAC_NGHIEPVU_323).
+export type PayPayrollRequest = z.input<typeof payPayrollSchema>;
+export interface PayrollJournal {
+  id: string;
+  journalNo: string;
+  journalDate: string;
+  sourceType: "payroll" | "payroll_payment";
+  lines: { accountCode: string; accountName: string; debit: string; credit: string }[];
+}
+export interface PayrollPostingInfo {
+  paymentDate: string | null;
+  fundName: string | null;
+  journals: PayrollJournal[];
+  emailFailedCount: number;
+  canPay: boolean;
+  funds: { id: string; name: string; kind: "cash" | "bank" }[];
+}
+export interface PayslipListItem {
+  lineId: string;
+  month: string;
+  netPay: string;
+  status: "approved" | "paid";
+  paymentDate: string | null;
+}
+export interface PayslipResponse {
+  lineId: string;
+  month: string;
+  status: "approved" | "paid";
+  paymentDate: string | null;
+  employeeCode: string;
+  employeeName: string;
+  companyName: string;
+  line: PayrollLineDetail;
+}
+
+// CONG_VIEC_47 lát L2: nghỉ phép (API_153; QUYTAC_NGHIEPVU_307 đến 309).
+export const leavePayGroups = ["annual", "paid_personal", "paid_other", "unpaid", "social_insurance"] as const;
+export type LeavePayGroup = (typeof leavePayGroups)[number];
+export interface LeaveTypeItem {
+  id: string;
+  systemCode: string | null;
+  name: string;
+  payGroup: LeavePayGroup;
+  perEventDays: string | null;
+  yearlyMaxDays: string | null;
+  requiresAttachment: boolean;
+  status: "active" | "inactive";
+  // Loại bảo hiểm xã hội chỉ nhân sự ghi nhận.
+  selfService: boolean;
+  version: number;
+}
+export const saveLeaveTypeSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    payGroup: z.enum(["paid_other", "unpaid"]).optional(),
+    yearlyMaxDays: decimalText(1).nullable().optional(),
+    requiresAttachment: z.boolean().optional(),
+    status: z.enum(["active", "inactive"]).optional(),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveLeaveTypeRequest = z.input<typeof saveLeaveTypeSchema>;
+export const workConditions = ["normal", "disabled", "hazardous", "very_hazardous"] as const;
+export type WorkCondition = (typeof workConditions)[number];
+export const saveLeavePolicySchema = z.object({ workCondition: z.enum(workConditions), seniorityStart: isoDate.nullable().optional() }).strict();
+export const leaveAdjustmentSchema = z
+  .object({
+    employeeId: z.string().uuid(),
+    leaveYear: z.number().int().min(2000).max(2100),
+    days: z.string().trim().regex(/^-?\d{1,3}(\.\d{1,2})?$/),
+    reason: z.string().trim().min(1).max(500),
+  })
+  .strict();
+export type LeaveAdjustmentRequest = z.input<typeof leaveAdjustmentSchema>;
+export interface LeaveYearBalance {
+  leaveYear: number;
+  accrued: string;
+  adjusted: string;
+  used: string;
+  expired: string;
+  paidOut: string;
+  balance: string;
+  expiresOn: string | null;
+}
+export interface LeaveBalanceItem {
+  employeeId: string;
+  code: string;
+  fullName: string;
+  workCondition: WorkCondition;
+  isMinor: boolean;
+  seniorityStart: string;
+  entitlementDays: number;
+  years: LeaveYearBalance[];
+  available: string;
+  pending: string;
+}
+export interface LeaveLedgerEntry {
+  id: string;
+  leaveYear: number;
+  kind: "accrual" | "month_reversal" | "usage" | "adjustment" | "expiry" | "payout";
+  days: string;
+  accrualMonth: string | null;
+  requestNo: string | null;
+  reason: string | null;
+  createdAt: string;
+}
+export const leaveHalves = ["full", "morning", "afternoon"] as const;
+export const leaveRequestBodySchema = z
+  .object({
+    employeeId: z.string().uuid().optional(),
+    leaveTypeId: z.string().uuid(),
+    fromDate: isoDate,
+    fromHalf: z.enum(leaveHalves),
+    toDate: isoDate,
+    toHalf: z.enum(["full", "morning"]),
+    reason: z.preprocess((value) => (value === "" ? null : value), z.string().trim().max(1000).nullable().optional()),
+  })
+  .strict();
+export type LeaveRequestBody = z.input<typeof leaveRequestBodySchema>;
+export interface LeavePreviewResponse {
+  days: string;
+  dates: { date: string; half: "full" | "morning" | "afternoon"; units: string }[];
+  // Phép năm: số dư khả dụng trước và sau đơn.
+  availableBefore: string | null;
+  availableAfter: string | null;
+}
+export type LeaveRequestStatus = "pending" | "approved" | "rejected" | "withdrawn" | "cancelled";
+export interface LeaveRequestItem {
+  id: string;
+  requestNo: string;
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  leaveTypeId: string;
+  leaveTypeName: string;
+  payGroup: LeavePayGroup;
+  fromDate: string;
+  fromHalf: "full" | "morning" | "afternoon";
+  toDate: string;
+  toHalf: "full" | "morning";
+  days: string;
+  reason: string | null;
+  hasAttachment: boolean;
+  source: "self" | "hr";
+  status: LeaveRequestStatus;
+  approvalRequestId: string | null;
+  requestedAt: string;
+  cancelReason: string | null;
+  canWithdraw: boolean;
+  canCancel: boolean;
+}
+export const leaveRequestListQuerySchema = z
+  .object({ status: z.enum(["pending", "approved", "rejected", "withdrawn", "cancelled"]).optional(), month: yearMonth.optional(), leaveTypeId: z.string().uuid().optional() })
+  .strict();
+export const cancelLeaveSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export interface MyLeaveResponse {
+  balance: LeaveBalanceItem | null;
+  types: LeaveTypeItem[];
+  requests: LeaveRequestItem[];
+}
+
+// CONG_VIEC_47 lát L3: tăng ca (API_154; QUYTAC_NGHIEPVU_310), bảng công tháng (API_155; QUYTAC_NGHIEPVU_311).
+export const overtimeBodySchema = z
+  .object({
+    employeeId: z.string().uuid().optional(),
+    workDate: isoDate,
+    startTime: clockTime,
+    endTime: clockTime,
+    workContent: z.string().trim().min(1).max(500),
+    workLocation: z.string().trim().min(1).max(200),
+  })
+  .strict();
+export type OvertimeBody = z.input<typeof overtimeBodySchema>;
+export type OvertimeViolation = "dayLimit" | "monthLimit" | "yearLimit" | "minor" | "overlapsShift" | "overlapsRequest";
+export interface OvertimePreviewResponse {
+  dayKind: "weekday" | "rest_day" | "holiday";
+  hours: string;
+  nightHours: string;
+  dayLimitHours: string;
+  monthUsedHours: string;
+  monthLimitHours: number;
+  yearUsedHours: string;
+  yearLimitHours: number;
+  violations: OvertimeViolation[];
+}
+export type OvertimeStatus = "awaiting_consent" | "declined" | "pending" | "approved" | "rejected" | "withdrawn" | "cancelled";
+export interface OvertimeItem {
+  id: string;
+  requestNo: string;
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  workDate: string;
+  startAt: string;
+  endAt: string;
+  hours: string;
+  dayKind: "weekday" | "rest_day" | "holiday";
+  workContent: string;
+  workLocation: string;
+  consentStatus: "pending" | "agreed" | "declined" | "document";
+  status: OvertimeStatus;
+  approvalRequestId: string | null;
+  // Giờ được tính theo công ngày (khi đã duyệt và ngày đã có kết quả).
+  countedHours: string | null;
+  canConsent: boolean;
+  canWithdraw: boolean;
+  canCancel: boolean;
+}
+export const overtimeListQuerySchema = z
+  .object({ month: yearMonth, status: z.enum(["awaiting_consent", "declined", "pending", "approved", "rejected", "withdrawn", "cancelled"]).optional() })
+  .strict();
+export interface OvertimeTotalItem {
+  employeeId: string;
+  code: string;
+  fullName: string;
+  monthHours: string;
+  yearHours: string;
+  monthRemaining: string;
+  yearRemaining: string;
+}
+export const overtimeConsentSchema = z.object({ agree: z.boolean() }).strict();
+export const cancelOvertimeSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+
+export type TimesheetStatus = "open" | "confirming" | "closed";
+export type TimesheetConfirmation = "pending" | "confirmed" | "disputed" | "auto_confirmed";
+export interface TimesheetLineItem {
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  departmentName: string | null;
+  employmentFrom: string;
+  employmentTo: string;
+  monthStandardUnits: string;
+  standardUnits: string;
+  standardHours: string;
+  workedUnits: string;
+  workedHours: string;
+  holidayUnits: string;
+  annualLeaveUnits: string;
+  paidPersonalLeaveUnits: string;
+  otherPaidLeaveUnits: string;
+  unpaidLeaveUnits: string;
+  socialInsuranceLeaveUnits: string;
+  absentUnits: string;
+  paidUnits: string;
+  nightHours: string;
+  overtimeWeekdayHours: string;
+  overtimeWeekdayNightHours: string;
+  overtimeWeekdayNightAfterDayHours: string;
+  overtimeRestDayHours: string;
+  overtimeRestDayNightHours: string;
+  overtimeHolidayHours: string;
+  overtimeHolidayNightHours: string;
+  lateCount: number;
+  lateMinutes: number;
+  earlyLeaveCount: number;
+  earlyLeaveMinutes: number;
+  annualLeavePayoutUnits: string;
+  annualLeaveBalanceEnd: string;
+  confirmationStatus: TimesheetConfirmation;
+  confirmedAt: string | null;
+  disputeNote: string | null;
+  disputeReply: string | null;
+}
+export interface TimesheetResponse {
+  month: string;
+  status: TimesheetStatus;
+  monthEnded: boolean;
+  confirmationDeadline: string | null;
+  closedAt: string | null;
+  payrollLocked: boolean;
+  counts: { total: number; confirmed: number; disputed: number; pending: number };
+  canManage: boolean;
+  lines: TimesheetLineItem[];
+}
+export const openConfirmationSchema = z.object({ deadline: isoDate }).strict();
+export const timesheetDisputeSchema = z.object({ note: z.string().trim().min(1).max(1000) }).strict();
+export const timesheetReplySchema = z.object({ reply: z.string().trim().min(1).max(1000) }).strict();
+export const reopenTimesheetSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export interface MyTimesheetResponse {
+  month: string;
+  status: TimesheetStatus | null;
+  confirmationDeadline: string | null;
+  line: TimesheetLineItem | null;
+}
+
+// CONG_VIEC_50: báo cáo quản trị (MODULE_15; API_170 đến API_175).
+export const analyticsReportKinds = ["sales", "inventory", "debt", "commission"] as const;
+export type AnalyticsReportKind = (typeof analyticsReportKinds)[number];
+
+export interface AnalyticsCompany {
+  id: string;
+  code: string;
+  name: string;
+  currency: string;
+  // QUYTAC_NGHIEPVU_339: chỉ công ty cùng đồng tiền hạch toán với công ty gốc được cộng vào dòng tổng.
+  inTotal: boolean;
+}
+
+// API_170
+export interface AnalyticsScopeResponse {
+  group: { id: string; name: string; currency: string };
+  today: string;
+  companies: AnalyticsCompany[];
+  // Công ty được xem theo từng nhóm báo cáo; mảng rỗng khi không có quyền nhóm đó.
+  reports: Record<AnalyticsReportKind, string[]>;
+}
+
+// QUYTAC_NGHIEPVU_343: khoảng ngày bắt buộc, từ ngày không sau đến ngày, tối đa 366 ngày.
+export const analyticsMaximumDays = 366;
+export const analyticsCompanyIdsSchema = z
+  .string()
+  .optional()
+  .transform((value) => (value ? value.split(",").filter(Boolean) : undefined))
+  .pipe(z.array(z.uuid()).max(100).optional());
+export const analyticsPeriodSchema = { from: isoDate, to: isoDate };
+export const analyticsFormatSchema = z.enum(["json", "xlsx"]).default("json");
+
+// Dòng tiền của báo cáo quản trị theo đồng tiền hạch toán; inTotal = cộng vào dòng tổng (QUYTAC_NGHIEPVU_339).
+export interface AnalyticsMoneyRow {
+  currency: string;
+  inTotal: boolean;
+}
+// QUYTAC_NGHIEPVU_343: bảng hiện tối đa 500 dòng, xuất Excel tối đa 20.000 dòng.
+export const analyticsDisplayRows = 500;
+export const analyticsExportRows = 20_000;
+
+// API_171
+export const analyticsSalesGroupings = ["company", "channel", "product", "day", "month"] as const;
+export type AnalyticsSalesGrouping = (typeof analyticsSalesGroupings)[number];
+export const analyticsSalesQuerySchema = z
+  .object({
+    companyIds: analyticsCompanyIdsSchema,
+    ...analyticsPeriodSchema,
+    groupBy: z.enum(analyticsSalesGroupings).default("company"),
+    channelId: z.uuid().optional(),
+    marketplaceOnly: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
+    format: analyticsFormatSchema,
+  })
+  .strict();
+export interface AnalyticsSalesFigures {
+  quantity: string;
+  revenue: string;
+  cost: string;
+  grossProfit: string;
+  internalRevenue: string;
+}
+export interface AnalyticsSalesRow extends AnalyticsMoneyRow, AnalyticsSalesFigures {
+  key: string;
+  label: string;
+}
+export interface AnalyticsSalesResponse {
+  from: string;
+  to: string;
+  groupBy: AnalyticsSalesGrouping;
+  currency: string;
+  companies: AnalyticsCompany[];
+  channels: { id: string; label: string }[];
+  rows: AnalyticsSalesRow[];
+  // Tổng các dòng cùng đồng tiền với công ty gốc, tính trên toàn bộ dữ liệu.
+  totals: AnalyticsSalesFigures & { revenueExcludingInternal: string };
+  // Số dòng có dữ liệu khi bảng bị cắt; null khi hiện đủ.
+  totalRows: number | null;
+}
+
+// API_172
+export const analyticsInventoryGroupings = ["company", "warehouse", "product"] as const;
+export type AnalyticsInventoryGrouping = (typeof analyticsInventoryGroupings)[number];
+export const analyticsInventoryQuerySchema = z
+  .object({
+    companyIds: analyticsCompanyIdsSchema,
+    ...analyticsPeriodSchema,
+    groupBy: z.enum(analyticsInventoryGroupings).default("warehouse"),
+    warehouseId: z.uuid().optional(),
+    format: analyticsFormatSchema,
+  })
+  .strict();
+export interface AnalyticsInventoryFigures {
+  openingQuantity: string;
+  openingValue: string;
+  inQuantity: string;
+  inValue: string;
+  outQuantity: string;
+  outValue: string;
+  closingQuantity: string;
+  closingValue: string;
+  // Giá vốn hàng bán trong kỳ (QUYTAC_NGHIEPVU_337), vòng quay, số ngày tồn; null khi chia cho 0 (QUYTAC_NGHIEPVU_340).
+  costOfSales: string;
+  turnover: string | null;
+  daysOfInventory: string | null;
+}
+export interface AnalyticsInventoryRow extends AnalyticsMoneyRow, AnalyticsInventoryFigures {
+  key: string;
+  label: string;
+}
+export interface AnalyticsInventoryResponse {
+  from: string;
+  to: string;
+  days: number;
+  groupBy: AnalyticsInventoryGrouping;
+  currency: string;
+  companies: AnalyticsCompany[];
+  warehouses: { id: string; label: string }[];
+  rows: AnalyticsInventoryRow[];
+  // Tổng giá trị các công ty cùng đồng tiền với công ty gốc; số lượng không cộng vì khác đơn vị giữa sản phẩm.
+  totals: Pick<AnalyticsInventoryFigures, "openingValue" | "inValue" | "outValue" | "closingValue" | "costOfSales" | "turnover" | "daysOfInventory">;
+  totalRows: number | null;
+}
+
+// API_173
+export const analyticsDebtGroupings = ["company", "partner"] as const;
+export type AnalyticsDebtGrouping = (typeof analyticsDebtGroupings)[number];
+export const analyticsDebtQuerySchema = z
+  .object({
+    companyIds: analyticsCompanyIdsSchema,
+    side: z.enum(["receivable", "payable"]).default("receivable"),
+    groupBy: z.enum(analyticsDebtGroupings).default("company"),
+    format: analyticsFormatSchema,
+  })
+  .strict();
+export interface AnalyticsDebtFigures {
+  balance: string;
+  notDue: string;
+  overdue1To30: string;
+  overdue31To60: string;
+  overdue61To90: string;
+  overdueOver90: string;
+  advance: string;
+  // Số dư với đối tác nội bộ thuộc tập đoàn (QUYTAC_NGHIEPVU_338).
+  internalBalance: string;
+}
+export interface AnalyticsDebtRow extends AnalyticsMoneyRow, AnalyticsDebtFigures {
+  key: string;
+  label: string;
+}
+export interface AnalyticsDebtResponse {
+  today: string;
+  side: DebtSide;
+  groupBy: AnalyticsDebtGrouping;
+  currency: string;
+  companies: AnalyticsCompany[];
+  // Thẻ phải thu, phải trả của các công ty cùng đồng tiền với công ty gốc.
+  summary: Record<DebtSide, { balance: string; overdue: string }>;
+  rows: AnalyticsDebtRow[];
+  totals: AnalyticsDebtFigures & { balanceExcludingInternal: string };
+  totalRows: number | null;
+}
+
+// API_174
+export const analyticsCommissionGroupings = ["share", "beneficiary"] as const;
+export type AnalyticsCommissionGrouping = (typeof analyticsCommissionGroupings)[number];
+export const analyticsCommissionQuerySchema = z
+  .object({
+    companyIds: analyticsCompanyIdsSchema,
+    ...analyticsPeriodSchema,
+    groupBy: z.enum(analyticsCommissionGroupings).default("share"),
+    format: analyticsFormatSchema,
+  })
+  .strict();
+export interface AnalyticsCommissionResponse {
+  from: string;
+  to: string;
+  groupBy: AnalyticsCommissionGrouping;
+  currency: string;
+  companies: AnalyticsCompany[];
+  summary: {
+    credited: string;
+    creditedLines: number;
+    // Ước tính hoa hồng của đơn chưa hoàn tất tại hôm nay (QUYTAC_NGHIEPVU_203).
+    pending: string;
+    paid: { count: number; amount: string; taxAmount: string; feeAmount: string; netAmount: string };
+    pendingWithdrawals: { count: number; amount: string };
+    // Tổng số dư ví; null khi công ty vận hành VComm không nằm trong các công ty đã chọn.
+    walletBalance: string | null;
+  };
+  // key là loại phần hưởng (referral, staff, team_head, regional_director, director) hoặc mã người hưởng.
+  rows: { key: string; label: string; lines: number; amount: string }[];
+  withdrawals: { id: string; userName: string; paidOn: string; amount: string; taxAmount: string; feeAmount: string; netAmount: string }[];
+  totalRows: number | null;
+  totalWithdrawals: number | null;
+}
+
+// API_175: chỉ tiêu tổng quan theo quyền từng nhóm; null khi không có quyền nhóm đó hoặc không có công ty đã chọn được xem.
+export const analyticsOverviewQuerySchema = z.object({ companyIds: analyticsCompanyIdsSchema, ...analyticsPeriodSchema }).strict();
+export interface AnalyticsOverviewResponse {
+  from: string;
+  to: string;
+  currency: string;
+  sales: Pick<AnalyticsSalesResponse, "rows" | "totals"> | null;
+  inventory: AnalyticsInventoryResponse["totals"] | null;
+  debt: AnalyticsDebtResponse["summary"] | null;
+  commission: Pick<AnalyticsCommissionResponse["summary"], "credited" | "pending" | "walletBalance"> | null;
+}

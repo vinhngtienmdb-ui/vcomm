@@ -29,7 +29,16 @@ export type PostingRole =
   | "commission_payable"
   | "personal_income_tax"
   | "other_income"
-  | "service_expense";
+  | "service_expense"
+  // CONG_VIEC_48: lương.
+  | "salary_payable"
+  | "salary_expense_selling"
+  | "salary_expense_admin"
+  | "social_insurance_payable"
+  | "health_insurance_payable"
+  | "unemployment_insurance_payable"
+  | "union_fee_payable"
+  | "payroll_deduction_payable";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -57,6 +66,14 @@ export const postingRoles: PostingRole[] = [
   "personal_income_tax",
   "other_income",
   "service_expense",
+  "salary_payable",
+  "salary_expense_selling",
+  "salary_expense_admin",
+  "social_insurance_payable",
+  "health_insurance_payable",
+  "unemployment_insurance_payable",
+  "union_fee_payable",
+  "payroll_deduction_payable",
 ];
 
 export interface DraftLine {
@@ -76,7 +93,9 @@ export interface DraftJournal {
     | "marketplace_refund"
     | "marketplace_commission"
     | "marketplace_withdrawal"
-    | "marketplace_referral_bonus";
+    | "marketplace_referral_bonus"
+    | "payroll"
+    | "payroll_payment";
   sourceId: string;
   journalNo: string;
   date: string;
@@ -422,5 +441,85 @@ export async function collectionDraft(executor: Executor, statementId: string): 
       debit("collection_fee", fee),
       credit("collector_receivable", fee, row.partner_id),
     ],
+  };
+}
+
+// Bút toán trích lương khi bảng lương được duyệt (CONG_VIEC_48; QUYTAC_NGHIEPVU_323): chi phí theo nhóm phòng ban, phải trả người lao động,
+// bảo hiểm, kinh phí công đoàn phải nộp, thuế thu nhập cá nhân khấu trừ, khoản khấu trừ. Tiền tổng hợp trong PostgreSQL (numeric), đã làm tròn đến đồng.
+export async function payrollDraft(executor: Executor, payrollId: string, date: string): Promise<DraftJournal | null> {
+  const row = (
+    await executor.execute<{
+      company_id: string;
+      document_no: string;
+      month: string;
+      selling_cost: string;
+      admin_cost: string;
+      gross: string;
+      social: string;
+      health: string;
+      unemployment: string;
+      union_fee: string;
+      employee_insurance: string;
+      tax: string;
+      deductions: string;
+    }>(sql`
+    SELECT p.company_id, p.document_no, p.month::text,
+      COALESCE(sum(l.employer_cost) FILTER (WHERE l.cost_group = 'selling'), 0)::text AS selling_cost,
+      COALESCE(sum(l.employer_cost) FILTER (WHERE l.cost_group = 'admin'), 0)::text AS admin_cost,
+      COALESCE(sum(l.gross_income), 0)::text AS gross,
+      COALESCE(sum(l.employer_social + l.employee_social), 0)::text AS social,
+      COALESCE(sum(l.employer_health + l.employee_health), 0)::text AS health,
+      COALESCE(sum(l.employer_unemployment + l.employee_unemployment), 0)::text AS unemployment,
+      COALESCE(sum(l.union_fee), 0)::text AS union_fee,
+      COALESCE(sum(l.employee_social + l.employee_health + l.employee_unemployment), 0)::text AS employee_insurance,
+      COALESCE(sum(l.personal_income_tax), 0)::text AS tax,
+      COALESCE(sum(l.deductions), 0)::text AS deductions
+    FROM hr.payrolls p LEFT JOIN hr.payroll_lines l ON l.payroll_id = p.id
+    WHERE p.id = ${payrollId}
+    GROUP BY p.id`)
+  ).rows[0];
+  if (!row || !row.document_no) return null;
+  const money = await rounder(executor, row.company_id);
+  const value = (text: string) => money(Number(text));
+  const withheld = value(row.employee_insurance) + value(row.tax) + value(row.deductions);
+  return {
+    companyId: row.company_id,
+    sourceType: "payroll",
+    sourceId: payrollId,
+    journalNo: row.document_no,
+    date,
+    description: `Lương tháng ${row.month.slice(5, 7)}/${row.month.slice(0, 4)}`,
+    lines: [
+      debit("salary_expense_selling", value(row.selling_cost)),
+      debit("salary_expense_admin", value(row.admin_cost)),
+      credit("salary_payable", value(row.gross)),
+      credit("social_insurance_payable", value(row.social)),
+      credit("health_insurance_payable", value(row.health)),
+      credit("unemployment_insurance_payable", value(row.unemployment)),
+      credit("union_fee_payable", value(row.union_fee)),
+      debit("salary_payable", withheld),
+      credit("personal_income_tax", value(row.tax)),
+      credit("payroll_deduction_payable", value(row.deductions)),
+    ],
+  };
+}
+
+// Bút toán trả lương: Nợ phải trả người lao động, Có quỹ tiền mặt hoặc ngân hàng tổng thực lĩnh (QUYTAC_NGHIEPVU_323).
+export async function payrollPaymentDraft(executor: Executor, payrollId: string): Promise<DraftJournal | null> {
+  const row = (
+    await executor.execute<{ company_id: string; document_no: string; month: string; payment_date: string; net_pay: string; fund_kind: "cash" | "bank" }>(sql`
+    SELECT p.company_id, p.document_no, p.month::text, p.payment_date::text, p.net_pay::text, f.kind AS fund_kind
+    FROM hr.payrolls p JOIN finance.funds f ON f.id = p.fund_id WHERE p.id = ${payrollId}`)
+  ).rows[0];
+  if (!row) return null;
+  const amount = (await rounder(executor, row.company_id))(Number(row.net_pay));
+  return {
+    companyId: row.company_id,
+    sourceType: "payroll_payment",
+    sourceId: payrollId,
+    journalNo: `${row.document_no}-TT`,
+    date: row.payment_date,
+    description: `Trả lương tháng ${row.month.slice(5, 7)}/${row.month.slice(0, 4)}`,
+    lines: [debit("salary_payable", amount), credit(row.fund_kind === "cash" ? "cash" : "bank", amount)],
   };
 }

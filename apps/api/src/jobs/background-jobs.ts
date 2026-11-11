@@ -1,7 +1,10 @@
 // Tác vụ nền bằng BullMQ trên Redis (tài liệu 13): kiểm tra duyệt quá hạn mỗi 15 phút, đẩy outbox mỗi 10 giây,
 // tạo trước partition nhật ký thao tác mỗi ngày (tài liệu 16), lấy tỷ giá Vietcombank lúc 8:30 sáng giờ Việt Nam (CHUC_NANG_21),
 // nhả hàng giữ hết hạn mỗi 5 phút (CHUC_NANG_43), thông báo hàng dưới tồn an toàn lúc 7 giờ sáng (CHUC_NANG_44),
-// gửi hóa đơn điện tử mỗi 30 giây, báo hóa đơn quá hạn mỗi giờ (CHUC_NANG_77), tự hoàn tất đơn VComm mỗi giờ (CHUC_NANG_119), chốt nhóm mua chung mỗi phút (CHUC_NANG_172).
+// gửi hóa đơn điện tử mỗi 30 giây, báo hóa đơn quá hạn mỗi giờ (CHUC_NANG_77), tự hoàn tất đơn VComm mỗi giờ (CHUC_NANG_119),
+// áp dụng quyết định công tác lúc 0 giờ 5 phút (CHUC_NANG_162), nhắc hết hạn hợp đồng lúc 7 giờ (CHUC_NANG_164),
+// tính lại công ngày hôm trước lúc 1 giờ (CHUC_NANG_165), cộng phép năm, hết hạn phép tồn lúc 0 giờ 15 phút (CHUC_NANG_166),
+// tự xác nhận bảng công hết hạn lúc 0 giờ 30 phút (CHUC_NANG_167), chốt nhóm mua chung mỗi phút (CHUC_NANG_172).
 // Chỉ chạy trong tiến trình API; kiểm thử gọi thẳng dịch vụ nên không cần Redis.
 import { Logger, type INestApplication } from "@nestjs/common";
 import { Queue, Worker } from "bullmq";
@@ -16,6 +19,11 @@ import { ReservationsService } from "../inventory/reservations.service";
 import { StockLevelsService } from "../inventory/stock-levels.service";
 import { AuditEventsService } from "../settings/audit-events.service";
 import { ExchangeRatesService } from "../settings/exchange-rates.service";
+import { ContractRemindersService } from "../hr/contract-reminders.service";
+import { WorkEventsService } from "../hr/work-events.service";
+import { AttendanceDaysService } from "../hr/attendance-days.service";
+import { LeaveService } from "../hr/leave.service";
+import { TimesheetsService } from "../hr/timesheets.service";
 
 const queueName = "nen-tang";
 const einvoiceQueueName = "hoa-don-dien-tu";
@@ -39,6 +47,11 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const marketplaceOrders = application.get(MarketplaceOrdersService);
   const payments = application.get(MarketplacePaymentsService);
   const groupBuys = application.get(GroupBuysService);
+  const workEvents = application.get(WorkEventsService);
+  const contractReminders = application.get(ContractRemindersService);
+  const attendanceDays = application.get(AttendanceDaysService);
+  const leave = application.get(LeaveService);
+  const timesheets = application.get(TimesheetsService);
   const queue = new Queue(queueName, { connection });
   await queue.upsertJobScheduler("approval-overdue", { every: 15 * 60_000 }, { name: "approval-overdue" });
   await queue.upsertJobScheduler("outbox-dispatch", { every: 10_000 }, { name: "outbox-dispatch" });
@@ -46,6 +59,11 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("exchange-rate-fetch", { pattern: "30 8 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "exchange-rate-fetch" });
   await queue.upsertJobScheduler("inventory-reservation-expiry", { every: 5 * 60_000 }, { name: "inventory-reservation-expiry" });
   await queue.upsertJobScheduler("inventory-stock-alerts", { pattern: "0 7 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "inventory-stock-alerts" });
+  await queue.upsertJobScheduler("hr-work-events", { pattern: "5 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-work-events" });
+  await queue.upsertJobScheduler("hr-contract-reminders", { pattern: "0 7 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-contract-reminders" });
+  await queue.upsertJobScheduler("hr-timesheet-confirmation", { pattern: "30 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-timesheet-confirmation" });
+  await queue.upsertJobScheduler("hr-leave-accrual", { pattern: "15 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-leave-accrual" });
+  await queue.upsertJobScheduler("hr-attendance-recalculate", { pattern: "0 1 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-attendance-recalculate" });
   // Tự hoàn tất đơn VComm hết hạn trả hàng (CONG_VIEC_24; QUYTAC_NGHIEPVU_162).
   await queue.upsertJobScheduler("marketplace-order-completion", { every: 60 * 60_000 }, { name: "marketplace-order-completion" });
   // Hủy đơn VComm quá hạn thanh toán, nhả hàng (CONG_VIEC_25; QUYTAC_NGHIEPVU_165).
@@ -75,6 +93,11 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "exchange-rate-fetch") return exchangeRates.fetchDaily(vietnamDate(new Date()));
       if (job.name === "inventory-reservation-expiry") return reservations.releaseExpired();
       if (job.name === "inventory-stock-alerts") return stockLevels.notifyAlerts();
+      if (job.name === "hr-work-events") return workEvents.applyDue();
+      if (job.name === "hr-contract-reminders") return contractReminders.sendDue();
+      if (job.name === "hr-attendance-recalculate") return attendanceDays.recalculateRecent();
+      if (job.name === "hr-leave-accrual") return leave.accrueDue();
+      if (job.name === "hr-timesheet-confirmation") return timesheets.autoConfirm();
       if (job.name === "marketplace-order-completion") return marketplaceOrders.completeDue();
       if (job.name === "marketplace-payment-expiry") return payments.expireDue();
       if (job.name === "marketplace-group-buy-close") return groupBuys.closeDue();

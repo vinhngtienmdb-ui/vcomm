@@ -36,7 +36,8 @@ export function teamRecipients(responsibleId: string, responsibleTitle: SalesTit
 }
 
 // Số tiền một dòng hoa hồng (bí danh c: hoa hồng, l: dòng đơn bán).
-const estimate = sql`round(CASE WHEN c.calculation = 'percent'
+// Báo cáo quản trị dùng lại ước tính hoa hồng đang chờ (CONG_VIEC_50).
+export const estimate = sql`round(CASE WHEN c.calculation = 'percent'
   THEN c.rate / 100 * l.net_amount * greatest(l.base_quantity - ${returnedOnOrderLine(sql`l.id`)}, 0) / l.base_quantity
   ELSE c.rate * greatest(l.base_quantity - ${returnedOnOrderLine(sql`l.id`)}, 0) END)`;
 // Dùng lại cho thống kê cộng tác viên (CONG_VIEC_49).

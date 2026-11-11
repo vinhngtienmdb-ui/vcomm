@@ -1,11 +1,13 @@
 // MAN_HINH_96 Chi tiết đơn (CHUC_NANG_116; API_126; QUYTAC_NGHIEPVU_159): trạng thái, vận đơn, dòng hàng, tiền, lịch sử, hủy đơn.
 // CONG_VIEC_49: phần trả bằng ví mua sắm, kết quả nhóm mua chung (MAN_HINH_134, 135); viết đánh giá dòng hàng đã giao (MAN_HINH_136).
 // MAN_HINH_99 khối Thanh toán (CONG_VIEC_25; API_131; QUYTAC_NGHIEPVU_165, 167): hạn thanh toán, mở trang VNPAY, thanh toán lại, trạng thái thanh toán.
-import type { BuyerOrderDetail, BuyerPaymentStart, ReviewableLine } from "contracts";
+// Mã QR chuyển khoản vẽ từ chuỗi VietQR khi cổng không cấp ảnh (CONG_VIEC_36; QUYTAC_NGHIEPVU_240).
+import type { BuyerOrderDetail, BuyerPaymentStart, PaymentTransferInstruction, ReviewableLine } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import * as Linking from "expo-linking";
 import { useCallback, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Image, ScrollView, Text, View } from "react-native";
+import QRCode from "react-native-qrcode-svg";
 import { AmountRow, OrderLines, orderStatusTone } from "@/components/OrderLines";
 import { Button, Card, Field, Loading, Muted, Notice, Screen, StatusBadge, Title } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
@@ -28,6 +30,7 @@ export default function OrderScreen() {
   const [busy, setBusy] = useState(false);
   const [paying, setPaying] = useState(false);
   const [paymentOpened, setPaymentOpened] = useState(false);
+  const [transfer, setTransfer] = useState<PaymentTransferInstruction | null>(null);
 
   const load = useCallback(() => {
     api<BuyerOrderDetail>(`/buyer/orders/${encodeURIComponent(String(id))}`)
@@ -56,7 +59,9 @@ export default function OrderScreen() {
     setError(null);
     try {
       const started = await api<BuyerPaymentStart>(`/buyer/orders/${order.id}/payments`, { method: "POST" });
-      await Linking.openURL(started.paymentUrl);
+      // Cổng chuyển trang: mở trang cổng; cổng chuyển khoản: hiện thông tin chuyển khoản, mã QR (CONG_VIEC_32).
+      if (started.paymentUrl) await Linking.openURL(started.paymentUrl);
+      setTransfer(started.transfer);
       setPaymentOpened(true);
     } catch (failure) {
       setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
@@ -160,7 +165,27 @@ export default function OrderScreen() {
               <Card>
                 <Text style={{ fontWeight: "700", color: colors.text }}>{method(order.paymentMethod)}</Text>
                 <Notice tone="warning" text={t("payBefore", { time: dateTime(order.paymentDeadline) })} />
-                {paymentOpened ? <Notice tone="info" text={t("paymentOpened")} /> : null}
+                {paymentOpened && !transfer ? <Notice tone="info" text={t("paymentOpened")} /> : null}
+                {transfer ? (
+                  <View style={{ gap: space[1] }}>
+                    <Notice tone="info" text={t("transferHint")} />
+                    {transfer.qrImageUrl ? (
+                      <Image source={{ uri: transfer.qrImageUrl }} style={{ width: 220, height: 220, alignSelf: "center" }} accessibilityLabel={t("transferQr")} />
+                    ) : transfer.qrData ? (
+                      <View style={{ alignSelf: "center", padding: space[2], backgroundColor: colors.surface }} accessible accessibilityLabel={t("transferQr")}>
+                        <QRCode value={transfer.qrData} size={220} ecl="M" />
+                      </View>
+                    ) : null}
+                    <Text style={{ color: colors.text }}>{t("transferBank", { bank: transfer.bankName })}</Text>
+                    <Text style={{ color: colors.text }} selectable>
+                      {t("transferAccount", { account: transfer.accountNumber, name: transfer.accountName })}
+                    </Text>
+                    <Text style={{ color: colors.text, fontWeight: "700" }}>{t("transferAmount", { amount: money(transfer.amount) })}</Text>
+                    <Text style={{ color: colors.text }} selectable>
+                      {t("transferContent", { content: transfer.content })}
+                    </Text>
+                  </View>
+                ) : null}
                 <Button label={paymentOpened ? t("payAgain") : t("payNow")} busy={paying} onPress={() => void pay()} />
                 {paymentOpened ? <Button label={t("checkPayment")} kind="secondary" onPress={load} /> : null}
               </Card>

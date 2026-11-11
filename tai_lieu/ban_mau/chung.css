@@ -84,7 +84,7 @@ td a { font-weight: 700; text-decoration: none; }
 .khoi-canh-bao.thong-tin { background: var(--mau-thong-tin-nen); color: var(--mau-thong-tin); border-color: #BFD0FA; }
 
 /* The, khối */
-.the { background: var(--mau-be-mat); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); box-shadow: var(--bong-nhe); padding: var(--khoang-4); display: grid; gap: var(--khoang-3); min-width: 0; }
+.the { background: var(--mau-be-mat); border: 1px solid var(--mau-vien); border-radius: var(--bo-vua); box-shadow: var(--bong-nhe); padding: var(--khoang-4); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--khoang-3); min-width: 0; }
 .hai-cot { display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr); gap: var(--khoang-4); }
 .cac-the { display: flex; gap: var(--khoang-1); border-bottom: 1px solid var(--mau-vien); flex-wrap: wrap; }
 .cac-the button { background: none; border: 0; border-bottom: 3px solid transparent; padding: var(--khoang-2) var(--khoang-3); font: inherit; color: var(--mau-chu-phu); cursor: pointer; }
@@ -150,13 +150,13 @@ td a { font-weight: 700; text-decoration: none; }
   .noi-dung { padding: var(--khoang-4); }
   .hai-cot { grid-template-columns: 1fr; }
   .luoi-app { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .bo-loc .o-nhap { min-width: 0; flex: 1 1 140px; }
+  .bo-loc .o-nhap { min-width: 0; max-width: 100%; flex: 1 1 140px; }
 }
 .an-nhan { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 td a { white-space: nowrap; }
 @media (max-width: 767px) {
   .khung-bang thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .khung-bang table, .khung-bang tbody, .khung-bang tr, .khung-bang td { display: block; width: 100%; }
+  .khung-bang table, .khung-bang tbody, .khung-bang tfoot, .khung-bang tr, .khung-bang td { display: block; width: 100%; }
   .khung-bang tr { padding: var(--khoang-3) var(--khoang-4); border-bottom: 1px solid var(--mau-vien); }
   .khung-bang td { border: 0; padding: 3px 0; display: grid; grid-template-columns: 40% minmax(0, 1fr); gap: var(--khoang-2); }
   .khung-bang td::before { content: attr(data-nhan); color: var(--mau-chu-phu); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }

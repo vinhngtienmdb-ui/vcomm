@@ -150,3 +150,16 @@
 ### Zalo Login (THAY_DOI_01)
 - OAuth phiên bản 4: `https://oauth.zaloapp.com/v4/permission`, `https://oauth.zaloapp.com/v4/access_token`, thông tin người dùng `https://graph.zalo.me/v2.0/me` với `fields=id,name,picture` (`https://github.com/zaloplatform/zalo-php-sdk`). SDK chính thức dùng PKCE (`code_challenge`).
 - Zalo Login trên web không trả số điện thoại; số điện thoại chỉ lấy được trong Zalo Mini App qua `getPhoneNumber` có sự đồng ý của người dùng. Phù hợp quy tắc đã duyệt: nhân viên liên kết Zalo sau khi kích hoạt (QUYTAC_NGHIEPVU_08); người mua đăng ký bằng Zalo vẫn cần xác minh số điện thoại bằng OTP.
+
+## 7. Phân tích giải pháp có sẵn – CONG_VIEC_44 ứng dụng kho – 2026-11-11
+
+- Yêu cầu cần đáp ứng: CHUC_NANG_159 (quét mã vạch bằng camera điện thoại, máy quét cầm tay).
+- Nguồn đã tìm: mã nguồn dự án (`apps/mobile-vcomm`: Expo SDK 58, `expo-secure-store`, cách gọi API bằng token); kho npm.
+- Từ khóa đã dùng: tên thư viện cụ thể; không chứa thông tin nghiệp vụ.
+
+| Ứng viên | Dùng cho | Giấy phép | Phiên bản, cập nhật gần nhất | Tương thích công nghệ | Công sức điều chỉnh |
+|---|---|---|---|---|---|
+| `expo-camera` | Đọc mã vạch, mã QR bằng camera (`CameraView`, `onBarcodeScanned`) | MIT | 58.0.14 (Expo SDK 58) | Expo SDK 58 đang dùng | Thấp |
+| Không thêm thư viện | Máy quét cầm tay Android chế độ bàn phím: ô nhập nhận chuỗi kèm Enter | Không áp dụng | Không áp dụng | React Native | Thấp |
+
+Quyết định: người dùng đồng ý thêm `expo-camera` ngày 2026-11-11. Kiểm thử đơn vị của ứng dụng dùng `vitest` (đã có trong dự án). Không thêm thư viện âm thanh: báo lỗi quét bằng rung (`Vibration` của React Native).
