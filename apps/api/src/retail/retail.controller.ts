@@ -13,6 +13,12 @@ import {
   retailShiftListQuerySchema,
   saveRetailRegisterSchema,
   saveRetailStationSchema,
+  stationHandoverSchema,
+  stationOrderCancelSchema,
+  stationOrderListQuerySchema,
+  stationOrderVersionSchema,
+  type StationOrderDetail,
+  type StationOrderListResponse,
   saveRetailStoreSchema,
   type RetailCounterContext,
   type RetailItemOption,
@@ -36,6 +42,7 @@ import type { Actor } from "../permissions/roles.service";
 import { RetailReturnsService } from "./retail-returns.service";
 import { RetailSalesService } from "./retail-sales.service";
 import { RetailShiftsService } from "./retail-shifts.service";
+import { RetailStationOrdersService } from "./retail-station-orders.service";
 import { RetailStoresService } from "./retail-stores.service";
 
 @Controller("retail")
@@ -46,6 +53,7 @@ export class RetailController {
     private readonly shifts: RetailShiftsService,
     private readonly sales: RetailSalesService,
     private readonly returns: RetailReturnsService,
+    private readonly stationOrders: RetailStationOrdersService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -82,6 +90,45 @@ export class RetailController {
   @Patch("stores/:id/station")
   async stationUpdate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<RetailStoreResponse> {
     return this.stores.saveStation(await this.actor(request, companyId), id, saveRetailStationSchema.parse(body));
+  }
+
+  // API_223, API_224: đơn trực tuyến tại trạm (CONG_VIEC_57).
+  @Get("station-orders")
+  async stationOrderList(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<StationOrderListResponse> {
+    return this.stationOrders.list(await this.actor(request, companyId), stationOrderListQuerySchema.parse(query));
+  }
+
+  @Get("station-orders/by-code")
+  async stationOrderByCode(
+    @Req() request: AuthenticatedRequest,
+    @Query("storeId", UuidPipe) storeId: string,
+    @Query("code") code: string | undefined,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<StationOrderDetail> {
+    return this.stationOrders.byCode(await this.actor(request, companyId), storeId, String(code ?? "").slice(0, 120));
+  }
+
+  @Get("station-orders/:id")
+  async stationOrderDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<StationOrderDetail> {
+    return this.stationOrders.detail(await this.actor(request, companyId), id);
+  }
+
+  @Post("station-orders/:id/ready")
+  @HttpCode(200)
+  async stationOrderReady(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StationOrderDetail> {
+    return this.stationOrders.ready(await this.actor(request, companyId), id, stationOrderVersionSchema.parse(body).version);
+  }
+
+  @Post("station-orders/:id/cancel")
+  @HttpCode(200)
+  async stationOrderCancel(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StationOrderDetail> {
+    return this.stationOrders.cancel(await this.actor(request, companyId), id, stationOrderCancelSchema.parse(body));
+  }
+
+  @Post("station-orders/:id/handover")
+  @HttpCode(200)
+  async stationOrderHandover(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StationOrderDetail> {
+    return this.stationOrders.handover(await this.actor(request, companyId), id, stationHandoverSchema.parse(body));
   }
 
   @Get("regions/provinces")

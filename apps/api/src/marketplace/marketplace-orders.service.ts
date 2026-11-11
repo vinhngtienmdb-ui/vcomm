@@ -95,6 +95,8 @@ const money = (value: number) => trimDecimal(value.toFixed(4));
 // Tiền đồng Việt Nam làm tròn đến đồng (tiền thu hộ, phí giao hàng).
 const roundCurrency = (value: number) => Math.round(value);
 const iso = (value: Date | null) => (value ? new Date(value).toISOString() : null);
+// Nội dung mã QR nhận hàng: số đơn và mã (QUYTAC_NGHIEPVU_425).
+export const pickupQrText = (documentNo: string, code: string) => `VCOMM-NHAN:${documentNo}:${code}`;
 
 const orderSelect = sql`
   SELECT m.id, m.sales_order_id, so.document_no, m.buyer_user_id, u.full_name AS buyer_name, u.phone AS buyer_phone, m.recipient_name, m.recipient_phone, m.province_name,
@@ -124,7 +126,8 @@ const listItem = (row: OrderRow): BuyerOrderListItem => ({
 
 // Hủy được khi chưa có đơn vị vận chuyển lấy hàng (QUYTAC_NGHIEPVU_159), kể cả đơn chờ thanh toán (QUYTAC_NGHIEPVU_165).
 // CONG_VIEC_49: đơn Chờ chốt nhóm hủy được khi nhóm còn mở (QUYTAC_NGHIEPVU_330).
-export const cancellableStatuses: MarketplaceOrderStatus[] = ["awaiting_payment", "awaiting_group", "awaiting_shipment", "awaiting_pickup"];
+// CONG_VIEC_57: đơn tại trạm hủy được khi Sẵn sàng nhận (QUYTAC_NGHIEPVU_424).
+export const cancellableStatuses: MarketplaceOrderStatus[] = ["awaiting_payment", "awaiting_group", "awaiting_shipment", "ready_for_pickup", "awaiting_pickup"];
 // Đơn thanh toán trực tuyến giữ hàng 15 phút (QUYTAC_NGHIEPVU_165).
 export const paymentWindowMinutes = 15;
 
@@ -300,6 +303,14 @@ export class MarketplaceOrdersService {
     };
   }
 
+  // Mã nhận hàng chỉ hiện khi đơn đang chờ nhận hoặc đang giao từ trạm (QUYTAC_NGHIEPVU_425).
+  private async pickupOf(row: OrderRow): Promise<BuyerOrderDetail["pickup"]> {
+    if (!row.station_id || !["ready_for_pickup", "shipping"].includes(row.status)) return null;
+    const found = (await this.database.execute<{ pickup_code: string; hold_until: Date }>(sql`SELECT pickup_code, hold_until FROM retail.station_orders WHERE order_id = ${row.id} AND is_active`))
+      .rows[0];
+    return found ? { code: found.pickup_code, qrText: pickupQrText(row.document_no, found.pickup_code), holdUntil: iso(found.hold_until)! } : null;
+  }
+
   private async addressOf(executor: Executor, userId: string, addressId: string): Promise<{ provinceCode: string; wardCode: string } | null> {
     const row = (
       await executor.execute<{ province_code: string; ward_code: string }>(sql`
@@ -455,7 +466,7 @@ export class MarketplaceOrdersService {
     return row;
   }
 
-  private async lines(salesOrderId: string): Promise<MarketplaceOrderLine[]> {
+  async lines(salesOrderId: string): Promise<MarketplaceOrderLine[]> {
     const rows = await this.database.execute<{ id: string; variant_id: string; quantity: string; total_amount: string; promotion_discount_total: string; is_gift: boolean }>(sql`
       SELECT id, variant_id, quantity::text, total_amount::text, promotion_discount_total::text, is_gift FROM sales.order_lines WHERE order_id = ${salesOrderId} ORDER BY line_no`);
     const details = await this.describe(
@@ -518,6 +529,7 @@ export class MarketplaceOrdersService {
       points: await this.loyaltyAccounts.documentPoints(this.database, "marketplace_order", row.id),
       fulfillmentMode: row.fulfillment_mode,
       station: row.station_id ? await stationById(this.database, row.station_id) : null,
+      pickup: await this.pickupOf(row),
       // Trong 7 ngày từ lúc giao thành công và không có yêu cầu đang xử lý (QUYTAC_NGHIEPVU_161).
       canRequestReturn:
         row.status === "delivered" &&
@@ -548,6 +560,8 @@ export class MarketplaceOrdersService {
       // Còn vận đơn (kể cả đang chờ xác nhận tạo) thì hủy vận đơn trước; phiếu xuất nháp còn sót cũng xóa.
       if (!this.shipmentCanceller) throw new ApiError("BUSINESS_RULE", "orderNotCancellable");
       await this.shipmentCanceller.cancelActive(transaction, orderId);
+      // Đơn tại trạm: mã nhận hàng hết hiệu lực (CONG_VIEC_57).
+      await transaction.execute(sql`UPDATE retail.station_orders SET is_active = false WHERE order_id = ${orderId}`);
       await this.salesOrders.cancelMarketplaceWithin(transaction, actor, locked.sales_order_id);
       await transaction.execute(sql`
         UPDATE marketplace.orders SET status = 'cancelled', cancel_reason = ${reason}, cancelled_by_kind = ${kind}, version = version + 1 WHERE id = ${orderId}`);
@@ -567,6 +581,11 @@ export class MarketplaceOrdersService {
     const context = await this.storeContext();
     await this.cancelWithin({ userId, companyId: context.companyId, client }, orderId, version, reason, "buyer", userId);
     return this.buyerDetail(userId, orderId);
+  }
+
+  // Nhân viên trạm hủy đơn của trạm (CONG_VIEC_57; QUYTAC_NGHIEPVU_424); quyền, phạm vi trạm kiểm ở mini app Bán lẻ.
+  async stationCancel(actor: Actor, orderId: string, version: number, reason: string): Promise<void> {
+    await this.cancelWithin(actor, orderId, version, reason, "staff", null);
   }
 
   async adminCancel(actor: BuyerAdminActor, orderId: string, version: number, reason: string): Promise<MarketplaceOrderDetail> {

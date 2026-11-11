@@ -9,6 +9,9 @@ export const retailMenu = [
   { href: "/counter", key: "counter", permission: "retail.sale" },
   { href: "/sales", key: "sales", permission: "retail.access" },
   { href: "/returns", key: "returns", permission: "retail.return" },
+  // CONG_VIEC_57: đơn trực tuyến tại trạm (MAN_HINH_188, 189).
+  { href: "/online-orders", key: "onlineOrders", permission: "retail.o2o" },
+  { href: "/online-orders/handover", key: "handover", permission: "retail.o2o" },
   { href: "/shifts", key: "shifts", permission: "retail.access" },
   { href: "/stores", key: "stores", permission: "retail.setup" },
 ] as const;

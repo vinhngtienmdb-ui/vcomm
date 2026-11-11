@@ -4040,6 +4040,39 @@ Dữ liệu chung: công ty VCR; phòng ban có trưởng phòng; tài khoản Q
 - Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-orders.test.ts`
 - Lát: L2 (CONG_VIEC_57)
 
+### KICHBAN_KIEMTHU_564: Danh sách đơn tại trạm, sẵn sàng nhận
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_394, TIEUCHI_NGHIEMTHU_401
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Thu ngân của trạm Thủ Đức; Thu ngân chi nhánh Quận 1; Khách mua
+- Điều kiện ban đầu và dữ liệu: Dữ liệu của KICHBAN_KIEMTHU_561; khách đặt nhận tại trạm Thủ Đức 2 kem, trả khi nhận.
+- Các bước: (1) Thu ngân Thủ Đức, Quận 1 xem danh sách, chi tiết. (2) Đã soạn xong với phiên bản sai; đúng; bấm lại. (3) Khách xem chi tiết đơn; xem nhật ký thao tác.
+- Kết quả mong đợi: Bước 1: Thủ Đức thấy đơn Chờ soạn hàng, phải thu 500.000; Quận 1 danh sách rỗng, chi tiết `404`. Bước 2: `409`; Sẵn sàng nhận, hạn giữ 23:59 giờ Việt Nam ngày thứ 3; `409`. Bước 3: mã 6 số, nội dung QR `VCOMM-NHAN:{số đơn}:{mã}`; nhật ký không chứa mã.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-handover.test.ts`
+- Lát: L3 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_565: Giao tại trạm, thu tiền trong ca, đóng ca
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_395, TIEUCHI_NGHIEMTHU_396
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Thu ngân của trạm
+- Điều kiện ban đầu và dữ liệu: Đơn Sẵn sàng nhận của KICHBAN_KIEMTHU_564; quầy Q01 của trạm.
+- Các bước: (1) Tìm theo mã sai, nội dung QR, mã đúng. (2) Giao với mã sai 5 lần; mã đúng khi đang khóa. (3) Hết khóa: giao không có ca; mở ca; thu tiền mặt 300.000; chuyển khoản 600.000; chuyển khoản 100.000 và tiền mặt 500.000. (4) Giao lại. (5) Xem ca, đóng ca với tiền đếm 400.000.
+- Kết quả mong đợi: Bước 1: `404`; tìm được; tìm được. Bước 2: bốn lần `400` "Mã nhận hàng không đúng." (lần thứ tư báo sắp khóa), lần thứ năm `409` "Đơn đã nhập sai mã nhận hàng 5 lần, thử lại sau 15 phút."; `409`. Bước 3: "Đơn chưa thu tiền: mở ca trước khi giao."; `409`; `409`; `200` Đã giao, đã thu 500.000, tiền thừa 100.000, phiếu xuất đã ghi sổ, kho còn 3, hết giữ hàng; khách thấy Đã giao, đã thanh toán, không còn mã. Bước 4: `409`. Bước 5: thu đơn trực tuyến 500.000, tiền hệ thống tính 400.000; đóng ca lập phiếu thu 400.000 quỹ tiền mặt và 100.000 quỹ chuyển khoản.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-handover.test.ts`
+- Lát: L3 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_566: Hủy đơn tại trạm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_401
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, phân quyền
+- Vai trò thực hiện: Thu ngân của trạm; Thu ngân chi nhánh khác
+- Điều kiện ban đầu và dữ liệu: Đơn mới 1 kem đã Sẵn sàng nhận.
+- Các bước: Thu ngân chi nhánh khác hủy; thu ngân của trạm hủy với lý do.
+- Kết quả mong đợi: `404`; Đã hủy, nhả giữ hàng, mã hết hiệu lực; khách thấy Đã hủy, không còn mã.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-handover.test.ts`
+- Lát: L3 (CONG_VIEC_57)
+
 ### KICHBAN_KIEMTHU_434: Lập hồ sơ, mã tự cấp, kiểm dữ liệu, liên kết tài khoản
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_287
 - Chức năng: CHUC_NANG_162

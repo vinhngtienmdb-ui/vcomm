@@ -89,13 +89,14 @@ export class RetailShiftsService {
     return row;
   }
 
-  // Tiền theo phương thức của ca: thu bán (tiền mặt đã trừ tiền thừa), hoàn trả hàng.
+  // Tiền theo phương thức của ca: thu bán (tiền mặt đã trừ tiền thừa), hoàn trả hàng; gồm tiền thu đơn trực tuyến tại trạm (CONG_VIEC_57; QUYTAC_NGHIEPVU_431).
   async summary(executor: Executor, shiftId: string): Promise<RetailShiftSummaryLine[]> {
     const rows = await executor.execute<{ method: RetailShiftSummaryLine["method"]; sales: string; refunds: string }>(sql`
       SELECT method, sum(sales)::text AS sales, sum(refunds)::text AS refunds FROM (
         SELECT p.method, p.amount AS sales, 0 AS refunds FROM retail.sale_payments p JOIN retail.sales s ON s.id = p.sale_id WHERE s.shift_id = ${shiftId}
         UNION ALL SELECT 'cash', -s.change_amount, 0 FROM retail.sales s WHERE s.shift_id = ${shiftId}
         UNION ALL SELECT f.method, 0, f.amount FROM retail.return_refunds f JOIN retail.returns r ON r.id = f.return_id WHERE r.shift_id = ${shiftId}
+        UNION ALL SELECT c.method, c.amount - c.change_amount, 0 FROM retail.station_collections c WHERE c.shift_id = ${shiftId}
       ) movements GROUP BY method`);
     const found = new Map(rows.rows.map((row) => [row.method, row]));
     return (["cash", "bank_transfer", "points"] as const).map((method) => {
@@ -114,6 +115,7 @@ export class RetailShiftsService {
           FROM retail.sale_payments p JOIN retail.sales s ON s.id = p.sale_id WHERE s.shift_id = ${shiftId} AND p.fund_id IS NOT NULL
         UNION ALL SELECT st.cash_fund_id, -s.change_amount, 0 FROM retail.sales s JOIN retail.stores st ON st.id = s.store_id WHERE s.shift_id = ${shiftId}
         UNION ALL SELECT f.fund_id, 0, f.amount FROM retail.return_refunds f JOIN retail.returns r ON r.id = f.return_id WHERE r.shift_id = ${shiftId} AND f.fund_id IS NOT NULL
+        UNION ALL SELECT c.fund_id, c.amount - c.change_amount, 0 FROM retail.station_collections c WHERE c.shift_id = ${shiftId}
       ) movements GROUP BY fund_id ORDER BY fund_id`)
     ).rows;
   }
@@ -157,6 +159,10 @@ export class RetailShiftsService {
       differenceReason: row.difference_reason,
       saleCount: await this.saleCount(this.database, row.id),
       summary: await this.summary(this.database, row.id),
+      onlineCollected: trimDecimal(
+        (await this.database.execute<{ amount: string }>(sql`SELECT coalesce(sum(amount - change_amount), 0)::text AS amount FROM retail.station_collections WHERE shift_id = ${row.id}`)).rows[0]!
+          .amount,
+      ),
       currency: await companyCurrency(this.database, actor.companyId),
       version: row.version,
       canClose: await this.canClose(actor, row),

@@ -117,6 +117,20 @@ export default function OrderScreen() {
             ) : null}
             {order.status === "cancelled" && order.cancelReason ? <Notice tone="info" text={t("cancelledBecause", { reason: order.cancelReason })} /> : null}
             {order.returnDeadline && order.status === "delivered" ? <Notice tone="info" text={t("returnUntil", { time: dateTime(order.returnDeadline) })} /> : null}
+            {order.pickup ? (
+              <Card>
+                <Text style={{ fontWeight: "700", color: colors.text }}>{t("pickupCodeTitle")}</Text>
+                <Notice tone="info" text={t("pickupReady", { time: dateTime(order.pickup.holdUntil) })} />
+                <Text accessibilityLabel={t("pickupCodeTitle")} style={{ fontSize: 32, fontWeight: "800", letterSpacing: 6, textAlign: "center", color: colors.text }}>
+                  {`${order.pickup.code.slice(0, 3)} ${order.pickup.code.slice(3)}`}
+                </Text>
+                <View style={{ alignItems: "center", paddingVertical: space[2] }}>
+                  <QRCode value={order.pickup.qrText} size={160} />
+                </View>
+              </Card>
+            ) : order.station && order.status === "awaiting_shipment" ? (
+              <Notice tone="info" text={t("stationPreparing")} />
+            ) : null}
             {order.station ? (
               <Card>
                 <Text style={{ fontWeight: "700", color: colors.text }}>{t(`fulfillment_${order.fulfillmentMode}`)}</Text>

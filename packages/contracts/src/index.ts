@@ -4502,7 +4502,8 @@ export const buyerAddressSchema = z
 
 // API_126, API_127: đơn VComm (QUYTAC_NGHIEPVU_158, 159, 162).
 // CONG_VIEC_49: Chờ chốt nhóm mua chung (QUYTAC_NGHIEPVU_330).
-export const marketplaceOrderStatuses = ["awaiting_payment", "awaiting_group", "awaiting_shipment", "awaiting_pickup", "shipping", "delivered", "completed", "cancelled"] as const;
+// CONG_VIEC_57: Sẵn sàng nhận của đơn tại trạm (QUYTAC_NGHIEPVU_424).
+export const marketplaceOrderStatuses = ["awaiting_payment", "awaiting_group", "awaiting_shipment", "ready_for_pickup", "awaiting_pickup", "shipping", "delivered", "completed", "cancelled"] as const;
 export type MarketplaceOrderStatus = (typeof marketplaceOrderStatuses)[number];
 
 const orderLinesInput = z.array(z.object({ variantId: z.uuid(), quantity: z.number().int().min(1).max(999) }).strict()).min(1).max(50);
@@ -4729,6 +4730,8 @@ export interface BuyerOrderDetail extends BuyerOrderListItem {
   // CONG_VIEC_57: cách nhận, trạm của đơn.
   fulfillmentMode: FulfillmentMode;
   station: StationOption | null;
+  // Mã nhận hàng, hạn giữ khi đơn Sẵn sàng nhận hoặc Đang giao từ trạm (QUYTAC_NGHIEPVU_425).
+  pickup: { code: string; qrText: string; holdUntil: string } | null;
   version: number;
 }
 
@@ -5373,6 +5376,9 @@ export const retailPermissions = {
   return: "retail.return",
   manageShifts: "retail.shift.manage",
   setup: "retail.setup",
+  // CONG_VIEC_57: đơn trực tuyến tại trạm.
+  o2o: "retail.o2o",
+  o2oDeliver: "retail.o2o.deliver",
 } as const;
 export const saveRetailStoreSchema = z
   .object({
@@ -5450,6 +5456,85 @@ export const saveRetailStationSchema = z
   })
   .strict();
 export type SaveRetailStationRequest = z.input<typeof saveRetailStationSchema>;
+// CONG_VIEC_57 L3: đơn trực tuyến tại trạm (API_223, API_224; QUYTAC_NGHIEPVU_424 đến 426).
+export const stationOrderListQuerySchema = z
+  .object({
+    storeId: z.uuid().optional(),
+    status: z.enum(["open", "awaiting_shipment", "ready_for_pickup", "shipping", "delivered", "completed", "cancelled"]).default("open"),
+    mode: z.enum(["station_pickup", "station_delivery"]).optional(),
+    payment: z.enum(["prepaid", "on_receipt"]).optional(),
+    expiringSoon: z
+      .enum(["true", "false"])
+      .optional()
+      .transform((value) => value === "true"),
+    search: z.string().trim().max(50).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+  })
+  .strict();
+export interface StationOrderListItem {
+  id: string;
+  documentNo: string;
+  createdAt: string;
+  store: { id: string; name: string };
+  buyerName: string;
+  buyerPhone: string;
+  fulfillmentMode: "station_pickup" | "station_delivery";
+  status: MarketplaceOrderStatus;
+  total: string;
+  dueAmount: string;
+  holdUntil: string | null;
+  expiringSoon: boolean;
+  deliveryAttempts: number;
+  courierName: string | null;
+}
+export interface StationOrderListResponse {
+  items: StationOrderListItem[];
+  total: number;
+  page: number;
+  currency: string;
+}
+export interface StationOrderDetail extends StationOrderListItem {
+  currency: string;
+  recipientName: string;
+  recipientPhone: string;
+  address: string;
+  lines: MarketplaceOrderLine[];
+  goodsAmount: string;
+  shippingFee: string;
+  paymentMethod: PaymentMethodCode;
+  paidAmount: string;
+  readyAt: string | null;
+  codeLockedUntil: string | null;
+  collections: { method: "cash" | "bank_transfer"; amount: string; changeAmount: string; shiftId: string }[];
+  stockDocument: { id: string; documentNo: string; status: string } | null;
+  events: MarketplaceOrderEvent[];
+  canPrepare: boolean;
+  canHandOver: boolean;
+  canCancel: boolean;
+  version: number;
+}
+export const stationOrderVersionSchema = z.object({ version: z.number().int().positive() }).strict();
+export const stationOrderCancelSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();
+export const stationHandoverSchema = z
+  .object({
+    code: z.string().trim().regex(/^[0-9]{6}$/, "invalidValue"),
+    shiftId: z.uuid().nullable().default(null),
+    payments: z
+      .array(
+        z
+          .object({
+            method: z.enum(["cash", "bank_transfer"]),
+            amount: decimalText(4).refine((value) => Number(value) > 0, "invalidValue"),
+            bankReference: blankToNull(50),
+          })
+          .strict(),
+      )
+      .max(5)
+      .default([]),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export type StationHandoverRequest = z.input<typeof stationHandoverSchema>;
 export interface RetailRegionItem {
   code: string;
   name: string;
@@ -5535,6 +5620,8 @@ export interface RetailShiftResponse {
   differenceReason: string | null;
   saleCount: number;
   summary: RetailShiftSummaryLine[];
+  // CONG_VIEC_57: tiền thu đơn trực tuyến tại trạm trong ca (đã gồm trong summary).
+  onlineCollected: string;
   currency: string;
   version: number;
   canClose: boolean;
