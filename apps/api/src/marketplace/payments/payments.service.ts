@@ -22,9 +22,7 @@ const systemClient: ClientInfo = { ip: null, userAgent: "payment-expiry", reques
 // Cổng có mã riêng thì tìm theo mã cổng, không thì theo số tham chiếu chung (CONG_VIEC_37).
 const matchesReference = (reference: string) => sql`(gateway_reference = ${reference} OR (gateway_reference IS NULL AND reference = ${reference}))`;
 const paymentMatch = (gatewayCode: string, result: GatewayNotification) =>
-  result.reference
-    ? sql`gateway_code = ${gatewayCode} AND ${matchesReference(result.reference)}`
-    : sql`gateway_order_code = ${result.gatewayOrderCode ?? ""} AND gateway_code = ${gatewayCode}`;
+  result.reference ? sql`gateway_code = ${gatewayCode} AND ${matchesReference(result.reference)}` : sql`gateway_order_code = ${result.gatewayOrderCode ?? ""} AND gateway_code = ${gatewayCode}`;
 // Tên gửi cổng: bỏ dấu tiếng Việt, chỉ giữ chữ, số, dấu cách (BIDV không nhận ký tự có dấu, ký tự đặc biệt).
 const plainText = (value: string, maximumLength: number) =>
   value
