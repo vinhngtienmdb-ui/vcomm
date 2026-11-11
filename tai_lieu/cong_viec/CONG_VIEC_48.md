@@ -3,7 +3,7 @@
 - Mô tả: Bảng lương tháng của mỗi công ty: lương theo hợp đồng hiện hành, phụ cấp, ngày công và tăng ca từ bảng công tháng (CONG_VIEC_47); bảo hiểm xã hội, bảo hiểm y tế, bảo hiểm thất nghiệp phần người lao động và người sử dụng lao động có mức trần; kinh phí công đoàn; thuế thu nhập cá nhân lũy tiến từng phần có giảm trừ gia cảnh theo người phụ thuộc; duyệt qua luồng duyệt chung; phiếu lương cho nhân viên; bút toán lương qua module Kế toán theo Thông tư 99/2025, Thông tư 133.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Chờ nghiệm thu. Người dùng duyệt đặc tả, bản mẫu ngày 2026-11-11; xác nhận điểm xem trước L0, L1. Lát L2 xong; đã nối bảng công thật của CONG_VIEC_47 (database migration 0075).
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu đạt ngày 2026-11-11). Người dùng duyệt đặc tả, bản mẫu; xác nhận điểm xem trước L0, L1; đã nối bảng công thật của CONG_VIEC_47 (database migration 0075).
 - Mức: Lớn (nhiều module, bút toán, sửa dữ liệu và API hợp đồng của CONG_VIEC_46).
 - Nền: nhánh `chuc-nang/CONG_VIEC_46-nhan-su-ho-so` (chưa hợp nhất vào `main`); CONG_VIEC_47 làm song song, hợp nhất nhánh 47 vào trước khi viết phần đọc bảng công.
 
