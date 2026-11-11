@@ -1,5 +1,5 @@
 // MAN_HINH_104 Yêu cầu rút tiền hoa hồng (CONG_VIEC_26; CHUC_NANG_137; API_136; QUYTAC_NGHIEPVU_204, 205): số tiền, tài khoản nhận, thuế dự kiến.
-import type { BuyerWalletResponse, WithdrawalItem } from "contracts";
+import { type BuyerWalletResponse, type WithdrawalItem, withdrawalFee } from "contracts";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { ScrollView, Text } from "react-native";
@@ -45,6 +45,8 @@ export default function WithdrawalScreen() {
   const info = wallet?.withdrawal;
   const value = Number(amount.replace(/\D/g, "") || 0);
   const tax = info && value > Number(info.taxThreshold) ? Math.round((value * Number(info.taxRate)) / 100) : 0;
+  // Phí rút tiền (THAY_DOI_17): yêu cầu mới là lần rút thứ withdrawalsThisMonth + 1 trong tháng.
+  const fee = info ? withdrawalFee(value, info.withdrawalsThisMonth + 1, info.withdrawalFees) : 0;
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <Screen>
@@ -65,7 +67,8 @@ export default function WithdrawalScreen() {
               <Field label={t("withdrawAmount")} value={amount} onChangeText={setAmount} keyboardType="number-pad" maxLength={13} error={fieldError ?? undefined} />
               <Muted>{t("withdrawMinimum", { amount: money(info.minimumWithdrawal) })}</Muted>
               <Muted>{t("withdrawTaxRule", { threshold: money(info.taxThreshold), rate: info.taxRate })}</Muted>
-              {value > 0 ? <Text style={{ color: colors.text }}>{t("withdrawEstimate", { tax: money(tax), net: money(value - tax) })}</Text> : null}
+              <Muted>{t("withdrawCount", { count: info.withdrawalsThisMonth })}</Muted>
+              {value > 0 ? <Text style={{ color: colors.text }}>{t("withdrawEstimate", { tax: money(tax), fee: money(fee), net: money(value - tax - fee) })}</Text> : null}
               <Muted>{t("withdrawTo", { account: `${info.bankAccount.bankName} · ${info.bankAccount.accountNumber} · ${info.bankAccount.accountHolder}` })}</Muted>
               <Button label={t("withdrawSubmit")} busy={busy} disabled={value <= 0} onPress={() => void submit()} />
             </Card>

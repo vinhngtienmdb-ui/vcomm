@@ -46,7 +46,8 @@ function WithdrawalCard({ item, onChanged }: { item: WithdrawalItem; onChanged: 
         {t("bankAccount")}: <strong>{`${item.bankAccount.bankName} · ${item.bankAccount.accountNumber} · ${item.bankAccount.accountHolder}`}</strong>
       </span>
       <span>
-        {item.status === "pending" ? t("projectedTax") : t("tax")}: <strong>{formatNumber(item.taxAmount, 0)}</strong> · {t("netAmount")}: <strong>{formatNumber(item.netAmount, 0)}</strong>
+        {item.status === "pending" ? t("projectedTax") : t("tax")}: <strong>{formatNumber(item.taxAmount, 0)}</strong> · {item.status === "pending" ? t("projectedFee") : t("fee")}:{" "}
+        <strong>{formatNumber(item.feeAmount, 0)}</strong> · {t("netAmount")}: <strong>{formatNumber(item.netAmount, 0)}</strong>
       </span>
       {item.status === "rejected" ? <span className="chu-thich">{`${t("rejectReason")}: ${item.rejectReason}`}</span> : null}
       {item.status === "paid" ? <span className="chu-thich">{`${t("bankTransactionNo")} ${item.bankTransactionNo} · ${t("paidOn")} ${formatDate(item.paidOn ?? "")}`}</span> : null}
@@ -114,6 +115,7 @@ function TaxReport() {
                     <th>{t("bankTransactionNo")}</th>
                     <th>{t("amount")}</th>
                     <th>{t("tax")}</th>
+                    <th>{t("fee")}</th>
                     <th>{t("netAmount")}</th>
                   </tr>
                 </thead>
@@ -125,6 +127,7 @@ function TaxReport() {
                       <td data-nhan={t("bankTransactionNo")}>{row.bankTransactionNo}</td>
                       <td data-nhan={t("amount")}>{formatNumber(row.amount, 0)}</td>
                       <td data-nhan={t("tax")}>{formatNumber(row.taxAmount, 0)}</td>
+                      <td data-nhan={t("fee")}>{formatNumber(row.feeAmount, 0)}</td>
                       <td data-nhan={t("netAmount")}>{formatNumber(row.netAmount, 0)}</td>
                     </tr>
                   ))}

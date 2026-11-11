@@ -4173,17 +4173,57 @@ export const productCommissionSchema = z
   .strict();
 
 // Cài đặt hoa hồng chung (QUYTAC_NGHIEPVU_204, 205).
+// THAY_DOI_17 (QUYTAC_NGHIEPVU_208): phí rút tiền, hai bảng cộng dồn. Bảng theo lần: từ lần rút thứ N trong tháng thu số tiền cố định.
+// Bảng theo số tiền: từ mức số tiền, phí cố định cộng phần trăm số tiền (phần phần trăm có mức tối thiểu, tối đa). Bảng trống thì không thu.
+export interface WithdrawalFeeRules {
+  byCount: { fromCount: number; fee: string }[];
+  byAmount: { fromAmount: string; fixedFee: string; percent: string; minimumFee: string; maximumFee: string | null }[];
+}
+export const emptyWithdrawalFeeRules: WithdrawalFeeRules = { byCount: [], byAmount: [] };
+
+// Phí của yêu cầu có số tiền amount, là lần rút thứ sequence trong tháng; làm tròn đến đồng.
+export function withdrawalFee(amount: number, sequence: number, rules: WithdrawalFeeRules): number {
+  const countTier = [...rules.byCount].filter((tier) => tier.fromCount <= sequence).sort((first, second) => second.fromCount - first.fromCount)[0];
+  const amountTier = [...rules.byAmount].filter((tier) => Number(tier.fromAmount) <= amount).sort((first, second) => Number(second.fromAmount) - Number(first.fromAmount))[0];
+  let fee = countTier ? Number(countTier.fee) : 0;
+  if (amountTier) {
+    let percentPart = Number(amountTier.percent) > 0 ? Math.max((amount * Number(amountTier.percent)) / 100, Number(amountTier.minimumFee)) : 0;
+    if (amountTier.maximumFee !== null && Number(amountTier.percent) > 0) percentPart = Math.min(percentPart, Number(amountTier.maximumFee));
+    fee += Number(amountTier.fixedFee) + percentPart;
+  }
+  return Math.round(fee);
+}
+
 export interface CommissionSettings {
   taxThreshold: string;
   taxRate: string;
   minimumWithdrawal: string;
+  withdrawalFees: WithdrawalFeeRules;
   version: number;
 }
+const feePercent = z.string().trim().regex(/^\d{1,3}(\.\d{1,2})?$/).refine((value) => Number(value) <= 100, "invalidValue");
+export const withdrawalFeeRulesSchema = z
+  .object({
+    byCount: z.array(z.object({ fromCount: z.number().int().min(1).max(1000), fee: requiredMoney }).strict()).max(20),
+    byAmount: z
+      .array(
+        z
+          .object({ fromAmount: requiredMoney, fixedFee: requiredMoney, percent: feePercent, minimumFee: requiredMoney, maximumFee: requiredMoney.nullable() })
+          .strict()
+          .refine((tier) => tier.maximumFee === null || Number(tier.maximumFee) >= Number(tier.minimumFee), { message: "invalidValue", path: ["maximumFee"] }),
+      )
+      .max(20),
+  })
+  .strict()
+  .refine((rules) => new Set(rules.byCount.map((tier) => tier.fromCount)).size === rules.byCount.length, { message: "invalidValue", path: ["byCount"] })
+  .refine((rules) => new Set(rules.byAmount.map((tier) => Number(tier.fromAmount))).size === rules.byAmount.length, { message: "invalidValue", path: ["byAmount"] });
 export const commissionSettingsSchema = z
   .object({
     taxThreshold: requiredMoney,
     taxRate: z.string().trim().regex(/^\d{1,3}(\.\d{1,2})?$/),
     minimumWithdrawal: requiredMoney,
+    // Không gửi thì giữ bảng phí đang có.
+    withdrawalFees: withdrawalFeeRulesSchema.optional(),
     version: z.number().int().min(0),
   })
   .strict();
@@ -4633,6 +4673,8 @@ export interface WithdrawalItem {
   amount: string;
   // Thuế dự kiến khi chưa duyệt; đã duyệt thì là số chốt.
   taxAmount: string;
+  // Phí rút tiền (THAY_DOI_17): dự kiến khi chưa duyệt, đã duyệt thì là số chốt.
+  feeAmount: string;
   netAmount: string;
   bankAccount: BuyerBankAccount;
   status: WithdrawalStatus;
@@ -4646,7 +4688,7 @@ export interface WithdrawalItem {
 
 export interface WithdrawalTaxReport {
   month: string;
-  rows: { userName: string; userPhone: string; amount: string; taxAmount: string; netAmount: string; paidOn: string; bankTransactionNo: string }[];
+  rows: { userName: string; userPhone: string; amount: string; taxAmount: string; feeAmount: string; netAmount: string; paidOn: string; bankTransactionNo: string }[];
   totalAmount: string;
   totalTax: string;
 }
@@ -4656,6 +4698,9 @@ export interface BuyerWithdrawalInfo {
   minimumWithdrawal: string;
   taxThreshold: string;
   taxRate: string;
+  withdrawalFees: WithdrawalFeeRules;
+  // Số yêu cầu đã gửi trong tháng này (không tính bị từ chối, đã rút lại): yêu cầu mới là lần thứ withdrawalsThisMonth + 1.
+  withdrawalsThisMonth: number;
   bankAccount: BuyerBankAccount | null;
   // Yêu cầu đang chờ duyệt hoặc đã duyệt chưa chi.
   open: WithdrawalItem | null;

@@ -30,7 +30,9 @@ export default function WalletScreen() {
     setBusy(true);
     try {
       const next = await api<BuyerWalletResponse>(`/buyer/wallet?page=${page + 1}`);
-      setWallet({ ...next, transactions: { ...next.transactions, data: [...wallet.transactions.data, ...next.transactions.data] } });
+      // Có giao dịch mới giữa hai lần tải thì trang sau dịch đi: bỏ dòng đã có.
+      const known = new Set(wallet.transactions.data.map((item) => item.id));
+      setWallet({ ...next, transactions: { ...next.transactions, data: [...wallet.transactions.data, ...next.transactions.data.filter((item) => !known.has(item.id))] } });
       setPage(page + 1);
     } catch (failure) {
       fail(failure);
@@ -120,7 +122,7 @@ function OpenWithdrawal({ item, onCancelled }: { item: WithdrawalItem; onCancell
   return (
     <Card>
       <Text style={{ fontWeight: "700", color: colors.text }}>{t(`withdrawStatus_${item.status}`)}</Text>
-      <Muted>{t("withdrawOpenLine", { amount: money(item.amount), tax: money(item.taxAmount), net: money(item.netAmount) })}</Muted>
+      <Muted>{t("withdrawOpenLine", { amount: money(item.amount), tax: money(item.taxAmount), fee: money(item.feeAmount), net: money(item.netAmount) })}</Muted>
       <Muted>{`${item.bankAccount.bankName} · ${item.bankAccount.accountNumber}`}</Muted>
       {error ? <Notice text={error} /> : null}
       {item.status === "pending" ? <Button label={t("withdrawCancel")} kind="secondary" busy={busy} onPress={() => void cancel()} /> : null}

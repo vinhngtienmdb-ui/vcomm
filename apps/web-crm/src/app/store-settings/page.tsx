@@ -263,6 +263,9 @@ function CommissionSettingsCard({ settings, onSaved }: { settings: StoreSettings
   const { notify } = useAdmin();
   const current = settings.commissionSettings;
   const [form, setForm] = useState({ taxThreshold: current.taxThreshold, taxRate: current.taxRate, minimumWithdrawal: current.minimumWithdrawal });
+  // Phí rút tiền (THAY_DOI_17): hai bảng cộng dồn, nhập dạng chữ rồi đổi khi lưu.
+  const [byCount, setByCount] = useState(current.withdrawalFees.byCount.map((tier) => ({ fromCount: String(tier.fromCount), fee: tier.fee })));
+  const [byAmount, setByAmount] = useState(current.withdrawalFees.byAmount.map((tier) => ({ ...tier, maximumFee: tier.maximumFee ?? "" })));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fields, setFields] = useState<Record<string, string>>({});
@@ -271,7 +274,19 @@ function CommissionSettingsCard({ settings, onSaved }: { settings: StoreSettings
     setError(null);
     setFields({});
     try {
-      onSaved(await apiFetch<StoreSettingsResponse>("/marketplace/commission-settings", { method: "PUT", body: JSON.stringify({ ...form, version: current.version }) }));
+      onSaved(
+        await apiFetch<StoreSettingsResponse>("/marketplace/commission-settings", {
+          method: "PUT",
+          body: JSON.stringify({
+            ...form,
+            withdrawalFees: {
+              byCount: byCount.map((tier) => ({ fromCount: Number(tier.fromCount), fee: tier.fee })),
+              byAmount: byAmount.map((tier) => ({ ...tier, maximumFee: tier.maximumFee.trim() === "" ? null : tier.maximumFee })),
+            },
+            version: current.version,
+          }),
+        }),
+      );
       notify(t("commissionSettingsSaved"));
     } catch (failure) {
       const problem = failureOf(failure);
@@ -304,6 +319,80 @@ function CommissionSettingsCard({ settings, onSaved }: { settings: StoreSettings
         {field("taxRate")}
         {field("minimumWithdrawal")}
       </div>
+      <h3>{t("feeTitle")}</h3>
+      <span className="chu-thich">{t("feeHint")}</span>
+      <strong>{t("feeByCount")}</strong>
+      {byCount.map((tier, index) => (
+        <div key={index} style={{ display: "flex", flexWrap: "wrap", gap: "var(--khoang-2)", alignItems: "end" }}>
+          <span style={{ display: "grid", gap: "var(--khoang-1)" }}>
+            <label htmlFor={`phi-lan-${index}`}>{t("feeFromCount")}</label>
+            <input
+              id={`phi-lan-${index}`}
+              className="o-nhap"
+              inputMode="numeric"
+              disabled={!settings.canManage}
+              value={tier.fromCount}
+              aria-invalid={fields[`withdrawalFees.byCount.${index}.fromCount`] ? true : undefined}
+              onChange={(event) => setByCount((rows) => rows.map((row, position) => (position === index ? { ...row, fromCount: event.target.value } : row)))}
+            />
+          </span>
+          <span style={{ display: "grid", gap: "var(--khoang-1)" }}>
+            <label htmlFor={`phi-lan-tien-${index}`}>{t("feeFixed")}</label>
+            <input
+              id={`phi-lan-tien-${index}`}
+              className="o-nhap"
+              inputMode="decimal"
+              disabled={!settings.canManage}
+              value={tier.fee}
+              aria-invalid={fields[`withdrawalFees.byCount.${index}.fee`] ? true : undefined}
+              onChange={(event) => setByCount((rows) => rows.map((row, position) => (position === index ? { ...row, fee: event.target.value } : row)))}
+            />
+          </span>
+          {settings.canManage && (
+            <button type="button" className="nut phu" onClick={() => setByCount((rows) => rows.filter((_, position) => position !== index))}>
+              {t("feeRemove")}
+            </button>
+          )}
+        </div>
+      ))}
+      {settings.canManage && (
+        <span className="nhom-nut">
+          <button type="button" className="nut phu" onClick={() => setByCount((rows) => [...rows, { fromCount: "", fee: "" }])}>
+            {t("feeAddCount")}
+          </button>
+        </span>
+      )}
+      <strong>{t("feeByAmount")}</strong>
+      {byAmount.map((tier, index) => (
+        <div key={index} style={{ display: "flex", flexWrap: "wrap", gap: "var(--khoang-2)", alignItems: "end" }}>
+          {(["fromAmount", "fixedFee", "percent", "minimumFee", "maximumFee"] as const).map((key) => (
+            <span key={key} style={{ display: "grid", gap: "var(--khoang-1)" }}>
+              <label htmlFor={`phi-tien-${key}-${index}`}>{t(`fee_${key}`)}</label>
+              <input
+                id={`phi-tien-${key}-${index}`}
+                className="o-nhap"
+                inputMode="decimal"
+                disabled={!settings.canManage}
+                value={tier[key]}
+                aria-invalid={fields[`withdrawalFees.byAmount.${index}.${key}`] ? true : undefined}
+                onChange={(event) => setByAmount((rows) => rows.map((row, position) => (position === index ? { ...row, [key]: event.target.value } : row)))}
+              />
+            </span>
+          ))}
+          {settings.canManage && (
+            <button type="button" className="nut phu" onClick={() => setByAmount((rows) => rows.filter((_, position) => position !== index))}>
+              {t("feeRemove")}
+            </button>
+          )}
+        </div>
+      ))}
+      {settings.canManage && (
+        <span className="nhom-nut">
+          <button type="button" className="nut phu" onClick={() => setByAmount((rows) => [...rows, { fromAmount: "0", fixedFee: "0", percent: "0", minimumFee: "0", maximumFee: "" }])}>
+            {t("feeAddAmount")}
+          </button>
+        </span>
+      )}
       {settings.canManage && (
         <span className="nhom-nut">
           <button type="button" className="nut chinh" disabled={busy} onClick={() => void save()}>
