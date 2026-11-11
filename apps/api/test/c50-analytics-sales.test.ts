@@ -206,6 +206,7 @@ describe("CONG_VIEC_50 báo cáo bán hàng", () => {
     expect((await report(`from=${today}&to=${monthStart}`)).body.error.fields).toEqual({ to: "Từ ngày không được sau đến ngày." });
     expect((await report("from=2025-01-01&to=2026-01-02")).body.error.fields).toEqual({ to: "Khoảng ngày tối đa 366 ngày. Hãy thu hẹp khoảng ngày." });
     expect((await report("from=2025-01-01&to=2026-01-01")).status).toBe(200);
+    expect((await report("from=2026-02-30&to=2026-03-01")).body.error.fields).toEqual({ from: "Giá trị không hợp lệ." });
     const counts = async () =>
       (await pool.query("SELECT (SELECT count(*) FROM inventory.documents) + (SELECT count(*) FROM sales.orders) + (SELECT count(*) FROM finance.debt_items) AS total")).rows[0].total;
     const before = await counts();

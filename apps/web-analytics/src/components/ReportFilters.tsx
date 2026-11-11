@@ -26,11 +26,14 @@ export function ReportFilters({
   kind,
   withPeriod,
   extra,
+  onCompanyChange,
   children,
 }: {
   kind: AnalyticsReportKind | null;
   withPeriod: boolean;
   extra?: ReactNode;
+  // Bộ lọc phụ thuộc công ty (kênh, kho) đặt lại khi đổi công ty.
+  onCompanyChange?: () => void;
   children: (selection: ReportSelection) => ReactNode;
 }) {
   const t = useTranslations("analytics");
@@ -67,7 +70,15 @@ export function ReportFilters({
                 <label className="an-nhan" htmlFor="loc-cong-ty">
                   {t("company")}
                 </label>
-                <select id="loc-cong-ty" className="o-nhap" value={companyId} onChange={(event) => setCompanyId(event.target.value)}>
+                <select
+                  id="loc-cong-ty"
+                  className="o-nhap"
+                  value={companyId}
+                  onChange={(event) => {
+                    setCompanyId(event.target.value);
+                    onCompanyChange?.();
+                  }}
+                >
                   {companies.length > 1 && <option value="">{t("allCompanies", { count: companies.length })}</option>}
                   {companies.map((company) => (
                     <option key={company.id} value={company.id}>

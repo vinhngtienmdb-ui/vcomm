@@ -94,6 +94,7 @@ function CommissionView({ query, tabs }: { query: string; tabs: React.ReactNode 
                   key: row.id,
                   cells: [row.userName, formatDate(row.paidOn), money(row.amount), money(row.taxAmount), money(row.feeAmount), money(row.netAmount)],
                 }))}
+                note={report.totalWithdrawals ? t("truncated", { shown: report.withdrawals.length, total: report.totalWithdrawals }) : null}
                 footer={[{ key: "tong", cells: [t("total"), "", money(summary.paid.amount), money(summary.paid.taxAmount), money(summary.paid.feeAmount), money(summary.paid.netAmount)] }]}
               />
             )}

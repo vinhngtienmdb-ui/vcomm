@@ -4712,6 +4712,7 @@ export interface AnalyticsCommissionResponse {
   rows: { key: string; label: string; lines: number; amount: string }[];
   withdrawals: { id: string; userName: string; paidOn: string; amount: string; taxAmount: string; feeAmount: string; netAmount: string }[];
   totalRows: number | null;
+  totalWithdrawals: number | null;
 }
 
 // API_175: chỉ tiêu tổng quan theo quyền từng nhóm; null khi không có quyền nhóm đó hoặc không có công ty đã chọn được xem.

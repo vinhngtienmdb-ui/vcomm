@@ -73,6 +73,14 @@ export class AnalyticsScopeService {
 
 // QUYTAC_NGHIEPVU_343: khoảng ngày bắt buộc, từ ngày không sau đến ngày, tối đa 366 ngày.
 export function requirePeriod(from: string, to: string): number {
+  // Ngày không có thật (ví dụ 2026-02-30) bị từ chối tại đúng ô thay vì lỗi cơ sở dữ liệu.
+  for (const [field, value] of [
+    ["from", from],
+    ["to", to],
+  ] as const) {
+    const parsed = new Date(`${value}T00:00:00Z`);
+    if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== value) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [field]: "invalidValue" } });
+  }
   const days = Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000) + 1;
   if (Number.isNaN(days)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { from: "invalidValue" } });
   if (days < 1) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { to: "analyticsPeriodReversed" } });

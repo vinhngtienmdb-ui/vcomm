@@ -131,6 +131,9 @@ describe("CONG_VIEC_50 tồn kho và luân chuyển", () => {
     expect(product.rows).toEqual([expect.objectContaining({ key: itemA, closingQuantity: "85", label: expect.stringContaining("Hàng tồn kho A") })]);
     expect(product.totals).toMatchObject({ openingValue: "0", inValue: "1300000", outValue: "450000", closingValue: "850000", costOfSales: "100000", turnover: "0.24" });
 
+    // Đến ngày ở tương lai: số ngày của kỳ chỉ tính đến hôm nay.
+    const future = byKey((await report(`from=${today}&to=${tomorrow}&groupBy=warehouse`)).body.rows)[warehouses.K1!]!;
+    expect(future).toMatchObject({ turnover: "0.33", daysOfInventory: "3" });
     // Kỳ sau không phát sinh: mọi thứ là đầu kỳ.
     const later = byKey((await report(`from=${tomorrow}&to=${tomorrow}&groupBy=company`)).body.rows)[retail]!;
     expect(later).toMatchObject({ openingQuantity: "85", openingValue: "850000", inQuantity: "0", outQuantity: "0", closingValue: "850000", costOfSales: "0", turnover: null });

@@ -87,7 +87,10 @@ export class InventoryReportService {
   }
 
   async report(actor: Actor, query: InventoryQuery, allRows = false): Promise<AnalyticsInventoryResponse> {
-    const days = requirePeriod(query.from, query.to);
+    requirePeriod(query.from, query.to);
+    // Số ngày của kỳ tính đến hôm nay khi đến ngày ở tương lai, để số ngày tồn không bị phóng đại.
+    const today = this.scopeService.today();
+    const days = requirePeriod(query.from, query.to < today ? query.to : today < query.from ? query.from : today);
     const scope = await this.scopeService.resolve(actor, "inventory", query.companyIds);
     const companyIds = scope.companies.map((company) => company.id);
     const warehouses = await this.warehouses(companyIds);

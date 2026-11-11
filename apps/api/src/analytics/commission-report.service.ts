@@ -90,7 +90,8 @@ export class CommissionReportService {
         feeAmount: trimDecimal(row.fee_amount),
         netAmount: trimDecimal(row.net_amount),
       })),
-      totalRows: rows.length > analyticsDisplayRows || withdrawals.length > analyticsDisplayRows ? Math.max(rows.length, withdrawals.length) : null,
+      totalRows: rows.length > analyticsDisplayRows ? rows.length : null,
+      totalWithdrawals: withdrawals.length > analyticsDisplayRows ? withdrawals.length : null,
     };
   }
 

@@ -24,6 +24,7 @@ export default function InventoryReportPage() {
       <ReportFilters
         kind="inventory"
         withPeriod
+        onCompanyChange={() => setWarehouseId("")}
         extra={
           <>
             <label className="an-nhan" htmlFor="loc-kho">

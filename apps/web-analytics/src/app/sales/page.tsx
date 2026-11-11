@@ -27,6 +27,7 @@ export default function SalesReportPage() {
       <ReportFilters
         kind="sales"
         withPeriod
+        onCompanyChange={() => setChannelId("")}
         extra={
           <>
             <label className="an-nhan" htmlFor="loc-kenh">
