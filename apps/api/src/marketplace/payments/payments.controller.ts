@@ -20,6 +20,7 @@ const gatewayRequest = (request: Request): GatewayRequest => ({
   query: request.query as Record<string, unknown>,
   body: request.body as unknown,
   headers: request.headers,
+  ip: request.ip,
 });
 
 @Controller()
@@ -46,6 +47,23 @@ export class PaymentsController {
   @All("public/payments/:gateway/notify")
   async notify(@Req() request: Request, @Param("gateway") gateway: string, @Res() response: Response): Promise<void> {
     const reply = await this.payments.notify(gateway, gatewayRequest(request), request.ip ?? "khong-ro");
+    response.status(reply.status).json(reply.body);
+  }
+
+  // BIDV thu hộ qua tài khoản định danh gọi hai hàm vấn tin và gạch nợ trên cùng đường dẫn gốc đăng ký với BIDV (CONG_VIEC_37).
+  @Public()
+  @OwnRateLimit()
+  @Post("public/payments/bidv/getbill")
+  async bidvInquiry(@Req() request: Request, @Res() response: Response): Promise<void> {
+    const reply = await this.payments.inquire("bidv", gatewayRequest(request), request.ip ?? "khong-ro");
+    response.status(reply.status).json(reply.body);
+  }
+
+  @Public()
+  @OwnRateLimit()
+  @Post("public/payments/bidv/paybill")
+  async bidvPayment(@Req() request: Request, @Res() response: Response): Promise<void> {
+    const reply = await this.payments.notify("bidv", gatewayRequest(request), request.ip ?? "khong-ro");
     response.status(reply.status).json(reply.body);
   }
 
