@@ -82,6 +82,8 @@ import { EmployeesService } from "./hr/employees.service";
 import { HrController } from "./hr/hr.controller";
 import { PayrollController } from "./hr/payroll.controller";
 import { PayrollSetupService } from "./hr/payroll-setup.service";
+import { DatabaseTimesheetReader, PAYROLL_TIMESHEET } from "./hr/payroll-timesheet";
+import { PayrollsService } from "./hr/payrolls.service";
 import { WorkEventsService } from "./hr/work-events.service";
 import { DebtsService } from "./finance/debts.service";
 import { FundsService } from "./finance/funds.service";
@@ -153,6 +155,8 @@ import { UsersService } from "./users/users.service";
     WorkEventsService,
     ContractsService,
     PayrollSetupService,
+    PayrollsService,
+    { provide: PAYROLL_TIMESHEET, useClass: DatabaseTimesheetReader },
     ContractRemindersService,
     CategoriesService,
     UnitsService,

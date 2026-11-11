@@ -1,7 +1,12 @@
-// API_156 đến API_158: thiết lập lương, loại phụ cấp, hồ sơ lương của nhân viên (CONG_VIEC_48). Quyền chi tiết kiểm trong service.
-import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
+// API_156 đến API_160: thiết lập lương, loại phụ cấp, hồ sơ lương của nhân viên, bảng lương tháng (CONG_VIEC_48). Quyền chi tiết kiểm trong service.
+import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
+  cancelPayrollSchema,
+  createPayrollSchema,
+  payrollLineQuerySchema,
+  payrollListQuerySchema,
+  savePayrollAdjustmentSchema,
   saveAllowanceTypeSchema,
   saveBranchRegionsSchema,
   saveDepartmentGroupsSchema,
@@ -12,6 +17,9 @@ import {
   uploadTaxCommitmentSchema,
   type AllowanceTypeItem,
   type MissingInsuranceItem,
+  type PayrollLineDetail,
+  type PayrollListResponse,
+  type PayrollResponse,
   type PayrollProfileResponse,
   type PayrollSettingsResponse,
 } from "contracts";
@@ -24,12 +32,14 @@ import type { Actor } from "../permissions/roles.service";
 import { documentMaximumBytes, type UploadedFile as UploadedDocument } from "./employees.service";
 import { contentDisposition } from "./hr.controller";
 import { PayrollSetupService } from "./payroll-setup.service";
+import { PayrollsService } from "./payrolls.service";
 
 @Controller("hr")
 export class PayrollController {
   constructor(
     private readonly permissionService: PermissionService,
     private readonly setup: PayrollSetupService,
+    private readonly payrolls: PayrollsService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -154,5 +164,89 @@ export class PayrollController {
     response.setHeader("x-content-type-options", "nosniff");
     response.setHeader("cache-control", "no-store");
     response.send(file.content);
+  }
+  @Get("payrolls")
+  async listPayrolls(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<PayrollListResponse> {
+    return this.payrolls.list(await this.actor(request, companyId), payrollListQuerySchema.parse(query));
+  }
+
+  @Post("payrolls")
+  async createPayroll(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PayrollResponse> {
+    return this.payrolls.create(await this.actor(request, companyId), createPayrollSchema.parse(body).month);
+  }
+
+  @Get("payrolls/:id")
+  async payroll(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<PayrollResponse> {
+    return this.payrolls.detail(await this.actor(request, companyId), id, payrollLineQuerySchema.parse(query));
+  }
+
+  @Get("payrolls/:id/export")
+  async exportPayroll(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Res() response: Response, @Headers("x-company-id") companyId?: string): Promise<void> {
+    const file = await this.payrolls.export(await this.actor(request, companyId), id);
+    response.setHeader("content-type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    response.setHeader("content-disposition", contentDisposition(file.fileName));
+    response.setHeader("cache-control", "no-store");
+    response.send(file.content);
+  }
+
+  @Get("payrolls/:id/lines/:lineId")
+  async payrollLine(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Param("lineId", UuidPipe) lineId: string,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<PayrollLineDetail> {
+    return this.payrolls.lineDetail(await this.actor(request, companyId), id, lineId);
+  }
+
+  @Post("payrolls/:id/recalculate")
+  @HttpCode(200)
+  async recalculatePayroll(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<PayrollResponse> {
+    return this.payrolls.recalculate(await this.actor(request, companyId), id);
+  }
+
+  @Post("payrolls/:id/adjustments")
+  async createAdjustment(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PayrollResponse> {
+    return this.payrolls.saveAdjustment(await this.actor(request, companyId), id, null, savePayrollAdjustmentSchema.parse(body));
+  }
+
+  @Patch("payrolls/:id/adjustments/:adjustmentId")
+  async updateAdjustment(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Param("adjustmentId", UuidPipe) adjustmentId: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<PayrollResponse> {
+    return this.payrolls.saveAdjustment(await this.actor(request, companyId), id, adjustmentId, savePayrollAdjustmentSchema.parse(body));
+  }
+
+  @Delete("payrolls/:id/adjustments/:adjustmentId")
+  @HttpCode(200)
+  async deleteAdjustment(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Param("adjustmentId", UuidPipe) adjustmentId: string,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<PayrollResponse> {
+    return this.payrolls.deleteAdjustment(await this.actor(request, companyId), id, adjustmentId);
+  }
+
+  @Post("payrolls/:id/submit")
+  @HttpCode(200)
+  async submitPayroll(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<PayrollResponse> {
+    return this.payrolls.submit(await this.actor(request, companyId), id);
+  }
+
+  @Post("payrolls/:id/withdraw")
+  @HttpCode(200)
+  async withdrawPayroll(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<PayrollResponse> {
+    return this.payrolls.withdraw(await this.actor(request, companyId), id);
+  }
+
+  @Post("payrolls/:id/cancel")
+  @HttpCode(200)
+  async cancelPayroll(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PayrollResponse> {
+    return this.payrolls.cancel(await this.actor(request, companyId), id, cancelPayrollSchema.parse(body).reason);
   }
 }

@@ -5048,3 +5048,149 @@ export interface MissingInsuranceItem {
   contractKind: ContractKind | null;
   contractEndDate: string | null;
 }
+
+// CONG_VIEC_48 lát L1: bảng lương tháng (API_159, API_160; QUYTAC_NGHIEPVU_316 đến 322).
+export const payrollStatuses = ["draft", "pending", "rejected", "withdrawn", "approved", "paid", "cancelled"] as const;
+export type PayrollStatus = (typeof payrollStatuses)[number];
+export const payrollWarnings = [
+  "timesheetMissing",
+  "branchRegionMissing",
+  "negativeNet",
+  "allowanceTypeMissing",
+  "missingInsuranceSalary",
+  "insuranceBelowMinimum",
+  "unpaidDaysNoInsurance",
+  "probationNoInsurance",
+  "missingTaxCode",
+  "flatWithholding",
+] as const;
+export type PayrollWarningCode = (typeof payrollWarnings)[number];
+export const payrollAdjustmentCategories = ["bonus", "arrears", "commission", "advance", "compensation", "union_dues", "other"] as const;
+export type PayrollAdjustmentCategory = (typeof payrollAdjustmentCategories)[number];
+
+export const createPayrollSchema = z.object({ month: firstOfMonth }).strict();
+export const payrollListQuerySchema = z
+  .object({
+    year: z.coerce.number().int().min(2000).max(2100).optional(),
+    status: z.enum(payrollStatuses).optional(),
+  })
+  .strict();
+export const payrollLineQuerySchema = z
+  .object({
+    departmentId: z.string().uuid().optional(),
+    warningsOnly: z.enum(["true", "false"]).optional(),
+  })
+  .strict();
+export const savePayrollAdjustmentSchema = z
+  .object({
+    employeeId: z.string().uuid(),
+    kind: z.enum(["addition", "deduction"]),
+    category: z.enum(payrollAdjustmentCategories),
+    taxable: z.boolean().default(false),
+    description: z.string().trim().min(1).max(200),
+    amount: decimalText(4),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePayrollAdjustmentRequest = z.input<typeof savePayrollAdjustmentSchema>;
+export const cancelPayrollSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export const payPayrollSchema = z.object({ paymentDate: isoDate, fundId: z.string().uuid() }).strict();
+
+export interface PayrollTotals {
+  employeeCount: number;
+  grossIncome: string;
+  employeeInsurance: string;
+  personalIncomeTax: string;
+  deductions: string;
+  netPay: string;
+  employerInsurance: string;
+  unionFee: string;
+  employerCost: string;
+}
+export interface PayrollListItem extends PayrollTotals {
+  id: string;
+  month: string;
+  documentNo: string | null;
+  status: PayrollStatus;
+}
+export interface PayrollListResponse {
+  data: PayrollListItem[];
+  canManage: boolean;
+}
+export interface PayrollLineItem {
+  id: string;
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  departmentId: string | null;
+  departmentName: string | null;
+  costGroup: PayrollCostGroup;
+  taxMethod: "progressive" | "flat";
+  standardDays: string;
+  paidDays: string;
+  timePay: string;
+  allowancePay: string;
+  overtimePay: string;
+  nightPremium: string;
+  settledLeavePay: string;
+  additions: string;
+  deductions: string;
+  grossIncome: string;
+  taxableIncome: string;
+  employeeInsurance: string;
+  personalIncomeTax: string;
+  netPay: string;
+  employerCost: string;
+  warnings: PayrollWarningCode[];
+}
+export interface PayrollAdjustmentItem {
+  id: string;
+  employeeId: string;
+  kind: "addition" | "deduction";
+  category: PayrollAdjustmentCategory;
+  taxable: boolean;
+  description: string;
+  amount: string;
+  version: number;
+}
+export interface PayrollLineDetail extends PayrollLineItem {
+  monthlySalary: string;
+  socialBase: string;
+  healthBase: string;
+  unemploymentBase: string;
+  employeeSocial: string;
+  employeeHealth: string;
+  employeeUnemployment: string;
+  employerSocial: string;
+  employerHealth: string;
+  employerUnemployment: string;
+  unionFee: string;
+  familyDeduction: string;
+  assessableIncome: string;
+  explanation: Record<string, unknown>;
+  adjustments: PayrollAdjustmentItem[];
+  canEdit: boolean;
+}
+export interface PayrollResponse extends PayrollTotals {
+  id: string;
+  month: string;
+  documentNo: string | null;
+  status: PayrollStatus;
+  parameterEffectiveFrom: string;
+  baseSalary: string;
+  standardDays: string | null;
+  timesheetClosed: boolean;
+  calculatedAt: string;
+  calculatedByName: string;
+  approvalRequestId: string | null;
+  cancelReason: string | null;
+  // Số dòng có cảnh báo chặn gửi duyệt (chưa có bảng công, chi nhánh chưa chọn vùng, thực lĩnh âm).
+  blockingCount: number;
+  warningCount: number;
+  lines: PayrollLineItem[];
+  canEdit: boolean;
+  canSubmit: boolean;
+  canWithdraw: boolean;
+  canCancel: boolean;
+  version: number;
+}

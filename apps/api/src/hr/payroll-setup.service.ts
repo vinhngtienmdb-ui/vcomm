@@ -95,7 +95,7 @@ export class PayrollSetupService {
     return (await executor.execute(sql`SELECT 1 FROM hr.payrolls WHERE parameter_id = ${parameterId} AND status IN ('approved', 'paid') LIMIT 1`)).rows.length > 0;
   }
 
-  private async parameterItems(executor: Executor): Promise<PayrollParametersItem[]> {
+  async parameterItems(executor: Executor): Promise<PayrollParametersItem[]> {
     const today = this.permissionService.today();
     const rows = (
       await executor.execute<ParameterRow>(sql`
