@@ -20,6 +20,8 @@
 
 ### Quyết định
 
+- CONG_VIEC_57, người dùng duyệt đặc tả và bản mẫu L0: tách kế hoạch mua theo ngân sách sang CONG_VIEC_58; trạm là cửa hàng bán lẻ hoặc điểm giao nhận (chi nhánh loại Cửa hàng hoặc Khác) của công ty vận hành sàn; khách chọn trạm đủ hàng, nhận tại trạm hoặc trạm giao; trả trước hoặc trả khi nhận trong ca; giữ hàng N ngày rồi tự hủy; mã nhận hàng 6 số, không gửi qua ZNS; vai trò mới Nhân viên giao hàng trạm.
+- CONG_VIEC_58, người dùng duyệt đặc tả và bản mẫu MAN_HINH_204 đến 209: ngân sách theo ngành hàng cấp 1, kho, tháng; số còn được mua bằng ngân sách trừ đơn mua đã duyệt (chưa thuế, quy đổi VND, đơn đóng sớm tính phần đã nhận, trả hàng nhà cung cấp không hoàn ngân sách); vượt hoặc chưa có ngân sách thì cảnh báo và chuyển luồng duyệt riêng, thiếu chính sách duyệt thì báo lỗi.
 - THAY_DOI_26 (đã phê duyệt): CONG_VIEC_22 làm lại thành phần Kinh doanh trong ứng dụng VComm, ẩn ghé thăm khách, không tạo đơn hộ khách; nhánh mới `chuc-nang/CONG_VIEC_22-kinh-doanh-vcomm`.
 - Người dùng quyết định chưa triển khai bản 0.4.0; triển khai khi gộp thêm các công việc đã nghiệm thu và có khóa thử của nhà cung cấp.
 - CONG_VIEC_53, người dùng quyết định 2026-11-11: luôn trực tuyến; tích và đổi điểm ngay (L6); hóa đơn điện tử luôn khởi tạo từ máy tính tiền; trả hàng theo hóa đơn; phiếu thu tổng khi đóng ca; lệch tiền ghi lý do và hạch toán; giảm tay trong mức tối đa; VietQR thu ngân xác nhận; phần 1 chỉ bán hàng hóa; lô tự chọn FEFO, serial quét; kho bán không dùng vị trí; nghiệm thu L0 đến L5 trước, L6 khi CONG_VIEC_51 hợp nhất. QUYTAC_NGHIEPVU_378 bỏ ý mã do người bán tự tạo (Nghị định 254/2026/NĐ-CP không quy định), người dùng xác nhận khi duyệt L5.
