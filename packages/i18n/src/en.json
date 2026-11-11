@@ -3591,8 +3591,6 @@
     "collaboratorNoOrders": "No orders yet. Share a product link to get started.",
     "collaboratorCreditedShort": "Credited",
     "collaboratorPendingShort": "Pending",
-    "collaboratorShare": "Share to earn commission",
-    "collaboratorShareMessage": "{name} on VComm: {link}",
     "collaboratorRatePercent": "Collaborator commission: {rate}% of the pre-tax amount.",
     "collaboratorRateFixed": "Collaborator commission: {amount} per item.",
     "inviteTitle": "Invite friends",
@@ -3724,7 +3722,16 @@
     "commissionPending": "Pending",
     "commissionPendingHint": "Orders still within the 7-day return period",
     "recentOrders": "Recent orders",
-    "noCustomerOrders": "No orders yet."
+    "noCustomerOrders": "No orders yet.",
+    "shareProduct": "Share product",
+    "shareContent": "Message to send",
+    "productShareMessage": "Check out {name} on VComm: {link}",
+    "shareProductHint": "Recipients without an account sign up with referral code {code} and then see this product. Existing customers open the product directly; their referrer does not change.",
+    "shareProductCollaboratorHint": "The link carries your collaborator code.",
+    "copyLink": "Copy",
+    "shareNow": "Share",
+    "productUnavailable": "This product is no longer for sale.",
+    "goHome": "Go to home"
   },
   "buyers": {
     "title": "Buyer accounts",

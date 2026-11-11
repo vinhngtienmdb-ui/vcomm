@@ -48,7 +48,7 @@ Ngoài phạm vi: tạo đơn hoặc giỏ hàng hộ khách; thông báo đẩy
 
 - QUYTAC_NGHIEPVU_432: Phạm vi khách trên ứng dụng: người gọi phải đang được đánh dấu nhân viên kinh doanh (không thì 403). Người gọi xem được một khách khi khách đó do chính mình phụ trách (QUYTAC_NGHIEPVU_145) hoặc do một người trong nhánh của mình phụ trách (QUYTAC_NGHIEPVU_150, 151). Ngoài phạm vi trả 404 (không lộ khách có tồn tại hay không). Phạm vi tính tại thời điểm gọi: khách đổi người giới thiệu thì người cũ không còn xem được.
 - QUYTAC_NGHIEPVU_433: Chi tiết khách gồm: họ tên, số điện thoại (định dạng trong nước), ngày đăng ký, nhân viên phụ trách (họ tên, chức danh); số đơn và tổng tiền đơn hoàn tất (theo `completed_amount`, đã trừ trả hàng); số đơn đang xử lý; 10 đơn gần nhất (mã đơn, ngày đặt, tiền hàng, trạng thái); hoa hồng của chính người xem phát sinh từ đơn của khách này (đã cộng ví, đang chờ); 20 ghi chú chăm sóc gần nhất. Không hiện địa chỉ giao hàng, người nhận, chi tiết thanh toán, hạn mức. Không mở chi tiết đơn của khách.
-- QUYTAC_NGHIEPVU_434: Chia sẻ sản phẩm: trên trang sản phẩm, người có mã giới thiệu (QUYTAC_NGHIEPVU_142) bấm Chia sẻ để gửi đường dẫn `<địa chỉ ứng dụng>/r/<mã giới thiệu>?sp=<mã sản phẩm>` qua bảng chia sẻ của máy (bản xem trước web: sao chép). Người nhận chưa đăng nhập: mở đăng ký với mã điền sẵn, đăng ký xong mở trang sản phẩm. Người nhận đã đăng nhập: mở thẳng trang sản phẩm; không đổi người giới thiệu (đổi người giới thiệu theo QUYTAC_NGHIEPVU_142, 143). Sản phẩm không còn bán thì báo "Sản phẩm không còn bán" và mở trang chủ. Nút Chia sẻ có cho mọi tài khoản người mua; hoa hồng vẫn theo người giới thiệu của người mua lúc đặt (QUYTAC_NGHIEPVU_201).
+- QUYTAC_NGHIEPVU_434: Chia sẻ sản phẩm: trên trang sản phẩm (MAN_HINH_91) có một nút "Chia sẻ sản phẩm" cho mọi tài khoản người mua, thay nút "Chia sẻ nhận hoa hồng" của CONG_VIEC_49 (quyết định của người dùng 2026-11-12: một nút, gộp cả hai mã). Đường dẫn `<địa chỉ ứng dụng>/r/<mã giới thiệu>?sp=<mã sản phẩm>`, cộng tác viên đã duyệt có thêm `&ctv=<mã cộng tác viên>`; không có mã giới thiệu thì dùng đường dẫn cộng tác viên `/p/<mã sản phẩm>?ctv=<mã>` (QUYTAC_NGHIEPVU_325). Bấm nút mở thẻ xem trước nội dung, Sao chép, Chia sẻ (bảng chia sẻ của máy; bản xem trước web dùng chia sẻ của trình duyệt hoặc sao chép). Người nhận chưa đăng nhập: mở đăng ký với mã điền sẵn; đăng ký hoặc đăng nhập xong trong cùng lần mở ứng dụng thì mở trang sản phẩm. Người nhận đã đăng nhập: mở thẳng trang sản phẩm; không đổi người giới thiệu (đổi người giới thiệu theo QUYTAC_NGHIEPVU_142, 143). Có mã cộng tác viên thì ghi lượt bấm như QUYTAC_NGHIEPVU_325 (chưa đăng nhập thì ghi sau khi đăng nhập). Sản phẩm không còn bán thì trang sản phẩm báo "Sản phẩm không còn bán." kèm nút Về trang chủ. Hoa hồng vẫn theo người giới thiệu của người mua lúc đặt (QUYTAC_NGHIEPVU_201) và lượt bấm cộng tác viên (QUYTAC_NGHIEPVU_326).
 - QUYTAC_NGHIEPVU_435: Ghi chú chăm sóc: người xem được khách (QUYTAC_NGHIEPVU_432) ghi được. Gồm kênh (gọi điện, nhắn tin, gặp trực tiếp, khác), nội dung 1 đến 1.000 ký tự, ngày hẹn tiếp theo (tùy chọn, từ hôm nay đến 365 ngày sau, theo giờ Việt Nam). Thời điểm ghi do máy chủ ghi. Ghi chú không sửa, không xóa. Mọi người đang xem được khách thì xem được mọi ghi chú của khách, kể cả ghi chú của người phụ trách trước.
 - QUYTAC_NGHIEPVU_436: Hẹn: mỗi ghi chú có ngày hẹn là một hẹn của người ghi. Hẹn ở trạng thái chờ cho tới khi người ghi bấm Đã xong (ghi thời điểm). Người ghi mất quyền xem khách thì hẹn vẫn giữ nhưng không còn hiện, không nhắc. Danh sách hẹn của tôi: quá hạn (ngày hẹn trước hôm nay), hôm nay, 7 ngày tới; sắp theo ngày hẹn.
 - QUYTAC_NGHIEPVU_437: Nhắc hẹn: 07:00 hằng ngày (giờ Việt Nam) hệ thống tạo cho mỗi người có hẹn chờ đến hạn hoặc quá hạn (còn xem được khách, còn được đánh dấu nhân viên kinh doanh) một thông báo trong ứng dụng (`core.notifications`, loại `sales.follow_up_due`) ghi số hẹn hôm nay và số hẹn quá hạn, liên kết tới danh sách hẹn. Mỗi người tối đa một thông báo một ngày; chạy lại trong ngày không tạo trùng. Không gửi thư điện tử, tin nhắn, thông báo đẩy.
@@ -117,12 +117,13 @@ Không còn. Câu hỏi 1 (gán đơn khi tính doanh số) người dùng chọ
 
 ## 12. Kịch bản kiểm thử
 
-- KICHBAN_KIEMTHU_573 đến 579, 581, 583: tự động, `apps/api/test/c22-kinh-doanh-vcomm.test.ts` (chia sẻ: kiểm phần máy chủ; phần điều hướng thủ công ở 582).
+- KICHBAN_KIEMTHU_573 đến 579, 583: tự động, `apps/api/test/c22-kinh-doanh-vcomm.test.ts`.
+- KICHBAN_KIEMTHU_581: chia sẻ không đổi API (dùng lại đăng ký có mã giới thiệu, lượt bấm cộng tác viên đã có kiểm thử ở c23, c49); kiểm điều hướng bằng kịch bản Playwright trên bản xem trước web với API giả lập: đã đăng nhập mở thẳng sản phẩm; chưa đăng nhập vào đăng ký có mã, đăng nhập xong mở sản phẩm; sản phẩm ngừng bán báo đúng.
 - TIEUCHI_NGHIEMTHU_408: kiểm bằng KICHBAN_KIEMTHU_290, 291 đã sửa (`apps/api/test/c22-sales-app.test.ts`); KICHBAN_KIEMTHU_580 kiểm thủ công web-crm không còn menu, trang, thẻ ghé thăm.
 - KICHBAN_KIEMTHU_582: thủ công trên bản xem trước web của ứng dụng VComm khổ 390 điểm ảnh.
 - KICHBAN_KIEMTHU_584 dự phòng.
 
-Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt).
+Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt; người dùng đồng ý 2026-11-12). L1 xong (KICHBAN_KIEMTHU_581 đạt trên bản xem trước).
 - Sửa KICHBAN_KIEMTHU_290, 291 (ghé thăm): ghi mới bị từ chối; đọc giữ nguyên.
 
 ## 13. Ràng buộc kỹ thuật
@@ -148,3 +149,5 @@ Chưa đối chiếu.
 ## 17. Giới hạn đã biết
 
 - Nhắc hẹn chỉ hiện khi mở ứng dụng; thông báo đẩy làm sau khi đóng gói ứng dụng.
+- Sản phẩm chờ mở sau đăng ký chỉ giữ trong lần mở ứng dụng (như lượt bấm cộng tác viên); đóng ứng dụng giữa chừng thì về trang chủ.
+- Khi trình nghiệm thu cập nhật tài liệu `09` (luồng cộng tác viên bước 3), `10`, `14` (MAN_HINH_91: nút "Chia sẻ sản phẩm" thay "Chia sẻ nhận hoa hồng").

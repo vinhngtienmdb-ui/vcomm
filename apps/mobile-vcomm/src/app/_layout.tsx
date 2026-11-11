@@ -1,5 +1,5 @@
 // Khung ứng dụng VComm: phiên đăng nhập; chưa đăng nhập thì chỉ mở được đăng nhập, đăng ký, quên mật khẩu, đường dẫn giới thiệu.
-import { Redirect, Stack, usePathname } from "expo-router";
+import { Redirect, router, Stack, usePathname } from "expo-router";
 import { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -8,6 +8,7 @@ import { translator } from "@/lib/i18n";
 import { colors } from "@/lib/theme";
 import { flushCollaboratorClick } from "@/lib/collaborator-link";
 import { SessionProvider, useSession } from "@/lib/session";
+import { peekHeldProduct } from "@/lib/product-link";
 
 const publicPaths = ["/dang-nhap", "/dang-ky", "/quen-mat-khau"];
 
@@ -18,6 +19,11 @@ function Gate() {
   useEffect(() => {
     if (stage === "ready") void flushCollaboratorClick();
   }, [stage]);
+  const heldProduct = peekHeldProduct();
+  const leavingPublic = stage === "ready" && publicPaths.includes(path) && heldProduct !== null;
+  useEffect(() => {
+    if (leavingPublic && heldProduct) router.replace({ pathname: "/san-pham/[id]", params: { id: heldProduct } });
+  }, [leavingPublic, heldProduct]);
   if (stage === "loading") return <Loading />;
   if (stage === "offline")
     return (
@@ -29,7 +35,8 @@ function Gate() {
   const onPublic = publicPaths.includes(path);
   const onReferral = path.startsWith("/r/") || path.startsWith("/p/");
   if (stage !== "ready" && !onPublic && !onReferral) return <Redirect href="/dang-nhap" />;
-  if (stage === "ready" && onPublic) return <Redirect href="/trang-chu" />;
+  // Mở từ đường dẫn chia sẻ sản phẩm: đăng ký, đăng nhập xong thì mở sản phẩm đó (QUYTAC_NGHIEPVU_434); thay tuyến trong effect vì Redirect ở cổng rơi về trang chủ.
+  if (stage === "ready" && onPublic && !heldProduct) return <Redirect href="/trang-chu" />;
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
       <Stack.Screen name="(tabs)" />

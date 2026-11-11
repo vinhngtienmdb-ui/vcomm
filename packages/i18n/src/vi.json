@@ -3591,8 +3591,6 @@
     "collaboratorNoOrders": "Chưa có đơn nào. Chia sẻ đường dẫn sản phẩm để bắt đầu.",
     "collaboratorCreditedShort": "Đã cộng",
     "collaboratorPendingShort": "Đang chờ",
-    "collaboratorShare": "Chia sẻ nhận hoa hồng",
-    "collaboratorShareMessage": "{name} trên VComm: {link}",
     "collaboratorRatePercent": "Hoa hồng cộng tác viên: {rate}% tiền hàng chưa thuế.",
     "collaboratorRateFixed": "Hoa hồng cộng tác viên: {amount} mỗi sản phẩm.",
     "inviteTitle": "Mời bạn bè",
@@ -3724,7 +3722,16 @@
     "commissionPending": "Đang chờ",
     "commissionPendingHint": "Đơn chưa hết 7 ngày trả hàng",
     "recentOrders": "Đơn gần nhất",
-    "noCustomerOrders": "Khách chưa có đơn."
+    "noCustomerOrders": "Khách chưa có đơn.",
+    "shareProduct": "Chia sẻ sản phẩm",
+    "shareContent": "Nội dung gửi đi",
+    "productShareMessage": "Mời bạn xem {name} trên VComm: {link}",
+    "shareProductHint": "Người nhận chưa có tài khoản sẽ đăng ký với mã giới thiệu {code} rồi mở sản phẩm này. Người đã có tài khoản mở thẳng sản phẩm, người giới thiệu của họ không đổi.",
+    "shareProductCollaboratorHint": "Đường dẫn có mã cộng tác viên của bạn.",
+    "copyLink": "Sao chép",
+    "shareNow": "Chia sẻ",
+    "productUnavailable": "Sản phẩm không còn bán.",
+    "goHome": "Về trang chủ"
   },
   "buyers": {
     "title": "Tài khoản người mua",
