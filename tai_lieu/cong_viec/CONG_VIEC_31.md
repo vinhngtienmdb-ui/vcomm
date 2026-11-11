@@ -118,7 +118,7 @@ Kiểm tra kiểm thử bắt lỗi: chuyển mã 123 sang "đã lấy hàng" th
 | Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Đạt: QUYTAC_NGHIEPVU_195 có kiểm thử tự động; phân quyền dùng lại của CONG_VIEC_24 |
 | Đúng giao diện | Không áp dụng: không đổi giao diện; danh sách đơn vị vận chuyển tự hiện GHTK |
 | Đã xử lý lỗi | Đạt: từ chối, sai token, không trả lời, mã trạng thái chưa biết đều có xử lý |
-| Đã kiểm thử, đạt cổng kiểm thử | Đạt: mục 15; toàn bộ 327/327; không có lỗi Nghiêm trọng, Cao. CI trên GitHub chưa chạy do tài khoản lỗi thanh toán Actions |
+| Đã kiểm thử, đạt cổng kiểm thử | Đạt: mục 15; toàn bộ 327/327; không có lỗi Nghiêm trọng, Cao. CI trên GitHub không chạy (GitHub không cấp máy chạy, nghi do thanh toán Actions); người dùng quyết định ngày 2026-11-11 tạm chấp nhận không có CI, nghiệm thu theo kết quả kiểm thử chạy trên máy |
 | Không phá vỡ chức năng cũ | Đạt: GHN không đổi; kiểm thử C24 đạt |
 | Đạt tiêu chí nghiệm thu bắt buộc | Đạt (giả lập): TIEUCHI_NGHIEMTHU_212 đến 214 |
 | Đạt cổng bảo mật | Đạt: không thêm thư viện; token, khóa ở biến môi trường, `.env.example` để trống; khóa webhook so sánh an toàn thời gian; trạng thái luôn tra lại từ GHTK; quét khóa bí mật trên commit không có phát hiện |
@@ -140,6 +140,7 @@ Kiểm tra kiểm thử bắt lỗi: chuyển mã 123 sang "đã lấy hàng" th
 ## 18. Giới hạn đã biết
 
 - Viết theo tài liệu công khai, kiểm thử bằng máy chủ giả lập; các điểm chưa xác minh ở mục 9 phải thử với tài khoản GHTK môi trường thử nghiệm trước khi phát hành.
+- CI trên GitHub chưa chạy cho nhánh này; khi CI chạy lại được cần chạy lại trên commit cuối trước khi hợp nhất vào `main`. Phiên chính ghi quyết định tạm chấp nhận không có CI vào tài liệu `02`.
 - Một địa chỉ lấy hàng chung (biến môi trường), chưa theo từng kho.
 - Ghi chú trên lịch sử đơn hiện mã số trạng thái GHTK (ví dụ "GHTK: 13"), chưa có tên trạng thái.
 - `carrierNames` có tên tạm cho `vnpost`, `viettel_post`, `jt`; khi hợp nhất các phiên kết nối khác cần giữ một bản tên.
