@@ -101,9 +101,9 @@ Tệp chính: `database/migrations/0051_payment_momo.sql`; `apps/api/src/marketp
 
 | Kịch bản | Tệp | Kết quả |
 |---|---|---|
-| KICHBAN_KIEMTHU_379, 380, 381 | `apps/api/test/c33-payment-momo.test.ts` | KET_QUA_C33 |
-| Kiểm thử hồi quy | `pnpm --filter api test` | KET_QUA_HOI_QUY |
+| KICHBAN_KIEMTHU_379, 380, 381 | `apps/api/test/c33-payment-momo.test.ts` | Đạt (3/3) |
+| Kiểm thử hồi quy | `pnpm --filter api test` | Đạt: 47 tệp, 336 kiểm thử (2026-11-11) |
 
-Kiểm tra kiểu (`pnpm typecheck`), kiểm tra mã (`pnpm lint`): đạt.
+Kiểm tra kiểu (`pnpm typecheck`), kiểm tra mã (`pnpm lint`): đạt. Quét khóa bí mật (gitleaks 8.30.1) trên commit của công việc: không phát hiện.
 
 Giới hạn đã biết: chưa thử với tài khoản môi trường thử nghiệm MoMo (người dùng chưa có); các điểm chưa xác minh ở mục 7.
