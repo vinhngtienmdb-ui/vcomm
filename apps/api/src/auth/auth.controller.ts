@@ -37,6 +37,8 @@ import { webOrigin } from "../common/outbound-messages";
 import { oauthProviders, OauthService, oauthStateCookieName } from "./oauth.service";
 import type { OauthProvider } from "./oauth-providers";
 import { PhoneOtpService } from "./phone-otp.service";
+import { PermissionService } from "../permissions/permission.service";
+import { verifyAccessToken } from "./tokens";
 
 const secureCookies = () => process.env.NODE_ENV === "production";
 
@@ -68,6 +70,7 @@ export class AuthController {
     private readonly phoneOtp: PhoneOtpService,
     private readonly oauth: OauthService,
     private readonly messaging: MessagingService,
+    private readonly permissionService: PermissionService,
   ) {}
 
   // API_54: cách đăng nhập đã cài đặt, để MAN_HINH_01 chỉ hiện nút dùng được.
@@ -223,6 +226,30 @@ export class AuthController {
   @HttpCode(200)
   async appLogin(@Body() body: unknown, @Req() request: Request): Promise<AppLoginResponse> {
     const { response, session } = await this.auth.login(loginRequestSchema.parse(body), clientInfo(request), "sales_app");
+    return { ...response, tokens: appTokens(session) };
+  }
+
+  // API_137: ứng dụng kho đăng nhập như API_112 nhưng phiên warehouse_app; chỉ tài khoản có quyền kho ở ít nhất một công ty (QUYTAC_NGHIEPVU_280).
+  @Public()
+  @RateLimitGroup("login")
+  @Post("warehouse-app/login")
+  @HttpCode(200)
+  async warehouseAppLogin(@Body() body: unknown, @Req() request: Request): Promise<AppLoginResponse> {
+    const client = clientInfo(request);
+    const { response, session } = await this.auth.login(loginRequestSchema.parse(body), client, "warehouse_app");
+    const payload = verifyAccessToken(session.accessToken)!;
+    const companies = await this.permissionService.memberships(payload.userId);
+    let allowed = false;
+    for (const company of companies) {
+      if ((await this.permissionService.permissionsInCompany(payload.userId, company.id)).includes("inventory.access")) {
+        allowed = true;
+        break;
+      }
+    }
+    if (!allowed) {
+      await this.auth.logout(payload.sessionId, payload.userId, client);
+      throw new ApiError("FORBIDDEN", "warehouseAppNoAccess");
+    }
     return { ...response, tokens: appTokens(session) };
   }
 

@@ -3,7 +3,7 @@
 - Mô tả: Ứng dụng Expo cho Thủ kho, Quản lý kho: tra tồn, nhận hàng từ đơn mua, xuất giao hàng cho đơn bán, phiếu nhập khác, xuất khác, chuyển kho (xuất, nhận), đếm kiểm kê bằng máy quét mã vạch cầm tay hoặc camera điện thoại; dùng lại API kho đã có.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả và bản mẫu.
+- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; đang thực hiện.
 - Nguồn: CONG_VIEC_05 mục 2 (ngoài phạm vi: ứng dụng kho Expo); tài liệu `05` mục 2.1, `12` (thư mục `apps/mobile-warehouse`), `22` mục 3 (phiên ứng dụng kho 90 ngày); quyết định của người dùng ngày 2026-11-11 (mục 13).
 
 ## 1. Mục tiêu
@@ -48,7 +48,7 @@ Ngoài phạm vi:
 
 Ngoại lệ:
 - Cộng làm số đếm âm: "Số đếm sau khi cộng không được âm." (khóa `stocktakeCountNegative`) (QUYTAC_NGHIEPVU_284).
-- Serial đã đếm ở dòng khác: "Serial <serial> đã được đếm ở dòng khác của đợt kiểm kê." (khóa `stocktakeSerialCounted`) (QUYTAC_NGHIEPVU_284).
+- Serial đã đếm ở dòng khác: "Serial đã được đếm ở dòng khác của đợt kiểm kê." (khóa `stocktakeSerialCounted`) (QUYTAC_NGHIEPVU_284).
 - Cộng khi đợt không ở trạng thái đang đếm: lỗi hiện có `stocktakeNotCounting`.
 - Đăng nhập ứng dụng kho bằng tài khoản không có `inventory.access` ở công ty nào: "Tài khoản không có quyền dùng ứng dụng kho." (khóa `warehouseAppNoAccess`), phiên vừa tạo bị thu hồi (QUYTAC_NGHIEPVU_280).
 
@@ -108,7 +108,7 @@ flowchart TD
 
 Sửa API_67: `GET /inventory/stocktakes`, `GET /inventory/stocktakes/{id}` giữ phạm vi xem như cũ (kho người dùng thao tác được); người không có `inventory.stocktake.manage` tại kho (cả trên web) nhận `systemQuantity`, `difference`, `differenceValue` là `null` và chỉ nhận dòng đã có số đếm; thêm trường `canCount` (có quyền đếm hoặc quản lý tại kho).
 
-Các thao tác khác dùng API hiện có: API_63 (`/inventory/warehouse-options`, vị trí), API_64 (tồn, chi tiết), API_65 (phiếu, gợi ý lô, tìm mặt hàng), API_66 (kho đích, xuất, nhận), nhận đơn mua (`/inventory/purchase-orders`, `/inventory/purchase-receipts`), xuất giao hàng (`/inventory/sales-orders`, `/inventory/sales-issues`), API_15 (`/me` lấy công ty, quyền).
+Các thao tác khác dùng API hiện có: API_63 (`/inventory/warehouses` có `canOperate`, vị trí), API_64 (tồn, chi tiết), API_65 (phiếu, gợi ý lô, tìm mặt hàng), API_66 (kho đích, xuất, nhận), nhận đơn mua (`/inventory/purchase-orders`, `/inventory/purchase-receipts`), xuất giao hàng (`/inventory/sales-orders`, `/inventory/sales-issues`), API_15 (`/me` lấy công ty, quyền).
 
 ## 9. Bảo mật
 
@@ -150,6 +150,8 @@ Các thao tác khác dùng API hiện có: API_63 (`/inventory/warehouse-options
 - Bắt buộc có mạng, không làm ngoại tuyến.
 - Thêm quyền đếm kiểm kê cho Thủ kho; số đếm cộng dồn khi nhiều người cùng đếm.
 - Đồng ý thêm `expo-camera`.
+- Đếm mù cho người không có quyền quản lý kiểm kê, áp dụng cả web.
+- Duyệt đặc tả, bản mẫu MAN_HINH_105 đến 109; AI làm tiếp qua các lát, báo sau mỗi lát.
 
 ## 14. Thành phần không được thay đổi
 

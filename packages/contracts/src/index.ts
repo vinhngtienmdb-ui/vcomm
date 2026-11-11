@@ -1768,6 +1768,51 @@ export const saveStocktakeCountsSchema = z
       .max(5000),
   })
   .strict();
+// API_138: cộng dồn số đếm từ ứng dụng kho (QUYTAC_NGHIEPVU_284). Số cộng có dấu theo đơn vị cơ sở; hàng serial gửi serial thêm, serial bỏ.
+const signedCountQuantity = z.union([z.number(), z.string()]).transform((value, context) => {
+  const text = String(value).trim().replace(",", ".");
+  if (!/^-?\d{1,12}(\.\d{1,4})?$/.test(text)) {
+    context.addIssue({ code: "custom", message: "invalidValue" });
+    return z.NEVER;
+  }
+  return text;
+});
+export const addStocktakeCountsSchema = z
+  .object({
+    additions: z
+      .array(
+        z
+          .object({
+            variantId: z.uuid(),
+            lotId: z.uuid().nullable().default(null),
+            locationId: z.uuid().nullable().default(null),
+            quantity: signedCountQuantity.default("0"),
+            serials: z.array(z.string().trim().min(1).max(100)).max(1000).default([]),
+            removedSerials: z.array(z.string().trim().min(1).max(100)).max(1000).default([]),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(500),
+  })
+  .strict();
+export const stocktakeCountEntryQuerySchema = z.object({ mine: z.enum(["true", "false"]).default("false") }).strict();
+// API_139: lịch sử đếm của đợt kiểm kê.
+export interface StocktakeCountEntry {
+  id: string;
+  lineId: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  lotNo: string | null;
+  locationCode: string | null;
+  quantity: string;
+  addedSerials: string[];
+  removedSerials: string[];
+  countedById: string;
+  countedByName: string;
+  countedAt: string;
+}
 export const finishStocktakeSchema = z
   .object({
     responsibilities: z
@@ -1809,7 +1854,8 @@ export interface StocktakeResponse extends StocktakeListItem {
     expiresOn: string | null;
     locationId: string | null;
     locationCode: string | null;
-    systemQuantity: string;
+    // Đếm mù: null với người không có quyền quản lý kiểm kê tại kho (QUYTAC_NGHIEPVU_283).
+    systemQuantity: string | null;
     countedQuantity: string | null;
     countedSerials: string[] | null;
     difference: string | null;
@@ -1820,6 +1866,8 @@ export interface StocktakeResponse extends StocktakeListItem {
   }[];
   version: number;
   canManage: boolean;
+  // Có quyền đếm hoặc quản lý kiểm kê tại kho (API_138).
+  canCount: boolean;
 }
 // Lựa chọn khi kiểm kê: ngành hàng (phạm vi kiểm), nhân viên công ty sở hữu kho (người chịu trách nhiệm phần thiếu).
 export interface StocktakeOptionsResponse {
