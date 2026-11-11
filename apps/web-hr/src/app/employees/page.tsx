@@ -28,10 +28,12 @@ export default function EmployeesPage() {
   const { state, reload } = useApi<EmployeeListResponse>(`/hr/employees?${parameters}`);
   const headings = [t("code"), t("fullName"), t("department"), t("jobTitle"), t("branch"), t("hireDate"), t("status_active")];
   const filterOptions = options.state.kind === "ready" ? options.state.data : null;
-  const reset = <T,>(setter: (value: T) => void) => (value: T) => {
-    setter(value);
-    setPage(1);
-  };
+  const reset =
+    <T,>(setter: (value: T) => void) =>
+    (value: T) => {
+      setter(value);
+      setPage(1);
+    };
   return (
     <>
       <div className="tieu-de">

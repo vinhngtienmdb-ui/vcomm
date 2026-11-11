@@ -4724,3 +4724,160 @@ export interface MyEmployeeResponse {
   employee: EmployeeResponse;
   workEvents: WorkEventItem[];
 }
+
+// CONG_VIEC_46 lát L1: hợp đồng lao động, phụ lục, nghỉ việc (API_144, API_147, API_148).
+export const contractKinds = ["probation", "fixed_term", "indefinite"] as const;
+export const contractStatuses = ["draft", "pending", "approved", "signed", "rejected", "withdrawn", "cancelled", "terminated"] as const;
+export const probationLevels = ["manager", "college", "intermediate", "other"] as const;
+export const salaryPaymentMethods = ["transfer", "cash"] as const;
+export const terminationReasons = ["expired", "completed", "mutual", "employee_unilateral", "employer_unilateral", "redundancy", "disciplinary", "probation_failed", "death", "other"] as const;
+export type ContractKind = (typeof contractKinds)[number];
+export type ContractStatus = (typeof contractStatuses)[number];
+export type ProbationLevel = (typeof probationLevels)[number];
+export type SalaryPaymentMethod = (typeof salaryPaymentMethods)[number];
+export type TerminationReason = (typeof terminationReasons)[number];
+// Tình trạng hiệu lực tính theo ngày (QUYTAC_NGHIEPVU_299).
+export type ContractValidity = "not_started" | "active" | "expired" | "terminated" | null;
+
+const allowanceSchema = z.object({ name: z.string().trim().min(1).max(100), amount: decimalText(4) }).strict();
+
+export const saveContractSchema = z
+  .object({
+    employeeId: z.string().uuid(),
+    kind: z.enum(contractKinds),
+    effectiveDate: isoDate,
+    endDate: isoDate.nullable().optional(),
+    jobTitle: z.string().trim().min(1).max(100),
+    departmentId: z.string().uuid(),
+    branchId: z.string().uuid(),
+    salary: decimalText(4),
+    probationLevel: z.enum(probationLevels).nullable().optional(),
+    officialSalary: decimalText(4).nullable().optional(),
+    paymentMethod: z.enum(salaryPaymentMethods).default("transfer"),
+    allowances: z.array(allowanceSchema).max(20).default([]),
+    signerName: z.string().trim().min(1).max(200),
+    signerTitle: z.string().trim().min(1).max(100),
+    otherTerms: blankToNull(4000),
+    legalExceptionReason: blankToNull(500),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveContractRequest = z.input<typeof saveContractSchema>;
+
+export const contractListQuerySchema = z
+  .object({
+    employeeId: z.string().uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    kind: z.enum(contractKinds).optional(),
+    status: z.enum(contractStatuses).optional(),
+    expiring: z.enum(["true", "false"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export const signContractSchema = z.object({ signDate: isoDate }).strict();
+export const cancelContractSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export const terminateContractSchema = z
+  .object({ terminationDate: isoDate, reason: z.enum(terminationReasons), note: blankToNull(1000) })
+  .strict();
+export const terminateEmployeeSchema = terminateContractSchema;
+
+export interface ContractAllowance {
+  name: string;
+  amount: string;
+}
+export interface ContractTerms {
+  jobTitle: string;
+  departmentId: string;
+  departmentName: string;
+  branchId: string;
+  branchName: string;
+  // null khi người xem không có quyền xem mức lương.
+  salary: string | null;
+  paymentMethod: SalaryPaymentMethod;
+  allowances: ContractAllowance[] | null;
+}
+export interface ContractListItem {
+  id: string;
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  documentNo: string | null;
+  kind: ContractKind;
+  status: ContractStatus;
+  validity: ContractValidity;
+  effectiveDate: string;
+  endDate: string | null;
+  terminationDate: string | null;
+  salary: string | null;
+  // Số ngày đến ngày kết thúc (âm là đã quá hạn); chỉ hợp đồng có ngày kết thúc chưa xử lý.
+  daysToEnd: number | null;
+  overThirtyDays: boolean;
+}
+export type ContractListResponse = PageResponse<ContractListItem>;
+
+export interface AppendixResponse {
+  id: string;
+  documentNo: string | null;
+  status: Exclude<ContractStatus, "terminated">;
+  effectiveDate: string;
+  jobTitle: string | null;
+  departmentId: string | null;
+  departmentName: string | null;
+  branchId: string | null;
+  branchName: string | null;
+  salary: string | null;
+  paymentMethod: SalaryPaymentMethod | null;
+  allowances: ContractAllowance[] | null;
+  description: string;
+  signDate: string | null;
+  hasSignedFile: boolean;
+  approvalRequestId: string | null;
+  cancelReason: string | null;
+  canWithdraw: boolean;
+  version: number;
+}
+
+export interface ContractResponse extends ContractListItem {
+  currency: string;
+  original: ContractTerms;
+  // Giá trị hiện hành tại hôm nay sau các phụ lục đã ký có hiệu lực (QUYTAC_NGHIEPVU_300).
+  current: ContractTerms;
+  probationLevel: ProbationLevel | null;
+  officialSalary: string | null;
+  signerName: string;
+  signerTitle: string;
+  otherTerms: string | null;
+  legalExceptionReason: string | null;
+  approvalRequestId: string | null;
+  signDate: string | null;
+  hasSignedFile: boolean;
+  cancelReason: string | null;
+  terminationReason: TerminationReason | null;
+  terminationNote: string | null;
+  appendices: AppendixResponse[];
+  canManage: boolean;
+  canWithdraw: boolean;
+  version: number;
+}
+
+export const saveAppendixSchema = z
+  .object({
+    effectiveDate: isoDate,
+    jobTitle: blankToNull(100),
+    departmentId: z.string().uuid().nullable().optional(),
+    branchId: z.string().uuid().nullable().optional(),
+    salary: decimalText(4).nullable().optional(),
+    paymentMethod: z.enum(salaryPaymentMethods).nullable().optional(),
+    allowances: z.array(allowanceSchema).max(20).nullable().optional(),
+    description: z.string().trim().min(1).max(4000),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveAppendixRequest = z.input<typeof saveAppendixSchema>;
+
+export interface MyContractsResponse {
+  currency: string;
+  contracts: ContractResponse[];
+}

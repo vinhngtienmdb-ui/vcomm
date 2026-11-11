@@ -76,6 +76,7 @@ import { SalesOrdersService } from "./sales/sales-orders.service";
 import { InternalTradeService } from "./sales/internal-trade.service";
 import { PromotionsService } from "./sales/promotions.service";
 import { FinanceController } from "./finance/finance.controller";
+import { ContractsService } from "./hr/contracts.service";
 import { EmployeesService } from "./hr/employees.service";
 import { HrController } from "./hr/hr.controller";
 import { WorkEventsService } from "./hr/work-events.service";
@@ -147,6 +148,7 @@ import { UsersService } from "./users/users.service";
     ProposalTemplatesService,
     EmployeesService,
     WorkEventsService,
+    ContractsService,
     CategoriesService,
     UnitsService,
     ProductsService,

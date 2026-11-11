@@ -1,7 +1,17 @@
 // API_144 đến API_146, API_149: hồ sơ nhân sự, giấy tờ, người phụ thuộc, quá trình công tác, hồ sơ của tôi (CONG_VIEC_46). Quyền chi tiết kiểm trong service.
-import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
+  cancelContractSchema,
+  contractListQuerySchema,
+  saveAppendixSchema,
+  saveContractSchema,
+  signContractSchema,
+  terminateContractSchema,
+  terminateEmployeeSchema,
+  type ContractListResponse,
+  type ContractResponse,
+  type MyContractsResponse,
   employeeListQuerySchema,
   revealSchema,
   saveDependentSchema,
@@ -25,6 +35,7 @@ import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { documentMaximumBytes, EmployeesService, type UploadedFile as UploadedDocument } from "./employees.service";
+import { ContractsService } from "./contracts.service";
 import { WorkEventsService } from "./work-events.service";
 
 // Tên tệp trong header: chữ không dấu cho trình duyệt cũ, bản UTF-8 đầy đủ theo RFC 5987.
@@ -40,7 +51,16 @@ export class HrController {
     private readonly permissionService: PermissionService,
     private readonly employees: EmployeesService,
     private readonly workEvents: WorkEventsService,
+    private readonly contracts: ContractsService,
   ) {}
+
+  private sendFile(response: Response, file: { fileName: string; contentType: string; content: Buffer }): void {
+    response.setHeader("content-type", file.contentType);
+    response.setHeader("content-disposition", contentDisposition(file.fileName));
+    response.setHeader("x-content-type-options", "nosniff");
+    response.setHeader("cache-control", "no-store");
+    response.send(file.content);
+  }
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
     const companyId = await this.permissionService.authorize(request.auth.userId, requestedCompanyId, "hr.access");
@@ -105,12 +125,7 @@ export class HrController {
 
   @Get("documents/:id")
   async download(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Res() response: Response, @Headers("x-company-id") companyId?: string): Promise<void> {
-    const file = await this.employees.downloadDocument(await this.actor(request, companyId), id);
-    response.setHeader("content-type", file.contentType);
-    response.setHeader("content-disposition", contentDisposition(file.fileName));
-    response.setHeader("x-content-type-options", "nosniff");
-    response.setHeader("cache-control", "no-store");
-    response.send(file.content);
+    this.sendFile(response, await this.employees.downloadDocument(await this.actor(request, companyId), id));
   }
 
   @Get("employees/:id/dependents")
@@ -163,6 +178,159 @@ export class HrController {
     @Headers("x-company-id") companyId?: string,
   ): Promise<WorkEventItem[]> {
     return this.workEvents.remove(await this.actor(request, companyId), id, eventId);
+  }
+
+  @Post("employees/:id/terminate")
+  @HttpCode(204)
+  async terminateEmployee(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<void> {
+    await this.contracts.terminateEmployee(await this.actor(request, companyId), id, terminateEmployeeSchema.parse(body));
+  }
+
+  // API_147: hợp đồng lao động.
+  @Get("contracts")
+  async contractList(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<ContractListResponse> {
+    return this.contracts.list(await this.actor(request, companyId), contractListQuerySchema.parse(query));
+  }
+
+  @Get("contracts/:id")
+  async contractDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<ContractResponse> {
+    return this.contracts.detail(await this.actor(request, companyId), id);
+  }
+
+  @Post("contracts")
+  async createContract(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<ContractResponse> {
+    return this.contracts.create(await this.actor(request, companyId), saveContractSchema.parse(body));
+  }
+
+  @Patch("contracts/:id")
+  async updateContract(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<ContractResponse> {
+    return this.contracts.update(await this.actor(request, companyId), id, saveContractSchema.parse(body));
+  }
+
+  @Post("contracts/:id/submit")
+  async submitContract(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<ContractResponse> {
+    return this.contracts.submit(await this.actor(request, companyId), id);
+  }
+
+  @Post("contracts/:id/withdraw")
+  async withdrawContract(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<ContractResponse> {
+    return this.contracts.withdraw(await this.actor(request, companyId), id);
+  }
+
+  @Post("contracts/:id/sign")
+  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: documentMaximumBytes * 2, files: 1 } }))
+  async signContract(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @UploadedFile() file: UploadedDocument | undefined,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<ContractResponse> {
+    return this.contracts.sign(await this.actor(request, companyId), id, signContractSchema.parse(body).signDate, file);
+  }
+
+  @Post("contracts/:id/cancel")
+  async cancelContract(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<ContractResponse> {
+    return this.contracts.cancel(await this.actor(request, companyId), id, cancelContractSchema.parse(body).reason);
+  }
+
+  @Post("contracts/:id/terminate")
+  async terminateContract(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<ContractResponse> {
+    return this.contracts.terminate(await this.actor(request, companyId), id, terminateContractSchema.parse(body));
+  }
+
+  @Get("contracts/:id/signed-file")
+  async contractFile(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Res() response: Response, @Headers("x-company-id") companyId?: string): Promise<void> {
+    this.sendFile(response, await this.contracts.downloadSigned(await this.actor(request, companyId), id, null, false));
+  }
+
+  // API_148: phụ lục hợp đồng.
+  @Post("contracts/:id/appendices")
+  async createAppendix(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<ContractResponse> {
+    return this.contracts.saveAppendix(await this.actor(request, companyId), id, null, saveAppendixSchema.parse(body));
+  }
+
+  @Patch("contracts/:id/appendices/:appendixId")
+  async updateAppendix(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Param("appendixId", UuidPipe) appendixId: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<ContractResponse> {
+    return this.contracts.saveAppendix(await this.actor(request, companyId), id, appendixId, saveAppendixSchema.parse(body));
+  }
+
+  @Post("contracts/:id/appendices/:appendixId/submit")
+  async submitAppendix(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Param("appendixId", UuidPipe) appendixId: string,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<ContractResponse> {
+    return this.contracts.submitAppendix(await this.actor(request, companyId), id, appendixId);
+  }
+
+  @Post("contracts/:id/appendices/:appendixId/withdraw")
+  async withdrawAppendix(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Param("appendixId", UuidPipe) appendixId: string,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<ContractResponse> {
+    return this.contracts.withdrawAppendix(await this.actor(request, companyId), id, appendixId);
+  }
+
+  @Post("contracts/:id/appendices/:appendixId/sign")
+  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: documentMaximumBytes * 2, files: 1 } }))
+  async signAppendix(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Param("appendixId", UuidPipe) appendixId: string,
+    @UploadedFile() file: UploadedDocument | undefined,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<ContractResponse> {
+    return this.contracts.signAppendix(await this.actor(request, companyId), id, appendixId, signContractSchema.parse(body).signDate, file);
+  }
+
+  @Post("contracts/:id/appendices/:appendixId/cancel")
+  async cancelAppendix(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Param("appendixId", UuidPipe) appendixId: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<ContractResponse> {
+    return this.contracts.cancelAppendix(await this.actor(request, companyId), id, appendixId, cancelContractSchema.parse(body).reason);
+  }
+
+  @Get("contracts/:id/appendices/:appendixId/signed-file")
+  async appendixFile(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Param("appendixId", UuidPipe) appendixId: string,
+    @Res() response: Response,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<void> {
+    this.sendFile(response, await this.contracts.downloadSigned(await this.actor(request, companyId), id, appendixId, false));
+  }
+
+  @Get("me/contracts")
+  async myContracts(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<MyContractsResponse> {
+    return this.contracts.own(await this.memberActor(request, companyId));
+  }
+
+  @Get("me/contracts/:id/signed-file")
+  async myContractFile(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Query("appendixId") appendixId: string | undefined,
+    @Res() response: Response,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<void> {
+    const appendix = appendixId ? new UuidPipe().transform(appendixId) : null;
+    this.sendFile(response, await this.contracts.downloadSigned(await this.memberActor(request, companyId), id, appendix, true));
   }
 
   @Get("me")

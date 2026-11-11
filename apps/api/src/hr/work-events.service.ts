@@ -167,7 +167,14 @@ export class WorkEventsService {
       SELECT e.company_id, e.user_id, e.status, position.* FROM hr.employees e CROSS JOIN LATERAL (SELECT ${positionAt(sql`e.id`, sql`${today}::date`)}) position WHERE e.id = ${employeeId}`)
     ).rows[0];
     if (!employee) return;
-    const due = await executor.execute(sql`UPDATE hr.work_events SET applied_at = now() WHERE employee_id = ${employeeId} AND applied_at IS NULL AND effective_date <= ${today}::date RETURNING id`);
+    const due = await executor.execute<{ kind: string }>(
+      sql`UPDATE hr.work_events SET applied_at = now() WHERE employee_id = ${employeeId} AND applied_at IS NULL AND effective_date <= ${today}::date RETURNING kind`,
+    );
+    // Đến ngày nghỉ việc: hồ sơ chuyển "Đã nghỉ", không cập nhật thành viên công ty (QUYTAC_NGHIEPVU_301).
+    if (due.rows.some((row) => row.kind === "termination")) {
+      await executor.execute(sql`UPDATE hr.employees SET status = 'terminated', updated_at = now(), version = version + 1 WHERE id = ${employeeId} AND status = 'active'`);
+      return;
+    }
     if (employee.user_id && employee.status === "active" && due.rows.length > 0) {
       await updateMembershipPlacement(
         executor,

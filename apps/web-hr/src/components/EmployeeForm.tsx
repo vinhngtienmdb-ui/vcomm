@@ -12,7 +12,7 @@ import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { useApi } from "ui/lib/use-api";
 
-const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "var(--khoang-3)" } as const;
+const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "var(--khoang-3)", alignItems: "start" } as const;
 
 export function EmployeeForm({ employee }: { employee: EmployeeResponse | null }) {
   const options = useApi<EmployeeOptionsResponse>("/hr/employee-options");

@@ -203,3 +203,13 @@ Chưa đối chiếu.
 | QUYTAC_NGHIEPVU_296 | Cập nhật khi quyết định đến ngày hiệu lực | Thêm: liên kết tài khoản mới thì cập nhật ngay theo vị trí hiện hành; quyết định ghi lùi ngày áp dụng ngay; ngày hiệu lực phải sau ngày vào làm |
 | Mục 6 | Trang "Hồ sơ của tôi" không cần `hr.access` | Menu dùng quyền `platform.access` (mọi nhân viên có); API `/hr/me` chỉ cần là thành viên công ty đang chọn |
 | MAN_HINH_116 | Thẻ Hợp đồng | Làm ở lát L1 cùng MAN_HINH_117, 118 |
+
+## 20. Chỗ chỉnh cho khớp mã (lát L1)
+
+| Vị trí | Đặc tả 0.1 | Mã đã làm |
+|---|---|---|
+| QUYTAC_NGHIEPVU_297 | Số `HDLD` + năm + 4 chữ số | Theo định dạng chung: `HDLD-<mã công ty>-<năm>-000001`; phụ lục `<số hợp đồng>/PL01` (không dùng dãy số riêng) |
+| QUYTAC_NGHIEPVU_297 | Không chồng lên hợp đồng chưa hủy | Kiểm cả hợp đồng nháp, chờ duyệt (khoảng hiệu lực tính đến ngày chấm dứt hoặc ngày kết thúc; không xác định thời hạn là không giới hạn) |
+| QUYTAC_NGHIEPVU_298 | Đếm hợp đồng nối tiếp | Kiểm khi gửi duyệt (lưu nháp không chặn) |
+| QUYTAC_NGHIEPVU_299 | Hợp đồng ký đổi vị trí tạo quyết định | Trùng ngày với quyết định có sẵn thì gộp mục đổi vào quyết định đó |
+| QUYTAC_NGHIEPVU_301 | Nghỉ việc | Ngày nghỉ phải sau ngày vào làm; hợp đồng đã ký bắt đầu sau ngày nghỉ được chấm dứt tại ngày hiệu lực của nó; hợp đồng đã hết hạn trước ngày nghỉ giữ nguyên; xóa quyết định chưa áp dụng từ ngày nghỉ; phụ lục chưa ký của hợp đồng chấm dứt bị hủy; thông báo gửi người có `platform.user.manage` của công ty |
