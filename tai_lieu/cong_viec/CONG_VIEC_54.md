@@ -212,6 +212,7 @@ Luồng duyệt chung, dãy số chứng từ, đăng nhập, phân quyền; h�
 
 | Hạng mục | Kết quả |
 |---|---|
+| Nghiệm thu | Người dùng xác nhận nghiệm thu 2026-11-12 |
 | Đặc tả, bản mẫu duyệt | Đặc tả 0.2, bản mẫu MAN_HINH_168–173 được người dùng duyệt 2026-11-11 |
 | Lát L0, L1, L2 | Người dùng duyệt từng lát sau xem trước (máy tính 1366, điện thoại 390) |
 | Kiểm thử tự động | `pnpm --filter api test` (một tiến trình): 58 tệp, 354 kiểm thử đạt; riêng CONG_VIEC_54: c54-recruitment, c54-process, c54-reviews 9 kiểm thử đạt (KICHBAN_KIEMTHU_522–529) |
