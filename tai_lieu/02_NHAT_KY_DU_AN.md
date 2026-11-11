@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_25: Bắt đầu Thanh toán đơn người mua (mức Lớn), nhánh `chuc-nang/CONG_VIEC_25-thanh-toan-vcomm` tách từ nhánh CONG_VIEC_24.
 - CONG_VIEC_24: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 60 (sau số 59). Tiếp theo CONG_VIEC_25 Thanh toán đơn người mua.
 - CONG_VIEC_24: Xong lát L0 đến L4 trên nhánh `chuc-nang/CONG_VIEC_24-dat-hang-vcomm` (pull request số 60, tách từ nhánh CONG_VIEC_27). Database migration 0025 (danh mục 34 tỉnh, 3.321 xã từ bộ dữ liệu giấy phép MIT; cài đặt bán hàng, đăng bán, sổ địa chỉ, giỏ hàng, đơn VComm, vận đơn, trả hàng), 0026; API_123 đến 129; MAN_HINH_86 đến 97; khung đơn vị vận chuyển và GHN (giả lập trong kiểm thử); việc nền tự hoàn tất. Kiểm thử 324/324 đạt. Không thêm thư viện. Rà soát độc lập, sửa 2 lỗi Cao, 3 Trung bình, các mục Thấp. Chờ người dùng nghiệm thu.
 - CONG_VIEC_24: Bắt đầu Đặt hàng trên VComm (mức Lớn), nhánh `chuc-nang/CONG_VIEC_24-dat-hang-vcomm` tách từ nhánh CONG_VIEC_27.
@@ -19,6 +20,15 @@
 
 ### Quyết định
 
+- CONG_VIEC_25 (người dùng, 2026-11-11):
+  - Cổng kết nối thật đầu tiên: VNPAY (QR VNPAY, thẻ ATM nội địa, thẻ Visa/Master), trong khung chung bật tắt từng cổng, từng phương thức; thanh toán khi nhận hàng là một phương thức.
+  - Đơn thanh toán trực tuyến chưa trả: giữ hàng 15 phút, quá hạn tự hủy, nhả hàng.
+  - Hoàn tiền: kế toán chuyển khoản, ghi nhận trên hệ thống (người mua nhập tài khoản ngân hàng trên ứng dụng); áp dụng mọi cổng và COD.
+  - Phí giao hàng: doanh thu cung cấp dịch vụ (5113), thuế giá trị gia tăng 10%, lên hóa đơn điện tử.
+  - Đơn VComm gắn tài khoản người mua trên ứng dụng, không tạo đối tác khách hàng, không phát sinh công nợ; tiền thu theo dõi trong sổ thanh toán của đơn VComm.
+  - Đối soát COD với GHN: lấy qua API GHN.
+  - Công tắc mở đặt hàng cho mọi người mua: quản trị bật trên web (quyền quản lý đơn VComm), chỉ bật khi có phương thức thanh toán đang bật.
+  - Xác nhận thiết kế: năm lát L0 đến L4, xem trước từng lát, không làm bản mẫu riêng.
 - CONG_VIEC_24 (người dùng, 2026-11-11):
   - Hàng bán: quản trị bật đăng bán từng sản phẩm đã duyệt, kèm mô tả cho người mua; giá lấy từ bảng giá của kênh bán VComm.
   - Giao hàng: làm khung chung cho mọi đơn vị vận chuyển (bật tắt từng đơn vị), kết nối API GHN đầu tiên ngay trong công việc này; token qua biến môi trường; kiểm thử tự động dùng máy chủ giả lập.
