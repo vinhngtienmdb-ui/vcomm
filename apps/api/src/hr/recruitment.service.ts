@@ -679,6 +679,7 @@ export const duplicateCondition = (candidate: SQL) => sql`(${candidate}.erased_a
 export async function recomputeEraseDue(executor: Executor, candidateId: string): Promise<void> {
   await executor.execute(sql`
     UPDATE hr.candidates c SET erase_due = CASE
+        WHEN c.erasure_reason = 'request' THEN c.erase_due
         WHEN EXISTS (SELECT 1 FROM hr.applications a WHERE a.candidate_id = c.id AND (a.employee_id IS NOT NULL OR a.ended_at IS NULL)) THEN NULL
         ELSE NULLIF(GREATEST(
           COALESCE((SELECT max((a.ended_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date) FROM hr.applications a WHERE a.candidate_id = c.id) + settings.days, '-infinity'::date),

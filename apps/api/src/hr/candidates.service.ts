@@ -630,12 +630,18 @@ export class CandidatesService {
         UPDATE hr.interviews SET status = 'cancelled', updated_at = now() WHERE status = 'scheduled' AND application_id IN (SELECT id FROM hr.applications WHERE candidate_id = ${id})`);
       await transaction.execute(sql`
         UPDATE hr.applications SET outcome = 'withdrawn', outcome_reason = NULL, ended_at = ${this.clock.now().toISOString()}, updated_at = now(), version = version + 1 WHERE candidate_id = ${id} AND ended_at IS NULL`);
+      // Ghi lý do, ngày xóa hôm nay trước khi xóa tệp: kho lưu trữ lỗi thì việc nền 1 giờ chạy lại với lý do "theo yêu cầu".
+      await transaction.execute(sql`UPDATE hr.candidates SET erasure_reason = 'request', erase_due = ${this.permissionService.today()}, updated_at = now() WHERE id = ${id}`);
       await this.auditService.record(
         { ...hrAudit(actor, "candidate"), action: "candidate.erasure_request", entityId: id, afterData: { receivedOn: input.receivedOn, channel: input.channel } },
         transaction,
       );
     });
-    await this.erase(id, "request", actor.userId);
+    try {
+      await this.erase(id, "request", actor.userId);
+    } catch {
+      // Kho lưu trữ lỗi: yêu cầu đã ghi, việc nền xóa ứng viên chạy lại (QUYTAC_NGHIEPVU_388).
+    }
     return this.detail(actor, id);
   }
 
@@ -648,7 +654,7 @@ export class CandidatesService {
       if (!row || row.erased_at) return;
       await transaction.execute(sql`
         UPDATE hr.candidates SET full_name = '-', email = NULL, phone = NULL, email_key = NULL, phone_key = NULL, province = NULL, cover_letter = NULL, expected_salary = NULL,
-          source_note = NULL, erase_due = NULL, erased_at = now(), erasure_reason = ${reason}, updated_at = now(), version = version + 1 WHERE id = ${candidateId}`);
+          source_note = NULL, erase_due = NULL, erased_at = now(), erasure_reason = COALESCE(erasure_reason, ${reason}), updated_at = now(), version = version + 1 WHERE id = ${candidateId}`);
       await transaction.execute(sql`UPDATE hr.candidate_files SET storage_key = NULL, file_name = '-' WHERE candidate_id = ${candidateId}`);
       await transaction.execute(sql`UPDATE hr.candidate_consents SET terms_text = NULL, ip = NULL, user_agent = NULL WHERE candidate_id = ${candidateId}`);
       await transaction.execute(sql`UPDATE hr.applications SET outcome_note = NULL WHERE candidate_id = ${candidateId}`);

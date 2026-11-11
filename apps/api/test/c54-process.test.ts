@@ -331,6 +331,23 @@ describe("CONG_VIEC_54 lưu giữ và xóa", () => {
     expect(erased.body.applications[0]).toMatchObject({ outcome: "withdrawn", candidateErased: true });
     expect((await anonymous().get(`/api/v1/job-offer-responses/${token}`)).status).toBe(404);
     expect((await call(hrStaff, "post", `/hr/candidates/${requested.candidateId}/erasure`, { receivedOn: "2026-11-11", channel: "email" })).body.error.message).toBe(message("candidateErased"));
+
+    // Kho lưu trữ lỗi khi xóa theo yêu cầu: yêu cầu vẫn ghi, ngày xóa là hôm nay, việc nền chạy lại với lý do "theo yêu cầu".
+    const failing = await candidate(2, "kho.loi@example.test", "0901000010");
+    const remove = testStorage.remove;
+    testStorage.remove = async () => {
+      throw new Error("Kho lưu trữ lỗi");
+    };
+    const pending = await call(hrStaff, "post", `/hr/candidates/${failing.candidateId}/erasure`, { receivedOn: "2026-11-11", channel: "phone" });
+    testStorage.remove = remove;
+    expect(pending.status, JSON.stringify(pending.body)).toBe(201);
+    expect(pending.body).toMatchObject({ erasedAt: null, eraseDue: "2026-11-11" });
+    expect((await application.get(CandidatesService).eraseDue()).failed).toBe(0);
+    expect((await pool.query("SELECT full_name, erasure_reason, erased_at IS NOT NULL AS erased FROM hr.candidates WHERE id = $1", [failing.candidateId])).rows[0]).toEqual({
+      full_name: "-",
+      erasure_reason: "request",
+      erased: true,
+    });
     const hiredCandidate = (await pool.query<{ candidate_id: string }>("SELECT candidate_id FROM hr.applications WHERE employee_id IS NOT NULL LIMIT 1")).rows[0]!.candidate_id;
     expect((await call(hrStaff, "post", `/hr/candidates/${hiredCandidate}/erasure`, { receivedOn: "2026-11-11", channel: "email" })).body.error.message).toBe(message("candidateHired"));
   });
