@@ -197,6 +197,13 @@
 - Kiểm tra bảo mật: không thêm thư viện; CI quét bảo mật (gitleaks, `pnpm audit`) đạt.
 - Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_53 (lát L6)
+
+- Phạm vi: điểm tại quầy với Smart OTP, nhánh `chuc-nang/CONG_VIEC_53-ban-le-tai-quay` (pull request #125, commit `604a263`).
+- Kết quả: `c53-retail-loyalty` 8/8 (KICHBAN_KIEMTHU_519: tra khách, kích hoạt Smart OTP, tích điểm, dùng điểm có mã đúng, sai mã, mã dùng lại, khóa sau 5 lần sai, máy mới thay máy cũ, hủy, trả hàng hoàn và thu hồi điểm, phải thu không đối tượng về 0 sau đóng ca). Hồi quy toàn bộ API 102 tệp, 557/557 đạt. Kiểm tra kiểu api, web-retail, mobile-vcomm đạt; khóa dịch khớp. Xem trước trên môi trường phát triển (ứng dụng VComm, quầy, hóa đơn in) đạt.
+- Kiểm tra bảo mật: thư viện otpauth 9.6.0 đã dùng ở máy chủ; khóa Smart OTP lưu bộ nhớ an toàn của máy, mỗi mã dùng một lần, khóa 15 phút sau 5 lần sai.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_52
 
 - Phạm vi: Văn phòng số phần 1 (MODULE_13), nhánh `chuc-nang/CONG_VIEC_52-van-phong-so` (pull request #104, head `6cf71d3`): MAN_HINH_153 đến 160, API_184 đến 191, database migration 0090 đến 0093.
