@@ -59,6 +59,8 @@ export default function AccountScreen() {
           <Button label={t("collaboratorTitle")} kind="secondary" onPress={() => router.push("/cong-tac-vien")} />
         </Card>
         <LoyaltyCard />
+        {/* CONG_VIEC_55: tích, đổi điểm tại cửa hàng liên kết (MAN_HINH_181). */}
+        <Button label={t("affiliateTitle")} kind="secondary" onPress={() => router.push("/cua-hang-lien-ket")} />
         {me.referralCode ? (
           <Card>
             <Text style={{ fontWeight: "700", color: colors.text }}>{t("yourReferralCode")}</Text>

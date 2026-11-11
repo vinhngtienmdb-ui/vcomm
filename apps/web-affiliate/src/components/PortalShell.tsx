@@ -28,7 +28,10 @@ export function usePortal(): PortalContextValue {
 }
 
 // Menu MAN_HINH_174 đến MAN_HINH_177; thu ngân chỉ thấy quầy. Mục thêm dần theo lát.
-const portalMenu = [{ href: "/store", key: "store", ownerOnly: true }] as const;
+const portalMenu = [
+  { href: "/counter", key: "counter", ownerOnly: false },
+  { href: "/store", key: "store", ownerOnly: true },
+] as const;
 
 function Shell({ me, children }: { me: MerchantPortalMe; children: ReactNode }) {
   const t = useTranslations("merchantPortal");
