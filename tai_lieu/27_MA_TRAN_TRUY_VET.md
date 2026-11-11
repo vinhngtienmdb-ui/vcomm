@@ -265,6 +265,11 @@
 | YCAU_NGHIEPVU_84 | QUYTAC_NGHIEPVU_335 | CHUC_NANG_174 | MAN_HINH_136, MAN_HINH_139; API_167, API_168 | TIEUCHI_NGHIEMTHU_319 | KICHBAN_KIEMTHU_475 | apps/api/src/marketplace/community.service.ts (`report`, `moderation`, `moderate`, `ban`, `lift`), apps/api/src/permissions/permission-catalog.ts (`marketplace.community.manage`) | apps/api/test/c49-community.test.ts | Đang thực hiện; kết quả ghi ở tài liệu `25` khi trình nghiệm thu | |
 | YCAU_NGHIEPVU_78 đến YCAU_NGHIEPVU_84 | QUYTAC_NGHIEPVU_324 đến QUYTAC_NGHIEPVU_335, QUYTAC_NGHIEPVU_390, QUYTAC_NGHIEPVU_391 | CHUC_NANG_171 đến CHUC_NANG_174 | MAN_HINH_132 đến MAN_HINH_139; sửa MAN_HINH_76, MAN_HINH_80, MAN_HINH_88, MAN_HINH_91, MAN_HINH_93, MAN_HINH_96, MAN_HINH_101 đến MAN_HINH_103 | TIEUCHI_NGHIEMTHU_320 | Chưa có mã kịch bản (xem trước thủ công) | apps/web-crm/src/app/collaborators/page.tsx, apps/web-crm/src/app/group-buys/page.tsx, apps/web-crm/src/app/community/page.tsx, apps/web-crm/src/app/buyers/[id]/page.tsx, apps/web-crm/src/app/listings/page.tsx, apps/web-crm/src/components/CrmShell.tsx, apps/mobile-vcomm/src/app/cong-tac-vien.tsx, apps/mobile-vcomm/src/app/moi-ban-be.tsx, apps/mobile-vcomm/src/app/mua-chung/, apps/mobile-vcomm/src/app/vi-mua-sam.tsx, apps/mobile-vcomm/src/app/(tabs)/bang-tin.tsx, apps/mobile-vcomm/src/app/bai-dang/[id].tsx, apps/mobile-vcomm/src/app/dang-bai.tsx, apps/mobile-vcomm/src/components/Community.tsx, apps/mobile-vcomm/src/components/GroupBuy.tsx, packages/i18n/src/vi.json, packages/i18n/src/en.json | Giao diện thủ công | Xem trước từng lát; chưa nghiệm thu | |
 
+| YCAU_NGHIEPVU_56 | QUYTAC_NGHIEPVU_285, QUYTAC_NGHIEPVU_286 | CHUC_NANG_160 | MAN_HINH_40, MAN_HINH_41, MAN_HINH_32 | TIEUCHI_NGHIEMTHU_282 | KICHBAN_KIEMTHU_428 | database/migrations/0067_import_orders.sql, apps/api/src/purchasing/orders.service.ts, apps/api/src/inventory/purchase-receipts.service.ts, apps/api/src/finance/debts.service.ts, apps/web-purchasing/src/components/OrderEditor.tsx |
+| YCAU_NGHIEPVU_57 | QUYTAC_NGHIEPVU_287, QUYTAC_NGHIEPVU_288 | CHUC_NANG_160 | MAN_HINH_110, MAN_HINH_111 | TIEUCHI_NGHIEMTHU_283, TIEUCHI_NGHIEMTHU_284 | KICHBAN_KIEMTHU_429, KICHBAN_KIEMTHU_430, KICHBAN_KIEMTHU_431 | database/migrations/0068_import_declarations.sql, apps/api/src/purchasing/import-declarations.service.ts, apps/api/src/inventory/cost-adjustments.service.ts, apps/web-purchasing/src/app/import-declarations |
+| YCAU_NGHIEPVU_58 | QUYTAC_NGHIEPVU_289 đến QUYTAC_NGHIEPVU_291 | CHUC_NANG_161 | MAN_HINH_112, MAN_HINH_113 | TIEUCHI_NGHIEMTHU_285 | KICHBAN_KIEMTHU_432 | database/migrations/0069_landed_costs.sql, apps/api/src/purchasing/landed-costs.service.ts, apps/api/src/inventory/stock-ledger.service.ts, apps/web-purchasing/src/app/landed-costs |
+| YCAU_NGHIEPVU_56 đến YCAU_NGHIEPVU_58 | QUYTAC_NGHIEPVU_285 đến QUYTAC_NGHIEPVU_291 | CHUC_NANG_160, CHUC_NANG_161 | MAN_HINH_110 đến MAN_HINH_113 | TIEUCHI_NGHIEMTHU_286 | KICHBAN_KIEMTHU_433 | apps/api/src/purchasing/imports.controller.ts, apps/api/src/permissions/permission-catalog.ts |
+
 ## 2. Kiểm tra bao phủ – 2026-11-09
 
 - Yêu cầu nghiệp vụ chưa có chức năng: Không có
@@ -622,4 +627,14 @@
 - Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: TIEUCHI_NGHIEMTHU_320 (giao diện) chưa có mã kịch bản riêng; đặc tả chỉ cấp KICHBAN_KIEMTHU_464 đến KICHBAN_KIEMTHU_475, KICHBAN_KIEMTHU_532
 - Kịch bản kiểm thử chưa có kiểm thử tự động: Không có (KICHBAN_KIEMTHU_464 đến KICHBAN_KIEMTHU_466 → `c49-collaborators.test.ts`; KICHBAN_KIEMTHU_467 đến KICHBAN_KIEMTHU_472, KICHBAN_KIEMTHU_532 → `c49-group-buys-wallets.test.ts`; KICHBAN_KIEMTHU_473 đến KICHBAN_KIEMTHU_475 → `c49-community.test.ts`)
 - Kịch bản chưa chạy hoặc kết quả Không đạt: chưa ghi kết quả chính thức (đang thực hiện)
+
+## 30. Kiểm tra bao phủ CONG_VIEC_45 – 2026-11-11
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_56 → CHUC_NANG_160; YCAU_NGHIEPVU_57 → CHUC_NANG_160, CHUC_NANG_161; YCAU_NGHIEPVU_58 → CHUC_NANG_161)
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_285 đến QUYTAC_NGHIEPVU_288 → CHUC_NANG_160; QUYTAC_NGHIEPVU_289, QUYTAC_NGHIEPVU_290 → CHUC_NANG_161; QUYTAC_NGHIEPVU_291 → cả hai)
+- Chức năng chưa có tiêu chí nghiệm thu: Không có
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có (MAN_HINH_110 đến MAN_HINH_113; sửa MAN_HINH_32, MAN_HINH_40, MAN_HINH_41)
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có
+- Kịch bản kiểm thử chưa có kiểm thử tự động: Không có; trường hợp kiểm kê đang đếm chặn ghi sổ (QUYTAC_NGHIEPVU_291) chưa có kịch bản riêng
+- Kịch bản chưa chạy hoặc kết quả Không đạt: Đạt; kết quả gửi phiên cha ghi tài liệu `25`
 - Mã nguồn không truy được về yêu cầu nào: Không có

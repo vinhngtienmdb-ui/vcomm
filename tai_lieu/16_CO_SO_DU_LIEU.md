@@ -3275,3 +3275,20 @@ Quy tắc xóa và lưu giữ bổ sung:
 - Bài đăng, bình luận xóa mềm (trạng thái `deleted`); dòng đơn đã có bài đánh giá (kể cả đã xóa) không đánh giá lại.
 - Ảnh bài đăng lưu ở kho tệp với khóa `community/<người tải lên>/<mã>`; ảnh chưa gắn bài chưa có việc dọn tự động.
 - Trả bằng ví, hoàn vào ví không sinh bút toán (số dư ví là tiền người mua trả trước trên 131); thưởng giới thiệu dùng vai trò định khoản có sẵn `commission_expense`, `commission_payable`.
+
+## 30. Database migration 0067 đến 0069, 0084 – CONG_VIEC_45 (nhập khẩu, phân bổ chi phí)
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `purchasing.orders` (0067) | Đơn nhập khẩu (QUYTAC_NGHIEPVU_285) | `is_import` | |
+| `inventory.documents` (0067, 0068) | Tỷ giá phiếu nhập, trả theo đơn ngoại tệ (QUYTAC_NGHIEPVU_286); loại `cost_adjustment` (phiếu điều chỉnh giá trị), lý do `import_cost` | `currency`, `exchange_rate` | `documents_currency_rate_check`; `documents_cost_adjustment_source_check` |
+| `inventory.document_lines` (0068) | Phần vào giá vốn hàng bán của phiếu điều chỉnh giá trị | `expensed_value` | |
+| `finance.debt_items` (0067, 0069) | Số ngoại tệ, tỷ giá để đối chiếu; nguồn `landed_cost` | `currency`, `foreign_amount`, `exchange_rate` | `debt_items_foreign_check` |
+| `purchasing.import_declarations`, `import_declaration_lines` (0068) | Tờ khai, dòng tờ khai (QUYTAC_NGHIEPVU_287, 288) | số, ngày đăng ký, ngày ghi sổ, tỷ giá tính thuế, trạng thái; dòng: số lượng, trị giá, thuế từng loại, đánh dấu đã sửa, phần vào tồn, vào giá vốn hàng bán | Số tờ khai duy nhất trong công ty trừ tờ khai đã hủy |
+| `purchasing.landed_costs`, `landed_cost_lines`, `landed_cost_allocations`, `landed_cost_targets` (0069) | Chứng từ chi phí, khoản, phân bổ (QUYTAC_NGHIEPVU_289 đến 291) | số `CPNK`, hóa đơn, tiền tệ, tỷ giá; khoản: loại, tiền, thuế, tiêu thức | `UNIQUE (company_id, document_no)` |
+| `accounting.journals`, `accounting.posting_rules` (0068) | Nguồn `import_declaration`, `landed_cost`; vai trò `import_duty` (3333), `excise_tax` (3332), `environmental_tax` (33381; Thông tư 133: 3338), `import_vat` (33312) | | |
+
+- Database migration 0084 (hợp nhất với main 0.4.0): đặt lại `accounting.journals_source_type_check` gồm cả nguồn lương (0078) và nguồn nhập khẩu (0068).
+- Hàm `finance.inventory_amounts` (0067) nhân tỷ giá của phiếu nhập hoặc phiếu nhập gốc; hàm mới `finance.inventory_foreign_amount`.
+- Thẻ kho `inventory.movements` nhận dòng số lượng 0 cho điều chỉnh giá trị.
+- Tờ khai, chứng từ chi phí không xóa: nháp hủy thành "Đã hủy"; đã ghi sổ không sửa.

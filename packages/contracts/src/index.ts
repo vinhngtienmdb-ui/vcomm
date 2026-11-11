@@ -1439,7 +1439,7 @@ export interface WarehouseOptionsResponse {
 }
 
 // CONG_VIEC_05, API_64, API_65: phiếu kho, tồn kho, thẻ kho (CHUC_NANG_39, 40; QUYTAC_NGHIEPVU_47 đến 51).
-export const stockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer", "purchase_receipt", "purchase_return", "sales_issue", "sales_return"] as const;
+export const stockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer", "purchase_receipt", "purchase_return", "sales_issue", "sales_return", "cost_adjustment"] as const;
 // Loại phiếu lập tay ở màn hình phiếu kho; phiếu nhập mua, trả hàng nhà cung cấp lập từ đơn mua, phiếu nhập mua (CONG_VIEC_07).
 export const manualStockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer"] as const;
 export type StockDocumentType = (typeof stockDocumentTypes)[number];
@@ -1455,6 +1455,7 @@ export const stockReasonCodes = {
   purchase_return: ["purchase_return"],
   sales_issue: ["sale"],
   sales_return: ["sales_return"],
+  cost_adjustment: ["import_cost"],
 } as const satisfies Record<StockDocumentType, readonly string[]>;
 export type StockReasonCode = (typeof stockReasonCodes)[StockDocumentType][number];
 const signedDecimal = z.union([z.number(), z.string()]).transform((value, context) => {
@@ -1601,6 +1602,10 @@ export interface StockDocumentResponse extends StockDocumentListItem {
   sourceNo: string | null;
   canQualityCheck: boolean;
   canReturn: boolean;
+  // CONG_VIEC_45: phiếu nhập mua, trả hàng theo đơn ngoại tệ (QUYTAC_NGHIEPVU_286); trống khi theo tiền tệ công ty.
+  currency: string | null;
+  exchangeRate: string | null;
+  foreignAmount: string | null;
   // CONG_VIEC_09: phiếu nhập mua nội bộ chờ nhận; số xuất, serial xuất theo phiếu xuất gốc bên bán (đơn vị cơ sở bên nhận).
   internalReceipt: { issueDocumentNo: string | null; sellerCompanyName: string; lines: { lineId: string; shippedBaseQuantity: string; shippedSerials: string[] }[] } | null;
   canReceiveInternal: boolean;
@@ -2267,6 +2272,15 @@ export const savePurchaseOrderSchema = z
     orderDate: isoDate,
     expectedDate: isoDate.nullable().optional(),
     note: blankToNull(1000),
+    // CONG_VIEC_45 (QUYTAC_NGHIEPVU_285): đơn nhập khẩu chọn được ngoại tệ; đơn không nhập khẩu theo tiền tệ công ty.
+    isImport: z.boolean().default(false),
+    currency: z
+      .string()
+      .trim()
+      .regex(/^[A-Za-z]{3}$/)
+      .transform((value) => value.toUpperCase())
+      .nullable()
+      .optional(),
     lines: z
       .array(
         z
@@ -2296,6 +2310,7 @@ export interface PurchaseOrderListItem {
   orderDate: string;
   expectedDate: string | null;
   currency: string;
+  isImport: boolean;
   totalAmount: string;
   taxAmount: string;
   status: PurchaseDocumentStatus;
@@ -2334,6 +2349,11 @@ export interface PurchaseOrderResponse extends PurchaseOrderListItem {
   note: string | null;
   approvalRequestId: string | null;
   closedReason: string | null;
+  // CONG_VIEC_45: tiền tệ công ty; tổng chưa thuế quy đổi theo tỷ giá hạch toán hôm nay (trống khi cùng tiền tệ hoặc chưa có tỷ giá).
+  companyCurrency: string;
+  convertedTotal: string | null;
+  // Đã có phiếu nhập: không đổi tiền tệ, không bỏ đánh dấu nhập khẩu.
+  currencyLocked: boolean;
   lines: PurchaseOrderLineResponse[];
   receipts: { id: string; documentNo: string | null; type: "purchase_receipt" | "purchase_return"; status: string; documentDate: string }[];
   version: number;
@@ -2346,6 +2366,223 @@ export const closePurchaseOrderSchema = z.object({ reason: z.string().trim().min
 // CONG_VIEC_09, API_80, API_81: xác nhận (chọn kho), từ chối chứng từ đối ứng nội bộ.
 export const confirmCounterpartSchema = z.object({ warehouseId: z.uuid(), version: z.number().int().positive() }).strict();
 export const rejectCounterpartSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();
+
+// CONG_VIEC_45, API_140, API_141: tờ khai hải quan nhập khẩu (CHUC_NANG_160; QUYTAC_NGHIEPVU_287, 288, 291).
+export const importDeclarationStatuses = ["draft", "posted", "cancelled"] as const;
+export type ImportDeclarationStatus = (typeof importDeclarationStatuses)[number];
+const taxPercent = z
+  .union([z.number(), z.string()])
+  .transform((value) => String(value).trim().replace(",", "."))
+  .pipe(
+    z
+      .string()
+      .regex(/^\d{1,3}(\.\d{1,4})?$/)
+      .refine((value) => Number(value) <= 100, "invalidValue"),
+  );
+export const saveImportDeclarationSchema = z
+  .object({
+    orderId: z.uuid(),
+    declarationNo: z.string().trim().min(1).max(50),
+    registeredOn: isoDate,
+    postingDate: isoDate,
+    customsRate: rateValue.refine((value) => Number(value) > 0, "invalidValue"),
+    note: blankToNull(1000),
+    lines: z
+      .array(
+        z
+          .object({
+            orderLineId: z.uuid(),
+            quantity: positiveQuantity,
+            customsValue: requiredMoney,
+            importDutyRate: taxPercent.default("0"),
+            // Trống: lấy số gợi ý; có số khác gợi ý thì đánh dấu đã sửa.
+            importDuty: requiredMoney.nullable().optional(),
+            exciseTax: requiredMoney.default("0"),
+            environmentalTax: requiredMoney.default("0"),
+            vatRate: taxPercent.default("0"),
+            vatAmount: requiredMoney.nullable().optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveImportDeclarationRequest = z.input<typeof saveImportDeclarationSchema>;
+export const importDeclarationListQuerySchema = z
+  .object({
+    status: z.enum(importDeclarationStatuses).optional(),
+    orderId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const postImportDeclarationSchema = z.object({ version: z.number().int().positive() }).strict();
+export interface ImportDeclarationListItem {
+  id: string;
+  declarationNo: string;
+  registeredOn: string;
+  postingDate: string;
+  orderId: string;
+  orderNo: string | null;
+  supplierName: string;
+  currency: string;
+  customsValue: string;
+  customsValueConverted: string;
+  totalTax: string;
+  status: ImportDeclarationStatus;
+}
+export interface ImportDeclarationLineResponse {
+  id: string;
+  lineNo: number;
+  orderLineId: string;
+  sku: string;
+  productName: string;
+  unitName: string;
+  quantity: string;
+  baseQuantity: string;
+  customsValue: string;
+  customsValueConverted: string;
+  importDutyRate: string;
+  importDuty: string;
+  suggestedImportDuty: string;
+  importDutyEdited: boolean;
+  exciseTax: string;
+  environmentalTax: string;
+  vatRate: string;
+  vatAmount: string;
+  suggestedVatAmount: string;
+  vatEdited: boolean;
+  // Sau ghi sổ: thuế (nhập khẩu, tiêu thụ đặc biệt, bảo vệ môi trường) vào giá trị tồn kho, vào giá vốn hàng bán.
+  stockValue: string | null;
+  expensedValue: string | null;
+}
+export interface ImportDeclarationResponse extends ImportDeclarationListItem {
+  warehouseName: string;
+  customsRate: string;
+  note: string | null;
+  companyCurrency: string;
+  lines: ImportDeclarationLineResponse[];
+  version: number;
+  canEdit: boolean;
+  canPost: boolean;
+}
+// Dòng đơn mua nhập khẩu còn khai được: số đặt, đã khai trên tờ khai chưa hủy, đã nhận (đơn vị cơ sở).
+export interface ImportOrderLineOption {
+  orderLineId: string;
+  sku: string;
+  productName: string;
+  unitName: string;
+  factor: string;
+  quantity: string;
+  unitPrice: string;
+  orderedBaseQuantity: string;
+  declaredBaseQuantity: string;
+  receivedBaseQuantity: string;
+}
+export interface ImportOrderOption {
+  id: string;
+  documentNo: string;
+  supplierName: string;
+  currency: string;
+  lines: ImportOrderLineOption[];
+}
+// Xem trước phân bổ: theo dòng tờ khai, phần vào tồn, phần vào giá vốn hàng bán tại lúc xem.
+// CONG_VIEC_45, API_142, API_143: chứng từ chi phí nhập khẩu (CHUC_NANG_161; QUYTAC_NGHIEPVU_289 đến 291).
+export const landedCostKinds = ["international_freight", "insurance", "domestic_freight", "customs_fee", "other"] as const;
+export type LandedCostKind = (typeof landedCostKinds)[number];
+export const landedCostBases = ["value", "quantity"] as const;
+export type LandedCostBasis = (typeof landedCostBases)[number];
+export const saveLandedCostSchema = z
+  .object({
+    declarationId: z.uuid(),
+    supplierId: z.uuid(),
+    invoiceNo: z.string().trim().min(1).max(50),
+    documentDate: isoDate,
+    currency: currencyCode.nullable().optional(),
+    note: blankToNull(1000),
+    lines: z
+      .array(
+        z
+          .object({
+            kind: z.enum(landedCostKinds),
+            description: blankToNull(200),
+            amount: requiredMoney.refine((value) => Number(value) > 0, "invalidValue"),
+            vatRate: z.enum(vatRates),
+            basis: z.enum(landedCostBases).default("value"),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(50),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveLandedCostRequest = z.input<typeof saveLandedCostSchema>;
+export const landedCostListQuerySchema = z
+  .object({
+    status: z.enum(importDeclarationStatuses).optional(),
+    declarationId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface LandedCostListItem {
+  id: string;
+  documentNo: string | null;
+  invoiceNo: string;
+  documentDate: string;
+  declarationId: string;
+  declarationNo: string;
+  supplierId: string;
+  supplierName: string;
+  currency: string;
+  // Tiền tệ công ty.
+  netAmount: string;
+  vatAmount: string;
+  status: ImportDeclarationStatus;
+}
+export interface LandedCostLineResponse {
+  id: string;
+  lineNo: number;
+  kind: LandedCostKind;
+  description: string | null;
+  amount: string;
+  amountConverted: string;
+  vatRate: VatRate;
+  vatAmount: string;
+  basis: LandedCostBasis;
+}
+// Phân bổ theo dòng tờ khai: phần của từng khoản (theo thứ tự khoản), cộng, phần vào tồn, vào giá vốn hàng bán.
+export interface LandedCostAllocation {
+  lines: {
+    declarationLineId: string;
+    sku: string;
+    productName: string;
+    customsValueConverted: string;
+    baseQuantity: string;
+    byCostLine: string[];
+    amount: string;
+    onHand: string | null;
+    stockValue: string;
+    expensedValue: string;
+  }[];
+}
+export interface LandedCostResponse extends LandedCostListItem {
+  exchangeRate: string;
+  companyCurrency: string;
+  note: string | null;
+  lines: LandedCostLineResponse[];
+  version: number;
+  canEdit: boolean;
+  canPost: boolean;
+}
+export interface ImportAllocationPreview {
+  lines: { orderLineId: string; sku: string; productName: string; amount: string; onHand: string; baseQuantity: string; stockValue: string; expensedValue: string }[];
+}
 
 // CONG_VIEC_07, API_76: phiếu nhập mua theo đơn mua, kết quả kiểm tra chất lượng, phiếu trả hàng nhà cung cấp (CHUC_NANG_52, 53; QUYTAC_NGHIEPVU_64 đến 66).
 const serialList = z.array(z.string().trim().min(1).max(100)).max(1000).default([]);
@@ -2813,7 +3050,7 @@ export interface FundLedgerResponse {
 
 export const debtSides = ["receivable", "payable"] as const;
 export type DebtSide = (typeof debtSides)[number];
-export const debtSourceTypes = ["opening", "sales_issue", "sales_return", "purchase_receipt", "purchase_return", "payment", "internal_write_off", "collection_statement"] as const;
+export const debtSourceTypes = ["opening", "sales_issue", "sales_return", "purchase_receipt", "purchase_return", "payment", "internal_write_off", "collection_statement", "landed_cost"] as const;
 export type DebtSourceType = (typeof debtSourceTypes)[number];
 export const debtSummaryQuerySchema = z
   .object({ side: z.enum(debtSides), search: z.string().trim().max(100).optional(), overdueOnly: z.enum(["true", "false"]).optional() })
@@ -2858,6 +3095,8 @@ export interface DebtItemResponse {
   openAmount: string;
   overdueDays: number;
   note: string | null;
+  // CONG_VIEC_45: khoản theo đơn ngoại tệ, kèm số ngoại tệ (gồm thuế) và tỷ giá để đối chiếu; công nợ vẫn theo tiền tệ công ty.
+  foreign: { currency: string; amount: string; exchangeRate: string } | null;
   canDelete: boolean;
   allocations: DebtAllocationResponse[];
 }
@@ -3022,7 +3261,7 @@ export interface PostingRuleResponse {
   canEdit: boolean;
 }
 export const updatePostingRuleSchema = z.object({ accountId: z.uuid() }).strict();
-export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal", "payroll", "payroll_payment"] as const;
+export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal", "payroll", "payroll_payment", "import_declaration", "landed_cost"] as const;
 export type JournalSourceType = (typeof journalSourceTypes)[number];
 export const journalStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
 export type JournalStatus = (typeof journalStatuses)[number];

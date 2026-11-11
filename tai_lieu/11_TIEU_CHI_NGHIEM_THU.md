@@ -486,3 +486,13 @@ Dữ liệu mẫu: dữ liệu mẫu của CONG_VIEC_24, CONG_VIEC_25, CONG_VIEC
 | TIEUCHI_NGHIEMTHU_319 | CHUC_NANG_174 | Báo cáo, tự ẩn ở 5 báo cáo, ẩn, hiện lại, khóa, mở khóa; người bị khóa không đăng được; thông báo tác giả | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_367 | CHUC_NANG_173 | Khóa ví mua sắm toàn hệ thống chặn dùng số dư, không chặn mua hàng, mua chung, tiền hoàn vẫn vào ví; chặn từng ví theo tài khoản độc lập; chặn ví hoa hồng tự từ chối yêu cầu chờ duyệt, chặn tạo yêu cầu mới và ghi đã chi; lý do, lịch sử, quyền (THAY_DOI_22) | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_320 | CHUC_NANG_171 đến CHUC_NANG_174 | Giao diện ứng dụng và web đạt danh sách rà soát giao diện, chuỗi trong tệp dịch vi, en | Trình duyệt | Bắt buộc |
+
+## MODULE_04 Mua hàng (phần 2: Nhập khẩu và phân bổ chi phí, CONG_VIEC_45)
+
+| Mã | Chức năng | Tiêu chí | Cách kiểm tra | Mức |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_282 | CHUC_NANG_160 | Đơn nhập khẩu ngoại tệ đi luồng duyệt, giá trị duyệt quy đổi đúng; phiếu nhập ghi sổ theo tỷ giá hạch toán ngày phiếu; thiếu tỷ giá không gửi được; công nợ, bút toán theo tiền tệ công ty kèm ngoại tệ; trả hàng theo tỷ giá phiếu gốc; đơn trong nước không đổi | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_283 | CHUC_NANG_160 | Thuế gợi ý đúng QUYTAC_NGHIEPVU_287; sửa số thuế được, có đánh dấu; khai vượt số đặt, trùng số tờ khai bị từ chối | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_284 | CHUC_NANG_160, CHUC_NANG_161 | Ghi sổ tờ khai khi chưa nhập đủ, kỳ đã khóa bị từ chối; giá vốn bình quân tăng đúng phần tồn, phần đã xuất vào 632, serial cộng giá đích danh; bút toán đúng tài khoản Thông tư 99, Thông tư 133; đã ghi sổ không sửa | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_285 | CHUC_NANG_161 | Phân bổ theo giá trị, số lượng đúng tỷ lệ, tổng bằng đúng khoản; chi phí ngoại tệ quy đổi; công nợ nhà cung cấp dịch vụ gồm thuế, bút toán đúng; tờ khai chưa ghi sổ không chọn được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_286 | CHUC_NANG_160, CHUC_NANG_161 | Công ty khác không xem, không ghi sổ được; người không có `purchasing.import.manage` không lập, không ghi sổ; Thủ kho không xem tờ khai, chi phí | Gọi API, giao diện | Bắt buộc |

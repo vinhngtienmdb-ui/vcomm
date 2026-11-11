@@ -370,6 +370,10 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     unemployment_insurance_payable: "3386",
     union_fee_payable: "3382",
     payroll_deduction_payable: "3388",
+    import_duty: "3333",
+    excise_tax: "3332",
+    environmental_tax: "33381",
+    import_vat: "33312",
   },
   TT133: {
     receivable: "131",
@@ -410,6 +414,10 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     unemployment_insurance_payable: "3385",
     union_fee_payable: "3382",
     payroll_deduction_payable: "3388",
+    import_duty: "3333",
+    excise_tax: "3332",
+    environmental_tax: "3338",
+    import_vat: "33312",
   },
 };
 
@@ -452,4 +460,8 @@ export const roleDescriptions: Record<PostingRole, string> = {
   unemployment_insurance_payable: "Bảo hiểm thất nghiệp phải nộp",
   union_fee_payable: "Kinh phí công đoàn phải nộp",
   payroll_deduction_payable: "Khoản khấu trừ lương (tạm ứng, bồi thường, đoàn phí)",
+  import_duty: "Thuế nhập khẩu (tờ khai hải quan)",
+  excise_tax: "Thuế tiêu thụ đặc biệt hàng nhập khẩu",
+  environmental_tax: "Thuế bảo vệ môi trường hàng nhập khẩu",
+  import_vat: "Thuế giá trị gia tăng hàng nhập khẩu",
 };

@@ -73,21 +73,37 @@ export class DebtsService implements OnModuleInit {
   // Phiếu kho ghi sổ sinh khoản công nợ trong cùng giao dịch (QUYTAC_NGHIEPVU_86).
   async recordInventoryDocument(executor: Executor, documentId: string): Promise<void> {
     const document = (
-      await executor.execute<{ type: string; company_id: string; partner_id: string | null; document_no: string | null; document_date: string; source_id: string | null; amount: string }>(sql`
-      SELECT type, company_id, partner_id, document_no, document_date::text, source_id, finance.inventory_debt_amount(id)::text AS amount
+      await executor.execute<{
+        type: string;
+        company_id: string;
+        partner_id: string | null;
+        document_no: string | null;
+        document_date: string;
+        source_id: string | null;
+        amount: string;
+        currency: string | null;
+        foreign_amount: string | null;
+        exchange_rate: string | null;
+      }>(sql`
+      SELECT type, company_id, partner_id, document_no, document_date::text, source_id, finance.inventory_debt_amount(id)::text AS amount,
+        currency, finance.inventory_foreign_amount(id)::text AS foreign_amount, exchange_rate::text
       FROM inventory.documents WHERE id = ${documentId}`)
     ).rows[0];
     if (!document || !inventoryTypes.includes(document.type as InventoryType) || !document.partner_id || Number(document.amount) <= 0) return;
     const type = document.type as InventoryType;
     const side: DebtSide = type.startsWith("sales") ? "receivable" : "payable";
     await this.lockPartner(executor, document.company_id, side, document.partner_id);
+    // Phiếu theo đơn ngoại tệ: công nợ theo tiền tệ công ty, kèm số ngoại tệ và tỷ giá để đối chiếu (QUYTAC_NGHIEPVU_286).
+    const hasForeign = document.currency !== null && document.foreign_amount !== null && Number(document.foreign_amount) > 0;
+    const foreign = hasForeign ? { currency: document.currency, amount: document.foreign_amount, rate: document.exchange_rate } : { currency: null, amount: null, rate: null };
     if (type === "sales_issue" || type === "purchase_receipt") {
       const id = (
         await executor.execute<{ id: string }>(sql`
-        INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, document_no, document_date, due_date, amount, open_amount)
+        INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, document_no, document_date, due_date, amount, open_amount,
+          currency, foreign_amount, exchange_rate)
         VALUES (${document.company_id}, ${document.partner_id}, ${side}, 'debit', ${type}, ${documentId}, ${document.document_no ?? ""}, ${document.document_date}::date,
           ${document.document_date}::date + coalesce((SELECT payment_term_days FROM crm.partner_profiles WHERE company_id = ${document.company_id} AND partner_id = ${document.partner_id}), 0),
-          ${document.amount}::numeric, ${document.amount}::numeric)
+          ${document.amount}::numeric, ${document.amount}::numeric, ${foreign.currency}, ${foreign.amount}::numeric, ${foreign.rate}::numeric)
         RETURNING id`)
       ).rows[0]!.id;
       await this.matchDebit(executor, id);
@@ -95,13 +111,33 @@ export class DebtsService implements OnModuleInit {
       const original = (await executor.execute<{ id: string }>(sql`SELECT id FROM finance.debt_items WHERE source_id = ${document.source_id} AND direction = 'debit'`)).rows[0]?.id;
       const id = (
         await executor.execute<{ id: string }>(sql`
-        INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, original_item_id, document_no, document_date, amount, open_amount)
+        INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, original_item_id, document_no, document_date, amount, open_amount,
+          currency, foreign_amount, exchange_rate)
         VALUES (${document.company_id}, ${document.partner_id}, ${side}, 'credit', ${type}, ${documentId}, ${original ?? null}, ${document.document_no ?? ""}, ${document.document_date}::date,
-          ${document.amount}::numeric, ${document.amount}::numeric)
+          ${document.amount}::numeric, ${document.amount}::numeric, ${foreign.currency}, ${foreign.amount}::numeric, ${foreign.rate}::numeric)
         RETURNING id`)
       ).rows[0]!.id;
       await this.matchCredit(executor, id, original ? [{ debitItemId: original, amount: null }] : [], true);
     }
+  }
+
+  // Chứng từ chi phí nhập khẩu đã ghi sổ (CONG_VIEC_45; QUYTAC_NGHIEPVU_289): phải trả nhà cung cấp dịch vụ, gồm thuế, theo tiền tệ công ty; ngoại tệ kèm để đối chiếu.
+  async recordLandedCost(
+    executor: Executor,
+    input: { companyId: string; partnerId: string; sourceId: string; documentNo: string; documentDate: string; amount: string; foreign: { currency: string; amount: string; rate: string } | null },
+  ): Promise<void> {
+    if (Number(input.amount) <= 0) return;
+    await this.lockPartner(executor, input.companyId, "payable", input.partnerId);
+    const id = (
+      await executor.execute<{ id: string }>(sql`
+      INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, document_no, document_date, due_date, amount, open_amount,
+        currency, foreign_amount, exchange_rate)
+      VALUES (${input.companyId}, ${input.partnerId}, 'payable', 'debit', 'landed_cost', ${input.sourceId}, ${input.documentNo}, ${input.documentDate}::date,
+        ${input.documentDate}::date + coalesce((SELECT payment_term_days FROM crm.partner_profiles WHERE company_id = ${input.companyId} AND partner_id = ${input.partnerId}), 0),
+        ${input.amount}::numeric, ${input.amount}::numeric, ${input.foreign?.currency ?? null}, ${input.foreign?.amount ?? null}::numeric, ${input.foreign?.rate ?? null}::numeric)
+      RETURNING id`)
+    ).rows[0]!.id;
+    await this.matchDebit(executor, id);
   }
 
   // Giao nội bộ thiếu, bên bán ghi tổn thất: giảm phải thu của công ty mua theo giá đơn bán của phần thiếu, trừ trước vào phiếu xuất gốc (quyết định người dùng 2026-11-10).
@@ -232,9 +268,13 @@ export class DebtsService implements OnModuleInit {
       amount: string;
       open_amount: string;
       note: string | null;
+      currency: string | null;
+      foreign_amount: string | null;
+      exchange_rate: string | null;
       allocated: boolean;
     }>(sql`
       SELECT i.id, i.direction, i.source_type, i.source_id, pay.kind AS payment_kind, i.document_no, i.document_date::text, i.due_date::text, i.amount::text, i.open_amount::text, i.note,
+        i.currency, i.foreign_amount::text, i.exchange_rate::text,
         (EXISTS (SELECT 1 FROM finance.debt_allocations a WHERE a.debit_item_id = i.id OR a.credit_item_id = i.id) OR EXISTS (SELECT 1 FROM finance.payment_lines l WHERE l.debit_item_id = i.id)) AS allocated
       FROM finance.debt_items i LEFT JOIN finance.payments pay ON i.source_type = 'payment' AND pay.id = i.source_id
       WHERE i.company_id = ${actor.companyId} AND i.side = ${side} AND i.partner_id = ${partnerId}
@@ -278,6 +318,7 @@ export class DebtsService implements OnModuleInit {
           openAmount: trimDecimal(row.open_amount),
           overdueDays: row.due_date && Number(row.open_amount) > 0 ? Math.max(0, daysBetween(row.due_date, today)) : 0,
           note: row.note,
+          foreign: row.currency ? { currency: row.currency, amount: trimDecimal(row.foreign_amount!), exchangeRate: trimDecimal(row.exchange_rate!) } : null,
           canDelete: canManageOpening && row.source_type === "opening" && !row.allocated,
           allocations: allocations.rows
             .filter((allocation) => allocation.debit_item_id === row.id || allocation.credit_item_id === row.id)

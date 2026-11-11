@@ -272,6 +272,8 @@ Quyền mới (`apps/api/src/permissions/permission-catalog.ts`; `purchasing.acc
 | `purchasing.order.view` | Công ty, chi nhánh | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng, Thủ kho |
 | `purchasing.order.manage` | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng |
 | `purchasing.settings.manage` | Công ty | Không | Quản trị tập đoàn, quản trị công ty |
+| `purchasing.import.view` | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng, Kế toán, Kế toán trưởng (CONG_VIEC_45) |
+| `purchasing.import.manage` | Công ty | Không | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng, Kế toán, Kế toán trưởng (CONG_VIEC_45) |
 | `inventory.purchase.receive` | Công ty, chi nhánh sở hữu kho | Không | Quản trị tập đoàn, quản trị công ty, Thủ kho, Quản lý kho |
 
 Vai trò hệ thống mới "Nhân viên mua hàng" (`purchaser`): `purchasing.access`, `purchasing.price.manage`, `purchasing.requisition.create`, `purchasing.order.view`, `purchasing.order.manage`, `crm.access`, `crm.partner.view`, `crm.partner.manage`. Vai trò "Thủ kho" có thêm `inventory.purchase.receive`, `purchasing.access`, `purchasing.requisition.create`, `purchasing.order.view`. Loại chứng từ mới: `purchasing.requisition`, `purchasing.order` (cần duyệt); `inventory.purchase_receipt`, `inventory.purchase_return` (không cần duyệt, có chứng từ gốc).

@@ -330,6 +330,10 @@ Mọi đường dẫn có tiền tố `/api/v1`, nằm trong `apps/api/src/crm/c
 | API_131 | `POST /buyer/orders/{id}/payments` | CHUC_NANG_121 | Đăng nhập (API người mua); đơn của người khác `404` |
 | API_132 | `GET /public/payments/vnpay/ipn`; `GET /public/payments/vnpay/return` | CHUC_NANG_121 | Không cần đăng nhập; kiểm chữ ký HMAC SHA512; sai chữ ký IPN đếm theo địa chỉ IP, quá giới hạn `429`; trang trả về giới hạn theo địa chỉ IP |
 | API_133 | `GET`, `PUT /buyer/bank-account`; `GET /marketplace/refunds`; `POST /marketplace/refunds/{id}/complete`; `POST /marketplace/orders/{id}/cod-collected` | CHUC_NANG_122, CHUC_NANG_124 | Người mua (tài khoản của mình); quản trị `marketplace.payment.manage` tại công ty vận hành sàn |
+| API_140 | `GET /purchasing/import-orders`; `GET`, `POST /purchasing/import-declarations`; `GET`, `PATCH /purchasing/import-declarations/{id}`; `POST /purchasing/import-declarations/{id}/cancel` | CHUC_NANG_160 | `purchasing.import.view` (đọc), `purchasing.import.manage` (ghi) tại công ty |
+| API_141 | `GET /purchasing/import-declarations/{id}/allocation-preview`; `POST /purchasing/import-declarations/{id}/post` | CHUC_NANG_160, CHUC_NANG_161 | Như API_140 |
+| API_142 | `GET`, `POST /purchasing/landed-costs`; `GET`, `PATCH /purchasing/landed-costs/{id}`; `POST /purchasing/landed-costs/{id}/cancel` | CHUC_NANG_161 | Như API_140 |
+| API_143 | `GET /purchasing/landed-costs/{id}/allocation`; `POST /purchasing/landed-costs/{id}/post` | CHUC_NANG_161 | Như API_140 |
 | API_134 | `PUT /marketplace/listings/{productId}/commission`; `PUT /marketplace/commission-settings` | CHUC_NANG_134 | `marketplace.order.manage` tại công ty vận hành sàn |
 | API_135 | `GET /buyer/wallet` | CHUC_NANG_136 | Đăng nhập (API người mua); chỉ ví của mình |
 | API_136 | `POST /buyer/withdrawals`; `POST /buyer/withdrawals/{id}/cancel`; `GET /marketplace/withdrawals`; `GET /marketplace/withdrawals/tax-report`; `POST /marketplace/withdrawals/{id}/approve`, `/reject`, `/pay` | CHUC_NANG_137 | Người dùng (yêu cầu của mình; của người khác `404`); quản trị `marketplace.payment.manage` tại công ty vận hành sàn, không xử lý yêu cầu của chính mình |
@@ -1348,6 +1352,16 @@ Mọi đường dẫn có tiền tố `/api/v1`; controller `apps/api/src/market
 - API_167 `GET /buyer/community` → `{ postingEnabled, commentsEnabled, ban: { until | null, reason } | null }`. `GET /buyer/posts?productId&page&pageSize (≤ 50)` → `PostItem { id, kind (member, review, official), authorId, authorName ("VComm" với bài VComm), content, rating, images (đường dẫn API_169), products: [{ productId, name, imageUrl, priceFrom | null }], isPinned, likeCount, commentCount, likedByMe, isMine, status, createdAt }`. `GET /buyer/posts/{id}` → `PostDetail` (thêm `comments: [{ id, authorId, authorName, content | null (bị ẩn), isMine, status, createdAt }]`); bài ẩn, tự ẩn tạm chỉ tác giả xem, người khác `404`. `GET /buyer/reviewable-lines` → dòng đơn đã giao, hoàn tất của mình chưa đánh giá (tối đa 50) `[{ orderLineId, orderId, documentNo, productId, productName, variantLabel }]`. `POST /buyer/posts` `{ content (1 đến 2.000), imageIds (≤ 5), productIds (≤ 3), orderLineId | null, rating (1 đến 5) | null (có khi và chỉ khi có `orderLineId`) }` (`201`) → `PostDetail`. `DELETE /buyer/posts/{id}` (`204`). `POST /buyer/posts/{id}/comments` `{ content (1 đến 1.000) }` (`201`) → `PostDetail`. `DELETE /buyer/comments/{id}` (`204`). `PUT`, `DELETE /buyer/posts/{id}/like` → `{ liked, likeCount }`. `POST /buyer/reports` `{ postId | commentId (đúng một), reason (spam, scam, abuse, prohibited, other), description (≤ 500) | null }` (`204`).
 - API_168 `GET /marketplace/community/moderation?view=reported|hidden&page&pageSize` → `{ target (post, comment), id, postId, authorId, authorName, authorPhone, content, status, hiddenReason, pendingReports, topReason, latestReportAt, createdAt }` (không gồm bài VComm; báo cáo nhiều trước). `POST /marketplace/community/{posts|comments}/{id}/hide` `{ reason (1 đến 500) }` (`204`); `/show` (`204`): hiện lại và bỏ qua báo cáo chờ xử lý; đã ở trạng thái đó và không còn báo cáo `409` `communityStatusUnchanged`. `GET /marketplace/community/bans` → khóa đang hiệu lực `[{ id, userId, userName, userPhone, until, reason, bannedByName, createdAt }]`; `POST` `{ userId, days (1 đến 365) | null (vĩnh viễn), reason (1 đến 500) }` (`201`) → danh sách; `POST /marketplace/community/bans/{id}/lift` (`200`) → danh sách. `GET /marketplace/community/settings` → `{ postingEnabled, commentsEnabled, bannedWords, version }`; `PUT` `{ postingEnabled, commentsEnabled, bannedWords (≤ 500 cụm, mỗi cụm 1 đến 100 ký tự), version }`. `GET /marketplace/community/official-posts` → 50 bài VComm mới nhất (`PostItem[]`); `POST` `{ content (1 đến 2.000), isPinned }` (`201`) → danh sách; `PUT /marketplace/community/official-posts/{id}/pin` `{ isPinned }` → danh sách; quá 3 bài ghim `409` `communityPinLimit`. `GET /marketplace/community/images/{id}` → ảnh ở mọi trạng thái.
 - API_169 `POST /buyer/posts/images` (multipart `file`, tối đa 5 MB; JPEG, PNG kiểm theo nội dung tệp) (`201`) → `{ id, url }`; sai loại `400` tại `file` `returnImageType`; quá lớn `400` `imageTooLarge`; quá 30 ảnh chưa đăng trong 24 giờ `409` `communityImageLimit`. `GET /buyer/posts/images/{id}` → nội dung ảnh, tiêu đề `cache-control: private, max-age=3600`, `x-content-type-options: nosniff`.
+## 3w. Hợp đồng nhập khẩu và phân bổ chi phí (MODULE_04 phần 2, CONG_VIEC_45)
+
+Lược đồ, kiểu trong `packages/contracts/src/index.ts`: `saveImportDeclarationSchema`, `ImportDeclarationResponse`, `ImportOrderOption`, `ImportAllocationPreview`, `saveLandedCostSchema`, `LandedCostResponse`, `LandedCostAllocation`.
+
+| Thay đổi | Endpoint | Nội dung |
+|---|---|---|
+| Sửa | API_75 | Gửi lên `isImport`, `currency` (đơn nhập khẩu); trả về `isImport`, `companyCurrency`, `convertedTotal`, `currencyLocked` |
+| Sửa | API_65, API_76 | Chi tiết phiếu kho thêm `currency`, `exchangeRate`, `foreignAmount`; loại phiếu `cost_adjustment` |
+| Sửa | Chi tiết công nợ đối tác (API của CONG_VIEC_13) | Khoản thêm `foreign` (`currency`, `amount`, `exchangeRate`) hoặc `null`; nguồn `landed_cost` |
+| Thêm | API_140 đến API_143 | Như bảng mục 2; thuế để trống thì lấy số gợi ý; ghi sổ gửi `version` |
 
 Lỗi mới:
 
@@ -1465,6 +1479,17 @@ Sự kiện: không phát sự kiện mới; nghe `core.approval.completed` (lo�
 | `communityDisabled`, `communityPostLimit`, `communityCommentLimit`, `communityAlreadyReviewed`, `communityReportOwn`, `communityAlreadyReported`, `communityImageLimit`, `communityStatusUnchanged`, `communityPinLimit` | `409 BUSINESS_RULE` | API_167, API_168, API_169 | Tài liệu `07` mục CONG_VIEC_49 |
 
 Thông báo trong ứng dụng (`core.notifications`, loại): `collaborator.approve`, `.reject`, `.suspend`, `.restore`, `.label`; `group_buy.succeeded`, `group_buy.failed`; `wallet_block.<shopping|commission>.<block|unblock>`; `community.post_hidden`, `community.comment_hidden`, `community.banned`, `community.unbanned`. Nhật ký kiểm tra: `marketplace.collaborator.<hành động>`, `marketplace.referral_bonus_settings.update`, `marketplace.group_buy_settings.update`, `marketplace.group_buy.cancel`, `marketplace.shopping_wallet_settings.update`, `marketplace.wallet_block.block`, `.unblock`, `marketplace.community.<post|comment>_<hide|show>`, `marketplace.community.ban`, `.lift_ban`, `.official_post`, `.pin`, `marketplace.community_settings.update`. Sự kiện outbox: không phát, không nghe sự kiện mới.
+
+| `exchangeRateMissing` | `409 BUSINESS_RULE` (gửi phiếu nhập); `400` tại `currency` (chứng từ chi phí) | API_76, API_142 | "Chưa có tỷ giá hạch toán ngày lập chứng từ." |
+| `importOrderInvalid` | `400` tại `orderId` | API_140 | "Chỉ lập tờ khai cho đơn mua nhập khẩu đã duyệt hoặc đã nhận đủ." |
+| `declarationNoDuplicate` | `400` tại `declarationNo` | API_140 | "Số tờ khai đã có trong công ty." |
+| `importDeclaredExceeded` | `400` tại `lines.{i}.quantity` | API_140 | "Vượt số lượng đặt còn khai được của dòng đơn mua." |
+| `importNotReceived` | `400` tại `lines.{i}.quantity` | API_141 | "Hàng của dòng chưa nhập kho đủ số lượng khai." |
+| `declarationNotPosted` | `400` tại `declarationId` | API_142, API_143 | "Chọn tờ khai nhập khẩu đã ghi sổ." |
+| `allocationBasisEmpty` | `400` tại `lines.{i}.basis` | API_142, API_143 | "Tiêu thức của khoản này có tổng bằng 0 trên các dòng tờ khai, không phân bổ được." |
+| `periodLocked`, `stockLockedByStocktake`, `documentNotDraft`, `conflictVersion` | `409` | API_141, API_143 | Như hiện có |
+
+Sự kiện: không phát, không nghe sự kiện outbox mới.
 
 ## 4. Sự kiện phát ra (outbox)
 

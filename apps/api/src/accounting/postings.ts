@@ -42,7 +42,11 @@ export type PostingRole =
   | "health_insurance_payable"
   | "unemployment_insurance_payable"
   | "union_fee_payable"
-  | "payroll_deduction_payable";
+  | "payroll_deduction_payable"
+  | "import_duty"
+  | "excise_tax"
+  | "environmental_tax"
+  | "import_vat";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -82,6 +86,10 @@ export const postingRoles: PostingRole[] = [
   "unemployment_insurance_payable",
   "union_fee_payable",
   "payroll_deduction_payable",
+  "import_duty",
+  "excise_tax",
+  "environmental_tax",
+  "import_vat",
 ];
 
 export interface DraftLine {
@@ -106,7 +114,9 @@ export interface DraftJournal {
     | "loyalty_order_redeem"
     | "marketplace_referral_bonus"
     | "payroll"
-    | "payroll_payment";
+    | "payroll_payment"
+    | "import_declaration"
+    | "landed_cost";
   sourceId: string;
   journalNo: string;
   date: string;
@@ -115,11 +125,11 @@ export interface DraftJournal {
 }
 
 const round = (value: number) => Math.round(value * 10000) / 10000;
-const debit = (role: PostingRole, amount: number, partnerId: string | null = null): DraftLine => ({ role, partnerId, debit: round(amount), credit: 0 });
-const credit = (role: PostingRole, amount: number, partnerId: string | null = null): DraftLine => ({ role, partnerId, debit: 0, credit: round(amount) });
+export const debit = (role: PostingRole, amount: number, partnerId: string | null = null): DraftLine => ({ role, partnerId, debit: round(amount), credit: 0 });
+export const credit = (role: PostingRole, amount: number, partnerId: string | null = null): DraftLine => ({ role, partnerId, debit: 0, credit: round(amount) });
 
 // Bút toán ghi theo đơn vị nhỏ nhất của tiền tệ công ty (đồng Việt Nam: không có số lẻ).
-async function rounder(executor: Executor, companyId: string): Promise<(value: number) => number> {
+export async function rounder(executor: Executor, companyId: string): Promise<(value: number) => number> {
   const units = Number(
     (await executor.execute<{ minor_units: number }>(sql`SELECT cur.minor_units FROM core.companies c JOIN core.currencies cur ON cur.code = c.base_currency WHERE c.id = ${companyId}`)).rows[0]
       ?.minor_units ?? 0,
