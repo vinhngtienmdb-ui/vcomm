@@ -191,7 +191,7 @@ describe("Thanh toán, ghi sổ (KICHBAN_KIEMTHU_514, 515)", () => {
        JOIN accounting.accounts a ON a.id = l.account_id WHERE j.source_type = 'inventory_document' AND j.source_id = $1 GROUP BY a.code ORDER BY a.code`,
       [created.body.stockDocument.id],
     );
-    const byCode = Object.fromEntries(journal.rows.map((row) => [row.code, [Number(row.debit), Number(row.credit)]]));
+    const byCode = Object.fromEntries(journal.rows.map((row) => [row.code, [Number(row.debit), Number(row.credit)] as const]));
     expect(byCode["131"]).toEqual([298100, 0]);
     expect(byCode["632"]).toEqual([2 * 80000 + 3 * 20000 + 10000, 0]);
     expect(byCode["156"]).toEqual([0, 2 * 80000 + 3 * 20000 + 10000]);
