@@ -55,3 +55,12 @@ export function employeeScope(access: AttendanceAccess, day: string): SQL {
     sql`, `,
   )})`;
 }
+
+// Người đang hoạt động có quyền bao trùm công ty (gán ở tập đoàn hoặc công ty) – người nhận thông báo nghiệp vụ nhân sự.
+export async function usersWithPermission(executor: Pick<Database, "execute">, companyId: string, permission: string, today: string): Promise<string[]> {
+  const rows = await executor.execute<{ user_id: string }>(sql`
+    SELECT DISTINCT a.user_id FROM core.user_role_assignments a JOIN core.role_permissions rp ON rp.role_id = a.role_id JOIN core.users u ON u.id = a.user_id
+    WHERE rp.permission_code = ${permission} AND u.status = 'active' AND a.valid_from <= ${today}::date AND (a.valid_to IS NULL OR a.valid_to >= ${today}::date)
+      AND (a.scope_type = 'group' OR (a.scope_type = 'company' AND a.company_id = ${companyId}))`);
+  return rows.rows.map((row) => row.user_id);
+}

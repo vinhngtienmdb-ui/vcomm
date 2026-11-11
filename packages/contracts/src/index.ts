@@ -5332,3 +5332,128 @@ export interface MyLeaveResponse {
   types: LeaveTypeItem[];
   requests: LeaveRequestItem[];
 }
+
+// CONG_VIEC_47 lát L3: tăng ca (API_154; QUYTAC_NGHIEPVU_310), bảng công tháng (API_155; QUYTAC_NGHIEPVU_311).
+export const overtimeBodySchema = z
+  .object({
+    employeeId: z.string().uuid().optional(),
+    workDate: isoDate,
+    startTime: clockTime,
+    endTime: clockTime,
+    workContent: z.string().trim().min(1).max(500),
+    workLocation: z.string().trim().min(1).max(200),
+  })
+  .strict();
+export type OvertimeBody = z.input<typeof overtimeBodySchema>;
+export type OvertimeViolation = "dayLimit" | "monthLimit" | "yearLimit" | "minor" | "overlapsShift" | "overlapsRequest";
+export interface OvertimePreviewResponse {
+  dayKind: "weekday" | "rest_day" | "holiday";
+  hours: string;
+  nightHours: string;
+  dayLimitHours: string;
+  monthUsedHours: string;
+  monthLimitHours: number;
+  yearUsedHours: string;
+  yearLimitHours: number;
+  violations: OvertimeViolation[];
+}
+export type OvertimeStatus = "awaiting_consent" | "declined" | "pending" | "approved" | "rejected" | "withdrawn" | "cancelled";
+export interface OvertimeItem {
+  id: string;
+  requestNo: string;
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  workDate: string;
+  startAt: string;
+  endAt: string;
+  hours: string;
+  dayKind: "weekday" | "rest_day" | "holiday";
+  workContent: string;
+  workLocation: string;
+  consentStatus: "pending" | "agreed" | "declined" | "document";
+  status: OvertimeStatus;
+  approvalRequestId: string | null;
+  // Giờ được tính theo công ngày (khi đã duyệt và ngày đã có kết quả).
+  countedHours: string | null;
+  canConsent: boolean;
+  canWithdraw: boolean;
+  canCancel: boolean;
+}
+export const overtimeListQuerySchema = z
+  .object({ month: yearMonth, status: z.enum(["awaiting_consent", "declined", "pending", "approved", "rejected", "withdrawn", "cancelled"]).optional() })
+  .strict();
+export interface OvertimeTotalItem {
+  employeeId: string;
+  code: string;
+  fullName: string;
+  monthHours: string;
+  yearHours: string;
+  monthRemaining: string;
+  yearRemaining: string;
+}
+export const overtimeConsentSchema = z.object({ agree: z.boolean() }).strict();
+export const cancelOvertimeSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+
+export type TimesheetStatus = "open" | "confirming" | "closed";
+export type TimesheetConfirmation = "pending" | "confirmed" | "disputed" | "auto_confirmed";
+export interface TimesheetLineItem {
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  departmentName: string | null;
+  employmentFrom: string;
+  employmentTo: string;
+  monthStandardUnits: string;
+  standardUnits: string;
+  standardHours: string;
+  workedUnits: string;
+  workedHours: string;
+  holidayUnits: string;
+  annualLeaveUnits: string;
+  paidPersonalLeaveUnits: string;
+  otherPaidLeaveUnits: string;
+  unpaidLeaveUnits: string;
+  socialInsuranceLeaveUnits: string;
+  absentUnits: string;
+  paidUnits: string;
+  nightHours: string;
+  overtimeWeekdayHours: string;
+  overtimeWeekdayNightHours: string;
+  overtimeWeekdayNightAfterDayHours: string;
+  overtimeRestDayHours: string;
+  overtimeRestDayNightHours: string;
+  overtimeHolidayHours: string;
+  overtimeHolidayNightHours: string;
+  lateCount: number;
+  lateMinutes: number;
+  earlyLeaveCount: number;
+  earlyLeaveMinutes: number;
+  annualLeavePayoutUnits: string;
+  annualLeaveBalanceEnd: string;
+  confirmationStatus: TimesheetConfirmation;
+  confirmedAt: string | null;
+  disputeNote: string | null;
+  disputeReply: string | null;
+}
+export interface TimesheetResponse {
+  month: string;
+  status: TimesheetStatus;
+  monthEnded: boolean;
+  confirmationDeadline: string | null;
+  closedAt: string | null;
+  payrollLocked: boolean;
+  counts: { total: number; confirmed: number; disputed: number; pending: number };
+  canManage: boolean;
+  lines: TimesheetLineItem[];
+}
+export const openConfirmationSchema = z.object({ deadline: isoDate }).strict();
+export const timesheetDisputeSchema = z.object({ note: z.string().trim().min(1).max(1000) }).strict();
+export const timesheetReplySchema = z.object({ reply: z.string().trim().min(1).max(1000) }).strict();
+export const reopenTimesheetSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export interface MyTimesheetResponse {
+  month: string;
+  status: TimesheetStatus | null;
+  confirmationDeadline: string | null;
+  line: TimesheetLineItem | null;
+}

@@ -135,6 +135,13 @@ export class AttendanceDaysService {
       leaveByKey.set(key, existing ? { ...existing, portion: 1 } : { portion: row.half === "full" ? 1 : 0.5, payGroup: row.pay_group, typeId: row.leave_type_id });
     }
 
+    // Tăng ca đã duyệt theo ngày công (QUYTAC_NGHIEPVU_310).
+    const overtime = (
+      await executor.execute<{ employee_id: string; work_date: string; start_at: Date; end_at: Date; consent_status: string }>(sql`
+      SELECT employee_id, work_date::text, start_at, end_at, consent_status FROM hr.overtime_requests
+      WHERE employee_id IN (${ids}) AND status = 'approved' AND work_date BETWEEN ${from}::date AND ${to}::date`)
+    ).rows;
+
     for (const employee of employees.rows) {
       const foreigner = employee.nationality !== "VN";
       const holidayDates = new Set(holidays.filter((row) => !row.foreigners_only || foreigner).map((row) => row.holiday_date));
@@ -150,7 +157,15 @@ export class AttendanceDaysService {
           const schedule = assignment ? schedules.get(assignment.schedule_id) : defaultSchedule;
           shiftId = schedule ? schedule[weekdayColumns[weekdayIndex(date)]!] : null;
         }
-        return { date, shift: shiftId ? (shifts.get(shiftId) ?? null) : null, holiday: holidayDates.has(date), leave: leaveByKey.get(key) ?? null };
+        return {
+          date,
+          shift: shiftId ? (shifts.get(shiftId) ?? null) : null,
+          holiday: holidayDates.has(date),
+          leave: leaveByKey.get(key) ?? null,
+          overtime: overtime
+            .filter((row) => row.employee_id === employee.id && row.work_date === date)
+            .map((row) => ({ start: new Date(row.start_at).getTime(), end: new Date(row.end_at).getTime(), full: row.consent_status === "document" })),
+        };
       });
       result.set(employee.id, {
         employeeId: employee.id,
@@ -195,16 +210,20 @@ export class AttendanceDaysService {
         const result = calculateDay(day, byDay.get(day.date) ?? [], grace, now);
         await executor.execute(sql`
           INSERT INTO hr.attendance_days (company_id, employee_id, work_date, day_kind, shift_id, shift_code, planned_start, planned_end, standard_minutes, planned_units,
-            first_in, last_out, punch_count, worked_minutes, night_minutes, late_minutes, early_minutes, worked_units, absent_units, leave_units, leave_pay_group, leave_type_id, status, calculated_at)
+            first_in, last_out, punch_count, worked_minutes, night_minutes, late_minutes, early_minutes, worked_units, absent_units, leave_units, leave_pay_group, leave_type_id,
+            overtime_kind, overtime_day_minutes, overtime_night_minutes, overtime_night_after_day_minutes, status, calculated_at)
           VALUES (${companyId}, ${calendar.employeeId}, ${result.workDate}::date, ${result.dayKind}, ${result.shiftId}, ${result.shiftCode},
             ${result.plannedStart?.toISOString() ?? null}::timestamptz, ${result.plannedEnd?.toISOString() ?? null}::timestamptz, ${result.standardMinutes}, ${result.plannedUnits},
             ${result.firstIn?.toISOString() ?? null}::timestamptz, ${result.lastOut?.toISOString() ?? null}::timestamptz, ${result.punchCount}, ${result.workedMinutes},
-            ${result.nightMinutes}, ${result.lateMinutes}, ${result.earlyMinutes}, ${result.workedUnits}, ${result.absentUnits}, ${result.leaveUnits}, ${result.leavePayGroup}, ${result.leaveTypeId}, ${result.status}, now())
+            ${result.nightMinutes}, ${result.lateMinutes}, ${result.earlyMinutes}, ${result.workedUnits}, ${result.absentUnits}, ${result.leaveUnits}, ${result.leavePayGroup}, ${result.leaveTypeId},
+            ${result.overtimeKind}, ${result.overtimeDayMinutes}, ${result.overtimeNightMinutes}, ${result.overtimeNightAfterDayMinutes}, ${result.status}, now())
           ON CONFLICT (employee_id, work_date) DO UPDATE SET day_kind = EXCLUDED.day_kind, shift_id = EXCLUDED.shift_id, shift_code = EXCLUDED.shift_code,
             planned_start = EXCLUDED.planned_start, planned_end = EXCLUDED.planned_end, standard_minutes = EXCLUDED.standard_minutes, planned_units = EXCLUDED.planned_units,
             first_in = EXCLUDED.first_in, last_out = EXCLUDED.last_out, punch_count = EXCLUDED.punch_count, worked_minutes = EXCLUDED.worked_minutes,
             night_minutes = EXCLUDED.night_minutes, late_minutes = EXCLUDED.late_minutes, early_minutes = EXCLUDED.early_minutes, worked_units = EXCLUDED.worked_units,
             absent_units = EXCLUDED.absent_units, leave_units = EXCLUDED.leave_units, leave_pay_group = EXCLUDED.leave_pay_group, leave_type_id = EXCLUDED.leave_type_id,
+            overtime_kind = EXCLUDED.overtime_kind, overtime_day_minutes = EXCLUDED.overtime_day_minutes, overtime_night_minutes = EXCLUDED.overtime_night_minutes,
+            overtime_night_after_day_minutes = EXCLUDED.overtime_night_after_day_minutes,
             status = EXCLUDED.status, calculated_at = now()`);
       }
     }
