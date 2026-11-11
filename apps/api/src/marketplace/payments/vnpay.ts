@@ -2,7 +2,7 @@
 // Chưa thử với môi trường thử nghiệm của VNPAY; phải thử trước khi phát hành.
 import type { PaymentMethodCode } from "contracts";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import type { VnpayConfiguration } from "./payment-gateway-registry";
+import type { VnpayConfiguration } from "./gateways/vnpay-gateway";
 
 // Loại thanh toán gửi VNPAY để mở thẳng trang của phương thức người mua đã chọn.
 const bankCodes: Partial<Record<PaymentMethodCode, string>> = { vnpay_qr: "VNPAYQR", vnpay_atm: "VNBANK", vnpay_card: "INTCARD" };

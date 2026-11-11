@@ -124,6 +124,10 @@
         ${truong("luong-ct", "Mức lương chính thức (đồng)", "text", "16.500.000")}${truong("luong-tv", "Mức lương thử việc (đồng)", "text", "13.000.000", "Lương thử việc ít nhất 85% lương chính thức (14.025.000 đ).")}
         ${truong("chuc-danh-hd", "Chức danh", "text", "Kế toán viên")}${luaChon("pb-hd", "Phòng ban", ["Phòng Kế toán"])}${luaChon("cn-hd", "Nơi làm việc", ["VCR-HCM"])}${luaChon("tra-luong", "Hình thức trả lương", ["Chuyển khoản", "Tiền mặt"])}
         ${truong("nguoi-ky", "Người ký phía công ty", "text", "Nguyễn Văn An · Giám đốc")}</div>
+        <h3 style="margin-top:12px">Phụ cấp</h3>${bang(["Tên", "Loại phụ cấp (CONG_VIEC_48)", "Số tiền mỗi tháng"], [
+          [`<input class="o-nhap" aria-label="Tên phụ cấp" value="Ăn trưa">`, `<select class="o-nhap" aria-label="Loại phụ cấp"><option selected>Ăn trưa · miễn thuế đến 730.000 đ</option><option>Điện thoại · chịu thuế</option><option>Trách nhiệm · chịu thuế</option></select>`, `<input class="o-nhap" aria-label="Số tiền" value="730.000">`],
+          [`<input class="o-nhap" aria-label="Tên phụ cấp" value="Điện thoại">`, `<select class="o-nhap loi" aria-label="Loại phụ cấp"><option>Chọn loại</option><option>Điện thoại · chịu thuế</option></select><span class="loi-o">Chọn loại phụ cấp.</span>`, `<input class="o-nhap" aria-label="Số tiền" value="300.000">`]])}
+        <span class="chu-thich">Loại phụ cấp cho biết phụ cấp chịu thuế, tính theo ngày công khi tính lương. Danh mục ở Thiết lập lương.</span>
         <div class="nhom-nut">${nut("Lưu nháp", "phu", "xu-ly", "Đã lưu nháp.")}${nut("Gửi duyệt", "chinh", "xu-ly", "Đã gửi duyệt HDLD-2026-0048.")}</div>
         <div class="khoi-canh-bao thong-tin">Sau khi duyệt: bấm "Xác nhận đã ký", nhập ngày ký và tải bản đã ký (bắt buộc).</div>${nut("Xác nhận đã ký", "chinh", "da-ky")}</div>`),
 

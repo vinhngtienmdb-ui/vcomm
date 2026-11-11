@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.14
+- Phiên bản: 2.15
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -28,6 +28,7 @@
 - Cập nhật CONG_VIEC_25 (2026-11-11): thêm MAN_HINH_98 đến MAN_HINH_100 (mục 60, mục 61); sửa MAN_HINH_86 (Đặt hàng và thanh toán), MAN_HINH_88 (thanh toán, các lần thanh toán, ghi đã thu tiền thu hộ), MAN_HINH_93 (chọn phương thức thanh toán), MAN_HINH_96 (trạng thái thanh toán, hoàn tiền), MAN_HINH_76 (nút Tài khoản nhận hoàn tiền); menu web-crm thêm Hoàn tiền; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_26 (2026-11-11): thêm MAN_HINH_101 đến MAN_HINH_104 (mục 62, mục 63); sửa MAN_HINH_86 (Hoa hồng và rút tiền, bảng phí rút tiền theo THAY_DOI_17), MAN_HINH_87 (cột Hoa hồng, nút Thiết lập hoa hồng), MAN_HINH_88 (thẻ Hoa hồng), MAN_HINH_83 (hoa hồng từng cấp dưới), MAN_HINH_76 (nút Ví hoa hồng); menu web-crm thêm Rút tiền hoa hồng; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_43 (2026-11-11), THAY_DOI_18: bỏ MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40) và mục menu "Hoa hồng", "Cài đặt hoa hồng"; tắt MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52) và mục menu "Giao khách hàng"; sửa MAN_HINH_24 (chọn loại Hàng hóa, Dịch vụ), MAN_HINH_42 (công tắc "Cho phép lập đơn bán tay có hàng hóa"), MAN_HINH_43 (bỏ người hưởng hoa hồng; nút lập đơn theo quyền mới), MAN_HINH_32 (nhãn "Phiếu dịch vụ"), MAN_HINH_36 (bỏ lọc nhân viên phụ trách), MAN_HINH_37 (bỏ lịch sử phụ trách, nút nhận khách; nhân viên phụ trách sửa bằng tay); không làm bản mẫu, xem trước từng lát (mục 64)
+- Cập nhật CONG_VIEC_50 (2026-11-11): thêm MODULE_15 Báo cáo quản trị phần 1, mini app `web-analytics`, MAN_HINH_140 đến MAN_HINH_144 (mục 65 đến mục 67); MAN_HINH_145 giữ chưa dùng; trang chủ mini app thêm ô "Báo cáo quản trị"
 
 ## MODULE_01 Nền tảng
 
@@ -2192,6 +2193,226 @@ Mini app Nhân sự `apps/web-hr`, đường dẫn `/hr`. Bản mẫu: `tai_lieu
 
 - Trạng thái phê duyệt: người dùng duyệt bản mẫu ngày 2026-11-11.
 
+## MODULE_08 Nhân sự phần 2 (CONG_VIEC_47)
+
+Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_120` đến `MAN_HINH_125` (tệp `cham_cong.js`). Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_47.md` mục 8.
+
+| Mã | Tên màn hình | Đường dẫn | Chức năng (10) | Vai trò, quyền được truy cập |
+|---|---|---|---|---|
+| MAN_HINH_120 | Ca làm và lịch làm việc | `/hr/work-schedules`, màn hình mã QR `/hr/work-schedules/qr/[id]` | CHUC_NANG_165 | `hr.attendance.view` xem; `hr.attendance.manage` sửa; trưởng phòng thẻ Xếp ca phòng mình |
+| MAN_HINH_121 | Chấm công | `/hr/attendance` | CHUC_NANG_165 | `hr.attendance.view`; trưởng phòng phòng mình; ghi thủ công, nhập tệp cần `hr.attendance.manage` |
+| MAN_HINH_122 | Chấm công của tôi | `/hr/my-attendance` (mở từ mã QR: `?l=&t=&c=`) | CHUC_NANG_165 đến CHUC_NANG_167 | Người có hồ sơ liên kết |
+| MAN_HINH_123 | Nghỉ phép | `/hr/leave` | CHUC_NANG_166 | `hr.attendance.view`; ghi nhận, sổ phép, loại nghỉ cần `hr.leave.manage`; trưởng phòng phòng mình |
+| MAN_HINH_124 | Tăng ca | `/hr/overtime` | CHUC_NANG_167 | `hr.attendance.view`; trưởng phòng phòng mình; văn bản đồng ý, hủy cần `hr.attendance.manage` |
+| MAN_HINH_125 | Bảng công tháng | `/hr/timesheets` | CHUC_NANG_167 | `hr.attendance.view`; thao tác cần `hr.timesheet.manage` |
+
+Điều hướng: menu Nhân sự thêm Chấm công (121), Ca và lịch (120), Nghỉ phép (123), Tăng ca (124), Bảng công (125), Chấm công của tôi (122). Trưởng phòng không có quyền nhân sự mở 121, 120, 124 qua nút trên 122. Thành phần mới ở tài liệu `15` mục 6.
+
+- Trạng thái phê duyệt: người dùng duyệt bản mẫu ngày 2026-11-11; duyệt điểm xem trước từng lát L0 đến L3.
+## MODULE_08 Nhân sự phần 3 – Lương (CONG_VIEC_48)
+
+Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_126` đến `MAN_HINH_131` (tệp `luong.js`); MAN_HINH_118 thêm cột loại phụ cấp. Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_48.md` mục 8.
+
+| Mã | Tên màn hình | Đường dẫn | Chức năng (10) | Vai trò, quyền được truy cập |
+|---|---|---|---|---|
+| MAN_HINH_126 | Danh sách bảng lương | `/hr/payrolls` | CHUC_NANG_169 | `hr.payroll.view`; lập cần `hr.payroll.manage` |
+| MAN_HINH_127 | Chi tiết bảng lương | `/hr/payrolls/[id]` | CHUC_NANG_169, CHUC_NANG_170 | `hr.payroll.view`; thao tác cần `hr.payroll.manage` |
+| MAN_HINH_128 | Chi tiết dòng lương | Ngăn kéo trong `/hr/payrolls/[id]` | CHUC_NANG_169 | `hr.payroll.view`; khoản nhập tay cần `hr.payroll.manage` |
+| MAN_HINH_129 | Hồ sơ lương nhân viên | Thẻ "Lương, thuế" của `/hr/employees/[id]` | CHUC_NANG_168 | `hr.payroll.manage` |
+| MAN_HINH_130 | Phiếu lương của tôi | Thẻ "Phiếu lương" của `/hr/me` (`?tab=payslips`) | CHUC_NANG_170 | Người có hồ sơ liên kết |
+| MAN_HINH_131 | Thiết lập lương | `/hr/payroll-settings` | CHUC_NANG_168 | `hr.payroll.setup`; tham số pháp luật chỉ sửa khi gán ở phạm vi tập đoàn |
+
+Điều hướng: menu Nhân sự thêm "Bảng lương" (126 → 127 → 128) và "Thiết lập lương" (131); thông báo phiếu lương mở 130.
+
+- Trạng thái phê duyệt: người dùng duyệt bản mẫu ngày 2026-11-11.
+## MODULE_03 Kho (ứng dụng kho trên điện thoại, CONG_VIEC_44)
+
+## 65. Danh sách màn hình và điều hướng (ứng dụng kho)
+
+Ứng dụng `apps/mobile-warehouse` (Expo, khổ điện thoại; xem trước bằng bản web cổng 8084). Màu, khoảng cách lấy từ tài liệu `15` (tệp chủ đề chép giá trị từ `packages/ui/src/styles.css`). Câu chữ nhóm `warehouseApp` trong `packages/i18n`; nhãn trạng thái, lý do phiếu dùng nhóm `documents`. Bản mẫu: `ban_mau/MAN_HINH_105_DANG_NHAP_KHO.html` đến `MAN_HINH_109_DEM_KIEM_KE.html`.
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_105 | Ứng dụng kho: Đăng nhập (tài khoản, mật khẩu; mã xác thực hai lớp, mã dự phòng) | CHUC_NANG_159 | Nhân viên có `inventory.access` | Mở ứng dụng khi chưa đăng nhập | Có |
+| MAN_HINH_106 | Ứng dụng kho: Trang kho (chọn công ty, kho; quét tra tồn; lưới thao tác theo quyền; đăng xuất) | CHUC_NANG_159 | Nhân viên có `inventory.access` | Sau đăng nhập | Có |
+| MAN_HINH_107 | Ứng dụng kho: Việc cần làm theo thao tác | CHUC_NANG_159 | Theo quyền của thao tác | MAN_HINH_106, ô thao tác | Có |
+| MAN_HINH_108 | Ứng dụng kho: Phiếu quét (nhận đơn mua, xuất giao hàng, nhập khác, xuất khác, chuyển kho) | CHUC_NANG_159 | `inventory.purchase.receive`, `inventory.sales.issue`, `inventory.document.manage` tại kho | MAN_HINH_107 | Có |
+| MAN_HINH_109 | Ứng dụng kho: Đếm kiểm kê | CHUC_NANG_159 | `inventory.stocktake.count` hoặc `inventory.stocktake.manage` tại kho | MAN_HINH_107 (Kiểm kê) | Có |
+
+```mermaid
+flowchart TD
+    L[MAN_HINH_105 Đăng nhập] --> H[MAN_HINH_106 Trang kho]
+    H -->|Nhận hàng, Xuất giao hàng, Nhập khác, Xuất khác, Chuyển kho, Kiểm kê| V[MAN_HINH_107 Việc cần làm]
+    V -->|chọn đơn, phiếu; Lập phiếu mới| P[MAN_HINH_108 Phiếu quét]
+    V -->|chọn đợt kiểm kê| K[MAN_HINH_109 Đếm kiểm kê]
+```
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Quản lý kho | Thủ kho | Nhân viên không có quyền kho |
+|---|---|---|---|---|
+| MAN_HINH_105, MAN_HINH_106 | Dùng | Dùng | Dùng | Bị từ chối khi đăng nhập |
+| MAN_HINH_107, MAN_HINH_108 | Mọi thao tác | Mọi thao tác | Mọi thao tác trừ kiểm kê quản lý | Không thấy |
+| MAN_HINH_109 | Đếm, thấy tồn sổ sách | Đếm, thấy tồn sổ sách | Đếm (đếm mù) | Không thấy |
+
+## 66. Đặc tả màn hình (ứng dụng kho)
+
+- MAN_HINH_105 (`/dang-nhap`): thanh đầu "VComm Kho"; tiêu đề "Đăng nhập"; ô "Email, tên đăng nhập hoặc số điện thoại", "Mật khẩu", nút "Đăng nhập" (API_137). Tài khoản bắt buộc xác thực hai lớp: "Mã xác thực hai lớp", "Nhập mã 6 số trong ứng dụng xác thực.", "Xác nhận", "Dùng mã dự phòng", "Quay lại đăng nhập"; chưa đăng ký: "Tài khoản của bạn bắt buộc xác thực hai lớp. Hãy đăng ký trên trang web VComm rồi đăng nhập lại.". Không có quyền kho: "Tài khoản không có quyền dùng ứng dụng kho.".
+- MAN_HINH_106 (`/kho`): thanh đầu tên kho, "<công ty> · <họ tên>", nút "Đổi kho"; chưa chọn: thẻ "Công ty" (khi nhiều công ty), "Kho" (kho thao tác được, đang dùng); ô quét "Quét hoặc nhập mã hàng để tra tồn" và nút "Camera"; thẻ kết quả: tên hàng, "<mã hàng> · Chủ hàng <công ty> · Đơn vị cơ sở: <đơn vị>", "Tồn … · Giữ … · Khả dụng …", từng dòng lô, vị trí, số lượng, serial; không hiện giá vốn; lưới thao tác "Nhận hàng", "Xuất giao hàng", "Nhập khác", "Xuất khác", "Chuyển kho", "Kiểm kê" theo quyền; "Đăng xuất".
+- MAN_HINH_107 (`/viec/<thao tác>`): thanh đầu tên thao tác, tên kho, "‹"; Chuyển kho có lựa chọn "Chờ nhận", "Chờ xuất", "Nháp, chờ duyệt, bị từ chối"; ô quét "Quét hoặc nhập số đơn, số phiếu" mở đúng đơn, phiếu; danh sách số đơn hoặc số phiếu, nhãn trạng thái, "<ngày> · <lý do hoặc kho> · <số dòng> dòng"; danh sách trống có câu riêng từng thao tác; nút cuối "Lập phiếu … mới" với Nhập khác, Xuất khác, Chuyển kho.
+- MAN_HINH_108 (`/don?loai=&donId=`, `/phieu?loai=&phieuId=`): thanh vị trí "Vị trí hiện tại: <mã>" hoặc "Quét mã vị trí trước khi quét hàng." (kho dùng vị trí); ô quét "Quét mã hàng, vị trí, serial", nút "Camera"; thông báo "Đã thêm: …", "Không tìm thấy mã …", "Đã ghi serial …"; phiếu không theo đơn có "Công ty chủ hàng" (khi nhiều), "Loại lý do", "Lý do", "Kho đích" (chuyển kho); mỗi dòng: tên, mã hàng, vị trí, "Còn phải nhận/xuất …" (theo đơn), nút "Bỏ", tăng giảm số lượng và đơn vị; hàng serial: "Đã quét … (serial)", "Đang chờ quét serial", thẻ serial bỏ được; nhập: "Số lô", "Hạn dùng (năm-tháng-ngày)", "Đơn giá (mỗi <đơn vị>)" (nhập khác); xuất: chọn lô "<lô> · HSD … · còn …" có nhãn "gợi ý", chọn lô khác thì "Lý do chọn lô khác gợi ý". Nút cuối: theo đơn "Ghi nhận nhập kho", "Ghi nhận xuất kho" (lập phiếu rồi gửi; thành công "Đã ghi sổ phiếu …"); phiếu kho "Lưu nháp", "Gửi", "Rút phiếu", "Xác nhận xuất"; nhận chuyển kho: số thực nhận từng dòng (quét cộng dần), "Điền đủ theo số đã xuất", "Xác nhận nhận"; biên bản chênh lệch sau khi nhận. Rời màn hình khi còn dữ liệu chưa gửi: "Còn dữ liệu chưa gửi. Rời màn hình thì phần này sẽ mất." với "Ở lại", "Rời màn hình".
+- MAN_HINH_109 (`/kiem-ke/<id>`): thanh đầu "Kiểm kê <số>", "<kho> · <chủ hàng>"; vị trí hiện tại, ô quét; thẻ "Chưa gửi (<n> dòng)" (số lượng theo đơn vị cơ sở, nhập số âm để trừ, chọn lô kể cả lô hết hạn, serial); "Số đếm được cộng vào số của mọi người cùng đếm. Đếm nhầm thì nhập số âm để trừ lại."; nút "Gửi số đếm" (API_138), thành công "Đã gửi <n> dòng số đếm."; thẻ "Đã gửi của tôi" (API_139: mặt hàng, số cộng có dấu, lô, vị trí, serial, giờ); thẻ "Tổng số đếm của đợt": "Đã đếm …", người quản lý thêm "Sổ sách … · chênh lệch …"; người đếm mù thấy "Bạn chỉ thấy số đã đếm; tồn sổ sách và chênh lệch chỉ người quản lý kiểm kê thấy.".
+- MAN_HINH_34 (web, sửa): người không có `inventory.stocktake.manage` tại kho thấy cột tồn sổ sách "—", không thấy dòng chưa ai đếm (đếm mù, QUYTAC_NGHIEPVU_283).
+- Trạng thái phê duyệt: bản mẫu được người dùng duyệt ngày 2026-11-11; ảnh xem trước ở `tam_thoi/CONG_VIEC_44/`.
+## MODULE_15 Báo cáo quản trị (phần 1, CONG_VIEC_50)
+
+Mini app `apps/web-analytics`, tên "Báo cáo quản trị", đường dẫn gốc `/analytics` (mini app Nền tảng chuyển tiếp `/analytics` sang ứng dụng này theo `ANALYTICS_ORIGIN`, cùng tên miền và cookie phiên; cổng phát triển 3009). Ô "Báo cáo quản trị" trên trang chủ mini app (MAN_HINH_05) hiện với người có `analytics.access`. Khung trang, thành phần dùng chung lấy từ `packages/ui` theo khung `web-finance`; quy ước chung như mục 3 của MODULE_01. Báo cáo chỉ đọc, không có thao tác ghi dữ liệu nghiệp vụ. MAN_HINH_145 chưa dùng (giữ trong dải, không cấp cho màn hình khác).
+
+## 65. Danh sách màn hình và điều hướng (MODULE_15 phần 1)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_140 | Tổng quan báo cáo quản trị: thẻ chỉ tiêu theo quyền (doanh số, lãi gộp, giá trị tồn cuối kỳ, phải thu trong đó quá hạn, phải trả, hoa hồng đã ghi có); bảng doanh số theo công ty; liên kết sang từng báo cáo | CHUC_NANG_175 | Người có `analytics.access` (Quản trị tập đoàn, Quản trị công ty, Kế toán trưởng, Kế toán, Quản lý kho) | MAN_HINH_05, ô "Báo cáo quản trị"; menu Báo cáo quản trị | [ban_mau/MAN_HINH_140_TONG_QUAN_BAO_CAO.html](ban_mau/MAN_HINH_140_TONG_QUAN_BAO_CAO.html) |
+| MAN_HINH_141 | Báo cáo bán hàng: lọc công ty, khoảng ngày, kênh, chỉ đơn VComm; nhóm theo công ty, kênh, sản phẩm, ngày, tháng; doanh số, số lượng, giá vốn, lãi gộp, tỷ lệ, trong đó bán nội bộ; dòng tổng hai số; xuất Excel | CHUC_NANG_175, CHUC_NANG_176 | `analytics.sales.view` (Quản trị tập đoàn, Quản trị công ty, Kế toán trưởng) | Menu Báo cáo quản trị; thẻ doanh số ở MAN_HINH_140 | [ban_mau/MAN_HINH_141_BAO_CAO_BAN_HANG.html](ban_mau/MAN_HINH_141_BAO_CAO_BAN_HANG.html) |
+| MAN_HINH_142 | Báo cáo tồn kho và luân chuyển: lọc công ty, kho, khoảng ngày; nhóm theo công ty, kho, sản phẩm; đầu kỳ, nhập, xuất, cuối kỳ (số lượng, giá trị), giá vốn hàng bán, vòng quay, số ngày tồn; xuất Excel | CHUC_NANG_175, CHUC_NANG_176 | `analytics.inventory.view` (Quản trị tập đoàn, Quản trị công ty, Kế toán trưởng, Quản lý kho) | Menu Báo cáo quản trị; thẻ tồn kho ở MAN_HINH_140 | [ban_mau/MAN_HINH_142_BAO_CAO_TON_KHO.html](ban_mau/MAN_HINH_142_BAO_CAO_TON_KHO.html) |
+| MAN_HINH_143 | Báo cáo công nợ theo tuổi nợ: thẻ phải thu, phải trả; xem theo công ty hoặc đối tác; cột tuổi nợ, trả trước, trong đó nội bộ; xuất Excel | CHUC_NANG_175, CHUC_NANG_177 | `analytics.debt.view` (Quản trị tập đoàn, Quản trị công ty, Kế toán trưởng, Kế toán) | Menu Báo cáo quản trị; thẻ phải thu, phải trả ở MAN_HINH_140 | [ban_mau/MAN_HINH_143_BAO_CAO_CONG_NO.html](ban_mau/MAN_HINH_143_BAO_CAO_CONG_NO.html) |
+| MAN_HINH_144 | Báo cáo hoa hồng và ví: thẻ chỉ tiêu; bảng theo loại phần hưởng, theo người hưởng; bảng rút tiền đã chi; xuất Excel | CHUC_NANG_175, CHUC_NANG_177 | `analytics.commission.view` (Quản trị tập đoàn, Quản trị công ty, Kế toán trưởng, Kế toán) | Menu Báo cáo quản trị; thẻ hoa hồng ở MAN_HINH_140 | [ban_mau/MAN_HINH_144_BAO_CAO_HOA_HONG.html](ban_mau/MAN_HINH_144_BAO_CAO_HOA_HONG.html) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Báo cáo quản trị| M{{Menu Báo cáo quản trị}}
+    M --> O[MAN_HINH_140 Tổng quan]
+    M --> S[MAN_HINH_141 Bán hàng]
+    M --> I[MAN_HINH_142 Tồn kho và luân chuyển]
+    M --> D[MAN_HINH_143 Công nợ theo tuổi nợ]
+    M --> C[MAN_HINH_144 Hoa hồng và ví]
+    O -->|Thẻ doanh số| S
+    O -->|Thẻ giá trị tồn cuối kỳ| I
+    O -->|Thẻ phải thu, phải trả| D
+    O -->|Thẻ hoa hồng đã ghi có| C
+    S -->|Xuất Excel| X[Tệp .xlsx]
+    I -->|Xuất Excel| X
+    D -->|Xuất Excel| X
+    C -->|Xuất Excel| X
+```
+
+- Thứ tự menu và quyền hiện mục: Tổng quan (`analytics.access`); Bán hàng (`analytics.sales.view`); Tồn kho và luân chuyển (`analytics.inventory.view`); Công nợ theo tuổi nợ (`analytics.debt.view`); Hoa hồng và ví (`analytics.commission.view`).
+- Mở `/analytics` là MAN_HINH_140; không có `analytics.access` thì hiện "Bạn không có quyền xem trang này".
+- Bộ lọc chung mọi báo cáo: "Công ty" chỉ liệt kê công ty được xem theo quyền của nhóm báo cáo (mã · tên), mặc định "Tất cả công ty được xem (<số>)"; "Từ ngày", "Đến ngày" (mặc định từ đầu tháng đến hôm nay; MAN_HINH_143 không có); nút "Xem". Không có công ty nào được xem: "Bạn chưa được xem công ty nào ở báo cáo này. Liên hệ quản trị công ty nếu cần quyền.".
+- Lỗi khoảng ngày hiện dưới ô "Đến ngày", nút "Xem" bị khóa: "Vui lòng nhập thông tin này.", "Từ ngày không được sau đến ngày.", "Khoảng ngày tối đa 366 ngày. Hãy thu hẹp khoảng ngày.".
+
+## 66. Bảng vai trò – màn hình (MODULE_15 phần 1)
+
+"(tập đoàn)": quyền gán ở phạm vi tập đoàn, xem mọi công ty của tập đoàn; "(công ty)": gán ở phạm vi công ty, chỉ xem công ty đó. Quyền gán ở phạm vi chi nhánh không có hiệu lực.
+
+| Màn hình | Quản trị tập đoàn | Quản trị công ty | Kế toán trưởng | Kế toán | Quản lý kho | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|---|---|
+| MAN_HINH_140 Tổng quan báo cáo quản trị | Xem (mọi thẻ) | Xem (mọi thẻ, công ty mình) | Xem (mọi thẻ) | Xem (thẻ công nợ, hoa hồng) | Xem (thẻ tồn kho) | Không |
+| MAN_HINH_141 Báo cáo bán hàng | Xem, Xuất Excel | Xem, Xuất Excel (công ty mình) | Xem, Xuất Excel | Không | Không | Không |
+| MAN_HINH_142 Báo cáo tồn kho và luân chuyển | Xem, Xuất Excel | Xem, Xuất Excel (công ty mình) | Xem, Xuất Excel | Không | Xem, Xuất Excel | Không |
+| MAN_HINH_143 Báo cáo công nợ theo tuổi nợ | Xem, Xuất Excel | Xem, Xuất Excel (công ty mình) | Xem, Xuất Excel | Xem, Xuất Excel | Không | Không |
+| MAN_HINH_144 Báo cáo hoa hồng và ví | Xem, Xuất Excel | Xem, Xuất Excel (công ty mình) | Xem, Xuất Excel | Xem, Xuất Excel | Không | Không |
+
+## 67. Đặc tả từng màn hình (MODULE_15 phần 1)
+
+### MAN_HINH_140: Tổng quan báo cáo quản trị
+- Mục đích: Xem nhanh chỉ tiêu chính của các nhóm báo cáo được xem, đi sang từng báo cáo.
+- Chức năng thực hiện: CHUC_NANG_175
+- Đường dẫn: `/analytics`.
+- Bố cục: tiêu đề "Tổng quan báo cáo quản trị".
+  - Bộ lọc chung (công ty, từ ngày, đến ngày, "Xem"); chú thích "Đơn vị tiền: <đồng tiền>. Công ty khác đồng tiền hạch toán hiện dòng riêng, không cộng vào tổng.".
+  - Lưới thẻ chỉ tiêu (mỗi thẻ là liên kết sang báo cáo): "Doanh số chưa thuế" kèm "Lãi gộp <số> (<tỷ lệ>)"; "Tồn cuối kỳ (giá trị)" kèm "Vòng quay <số> · <số> ngày tồn"; "Phải thu", "Phải trả" kèm "Trong đó quá hạn: <số>"; "Hoa hồng đã ghi có trong kỳ" kèm "Số dư ví <số>".
+  - Bảng "Doanh số theo công ty": "Công ty", "Doanh số chưa thuế", "Lãi gộp", "Trong đó bán nội bộ".
+- Dữ liệu hiển thị: chỉ thẻ của nhóm có quyền và có công ty đã chọn được xem; số định dạng theo tiếng Việt; chia cho 0 hiện "—"; công ty khác đồng tiền ghi "<tên> (<đồng tiền>, không cộng vào tổng)".
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, ONhap, The, BangDuLieu, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_170, API_175.
+- Thao tác: đổi công ty áp dụng ngay; đổi ngày rồi "Xem" tải lại; bấm thẻ mở báo cáo tương ứng.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; không có thẻ nào: "Bạn chưa được xem công ty nào ở báo cáo này. Liên hệ quản trị công ty nếu cần quyền.".
+- Thông báo: lỗi khoảng ngày dưới ô "Đến ngày".
+- Quyền hiển thị: trang với `analytics.access`; từng thẻ theo quyền nhóm báo cáo (API_175 trả trống nhóm không có quyền).
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc, nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_50 mục 14)
+
+### MAN_HINH_141: Báo cáo bán hàng
+- Mục đích: Xem doanh số hàng đã giao, giá vốn, lãi gộp theo cách nhóm đã chọn; xuất Excel.
+- Chức năng thực hiện: CHUC_NANG_175, CHUC_NANG_176
+- Đường dẫn: `/analytics/sales`.
+- Bố cục: tiêu đề "Báo cáo bán hàng".
+  - Bộ lọc chung kèm "Kênh" (mặc định "Kênh: tất cả"), ô chọn "Chỉ đơn VComm".
+  - Chú thích "Doanh số theo hàng đã giao: phiếu xuất giao hàng đã ghi sổ trừ hàng trả lại, theo ngày phiếu; chưa thuế giá trị gia tăng; không gồm phí giao hàng và đơn của người mua thử.".
+  - Các thẻ "Nhóm theo": "Công ty" (mặc định), "Kênh", "Sản phẩm", "Ngày", "Tháng".
+  - Nút "Xuất Excel"; khối thông tin khi có công ty khác đồng tiền: "Đơn vị tiền của dòng tổng: <đồng tiền>. Dòng có ghi chú khác đồng tiền không cộng vào tổng.".
+  - Bảng: cột nhóm, "Số lượng", "Doanh số chưa thuế", "Giá vốn", "Lãi gộp", "Tỷ lệ lãi gộp", "Trong đó bán nội bộ"; hai dòng tổng "Cộng các công ty", "Tổng loại trừ nội bộ" (chỉ doanh số).
+- Dữ liệu hiển thị: tối đa 500 dòng xếp theo doanh số giảm dần; bị cắt thì ghi chú "Hiện <số> trên <số> dòng, xếp theo số tiền giảm dần. Dòng tổng tính trên toàn bộ. Xuất Excel để có đủ dòng."; tỷ lệ lãi gộp khi doanh số bằng 0 hiện "—".
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, ONhap, CacThe, KhoiCanhBao, BangDuLieu, Nut, ThongBaoNoi, TrangThaiRong (tài liệu `15`).
+- API: API_170, API_171.
+- Thao tác: đổi cách nhóm, kênh, chỉ đơn VComm, công ty tải lại bảng; "Xuất Excel" tải tệp `bao-cao-ban-hang-<từ ngày>-<đến ngày>.xlsx` cùng bộ lọc, báo "Đã tải tệp <tên tệp>.".
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Không có số liệu trong khoảng đã chọn. Hãy chọn khoảng ngày hoặc công ty khác.".
+- Thông báo: lỗi xuất hiện ở thông báo nổi ("Quá 20.000 dòng. Hãy thu hẹp bộ lọc rồi xuất lại."); lỗi khoảng ngày dưới ô "Đến ngày".
+- Quyền hiển thị: mục menu và trang với `analytics.sales.view`; danh sách công ty theo phạm vi của quyền này.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc, nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_50 mục 14)
+
+### MAN_HINH_142: Báo cáo tồn kho và luân chuyển
+- Mục đích: Xem nhập xuất tồn, giá vốn hàng bán, vòng quay hàng tồn kho theo công ty, kho, sản phẩm; xuất Excel.
+- Chức năng thực hiện: CHUC_NANG_175, CHUC_NANG_176
+- Đường dẫn: `/analytics/inventory`.
+- Bố cục: tiêu đề "Tồn kho và luân chuyển".
+  - Bộ lọc chung kèm "Kho" (mặc định "Kho: tất cả"; kho của các công ty được xem).
+  - Chú thích "Theo thẻ kho, ngày giờ Việt Nam. Vòng quay = giá vốn hàng bán ÷ giá trị tồn bình quân ((đầu kỳ + cuối kỳ) ÷ 2); số ngày tồn = số ngày của kỳ ÷ vòng quay. Chuyển kho là xuất của kho đi, nhập của kho đến.".
+  - Các thẻ "Nhóm theo": "Công ty", "Kho" (mặc định), "Sản phẩm".
+  - Nút "Xuất Excel"; khối thông tin khi có công ty khác đồng tiền.
+  - Bảng: cột nhóm, "Tồn đầu kỳ" (số lượng, giá trị), "Nhập" (số lượng, giá trị), "Xuất" (số lượng, giá trị), "Tồn cuối kỳ" (số lượng, giá trị), "Giá vốn hàng bán", "Vòng quay", "Số ngày tồn"; dòng "Tổng" (chỉ giá trị, vòng quay, số ngày tồn; số lượng không cộng vì khác đơn vị).
+- Dữ liệu hiển thị: tối đa 500 dòng xếp theo giá trị giảm dần, ghi chú khi bị cắt; vòng quay, số ngày tồn khi chia cho 0 hiện "—".
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, ONhap, CacThe, KhoiCanhBao, BangDuLieu, Nut, ThongBaoNoi, TrangThaiRong (tài liệu `15`).
+- API: API_170, API_172.
+- Thao tác: đổi cách nhóm, kho, công ty tải lại bảng; "Xuất Excel" tải tệp `bao-cao-ton-kho-<từ ngày>-<đến ngày>.xlsx`.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Không có số liệu trong khoảng đã chọn. Hãy chọn khoảng ngày hoặc công ty khác.".
+- Thông báo: lỗi xuất ở thông báo nổi; lỗi khoảng ngày dưới ô "Đến ngày".
+- Quyền hiển thị: mục menu và trang với `analytics.inventory.view`; danh sách công ty, kho theo phạm vi của quyền này.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc, nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_50 mục 14)
+
+### MAN_HINH_143: Báo cáo công nợ theo tuổi nợ
+- Mục đích: Xem công nợ phải thu, phải trả theo tuổi nợ của các công ty, theo công ty hoặc đối tác; xuất Excel.
+- Chức năng thực hiện: CHUC_NANG_175, CHUC_NANG_177
+- Đường dẫn: `/analytics/debts`.
+- Bố cục: tiêu đề "Công nợ theo tuổi nợ".
+  - Bộ lọc công ty (không có khoảng ngày) kèm hai thẻ "Phải thu" (mặc định), "Phải trả".
+  - Các thẻ "Theo công ty" (mặc định), "Theo đối tác".
+  - Chú thích "Tính tại hôm nay <ngày>, cùng cách tính tuổi nợ của sổ công nợ (theo hạn thanh toán, trên số còn lại).".
+  - Hai thẻ chỉ tiêu "Phải thu", "Phải trả" kèm "Trong đó quá hạn: <số>".
+  - Nút "Xuất Excel"; khối thông tin khi có công ty khác đồng tiền.
+  - Bảng: cột nhóm, "Số dư", "Chưa đến hạn", "Quá hạn 1–30 ngày", "31–60 ngày", "61–90 ngày", "Trên 90 ngày", "Trả trước", "Trong đó nội bộ"; hai dòng tổng "Cộng các công ty", "Tổng loại trừ nội bộ" (chỉ số dư).
+- Dữ liệu hiển thị: tối đa 500 dòng xếp theo số dư giảm dần, ghi chú khi bị cắt; số định dạng theo tiếng Việt.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, ONhap, CacThe, The, KhoiCanhBao, BangDuLieu, Nut, ThongBaoNoi, TrangThaiRong (tài liệu `15`).
+- API: API_170, API_173.
+- Thao tác: đổi phía, cách nhóm, công ty tải lại; "Xuất Excel" tải tệp `bao-cao-cong-no-phai-thu-<ngày>.xlsx` hoặc `bao-cao-cong-no-phai-tra-<ngày>.xlsx`.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Không có công nợ còn lại ở các công ty đã chọn.".
+- Thông báo: lỗi xuất ở thông báo nổi.
+- Quyền hiển thị: mục menu và trang với `analytics.debt.view`; danh sách công ty theo phạm vi của quyền này.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc, nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_50 mục 14)
+
+### MAN_HINH_144: Báo cáo hoa hồng và ví
+- Mục đích: Xem hoa hồng đã ghi có, đang chờ, rút tiền đã chi, số dư ví; xuất Excel.
+- Chức năng thực hiện: CHUC_NANG_175, CHUC_NANG_177
+- Đường dẫn: `/analytics/commissions`.
+- Bố cục: tiêu đề "Hoa hồng và ví".
+  - Bộ lọc chung; chú thích "Hoa hồng của đơn VComm thuộc công ty vận hành VComm. Đã ghi có, đã chi theo kỳ; đang chờ và số dư ví tính tại hôm nay.".
+  - Bốn thẻ chỉ tiêu: "Hoa hồng đã ghi có trong kỳ" kèm "<số> dòng hoa hồng"; "Hoa hồng đang chờ" kèm "Ước tính của đơn chưa hoàn tất"; "Rút tiền đã chi trong kỳ" kèm "Thuế <số> · Phí <số> · Thực nhận <số>"; "Tổng số dư ví" kèm "Rút đang chờ duyệt: <số> yêu cầu, <số>".
+  - Các thẻ "Theo loại phần hưởng" (mặc định), "Theo người hưởng"; nút "Xuất Excel".
+  - Bảng: cột nhóm, "Số dòng hoa hồng", "Hoa hồng đã ghi có"; dòng "Tổng".
+  - Bảng "Rút tiền đã chi trong kỳ": "Người hưởng", "Ngày chi", "Số tiền", "Thuế thu nhập cá nhân", "Phí", "Thực nhận"; dòng "Tổng".
+- Dữ liệu hiển thị: người hưởng hiện họ tên, không hiện số điện thoại, tài khoản ngân hàng; số dư ví hiện "—" khi công ty vận hành VComm không nằm trong các công ty đã chọn; tối đa 500 dòng, ghi chú khi bị cắt.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, ONhap, The, CacThe, BangDuLieu, Nut, ThongBaoNoi, TrangThaiRong (tài liệu `15`).
+- API: API_170, API_174.
+- Thao tác: đổi cách nhóm, công ty tải lại; đổi ngày rồi "Xem"; "Xuất Excel" tải tệp `bao-cao-hoa-hong-<từ ngày>-<đến ngày>.xlsx` (bảng hoa hồng và bảng rút tiền đã chi).
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có hoa hồng ghi có trong khoảng đã chọn.", "Không có yêu cầu rút tiền đã chi trong khoảng đã chọn.".
+- Thông báo: lỗi xuất ở thông báo nổi; lỗi khoảng ngày dưới ô "Đến ngày".
+- Quyền hiển thị: mục menu và trang với `analytics.commission.view`; danh sách công ty theo phạm vi của quyền này.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc, nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_50 mục 14)
 ## MODULE_08 Nhân sự phần 4: Tuyển dụng, đánh giá hiệu suất (CONG_VIEC_54)
 
 Mini app Nhân sự `apps/web-hr`, đường dẫn `/hr`. Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_168_NHU_CAU_TUYEN_DUNG.html`, `MAN_HINH_169_TIN_TUYEN_DUNG.html`, `MAN_HINH_170_UNG_VIEN.html`, `MAN_HINH_171_TRANG_TUYEN_DUNG_CONG_KHAI.html`, `MAN_HINH_172_QUAN_LY_DANH_GIA.html`, `MAN_HINH_173_PHIEU_DANH_GIA.html` (tệp `tuyen_dung.js`). Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_54.md` mục 8, 18.

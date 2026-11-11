@@ -18,6 +18,8 @@ let approver: Session;
 let department: string;
 let otherDepartment: string;
 let employeeUser: string;
+// THAY_DOI_21 (CONG_VIEC_48): dòng phụ cấp lưu mới phải có loại phụ cấp.
+let allowanceType: string;
 const retail: string = testIds.retailCompany;
 const branch: string = testIds.headOfficeBranch;
 const pdf = Buffer.from("%PDF-1.4 ban da ky");
@@ -56,7 +58,7 @@ const contract = (employeeId: string, values: Record<string, unknown>) => ({
   departmentId: department,
   branchId: branch,
   salary: "15000000",
-  allowances: [{ name: "Ăn trưa", amount: "730000" }],
+  allowances: [{ name: "Ăn trưa", amount: "730000", allowanceTypeId: allowanceType }],
   signerName: "Nguyễn Văn An",
   signerTitle: "Giám đốc",
   ...values,
@@ -80,6 +82,12 @@ beforeAll(async () => {
   hrStaff = await assign("nhanvien.nhansu.hd@vcomm.test", "Nhân viên nhân sự", "hr_staff");
   viewer = await assign("xem.hoso@vcomm.test", "Người xem hồ sơ", "employee");
   approver = await signIn(application, "phuc.le@vcomm.test");
+  allowanceType = (
+    await pool.query<{ id: string }>(
+      "INSERT INTO hr.allowance_types (company_id, name, tax_mode, created_by, updated_by) SELECT $1, 'Phụ cấp chung', 'taxable', id, id FROM core.users WHERE email = 'quantri.vcr@vcomm.test' RETURNING id",
+      [retail],
+    )
+  ).rows[0]!.id;
   // Người xem hồ sơ: chỉ hr.access, hr.employee.view (vai trò riêng công ty).
   const role = await pool.query<{ id: string }>(
     "INSERT INTO core.roles (company_id, code, name_vi, name_en, is_system, status) VALUES ($1, 'hr_viewer', 'Xem hồ sơ', 'HR viewer', false, 'active') RETURNING id",
@@ -207,7 +215,7 @@ describe("CONG_VIEC_46 hợp đồng lao động", () => {
       effectiveDate: "2026-06-01",
       salary: "16500000",
       jobTitle: "Trưởng nhóm",
-      allowances: [{ name: "Điện thoại", amount: "300000" }],
+      allowances: [{ name: "Điện thoại", amount: "300000", allowanceTypeId: allowanceType }],
       description: "Sửa Điều 3: mức lương 16.500.000 đồng; chức danh Trưởng nhóm",
     });
     expect(raise.status, JSON.stringify(raise.body)).toBe(201);

@@ -196,6 +196,54 @@
 - Kết luận cổng kiểm thử: Đạt.
 - Kết luận: Chờ người dùng nghiệm thu.
 
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_48
+
+- Phạm vi: MODULE_08 phần 3 (lương), nhánh `chuc-nang/CONG_VIEC_48-luong` (pull request #96, gồm CONG_VIEC_46, 47).
+- Kết quả: `c48-payroll-setup` (KICHBAN_KIEMTHU_454, 455), `c48-payroll-calculation` (456 đến 459, 12 trường hợp gồm ví dụ tính tay thực lĩnh 26.592.500), `c48-payrolls` (460, 461: luồng duyệt, chặn gửi, cách ly công ty, quyền, bút toán Thông tư 99 và 133 cân Nợ Có, trả lương, phiếu lương, email), `c48-payroll-timesheet` (đọc kỳ và dòng bảng công thật, khóa kỳ) Đạt; 462, 463 (giao diện 1366, 390 điểm ảnh) Đạt; hồi quy `pnpm --filter api test` 64 tệp, 410/410 Đạt; `pnpm typecheck` Đạt.
+- Kiểm thử đã duyệt được sửa: `c46-contracts` cập nhật dữ liệu thử theo THAY_DOI_21 (loại phụ cấp bắt buộc).
+- Kiểm tra bảo mật: không thêm thư viện; `pnpm audit` 2 lỗ hổng Trung bình đã chấp nhận; gitleaks trên CI. Mức tham số pháp luật tra từ nguồn công khai, phải đối chiếu Công báo trước khi dùng thật.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-11.
+
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_47
+
+- Phạm vi: MODULE_08 phần 2 (ca làm, chấm công, nghỉ phép, tăng ca, bảng công tháng); nhánh `chuc-nang/CONG_VIEC_47-cham-cong` (pull request #108).
+- Kết quả: KICHBAN_KIEMTHU_444, 445 (`c47-attendance`), 446 (`c47-calculator`, `c47-attendance`), 447 (`c47-app-attendance`), 448, 449 (`c47-leave`), 450, 451 (`c47-overtime-timesheet`) Đạt; 452, 453 (giao diện 1366 và 390 điểm ảnh, Playwright chụp màn hình, người dùng duyệt từng lát) Đạt; hồi quy `pnpm --filter api test` 60 tệp, 381/381 Đạt; kiểm tra kiểu api, web-hr Đạt.
+- Kiểm thử đã duyệt được sửa: không.
+- Kiểm tra bảo mật: `pnpm audit` 2 lỗ hổng Trung bình đã chấp nhận rủi ro; rủi ro mới giả vị trí GPS chờ người dùng chấp nhận.
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
+
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_50
+
+- Phạm vi: MODULE_15 phần 1, mini app `web-analytics`; nhánh `chuc-nang/CONG_VIEC_50-bao-cao-quan-tri` (pull request #93).
+- Kết quả: KICHBAN_KIEMTHU_476 đến 485 Đạt (`c50-analytics-scope`, `-sales`, `-inventory`, `-debts`, `-commissions`: 13/13); hồi quy `pnpm --filter api test` 57 tệp, 347/347 Đạt. Hiệu năng (366 ngày, 1.000.000 dòng thẻ kho, 200.000 dòng phiếu): bán hàng khoảng 2,1 giây, tồn kho 1,5 giây, tổng quan 2,0 giây, công nợ và hoa hồng dưới 0,1 giây (TIEUCHI_NGHIEMTHU_328 Mong muốn: Đạt).
+- Kiểm thử đã duyệt được sửa: không.
+- Kiểm tra bảo mật phần C: C1 `pnpm audit` không có mức Cao, Nghiêm trọng (2 Trung bình có sẵn qua expo); C2 quét thủ công phần thay đổi, gitleaks chạy ở CI: không phát hiện; C3 phân quyền (401, 403 theo nhóm quyền và phạm vi công ty): Đạt; C4 đầu vào độc hại (400, không lộ chi tiết kỹ thuật): Đạt; C6 OWASP A01, A03, A04 (giới hạn 366 ngày, 20.000 dòng), A09 (xuất Excel ghi nhật ký): Đạt. Không có lỗi mới.
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
+
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_46
+
+- Phạm vi: MODULE_08 phần 1 (hồ sơ nhân sự, giấy tờ, người phụ thuộc, quá trình công tác, hợp đồng, phụ lục, nghỉ việc, nhắc hết hạn); mini app `apps/web-hr`; database migration 0070 đến 0072; nhánh `chuc-nang/CONG_VIEC_46-nhan-su-ho-so` (pull request #84, `e5029e8`).
+- Kết quả: KICHBAN_KIEMTHU_434, 435, 436 (`c46-employees.test.ts`), 437, 438, 439, 441 (`c46-contracts.test.ts`), 440 (`c46-reminders.test.ts`) Đạt; 442, 443 (Playwright khổ 1366 và 390 điểm ảnh) Đạt, không lỗi trình duyệt, không cuộn ngang; hồi quy `pnpm --filter api test` 345/345 Đạt.
+- Kiểm thử đã duyệt được sửa: không.
+- Kiểm tra bảo mật phần B, C: Đạt; `pnpm audit` còn 2 lỗ hổng Trung bình đã chấp nhận rủi ro; gitleaks trên CI đạt. Không có lỗi mới. Rủi ro mở: thời hạn lưu, xóa hồ sơ người đã nghỉ (tài liệu 22 mục 8).
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
+
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_44
+
+- Phạm vi: ứng dụng kho `apps/mobile-warehouse`, API_137 đến 139, database migration 0064, đếm mù API_67; nhánh `chuc-nang/CONG_VIEC_44-ung-dung-kho` (pull request #88, `89e09b2`).
+- Kết quả: KICHBAN_KIEMTHU_423, 424, 425, 426 Đạt (`apps/api/test/c44-warehouse-app.test.ts`); KICHBAN_KIEMTHU_427 Đạt phần tra mã (`apps/mobile-warehouse/src/lib/scan.test.ts` 5/5) và xem trước bản web, phần camera chưa thử trên điện thoại thật; hồi quy toàn bộ API 338/338 Đạt (53 tệp).
+- Kiểm thử đã duyệt được sửa: không.
+- Kiểm tra bảo mật phần B, C: Đạt; `pnpm audit` chỉ còn 2 lỗ hổng Trung bình đã chấp nhận rủi ro trong `@expo/cli`; không có khóa bí mật mới. Không có lỗi mới.
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
+
+## Lần kiểm thử 2026-11-11 – Gộp đơn vị vận chuyển CONG_VIEC_28 đến 31, THAY_DOI_20
+
+- Phạm vi: nhánh `gop/giao-van` (pull request #82) từ `main`, hợp nhất CONG_VIEC_31, 29, 28, 30; gộp tay `carrier-registry.ts` (đủ 5 đơn vị), giao diện lớp kết nối (thông tin vận đơn, báo cáo webhook, trả lời webhook, hủy vận đơn), xử lý webhook. THAY_DOI_20: Viettel Post báo giao thành công đơn COD thì ghi đã thu COD, ngày thu là lúc nhận webhook (commit `af6df92`).
+- Lệnh đã chạy: `pnpm lint`, `pnpm typecheck`, `pnpm --filter api test`.
+- Kết quả: 349/349 đạt (56 tệp); CI pull request #82 đạt.
+- Kiểm thử đã duyệt được sửa: `c24-marketplace-orders`, `c31` chỉ sửa kỳ vọng danh sách đơn vị vận chuyển cho đủ 5 dòng (do gộp); KICHBAN_KIEMTHU_345 bổ sung ba trường hợp theo THAY_DOI_20 (đơn COD ghi đã thu, webhook lặp không ghi lần hai, đơn không COD không ghi). Nội dung THAY_DOI_20 ghi vào QUYTAC_NGHIEPVU_185, TIEUCHI_NGHIEMTHU_205, KICHBAN_KIEMTHU_345 sẵn có.
+- Kết luận cổng kiểm thử: Đạt. Chưa phát hành: thử với tài khoản thử nghiệm của từng hãng trước.
+
 ## Lần kiểm thử 2026-11-11 – Phát hành 0.3.0
 
 - Phạm vi: nhánh `phat-hanh/v0.3.0` (đầu nhánh CONG_VIEC_43, hợp nhất thêm `main`, LOI_03, LOI_04, LOI_05, CONG_VIEC_06); pull request #79.
@@ -473,3 +521,5 @@
 | LOI_03 | KICHBAN_KIEMTHU_149 (CONG_VIEC_05) lỗi không đều trên CI: hai phiếu xuất đồng thời tranh món hàng cuối, phiếu thua nhận `400` khi bị chặn ở bước kiểm tra trước, nhận `409` khi bị chặn trong khóa giữ hàng. Dữ liệu đúng trong cả hai trường hợp (chỉ một phiếu giữ hàng); kiểm thử chờ cố định `409` nên thất bại theo thời điểm, kéo theo KICHBAN_KIEMTHU_152 | Thấp | KICHBAN_KIEMTHU_149 | Thống nhất trả `400` "Không đủ hàng khả dụng (một phần đang được giữ)." gắn vào dòng hàng, sửa kiểm thử chờ `400` (người dùng quyết định 2026-11-10) | Mở |
 | LOI_04 | Hàm tải dữ liệu dùng chung của giao diện (`useApi`) không bỏ phản hồi cũ: đổi bộ lọc nhanh trên danh sách thì phản hồi của bộ lọc trước về sau ghi đè kết quả mới (thấy khi thử MAN_HINH_44, có ở mọi mini app) | Thấp | KICHBAN_KIEMTHU_192 | Sửa hàm tải dữ liệu: chỉ nhận phản hồi của lần gọi mới nhất (người dùng quyết định 2026-11-10) | Đã sửa (pull request số 45), chờ nghiệm thu |
 | LOI_05 | Bước chuẩn bị của tệp kiểm thử API (dựng lại cơ sở dữ liệu thử, chạy toàn bộ database migration) đôi khi vượt giới hạn mặc định 10 giây trên CI, cả tệp bị bỏ qua (`l8-settings` trên pull request số 40, commit chỉ có tài liệu; một lần ở máy phát triển khi làm CONG_VIEC_08) | Thấp | Toàn bộ kiểm thử tự động | Nâng giới hạn thời gian bước chuẩn bị lên 60 giây, không đổi nội dung kiểm thử; đã sửa (pull request số 46, 186/186 đạt), chờ nghiệm thu | Đã sửa |
+| LOI_06 | Dòng thời gian đơn VComm: hai sự kiện ghi trong cùng giao dịch cơ sở dữ liệu (ví dụ Đã giao và Đã thanh toán khi ghi đã thu COD) có cùng thời điểm (`now()` là thời điểm bắt đầu giao dịch), sắp xếp phụ theo uuid ngẫu nhiên nên hiển thị đảo thứ tự; phát hiện khi CI pull request #82 thất bại không đều ở KICHBAN_KIEMTHU_345. Có từ phát hành 0.3.0 | Thấp | KICHBAN_KIEMTHU_345 | Sửa: ghi `created_at = clock_timestamp()` khi thêm sự kiện (commit `1c9a57b` trên nhánh `gop/giao-van`, pull request #82); phát hành cùng đơn vị vận chuyển | Đã sửa, chờ phát hành |
+| LOI_07 | Ghi đã trả lương (CONG_VIEC_48): ngày duyệt bảng lương ghi theo đồng hồ cơ sở dữ liệu (`now()`), còn ngày hôm nay so sánh theo đồng hồ ứng dụng; khi hai đồng hồ khác ngày (kiểm thử cố định đồng hồ, chạy sau nửa đêm giờ Việt Nam) thì ngày trả hợp lệ bị báo sai. Phát hiện khi chạy toàn bộ kiểm thử nhánh phát hành 0.4.0 ở KICHBAN_KIEMTHU_461. Chưa phát hành | Thấp | KICHBAN_KIEMTHU_461 | Sửa: ghi `approved_at` theo đồng hồ ứng dụng trên nhánh `phat-hanh/v0.4.0` | Đã sửa, chờ phát hành |

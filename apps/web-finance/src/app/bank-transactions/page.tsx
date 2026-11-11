@@ -141,6 +141,8 @@ export default function BankTransactionsPage() {
                               · {item.payment.partnerName} · {formatDate(item.payment.paymentDate)}
                             </span>
                           </span>
+                        ) : item.marketplacePayment ? (
+                          <span>{t("marketplacePayment", { document: item.marketplacePayment.documentNo, reference: item.marketplacePayment.reference })}</span>
                         ) : item.status === "ignored" ? (
                           <span>{t("ignoredBecause", { reason: item.ignoreReason ?? "" })}</span>
                         ) : (

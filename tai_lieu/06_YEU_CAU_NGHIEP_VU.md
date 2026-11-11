@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 2.14
+- Phiên bản: 2.15
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm YCAU_NGHIEPVU_38 của MODULE_06 (công nợ phải thu, phải trả), đối tượng quỹ, khoản công nợ, trừ nợ, phiếu thu chi; CONG_VIEC_14 (2026-11-10): thêm YCAU_NGHIEPVU_39 của MODULE_06 (kế toán tổng hợp), đối tượng tài khoản kế toán, định khoản mặc định, bút toán, cài đặt kế toán; CONG_VIEC_15 (2026-11-10): thêm YCAU_NGHIEPVU_40 của MODULE_06 (báo cáo tài chính), đối tượng báo cáo tài chính; tài khoản kế toán thêm thuộc tính dài hạn; CONG_VIEC_16 (2026-11-10): thêm YCAU_NGHIEPVU_41 của MODULE_06 (hóa đơn điện tử), đối tượng cài đặt hóa đơn điện tử, ký hiệu hóa đơn, hóa đơn điện tử, lần gửi hóa đơn, việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm YCAU_NGHIEPVU_42 của MODULE_06 (hoa hồng đội kinh doanh), đối tượng cài đặt hoa hồng, chỉ tiêu hoa hồng, phát sinh hoa hồng, bảng hoa hồng; đơn bán thêm nhân viên hưởng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm YCAU_NGHIEPVU_43 của MODULE_06 (đối soát ngân hàng), đối tượng kết nối ngân hàng, giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm YCAU_NGHIEPVU_44 của MODULE_06 (đối soát thu hộ), đối tượng đơn vị thu hộ, bảng đối soát thu hộ, dòng bảng đối soát; CONG_VIEC_20 (2026-11-10): thêm YCAU_NGHIEPVU_45 của MODULE_06 (báo cáo tài chính hợp nhất), đối tượng bảng hợp nhất, bút toán loại trừ hợp nhất, dòng lãi chưa thực hiện; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm YCAU_NGHIEPVU_46 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh), đối tượng phiếu giao khách, lịch sử phụ trách; hồ sơ đối tác: nhân viên phụ trách quyết định phạm vi xem của nhân viên kinh doanh; CONG_VIEC_23 (2026-11-10): thêm YCAU_NGHIEPVU_48 của MODULE_09 (THAY_DOI_14); CONG_VIEC_27 (2026-11-10): thêm YCAU_NGHIEPVU_49 (THAY_DOI_16); CONG_VIEC_24 (2026-11-11): thêm YCAU_NGHIEPVU_50 của MODULE_09 (đặt hàng trên VComm), đối tượng tỉnh, xã, cài đặt bán hàng VComm, đăng bán, địa chỉ nhận hàng, giỏ hàng, đơn VComm, vận đơn, yêu cầu trả hàng; tài khoản người mua thêm người mua thử; CONG_VIEC_25 (2026-11-11): thêm YCAU_NGHIEPVU_51 của MODULE_09 (thanh toán đơn người mua), đối tượng phương thức thanh toán, lần thanh toán, kết quả cổng gửi về, việc hoàn tiền, tài khoản nhận hoàn tiền; cài đặt bán hàng VComm thêm mở đặt hàng; đơn VComm thêm trạng thái chờ thanh toán, hạn thanh toán, tiền đã thu, đã hoàn; CONG_VIEC_26 (2026-11-11): thêm YCAU_NGHIEPVU_52 của MODULE_09 (hoa hồng theo đơn và ví hoa hồng), đối tượng thiết lập hoa hồng sản phẩm, cài đặt hoa hồng chung, hoa hồng của đơn, ví hoa hồng, giao dịch ví, yêu cầu rút tiền (có phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: đánh dấu YCAU_NGHIEPVU_42 (CONG_VIEC_17) đã bỏ, YCAU_NGHIEPVU_46 (CONG_VIEC_21) đã tắt; YCAU_NGHIEPVU_34 bổ sung đơn bán tay chỉ dịch vụ, YCAU_NGHIEPVU_36 bổ sung giao dịch nội bộ chỉ dịch vụ; đối tượng sản phẩm thêm loại, cài đặt bán hàng thêm cho phép lập đơn bán tay có hàng hóa, phiếu dịch vụ tự lập; đối tượng hoa hồng cũ đã bỏ, giao khách đã tắt
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm YCAU_NGHIEPVU_38 của MODULE_06 (công nợ phải thu, phải trả), đối tượng quỹ, khoản công nợ, trừ nợ, phiếu thu chi; CONG_VIEC_14 (2026-11-10): thêm YCAU_NGHIEPVU_39 của MODULE_06 (kế toán tổng hợp), đối tượng tài khoản kế toán, định khoản mặc định, bút toán, cài đặt kế toán; CONG_VIEC_15 (2026-11-10): thêm YCAU_NGHIEPVU_40 của MODULE_06 (báo cáo tài chính), đối tượng báo cáo tài chính; tài khoản kế toán thêm thuộc tính dài hạn; CONG_VIEC_16 (2026-11-10): thêm YCAU_NGHIEPVU_41 của MODULE_06 (hóa đơn điện tử), đối tượng cài đặt hóa đơn điện tử, ký hiệu hóa đơn, hóa đơn điện tử, lần gửi hóa đơn, việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm YCAU_NGHIEPVU_42 của MODULE_06 (hoa hồng đội kinh doanh), đối tượng cài đặt hoa hồng, chỉ tiêu hoa hồng, phát sinh hoa hồng, bảng hoa hồng; đơn bán thêm nhân viên hưởng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm YCAU_NGHIEPVU_43 của MODULE_06 (đối soát ngân hàng), đối tượng kết nối ngân hàng, giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm YCAU_NGHIEPVU_44 của MODULE_06 (đối soát thu hộ), đối tượng đơn vị thu hộ, bảng đối soát thu hộ, dòng bảng đối soát; CONG_VIEC_20 (2026-11-10): thêm YCAU_NGHIEPVU_45 của MODULE_06 (báo cáo tài chính hợp nhất), đối tượng bảng hợp nhất, bút toán loại trừ hợp nhất, dòng lãi chưa thực hiện; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm YCAU_NGHIEPVU_46 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh), đối tượng phiếu giao khách, lịch sử phụ trách; hồ sơ đối tác: nhân viên phụ trách quyết định phạm vi xem của nhân viên kinh doanh; CONG_VIEC_23 (2026-11-10): thêm YCAU_NGHIEPVU_48 của MODULE_09 (THAY_DOI_14); CONG_VIEC_27 (2026-11-10): thêm YCAU_NGHIEPVU_49 (THAY_DOI_16); CONG_VIEC_24 (2026-11-11): thêm YCAU_NGHIEPVU_50 của MODULE_09 (đặt hàng trên VComm), đối tượng tỉnh, xã, cài đặt bán hàng VComm, đăng bán, địa chỉ nhận hàng, giỏ hàng, đơn VComm, vận đơn, yêu cầu trả hàng; tài khoản người mua thêm người mua thử; CONG_VIEC_25 (2026-11-11): thêm YCAU_NGHIEPVU_51 của MODULE_09 (thanh toán đơn người mua), đối tượng phương thức thanh toán, lần thanh toán, kết quả cổng gửi về, việc hoàn tiền, tài khoản nhận hoàn tiền; cài đặt bán hàng VComm thêm mở đặt hàng; đơn VComm thêm trạng thái chờ thanh toán, hạn thanh toán, tiền đã thu, đã hoàn; CONG_VIEC_26 (2026-11-11): thêm YCAU_NGHIEPVU_52 của MODULE_09 (hoa hồng theo đơn và ví hoa hồng), đối tượng thiết lập hoa hồng sản phẩm, cài đặt hoa hồng chung, hoa hồng của đơn, ví hoa hồng, giao dịch ví, yêu cầu rút tiền (có phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: đánh dấu YCAU_NGHIEPVU_42 (CONG_VIEC_17) đã bỏ, YCAU_NGHIEPVU_46 (CONG_VIEC_21) đã tắt; YCAU_NGHIEPVU_34 bổ sung đơn bán tay chỉ dịch vụ, YCAU_NGHIEPVU_36 bổ sung giao dịch nội bộ chỉ dịch vụ; đối tượng sản phẩm thêm loại, cài đặt bán hàng thêm cho phép lập đơn bán tay có hàng hóa, phiếu dịch vụ tự lập; đối tượng hoa hồng cũ đã bỏ, giao khách đã tắt; CONG_VIEC_50 (2026-11-11): thêm YCAU_NGHIEPVU_86 đến YCAU_NGHIEPVU_90 của MODULE_15 (báo cáo quản trị), không thêm đối tượng nghiệp vụ
 
 ## MODULE_01 Nền tảng
 
@@ -185,6 +185,34 @@
 
 Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md`.
 
+## MODULE_08 Nhân sự (phần 2: Ca làm, chấm công, nghỉ phép, tăng ca, bảng công tháng, CONG_VIEC_47)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_66 | Khai báo ca làm, lịch làm việc theo tuần cho công ty, phòng ban, nhân viên; xếp ca theo ngày; lịch ngày lễ chung tập đoàn và ngày nghỉ riêng của công ty | Nhân sự, Trưởng phòng | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_67 | Ghi nhận giờ vào, giờ ra từ máy chấm công (nhập tệp), ghi thủ công, chấm trên ứng dụng (GPS, mạng công ty, mã QR động, cấu hình theo địa điểm); bổ sung công bằng đơn giải trình qua luồng duyệt | Nhân sự, người lao động | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_68 | Tính công từng ngày theo giờ làm thực tế, ghi đi muộn, về sớm, vắng; giờ làm ban đêm | Nhân sự | Bộ luật Lao động Điều 105, 106 |
+| YCAU_NGHIEPVU_69 | Nghỉ phép đúng luật: loại nghỉ, phép năm cộng dần theo tháng, thâm niên, phép tồn, đơn nghỉ qua luồng duyệt chung | Người lao động, Trưởng phòng, Nhân sự | Bộ luật Lao động Điều 113–115 |
+| YCAU_NGHIEPVU_70 | Tăng ca có đồng ý của người lao động, đăng ký trước qua luồng duyệt, không vượt giới hạn luật | Người lao động, Trưởng phòng, Nhân sự | Bộ luật Lao động Điều 107 |
+| YCAU_NGHIEPVU_71 | Bảng công tháng: người lao động xác nhận hoặc giải trình, nhân sự chốt; đầu vào tính lương | Nhân sự, Kế toán lương, người lao động | Quyết định người dùng 2026-11-11 |
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_47.md`.
+## MODULE_03 Kho (ứng dụng kho trên điện thoại, CONG_VIEC_44)
+
+| Mã | Yêu cầu | Nguồn |
+|---|---|---|
+| YCAU_NGHIEPVU_53 | Thủ kho nhập, xuất, chuyển kho, tra tồn ngay tại kệ trên điện thoại hoặc máy quét cầm tay, quét mã vạch thay gõ tay; kết quả ghi sổ như trên web | CONG_VIEC_05 mục 2; quyết định của người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_54 | Nhiều Thủ kho cùng đếm một đợt kiểm kê bằng quét mã, số đếm cộng dồn không ghi đè lẫn nhau; người đếm không thấy tồn sổ sách; chỉ Quản lý kho lập và kết thúc kiểm kê | CONG_VIEC_05 mục 2; quyết định của người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_55 | Ứng dụng kho dùng chung tài khoản, phân quyền theo chi nhánh, xác thực hai lớp như web; phiên dài để không đăng nhập lại mỗi ca | CONG_VIEC_05 mục 2; quyết định của người dùng 2026-11-11 |
+## MODULE_15 Báo cáo quản trị (phần 1, CONG_VIEC_50)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_86 | Xem doanh số hàng đã giao theo kênh, công ty, sản phẩm, thời gian, gồm đơn VComm; có giá vốn, lãi gộp; tổng tập đoàn không đếm bán nội bộ | Ban điều hành, giám đốc công ty, trưởng phòng kinh doanh | Tài liệu `01` mục 4 (MODULE_15); tài liệu `05` mục 2; quyết định của người dùng 2026-11-11 (CONG_VIEC_50 mục 16) |
+| YCAU_NGHIEPVU_87 | Xem tồn kho và luân chuyển hàng (đầu kỳ, nhập, xuất, cuối kỳ, vòng quay) theo công ty, kho, sản phẩm | Ban điều hành, quản lý kho | Tài liệu `01` mục 4 (MODULE_15); tài liệu `05` mục 2; quyết định của người dùng 2026-11-11 (CONG_VIEC_50 mục 16) |
+| YCAU_NGHIEPVU_88 | Xem công nợ phải thu, phải trả theo tuổi nợ của mọi công ty | Ban điều hành, kế toán trưởng | Tài liệu `01` mục 4 (MODULE_15); tài liệu `05` mục 2; quyết định của người dùng 2026-11-11 (CONG_VIEC_50 mục 16) |
+| YCAU_NGHIEPVU_89 | Xem hoa hồng đã ghi có, đang chờ, rút tiền, số dư ví của người hưởng | Ban điều hành, kế toán trưởng | Tài liệu `01` mục 4 (MODULE_15); tài liệu `05` mục 2; quyết định của người dùng 2026-11-11 (CONG_VIEC_50 mục 16) |
+| YCAU_NGHIEPVU_90 | Lọc theo công ty trong phạm vi quyền (tập đoàn xem mọi công ty, công ty xem công ty mình); xuất Excel đúng số đang xem | Mọi người xem báo cáo | Tài liệu `01` mục 4 (MODULE_15); tài liệu `05` mục 2; quyết định của người dùng 2026-11-11 (CONG_VIEC_50 mục 16) |
 ## MODULE_08 Nhân sự (phần 4: Tuyển dụng, đánh giá hiệu suất, CONG_VIEC_54)
 
 | Mã | Yêu cầu | Người cần | Nguồn |
@@ -323,6 +351,36 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_54.md`.
 | Quyết định công tác | Loại, ngày hiệu lực, số quyết định, phòng ban, chi nhánh, chức danh | Không trùng ngày trong một hồ sơ; đã hiệu lực thì không sửa (CONG_VIEC_46) |
 | Hợp đồng lao động | Số, loại, thời hạn, vị trí, lương, phụ cấp, người ký, trạng thái, ngày ký, bản đã ký, chấm dứt | Không chồng thời gian trong một hồ sơ (CONG_VIEC_46) |
 | Phụ lục hợp đồng | Số, ngày hiệu lực, mục đổi, điều khoản sửa đổi, trạng thái, bản đã ký | Thuộc hợp đồng đã ký; không có thời hạn (CONG_VIEC_46) |
+| Ca làm, lịch tuần, xếp ca | Mã ca, giờ bắt đầu, kết thúc, nghỉ giữa ca, hệ số công; lịch 7 ngày; gán phòng ban hoặc hồ sơ từ ngày; ca từng ngày | Thuộc công ty; mỗi công ty một lịch mặc định (CONG_VIEC_47) |
+| Ngày lễ | Ngày, tên, áp dụng người nước ngoài | Công ty trống là lịch chung tập đoàn (CONG_VIEC_47) |
+| Địa điểm chấm công | Tên, chi nhánh, tọa độ và bán kính, dải IP, mã QR động | Thuộc công ty (CONG_VIEC_47) |
+| Lượt chấm | Hồ sơ, thời điểm (làm tròn phút), nguồn (máy, thủ công, ứng dụng, giải trình), cách xác thực, tọa độ, IP | Không sửa; chỉ lượt thủ công xóa mềm được (CONG_VIEC_47) |
+| Công ngày | Ca, giờ vào, ra, giờ làm, công, muộn, sớm, giờ đêm, nghỉ, tăng ca, trạng thái | Mỗi hồ sơ mỗi ngày một dòng, tính lại khi dữ liệu đổi (CONG_VIEC_47) |
+| Đơn giải trình công | Số, ngày, loại, giờ vào, ra, lý do, tệp, trạng thái | Qua luồng duyệt `hr.attendance_correction` (CONG_VIEC_47) |
+| Loại nghỉ, sổ phép | Loại theo luật hoặc của công ty, nhóm hưởng lương; sổ phép theo năm phát sinh (cộng dần, trừ tháng, nghỉ, điều chỉnh, hết hạn, thanh toán) | Không xóa giao dịch, đảo bằng giao dịch mới (CONG_VIEC_47) |
+| Đơn nghỉ | Số, loại, từ ngày, đến ngày, nửa ngày, số ngày, nguồn, tệp, trạng thái | Qua luồng duyệt `hr.leave_request` hoặc nhân sự ghi nhận (CONG_VIEC_47) |
+| Phiếu tăng ca | Số, ngày, khoảng giờ, số giờ, loại ngày, công việc, địa điểm, đồng ý, văn bản đồng ý, trạng thái | Qua luồng duyệt `hr.overtime_request` (CONG_VIEC_47) |
+| Kỳ và dòng bảng công tháng | Kỳ theo công ty, tháng: trạng thái, hạn xác nhận, chốt, khóa bảng lương; dòng theo hồ sơ: công, nghỉ, tăng ca 7 nhóm, muộn, sớm, phép, xác nhận | Kỳ đã chốt thì dòng đóng băng, là đầu vào CONG_VIEC_48 (CONG_VIEC_47) |
+
+## MODULE_08 Nhân sự (phần 3: Lương, bảo hiểm, thuế thu nhập cá nhân, CONG_VIEC_48)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_72 | Mức lương cơ sở, lương tối thiểu vùng, tỷ lệ bảo hiểm, kinh phí công đoàn, giảm trừ gia cảnh, biểu thuế cấu hình được theo ngày hiệu lực; thay đổi pháp luật không cần sửa phần mềm | Nhân sự, Kế toán trưởng | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_73 | Mỗi nhân viên có mức lương đóng bảo hiểm khai riêng theo thời gian, cách tính thuế (lũy tiến hoặc khấu trừ 10%, có cam kết), miễn đóng loại bảo hiểm theo luật; phụ cấp trên hợp đồng có loại để biết chịu thuế, tính theo ngày công | Nhân sự | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_74 | Tính bảng lương tháng của công ty từ hợp đồng hiện hành, bảng công tháng, khoản cộng thêm, khấu trừ nhập tay; ra lương thực lĩnh, bảo hiểm hai phía, kinh phí công đoàn, thuế | Nhân sự | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_75 | Bảng lương qua luồng duyệt chung trước khi trả | Ban giám đốc, Kế toán trưởng | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_76 | Kế toán nhận bút toán chi phí lương, các khoản phải nộp, phải trả, trả lương đúng chế độ kế toán của công ty | Kế toán | Quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_77 | Nhân viên xem phiếu lương của mình trong hệ thống và nhận qua email | Người lao động | Quyết định người dùng 2026-11-11 |
+
+| Đối tượng nghiệp vụ | Thông tin chính | Ràng buộc |
+|---|---|---|
+| Tham số pháp luật | Lương cơ sở, lương tối thiểu 4 vùng, tỷ lệ bảo hiểm hai phía, hệ số trần, giảm trừ gia cảnh, biểu thuế, ngày hiệu lực | Dùng chung tập đoàn; bộ đã dùng không sửa (CONG_VIEC_48) |
+| Loại phụ cấp | Tên, cách tính thuế, theo ngày công, tính vào đơn giá làm thêm | Theo công ty; dòng phụ cấp hợp đồng chọn loại (CONG_VIEC_48) |
+| Hồ sơ lương | Lương đóng bảo hiểm theo tháng, miễn đóng, cách tính thuế, cam kết 08/CK-TNCN | Thuộc hồ sơ nhân sự (CONG_VIEC_48) |
+| Bảng lương tháng | Tháng, số, trạng thái, dòng lương từng nhân viên, khoản nhập tay, bút toán | Một bảng chưa hủy mỗi công ty mỗi tháng; đã duyệt không sửa (CONG_VIEC_48) |
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_48.md`.
 | Cài đặt lưu giữ dữ liệu ứng viên | Số ngày giữ sau khi không tuyển (mặc định 30, từ 0 đến 90), số tháng giữ trong kho ứng viên (mặc định 12, từ 1 đến 24) | Mỗi công ty một bản ghi; chưa lưu thì dùng mặc định (CONG_VIEC_54) |
 | Nhu cầu tuyển dụng | Số, phòng ban, chi nhánh, chức danh, số lượng, loại hợp đồng dự kiến, lương tối thiểu, tối đa, ngày cần người, lý do, mô tả, trạng thái, số đã tuyển | Thuộc một công ty; qua luồng duyệt; có nhiều tin tuyển dụng (CONG_VIEC_54) |
 | Tin tuyển dụng | Tiêu đề, nơi làm việc, hình thức, mô tả, yêu cầu, quyền lợi, cách hiển thị lương, hạn nộp, email liên hệ, đăng công khai, trạng thái | Thuộc nhu cầu đã duyệt; có nhiều hồ sơ ứng tuyển (CONG_VIEC_54) |

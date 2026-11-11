@@ -66,6 +66,7 @@ Mini app Nền tảng (`apps/web-platform`) là cửa vào chung: chuyển tiế
 | Bán hàng (CONG_VIEC_08) | `apps/web-sales` | `/sales` | 3005 | `SALES_ORIGIN` (`http://localhost:3005`) |
 | Tài chính – Kế toán (CONG_VIEC_13) | `apps/web-finance` | `/finance` | 3006 | `FINANCE_ORIGIN` (`http://localhost:3006`) |
 | Nhân sự (CONG_VIEC_46) | `apps/web-hr` | `/hr` | 3007 | `HR_ORIGIN` (`http://localhost:3007`) |
+| Báo cáo quản trị (CONG_VIEC_50) | `apps/web-analytics` | `/analytics` | 3009 | `ANALYTICS_ORIGIN` (`http://localhost:3009`) |
 
 Chạy riêng mini app Kho: `pnpm --filter web-inventory dev` (cổng 3002), vào qua `http://localhost:3000/inventory` khi mini app Nền tảng và backend đang chạy.
 
@@ -76,6 +77,8 @@ Chạy riêng mini app Mua hàng: `pnpm --filter web-purchasing dev` (cổng 300
 Chạy riêng mini app Bán hàng: `pnpm --filter web-sales dev` (cổng 3005), vào qua `http://localhost:3000/sales` khi mini app Nền tảng và backend đang chạy. Phiếu xuất giao hàng, phiếu nhận hàng trả lại làm ở mini app Kho.
 
 Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance dev` (cổng 3006), vào qua `http://localhost:3000/finance` khi mini app Nền tảng và backend đang chạy. Công nợ tự phát sinh khi ghi sổ phiếu kho ở mini app Kho.
+
+Chạy riêng mini app Báo cáo quản trị: `pnpm --filter web-analytics dev` (cổng 3009), vào qua `http://localhost:3000/analytics` khi mini app Nền tảng và backend đang chạy. Báo cáo chỉ đọc dữ liệu của các module khác.
 
 ## 3b. Thành phần phụ trợ cho MODULE_03 Kho (CONG_VIEC_05)
 
@@ -298,20 +301,20 @@ Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance de
 | Nhắc hết hạn | `ContractRemindersService` (`apps/api/src/hr/contract-reminders.service.ts`); việc nền `hr-contract-reminders` lúc 7 giờ; bảng `hr.contract_reminders` giữ mốc đã gửi | CHUC_NANG_164 |
 | Giao diện | Mini app `apps/web-hr`: trang `/employees`, `/employees/new`, `/employees/[id]`, `/employees/[id]/edit`, `/contracts`, `/contracts/new`, `/contracts/[id]`, `/me` | CHUC_NANG_162 đến CHUC_NANG_164 |
 
-## 3x. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 4: tuyển dụng, đánh giá hiệu suất, CONG_VIEC_54)
+## 3x. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 2, CONG_VIEC_47)
 
 | Thành phần | Công nghệ | Chức năng dùng |
 |---|---|---|
-| Nhu cầu, tin tuyển dụng | `RecruitmentService` (`apps/api/src/hr/recruitment.service.ts`), bộ điều khiển `RecruitmentController` (`apps/api/src/hr/recruitment.controller.ts`, API_200 đến API_203, kiểm `hr.access` rồi quyền chi tiết trong service); luồng duyệt chung (`submitWithin`, `withdraw`, `cancelWithin`; nghe `core.approval.completed`, loại `hr.recruitment_request`); dãy số `hr.recruitment_request` (mặc định `TD`) | CHUC_NANG_190 |
-| Trang tuyển dụng công khai | `CareersController` (`apps/api/src/hr/careers.controller.ts`, API_204) đánh dấu `@Public()` và `@NoRateLimit()` (`apps/api/src/auth/auth.guard.ts`): không đăng nhập, không giới hạn theo IP (THAY_DOI_23); giao diện `apps/web-hr/src/app/careers` ở đường dẫn `/hr/careers`, khung `CareersFrame` thay khung mini app (`HrShell` bỏ qua đường dẫn `/careers`) | CHUC_NANG_190 |
-| Ứng viên, đồng ý, lưu giữ, xóa | `CandidatesService` (`apps/api/src/hr/candidates.service.ts`); tệp qua `FILE_STORAGE` khóa `hr/<công ty>/candidates/<mã ngẫu nhiên>`; kiểm chữ ký đầu tệp PDF, DOCX, JPG, PNG; việc nền `hr-candidate-erasure` lúc 1 giờ (xóa tệp trước, khử nhận dạng trong giao dịch; ứng viên lỗi không chặn ứng viên khác) | CHUC_NANG_191 |
-| Vòng phỏng vấn, email ứng viên | `InterviewsService` (`apps/api/src/hr/interviews.service.ts`); `InterviewerController` (`apps/api/src/hr/interviewer.controller.ts`, `/hr/my-interviews`, chỉ cần là thành viên công ty); mẫu email, tệp lịch iCalendar `invite.ics` (`apps/api/src/hr/recruitment-emails.ts`, SEQUENCE tăng khi đổi giờ, METHOD:CANCEL khi hủy); gửi qua `OUTBOUND_MESSAGES` của Nền tảng, mở rộng tệp đính kèm không bắt buộc (trình ghi log chỉ ghi tên tệp) | CHUC_NANG_191 |
-| Đề nghị nhận việc, lập hồ sơ nhân sự | `JobOffersService` (`apps/api/src/hr/job-offers.service.ts`); luồng duyệt chung loại `hr.job_offer`, dãy số `DNNV`; liên kết trả lời: mã 32 byte ngẫu nhiên (`randomBytes`), chỉ lưu mã băm SHA-256; `OfferAnswersController` (`apps/api/src/hr/offer-answers.controller.ts`, `/job-offer-responses/{mã}`) `@Public()` giữ giới hạn 20 yêu cầu mỗi phút mỗi IP; lập hồ sơ qua `EmployeesService.create` với tham số `afterCreate` (cùng giao dịch: liên kết hồ sơ ứng tuyển, chép sơ yếu lý lịch, khóa nhu cầu `FOR UPDATE` tăng số đã tuyển); việc nền `hr-recruitment-daily` lúc 0 giờ 10 phút (đóng tin quá hạn, đề nghị hết hạn) | CHUC_NANG_190, CHUC_NANG_191 |
-| Đánh giá hiệu suất | `ReviewsService` (`apps/api/src/hr/reviews.service.ts`), `ReviewsController` (`apps/api/src/hr/reviews.controller.ts`, API_205; quyền `hr.review.manage`, người chấm, nhân viên kiểm trong service); việc nền `hr-review-reminders` lúc 8 giờ, bảng `hr.review_reminders` giữ lần đã nhắc | CHUC_NANG_192 |
-| Giao diện | Mini app `apps/web-hr`: trang `/recruitment`, `/recruitment/[id]`, `/recruitment/postings/[id]`, `/candidates`, `/candidates/[id]`, `/candidates/[id]/hire`, `/interviews`, `/interviews/[id]`, `/careers`, `/careers/[id]`, `/careers/offers/[token]`, `/reviews`, `/reviews/[id]`, `/my-reviews`, `/my-reviews/[id]`; menu `HrShell` thêm Tuyển dụng, Ứng viên, Phỏng vấn của tôi, Đánh giá hiệu suất, Đánh giá của tôi | CHUC_NANG_190 đến CHUC_NANG_192 |
+| Thiết lập chấm công | `AttendanceSetupService` (`apps/api/src/hr/attendance-setup.service.ts`): cài đặt, ca, lịch tuần, gán lịch, xếp ca, ngày lễ | CHUC_NANG_165 |
+| Lượt chấm, công ngày | `AttendanceService`, `AttendanceDaysService`, hàm thuần `attendance-calculator.ts` (tính công, giờ đêm, tăng ca); đọc CSV tự viết, Excel bằng `read-excel-file`; việc nền `hr-attendance-recalculate` lúc 1 giờ | CHUC_NANG_165 |
+| Chấm công ứng dụng | `AttendanceLocationsService` (mã QR ký HMAC-SHA256 bằng khóa dẫn xuất từ `MFA_SECRET_KEY`, khung 30 giây, nhận khung liền trước; khoảng cách theo công thức haversine; so dải CIDR), `MyAttendanceService`; trình duyệt dùng API định vị, `qrcode-generator` vẽ mã | CHUC_NANG_165 |
+| Quyền theo phạm vi | `attendance-access.ts`: quyền bao trùm công ty hoặc trưởng phòng (phòng ban đệ quy theo `core.departments.manager_user_id`) | CHUC_NANG_165 đến CHUC_NANG_167 |
+| Nghỉ phép | `LeaveService` (luồng duyệt `hr.leave_request`, sổ phép); việc nền `hr-leave-accrual` lúc 0 giờ 15 phút (cộng phép tháng, hết hạn phép tồn) | CHUC_NANG_166 |
+| Tăng ca | `OvertimeService` (luồng duyệt `hr.overtime_request`, kiểm giới hạn, thông báo đồng ý, nhắc vượt 200 giờ) | CHUC_NANG_167 |
+| Bảng công tháng | `TimesheetsService` (tổng hợp dòng, xác nhận, chốt, mở lại, xuất Excel `write-excel-file`; phát `hr.timesheet.closed`, `hr.timesheet.reopened`); việc nền `hr-timesheet-confirmation` lúc 0 giờ 30 phút | CHUC_NANG_167 |
+| Giao diện | `apps/web-hr`: `/attendance`, `/work-schedules`, `/work-schedules/qr/[id]`, `/my-attendance`, `/leave`, `/overtime`, `/timesheets` | CHUC_NANG_165 đến CHUC_NANG_167 |
 
-Việc nền mới đăng ký trong `apps/api/src/jobs/background-jobs.ts` (BullMQ, múi giờ `Asia/Ho_Chi_Minh`): `hr-recruitment-daily` (`10 0 * * *`), `hr-candidate-erasure` (`0 1 * * *`), `hr-review-reminders` (`0 8 * * *`). Module chỉ ghi schema `hr`; không thêm thư viện.
-
+CONG_VIEC_48 (lương) đọc `hr.timesheet_lines` của kỳ đã chốt, ghi `hr.timesheet_periods.payroll_locked_at` khi chốt lương; nghe `hr.timesheet.closed`, `hr.timesheet.reopened`.
 ## 5. Sao lưu, phục hồi, ghi log, giám sát
 
 - Sao lưu: Aurora tự sao lưu hằng ngày, giữ 35 ngày, phục hồi về một thời điểm bất kỳ trong khoảng đó; sao lưu được mã hóa.
@@ -354,3 +357,29 @@ tai_lieu/               Bộ tài liệu dự án.
 |---|---|
 | Mục 4 | Có môi trường thử nghiệm (staging) riêng; môi trường thật chạy tối thiểu 2 bản mỗi dịch vụ, Aurora nhiều vùng sẵn sàng |
 | Mục 5 | Giữ sao lưu 35 ngày; diễn tập phục hồi mỗi quý |
+
+## 3x. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Thiết lập lương | `PayrollSetupService` (`apps/api/src/hr/payroll-setup.service.ts`); bảng tham số dùng chung tập đoàn trong schema `hr` | CHUC_NANG_168 |
+| Tính lương | Hàm thuần `calculateLine` (`apps/api/src/hr/payroll-calculation.ts`), tiền bằng `bigint` | CHUC_NANG_169 |
+| Bảng lương | `PayrollsService` (`apps/api/src/hr/payrolls.service.ts`); luồng duyệt chung (loại `hr.payroll`, nghe `core.approval.completed`); dãy số `BL`; xuất Excel bằng `write-excel-file` | CHUC_NANG_169 |
+| Đọc bảng công | `PayrollTimesheetReader` (`apps/api/src/hr/payroll-timesheet.ts`), token `PAYROLL_TIMESHEET`; đọc bảng công tháng của CONG_VIEC_47 | CHUC_NANG_169 |
+| Bút toán lương | `payrollDraft`, `payrollPaymentDraft` (`apps/api/src/accounting/postings.ts`) ghi qua `LedgerService.record`; vai trò định khoản mới theo Thông tư 99/2025, Thông tư 133 | CHUC_NANG_170 |
+| Phiếu lương | Thông báo chuông (`notify`), email qua `OUTBOUND_MESSAGES` sau khi giao dịch duyệt xong | CHUC_NANG_170 |
+| Giao diện | Mini app `apps/web-hr`: `/payrolls`, `/payrolls/[id]`, `/payroll-settings`, thẻ "Lương, thuế" của `/employees/[id]`, thẻ "Phiếu lương" của `/me` | CHUC_NANG_168 đến CHUC_NANG_170 |
+
+## 3y. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 4: tuyển dụng, đánh giá hiệu suất, CONG_VIEC_54)
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Nhu cầu, tin tuyển dụng | `RecruitmentService` (`apps/api/src/hr/recruitment.service.ts`), bộ điều khiển `RecruitmentController` (`apps/api/src/hr/recruitment.controller.ts`, API_200 đến API_203, kiểm `hr.access` rồi quyền chi tiết trong service); luồng duyệt chung (`submitWithin`, `withdraw`, `cancelWithin`; nghe `core.approval.completed`, loại `hr.recruitment_request`); dãy số `hr.recruitment_request` (mặc định `TD`) | CHUC_NANG_190 |
+| Trang tuyển dụng công khai | `CareersController` (`apps/api/src/hr/careers.controller.ts`, API_204) đánh dấu `@Public()` và `@NoRateLimit()` (`apps/api/src/auth/auth.guard.ts`): không đăng nhập, không giới hạn theo IP (THAY_DOI_23); giao diện `apps/web-hr/src/app/careers` ở đường dẫn `/hr/careers`, khung `CareersFrame` thay khung mini app (`HrShell` bỏ qua đường dẫn `/careers`) | CHUC_NANG_190 |
+| Ứng viên, đồng ý, lưu giữ, xóa | `CandidatesService` (`apps/api/src/hr/candidates.service.ts`); tệp qua `FILE_STORAGE` khóa `hr/<công ty>/candidates/<mã ngẫu nhiên>`; kiểm chữ ký đầu tệp PDF, DOCX, JPG, PNG; việc nền `hr-candidate-erasure` lúc 1 giờ (xóa tệp trước, khử nhận dạng trong giao dịch; ứng viên lỗi không chặn ứng viên khác) | CHUC_NANG_191 |
+| Vòng phỏng vấn, email ứng viên | `InterviewsService` (`apps/api/src/hr/interviews.service.ts`); `InterviewerController` (`apps/api/src/hr/interviewer.controller.ts`, `/hr/my-interviews`, chỉ cần là thành viên công ty); mẫu email, tệp lịch iCalendar `invite.ics` (`apps/api/src/hr/recruitment-emails.ts`, SEQUENCE tăng khi đổi giờ, METHOD:CANCEL khi hủy); gửi qua `OUTBOUND_MESSAGES` của Nền tảng, mở rộng tệp đính kèm không bắt buộc (trình ghi log chỉ ghi tên tệp) | CHUC_NANG_191 |
+| Đề nghị nhận việc, lập hồ sơ nhân sự | `JobOffersService` (`apps/api/src/hr/job-offers.service.ts`); luồng duyệt chung loại `hr.job_offer`, dãy số `DNNV`; liên kết trả lời: mã 32 byte ngẫu nhiên (`randomBytes`), chỉ lưu mã băm SHA-256; `OfferAnswersController` (`apps/api/src/hr/offer-answers.controller.ts`, `/job-offer-responses/{mã}`) `@Public()` giữ giới hạn 20 yêu cầu mỗi phút mỗi IP; lập hồ sơ qua `EmployeesService.create` với tham số `afterCreate` (cùng giao dịch: liên kết hồ sơ ứng tuyển, chép sơ yếu lý lịch, khóa nhu cầu `FOR UPDATE` tăng số đã tuyển); việc nền `hr-recruitment-daily` lúc 0 giờ 10 phút (đóng tin quá hạn, đề nghị hết hạn) | CHUC_NANG_190, CHUC_NANG_191 |
+| Đánh giá hiệu suất | `ReviewsService` (`apps/api/src/hr/reviews.service.ts`), `ReviewsController` (`apps/api/src/hr/reviews.controller.ts`, API_205; quyền `hr.review.manage`, người chấm, nhân viên kiểm trong service); việc nền `hr-review-reminders` lúc 8 giờ, bảng `hr.review_reminders` giữ lần đã nhắc | CHUC_NANG_192 |
+| Giao diện | Mini app `apps/web-hr`: trang `/recruitment`, `/recruitment/[id]`, `/recruitment/postings/[id]`, `/candidates`, `/candidates/[id]`, `/candidates/[id]/hire`, `/interviews`, `/interviews/[id]`, `/careers`, `/careers/[id]`, `/careers/offers/[token]`, `/reviews`, `/reviews/[id]`, `/my-reviews`, `/my-reviews/[id]`; menu `HrShell` thêm Tuyển dụng, Ứng viên, Phỏng vấn của tôi, Đánh giá hiệu suất, Đánh giá của tôi | CHUC_NANG_190 đến CHUC_NANG_192 |
+
+Việc nền mới đăng ký trong `apps/api/src/jobs/background-jobs.ts` (BullMQ, múi giờ `Asia/Ho_Chi_Minh`): `hr-recruitment-daily` (`10 0 * * *`), `hr-candidate-erasure` (`0 1 * * *`), `hr-review-reminders` (`0 8 * * *`). Module chỉ ghi schema `hr`; không thêm thư viện.
