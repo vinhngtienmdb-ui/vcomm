@@ -3,7 +3,7 @@
 - Mô tả: Mini app Báo cáo quản trị (`web-analytics`) cho toàn tập đoàn, chỉ đọc dữ liệu đã có: doanh số bán hàng (theo kênh, công ty, sản phẩm, thời gian, gồm đơn VComm), tồn kho và luân chuyển, công nợ phải thu, phải trả theo tuổi nợ, hoa hồng và ví; lọc theo công ty con trong phạm vi quyền; xuất Excel.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Chờ nghiệm thu.
+- Trạng thái: Đã nghiệm thu 2026-11-11, chờ phát hành (tồn đọng: giao diện chưa có kiểm thử tự động).
 - Mức: Lớn (module mới, mini app mới, quyền mới, dữ liệu nhiều công ty).
 - Nhánh: `chuc-nang/CONG_VIEC_50-bao-cao-quan-tri` tách từ `origin/main`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_15), `05` mục 2 (MODULE_15 Báo cáo quản trị toàn tập đoàn); quyết định của người dùng ngày 2026-11-11 (mục 16).
