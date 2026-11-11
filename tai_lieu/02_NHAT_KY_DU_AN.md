@@ -26,7 +26,7 @@
   - Hoàn tiền: kế toán chuyển khoản, ghi nhận trên hệ thống (người mua nhập tài khoản ngân hàng trên ứng dụng); áp dụng mọi cổng và COD.
   - Phí giao hàng: doanh thu cung cấp dịch vụ (5113), thuế giá trị gia tăng 10%, lên hóa đơn điện tử.
   - Đơn VComm gắn tài khoản người mua trên ứng dụng, không tạo đối tác khách hàng, không phát sinh công nợ; tiền thu theo dõi trong sổ thanh toán của đơn VComm.
-  - Đối soát COD với GHN: lấy qua API GHN.
+  - Đối soát COD với GHN: lấy qua API GHN. Sau khi người dùng gửi tài liệu GHN (developer.ghn.vn): GHN đã thu tiền người mua (`cod_collect_date` trong chi tiết đơn, callback) thì đơn VComm tự ghi đã thu; tiền, phí, bút toán làm bằng tệp đối soát GHN ở CONG_VIEC_19 như hiện có (GHN không có API bảng đối soát).
   - Công tắc mở đặt hàng cho mọi người mua: quản trị bật trên web (quyền quản lý đơn VComm), chỉ bật khi có phương thức thanh toán đang bật.
   - Xác nhận thiết kế: năm lát L0 đến L4, xem trước từng lát, không làm bản mẫu riêng.
 - CONG_VIEC_24 (người dùng, 2026-11-11):
