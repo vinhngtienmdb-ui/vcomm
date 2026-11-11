@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_157 Chi tiết công văn đến (CHUC_NANG_184; API_190): trình lãnh đạo, giao xử lý thành công việc, chuyển, lưu, hủy, vào sổ liên công ty.
+// MAN_HINH_157 Chi tiết công văn đến (CHUC_NANG_184; API_188): trình lãnh đạo, giao xử lý thành công việc, chuyển, lưu, hủy, vào sổ liên công ty.
 import type { DocumentOptions, IncomingResponse, OfficePerson } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";

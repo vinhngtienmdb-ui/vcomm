@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_160 Cài đặt công văn (CHUC_NANG_184, CHUC_NANG_185; API_189): thể thức, sổ công văn, loại văn bản và chữ viết tắt.
+// MAN_HINH_160 Cài đặt công văn (CHUC_NANG_184; API_190): thể thức, sổ công văn, loại văn bản và chữ viết tắt.
 import type { DocumentSettings, DocumentTypeItem, RegisterItem } from "contracts";
 import { useTranslations } from "next-intl";
 import { useState } from "react";

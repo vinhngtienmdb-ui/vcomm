@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_158 Công văn đi (CHUC_NANG_185; API_188, API_190): sổ theo năm, trạng thái, soạn mới, xuất sổ.
+// MAN_HINH_158 Công văn đi (CHUC_NANG_184; API_189, API_190): sổ theo năm, trạng thái, soạn mới, xuất sổ.
 import type { DocumentOptions, OutgoingListItem, PageResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";

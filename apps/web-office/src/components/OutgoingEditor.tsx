@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_158 Soạn công văn đi theo thể thức Nghị định 30 (CHUC_NANG_185; API_190): soạn trực tiếp hoặc tải dự thảo; dùng cho tạo mới và sửa.
+// MAN_HINH_158 Soạn công văn đi theo thể thức Nghị định 30 (CHUC_NANG_184; API_189): soạn trực tiếp hoặc tải dự thảo; dùng cho tạo mới và sửa.
 import { documentUrgencies, signerAuthorities, type DocumentOptions, type DocumentParagraph, type OfficePerson, type OutgoingResponse, type SaveOutgoingInput } from "contracts";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";

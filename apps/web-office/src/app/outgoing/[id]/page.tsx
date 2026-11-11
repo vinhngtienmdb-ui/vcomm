@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_158 Chi tiết công văn đi (CHUC_NANG_185; API_190): xem trước theo thể thức, trình, rút, quyết định, cấp số, phát hành, hủy; tải PDF, Word.
+// MAN_HINH_158 Chi tiết công văn đi (CHUC_NANG_184; API_189): xem trước theo thể thức, trình, rút, quyết định, cấp số, phát hành, hủy; tải PDF, Word.
 import type { OutgoingResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
