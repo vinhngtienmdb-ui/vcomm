@@ -1,18 +1,23 @@
 "use client";
 
 // Tải dữ liệu một lần và tải lại khi cần; phân biệt chưa đăng nhập, không có quyền, không tìm thấy, lỗi.
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { apiFetch, ApiFailure } from "./api";
 
 export type Loadable<T> = { kind: "loading" } | { kind: "forbidden" } | { kind: "notFound" } | { kind: "error" } | { kind: "ready"; data: T };
 
 export function useApi<T>(path: string | null): { state: Loadable<T>; reload: () => Promise<void> } {
   const [state, setState] = useState<Loadable<T>>({ kind: "loading" });
+  // Chỉ nhận phản hồi của lần gọi mới nhất: đổi đường dẫn nhanh (đổi bộ lọc) thì phản hồi cũ về sau bị bỏ (LOI_04).
+  const latest = useRef(0);
   const reload = useCallback(async () => {
     if (!path) return;
+    const call = ++latest.current;
     try {
-      setState({ kind: "ready", data: await apiFetch<T>(path) });
+      const data = await apiFetch<T>(path);
+      if (call === latest.current) setState({ kind: "ready", data });
     } catch (error) {
+      if (call !== latest.current) return;
       const status = error instanceof ApiFailure ? error.status : 0;
       // Đường dẫn tuyệt đối: trang đăng nhập thuộc mini app Nền tảng, mini app khác có tiền tố đường dẫn riêng.
       if (status === 401) window.location.replace(error instanceof ApiFailure && error.body?.code === "MFA_REQUIRED" ? "/xac-thuc" : "/dang-nhap");
