@@ -3653,7 +3653,11 @@
     "vnpay_atm": "Thẻ ATM nội địa",
     "vnpay_card": "Thẻ quốc tế Visa, Mastercard",
     "gateway_cod": "Thu hộ khi giao",
-    "gateway_vnpay": "VNPAY"
+    "gateway_vnpay": "VNPAY",
+    "gpay_atm": "Thẻ ATM, tài khoản ngân hàng nội địa (G-Pay)",
+    "gpay_international": "Thẻ quốc tế Visa, Mastercard (G-Pay)",
+    "gpay_va": "Chuyển khoản tài khoản ảo (G-Pay)",
+    "gateway_gpay": "G-Pay"
   },
   "refunds": {
     "title": "Hoàn tiền đơn VComm",
