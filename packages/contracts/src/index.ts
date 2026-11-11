@@ -4251,7 +4251,7 @@ export const buyerAddressSchema = z
   .strict();
 
 // API_126, API_127: đơn VComm (QUYTAC_NGHIEPVU_158, 159, 162).
-export const marketplaceOrderStatuses = ["awaiting_shipment", "awaiting_pickup", "shipping", "delivered", "completed", "cancelled"] as const;
+export const marketplaceOrderStatuses = ["awaiting_payment", "awaiting_shipment", "awaiting_pickup", "shipping", "delivered", "completed", "cancelled"] as const;
 export type MarketplaceOrderStatus = (typeof marketplaceOrderStatuses)[number];
 
 const orderLinesInput = z.array(z.object({ variantId: z.uuid(), quantity: z.number().int().min(1).max(999) }).strict()).min(1).max(50);
@@ -4302,6 +4302,27 @@ export interface BuyerOrderListItem {
   imageUrl: string | null;
 }
 
+// CONG_VIEC_25: trạng thái thanh toán của đơn (QUYTAC_NGHIEPVU_167), tính từ tiền đã thu, đã hoàn, việc chờ hoàn.
+export const orderPaymentStatuses = ["unpaid", "paid", "refund_pending", "partially_refunded", "refunded"] as const;
+export type OrderPaymentStatus = (typeof orderPaymentStatuses)[number];
+
+// API_131: mở trang thanh toán của cổng.
+export interface BuyerPaymentStart {
+  paymentUrl: string;
+  deadline: string;
+}
+
+export interface MarketplacePaymentItem {
+  reference: string;
+  method: PaymentMethodCode;
+  amount: string;
+  status: "pending" | "succeeded" | "failed";
+  responseCode: string | null;
+  transactionNo: string | null;
+  createdAt: string;
+  completedAt: string | null;
+}
+
 export interface BuyerOrderDetail extends BuyerOrderListItem {
   recipientName: string;
   recipientPhone: string;
@@ -4310,6 +4331,12 @@ export interface BuyerOrderDetail extends BuyerOrderListItem {
   goodsAmount: string;
   shippingFee: string;
   paymentMethod: PaymentMethodCode;
+  paymentStatus: OrderPaymentStatus;
+  paidAmount: string;
+  refundedAmount: string;
+  // Hạn thanh toán của đơn chờ thanh toán; quá hạn đơn tự hủy.
+  paymentDeadline: string | null;
+  canPay: boolean;
   carrierName: string | null;
   trackingCode: string | null;
   deliveredAt: string | null;
@@ -4351,6 +4378,7 @@ export interface MarketplaceOrderDetail extends BuyerOrderDetail {
   buyerPhone: string;
   salesOrderId: string;
   shipments: MarketplaceShipmentItem[];
+  payments: MarketplacePaymentItem[];
   canShip: boolean;
   canRefreshShipment: boolean;
   carriers: CarrierItem[];

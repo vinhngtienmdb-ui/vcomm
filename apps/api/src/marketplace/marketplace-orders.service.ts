@@ -10,6 +10,7 @@ import type {
   MarketplaceOrderListItem,
   MarketplaceOrderStatus,
   PageResponse,
+  OrderPaymentStatus,
   PaymentMethodCode,
 } from "contracts";
 import { sql } from "drizzle-orm";
@@ -47,6 +48,10 @@ type OrderRow = {
   shipping_fee: string;
   cod_amount: string;
   payment_method: PaymentMethodCode;
+  payment_deadline: Date | null;
+  paid_amount: string;
+  refunded_amount: string;
+  pending_refund_amount: string;
   status: MarketplaceOrderStatus;
   delivered_at: Date | null;
   completed_at: Date | null;
@@ -69,7 +74,8 @@ const iso = (value: Date | null) => (value ? new Date(value).toISOString() : nul
 
 const orderSelect = sql`
   SELECT m.id, m.sales_order_id, so.document_no, m.buyer_user_id, u.full_name AS buyer_name, u.phone AS buyer_phone, m.recipient_name, m.recipient_phone, m.province_name,
-    m.ward_name, m.street_address, m.goods_amount::text, m.shipping_fee::text, m.cod_amount::text, m.payment_method, m.status, m.delivered_at, m.completed_at, m.completed_amount::text,
+    m.ward_name, m.street_address, m.goods_amount::text, m.shipping_fee::text, m.cod_amount::text, m.payment_method, m.payment_deadline, m.paid_amount::text, m.refunded_amount::text,
+    (SELECT coalesce(sum(f.amount), 0)::text FROM marketplace.refunds f WHERE f.order_id = m.id AND f.status = 'pending') AS pending_refund_amount, m.status, m.delivered_at, m.completed_at, m.completed_amount::text,
     m.cancel_reason, m.created_at, m.version,
     (SELECT count(*)::int FROM sales.order_lines l WHERE l.order_id = so.id AND NOT l.is_gift) AS item_count,
     (SELECT p.name FROM sales.order_lines l JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id
@@ -91,8 +97,26 @@ const listItem = (row: OrderRow): BuyerOrderListItem => ({
   imageUrl: shopImagePath(row.first_image_id),
 });
 
-// Hủy được khi chưa có đơn vị vận chuyển lấy hàng (QUYTAC_NGHIEPVU_159).
-export const cancellableStatuses: MarketplaceOrderStatus[] = ["awaiting_shipment", "awaiting_pickup"];
+// Hủy được khi chưa có đơn vị vận chuyển lấy hàng (QUYTAC_NGHIEPVU_159), kể cả đơn chờ thanh toán (QUYTAC_NGHIEPVU_165).
+export const cancellableStatuses: MarketplaceOrderStatus[] = ["awaiting_payment", "awaiting_shipment", "awaiting_pickup"];
+// Đơn thanh toán trực tuyến giữ hàng 15 phút (QUYTAC_NGHIEPVU_165).
+export const paymentWindowMinutes = 15;
+
+// Trạng thái thanh toán (QUYTAC_NGHIEPVU_167).
+export function paymentStatusOf(paid: number, refunded: number, pendingRefund: number): OrderPaymentStatus {
+  if (pendingRefund > 0) return "refund_pending";
+  if (refunded > 0) return refunded >= paid ? "refunded" : "partially_refunded";
+  return paid > 0 ? "paid" : "unpaid";
+}
+
+// Lập việc chờ hoàn phần tiền đã thu chưa hoàn, chưa có việc chờ hoàn (hủy đơn đã thu tiền; QUYTAC_NGHIEPVU_168).
+export async function refundRemainingPaid(executor: Pick<Database, "execute">, orderId: string, reason: "order_cancelled" | "paid_after_cancel"): Promise<void> {
+  await executor.execute(sql`
+    INSERT INTO marketplace.refunds (order_id, reason, amount)
+    SELECT m.id, ${reason}, m.paid_amount - m.refunded_amount - coalesce((SELECT sum(f.amount) FROM marketplace.refunds f WHERE f.order_id = m.id AND f.status = 'pending'), 0)
+    FROM marketplace.orders m WHERE m.id = ${orderId}
+      AND m.paid_amount - m.refunded_amount - coalesce((SELECT sum(f.amount) FROM marketplace.refunds f WHERE f.order_id = m.id AND f.status = 'pending'), 0) > 0`);
+}
 
 // Hủy vận đơn khi hủy đơn đang chờ lấy hàng; đăng ký ở lát vận chuyển (ShipmentsService).
 export interface ShipmentCanceller {
@@ -187,8 +211,7 @@ export class MarketplaceOrdersService {
     const context = await this.storeContext();
     if (!context.orderingOpen && !account.isTestBuyer) throw new ApiError("BUSINESS_RULE", "orderingNotOpen");
     if (!(await enabledPaymentMethods(this.database)).includes(input.paymentMethod)) throw new ApiError("BUSINESS_RULE", "paymentMethodUnavailable");
-    // Thanh toán trực tuyến làm ở lát L1.
-    if (isOnlineMethod(input.paymentMethod)) throw new ApiError("BUSINESS_RULE", "paymentMethodUnavailable");
+    const online = isOnlineMethod(input.paymentMethod);
     const actor: Actor = { userId, companyId: context.companyId, client };
     await this.salesOrders.prepareNumbering(actor);
     const orderId = await this.database.transaction(async (transaction) => {
@@ -228,11 +251,12 @@ export class MarketplaceOrdersService {
       const id = (
         await transaction.execute<{ id: string }>(sql`
         INSERT INTO marketplace.orders (sales_order_id, company_id, buyer_user_id, recipient_name, recipient_phone, province_code, province_name, ward_code, ward_name, street_address,
-          goods_amount, shipping_fee, cod_amount, payment_method)
+          goods_amount, shipping_fee, cod_amount, payment_method, status, payment_deadline)
         VALUES (${sale.orderId}, ${context.companyId}, ${userId}, ${address.recipient_name}, ${address.phone}, ${address.province_code}, ${address.province_name}, ${address.ward_code},
-          ${address.ward_name}, ${address.street_address}, ${quoted.goods}, ${quoted.shippingFee}, ${input.paymentMethod === "cod" ? total : 0}, ${input.paymentMethod}) RETURNING id`)
+          ${address.ward_name}, ${address.street_address}, ${quoted.goods}, ${quoted.shippingFee}, ${online ? 0 : total}, ${input.paymentMethod},
+          ${online ? "awaiting_payment" : "awaiting_shipment"}, ${online ? sql`now() + make_interval(mins => ${paymentWindowMinutes})` : null}) RETURNING id`)
       ).rows[0]!.id;
-      await this.event(transaction, id, "awaiting_shipment", null, userId);
+      await this.event(transaction, id, online ? "awaiting_payment" : "awaiting_shipment", null, userId);
       await transaction.execute(sql`
         DELETE FROM marketplace.cart_lines WHERE buyer_user_id = ${userId} AND variant_id IN (${sql.join(
           input.lines.map((line) => sql`${line.variantId}::uuid`),
@@ -293,6 +317,11 @@ export class MarketplaceOrdersService {
       goodsAmount: trimDecimal(row.goods_amount),
       shippingFee: trimDecimal(row.shipping_fee),
       paymentMethod: row.payment_method,
+      paymentStatus: paymentStatusOf(Number(row.paid_amount), Number(row.refunded_amount), Number(row.pending_refund_amount)),
+      paidAmount: trimDecimal(row.paid_amount),
+      refundedAmount: trimDecimal(row.refunded_amount),
+      paymentDeadline: row.status === "awaiting_payment" ? iso(row.payment_deadline) : null,
+      canPay: row.status === "awaiting_payment" && row.payment_deadline !== null && new Date(row.payment_deadline).getTime() > Date.now(),
       carrierName: row.carrier_code ? carrierNames[row.carrier_code] : null,
       trackingCode: row.tracking_code,
       deliveredAt: iso(row.delivered_at),
@@ -337,6 +366,7 @@ export class MarketplaceOrdersService {
       await transaction.execute(sql`
         UPDATE marketplace.orders SET status = 'cancelled', cancel_reason = ${reason}, cancelled_by_kind = ${kind}, version = version + 1 WHERE id = ${orderId}`);
       await this.event(transaction, orderId, "cancelled", reason, actor.userId);
+      await refundRemainingPaid(transaction, orderId, "order_cancelled");
     });
   }
 
@@ -393,6 +423,16 @@ export class MarketplaceOrdersService {
       synced_at: Date;
     }>(sql`SELECT carrier_code, tracking_code, carrier_status, fee::text, is_active, created_at, synced_at FROM marketplace.shipments WHERE order_id = ${orderId} ORDER BY created_at`);
     const carriers = await this.database.execute<{ code: CarrierCode; is_enabled: boolean }>(sql`SELECT code, is_enabled FROM marketplace.carriers ORDER BY code`);
+    const payments = await this.database.execute<{
+      reference: string;
+      method: PaymentMethodCode;
+      amount: string;
+      status: "pending" | "succeeded" | "failed";
+      response_code: string | null;
+      gateway_transaction_no: string | null;
+      created_at: Date;
+      completed_at: Date | null;
+    }>(sql`SELECT reference, method, amount::text, status, response_code, gateway_transaction_no, created_at, completed_at FROM marketplace.payments WHERE order_id = ${orderId} ORDER BY created_at`);
     const detail = await this.detailOf(row);
     return {
       ...detail,
@@ -410,6 +450,16 @@ export class MarketplaceOrdersService {
         isActive: shipment.is_active,
         createdAt: iso(shipment.created_at)!,
         syncedAt: iso(shipment.synced_at)!,
+      })),
+      payments: payments.rows.map((payment) => ({
+        reference: payment.reference,
+        method: payment.method,
+        amount: trimDecimal(payment.amount),
+        status: payment.status,
+        responseCode: payment.response_code,
+        transactionNo: payment.gateway_transaction_no,
+        createdAt: iso(payment.created_at)!,
+        completedAt: iso(payment.completed_at),
       })),
       canShip: canManage && row.status === "awaiting_shipment" && !shipments.rows.some((shipment) => shipment.is_active),
       canRefreshShipment: canManage && shipments.rows.some((shipment) => shipment.is_active) && ["awaiting_shipment", "awaiting_pickup", "shipping"].includes(row.status),

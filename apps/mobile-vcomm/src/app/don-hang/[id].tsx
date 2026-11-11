@@ -1,6 +1,8 @@
 // MAN_HINH_96 Chi tiết đơn (CHUC_NANG_116; API_126; QUYTAC_NGHIEPVU_159): trạng thái, vận đơn, dòng hàng, tiền, lịch sử, hủy đơn.
-import type { BuyerOrderDetail } from "contracts";
+// MAN_HINH_99 khối Thanh toán (CONG_VIEC_25; API_131; QUYTAC_NGHIEPVU_165, 167): hạn thanh toán, mở trang VNPAY, thanh toán lại, trạng thái thanh toán.
+import type { BuyerOrderDetail, BuyerPaymentStart } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import * as Linking from "expo-linking";
 import { useCallback, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { AmountRow, OrderLines, orderStatusTone } from "@/components/OrderLines";
@@ -22,6 +24,8 @@ export default function OrderScreen() {
   const [cancelling, setCancelling] = useState(false);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [paymentOpened, setPaymentOpened] = useState(false);
 
   const load = useCallback(() => {
     api<BuyerOrderDetail>(`/buyer/orders/${encodeURIComponent(String(id))}`)
@@ -37,6 +41,23 @@ export default function OrderScreen() {
       load();
     } catch (failure) {
       setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
+    }
+  }
+
+  // Mở trang VNPAY; thanh toán xong người mua quay lại và kiểm tra lại trạng thái.
+  async function pay() {
+    if (!order) return;
+    setPaying(true);
+    setError(null);
+    try {
+      const started = await api<BuyerPaymentStart>(`/buyer/orders/${order.id}/payments`, { method: "POST" });
+      await Linking.openURL(started.paymentUrl);
+      setPaymentOpened(true);
+    } catch (failure) {
+      setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
+      load();
+    } finally {
+      setPaying(false);
     }
   }
 
@@ -89,8 +110,19 @@ export default function OrderScreen() {
               <AmountRow label={t("goodsAmount")} value={money(order.goodsAmount)} />
               <AmountRow label={t("shippingFee")} value={Number(order.shippingFee) === 0 ? t("free") : money(order.shippingFee)} />
               <AmountRow label={t("orderTotal")} value={money(order.total)} strong />
-              <Muted>{t("paidBy", { method: method(order.paymentMethod) })}</Muted>
+              <Muted>{`${t("paidBy", { method: method(order.paymentMethod) })} · ${t(`paymentStatus_${order.paymentStatus}`)}`}</Muted>
+              {Number(order.paidAmount) > 0 ? <Muted>{t("paidAmountLine", { amount: money(order.paidAmount) })}</Muted> : null}
+              {Number(order.refundedAmount) > 0 ? <Muted>{t("refundedAmountLine", { amount: money(order.refundedAmount) })}</Muted> : null}
             </Card>
+            {order.canPay && order.paymentDeadline ? (
+              <Card>
+                <Text style={{ fontWeight: "700", color: colors.text }}>{method(order.paymentMethod)}</Text>
+                <Notice tone="warning" text={t("payBefore", { time: dateTime(order.paymentDeadline) })} />
+                {paymentOpened ? <Notice tone="info" text={t("paymentOpened")} /> : null}
+                <Button label={paymentOpened ? t("payAgain") : t("payNow")} busy={paying} onPress={() => void pay()} />
+                {paymentOpened ? <Button label={t("checkPayment")} kind="secondary" onPress={load} /> : null}
+              </Card>
+            ) : null}
             <Card>
               <Text style={{ fontWeight: "700", color: colors.text }}>{t("orderHistory")}</Text>
               {order.events.map((event, index) => (

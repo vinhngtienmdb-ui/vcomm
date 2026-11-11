@@ -108,6 +108,7 @@ function Actions({ order, onSaved }: { order: MarketplaceOrderDetail; onSaved: (
 
 export default function MarketplaceOrderPage() {
   const t = useTranslations("marketplaceOrders");
+  const method = useTranslations("paymentMethods");
   const { id } = useParams<{ id: string }>();
   const { state, reload } = useApi<MarketplaceOrderDetail>(`/marketplace/orders/${id}`);
   const [saved, setSaved] = useState<MarketplaceOrderDetail | null>(null);
@@ -132,10 +133,13 @@ export default function MarketplaceOrderPage() {
                 </Row>
                 <Row label={t("recipient")}>{`${order.recipientName} · ${order.recipientPhone}`}</Row>
                 <Row label={t("address")}>{order.address}</Row>
-                <Row label={t("payment")}>{t("paymentCod")}</Row>
+                <Row label={t("payment")}>{`${method(order.paymentMethod)} · ${t(`paymentStatus_${order.paymentStatus}`)}`}</Row>
                 <Row label={t("goodsAmount")}>{formatNumber(order.goodsAmount, 0)}</Row>
                 <Row label={t("shippingFee")}>{formatNumber(order.shippingFee, 0)}</Row>
-                <Row label={t("codAmount")}>{formatNumber(order.total, 0)}</Row>
+                <Row label={t(order.paymentMethod === "cod" ? "codAmount" : "orderTotal")}>{formatNumber(order.total, 0)}</Row>
+                <Row label={t("paidAmount")}>{formatNumber(order.paidAmount, 0)}</Row>
+                {Number(order.refundedAmount) > 0 && <Row label={t("refundedAmount")}>{formatNumber(order.refundedAmount, 0)}</Row>}
+                {order.paymentDeadline && <Row label={t("paymentDeadline")}>{formatDateTime(order.paymentDeadline)}</Row>}
                 <Row label={t("createdAt")}>{formatDateTime(order.createdAt)}</Row>
                 {order.deliveredAt && <Row label={t("deliveredAt")}>{formatDateTime(order.deliveredAt)}</Row>}
                 {order.completedAt && <Row label={t("completedAt")}>{`${formatDateTime(order.completedAt)} · ${formatNumber(order.completedAmount ?? "0", 0)}`}</Row>}
@@ -190,6 +194,20 @@ export default function MarketplaceOrderPage() {
                     <span className="chu-thich">
                       {t("shipmentLine", { status: shipment.carrierStatus, fee: shipment.fee ? formatNumber(shipment.fee, 0) : "—", time: formatDateTime(shipment.syncedAt) })}
                       {shipment.isActive ? "" : ` · ${t("shipmentCancelled")}`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {order.payments.length > 0 && (
+              <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
+                <h2>{t("paymentAttempts")}</h2>
+                {order.payments.map((payment) => (
+                  <div key={payment.reference} style={{ display: "grid", gap: "var(--khoang-1)" }}>
+                    <strong>{`${payment.reference} · ${method(payment.method)} · ${formatNumber(payment.amount, 0)}`}</strong>
+                    <span className="chu-thich">
+                      {`${t(`paymentAttemptStatus_${payment.status}`)} · ${formatDateTime(payment.completedAt ?? payment.createdAt)}`}
+                      {payment.transactionNo ? ` · ${t("paymentTransaction")} ${payment.transactionNo}` : ""}
                     </span>
                   </div>
                 ))}

@@ -40,4 +40,12 @@ export function AmountRow({ label, value, strong }: { label: string; value: stri
   );
 }
 
-export const orderStatusTone = { awaiting_shipment: "info", awaiting_pickup: "info", shipping: "warning", delivered: "success", completed: "success", cancelled: "neutral" } as const;
+export const orderStatusTone = {
+  awaiting_payment: "warning",
+  awaiting_shipment: "info",
+  awaiting_pickup: "info",
+  shipping: "warning",
+  delivered: "success",
+  completed: "success",
+  cancelled: "neutral",
+} as const;
