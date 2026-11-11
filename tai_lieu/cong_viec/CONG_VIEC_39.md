@@ -96,4 +96,4 @@ Khung `payment-gateway.ts`, `payments.service.ts`, `payments.controller.ts` (CON
 
 - Kiểm tra kiểu toàn dự án (`pnpm typecheck`), `pnpm lint`: đạt.
 - `c39-payment-gpay.test.ts`: 4/4 đạt.
-- Kiểm thử hồi quy `pnpm --filter api test`: xem dưới.
+- Kiểm thử hồi quy `pnpm --filter api test`: 47 tệp, 337 kiểm thử đạt (2026-11-11).
