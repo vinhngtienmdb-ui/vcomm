@@ -5,7 +5,9 @@ import {
   paymentKindSettles,
   paymentKindSide,
   type DebtSourceType,
+  type AnyPaymentKind,
   type PaymentKind,
+  type RetailFundDocumentKind,
   type PaymentListItem,
   type PaymentOptionsResponse,
   type PaymentResponse,
@@ -35,15 +37,15 @@ type Input = z.output<typeof savePaymentSchema>;
 type FieldErrors = Record<string, keyof Messages["errors"]>;
 const receiptType = "finance.receipt";
 const paymentType = "finance.payment";
-const documentTypeOf = (kind: PaymentKind) => (paymentKindIsReceipt(kind) ? receiptType : paymentType);
+const documentTypeOf = (kind: AnyPaymentKind) => (paymentKindIsReceipt(kind) ? receiptType : paymentType);
 type PaymentRow = {
   id: string;
   company_id: string;
   document_no: string | null;
-  kind: PaymentKind;
-  partner_id: string;
-  partner_code: string;
-  partner_name: string;
+  kind: AnyPaymentKind;
+  partner_id: string | null;
+  partner_code: string | null;
+  partner_name: string | null;
   fund_id: string;
   fund_code: string;
   fund_name: string;
@@ -109,7 +111,7 @@ export class PaymentsService implements OnModuleInit {
     return sql`
       SELECT p.id, p.company_id, p.document_no, p.kind, p.partner_id, pr.code AS partner_code, pr.name AS partner_name, p.fund_id, f.code AS fund_code, f.name AS fund_name,
         p.payment_date::text, p.amount::text, p.note, p.status, p.approval_request_id, p.post_error, p.posted_at::text, p.created_by, u.full_name AS created_by_name, p.version
-      FROM finance.payments p JOIN crm.partners pr ON pr.id = p.partner_id JOIN finance.funds f ON f.id = p.fund_id JOIN core.users u ON u.id = p.created_by`;
+      FROM finance.payments p LEFT JOIN crm.partners pr ON pr.id = p.partner_id JOIN finance.funds f ON f.id = p.fund_id JOIN core.users u ON u.id = p.created_by`;
   }
 
   async list(actor: Actor, query: z.output<typeof paymentListQuerySchema>): Promise<PaymentListItem[]> {
@@ -180,7 +182,7 @@ export class PaymentsService implements OnModuleInit {
       id: row.id,
       documentNo: row.document_no,
       kind: row.kind,
-      partner: { id: row.partner_id, code: row.partner_code, name: row.partner_name },
+      partner: row.partner_id ? { id: row.partner_id, code: row.partner_code!, name: row.partner_name! } : null,
       fund: { id: row.fund_id, code: row.fund_code, name: row.fund_name },
       paymentDate: day(row.payment_date),
       amount: trimDecimal(row.amount),
@@ -341,6 +343,31 @@ export class PaymentsService implements OnModuleInit {
   }
 
   // Ghi sổ: khóa công nợ của đối tác và quỹ, kiểm lại, tạo khoản công nợ, trừ nợ, đánh dấu đã ghi sổ (QUYTAC_NGHIEPVU_87, 88).
+  // Chứng từ quỹ bán lẻ (THAY_DOI_24; CONG_VIEC_53 QUYTAC_NGHIEPVU_375): hệ thống lập khi đóng ca thu ngân, không đối tượng, không trừ nợ, ghi sổ ngay không qua duyệt.
+  // Dãy số phiếu thu, phiếu chi tạo trước giao dịch bằng prepareRetailNumbering.
+  async prepareRetailNumbering(actor: Actor): Promise<void> {
+    await ensureSequence(this.database, this.sequences, actor, receiptType, "PT");
+    await ensureSequence(this.database, this.sequences, actor, paymentType, "PC");
+  }
+
+  async recordRetailWithin(
+    transaction: Executor & Pick<Database, "insert">,
+    actor: Actor,
+    input: { kind: RetailFundDocumentKind; fundId: string; paymentDate: string; amount: string; note: string; sourceType: string; sourceId: string; staffUserId: string | null },
+  ): Promise<string> {
+    const documentNo = await this.sequences.next(actor.companyId, documentTypeOf(input.kind), transaction);
+    const id = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO finance.payments (company_id, document_no, kind, partner_id, fund_id, payment_date, amount, note, status, posted_at, created_by, source_type, source_id, staff_user_id)
+      VALUES (${actor.companyId}, ${documentNo}, ${input.kind}, NULL, ${input.fundId}, ${input.paymentDate}::date, ${input.amount}::numeric, ${input.note}, 'posted', now(), ${actor.userId},
+        ${input.sourceType}, ${input.sourceId}, ${input.staffUserId})
+      RETURNING id`)
+    ).rows[0]!.id;
+    for (const hook of this.postedHooks) await hook(transaction, id);
+    await this.auditService.record({ ...financeAudit(actor, "payment"), action: "payment.retail_record", entityId: id, afterData: { documentNo, ...input } }, transaction);
+    return id;
+  }
+
   private async post(transaction: Executor, id: string): Promise<void> {
     const payment = (
       await transaction.execute<{ company_id: string; kind: PaymentKind; partner_id: string; fund_id: string; document_no: string; payment_date: string; amount: string; note: string | null }>(sql`

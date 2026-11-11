@@ -28,7 +28,9 @@
 - Cập nhật CONG_VIEC_25 (2026-11-11): thêm MAN_HINH_98 đến MAN_HINH_100 (mục 60, mục 61); sửa MAN_HINH_86 (Đặt hàng và thanh toán), MAN_HINH_88 (thanh toán, các lần thanh toán, ghi đã thu tiền thu hộ), MAN_HINH_93 (chọn phương thức thanh toán), MAN_HINH_96 (trạng thái thanh toán, hoàn tiền), MAN_HINH_76 (nút Tài khoản nhận hoàn tiền); menu web-crm thêm Hoàn tiền; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_26 (2026-11-11): thêm MAN_HINH_101 đến MAN_HINH_104 (mục 62, mục 63); sửa MAN_HINH_86 (Hoa hồng và rút tiền, bảng phí rút tiền theo THAY_DOI_17), MAN_HINH_87 (cột Hoa hồng, nút Thiết lập hoa hồng), MAN_HINH_88 (thẻ Hoa hồng), MAN_HINH_83 (hoa hồng từng cấp dưới), MAN_HINH_76 (nút Ví hoa hồng); menu web-crm thêm Rút tiền hoa hồng; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_43 (2026-11-11), THAY_DOI_18: bỏ MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40) và mục menu "Hoa hồng", "Cài đặt hoa hồng"; tắt MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52) và mục menu "Giao khách hàng"; sửa MAN_HINH_24 (chọn loại Hàng hóa, Dịch vụ), MAN_HINH_42 (công tắc "Cho phép lập đơn bán tay có hàng hóa"), MAN_HINH_43 (bỏ người hưởng hoa hồng; nút lập đơn theo quyền mới), MAN_HINH_32 (nhãn "Phiếu dịch vụ"), MAN_HINH_36 (bỏ lọc nhân viên phụ trách), MAN_HINH_37 (bỏ lịch sử phụ trách, nút nhận khách; nhân viên phụ trách sửa bằng tay); không làm bản mẫu, xem trước từng lát (mục 64)
-- Cập nhật CONG_VIEC_50 (2026-11-11): thêm MODULE_15 Báo cáo quản trị phần 1, mini app `web-analytics`, MAN_HINH_140 đến MAN_HINH_144 (mục 65 đến mục 67); MAN_HINH_145 giữ chưa dùng; trang chủ mini app thêm ô "Báo cáo quản trị"
+- Cập nhật CONG_VIEC_50 (2026-11-11): thêm MODULE_15 Báo cáo quản trị phần 1, mini app `web-analytics`, MAN_HINH_140 đến MAN_HINH_144 (mục 69 đến mục 71); MAN_HINH_145 giữ chưa dùng; trang chủ mini app thêm ô "Báo cáo quản trị"
+- Cập nhật CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm MAN_HINH_132 đến MAN_HINH_139 của MODULE_10 (mục 72, mục 73); sửa MAN_HINH_76 (nút Ví mua sắm, Mời bạn bè, Cộng tác viên), MAN_HINH_80 (chặn ví), MAN_HINH_88 (Chờ chốt nhóm, phần cộng tác viên), MAN_HINH_91 (chia sẻ nhận hoa hồng, điểm đánh giá, mua chung), MAN_HINH_93 (đơn mua chung, dùng ví mua sắm), MAN_HINH_96 (nhóm mua chung, phần ví, viết đánh giá), MAN_HINH_101 (mức cộng tác viên), MAN_HINH_102, MAN_HINH_103 (ví hoa hồng bị chặn); menu web-crm "Cộng tác viên", "Mua chung", "Kiểm duyệt cộng đồng"; thẻ "Bảng tin" trên ứng dụng
+- Cập nhật CONG_VIEC_53 (2026-11-11): thêm MAN_HINH_161 đến MAN_HINH_167 của MODULE_14 (mini app Bán lẻ, bán lẻ tại quầy phần 1; bản mẫu MAN_HINH_161, 162, 164, 167); sửa MAN_HINH_46, MAN_HINH_49, MAN_HINH_54, MAN_HINH_55 (mục 65, 66)
 
 ## MODULE_01 Nền tảng
 
@@ -2176,6 +2178,66 @@ Không thêm màn hình. Không làm bản mẫu; xem trước từng lát thay 
 - Màn hình Ghé thăm khách của web-crm (`/crm/visits`): lọc "Nhân viên" lấy mọi nhân viên đang làm việc của công ty qua `GET /crm/visit-options` (thay danh sách nhân viên của phiếu giao khách); xem mọi lượt của công ty.
 - Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
 
+## MODULE_14 Bán lẻ tại quầy và trạm giao hàng (phần 1: Bán lẻ tại quầy, CONG_VIEC_53)
+
+## 65. Danh sách màn hình và điều hướng (MODULE_14 phần 1)
+
+Mini app mới Bán lẻ (`apps/web-retail`, đường dẫn `/retail`, cổng phát triển 3012; tài liệu `12` mục 3a). Trang `/retail` mở mục menu đầu tiên người dùng có quyền. Menu (hiện theo quyền): Bán hàng, Hóa đơn bán lẻ, Trả hàng, Ca thu ngân, Cài đặt cửa hàng.
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_161 | Bán hàng tại quầy (thanh trên, ô quét, giỏ, khách, tổng, hộp thoại thanh toán, kết quả) | CHUC_NANG_187, CHUC_NANG_189 | `retail.sale` (Thu ngân, Cửa hàng trưởng, quản trị) | Menu "Bán hàng" | `tai_lieu/ban_mau/MAN_HINH_161_BAN_HANG_TAI_QUAY.html` (duyệt 2026-11-11) |
+| MAN_HINH_162 | Mở ca, đóng ca (phần mở ca trên MAN_HINH_161; đóng ca trên chi tiết ca) | CHUC_NANG_186 | `retail.sale` (ca của mình); đóng ca người khác: `retail.shift.manage` | MAN_HINH_161 (chưa có ca), nút "Đóng ca"; MAN_HINH_165 | `tai_lieu/ban_mau/MAN_HINH_162_MO_DONG_CA.html` (duyệt 2026-11-11) |
+| MAN_HINH_163 | Hóa đơn bán lẻ (danh sách, chi tiết, in lại) | CHUC_NANG_187, CHUC_NANG_188, CHUC_NANG_189 | `retail.sale`, `retail.return`, `retail.shift.manage` (trong phạm vi chi nhánh) | Menu "Hóa đơn bán lẻ"; MAN_HINH_161 | Không làm |
+| MAN_HINH_164 | Trả hàng | CHUC_NANG_188 | `retail.return` (Cửa hàng trưởng, quản trị), có ca đang mở | Menu "Trả hàng"; nút "Trả hàng" ở MAN_HINH_161, MAN_HINH_163 | `tai_lieu/ban_mau/MAN_HINH_164_TRA_HANG.html` (duyệt 2026-11-11) |
+| MAN_HINH_165 | Ca thu ngân (danh sách, chi tiết) | CHUC_NANG_186 | `retail.sale` (ca của mình); `retail.shift.manage` (Cửa hàng trưởng, Kế toán, Kế toán trưởng, quản trị) | Menu "Ca thu ngân" | Không làm |
+| MAN_HINH_166 | Cài đặt cửa hàng (danh sách, ngăn kéo cửa hàng, quầy) | CHUC_NANG_186 | Sửa: `retail.setup` (quản trị); xem: thêm người có `retail.sale`, `retail.shift.manage` | Menu "Cài đặt cửa hàng" | Không làm |
+| MAN_HINH_167 | Mẫu in hóa đơn bán lẻ khổ 80 mm (cùng khuôn cho phiếu trả hàng, biên bản đóng ca) | CHUC_NANG_186 đến CHUC_NANG_189 | Theo màn hình mở bản in | MAN_HINH_161, MAN_HINH_163, MAN_HINH_164, MAN_HINH_162 | `tai_lieu/ban_mau/MAN_HINH_167_MAU_IN_HOA_DON.html` (duyệt 2026-11-11) |
+
+Sửa (mini app Tài chính – Kế toán, mini app Nền tảng):
+- MAN_HINH_46 (Quỹ): sổ quỹ hiện "Không đối tượng (bán lẻ tại quầy)" cho chứng từ quỹ bán lẻ.
+- MAN_HINH_49 (Phiếu thu, phiếu chi): bốn loại mới "Phiếu thu bán lẻ", "Phiếu chi hoàn tiền bán lẻ", "Phiếu chi thiếu tiền ca", "Phiếu thu thừa tiền ca"; đối tác hiện "Không đối tượng (bán lẻ tại quầy)"; đã ghi sổ ngay nên không sửa.
+- MAN_HINH_54 (Hóa đơn điện tử): chi tiết hiện nhãn "Khởi tạo từ máy tính tiền" và "Mã tra cứu" với hóa đơn loại này.
+- MAN_HINH_55 (Cài đặt hóa đơn điện tử): thêm bảng "Ký hiệu hóa đơn khởi tạo từ máy tính tiền theo năm" (năm, ký hiệu dạng `C26MAA`, số đã cấp); ký hiệu đã cấp số khóa sửa, xóa.
+- Trang chủ mini app (web-platform): thẻ Bán lẻ mở `/retail`.
+
+| Màn hình | Quản trị tập đoàn, Quản trị công ty | Cửa hàng trưởng | Thu ngân | Kế toán, Kế toán trưởng |
+|---|---|---|---|---|
+| MAN_HINH_161, MAN_HINH_162 (ca của mình) | Dùng | Dùng | Dùng | Không thấy |
+| MAN_HINH_162 (đóng ca người khác), MAN_HINH_165 | Xem, Đóng ca | Xem, Đóng ca (chi nhánh) | Chỉ ca của mình | Xem, Đóng ca |
+| MAN_HINH_163 | Xem, In lại, Trả hàng | Xem, In lại, Trả hàng (chi nhánh) | Xem, In lại (chi nhánh) | Xem, In lại |
+| MAN_HINH_164 | Dùng | Dùng (chi nhánh) | Không thấy | Không thấy |
+| MAN_HINH_166 | Xem, Sửa | Xem | Xem | Xem |
+
+```mermaid
+flowchart TD
+    M{Menu Bán lẻ} -->|Bán hàng| B[MAN_HINH_161 Bán hàng tại quầy]
+    B -->|chưa có ca| O[MAN_HINH_162 Mở ca]
+    O --> B
+    B -->|F9 Thanh toán, In hóa đơn| P[MAN_HINH_167 Mẫu in]
+    B -->|Trả hàng| R[MAN_HINH_164 Trả hàng]
+    B -->|Đóng ca| D[MAN_HINH_162 Đóng ca]
+    D -->|In biên bản đóng ca| P
+    M -->|Hóa đơn bán lẻ| H[MAN_HINH_163 Hóa đơn bán lẻ]
+    H -->|In lại| P
+    H -->|Trả hàng| R
+    R -->|In phiếu trả hàng| P
+    M -->|Trả hàng| R
+    M -->|Ca thu ngân| C[MAN_HINH_165 Ca thu ngân]
+    C -->|chi tiết ca, Đóng ca| D
+    M -->|Cài đặt cửa hàng| S[MAN_HINH_166 Cài đặt cửa hàng]
+```
+
+## 66. Đặc tả màn hình (MODULE_14 phần 1)
+
+- MAN_HINH_161 (`/retail/counter`): toàn màn hình, tối ưu máy tính và máy tính bảng ngang. Thanh trên: cửa hàng, quầy, thu ngân, "Ca mở <giờ> · <số> hóa đơn · tiền mặt dự tính <số tiền>", nhãn "Có mạng" hoặc "Mất mạng", nút "Trả hàng", "Hóa đơn bán lẻ", "Đóng ca". Trái: ô "Quét hoặc tìm hàng" (gợi ý "Quét mã vạch, serial hoặc gõ mã, tên hàng rồi nhấn Enter"; luôn nhận bàn phím sau mỗi thao tác); nhiều kết quả thì danh sách "Chọn mặt hàng" kèm "Còn <số lượng>"; bảng giỏ: Hàng, Đơn vị, Số lượng (Giảm, Tăng), Đơn giá, Giảm tay (%), Thành tiền, Xóa dòng; dòng "Hàng tặng", "Serial: …"; giỏ trống "Chưa có hàng. Quét mã vạch hoặc tìm hàng để bắt đầu."; dòng phím tắt "F2 người mua lấy hóa đơn · F4 giảm tay dòng đang chọn · F9 thanh toán · Delete xóa dòng". Phải: Khách "Khách lẻ" (tra khách VComm chưa làm, chờ CONG_VIEC_51), "Thông tin người mua lấy hóa đơn" (Tên người mua hoặc đơn vị, Mã số thuế, Địa chỉ, Số định danh cá nhân; "Có mã số thuế thì bắt buộc tên và địa chỉ."; "Áp dụng", "Bỏ thông tin"); Tiền hàng, Khuyến mãi, Giảm tay, Trong đó thuế giá trị gia tăng, Phải trả (chữ lớn); cảnh báo thiếu suất quà; nút "Thanh toán" (F9). Hộp thoại "Thanh toán · <số tiền>": "Tiền mặt khách đưa" (gợi ý mệnh giá), "Khách chuyển khoản" (cửa hàng có quỹ chuyển khoản: "Số tiền chuyển khoản", mã VietQR với "Nội dung: <số hóa đơn>", "Mã giao dịch ngân hàng (không bắt buộc)", "Đã nhận chuyển khoản <số tiền>"), Khách đưa, Tiền thừa hoặc Còn thiếu; nút "Xác nhận thanh toán"; Esc đóng. Sau khi ghi: "Đã thanh toán hóa đơn <số>", nút "In hóa đơn", "Đơn mới". Mất mạng: "Mất mạng: không thanh toán được. Kiểm tra kết nối rồi thử lại.". API_193, API_194, API_195, API_196.
+- MAN_HINH_162: mở ca (trên `/retail/counter` khi chưa có ca): chọn cửa hàng, quầy ("đang có ca" khóa chọn), "Tiền cuối ca trước ở quầy này: <số tiền>", Tiền đầu ca, Ghi chú, nút "Mở ca"; không có quầy "Bạn chưa được giao quầy nào đang hoạt động.". Đóng ca (`/retail/shifts/<id>`): bảng theo phương thức (Tiền mặt (đã trừ tiền thừa), Chuyển khoản; Thu bán, Hoàn trả hàng, Thực thu), Tiền mặt hệ thống tính, "Đếm theo mệnh giá (không bắt buộc)" (Mệnh giá, Số tờ, Thành tiền, "Dùng tổng đếm"), Tiền mặt đếm được, Lệch ("Thiếu …", "Thừa …", "Khớp"), Lý do lệch; nút "Đóng ca" (xác nhận "Đóng ca? Ca đã đóng không sửa, không mở lại được."), "In biên bản đóng ca". API_193.
+- MAN_HINH_163 (`/retail/sales`, `/retail/sales/<id>`): danh sách lọc cửa hàng, ca, Từ ngày, Đến ngày, tìm "Số hóa đơn, tên người mua"; cột Số hóa đơn, Thời gian, Cửa hàng, Quầy, Thu ngân, Người mua ("Khách lẻ"), Tổng tiền, Thanh toán; phân trang 20; rỗng "Chưa có hóa đơn bán lẻ.". Chi tiết: dòng hàng, khuyến mãi, thanh toán (phương thức, mã giao dịch), người mua, Đơn bán, Phiếu xuất, hóa đơn điện tử, "Các lần trả hàng"; nút "In lại", "Trả hàng". Bảng chuyển thành thẻ trên điện thoại. API_196.
+- MAN_HINH_164 (`/retail/returns`): ô "Số hóa đơn bán lẻ" ("Quét mã QR trên hóa đơn hoặc gõ số hóa đơn rồi nhấn Enter"), "Tìm"; thông tin hóa đơn "<số> · <thời gian> · Quầy <mã> · <thu ngân>", "Hạn trả hàng đến <ngày>" hoặc lý do chặn ("Hóa đơn đã quá hạn trả hàng.", "Hóa đơn của cửa hàng khác.", "Cửa hàng không nhận trả hàng."); bảng Hàng, Đã bán, Đã trả, Còn trả được, Số trả, Tiền hoàn ("Hàng tặng", "Serial trả"); Lý do trả; "Hoàn cho khách": "Tiền mặt từ ca đang mở" hoặc "Chuyển khoản" (Ngân hàng, số tài khoản, tên người nhận; Mã giao dịch; "Đã chuyển khoản cho khách"); Tổng hoàn; gợi ý chứng từ hệ thống ghi; nút "Xác nhận trả hàng"; xong "Đã trả hàng <số>", "In phiếu trả hàng", "Trả hóa đơn khác". Không có quyền: "Bạn không có quyền trả hàng.". API_197.
+- MAN_HINH_165 (`/retail/shifts`, `/retail/shifts/<id>`): danh sách lọc cửa hàng, trạng thái (Đang mở, Đã đóng), Từ ngày, Đến ngày, "Chỉ ca lệch"; nhãn "Mở quá 24 giờ"; cột Cửa hàng, Quầy, Thu ngân, Giờ mở, Giờ đóng, Trạng thái, Tiền đầu ca, Tiền mặt hệ thống tính, đếm được, Lệch; phân trang 20; rỗng "Chưa có ca.". Chi tiết: giờ mở, đóng, Người đóng, tiền đầu ca, ghi chú, tổng theo phương thức, Số hóa đơn, tiền hệ thống tính, đếm được, lệch, lý do; "Chứng từ quỹ đã lập" (Số chứng từ, Loại chứng từ, Quỹ, số tiền; gợi ý cách lập); phần đóng ca (MAN_HINH_162) khi ca đang mở và người xem đóng được. API_193.
+- MAN_HINH_166 (`/retail/stores`): danh sách cửa hàng ("Chưa có cửa hàng bán lẻ."), nút "Thêm cửa hàng", "Sửa"; ngăn kéo: Chi nhánh, Kho bán, Kênh bán, Quỹ tiền mặt, Quỹ chuyển khoản ("Không nhận chuyển khoản"), Mã ngân hàng VietQR (6 chữ số), Tên chủ tài khoản (in hoa không dấu), Số ngày được trả hàng ("0 là không nhận trả hàng."), Chân hóa đơn bán lẻ, Trạng thái; "Lưu", "Hủy"; công ty chưa có chi nhánh loại Cửa hàng: "Công ty chưa có chi nhánh loại Cửa hàng. Thêm chi nhánh ở mini app Quản trị hệ thống."; danh sách "Quầy thu ngân" (Mã quầy, Tên quầy, trạng thái, "Ca mở: <tên>"), "Thêm quầy", sửa, ngừng. Người không có `retail.setup` chỉ xem. API_192.
+- MAN_HINH_167 (thành phần `Receipt`, `ReturnSlip`, biên bản đóng ca): khổ 80 mm (vùng in 72 mm), in bằng hộp thoại in của trình duyệt; tên, mã số thuế, địa chỉ công ty, cửa hàng; "HÓA ĐƠN BÁN LẺ", "Số: <số>", ngày giờ, "Quầy <mã>", "Thu ngân: <tên>"; dòng hàng ("tặng", "KM", "giảm <phần trăm>%"), Tiền hàng, "Khuyến mãi, giảm giá", "TỔNG THANH TOÁN", "Trong đó thuế GTGT", thanh toán, Tiền thừa; "Người mua: …", "MST người mua: …"; "Hóa đơn điện tử khởi tạo từ máy tính tiền", "Mẫu số … · Ký hiệu … · Số …", "Mã tra cứu: …", "Mã CQT: …" (khi có); mã QR số hóa đơn (để quét khi trả hàng); chân hóa đơn của cửa hàng hoặc "Cảm ơn quý khách!", "Đổi trả trong <số ngày> ngày kèm hóa đơn này.". Phiếu trả hàng ("PHIẾU TRẢ HÀNG", "Theo hóa đơn <số>"), biên bản đóng ca ("BIÊN BẢN ĐÓNG CA") cùng khuôn. Dòng điểm tích, số dư điểm: chưa làm, chờ CONG_VIEC_51.
+- Trạng thái phê duyệt: bản mẫu MAN_HINH_161, 162, 164, 167 duyệt 2026-11-11; MAN_HINH_163, 165, 166 xem trước từng lát thay cho bản mẫu.
 ## MODULE_08 Nhân sự phần 1 (CONG_VIEC_46)
 
 Mini app Nhân sự `apps/web-hr`, đường dẫn `/hr`. Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_114` đến `MAN_HINH_119` (tệp `nhan_su.js`). Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md` mục 8.
@@ -2227,7 +2289,7 @@ Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_126` đến `MAN_HINH_131` (tệp `luong
 - Trạng thái phê duyệt: người dùng duyệt bản mẫu ngày 2026-11-11.
 ## MODULE_03 Kho (ứng dụng kho trên điện thoại, CONG_VIEC_44)
 
-## 65. Danh sách màn hình và điều hướng (ứng dụng kho)
+## 67. Danh sách màn hình và điều hướng (ứng dụng kho)
 
 Ứng dụng `apps/mobile-warehouse` (Expo, khổ điện thoại; xem trước bằng bản web cổng 8084). Màu, khoảng cách lấy từ tài liệu `15` (tệp chủ đề chép giá trị từ `packages/ui/src/styles.css`). Câu chữ nhóm `warehouseApp` trong `packages/i18n`; nhãn trạng thái, lý do phiếu dùng nhóm `documents`. Bản mẫu: `ban_mau/MAN_HINH_105_DANG_NHAP_KHO.html` đến `MAN_HINH_109_DEM_KIEM_KE.html`.
 
@@ -2253,7 +2315,7 @@ flowchart TD
 | MAN_HINH_107, MAN_HINH_108 | Mọi thao tác | Mọi thao tác | Mọi thao tác trừ kiểm kê quản lý | Không thấy |
 | MAN_HINH_109 | Đếm, thấy tồn sổ sách | Đếm, thấy tồn sổ sách | Đếm (đếm mù) | Không thấy |
 
-## 66. Đặc tả màn hình (ứng dụng kho)
+## 68. Đặc tả màn hình (ứng dụng kho)
 
 - MAN_HINH_105 (`/dang-nhap`): thanh đầu "VComm Kho"; tiêu đề "Đăng nhập"; ô "Email, tên đăng nhập hoặc số điện thoại", "Mật khẩu", nút "Đăng nhập" (API_137). Tài khoản bắt buộc xác thực hai lớp: "Mã xác thực hai lớp", "Nhập mã 6 số trong ứng dụng xác thực.", "Xác nhận", "Dùng mã dự phòng", "Quay lại đăng nhập"; chưa đăng ký: "Tài khoản của bạn bắt buộc xác thực hai lớp. Hãy đăng ký trên trang web VComm rồi đăng nhập lại.". Không có quyền kho: "Tài khoản không có quyền dùng ứng dụng kho.".
 - MAN_HINH_106 (`/kho`): thanh đầu tên kho, "<công ty> · <họ tên>", nút "Đổi kho"; chưa chọn: thẻ "Công ty" (khi nhiều công ty), "Kho" (kho thao tác được, đang dùng); ô quét "Quét hoặc nhập mã hàng để tra tồn" và nút "Camera"; thẻ kết quả: tên hàng, "<mã hàng> · Chủ hàng <công ty> · Đơn vị cơ sở: <đơn vị>", "Tồn … · Giữ … · Khả dụng …", từng dòng lô, vị trí, số lượng, serial; không hiện giá vốn; lưới thao tác "Nhận hàng", "Xuất giao hàng", "Nhập khác", "Xuất khác", "Chuyển kho", "Kiểm kê" theo quyền; "Đăng xuất".
@@ -2266,7 +2328,7 @@ flowchart TD
 
 Mini app `apps/web-analytics`, tên "Báo cáo quản trị", đường dẫn gốc `/analytics` (mini app Nền tảng chuyển tiếp `/analytics` sang ứng dụng này theo `ANALYTICS_ORIGIN`, cùng tên miền và cookie phiên; cổng phát triển 3009). Ô "Báo cáo quản trị" trên trang chủ mini app (MAN_HINH_05) hiện với người có `analytics.access`. Khung trang, thành phần dùng chung lấy từ `packages/ui` theo khung `web-finance`; quy ước chung như mục 3 của MODULE_01. Báo cáo chỉ đọc, không có thao tác ghi dữ liệu nghiệp vụ. MAN_HINH_145 chưa dùng (giữ trong dải, không cấp cho màn hình khác).
 
-## 65. Danh sách màn hình và điều hướng (MODULE_15 phần 1)
+## 69. Danh sách màn hình và điều hướng (MODULE_15 phần 1)
 
 | Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
 |---|---|---|---|---|---|
@@ -2301,7 +2363,7 @@ flowchart TD
 - Bộ lọc chung mọi báo cáo: "Công ty" chỉ liệt kê công ty được xem theo quyền của nhóm báo cáo (mã · tên), mặc định "Tất cả công ty được xem (<số>)"; "Từ ngày", "Đến ngày" (mặc định từ đầu tháng đến hôm nay; MAN_HINH_143 không có); nút "Xem". Không có công ty nào được xem: "Bạn chưa được xem công ty nào ở báo cáo này. Liên hệ quản trị công ty nếu cần quyền.".
 - Lỗi khoảng ngày hiện dưới ô "Đến ngày", nút "Xem" bị khóa: "Vui lòng nhập thông tin này.", "Từ ngày không được sau đến ngày.", "Khoảng ngày tối đa 366 ngày. Hãy thu hẹp khoảng ngày.".
 
-## 66. Bảng vai trò – màn hình (MODULE_15 phần 1)
+## 70. Bảng vai trò – màn hình (MODULE_15 phần 1)
 
 "(tập đoàn)": quyền gán ở phạm vi tập đoàn, xem mọi công ty của tập đoàn; "(công ty)": gán ở phạm vi công ty, chỉ xem công ty đó. Quyền gán ở phạm vi chi nhánh không có hiệu lực.
 
@@ -2313,7 +2375,7 @@ flowchart TD
 | MAN_HINH_143 Báo cáo công nợ theo tuổi nợ | Xem, Xuất Excel | Xem, Xuất Excel (công ty mình) | Xem, Xuất Excel | Xem, Xuất Excel | Không | Không |
 | MAN_HINH_144 Báo cáo hoa hồng và ví | Xem, Xuất Excel | Xem, Xuất Excel (công ty mình) | Xem, Xuất Excel | Xem, Xuất Excel | Không | Không |
 
-## 67. Đặc tả từng màn hình (MODULE_15 phần 1)
+## 71. Đặc tả từng màn hình (MODULE_15 phần 1)
 
 ### MAN_HINH_140: Tổng quan báo cáo quản trị
 - Mục đích: Xem nhanh chỉ tiêu chính của các nhóm báo cáo được xem, đi sang từng báo cáo.
@@ -2413,3 +2475,121 @@ flowchart TD
 - Quyền hiển thị: mục menu và trang với `analytics.commission.view`; danh sách công ty theo phạm vi của quyền này.
 - Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc, nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_50 mục 14)
+## MODULE_08 Nhân sự phần 4: Tuyển dụng, đánh giá hiệu suất (CONG_VIEC_54)
+
+Mini app Nhân sự `apps/web-hr`, đường dẫn `/hr`. Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_168_NHU_CAU_TUYEN_DUNG.html`, `MAN_HINH_169_TIN_TUYEN_DUNG.html`, `MAN_HINH_170_UNG_VIEN.html`, `MAN_HINH_171_TRANG_TUYEN_DUNG_CONG_KHAI.html`, `MAN_HINH_172_QUAN_LY_DANH_GIA.html`, `MAN_HINH_173_PHIEU_DANH_GIA.html` (tệp `tuyen_dung.js`). Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_54.md` mục 8, 18.
+
+| Mã | Tên màn hình | Đường dẫn | Chức năng (10) | Vai trò, quyền được truy cập |
+|---|---|---|---|---|
+| MAN_HINH_168 | Nhu cầu tuyển dụng (danh sách, biểu mẫu, chi tiết: thông tin, tiến trình duyệt, danh sách tin; gửi, rút, hủy, đóng, lập tin) | `/hr/recruitment`, `/hr/recruitment/[id]` | CHUC_NANG_190 | `hr.recruitment.request` (nhu cầu của mình), `hr.recruitment.manage` (mọi nhu cầu, đóng) |
+| MAN_HINH_169 | Tin tuyển dụng (danh sách tin: tiêu đề, nhu cầu, hạn nộp, công khai, số hồ sơ theo giai đoạn, trạng thái; biểu mẫu tin; chi tiết: đầu trang, thẻ đếm theo giai đoạn, bảng hồ sơ ứng tuyển có nhãn trùng; thêm ứng viên, thêm từ kho, đăng, đóng, mở lại, xem trang công khai) | `/hr/recruitment` (thẻ Tin tuyển dụng), `/hr/recruitment/postings/[id]` | CHUC_NANG_190, CHUC_NANG_191 | `hr.recruitment.manage` |
+| MAN_HINH_170 | Ứng viên (thẻ tất cả, kho ứng viên, sắp đến hạn xóa; tìm; chi tiết: thông tin, tệp, bằng chứng đồng ý, ngày xóa dự kiến, hồ sơ ứng tuyển, vòng phỏng vấn và phiếu, đề nghị nhận việc, email đã gửi, lập hồ sơ nhân sự, yêu cầu xóa, rút đồng ý kho; cài đặt lưu giữ); phần người phỏng vấn "Phỏng vấn của tôi" (danh sách vòng được giao, chi tiết rút gọn, phiếu đánh giá của mình) | `/hr/candidates`, `/hr/candidates/[id]`, `/hr/candidates/[id]/hire` (biểu mẫu MAN_HINH_115 điền sẵn); `/hr/interviews`, `/hr/interviews/[id]` | CHUC_NANG_191 | `hr.recruitment.manage` (lập hồ sơ nhân sự cần thêm `hr.employee.manage`); "Phỏng vấn của tôi": mọi thành viên công ty, chỉ vòng được giao |
+| MAN_HINH_171 | Trang tuyển dụng công khai (danh sách tin lọc công ty, nơi làm việc, hình thức, tìm; chi tiết tin; biểu mẫu nộp có hai ô đồng ý không đánh sẵn; trang đã nộp có mã hồ sơ, email liên hệ; trả lời đề nghị nhận việc qua liên kết riêng; chọn ngôn ngữ vi, en) | `/hr/careers`, `/hr/careers/[id]`, `/hr/careers/offers/[token]` | CHUC_NANG_190, CHUC_NANG_191 | Không đăng nhập; không có khung mini app |
+| MAN_HINH_172 | Quản lý đánh giá hiệu suất (thẻ Kỳ đánh giá: danh sách, biểu mẫu kỳ, chi tiết kỳ với bảng phiếu, người chấm, tiến độ, điểm, xếp loại, phân bố; gán người chấm, thêm, loại phiếu, hiệu chỉnh, mở, chốt, công bố; thẻ Mẫu đánh giá: danh sách, biểu mẫu tiêu chí, sao chép) | `/hr/reviews`, `/hr/reviews/[id]` | CHUC_NANG_192 | `hr.review.manage` |
+| MAN_HINH_173 | Phiếu đánh giá ("Đánh giá của tôi": phiếu của mình, phiếu mình chấm; phiếu: mục tiêu, tự đánh giá, người chấm chấm, điểm tạm tính, kết quả sau công bố, xác nhận đã xem, ý kiến; nhân sự mở lại, hiệu chỉnh) | `/hr/my-reviews`, `/hr/my-reviews/[id]` (một trang hiện theo vai trò; nhân sự mở từ bảng kỳ) | CHUC_NANG_192 | Nhân viên (phiếu của mình), người chấm (phiếu được giao), `hr.review.manage` |
+
+Điều hướng: trang chủ → Nhân sự → menu thêm Tuyển dụng (168 → 169 → 170; quyền `hr.recruitment.request`), Ứng viên (170; `hr.recruitment.manage`), Phỏng vấn của tôi (170 phần người phỏng vấn; mọi thành viên), Đánh giá hiệu suất (172 → 173; `hr.review.manage`), Đánh giá của tôi (173; mọi thành viên). MAN_HINH_171 ở đường dẫn công khai `/hr/careers`, không có khung mini app. Thông báo phỏng vấn mở "Phỏng vấn của tôi", thông báo trả lời đề nghị mở 170, thông báo đánh giá mở 173. Không dùng giá trị mới ngoài tài liệu `15`.
+
+- Khác bản mẫu theo mã (CONG_VIEC_54 mục 18): người phỏng vấn dùng menu riêng "Phỏng vấn của tôi" thay cho menu "Ứng viên"; phiếu đánh giá là một trang `/hr/my-reviews/[id]` cho nhân viên, người chấm, nhân sự.
+- Trạng thái phê duyệt: người dùng duyệt bản mẫu ngày 2026-11-11; lát L0, L1 đạt khi xem trước (2026-11-11).
+
+## MODULE_11 Điểm thưởng: màn hình (CONG_VIEC_51)
+
+Bản mẫu đã duyệt 2026-11-11: `ban_mau/MAN_HINH_146_CHUONG_TRINH_DIEM.html` đến `ban_mau/MAN_HINH_152_HANG_THANH_VIEN.html`, `ban_mau/SUA_DAT_HANG_DUNG_DIEM.html`.
+
+| Mã | Màn hình | Đường dẫn | Vai trò |
+|---|---|---|---|
+| MAN_HINH_146 | Chương trình điểm (giai đoạn, bảng hạng) | `/crm/loyalty/program` | `loyalty.view`, sửa: `loyalty.manage` |
+| MAN_HINH_147 | Ví điểm (danh sách, chi tiết, khóa, mở) | `/crm/loyalty/accounts`, `/crm/loyalty/accounts/<userId>` | `loyalty.view`, khóa: `loyalty.manage` |
+| MAN_HINH_148 | Điều chỉnh điểm | `/crm/loyalty/adjustments` | `loyalty.view`, lập: `loyalty.manage` |
+| MAN_HINH_149 | Cảnh báo bất thường | `/crm/loyalty/alerts` | `loyalty.view` |
+| MAN_HINH_150 | Nghĩa vụ điểm | `/crm/loyalty/liability` | `loyalty.view` |
+| MAN_HINH_151 | Điểm của tôi (ứng dụng) | `/diem-thuong` | Người mua |
+| MAN_HINH_152 | Hạng thành viên (ứng dụng) | `/hang-thanh-vien` | Người mua |
+
+Sửa: MAN_HINH_76 (thẻ điểm thưởng), MAN_HINH_88 (thẻ Điểm thưởng của đơn), MAN_HINH_93 (khối Dùng điểm, mặc định tắt; dòng trừ điểm; điểm dự kiến), MAN_HINH_96 (dòng trừ điểm, thẻ Điểm thưởng). Menu web-crm thêm: Chương trình điểm, Ví điểm, Điều chỉnh điểm, Cảnh báo điểm, Nghĩa vụ điểm.
+
+## MODULE_10 Cộng đồng (phần 1: Cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, CONG_VIEC_49)
+
+## 72. Danh sách màn hình và điều hướng (MODULE_10 phần 1)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_132 | Ứng dụng: Cộng tác viên (giới thiệu chương trình, đăng ký: kênh chia sẻ, đồng ý điều khoản; trạng thái, lý do, mã, nhãn; thống kê 30 ngày; đơn ghi nhận gần đây) | CHUC_NANG_171 | Người mua | MAN_HINH_76, nút "Cộng tác viên" | Không làm |
+| MAN_HINH_133 | Ứng dụng: Mời bạn bè (đường dẫn giới thiệu có mã, Chia sẻ, Sao chép; mức thưởng, điều kiện; người đã mời: tên, số che, ngày đăng ký, trạng thái thưởng) | CHUC_NANG_171 | Người mua | MAN_HINH_76, nút "Mời bạn bè" | Không làm |
+| MAN_HINH_134 | Ứng dụng: Mua chung (danh sách Đang mở, Nhóm của tôi; chi tiết nhóm; mở nhóm) | CHUC_NANG_172 | Người mua; mở nhóm: cộng tác viên Đã duyệt | Thẻ Trang chủ "Xem nhóm đang mở"; MAN_HINH_91 "Mua chung sản phẩm này"; đường dẫn chia sẻ nhóm | Không làm |
+| MAN_HINH_135 | Ứng dụng: Ví mua sắm (số dư, thông báo khóa hoặc chặn, lịch sử, Xem thêm) | CHUC_NANG_173 | Người mua (ví của mình) | MAN_HINH_76, nút "Ví mua sắm" | Không làm |
+| MAN_HINH_136 | Ứng dụng: Bảng tin (thẻ mới: danh sách bài, lọc theo sản phẩm, Đăng bài; chi tiết bài với bình luận; đăng bài, viết đánh giá; báo cáo vi phạm) | CHUC_NANG_174 | Người mua | Thẻ "Bảng tin"; MAN_HINH_91 dòng điểm đánh giá; MAN_HINH_96 "Viết đánh giá" | Không làm |
+| MAN_HINH_137 | Web-crm: Cộng tác viên (thẻ Hồ sơ cộng tác viên: lọc trạng thái, nhãn, tìm tên, số điện thoại, mã; chi tiết: duyệt, từ chối, tạm ngừng, khôi phục, nhãn, thống kê, lịch sử; thẻ Thưởng giới thiệu: cài đặt) | CHUC_NANG_171 | `marketplace.buyer.view` (xem), `marketplace.buyer.manage` (thao tác); thẻ Thưởng giới thiệu: `marketplace.order.view` (xem), `marketplace.order.manage` (sửa) | Menu "Cộng tác viên" | Không làm |
+| MAN_HINH_138 | Web-crm: Mua chung (thẻ Nhóm: lọc trạng thái, chi tiết nhóm, đơn tham gia, mở nhóm, hủy nhóm; thẻ Cài đặt sản phẩm: bậc giá theo biến thể; thẻ Ví mua sắm: khóa ví mua sắm toàn hệ thống) | CHUC_NANG_172, CHUC_NANG_173 | `marketplace.order.view` (xem), `marketplace.order.manage` (thao tác) | Menu "Mua chung" | Không làm |
+| MAN_HINH_139 | Web-crm: Kiểm duyệt cộng đồng (thẻ Báo cáo chờ xử lý, Nội dung đã ẩn, Tài khoản bị khóa, Bài VComm, Cài đặt) | CHUC_NANG_174 | `marketplace.community.manage` | Menu "Kiểm duyệt cộng đồng" | Không làm |
+
+Sửa:
+- MAN_HINH_76: thêm nút "Ví mua sắm", "Mời bạn bè", "Cộng tác viên".
+- MAN_HINH_91: cộng tác viên Đã duyệt thấy mức hoa hồng cộng tác viên và nút "Chia sẻ nhận hoa hồng"; dòng điểm đánh giá "<điểm> · <số> đánh giá đã mua · Xem bảng tin" hoặc "Chưa có đánh giá · Xem bảng tin" (mở MAN_HINH_136 lọc theo sản phẩm); nút "Mua chung sản phẩm này" (mở MAN_HINH_134 lọc theo sản phẩm).
+- MAN_HINH_93: đơn mua chung (giá bậc đầu, chỉ phương thức trực tuyến, gợi ý mua chung); mọi đơn có ô "Dùng ví mua sắm (số dư …)" khi số dư lớn hơn 0, khóa khi ví đang tạm khóa hoặc bị chặn; hiện phần trả bằng ví, số còn phải trả.
+- MAN_HINH_96: trạng thái Chờ chốt nhóm; khối Nhóm mua chung (trạng thái, kết thúc, giá chốt, Xem nhóm); phần trả bằng ví, đã hoàn về ví; đơn Đã giao, Hoàn tất có danh sách dòng chưa đánh giá với nút "Viết đánh giá".
+- MAN_HINH_101: thêm ô mức "Cộng tác viên" (sáu mức).
+- MAN_HINH_88: trạng thái Chờ chốt nhóm; thẻ Hoa hồng có phần "Cộng tác viên".
+- MAN_HINH_80: khối Chặn ví (THAY_DOI_22): ví mua sắm, ví hoa hồng, trạng thái Đang chặn hoặc Đang mở; người có `marketplace.payment.manage` nhập lý do, "Chặn" hoặc "Gỡ chặn" (hộp xác nhận); lịch sử (thời điểm, ví, hành động, người làm, lý do).
+- MAN_HINH_102: yêu cầu của người bị chặn ví hoa hồng hiện cảnh báo "Ví hoa hồng của người này đang bị chặn: không ghi được đã chi cho đến khi gỡ chặn."
+- MAN_HINH_103: thông báo "Ví hoa hồng của bạn đang bị chặn rút tiền. Liên hệ VComm để biết thêm."; lịch sử có giao dịch thưởng giới thiệu.
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty vận hành sàn | Kế toán, Kế toán trưởng | Nhân viên có quyền xem tương ứng | Người mua (gồm cộng tác viên) |
+|---|---|---|---|---|
+| MAN_HINH_132, MAN_HINH_133, MAN_HINH_135, MAN_HINH_136 | Dùng (của mình) | Dùng (của mình) | Dùng (của mình) | Dùng (của mình); bảng tin công khai |
+| MAN_HINH_134 | Dùng; mở nhóm khi là cộng tác viên Đã duyệt | Như người mua | Như người mua | Xem, tham gia; mở nhóm: cộng tác viên Đã duyệt |
+| MAN_HINH_137 thẻ Hồ sơ cộng tác viên | Xem, Duyệt, Từ chối, Tạm ngừng, Khôi phục, Gắn nhãn | Không thấy | Xem (`marketplace.buyer.view`) | Không thấy |
+| MAN_HINH_137 thẻ Thưởng giới thiệu | Xem, Sửa | Xem | Xem (`marketplace.order.view`) | Không thấy |
+| MAN_HINH_138 | Xem, Cài đặt, Mở nhóm, Hủy nhóm, Khóa ví mua sắm | Xem | Xem (`marketplace.order.view`) | Không thấy |
+| MAN_HINH_80 khối Chặn ví | Xem, Chặn, Gỡ chặn | Xem, Chặn, Gỡ chặn | Xem (`marketplace.buyer.view`) | Không thấy |
+| MAN_HINH_139 | Xem, Ẩn, Hiện lại, Khóa, Mở khóa, Đăng, Ghim, Cài đặt | Không thấy | Không thấy | Không thấy |
+
+```mermaid
+flowchart TD
+    T[MAN_HINH_76 Tài khoản] -->|Cộng tác viên| C[MAN_HINH_132 Cộng tác viên]
+    T -->|Mời bạn bè| I[MAN_HINH_133 Mời bạn bè]
+    T -->|Ví mua sắm| W[MAN_HINH_135 Ví mua sắm]
+    H[Trang chủ] -->|Xem nhóm đang mở| G[MAN_HINH_134 Mua chung]
+    P[MAN_HINH_91 Chi tiết sản phẩm] -->|Chia sẻ nhận hoa hồng| S((Chia sẻ đường dẫn))
+    P -->|Mua chung sản phẩm này| G
+    P -->|Xem bảng tin| F[MAN_HINH_136 Bảng tin]
+    G -->|Tham gia nhóm| O[MAN_HINH_93 Đặt hàng]
+    G -->|Mở nhóm mua chung| N[Mở nhóm]
+    D[MAN_HINH_96 Chi tiết đơn] -->|Viết đánh giá| F
+    M{Menu web-crm} -->|Cộng tác viên| WC[MAN_HINH_137]
+    M -->|Mua chung| WG[MAN_HINH_138]
+    M -->|Kiểm duyệt cộng đồng| WK[MAN_HINH_139]
+    M -->|Tài khoản người mua| WB[MAN_HINH_80 Chặn ví]
+```
+
+## 73. Đặc tả màn hình (MODULE_10 phần 1)
+
+- MAN_HINH_132 (`/cong-tac-vien`): "‹ Quay lại", tiêu đề "Cộng tác viên". Chưa có hồ sơ hoặc bị từ chối: thẻ "Chia sẻ sản phẩm, nhận hoa hồng" với giải thích 7 ngày từ lần bấm, hoa hồng cộng vào ví hoa hồng khi đơn hoàn tất; ô "Kênh chia sẻ chính (không bắt buộc)"; ô chọn "Tôi đã đọc và đồng ý Điều khoản cộng tác viên VComm (phiên bản …)"; nút "Gửi đăng ký" hoặc "Gửi lại đăng ký"; bị từ chối hiện "Hồ sơ chưa được duyệt. Lý do: … Bạn sửa thông tin rồi gửi lại.". Chờ duyệt: "Đã gửi ngày …. VComm sẽ báo kết quả trong mục thông báo.". Đã duyệt, Tạm ngừng: thẻ "Hồ sơ cộng tác viên" (trạng thái, nhãn KOL, KOC, "Mã cộng tác viên"), hướng dẫn "Mở trang sản phẩm, bấm "Chia sẻ nhận hoa hồng" …"; tạm ngừng hiện lý do và "không ghi nhận lượt bấm mới"; thẻ "30 ngày gần nhất": Lượt bấm đường dẫn, Đơn ghi nhận, Hoa hồng cộng tác viên đang chờ, Đã cộng ví hoa hồng; "Đơn ghi nhận gần đây" (số đơn, sản phẩm, số tiền, Đã cộng hoặc Đang chờ), trống thì "Chưa có đơn nào. Chia sẻ đường dẫn sản phẩm để bắt đầu."; nút mở Ví hoa hồng. API_162.
+- MAN_HINH_133 (`/moi-ban-be`): tiêu đề "Mời bạn bè"; "Đường dẫn giới thiệu" (`<địa chỉ ứng dụng>/r/<mã giới thiệu>`), "Chia sẻ", "Sao chép"; chương trình bật: "Mời bạn, nhận <mức thưởng>" và điều kiện "Bạn nhận … vào ví hoa hồng khi đơn đầu tiên của bạn được mời hoàn tất và có giá trị từ …. Mỗi người được mời tính một lần. Bạn vẫn nhận hoa hồng giới thiệu trên các đơn của họ."; tắt: "Chương trình thưởng giới thiệu đang tạm dừng. …"; danh sách người đã mời: họ tên, số điện thoại che, ngày đăng ký, trạng thái "Đã thưởng <số tiền>", "Đơn đang xử lý", "Chưa đạt điều kiện thưởng", "Chưa có đơn". API_162, API_118.
+- MAN_HINH_134 (`/mua-chung`, `/mua-chung/<id>`, `/mua-chung/mo-nhom`): danh sách: quy tắc "Trả trước theo giá bậc đầu. Hết hạn nhóm, giá chốt theo bậc đạt được; tiền dư hoàn vào ví mua sắm. …"; nút "Đang mở", "Nhóm của tôi"; cộng tác viên Đã duyệt có nút "Mở nhóm mua chung"; mỗi nhóm: ảnh, tên, biến thể, "Nhóm của <người mở>" (nhãn KOL, KOC), bậc giá "từ N sp", tiến độ "Đã có … sản phẩm · thêm … để đạt mốc tối thiểu / xuống bậc tiếp theo" hoặc "đạt bậc giá tốt nhất", "còn …"; lọc theo sản phẩm khi mở từ MAN_HINH_91; trống "Hiện chưa có nhóm mua chung nào đang mở." hoặc "Bạn chưa tham gia nhóm mua chung nào.". Chi tiết nhóm: thanh tiến độ theo bậc, các bậc giá, "Giá nếu chốt ngay" hoặc "Chưa đạt mốc tối thiểu", "Trả trước mỗi sản phẩm", "Kết thúc", "Giá chốt" (đã chốt), "Của bạn / tối đa mỗi người"; chọn số lượng, "Tham gia nhóm" (mở MAN_HINH_93 với nhóm, biến thể, số lượng); đủ số tối đa thì "Bạn đã đặt đủ số lượng tối đa của nhóm này."; "Chia sẻ nhóm" khi nhóm đang mở. Mở nhóm: chọn "Sản phẩm mua chung" (biến thể bật mua chung), "Bậc giá do VComm cài đặt. Tối thiểu … sản phẩm để thành nhóm; mỗi người tối đa …", ô "Thời hạn nhóm (giờ, 1 đến …)", nút "Mở nhóm"; không có biến thể thì "Chưa có sản phẩm nào bật mua chung.". API_164, API_126.
+- MAN_HINH_135 (`/vi-mua-sam`): tiêu đề "Ví mua sắm"; "Số dư"; gợi ý "Tiền hoàn từ mua chung. Dùng để trả đơn VComm khi đặt hàng; không rút, không chuyển được."; khóa toàn hệ thống: "Ví mua sắm đang tạm khóa: chưa dùng số dư để trả đơn được. Số dư vẫn giữ nguyên."; bị chặn: "Ví mua sắm của bạn đang bị chặn: …"; lịch sử: "Hoàn mua chung · <số đơn>", "Chênh lệch mua chung · …", "Trả đơn · …", "Hoàn hủy đơn · …", "Hoàn hàng trả · …", số tiền có dấu, thời điểm, số dư sau; "Xem thêm"; trống "Chưa có giao dịch. Tiền hoàn từ mua chung sẽ hiện ở đây.". API_166.
+- MAN_HINH_136 (thẻ `/bang-tin`, `/bai-dang/<id>`, `/dang-bai`): bảng tin: nút "Đăng bài" (ẩn khi tắt đăng bài hoặc bị khóa); bị khóa: "Bạn bị khóa đăng bài và bình luận đến … Lý do: …. Bạn vẫn xem được bảng tin." hoặc bản vĩnh viễn; tắt: "Đăng bài và bình luận đang tạm tắt. Vui lòng quay lại sau."; lọc theo sản phẩm "Bài đăng và đánh giá về: <tên>", "‹ Mọi bài đăng"; mỗi bài: tác giả (bài VComm tên "VComm"), "Đã ghim", nhãn "Đã mua hàng" và số sao (bài đánh giá), nội dung, ảnh, thẻ sản phẩm gắn (ảnh, tên, giá từ), "Thích · N" hoặc "Đã thích · N", "Bình luận · N", "Báo cáo", "Xóa" (bài của mình); bài của mình đang tự ẩn tạm: "Bài đang tạm ẩn vì nhiều báo cáo, chờ VComm xem xét. Chỉ bạn thấy bài này."; trống "Chưa có bài đăng nào. Hãy là người đầu tiên chia sẻ.". Chi tiết bài: bình luận (bị ẩn hiện "Nội dung đã bị ẩn do vi phạm quy định cộng đồng."), "Xóa" bình luận của mình, ô "Viết bình luận", "Gửi"; bài không còn hiện: "Bài đăng không còn hiển thị.". Báo cáo vi phạm: lý do (Quảng cáo rác, Lừa đảo, Xúc phạm, Nội dung cấm, Khác), "Mô tả (không bắt buộc)", "Gửi báo cáo"; xong "Đã gửi báo cáo. Cảm ơn bạn.". Đăng bài: "Đánh giá hàng đã mua (không bắt buộc)" chọn "Bài thường, không đánh giá" hoặc "Đơn … · <sản phẩm>", "Số sao", "Chỉ đánh giá được dòng hàng đã giao của bạn; mỗi dòng một lần."; "Nội dung (1 đến 2.000 ký tự)"; "Ảnh (n/5)" tải lên, "Bỏ"; "Gắn sản phẩm (n/3)" tìm sản phẩm; "Đăng". API_167, API_169.
+- MAN_HINH_137 (`/crm/collaborators`): tiêu đề "Cộng tác viên"; thẻ "Hồ sơ cộng tác viên": ô "Tìm tên, số điện thoại, mã", lọc "Mọi trạng thái" (Chờ duyệt, Đã duyệt, Từ chối, Tạm ngừng), "Mọi nhãn" (Không nhãn, KOL, KOC); bảng Người mua, Số điện thoại, Mã, Nhãn, Trạng thái, Đơn 30 ngày, Hoa hồng đã cộng 30 ngày, Gửi lúc; chi tiết: kênh chia sẻ chính, "Đồng ý điều khoản: Phiên bản … · …", "30 ngày gần nhất: … lượt bấm · … đơn · đang chờ … · đã cộng …", lý do; Chờ duyệt: "Duyệt", "Lý do từ chối" + "Từ chối"; Đã duyệt: "Lý do tạm ngừng" + "Tạm ngừng"; Tạm ngừng: "Khôi phục"; Đã duyệt, Tạm ngừng: chọn "Nhãn"; "Lịch sử" (Người mua gửi đăng ký, Duyệt, Từ chối, Tạm ngừng, Khôi phục, Đổi nhãn; người làm, thời điểm, lý do). Thẻ "Thưởng giới thiệu" (`marketplace.order.view`): gợi ý cách thưởng; "Đang bật chương trình", "Mức thưởng (đồng, 1 đến 10.000.000)", "Giá trị hoàn tất tối thiểu của đơn (đồng)", "Lưu"; người chỉ có quyền xem thì ô bị khóa. API_163.
+- MAN_HINH_138 (`/crm/group-buys`): tiêu đề "Mua chung"; thẻ "Nhóm": lọc "Mọi trạng thái" (Đang mở, Thành công, Không đủ số lượng, Đã hủy); bảng Sản phẩm, Người mở (VComm hoặc Cộng tác viên, KOL, KOC), Số lượng, Giá theo bậc đạt ("Chưa đạt mốc …"), Kết thúc, Trạng thái; chi tiết: "Người mở … · … đến … · số lượng … · tối đa mỗi người …", bậc giá, "Giá chốt …", lý do hủy; đơn tham gia (Đơn, Người mua, Số lượng, Đã trả, Trạng thái đơn; trống "Chưa có đơn tham gia."); nhóm đang mở có "Lý do hủy nhóm" + "Hủy nhóm" (xác nhận "Hủy nhóm sẽ hủy mọi đơn tham gia và hoàn toàn bộ tiền vào ví mua sắm của người mua. Không hoàn tác được."); khối "Mở nhóm mua chung": "Biến thể", "Thời hạn (giờ)", "Mở nhóm". Thẻ "Cài đặt sản phẩm": "Tìm sản phẩm"; bảng Sản phẩm, Giá bán hiện tại, Bậc giá, Đang bật hoặc Tắt; biểu mẫu "Cài đặt mua chung · <tên>": "Giá bán hiện tại: … (gồm thuế)", "Bật mua chung cho biến thể này", bảng bậc (Bậc, Từ tổng số lượng, Đơn giá gồm thuế; "1 (mốc tối thiểu)"; "Thêm bậc", "Xóa"), "Thời hạn nhóm tối đa (giờ, 1 đến 168)", "Tối đa mỗi người mỗi nhóm (1 đến 999)", "Lưu"; lưu xong "Đã lưu. Nhóm đang mở giữ cài đặt cũ.". Thẻ "Ví mua sắm" (THAY_DOI_22): "Khóa ví mua sắm", gợi ý tác động, trạng thái "Đang khóa" hoặc "Đang mở", nút "Khóa ví mua sắm" hoặc "Mở khóa ví mua sắm" (hộp xác nhận). API_165, API_166.
+- MAN_HINH_139 (`/crm/community`): tiêu đề "Kiểm duyệt cộng đồng"; thẻ "Báo cáo chờ xử lý" và "Nội dung đã ẩn": bảng Nội dung ("Bài: …" hoặc "Bình luận: …"), Tác giả, Báo cáo, Lý do nhiều nhất, Trạng thái (Đang hiện, Tự ẩn tạm, Đã ẩn); chọn một dòng mở khung: "Bài của <tên> · <số điện thoại>", thời điểm, số báo cáo, lý do; nội dung chưa ẩn: "Lý do ẩn (gửi cho tác giả)" + "Ẩn nội dung", "Hiện lại, bỏ qua báo cáo"; nội dung đã ẩn: "Hiện lại"; "Khóa tài khoản": "Thời hạn" (7 ngày, 30 ngày, Vĩnh viễn), "Lý do khóa", "Khóa đăng bài và bình luận" (xác nhận). Thẻ "Tài khoản bị khóa": Người mua, Đến, Lý do, Người khóa, "Mở khóa" (xác nhận); trống "Không có tài khoản nào đang bị khóa.". Thẻ "Bài VComm": "Đăng bài VComm" (nội dung, "Ghim lên đầu bảng tin (tối đa 3 bài ghim)", "Đăng"); bảng Nội dung, Đăng lúc, Tương tác ("… thích · … bình luận"), "Đã ghim", "Ghim" hoặc "Bỏ ghim". Thẻ "Cài đặt": "Người mua được đăng bài", "Người mua được bình luận", gợi ý "Tắt thì nội dung cũ vẫn hiện; chỉ VComm đăng được bài.", "Từ cấm (mỗi dòng một cụm từ, tối đa 500; không phân biệt hoa thường, dấu)", "Lưu". API_168.
+- Trạng thái phê duyệt: người dùng duyệt bản mẫu, xem trước L1 ngày 2026-11-11; L2, L3 xem trước từng lát.
+
+## 74. Màn hình nhập khẩu (MODULE_04 phần 2, CONG_VIEC_45)
+
+Bản mẫu: `ban_mau/MAN_HINH_110_TO_KHAI_NHAP_KHAU.html` đến `MAN_HINH_113_CHI_TIET_CHI_PHI_NHAP_KHAU.html`, người dùng duyệt 2026-11-11. Menu Mua hàng thêm "Tờ khai nhập khẩu", "Chi phí nhập khẩu" (quyền `purchasing.import.view`) sau "Đơn mua".
+
+| Mã | Tên màn hình | Đường dẫn | Chức năng (10) | Vai trò được truy cập (08) |
+|---|---|---|---|---|
+| MAN_HINH_110 | Tờ khai nhập khẩu: danh sách, lập tờ khai (chọn đơn nhập khẩu) | `/purchasing/import-declarations`, `/purchasing/import-declarations/new` | CHUC_NANG_160 | Quản trị, Nhân viên mua hàng, Kế toán, Kế toán trưởng |
+| MAN_HINH_111 | Chi tiết tờ khai: dòng, thuế (gợi ý, đã sửa), xem trước hoặc kết quả phân bổ; sửa, hủy, ghi sổ | `/purchasing/import-declarations/[id]` | CHUC_NANG_160 | Như MAN_HINH_110 |
+| MAN_HINH_112 | Chi phí nhập khẩu: danh sách, lập chứng từ | `/purchasing/landed-costs`, `/purchasing/landed-costs/new` | CHUC_NANG_161 | Như MAN_HINH_110 |
+| MAN_HINH_113 | Chi tiết chi phí nhập khẩu: khoản chi phí, phân bổ theo dòng tờ khai; sửa, hủy, ghi sổ | `/purchasing/landed-costs/[id]` | CHUC_NANG_161 | Như MAN_HINH_110 |
+| MAN_HINH_40, MAN_HINH_41 (sửa) | Đơn mua | Ô "Nhập khẩu", "Tiền tệ"; nhãn "Nhập khẩu · USD"; tổng quy đổi | CHUC_NANG_160 | Như trước |
+| MAN_HINH_32 (sửa) | Chi tiết phiếu kho | Dòng "Tỷ giá" và số ngoại tệ; loại "Phiếu điều chỉnh giá trị" | CHUC_NANG_160 | Như trước |
+| Công nợ đối tác (mini app Tài chính, sửa) | Chi tiết công nợ | Khoản theo đơn ngoại tệ hiện số ngoại tệ, tỷ giá; nguồn "Chi phí nhập khẩu" | CHUC_NANG_160, CHUC_NANG_161 | Như trước |
+
+- Thông báo: "Đã lưu tờ khai.", "Đã ghi sổ tờ khai.", "Đã hủy tờ khai.", "Đã lưu chứng từ chi phí.", "Đã ghi sổ chứng từ chi phí."; lỗi dưới đúng ô, đúng dòng.
+- Quyền hiển thị: nút lập, sửa, ghi sổ, hủy theo `purchasing.import.manage` và `canEdit`, `canPost` của API.
+- Responsive: bảng chuyển thành thẻ; dòng tờ khai, khoản chi phí xếp lưới tự co.
+- Trạng thái phê duyệt: bản mẫu đã duyệt; màn hình xem trước từng lát.

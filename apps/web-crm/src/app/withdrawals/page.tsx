@@ -49,6 +49,11 @@ function WithdrawalCard({ item, onChanged }: { item: WithdrawalItem; onChanged: 
         {item.status === "pending" ? t("projectedTax") : t("tax")}: <strong>{formatNumber(item.taxAmount, 0)}</strong> · {item.status === "pending" ? t("projectedFee") : t("fee")}:{" "}
         <strong>{formatNumber(item.feeAmount, 0)}</strong> · {t("netAmount")}: <strong>{formatNumber(item.netAmount, 0)}</strong>
       </span>
+      {item.walletBlocked ? (
+        <div className="khoi-canh-bao canh-bao" role="status">
+          {t("walletBlocked")}
+        </div>
+      ) : null}
       {item.status === "rejected" ? <span className="chu-thich">{`${t("rejectReason")}: ${item.rejectReason}`}</span> : null}
       {item.status === "paid" ? <span className="chu-thich">{`${t("bankTransactionNo")} ${item.bankTransactionNo} · ${t("paidOn")} ${formatDate(item.paidOn ?? "")}`}</span> : null}
       <FormError text={error} />

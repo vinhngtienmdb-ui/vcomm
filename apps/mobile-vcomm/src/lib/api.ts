@@ -125,3 +125,6 @@ export async function api<T>(path: string, init: RequestInit & { json?: unknown 
 
 // Đường dẫn ảnh, tệp do API trả về dạng /api/v1/... đổi thành địa chỉ đầy đủ.
 export const assetUrl = (path: string | null) => (path ? `${apiBase.replace(/\/api\/v1\/?$/, "")}${path}` : null);
+
+// Header đăng nhập cho ảnh cần quyền (ảnh bài đăng cộng đồng, CONG_VIEC_49).
+export const authorizationHeader = (): Record<string, string> => (tokens ? { authorization: `Bearer ${tokens.accessToken}` } : {});

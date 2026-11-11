@@ -19,6 +19,9 @@ export const Public = () => SetMetadata(publicKey, true);
 // API công khai tự giới hạn số lần gọi sai (webhook ngân hàng chỉ đếm lần sai khóa; CONG_VIEC_18).
 const ownRateLimitKey = "ownRateLimit";
 export const OwnRateLimit = () => SetMetadata(ownRateLimitKey, true);
+// CONG_VIEC_54: API công khai không giới hạn số yêu cầu theo IP (THAY_DOI_23, chấp nhận rủi ro ở tài liệu 22 mục 8).
+const noRateLimitKey = "noRateLimit";
+export const NoRateLimit = () => SetMetadata(noRateLimitKey, true);
 
 // Nhiều API công khai dùng chung một bộ đếm số lần gọi (các đường dẫn đăng nhập trên web và ứng dụng; CONG_VIEC_23).
 const rateLimitGroupKey = "rateLimitGroup";
@@ -56,6 +59,7 @@ export class AuthGuard implements CanActivate {
     if (this.reflector.getAllAndOverride<boolean>(publicKey, [context.getHandler(), context.getClass()])) {
       // API không cần đăng nhập: giới hạn số yêu cầu theo địa chỉ IP (tài liệu 22 mục 3).
       if (this.reflector.getAllAndOverride<boolean>(ownRateLimitKey, [context.getHandler(), context.getClass()])) return true;
+      if (this.reflector.getAllAndOverride<boolean>(noRateLimitKey, [context.getHandler(), context.getClass()])) return true;
       const group = this.reflector.getAllAndOverride<string | undefined>(rateLimitGroupKey, [context.getHandler(), context.getClass()]);
       const route = group ?? `${request.method} ${(request.route as { path?: string } | undefined)?.path ?? request.path}`;
       const retryAfterSeconds = await this.rateLimiter.hit(route, request.ip ?? "khong-ro");

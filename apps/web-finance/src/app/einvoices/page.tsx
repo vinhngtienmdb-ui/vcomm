@@ -131,6 +131,7 @@ function EinvoiceList() {
                       </td>
                       <td data-nhan={headings[5]}>
                         <span>{t(`kind_${item.kind}`)}</span>
+                        {item.origin === "cash_register" && <span className="chu-thich"> · {t("origin_cash_register")}</span>}
                       </td>
                       <td data-nhan={headings[6]}>
                         <EinvoiceStatusBadge status={item.status} overdue={item.overdue} replaced={item.replaced} />
