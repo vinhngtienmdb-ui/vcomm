@@ -3,7 +3,7 @@
 - Mô tả: Trong mini app Nhân sự `apps/web-hr`: ca làm, lịch làm việc, xếp ca; ngày lễ; ghi nhận chấm công từ máy chấm công (nhập tệp), ghi thủ công, chấm công trên ứng dụng (GPS, mạng công ty, mã QR động); đơn giải trình công; nghỉ phép (loại nghỉ, phép năm, đơn nghỉ); tăng ca (phiếu đăng ký, giới hạn theo luật); bảng công tháng có nhân viên xác nhận, nhân sự chốt, làm đầu vào cho lương (CONG_VIEC_48).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Chờ nghiệm thu (người dùng duyệt đặc tả, bản mẫu và điểm xem trước lát L0 đến L3 ngày 2026-11-11).
+- Trạng thái: Đã nghiệm thu 2026-11-11, chờ phát hành (người dùng chấp nhận rủi ro giả vị trí GPS, tài liệu `22` mục 8).
 - Mức: Lớn (nghiệp vụ mới, dữ liệu mới, quyền mới, việc nền mới, dữ liệu vị trí).
 - Nguồn: tài liệu `01` mục 4 (MODULE_08: chấm công), tài liệu `05` mục 2.1; quyết định của người dùng ngày 2026-11-11 (mục 17). Nền: CONG_VIEC_46 (hồ sơ, hợp đồng, schema `hr`, mini app `apps/web-hr`).
 
@@ -199,7 +199,7 @@ Luồng duyệt chung, dãy số chứng từ, đăng nhập, phân quyền hi�
 | Đã kiểm thử, có kết quả trong tài liệu `25` | Kiểm thử tự động c47-calculator, c47-attendance, c47-app-attendance, c47-leave, c47-overtime-timesheet đạt; kết quả toàn bộ kiểm thử API gửi phiên cha ghi tài liệu `25` (sổ dùng chung) |
 | Không phá vỡ chức năng cũ | Đạt: toàn bộ kiểm thử API 60 tệp, 381 ca đạt ngày 2026-11-11; dữ liệu, API của CONG_VIEC_46 chỉ thêm cột `attendance_code` và mục menu |
 | Đạt tiêu chí nghiệm thu bắt buộc | TIEUCHI_NGHIEMTHU_295 đến 302 có kịch bản và kết quả đạt |
-| Đạt cổng bảo mật | Rà soát quyền, phạm vi công ty, mã QR, dữ liệu vị trí (tài liệu `22`); rủi ro giả vị trí GPS chờ người dùng chấp nhận (tài liệu `22` mục 8) |
+| Đạt cổng bảo mật | Rà soát quyền, phạm vi công ty, mã QR, dữ liệu vị trí (tài liệu `22`); rủi ro giả vị trí GPS người dùng chấp nhận ngày 2026-11-11 (tài liệu `22` mục 8) |
 | Đã tự rà soát mã, dọn dẹp | Đạt: truy vấn tham số hóa, khóa đồng thời khi gửi đơn, phiếu, chốt kỳ; không thêm thư viện mới; `qrcode-generator` 2.0.4 dùng lại bản mini app Nền tảng đang dùng cho mã MFA |
 | Đã cập nhật tài liệu `27` và tài liệu liên quan | Đạt: tài liệu 06, 07, 08, 09 (Luồng 46), 10, 11, 12, 14, 15, 16, 17, 21, 22, 27, `index.md` |
 
