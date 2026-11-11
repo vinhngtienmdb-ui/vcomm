@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.13
+- Phiên bản: 2.14
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -17,16 +17,17 @@
 - Cập nhật CONG_VIEC_14 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 2, MAN_HINH_50 đến MAN_HINH_52 (mục 29 đến mục 31); menu mini app Tài chính – Kế toán thêm ba mục
 - Cập nhật CONG_VIEC_15 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 3, MAN_HINH_53 (mục 32 đến mục 34); menu mini app Tài chính – Kế toán thêm mục "Báo cáo tài chính"; sửa MAN_HINH_50 (ô, nhãn "Dài hạn")
 - Cập nhật CONG_VIEC_16 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 4, MAN_HINH_54, MAN_HINH_55 (mục 35 đến mục 37); menu mini app Tài chính – Kế toán thêm mục "Hóa đơn điện tử", "Cài đặt hóa đơn điện tử"
-- Cập nhật CONG_VIEC_17 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 5, MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40); menu mini app Tài chính – Kế toán thêm mục "Hoa hồng", "Cài đặt hoa hồng"
+- Cập nhật CONG_VIEC_17 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 5, MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40); menu mini app Tài chính – Kế toán thêm mục "Hoa hồng", "Cài đặt hoa hồng". Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11)
 - Cập nhật CONG_VIEC_18 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 6, MAN_HINH_58, MAN_HINH_59 (mục 41 đến mục 43); menu mini app Tài chính – Kế toán thêm mục "Giao dịch ngân hàng", "Kết nối ngân hàng"
 - Cập nhật CONG_VIEC_19 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 7, MAN_HINH_60, MAN_HINH_61 (mục 44 đến mục 46); menu mini app Tài chính – Kế toán thêm mục "Đối soát thu hộ"; MAN_HINH_51 (Bút toán) bộ lọc, cột "Nguồn" thêm "Bảng hoa hồng" (sửa lỗi hiện mã thô `commission` từ CONG_VIEC_17), "Bảng đối soát thu hộ"
 - Cập nhật CONG_VIEC_20 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 8, MAN_HINH_62, MAN_HINH_63 (mục 47 đến mục 49); menu mini app Tài chính – Kế toán thêm mục "Báo cáo hợp nhất" sau "Báo cáo tài chính"; sửa sau rà soát: công ty, đối tác trong ngăn kéo điều chỉnh tay, lý do không chốt được hiện câu đã dịch, thẻ xem nhanh chỉ tải khi mở
-- Cập nhật CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm MODULE_07 Khách hàng và Đối tác phần 2, MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52); menu mini app Khách hàng và Đối tác thêm mục "Giao khách hàng"; sơ đồ điều hướng MODULE_07 thay ở mục 50; sửa MAN_HINH_36 (lọc "Khách của tôi", cột nhân viên phụ trách, nút "Nhận làm khách của tôi" trong ngăn kéo thêm đối tác), MAN_HINH_37 (ô nhân viên phụ trách khóa khi đã có, thẻ lịch sử phụ trách)
+- Cập nhật CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm MODULE_07 Khách hàng và Đối tác phần 2, MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52); menu mini app Khách hàng và Đối tác thêm mục "Giao khách hàng"; sơ đồ điều hướng MODULE_07 thay ở mục 50; sửa MAN_HINH_36 (lọc "Khách của tôi", cột nhân viên phụ trách, nút "Nhận làm khách của tôi" trong ngăn kéo thêm đối tác), MAN_HINH_37 (ô nhân viên phụ trách khóa khi đã có, thẻ lịch sử phụ trách). Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11)
 - Cập nhật CONG_VIEC_23 (2026-11-10): thêm MAN_HINH_73 đến MAN_HINH_80 (ứng dụng VComm cho người mua; web-crm người mua VComm); không làm bản mẫu riêng, xem trước từng lát thay cho bản mẫu (quyết định của người dùng)
 - Cập nhật CONG_VIEC_27 (2026-11-10): thêm MAN_HINH_81 đến MAN_HINH_85; sửa MAN_HINH_78, MAN_HINH_80; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_24 (2026-11-11): thêm MAN_HINH_86 đến MAN_HINH_97 (mục 58, mục 59); sửa MAN_HINH_80, MAN_HINH_76 (Tài khoản: nút Sổ địa chỉ); thanh điều hướng ứng dụng thêm thẻ Cửa hàng, Đơn hàng; menu web-crm thêm Cài đặt bán hàng VComm, Đăng bán, Đơn VComm, Yêu cầu trả hàng; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_25 (2026-11-11): thêm MAN_HINH_98 đến MAN_HINH_100 (mục 60, mục 61); sửa MAN_HINH_86 (Đặt hàng và thanh toán), MAN_HINH_88 (thanh toán, các lần thanh toán, ghi đã thu tiền thu hộ), MAN_HINH_93 (chọn phương thức thanh toán), MAN_HINH_96 (trạng thái thanh toán, hoàn tiền), MAN_HINH_76 (nút Tài khoản nhận hoàn tiền); menu web-crm thêm Hoàn tiền; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_26 (2026-11-11): thêm MAN_HINH_101 đến MAN_HINH_104 (mục 62, mục 63); sửa MAN_HINH_86 (Hoa hồng và rút tiền, bảng phí rút tiền theo THAY_DOI_17), MAN_HINH_87 (cột Hoa hồng, nút Thiết lập hoa hồng), MAN_HINH_88 (thẻ Hoa hồng), MAN_HINH_83 (hoa hồng từng cấp dưới), MAN_HINH_76 (nút Ví hoa hồng); menu web-crm thêm Rút tiền hoa hồng; xem trước từng lát thay cho bản mẫu
+- Cập nhật CONG_VIEC_43 (2026-11-11), THAY_DOI_18: bỏ MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40) và mục menu "Hoa hồng", "Cài đặt hoa hồng"; tắt MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52) và mục menu "Giao khách hàng"; sửa MAN_HINH_24 (chọn loại Hàng hóa, Dịch vụ), MAN_HINH_42 (công tắc "Cho phép lập đơn bán tay có hàng hóa"), MAN_HINH_43 (bỏ người hưởng hoa hồng; nút lập đơn theo quyền mới), MAN_HINH_32 (nhãn "Phiếu dịch vụ"), MAN_HINH_36 (bỏ lọc nhân viên phụ trách), MAN_HINH_37 (bỏ lịch sử phụ trách, nút nhận khách; nhân viên phụ trách sửa bằng tay); không làm bản mẫu, xem trước từng lát (mục 64)
 
 ## MODULE_01 Nền tảng
 
@@ -541,6 +542,7 @@ flowchart TD
 - Thông báo: "Đã lưu sản phẩm." · "Đã liên kết." · "Đã sao chép sang <công ty> và liên kết từng biến thể."; lỗi theo CHUC_NANG_31, 32, 34 dưới đúng ô, đúng dòng.
 - Quyền hiển thị: sửa, ảnh, liên kết với `catalog.product.manage`; khu chọn công ty để sao chép, gợi ý chỉ hiện khi nhân viên thuộc công ty khác, kèm câu "Cần quyền quản lý sản phẩm ở cả công ty đích."; phần Giá bán với `catalog.price.view`, nút lập phiếu với `catalog.price.manage`.
 - Responsive: bảng chuyển thành thẻ.
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11) (CHUC_NANG_157): phần "Thông tin chung" thêm ô "Loại" ("Hàng hóa" mặc định, "Dịch vụ"), gợi ý "Dịch vụ không theo dõi tồn kho, lô, số serial."; chọn Dịch vụ thì ẩn ô theo dõi lô, serial, trọng lượng, thể tích. Lỗi: "Dịch vụ không theo dõi lô, số serial.", "Sản phẩm đã phát sinh tồn kho, chứng từ kho; không đổi loại được.".
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_04 mục 14)
 
 ### MAN_HINH_25: Kênh bán và nhóm khách hàng
@@ -718,6 +720,7 @@ flowchart TD
 - Thông báo: "Đã lưu nháp." · "Đã gửi phiếu đi duyệt." · "Công ty chủ hàng chưa có chính sách duyệt cho loại phiếu này nên phiếu đã ghi sổ." · "Đã xóa phiếu nháp." · "Đã rút phiếu."; lỗi theo CHUC_NANG_40 dưới đúng ô, đúng dòng.
 - Quyền hiển thị: sửa, gửi, xóa theo `canEdit`; rút theo `canWithdraw` của API.
 - Responsive: dòng mặt hàng xếp dọc trên điện thoại.
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11) (CHUC_NANG_157): phiếu dịch vụ do hệ thống tự lập hiện nhãn "Phiếu dịch vụ" cạnh trạng thái; chỉ xem. Chọn mặt hàng dịch vụ trong phiếu kho báo "Mặt hàng dịch vụ không theo dõi tồn kho: không lập phiếu kho, giữ hàng, kiểm kê." dưới dòng.
 - Bổ sung CONG_VIEC_07 (CHUC_NANG_52, CHUC_NANG_53; API_76):
   - Lập phiếu nhập mua `/inventory/purchase-receipts/new`: chọn "Đơn mua" ("Chọn đơn mua…"; đơn đã duyệt nhận vào kho người dùng có quyền; không có thì "Không có đơn mua đã duyệt cần nhận vào kho bạn quản lý."); ngày phiếu; câu "Nhập số thực nhận cho dòng có hàng về; dòng để trống không nhận lần này."; mỗi dòng đơn: mặt hàng, nhãn "Cần kiểm tra chất lượng", "Đặt <số> <đơn vị>, còn nhận được <số> <đơn vị>", ô "Thực nhận (<đơn vị>)", số lô, hạn dùng (hàng theo lô), vị trí (kho dùng vị trí), serial (hàng serial); nút "Lưu nháp".
   - Lập phiếu trả hàng `/inventory/purchase-returns/new?receiptId=<phiếu nhập>` (mở bằng nút "Trả hàng nhà cung cấp" ở phiếu nhập mua đã ghi sổ): tiêu đề "Trả hàng nhà cung cấp: <số phiếu nhập>", nhà cung cấp và câu "Hàng trả xuất theo giá trên phiếu nhập gốc."; ngày phiếu, lý do; mỗi dòng gốc "Đã nhập <số> <đơn vị cơ sở>", ô "Số trả (<đơn vị>)" hoặc chọn serial; nút "Lưu nháp".
@@ -802,7 +805,7 @@ flowchart TD
     D -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
 ```
 
-- Thứ tự menu và quyền hiện mục: Đối tác (`crm.partner.view`). Từ CONG_VIEC_21 thêm "Giao khách hàng" (`crm.partner.view`); sơ đồ điều hướng đầy đủ ở mục 50.
+- Thứ tự menu và quyền hiện mục: Đối tác (`crm.partner.view`). Từ CONG_VIEC_21 thêm "Giao khách hàng" (`crm.partner.view`); sơ đồ điều hướng đầy đủ ở mục 50. Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): bỏ mục "Giao khách hàng".
 - Danh sách và chi tiết có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng.
 
 ## 12. Bảng vai trò – màn hình (MODULE_07)
@@ -829,6 +832,7 @@ flowchart TD
 - Responsive: bảng chuyển thành thẻ.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_06 mục 14)
 - Bổ sung CONG_VIEC_21 (CHUC_NANG_96, CHUC_NANG_98; API_71, API_111): bộ lọc thêm "Nhân viên phụ trách" với lựa chọn "Khách của tôi"; trưởng phòng, người có quyền giao khách chọn thêm được từng nhân viên trong phạm vi giao của mình; bảng thêm cột "Nhân viên phụ trách" (trước cột trạng thái; trống hiện "—"). Người không có quyền xem mọi khách chỉ thấy khách mình (và nhân viên phòng mình quản lý) phụ trách (QUYTAC_NGHIEPVU_129); thêm đối tác mới thì tự có hồ sơ khách hàng do mình phụ trách. Ngăn kéo "Thêm đối tác": kiểm trùng trả `canClaim` thì khối "Đã có đối tác <mã> · <tên>." hiện nút "Nhận làm khách của tôi" thay cho "Mở"; bấm thì nhận đối tác, mở MAN_HINH_37; lỗi hiện trong khối đó (QUYTAC_NGHIEPVU_135).
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): bỏ bộ lọc "Nhân viên phụ trách", cột nhân viên phụ trách vẫn hiện; ngăn kéo thêm đối tác bỏ nút "Nhận làm khách của tôi"; mọi người có `crm.partner.view` xem mọi đối tác.
 
 ### MAN_HINH_37: Chi tiết đối tác
 - Mục đích: Xem, sửa thông tin chung của đối tác; xem, lập hồ sơ đối tác của công ty đang chọn.
@@ -845,6 +849,7 @@ flowchart TD
 - Responsive: thẻ xếp dọc; nhãn và giá trị xếp hai cột.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_06 mục 14)
 - Bổ sung CONG_VIEC_21 (CHUC_NANG_96, CHUC_NANG_98; API_72, API_111): đối tác ngoài phạm vi xem hiện "Không tìm thấy dữ liệu hoặc bạn không có quyền xem.". Ngăn kéo hồ sơ: ô "Nhân viên phụ trách" chỉ chọn được khi hồ sơ chưa có nhân viên phụ trách; đã có thì khóa, kèm gợi ý "Đổi nhân viên phụ trách bằng phiếu giao khách." (QUYTAC_NGHIEPVU_134). Hồ sơ là khách hàng: thêm thẻ "Lịch sử phụ trách" sau thẻ hồ sơ, mỗi dòng "<nhân viên> · <từ thời điểm> – <đến thời điểm hoặc "nay">" kèm số phiếu giao khách (liên kết mở MAN_HINH_65) khi có; trống: "Chưa có nhân viên phụ trách.".
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): bỏ thẻ lịch sử phụ trách; ô "Nhân viên phụ trách" trong ngăn kéo hồ sơ luôn chọn được (đổi, bỏ bằng tay), bỏ gợi ý đổi bằng phiếu giao khách.
 
 ## MODULE_04 Mua hàng (phần 1: Mua hàng trong nước, CONG_VIEC_07)
 
@@ -1007,6 +1012,7 @@ flowchart TD
 - Thông báo: "Đã lưu." (cài đặt); lỗi dưới ô chiết khấu.
 - Quyền hiển thị: màn hình với `sales.order.view`; "Lập đơn bán" với `sales.order.manage`; "Cài đặt" với `sales.settings.manage`.
 - Responsive: bảng chuyển thành thẻ.
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11) (CHUC_NANG_158): ngăn kéo "Cài đặt" thêm ô đánh dấu "Cho phép lập đơn bán tay có hàng hóa", gợi ý "Mặc định tắt: đơn bán lập tay chỉ gồm dịch vụ, hàng hóa bán qua sàn VComm.". Nút "Lập đơn bán" với `sales.order.manage` (Kế toán, Kế toán trưởng; Nhân viên bán hàng không thấy).
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_08 mục 14)
 
 ### MAN_HINH_43: Chi tiết, soạn đơn bán
@@ -1024,6 +1030,7 @@ flowchart TD
 - Responsive: bảng chuyển thành thẻ; dòng hàng xếp dọc.
 - Bổ sung CONG_VIEC_09 (CHUC_NANG_58, CHUC_NANG_59; API_80): bộ lọc trạng thái ở MAN_HINH_42 thêm "Chờ xác nhận nội bộ". Chi tiết đơn nội bộ hiện thẻ có nhãn "Nội bộ" kèm "Đơn mua đối ứng của <công ty>: <số, chưa có thì "chưa có số"> (<trạng thái>)" (đơn khởi tạo) hoặc "Sinh từ đơn mua của <công ty>: <số>" (đơn đối ứng); bên kia đã từ chối thì khối cảnh báo "Đã từ chối: <lý do>". Đơn "Chờ xác nhận nội bộ" (theo `canConfirmCounterpart`) hiện câu "Công ty mua đã đặt hàng. Chọn kho xuất rồi xác nhận (kiểm ngoại lệ, giữ hàng như đơn thường), hoặc từ chối kèm lý do.", ô "Kho xuất" (bắt buộc), nút "Xác nhận" (bật khi đã chọn kho), ô "Lý do từ chối", nút "Từ chối" (bật khi có lý do); thông báo "Đã lưu đơn bán."; lỗi thiếu hàng, thiếu liên kết, hồ sơ đối tác hiện kèm "Dòng <số>". Đơn đối ứng không có nút "Sửa đơn bán"; khi "Chờ xác nhận nội bộ" không có nút "Hủy đơn".
 - Bổ sung CONG_VIEC_12 (CHUC_NANG_63; API_77): bảng dòng ở chi tiết, cột mặt hàng thêm: dòng hàng tặng có nhãn "Hàng tặng" kèm " · <tên chương trình>"; dòng có giảm theo sản phẩm thêm " · <tên chương trình>: giảm <phần trăm>%"; dòng nhận phần giảm theo đơn (lớn hơn 0) thêm " · <tên chương trình>: giảm <số tiền>". Dòng hàng tặng có giá 0, giữ hàng, giao hàng như dòng thường. Biểu mẫu soạn không hiện dòng hàng tặng (tự tạo lại khi lưu); dưới "Tổng gồm thuế (tạm tính)" có chú thích "Khuyến mãi đang chạy tự áp khi lưu (giảm theo dòng, theo đơn, hàng tặng); tổng tạm tính chưa gồm khuyến mãi.". Gửi đơn khi chương trình hết ngân sách, hết suất thì thông báo lỗi "Chương trình khuyến mãi đã hết ngân sách hoặc hết suất. Lưu lại đơn để tính lại khuyến mãi rồi gửi.". Kho xuất không đủ hàng tặng lúc lưu: chi tiết đơn hiện khối cảnh báo (dưới khối chứng từ đối ứng, trên khối ngoại lệ) "<chương trình>: thiếu <số> suất tặng do kho xuất không đủ hàng tặng." cho từng chương trình.
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11) (CHUC_NANG_157, CHUC_NANG_158): bỏ "Nhân viên hưởng hoa hồng" ở đầu chi tiết; lưu, gửi đơn có hàng hóa khi cài đặt tắt báo "Đơn bán lập tay chỉ gồm mặt hàng dịch vụ. Hàng hóa bán qua sàn VComm."; đơn nội bộ có hàng hóa báo "Giao dịch nội bộ chỉ gồm mặt hàng dịch vụ." dưới dòng; đơn dịch vụ xác nhận thì phiếu xuất dịch vụ hiện trong danh sách phiếu kho của đơn.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_08 mục 14)
 
 ## MODULE_05 Bán hàng (phần 2: Giao dịch nội bộ, CONG_VIEC_09)
@@ -1322,6 +1329,7 @@ flowchart TD
 - Thông báo: "Đã lưu phiếu kế toán." · "Đã ghi sổ." · "Đã gửi duyệt." · "Đã rút phiếu."; lỗi dưới đúng ô, lỗi dòng dưới bảng.
 - Quyền hiển thị: mục menu với `finance.ledger.view`; "Lập phiếu kế toán" với `finance.journal.manage`; "Sửa", "Gửi", "Rút" theo `canEdit`, `canSubmit`, `canWithdraw` của API.
 - Responsive: bảng chuyển thành thẻ; mỗi dòng phiếu một thẻ, ô xếp dọc trên điện thoại.
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): lọc nguồn "Bảng hoa hồng" giữ để đọc bút toán cũ của CONG_VIEC_17 (nếu có); không sinh bút toán mới nguồn này.
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_14 mục 14)
 
 ### MAN_HINH_52: Sổ sách
@@ -1463,6 +1471,8 @@ flowchart TD
 
 ## MODULE_06 Tài chính – Kế toán (phần 5: Hoa hồng đội kinh doanh, CONG_VIEC_17)
 
+Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): trang `/finance/commissions`, `/finance/commission-settings`, mục menu "Hoa hồng", "Cài đặt hoa hồng" đã xóa. Mục 38 đến mục 40 giữ để tra cứu.
+
 Cùng mini app `apps/web-finance` (mục 26).
 
 ## 38. Danh sách màn hình và điều hướng (MODULE_06 phần 5)
@@ -1499,6 +1509,7 @@ flowchart TD
 ## 40. Đặc tả từng màn hình (MODULE_06 phần 5)
 
 ### MAN_HINH_56: Hoa hồng
+- Trạng thái màn hình: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); không còn trên giao diện.
 - Mục đích: Xem phát sinh hoa hồng; lập, gửi, rút, bỏ bảng hoa hồng tháng.
 - Chức năng thực hiện: CHUC_NANG_82, CHUC_NANG_83
 - Đường dẫn: `/finance/commissions`.
@@ -1518,6 +1529,7 @@ flowchart TD
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_17 mục 14)
 
 ### MAN_HINH_57: Cài đặt hoa hồng
+- Trạng thái màn hình: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); không còn trên giao diện.
 - Mục đích: Cài đặt chính sách hoa hồng đội kinh doanh của công ty; nhập chỉ tiêu tháng của nhân viên.
 - Chức năng thực hiện: CHUC_NANG_80
 - Đường dẫn: `/finance/commission-settings`.
@@ -1772,6 +1784,8 @@ flowchart TD
 
 ## MODULE_07 Khách hàng và Đối tác (phần 2: Gán khách hàng cho nhân viên kinh doanh, CONG_VIEC_21)
 
+Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): trang `/crm/customer-assignments` và mục menu "Giao khách hàng" đã xóa; phần sửa MAN_HINH_36, MAN_HINH_37 bỏ theo mục 64. Mục 50 đến mục 52 giữ để tra cứu.
+
 Cùng mini app `apps/web-crm` (mục 11). Phạm vi xem đối tác theo nhân viên phụ trách (QUYTAC_NGHIEPVU_129) áp dụng cho MAN_HINH_36, MAN_HINH_37 và màn hình đơn bán MAN_HINH_42, MAN_HINH_43 (không đổi giao diện đơn bán; danh sách chọn khách chỉ gồm khách trong phạm vi).
 
 ## 50. Danh sách màn hình và điều hướng (MODULE_07 phần 2)
@@ -1818,6 +1832,7 @@ flowchart TD
 ## 52. Đặc tả từng màn hình (MODULE_07 phần 2)
 
 ### MAN_HINH_64: Danh sách phiếu giao khách
+- Trạng thái màn hình: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); không còn trên giao diện.
 - Mục đích: Theo dõi các phiếu giao, chuyển khách; lập phiếu mới.
 - Chức năng thực hiện: CHUC_NANG_97
 - Đường dẫn: `/crm/customer-assignments`.
@@ -1833,6 +1848,7 @@ flowchart TD
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_21 mục 14)
 
 ### MAN_HINH_65: Phiếu giao khách
+- Trạng thái màn hình: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); không còn trên giao diện.
 - Mục đích: Lập, sửa phiếu giao khách; gửi duyệt; xem kết quả áp dụng.
 - Chức năng thực hiện: CHUC_NANG_97
 - Đường dẫn: `/crm/customer-assignments/new` (lập), `/crm/customer-assignments/<mã>` (chi tiết, sửa).
@@ -2138,3 +2154,23 @@ flowchart TD
 - MAN_HINH_83 (`/kinh-doanh`, thẻ Đội của tôi): mỗi cấp dưới thêm "Hoa hồng đã nhận <số tiền> · đang chờ <số tiền>". API_122.
 - MAN_HINH_76 (`/tai-khoan`): nút "Ví hoa hồng" mở MAN_HINH_103.
 - Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11); ảnh xem trước ở `tam_thoi/CONG_VIEC_26/`.
+
+## Sửa theo mô hình B2C (THAY_DOI_18, CONG_VIEC_43)
+
+## 64. Màn hình sửa, bỏ (CONG_VIEC_43)
+
+Không thêm màn hình. Không làm bản mẫu; xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
+
+| Mã | Tên màn hình | Thay đổi | Chức năng (10) | Vai trò được truy cập (08) |
+|---|---|---|---|---|
+| MAN_HINH_24 | Chi tiết sản phẩm | Ô "Loại" (Hàng hóa, Dịch vụ); dịch vụ ẩn lô, serial, trọng lượng, thể tích | CHUC_NANG_157 | Như trước |
+| MAN_HINH_42 | Đơn bán | Công tắc "Cho phép lập đơn bán tay có hàng hóa" trong ngăn kéo Cài đặt | CHUC_NANG_158 | Lập đơn: Kế toán, Kế toán trưởng, quản trị; xem: thêm Kế toán, Kế toán trưởng; Nhân viên bán hàng chỉ xem |
+| MAN_HINH_43 | Chi tiết, soạn đơn bán | Bỏ người hưởng hoa hồng; lỗi đơn tay chỉ dịch vụ, giao dịch nội bộ chỉ dịch vụ | CHUC_NANG_157, CHUC_NANG_158 | Như MAN_HINH_42 |
+| MAN_HINH_32 | Chi tiết phiếu kho | Nhãn "Phiếu dịch vụ"; lỗi mặt hàng dịch vụ | CHUC_NANG_157 | Như trước |
+| MAN_HINH_36 | Danh sách đối tác | Bỏ lọc nhân viên phụ trách, nút nhận khách | CHUC_NANG_158 | Mọi người có `crm.partner.view`, xem mọi đối tác |
+| MAN_HINH_37 | Chi tiết đối tác | Bỏ lịch sử phụ trách; nhân viên phụ trách sửa bằng tay | CHUC_NANG_158 | Như trước |
+| MAN_HINH_56, MAN_HINH_57 | Hoa hồng, Cài đặt hoa hồng | Đã bỏ | CHUC_NANG_158 | – |
+| MAN_HINH_64, MAN_HINH_65 | Phiếu giao khách | Đã tắt | CHUC_NANG_158 | – |
+
+- Màn hình Ghé thăm khách của web-crm (`/crm/visits`): lọc "Nhân viên" lấy mọi nhân viên đang làm việc của công ty qua `GET /crm/visit-options` (thay danh sách nhân viên của phiếu giao khách); xem mọi lượt của công ty.
+- Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).

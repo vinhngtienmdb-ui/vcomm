@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.14
+- Phiên bản: 2.15
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: trả trước nội bộ, số dư ngược chiều, chốt số khi gửi, công ty và đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm CHUC_NANG_96 đến CHUC_NANG_98 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh); phạm vi xem đối tác (CHUC_NANG_46, CHUC_NANG_48) và đơn bán theo nhân viên phụ trách; CONG_VIEC_23 (2026-11-10): thêm CHUC_NANG_104 đến CHUC_NANG_108 của MODULE_09 (tài khoản người mua); CONG_VIEC_27 (2026-11-10): thêm CHUC_NANG_109 đến CHUC_NANG_112 (đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm CHUC_NANG_113 đến CHUC_NANG_119 của MODULE_09 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm CHUC_NANG_120 đến CHUC_NANG_124 của MODULE_09 (thanh toán đơn người mua); CHUC_NANG_116 thêm chọn phương thức thanh toán; CONG_VIEC_26 (2026-11-11): thêm CHUC_NANG_134 đến CHUC_NANG_138 của MODULE_09 (hoa hồng theo đơn và ví hoa hồng; phí rút tiền theo THAY_DOI_17)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: trả trước nội bộ, số dư ngược chiều, chốt số khi gửi, công ty và đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm CHUC_NANG_96 đến CHUC_NANG_98 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh); phạm vi xem đối tác (CHUC_NANG_46, CHUC_NANG_48) và đơn bán theo nhân viên phụ trách; CONG_VIEC_23 (2026-11-10): thêm CHUC_NANG_104 đến CHUC_NANG_108 của MODULE_09 (tài khoản người mua); CONG_VIEC_27 (2026-11-10): thêm CHUC_NANG_109 đến CHUC_NANG_112 (đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm CHUC_NANG_113 đến CHUC_NANG_119 của MODULE_09 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm CHUC_NANG_120 đến CHUC_NANG_124 của MODULE_09 (thanh toán đơn người mua); CHUC_NANG_116 thêm chọn phương thức thanh toán; CONG_VIEC_26 (2026-11-11): thêm CHUC_NANG_134 đến CHUC_NANG_138 của MODULE_09 (hoa hồng theo đơn và ví hoa hồng; phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm CHUC_NANG_157, CHUC_NANG_158 (sửa theo mô hình B2C); đánh dấu CHUC_NANG_80 đến CHUC_NANG_83 (CONG_VIEC_17) đã bỏ, CHUC_NANG_96 đến CHUC_NANG_98 (CONG_VIEC_21) đã tắt; CHUC_NANG_31, 54, 55, 56, 58, 59, 60 bổ sung
 
 ## MODULE_01 Nền tảng
 
@@ -454,6 +454,7 @@ Quy ước chung cho mọi chức năng của MODULE_02:
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_56
 
 ### CHUC_NANG_31: Quản lý sản phẩm
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): sản phẩm có loại Hàng hóa (mặc định) hoặc Dịch vụ; dịch vụ không theo dõi lô, serial, không nhập trọng lượng, thể tích; đổi loại chỉ khi chưa phát sinh kho (CHUC_NANG_157).
 - Mục đích: Lập và duy trì sản phẩm của công ty đủ thông tin cho Kho, Mua hàng, Bán hàng.
 - Người sử dụng: Quản lý sản phẩm, quản trị công ty, quản trị tập đoàn.
 - Điều kiện thực hiện: Xem: `catalog.product.view`. Thêm, sửa, ngừng bán, ảnh: `catalog.product.manage` trong công ty.
@@ -750,6 +751,8 @@ Quy ước chung cho mọi chức năng của MODULE_07 phần tối thiểu:
 
 ## MODULE_07 Khách hàng và Đối tác (phần 2: Gán khách hàng cho nhân viên kinh doanh, CONG_VIEC_21)
 
+Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): không còn phiếu giao khách, nhận khách, lịch sử phụ trách, phạm vi xem theo nhân viên phụ trách. Mã đã cấp không dùng lại.
+
 Quy ước chung cho mọi chức năng của MODULE_07 phần 2:
 - Quyền (tài liệu `08` mục 29, 30): API trước hết cần `crm.access`, `crm.partner.view` ở công ty đang chọn (đơn bán: quyền Bán hàng như trước); phạm vi xem theo `crm.customer.view_all`; lập phiếu cần `crm.customer.assign` ở phạm vi công ty hoặc tập đoàn, hoặc là trưởng phòng.
 - Phạm vi xem dùng chung một điều kiện SQL cho đối tác và đơn bán (`apps/api/src/crm/customer-scope.ts`); đối tác, đơn bán, phiếu ngoài phạm vi trả `404`.
@@ -758,6 +761,7 @@ Quy ước chung cho mọi chức năng của MODULE_07 phần 2:
 - Sửa, gửi, bỏ phiếu so `version`.
 
 ### CHUC_NANG_96: Phạm vi xem khách hàng, đơn bán theo nhân viên phụ trách và phòng ban
+- Trạng thái: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); thay bằng CHUC_NANG_158 (phạm vi xem toàn công ty). Nội dung dưới đây giữ để tra cứu.
 - Mục đích: Nhân viên kinh doanh chỉ làm việc với khách mình phụ trách; trưởng phòng theo dõi khách của nhân viên phòng mình.
 - Người sử dụng: Nhân viên bán hàng, trưởng phòng kinh doanh; mọi người xem đối tác, đơn bán.
 - Điều kiện thực hiện: Quyền xem đối tác hoặc đơn bán như trước (CHUC_NANG_46, CHUC_NANG_54).
@@ -772,6 +776,7 @@ Quy ước chung cho mọi chức năng của MODULE_07 phần 2:
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_151, TIEUCHI_NGHIEMTHU_152, TIEUCHI_NGHIEMTHU_155
 
 ### CHUC_NANG_97: Phiếu giao khách: lập, gửi duyệt, rút, áp dụng
+- Trạng thái: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); thay bằng CHUC_NANG_158 (phạm vi xem toàn công ty). Nội dung dưới đây giữ để tra cứu.
 - Mục đích: Giao, chuyển khách cho nhân viên có kiểm soát, theo chính sách duyệt của công ty.
 - Người sử dụng: Trưởng phòng, Quản trị công ty, Quản trị tập đoàn (người có `crm.customer.assign`); người duyệt theo chính sách.
 - Điều kiện thực hiện: Lập, sửa, gửi, bỏ: có `crm.customer.assign` ở phạm vi công ty hoặc tập đoàn, hoặc đang là trưởng phòng; sửa, gửi khi phiếu nháp, bị từ chối hoặc đã rút và mình là người lập (người có quyền giao khách sửa được mọi phiếu); bỏ khi nháp chưa gửi lần nào. Rút: người gửi, phiếu chờ duyệt có yêu cầu duyệt.
@@ -786,6 +791,7 @@ Quy ước chung cho mọi chức năng của MODULE_07 phần 2:
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_152, TIEUCHI_NGHIEMTHU_153, TIEUCHI_NGHIEMTHU_154, TIEUCHI_NGHIEMTHU_156
 
 ### CHUC_NANG_98: Lịch sử phụ trách; lọc khách theo nhân viên phụ trách
+- Trạng thái: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); thay bằng CHUC_NANG_158 (phạm vi xem toàn công ty). Nội dung dưới đây giữ để tra cứu.
 - Mục đích: Biết khách do ai phụ trách trong từng giai đoạn; nhân viên tìm nhanh khách của mình.
 - Người sử dụng: Mọi người xem đối tác; nhân viên bán hàng.
 - Điều kiện thực hiện: `crm.access`, `crm.partner.view`; khách trong phạm vi xem. Đặt nhân viên phụ trách: quyền sửa hồ sơ (`crm.profile.manage`). Nhận đối tác: `crm.partner.manage`, không có `crm.customer.view_all`.
@@ -908,6 +914,7 @@ Quy ước chung cho mọi chức năng của MODULE_05 phần 1:
 - Số đã giao, đã trả của dòng đơn bán tính từ phiếu kho (đọc chéo module), không lưu trùng.
 
 ### CHUC_NANG_54: Đơn bán
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): đơn bán lập tay chỉ gồm dịch vụ trừ khi bật cài đặt; Kế toán, Kế toán trưởng lập đơn, Nhân viên bán hàng chỉ xem; bỏ người hưởng hoa hồng trên đơn (CHUC_NANG_157, CHUC_NANG_158).
 - Mục đích: Bán hàng đúng giá bảng giá, chỉ duyệt khi có ngoại lệ, giữ hàng ngay khi gửi để không bán trùng; theo dõi đã giao, đã trả.
 - Người sử dụng: Nhân viên bán hàng, quản trị công ty, quản trị tập đoàn (lập, sửa, gửi, hủy, đóng); Thủ kho (xem).
 - Điều kiện thực hiện: Xem danh sách, chi tiết, danh sách chọn: `sales.order.view` hoặc `sales.order.manage`. Tra giá, tìm mặt hàng, lập, sửa, gửi, hủy, đóng: `sales.order.manage`. Rút: người lập, có `sales.order.manage`.
@@ -924,6 +931,7 @@ Quy ước chung cho mọi chức năng của MODULE_05 phần 1:
 - Bổ sung CONG_VIEC_13 (THAY_DOI_09): ngoại lệ vượt hạn mức công nợ tính theo dư nợ thật (CHUC_NANG_68, QUYTAC_NGHIEPVU_92) thay dư nợ tạm tính (QUYTAC_NGHIEPVU_69).
 
 ### CHUC_NANG_55: Cài đặt bán hàng
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): thêm công tắc "Cho phép lập đơn bán tay có hàng hóa" (mặc định tắt) (CHUC_NANG_158).
 - Mục đích: Công ty đặt mức chiết khấu tay tối đa không cần duyệt.
 - Người sử dụng: Quản trị công ty, quản trị tập đoàn.
 - Điều kiện thực hiện: Xem: `sales.order.view`, `sales.order.manage` hoặc `sales.settings.manage`. Sửa: `sales.settings.manage`.
@@ -938,6 +946,7 @@ Quy ước chung cho mọi chức năng của MODULE_05 phần 1:
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_88
 
 ### CHUC_NANG_56: Phiếu xuất giao hàng theo đơn bán
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): dòng dịch vụ không lập tay phiếu xuất; hệ thống tự lập phiếu xuất dịch vụ khi đơn xác nhận (CHUC_NANG_157).
 - Mục đích: Kho giao đúng hàng của đơn bán, giao nhiều lần, dùng hàng đã giữ.
 - Người sử dụng: Thủ kho, Quản lý kho, quản trị công ty, quản trị tập đoàn.
 - Điều kiện thực hiện: `inventory.sales.issue` tại kho xuất của đơn bán; gửi, xóa nháp chỉ người lập.
@@ -982,6 +991,7 @@ Quy ước chung cho mọi chức năng của MODULE_05 phần 2:
 - Bán hàng ghi `sales`, Mua hàng ghi `purchasing`, Kho ghi `inventory`; sinh, kết thúc chứng từ bên kia qua service của module sở hữu (`InternalTradeService` nối hai module).
 
 ### CHUC_NANG_58: Đơn bán nội bộ sinh đơn mua đối ứng
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): chỉ gồm dịch vụ trừ khi công ty bán bật cài đặt (CHUC_NANG_157).
 - Mục đích: Công ty bán nhập đơn một lần; công ty mua nhận đơn mua đối ứng để xác nhận, đi luồng duyệt của mình.
 - Người sử dụng: Nhân viên bán hàng công ty bán (lập, gửi); Nhân viên mua hàng công ty mua (xác nhận, từ chối); quản trị công ty, quản trị tập đoàn.
 - Điều kiện thực hiện: Đơn bán: như CHUC_NANG_54. Xác nhận, từ chối đơn mua đối ứng: `purchasing.order.manage` ở công ty mua, đơn "Chờ xác nhận nội bộ".
@@ -996,6 +1006,7 @@ Quy ước chung cho mọi chức năng của MODULE_05 phần 2:
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_93, TIEUCHI_NGHIEMTHU_97, TIEUCHI_NGHIEMTHU_98
 
 ### CHUC_NANG_59: Đơn mua nội bộ sinh đơn bán đối ứng
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): chỉ gồm dịch vụ trừ khi công ty bán bật cài đặt (CHUC_NANG_157).
 - Mục đích: Công ty mua đặt hàng công ty con khác đúng giá nội bộ; công ty bán nhận đơn bán đối ứng để xác nhận, giữ hàng.
 - Người sử dụng: Nhân viên mua hàng công ty mua (lập, gửi); Nhân viên bán hàng công ty bán (xác nhận, từ chối); quản trị công ty, quản trị tập đoàn.
 - Điều kiện thực hiện: Đơn mua: như CHUC_NANG_51. Xác nhận, từ chối đơn bán đối ứng: `sales.order.manage` ở công ty bán, đơn "Chờ xác nhận nội bộ".
@@ -1010,6 +1021,7 @@ Quy ước chung cho mọi chức năng của MODULE_05 phần 2:
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_94, TIEUCHI_NGHIEMTHU_97, TIEUCHI_NGHIEMTHU_98
 
 ### CHUC_NANG_60: Giao, nhận hàng nội bộ
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): chỉ áp dụng cho giao dịch nội bộ hàng hóa; dịch vụ giao, nhận bằng phiếu dịch vụ tự lập (CHUC_NANG_157).
 - Mục đích: Hàng xuất ở công ty bán tự thành phiếu nhập chờ nhận ở công ty mua; bên mua chỉ nhập số thực nhận.
 - Người sử dụng: Thủ kho công ty bán (xuất); Thủ kho công ty mua (nhận); Quản lý kho, quản trị.
 - Điều kiện thực hiện: Xuất: như CHUC_NANG_56, thêm đơn mua đối ứng đã duyệt. Nhận: `inventory.purchase.receive` tại kho nhận, phiếu "Chờ nhận".
@@ -1387,12 +1399,15 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 4:
 
 ## MODULE_06 Tài chính – Kế toán (phần 5: Hoa hồng đội kinh doanh, CONG_VIEC_17)
 
+Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): mã, màn hình, quyền, bảng dữ liệu, kiểm thử của phần này đã xóa. Mã đã cấp không dùng lại.
+
 Quy ước chung cho mọi chức năng của MODULE_06 phần 5:
 - Quyền (tài liệu `08` mục 21, 22): API trước hết cần `finance.access` hoặc `finance.commission.view` ở công ty đang chọn; quyền chi tiết phải gán ở phạm vi tập đoàn hoặc công ty. Dữ liệu công ty khác trả `404`.
 - Ghi nhật ký thao tác: `commission_settings.update`, `commission_targets.update`, `commission_statement.create`, `commission_statement.submit`, `commission_statement.withdraw`, `commission_statement.discard`.
 - Tiền trả về dạng chuỗi, bỏ số 0 thừa; tiền tính làm tròn theo đơn vị tiền tệ công ty (`finance.company_minor_units`).
 
 ### CHUC_NANG_80: Cài đặt hoa hồng của công ty; chỉ tiêu tháng
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); thay bằng CHUC_NANG_158 (gỡ hoa hồng cũ), hoa hồng theo đơn VComm ở CHUC_NANG_134 đến CHUC_NANG_138 (CONG_VIEC_26). Nội dung dưới đây giữ để tra cứu.
 - Mục đích: Mỗi công ty tự đặt chính sách hoa hồng đội kinh doanh và chỉ tiêu tháng của từng nhân viên.
 - Người sử dụng: Kế toán trưởng, quản trị công ty, quản trị tập đoàn (sửa); Kế toán (xem).
 - Điều kiện thực hiện: Xem: `finance.commission.view` hoặc `finance.commission.setup`. Sửa cài đặt, chỉ tiêu: `finance.commission.setup`.
@@ -1407,6 +1422,7 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 5:
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_127, TIEUCHI_NGHIEMTHU_131
 
 ### CHUC_NANG_81: Gán nhân viên hưởng hoa hồng cho đơn bán
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); thay bằng CHUC_NANG_158 (gỡ hoa hồng cũ), hoa hồng theo đơn VComm ở CHUC_NANG_134 đến CHUC_NANG_138 (CONG_VIEC_26). Nội dung dưới đây giữ để tra cứu.
 - Mục đích: Đơn bán biết ai hưởng hoa hồng ngay khi gửi, không đổi về sau.
 - Người sử dụng: Nhân viên bán hàng (gửi đơn, gián tiếp).
 - Điều kiện thực hiện: Công ty đang bật; ngày đơn không trước ngày bắt đầu; đơn chưa có nhân viên hưởng.
@@ -1421,6 +1437,7 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 5:
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_128
 
 ### CHUC_NANG_82: Ghi phát sinh hoa hồng khi thu tiền; xem phát sinh
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); thay bằng CHUC_NANG_158 (gỡ hoa hồng cũ), hoa hồng theo đơn VComm ở CHUC_NANG_134 đến CHUC_NANG_138 (CONG_VIEC_26). Nội dung dưới đây giữ để tra cứu.
 - Mục đích: Hoa hồng tính tự động theo tiền đã thu của từng dòng đơn.
 - Người sử dụng: Kế toán (ghi sổ phiếu thu chi, gián tiếp); Thủ kho (ghi sổ phiếu kho, gián tiếp); Kế toán, Kế toán trưởng, quản trị (xem).
 - Điều kiện thực hiện: Ghi: công ty đang bật, đơn có nhân viên hưởng, ngày phát sinh không trước ngày bắt đầu. Xem: `finance.commission.view`.
@@ -1435,6 +1452,7 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 5:
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_129, TIEUCHI_NGHIEMTHU_131
 
 ### CHUC_NANG_83: Bảng hoa hồng tháng
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); thay bằng CHUC_NANG_158 (gỡ hoa hồng cũ), hoa hồng theo đơn VComm ở CHUC_NANG_134 đến CHUC_NANG_138 (CONG_VIEC_26). Nội dung dưới đây giữ để tra cứu.
 - Mục đích: Chốt hoa hồng tháng đúng chính sách, có duyệt và bút toán.
 - Người sử dụng: Kế toán, Kế toán trưởng, quản trị (lập, bỏ, gửi, rút); người duyệt theo chính sách.
 - Điều kiện thực hiện: Xem: `finance.commission.view`. Lập, bỏ bảng nháp, gửi: `finance.commission.manage`. Rút: người lập, bảng chờ duyệt có yêu cầu duyệt.
@@ -1867,6 +1885,28 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 8:
 
 - Toàn vẹn: số dư ví chỉ đổi qua giao dịch ví trong giao dịch có khóa dòng ví; giao dịch ví không sửa, không xóa; một giao dịch hoa hồng mỗi đơn mỗi người, một yêu cầu đang chờ mỗi người (chỉ mục duy nhất).
 - Bảo mật: người dùng chỉ xem, chỉ rút từ ví của mình; thao tác duyệt chi cần `marketplace.payment.manage` (tài liệu `22`).
+- Không thêm thư viện.
+
+## Sửa theo mô hình B2C (THAY_DOI_18, CONG_VIEC_43)
+
+### CHUC_NANG_157: Loại sản phẩm Hàng hóa, Dịch vụ; đơn bán, giao dịch nội bộ dịch vụ không qua kho
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_36; Quy tắc: QUYTAC_NGHIEPVU_275, QUYTAC_NGHIEPVU_276, QUYTAC_NGHIEPVU_277
+- Vai trò: Người sửa sản phẩm (chọn loại); Kế toán, Kế toán trưởng, quản trị (đơn bán); hệ thống (phiếu dịch vụ)
+- Xử lý: sản phẩm có loại; dịch vụ không vào phiếu kho, giữ hàng, kiểm kê, thẻ kho; đơn bán lập tay, giao dịch nội bộ kiểm loại mặt hàng theo cài đặt; khi đơn bán xác nhận (nội bộ thì khi thêm đơn mua đối ứng đã duyệt), hệ thống tự lập, ghi sổ phiếu xuất, phiếu nhập dịch vụ không ghi thẻ kho; công nợ, hóa đơn điện tử, bút toán (doanh thu dịch vụ `service_revenue`; chi phí dịch vụ mua vào `service_expense`) chạy như phiếu ghi sổ
+- Màn hình: MAN_HINH_24 (Chi tiết sản phẩm), MAN_HINH_43 (Đơn bán), MAN_HINH_31, MAN_HINH_32 (Phiếu kho: nhãn "Phiếu dịch vụ"); API: API_56, API_65, API_67, API_68, API_77, API_79, API_80, API_81
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_276, TIEUCHI_NGHIEMTHU_277
+
+### CHUC_NANG_158: Gỡ hoa hồng đội kinh doanh cũ; tắt giao khách; giới hạn đơn bán tay
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_42 (đã bỏ), YCAU_NGHIEPVU_46 (đã tắt); Quy tắc: QUYTAC_NGHIEPVU_276, QUYTAC_NGHIEPVU_278, QUYTAC_NGHIEPVU_279
+- Vai trò: Quản trị (cài đặt bán hàng); mọi người xem đối tác, đơn bán
+- Xử lý: xóa mã, màn hình, quyền, loại chứng từ, bảng dữ liệu hoa hồng cũ (CONG_VIEC_17); tắt phiếu giao khách, nhận khách, lịch sử phụ trách, lọc theo nhân viên phụ trách; người có quyền xem đối tác, đơn bán xem toàn công ty; nhân viên phụ trách sửa bằng tay trên hồ sơ; lọc nhân viên ở Ghé thăm lấy mọi nhân viên của công ty; Nhân viên bán hàng bỏ quyền lập đơn bán, Kế toán, Kế toán trưởng có quyền lập đơn bán; cài đặt "Cho phép lập đơn bán tay có hàng hóa"
+- Màn hình: bỏ MAN_HINH_56, MAN_HINH_57, MAN_HINH_64, MAN_HINH_65; sửa MAN_HINH_36, MAN_HINH_37, MAN_HINH_42, MAN_HINH_43; API: bỏ API_93, API_94, API_110, API_111; sửa API_71, API_72, API_77, API_78; thêm `GET /crm/visit-options`
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_274, TIEUCHI_NGHIEMTHU_275, TIEUCHI_NGHIEMTHU_276
+
+## Yêu cầu phi chức năng của sửa theo mô hình B2C (CONG_VIEC_43)
+
+- Toàn vẹn: phiếu dịch vụ lập trong cùng giao dịch xác nhận đơn; ràng buộc cơ sở dữ liệu: dịch vụ không theo dõi lô, serial; phiếu dịch vụ chỉ là phiếu xuất giao hàng hoặc phiếu nhập mua; thẻ kho, giữ hàng từ chối mặt hàng dịch vụ (chốt chặn cuối).
+- Dữ liệu: không xóa dữ liệu giao khách, giao dịch nội bộ đã có; bút toán cũ nguồn hoa hồng giữ nguyên.
 - Không thêm thư viện.
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09

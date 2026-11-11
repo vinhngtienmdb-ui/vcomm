@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng), phần 7 (Đối soát thu hộ), phần 8 (Báo cáo tài chính hợp nhất), MODULE_07 phần 2 (Gán khách hàng cho nhân viên kinh doanh): đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -2798,7 +2798,10 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 
 ## CHUC_NANG_80, CHUC_NANG_81: Cài đặt hoa hồng, gán đơn (CONG_VIEC_17)
 
+Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): mọi kịch bản hoa hồng đội kinh doanh (KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245) giữ để tra cứu; mã đã cấp không dùng lại.
+
 ### KICHBAN_KIEMTHU_234: Kiểm cài đặt, bậc, mức; chỉ tiêu; chỉ người có quyền cài đặt sửa được
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c17-commissions` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_419.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_127
 - Chức năng: CHUC_NANG_80
 - Loại: Đúng, sai, giá trị biên, phân quyền
@@ -2810,6 +2813,7 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Lát: L0
 
 ### KICHBAN_KIEMTHU_235: Gán theo nhân viên phụ trách khách hoặc người lập đơn; khách không có người phụ trách thì không gán; đổi cài đặt không đổi đơn đã gán
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c17-commissions` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_419.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_128
 - Chức năng: CHUC_NANG_81
 - Loại: Đúng, giá trị biên
@@ -2823,6 +2827,7 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 ## CHUC_NANG_82: Phát sinh hoa hồng (CONG_VIEC_17)
 
 ### KICHBAN_KIEMTHU_236: Thu tiền chia theo dòng, tiền chưa thuế, mức theo ngành hàng và kênh; trả hàng phần chưa thu không phát sinh; hoàn tiền ghi âm
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c17-commissions` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_419.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_129
 - Chức năng: CHUC_NANG_82
 - Loại: Đúng, giá trị biên, phân quyền
@@ -2834,6 +2839,7 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Lát: L0
 
 ### KICHBAN_KIEMTHU_237: Kênh nhân hệ số; thu trước giao sau; bán lẻ không có khách tính khi giao, trả hàng ghi âm
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c17-commissions` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_419.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_129
 - Chức năng: CHUC_NANG_82
 - Loại: Đúng
@@ -2845,6 +2851,7 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Lát: L0
 
 ### KICHBAN_KIEMTHU_238: Mức theo ngành hàng cha gần nhất; hai cách kết hợp
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c17-commissions` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_419.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_129
 - Chức năng: CHUC_NANG_82
 - Loại: Đúng, giá trị biên
@@ -2858,6 +2865,7 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 ## CHUC_NANG_83: Bảng hoa hồng tháng (CONG_VIEC_17)
 
 ### KICHBAN_KIEMTHU_239: Lập lần lượt theo tháng; cơ sở, phần trăm đạt, hệ số; bỏ bảng nháp trả phát sinh; ghi sổ có bút toán chi phí, phải trả người lao động
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c17-commissions` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_419.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_130
 - Chức năng: CHUC_NANG_83
 - Loại: Đúng, sai, phân quyền
@@ -2869,6 +2877,7 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Lát: L1
 
 ### KICHBAN_KIEMTHU_240: Phát sinh của tháng đã chốt về sau (hoàn tiền) vào bảng kỳ sau; tháng chưa kết thúc không lập; bị từ chối trả phát sinh, lập lại được; tổng âm đảo bên
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c17-commissions` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_419.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_130
 - Chức năng: CHUC_NANG_83
 - Loại: Đúng, giá trị biên
@@ -2882,6 +2891,7 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 ## CHUC_NANG_82: Phát sinh theo dòng đơn, sau rà soát (CONG_VIEC_17)
 
 ### KICHBAN_KIEMTHU_241: Trả hết một dòng khi còn nợ, thu phần còn lại: chỉ dòng còn lại có hoa hồng
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c17-commissions` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_419.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_129
 - Chức năng: CHUC_NANG_82
 - Loại: Đúng, giá trị biên
@@ -2893,6 +2903,7 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Lát: L0 (sửa sau rà soát)
 
 ### KICHBAN_KIEMTHU_242: Một dòng đơn giao bằng hai dòng phiếu: hoa hồng tính đủ cả hai dòng
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c17-commissions` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_419.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_129
 - Chức năng: CHUC_NANG_82
 - Loại: Giá trị biên
@@ -2904,6 +2915,7 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Lát: L0 (sửa sau rà soát)
 
 ### KICHBAN_KIEMTHU_245: Bán lẻ gán cho người lập đơn; đơn bán cho công ty con trong tập đoàn không gán
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c17-commissions` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_419.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_128
 - Chức năng: CHUC_NANG_81
 - Loại: Đúng
@@ -2917,6 +2929,7 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 ## Kịch bản thủ công của hoa hồng đội kinh doanh (CONG_VIEC_17)
 
 ### KICHBAN_KIEMTHU_243: Cài đặt, chỉ tiêu, phát sinh, bảng hoa hồng trên trình duyệt (máy tính)
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c17-commissions` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_419.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_131, TIEUCHI_NGHIEMTHU_127, TIEUCHI_NGHIEMTHU_129, TIEUCHI_NGHIEMTHU_130
 - Chức năng: CHUC_NANG_80, CHUC_NANG_82, CHUC_NANG_83
 - Loại: Đúng, giao diện
@@ -2929,6 +2942,7 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 - Lát: L0, L1
 
 ### KICHBAN_KIEMTHU_244: Hoa hồng, cài đặt hoa hồng trên điện thoại
+- Trạng thái: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c17-commissions` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_419.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_131
 - Chức năng: CHUC_NANG_80, CHUC_NANG_82, CHUC_NANG_83
 - Loại: Giao diện
@@ -3154,6 +3168,7 @@ Dữ liệu chung: công ty VCR (`testIds.retailCompany`), tiền tệ đồng V
 ## CHUC_NANG_90: Gửi, duyệt, ghi sổ bảng đối soát (CONG_VIEC_19)
 
 ### KICHBAN_KIEMTHU_264: Còn dòng lỗi không gửi được; ghi sổ trừ nợ đơn, nợ đơn vị thu hộ bằng thực nhận, bút toán, hoa hồng
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): bỏ phần kiểm hoa hồng (phát sinh hoa hồng của tiền thu hộ); tên kiểm thử tự động bỏ "hoa hồng".
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_141, TIEUCHI_NGHIEMTHU_142
 - Chức năng: CHUC_NANG_90
 - Loại: Đúng, sai, phân quyền
@@ -3325,13 +3340,16 @@ Dữ liệu chung: tập đoàn VComm (công ty gốc, chưa khởi tạo kế t
 
 ## MODULE_07 Khách hàng và Đối tác (phần 2: Gán khách hàng cho nhân viên kinh doanh, CONG_VIEC_21)
 
+Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): mọi kịch bản giao khách, phạm vi xem (KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286) giữ để tra cứu; mã đã cấp không dùng lại.
+
 Dữ liệu chung: công ty VCR; tài khoản thử "Bán Hàng A", "Bán Hàng B", "Trưởng Phòng KD" (vai trò Nhân viên bán hàng), "Kế Toán Giao" (vai trò Kế toán), quản trị công ty VCR; phòng "KD" (trưởng phòng là Trưởng Phòng KD) có phòng con "KD1" (Bán Hàng A); Bán Hàng B không thuộc phòng nào; khách A (Bán Hàng A phụ trách), khách B (Bán Hàng B phụ trách), khách "none" (chưa có người phụ trách); đơn bán của khách A, khách B do quản trị lập, đơn bán lẻ do Bán Hàng A lập, đơn của khách "none" do quản trị lập, Bán Hàng A hưởng hoa hồng.
 
-Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DOI_12): kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12, CONG_VIEC_13, CONG_VIEC_14, CONG_VIEC_15, CONG_VIEC_16, CONG_VIEC_17, CONG_VIEC_19 (`c8-sales`, `c12-promotions`, `c13-debts`, `c14-ledger`, `c15-statements`, `c16-einvoices`, `c17-commissions`, `c19-collection-statements`) thêm bước chuẩn bị `salespersonSeesAllCustomers` (`apps/api/test/helpers.ts`): gán `crm.customer.view_all` cho vai trò Nhân viên bán hàng để giữ hành vi viết kịch bản lúc trước (xem mọi khách). Bước chuẩn bị không đổi kịch bản, bước, kết quả mong đợi của các kịch bản đó; phạm vi xem mới kiểm ở `c21-customer-assignment`.
+Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DOI_12): kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12, CONG_VIEC_13, CONG_VIEC_14, CONG_VIEC_15, CONG_VIEC_16, CONG_VIEC_17, CONG_VIEC_19 (`c8-sales`, `c12-promotions`, `c13-debts`, `c14-ledger`, `c15-statements`, `c16-einvoices`, `c17-commissions`, `c19-collection-statements`) thêm bước chuẩn bị `salespersonSeesAllCustomers` (`apps/api/test/helpers.ts`): gán `crm.customer.view_all` cho vai trò Nhân viên bán hàng để giữ hành vi viết kịch bản lúc trước (xem mọi khách). Bước chuẩn bị không đổi kịch bản, bước, kết quả mong đợi của các kịch bản đó; phạm vi xem mới kiểm ở `c21-customer-assignment`. Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): bỏ `salespersonSeesAllCustomers`; các kiểm thử này thêm bước chuẩn bị `allowManualGoodsOrders` (bật cài đặt cho phép lập đơn bán tay có hàng hóa) và `grantSalesOrderManage` (cho người lập đơn quyền lập đơn bán) khi cần; nội dung kiểm tra giữ nguyên (người dùng đồng ý 2026-11-11).
 
 ## CHUC_NANG_96: Phạm vi xem khách hàng, đơn bán (CONG_VIEC_21)
 
 ### KICHBAN_KIEMTHU_278: Nhân viên chỉ thấy khách mình phụ trách, đơn của khách đó, đơn mình lập, đơn mình hưởng hoa hồng; khách, đơn khác nhận 404; thêm đối tác thì tự phụ trách
+- Trạng thái: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c21-customer-assignment` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_420.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_151, TIEUCHI_NGHIEMTHU_155
 - Chức năng: CHUC_NANG_96
 - Loại: Đúng, sai, phân quyền
@@ -3343,6 +3361,7 @@ Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DO
 - Lát: L0
 
 ### KICHBAN_KIEMTHU_279: Người có quyền xem mọi khách xem như cũ; lọc theo nhân viên phụ trách
+- Trạng thái: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c21-customer-assignment` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_420.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_151
 - Chức năng: CHUC_NANG_96, CHUC_NANG_98
 - Loại: Đúng, phân quyền
@@ -3354,6 +3373,7 @@ Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DO
 - Lát: L0
 
 ### KICHBAN_KIEMTHU_280: Trưởng phòng xem khách của nhân viên phòng mình và phòng con, giao khách trong phòng; không giao được khách, nhân viên ngoài phòng
+- Trạng thái: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c21-customer-assignment` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_420.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_152
 - Chức năng: CHUC_NANG_96, CHUC_NANG_97
 - Loại: Đúng, sai, phân quyền
@@ -3367,6 +3387,7 @@ Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DO
 ## CHUC_NANG_97: Phiếu giao khách (CONG_VIEC_21)
 
 ### KICHBAN_KIEMTHU_281: Chưa có chính sách duyệt thì áp dụng ngay; nhân viên cũ không còn thấy khách; đơn đã gán hoa hồng giữ nhân viên cũ; báo nhân viên
+- Trạng thái: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c21-customer-assignment` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_420.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_153, TIEUCHI_NGHIEMTHU_154
 - Chức năng: CHUC_NANG_97
 - Loại: Đúng
@@ -3378,6 +3399,7 @@ Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DO
 - Lát: L1
 
 ### KICHBAN_KIEMTHU_282: Có chính sách duyệt thì chờ duyệt; rút, gửi lại giữ số; khách đổi nhân viên trong lúc chờ thì bị từ chối; sửa, gửi lại, duyệt thì áp dụng
+- Trạng thái: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c21-customer-assignment` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_420.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_153
 - Chức năng: CHUC_NANG_97
 - Loại: Đúng, sai
@@ -3391,6 +3413,7 @@ Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DO
 ## CHUC_NANG_98: Lịch sử phụ trách; hồ sơ; nhận đối tác (CONG_VIEC_21)
 
 ### KICHBAN_KIEMTHU_283: Lịch sử phụ trách ghi đủ các lần, kèm số phiếu; người không thấy khách không xem được lịch sử
+- Trạng thái: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c21-customer-assignment` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_420.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_154, TIEUCHI_NGHIEMTHU_155
 - Chức năng: CHUC_NANG_98
 - Loại: Đúng, phân quyền
@@ -3402,6 +3425,7 @@ Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DO
 - Lát: L1
 
 ### KICHBAN_KIEMTHU_284: Hồ sơ chỉ đặt nhân viên phụ trách khi chưa có, có lịch sử; đổi, bỏ phải dùng phiếu giao khách
+- Trạng thái: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c21-customer-assignment` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_420.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_155
 - Chức năng: CHUC_NANG_98
 - Loại: Đúng, sai
@@ -3413,6 +3437,7 @@ Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DO
 - Lát: L0
 
 ### KICHBAN_KIEMTHU_286: Nhận đối tác có sẵn làm khách; nhân viên nhận ngừng làm việc thì phiếu bị từ chối; sửa đơn nháp của khách đã chuyển đi
+- Trạng thái: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c21-customer-assignment` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_420.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_153, TIEUCHI_NGHIEMTHU_155
 - Chức năng: CHUC_NANG_96, CHUC_NANG_97, CHUC_NANG_98
 - Loại: Đúng, sai, phân quyền
@@ -3426,6 +3451,7 @@ Bước chuẩn bị được người dùng cho phép ngày 2026-11-10 (THAY_DO
 ## Kịch bản thủ công của gán khách hàng (CONG_VIEC_21)
 
 ### KICHBAN_KIEMTHU_285: Gán khách hàng trên trình duyệt (máy tính, điện thoại)
+- Trạng thái: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); kiểm thử `c21-customer-assignment` đã xóa; không còn chạy. Thay bằng KICHBAN_KIEMTHU_420.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_156
 - Chức năng: CHUC_NANG_96, CHUC_NANG_97, CHUC_NANG_98
 - Loại: Đúng, giao diện
@@ -3771,3 +3797,51 @@ Dữ liệu chung: dữ liệu chung của CONG_VIEC_24 (`apps/api/test/marketpl
 - Kết quả mong đợi: bảng trống không thu phí; phí theo lần lấy mức có lần lớn nhất không vượt thứ tự, cộng phí theo số tiền; yêu cầu bị từ chối, đã rút lại không tính lần; phí dự kiến khi gửi, chốt khi duyệt; thực nhận = số tiền − thuế − phí; thuế tính trên toàn bộ số tiền; thực nhận không lớn hơn 0 thì không tạo, không duyệt được ("Thuế và phí vượt số tiền rút. Vui lòng rút số tiền lớn hơn."); bút toán chi trả thêm Có 711 số phí; bảng kê có phí; tự xử lý `409`; ngày chi trước ngày duyệt `400`.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c26-withdrawal-fees.test.ts`
 - Lát: L5
+
+## Sửa theo mô hình B2C (THAY_DOI_18, CONG_VIEC_43)
+
+Dữ liệu chung: công ty VCR, VTH; sản phẩm hàng hóa và dịch vụ (`kind` `service`) có giá bán, giá kênh Nội bộ, liên kết giữa hai công ty; tài khoản Nhân viên bán hàng, Kế toán, Kế toán trưởng, quản trị; người mua VComm thử. Kiểm thử của CONG_VIEC_08, 09, 12 đến 16, 19, 20 lập đơn bán hàng hóa bằng tay thêm bước chuẩn bị bật cài đặt "Cho phép lập đơn bán tay có hàng hóa" (`allowManualGoodsOrders` trong `apps/api/test/helpers.ts`), nội dung kiểm tra giữ nguyên (người dùng đồng ý 2026-11-11). Danh sách kiểm thử cũ đã sửa ghi ở tài liệu `25`.
+
+### KICHBAN_KIEMTHU_419: Hồi quy khi không còn hoa hồng đội kinh doanh cũ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_274
+- Chức năng: CHUC_NANG_158
+- Loại: Hồi quy
+- Vai trò thực hiện: Kế toán; Kế toán trưởng; Nhân viên bán hàng
+- Điều kiện ban đầu và dữ liệu: Đã chạy database migration 0061; không còn bảng, quyền, loại chứng từ hoa hồng cũ.
+- Các bước: Chạy toàn bộ kiểm thử tự động đã có sau khi xóa `c17-commissions`: khởi tạo kế toán (`c14-ledger`), đơn bán (`c8-sales`), công nợ (`c13-debts`), đối soát thu hộ (`c19-collection-statements`), hóa đơn (`c16-einvoices`), hợp nhất (`c20-consolidation-eliminations`).
+- Kết quả mong đợi: Mọi kiểm thử đạt; khởi tạo kế toán không còn lập bút toán bảng hoa hồng; trừ nợ không còn ghi phát sinh hoa hồng; danh mục quyền không còn `finance.commission.*`.
+- Kiểm thử tự động: Tự động API – hồi quy chung `apps/api/test` (không có tệp riêng)
+- Lát: L0
+
+### KICHBAN_KIEMTHU_420: Tắt giao khách; xem toàn công ty; quyền lập đơn bán
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_275
+- Chức năng: CHUC_NANG_158
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Nhân viên bán hàng; Kế toán; Kế toán trưởng
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; đối tác có nhân viên phụ trách khác người xem.
+- Các bước: (1) Gọi API giao khách, tùy chọn giao khách, nhận khách, lịch sử phụ trách; kiểm quyền, loại chứng từ giao khách. (2) Nhân viên bán hàng xem danh sách, chi tiết đối tác, đơn bán của khách người khác phụ trách; sửa nhân viên phụ trách bằng tay trên hồ sơ. (3) Nhân viên bán hàng lập đơn bán; Kế toán, Kế toán trưởng lập đơn bán.
+- Kết quả mong đợi: Bước 1: `404`; không còn `crm.customer.view_all`, `crm.customer.assign`, `crm.customer_assignment`. Bước 2: thấy mọi đối tác, đơn bán của công ty; đổi nhân viên phụ trách thành công. Bước 3: Nhân viên bán hàng `403`; Kế toán, Kế toán trưởng `201`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c43-scope-and-roles.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_421: Sản phẩm dịch vụ; đơn bán tay chỉ dịch vụ; đơn dịch vụ giao đủ khi xác nhận
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_276
+- Chức năng: CHUC_NANG_157, CHUC_NANG_158
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Kế toán; quản trị công ty; người mua VComm thử
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; cài đặt "Cho phép lập đơn bán tay có hàng hóa" tắt; công ty đã khởi tạo kế toán, bật hóa đơn điện tử (bộ giả lập).
+- Các bước: (1) Lưu sản phẩm dịch vụ có theo dõi lô, serial; đưa mặt hàng dịch vụ vào phiếu kho; đổi loại sản phẩm đã có tồn. (2) Lập đơn bán tay có hàng hóa khi cài đặt tắt, rồi bật; lập, gửi đơn chỉ dịch vụ. (3) Người mua đặt đơn VComm hàng hóa khi cài đặt tắt. (4) Kiểm phiếu xuất dịch vụ, tồn, công nợ, hóa đơn, bút toán của đơn chỉ dịch vụ.
+- Kết quả mong đợi: Bước 1: `serviceNoTracking`, `serviceNotStocked`, `productKindLocked`. Bước 2: tắt thì `409` `manualOrderServicesOnly`, bật thì lập được; đơn dịch vụ gửi không giữ hàng, chuyển "Đã giao đủ". Bước 3: đơn VComm lập, xác nhận, giữ hàng như cũ. Bước 4: một phiếu xuất dịch vụ đã ghi sổ (`isService`), tồn không đổi; khoản phải thu; hóa đơn điện tử; bút toán Nợ 131 / Có 511 / Có 33311.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c43-service-orders.test.ts`
+- Lát: L2, L3
+
+### KICHBAN_KIEMTHU_422: Giao dịch nội bộ chỉ dịch vụ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_277
+- Chức năng: CHUC_NANG_157
+- Loại: Đúng, sai
+- Vai trò thực hiện: Kế toán, quản trị công ty VCR (bán) và VTH (mua)
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; công ty bán tắt cài đặt; mặt hàng dịch vụ có liên kết giữa hai công ty.
+- Các bước: (1) Lập đơn bán, đơn mua nội bộ có hàng hóa. (2) Lập, gửi đơn bán nội bộ dịch vụ; bên mua xác nhận đơn mua đối ứng. (3) Lập đơn mua nội bộ dịch vụ; bên bán xác nhận đơn bán đối ứng. (4) Kiểm bút toán phiếu nhập dịch vụ (Thông tư 99).
+- Kết quả mong đợi: Bước 1: `400` tại đúng dòng `internalServicesOnly`. Bước 2: đơn bán "Đã giao đủ", đơn mua "Đã nhận đủ" bằng phiếu xuất, phiếu nhập dịch vụ; không giữ hàng, không ghi thẻ kho, không phiếu nhập chờ nhận. Bước 3: bên bán xác nhận không giữ hàng. Bước 4: Nợ 6427 / Nợ 1331 / Có 331.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c43-internal-services.test.ts`
+- Lát: L2, L3

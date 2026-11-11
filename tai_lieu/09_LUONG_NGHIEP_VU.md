@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.17
+- Phiên bản: 1.18
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm luồng 40 (đơn bán dịch vụ lập tay), luồng 41 (giao dịch nội bộ dịch vụ); Luồng 9, 10, 12, 13, 14 bổ sung; đánh dấu Luồng 29 (CONG_VIEC_17) đã bỏ, Luồng 33 (CONG_VIEC_21) đã tắt
 
 ## MODULE_01 Nền tảng
 
@@ -106,6 +106,8 @@ Trạng thái tài khoản:
 
 ### Luồng 9. Lập, gửi đơn bán
 
+Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): người lập đơn là Kế toán, Kế toán trưởng hoặc quản trị (Nhân viên bán hàng chỉ xem). Đơn lập tay chỉ gồm dịch vụ, trừ khi công ty bật cài đặt cho phép lập đơn bán tay có hàng hóa; dòng dịch vụ không giữ hàng, đơn xác nhận thì giao ngay (Luồng 40).
+
 - Bắt đầu: Nhân viên bán hàng (hoặc quản trị) mở "Lập đơn bán" ở mini app Bán hàng.
 - Các bước:
   1. Chọn khách hàng (đối tác có hồ sơ khách hàng ở công ty) hoặc để trống, ghi tên người mua; chọn kênh bán, kho xuất, ngày đơn.
@@ -118,6 +120,8 @@ Trạng thái tài khoản:
 - Kết thúc: đơn "Đã xác nhận", hàng đang giữ cho đơn.
 
 ### Luồng 10. Giao hàng theo đơn bán
+
+Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): danh sách đơn chờ giao chỉ gồm đơn có hàng hóa; dòng dịch vụ không hiện, không lập tay phiếu xuất (Luồng 40).
 
 - Bắt đầu: Thủ kho mở "Giao hàng theo đơn bán" ở mini app Kho.
 - Các bước:
@@ -155,6 +159,8 @@ Trạng thái đơn bán:
 
 ### Luồng 12. Công ty bán khởi tạo đơn bán nội bộ
 
+Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): giao dịch nội bộ chỉ gồm dịch vụ, trừ khi công ty bán bật cài đặt cho phép lập đơn bán tay có hàng hóa; giao, nhận dịch vụ theo Luồng 41.
+
 - Bắt đầu: công ty A lập đơn bán cho khách là đối tác nội bộ của công ty B (Luồng 9).
 - Các bước:
   1. Chọn kênh "Nội bộ" (`NOI_BO`), kho xuất; mọi mặt hàng phải có liên kết với sản phẩm của B, hai công ty cùng tiền tệ, B có hồ sơ nhà cung cấp cho A (QUYTAC_NGHIEPVU_73); sai thì không lưu, không gửi được.
@@ -166,6 +172,8 @@ Trạng thái đơn bán:
 
 ### Luồng 13. Công ty mua khởi tạo đơn mua nội bộ
 
+Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): như Luồng 12; mặt hàng hàng hóa bị từ chối ở dòng khi công ty bán tắt cài đặt; dịch vụ không giữ hàng khi bên bán xác nhận.
+
 - Bắt đầu: công ty B lập đơn mua với nhà cung cấp là đối tác nội bộ của công ty A.
 - Các bước:
   1. Thêm mặt hàng: giá chưa thuế, thuế suất tự lấy theo bảng giá kênh "Nội bộ" của A (tra qua API_73), khóa sửa; A phải có kênh Nội bộ và hồ sơ khách hàng cho B; cùng tiền tệ; mọi mặt hàng có liên kết (QUYTAC_NGHIEPVU_73, QUYTAC_NGHIEPVU_75).
@@ -176,6 +184,8 @@ Trạng thái đơn bán:
 - Kết thúc: đơn bán đối ứng "Đã xác nhận", hàng đang giữ.
 
 ### Luồng 14. Giao, nhận hàng nội bộ
+
+Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): chỉ áp dụng cho giao dịch nội bộ hàng hóa (công ty bán bật cài đặt). Dịch vụ không xuất kho, không phiếu nhập chờ nhận, không biên bản chênh lệch (Luồng 41).
 
 - Bắt đầu: đơn bán nội bộ "Đã xác nhận", đơn mua bên kia "Đã duyệt".
 - Các bước:
@@ -450,6 +460,8 @@ Trạng thái việc chờ xử lý hóa đơn trả hàng:
 
 ## MODULE_06 Tài chính – Kế toán (phần 5: Hoa hồng đội kinh doanh, CONG_VIEC_17)
 
+Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): Luồng 29 không còn; hoa hồng chỉ theo đơn VComm (Luồng 39, CONG_VIEC_26). Nội dung dưới đây giữ để tra cứu.
+
 ### Luồng 29. Gán nhân viên hưởng, ghi phát sinh, chốt bảng hoa hồng tháng
 
 - Bắt đầu: Kế toán trưởng đã lưu cài đặt hoa hồng của công ty ("Cài đặt hoa hồng" thẻ "Cài đặt": bật, ngày bắt đầu, cách gán, cách kết hợp, mức mặc định, mức theo ngành hàng, hệ số kênh, bậc hệ số) và chỉ tiêu tháng (thẻ "Chỉ tiêu") (QUYTAC_NGHIEPVU_108).
@@ -602,6 +614,8 @@ Trạng thái bảng hợp nhất:
 | Chờ duyệt | Người gửi rút | Đã rút (`withdrawn`) |
 
 ## MODULE_07 Khách hàng và Đối tác (phần 2: Gán khách hàng cho nhân viên kinh doanh, CONG_VIEC_21)
+
+Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): Luồng 33 không còn; người có quyền xem đối tác, đơn bán xem mọi đối tác, đơn bán của công ty; nhân viên phụ trách sửa bằng tay trên hồ sơ đối tác. Nội dung dưới đây giữ để tra cứu.
 
 ### Luồng 33. Giao, chuyển khách hàng cho nhân viên kinh doanh
 
@@ -782,3 +796,35 @@ Trạng thái yêu cầu rút tiền:
 | Chờ duyệt | Kế toán từ chối (cộng lại số dư) | Bị từ chối (`rejected`) |
 | Chờ duyệt | Kế toán duyệt (chốt thuế, số thực nhận) | Đã duyệt (`approved`) |
 | Đã duyệt | Kế toán ghi đã chi | Đã chi (`paid`) |
+
+## Sửa theo mô hình B2C (THAY_DOI_18, CONG_VIEC_43)
+
+### Luồng 40. Đơn bán dịch vụ lập tay
+
+- Bắt đầu: Kế toán (hoặc Kế toán trưởng, quản trị) mở "Lập đơn bán" ở mini app Bán hàng.
+- Các bước:
+  1. Lập đơn như Luồng 9; chỉ chọn mặt hàng dịch vụ (QUYTAC_NGHIEPVU_276).
+  2. Gửi: kiểm lại mặt hàng; dòng dịch vụ không giữ hàng; ngoại lệ, duyệt như Luồng 9.
+  3. Đơn "Đã xác nhận" (ngay hoặc sau duyệt): trong cùng giao dịch, hệ thống lập và ghi sổ một phiếu xuất dịch vụ (ngày xác nhận, số `XBH`, không ghi thẻ kho, không giá vốn) cho phần dịch vụ chưa giao; đơn chuyển "Đã giao đủ" khi mọi dòng đã đủ.
+  4. Ghi sổ phiếu dịch vụ chạy như phiếu xuất thường: khoản phải thu, hóa đơn điện tử (khi công ty bật), bút toán Nợ phải thu / Có doanh thu cung cấp dịch vụ / Có thuế đầu ra.
+- Ngoại lệ: đơn có hàng hóa khi cài đặt tắt: báo "Đơn bán lập tay chỉ gồm mặt hàng dịch vụ. Hàng hóa bán qua sàn VComm.", không lưu, không gửi. Kỳ ngày xác nhận đã khóa sổ: không xác nhận được. Đơn có cả hàng hóa (khi bật cài đặt): dịch vụ giao ngay, hàng hóa giao theo Luồng 10.
+- Kết thúc: đơn "Đã giao đủ"; có công nợ, hóa đơn, bút toán; đơn có phiếu dịch vụ không hủy được (luật hiện có).
+
+### Luồng 41. Giao dịch nội bộ dịch vụ
+
+- Bắt đầu: công ty A lập đơn bán dịch vụ cho công ty B (Luồng 12), hoặc B lập đơn mua dịch vụ với A (Luồng 13).
+- Các bước:
+  1. Lập, gửi, sinh chứng từ đối ứng, bên kia xác nhận như Luồng 12, 13; mọi mặt hàng là dịch vụ (QUYTAC_NGHIEPVU_277); không giữ hàng.
+  2. Khi đủ hai điều kiện đơn bán của A "Đã xác nhận" và đơn mua của B "Đã duyệt", trong cùng giao dịch hệ thống lập, ghi sổ phiếu xuất dịch vụ ở A và phiếu nhập dịch vụ ở B (không ghi thẻ kho, không phiếu nhập chờ nhận, không biên bản chênh lệch).
+  3. Đơn bán "Đã giao đủ", đơn mua "Đã nhận đủ". A có khoản phải thu, hóa đơn điện tử, bút toán doanh thu dịch vụ; B có khoản phải trả, bút toán Nợ chi phí dịch vụ mua vào (6427 theo Thông tư 99, 6422 theo Thông tư 133) / Nợ thuế đầu vào / Có phải trả người bán.
+- Ngoại lệ: hàng hóa trong giao dịch nội bộ khi công ty bán tắt cài đặt: báo "Giao dịch nội bộ chỉ gồm mặt hàng dịch vụ." tại dòng. Từ chối, hủy, kết thúc hai bên như Luồng 15a.
+- Kết thúc: hai đơn đã giao, đã nhận đủ; công nợ hai bên khớp nhau.
+
+Trạng thái bổ sung (CONG_VIEC_43):
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| Đơn bán Đã xác nhận | Phiếu xuất dịch vụ tự lập làm mọi dòng đủ số đặt (đơn chỉ dịch vụ; nội bộ thì khi đơn mua đối ứng đã duyệt) | Đã giao đủ |
+| Đơn mua đối ứng nội bộ Đã duyệt | Phiếu nhập dịch vụ tự lập làm mọi dòng đủ số đặt | Đã nhận đủ |
+
+Không còn trạng thái của bảng hoa hồng (Luồng 29) và phiếu giao khách (Luồng 33).
