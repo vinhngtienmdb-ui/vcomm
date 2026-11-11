@@ -35,7 +35,8 @@ export type CarrierPhase = "waiting_pickup" | "picked" | "delivered" | "returned
 export interface CarrierAdapter {
   code: CarrierCode;
   createShipment(request: ShipmentRequest): Promise<CreatedShipment>;
-  cancelShipment(trackingCode: string): Promise<void>;
+  // clientOrderCode: số đơn đã gửi khi tạo vận đơn (J&T bắt buộc khi hủy; CONG_VIEC_30).
+  cancelShipment(trackingCode: string, clientOrderCode: string): Promise<void>;
   shipmentStatus(trackingCode: string): Promise<string>;
   // Đơn vị vận chuyển có API trả ngày thu tiền thu hộ thì cài đặt; không có thì chỉ dùng trạng thái.
   shipmentInfo?(trackingCode: string): Promise<ShipmentInfo>;
@@ -47,6 +48,8 @@ export interface CarrierAdapter {
   // Chỉ đơn vị vận chuyển không có API tra vận đơn (CONG_VIEC_29; QUYTAC_NGHIEPVU_185): đọc trạng thái từ webhook
   // sau khi lớp kết nối tự xác thực thêm khóa trong nội dung; null khi nội dung không hợp lệ hoặc sai khóa.
   webhookReport?(payload: unknown): WebhookReport | null;
+  // Nội dung trả lời webhook theo yêu cầu của đơn vị vận chuyển; không có thì trả { result } (CONG_VIEC_30).
+  webhookReply?(result: string): unknown;
 }
 
 // Trạng thái đơn vị vận chuyển báo qua webhook đã xác thực (CONG_VIEC_29).

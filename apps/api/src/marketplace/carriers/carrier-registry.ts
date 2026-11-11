@@ -4,6 +4,7 @@ import type { CarrierCode } from "contracts";
 import type { CarrierAdapter } from "./carrier";
 import { GhnCarrier } from "./ghn-carrier";
 import { GhtkCarrier } from "./ghtk-carrier";
+import { JtCarrier } from "./jt-carrier";
 import { ViettelPostCarrier } from "./viettel-post-carrier";
 import { VnpostCarrier, vnpostConfiguration } from "./vnpost-carrier";
 
@@ -63,6 +64,40 @@ export function ghtkConfiguration(): GhtkConfiguration | null {
   };
 }
 
+export interface JtConfiguration {
+  baseUrl: string;
+  apiAccount: string;
+  privateKey: string;
+  customerCode: string;
+  customerPassword: string;
+  webhookKey: string;
+  // Điểm lấy hàng (người gửi) J&T bắt buộc trong mỗi vận đơn (QUYTAC_NGHIEPVU_191).
+  sender: { name: string; phone: string; provinceName: string; wardName: string; streetAddress: string };
+}
+
+// CONG_VIEC_30: JT_BASE_URL mặc định là môi trường thử nghiệm của J&T; môi trường thật đặt https://ylopenapi.jtexpress.vn.
+export function jtConfiguration(): JtConfiguration | null {
+  const value = (name: string) => process.env[name]?.trim() ?? "";
+  const configuration: JtConfiguration = {
+    baseUrl: (value("JT_BASE_URL") || "https://demoopenapi.jtexpress.vn").replace(/\/+$/, ""),
+    apiAccount: value("JT_API_ACCOUNT"),
+    privateKey: value("JT_PRIVATE_KEY"),
+    customerCode: value("JT_CUSTOMER_CODE"),
+    customerPassword: value("JT_CUSTOMER_PASSWORD"),
+    webhookKey: value("JT_WEBHOOK_KEY"),
+    sender: {
+      name: value("JT_SENDER_NAME"),
+      phone: value("JT_SENDER_PHONE"),
+      provinceName: value("JT_SENDER_PROVINCE"),
+      wardName: value("JT_SENDER_WARD"),
+      streetAddress: value("JT_SENDER_ADDRESS"),
+    },
+  };
+  const required = [configuration.apiAccount, configuration.privateKey, configuration.customerCode, configuration.customerPassword, ...Object.values(configuration.sender)];
+  if (required.some((item) => !item) || configuration.webhookKey.length < 24) return null;
+  return configuration;
+}
+
 export interface ViettelPostConfiguration {
   baseUrl: string;
   token: string;
@@ -99,6 +134,10 @@ export function carrierAdapter(code: CarrierCode): CarrierAdapter | null {
     const configuration = ghtkConfiguration();
     return configuration ? new GhtkCarrier(configuration) : null;
   }
+  if (code === "jt") {
+    const configuration = jtConfiguration();
+    return configuration ? new JtCarrier(configuration) : null;
+  }
   if (code === "viettel_post") {
     const configuration = viettelPostConfiguration();
     return configuration ? new ViettelPostCarrier(configuration) : null;
@@ -117,6 +156,7 @@ export function carrierConfigured(code: CarrierCode): boolean {
 export function webhookKeyOf(code: CarrierCode): string | null {
   if (code === "ghn") return ghnConfiguration()?.webhookKey ?? null;
   if (code === "ghtk") return ghtkConfiguration()?.webhookKey ?? null;
+  if (code === "jt") return jtConfiguration()?.webhookKey ?? null;
   if (code === "viettel_post") return viettelPostConfiguration()?.webhookKey ?? null;
   if (code === "vnpost") return vnpostConfiguration()?.webhookKey ?? null;
   return null;

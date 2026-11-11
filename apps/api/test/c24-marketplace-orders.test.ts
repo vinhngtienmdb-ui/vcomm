@@ -184,10 +184,11 @@ describe("CONG_VIEC_24 cài đặt bán hàng, đăng bán", () => {
     const settings = await call("get", "/marketplace/store-settings");
     expect(settings.body).toMatchObject({ version: 0, canManage: true, channelId: null });
     // Danh sách gồm mọi đơn vị vận chuyển trong bảng marketplace.carriers, xếp theo mã; trong kiểm thử này chỉ GHN đã cấu hình
-    // (CONG_VIEC_31 thêm GHTK, CONG_VIEC_29 thêm Viettel Post, CONG_VIEC_28 thêm VNPost).
+    // (CONG_VIEC_31 thêm GHTK, CONG_VIEC_29 thêm Viettel Post, CONG_VIEC_28 thêm VNPost, CONG_VIEC_30 thêm J&T Express).
     expect(settings.body.carriers).toEqual([
       { code: "ghn", name: "Giao Hàng Nhanh (GHN)", isEnabled: false, isConfigured: true },
       { code: "ghtk", name: "Giao Hàng Tiết Kiệm (GHTK)", isEnabled: false, isConfigured: false },
+      { code: "jt", name: "J&T Express", isEnabled: false, isConfigured: false },
       { code: "viettel_post", name: "Viettel Post", isEnabled: false, isConfigured: false },
       { code: "vnpost", name: "Bưu điện Việt Nam (VNPost)", isEnabled: false, isConfigured: false },
     ]);

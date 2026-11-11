@@ -325,6 +325,7 @@ describe("CONG_VIEC_31 giao đơn VComm qua GHTK", () => {
     expect(settings.carriers).toEqual([
       { code: "ghn", name: "Giao Hàng Nhanh (GHN)", isEnabled: false, isConfigured: false },
       { code: "ghtk", name: "Giao Hàng Tiết Kiệm (GHTK)", isEnabled: false, isConfigured: true },
+      { code: "jt", name: "J&T Express", isEnabled: false, isConfigured: false },
       { code: "viettel_post", name: "Viettel Post", isEnabled: false, isConfigured: false },
       { code: "vnpost", name: "Bưu điện Việt Nam (VNPost)", isEnabled: false, isConfigured: false },
     ]);
