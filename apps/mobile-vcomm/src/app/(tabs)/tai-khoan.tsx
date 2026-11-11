@@ -1,7 +1,7 @@
 // MAN_HINH_76 Tài khoản, MAN_HINH_77 Người tôi giới thiệu (CHUC_NANG_106; API_118; QUYTAC_NGHIEPVU_142, 146):
 // mã và đường dẫn giới thiệu, chia sẻ, sao chép; nhập mã người giới thiệu khi chưa có (một lần); người tôi giới thiệu; đăng xuất.
 import type { BuyerMeResponse, BuyerReferralItem } from "contracts";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import { Platform, ScrollView, Share, Text, View } from "react-native";
 import { useAction } from "@/components/auth";
@@ -63,6 +63,7 @@ export default function AccountScreen() {
         <Card>
           <Title>{me.fullName}</Title>
           <Muted>{me.phone}</Muted>
+          <Button label={t("addressBook")} kind="secondary" onPress={() => router.push("/so-dia-chi")} />
         </Card>
         {me.referralCode ? (
           <Card>

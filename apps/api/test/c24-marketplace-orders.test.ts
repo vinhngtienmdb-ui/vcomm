@@ -160,3 +160,70 @@ describe("CONG_VIEC_24 cài đặt bán hàng, đăng bán", () => {
     expect((await buyer("get", "/marketplace/store-settings")).status).toBe(403);
   });
 });
+
+describe("CONG_VIEC_24 cửa hàng, giỏ hàng, sổ địa chỉ", () => {
+  it("KICHBAN_KIEMTHU_311: danh mục 34 tỉnh, xã thuộc tỉnh; sổ địa chỉ tối đa 10, một mặc định, xóa mặc định thì địa chỉ cũ nhất thành mặc định", async () => {
+    await register("0933000002", "Người Mua Địa Chỉ");
+    const buyer = await buyerSession("0933000002");
+    const provinces = await buyer("get", "/buyer/regions/provinces");
+    expect(provinces.body).toHaveLength(34);
+    const hanoi = provinces.body.find((item: { name: string }) => item.name === "Thành phố Hà Nội");
+    const wards = await buyer("get", `/buyer/regions/provinces/${hanoi.code}/wards`);
+    expect(wards.body.length).toBeGreaterThan(100);
+    const baDinh = wards.body.find((item: { name: string }) => item.name === "Phường Ba Đình");
+    const otherProvince = provinces.body.find((item: { code: string }) => item.code !== hanoi.code);
+    const otherWard = (await buyer("get", `/buyer/regions/provinces/${otherProvince.code}/wards`)).body[0];
+    const address = { recipientName: "Nguyễn Văn Nhận", phone: "0911222333", provinceCode: hanoi.code, wardCode: baDinh.code, streetAddress: "12 Phố Điện Biên Phủ" };
+    // Xã không thuộc tỉnh bị từ chối.
+    const wrong = await buyer("post", "/buyer/addresses", { ...address, wardCode: otherWard.code });
+    expect(wrong.status).toBe(400);
+    expect(wrong.body.error.fields.wardCode).toBeTruthy();
+    const first = await buyer("post", "/buyer/addresses", address);
+    expect(first.status, JSON.stringify(first.body)).toBe(201);
+    expect(first.body[0]).toMatchObject({ isDefault: true, phone: "0911222333", wardName: "Phường Ba Đình", provinceName: "Thành phố Hà Nội" });
+    for (let index = 2; index <= 10; index += 1) expect((await buyer("post", "/buyer/addresses", { ...address, streetAddress: `Số ${index}` })).status).toBe(201);
+    const full = await buyer("post", "/buyer/addresses", { ...address, streetAddress: "Số 11" });
+    expect(full.body.error.message).toBe("Sổ địa chỉ đã đủ 10 địa chỉ. Xóa bớt trước khi thêm.");
+    const book = (await buyer("get", "/buyer/addresses")).body;
+    const second = book.find((item: { streetAddress: string }) => item.streetAddress === "Số 2");
+    const defaulted = await buyer("post", `/buyer/addresses/${second.id}/default`);
+    expect(defaulted.body.filter((item: { isDefault: boolean }) => item.isDefault).map((item: { id: string }) => item.id)).toEqual([second.id]);
+    const removed = await buyer("delete", `/buyer/addresses/${second.id}`);
+    expect(removed.body).toHaveLength(9);
+    expect(removed.body[0]).toMatchObject({ isDefault: true, streetAddress: "12 Phố Điện Biên Phủ" });
+    // Người mua khác không sửa được địa chỉ của mình.
+    await register("0933000003", "Người Mua Khác");
+    const other = await buyerSession("0933000003");
+    expect((await other("put", `/buyer/addresses/${removed.body[0].id}`, address)).status).toBe(404);
+    expect((await other("get", "/buyer/addresses")).body).toEqual([]);
+  });
+
+  it("KICHBAN_KIEMTHU_312 (giỏ hàng): cửa hàng chỉ hiện sản phẩm đủ điều kiện; giỏ hàng thêm, sửa, xóa; sản phẩm ngừng bán hiện Ngừng bán", async () => {
+    const buyer = await buyerSession("0933000002");
+    const shop = await buyer("get", "/buyer/shop/products");
+    expect(shop.status, JSON.stringify(shop.body)).toBe(200);
+    // Sản phẩm chưa có giá đã đăng bán vẫn không hiện; serial chưa đăng bán.
+    expect(shop.body.data.map((item: { name: string }) => item.name)).toEqual(["Kem dưỡng da VComm", "Xà phòng thảo dược"]);
+    expect(shop.body.data[0]).toMatchObject({ priceFrom: "250000", inStock: true });
+    expect((await buyer("get", "/buyer/shop/products?search=kem")).body.total).toBe(1);
+    const detail = await buyer("get", `/buyer/shop/products/${products.soap}`);
+    expect(detail.body).toMatchObject({ name: "Xà phòng thảo dược", unitName: "Cái", currency: "VND" });
+    expect(detail.body.variants).toEqual([expect.objectContaining({ id: variants.soap, price: "44000", available: "5" })]);
+    expect((await buyer("get", `/buyer/shop/products/${products.phone}`)).status).toBe(404);
+    expect((await buyer("put", "/buyer/cart/lines", { variantId: variants.phone, quantity: 1 })).body.error.message).toBe("Sản phẩm này hiện không bán trên ứng dụng.");
+    expect((await buyer("put", "/buyer/cart/lines", { variantId: variants.cream, quantity: 0 })).status).toBe(400);
+    expect((await buyer("put", "/buyer/cart/lines", { variantId: variants.cream, quantity: 2 })).status).toBe(200);
+    const cart = await buyer("put", "/buyer/cart/lines", { variantId: variants.soap, quantity: 3 });
+    expect(cart.body.lines.map((line: { productName: string; quantity: number; price: string }) => [line.productName, line.quantity, line.price])).toEqual([
+      ["Kem dưỡng da VComm", 2, "250000"],
+      ["Xà phòng thảo dược", 3, "44000"],
+    ]);
+    expect((await buyer("put", "/buyer/cart/lines", { variantId: variants.cream, quantity: 4 })).body.lines[0].quantity).toBe(4);
+    // Ngừng đăng bán: dòng giỏ còn nhưng không có giá.
+    expect((await call("put", `/marketplace/listings/${products.soap}`, { isPublished: false, description: null })).status).toBe(204);
+    const stopped = await buyer("get", "/buyer/cart");
+    expect(stopped.body.lines[1]).toMatchObject({ productName: "Xà phòng thảo dược", price: null });
+    expect((await call("put", `/marketplace/listings/${products.soap}`, { isPublished: true, description: null })).status).toBe(204);
+    expect((await buyer("delete", `/buyer/cart/lines/${variants.soap}`)).body.lines).toHaveLength(1);
+  });
+});

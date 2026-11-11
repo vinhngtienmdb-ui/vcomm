@@ -33,6 +33,9 @@ function Gate() {
       <Stack.Screen name="r/[code]" />
       <Stack.Screen name="doi/[id]" />
       <Stack.Screen name="de-xuat" />
+      <Stack.Screen name="san-pham/[id]" />
+      <Stack.Screen name="gio-hang" />
+      <Stack.Screen name="so-dia-chi" />
       <Stack.Screen name="index" />
     </Stack>
   );

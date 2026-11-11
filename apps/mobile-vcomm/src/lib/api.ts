@@ -122,3 +122,6 @@ export async function api<T>(path: string, init: RequestInit & { json?: unknown 
   }
   return (response.status === 204 ? undefined : await response.json()) as T;
 }
+
+// Đường dẫn ảnh, tệp do API trả về dạng /api/v1/... đổi thành địa chỉ đầy đủ.
+export const assetUrl = (path: string | null) => (path ? `${apiBase.replace(/\/api\/v1\/?$/, "")}${path}` : null);

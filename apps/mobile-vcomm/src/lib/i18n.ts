@@ -25,3 +25,8 @@ export function errorText(key: string): string {
 export function shortDate(iso: string): string {
   return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-GB", { timeZone: "Asia/Ho_Chi_Minh", day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(iso));
 }
+
+// Tiền đồng Việt Nam làm tròn đến đồng, dạng 189.000 ₫.
+export function money(value: string | number): string {
+  return `${new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(Math.round(Number(value)))} ₫`;
+}

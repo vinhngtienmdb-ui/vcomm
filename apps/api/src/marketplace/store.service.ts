@@ -41,7 +41,7 @@ type SettingsRow = {
   version: number;
 };
 
-export type PricedVariant = { variantId: string; sku: string; optionValues: Record<string, string>; unitId: string; price: string; includesVat: boolean; grossPrice: string };
+export type PricedVariant = { variantId: string; sku: string; optionValues: string[]; unitId: string; price: string; includesVat: boolean; grossPrice: string };
 
 export const carrierNames: Record<CarrierCode, string> = { ghn: "Giao Hàng Nhanh (GHN)" };
 const vatFraction = (rate: VatRate) => (["0", "5", "8", "10"].includes(rate) ? Number(rate) / 100 : 0);
@@ -105,7 +105,7 @@ export async function availableQuantities(executor: Executor, warehouseId: strin
 export async function pricedVariants(executor: Executor, context: StoreContext, productIds: string[], date: string): Promise<Map<string, PricedVariant[]>> {
   const result = new Map<string, PricedVariant[]>();
   if (productIds.length === 0) return result;
-  const variants = await executor.execute<{ id: string; product_id: string; sku: string; option_values: Record<string, string> | null; base_unit_id: string; vat_rate: VatRate }>(sql`
+  const variants = await executor.execute<{ id: string; product_id: string; sku: string; option_values: string[] | null; base_unit_id: string; vat_rate: VatRate }>(sql`
     SELECT v.id, v.product_id, v.sku, v.option_values, p.base_unit_id, p.vat_rate FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id
     WHERE v.status = 'active' AND v.company_id = ${context.companyId} AND v.product_id IN (${sql.join(
       productIds.map((id) => sql`${id}::uuid`),
@@ -118,7 +118,7 @@ export async function pricedVariants(executor: Executor, context: StoreContext, 
     list.push({
       variantId: variant.id,
       sku: variant.sku,
-      optionValues: variant.option_values ?? {},
+      optionValues: variant.option_values ?? [],
       unitId: variant.base_unit_id,
       price: found.price,
       includesVat: found.includesVat,

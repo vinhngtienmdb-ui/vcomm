@@ -131,3 +131,16 @@ export function StatusBadge({ text, tone }: { text: string; tone: "success" | "w
     </View>
   );
 }
+
+// Tăng giảm số lượng nguyên trong khoảng 1 đến tối đa.
+export function QuantityStepper({ value, maximum, onChange, label }: { value: number; maximum: number; onChange: (value: number) => void; label: string }) {
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
+      <Button label="−" kind="secondary" disabled={value <= 1} onPress={() => onChange(value - 1)} />
+      <Text accessibilityLabel={label} style={{ minWidth: 32, textAlign: "center", fontSize: 16, fontWeight: "700", color: colors.text }}>
+        {value}
+      </Text>
+      <Button label="+" kind="secondary" disabled={value >= maximum} onPress={() => onChange(value + 1)} />
+    </View>
+  );
+}

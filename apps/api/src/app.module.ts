@@ -58,6 +58,8 @@ import { MarketplaceController } from "./marketplace/marketplace.controller";
 import { SalesTeamService } from "./marketplace/sales-team.service";
 import { SalesProposalsService } from "./marketplace/sales-proposals.service";
 import { StoreService } from "./marketplace/store.service";
+import { ShopController } from "./marketplace/shop.controller";
+import { ShopService } from "./marketplace/shop.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
@@ -117,7 +119,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, CommissionsController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, CommissionsController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController],
   providers: [
     AuthService,
     ActivationService,
@@ -154,6 +156,7 @@ import { UsersService } from "./users/users.service";
     SalesTeamService,
     SalesProposalsService,
     StoreService,
+    ShopService,
     SupplierPricesService,
     SalesOrdersService,
     InternalTradeService,

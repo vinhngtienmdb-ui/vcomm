@@ -4145,3 +4145,88 @@ export const listingListQuerySchema = z
   .strict();
 export const updateListingSchema = z.object({ isPublished: z.boolean(), description: z.string().trim().max(5000).nullable() }).strict();
 export const testBuyerSchema = z.object({ isTestBuyer: z.boolean() }).strict();
+
+// API_124: cửa hàng, giỏ hàng trên ứng dụng (QUYTAC_NGHIEPVU_155, 157). Giá là giá gồm thuế của một đơn vị cơ sở.
+export interface ShopProductItem {
+  id: string;
+  name: string;
+  imageUrl: string | null;
+  priceFrom: string;
+  inStock: boolean;
+}
+
+export interface ShopVariant {
+  id: string;
+  sku: string;
+  // Giá trị phân loại theo thứ tự thuộc tính của sản phẩm.
+  optionValues: string[];
+  price: string;
+  available: string;
+}
+
+export interface ShopProductDetail {
+  id: string;
+  name: string;
+  description: string | null;
+  unitName: string;
+  images: string[];
+  options: Array<{ name: string; values: string[] }>;
+  variants: ShopVariant[];
+  currency: string;
+}
+
+export const shopProductQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(50).default(20),
+  })
+  .strict();
+
+export interface CartLineItem {
+  variantId: string;
+  productId: string;
+  productName: string;
+  variantLabel: string;
+  imageUrl: string | null;
+  quantity: number;
+  // null: không còn bán (ngừng đăng bán, hết giá, ngừng hoạt động).
+  price: string | null;
+  available: string;
+}
+
+export interface CartResponse {
+  lines: CartLineItem[];
+  currency: string;
+}
+
+export const cartLineSchema = z.object({ variantId: z.uuid(), quantity: z.number().int().min(1).max(999) }).strict();
+
+// API_125: danh mục tỉnh, xã; sổ địa chỉ (QUYTAC_NGHIEPVU_156).
+export interface RegionItem {
+  code: string;
+  name: string;
+}
+
+export interface BuyerAddressItem {
+  id: string;
+  recipientName: string;
+  phone: string;
+  provinceCode: string;
+  provinceName: string;
+  wardCode: string;
+  wardName: string;
+  streetAddress: string;
+  isDefault: boolean;
+}
+
+export const buyerAddressSchema = z
+  .object({
+    recipientName: z.string().trim().min(1).max(100),
+    phone: vietnamPhone,
+    provinceCode: z.string().trim().min(1).max(10),
+    wardCode: z.string().trim().min(1).max(10),
+    streetAddress: z.string().trim().min(1).max(200),
+    isDefault: z.boolean().default(false),
+  })
+  .strict();
