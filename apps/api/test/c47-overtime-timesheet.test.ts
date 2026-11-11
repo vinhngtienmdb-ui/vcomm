@@ -4,7 +4,8 @@ import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { calculateDay, vietnamTime, type ShiftDefinition } from "../src/hr/attendance-calculator";
 import { TimesheetsService } from "../src/hr/timesheets.service";
-import type { Session } from "./helpers";
+import { createTestUser, signIn, type Session } from "./helpers";
+import { testIds } from "../src/database/seed";
 import { department, hrEmployee, officeSetup, retail, userWithRole } from "./c47-helpers";
 import { startTestApplication, testClock } from "./setup-database";
 
@@ -222,6 +223,21 @@ describe("CONG_VIEC_47 bảng công tháng (KICHBAN_KIEMTHU_451)", () => {
     const reopened = await call(hr, "post", "/hr/timesheets/2026-10/reopen", { reason: "Sai công" });
     expect(reopened.body.status).toBe("open");
     expect((await pool.query("SELECT 1 FROM hr.leave_ledger WHERE employee_id = $1 AND kind = 'month_reversal'", [employeeId])).rows).toHaveLength(0);
+    // Cách ly công ty: quản trị công ty khác không thấy dòng, phiếu của công ty này.
+    const otherId = await createTestUser(pool, "quantri.vct.tangca@vcomm.test", "Quản trị VCT", [{ companyId: testIds.tradingCompany }]);
+    const adminRole = (await pool.query<{ id: string }>("SELECT id FROM core.roles WHERE code = 'company_admin' AND company_id IS NULL")).rows[0]!.id;
+    await pool.query("INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, valid_from) VALUES ($1, $2, 'company', $3, '2020-01-01')", [
+      otherId,
+      adminRole,
+      testIds.tradingCompany,
+    ]);
+    const other = await signIn(application, "quantri.vct.tangca@vcomm.test");
+    const otherSheet = await other.call("get", "/hr/timesheets/2026-10", { companyId: testIds.tradingCompany });
+    expect(otherSheet.status).toBe(200);
+    expect(otherSheet.body.lines.some((item: { employeeId: string }) => item.employeeId === employeeId)).toBe(false);
+    expect((await other.call("post", `/hr/timesheets/2026-10/lines/${employeeId}/reply`, { companyId: testIds.tradingCompany, body: { reply: "Thử" } })).status).toBeGreaterThanOrEqual(400);
+    expect((await other.call("get", "/hr/overtime?month=2026-11", { companyId: testIds.tradingCompany })).body).toEqual([]);
+    expect((await other.call("get", "/hr/timesheets/2026-10", { companyId: retail })).status).toBe(403);
     const exported = await call(hr, "get", "/hr/timesheets/2026-10/export");
     expect(exported.status).toBe(200);
     expect(exported.headers["content-type"]).toContain("spreadsheetml");
