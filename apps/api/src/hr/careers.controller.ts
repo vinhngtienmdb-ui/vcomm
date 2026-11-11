@@ -1,5 +1,5 @@
 // API_204: trang tuyển dụng công khai, không đăng nhập (CONG_VIEC_54; QUYTAC_NGHIEPVU_382).
-// Không giới hạn số yêu cầu theo IP theo quyết định của người dùng (chấp nhận rủi ro ở tài liệu 22); kích thước, loại tệp vẫn kiểm.
+// Không giới hạn số yêu cầu theo IP (THAY_DOI_23, chấp nhận rủi ro ở tài liệu 22 mục 8); kích thước, loại tệp vẫn kiểm.
 import { Body, Controller, Get, HttpCode, Param, Post, Query, Req, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { careersApplySchema, careersListQuerySchema, type CareersApplyResponse, type CareersListResponse, type CareersPostingResponse } from "contracts";

@@ -19,7 +19,7 @@ export const Public = () => SetMetadata(publicKey, true);
 // API công khai tự giới hạn số lần gọi sai (webhook ngân hàng chỉ đếm lần sai khóa; CONG_VIEC_18).
 const ownRateLimitKey = "ownRateLimit";
 export const OwnRateLimit = () => SetMetadata(ownRateLimitKey, true);
-// CONG_VIEC_54: API công khai không giới hạn số yêu cầu theo IP (quyết định của người dùng 2026-11-11, chấp nhận rủi ro ghi ở tài liệu 22).
+// CONG_VIEC_54: API công khai không giới hạn số yêu cầu theo IP (THAY_DOI_23, chấp nhận rủi ro ở tài liệu 22 mục 8).
 const noRateLimitKey = "noRateLimit";
 export const NoRateLimit = () => SetMetadata(noRateLimitKey, true);
 

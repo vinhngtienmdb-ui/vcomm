@@ -22,7 +22,7 @@ Ngoài phạm vi (công việc sau):
 - Lịch phỏng vấn nối lịch Google, Microsoft; bài kiểm tra trực tuyến.
 - Đánh giá 360 độ (đồng nghiệp, cấp dưới); phân bổ xếp loại bắt buộc theo tỷ lệ; nối kết quả đánh giá vào lương, thưởng (CONG_VIEC_48).
 - Tự đề xuất chấm dứt hợp đồng theo kết quả đánh giá.
-- Giới hạn số yêu cầu, ô ẩn chống máy, mã OTP ở trang tuyển dụng công khai (người dùng quyết định không chặn, mục 17).
+- Giới hạn số yêu cầu, ô ẩn chống máy, mã OTP ở trang tuyển dụng công khai (người dùng quyết định không chặn, mục 17; THAY_DOI_23).
 
 ## 3. Căn cứ pháp lý đã tra (2026-11-11)
 
@@ -126,7 +126,7 @@ Ghi chú: nguyên văn các điều trên đọc từ bản đăng lại trên t
 - Nộp hồ sơ: lưu tệp trước, ghi cơ sở dữ liệu trong giao dịch; lỗi thì xóa tệp vừa lưu.
 - Xóa ứng viên: xóa tệp trên kho lưu trữ trước, rồi khử nhận dạng trong giao dịch; tệp xóa lỗi thì giữ ứng viên ở hàng chờ, việc nền chạy lại; chạy lại không lỗi khi tệp đã mất.
 - Lập hồ sơ nhân sự từ ứng viên, tăng số đã tuyển: khóa nhu cầu (`FOR UPDATE`) để không vượt số lượng khi hai yêu cầu đồng thời.
-- Bỏ giới hạn yêu cầu theo IP ở API_204 là thay đổi quy tắc tài liệu `22` mục 3 (LOI_02): cần phiếu THAY_DOI (xin số từ phiên cha) và ghi chấp nhận rủi ro trong tài liệu `22` (hồ sơ rác hàng loạt, đầy kho lưu trữ, tốn tài nguyên). Giới hạn kích thước tệp 10 MB, kiểm loại tệp, kiểm dữ liệu vẫn giữ.
+- Bỏ giới hạn yêu cầu theo IP ở API_204 là thay đổi quy tắc tài liệu `22` mục 3 (LOI_02): THAY_DOI_23; chấp nhận rủi ro ghi trong tài liệu `22` mục 8 (hồ sơ rác hàng loạt, đầy kho lưu trữ, tốn tài nguyên). Giới hạn kích thước tệp 10 MB, kiểm loại tệp, kiểm dữ liệu vẫn giữ.
 
 ## 11. Tiêu chí nghiệm thu
 
@@ -178,7 +178,7 @@ Luồng duyệt chung, dãy số chứng từ, đăng nhập, phân quyền; h�
 
 - Ứng viên không trúng tuyển: tự xóa sau 30 ngày; đồng ý vào kho ứng viên thì giữ 12 tháng; thời hạn cấu hình theo công ty.
 - Có trang ứng tuyển công khai; một trang chung cả tập đoàn.
-- Trang công khai không OTP, không giới hạn số lần nộp, bỏ cả giới hạn theo IP (cần phiếu thay đổi, chấp nhận rủi ro).
+- Trang công khai không OTP, không giới hạn số lần nộp, bỏ cả giới hạn theo IP: THAY_DOI_23 (chấp nhận rủi ro ghi ở tài liệu `22` mục 8).
 - Gửi email mời phỏng vấn và kết quả cho ứng viên.
 - Đề nghị nhận việc qua luồng duyệt chung.
 - Đánh giá hiệu suất: mục tiêu và năng lực có trọng số, thang 1 đến 5, xếp loại A, B, C, D theo ngưỡng của kỳ; người quản lý chấm là điểm chính thức, tự đánh giá để tham khảo.
