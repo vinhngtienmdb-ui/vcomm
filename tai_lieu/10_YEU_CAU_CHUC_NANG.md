@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.12
+- Phiên bản: 2.13
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: trả trước nội bộ, số dư ngược chiều, chốt số khi gửi, công ty và đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm CHUC_NANG_96 đến CHUC_NANG_98 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh); phạm vi xem đối tác (CHUC_NANG_46, CHUC_NANG_48) và đơn bán theo nhân viên phụ trách; CONG_VIEC_23 (2026-11-10): thêm CHUC_NANG_104 đến CHUC_NANG_108 của MODULE_09 (tài khoản người mua); CONG_VIEC_27 (2026-11-10): thêm CHUC_NANG_109 đến CHUC_NANG_112 (đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm CHUC_NANG_113 đến CHUC_NANG_119 của MODULE_09 (đặt hàng trên VComm)
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: trả trước nội bộ, số dư ngược chiều, chốt số khi gửi, công ty và đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm CHUC_NANG_96 đến CHUC_NANG_98 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh); phạm vi xem đối tác (CHUC_NANG_46, CHUC_NANG_48) và đơn bán theo nhân viên phụ trách; CONG_VIEC_23 (2026-11-10): thêm CHUC_NANG_104 đến CHUC_NANG_108 của MODULE_09 (tài khoản người mua); CONG_VIEC_27 (2026-11-10): thêm CHUC_NANG_109 đến CHUC_NANG_112 (đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm CHUC_NANG_113 đến CHUC_NANG_119 của MODULE_09 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm CHUC_NANG_120 đến CHUC_NANG_124 của MODULE_09 (thanh toán đơn người mua); CHUC_NANG_116 thêm chọn phương thức thanh toán
 
 ## MODULE_01 Nền tảng
 
@@ -1772,7 +1772,7 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 8:
 ### CHUC_NANG_116: Đặt hàng, đơn của tôi, hủy đơn
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_50; Quy tắc: QUYTAC_NGHIEPVU_158, QUYTAC_NGHIEPVU_159
 - Vai trò: Người mua, người mua thử; nhân viên có `marketplace.order.manage`
-- Xử lý: xem trước tiền hàng, phí giao hàng; đặt hàng (người mua thử) lập đơn bán, giữ hàng; danh sách, chi tiết, lịch sử đơn; hủy kèm lý do; quản trị xem, tìm, hủy đơn trên web
+- Xử lý: xem trước tiền hàng, phí giao hàng; chọn phương thức thanh toán đang bật (CONG_VIEC_25); đặt hàng (người mua thử, mọi người mua khi đã mở đặt hàng) lập đơn bán, giữ hàng; danh sách, chi tiết, lịch sử đơn; hủy kèm lý do; quản trị xem, tìm, hủy đơn trên web
 - Màn hình: MAN_HINH_93, MAN_HINH_95, MAN_HINH_96, MAN_HINH_88; API: API_126, API_127
 
 ### CHUC_NANG_117: Khung đơn vị vận chuyển, kết nối GHN
@@ -1792,6 +1792,44 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 8:
 - Vai trò: Hệ thống (việc nền mỗi giờ)
 - Xử lý: đơn đã giao quá 7 ngày, không còn yêu cầu trả hàng đang xử lý chuyển Hoàn tất; giá trị hoàn tất trừ phần trả đã nhận
 - Màn hình: MAN_HINH_96, MAN_HINH_88; API: Không có (việc nền `marketplace-order-completion`)
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 3: Thanh toán đơn người mua, CONG_VIEC_25)
+
+### CHUC_NANG_120: Khung cổng thanh toán, phương thức, mở đặt hàng
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_51; Quy tắc: QUYTAC_NGHIEPVU_163, QUYTAC_NGHIEPVU_164
+- Vai trò: Quản trị công ty vận hành sàn (`marketplace.order.manage`); người mua
+- Xử lý: danh sách phương thức theo cổng, bật tắt (cổng chưa có thông tin kết nối thì không bật được); công tắc mở đặt hàng; người mua chọn phương thức đang bật khi đặt hàng
+- Màn hình: MAN_HINH_86, MAN_HINH_93; API: API_130, API_126
+
+### CHUC_NANG_121: Thanh toán trực tuyến VNPAY, chờ thanh toán, tự hủy
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_51; Quy tắc: QUYTAC_NGHIEPVU_165, QUYTAC_NGHIEPVU_166
+- Vai trò: Người mua; VNPAY (IPN); hệ thống (việc nền mỗi phút)
+- Xử lý: đơn Chờ thanh toán 15 phút; tạo lần thanh toán, đường dẫn VNPAY ký HMAC SHA512; nhận IPN kiểm chữ ký, số tiền, ghi một lần; trang kết quả trả về chỉ hiển thị; thanh toán lại; việc nền `marketplace-payment-expiry` hủy đơn quá hạn, nhả hàng
+- Màn hình: MAN_HINH_99, MAN_HINH_96, MAN_HINH_88; API: API_131, API_132
+
+### CHUC_NANG_122: Sổ thanh toán đơn VComm, hoàn tiền
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_51; Quy tắc: QUYTAC_NGHIEPVU_167, QUYTAC_NGHIEPVU_168
+- Vai trò: Người mua; Kế toán, Kế toán trưởng, quản trị (`marketplace.payment.manage`)
+- Xử lý: tiền đã thu, đã hoàn, trạng thái thanh toán của đơn; lập việc chờ hoàn khi hủy đơn đã thu, tiền về sau khi hủy, trả trùng, nhận hàng trả; tài khoản nhận hoàn tiền của người mua; danh sách việc chờ hoàn, ghi "Đã hoàn tiền"; thông báo người mua
+- Màn hình: MAN_HINH_98, MAN_HINH_100, MAN_HINH_96, MAN_HINH_88; API: API_133
+
+### CHUC_NANG_123: Hạch toán tiền thu, phí giao hàng, hoàn tiền
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_51; Quy tắc: QUYTAC_NGHIEPVU_169
+- Vai trò: Hệ thống (bút toán tự sinh)
+- Xử lý: bút toán tiền thu trực tuyến (nguồn `marketplace_payment`), hoàn tiền (nguồn `marketplace_refund`); phiếu xuất đơn VComm thêm dòng phí giao hàng (vai trò định khoản `service_revenue`, thuế 10%); hóa đơn điện tử thêm dòng "Phí giao hàng"; lập bù khi khởi tạo kế toán
+- Màn hình: Không có màn hình mới (sổ cái, hóa đơn điện tử hiện có); API: Không có
+
+### CHUC_NANG_124: Đối soát COD với GHN theo API
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_51; Quy tắc: QUYTAC_NGHIEPVU_167
+- Vai trò: Hệ thống (webhook, tra lại vận đơn); Kế toán (`marketplace.payment.manage`)
+- Xử lý: API chi tiết đơn GHN có ngày thu tiền người mua thì ghi đã thu một lần; ghi tay "Đã thu COD" kèm ngày, số phiên đối soát khi đơn vị vận chuyển không có API
+- Màn hình: MAN_HINH_88; API: API_133, API_128
+
+## Yêu cầu phi chức năng của MODULE_09 (phần lõi 3)
+
+- Bảo mật: thông tin kết nối cổng chỉ ở biến môi trường; không lưu thông tin thẻ; IPN kiểm chữ ký so sánh thời gian cố định, giới hạn số lần gọi theo địa chỉ IP (tài liệu `22`).
+- Toàn vẹn: ghi nhận tiền, hủy quá hạn, ghi đã hoàn trong giao dịch có khóa dòng; nhận trùng không đổi kết quả.
+- Không thêm thư viện: ký bằng `node:crypto`.
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
