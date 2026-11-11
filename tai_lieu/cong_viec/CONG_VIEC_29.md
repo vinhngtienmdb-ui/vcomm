@@ -4,7 +4,7 @@
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
 - Mức quy mô: Vừa (chức năng mới trong MODULE_09, thêm giá trị mã đơn vị vận chuyển, không đổi kiến trúc).
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11. Đã nghiệm thu 2026-11-11, chờ phát hành (trước khi phát hành phải thử với tài khoản môi trường thử nghiệm của Viettel Post, mục 4).
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11. Đã nghiệm thu 2026-11-11, chờ phát hành (trước khi phát hành phải thử với tài khoản môi trường thử nghiệm của Viettel Post, mục 4). Sau nghiệm thu, người dùng quyết định ngày 2026-11-11 tự ghi đã thu COD khi Viettel Post báo giao thành công (THAY_DOI_20; làm trên nhánh `gop/giao-van`).
 - Nguồn: yêu cầu của người dùng ngày 2026-11-11 (phiên CONG_VIEC_25 mở phiên con); khung đơn vị vận chuyển của CONG_VIEC_24 (QUYTAC_NGHIEPVU_159, 160; CHUC_NANG_117).
 - Nhánh: `chuc-nang/CONG_VIEC_29-giao-van-viettel-post`, tách từ `chuc-nang/CONG_VIEC_24-dat-hang-vcomm`.
 
@@ -19,7 +19,7 @@ Trong phạm vi:
 - Webhook trạng thái qua đường dẫn chung `/public/carriers/viettel_post/webhook/{key}`.
 - Bổ sung tùy chọn vào khung chung cho đơn vị vận chuyển không có API tra vận đơn (không đổi hành vi GHN).
 
-Ngoài phạm vi: logic đối soát tiền thu hộ (CONG_VIEC_25); tính cước trước khi giao; in nhãn; đổi thông tin đơn sau khi tạo; duyệt hoàn, phát tiếp (UpdateOrder loại 2, 3); quản lý kho hàng trên Viettel Post.
+Ngoài phạm vi: đối soát số tiền thu hộ Viettel Post chuyển trả (chỉ ghi đã thu theo trạng thái giao thành công, THAY_DOI_20); tính cước trước khi giao; in nhãn; đổi thông tin đơn sau khi tạo; duyệt hoàn, phát tiếp (UpdateOrder loại 2, 3); quản lý kho hàng trên Viettel Post.
 
 ## 3. Tìm giải pháp có sẵn
 
@@ -51,7 +51,7 @@ Chưa xác minh (phải thử với tài khoản môi trường thử nghiệm c
 
 ## 6. Quy tắc nghiệp vụ
 
-- QUYTAC_NGHIEPVU_185: Viettel Post không có API tra vận đơn: trạng thái vận đơn lấy từ nội dung webhook chỉ khi đúng cả khóa trên đường dẫn và `TOKEN` trong nội dung (so sánh an toàn, cùng giá trị `VIETTEL_POST_WEBHOOK_KEY`); sai một trong hai thì từ chối như sai khóa. Nút "Tra lại vận đơn" với Viettel Post báo không hỗ trợ. Đây là ngoại lệ của QUYTAC_NGHIEPVU_160 (trạng thái chỉ đổi theo kết quả tra lại), người dùng đồng ý ngày 2026-11-11.
+- QUYTAC_NGHIEPVU_185: Viettel Post không có API tra vận đơn: trạng thái vận đơn lấy từ nội dung webhook chỉ khi đúng cả khóa trên đường dẫn và `TOKEN` trong nội dung (so sánh an toàn, cùng giá trị `VIETTEL_POST_WEBHOOK_KEY`); sai một trong hai thì từ chối như sai khóa. Nút "Tra lại vận đơn" với Viettel Post báo không hỗ trợ. Đây là ngoại lệ của QUYTAC_NGHIEPVU_160 (trạng thái chỉ đổi theo kết quả tra lại), người dùng đồng ý ngày 2026-11-11. Webhook Viettel Post không có ngày thu tiền thu hộ, nên khi webhook đã xác thực báo giao thành công (giai đoạn `delivered`), đơn thu tiền khi nhận hàng (COD) có tiền thu hộ lớn hơn 0 và chưa ghi đã thu thì tự ghi đã thu bằng tiền thu hộ của đơn, ngày thu là thời điểm hệ thống nhận webhook; đơn không COD hoặc đã ghi đã thu thì không ghi; webhook lặp không ghi lần hai (theo QUYTAC_NGHIEPVU_167 của CONG_VIEC_25; THAY_DOI_20, người dùng quyết định ngày 2026-11-11).
 - QUYTAC_NGHIEPVU_186: Ánh xạ trạng thái Viettel Post sang giai đoạn của khung:
 
   | Giai đoạn | Mã trạng thái |
@@ -81,7 +81,7 @@ Dùng lại MAN_HINH_86 (danh sách đơn vị vận chuyển hiện thêm Viett
 - `packages/contracts`: `carrierCodes = ["ghn", "vnpost", "viettel_post", "jt", "ghtk"]`. Đơn vị chưa có lớp kết nối hiện "Chưa cấu hình".
 - API không đổi: API_123 (`PUT /marketplace/carriers/viettel_post`), API_127 (giao, tra lại, hủy), API_128 (`POST /public/carriers/viettel_post/webhook/{key}`).
 - Khung chung (bổ sung tùy chọn, GHN không đổi): `CarrierAdapter.webhookReport` (đọc trạng thái từ webhook đã xác thực), `CarrierFailure` loại `unsupported` (lỗi `carrierLookupUnsupported`).
-- Tiền thu hộ cho CONG_VIEC_25: Viettel Post không có API chi tiết đơn; tiền thu hộ (`MONEY_COLLECTION`, `MONEY_COLLECTION_ORIGIN` có giá trị từ trạng thái 200) chỉ có trong webhook. Nội dung webhook được lưu nguyên trong `marketplace.carrier_webhook_events.payload`; `WebhookReport.codAmount` trả tiền thu hộ của từng webhook để dùng khi làm đối soát.
+- Tiền thu hộ cho CONG_VIEC_25: Viettel Post không có API chi tiết đơn; tiền thu hộ (`MONEY_COLLECTION`, `MONEY_COLLECTION_ORIGIN` có giá trị từ trạng thái 200) chỉ có trong webhook. Nội dung webhook được lưu nguyên trong `marketplace.carrier_webhook_events.payload`; `WebhookReport.codAmount` trả tiền thu hộ của từng webhook để dùng khi làm đối soát. Ghi đã thu COD (THAY_DOI_20): `shipments.service.ts` đặt `codCollectedAt` bằng thời điểm nhận webhook (đồng hồ `CLOCK`) khi trạng thái trong webhook thuộc giai đoạn `delivered`; phần ghi đã thu dùng chung với GHN (ghi một lần, chỉ đơn COD).
 - Biến môi trường (`.env.example`): `VIETTEL_POST_TOKEN`, `VIETTEL_POST_SERVICE_CODE`, `VIETTEL_POST_WEBHOOK_KEY`, `VIETTEL_POST_SENDER_NAME`, `VIETTEL_POST_SENDER_PHONE`, `VIETTEL_POST_SENDER_ADDRESS`, `VIETTEL_POST_BASE_URL` (để trống là môi trường thử nghiệm).
 - Chuỗi giao diện mới: `errors.carrierLookupUnsupported` (vi, en).
 
@@ -96,7 +96,7 @@ Dùng lại MAN_HINH_86 (danh sách đơn vị vận chuyển hiện thêm Viett
 | Mã | Tiêu chí | Mức | Kịch bản |
 |---|---|---|---|
 | TIEUCHI_NGHIEMTHU_204 | Viettel Post chỉ bật được khi đủ biến môi trường; giao đơn tạo vận đơn đúng thông tin (địa chỉ hai cấp dạng văn bản, người gửi, thu hộ tiền hàng không thu cước, kiểm tra trùng); bị từ chối thì đơn giữ Chờ giao, không còn phiếu xuất nháp | Bắt buộc | KICHBAN_KIEMTHU_344 |
-| TIEUCHI_NGHIEMTHU_205 | Webhook sai khóa đường dẫn, sai hoặc thiếu TOKEN bị từ chối; nhận hàng ghi sổ phiếu xuất; nhận trùng, đến muộn không đổi kết quả; giao thành công; tra lại báo không hỗ trợ; nội dung webhook (tiền thu hộ) được lưu | Bắt buộc | KICHBAN_KIEMTHU_345 |
+| TIEUCHI_NGHIEMTHU_205 | Webhook sai khóa đường dẫn, sai hoặc thiếu TOKEN bị từ chối; nhận hàng ghi sổ phiếu xuất; nhận trùng, đến muộn không đổi kết quả; giao thành công; tra lại báo không hỗ trợ; nội dung webhook (tiền thu hộ) được lưu; giao thành công đơn COD tự ghi đã thu một lần, ngày thu là thời điểm nhận webhook; đơn không COD không ghi đã thu (THAY_DOI_20) | Bắt buộc | KICHBAN_KIEMTHU_345 |
 | TIEUCHI_NGHIEMTHU_206 | Hủy đơn chờ lấy hàng hủy vận đơn loại 4; Viettel Post hủy thì đơn hủy; đã nhận hàng thì không hủy được; hoàn hàng nhập lại kho, đơn hủy; 503 và mã lạ chỉ ghi lịch sử | Bắt buộc | KICHBAN_KIEMTHU_346 |
 | TIEUCHI_NGHIEMTHU_207 | Tạo vận đơn không rõ kết quả hoặc báo trùng số đơn: giữ chỗ, không giao lại, tra lại không bỏ chỗ giữ; webhook mang đúng số đơn VComm thì ghi nhận vận đơn và áp trạng thái | Bắt buộc | KICHBAN_KIEMTHU_347 |
 
@@ -115,6 +115,7 @@ Hành vi GHN; luồng đơn VComm của CONG_VIEC_24; mã thanh toán CONG_VIEC_
 | 2026-11-11 | `c29-carrier-viettel-post` 4/4 đạt; `c24-marketplace-orders` 12/12 đạt (đã sửa một câu kiểm tra danh sách đơn vị vận chuyển, người dùng đồng ý ngày 2026-11-11) |
 | 2026-11-11 (hồi quy lần 1) | Toàn bộ API 327/328: KICHBAN_KIEMTHU_345 thất bại do lượt chạy bắt đầu trước khi sửa lỗi lưu `TOKEN` vào nhật ký webhook (lỗi tự rà soát phát hiện, đã sửa) |
 | 2026-11-11 (hồi quy lần 2) | Toàn bộ API 328/328 đạt (41 tệp); kiểm tra kiểu đạt |
+| 2026-11-11 (THAY_DOI_20, nhánh `gop/giao-van`) | KICHBAN_KIEMTHU_345 bổ sung ghi đã thu COD; toàn bộ API 349/349 đạt (56 tệp, sau khi gộp CONG_VIEC_28 đến 31); lint, kiểm tra kiểu đạt |
 
 Sửa kiểm thử cũ: KICHBAN_KIEMTHU_310 so khớp nguyên danh sách đơn vị vận chuyển chỉ có GHN; database migration 0041 thêm Viettel Post nên đổi thành kiểm tra danh sách có dòng GHN đúng thông tin (`toContainEqual`).
 
@@ -141,7 +142,7 @@ Sửa kiểm thử cũ: KICHBAN_KIEMTHU_310 so khớp nguyên danh sách đơn v
 - Tài liệu `17`: API_123 nhận mã `viettel_post`; API_128 với Viettel Post: xác thực thêm `TOKEN` trong nội dung, trạng thái lấy từ nội dung (QUYTAC_NGHIEPVU_185); API_127 "tra lại vận đơn" với Viettel Post trả lỗi `carrierLookupUnsupported`.
 - Tài liệu `21`: KICHBAN_KIEMTHU_344 đến 347 (mục 12).
 - Tài liệu `22`: webhook Viettel Post xác thực hai lớp (khóa đường dẫn, TOKEN trong nội dung, so sánh an toàn, đếm lần sai theo địa chỉ IP); vì tin nội dung webhook nên lộ khóa cho phép giả trạng thái đơn — giữ khóa bí mật, thay khi nghi lộ; token Viettel Post chỉ ở biến môi trường, không ghi log.
-- Tài liệu `24`: phiếu thay đổi cho ngoại lệ QUYTAC_NGHIEPVU_160 (QUYTAC_NGHIEPVU_185), người dùng đồng ý trong phiên ngày 2026-11-11.
+- Tài liệu `24`: phiếu thay đổi cho ngoại lệ QUYTAC_NGHIEPVU_160 (QUYTAC_NGHIEPVU_185), người dùng đồng ý trong phiên ngày 2026-11-11; THAY_DOI_20 (tự ghi đã thu COD Viettel Post khi giao thành công, ngày thu là thời điểm nhận webhook) do phiên cha ghi.
 - Tài liệu `25`: kết quả kiểm thử mục 14, 15.
 - Tài liệu `27`: CHUC_NANG_131 → QUYTAC_NGHIEPVU_185 đến 189 → TIEUCHI_NGHIEMTHU_204 đến 207 → KICHBAN_KIEMTHU_344 đến 347 → `viettel-post-carrier.ts`, `c29-carrier-viettel-post.test.ts`.
 
@@ -150,4 +151,5 @@ Sửa kiểm thử cũ: KICHBAN_KIEMTHU_310 so khớp nguyên danh sách đơn v
 - Viết theo tài liệu công khai, kiểm thử bằng máy chủ giả lập; trước khi phát hành phải thử với tài khoản môi trường thử nghiệm của Viettel Post (mục 4).
 - Không tra lại được trạng thái: webhook bị mất thì đơn đứng ở trạng thái cũ; nhân viên dùng chức năng "Đồng bộ hành trình" trên trang đối tác Viettel Post để gửi lại webhook.
 - Trạng thái vận chuyển hiện là trạng thái nhận gần nhất; webhook đến trễ có thể ghi đè trạng thái hiển thị (không đổi trạng thái đơn), như GHN.
+- Ngày thu COD là thời điểm nhận webhook giao thành công, không phải ngày Viettel Post thực thu hoặc chuyển trả tiền; số tiền ghi đã thu là tiền thu hộ của đơn, không đối chiếu với `MONEY_COLLECTION` trong webhook (THAY_DOI_20).
 - Token dài hạn hết hạn sau 1 năm: tạo vận đơn bị từ chối cho đến khi thay token.

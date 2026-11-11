@@ -4,6 +4,7 @@ import { carrierCodes, type CarrierCode, type MarketplaceOrderDetail, type Marke
 import { sql } from "drizzle-orm";
 import { timingSafeEqual } from "node:crypto";
 import { ApiError } from "../common/api-error";
+import { CLOCK, type Clock } from "../common/clock";
 import { RateLimiter } from "../common/rate-limiter";
 import { DATABASE, type Database } from "../database/database.module";
 import { SalesDeliveriesService } from "../inventory/sales-deliveries.service";
@@ -32,6 +33,7 @@ export class ShipmentsService implements OnModuleInit {
     private readonly salesOrders: SalesOrdersService,
     private readonly deliveries: SalesDeliveriesService,
     private readonly rateLimiter: RateLimiter,
+    @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
   onModuleInit(): void {
@@ -280,8 +282,10 @@ export class ShipmentsService implements OnModuleInit {
       return reply("ignored");
     }
     try {
-      // Đơn vị vận chuyển không có API tra vận đơn (Viettel Post): trạng thái theo webhook đã xác thực, chưa có ngày thu tiền thu hộ.
-      await this.apply(shipment, report ? { status: report.status, codCollectedAt: null } : await this.info(carrier, shipment.tracking_code!));
+      // Đơn vị vận chuyển không có API tra vận đơn (Viettel Post): trạng thái theo webhook đã xác thực. Webhook không có ngày thu tiền thu hộ:
+      // báo giao thành công thì coi là đã thu COD, ngày thu là thời điểm nhận webhook (THAY_DOI_20; QUYTAC_NGHIEPVU_185).
+      const info = report ? { status: report.status, codCollectedAt: adapter.phaseOf(report.status) === "delivered" ? this.clock.now() : null } : await this.info(carrier, shipment.tracking_code!);
+      await this.apply(shipment, info);
       await record("applied");
       return reply("applied");
     } catch (error) {

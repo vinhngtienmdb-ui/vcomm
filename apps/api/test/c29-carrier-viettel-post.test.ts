@@ -9,7 +9,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
 import { signIn, type Session } from "./helpers";
-import { startTestApplication } from "./setup-database";
+import { startTestApplication, testClock } from "./setup-database";
 
 let application: NestExpressApplication;
 let pool: Pool;
@@ -251,7 +251,7 @@ describe("CONG_VIEC_29 kết nối Viettel Post", () => {
     expect(await documentsOf(order.id)).toEqual([{ type: "sales_issue", status: "draft" }]);
   });
 
-  it("KICHBAN_KIEMTHU_345: webhook sai khóa đường dẫn hoặc sai, thiếu TOKEN bị từ chối; nhận hàng ghi sổ phiếu xuất; nhận trùng không đổi kết quả; phát thành công; tra lại báo không hỗ trợ; tiền thu hộ lưu trong nhật ký webhook", async () => {
+  it("KICHBAN_KIEMTHU_345: webhook sai khóa đường dẫn hoặc sai, thiếu TOKEN bị từ chối; nhận hàng ghi sổ phiếu xuất; nhận trùng không đổi kết quả; phát thành công; tra lại báo không hỗ trợ; tiền thu hộ lưu trong nhật ký webhook; phát thành công đơn COD tự ghi đã thu một lần, ngày thu là lúc nhận webhook; đơn không COD không ghi (THAY_DOI_20)", async () => {
     const order = await placeOrder();
     const shipped = (await ship(order)).body;
     const code = shipped.trackingCode as string;
@@ -276,11 +276,20 @@ describe("CONG_VIEC_29 kết nối Viettel Post", () => {
     expect(refreshed.body.error.message).toBe(
       "Đơn vị vận chuyển này không có chức năng tra lại vận đơn; trạng thái tự cập nhật khi đơn vị vận chuyển gửi thông báo. Kiểm tra đơn trên trang của đơn vị vận chuyển nếu cần.",
     );
-    await webhook(501, code);
-    await webhook(501, code);
+    // Phát thành công đơn COD: ghi đã thu, ngày thu là thời điểm nhận webhook; webhook lặp (giờ khác) không ghi lần hai, không đổi ngày thu.
+    expect((await orderDetail(order.id)).paymentStatus).toBe("unpaid");
+    testClock.fixed = new Date("2026-11-11T05:20:00.000Z");
+    try {
+      await webhook(501, code);
+      testClock.fixed = new Date("2026-11-12T01:00:00.000Z");
+      await webhook(501, code);
+    } finally {
+      testClock.fixed = null;
+    }
     const delivered = await orderDetail(order.id);
-    expect(delivered.status).toBe("delivered");
-    expect(delivered.events.map((event: { status: string }) => event.status)).toEqual(["awaiting_shipment", "awaiting_pickup", "shipping", "delivered"]);
+    expect(delivered).toMatchObject({ status: "delivered", paymentStatus: "paid", paidAmount: "280000" });
+    expect(delivered.events.map((event: { status: string }) => event.status)).toEqual(["awaiting_shipment", "awaiting_pickup", "shipping", "delivered", "paid"]);
+    expect((await pool.query("SELECT paid_at FROM marketplace.orders WHERE id = $1", [order.id])).rows[0].paid_at.toISOString()).toBe("2026-11-11T05:20:00.000Z");
     // Webhook đến muộn sau khi giao: đơn giữ Đã giao.
     await webhook(500, code);
     expect((await orderDetail(order.id)).status).toBe("delivered");
@@ -295,6 +304,16 @@ describe("CONG_VIEC_29 kết nối Viettel Post", () => {
     expect(logged.payload.DATA).toMatchObject({ ORDER_STATUS: 500, MONEY_COLLECTION: 280000 });
     // Khóa webhook không được lưu.
     expect(JSON.stringify((await pool.query("SELECT payload FROM marketplace.carrier_webhook_events WHERE carrier_code = 'viettel_post'")).rows)).not.toContain(webhookKey);
+    // Đơn không COD (đã thanh toán trực tuyến; đặt thẳng trong cơ sở dữ liệu vì kiểm thử này không giả lập VNPAY): phát thành công không ghi đã thu.
+    const online = await placeOrder();
+    const onlineCode = (await ship(online)).body.trackingCode as string;
+    await pool.query("UPDATE marketplace.orders SET payment_method = 'vnpay_qr', cod_amount = 0, paid_amount = 280000, paid_at = '2026-11-10T02:00:00Z' WHERE id = $1", [online.id]);
+    await webhook(200, onlineCode);
+    await webhook(501, onlineCode);
+    const onlineDelivered = await orderDetail(online.id);
+    expect(onlineDelivered.status).toBe("delivered");
+    expect(onlineDelivered.events.map((event: { status: string }) => event.status)).not.toContain("paid");
+    expect((await pool.query("SELECT paid_at FROM marketplace.orders WHERE id = $1", [online.id])).rows[0].paid_at.toISOString()).toBe("2026-11-10T02:00:00.000Z");
   });
 
   it("KICHBAN_KIEMTHU_346: hủy đơn chờ lấy hàng hủy vận đơn (loại 4); Viettel Post hủy thì đơn hủy; đã nhận hàng thì không hủy được; hoàn hàng nhập lại kho; trạng thái 503 và mã lạ chỉ ghi lịch sử", async () => {
