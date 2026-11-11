@@ -5,6 +5,7 @@ import { Injectable } from "@nestjs/common";
 import { sql } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
 import type { Database } from "../database/database.module";
+import { requireStockedVariant } from "./inventory-context";
 
 export type Executor = Pick<Database, "execute">;
 const zero = "00000000-0000-0000-0000-000000000000";
@@ -53,6 +54,8 @@ export class StockLedgerService {
     const increase = !entry.quantity.startsWith("-");
     const amount = increase ? entry.quantity : entry.quantity.slice(1);
     if (!entry.ignoreStocktakeLock) await this.checkStocktakeLock(transaction, entry);
+    // Chốt chặn cuối: dịch vụ không có tồn kho (QUYTAC_NGHIEPVU_275).
+    await requireStockedVariant(transaction, entry.variantId);
 
     await transaction.execute(sql`
       INSERT INTO inventory.costs (warehouse_id, company_id, variant_id) VALUES (${entry.warehouseId}, ${entry.companyId}, ${entry.variantId}) ON CONFLICT DO NOTHING`);

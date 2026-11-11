@@ -8,6 +8,7 @@ import { internalCompanyOf, internalPartnerOf } from "../crm/partners.service";
 import type { Database } from "../database/database.module";
 import { variantUnitFactor } from "../purchasing/purchasing-context";
 import { companyCurrency } from "../purchasing/requisitions.service";
+import { allowsManualGoodsOrders, goodsVariants } from "./sales-context";
 
 type Reader = Pick<Database, "execute" | "insert">;
 type FieldErrors = Record<string, keyof Messages["errors"]>;
@@ -60,6 +61,14 @@ export async function internalPrice(
   return { unitPrice: (perSellerBase * link.factor * unit.factor).toFixed(4), vatRate: sellerUnit.vatRate as VatRate };
 }
 
+// Giao dịch nội bộ chỉ gồm dịch vụ (CONG_VIEC_43; QUYTAC_NGHIEPVU_277). Công ty bán bật cài đặt "Cho phép lập đơn bán tay có hàng hóa"
+// (QUYTAC_NGHIEPVU_276, dùng cho dữ liệu thử) thì giao dịch nội bộ hàng hóa vẫn lập được theo luồng kho cũ.
+async function internalGoodsErrors(executor: Reader, sellerCompanyId: string, variantIds: string[], fields: FieldErrors): Promise<void> {
+  const goods = await goodsVariants(executor, variantIds);
+  if (goods.size === 0 || (await allowsManualGoodsOrders(executor, sellerCompanyId))) return;
+  for (const [index, variantId] of variantIds.entries()) if (goods.has(variantId) && !fields[`lines.${index}.variantId`]) fields[`lines.${index}.variantId`] = "internalServicesOnly";
+}
+
 // Đơn bán nội bộ: kênh Nội bộ; công ty mua có hồ sơ nhà cung cấp cho công ty bán; cùng tiền tệ; mọi mặt hàng có liên kết.
 export async function internalSalesErrors(executor: Reader, sellerCompanyId: string, customerId: string, channelId: string, variantIds: string[]): Promise<FieldErrors> {
   const buyerCompanyId = await internalCompanyOf(executor, customerId);
@@ -71,6 +80,7 @@ export async function internalSalesErrors(executor: Reader, sellerCompanyId: str
   for (const [index, variantId] of variantIds.entries()) {
     if (!(await linkedVariant(executor, variantId, buyerCompanyId))) fields[`lines.${index}.variantId`] = "internalVariantNotLinked";
   }
+  await internalGoodsErrors(executor, sellerCompanyId, variantIds, fields);
   return fields;
 }
 
@@ -85,5 +95,6 @@ export async function internalPurchaseErrors(executor: Reader, buyerCompanyId: s
   for (const [index, variantId] of variantIds.entries()) {
     if (!(await linkedVariant(executor, variantId, sellerCompanyId))) fields[`lines.${index}.variantId`] = "internalVariantNotLinked";
   }
+  await internalGoodsErrors(executor, sellerCompanyId, variantIds, fields);
   return fields;
 }

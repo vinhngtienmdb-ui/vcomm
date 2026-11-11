@@ -8,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { EinvoicesService } from "../src/einvoice/einvoices.service";
 import { PermissionService } from "../src/permissions/permission.service";
-import { createTestUser, signIn, type Session, grantSalesOrderManage } from "./helpers";
+import { createTestUser, signIn, type Session, grantSalesOrderManage, allowManualGoodsOrders } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -76,6 +76,7 @@ async function deliver(order: { id: string; lines: { id: string }[] }, quantity:
 }
 beforeAll(async () => {
   ({ application, pool } = await startTestApplication());
+  await allowManualGoodsOrders(pool, retail);
   today = application.get(PermissionService).today();
   groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
   admin = await signIn(application, "quantri.vcr@vcomm.test");

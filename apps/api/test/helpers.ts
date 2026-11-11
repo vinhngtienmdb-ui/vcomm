@@ -97,3 +97,14 @@ export async function grantSalesOrderManage(pool: Pool, email: string, companyId
     companyId,
   ]);
 }
+
+// CONG_VIEC_43 (QUYTAC_NGHIEPVU_276): đơn bán lập tay mặc định chỉ gồm dịch vụ. Kiểm thử viết trước lập đơn bán hàng hóa bằng tay
+// bật cài đặt "Cho phép lập đơn bán tay có hàng hóa" của công ty ở bước chuẩn bị (người dùng đồng ý 2026-11-11); quy tắc mới kiểm trong c43-service-orders.
+export async function allowManualGoodsOrders(pool: Pool, companyId: string): Promise<void> {
+  // Phiên bản 0 như công ty chưa lưu cài đặt: kiểm thử cũ gửi cài đặt bán hàng với version 0 vẫn lưu được.
+  await pool.query(
+    `INSERT INTO sales.settings (company_id, allow_manual_goods_orders, version) VALUES ($1, true, 0)
+     ON CONFLICT (company_id) DO UPDATE SET allow_manual_goods_orders = true`,
+    [companyId],
+  );
+}

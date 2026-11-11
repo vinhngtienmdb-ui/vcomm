@@ -70,6 +70,7 @@ type VariantInfo = {
   sku: string;
   product_name: string;
   option_values: string[];
+  kind: "goods" | "service";
   tracks_lots: boolean;
   tracks_serials: boolean;
   base_unit_id: string;
@@ -644,6 +645,11 @@ export class StockDocumentsService implements OnModuleInit {
         fields[at("variantId")] = "stockItemNotOwned";
         return;
       }
+      // Dịch vụ không vào phiếu kho: điểm chung của phiếu nhập khác, xuất khác, điều chỉnh, chuyển kho, nhập mua, xuất giao hàng, nhận trả (QUYTAC_NGHIEPVU_275).
+      if (variant.kind === "service") {
+        fields[at("variantId")] = "serviceNotStocked";
+        return;
+      }
       const factor = variant.units.find((unit) => unit.unitId === line.unitId)?.factor;
       if (!factor) fields[at("unitId")] = "invalidValue";
       const sign = lineSign(input.type, line.quantity);
@@ -783,7 +789,7 @@ export class StockDocumentsService implements OnModuleInit {
   private async variantInfo(ids: string[]): Promise<Map<string, VariantInfo>> {
     if (ids.length === 0) return new Map();
     const rows = await this.database.execute<VariantInfo>(sql`
-      SELECT v.id, v.company_id, v.status, v.sku, p.name AS product_name, v.option_values, p.tracks_lots, p.tracks_serials, p.base_unit_id, bu.name_vi AS base_unit_name,
+      SELECT v.id, v.company_id, v.status, v.sku, p.name AS product_name, v.option_values, p.kind, p.tracks_lots, p.tracks_serials, p.base_unit_id, bu.name_vi AS base_unit_name,
         (SELECT json_agg(u) FROM (SELECT p.base_unit_id AS "unitId", '1' AS factor UNION ALL SELECT pu.unit_id, pu.factor::text FROM catalog.product_units pu WHERE pu.product_id = p.id) u) AS units
       FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id JOIN catalog.units bu ON bu.id = p.base_unit_id
       WHERE v.id = ANY(${pgArray([...new Set(ids)])}::uuid[])`);

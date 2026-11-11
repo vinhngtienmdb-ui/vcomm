@@ -36,7 +36,7 @@ import { internalSalesErrors } from "./internal-trade-rules";
 import { receivableBalance } from "../finance/receivable-balance";
 import { applyPromotions, type GiftShortage, type PricedLine, withoutPromotion } from "./promotion-pricing";
 import { promotionGiftUsage, promotionUsage } from "./promotions.service";
-import { requireSalesPermission, salesAudit, salesPermissions } from "./sales-context";
+import { goodsVariants, requireManualOrderLines, requireSalesPermission, salesAudit, salesPermissions } from "./sales-context";
 
 const documentTypeCode = "sales.order";
 export const salesOrderSource = "sales.order";
@@ -377,6 +377,13 @@ export class SalesOrdersService implements OnModuleInit {
       SELECT line_no, variant_id, base_quantity::text, discount_percent::text, net_amount::text, is_gift, promotion_discount_total::text, vat_rate
       FROM sales.order_lines WHERE order_id = ${id} ORDER BY line_no`);
     await this.checkPromotionLimits(transaction, id);
+    // Đơn nháp lập khi cài đặt còn bật: kiểm lại lúc gửi. Đơn đối ứng nội bộ đã kiểm ở đơn mua khởi tạo (QUYTAC_NGHIEPVU_276, 277).
+    if (!current.is_counterpart)
+      await requireManualOrderLines(
+        transaction,
+        actor.companyId,
+        lines.rows.map((line) => line.variant_id),
+      );
     if (current.customer_id) {
       const internal = await internalSalesErrors(
         transaction,
@@ -388,9 +395,14 @@ export class SalesOrdersService implements OnModuleInit {
       if (Object.keys(internal).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: internal });
     }
     const documentNo = current.document_no ?? (await this.sequences.next(actor.companyId, documentTypeCode, transaction));
-    // Giữ hàng theo tổng số lượng cơ sở từng mặt hàng.
+    // Giữ hàng theo tổng số lượng cơ sở từng mặt hàng; dịch vụ không giữ hàng (QUYTAC_NGHIEPVU_275).
+    const goods = await goodsVariants(
+      transaction,
+      lines.rows.map((line) => line.variant_id),
+    );
     const totals = new Map<string, { quantity: number; index: number }>();
     lines.rows.forEach((line, index) => {
+      if (!goods.has(line.variant_id)) return;
       const entry = totals.get(line.variant_id) ?? { quantity: 0, index };
       entry.quantity += Number(line.base_quantity);
       totals.set(line.variant_id, entry);
@@ -651,8 +663,13 @@ export class SalesOrdersService implements OnModuleInit {
     await this.writeLines(transaction, orderId, lines);
     await this.checkPromotionLimits(transaction, orderId);
     const documentNo = await this.sequences.next(actor.companyId, documentTypeCode, transaction);
+    // Dịch vụ không giữ hàng (QUYTAC_NGHIEPVU_275).
+    const goods = await goodsVariants(
+      transaction,
+      lines.map((line) => line.variantId),
+    );
     const totals = new Map<string, number>();
-    for (const line of lines) totals.set(line.variantId, (totals.get(line.variantId) ?? 0) + Number(line.baseQuantity));
+    for (const line of lines) if (goods.has(line.variantId)) totals.set(line.variantId, (totals.get(line.variantId) ?? 0) + Number(line.baseQuantity));
     for (const [variantId, quantity] of [...totals].sort(([left], [right]) => left.localeCompare(right))) {
       await this.reservations.reserve(transaction, {
         warehouseId: input.warehouseId,
@@ -697,8 +714,10 @@ export class SalesOrdersService implements OnModuleInit {
     if (before.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     await this.database.transaction(async (transaction) => {
       const saved = await transaction.execute(sql`
-        INSERT INTO sales.settings (company_id, max_manual_discount_percent, updated_by) VALUES (${actor.companyId}, ${input.maxManualDiscountPercent}::numeric, ${actor.userId})
-        ON CONFLICT (company_id) DO UPDATE SET max_manual_discount_percent = EXCLUDED.max_manual_discount_percent, updated_by = EXCLUDED.updated_by, updated_at = now(),
+        INSERT INTO sales.settings (company_id, max_manual_discount_percent, allow_manual_goods_orders, updated_by)
+        VALUES (${actor.companyId}, ${input.maxManualDiscountPercent}::numeric, ${input.allowManualGoodsOrders ?? before.allowManualGoodsOrders}, ${actor.userId})
+        ON CONFLICT (company_id) DO UPDATE SET max_manual_discount_percent = EXCLUDED.max_manual_discount_percent, allow_manual_goods_orders = EXCLUDED.allow_manual_goods_orders,
+          updated_by = EXCLUDED.updated_by, updated_at = now(),
           version = sales.settings.version + 1
         WHERE sales.settings.version = ${input.version} RETURNING company_id`);
       if (saved.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
@@ -811,6 +830,12 @@ export class SalesOrdersService implements OnModuleInit {
       { companyId, orderId, channelId: input.channelId, customerGroupId: groupId, orderDate: input.orderDate, internal, warehouseId: input.warehouseId },
       priced,
     );
+    // Đơn bán lập tay, kể cả hàng tặng khuyến mãi (QUYTAC_NGHIEPVU_276).
+    await requireManualOrderLines(
+      transaction,
+      companyId,
+      lines.map((line) => line.variantId),
+    );
     return { lines, groupId, giftShortages };
   }
 
@@ -907,9 +932,11 @@ export class SalesOrdersService implements OnModuleInit {
 }
 
 export async function readSettings(executor: Pick<Database, "execute">, companyId: string): Promise<SalesSettingsResponse> {
-  const row = (await executor.execute<{ percent: string; version: number }>(sql`SELECT max_manual_discount_percent::text AS percent, version FROM sales.settings WHERE company_id = ${companyId}`))
-    .rows[0];
-  return { maxManualDiscountPercent: row ? trimDecimal(row.percent) : "0", version: row?.version ?? 0 };
+  const row = (
+    await executor.execute<{ percent: string; allowed: boolean; version: number }>(sql`
+    SELECT max_manual_discount_percent::text AS percent, allow_manual_goods_orders AS allowed, version FROM sales.settings WHERE company_id = ${companyId}`)
+  ).rows[0];
+  return { maxManualDiscountPercent: row ? trimDecimal(row.percent) : "0", allowManualGoodsOrders: row?.allowed ?? false, version: row?.version ?? 0 };
 }
 
 function toItem(row: OrderRow): SalesOrderListItem {

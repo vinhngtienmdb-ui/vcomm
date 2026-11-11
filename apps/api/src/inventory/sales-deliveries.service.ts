@@ -51,6 +51,8 @@ export class SalesDeliveriesService {
       SELECT o.id, o.document_no, c.name AS customer_name, o.buyer_name, w.name AS warehouse_name
       FROM sales.orders o LEFT JOIN crm.partners c ON c.id = o.customer_id JOIN inventory.warehouses w ON w.id = o.warehouse_id
       WHERE o.status = 'confirmed' AND o.warehouse_id = ANY(${pgArray(allowed)}::uuid[])
+        -- Đơn chỉ gồm dịch vụ không qua kho (QUYTAC_NGHIEPVU_275).
+        AND EXISTS (SELECT 1 FROM sales.order_lines gl JOIN catalog.variants gv ON gv.id = gl.variant_id JOIN catalog.products gp ON gp.id = gv.product_id WHERE gl.order_id = o.id AND gp.kind = 'goods')
         AND (${pattern}::text IS NULL OR o.document_no ILIKE ${pattern} OR c.name ILIKE ${pattern} OR o.buyer_name ILIKE ${pattern})
       ORDER BY o.order_date, o.document_no LIMIT 50`);
     return rows.rows.map((row) => ({ id: row.id, documentNo: row.document_no, customerName: row.customer_name ?? row.buyer_name, warehouseName: row.warehouse_name }));
@@ -79,7 +81,7 @@ export class SalesDeliveriesService {
       SELECT l.id, l.variant_id, v.sku, p.name AS product_name, v.option_values, l.unit_id, u.name_vi AS unit_name, l.quantity::text, l.base_quantity::text, p.tracks_lots, p.tracks_serials,
         ${deliveredOnOrderLine(sql`l.id`)}::text AS delivered
       FROM sales.order_lines l JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id JOIN catalog.units u ON u.id = l.unit_id
-      WHERE l.order_id = ${orderId} ORDER BY l.line_no`);
+      WHERE l.order_id = ${orderId} AND p.kind = 'goods' ORDER BY l.line_no`);
     return {
       id: order.id,
       documentNo: order.document_no,

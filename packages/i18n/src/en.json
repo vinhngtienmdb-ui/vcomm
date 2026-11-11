@@ -326,7 +326,12 @@
     "withdrawalNotApproved": "The withdrawal request is not approved or is already paid.",
     "withdrawalFeeOverAmount": "Tax and fee exceed the amount. Please withdraw a larger amount.",
     "withdrawalSelfDecision": "You cannot decide on or pay your own withdrawal request.",
-    "commissionNeedsPrice": "The product has no VComm price yet, so a fixed commission cannot be set."
+    "commissionNeedsPrice": "The product has no VComm price yet, so a fixed commission cannot be set.",
+    "serviceNotStocked": "Service items are not stocked: no stock documents, reservations or stocktakes.",
+    "serviceNoTracking": "Services do not track lots or serial numbers.",
+    "productKindLocked": "The product already has stock or stock documents; its kind cannot be changed.",
+    "manualOrderServicesOnly": "Manually created sales orders may contain services only. Goods are sold through the VComm marketplace.",
+    "internalServicesOnly": "Internal transactions may contain services only."
   },
   "login": {
     "title": "Sign in",
@@ -1321,7 +1326,11 @@
     "addImage": "Add image",
     "imageHint": "JPG, PNG, WEBP; up to 10 images, 5 MB each.",
     "importRow": "row",
-    "import": "Import Excel"
+    "import": "Import Excel",
+    "kind": "Kind",
+    "kindHint": "Services are not stocked and do not track lots or serial numbers.",
+    "kind_goods": "Goods",
+    "kind_service": "Service"
   },
   "productImport": {
     "title": "Import products from Excel",
@@ -2142,7 +2151,9 @@
     "linePromotion": "{name}: {percent}% off",
     "orderPromotionShare": "{name}: {amount} off",
     "promotionHint": "Active promotions apply when saved (line, order discounts, gifts); the estimate excludes promotions.",
-    "giftShortage": "{name}: {sets} gift sets missing because the warehouse lacks gift stock."
+    "giftShortage": "{name}: {sets} gift sets missing because the warehouse lacks gift stock.",
+    "allowManualGoodsOrders": "Allow manual sales orders with goods",
+    "allowManualGoodsOrdersHint": "Off by default: manual sales orders contain services only; goods are sold through the VComm marketplace."
   },
   "salesMenu": {
     "title": "Sales",

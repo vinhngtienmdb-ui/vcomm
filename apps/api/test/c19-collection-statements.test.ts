@@ -7,7 +7,7 @@ import writeXlsxFile from "write-excel-file/node";
 import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
-import { createTestUser, signIn, type Session, grantSalesOrderManage } from "./helpers";
+import { createTestUser, signIn, type Session, grantSalesOrderManage, allowManualGoodsOrders } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -75,6 +75,7 @@ async function deliver(order: { id: string; lines: { id: string }[] }, quantity:
 }
 beforeAll(async () => {
   ({ application, pool } = await startTestApplication());
+  await allowManualGoodsOrders(pool, retail);
   today = application.get(PermissionService).today();
   groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
   admin = await signIn(application, "quantri.vcr@vcomm.test");

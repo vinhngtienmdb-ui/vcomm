@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
-import { createTestUser, signIn, type Session, grantSalesOrderManage } from "./helpers";
+import { createTestUser, signIn, type Session, grantSalesOrderManage, allowManualGoodsOrders } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -62,6 +62,8 @@ const reserved = async () => Number((await sell(retailAdmin, `/inventory/stock?w
 
 beforeAll(async () => {
   ({ application, pool } = await startTestApplication());
+  await allowManualGoodsOrders(pool, retail);
+  await allowManualGoodsOrders(pool, trading);
   today = application.get(PermissionService).today();
   // Công ty thương mại theo Thông tư 133; cả hai công ty khởi tạo kế toán trước khi phát sinh.
   await pool.query("UPDATE core.companies SET accounting_regime = 'TT133' WHERE id = $1", [testIds.tradingCompany]);

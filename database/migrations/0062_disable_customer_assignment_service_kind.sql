@@ -22,3 +22,11 @@ INSERT INTO core.role_permissions (role_id, permission_code)
 SELECT r.id, p.code FROM core.roles r CROSS JOIN core.permissions p
 WHERE r.company_id IS NULL AND r.code IN ('accountant', 'chief_accountant') AND p.code IN ('sales.access', 'sales.order.view', 'sales.order.manage')
 ON CONFLICT DO NOTHING;
+
+-- Lát L2 (QUYTAC_NGHIEPVU_275, 276): loại sản phẩm; cài đặt cho phép lập đơn bán tay có hàng hóa.
+-- Sản phẩm đã có giữ loại Hàng hóa (mặc định).
+ALTER TABLE catalog.products ADD COLUMN kind text NOT NULL DEFAULT 'goods' CHECK (kind IN ('goods', 'service'));
+-- Dịch vụ không theo dõi lô, số serial.
+ALTER TABLE catalog.products ADD CONSTRAINT products_service_untracked_check CHECK (kind = 'goods' OR (NOT tracks_lots AND NOT tracks_serials));
+-- Mặc định tắt: đơn bán lập tay chỉ gồm dịch vụ (quyết định người dùng 2026-11-11).
+ALTER TABLE sales.settings ADD COLUMN allow_manual_goods_orders boolean NOT NULL DEFAULT false;

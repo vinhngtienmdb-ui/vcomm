@@ -5,7 +5,7 @@ import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
-import { createTestUser, signIn, type Session, grantSalesOrderManage } from "./helpers";
+import { createTestUser, signIn, type Session, grantSalesOrderManage, allowManualGoodsOrders } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -60,6 +60,8 @@ const reserved = async () => Number((await sell(retailAdmin, `/inventory/stock?w
 
 beforeAll(async () => {
   ({ application, pool } = await startTestApplication());
+  await allowManualGoodsOrders(pool, retail);
+  await allowManualGoodsOrders(pool, trading);
   today = application.get(PermissionService).today();
   groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
   retailAdmin = await signIn(application, "quantri.vcr@vcomm.test");

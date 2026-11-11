@@ -9,7 +9,7 @@ import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Actor } from "../permissions/roles.service";
-import { inventoryAudit, inventoryPermissions } from "./inventory-context";
+import { inventoryAudit, inventoryPermissions, requireStockedVariant } from "./inventory-context";
 import { pgArray, type Executor } from "./stock-ledger.service";
 import { WarehousesService } from "./warehouses.service";
 
@@ -180,6 +180,8 @@ export class ReservationsService {
   }
 
   async reserve(transaction: Executor, request: ReservationRequest): Promise<string> {
+    // Dịch vụ không giữ hàng (QUYTAC_NGHIEPVU_275); bên gọi bỏ dòng dịch vụ trước khi giữ.
+    await requireStockedVariant(transaction, request.variantId);
     const available = await this.available(transaction, request.warehouseId, request.companyId, request.variantId, { type: request.sourceType, id: request.sourceId });
     if (Number(available) < Number(request.quantity)) throw new ApiError("BUSINESS_RULE", "insufficientAvailableStock");
     const row = (

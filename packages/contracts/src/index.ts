@@ -1054,9 +1054,14 @@ const optionalDecimal = (fraction: number) => z.union([decimalText(fraction), z.
 const barcodeText = z.string().trim().regex(/^[0-9A-Za-z\-.]{4,40}$/);
 const productSku = z.string().trim().toUpperCase().regex(/^[A-Z0-9\-_.]{1,40}$/);
 
+// CONG_VIEC_43 (QUYTAC_NGHIEPVU_275): loại sản phẩm; dịch vụ không theo dõi tồn kho, lô, số serial.
+export const productKinds = ["goods", "service"] as const;
+export type ProductKind = (typeof productKinds)[number];
+
 export const saveProductSchema = z
   .object({
     categoryId: z.uuid(),
+    kind: z.enum(productKinds).default("goods"),
     code: z.union([productSku, z.literal("")]).optional(),
     name: z.string().trim().min(1).max(255),
     description: z.string().trim().max(5000).nullable().optional(),
@@ -1152,6 +1157,7 @@ export interface ProductResponse {
   brand: string | null;
   origin: string | null;
   vatRate: VatRate;
+  kind: ProductKind;
   tracksLots: boolean;
   tracksSerials: boolean;
   warrantyMonths: number;
@@ -2489,9 +2495,14 @@ export interface SalesPriceResponse {
 }
 export interface SalesSettingsResponse {
   maxManualDiscountPercent: string;
+  // CONG_VIEC_43 (QUYTAC_NGHIEPVU_276): cho phép lập đơn bán tay có hàng hóa (mặc định tắt).
+  allowManualGoodsOrders: boolean;
   version: number;
 }
-export const updateSalesSettingsSchema = z.object({ maxManualDiscountPercent: percentText, version: z.number().int().min(0) }).strict();
+// Bỏ trống allowManualGoodsOrders thì giữ giá trị đang lưu.
+export const updateSalesSettingsSchema = z
+  .object({ maxManualDiscountPercent: percentText, allowManualGoodsOrders: z.boolean().optional(), version: z.number().int().min(0) })
+  .strict();
 export const closeSalesOrderSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();
 
 export const saveSalesIssueSchema = z

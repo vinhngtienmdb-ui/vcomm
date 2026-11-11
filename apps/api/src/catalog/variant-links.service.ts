@@ -175,6 +175,7 @@ export class VariantLinksService {
         brand: source.brand,
         origin: source.origin,
         vatRate: source.vatRate,
+        kind: source.kind,
         tracksLots: source.tracksLots,
         tracksSerials: source.tracksSerials,
         warrantyMonths: source.warrantyMonths,

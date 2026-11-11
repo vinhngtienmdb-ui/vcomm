@@ -61,6 +61,8 @@ beforeAll(async () => {
   const product = await as(retailAdmin, "post", "/catalog/products", {
     categoryId,
     name: "Dịch vụ lắp đặt",
+    // CONG_VIEC_43 lát L2: đơn bán tay chỉ gồm dịch vụ (QUYTAC_NGHIEPVU_276).
+    kind: "service",
     vatRate: "10",
     tracksLots: false,
     tracksSerials: false,

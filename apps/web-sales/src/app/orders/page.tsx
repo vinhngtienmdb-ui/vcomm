@@ -154,20 +154,28 @@ export default function SalesOrdersPage() {
   );
 }
 
-// Chiết khấu tay tối đa không cần duyệt, theo công ty (QUYTAC_NGHIEPVU_68).
+// Chiết khấu tay tối đa không cần duyệt (QUYTAC_NGHIEPVU_68); cho phép lập đơn bán tay có hàng hóa (QUYTAC_NGHIEPVU_276), theo công ty.
 function SettingsDrawer({ onClose }: { onClose: () => void }) {
   const t = useTranslations("salesOrders");
   const common = useTranslations("common");
   const { notify } = useAdmin();
   const { state } = useApi<SalesSettingsResponse>("/sales/settings");
   const [percent, setPercent] = useState<string | null>(null);
+  const [allowGoods, setAllowGoods] = useState<boolean | null>(null);
   const { submitting, fields, formError, run, inputClass } = useSubmit();
   const current = state.kind === "ready" ? state.data : null;
   function submit(event: FormEvent) {
     event.preventDefault();
     if (!current) return;
     void run(async () => {
-      await apiFetch("/sales/settings", { method: "PUT", body: JSON.stringify({ maxManualDiscountPercent: percent ?? current.maxManualDiscountPercent, version: current.version }) });
+      await apiFetch("/sales/settings", {
+        method: "PUT",
+        body: JSON.stringify({
+          maxManualDiscountPercent: percent ?? current.maxManualDiscountPercent,
+          allowManualGoodsOrders: allowGoods ?? current.allowManualGoodsOrders,
+          version: current.version,
+        }),
+      });
       notify(common("saved"));
       onClose();
     });
@@ -183,6 +191,12 @@ function SettingsDrawer({ onClose }: { onClose: () => void }) {
             value={percent ?? current?.maxManualDiscountPercent ?? ""}
             onChange={(event) => setPercent(event.target.value)}
           />
+        </Field>
+        <Field id="don-tay-hang-hoa" label={t("allowManualGoodsOrders")} hint={t("allowManualGoodsOrdersHint")} error={fields.allowManualGoodsOrders}>
+          <label>
+            <input id="don-tay-hang-hoa" type="checkbox" checked={allowGoods ?? current?.allowManualGoodsOrders ?? false} onChange={(event) => setAllowGoods(event.target.checked)} />{" "}
+            {t("allowManualGoodsOrders")}
+          </label>
         </Field>
         <FormError text={formError} />
         <div className="nhom-nut">

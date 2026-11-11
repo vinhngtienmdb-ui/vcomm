@@ -1,8 +1,8 @@
 "use client";
 
 // MAN_HINH_24 Chi tiết sản phẩm (CHUC_NANG_31, 32; API_56, API_57): thông tin chung, đơn vị quy đổi, phân loại và biến thể, mã vạch, thông số, ảnh, giá.
-import type { CategoryResponse, ProductImageResponse, ProductResponse, UnitResponse, VariantLinkResponse, VariantLinkSuggestion } from "contracts";
-import { productLimits, vatRates } from "contracts";
+import type { CategoryResponse, ProductImageResponse, ProductKind, ProductResponse, UnitResponse, VariantLinkResponse, VariantLinkSuggestion } from "contracts";
+import { productKinds, productLimits, vatRates } from "contracts";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -81,6 +81,8 @@ function ProductForm({ categories, units, product, onReload }: { categories: Cat
   const [origin, setOrigin] = useState(product?.origin ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
   const [vatRate, setVatRate] = useState<string>(product?.vatRate ?? "10");
+  // QUYTAC_NGHIEPVU_275: loại Hàng hóa (mặc định) hoặc Dịch vụ; dịch vụ không theo dõi lô, serial, không có cân nặng, thể tích.
+  const [kind, setKind] = useState<ProductKind>(product?.kind ?? "goods");
   const [tracking, setTracking] = useState<Tracking>(product ? (product.tracksLots ? "lots" : product.tracksSerials ? "serials" : "none") : "none");
   const [warrantyMonths, setWarrantyMonths] = useState(String(product?.warrantyMonths ?? 0));
   const [baseUnitId, setBaseUnitId] = useState(product?.baseUnitId ?? units.find((unit) => unit.code === "CAI")?.id ?? "");
@@ -132,12 +134,13 @@ function ProductForm({ categories, units, product, onReload }: { categories: Cat
         origin: origin || null,
         description: description || null,
         vatRate,
-        tracksLots: tracking === "lots",
-        tracksSerials: tracking === "serials",
+        kind,
+        tracksLots: kind === "goods" && tracking === "lots",
+        tracksSerials: kind === "goods" && tracking === "serials",
         warrantyMonths: Number(warrantyMonths) || 0,
         baseUnitId,
-        weightKg,
-        volumeM3,
+        weightKg: kind === "goods" ? weightKg : "",
+        volumeM3: kind === "goods" ? volumeM3 : "",
         options,
         specifications: specifications.filter((item) => item.name.trim() && item.value.trim()),
         units: conversions.filter((unit) => unit.unitId),
@@ -233,13 +236,24 @@ function ProductForm({ categories, units, product, onReload }: { categories: Cat
               ))}
             </select>
           </Field>
-          <Field id="theo-doi" label={t("tracking")} error={fieldError("tracksSerials") ?? fieldError("tracksLots")}>
-            <select id="theo-doi" className="o-nhap" value={tracking} disabled={!editable} onChange={(event) => setTracking(event.target.value as Tracking)}>
-              <option value="none">{t("noTracking")}</option>
-              <option value="lots">{t("tracksLots")}</option>
-              <option value="serials">{t("tracksSerials")}</option>
+          <Field id="loai-san-pham" label={t("kind")} hint={t("kindHint")} error={fieldError("kind")}>
+            <select id="loai-san-pham" className="o-nhap" value={kind} disabled={!editable} onChange={(event) => setKind(event.target.value as ProductKind)}>
+              {productKinds.map((item) => (
+                <option key={item} value={item}>
+                  {t(`kind_${item}`)}
+                </option>
+              ))}
             </select>
           </Field>
+          {kind === "goods" && (
+            <Field id="theo-doi" label={t("tracking")} error={fieldError("tracksSerials") ?? fieldError("tracksLots")}>
+              <select id="theo-doi" className="o-nhap" value={tracking} disabled={!editable} onChange={(event) => setTracking(event.target.value as Tracking)}>
+                <option value="none">{t("noTracking")}</option>
+                <option value="lots">{t("tracksLots")}</option>
+                <option value="serials">{t("tracksSerials")}</option>
+              </select>
+            </Field>
+          )}
           <Field id="bao-hanh" label={t("warrantyMonths")} error={fieldError("warrantyMonths")}>
             <input
               id="bao-hanh"
@@ -258,12 +272,16 @@ function ProductForm({ categories, units, product, onReload }: { categories: Cat
           <Field id="xuat-xu" label={t("origin")} error={fieldError("origin")}>
             <input id="xuat-xu" className={inputClass("origin")} value={origin} maxLength={100} disabled={!editable} onChange={(event) => setOrigin(event.target.value)} />
           </Field>
-          <Field id="trong-luong" label={t("weightKg")} hint={t("perBaseUnit")} error={fieldError("weightKg")}>
-            <input id="trong-luong" inputMode="decimal" className={inputClass("weightKg")} value={weightKg} disabled={!editable} onChange={(event) => setWeightKg(event.target.value)} />
-          </Field>
-          <Field id="the-tich" label={t("volumeM3")} hint={t("perBaseUnit")} error={fieldError("volumeM3")}>
-            <input id="the-tich" inputMode="decimal" className={inputClass("volumeM3")} value={volumeM3} disabled={!editable} onChange={(event) => setVolumeM3(event.target.value)} />
-          </Field>
+          {kind === "goods" && (
+            <>
+              <Field id="trong-luong" label={t("weightKg")} hint={t("perBaseUnit")} error={fieldError("weightKg")}>
+                <input id="trong-luong" inputMode="decimal" className={inputClass("weightKg")} value={weightKg} disabled={!editable} onChange={(event) => setWeightKg(event.target.value)} />
+              </Field>
+              <Field id="the-tich" label={t("volumeM3")} hint={t("perBaseUnit")} error={fieldError("volumeM3")}>
+                <input id="the-tich" inputMode="decimal" className={inputClass("volumeM3")} value={volumeM3} disabled={!editable} onChange={(event) => setVolumeM3(event.target.value)} />
+              </Field>
+            </>
+          )}
         </div>
         <Field id="mo-ta" label={t("description")} error={fieldError("description")}>
           <textarea id="mo-ta" className={inputClass("description")} rows={3} maxLength={5000} value={description} disabled={!editable} onChange={(event) => setDescription(event.target.value)} />

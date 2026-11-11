@@ -326,7 +326,12 @@
     "withdrawalNotApproved": "Yêu cầu rút tiền chưa được duyệt hoặc đã ghi đã chi.",
     "withdrawalFeeOverAmount": "Thuế và phí vượt số tiền rút. Vui lòng rút số tiền lớn hơn.",
     "withdrawalSelfDecision": "Không được tự duyệt, từ chối hoặc ghi đã chi yêu cầu rút tiền của chính mình.",
-    "commissionNeedsPrice": "Sản phẩm chưa có giá bán trên kênh VComm, chưa đặt được hoa hồng số tiền cố định."
+    "commissionNeedsPrice": "Sản phẩm chưa có giá bán trên kênh VComm, chưa đặt được hoa hồng số tiền cố định.",
+    "serviceNotStocked": "Mặt hàng dịch vụ không theo dõi tồn kho: không lập phiếu kho, giữ hàng, kiểm kê.",
+    "serviceNoTracking": "Dịch vụ không theo dõi lô, số serial.",
+    "productKindLocked": "Sản phẩm đã phát sinh tồn kho, chứng từ kho; không đổi loại được.",
+    "manualOrderServicesOnly": "Đơn bán lập tay chỉ gồm mặt hàng dịch vụ. Hàng hóa bán qua sàn VComm.",
+    "internalServicesOnly": "Giao dịch nội bộ chỉ gồm mặt hàng dịch vụ."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1321,7 +1326,11 @@
     "addImage": "Thêm ảnh",
     "imageHint": "JPG, PNG, WEBP; tối đa 10 ảnh, mỗi ảnh 5 MB.",
     "importRow": "dòng",
-    "import": "Nhập Excel"
+    "import": "Nhập Excel",
+    "kind": "Loại",
+    "kindHint": "Dịch vụ không theo dõi tồn kho, lô, số serial.",
+    "kind_goods": "Hàng hóa",
+    "kind_service": "Dịch vụ"
   },
   "productImport": {
     "title": "Nhập sản phẩm từ Excel",
@@ -2142,7 +2151,9 @@
     "linePromotion": "{name}: giảm {percent}%",
     "orderPromotionShare": "{name}: giảm {amount}",
     "promotionHint": "Khuyến mãi đang chạy tự áp khi lưu (giảm theo dòng, theo đơn, hàng tặng); tổng tạm tính chưa gồm khuyến mãi.",
-    "giftShortage": "{name}: thiếu {sets} suất tặng do kho xuất không đủ hàng tặng."
+    "giftShortage": "{name}: thiếu {sets} suất tặng do kho xuất không đủ hàng tặng.",
+    "allowManualGoodsOrders": "Cho phép lập đơn bán tay có hàng hóa",
+    "allowManualGoodsOrdersHint": "Mặc định tắt: đơn bán lập tay chỉ gồm dịch vụ, hàng hóa bán qua sàn VComm."
   },
   "salesMenu": {
     "title": "Bán hàng",
