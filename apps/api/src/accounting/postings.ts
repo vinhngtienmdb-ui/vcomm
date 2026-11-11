@@ -166,17 +166,19 @@ export async function inventoryDraft(executor: Executor, documentId: string): Pr
   };
 }
 
-// Phí giao hàng của đơn VComm: chỉ phiếu xuất ghi sổ sớm nhất của đơn bán mang phí.
+// Phí giao hàng của đơn VComm: phiếu xuất ghi sổ đầu tiên của đơn bán mang phí; ghi nhận phiếu đó vào đơn (khóa dòng đơn) nên bút toán, hóa đơn chỉ tính phí một lần.
 export async function marketplaceShippingFee(executor: Executor, documentId: string): Promise<number> {
   const row = (
-    await executor.execute<{ shipping_fee: string }>(sql`
-    SELECT m.shipping_fee::text FROM inventory.documents d JOIN marketplace.orders m ON m.sales_order_id = d.source_id
-    WHERE d.id = ${documentId} AND d.type = 'sales_issue'
-      AND NOT EXISTS (
-        SELECT 1 FROM inventory.documents e WHERE e.type = 'sales_issue' AND e.status = 'posted' AND e.source_id = d.source_id AND e.id <> d.id
-          AND (e.posted_at, e.id) < (d.posted_at, d.id))`)
+    await executor.execute<{ shipping_fee: string; shipping_fee_document_id: string | null }>(sql`
+    SELECT m.shipping_fee::text, m.shipping_fee_document_id FROM inventory.documents d JOIN marketplace.orders m ON m.sales_order_id = d.source_id
+    WHERE d.id = ${documentId} AND d.type = 'sales_issue' AND d.status = 'posted' FOR UPDATE OF m`)
   ).rows[0];
-  return Number(row?.shipping_fee ?? 0);
+  if (!row) return 0;
+  if (row.shipping_fee_document_id === null) {
+    await executor.execute(sql`UPDATE marketplace.orders SET shipping_fee_document_id = ${documentId} WHERE sales_order_id = (SELECT source_id FROM inventory.documents WHERE id = ${documentId})`);
+    return Number(row.shipping_fee);
+  }
+  return row.shipping_fee_document_id === documentId ? Number(row.shipping_fee) : 0;
 }
 export const shippingVatRate = 10;
 
@@ -222,9 +224,10 @@ export async function marketplaceRefundDraft(executor: Executor, refundId: strin
     companyId: row.company_id,
     sourceType: "marketplace_refund",
     sourceId: refundId,
-    journalNo: row.bank_transaction_no,
+    // Một lần chuyển khoản có thể hoàn nhiều đơn: số bút toán theo số đơn, mã giao dịch ghi ở diễn giải.
+    journalNo: `${row.document_no}-HT`,
     date: row.refunded_on,
-    description: `Hoàn tiền đơn VComm ${row.document_no}`,
+    description: `Hoàn tiền đơn VComm ${row.document_no}, giao dịch ${row.bank_transaction_no}`,
     lines: [debit("receivable", amount), credit("bank", amount)],
   };
 }

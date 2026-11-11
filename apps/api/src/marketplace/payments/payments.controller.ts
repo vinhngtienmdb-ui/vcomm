@@ -1,7 +1,7 @@
 // API_131: người mua mở trang thanh toán; API_132: kết quả VNPAY gửi về (IPN) và trang trả về (CONG_VIEC_25).
 import { Controller, Get, Param, Post, Query, Req, Res } from "@nestjs/common";
 import type { BuyerPaymentStart } from "contracts";
-import type { Response } from "express";
+import type { Request, Response } from "express";
 import { clientInfo } from "../../auth/auth.controller";
 import { OwnRateLimit, Public, type AuthenticatedRequest } from "../../auth/auth.guard";
 import { UuidPipe } from "../../common/uuid.pipe";
@@ -27,16 +27,16 @@ export class PaymentsController {
   @Public()
   @OwnRateLimit()
   @Get("public/payments/vnpay/ipn")
-  ipn(@Query() query: Record<string, unknown>): Promise<IpnReply> {
-    return this.payments.vnpayIpn(query);
+  ipn(@Req() request: Request, @Query() query: Record<string, unknown>): Promise<IpnReply> {
+    return this.payments.vnpayIpn(query, request.ip ?? "khong-ro");
   }
 
   // Trang trả về chỉ hiển thị kết quả và liên kết mở lại đơn trên ứng dụng.
   @Public()
   @OwnRateLimit()
   @Get("public/payments/vnpay/return")
-  async returnPage(@Query() query: Record<string, unknown>, @Res() response: Response): Promise<void> {
-    const outcome = await this.payments.vnpayReturn(query);
+  async returnPage(@Req() request: Request, @Query() query: Record<string, unknown>, @Res() response: Response): Promise<void> {
+    const outcome = await this.payments.vnpayReturn(query, request.ip ?? "khong-ro");
     const base = process.env.VCOMM_APP_LINK_BASE?.trim() || "vcomm://";
     const link = outcome.orderId ? `${base}don-hang/${outcome.orderId}` : base;
     response

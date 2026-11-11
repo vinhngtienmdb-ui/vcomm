@@ -73,7 +73,9 @@ export class GhnCarrier implements CarrierAdapter {
   async shipmentInfo(trackingCode: string): Promise<ShipmentInfo> {
     const data = await this.call<{ status: string; cod_collect_date?: string | null }>("/shiip/public-api/v2/shipping-order/detail", { order_code: trackingCode });
     const collected = data.cod_collect_date ? new Date(data.cod_collect_date) : null;
-    return { status: data.status, codCollectedAt: collected && !Number.isNaN(collected.getTime()) ? collected : null };
+    // Ngày rỗng dạng 0001-01-01 hoặc không đọc được coi như chưa thu.
+    const valid = collected !== null && !Number.isNaN(collected.getTime()) && collected.getUTCFullYear() >= 2000;
+    return { status: data.status, codCollectedAt: valid ? collected : null };
   }
 
   async findShipment(clientOrderCode: string): Promise<CreatedShipment | null> {

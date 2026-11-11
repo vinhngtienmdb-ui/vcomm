@@ -145,6 +145,21 @@ describe("CONG_VIEC_25 bút toán, hóa đơn phí giao hàng", () => {
       [codes.bank, 0, 44000],
     ]);
     const journal = (await pool.query("SELECT journal_no, journal_date::text AS date FROM accounting.journals WHERE source_type = 'marketplace_refund' AND source_id = $1", [refund.id])).rows[0];
-    expect(journal).toEqual({ journal_no: "FT9988", date: store.today });
+    expect(journal).toEqual({ journal_no: `${placed.documentNo}-HT`, date: store.today });
+  });
+
+  it("KICHBAN_KIEMTHU_323 (sửa sau rà soát): đơn vị vận chuyển hủy vận đơn của đơn đã thanh toán trực tuyến thì đơn hủy, lập việc chờ hoàn toàn bộ tiền đã thu", async () => {
+    const lines = [{ variantId: store.variants.soap, quantity: 1 }];
+    const placed = (await buyer("post", "/buyer/orders", { addressId, lines, expectedTotal: "74000", paymentMethod: "vnpay_atm" })).body;
+    const started = await buyer("post", `/buyer/orders/${placed.id}/payments`);
+    const reference = new URL(started.body.paymentUrl).searchParams.get("vnp_TxnRef")!;
+    expect((await http().get("/api/v1/public/payments/vnpay/ipn").query(ipnQuery(reference, 74000))).body.RspCode).toBe("00");
+    const current = (await store.call("get", `/marketplace/orders/${placed.id}`)).body;
+    const shipped = (await store.call("post", `/marketplace/orders/${placed.id}/ship`, { carrierCode: "ghn", version: current.version })).body;
+    ghn.orders.set(shipped.trackingCode, { status: "cancel", codCollectDate: null });
+    expect((await http().post(`/api/v1/public/carriers/ghn/webhook/${webhookKey}`).send({ OrderCode: shipped.trackingCode })).body.result).toBe("applied");
+    const detail = (await buyer("get", `/buyer/orders/${placed.id}`)).body;
+    expect(detail).toMatchObject({ status: "cancelled", paymentStatus: "refund_pending" });
+    expect(detail.refunds).toEqual([{ amount: "74000", reason: "order_cancelled", status: "pending", refundedOn: null }]);
   });
 });

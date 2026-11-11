@@ -12,7 +12,7 @@ import { SalesOrdersService } from "../sales/sales-orders.service";
 import type { BuyerAdminActor } from "./buyer-admin.service";
 import { CarrierFailure, type CreatedShipment, type ShipmentInfo } from "./carriers/carrier";
 import { carrierAdapter, webhookKeyOf } from "./carriers/carrier-registry";
-import { MarketplaceOrdersService } from "./marketplace-orders.service";
+import { MarketplaceOrdersService, refundRemainingPaid } from "./marketplace-orders.service";
 import { vietnamToday } from "./shop.service";
 import { loadStoreContext } from "./store.service";
 
@@ -330,6 +330,8 @@ export class ShipmentsService implements OnModuleInit {
           UPDATE marketplace.orders SET status = 'cancelled', cancel_reason = ${reason}, cancelled_by_kind = 'carrier', version = version + 1 WHERE id = ${shipment.order_id}`);
         await transaction.execute(sql`UPDATE marketplace.shipments SET is_active = false WHERE id = ${shipment.id}`);
         await this.orders.event(transaction, shipment.order_id, "cancelled", reason, null);
+        // Đơn đã thu tiền trực tuyến: lập việc chờ hoàn (CONG_VIEC_25; QUYTAC_NGHIEPVU_168).
+        await refundRemainingPaid(transaction, shipment.order_id, "order_cancelled");
       } else if (phase === "cancelled" && state === "awaiting_pickup") {
         // Đơn vị vận chuyển hủy vận đơn trước khi lấy hàng: hủy đơn, nhả hàng giữ.
         await this.removeDraftIssues(transaction, shipment.order_id);
@@ -339,6 +341,8 @@ export class ShipmentsService implements OnModuleInit {
           UPDATE marketplace.orders SET status = 'cancelled', cancel_reason = ${reason}, cancelled_by_kind = 'carrier', version = version + 1 WHERE id = ${shipment.order_id}`);
         await transaction.execute(sql`UPDATE marketplace.shipments SET is_active = false WHERE id = ${shipment.id}`);
         await this.orders.event(transaction, shipment.order_id, "cancelled", reason, null);
+        // Đơn đã thu tiền trực tuyến: lập việc chờ hoàn (CONG_VIEC_25; QUYTAC_NGHIEPVU_168).
+        await refundRemainingPaid(transaction, shipment.order_id, "order_cancelled");
       } else if (phase === "attention" && current.carrier_status !== status) {
         // Bất thường, mất hàng: hiện cho nhân viên, đơn giữ trạng thái.
         await this.orders.event(transaction, shipment.order_id, state, note, null);

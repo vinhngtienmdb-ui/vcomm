@@ -1,11 +1,12 @@
 // Thanh toán trực tuyến đơn VComm (CONG_VIEC_25; CHUC_NANG_121; QUYTAC_NGHIEPVU_165, 166; API_131, API_132): mở trang cổng, nhận kết quả, tự hủy đơn quá hạn.
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import type { BuyerPaymentStart, PaymentMethodCode } from "contracts";
 import { sql } from "drizzle-orm";
 import type { ClientInfo } from "../../auth/auth.service";
 import { LedgerService } from "../../accounting/ledger.service";
 import { marketplacePaymentDraft } from "../../accounting/postings";
 import { ApiError } from "../../common/api-error";
+import { RateLimiter } from "../../common/rate-limiter";
 import { DATABASE, type Database } from "../../database/database.module";
 import type { Actor } from "../../permissions/roles.service";
 import { SalesOrdersService } from "../../sales/sales-orders.service";
@@ -22,11 +23,13 @@ export type ReturnOutcome = { orderId: string | null; state: "succeeded" | "fail
 
 @Injectable()
 export class MarketplacePaymentsService {
+  private readonly logger = new Logger("MarketplacePayments");
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     private readonly orders: MarketplaceOrdersService,
     private readonly salesOrders: SalesOrdersService,
     private readonly ledger: LedgerService,
+    private readonly rateLimiter: RateLimiter,
   ) {}
 
   // Người mua mở trang thanh toán (QUYTAC_NGHIEPVU_165): đơn của mình, đang chờ thanh toán, còn hạn; mỗi lần một số tham chiếu mới.
@@ -66,25 +69,34 @@ export class MarketplacePaymentsService {
   }
 
   // IPN của VNPAY (QUYTAC_NGHIEPVU_166): chỉ nhận khi đúng chữ ký, đúng số tiền; mỗi lần thanh toán ghi nhận một lần.
-  async vnpayIpn(query: Record<string, unknown>): Promise<IpnReply> {
+  async vnpayIpn(query: Record<string, unknown>, ip: string): Promise<IpnReply> {
     const configuration = vnpayConfiguration();
     if (!configuration) return { RspCode: "99", Message: "Unknown error" };
     const result = verifiedResult(configuration, query);
     if (!result) {
-      await this.log(typeof query.vnp_TxnRef === "string" ? query.vnp_TxnRef : null, query, "97");
+      // Sai chữ ký: đếm theo địa chỉ IP, vượt giới hạn thì từ chối không ghi lại (rà soát CONG_VIEC_25).
+      const retryAfterSeconds = await this.rateLimiter.hit("vnpay-ipn-invalid", ip);
+      if (retryAfterSeconds !== null) throw new ApiError("RATE_LIMITED", "rateLimited", { retryAfterSeconds });
+      await this.log(typeof query.vnp_TxnRef === "string" ? query.vnp_TxnRef.slice(0, 100) : null, query, "97");
       return { RspCode: "97", Message: "Invalid signature" };
     }
-    const reply = await this.database.transaction(async (transaction) => {
-      const payment = (
-        await transaction.execute<{ id: string; order_id: string; amount: string; status: string }>(sql`
+    // Lỗi khi ghi nhận (kỳ kế toán đã khóa, cơ sở dữ liệu lỗi): trả mã 99 để VNPAY gửi lại, ghi lại để tra soát.
+    const reply = await this.database
+      .transaction(async (transaction) => {
+        const payment = (
+          await transaction.execute<{ id: string; order_id: string; amount: string; status: string }>(sql`
         SELECT id, order_id, amount::text, status FROM marketplace.payments WHERE reference = ${result.reference} FOR UPDATE`)
-      ).rows[0];
-      if (!payment) return { RspCode: "01", Message: "Order not found" };
-      if (Math.round(Number(payment.amount)) !== Math.round(result.amount)) return { RspCode: "04", Message: "Invalid amount" };
-      if (payment.status !== "pending") return { RspCode: "02", Message: "Order already confirmed" };
-      await this.complete(transaction, payment.id, payment.order_id, result);
-      return { RspCode: "00", Message: "Confirm Success" };
-    });
+        ).rows[0];
+        if (!payment) return { RspCode: "01", Message: "Order not found" };
+        if (Math.round(Number(payment.amount)) !== Math.round(result.amount)) return { RspCode: "04", Message: "Invalid amount" };
+        if (payment.status !== "pending") return { RspCode: "02", Message: "Order already confirmed" };
+        await this.complete(transaction, payment.id, payment.order_id, result);
+        return { RspCode: "00", Message: "Confirm Success" };
+      })
+      .catch((error: unknown) => {
+        this.logger.error(`IPN VNPAY ${result.reference}: ${(error as Error).message}`);
+        return { RspCode: "99", Message: "Unknown error" };
+      });
     await this.log(result.reference, query, reply.RspCode);
     return reply;
   }
@@ -113,7 +125,8 @@ export class MarketplacePaymentsService {
   }
 
   // Trang VNPAY chuyển người mua về: chỉ hiển thị, không ghi nhận tiền (QUYTAC_NGHIEPVU_166).
-  async vnpayReturn(query: Record<string, unknown>): Promise<ReturnOutcome> {
+  async vnpayReturn(query: Record<string, unknown>, ip: string): Promise<ReturnOutcome> {
+    if ((await this.rateLimiter.hit("vnpay-return", ip)) !== null) return { orderId: null, state: "invalid" };
     const configuration = vnpayConfiguration();
     const result = configuration ? verifiedResult(configuration, query) : null;
     if (!result) return { orderId: null, state: "invalid" };
@@ -124,7 +137,14 @@ export class MarketplacePaymentsService {
     return { orderId: payment.order_id, state: "pending" };
   }
 
-  private async log(reference: string | null, payload: Record<string, unknown>, resultCode: string): Promise<void> {
+  // Chỉ lưu tham số vnp_ dạng chuỗi, tối đa 30 tham số, mỗi giá trị 255 ký tự.
+  private async log(reference: string | null, query: Record<string, unknown>, resultCode: string): Promise<void> {
+    const payload = Object.fromEntries(
+      Object.entries(query)
+        .filter(([key, value]) => key.startsWith("vnp_") && key.length <= 40 && typeof value === "string")
+        .slice(0, 30)
+        .map(([key, value]) => [key, (value as string).slice(0, 255)]),
+    );
     await this.database.execute(sql`
       INSERT INTO marketplace.payment_notifications (gateway_code, reference, payload, result_code) VALUES ('vnpay', ${reference}, ${JSON.stringify(payload)}::jsonb, ${resultCode})`);
   }
