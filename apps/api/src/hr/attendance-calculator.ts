@@ -13,7 +13,12 @@ export type ShiftDefinition = {
   workUnits: number;
 };
 
-export type PlannedDay = { date: string; shift: ShiftDefinition | null; holiday: boolean };
+export type LeavePayGroup = "annual" | "paid_personal" | "paid_other" | "unpaid" | "social_insurance";
+// Nghỉ theo đơn đã duyệt: cả ngày hoặc nửa ngày (QUYTAC_NGHIEPVU_309).
+export type DayLeave = { portion: 1 | 0.5; payGroup: LeavePayGroup; typeId: string };
+// Tăng ca đã duyệt của ngày: khoảng [bắt đầu, kết thúc] (mili giây); full = nhân sự ghi nhận kèm văn bản cho người không chấm công, tính đủ khoảng.
+export type DayOvertime = { start: number; end: number; full: boolean };
+export type PlannedDay = { date: string; shift: ShiftDefinition | null; holiday: boolean; leave?: DayLeave | null; overtime?: DayOvertime[] };
 
 export type DayResult = {
   workDate: string;
@@ -33,7 +38,14 @@ export type DayResult = {
   earlyMinutes: number;
   workedUnits: number;
   absentUnits: number;
-  status: "scheduled" | "present" | "missing_punch" | "absent" | "rest" | "holiday";
+  leaveUnits: number;
+  leavePayGroup: LeavePayGroup | null;
+  leaveTypeId: string | null;
+  overtimeKind: "weekday" | "rest_day" | "holiday" | null;
+  overtimeDayMinutes: number;
+  overtimeNightMinutes: number;
+  overtimeNightAfterDayMinutes: number;
+  status: "scheduled" | "present" | "missing_punch" | "absent" | "rest" | "holiday" | "leave";
 };
 
 type Interval = [number, number];
@@ -143,6 +155,28 @@ export function assignPunches(days: PlannedDay[], punches: Date[]): Map<string, 
 
 const roundUnits = (value: number) => Math.round(value * 100) / 100;
 
+// Giờ tăng ca được tính = phần giao giữa khoảng đã duyệt và khoảng có mặt [lượt đầu, lượt cuối] (QUYTAC_NGHIEPVU_310).
+// Tách giờ đêm 22–6 giờ; có giờ tăng ca ban ngày cùng ngày thì giờ đêm tính vào nhóm "đêm sau tăng ca ngày" (Nghị định 145 Điều 57 điểm b1).
+function overtimeOf(day: PlannedDay, firstIn: Date | null, lastOut: Date | null) {
+  const empty = { overtimeKind: null, overtimeDayMinutes: 0, overtimeNightMinutes: 0, overtimeNightAfterDayMinutes: 0 } as const;
+  if (!day.overtime || day.overtime.length === 0) return empty;
+  let total = 0;
+  let night = 0;
+  for (const item of day.overtime) {
+    const counted: Interval | null = item.full ? [item.start, item.end] : firstIn && lastOut ? [Math.max(item.start, firstIn.getTime()), Math.min(item.end, lastOut.getTime())] : null;
+    if (!counted || counted[1] <= counted[0]) continue;
+    total += (counted[1] - counted[0]) / minute;
+    night += nightIntervals(day.date).reduce((sum, interval) => sum + overlap(counted, interval) / minute, 0);
+  }
+  const daytime = Math.round(total - night);
+  return {
+    overtimeKind: day.holiday ? "holiday" : day.shift ? "weekday" : "rest_day",
+    overtimeDayMinutes: daytime,
+    overtimeNightMinutes: daytime > 0 ? 0 : Math.round(night),
+    overtimeNightAfterDayMinutes: daytime > 0 ? Math.round(night) : 0,
+  } as const;
+}
+
 // Công một ngày (QUYTAC_NGHIEPVU_305). today: ngày hiện tại giờ Việt Nam; now: thời điểm hiện tại.
 export function calculateDay(day: PlannedDay, punches: Date[], graceMinutes: number, now: Date): DayResult {
   const shift = day.shift;
@@ -168,14 +202,27 @@ export function calculateDay(day: PlannedDay, punches: Date[], graceMinutes: num
     earlyMinutes: 0,
     workedUnits: 0,
     absentUnits: 0,
+    leaveUnits: 0,
+    leavePayGroup: null,
+    leaveTypeId: null,
+    ...overtimeOf(day, firstIn, lastOut),
     status: "scheduled",
   };
   if (day.holiday) return { ...base, status: "holiday" };
   if (!shift || !interval) return { ...base, status: "rest" };
+  const dayLeave = day.leave ?? null;
+  if (dayLeave) {
+    base.leaveUnits = roundUnits(shift.workUnits * dayLeave.portion);
+    base.leavePayGroup = dayLeave.payGroup;
+    base.leaveTypeId = dayLeave.typeId;
+    if (dayLeave.portion === 1) return { ...base, status: "leave" };
+  }
+  // Phần ngày phải làm: cả ngày, hoặc nửa ngày khi nghỉ nửa ngày.
+  const share = dayLeave ? 0.5 : 1;
   const ended = now.getTime() >= interval[1];
   if (sorted.length === 0) {
     if (!ended) return base;
-    return { ...base, status: "absent", absentUnits: shift.workUnits };
+    return { ...base, status: "absent", absentUnits: roundUnits(shift.workUnits * share) };
   }
   if (!lastOut) return { ...base, status: ended ? "missing_punch" : "scheduled" };
 
@@ -197,14 +244,15 @@ export function calculateDay(day: PlannedDay, punches: Date[], graceMinutes: num
   const pause = breakInterval(day.date, shift);
   const workedMinutes = worked[1] > worked[0] ? Math.round(paidMinutes(worked, pause, shift.breakPaid)) : 0;
   const standard = standardMinutes(shift);
-  const workedUnits = standard > 0 ? roundUnits(shift.workUnits * Math.min(1, workedMinutes / standard)) : 0;
+  const workedUnits = standard > 0 ? roundUnits(shift.workUnits * Math.min(share, workedMinutes / standard)) : 0;
   return {
     ...base,
     status: "present",
     workedMinutes,
     nightMinutes: worked[1] > worked[0] ? nightMinutesIn(day.date, worked, pause, shift.breakPaid) : 0,
-    lateMinutes,
-    earlyMinutes,
+    // Nghỉ nửa ngày: giờ đến, giờ về theo buổi nên không tính đi muộn, về sớm.
+    lateMinutes: dayLeave ? 0 : lateMinutes,
+    earlyMinutes: dayLeave ? 0 : earlyMinutes,
     workedUnits,
   };
 }

@@ -57,7 +57,7 @@ export class DatabaseTimesheetReader implements PayrollTimesheetReader {
           (unpaid_leave_units + social_insurance_leave_units + absent_units)::text AS unpaid_units,
           night_hours::text, overtime_weekday_hours::text, overtime_weekday_night_hours::text, overtime_weekday_night_after_day_hours::text, overtime_rest_day_hours::text,
           overtime_rest_day_night_hours::text, overtime_holiday_hours::text, overtime_holiday_night_hours::text, annual_leave_payout_units::text
-        FROM hr.timesheet_lines WHERE period_id = ${period.id}`);
+        FROM hr.timesheet_lines WHERE period_id = ${period.id} AND company_id = ${companyId}`);
       for (const row of rows.rows) {
         employees.set(row.employee_id, {
           standardDays: row.month_standard_units,

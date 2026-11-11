@@ -91,6 +91,11 @@ import { PayrollController } from "./hr/payroll.controller";
 import { PayrollSetupService } from "./hr/payroll-setup.service";
 import { DatabaseTimesheetReader, PAYROLL_TIMESHEET } from "./hr/payroll-timesheet";
 import { PayrollsService } from "./hr/payrolls.service";
+import { LeaveController } from "./hr/leave.controller";
+import { LeaveService } from "./hr/leave.service";
+import { OvertimeTimesheetsController } from "./hr/overtime-timesheets.controller";
+import { OvertimeService } from "./hr/overtime.service";
+import { TimesheetsService } from "./hr/timesheets.service";
 import { WorkEventsService } from "./hr/work-events.service";
 import { DebtsService } from "./finance/debts.service";
 import { FundsService } from "./finance/funds.service";
@@ -142,7 +147,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, PayrollController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController],
   providers: [
     AuthService,
     ActivationService,
@@ -165,6 +170,9 @@ import { UsersService } from "./users/users.service";
     AttendanceService,
     AttendanceLocationsService,
     MyAttendanceService,
+    LeaveService,
+    OvertimeService,
+    TimesheetsService,
     ContractsService,
     PayrollSetupService,
     PayrollsService,

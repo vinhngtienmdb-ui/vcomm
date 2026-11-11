@@ -1,8 +1,8 @@
 "use client";
 
 // MAN_HINH_122 Chấm công của tôi (CHUC_NANG_165, 167; API_152, API_155): thiết kế cho điện thoại. Vào ca, ra ca bằng GPS, mạng công ty hoặc mã QR;
-// lịch ca tuần, công tháng, đơn giải trình. Mở từ mã QR: đường dẫn có l (địa điểm), t (mã), c (công ty).
-import type { CorrectionItem, CorrectionKind, MyAttendanceMonthResponse, MyAttendanceResponse, MyWeekResponse } from "contracts";
+// lịch ca tuần, công tháng, đơn giải trình; đăng ký và đồng ý tăng ca (API_154); xác nhận hoặc giải trình bảng công tháng (API_155). Mở từ mã QR: đường dẫn có l (địa điểm), t (mã), c (công ty).
+import type { CorrectionItem, CorrectionKind, MyLeaveResponse, MyAttendanceMonthResponse, MyAttendanceResponse, MyTimesheetResponse, MyWeekResponse, OvertimeItem } from "contracts";
 import { correctionKinds } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -14,6 +14,9 @@ import { Loaded, MessageView } from "ui/components/StatusViews";
 import { apiFetch, apiUpload, rememberCompany, selectedCompanyId } from "ui/lib/api";
 import { formatDate, vietnamToday } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
+import { LeaveRequestDrawer, LeaveStatusBadge, leavePeriod } from "@/components/LeaveParts";
+import { CancelOvertimeDrawer, OvertimeDrawer, OvertimeStatusBadge, decimal, overtimeTime } from "@/components/OvertimeParts";
+import { TimesheetStatusBadge, TimesheetSummary } from "@/components/TimesheetParts";
 import { CorrectionStatusBadge, Table, Tabs, currentMonth, dayTone, daySymbol, mondayOf, vietnamClock, weekdayLabel } from "@/components/AttendanceParts";
 
 type Position = { latitude: number; longitude: number; accuracyMeters: number };
@@ -54,6 +57,30 @@ function MyAttendance() {
   const [message, setMessage] = useState<{ tone: "thong-tin" | "loi"; text: string } | null>(null);
   const [locationConsent, setLocationConsent] = useState(false);
   const [correction, setCorrection] = useState<string | null>(null);
+  const leave = useApi<MyLeaveResponse>(companyReady ? "/hr/me/leave" : null);
+  const [leaving, setLeaving] = useState(false);
+  const overtime = useApi<OvertimeItem[]>(companyReady ? "/hr/me/overtime" : null);
+  const [overtimeOpen, setOvertimeOpen] = useState(false);
+  const [consentBusy, setConsentBusy] = useState(false);
+  const [consentError, setConsentError] = useState<string | null>(null);
+  const thisMonth = vietnamToday().slice(0, 7);
+  const overtimeItems = overtime.state.kind === "ready" ? overtime.state.data : [];
+  const consentItems = overtimeItems.filter((item) => item.canConsent);
+  const overtimeMonthHours = overtimeItems
+    .filter((item) => item.status === "approved" && item.workDate.startsWith(thisMonth))
+    .reduce((total, item) => total + Number(item.countedHours ?? item.hours), 0);
+  const consent = async (item: OvertimeItem, agree: boolean) => {
+    setConsentBusy(true);
+    setConsentError(null);
+    try {
+      await apiFetch(`/hr/me/overtime/${item.id}/consent`, { method: "POST", body: JSON.stringify({ agree }) });
+      await overtime.reload();
+    } catch (failure) {
+      setConsentError(failureOf(failure).message);
+    } finally {
+      setConsentBusy(false);
+    }
+  };
   const punch = async (useQr: boolean) => {
     setBusy(true);
     setMessage(null);
@@ -119,9 +146,45 @@ function MyAttendance() {
                     : t("punchesToday", { list: today.punches.map((item) => `${vietnamClock(item.punchedAt).slice(0, 5)} (${t(`source_${item.source}`)})`).join(", ") })}
                 </span>
               </div>
+              {consentItems.map((item) => (
+                <div key={item.id} className="khoi-canh-bao canh-bao">
+                  {t("overtimeConsent", { date: formatDate(item.workDate), time: overtimeTime(item), content: item.workContent, location: item.workLocation, hours: decimal(item.hours) })}{" "}
+                  <span className="nhom-nut">
+                    <button type="button" className="nut chinh" disabled={consentBusy} onClick={() => void consent(item, true)}>
+                      {t("agree")}
+                    </button>
+                    <button type="button" className="nut phu" disabled={consentBusy} onClick={() => void consent(item, false)}>
+                      {t("disagree")}
+                    </button>
+                  </span>
+                </div>
+              ))}
+              {consentError && <div className="khoi-canh-bao loi">{consentError}</div>}
+              {leave.state.kind === "ready" && leave.state.data.balance && (
+                <div className="the">
+                  <dl className="thong-tin-dong">
+                    <dt>{t("annualAvailable")}</dt>
+                    <dd>
+                      {Number(leave.state.data.balance.available).toLocaleString("vi-VN")}
+                      {leave.state.data.balance.years
+                        .filter((year) => Number(year.balance) !== 0 && year.expiresOn)
+                        .map((year) => ` · ${year.leaveYear}: ${Number(year.balance).toLocaleString("vi-VN")} (${t("until", { date: formatDate(year.expiresOn) })})`)
+                        .join("")}
+                    </dd>
+                    <dt>{t("overtimeThisMonth")}</dt>
+                    <dd>{t("overtimeValue", { hours: decimal(overtimeMonthHours) })}</dd>
+                  </dl>
+                </div>
+              )}
               <div className="nhom-nut">
+                <button type="button" className="nut phu" onClick={() => setLeaving(true)}>
+                  {t("newLeave")}
+                </button>
                 <button type="button" className="nut phu" onClick={() => setCorrection(vietnamToday())}>
                   {t("newCorrection")}
+                </button>
+                <button type="button" className="nut phu" onClick={() => setOvertimeOpen(true)}>
+                  {t("newOvertime")}
                 </button>
                 {today.canViewTeam && (
                   <>
@@ -131,17 +194,43 @@ function MyAttendance() {
                     <Link className="nut phu" href="/work-schedules">
                       {t("teamRoster")}
                     </Link>
+                    <Link className="nut phu" href="/overtime">
+                      {t("teamOvertime")}
+                    </Link>
                   </>
                 )}
               </div>
               <Tabs labels={[t("tabWeek"), t("tabMonth"), t("tabRequests")]} selected={tab} onSelect={setTab} />
               {tab === 0 && <WeekTab />}
               {tab === 1 && <MonthTab key={today.punches.length} onCorrect={setCorrection} />}
-              {tab === 2 && <RequestsTab />}
+              {tab === 2 && <RequestsTab leave={leave.state.kind === "ready" ? leave.state.data : null} overtime={overtimeItems} onChanged={() => (void leave.reload(), void overtime.reload())} />}
             </>
           )
         }
       </Loaded>
+      {leaving && leave.state.kind === "ready" && (
+        <LeaveRequestDrawer
+          self
+          types={leave.state.data.types}
+          onClose={() => setLeaving(false)}
+          onSaved={() => {
+            setLeaving(false);
+            setTab(2);
+            void leave.reload();
+          }}
+        />
+      )}
+      {overtimeOpen && (
+        <OvertimeDrawer
+          self
+          onClose={() => setOvertimeOpen(false)}
+          onSaved={() => {
+            setOvertimeOpen(false);
+            setTab(2);
+            void overtime.reload();
+          }}
+        />
+      )}
       {correction && <CorrectionDrawer date={correction} onClose={() => setCorrection(null)} onSaved={() => (setCorrection(null), setTab(2))} />}
     </div>
   );
@@ -201,6 +290,7 @@ function MonthTab({ onCorrect }: { onCorrect: (date: string) => void }) {
         </label>
         <input id="thang-cua-toi" type="month" className="o-nhap" value={month} onChange={(event) => event.target.value && setMonth(event.target.value)} />
       </div>
+      <MyTimesheet month={month} />
       <Loaded state={state} onRetry={() => void reload()}>
         {(data) =>
           data.days.length === 0 ? (
@@ -244,51 +334,194 @@ function MonthTab({ onCorrect }: { onCorrect: (date: string) => void }) {
   );
 }
 
-function RequestsTab() {
+// Bảng công tháng của tôi: khi nhân sự mở xác nhận thì xác nhận hoặc gửi giải trình; hết hạn hệ thống tự xác nhận.
+function MyTimesheet({ month }: { month: string }) {
   const t = useTranslations("myAttendance");
+  const { state, reload } = useApi<MyTimesheetResponse>(`/hr/me/timesheets/${month}`);
+  const [disputing, setDisputing] = useState(false);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (state.kind !== "ready" || !state.data.line || !state.data.status) return null;
+  const sheet = state.data;
+  const line = sheet.line!;
+  const respond = async (path: string, body?: unknown) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await apiFetch(`/hr/me/timesheets/${month}/${path}`, { method: "POST", ...(body ? { body: JSON.stringify(body) } : {}) });
+      setDisputing(false);
+      await reload();
+    } catch (failure) {
+      setError(failureOf(failure).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const label = `${month.slice(5)}/${month.slice(0, 4)}`;
+  return (
+    <>
+      {sheet.status === "confirming" && line.confirmationStatus === "pending" && (
+        <div className="khoi-canh-bao thong-tin">{t("timesheetPending", { month: label, date: formatDate(sheet.confirmationDeadline) })}</div>
+      )}
+      {sheet.status === "confirming" && line.confirmationStatus === "disputed" && <div className="khoi-canh-bao canh-bao">{t("timesheetDisputed")}</div>}
+      <div className="tieu-de">
+        <h2>
+          {t("timesheetTitle", { month: label })} <TimesheetStatusBadge status={sheet.status!} />
+        </h2>
+      </div>
+      {line.disputeReply && <div className="khoi-canh-bao thong-tin">{t("timesheetReply", { reply: line.disputeReply })}</div>}
+      <TimesheetSummary line={line} />
+      {error && <div className="khoi-canh-bao loi">{error}</div>}
+      {sheet.status === "confirming" && line.confirmationStatus === "pending" && (
+        <div className="nhom-nut">
+          <button type="button" className={`nut chinh${busy ? " dang-xu-ly" : ""}`} disabled={busy} onClick={() => void respond("confirm")}>
+            {t("confirmTimesheet")}
+          </button>
+          <button type="button" className="nut phu" disabled={busy} onClick={() => (setDisputing(true), setNote(""))}>
+            {t("explain")}
+          </button>
+        </div>
+      )}
+      {disputing && (
+        <Drawer title={t("disputeTitle", { month: label })} onClose={() => setDisputing(false)}>
+          <Field id="giai-trinh-bang-cong" label={t("reason")}>
+            <textarea id="giai-trinh-bang-cong" className="o-nhap" rows={3} maxLength={1000} value={note} onChange={(event) => setNote(event.target.value)} />
+          </Field>
+          <FormError text={error} />
+          <div className="nhom-nut">
+            <button type="button" className="nut phu" onClick={() => setDisputing(false)}>
+              {t("cancel")}
+            </button>
+            <button type="button" className={`nut chinh${busy ? " dang-xu-ly" : ""}`} disabled={busy || !note.trim()} onClick={() => void respond("dispute", { note })}>
+              {t("send")}
+            </button>
+          </div>
+        </Drawer>
+      )}
+    </>
+  );
+}
+
+function RequestsTab({ leave, overtime, onChanged }: { leave: MyLeaveResponse | null; overtime: OvertimeItem[]; onChanged: () => void }) {
+  const t = useTranslations("myAttendance");
+  const leaveText = useTranslations("leave");
   const { state, reload } = useApi<CorrectionItem[]>("/hr/me/attendance/corrections");
   const [busy, setBusy] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState<OvertimeItem | null>(null);
+  const act = async (id: string, path: string, body?: unknown) => {
+    setBusy(id);
+    try {
+      await apiFetch(path, { method: "POST", ...(body ? { body: JSON.stringify(body) } : {}) });
+      onChanged();
+    } finally {
+      setBusy(null);
+    }
+  };
   return (
-    <Loaded state={state} onRetry={() => void reload()}>
-      {(items) =>
-        items.length === 0 ? (
-          <MessageView text={t("noRequests")} />
-        ) : (
-          <Table
-            headings={[t("number"), t("type"), t("time"), t("status"), ""]}
-            rows={items.map((item) => ({
-              key: item.id,
-              cells: [
-                item.correctionNo ?? "—",
-                `${t("correction")} · ${t(`kind_${item.kind}`)}`,
-                `${formatDate(item.workDate)} · ${item.checkIn ?? "—"} → ${item.checkOut ?? "—"}`,
-                <CorrectionStatusBadge status={item.status} />,
-                item.canWithdraw ? (
-                  <button
-                    type="button"
-                    className={`nut chu${busy === item.id ? " dang-xu-ly" : ""}`}
-                    disabled={busy !== null}
-                    onClick={async () => {
-                      setBusy(item.id);
-                      try {
-                        await apiFetch(`/hr/me/attendance/corrections/${item.id}/withdraw`, { method: "POST" });
-                        await reload();
-                      } finally {
-                        setBusy(null);
-                      }
-                    }}
-                  >
-                    {t("withdraw")}
-                  </button>
-                ) : (
-                  ""
-                ),
-              ],
-            }))}
-          />
-        )
-      }
-    </Loaded>
+    <>
+      {leave && leave.requests.length > 0 && (
+        <Table
+          headings={[t("number"), t("type"), t("time"), t("status"), ""]}
+          rows={leave.requests.map((item) => ({
+            key: item.id,
+            cells: [
+              item.requestNo,
+              `${leaveText("leaveShort")} · ${item.leaveTypeName}`,
+              `${leavePeriod(item, (key) => leaveText(`half_${key}`))} · ${Number(item.days).toLocaleString("vi-VN")} ${leaveText("daysUnit")}`,
+              <LeaveStatusBadge status={item.status} />,
+              item.canWithdraw ? (
+                <button type="button" className="nut chu" disabled={busy !== null} onClick={() => void act(item.id, `/hr/me/leave/requests/${item.id}/withdraw`)}>
+                  {t("withdraw")}
+                </button>
+              ) : item.canCancel ? (
+                <button
+                  type="button"
+                  className="nut chu"
+                  disabled={busy !== null}
+                  onClick={() => {
+                    const reason = window.prompt(leaveText("cancelPrompt"));
+                    if (reason) void act(item.id, `/hr/me/leave/requests/${item.id}/cancel`, { reason });
+                  }}
+                >
+                  {leaveText("cancelRequest")}
+                </button>
+              ) : (
+                ""
+              ),
+            ],
+          }))}
+        />
+      )}
+      {overtime.length > 0 && (
+        <Table
+          headings={[t("number"), t("type"), t("time"), t("status"), ""]}
+          rows={overtime.map((item) => ({
+            key: item.id,
+            cells: [
+              item.requestNo,
+              t("overtimeShort"),
+              `${formatDate(item.workDate)} · ${overtimeTime(item)} · ${t("overtimeValueShort", { hours: decimal(item.countedHours ?? item.hours) })}`,
+              <OvertimeStatusBadge status={item.status} />,
+              item.canWithdraw ? (
+                <button type="button" className="nut chu" disabled={busy !== null} onClick={() => void act(item.id, `/hr/me/overtime/${item.id}/withdraw`)}>
+                  {t("withdraw")}
+                </button>
+              ) : item.canCancel ? (
+                <button type="button" className="nut chu" onClick={() => setCancelling(item)}>
+                  {t("cancelOvertime")}
+                </button>
+              ) : (
+                ""
+              ),
+            ],
+          }))}
+        />
+      )}
+      {cancelling && <CancelOvertimeDrawer item={cancelling} path={`/hr/me/overtime/${cancelling.id}/cancel`} onClose={() => setCancelling(null)} onDone={() => (setCancelling(null), onChanged())} />}
+      <Loaded state={state} onRetry={() => void reload()}>
+        {(items) =>
+          items.length === 0 ? (
+            (leave && leave.requests.length > 0) || overtime.length > 0 ? null : (
+              <MessageView text={t("noRequests")} />
+            )
+          ) : (
+            <Table
+              headings={[t("number"), t("type"), t("time"), t("status"), ""]}
+              rows={items.map((item) => ({
+                key: item.id,
+                cells: [
+                  item.correctionNo ?? "—",
+                  `${t("correction")} · ${t(`kind_${item.kind}`)}`,
+                  `${formatDate(item.workDate)} · ${item.checkIn ?? "—"} → ${item.checkOut ?? "—"}`,
+                  <CorrectionStatusBadge status={item.status} />,
+                  item.canWithdraw ? (
+                    <button
+                      type="button"
+                      className={`nut chu${busy === item.id ? " dang-xu-ly" : ""}`}
+                      disabled={busy !== null}
+                      onClick={async () => {
+                        setBusy(item.id);
+                        try {
+                          await apiFetch(`/hr/me/attendance/corrections/${item.id}/withdraw`, { method: "POST" });
+                          await reload();
+                        } finally {
+                          setBusy(null);
+                        }
+                      }}
+                    >
+                      {t("withdraw")}
+                    </button>
+                  ) : (
+                    ""
+                  ),
+                ],
+              }))}
+            />
+          )
+        }
+      </Loaded>
+    </>
   );
 }
 

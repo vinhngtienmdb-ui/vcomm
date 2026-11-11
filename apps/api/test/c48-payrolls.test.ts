@@ -1,4 +1,4 @@
-// CONG_VIEC_48 lát L1, L2: bảng lương tháng, bút toán, trả lương, phiếu lương (TIEUCHI_NGHIEMTHU_305, 306, 308, 309; KICHBAN_KIEMTHU_456, 460, 461). Bảng công tháng lấy từ bản giả (testTimesheet) trong lúc chờ CONG_VIEC_47.
+// CONG_VIEC_48 lát L1, L2: bảng lương tháng, bút toán, trả lương, phiếu lương (TIEUCHI_NGHIEMTHU_305, 306, 308, 309; KICHBAN_KIEMTHU_456, 460, 461). Bảng công tháng lấy từ bản giả (testTimesheet) để dựng số liệu; đọc bảng công thật của CONG_VIEC_47 kiểm ở c48-payroll-timesheet.test.ts.
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { messages } from "i18n";
 import type { Pool } from "pg";
