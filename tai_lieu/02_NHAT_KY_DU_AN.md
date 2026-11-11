@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_28 đến 31: Người dùng yêu cầu kết nối thêm VNPost, Viettel Post, J&T, GHTK bằng các phiên con chạy song song (mỗi đơn vị một công việc, nhánh tách từ nhánh CONG_VIEC_24). Cấp sẵn dải mã và số database migration cho từng công việc để không trùng; tài liệu đánh số (06 đến 27) cập nhật khi hợp nhất. CONG_VIEC_25 dành QUYTAC_NGHIEPVU đến 179, CHUC_NANG đến 129, TIEUCHI_NGHIEMTHU đến 199, KICHBAN_KIEMTHU đến 339, database migration 0027 đến 0039.
 - CONG_VIEC_25: Bắt đầu Thanh toán đơn người mua (mức Lớn), nhánh `chuc-nang/CONG_VIEC_25-thanh-toan-vcomm` tách từ nhánh CONG_VIEC_24.
 - CONG_VIEC_24: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 60 (sau số 59). Tiếp theo CONG_VIEC_25 Thanh toán đơn người mua.
 - CONG_VIEC_24: Xong lát L0 đến L4 trên nhánh `chuc-nang/CONG_VIEC_24-dat-hang-vcomm` (pull request số 60, tách từ nhánh CONG_VIEC_27). Database migration 0025 (danh mục 34 tỉnh, 3.321 xã từ bộ dữ liệu giấy phép MIT; cài đặt bán hàng, đăng bán, sổ địa chỉ, giỏ hàng, đơn VComm, vận đơn, trả hàng), 0026; API_123 đến 129; MAN_HINH_86 đến 97; khung đơn vị vận chuyển và GHN (giả lập trong kiểm thử); việc nền tự hoàn tất. Kiểm thử 324/324 đạt. Không thêm thư viện. Rà soát độc lập, sửa 2 lỗi Cao, 3 Trung bình, các mục Thấp. Chờ người dùng nghiệm thu.
