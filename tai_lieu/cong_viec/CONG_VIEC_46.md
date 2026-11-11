@@ -3,7 +3,7 @@
 - Mô tả: Mini app Nhân sự `apps/web-hr`: hồ sơ nhân sự theo công ty (thông tin cá nhân, giấy tờ, người phụ thuộc, quá trình công tác) gắn với tài khoản người dùng và cơ cấu công ty, chi nhánh, phòng ban đã có; hợp đồng lao động, phụ lục qua luồng duyệt; nhắc hết hạn hợp đồng; nhân viên tự xem hồ sơ của mình.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; xác nhận điểm xem trước L0, L1. Lát L2 xong, chờ nghiệm thu.
+- Trạng thái: Đã nghiệm thu 2026-11-11, chờ phát hành (trước khi triển khai môi trường thật phải xử lý thời hạn lưu, xóa hồ sơ người đã nghỉ).
 - Mức: Lớn (module mới, mini app mới, dữ liệu cá nhân nhạy cảm, đổi dữ liệu thành viên công ty ở `core`).
 - Nguồn: tài liệu `01` mục 4 (MODULE_08), tài liệu `05` mục 2.1 (Nhân sự: hồ sơ nhân viên, hợp đồng); quyết định của người dùng ngày 2026-11-11 (mục 17).
 
