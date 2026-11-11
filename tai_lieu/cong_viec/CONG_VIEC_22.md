@@ -3,7 +3,7 @@
 - Mô tả: Làm lại công việc ứng dụng nhân viên kinh doanh theo mô hình B2C (THAY_DOI_14, THAY_DOI_26). Không còn ứng dụng riêng: mở rộng mục Kinh doanh của ứng dụng VComm với chi tiết khách, chia sẻ sản phẩm kèm mã giới thiệu, ghi chú chăm sóc và lịch hẹn có nhắc trong ứng dụng, doanh số theo tháng. Ẩn chức năng ghé thăm khách.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Bản nháp, chờ người dùng duyệt thiết kế và bản mẫu.
+- Trạng thái: Đang thực hiện. Người dùng duyệt đặc tả và bản mẫu MAN_HINH_196 đến 201 ngày 2026-11-12.
 - Nguồn: THAY_DOI_14, THAY_DOI_16, THAY_DOI_26; CONG_VIEC_23, 24, 26, 27 (đã phát hành 0.3.0); quyết định của người dùng ngày 2026-11-11 (câu hỏi trong phiên CONG_VIEC_22).
 - Nhánh: `chuc-nang/CONG_VIEC_22-kinh-doanh-vcomm` (mới, tạo từ `main` 453d3ed). Nhánh cũ `chuc-nang/CONG_VIEC_22-ung-dung-kinh-doanh` không dùng lại: L0 đến L4 của nhánh cũ đã có trong `main`, CONG_VIEC_23 đã thay `apps/mobile-sales` bằng `apps/mobile-vcomm`.
 
@@ -53,7 +53,7 @@ Ngoài phạm vi: tạo đơn hoặc giỏ hàng hộ khách; thông báo đẩy
 - QUYTAC_NGHIEPVU_436: Hẹn: mỗi ghi chú có ngày hẹn là một hẹn của người ghi. Hẹn ở trạng thái chờ cho tới khi người ghi bấm Đã xong (ghi thời điểm). Người ghi mất quyền xem khách thì hẹn vẫn giữ nhưng không còn hiện, không nhắc. Danh sách hẹn của tôi: quá hạn (ngày hẹn trước hôm nay), hôm nay, 7 ngày tới; sắp theo ngày hẹn.
 - QUYTAC_NGHIEPVU_437: Nhắc hẹn: 07:00 hằng ngày (giờ Việt Nam) hệ thống tạo cho mỗi người có hẹn chờ đến hạn hoặc quá hạn (còn xem được khách, còn được đánh dấu nhân viên kinh doanh) một thông báo trong ứng dụng (`core.notifications`, loại `sales.follow_up_due`) ghi số hẹn hôm nay và số hẹn quá hạn, liên kết tới danh sách hẹn. Mỗi người tối đa một thông báo một ngày; chạy lại trong ngày không tạo trùng. Không gửi thư điện tử, tin nhắn, thông báo đẩy.
 - QUYTAC_NGHIEPVU_438: Mục Thông báo trên ứng dụng VComm dùng API_48 (30 thông báo mới nhất của chính mình, số chưa đọc); bấm thông báo thì đánh dấu đã đọc và mở liên kết nếu liên kết thuộc ứng dụng. Biểu tượng mục Thông báo hiện số chưa đọc.
-- QUYTAC_NGHIEPVU_439: Doanh số tháng của một nhân viên = tổng `completed_amount` của các đơn VComm hoàn tất trong tháng (theo `completed_at`, giờ Việt Nam) mà người mua là khách do nhân viên đó phụ trách (xem câu hỏi mở 1 về cách gán đơn). Kèm số đơn hoàn tất, số khách có đơn hoàn tất, số đơn đang xử lý (chưa hoàn tất, chưa hủy) và tiền hàng của các đơn đó, tính tại thời điểm xem. Tiền làm tròn theo đơn vị tiền tệ của công ty vận hành sàn.
+- QUYTAC_NGHIEPVU_439: Doanh số tháng của một nhân viên = tổng `completed_amount` của các đơn VComm hoàn tất trong tháng (theo `completed_at`, giờ Việt Nam) mà nhân viên đó là người phụ trách khách lúc đặt đơn (quyết định của người dùng 2026-11-12; khớp người hưởng hoa hồng, QUYTAC_NGHIEPVU_201). Khách đổi người phụ trách thì doanh số của các đơn đã đặt vẫn thuộc người cũ. Kèm số đơn hoàn tất, số khách có đơn hoàn tất, số đơn đang xử lý (chưa hoàn tất, chưa hủy) và tiền hàng của các đơn đó, tính tại thời điểm xem. Tiền làm tròn theo đơn vị tiền tệ của công ty vận hành sàn.
 - QUYTAC_NGHIEPVU_440: Doanh số nhánh: người quản lý xem doanh số tháng của chính mình và của từng người trong nhánh (một dòng mỗi người, có tổng nhánh); nhân viên không có cấp dưới chỉ thấy của mình. Chọn tháng từ tháng đăng ký đánh dấu đầu tiên đến tháng hiện tại, tối đa 24 tháng gần nhất.
 - QUYTAC_NGHIEPVU_441: Ẩn ghé thăm khách: web-crm bỏ menu Ghé thăm, MAN_HINH_72 trả về trang không tìm thấy, bỏ thẻ "Ghé thăm gần đây" trên MAN_HINH_37. `POST /crm/visits` trả 409 mã `VISIT_DISABLED`. API đọc giữ nguyên quyền, không còn giao diện dùng. Bảng `crm.visits`, ảnh, quyền `crm.visit.manage` giữ nguyên để có thể bật lại bằng phiếu thay đổi.
 
@@ -81,7 +81,7 @@ MAN_HINH_202, 203 để dự phòng.
 ## 8. Dữ liệu và API
 
 - Database migration 0113 `marketplace.customer_care_notes`: `id`, `company_id` (công ty vận hành sàn), `buyer_user_id`, `author_user_id`, `channel` (`call`, `message`, `meeting`, `other`), `content` (1 đến 1.000 ký tự), `follow_up_on` (date, có thể trống), `follow_up_done_at`, `created_at`; kiểm tra `follow_up_done_at` chỉ có khi có `follow_up_on`. Chỉ mục theo khách và thời điểm; chỉ mục một phần theo người ghi và ngày hẹn cho hẹn chờ. Không sửa, không xóa (trừ cột đã xong).
-- Database migration 0114: chỉ mục `marketplace.orders (completed_at)` cho đơn hoàn tất, nếu đo thấy cần (dự phòng).
+- Database migration 0114: thêm cột `marketplace.orders.sales_staff_user_id` (người phụ trách khách lúc đặt đơn, có thể trống), ghi khi đặt đơn (sửa dịch vụ đặt hàng của CONG_VIEC_24, không đổi hợp đồng API); điền cho đơn cũ từ dòng hoa hồng phần `staff` của đơn nếu có; chỉ mục theo người phụ trách và `completed_at` cho đơn hoàn tất.
 - API_228 `GET /buyer/sales/customers/:id`: chi tiết khách (QUYTAC_NGHIEPVU_432, 433).
 - API_229 `POST /buyer/sales/customers/:id/notes`: thêm ghi chú (QUYTAC_NGHIEPVU_435). `GET /buyer/sales/customers/:id/notes?cursor=`: ghi chú cũ hơn.
 - API_230 `GET /buyer/sales/follow-ups`: hẹn của tôi (QUYTAC_NGHIEPVU_436); `POST /buyer/sales/follow-ups/:noteId/done`: đánh dấu đã xong (chỉ người ghi).
@@ -97,7 +97,7 @@ MAN_HINH_202, 203 để dự phòng.
 
 ## 10. Câu hỏi mở (chờ người dùng)
 
-1. Gán đơn cho nhân viên khi tính doanh số: (a) theo người phụ trách khách tại thời điểm đặt đơn, khớp với người hưởng hoa hồng (QUYTAC_NGHIEPVU_201); (b) theo người phụ trách hiện tại của khách (đổi người phụ trách thì doanh số cũ đi theo khách).
+Không còn. Câu hỏi 1 (gán đơn khi tính doanh số) người dùng chọn người phụ trách lúc đặt đơn (2026-11-12).
 
 ## 11. Tiêu chí nghiệm thu
 
@@ -135,7 +135,7 @@ Cách tính và người hưởng hoa hồng (CONG_VIEC_26); quy tắc người 
 - L1: chia sẻ sản phẩm (MAN_HINH_201; đường dẫn `/r/<mã>?sp=`).
 - L2: ghi chú, hẹn (migration 0113; API_229, 230; MAN_HINH_197, 198; thẻ hẹn trên MAN_HINH_78).
 - L3: nhắc hẹn (việc nền), mục Thông báo (MAN_HINH_200).
-- L4: doanh số (API_231, MAN_HINH_199; thẻ doanh số trên MAN_HINH_78), sau khi hợp nhất `main` có bản 0.5.0.
+- L4: doanh số (migration 0114, API_231, MAN_HINH_199; thẻ doanh số trên MAN_HINH_78), sau khi hợp nhất `main` có bản 0.5.0.
 
 ## 16. Kết quả đối chiếu định nghĩa hoàn thành
 
