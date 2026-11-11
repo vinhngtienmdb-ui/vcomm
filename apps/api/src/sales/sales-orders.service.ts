@@ -34,7 +34,7 @@ import { NumberSequencesService } from "../settings/number-sequences.service";
 import { internalCompanyOf } from "../crm/partners.service";
 import { internalSalesErrors } from "./internal-trade-rules";
 import { receivableBalance } from "../finance/receivable-balance";
-import { applyPromotions, type GiftShortage, type PricedLine, withoutPromotion } from "./promotion-pricing";
+import { applyPromotions, type GiftShortage, lineAmounts, type PricedLine, withoutPromotion } from "./promotion-pricing";
 import { promotionGiftUsage, promotionUsage } from "./promotions.service";
 import { allowsManualGoodsOrders, goodsVariants, requireManualOrderLines, requireSalesPermission, salesAudit, salesPermissions } from "./sales-context";
 
@@ -88,6 +88,21 @@ type OrderRow = {
   version: number;
 };
 type PreparedLine = PricedLine;
+
+// Dòng đơn mua chung: giá bậc gồm thuế thay giá bảng giá, không chiết khấu, không khuyến mãi (CONG_VIEC_49).
+function groupPriced(line: PreparedLine, grossPrice: string): PreparedLine {
+  const amounts = lineAmounts(grossPrice, true, line.vatRate, line.quantity, 0, "0");
+  return withoutPromotion({
+    ...line,
+    listPrice: grossPrice,
+    includesVat: true,
+    discountPercent: "0",
+    unitPrice: amounts.unitPrice,
+    net: amounts.net.toFixed(4),
+    tax: amounts.tax.toFixed(4),
+    total: amounts.total.toFixed(4),
+  });
+}
 type ExceptionLine = {
   line_no: number;
   variant_id: string;
@@ -633,7 +648,7 @@ export class SalesOrdersService implements OnModuleInit {
   async quoteMarketplace(
     transaction: Executor,
     companyId: string,
-    input: { channelId: string; warehouseId: string; orderDate: string; lines: { variantId: string; unitId: string; quantity: string }[] },
+    input: { channelId: string; warehouseId: string; orderDate: string; lines: { variantId: string; unitId: string; quantity: string; discountPercent?: string }[]; groupPrice?: string | null },
   ): Promise<{ lines: PreparedLine[]; giftShortages: GiftShortage[] }> {
     const priced = await this.priceLines(
       transaction,
@@ -641,8 +656,10 @@ export class SalesOrdersService implements OnModuleInit {
       input.channelId,
       null,
       input.orderDate,
-      input.lines.map((line) => ({ ...line, discountPercent: "0" })),
+      input.lines.map((line) => ({ ...line, discountPercent: line.discountPercent ?? "0" })),
     );
+    // Đơn mua chung (CONG_VIEC_49; QUYTAC_NGHIEPVU_330): đơn giá bậc gồm thuế thay giá bảng giá, không khuyến mãi.
+    if (input.groupPrice) return { lines: priced.map((line) => groupPriced(line, input.groupPrice!)), giftShortages: [] };
     return applyPromotions(
       transaction,
       { companyId, orderId: null, channelId: input.channelId, customerGroupId: null, orderDate: input.orderDate, internal: false, warehouseId: input.warehouseId, allowsGoodsGifts: true },
@@ -659,14 +676,69 @@ export class SalesOrdersService implements OnModuleInit {
   async placeMarketplaceWithin(
     transaction: Executor,
     actor: Actor,
-    input: { channelId: string; warehouseId: string; orderDate: string; buyerName: string; deliveryAddress: string; lines: { variantId: string; unitId: string; quantity: string }[] },
+    input: {
+      channelId: string;
+      warehouseId: string;
+      orderDate: string;
+      buyerName: string;
+      deliveryAddress: string;
+      lines: { variantId: string; unitId: string; quantity: string }[];
+      groupPrice?: string | null;
+    },
+  ): Promise<{ orderId: string; documentNo: string }> {
+    return this.placeConfirmedWithin(transaction, actor, { ...input, retail: null }, () => {
+      throw new ApiError("BUSINESS_RULE", "marketplaceOrderNeedsReview");
+    });
+  }
+
+  // Hóa đơn bán lẻ tại quầy (CONG_VIEC_53; QUYTAC_NGHIEPVU_371, 372, 374; THAY_DOI_24): như đơn VComm, có giảm tay; vượt mức giảm tay, dưới giá vốn thì chặn, không gửi duyệt.
+  async placeRetailWithin(
+    transaction: Executor,
+    actor: Actor,
+    input: {
+      channelId: string;
+      warehouseId: string;
+      orderDate: string;
+      buyerName: string | null;
+      buyerTaxCode: string | null;
+      buyerAddress: string | null;
+      buyerIdentityNo: string | null;
+      lines: { variantId: string; unitId: string; quantity: string; discountPercent: string }[];
+    },
+  ): Promise<{ orderId: string; documentNo: string }> {
+    return this.placeConfirmedWithin(
+      transaction,
+      actor,
+      { ...input, deliveryAddress: null, retail: { taxCode: input.buyerTaxCode, address: input.buyerAddress, identityNo: input.buyerIdentityNo } },
+      (exceptions) => {
+        const first = exceptions[0]!;
+        throw new ApiError("BUSINESS_RULE", first.kind === "discount" ? "retailDiscountOverLimit" : "retailBelowCost");
+      },
+    );
+  }
+
+  private async placeConfirmedWithin(
+    transaction: Executor,
+    actor: Actor,
+    input: {
+      channelId: string;
+      warehouseId: string;
+      orderDate: string;
+      buyerName: string | null;
+      deliveryAddress: string | null;
+      retail: { taxCode: string | null; address: string | null; identityNo: string | null } | null;
+      lines: { variantId: string; unitId: string; quantity: string; discountPercent?: string }[];
+    },
+    rejectExceptions: (exceptions: SalesException[]) => never,
   ): Promise<{ orderId: string; documentNo: string }> {
     const { lines, giftShortages } = await this.quoteMarketplace(transaction, actor.companyId, input);
     const orderId = (
       await transaction.execute<{ id: string }>(sql`
-      INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, customer_group_id, warehouse_id, order_date, delivery_address, note, currency, gift_shortages, created_by)
+      INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, customer_group_id, warehouse_id, order_date, delivery_address, note, currency, gift_shortages, created_by,
+        is_retail, buyer_tax_code, buyer_address, buyer_identity_no)
       VALUES (${actor.companyId}, NULL, ${input.buyerName}, ${input.channelId}, NULL, ${input.warehouseId}, ${input.orderDate}::date, ${input.deliveryAddress}, NULL,
-        ${await companyCurrency(transaction, actor.companyId)}, ${JSON.stringify(giftShortages)}::jsonb, ${actor.userId}) RETURNING id`)
+        ${await companyCurrency(transaction, actor.companyId)}, ${JSON.stringify(giftShortages)}::jsonb, ${actor.userId},
+        ${input.retail !== null}, ${input.retail?.taxCode ?? null}, ${input.retail?.address ?? null}, ${input.retail?.identityNo ?? null}) RETURNING id`)
     ).rows[0]!.id;
     await this.writeLines(transaction, orderId, lines);
     await this.checkPromotionLimits(transaction, orderId);
@@ -695,11 +767,32 @@ export class SalesOrdersService implements OnModuleInit {
     const exceptionLines = await transaction.execute<ExceptionLine>(sql`
       SELECT line_no, variant_id, base_quantity::text, discount_percent::text, net_amount::text, is_gift, promotion_discount_total::text, vat_rate
       FROM sales.order_lines WHERE order_id = ${orderId} ORDER BY line_no`);
-    if ((await this.exceptions(transaction, current, exceptionLines.rows)).length > 0) throw new ApiError("BUSINESS_RULE", "marketplaceOrderNeedsReview");
+    const exceptions = await this.exceptions(transaction, current, exceptionLines.rows);
+    if (exceptions.length > 0) rejectExceptions(exceptions);
     await transaction.execute(sql`
       UPDATE sales.orders SET status = 'confirmed', document_no = ${documentNo}, submitted_at = now(), confirmed_at = now(), updated_at = now(), version = version + 1 WHERE id = ${orderId}`);
-    await this.auditService.record({ ...salesAudit(actor, "sales_order"), action: "sales_order.marketplace_place", entityId: orderId, afterData: { documentNo, input } }, transaction);
+    const action = input.retail ? "sales_order.retail_place" : "sales_order.marketplace_place";
+    await this.auditService.record({ ...salesAudit(actor, "sales_order"), action, entityId: orderId, afterData: { documentNo, input } }, transaction);
     return { orderId, documentNo };
+  }
+
+  // Chốt nhóm mua chung thành công (CONG_VIEC_49; QUYTAC_NGHIEPVU_331): sửa đơn giá các dòng thành giá chốt gồm thuế trước khi xuất kho, tính lại tổng đơn bán.
+  async repriceMarketplaceWithin(transaction: Executor, orderId: string, grossPrice: string): Promise<void> {
+    const issued = await transaction.execute(sql`SELECT 1 FROM inventory.documents WHERE type = 'sales_issue' AND source_id = ${orderId} LIMIT 1`);
+    if (issued.rows.length > 0) throw new ApiError("BUSINESS_RULE", "salesOrderNotCancellable");
+    const lines = await transaction.execute<{ id: string; vat_rate: VatRate; quantity: string }>(sql`
+      SELECT id, vat_rate, quantity::text FROM sales.order_lines WHERE order_id = ${orderId} AND NOT is_gift FOR UPDATE`);
+    for (const line of lines.rows) {
+      const amounts = lineAmounts(grossPrice, true, line.vat_rate, line.quantity, 0, "0");
+      await transaction.execute(sql`
+        UPDATE sales.order_lines SET list_price = ${grossPrice}::numeric, price_includes_vat = true, unit_price = ${amounts.unitPrice}::numeric,
+          net_amount = ${amounts.net}::numeric, tax_amount = ${amounts.tax}::numeric, total_amount = ${amounts.total}::numeric
+        WHERE id = ${line.id}`);
+    }
+    await transaction.execute(sql`
+      UPDATE sales.orders SET net_amount = t.net, tax_amount = t.tax, total_amount = t.total, updated_at = now(), version = version + 1
+      FROM (SELECT coalesce(sum(net_amount), 0) AS net, coalesce(sum(tax_amount), 0) AS tax, coalesce(sum(total_amount), 0) AS total FROM sales.order_lines WHERE order_id = ${orderId}) t
+      WHERE id = ${orderId}`);
   }
 
   // Hủy đơn của người mua chưa xuất kho, trong giao dịch của bên gọi: nhả hàng giữ.

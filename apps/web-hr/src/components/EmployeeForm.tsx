@@ -14,16 +14,27 @@ import { useApi } from "ui/lib/use-api";
 
 const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "var(--khoang-3)", alignItems: "start" } as const;
 
-export function EmployeeForm({ employee }: { employee: EmployeeResponse | null }) {
+// prefill, submitPath: lập hồ sơ từ ứng viên nhận việc (CONG_VIEC_54); không truyền thì như cũ.
+export function EmployeeForm({ employee, prefill, submitPath }: { employee: EmployeeResponse | null; prefill?: Record<string, string>; submitPath?: string }) {
   const options = useApi<EmployeeOptionsResponse>("/hr/employee-options");
   return (
     <Loaded state={options.state} onRetry={() => void options.reload()}>
-      {(loaded) => <EmployeeFormBody employee={employee} options={loaded} />}
+      {(loaded) => <EmployeeFormBody employee={employee} options={loaded} prefill={prefill} submitPath={submitPath} />}
     </Loaded>
   );
 }
 
-function EmployeeFormBody({ employee, options }: { employee: EmployeeResponse | null; options: EmployeeOptionsResponse }) {
+function EmployeeFormBody({
+  employee,
+  options,
+  prefill,
+  submitPath,
+}: {
+  employee: EmployeeResponse | null;
+  options: EmployeeOptionsResponse;
+  prefill?: Record<string, string> | undefined;
+  submitPath?: string | undefined;
+}) {
   const t = useTranslations("hr");
   const router = useRouter();
   const { notify } = useAdmin();
@@ -55,6 +66,7 @@ function EmployeeFormBody({ employee, options }: { employee: EmployeeResponse | 
     branchId: options.branches[0]?.id ?? "",
     jobTitle: "",
     userId: employee?.userId ?? "",
+    ...prefill,
   });
   const set = (key: string) => (value: string) => setValues((current) => ({ ...current, [key]: value }));
   const foreign = values.nationality !== "VN";
@@ -90,7 +102,10 @@ function EmployeeFormBody({ employee, options }: { employee: EmployeeResponse | 
           ? { version: employee.version }
           : { hireDate: values.hireDate, departmentId: values.departmentId || undefined, branchId: values.branchId || undefined, jobTitle: values.jobTitle || undefined }),
       };
-      const saved = await apiFetch<EmployeeResponse>(employee ? `/hr/employees/${employee.id}` : "/hr/employees", { method: employee ? "PATCH" : "POST", body: JSON.stringify(body) });
+      const saved = await apiFetch<EmployeeResponse>(employee ? `/hr/employees/${employee.id}` : (submitPath ?? "/hr/employees"), {
+        method: employee ? "PATCH" : "POST",
+        body: JSON.stringify(body),
+      });
       notify(t("saved"));
       router.push(`/employees/${saved.id}`);
     });

@@ -1,11 +1,10 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò mặc định, trách nhiệm và quyền hạn.
-- Phiên bản: 2.12
+- Phiên bản: 2.13
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18); CONG_VIEC_16 (2026-11-10): thêm quyền `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm); Kế toán có thêm `finance.einvoice.view`, `finance.einvoice.manage`; Kế toán trưởng có thêm cả ba (mục 19, 20); CONG_VIEC_17 (2026-11-10): thêm quyền `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` (nhạy cảm); Kế toán có thêm `finance.commission.view`, `finance.commission.manage`; Kế toán trưởng có thêm cả ba (mục 21, 22); CONG_VIEC_18 (2026-11-10): thêm quyền `finance.bank.view`, `finance.bank.manage`, `finance.bank.setup` (nhạy cảm); Kế toán có thêm `finance.bank.view`, `finance.bank.manage`; Kế toán trưởng có thêm cả ba (mục 23, 24); CONG_VIEC_19 (2026-11-10): thêm quyền `finance.collection.view`, `finance.collection.manage`, `finance.collection.setup` (nhạy cảm); Kế toán có thêm `finance.collection.view`, `finance.collection.manage`; Kế toán trưởng có thêm cả ba (mục 25, 26); CONG_VIEC_20 (2026-11-10): thêm quyền `finance.consolidation.view`, `finance.consolidation.manage` (nhạy cảm) chỉ hiệu lực ở phạm vi tập đoàn; Kế toán trưởng có thêm cả hai (mục 27, 28); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm quyền `crm.customer.view_all`, `crm.customer.assign`; Nhân viên bán hàng chỉ xem khách mình (và nhân viên phòng mình quản lý) phụ trách, đơn bán của các khách đó; mọi vai trò hệ thống khác đang xem đối tác hoặc đơn bán có thêm `crm.customer.view_all`; trưởng phòng giao khách trong phòng mình (mục 7, 10, 11, 29, 30); CONG_VIEC_23 (2026-11-10): thêm quyền `marketplace.buyer.view`, `marketplace.buyer.manage` (nhạy cảm); người mua (tài khoản không thuộc công ty), nhân viên kinh doanh là người mua được đánh dấu (THAY_DOI_14); CONG_VIEC_27 (2026-11-10): chức danh đội kinh doanh, ma trận vai trò – thao tác của đội kinh doanh; CONG_VIEC_24 (2026-11-11): thêm quyền đơn VComm, người mua thử, ma trận đặt hàng của MODULE_09 (mục 34, 35); CONG_VIEC_25 (2026-11-11): thêm quyền `marketplace.payment.manage` (nhạy cảm); Kế toán, Kế toán trưởng có thêm `marketplace.order.view`, `marketplace.payment.manage`; ma trận thanh toán, hoàn tiền của MODULE_09 (mục 36, 37); CONG_VIEC_26 (2026-11-11), THAY_DOI_17: hoa hồng theo đơn, ví, rút tiền, phí rút tiền dùng quyền đã có, không thêm quyền, vai trò (mục 38); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: Nhân viên bán hàng bỏ `sales.order.manage`; Kế toán, Kế toán trưởng thêm `sales.access`, `sales.order.view`, `sales.order.manage`; bỏ quyền, loại chứng từ hoa hồng đội kinh doanh cũ (mục 21, 22 đã bỏ) và giao khách (mục 29, 30 đã tắt); phạm vi xem trở về toàn công ty (mục 39); CONG_VIEC_44 (2026-11-11): thêm quyền `inventory.stocktake.count`, Thủ kho có thêm quyền này; ứng dụng kho dùng quyền kho đã có (mục 40)
-- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18); CONG_VIEC_16 (2026-11-10): thêm quyền `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm); Kế toán có thêm `finance.einvoice.view`, `finance.einvoice.manage`; Kế toán trưởng có thêm cả ba (mục 19, 20); CONG_VIEC_17 (2026-11-10): thêm quyền `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` (nhạy cảm); Kế toán có thêm `finance.commission.view`, `finance.commission.manage`; Kế toán trưởng có thêm cả ba (mục 21, 22); CONG_VIEC_18 (2026-11-10): thêm quyền `finance.bank.view`, `finance.bank.manage`, `finance.bank.setup` (nhạy cảm); Kế toán có thêm `finance.bank.view`, `finance.bank.manage`; Kế toán trưởng có thêm cả ba (mục 23, 24); CONG_VIEC_19 (2026-11-10): thêm quyền `finance.collection.view`, `finance.collection.manage`, `finance.collection.setup` (nhạy cảm); Kế toán có thêm `finance.collection.view`, `finance.collection.manage`; Kế toán trưởng có thêm cả ba (mục 25, 26); CONG_VIEC_20 (2026-11-10): thêm quyền `finance.consolidation.view`, `finance.consolidation.manage` (nhạy cảm) chỉ hiệu lực ở phạm vi tập đoàn; Kế toán trưởng có thêm cả hai (mục 27, 28); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm quyền `crm.customer.view_all`, `crm.customer.assign`; Nhân viên bán hàng chỉ xem khách mình (và nhân viên phòng mình quản lý) phụ trách, đơn bán của các khách đó; mọi vai trò hệ thống khác đang xem đối tác hoặc đơn bán có thêm `crm.customer.view_all`; trưởng phòng giao khách trong phòng mình (mục 7, 10, 11, 29, 30); CONG_VIEC_23 (2026-11-10): thêm quyền `marketplace.buyer.view`, `marketplace.buyer.manage` (nhạy cảm); người mua (tài khoản không thuộc công ty), nhân viên kinh doanh là người mua được đánh dấu (THAY_DOI_14); CONG_VIEC_27 (2026-11-10): chức danh đội kinh doanh, ma trận vai trò – thao tác của đội kinh doanh; CONG_VIEC_24 (2026-11-11): thêm quyền đơn VComm, người mua thử, ma trận đặt hàng của MODULE_09 (mục 34, 35); CONG_VIEC_25 (2026-11-11): thêm quyền `marketplace.payment.manage` (nhạy cảm); Kế toán, Kế toán trưởng có thêm `marketplace.order.view`, `marketplace.payment.manage`; ma trận thanh toán, hoàn tiền của MODULE_09 (mục 36, 37); CONG_VIEC_26 (2026-11-11), THAY_DOI_17: hoa hồng theo đơn, ví, rút tiền, phí rút tiền dùng quyền đã có, không thêm quyền, vai trò (mục 38); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: Nhân viên bán hàng bỏ `sales.order.manage`; Kế toán, Kế toán trưởng thêm `sales.access`, `sales.order.view`, `sales.order.manage`; bỏ quyền, loại chứng từ hoa hồng đội kinh doanh cũ (mục 21, 22 đã bỏ) và giao khách (mục 29, 30 đã tắt); phạm vi xem trở về toàn công ty (mục 39); CONG_VIEC_50 (2026-11-11): thêm năm quyền báo cáo quản trị `analytics.*` của MODULE_15, Quản trị tập đoàn, Quản trị công ty, Kế toán trưởng có cả năm quyền, Kế toán có thêm quyền báo cáo công nợ, hoa hồng và ví, Quản lý kho có thêm quyền báo cáo tồn kho (mục 40, 41)
+- Thay đổi theo: CONG_VIEC_05 (2026-11-10): thêm vai trò Thủ kho, Quản lý kho của MODULE_03 (mục 4, 5); CONG_VIEC_06 (2026-11-10): thêm vai trò Quản lý đối tác của MODULE_07, Thủ kho có thêm `crm.partner.view` (mục 4, 6, 7); CONG_VIEC_07 (2026-11-10): thêm vai trò Nhân viên mua hàng của MODULE_04, Thủ kho có thêm quyền nhập mua, lập đề nghị mua, xem đơn mua (mục 4, 8, 9); CONG_VIEC_08 (2026-11-10): thêm vai trò Nhân viên bán hàng của MODULE_05, Thủ kho có thêm quyền xuất giao hàng, nhận hàng trả lại, xem đơn bán (mục 4, 10, 11); CONG_VIEC_09 (2026-11-10): giao dịch nội bộ dùng quyền đã có, không thêm quyền, vai trò (mục 12); CONG_VIEC_12 (2026-11-10): thêm quyền `sales.promotion.view`, `sales.promotion.manage`, loại chứng từ duyệt `sales.promotion`; Nhân viên bán hàng có thêm `sales.promotion.view` (mục 10, 13); CONG_VIEC_13 (2026-11-10): thêm vai trò Kế toán, quyền `finance.debt.view`, `finance.fund.manage`, `finance.debt.manage`, `finance.payment.manage`, loại chứng từ `finance.receipt`, `finance.payment` của MODULE_06 (mục 14, 15); CONG_VIEC_14 (2026-11-10): thêm vai trò Kế toán trưởng, quyền `finance.ledger.view`, `finance.ledger.setup`, `finance.journal.manage`, `finance.period.close`, loại chứng từ `accounting.journal`; Kế toán có thêm `finance.ledger.view`, `finance.journal.manage` (mục 16, 17); CONG_VIEC_15 (2026-11-10): báo cáo tài chính dùng quyền đã có `finance.ledger.view`, `finance.ledger.setup`, không thêm quyền, vai trò (mục 18); CONG_VIEC_16 (2026-11-10): thêm quyền `finance.einvoice.view`, `finance.einvoice.manage`, `finance.einvoice.setup` (nhạy cảm); Kế toán có thêm `finance.einvoice.view`, `finance.einvoice.manage`; Kế toán trưởng có thêm cả ba (mục 19, 20); CONG_VIEC_17 (2026-11-10): thêm quyền `finance.commission.view`, `finance.commission.manage`, `finance.commission.setup` (nhạy cảm); Kế toán có thêm `finance.commission.view`, `finance.commission.manage`; Kế toán trưởng có thêm cả ba (mục 21, 22); CONG_VIEC_18 (2026-11-10): thêm quyền `finance.bank.view`, `finance.bank.manage`, `finance.bank.setup` (nhạy cảm); Kế toán có thêm `finance.bank.view`, `finance.bank.manage`; Kế toán trưởng có thêm cả ba (mục 23, 24); CONG_VIEC_19 (2026-11-10): thêm quyền `finance.collection.view`, `finance.collection.manage`, `finance.collection.setup` (nhạy cảm); Kế toán có thêm `finance.collection.view`, `finance.collection.manage`; Kế toán trưởng có thêm cả ba (mục 25, 26); CONG_VIEC_20 (2026-11-10): thêm quyền `finance.consolidation.view`, `finance.consolidation.manage` (nhạy cảm) chỉ hiệu lực ở phạm vi tập đoàn; Kế toán trưởng có thêm cả hai (mục 27, 28); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm quyền `crm.customer.view_all`, `crm.customer.assign`; Nhân viên bán hàng chỉ xem khách mình (và nhân viên phòng mình quản lý) phụ trách, đơn bán của các khách đó; mọi vai trò hệ thống khác đang xem đối tác hoặc đơn bán có thêm `crm.customer.view_all`; trưởng phòng giao khách trong phòng mình (mục 7, 10, 11, 29, 30); CONG_VIEC_23 (2026-11-10): thêm quyền `marketplace.buyer.view`, `marketplace.buyer.manage` (nhạy cảm); người mua (tài khoản không thuộc công ty), nhân viên kinh doanh là người mua được đánh dấu (THAY_DOI_14); CONG_VIEC_27 (2026-11-10): chức danh đội kinh doanh, ma trận vai trò – thao tác của đội kinh doanh; CONG_VIEC_24 (2026-11-11): thêm quyền đơn VComm, người mua thử, ma trận đặt hàng của MODULE_09 (mục 34, 35); CONG_VIEC_25 (2026-11-11): thêm quyền `marketplace.payment.manage` (nhạy cảm); Kế toán, Kế toán trưởng có thêm `marketplace.order.view`, `marketplace.payment.manage`; ma trận thanh toán, hoàn tiền của MODULE_09 (mục 36, 37); CONG_VIEC_26 (2026-11-11), THAY_DOI_17: hoa hồng theo đơn, ví, rút tiền, phí rút tiền dùng quyền đã có, không thêm quyền, vai trò (mục 38); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: Nhân viên bán hàng bỏ `sales.order.manage`; Kế toán, Kế toán trưởng thêm `sales.access`, `sales.order.view`, `sales.order.manage`; bỏ quyền, loại chứng từ hoa hồng đội kinh doanh cũ (mục 21, 22 đã bỏ) và giao khách (mục 29, 30 đã tắt); phạm vi xem trở về toàn công ty (mục 39); CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm quyền `marketplace.community.manage`, ma trận cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, chặn ví, bảng tin (mục 49); CONG_VIEC_50 (2026-11-11): thêm năm quyền báo cáo quản trị `analytics.*` của MODULE_15, Quản trị tập đoàn, Quản trị công ty, Kế toán trưởng có cả năm quyền, Kế toán có thêm quyền báo cáo công nợ, hoa hồng và ví, Quản lý kho có thêm quyền báo cáo tồn kho (mục 46, 47); CONG_VIEC_44 (2026-11-11): thêm quyền `inventory.stocktake.count`, Thủ kho có thêm quyền này; ứng dụng kho dùng quyền kho đã có (mục 45); CONG_VIEC_53 (2026-11-11): thêm vai trò Thu ngân, Cửa hàng trưởng, quyền `retail.*` của MODULE_14 (bán lẻ tại quầy phần 1); Kế toán, Kế toán trưởng thêm `retail.access`, `retail.shift.manage` (mục 40, 41)
 
 ## 1. Nguyên tắc
 
@@ -570,7 +569,39 @@ Quyền đã xóa: `finance.commission.view`, `finance.commission.manage`, `fina
 | Chọn loại sản phẩm Hàng hóa, Dịch vụ | Quyền sửa sản phẩm (CONG_VIEC_04) | Có | Trong công ty mình | Theo quyền | Không | Không |
 | Phiếu xuất, phiếu nhập dịch vụ | Hệ thống tự lập khi đơn xác nhận; không ai lập tay | – | – | – | – | – |
 
-## 40. Vai trò hệ thống của MODULE_08 Nhân sự (phần 1, CONG_VIEC_46)
+## 40. Bán lẻ tại quầy (MODULE_14 phần 1, CONG_VIEC_53)
+
+Mini app mới Bán lẻ (`retail`). Quyền gán ở phạm vi chi nhánh chỉ có hiệu lực tại cửa hàng của chi nhánh đó; quyền gán ở phạm vi công ty, tập đoàn có hiệu lực ở mọi cửa hàng của công ty. Phiếu kho, chứng từ quỹ, bút toán, hóa đơn điện tử sinh ra xem ở mini app Kho, Tài chính – Kế toán theo quyền hiện có.
+
+| Quyền | Nội dung | Phạm vi gán | Nhạy cảm | Vai trò hệ thống có sẵn |
+|---|---|---|---|---|
+| `retail.access` | Vào mini app Bán lẻ | Tập đoàn, công ty, chi nhánh | Không | Quản trị tập đoàn, Quản trị công ty, Thu ngân, Cửa hàng trưởng, Kế toán, Kế toán trưởng |
+| `retail.sale` | Mở ca, bán hàng tại quầy, đóng ca của mình; xem hóa đơn bán lẻ của cửa hàng | Công ty, chi nhánh | Không | Quản trị tập đoàn, Quản trị công ty, Thu ngân, Cửa hàng trưởng |
+| `retail.return` | Trả hàng theo hóa đơn bán lẻ | Công ty, chi nhánh | Không | Quản trị tập đoàn, Quản trị công ty, Cửa hàng trưởng |
+| `retail.shift.manage` | Xem mọi ca, đóng ca của người khác | Công ty, chi nhánh | Không | Quản trị tập đoàn, Quản trị công ty, Cửa hàng trưởng, Kế toán, Kế toán trưởng |
+| `retail.setup` | Cài đặt cửa hàng, quầy (chỉ có hiệu lực khi gán ở phạm vi công ty hoặc tập đoàn) | Tập đoàn, công ty | Không | Quản trị tập đoàn, Quản trị công ty |
+
+Vai trò hệ thống mới (thường gán ở phạm vi chi nhánh của cửa hàng):
+
+| Vai trò | Mã | Quyền |
+|---|---|---|
+| Thu ngân | `cashier` | `retail.access`, `retail.sale` |
+| Cửa hàng trưởng | `store_manager` | `retail.access`, `retail.sale`, `retail.return`, `retail.shift.manage` |
+
+Vai trò đã có thêm quyền: Kế toán (`accountant`), Kế toán trưởng (`chief_accountant`) thêm `retail.access`, `retail.shift.manage` (xem ca, đối chiếu tiền); Quản trị công ty thêm `retail.sale`, `retail.return`, `retail.shift.manage`, `retail.setup`; Quản trị tập đoàn có mọi quyền `retail.*`. Loại chứng từ mới (không đi luồng duyệt): `retail.sale` (Hóa đơn bán lẻ, số `BL`), `retail.return` (Phiếu trả hàng bán lẻ, số `TL`).
+
+## 41. Ma trận vai trò – thao tác của MODULE_14 (phần 1)
+
+| Thao tác | Điều kiện | Quản trị tập đoàn, Quản trị công ty | Cửa hàng trưởng | Thu ngân | Kế toán, Kế toán trưởng |
+|---|---|---|---|---|---|
+| Thêm, sửa, ngừng cửa hàng, quầy | `retail.setup` phạm vi công ty, tập đoàn | Có | Không | Không | Không |
+| Xem danh sách cửa hàng | `retail.setup`, hoặc `retail.sale`, `retail.shift.manage` | Mọi cửa hàng | Cửa hàng trong phạm vi chi nhánh | Cửa hàng trong phạm vi chi nhánh | Cửa hàng trong phạm vi |
+| Mở ca, bán hàng, đóng ca của mình | `retail.sale` tại chi nhánh của cửa hàng | Có | Có | Có | Không |
+| Trả hàng theo hóa đơn | `retail.return` tại chi nhánh của cửa hàng, có ca đang mở | Có | Có | Không | Không |
+| Xem mọi ca, đóng ca của người khác | `retail.shift.manage` | Có | Trong phạm vi chi nhánh | Chỉ ca của mình | Có (xem, đối chiếu, đóng) |
+| Xem hóa đơn bán lẻ, phiếu trả hàng | `retail.sale`, `retail.return` hoặc `retail.shift.manage` | Có | Trong phạm vi chi nhánh | Trong phạm vi chi nhánh | Có |
+| Dùng điểm, tích điểm cho khách VComm | Chưa làm, chờ CONG_VIEC_51 (lát L6) | – | – | – | – |
+## 42. Vai trò hệ thống của MODULE_08 Nhân sự (phần 1, CONG_VIEC_46)
 
 Quyền nhân sự gán ở phạm vi tập đoàn hoặc công ty (gán ở chi nhánh không dùng được). Quản trị tập đoàn, quản trị công ty có mọi quyền mới. Mọi quyền mới là nhạy cảm (dữ liệu cá nhân), người được gán bắt buộc xác thực hai lớp.
 
@@ -588,9 +619,9 @@ Quyền nhân sự gán ở phạm vi tập đoàn hoặc công ty (gán ở chi
 | Lập, gửi, ký, chấm dứt hợp đồng, phụ lục; xem lương | Có | Có | Có | Không (không thấy lương) | Xem hợp đồng đã ký của mình kèm lương |
 | Nhận nhắc hết hạn hợp đồng | Có | Có | Có | Không | Trưởng phòng của phòng ban trên hợp đồng |
 
-## 41. Quyền chấm công, nghỉ phép, tăng ca, bảng công (MODULE_08 phần 2, CONG_VIEC_47)
+## 43. Quyền chấm công, nghỉ phép, tăng ca, bảng công (MODULE_08 phần 2, CONG_VIEC_47)
 
-Quyền mới gán ở phạm vi tập đoàn hoặc công ty như mục 40; vai trò Quản lý nhân sự (`hr_manager`), Nhân viên nhân sự (`hr_staff`) có thêm cả bốn quyền. Quản trị tập đoàn, quản trị công ty có mọi quyền mới. Trưởng phòng (người quản lý phòng ban trong cơ cấu) không cần quyền thêm, phạm vi là phòng mình và phòng con.
+Quyền mới gán ở phạm vi tập đoàn hoặc công ty như mục 42; vai trò Quản lý nhân sự (`hr_manager`), Nhân viên nhân sự (`hr_staff`) có thêm cả bốn quyền. Quản trị tập đoàn, quản trị công ty có mọi quyền mới. Trưởng phòng (người quản lý phòng ban trong cơ cấu) không cần quyền thêm, phạm vi là phòng mình và phòng con.
 
 | Quyền | Ý nghĩa | Nhạy cảm |
 |---|---|---|
@@ -609,7 +640,7 @@ Quyền mới gán ở phạm vi tập đoàn hoặc công ty như mục 40; vai
 | Bảng công tháng | Mở xác nhận, trả lời, chốt, mở lại (`hr.timesheet.manage`); xuất Excel | Xem, xuất Excel | Xem phòng mình | Xác nhận hoặc giải trình dòng của mình |
 
 Loại chứng từ mới: `hr.leave_request` (Đơn nghỉ, giá trị duyệt là số ngày), `hr.overtime_request` (Phiếu tăng ca, số giờ), `hr.attendance_correction` (Đơn giải trình công, 1).
-## 41. Quyền lương của MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
+## 44. Quyền lương của MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
 
 Quyền mới (nhạy cảm, gán ở phạm vi tập đoàn hoặc công ty): `hr.payroll.view` (xem bảng lương, phiếu lương), `hr.payroll.manage` (lập, tính, gửi, ghi đã trả bảng lương; hồ sơ lương), `hr.payroll.setup` (thiết lập lương, loại phụ cấp; tham số pháp luật khi gán ở phạm vi tập đoàn). Vai trò `hr_manager` thêm cả ba quyền; `hr_staff` thêm `hr.payroll.view`, `hr.payroll.manage`; `chief_accountant` thêm `hr.access`, `hr.payroll.view`. Quản trị tập đoàn, quản trị công ty có mọi quyền mới.
 
@@ -622,7 +653,7 @@ Quyền mới (nhạy cảm, gán ở phạm vi tập đoàn hoặc công ty): `
 | Xem bảng lương, xuất Excel | Có | Có | Có | Có | Không |
 | Duyệt bảng lương | Theo chính sách duyệt loại `hr.payroll` | | | | |
 | Xem phiếu lương | Có | Có | Có | Có | Chỉ phiếu của mình |
-## 40. Ứng dụng kho (MODULE_03, CONG_VIEC_44)
+## 45. Ứng dụng kho (MODULE_03, CONG_VIEC_44)
 
 | Quyền | Tên | Phạm vi | Nhạy cảm | Vai trò mặc định |
 |---|---|---|---|---|
@@ -635,7 +666,7 @@ Quyền mới (nhạy cảm, gán ở phạm vi tập đoàn hoặc công ty): `
 | Cộng số đếm kiểm kê, xem lịch sử đếm | Được | Kho của công ty mình | Kho trong phạm vi gán | Kho trong phạm vi gán | Không |
 | Xem tồn sổ sách, chênh lệch kiểm kê | Được | Được | Được | Không (đếm mù) | Không |
 | Lập, bắt đầu, sửa số tuyệt đối, kết thúc, hủy kiểm kê | Được | Kho của công ty mình | Kho trong phạm vi gán | Không | Không |
-## 40. Quyền báo cáo quản trị (MODULE_15 phần 1, CONG_VIEC_50)
+## 46. Quyền báo cáo quản trị (MODULE_15 phần 1, CONG_VIEC_50)
 
 Không thêm vai trò. Năm quyền mới của mini app Báo cáo quản trị (`analytics`); quyền xét riêng từng nhóm báo cáo trong công ty đang chọn. Gán ở phạm vi tập đoàn: xem mọi công ty của tập đoàn; gán ở phạm vi công ty: chỉ xem công ty đó; gán ở phạm vi chi nhánh: không có hiệu lực với báo cáo quản trị (QUYTAC_NGHIEPVU_336). Vai trò hệ thống chỉ thêm quyền, không bớt quyền cũ (đồng bộ danh mục quyền lúc khởi động); các vai trò khác không có sẵn, quản trị gán thêm bằng vai trò tự tạo.
 
@@ -655,7 +686,7 @@ Không thêm vai trò. Năm quyền mới của mini app Báo cáo quản trị 
 | Kế toán | `accountant` | `analytics.access`, `analytics.debt.view`, `analytics.commission.view` |
 | Quản lý kho | `warehouse_manager` | `analytics.access`, `analytics.inventory.view` |
 
-## 41. Ma trận vai trò – thao tác của MODULE_15 (phần 1)
+## 47. Ma trận vai trò – thao tác của MODULE_15 (phần 1)
 
 "(tập đoàn)": vai trò gán ở phạm vi tập đoàn, xem mọi công ty của tập đoàn; "(công ty)": gán ở phạm vi công ty, chỉ xem công ty đó.
 
@@ -669,3 +700,66 @@ Không thêm vai trò. Năm quyền mới của mini app Báo cáo quản trị 
 
 - Báo cáo chỉ đọc; không thao tác nào ghi dữ liệu nghiệp vụ. Mỗi lần xuất Excel ghi nhật ký thao tác (QUYTAC_NGHIEPVU_343).
 - Chọn công ty ngoài phạm vi của nhóm báo cáo bị từ chối (lỗi không có quyền), không trả số liệu một phần (QUYTAC_NGHIEPVU_336).
+## 48. Vai trò của MODULE_08 Nhân sự phần 4: tuyển dụng, đánh giá hiệu suất (CONG_VIEC_54)
+
+Thêm quyền `hr.recruitment.request` (không nhạy cảm), `hr.recruitment.manage`, `hr.review.manage` (nhạy cảm, người được gán bắt buộc xác thực hai lớp); gán ở phạm vi tập đoàn hoặc công ty như mục 42. Loại chứng từ mới cần duyệt: `hr.recruitment_request` (Nhu cầu tuyển dụng), `hr.job_offer` (Đề nghị nhận việc). Không tạo vai trò mới.
+
+| Vai trò | Mã | Quyền thêm | Ghi chú |
+|---|---|---|---|
+| Quản lý nhân sự | `hr_manager` | `hr.recruitment.request`, `hr.recruitment.manage`, `hr.review.manage` | |
+| Nhân viên nhân sự | `hr_staff` | `hr.recruitment.request`, `hr.recruitment.manage`, `hr.review.manage` | Có thêm `hr.recruitment.request` để menu "Tuyển dụng" hiện (CONG_VIEC_54 mục 18) |
+| Quản trị tập đoàn, Quản trị công ty | | Mọi quyền mới | |
+| Trưởng phòng (vai trò tùy chỉnh do quản trị lập) | | `hr.access`, `hr.recruitment.request` | Cần `hr.access` để vào mini app Nhân sự |
+
+| Thao tác | Quản trị tập đoàn, công ty | Quản lý nhân sự, Nhân viên nhân sự | Người có `hr.recruitment.request` | Người phỏng vấn được giao | Người chấm được giao | Nhân viên có hồ sơ liên kết | Người tìm việc (không đăng nhập) |
+|---|---|---|---|---|---|---|---|
+| Lập, sửa, gửi, rút, hủy nhu cầu tuyển dụng | Có | Có | Nhu cầu của mình | Không | Không | Không | Không |
+| Xem mọi nhu cầu, đóng nhu cầu; tin tuyển dụng | Có | Có | Không (chỉ nhu cầu của mình, số đã tuyển) | Không | Không | Không | Không |
+| Xem, nộp hồ sơ ở trang tuyển dụng công khai | – | – | – | – | – | – | Có |
+| Ứng viên, hồ sơ ứng tuyển, vòng phỏng vấn, email, đề nghị nhận việc (có mức lương), tải tệp, yêu cầu xóa, cài đặt lưu giữ | Có | Có | Không | Không | Không | Không | Không |
+| Lập hồ sơ nhân sự từ ứng viên | Có | Có (kèm `hr.employee.manage`) | Không | Không | Không | Không | Không |
+| Xem ứng viên được giao (rút gọn, không email, điện thoại), tải sơ yếu lý lịch, ghi phiếu đánh giá phỏng vấn ("Phỏng vấn của tôi") | Như người phỏng vấn | Như người phỏng vấn | Như người phỏng vấn | Có, vòng chưa hủy | Không | Không | Không |
+| Trả lời đề nghị nhận việc qua liên kết riêng | – | Ghi thay ứng viên | – | – | – | – | Ứng viên có liên kết, một lần |
+| Mẫu đánh giá, kỳ đánh giá, mọi phiếu, gán người chấm, hiệu chỉnh, chốt, công bố | Có | Có | Không | Không | Không | Không | Không |
+| Đặt, chốt mục tiêu, chấm phiếu ("Đánh giá của tôi") | Như người chấm | Như người chấm | Không | Không | Phiếu được giao | Không | Không |
+| Lập mục tiêu, tự đánh giá; xem kết quả sau công bố, xác nhận đã xem, ghi ý kiến | Phiếu của mình | Phiếu của mình | Phiếu của mình | Phiếu của mình | Phiếu của mình | Phiếu của mình | Không |
+
+Người phỏng vấn, người chấm, nhân viên xem phiếu của mình không cần quyền nhân sự, chỉ cần là thành viên công ty đang chọn (menu "Phỏng vấn của tôi", "Đánh giá của tôi" dùng `platform.access`). Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_54.md` mục 6, 18.
+
+## MODULE_11 Điểm thưởng (CONG_VIEC_51)
+
+- Quyền xét tại công ty vận hành sàn. Quản trị tập đoàn, Quản trị công ty có sẵn hai quyền; giao cho nhân viên qua vai trò tùy chỉnh.
+- Duyệt phiếu điều chỉnh theo chính sách duyệt loại chứng từ `loyalty.adjustment` của công ty vận hành sàn; người lập không tự duyệt.
+- Người mua chỉ xem ví điểm, lịch sử điểm, hạng của chính mình.
+
+| Quyền | Thao tác | Vai trò có sẵn |
+|---|---|---|
+| `loyalty.view` | Xem chương trình điểm, ví điểm, sổ cái điểm, phiếu điều chỉnh, cảnh báo, nghĩa vụ điểm | Quản trị tập đoàn, Quản trị công ty |
+| `loyalty.manage` (nhạy cảm) | Cài giai đoạn, bảng hạng; khóa, mở ví điểm; lập, sửa, gửi duyệt, rút phiếu điều chỉnh | Quản trị tập đoàn, Quản trị công ty |
+
+## 49. Cộng đồng: cộng tác viên, mua chung, ví mua sắm, bảng tin (MODULE_10 phần 1, CONG_VIEC_49)
+
+- Không thêm vai trò. Thêm một quyền nhạy cảm `marketplace.community.manage`; quản trị tập đoàn, quản trị công ty có sẵn (danh mục quyền đồng bộ lúc khởi động, database migration 0082). Mọi quyền chỉ xét tại công ty vận hành sàn; giao cho nhân viên khác qua vai trò tùy chỉnh.
+- Cộng tác viên (gồm nhãn KOL, KOC) không phải vai trò hệ thống: là người mua có hồ sơ cộng tác viên Đã duyệt (QUYTAC_NGHIEPVU_324); dùng API người mua, thấy thêm mã cộng tác viên, nút chia sẻ nhận hoa hồng, mở nhóm mua chung trên ứng dụng.
+- Dùng lại quyền đã có: `marketplace.buyer.view` (xem cộng tác viên, trạng thái chặn ví), `marketplace.buyer.manage` (duyệt cộng tác viên, gắn nhãn), `marketplace.order.view` (xem cài đặt thưởng giới thiệu, cài đặt mua chung, nhóm mua chung, khóa ví mua sắm), `marketplace.order.manage` (sửa các cài đặt đó, mở, hủy nhóm trên web), `marketplace.payment.manage` (chặn, gỡ chặn ví theo tài khoản; THAY_DOI_22).
+
+| Quyền | Nội dung | Vai trò hệ thống có sẵn |
+|---|---|---|
+| `marketplace.community.manage` (nhạy cảm) | Kiểm duyệt bảng tin (hàng chờ báo cáo, nội dung đã ẩn, ẩn, hiện lại, bỏ qua báo cáo), khóa, mở khóa đăng bài và bình luận của tài khoản, đăng và ghim bài VComm, sửa từ cấm, bật tắt đăng bài, bình luận của người mua, xem ảnh bài đăng ở mọi trạng thái | Quản trị tập đoàn, Quản trị công ty |
+
+| Thao tác | Quyền | Quản trị tập đoàn, quản trị công ty vận hành sàn | Kế toán, Kế toán trưởng | Nhân viên có quyền xem tương ứng | Người mua (gồm cộng tác viên) |
+|---|---|---|---|---|---|
+| Gửi, gửi lại đăng ký cộng tác viên; xem hồ sơ, mã, thống kê, đơn ghi nhận của mình | Tài khoản đăng nhập ứng dụng | Không áp dụng | Không áp dụng | Không áp dụng | Có (của mình) |
+| Xem danh sách, chi tiết cộng tác viên | `marketplace.buyer.view` | Có | Không | Có | Không |
+| Duyệt, từ chối, tạm ngừng, khôi phục, gắn nhãn cộng tác viên | `marketplace.buyer.manage` | Có | Không | Không | Không |
+| Xem cài đặt thưởng giới thiệu, cài đặt mua chung, danh sách và chi tiết nhóm, công tắc khóa ví mua sắm | `marketplace.order.view` | Có | Có (vai trò hệ thống có `marketplace.order.view`) | Có | Không |
+| Sửa cài đặt thưởng giới thiệu, cài đặt mua chung; mở, hủy nhóm trên web; khóa, mở khóa ví mua sắm toàn hệ thống | `marketplace.order.manage` | Có | Không | Không | Không |
+| Mở nhóm mua chung trên ứng dụng | Cộng tác viên Đã duyệt (tối đa 5 nhóm đang mở) | Không áp dụng | Không áp dụng | Không áp dụng | Chỉ cộng tác viên Đã duyệt |
+| Xem nhóm đang mở, tham gia nhóm, xem ví mua sắm, Mời bạn bè | Tài khoản đăng nhập ứng dụng | Không áp dụng | Không áp dụng | Không áp dụng | Có (ví, đơn, người được mời của mình) |
+| Xem trạng thái chặn ví, lịch sử chặn của người mua | `marketplace.buyer.view` hoặc `marketplace.payment.manage` | Có | Có | Có | Không |
+| Chặn, gỡ chặn ví mua sắm, ví hoa hồng của người mua | `marketplace.payment.manage` | Có | Có | Không | Không |
+| Xem bảng tin, đăng bài, đánh giá, bình luận, thích, báo cáo; xóa bài, bình luận của mình | Tài khoản đăng nhập ứng dụng; không bị khóa đăng, công tắc đang bật (đăng bài, bình luận) | Không áp dụng | Không áp dụng | Không áp dụng | Có |
+| Kiểm duyệt, khóa tài khoản, bài VComm, từ cấm, công tắc cộng đồng | `marketplace.community.manage` | Có | Không | Không | Không |
+
+- Người mua chỉ thấy hồ sơ cộng tác viên, ví mua sắm, đơn, người mình mời của chính mình; bảng tin công khai cho người mua đã đăng nhập.
+- Người bị khóa đăng bài và bình luận vẫn xem được bảng tin.

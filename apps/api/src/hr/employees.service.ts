@@ -29,6 +29,8 @@ import { ageAt, hrAudit, hrGranted, hrPermission, lastFour, masked, positionAt, 
 import { WorkEventsService } from "./work-events.service";
 
 type Executor = Pick<Database, "execute">;
+// Giao dịch đầy đủ (ghi nhật ký thao tác dùng insert).
+export type Transaction = Pick<Database, "execute" | "insert">;
 type EmployeeInput = z.output<typeof saveEmployeeSchema>;
 type DependentInput = z.output<typeof saveDependentSchema>;
 export type UploadedFile = { buffer: Buffer; size: number; originalname: string };
@@ -295,7 +297,8 @@ export class EmployeesService {
     return data;
   }
 
-  async create(actor: Actor, input: EmployeeInput): Promise<EmployeeResponse> {
+  // afterCreate: việc chạy trong cùng giao dịch sau khi lập (CONG_VIEC_54 lập hồ sơ từ ứng viên); không truyền thì như cũ.
+  async create(actor: Actor, input: EmployeeInput, afterCreate?: (transaction: Transaction, employeeId: string) => Promise<void>): Promise<EmployeeResponse> {
     await requireHrPermission(this.permissionService, actor, hrPermission.manage);
     const configured = await this.database.execute(sql`SELECT 1 FROM core.number_sequences WHERE company_id = ${actor.companyId} AND document_type_code = 'hr.employee' LIMIT 1`);
     if (configured.rows.length === 0) await this.sequences.update(actor, "hr.employee", { prefix: "NV", resetPeriod: "never", padding: 6 });
@@ -326,6 +329,7 @@ export class EmployeesService {
         VALUES (${actor.companyId}, ${created}, 'hire', ${input.hireDate!}::date, ${input.departmentId!}, ${input.branchId!}, ${input.jobTitle!}, ${actor.userId})`);
       await this.workEvents.applyEmployee(transaction, created, actor.userId);
       await this.auditService.record({ ...hrAudit(actor, "employee"), action: "employee.create", entityId: created, afterData: { ...this.auditData(input), code } }, transaction);
+      if (afterCreate) await afterCreate(transaction, created);
       return created;
     });
     return this.detail(actor, id);

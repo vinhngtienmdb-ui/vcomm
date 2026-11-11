@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng), phần 7 (Đối soát thu hộ), phần 8 (Báo cáo tài chính hợp nhất), MODULE_07 phần 2 (Gán khách hàng cho nhân viên kinh doanh), MODULE_15 phần 1 (Báo cáo quản trị): đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 1.7
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng), phần 7 (Đối soát thu hộ), phần 8 (Báo cáo tài chính hợp nhất), MODULE_07 phần 2 (Gán khách hàng cho nhân viên kinh doanh), MODULE_15 phần 1 (Báo cáo quản trị), MODULE_10 phần 1 (Cộng đồng): đúng, sai, giá trị biên, từng vai trò.
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt; CONG_VIEC_50 (2026-11-11): thêm KICHBAN_KIEMTHU_476 đến KICHBAN_KIEMTHU_485 của MODULE_15 (báo cáo quản trị; 476 đến 483 tự động; 484, 485 tự động một phần: cắt 500 dòng, xuất Excel tồn kho, công nợ, đo thời gian phản hồi chưa có kiểm thử tự động)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt; CONG_VIEC_50 (2026-11-11): thêm KICHBAN_KIEMTHU_476 đến KICHBAN_KIEMTHU_485 của MODULE_15 (báo cáo quản trị; 476 đến 483 tự động; 484, 485 tự động một phần: cắt 500 dòng, xuất Excel tồn kho, công nợ, đo thời gian phản hồi chưa có kiểm thử tự động); CONG_VIEC_53 (2026-11-11): thêm KICHBAN_KIEMTHU_510 đến KICHBAN_KIEMTHU_521 của MODULE_14 (bán lẻ tại quầy phần 1); KICHBAN_KIEMTHU_519 chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm KICHBAN_KIEMTHU_464 đến KICHBAN_KIEMTHU_475 (cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, kiểm duyệt; tự động), KICHBAN_KIEMTHU_532 (chặn ví hoa hồng; tự động)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -3846,6 +3846,141 @@ Dữ liệu chung: công ty VCR, VTH; sản phẩm hàng hóa và dịch vụ (`
 - Kiểm thử tự động: Tự động API – `apps/api/test/c43-internal-services.test.ts`
 - Lát: L2, L3
 
+## CHUC_NANG_186 đến CHUC_NANG_189: Bán lẻ tại quầy phần 1 (CONG_VIEC_53)
+
+Dữ liệu chung: `apps/api/test/retail-fixture.ts` (`createRetailFixture`, `createRetailCatalog`, `assignRetailRole`, `storeBody`): công ty bán lẻ thử có hai chi nhánh loại Cửa hàng (Thủ Đức, Quận 1), kho bán không quản lý vị trí của từng chi nhánh, kênh Bán lẻ, quỹ tiền mặt "Tiền mặt Cửa hàng Thủ Đức", quỹ ngân hàng "Vietcombank Thủ Đức" (mã VietQR 970436); gạo 5 kg giá 110.000 gồm thuế, giá vốn 80.000, mã vạch `8936012345678`; sữa 1 L giá vốn 20.000 (khuyến mãi "Tuần lễ sữa"); nước rửa chén làm quà (khuyến mãi "Mua 2 gạo tặng nước rửa chén"); bánh theo lô (lô `L-SOM` hết hạn trước, `L-MUON`); điện thoại theo serial (`IMEI-1` đến `IMEI-3`, giá 5.500.000); dịch vụ sửa chữa; mức giảm tay tối đa 10%; công ty đã khởi tạo kế toán (Thông tư 99). Thu ngân, Cửa hàng trưởng gán ở phạm vi chi nhánh; Kế toán; nhân viên không có quyền Bán lẻ; quản trị công ty khác. Không dùng dữ liệu thật.
+
+### KICHBAN_KIEMTHU_510: Cài đặt cửa hàng, quầy
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_349
+- Chức năng: CHUC_NANG_186
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Quản trị công ty; Thu ngân; Cửa hàng trưởng; nhân viên không có quyền
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; chưa có cửa hàng.
+- Các bước: (1) Thu ngân thêm cửa hàng; nhân viên không có quyền xem danh sách. (2) Quản trị thêm cửa hàng với chi nhánh không phải cửa hàng, kho của chi nhánh khác, kênh nội bộ, quỹ sai loại; quỹ chuyển khoản thiếu mã ngân hàng, chủ tài khoản; mã ngân hàng 5 chữ số; số ngày trả 91. (3) Thêm đúng; thêm cửa hàng thứ hai cho cùng chi nhánh; thêm cửa hàng không nhận chuyển khoản ở chi nhánh khác. (4) Cửa hàng trưởng thêm quầy; quản trị thêm quầy `Q01`, trùng `Q01`, mã `Q-02`. (5) Mở ca rồi ngừng cửa hàng, bỏ quỹ chuyển khoản, ngừng quầy; đổi số ngày trả; sửa với phiên bản cũ.
+- Kết quả mong đợi: Bước 1: `403`. Bước 2: `400` tại `branchId`, `warehouseId`, `channelId`, `cashFundId`, `bankFundId`, `vietqrBankBin`, `vietqrAccountName`, `returnDays` với thông báo tài liệu `17` mục 3w. Bước 3: `201`; "Chi nhánh này đã có cửa hàng bán lẻ."; cửa hàng thứ hai `201`. Bước 4: `403`; `201`; "Mã quầy đã có trong cửa hàng."; `400`. Bước 5: `409` "Đang có ca mở. Đóng ca trước khi ngừng hoặc đổi chi nhánh, kho, kênh giá, quỹ."; đổi số ngày trả `200`; phiên bản cũ `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c53-retail-setup.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_511: Mở ca
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_350
+- Chức năng: CHUC_NANG_186
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Thu ngân hai người cùng chi nhánh; Thu ngân chi nhánh khác; nhân viên không có quyền
+- Điều kiện ban đầu và dữ liệu: Cửa hàng Thủ Đức có hai quầy.
+- Các bước: (1) Thu ngân chi nhánh khác, nhân viên không có quyền mở ca ở quầy 1. (2) Thu ngân mở ca với tiền đầu ca −1, 1.000.000.001, 1.000.000. (3) Thu ngân mở thêm ca ở quầy 2; thu ngân thứ hai mở ca ở quầy 1. (4) Xem màn hình bán (`GET /retail/counter`) của hai người. (5) Sau khi đóng ca, mở lại với tiền đầu ca khác tiền đếm được của ca trước không ghi chú, có ghi chú; bằng tiền ca trước.
+- Kết quả mong đợi: Bước 1: `403`. Bước 2: `400`, `400`, `201`. Bước 3: `409` (người đã có ca); `409` "Quầy đang có ca mở của người khác.". Bước 4: quầy 1 `busy`, ca đang mở của thu ngân; người chưa mở ca `currentShift` rỗng. Bước 5: `400` tại `openingNote` "Tiền đầu ca khác tiền cuối ca trước: vui lòng ghi chú."; có ghi chú `201`; bằng tiền ca trước không cần ghi chú. Không có ca thì tìm hàng, bán, trả hàng trả `404` (KICHBAN_KIEMTHU_512, 517).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c53-retail-setup.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_512: Quét, tìm hàng, giá kênh, đơn vị theo mã vạch
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_351
+- Chức năng: CHUC_NANG_187
+- Loại: Đúng, sai
+- Vai trò thực hiện: Thu ngân; Cửa hàng trưởng (không có ca)
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; thu ngân có ca đang mở.
+- Các bước: (1) Tìm `8936012345678`. (2) Tìm `IMEI-2`. (3) Tìm "sữa". (4) Tìm "Dịch vụ". (5) Cửa hàng trưởng tìm bằng ca của thu ngân. (6) Tính giỏ có mặt hàng không có giá.
+- Kết quả mong đợi: Bước 1: đúng gạo, đơn vị gắn mã vạch, `exact` đúng, còn 10. Bước 2: điện thoại, `serial` `IMEI-2`, `exact` đúng. Bước 3: sữa, `exact` sai. Bước 4: rỗng (không trả dịch vụ). Bước 5: `404`. Bước 6: báo không có giá, không tính được.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c53-retail-sales.test.ts` (mặt hàng không có giá kiểm bằng lỗi giá chung của đơn bán, chưa có bước riêng)
+- Lát: L2
+
+### KICHBAN_KIEMTHU_513: Khuyến mãi, giảm tay, dưới giá vốn, thiếu tồn, suất tặng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_351
+- Chức năng: CHUC_NANG_187
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Thu ngân; quản trị (đổi mức giảm tay)
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung.
+- Các bước: (1) Tính giỏ 2 gạo giảm tay 5%, 3 sữa. (2) Giảm tay 10,01%; đúng 10%. (3) Đưa dịch vụ vào giỏ. (4) Nâng mức giảm tay tối đa lên 30%, bán 1 gạo giảm 30%. (5) Bán 18 sữa (vượt tồn). (6) Bán 2 điện thoại chỉ quét 1 serial; 1 điện thoại quét `IMEI-2`. (7) Bán 3 bánh.
+- Kết quả mong đợi: Bước 1: gạo 209.000, sữa 89.100 ("Tuần lễ sữa"), nước rửa chén tặng 0 ("Mua 2 gạo tặng nước rửa chén"); phải trả 298.100, giảm tay 11.000, tối đa 10%; tiền hàng − khuyến mãi − giảm tay = phải trả. Bước 2: `400` tại `lines.0.discountPercent` "Giảm tay vượt mức tối đa trong cài đặt bán hàng."; 10% `200`. Bước 3: `400` tại `lines.0.variantId` "Quầy chỉ bán hàng hóa. Dịch vụ bán qua đơn bán dịch vụ.". Bước 4: "Giá sau giảm thấp hơn giá vốn. Giảm ít hơn hoặc báo cửa hàng trưởng.". Bước 5: `409`/`400` thiếu tồn, không ghi. Bước 6: "Số serial quét chưa khớp số lượng hàng theo serial."; `IMEI-2` `201`, serial chuyển đã xuất. Bước 7: xuất 2 từ `L-SOM`, 1 từ `L-MUON` (lô hết hạn trước).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c53-retail-sales.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_514: Thanh toán tiền mặt, chuyển khoản, kết hợp, gửi trùng khóa, tổng đổi
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_352
+- Chức năng: CHUC_NANG_187
+- Loại: Đúng, sai, giá trị biên, nhận trùng
+- Vai trò thực hiện: Thu ngân
+- Điều kiện ban đầu và dữ liệu: Ca đang mở, tiền đầu ca 1.000.000; cửa hàng có quỹ chuyển khoản.
+- Các bước: (1) Giỏ phải trả 298.100, khách đưa 298.000. (2) Gửi `expectedTotal` 298.000. (3) Khách đưa 400.000. (4) Gửi lại đúng yêu cầu cùng `clientKey`. (5) 1 gạo, chuyển khoản 110.001. (6) 1 gạo, chuyển khoản 60.000 (mã `FT2631512345`) + tiền mặt 100.000. (7) Xem ca.
+- Kết quả mong đợi: Bước 1: "Tiền khách đưa chưa đủ số phải trả.". Bước 2: "Giá hoặc khuyến mãi vừa thay đổi. Kiểm tra tổng mới rồi thanh toán lại."; không có đơn bán lẻ, tồn không đổi. Bước 3: `201`, số `BL…`, tiền thừa 101.900. Bước 4: cùng `id`, chỉ một hóa đơn. Bước 5: "Tiền chuyển khoản, điểm không được vượt số phải trả.". Bước 6: `201`, tiền thừa 50.000, hai dòng thanh toán. Bước 7: tiền mặt thu đã trừ tiền thừa; chuyển khoản 60.000; `store.bankTransfer` có mã ngân hàng, số tài khoản, tên chủ tài khoản để tạo VietQR.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c53-retail-sales.test.ts`
+- Lát: L2, L3
+
+### KICHBAN_KIEMTHU_515: Ghi sổ bán hàng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_353
+- Chức năng: CHUC_NANG_187
+- Loại: Đúng, toàn vẹn
+- Vai trò thực hiện: Thu ngân
+- Điều kiện ban đầu và dữ liệu: Hóa đơn tiền mặt của KICHBAN_KIEMTHU_514 bước 3.
+- Các bước: (1) Kiểm đơn bán, phiếu xuất, tồn kho, công nợ, bút toán của hóa đơn. (2) Kiểm các lần bị chặn của KICHBAN_KIEMTHU_513, 514 không để lại dữ liệu. (3) Bán khi kỳ kế toán ngày hiện tại đã khóa sổ.
+- Kết quả mong đợi: Bước 1: đơn bán `delivered`, `is_retail`, không khách hàng; phiếu xuất `posted`, không đối tác, số `XBH…`; tồn gạo 8, sữa 17, nước rửa chén 4; không có khoản công nợ; bút toán Nợ 131 298.100 (không đối tượng) / Có 511 + 33311 = 298.100; Nợ 632 / Có 156 230.000. Bước 2: không có đơn bán, phiếu, bút toán thừa. Bước 3: bị chặn bằng lỗi khóa sổ hiện có, không ghi gì.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c53-retail-sales.test.ts` (bước 3 chưa có kiểm thử tự động riêng)
+- Lát: L2
+
+### KICHBAN_KIEMTHU_516: Đóng ca, chứng từ quỹ, bút toán lệch
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_354
+- Chức năng: CHUC_NANG_186
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Thu ngân; thu ngân khác cùng chi nhánh; thu ngân chi nhánh khác; Cửa hàng trưởng; Kế toán
+- Điều kiện ban đầu và dữ liệu: Ca không bán (tiền đầu ca 1.500.000); ca có bán tiền mặt, chuyển khoản của KICHBAN_KIEMTHU_514; ca có trả hàng của KICHBAN_KIEMTHU_517.
+- Các bước: (1) Thu ngân khác xem, đóng ca; thu ngân chi nhánh khác đóng ca. (2) Cửa hàng trưởng đóng ca lệch không lý do; có lý do (đếm 1.488.000); đóng lại ca đã đóng. (3) Đóng ca có bán: đếm thiếu 10.000, lý do "Trả nhầm tiền thừa". (4) Kiểm phiếu thu chi, phải thu không đối tượng, 1388, số dư quỹ. (5) Bán tiếp trong ca đã đóng. (6) Đóng ca có trả hàng, đếm khớp. (7) Danh sách ca theo vai trò; lọc chỉ ca lệch.
+- Kết quả mong đợi: Bước 1: xem `404`, đóng `403`; chi nhánh khác `404`. Bước 2: `400` tại `differenceReason`; `201`, lệch −12.000, không lập phiếu thu bán; đóng lại `409`. Bước 3: phiếu thu bán lẻ quỹ tiền mặt (tổng tiền mặt thu), phiếu thu bán lẻ quỹ ngân hàng 60.000, phiếu chi thiếu tiền 10.000. Bước 4: chứng từ không đối tác, đã ghi sổ, phiếu thiếu có nhân viên chịu; 131 không đối tượng của công ty về 0; Nợ 1388 10.000; số dư quỹ tiền mặt = tiền mặt thu − 10.000; danh sách phiếu thu chi hiện không đối tượng. Bước 5: "Ca đã đóng.". Bước 6: hai phiếu chi hoàn tiền bán lẻ (quỹ ngân hàng 5.500.000, quỹ tiền mặt 92.400). Bước 7: thu ngân chỉ thấy ca của mình; Cửa hàng trưởng thấy ca của chi nhánh; Kế toán lọc ca lệch thấy lệch −12.000; chi nhánh khác 0; nhân viên không có quyền `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c53-retail-setup.test.ts`, `apps/api/test/c53-retail-sales.test.ts`, `apps/api/test/c53-retail-returns.test.ts`
+- Lát: L1, L3, L4
+
+### KICHBAN_KIEMTHU_517: Trả hàng theo hóa đơn bán lẻ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_355
+- Chức năng: CHUC_NANG_188
+- Loại: Đúng, sai, giá trị biên, phân quyền, nhận trùng
+- Vai trò thực hiện: Thu ngân (không có quyền trả); Cửa hàng trưởng
+- Điều kiện ban đầu và dữ liệu: Hóa đơn có sữa 3, bánh 3, điện thoại 2 (`IMEI-1`, `IMEI-3`), quà nước rửa chén; Cửa hàng trưởng có ca đang mở, tiền đầu ca 500.000.
+- Các bước: (1) Thu ngân tra hóa đơn trả được. (2) Cửa hàng trưởng tra. (3) Tính trả 1 sữa; 4 sữa; điện thoại với serial `IMEI-2`; hai dòng cùng một dòng bán. (4) Trả điện thoại `IMEI-1` hoàn tiền mặt 5.500.000; chuyển khoản không có người nhận; chuyển khoản có người nhận. (5) Trả 2 sữa, 3 bánh hoàn tiền mặt; gửi lại cùng khóa. (6) Tính trả nốt 1 sữa. (7) Dời ngày bán 8 ngày trước, tra và trả.
+- Kết quả mong đợi: Bước 1: `403`. Bước 2: `blockedReason` rỗng; sữa đã bán 3, còn 3, tiền dòng 89.100; điện thoại serial `IMEI-1`, `IMEI-3`; quà tiền 0. Bước 3: 29.700; `400` "Vượt số đã giao còn trả được của phiếu xuất gốc."; `400` tại `lines.0.serials`; `400` "Hàng này đã có ở dòng trả khác. Gộp số lượng vào một dòng.". Bước 4: "Tiền mặt trong két không đủ để hoàn. Chọn hoàn chuyển khoản."; `400`; `201`, `IMEI-1` về kho bán. Bước 5: `201`, số `TL…`, hoàn 92.400 tiền mặt; gửi lại trả cùng phiếu; tồn sữa tăng 2; phiếu nhận hàng trả lại `posted`, không đối tác; ca: hoàn tiền mặt 92.400, tiền mặt hệ thống tính 407.600; chi tiết hóa đơn có hai lần trả. Bước 6: 29.700 (phần còn lại). Bước 7: `blockedReason` `expired`; "Hóa đơn đã quá hạn trả hàng của cửa hàng.". Hóa đơn cửa hàng khác: "Hóa đơn bán ở cửa hàng khác. Trả hàng tại cửa hàng đã bán." (chưa có bước tự động riêng).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c53-retail-returns.test.ts`
+- Lát: L4
+
+### KICHBAN_KIEMTHU_518: Hóa đơn điện tử khởi tạo từ máy tính tiền
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_356
+- Chức năng: CHUC_NANG_189
+- Loại: Đúng, sai, nhận trùng
+- Vai trò thực hiện: Kế toán trưởng hoặc quản trị (cài đặt); Thu ngân; Cửa hàng trưởng
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; nhà cung cấp bộ giả lập.
+- Các bước: (1) Công ty chưa bật hóa đơn điện tử: bán. (2) Lưu cài đặt có ký hiệu máy tính tiền sai định dạng, sai năm, sai loại (`K` khi công ty có mã). (3) Bật hóa đơn, công ty có cửa hàng, không khai ký hiệu máy tính tiền; khai đúng; xóa ký hiệu của năm rồi bán. (4) Khai lại, bán hai hóa đơn (một có người mua lấy hóa đơn). (5) Chạy gửi nền; xem lại hóa đơn bán lẻ. (6) Trả hàng một phần. (7) Đổi nhà cung cấp sang MISA, bán.
+- Kết quả mong đợi: Bước 1: `201`, `einvoice` rỗng. Bước 2: `400` tại `cashRegisterSeries.{i}.series`. Bước 3: `400` "Công ty có cửa hàng bán lẻ: khai ký hiệu máy tính tiền cho năm của ngày bắt đầu."; `200`; bán bị chặn "Chưa khai ký hiệu hóa đơn máy tính tiền cho năm nay. Báo kế toán khai trong cài đặt hóa đơn điện tử.", không ghi gì. Bước 4: hóa đơn `origin` `cash_register`, ký hiệu `C<năm>M..`, số 1, 2 liên tục, mã tra cứu 12 ký tự, hạn gửi là ngày hóa đơn; người mua ẩn danh khi không yêu cầu, có tên, mã số thuế khi yêu cầu. Bước 5: bộ giả lập giữ số đã cấp, trả mã của cơ quan thuế; chi tiết hóa đơn bán lẻ có `taxAuthorityCode`. Bước 6: tạo việc chờ xử lý hóa đơn như CONG_VIEC_16. Bước 7: hóa đơn điện tử thường (`origin` `standard`, ký hiệu `…T..`, chưa có số, `pending`).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c53-retail-einvoice.test.ts`
+- Lát: L5
+
+### KICHBAN_KIEMTHU_519: Điểm tại quầy
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_357
+- Chức năng: CHUC_NANG_189
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Thu ngân; Cửa hàng trưởng; khách có tài khoản VComm
+- Điều kiện ban đầu và dữ liệu: Chưa làm, chờ CONG_VIEC_51 hợp nhất (lát L6); dữ liệu điểm theo CONG_VIEC_51.
+- Các bước: tra khách theo số điện thoại; dùng điểm trừ tiền trong số dư, vượt số dư; tích điểm sau khi bán; trả hàng hoàn điểm đã dùng, thu hồi điểm đã tích theo tỷ lệ.
+- Kết quả mong đợi: Theo QUYTAC_NGHIEPVU_377, QUYTAC_NGHIEPVU_379 và quy tắc của CONG_VIEC_51; ghi khi làm lát L6.
+- Kiểm thử tự động: Chưa có (lát L6)
+- Lát: L6
+
+### KICHBAN_KIEMTHU_520: Phân quyền, đa công ty
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_358
+- Chức năng: CHUC_NANG_186 đến CHUC_NANG_188
+- Loại: Phân quyền
+- Vai trò thực hiện: Thu ngân hai chi nhánh; Cửa hàng trưởng; quản trị công ty khác
+- Điều kiện ban đầu và dữ liệu: Hai cửa hàng ở hai chi nhánh; hóa đơn ở cửa hàng Thủ Đức.
+- Các bước: (1) Thu ngân Thủ Đức xem danh sách cửa hàng; thu ngân Quận 1 xem cửa hàng Thủ Đức; thu ngân xem tùy chọn cài đặt. (2) Quản trị công ty khác gọi `GET /retail/stores` với công ty của mình. (3) Cửa hàng trưởng, thu ngân Quận 1 xem hóa đơn Thủ Đức và danh sách hóa đơn.
+- Kết quả mong đợi: Bước 1: chỉ cửa hàng Thủ Đức, `canSetup` sai; `404`; `403`. Bước 2: `403` (không có quyền Bán lẻ ở công ty đó). Bước 3: Cửa hàng trưởng `200`, danh sách 3 hóa đơn; thu ngân Quận 1 `404`, danh sách 0.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c53-retail-setup.test.ts`, `apps/api/test/c53-retail-sales.test.ts`
+- Lát: L1, L2
+
+### KICHBAN_KIEMTHU_521: Giao diện bán bằng bàn phím, máy quét, in 80 mm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_358
+- Chức năng: CHUC_NANG_186 đến CHUC_NANG_189
+- Loại: Giao diện
+- Vai trò thực hiện: Thu ngân; Cửa hàng trưởng; quản trị
+- Điều kiện ban đầu và dữ liệu: Dữ liệu phát triển (`pnpm --filter api db:seed`), `web-platform`, `web-retail`, backend đang chạy; máy quét giả lập bằng gõ mã rồi Enter.
+- Các bước: (1) Mở ca, bán một đơn chỉ bằng bàn phím (quét, F4, F2, F9, Esc, Enter); in hóa đơn khổ 80 mm qua hộp thoại in. (2) Thanh toán kết hợp, xem mã VietQR. (3) Trả hàng bằng quét mã QR trên hóa đơn in; in phiếu trả hàng. (4) Đóng ca, in biên bản. (5) Xem MAN_HINH_161 đến 167 trên máy tính, máy tính bảng ngang; MAN_HINH_163, 165, 166 trên điện thoại. (6) Ngắt mạng khi đang ở màn hình bán.
+- Kết quả mong đợi: Bước 1: ô quét luôn nhận bàn phím; bán xong dưới một phút; bản in đọc đủ tiếng Việt, không tràn khổ. Bước 2: mã VietQR quét được bằng ứng dụng ngân hàng (nội dung là số hóa đơn). Bước 3, 4: bản in đúng khuôn MAN_HINH_167. Bước 5: đạt danh sách rà soát giao diện, không cuộn ngang. Bước 6: nhãn "Mất mạng", không thanh toán được.
+- Kiểm thử tự động: Thủ công trên trình duyệt (chưa có tệp Playwright)
+- Lát: L1 đến L5
 ## MODULE_08 Nhân sự phần 1 (CONG_VIEC_46)
 
 Dữ liệu chung: công ty VCR; phòng ban có trưởng phòng; tài khoản Quản lý nhân sự, Nhân viên nhân sự, người chỉ có `hr.employee.view`, nhân viên có hồ sơ liên kết. Dữ liệu giả, không dùng dữ liệu thật.
@@ -4355,3 +4490,378 @@ Dữ liệu chung: tập đoàn VComm (công ty gốc), công ty con VCR (Bán l
 - Kết quả mong đợi: Bước 1: `200`, tên tệp `bao-cao-ban-hang-<từ ngày>-<đến ngày>.xlsx`; các dòng (nhãn, doanh số) và dòng "Tổng loại trừ nội bộ" khớp `json`. Bước 2: có dòng `analytics.sales.export` với số dòng đã xuất. Bước 3: `200`, tệp Excel. Bước 4: mỗi báo cáo trả về dưới 3 giây (Mong muốn).
 - Kiểm thử tự động: Tự động API – `apps/api/test/c50-analytics-sales.test.ts` (bước 1, 2), `apps/api/test/c50-analytics-inventory.test.ts` (xuất API_172), `apps/api/test/c50-analytics-debts.test.ts` (xuất API_173), `apps/api/test/c50-analytics-commissions.test.ts` (xuất API_174); đo thời gian phản hồi làm thủ công với dữ liệu sinh (1.000.000 dòng thẻ kho, 200.000 dòng phiếu, khoảng 366 ngày): mọi báo cáo dưới 3 giây
 - Lát: L1, L4
+## MODULE_08 Nhân sự phần 4: Tuyển dụng, đánh giá hiệu suất (CONG_VIEC_54)
+
+Dữ liệu chung: công ty VCR (bán lẻ) và công ty khác để kiểm cách ly; phòng ban có trưởng phòng; tài khoản Nhân viên nhân sự, người chỉ có `hr.access` và `hr.recruitment.request`, người phỏng vấn, người không có quyền, nhân sự công ty khác; hồ sơ nhân sự có tài khoản liên kết. Gửi email qua bộ giả lập ghi log. Dữ liệu giả, không dùng dữ liệu thật.
+
+### KICHBAN_KIEMTHU_522: Nhu cầu tuyển dụng, luồng duyệt, quyền xem của người lập
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_359
+- Chức năng: CHUC_NANG_190
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Vai trò thực hiện: Người lập nhu cầu (`hr.recruitment.request`); người lập khác; Nhân viên nhân sự; người không có quyền; nhân sự công ty khác; người duyệt
+- Điều kiện ban đầu và dữ liệu: Phòng ban, chi nhánh VCR; chính sách duyệt `hr.recruitment_request` một cấp cho một nhu cầu, không có chính sách cho nhu cầu khác
+- Các bước: (1) Lập nhu cầu lương tối đa nhỏ hơn tối thiểu; phòng ban sai. (2) Lập đúng; gửi với ngày cần người đã qua; sửa rồi gửi. (3) Người lập khác, nhân sự, người không có quyền, công ty khác xem. (4) Rút, hủy có lý do. (5) Gửi nhu cầu khi có chính sách, duyệt; gửi khi không có chính sách.
+- Kết quả mong đợi: (1) `400` `recruitmentSalaryRange`, `invalidValue`. (2) Nháp chưa có số; `400` `recruitmentNeededByPast`; chờ duyệt, số `TD-…`, giá trị duyệt = lương tối đa × số lượng. (3) `404`, danh sách rỗng; `200`; `403`; `404`. (4) Đã rút; đã hủy. (5) Đã duyệt.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-recruitment.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_523: Tin tuyển dụng, đăng, đóng, mở lại, tự đóng khi quá hạn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_359, TIEUCHI_NGHIEMTHU_361
+- Chức năng: CHUC_NANG_190
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Nhân viên nhân sự; người chỉ có `hr.recruitment.request`; việc nền
+- Điều kiện ban đầu và dữ liệu: Nhu cầu đã duyệt, nhu cầu nháp ở KICHBAN_KIEMTHU_522
+- Các bước: (1) Lập tin từ nhu cầu nháp; hạn nộp đã qua; khoảng lương ngoài nhu cầu; mô tả có HTML. (2) Lập đúng; người chỉ có `hr.recruitment.request` xem. (3) Đăng; đăng lại; sửa tin đang đăng. (4) Đóng, mở lại với hạn mới. (5) Có hồ sơ mới; đặt ngày sau hạn nộp, chạy `hr-recruitment-daily`.
+- Kết quả mong đợi: (1) `409` `recruitmentNotApproved`; `400` `postingDeadlinePast`, `postingSalaryOutsideRequest`, `invalidValue`. (2) Nháp; `403`. (3) Đang đăng; `409` `postingStatusInvalid`; nhật ký ghi. (4) Đã đóng; đang đăng, hạn mới. (5) Tin đóng; hồ sơ mới kết thúc lý do "tin đã đóng".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-recruitment.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_524: Trang tuyển dụng công khai, nộp hồ sơ, đồng ý, đánh dấu trùng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_360
+- Chức năng: CHUC_NANG_190, CHUC_NANG_191
+- Loại: Đúng, sai, giá trị biên, bảo mật
+- Vai trò thực hiện: Người tìm việc không đăng nhập; Nhân viên nhân sự; nhân sự công ty khác
+- Điều kiện ban đầu và dữ liệu: Tin đang đăng công khai; tin không công khai; tệp PDF, DOCX, PNG đổi đuôi PDF, tệp hơn 10 MB
+- Các bước: (1) Xem danh sách, chi tiết tin công khai và tin ẩn (tiếng Anh). (2) Nộp thiếu đồng ý tuyển dụng; điều khoản phiên bản cũ; tệp sai loại; thiếu tệp; tệp quá lớn; điện thoại sai; thêm trường giới tính. (3) Nộp đúng hai lần cùng email, lần đầu có đồng ý kho. (4) Nhân sự xem tin, ứng viên, tải tệp; công ty khác tải tệp. (5) Đóng tin, nộp tiếp.
+- Kết quả mong đợi: (1) Chỉ thấy tin công khai; tin ẩn `404`; không có mã nhu cầu, số lượng, lương nội bộ, người lập; điều khoản tiếng Anh nêu 30 ngày, phiên bản `2026-11-11`. (2) `400` `consentRequired`; `409` `termsOutdated`; `400` `resumeTypeInvalid`, `required`, `attachmentTooLarge`; `400`; `400`. (3) `201`, mã `UV-XXXX-XXXX`, email liên hệ; bằng chứng đồng ý tuyển dụng và kho lưu nguyên văn, phiên bản, kênh, IP. (4) Hai hồ sơ mới nguồn trang tuyển dụng, nhãn "Có thể trùng"; kho đến 2027-11-11, chưa có ngày xóa; tải `200`; công ty khác `404`. (5) `404`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-recruitment.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_525: Ứng viên nhập tay, giai đoạn, kết thúc, kho ứng viên, phỏng vấn, quyền, cách ly công ty
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_361
+- Chức năng: CHUC_NANG_191
+- Loại: Đúng, sai, từng vai trò
+- Vai trò thực hiện: Nhân viên nhân sự; người phỏng vấn; người không có quyền; nhân sự công ty khác
+- Điều kiện ban đầu và dữ liệu: Hai tin đang đăng của VCR
+- Các bước: (1) Nhập tay thiếu tệp bằng chứng đồng ý; bằng chứng DOCX; đồng ý kho thiếu tệp; nhập đúng. (2) Người không có quyền, công ty khác xem. (3) Chuyển giai đoạn phỏng vấn, đề nghị, sàng lọc. (4) Thêm vào tin khác khi không có kho. (5) Loại thiếu lý do; loại đúng; chuyển lại giai đoạn. (6) Đổi cài đặt lưu giữ, xem thẻ "Sắp đến hạn xóa". (7) Lập vòng phỏng vấn hai người phỏng vấn, đổi giờ; người phỏng vấn, người ngoài xem; người phỏng vấn chấm điểm 6, chấm đúng; đánh dấu đã xong; hủy vòng khác.
+- Kết quả mong đợi: (1) `400` `required`, `evidenceTypeInvalid`, `required`; `201`, đồng ý kênh nhập tay. (2) `403`; `404`. (3) Phỏng vấn; `400`; sàng lọc. (4) `409` `candidatePoolExpired`. (5) `400` `required`; ngày xóa = ngày kết thúc + 30; `409` `applicationEnded`. (6) Ngày xóa tính lại; ứng viên vào thẻ sắp đến hạn. (7) Hai thông báo; người phỏng vấn thấy vòng được giao, không thấy email; người ngoài `404`, `403`; `400`; ghi được; đã xong; vòng hủy người phỏng vấn nhận `404`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-recruitment.test.ts` (bước 1 đến 6), `apps/api/test/c54-process.test.ts` (bước 7)
+- Lát: L0, L1
+
+### KICHBAN_KIEMTHU_526: Email ứng viên: mời phỏng vấn kèm tệp lịch, báo kết quả, lịch sử email
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_362
+- Chức năng: CHUC_NANG_191
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Ứng viên nộp bằng tiếng Anh; hai người phỏng vấn có email
+- Các bước: (1) Lập vòng chọn gửi email, có lời nhắn. (2) Đổi giờ. (3) Hủy vòng chọn gửi email. (4) Loại lý do "không đạt phỏng vấn" chọn gửi email. (5) Xem lịch sử email.
+- Kết quả mong đợi: (1) Ứng viên nhận email tiếng Anh có lời nhắn, tệp `invite.ics` `METHOD:REQUEST`, `SEQUENCE:0`; người phỏng vấn nhận cùng tệp lịch. (2) `SEQUENCE:1`. (3) `METHOD:CANCEL`. (4) Email báo kết quả gửi đúng địa chỉ. (5) Đủ loại, tiêu đề, người gửi, thời điểm.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-process.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_527: Đề nghị nhận việc, liên kết trả lời, lập hồ sơ nhân sự từ ứng viên
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_363, TIEUCHI_NGHIEMTHU_359
+- Chức năng: CHUC_NANG_191, CHUC_NANG_190
+- Loại: Đúng, sai, giá trị biên, bảo mật
+- Vai trò thực hiện: Nhân viên nhân sự; người duyệt; ứng viên không đăng nhập; việc nền
+- Điều kiện ban đầu và dữ liệu: Hồ sơ ứng tuyển giai đoạn phỏng vấn; nhu cầu số lượng 1; chính sách duyệt `hr.job_offer`
+- Các bước: (1) Lập đề nghị lương ngoài khoảng không lý do; có lý do; lập đề nghị thứ hai cho cùng hồ sơ. (2) Gửi duyệt, duyệt, gửi thư. (3) Mở liên kết sai mã; mở liên kết đúng, chấp nhận; trả lời lần hai. (4) Lấy bản điền sẵn, lập hồ sơ nhân sự. (5) Đề nghị khác: nhân sự ghi thay; gửi lại thư rồi mở liên kết cũ. (6) Đề nghị quá hạn trả lời, chạy `hr-recruitment-daily`; hủy đề nghị.
+- Kết quả mong đợi: (1) `400` `offerOutsideRange`; `201`, số `DNNV-…`; `409`. (2) Đã gửi; thư có mức lương, liên kết; lịch sử email không chứa mã liên kết; cơ sở dữ liệu chỉ có mã băm. (3) `404`; `200`, hồ sơ sang "nhận việc", người lập nhận thông báo; `409`. (4) Điền sẵn họ tên, điện thoại, email, trình độ, phòng ban, chi nhánh, chức danh, ngày vào làm; hồ sơ nhân sự có giấy tờ "Sơ yếu lý lịch", số đã tuyển tăng, nhu cầu hoàn thành, tin đóng. (5) Ghi được; liên kết cũ `404`. (6) Hết hạn, liên kết `404`; hồ sơ về giai đoạn phỏng vấn.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-process.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_528: Lưu giữ và xóa dữ liệu ứng viên
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_364
+- Chức năng: CHUC_NANG_191
+- Loại: Đúng, giá trị biên, bảo mật
+- Vai trò thực hiện: Việc nền `hr-candidate-erasure`; Nhân viên nhân sự; người phỏng vấn
+- Điều kiện ban đầu và dữ liệu: Ứng viên bị loại có tệp, phiếu phỏng vấn, email; ứng viên chưa có đồng ý kho; ứng viên có đề nghị đã gửi; ứng viên đã thành nhân viên
+- Các bước: (1) Chạy việc nền trước ngày xóa. (2) Đặt ngày bằng ngày xóa, chạy việc nền hai lần. (3) Ghi đồng ý kho có tệp bằng chứng; rút đồng ý kho. (4) Ghi yêu cầu xóa cho ứng viên có đề nghị; ghi lại lần hai; ghi cho ứng viên đã thành nhân viên.
+- Kết quả mong đợi: (1) Không xóa. (2) Họ tên "-", email, điện thoại, khóa trùng, nguyên văn điều khoản, IP, nhận xét phỏng vấn, ghi chú về rỗng; tệp không còn trên kho lưu trữ; giữ nguồn, giai đoạn, lý do, điểm; ứng viên rời danh sách, người phỏng vấn không còn thấy vòng; nhật ký một dòng `candidate.erase`; lần hai không lỗi. (3) Ngày xóa = ngày đồng ý + 12 tháng; rút thì về ngày kết thúc + 30. (4) Hồ sơ kết thúc "ứng viên rút", đề nghị hủy, xóa ngay, liên kết đề nghị `404`; `409` `candidateErased`; `409` `candidateHired`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-process.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_529: Đánh giá hiệu suất: mẫu, kỳ, phiếu, điểm, xếp loại, hiệu chỉnh, chốt, công bố, nhắc
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_365
+- Chức năng: CHUC_NANG_192
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Vai trò thực hiện: Nhân viên nhân sự; trưởng phòng (người chấm); nhân viên; đồng nghiệp; việc nền `hr-review-reminders`
+- Điều kiện ban đầu và dữ liệu: Phòng ban có trưởng phòng và hai nhân viên có hồ sơ, tài khoản liên kết
+- Các bước: (1) Lập mẫu tổng trọng số khác 100; đúng 100. (2) Lập kỳ tỷ trọng tổng khác 100, ngưỡng không giảm dần, hạn không tăng dần; lập đúng (mục tiêu 60, năng lực 40), mở kỳ. (3) Nhân viên, người chấm, người khác mở phiếu. (4) Nhân viên lập mục tiêu (50, 30, 20), người chấm xác nhận; tự đánh giá thiếu điểm, đủ điểm. (5) Người chấm chấm mục tiêu 5, 4, 3, năng lực 4, 5, 4, 3 (40, 30, 20, 10), nộp; nhân viên xem trước công bố. (6) Hiệu chỉnh thiếu lý do, có lý do. (7) Chốt khi còn phiếu chưa nộp; gán người chấm là chính nhân viên; loại phiếu có lý do. (8) Chạy nhắc quá hạn đặt mục tiêu hai lần. (9) Phiếu đồng nghiệp quá hạn tự đánh giá; mở lại phiếu đã nộp. (10) Chốt, công bố; nhân viên xem, xác nhận, ghi ý kiến hai lần.
+- Kết quả mong đợi: (1) `400` `weightsNotHundred`; tạo được. (2) `400` tại ô (`weightsNotHundred` ở tỷ trọng năng lực); phiếu cho nhân viên thuộc phòng ban, người chấm là trưởng phòng, phiếu của trưởng phòng để trống người chấm. (3) Nhân viên chỉ phiếu của mình, người chấm phiếu được giao, người khác `404`. (4) Mục tiêu tổng khác 100 `400` `weightsNotHundred`; chưa xác nhận thì chưa tự đánh giá; thiếu điểm `409` `reviewScoresMissing`; nộp được. (5) Điểm mục tiêu 4,30, năng lực 4,20, tổng 4,26, xếp loại B; nhân viên không thấy điểm người chấm. (6) `400`; xếp loại theo điểm hiệu chỉnh, nhật ký ghi. (7) `409` `reviewCycleNotComplete`; `400` `reviewerSelf`; phiếu loại. (8) Một thông báo mỗi phiếu. (9) Bước tự đánh giá khóa, người chấm vẫn chấm; điểm 2,40 xếp loại D; nộp lại được. (10) Xác nhận trước công bố `409`; sau công bố nhân viên nhận thông báo, thấy điểm, xếp loại, nhận xét; xác nhận, ý kiến ghi một lần, lần hai `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-reviews.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_530: Giao diện MAN_HINH_168 đến 173 trên máy tính
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_366
+- Chức năng: CHUC_NANG_190 đến CHUC_NANG_192
+- Loại: Giao diện
+- Vai trò thực hiện: Quản trị công ty; người phỏng vấn; nhân viên; người tìm việc không đăng nhập
+- Điều kiện ban đầu và dữ liệu: Dữ liệu thử của lát L0, L1, L2
+- Các bước: Mở từng màn hình khổ 1366 điểm ảnh; thao tác lập, gửi nhu cầu, đăng tin, nộp hồ sơ từ `/hr/careers` (vi, en), chuyển giai đoạn, lập vòng phỏng vấn, chấm ở "Phỏng vấn của tôi", lập và gửi đề nghị, trả lời qua liên kết, lập hồ sơ nhân sự, yêu cầu xóa, mở kỳ, đặt mục tiêu, tự đánh giá, chấm, chốt, công bố, xem kết quả.
+- Kết quả mong đợi: Không lỗi trình duyệt, không cuộn ngang; lỗi hiện đúng ô; trang công khai không có khung mini app; khớp bản mẫu đã duyệt (trừ chỗ chỉnh theo CONG_VIEC_54 mục 18).
+- Kiểm thử tự động: Thủ công – kiểm bằng xem trước giao diện từng lát (không có kiểm thử tự động)
+- Lát: L0, L1, L2
+
+### KICHBAN_KIEMTHU_531: Giao diện MAN_HINH_168 đến 173 trên điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_366
+- Chức năng: CHUC_NANG_190 đến CHUC_NANG_192
+- Loại: Giao diện
+- Vai trò thực hiện: Như KICHBAN_KIEMTHU_530
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_530
+- Các bước: Như KICHBAN_KIEMTHU_530 ở khổ 390 điểm ảnh; ưu tiên trang tuyển dụng công khai, trang trả lời đề nghị, "Phỏng vấn của tôi", "Đánh giá của tôi".
+- Kết quả mong đợi: Không cuộn ngang; bảng chuyển dạng thẻ; biểu mẫu nộp hồ sơ, ô đồng ý, nút tải tệp dùng được.
+- Kiểm thử tự động: Thủ công – kiểm bằng xem trước giao diện từng lát (không có kiểm thử tự động)
+- Lát: L0, L1, L2
+
+## CHUC_NANG_178 đến CHUC_NANG_181: Điểm thưởng phần 1 (CONG_VIEC_51)
+
+Dữ liệu chung: dữ liệu chung của CONG_VIEC_24 (`apps/api/test/marketplace-fixture.ts`); giai đoạn hôm nay tích 2%, 1 điểm = 1 đồng; lô điểm cộng qua `creditLot`.
+
+### KICHBAN_KIEMTHU_486: Giai đoạn, bảng hạng, phân quyền
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_329; Chức năng: CHUC_NANG_178; Loại: Đúng, sai, phiên bản, phân quyền
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-program.test.ts`; Lát: L0
+
+### KICHBAN_KIEMTHU_487: Sổ cái chỉ thêm, số dư khớp
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_330; Chức năng: CHUC_NANG_179; Loại: Đúng, sai
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-earn.test.ts`; Lát: L1
+
+### KICHBAN_KIEMTHU_488: Tích khi hoàn tất, trần đơn, trần tháng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_331; Chức năng: CHUC_NANG_179; Loại: Đúng, giá trị biên
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-earn.test.ts`; Lát: L1
+
+### KICHBAN_KIEMTHU_489: Không tích khi hủy, người mua thử, ví khóa
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_331; Chức năng: CHUC_NANG_179; Loại: Sai
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-earn.test.ts`; Lát: L1
+
+### KICHBAN_KIEMTHU_490: Dùng điểm khi đặt
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_332; Chức năng: CHUC_NANG_180; Loại: Đúng, sai, giá trị biên
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-redeem.test.ts`; Lát: L2
+
+### KICHBAN_KIEMTHU_491: Hoàn điểm khi hủy, trả hàng; bán, trả hàng tại quầy
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_333; Chức năng: CHUC_NANG_180; Loại: Đúng, giá trị biên
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-redeem.test.ts`; Lát: L2
+
+### KICHBAN_KIEMTHU_492: Hết hạn, nhắc hạn, việc nền
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_334; Chức năng: CHUC_NANG_179; Loại: Đúng, lặp lại
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-postings.test.ts`; Lát: L3
+
+### KICHBAN_KIEMTHU_493: Hạng thành viên
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_335; Chức năng: CHUC_NANG_179; Loại: Đúng, giá trị biên
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-earn.test.ts`; Lát: L1
+
+### KICHBAN_KIEMTHU_494: Khóa ví, phiếu điều chỉnh qua duyệt, phân quyền
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_336, TIEUCHI_NGHIEMTHU_338; Chức năng: CHUC_NANG_181; Loại: Đúng, sai, phân quyền
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-admin.test.ts`; Lát: L4
+
+### KICHBAN_KIEMTHU_495: Cảnh báo bất thường
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_336; Chức năng: CHUC_NANG_181; Loại: Đúng, sai
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-admin.test.ts`; Lát: L4
+
+### KICHBAN_KIEMTHU_496: Hạch toán, nghĩa vụ điểm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_337; Chức năng: CHUC_NANG_181; Loại: Đúng
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-postings.test.ts`; Lát: L3
+
+### KICHBAN_KIEMTHU_497: Giao diện web, ứng dụng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_338; Chức năng: CHUC_NANG_178 đến CHUC_NANG_181; Loại: Giao diện, khổ điện thoại
+- Các bước: mở MAN_HINH_146 đến 150 ở khổ 1280 và 390; mở MAN_HINH_151, 152, 93 (dùng điểm), 96 trên ứng dụng bản web khổ 390.
+- Kết quả mong đợi: không lỗi, không cuộn ngang, chuỗi tiếng Việt đầy đủ.
+- Kiểm thử: Thủ công trên trình duyệt (Playwright chụp ảnh); quyền: tự động trong `c51-admin.test.ts`, `c51-program.test.ts`
+
+## CHUC_NANG_171 đến CHUC_NANG_174: Cộng đồng phần 1 (MODULE_10, CONG_VIEC_49, THAY_DOI_22)
+
+Dữ liệu chung: dữ liệu chung của CONG_VIEC_24 (`apps/api/test/marketplace-fixture.ts`): kem 250.000 gồm thuế (227.272,73 chưa thuế), xà phòng 44.000 gồm thuế, phí giao hàng 30.000; người mua đăng ký thử (số điện thoại `0947…`, `0948…`, `0949…`) có và không có người giới thiệu; quản trị công ty vận hành sàn; nhân viên `phuc.le@vcomm.test` không có quyền marketplace (kiểm `403`); VNPAY giả lập; GHN giả lập; đồng hồ kiểm thử (dời ngày giao để hoàn tất đơn, dời `ends_at` để nhóm hết hạn); ảnh PNG mẫu. Không dùng dữ liệu thật.
+
+### KICHBAN_KIEMTHU_464: Trạng thái cộng tác viên
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_311
+- Chức năng: CHUC_NANG_171
+- Loại: Đúng, sai, phiên bản, phân quyền
+- Vai trò thực hiện: Người mua; quản trị công ty vận hành sàn; nhân viên không có quyền
+- Điều kiện ban đầu và dữ liệu: Người mua mới chưa có hồ sơ.
+- Các bước: (1) Xem hồ sơ; gửi chưa đồng ý điều khoản, kênh 201 ký tự, đúng; gửi lại khi đang chờ. (2) Nhân viên không quyền xem danh sách, duyệt. (3) Từ chối không lý do, có lý do; gắn nhãn khi bị từ chối; người mua gửi lại phiên bản cũ, đúng. (4) Duyệt phiên bản cũ, đúng; khôi phục khi đang Đã duyệt; tạm ngừng; gắn nhãn KOC khi tạm ngừng; khôi phục. (5) Người mua xem hồ sơ; quản trị lọc nhãn, tìm tên.
+- Kết quả mong đợi: Bước 1: `profile` rỗng, `termsVersion` 1; sai `400`; Chờ duyệt phiên bản 1, chưa có mã; gửi lại "Bạn đã gửi đăng ký cộng tác viên. …". Bước 2: `403`. Bước 3: không lý do `400`; Từ chối phiên bản 2, thông báo `collaborator.reject`; gắn nhãn "Chỉ gắn nhãn cho cộng tác viên đã duyệt."; cũ `409`; gửi lại Chờ duyệt phiên bản 3. Bước 4: cũ `409`; Đã duyệt, mã 8 ký tự theo mẫu; khôi phục "Hồ sơ cộng tác viên đã đổi trạng thái. …"; Tạm ngừng giữ mã; nhãn KOC; khôi phục giữ mã, nhãn; lịch sử 7 dòng. Bước 5: thấy mã, nhãn, thống kê 0; lọc ra 1 hồ sơ.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-collaborators.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_465: Lượt bấm và phần cộng tác viên
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_312
+- Chức năng: CHUC_NANG_171
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Người mua có người giới thiệu; hai cộng tác viên Đã duyệt; quản trị
+- Điều kiện ban đầu và dữ liệu: Kem thiết lập hoa hồng phần trăm có mức cộng tác viên 4%.
+- Các bước: (1) Thiết lập xà phòng tổng sáu mức vượt 100%. (2) Bấm mã không tồn tại, mã sai định dạng; cộng tác viên bấm mã của chính mình. (3) Bấm mã thứ nhất, một giờ sau bấm mã thứ hai (chữ thường); đặt đơn kem và xà phòng. (4) Xem thống kê, đơn ghi nhận của cộng tác viên hai; hoàn tất đơn. (5) Dời lượt bấm quá 169 giờ, đặt đơn. (6) Tạm ngừng cộng tác viên một; dời lượt của cộng tác viên hai quá 200 giờ, đặt đơn. (7) Chèn 200 lượt hôm nay rồi bấm thêm.
+- Kết quả mong đợi: Bước 1: "Tổng năm mức hoa hồng theo phần trăm không được quá 100%.". Bước 2: `204` không ghi; sai định dạng `400`; tự bấm không ghi. Bước 3: kem có phần `collaborator` cho cộng tác viên hai và phần `referral`; xà phòng không có phần cộng tác viên; đơn chụp người giới thiệu. Bước 4: 1 lượt, 1 đơn, đang chờ 9.091; hoàn tất cộng ví 9.091. Bước 5, 6: chỉ còn phần `referral`; phần đã chụp của đơn đầu giữ nguyên. Bước 7: không cập nhật thời điểm bấm.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-collaborators.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_466: Thưởng giới thiệu bạn bè
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_313
+- Chức năng: CHUC_NANG_171
+- Loại: Đúng, sai, giá trị biên, phiên bản
+- Vai trò thực hiện: Quản trị; người giới thiệu; ba người được mời
+- Điều kiện ban đầu và dữ liệu: Chưa lưu cài đặt thưởng.
+- Các bước: (1) Đọc cài đặt; lưu mức 0, 10.000.001; lưu tắt, mức 50.000, tối thiểu 200.000; lưu lại phiên bản cũ. (2) Người được mời một hoàn tất đơn khi đang tắt. (3) Bật; người được mời hai hoàn tất đơn xà phòng (dưới mức); đặt đơn kem; xem Mời bạn bè; hoàn tất. (4) Người được mời hai hoàn tất đơn thứ hai. (5) Người được mời một hoàn tất đơn đạt mức. (6) Xem Mời bạn bè, ví hoa hồng.
+- Kết quả mong đợi: Bước 1: mặc định tắt, `bonusAmount` rỗng, phiên bản 0; sai `400`; lưu phiên bản 1; cũ `409`. Bước 2: không thưởng. Bước 3: dưới mức không thưởng; trạng thái "not_qualified", "in_progress", "no_order"; hoàn tất cộng 50.000, giao dịch `referral_bonus` gắn đơn. Bước 4: không thưởng lần hai. Bước 5: cộng thêm 50.000 (tổng 100.000). Bước 6: người được mời hai `credited`, số che `0947***023`; ví hoa hồng có giao dịch thưởng kèm số đơn.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-collaborators.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_467: Cài đặt mua chung
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_314
+- Chức năng: CHUC_NANG_172
+- Loại: Đúng, sai, giá trị biên, phiên bản, phân quyền
+- Vai trò thực hiện: Quản trị; nhân viên không quyền; cộng tác viên
+- Điều kiện ban đầu và dữ liệu: Kem chưa cài mua chung.
+- Các bước: (1) Lưu bậc sau giá không thấp hơn; bậc 1 số lượng 1; 6 bậc; giá bậc 1 260.000. (2) Lưu đúng (bậc giá, 72 giờ, tối đa 3 mỗi người); lưu lại phiên bản 0; nhân viên lưu. (3) Xem danh sách cài đặt; người mua xem biến thể bật mua chung.
+- Kết quả mong đợi: Bước 1: `400`; giá cao hơn: `tiers.0.unitPrice` "Giá bậc 1 không được cao hơn giá bán hiện tại.". Bước 2: phiên bản 1, giá hiện tại 250.000; cũ `409`; nhân viên `403`. Bước 3: xà phòng chưa cài (phiên bản 0, không bậc); người mua thấy kem với bậc, tối đa 3.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-group-buys-wallets.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_468: Mở nhóm mua chung
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_314
+- Chức năng: CHUC_NANG_172
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Người mua thường; cộng tác viên Đã duyệt; quản trị
+- Điều kiện ban đầu và dữ liệu: Kem bật mua chung (KICHBAN_KIEMTHU_467).
+- Các bước: (1) Người mua thường mở nhóm; cộng tác viên mở thời hạn 100 giờ; mở xà phòng (chưa bật). (2) Cộng tác viên mở 5 nhóm rồi nhóm thứ sáu. (3) Quản trị mở nhóm trên web. (4) Sửa cài đặt; xem nhóm đã mở; đếm danh sách đang mở. (5) Quản trị hủy các nhóm thừa.
+- Kết quả mong đợi: Bước 1: "Chỉ cộng tác viên đã duyệt mới mở được nhóm mua chung."; `durationHours` "Thời hạn nhóm vượt mức tối đa VComm cài đặt."; "Biến thể này chưa bật mua chung.". Bước 2: "Bạn đang có 5 nhóm mở, tối đa 5. …". Bước 3: `openerKind` `staff`, không tính giới hạn. Bước 4: nhóm giữ bậc giá cũ, số lượng 0, chưa có giá; 6 nhóm đang mở. Bước 5: nhóm Đã hủy.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-group-buys-wallets.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_469: Tham gia nhóm mua chung
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_315
+- Chức năng: CHUC_NANG_172, CHUC_NANG_173
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Người mua A, B, C
+- Điều kiện ban đầu và dữ liệu: Nhóm kem đang mở (bậc 240.000 từ 2, 220.000 từ 4; tối đa 3 mỗi người).
+- Các bước: (1) A xem trước 2 kem. (2) A đặt COD; xem trước biến thể khác nhóm. (3) A tham gia 2 (VNPAY); đặt thêm 2. (4) B tham gia 2; C tham gia 1, xem nhóm; C hủy đơn. (5) C tham gia lại 1 dùng ví mua sắm.
+- Kết quả mong đợi: Bước 1: tiền hàng 480.000, phí 30.000, tổng 510.000, chỉ `vnpay_qr`, đơn giá 240.000, không khuyến mãi. Bước 2: "Mua chung cần trả trước: …"; `400`. Bước 3: Chờ chốt nhóm, đã trả 510.000; "Bạn đã đặt đủ số lượng tối đa cho mỗi người trong nhóm này.". Bước 4: số lượng 5, giá nếu chốt 220.000, của C 1; hủy: 270.000 vào ví mua sắm, không lập việc hoàn ngân hàng. Bước 5: ví trả 270.000, không trả trực tuyến, vào thẳng Chờ chốt nhóm; số dư 0.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-group-buys-wallets.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_470: Chốt nhóm thành công
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_316
+- Chức năng: CHUC_NANG_172, CHUC_NANG_173
+- Loại: Đúng
+- Vai trò thực hiện: Hệ thống (việc nền); quản trị; người mua A, B, C
+- Điều kiện ban đầu và dữ liệu: Nhóm của KICHBAN_KIEMTHU_469 (tổng 5).
+- Các bước: (1) Dời hạn nhóm, chạy chốt nhóm. (2) Xem nhóm, đơn A, đơn C, ví mua sắm A, B, C. (3) Xem tổng đơn bán, hoa hồng của đơn B. (4) Chạy chốt lần hai.
+- Kết quả mong đợi: Bước 1: chốt 1 nhóm. Bước 2: Thành công, số lượng 5, giá chốt 220.000; A Chờ giao, tiền hàng 440.000, phí 30.000, đơn giá 220.000, hoàn 40.000 vào ví (giao dịch `group_buy_difference`); B 40.000; C hoàn 20.000 từ phần ví. Bước 3: tổng đơn bán 440.000; phần `collaborator` 16.000 cho người mở nhóm. Bước 4: chốt 0 nhóm.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-group-buys-wallets.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_471: Chốt nhóm thất bại, hết hạn thanh toán, nhân viên hủy nhóm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_316
+- Chức năng: CHUC_NANG_172, CHUC_NANG_173
+- Loại: Đúng, sai
+- Vai trò thực hiện: Người mua D, E; quản trị
+- Điều kiện ban đầu và dữ liệu: Nhóm kem mới (mốc tối thiểu 2).
+- Các bước: (1) D tham gia 1 (trả đủ); E đặt nhưng chưa thanh toán. (2) Dời hạn, chốt. (3) Mở nhóm khác, D tham gia bằng ví; hủy nhóm không lý do, có lý do; hủy lần hai.
+- Kết quả mong đợi: Bước 2: nhóm Thất bại, số lượng 1; D Đã hủy "Nhóm mua chung không đủ số lượng", 270.000 vào ví mua sắm; E Đã hủy "Nhóm mua chung đã kết thúc"; không còn giữ hàng; D nhận thông báo `group_buy.failed`. Bước 3: không lý do `400`; Đã hủy với lý do; đơn D hoàn 270.000 về ví; lần hai `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-group-buys-wallets.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_472: Ví mua sắm và đồng thời
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_317, TIEUCHI_NGHIEMTHU_367
+- Chức năng: CHUC_NANG_173
+- Loại: Đúng, sai, đồng thời, phân quyền
+- Vai trò thực hiện: Người mua D (số dư 270.000); quản trị; nhân viên không quyền
+- Điều kiện ban đầu và dữ liệu: Số dư của KICHBAN_KIEMTHU_471.
+- Các bước: (1) Xem trước, đặt 2 xà phòng COD dùng ví (118.000). (2) Đặt kem dùng ví (còn 152.000), hủy đơn. (3) Đặt đồng thời hai đơn 74.000 dùng ví. (4) Nhân viên khóa ví; quản trị khóa; đặt dùng ví, không dùng ví; mở khóa. (5) Chặn ví mua sắm không lý do, có lý do; đặt dùng ví; chặn lại; gỡ chặn.
+- Kết quả mong đợi: Bước 1: ví trả 118.000, còn phải trả 0, Chờ giao, tiền thu hộ 0. Bước 2: ví 152.000, thu hộ 128.000; hủy hoàn 152.000 về ví, không việc hoàn ngân hàng; lịch sử `order_refund`, `order_payment`. Bước 3: cả hai `201`, tổng trừ 148.000, còn 4.000. Bước 4: `403`; khóa phiên bản 1; xem trước không dùng được ví; "Ví mua sắm đang tạm khóa. …"; không dùng ví đặt được; số dư giữ 4.000. Bước 5: `400`; chỉ ví mua sắm bị chặn; "Ví mua sắm của bạn đang bị chặn. …"; "Ví đã ở trạng thái này. …"; lịch sử gỡ chặn, chặn.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-group-buys-wallets.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_473: Bài đăng, đánh giá
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_318
+- Chức năng: CHUC_NANG_174
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Tác giả; người đọc; quản trị; nhân viên không quyền
+- Điều kiện ban đầu và dữ liệu: Tác giả có đơn kem đã giao.
+- Các bước: (1) Tải tệp không phải ảnh, ảnh PNG; người đọc xem ảnh chưa đăng. (2) Đăng nội dung rỗng, 2.001 ký tự, 6 ảnh; đăng có ảnh, gắn kem; người đọc xem ảnh; dùng lại ảnh; gắn sản phẩm không đăng bán. (3) Người đọc đánh giá dòng đơn của tác giả; đánh giá thiếu sao; xem dòng đơn chờ đánh giá; đánh giá 4 sao; đánh giá lần hai; xem điểm sản phẩm. (4) Đăng 3 bài VComm ghim, bài thứ tư ghim; nhân viên đăng. (5) Xem bảng tin, lọc kem. (6) Người đọc xóa bài của tác giả; tác giả xóa.
+- Kết quả mong đợi: Bước 1: `400`; đường dẫn `/api/v1/buyer/posts/images/…`; `404`. Bước 2: `400`; bài `member` có ảnh, sản phẩm giá từ 250.000; người đọc xem ảnh `200`; dùng lại `400`; `400`. Bước 3: "Chỉ đánh giá được hàng đã giao trong đơn của bạn."; `400`; một dòng; bài `review` 4 sao; "Bạn đã đánh giá sản phẩm này trong đơn hàng này."; điểm 4, 1 đánh giá. Bước 4: `201`; "Đã có 3 bài ghim. …"; `403`. Bước 5: 3 bài VComm ghim đầu, tên "VComm"; lọc ra bài gắn kem và bài đánh giá. Bước 6: `404`; `204`, bài không còn hiện.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-community.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_474: Bình luận, thích, giới hạn, từ cấm, công tắc
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_318
+- Chức năng: CHUC_NANG_174
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Tác giả; người đọc; người mua khác; quản trị; nhân viên không quyền
+- Điều kiện ban đầu và dữ liệu: Bài của tác giả.
+- Các bước: (1) Người đọc bình luận, bình luận rỗng; thích hai lần, bỏ thích; tác giả, người đọc xóa bình luận. (2) Nhân viên sửa cài đặt; quản trị đặt từ cấm "lừa đảo", "Zalo 09"; bình luận "Shop LUA DAO …"; đăng "Liên hệ zalo 0912". (3) Tác giả đăng đến bài thứ 11 trong ngày; người đọc có 99 bình luận hôm nay bình luận thêm. (4) Tắt đăng bài, bình luận; người khác xem trạng thái, đăng bài, bình luận, xem bài; bật lại.
+- Kết quả mong đợi: Bước 1: số bình luận 1; `400`; thích vẫn 1; bỏ thích 0; tác giả xóa `404`, người đọc `204`. Bước 2: `403`; phiên bản 1; "Nội dung có từ không được phép. …"; `400`. Bước 3: "Bạn đã đăng đủ 10 bài hôm nay. …"; "Bạn đã bình luận đủ 100 lần hôm nay. …". Bước 4: hai công tắc tắt, không bị khóa; "Đăng bài và bình luận đang tạm tắt. …"; bài cũ vẫn xem được.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-community.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_475: Báo cáo, kiểm duyệt, phân quyền công ty
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_319
+- Chức năng: CHUC_NANG_174
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Tác giả bài; người báo cáo; quản trị; nhân viên công ty khác không quyền
+- Điều kiện ban đầu và dữ liệu: Bài, bình luận đang hiện.
+- Các bước: (1) Tác giả báo cáo bài của mình; lý do sai; báo cáo đúng, lần hai; thêm báo cáo đến 5. (2) Nhân viên xem hàng chờ; quản trị xem hàng chờ. (3) Hiện lại (bỏ qua báo cáo); ẩn không lý do, có lý do; xem nội dung đã ẩn, thông báo tác giả. (4) Báo cáo bình luận đang hiện; hiện lại; hiện lại lần hai; ẩn bình luận. (5) Khóa 7 ngày; đăng bài; xem bảng tin; khóa vĩnh viễn; mở khóa.
+- Kết quả mong đợi: Bước 1: "Không báo cáo được nội dung của chính bạn."; `400`; `204`; "Bạn đã báo cáo nội dung này."; báo cáo thứ năm tự ẩn tạm, người khác `404`, tác giả thấy `auto_hidden`. Bước 2: `403`; dòng bài 5 báo cáo, lý do nhiều nhất `spam`. Bước 3: hàng chờ trống; `400`; Đã ẩn kèm lý do; thông báo `community.post_hidden`. Bước 4: hiện lại `204`, hàng chờ trống, trạng thái giữ Đang hiện; lần hai `409`; ẩn: số bình luận 0, nội dung bình luận rỗng. Bước 5: khóa có `until`; "Tài khoản của bạn đang bị khóa đăng bài và bình luận."; xem `200`; vĩnh viễn thay khóa cũ (`until` rỗng); mở khóa danh sách rỗng; thông báo `community.banned` (hai lần), `community.unbanned`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-community.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_532: Khóa và chặn ví hoa hồng (THAY_DOI_22)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_367
+- Chức năng: CHUC_NANG_173
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Người dùng có ví hoa hồng 1.000.000; quản trị (`marketplace.payment.manage`); nhân viên không quyền
+- Điều kiện ban đầu và dữ liệu: Người dùng có tài khoản ngân hàng nhận tiền, một yêu cầu rút 300.000 chờ duyệt.
+- Các bước: (1) Chặn ví hoa hồng; xem yêu cầu, số dư; tạo yêu cầu mới; xem ví hoa hồng, ví mua sắm. (2) Gỡ chặn; tạo yêu cầu, duyệt; chặn lại; ghi đã chi; gỡ chặn; ghi đã chi. (3) Nhân viên chặn; xem thông báo.
+- Kết quả mong đợi: Bước 1: yêu cầu Bị từ chối, lý do là lý do chặn, `walletBlocked`; số dư về 1.000.000; "Ví hoa hồng đang bị chặn rút tiền."; `withdrawal.blocked` đúng; ví mua sắm không bị chặn. Bước 2: duyệt được; yêu cầu Đã duyệt vẫn hiện; ghi đã chi "Ví hoa hồng đang bị chặn rút tiền."; sau gỡ chặn Đã chi. Bước 3: `403`; bốn thông báo `wallet_block.commission.block`, `.unblock`, `.block`, `.unblock`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c49-group-buys-wallets.test.ts`
+- Lát: L2
+
+Kiểm tra giao diện (TIEUCHI_NGHIEMTHU_320): xem trước từng lát trên bản web của Expo khổ điện thoại và web-crm (MAN_HINH_132 đến MAN_HINH_139, MAN_HINH_80), chuỗi trong `packages/i18n` (vi, en); thủ công, chưa có mã kịch bản riêng.
+
+## MODULE_04 Mua hàng (phần 2: Nhập khẩu và phân bổ chi phí, CONG_VIEC_45)
+
+Dữ liệu chung: công ty VCR đã khởi tạo kế toán Thông tư 99; tỷ giá hạch toán USD hôm nay 25.000, hôm qua chưa có; chính sách duyệt đơn mua cấp 1 từ 0 đồng; nhà cung cấp nước ngoài, nhà cung cấp dịch vụ có hồ sơ nhà cung cấp. Kiểm thử tự động: `apps/api/test/c45-imports.test.ts`.
+
+### KICHBAN_KIEMTHU_428: Đơn USD, nhập kho, trả hàng theo tỷ giá
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_282
+- Chức năng: CHUC_NANG_160
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Nhân viên mua hàng, Thủ kho, Kế toán trưởng
+- Các bước: (1) Lập đơn 100 cái × 8,5 USD, thuế suất 10%; tiền tệ XYZ. (2) Gửi, duyệt. (3) Nhận 60 cái ngày hôm qua, rồi hôm nay. (4) Đổi tiền tệ khi đã có phiếu nhập. (5) Trả 10 cái. (6) Lập đơn trong nước kèm tiền tệ khác.
+- Kết quả mong đợi: thuế suất dòng "Không kê khai", tổng 850 USD, quy đổi 21.250.000; XYZ bị từ chối; yêu cầu duyệt quy đổi 21.250.000; hôm qua `409` thiếu tỷ giá; hôm nay giá vốn 212.500, công nợ 12.750.000 kèm 510 USD, bút toán Nợ 156 / Có 331; đổi tiền tệ bị từ chối; trả hàng giảm nợ 2.125.000 kèm 85 USD; đơn trong nước theo VND, thuế 10%.
+- Kiểm thử tự động: Tự động API
+- Lát: L0
+
+### KICHBAN_KIEMTHU_429: Thuế gợi ý, sửa, trùng, vượt
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_283
+- Chức năng: CHUC_NANG_160
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Các bước: (1) Thủ kho lập tờ khai. (2) Lập tờ khai 50 cái, 425 USD, tỷ giá 25.400, thuế 10%, 10%. (3) Sửa thuế nhập khẩu 1.080.000. (4) Tờ khai thuế suất 0. (5) Khai thêm 60 cái; trùng số tờ khai.
+- Kết quả mong đợi: `403`; trị giá 10.795.000, thuế nhập khẩu 1.079.500, giá trị gia tăng 1.187.450; sau sửa đánh dấu đã sửa, giá trị gia tăng 1.187.500; thuế 0; vượt số đặt, trùng số bị từ chối đúng ô.
+- Kiểm thử tự động: Tự động API
+- Lát: L1
+
+### KICHBAN_KIEMTHU_430: Ghi sổ tờ khai khi đã xuất một phần
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_284
+- Chức năng: CHUC_NANG_160, CHUC_NANG_161
+- Loại: Đúng, sai
+- Các bước: (1) Xuất 10 cái (còn 40 trên 50 khai). (2) Xem trước, ghi sổ. (3) Sửa tờ khai đã ghi sổ. (4) Tờ khai thứ hai 30 cái ngày trong kỳ đã khóa, rồi ngày hôm nay.
+- Kết quả mong đợi: 864.000 vào tồn, 216.000 vào 632; tồn 9.364.000, giá vốn 234.100; bút toán Nợ 156, 632, 1331 / Có 3333, 33312; thẻ kho dòng số lượng 0; sửa bị từ chối; kỳ khóa `409`; chưa nhập đủ bị từ chối tại dòng.
+- Kiểm thử tự động: Tự động API
+- Lát: L1
+
+### KICHBAN_KIEMTHU_431: Hàng serial; Thông tư 133
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_284
+- Chức năng: CHUC_NANG_160
+- Loại: Đúng
+- Các bước: (1) Nhập 3 serial 100 USD, xuất 1. (2) Tờ khai 300 USD, thuế 10%, ghi sổ. (3) Khởi tạo kế toán công ty Thông tư 133.
+- Kết quả mong đợi: 508.000 vào tồn (mỗi serial còn trong kho thêm 254.000), 254.000 vào 632; định khoản bảo vệ môi trường 3338 (Thông tư 133), 33381 (Thông tư 99).
+- Kiểm thử tự động: Tự động API
+- Lát: L1
+
+### KICHBAN_KIEMTHU_432: Chứng từ chi phí, phân bổ hai tiêu thức
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_285
+- Chức năng: CHUC_NANG_161
+- Loại: Đúng, sai, giá trị biên
+- Các bước: (1) Đơn 3 dòng, nhập đủ, xuất 5 trên 30 dòng thứ ba; tờ khai trị giá 100, 60, 30 USD. (2) Lập chi phí khi tờ khai chưa ghi sổ. (3) Ghi sổ tờ khai; lập chi phí 1.000.000 theo giá trị, 100.000 (10%) theo giá trị, 100.001 (8%) theo số lượng. (4) Xem trước, ghi sổ. (5) Chi phí 40 USD ngày chưa có tỷ giá, rồi hôm nay.
+- Kết quả mong đợi: bị từ chối khi tờ khai chưa ghi sổ; phân bổ 595.615 / 380.702 / 223.684, tổng đúng 1.200.001; dòng thứ ba 186.403 vào tồn, 37.281 vào 632; công nợ 1.218.001; bút toán Nợ 156 1.162.720, 632 37.281, 1331 18.000 / Có 331; chi phí USD bị từ chối khi thiếu tỷ giá, quy đổi 1.000.000, công nợ kèm 40 USD.
+- Kiểm thử tự động: Tự động API
+- Lát: L2
+
+### KICHBAN_KIEMTHU_433: Phân quyền tờ khai, chi phí
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_286
+- Chức năng: CHUC_NANG_160, CHUC_NANG_161
+- Loại: Từng vai trò
+- Các bước: (1) Kế toán công ty VCT xem, ghi sổ tờ khai của VCR. (2) Thủ kho xem danh sách, chi tiết tờ khai; lập chứng từ chi phí.
+- Kết quả mong đợi: `404` theo công ty mình, `403` khi chọn công ty không thuộc; danh sách rỗng; Thủ kho `403`.
+- Kiểm thử tự động: Tự động API (KICHBAN_KIEMTHU_429, 432 kiểm thêm Thủ kho)
+- Lát: L1, L2

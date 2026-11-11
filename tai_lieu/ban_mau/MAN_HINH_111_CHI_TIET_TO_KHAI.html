@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MAN_HINH_111 Chi tiết tờ khai – VComm</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" />
+    <link rel="stylesheet" href="chung.css" />
+  </head>
+  <body>
+    <header class="thanh-tren"><a class="logo" href="index.html">VComm</a><span class="gian"></span><button>Công ty VCR ▾</button><button>Lê Phúc</button></header>
+    <div class="than">
+      <nav class="menu" aria-label="Mua hàng">
+        <div class="ten-app">Mua hàng</div>
+        <a href="#">Đơn mua</a>
+        <a href="MAN_HINH_110_TO_KHAI_NHAP_KHAU.html" class="chon">Tờ khai nhập khẩu</a>
+        <a href="MAN_HINH_112_CHI_PHI_NHAP_KHAU.html">Chi phí nhập khẩu</a>
+        <a href="#">Đề nghị mua</a>
+        <a href="#">Bảng giá mua</a>
+      </nav>
+      <main class="noi-dung">
+        <a href="MAN_HINH_110_TO_KHAI_NHAP_KHAU.html">← Danh sách tờ khai</a>
+        <div class="tieu-de">
+          <h1>Tờ khai 107012345670</h1>
+          <span class="nhan trung-tinh">Nháp</span><button class="nut phu">Lịch sử</button><button class="nut nguy-hiem">Hủy</button><button class="nut phu">Lưu</button
+          ><button class="nut chinh">Ghi sổ</button>
+        </div>
+        <div class="the">
+          <div class="hai-cot" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))">
+            <div class="truong"><label>Số tờ khai</label><input class="o-nhap" value="107012345670" /></div>
+            <div class="truong"><label>Ngày đăng ký</label><input class="o-nhap" type="date" value="2026-11-05" /></div>
+            <div class="truong"><label>Ngày ghi sổ</label><input class="o-nhap" type="date" value="2026-11-08" /><span class="chu-thich">Không thuộc kỳ đã khóa sổ.</span></div>
+            <div class="truong"><label>Tỷ giá tính thuế (USD → VND)</label><input class="o-nhap" value="25.400" /><span class="chu-thich">Ghi theo tờ khai hải quan.</span></div>
+          </div>
+          <dl class="thong-tin-dong">
+            <dt>Đơn mua</dt>
+            <dd><a href="#">DM-2026-0012</a> · USD · kho Bình Dương</dd>
+            <dt>Nhà cung cấp</dt>
+            <dd>Công ty Thương mại Mẫu Thâm Quyến</dd>
+          </dl>
+        </div>
+        <div class="khung-bang">
+          <table>
+            <thead>
+              <tr>
+                <th>Mặt hàng</th>
+                <th>Số lượng khai</th>
+                <th>Trị giá (USD)</th>
+                <th>Trị giá quy đổi</th>
+                <th>Thuế nhập khẩu</th>
+                <th>Tiêu thụ đặc biệt</th>
+                <th>Bảo vệ môi trường</th>
+                <th>Giá trị gia tăng</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-nhan="Mặt hàng">TN-01 Tai nghe không dây<br /><span class="chu-thich">đã nhập 1.000 / đặt 1.000 cái</span></td>
+                <td data-nhan="Số lượng khai"><input class="o-nhap" value="1.000" style="width: 90px" /></td>
+                <td data-nhan="Trị giá (USD)"><input class="o-nhap" value="8.500,00" style="width: 110px" /></td>
+                <td data-nhan="Trị giá quy đổi">215.900.000</td>
+                <td data-nhan="Thuế nhập khẩu"><input class="o-nhap" value="10" style="width: 60px" /> %<br />21.590.000</td>
+                <td data-nhan="Tiêu thụ đặc biệt"><input class="o-nhap" value="0" style="width: 100px" /></td>
+                <td data-nhan="Bảo vệ môi trường"><input class="o-nhap" value="0" style="width: 100px" /></td>
+                <td data-nhan="Giá trị gia tăng"><input class="o-nhap" value="10" style="width: 60px" /> %<br />23.749.000</td>
+              </tr>
+              <tr>
+                <td data-nhan="Mặt hàng">SN-20 Sạc nhanh 20W<br /><span class="chu-thich">đã nhập 2.000 / đặt 2.000 cái</span></td>
+                <td data-nhan="Số lượng khai"><input class="o-nhap" value="2.000" style="width: 90px" /></td>
+                <td data-nhan="Trị giá (USD)"><input class="o-nhap" value="6.400,00" style="width: 110px" /></td>
+                <td data-nhan="Trị giá quy đổi">162.560.000</td>
+                <td data-nhan="Thuế nhập khẩu">
+                  <input class="o-nhap" value="5" style="width: 60px" /> %<br /><input class="o-nhap" value="8.130.000" style="width: 110px" /> <span class="nhan canh-bao">Đã sửa</span>
+                </td>
+                <td data-nhan="Tiêu thụ đặc biệt"><input class="o-nhap" value="0" style="width: 100px" /></td>
+                <td data-nhan="Bảo vệ môi trường"><input class="o-nhap" value="0" style="width: 100px" /></td>
+                <td data-nhan="Giá trị gia tăng"><input class="o-nhap" value="10" style="width: 60px" /> %<br />17.069.000</td>
+              </tr>
+              <tr>
+                <td data-nhan=""><strong>Tổng</strong></td>
+                <td></td>
+                <td data-nhan="Trị giá (USD)"><strong>14.900,00</strong></td>
+                <td data-nhan="Trị giá quy đổi"><strong>378.460.000</strong></td>
+                <td data-nhan="Thuế nhập khẩu"><strong>29.720.000</strong></td>
+                <td data-nhan="Tiêu thụ đặc biệt"><strong>0</strong></td>
+                <td data-nhan="Bảo vệ môi trường"><strong>0</strong></td>
+                <td data-nhan="Giá trị gia tăng"><strong>40.818.000</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="chu-thich">
+          Thuế gợi ý: nhập khẩu bằng trị giá quy đổi nhân thuế suất; giá trị gia tăng bằng (trị giá quy đổi cộng thuế nhập khẩu, tiêu thụ đặc biệt, bảo vệ môi trường) nhân thuế suất. Sửa số cho khớp
+          tờ khai đã thông quan; số khác gợi ý có nhãn "Đã sửa".
+        </p>
+        <div class="khoi-canh-bao thong-tin">Sau khi ghi sổ, tờ khai không sửa được. Sai sót sau ghi sổ xử lý bằng phiếu kế toán nhập tay.</div>
+        <h2>Sau ghi sổ: phân bổ vào giá vốn</h2>
+        <div class="khung-bang">
+          <table>
+            <thead>
+              <tr>
+                <th>Mặt hàng</th>
+                <th>Thuế vào giá vốn</th>
+                <th>Chi phí nhập khẩu</th>
+                <th>Tồn khi ghi sổ</th>
+                <th>Vào giá trị tồn kho</th>
+                <th>Vào giá vốn hàng bán</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-nhan="Mặt hàng">TN-01 Tai nghe không dây</td>
+                <td data-nhan="Thuế vào giá vốn">21.590.000</td>
+                <td data-nhan="Chi phí nhập khẩu">21.964.161</td>
+                <td data-nhan="Tồn khi ghi sổ">800 / 1.000</td>
+                <td data-nhan="Vào giá trị tồn kho">17.272.000 + 17.571.329</td>
+                <td data-nhan="Vào giá vốn hàng bán">4.318.000 + 4.392.832</td>
+              </tr>
+              <tr>
+                <td data-nhan="Mặt hàng">SN-20 Sạc nhanh 20W</td>
+                <td data-nhan="Thuế vào giá vốn">8.130.000</td>
+                <td data-nhan="Chi phí nhập khẩu">19.031.839</td>
+                <td data-nhan="Tồn khi ghi sổ">2.000 / 2.000</td>
+                <td data-nhan="Vào giá trị tồn kho">8.130.000 + 19.031.839</td>
+                <td data-nhan="Vào giá vốn hàng bán">0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="the">
+          <h3>Chứng từ chi phí nhập khẩu</h3>
+          <p><a href="MAN_HINH_113_CHI_TIET_CHI_PHI_NHAP_KHAU.html">CPNK-2026-0003</a> · Công ty Vận tải Mẫu · 41.010.000 ₫ chưa thuế · <span class="nhan thanh-cong">Đã ghi sổ</span></p>
+          <p><strong>Bút toán tờ khai:</strong> Nợ 156 25.402.000, Nợ 632 4.318.000 / Có 3333 29.720.000; Nợ 1331 40.818.000 / Có 33312 40.818.000.</p>
+        </div>
+      </main>
+    </div>
+    <div class="dieu-khien">Bản mẫu CONG_VIEC_45 · dữ liệu giả · <a href="index.html">Mục lục</a></div>
+  </body>
+</html>

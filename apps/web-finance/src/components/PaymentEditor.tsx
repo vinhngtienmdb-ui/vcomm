@@ -52,8 +52,8 @@ export function PaymentEditor({
   const options = useApi<PaymentOptionsResponse>("/finance/payments/options");
   const choices = options.state.kind === "ready" ? options.state.data : { funds: [], currency: "VND" };
   const money = (value: string) => formatMoney(value, choices.currency);
-  const [kind, setKind] = useState<PaymentKind>(payment?.kind ?? initialKind);
-  const [partner, setPartner] = useState<Partner | null>(payment ? { id: payment.partner.id, label: `${payment.partner.code} · ${payment.partner.name}` } : initialPartner);
+  const [kind, setKind] = useState<PaymentKind>((payment?.kind as PaymentKind | undefined) ?? initialKind);
+  const [partner, setPartner] = useState<Partner | null>(payment?.partner ? { id: payment.partner.id, label: `${payment.partner.code} · ${payment.partner.name}` } : initialPartner);
   const [fundId, setFundId] = useState(payment?.fund.id ?? "");
   const [paymentDate, setPaymentDate] = useState(payment?.paymentDate ?? vietnamToday());
   const [amount, setAmount] = useState(payment?.amount ?? "");

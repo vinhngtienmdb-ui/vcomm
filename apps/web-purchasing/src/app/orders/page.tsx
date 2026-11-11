@@ -141,6 +141,7 @@ export default function OrdersPage() {
                       </td>
                       <td data-nhan={headings[5]}>
                         <span>{formatMoney(order.totalAmount, order.currency)}</span>
+                        {order.isImport && <span className="nhan thong-tin">{t("importShort")}</span>}
                       </td>
                       <td data-nhan={headings[6]}>
                         <PurchaseStatus status={order.status} />
