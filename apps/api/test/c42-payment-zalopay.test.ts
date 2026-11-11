@@ -5,7 +5,7 @@ import type { AddressInfo } from "node:net";
 import type { Pool } from "pg";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { queryOrder, zalopayConfiguration, zalopayMac } from "../src/marketplace/payments/gateways/zalopay-gateway";
+import { queryZalopayOrder as queryOrder, zalopayConfiguration, zalopayMac } from "../src/marketplace/payments/gateways/zalopay-client";
 import { prepareMarketplace, type BuyerCall, type MarketplaceFixture } from "./marketplace-fixture";
 import { startTestApplication } from "./setup-database";
 
@@ -19,7 +19,7 @@ let gatewayServer: Server;
 const requestMac = ["kiem", "thu", "mot", "ZP"].join("-");
 const callbackMac = ["kiem", "thu", "hai", "ZP"].join("-");
 const appId = "2553";
-const environmentNames = ["ZALOPAY_APP_ID", "ZALOPAY_KEY1", "ZALOPAY_KEY2", "ZALOPAY_CALLBACK_URL", "ZALOPAY_RETURN_URL", "ZALOPAY_API_URL"];
+const environmentNames = ["ZALOPAY_APP_ID", "ZALOPAY_KEY1", "ZALOPAY_KEY2", "ZALOPAY_PUBLIC_API_URL", "ZALOPAY_ENDPOINT"];
 
 // Máy chủ ZaloPay giả lập: kiểm mac của yêu cầu, ghi lại yêu cầu, trả lời theo chế độ đang đặt.
 const gateway = {
@@ -104,9 +104,8 @@ beforeAll(async () => {
     ZALOPAY_APP_ID: appId,
     ZALOPAY_KEY1: requestMac,
     ZALOPAY_KEY2: callbackMac,
-    ZALOPAY_CALLBACK_URL: "https://api.vcomm.test/api/v1/public/payments/zalopay/notify",
-    ZALOPAY_RETURN_URL: "https://api.vcomm.test/api/v1/public/payments/zalopay/return",
-    ZALOPAY_API_URL: apiUrl,
+    ZALOPAY_PUBLIC_API_URL: "https://api.vcomm.test/",
+    ZALOPAY_ENDPOINT: apiUrl,
   });
   for (const code of ["zalopay_wallet", "zalopay_atm", "zalopay_card"]) expect((await store.call("put", `/marketplace/payment-methods/${code}`, { isEnabled: true })).status).toBe(200);
   expect((await store.call("put", "/marketplace/ordering-open", { orderingOpen: true })).status).toBe(200);
@@ -179,7 +178,7 @@ describe("CONG_VIEC_42 cổng ZaloPay", () => {
     const paid = (await buyer("get", `/buyer/orders/${order.id}`)).body;
     expect(paid).toMatchObject({ status: "awaiting_shipment", paymentStatus: "paid", paidAmount: "74000" });
     // Nhận trùng: không ghi thêm.
-    expect((await notify(callbackBody(transactionId, 74000))).body).toEqual({ return_code: 2, return_message: "already confirmed" });
+    expect((await notify(callbackBody(transactionId, 74000))).body).toEqual({ return_code: 1, return_message: "already confirmed" });
     expect((await buyer("get", `/buyer/orders/${order.id}`)).body.paidAmount).toBe("74000");
     expect((await returnPage(redirectQuery(transactionId, 74000, "1"))).text).toContain("Thanh toán thành công");
     const admin = (await store.call("get", `/marketplace/orders/${order.id}`)).body;
@@ -208,6 +207,6 @@ describe("CONG_VIEC_42 cổng ZaloPay", () => {
     expect(await queryOrder(configuration, "DH0001T01", createdAt)).toEqual({ state: "failed", returnCode: 2 });
     gateway.queryReply = { return_code: 3, return_message: "Đang xử lý", is_processing: true };
     expect(await queryOrder(configuration, "DH0001T01", createdAt)).toEqual({ state: "processing", returnCode: 3 });
-    expect(await queryOrder({ ...configuration, apiUrl: "http://127.0.0.1:1" }, "DH0001T01", createdAt)).toEqual({ state: "unknown", returnCode: null });
+    expect(await queryOrder({ ...configuration, endpoint: "http://127.0.0.1:1" }, "DH0001T01", createdAt)).toEqual({ state: "unknown", returnCode: null });
   });
 });

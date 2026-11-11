@@ -13,7 +13,7 @@ Người mua VComm trả tiền đơn qua ZaloPay; VComm chỉ ghi nhận tiền
 
 ## 2. Phạm vi
 
-- Làm: lớp kết nối `apps/api/src/marketplace/payments/gateways/zalopay-gateway.ts`; database migration `0060_payment_zalopay.sql` (3 phương thức, mặc định tắt); mã phương thức, mã cổng trong `contracts`; tên phương thức trong i18n; biến môi trường trong `.env.example`; kiểm thử `apps/api/test/c42-payment-zalopay.test.ts`.
+- Làm: lớp kết nối `apps/api/src/marketplace/payments/gateways/zalopay-gateway.ts` và phần ZaloPay dùng chung `zalopay-client.ts` (cấu hình, ký, kiểm chữ ký, tạo đơn, tra cứu; cùng biến `ZALOPAY_*` và kiểu cấu hình với CONG_VIEC_41 để phiên chính gộp lớp Apple Pay về đây); database migration `0060_payment_zalopay.sql` (3 phương thức, mặc định tắt); mã phương thức, mã cổng trong `contracts`; tên phương thức trong i18n; biến môi trường trong `.env.example`; kiểm thử `apps/api/test/c42-payment-zalopay.test.ts`.
 - Không làm: gắn tra cứu trạng thái vào luồng ghi nhận tiền (khung chung chưa có chỗ; phiên chính bổ sung khi hợp nhất các cổng); hoàn tiền qua API ZaloPay (hoàn tiền vẫn do kế toán chuyển khoản theo CONG_VIEC_25); VietQR, trả sau qua ZaloPay; mô hình AppToApp (`zp_trans_token`).
 - Sửa kiểm thử `c25-payment-methods.test.ts`: chỉ so các phương thức của COD, VNPAY (danh mục có thêm phương thức của cổng mới).
 
@@ -29,11 +29,11 @@ Người mua VComm trả tiền đơn qua ZaloPay; VComm chỉ ghi nhận tiền
 
 ## 4. Quy tắc nghiệp vụ
 
-- QUYTAC_NGHIEPVU_270: Cổng `zalopay` chỉ dùng được khi có đủ `ZALOPAY_APP_ID` (số), `ZALOPAY_KEY1`, `ZALOPAY_KEY2`, `ZALOPAY_CALLBACK_URL`, `ZALOPAY_RETURN_URL`; `ZALOPAY_API_URL` trống thì dùng máy chủ thử nghiệm `https://sb-openapi.zalopay.vn` (chạy thật: `https://openapi.zalopay.vn`). Phương thức mặc định tắt.
+- QUYTAC_NGHIEPVU_270: Cổng `zalopay` chỉ dùng được khi có đủ `ZALOPAY_APP_ID` (số), `ZALOPAY_KEY1`, `ZALOPAY_KEY2`, `ZALOPAY_PUBLIC_API_URL` (địa chỉ công khai của API; kết quả gửi về, trang trả về theo đường dẫn chung của mã cổng); một bộ biến cho mọi cổng đi qua cùng tài khoản ZaloPay (CONG_VIEC_40, 41); `ZALOPAY_ENDPOINT` trống thì dùng máy chủ thử nghiệm `https://sb-openapi.zalopay.vn` (chạy thật: `https://openapi.zalopay.vn`). Phương thức mặc định tắt.
 - QUYTAC_NGHIEPVU_271: Tạo đơn (`POST /v2/create`, dạng form): mã giao dịch `app_trans_id` = ngày `yymmdd` theo giờ Việt Nam + `_` + số tham chiếu của lần thanh toán; `mac` = HMAC SHA256 bằng key1 trên `app_id|app_trans_id|app_user|amount|app_time|embed_data|item`; `embed_data` gồm `redirecturl` và `preferred_payment_method`; `expire_duration_seconds` theo hạn thanh toán của đơn, trong khoảng 300 giây đến 30 ngày. ZaloPay trả `return_code` khác 1, không trả lời trong 10 giây hoặc `order_url` không phải https thì báo "Phương thức thanh toán này hiện không dùng được" và không tính lần thanh toán.
-- QUYTAC_NGHIEPVU_272: Kết quả ZaloPay gửi về (`POST /api/v1/public/payments/zalopay/notify`, JSON `{data, mac, type}`): chỉ nhận khi `mac` = HMAC SHA256 bằng key2 trên chuỗi `data` nguyên bản (so bằng `timingSafeEqual`), `type` là 1 (đơn), `app_id` đúng, `app_trans_id` đúng định dạng; số tiền, ghi nhận một lần, việc chờ hoàn theo QUYTAC_NGHIEPVU_166, 221. ZaloPay chỉ gửi khi thanh toán thành công. Trả lời luôn HTTP 200: `return_code` 1 thành công; 2 đã ghi nhận, không có lần thanh toán, sai số tiền; -1 sai chữ ký; 0 lỗi phía VComm để ZaloPay gửi lại (tối đa 3 lần).
+- QUYTAC_NGHIEPVU_272: Kết quả ZaloPay gửi về (`POST /api/v1/public/payments/zalopay/notify`, JSON `{data, mac, type}`): chỉ nhận khi `mac` = HMAC SHA256 bằng key2 trên chuỗi `data` nguyên bản (so bằng `timingSafeEqual`), `type` là 1 (đơn), `app_id` đúng, `app_trans_id` đúng định dạng; số tiền, ghi nhận một lần, việc chờ hoàn theo QUYTAC_NGHIEPVU_166, 221. ZaloPay chỉ gửi khi thanh toán thành công. Trả lời luôn HTTP 200: `return_code` 1 thành công hoặc đã ghi nhận trước đó (thống nhất với CONG_VIEC_41); 2 không có lần thanh toán, sai số tiền; -1 sai chữ ký; 0 lỗi phía VComm để ZaloPay gửi lại (tối đa 3 lần).
 - QUYTAC_NGHIEPVU_273: Trang trả về (`GET /api/v1/public/payments/zalopay/return`): kiểm `checksum` = HMAC SHA256 bằng key2 trên `appid|apptransid|pmcid|bankcode|amount|discountamount|status`; `status` 1 là thành công; chỉ hiển thị, không ghi nhận tiền.
-- QUYTAC_NGHIEPVU_274: Tra cứu trạng thái (`POST /v2/query`, `mac` = HMAC key1 trên `app_id|app_trans_id|key1`): `return_code` 1 thành công (kèm số tiền, `zp_trans_id`), 2 thất bại, 3 đang xử lý, còn lại không rõ. Hàm `queryOrder` có sẵn, chưa gắn vào luồng ghi nhận tiền.
+- QUYTAC_NGHIEPVU_274: Tra cứu trạng thái (`POST /v2/query`, `mac` = HMAC key1 trên `app_id|app_trans_id|key1`): `return_code` 1 thành công (kèm số tiền, `zp_trans_id`), 2 thất bại, 3 đang xử lý, còn lại không rõ. Hàm `queryZalopayOrder` (`zalopay-client.ts`) có sẵn, chưa gắn vào luồng ghi nhận tiền.
 
 ## 5. Vai trò và quyền
 
@@ -81,11 +81,12 @@ Tệp `apps/api/test/c42-payment-zalopay.test.ts`, máy chủ ZaloPay giả lậ
 - `13` (API): API_131 với phương thức `zalopay_*` trả `paymentUrl` là `order_url` của ZaloPay; API_132 đường dẫn chung `zalopay/notify`, `zalopay/return`.
 - `16` (bảo mật): khóa key1, key2 chỉ ở biến môi trường; kiểm HMAC SHA256 bằng `timingSafeEqual`; sai chữ ký đếm theo IP.
 - `17` (lỗi): mở thanh toán khi ZaloPay từ chối dùng `paymentMethodUnavailable`.
-- `21` (cấu hình): biến `ZALOPAY_APP_ID`, `ZALOPAY_KEY1`, `ZALOPAY_KEY2`, `ZALOPAY_CALLBACK_URL`, `ZALOPAY_RETURN_URL`, `ZALOPAY_API_URL`.
+- `21` (cấu hình): biến `ZALOPAY_APP_ID`, `ZALOPAY_KEY1`, `ZALOPAY_KEY2`, `ZALOPAY_ENDPOINT`, `ZALOPAY_PUBLIC_API_URL` (chung với CONG_VIEC_41); khi gộp `.env.example` chỉ giữ một khối ZaloPay.
 - `22` (kiểm thử), `25` (truy vết), `27` (nghiệm thu): TIEUCHI_NGHIEMTHU_270 đến 273, KICHBAN_KIEMTHU_415 đến 418 như mục 8, 9.
-- Việc tiếp theo cho phiên chính: thêm phương thức không bắt buộc tra cứu trạng thái vào `PaymentGatewayAdapter` và việc nền tra cứu lần thanh toán chờ quá 15 phút (ZaloPay khuyên), gắn `queryOrder`.
+- Việc tiếp theo cho phiên chính: thêm phương thức không bắt buộc tra cứu trạng thái vào `PaymentGatewayAdapter` và việc nền tra cứu lần thanh toán chờ quá 15 phút (ZaloPay khuyên), gắn `queryZalopayOrder`.
+- Khi gộp CONG_VIEC_41: lớp Apple Pay dùng `zalopay-client.ts` (cấu hình, `zalopayMac`, mã giao dịch, kiểm kết quả, trả lời) thay vì bản riêng trong `apple-pay-gateway.ts`.
 
 ## 11. Kết quả thực hiện
 
-- 2026-11-11: `c42-payment-zalopay.test.ts` 3/3 đạt; hồi quy `pnpm --filter api test` 47 tệp, 336 kiểm thử đạt; `pnpm --filter api typecheck` đạt.
+- 2026-11-11: `c42-payment-zalopay.test.ts` 3/3 đạt; hồi quy `pnpm --filter api test` 47 tệp, 336 kiểm thử đạt. Sau khi gộp nhánh nền (có MoMo) và đổi sang biến chung `ZALOPAY_*`: 48 tệp, 339 kiểm thử đạt; `pnpm --filter api typecheck` đạt.
 - Chưa thử với môi trường thử nghiệm của ZaloPay (cần tài khoản cửa hàng thử nghiệm).
