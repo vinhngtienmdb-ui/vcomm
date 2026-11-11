@@ -954,7 +954,7 @@ CONG_VIEC_49 (gồm THAY_DOI_22) chỉ được cấp một số luồng (Luồn
 - Luồng con 44.1 Cộng tác viên:
   1. Người mua mở Cộng tác viên (MAN_HINH_132), đồng ý điều khoản, nhập kênh chia sẻ, gửi đăng ký; hồ sơ Chờ duyệt (QUYTAC_NGHIEPVU_324).
   2. Quản trị (`marketplace.buyer.manage`) mở Cộng tác viên trên web (MAN_HINH_137), duyệt (cấp mã lần đầu) hoặc từ chối (lý do); người mua nhận thông báo; bị từ chối thì sửa và gửi lại.
-  3. Cộng tác viên mở trang sản phẩm (MAN_HINH_91), bấm "Chia sẻ nhận hoa hồng" lấy đường dẫn `/p/<mã sản phẩm>?ctv=<mã>`.
+  3. Cộng tác viên mở trang sản phẩm (MAN_HINH_91), bấm "Chia sẻ sản phẩm" lấy đường dẫn `/r/<mã giới thiệu>?sp=<mã sản phẩm>&ctv=<mã>` (THAY_DOI_28; không có mã giới thiệu thì `/p/<mã sản phẩm>?ctv=<mã>`).
   4. Người mua khác mở đường dẫn: đã đăng nhập thì ghi lượt bấm ngay; chưa đăng nhập thì ứng dụng giữ mã, ghi sau khi đăng nhập, đăng ký (QUYTAC_NGHIEPVU_325).
   5. Người mua đặt đơn có sản phẩm đó trong 168 giờ từ lần bấm gần nhất: hệ thống chụp phần "cộng tác viên" cho cộng tác viên của lượt bấm gần nhất, độc lập với phần giới thiệu, đội kinh doanh (QUYTAC_NGHIEPVU_326).
   6. Đơn hoàn tất (Luồng 37): phần cộng tác viên tính và cộng ví hoa hồng như Luồng 39; cộng tác viên rút tiền như Luồng 39.

@@ -2526,7 +2526,7 @@ Sửa: MAN_HINH_76 (thẻ điểm thưởng), MAN_HINH_88 (thẻ Điểm thưở
 
 Sửa:
 - MAN_HINH_76: thêm nút "Ví mua sắm", "Mời bạn bè", "Cộng tác viên".
-- MAN_HINH_91: cộng tác viên Đã duyệt thấy mức hoa hồng cộng tác viên và nút "Chia sẻ nhận hoa hồng"; dòng điểm đánh giá "<điểm> · <số> đánh giá đã mua · Xem bảng tin" hoặc "Chưa có đánh giá · Xem bảng tin" (mở MAN_HINH_136 lọc theo sản phẩm); nút "Mua chung sản phẩm này" (mở MAN_HINH_134 lọc theo sản phẩm).
+- MAN_HINH_91: cộng tác viên Đã duyệt thấy mức hoa hồng cộng tác viên; nút "Chia sẻ sản phẩm" cho mọi người mua (THAY_DOI_28, CONG_VIEC_22 MAN_HINH_201): đường dẫn kèm mã giới thiệu, thêm mã cộng tác viên nếu đã duyệt; dòng điểm đánh giá "<điểm> · <số> đánh giá đã mua · Xem bảng tin" hoặc "Chưa có đánh giá · Xem bảng tin" (mở MAN_HINH_136 lọc theo sản phẩm); nút "Mua chung sản phẩm này" (mở MAN_HINH_134 lọc theo sản phẩm).
 - MAN_HINH_93: đơn mua chung (giá bậc đầu, chỉ phương thức trực tuyến, gợi ý mua chung); mọi đơn có ô "Dùng ví mua sắm (số dư …)" khi số dư lớn hơn 0, khóa khi ví đang tạm khóa hoặc bị chặn; hiện phần trả bằng ví, số còn phải trả.
 - MAN_HINH_96: trạng thái Chờ chốt nhóm; khối Nhóm mua chung (trạng thái, kết thúc, giá chốt, Xem nhóm); phần trả bằng ví, đã hoàn về ví; đơn Đã giao, Hoàn tất có danh sách dòng chưa đánh giá với nút "Viết đánh giá".
 - MAN_HINH_101: thêm ô mức "Cộng tác viên" (sáu mức).
@@ -2551,7 +2551,7 @@ flowchart TD
     T -->|Mời bạn bè| I[MAN_HINH_133 Mời bạn bè]
     T -->|Ví mua sắm| W[MAN_HINH_135 Ví mua sắm]
     H[Trang chủ] -->|Xem nhóm đang mở| G[MAN_HINH_134 Mua chung]
-    P[MAN_HINH_91 Chi tiết sản phẩm] -->|Chia sẻ nhận hoa hồng| S((Chia sẻ đường dẫn))
+    P[MAN_HINH_91 Chi tiết sản phẩm] -->|Chia sẻ sản phẩm| S((Chia sẻ đường dẫn))
     P -->|Mua chung sản phẩm này| G
     P -->|Xem bảng tin| F[MAN_HINH_136 Bảng tin]
     G -->|Tham gia nhóm| O[MAN_HINH_93 Đặt hàng]
