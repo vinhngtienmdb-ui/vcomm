@@ -536,7 +536,7 @@ export class RetailSalesService {
     const row = (
       await this.database.execute<{ full_name: string; phone: string; redeemed_points: number | null; redeemed_amount: string | null; earned_points: number | null; balance: number | null }>(sql`
       SELECT u.full_name, u.phone, d.redeemed_points, d.redeemed_amount::text, d.earned_points,
-        coalesce((SELECT e.balance_after FROM loyalty.entries e WHERE e.user_id = u.id AND e.source_id = ${saleId} ORDER BY e.created_at DESC, e.id DESC LIMIT 1),
+        coalesce((SELECT e.balance_after FROM loyalty.entries e WHERE e.user_id = u.id AND e.source_id = ${saleId} ORDER BY e.created_at DESC, CASE e.kind WHEN 'earn' THEN 0 ELSE 1 END LIMIT 1),
           (SELECT a.balance FROM loyalty.accounts a WHERE a.user_id = u.id)) AS balance
       FROM core.users u LEFT JOIN loyalty.document_points d ON d.source_type = 'retail_sale' AND d.source_id = ${saleId} WHERE u.id = ${userId}`)
     ).rows[0];

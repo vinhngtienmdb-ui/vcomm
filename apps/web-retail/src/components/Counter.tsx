@@ -410,7 +410,16 @@ export function Counter({ shift, onShiftChanged }: { shift: RetailShiftResponse;
               {t("invoiceBuyer")} <span className="phim">F2</span>
             </button>
             <hr style={{ border: 0, borderTop: "1px solid var(--mau-vien)", width: "100%" }} />
-            <CustomerBox shiftId={shift.id} goodsAmount={quote?.totalAmount ?? null} customer={customer} inputRef={customerRef} onChange={setCustomer} />
+            <CustomerBox
+              shiftId={shift.id}
+              goodsAmount={quote?.totalAmount ?? null}
+              customer={customer}
+              inputRef={customerRef}
+              onChange={(value) => {
+                setCustomer(value);
+                focusScan();
+              }}
+            />
           </div>
           <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }} aria-live="polite">
             <div className="dong-tien">

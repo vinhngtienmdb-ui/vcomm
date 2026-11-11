@@ -155,7 +155,7 @@ describe("Điểm tại quầy với Smart OTP (KICHBAN_KIEMTHU_519)", () => {
       expect.arrayContaining([expect.objectContaining({ method: "cash", amount: "210000" }), expect.objectContaining({ method: "points", amount: "10000", points: "10000" })]),
     );
     // Tích theo tiền hàng trừ tiền điểm: 2% × 210.000.
-    expect(paid.body.loyalty).toMatchObject({ pointsUsed: 10000, pointsAmount: "10000", pointsEarned: 4200 });
+    expect(paid.body.loyalty).toMatchObject({ pointsUsed: 10000, pointsAmount: "10000", pointsEarned: 4200, balanceAfter: 22200 - 10000 + 4200 });
     expect(await balance()).toBe(22200 - 10000 + 4200);
     expect((await pool.query("SELECT failed_count FROM loyalty.smart_otp_devices WHERE user_id = $1", [buyerId])).rows[0].failed_count).toBe(0);
     const reused = await sell([rice("1")], "110000", { userId: buyerId, points: 1000, smartOtp: code }, [{ method: "cash", amount: "109000" }]);

@@ -6941,7 +6941,7 @@
     "gift": "Hàng tặng",
     "serials": "Serial: {serials}",
     "emptyCart": "Chưa có hàng. Quét mã vạch hoặc tìm hàng để bắt đầu.",
-    "keys": "F2 người mua lấy hóa đơn · F4 giảm tay dòng đang chọn · F9 thanh toán · Delete xóa dòng",
+    "keys": "F2 người mua lấy hóa đơn · F3 khách VComm · F4 giảm tay dòng đang chọn · F9 thanh toán · Delete xóa dòng",
     "customer": "Khách",
     "walkIn": "Khách lẻ",
     "invoiceBuyer": "Thông tin người mua lấy hóa đơn",

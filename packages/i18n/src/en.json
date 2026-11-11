@@ -6941,7 +6941,7 @@
     "gift": "Gift",
     "serials": "Serials: {serials}",
     "emptyCart": "The cart is empty. Scan or search to start.",
-    "keys": "F2 invoice buyer · F4 discount selected line · F9 pay · Delete remove line",
+    "keys": "F2 invoice buyer · F3 VComm customer · F4 discount selected line · F9 pay · Delete remove line",
     "customer": "Customer",
     "walkIn": "Walk-in customer",
     "invoiceBuyer": "Invoice buyer details",
