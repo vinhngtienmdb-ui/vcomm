@@ -3,7 +3,7 @@
 - Mô tả: Bán hàng tại quầy cho cửa hàng tập đoàn tự vận hành: cửa hàng, quầy, ca thu ngân; quét mã vạch, giá theo bảng giá kênh Bán lẻ, khuyến mãi, giảm giá tay trong mức; thanh toán tiền mặt, chuyển khoản VietQR, nhiều phương thức; in hóa đơn bán lẻ; trừ kho, giá vốn, bút toán qua module đã có; trả hàng theo hóa đơn; hóa đơn điện tử khởi tạo từ máy tính tiền; tích, đổi điểm cho khách có tài khoản VComm.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; L1 đến L5 đạt xem trước; chờ nghiệm thu L0 đến L5; L6 chờ CONG_VIEC_51 hợp nhất.
+- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; người dùng nghiệm thu lát L0 đến L5 ngày 2026-11-11 (sổ ghi ở PR #115); L6 (điểm tại quầy) chờ CONG_VIEC_51 hợp nhất vào `main`.
 - Mức: Lớn (module mới, mini app mới, sửa cấu trúc dữ liệu của bán hàng, tài chính, hóa đơn điện tử).
 - Nhánh: `chuc-nang/CONG_VIEC_53-ban-le-tai-quay`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_14), `05` mục 3 (MODULE_14), `05` mục 5 (phiên bản 5.x); quyết định của người dùng ngày 2026-11-11 (mục 17).
@@ -241,7 +241,7 @@ Ghi sổ phiếu kho, sổ kho, công nợ, luồng duyệt, luồng đơn bán 
 
 ## 20. Kết quả đối chiếu định nghĩa hoàn thành
 
-Đối chiếu ngày 2026-11-11 cho lát L0 đến L5 (người dùng chọn nghiệm thu L0 đến L5 trước, L6 làm khi CONG_VIEC_51 hợp nhất vào `main`).
+Đối chiếu ngày 2026-11-11 cho lát L0 đến L5 (người dùng chọn nghiệm thu L0 đến L5 trước, L6 làm khi CONG_VIEC_51 hợp nhất vào `main`). Kết quả: người dùng nghiệm thu L0 đến L5 ngày 2026-11-11.
 
 - [x] Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: YCAU_NGHIEPVU_105 đến 110, QUYTAC_NGHIEPVU_368 đến 378 (trừ phần điểm). Không áp dụng cho YCAU_NGHIEPVU_111, QUYTAC_NGHIEPVU_379, phần điểm của QUYTAC_NGHIEPVU_373, 374, 377, API_198, API_199: lát L6, chờ CONG_VIEC_51.
 - [x] Đúng giao diện: người dùng duyệt bản mẫu MAN_HINH_161 đến 167 và ảnh xem trước từng lát L1 đến L5; màn hình máy tính, máy tính bảng, điện thoại; bản in 80mm một trang.
