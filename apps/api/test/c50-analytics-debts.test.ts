@@ -1,6 +1,7 @@
 // CONG_VIEC_50: báo cáo công nợ theo tuổi nợ (KICHBAN_KIEMTHU_482). Số liệu đối chiếu với sổ công nợ (API_85).
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { Pool } from "pg";
+import { readSheet } from "read-excel-file/node";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
@@ -97,6 +98,21 @@ describe("CONG_VIEC_50 công nợ theo tuổi nợ", () => {
 
     const payable = await report("side=payable&groupBy=company");
     expect(payable.body.rows.find((item: { key: string }) => item.key === trading)).toMatchObject({ balance: "300000", internalBalance: "300000", overdueOver90: "300000" });
+
+    // Xuất Excel đúng số trên màn hình, ghi nhật ký.
+    const file = await groupAdmin
+      .call("get", "/analytics/debts?side=receivable&groupBy=company&format=xlsx", { companyId: retail })
+      .buffer(true)
+      .parse((response, callback) => {
+        const chunks: Buffer[] = [];
+        response.on("data", (chunk: Buffer) => chunks.push(chunk));
+        response.on("end", () => callback(null, Buffer.concat(chunks)));
+      });
+    expect(file.status).toBe(200);
+    const sheet = (await readSheet(file.body as Buffer)) as (string | number | null)[][];
+    expect(sheet.find((row) => row[0] === "Cộng các công ty")?.[2]).toBe(2400000);
+    expect(sheet.find((row) => row[0] === "Tổng loại trừ nội bộ")?.[2]).toBe(2100000);
+    expect((await pool.query("SELECT count(*)::int AS total FROM core.audit_events WHERE action = 'analytics.debt.export'")).rows[0].total).toBe(1);
 
     // Quản trị công ty chỉ xem công ty mình; nhân viên bán hàng không có quyền công nợ.
     const companyAdmin = await signIn(application, "quantri.vcr@vcomm.test");

@@ -2,6 +2,7 @@
 // Hàng A giá vốn 10.000: nhập 100 vào kho K1, bán 10 từ K1, chuyển 30 từ K1 sang K2, xuất khác 5 từ K2.
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { Pool } from "pg";
+import { readSheet } from "read-excel-file/node";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
@@ -146,5 +147,35 @@ describe("CONG_VIEC_50 tồn kho và luân chuyển", () => {
 
     const keeper = await signIn(application, "thukho.bd@vcomm.test");
     expect((await keeper.call("get", `/analytics/inventory?from=${today}&to=${today}`, { companyId: retail })).status).toBe(403);
+  });
+
+  it("KICHBAN_KIEMTHU_484, 485: bảng hiện tối đa 500 dòng, dòng tổng tính trên toàn bộ; xuất Excel đủ dòng, ghi nhật ký", async () => {
+    // Dữ liệu thử: 520 biến thể có một dòng thẻ kho nhập 1 cái giá 1.000 (ghi thẳng vào thẻ kho để sinh nhanh số dòng lớn).
+    const product = (await pool.query<{ product_id: string }>("SELECT product_id FROM catalog.variants WHERE id = $1", [itemA])).rows[0]!.product_id;
+    const document = (await pool.query<{ id: string }>("SELECT id FROM inventory.documents WHERE company_id = $1 AND type = 'receipt_other' LIMIT 1", [retail])).rows[0]!.id;
+    await pool.query(
+      `WITH created AS (INSERT INTO catalog.variants (company_id, product_id, sku) SELECT $1, $2, 'BC-' || g FROM generate_series(1, 520) g RETURNING id)
+       INSERT INTO inventory.movements (warehouse_id, company_id, variant_id, quantity, unit_cost, value, balance_after, document_id) SELECT $3, $1, id, 1, 1000, 1000, 1, $4 FROM created`,
+      [retail, product, warehouses.K2, document],
+    );
+    const shown = await report(`from=${today}&to=${today}&groupBy=product`);
+    expect(shown.body.rows).toHaveLength(500);
+    expect(shown.body.totalRows).toBe(521);
+    expect(shown.body.totals).toMatchObject({ closingValue: "1370000" });
+    const file = await groupAdmin
+      .call("get", `/analytics/inventory?from=${today}&to=${today}&groupBy=product&format=xlsx`, { companyId: retail })
+      .buffer(true)
+      .parse((response, callback) => {
+        const chunks: Buffer[] = [];
+        response.on("data", (chunk: Buffer) => chunks.push(chunk));
+        response.on("end", () => callback(null, Buffer.concat(chunks)));
+      });
+    expect(file.status).toBe(200);
+    const sheet = (await readSheet(file.body as Buffer)) as (string | number | null)[][];
+    const header = sheet.findIndex((row) => row[0] === "Sản phẩm");
+    expect(sheet.slice(header + 1).filter((row) => row[0] !== "Tổng")).toHaveLength(521);
+    expect(sheet.find((row) => row[0] === "Tổng")?.[9]).toBe(1370000);
+    const audit = await pool.query("SELECT after_data FROM core.audit_events WHERE action = 'analytics.inventory.export' ORDER BY occurred_at DESC LIMIT 1");
+    expect(audit.rows[0].after_data).toMatchObject({ rows: 521 });
   });
 });
