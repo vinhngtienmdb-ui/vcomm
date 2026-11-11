@@ -1,11 +1,11 @@
 // MAN_HINH_93 Đặt hàng (CHUC_NANG_116; API_126; QUYTAC_NGHIEPVU_158): địa chỉ nhận, dòng hàng, tiền hàng, phí giao hàng, tổng thanh toán.
-// Chọn phương thức thanh toán đang bật (CONG_VIEC_25; QUYTAC_NGHIEPVU_163).
+// Chọn phương thức thanh toán đang bật (CONG_VIEC_25; QUYTAC_NGHIEPVU_163). Dùng điểm thưởng, mặc định không dùng (CONG_VIEC_51; QUYTAC_NGHIEPVU_348).
 import type { BuyerAddressItem, BuyerOrderDetail, BuyerOrderPreview, CartResponse, PaymentMethodCode } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { AmountRow, OrderLines } from "@/components/OrderLines";
-import { Button, Card, Choice, Loading, Muted, Notice, Screen, Title } from "@/components/ui";
+import { Button, Card, Choice, Field, Loading, Muted, Notice, Screen, Title } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
 import { money, translator } from "@/lib/i18n";
 import { takeChosenAddress } from "@/lib/selection";
@@ -26,31 +26,41 @@ export default function CheckoutScreen() {
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodCode | null>(null);
+  // Số điểm đang áp dụng (đã qua xem trước) và số người mua đang nhập.
+  const [usePoints, setUsePoints] = useState(false);
+  const [pointsApplied, setPointsApplied] = useState(0);
+  const [pointsText, setPointsText] = useState("");
 
-  const load = useCallback(async () => {
-    setError(null);
-    try {
-      const [cart, book] = await Promise.all([api<CartResponse>("/buyer/cart"), api<BuyerAddressItem[]>("/buyer/addresses")]);
-      const picked = cart.lines.filter((line) => chosen.includes(line.variantId)).map((line) => ({ variantId: line.variantId, quantity: line.quantity }));
-      setLines(picked);
-      const wanted = takeChosenAddress();
-      const current = book.find((item) => item.id === wanted) ?? book.find((item) => item.id === address?.id) ?? book.find((item) => item.isDefault) ?? null;
-      setAddress(current);
-      if (picked.length > 0) {
-        const next = await api<BuyerOrderPreview>("/buyer/orders/preview", { method: "POST", json: { addressId: current?.id ?? null, lines: picked } });
-        setPreview(next);
-        // Giữ phương thức đã chọn nếu còn bật; chưa chọn thì lấy phương thức đầu tiên.
-        setPaymentMethod((selected) => (selected && next.paymentMethods.includes(selected) ? selected : (next.paymentMethods[0] ?? null)));
+  const load = useCallback(
+    async (pointsToRedeem = 0) => {
+      setError(null);
+      try {
+        const [cart, book] = await Promise.all([api<CartResponse>("/buyer/cart"), api<BuyerAddressItem[]>("/buyer/addresses")]);
+        const picked = cart.lines.filter((line) => chosen.includes(line.variantId)).map((line) => ({ variantId: line.variantId, quantity: line.quantity }));
+        setLines(picked);
+        const wanted = takeChosenAddress();
+        const current = book.find((item) => item.id === wanted) ?? book.find((item) => item.id === address?.id) ?? book.find((item) => item.isDefault) ?? null;
+        setAddress(current);
+        if (picked.length > 0) {
+          const next = await api<BuyerOrderPreview>("/buyer/orders/preview", { method: "POST", json: { addressId: current?.id ?? null, lines: picked, pointsToRedeem } });
+          setPreview(next);
+          setPointsApplied(next.pointsToRedeem);
+          if (pointsToRedeem > 0) setPointsText(String(next.pointsToRedeem));
+          // Giữ phương thức đã chọn nếu còn bật; chưa chọn thì lấy phương thức đầu tiên.
+          setPaymentMethod((selected) => (selected && next.paymentMethods.includes(selected) ? selected : (next.paymentMethods[0] ?? null)));
+        }
+      } catch (failure) {
+        setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
       }
-    } catch (failure) {
-      setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.lines]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [params.lines],
+  );
 
   useFocusEffect(
     useCallback(() => {
-      void load();
+      void load(0);
+      setUsePoints(false);
     }, [load]),
   );
 
@@ -60,14 +70,17 @@ export default function CheckoutScreen() {
     setError(null);
     setNotice(null);
     try {
-      const order = await api<BuyerOrderDetail>("/buyer/orders", { method: "POST", json: { addressId: address.id, lines, expectedTotal: preview.total, paymentMethod } });
+      const order = await api<BuyerOrderDetail>("/buyer/orders", {
+        method: "POST",
+        json: { addressId: address.id, lines, expectedTotal: preview.total, paymentMethod, pointsToRedeem: usePoints ? pointsApplied : 0 },
+      });
       router.replace(`/don-hang/${order.id}`);
     } catch (failure) {
       const message = failure instanceof ApiFailure ? failure.message : t("unknownError");
       // Giá đổi: tải lại tổng mới để người mua xem rồi đặt lại.
       if (failure instanceof ApiFailure && failure.status === 409) {
         setNotice(message);
-        await load();
+        await load(usePoints ? pointsApplied : 0);
       } else setError(message);
     } finally {
       setBusy(false);
@@ -108,8 +121,62 @@ export default function CheckoutScreen() {
             <Card>
               <AmountRow label={t("goodsAmount")} value={money(preview.goodsAmount)} />
               <AmountRow label={t("shippingFee")} value={Number(preview.shippingFee) === 0 ? t("free") : money(preview.shippingFee)} />
-              <AmountRow label={t("orderTotal")} value={money(preview.total)} strong />
+              {Number(preview.pointsAmount) > 0 ? (
+                <AmountRow label={t("pointsDeduction", { points: preview.pointsToRedeem.toLocaleString("vi-VN") })} value={`−${money(preview.pointsAmount)}`} />
+              ) : null}
+              <AmountRow label={t("orderTotal")} value={money(preview.payable)} strong />
+              {preview.expectedPoints > 0 ? <Muted>{t("pointsExpectedCheckout", { points: preview.expectedPoints.toLocaleString("vi-VN") })}</Muted> : null}
             </Card>
+            {preview.loyalty.balance > 0 ? (
+              <Card>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: space[2] }}>
+                  <Text style={{ fontWeight: "700", color: colors.text }}>{t("usePoints")}</Text>
+                  <Text
+                    accessibilityRole="switch"
+                    accessibilityState={{ checked: usePoints, disabled: !preview.loyalty.redeemable }}
+                    onPress={() => {
+                      if (!preview.loyalty.redeemable) return;
+                      const next = !usePoints;
+                      setUsePoints(next);
+                      if (!next) void load(0);
+                    }}
+                    style={{ color: preview.loyalty.redeemable ? colors.primary : colors.textMuted, fontWeight: "700", paddingVertical: space[1] }}
+                  >
+                    {usePoints ? t("usePointsOn") : t("usePointsOff")}
+                  </Text>
+                </View>
+                <Muted>
+                  {preview.loyalty.redeemable
+                    ? t("usePointsHint", {
+                        balance: preview.loyalty.balance.toLocaleString("vi-VN"),
+                        max: preview.loyalty.maxPoints.toLocaleString("vi-VN"),
+                        min: preview.loyalty.minPoints.toLocaleString("vi-VN"),
+                        value: money(preview.loyalty.pointValue ?? "0"),
+                      })
+                    : t(`usePointsBlocked_${preview.loyalty.blockedReason ?? "insufficient"}`, { min: preview.loyalty.minPoints.toLocaleString("vi-VN") })}
+                </Muted>
+                {usePoints ? (
+                  <>
+                    <Field label={t("pointsToUse")} keyboardType="number-pad" value={pointsText} onChangeText={(value) => setPointsText(value.replace(/\D/g, ""))} />
+                    <View style={{ flexDirection: "row", gap: space[2] }}>
+                      <View style={{ flex: 1 }}>
+                        <Button label={t("applyPoints")} kind="secondary" onPress={() => void load(Number(pointsText || 0))} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Button
+                          label={t("useMaxPoints")}
+                          kind="secondary"
+                          onPress={() => {
+                            setPointsText(String(preview.loyalty.maxPoints));
+                            void load(preview.loyalty.maxPoints);
+                          }}
+                        />
+                      </View>
+                    </View>
+                  </>
+                ) : null}
+              </Card>
+            ) : null}
             {preview.paymentMethods.length > 0 ? (
               <Card>
                 <Choice label={t("paymentMethod")} value={paymentMethod} options={preview.paymentMethods.map((code) => ({ value: code, label: method(code) }))} onChange={setPaymentMethod} />

@@ -340,7 +340,10 @@
     "loyaltyPhaseStartInPast": "Ngày bắt đầu không được trước hôm nay.",
     "loyaltyPhaseEndInPast": "Ngày kết thúc không được trước hôm nay.",
     "loyaltyFirstTierZero": "Hạng đầu tiên phải có mức chi tiêu 0.",
-    "loyaltyTierNotAscending": "Mức chi tiêu phải lớn hơn hạng trước."
+    "loyaltyTierNotAscending": "Mức chi tiêu phải lớn hơn hạng trước.",
+    "loyaltyRedeemInvalid": "Số điểm dùng không hợp lệ (dưới mức tối thiểu, vượt số dư hoặc vượt giới hạn của đơn).",
+    "loyaltyNoPhase": "Chưa có chương trình điểm đang hiệu lực.",
+    "loyaltyLocked": "Ví điểm đang bị khóa."
   },
   "login": {
     "title": "Đăng nhập",
@@ -3275,7 +3278,20 @@
     "orderPointsSkipped_inactive": "Tài khoản ngưng hoạt động nên đơn không được tích điểm",
     "orderPointsSkipped_no_phase": "Không có chương trình điểm lúc đặt đơn",
     "orderPointsSkipped_zero": "Đơn không đủ điều kiện tích điểm (0 điểm hoặc đã đạt trần)",
-    "orderPointsCancelled": "Đơn đã hủy, không tích điểm"
+    "orderPointsCancelled": "Đơn đã hủy, không tích điểm",
+    "pointsDeduction": "Trừ điểm ({points} điểm)",
+    "pointsExpectedCheckout": "Dự kiến tích {points} điểm khi đơn hoàn tất.",
+    "usePoints": "Dùng điểm",
+    "usePointsOn": "Đang dùng · Tắt",
+    "usePointsOff": "Không dùng · Bật",
+    "usePointsHint": "Số dư {balance} điểm · dùng tối đa {max} điểm · tối thiểu {min} điểm · 1 điểm = {value}",
+    "usePointsBlocked_no_phase": "Chưa có chương trình điểm đang áp dụng.",
+    "usePointsBlocked_locked": "Ví điểm đang bị khóa.",
+    "usePointsBlocked_inactive": "Tài khoản không dùng được điểm.",
+    "usePointsBlocked_insufficient": "Cần ít nhất {min} điểm dùng được cho đơn này.",
+    "pointsToUse": "Số điểm dùng",
+    "applyPoints": "Áp dụng",
+    "useMaxPoints": "Dùng tối đa"
   },
   "buyers": {
     "title": "Tài khoản người mua",

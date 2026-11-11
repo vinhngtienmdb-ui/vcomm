@@ -40,7 +40,7 @@ export class MarketplacePaymentsService {
     return this.database.transaction(async (transaction) => {
       const order = (
         await transaction.execute<{ status: string; payment_method: PaymentMethodCode; payment_deadline: Date | null; total: string; document_no: string; expired: boolean }>(sql`
-        SELECT m.status, m.payment_method, m.payment_deadline, (m.goods_amount + m.shipping_fee)::text AS total, so.document_no, m.payment_deadline <= now() AS expired
+        SELECT m.status, m.payment_method, m.payment_deadline, (m.goods_amount + m.shipping_fee - m.points_amount)::text AS total, so.document_no, m.payment_deadline <= now() AS expired
         FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id WHERE m.id = ${orderId} AND m.buyer_user_id = ${userId} FOR UPDATE OF m`)
       ).rows[0];
       if (!order) throw new ApiError("NOT_FOUND", "notFound");

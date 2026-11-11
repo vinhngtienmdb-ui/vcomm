@@ -109,7 +109,10 @@ export default function OrderScreen() {
             <Card>
               <AmountRow label={t("goodsAmount")} value={money(order.goodsAmount)} />
               <AmountRow label={t("shippingFee")} value={Number(order.shippingFee) === 0 ? t("free") : money(order.shippingFee)} />
-              <AmountRow label={t("orderTotal")} value={money(order.total)} strong />
+              {Number(order.pointsAmount) > 0 ? (
+                <AmountRow label={t("pointsDeduction", { points: (order.points?.redeemedPoints ?? 0).toLocaleString("vi-VN") })} value={`−${money(order.pointsAmount)}`} />
+              ) : null}
+              <AmountRow label={t("orderTotal")} value={money(Number(order.total) - Number(order.pointsAmount))} strong />
               <Muted>{`${t("paidBy", { method: method(order.paymentMethod) })} · ${t(`paymentStatus_${order.paymentStatus}`)}`}</Muted>
               {Number(order.paidAmount) > 0 ? <Muted>{t("paidAmountLine", { amount: money(order.paidAmount) })}</Muted> : null}
               {Number(order.refundedAmount) > 0 ? <Muted>{t("refundedAmountLine", { amount: money(order.refundedAmount) })}</Muted> : null}

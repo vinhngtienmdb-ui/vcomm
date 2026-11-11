@@ -4154,9 +4154,11 @@ export const marketplaceOrderStatuses = ["awaiting_payment", "awaiting_shipment"
 export type MarketplaceOrderStatus = (typeof marketplaceOrderStatuses)[number];
 
 const orderLinesInput = z.array(z.object({ variantId: z.uuid(), quantity: z.number().int().min(1).max(999) }).strict()).min(1).max(50);
-export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput }).strict();
+// pointsToRedeem: số điểm thưởng dùng cho đơn (CONG_VIEC_51; QUYTAC_NGHIEPVU_348), mặc định 0.
+const pointsToRedeem = z.number().int().min(0).max(1_000_000_000).default(0);
+export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput, pointsToRedeem }).strict();
 // expectedTotal: tổng thanh toán người mua đã thấy; khác tổng tính lại thì báo giá đã thay đổi. paymentMethod mặc định thanh toán khi nhận hàng (ứng dụng bản CONG_VIEC_24).
-export const buyerOrderPlaceSchema = z.object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: z.enum(paymentMethodCodes).default("cod") }).strict();
+export const buyerOrderPlaceSchema = z.object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: z.enum(paymentMethodCodes).default("cod"), pointsToRedeem }).strict();
 
 export interface MarketplaceOrderLine {
   variantId: string;
@@ -4182,6 +4184,12 @@ export interface BuyerOrderPreview {
   canOrder: boolean;
   // Phương thức đang bật, theo thứ tự hiển thị.
   paymentMethods: PaymentMethodCode[];
+  // Điểm thưởng (CONG_VIEC_51): khả năng dùng điểm, tiền điểm của số điểm đang chọn, tổng sau trừ điểm, điểm dự kiến tích.
+  loyalty: { balance: number; minPoints: number; maxPoints: number; pointValue: string | null; redeemable: boolean; blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null };
+  pointsToRedeem: number;
+  pointsAmount: string;
+  payable: string;
+  expectedPoints: number;
 }
 
 export interface MarketplaceOrderEvent {

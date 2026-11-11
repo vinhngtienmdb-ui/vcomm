@@ -46,3 +46,11 @@ JOIN core.companies c ON c.id = s.company_id
 CROSS JOIN (VALUES ('loyalty_expense', '6418', '6421'), ('loyalty_liability', '3388', '3388'), ('loyalty_intercompany_receivable', '1368', '1368'), ('loyalty_intercompany_payable', '3368', '3368')) AS r(role, code_tt99, code_tt133)
 JOIN accounting.accounts a ON a.company_id = s.company_id AND a.code = CASE WHEN c.accounting_regime = 'TT133' THEN r.code_tt133 ELSE r.code_tt99 END
 ON CONFLICT DO NOTHING;
+
+-- Bút toán hoàn điểm gắn với chứng từ bán gốc (trả hàng tại quầy ghi nguồn là phiếu trả): để tính phần còn hoàn được theo từng lô.
+CREATE TABLE loyalty.refund_links (
+    entry_id          uuid  PRIMARY KEY REFERENCES loyalty.entries(id),
+    sale_source_type  text  NOT NULL CHECK (sale_source_type IN ('marketplace_order', 'retail_sale')),
+    sale_source_id    uuid  NOT NULL
+);
+CREATE INDEX loyalty_refund_links_sale_idx ON loyalty.refund_links (sale_source_type, sale_source_id);

@@ -340,7 +340,10 @@
     "loyaltyPhaseStartInPast": "The start date cannot be before today.",
     "loyaltyPhaseEndInPast": "The end date cannot be before today.",
     "loyaltyFirstTierZero": "The first tier must have a spend threshold of 0.",
-    "loyaltyTierNotAscending": "The spend threshold must be greater than the previous tier."
+    "loyaltyTierNotAscending": "The spend threshold must be greater than the previous tier.",
+    "loyaltyRedeemInvalid": "Invalid number of points (below the minimum, above the balance or above the order limit).",
+    "loyaltyNoPhase": "There is no active points program.",
+    "loyaltyLocked": "The points account is locked."
   },
   "login": {
     "title": "Sign in",
@@ -3275,7 +3278,20 @@
     "orderPointsSkipped_inactive": "Inactive account; this order earned no points",
     "orderPointsSkipped_no_phase": "No points program when the order was placed",
     "orderPointsSkipped_zero": "The order did not qualify for points (0 points or cap reached)",
-    "orderPointsCancelled": "Order cancelled; no points earned"
+    "orderPointsCancelled": "Order cancelled; no points earned",
+    "pointsDeduction": "Points ({points} points)",
+    "pointsExpectedCheckout": "Expected {points} points when the order completes.",
+    "usePoints": "Use points",
+    "usePointsOn": "On · Turn off",
+    "usePointsOff": "Off · Turn on",
+    "usePointsHint": "Balance {balance} points · up to {max} points · minimum {min} points · 1 point = {value}",
+    "usePointsBlocked_no_phase": "No points program is running.",
+    "usePointsBlocked_locked": "Your points account is locked.",
+    "usePointsBlocked_inactive": "This account cannot use points.",
+    "usePointsBlocked_insufficient": "At least {min} usable points are needed for this order.",
+    "pointsToUse": "Points to use",
+    "applyPoints": "Apply",
+    "useMaxPoints": "Use maximum"
   },
   "buyers": {
     "title": "Buyer accounts",
