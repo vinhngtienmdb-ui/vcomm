@@ -4091,12 +4091,16 @@ export const paymentMethodCodes = [
   "vnpay_qr",
   "vnpay_atm",
   "vnpay_card",
+  "momo_wallet",
+  "momo_atm",
+  "momo_card",
   "apple_pay_wallet",
 ] as const;
 export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
 export const paymentGatewayCodes = [
   "cod",
   "vnpay",
+  "momo",
   "apple_pay",
 ] as const;
 export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];

@@ -112,4 +112,5 @@ Hành vi khung CONG_VIEC_32 và VNPAY giữ nguyên; chỉ thêm dòng vào `pay
 Ngày 2026-11-11:
 - `c41-payment-apple-pay.test.ts`: 4/4 kịch bản đạt.
 - Kiểm thử hồi quy `pnpm --filter api test` lần 1: 336/337 đạt; `c25-payment-methods` (KICHBAN_KIEMTHU_321) so cả danh mục phương thức nên lệch khi thêm `apple_pay_wallet`, sửa để chỉ xét phương thức của COD, VNPAY (cổng thêm sau cũng không làm vỡ kiểm thử); chạy lại tệp đạt. Lần 2: 47 tệp, 337/337 đạt.
+- Gộp nhánh nền sau khi CONG_VIEC_33 (MoMo) hợp nhất: giữ cả hai cổng; `c25-payment-methods` lấy bản trên nhánh nền (phương án A, người dùng duyệt); thêm câu trả lời `pending` (kiểu kết quả mới của khung, ZaloPay không gửi trạng thái này). c25-*, c32, c33, c41: đạt.
 - `pnpm typecheck` (13 gói), `pnpm lint`: đạt.

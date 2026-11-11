@@ -63,6 +63,8 @@ function preferredPaymentMethods(): string[] {
 const replies: Record<NotificationOutcome, { return_code: number; return_message: string }> = {
   success: { return_code: 1, return_message: "success" },
   already_confirmed: { return_code: 1, return_message: "already confirmed" },
+  // ZaloPay chỉ gửi kết quả khi đã thu tiền nên không có trạng thái đang xử lý; giữ cho đủ kiểu của khung (CONG_VIEC_33).
+  pending: { return_code: 1, return_message: "received" },
   not_found: { return_code: 2, return_message: "order not found" },
   invalid_amount: { return_code: 2, return_message: "invalid amount" },
   invalid_signature: { return_code: -1, return_message: "mac not equal" },
