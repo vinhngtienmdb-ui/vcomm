@@ -121,7 +121,7 @@ export class MarketplacePaymentsService {
     // Lỗi khi ghi nhận (kỳ kế toán đã khóa, cơ sở dữ liệu lỗi): trả lỗi để cổng gửi lại, ghi lại để tra soát.
     let reference = result.reference ?? result.gatewayOrderCode ?? null;
     const outcome = await this.database
-      .transaction((transaction) => this.record(transaction, gateway.code, result, (found) => (reference = found)))
+      .transaction((transaction) => this.record(transaction, gateway.code, result, (found) => (reference = result.reference ?? found)))
       .catch((error: unknown): NotificationOutcome => {
         this.logger.error(`Kết quả cổng ${gateway.code} ${reference}: ${(error as Error).message}`);
         return "error";
