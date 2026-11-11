@@ -4099,6 +4099,7 @@ export const paymentMethodCodes = [
   "sepay_bank_transfer",
   "payos_vietqr",
   "bank_transfer_vietqr",
+  "bidv_va_qr",
 ] as const;
 export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
 export const paymentGatewayCodes = [
@@ -4108,6 +4109,7 @@ export const paymentGatewayCodes = [
   "sepay",
   "payos",
   "bank_transfer",
+  "bidv",
 ] as const;
 export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];
 

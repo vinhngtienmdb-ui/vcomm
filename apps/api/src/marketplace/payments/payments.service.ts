@@ -11,7 +11,7 @@ import { DATABASE, type Database } from "../../database/database.module";
 import type { Actor } from "../../permissions/roles.service";
 import { SalesOrdersService } from "../../sales/sales-orders.service";
 import { MarketplaceOrdersService, refundRemainingPaid } from "../marketplace-orders.service";
-import type { GatewayNotification, GatewayRequest, NotificationOutcome } from "./payment-gateway";
+import type { GatewayNotification, GatewayRequest, InquiryOutcome, NotificationOutcome } from "./payment-gateway";
 import { gatewayAdapter, isOnlineMethod } from "./payment-gateway-registry";
 
 // Mỗi đơn mở trang thanh toán tối đa 10 lần.
@@ -21,6 +21,19 @@ const systemClient: ClientInfo = { ip: null, userAgent: "payment-expiry", reques
 // Lần thanh toán của kết quả cổng: theo số tham chiếu, hoặc mã đơn riêng của cổng (CONG_VIEC_35).
 const paymentMatch = (gatewayCode: string, result: GatewayNotification) =>
   result.reference ? sql`reference = ${result.reference} AND gateway_code = ${gatewayCode}` : sql`gateway_order_code = ${result.gatewayOrderCode ?? ""} AND gateway_code = ${gatewayCode}`;
+// Cổng có mã riêng thì tìm theo mã cổng, không thì theo số tham chiếu chung.
+const matchesReference = (reference: string) => sql`(gateway_reference = ${reference} OR (gateway_reference IS NULL AND reference = ${reference}))`;
+// Tên gửi cổng: bỏ dấu tiếng Việt, chỉ giữ chữ, số, dấu cách (BIDV không nhận ký tự có dấu, ký tự đặc biệt).
+const plainText = (value: string, maximumLength: number) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .replace(/[^A-Za-z0-9 ]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maximumLength);
 
 export type ReturnOutcome = { orderId: string | null; state: "succeeded" | "failed" | "pending" | "invalid" };
 
@@ -64,14 +77,19 @@ export class MarketplacePaymentsService {
       if (attempts >= attemptLimit) throw new ApiError("BUSINESS_RULE", "paymentAttemptLimit");
       // Số tham chiếu gửi cổng: số đơn chỉ giữ chữ và số, thêm số thứ tự lần thanh toán.
       const reference = `${order.document_no.replace(/[^A-Za-z0-9]/g, "")}T${String(attempts + 1).padStart(2, "0")}`;
+      // Cổng cần mã ngắn hơn (BIDV) tự đặt mã riêng, kết quả gửi về tìm theo mã đó (CONG_VIEC_37).
+      const gatewayReference = gateway.gatewayReference?.() ?? null;
       const amount = Math.round(Number(order.total));
       const gatewayOrderCode = gateway.createOrderCode?.() ?? null;
       await transaction.execute(sql`
         INSERT INTO marketplace.payments (order_id, gateway_code, method, reference, gateway_order_code, amount, created_by)
         VALUES (${orderId}, ${order.gateway_code}, ${order.payment_method}, ${reference}, ${gatewayOrderCode}, ${amount}, ${userId})`);
+        INSERT INTO marketplace.payments (order_id, gateway_code, method, reference, gateway_reference, amount, created_by)
+        VALUES (${orderId}, ${order.gateway_code}, ${order.payment_method}, ${reference}, ${gatewayReference}, ${amount}, ${userId})`);
       const deadline = new Date(order.payment_deadline!);
       const instruction = await gateway.start({
         reference,
+        gatewayReference,
         amount,
         method: order.payment_method,
         documentNo: order.document_no,
@@ -109,6 +127,8 @@ export class MarketplacePaymentsService {
         const payment = (
           await transaction.execute<{ id: string; order_id: string; reference: string; amount: string; status: string }>(sql`
           SELECT id, order_id, reference, amount::text, status FROM marketplace.payments WHERE ${paymentMatch(gateway.code, result)} FOR UPDATE`)
+          await transaction.execute<{ id: string; order_id: string; amount: string; status: string }>(sql`
+          SELECT id, order_id, amount::text, status FROM marketplace.payments WHERE gateway_code = ${gateway.code} AND ${matchesReference(result.reference)} FOR UPDATE`)
         ).rows[0];
         if (!payment) return "not_found";
         reference = payment.reference;
@@ -141,6 +161,42 @@ export class MarketplacePaymentsService {
     if (result.pending) return "pending";
     await this.complete(transaction, payment.id, payment.order_id, result, gatewayCode);
     return "success";
+  // Cổng vấn tin số tiền cần thu (CONG_VIEC_37; QUYTAC_NGHIEPVU_246): chỉ lần thanh toán đang chờ của đơn đang chờ thanh toán, còn hạn; không ghi nhận tiền.
+  async inquire(gatewayCode: string, request: GatewayRequest, ip: string): Promise<{ status: number; body: unknown }> {
+    const gateway = gatewayAdapter(gatewayCode);
+    if (!gateway?.inquire || !gateway.inquiryReply) throw new ApiError("NOT_FOUND", "notFound");
+    if (!gateway.configured()) return gateway.inquiryReply({ outcome: "error", reference: null });
+    const verified = await gateway.inquire(request).catch(() => null);
+    if (!verified) {
+      const retryAfterSeconds = await this.rateLimiter.hit(`payment-notify-invalid-${gateway.code}`, ip);
+      if (retryAfterSeconds !== null) throw new ApiError("RATE_LIMITED", "rateLimited", { retryAfterSeconds });
+      await this.log(gateway.code, null, request, "inquiry_invalid_signature");
+      return gateway.inquiryReply({ outcome: "invalid_signature", reference: null });
+    }
+    const result = await this.database
+      .execute<{ amount: string; status: string; order_status: string; open: boolean; document_no: string; buyer_name: string | null }>(
+        sql`
+        SELECT p.amount::text, p.status, m.status AS order_status, m.payment_deadline > now() AS open, so.document_no, so.buyer_name
+        FROM marketplace.payments p JOIN marketplace.orders m ON m.id = p.order_id JOIN sales.orders so ON so.id = m.sales_order_id
+        WHERE p.gateway_code = ${gateway.code} AND ${matchesReference(verified.reference)}`,
+      )
+      .then(({ rows: [payment] }): InquiryOutcome => {
+        if (!payment) return { outcome: "not_found", reference: verified.reference };
+        if (payment.status !== "pending" || payment.order_status !== "awaiting_payment" || !payment.open) return { outcome: "no_bill", reference: verified.reference };
+        return {
+          outcome: "found",
+          reference: verified.reference,
+          amount: Math.round(Number(payment.amount)),
+          documentNo: payment.document_no,
+          customerName: plainText(payment.buyer_name ?? "", 100) || "VCOMM",
+        };
+      })
+      .catch((error: unknown): InquiryOutcome => {
+        this.logger.error(`Vấn tin cổng ${gateway.code} ${verified.reference}: ${(error as Error).message}`);
+        return { outcome: "error", reference: verified.reference };
+      });
+    await this.log(gateway.code, verified.reference, request, `inquiry_${result.outcome}`);
+    return gateway.inquiryReply(result);
   }
 
   private async complete(transaction: Pick<Database, "execute">, paymentId: string, orderId: string, result: GatewayNotification, gatewayCode: string): Promise<void> {
@@ -176,6 +232,7 @@ export class MarketplacePaymentsService {
     const payment = (
       await this.database.execute<{ order_id: string; status: string }>(sql`
       SELECT order_id, status FROM marketplace.payments WHERE ${paymentMatch(gatewayCode, result)}`)
+      SELECT order_id, status FROM marketplace.payments WHERE gateway_code = ${gatewayCode} AND ${matchesReference(result.reference)}`)
     ).rows[0];
     if (!payment) return { orderId: null, state: "invalid" };
     if (payment.status === "succeeded") return { orderId: payment.order_id, state: "succeeded" };

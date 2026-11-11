@@ -4,6 +4,8 @@ import type { PaymentGatewayCode, PaymentMethodCode, PaymentTransferInstruction 
 export interface PaymentStartInput {
   // Số tham chiếu duy nhất của lần thanh toán (chữ và số), gửi cổng làm mã đơn.
   reference: string;
+  // Mã cổng tự đặt (gatewayReference() của cổng), null khi cổng dùng số tham chiếu chung.
+  gatewayReference?: string | null;
   // Số tiền đồng, đã làm tròn.
   amount: number;
   method: PaymentMethodCode;
@@ -41,7 +43,14 @@ export interface GatewayRequest {
   query: Record<string, unknown>;
   body: unknown;
   headers: Record<string, string | string[] | undefined>;
+  // Địa chỉ IP gửi yêu cầu (cổng giới hạn địa chỉ được gọi).
+  ip?: string;
 }
+
+// Kết quả vấn tin (cổng hỏi số tiền cần thu trước khi hạch toán, CONG_VIEC_37).
+export type InquiryOutcome =
+  | { outcome: "found"; reference: string; amount: number; documentNo: string; customerName: string }
+  | { outcome: "not_found" | "no_bill" | "invalid_signature" | "error"; reference: string | null };
 
 // Cách trả lời cổng theo kết quả xử lý.
 export type NotificationOutcome = "success" | "pending" | "not_found" | "invalid_amount" | "already_confirmed" | "invalid_signature" | "error";
@@ -58,4 +67,9 @@ export interface PaymentGatewayAdapter {
   reply(outcome: NotificationOutcome, notification?: GatewayNotification | null): { status: number; body: unknown };
   // Thông tin để hiện trang trả về (chỉ hiển thị, không ghi nhận tiền); cổng không có trang trả về thì để trống.
   verifyReturn?(request: GatewayRequest): Promise<GatewayNotification | null>;
+  // Cổng cần mã ngắn hơn số tham chiếu chung: sinh mã mới cho lần thanh toán, kết quả gửi về dùng mã này (CONG_VIEC_37).
+  gatewayReference?(): string;
+  // Cổng vấn tin trước khi thu: kiểm xác thực, trả mã của lần thanh toán; sai trả null.
+  inquire?(request: GatewayRequest): Promise<{ reference: string } | null>;
+  inquiryReply?(result: InquiryOutcome): { status: number; body: unknown };
 }

@@ -3676,7 +3676,9 @@
     "payos_vietqr": "VietQR bank transfer via PayOS",
     "gateway_payos": "PayOS",
     "bank_transfer_vietqr": "Bank transfer (VietQR)",
-    "gateway_bank_transfer": "Bank transfer"
+    "gateway_bank_transfer": "Bank transfer",
+    "bidv_va_qr": "BIDV bank transfer via VietQR",
+    "gateway_bidv": "BIDV"
   },
   "refunds": {
     "title": "VComm refunds",
