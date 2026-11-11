@@ -384,3 +384,17 @@
 - Rủi ro (người dùng chấp nhận): hồ sơ rác hàng loạt, đầy kho lưu tệp đính kèm, tốn tài nguyên máy chủ; giảm thiểu đề xuất trong tài liệu 22 (giới hạn kích thước, loại tệp, theo dõi dung lượng).
 - Trạng thái: Đã phê duyệt 2026-11-11.
 
+### THAY_DOI_24: Bán lẻ tại quầy dùng lại hóa đơn điện tử, quỹ, đơn bán – 2026-11-11
+- Lý do: CONG_VIEC_53 (bán lẻ tại quầy) cần mở rộng hành vi đã duyệt của các công việc đã phát hành 0.3.0.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11):
+  - CONG_VIEC_16 (hóa đơn điện tử): thêm loại hóa đơn khởi tạo từ máy tính tiền; hóa đơn bán lẻ tại quầy luôn dùng loại này.
+  - CONG_VIEC_13 (quỹ, công nợ): thêm chứng từ quỹ không gắn đối tượng: thu bán lẻ (`retail_receipt`), chi trả lại bán lẻ (`retail_refund`), thiếu quỹ (`cash_shortage`, hạch toán 1388), thừa quỹ (`cash_surplus`, hạch toán 3381); tiền vào quỹ bằng phiếu thu tổng khi đóng ca.
+  - CONG_VIEC_08 (bán hàng): đơn bán có cờ bán lẻ (`is_retail`) và thông tin người mua lấy hóa đơn.
+- Thành phần bị ảnh hưởng: CONG_VIEC_08, 13, 16; tài liệu 07, 10, 16, 17 phần liên quan.
+- Dữ liệu, API, giao diện, quyền: thêm cột, giá trị loại chứng từ; không đổi hành vi cũ.
+- Ảnh hưởng chức năng cũ: không; đơn và chứng từ cũ giữ nguyên.
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_53; hồi quy c8-*, c13-*, c16-*.
+- Mức quy mô: Vừa; làm trong CONG_VIEC_53.
+- Rủi ro: chưa đối chiếu nguyên văn quy định hóa đơn khởi tạo từ máy tính tiền (phải tra trước lát hóa đơn).
+- Trạng thái: Đã phê duyệt 2026-11-11.
+
