@@ -5851,4 +5851,210 @@ export interface MyTimesheetResponse {
   status: TimesheetStatus | null;
   confirmationDeadline: string | null;
   line: TimesheetLineItem | null;
+// CONG_VIEC_50: báo cáo quản trị (MODULE_15; API_170 đến API_175).
+export const analyticsReportKinds = ["sales", "inventory", "debt", "commission"] as const;
+export type AnalyticsReportKind = (typeof analyticsReportKinds)[number];
+
+export interface AnalyticsCompany {
+  id: string;
+  code: string;
+  name: string;
+  currency: string;
+  // QUYTAC_NGHIEPVU_339: chỉ công ty cùng đồng tiền hạch toán với công ty gốc được cộng vào dòng tổng.
+  inTotal: boolean;
+}
+
+// API_170
+export interface AnalyticsScopeResponse {
+  group: { id: string; name: string; currency: string };
+  today: string;
+  companies: AnalyticsCompany[];
+  // Công ty được xem theo từng nhóm báo cáo; mảng rỗng khi không có quyền nhóm đó.
+  reports: Record<AnalyticsReportKind, string[]>;
+}
+
+// QUYTAC_NGHIEPVU_343: khoảng ngày bắt buộc, từ ngày không sau đến ngày, tối đa 366 ngày.
+export const analyticsMaximumDays = 366;
+export const analyticsCompanyIdsSchema = z
+  .string()
+  .optional()
+  .transform((value) => (value ? value.split(",").filter(Boolean) : undefined))
+  .pipe(z.array(z.uuid()).max(100).optional());
+export const analyticsPeriodSchema = { from: isoDate, to: isoDate };
+export const analyticsFormatSchema = z.enum(["json", "xlsx"]).default("json");
+
+// Dòng tiền của báo cáo quản trị theo đồng tiền hạch toán; inTotal = cộng vào dòng tổng (QUYTAC_NGHIEPVU_339).
+export interface AnalyticsMoneyRow {
+  currency: string;
+  inTotal: boolean;
+}
+// QUYTAC_NGHIEPVU_343: bảng hiện tối đa 500 dòng, xuất Excel tối đa 20.000 dòng.
+export const analyticsDisplayRows = 500;
+export const analyticsExportRows = 20_000;
+
+// API_171
+export const analyticsSalesGroupings = ["company", "channel", "product", "day", "month"] as const;
+export type AnalyticsSalesGrouping = (typeof analyticsSalesGroupings)[number];
+export const analyticsSalesQuerySchema = z
+  .object({
+    companyIds: analyticsCompanyIdsSchema,
+    ...analyticsPeriodSchema,
+    groupBy: z.enum(analyticsSalesGroupings).default("company"),
+    channelId: z.uuid().optional(),
+    marketplaceOnly: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
+    format: analyticsFormatSchema,
+  })
+  .strict();
+export interface AnalyticsSalesFigures {
+  quantity: string;
+  revenue: string;
+  cost: string;
+  grossProfit: string;
+  internalRevenue: string;
+}
+export interface AnalyticsSalesRow extends AnalyticsMoneyRow, AnalyticsSalesFigures {
+  key: string;
+  label: string;
+}
+export interface AnalyticsSalesResponse {
+  from: string;
+  to: string;
+  groupBy: AnalyticsSalesGrouping;
+  currency: string;
+  companies: AnalyticsCompany[];
+  channels: { id: string; label: string }[];
+  rows: AnalyticsSalesRow[];
+  // Tổng các dòng cùng đồng tiền với công ty gốc, tính trên toàn bộ dữ liệu.
+  totals: AnalyticsSalesFigures & { revenueExcludingInternal: string };
+  // Số dòng có dữ liệu khi bảng bị cắt; null khi hiện đủ.
+  totalRows: number | null;
+}
+
+// API_172
+export const analyticsInventoryGroupings = ["company", "warehouse", "product"] as const;
+export type AnalyticsInventoryGrouping = (typeof analyticsInventoryGroupings)[number];
+export const analyticsInventoryQuerySchema = z
+  .object({
+    companyIds: analyticsCompanyIdsSchema,
+    ...analyticsPeriodSchema,
+    groupBy: z.enum(analyticsInventoryGroupings).default("warehouse"),
+    warehouseId: z.uuid().optional(),
+    format: analyticsFormatSchema,
+  })
+  .strict();
+export interface AnalyticsInventoryFigures {
+  openingQuantity: string;
+  openingValue: string;
+  inQuantity: string;
+  inValue: string;
+  outQuantity: string;
+  outValue: string;
+  closingQuantity: string;
+  closingValue: string;
+  // Giá vốn hàng bán trong kỳ (QUYTAC_NGHIEPVU_337), vòng quay, số ngày tồn; null khi chia cho 0 (QUYTAC_NGHIEPVU_340).
+  costOfSales: string;
+  turnover: string | null;
+  daysOfInventory: string | null;
+}
+export interface AnalyticsInventoryRow extends AnalyticsMoneyRow, AnalyticsInventoryFigures {
+  key: string;
+  label: string;
+}
+export interface AnalyticsInventoryResponse {
+  from: string;
+  to: string;
+  days: number;
+  groupBy: AnalyticsInventoryGrouping;
+  currency: string;
+  companies: AnalyticsCompany[];
+  warehouses: { id: string; label: string }[];
+  rows: AnalyticsInventoryRow[];
+  // Tổng giá trị các công ty cùng đồng tiền với công ty gốc; số lượng không cộng vì khác đơn vị giữa sản phẩm.
+  totals: Pick<AnalyticsInventoryFigures, "openingValue" | "inValue" | "outValue" | "closingValue" | "costOfSales" | "turnover" | "daysOfInventory">;
+  totalRows: number | null;
+}
+
+// API_173
+export const analyticsDebtGroupings = ["company", "partner"] as const;
+export type AnalyticsDebtGrouping = (typeof analyticsDebtGroupings)[number];
+export const analyticsDebtQuerySchema = z
+  .object({
+    companyIds: analyticsCompanyIdsSchema,
+    side: z.enum(["receivable", "payable"]).default("receivable"),
+    groupBy: z.enum(analyticsDebtGroupings).default("company"),
+    format: analyticsFormatSchema,
+  })
+  .strict();
+export interface AnalyticsDebtFigures {
+  balance: string;
+  notDue: string;
+  overdue1To30: string;
+  overdue31To60: string;
+  overdue61To90: string;
+  overdueOver90: string;
+  advance: string;
+  // Số dư với đối tác nội bộ thuộc tập đoàn (QUYTAC_NGHIEPVU_338).
+  internalBalance: string;
+}
+export interface AnalyticsDebtRow extends AnalyticsMoneyRow, AnalyticsDebtFigures {
+  key: string;
+  label: string;
+}
+export interface AnalyticsDebtResponse {
+  today: string;
+  side: DebtSide;
+  groupBy: AnalyticsDebtGrouping;
+  currency: string;
+  companies: AnalyticsCompany[];
+  // Thẻ phải thu, phải trả của các công ty cùng đồng tiền với công ty gốc.
+  summary: Record<DebtSide, { balance: string; overdue: string }>;
+  rows: AnalyticsDebtRow[];
+  totals: AnalyticsDebtFigures & { balanceExcludingInternal: string };
+  totalRows: number | null;
+}
+
+// API_174
+export const analyticsCommissionGroupings = ["share", "beneficiary"] as const;
+export type AnalyticsCommissionGrouping = (typeof analyticsCommissionGroupings)[number];
+export const analyticsCommissionQuerySchema = z
+  .object({
+    companyIds: analyticsCompanyIdsSchema,
+    ...analyticsPeriodSchema,
+    groupBy: z.enum(analyticsCommissionGroupings).default("share"),
+    format: analyticsFormatSchema,
+  })
+  .strict();
+export interface AnalyticsCommissionResponse {
+  from: string;
+  to: string;
+  groupBy: AnalyticsCommissionGrouping;
+  currency: string;
+  companies: AnalyticsCompany[];
+  summary: {
+    credited: string;
+    creditedLines: number;
+    // Ước tính hoa hồng của đơn chưa hoàn tất tại hôm nay (QUYTAC_NGHIEPVU_203).
+    pending: string;
+    paid: { count: number; amount: string; taxAmount: string; feeAmount: string; netAmount: string };
+    pendingWithdrawals: { count: number; amount: string };
+    // Tổng số dư ví; null khi công ty vận hành VComm không nằm trong các công ty đã chọn.
+    walletBalance: string | null;
+  };
+  // key là loại phần hưởng (referral, staff, team_head, regional_director, director) hoặc mã người hưởng.
+  rows: { key: string; label: string; lines: number; amount: string }[];
+  withdrawals: { id: string; userName: string; paidOn: string; amount: string; taxAmount: string; feeAmount: string; netAmount: string }[];
+  totalRows: number | null;
+  totalWithdrawals: number | null;
+}
+
+// API_175: chỉ tiêu tổng quan theo quyền từng nhóm; null khi không có quyền nhóm đó hoặc không có công ty đã chọn được xem.
+export const analyticsOverviewQuerySchema = z.object({ companyIds: analyticsCompanyIdsSchema, ...analyticsPeriodSchema }).strict();
+export interface AnalyticsOverviewResponse {
+  from: string;
+  to: string;
+  currency: string;
+  sales: Pick<AnalyticsSalesResponse, "rows" | "totals"> | null;
+  inventory: AnalyticsInventoryResponse["totals"] | null;
+  debt: AnalyticsDebtResponse["summary"] | null;
+  commission: Pick<AnalyticsCommissionResponse["summary"], "credited" | "pending" | "walletBalance"> | null;
 }

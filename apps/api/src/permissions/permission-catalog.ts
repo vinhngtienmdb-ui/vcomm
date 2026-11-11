@@ -130,10 +130,17 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "hr.payroll.view", appCode: "hr", nameVi: "Xem bảng lương, phiếu lương", nameEn: "View payrolls and payslips", isSensitive: true },
   { code: "hr.payroll.manage", appCode: "hr", nameVi: "Lập, tính, gửi, ghi đã trả bảng lương; hồ sơ lương nhân viên", nameEn: "Manage payrolls", isSensitive: true },
   { code: "hr.payroll.setup", appCode: "hr", nameVi: "Thiết lập lương, loại phụ cấp; tham số pháp luật khi gán ở phạm vi tập đoàn", nameEn: "Set up payroll", isSensitive: true },
+  // CONG_VIEC_50 (QUYTAC_NGHIEPVU_336): phạm vi tập đoàn xem mọi công ty của tập đoàn, phạm vi công ty xem công ty đó.
+  accessPermission("analytics", "Báo cáo quản trị", "Management reports"),
+  { code: "analytics.sales.view", appCode: "analytics", nameVi: "Xem báo cáo bán hàng", nameEn: "View sales reports", isSensitive: false },
+  { code: "analytics.inventory.view", appCode: "analytics", nameVi: "Xem báo cáo tồn kho và luân chuyển", nameEn: "View inventory reports", isSensitive: false },
+  { code: "analytics.debt.view", appCode: "analytics", nameVi: "Xem báo cáo công nợ", nameEn: "View debt reports", isSensitive: true },
+  { code: "analytics.commission.view", appCode: "analytics", nameVi: "Xem báo cáo hoa hồng và ví", nameEn: "View commission and wallet reports", isSensitive: true },
 ];
 
 const attendancePermissions = ["hr.attendance.view", "hr.attendance.manage", "hr.leave.manage", "hr.timesheet.manage"];
 export const hrPermissions = ["hr.employee.view", "hr.employee.manage", "hr.identity.view", "hr.contract.manage", ...attendancePermissions, "hr.payroll.view", "hr.payroll.manage", "hr.payroll.setup"];
+const analyticsPermissions = permissionCatalog.filter((permission) => permission.appCode === "analytics").map((permission) => permission.code);
 
 const inventoryPermissions = permissionCatalog.filter((permission) => permission.appCode === "inventory").map((permission) => permission.code);
 
@@ -154,6 +161,7 @@ const companyAdminPermissions = [
   "platform.number_sequence.manage",
   "platform.audit.view",
   "platform.proposal_template.manage",
+  ...analyticsPermissions.filter((code) => code !== "analytics.access"),
   "catalog.product.view",
   "catalog.product.manage",
   "catalog.price.view",
@@ -206,7 +214,7 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     nameEn: "Group administrator",
     // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), Đối tác (CONG_VIEC_06), Mua hàng (CONG_VIEC_07), Bán hàng (CONG_VIEC_08), Tài chính – Kế toán (CONG_VIEC_13), cộng quyền truy cập mọi mini app.
     permissionCodes: permissionCatalog
-      .filter((permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance", "hr"].includes(permission.appCode) || permission.code.endsWith(".access"))
+      .filter((permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance", "hr", "analytics"].includes(permission.appCode) || permission.code.endsWith(".access"))
       .map((permission) => permission.code),
   },
   { code: "company_admin", nameVi: "Quản trị công ty", nameEn: "Company administrator", permissionCodes: companyAdminPermissions },
@@ -237,7 +245,7 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "sales.order.view",
     ],
   },
-  { code: "warehouse_manager", nameVi: "Quản lý kho", nameEn: "Warehouse manager", permissionCodes: inventoryPermissions },
+  { code: "warehouse_manager", nameVi: "Quản lý kho", nameEn: "Warehouse manager", permissionCodes: [...inventoryPermissions, "analytics.access", "analytics.inventory.view"] },
   {
     code: "purchaser",
     nameVi: "Nhân viên mua hàng",
@@ -297,6 +305,10 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "sales.access",
       "sales.order.view",
       "sales.order.manage",
+      // CONG_VIEC_50: báo cáo công nợ, hoa hồng và ví.
+      "analytics.access",
+      "analytics.debt.view",
+      "analytics.commission.view",
     ],
   },
   {
@@ -335,6 +347,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       // CONG_VIEC_48: kế toán trưởng xem bảng lương để duyệt, đối chiếu bút toán.
       "hr.access",
       "hr.payroll.view",
+      // CONG_VIEC_50: mọi báo cáo quản trị.
+      ...analyticsPermissions,
     ],
   },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },

@@ -111,6 +111,13 @@ import { CollectionStatementsController } from "./collection/collection-statemen
 import { CollectionStatementsService } from "./collection/collection-statements.service";
 import { ConsolidationController } from "./consolidation/consolidation.controller";
 import { ConsolidationService } from "./consolidation/consolidation.service";
+import { AnalyticsController } from "./analytics/analytics.controller";
+import { AnalyticsScopeService } from "./analytics/analytics-scope.service";
+import { SalesReportService } from "./analytics/sales-report.service";
+import { InventoryReportService } from "./analytics/inventory-report.service";
+import { DebtReportService } from "./analytics/debt-report.service";
+import { CommissionReportService } from "./analytics/commission-report.service";
+import { OverviewService } from "./analytics/overview.service";
 import { EinvoiceCorrectionsService } from "./einvoice/einvoice-corrections.service";
 import { EinvoiceSettingsService } from "./einvoice/einvoice-settings.service";
 import { EinvoicesController } from "./einvoice/einvoices.controller";
@@ -147,7 +154,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController],
   providers: [
     AuthService,
     ActivationService,
@@ -224,6 +231,12 @@ import { UsersService } from "./users/users.service";
     BankReconciliationService,
     CollectionStatementsService,
     ConsolidationService,
+    AnalyticsScopeService,
+    SalesReportService,
+    InventoryReportService,
+    DebtReportService,
+    CommissionReportService,
+    OverviewService,
     RequisitionsService,
     PurchaseOrdersService,
     StockLedgerService,

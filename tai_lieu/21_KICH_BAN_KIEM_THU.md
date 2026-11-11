@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng), phần 7 (Đối soát thu hộ), phần 8 (Báo cáo tài chính hợp nhất), MODULE_07 phần 2 (Gán khách hàng cho nhân viên kinh doanh): đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 1.6
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng), phần 7 (Đối soát thu hộ), phần 8 (Báo cáo tài chính hợp nhất), MODULE_07 phần 2 (Gán khách hàng cho nhân viên kinh doanh), MODULE_15 phần 1 (Báo cáo quản trị): đúng, sai, giá trị biên, từng vai trò.
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt; CONG_VIEC_50 (2026-11-11): thêm KICHBAN_KIEMTHU_476 đến KICHBAN_KIEMTHU_485 của MODULE_15 (báo cáo quản trị; 476 đến 483 tự động; 484, 485 tự động một phần: cắt 500 dòng, xuất Excel tồn kho, công nợ, đo thời gian phản hồi chưa có kiểm thử tự động)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -4242,3 +4242,116 @@ Dữ liệu chung: công ty VCR, phòng Kinh doanh (nhóm bán hàng), phòng K�
 - Kết quả mong đợi: Mã vị trí đổi vị trí hiện tại; thùng thêm 1 thùng (theo đơn quy đổi 24 chai), quét lại cộng dồn; mã không khớp báo "Không tìm thấy mã …"; serial ghi vào dòng đang chờ, trùng bị từ chối
 - Kiểm thử tự động: apps/mobile-warehouse/src/lib/scan.test.ts; xem trước bản web
 - Lát: L1, L2
+## CHUC_NANG_175 đến CHUC_NANG_177: Báo cáo quản trị (CONG_VIEC_50)
+
+Dữ liệu chung: tập đoàn VComm (công ty gốc), công ty con VCR (Bán lẻ, vận hành VComm) và VCT (Thương mại), cùng đồng tiền đồng Việt Nam; dữ liệu chung của CONG_VIEC_24 (`apps/api/test/marketplace-fixture.ts`); tài khoản quản trị tập đoàn, quản trị công ty VCR, Kế toán, Quản lý kho, Thủ kho; GHN giả lập. Mỗi tệp kiểm thử chạy trên cơ sở dữ liệu PostgreSQL thật.
+
+### KICHBAN_KIEMTHU_476: Phạm vi xem theo phạm vi gán quyền; công ty ngoài phạm vi bị từ chối
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_321
+- Chức năng: CHUC_NANG_175
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Vai trò thực hiện: Quản lý kho gán ở phạm vi tập đoàn, công ty, chi nhánh; quản trị tập đoàn; quản trị công ty VCR; người chưa đăng nhập
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; tập đoàn VComm có công ty gốc, VCR, VCT cùng đồng tiền đồng Việt Nam; người dùng là thành viên VCR và VCT.
+- Các bước: (1) Quản lý kho phạm vi tập đoàn gọi API_170 khi đang chọn VCR. (2) Quản lý kho phạm vi công ty VCR gọi API_170 khi chọn VCR, rồi khi chọn VCT. (3) Quản lý kho phạm vi chi nhánh gọi API_170. (4) Quản trị công ty VCR gọi API_171 với `companyIds` là VCT, rồi không có `companyIds`. (5) Chưa đăng nhập gọi API_170 đến API_175. (6) Gọi API_171 với `companyIds`, `groupBy`, `channelId`, `from`, `marketplaceOnly`, `format` độc hại hoặc sai, tham số thừa.
+- Kết quả mong đợi: Bước 1: `200`, tập đoàn đúng mã, đồng tiền; nhóm tồn kho có ba công ty, các nhóm khác rỗng; ba công ty đều cộng vào tổng. Bước 2: nhóm tồn kho chỉ VCR; chọn VCT `403`. Bước 3: `200`, không có công ty nào. Bước 4: `403`; không có `companyIds` chỉ có VCR. Bước 5: `401`. Bước 6: `400`, thông báo không lộ câu lệnh, chi tiết kỹ thuật.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c50-analytics-scope.test.ts`; bước 4: `apps/api/test/c50-analytics-sales.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_477: Quyền xét riêng từng nhóm báo cáo; tổng quan theo quyền
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_321
+- Chức năng: CHUC_NANG_175
+- Loại: Phân quyền
+- Vai trò thực hiện: Kế toán (phạm vi công ty); Quản lý kho (phạm vi công ty); Thủ kho; nhân viên không có quyền báo cáo; quản trị tập đoàn
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; dữ liệu của KICHBAN_KIEMTHU_483 (đơn VComm, hoa hồng, rút tiền).
+- Các bước: (1) Kế toán gọi API_170. (2) Quản trị tập đoàn gọi API_170. (3) Nhân viên không có `analytics.access` gọi API_170. (4) Quản trị tập đoàn gọi API_175. (5) Quản lý kho chỉ có quyền tồn kho gọi API_175; gọi API_175 với công ty ngoài phạm vi; gọi API_171, API_173, API_174. (6) Thủ kho gọi API_172.
+- Kết quả mong đợi: Bước 1: chỉ nhóm công nợ, hoa hồng có VCR; bán hàng, tồn kho rỗng. Bước 2: cả bốn nhóm có ba công ty. Bước 3: `403`. Bước 4: đủ bốn nhóm chỉ tiêu. Bước 5: chỉ có chỉ tiêu tồn kho, bán hàng, công nợ, hoa hồng là `null`; công ty ngoài phạm vi `403`; ba báo cáo khác `403`. Bước 6: `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c50-analytics-scope.test.ts`, `apps/api/test/c50-analytics-commissions.test.ts`, `apps/api/test/c50-analytics-inventory.test.ts`
+- Lát: L0, L4
+
+### KICHBAN_KIEMTHU_478: Doanh số theo hàng đã giao trừ hàng trả, khớp bút toán doanh thu, giá vốn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_322
+- Chức năng: CHUC_NANG_176
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Quản trị tập đoàn
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung của CONG_VIEC_24 (`apps/api/test/marketplace-fixture.ts`); bảng giá chung gồm thuế: kem 110.000, xà phòng 10.000; giá vốn kem 100.000, xà phòng 20.000; kem trên VComm 250.000 gồm thuế; cài đặt cho phép lập đơn bán tay có hàng hóa bật.
+- Các bước: (1) Đơn bán lẻ 3 xà phòng giao 1 rồi 2, nhận trả 1; đơn bán sỉ 1 kem và 1 xà phòng tặng (chiết khấu 100%); một đơn VComm 1 kem và một đơn của người mua thử. (2) Gọi API_171 nhóm theo công ty trong tháng. (3) So doanh số, giá vốn của VCR với tổng tiền chưa thuế theo `finance.inventory_amounts` và giá trị xuất kho đã ghi sổ của các phiếu (trừ phiếu của người mua thử). (4) Dời ngày phiếu nhận trả sang tháng sau; gọi lại tháng này và tháng sau.
+- Kết quả mong đợi: Bước 2: VCR số lượng 5, doanh số 345.455, giá vốn 260.000, lãi gộp 85.455, trong đó bán nội bộ 100.000. Bước 3: doanh số, giá vốn bằng số của phiếu. Dòng tổng doanh số 345.455, tổng loại trừ nội bộ 245.455. Bước 4: tháng này số lượng 6, doanh số 354.546, giá vốn 280.000; tháng sau số lượng −1, doanh số −9.091, giá vốn −20.000, lãi gộp 10.909.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c50-analytics-sales.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_479: Nhóm theo công ty, kênh, sản phẩm, ngày, tháng; lọc kênh, chỉ đơn VComm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_323
+- Chức năng: CHUC_NANG_176
+- Loại: Đúng
+- Vai trò thực hiện: Quản trị tập đoàn
+- Điều kiện ban đầu và dữ liệu: Dữ liệu của KICHBAN_KIEMTHU_478 (kênh Bán lẻ, Bán sỉ, kênh VComm; đơn của người mua thử).
+- Các bước: (1) Gọi API_171 nhóm theo kênh, sản phẩm, ngày, tháng. (2) Gọi với `marketplaceOnly=true`. (3) Gọi nhóm theo sản phẩm với `channelId` là kênh Bán lẻ.
+- Kết quả mong đợi: Bước 1: kênh Bán lẻ 18.182 (nhãn "VCR · Bán lẻ"), Bán sỉ 100.000 (nội bộ 100.000), kênh VComm 227.273 số lượng 1 (không tính đơn người mua thử, không tính phí giao hàng); sản phẩm kem 2 cái 327.273, xà phòng 3 cái 18.182; một dòng ngày hôm nay, một dòng tháng này, cùng 345.455. Bước 2: tổng doanh số 227.273, số lượng 1. Bước 3: chỉ dòng xà phòng; danh sách kênh vẫn đủ.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c50-analytics-sales.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_480: Bán nội bộ, công nợ nội bộ, tổng loại trừ nội bộ; công ty khác đồng tiền
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_324
+- Chức năng: CHUC_NANG_176, CHUC_NANG_177
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Quản trị tập đoàn
+- Điều kiện ban đầu và dữ liệu: Dữ liệu của KICHBAN_KIEMTHU_478: đơn bán sỉ cho khách là đối tác nội bộ (công ty VCT); công nợ nội bộ của KICHBAN_KIEMTHU_482.
+- Các bước: (1) Gọi API_171 nhóm theo công ty. (2) Đổi đồng tiền hạch toán của VCR sang USD; gọi lại; trả lại đồng Việt Nam. (3) Gọi API_171 chỉ VCT (không có bán). (4) Gọi API_173 phải thu, phải trả theo công ty.
+- Kết quả mong đợi: Bước 1: tổng doanh số 345.455, trong đó bán nội bộ 100.000, tổng loại trừ nội bộ 245.455. Bước 2: dòng VCR đồng tiền USD, không cộng vào tổng (ghi chú khác đồng tiền); dòng tổng bằng 0. Bước 3: `200`, không có dòng, tổng 0. Bước 4: cột trong đó nội bộ đúng số với đối tác nội bộ; tổng loại trừ nội bộ đúng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c50-analytics-sales.test.ts`, `apps/api/test/c50-analytics-debts.test.ts`
+- Lát: L1, L3
+
+### KICHBAN_KIEMTHU_481: Tồn đầu, nhập, xuất, cuối kỳ theo kho, công ty, sản phẩm; vòng quay; kỳ không phát sinh
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_325
+- Chức năng: CHUC_NANG_176
+- Loại: Đúng, giá trị biên, phân quyền
+- Vai trò thực hiện: Quản trị tập đoàn; Thủ kho
+- Điều kiện ban đầu và dữ liệu: Công ty VCR có kho K1, K2; hàng A giá vốn 10.000.
+- Các bước: (1) Nhập 100 vào K1 (số dư đầu), bán 10 từ K1, chuyển 30 từ K1 sang K2, xuất khác 5 từ K2. (2) Gọi API_172 hôm nay nhóm theo kho, công ty, sản phẩm. (3) So tồn cuối kỳ của công ty với tồn hiện tại. (4) Gọi từ hôm nay đến ngày mai; gọi riêng ngày mai. (5) Lọc kho K2; lọc K2 với công ty VCT. (6) Thủ kho gọi API_172.
+- Kết quả mong đợi: Bước 2: K1 nhập 100 (1.000.000), xuất 40 (400.000), cuối kỳ 60 (600.000), giá vốn hàng bán 100.000, vòng quay 0,33, số ngày tồn 3; K2 nhập 30, xuất 5, cuối kỳ 25 (250.000), vòng quay, số ngày tồn để trống; theo công ty nhập 130, xuất 45, cuối kỳ 85 (850.000), vòng quay 0,24, số ngày tồn 4,3; theo sản phẩm một dòng hàng A. Bước 3: khớp số lượng, giá trị tồn hiện tại. Bước 4: số ngày của kỳ chỉ tính đến hôm nay (vòng quay 0,33, 3 ngày); ngày mai không phát sinh: đầu kỳ 85 (850.000), nhập, xuất 0, vòng quay để trống. Bước 5: chỉ dòng K2; công ty ngoài kho `403`. Bước 6: `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c50-analytics-inventory.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_482: Tuổi nợ từng công ty khớp sổ công nợ; theo đối tác; nội bộ; phạm vi
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_326
+- Chức năng: CHUC_NANG_177
+- Loại: Đúng, phân quyền
+- Vai trò thực hiện: Quản trị tập đoàn; quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: VCR: khách ngoài phải thu 1.000.000 quá hạn 45 ngày, 500.000 chưa đến hạn; phải thu VCT 300.000 quá hạn 100 ngày; phải trả khách ngoài 250.000 quá hạn 5 ngày. VCT: phải trả VCR 300.000 quá hạn 100 ngày; phải thu khách ngoài 700.000 quá hạn 20 ngày, trả trước 100.000.
+- Các bước: (1) Gọi API_173 phải thu theo công ty; so từng công ty với sổ công nợ (API_85). (2) Gọi theo đối tác; so từng đối tác. (3) Gọi phải trả theo công ty. (4) Quản trị công ty VCR gọi API_173; gọi với công ty VCT.
+- Kết quả mong đợi: Bước 1: từng công ty khớp sổ công nợ; VCR số dư 1.800.000, chưa đến hạn 500.000, quá hạn 31 đến 60 ngày 1.000.000, trên 90 ngày 300.000, trong đó nội bộ 300.000; tổng 2.400.000, tổng loại trừ nội bộ 2.100.000; thẻ phải thu 2.400.000 (quá hạn 1.900.000), phải trả 550.000 (quá hạn 550.000). Bước 2: từng đối tác khớp sổ công nợ, nhãn kèm mã công ty. Bước 3: dòng VCT số dư 300.000, nội bộ 300.000, trên 90 ngày 300.000. Bước 4: chỉ VCR, thẻ phải thu 1.800.000 (quá hạn 1.300.000); công ty VCT `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c50-analytics-debts.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_483: Hoa hồng ghi có, đang chờ, rút tiền đã chi, rút đang chờ, số dư ví
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_327
+- Chức năng: CHUC_NANG_177
+- Loại: Đúng, bảo mật
+- Vai trò thực hiện: Quản trị tập đoàn
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung của CONG_VIEC_24; kem hoa hồng giới thiệu 5%; người giới thiệu có khách đặt đơn 2 kem đã hoàn tất (ghi có 22.727) và đơn 1 kem đã giao chưa hoàn tất (ước tính 11.364); người giới thiệu rút 150.000 đã duyệt, đã chi; người khác rút 100.000 đang chờ duyệt.
+- Các bước: (1) Gọi API_174 tháng này theo loại phần hưởng; so số dư ví với tổng số dư `marketplace.wallets`. (2) Gọi theo người hưởng. (3) Gọi tháng sau. (4) Gọi chỉ công ty VCT (không vận hành VComm). (5) Xuất Excel.
+- Kết quả mong đợi: Bước 1: đã ghi có 22.727 (1 dòng), đang chờ 11.364, rút đã chi 1 yêu cầu 150.000 (thuế 0, phí 0, thực nhận 150.000), rút đang chờ 1 yêu cầu 100.000, số dư ví 92.727; dòng "Giới thiệu" 22.727; bảng rút tiền có họ tên, ngày chi; kết quả không chứa số điện thoại người hưởng. Bước 2: một dòng người hưởng 22.727. Bước 3: đã ghi có 0, đã chi 0; đang chờ 11.364, số dư ví 92.727 (tại hôm nay). Bước 4: đã ghi có 0, đang chờ 0, số dư ví để trống. Bước 5: `200`, tệp Excel.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c50-analytics-commissions.test.ts`
+- Lát: L4
+
+### KICHBAN_KIEMTHU_484: Khoảng ngày bắt buộc, tối đa 366 ngày; cắt 500 dòng; báo cáo không ghi dữ liệu nghiệp vụ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_328
+- Chức năng: CHUC_NANG_175 đến CHUC_NANG_177
+- Loại: Sai, giá trị biên, toàn vẹn
+- Vai trò thực hiện: Quản trị tập đoàn; quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Dữ liệu của KICHBAN_KIEMTHU_478.
+- Các bước: (1) Gọi API_171 thiếu `from`, `to`; từ ngày sau đến ngày; 367 ngày; 366 ngày; ngày không có thật. (2) Đếm số dòng phiếu kho, đơn bán, khoản công nợ; gọi báo cáo; đếm lại. (3) Quản trị công ty VCR gọi với công ty VCT; gọi không có `companyIds`. (4) Báo cáo có trên 500 dòng nhóm theo sản phẩm.
+- Kết quả mong đợi: Bước 1: `400` tại `from`, `to`; tại `to` "Từ ngày không được sau đến ngày."; tại `to` "Khoảng ngày tối đa 366 ngày. Hãy thu hẹp khoảng ngày."; 366 ngày `200`; tại `from` "Giá trị không hợp lệ.". Bước 2: số dòng không đổi. Bước 3: `403`; chỉ có VCR. Bước 4: 500 dòng xếp theo số tiền giảm dần, `totalRows` là tổng số dòng, ghi chú cắt trên màn hình, dòng tổng tính trên toàn bộ.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c50-analytics-sales.test.ts` (bước 1 đến 3), `apps/api/test/c50-analytics-inventory.test.ts` (bước 4: bảng trên 500 dòng)
+- Lát: L1
+
+### KICHBAN_KIEMTHU_485: Xuất Excel đúng số trên màn hình; nhật ký xuất; thời gian phản hồi
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_328
+- Chức năng: CHUC_NANG_175 đến CHUC_NANG_177
+- Loại: Đúng, hiệu năng
+- Vai trò thực hiện: Quản trị tập đoàn
+- Điều kiện ban đầu và dữ liệu: Dữ liệu của KICHBAN_KIEMTHU_478, KICHBAN_KIEMTHU_483; dữ liệu sinh số lượng lớn (1.000.000 dòng thẻ kho, 200.000 dòng phiếu) cho phần đo thời gian.
+- Các bước: (1) Gọi API_171 nhóm theo kênh dạng `json`, rồi `format=xlsx`; đọc lại tệp. (2) Đọc nhật ký thao tác. (3) Xuất Excel API_172, API_173, API_174. (4) Đo thời gian phản hồi từng báo cáo với dữ liệu sinh số lượng lớn.
+- Kết quả mong đợi: Bước 1: `200`, tên tệp `bao-cao-ban-hang-<từ ngày>-<đến ngày>.xlsx`; các dòng (nhãn, doanh số) và dòng "Tổng loại trừ nội bộ" khớp `json`. Bước 2: có dòng `analytics.sales.export` với số dòng đã xuất. Bước 3: `200`, tệp Excel. Bước 4: mỗi báo cáo trả về dưới 3 giây (Mong muốn).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c50-analytics-sales.test.ts` (bước 1, 2), `apps/api/test/c50-analytics-inventory.test.ts` (xuất API_172), `apps/api/test/c50-analytics-debts.test.ts` (xuất API_173), `apps/api/test/c50-analytics-commissions.test.ts` (xuất API_174); đo thời gian phản hồi làm thủ công với dữ liệu sinh (1.000.000 dòng thẻ kho, 200.000 dòng phiếu, khoảng 366 ngày): mọi báo cáo dưới 3 giây
+- Lát: L1, L4
