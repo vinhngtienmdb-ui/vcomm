@@ -4007,6 +4007,39 @@ Dữ liệu chung: công ty VCR; phòng ban có trưởng phòng; tài khoản Q
 - Kiểm thử tự động: Tự động API – `apps/api/test/c57-stations.test.ts`
 - Lát: L1 (CONG_VIEC_57)
 
+### KICHBAN_KIEMTHU_561: Danh sách trạm khi đặt
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_391
+- Chức năng: CHUC_NANG_201
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Khách mua
+- Điều kiện ban đầu và dữ liệu: Trạm Thủ Đức (xã Linh Xuân, nhận tại trạm và trạm giao Linh Xuân, Tam Bình; phí 15.000, miễn từ 600.000; kho 5 kem); trạm Quận 1 (xã Thủ Đức, chỉ nhận tại trạm; kho 1 kem); bật thanh toán khi nhận tại trạm; khách có địa chỉ Linh Xuân và địa chỉ Hà Nội.
+- Các bước: (1) Xem trước nhận tại trạm 1 kem. (2) 2 kem, chọn Thủ Đức. (3) Trạm giao 2 kem, 3 kem; trạm giao với địa chỉ Hà Nội. (4) Giao qua đơn vị vận chuyển.
+- Kết quả mong đợi: Bước 1: hai trạm, Thủ Đức (cùng xã) trước; phí 0; có `pay_at_station`, không có `cod`. Bước 2: chỉ Thủ Đức; tổng 500.000; không lộ kho. Bước 3: phí 15.000, tổng 515.000; 750.000 miễn phí; Hà Nội không có trạm. Bước 4: không có trạm, phí 30.000, không có `pay_at_station`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-orders.test.ts`
+- Lát: L2 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_562: Đặt đơn nhận tại trạm, trạm giao
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_392, TIEUCHI_NGHIEMTHU_393, TIEUCHI_NGHIEMTHU_401
+- Chức năng: CHUC_NANG_201
+- Loại: Đúng, sai
+- Vai trò thực hiện: Khách mua; Quản trị công ty (giao cho đơn vị vận chuyển)
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_561.
+- Các bước: (1) Đặt nhận tại trạm thiếu trạm; trạm Quận 1 (thiếu hàng); Quận 1 trạm giao; trạm giao địa chỉ Hà Nội; phương thức `cod`; giao qua đơn vị vận chuyển với `pay_at_station`. (2) Đặt nhận tại trạm Thủ Đức 2 kem, thanh toán khi nhận tại trạm; giao đơn cho đơn vị vận chuyển. (3) Đặt trạm giao 1 kem; đặt giao qua đơn vị vận chuyển 1 kem.
+- Kết quả mong đợi: Bước 1: `400`; "Trạm đã chọn không còn đủ hàng. Chọn trạm khác."; "Trạm đã chọn không còn nhận đơn cho cách nhận hoặc địa chỉ này. Chọn trạm khác."; `409`; "Phương thức thanh toán này hiện không dùng được. Chọn phương thức khác."; `409`. Bước 2: `201`, Chờ giao, phí 0, phải thu 500.000, kho xuất và giữ hàng 2 kem ở kho Thủ Đức, địa chỉ giao ghi nhận tại trạm; giao đơn vị vận chuyển `409`. Bước 3: phí 15.000; đơn vị vận chuyển phí 30.000, kho VComm như cũ.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-orders.test.ts`
+- Lát: L2 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_563: Đơn mua chung với trạm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_401
+- Chức năng: CHUC_NANG_201
+- Loại: Sai
+- Vai trò thực hiện: Khách mua
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_561.
+- Các bước: Xem trước đơn tham gia nhóm mua chung với cách nhận tại trạm.
+- Kết quả mong đợi: `409` "Đơn mua chung chỉ giao qua đơn vị vận chuyển, chưa nhận tại trạm."
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-orders.test.ts`
+- Lát: L2 (CONG_VIEC_57)
+
 ### KICHBAN_KIEMTHU_434: Lập hồ sơ, mã tự cấp, kiểm dữ liệu, liên kết tài khoản
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_287
 - Chức năng: CHUC_NANG_162

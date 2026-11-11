@@ -2,7 +2,8 @@
 // Chọn phương thức thanh toán đang bật (CONG_VIEC_25; QUYTAC_NGHIEPVU_163). Dùng điểm thưởng, mặc định không dùng (CONG_VIEC_51; QUYTAC_NGHIEPVU_348).
 // CONG_VIEC_49: dùng ví mua sắm (MAN_HINH_135; QUYTAC_NGHIEPVU_332); đặt đơn tham gia nhóm mua chung (MAN_HINH_134; QUYTAC_NGHIEPVU_330).
 // Ghép điểm thưởng với ví mua sắm (CONG_VIEC_51 mục 19): điểm trừ trước, ví trả phần còn lại; đơn mua chung không dùng điểm.
-import type { BuyerAddressItem, BuyerOrderDetail, BuyerOrderPreview, CartResponse, PaymentMethodCode } from "contracts";
+// CONG_VIEC_57 (MAN_HINH_192; QUYTAC_NGHIEPVU_421 đến 423): chọn cách nhận hàng, trạm còn đủ hàng; đơn mua chung chỉ giao qua đơn vị vận chuyển.
+import type { BuyerAddressItem, BuyerOrderDetail, BuyerOrderPreview, CartResponse, FulfillmentMode, PaymentMethodCode, StationOption } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
@@ -17,6 +18,39 @@ const t = translator("vcommApp");
 const method = translator("paymentMethods");
 // Apple Pay không dùng được trên Android (CONG_VIEC_41; QUYTAC_NGHIEPVU_268): ẩn phương thức của cổng apple_pay.
 const usableMethods = (codes: PaymentMethodCode[]) => (Platform.OS === "android" ? codes.filter((code) => !code.startsWith("apple_pay")) : codes);
+
+// Danh sách trạm đủ hàng, lọc theo tỉnh khi có trạm ở nhiều tỉnh (QUYTAC_NGHIEPVU_421).
+function StationPicker({ stations, value, onChange }: { stations: StationOption[]; value: string | null; onChange: (id: string) => void }) {
+  const provinces = [...new Map(stations.map((station) => [station.provinceCode, station.provinceName])).entries()];
+  const [province, setProvince] = useState<string>("all");
+  const shown = province === "all" ? stations : stations.filter((station) => station.provinceCode === province);
+  return (
+    <View style={{ gap: space[2] }}>
+      {provinces.length > 1 ? (
+        <Choice label="" value={province} options={[{ value: "all", label: t("stationAllProvinces") }, ...provinces.map(([code, name]) => ({ value: code, label: name }))]} onChange={setProvince} />
+      ) : null}
+      {shown.map((station) => {
+        const selected = station.id === value;
+        return (
+          <Pressable
+            key={station.id}
+            accessibilityRole="radio"
+            accessibilityState={{ selected }}
+            onPress={() => onChange(station.id)}
+            style={{ borderWidth: 1, borderRadius: 8, padding: space[3], gap: 2, borderColor: selected ? colors.primary : colors.inputBorder, backgroundColor: colors.surface }}
+          >
+            <Text style={{ fontWeight: "700", color: colors.text }}>
+              {station.name}
+              {station.sameWard ? ` · ${t("stationSameWard")}` : ""}
+            </Text>
+            <Muted>{station.address}</Muted>
+            <Muted>{`${station.openingHours} · ${station.phone}`}</Muted>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
 
 export default function CheckoutScreen() {
   const params = useLocalSearchParams<{ lines?: string; nhom?: string; bienThe?: string; soLuong?: string }>();
@@ -40,6 +74,10 @@ export default function CheckoutScreen() {
   const [useWallet, setUseWallet] = useState(false);
   // Lựa chọn ví đọc qua ref: bật, tắt ví tải lại xem trước với số điểm đang áp dụng, không đặt lại điểm.
   const walletChoice = useRef(false);
+  // Cách nhận, trạm đang chọn đọc qua ref như ví (CONG_VIEC_57).
+  const [mode, setMode] = useState<FulfillmentMode>("carrier");
+  const modeChoice = useRef<FulfillmentMode>("carrier");
+  const stationChoice = useRef<string | null>(null);
 
   const load = useCallback(
     async (pointsToRedeem = 0) => {
@@ -54,10 +92,20 @@ export default function CheckoutScreen() {
         if (picked.length > 0) {
           const fetched = await api<BuyerOrderPreview>("/buyer/orders/preview", {
             method: "POST",
-            json: { addressId: current?.id ?? null, lines: picked, groupBuyId, pointsToRedeem: groupBuyId ? 0 : pointsToRedeem, useShoppingWallet: walletChoice.current },
+            json: {
+              addressId: current?.id ?? null,
+              lines: picked,
+              groupBuyId,
+              pointsToRedeem: groupBuyId ? 0 : pointsToRedeem,
+              useShoppingWallet: walletChoice.current,
+              fulfillmentMode: modeChoice.current,
+              stationId: stationChoice.current,
+            },
           });
           const next = { ...fetched, paymentMethods: usableMethods(fetched.paymentMethods) };
           setPreview(next);
+          // Trạm đang chọn không còn trong danh sách (hết hàng, đổi địa chỉ): bỏ chọn.
+          stationChoice.current = next.station?.id ?? null;
           setPointsApplied(next.pointsToRedeem);
           if (pointsToRedeem > 0) setPointsText(String(next.pointsToRedeem));
           // Giữ phương thức đã chọn nếu còn bật; chưa chọn thì lấy phương thức đầu tiên.
@@ -95,6 +143,8 @@ export default function CheckoutScreen() {
           groupBuyId,
           pointsToRedeem: usePoints && !groupBuyId ? pointsApplied : 0,
           useShoppingWallet: useWallet,
+          fulfillmentMode: mode,
+          stationId: preview.station?.id ?? null,
         },
       });
       router.replace(`/don-hang/${order.id}`);
@@ -138,6 +188,36 @@ export default function CheckoutScreen() {
         ) : null}
         {preview ? (
           <>
+            {groupBuyId ? null : (
+              <Card>
+                <Choice
+                  label={t("fulfillmentMode")}
+                  value={mode}
+                  options={(["carrier", "station_pickup", "station_delivery"] as const).map((value) => ({ value, label: t(`fulfillment_${value}`) }))}
+                  onChange={(value) => {
+                    modeChoice.current = value;
+                    stationChoice.current = null;
+                    setMode(value);
+                    void load(usePoints ? pointsApplied : 0);
+                  }}
+                />
+                {mode === "carrier" ? null : preview.stations.length === 0 ? (
+                  <Notice tone="warning" text={t(mode === "station_delivery" ? "noDeliveryStation" : "noPickupStation")} />
+                ) : (
+                  <>
+                    <Muted>{t("chooseStationHint")}</Muted>
+                    <StationPicker
+                      stations={preview.stations}
+                      value={preview.station?.id ?? null}
+                      onChange={(id) => {
+                        stationChoice.current = id;
+                        void load(usePoints ? pointsApplied : 0);
+                      }}
+                    />
+                  </>
+                )}
+              </Card>
+            )}
             <Card>
               <OrderLines lines={preview.lines} />
             </Card>
@@ -241,7 +321,12 @@ export default function CheckoutScreen() {
               </Card>
             ) : null}
             {preview.canOrder ? null : <Notice tone="warning" text={t("orderingNotOpen")} />}
-            <Button label={t("placeOrder")} busy={busy} disabled={!address || !preview.canOrder || (Number(preview.payable) > 0 && !paymentMethod)} onPress={() => void place()} />
+            <Button
+              label={t("placeOrder")}
+              busy={busy}
+              disabled={!address || !preview.canOrder || (Number(preview.payable) > 0 && !paymentMethod) || (mode !== "carrier" && !preview.station)}
+              onPress={() => void place()}
+            />
           </>
         ) : null}
       </Screen>

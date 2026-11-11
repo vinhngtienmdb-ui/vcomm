@@ -2,6 +2,7 @@
 // CONG_VIEC_49: phần trả bằng ví mua sắm, kết quả nhóm mua chung (MAN_HINH_134, 135); viết đánh giá dòng hàng đã giao (MAN_HINH_136).
 // MAN_HINH_99 khối Thanh toán (CONG_VIEC_25; API_131; QUYTAC_NGHIEPVU_165, 167): hạn thanh toán, mở trang VNPAY, thanh toán lại, trạng thái thanh toán.
 // Mã QR chuyển khoản vẽ từ chuỗi VietQR khi cổng không cấp ảnh (CONG_VIEC_36; QUYTAC_NGHIEPVU_240).
+// CONG_VIEC_57 (MAN_HINH_193): trạm của đơn nhận tại trạm hoặc trạm giao.
 import type { BuyerOrderDetail, BuyerPaymentStart, PaymentTransferInstruction, ReviewableLine } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import * as Linking from "expo-linking";
@@ -116,10 +117,18 @@ export default function OrderScreen() {
             ) : null}
             {order.status === "cancelled" && order.cancelReason ? <Notice tone="info" text={t("cancelledBecause", { reason: order.cancelReason })} /> : null}
             {order.returnDeadline && order.status === "delivered" ? <Notice tone="info" text={t("returnUntil", { time: dateTime(order.returnDeadline) })} /> : null}
+            {order.station ? (
+              <Card>
+                <Text style={{ fontWeight: "700", color: colors.text }}>{t(`fulfillment_${order.fulfillmentMode}`)}</Text>
+                <Text style={{ color: colors.text, fontWeight: "600" }}>{order.station.name}</Text>
+                <Muted>{order.station.address}</Muted>
+                <Muted>{`${order.station.openingHours} · ${order.station.phone}`}</Muted>
+              </Card>
+            ) : null}
             <Card>
-              <Text style={{ fontWeight: "700", color: colors.text }}>{t("deliverTo")}</Text>
+              <Text style={{ fontWeight: "700", color: colors.text }}>{t(order.fulfillmentMode === "station_pickup" ? "pickupBy" : "deliverTo")}</Text>
               <Text style={{ color: colors.text, fontWeight: "600" }}>{`${order.recipientName} · ${order.recipientPhone}`}</Text>
-              <Text style={{ color: colors.text }}>{order.address}</Text>
+              {order.fulfillmentMode === "station_pickup" ? null : <Text style={{ color: colors.text }}>{order.address}</Text>}
               {order.trackingCode ? <Muted>{t("trackingCode", { carrier: order.carrierName ?? "", code: order.trackingCode })}</Muted> : null}
             </Card>
             <Card>

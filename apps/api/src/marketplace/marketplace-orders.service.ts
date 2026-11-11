@@ -6,6 +6,7 @@ import type {
   BuyerOrderListItem,
   BuyerOrderPreview,
   CarrierCode,
+  FulfillmentMode,
   GroupBuyStatus,
   MarketplaceOrderDetail,
   MarketplaceOrderLine,
@@ -36,6 +37,7 @@ import { LoyaltyAccountsService } from "../loyalty/accounts.service";
 import { LoyaltyPostingsService } from "../loyalty/postings.service";
 import { LoyaltyLedgerService, pointsFor, quoteRedemption, releaseSalePoints } from "../loyalty/ledger.service";
 import { phaseOn } from "../loyalty/program.service";
+import { chosenStation, neededQuantities, stationById, stationFee, stationOptions, type Station, type StationMode, stationView } from "./stations";
 import { chargeWallet, refundOrderToWallet, returnWalletPart, shoppingWalletState, walletAmountFor } from "./shopping-wallet";
 
 type Executor = Pick<Database, "execute" | "insert">;
@@ -82,6 +84,8 @@ type OrderRow = {
   group_status: GroupBuyStatus | null;
   group_ends_at: Date | null;
   group_final_price: string | null;
+  fulfillment_mode: FulfillmentMode;
+  station_id: string | null;
 };
 
 // Nhóm mua chung đang mở để đặt đơn tham gia (QUYTAC_NGHIEPVU_330).
@@ -103,7 +107,7 @@ const orderSelect = sql`
     (SELECT i.id FROM sales.order_lines l JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.product_images i ON i.product_id = v.product_id
       WHERE l.order_id = so.id ORDER BY l.line_no, i.sort_order LIMIT 1) AS first_image_id,
     s.carrier_code, s.tracking_code, s.carrier_status, m.wallet_amount::text, m.wallet_refunded_amount::text, m.group_buy_id, g.status AS group_status,
-    g.ends_at AS group_ends_at, g.final_price::text AS group_final_price
+    g.ends_at AS group_ends_at, g.final_price::text AS group_final_price, m.fulfillment_mode, m.station_id
   FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id JOIN core.users u ON u.id = m.buyer_user_id
   LEFT JOIN marketplace.shipments s ON s.order_id = m.id AND s.is_active LEFT JOIN marketplace.group_buys g ON g.id = m.group_buy_id`;
 
@@ -177,6 +181,7 @@ export class MarketplaceOrdersService {
     context: StoreContext,
     lines: Line[],
     groupPrice: string | null = null,
+    warehouseId: string = context.warehouseId,
   ): Promise<{ lines: MarketplaceOrderLine[]; goods: number; shippingFee: number; input: { variantId: string; unitId: string; quantity: string }[] }> {
     const merged = new Map<string, number>();
     for (const line of lines) merged.set(line.variantId, (merged.get(line.variantId) ?? 0) + line.quantity);
@@ -185,7 +190,7 @@ export class MarketplaceOrdersService {
     if (missing.length > 0) throw new ApiError("BUSINESS_RULE", "productNotSellable");
     const today = await vietnamToday(executor);
     const input = [...merged].map(([variantId, quantity]) => ({ variantId, unitId: sellable.get(variantId)!.unitId, quantity: String(quantity) }));
-    const quoted = await this.salesOrders.quoteMarketplace(executor, context.companyId, { channelId: context.channelId, warehouseId: context.warehouseId, orderDate: today, lines: input, groupPrice });
+    const quoted = await this.salesOrders.quoteMarketplace(executor, context.companyId, { channelId: context.channelId, warehouseId, orderDate: today, lines: input, groupPrice });
     const details = await this.describe(
       executor,
       quoted.lines.map((line) => line.variantId),
@@ -235,14 +240,30 @@ export class MarketplaceOrdersService {
     return group;
   }
 
-  async preview(userId: string, input: { lines: Line[]; pointsToRedeem: number; useShoppingWallet: boolean; groupBuyId: string | null }): Promise<BuyerOrderPreview> {
+  async preview(
+    userId: string,
+    input: { addressId: string | null; lines: Line[]; pointsToRedeem: number; useShoppingWallet: boolean; groupBuyId: string | null; fulfillmentMode: FulfillmentMode; stationId: string | null },
+  ): Promise<BuyerOrderPreview> {
     const account = await buyerAccount(this.database, userId);
     const context = await this.storeContext();
+    const mode = input.fulfillmentMode;
+    if (mode !== "carrier" && input.groupBuyId) throw new ApiError("BUSINESS_RULE", "groupBuyCarrierOnly");
     const group = input.groupBuyId ? await this.openGroup(this.database, input.groupBuyId, input.lines, false) : null;
-    const quoted = await this.quote(this.database, context, input.lines, group?.first_price ?? null);
-    // Mua chung bắt buộc trả trước: chỉ phương thức trực tuyến (QUYTAC_NGHIEPVU_330).
-    const paymentMethods = (await enabledPaymentMethods(this.database)).filter((method) => !group || isOnlineMethod(method));
-    const total = quoted.goods + quoted.shippingFee;
+    let quoted = await this.quote(this.database, context, input.lines, group?.first_price ?? null);
+    // Trạm đủ hàng cho cách nhận của trạm; trạm đang chọn còn trong danh sách thì tính lại theo kho trạm, phí giao của trạm (CONG_VIEC_57; QUYTAC_NGHIEPVU_421, 422).
+    let stations: Station[] = [];
+    let station: Station | null = null;
+    let shippingFee = quoted.shippingFee;
+    if (mode !== "carrier") {
+      const address = input.addressId ? await this.addressOf(this.database, userId, input.addressId) : null;
+      stations = await stationOptions(this.database, context.companyId, mode, address, neededQuantities(quoted.lines));
+      station = stations.find((item) => item.id === input.stationId) ?? null;
+      if (station) quoted = await this.quote(this.database, context, input.lines, null, station.warehouseId);
+      shippingFee = station ? stationFee(mode, station, quoted.goods) : 0;
+    }
+    // Mua chung bắt buộc trả trước: chỉ phương thức trực tuyến (QUYTAC_NGHIEPVU_330). Đơn của trạm không thu hộ qua đơn vị vận chuyển; thu tại trạm chỉ cho đơn của trạm (QUYTAC_NGHIEPVU_423).
+    const paymentMethods = (await enabledPaymentMethods(this.database)).filter((method) => (!group || isOnlineMethod(method)) && (mode === "carrier" ? method !== "pay_at_station" : method !== "cod"));
+    const total = quoted.goods + shippingFee;
     // Điểm thưởng (CONG_VIEC_51; QUYTAC_NGHIEPVU_346, 348): xem trước không trừ điểm; số điểm vượt giới hạn thì hạ về mức tối đa dùng được.
     // Ghép với CONG_VIEC_49 (CONG_VIEC_51 mục 19): điểm trừ trước, ví mua sắm tính trên phần còn lại; đơn mua chung không dùng điểm.
     const today = await vietnamToday(this.database);
@@ -265,7 +286,7 @@ export class MarketplaceOrdersService {
       expectedPoints: phase ? pointsFor(quoted.goods - pointsAmount, phase, multiplier) : 0,
       lines: quoted.lines,
       goodsAmount: String(quoted.goods),
-      shippingFee: String(quoted.shippingFee),
+      shippingFee: String(shippingFee),
       total: String(total),
       currency: context.currency,
       canOrder: (context.orderingOpen || account.isTestBuyer) && (paymentMethods.length > 0 || pointsAmount + walletAmount >= total),
@@ -273,7 +294,18 @@ export class MarketplaceOrdersService {
       shoppingWallet: { balance: money(wallet.balance), usable },
       walletAmount: money(walletAmount),
       payable: money(total - pointsAmount - walletAmount),
+      fulfillmentMode: mode,
+      stations: stations.map(stationView),
+      station: station ? stationView(station) : null,
     };
+  }
+
+  private async addressOf(executor: Executor, userId: string, addressId: string): Promise<{ provinceCode: string; wardCode: string } | null> {
+    const row = (
+      await executor.execute<{ province_code: string; ward_code: string }>(sql`
+      SELECT province_code, ward_code FROM marketplace.buyer_addresses WHERE id = ${addressId} AND buyer_user_id = ${userId}`)
+    ).rows[0];
+    return row ? { provinceCode: row.province_code, wardCode: row.ward_code } : null;
   }
 
   // Đặt hàng (QUYTAC_NGHIEPVU_158, 164): chưa mở đặt hàng thì chỉ người mua thử; phương thức phải đang bật; tính lại giá, so với tổng người mua đã thấy; lập đơn bán, giữ hàng.
@@ -281,12 +313,26 @@ export class MarketplaceOrdersService {
   async place(
     userId: string,
     client: ClientInfo,
-    input: { addressId: string; lines: Line[]; expectedTotal: string; paymentMethod: PaymentMethodCode; pointsToRedeem?: number; useShoppingWallet: boolean; groupBuyId: string | null },
+    input: {
+      addressId: string;
+      lines: Line[];
+      expectedTotal: string;
+      paymentMethod: PaymentMethodCode;
+      pointsToRedeem?: number;
+      useShoppingWallet: boolean;
+      groupBuyId: string | null;
+      fulfillmentMode?: FulfillmentMode;
+      stationId?: string | null;
+    },
   ): Promise<BuyerOrderDetail> {
     const account = await buyerAccount(this.database, userId);
     const context = await this.storeContext();
     if (!context.orderingOpen && !account.isTestBuyer) throw new ApiError("BUSINESS_RULE", "orderingNotOpen");
-    const methodEnabled = (await enabledPaymentMethods(this.database)).includes(input.paymentMethod);
+    const mode = input.fulfillmentMode ?? "carrier";
+    if (mode !== "carrier" && input.groupBuyId) throw new ApiError("BUSINESS_RULE", "groupBuyCarrierOnly");
+    // Đơn của trạm không thu hộ qua đơn vị vận chuyển; thu tại trạm chỉ cho đơn của trạm (QUYTAC_NGHIEPVU_423).
+    const methodFits = mode === "carrier" ? input.paymentMethod !== "pay_at_station" : input.paymentMethod !== "cod";
+    const methodEnabled = methodFits && (await enabledPaymentMethods(this.database)).includes(input.paymentMethod);
     const actor: Actor = { userId, companyId: context.companyId, client };
     await this.salesOrders.prepareNumbering(actor);
     const orderId = await this.database.transaction(async (transaction) => {
@@ -315,8 +361,13 @@ export class MarketplaceOrdersService {
         WHERE a.id = ${input.addressId} AND a.buyer_user_id = ${userId}`)
       ).rows[0];
       if (!address) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { addressId: "invalidValue" } });
-      const quoted = await this.quote(transaction, context, input.lines, group?.first_price ?? null);
-      const total = quoted.goods + quoted.shippingFee;
+      // Trạm khách chọn: kho xuất, phí giao theo trạm (CONG_VIEC_57; QUYTAC_NGHIEPVU_421, 422).
+      const station =
+        mode === "carrier" ? null : await chosenStation(transaction, context.companyId, mode, input.stationId ?? null, { provinceCode: address.province_code, wardCode: address.ward_code });
+      const warehouseId = station?.warehouseId ?? context.warehouseId;
+      const quoted = await this.quote(transaction, context, input.lines, group?.first_price ?? null, warehouseId);
+      const shippingFee = station ? stationFee(mode as StationMode, station, quoted.goods) : quoted.shippingFee;
+      const total = quoted.goods + shippingFee;
       if (Math.abs(total - Number(input.expectedTotal)) > 0.5) throw new ApiError("BUSINESS_RULE", "orderPriceChanged");
       // Ghép CONG_VIEC_51 với CONG_VIEC_49 (CONG_VIEC_51 mục 19): dùng điểm trước (chốt giai đoạn, hạng lúc đặt; QUYTAC_NGHIEPVU_346, 348),
       // rồi ví mua sắm trên phần còn lại; đơn mua chung không dùng điểm. Mã đơn lập trước để ghi chứng từ điểm.
@@ -338,11 +389,13 @@ export class MarketplaceOrdersService {
       if (remaining > 0 && group && !isOnlineMethod(input.paymentMethod)) throw new ApiError("BUSINESS_RULE", "groupBuyNeedsPrepayment");
       const online = remaining > 0 && isOnlineMethod(input.paymentMethod);
       const status = online ? "awaiting_payment" : group ? "awaiting_group" : "awaiting_shipment";
-      const deliveryAddress = `${address.recipient_name}, ${localPhone(address.phone)}, ${address.street_address}, ${address.ward_name}, ${address.province_name}`;
+      const recipient = `${address.recipient_name}, ${localPhone(address.phone)}`;
+      const deliveryAddress =
+        mode === "station_pickup" ? `${recipient}, nhận tại trạm ${station!.name}: ${station!.address}` : `${recipient}, ${address.street_address}, ${address.ward_name}, ${address.province_name}`;
       const sale = await this.salesOrders
         .placeMarketplaceWithin(transaction, actor, {
           channelId: context.channelId,
-          warehouseId: context.warehouseId,
+          warehouseId,
           orderDate: today,
           buyerName: address.recipient_name,
           deliveryAddress,
@@ -351,15 +404,17 @@ export class MarketplaceOrdersService {
         })
         .catch((error: unknown) => {
           // Thiếu hàng khi giữ hàng: báo chung cho người mua.
-          if (error instanceof ApiError && error.messageKey === "insufficientAvailableStock") throw new ApiError("BUSINESS_RULE", "orderOutOfStock");
+          // Đơn của trạm: báo chọn trạm khác (QUYTAC_NGHIEPVU_422).
+          if (error instanceof ApiError && error.messageKey === "insufficientAvailableStock") throw new ApiError("BUSINESS_RULE", station ? "stationOutOfStock" : "orderOutOfStock");
           throw error;
         });
       await transaction.execute(sql`
         INSERT INTO marketplace.orders (id, sales_order_id, company_id, buyer_user_id, recipient_name, recipient_phone, province_code, province_name, ward_code, ward_name, street_address,
-          goods_amount, shipping_fee, cod_amount, payment_method, status, payment_deadline, wallet_amount, group_buy_id, points_amount)
+          goods_amount, shipping_fee, cod_amount, payment_method, status, payment_deadline, wallet_amount, group_buy_id, points_amount, fulfillment_mode, station_id, warehouse_id)
         VALUES (${id}, ${sale.orderId}, ${context.companyId}, ${userId}, ${address.recipient_name}, ${address.phone}, ${address.province_code}, ${address.province_name}, ${address.ward_code},
-          ${address.ward_name}, ${address.street_address}, ${quoted.goods}, ${quoted.shippingFee}, ${online || group ? 0 : remaining}, ${input.paymentMethod},
-          ${status}, ${online ? sql`now() + make_interval(mins => ${paymentWindowMinutes})` : null}, ${walletAmount}, ${group?.id ?? null}, ${redeemed.amount})`);
+          ${address.ward_name}, ${address.street_address}, ${quoted.goods}, ${shippingFee}, ${online || group ? 0 : remaining}, ${input.paymentMethod},
+          ${status}, ${online ? sql`now() + make_interval(mins => ${paymentWindowMinutes})` : null}, ${walletAmount}, ${group?.id ?? null}, ${redeemed.amount},
+          ${mode}, ${station?.id ?? null}, ${warehouseId})`);
       await chargeWallet(transaction, userId, id, walletAmount);
       await this.event(transaction, id, status, null, userId);
       // Chốt người hưởng, mức hoa hồng lúc đặt (CONG_VIEC_26; QUYTAC_NGHIEPVU_201); người mở nhóm là cộng tác viên nhận phần cộng tác viên (QUYTAC_NGHIEPVU_326).
@@ -461,6 +516,8 @@ export class MarketplaceOrdersService {
       returnRequests,
       pointsAmount: trimDecimal(row.points_amount),
       points: await this.loyaltyAccounts.documentPoints(this.database, "marketplace_order", row.id),
+      fulfillmentMode: row.fulfillment_mode,
+      station: row.station_id ? await stationById(this.database, row.station_id) : null,
       // Trong 7 ngày từ lúc giao thành công và không có yêu cầu đang xử lý (QUYTAC_NGHIEPVU_161).
       canRequestReturn:
         row.status === "delivered" &&

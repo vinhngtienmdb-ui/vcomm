@@ -561,7 +561,11 @@
     "retailCashInsufficient": "Not enough cash in the drawer. Refund by bank transfer.",
     "retailBranchNotStation": "A pickup point must use an active Store or Other branch of the company.",
     "retailStationNotOperator": "Only stores and pickup points of the VComm marketplace operator can be delivery stations.",
-    "retailPickupPointNoCounterSale": "Pickup points do not sell at the counter."
+    "retailPickupPointNoCounterSale": "Pickup points do not sell at the counter.",
+    "groupBuyCarrierOnly": "Group-buy orders ship by carrier only, not via stations.",
+    "stationUnavailable": "The chosen station no longer accepts orders for this method or address. Choose another station.",
+    "stationOutOfStock": "The chosen station no longer has enough stock. Choose another station.",
+    "stationOrderNotShippable": "This order is fulfilled by a station, not by a carrier."
   },
   "login": {
     "title": "Sign in",
@@ -3726,7 +3730,17 @@
     "communityPublish": "Publish",
     "communityProductRating": "{average} · {count} verified reviews · See feed",
     "communityProductNoRating": "No reviews yet · See feed",
-    "communityReviewProduct": "Review: {product}"
+    "communityReviewProduct": "Review: {product}",
+    "fulfillmentMode": "Delivery method",
+    "fulfillment_carrier": "Ship by carrier",
+    "fulfillment_station_pickup": "Pick up at a station",
+    "fulfillment_station_delivery": "Station delivery",
+    "chooseStationHint": "Only stations with stock for the whole order are listed. Goods are held at the station after you order.",
+    "stationSameWard": "Same ward",
+    "stationAllProvinces": "All provinces",
+    "noPickupStation": "No station has enough stock for this order. Choose carrier delivery.",
+    "noDeliveryStation": "No station delivers to this address with enough stock. Choose another method.",
+    "pickupBy": "Picked up by"
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -4137,7 +4151,9 @@
     "google_pay_card": "Card in Google Pay (via ZaloPay)",
     "gateway_google_pay": "Google Pay",
     "apple_pay_wallet": "Apple Pay (via ZaloPay)",
-    "gateway_apple_pay": "Apple Pay"
+    "gateway_apple_pay": "Apple Pay",
+    "pay_at_station": "Pay at the station",
+    "gateway_station": "Collected at the station"
   },
   "refunds": {
     "title": "VComm refunds",

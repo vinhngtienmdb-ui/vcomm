@@ -4224,6 +4224,8 @@ export const paymentMethodCodes = [
   "zalopay_card",
   "google_pay_card",
   "apple_pay_wallet",
+  // CONG_VIEC_57: thanh toán khi nhận tại trạm (QUYTAC_NGHIEPVU_423).
+  "pay_at_station",
 ] as const;
 export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
 export const paymentGatewayCodes = [
@@ -4239,6 +4241,7 @@ export const paymentGatewayCodes = [
   "zalopay",
   "google_pay",
   "apple_pay",
+  "station",
 ] as const;
 export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];
 
@@ -4507,7 +4510,11 @@ const orderLinesInput = z.array(z.object({ variantId: z.uuid(), quantity: z.numb
 const pointsToRedeem = z.number().int().min(0).max(1_000_000_000).default(0);
 // CONG_VIEC_49: dùng ví mua sắm (QUYTAC_NGHIEPVU_332), đặt đơn tham gia nhóm mua chung (QUYTAC_NGHIEPVU_330).
 const orderWalletInput = { useShoppingWallet: z.boolean().default(false), groupBuyId: z.uuid().nullable().default(null) };
-export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput, pointsToRedeem, ...orderWalletInput }).strict();
+// CONG_VIEC_57: cách nhận hàng, trạm (QUYTAC_NGHIEPVU_421); thiếu thì giao qua đơn vị vận chuyển như cũ.
+export const fulfillmentModes = ["carrier", "station_pickup", "station_delivery"] as const;
+export type FulfillmentMode = (typeof fulfillmentModes)[number];
+const fulfillmentInput = { fulfillmentMode: z.enum(fulfillmentModes).default("carrier"), stationId: z.uuid().nullable().default(null) };
+export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput, pointsToRedeem, ...orderWalletInput, ...fulfillmentInput }).strict();
 // Mã phương thức theo định dạng; phương thức có thật, đang bật hay không do máy chủ kiểm theo danh mục (CONG_VIEC_32).
 const paymentMethodInput = z
   .string()
@@ -4516,7 +4523,7 @@ const paymentMethodInput = z
   .transform((value) => value as PaymentMethodCode);
 // expectedTotal: tổng thanh toán người mua đã thấy; khác tổng tính lại thì báo giá đã thay đổi. paymentMethod mặc định thanh toán khi nhận hàng (ứng dụng bản CONG_VIEC_24).
 export const buyerOrderPlaceSchema = z
-  .object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: paymentMethodInput, pointsToRedeem, ...orderWalletInput })
+  .object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: paymentMethodInput, pointsToRedeem, ...orderWalletInput, ...fulfillmentInput })
   .strict();
 
 export interface MarketplaceOrderLine {
@@ -4552,6 +4559,24 @@ export interface BuyerOrderPreview {
   shoppingWallet: { balance: string; usable: boolean };
   walletAmount: string;
   payable: string;
+  // CONG_VIEC_57: cách nhận đang chọn; trạm đủ hàng cho cách nhận của trạm (sắp cùng xã, cùng tỉnh trước); trạm đang chọn còn hợp lệ.
+  fulfillmentMode: FulfillmentMode;
+  stations: StationOption[];
+  station: StationOption | null;
+}
+
+// Trạm hiện cho người mua (QUYTAC_NGHIEPVU_419, 421).
+export interface StationOption {
+  id: string;
+  name: string;
+  provinceCode: string;
+  provinceName: string;
+  wardName: string;
+  address: string;
+  phone: string;
+  openingHours: string;
+  sameWard: boolean;
+  sameProvince: boolean;
 }
 
 export interface MarketplaceOrderEvent {
@@ -4701,6 +4726,9 @@ export interface BuyerOrderDetail extends BuyerOrderListItem {
   // Tiền điểm thưởng trừ vào đơn; điểm dùng, hoàn, tích của đơn (CONG_VIEC_51).
   pointsAmount: string;
   points: LoyaltyDocumentPoints | null;
+  // CONG_VIEC_57: cách nhận, trạm của đơn.
+  fulfillmentMode: FulfillmentMode;
+  station: StationOption | null;
   version: number;
 }
 

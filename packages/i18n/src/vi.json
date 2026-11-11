@@ -561,7 +561,11 @@
     "retailCashInsufficient": "Tiền mặt trong két không đủ để hoàn. Chọn hoàn chuyển khoản.",
     "retailBranchNotStation": "Điểm giao nhận gắn chi nhánh loại Cửa hàng hoặc Khác đang hoạt động của công ty.",
     "retailStationNotOperator": "Chỉ cửa hàng, điểm giao nhận của công ty vận hành sàn VComm bật được trạm giao hàng.",
-    "retailPickupPointNoCounterSale": "Điểm giao nhận không bán hàng tại quầy."
+    "retailPickupPointNoCounterSale": "Điểm giao nhận không bán hàng tại quầy.",
+    "groupBuyCarrierOnly": "Đơn mua chung chỉ giao qua đơn vị vận chuyển, chưa nhận tại trạm.",
+    "stationUnavailable": "Trạm đã chọn không còn nhận đơn cho cách nhận hoặc địa chỉ này. Chọn trạm khác.",
+    "stationOutOfStock": "Trạm đã chọn không còn đủ hàng. Chọn trạm khác.",
+    "stationOrderNotShippable": "Đơn nhận tại trạm hoặc trạm giao, không giao qua đơn vị vận chuyển."
   },
   "login": {
     "title": "Đăng nhập",
@@ -3726,7 +3730,17 @@
     "communityPublish": "Đăng",
     "communityProductRating": "{average} · {count} đánh giá đã mua · Xem bảng tin",
     "communityProductNoRating": "Chưa có đánh giá · Xem bảng tin",
-    "communityReviewProduct": "Viết đánh giá: {product}"
+    "communityReviewProduct": "Viết đánh giá: {product}",
+    "fulfillmentMode": "Cách nhận hàng",
+    "fulfillment_carrier": "Giao qua đơn vị vận chuyển",
+    "fulfillment_station_pickup": "Nhận tại trạm",
+    "fulfillment_station_delivery": "Trạm giao tận nơi",
+    "chooseStationHint": "Chỉ hiện trạm còn đủ hàng cho cả đơn. Hàng được giữ tại trạm sau khi đặt.",
+    "stationSameWard": "Cùng phường, xã",
+    "stationAllProvinces": "Tất cả tỉnh",
+    "noPickupStation": "Chưa có trạm nào còn đủ hàng cho đơn này. Chọn giao qua đơn vị vận chuyển.",
+    "noDeliveryStation": "Chưa có trạm nào giao tới địa chỉ này mà còn đủ hàng. Chọn cách nhận khác.",
+    "pickupBy": "Người nhận hàng"
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -4137,7 +4151,9 @@
     "google_pay_card": "Thẻ trong Google Pay (qua ZaloPay)",
     "gateway_google_pay": "Google Pay",
     "apple_pay_wallet": "Apple Pay (qua ZaloPay)",
-    "gateway_apple_pay": "Apple Pay"
+    "gateway_apple_pay": "Apple Pay",
+    "pay_at_station": "Thanh toán khi nhận tại trạm",
+    "gateway_station": "Thu tại trạm"
   },
   "refunds": {
     "title": "Hoàn tiền đơn VComm",
