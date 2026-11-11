@@ -206,6 +206,8 @@ KICHBAN_KIEMTHU_510 đến KICHBAN_KIEMTHU_521, ghi trong tài liệu `21` khi l
 - Điểm phụ thuộc CONG_VIEC_51 (đang làm song song): lát L6 làm sau khi CONG_VIEC_51 hợp nhất vào `main`; nếu chưa kịp, trình người dùng chọn nghiệm thu L0 đến L5 trước.
 - Thay đổi hành vi đã duyệt của CONG_VIEC_16 (loại hóa đơn mới), CONG_VIEC_13 (loại chứng từ quỹ không đối tượng), CONG_VIEC_08 (đơn bán lẻ): phiếu THAY_DOI_24 (phiên cha ghi vào tài liệu `24` trên `main`, pull request #101, ngày 2026-11-11).
 
+- Giao diện điểm của CONG_VIEC_51 (phiên cha chuyển ngày 2026-11-11; nhánh `chuc-nang/CONG_VIEC_51-diem-thuong`, pull request #103): `LoyaltyLedgerService` (`apps/api/src/loyalty/ledger.service.ts`), mọi hàm chạy trong giao dịch của bên gọi, tự khóa ví, tự ghi bút toán; nguồn `retail_sale`, `retail_return`; khách xác định bằng `core.users.id`. `quoteRedemption`, `redeemWithin` (trừ ngay, không giữ), `earnWithin` (tiền hàng gồm thuế, tự trừ phần trả bằng điểm), `returnWithin` (tiền hoàn = tiền hàng trả − tiền điểm hoàn − phần thiếu quy ra tiền), `cancelWithin`. Quyết định người dùng cho CONG_VIEC_51: chi tiêu tại quầy tính vào hạng; trả hàng khi số dư không đủ trừ lại điểm đã tích thì phần thiếu quy ra tiền theo giá trị lúc tích, trừ vào tiền hoàn; quầy thuộc công ty con khác thì công ty bán chịu chi phí, ghi nợ nội bộ với công ty vận hành sàn (1368/3368).
+
 ## 17. Quyết định của người dùng (2026-11-11)
 
 - Không bán khi mất mạng.
