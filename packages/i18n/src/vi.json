@@ -366,7 +366,8 @@
     "payrollParametersMissing": "Chưa có bộ tham số pháp luật hiệu lực cho tháng này.",
     "timesheetNotClosed": "Bảng công tháng chưa chốt, chưa gửi duyệt được.",
     "payrollEmpty": "Bảng lương không có nhân viên.",
-    "payrollBlockingWarnings": "Còn dòng có cảnh báo chặn (chưa có bảng công, chi nhánh chưa chọn vùng, thực lĩnh âm)."
+    "payrollBlockingWarnings": "Còn dòng có cảnh báo chặn (chưa có bảng công, chi nhánh chưa chọn vùng, thực lĩnh âm).",
+    "payrollNotApproved": "Bảng lương chưa được duyệt."
   },
   "login": {
     "title": "Đăng nhập",
@@ -2561,7 +2562,9 @@
     "source_marketplace_payment": "Thu tiền đơn VComm",
     "source_marketplace_refund": "Hoàn tiền đơn VComm",
     "source_marketplace_commission": "Hoa hồng đơn VComm",
-    "source_marketplace_withdrawal": "Chi hoa hồng"
+    "source_marketplace_withdrawal": "Chi hoa hồng",
+    "source_payroll": "Lương tháng",
+    "source_payroll_payment": "Trả lương"
   },
   "statements": {
     "title": "Báo cáo tài chính",
@@ -4208,6 +4211,30 @@
     "deleteAdjustmentText": "Xóa khoản \"{description}\"? Bảng lương được tính lại.",
     "adjustmentKind": "Cộng thêm hay khấu trừ",
     "taxableAddition": "Chịu thuế thu nhập cá nhân",
-    "cancelReason": "Lý do hủy"
+    "cancelReason": "Lý do hủy",
+    "pay": "Ghi đã trả lương",
+    "paidText": "Đã trả ngày {date} từ {fund}.",
+    "emailFailed": "{count} email phiếu lương chưa gửi được.",
+    "resendEmails": "Gửi lại",
+    "emailsResent": "Đã gửi lại email phiếu lương.",
+    "journals": "Bút toán",
+    "journalNo": "Số",
+    "journalDate": "Ngày",
+    "account": "Tài khoản",
+    "debit": "Nợ",
+    "credit": "Có",
+    "paidDone": "Đã ghi trả lương và bút toán.",
+    "paymentDate": "Ngày trả",
+    "paymentDateHint": "Không trước ngày duyệt, không sau hôm nay.",
+    "fund": "Quỹ chi",
+    "noFunds": "Công ty chưa có quỹ đang dùng (khai ở Tài chính).",
+    "payHint": "Ghi bút toán {number}: Nợ 334 / Có quỹ chi số tiền {amount}.",
+    "noPayslips": "Chưa có phiếu lương nào được duyệt.",
+    "payslips": "Phiếu lương",
+    "paidOn": "Đã trả {date}",
+    "payslipTitle": "Phiếu lương tháng {month}",
+    "print": "In",
+    "company": "Công ty",
+    "notPaidYet": "Bảng lương đã duyệt, chưa ghi trả lương."
   }
 }

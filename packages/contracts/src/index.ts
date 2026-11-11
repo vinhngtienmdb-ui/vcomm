@@ -2974,7 +2974,7 @@ export interface PostingRuleResponse {
   canEdit: boolean;
 }
 export const updatePostingRuleSchema = z.object({ accountId: z.uuid() }).strict();
-export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal"] as const;
+export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal", "payroll", "payroll_payment"] as const;
 export type JournalSourceType = (typeof journalSourceTypes)[number];
 export const journalStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
 export type JournalStatus = (typeof journalStatuses)[number];
@@ -5171,7 +5171,7 @@ export interface PayrollLineDetail extends PayrollLineItem {
   adjustments: PayrollAdjustmentItem[];
   canEdit: boolean;
 }
-export interface PayrollResponse extends PayrollTotals {
+export interface PayrollResponse extends PayrollTotals, PayrollPostingInfo {
   id: string;
   month: string;
   documentNo: string | null;
@@ -5193,4 +5193,39 @@ export interface PayrollResponse extends PayrollTotals {
   canWithdraw: boolean;
   canCancel: boolean;
   version: number;
+}
+
+// CONG_VIEC_48 lát L2: bút toán, trả lương, phiếu lương (API_160, API_161; QUYTAC_NGHIEPVU_323).
+export type PayPayrollRequest = z.input<typeof payPayrollSchema>;
+export interface PayrollJournal {
+  id: string;
+  journalNo: string;
+  journalDate: string;
+  sourceType: "payroll" | "payroll_payment";
+  lines: { accountCode: string; accountName: string; debit: string; credit: string }[];
+}
+export interface PayrollPostingInfo {
+  paymentDate: string | null;
+  fundName: string | null;
+  journals: PayrollJournal[];
+  emailFailedCount: number;
+  canPay: boolean;
+  funds: { id: string; name: string; kind: "cash" | "bank" }[];
+}
+export interface PayslipListItem {
+  lineId: string;
+  month: string;
+  netPay: string;
+  status: "approved" | "paid";
+  paymentDate: string | null;
+}
+export interface PayslipResponse {
+  lineId: string;
+  month: string;
+  status: "approved" | "paid";
+  paymentDate: string | null;
+  employeeCode: string;
+  employeeName: string;
+  companyName: string;
+  line: PayrollLineDetail;
 }

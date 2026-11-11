@@ -1930,3 +1930,13 @@ Yêu cầu phi chức năng: số giấy tờ, tài khoản ngân hàng, mã s�
 | CHUC_NANG_18 | Tác vụ kiểm tra quá hạn chạy mỗi 15 phút |
 | CHUC_NANG_19 | Vô hiệu hóa ở một công ty chỉ gỡ khỏi công ty đó |
 | Phi chức năng | Mốc 200 người dùng đồng thời |
+
+## MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
+
+| Mã | Chức năng | Yêu cầu |
+|---|---|---|
+| CHUC_NANG_168 | Thiết lập lương: tham số pháp luật theo ngày hiệu lực (cấp tập đoàn); thiết lập công ty (kinh phí công đoàn, tỷ lệ tai nạn lao động, vùng của chi nhánh, nhóm chi phí của phòng ban, ngưỡng khấu trừ 10%); danh mục loại phụ cấp; chọn loại phụ cấp trên hợp đồng, phụ lục; hồ sơ lương của nhân viên (lương đóng bảo hiểm theo tháng hiệu lực, miễn đóng, cách tính thuế, cam kết) | YCAU_NGHIEPVU_72, 73 |
+| CHUC_NANG_169 | Bảng lương tháng: lập theo công ty và tháng, tính, tính lại, khoản cộng thêm và khấu trừ nhập tay, cảnh báo, gửi duyệt, rút, hủy, xuất Excel; giải trình từng dòng                                                                                                                                                                                                                  | YCAU_NGHIEPVU_74, 75 |
+| CHUC_NANG_170 | Bút toán lương khi duyệt; ghi đã trả lương sinh bút toán trả; phiếu lương trong "Hồ sơ của tôi", thông báo chuông và email                                                                                                                                                                                                                                                          | YCAU_NGHIEPVU_76, 77 |
+
+Yêu cầu phi chức năng: tiền tính bằng số nguyên đồng (bigint) và `numeric`, không dùng số thực; tham số pháp luật cấu hình theo ngày hiệu lực; nhật ký thao tác không ghi số tiền lương; email phiếu lương gửi sau khi duyệt, lỗi gửi không làm hỏng duyệt.

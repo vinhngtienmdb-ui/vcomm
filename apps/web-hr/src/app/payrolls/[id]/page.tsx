@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_127 Chi tiết bảng lương, MAN_HINH_128 ngăn chi tiết dòng lương (CHUC_NANG_169; QUYTAC_NGHIEPVU_316 đến 322; API_159, API_160).
+// MAN_HINH_127 Chi tiết bảng lương, MAN_HINH_128 ngăn chi tiết dòng lương (CHUC_NANG_169, 170; QUYTAC_NGHIEPVU_316 đến 323; API_159, API_160).
 import type { EmployeeOptionsResponse, PayrollAdjustmentCategory, PayrollAdjustmentItem, PayrollLineDetail, PayrollResponse, SavePayrollAdjustmentRequest } from "contracts";
 import { payrollAdjustmentCategories } from "contracts";
 import { useTranslations } from "next-intl";
@@ -12,7 +12,7 @@ import { Field, FormError, useSubmit } from "ui/components/Form";
 import { HistoryLink } from "ui/components/HistoryLink";
 import { Loaded } from "ui/components/StatusViews";
 import { apiDownload, apiFetch } from "ui/lib/api";
-import { formatDateTime } from "ui/lib/format";
+import { formatDate, formatDateTime } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 import { Table } from "@/components/EmployeeTabs";
 import { monthLabel, PayrollStatusBadge, vnd, WarningBadges } from "@/components/PayrollParts";
@@ -32,6 +32,7 @@ export default function PayrollDetailPage() {
   const [lineId, setLineId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [paying, setPaying] = useState(false);
   const act = (path: string, done: string) => {
     setBusy(true);
     apiFetch(`/hr/payrolls/${id}/${path}`, { method: "POST" })
@@ -73,6 +74,11 @@ export default function PayrollDetailPage() {
                   {payroll.status === "draft" ? t("submit") : t("resubmit")}
                 </button>
               )}
+              {payroll.canPay && (
+                <button type="button" className="nut chinh" onClick={() => setPaying(true)}>
+                  {t("pay")}
+                </button>
+              )}
               {payroll.canWithdraw && (
                 <button type="button" className="nut phu" disabled={busy} onClick={() => act("withdraw", t("withdrawn"))}>
                   {t("withdraw")}
@@ -82,7 +88,16 @@ export default function PayrollDetailPage() {
             </div>
           </div>
           {payroll.canEdit && !payroll.timesheetClosed && <div className="khoi-canh-bao canh-bao">{t("timesheetOpenWarning", { month: monthLabel(payroll.month) })}</div>}
-          {payroll.blockingCount > 0 && <div className="khoi-canh-bao loi">{t("blockingWarning", { count: payroll.blockingCount })}</div>}
+          {payroll.canEdit && payroll.blockingCount > 0 && <div className="khoi-canh-bao loi">{t("blockingWarning", { count: payroll.blockingCount })}</div>}
+          {payroll.status === "paid" && payroll.paymentDate && <div className="khoi-canh-bao thong-tin">{t("paidText", { date: formatDate(payroll.paymentDate), fund: payroll.fundName ?? "" })}</div>}
+          {payroll.emailFailedCount > 0 && (
+            <div className="khoi-canh-bao canh-bao" style={{ display: "flex", flexWrap: "wrap", gap: "var(--khoang-2)", alignItems: "center" }}>
+              <span>{t("emailFailed", { count: payroll.emailFailedCount })}</span>
+              <button type="button" className="nut phu" disabled={busy} onClick={() => act("send-payslips", t("emailsResent"))}>
+                {t("resendEmails")}
+              </button>
+            </div>
+          )}
           {payroll.status === "cancelled" && <div className="khoi-canh-bao trung-tinh">{t("cancelledText", { reason: payroll.cancelReason ?? "" })}</div>}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--khoang-3)" }}>
             <div className="the">
@@ -179,6 +194,26 @@ export default function PayrollDetailPage() {
             }))}
           />
           <span className="chu-thich">{t("linesHint")}</span>
+          {payroll.journals.length > 0 && (
+            <div className="the" style={{ display: "grid", gap: "var(--khoang-3)" }}>
+              <h2>{t("journals")}</h2>
+              <Table
+                headings={[t("journalNo"), t("journalDate"), t("account"), t("debit"), t("credit")]}
+                rows={payroll.journals.flatMap((journal) =>
+                  journal.lines.map((line, index) => ({
+                    key: `${journal.id}-${index}`,
+                    cells: [
+                      index === 0 ? journal.journalNo : "",
+                      index === 0 ? formatDate(journal.journalDate) : "",
+                      `${line.accountCode} ${line.accountName}`,
+                      Number(line.debit) > 0 ? vnd(line.debit) : "",
+                      Number(line.credit) > 0 ? vnd(line.credit) : "",
+                    ],
+                  })),
+                )}
+              />
+            </div>
+          )}
           {lineId && (
             <LineDrawer
               payrollId={payroll.id}
@@ -189,6 +224,17 @@ export default function PayrollDetailPage() {
                 const current = payroll.lines.find((line) => line.id === lineId);
                 const next = updated.lines.find((line) => line.employeeId === current?.employeeId);
                 setLineId(next?.id ?? null);
+                void reload();
+              }}
+            />
+          )}
+          {paying && (
+            <PayDrawer
+              payroll={payroll}
+              onClose={() => setPaying(false)}
+              onDone={() => {
+                setPaying(false);
+                notify(t("paidDone"));
                 void reload();
               }}
             />
@@ -492,6 +538,49 @@ function CancelDialog({ payrollId, onClose, onDone }: { payrollId: string; onClo
           </button>
           <button type="submit" className={`nut nguy-hiem${submitting ? " dang-xu-ly" : ""}`} disabled={submitting}>
             {t("cancelPayroll")}
+          </button>
+        </div>
+      </form>
+    </Drawer>
+  );
+}
+
+function PayDrawer({ payroll, onClose, onDone }: { payroll: PayrollResponse; onClose: () => void; onDone: () => void }) {
+  const t = useTranslations("payroll");
+  const { submitting, fields, formError, run, inputClass } = useSubmit();
+  const [paymentDate, setPaymentDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [fundId, setFundId] = useState(payroll.funds[0]?.id ?? "");
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    void run(async () => {
+      await apiFetch(`/hr/payrolls/${payroll.id}/pay`, { method: "POST", body: JSON.stringify({ paymentDate, fundId }) });
+      onDone();
+    });
+  }
+  return (
+    <Drawer title={t("pay")} onClose={onClose}>
+      <form onSubmit={submit} style={{ display: "grid", gap: "var(--khoang-3)" }}>
+        <Field id="tra-ngay" label={`${t("paymentDate")} *`} error={fields.paymentDate} hint={t("paymentDateHint")}>
+          <input id="tra-ngay" type="date" className={inputClass("paymentDate")} value={paymentDate} onChange={(event) => setPaymentDate(event.target.value)} />
+        </Field>
+        <Field id="tra-quy" label={`${t("fund")} *`} error={fields.fundId}>
+          <select id="tra-quy" className={inputClass("fundId")} value={fundId} onChange={(event) => setFundId(event.target.value)}>
+            {payroll.funds.map((fund) => (
+              <option key={fund.id} value={fund.id}>
+                {fund.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+        {payroll.funds.length === 0 && <div className="khoi-canh-bao canh-bao">{t("noFunds")}</div>}
+        <div className="khoi-canh-bao thong-tin">{t("payHint", { amount: vnd(payroll.netPay), number: `${payroll.documentNo ?? ""}-TT` })}</div>
+        <FormError text={formError} />
+        <div className="nhom-nut">
+          <button type="button" className="nut phu" onClick={onClose}>
+            {t("cancel")}
+          </button>
+          <button type="submit" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting || payroll.funds.length === 0}>
+            {t("pay")}
           </button>
         </div>
       </form>

@@ -384,3 +384,18 @@ Dữ liệu mẫu: công ty VCR, phòng ban có trưởng phòng; tài khoản Q
 | TIEUCHI_NGHIEMTHU_292 | CHUC_NANG_164 | Nhắc đúng mốc, mỗi mốc một lần, đúng người nhận; hợp đồng có hợp đồng tiếp theo hoặc đã chấm dứt không nhắc; danh sách sắp hết hạn, nhãn quá 30 ngày đúng | Gọi API, việc nền | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_293 | CHUC_NANG_162, CHUC_NANG_163 | Nghỉ việc chấm dứt hợp đồng, hủy hợp đồng chưa ký; hồ sơ đã nghỉ chỉ người có `hr.employee.manage` thấy; nhân viên xem đúng hồ sơ, hợp đồng của mình | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_294 | CHUC_NANG_162 đến CHUC_NANG_164 | MAN_HINH_114 đến MAN_HINH_119 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |
+
+## MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
+
+Dữ liệu mẫu: công ty VCR đã khởi tạo kế toán (Thông tư 99/2025), công ty VCT chế độ Thông tư 133; tham số tháng 11/2026; nhân viên hợp đồng xác định thời hạn có phụ lục tăng lương, không xác định thời hạn, thử việc vào giữa tháng, nghỉ không lương 15 ngày; tài khoản Nhân viên nhân sự, Kế toán trưởng, nhân viên có hồ sơ liên kết.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_303 | CHUC_NANG_168 | Tham số pháp luật, thiết lập công ty, loại phụ cấp lưu và chọn đúng theo ngày hiệu lực; bộ đã dùng không sửa được; chỉ người có quyền ở phạm vi tập đoàn sửa tham số pháp luật | Gọi API, kiểm thử tự động | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_304 | CHUC_NANG_168 | Hợp đồng, phụ lục lưu loại phụ cấp; hồ sơ lương (lương đóng bảo hiểm theo tháng, miễn đóng, cách tính thuế, cam kết) đúng; dữ liệu cũ của CONG_VIEC_46 không hỏng | Gọi API, kiểm thử tự động | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_305 | CHUC_NANG_169 | Lương thời gian, phụ cấp, làm thêm giờ, làm đêm tính đúng theo hợp đồng hiện hành (có đổi giữa tháng) và bảng công | Gọi API, kiểm thử tự động | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_306 | CHUC_NANG_169 | Bảo hiểm hai phía, mức trần từng loại, không đóng khi nghỉ không lương từ 14 ngày, thử việc, người nước ngoài không đóng thất nghiệp, kinh phí công đoàn đúng | Gọi API, kiểm thử tự động | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_307 | CHUC_NANG_169 | Thuế lũy tiến (giảm trừ người phụ thuộc theo tháng, miễn phần làm thêm, phụ cấp miễn đến mức) và khấu trừ 10% (ngưỡng, cam kết) đúng | Gọi API, kiểm thử tự động | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_308 | CHUC_NANG_169 | Bảng lương qua luồng duyệt; chặn gửi khi bảng công chưa chốt, kỳ khóa, thực lĩnh âm; đã duyệt không sửa; công ty khác nhận `404`; người không quyền nhận `403` | Gọi API, kiểm thử tự động | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_309 | CHUC_NANG_170 | Bút toán trích lương, trả lương cân Nợ Có, đúng tài khoản theo Thông tư 99, Thông tư 133 và nhóm phòng ban; phiếu lương, chuông, email đúng người; nhân viên không xem được phiếu của người khác | Gọi API, kiểm thử tự động | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_310 | CHUC_NANG_168 đến CHUC_NANG_170 | MAN_HINH_126 đến MAN_HINH_131 và thay đổi MAN_HINH_118 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |

@@ -366,7 +366,8 @@
     "payrollParametersMissing": "No legal parameter set is effective for this month.",
     "timesheetNotClosed": "The monthly timesheet is not closed yet.",
     "payrollEmpty": "The payroll has no employees.",
-    "payrollBlockingWarnings": "Some lines have blocking warnings (no timesheet, branch region missing, negative net pay)."
+    "payrollBlockingWarnings": "Some lines have blocking warnings (no timesheet, branch region missing, negative net pay).",
+    "payrollNotApproved": "The payroll is not approved."
   },
   "login": {
     "title": "Sign in",
@@ -2561,7 +2562,9 @@
     "source_marketplace_payment": "VComm order payment",
     "source_marketplace_refund": "VComm order refund",
     "source_marketplace_commission": "VComm order commission",
-    "source_marketplace_withdrawal": "Commission payout"
+    "source_marketplace_withdrawal": "Commission payout",
+    "source_payroll": "Monthly payroll",
+    "source_payroll_payment": "Salary payment"
   },
   "statements": {
     "title": "Financial statements",
@@ -4208,6 +4211,30 @@
     "deleteAdjustmentText": "Delete \"{description}\"? The payroll will be recalculated.",
     "adjustmentKind": "Addition or deduction",
     "taxableAddition": "Subject to personal income tax",
-    "cancelReason": "Cancellation reason"
+    "cancelReason": "Cancellation reason",
+    "pay": "Record salary payment",
+    "paidText": "Paid on {date} from {fund}.",
+    "emailFailed": "{count} payslip emails could not be sent.",
+    "resendEmails": "Resend",
+    "emailsResent": "Payslip emails resent.",
+    "journals": "Journals",
+    "journalNo": "Number",
+    "journalDate": "Date",
+    "account": "Account",
+    "debit": "Debit",
+    "credit": "Credit",
+    "paidDone": "Salary payment and journal recorded.",
+    "paymentDate": "Payment date",
+    "paymentDateHint": "Not before the approval date, not after today.",
+    "fund": "Paying fund",
+    "noFunds": "The company has no active fund (set up in Finance).",
+    "payHint": "Records journal {number}: debit 334 / credit the fund {amount}.",
+    "noPayslips": "No approved payslips yet.",
+    "payslips": "Payslips",
+    "paidOn": "Paid {date}",
+    "payslipTitle": "Payslip {month}",
+    "print": "Print",
+    "company": "Company",
+    "notPaidYet": "Payroll approved, payment not recorded yet."
   }
 }

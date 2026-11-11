@@ -3959,3 +3959,117 @@ Dữ liệu chung: công ty VCR; phòng ban có trưởng phòng; tài khoản Q
 - Kết quả mong đợi: Không cuộn ngang; bảng chuyển dạng thẻ; ngăn kéo dùng được.
 - Kiểm thử tự động: Thủ công – Playwright chụp màn hình
 - Lát: L0, L1, L2
+
+## MODULE_08 Nhân sự phần 3 – Lương (CONG_VIEC_48)
+
+Dữ liệu chung: công ty VCR, phòng Kinh doanh (nhóm bán hàng), phòng Kế toán (nhóm quản lý), chi nhánh vùng I; tham số tháng 11/2026; dữ liệu giả, không dùng dữ liệu thật. Bảng công tháng giả lập bằng `testTimesheet` cho đến khi hợp nhất CONG_VIEC_47.
+
+### KICHBAN_KIEMTHU_454: Tham số pháp luật theo ngày hiệu lực, thiết lập công ty, quyền phạm vi tập đoàn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_303
+- Chức năng: CHUC_NANG_168
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Vai trò thực hiện: Quản trị tập đoàn; quản trị công ty; Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Bộ tham số nạp sẵn 2026-07-01, 2027-01-01
+- Các bước: (1) Đọc thiết lập. (2) Quản trị công ty, nhân viên nhân sự thêm bộ mới. (3) Quản trị tập đoàn thêm bộ 2027-07-01; thêm trùng ngày; ngày không phải đầu tháng; biểu thuế giảm dần. (4) Sửa, sửa sai phiên bản, xóa. (5) Lưu thiết lập công ty (hệ số dưới 100%), vùng chi nhánh, nhóm phòng ban của công ty khác.
+- Kết quả mong đợi: (1) Bộ đang áp dụng 2026-07-01, 5 bậc. (2) `403`. (3) Lập được; trùng, sai ngày, sai bậc `400` theo ô. (4) Sửa được; `409`; xóa được. (5) `400` theo ô; phòng ban công ty khác `400`; công ty khác không thấy thiết lập.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c48-payroll-setup.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_455: Loại phụ cấp trên hợp đồng, hồ sơ lương
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_304
+- Chức năng: CHUC_NANG_168
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Quản trị công ty; Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Hồ sơ nhân viên, chi nhánh vùng I
+- Các bước: (1) Lập loại miễn đến mức thiếu số tiền; tên trùng khác hoa thường. (2) Lập hợp đồng thiếu loại, loại công ty khác, loại ngừng dùng. (3) Đọc hợp đồng có dòng cũ chưa có loại. (4) Khai lương đóng bảo hiểm dưới tối thiểu vùng, cùng tháng, tháng sau, xóa. (5) Miễn đóng không lý do; cam kết 08 thay tệp cùng năm.
+- Kết quả mong đợi: (1) `400`. (2) `400` tại `allowances.0.allowanceTypeId`. (3) Loại trống. (4) Cảnh báo dưới tối thiểu; cùng tháng thay mức; nhật ký không ghi số tiền. (5) `400`; một tệp mỗi năm.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c48-payroll-setup.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_456: Lương thời gian, phụ cấp, hợp đồng đổi giữa tháng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_305
+- Chức năng: CHUC_NANG_169
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Phụ lục tăng lương giữa tháng; thử việc vào ngày 3
+- Các bước: (1) Tính đủ công. (2) Nửa công với phụ cấp theo ngày công, phụ cấp không theo ngày công. (3) Hai đoạn lương 15 ngày. (4) Vào làm giữa tháng.
+- Kết quả mong đợi: (1) Đúng ví dụ đặc tả mục 12. (2) Phụ cấp theo ngày công giảm theo tỷ lệ. (3) Lương bình quân theo ngày. (4) 6.120.000 đồng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c48-payroll-calculation.test.ts`, `apps/api/test/c48-payrolls.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_457: Làm thêm giờ, làm đêm, phần miễn thuế
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_305
+- Chức năng: CHUC_NANG_169
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Đơn giá 82.500 và 20.000 đồng/giờ
+- Các bước: (1) 8 giờ ngày thường. (2) Một giờ mỗi nhóm trong 7 nhóm, 10 giờ làm đêm. (3) Phụ cấp tính vào đơn giá.
+- Kết quả mong đợi: (1) 990.000, miễn 330.000. (2) 1720% đơn giá; phần cao hơn và tiền làm đêm miễn thuế. (3) Đơn giá tăng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c48-payroll-calculation.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_458: Bảo hiểm, mức trần, kinh phí công đoàn, trường hợp không đóng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_306
+- Chức năng: CHUC_NANG_169
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Lương 150 triệu; vùng III
+- Các bước: (1) Mức trần. (2) Nghỉ không lương 15 và 13 ngày. (3) Người nước ngoài; miễn đóng; chi nhánh chưa chọn vùng; dưới tối thiểu; chưa khai; công ty không đóng công đoàn.
+- Kết quả mong đợi: (1) Xã hội, y tế 50.600.000; thất nghiệp 82.800.000. (2) 15 ngày không đóng, 13 ngày đóng. (3) Không đóng thất nghiệp; loại miễn bằng 0; cảnh báo đúng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c48-payroll-calculation.test.ts`, `apps/api/test/c48-payrolls.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_459: Thuế lũy tiến, khấu trừ 10%, cam kết
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_307
+- Chức năng: CHUC_NANG_169
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Thu nhập tính thuế 84,5 triệu
+- Các bước: (1) Lũy tiến nhiều bậc. (2) Khấu trừ 10% với 2.000.000 và 1.999.999; có cam kết. (3) Khoản cộng thêm không chịu thuế; thực lĩnh âm.
+- Kết quả mong đợi: (1) 15.850.000. (2) 200.000; 0; 0. (3) Không vào thu nhập chịu thuế; cảnh báo chặn.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c48-payroll-calculation.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_460: Lập, tính, khoản nhập tay, luồng duyệt, cách ly công ty
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_308
+- Chức năng: CHUC_NANG_169
+- Loại: Đúng, sai, từng vai trò
+- Vai trò thực hiện: Nhân viên nhân sự; Kế toán trưởng; người duyệt; nhân viên thường; quản trị công ty khác
+- Điều kiện ban đầu và dữ liệu: 4 nhân viên tháng 11/2026; bảng công giả lập
+- Các bước: (1) Nhân viên thường, kế toán trưởng lập. (2) Lập, tính lại sau chọn vùng; lập trùng tháng. (3) Thêm khoản sai loại, tạm ứng, khoản âm, xóa. (4) Gửi khi bảng công chưa chốt; gửi, từ chối, gửi lại, duyệt; hủy sau duyệt. (5) Công ty khác, người không quyền xem; xuất Excel; hủy nháp; tháng chưa có tham số.
+- Kết quả mong đợi: (1) `403`. (2) Số liệu khớp bản mẫu; `409` payrollExists. (3) `400`; tính lại; cảnh báo chặn; hết cảnh báo. (4) `409` timesheetNotClosed; số `BL-VCR-2026-`; đã duyệt khóa bảng công, bộ tham số đã dùng; `409`. (5) `404`, `403`; tệp Excel; đã hủy; `409` payrollParametersMissing.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c48-payrolls.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_461: Bút toán, trả lương, phiếu lương, email, Thông tư 133
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_309
+- Chức năng: CHUC_NANG_170
+- Loại: Đúng, sai, từng vai trò
+- Vai trò thực hiện: Nhân viên nhân sự; Kế toán trưởng; nhân viên có hồ sơ liên kết
+- Điều kiện ban đầu và dữ liệu: Công ty VCR đã khởi tạo kế toán Thông tư 99/2025, quỹ tiền mặt
+- Các bước: (1) Duyệt bảng lương. (2) Nhân viên xem phiếu của mình, của người khác. (3) Kế toán trưởng ghi đã trả; ngày trả sau hôm nay; quỹ công ty khác; trả đúng; trả lần hai. (4) Khởi tạo kế toán công ty Thông tư 133.
+- Kết quả mong đợi: (1) Bút toán cân, đúng 6411, 6421, 334, 3383, 3384, 3386, 3382, 3335, 3388; chuông, email tới email cá nhân. (2) Xem được phiếu của mình; người khác `404`. (3) `403`; `400`; `400`; Nợ 334 / Có 111; `409`. (4) Định khoản 6421, 6422, 3385.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c48-payrolls.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_462: Giao diện MAN_HINH_126 đến 131 và cột loại phụ cấp MAN_HINH_118 trên máy tính (1366 điểm ảnh)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_310
+- Chức năng: CHUC_NANG_168 đến CHUC_NANG_170
+- Loại: Giao diện
+- Vai trò thực hiện: Quản trị tập đoàn; Nhân viên nhân sự; nhân viên có hồ sơ liên kết
+- Điều kiện ban đầu và dữ liệu: Bảng lương tháng 11/2026 các trạng thái nháp, đã duyệt, đã trả
+- Các bước: Mở từng màn hình, các thẻ, ngăn chi tiết dòng lương, ngăn ghi đã trả, phiếu lương; trạng thái rỗng, lỗi, không quyền.
+- Kết quả mong đợi: Đạt danh sách rà soát giao diện; không lỗi trình duyệt; không cuộn ngang trang.
+- Kiểm thử tự động: Thủ công bằng trình duyệt tự động chụp màn hình (`tam_thoi/`, không commit)
+- Lát: L0 đến L2
+
+### KICHBAN_KIEMTHU_463: Giao diện MAN_HINH_126 đến 131 và cột loại phụ cấp MAN_HINH_118 trên điện thoại (390 điểm ảnh)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_310
+- Chức năng: CHUC_NANG_168 đến CHUC_NANG_170
+- Loại: Giao diện
+- Vai trò thực hiện: Quản trị tập đoàn; Nhân viên nhân sự; nhân viên có hồ sơ liên kết
+- Điều kiện ban đầu và dữ liệu: Bảng lương tháng 11/2026 các trạng thái nháp, đã duyệt, đã trả
+- Các bước: Mở từng màn hình, các thẻ, ngăn chi tiết dòng lương, ngăn ghi đã trả, phiếu lương; trạng thái rỗng, lỗi, không quyền.
+- Kết quả mong đợi: Đạt danh sách rà soát giao diện; không lỗi trình duyệt; không cuộn ngang trang.
+- Kiểm thử tự động: Thủ công bằng trình duyệt tự động chụp màn hình (`tam_thoi/`, không commit)
+- Lát: L0 đến L2

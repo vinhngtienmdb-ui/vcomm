@@ -1,4 +1,4 @@
-// CONG_VIEC_48 lát L1: bảng lương tháng (TIEUCHI_NGHIEMTHU_305, 306, 308; KICHBAN_KIEMTHU_456, 460). Bảng công tháng lấy từ bản giả (testTimesheet) trong lúc chờ CONG_VIEC_47.
+// CONG_VIEC_48 lát L1, L2: bảng lương tháng, bút toán, trả lương, phiếu lương (TIEUCHI_NGHIEMTHU_305, 306, 308, 309; KICHBAN_KIEMTHU_456, 460, 461). Bảng công tháng lấy từ bản giả (testTimesheet) trong lúc chờ CONG_VIEC_47.
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { messages } from "i18n";
 import type { Pool } from "pg";
@@ -7,7 +7,7 @@ import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { overtimeGroups, type OvertimeGroup } from "../src/hr/payroll-calculation";
 import { createTestUser, signIn, type Session } from "./helpers";
-import { startTestApplication, testClock, testTimesheet } from "./setup-database";
+import { sentMessages, startTestApplication, testClock, testTimesheet } from "./setup-database";
 
 let application: NestExpressApplication;
 let pool: Pool;
@@ -19,6 +19,9 @@ let approver: Session;
 let selling: string;
 let administration: string;
 let lunch: string;
+let cashFund: string;
+let ngocUser: Session;
+let khoaUser: Session;
 const employees: Record<string, string> = {};
 const retail: string = testIds.retailCompany;
 const trading: string = testIds.tradingCompany;
@@ -109,7 +112,18 @@ beforeAll(async () => {
     (type: { name: string }) => type.name === "Điện thoại",
   ).id;
 
-  const ngoc = await employee("NV000124", "Lê Thị Bích Ngọc", administration, { kind: "fixed_term", effective: "2025-11-15", end: "2027-11-14", salary: "15000000" });
+  // Kế toán đã khởi tạo (Thông tư 99/2025), có quỹ tiền mặt.
+  expect((await call(admin, "post", "/finance/ledger/setup")).status).toBe(201);
+  cashFund = (await call(admin, "post", "/finance/funds", { code: "TM", name: "Quỹ tiền mặt", kind: "cash", openingBalance: "100000000" })).body.id;
+  const ngocUserId = await createTestUser(pool, "ngoc.le.luong@vcomm.test", "Lê Thị Bích Ngọc", [{ companyId: retail }]);
+  const khoaUserId = await createTestUser(pool, "khoa.tran.luong@vcomm.test", "Trần Minh Khoa", [{ companyId: retail }]);
+  const ngoc = await employee(
+    "NV000124",
+    "Lê Thị Bích Ngọc",
+    administration,
+    { kind: "fixed_term", effective: "2025-11-15", end: "2027-11-14", salary: "15000000" },
+    { userId: ngocUserId, personalEmail: "ngoc.canhan@example.test" },
+  );
   // Phụ lục tăng lương từ 01/11/2026, thay phụ cấp.
   const appendix = (
     await pool.query<{ id: string }>(
@@ -125,7 +139,9 @@ beforeAll(async () => {
   await call(hrStaff, "post", `/hr/employees/${ngoc.employeeId}/insurance-salaries`, { effectiveMonth: "2026-03-01", amount: "16500000" });
   await call(hrStaff, "post", `/hr/employees/${ngoc.employeeId}/dependents`, { fullName: "Nguyễn Minh An", relationship: "child", birthDate: "2022-06-02", deductionFrom: "2025-09-01" });
 
-  const khoa = await employee("NV000123", "Trần Minh Khoa", administration, { kind: "indefinite", effective: "2025-03-01", end: null, salary: "30000000" });
+  const khoa = await employee("NV000123", "Trần Minh Khoa", administration, { kind: "indefinite", effective: "2025-03-01", end: null, salary: "30000000" }, { userId: khoaUserId });
+  ngocUser = await signIn(application, "ngoc.le.luong@vcomm.test");
+  khoaUser = await signIn(application, "khoa.tran.luong@vcomm.test");
   await call(hrStaff, "post", `/hr/employees/${khoa.employeeId}/insurance-salaries`, { effectiveMonth: "2025-03-01", amount: "30000000" });
   await call(hrStaff, "post", `/hr/employees/${khoa.employeeId}/dependents`, { fullName: "Trần Minh Anh", relationship: "child", birthDate: "2020-01-01", deductionFrom: "2025-03-01" });
 
@@ -249,7 +265,25 @@ describe("KICHBAN_KIEMTHU_460: lập, tính, khoản nhập tay, luồng duyệt
     await approver.call("post", `/approval-requests/${resubmitted.approvalRequestId}/decisions`, { body: { decision: "approved", comment: "Đồng ý" } });
     await application.get(OutboxService).dispatchPending();
     const approved = (await call(accountant, "get", `/hr/payrolls/${payrollId}`)).body;
-    expect(approved).toMatchObject({ status: "approved", canEdit: false, canCancel: false });
+    expect(approved).toMatchObject({ status: "approved", canEdit: false, canCancel: false, canPay: false, emailFailedCount: 0 });
+    // Bút toán trích lương theo Thông tư 99/2025 (QUYTAC_NGHIEPVU_323), khớp bản mẫu MAN_HINH_127.
+    expect(approved.journals).toHaveLength(1);
+    const journal = approved.journals[0];
+    expect(journal).toMatchObject({ journalNo: approved.documentNo, journalDate: "2026-11-30", sourceType: "payroll" });
+    const lines = Object.fromEntries(journal.lines.map((line: { accountCode: string; debit: string; credit: string }, index: number) => [`${line.accountCode}:${index}`, [line.debit, line.credit]]));
+    expect(Object.values(lines)).toEqual([
+      ["14920000", "0"],
+      ["59447500", "0"],
+      ["0", "63440000"],
+      ["0", "11857500"],
+      ["0", "2092500"],
+      ["0", "930000"],
+      ["0", "930000"],
+      ["7752000", "0"],
+      ["0", "869500"],
+      ["0", "2000000"],
+    ]);
+    expect(journal.lines.map((line: { accountCode: string }) => line.accountCode)).toEqual(["6411", "6421", "334", "3383", "3384", "3386", "3382", "334", "3335", "3388"]);
     expect(testTimesheet.locks).toContain(`${retail}:${month}:true`);
     expect((await call(hrStaff, "post", `/hr/payrolls/${payrollId}/cancel`, { reason: "Thử" })).status).toBe(409);
     // Bộ tham số đã được bảng lương đã duyệt dùng thì không sửa.
@@ -273,5 +307,65 @@ describe("KICHBAN_KIEMTHU_460: lập, tính, khoản nhập tay, luồng duyệt
     const cancelled = await call(hrStaff, "post", `/hr/payrolls/${october.body.id}/cancel`, { reason: "Lập nhầm" });
     expect(cancelled.body).toMatchObject({ status: "cancelled", cancelReason: "Lập nhầm" });
     expect((await call(hrStaff, "post", "/hr/payrolls", { month: "2026-06-01" })).body.error.message).toBe(message("payrollParametersMissing"));
+  });
+});
+
+describe("KICHBAN_KIEMTHU_461: trả lương, phiếu lương, email, chế độ Thông tư 133", () => {
+  let payrollId: string;
+
+  it("phiếu lương: chuông, email tới email cá nhân, nhân viên chỉ xem phiếu của mình", async () => {
+    payrollId = (await call(hrStaff, "get", "/hr/payrolls?year=2026")).body.data.find((item: { month: string; status: string }) => item.month === month && item.status === "approved").id;
+    const mail = sentMessages.filter((sent) => sent.to === "ngoc.canhan@example.test");
+    expect(mail).toHaveLength(1);
+    expect(mail[0]!.subject).toContain("phiếu lương tháng 11/2026");
+    expect(mail[0]!.body).toContain("Thực lĩnh: 14.787.500 đồng");
+    const bell = await pool.query("SELECT n.title FROM core.notifications n JOIN core.users u ON u.id = n.user_id WHERE u.email = 'ngoc.le.luong@vcomm.test' AND n.kind = 'hr.payslip.issued'");
+    expect(bell.rows).toHaveLength(1);
+    const mine = await call(ngocUser, "get", "/hr/me/payslips");
+    expect(mine.body).toMatchObject([{ month, netPay: "14787500", status: "approved", paymentDate: null }]);
+    const slip = await call(ngocUser, "get", `/hr/me/payslips/${mine.body[0].lineId}`);
+    expect(slip.body).toMatchObject({ employeeName: "Lê Thị Bích Ngọc", line: { grossIncome: "18520000", netPay: "14787500", canEdit: false, adjustments: [{ category: "advance" }] } });
+    // Người khác (có hồ sơ liên kết) không xem được phiếu của Ngọc; công ty khác không thấy.
+    expect((await call(khoaUser, "get", `/hr/me/payslips/${mine.body[0].lineId}`)).status).toBe(404);
+    expect((await call(khoaUser, "get", "/hr/me/payslips")).body).toHaveLength(1);
+    expect((await call(outsider, "get", "/hr/me/payslips")).body).toEqual([]);
+  });
+
+  it("ghi đã trả lương: ngày, quỹ, bút toán trả lương; không trả hai lần", async () => {
+    expect((await call(accountant, "post", `/hr/payrolls/${payrollId}/pay`, { paymentDate: "2026-11-11", fundId: cashFund })).status).toBe(403);
+    expect((await call(hrStaff, "post", `/hr/payrolls/${payrollId}/pay`, { paymentDate: "2026-11-12", fundId: cashFund })).body.error.fields).toEqual({ paymentDate: message("invalidValue") });
+    const foreignFund = (
+      await pool.query<{ id: string }>("INSERT INTO finance.funds (company_id, code, name, kind, created_by) VALUES ($1, 'TM2', 'Quỹ khác', 'cash', $2) RETURNING id", [trading, testIds.groupAdmin])
+    ).rows[0]!.id;
+    expect((await call(hrStaff, "post", `/hr/payrolls/${payrollId}/pay`, { paymentDate: "2026-11-11", fundId: foreignFund })).body.error.fields).toEqual({ fundId: message("invalidValue") });
+    const before = (await call(hrStaff, "get", `/hr/payrolls/${payrollId}`)).body;
+    expect(before.canPay).toBe(true);
+    expect(before.funds.map((fund: { id: string }) => fund.id)).toContain(cashFund);
+    const paid = await call(hrStaff, "post", `/hr/payrolls/${payrollId}/pay`, { paymentDate: "2026-11-11", fundId: cashFund });
+    expect(paid.status, JSON.stringify(paid.body)).toBe(200);
+    expect(paid.body).toMatchObject({ status: "paid", paymentDate: "2026-11-11", fundName: "Quỹ tiền mặt", canPay: false });
+    const payment = paid.body.journals.find((journal: { sourceType: string }) => journal.sourceType === "payroll_payment");
+    expect(payment).toMatchObject({ journalNo: `${paid.body.documentNo}-TT`, journalDate: "2026-11-11" });
+    expect(payment.lines).toMatchObject([
+      { accountCode: "334", debit: "55688000", credit: "0" },
+      { accountCode: "111", debit: "0", credit: "55688000" },
+    ]);
+    expect((await call(hrStaff, "post", `/hr/payrolls/${payrollId}/pay`, { paymentDate: "2026-11-11", fundId: cashFund })).status).toBe(409);
+    expect((await call(ngocUser, "get", "/hr/me/payslips")).body[0]).toMatchObject({ status: "paid", paymentDate: "2026-11-11" });
+  });
+
+  it("định khoản mặc định theo Thông tư 133: chi phí 6421, 6422; bảo hiểm thất nghiệp 3385", async () => {
+    const groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
+    await pool.query("UPDATE core.companies SET accounting_regime = 'TT133' WHERE id = $1", [trading]);
+    expect((await call(groupAdmin, "post", "/finance/ledger/setup", undefined, trading)).status).toBe(201);
+    const rules = (await call(groupAdmin, "get", "/finance/posting-rules", undefined, trading)).body as { role: string; accountCode: string }[];
+    const code = (role: string) => rules.find((rule) => rule.role === role)?.accountCode;
+    expect([code("salary_expense_selling"), code("salary_expense_admin"), code("unemployment_insurance_payable"), code("salary_payable"), code("personal_income_tax")]).toEqual([
+      "6421",
+      "6422",
+      "3385",
+      "334",
+      "3335",
+    ]);
   });
 });

@@ -1272,6 +1272,21 @@ Mọi đường dẫn dưới `/api/v1/hr`, cần đăng nhập, công ty đang 
 
 Sự kiện: không phát sự kiện mới; nghe `core.approval.completed` (loại `hr.contract`, `hr.contract_appendix`). Thông báo mới: `hr.employee.terminated`, `hr.contract.expiring`.
 
+## 3x. Hợp đồng chi tiết Nhân sự phần 3 – Lương (MODULE_08, CONG_VIEC_48)
+
+Mọi đường dẫn dưới `/api/v1/hr`, cần đăng nhập, công ty đang chọn qua `x-company-id`; trừ `/hr/me/payslips*`, mọi đường dẫn cần `hr.access`. Lược đồ zod trong `packages/contracts` (mục CONG_VIEC_48). Lỗi theo mục 1.
+
+| Mã | Phương thức, đường dẫn | Quyền | Nội dung |
+|---|---|---|---|
+| API_156 | `GET /hr/payroll-settings`; `POST /hr/payroll-parameters`; `PATCH`, `DELETE /hr/payroll-parameters/{id}`; `PUT /hr/payroll-settings/company`, `/branches`, `/departments` | Xem: `hr.payroll.view`, `hr.payroll.manage` hoặc `hr.payroll.setup`; sửa: `hr.payroll.setup` (tham số pháp luật: gán ở phạm vi tập đoàn) | Tham số pháp luật theo ngày hiệu lực (bộ đã dùng: `409` payrollParametersUsed), thiết lập công ty, vùng chi nhánh, nhóm chi phí phòng ban |
+| API_157 | `GET`, `POST /hr/allowance-types`; `PATCH /hr/allowance-types/{id}` | Xem: quyền lương hoặc `hr.contract.manage`; sửa: `hr.payroll.setup` | Loại phụ cấp. Thay đổi API_147, API_148: dòng phụ cấp có `allowanceTypeId` (bắt buộc khi lưu), phản hồi thêm `allowanceTypeName` |
+| API_158 | `GET`, `PUT /hr/employees/{id}/payroll-profile`; `POST /hr/employees/{id}/insurance-salaries`; `DELETE /hr/employees/{id}/insurance-salaries/{salaryId}`; `POST /hr/employees/{id}/tax-commitments` (multipart `file`, `year`); `GET /hr/employees/{id}/tax-commitments/{commitmentId}`; `GET /hr/payroll-profiles/missing-insurance` | `hr.payroll.manage` | Lương đóng bảo hiểm, miễn đóng, cách tính thuế, cam kết 08/CK-TNCN |
+| API_159 | `GET /hr/payrolls` (`year`, `status`); `POST /hr/payrolls` (`month`); `GET /hr/payrolls/{id}` (`departmentId`, `warningsOnly`); `GET /hr/payrolls/{id}/lines/{lineId}`; `GET /hr/payrolls/{id}/export`; `POST /hr/payrolls/{id}/recalculate` | Xem: `hr.payroll.view`; lập, tính lại: `hr.payroll.manage` | Bảng lương tháng, dòng lương và giải trình, xuất Excel |
+| API_160 | `POST`, `PATCH`, `DELETE /hr/payrolls/{id}/adjustments[/{adjustmentId}]`; `POST /hr/payrolls/{id}/submit`, `/withdraw`, `/cancel` (`reason`), `/pay` (`paymentDate`, `fundId`), `/send-payslips` | `hr.payroll.manage`; rút: người gửi | Khoản nhập tay, luồng duyệt, hủy, ghi đã trả lương, gửi lại email phiếu lương. Lỗi: timesheetNotClosed, payrollBlockingWarnings, ledgerNotInitialized, periodLocked, payrollNotApproved |
+| API_161 | `GET /hr/me/payslips`; `GET /hr/me/payslips/{lineId}` | Thành viên công ty có hồ sơ liên kết | Phiếu lương của chính mình (bảng lương đã duyệt, đã trả); phiếu của người khác `404` |
+
+Sự kiện: không phát sự kiện mới; nghe `core.approval.completed` (loại `hr.payroll`). Thông báo mới: `hr.payslip.issued`. Email phiếu lương gửi tới email cá nhân của hồ sơ.
+
 ## 4. Sự kiện phát ra (outbox)
 
 | Sự kiện | Khi nào | Dữ liệu |

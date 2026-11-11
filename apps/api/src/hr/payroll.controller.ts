@@ -1,8 +1,9 @@
-// API_156 đến API_160: thiết lập lương, loại phụ cấp, hồ sơ lương của nhân viên, bảng lương tháng (CONG_VIEC_48). Quyền chi tiết kiểm trong service.
+// API_156 đến API_161: thiết lập lương, loại phụ cấp, hồ sơ lương của nhân viên, bảng lương tháng (CONG_VIEC_48). Quyền chi tiết kiểm trong service.
 import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
   cancelPayrollSchema,
+  payPayrollSchema,
   createPayrollSchema,
   payrollLineQuerySchema,
   payrollListQuerySchema,
@@ -20,12 +21,15 @@ import {
   type PayrollLineDetail,
   type PayrollListResponse,
   type PayrollResponse,
+  type PayslipListItem,
+  type PayslipResponse,
   type PayrollProfileResponse,
   type PayrollSettingsResponse,
 } from "contracts";
 import type { Response } from "express";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
+import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
@@ -45,6 +49,23 @@ export class PayrollController {
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
     const companyId = await this.permissionService.authorize(request.auth.userId, requestedCompanyId, "hr.access");
     return { userId: request.auth.userId, companyId, client: clientInfo(request) };
+  }
+
+  // Phiếu lương của tôi: chỉ cần là thành viên công ty đang chọn (như hồ sơ của tôi, CONG_VIEC_46).
+  private async memberActor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
+    const { companyId } = await this.permissionService.resolveCompany(request.auth.userId, requestedCompanyId);
+    if (!companyId) throw new ApiError("FORBIDDEN", "forbidden");
+    return { userId: request.auth.userId, companyId, client: clientInfo(request) };
+  }
+
+  @Get("me/payslips")
+  async myPayslips(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<PayslipListItem[]> {
+    return this.payrolls.myPayslips(await this.memberActor(request, companyId));
+  }
+
+  @Get("me/payslips/:lineId")
+  async myPayslip(@Req() request: AuthenticatedRequest, @Param("lineId", UuidPipe) lineId: string, @Headers("x-company-id") companyId?: string): Promise<PayslipResponse> {
+    return this.payrolls.myPayslip(await this.memberActor(request, companyId), lineId);
   }
 
   @Get("payroll-settings")
@@ -248,5 +269,17 @@ export class PayrollController {
   @HttpCode(200)
   async cancelPayroll(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PayrollResponse> {
     return this.payrolls.cancel(await this.actor(request, companyId), id, cancelPayrollSchema.parse(body).reason);
+  }
+
+  @Post("payrolls/:id/pay")
+  @HttpCode(200)
+  async payPayroll(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PayrollResponse> {
+    return this.payrolls.pay(await this.actor(request, companyId), id, payPayrollSchema.parse(body));
+  }
+
+  @Post("payrolls/:id/send-payslips")
+  @HttpCode(200)
+  async sendPayslips(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<PayrollResponse> {
+    return this.payrolls.resendPayslips(await this.actor(request, companyId), id);
   }
 }

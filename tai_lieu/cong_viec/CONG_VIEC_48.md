@@ -1,9 +1,9 @@
 # CONG_VIEC_48: Bảng lương, bảo hiểm, thuế thu nhập cá nhân, bút toán lương (MODULE_08 phần 3, MODULE_06)
 
 - Mô tả: Bảng lương tháng của mỗi công ty: lương theo hợp đồng hiện hành, phụ cấp, ngày công và tăng ca từ bảng công tháng (CONG_VIEC_47); bảo hiểm xã hội, bảo hiểm y tế, bảo hiểm thất nghiệp phần người lao động và người sử dụng lao động có mức trần; kinh phí công đoàn; thuế thu nhập cá nhân lũy tiến từng phần có giảm trừ gia cảnh theo người phụ thuộc; duyệt qua luồng duyệt chung; phiếu lương cho nhân viên; bút toán lương qua module Kế toán theo Thông tư 99/2025, Thông tư 133.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Bản nháp, chờ người dùng duyệt
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu ngày 2026-11-11; xác nhận điểm xem trước L0, L1. Lát L2 xong; còn chờ nối bảng công của CONG_VIEC_47.
 - Mức: Lớn (nhiều module, bút toán, sửa dữ liệu và API hợp đồng của CONG_VIEC_46).
 - Nền: nhánh `chuc-nang/CONG_VIEC_46-nhan-su-ho-so` (chưa hợp nhất vào `main`); CONG_VIEC_47 làm song song, hợp nhất nhánh 47 vào trước khi viết phần đọc bảng công.
 
@@ -169,6 +169,9 @@ Phiếu đề xuất: "Thêm loại phụ cấp cho dòng phụ cấp hợp đ�
 
 ## 17. Quyết định AI tự đưa ra (trong phạm vi quyết định của người dùng)
 
+- Kỳ cuối tháng đã khóa sổ sau khi gửi duyệt: bút toán trích lương ghi ngày duyệt (không ghi vào kỳ đã khóa).
+- Khoản nhập tay thêm, sửa, xóa thì bảng lương tính lại ngay.
+
 - Tham số pháp luật dùng chung tập đoàn (cùng một pháp luật); thiết lập riêng (kinh phí công đoàn, tai nạn lao động, vùng, nhóm chi phí) theo công ty.
 - Vùng lương tối thiểu chọn tay cho chi nhánh (vùng xác định theo xã, phường; dữ liệu chi nhánh chỉ có mã tỉnh).
 - Mức lương tháng khi hợp đồng hoặc phụ lục đổi giữa tháng: bình quân theo số ngày lịch của từng đoạn.
@@ -188,3 +191,15 @@ Phiếu đề xuất: "Thêm loại phụ cấp cho dòng phụ cấp hợp đ�
 - Ghi "Đã trả" tại bảng lương sinh bút toán trả; nộp bảo hiểm, thuế làm bút toán thủ công.
 - Có khoản cộng thêm, khấu trừ nhập tay.
 - Phiếu lương trong "Hồ sơ của tôi", thông báo chuông và gửi email.
+
+## 19. Chỗ chỉnh cho khớp mã (lát L0 đến L2)
+
+| Vị trí | Đặc tả 0.1 | Mã đã làm |
+|---|---|---|
+| QUYTAC_NGHIEPVU_320 | Phần miễn thuế: làm thêm giờ | Thêm tiền làm đêm (30%) vào phần miễn thuế: phần trả cao hơn tiền lương làm việc ban ngày được miễn (Thông tư 111/2013/TT-BTC Điều 3 khoản 2 điểm i) |
+| QUYTAC_NGHIEPVU_317 | Bình quân theo ngày lịch | Bình quân theo số ngày lịch thuộc hợp đồng trong tháng (ngày ngoài hợp đồng đã không có trong ngày công hưởng lương) |
+| QUYTAC_NGHIEPVU_315 | Cách tính thuế mặc định theo hợp đồng | Theo hợp đồng mới nhất có hiệu lực trong tháng; "dưới 3 tháng" tính từ ngày hiệu lực đến ngày kết thúc hoặc chấm dứt |
+| QUYTAC_NGHIEPVU_319 | Thử việc hoặc dưới 1 tháng không đóng | Theo hợp đồng mới nhất trong tháng; không có mức lương đóng bảo hiểm thì không tính bảo hiểm, cảnh báo |
+| QUYTAC_NGHIEPVU_323 | Khoản khấu trừ ghi Có 3388 | Vai trò định khoản riêng `payroll_deduction_payable` (mặc định 3388) để kế toán đổi được tài khoản |
+| Mục 9 | Đọc bảng công qua dịch vụ của CONG_VIEC_47 | Giao diện `PayrollTimesheetReader` (`payroll-timesheet.ts`); chưa có mã chấm công thì mọi dòng cảnh báo "Chưa có bảng công" và không gửi duyệt được; kiểm thử dùng bảng công giả lập |
+| QUYTAC_NGHIEPVU_322 | Bảng công khóa mở lại khi lương duyệt | Khi duyệt gọi `lock` của nguồn bảng công (ghi `payroll_locked_at` của kỳ công khi có mã CONG_VIEC_47) |
