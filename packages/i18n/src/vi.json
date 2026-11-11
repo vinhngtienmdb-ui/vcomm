@@ -320,7 +320,8 @@
     "returnRequestNotOpen": "Yêu cầu trả hàng không ở trạng thái phù hợp cho thao tác này.",
     "marketplaceOrderManagedInApp": "Đơn này là đơn của người mua VComm; xử lý ở màn hình Đơn VComm.",
     "carrierOutcomeUnknown": "Chưa rõ đơn vị vận chuyển đã tạo vận đơn hay chưa. Bấm \"Tra lại vận đơn\" để kiểm tra trước khi giao lại.",
-    "shipmentRequesting": "Đơn đang chờ xác nhận tạo vận đơn. Bấm \"Tra lại vận đơn\" trước."
+    "shipmentRequesting": "Đơn đang chờ xác nhận tạo vận đơn. Bấm \"Tra lại vận đơn\" trước.",
+    "carrierLookupUnsupported": "Đơn vị vận chuyển này không có chức năng tra lại vận đơn; trạng thái tự cập nhật khi đơn vị vận chuyển gửi thông báo. Kiểm tra đơn trên trang của đơn vị vận chuyển nếu cần."
   },
   "login": {
     "title": "Đăng nhập",

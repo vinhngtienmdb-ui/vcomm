@@ -183,7 +183,8 @@ describe("CONG_VIEC_24 cài đặt bán hàng, đăng bán", () => {
     expect(empty.body.data.every((item: { blockers: string[] }) => item.blockers.includes("storeNotReady"))).toBe(true);
     const settings = await call("get", "/marketplace/store-settings");
     expect(settings.body).toMatchObject({ version: 0, canManage: true, channelId: null });
-    expect(settings.body.carriers).toEqual([{ code: "ghn", name: "Giao Hàng Nhanh (GHN)", isEnabled: false, isConfigured: true }]);
+    // Các đơn vị vận chuyển khác (CONG_VIEC_29 trở đi) cũng có trong danh sách; ở đây chỉ kiểm dòng GHN.
+    expect(settings.body.carriers).toContainEqual({ code: "ghn", name: "Giao Hàng Nhanh (GHN)", isEnabled: false, isConfigured: true });
     const body = { channelId, warehouseId, shippingFee: "30000", freeShippingThreshold: "500000", packageLengthCm: 20, packageWidthCm: 15, packageHeightCm: 10, minimumWeightGrams: 200 };
     // Kho của công ty khác, phí âm bị từ chối.
     expect((await call("put", "/marketplace/store-settings", { ...body, warehouseId: testIds.binhDuongWarehouse, version: 0 })).status).toBe(400);

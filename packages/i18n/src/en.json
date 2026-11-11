@@ -320,7 +320,8 @@
     "returnRequestNotOpen": "The return request is not in a state for this action.",
     "marketplaceOrderManagedInApp": "This is a VComm buyer order; handle it on the VComm orders screen.",
     "carrierOutcomeUnknown": "It is unclear whether the carrier created the shipment. Click \"Refresh shipment\" before handing over again.",
-    "shipmentRequesting": "The order is waiting for shipment confirmation. Click \"Refresh shipment\" first."
+    "shipmentRequesting": "The order is waiting for shipment confirmation. Click \"Refresh shipment\" first.",
+    "carrierLookupUnsupported": "This carrier does not support refreshing shipments; the status updates when the carrier sends a notification. Check the order on the carrier website if needed."
   },
   "login": {
     "title": "Sign in",
