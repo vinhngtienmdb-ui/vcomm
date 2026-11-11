@@ -1,10 +1,12 @@
 // MAN_HINH_91 Chi tiết sản phẩm (CHUC_NANG_115; API_124): ảnh, giá gồm thuế, chọn phân loại, số lượng, mô tả, thêm vào giỏ hàng.
-import type { ShopProductDetail } from "contracts";
+// CONG_VIEC_49: điểm đánh giá đã mua hàng, mở bảng tin lọc theo sản phẩm (MAN_HINH_136); cộng tác viên đã duyệt chia sẻ đường dẫn có mã của mình, xem mức hoa hồng cộng tác viên (QUYTAC_NGHIEPVU_325, 326).
+import type { BuyerCollaboratorResponse, ShopProductDetail } from "contracts";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { Image, ScrollView, Text, View } from "react-native";
+import { Image, Platform, Pressable, ScrollView, Share, Text, View } from "react-native";
+import { Stars } from "@/components/Community";
 import { Button, Card, Choice, Loading, Muted, Notice, QuantityStepper, Screen, Title } from "@/components/ui";
-import { api, ApiFailure, assetUrl } from "@/lib/api";
+import { api, ApiFailure, appBase, assetUrl } from "@/lib/api";
 import { money, translator } from "@/lib/i18n";
 import { colors, space } from "@/lib/theme";
 
@@ -18,6 +20,8 @@ export default function ProductScreen() {
   const [error, setError] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [collaboratorCode, setCollaboratorCode] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -28,10 +32,26 @@ export default function ProductScreen() {
         setSelected(value.variants.find((variant) => Number(variant.available) > 0)?.optionValues ?? value.variants[0]!.optionValues);
       })
       .catch((failure: unknown) => active && setError(failure instanceof ApiFailure ? failure.message : t("unknownError")));
+    api<BuyerCollaboratorResponse>("/buyer/collaborator")
+      .then((value) => active && setCollaboratorCode(value.profile?.status === "approved" ? value.profile.code : null))
+      .catch(() => undefined);
     return () => {
       active = false;
     };
   }, [id]);
+
+  async function shareAsCollaborator() {
+    if (!product || !collaboratorCode) return;
+    const link = `${appBase}/p/${product.id}?ctv=${collaboratorCode}`;
+    const message = t("collaboratorShareMessage", { name: product.name, link });
+    if (Platform.OS === "web") {
+      const browser = globalThis.navigator as Navigator | undefined;
+      if (browser?.share) return void browser.share({ text: message }).catch(() => undefined);
+      await browser?.clipboard?.writeText(link).catch(() => undefined);
+      return setLinkCopied(true);
+    }
+    await Share.share({ message });
+  }
 
   const variant = useMemo(() => product?.variants.find((item) => item.optionValues.every((value, index) => value === selected[index])) ?? null, [product, selected]);
   const available = Math.floor(Number(variant?.available ?? 0));
@@ -67,6 +87,16 @@ export default function ProductScreen() {
               </ScrollView>
             ) : null}
             <Title>{product.name}</Title>
+            <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/bang-tin", params: { sanPham: product.id, ten: product.name } })}>
+              {product.rating.count > 0 ? (
+                <View style={{ flexDirection: "row", gap: space[2], alignItems: "center", flexWrap: "wrap" }}>
+                  <Stars value={Math.round(Number(product.rating.average))} />
+                  <Muted>{t("communityProductRating", { average: Number(product.rating.average).toLocaleString("vi-VN", { maximumFractionDigits: 1 }), count: product.rating.count })}</Muted>
+                </View>
+              ) : (
+                <Muted>{t("communityProductNoRating")}</Muted>
+              )}
+            </Pressable>
             <Text style={{ color: colors.primary, fontSize: 22, fontWeight: "700" }}>{variant ? money(variant.price) : "—"}</Text>
             <Muted>{t("priceIncludesTax", { unit: product.unitName.toLocaleLowerCase("vi") })}</Muted>
             {product.options.map((option, index) => (
@@ -102,6 +132,20 @@ export default function ProductScreen() {
             ) : (
               <Button label={t("addToCart")} busy={busy} disabled={!variant || available <= 0} onPress={() => void add()} />
             )}
+            <Button label={t("groupBuyOfProduct")} kind="secondary" onPress={() => router.push({ pathname: "/mua-chung", params: { sanPham: product.id } })} />
+            {collaboratorCode ? (
+              <View style={{ gap: space[2] }}>
+                <Button label={t("collaboratorShare")} kind="secondary" onPress={() => void shareAsCollaborator()} />
+                {linkCopied ? <Notice tone="success" text={t("copied")} /> : null}
+                {product.collaboratorCommission ? (
+                  <Muted>
+                    {product.collaboratorCommission.calculation === "percent"
+                      ? t("collaboratorRatePercent", { rate: product.collaboratorCommission.rate })
+                      : t("collaboratorRateFixed", { amount: money(product.collaboratorCommission.rate) })}
+                  </Muted>
+                ) : null}
+              </View>
+            ) : null}
             {product.description ? (
               <Card>
                 <Text style={{ fontWeight: "700", color: colors.text }}>{t("productDescription")}</Text>

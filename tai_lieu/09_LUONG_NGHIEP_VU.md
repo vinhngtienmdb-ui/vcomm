@@ -4,7 +4,7 @@
 - Phiên bản: 1.19
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm luồng 40 (đơn bán dịch vụ lập tay), luồng 41 (giao dịch nội bộ dịch vụ); Luồng 9, 10, 12, 13, 14 bổ sung; đánh dấu Luồng 29 (CONG_VIEC_17) đã bỏ, Luồng 33 (CONG_VIEC_21) đã tắt; CONG_VIEC_50 (2026-11-11): thêm Luồng 49 xem và xuất báo cáo quản trị của MODULE_15
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm luồng 40 (đơn bán dịch vụ lập tay), luồng 41 (giao dịch nội bộ dịch vụ); Luồng 9, 10, 12, 13, 14 bổ sung; đánh dấu Luồng 29 (CONG_VIEC_17) đã bỏ, Luồng 33 (CONG_VIEC_21) đã tắt; CONG_VIEC_50 (2026-11-11): thêm Luồng 49 xem và xuất báo cáo quản trị của MODULE_15; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm luồng 44 (cộng đồng: cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, khóa và chặn ví, bảng tin và kiểm duyệt; luồng con 44.1 đến 44.5), trạng thái hồ sơ cộng tác viên, nhóm mua chung, đơn mua chung, bài đăng và bình luận
 
 ## MODULE_01 Nền tảng
 
@@ -908,3 +908,84 @@ Trạng thái (CONG_VIEC_48):
   6. Việc nền 0 giờ 10 phút: hết hạn lô, nhắc trước 30 ngày, chuyển năm chi tiêu, xét hạng (QUYTAC_NGHIEPVU_350, 351).
 - Nhánh: quản trị khóa, mở ví (MAN_HINH_147); lập phiếu điều chỉnh → duyệt → ghi sổ hoặc Không ghi sổ được (MAN_HINH_148); xem cảnh báo (MAN_HINH_149), nghĩa vụ điểm (MAN_HINH_150).
 - Kết thúc: điểm người mua xem ở MAN_HINH_151, 152.
+## MODULE_10 Cộng đồng (phần 1: Cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, CONG_VIEC_49)
+
+### Luồng 44. Cộng đồng: cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin
+
+CONG_VIEC_49 (gồm THAY_DOI_22) chỉ được cấp một số luồng (Luồng 44) nên các luồng của công việc gộp thành năm luồng con 44.1 đến 44.5.
+
+- Bắt đầu: quản trị công ty vận hành sàn thiết lập mức hoa hồng cộng tác viên ở Thiết lập hoa hồng sản phẩm (MAN_HINH_101), cài đặt thưởng giới thiệu (MAN_HINH_137 thẻ Thưởng giới thiệu), cài đặt mua chung theo biến thể (MAN_HINH_138) (QUYTAC_NGHIEPVU_326 đến 328).
+- Luồng con 44.1 Cộng tác viên:
+  1. Người mua mở Cộng tác viên (MAN_HINH_132), đồng ý điều khoản, nhập kênh chia sẻ, gửi đăng ký; hồ sơ Chờ duyệt (QUYTAC_NGHIEPVU_324).
+  2. Quản trị (`marketplace.buyer.manage`) mở Cộng tác viên trên web (MAN_HINH_137), duyệt (cấp mã lần đầu) hoặc từ chối (lý do); người mua nhận thông báo; bị từ chối thì sửa và gửi lại.
+  3. Cộng tác viên mở trang sản phẩm (MAN_HINH_91), bấm "Chia sẻ nhận hoa hồng" lấy đường dẫn `/p/<mã sản phẩm>?ctv=<mã>`.
+  4. Người mua khác mở đường dẫn: đã đăng nhập thì ghi lượt bấm ngay; chưa đăng nhập thì ứng dụng giữ mã, ghi sau khi đăng nhập, đăng ký (QUYTAC_NGHIEPVU_325).
+  5. Người mua đặt đơn có sản phẩm đó trong 168 giờ từ lần bấm gần nhất: hệ thống chụp phần "cộng tác viên" cho cộng tác viên của lượt bấm gần nhất, độc lập với phần giới thiệu, đội kinh doanh (QUYTAC_NGHIEPVU_326).
+  6. Đơn hoàn tất (Luồng 37): phần cộng tác viên tính và cộng ví hoa hồng như Luồng 39; cộng tác viên rút tiền như Luồng 39.
+  7. Quản trị tạm ngừng (lý do), khôi phục, gắn nhãn KOL, KOC; tạm ngừng thì không ghi lượt bấm mới, không có phần trên đơn mới, phần đã chụp giữ nguyên.
+- Luồng con 44.2 Thưởng giới thiệu bạn bè:
+  1. Người được giới thiệu đặt đơn: hệ thống chụp người giới thiệu vào đơn (QUYTAC_NGHIEPVU_327).
+  2. Đơn chuyển Hoàn tất: chương trình đang bật, giá trị hoàn tất đạt mức tối thiểu, người được giới thiệu chưa từng phát sinh thưởng thì cộng mức thưởng hiện tại vào ví hoa hồng người giới thiệu, lập bút toán `<số đơn>-TG`.
+  3. Người giới thiệu xem Mời bạn bè (MAN_HINH_133): mức thưởng hiện tại, người đã mời và trạng thái thưởng (đã thưởng, đơn đang xử lý, chưa đạt điều kiện, chưa có đơn).
+- Luồng con 44.3 Mua chung:
+  1. Cộng tác viên Đã duyệt mở nhóm trên ứng dụng (MAN_HINH_134, tối đa 5 nhóm đang mở), hoặc quản trị (`marketplace.order.manage`) mở trên web (MAN_HINH_138): chọn biến thể đang bật mua chung, thời hạn; nhóm chụp bậc giá (QUYTAC_NGHIEPVU_329). Người mở chia sẻ đường dẫn nhóm.
+  2. Người mua xem nhóm, bấm "Tham gia nhóm", đặt đơn một dòng giá bậc 1 (MAN_HINH_93), trả trước bằng phương thức trực tuyến, ví mua sắm hoặc cả hai; không có thanh toán khi nhận hàng (QUYTAC_NGHIEPVU_330).
+  3. Đơn Chờ thanh toán (giữ hàng, hạn 15 phút); thu đủ (hoặc ví trả đủ) thì sang Chờ chốt nhóm; số lượng nhóm cộng thêm.
+  4. Khi nhóm còn mở, người mua hủy được đơn Chờ chốt nhóm (lý do): nhả hàng, hoàn toàn bộ tiền đã thu vào ví mua sắm.
+  5. Hết hạn, việc nền mỗi phút chốt nhóm (QUYTAC_NGHIEPVU_331): đơn còn Chờ thanh toán bị hủy; đạt mốc bậc 1 thì nhóm Thành công, sửa đơn giá theo bậc đạt được, hoàn phần dư vào ví mua sắm, đơn sang Chờ giao và giao như Luồng 37; không đạt thì nhóm Thất bại, hủy mọi đơn, hoàn toàn bộ vào ví mua sắm. Người tham gia nhận thông báo kết quả.
+  6. Người mở nhóm là cộng tác viên Đã duyệt nhận phần cộng tác viên trên các đơn của nhóm, tính trên giá chốt khi đơn hoàn tất.
+- Luồng con 44.4 Ví mua sắm, khóa và chặn ví (THAY_DOI_22):
+  1. Tiền hoàn, chênh lệch mua chung cộng vào ví mua sắm; người mua xem số dư, lịch sử ở Ví mua sắm (MAN_HINH_135) (QUYTAC_NGHIEPVU_332).
+  2. Khi đặt đơn (MAN_HINH_93), người mua chọn "Dùng ví mua sắm": trừ tối đa tổng thanh toán; phần còn lại theo phương thức đã chọn; đơn bị hủy thì phần ví hoàn về ví.
+  3. Quản trị (`marketplace.order.manage`) khóa ví mua sắm toàn hệ thống ở thẻ Ví mua sắm của MAN_HINH_138: không ai dùng số dư trả đơn; tiền hoàn vẫn vào ví (QUYTAC_NGHIEPVU_390).
+  4. Kế toán (`marketplace.payment.manage`) chặn ví mua sắm hoặc ví hoa hồng của một người mua ở chi tiết người mua (MAN_HINH_80), nhập lý do; người dùng nhận thông báo. Chặn ví hoa hồng: yêu cầu rút tiền chờ duyệt tự bị từ chối, tiền về lại ví hoa hồng; không tạo yêu cầu mới; yêu cầu đã duyệt chưa chi không ghi được đã chi cho đến khi gỡ chặn (QUYTAC_NGHIEPVU_391).
+- Luồng con 44.5 Bảng tin và kiểm duyệt:
+  1. Người mua mở thẻ Bảng tin (MAN_HINH_136), đăng bài (ảnh, gắn sản phẩm) hoặc viết đánh giá từ chi tiết đơn đã giao; bài hiện ngay (QUYTAC_NGHIEPVU_333, 334).
+  2. Người khác bình luận, thích, báo cáo vi phạm; nội dung có từ 5 báo cáo chờ xử lý tự ẩn tạm (QUYTAC_NGHIEPVU_335).
+  3. Người kiểm duyệt (`marketplace.community.manage`) mở Kiểm duyệt cộng đồng (MAN_HINH_139): ẩn (lý do, báo tác giả) hoặc hiện lại, bỏ qua báo cáo; khóa đăng bài và bình luận của tài khoản vi phạm (giao diện chọn 7 ngày, 30 ngày hoặc vĩnh viễn; API nhận 1 đến 365 ngày), mở khóa.
+  4. Người kiểm duyệt đăng, ghim bài VComm; sửa từ cấm; bật, tắt đăng bài, bình luận của người mua.
+- Nhánh: hồ sơ cộng tác viên bị từ chối thì người mua gửi lại; nhân viên hủy nhóm đang mở (lý do) thì xử lý như thất bại, nhóm Đã hủy; tác giả xóa bài, bình luận của mình; người bị khóa vẫn xem bảng tin.
+- Ngoại lệ: thông báo ở tài liệu `07` mục CONG_VIEC_49.
+- Kết thúc: hoa hồng cộng tác viên, thưởng giới thiệu đã cộng ví hoa hồng; nhóm mua chung Thành công, Thất bại hoặc Đã hủy, tiền dư hoặc toàn bộ đã hoàn vào ví mua sắm; nội dung vi phạm đã ẩn, tài khoản vi phạm đã khóa.
+
+Trạng thái hồ sơ cộng tác viên:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Người mua gửi đăng ký | Chờ duyệt (`pending`) |
+| Chờ duyệt | Quản trị duyệt (cấp mã lần đầu) | Đã duyệt (`approved`) |
+| Chờ duyệt | Quản trị từ chối (lý do) | Từ chối (`rejected`) |
+| Từ chối | Người mua gửi lại | Chờ duyệt (`pending`) |
+| Đã duyệt | Quản trị tạm ngừng (lý do) | Tạm ngừng (`suspended`) |
+| Tạm ngừng | Quản trị khôi phục | Đã duyệt (`approved`) |
+
+Trạng thái nhóm mua chung:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Cộng tác viên hoặc quản trị mở nhóm | Đang mở (`open`) |
+| Đang mở | Hết hạn, số lượng đạt mốc bậc 1 | Thành công (`succeeded`) |
+| Đang mở | Hết hạn, số lượng dưới mốc bậc 1 | Thất bại (`failed`) |
+| Đang mở | Quản trị hủy nhóm (lý do) | Đã hủy (`cancelled`) |
+
+Trạng thái đơn VComm của nhóm mua chung (bổ sung Luồng 37, 38):
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Đặt đơn tham gia nhóm còn phải trả trực tuyến | Chờ thanh toán (`awaiting_payment`) |
+| (Chưa có) | Đặt đơn tham gia nhóm, ví mua sắm trả đủ | Chờ chốt nhóm (`awaiting_group`) |
+| Chờ thanh toán | Cổng báo thu đủ | Chờ chốt nhóm (`awaiting_group`) |
+| Chờ thanh toán | Quá hạn thanh toán; hoặc nhóm kết thúc | Đã hủy (`cancelled`), phần đã trả hoàn vào ví mua sắm |
+| Chờ chốt nhóm | Người mua hủy khi nhóm còn mở | Đã hủy (`cancelled`), hoàn toàn bộ vào ví mua sắm |
+| Chờ chốt nhóm | Nhóm Thành công (sửa giá, hoàn dư vào ví mua sắm) | Chờ giao (`awaiting_shipment`), tiếp tục như Luồng 37 |
+| Chờ chốt nhóm | Nhóm Thất bại hoặc Đã hủy | Đã hủy (`cancelled`), hoàn toàn bộ vào ví mua sắm |
+
+Trạng thái bài đăng, bình luận:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Tác giả đăng | Đang hiện (`visible`) |
+| Đang hiện | Đủ 5 báo cáo chờ xử lý | Tự ẩn tạm (`auto_hidden`) |
+| Đang hiện, Tự ẩn tạm | Người kiểm duyệt ẩn (lý do) | Đã ẩn (`hidden`) |
+| Tự ẩn tạm, Đã ẩn | Người kiểm duyệt hiện lại (bỏ qua báo cáo chờ xử lý) | Đang hiện (`visible`) |
+| Đang hiện, Tự ẩn tạm, Đã ẩn | Tác giả xóa | Đã xóa (`deleted`) |

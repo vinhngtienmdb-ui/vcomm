@@ -2,6 +2,7 @@
 import { sql } from "drizzle-orm";
 import type { Database } from "../../database/database.module";
 import { returnSalePoints } from "../../loyalty/ledger.service";
+import { orderDeductions, returnWalletPart } from "../shopping-wallet";
 
 type Executor = Pick<Database, "execute">;
 
@@ -31,12 +32,16 @@ export async function refundReturnedGoods(executor: Executor, orderId: string, r
   const cash = Math.max(returned - points.refundedPointsAmount, 0);
   const inserted = await executor.execute<{ amount: string }>(sql`
     WITH remaining AS (
-      SELECT greatest(m.paid_amount, CASE WHEN m.payment_method = 'cod' THEN m.goods_amount + m.shipping_fee - m.points_amount ELSE 0 END) - m.refunded_amount
+      SELECT greatest(m.paid_amount, CASE WHEN m.payment_method = 'cod' THEN m.goods_amount + m.shipping_fee - ${orderDeductions(sql`m`)} ELSE 0 END) - m.refunded_amount
         - coalesce((SELECT sum(f.amount) FROM marketplace.refunds f WHERE f.order_id = m.id AND f.status = 'pending'), 0) AS value
       FROM marketplace.orders m WHERE m.id = ${orderId}
     )
     INSERT INTO marketplace.refunds (order_id, return_request_id, reason, amount)
     SELECT ${orderId}, ${requestId}, 'return_received', least(${cash}::numeric, remaining.value) FROM remaining WHERE least(${cash}::numeric, remaining.value) > 0
     RETURNING amount::text`);
-  return Number(inserted.rows[0]?.amount ?? 0);
+  const bank = Number(inserted.rows[0]?.amount ?? 0);
+  // CONG_VIEC_49 (QUYTAC_NGHIEPVU_332): phần vượt tiền mặt hoàn về ví mua sắm, không vượt phần đã trả bằng ví chưa hoàn.
+  // Thứ tự khi ghép với CONG_VIEC_51 (CONG_VIEC_51 mục 19): phần điểm trước, phần tiền mặt, rồi phần ví.
+  if (cash > bank) await returnWalletPart(executor, orderId, "return_refund", null, cash - bank);
+  return bank;
 }

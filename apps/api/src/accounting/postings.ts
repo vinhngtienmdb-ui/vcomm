@@ -104,6 +104,7 @@ export interface DraftJournal {
     | "loyalty_entry"
     | "loyalty_seller_entry"
     | "loyalty_order_redeem"
+    | "marketplace_referral_bonus"
     | "payroll"
     | "payroll_payment";
   sourceId: string;
@@ -314,6 +315,25 @@ export async function marketplaceCommissionDraft(executor: Executor, orderId: st
     date: row.completed_on,
     description: `Hoa hồng đơn VComm ${row.document_no}`,
     lines: [debit("commission_expense", total), credit("commission_payable", total)],
+  };
+}
+
+// Thưởng giới thiệu bạn bè (CONG_VIEC_49; QUYTAC_NGHIEPVU_327): Nợ chi phí hoa hồng / Có phải trả hoa hồng, ngày đơn hoàn tất, số bút toán `<số đơn>-TG`.
+export async function marketplaceReferralBonusDraft(executor: Executor, orderId: string): Promise<DraftJournal | null> {
+  const row = (
+    await executor.execute<{ company_id: string; document_no: string; completed_on: string; amount: string }>(sql`
+    SELECT m.company_id, so.document_no, (m.completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS completed_on, b.amount::text
+    FROM marketplace.referral_bonuses b JOIN marketplace.orders m ON m.id = b.order_id JOIN sales.orders so ON so.id = m.sales_order_id WHERE b.order_id = ${orderId}`)
+  ).rows[0];
+  if (!row) return null;
+  return {
+    companyId: row.company_id,
+    sourceType: "marketplace_referral_bonus",
+    sourceId: orderId,
+    journalNo: `${row.document_no}-TG`,
+    date: row.completed_on,
+    description: `Thưởng giới thiệu đơn VComm ${row.document_no}`,
+    lines: [debit("commission_expense", Number(row.amount)), credit("commission_payable", Number(row.amount))],
   };
 }
 

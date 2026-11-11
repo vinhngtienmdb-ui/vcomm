@@ -1,13 +1,14 @@
-// MAN_HINH_76 Tài khoản (thẻ điểm thưởng: CONG_VIEC_51), MAN_HINH_77 Người tôi giới thiệu (CHUC_NANG_106; API_118; QUYTAC_NGHIEPVU_142, 146):
-// mã và đường dẫn giới thiệu, chia sẻ, sao chép; nhập mã người giới thiệu khi chưa có (một lần); người tôi giới thiệu; đăng xuất.
-import type { BuyerLoyaltyResponse, BuyerMeResponse, BuyerReferralItem } from "contracts";
+// MAN_HINH_76 Tài khoản (CHUC_NANG_106; API_118; QUYTAC_NGHIEPVU_142, 146; thẻ điểm thưởng: CONG_VIEC_51):
+// mã và đường dẫn giới thiệu, chia sẻ, sao chép; nhập mã người giới thiệu khi chưa có (một lần); đăng xuất.
+// CONG_VIEC_49: danh sách người tôi giới thiệu chuyển sang MAN_HINH_133 Mời bạn bè; thêm lối vào Cộng tác viên.
+import type { BuyerLoyaltyResponse, BuyerMeResponse } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import { Platform, ScrollView, Share, Text, View } from "react-native";
 import { useAction } from "@/components/auth";
 import { Button, Card, Field, Muted, Notice, Screen, Title } from "@/components/ui";
 import { api, appBase } from "@/lib/api";
-import { shortDate, translator } from "@/lib/i18n";
+import { translator } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 import { colors, radius, space } from "@/lib/theme";
 
@@ -16,26 +17,13 @@ export default function AccountScreen() {
   const { me, setMe, reload, logout } = useSession();
   const { ma } = useLocalSearchParams<{ ma?: string }>();
   const [code, setCode] = useState(typeof ma === "string" ? ma : "");
-  const [referrals, setReferrals] = useState<BuyerReferralItem[] | null>(null);
-  const [referralsFailed, setReferralsFailed] = useState(false);
   const [copied, setCopied] = useState(false);
   const { busy, error, fields, run } = useAction(["referralCode"]);
 
   useFocusEffect(
     useCallback(() => {
-      let active = true;
       // Tải lại tài khoản để thấy ngay khi vừa được đánh dấu nhân viên kinh doanh.
       void reload().catch(() => undefined);
-      api<BuyerReferralItem[]>("/buyer/referrals")
-        .then((items) => {
-          if (!active) return;
-          setReferrals(items);
-          setReferralsFailed(false);
-        })
-        .catch(() => active && setReferralsFailed(true));
-      return () => {
-        active = false;
-      };
     }, [reload]),
   );
 
@@ -66,6 +54,9 @@ export default function AccountScreen() {
           <Button label={t("addressBook")} kind="secondary" onPress={() => router.push("/so-dia-chi")} />
           <Button label={t("commissionWallet")} kind="secondary" onPress={() => router.push("/vi-hoa-hong")} />
           <Button label={t("bankAccountTitle")} kind="secondary" onPress={() => router.push("/tai-khoan-hoan-tien")} />
+          <Button label={t("shoppingWalletTitle")} kind="secondary" onPress={() => router.push("/vi-mua-sam")} />
+          <Button label={t("inviteTitle")} kind="secondary" onPress={() => router.push("/moi-ban-be")} />
+          <Button label={t("collaboratorTitle")} kind="secondary" onPress={() => router.push("/cong-tac-vien")} />
         </Card>
         <LoyaltyCard />
         {me.referralCode ? (
@@ -113,22 +104,6 @@ export default function AccountScreen() {
               />
             </>
           ) : null}
-        </Card>
-        <Card>
-          <Text style={{ fontWeight: "700", color: colors.text }}>
-            {t("myReferrals")}
-            {referrals ? ` (${referrals.length})` : ""}
-          </Text>
-          {referralsFailed ? <Notice text={t("loadFailed")} /> : null}
-          {referrals?.length === 0 ? <Muted>{t("noReferrals")}</Muted> : null}
-          {referrals?.map((item, index) => (
-            <View key={`${item.maskedPhone}-${index}`} style={{ borderTopWidth: index === 0 ? 0 : 1, borderColor: colors.border, paddingTop: index === 0 ? 0 : space[2] }}>
-              <Text style={{ color: colors.text, fontWeight: "600" }}>{item.fullName}</Text>
-              <Muted>
-                {item.maskedPhone} · {t("registeredOn", { date: shortDate(item.registeredAt) })}
-              </Muted>
-            </View>
-          ))}
         </Card>
         <Button label={t("logout")} kind="secondary" onPress={() => void logout()} />
       </Screen>

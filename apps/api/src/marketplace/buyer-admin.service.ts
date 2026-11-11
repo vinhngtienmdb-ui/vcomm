@@ -20,7 +20,9 @@ export type MarketplacePermission =
   | "marketplace.order.manage"
   | "marketplace.payment.manage"
   | "loyalty.view"
-  | "loyalty.manage";
+  | "loyalty.manage"
+  // CONG_VIEC_49: kiểm duyệt bảng tin (QUYTAC_NGHIEPVU_335).
+  | "marketplace.community.manage";
 
 export interface BuyerAdminActor {
   userId: string;

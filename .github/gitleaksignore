@@ -4,3 +4,5 @@ d1bfc53df2bb1c60c85bf335b6d5ff929495fbb4:.env.example:generic-api-key:6
 a4478cf4aa3675ac9d950da6263927df7b662e4d:apps/api/test/c25-payment-methods.test.ts:generic-api-key:66
 427d5e06265b084816ac9a6d183e1271a519a3e2:apps/api/test/c25-vnpay-payments.test.ts:generic-api-key:16
 9690917e682c92ef5518c13ebfad39f190921adc:apps/api/test/c25-payment-postings.test.ts:generic-api-key:16
+# Khóa ký VNPAY giả dùng trong kiểm thử tự động CONG_VIEC_49 (máy chủ VNPAY giả lập), không phải khóa bí mật thật.
+d05926f83252c0e72278b24003ed7fcb44e3b4a8:apps/api/test/c49-group-buys-wallets.test.ts:generic-api-key:15
