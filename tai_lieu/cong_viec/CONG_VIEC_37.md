@@ -1,9 +1,9 @@
 # CONG_VIEC_37: Cổng BIDV, thu hộ qua tài khoản định danh (MODULE_09)
 
 - Mô tả: Kết nối BIDV vào khung nhiều cổng thanh toán (CONG_VIEC_32) theo sản phẩm "Thu hộ qua tài khoản định danh cho khách hàng doanh nghiệp": người mua chuyển khoản vào tài khoản định danh của lần thanh toán bằng mã VietQR, BIDV vấn tin rồi gạch nợ qua API của VComm.
-- Phiên bản: 0.1
+- Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Chờ nghiệm thu.
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-11); trước khi phát hành phải thử với tài khoản thử nghiệm của nhà cung cấp.
 - Mức: Vừa.
 - Nguồn: người dùng yêu cầu 2026-11-11 (CONG_VIEC_32); tài liệu BIDV người dùng cung cấp 2026-11-11: "Tài liệu hướng dẫn đối tác xây dựng đặc tả kỹ thuật thu hộ qua tài khoản định danh cho KHDN, gen VietQR, đối soát" (V2 23.10.25), phiếu khảo sát kết nối Paygate v1.0.2, giấy đăng ký dịch vụ thu hộ qua Virtual Account (VA-01/BIDV-LUCKY). Quyết định của người dùng 2026-11-11: tự sinh VietQR, thêm cột mã cổng, thêm hai đường dẫn getbill/paybill, checksum theo tài liệu ghép liền.
 
