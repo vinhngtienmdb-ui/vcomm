@@ -1,7 +1,7 @@
 // MAN_HINH_97 Yêu cầu trả hàng (CHUC_NANG_118; API_129; QUYTAC_NGHIEPVU_161): chọn dòng, số lượng, lý do, mô tả, ảnh (bản web).
 import { returnReasons, type BuyerOrderDetail, type ReturnReason } from "contracts";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Platform, ScrollView, Text, View } from "react-native";
 import { Button, Card, Choice, Field, Loading, Muted, Notice, QuantityStepper, Screen, Title } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
@@ -21,6 +21,7 @@ export default function ReturnRequestScreen() {
   const [error, setError] = useState<string | null>(null);
   const [fields, setFields] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const submitted = useRef<string[]>([]);
 
   useEffect(() => {
     api<BuyerOrderDetail>(`/buyer/orders/${encodeURIComponent(String(id))}`)
@@ -67,10 +68,20 @@ export default function ReturnRequestScreen() {
       const lines = Object.entries(quantities)
         .filter(([, quantity]) => quantity > 0)
         .map(([orderLineId, quantity]) => ({ orderLineId, quantity }));
+      submitted.current = lines.map((line) => line.orderLineId);
       await api(`/buyer/orders/${order.id}/return-requests`, { method: "POST", json: { reason, description, lines, imageIds: images.map((image) => image.id) } });
       router.replace(`/don-hang/${order.id}`);
     } catch (failure) {
-      if (failure instanceof ApiFailure && Object.keys(failure.fields).length > 0) setFields(failure.fields);
+      // Lỗi theo vị trí dòng đã gửi: đổi sang mã dòng đơn để hiện đúng sản phẩm.
+      if (failure instanceof ApiFailure && Object.keys(failure.fields).length > 0)
+        setFields(
+          Object.fromEntries(
+            Object.entries(failure.fields).map(([key, value]) => {
+              const match = /^lines\.(\d+)\./.exec(key);
+              return [match ? `line:${submitted.current[Number(match[1])] ?? ""}` : key, value];
+            }),
+          ),
+        );
       setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
     } finally {
       setBusy(false);
@@ -94,7 +105,7 @@ export default function ReturnRequestScreen() {
               <Text style={{ fontWeight: "700", color: colors.text }}>{t("returnChooseLines")}</Text>
               {order.lines
                 .filter((line) => line.orderLineId && !line.isGift)
-                .map((line, index) => {
+                .map((line) => {
                   const maximum = Math.floor(remaining(line.orderLineId!, line.quantity));
                   return (
                     <View key={line.orderLineId} style={{ gap: space[1] }}>
@@ -111,7 +122,7 @@ export default function ReturnRequestScreen() {
                           />
                         </View>
                       ) : null}
-                      {fields[`lines.${index}.quantity`] ? <Text style={{ color: colors.error }}>{fields[`lines.${index}.quantity`]}</Text> : null}
+                      {fields[`line:${line.orderLineId}`] ? <Text style={{ color: colors.error }}>{fields[`line:${line.orderLineId}`]}</Text> : null}
                     </View>
                   );
                 })}

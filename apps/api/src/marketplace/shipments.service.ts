@@ -10,7 +10,7 @@ import { SalesDeliveriesService } from "../inventory/sales-deliveries.service";
 import type { Actor } from "../permissions/roles.service";
 import { SalesOrdersService } from "../sales/sales-orders.service";
 import type { BuyerAdminActor } from "./buyer-admin.service";
-import { CarrierFailure } from "./carriers/carrier";
+import { CarrierFailure, type CreatedShipment } from "./carriers/carrier";
 import { carrierAdapter, webhookKeyOf } from "./carriers/carrier-registry";
 import { MarketplaceOrdersService } from "./marketplace-orders.service";
 import { vietnamToday } from "./shop.service";
@@ -18,8 +18,9 @@ import { loadStoreContext } from "./store.service";
 
 type Executor = Pick<Database, "execute" | "insert">;
 const systemClient = { ip: null, userAgent: "carrier-webhook", requestId: null };
+const postingProblem = "Chưa ghi sổ được phiếu xuất (kiểm tra tồn kho, phiếu nháp) rồi bấm Tra lại vận đơn";
 
-type ShipmentRow = { id: string; order_id: string; carrier_code: CarrierCode; tracking_code: string; carrier_status: string; is_active: boolean; created_by: string };
+type ShipmentRow = { id: string; order_id: string; carrier_code: CarrierCode; tracking_code: string | null; carrier_status: string; is_active: boolean; created_by: string };
 
 @Injectable()
 export class ShipmentsService implements OnModuleInit {
@@ -88,60 +89,101 @@ export class ShipmentsService implements OnModuleInit {
       SELECT l.id, l.quantity::text, l.base_quantity::text, p.name, v.sku, l.total_amount::text, p.weight_kg::text
       FROM sales.order_lines l JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id WHERE l.order_id = ${order.sales_order_id} ORDER BY l.line_no`);
     await this.deliveries.ensureSequences(staff, actor.operatorCompanyId);
-    const draft = await this.deliveries.createIssue(staff, {
-      orderId: order.sales_order_id,
-      documentDate: await vietnamToday(this.database),
-      note: null,
-      lines: lines.rows.map((line) => ({ orderLineId: line.id, quantity: line.quantity, serials: [] })),
+    // Bước 1: giữ chỗ vận đơn "requesting" trước khi gọi đơn vị vận chuyển; chỉ mục vận đơn hoạt động duy nhất chặn hai người giao cùng lúc.
+    await this.database.transaction(async (transaction) => {
+      const locked = (await transaction.execute<{ status: string; version: number }>(sql`SELECT status, version FROM marketplace.orders WHERE id = ${orderId} FOR UPDATE`)).rows[0]!;
+      if (locked.version !== version || locked.status !== "awaiting_shipment") throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      const active = await transaction.execute(sql`SELECT 1 FROM marketplace.shipments WHERE order_id = ${orderId} AND is_active`);
+      if (active.rows.length > 0) throw new ApiError("BUSINESS_RULE", "shipmentRequesting");
+      await transaction.execute(sql`
+        INSERT INTO marketplace.shipments (order_id, carrier_code, tracking_code, carrier_status, created_by) VALUES (${orderId}, ${code}, NULL, 'requesting', ${actor.userId})`);
     });
-    const weight = lines.rows.reduce((sum, line) => sum + Number(line.weight_kg ?? 0) * 1000 * Number(line.base_quantity), 0);
+    // Bước 2: phiếu xuất nháp toàn đơn (dùng lại phiếu nháp còn sót nếu có).
     try {
-      await this.database.transaction(async (transaction) => {
-        const locked = (await transaction.execute<{ status: string; version: number }>(sql`SELECT status, version FROM marketplace.orders WHERE id = ${orderId} FOR UPDATE`)).rows[0]!;
-        if (locked.version !== version || locked.status !== "awaiting_shipment") throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-        const created = await adapter
-          .createShipment({
-            clientOrderCode: order.document_no,
-            recipientName: order.recipient_name,
-            recipientPhone: order.recipient_phone.replace(/^\+84/, "0"),
-            streetAddress: order.street_address,
-            wardName: order.ward_name,
-            provinceName: order.province_name,
-            codAmount: Math.round(Number(order.cod_amount)),
-            weightGrams: Math.max(Math.round(weight), context.minimumWeightGrams),
-            lengthCm: context.packageLengthCm,
-            widthCm: context.packageWidthCm,
-            heightCm: context.packageHeightCm,
-            items: lines.rows.map((line) => ({
-              name: line.name,
-              code: line.sku,
-              quantity: Math.round(Number(line.base_quantity)),
-              price: Math.round(Number(line.total_amount) / Number(line.base_quantity)),
-              weightGrams: Math.max(Math.round(Number(line.weight_kg ?? 0) * 1000), 1),
-            })),
-          })
-          .catch((error: unknown) => {
-            throw this.failure(error, "carrierRejected");
-          });
-        await transaction.execute(sql`
-          INSERT INTO marketplace.shipments (order_id, carrier_code, tracking_code, carrier_status, fee, created_by)
-          VALUES (${orderId}, ${code}, ${created.trackingCode}, ${created.status}, ${created.fee}::numeric, ${actor.userId})`);
-        await transaction.execute(sql`UPDATE marketplace.orders SET status = 'awaiting_pickup', version = version + 1 WHERE id = ${orderId}`);
-        await this.orders.event(transaction, orderId, "awaiting_pickup", created.trackingCode, actor.userId);
-      });
+      const existing = await this.database.execute(sql`SELECT 1 FROM inventory.documents WHERE type = 'sales_issue' AND status = 'draft' AND source_id = ${order.sales_order_id}`);
+      if (existing.rows.length === 0) {
+        await this.deliveries.createIssue(
+          staff,
+          {
+            orderId: order.sales_order_id,
+            documentDate: await vietnamToday(this.database),
+            note: null,
+            lines: lines.rows.map((line) => ({ orderLineId: line.id, quantity: line.quantity, serials: [] })),
+          },
+          true,
+        );
+      }
     } catch (error) {
-      await this.database.execute(sql`DELETE FROM inventory.documents WHERE id = ${draft.id} AND status = 'draft'`);
+      await this.releaseRequest(orderId);
       throw error;
     }
+    // Bước 3: gọi đơn vị vận chuyển ngoài giao dịch; kết quả ghi ở bước sau.
+    const weight = lines.rows.reduce((sum, line) => sum + Number(line.weight_kg ?? 0) * 1000 * Number(line.base_quantity), 0);
+    let created: CreatedShipment;
+    try {
+      created = await adapter.createShipment({
+        clientOrderCode: order.document_no,
+        recipientName: order.recipient_name,
+        recipientPhone: order.recipient_phone.replace(/^\+84/, "0"),
+        streetAddress: order.street_address,
+        wardName: order.ward_name,
+        provinceName: order.province_name,
+        codAmount: Math.round(Number(order.cod_amount)),
+        weightGrams: Math.max(Math.round(weight), context.minimumWeightGrams),
+        lengthCm: context.packageLengthCm,
+        widthCm: context.packageWidthCm,
+        heightCm: context.packageHeightCm,
+        items: lines.rows.map((line) => ({
+          name: line.name,
+          code: line.sku,
+          quantity: Math.round(Number(line.base_quantity)),
+          price: Math.round(Number(line.total_amount) / Number(line.base_quantity)),
+          weightGrams: Math.max(Math.round(Number(line.weight_kg ?? 0) * 1000), 1),
+        })),
+      });
+    } catch (error) {
+      // Bị từ chối rõ ràng: bỏ giữ chỗ để giao lại. Không trả lời hoặc hết thời gian chờ: giữ chỗ, nhân viên tra lại vận đơn trước khi giao lại.
+      if (error instanceof CarrierFailure && error.kind === "rejected") {
+        await this.releaseRequest(orderId);
+        throw this.failure(error, "carrierRejected");
+      }
+      this.logger.warn(`Không rõ kết quả tạo vận đơn ${order.document_no}: ${(error as Error).message}`);
+      throw new ApiError("BUSINESS_RULE", "carrierOutcomeUnknown");
+    }
+    await this.confirmRequest(orderId, created, actor.userId);
     return this.orders.adminDetail(actor, orderId, true);
+  }
+
+  // Ghi kết quả tạo vận đơn vào chỗ đã giữ: đơn chuyển "Chờ lấy hàng".
+  private async confirmRequest(orderId: string, created: CreatedShipment, actorUserId: string | null): Promise<void> {
+    await this.database.transaction(async (transaction) => {
+      await transaction.execute(sql`SELECT 1 FROM marketplace.orders WHERE id = ${orderId} FOR UPDATE`);
+      const updated = await transaction.execute(sql`
+        UPDATE marketplace.shipments SET tracking_code = ${created.trackingCode}, carrier_status = ${created.status}, fee = ${created.fee}::numeric, synced_at = now()
+        WHERE order_id = ${orderId} AND is_active AND carrier_status = 'requesting' RETURNING id`);
+      if (updated.rows.length === 0) return;
+      await transaction.execute(sql`UPDATE marketplace.orders SET status = 'awaiting_pickup', version = version + 1 WHERE id = ${orderId} AND status = 'awaiting_shipment'`);
+      await this.orders.event(transaction, orderId, "awaiting_pickup", created.trackingCode, actorUserId);
+    });
+  }
+
+  // Bỏ chỗ giữ khi chắc chắn đơn vị vận chuyển không tạo vận đơn: xóa vận đơn chờ, phiếu xuất nháp.
+  private async releaseRequest(orderId: string): Promise<void> {
+    await this.database.transaction(async (transaction) => {
+      await transaction.execute(sql`SELECT 1 FROM marketplace.orders WHERE id = ${orderId} FOR UPDATE`);
+      await transaction.execute(sql`DELETE FROM marketplace.shipments WHERE order_id = ${orderId} AND is_active AND carrier_status = 'requesting'`);
+      await this.removeDraftIssues(transaction, orderId);
+    });
   }
 
   // Hủy vận đơn đang hoạt động khi hủy đơn chờ lấy hàng; xóa phiếu xuất nháp (QUYTAC_NGHIEPVU_159).
   async cancelActive(transaction: Executor, orderId: string): Promise<void> {
     const shipment = (await transaction.execute<ShipmentRow>(sql`SELECT id, carrier_code, tracking_code FROM marketplace.shipments WHERE order_id = ${orderId} AND is_active FOR UPDATE`)).rows[0];
+    // Chưa rõ kết quả tạo vận đơn: phải tra lại trước khi hủy.
+    if (shipment && shipment.tracking_code === null) throw new ApiError("BUSINESS_RULE", "shipmentRequesting");
     if (shipment) {
       await this.adapterOf(shipment.carrier_code)
-        .cancelShipment(shipment.tracking_code)
+        .cancelShipment(shipment.tracking_code!)
         .catch((error: unknown) => {
           throw this.failure(error, "carrierCancelRejected");
         });
@@ -163,6 +205,20 @@ export class ShipmentsService implements OnModuleInit {
       FROM marketplace.shipments s JOIN marketplace.orders m ON m.id = s.order_id WHERE s.order_id = ${orderId} ORDER BY s.is_active DESC, s.created_at DESC LIMIT 1`)
     ).rows[0];
     if (!shipment || shipment.company_id !== actor.operatorCompanyId) throw new ApiError("NOT_FOUND", "notFound");
+    if (shipment.tracking_code === null) {
+      // Lần giao trước chưa rõ kết quả: tra theo số đơn; có thì ghi nhận, không có thì bỏ chỗ giữ để giao lại.
+      const documentNo = (
+        await this.database.execute<{ document_no: string }>(sql`SELECT so.document_no FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id WHERE m.id = ${orderId}`)
+      ).rows[0]!.document_no;
+      const found = await this.adapterOf(shipment.carrier_code)
+        .findShipment(documentNo)
+        .catch((error: unknown) => {
+          throw this.failure(error, "carrierRejected");
+        });
+      if (found) await this.confirmRequest(orderId, found, actor.userId);
+      else await this.releaseRequest(orderId);
+      return this.orders.adminDetail(actor, orderId, true);
+    }
     const status = await this.adapterOf(shipment.carrier_code)
       .shipmentStatus(shipment.tracking_code)
       .catch((error: unknown) => {
@@ -200,7 +256,7 @@ export class ShipmentsService implements OnModuleInit {
       return { result: "ignored" };
     }
     try {
-      await this.apply(shipment, await adapter.shipmentStatus(shipment.tracking_code));
+      await this.apply(shipment, await adapter.shipmentStatus(shipment.tracking_code!));
       await record("applied");
       return { result: "applied" };
     } catch (error) {
@@ -231,7 +287,19 @@ export class ShipmentsService implements OnModuleInit {
           await transaction.execute<{ id: string }>(sql`
           SELECT id FROM inventory.documents WHERE type = 'sales_issue' AND status = 'draft' AND source_id = ${order.sales_order_id} ORDER BY created_at LIMIT 1`)
         ).rows[0];
-        if (draft) await this.deliveries.postDraftAsSystem(transaction, draft.id, system);
+        // Ghi sổ trong điểm lưu: lỗi (thiếu tồn, phiếu nháp không còn) thì giữ "Chờ lấy hàng", ghi lịch sử cho nhân viên xử lý rồi tra lại vận đơn.
+        const posted = await transaction
+          .transaction(async (savepoint) => {
+            if (!draft) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
+            await this.deliveries.postDraftAsSystem(savepoint, draft.id, system);
+            return true;
+          })
+          .catch(async (error: unknown) => {
+            this.logger.warn(`Không ghi sổ được phiếu xuất của đơn ${shipment.order_id}: ${(error as Error).message}`);
+            await this.orders.event(transaction, shipment.order_id, "awaiting_pickup", `${note} · ${postingProblem}`, null);
+            return false;
+          });
+        if (!posted) return;
         await transaction.execute(sql`UPDATE marketplace.orders SET status = 'shipping', version = version + 1 WHERE id = ${shipment.order_id}`);
         await this.orders.event(transaction, shipment.order_id, "shipping", note, null);
         state = "shipping";
@@ -248,6 +316,11 @@ export class ShipmentsService implements OnModuleInit {
         for (const row of issued.rows) byDocument.set(row.document_id, [...(byDocument.get(row.document_id) ?? []), { issueLineId: row.line_id, quantity: row.quantity }]);
         const today = await vietnamToday(transaction);
         for (const [issueId, lines] of byDocument) await this.deliveries.returnAsSystem(transaction, system, { issueId, documentDate: today, reason: `Hàng hoàn về (${note})`, lines });
+        // Chưa có phiếu xuất ghi sổ: không có hàng để nhận lại, nhả hàng giữ, hủy đơn bán.
+        if (byDocument.size === 0) {
+          await this.removeDraftIssues(transaction, shipment.order_id);
+          await this.salesOrders.cancelMarketplaceWithin(transaction, system, order.sales_order_id);
+        }
         const reason = "Giao không thành công, hàng đã hoàn về kho";
         await transaction.execute(sql`
           UPDATE marketplace.orders SET status = 'cancelled', cancel_reason = ${reason}, cancelled_by_kind = 'carrier', version = version + 1 WHERE id = ${shipment.order_id}`);

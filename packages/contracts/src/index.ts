@@ -4315,7 +4315,8 @@ export interface MarketplaceOrderListItem extends BuyerOrderListItem {
 export interface MarketplaceShipmentItem {
   carrierCode: string;
   carrierName: string;
-  trackingCode: string;
+  // null: đang chờ xác nhận tạo vận đơn.
+  trackingCode: string | null;
   carrierStatus: string;
   fee: string | null;
   isActive: boolean;

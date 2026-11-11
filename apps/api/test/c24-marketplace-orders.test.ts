@@ -24,6 +24,9 @@ let ghn: Server;
 const ghnRequests: { path: string; headers: Record<string, unknown>; body: Record<string, unknown> }[] = [];
 const ghnStatus = new Map<string, string>();
 let ghnReject = false;
+// Giả lập GHN tạo xong nhưng trả lỗi máy chủ (mất phản hồi), hoặc lỗi trước khi tạo.
+let ghnLoseResponse: "none" | "afterCreate" | "beforeCreate" = "none";
+const ghnByClientCode = new Map<string, string>();
 let ghnCounter = 0;
 const webhookKey = "khoa-webhook-kiem-thu-0123456789";
 const retail: string = testIds.retailCompany;
@@ -67,9 +70,18 @@ beforeAll(async () => {
       if (request.headers.token !== "token-kiem-thu" || request.headers.shopid !== "885") return reply({ code: 401, message: "Token sai" });
       if (request.url?.endsWith("/shipping-order/create")) {
         if (ghnReject) return reply({ code: 400, message: "Sai địa chỉ", code_message_value: "Phường không hợp lệ" });
+        if (ghnLoseResponse === "beforeCreate") {
+          response.statusCode = 503;
+          return reply({ code: 503, message: "Bận" });
+        }
         ghnCounter += 1;
         const code = `GHNTEST${ghnCounter}`;
         ghnStatus.set(code, "ready_to_pick");
+        ghnByClientCode.set(body.client_order_code as string, code);
+        if (ghnLoseResponse === "afterCreate") {
+          response.statusCode = 503;
+          return reply({ code: 503, message: "Bận" });
+        }
         return reply({ code: 200, data: { order_code: code, total_fee: 22000 } });
       }
       if (request.url?.endsWith("/switch-status/cancel")) {
@@ -77,6 +89,10 @@ beforeAll(async () => {
         const ok = ghnStatus.get(code) === "ready_to_pick";
         if (ok) ghnStatus.set(code, "cancel");
         return reply({ code: 200, data: [{ order_code: code, result: ok, message: ok ? "OK" : "Đã lấy hàng" }] });
+      }
+      if (request.url?.endsWith("/shipping-order/detail-by-client-code")) {
+        const code = ghnByClientCode.get(body.client_order_code as string);
+        return code ? reply({ code: 200, data: { order_code: code, status: ghnStatus.get(code), total_fee: 22000 } }) : reply({ code: 400, message: "Không tìm thấy đơn" });
       }
       if (request.url?.endsWith("/shipping-order/detail")) return reply({ code: 200, data: { status: ghnStatus.get(body.order_code as string) ?? "unknown" } });
       reply({ code: 404, message: "Không có" });
@@ -655,5 +671,62 @@ describe("CONG_VIEC_24 trả hàng, hoàn tất", () => {
     // Đơn hoàn tất không hủy, không trả được nữa.
     expect((await buyer("post", `/buyer/orders/${plain.id}/cancel`, { reason: "Muộn", version: completed.version })).status).toBe(409);
     expect(await service.completeDue()).toBe(0);
+  });
+});
+
+describe("CONG_VIEC_24 sửa sau rà soát", () => {
+  it("KICHBAN_KIEMTHU_316 (bổ sung): GHN không trả lời sau khi tạo: giữ chỗ vận đơn, không giao trùng, không hủy được; tra lại tìm theo số đơn rồi ghi nhận; không có thì bỏ chỗ giữ để giao lại", async () => {
+    const order = await placeOrder([{ variantId: variants.cream, quantity: 1 }]);
+    ghnLoseResponse = "afterCreate";
+    const lost = await call("post", `/marketplace/orders/${order.id}/ship`, { carrierCode: "ghn", version: order.version });
+    ghnLoseResponse = "none";
+    expect(lost.body.error.message).toBe('Chưa rõ đơn vị vận chuyển đã tạo vận đơn hay chưa. Bấm "Tra lại vận đơn" để kiểm tra trước khi giao lại.');
+    const pending = (await call("get", `/marketplace/orders/${order.id}`)).body;
+    expect(pending).toMatchObject({ status: "awaiting_shipment", canShip: false, canRefreshShipment: true });
+    expect(pending.shipments[0]).toMatchObject({ trackingCode: null, carrierStatus: "requesting", isActive: true });
+    expect((await call("post", `/marketplace/orders/${order.id}/ship`, { carrierCode: "ghn", version: pending.version })).body.error.message).toBe(
+      'Đơn đang chờ xác nhận tạo vận đơn. Bấm "Tra lại vận đơn" trước.',
+    );
+    const buyer = await buyerSession("0933000001");
+    expect((await buyer("post", `/buyer/orders/${order.id}/cancel`, { reason: "Đổi ý", version: pending.version })).status).toBe(409);
+    const refreshed = (await call("post", `/marketplace/orders/${order.id}/refresh-shipment`)).body;
+    expect(refreshed).toMatchObject({ status: "awaiting_pickup", trackingCode: ghnByClientCode.get(order.documentNo) });
+    expect(ghnRequests.filter((item) => item.path.endsWith("/shipping-order/create") && item.body.client_order_code === order.documentNo)).toHaveLength(1);
+
+    const second = await placeOrder([{ variantId: variants.cream, quantity: 1 }]);
+    ghnLoseResponse = "beforeCreate";
+    expect((await call("post", `/marketplace/orders/${second.id}/ship`, { carrierCode: "ghn", version: second.version })).status).toBe(409);
+    ghnLoseResponse = "none";
+    const released = (await call("post", `/marketplace/orders/${second.id}/refresh-shipment`)).body;
+    expect(released).toMatchObject({ status: "awaiting_shipment", canShip: true, shipments: [] });
+    expect((await pool.query("SELECT count(*)::int AS count FROM inventory.documents d JOIN marketplace.orders m ON m.sales_order_id = d.source_id WHERE m.id = $1", [second.id])).rows[0].count).toBe(
+      0,
+    );
+    expect((await call("post", `/marketplace/orders/${second.id}/ship`, { carrierCode: "ghn", version: released.version })).body.status).toBe("awaiting_pickup");
+  });
+
+  it("KICHBAN_KIEMTHU_314 (bổ sung): đơn VComm không hủy, xuất kho, xóa phiếu nháp từ màn hình đơn bán, phiếu kho; ghi sổ lỗi khi lấy hàng thì giữ Chờ lấy hàng và ghi lịch sử", async () => {
+    const order = await placeOrder([{ variantId: variants.cream, quantity: 1 }]);
+    const salesOrderId = (await pool.query("SELECT sales_order_id FROM marketplace.orders WHERE id = $1", [order.id])).rows[0].sales_order_id;
+    const sale = (await call("get", `/sales/orders/${salesOrderId}`)).body;
+    const message = "Đơn này là đơn của người mua VComm; xử lý ở màn hình Đơn VComm.";
+    expect((await call("post", `/sales/orders/${salesOrderId}/cancel`, { version: sale.version })).body.error.message).toBe(message);
+    const issue = await call("post", "/inventory/sales-issues", { orderId: salesOrderId, documentDate: today, lines: [{ orderLineId: sale.lines[0].id, quantity: "1" }] });
+    expect(issue.body.error.message).toBe(message);
+    const shipped = (await call("post", `/marketplace/orders/${order.id}/ship`, { carrierCode: "ghn", version: order.version })).body;
+    const draftId = (await pool.query("SELECT id FROM inventory.documents WHERE source_id = $1 AND status = 'draft'", [salesOrderId])).rows[0].id;
+    expect((await call("delete", `/inventory/documents/${draftId}`)).status).not.toBe(204);
+    expect((await call("post", `/inventory/documents/${draftId}/submit`)).status).not.toBe(200);
+    // Phiếu nháp mất (ví dụ xóa thẳng trong cơ sở dữ liệu): lấy hàng không ghi sổ được, đơn giữ trạng thái, có ghi lịch sử.
+    await pool.query("DELETE FROM inventory.documents WHERE id = $1", [draftId]);
+    ghnStatus.set(shipped.trackingCode, "picked");
+    expect((await webhook(webhookKey, { OrderCode: shipped.trackingCode })).body).toEqual({ result: "applied" });
+    const stuck = (await call("get", `/marketplace/orders/${order.id}`)).body;
+    expect(stuck.status).toBe("awaiting_pickup");
+    expect(stuck.events.at(-1).note).toContain("Chưa ghi sổ được phiếu xuất");
+    // Hàng hoàn về khi chưa có phiếu xuất ghi sổ: nhả hàng giữ, hủy đơn.
+    ghnStatus.set(shipped.trackingCode, "returned");
+    await webhook(webhookKey, { OrderCode: shipped.trackingCode });
+    expect((await pool.query("SELECT count(*)::int AS count FROM inventory.reservations WHERE source_id = $1 AND status = 'active'", [salesOrderId])).rows[0].count).toBe(1);
   });
 });

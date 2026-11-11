@@ -317,7 +317,10 @@
     "returnWindowClosed": "This order is past the 7-day return window.",
     "returnRequestOpen": "This order already has an open return request.",
     "returnQuantityExceeded": "The return quantity exceeds what can still be returned.",
-    "returnRequestNotOpen": "The return request is not in a state for this action."
+    "returnRequestNotOpen": "The return request is not in a state for this action.",
+    "marketplaceOrderManagedInApp": "This is a VComm buyer order; handle it on the VComm orders screen.",
+    "carrierOutcomeUnknown": "It is unclear whether the carrier created the shipment. Click \"Refresh shipment\" before handing over again.",
+    "shipmentRequesting": "The order is waiting for shipment confirmation. Click \"Refresh shipment\" first."
   },
   "login": {
     "title": "Sign in",
@@ -3522,7 +3525,8 @@
     "shipments": "Shipments",
     "shipmentLine": "Status {status} · fee {fee} · updated {time}",
     "shipmentCancelled": "cancelled",
-    "history": "Order history"
+    "history": "Order history",
+    "shipmentRequesting": "awaiting shipment confirmation"
   },
   "returnRequests": {
     "title": "Return requests",

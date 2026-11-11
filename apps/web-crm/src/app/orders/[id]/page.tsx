@@ -185,8 +185,8 @@ export default function MarketplaceOrderPage() {
               <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
                 <h2>{t("shipments")}</h2>
                 {order.shipments.map((shipment) => (
-                  <div key={shipment.trackingCode} style={{ display: "grid", gap: "var(--khoang-1)" }}>
-                    <strong>{`${shipment.carrierName} · ${shipment.trackingCode}`}</strong>
+                  <div key={`${shipment.trackingCode}-${shipment.createdAt}`} style={{ display: "grid", gap: "var(--khoang-1)" }}>
+                    <strong>{`${shipment.carrierName} · ${shipment.trackingCode ?? t("shipmentRequesting")}`}</strong>
                     <span className="chu-thich">
                       {t("shipmentLine", { status: shipment.carrierStatus, fee: shipment.fee ? formatNumber(shipment.fee, 0) : "—", time: formatDateTime(shipment.syncedAt) })}
                       {shipment.isActive ? "" : ` · ${t("shipmentCancelled")}`}

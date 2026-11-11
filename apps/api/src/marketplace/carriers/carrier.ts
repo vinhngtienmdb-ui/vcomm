@@ -31,6 +31,8 @@ export interface CarrierAdapter {
   createShipment(request: ShipmentRequest): Promise<CreatedShipment>;
   cancelShipment(trackingCode: string): Promise<void>;
   shipmentStatus(trackingCode: string): Promise<string>;
+  // Tra vận đơn theo mã đơn của bên gửi khi không rõ lần tạo trước đã thành công chưa; null khi không có.
+  findShipment(clientOrderCode: string): Promise<CreatedShipment | null>;
   phaseOf(status: string): CarrierPhase;
   // Mã vận đơn trong nội dung webhook; không tin trạng thái trong nội dung, luôn tra lại.
   trackingCodeOf(payload: unknown): string | null;

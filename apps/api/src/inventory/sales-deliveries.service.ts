@@ -11,7 +11,7 @@ import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Actor } from "../permissions/roles.service";
 import { linkedVariant } from "../catalog/variant-links.service";
-import { deliveredOnOrderLine, salesOrderSource, SalesOrdersService } from "../sales/sales-orders.service";
+import { deliveredOnOrderLine, requireNotMarketplace, salesOrderSource, SalesOrdersService } from "../sales/sales-orders.service";
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { inventoryAudit, inventoryPermissions } from "./inventory-context";
 import { ReservationsService } from "./reservations.service";
@@ -104,7 +104,9 @@ export class SalesDeliveriesService {
     };
   }
 
-  async createIssue(actor: Actor, input: IssueInput): Promise<StockDocumentResponse> {
+  // marketplace: lập từ màn hình đơn VComm (CONG_VIEC_24); từ màn hình phiếu kho thì không nhận đơn VComm.
+  async createIssue(actor: Actor, input: IssueInput, marketplace = false): Promise<StockDocumentResponse> {
+    if (!marketplace) await requireNotMarketplace(this.database, input.orderId);
     const order = await this.order(this.database, input.orderId);
     if (order.status !== "confirmed") throw new ApiError("BUSINESS_RULE", "salesOrderNotOpen");
     await this.requireInternalReady(this.database, order.id);
@@ -130,6 +132,7 @@ export class SalesDeliveriesService {
   async createReturn(actor: Actor, input: ReturnInput): Promise<StockDocumentResponse> {
     const issue = await this.documents.visibleRow(actor, input.issueId);
     if (issue.type !== "sales_issue" || issue.status !== "posted") throw new ApiError("BUSINESS_RULE", "salesIssueNotPosted");
+    await requireNotMarketplace(this.database, issue.source_id);
     const issueLines = new Map((await this.documents.lines(issue.id)).map((line) => [line.id, line]));
     const fields: FieldErrors = {};
     const lines = input.lines.map((line, index) => {
@@ -198,7 +201,7 @@ export class SalesDeliveriesService {
     await this.database.transaction(async (transaction) => {
       const locked = await transaction.execute(sql`SELECT 1 FROM inventory.documents WHERE id = ${id} AND status = 'draft' AND version = ${row.version} FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-      await this.postDraft(transaction, row, actor);
+      await this.postDraft(transaction, { ...row, type: row.type as "sales_issue" | "sales_return" }, actor);
     });
     return this.documents.detail(actor, id);
   }
@@ -213,7 +216,11 @@ export class SalesDeliveriesService {
   }
 
   // Gửi phiếu nháp đã khóa: phiếu xuất khóa đơn bán, kiểm số còn phải giao, dùng phần hàng đã giữ; phiếu trả kiểm số đã giao còn trả được; rồi ghi sổ.
-  private async postDraft(transaction: Executor, row: { id: string; type: string; company_id: string; warehouse_id: string; source_id: string | null }, actor: Actor): Promise<void> {
+  private async postDraft(
+    transaction: Executor,
+    row: { id: string; type: "sales_issue" | "sales_return"; company_id: string; warehouse_id: string; source_id: string | null; reason_code: string; stocktake_id: string | null },
+    actor: Actor,
+  ): Promise<void> {
     const id = row.id;
     const typeCode = documentTypeCodes[row.type as "sales_issue" | "sales_return"];
     const lines = await this.documents.lines(id, transaction);
@@ -242,7 +249,7 @@ export class SalesDeliveriesService {
         lines.map((line) => ({ issueLineId: line.source_line_id!, baseQuantity: Math.abs(Number(line.base_quantity)) })),
       );
     }
-    if (Object.keys(fields).length === 0) Object.assign(fields, await this.documents.checkForSubmit(row as never, lines, transaction));
+    if (Object.keys(fields).length === 0) Object.assign(fields, await this.documents.checkForSubmit(row, lines, transaction));
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
     const documentNo = await this.sequences.next(row.company_id, typeCode, transaction);
     await transaction.execute(sql`
@@ -258,8 +265,16 @@ export class SalesDeliveriesService {
   // Đơn VComm (CONG_VIEC_24): ghi sổ phiếu xuất nháp khi đơn vị vận chuyển lấy hàng, không xét quyền kho; dãy số đã tạo lúc giao đơn.
   async postDraftAsSystem(transaction: Executor, documentId: string, actor: Actor): Promise<void> {
     const row = (
-      await transaction.execute<{ id: string; type: string; company_id: string; warehouse_id: string; source_id: string | null }>(sql`
-      SELECT id, type, company_id, warehouse_id, source_id FROM inventory.documents WHERE id = ${documentId} AND status = 'draft' FOR UPDATE`)
+      await transaction.execute<{
+        id: string;
+        type: "sales_issue" | "sales_return";
+        company_id: string;
+        warehouse_id: string;
+        source_id: string | null;
+        reason_code: string;
+        stocktake_id: string | null;
+      }>(sql`
+      SELECT id, type, company_id, warehouse_id, source_id, reason_code, stocktake_id FROM inventory.documents WHERE id = ${documentId} AND status = 'draft' FOR UPDATE`)
     ).rows[0];
     if (!row) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
     await this.postDraft(transaction, row, actor);
@@ -318,7 +333,11 @@ export class SalesDeliveriesService {
       prepared,
       input.lines.map((line) => line.issueLineId),
     );
-    await this.postDraft(transaction, { id: documentId, type: "sales_return", company_id: issue.company_id, warehouse_id: issue.warehouse_id, source_id: issue.id }, actor);
+    await this.postDraft(
+      transaction,
+      { id: documentId, type: "sales_return", company_id: issue.company_id, warehouse_id: issue.warehouse_id, source_id: issue.id, reason_code: "sales_return", stocktake_id: null },
+      actor,
+    );
     return documentId;
   }
 
@@ -435,6 +454,12 @@ export class SalesDeliveriesService {
     await this.warehouses.operable(actor.userId, row.warehouse_id, inventoryPermissions.issueSales);
     if (row.created_by !== actor.userId) throw new ApiError("FORBIDDEN", "forbidden");
     if (row.status !== "draft") throw new ApiError("BUSINESS_RULE", "documentNotDraft");
+    // Phiếu của đơn VComm do hệ thống ghi sổ theo trạng thái vận chuyển (CONG_VIEC_24).
+    const salesOrderId =
+      row.type === "sales_issue"
+        ? row.source_id
+        : ((await this.database.execute<{ source_id: string | null }>(sql`SELECT source_id FROM inventory.documents WHERE id = ${row.source_id}`)).rows[0]?.source_id ?? null);
+    await requireNotMarketplace(this.database, salesOrderId);
     return row;
   }
 

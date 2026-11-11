@@ -316,16 +316,15 @@ export class MarketplaceOrdersService {
   private async cancelWithin(actor: Actor, orderId: string, version: number, reason: string, kind: "buyer" | "staff", buyerUserId: string | null): Promise<void> {
     await this.database.transaction(async (transaction) => {
       const locked = (
-        await transaction.execute<{ status: MarketplaceOrderStatus; sales_order_id: string; buyer_user_id: string; version: number }>(sql`
-        SELECT status, sales_order_id, buyer_user_id, version FROM marketplace.orders WHERE id = ${orderId} FOR UPDATE`)
+        await transaction.execute<{ status: MarketplaceOrderStatus; sales_order_id: string; buyer_user_id: string; version: number; company_id: string }>(sql`
+        SELECT status, sales_order_id, buyer_user_id, version, company_id FROM marketplace.orders WHERE id = ${orderId} FOR UPDATE`)
       ).rows[0];
-      if (!locked || (buyerUserId !== null && locked.buyer_user_id !== buyerUserId)) throw new ApiError("NOT_FOUND", "notFound");
+      if (!locked || (buyerUserId !== null && locked.buyer_user_id !== buyerUserId) || locked.company_id !== actor.companyId) throw new ApiError("NOT_FOUND", "notFound");
       if (locked.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       if (!cancellableStatuses.includes(locked.status)) throw new ApiError("BUSINESS_RULE", "orderNotCancellable");
-      if (locked.status === "awaiting_pickup") {
-        if (!this.shipmentCanceller) throw new ApiError("BUSINESS_RULE", "orderNotCancellable");
-        await this.shipmentCanceller.cancelActive(transaction, orderId);
-      }
+      // Còn vận đơn (kể cả đang chờ xác nhận tạo) thì hủy vận đơn trước; phiếu xuất nháp còn sót cũng xóa.
+      if (!this.shipmentCanceller) throw new ApiError("BUSINESS_RULE", "orderNotCancellable");
+      await this.shipmentCanceller.cancelActive(transaction, orderId);
       await this.salesOrders.cancelMarketplaceWithin(transaction, actor, locked.sales_order_id);
       await transaction.execute(sql`
         UPDATE marketplace.orders SET status = 'cancelled', cancel_reason = ${reason}, cancelled_by_kind = ${kind}, version = version + 1 WHERE id = ${orderId}`);
@@ -378,7 +377,7 @@ export class MarketplaceOrdersService {
     if (company.company_id !== actor.operatorCompanyId) throw new ApiError("NOT_FOUND", "notFound");
     const shipments = await this.database.execute<{
       carrier_code: CarrierCode;
-      tracking_code: string;
+      tracking_code: string | null;
       carrier_status: string;
       fee: string | null;
       is_active: boolean;
@@ -404,8 +403,8 @@ export class MarketplaceOrdersService {
         createdAt: iso(shipment.created_at)!,
         syncedAt: iso(shipment.synced_at)!,
       })),
-      canShip: canManage && row.status === "awaiting_shipment",
-      canRefreshShipment: canManage && row.tracking_code !== null,
+      canShip: canManage && row.status === "awaiting_shipment" && !shipments.rows.some((shipment) => shipment.is_active),
+      canRefreshShipment: canManage && shipments.rows.some((shipment) => shipment.is_active) && ["awaiting_shipment", "awaiting_pickup", "shipping"].includes(row.status),
       carriers: carriers.rows.map((carrier) => ({ code: carrier.code, name: carrierNames[carrier.code], isEnabled: carrier.is_enabled, isConfigured: carrierConfigured(carrier.code) })),
     };
   }
@@ -421,6 +420,9 @@ export class MarketplaceOrdersService {
     let completed = 0;
     for (const order of due.rows) {
       await this.database.transaction(async (transaction) => {
+        // Khóa đơn trước rồi mới xét yêu cầu trả hàng: yêu cầu gửi đồng thời phải chờ hoặc được thấy.
+        const locked = await transaction.execute(sql`SELECT 1 FROM marketplace.orders WHERE id = ${order.id} AND status = 'delivered' FOR UPDATE`);
+        if (locked.rows.length === 0) return;
         const updated = await transaction.execute(sql`
           UPDATE marketplace.orders m SET status = 'completed', completed_at = now(), version = version + 1,
             completed_amount = round(coalesce((

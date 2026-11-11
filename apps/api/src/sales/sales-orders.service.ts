@@ -42,6 +42,12 @@ import { requireSalesPermission, salesAudit, salesPermissions } from "./sales-co
 
 const documentTypeCode = "sales.order";
 export const salesOrderSource = "sales.order";
+// Đơn của người mua VComm (CONG_VIEC_24) chỉ xử lý qua màn hình đơn VComm: không sửa, hủy, đóng, xuất, nhận trả từ màn hình đơn bán, phiếu kho.
+export async function requireNotMarketplace(executor: Pick<Database, "execute">, salesOrderId: string | null): Promise<void> {
+  if (!salesOrderId) return;
+  const linked = await executor.execute(sql`SELECT 1 FROM marketplace.orders WHERE sales_order_id = ${salesOrderId}`);
+  if (linked.rows.length > 0) throw new ApiError("BUSINESS_RULE", "marketplaceOrderManagedInApp");
+}
 type Executor = Pick<Database, "execute" | "insert">;
 type FieldErrors = Record<string, keyof Messages["errors"]>;
 type Input = z.output<typeof saveSalesOrderSchema>;
@@ -330,6 +336,7 @@ export class SalesOrdersService implements OnModuleInit {
 
   // Sửa khi nháp, bị từ chối, đã rút; sửa xong về nháp, gửi lại tính lại ngoại lệ, giữ hàng.
   async update(actor: Actor, id: string, input: Input): Promise<SalesOrderResponse> {
+    await requireNotMarketplace(this.database, id);
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
     const before = await this.detail(actor, id);
     if (!before.canEdit) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
@@ -351,6 +358,7 @@ export class SalesOrdersService implements OnModuleInit {
 
   // Gửi đơn: giữ hàng, tính ngoại lệ; có ngoại lệ thì gửi duyệt, không có thì xác nhận ngay (QUYTAC_NGHIEPVU_68, 70).
   async submit(actor: Actor, id: string): Promise<SalesOrderResponse> {
+    await requireNotMarketplace(this.database, id);
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
     await this.ensureVisible(actor, id);
     const current = await this.single(this.database, actor.companyId, id);
@@ -449,6 +457,7 @@ export class SalesOrdersService implements OnModuleInit {
   }
 
   async withdraw(actor: Actor, id: string): Promise<SalesOrderResponse> {
+    await requireNotMarketplace(this.database, id);
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
     await this.ensureVisible(actor, id);
     const row = await this.single(this.database, actor.companyId, id);
@@ -465,6 +474,7 @@ export class SalesOrdersService implements OnModuleInit {
 
   // Hủy đơn chưa giao: nhả hàng giữ. Đơn đã có phiếu xuất giao hàng chỉ đóng được (QUYTAC_NGHIEPVU_71).
   async cancel(actor: Actor, id: string, version: number): Promise<SalesOrderResponse> {
+    await requireNotMarketplace(this.database, id);
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
     await this.ensureVisible(actor, id);
     await this.database.transaction(async (transaction) => {
@@ -485,6 +495,7 @@ export class SalesOrdersService implements OnModuleInit {
 
   // Đóng đơn đã giao một phần: phần chưa giao hủy, nhả hàng giữ còn lại; còn phiếu xuất nháp thì chưa đóng được.
   async close(actor: Actor, id: string, reason: string, version: number): Promise<SalesOrderResponse> {
+    await requireNotMarketplace(this.database, id);
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
     await this.ensureVisible(actor, id);
     await this.database.transaction(async (transaction) => {

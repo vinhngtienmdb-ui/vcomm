@@ -70,6 +70,17 @@ export class GhnCarrier implements CarrierAdapter {
     return data.status;
   }
 
+  async findShipment(clientOrderCode: string): Promise<CreatedShipment | null> {
+    try {
+      const data = await this.call<{ order_code: string; status: string; total_fee?: number }>("/shiip/public-api/v2/shipping-order/detail-by-client-code", { client_order_code: clientOrderCode });
+      return { trackingCode: data.order_code, fee: data.total_fee === undefined ? null : String(data.total_fee), status: data.status };
+    } catch (error) {
+      // GHN trả lỗi nghiệp vụ khi không có đơn với mã này.
+      if (error instanceof CarrierFailure && error.kind === "rejected") return null;
+      throw error;
+    }
+  }
+
   phaseOf(status: string): CarrierPhase {
     if (waiting.has(status)) return "waiting_pickup";
     if (delivered.has(status)) return "delivered";

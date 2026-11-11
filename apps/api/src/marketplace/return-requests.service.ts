@@ -150,7 +150,7 @@ export class ReturnRequestsService {
               countedStatuses.map((status) => sql`${status}`),
               sql`, `,
             )})), 0))::text AS remaining
-          FROM sales.order_lines l WHERE l.id = ${line.orderLineId} AND l.order_id = ${order.sales_order_id}`)
+          FROM sales.order_lines l WHERE l.id = ${line.orderLineId} AND l.order_id = ${order.sales_order_id} AND NOT l.is_gift`)
         ).rows[0];
         if (!remaining) fields[`lines.${index}.orderLineId`] = "invalidValue";
         else if (line.quantity > Number(remaining.remaining) + 0.00005) fields[`lines.${index}.quantity`] = "returnQuantityExceeded";
@@ -225,6 +225,9 @@ export class ReturnRequestsService {
       if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       const from = action === "approve" || action === "reject" ? "pending" : "approved";
       if (row.status !== from) throw new ApiError("BUSINESS_RULE", "returnRequestNotOpen");
+      // Đơn đã hoàn tất thì giá trị hoàn tất đã chốt: không duyệt, không nhận hàng trả nữa.
+      const orderState = (await transaction.execute<{ status: string }>(sql`SELECT status FROM marketplace.orders WHERE id = ${row.order_id} FOR UPDATE`)).rows[0]!.status;
+      if (orderState !== "delivered" && action !== "reject" && action !== "not_received") throw new ApiError("BUSINESS_RULE", "returnRequestNotOpen");
       let documentId: string | null = null;
       if (action === "receive") {
         // Nhận hàng trả theo dòng, số lượng của yêu cầu: phiếu nhận hàng trả lại theo dòng phiếu xuất gốc.

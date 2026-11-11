@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.10
-- Ngày cập nhật: 2026-11-10
+- Phiên bản: 2.11
+- Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
 - Cập nhật CONG_VIEC_03 (2026-11-09): thêm MAN_HINH_19, MAN_HINH_20, MAN_HINH_21; mở rộng MAN_HINH_01, MAN_HINH_06, MAN_HINH_08 (THAY_DOI_04, THAY_DOI_08)
@@ -24,6 +24,7 @@
 - Cập nhật CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm MODULE_07 Khách hàng và Đối tác phần 2, MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52); menu mini app Khách hàng và Đối tác thêm mục "Giao khách hàng"; sơ đồ điều hướng MODULE_07 thay ở mục 50; sửa MAN_HINH_36 (lọc "Khách của tôi", cột nhân viên phụ trách, nút "Nhận làm khách của tôi" trong ngăn kéo thêm đối tác), MAN_HINH_37 (ô nhân viên phụ trách khóa khi đã có, thẻ lịch sử phụ trách)
 - Cập nhật CONG_VIEC_23 (2026-11-10): thêm MAN_HINH_73 đến MAN_HINH_80 (ứng dụng VComm cho người mua; web-crm người mua VComm); không làm bản mẫu riêng, xem trước từng lát thay cho bản mẫu (quyết định của người dùng)
 - Cập nhật CONG_VIEC_27 (2026-11-10): thêm MAN_HINH_81 đến MAN_HINH_85; sửa MAN_HINH_78, MAN_HINH_80; xem trước từng lát thay cho bản mẫu
+- Cập nhật CONG_VIEC_24 (2026-11-11): thêm MAN_HINH_86 đến MAN_HINH_97 (mục 58, mục 59); sửa MAN_HINH_80, MAN_HINH_76 (Tài khoản: nút Sổ địa chỉ); thanh điều hướng ứng dụng thêm thẻ Cửa hàng, Đơn hàng; menu web-crm thêm Cài đặt bán hàng VComm, Đăng bán, Đơn VComm, Yêu cầu trả hàng; xem trước từng lát thay cho bản mẫu
 
 ## MODULE_01 Nền tảng
 
@@ -1981,3 +1982,57 @@ flowchart TD
 - MAN_HINH_83, MAN_HINH_84 (ứng dụng): thẻ chức danh, đơn vị; "Đội của tôi (n)": họ tên (bấm mở MAN_HINH_84), chức danh · đơn vị · số khách; MAN_HINH_84: "‹ Quay lại", "Khách của <tên>", danh sách khách như khách tôi phụ trách. API_122.
 - MAN_HINH_85 (ứng dụng, `/de-xuat`): "Lập đề xuất": Loại đề xuất (Thêm người, Chuyển đơn vị, Bổ nhiệm quản lý, Đưa ra khỏi đội); Số điện thoại người được thêm hoặc chọn Thành viên; chọn Đơn vị (thêm người, chuyển đơn vị); Lý do; nút Gửi đề xuất; "Đã gửi đề xuất, chờ quản trị duyệt."; "Đề xuất của tôi": nhãn trạng thái, nội dung, lý do, ngày, ghi chú từ chối, nút Rút đề xuất khi chờ duyệt. API_121.
 - Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-10).
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 2: Đặt hàng trên VComm, CONG_VIEC_24)
+
+## 58. Danh sách màn hình và điều hướng (MODULE_09 phần lõi 2)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_86 | Web-crm: Cài đặt bán hàng VComm (kênh bán, kho xuất, phí giao hàng, mức miễn phí, gói hàng mặc định; đơn vị vận chuyển bật, tắt, trạng thái kết nối) | CHUC_NANG_113, CHUC_NANG_117 | `marketplace.order.view`; thay đổi cần `marketplace.order.manage` | Menu "Cài đặt bán hàng VComm" | Không làm |
+| MAN_HINH_87 | Web-crm: Đăng bán (tìm, lọc đã đăng, chưa đăng; giá gồm thuế, số có thể bán, trạng thái, lý do chưa hiện; đăng bán, ngừng, mô tả) | CHUC_NANG_113 | Như MAN_HINH_86 | Menu "Đăng bán" | Không làm |
+| MAN_HINH_88 | Web-crm: Đơn VComm (danh sách lọc trạng thái, tìm số đơn, số điện thoại; chi tiết: người mua, địa chỉ, tiền, dòng hàng, vận đơn, lịch sử; giao cho đơn vị vận chuyển, tra lại vận đơn, hủy) | CHUC_NANG_116, CHUC_NANG_117 | Như MAN_HINH_86 | Menu "Đơn VComm"; MAN_HINH_89 | Không làm |
+| MAN_HINH_89 | Web-crm: Yêu cầu trả hàng (lọc trạng thái; lý do, mô tả, dòng, ảnh; duyệt, từ chối, đã nhận hàng trả, không nhận được hàng) | CHUC_NANG_118 | Như MAN_HINH_86 | Menu "Yêu cầu trả hàng" | Không làm |
+| MAN_HINH_90 | Ứng dụng: Cửa hàng (thẻ; tìm kiếm, lưới sản phẩm: ảnh, tên, giá, hết hàng; nút Giỏ hàng có số dòng) | CHUC_NANG_115 | Người mua | Thẻ Cửa hàng | Không làm |
+| MAN_HINH_91 | Ứng dụng: Chi tiết sản phẩm (ảnh, giá gồm thuế, phân loại, số lượng, còn hàng, mô tả, thêm vào giỏ) | CHUC_NANG_115 | Người mua | MAN_HINH_90 | Không làm |
+| MAN_HINH_92 | Ứng dụng: Giỏ hàng (chọn dòng, số lượng, xóa, ngừng bán, không đủ hàng, tạm tính) | CHUC_NANG_115 | Người mua | MAN_HINH_90, MAN_HINH_91 | Không làm |
+| MAN_HINH_93 | Ứng dụng: Đặt hàng (địa chỉ nhận, đổi địa chỉ, dòng hàng, tiền hàng, phí giao hàng, tổng thanh toán khi nhận hàng, Đặt hàng) | CHUC_NANG_116 | Người mua; đặt được khi là người mua thử | MAN_HINH_92 | Không làm |
+| MAN_HINH_94 | Ứng dụng: Sổ địa chỉ (danh sách, thêm, sửa, xóa, đặt mặc định; chọn tỉnh, xã có tìm; chế độ chọn địa chỉ khi đặt hàng) | CHUC_NANG_114 | Người mua | MAN_HINH_76 (Tài khoản), MAN_HINH_93 | Không làm |
+| MAN_HINH_95 | Ứng dụng: Đơn hàng (thẻ; lọc trạng thái; số đơn, trạng thái, sản phẩm đầu, số sản phẩm, ngày, tổng) | CHUC_NANG_116 | Người mua | Thẻ Đơn hàng | Không làm |
+| MAN_HINH_96 | Ứng dụng: Chi tiết đơn (trạng thái, hạn trả hàng, địa chỉ, vận đơn, dòng, tiền, lịch sử, yêu cầu trả hàng, rút yêu cầu, hủy đơn kèm lý do) | CHUC_NANG_116, CHUC_NANG_118, CHUC_NANG_119 | Người mua (đơn của mình) | MAN_HINH_95, MAN_HINH_93 | Không làm |
+| MAN_HINH_97 | Ứng dụng: Yêu cầu trả hàng (dòng, số lượng còn trả được, lý do, mô tả, ảnh trên bản web, gửi) | CHUC_NANG_118 | Người mua | MAN_HINH_96 | Không làm |
+
+Sửa: MAN_HINH_80 thêm thẻ Người mua thử (đánh dấu, bỏ; cần `marketplace.order.manage`); MAN_HINH_76 thêm nút Sổ địa chỉ.
+
+```mermaid
+flowchart TD
+    S[MAN_HINH_90 Cửa hàng] -->|sản phẩm| P[MAN_HINH_91 Chi tiết sản phẩm]
+    S -->|Giỏ hàng| G[MAN_HINH_92 Giỏ hàng]
+    P -->|Xem giỏ hàng| G
+    G -->|Đặt hàng| D[MAN_HINH_93 Đặt hàng]
+    D -->|Đổi địa chỉ| A[MAN_HINH_94 Sổ địa chỉ]
+    T[MAN_HINH_76 Tài khoản] -->|Sổ địa chỉ| A
+    D -->|đặt xong| C[MAN_HINH_96 Chi tiết đơn]
+    O[MAN_HINH_95 Đơn hàng] --> C
+    C -->|Yêu cầu trả hàng| R[MAN_HINH_97 Yêu cầu trả hàng]
+    M{Menu web-crm} -->|Cài đặt bán hàng VComm| K[MAN_HINH_86]
+    M -->|Đăng bán| L[MAN_HINH_87]
+    M -->|Đơn VComm| W[MAN_HINH_88 Đơn VComm]
+    M -->|Yêu cầu trả hàng| Y[MAN_HINH_89]
+    Y -->|số đơn| W
+    W -->|người mua| B[MAN_HINH_80 Chi tiết người mua]
+```
+
+## 59. Đặc tả màn hình (MODULE_09 phần lõi 2)
+
+- MAN_HINH_86 (`/crm/store-settings`): thẻ Bán hàng: Kênh bán, Kho xuất (chọn), Phí giao hàng mỗi đơn, Miễn phí giao hàng từ (để trống: không miễn), Dài, Rộng, Cao (cm), Khối lượng tối thiểu (g), "Lưu"; thẻ Đơn vị vận chuyển: tên, nhãn Đang bật hoặc Đang tắt, Đã có kết nối hoặc Chưa có kết nối, nút Bật, Tắt (Bật bị khóa khi chưa có kết nối). Người chỉ có quyền xem thấy các ô bị khóa, không có nút.
+- MAN_HINH_87 (`/crm/listings`): ô tìm tên, mã; lọc Tất cả, Đã đăng bán, Chưa đăng bán; bảng Sản phẩm (ảnh, tên, ngành hàng), Giá gồm thuế ("Từ <giá>"), Có thể bán, Trạng thái (Đang hiện trên ứng dụng, Đã đăng bán chưa hiện, Chưa đăng bán; các lý do), Thao tác (Đăng bán hoặc Ngừng đăng bán; Mô tả: ô mô tả cho người mua tối đa 5.000 ký tự, để trống dùng mô tả sản phẩm); phân trang 20.
+- MAN_HINH_88 (`/crm/orders`, `/crm/orders/<id>`): danh sách Số đơn (liên kết), Người mua · số điện thoại, Người nhận, Tổng thu, Trạng thái (nhãn; trạng thái vận chuyển), Đặt lúc; chi tiết: thông tin người mua, người nhận, địa chỉ, thanh toán, tiền hàng, phí giao hàng, tiền thu hộ, thời điểm; thẻ Xử lý đơn: chọn đơn vị vận chuyển đang bật, "Giao cho đơn vị vận chuyển" (xác nhận), "Tra lại vận đơn", "Hủy đơn" (ô lý do); bảng dòng hàng; thẻ Vận đơn (đơn vị, mã, trạng thái, phí, thời điểm cập nhật); Lịch sử đơn.
+- MAN_HINH_89 (`/crm/return-requests`): lọc trạng thái (mặc định Chờ duyệt); mỗi yêu cầu là một thẻ: số đơn (liên kết), người mua, nhãn trạng thái, lý do, mô tả, dòng, ảnh thu nhỏ (bấm mở ảnh), thời điểm, ghi chú; Chờ duyệt: "Duyệt" (ghi chú không bắt buộc), "Từ chối" (ghi chú bắt buộc); Đã duyệt: "Đã nhận hàng trả" (xác nhận), "Không nhận được hàng" (ghi chú bắt buộc).
+- MAN_HINH_90 đến MAN_HINH_92 (ứng dụng, `/cua-hang`, `/san-pham/<id>`, `/gio-hang`): lưới hai cột; sản phẩm không có ảnh hiện chữ cái đầu; chi tiết: "‹ Quay lại", ảnh trượt ngang, giá, "Giá một <đơn vị>, đã gồm thuế giá trị gia tăng.", nút chọn phân loại, nút −, +, "Còn n sản phẩm.", "Thêm vào giỏ hàng" rồi "Xem giỏ hàng"; giỏ: ô chọn từng dòng, giá hoặc nhãn "Ngừng bán", "Chỉ còn n", nút −, +, "Xóa", "Tạm tính (n sản phẩm)", "Đặt hàng".
+- MAN_HINH_93 (`/dat-hang`): thẻ Giao đến (người nhận · số điện thoại, địa chỉ; "Đổi địa chỉ" mở MAN_HINH_94 chế độ chọn); dòng hàng (số lượng × giá, khuyến mãi, quà tặng); Tiền hàng, Phí giao hàng (hoặc Miễn phí), Tổng thanh toán, "Thanh toán khi nhận hàng."; chưa là người mua thử: thông báo chưa mở đặt hàng, nút Đặt hàng khóa; giá đổi: thông báo và tải lại tổng.
+- MAN_HINH_94 (`/so-dia-chi`): danh sách địa chỉ (tên, số điện thoại, nhãn Mặc định, địa chỉ, xã, tỉnh; Sửa, Đặt mặc định, Xóa có xác nhận); biểu mẫu: Tên người nhận, Số điện thoại người nhận, Tỉnh, thành phố và Phường, xã (mở danh sách có ô tìm không dấu), Địa chỉ chi tiết, Đặt làm địa chỉ mặc định, Lưu, Hủy; sổ trống thì mở sẵn biểu mẫu.
+- MAN_HINH_95, MAN_HINH_96 (`/don-hang`, `/don-hang/<id>`): nút lọc trạng thái cuộn ngang; thẻ đơn: số đơn, nhãn trạng thái, ảnh, sản phẩm đầu, "n sản phẩm · ngày", tổng; chi tiết: số đơn, nhãn, "Đặt lúc", lý do hủy, "Bạn có thể yêu cầu trả hàng đến <thời điểm>." khi Đã giao, Giao đến, vận đơn, dòng, tiền, Lịch sử đơn, Yêu cầu trả hàng (lý do, nhãn trạng thái, dòng, ghi chú, "Rút yêu cầu"), "Yêu cầu trả hàng", "Hủy đơn" (ô lý do, "Xác nhận hủy đơn", "Giữ đơn").
+- MAN_HINH_97 (`/tra-hang`): dòng hàng với "Còn trả được n", nút "Không trả", −, +; Lý do (Hàng lỗi, Sai hàng, Không đúng mô tả, Khác); Mô tả; "Ảnh (n/5)", "Thêm ảnh" (bản web; trên điện thoại hiện "Đính kèm ảnh hiện chỉ có trên bản web của ứng dụng."); "Gửi yêu cầu".
+- Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
+

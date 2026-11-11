@@ -317,7 +317,10 @@
     "returnWindowClosed": "Đơn này không còn trong thời hạn trả hàng 7 ngày kể từ khi giao thành công.",
     "returnRequestOpen": "Đơn đang có yêu cầu trả hàng chưa xử lý xong.",
     "returnQuantityExceeded": "Số lượng trả vượt số đã giao còn được trả.",
-    "returnRequestNotOpen": "Yêu cầu trả hàng không ở trạng thái phù hợp cho thao tác này."
+    "returnRequestNotOpen": "Yêu cầu trả hàng không ở trạng thái phù hợp cho thao tác này.",
+    "marketplaceOrderManagedInApp": "Đơn này là đơn của người mua VComm; xử lý ở màn hình Đơn VComm.",
+    "carrierOutcomeUnknown": "Chưa rõ đơn vị vận chuyển đã tạo vận đơn hay chưa. Bấm \"Tra lại vận đơn\" để kiểm tra trước khi giao lại.",
+    "shipmentRequesting": "Đơn đang chờ xác nhận tạo vận đơn. Bấm \"Tra lại vận đơn\" trước."
   },
   "login": {
     "title": "Đăng nhập",
@@ -3522,7 +3525,8 @@
     "shipments": "Vận đơn",
     "shipmentLine": "Trạng thái {status} · phí {fee} · cập nhật {time}",
     "shipmentCancelled": "đã hủy",
-    "history": "Lịch sử đơn"
+    "history": "Lịch sử đơn",
+    "shipmentRequesting": "đang chờ xác nhận tạo vận đơn"
   },
   "returnRequests": {
     "title": "Yêu cầu trả hàng",

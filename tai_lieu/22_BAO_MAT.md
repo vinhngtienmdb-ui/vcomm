@@ -1,10 +1,10 @@
 # 22. BẢO MẬT
 
 - Mô tả: Dữ liệu nhạy cảm, điểm tiếp nhận dữ liệu, xác thực, ma trận phân quyền, khóa bí mật, kết quả kiểm tra, rủi ro đã chấp nhận, sự cố bảo mật.
-- Phiên bản: 2.10
-- Ngày cập nhật: 2026-11-10
+- Phiên bản: 2.11
+- Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 5 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 6 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 7 (đối soát thu hộ); CONG_VIEC_20 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 8 (báo cáo tài chính hợp nhất; sửa sau rà soát: công ty, đối tác của điều chỉnh tay, danh sách đối tác các thành viên); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: MODULE_07 Khách hàng và Đối tác phần 2 (gán khách hàng cho nhân viên kinh doanh: phân quyền theo nhân viên phụ trách, quyền mới, khóa đồng thời); CONG_VIEC_23 (2026-11-10): điểm tiếp nhận, ma trận phân quyền, kết quả rà soát bảo mật tài khoản người mua; CONG_VIEC_27 (2026-11-10): ma trận phân quyền đội kinh doanh, kết quả rà soát bảo mật
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): MODULE_02 phần Sản phẩm; CONG_VIEC_05 (2026-11-10): MODULE_03 Kho phần web; CONG_VIEC_06 (2026-11-10): MODULE_07 Khách hàng và Đối tác phần tối thiểu; CONG_VIEC_07 (2026-11-10): MODULE_04 Mua hàng phần 1; CONG_VIEC_08 (2026-11-10): MODULE_05 Bán hàng phần 1; CONG_VIEC_09 (2026-11-10): MODULE_05 phần 2 Giao dịch nội bộ; CONG_VIEC_12 (2026-11-10): MODULE_05 phần 3 Khuyến mãi; CONG_VIEC_13 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 1 (công nợ); CONG_VIEC_14 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 2 (kế toán tổng hợp); CONG_VIEC_15 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 3 (báo cáo tài chính); CONG_VIEC_16 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 4 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 5 (hoa hồng đội kinh doanh); CONG_VIEC_18 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 6 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 7 (đối soát thu hộ); CONG_VIEC_20 (2026-11-10): MODULE_06 Tài chính – Kế toán phần 8 (báo cáo tài chính hợp nhất; sửa sau rà soát: công ty, đối tác của điều chỉnh tay, danh sách đối tác các thành viên); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: MODULE_07 Khách hàng và Đối tác phần 2 (gán khách hàng cho nhân viên kinh doanh: phân quyền theo nhân viên phụ trách, quyền mới, khóa đồng thời); CONG_VIEC_23 (2026-11-10): điểm tiếp nhận, ma trận phân quyền, kết quả rà soát bảo mật tài khoản người mua; CONG_VIEC_27 (2026-11-10): ma trận phân quyền đội kinh doanh, kết quả rà soát bảo mật; CONG_VIEC_24 (2026-11-11): dữ liệu địa chỉ người nhận, ảnh trả hàng, thông tin kết nối GHN; điểm tiếp nhận API_123 đến API_129, webhook vận chuyển; ma trận phân quyền đặt hàng trên VComm
 - Cập nhật giai đoạn 07: gắn mã API vào điểm tiếp nhận dữ liệu
 
 Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (CONG_VIEC_04); MODULE_03 Kho phần web (CONG_VIEC_05); MODULE_07 Khách hàng và Đối tác phần tối thiểu (CONG_VIEC_06); MODULE_04 Mua hàng phần 1 (CONG_VIEC_07); MODULE_05 Bán hàng phần 1 (CONG_VIEC_08); MODULE_05 phần 2 Giao dịch nội bộ (CONG_VIEC_09); MODULE_05 phần 3 Khuyến mãi (CONG_VIEC_12); MODULE_06 Tài chính – Kế toán phần 1 (CONG_VIEC_13); MODULE_06 phần 2 Kế toán tổng hợp (CONG_VIEC_14); MODULE_06 phần 3 Báo cáo tài chính (CONG_VIEC_15); MODULE_06 phần 4 Hóa đơn điện tử (CONG_VIEC_16); MODULE_06 phần 5 Hoa hồng đội kinh doanh (CONG_VIEC_17); MODULE_06 phần 6 Đối soát ngân hàng (CONG_VIEC_18); MODULE_06 phần 7 Đối soát thu hộ (CONG_VIEC_19); MODULE_06 phần 8 Báo cáo tài chính hợp nhất (CONG_VIEC_20); MODULE_07 phần 2 Gán khách hàng cho nhân viên kinh doanh (CONG_VIEC_21). Các module sau bổ sung vào cùng tài liệu.
@@ -53,6 +53,8 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | Bảng đối soát thu hộ: đơn vị thu hộ, số đơn bán, khách, tiền thu hộ, phí; công nợ của khách và đơn vị thu hộ (CONG_VIEC_19) | Tài chính | Bảng `finance.collection_statements`, `finance.collection_statement_lines`, `finance.collectors` theo công ty; bảng đã ghi sổ không sửa, không xóa; không lưu tệp Excel gốc | `finance.collection.view` gán ở phạm vi tập đoàn hoặc công ty của chính công ty; công ty khác nhận `404` |
 | Báo cáo tài chính hợp nhất: số liệu sổ cái nhiều công ty (B01-DN, B02-DN cộng gộp, hợp nhất), công nợ nội bộ theo đối tác, doanh thu, lãi gộp hàng bán nội bộ; tệp Excel, PDF xuất ra (CONG_VIEC_20) | Tài chính | Bảng `finance.consolidations` (số báo cáo đã chốt dạng JSON), `finance.consolidation_entries`, `finance.consolidation_profit_lines` theo công ty gốc; số chưa chốt tính khi xem từ schema `accounting`, `inventory`, `sales` của các thành viên; tệp trả thẳng cho người xem, không lưu trên máy chủ | `finance.consolidation.view`, `finance.consolidation.manage` gán ở phạm vi tập đoàn; quyền ở phạm vi công ty không mở được; tập đoàn khác nhận `404` |
 | Nhân viên phụ trách khách hàng, lịch sử phụ trách, phiếu giao khách (lý do, khách, nhân viên cũ, mới) (CONG_VIEC_21) | Kinh doanh, nhân sự | Cột `crm.partner_profiles.owner_user_id`; bảng `crm.partner_owner_history`, `crm.customer_assignments`, `crm.customer_assignment_lines` theo công ty | Đối tác, đơn bán, lịch sử chỉ trong phạm vi xem (QUYTAC_NGHIEPVU_129); phiếu: người có `crm.customer.assign` xem mọi phiếu, người khác phiếu mình lập, mình gửi, giao cho mình |
+| Địa chỉ nhận hàng, tên, số điện thoại người nhận; đơn VComm, ảnh trả hàng của người mua (CONG_VIEC_24) | Cá nhân | Schema `marketplace`; ảnh ở kho tệp (`return-requests/<người mua>/`); người mua chỉ đọc dữ liệu của mình, quản trị cần `marketplace.order.view` tại công ty vận hành sàn; địa chỉ, số điện thoại gửi sang đơn vị vận chuyển khi giao | Theo chính sách lưu đơn bán |
+| Thông tin kết nối GHN: token, mã cửa hàng, khóa webhook (CONG_VIEC_24) | Khóa bí mật | Biến môi trường `GHN_API_TOKEN`, `GHN_SHOP_ID`, `GHN_WEBHOOK_KEY` (ít nhất 24 ký tự), không lưu trong cơ sở dữ liệu, không trả qua API (chỉ trả đã có kết nối hay chưa) | Đổi khi lộ |
 
 ## 2. Điểm tiếp nhận dữ liệu từ bên ngoài
 
@@ -91,6 +93,9 @@ Phạm vi hiện tại: MODULE_01 Nền tảng; MODULE_02 phần Sản phẩm (C
 | API gán khách hàng (API_110, API_111, CONG_VIEC_21); lọc `owner` của API_71 | API | Lược đồ zod `customerAssignmentListQuerySchema`, `saveCustomerAssignmentSchema` (`reason` 1 đến 500 ký tự, `partnerIds` 1 đến 500 UUID không trùng), `versionSchema`, `partnerListQuerySchema.owner` (`mine` hoặc UUID) trong `packages/contracts`, trường thừa bị từ chối; mã trong đường dẫn kiểm UUID (`UuidPipe`); nhân viên nhận, từng khách kiểm thuộc công ty, trong phạm vi giao trong service | Có, `crm.access` hoặc `crm.partner.view`; quyền giao khách, trưởng phòng, phạm vi xem theo tài liệu `08` mục 29, 30 |
 | Phản hồi nhà cung cấp hóa đơn điện tử (MISA meInvoice, bộ giả lập) | Tích hợp (hệ thống gọi ra) | Chỉ đọc số, mã của cơ quan thuế, mã giao dịch, mã lỗi, tệp PDF, XML (base64) của đúng mã tham chiếu, mã giao dịch; JSON lỗi coi là lỗi; câu chữ lỗi của nhà cung cấp lưu như văn bản, giao diện hiện dạng văn bản | Không áp dụng (hệ thống gọi ra) |
 | Gửi tin qua eSMS.vn (mã OTP, Zalo ZNS, kiểm tra kết nối) | Tích hợp | Chỉ đọc mã kết quả, mã tin, lỗi; gửi lỗi không chặn nghiệp vụ | Không áp dụng (hệ thống gọi ra) |
+| API đặt hàng trên VComm (API_123 đến API_127, API_129, CONG_VIEC_24) | API | Lược đồ zod trong `packages/contracts` (`updateStoreSettingsSchema`, `updateListingSchema`, `cartLineSchema`, `buyerAddressSchema`, `buyerOrderPlaceSchema`, `cancelMarketplaceOrderSchema`, `shipMarketplaceOrderSchema`, `createReturnRequestSchema`, `returnDecisionSchema`, `returnRejectSchema`), mã UUID qua `UuidPipe`; ảnh trả hàng kiểm theo nội dung tệp (JPEG, PNG), tối đa 5 MB (multer cắt ở 6 MB) | Có (ảnh sản phẩm đang bán API_124 không cần) |
+| Webhook trạng thái vận đơn (API_128, CONG_VIEC_24) | Tích hợp (đơn vị vận chuyển gọi vào), API công khai | Khóa trên đường dẫn so sánh thời gian cố định; sai khóa trả `403` và đếm theo địa chỉ IP (`carrier-webhook-unauthorized`, quá giới hạn `429`); đúng khóa không chịu giới hạn chung; chỉ đọc mã vận đơn (chữ, số 4 đến 40 ký tự) rồi tra lại trạng thái từ GHN, không tin trạng thái trong nội dung; mỗi lần nhận ghi bảng `carrier_webhook_events` | Khóa webhook |
+| Phản hồi GHN (tạo, hủy, tra vận đơn) (CONG_VIEC_24) | Tích hợp (hệ thống gọi ra) | Thời gian chờ 15 giây; chỉ đọc mã vận đơn, phí, trạng thái, kết quả hủy; lỗi không làm đổi trạng thái đơn | Token, mã cửa hàng trong tiêu đề |
 
 ## 3. Xác thực và phiên đăng nhập
 
@@ -704,6 +709,27 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10, rà soát đ�
 - Đã sửa (Trung bình): chuỗi cấp trên nhận người quản lý do mini app Nền tảng đặt mà không thuộc đơn vị; phòng ban ngừng hoạt động cắt cây; vòng lặp cây phòng ban; lịch sử thiếu nhãn, thiếu đề xuất; dò họ tên qua đề xuất thêm người; bổ nhiệm bị chặn vì quản lý phòng ban không phải đơn vị kinh doanh.
 - Ghi nhận, chưa sửa (Thấp): mini app Nền tảng đổi cha, người quản lý phòng ban không lấy khóa đội, không kiểm thứ bậc Khối > Vùng > Phòng (không sửa mini app Nền tảng theo mục 13 đặc tả); đề xuất chờ của người bị bỏ đánh dấu không tự hủy (duyệt báo không còn đúng); lỗi trên MAN_HINH_81 hiện ở đầu trang.
 
+### Ma trận phân quyền đặt hàng trên VComm MODULE_09 phần lõi 2 (CONG_VIEC_24)
+
+| Chức năng | Quản trị công ty vận hành sàn, Quản trị tập đoàn | Nhân viên có `marketplace.order.view` | Người mua | Người mua thử |
+|---|---|---|---|---|
+| CHUC_NANG_113 Xem cài đặt, đăng bán | Có | Có | Không | Không |
+| CHUC_NANG_113 Lưu cài đặt, bật tắt đơn vị vận chuyển, đăng bán, người mua thử | Có (`marketplace.order.manage`) | Không | Không | Không |
+| CHUC_NANG_114, CHUC_NANG_115 Cửa hàng, giỏ hàng, sổ địa chỉ | Có (với tài khoản người mua của mình) | Có (như trên) | Của mình | Của mình |
+| CHUC_NANG_116 Xem trước đơn | Có | Có | Có | Có |
+| CHUC_NANG_116 Đặt hàng | Chỉ khi là người mua thử | Chỉ khi là người mua thử | Không (chưa mở đặt hàng) | Có |
+| CHUC_NANG_116 Xem, hủy đơn của mình; CHUC_NANG_118 gửi, rút yêu cầu trả hàng | Của mình | Của mình | Của mình | Của mình |
+| CHUC_NANG_116, CHUC_NANG_117 Xem đơn VComm, yêu cầu trả hàng | Có | Có | Không | Không |
+| CHUC_NANG_116 đến CHUC_NANG_118 Giao cho đơn vị vận chuyển, tra lại vận đơn, hủy đơn, duyệt, từ chối, nhận hàng trả | Có (`marketplace.order.manage`; giao đơn cần thêm `inventory.sales.issue` tại kho xuất) | Không | Không | Không |
+
+Ranh giới và kiểm soát riêng:
+- Đơn, địa chỉ, giỏ, yêu cầu trả hàng, ảnh của người khác trả `404` (không lộ là có tồn tại). Quản trị chỉ xem đơn của công ty vận hành sàn.
+- Giá, khuyến mãi, phí luôn tính lại ở máy chủ khi đặt; tổng người mua gửi chỉ dùng để phát hiện giá đổi.
+- Chứng từ kho của đơn VComm do hệ thống ghi sổ (lấy hàng, hoàn hàng, nhận hàng trả) không xét quyền kho của người dùng; người ghi là người đã giao đơn hoặc người bấm nhận hàng trả; nhật ký thao tác ghi đủ.
+- Webhook không tin nội dung: trạng thái lấy từ tra lại vận đơn bằng token của VComm; nhận trùng không đổi kết quả vì mỗi chuyển trạng thái kiểm trạng thái hiện tại trong giao dịch có khóa dòng.
+- Ảnh trả hàng kiểm theo nội dung tệp (chữ ký JPEG, PNG), không theo tên, tối đa 5 MB, tối đa 20 ảnh chưa gửi mỗi người mua mỗi ngày; ảnh phục vụ với `x-content-type-options: nosniff`.
+- Token GHN ở biến môi trường; khóa webhook ít nhất 24 ký tự, gắn vào đường dẫn khai báo với GHN.
+
 ## 5. Quản lý khóa bí mật
 
 | Khóa | Nơi lưu | Môi trường | Ngày đổi gần nhất | Trạng thái |
@@ -717,6 +743,7 @@ Kết quả rà soát bảo mật phần thay đổi (2026-11-10, rà soát đ�
 | Khóa xác thực webhook ngân hàng của từng kết nối (CONG_VIEC_18) | Bảng `finance.bank_connections`, mã hóa AES-256-GCM (khóa như Cài đặt tích hợp); hệ thống sinh, Kế toán trưởng khai vào dịch vụ trung gian; đổi bằng "Đổi khóa xác thực" ở MAN_HINH_59; không đặt trong biến môi trường | Từng môi trường, từng quỹ | Chưa tạo | Chưa tạo |
 | Thông tin truy cập AWS S3 lưu tệp đính kèm | Vai trò IAM, không dùng khóa tĩnh | Từng môi trường | Không áp dụng | Chưa tạo |
 | Khóa gửi email (Amazon SES) | Vai trò IAM, không dùng khóa tĩnh | Từng môi trường | Không áp dụng | Chưa tạo |
+| Token, mã cửa hàng GHN; khóa webhook vận chuyển (CONG_VIEC_24) | Biến môi trường `GHN_API_TOKEN`, `GHN_SHOP_ID`, `GHN_WEBHOOK_KEY` (môi trường thật: AWS Secrets Manager) | Từng môi trường (thử nghiệm dùng tài khoản thử nghiệm của GHN) | Chưa tạo | Chưa tạo |
 
 Máy phát triển dùng tệp `.env` không commit; kho mã có `.env.example` không chứa giá trị thật.
 
