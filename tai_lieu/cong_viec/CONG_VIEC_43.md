@@ -3,7 +3,7 @@
 - Mô tả: Sửa CONG_VIEC_08, 09, 17, 21 theo THAY_DOI_14 (bán hàng hóa chỉ qua sàn VComm, công ty nội bộ chỉ bán dịch vụ cho nhau, hoa hồng theo đơn vào ví).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng quyết định hướng sửa và thiết kế ngày 2026-11-11 (tài liệu `02`). Đang thực hiện.
+- Trạng thái: Người dùng quyết định hướng sửa và thiết kế ngày 2026-11-11 (tài liệu `02`). Chờ nghiệm thu (kiểm thử 334/334, kết quả ở tài liệu `25`).
 - Nguồn: THAY_DOI_14, THAY_DOI_18; CONG_VIEC_08, 09, 17, 20, 21 (đã nghiệm thu, chưa phát hành).
 
 ## 1. Mục tiêu
@@ -86,3 +86,5 @@ Không thêm thư viện. Không xóa dữ liệu giao khách, giao dịch nội
 - Nhân viên có quyền ghi ghé thăm nhưng không có quyền quản lý hồ sơ thêm đối tác thì tự có hồ sơ khách hàng mặc định (thanh toán ngay, hạn mức 0), không gán người phụ trách.
 - Mọi đơn mua có dòng dịch vụ (kể cả nhà cung cấp ngoài tập đoàn): khi đơn được duyệt thì tự lập phiếu nhập dịch vụ không ghi thẻ kho, công nợ phải trả, bút toán Nợ chi phí dịch vụ / Nợ thuế đầu vào / Có 331.
 - Liên kết mặt hàng hai công ty phải cùng loại; không đổi loại sản phẩm khi đã có liên kết, tin đăng VComm, đơn bán, đơn mua chưa kết thúc; sản phẩm dịch vụ không hiện, không đặt được trên VComm; quà khuyến mãi là dịch vụ không kiểm tồn; đơn tay không tự thêm quà hàng hóa khi chưa bật cài đặt; ô chọn mặt hàng đơn bán chỉ hiện dịch vụ khi chưa bật cài đặt.
+
+Ghi chú lát L4: bút toán loại trừ dịch vụ nội bộ dùng loại loại trừ `internal_sales`, mô tả ghi "dịch vụ nội bộ"; quà khuyến mãi là dịch vụ trên đơn VComm không lập phiếu dịch vụ (đơn VComm chỉ hàng hóa); sửa đơn mua đã duyệt có thêm dòng dịch vụ cũng tự nhận dịch vụ.
