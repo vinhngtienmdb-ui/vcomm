@@ -9,6 +9,8 @@
 
 ### Công việc đã thực hiện
 
+- Người dùng nghiệm thu CONG_VIEC_53 lát L6 (điểm tại quầy với Smart OTP), pull request #125, hồi quy 557/557 đạt: thu ngân tra khách VComm theo số điện thoại; tích điểm chỉ cần số điện thoại; dùng điểm trừ tiền cần mã Smart OTP; trả hàng hoàn và thu hồi điểm; hóa đơn in điểm dùng, điểm tích, số dư; ứng dụng VComm thêm thẻ Smart OTP (kích hoạt bằng mã SMS, khóa lưu bộ nhớ an toàn của máy). Database migration 0119; API_198, 199; thư viện otpauth 9.6.0 cho ứng dụng (cùng bản máy chủ). Sửa khi chạy thật: số dư sau giao dịch in 0 khi vừa dùng vừa tích; phím F9 mất tác dụng sau khi chọn khách.
+- Người dùng nghiệm thu CONG_VIEC_52 (Văn phòng số phần 1), pull request #104 (kiểm thử 589/589): công việc (giao việc liên công ty, việc con, bình luận, tệp, nhắc hạn); quy trình theo mẫu có nhánh rẽ, song song, gộp, lặp, giới hạn 100 bước; công văn đến, đi theo Nghị định 30/2020/NĐ-CP (sổ, số đến, số đi, trình ký qua luồng duyệt chung hoặc người ký, cấp số, phát hành, liên công ty, xuất PDF, Word, sổ Excel); bảng tin nội bộ (đối tượng, ghim 5, hẹn giờ, hết hạn, xác nhận đã đọc, bình luận, thu hồi). Người dùng duyệt thư viện docx 9.15.3 và phông Liberation Serif, phê duyệt sửa kỳ vọng `l1-authentication.test.ts`, chọn đối chiếu nguyên văn Nghị định 30 trước phát hành. Tự rà soát độc lập: 3 lỗi phân quyền mức Trung bình, 7 lỗi mức Thấp, đã sửa.
 - Phát hành 0.5.0 (pull request #121): CONG_VIEC_45, 49, 51, 53 (L0 đến L5), 54; LOI_08; THAY_DOI_22 đến 25. Kiểm thử API 549/549. Pull request nháp #117 đóng theo quyết định của người dùng vì không hợp nhất được ở trạng thái nháp. Chưa triển khai.
 - CONG_VIEC_55: người dùng duyệt đặc tả, bản mẫu MAN_HINH_174 đến 181 (pull request nháp #120); thêm quyết định: một đối tác nhiều điểm bán, chủ mời thu ngân; chặn tích khi vượt hạn mức hoặc quá hạn thanh toán; chi tiêu tại cửa hàng liên kết không tính xét hạng; voucher đổi bằng điểm hết hạn không hoàn điểm.
 - Người dùng yêu cầu mở tiếp phiên song song: cấp CONG_VIEC_55 (cửa hàng liên kết), CONG_VIEC_56 (kế toán ngoại tệ, thuế hải quan), CONG_VIEC_57 (trạm giao hàng O2O), CONG_VIEC_58 (kế hoạch mua theo ngân sách, người dùng tách từ CONG_VIEC_57); mở lại CONG_VIEC_22 (ứng dụng nhân viên kinh doanh, đang tạm dừng theo THAY_DOI_14). Dành database migration 0101 cho bản phát hành 0.5.0.
@@ -22,6 +24,13 @@
 
 ### Quyết định
 
+- Người dùng nghiệm thu CONG_VIEC_53 lát L6 với điều kiện hồi quy toàn bộ kiểm thử API đạt.
+- THAY_DOI_28 (đã phê duyệt): CONG_VIEC_22 lát L1 gộp nút "Chia sẻ sản phẩm" cho mọi người mua, thay nút "Chia sẻ nhận hoa hồng" của CONG_VIEC_49 trên MAN_HINH_91.
+- CONG_VIEC_53 lát L6, người dùng quyết định 2026-11-11: tích điểm tại quầy chỉ cần số điện thoại; dùng điểm cần Smart OTP gắn thiết bị (mã 30 giây trong ứng dụng VComm, kích hoạt bằng mã SMS, mỗi tài khoản một máy, sai 5 lần khóa 15 phút); khách chưa có tài khoản không tích, hóa đơn mời cài ứng dụng.
+- CONG_VIEC_57 lát L3: người dùng giữ chặn đơn mua chung với trạm.
+- THAY_DOI_27 (đã phê duyệt): CONG_VIEC_55 kích hoạt lời mời cửa hàng bằng số điện thoại và mã OTP.
+- CONG_VIEC_56: người dùng duyệt đặc tả và bản mẫu (pull request #119), cho lập trình toàn bộ; phần thời hạn nộp thuế, tiền chậm nộp, khai bổ sung ghi rủi ro, phải đối chiếu nguyên văn luật trước khi nghiệm thu.
+- Người dùng đồng ý xem trước CONG_VIEC_52 lát L3 (cho trình nghiệm thu), CONG_VIEC_57 lát L1, L2, CONG_VIEC_58 lát L0, CONG_VIEC_22 lát L0.
 - CONG_VIEC_22: người dùng duyệt đặc tả bản 0.2 (THAY_DOI_26) và bản mẫu MAN_HINH_196 đến 201; doanh số gán theo người phụ trách lúc đặt đơn (thêm cột người phụ trách vào đơn VComm).
 - CONG_VIEC_55, người dùng quyết định: cửa hàng liên kết là đối tác ngoài, trả sau trong hạn mức; định danh bằng mã QR cửa hàng, mã QR khách, số điện thoại kèm xác nhận trên ứng dụng; tỷ lệ tích theo cửa hàng; đối soát tuần có bù trừ; ba loại voucher, mọi voucher qua duyệt; phí theo hợp đồng; hủy trước khi chốt tuần; chỉ khách có tài khoản; hạch toán 131/3388, 3388/331, 641/331, 331/511, bù trừ 331/131; duyệt thêm thư viện jsqr 1.4.0 (Apache-2.0).
 - CONG_VIEC_56, người dùng quyết định: quỹ ngoại tệ riêng và vẫn cho chi từ quỹ tiền Việt; Nợ 331 theo tỷ giá đích danh, Có quỹ ngoại tệ theo bình quân gia quyền di động, chênh lệch vào 515, 635; đánh giá lại cuối tháng theo tỷ giá chuyển khoản trung bình, cảnh báo khi khóa sổ tháng 12 chưa đánh giá lại; phiếu nộp thuế hải quan gắn tờ khai, đi luồng duyệt, không cần đối tác, tiền chậm nộp tự tính; tờ khai bổ sung chỉ sửa số thuế từng dòng; theo dõi số nộp thừa, phiếu thu nhận hoàn thuế; thêm phiếu mua ngoại tệ.
@@ -36,6 +45,8 @@
 
 ### Vấn đề tồn đọng
 
+- CONG_VIEC_53 L6: tin nhắn kích hoạt Smart OTP dùng mẫu mã xác thực đăng nhập hiện có (chưa có mẫu riêng); bản web của ứng dụng giữ khóa trong phiên trình duyệt.
+- Khi gộp phát hành: CONG_VIEC_55 (database migration 0103) và CONG_VIEC_53 L6 cùng sửa ràng buộc nguồn của sổ điểm; CONG_VIEC_57 (0110, 0111) định nghĩa lại ràng buộc trạng thái và thu hộ của đơn VComm; phải gộp đủ giá trị.
 - CONG_VIEC_53: L6 điểm tại quầy chờ CONG_VIEC_51; đối soát ngân hàng chưa tự ghép chuyển khoản VietQR với phiếu thu bán lẻ; tiền đầu ca chưa lập chứng từ quỹ; MISA chưa có API hóa đơn máy tính tiền; KICHBAN_KIEMTHU_521 chưa có kiểm thử giao diện tự động.
 - CONG_VIEC_45 đề xuất công việc sau, chờ người dùng: phiếu chi ngoại tệ và chênh lệch tỷ giá; phiếu chi nộp thuế hải quan; tờ khai bổ sung.
 - Tài liệu 08, 12, 14, 16, 17, 27 trên main có mục trùng số giữa các công việc song song; đánh lại số trong nhánh phát hành kế tiếp.

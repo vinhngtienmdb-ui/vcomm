@@ -197,6 +197,26 @@
 - Kiểm tra bảo mật: không thêm thư viện; CI quét bảo mật (gitleaks, `pnpm audit`) đạt.
 - Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_53 (lát L6)
+
+- Phạm vi: điểm tại quầy với Smart OTP, nhánh `chuc-nang/CONG_VIEC_53-ban-le-tai-quay` (pull request #125, commit `604a263`).
+- Kết quả: `c53-retail-loyalty` 8/8 (KICHBAN_KIEMTHU_519: tra khách, kích hoạt Smart OTP, tích điểm, dùng điểm có mã đúng, sai mã, mã dùng lại, khóa sau 5 lần sai, máy mới thay máy cũ, hủy, trả hàng hoàn và thu hồi điểm, phải thu không đối tượng về 0 sau đóng ca). Hồi quy toàn bộ API 102 tệp, 557/557 đạt. Kiểm tra kiểu api, web-retail, mobile-vcomm đạt; khóa dịch khớp. Xem trước trên môi trường phát triển (ứng dụng VComm, quầy, hóa đơn in) đạt.
+- Kiểm tra bảo mật: thư viện otpauth 9.6.0 đã dùng ở máy chủ; khóa Smart OTP lưu bộ nhớ an toàn của máy, mỗi mã dùng một lần, khóa 15 phút sau 5 lần sai.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_52
+
+- Phạm vi: Văn phòng số phần 1 (MODULE_13), nhánh `chuc-nang/CONG_VIEC_52-van-phong-so` (pull request #104, head `6cf71d3`): MAN_HINH_153 đến 160, API_184 đến 191, database migration 0090 đến 0093.
+- Môi trường: container phát triển; PostgreSQL 16, `vcomm_test` xóa sạch mỗi lần chạy; Redis; Node.js 22; CI GitHub Actions.
+- Lệnh đã chạy: `pnpm --filter api test` (một tiến trình); `pnpm turbo run typecheck`, `lint`; xem trước bằng Playwright (1366 px, 390 px); đọc lại PDF bằng pdftotext, pdffonts, Word bằng unzip.
+- Kết quả: 589 đạt / 0 không đạt / 589 (106 tệp); KICHBAN_KIEMTHU_498 đến 507 (`c52-tasks`, `c52-workflows`, `c52-documents`, `c52-document-format`, `c52-bulletin`) đạt; KICHBAN_KIEMTHU_508, 509 (giao diện) đạt qua xem trước, người dùng duyệt L0 đến L3.
+- Kiểm thử đã duyệt được sửa: `l1-authentication` (trang chủ thêm mini app `office` vì vai trò Nhân viên có `office.access`) – người dùng phê duyệt 2026-11-12.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_339 đến 347 – Đạt (tự động); TIEUCHI_NGHIEMTHU_348 (giao diện) – Đạt qua xem trước.
+- Kiểm tra bảo mật: thêm phụ thuộc docx 9.15.3 (MIT; fflate, nanoid MIT), phông Liberation Serif (SIL OFL 1.1); rà soát độc lập không thấy chèn mã truy vấn, chèn mã trang, đi đường dẫn; phân quyền: thiếu quyền 403, không thuộc bản ghi 404; tệp kiểm phần mở rộng, chữ ký đầu tệp, 20 MB, tối đa 5 tệp mỗi lần vào sổ.
+- Lỗi phát hiện và sửa trong công việc: việc con hiện cho người không tham gia (công ty khác); người khởi tạo sửa được việc của bước quy trình; sửa, thu hồi tin khi chọn công ty khác; sửa không gửi phiên bản ghi đè; rút công văn đi không khóa; vượt giới hạn ghim khi đồng thời; khóa chéo khi hủy phiên; tệp mồ côi khi giao dịch lỗi; bản chờ vào sổ liên công ty có thể thiếu tệp; tải tệp tốn bộ nhớ (commit `bed83a7`, `6cf71d3`).
+- Rủi ro còn mở: thể thức Nghị định 30/2020/NĐ-CP chưa đối chiếu nguyên văn Phụ lục I, III (người dùng chọn đối chiếu trước phát hành).
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
 ## Lần kiểm thử 2026-11-12 – Phát hành 0.5.0
 
 - Phạm vi: nhánh `phat-hanh/v0.5.0` gộp CONG_VIEC_54, 51, 49, 45, 53 (lát L0 đến L5); LOI_08; THAY_DOI_22 đến 25 (pull request #121 thay pull request nháp #117, commit hợp nhất `b1cc147`).
