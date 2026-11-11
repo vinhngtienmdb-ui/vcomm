@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_179 Voucher liên kết – VComm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="cua_hang_lien_ket.css">
+</head>
+<body data-man-hinh="179" data-khu="crm">
+<div id="thanh-tren"></div>
+<div class="than">
+  <div id="menu"></div>
+  <main class="noi-dung">
+    <div class="tieu-de"><h1>Voucher liên kết</h1><button type="button" class="nut chinh" onclick="document.getElementById('tao').hidden=false">Tạo voucher VComm</button></div>
+    <div class="khoi-canh-bao thong-tin">Voucher cửa hàng gửi lên được duyệt trong Hộp duyệt (loại chứng từ Voucher liên kết) theo chính sách duyệt của công ty. Người lập không tự duyệt.</div>
+    <div class="bo-loc"><select class="o-nhap" aria-label="Loại"><option>Loại: tất cả</option><option>Cửa hàng – đổi bằng điểm</option><option>Cửa hàng – tặng miễn phí</option><option>VComm phát hành</option></select>
+      <select class="o-nhap" aria-label="Cửa hàng"><option>Cửa hàng: tất cả</option></select><select class="o-nhap" aria-label="Trạng thái"><option>Trạng thái: tất cả</option></select></div>
+    <div class="khung-bang"><table><thead><tr><th>Mã</th><th>Tên</th><th>Phát hành</th><th>Loại</th><th>Giảm</th><th class="so">Nhận / tổng</th><th class="so">Đã dùng</th><th>Trạng thái</th></tr></thead><tbody>
+      <tr><td data-nhan="Mã"><a href="#">VL-000015</a></td><td data-nhan="Tên">Bánh ngọt 50.000 đ</td><td data-nhan="Phát hành">Cà phê Hạt Nâu</td><td data-nhan="Loại">Đổi bằng điểm (40)</td><td data-nhan="Giảm">50.000 đ</td><td data-nhan="Nhận / tổng" class="so">0 / 200</td><td data-nhan="Đã dùng" class="so">0</td><td data-nhan="Trạng thái"><span class="nhan thong-tin">Chờ duyệt</span><div class="chu-thich">Bước 1/1 · Kế toán trưởng</div></td></tr>
+      <tr><td data-nhan="Mã"><a href="#">VL-000014</a></td><td data-nhan="Tên">VComm tặng 20.000 đ tại cửa hàng liên kết</td><td data-nhan="Phát hành">VComm</td><td data-nhan="Loại">VComm phát hành</td><td data-nhan="Giảm">20.000 đ, hóa đơn từ 100.000 đ</td><td data-nhan="Nhận / tổng" class="so">1.240 / 2.000</td><td data-nhan="Đã dùng" class="so">630</td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Đang phát</span></td></tr>
+      <tr><td data-nhan="Mã"><a href="#">VL-000012</a></td><td data-nhan="Tên">Giảm 10 % đồ uống</td><td data-nhan="Phát hành">Cà phê Hạt Nâu</td><td data-nhan="Loại">Tặng miễn phí</td><td data-nhan="Giảm">10 %, tối đa 30.000 đ</td><td data-nhan="Nhận / tổng" class="so">312 / 500</td><td data-nhan="Đã dùng" class="so">147</td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Đang phát</span></td></tr>
+    </tbody></table></div>
+
+    <aside class="man-che" id="tao" hidden><div class="ngan-keo" role="dialog" aria-labelledby="tieu-de-tao">
+      <h2 id="tieu-de-tao">Tạo voucher VComm</h2>
+      <p class="chu-thich">VComm trả cửa hàng tiền giảm khi khách dùng. Khách nhận miễn phí trên ứng dụng.</p>
+      <div class="truong"><label for="ten">Tên (tiếng Việt, tiếng Anh)</label><input id="ten" class="o-nhap" value="VComm tặng 20.000 đ tại cửa hàng liên kết"><input class="o-nhap" aria-label="Tên tiếng Anh" value="VComm 20,000 VND at partner stores"></div>
+      <div class="hai-cot-deu"><div class="truong"><label for="cach">Cách giảm</label><select id="cach" class="o-nhap"><option>Số tiền</option><option>Phần trăm</option></select></div><div class="truong"><label for="muc">Mức giảm</label><input id="muc" class="o-nhap" value="20.000"></div></div>
+      <div class="hai-cot-deu"><div class="truong"><label for="tt">Hóa đơn tối thiểu</label><input id="tt" class="o-nhap" value="100.000"></div><div class="truong"><label for="sl">Tổng số lượng</label><input id="sl" class="o-nhap" value="2.000"></div></div>
+      <div class="truong"><label for="pv">Dùng tại</label><select id="pv" class="o-nhap"><option>Mọi cửa hàng liên kết</option><option>Các cửa hàng được chọn…</option></select></div>
+      <div class="hai-cot-deu"><div class="truong"><label for="tu">Nhận từ</label><input id="tu" class="o-nhap" value="01/11/2026"></div><div class="truong"><label for="den">Nhận đến</label><input id="den" class="o-nhap" value="30/11/2026"></div></div>
+      <div class="truong"><label for="han">Hạn dùng sau khi nhận (ngày)</label><input id="han" class="o-nhap" value="14"></div>
+      <div class="khoi-canh-bao thong-tin">Giá trị gửi duyệt: 2.000 × 20.000 = 40.000.000 đ.</div>
+      <div class="nhom-nut"><button type="button" class="nut phu" onclick="document.getElementById('tao').hidden=true" data-thong-bao="Đã lưu nháp.">Lưu nháp</button><button type="button" class="nut chinh" onclick="document.getElementById('tao').hidden=true" data-thong-bao="Đã gửi duyệt.">Lưu và gửi duyệt</button></div>
+    </div></aside>
+  </main>
+</div>
+<script src="cua_hang_lien_ket.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+/* Bản mẫu MODULE_12 Cửa hàng liên kết (CONG_VIEC_55); chỉ dùng biến của chung.css (tài liệu 15). */
+.luoi-so {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--khoang-3);
+}
+.o-so {
+  background: var(--mau-be-mat);
+  border: 1px solid var(--mau-vien);
+  border-radius: var(--bo-vua);
+  padding: var(--khoang-3) var(--khoang-4);
+  display: grid;
+  gap: var(--khoang-1);
+}
+.o-so .nhan-so {
+  color: var(--mau-chu-phu);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.o-so .gia-tri {
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.quay {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--khoang-4);
+}
+.o-tien {
+  font-size: 28px;
+  line-height: 40px;
+  font-weight: 800;
+  text-align: right;
+  min-height: 56px;
+}
+.cach {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--khoang-2);
+}
+.cach .nut {
+  justify-content: center;
+  min-height: 56px;
+  white-space: normal;
+  text-align: center;
+}
+.ma-qr {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  background: repeating-linear-gradient(90deg, var(--mau-chu) 0 8px, transparent 8px 16px), repeating-linear-gradient(0deg, var(--mau-chu) 0 8px, transparent 8px 20px);
+  border: 12px solid var(--mau-be-mat);
+  outline: 1px solid var(--mau-vien);
+  opacity: 0.85;
+}
+.khung-camera {
+  aspect-ratio: 4 / 3;
+  background: var(--mau-chu);
+  border-radius: var(--bo-vua);
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.khung-camera span {
+  border: 3px solid var(--mau-chinh-nhat);
+  border-radius: var(--bo-vua);
+  width: 55%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+}
+.dong-tien {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--khoang-3);
+  font-variant-numeric: tabular-nums;
+}
+.dong-tien.tong {
+  border-top: 1px solid var(--mau-vien);
+  padding-top: var(--khoang-2);
+  font-weight: 800;
+  font-size: 16px;
+}
+.thanh-han-muc {
+  height: 10px;
+  border-radius: var(--bo-tron);
+  background: var(--mau-nen);
+  border: 1px solid var(--mau-vien);
+  overflow: hidden;
+}
+.thanh-han-muc span {
+  display: block;
+  height: 100%;
+  background: var(--mau-canh-bao);
+}
+.hai-cot-deu {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--khoang-4);
+}
+.so {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 767px) {
+  .quay,
+  .hai-cot-deu {
+    grid-template-columns: 1fr;
+  }
+  .cach {
+    grid-template-columns: 1fr;
+  }
+}
+.vung-the {
+  display: grid;
+  gap: var(--khoang-4);
+  padding-top: var(--khoang-4);
+}
+.vung-the[hidden],
+[data-noi-dung-the][hidden] {
+  display: none;
+}

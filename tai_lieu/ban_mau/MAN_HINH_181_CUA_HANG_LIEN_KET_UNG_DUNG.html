@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_181 Cửa hàng liên kết – Ứng dụng VComm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="kho_dien_thoai.css">
+<link rel="stylesheet" href="cua_hang_lien_ket.css">
+<style>body { flex-wrap: wrap; gap: var(--khoang-5); align-items: flex-start; } .dien-thoai { min-height: 720px; }</style>
+</head>
+<body>
+<!-- Khung 1: quét mã cửa hàng, xác nhận -->
+<div class="dien-thoai" aria-label="Xác nhận giao dịch tại cửa hàng">
+  <div class="dau"><button>‹</button><span class="tieu">Xác nhận tại cửa hàng<span class="phu">Cà phê Hạt Nâu · Lê Lợi</span></span></div>
+  <div class="than-dt">
+    <div class="thong-bao tin">Mã hết hạn sau 02:30</div>
+    <div class="the"><div class="dong-tien tong" style="border:0;padding:0"><span>Tiền hóa đơn</span><span>450.000 đ</span></div></div>
+    <div class="the"><h3>Voucher</h3>
+      <label><input type="radio" name="v" checked> Giảm 10 % đồ uống (tối đa 30.000 đ) · hết hạn 28/11</label>
+      <label><input type="radio" name="v"> VComm tặng 20.000 đ · hết hạn 20/11</label>
+      <label><input type="radio" name="v"> Không dùng voucher</label></div>
+    <div class="the"><h3>Dùng điểm</h3>
+      <span class="phu-chu">Số dư 1.250 điểm · 1 điểm = 1.000 đ · tối đa 210 điểm (50 % tiền sau voucher) · tối thiểu 10</span>
+      <div class="o-quet"><input value="50" aria-label="Số điểm dùng" inputmode="numeric"><button class="nut phu">Tối đa</button></div></div>
+    <div class="the">
+      <div class="dong-tien"><span>Giảm voucher</span><span>− 30.000 đ</span></div>
+      <div class="dong-tien"><span>Tiền điểm</span><span>− 50.000 đ</span></div>
+      <div class="dong-tien tong"><span>Bạn trả cửa hàng</span><span>370.000 đ</span></div>
+      <span class="phu-chu">Dự kiến tích 11 điểm (hạng Vàng × 1,5)</span></div>
+  </div>
+  <div class="chan"><button class="nut phu">Từ chối</button><button class="nut chinh">Xác nhận</button></div>
+</div>
+
+<!-- Khung 2: mã thành viên -->
+<div class="dien-thoai" aria-label="Mã thành viên">
+  <div class="dau"><button>‹</button><span class="tieu">Mã thành viên<span class="phu">Đưa mã cho thu ngân quét</span></span></div>
+  <div class="than-dt">
+    <div class="the" style="justify-items:center"><div class="ma-qr" role="img" aria-label="Mã thành viên"></div><span class="nhan lam">Đổi mã sau 00:42</span></div>
+    <div class="the"><h3>Cho phép dùng điểm</h3><span class="phu-chu">Số dư 1.250 điểm. Thu ngân chỉ trừ tối đa số bạn cho phép; 0 nếu chỉ tích điểm.</span>
+      <div class="o-quet"><input value="100" aria-label="Số điểm cho phép" inputmode="numeric"></div></div>
+    <div class="the"><h3>Voucher dùng kèm</h3><select aria-label="Voucher"><option>Giảm 10 % đồ uống – Cà phê Hạt Nâu</option><option>Không dùng</option></select></div>
+    <div class="thong-bao tot">Đã ghi nhận tại Cà phê Hạt Nâu: dùng 100 điểm, tích 9 điểm.</div>
+  </div>
+  <div class="chan"><button class="nut chinh">Tạo mã mới</button></div>
+</div>
+
+<!-- Khung 3: trang Cửa hàng liên kết -->
+<div class="dien-thoai" aria-label="Cửa hàng liên kết">
+  <div class="dau"><span class="tieu">Cửa hàng liên kết</span></div>
+  <div class="than-dt">
+    <div class="thong-bao tin">Cửa hàng Cà phê Hạt Nâu đang chờ bạn xác nhận giao dịch 450.000 đ. <a href="#">Xem</a></div>
+    <div class="luoi"><a class="o-thao-tac" href="#">Quét mã cửa hàng<span class="so">Camera</span></a><a class="o-thao-tac" href="#">Mã thành viên<span class="so">Cho thu ngân quét</span></a></div>
+    <div class="the-chon"><a class="chon" href="#">Ưu đãi</a><a href="#">Voucher của tôi (2)</a><a href="#">Lịch sử</a></div>
+    <div class="the"><div class="dong"><div class="chinh-dong"><span class="ten">Bánh ngọt 50.000 đ</span><span class="phu-chu">Cà phê Hạt Nâu · hóa đơn từ 80.000 đ · dùng trong 30 ngày</span></div><button class="nut chinh">Đổi 40 điểm</button></div>
+      <div class="dong"><div class="chinh-dong"><span class="ten">VComm tặng 20.000 đ</span><span class="phu-chu">Mọi cửa hàng liên kết · hóa đơn từ 100.000 đ</span></div><button class="nut phu">Nhận</button></div>
+      <div class="dong"><div class="chinh-dong"><span class="ten">Giảm 10 % đồ uống</span><span class="phu-chu">Cà phê Hạt Nâu · đã nhận</span></div><span class="nhan xanh">Đã nhận</span></div></div>
+  </div>
+</div>
+
+<div class="ghi-chu-ban-mau"><h2>MAN_HINH_181 Cửa hàng liên kết (ứng dụng VComm)</h2>
+  <p>Khung 1: sau khi quét mã QR của cửa hàng (camera, <code>expo-camera</code>) hoặc mở yêu cầu theo số điện thoại; chọn voucher, số điểm; Xác nhận hoặc Từ chối. Giới hạn điểm theo QUYTAC_NGHIEPVU_399.</p>
+  <p>Khung 2: mã thành viên ký HMAC, đổi mỗi 60 giây, dùng một lần (QUYTAC_NGHIEPVU_396). Không chứa tên, số điện thoại.</p>
+  <p>Khung 3: thẻ yêu cầu chờ xác nhận cũng hiện ở trang chủ; ưu đãi đang phát, voucher của tôi, lịch sử giao dịch tại cửa hàng liên kết.</p>
+  <p><a href="index.html">Mục lục bản mẫu</a></p></div>
+</body>
+</html>
