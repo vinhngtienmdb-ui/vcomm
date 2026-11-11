@@ -381,7 +381,8 @@ function ResultView({ review }: { review: ReviewResponse }) {
           <>
             <dt>{t("adjustedScore")}</dt>
             <dd>
-              {review.adjustedScore} — {review.adjustmentReason}
+              {review.adjustedScore}
+              {review.adjustmentReason && ` — ${review.adjustmentReason}`}
             </dd>
           </>
         )}
