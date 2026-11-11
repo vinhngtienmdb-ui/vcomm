@@ -4,7 +4,7 @@
 - Mức: Vừa.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Chờ nghiệm thu (pull request nháp vào nhánh CONG_VIEC_32).
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-11); trước khi phát hành phải thử với tài khoản thử nghiệm của nhà cung cấp (Finviet Ecopay).
 - Nguồn: người dùng yêu cầu 2026-11-11, tích hợp nhiều cổng thanh toán, trong đó có Ecopay; người dùng xác nhận 2026-11-11: làm theo nguồn tìm được trên GitHub, kèm hỏi lại trạng thái giao dịch; phương thức ví và thẻ ATM nội địa, chưa làm mã QR.
 
 ## Nguồn đặc tả cổng và điểm chưa xác minh
