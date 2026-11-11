@@ -461,7 +461,14 @@
     "officeIncomingYearLocked": "Ngày đến phải cùng năm với số đến đã cấp.",
     "officeNotLeader": "Người được chọn không có quyền cho ý kiến công văn đến.",
     "officeOutgoingLocked": "Không làm được thao tác này ở trạng thái hiện tại của công văn đi.",
-    "officeSignerInvalid": "Người ký phải là thành viên đang hoạt động của công ty."
+    "officeSignerInvalid": "Người ký phải là thành viên đang hoạt động của công ty.",
+    "officePostGroupForbidden": "Chỉ người có quyền đăng tin ở phạm vi tập đoàn mới đăng tin toàn tập đoàn.",
+    "officePostAudienceRequired": "Chọn ít nhất một chi nhánh hoặc phòng ban đang dùng của công ty.",
+    "officePostExpiryInvalid": "Thời điểm hết hạn phải sau thời điểm đăng.",
+    "officePostPinLimit": "Công ty đã có 5 tin ghim; bỏ ghim một tin trước khi ghim tin mới.",
+    "officePostRevoked": "Tin đã thu hồi.",
+    "officePostNotAcknowledgeable": "Tin không cần xác nhận đã đọc hoặc bạn không thuộc đối tượng nhận tin.",
+    "officePostCommentsClosed": "Tin không nhận bình luận."
   },
   "login": {
     "title": "Đăng nhập",

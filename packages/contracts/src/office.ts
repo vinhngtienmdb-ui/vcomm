@@ -106,6 +106,8 @@ export interface OfficeTaskComment {
   editedAt: string | null;
   deleted: boolean;
   canEdit: boolean;
+  // Bảng tin: người đăng tin xóa được bình luận bất kỳ; không có thì theo canEdit.
+  canDelete?: boolean;
 }
 
 export interface OfficeTaskEvent {
@@ -354,7 +356,10 @@ export const documentSettingsSchema = z
   .object({
     parentOrgName: z.string().trim().max(200).nullish(),
     companyDisplayName: z.string().trim().min(1).max(200),
-    companyAbbreviation: z.string().trim().regex(/^[A-ZĐ0-9]{1,20}$/),
+    companyAbbreviation: z
+      .string()
+      .trim()
+      .regex(/^[A-ZĐ0-9]{1,20}$/),
     placeName: z.string().trim().min(1).max(100),
     fontScheme: z.union([z.literal(13), z.literal(14)]),
     marginTop: z.number().int().min(20).max(25),
@@ -378,7 +383,15 @@ export interface RegisterItem {
   version: number;
 }
 
-export const documentTypeSchema = z.object({ name: z.string().trim().min(1).max(100), abbreviation: z.string().trim().regex(/^[A-ZĐa-z0-9]{1,10}$/) }).strict();
+export const documentTypeSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    abbreviation: z
+      .string()
+      .trim()
+      .regex(/^[A-ZĐa-z0-9]{1,10}$/),
+  })
+  .strict();
 export const updateDocumentTypeSchema = z.object({ status: z.enum(["active", "inactive"]) }).strict();
 export interface DocumentTypeItem {
   id: string;
@@ -404,7 +417,10 @@ export const registerIncomingSchema = z
   })
   .strict();
 export type RegisterIncomingInput = z.infer<typeof registerIncomingSchema>;
-export const updateIncomingSchema = registerIncomingSchema.omit({ registerId: true }).extend({ version: z.number().int().min(1) }).strict();
+export const updateIncomingSchema = registerIncomingSchema
+  .omit({ registerId: true })
+  .extend({ version: z.number().int().min(1) })
+  .strict();
 // Vào sổ công văn liên công ty đang chờ: chọn sổ, ngày đến.
 export const acceptIncomingSchema = z.object({ registerId: z.uuid(), receivedOn: isoDate, version: z.number().int().min(1) }).strict();
 export const submitIncomingSchema = z.object({ leaderUserId: z.uuid(), note: z.string().trim().max(2000).nullish(), version: z.number().int().min(1) }).strict();
@@ -571,3 +587,92 @@ export interface DocumentOptions {
   settings: DocumentSettings;
   canClerk: boolean;
 }
+
+// Bảng tin nội bộ (CHUC_NANG_185; QUYTAC_NGHIEPVU_367; API_191).
+// Nội dung dạng văn bản có đánh dấu đơn giản: **đậm**, *nghiêng*, [chữ](https://…), dòng bắt đầu "- " là danh sách; hiển thị không dùng HTML.
+export const postMaximumPinned = 5;
+export const postAudienceTypes = ["company", "units", "group"] as const;
+export type PostAudienceType = (typeof postAudienceTypes)[number];
+// Đường dẫn trong nội dung chỉ cho http, https (lọc mã độc).
+const postLinkPattern = /\[[^\]]*\]\(([^)\s]*)\)/g;
+export const postBodyLinksSafe = (body: string) => [...body.matchAll(postLinkPattern)].every((match) => /^https?:\/\/[^\s]+$/i.test(match[1] ?? ""));
+
+export const savePostSchema = z
+  .object({
+    title: z.string().trim().min(1).max(200),
+    body: z.string().trim().min(1).max(20000).refine(postBodyLinksSafe, { message: "officePostLinkInvalid" }),
+    audienceType: z.enum(postAudienceTypes),
+    branchIds: z.array(z.uuid()).max(100).default([]),
+    departmentIds: z.array(z.uuid()).max(100).default([]),
+    pinned: z.boolean().default(false),
+    // Không gửi là đăng ngay; thời điểm có múi giờ.
+    publishAt: z.iso.datetime({ offset: true }).nullish(),
+    expiresAt: z.iso.datetime({ offset: true }).nullish(),
+    requiresAcknowledgement: z.boolean().default(false),
+    allowComments: z.boolean().default(true),
+    version: z.number().int().min(1).optional(),
+  })
+  .strict();
+export type SavePostInput = z.infer<typeof savePostSchema>;
+
+export const postListQuerySchema = z
+  .object({
+    // feed: tin mình nhận; manage: tin của công ty (người có quyền đăng), kể cả hẹn giờ, hết hạn, thu hồi.
+    view: z.enum(["feed", "manage"]).default("feed"),
+    unread: z.enum(["true", "false"]).optional(),
+    search: z.string().trim().max(200).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+
+export type PostState = "scheduled" | "published" | "expired" | "revoked";
+
+export interface PostListItem {
+  id: string;
+  title: string;
+  excerpt: string;
+  author: OfficePerson;
+  companyName: string;
+  audienceType: PostAudienceType;
+  audienceText: string;
+  pinned: boolean;
+  publishAt: string;
+  expiresAt: string | null;
+  requiresAcknowledgement: boolean;
+  state: PostState;
+  isRead: boolean;
+  acknowledgedAt: string | null;
+  commentCount: number;
+  fileCount: number;
+}
+
+export interface PostResponse extends PostListItem {
+  body: string;
+  branchIds: string[];
+  departmentIds: string[];
+  allowComments: boolean;
+  editedAt: string | null;
+  files: OfficeFileItem[];
+  comments: OfficeTaskComment[];
+  // Người đăng, người có quyền đăng cùng phạm vi xem thống kê đọc.
+  readStats: { recipients: number; read: number; acknowledged: number } | null;
+  allowedActions: ("edit" | "revoke" | "acknowledge" | "comment" | "upload" | "view_readers")[];
+  version: number;
+}
+
+export interface PostReader {
+  person: OfficePerson;
+  readAt: string | null;
+  acknowledgedAt: string | null;
+}
+
+export interface PostOptions {
+  branches: { id: string; name: string }[];
+  departments: { id: string; name: string }[];
+  canPost: boolean;
+  canPostGroup: boolean;
+  pinnedCount: number;
+}
+
+export const postRevokeSchema = z.object({ version: z.number().int().min(1) }).strict();

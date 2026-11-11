@@ -461,7 +461,14 @@
     "officeIncomingYearLocked": "The received date must be in the same year as the assigned number.",
     "officeNotLeader": "The selected person cannot direct incoming documents.",
     "officeOutgoingLocked": "This action is not available in the outgoing document's current status.",
-    "officeSignerInvalid": "The signer must be an active member of the company."
+    "officeSignerInvalid": "The signer must be an active member of the company.",
+    "officePostGroupForbidden": "Only users who can post at group scope can post to the whole group.",
+    "officePostAudienceRequired": "Choose at least one active branch or department of the company.",
+    "officePostExpiryInvalid": "The expiry must be after the publish time.",
+    "officePostPinLimit": "The company already has 5 pinned posts; unpin one first.",
+    "officePostRevoked": "The post has been revoked.",
+    "officePostNotAcknowledgeable": "This post does not need acknowledgement or you are not a recipient.",
+    "officePostCommentsClosed": "This post does not accept comments."
   },
   "login": {
     "title": "Sign in",

@@ -150,6 +150,8 @@ import { OfficeController } from "./office/office.controller";
 import { OfficeTasksService } from "./office/office-tasks.service";
 import { OfficeWorkflowsService } from "./office/office-workflows.service";
 import { OfficeDocumentsController } from "./office/office-documents.controller";
+import { OfficePostsController } from "./office/office-posts.controller";
+import { OfficePostsService } from "./office/office-posts.service";
 import { OfficeDocumentsService } from "./office/office-documents.service";
 import { EXCHANGE_RATE_FEED, VietcombankFeed } from "./settings/vietcombank-rates";
 import { DeactivationService } from "./users/deactivation.service";
@@ -160,7 +162,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, OfficeController, OfficeDocumentsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, OfficeController, OfficeDocumentsController, OfficePostsController],
   providers: [
     AuthService,
     ActivationService,
@@ -257,7 +259,7 @@ import { UsersService } from "./users/users.service";
     ProposalsService,
     OfficeTasksService,
     OfficeWorkflowsService,
-    OfficeDocumentsService,
+    OfficeDocumentsService, OfficePostsService,
     ProposalPdfService,
     PhoneOtpService,
     OauthService,
