@@ -389,7 +389,7 @@ tai_lieu/               Bộ tài liệu dự án.
 | Mục 4 | Có môi trường thử nghiệm (staging) riêng; môi trường thật chạy tối thiểu 2 bản mỗi dịch vụ, Aurora nhiều vùng sẵn sàng |
 | Mục 5 | Giữ sao lưu 35 ngày; diễn tập phục hồi mỗi quý |
 
-## 3x. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
+## 3y. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
 
 | Thành phần | Công nghệ | Chức năng dùng |
 |---|---|---|
@@ -401,7 +401,7 @@ tai_lieu/               Bộ tài liệu dự án.
 | Phiếu lương | Thông báo chuông (`notify`), email qua `OUTBOUND_MESSAGES` sau khi giao dịch duyệt xong | CHUC_NANG_170 |
 | Giao diện | Mini app `apps/web-hr`: `/payrolls`, `/payrolls/[id]`, `/payroll-settings`, thẻ "Lương, thuế" của `/employees/[id]`, thẻ "Phiếu lương" của `/me` | CHUC_NANG_168 đến CHUC_NANG_170 |
 
-## 3y. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 4: tuyển dụng, đánh giá hiệu suất, CONG_VIEC_54)
+## 3z. Thành phần phụ trợ cho MODULE_08 Nhân sự (phần 4: tuyển dụng, đánh giá hiệu suất, CONG_VIEC_54)
 
 | Thành phần | Công nghệ | Chức năng dùng |
 |---|---|---|

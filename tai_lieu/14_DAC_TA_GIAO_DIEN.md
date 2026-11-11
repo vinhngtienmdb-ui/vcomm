@@ -28,8 +28,8 @@
 - Cập nhật CONG_VIEC_25 (2026-11-11): thêm MAN_HINH_98 đến MAN_HINH_100 (mục 60, mục 61); sửa MAN_HINH_86 (Đặt hàng và thanh toán), MAN_HINH_88 (thanh toán, các lần thanh toán, ghi đã thu tiền thu hộ), MAN_HINH_93 (chọn phương thức thanh toán), MAN_HINH_96 (trạng thái thanh toán, hoàn tiền), MAN_HINH_76 (nút Tài khoản nhận hoàn tiền); menu web-crm thêm Hoàn tiền; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_26 (2026-11-11): thêm MAN_HINH_101 đến MAN_HINH_104 (mục 62, mục 63); sửa MAN_HINH_86 (Hoa hồng và rút tiền, bảng phí rút tiền theo THAY_DOI_17), MAN_HINH_87 (cột Hoa hồng, nút Thiết lập hoa hồng), MAN_HINH_88 (thẻ Hoa hồng), MAN_HINH_83 (hoa hồng từng cấp dưới), MAN_HINH_76 (nút Ví hoa hồng); menu web-crm thêm Rút tiền hoa hồng; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_43 (2026-11-11), THAY_DOI_18: bỏ MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40) và mục menu "Hoa hồng", "Cài đặt hoa hồng"; tắt MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52) và mục menu "Giao khách hàng"; sửa MAN_HINH_24 (chọn loại Hàng hóa, Dịch vụ), MAN_HINH_42 (công tắc "Cho phép lập đơn bán tay có hàng hóa"), MAN_HINH_43 (bỏ người hưởng hoa hồng; nút lập đơn theo quyền mới), MAN_HINH_32 (nhãn "Phiếu dịch vụ"), MAN_HINH_36 (bỏ lọc nhân viên phụ trách), MAN_HINH_37 (bỏ lịch sử phụ trách, nút nhận khách; nhân viên phụ trách sửa bằng tay); không làm bản mẫu, xem trước từng lát (mục 64)
-- Cập nhật CONG_VIEC_50 (2026-11-11): thêm MODULE_15 Báo cáo quản trị phần 1, mini app `web-analytics`, MAN_HINH_140 đến MAN_HINH_144 (mục 65 đến mục 67); MAN_HINH_145 giữ chưa dùng; trang chủ mini app thêm ô "Báo cáo quản trị"
-- Cập nhật CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm MAN_HINH_132 đến MAN_HINH_139 của MODULE_10 (mục 68, mục 69); sửa MAN_HINH_76 (nút Ví mua sắm, Mời bạn bè, Cộng tác viên), MAN_HINH_80 (chặn ví), MAN_HINH_88 (Chờ chốt nhóm, phần cộng tác viên), MAN_HINH_91 (chia sẻ nhận hoa hồng, điểm đánh giá, mua chung), MAN_HINH_93 (đơn mua chung, dùng ví mua sắm), MAN_HINH_96 (nhóm mua chung, phần ví, viết đánh giá), MAN_HINH_101 (mức cộng tác viên), MAN_HINH_102, MAN_HINH_103 (ví hoa hồng bị chặn); menu web-crm "Cộng tác viên", "Mua chung", "Kiểm duyệt cộng đồng"; thẻ "Bảng tin" trên ứng dụng
+- Cập nhật CONG_VIEC_50 (2026-11-11): thêm MODULE_15 Báo cáo quản trị phần 1, mini app `web-analytics`, MAN_HINH_140 đến MAN_HINH_144 (mục 69 đến mục 71); MAN_HINH_145 giữ chưa dùng; trang chủ mini app thêm ô "Báo cáo quản trị"
+- Cập nhật CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm MAN_HINH_132 đến MAN_HINH_139 của MODULE_10 (mục 72, mục 73); sửa MAN_HINH_76 (nút Ví mua sắm, Mời bạn bè, Cộng tác viên), MAN_HINH_80 (chặn ví), MAN_HINH_88 (Chờ chốt nhóm, phần cộng tác viên), MAN_HINH_91 (chia sẻ nhận hoa hồng, điểm đánh giá, mua chung), MAN_HINH_93 (đơn mua chung, dùng ví mua sắm), MAN_HINH_96 (nhóm mua chung, phần ví, viết đánh giá), MAN_HINH_101 (mức cộng tác viên), MAN_HINH_102, MAN_HINH_103 (ví hoa hồng bị chặn); menu web-crm "Cộng tác viên", "Mua chung", "Kiểm duyệt cộng đồng"; thẻ "Bảng tin" trên ứng dụng
 - Cập nhật CONG_VIEC_53 (2026-11-11): thêm MAN_HINH_161 đến MAN_HINH_167 của MODULE_14 (mini app Bán lẻ, bán lẻ tại quầy phần 1; bản mẫu MAN_HINH_161, 162, 164, 167); sửa MAN_HINH_46, MAN_HINH_49, MAN_HINH_54, MAN_HINH_55 (mục 65, 66)
 
 ## MODULE_01 Nền tảng
@@ -2289,7 +2289,7 @@ Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_126` đến `MAN_HINH_131` (tệp `luong
 - Trạng thái phê duyệt: người dùng duyệt bản mẫu ngày 2026-11-11.
 ## MODULE_03 Kho (ứng dụng kho trên điện thoại, CONG_VIEC_44)
 
-## 65. Danh sách màn hình và điều hướng (ứng dụng kho)
+## 67. Danh sách màn hình và điều hướng (ứng dụng kho)
 
 Ứng dụng `apps/mobile-warehouse` (Expo, khổ điện thoại; xem trước bằng bản web cổng 8084). Màu, khoảng cách lấy từ tài liệu `15` (tệp chủ đề chép giá trị từ `packages/ui/src/styles.css`). Câu chữ nhóm `warehouseApp` trong `packages/i18n`; nhãn trạng thái, lý do phiếu dùng nhóm `documents`. Bản mẫu: `ban_mau/MAN_HINH_105_DANG_NHAP_KHO.html` đến `MAN_HINH_109_DEM_KIEM_KE.html`.
 
@@ -2315,7 +2315,7 @@ flowchart TD
 | MAN_HINH_107, MAN_HINH_108 | Mọi thao tác | Mọi thao tác | Mọi thao tác trừ kiểm kê quản lý | Không thấy |
 | MAN_HINH_109 | Đếm, thấy tồn sổ sách | Đếm, thấy tồn sổ sách | Đếm (đếm mù) | Không thấy |
 
-## 66. Đặc tả màn hình (ứng dụng kho)
+## 68. Đặc tả màn hình (ứng dụng kho)
 
 - MAN_HINH_105 (`/dang-nhap`): thanh đầu "VComm Kho"; tiêu đề "Đăng nhập"; ô "Email, tên đăng nhập hoặc số điện thoại", "Mật khẩu", nút "Đăng nhập" (API_137). Tài khoản bắt buộc xác thực hai lớp: "Mã xác thực hai lớp", "Nhập mã 6 số trong ứng dụng xác thực.", "Xác nhận", "Dùng mã dự phòng", "Quay lại đăng nhập"; chưa đăng ký: "Tài khoản của bạn bắt buộc xác thực hai lớp. Hãy đăng ký trên trang web VComm rồi đăng nhập lại.". Không có quyền kho: "Tài khoản không có quyền dùng ứng dụng kho.".
 - MAN_HINH_106 (`/kho`): thanh đầu tên kho, "<công ty> · <họ tên>", nút "Đổi kho"; chưa chọn: thẻ "Công ty" (khi nhiều công ty), "Kho" (kho thao tác được, đang dùng); ô quét "Quét hoặc nhập mã hàng để tra tồn" và nút "Camera"; thẻ kết quả: tên hàng, "<mã hàng> · Chủ hàng <công ty> · Đơn vị cơ sở: <đơn vị>", "Tồn … · Giữ … · Khả dụng …", từng dòng lô, vị trí, số lượng, serial; không hiện giá vốn; lưới thao tác "Nhận hàng", "Xuất giao hàng", "Nhập khác", "Xuất khác", "Chuyển kho", "Kiểm kê" theo quyền; "Đăng xuất".
@@ -2328,7 +2328,7 @@ flowchart TD
 
 Mini app `apps/web-analytics`, tên "Báo cáo quản trị", đường dẫn gốc `/analytics` (mini app Nền tảng chuyển tiếp `/analytics` sang ứng dụng này theo `ANALYTICS_ORIGIN`, cùng tên miền và cookie phiên; cổng phát triển 3009). Ô "Báo cáo quản trị" trên trang chủ mini app (MAN_HINH_05) hiện với người có `analytics.access`. Khung trang, thành phần dùng chung lấy từ `packages/ui` theo khung `web-finance`; quy ước chung như mục 3 của MODULE_01. Báo cáo chỉ đọc, không có thao tác ghi dữ liệu nghiệp vụ. MAN_HINH_145 chưa dùng (giữ trong dải, không cấp cho màn hình khác).
 
-## 65. Danh sách màn hình và điều hướng (MODULE_15 phần 1)
+## 69. Danh sách màn hình và điều hướng (MODULE_15 phần 1)
 
 | Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
 |---|---|---|---|---|---|
@@ -2363,7 +2363,7 @@ flowchart TD
 - Bộ lọc chung mọi báo cáo: "Công ty" chỉ liệt kê công ty được xem theo quyền của nhóm báo cáo (mã · tên), mặc định "Tất cả công ty được xem (<số>)"; "Từ ngày", "Đến ngày" (mặc định từ đầu tháng đến hôm nay; MAN_HINH_143 không có); nút "Xem". Không có công ty nào được xem: "Bạn chưa được xem công ty nào ở báo cáo này. Liên hệ quản trị công ty nếu cần quyền.".
 - Lỗi khoảng ngày hiện dưới ô "Đến ngày", nút "Xem" bị khóa: "Vui lòng nhập thông tin này.", "Từ ngày không được sau đến ngày.", "Khoảng ngày tối đa 366 ngày. Hãy thu hẹp khoảng ngày.".
 
-## 66. Bảng vai trò – màn hình (MODULE_15 phần 1)
+## 70. Bảng vai trò – màn hình (MODULE_15 phần 1)
 
 "(tập đoàn)": quyền gán ở phạm vi tập đoàn, xem mọi công ty của tập đoàn; "(công ty)": gán ở phạm vi công ty, chỉ xem công ty đó. Quyền gán ở phạm vi chi nhánh không có hiệu lực.
 
@@ -2375,7 +2375,7 @@ flowchart TD
 | MAN_HINH_143 Báo cáo công nợ theo tuổi nợ | Xem, Xuất Excel | Xem, Xuất Excel (công ty mình) | Xem, Xuất Excel | Xem, Xuất Excel | Không | Không |
 | MAN_HINH_144 Báo cáo hoa hồng và ví | Xem, Xuất Excel | Xem, Xuất Excel (công ty mình) | Xem, Xuất Excel | Xem, Xuất Excel | Không | Không |
 
-## 67. Đặc tả từng màn hình (MODULE_15 phần 1)
+## 71. Đặc tả từng màn hình (MODULE_15 phần 1)
 
 ### MAN_HINH_140: Tổng quan báo cáo quản trị
 - Mục đích: Xem nhanh chỉ tiêu chính của các nhóm báo cáo được xem, đi sang từng báo cáo.
@@ -2511,7 +2511,7 @@ Sửa: MAN_HINH_76 (thẻ điểm thưởng), MAN_HINH_88 (thẻ Điểm thưở
 
 ## MODULE_10 Cộng đồng (phần 1: Cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, CONG_VIEC_49)
 
-## 68. Danh sách màn hình và điều hướng (MODULE_10 phần 1)
+## 72. Danh sách màn hình và điều hướng (MODULE_10 phần 1)
 
 | Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
 |---|---|---|---|---|---|
@@ -2563,7 +2563,7 @@ flowchart TD
     M -->|Tài khoản người mua| WB[MAN_HINH_80 Chặn ví]
 ```
 
-## 69. Đặc tả màn hình (MODULE_10 phần 1)
+## 73. Đặc tả màn hình (MODULE_10 phần 1)
 
 - MAN_HINH_132 (`/cong-tac-vien`): "‹ Quay lại", tiêu đề "Cộng tác viên". Chưa có hồ sơ hoặc bị từ chối: thẻ "Chia sẻ sản phẩm, nhận hoa hồng" với giải thích 7 ngày từ lần bấm, hoa hồng cộng vào ví hoa hồng khi đơn hoàn tất; ô "Kênh chia sẻ chính (không bắt buộc)"; ô chọn "Tôi đã đọc và đồng ý Điều khoản cộng tác viên VComm (phiên bản …)"; nút "Gửi đăng ký" hoặc "Gửi lại đăng ký"; bị từ chối hiện "Hồ sơ chưa được duyệt. Lý do: … Bạn sửa thông tin rồi gửi lại.". Chờ duyệt: "Đã gửi ngày …. VComm sẽ báo kết quả trong mục thông báo.". Đã duyệt, Tạm ngừng: thẻ "Hồ sơ cộng tác viên" (trạng thái, nhãn KOL, KOC, "Mã cộng tác viên"), hướng dẫn "Mở trang sản phẩm, bấm "Chia sẻ nhận hoa hồng" …"; tạm ngừng hiện lý do và "không ghi nhận lượt bấm mới"; thẻ "30 ngày gần nhất": Lượt bấm đường dẫn, Đơn ghi nhận, Hoa hồng cộng tác viên đang chờ, Đã cộng ví hoa hồng; "Đơn ghi nhận gần đây" (số đơn, sản phẩm, số tiền, Đã cộng hoặc Đang chờ), trống thì "Chưa có đơn nào. Chia sẻ đường dẫn sản phẩm để bắt đầu."; nút mở Ví hoa hồng. API_162.
 - MAN_HINH_133 (`/moi-ban-be`): tiêu đề "Mời bạn bè"; "Đường dẫn giới thiệu" (`<địa chỉ ứng dụng>/r/<mã giới thiệu>`), "Chia sẻ", "Sao chép"; chương trình bật: "Mời bạn, nhận <mức thưởng>" và điều kiện "Bạn nhận … vào ví hoa hồng khi đơn đầu tiên của bạn được mời hoàn tất và có giá trị từ …. Mỗi người được mời tính một lần. Bạn vẫn nhận hoa hồng giới thiệu trên các đơn của họ."; tắt: "Chương trình thưởng giới thiệu đang tạm dừng. …"; danh sách người đã mời: họ tên, số điện thoại che, ngày đăng ký, trạng thái "Đã thưởng <số tiền>", "Đơn đang xử lý", "Chưa đạt điều kiện thưởng", "Chưa có đơn". API_162, API_118.
@@ -2575,7 +2575,7 @@ flowchart TD
 - MAN_HINH_139 (`/crm/community`): tiêu đề "Kiểm duyệt cộng đồng"; thẻ "Báo cáo chờ xử lý" và "Nội dung đã ẩn": bảng Nội dung ("Bài: …" hoặc "Bình luận: …"), Tác giả, Báo cáo, Lý do nhiều nhất, Trạng thái (Đang hiện, Tự ẩn tạm, Đã ẩn); chọn một dòng mở khung: "Bài của <tên> · <số điện thoại>", thời điểm, số báo cáo, lý do; nội dung chưa ẩn: "Lý do ẩn (gửi cho tác giả)" + "Ẩn nội dung", "Hiện lại, bỏ qua báo cáo"; nội dung đã ẩn: "Hiện lại"; "Khóa tài khoản": "Thời hạn" (7 ngày, 30 ngày, Vĩnh viễn), "Lý do khóa", "Khóa đăng bài và bình luận" (xác nhận). Thẻ "Tài khoản bị khóa": Người mua, Đến, Lý do, Người khóa, "Mở khóa" (xác nhận); trống "Không có tài khoản nào đang bị khóa.". Thẻ "Bài VComm": "Đăng bài VComm" (nội dung, "Ghim lên đầu bảng tin (tối đa 3 bài ghim)", "Đăng"); bảng Nội dung, Đăng lúc, Tương tác ("… thích · … bình luận"), "Đã ghim", "Ghim" hoặc "Bỏ ghim". Thẻ "Cài đặt": "Người mua được đăng bài", "Người mua được bình luận", gợi ý "Tắt thì nội dung cũ vẫn hiện; chỉ VComm đăng được bài.", "Từ cấm (mỗi dòng một cụm từ, tối đa 500; không phân biệt hoa thường, dấu)", "Lưu". API_168.
 - Trạng thái phê duyệt: người dùng duyệt bản mẫu, xem trước L1 ngày 2026-11-11; L2, L3 xem trước từng lát.
 
-## 68. Màn hình nhập khẩu (MODULE_04 phần 2, CONG_VIEC_45)
+## 74. Màn hình nhập khẩu (MODULE_04 phần 2, CONG_VIEC_45)
 
 Bản mẫu: `ban_mau/MAN_HINH_110_TO_KHAI_NHAP_KHAU.html` đến `MAN_HINH_113_CHI_TIET_CHI_PHI_NHAP_KHAU.html`, người dùng duyệt 2026-11-11. Menu Mua hàng thêm "Tờ khai nhập khẩu", "Chi phí nhập khẩu" (quyền `purchasing.import.view`) sau "Đơn mua".
 

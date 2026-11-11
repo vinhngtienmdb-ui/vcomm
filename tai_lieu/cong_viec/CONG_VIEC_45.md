@@ -188,7 +188,7 @@ Sau mỗi lát: chạy ứng dụng, chụp màn hình, gửi báo cáo ngắn c
 
 - [x] Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: QUYTAC_NGHIEPVU_285 đến 291 có kiểm thử; quyền `purchasing.import.*` theo mục 7.
 - [x] Đúng giao diện: theo bản mẫu đã duyệt; ảnh xem trước lát L0, L1, L2 đã gửi người dùng.
-- [x] Đã xử lý lỗi: lỗi nghiệp vụ trả đúng ô, đúng dòng (tài liệu 17 mục 3w).
+- [x] Đã xử lý lỗi: lỗi nghiệp vụ trả đúng ô, đúng dòng (tài liệu 17 mục 3zc).
 - [x] Đã kiểm thử: `test/c45-imports.test.ts` 6/6; toàn bộ `pnpm --filter api test` 86 tệp, 487/487 đạt. Kết quả gửi phiên cha ghi tài liệu 25.
 - [x] Đạt tiêu chí nghiệm thu bắt buộc TIEUCHI_NGHIEMTHU_282 đến 286.
 - [x] Không phá vỡ chức năng cũ: hồi quy toàn bộ đạt; đơn trong nước giữ nguyên hành vi.

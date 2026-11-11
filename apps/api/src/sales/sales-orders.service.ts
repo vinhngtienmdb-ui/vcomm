@@ -706,10 +706,15 @@ export class SalesOrdersService implements OnModuleInit {
       lines: { variantId: string; unitId: string; quantity: string; discountPercent: string }[];
     },
   ): Promise<{ orderId: string; documentNo: string }> {
-    return this.placeConfirmedWithin(transaction, actor, { ...input, deliveryAddress: null, retail: { taxCode: input.buyerTaxCode, address: input.buyerAddress, identityNo: input.buyerIdentityNo } }, (exceptions) => {
-      const first = exceptions[0]!;
-      throw new ApiError("BUSINESS_RULE", first.kind === "discount" ? "retailDiscountOverLimit" : "retailBelowCost");
-    });
+    return this.placeConfirmedWithin(
+      transaction,
+      actor,
+      { ...input, deliveryAddress: null, retail: { taxCode: input.buyerTaxCode, address: input.buyerAddress, identityNo: input.buyerIdentityNo } },
+      (exceptions) => {
+        const first = exceptions[0]!;
+        throw new ApiError("BUSINESS_RULE", first.kind === "discount" ? "retailDiscountOverLimit" : "retailBelowCost");
+      },
+    );
   }
 
   private async placeConfirmedWithin(

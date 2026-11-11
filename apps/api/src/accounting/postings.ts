@@ -377,7 +377,16 @@ export async function marketplaceWithdrawalDraft(executor: Executor, withdrawalI
 // Phiếu thu chi đã ghi sổ: quỹ tiền mặt hoặc ngân hàng đối ứng phải thu, phải trả của đối tác.
 export async function paymentDraft(executor: Executor, paymentId: string): Promise<DraftJournal | null> {
   const payment = (
-    await executor.execute<{ company_id: string; kind: string; partner_id: string | null; fund_kind: "cash" | "bank"; document_no: string; payment_date: string; amount: string; note: string | null }>(sql`
+    await executor.execute<{
+      company_id: string;
+      kind: string;
+      partner_id: string | null;
+      fund_kind: "cash" | "bank";
+      document_no: string;
+      payment_date: string;
+      amount: string;
+      note: string | null;
+    }>(sql`
     SELECT p.company_id, p.kind, p.partner_id, f.kind AS fund_kind, p.document_no, p.payment_date::text, p.amount::text, p.note
     FROM finance.payments p JOIN finance.funds f ON f.id = p.fund_id WHERE p.id = ${paymentId}`)
   ).rows[0];
