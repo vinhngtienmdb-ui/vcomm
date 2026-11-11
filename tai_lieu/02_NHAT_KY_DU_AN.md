@@ -10,6 +10,7 @@
 ### Công việc đã thực hiện
 
 - CONG_VIEC_51 (điểm thưởng phần 1) xong lát L0 đến L4, trình nghiệm thu (pull request #103; kiểm thử 346/346).
+- CONG_VIEC_49 (Cộng đồng phần 1, MODULE_10) trình nghiệm thu, pull request #97 (kiểm thử 346/346). L1 cộng tác viên theo đường dẫn sản phẩm (7 ngày từ lần bấm cuối, mức hoa hồng thứ sáu) và thưởng giới thiệu bạn bè một lần vào ví hoa hồng; L2 mua chung bậc giá theo tổng số lượng, trả trước 100%, chốt nhóm hoàn chênh lệch hoặc toàn bộ vào ví mua sắm riêng, khóa ví mua sắm toàn hệ thống và chặn từng ví theo tài khoản (THAY_DOI_22); L3 bảng tin mở (bài đăng có ảnh, sản phẩm; đánh giá đã mua hàng; bình luận; thích; báo cáo tự ẩn tạm ở 5 báo cáo; ẩn, khóa tài khoản, từ cấm, bài VComm ghim tối đa 3). Rà soát mã sửa lỗi "hiện lại, bỏ qua báo cáo" với nội dung đang hiện.
 
 ### Quyết định
 
@@ -18,6 +19,9 @@
 
 ### Vấn đề tồn đọng
 
+- Hai rủi ro pháp lý của CONG_VIEC_49 (ví mua sắm có thể là ví điện tử; bảng tin mở có thể cần giấy phép mạng xã hội) chặn triển khai môi trường thật, chờ ý kiến luật sư (người dùng xác nhận hỏi sau).
+- CONG_VIEC_49, quyết định AI tự đưa ra chờ xác nhận khi nghiệm thu (ghi ở tài liệu 07): tối đa 30 ảnh chưa đăng trong 24 giờ; bài đã xóa vẫn tính giới hạn 10 bài/ngày; mở khóa cộng đồng cũng báo người dùng; nhân viên mở nhóm trên web không giới hạn số nhóm; người mở nhóm không còn Đã duyệt thì đơn không có phần cộng tác viên; gắn nhãn KOL/KOC được cả khi đang Tạm ngừng.
+- CONG_VIEC_49: số mục mới trong tài liệu 08 (mục 40), 14 (mục 65, 66), 16 (mục 28), 17, 27 (mục 26) có thể trùng với nhánh song song khi hợp nhất.
 - CONG_VIEC_51: cần ý kiến luật sư trước khi phát hành lên môi trường thật. Nhánh nào hợp nhất sau giữa CONG_VIEC_49 và 51 ghép công thức tiền phải trả theo đặc tả mục 19.
 
 ## 2026-11-11

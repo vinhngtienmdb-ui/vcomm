@@ -183,6 +183,18 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_49
+
+- Phạm vi: Cộng đồng phần 1 (MODULE_10), lát L1 đến L3: MAN_HINH_132 đến 139; API_162 đến 169; sửa API_123, 124, 126, 127, 134, 135, 136. Hồi quy: toàn bộ kiểm thử tự động API. Nhánh `chuc-nang/CONG_VIEC_49-cong-dong` (pull request #97, head `42e04f9`).
+- Môi trường: container phát triển; PostgreSQL 16, cơ sở dữ liệu `vcomm_test` xóa sạch mỗi lần chạy; Redis; Node.js 22; CI GitHub Actions.
+- Lệnh đã chạy: `pnpm --filter api test` (một tiến trình); kiểm tra kiểu api, web-crm; lint mobile-vcomm; kiểm khóa dịch; gitleaks 8.30.1; xem trước bằng Playwright.
+- Kết quả: 346 đạt / 0 không đạt / 346 (55 tệp); KICHBAN_KIEMTHU_464 đến 475, 532 (`c49-collaborators`, `c49-group-buys-wallets`, `c49-community`) đạt.
+- Kiểm thử đã duyệt được sửa: `c26-commission-settings` (thêm mức cộng tác viên "0"), `c26-withdrawals` (thêm `blocked false`) theo trường API cộng thêm đã duyệt.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_311 đến 319, 367 – Đạt (tự động). TIEUCHI_NGHIEMTHU_320 (giao diện) – Đạt qua xem trước, người dùng duyệt L1, L2, L3.
+- Kiểm tra bảo mật phần B, C: không thêm phụ thuộc mới; gitleaks không có phát hiện (khóa ký VNPAY giả của kiểm thử thêm vào `.github/gitleaksignore` theo tiền lệ CONG_VIEC_25); phân quyền: API quản trị bằng người không có quyền trả 403, thao tác trên nội dung của người khác trả 404; dữ liệu độc hại: ảnh kiểm theo nội dung tệp, nội dung giới hạn độ dài, trường thừa trả 400, từ cấm không phân biệt hoa thường và dấu; số dư ví đổi trong giao dịch khóa dòng ví.
+- Lỗi phát hiện: "hiện lại, bỏ qua báo cáo" với nội dung đang hiện trả 409 – đã sửa trong công việc (commit `cdecf24`), thêm bước vào KICHBAN_KIEMTHU_475.
+- Kết luận cổng kiểm thử: Đạt, chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_51
 
 - Phạm vi: MODULE_11 điểm thưởng phần 1, nhánh `chuc-nang/CONG_VIEC_51-diem-thuong` (pull request #103, head `125a034`).
