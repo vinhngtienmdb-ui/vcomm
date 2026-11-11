@@ -94,6 +94,7 @@ MAN_HINH_202, 203 để dự phòng.
 
 - Ghi chú chăm sóc có thể chứa dữ liệu cá nhân của khách: chỉ người trong phạm vi xem; không ghi nội dung ghi chú vào nhật ký thao tác (chỉ ghi mã ghi chú, khách, người ghi); bổ sung tài liệu `22`.
 - Hoãn lập trình API_228 (phần đơn), API_231 tới khi `main` đã có bản 0.5.0 (PR #117, đổi đơn, thanh toán); hợp nhất `main` mới trước lát doanh số.
+- Migration 0114 chỉ thêm cột, chỉ mục; không định nghĩa lại ràng buộc kiểm tra của `marketplace.orders` (CONG_VIEC_57, PR #118, migration 0110 định nghĩa lại `orders_cod_amount_method_check`, thêm `fulfillment_mode`, `station_id`, `warehouse_id`). Khi sửa dịch vụ đặt đơn, giữ phần của CONG_VIEC_57 nếu đã vào `main`.
 
 ## 10. Câu hỏi mở (chờ người dùng)
 
