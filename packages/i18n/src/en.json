@@ -437,7 +437,13 @@
     "paymentGatewayStartFailed": "The payment gateway could not open the payment page. Please try again later.",
     "bankTransactionMarketplaceLinked": "The transaction has been recorded as a VComm order payment and cannot be unmatched.",
     "bankTransferNotPending": "The payment is no longer awaiting confirmation.",
-    "carrierLookupUnsupported": "This carrier does not support refreshing shipments; the status updates when the carrier sends a notification. Check the order on the carrier website if needed."
+    "carrierLookupUnsupported": "This carrier does not support refreshing shipments; the status updates when the carrier sends a notification. Check the order on the carrier website if needed.",
+    "budgetPeriodInvalid": "The end month must not precede the start month; a plan covers at most 12 months.",
+    "budgetMonthOutsidePeriod": "The month is outside the plan period.",
+    "budgetCategoryNotTopLevel": "Budgets are set only for active top-level categories.",
+    "budgetCellDuplicate": "Duplicate budget cell (same category, warehouse, month).",
+    "budgetPeriodOverlap": "The plan period overlaps another pending or approved plan.",
+    "budgetPlanEmpty": "The plan has no budget cells."
   },
   "login": {
     "title": "Sign in",

@@ -437,7 +437,13 @@
     "paymentGatewayStartFailed": "Cổng thanh toán chưa mở được trang thanh toán. Vui lòng thử lại sau.",
     "bankTransactionMarketplaceLinked": "Giao dịch đã ghi nhận tiền đơn VComm, không bỏ ghép được.",
     "bankTransferNotPending": "Lần thanh toán không còn chờ xác nhận.",
-    "carrierLookupUnsupported": "Đơn vị vận chuyển này không có chức năng tra lại vận đơn; trạng thái tự cập nhật khi đơn vị vận chuyển gửi thông báo. Kiểm tra đơn trên trang của đơn vị vận chuyển nếu cần."
+    "carrierLookupUnsupported": "Đơn vị vận chuyển này không có chức năng tra lại vận đơn; trạng thái tự cập nhật khi đơn vị vận chuyển gửi thông báo. Kiểm tra đơn trên trang của đơn vị vận chuyển nếu cần.",
+    "budgetPeriodInvalid": "Đến tháng phải từ từ tháng trở đi; kỳ kế hoạch tối đa 12 tháng.",
+    "budgetMonthOutsidePeriod": "Tháng nằm ngoài kỳ kế hoạch.",
+    "budgetCategoryNotTopLevel": "Chỉ lập ngân sách cho ngành hàng cấp 1 đang dùng.",
+    "budgetCellDuplicate": "Ô ngân sách bị trùng (cùng ngành hàng, kho, tháng).",
+    "budgetPeriodOverlap": "Kỳ kế hoạch trùng tháng với kế hoạch khác đang chờ duyệt hoặc đã duyệt.",
+    "budgetPlanEmpty": "Kế hoạch chưa có ô ngân sách nào."
   },
   "login": {
     "title": "Đăng nhập",

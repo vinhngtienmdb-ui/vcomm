@@ -89,6 +89,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "purchasing.order.view", appCode: "purchasing", nameVi: "Xem đơn mua", nameEn: "View purchase orders", isSensitive: false },
   { code: "purchasing.order.manage", appCode: "purchasing", nameVi: "Lập, sửa, đóng đơn mua", nameEn: "Manage purchase orders", isSensitive: false },
   { code: "purchasing.settings.manage", appCode: "purchasing", nameVi: "Cài đặt mua hàng", nameEn: "Manage purchasing settings", isSensitive: false },
+  // CONG_VIEC_58 (QUYTAC_NGHIEPVU_453).
+  { code: "purchasing.budget.view", appCode: "purchasing", nameVi: "Xem ngân sách mua", nameEn: "View purchase budgets", isSensitive: false },
+  { code: "purchasing.budget.manage", appCode: "purchasing", nameVi: "Lập, điều chỉnh ngân sách mua", nameEn: "Manage purchase budgets", isSensitive: false },
   // CONG_VIEC_08: Bán hàng (MODULE_05, phần 1).
   { code: "sales.order.view", appCode: "sales", nameVi: "Xem đơn bán", nameEn: "View sales orders", isSensitive: false },
   { code: "sales.order.manage", appCode: "sales", nameVi: "Lập, sửa, gửi, hủy, đóng đơn bán", nameEn: "Manage sales orders", isSensitive: false },
@@ -182,6 +185,8 @@ const companyAdminPermissions = [
   "purchasing.order.view",
   "purchasing.order.manage",
   "purchasing.settings.manage",
+  "purchasing.budget.view",
+  "purchasing.budget.manage",
   "sales.order.view",
   "sales.order.manage",
   "sales.settings.manage",
@@ -256,6 +261,7 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "purchasing.requisition.create",
       "purchasing.order.view",
       "purchasing.order.manage",
+      "purchasing.budget.view",
       "crm.access",
       "crm.partner.view",
       "crm.partner.manage",
@@ -354,7 +360,12 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },
   // CONG_VIEC_46 (tài liệu 08): gán ở phạm vi công ty.
   { code: "hr_manager", nameVi: "Quản lý nhân sự", nameEn: "HR manager", permissionCodes: ["hr.access", ...hrPermissions, "platform.proposal.create"] },
-  { code: "hr_staff", nameVi: "Nhân viên nhân sự", nameEn: "HR staff", permissionCodes: ["hr.access", "hr.employee.view", "hr.employee.manage", "hr.contract.manage", ...attendancePermissions, "hr.payroll.view", "hr.payroll.manage"] },
+  {
+    code: "hr_staff",
+    nameVi: "Nhân viên nhân sự",
+    nameEn: "HR staff",
+    permissionCodes: ["hr.access", "hr.employee.view", "hr.employee.manage", "hr.contract.manage", ...attendancePermissions, "hr.payroll.view", "hr.payroll.manage"],
+  },
 ];
 
 // Loại chứng từ do mã khai báo. Chứng từ thử của Nền tảng dùng để thử luồng duyệt khi chưa có module khác (CONG_VIEC_02 lát L7).
@@ -370,6 +381,10 @@ export const documentTypeCatalog = [
   { code: "inventory.purchase_return", appCode: "inventory", nameVi: "Phiếu trả hàng nhà cung cấp", nameEn: "Purchase return", requiresApproval: false },
   { code: "purchasing.requisition", appCode: "purchasing", nameVi: "Đề nghị mua", nameEn: "Purchase requisition", requiresApproval: true },
   { code: "purchasing.order", appCode: "purchasing", nameVi: "Đơn mua", nameEn: "Purchase order", requiresApproval: true },
+  // CONG_VIEC_58 (QUYTAC_NGHIEPVU_445, 448, 452).
+  { code: "purchasing.budget_plan", appCode: "purchasing", nameVi: "Kế hoạch ngân sách mua", nameEn: "Purchase budget plan", requiresApproval: true },
+  { code: "purchasing.budget_adjustment", appCode: "purchasing", nameVi: "Điều chỉnh ngân sách mua", nameEn: "Purchase budget adjustment", requiresApproval: true },
+  { code: "purchasing.order_over_budget", appCode: "purchasing", nameVi: "Đơn mua vượt ngân sách", nameEn: "Over-budget purchase order", requiresApproval: true },
   { code: "sales.order", appCode: "sales", nameVi: "Đơn bán", nameEn: "Sales order", requiresApproval: true },
   { code: "sales.promotion", appCode: "sales", nameVi: "Chương trình khuyến mãi", nameEn: "Promotion", requiresApproval: true },
   { code: "inventory.sales_issue", appCode: "inventory", nameVi: "Phiếu xuất giao hàng", nameEn: "Sales delivery", requiresApproval: false },

@@ -12,6 +12,9 @@ export const purchasingPermissions = {
   viewOrders: "purchasing.order.view",
   manageOrders: "purchasing.order.manage",
   manageSettings: "purchasing.settings.manage",
+  // CONG_VIEC_58 (QUYTAC_NGHIEPVU_453).
+  viewBudgets: "purchasing.budget.view",
+  manageBudgets: "purchasing.budget.manage",
 } as const;
 
 export type FieldErrors = Record<string, keyof Messages["errors"]>;
