@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.16
+- Phiên bản: 1.17
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền
 
 ## MODULE_01 Nền tảng
 
@@ -746,3 +746,39 @@ Trạng thái việc hoàn tiền:
 |---|---|---|
 | (Chưa có) | Hủy đơn đã thu; tiền về sau khi hủy; trả trùng; nhận hàng trả | Chờ hoàn (`pending`) |
 | Chờ hoàn | Kế toán ghi "Đã hoàn tiền" | Đã hoàn (`completed`) |
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 4: Hoa hồng theo đơn và ví hoa hồng, CONG_VIEC_26)
+
+### Luồng 39. Hoa hồng theo đơn, ví hoa hồng, rút tiền
+
+- Bắt đầu: quản trị (`marketplace.order.manage`) thiết lập hoa hồng sản phẩm ở Đăng bán (MAN_HINH_101), cài đặt hoa hồng chung ở Cài đặt bán hàng VComm (MAN_HINH_86) (QUYTAC_NGHIEPVU_200, 204, 205).
+- Các bước:
+  1. Người mua có người giới thiệu đặt hàng như Luồng 37, 38. Trong cùng giao dịch đặt hàng, hệ thống chốt người hưởng, mức hoa hồng của từng dòng hàng (giới thiệu; đội kinh doanh theo chức danh khi người giới thiệu là nhân viên kinh doanh) (QUYTAC_NGHIEPVU_201).
+  2. Trong khi đơn chưa hoàn tất: chi tiết đơn trên web hiện hoa hồng ước tính (MAN_HINH_88); ví của người hưởng hiện hoa hồng đang chờ (QUYTAC_NGHIEPVU_203).
+  3. Đơn chuyển Hoàn tất (Luồng 37): tính hoa hồng theo hàng thực bán, cộng ví mỗi người hưởng một giao dịch, bút toán hoa hồng (QUYTAC_NGHIEPVU_202, 207).
+  4. Người hưởng mở Ví hoa hồng trên ứng dụng (MAN_HINH_103), bấm "Rút tiền", nhập số tiền, xem thuế dự kiến, gửi yêu cầu (MAN_HINH_104); số dư trừ ngay (QUYTAC_NGHIEPVU_204, 205).
+  5. Kế toán (`marketplace.payment.manage`) mở Rút tiền hoa hồng (MAN_HINH_102), duyệt (chốt thuế, số thực nhận); người dùng nhận thông báo (QUYTAC_NGHIEPVU_206).
+  6. Kế toán chuyển khoản số thực nhận, ghi đã chi (mã giao dịch ngân hàng, ngày chi); bút toán chi trả, thuế; người dùng nhận thông báo (QUYTAC_NGHIEPVU_206, 207).
+  7. Hằng tháng kế toán xem bảng kê thuế thu nhập cá nhân đã khấu trừ để kê khai ngoài hệ thống (QUYTAC_NGHIEPVU_205).
+- Nhánh: người dùng rút lại yêu cầu chờ duyệt, hoặc kế toán từ chối (lý do), thì số tiền cộng lại ví; đơn bị hủy thì hoa hồng của đơn bỏ; người quản lý xem tổng hoa hồng đã nhận, đang chờ của từng cấp dưới ở Đội của tôi (MAN_HINH_83).
+- Ngoại lệ: thông báo ở tài liệu `07` mục CONG_VIEC_26.
+- Kết thúc: hoa hồng đã cộng ví; yêu cầu rút tiền Đã chi, Bị từ chối hoặc Đã rút lại.
+
+Trạng thái hoa hồng của đơn:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Người mua đặt đơn có người giới thiệu, sản phẩm đã thiết lập hoa hồng | Chờ (`pending`) |
+| Chờ | Đơn hoàn tất | Đã cộng ví (`credited`) |
+
+Đơn hủy thì dòng hoa hồng chờ giữ nguyên nhưng không hiện, không tính, không cộng ví.
+
+Trạng thái yêu cầu rút tiền:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Người dùng gửi yêu cầu (trừ số dư) | Chờ duyệt (`pending`) |
+| Chờ duyệt | Người dùng rút lại (cộng lại số dư) | Đã rút lại (`cancelled`) |
+| Chờ duyệt | Kế toán từ chối (cộng lại số dư) | Bị từ chối (`rejected`) |
+| Chờ duyệt | Kế toán duyệt (chốt thuế, số thực nhận) | Đã duyệt (`approved`) |
+| Đã duyệt | Kế toán ghi đã chi | Đã chi (`paid`) |

@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.12
+- Phiên bản: 2.13
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -26,6 +26,7 @@
 - Cập nhật CONG_VIEC_27 (2026-11-10): thêm MAN_HINH_81 đến MAN_HINH_85; sửa MAN_HINH_78, MAN_HINH_80; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_24 (2026-11-11): thêm MAN_HINH_86 đến MAN_HINH_97 (mục 58, mục 59); sửa MAN_HINH_80, MAN_HINH_76 (Tài khoản: nút Sổ địa chỉ); thanh điều hướng ứng dụng thêm thẻ Cửa hàng, Đơn hàng; menu web-crm thêm Cài đặt bán hàng VComm, Đăng bán, Đơn VComm, Yêu cầu trả hàng; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_25 (2026-11-11): thêm MAN_HINH_98 đến MAN_HINH_100 (mục 60, mục 61); sửa MAN_HINH_86 (Đặt hàng và thanh toán), MAN_HINH_88 (thanh toán, các lần thanh toán, ghi đã thu tiền thu hộ), MAN_HINH_93 (chọn phương thức thanh toán), MAN_HINH_96 (trạng thái thanh toán, hoàn tiền), MAN_HINH_76 (nút Tài khoản nhận hoàn tiền); menu web-crm thêm Hoàn tiền; xem trước từng lát thay cho bản mẫu
+- Cập nhật CONG_VIEC_26 (2026-11-11): thêm MAN_HINH_101 đến MAN_HINH_104 (mục 62, mục 63); sửa MAN_HINH_86 (Hoa hồng và rút tiền, bảng phí rút tiền theo THAY_DOI_17), MAN_HINH_87 (cột Hoa hồng, nút Thiết lập hoa hồng), MAN_HINH_88 (thẻ Hoa hồng), MAN_HINH_83 (hoa hồng từng cấp dưới), MAN_HINH_76 (nút Ví hoa hồng); menu web-crm thêm Rút tiền hoa hồng; xem trước từng lát thay cho bản mẫu
 
 ## MODULE_01 Nền tảng
 
@@ -2085,3 +2086,55 @@ flowchart TD
 - Trang kết quả trả về (`/api/v1/public/payments/vnpay/return`, không phải màn hình ứng dụng): một câu kết quả (thành công, không thành công, đang chờ, không xác nhận được) và liên kết "Mở đơn hàng trên ứng dụng VComm".
 - MAN_HINH_100 (`/tai-khoan-hoan-tien`): tiêu đề "Tài khoản nhận hoàn tiền", gợi ý "VComm chuyển khoản hoàn tiền vào tài khoản này. Tên chủ tài khoản viết không dấu như trên thẻ."; Ngân hàng, Số tài khoản, Tên chủ tài khoản; "Lưu"; lưu xong báo "Đã lưu tài khoản nhận hoàn tiền.".
 - Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 4: Hoa hồng theo đơn và ví hoa hồng, CONG_VIEC_26)
+
+## 62. Danh sách màn hình và điều hướng (MODULE_09 phần lõi 4)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_101 | Web-crm: Thiết lập hoa hồng sản phẩm (biểu mẫu trong MAN_HINH_87: cách tính, năm mức, Lưu) | CHUC_NANG_134 | `marketplace.order.manage` | MAN_HINH_87, nút "Thiết lập hoa hồng" | Không làm |
+| MAN_HINH_102 | Web-crm: Rút tiền hoa hồng (lọc trạng thái; người nhận, số tiền, thuế, phí, thực nhận, tài khoản nhận; duyệt, từ chối, ghi đã chi; bảng kê thuế theo tháng) | CHUC_NANG_137 | `marketplace.payment.manage` (Quản trị tập đoàn, Quản trị công ty, Kế toán, Kế toán trưởng) | Menu "Rút tiền hoa hồng" | Không làm |
+| MAN_HINH_103 | Ứng dụng: Ví hoa hồng (số dư, đang chờ, yêu cầu đang chờ, lịch sử giao dịch ví, Rút tiền) | CHUC_NANG_136 | Người dùng ứng dụng VComm (ví của mình) | MAN_HINH_76 (Tài khoản), nút "Ví hoa hồng" | Không làm |
+| MAN_HINH_104 | Ứng dụng: Yêu cầu rút tiền (số tiền, tài khoản nhận, thuế và phí dự kiến, gửi) | CHUC_NANG_137 | Người dùng ứng dụng VComm có số dư | MAN_HINH_103 | Không làm |
+
+Sửa:
+- MAN_HINH_86: thẻ "Hoa hồng và rút tiền": ngưỡng khấu trừ thuế, tỷ lệ khấu trừ, số tiền rút tối thiểu; bảng phí theo lần rút trong tháng, bảng phí theo số tiền (THAY_DOI_17). Sửa cần `marketplace.order.manage`; người chỉ có `marketplace.order.view` xem, ô bị khóa.
+- MAN_HINH_87: cột Hoa hồng (tóm tắt tổng mức, mức giới thiệu, hoặc "Chưa thiết lập"); nút "Thiết lập hoa hồng" mở MAN_HINH_101.
+- MAN_HINH_88: chi tiết đơn thêm thẻ Hoa hồng khi đơn có hoa hồng (phần, người hưởng, số điện thoại, số tiền, Đã cộng ví hoặc ước tính); đơn hủy không hiện.
+- MAN_HINH_83: mỗi cấp dưới thêm dòng "Hoa hồng đã nhận <số tiền> · đang chờ <số tiền>".
+- MAN_HINH_76: thêm nút "Ví hoa hồng".
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty vận hành sàn | Kế toán, Kế toán trưởng | Nhân viên có `marketplace.order.view` | Người dùng ứng dụng VComm |
+|---|---|---|---|---|
+| MAN_HINH_86 (thẻ Hoa hồng và rút tiền), MAN_HINH_101 | Xem, Sửa | Xem | Xem | Không thấy |
+| MAN_HINH_88 (thẻ Hoa hồng) | Xem | Xem | Xem | Không thấy |
+| MAN_HINH_102 Rút tiền hoa hồng | Xem, Duyệt, Từ chối, Ghi đã chi | Xem, Duyệt, Từ chối, Ghi đã chi | Không thấy | Không thấy |
+| MAN_HINH_103, MAN_HINH_104 | Dùng (ví của mình) | Dùng (ví của mình) | Dùng (ví của mình) | Dùng (ví của mình) |
+| MAN_HINH_83 (hoa hồng cấp dưới) | Theo đội kinh doanh | Theo đội kinh doanh | Theo đội kinh doanh | Người quản lý trong đội |
+
+```mermaid
+flowchart TD
+    T[MAN_HINH_76 Tài khoản] -->|Ví hoa hồng| V[MAN_HINH_103 Ví hoa hồng]
+    V -->|Rút tiền| R[MAN_HINH_104 Yêu cầu rút tiền]
+    R -->|Nhập tài khoản| H[MAN_HINH_100 Tài khoản nhận hoàn tiền]
+    R -->|gửi xong| V
+    K[MAN_HINH_78 Kinh doanh] --> D[MAN_HINH_83 Đội của tôi]
+    M{Menu web-crm} -->|Đăng bán| L[MAN_HINH_87 Đăng bán]
+    L -->|Thiết lập hoa hồng| C[MAN_HINH_101 Thiết lập hoa hồng]
+    M -->|Cài đặt bán hàng VComm| S[MAN_HINH_86]
+    M -->|Đơn VComm| W[MAN_HINH_88 Đơn VComm]
+    M -->|Rút tiền hoa hồng| X[MAN_HINH_102 Rút tiền hoa hồng]
+```
+
+## 63. Đặc tả màn hình (MODULE_09 phần lõi 4)
+
+- MAN_HINH_101 (`/crm/listings`, biểu mẫu trên danh sách): tiêu đề "Hoa hồng: <tên sản phẩm>", gợi ý "Sản phẩm chưa thiết lập thì không có hoa hồng. Thay đổi chỉ áp dụng cho đơn đặt sau. Phần trăm tính trên tiền hàng chưa thuế sau khuyến mãi; số tiền tính trên mỗi đơn vị."; Cách tính (Phần trăm, Số tiền mỗi đơn vị); năm ô: Giới thiệu, Nhân viên kinh doanh, Trưởng phòng kinh doanh, Giám đốc Vùng, Giám đốc Kinh doanh; "Lưu", "Hủy"; lưu xong báo "Đã lưu thiết lập hoa hồng.". API_134.
+- MAN_HINH_86 (`/crm/store-settings`): thẻ "Hoa hồng và rút tiền": "Khấu trừ thuế thu nhập cá nhân khi rút trên", "Tỷ lệ khấu trừ (%)", "Số tiền rút tối thiểu"; bảng phí theo lần rút trong tháng (từ lần thứ, phí cố định; thêm, bỏ dòng); bảng phí theo số tiền (từ số tiền, phí cố định, phần trăm, phí phần trăm tối thiểu, tối đa để trống là không giới hạn; thêm, bỏ dòng); bảng trống thì không thu phí; "Lưu"; lưu xong báo "Đã lưu cài đặt hoa hồng.". API_134.
+- MAN_HINH_88 (`/crm/orders/<id>`): thẻ "Hoa hồng": mỗi dòng "<phần> · <người hưởng> · <số điện thoại>" và "<số tiền> · Đã cộng ví" hoặc "<số tiền> · Ước tính, cộng ví khi đơn hoàn tất"; phần: Giới thiệu, Nhân viên kinh doanh, Trưởng phòng kinh doanh, Giám đốc Vùng, Giám đốc Kinh doanh. API_127.
+- MAN_HINH_102 (`/crm/withdrawals`): tiêu đề "Rút tiền hoa hồng", gợi ý "Duyệt yêu cầu thì chốt thuế thu nhập cá nhân và số thực nhận theo cài đặt hoa hồng lúc duyệt. Chuyển khoản số thực nhận rồi ghi mã giao dịch, ngày chi."; nút lọc Chờ duyệt, Đã duyệt, chờ chi, Từ chối, Người dùng rút lại, Đã chi; mỗi yêu cầu: người nhận (tên, số điện thoại), Số tiền, Gửi lúc, xử lý lúc, Tài khoản nhận, Thuế dự kiến (chờ duyệt) hoặc Thuế thu nhập cá nhân, phí rút tiền, Thực nhận; chờ duyệt có "Duyệt" và "Lý do từ chối" + "Từ chối"; đã duyệt có "Mã giao dịch ngân hàng", "Ngày chi", "Ghi đã chi"; bị từ chối hiện lý do; đã chi hiện mã giao dịch, ngày chi; phân trang 20. Thẻ "Bảng kê thuế thu nhập cá nhân đã khấu trừ": chọn "Tháng chi"; bảng Người nhận, Ngày chi, Mã giao dịch ngân hàng, Số tiền, Thuế, Phí, Thực nhận; dòng tổng "Tổng số tiền … · tổng thuế …"; không có thì "Tháng này không có khoản khấu trừ thuế.". API_136.
+- MAN_HINH_103 (`/vi-hoa-hong`): "‹ Quay lại", tiêu đề "Ví hoa hồng"; thẻ số dư: "Số dư", số tiền lớn, "Đang chờ: <số tiền>", gợi ý "Hoa hồng của đơn chưa hoàn tất, ước tính theo hàng hiện tại; cộng vào số dư khi đơn hoàn tất.", nút "Rút tiền" (khóa khi số dư bằng 0; ẩn khi có yêu cầu đang chờ); thẻ yêu cầu đang chờ: trạng thái ("Yêu cầu rút tiền đang chờ duyệt", "Yêu cầu rút tiền đã duyệt, chờ chuyển khoản"), "Số tiền … · thuế … · thực nhận …", nút "Rút lại yêu cầu" (chỉ khi chờ duyệt); "Lịch sử": "Hoa hồng đơn <số đơn>", "Rút tiền", "Hoàn lại yêu cầu rút", số tiền có dấu, thời điểm, "Số dư <số tiền>"; "Xem thêm". API_135, API_136.
+- MAN_HINH_104 (`/rut-tien`): tiêu đề "Rút tiền"; "Số dư có thể rút: <số tiền>"; ô "Số tiền rút (đồng)", "Tối thiểu <số tiền>."; quy tắc thuế "Trên <ngưỡng> thì khấu trừ thuế thu nhập cá nhân <tỷ lệ>% trên toàn bộ số tiền; số thuế chốt khi kế toán duyệt."; "Thuế dự kiến … · thực nhận …" và phí dự kiến theo bảng phí, lần rút thứ mấy trong tháng (THAY_DOI_17); "Chuyển vào: <tài khoản>"; chưa có tài khoản thì "Nhập tài khoản ngân hàng nhận tiền trước khi rút." và nút mở MAN_HINH_100; nút "Gửi yêu cầu rút tiền". API_135, API_136.
+- MAN_HINH_83 (`/kinh-doanh`, thẻ Đội của tôi): mỗi cấp dưới thêm "Hoa hồng đã nhận <số tiền> · đang chờ <số tiền>". API_122.
+- MAN_HINH_76 (`/tai-khoan`): nút "Ví hoa hồng" mở MAN_HINH_103.
+- Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11); ảnh xem trước ở `tam_thoi/CONG_VIEC_26/`.
