@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MAN_HINH_110 Tờ khai nhập khẩu – VComm</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" />
+    <link rel="stylesheet" href="chung.css" />
+  </head>
+  <body>
+    <header class="thanh-tren"><a class="logo" href="index.html">VComm</a><span class="gian"></span><button>Công ty VCR ▾</button><button>Lê Phúc</button></header>
+    <div class="than">
+      <nav class="menu" aria-label="Mua hàng">
+        <div class="ten-app">Mua hàng</div>
+        <a href="#">Đơn mua</a>
+        <a href="MAN_HINH_110_TO_KHAI_NHAP_KHAU.html" class="chon">Tờ khai nhập khẩu</a>
+        <a href="MAN_HINH_112_CHI_PHI_NHAP_KHAU.html">Chi phí nhập khẩu</a>
+        <a href="#">Đề nghị mua</a>
+        <a href="#">Bảng giá mua</a>
+      </nav>
+      <main class="noi-dung">
+        <div class="tieu-de">
+          <h1>Tờ khai nhập khẩu</h1>
+          <button class="nut phu">Lịch sử</button><button class="nut chinh">Lập tờ khai</button>
+        </div>
+        <p class="chu-thich">
+          Mỗi tờ khai thuộc một đơn mua nhập khẩu. Ghi sổ khi hàng của các dòng đã nhập kho: thuế nhập khẩu, tiêu thụ đặc biệt, bảo vệ môi trường vào giá vốn; thuế giá trị gia tăng hàng nhập khẩu vào
+          thuế được khấu trừ.
+        </p>
+        <div class="bo-loc">
+          <input class="o-nhap" placeholder="Số tờ khai, số đơn mua, nhà cung cấp" aria-label="Tìm" /><select class="o-nhap" aria-label="Trạng thái">
+            <option>Mọi trạng thái</option>
+            <option>Nháp</option>
+            <option>Đã ghi sổ</option>
+            <option>Đã hủy</option>
+          </select>
+        </div>
+        <div class="khung-bang">
+          <table>
+            <thead>
+              <tr>
+                <th>Số tờ khai</th>
+                <th>Ngày đăng ký</th>
+                <th>Đơn mua</th>
+                <th>Nhà cung cấp</th>
+                <th>Trị giá tính thuế</th>
+                <th>Tổng thuế</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-nhan="Số tờ khai"><a href="MAN_HINH_111_CHI_TIET_TO_KHAI.html">107012345670</a></td>
+                <td data-nhan="Ngày đăng ký">05/11/2026</td>
+                <td data-nhan="Đơn mua"><a href="#">DM-2026-0012</a></td>
+                <td data-nhan="Nhà cung cấp">Công ty Thương mại Mẫu Thâm Quyến</td>
+                <td data-nhan="Trị giá tính thuế">378.460.000 ₫<br /><span class="chu-thich">14.900,00 USD</span></td>
+                <td data-nhan="Tổng thuế">70.538.000 ₫</td>
+                <td data-nhan="Trạng thái"><span class="nhan thanh-cong">Đã ghi sổ</span></td>
+              </tr>
+              <tr>
+                <td data-nhan="Số tờ khai"><a href="MAN_HINH_111_CHI_TIET_TO_KHAI.html">107012349981</a></td>
+                <td data-nhan="Ngày đăng ký">10/11/2026</td>
+                <td data-nhan="Đơn mua"><a href="#">DM-2026-0015</a></td>
+                <td data-nhan="Nhà cung cấp">Công ty TNHH Mẫu Hàn Quốc</td>
+                <td data-nhan="Trị giá tính thuế">512.000.000 ₫<br /><span class="chu-thich">20.000,00 USD</span></td>
+                <td data-nhan="Tổng thuế">56.320.000 ₫</td>
+                <td data-nhan="Trạng thái"><span class="nhan trung-tinh">Nháp</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="phan-trang"><span>2 tờ khai</span><span>Trang 1/1</span></div>
+        </div>
+        <div class="the">
+          <h3>Ngăn kéo "Lập tờ khai"</h3>
+          <div class="truong">
+            <label for="don">Đơn mua nhập khẩu</label
+            ><select id="don" class="o-nhap">
+              <option>DM-2026-0015 · Công ty TNHH Mẫu Hàn Quốc · USD</option></select
+            ><span class="chu-thich">Chỉ hiện đơn nhập khẩu đã duyệt còn dòng chưa khai hết.</span>
+          </div>
+          <div class="nhom-nut"><button class="nut chinh">Tiếp tục</button><button class="nut phu">Hủy</button></div>
+        </div>
+      </main>
+    </div>
+    <div class="dieu-khien">Bản mẫu CONG_VIEC_45 · dữ liệu giả · <a href="index.html">Mục lục</a></div>
+  </body>
+</html>
