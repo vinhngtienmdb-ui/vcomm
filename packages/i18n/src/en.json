@@ -333,7 +333,8 @@
     "manualOrderServicesOnly": "Manually created sales orders may contain services only. Goods are sold through the VComm marketplace.",
     "internalServicesOnly": "Internal transactions may contain services only.",
     "variantLinkKindMismatch": "Linked items must be of the same kind (both goods or both services).",
-    "listingServiceProduct": "Service products cannot be listed on the VComm marketplace."
+    "listingServiceProduct": "Service products cannot be listed on the VComm marketplace.",
+    "carrierLookupUnsupported": "This carrier does not support refreshing shipments; the status updates when the carrier sends a notification. Check the order on the carrier website if needed."
   },
   "login": {
     "title": "Sign in",

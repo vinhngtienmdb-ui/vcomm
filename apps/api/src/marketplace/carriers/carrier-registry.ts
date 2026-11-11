@@ -1,9 +1,10 @@
 // Khung đơn vị vận chuyển chung (CONG_VIEC_24; QUYTAC_NGHIEPVU_160). Thông tin kết nối chỉ ở biến môi trường.
-// Mã chưa có lớp kết nối trả về chưa cấu hình.
+// Đơn vị chưa có lớp kết nối hoặc chưa đủ biến môi trường: chưa cấu hình (null).
 import type { CarrierCode } from "contracts";
 import type { CarrierAdapter } from "./carrier";
 import { GhnCarrier } from "./ghn-carrier";
 import { GhtkCarrier } from "./ghtk-carrier";
+import { ViettelPostCarrier } from "./viettel-post-carrier";
 
 export interface GhnConfiguration {
   baseUrl: string;
@@ -61,11 +62,33 @@ export function ghtkConfiguration(): GhtkConfiguration | null {
   };
 }
 
-export function carrierConfigured(code: CarrierCode): boolean {
-  return carrierAdapter(code) !== null;
+export interface ViettelPostConfiguration {
+  baseUrl: string;
+  token: string;
+  serviceCode: string;
+  webhookKey: string;
+  senderName: string;
+  senderPhone: string;
+  senderAddress: string;
 }
 
-// Lớp kết nối của đơn vị vận chuyển; null khi chưa có thông tin kết nối hoặc chưa có lớp kết nối.
+// CONG_VIEC_29. VIETTEL_POST_BASE_URL mặc định là môi trường thử nghiệm; môi trường thật đặt https://partner.viettelpost.vn.
+export function viettelPostConfiguration(): ViettelPostConfiguration | null {
+  const value = (name: string) => process.env[name]?.trim() ?? "";
+  const configuration = {
+    baseUrl: (value("VIETTEL_POST_BASE_URL") || "https://partnerdev.viettelpost.vn").replace(/\/+$/, ""),
+    token: value("VIETTEL_POST_TOKEN"),
+    serviceCode: value("VIETTEL_POST_SERVICE_CODE"),
+    webhookKey: value("VIETTEL_POST_WEBHOOK_KEY"),
+    senderName: value("VIETTEL_POST_SENDER_NAME"),
+    senderPhone: value("VIETTEL_POST_SENDER_PHONE"),
+    senderAddress: value("VIETTEL_POST_SENDER_ADDRESS"),
+  };
+  if (Object.values(configuration).some((item) => item === "") || configuration.webhookKey.length < 24) return null;
+  return configuration;
+}
+
+// Lớp kết nối của đơn vị vận chuyển; null khi chưa có lớp kết nối hoặc chưa có thông tin kết nối.
 export function carrierAdapter(code: CarrierCode): CarrierAdapter | null {
   if (code === "ghn") {
     const configuration = ghnConfiguration();
@@ -75,11 +98,20 @@ export function carrierAdapter(code: CarrierCode): CarrierAdapter | null {
     const configuration = ghtkConfiguration();
     return configuration ? new GhtkCarrier(configuration) : null;
   }
+  if (code === "viettel_post") {
+    const configuration = viettelPostConfiguration();
+    return configuration ? new ViettelPostCarrier(configuration) : null;
+  }
   return null;
+}
+
+export function carrierConfigured(code: CarrierCode): boolean {
+  return carrierAdapter(code) !== null;
 }
 
 export function webhookKeyOf(code: CarrierCode): string | null {
   if (code === "ghn") return ghnConfiguration()?.webhookKey ?? null;
   if (code === "ghtk") return ghtkConfiguration()?.webhookKey ?? null;
+  if (code === "viettel_post") return viettelPostConfiguration()?.webhookKey ?? null;
   return null;
 }

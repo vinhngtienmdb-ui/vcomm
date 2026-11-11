@@ -47,6 +47,7 @@ export class ShipmentsService implements OnModuleInit {
   private failure(error: unknown, rejectedKey: "carrierRejected" | "carrierCancelRejected"): ApiError {
     if (error instanceof CarrierFailure) {
       this.logger.warn(`Đơn vị vận chuyển: ${error.message}`);
+      if (error.kind === "unsupported") return new ApiError("BUSINESS_RULE", "carrierLookupUnsupported");
       return new ApiError("BUSINESS_RULE", error.kind === "rejected" ? rejectedKey : "carrierUnavailable");
     }
     return error instanceof ApiError ? error : new ApiError("BUSINESS_RULE", "carrierUnavailable");
@@ -226,35 +227,55 @@ export class ShipmentsService implements OnModuleInit {
     return this.orders.adminDetail(actor, orderId, true);
   }
 
-  // Webhook (API_128): chỉ nhận khi đúng khóa trên đường dẫn; trạng thái lấy theo kết quả tra lại vận đơn, không theo nội dung gửi tới.
+  // Webhook (API_128): chỉ nhận khi đúng khóa trên đường dẫn; trạng thái lấy theo kết quả tra lại vận đơn, không theo nội dung gửi tới,
+  // trừ đơn vị vận chuyển không có API tra vận đơn (CONG_VIEC_29).
   // Không giới hạn yêu cầu đúng khóa; chỉ đếm lần sai khóa theo địa chỉ IP (như webhook ngân hàng của CONG_VIEC_18).
   async webhook(code: string, key: string, payload: unknown, ip: string): Promise<{ result: string }> {
     if (!(carrierCodes as readonly string[]).includes(code)) throw new ApiError("NOT_FOUND", "notFound");
     const carrier = code as CarrierCode;
     const expected = webhookKeyOf(carrier);
     const given = Buffer.from(key);
-    if (!expected || given.length !== Buffer.byteLength(expected) || !timingSafeEqual(given, Buffer.from(expected))) {
+    const unauthorized = async () => {
       const retryAfterSeconds = await this.rateLimiter.hit("carrier-webhook-unauthorized", ip);
       if (retryAfterSeconds !== null) throw new ApiError("RATE_LIMITED", "rateLimited", { retryAfterSeconds });
       throw new ApiError("FORBIDDEN", "forbidden");
-    }
+    };
+    if (!expected || given.length !== Buffer.byteLength(expected) || !timingSafeEqual(given, Buffer.from(expected))) return unauthorized();
     const adapter = this.adapterOf(carrier);
+    // Đơn vị vận chuyển không có API tra vận đơn: lớp kết nối xác thực thêm khóa trong nội dung rồi mới đọc trạng thái (QUYTAC_NGHIEPVU_185).
+    const report = adapter.webhookReport ? adapter.webhookReport(payload) : undefined;
+    if (report === null) return unauthorized();
     const trackingCode = adapter.trackingCodeOf(payload);
     const record = (result: string) =>
       this.database.execute(sql`
-        INSERT INTO marketplace.carrier_webhook_events (carrier_code, tracking_code, payload, result) VALUES (${carrier}, ${trackingCode}, ${JSON.stringify(payload ?? null)}::jsonb, ${result})`);
-    const shipment = trackingCode
-      ? (
-          await this.database.execute<ShipmentRow>(sql`
+        INSERT INTO marketplace.carrier_webhook_events (carrier_code, tracking_code, payload, result) VALUES (${carrier}, ${trackingCode}, ${JSON.stringify((report ? report.storedPayload : payload) ?? null)}::jsonb, ${result})`);
+    const findShipment = async () =>
+      trackingCode
+        ? (
+            await this.database.execute<ShipmentRow>(sql`
           SELECT id, order_id, carrier_code, tracking_code, carrier_status, is_active, created_by FROM marketplace.shipments WHERE carrier_code = ${carrier} AND tracking_code = ${trackingCode}`)
-        ).rows[0]
-      : undefined;
+          ).rows[0]
+        : undefined;
+    let shipment = await findShipment();
+    if (!shipment && report?.clientOrderCode) {
+      // Lần giao trước không rõ kết quả: webhook mang số đơn VComm của vận đơn đang chờ xác nhận thì ghi nhận vận đơn (QUYTAC_NGHIEPVU_188).
+      const requesting = (
+        await this.database.execute<{ order_id: string }>(sql`
+        SELECT s.order_id FROM marketplace.shipments s JOIN marketplace.orders m ON m.id = s.order_id JOIN sales.orders so ON so.id = m.sales_order_id
+        WHERE s.carrier_code = ${carrier} AND s.is_active AND s.carrier_status = 'requesting' AND so.document_no = ${report.clientOrderCode}`)
+      ).rows[0];
+      if (requesting) {
+        await this.confirmRequest(requesting.order_id, { trackingCode: report.trackingCode, fee: report.fee, status: report.status }, null);
+        shipment = await findShipment();
+      }
+    }
     if (!shipment) {
       await record("unknown_shipment");
       return { result: "ignored" };
     }
     try {
-      await this.apply(shipment, await this.info(carrier, shipment.tracking_code!));
+      // Đơn vị vận chuyển không có API tra vận đơn (Viettel Post): trạng thái theo webhook đã xác thực, chưa có ngày thu tiền thu hộ.
+      await this.apply(shipment, report ? { status: report.status, codCollectedAt: null } : await this.info(carrier, shipment.tracking_code!));
       await record("applied");
       return { result: "applied" };
     } catch (error) {

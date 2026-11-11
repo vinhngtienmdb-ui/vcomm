@@ -333,7 +333,8 @@
     "manualOrderServicesOnly": "Đơn bán lập tay chỉ gồm mặt hàng dịch vụ. Hàng hóa bán qua sàn VComm.",
     "internalServicesOnly": "Giao dịch nội bộ chỉ gồm mặt hàng dịch vụ.",
     "variantLinkKindMismatch": "Hai mặt hàng liên kết phải cùng loại (cùng hàng hóa hoặc cùng dịch vụ).",
-    "listingServiceProduct": "Sản phẩm dịch vụ không đăng bán trên sàn VComm."
+    "listingServiceProduct": "Sản phẩm dịch vụ không đăng bán trên sàn VComm.",
+    "carrierLookupUnsupported": "Đơn vị vận chuyển này không có chức năng tra lại vận đơn; trạng thái tự cập nhật khi đơn vị vận chuyển gửi thông báo. Kiểm tra đơn trên trang của đơn vị vận chuyển nếu cần."
   },
   "login": {
     "title": "Đăng nhập",
