@@ -12,7 +12,7 @@
   - Nhân sự (MODULE_08, mini app `apps/web-hr`): hồ sơ nhân sự, giấy tờ mã hóa, người phụ thuộc, quá trình công tác, hợp đồng, phụ lục, nghỉ việc, nhắc hết hạn (CONG_VIEC_46); ca làm, chấm công (nhập tệp, ghi tay, ứng dụng GPS, mạng công ty, mã QR động), nghỉ phép, tăng ca, bảng công tháng (CONG_VIEC_47); bảng lương, bảo hiểm, thuế thu nhập cá nhân, bút toán lương, phiếu lương (CONG_VIEC_48, THAY_DOI_21).
   - Báo cáo quản trị toàn tập đoàn, mini app `apps/web-analytics` (CONG_VIEC_50): bán hàng, tồn kho, công nợ, hoa hồng và ví, tổng quan.
   - Khung nhiều cổng thanh toán và 10 cổng: MoMo, SePay, PayOS, chuyển khoản VietQR, BIDV, Ecopay, GPay, Google Pay, Apple Pay, ZaloPay (CONG_VIEC_32 đến 42). Đơn vị vận chuyển VNPost, Viettel Post, J&T, GHTK (CONG_VIEC_28 đến 31, THAY_DOI_20). Theo quyết định của người dùng 2026-11-11: phát hành ở trạng thái tắt; mỗi cổng, đơn vị chỉ bật được khi đã cấu hình khóa, và chỉ bật trên môi trường thật sau khi đã thử với tài khoản thử nghiệm của nhà cung cấp.
-- Lỗi đã sửa: LOI_06 (sự kiện đơn VComm cùng giao dịch đảo thứ tự).
+- Lỗi đã sửa: LOI_06 (sự kiện đơn VComm cùng giao dịch đảo thứ tự); LOI_07 (ngày duyệt bảng lương ghi theo đồng hồ cơ sở dữ liệu, lệch đồng hồ ứng dụng).
 - Thay đổi dữ liệu: database migration `0040` đến `0043` (đơn vị vận chuyển), `0050` đến `0060` (cổng thanh toán), `0064` (kiểm kê), `0070` đến `0078` (Nhân sự), `0083` (báo cáo quản trị). Các tệp số nhỏ hơn `0063` của 0.3.0 vẫn được chạy vì trình chạy database migration ghi nhận theo tên tệp.
 - Thay đổi API: thêm API theo tài liệu `17` (API_137 đến 139, 144 đến 161, 170 đến 175, API của cổng thanh toán, đơn vị vận chuyển); `GET /inventory/sales-orders` thêm trường `warehouseId` (tương thích).
 - Thư viện mới: `expo-camera` (ứng dụng kho), `qrcode-generator` 2.0.4 (web-hr), `react-native-qrcode-svg` 6.3.26, `react-native-svg` 15.16.0 (ứng dụng VComm, cổng chuyển khoản).
@@ -23,7 +23,7 @@
   - Ứng dụng kho chưa thử camera trên điện thoại thật.
   - 2 lỗ hổng Trung bình đã biết trong `@expo/cli` (rủi ro đã chấp nhận).
 - Khả năng tương thích: tương thích ngược với 0.3.0; database migration chỉ thêm schema, bảng, cột.
-- Công việc gộp trong phiên bản: CONG_VIEC_28 đến 42, 44, 46, 47, 48, 50; LOI_06; THAY_DOI_20, 21.
+- Công việc gộp trong phiên bản: CONG_VIEC_28 đến 42, 44, 46, 47, 48, 50; LOI_06, LOI_07; THAY_DOI_20, 21.
 - Kiểm thử trên nhánh phát hành: xem tài liệu `25`.
 - Tag: `v0.4.0` trên commit hợp nhất nhánh `phat-hanh/v0.4.0` vào `main` (gắn tự động khi CI trên `main` đạt).
 - Phương án quay lui riêng của phiên bản:
