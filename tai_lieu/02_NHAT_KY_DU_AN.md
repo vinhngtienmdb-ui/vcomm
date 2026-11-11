@@ -2,8 +2,29 @@
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày.
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-11
+- Ngày cập nhật: 2026-11-12
 - Trạng thái: Đang cập nhật
+
+## 2026-11-12
+
+### Công việc đã thực hiện
+
+- Phát hành 0.4.0 (pull request #112): CONG_VIEC_28 đến 42 (cổng thanh toán, đơn vị vận chuyển, tắt mặc định), 44, 46, 47, 48, 50; LOI_06, LOI_07; THAY_DOI_20, 21. Kiểm thử API 481/481 sau khi sửa LOI_07 (ngày duyệt bảng lương ghi theo đồng hồ cơ sở dữ liệu). Chờ người dùng phê duyệt triển khai.
+- CONG_VIEC_51 (điểm thưởng phần 1) xong lát L0 đến L4; người dùng nghiệm thu, xác nhận các quyết định AI ở đặc tả mục 18 (pull request #103; kiểm thử 346/346).
+- Người dùng nghiệm thu CONG_VIEC_54 (Nhân sự phần 4), pull request #105 (kiểm thử 354/354): tuyển dụng (nhu cầu qua luồng duyệt, tin, trang tuyển dụng công khai, ứng viên, phỏng vấn kèm email lịch, đề nghị nhận việc qua luồng duyệt và liên kết trả lời dùng một lần, lập hồ sơ nhân sự từ ứng viên, khử nhận dạng ứng viên theo hạn 30 ngày, 12 tháng và theo yêu cầu) và đánh giá hiệu suất (mẫu tiêu chí, kỳ, mục tiêu, tự đánh giá, người chấm, điều chỉnh, công bố, xác nhận; xếp loại A đến D); THAY_DOI_23, THAY_DOI_25. Khi trình sửa 3 lỗi: thời điểm kết thúc hồ sơ ứng tuyển theo đồng hồ ứng dụng; xóa theo yêu cầu chạy lại khi kho lưu trữ lỗi; hiển thị điểm điều chỉnh.
+- CONG_VIEC_49 (Cộng đồng phần 1, MODULE_10) trình nghiệm thu, pull request #97 (kiểm thử 346/346). L1 cộng tác viên theo đường dẫn sản phẩm (7 ngày từ lần bấm cuối, mức hoa hồng thứ sáu) và thưởng giới thiệu bạn bè một lần vào ví hoa hồng; L2 mua chung bậc giá theo tổng số lượng, trả trước 100%, chốt nhóm hoàn chênh lệch hoặc toàn bộ vào ví mua sắm riêng, khóa ví mua sắm toàn hệ thống và chặn từng ví theo tài khoản (THAY_DOI_22); L3 bảng tin mở (bài đăng có ảnh, sản phẩm; đánh giá đã mua hàng; bình luận; thích; báo cáo tự ẩn tạm ở 5 báo cáo; ẩn, khóa tài khoản, từ cấm, bài VComm ghim tối đa 3). Rà soát mã sửa lỗi "hiện lại, bỏ qua báo cáo" với nội dung đang hiện.
+
+### Quyết định
+
+- CONG_VIEC_51, người dùng quyết định 2026-11-11: (1) tích điểm khi đơn hoàn tất; (2) tỷ lệ tích, giá trị một điểm, giới hạn đổi cấu hình theo giai đoạn, giai đoạn áp dụng theo ngày đặt, giá trị điểm đổi theo giai đoạn; (3) hạn dùng 12 tháng theo lần tích; (4) hạng theo năm dương lịch, lên hạng ngay, có hệ số tích; (5) hoàn điểm khi hủy, trả hàng theo tỷ lệ; (6) được dùng cả điểm và ví mua sắm trên một đơn, điểm trừ trước, đơn mua chung không dùng điểm; (7) chống gian lận: trần điểm, khóa ví, điều chỉnh có duyệt, cảnh báo; (8) hạch toán 641 / 3388; (9) nguồn chứng từ chung cho bán tại quầy (CONG_VIEC_53); (10) trả hàng tại quầy thiếu số dư thì phần thiếu quy tiền trừ vào tiền hoàn; (11) quầy ở công ty con khác: công ty bán chịu chi phí, nợ nội bộ 1368 / 3368; (12) ô dùng điểm mặc định tắt.
+- CONG_VIEC_51, quyết định AI tự đưa ra, người dùng đã xác nhận khi nghiệm thu (đặc tả mục 18): giai đoạn chỉ bắt đầu từ hôm nay; bảng hạng không bỏ được hạng đã dùng; đơn trực tuyến điểm trả hết thì chuyển Chờ giao ngay; bút toán điểm dùng của đơn VComm ghi gộp khi hoàn tất; số dư đổi điểm chỉ tính lô còn hạn.
+
+### Vấn đề tồn đọng
+
+- Hai rủi ro pháp lý của CONG_VIEC_49 (ví mua sắm có thể là ví điện tử; bảng tin mở có thể cần giấy phép mạng xã hội) chặn triển khai môi trường thật, chờ ý kiến luật sư (người dùng xác nhận hỏi sau).
+- CONG_VIEC_49, quyết định AI tự đưa ra chờ xác nhận khi nghiệm thu (ghi ở tài liệu 07): tối đa 30 ảnh chưa đăng trong 24 giờ; bài đã xóa vẫn tính giới hạn 10 bài/ngày; mở khóa cộng đồng cũng báo người dùng; nhân viên mở nhóm trên web không giới hạn số nhóm; người mở nhóm không còn Đã duyệt thì đơn không có phần cộng tác viên; gắn nhãn KOL/KOC được cả khi đang Tạm ngừng.
+- CONG_VIEC_49: số mục mới trong tài liệu 08 (mục 40), 14 (mục 65, 66), 16 (mục 28), 17, 27 (mục 26) có thể trùng với nhánh song song khi hợp nhất.
+- CONG_VIEC_51: cần ý kiến luật sư trước khi phát hành lên môi trường thật. Nhánh nào hợp nhất sau giữa CONG_VIEC_49 và 51 ghép công thức tiền phải trả theo đặc tả mục 19.
 
 ## 2026-11-11
 
