@@ -29,6 +29,7 @@
   - Thuế thu nhập cá nhân: khấu trừ 10% khi chi trả trên 5.000.000 đồng; mức và tỷ lệ cấu hình được, không khóa cứng.
   - Rút tiền từ ví: tối thiểu 100.000 đồng; kế toán duyệt chi, chuyển khoản rồi ghi đã chi.
   - Thiết lập hoa hồng (giới thiệu và từng chức danh đội kinh doanh): bắt buộc đặt từng sản phẩm; sản phẩm chưa thiết lập thì không có hoa hồng.
+  - Xác nhận thiết kế: chốt người hưởng và mức lúc đặt đơn; tính khi hoàn tất theo hàng thực bán; thiếu chức danh thì người có chức danh cao hơn gần nhất nhận, không có ai cao hơn thì không ai nhận; tạo yêu cầu rút thì giữ tiền ngay, một yêu cầu chờ mỗi người; năm lát L0 đến L4, xem trước từng lát, không làm bản mẫu riêng.
 - CONG_VIEC_25 (người dùng, 2026-11-11):
   - Cổng kết nối thật đầu tiên: VNPAY (QR VNPAY, thẻ ATM nội địa, thẻ Visa/Master), trong khung chung bật tắt từng cổng, từng phương thức; thanh toán khi nhận hàng là một phương thức.
   - Đơn thanh toán trực tuyến chưa trả: giữ hàng 15 phút, quá hạn tự hủy, nhả hàng.
