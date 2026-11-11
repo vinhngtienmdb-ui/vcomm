@@ -437,3 +437,14 @@
 - Mức quy mô: Nhỏ; làm trong CONG_VIEC_55.
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-12.
+
+### THAY_DOI_28: Gộp nút chia sẻ sản phẩm trên ứng dụng VComm – 2026-11-12
+- Lý do: CONG_VIEC_22 thêm chia sẻ đường dẫn sản phẩm có mã giới thiệu (THAY_DOI_26), trùng với nút "Chia sẻ nhận hoa hồng" của CONG_VIEC_49 (đã phát hành 0.5.0).
+- Nội dung thay đổi (người dùng chọn 2026-11-12 trong phiên CONG_VIEC_22): một nút "Chia sẻ sản phẩm" cho mọi người mua, đường dẫn gộp mã giới thiệu và mã cộng tác viên; thay nút "Chia sẻ nhận hoa hồng" trên MAN_HINH_91.
+- Thành phần bị ảnh hưởng: CONG_VIEC_22, CONG_VIEC_49 (MAN_HINH_91); tài liệu 09, 10, 14.
+- Dữ liệu, API, giao diện, quyền: không đổi API, dữ liệu, quyền; đổi giao diện MAN_HINH_91.
+- Ảnh hưởng chức năng cũ: hành vi chia sẻ của CONG_VIEC_49 giữ nguyên (đường dẫn vẫn mang mã cộng tác viên); chỉ đổi nút.
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_22 lát L1; hồi quy c49-collaborators.
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_22.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-12.

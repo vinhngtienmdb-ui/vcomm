@@ -22,6 +22,9 @@
 
 ### Quyết định
 
+- THAY_DOI_28 (đã phê duyệt): CONG_VIEC_22 lát L1 gộp nút "Chia sẻ sản phẩm" cho mọi người mua, thay nút "Chia sẻ nhận hoa hồng" của CONG_VIEC_49 trên MAN_HINH_91.
+- CONG_VIEC_53 lát L6, người dùng quyết định 2026-11-11: tích điểm tại quầy chỉ cần số điện thoại; dùng điểm cần Smart OTP gắn thiết bị (mã 30 giây trong ứng dụng VComm, kích hoạt bằng mã SMS, mỗi tài khoản một máy, sai 5 lần khóa 15 phút); khách chưa có tài khoản không tích, hóa đơn mời cài ứng dụng.
+- CONG_VIEC_57 lát L3: người dùng giữ chặn đơn mua chung với trạm.
 - THAY_DOI_27 (đã phê duyệt): CONG_VIEC_55 kích hoạt lời mời cửa hàng bằng số điện thoại và mã OTP.
 - CONG_VIEC_56: người dùng duyệt đặc tả và bản mẫu (pull request #119), cho lập trình toàn bộ; phần thời hạn nộp thuế, tiền chậm nộp, khai bổ sung ghi rủi ro, phải đối chiếu nguyên văn luật trước khi nghiệm thu.
 - Người dùng đồng ý xem trước CONG_VIEC_52 lát L3 (cho trình nghiệm thu), CONG_VIEC_57 lát L1, L2, CONG_VIEC_58 lát L0, CONG_VIEC_22 lát L0.
