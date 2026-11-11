@@ -350,7 +350,8 @@
     "paymentEmailRequired": "International card payment via MoMo needs an email. Please add an email to your account or choose another method.",
     "paymentGatewayStartFailed": "The payment gateway could not open the payment page. Please try again later.",
     "bankTransactionMarketplaceLinked": "The transaction has been recorded as a VComm order payment and cannot be unmatched.",
-    "bankTransferNotPending": "The payment is no longer awaiting confirmation."
+    "bankTransferNotPending": "The payment is no longer awaiting confirmation.",
+    "carrierLookupUnsupported": "This carrier does not support refreshing shipments; the status updates when the carrier sends a notification. Check the order on the carrier website if needed."
   },
   "login": {
     "title": "Sign in",

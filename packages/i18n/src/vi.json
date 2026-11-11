@@ -350,7 +350,8 @@
     "paymentEmailRequired": "Thanh toán thẻ quốc tế qua MoMo cần email. Vui lòng thêm email cho tài khoản hoặc chọn phương thức khác.",
     "paymentGatewayStartFailed": "Cổng thanh toán chưa mở được trang thanh toán. Vui lòng thử lại sau.",
     "bankTransactionMarketplaceLinked": "Giao dịch đã ghi nhận tiền đơn VComm, không bỏ ghép được.",
-    "bankTransferNotPending": "Lần thanh toán không còn chờ xác nhận."
+    "bankTransferNotPending": "Lần thanh toán không còn chờ xác nhận.",
+    "carrierLookupUnsupported": "Đơn vị vận chuyển này không có chức năng tra lại vận đơn; trạng thái tự cập nhật khi đơn vị vận chuyển gửi thông báo. Kiểm tra đơn trên trang của đơn vị vận chuyển nếu cần."
   },
   "login": {
     "title": "Đăng nhập",
