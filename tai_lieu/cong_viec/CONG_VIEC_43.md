@@ -19,7 +19,7 @@ Trong phạm vi:
 - CONG_VIEC_21: tắt giao khách; bỏ giới hạn xem theo người phụ trách.
 - CONG_VIEC_08: đơn bán tay chỉ gồm dịch vụ; Kế toán lập đơn bán dịch vụ; Nhân viên bán hàng không lập đơn bán.
 
-Ngoài phạm vi: CONG_VIEC_20 giữ nguyên (loại trừ hàng hóa nội bộ bằng 0 khi không phát sinh); xóa dữ liệu giao khách, giao dịch nội bộ đã có; hoa hồng theo đơn VComm (CONG_VIEC_26) không đổi.
+Ngoài phạm vi: CONG_VIEC_20 giữ nguyên phần hàng hóa (sau rà soát, người dùng quyết định 2026-11-11 sửa phần loại trừ dịch vụ nội bộ, xem mục 12); xóa dữ liệu giao khách, giao dịch nội bộ đã có; hoa hồng theo đơn VComm (CONG_VIEC_26) không đổi.
 
 ## 3. Yêu cầu chức năng
 
@@ -79,3 +79,10 @@ Cách làm đã chọn (lát L3): giao dịch nội bộ dịch vụ lập phi�
 ## 11. Ràng buộc
 
 Không thêm thư viện. Không xóa dữ liệu giao khách, giao dịch nội bộ đã có. Không đổi CONG_VIEC_20, 24, 25, 26.
+
+## 12. Sửa sau rà soát độc lập (lát L4, quyết định người dùng 2026-11-11)
+
+- Báo cáo hợp nhất: loại trừ dịch vụ nội bộ theo cặp Nợ doanh thu dịch vụ bên bán / Có chi phí dịch vụ bên mua; phiếu dịch vụ không vào phần loại trừ hàng hóa (giá vốn, lãi chưa thực hiện).
+- Nhân viên có quyền ghi ghé thăm nhưng không có quyền quản lý hồ sơ thêm đối tác thì tự có hồ sơ khách hàng mặc định (thanh toán ngay, hạn mức 0), không gán người phụ trách.
+- Mọi đơn mua có dòng dịch vụ (kể cả nhà cung cấp ngoài tập đoàn): khi đơn được duyệt thì tự lập phiếu nhập dịch vụ không ghi thẻ kho, công nợ phải trả, bút toán Nợ chi phí dịch vụ / Nợ thuế đầu vào / Có 331.
+- Liên kết mặt hàng hai công ty phải cùng loại; không đổi loại sản phẩm khi đã có liên kết, tin đăng VComm, đơn bán, đơn mua chưa kết thúc; sản phẩm dịch vụ không hiện, không đặt được trên VComm; quà khuyến mãi là dịch vụ không kiểm tồn; đơn tay không tự thêm quà hàng hóa khi chưa bật cài đặt; ô chọn mặt hàng đơn bán chỉ hiện dịch vụ khi chưa bật cài đặt.
