@@ -112,13 +112,25 @@ Hành vi GHN; luồng đơn VComm của CONG_VIEC_24; mã thanh toán CONG_VIEC_
 
 | Lần | Kết quả |
 |---|---|
-| 2026-11-11 | `c29-carrier-viettel-post` 4/4 đạt; `c24-marketplace-orders` 12/12 đạt (đã sửa một câu kiểm tra danh sách đơn vị vận chuyển, người dùng đồng ý ngày 2026-11-11); toàn bộ kiểm thử API: xem mục 15 |
+| 2026-11-11 | `c29-carrier-viettel-post` 4/4 đạt; `c24-marketplace-orders` 12/12 đạt (đã sửa một câu kiểm tra danh sách đơn vị vận chuyển, người dùng đồng ý ngày 2026-11-11) |
+| 2026-11-11 (hồi quy lần 1) | Toàn bộ API 327/328: KICHBAN_KIEMTHU_345 thất bại do lượt chạy bắt đầu trước khi sửa lỗi lưu `TOKEN` vào nhật ký webhook (lỗi tự rà soát phát hiện, đã sửa) |
+| 2026-11-11 (hồi quy lần 2) | Toàn bộ API 328/328 đạt (41 tệp); kiểm tra kiểu đạt |
 
 Sửa kiểm thử cũ: KICHBAN_KIEMTHU_310 so khớp nguyên danh sách đơn vị vận chuyển chỉ có GHN; database migration 0041 thêm Viettel Post nên đổi thành kiểm tra danh sách có dòng GHN đúng thông tin (`toContainEqual`).
 
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
-Cập nhật khi trình nghiệm thu.
+| Mục | Kết quả |
+|---|---|
+| Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Đạt: QUYTAC_NGHIEPVU_185 đến 189 có kiểm thử tự động (KICHBAN_KIEMTHU_344 đến 347); quyền không đổi |
+| Đúng giao diện | Không áp dụng: không sửa mã giao diện; MAN_HINH_86, 88 hiển thị danh sách đơn vị vận chuyển từ API |
+| Đã xử lý lỗi | Đạt: từ chối, không trả lời, trùng số đơn, không hỗ trợ tra lại đều có thông báo riêng; không rõ kết quả thì giữ chỗ chờ webhook |
+| Đã kiểm thử, đạt cổng kiểm thử | Đạt: 328/328 trên máy phát triển. CI trên GitHub không chạy được do tài khoản GitHub lỗi thanh toán (nhánh base cũng vậy) |
+| Không phá vỡ chức năng cũ | Đạt: GHN và c24 đạt; phần thêm vào khung chung là tùy chọn |
+| Đạt tiêu chí nghiệm thu bắt buộc | Đạt: TIEUCHI_NGHIEMTHU_204 đến 207 (trên máy chủ giả lập; thử với môi trường thử nghiệm của Viettel Post trước khi phát hành) |
+| Đạt cổng bảo mật | Đạt: không thêm thư viện; không có khóa bí mật trong mã, commit (quét thủ công; gitleaks trong CI không chạy do lỗi thanh toán); webhook xác thực hai lớp, so sánh an toàn; khóa webhook không lưu vào cơ sở dữ liệu |
+| Đã tự rà soát mã, dọn dẹp | Đạt: rà soát phát hiện và sửa lỗi lưu `TOKEN`; tệp tạm trong `tam_thoi/CONG_VIEC_29/` (Git bỏ qua). ESLint chưa chạy được vì dự án chưa có tệp cấu hình ESLint |
+| Đã cập nhật tài liệu `27` và tài liệu liên quan | Chờ phiên chính: các dòng cần thêm ghi ở mục 16 (công việc không được sửa tài liệu dùng chung) |
 
 ## 16. Dòng cần thêm vào tài liệu dùng chung (phiên chính cập nhật khi hợp nhất)
 
