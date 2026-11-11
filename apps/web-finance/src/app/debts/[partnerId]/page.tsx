@@ -147,6 +147,11 @@ function DebtItems({ data, headings, money, reload }: { data: DebtPartnerRespons
                 </td>
                 <td data-nhan={headings[4]}>
                   <span style={{ whiteSpace: "nowrap" }}>{item.direction === "credit" ? `−${money(item.amount)}` : money(item.amount)}</span>
+                  {item.foreign && (
+                    <span className="chu-thich" style={{ display: "block" }}>
+                      {t("foreignAmount", { amount: formatMoney(item.foreign.amount, item.foreign.currency), rate: item.foreign.exchangeRate })}
+                    </span>
+                  )}
                 </td>
                 <td data-nhan={headings[5]}>
                   <span style={{ whiteSpace: "nowrap" }}>{money(item.openAmount)}</span>

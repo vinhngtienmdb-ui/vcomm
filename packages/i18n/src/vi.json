@@ -1725,7 +1725,9 @@
     "shortageReason": "Lý do nhận thiếu",
     "confirmReceiveInternal": "Xác nhận nhận hàng",
     "internalReceived": "Đã nhận hàng nội bộ.",
-    "serviceDocument": "Phiếu dịch vụ"
+    "serviceDocument": "Phiếu dịch vụ",
+    "exchangeRate": "Tỷ giá",
+    "exchangeRateValue": "1 {currency} = {rate} (tỷ giá hạch toán ngày phiếu nhập)"
   },
   "stocktakes": {
     "title": "Kiểm kê",
@@ -2063,7 +2065,14 @@
     "counterpartRejected": "Đã từ chối: {reason}",
     "noNumberYet": "chưa có số",
     "internalPriceHint": "Nhà cung cấp nội bộ: giá theo bảng giá kênh Nội bộ của công ty bán, không sửa được.",
-    "lineLabel": "Dòng {number}"
+    "lineLabel": "Dòng {number}",
+    "isImport": "Nhập khẩu",
+    "currency": "Tiền tệ",
+    "currencyHint": "Đơn nhập khẩu: đơn giá theo tiền tệ này; thuế suất dòng là \"Không kê khai\", thuế giá trị gia tăng tính trên tờ khai.",
+    "importLabel": "Nhập khẩu · {currency}",
+    "importShort": "Nhập khẩu",
+    "convertedTotal": "Quy đổi theo tỷ giá hạch toán hôm nay: {amount}",
+    "convertedMissing": "Chưa có tỷ giá hạch toán hôm nay để quy đổi."
   },
   "salesOrders": {
     "title": "Đơn bán",
@@ -2310,7 +2319,8 @@
     "paymentKind_customer_refund": "Hoàn tiền cho khách hàng",
     "paymentKind_supplier_refund": "Nhà cung cấp hoàn tiền",
     "source_internal_write_off": "Ghi tổn thất hàng thiếu nội bộ",
-    "source_collection_statement": "Bảng đối soát thu hộ"
+    "source_collection_statement": "Bảng đối soát thu hộ",
+    "foreignAmount": "{amount}, tỷ giá {rate}"
   },
   "funds": {
     "title": "Quỹ",

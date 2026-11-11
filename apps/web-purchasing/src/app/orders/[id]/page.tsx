@@ -108,8 +108,9 @@ function Detail({ order, reload }: { order: PurchaseOrderResponse; reload: () =>
       </div>
       <CounterpartPanel order={order} reload={reload} />
       <section className="the">
-        <div>
+        <div className="nhom-nut" style={{ alignItems: "center" }}>
           <strong>{order.supplierName}</strong>
+          {order.isImport && <span className="nhan thong-tin">{t("importLabel", { currency: order.currency })}</span>}
         </div>
         <div className="chu-thich">
           {t("warehouse")}: {order.warehouseName} · {t("orderDate")}: {formatDate(order.orderDate)} · {t("expectedDate")}: {formatDate(order.expectedDate)} · {t("createdBy")}: {order.createdByName}
@@ -123,6 +124,9 @@ function Detail({ order, reload }: { order: PurchaseOrderResponse; reload: () =>
         <strong>
           {t("total")}: {formatMoney(order.totalAmount, order.currency)} · {t("tax")}: {formatMoney(order.taxAmount, order.currency)}
         </strong>
+        {order.currency !== order.companyCurrency && (
+          <div className="chu-thich">{order.convertedTotal === null ? t("convertedMissing") : t("convertedTotal", { amount: formatMoney(order.convertedTotal, order.companyCurrency) })}</div>
+        )}
       </section>
       <div className="khung-bang">
         <table>

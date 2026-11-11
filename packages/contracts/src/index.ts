@@ -1601,6 +1601,10 @@ export interface StockDocumentResponse extends StockDocumentListItem {
   sourceNo: string | null;
   canQualityCheck: boolean;
   canReturn: boolean;
+  // CONG_VIEC_45: phiếu nhập mua, trả hàng theo đơn ngoại tệ (QUYTAC_NGHIEPVU_286); trống khi theo tiền tệ công ty.
+  currency: string | null;
+  exchangeRate: string | null;
+  foreignAmount: string | null;
   // CONG_VIEC_09: phiếu nhập mua nội bộ chờ nhận; số xuất, serial xuất theo phiếu xuất gốc bên bán (đơn vị cơ sở bên nhận).
   internalReceipt: { issueDocumentNo: string | null; sellerCompanyName: string; lines: { lineId: string; shippedBaseQuantity: string; shippedSerials: string[] }[] } | null;
   canReceiveInternal: boolean;
@@ -2219,6 +2223,15 @@ export const savePurchaseOrderSchema = z
     orderDate: isoDate,
     expectedDate: isoDate.nullable().optional(),
     note: blankToNull(1000),
+    // CONG_VIEC_45 (QUYTAC_NGHIEPVU_285): đơn nhập khẩu chọn được ngoại tệ; đơn không nhập khẩu theo tiền tệ công ty.
+    isImport: z.boolean().default(false),
+    currency: z
+      .string()
+      .trim()
+      .regex(/^[A-Za-z]{3}$/)
+      .transform((value) => value.toUpperCase())
+      .nullable()
+      .optional(),
     lines: z
       .array(
         z
@@ -2248,6 +2261,7 @@ export interface PurchaseOrderListItem {
   orderDate: string;
   expectedDate: string | null;
   currency: string;
+  isImport: boolean;
   totalAmount: string;
   taxAmount: string;
   status: PurchaseDocumentStatus;
@@ -2286,6 +2300,11 @@ export interface PurchaseOrderResponse extends PurchaseOrderListItem {
   note: string | null;
   approvalRequestId: string | null;
   closedReason: string | null;
+  // CONG_VIEC_45: tiền tệ công ty; tổng chưa thuế quy đổi theo tỷ giá hạch toán hôm nay (trống khi cùng tiền tệ hoặc chưa có tỷ giá).
+  companyCurrency: string;
+  convertedTotal: string | null;
+  // Đã có phiếu nhập: không đổi tiền tệ, không bỏ đánh dấu nhập khẩu.
+  currencyLocked: boolean;
   lines: PurchaseOrderLineResponse[];
   receipts: { id: string; documentNo: string | null; type: "purchase_receipt" | "purchase_return"; status: string; documentDate: string }[];
   version: number;
@@ -2810,6 +2829,8 @@ export interface DebtItemResponse {
   openAmount: string;
   overdueDays: number;
   note: string | null;
+  // CONG_VIEC_45: khoản theo đơn ngoại tệ, kèm số ngoại tệ (gồm thuế) và tỷ giá để đối chiếu; công nợ vẫn theo tiền tệ công ty.
+  foreign: { currency: string; amount: string; exchangeRate: string } | null;
   canDelete: boolean;
   allocations: DebtAllocationResponse[];
 }

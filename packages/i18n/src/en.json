@@ -1725,7 +1725,9 @@
     "shortageReason": "Reason for shortage",
     "confirmReceiveInternal": "Confirm receipt",
     "internalReceived": "Internal goods received.",
-    "serviceDocument": "Service document"
+    "serviceDocument": "Service document",
+    "exchangeRate": "Exchange rate",
+    "exchangeRateValue": "1 {currency} = {rate} (accounting rate on the receipt date)"
   },
   "stocktakes": {
     "title": "Stocktake",
@@ -2063,7 +2065,14 @@
     "counterpartRejected": "Rejected: {reason}",
     "noNumberYet": "no number yet",
     "internalPriceHint": "Internal supplier: price from the selling company's Internal channel price list, not editable.",
-    "lineLabel": "Line {number}"
+    "lineLabel": "Line {number}",
+    "isImport": "Import",
+    "currency": "Currency",
+    "currencyHint": "Import order: unit prices in this currency; line VAT rate is \"Not declared\", import VAT is calculated on the customs declaration.",
+    "importLabel": "Import · {currency}",
+    "importShort": "Import",
+    "convertedTotal": "Converted at today's accounting rate: {amount}",
+    "convertedMissing": "No accounting exchange rate for today to convert."
   },
   "salesOrders": {
     "title": "Sales orders",
@@ -2310,7 +2319,8 @@
     "paymentKind_customer_refund": "Customer refund",
     "paymentKind_supplier_refund": "Supplier refund",
     "source_internal_write_off": "Internal shortage write-off",
-    "source_collection_statement": "Collection statement"
+    "source_collection_statement": "Collection statement",
+    "foreignAmount": "{amount}, rate {rate}"
   },
   "funds": {
     "title": "Funds",

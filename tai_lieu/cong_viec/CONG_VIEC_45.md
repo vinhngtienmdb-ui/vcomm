@@ -3,7 +3,7 @@
 - Mô tả: Đơn mua nhập khẩu bằng ngoại tệ, nhập kho quy đổi theo tỷ giá, tờ khai hải quan và các khoản thuế, chi phí nhập khẩu, phân bổ thuế và chi phí vào giá vốn hàng nhập, bút toán theo Thông tư 99/2025/TT-BTC, Thông tư 133/2016/TT-BTC.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả và bản mẫu.
+- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; đang xây lát L0.
 - Nguồn: tài liệu `04` mục 3 ý 3 ("giao dịch ngoại tệ và chi phí nhập khẩu phân bổ vào giá vốn"); tài liệu `05` (Mua hàng: "nhập khẩu bằng ngoại tệ, phân bổ chi phí nhập khẩu"); phần tách từ CONG_VIEC_07 (đặc tả CONG_VIEC_07 mục 2); quyết định của người dùng ngày 2026-11-11 (mục 3).
 - Mức: Lớn. Lý do: nghiệp vụ mới, đổi cách tính giá vốn, bút toán mới, sửa schema Mua hàng, Kho, Tài chính.
 

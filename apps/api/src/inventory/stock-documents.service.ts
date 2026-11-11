@@ -107,6 +107,9 @@ type DocumentRow = {
   counterpart_document_id: string | null;
   source_no: string | null;
   is_service: boolean;
+  currency: string | null;
+  exchange_rate: string | null;
+  foreign_amount: string | null;
 };
 
 export type LineRow = {
@@ -356,6 +359,9 @@ export class StockDocumentsService implements OnModuleInit {
       partnerName: row.partner_name,
       sourceId: row.source_id,
       sourceNo: row.source_no,
+      currency: row.currency,
+      exchangeRate: row.exchange_rate === null ? null : trimDecimal(row.exchange_rate),
+      foreignAmount: row.foreign_amount === null ? null : trimDecimal(row.foreign_amount),
       canQualityCheck: row.type === "purchase_receipt" && row.status === "quality_check" && (await canReceivePurchases(sourceWarehouse)),
       canReturn:
         (row.type === "purchase_receipt" && row.status === "posted" && (await canReceivePurchases(sourceWarehouse))) ||
@@ -919,6 +925,7 @@ export class StockDocumentsService implements OnModuleInit {
         (SELECT count(*)::int FROM inventory.document_lines l WHERE l.document_id = d.id) AS line_count,
         (SELECT sum(l.cost_value)::text FROM inventory.document_lines l WHERE l.document_id = d.id) AS total_value,
         d.created_by, u.full_name AS created_by_name, d.created_at, d.version, d.partner_id, pt.name AS partner_name, d.source_id, d.counterpart_document_id, d.is_service,
+        d.currency, d.exchange_rate::text, CASE WHEN d.status = 'posted' THEN finance.inventory_foreign_amount(d.id)::text END AS foreign_amount,
         CASE WHEN d.type = 'purchase_receipt' THEN (SELECT o.document_no FROM purchasing.orders o WHERE o.id = d.source_id)
              WHEN d.type = 'sales_issue' THEN (SELECT so.document_no FROM sales.orders so WHERE so.id = d.source_id)
              WHEN d.type IN ('purchase_return', 'sales_return') THEN (SELECT r.document_no FROM inventory.documents r WHERE r.id = d.source_id) END AS source_no
