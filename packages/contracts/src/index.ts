@@ -4550,3 +4550,50 @@ export const analyticsCompanyIdsSchema = z
   .pipe(z.array(z.uuid()).max(100).optional());
 export const analyticsPeriodSchema = { from: isoDate, to: isoDate };
 export const analyticsFormatSchema = z.enum(["json", "xlsx"]).default("json");
+
+// Dòng tiền của báo cáo quản trị theo đồng tiền hạch toán; inTotal = cộng vào dòng tổng (QUYTAC_NGHIEPVU_339).
+export interface AnalyticsMoneyRow {
+  currency: string;
+  inTotal: boolean;
+}
+// QUYTAC_NGHIEPVU_343: bảng hiện tối đa 500 dòng, xuất Excel tối đa 20.000 dòng.
+export const analyticsDisplayRows = 500;
+export const analyticsExportRows = 20_000;
+
+// API_171
+export const analyticsSalesGroupings = ["company", "channel", "product", "day", "month"] as const;
+export type AnalyticsSalesGrouping = (typeof analyticsSalesGroupings)[number];
+export const analyticsSalesQuerySchema = z
+  .object({
+    companyIds: analyticsCompanyIdsSchema,
+    ...analyticsPeriodSchema,
+    groupBy: z.enum(analyticsSalesGroupings).default("company"),
+    channelId: z.uuid().optional(),
+    marketplaceOnly: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
+    format: analyticsFormatSchema,
+  })
+  .strict();
+export interface AnalyticsSalesFigures {
+  quantity: string;
+  revenue: string;
+  cost: string;
+  grossProfit: string;
+  internalRevenue: string;
+}
+export interface AnalyticsSalesRow extends AnalyticsMoneyRow, AnalyticsSalesFigures {
+  key: string;
+  label: string;
+}
+export interface AnalyticsSalesResponse {
+  from: string;
+  to: string;
+  groupBy: AnalyticsSalesGrouping;
+  currency: string;
+  companies: AnalyticsCompany[];
+  channels: { id: string; label: string }[];
+  rows: AnalyticsSalesRow[];
+  // Tổng các dòng cùng đồng tiền với công ty gốc, tính trên toàn bộ dữ liệu.
+  totals: AnalyticsSalesFigures & { revenueExcludingInternal: string };
+  // Số dòng có dữ liệu khi bảng bị cắt; null khi hiện đủ.
+  totalRows: number | null;
+}
