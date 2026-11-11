@@ -1,7 +1,11 @@
 // API_170 đến API_175: báo cáo quản trị (CONG_VIEC_50). Chỉ đọc; quyền từng nhóm báo cáo kiểm trong service.
 import { Controller, Get, Headers, Query, Req, Res, StreamableFile } from "@nestjs/common";
 import {
+  analyticsCommissionQuerySchema,
   analyticsDebtQuerySchema,
+  analyticsOverviewQuerySchema,
+  type AnalyticsCommissionResponse,
+  type AnalyticsOverviewResponse,
   analyticsInventoryQuerySchema,
   type AnalyticsDebtResponse,
   analyticsSalesQuerySchema,
@@ -18,7 +22,9 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { reportXlsx, xlsxContentType, type ExportTable } from "./analytics-export";
 import { AnalyticsScopeService } from "./analytics-scope.service";
+import { CommissionReportService } from "./commission-report.service";
 import { DebtReportService } from "./debt-report.service";
+import { OverviewService } from "./overview.service";
 import { InventoryReportService } from "./inventory-report.service";
 import { SalesReportService } from "./sales-report.service";
 
@@ -31,6 +37,8 @@ export class AnalyticsController {
     private readonly sales: SalesReportService,
     private readonly inventory: InventoryReportService,
     private readonly debts: DebtReportService,
+    private readonly commissions: CommissionReportService,
+    private readonly overviewService: OverviewService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -102,5 +110,24 @@ export class AnalyticsController {
     const report = await this.debts.report(actor, parsed, parsed.format === "xlsx");
     if (parsed.format === "json") return report;
     return this.export(actor, response, "debt", parsed, [this.debts.exportTable(report)], `bao-cao-cong-no-${parsed.side === "receivable" ? "phai-thu" : "phai-tra"}-${report.today}`);
+  }
+
+  @Get("commissions")
+  async commissionReport(
+    @Req() request: AuthenticatedRequest,
+    @Query() query: unknown,
+    @Res({ passthrough: true }) response: Response,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<AnalyticsCommissionResponse | StreamableFile> {
+    const parsed = analyticsCommissionQuerySchema.parse(query);
+    const actor = await this.actor(request, companyId);
+    const report = await this.commissions.report(actor, parsed, parsed.format === "xlsx");
+    if (parsed.format === "json") return report;
+    return this.export(actor, response, "commission", parsed, this.commissions.exportTables(report), `bao-cao-hoa-hong-${parsed.from}-${parsed.to}`);
+  }
+
+  @Get("overview")
+  async overview(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<AnalyticsOverviewResponse> {
+    return this.overviewService.overview(await this.actor(request, companyId), analyticsOverviewQuerySchema.parse(query));
   }
 }

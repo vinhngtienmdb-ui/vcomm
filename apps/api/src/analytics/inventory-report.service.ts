@@ -92,7 +92,13 @@ export class InventoryReportService {
     const companyIds = scope.companies.map((company) => company.id);
     const warehouses = await this.warehouses(companyIds);
     if (query.warehouseId && !warehouses.some((warehouse) => warehouse.id === query.warehouseId)) throw new ApiError("FORBIDDEN", "forbidden");
-    const rows = (await this.database.execute<FigureRow & { key: string; currency: string }>(this.figures(scope, query, days, query.groupBy, companyIds))).rows;
+    const sameCurrency = scope.companies.filter((company) => company.inTotal).map((company) => company.id);
+    // Dòng nhóm và dòng tổng chạy song song.
+    const [grouped, totalResult] = await Promise.all([
+      this.database.execute<FigureRow & { key: string; currency: string }>(this.figures(scope, query, days, query.groupBy, companyIds)),
+      this.database.execute<FigureRow & { key: string }>(this.figures(scope, query, days, null, sameCurrency)),
+    ]);
+    const rows = grouped.rows;
     const labels = await this.labels(
       query.groupBy,
       rows.map((row) => row.key),
@@ -103,8 +109,7 @@ export class InventoryReportService {
       .filter((row) => [row.openingValue, row.inValue, row.outValue, row.closingValue, row.costOfSales, row.openingQuantity, row.inQuantity, row.outQuantity].some((value) => Number(value) !== 0));
     if (query.groupBy === "company") sorted.sort((a, b) => order.get(a.key)! - order.get(b.key)!);
     else sorted.sort((a, b) => Number(b.closingValue) - Number(a.closingValue) || a.label.localeCompare(b.label));
-    const sameCurrency = scope.companies.filter((company) => company.inTotal).map((company) => company.id);
-    const total = (await this.database.execute<FigureRow & { key: string }>(this.figures(scope, query, days, null, sameCurrency))).rows[0];
+    const total = totalResult.rows[0];
     const totals = total
       ? this.toFigures(total)
       : this.toFigures({

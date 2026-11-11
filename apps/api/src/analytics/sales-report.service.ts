@@ -42,7 +42,8 @@ export class SalesReportService {
     const filter = sql`d.status = 'posted' AND d.company_id IN (${companies}) AND d.document_date BETWEEN ${query.from}::date AND ${query.to}::date`;
     return sql`
       SELECT d.company_id, d.warehouse_id, d.document_date, line.variant_id, line.sign, line.quantity, line.cost,
-        finance.line_share(sl.net_amount, line.before, line.quantity, sl.base_quantity, finance.company_minor_units(d.company_id)) AS revenue,
+        finance.line_share(sl.net_amount, line.before, line.quantity, sl.base_quantity, coalesce(cur.minor_units, 0)) AS revenue,
+        dc.base_currency AS currency,
         so.channel_id, (mo.id IS NOT NULL) AS is_marketplace,
         coalesce(p.company_id IN (${group}), false) AS is_internal
       FROM inventory.documents d
@@ -58,6 +59,9 @@ export class SalesReportService {
                     WHERE oi.source_line_id = il.source_line_id AND od.type = 'sales_return' AND od.status = 'posted' AND (od.posted_at, od.id) < (d.posted_at, d.id)), 0)
         FROM inventory.document_lines rl JOIN inventory.document_lines il ON il.id = rl.source_line_id WHERE rl.document_id = d.id AND d.type = 'sales_return'
       ) line
+      -- Số lẻ tiền tệ như finance.company_minor_units, nối một lần thay cho gọi hàm từng dòng.
+      JOIN core.companies dc ON dc.id = d.company_id
+      LEFT JOIN core.currencies cur ON cur.code = dc.base_currency
       JOIN sales.order_lines sl ON sl.id = line.order_line_id
       JOIN sales.orders so ON so.id = sl.order_id
       LEFT JOIN marketplace.orders mo ON mo.sales_order_id = so.id
@@ -92,14 +96,15 @@ export class SalesReportService {
     const figures = sql`
       sum(b.sign * b.quantity)::text AS quantity, sum(b.sign * b.revenue)::text AS revenue, sum(b.sign * b.cost)::text AS cost,
       coalesce(sum(b.sign * b.revenue) FILTER (WHERE b.is_internal), 0)::text AS internal_revenue`;
-    // Dòng nhóm theo khóa và đồng tiền hạch toán của công ty (công ty khác đồng tiền không gộp với công ty gốc).
-    const rows = (
-      await this.database.execute<FigureRow & { key: string; currency: string }>(sql`
+    // Dòng nhóm theo khóa và đồng tiền hạch toán của công ty (công ty khác đồng tiền không gộp với công ty gốc); dòng có key rỗng là tổng theo đồng tiền.
+    const grouped = (
+      await this.database.execute<FigureRow & { key: string | null; currency: string }>(sql`
       WITH b AS (${this.base(scope, query)})
-      SELECT ${this.keyOf(query.groupBy)} AS key, c.base_currency AS currency, ${figures}
-      FROM b JOIN core.companies c ON c.id = b.company_id
-      GROUP BY 1, 2`)
+      SELECT ${this.keyOf(query.groupBy)} AS key, b.currency, ${figures}
+      FROM b
+      GROUP BY GROUPING SETS ((${this.keyOf(query.groupBy)}, b.currency), (b.currency))`)
     ).rows;
+    const rows = grouped.filter((row): row is FigureRow & { key: string; currency: string } => row.key !== null);
     const labels = await this.labels(
       query.groupBy,
       rows.map((row) => row.key),
@@ -117,12 +122,8 @@ export class SalesReportService {
     else if (query.groupBy === "day" || query.groupBy === "month") sorted.sort((a, b) => a.key.localeCompare(b.key) || a.currency.localeCompare(b.currency));
     else sorted.sort((a, b) => Number(b.revenue) - Number(a.revenue) || a.label.localeCompare(b.label));
     const totalRows = sorted.length > analyticsDisplayRows ? sorted.length : null;
-    // Tổng tính trong cơ sở dữ liệu để không sai số làm tròn.
-    const totals = (
-      await this.database.execute<FigureRow>(sql`
-      WITH b AS (${this.base(scope, query)})
-      SELECT ${figures} FROM b WHERE b.company_id IN (${uuidList(scope.companies.filter((company) => company.inTotal).map((company) => company.id))})`)
-    ).rows[0]!;
+    // Tổng các công ty cùng đồng tiền với công ty gốc, tính trong cơ sở dữ liệu để không sai số làm tròn.
+    const totals = grouped.find((row) => row.key === null && row.currency === scope.group.currency) ?? { quantity: "0", revenue: "0", cost: "0", internal_revenue: "0" };
     const totalFigures = this.figures(totals);
     return {
       from: query.from,

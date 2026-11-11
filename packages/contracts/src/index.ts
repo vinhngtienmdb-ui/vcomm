@@ -4680,3 +4680,48 @@ export interface AnalyticsDebtResponse {
   totals: AnalyticsDebtFigures & { balanceExcludingInternal: string };
   totalRows: number | null;
 }
+
+// API_174
+export const analyticsCommissionGroupings = ["share", "beneficiary"] as const;
+export type AnalyticsCommissionGrouping = (typeof analyticsCommissionGroupings)[number];
+export const analyticsCommissionQuerySchema = z
+  .object({
+    companyIds: analyticsCompanyIdsSchema,
+    ...analyticsPeriodSchema,
+    groupBy: z.enum(analyticsCommissionGroupings).default("share"),
+    format: analyticsFormatSchema,
+  })
+  .strict();
+export interface AnalyticsCommissionResponse {
+  from: string;
+  to: string;
+  groupBy: AnalyticsCommissionGrouping;
+  currency: string;
+  companies: AnalyticsCompany[];
+  summary: {
+    credited: string;
+    creditedLines: number;
+    // Ước tính hoa hồng của đơn chưa hoàn tất tại hôm nay (QUYTAC_NGHIEPVU_203).
+    pending: string;
+    paid: { count: number; amount: string; taxAmount: string; feeAmount: string; netAmount: string };
+    pendingWithdrawals: { count: number; amount: string };
+    // Tổng số dư ví; null khi công ty vận hành VComm không nằm trong các công ty đã chọn.
+    walletBalance: string | null;
+  };
+  // key là loại phần hưởng (referral, staff, team_head, regional_director, director) hoặc mã người hưởng.
+  rows: { key: string; label: string; lines: number; amount: string }[];
+  withdrawals: { id: string; userName: string; paidOn: string; amount: string; taxAmount: string; feeAmount: string; netAmount: string }[];
+  totalRows: number | null;
+}
+
+// API_175: chỉ tiêu tổng quan theo quyền từng nhóm; null khi không có quyền nhóm đó hoặc không có công ty đã chọn được xem.
+export const analyticsOverviewQuerySchema = z.object({ companyIds: analyticsCompanyIdsSchema, ...analyticsPeriodSchema }).strict();
+export interface AnalyticsOverviewResponse {
+  from: string;
+  to: string;
+  currency: string;
+  sales: Pick<AnalyticsSalesResponse, "rows" | "totals"> | null;
+  inventory: AnalyticsInventoryResponse["totals"] | null;
+  debt: AnalyticsDebtResponse["summary"] | null;
+  commission: Pick<AnalyticsCommissionResponse["summary"], "credited" | "pending" | "walletBalance"> | null;
+}
