@@ -183,6 +183,14 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_51
+
+- Phạm vi: MODULE_11 điểm thưởng phần 1, nhánh `chuc-nang/CONG_VIEC_51-diem-thuong` (pull request #103, head `125a034`).
+- Kết quả: toàn bộ `pnpm --filter api test` 57 tệp, 346 kịch bản đạt (một tiến trình). KICHBAN_KIEMTHU_486 (`c51-program`), 487, 488, 489, 493 (`c51-earn`), 490, 491 (`c51-redeem`), 492, 496 (`c51-postings`), 494, 495 (`c51-admin`) – Đạt. KICHBAN_KIEMTHU_497 – Đạt (thủ công, Playwright): MAN_HINH_146 đến 150 khổ 1280 và 390, MAN_HINH_151, 152, 93, 96 trên ứng dụng bản web khổ 390, không lỗi, không cuộn ngang. Kiểm tra kiểu api, web-crm, mobile-vcomm đạt.
+- Kiểm tra bảo mật: không thêm thư viện; `pnpm audit` và gitleaks trên CI đạt cho commit L0 đến L3, L4 chờ kết quả. Phần B, C: quyền xét tại công ty vận hành sàn; người mua chỉ thấy ví của mình; điểm kiểm lại trên máy chủ, khóa dòng ví; trigger chặn sửa, xóa sổ cái; truy vấn tham số hóa.
+- Lỗi mới: không có.
+- Kết luận cổng kiểm thử: Đạt, chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-11 – CONG_VIEC_43
 
 - Phạm vi: lát L0 đến L4 (xóa hoa hồng đội kinh doanh cũ; tắt giao khách, đổi quyền lập đơn bán; loại sản phẩm, đơn bán tay chỉ dịch vụ, giao dịch nội bộ chỉ dịch vụ; phiếu kho dịch vụ không ghi thẻ kho, công nợ, hóa đơn, bút toán; sửa sau rà soát gồm loại trừ dịch vụ nội bộ trong báo cáo hợp nhất, tự nhận dịch vụ khi duyệt đơn mua).

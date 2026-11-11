@@ -2,8 +2,23 @@
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày.
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-11
+- Ngày cập nhật: 2026-11-12
 - Trạng thái: Đang cập nhật
+
+## 2026-11-12
+
+### Công việc đã thực hiện
+
+- CONG_VIEC_51 (điểm thưởng phần 1) xong lát L0 đến L4, trình nghiệm thu (pull request #103; kiểm thử 346/346).
+
+### Quyết định
+
+- CONG_VIEC_51, người dùng quyết định 2026-11-11: (1) tích điểm khi đơn hoàn tất; (2) tỷ lệ tích, giá trị một điểm, giới hạn đổi cấu hình theo giai đoạn, giai đoạn áp dụng theo ngày đặt, giá trị điểm đổi theo giai đoạn; (3) hạn dùng 12 tháng theo lần tích; (4) hạng theo năm dương lịch, lên hạng ngay, có hệ số tích; (5) hoàn điểm khi hủy, trả hàng theo tỷ lệ; (6) được dùng cả điểm và ví mua sắm trên một đơn, điểm trừ trước, đơn mua chung không dùng điểm; (7) chống gian lận: trần điểm, khóa ví, điều chỉnh có duyệt, cảnh báo; (8) hạch toán 641 / 3388; (9) nguồn chứng từ chung cho bán tại quầy (CONG_VIEC_53); (10) trả hàng tại quầy thiếu số dư thì phần thiếu quy tiền trừ vào tiền hoàn; (11) quầy ở công ty con khác: công ty bán chịu chi phí, nợ nội bộ 1368 / 3368; (12) ô dùng điểm mặc định tắt.
+- CONG_VIEC_51, quyết định AI tự đưa ra chờ xác nhận khi nghiệm thu (đặc tả mục 18): giai đoạn chỉ bắt đầu từ hôm nay; bảng hạng không bỏ được hạng đã dùng; đơn trực tuyến điểm trả hết thì chuyển Chờ giao ngay; bút toán điểm dùng của đơn VComm ghi gộp khi hoàn tất; số dư đổi điểm chỉ tính lô còn hạn.
+
+### Vấn đề tồn đọng
+
+- CONG_VIEC_51: cần ý kiến luật sư trước khi phát hành lên môi trường thật. Nhánh nào hợp nhất sau giữa CONG_VIEC_49 và 51 ghép công thức tiền phải trả theo đặc tả mục 19.
 
 ## 2026-11-11
 
