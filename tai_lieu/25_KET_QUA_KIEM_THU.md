@@ -196,6 +196,14 @@
 - Kết luận cổng kiểm thử: Đạt.
 - Kết luận: Chờ người dùng nghiệm thu.
 
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_48
+
+- Phạm vi: MODULE_08 phần 3 (lương), nhánh `chuc-nang/CONG_VIEC_48-luong` (pull request #96, gồm CONG_VIEC_46, 47).
+- Kết quả: `c48-payroll-setup` (KICHBAN_KIEMTHU_454, 455), `c48-payroll-calculation` (456 đến 459, 12 trường hợp gồm ví dụ tính tay thực lĩnh 26.592.500), `c48-payrolls` (460, 461: luồng duyệt, chặn gửi, cách ly công ty, quyền, bút toán Thông tư 99 và 133 cân Nợ Có, trả lương, phiếu lương, email), `c48-payroll-timesheet` (đọc kỳ và dòng bảng công thật, khóa kỳ) Đạt; 462, 463 (giao diện 1366, 390 điểm ảnh) Đạt; hồi quy `pnpm --filter api test` 64 tệp, 410/410 Đạt; `pnpm typecheck` Đạt.
+- Kiểm thử đã duyệt được sửa: `c46-contracts` cập nhật dữ liệu thử theo THAY_DOI_21 (loại phụ cấp bắt buộc).
+- Kiểm tra bảo mật: không thêm thư viện; `pnpm audit` 2 lỗ hổng Trung bình đã chấp nhận; gitleaks trên CI. Mức tham số pháp luật tra từ nguồn công khai, phải đối chiếu Công báo trước khi dùng thật.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-11.
+
 ## Lần kiểm thử 2026-11-11 – CONG_VIEC_47
 
 - Phạm vi: MODULE_08 phần 2 (ca làm, chấm công, nghỉ phép, tăng ca, bảng công tháng); nhánh `chuc-nang/CONG_VIEC_47-cham-cong` (pull request #108).
