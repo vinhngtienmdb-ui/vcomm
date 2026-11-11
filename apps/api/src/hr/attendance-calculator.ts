@@ -13,7 +13,10 @@ export type ShiftDefinition = {
   workUnits: number;
 };
 
-export type PlannedDay = { date: string; shift: ShiftDefinition | null; holiday: boolean };
+export type LeavePayGroup = "annual" | "paid_personal" | "paid_other" | "unpaid" | "social_insurance";
+// Nghỉ theo đơn đã duyệt: cả ngày hoặc nửa ngày (QUYTAC_NGHIEPVU_309).
+export type DayLeave = { portion: 1 | 0.5; payGroup: LeavePayGroup; typeId: string };
+export type PlannedDay = { date: string; shift: ShiftDefinition | null; holiday: boolean; leave?: DayLeave | null };
 
 export type DayResult = {
   workDate: string;
@@ -33,7 +36,10 @@ export type DayResult = {
   earlyMinutes: number;
   workedUnits: number;
   absentUnits: number;
-  status: "scheduled" | "present" | "missing_punch" | "absent" | "rest" | "holiday";
+  leaveUnits: number;
+  leavePayGroup: LeavePayGroup | null;
+  leaveTypeId: string | null;
+  status: "scheduled" | "present" | "missing_punch" | "absent" | "rest" | "holiday" | "leave";
 };
 
 type Interval = [number, number];
@@ -168,14 +174,26 @@ export function calculateDay(day: PlannedDay, punches: Date[], graceMinutes: num
     earlyMinutes: 0,
     workedUnits: 0,
     absentUnits: 0,
+    leaveUnits: 0,
+    leavePayGroup: null,
+    leaveTypeId: null,
     status: "scheduled",
   };
   if (day.holiday) return { ...base, status: "holiday" };
   if (!shift || !interval) return { ...base, status: "rest" };
+  const dayLeave = day.leave ?? null;
+  if (dayLeave) {
+    base.leaveUnits = roundUnits(shift.workUnits * dayLeave.portion);
+    base.leavePayGroup = dayLeave.payGroup;
+    base.leaveTypeId = dayLeave.typeId;
+    if (dayLeave.portion === 1) return { ...base, status: "leave" };
+  }
+  // Phần ngày phải làm: cả ngày, hoặc nửa ngày khi nghỉ nửa ngày.
+  const share = dayLeave ? 0.5 : 1;
   const ended = now.getTime() >= interval[1];
   if (sorted.length === 0) {
     if (!ended) return base;
-    return { ...base, status: "absent", absentUnits: shift.workUnits };
+    return { ...base, status: "absent", absentUnits: roundUnits(shift.workUnits * share) };
   }
   if (!lastOut) return { ...base, status: ended ? "missing_punch" : "scheduled" };
 
@@ -197,14 +215,15 @@ export function calculateDay(day: PlannedDay, punches: Date[], graceMinutes: num
   const pause = breakInterval(day.date, shift);
   const workedMinutes = worked[1] > worked[0] ? Math.round(paidMinutes(worked, pause, shift.breakPaid)) : 0;
   const standard = standardMinutes(shift);
-  const workedUnits = standard > 0 ? roundUnits(shift.workUnits * Math.min(1, workedMinutes / standard)) : 0;
+  const workedUnits = standard > 0 ? roundUnits(shift.workUnits * Math.min(share, workedMinutes / standard)) : 0;
   return {
     ...base,
     status: "present",
     workedMinutes,
     nightMinutes: worked[1] > worked[0] ? nightMinutesIn(day.date, worked, pause, shift.breakPaid) : 0,
-    lateMinutes,
-    earlyMinutes,
+    // Nghỉ nửa ngày: giờ đến, giờ về theo buổi nên không tính đi muộn, về sớm.
+    lateMinutes: dayLeave ? 0 : lateMinutes,
+    earlyMinutes: dayLeave ? 0 : earlyMinutes,
     workedUnits,
   };
 }

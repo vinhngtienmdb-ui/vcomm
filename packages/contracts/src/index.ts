@@ -5014,7 +5014,7 @@ export const saveHolidaySchema = z
 export type SaveHolidayRequest = z.input<typeof saveHolidaySchema>;
 export const generateHolidaysSchema = z.object({ year: z.number().int().min(2000).max(2100) }).strict();
 
-export type AttendanceDayStatus = "scheduled" | "present" | "missing_punch" | "absent" | "rest" | "holiday";
+export type AttendanceDayStatus = "scheduled" | "present" | "missing_punch" | "absent" | "rest" | "holiday" | "leave";
 export interface AttendanceDayCell {
   date: string;
   status: AttendanceDayStatus;
@@ -5024,6 +5024,8 @@ export interface AttendanceDayCell {
   workedUnits: string;
   lateMinutes: number;
   earlyMinutes: number;
+  leaveUnits: string;
+  leavePayGroup: "annual" | "paid_personal" | "paid_other" | "unpaid" | "social_insurance" | null;
 }
 export const attendanceGridQuerySchema = z
   .object({
@@ -5204,3 +5206,129 @@ export interface CorrectionItem {
   canWithdraw: boolean;
 }
 export const correctionListQuerySchema = z.object({ status: z.enum(["pending", "approved", "rejected", "withdrawn"]).optional(), month: yearMonth.optional() }).strict();
+
+// CONG_VIEC_47 lát L2: nghỉ phép (API_153; QUYTAC_NGHIEPVU_307 đến 309).
+export const leavePayGroups = ["annual", "paid_personal", "paid_other", "unpaid", "social_insurance"] as const;
+export type LeavePayGroup = (typeof leavePayGroups)[number];
+export interface LeaveTypeItem {
+  id: string;
+  systemCode: string | null;
+  name: string;
+  payGroup: LeavePayGroup;
+  perEventDays: string | null;
+  yearlyMaxDays: string | null;
+  requiresAttachment: boolean;
+  status: "active" | "inactive";
+  // Loại bảo hiểm xã hội chỉ nhân sự ghi nhận.
+  selfService: boolean;
+  version: number;
+}
+export const saveLeaveTypeSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    payGroup: z.enum(["paid_other", "unpaid"]).optional(),
+    yearlyMaxDays: decimalText(1).nullable().optional(),
+    requiresAttachment: z.boolean().optional(),
+    status: z.enum(["active", "inactive"]).optional(),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveLeaveTypeRequest = z.input<typeof saveLeaveTypeSchema>;
+export const workConditions = ["normal", "disabled", "hazardous", "very_hazardous"] as const;
+export type WorkCondition = (typeof workConditions)[number];
+export const saveLeavePolicySchema = z.object({ workCondition: z.enum(workConditions), seniorityStart: isoDate.nullable().optional() }).strict();
+export const leaveAdjustmentSchema = z
+  .object({
+    employeeId: z.string().uuid(),
+    leaveYear: z.number().int().min(2000).max(2100),
+    days: z.string().trim().regex(/^-?\d{1,3}(\.\d{1,2})?$/),
+    reason: z.string().trim().min(1).max(500),
+  })
+  .strict();
+export type LeaveAdjustmentRequest = z.input<typeof leaveAdjustmentSchema>;
+export interface LeaveYearBalance {
+  leaveYear: number;
+  accrued: string;
+  adjusted: string;
+  used: string;
+  expired: string;
+  paidOut: string;
+  balance: string;
+  expiresOn: string | null;
+}
+export interface LeaveBalanceItem {
+  employeeId: string;
+  code: string;
+  fullName: string;
+  workCondition: WorkCondition;
+  isMinor: boolean;
+  seniorityStart: string;
+  entitlementDays: number;
+  years: LeaveYearBalance[];
+  available: string;
+  pending: string;
+}
+export interface LeaveLedgerEntry {
+  id: string;
+  leaveYear: number;
+  kind: "accrual" | "month_reversal" | "usage" | "adjustment" | "expiry" | "payout";
+  days: string;
+  accrualMonth: string | null;
+  requestNo: string | null;
+  reason: string | null;
+  createdAt: string;
+}
+export const leaveHalves = ["full", "morning", "afternoon"] as const;
+export const leaveRequestBodySchema = z
+  .object({
+    employeeId: z.string().uuid().optional(),
+    leaveTypeId: z.string().uuid(),
+    fromDate: isoDate,
+    fromHalf: z.enum(leaveHalves),
+    toDate: isoDate,
+    toHalf: z.enum(["full", "morning"]),
+    reason: z.preprocess((value) => (value === "" ? null : value), z.string().trim().max(1000).nullable().optional()),
+  })
+  .strict();
+export type LeaveRequestBody = z.input<typeof leaveRequestBodySchema>;
+export interface LeavePreviewResponse {
+  days: string;
+  dates: { date: string; half: "full" | "morning" | "afternoon"; units: string }[];
+  // Phép năm: số dư khả dụng trước và sau đơn.
+  availableBefore: string | null;
+  availableAfter: string | null;
+}
+export type LeaveRequestStatus = "pending" | "approved" | "rejected" | "withdrawn" | "cancelled";
+export interface LeaveRequestItem {
+  id: string;
+  requestNo: string;
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  leaveTypeId: string;
+  leaveTypeName: string;
+  payGroup: LeavePayGroup;
+  fromDate: string;
+  fromHalf: "full" | "morning" | "afternoon";
+  toDate: string;
+  toHalf: "full" | "morning";
+  days: string;
+  reason: string | null;
+  hasAttachment: boolean;
+  source: "self" | "hr";
+  status: LeaveRequestStatus;
+  approvalRequestId: string | null;
+  requestedAt: string;
+  cancelReason: string | null;
+  canWithdraw: boolean;
+  canCancel: boolean;
+}
+export const leaveRequestListQuerySchema = z
+  .object({ status: z.enum(["pending", "approved", "rejected", "withdrawn", "cancelled"]).optional(), month: yearMonth.optional(), leaveTypeId: z.string().uuid().optional() })
+  .strict();
+export const cancelLeaveSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export interface MyLeaveResponse {
+  balance: LeaveBalanceItem | null;
+  types: LeaveTypeItem[];
+  requests: LeaveRequestItem[];
+}

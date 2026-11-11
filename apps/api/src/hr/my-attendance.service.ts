@@ -230,10 +230,12 @@ export class MyAttendanceService implements OnModuleInit {
       worked_units: string;
       late_minutes: number;
       early_minutes: number;
+      leave_units: string;
+      leave_pay_group: MyAttendanceMonthResponse["days"][number]["leavePayGroup"];
       first_in: Date | null;
       last_out: Date | null;
     }>(sql`
-      SELECT work_date::text, status, day_kind, shift_code, planned_units::text, worked_units::text, late_minutes, early_minutes, first_in, last_out
+      SELECT work_date::text, status, day_kind, shift_code, planned_units::text, worked_units::text, late_minutes, early_minutes, leave_units::text, leave_pay_group, first_in, last_out
       FROM hr.attendance_days WHERE employee_id = ${employee.id} AND work_date BETWEEN ${`${month}-01`}::date AND ${lastDayOfMonth(month)}::date ORDER BY work_date`);
     const days = rows.rows.map((row) => ({
       date: row.work_date,
@@ -244,6 +246,8 @@ export class MyAttendanceService implements OnModuleInit {
       workedUnits: Number(row.worked_units).toFixed(2),
       lateMinutes: row.late_minutes,
       earlyMinutes: row.early_minutes,
+      leaveUnits: Number(row.leave_units).toFixed(2),
+      leavePayGroup: row.leave_pay_group,
       firstIn: row.first_in ? new Date(row.first_in).toISOString() : null,
       lastOut: row.last_out ? new Date(row.last_out).toISOString() : null,
     }));

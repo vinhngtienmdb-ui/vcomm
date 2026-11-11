@@ -380,7 +380,17 @@
     "noAttendanceLocation": "No attendance location is set up for you.",
     "checkInLocationRejected": "Check-in rejected: you are not within a location radius, not on the company network and did not scan a QR code.",
     "punchTooSoon": "You just checked in; wait at least one minute.",
-    "correctionLimitReached": "The monthly correction limit has been reached."
+    "correctionLimitReached": "The monthly correction limit has been reached.",
+    "leaveTypeExists": "Leave type name already exists.",
+    "leaveRangeTooLong": "A leave request covers at most 93 days.",
+    "leaveNoWorkingDays": "No scheduled working days in this period.",
+    "leaveOverlap": "Overlaps another pending or approved leave request.",
+    "leaveExceedsEvent": "Exceeds the days allowed per occasion for this leave type.",
+    "leaveExceedsYearly": "Exceeds the yearly maximum for this leave type.",
+    "leaveBalanceInsufficient": "Insufficient annual leave balance.",
+    "leaveTypeHrOnly": "Social insurance leave is recorded by HR with documents.",
+    "leaveNotCancellable": "Only approved requests can be cancelled.",
+    "leaveAlreadyStarted": "Leave has started; contact HR to cancel."
   },
   "login": {
     "title": "Sign in",

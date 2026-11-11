@@ -380,7 +380,17 @@
     "noAttendanceLocation": "Công ty chưa khai báo địa điểm chấm công cho bạn.",
     "checkInLocationRejected": "Không chấm được: bạn không ở trong bán kính địa điểm, không dùng mạng công ty và không quét mã QR.",
     "punchTooSoon": "Vừa chấm xong; chờ ít nhất 1 phút để chấm tiếp.",
-    "correctionLimitReached": "Đã đủ số đơn giải trình tối đa trong tháng."
+    "correctionLimitReached": "Đã đủ số đơn giải trình tối đa trong tháng.",
+    "leaveTypeExists": "Tên loại nghỉ đã có.",
+    "leaveRangeTooLong": "Một đơn nghỉ tối đa 93 ngày; chia thành nhiều đơn.",
+    "leaveNoWorkingDays": "Khoảng thời gian không có ngày làm việc theo lịch.",
+    "leaveOverlap": "Trùng thời gian với đơn nghỉ khác đang chờ duyệt hoặc đã duyệt.",
+    "leaveExceedsEvent": "Vượt số ngày được nghỉ cho mỗi lần của loại nghỉ này (Bộ luật Lao động Điều 115).",
+    "leaveExceedsYearly": "Vượt số ngày tối đa trong năm của loại nghỉ này.",
+    "leaveBalanceInsufficient": "Số dư phép năm không đủ.",
+    "leaveTypeHrOnly": "Loại nghỉ hưởng bảo hiểm xã hội do nhân sự ghi nhận kèm chứng từ.",
+    "leaveNotCancellable": "Chỉ hủy được đơn đã duyệt.",
+    "leaveAlreadyStarted": "Đơn đã đến ngày bắt đầu; liên hệ nhân sự để hủy."
   },
   "login": {
     "title": "Đăng nhập",

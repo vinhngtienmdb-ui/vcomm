@@ -39,6 +39,8 @@ type DayRow = {
   worked_units: string;
   late_minutes: number;
   early_minutes: number;
+  leave_units: string;
+  leave_pay_group: AttendanceDayCell["leavePayGroup"];
   first_in: Date | null;
   last_out: Date | null;
   worked_minutes: number;
@@ -57,6 +59,8 @@ const cell = (row: DayRow): AttendanceDayCell => ({
   workedUnits: Number(row.worked_units).toFixed(2),
   lateMinutes: row.late_minutes,
   earlyMinutes: row.early_minutes,
+  leaveUnits: Number(row.leave_units).toFixed(2),
+  leavePayGroup: row.leave_pay_group,
 });
 
 const iso = (value: Date | null) => (value ? new Date(value).toISOString() : null);
@@ -157,7 +161,7 @@ export class AttendanceService {
     const dayRows = ids.length
       ? (
           await this.database.execute<DayRow>(sql`
-          SELECT employee_id, work_date::text, status, day_kind, shift_code, planned_units::text, worked_units::text, late_minutes, early_minutes,
+          SELECT employee_id, work_date::text, status, day_kind, shift_code, planned_units::text, worked_units::text, late_minutes, early_minutes, leave_units::text, leave_pay_group,
             first_in, last_out, worked_minutes, standard_minutes, night_minutes, planned_start, planned_end
           FROM hr.attendance_days WHERE company_id = ${actor.companyId} AND work_date BETWEEN ${from}::date AND ${to}::date
             AND employee_id IN (${sql.join(
@@ -207,7 +211,7 @@ export class AttendanceService {
     const employee = await this.employeeInScope(this.database, actor, access, employeeId);
     const row = (
       await this.database.execute<DayRow>(sql`
-      SELECT employee_id, work_date::text, status, day_kind, shift_code, planned_units::text, worked_units::text, late_minutes, early_minutes,
+      SELECT employee_id, work_date::text, status, day_kind, shift_code, planned_units::text, worked_units::text, late_minutes, early_minutes, leave_units::text, leave_pay_group,
         first_in, last_out, worked_minutes, standard_minutes, night_minutes, planned_start, planned_end
       FROM hr.attendance_days WHERE employee_id = ${employeeId} AND work_date = ${date}::date`)
     ).rows[0];

@@ -5,7 +5,7 @@ import { sql } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
 import { CLOCK, type Clock, vietnamDate } from "../common/clock";
 import { DATABASE, type Database } from "../database/database.module";
-import { addDays, assignPunches, calculateDay, weekdayIndex, type PlannedDay, type ShiftDefinition } from "./attendance-calculator";
+import { addDays, assignPunches, calculateDay, weekdayIndex, type DayLeave, type LeavePayGroup, type PlannedDay, type ShiftDefinition } from "./attendance-calculator";
 
 type Executor = Pick<Database, "execute">;
 
@@ -120,6 +120,21 @@ export class AttendanceDaysService {
       WHERE (company_id IS NULL OR company_id = ${companyId}) AND holiday_date BETWEEN ${from}::date AND ${to}::date`)
     ).rows;
 
+    // Nghỉ theo đơn đã duyệt (QUYTAC_NGHIEPVU_309).
+    const leaves = (
+      await executor.execute<{ employee_id: string; leave_date: string; half: string; pay_group: LeavePayGroup; leave_type_id: string }>(sql`
+      SELECT d.employee_id, d.leave_date::text, d.half, t.pay_group, r.leave_type_id
+      FROM hr.leave_request_days d JOIN hr.leave_requests r ON r.id = d.leave_request_id JOIN hr.leave_types t ON t.id = r.leave_type_id
+      WHERE d.employee_id IN (${ids}) AND r.status = 'approved' AND d.leave_date BETWEEN ${from}::date AND ${to}::date`)
+    ).rows;
+    // Hai đơn nửa ngày cùng ngày (sáng, chiều) thành nghỉ cả ngày; nhóm lương lấy theo đơn đầu (bảng công tính số ngày theo từng đơn).
+    const leaveByKey = new Map<string, DayLeave>();
+    for (const row of leaves) {
+      const key = `${row.employee_id}|${row.leave_date}`;
+      const existing = leaveByKey.get(key);
+      leaveByKey.set(key, existing ? { ...existing, portion: 1 } : { portion: row.half === "full" ? 1 : 0.5, payGroup: row.pay_group, typeId: row.leave_type_id });
+    }
+
     for (const employee of employees.rows) {
       const foreigner = employee.nationality !== "VN";
       const holidayDates = new Set(holidays.filter((row) => !row.foreigners_only || foreigner).map((row) => row.holiday_date));
@@ -135,7 +150,7 @@ export class AttendanceDaysService {
           const schedule = assignment ? schedules.get(assignment.schedule_id) : defaultSchedule;
           shiftId = schedule ? schedule[weekdayColumns[weekdayIndex(date)]!] : null;
         }
-        return { date, shift: shiftId ? (shifts.get(shiftId) ?? null) : null, holiday: holidayDates.has(date) };
+        return { date, shift: shiftId ? (shifts.get(shiftId) ?? null) : null, holiday: holidayDates.has(date), leave: leaveByKey.get(key) ?? null };
       });
       result.set(employee.id, {
         employeeId: employee.id,
@@ -180,16 +195,17 @@ export class AttendanceDaysService {
         const result = calculateDay(day, byDay.get(day.date) ?? [], grace, now);
         await executor.execute(sql`
           INSERT INTO hr.attendance_days (company_id, employee_id, work_date, day_kind, shift_id, shift_code, planned_start, planned_end, standard_minutes, planned_units,
-            first_in, last_out, punch_count, worked_minutes, night_minutes, late_minutes, early_minutes, worked_units, absent_units, status, calculated_at)
+            first_in, last_out, punch_count, worked_minutes, night_minutes, late_minutes, early_minutes, worked_units, absent_units, leave_units, leave_pay_group, leave_type_id, status, calculated_at)
           VALUES (${companyId}, ${calendar.employeeId}, ${result.workDate}::date, ${result.dayKind}, ${result.shiftId}, ${result.shiftCode},
             ${result.plannedStart?.toISOString() ?? null}::timestamptz, ${result.plannedEnd?.toISOString() ?? null}::timestamptz, ${result.standardMinutes}, ${result.plannedUnits},
             ${result.firstIn?.toISOString() ?? null}::timestamptz, ${result.lastOut?.toISOString() ?? null}::timestamptz, ${result.punchCount}, ${result.workedMinutes},
-            ${result.nightMinutes}, ${result.lateMinutes}, ${result.earlyMinutes}, ${result.workedUnits}, ${result.absentUnits}, ${result.status}, now())
+            ${result.nightMinutes}, ${result.lateMinutes}, ${result.earlyMinutes}, ${result.workedUnits}, ${result.absentUnits}, ${result.leaveUnits}, ${result.leavePayGroup}, ${result.leaveTypeId}, ${result.status}, now())
           ON CONFLICT (employee_id, work_date) DO UPDATE SET day_kind = EXCLUDED.day_kind, shift_id = EXCLUDED.shift_id, shift_code = EXCLUDED.shift_code,
             planned_start = EXCLUDED.planned_start, planned_end = EXCLUDED.planned_end, standard_minutes = EXCLUDED.standard_minutes, planned_units = EXCLUDED.planned_units,
             first_in = EXCLUDED.first_in, last_out = EXCLUDED.last_out, punch_count = EXCLUDED.punch_count, worked_minutes = EXCLUDED.worked_minutes,
             night_minutes = EXCLUDED.night_minutes, late_minutes = EXCLUDED.late_minutes, early_minutes = EXCLUDED.early_minutes, worked_units = EXCLUDED.worked_units,
-            absent_units = EXCLUDED.absent_units, status = EXCLUDED.status, calculated_at = now()`);
+            absent_units = EXCLUDED.absent_units, leave_units = EXCLUDED.leave_units, leave_pay_group = EXCLUDED.leave_pay_group, leave_type_id = EXCLUDED.leave_type_id,
+            status = EXCLUDED.status, calculated_at = now()`);
       }
     }
   }
