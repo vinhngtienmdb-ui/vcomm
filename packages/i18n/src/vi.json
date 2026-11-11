@@ -358,7 +358,21 @@
     "contractNotCancellable": "Không hủy được chứng từ ở trạng thái này.",
     "contractNotSigned": "Hợp đồng chưa ký hoặc đã kết thúc.",
     "appendixOutsideContract": "Ngày hiệu lực của phụ lục phải nằm trong thời hạn hợp đồng.",
-    "appendixSameDay": "Đã có phụ lục khác cùng ngày hiệu lực."
+    "appendixSameDay": "Đã có phụ lục khác cùng ngày hiệu lực.",
+    "shiftTooLong": "Giờ chuẩn của ca vượt giới hạn (8 giờ; quy định theo tuần: 10 giờ).",
+    "breakOutsideShift": "Nghỉ giữa ca phải nằm trong ca.",
+    "shiftCodeExists": "Mã ca đã có trong công ty.",
+    "scheduleWeekTooLong": "Tổng giờ chuẩn của lịch tuần vượt 48 giờ.",
+    "weeklyHoursExceeded": "Tổng giờ trong tuần vượt giới hạn (48 giờ; lao động chưa thành niên 40 giờ, 8 giờ mỗi ngày).",
+    "timesheetClosed": "Bảng công tháng này đã chốt, không sửa được dữ liệu.",
+    "holidayExists": "Ngày này đã có trong lịch nghỉ.",
+    "attendanceCodeExists": "Mã chấm công đã gán cho hồ sơ khác.",
+    "punchDuplicate": "Đã có lượt chấm ở phút này.",
+    "punchOutsideEmployment": "Ngày ngoài khoảng làm việc của hồ sơ hoặc sau hôm nay.",
+    "punchNotDeletable": "Chỉ xóa được lượt ghi thủ công.",
+    "attendanceFileTooManyRows": "Tệp vượt quá 20.000 dòng.",
+    "attendanceTimeInvalid": "Thời điểm không đọc được (cần ngày và giờ).",
+    "attendanceCodeNotFound": "Mã chấm công chưa gán cho hồ sơ nào."
   },
   "login": {
     "title": "Đăng nhập",

@@ -4881,3 +4881,225 @@ export interface MyContractsResponse {
   currency: string;
   contracts: ContractResponse[];
 }
+
+// CONG_VIEC_47: Nhân sự phần 2 (MODULE_08) – ca làm, lịch làm việc, ngày lễ, chấm công (API_150, API_151).
+const clockTime = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+const yearMonth = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
+
+export const attendanceSettingsSchema = z
+  .object({
+    workingTimeMode: z.enum(["daily", "weekly"]),
+    graceMinutes: z.number().int().min(0).max(30),
+    appLocationScope: z.enum(["branch", "company"]),
+    carryoverMode: z.enum(["expire", "never"]),
+    carryoverMonths: z.number().int().min(1).max(36),
+    allowAdvanceLeave: z.boolean(),
+    overtimeAnnualLimit: z.union([z.literal(200), z.literal(300)]),
+    overtimeExtendedReason: blankToNull(500),
+    correctionMonthlyLimit: z.number().int().min(0).max(31),
+    // 0: công ty chưa lưu cài đặt.
+    version: z.number().int().min(0).optional(),
+  })
+  .strict();
+export type AttendanceSettingsRequest = z.input<typeof attendanceSettingsSchema>;
+export type AttendanceSettingsResponse = Omit<z.output<typeof attendanceSettingsSchema>, "version"> & { version: number };
+
+export const saveShiftSchema = z
+  .object({
+    code: z.string().trim().min(1).max(20),
+    name: z.string().trim().min(1).max(100),
+    startTime: clockTime,
+    endTime: clockTime,
+    breakStart: clockTime.nullable().optional(),
+    breakMinutes: z.number().int().min(0).max(240),
+    breakPaid: z.boolean(),
+    workUnits: z.enum(["1", "0.5"]),
+    status: z.enum(["active", "inactive"]).optional(),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveShiftRequest = z.input<typeof saveShiftSchema>;
+export interface ShiftItem {
+  id: string;
+  code: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  breakStart: string | null;
+  breakMinutes: number;
+  breakPaid: boolean;
+  workUnits: "1" | "0.5";
+  status: "active" | "inactive";
+  standardMinutes: number;
+  nightMinutes: number;
+  // Ca từ 6 giờ chuẩn mà nghỉ giữa ca ngắn hơn luật (Bộ luật Lao động Điều 109): chỉ cảnh báo.
+  shortBreakWarning: boolean;
+  version: number;
+}
+
+export const saveScheduleSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    isDefault: z.boolean(),
+    shiftIds: z.array(z.string().uuid().nullable()).length(7),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveScheduleRequest = z.input<typeof saveScheduleSchema>;
+export const assignScheduleSchema = z
+  .object({
+    departmentId: z.string().uuid().nullable().optional(),
+    employeeId: z.string().uuid().nullable().optional(),
+    effectiveFrom: isoDate,
+  })
+  .strict();
+export type AssignScheduleRequest = z.input<typeof assignScheduleSchema>;
+export interface ScheduleItem {
+  id: string;
+  name: string;
+  isDefault: boolean;
+  shiftIds: (string | null)[];
+  shiftCodes: (string | null)[];
+  weeklyMinutes: number;
+  assignments: { id: string; departmentId: string | null; departmentName: string | null; employeeId: string | null; employeeName: string | null; effectiveFrom: string }[];
+  version: number;
+}
+
+export const rosterQuerySchema = z.object({ weekStart: isoDate, departmentId: z.string().uuid().optional() }).strict();
+export type RosterWarning = "weeklyHoursExceeded" | "noRestDay" | "shortRestBetweenShifts";
+export interface RosterRow {
+  employeeId: string;
+  code: string;
+  fullName: string;
+  departmentName: string | null;
+  isMinor: boolean;
+  cells: { date: string; shiftId: string | null; fromRoster: boolean; holiday: boolean; locked: boolean }[];
+  weeklyMinutes: number;
+  warnings: RosterWarning[];
+}
+export interface RosterResponse {
+  weekStart: string;
+  dates: string[];
+  shifts: ShiftItem[];
+  rows: RosterRow[];
+  canEditAll: boolean;
+}
+export const saveRosterSchema = z
+  .object({
+    cells: z
+      .array(z.object({ employeeId: z.string().uuid(), date: isoDate, shiftId: z.string().uuid().nullable(), clear: z.boolean().optional() }).strict())
+      .min(1)
+      .max(2000),
+  })
+  .strict();
+export type SaveRosterRequest = z.input<typeof saveRosterSchema>;
+
+export interface HolidayItem {
+  id: string;
+  date: string;
+  name: string;
+  foreignersOnly: boolean;
+  scope: "group" | "company";
+  canDelete: boolean;
+}
+export interface HolidayListResponse {
+  year: number;
+  canManageGroup: boolean;
+  canManageCompany: boolean;
+  items: HolidayItem[];
+}
+export const saveHolidaySchema = z
+  .object({ date: isoDate, name: z.string().trim().min(1).max(100), foreignersOnly: z.boolean(), scope: z.enum(["group", "company"]) })
+  .strict();
+export type SaveHolidayRequest = z.input<typeof saveHolidaySchema>;
+export const generateHolidaysSchema = z.object({ year: z.number().int().min(2000).max(2100) }).strict();
+
+export type AttendanceDayStatus = "scheduled" | "present" | "missing_punch" | "absent" | "rest" | "holiday";
+export interface AttendanceDayCell {
+  date: string;
+  status: AttendanceDayStatus;
+  dayKind: "workday" | "rest_day" | "holiday";
+  shiftCode: string | null;
+  plannedUnits: string;
+  workedUnits: string;
+  lateMinutes: number;
+  earlyMinutes: number;
+}
+export const attendanceGridQuerySchema = z
+  .object({
+    month: yearMonth,
+    departmentId: z.string().uuid().optional(),
+    branchId: z.string().uuid().optional(),
+    status: z.enum(["missing_punch", "absent", "late"]).optional(),
+  })
+  .strict();
+export interface AttendanceGridRow {
+  employeeId: string;
+  code: string;
+  fullName: string;
+  departmentName: string | null;
+  attendanceCode: string | null;
+  days: AttendanceDayCell[];
+  workedUnits: string;
+}
+export interface AttendanceGridResponse {
+  month: string;
+  dates: string[];
+  canManage: boolean;
+  monthClosed: boolean;
+  rows: AttendanceGridRow[];
+}
+export type PunchSource = "device" | "manual" | "app" | "correction";
+export interface AttendancePunchItem {
+  id: string;
+  punchedAt: string;
+  source: PunchSource;
+  deviceCode: string | null;
+  method: "gps" | "ip" | "qr" | null;
+  locationName: string | null;
+  distanceMeters: number | null;
+  reason: string | null;
+  createdByName: string;
+  canDelete: boolean;
+}
+export interface AttendanceDayResponse {
+  employeeId: string;
+  code: string;
+  fullName: string;
+  date: string;
+  day: (AttendanceDayCell & { firstIn: string | null; lastOut: string | null; workedMinutes: number; standardMinutes: number; nightMinutes: number; plannedStart: string | null; plannedEnd: string | null }) | null;
+  punches: AttendancePunchItem[];
+  canManage: boolean;
+}
+export const manualPunchSchema = z
+  .object({
+    employeeId: z.string().uuid(),
+    workDate: isoDate,
+    checkIn: clockTime.nullable().optional(),
+    checkOut: clockTime.nullable().optional(),
+    reason: z.string().trim().min(1).max(500),
+  })
+  .strict()
+  .refine((value) => Boolean(value.checkIn || value.checkOut), { path: ["checkIn"], message: "required" });
+export type ManualPunchRequest = z.input<typeof manualPunchSchema>;
+export const deletePunchSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export const attendanceCodeSchema = z.object({ attendanceCode: blankToNull(20) }).strict();
+export const recalculateAttendanceSchema = z.object({ month: yearMonth }).strict();
+export interface AttendanceImportResponse {
+  fileName: string;
+  totalRows: number;
+  accepted: number;
+  duplicates: number;
+  // messageKey là khóa trong nhóm `errors` của tệp dịch.
+  errors: { row: number; messageKey: string }[];
+  imported: boolean;
+}
+export interface AttendanceImportItem {
+  id: string;
+  fileName: string;
+  importedAt: string;
+  importedByName: string;
+  accepted: number;
+  duplicates: number;
+  errors: number;
+}

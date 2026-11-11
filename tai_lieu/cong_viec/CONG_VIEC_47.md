@@ -3,7 +3,7 @@
 - Mô tả: Trong mini app Nhân sự `apps/web-hr`: ca làm, lịch làm việc, xếp ca; ngày lễ; ghi nhận chấm công từ máy chấm công (nhập tệp), ghi thủ công, chấm công trên ứng dụng (GPS, mạng công ty, mã QR động); đơn giải trình công; nghỉ phép (loại nghỉ, phép năm, đơn nghỉ); tăng ca (phiếu đăng ký, giới hạn theo luật); bảng công tháng có nhân viên xác nhận, nhân sự chốt, làm đầu vào cho lương (CONG_VIEC_48).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Bản nháp, chờ người dùng duyệt
+- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; đang làm lát L0.
 - Mức: Lớn (nghiệp vụ mới, dữ liệu mới, quyền mới, việc nền mới, dữ liệu vị trí).
 - Nguồn: tài liệu `01` mục 4 (MODULE_08: chấm công), tài liệu `05` mục 2.1; quyết định của người dùng ngày 2026-11-11 (mục 17). Nền: CONG_VIEC_46 (hồ sơ, hợp đồng, schema `hr`, mini app `apps/web-hr`).
 
@@ -119,9 +119,9 @@ Ngoài phạm vi (công việc sau):
 
 ## 9. Dữ liệu và API (phác thảo, chi tiết ở giai đoạn 07)
 
-- Database migration `0073_hr_attendance.sql`: `hr.attendance_settings` (theo công ty), `hr.shifts`, `hr.work_schedules` + `hr.work_schedule_days`, `hr.work_schedule_assignments` (phòng ban hoặc hồ sơ, từ ngày), `hr.shift_assignments` (hồ sơ, ngày, ca hoặc nghỉ), `hr.holidays` (công ty trống = chung tập đoàn), `hr.attendance_locations`, cột `attendance_code` trên `hr.employees`, `hr.attendance_imports`, `hr.attendance_punches` (nguồn, cách xác thực, tọa độ, IP), `hr.attendance_days` (kết quả từng ngày), `hr.attendance_corrections`; quyền, loại chứng từ, dãy số.
+- Database migration `0073_hr_attendance.sql`: `hr.attendance_settings` (theo công ty), `hr.shifts`, `hr.work_schedules` + `hr.work_schedule_days`, `hr.work_schedule_assignments` (phòng ban hoặc hồ sơ, từ ngày), `hr.shift_assignments` (hồ sơ, ngày, ca hoặc nghỉ), `hr.holidays` (công ty trống = chung tập đoàn), `hr.attendance_locations`, cột `attendance_code` trên `hr.employees`, `hr.attendance_imports`, `hr.attendance_punches` (nguồn, cách xác thực, tọa độ, IP), `hr.attendance_days` (kết quả từng ngày), `hr.attendance_corrections`, `hr.timesheet_periods` (cột `payroll_locked_at` dành cho CONG_VIEC_48; tạo sớm để mọi ghi dữ liệu kiểm được kỳ đã chốt); quyền, loại chứng từ, dãy số.
 - Database migration `0074_hr_leave.sql`: `hr.leave_types`, `hr.employee_leave_policies` (chế độ phép, ngày tính thâm niên), `hr.leave_ledger` (năm phát sinh, loại giao dịch, số ngày, nguồn; duy nhất cộng dần theo hồ sơ và tháng), `hr.leave_requests` + `hr.leave_request_days`.
-- Database migration `0075_hr_overtime_timesheets.sql`: `hr.overtime_requests`, `hr.timesheet_periods` (cột `payroll_locked_at` dành cho CONG_VIEC_48), `hr.timesheet_lines`.
+- Database migration `0075_hr_overtime_timesheets.sql`: `hr.overtime_requests`, `hr.timesheet_lines`.
 - API_150 `/hr/attendance/setup` (cài đặt, ca, lịch tuần, gán lịch, xếp ca, nhập xếp ca, ngày lễ, địa điểm, mã QR); API_151 `/hr/attendance` (lưới công, chi tiết ngày, lượt thủ công, nhập tệp xem trước và xác nhận, mã chấm công); API_152 `/hr/attendance/corrections`; API_153 `/hr/leave` (loại, chế độ, sổ phép, điều chỉnh, đơn nghỉ); API_154 `/hr/overtime`; API_155 `/hr/timesheets` (kỳ, dòng, xác nhận, giải trình, chốt, mở lại, xuất) và `/hr/me/attendance` (chấm công, lịch, công, đơn của tôi).
 - Dịch vụ dùng lại: luồng duyệt (`submitWithin`, `withdraw`, nghe `core.approval.completed`; xử lý chưa có chính sách như hợp đồng của CONG_VIEC_46), dãy số chứng từ, lưu tệp, thông báo, nhật ký thao tác, `read-excel-file`, `write-excel-file`, `qrcode-generator` (đã có trong dự án), HMAC của `node:crypto`.
 - Việc nền mới (BullMQ, múi giờ `Asia/Ho_Chi_Minh`): `hr-attendance-recalculate` (1 giờ), `hr-leave-accrual` (0 giờ 15 phút, gồm hết hạn phép tồn), `hr-timesheet-confirmation` (0 giờ 30 phút).

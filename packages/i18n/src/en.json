@@ -358,7 +358,21 @@
     "contractNotCancellable": "This document cannot be cancelled in its current status.",
     "contractNotSigned": "The contract is not signed or has ended.",
     "appendixOutsideContract": "The appendix's effective date must fall within the contract term.",
-    "appendixSameDay": "Another appendix already has this effective date."
+    "appendixSameDay": "Another appendix already has this effective date.",
+    "shiftTooLong": "Shift standard hours exceed the limit (8 hours; 10 with weekly working time).",
+    "breakOutsideShift": "The break must fall within the shift.",
+    "shiftCodeExists": "Shift code already exists in the company.",
+    "scheduleWeekTooLong": "Weekly schedule exceeds 48 standard hours.",
+    "weeklyHoursExceeded": "Weekly hours exceed the limit (48 hours; minors 40 hours and 8 hours a day).",
+    "timesheetClosed": "This month's timesheet is closed; data cannot be changed.",
+    "holidayExists": "This date is already in the holiday calendar.",
+    "attendanceCodeExists": "Attendance code is already assigned to another employee.",
+    "punchDuplicate": "A punch already exists at this minute.",
+    "punchOutsideEmployment": "Date is outside the employment period or in the future.",
+    "punchNotDeletable": "Only manual punches can be deleted.",
+    "attendanceFileTooManyRows": "File exceeds 20,000 rows.",
+    "attendanceTimeInvalid": "Time cannot be read (date and time required).",
+    "attendanceCodeNotFound": "Attendance code is not assigned to any employee."
   },
   "login": {
     "title": "Sign in",
