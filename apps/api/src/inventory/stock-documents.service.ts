@@ -619,7 +619,7 @@ export class StockDocumentsService implements OnModuleInit {
     return this.suggestLots(this.database, query.warehouseId, query.companyId, query.variantId, query.locationId ?? null, query.includeExpired === "true");
   }
 
-  private async suggestLots(executor: Executor, warehouseId: string, companyId: string, variantId: string, locationId: string | null, includeExpired: boolean): Promise<LotSuggestion[]> {
+  async suggestLots(executor: Executor, warehouseId: string, companyId: string, variantId: string, locationId: string | null, includeExpired: boolean): Promise<LotSuggestion[]> {
     const today = this.permissionService.today();
     const rows = await executor.execute<{
       lot_id: string;

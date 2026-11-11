@@ -77,6 +77,7 @@ import { InternalTradeService } from "./sales/internal-trade.service";
 import { PromotionsService } from "./sales/promotions.service";
 import { FinanceController } from "./finance/finance.controller";
 import { RetailController } from "./retail/retail.controller";
+import { RetailSalesService } from "./retail/retail-sales.service";
 import { RetailShiftsService } from "./retail/retail-shifts.service";
 import { RetailStoresService } from "./retail/retail-stores.service";
 import { DebtsService } from "./finance/debts.service";
@@ -182,6 +183,7 @@ import { UsersService } from "./users/users.service";
     FundsService,
     RetailStoresService,
     RetailShiftsService,
+    RetailSalesService,
     PaymentsService,
     LedgerService,
     JournalsService,

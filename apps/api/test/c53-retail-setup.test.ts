@@ -58,7 +58,7 @@ describe("Cửa hàng, quầy (KICHBAN_KIEMTHU_510)", () => {
     expect(wrong.status).toBe(400);
     expect(Object.keys(wrong.body.error.fields).sort()).toEqual(["bankFundId", "branchId", "cashFundId", "channelId", "warehouseId"]);
     const sameBranch = await call(admin, "post", "/retail/stores", { ...storeBody(fixture), warehouseId: fixture.otherBranchWarehouse });
-    expect(sameBranch.body.error.fields).toEqual({ warehouseId: "Kho bán phải là kho đang hoạt động thuộc chi nhánh của cửa hàng." });
+    expect(sameBranch.body.error.fields).toEqual({ warehouseId: "Kho bán phải là kho đang hoạt động thuộc chi nhánh của cửa hàng, không quản lý vị trí." });
     const noBin = await call(admin, "post", "/retail/stores", { ...storeBody(fixture), vietqrBankBin: "", vietqrAccountName: "" });
     expect(Object.keys(noBin.body.error.fields).sort()).toEqual(["vietqrAccountName", "vietqrBankBin"]);
     expect((await call(admin, "post", "/retail/stores", { ...storeBody(fixture), vietqrBankBin: "97043" })).status).toBe(400);

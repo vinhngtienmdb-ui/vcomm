@@ -167,3 +167,30 @@ td a { white-space: nowrap; }
   .khung-bang td[data-nhan=""]::before { content: none; }
   .khung-bang td[data-nhan=""] { display: block; padding-top: var(--khoang-2); }
 }
+
+/* Bán hàng tại quầy (CONG_VIEC_53: MAN_HINH_161, 167) – chỉ dùng biến tài liệu 15. */
+.quay-ban { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: var(--khoang-4); align-items: start; }
+.quay-ban .o-nhap.o-quet { font-size: 16px; padding: 10px 12px; border: 2px solid var(--mau-chinh); }
+.so-tien { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dong-tien { display: flex; justify-content: space-between; gap: var(--khoang-2); font-variant-numeric: tabular-nums; }
+.tong-lon { font-size: 24px; line-height: 32px; font-weight: 800; }
+.phim { display: inline-block; border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; font-size: 11px; line-height: 16px; font-weight: 700; }
+.nut.lon { width: 100%; justify-content: center; padding: 14px 16px; font-size: 16px; }
+.hop-thoai.rong { width: min(720px, 100%); max-height: calc(100vh - 32px); overflow: auto; }
+.khung-bang tr.dang-chon td { background: var(--mau-chinh-nhat); }
+.chon-so-luong { display: inline-flex; align-items: center; gap: var(--khoang-1); }
+.chon-so-luong .o-nhap { width: 64px; text-align: center; }
+.chon-so-luong .nut { padding: 4px 10px; }
+.hoa-don-in { width: 72mm; padding: 2mm; background: var(--mau-be-mat); color: var(--mau-chu); font-size: 12px; line-height: 16px; font-variant-numeric: tabular-nums; }
+.hoa-don-in .giua { text-align: center; }
+.hoa-don-in .dam { font-weight: 800; }
+.hoa-don-in hr { border: 0; border-top: 1px dashed var(--mau-chu); margin: 6px 0; }
+.hoa-don-in .qr { display: block; width: 26mm; height: 26mm; margin: 4px auto; }
+@media screen { .chi-in { display: none; } }
+@media print {
+  @page { size: 80mm auto; margin: 3mm; }
+  body > :not(.chi-in) { display: none !important; }
+  .chi-in { display: block; padding: 0; }
+}
+@media (max-width: 1199px) { .quay-ban { grid-template-columns: minmax(0, 1fr) 300px; } }
+@media (max-width: 767px) { .quay-ban { grid-template-columns: 1fr; } }

@@ -72,9 +72,16 @@ export class RetailShiftsService {
     return row;
   }
 
-  // Tiền theo phương thức của ca: thu bán, hoàn trả hàng. Lát L1 chưa có bán hàng nên bằng 0.
-  async summary(_executor: Executor, _shiftId: string): Promise<RetailShiftSummaryLine[]> {
-    return (["cash", "bank_transfer", "points"] as const).map((method) => ({ method, sales: "0", refunds: "0", net: "0" }));
+  // Tiền theo phương thức của ca: thu bán (tiền mặt đã trừ tiền thừa), hoàn trả hàng (lát L4).
+  async summary(executor: Executor, shiftId: string): Promise<RetailShiftSummaryLine[]> {
+    const rows = await executor.execute<{ method: RetailShiftSummaryLine["method"]; sales: string }>(sql`
+      SELECT p.method, (sum(p.amount) - CASE WHEN p.method = 'cash' THEN coalesce((SELECT sum(change_amount) FROM retail.sales WHERE shift_id = ${shiftId}), 0) ELSE 0 END)::text AS sales
+      FROM retail.sale_payments p JOIN retail.sales s ON s.id = p.sale_id WHERE s.shift_id = ${shiftId} GROUP BY p.method`);
+    const sales = new Map(rows.rows.map((row) => [row.method, Number(row.sales)]));
+    return (["cash", "bank_transfer", "points"] as const).map((method) => {
+      const amount = sales.get(method) ?? 0;
+      return { method, sales: trimDecimal(amount.toFixed(4)), refunds: "0", net: trimDecimal(amount.toFixed(4)) };
+    });
   }
 
   // Tiền mặt hệ thống tính = tiền đầu ca + tiền mặt thu (đã trừ tiền thừa) − tiền mặt hoàn (QUYTAC_NGHIEPVU_375).
@@ -84,9 +91,8 @@ export class RetailShiftsService {
     return trimDecimal((Number(row.opening_cash) + Number(cash.net)).toFixed(4));
   }
 
-  // Số hóa đơn bán lẻ trong ca. Lát L1 chưa có bán hàng.
-  private async saleCount(_executor: Executor, _shiftId: string): Promise<number> {
-    return 0;
+  private async saleCount(executor: Executor, shiftId: string): Promise<number> {
+    return (await executor.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM retail.sales WHERE shift_id = ${shiftId}`)).rows[0]!.total;
   }
 
   private async canClose(actor: Actor, row: ShiftRow): Promise<boolean> {

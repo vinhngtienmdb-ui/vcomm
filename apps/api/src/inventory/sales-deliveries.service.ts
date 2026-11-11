@@ -351,6 +351,65 @@ export class SalesDeliveriesService {
     });
   }
 
+  // Bán lẻ tại quầy (CONG_VIEC_53; QUYTAC_NGHIEPVU_370, 374): lập và ghi sổ phiếu xuất cho toàn bộ đơn bán lẻ trong giao dịch của bên gọi, không xét quyền kho.
+  // Hàng theo lô: xuất lô hết hạn trước, bỏ lô đã hết hạn; hàng theo serial: dùng lần lượt serial thu ngân quét theo mặt hàng. Dãy số đã tạo trước giao dịch.
+  async issueRetailWithin(transaction: Executor, actor: Actor, input: { orderId: string; documentDate: string; serials: Map<string, string[]> }): Promise<string> {
+    const order = await this.order(transaction, input.orderId, true);
+    const orderLines = await transaction.execute<{ id: string; variant_id: string; unit_id: string; quantity: string; base_quantity: string; base_unit_id: string; tracks_lots: boolean; tracks_serials: boolean }>(sql`
+      SELECT l.id, l.variant_id, l.unit_id, l.quantity::text, l.base_quantity::text, p.base_unit_id, p.tracks_lots, p.tracks_serials
+      FROM sales.order_lines l JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id
+      WHERE l.order_id = ${order.id} ORDER BY l.line_no`);
+    const remainingSerials = new Map([...input.serials].map(([variantId, serials]) => [variantId, [...serials]]));
+    const lines: DocumentInput["lines"] = [];
+    const sourceLines: string[] = [];
+    const blank = { unitCost: null, lotId: null, lotNo: null, manufacturedOn: null, expiresOn: null, lotOverrideReason: null, locationId: null, destinationLocationId: null, serials: [] as string[], responsibleUserId: null, compensationAmount: null };
+    for (const line of orderLines.rows) {
+      if (line.tracks_lots) {
+        let needed = Number(line.base_quantity);
+        const lots = (await this.documents.suggestLots(transaction, order.warehouse_id, order.company_id, line.variant_id, null, false)).filter((lot) => !lot.expired);
+        for (const lot of lots) {
+          if (needed <= 0.00005) break;
+          const taken = Math.min(needed, Number(lot.quantity));
+          const serials = line.tracks_serials ? (remainingSerials.get(line.variant_id) ?? []).splice(0, taken) : [];
+          // Lô sau lô gợi ý chỉ dùng khi lô trước không đủ: ghi lý do như khi thủ kho chọn lô khác gợi ý.
+          const lotOverrideReason = lot === lots[0] ? null : "Bán lẻ: lô hết hạn trước không đủ hàng";
+          lines.push({ ...blank, variantId: line.variant_id, unitId: line.base_unit_id, quantity: taken.toFixed(4), lotId: lot.lotId, lotOverrideReason, serials });
+          sourceLines.push(line.id);
+          needed -= taken;
+        }
+        if (needed > 0.00005) throw new ApiError("BUSINESS_RULE", "insufficientStock");
+      } else {
+        const serials = line.tracks_serials ? (remainingSerials.get(line.variant_id) ?? []).splice(0, Number(line.base_quantity)) : [];
+        lines.push({ ...blank, variantId: line.variant_id, unitId: line.unit_id, quantity: line.quantity, serials });
+        sourceLines.push(line.id);
+      }
+    }
+    const documentInput = {
+      type: "sales_issue",
+      warehouseId: order.warehouse_id,
+      companyId: order.company_id,
+      documentDate: input.documentDate,
+      reasonCode: "sale",
+      reason: `Bán lẻ theo đơn ${order.document_no}`,
+      note: null,
+      lines,
+    } as DocumentInput;
+    const prepared = await this.documents.prepare(null, documentInput);
+    const documentId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO inventory.documents (company_id, warehouse_id, type, document_date, reason_code, reason, note, source_type, source_id, partner_id, created_by)
+      VALUES (${order.company_id}, ${order.warehouse_id}, 'sales_issue', ${input.documentDate}::date, 'sale', ${documentInput.reason}, NULL, ${salesOrderSource}, ${order.id}, NULL, ${actor.userId})
+      RETURNING id`)
+    ).rows[0]!.id;
+    await this.writeLines(transaction, documentId, documentInput, prepared, sourceLines);
+    await this.postDraft(
+      transaction,
+      { id: documentId, type: "sales_issue", company_id: order.company_id, warehouse_id: order.warehouse_id, source_id: order.id, reason_code: "sale", stocktake_id: null },
+      actor,
+    );
+    return documentId;
+  }
+
   private async issueInput(order: OrderRow, input: IssueInput): Promise<{ documentInput: DocumentInput; sourceLines: string[] }> {
     const orderLines = new Map(
       (await this.database.execute<{ id: string; variant_id: string; unit_id: string }>(sql`SELECT id, variant_id, unit_id FROM sales.order_lines WHERE order_id = ${order.id}`)).rows.map((row) => [

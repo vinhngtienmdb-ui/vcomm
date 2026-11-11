@@ -4675,3 +4675,143 @@ export interface RetailCounterContext {
   currentShift: RetailShiftResponse | null;
   currency: string;
 }
+
+// CONG_VIEC_53, API_194 đến API_196: tìm hàng tại quầy, tính giỏ, hóa đơn bán lẻ (CHUC_NANG_187; QUYTAC_NGHIEPVU_370 đến 374).
+export const retailItemsQuerySchema = z.object({ shiftId: z.uuid(), search: z.string().trim().min(1).max(100) }).strict();
+export interface RetailItemOption {
+  variantId: string;
+  sku: string;
+  productName: string;
+  optionValues: string[];
+  unitId: string;
+  units: { unitId: string; unitName: string; factor: string }[];
+  tracksLots: boolean;
+  tracksSerials: boolean;
+  // Quét trúng serial còn trong kho bán thì trả serial đó.
+  serial: string | null;
+  // Quét trúng đúng mã vạch, mã hàng hoặc serial thì thêm ngay vào giỏ.
+  exact: boolean;
+  available: string;
+}
+const retailCartLine = z
+  .object({
+    variantId: z.uuid(),
+    unitId: z.uuid(),
+    quantity: decimalText(4).refine((value) => Number(value) > 0, "invalidValue"),
+    discountPercent: decimalText(4)
+      .refine((value) => Number(value) <= 100, "invalidValue")
+      .default("0"),
+    serials: z.array(z.string().trim().min(1).max(100)).max(1000).default([]),
+  })
+  .strict();
+export const retailQuoteSchema = z.object({ shiftId: z.uuid(), lines: z.array(retailCartLine).min(1).max(200) }).strict();
+export type RetailQuoteRequest = z.input<typeof retailQuoteSchema>;
+export type RetailCartLine = z.input<typeof retailCartLine>;
+export interface RetailPricedLine {
+  variantId: string;
+  sku: string;
+  productName: string;
+  unitId: string;
+  unitName: string;
+  quantity: string;
+  listPrice: string;
+  discountPercent: string;
+  promotionName: string | null;
+  isGift: boolean;
+  total: string;
+}
+export interface RetailQuoteResponse {
+  lines: RetailPricedLine[];
+  goodsAmount: string;
+  promotionAmount: string;
+  manualDiscount: string;
+  taxAmount: string;
+  totalAmount: string;
+  // Chương trình mua tặng thiếu hàng tặng tại kho bán.
+  giftShortages: { promotionName: string; missingSets: number }[];
+  maxManualDiscountPercent: string;
+  currency: string;
+}
+export const retailPaymentMethods = ["cash", "bank_transfer", "points"] as const;
+export type RetailPaymentMethod = (typeof retailPaymentMethods)[number];
+export const createRetailSaleSchema = z
+  .object({
+    shiftId: z.uuid(),
+    clientKey: z.uuid(),
+    lines: z.array(retailCartLine).min(1).max(200),
+    buyer: z
+      .object({
+        name: blankToNull(200),
+        taxCode: blankToNull(14).refine((value) => value === null || /^[0-9]{10}(-[0-9]{3})?$/.test(value), "invalidValue"),
+        address: blankToNull(400),
+        identityNo: blankToNull(12).refine((value) => value === null || /^[0-9]{12}$/.test(value), "invalidValue"),
+      })
+      .strict()
+      .optional(),
+    payments: z
+      .array(
+        z
+          .object({
+            method: z.enum(["cash", "bank_transfer"]),
+            amount: decimalText(4).refine((value) => Number(value) > 0, "invalidValue"),
+            bankReference: blankToNull(50),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(5),
+    expectedTotal: decimalText(4),
+  })
+  .strict();
+export type CreateRetailSaleRequest = z.input<typeof createRetailSaleSchema>;
+export interface RetailSaleResponse {
+  id: string;
+  documentNo: string;
+  soldAt: string;
+  saleDate: string;
+  company: { legalName: string; taxCode: string | null; address: string | null };
+  store: { id: string; name: string; address: string | null; phone: string | null; receiptFooter: string | null; returnDays: number };
+  register: { code: string; name: string };
+  shiftId: string;
+  cashierName: string;
+  buyer: { name: string | null; taxCode: string | null; address: string | null; identityNo: string | null };
+  lines: RetailPricedLine[];
+  goodsAmount: string;
+  promotionAmount: string;
+  manualDiscount: string;
+  taxAmount: string;
+  totalAmount: string;
+  tenderedAmount: string;
+  changeAmount: string;
+  payments: { method: RetailPaymentMethod; amount: string; bankReference: string | null; points: string | null }[];
+  salesOrder: { id: string; documentNo: string };
+  stockDocument: { id: string; documentNo: string };
+  currency: string;
+}
+export const retailSaleListQuerySchema = z
+  .object({
+    storeId: z.uuid().optional(),
+    shiftId: z.uuid().optional(),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+  })
+  .strict();
+export interface RetailSaleListItem {
+  id: string;
+  documentNo: string;
+  soldAt: string;
+  storeName: string;
+  registerCode: string;
+  cashierName: string;
+  buyerName: string | null;
+  totalAmount: string;
+  methods: RetailPaymentMethod[];
+  currency: string;
+}
+export interface RetailSaleListResponse {
+  items: RetailSaleListItem[];
+  total: number;
+  page: number;
+}

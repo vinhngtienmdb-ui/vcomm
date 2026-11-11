@@ -1,12 +1,13 @@
 "use client";
 
-// Khung mini app Bán lẻ (CONG_VIEC_53): menu MAN_HINH_161, 165, 166; mục thêm dần theo lát.
+// Khung mini app Bán lẻ (CONG_VIEC_53): menu MAN_HINH_161, 163, 165, 166; mục thêm dần theo lát.
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { AppShell } from "ui/components/AppShell";
 
 export const retailMenu = [
   { href: "/counter", key: "counter", permission: "retail.sale" },
+  { href: "/sales", key: "sales", permission: "retail.access" },
   { href: "/shifts", key: "shifts", permission: "retail.access" },
   { href: "/stores", key: "stores", permission: "retail.setup" },
 ] as const;

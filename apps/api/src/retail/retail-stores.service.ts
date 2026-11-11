@@ -173,7 +173,7 @@ export class RetailStoresService {
       this.database.execute<{ id: string; code: string; name: string; branch_id: string }>(sql`
         SELECT w.id, w.code, w.name, w.branch_id FROM inventory.warehouses w
         JOIN core.branches b ON b.id = w.branch_id AND b.branch_type = 'store'
-        WHERE w.company_id = ${companyId} AND w.status = 'active'
+        WHERE w.company_id = ${companyId} AND w.status = 'active' AND NOT w.uses_locations
           AND EXISTS (SELECT 1 FROM inventory.warehouse_owners o WHERE o.warehouse_id = w.id AND o.company_id = ${companyId})
         ORDER BY w.code`),
       this.database.execute<{ id: string; code: string; name: string }>(sql`
@@ -203,7 +203,7 @@ export class RetailStoresService {
     else if (branch.taken) fields.branchId = "retailBranchHasStore";
     const warehouse = await executor.execute(sql`
       SELECT 1 FROM inventory.warehouses w
-      WHERE w.id = ${input.warehouseId} AND w.branch_id = ${input.branchId} AND w.status = 'active'
+      WHERE w.id = ${input.warehouseId} AND w.branch_id = ${input.branchId} AND w.status = 'active' AND NOT w.uses_locations
         AND EXISTS (SELECT 1 FROM inventory.warehouse_owners o WHERE o.warehouse_id = w.id AND o.company_id = ${companyId})`);
     if (warehouse.rows.length === 0) fields.warehouseId = "retailWarehouseNotInBranch";
     const channel = await executor.execute(sql`SELECT 1 FROM catalog.sales_channels WHERE id = ${input.channelId} AND company_id = ${companyId} AND status = 'active' AND code <> 'NOI_BO'`);
