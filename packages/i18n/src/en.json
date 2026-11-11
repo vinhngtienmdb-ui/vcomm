@@ -3689,7 +3689,9 @@
     "zalopay_wallet": "ZaloPay wallet (ZaloPay app, QR code)",
     "zalopay_atm": "ATM card or bank account via ZaloPay",
     "zalopay_card": "International card (Visa, Mastercard, JCB) via ZaloPay",
-    "gateway_zalopay": "ZaloPay"
+    "gateway_zalopay": "ZaloPay",
+    "google_pay_card": "Card in Google Pay (via ZaloPay)",
+    "gateway_google_pay": "Google Pay"
   },
   "refunds": {
     "title": "VComm refunds",
