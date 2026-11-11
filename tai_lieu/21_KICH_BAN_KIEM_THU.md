@@ -4355,3 +4355,116 @@ Dữ liệu chung: tập đoàn VComm (công ty gốc), công ty con VCR (Bán l
 - Kết quả mong đợi: Bước 1: `200`, tên tệp `bao-cao-ban-hang-<từ ngày>-<đến ngày>.xlsx`; các dòng (nhãn, doanh số) và dòng "Tổng loại trừ nội bộ" khớp `json`. Bước 2: có dòng `analytics.sales.export` với số dòng đã xuất. Bước 3: `200`, tệp Excel. Bước 4: mỗi báo cáo trả về dưới 3 giây (Mong muốn).
 - Kiểm thử tự động: Tự động API – `apps/api/test/c50-analytics-sales.test.ts` (bước 1, 2), `apps/api/test/c50-analytics-inventory.test.ts` (xuất API_172), `apps/api/test/c50-analytics-debts.test.ts` (xuất API_173), `apps/api/test/c50-analytics-commissions.test.ts` (xuất API_174); đo thời gian phản hồi làm thủ công với dữ liệu sinh (1.000.000 dòng thẻ kho, 200.000 dòng phiếu, khoảng 366 ngày): mọi báo cáo dưới 3 giây
 - Lát: L1, L4
+## MODULE_08 Nhân sự phần 4: Tuyển dụng, đánh giá hiệu suất (CONG_VIEC_54)
+
+Dữ liệu chung: công ty VCR (bán lẻ) và công ty khác để kiểm cách ly; phòng ban có trưởng phòng; tài khoản Nhân viên nhân sự, người chỉ có `hr.access` và `hr.recruitment.request`, người phỏng vấn, người không có quyền, nhân sự công ty khác; hồ sơ nhân sự có tài khoản liên kết. Gửi email qua bộ giả lập ghi log. Dữ liệu giả, không dùng dữ liệu thật.
+
+### KICHBAN_KIEMTHU_522: Nhu cầu tuyển dụng, luồng duyệt, quyền xem của người lập
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_359
+- Chức năng: CHUC_NANG_190
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Vai trò thực hiện: Người lập nhu cầu (`hr.recruitment.request`); người lập khác; Nhân viên nhân sự; người không có quyền; nhân sự công ty khác; người duyệt
+- Điều kiện ban đầu và dữ liệu: Phòng ban, chi nhánh VCR; chính sách duyệt `hr.recruitment_request` một cấp cho một nhu cầu, không có chính sách cho nhu cầu khác
+- Các bước: (1) Lập nhu cầu lương tối đa nhỏ hơn tối thiểu; phòng ban sai. (2) Lập đúng; gửi với ngày cần người đã qua; sửa rồi gửi. (3) Người lập khác, nhân sự, người không có quyền, công ty khác xem. (4) Rút, hủy có lý do. (5) Gửi nhu cầu khi có chính sách, duyệt; gửi khi không có chính sách.
+- Kết quả mong đợi: (1) `400` `recruitmentSalaryRange`, `invalidValue`. (2) Nháp chưa có số; `400` `recruitmentNeededByPast`; chờ duyệt, số `TD-…`, giá trị duyệt = lương tối đa × số lượng. (3) `404`, danh sách rỗng; `200`; `403`; `404`. (4) Đã rút; đã hủy. (5) Đã duyệt.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-recruitment.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_523: Tin tuyển dụng, đăng, đóng, mở lại, tự đóng khi quá hạn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_359, TIEUCHI_NGHIEMTHU_361
+- Chức năng: CHUC_NANG_190
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Nhân viên nhân sự; người chỉ có `hr.recruitment.request`; việc nền
+- Điều kiện ban đầu và dữ liệu: Nhu cầu đã duyệt, nhu cầu nháp ở KICHBAN_KIEMTHU_522
+- Các bước: (1) Lập tin từ nhu cầu nháp; hạn nộp đã qua; khoảng lương ngoài nhu cầu; mô tả có HTML. (2) Lập đúng; người chỉ có `hr.recruitment.request` xem. (3) Đăng; đăng lại; sửa tin đang đăng. (4) Đóng, mở lại với hạn mới. (5) Có hồ sơ mới; đặt ngày sau hạn nộp, chạy `hr-recruitment-daily`.
+- Kết quả mong đợi: (1) `409` `recruitmentNotApproved`; `400` `postingDeadlinePast`, `postingSalaryOutsideRequest`, `invalidValue`. (2) Nháp; `403`. (3) Đang đăng; `409` `postingStatusInvalid`; nhật ký ghi. (4) Đã đóng; đang đăng, hạn mới. (5) Tin đóng; hồ sơ mới kết thúc lý do "tin đã đóng".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-recruitment.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_524: Trang tuyển dụng công khai, nộp hồ sơ, đồng ý, đánh dấu trùng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_360
+- Chức năng: CHUC_NANG_190, CHUC_NANG_191
+- Loại: Đúng, sai, giá trị biên, bảo mật
+- Vai trò thực hiện: Người tìm việc không đăng nhập; Nhân viên nhân sự; nhân sự công ty khác
+- Điều kiện ban đầu và dữ liệu: Tin đang đăng công khai; tin không công khai; tệp PDF, DOCX, PNG đổi đuôi PDF, tệp hơn 10 MB
+- Các bước: (1) Xem danh sách, chi tiết tin công khai và tin ẩn (tiếng Anh). (2) Nộp thiếu đồng ý tuyển dụng; điều khoản phiên bản cũ; tệp sai loại; thiếu tệp; tệp quá lớn; điện thoại sai; thêm trường giới tính. (3) Nộp đúng hai lần cùng email, lần đầu có đồng ý kho. (4) Nhân sự xem tin, ứng viên, tải tệp; công ty khác tải tệp. (5) Đóng tin, nộp tiếp.
+- Kết quả mong đợi: (1) Chỉ thấy tin công khai; tin ẩn `404`; không có mã nhu cầu, số lượng, lương nội bộ, người lập; điều khoản tiếng Anh nêu 30 ngày, phiên bản `2026-11-11`. (2) `400` `consentRequired`; `409` `termsOutdated`; `400` `resumeTypeInvalid`, `required`, `attachmentTooLarge`; `400`; `400`. (3) `201`, mã `UV-XXXX-XXXX`, email liên hệ; bằng chứng đồng ý tuyển dụng và kho lưu nguyên văn, phiên bản, kênh, IP. (4) Hai hồ sơ mới nguồn trang tuyển dụng, nhãn "Có thể trùng"; kho đến 2027-11-11, chưa có ngày xóa; tải `200`; công ty khác `404`. (5) `404`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-recruitment.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_525: Ứng viên nhập tay, giai đoạn, kết thúc, kho ứng viên, phỏng vấn, quyền, cách ly công ty
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_361
+- Chức năng: CHUC_NANG_191
+- Loại: Đúng, sai, từng vai trò
+- Vai trò thực hiện: Nhân viên nhân sự; người phỏng vấn; người không có quyền; nhân sự công ty khác
+- Điều kiện ban đầu và dữ liệu: Hai tin đang đăng của VCR
+- Các bước: (1) Nhập tay thiếu tệp bằng chứng đồng ý; bằng chứng DOCX; đồng ý kho thiếu tệp; nhập đúng. (2) Người không có quyền, công ty khác xem. (3) Chuyển giai đoạn phỏng vấn, đề nghị, sàng lọc. (4) Thêm vào tin khác khi không có kho. (5) Loại thiếu lý do; loại đúng; chuyển lại giai đoạn. (6) Đổi cài đặt lưu giữ, xem thẻ "Sắp đến hạn xóa". (7) Lập vòng phỏng vấn hai người phỏng vấn, đổi giờ; người phỏng vấn, người ngoài xem; người phỏng vấn chấm điểm 6, chấm đúng; đánh dấu đã xong; hủy vòng khác.
+- Kết quả mong đợi: (1) `400` `required`, `evidenceTypeInvalid`, `required`; `201`, đồng ý kênh nhập tay. (2) `403`; `404`. (3) Phỏng vấn; `400`; sàng lọc. (4) `409` `candidatePoolExpired`. (5) `400` `required`; ngày xóa = ngày kết thúc + 30; `409` `applicationEnded`. (6) Ngày xóa tính lại; ứng viên vào thẻ sắp đến hạn. (7) Hai thông báo; người phỏng vấn thấy vòng được giao, không thấy email; người ngoài `404`, `403`; `400`; ghi được; đã xong; vòng hủy người phỏng vấn nhận `404`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-recruitment.test.ts` (bước 1 đến 6), `apps/api/test/c54-process.test.ts` (bước 7)
+- Lát: L0, L1
+
+### KICHBAN_KIEMTHU_526: Email ứng viên: mời phỏng vấn kèm tệp lịch, báo kết quả, lịch sử email
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_362
+- Chức năng: CHUC_NANG_191
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Nhân viên nhân sự
+- Điều kiện ban đầu và dữ liệu: Ứng viên nộp bằng tiếng Anh; hai người phỏng vấn có email
+- Các bước: (1) Lập vòng chọn gửi email, có lời nhắn. (2) Đổi giờ. (3) Hủy vòng chọn gửi email. (4) Loại lý do "không đạt phỏng vấn" chọn gửi email. (5) Xem lịch sử email.
+- Kết quả mong đợi: (1) Ứng viên nhận email tiếng Anh có lời nhắn, tệp `invite.ics` `METHOD:REQUEST`, `SEQUENCE:0`; người phỏng vấn nhận cùng tệp lịch. (2) `SEQUENCE:1`. (3) `METHOD:CANCEL`. (4) Email báo kết quả gửi đúng địa chỉ. (5) Đủ loại, tiêu đề, người gửi, thời điểm.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-process.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_527: Đề nghị nhận việc, liên kết trả lời, lập hồ sơ nhân sự từ ứng viên
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_363, TIEUCHI_NGHIEMTHU_359
+- Chức năng: CHUC_NANG_191, CHUC_NANG_190
+- Loại: Đúng, sai, giá trị biên, bảo mật
+- Vai trò thực hiện: Nhân viên nhân sự; người duyệt; ứng viên không đăng nhập; việc nền
+- Điều kiện ban đầu và dữ liệu: Hồ sơ ứng tuyển giai đoạn phỏng vấn; nhu cầu số lượng 1; chính sách duyệt `hr.job_offer`
+- Các bước: (1) Lập đề nghị lương ngoài khoảng không lý do; có lý do; lập đề nghị thứ hai cho cùng hồ sơ. (2) Gửi duyệt, duyệt, gửi thư. (3) Mở liên kết sai mã; mở liên kết đúng, chấp nhận; trả lời lần hai. (4) Lấy bản điền sẵn, lập hồ sơ nhân sự. (5) Đề nghị khác: nhân sự ghi thay; gửi lại thư rồi mở liên kết cũ. (6) Đề nghị quá hạn trả lời, chạy `hr-recruitment-daily`; hủy đề nghị.
+- Kết quả mong đợi: (1) `400` `offerOutsideRange`; `201`, số `DNNV-…`; `409`. (2) Đã gửi; thư có mức lương, liên kết; lịch sử email không chứa mã liên kết; cơ sở dữ liệu chỉ có mã băm. (3) `404`; `200`, hồ sơ sang "nhận việc", người lập nhận thông báo; `409`. (4) Điền sẵn họ tên, điện thoại, email, trình độ, phòng ban, chi nhánh, chức danh, ngày vào làm; hồ sơ nhân sự có giấy tờ "Sơ yếu lý lịch", số đã tuyển tăng, nhu cầu hoàn thành, tin đóng. (5) Ghi được; liên kết cũ `404`. (6) Hết hạn, liên kết `404`; hồ sơ về giai đoạn phỏng vấn.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-process.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_528: Lưu giữ và xóa dữ liệu ứng viên
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_364
+- Chức năng: CHUC_NANG_191
+- Loại: Đúng, giá trị biên, bảo mật
+- Vai trò thực hiện: Việc nền `hr-candidate-erasure`; Nhân viên nhân sự; người phỏng vấn
+- Điều kiện ban đầu và dữ liệu: Ứng viên bị loại có tệp, phiếu phỏng vấn, email; ứng viên chưa có đồng ý kho; ứng viên có đề nghị đã gửi; ứng viên đã thành nhân viên
+- Các bước: (1) Chạy việc nền trước ngày xóa. (2) Đặt ngày bằng ngày xóa, chạy việc nền hai lần. (3) Ghi đồng ý kho có tệp bằng chứng; rút đồng ý kho. (4) Ghi yêu cầu xóa cho ứng viên có đề nghị; ghi lại lần hai; ghi cho ứng viên đã thành nhân viên.
+- Kết quả mong đợi: (1) Không xóa. (2) Họ tên "-", email, điện thoại, khóa trùng, nguyên văn điều khoản, IP, nhận xét phỏng vấn, ghi chú về rỗng; tệp không còn trên kho lưu trữ; giữ nguồn, giai đoạn, lý do, điểm; ứng viên rời danh sách, người phỏng vấn không còn thấy vòng; nhật ký một dòng `candidate.erase`; lần hai không lỗi. (3) Ngày xóa = ngày đồng ý + 12 tháng; rút thì về ngày kết thúc + 30. (4) Hồ sơ kết thúc "ứng viên rút", đề nghị hủy, xóa ngay, liên kết đề nghị `404`; `409` `candidateErased`; `409` `candidateHired`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-process.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_529: Đánh giá hiệu suất: mẫu, kỳ, phiếu, điểm, xếp loại, hiệu chỉnh, chốt, công bố, nhắc
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_365
+- Chức năng: CHUC_NANG_192
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Vai trò thực hiện: Nhân viên nhân sự; trưởng phòng (người chấm); nhân viên; đồng nghiệp; việc nền `hr-review-reminders`
+- Điều kiện ban đầu và dữ liệu: Phòng ban có trưởng phòng và hai nhân viên có hồ sơ, tài khoản liên kết
+- Các bước: (1) Lập mẫu tổng trọng số khác 100; đúng 100. (2) Lập kỳ tỷ trọng tổng khác 100, ngưỡng không giảm dần, hạn không tăng dần; lập đúng (mục tiêu 60, năng lực 40), mở kỳ. (3) Nhân viên, người chấm, người khác mở phiếu. (4) Nhân viên lập mục tiêu (50, 30, 20), người chấm xác nhận; tự đánh giá thiếu điểm, đủ điểm. (5) Người chấm chấm mục tiêu 5, 4, 3, năng lực 4, 5, 4, 3 (40, 30, 20, 10), nộp; nhân viên xem trước công bố. (6) Hiệu chỉnh thiếu lý do, có lý do. (7) Chốt khi còn phiếu chưa nộp; gán người chấm là chính nhân viên; loại phiếu có lý do. (8) Chạy nhắc quá hạn đặt mục tiêu hai lần. (9) Phiếu đồng nghiệp quá hạn tự đánh giá; mở lại phiếu đã nộp. (10) Chốt, công bố; nhân viên xem, xác nhận, ghi ý kiến hai lần.
+- Kết quả mong đợi: (1) `400` `weightsNotHundred`; tạo được. (2) `400` tại ô (`weightsNotHundred` ở tỷ trọng năng lực); phiếu cho nhân viên thuộc phòng ban, người chấm là trưởng phòng, phiếu của trưởng phòng để trống người chấm. (3) Nhân viên chỉ phiếu của mình, người chấm phiếu được giao, người khác `404`. (4) Mục tiêu tổng khác 100 `400` `weightsNotHundred`; chưa xác nhận thì chưa tự đánh giá; thiếu điểm `409` `reviewScoresMissing`; nộp được. (5) Điểm mục tiêu 4,30, năng lực 4,20, tổng 4,26, xếp loại B; nhân viên không thấy điểm người chấm. (6) `400`; xếp loại theo điểm hiệu chỉnh, nhật ký ghi. (7) `409` `reviewCycleNotComplete`; `400` `reviewerSelf`; phiếu loại. (8) Một thông báo mỗi phiếu. (9) Bước tự đánh giá khóa, người chấm vẫn chấm; điểm 2,40 xếp loại D; nộp lại được. (10) Xác nhận trước công bố `409`; sau công bố nhân viên nhận thông báo, thấy điểm, xếp loại, nhận xét; xác nhận, ý kiến ghi một lần, lần hai `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c54-reviews.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_530: Giao diện MAN_HINH_168 đến 173 trên máy tính
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_366
+- Chức năng: CHUC_NANG_190 đến CHUC_NANG_192
+- Loại: Giao diện
+- Vai trò thực hiện: Quản trị công ty; người phỏng vấn; nhân viên; người tìm việc không đăng nhập
+- Điều kiện ban đầu và dữ liệu: Dữ liệu thử của lát L0, L1, L2
+- Các bước: Mở từng màn hình khổ 1366 điểm ảnh; thao tác lập, gửi nhu cầu, đăng tin, nộp hồ sơ từ `/hr/careers` (vi, en), chuyển giai đoạn, lập vòng phỏng vấn, chấm ở "Phỏng vấn của tôi", lập và gửi đề nghị, trả lời qua liên kết, lập hồ sơ nhân sự, yêu cầu xóa, mở kỳ, đặt mục tiêu, tự đánh giá, chấm, chốt, công bố, xem kết quả.
+- Kết quả mong đợi: Không lỗi trình duyệt, không cuộn ngang; lỗi hiện đúng ô; trang công khai không có khung mini app; khớp bản mẫu đã duyệt (trừ chỗ chỉnh theo CONG_VIEC_54 mục 18).
+- Kiểm thử tự động: Thủ công – kiểm bằng xem trước giao diện từng lát (không có kiểm thử tự động)
+- Lát: L0, L1, L2
+
+### KICHBAN_KIEMTHU_531: Giao diện MAN_HINH_168 đến 173 trên điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_366
+- Chức năng: CHUC_NANG_190 đến CHUC_NANG_192
+- Loại: Giao diện
+- Vai trò thực hiện: Như KICHBAN_KIEMTHU_530
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_530
+- Các bước: Như KICHBAN_KIEMTHU_530 ở khổ 390 điểm ảnh; ưu tiên trang tuyển dụng công khai, trang trả lời đề nghị, "Phỏng vấn của tôi", "Đánh giá của tôi".
+- Kết quả mong đợi: Không cuộn ngang; bảng chuyển dạng thẻ; biểu mẫu nộp hồ sơ, ô đồng ý, nút tải tệp dùng được.
+- Kiểm thử tự động: Thủ công – kiểm bằng xem trước giao diện từng lát (không có kiểm thử tự động)
+- Lát: L0, L1, L2

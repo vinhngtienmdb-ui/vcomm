@@ -669,3 +669,28 @@ Không thêm vai trò. Năm quyền mới của mini app Báo cáo quản trị 
 
 - Báo cáo chỉ đọc; không thao tác nào ghi dữ liệu nghiệp vụ. Mỗi lần xuất Excel ghi nhật ký thao tác (QUYTAC_NGHIEPVU_343).
 - Chọn công ty ngoài phạm vi của nhóm báo cáo bị từ chối (lỗi không có quyền), không trả số liệu một phần (QUYTAC_NGHIEPVU_336).
+## 42. Vai trò của MODULE_08 Nhân sự phần 4: tuyển dụng, đánh giá hiệu suất (CONG_VIEC_54)
+
+Thêm quyền `hr.recruitment.request` (không nhạy cảm), `hr.recruitment.manage`, `hr.review.manage` (nhạy cảm, người được gán bắt buộc xác thực hai lớp); gán ở phạm vi tập đoàn hoặc công ty như mục 40. Loại chứng từ mới cần duyệt: `hr.recruitment_request` (Nhu cầu tuyển dụng), `hr.job_offer` (Đề nghị nhận việc). Không tạo vai trò mới.
+
+| Vai trò | Mã | Quyền thêm | Ghi chú |
+|---|---|---|---|
+| Quản lý nhân sự | `hr_manager` | `hr.recruitment.request`, `hr.recruitment.manage`, `hr.review.manage` | |
+| Nhân viên nhân sự | `hr_staff` | `hr.recruitment.request`, `hr.recruitment.manage`, `hr.review.manage` | Có thêm `hr.recruitment.request` để menu "Tuyển dụng" hiện (CONG_VIEC_54 mục 18) |
+| Quản trị tập đoàn, Quản trị công ty | | Mọi quyền mới | |
+| Trưởng phòng (vai trò tùy chỉnh do quản trị lập) | | `hr.access`, `hr.recruitment.request` | Cần `hr.access` để vào mini app Nhân sự |
+
+| Thao tác | Quản trị tập đoàn, công ty | Quản lý nhân sự, Nhân viên nhân sự | Người có `hr.recruitment.request` | Người phỏng vấn được giao | Người chấm được giao | Nhân viên có hồ sơ liên kết | Người tìm việc (không đăng nhập) |
+|---|---|---|---|---|---|---|---|
+| Lập, sửa, gửi, rút, hủy nhu cầu tuyển dụng | Có | Có | Nhu cầu của mình | Không | Không | Không | Không |
+| Xem mọi nhu cầu, đóng nhu cầu; tin tuyển dụng | Có | Có | Không (chỉ nhu cầu của mình, số đã tuyển) | Không | Không | Không | Không |
+| Xem, nộp hồ sơ ở trang tuyển dụng công khai | – | – | – | – | – | – | Có |
+| Ứng viên, hồ sơ ứng tuyển, vòng phỏng vấn, email, đề nghị nhận việc (có mức lương), tải tệp, yêu cầu xóa, cài đặt lưu giữ | Có | Có | Không | Không | Không | Không | Không |
+| Lập hồ sơ nhân sự từ ứng viên | Có | Có (kèm `hr.employee.manage`) | Không | Không | Không | Không | Không |
+| Xem ứng viên được giao (rút gọn, không email, điện thoại), tải sơ yếu lý lịch, ghi phiếu đánh giá phỏng vấn ("Phỏng vấn của tôi") | Như người phỏng vấn | Như người phỏng vấn | Như người phỏng vấn | Có, vòng chưa hủy | Không | Không | Không |
+| Trả lời đề nghị nhận việc qua liên kết riêng | – | Ghi thay ứng viên | – | – | – | – | Ứng viên có liên kết, một lần |
+| Mẫu đánh giá, kỳ đánh giá, mọi phiếu, gán người chấm, hiệu chỉnh, chốt, công bố | Có | Có | Không | Không | Không | Không | Không |
+| Đặt, chốt mục tiêu, chấm phiếu ("Đánh giá của tôi") | Như người chấm | Như người chấm | Không | Không | Phiếu được giao | Không | Không |
+| Lập mục tiêu, tự đánh giá; xem kết quả sau công bố, xác nhận đã xem, ghi ý kiến | Phiếu của mình | Phiếu của mình | Phiếu của mình | Phiếu của mình | Phiếu của mình | Phiếu của mình | Không |
+
+Người phỏng vấn, người chấm, nhân viên xem phiếu của mình không cần quyền nhân sự, chỉ cần là thành viên công ty đang chọn (menu "Phỏng vấn của tôi", "Đánh giá của tôi" dùng `platform.access`). Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_54.md` mục 6, 18.

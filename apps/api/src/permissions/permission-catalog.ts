@@ -136,11 +136,17 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "analytics.inventory.view", appCode: "analytics", nameVi: "Xem báo cáo tồn kho và luân chuyển", nameEn: "View inventory reports", isSensitive: false },
   { code: "analytics.debt.view", appCode: "analytics", nameVi: "Xem báo cáo công nợ", nameEn: "View debt reports", isSensitive: true },
   { code: "analytics.commission.view", appCode: "analytics", nameVi: "Xem báo cáo hoa hồng và ví", nameEn: "View commission and wallet reports", isSensitive: true },
+  // CONG_VIEC_54: tuyển dụng, đánh giá hiệu suất (tài liệu 08).
+  { code: "hr.recruitment.request", appCode: "hr", nameVi: "Lập, gửi nhu cầu tuyển dụng", nameEn: "Request recruitment", isSensitive: false },
+  { code: "hr.recruitment.manage", appCode: "hr", nameVi: "Quản lý tin tuyển dụng, ứng viên, phỏng vấn, đề nghị nhận việc", nameEn: "Manage recruitment and candidates", isSensitive: true },
+  { code: "hr.review.manage", appCode: "hr", nameVi: "Quản lý kỳ đánh giá hiệu suất, hiệu chỉnh, công bố kết quả", nameEn: "Manage performance reviews", isSensitive: true },
 ];
 
 const attendancePermissions = ["hr.attendance.view", "hr.attendance.manage", "hr.leave.manage", "hr.timesheet.manage"];
 export const hrPermissions = ["hr.employee.view", "hr.employee.manage", "hr.identity.view", "hr.contract.manage", ...attendancePermissions, "hr.payroll.view", "hr.payroll.manage", "hr.payroll.setup"];
 const analyticsPermissions = permissionCatalog.filter((permission) => permission.appCode === "analytics").map((permission) => permission.code);
+
+export const hrRecruitmentPermissions = ["hr.recruitment.request", "hr.recruitment.manage", "hr.review.manage"];
 
 const inventoryPermissions = permissionCatalog.filter((permission) => permission.appCode === "inventory").map((permission) => permission.code);
 
@@ -205,6 +211,7 @@ const companyAdminPermissions = [
   "finance.collection.manage",
   "finance.collection.setup",
   ...hrPermissions,
+  ...hrRecruitmentPermissions,
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [
@@ -353,8 +360,24 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
   },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },
   // CONG_VIEC_46 (tài liệu 08): gán ở phạm vi công ty.
-  { code: "hr_manager", nameVi: "Quản lý nhân sự", nameEn: "HR manager", permissionCodes: ["hr.access", ...hrPermissions, "platform.proposal.create"] },
-  { code: "hr_staff", nameVi: "Nhân viên nhân sự", nameEn: "HR staff", permissionCodes: ["hr.access", "hr.employee.view", "hr.employee.manage", "hr.contract.manage", ...attendancePermissions, "hr.payroll.view", "hr.payroll.manage"] },
+  { code: "hr_manager", nameVi: "Quản lý nhân sự", nameEn: "HR manager", permissionCodes: ["hr.access", ...hrPermissions, ...hrRecruitmentPermissions, "platform.proposal.create"] },
+  {
+    code: "hr_staff",
+    nameVi: "Nhân viên nhân sự",
+    nameEn: "HR staff",
+    permissionCodes: [
+      "hr.access",
+      "hr.employee.view",
+      "hr.employee.manage",
+      "hr.contract.manage",
+      ...attendancePermissions,
+      "hr.payroll.view",
+      "hr.payroll.manage",
+      "hr.recruitment.request",
+      "hr.recruitment.manage",
+      "hr.review.manage",
+    ],
+  },
 ];
 
 // Loại chứng từ do mã khai báo. Chứng từ thử của Nền tảng dùng để thử luồng duyệt khi chưa có module khác (CONG_VIEC_02 lát L7).
@@ -389,6 +412,9 @@ export const documentTypeCatalog = [
   { code: "hr.attendance_correction", appCode: "hr", nameVi: "Đơn giải trình công", nameEn: "Attendance correction", requiresApproval: true },
   // CONG_VIEC_48 (QUYTAC_NGHIEPVU_322).
   { code: "hr.payroll", appCode: "hr", nameVi: "Bảng lương", nameEn: "Payroll", requiresApproval: true },
+  // CONG_VIEC_54: nhu cầu tuyển dụng, đề nghị nhận việc qua luồng duyệt.
+  { code: "hr.recruitment_request", appCode: "hr", nameVi: "Nhu cầu tuyển dụng", nameEn: "Recruitment request", requiresApproval: true },
+  { code: "hr.job_offer", appCode: "hr", nameVi: "Đề nghị nhận việc", nameEn: "Job offer", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.

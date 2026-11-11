@@ -1996,6 +1996,24 @@ Yêu cầu phi chức năng: tính lại công ngày, sổ phép, trạng thái 
 | Hiệu năng | Lọc theo công ty, khoảng ngày trong truy vấn; chỉ mục của database migration 0083; giới hạn 366 ngày, 500 dòng hiện, 20.000 dòng xuất; mục tiêu mỗi báo cáo trả về dưới 3 giây với 1.000.000 dòng thẻ kho, 200.000 dòng phiếu |
 | Thư viện | Không thêm thư viện; xuất Excel bằng `write-excel-file` đã có |
 | Giao diện | Mini app `web-analytics` (đường dẫn `/analytics`) theo khung `web-finance`; dùng được trên điện thoại |
+## MODULE_08 Nhân sự (phần 4: Tuyển dụng, đánh giá hiệu suất, CONG_VIEC_54)
+
+| Mã | Chức năng | Yêu cầu |
+|---|---|---|
+| CHUC_NANG_190 | Nhu cầu tuyển dụng (lập, gửi duyệt, rút, hủy, đóng, hoàn thành); tin tuyển dụng (lập, sửa, đăng, đóng, mở lại, tự đóng khi hết hạn); trang tuyển dụng công khai chung tập đoàn (danh sách, chi tiết tin, nộp hồ sơ, ghi nhận đồng ý) | YCAU_NGHIEPVU_112, 113, 116 |
+| CHUC_NANG_191 | Ứng viên: nhập tay, nộp công khai, đánh dấu trùng, kho ứng viên; giai đoạn hồ sơ ứng tuyển; vòng phỏng vấn, phiếu đánh giá của người phỏng vấn ("Phỏng vấn của tôi"); email mời phỏng vấn (kèm tệp lịch), báo kết quả, thư đề nghị; đề nghị nhận việc qua luồng duyệt, ứng viên trả lời qua liên kết dùng một lần hoặc nhân sự ghi thay; lập hồ sơ nhân sự từ ứng viên; lưu giữ, xóa theo hạn và theo yêu cầu | YCAU_NGHIEPVU_113, 114, 115, 116 |
+| CHUC_NANG_192 | Đánh giá hiệu suất: mẫu tiêu chí, kỳ đánh giá, phiếu, mục tiêu, tự đánh giá, người quản lý chấm, hiệu chỉnh, chốt, công bố, nhân viên xác nhận đã xem ("Đánh giá của tôi") | YCAU_NGHIEPVU_117 |
+
+- Quy tắc: QUYTAC_NGHIEPVU_380 đến QUYTAC_NGHIEPVU_382 → CHUC_NANG_190; QUYTAC_NGHIEPVU_383 đến QUYTAC_NGHIEPVU_388 → CHUC_NANG_191; QUYTAC_NGHIEPVU_389 → CHUC_NANG_192
+- Thay đổi áp dụng: THAY_DOI_23 (bỏ giới hạn yêu cầu theo IP ở API_204), THAY_DOI_25 (trả lời đề nghị qua liên kết, email mời phỏng vấn kèm `invite.ics`)
+- Màn hình: MAN_HINH_168 đến MAN_HINH_173; API: API_200 đến API_205; Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_359 đến TIEUCHI_NGHIEMTHU_366
+
+Yêu cầu phi chức năng:
+- Dữ liệu cá nhân của người dự tuyển (Luật 91/2025/QH15 Điều 25 khoản 1; Nghị định 356/2025/NĐ-CP Điều 5, 6): trang công khai không thu giới tính, ngày sinh, số giấy tờ, ảnh; hai ô đồng ý riêng không đánh sẵn; bằng chứng đồng ý lưu nguyên văn điều khoản, phiên bản, ngôn ngữ, thời điểm, địa chỉ IP, trình duyệt; xóa là khử nhận dạng không khôi phục, xóa tệp trên kho lưu trữ trước rồi xóa trường cá nhân trong giao dịch, chạy lại không lỗi.
+- Trang công khai không đăng nhập (`/hr/careers`, API_204): không giới hạn số yêu cầu theo IP, không OTP (THAY_DOI_23); tệp sơ yếu lý lịch PDF hoặc DOCX, tối đa 10 MB, kiểm chữ ký đầu tệp; lược đồ từ chối trường lạ; tin không công khai, đã đóng, quá hạn trả `404` chung. API trả lời đề nghị giữ giới hạn 20 yêu cầu mỗi phút mỗi IP; mã liên kết 32 byte ngẫu nhiên, chỉ lưu mã băm SHA-256.
+- Toàn vẹn: nộp hồ sơ lưu tệp trước, ghi cơ sở dữ liệu trong giao dịch, lỗi thì xóa tệp vừa lưu; lập hồ sơ nhân sự từ ứng viên khóa nhu cầu (`FOR UPDATE`) để không vượt số lượng.
+- Việc nền (BullMQ, múi giờ `Asia/Ho_Chi_Minh`): `hr-recruitment-daily` lúc 0 giờ 10 phút (đóng tin quá hạn nộp, đề nghị quá hạn trả lời), `hr-candidate-erasure` lúc 1 giờ (xóa ứng viên đến ngày xóa), `hr-review-reminders` lúc 8 giờ (nhắc quá hạn đặt mục tiêu, quá hạn chấm).
+- Không thêm thư viện. Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_54.md`.
 
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
