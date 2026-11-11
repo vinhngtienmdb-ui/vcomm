@@ -45,7 +45,10 @@ Ngoài phạm vi: CONG_VIEC_20 giữ nguyên (loại trừ hàng hóa nội bộ
 
 - Database migration 0061: xóa bảng `finance.commission_*`, cột `sales.orders.commission_user_id`, định khoản `staff_payable`, quyền, loại chứng từ của CONG_VIEC_17; xóa quyền, loại chứng từ giao khách (giữ bảng, dữ liệu giao khách cũ để tra cứu trong cơ sở dữ liệu).
 - Database migration 0062: `catalog.products.kind` (`goods`, `service`, mặc định `goods`); cài đặt công ty cho phép lập đơn bán tay có hàng hóa (mặc định tắt).
+- Database migration 0063: `inventory.documents.is_service` (phiếu xuất giao hàng, phiếu nhập mua dịch vụ tự lập, không ghi thẻ kho); định khoản `service_expense` (6427 theo TT99, 6422 theo TT133).
 - Bút toán cũ nguồn `commission` (nếu có) giữ nguyên trong sổ.
+
+Cách làm đã chọn (lát L3): giao dịch nội bộ dịch vụ lập phiếu xuất, phiếu nhập dịch vụ cùng lúc khi đủ hai điều kiện đơn bán đã xác nhận và đơn mua đối ứng đã duyệt; đơn có phiếu dịch vụ coi là đã giao, không hủy được (luật hiện có); ngày phiếu là ngày xác nhận, kỳ đã khóa sổ thì không xác nhận được; đơn mua dịch vụ từ nhà cung cấp ngoài tập đoàn chưa tự nhận (ngoài phạm vi, chờ người dùng quyết).
 
 ## 7. Màn hình
 
