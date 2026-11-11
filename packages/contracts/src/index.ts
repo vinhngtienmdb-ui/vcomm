@@ -4518,3 +4518,89 @@ export interface BuyerWithdrawalInfo {
   // Yêu cầu đang chờ duyệt hoặc đã duyệt chưa chi.
   open: WithdrawalItem | null;
 }
+
+// ---------------------------------------------------------------------------
+// CONG_VIEC_51: Điểm thưởng (MODULE_11). Điểm là số nguyên; tiền, phần trăm là chuỗi số thập phân.
+// ---------------------------------------------------------------------------
+const loyaltyPercent = z
+  .string()
+  .trim()
+  .regex(/^\d{1,3}(\.\d{1,4})?$/, "invalidValue")
+  .refine((value) => Number(value) <= 100, "invalidValue");
+const loyaltyPointValue = z
+  .string()
+  .trim()
+  .regex(/^\d{1,9}(\.\d{1,4})?$/, "invalidValue")
+  .refine((value) => Number(value) > 0, "invalidValue");
+const loyaltyPointCount = z.number().int().min(1).max(1_000_000_000);
+
+// QUYTAC_NGHIEPVU_345: giai đoạn chương trình điểm.
+export const loyaltyPhaseSchema = z
+  .object({
+    startsOn: isoDate,
+    endsOn: isoDate.nullable(),
+    earnPercent: loyaltyPercent,
+    pointValue: loyaltyPointValue,
+    redeemMaxPercent: loyaltyPercent,
+    redeemMinPoints: loyaltyPointCount,
+    validityMonths: z.number().int().min(1).max(60),
+    orderCapPoints: loyaltyPointCount.nullable(),
+    monthlyCapPoints: loyaltyPointCount.nullable(),
+  })
+  .strict();
+export type LoyaltyPhaseInput = z.infer<typeof loyaltyPhaseSchema>;
+export const loyaltyPhaseUpdateSchema = loyaltyPhaseSchema.extend({ version: z.number().int().min(0) }).strict();
+
+// QUYTAC_NGHIEPVU_351: bảng hạng, thay cả bảng; hạng đầu mức 0, mức tăng dần.
+export const loyaltyTiersSchema = z
+  .object({
+    tiers: z
+      .array(
+        z
+          .object({
+            nameVi: z.string().trim().min(1).max(50),
+            nameEn: z.string().trim().min(1).max(50),
+            minAnnualSpend: z.string().trim().regex(/^\d{1,14}(\.\d{1,4})?$/, "invalidValue"),
+            multiplier: z
+              .string()
+              .trim()
+              .regex(/^\d(\.\d{1,3})?$/, "invalidValue")
+              .refine((value) => Number(value) >= 1 && Number(value) <= 5, "invalidValue"),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(10),
+  })
+  .strict();
+export type LoyaltyTiersInput = z.infer<typeof loyaltyTiersSchema>;
+
+export type LoyaltyPhaseStatus = "upcoming" | "active" | "ended";
+export interface LoyaltyPhase {
+  id: string;
+  startsOn: string;
+  endsOn: string | null;
+  earnPercent: string;
+  pointValue: string;
+  redeemMaxPercent: string;
+  redeemMinPoints: number;
+  validityMonths: number;
+  orderCapPoints: number | null;
+  monthlyCapPoints: number | null;
+  status: LoyaltyPhaseStatus;
+  version: number;
+}
+export interface LoyaltyTier {
+  id: string;
+  sortOrder: number;
+  nameVi: string;
+  nameEn: string;
+  minAnnualSpend: string;
+  multiplier: string;
+}
+export interface LoyaltyProgramResponse {
+  today: string;
+  phases: LoyaltyPhase[];
+  tiers: LoyaltyTier[];
+  canManage: boolean;
+}
