@@ -1,6 +1,18 @@
 // API_235 đến API_240: ngân sách mua (CONG_VIEC_58). Quyền chi tiết kiểm trong service.
 import { Body, Controller, Get, Headers, Param, Patch, Post, Query, Req } from "@nestjs/common";
-import { budgetListQuerySchema, saveBudgetPlanSchema, versionSchema, type BudgetOptionsResponse, type BudgetPlanListItem, type BudgetPlanResponse, type PageResponse } from "contracts";
+import {
+  budgetListQuerySchema,
+  cellOrdersQuerySchema,
+  openToBuyQuerySchema,
+  saveBudgetPlanSchema,
+  versionSchema,
+  type BudgetOptionsResponse,
+  type BudgetPlanListItem,
+  type BudgetPlanResponse,
+  type CellOrderItem,
+  type OpenToBuyResponse,
+  type PageResponse,
+} from "contracts";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
@@ -58,5 +70,15 @@ export class PurchasingBudgetsController {
   @Post("budget-plans/:id/cancel")
   async cancel(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<BudgetPlanResponse> {
     return this.plans.cancel(await this.actor(request, companyId), id, versionSchema.parse(body).version);
+  }
+
+  @Get("open-to-buy")
+  async openToBuy(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<OpenToBuyResponse> {
+    return this.plans.openToBuy(await this.actor(request, companyId), openToBuyQuerySchema.parse(query));
+  }
+
+  @Get("open-to-buy/orders")
+  async cellOrders(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<CellOrderItem[]> {
+    return this.plans.cellOrders(await this.actor(request, companyId), cellOrdersQuerySchema.parse(query));
   }
 }

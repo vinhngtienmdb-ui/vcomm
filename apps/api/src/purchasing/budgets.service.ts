@@ -1,6 +1,19 @@
 // Kế hoạch ngân sách mua (CHUC_NANG_207; QUYTAC_NGHIEPVU_442 đến 445, 453; API_235, API_236).
 import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
-import type { BudgetLineResponse, BudgetOptionsResponse, BudgetPlanListItem, BudgetPlanResponse, budgetListQuerySchema, PageResponse, saveBudgetPlanSchema } from "contracts";
+import type {
+  BudgetLineResponse,
+  BudgetOptionsResponse,
+  BudgetPlanListItem,
+  BudgetPlanResponse,
+  budgetListQuerySchema,
+  CellOrderItem,
+  cellOrdersQuerySchema,
+  OpenToBuyResponse,
+  OpenToBuyRow,
+  openToBuyQuerySchema,
+  PageResponse,
+  saveBudgetPlanSchema,
+} from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import type { z } from "zod";
 import { ApprovalRequestsService } from "../approvals/approval-requests.service";
@@ -14,6 +27,7 @@ import type { Actor } from "../permissions/roles.service";
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { purchasingAudit, purchasingPermissions, requirePermission, type Executor, type FieldErrors } from "./purchasing-context";
 import { companyCurrency, ensureSequence } from "./requisitions.service";
+import { ordersOfCell, usedByCell } from "./open-to-buy";
 
 export const budgetPlanDocumentType = "purchasing.budget_plan";
 type Input = z.output<typeof saveBudgetPlanSchema>;
@@ -78,7 +92,15 @@ export class BudgetPlansService implements OnModuleInit {
     const rows = await this.database.execute<PlanRow>(
       sql`${this.select()} WHERE ${where} ORDER BY b.from_month DESC, b.created_at DESC LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`,
     );
-    return { data: rows.rows.map(toItem), page: query.page, pageSize: query.pageSize, total };
+    const data = await Promise.all(
+      rows.rows.map(async (row) => {
+        const item = toItem(row);
+        // Kế hoạch đã duyệt: đã dùng = mọi đơn tính vào ngân sách trong các tháng của kế hoạch (QUYTAC_NGHIEPVU_446).
+        if (row.status === "approved") item.usedAmount = trimDecimal(sumOf((await usedByCell(this.database, actor.companyId, row.from_month, row.to_month)).map((cell) => cell.used)));
+        return item;
+      }),
+    );
+    return { data, page: query.page, pageSize: query.pageSize, total };
   }
 
   async detail(actor: Actor, id: string): Promise<BudgetPlanResponse> {
@@ -99,6 +121,9 @@ export class BudgetPlansService implements OnModuleInit {
         l.amount::text, l.adjusted_amount::text
       FROM purchasing.budget_lines l JOIN catalog.categories c ON c.id = l.category_id JOIN inventory.warehouses w ON w.id = l.warehouse_id
       WHERE l.plan_id = ${id} ORDER BY c.code, w.code, l.month`);
+    const used = row.status === "approved" ? await usedByCell(this.database, actor.companyId, row.from_month, row.to_month) : null;
+    const usedOf = (line: { category_id: string; warehouse_id: string; month: string }) =>
+      used?.find((cell) => cell.category_id === line.category_id && cell.warehouse_id === line.warehouse_id && cell.month === line.month)?.used ?? "0";
     const manage = granted.has(purchasingPermissions.manageBudgets);
     const own = row.created_by === actor.userId;
     const firstStepDecided = row.approval_request_id
@@ -107,6 +132,7 @@ export class BudgetPlansService implements OnModuleInit {
     const editable = ["draft", "rejected", "withdrawn"].includes(row.status);
     return {
       ...toItem(row),
+      usedAmount: used ? trimDecimal(sumOf(used.map((cell) => cell.used))) : null,
       note: row.note,
       approvalRequestId: row.approval_request_id,
       lines: lines.rows.map(
@@ -120,7 +146,7 @@ export class BudgetPlansService implements OnModuleInit {
           month: line.month,
           amount: trimDecimal(line.amount),
           adjustedAmount: trimDecimal(line.adjusted_amount),
-          usedAmount: null,
+          usedAmount: used ? trimDecimal(usedOf(line)) : null,
         }),
       ),
       version: row.version,
@@ -230,6 +256,100 @@ export class BudgetPlansService implements OnModuleInit {
     return this.detail(actor, id);
   }
 
+  // API_239: ô của kế hoạch đã duyệt và ô có đơn trong tháng đã áp dụng ngân sách; gộp theo tháng, quý hoặc năm (QUYTAC_NGHIEPVU_447, 450).
+  async openToBuy(actor: Actor, query: z.output<typeof openToBuyQuerySchema>): Promise<OpenToBuyResponse> {
+    await requirePermission(this.permissionService, actor, purchasingPermissions.viewBudgets, purchasingPermissions.manageBudgets);
+    const budgets = await this.database.execute<{ category_id: string; warehouse_id: string; month: string; amount: string; adjusted_amount: string }>(sql`
+      SELECT l.category_id, l.warehouse_id, to_char(l.month, 'YYYY-MM') AS month, l.amount::text, l.adjusted_amount::text
+      FROM purchasing.budget_lines l JOIN purchasing.budget_plans b ON b.id = l.plan_id
+      WHERE b.company_id = ${actor.companyId} AND b.status = 'approved' AND extract(year FROM l.month) = ${query.year}`);
+    const coveredMonths = new Set(
+      (
+        await this.database.execute<{ month: string }>(sql`
+        SELECT DISTINCT to_char(m, 'YYYY-MM') AS month FROM purchasing.budget_plans b, generate_series(b.from_month, b.to_month, interval '1 month') m
+        WHERE b.company_id = ${actor.companyId} AND b.status = 'approved' AND extract(year FROM m) = ${query.year}`)
+      ).rows.map((row) => row.month),
+    );
+    const used = (await usedByCell(this.database, actor.companyId, `${query.year}-01`, `${query.year}-12`)).filter((cell) => coveredMonths.has(cell.month));
+    const periodOf = (month: string) => (query.period === "month" ? month : query.period === "quarter" ? `${query.year}-Q${Math.ceil(Number(month.slice(5, 7)) / 3)}` : String(query.year));
+    const cells = new Map<string, { categoryId: string; warehouseId: string; period: string; month: string; budget: number; adjusted: number; used: number; hasBudget: boolean }>();
+    const cellOf = (categoryId: string, warehouseId: string, month: string) => {
+      const period = periodOf(month);
+      const key = `${categoryId}|${warehouseId}|${period}`;
+      let cell = cells.get(key);
+      if (!cell) cells.set(key, (cell = { categoryId, warehouseId, period, month, budget: 0, adjusted: 0, used: 0, hasBudget: false }));
+      return cell;
+    };
+    for (const line of budgets.rows) {
+      const cell = cellOf(line.category_id, line.warehouse_id, line.month);
+      cell.budget += Number(line.amount);
+      cell.adjusted += Number(line.adjusted_amount);
+      cell.hasBudget = true;
+    }
+    for (const row of used) cellOf(row.category_id, row.warehouse_id, row.month).used += Number(row.used);
+    const selected = [...cells.values()].filter((cell) => (!query.categoryId || cell.categoryId === query.categoryId) && (!query.warehouseId || cell.warehouseId === query.warehouseId));
+    const names = await this.names(
+      selected.map((cell) => cell.categoryId),
+      selected.map((cell) => cell.warehouseId),
+    );
+    const money = (value: number) => trimDecimal(value.toFixed(4));
+    const rows: OpenToBuyRow[] = selected
+      .map((cell) => ({
+        categoryId: cell.categoryId,
+        categoryCode: names.categories.get(cell.categoryId)?.code ?? "",
+        categoryName: names.categories.get(cell.categoryId)?.name ?? "",
+        warehouseId: cell.warehouseId,
+        warehouseName: names.warehouses.get(cell.warehouseId)?.name ?? "",
+        warehouseCode: names.warehouses.get(cell.warehouseId)?.code ?? "",
+        period: cell.period,
+        month: query.period === "month" ? cell.month : null,
+        budget: money(cell.budget),
+        adjusted: money(cell.adjusted),
+        used: money(cell.used),
+        remaining: money(cell.budget + cell.adjusted - cell.used),
+        hasBudget: cell.hasBudget,
+      }))
+      .sort((left, right) => left.categoryCode.localeCompare(right.categoryCode) || left.warehouseCode.localeCompare(right.warehouseCode) || left.period.localeCompare(right.period))
+      .map(({ warehouseCode: _warehouseCode, ...row }) => row);
+    const totalOf = (key: "budget" | "adjusted" | "used") => selected.reduce((sum, cell) => sum + cell[key], 0);
+    return {
+      currency: await companyCurrency(this.database, actor.companyId),
+      year: query.year,
+      period: query.period,
+      rows,
+      total: { budget: money(totalOf("budget")), adjusted: money(totalOf("adjusted")), used: money(totalOf("used")), remaining: money(totalOf("budget") + totalOf("adjusted") - totalOf("used")) },
+    };
+  }
+
+  async cellOrders(actor: Actor, query: z.output<typeof cellOrdersQuerySchema>): Promise<CellOrderItem[]> {
+    await requirePermission(this.permissionService, actor, purchasingPermissions.viewBudgets, purchasingPermissions.manageBudgets);
+    const rows = await ordersOfCell(this.database, actor.companyId, query.categoryId, query.warehouseId, query.month);
+    return rows.map((row) => ({
+      id: row.id,
+      documentNo: row.document_no,
+      supplierName: row.supplier_name,
+      orderDate: row.order_date,
+      status: row.status,
+      currency: row.currency,
+      amount: trimDecimal(row.amount),
+    }));
+  }
+
+  private async names(categoryIds: string[], warehouseIds: string[]) {
+    const list = (values: string[]) =>
+      sql.join(
+        [...new Set(values)].map((value) => sql`${value}`),
+        sql`, `,
+      );
+    const categories = categoryIds.length
+      ? (await this.database.execute<{ id: string; code: string; name: string }>(sql`SELECT id, code, name_vi AS name FROM catalog.categories WHERE id IN (${list(categoryIds)})`)).rows
+      : [];
+    const warehouses = warehouseIds.length
+      ? (await this.database.execute<{ id: string; code: string; name: string }>(sql`SELECT id, code, name FROM inventory.warehouses WHERE id IN (${list(warehouseIds)})`)).rows
+      : [];
+    return { categories: new Map(categories.map((row) => [row.id, row])), warehouses: new Map(warehouses.map((row) => [row.id, row])) };
+  }
+
   private async validate(transaction: Executor, companyId: string, input: Input): Promise<void> {
     const fields: FieldErrors = {};
     const span = monthsBetween(input.fromMonth, input.toMonth);
@@ -295,6 +415,8 @@ export class BudgetPlansService implements OnModuleInit {
       FROM purchasing.budget_plans b JOIN core.users cu ON cu.id = b.created_by`;
   }
 }
+
+const sumOf = (values: string[]) => values.reduce((sum, value) => sum + Number(value), 0).toFixed(4);
 
 function toItem(row: PlanRow): BudgetPlanListItem {
   return {

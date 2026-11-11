@@ -7105,5 +7105,31 @@
     "status_withdrawn": "Đã rút",
     "status_cancelled": "Đã hủy",
     "unit": "Đơn vị: {currency} (đồng tiền hạch toán của công ty). Đã dùng = giá trị chưa thuế của đơn mua đã duyệt; đơn đóng sớm chỉ tính phần đã nhận."
+  },
+  "openToBuy": {
+    "title": "Số còn được mua",
+    "year": "Năm",
+    "allCategories": "Ngành hàng: tất cả",
+    "allWarehouses": "Kho: tất cả",
+    "periodMonth": "Tháng",
+    "periodQuarter": "Quý",
+    "periodYear": "Năm",
+    "category": "Ngành hàng",
+    "warehouse": "Kho",
+    "period": "Kỳ",
+    "budget": "Ngân sách",
+    "adjusted": "Điều chỉnh",
+    "used": "Đã dùng",
+    "remaining": "Còn được mua",
+    "usedRate": "Tỷ lệ đã dùng",
+    "noBudget": "Chưa có ngân sách",
+    "total": "Cộng",
+    "hint": "Còn được mua = ngân sách + điều chỉnh đã duyệt − đã dùng. Số âm: đơn được duyệt qua luồng vượt ngân sách. Chỉ tính các tháng có kế hoạch đã duyệt.",
+    "none": "Không có ngân sách hoặc đơn mua trong năm đã chọn.",
+    "quarter": "Quý {quarter}/{year}",
+    "ordersTitle": "Đơn đã tính · {category} · {warehouse} · {month}",
+    "orderNo": "Số đơn",
+    "viewOrders": "Xem các đơn đã tính vào ô {category} · {warehouse} · {month}",
+    "noOrders": "Chưa có đơn nào tính vào ô này."
   }
 }

@@ -14,6 +14,7 @@ export const purchasingMenu = [
   { href: "/supplier-prices", key: "supplierPrices", permission: "purchasing.access" },
   // CONG_VIEC_58: ngân sách mua (MAN_HINH_204 đến 208).
   { href: "/budget-plans", key: "budgetPlans", permission: "purchasing.budget.view" },
+  { href: "/open-to-buy", key: "openToBuy", permission: "purchasing.budget.view" },
 ] as const;
 
 export function PurchasingShell({ children }: { children: ReactNode }) {

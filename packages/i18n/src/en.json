@@ -7105,5 +7105,31 @@
     "status_withdrawn": "Withdrawn",
     "status_cancelled": "Cancelled",
     "unit": "Unit: {currency} (company accounting currency). Used = net value of approved purchase orders; early-closed orders count only the received part."
+  },
+  "openToBuy": {
+    "title": "Open to buy",
+    "year": "Year",
+    "allCategories": "Category: all",
+    "allWarehouses": "Warehouse: all",
+    "periodMonth": "Month",
+    "periodQuarter": "Quarter",
+    "periodYear": "Year",
+    "category": "Category",
+    "warehouse": "Warehouse",
+    "period": "Period",
+    "budget": "Budget",
+    "adjusted": "Adjustments",
+    "used": "Used",
+    "remaining": "Open to buy",
+    "usedRate": "Used share",
+    "noBudget": "No budget",
+    "total": "Total",
+    "hint": "Open to buy = budget + approved adjustments − used. Negative: orders approved through the over-budget flow. Only months with an approved plan count.",
+    "none": "No budget or purchase orders in the selected year.",
+    "quarter": "Q{quarter}/{year}",
+    "ordersTitle": "Counted orders · {category} · {warehouse} · {month}",
+    "orderNo": "Order no.",
+    "viewOrders": "View orders counted in {category} · {warehouse} · {month}",
+    "noOrders": "No orders counted in this cell."
   }
 }

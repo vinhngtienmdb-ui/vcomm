@@ -83,3 +83,47 @@ export interface BudgetOptionsResponse {
   categories: { id: string; code: string; name: string }[];
   warehouses: { id: string; code: string; name: string }[];
 }
+
+// API_239: số còn được mua theo tháng, quý, năm (QUYTAC_NGHIEPVU_447).
+export const openToBuyQuerySchema = z
+  .object({
+    year: z.coerce.number().int().min(2000).max(2100),
+    period: z.enum(["month", "quarter", "year"]).default("month"),
+    categoryId: z.uuid().optional(),
+    warehouseId: z.uuid().optional(),
+  })
+  .strict();
+export interface OpenToBuyRow {
+  categoryId: string;
+  categoryCode: string;
+  categoryName: string;
+  warehouseId: string;
+  warehouseName: string;
+  // "2026-10", "2026-Q4" hoặc "2026".
+  period: string;
+  // Tháng đầu của kỳ, để mở danh sách đơn khi kỳ là tháng.
+  month: string | null;
+  budget: string;
+  adjusted: string;
+  used: string;
+  remaining: string;
+  // Ô chưa có ngân sách trong tháng đã áp dụng kế hoạch (QUYTAC_NGHIEPVU_450).
+  hasBudget: boolean;
+}
+export interface OpenToBuyResponse {
+  currency: string;
+  year: number;
+  period: "month" | "quarter" | "year";
+  rows: OpenToBuyRow[];
+  total: { budget: string; adjusted: string; used: string; remaining: string };
+}
+export const cellOrdersQuerySchema = z.object({ categoryId: z.uuid(), warehouseId: z.uuid(), month }).strict();
+export interface CellOrderItem {
+  id: string;
+  documentNo: string | null;
+  supplierName: string;
+  orderDate: string;
+  status: string;
+  currency: string;
+  amount: string;
+}
