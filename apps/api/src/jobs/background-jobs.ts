@@ -21,6 +21,7 @@ import { WorkEventsService } from "../hr/work-events.service";
 import { RecruitmentService } from "../hr/recruitment.service";
 import { JobOffersService } from "../hr/job-offers.service";
 import { CandidatesService } from "../hr/candidates.service";
+import { ReviewsService } from "../hr/reviews.service";
 
 const queueName = "nen-tang";
 const einvoiceQueueName = "hoa-don-dien-tu";
@@ -48,6 +49,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const recruitment = application.get(RecruitmentService);
   const jobOffers = application.get(JobOffersService);
   const candidates = application.get(CandidatesService);
+  const reviews = application.get(ReviewsService);
   const queue = new Queue(queueName, { connection });
   await queue.upsertJobScheduler("approval-overdue", { every: 15 * 60_000 }, { name: "approval-overdue" });
   await queue.upsertJobScheduler("outbox-dispatch", { every: 10_000 }, { name: "outbox-dispatch" });
@@ -60,6 +62,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   // Tuyển dụng (CONG_VIEC_54): đóng tin quá hạn nộp, đề nghị hết hạn lúc 0 giờ 10 phút; xóa ứng viên đến hạn lúc 1 giờ.
   await queue.upsertJobScheduler("hr-recruitment-daily", { pattern: "10 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-recruitment-daily" });
   await queue.upsertJobScheduler("hr-candidate-erasure", { pattern: "0 1 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-candidate-erasure" });
+  // Đánh giá hiệu suất (CONG_VIEC_54): nhắc quá hạn lúc 8 giờ.
+  await queue.upsertJobScheduler("hr-review-reminders", { pattern: "0 8 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-review-reminders" });
   // Tự hoàn tất đơn VComm hết hạn trả hàng (CONG_VIEC_24; QUYTAC_NGHIEPVU_162).
   await queue.upsertJobScheduler("marketplace-order-completion", { every: 60 * 60_000 }, { name: "marketplace-order-completion" });
   // Hủy đơn VComm quá hạn thanh toán, nhả hàng (CONG_VIEC_25; QUYTAC_NGHIEPVU_165).
@@ -91,6 +95,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "hr-contract-reminders") return contractReminders.sendDue();
       if (job.name === "hr-recruitment-daily") return { ...(await recruitment.runDaily()), expiredOffers: await jobOffers.expireDue() };
       if (job.name === "hr-candidate-erasure") return candidates.eraseDue();
+      if (job.name === "hr-review-reminders") return reviews.sendReminders();
       if (job.name === "marketplace-order-completion") return marketplaceOrders.completeDue();
       if (job.name === "marketplace-payment-expiry") return payments.expireDue();
       return null;

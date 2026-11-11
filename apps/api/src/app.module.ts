@@ -86,6 +86,8 @@ import { InterviewerController } from "./hr/interviewer.controller";
 import { InterviewsService } from "./hr/interviews.service";
 import { JobOffersService } from "./hr/job-offers.service";
 import { OfferAnswersController } from "./hr/offer-answers.controller";
+import { ReviewsController } from "./hr/reviews.controller";
+import { ReviewsService } from "./hr/reviews.service";
 import { RecruitmentController } from "./hr/recruitment.controller";
 import { RecruitmentService } from "./hr/recruitment.service";
 import { WorkEventsService } from "./hr/work-events.service";
@@ -139,7 +141,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController],
   providers: [
     AuthService,
     ActivationService,
@@ -163,6 +165,7 @@ import { UsersService } from "./users/users.service";
     CandidatesService,
     InterviewsService,
     JobOffersService,
+    ReviewsService,
     CategoriesService,
     UnitsService,
     ProductsService,

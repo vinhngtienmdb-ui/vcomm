@@ -185,9 +185,10 @@ Luồng duyệt chung, dãy số chứng từ, đăng nhập, phân quyền; h�
 - Đánh giá hiệu suất: mục tiêu và năng lực có trọng số, thang 1 đến 5, xếp loại A, B, C, D theo ngưỡng của kỳ; người quản lý chấm là điểm chính thức, tự đánh giá để tham khảo.
 - Trưởng phòng chấm, nhân sự hiệu chỉnh, chốt và công bố; nhân viên xem, xác nhận, ghi ý kiến; không đi luồng duyệt chung.
 - Nhu cầu tuyển dụng qua luồng duyệt (giao việc của phiên cha).
-- Bổ sung sau khi duyệt lát L0 (2026-11-11): lát L0 đạt; ứng viên tự trả lời đề nghị nhận việc qua liên kết trong email (thay cho chỉ nhân sự ghi tay); phiếu phỏng vấn một điểm chung 1 đến 5, đề xuất, nhận xét; email mời phỏng vấn kèm tệp lịch `.ics`.
+- Bổ sung sau khi duyệt lát L0 (2026-11-11): lát L0 đạt; ứng viên tự trả lời đề nghị nhận việc qua liên kết trong email (thay cho chỉ nhân sự ghi tay); phiếu phỏng vấn một điểm chung 1 đến 5, đề xuất, nhận xét; email mời phỏng vấn kèm tệp lịch `.ics` (hai thay đổi này ghi là THAY_DOI_25 trong tài liệu `24`).
+- Bổ sung sau khi duyệt lát L1 (2026-11-11): lát L1 đạt; giữ hai mục menu riêng "Phỏng vấn của tôi", "Đánh giá của tôi".
 
-## 18. Chỗ chỉnh cho khớp mã (lát L0, L1)
+## 18. Chỗ chỉnh cho khớp mã (lát L0, L1, L2)
 
 | Vị trí | Đặc tả | Mã đã làm |
 |---|---|---|
@@ -199,3 +200,7 @@ Luồng duyệt chung, dãy số chứng từ, đăng nhập, phân quyền; h�
 | QUYTAC_NGHIEPVU_386 | Hủy đề nghị | Hủy đề nghị đưa hồ sơ về giai đoạn phỏng vấn; liên kết trả lời mất hiệu lực khi hủy, hết hạn, gửi lại thư; trả lời qua liên kết thì xem lại được kết quả |
 | QUYTAC_NGHIEPVU_387 | Lập hồ sơ trong cùng giao dịch | Thêm tham số không bắt buộc `afterCreate` cho hàm lập hồ sơ nhân sự của CONG_VIEC_46 (API cũ giữ nguyên hành vi); biểu mẫu MAN_HINH_115 thêm thuộc tính điền sẵn, đường dẫn gửi |
 | QUYTAC_NGHIEPVU_388 | Yêu cầu xóa có tệp bằng chứng không bắt buộc | Không thu tệp (sẽ bị xóa cùng ứng viên); ngày nhận, kênh, ghi chú lưu ở nhật ký thao tác `candidate.erasure_request`. Ứng viên đã xóa: họ tên lưu "-", giao diện hiện "Ứng viên đã xóa"; vòng phỏng vấn đã lên lịch bị hủy khi xóa theo yêu cầu |
+| QUYTAC_NGHIEPVU_389 | Nhắc quá hạn mục tiêu, tự đánh giá, người chấm | Chỉ nhắc quá hạn đặt mục tiêu và quá hạn chấm (mỗi phiếu mỗi loại một lần); không nhắc quá hạn tự đánh giá vì qua hạn bước tự đánh giá tự khóa, người chấm chấm tiếp |
+| QUYTAC_NGHIEPVU_389 | Người chấm là trưởng phòng | Khi mở kỳ giao người quản lý phòng ban của nhân viên; phòng chưa có trưởng hoặc trưởng phòng chính là nhân viên thì để trống, nhân sự chọn trong bảng kỳ. Người chấm đặt, chốt mục tiêu; nhân viên cũng sửa được mục tiêu trước khi chốt |
+| QUYTAC_NGHIEPVU_389 | Điểm | Điểm mục tiêu, năng lực = tổng (trọng số × điểm)/100; điểm người chấm = (trọng số mục tiêu × điểm mục tiêu + trọng số năng lực × điểm năng lực)/100, làm tròn 2 chữ số; điểm điều chỉnh (kèm lý do) thay điểm người chấm khi xếp loại |
+| MAN_HINH_173 | Phiếu đánh giá | Một trang `/hr/my-reviews/:id` hiện theo vai trò (nhân viên, người chấm, nhân sự); nhân sự mở từ bảng kỳ |

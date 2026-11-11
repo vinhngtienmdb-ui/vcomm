@@ -12,6 +12,8 @@ export const hrMenu = [
   { href: "/recruitment", key: "recruitment", permission: "hr.recruitment.request" },
   { href: "/candidates", key: "candidates", permission: "hr.recruitment.manage" },
   { href: "/interviews", key: "interviews", permission: "platform.access" },
+  { href: "/reviews", key: "reviews", permission: "hr.review.manage" },
+  { href: "/my-reviews", key: "myReviews", permission: "platform.access" },
   { href: "/me", key: "me", permission: "platform.access" },
 ] as const;
 
