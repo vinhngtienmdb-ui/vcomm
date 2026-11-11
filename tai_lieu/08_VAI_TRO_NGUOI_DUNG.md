@@ -568,3 +568,14 @@ Quyền đã xóa: `finance.commission.view`, `finance.commission.manage`, `fina
 | Đặt, đổi, bỏ nhân viên phụ trách trên hồ sơ đối tác | `crm.profile.manage` | Có | Trong công ty mình | Không | Không | Không |
 | Chọn loại sản phẩm Hàng hóa, Dịch vụ | Quyền sửa sản phẩm (CONG_VIEC_04) | Có | Trong công ty mình | Theo quyền | Không | Không |
 | Phiếu xuất, phiếu nhập dịch vụ | Hệ thống tự lập khi đơn xác nhận; không ai lập tay | – | – | – | – | – |
+
+## MODULE_11 Điểm thưởng (CONG_VIEC_51)
+
+- Quyền xét tại công ty vận hành sàn. Quản trị tập đoàn, Quản trị công ty có sẵn hai quyền; giao cho nhân viên qua vai trò tùy chỉnh.
+- Duyệt phiếu điều chỉnh theo chính sách duyệt loại chứng từ `loyalty.adjustment` của công ty vận hành sàn; người lập không tự duyệt.
+- Người mua chỉ xem ví điểm, lịch sử điểm, hạng của chính mình.
+
+| Quyền | Thao tác | Vai trò có sẵn |
+|---|---|---|
+| `loyalty.view` | Xem chương trình điểm, ví điểm, sổ cái điểm, phiếu điều chỉnh, cảnh báo, nghĩa vụ điểm | Quản trị tập đoàn, Quản trị công ty |
+| `loyalty.manage` (nhạy cảm) | Cài giai đoạn, bảng hạng; khóa, mở ví điểm; lập, sửa, gửi duyệt, rút phiếu điều chỉnh | Quản trị tập đoàn, Quản trị công ty |

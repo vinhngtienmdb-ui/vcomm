@@ -828,3 +828,18 @@ Trạng thái bổ sung (CONG_VIEC_43):
 | Đơn mua đối ứng nội bộ Đã duyệt | Phiếu nhập dịch vụ tự lập làm mọi dòng đủ số đặt | Đã nhận đủ |
 
 Không còn trạng thái của bảng hoa hồng (Luồng 29) và phiếu giao khách (Luồng 33).
+
+## MODULE_11 Điểm thưởng (CONG_VIEC_51)
+
+### Luồng 42. Điểm thưởng
+
+- Bắt đầu: quản trị (`loyalty.manage`) cài giai đoạn, bảng hạng (MAN_HINH_146).
+- Các bước:
+  1. Người mua đặt đơn VComm (Luồng 37, 38): chốt giai đoạn, hạng; bật "Dùng điểm" thì trừ điểm ngay, tiền thu hộ hoặc tiền cổng trừ tiền điểm (MAN_HINH_93; QUYTAC_NGHIEPVU_346, 348).
+  2. Đơn hủy (người mua, nhân viên, hết hạn thanh toán, hoàn hàng): hoàn điểm vào đúng lô, không tích (QUYTAC_NGHIEPVU_349).
+  3. Kho nhận hàng trả: hoàn điểm theo tỷ lệ, tiền hoàn trừ phần tiền điểm.
+  4. Đơn Hoàn tất: tích điểm (lô có hạn), cộng chi tiêu, tính lại hạng, bút toán (QUYTAC_NGHIEPVU_347, 351, 355).
+  5. Bán tại quầy (CONG_VIEC_53): dùng, tích ngay; trả hàng: hoàn điểm đã dùng, trừ lại điểm đã tích, thiếu quy tiền trừ vào tiền hoàn.
+  6. Việc nền 0 giờ 10 phút: hết hạn lô, nhắc trước 30 ngày, chuyển năm chi tiêu, xét hạng (QUYTAC_NGHIEPVU_350, 351).
+- Nhánh: quản trị khóa, mở ví (MAN_HINH_147); lập phiếu điều chỉnh → duyệt → ghi sổ hoặc Không ghi sổ được (MAN_HINH_148); xem cảnh báo (MAN_HINH_149), nghĩa vụ điểm (MAN_HINH_150).
+- Kết thúc: điểm người mua xem ở MAN_HINH_151, 152.

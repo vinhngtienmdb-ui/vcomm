@@ -3129,3 +3129,22 @@ Quy tắc xóa và lưu giữ bổ sung:
 - Bút toán cũ nguồn `commission` (nếu có) giữ nguyên trong sổ.
 - Không xóa dữ liệu giao khách, lịch sử phụ trách, giao dịch nội bộ đã có.
 - Phiếu dịch vụ không sửa, không xóa (ghi sổ ngay khi lập).
+
+## Database migration 0086 đến 0089 – CONG_VIEC_51 (điểm thưởng, schema `loyalty`)
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `loyalty.program_phases` (0086) | Giai đoạn chương trình (QUYTAC_NGHIEPVU_345) | `company_id`, `starts_on`, `ends_on`, `earn_percent`, `point_value`, `redeem_max_percent`, `redeem_min_points`, `validity_months`, `order_cap_points`, `monthly_cap_points`, `version` | Loại trừ `daterange(starts_on, ends_on, '[]')` chồng lấn |
+| `loyalty.tiers` (0086) | Bảng hạng (QUYTAC_NGHIEPVU_351) | `sort_order` (duy nhất), `name_vi`, `name_en`, `min_annual_spend`, `multiplier` (1 đến 5) | Nạp bốn hạng mặc định |
+| `loyalty.accounts` (0087) | Ví điểm | `user_id` (khóa chính), `balance` (≥ 0), `tier_id`, `spend_year`, `spend_current_year`, `spend_previous_year`, `locked`, `lock_reason` | Khóa dòng khi ghi |
+| `loyalty.lots` (0087) | Lô điểm (QUYTAC_NGHIEPVU_344) | `user_id`, `source_type`, `source_id`, `company_id`, `points`, `remaining`, `point_value`, `earned_on`, `expires_on`, `expiry_notified_at` | Duy nhất (`source_type`, `source_id`); chỉ mục lô còn điểm theo hạn |
+| `loyalty.entries` (0087) | Bút toán điểm | `kind` (`earn`, `redeem`, `redeem_refund`, `earn_reversal`, `expire`, `adjust_add`, `adjust_subtract`), `points`, `amount`, `balance_after`, `source_type`, `source_id`, `company_id` | Trigger chặn sửa, xóa |
+| `loyalty.entry_lots` (0087) | Phân bổ bút toán vào lô | `entry_id`, `lot_id`, `points`, `point_value` | Trigger chặn sửa, xóa |
+| `loyalty.tier_history`, `loyalty.lock_history` (0087) | Lịch sử hạng, khóa | người, hạng hoặc hành động, lý do, thời điểm | |
+| `loyalty.document_points` (0088) | Điểm của chứng từ bán (QUYTAC_NGHIEPVU_346 đến 349) | khóa chính (`source_type`, `source_id`), `company_id`, `user_id`, `document_date`, `goods_amount`, `returned_amount`, `phase_id`, `tier_id`, `multiplier`, điểm dùng, hoàn, dự kiến, đã tích, trừ lại, `shortfall_amount`, `earn_status`, `skip_reason` | |
+| `loyalty.refund_links` (0088) | Bút toán hoàn điểm gắn chứng từ bán gốc | `entry_id`, `sale_source_type`, `sale_source_id` | |
+| `marketplace.orders` (0088) | Tiền điểm của đơn | `points_amount` (≥ 0) | Tiền phải trả = tiền hàng + phí giao hàng − `points_amount` |
+| `accounting.journals`, `accounting.posting_rules` (0088) | Nguồn `loyalty_entry`, `loyalty_seller_entry`, `loyalty_order_redeem`; vai trò `loyalty_expense` (6418 / 6421), `loyalty_liability` (3388), `loyalty_intercompany_receivable` (1368), `loyalty_intercompany_payable` (3368) | | |
+| `loyalty.adjustments` (0089) | Phiếu điều chỉnh (QUYTAC_NGHIEPVU_353) | `document_no` (`DD`), `user_id`, `direction`, `points`, `reason`, `status`, `failure_reason`, `phase_id`, `point_value`, `approval_request_id`, `entry_id`, `version` | Loại chứng từ `loyalty.adjustment` cần duyệt |
+
+Không xóa dữ liệu điểm; lưu giữ cùng dữ liệu kế toán.

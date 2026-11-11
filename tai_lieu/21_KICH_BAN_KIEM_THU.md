@@ -3845,3 +3845,57 @@ Dữ liệu chung: công ty VCR, VTH; sản phẩm hàng hóa và dịch vụ (`
 - Kết quả mong đợi: Bước 1: `400` tại đúng dòng `internalServicesOnly`. Bước 2: đơn bán "Đã giao đủ", đơn mua "Đã nhận đủ" bằng phiếu xuất, phiếu nhập dịch vụ; không giữ hàng, không ghi thẻ kho, không phiếu nhập chờ nhận. Bước 3: bên bán xác nhận không giữ hàng. Bước 4: Nợ 6427 / Nợ 1331 / Có 331.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c43-internal-services.test.ts`
 - Lát: L2, L3
+
+## CHUC_NANG_178 đến CHUC_NANG_181: Điểm thưởng phần 1 (CONG_VIEC_51)
+
+Dữ liệu chung: dữ liệu chung của CONG_VIEC_24 (`apps/api/test/marketplace-fixture.ts`); giai đoạn hôm nay tích 2%, 1 điểm = 1 đồng; lô điểm cộng qua `creditLot`.
+
+### KICHBAN_KIEMTHU_486: Giai đoạn, bảng hạng, phân quyền
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_329; Chức năng: CHUC_NANG_178; Loại: Đúng, sai, phiên bản, phân quyền
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-program.test.ts`; Lát: L0
+
+### KICHBAN_KIEMTHU_487: Sổ cái chỉ thêm, số dư khớp
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_330; Chức năng: CHUC_NANG_179; Loại: Đúng, sai
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-earn.test.ts`; Lát: L1
+
+### KICHBAN_KIEMTHU_488: Tích khi hoàn tất, trần đơn, trần tháng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_331; Chức năng: CHUC_NANG_179; Loại: Đúng, giá trị biên
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-earn.test.ts`; Lát: L1
+
+### KICHBAN_KIEMTHU_489: Không tích khi hủy, người mua thử, ví khóa
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_331; Chức năng: CHUC_NANG_179; Loại: Sai
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-earn.test.ts`; Lát: L1
+
+### KICHBAN_KIEMTHU_490: Dùng điểm khi đặt
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_332; Chức năng: CHUC_NANG_180; Loại: Đúng, sai, giá trị biên
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-redeem.test.ts`; Lát: L2
+
+### KICHBAN_KIEMTHU_491: Hoàn điểm khi hủy, trả hàng; bán, trả hàng tại quầy
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_333; Chức năng: CHUC_NANG_180; Loại: Đúng, giá trị biên
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-redeem.test.ts`; Lát: L2
+
+### KICHBAN_KIEMTHU_492: Hết hạn, nhắc hạn, việc nền
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_334; Chức năng: CHUC_NANG_179; Loại: Đúng, lặp lại
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-postings.test.ts`; Lát: L3
+
+### KICHBAN_KIEMTHU_493: Hạng thành viên
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_335; Chức năng: CHUC_NANG_179; Loại: Đúng, giá trị biên
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-earn.test.ts`; Lát: L1
+
+### KICHBAN_KIEMTHU_494: Khóa ví, phiếu điều chỉnh qua duyệt, phân quyền
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_336, TIEUCHI_NGHIEMTHU_338; Chức năng: CHUC_NANG_181; Loại: Đúng, sai, phân quyền
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-admin.test.ts`; Lát: L4
+
+### KICHBAN_KIEMTHU_495: Cảnh báo bất thường
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_336; Chức năng: CHUC_NANG_181; Loại: Đúng, sai
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-admin.test.ts`; Lát: L4
+
+### KICHBAN_KIEMTHU_496: Hạch toán, nghĩa vụ điểm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_337; Chức năng: CHUC_NANG_181; Loại: Đúng
+- Kiểm thử tự động: Tự động API – `apps/api/test/c51-postings.test.ts`; Lát: L3
+
+### KICHBAN_KIEMTHU_497: Giao diện web, ứng dụng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_338; Chức năng: CHUC_NANG_178 đến CHUC_NANG_181; Loại: Giao diện, khổ điện thoại
+- Các bước: mở MAN_HINH_146 đến 150 ở khổ 1280 và 390; mở MAN_HINH_151, 152, 93 (dùng điểm), 96 trên ứng dụng bản web khổ 390.
+- Kết quả mong đợi: không lỗi, không cuộn ngang, chuỗi tiếng Việt đầy đủ.
+- Kiểm thử: Thủ công trên trình duyệt (Playwright chụp ảnh); quyền: tự động trong `c51-admin.test.ts`, `c51-program.test.ts`

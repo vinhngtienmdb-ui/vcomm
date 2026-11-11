@@ -276,6 +276,20 @@ Chạy riêng mini app Tài chính – Kế toán: `pnpm --filter web-finance de
 | Phạm vi xem, ghé thăm | `PartnersService`, `SalesOrdersService`, `VisitsService` bỏ điều kiện phạm vi; `VisitsService.staffOptions` cho `GET /crm/visit-options` | CHUC_NANG_158 |
 | Giao diện | `apps/web-catalog`: chọn loại ở chi tiết sản phẩm; `apps/web-sales`: công tắc cài đặt, bỏ người hưởng hoa hồng; `apps/web-inventory`: nhãn "Phiếu dịch vụ"; `apps/web-crm`: bỏ giao khách, lọc người phụ trách, nhận khách, lịch sử phụ trách; `apps/web-finance`: bỏ Hoa hồng, Cài đặt hoa hồng | CHUC_NANG_157, CHUC_NANG_158 |
 
+## Thành phần điểm thưởng (MODULE_11, CONG_VIEC_51)
+
+Schema `loyalty`; mã nguồn `apps/api/src/loyalty/`. Giao diện quản trị nằm trong mini app `apps/web-crm` (nhóm Điểm thưởng), không tạo mini app mới.
+
+| Thành phần | Công nghệ | Chức năng dùng |
+|---|---|---|
+| Chương trình, bảng hạng | `LoyaltyProgramService` (`program.service.ts`), `tiers.ts` (khóa ví, tính lại hạng); ràng buộc loại trừ của PostgreSQL chặn giai đoạn chồng lấn | CHUC_NANG_178 |
+| Sổ cái điểm | `ledger.service.ts`: hàm dùng chung theo nguồn chứng từ (đơn VComm, bán, trả hàng tại quầy, phiếu điều chỉnh), `LoyaltyLedgerService` cho CONG_VIEC_53; trigger chặn sửa, xóa | CHUC_NANG_179, CHUC_NANG_180 |
+| Đơn VComm | `MarketplaceOrdersService` gọi dùng điểm khi đặt, tích khi hoàn tất; `releaseSalePoints` ở mọi đường hủy; `refund-amounts.ts` hoàn điểm khi nhận hàng trả; `payments.service.ts` trừ tiền điểm khỏi số tiền gửi cổng | CHUC_NANG_179, CHUC_NANG_180 |
+| Hạch toán | `LoyaltyPostingsService` (`postings.service.ts`) đăng ký ghi bút toán cho mỗi bút toán điểm qua `LedgerService.record`; vai trò định khoản điểm trong `apps/api/src/accounting/charts.ts` | CHUC_NANG_181 |
+| Quản trị | `LoyaltyAdminService` (`admin.service.ts`): ví điểm, khóa, phiếu điều chỉnh (nhận `core.approval.completed`), cảnh báo; `LoyaltyAccountsService`: điểm của tôi, nghĩa vụ điểm | CHUC_NANG_181 |
+| Tác vụ nền | `background-jobs.ts`: `loyalty-daily` lúc 0 giờ 10 phút giờ Việt Nam gọi `LoyaltyJobsService.runDaily` (hết hạn, nhắc hạn, xét hạng) | CHUC_NANG_179 |
+| Giao diện | `apps/web-crm`: `/loyalty/program`, `/loyalty/accounts`, `/loyalty/adjustments`, `/loyalty/alerts`, `/loyalty/liability`, thẻ điểm ở `/orders/[id]`; `apps/mobile-vcomm`: `diem-thuong.tsx`, `hang-thanh-vien.tsx`, khối dùng điểm ở `dat-hang.tsx`, `don-hang/[id].tsx`, thẻ điểm ở `(tabs)/tai-khoan.tsx` | MAN_HINH_146 đến MAN_HINH_152 |
+
 ## 4. Kiến trúc triển khai
 
 | Môi trường | Mục đích | Hạ tầng |

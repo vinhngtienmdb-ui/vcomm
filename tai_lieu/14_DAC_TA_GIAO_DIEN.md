@@ -2174,3 +2174,19 @@ Không thêm màn hình. Không làm bản mẫu; xem trước từng lát thay 
 
 - Màn hình Ghé thăm khách của web-crm (`/crm/visits`): lọc "Nhân viên" lấy mọi nhân viên đang làm việc của công ty qua `GET /crm/visit-options` (thay danh sách nhân viên của phiếu giao khách); xem mọi lượt của công ty.
 - Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
+
+## MODULE_11 Điểm thưởng: màn hình (CONG_VIEC_51)
+
+Bản mẫu đã duyệt 2026-11-11: `ban_mau/MAN_HINH_146_CHUONG_TRINH_DIEM.html` đến `ban_mau/MAN_HINH_152_HANG_THANH_VIEN.html`, `ban_mau/SUA_DAT_HANG_DUNG_DIEM.html`.
+
+| Mã | Màn hình | Đường dẫn | Vai trò |
+|---|---|---|---|
+| MAN_HINH_146 | Chương trình điểm (giai đoạn, bảng hạng) | `/crm/loyalty/program` | `loyalty.view`, sửa: `loyalty.manage` |
+| MAN_HINH_147 | Ví điểm (danh sách, chi tiết, khóa, mở) | `/crm/loyalty/accounts`, `/crm/loyalty/accounts/<userId>` | `loyalty.view`, khóa: `loyalty.manage` |
+| MAN_HINH_148 | Điều chỉnh điểm | `/crm/loyalty/adjustments` | `loyalty.view`, lập: `loyalty.manage` |
+| MAN_HINH_149 | Cảnh báo bất thường | `/crm/loyalty/alerts` | `loyalty.view` |
+| MAN_HINH_150 | Nghĩa vụ điểm | `/crm/loyalty/liability` | `loyalty.view` |
+| MAN_HINH_151 | Điểm của tôi (ứng dụng) | `/diem-thuong` | Người mua |
+| MAN_HINH_152 | Hạng thành viên (ứng dụng) | `/hang-thanh-vien` | Người mua |
+
+Sửa: MAN_HINH_76 (thẻ điểm thưởng), MAN_HINH_88 (thẻ Điểm thưởng của đơn), MAN_HINH_93 (khối Dùng điểm, mặc định tắt; dòng trừ điểm; điểm dự kiến), MAN_HINH_96 (dòng trừ điểm, thẻ Điểm thưởng). Menu web-crm thêm: Chương trình điểm, Ví điểm, Điều chỉnh điểm, Cảnh báo điểm, Nghĩa vụ điểm.

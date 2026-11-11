@@ -207,6 +207,16 @@
 | YCAU_NGHIEPVU_46 (đã tắt), YCAU_NGHIEPVU_34 | QUYTAC_NGHIEPVU_276, QUYTAC_NGHIEPVU_279 | CHUC_NANG_158 | MAN_HINH_36, MAN_HINH_37, MAN_HINH_42, MAN_HINH_43, MAN_HINH_64, MAN_HINH_65 (đã tắt) | TIEUCHI_NGHIEMTHU_275 | KICHBAN_KIEMTHU_420 | database/migrations/0062_disable_customer_assignment_service_kind.sql, apps/api/src/permissions/permission-catalog.ts, apps/api/src/crm/crm.controller.ts, apps/api/src/crm/partners.service.ts, apps/api/src/crm/visits.service.ts (`staffOptions`), apps/api/src/sales/sales-orders.service.ts, apps/web-crm/src/app/partners/page.tsx, apps/web-crm/src/app/partners/[id]/page.tsx, apps/web-crm/src/components/PartnerDrawer.tsx, apps/web-crm/src/app/visits/page.tsx | apps/api/test/c43-scope-and-roles.test.ts (bỏ `c21-customer-assignment.test.ts`; sửa `c22-sales-app.test.ts`) | Đạt; kết quả ở tài liệu `25` | |
 | YCAU_NGHIEPVU_34 | QUYTAC_NGHIEPVU_275, QUYTAC_NGHIEPVU_276 | CHUC_NANG_157, CHUC_NANG_158 | MAN_HINH_24, MAN_HINH_32, MAN_HINH_42, MAN_HINH_43 | TIEUCHI_NGHIEMTHU_276 | KICHBAN_KIEMTHU_421 | database/migrations/0062_disable_customer_assignment_service_kind.sql, database/migrations/0063_service_documents.sql, apps/api/src/catalog/products.service.ts, apps/api/src/sales/sales-context.ts, apps/api/src/sales/sales-orders.service.ts, apps/api/src/inventory/service-documents.service.ts, apps/api/src/inventory/stock-documents.service.ts (`postServiceDocument`), apps/api/src/inventory/inventory-context.ts (`requireStockedVariant`), apps/api/src/inventory/stocktakes.service.ts, apps/api/src/inventory/sales-deliveries.service.ts, apps/api/src/accounting/postings.ts (`inventoryDraft`), apps/web-catalog/src/app/products/[id]/page.tsx, apps/web-sales/src/app/orders/page.tsx, apps/web-inventory/src/app/documents/[id]/page.tsx | apps/api/test/c43-service-orders.test.ts | Đạt; kết quả ở tài liệu `25` | |
 | YCAU_NGHIEPVU_36 | QUYTAC_NGHIEPVU_275, QUYTAC_NGHIEPVU_277 | CHUC_NANG_157 | MAN_HINH_32, MAN_HINH_41, MAN_HINH_43 | TIEUCHI_NGHIEMTHU_277 | KICHBAN_KIEMTHU_422 | database/migrations/0063_service_documents.sql, apps/api/src/sales/internal-trade-rules.ts, apps/api/src/inventory/service-documents.service.ts, apps/api/src/purchasing/orders.service.ts (`approvedHooks`), apps/api/src/accounting/charts.ts (`service_expense`), apps/api/src/accounting/postings.ts | apps/api/test/c43-internal-services.test.ts | Đạt; kết quả ở tài liệu `25` | |
+| YCAU_NGHIEPVU_92, YCAU_NGHIEPVU_95 | QUYTAC_NGHIEPVU_345, QUYTAC_NGHIEPVU_351 | CHUC_NANG_178 | MAN_HINH_146 | TIEUCHI_NGHIEMTHU_329 | KICHBAN_KIEMTHU_486 | database/migrations/0086_loyalty_programs.sql, apps/api/src/loyalty/program.service.ts, apps/web-crm/src/app/loyalty/program/page.tsx |
+| YCAU_NGHIEPVU_91 | QUYTAC_NGHIEPVU_344 | CHUC_NANG_179 | MAN_HINH_151 | TIEUCHI_NGHIEMTHU_330 | KICHBAN_KIEMTHU_487 | database/migrations/0087_loyalty_ledger.sql, apps/api/src/loyalty/ledger.service.ts |
+| YCAU_NGHIEPVU_92 | QUYTAC_NGHIEPVU_346, QUYTAC_NGHIEPVU_347 | CHUC_NANG_179 | MAN_HINH_88, MAN_HINH_96, MAN_HINH_151 | TIEUCHI_NGHIEMTHU_331 | KICHBAN_KIEMTHU_488, KICHBAN_KIEMTHU_489 | database/migrations/0088_loyalty_documents.sql, apps/api/src/loyalty/ledger.service.ts, apps/api/src/marketplace/marketplace-orders.service.ts |
+| YCAU_NGHIEPVU_93 | QUYTAC_NGHIEPVU_348 | CHUC_NANG_180 | MAN_HINH_93 | TIEUCHI_NGHIEMTHU_332 | KICHBAN_KIEMTHU_490 | apps/api/src/loyalty/ledger.service.ts, apps/api/src/marketplace/marketplace-orders.service.ts, apps/api/src/marketplace/payments/payments.service.ts, apps/mobile-vcomm/src/app/dat-hang.tsx |
+| YCAU_NGHIEPVU_93 | QUYTAC_NGHIEPVU_349 | CHUC_NANG_180 | MAN_HINH_96 | TIEUCHI_NGHIEMTHU_333 | KICHBAN_KIEMTHU_491 | apps/api/src/loyalty/ledger.service.ts, apps/api/src/marketplace/payments/refund-amounts.ts |
+| YCAU_NGHIEPVU_94 | QUYTAC_NGHIEPVU_350 | CHUC_NANG_179 | MAN_HINH_151 | TIEUCHI_NGHIEMTHU_334 | KICHBAN_KIEMTHU_492 | apps/api/src/loyalty/jobs.service.ts, apps/api/src/jobs/background-jobs.ts |
+| YCAU_NGHIEPVU_95 | QUYTAC_NGHIEPVU_351 | CHUC_NANG_179 | MAN_HINH_152 | TIEUCHI_NGHIEMTHU_335 | KICHBAN_KIEMTHU_493 | apps/api/src/loyalty/tiers.ts, apps/api/src/loyalty/accounts.service.ts, apps/mobile-vcomm/src/app/hang-thanh-vien.tsx |
+| YCAU_NGHIEPVU_96 | QUYTAC_NGHIEPVU_352, QUYTAC_NGHIEPVU_353, QUYTAC_NGHIEPVU_354 | CHUC_NANG_181 | MAN_HINH_147, MAN_HINH_148, MAN_HINH_149 | TIEUCHI_NGHIEMTHU_336 | KICHBAN_KIEMTHU_494, KICHBAN_KIEMTHU_495 | database/migrations/0089_loyalty_adjustments.sql, apps/api/src/loyalty/admin.service.ts, apps/web-crm/src/app/loyalty/ |
+| YCAU_NGHIEPVU_97 | QUYTAC_NGHIEPVU_355 | CHUC_NANG_181 | MAN_HINH_150 | TIEUCHI_NGHIEMTHU_337 | KICHBAN_KIEMTHU_496 | apps/api/src/loyalty/postings.service.ts, apps/api/src/accounting/charts.ts |
+| YCAU_NGHIEPVU_91 đến YCAU_NGHIEPVU_97 | | CHUC_NANG_178 đến CHUC_NANG_181 | MAN_HINH_146 đến MAN_HINH_152 | TIEUCHI_NGHIEMTHU_338 | KICHBAN_KIEMTHU_497 | apps/web-crm/src/app/loyalty/, apps/mobile-vcomm/src/app/diem-thuong.tsx |
 
 ## 2. Kiểm tra bao phủ – 2026-11-09
 
@@ -475,4 +485,15 @@
 - Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_274 → KICHBAN_KIEMTHU_419; TIEUCHI_NGHIEMTHU_275 → KICHBAN_KIEMTHU_420; TIEUCHI_NGHIEMTHU_276 → KICHBAN_KIEMTHU_421; TIEUCHI_NGHIEMTHU_277 → KICHBAN_KIEMTHU_422)
 - Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_419 không có tệp riêng (hồi quy chung); chưa có kiểm thử gọi API hoa hồng cũ (API_93, API_94) để xác nhận `404`
 - Kịch bản chưa chạy hoặc kết quả Không đạt: Đạt; kết quả ở tài liệu `25`
+- Mã nguồn không truy được về yêu cầu nào: Không có
+
+## Kiểm tra bao phủ CONG_VIEC_51 – 2026-11-12
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_91 đến YCAU_NGHIEPVU_97 → CHUC_NANG_178 đến CHUC_NANG_181)
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_344 đến QUYTAC_NGHIEPVU_355)
+- Chức năng chưa có tiêu chí nghiệm thu: Không có
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có
+- Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_497 (thủ công trên trình duyệt, phần quyền có tự động)
+- Kịch bản chưa chạy hoặc kết quả Không đạt: Không có (kết quả gửi phiên cha ghi tài liệu `25`)
 - Mã nguồn không truy được về yêu cầu nào: Không có

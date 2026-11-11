@@ -832,6 +832,16 @@ Chưa có.
 
 - RUIRO CONG_VIEC_23 (người dùng chấp nhận 2026-11-10): 2 lỗ hổng mức Trung bình (glob GHSA, minimatch GHSA-g3hv-75wg-m249) trong `@expo/cli`, công cụ phát triển của Expo SDK 58, không chạy trên môi trường thật. Thời hạn: đến khi Expo phát hành bản sửa tương thích, rà lại mỗi lần nâng Expo, chậm nhất 2027-02-10. Biện pháp giảm thiểu: chỉ chạy công cụ trên máy phát triển, không đưa vào ảnh triển khai máy chủ.
 
+## Kiểm soát điểm thưởng (CONG_VIEC_51)
+
+| Điểm tiếp nhận | Kiểm soát |
+|---|---|
+| API_176, API_179 đến API_182 (`/loyalty/*`) | Phiên nhân viên, CSRF; quyền `loyalty.view` hoặc `loyalty.manage` tại công ty vận hành sàn; nhật ký thao tác cho mọi thao tác ghi |
+| API_177 (`/buyer/loyalty`) | Token người mua; chỉ dữ liệu của người gọi |
+| API_178 (đặt đơn dùng điểm) | Điểm kiểm lại trên máy chủ trong giao dịch, khóa dòng ví điểm; không tin số điểm, tiền điểm từ ứng dụng |
+| Sổ cái điểm | Trigger cơ sở dữ liệu chặn sửa, xóa bút toán; số dư không âm; điều chỉnh tay qua luồng duyệt, người lập không tự duyệt |
+| Rủi ro pháp lý | Điểm không quy ra tiền mặt, không chuyển, không rút; giới hạn phần trăm đơn theo giai đoạn; chờ ý kiến luật sư trước khi phát hành lên môi trường thật (tài liệu `04`) |
+
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Vị trí | Nội dung |

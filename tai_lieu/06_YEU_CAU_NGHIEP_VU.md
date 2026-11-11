@@ -171,6 +171,18 @@
 |---|---|---|
 | YCAU_NGHIEPVU_52 | Người giới thiệu và đội kinh doanh nhiều cấp nhận hoa hồng theo đơn VComm hoàn tất vào ví; rút về tài khoản ngân hàng, có kế toán duyệt chi, khấu trừ thuế thu nhập cá nhân và thu phí rút tiền | THAY_DOI_14, THAY_DOI_16, THAY_DOI_17; người dùng 2026-11-11 |
 
+## MODULE_11 Điểm thưởng (phần 1, CONG_VIEC_51)
+
+| Mã | Yêu cầu | Nguồn |
+|---|---|---|
+| YCAU_NGHIEPVU_91 | Mọi biến động điểm ghi vào sổ cái một chiều, không sửa, không xóa; số dư luôn bằng tổng bút toán | Tài liệu `04`, `05` mục 2.3; người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_92 | Người mua tích điểm theo đơn VComm hoàn tất (giá trị thực bán) và khi mua tại quầy (CONG_VIEC_53); đơn hủy không có điểm; hàng trả trước khi hoàn tất không được tính | Người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_93 | Người mua dùng điểm trừ trực tiếp vào đơn khi đặt, trong giới hạn của giai đoạn; hủy, trả hàng thì hoàn điểm theo tỷ lệ | Người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_94 | Điểm có hạn dùng theo từng lần tích; hết hạn tự trừ; báo trước cho người mua | Người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_95 | Người mua có hạng thành viên theo chi tiêu năm dương lịch; hạng cao tích nhiều điểm hơn | Người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_96 | VComm hạn chế gian lận điểm: trần điểm, khóa ví, điều chỉnh tay có duyệt, cảnh báo bất thường | Người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_97 | Chi phí và nghĩa vụ điểm được hạch toán (641 / 3388; nợ nội bộ khi bán tại quầy ở công ty con khác); kế toán xem được số dư nghĩa vụ | Người dùng 2026-11-11 |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -290,3 +302,9 @@
 | Ví hoa hồng | Người dùng, số dư | Mỗi người một ví; số dư chỉ đổi qua giao dịch ví (CONG_VIEC_26) |
 | Giao dịch ví | Ví, loại (hoa hồng, rút tiền, hoàn lại rút tiền), số tiền, số dư sau giao dịch, đơn VComm hoặc yêu cầu rút tiền, ghi chú | Không sửa, không xóa; mỗi đơn mỗi người một giao dịch hoa hồng (CONG_VIEC_26) |
 | Yêu cầu rút tiền | Người dùng, số tiền, tài khoản nhận chụp lúc tạo, trạng thái (chờ duyệt, đã duyệt, bị từ chối, đã rút lại, đã chi), thuế, phí rút tiền (THAY_DOI_17), số thực nhận, lý do từ chối, mã giao dịch ngân hàng, ngày chi, người duyệt, người ghi đã chi | Mỗi người tối đa một yêu cầu chờ duyệt hoặc đã duyệt chưa chi (CONG_VIEC_26) |
+| Giai đoạn chương trình điểm | Từ ngày, đến ngày, tỷ lệ tích, giá trị một điểm, tỷ lệ đổi tối đa, mức đổi tối thiểu, hạn dùng, trần mỗi đơn, trần mỗi tháng | Không chồng lấn; thuộc công ty vận hành sàn (CONG_VIEC_51) |
+| Hạng thành viên | Tên, mức chi tiêu tối thiểu một năm, hệ số tích | Hạng thứ tự 1 mức 0 (CONG_VIEC_51) |
+| Ví điểm | Người mua, số dư, hạng, chi tiêu năm nay, năm trước, khóa, lý do khóa | Một ví mỗi người mua (CONG_VIEC_51) |
+| Lô điểm | Nguồn, điểm, còn lại, giá trị một điểm lúc cộng, ngày cộng, hạn dùng | Mỗi lần cộng một lô (CONG_VIEC_51) |
+| Bút toán điểm | Loại, điểm, tiền tương ứng, số dư sau, chứng từ nguồn, phân bổ vào lô | Không sửa, không xóa (CONG_VIEC_51) |
+| Phiếu điều chỉnh điểm | Số `DD`…, người mua, cộng hoặc trừ, số điểm, lý do, trạng thái, yêu cầu duyệt | Qua luồng duyệt (CONG_VIEC_51) |
