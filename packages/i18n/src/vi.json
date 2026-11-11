@@ -330,7 +330,9 @@
     "orderNotAwaitingPayment": "Đơn không còn chờ thanh toán (đã thanh toán, đã hủy hoặc quá hạn).",
     "paymentAttemptLimit": "Đơn này đã mở trang thanh toán quá 10 lần. Vui lòng đặt lại đơn mới.",
     "codNotRecordable": "Đơn không thanh toán khi nhận hàng, chưa giao cho đơn vị vận chuyển hoặc đã ghi đã thu.",
-    "refundNotPending": "Việc hoàn tiền không còn chờ xử lý."
+    "refundNotPending": "Việc hoàn tiền không còn chờ xử lý.",
+    "bankTransactionMarketplaceLinked": "Giao dịch đã ghi nhận tiền đơn VComm, không bỏ ghép được.",
+    "bankTransferNotPending": "Lần thanh toán không còn chờ xác nhận."
   },
   "login": {
     "title": "Đăng nhập",
@@ -2879,7 +2881,8 @@
     "unmatchedPayments": "Phiếu chưa có giao dịch",
     "ignoredCount": "{count} giao dịch bỏ qua",
     "showPayments": "Xem phiếu chưa có giao dịch",
-    "hidePayments": "Ẩn danh sách phiếu"
+    "hidePayments": "Ẩn danh sách phiếu",
+    "marketplacePayment": "Đơn VComm {document} · lần thanh toán {reference}"
   },
   "collections": {
     "title": "Đối soát thu hộ",
@@ -3616,7 +3619,14 @@
     "codReference": "Số phiên đối soát",
     "recordCod": "Ghi đã thu",
     "codRecorded": "Đã ghi đã thu tiền thu hộ.",
-    "status_refunded": "Đã hoàn tiền"
+    "status_refunded": "Đã hoàn tiền",
+    "confirmTransferTitle": "Xác nhận đã nhận chuyển khoản",
+    "confirmTransferHint": "Dùng khi tiền đã về tài khoản nhưng hệ thống không tự ghép được (người mua ghi sai nội dung). Số tiền ghi nhận là số tiền của lần thanh toán.",
+    "transferAttempt": "Lần thanh toán",
+    "bankTransactionNo": "Mã giao dịch ngân hàng",
+    "confirmTransfer": "Xác nhận đã nhận",
+    "confirmTransferAsk": "Xác nhận đã nhận tiền chuyển khoản của lần thanh toán này?",
+    "transferConfirmed": "Đã ghi nhận tiền chuyển khoản."
   },
   "returnRequests": {
     "title": "Yêu cầu trả hàng",
@@ -3664,7 +3674,9 @@
     "sepay_bank_transfer": "Chuyển khoản ngân hàng (SePay)",
     "gateway_sepay": "SePay",
     "payos_vietqr": "Chuyển khoản VietQR qua PayOS",
-    "gateway_payos": "PayOS"
+    "gateway_payos": "PayOS",
+    "bank_transfer_vietqr": "Chuyển khoản ngân hàng (VietQR)",
+    "gateway_bank_transfer": "Chuyển khoản ngân hàng"
   },
   "refunds": {
     "title": "Hoàn tiền đơn VComm",

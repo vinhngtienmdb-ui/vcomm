@@ -1,10 +1,13 @@
-// API_131: người mua mở thanh toán; API_132: kết quả cổng gửi về và trang trả về (CONG_VIEC_25, CONG_VIEC_32).
-import { All, Controller, Get, Param, Post, Req, Res } from "@nestjs/common";
-import type { BuyerPaymentStart } from "contracts";
+// API_131: người mua mở thanh toán; API_132: kết quả cổng gửi về và trang trả về (CONG_VIEC_25, CONG_VIEC_32); kế toán xác nhận tiền chuyển khoản (CONG_VIEC_36).
+import { All, Body, Controller, Get, HttpCode, Param, Post, Req, Res } from "@nestjs/common";
+import { type BuyerPaymentStart, confirmBankTransferSchema, type MarketplaceOrderDetail } from "contracts";
 import type { Request, Response } from "express";
 import { clientInfo } from "../../auth/auth.controller";
 import { OwnRateLimit, Public, type AuthenticatedRequest } from "../../auth/auth.guard";
 import { UuidPipe } from "../../common/uuid.pipe";
+import { BuyerAdminService } from "../buyer-admin.service";
+import { MarketplaceOrdersService } from "../marketplace-orders.service";
+import { BankTransferService } from "./bank-transfer.service";
 import type { GatewayRequest } from "./payment-gateway";
 import { MarketplacePaymentsService } from "./payments.service";
 
@@ -24,11 +27,25 @@ const gatewayRequest = (request: Request): GatewayRequest => ({
 
 @Controller()
 export class PaymentsController {
-  constructor(private readonly payments: MarketplacePaymentsService) {}
+  constructor(
+    private readonly payments: MarketplacePaymentsService,
+    private readonly bankTransfers: BankTransferService,
+    private readonly admin: BuyerAdminService,
+    private readonly orders: MarketplaceOrdersService,
+  ) {}
 
   @Post("buyer/orders/:id/payments")
   start(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<BuyerPaymentStart> {
     return this.payments.start(request.auth.userId, clientInfo(request), id);
+  }
+
+  // Kế toán xác nhận đã nhận tiền chuyển khoản khi không tự ghép được (CONG_VIEC_36; QUYTAC_NGHIEPVU_242).
+  @Post("marketplace/orders/:id/transfer-received")
+  @HttpCode(200)
+  async transferReceived(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<MarketplaceOrderDetail> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.payment.manage");
+    await this.bankTransfers.confirmManually(actor, id, confirmBankTransferSchema.parse(body));
+    return this.orders.adminDetail(actor, id, await this.admin.allows(request.auth.userId, clientInfo(request), "marketplace.order.manage"), true);
   }
 
   // Đường dẫn IPN đã đăng ký với VNPAY (CONG_VIEC_25).

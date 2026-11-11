@@ -4,6 +4,7 @@ import type { PaymentGatewayCode, PaymentMethodCode } from "contracts";
 import { VnpayGateway } from "./gateways/vnpay-gateway";
 import { MomoGateway } from "./gateways/momo-gateway";
 import { PayosGateway } from "./gateways/payos-gateway";
+import { BankTransferGateway } from "./gateways/bank-transfer-gateway";
 import type { PaymentGatewayAdapter } from "./payment-gateway";
 import { SepayGateway } from "./gateways/sepay-gateway";
 
@@ -12,6 +13,7 @@ export const paymentGateways: PaymentGatewayAdapter[] = [
   new MomoGateway(),
   new SepayGateway(),
   new PayosGateway(),
+  new BankTransferGateway(),
 ];
 
 export function gatewayAdapter(code: string): PaymentGatewayAdapter | null {

@@ -330,7 +330,9 @@
     "orderNotAwaitingPayment": "The order is no longer awaiting payment (paid, cancelled or expired).",
     "paymentAttemptLimit": "This order has opened the payment page more than 10 times. Please place a new order.",
     "codNotRecordable": "The order is not cash on delivery, not yet handed to the carrier, or already recorded as collected.",
-    "refundNotPending": "The refund is no longer pending."
+    "refundNotPending": "The refund is no longer pending.",
+    "bankTransactionMarketplaceLinked": "The transaction has been recorded as a VComm order payment and cannot be unmatched.",
+    "bankTransferNotPending": "The payment is no longer awaiting confirmation."
   },
   "login": {
     "title": "Sign in",
@@ -2879,7 +2881,8 @@
     "unmatchedPayments": "Documents without transaction",
     "ignoredCount": "{count} ignored",
     "showPayments": "Show documents without transaction",
-    "hidePayments": "Hide documents"
+    "hidePayments": "Hide documents",
+    "marketplacePayment": "VComm order {document} · payment {reference}"
   },
   "collections": {
     "title": "Collection statements",
@@ -3616,7 +3619,14 @@
     "codReference": "Statement reference",
     "recordCod": "Record collected",
     "codRecorded": "Cash collected recorded.",
-    "status_refunded": "Refunded"
+    "status_refunded": "Refunded",
+    "confirmTransferTitle": "Confirm bank transfer received",
+    "confirmTransferHint": "Use when the money has reached the account but was not matched automatically (wrong transfer content). The recorded amount is the payment amount.",
+    "transferAttempt": "Payment",
+    "bankTransactionNo": "Bank transaction number",
+    "confirmTransfer": "Confirm received",
+    "confirmTransferAsk": "Confirm that the bank transfer for this payment has been received?",
+    "transferConfirmed": "Bank transfer recorded."
   },
   "returnRequests": {
     "title": "Return requests",
@@ -3664,7 +3674,9 @@
     "sepay_bank_transfer": "Bank transfer (SePay)",
     "gateway_sepay": "SePay",
     "payos_vietqr": "VietQR bank transfer via PayOS",
-    "gateway_payos": "PayOS"
+    "gateway_payos": "PayOS",
+    "bank_transfer_vietqr": "Bank transfer (VietQR)",
+    "gateway_bank_transfer": "Bank transfer"
   },
   "refunds": {
     "title": "VComm refunds",
