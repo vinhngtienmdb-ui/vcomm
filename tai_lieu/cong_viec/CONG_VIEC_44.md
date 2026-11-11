@@ -3,7 +3,7 @@
 - Mô tả: Ứng dụng Expo cho Thủ kho, Quản lý kho: tra tồn, nhận hàng từ đơn mua, xuất giao hàng cho đơn bán, phiếu nhập khác, xuất khác, chuyển kho (xuất, nhận), đếm kiểm kê bằng máy quét mã vạch cầm tay hoặc camera điện thoại; dùng lại API kho đã có.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; đã xây lát L0 đến L3, chờ nghiệm thu.
+- Trạng thái: Đã nghiệm thu 2026-11-11, chờ phát hành (tồn đọng: thử camera trên điện thoại thật).
 - Nguồn: CONG_VIEC_05 mục 2 (ngoài phạm vi: ứng dụng kho Expo); tài liệu `05` mục 2.1, `12` (thư mục `apps/mobile-warehouse`), `22` mục 3 (phiên ứng dụng kho 90 ngày); quyết định của người dùng ngày 2026-11-11 (mục 13).
 
 ## 1. Mục tiêu
@@ -152,6 +152,7 @@ Các thao tác khác dùng API hiện có: API_63 (`/inventory/warehouses` có `
 - Đồng ý thêm `expo-camera`.
 - Đếm mù cho người không có quyền quản lý kiểm kê, áp dụng cả web.
 - Duyệt đặc tả, bản mẫu MAN_HINH_105 đến 109; AI làm tiếp qua các lát, báo sau mỗi lát.
+- Nghiệm thu CONG_VIEC_44 ngày 2026-11-11; ba quyết định AI tự đưa ra ở tài liệu `07` (mục "Quyết định AI tự đưa ra (CONG_VIEC_44)") được chấp nhận cùng nghiệm thu.
 
 ## 14. Thành phần không được thay đổi
 

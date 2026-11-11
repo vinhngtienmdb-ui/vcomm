@@ -714,7 +714,7 @@ Ngoại lệ:
 
 ### Quyết định AI tự đưa ra (CONG_VIEC_44)
 
-Ngày 2026-11-11, chưa xác nhận.
+Ngày 2026-11-11; người dùng chấp nhận cùng nghiệm thu CONG_VIEC_44 (2026-11-11).
 
 | Vị trí | Nội dung |
 |---|---|
