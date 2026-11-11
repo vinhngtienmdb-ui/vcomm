@@ -5552,6 +5552,7 @@ export interface PayslipResponse {
   employeeName: string;
   companyName: string;
   line: PayrollLineDetail;
+}
 
 // CONG_VIEC_47 lát L2: nghỉ phép (API_153; QUYTAC_NGHIEPVU_307 đến 309).
 export const leavePayGroups = ["annual", "paid_personal", "paid_other", "unpaid", "social_insurance"] as const;
