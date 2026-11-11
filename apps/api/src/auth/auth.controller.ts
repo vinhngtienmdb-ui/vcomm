@@ -46,7 +46,7 @@ export function clientInfo(request: Request): ClientInfo {
   return { ip: request.ip ?? null, userAgent: request.header("user-agent") ?? null, requestId: request.header("x-request-id") ?? null, locale: localeOf(request) };
 }
 
-function setSessionCookies(response: Response, session: IssuedSession): void {
+export function setSessionCookies(response: Response, session: IssuedSession): void {
   const base = { httpOnly: true, secure: secureCookies(), sameSite: "lax" as const };
   response.cookie(accessCookieName, session.accessToken, { ...base, path: "/", expires: session.accessExpiresAt });
   response.cookie(refreshCookieName, session.refreshToken, { ...base, path: "/api/v1/auth", expires: session.refreshExpiresAt });

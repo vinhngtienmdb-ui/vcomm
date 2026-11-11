@@ -93,6 +93,15 @@ export const permissionCatalog: PermissionDefinition[] = [
     nameEn: "Manage loyalty program, lock point accounts, adjust points",
     isSensitive: true,
   },
+  // CONG_VIEC_55: cửa hàng liên kết (xét tại công ty vận hành sàn).
+  { code: "affiliate.view", appCode: "crm", nameVi: "Xem cửa hàng liên kết, giao dịch, voucher, đối soát", nameEn: "View affiliate stores, transactions, vouchers, settlements", isSensitive: false },
+  {
+    code: "affiliate.manage",
+    appCode: "crm",
+    nameVi: "Quản lý hợp đồng cửa hàng liên kết, voucher VComm, trả lời khiếu nại đối soát",
+    nameEn: "Manage affiliate contracts, VComm vouchers and settlement disputes",
+    isSensitive: true,
+  },
   // CONG_VIEC_49: kiểm duyệt bảng tin cộng đồng, đăng bài VComm (QUYTAC_NGHIEPVU_335).
   { code: "marketplace.community.manage", appCode: "crm", nameVi: "Kiểm duyệt bảng tin cộng đồng, đăng bài VComm", nameEn: "Moderate the community feed, post as VComm", isSensitive: true },
   // CONG_VIEC_07: Mua hàng trong nước (MODULE_04, phần 1).
@@ -205,6 +214,8 @@ const companyAdminPermissions = [
   "marketplace.payment.manage",
   "loyalty.view",
   "loyalty.manage",
+  "affiliate.view",
+  "affiliate.manage",
   "marketplace.community.manage",
   "purchasing.price.manage",
   "purchasing.requisition.create",

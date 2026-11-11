@@ -7229,6 +7229,7 @@ export interface AnalyticsOverviewResponse {
 }
 export * from "./recruitment";
 export * from "./reviews";
+export * from "./affiliate";
 
 // ---------------------------------------------------------------------------
 // CONG_VIEC_51: Điểm thưởng (MODULE_11). Điểm là số nguyên; tiền, phần trăm là chuỗi số thập phân.
