@@ -81,7 +81,7 @@ export default function WalletScreen() {
                 >
                   <View style={{ flexShrink: 1 }}>
                     <Text style={{ color: colors.text, fontWeight: "600" }}>
-                      {item.kind === "commission" ? t("walletCommission", { order: item.orderDocumentNo ?? "" }) : t(`walletKind_${item.kind}`)}
+                      {item.kind === "commission" ? t("walletCommission", { order: item.orderDocumentNo ?? "" }) : t(`walletKind_${item.kind}`, { order: item.orderDocumentNo ?? "" })}
                     </Text>
                     <Muted>{shortDate(item.createdAt)}</Muted>
                   </View>

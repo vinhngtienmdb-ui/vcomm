@@ -565,6 +565,8 @@ export class MarketplaceOrdersService {
       await this.event(transaction, order.id, "completed", null, null);
       // Cộng ví hoa hồng theo hàng thực bán (CONG_VIEC_26; QUYTAC_NGHIEPVU_202).
       await this.commissions.credit(transaction, order.id);
+      // Thưởng giới thiệu bạn bè một lần (CONG_VIEC_49; QUYTAC_NGHIEPVU_327).
+      await this.commissions.creditReferralBonus(transaction, order.id);
       onCompleted();
     });
   }

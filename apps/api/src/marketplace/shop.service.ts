@@ -3,7 +3,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import type { buyerAddressSchema, BuyerAddressItem, CartResponse, PageResponse, RegionItem, ShopProductDetail, ShopProductItem } from "contracts";
 import { sql } from "drizzle-orm";
 import type { z } from "zod";
-import { searchText } from "../catalog/catalog-context";
+import { searchText, trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
 import { FILE_STORAGE, type FileStorage } from "../common/file-storage";
 import { DATABASE, type Database } from "../database/database.module";
@@ -128,6 +128,10 @@ export class ShopService {
       variants.map((variant) => variant.variantId),
     );
     const images = await this.database.execute<{ id: string }>(sql`SELECT id FROM catalog.product_images WHERE product_id = ${productId} ORDER BY sort_order`);
+    const commission = (
+      await this.database.execute<{ calculation: "percent" | "fixed"; rate: string }>(sql`
+      SELECT calculation, collaborator::text AS rate FROM marketplace.product_commissions WHERE product_id = ${productId} AND collaborator > 0`)
+    ).rows[0];
     return {
       id: row.id,
       name: row.name,
@@ -143,6 +147,7 @@ export class ShopService {
         available: available.get(variant.variantId) ?? "0",
       })),
       currency: context.currency,
+      collaboratorCommission: commission ? { calculation: commission.calculation, rate: trimDecimal(commission.rate) } : null,
     };
   }
 

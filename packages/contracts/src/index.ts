@@ -3965,6 +3965,8 @@ export interface ProductCommission {
   teamHead: string;
   regionalDirector: string;
   director: string;
+  // CONG_VIEC_49 (QUYTAC_NGHIEPVU_326).
+  collaborator: string;
   version: number;
 }
 // Số tiền vừa cột numeric(18,4) với dư địa khi nhân số lượng: tối đa 13 chữ số phần nguyên.
@@ -3978,6 +3980,8 @@ export const productCommissionSchema = z
     teamHead: commissionValue,
     regionalDirector: commissionValue,
     director: commissionValue,
+    // CONG_VIEC_49: mức cộng tác viên; không gửi thì 0 (giữ tương thích bên gọi cũ).
+    collaborator: commissionValue.optional(),
     // 0: lần thiết lập đầu tiên.
     version: z.number().int().min(0),
   })
@@ -4091,6 +4095,8 @@ export interface ShopProductDetail {
   options: Array<{ name: string; values: string[] }>;
   variants: ShopVariant[];
   currency: string;
+  // CONG_VIEC_49: mức hoa hồng cộng tác viên của sản phẩm (QUYTAC_NGHIEPVU_326); không có hoặc bằng 0 thì null.
+  collaboratorCommission: { calculation: CommissionCalculation; rate: string } | null;
 }
 
 export const shopProductQuerySchema = z
@@ -4334,7 +4340,8 @@ export interface MarketplaceShipmentItem {
 }
 
 // CONG_VIEC_26: hoa hồng của đơn theo người hưởng và phần (QUYTAC_NGHIEPVU_201, 202).
-export const commissionShares = ["referral", "staff", "team_head", "regional_director", "director"] as const;
+// CONG_VIEC_49: thêm phần cộng tác viên (QUYTAC_NGHIEPVU_326).
+export const commissionShares = ["referral", "staff", "team_head", "regional_director", "director", "collaborator"] as const;
 export type CommissionShare = (typeof commissionShares)[number];
 export interface MarketplaceOrderCommission {
   beneficiaryName: string;
@@ -4433,7 +4440,8 @@ export const returnRequestListQuerySchema = z
   .strict();
 
 // API_135: ví hoa hồng của người dùng (CONG_VIEC_26; QUYTAC_NGHIEPVU_203).
-export const walletTransactionKinds = ["commission", "withdrawal", "withdrawal_reversal"] as const;
+// CONG_VIEC_49: thưởng giới thiệu bạn bè (QUYTAC_NGHIEPVU_327).
+export const walletTransactionKinds = ["commission", "withdrawal", "withdrawal_reversal", "referral_bonus"] as const;
 export type WalletTransactionKind = (typeof walletTransactionKinds)[number];
 
 export const buyerWalletQuerySchema = z.object({
@@ -4518,3 +4526,135 @@ export interface BuyerWithdrawalInfo {
   // Yêu cầu đang chờ duyệt hoặc đã duyệt chưa chi.
   open: WithdrawalItem | null;
 }
+
+// ---------------------------------------------------------------------------
+// CONG_VIEC_49: Cộng đồng phần 1 (MODULE_10).
+
+// Cộng tác viên (QUYTAC_NGHIEPVU_324, 325).
+export const collaboratorStatuses = ["pending", "approved", "rejected", "suspended"] as const;
+export type CollaboratorStatus = (typeof collaboratorStatuses)[number];
+export const collaboratorLabels = ["kol", "koc"] as const;
+export type CollaboratorLabel = (typeof collaboratorLabels)[number];
+// Phiên bản điều khoản cộng tác viên hiện hành; người mua đồng ý phiên bản này khi gửi đăng ký.
+export const collaboratorTermsVersion = 1;
+export const collaboratorCodePattern = /^[A-HJ-NP-Z2-9]{8}$/;
+
+export interface CollaboratorProfile {
+  status: CollaboratorStatus;
+  code: string | null;
+  label: CollaboratorLabel | null;
+  channel: string | null;
+  reason: string | null;
+  submittedAt: string;
+  version: number;
+}
+// Thống kê 30 ngày gần nhất của cộng tác viên đã duyệt.
+export interface CollaboratorStats {
+  clicks: number;
+  orders: number;
+  pendingAmount: string;
+  creditedAmount: string;
+}
+export interface BuyerCollaboratorResponse {
+  profile: CollaboratorProfile | null;
+  stats: CollaboratorStats | null;
+  termsVersion: number;
+}
+export const submitCollaboratorSchema = z
+  .object({
+    channel: z.string().trim().max(200).nullable(),
+    acceptTerms: z.literal(true),
+    // 0: gửi lần đầu; gửi lại sau khi bị từ chối dùng phiên bản hiện tại.
+    version: z.number().int().min(0),
+  })
+  .strict();
+export const collaboratorClickSchema = z
+  .object({
+    code: z.string().trim().toUpperCase().regex(collaboratorCodePattern),
+    productId: z.string().uuid(),
+  })
+  .strict();
+export interface BuyerCollaboratorOrderItem {
+  orderId: string;
+  documentNo: string;
+  productName: string;
+  // Đơn hủy không hiện (QUYTAC_NGHIEPVU_202).
+  credited: boolean;
+  amount: string;
+  createdAt: string;
+}
+
+// Mời bạn bè, thưởng giới thiệu (QUYTAC_NGHIEPVU_327).
+export const invitationBonusStatuses = ["credited", "in_progress", "not_qualified", "no_order"] as const;
+export type InvitationBonusStatus = (typeof invitationBonusStatuses)[number];
+export interface ReferralBonusSettings {
+  isEnabled: boolean;
+  // Chưa lưu lần nào thì null.
+  bonusAmount: string | null;
+  minimumOrder: string;
+  version: number;
+}
+const bonusMoney = requiredMoney.refine((value) => Number(value) >= 1 && Number(value) <= 10000000 && Number.isInteger(Number(value)), "invalidValue");
+const minimumOrderMoney = requiredMoney.refine((value) => Number(value) < 1e13, "invalidValue");
+export const referralBonusSettingsSchema = z
+  .object({
+    isEnabled: z.boolean(),
+    bonusAmount: bonusMoney,
+    minimumOrder: minimumOrderMoney,
+    version: z.number().int().min(0),
+  })
+  .strict();
+export interface BuyerInvitationItem {
+  fullName: string;
+  // Che số như QUYTAC_NGHIEPVU_146.
+  phone: string;
+  registeredAt: string;
+  bonusStatus: InvitationBonusStatus;
+  bonusAmount: string | null;
+}
+export interface BuyerInvitationsResponse {
+  program: { isEnabled: boolean; bonusAmount: string | null; minimumOrder: string };
+  invitees: BuyerInvitationItem[];
+}
+
+// Quản trị cộng tác viên (API_163).
+export interface CollaboratorListItem {
+  userId: string;
+  fullName: string;
+  phone: string;
+  code: string | null;
+  label: CollaboratorLabel | null;
+  status: CollaboratorStatus;
+  orders: number;
+  creditedAmount: string;
+  submittedAt: string;
+}
+export interface CollaboratorHistoryItem {
+  action: "submit" | "approve" | "reject" | "suspend" | "restore" | "label";
+  label: CollaboratorLabel | null;
+  reason: string | null;
+  changedByName: string;
+  changedAt: string;
+}
+export interface CollaboratorDetail extends CollaboratorListItem {
+  channel: string | null;
+  termsVersion: number;
+  reason: string | null;
+  decidedAt: string | null;
+  clicks: number;
+  pendingAmount: string;
+  history: CollaboratorHistoryItem[];
+  version: number;
+}
+export const collaboratorListQuerySchema = z
+  .object({
+    status: z.enum(collaboratorStatuses).optional(),
+    label: z.enum(collaboratorLabels).optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const collaboratorVersionSchema = z.object({ version: z.number().int().min(1) }).strict();
+export const collaboratorReasonSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
+export const collaboratorLabelSchema = z.object({ label: z.enum(collaboratorLabels).nullable(), version: z.number().int().min(1) }).strict();

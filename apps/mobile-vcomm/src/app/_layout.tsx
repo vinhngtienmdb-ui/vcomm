@@ -1,10 +1,12 @@
 // Khung ứng dụng VComm: phiên đăng nhập; chưa đăng nhập thì chỉ mở được đăng nhập, đăng ký, quên mật khẩu, đường dẫn giới thiệu.
 import { Redirect, Stack, usePathname } from "expo-router";
+import { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Button, Loading, Notice, Screen } from "@/components/ui";
 import { translator } from "@/lib/i18n";
 import { colors } from "@/lib/theme";
+import { flushCollaboratorClick } from "@/lib/collaborator-link";
 import { SessionProvider, useSession } from "@/lib/session";
 
 const publicPaths = ["/dang-nhap", "/dang-ky", "/quen-mat-khau"];
@@ -12,6 +14,10 @@ const publicPaths = ["/dang-nhap", "/dang-ky", "/quen-mat-khau"];
 function Gate() {
   const { stage, retry } = useSession();
   const path = usePathname();
+  // Lượt bấm đường dẫn cộng tác viên giữ lại khi chưa đăng nhập (CONG_VIEC_49).
+  useEffect(() => {
+    if (stage === "ready") void flushCollaboratorClick();
+  }, [stage]);
   if (stage === "loading") return <Loading />;
   if (stage === "offline")
     return (
@@ -21,7 +27,7 @@ function Gate() {
       </Screen>
     );
   const onPublic = publicPaths.includes(path);
-  const onReferral = path.startsWith("/r/");
+  const onReferral = path.startsWith("/r/") || path.startsWith("/p/");
   if (stage !== "ready" && !onPublic && !onReferral) return <Redirect href="/dang-nhap" />;
   if (stage === "ready" && onPublic) return <Redirect href="/trang-chu" />;
   return (
@@ -39,6 +45,9 @@ function Gate() {
       <Stack.Screen name="dat-hang" />
       <Stack.Screen name="don-hang/[id]" />
       <Stack.Screen name="tra-hang" />
+      <Stack.Screen name="p/[id]" />
+      <Stack.Screen name="cong-tac-vien" />
+      <Stack.Screen name="moi-ban-be" />
       <Stack.Screen name="index" />
     </Stack>
   );

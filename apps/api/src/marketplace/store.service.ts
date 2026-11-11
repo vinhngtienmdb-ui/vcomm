@@ -331,11 +331,12 @@ export class StoreService {
       team_head: string | null;
       regional_director: string | null;
       director: string | null;
+      collaborator: string | null;
       commission_version: number | null;
     }>(sql`
       SELECT p.id, p.name, c.name_vi AS category_name, p.review_status, p.status, (p.tracks_lots OR p.tracks_serials OR c.tracks_lots OR c.tracks_serials) AS tracks,
         l.is_published, l.description, pc.calculation, pc.referral::text, pc.staff::text, pc.team_head::text, pc.regional_director::text, pc.director::text,
-        pc.version AS commission_version,
+        pc.collaborator::text, pc.version AS commission_version,
         (SELECT i.id FROM catalog.product_images i WHERE i.product_id = p.id ORDER BY i.sort_order LIMIT 1) AS image_id
       FROM catalog.products p JOIN catalog.categories c ON c.id = p.category_id LEFT JOIN marketplace.listings l ON l.product_id = p.id
       LEFT JOIN marketplace.product_commissions pc ON pc.product_id = p.id
@@ -382,6 +383,7 @@ export class StoreService {
                   teamHead: trimDecimal(row.team_head!),
                   regionalDirector: trimDecimal(row.regional_director!),
                   director: trimDecimal(row.director!),
+                  collaborator: trimDecimal(row.collaborator!),
                   version: row.commission_version!,
                 },
         };
@@ -408,9 +410,11 @@ export class StoreService {
     });
   }
 
-  // Thiết lập hoa hồng sản phẩm (QUYTAC_NGHIEPVU_200): phần trăm tổng năm mức không quá 100%; số tiền cố định tổng năm mức không vượt giá bán gồm thuế thấp nhất của sản phẩm.
-  async setCommission(actor: BuyerAdminActor, productId: string, input: z.output<typeof productCommissionSchema>): Promise<ProductCommission> {
-    const total = [input.referral, input.staff, input.teamHead, input.regionalDirector, input.director].reduce((sum, value) => sum + Number(value), 0);
+  // Thiết lập hoa hồng sản phẩm (QUYTAC_NGHIEPVU_200): phần trăm tổng các mức không quá 100%; số tiền cố định tổng các mức không vượt giá bán gồm thuế thấp nhất của sản phẩm.
+  // CONG_VIEC_49: thêm mức cộng tác viên, tính vào tổng (QUYTAC_NGHIEPVU_326).
+  async setCommission(actor: BuyerAdminActor, productId: string, raw: z.output<typeof productCommissionSchema>): Promise<ProductCommission> {
+    const input = { ...raw, collaborator: raw.collaborator ?? "0" };
+    const total = [input.referral, input.staff, input.teamHead, input.regionalDirector, input.director, input.collaborator].reduce((sum, value) => sum + Number(value), 0);
     await this.database.transaction(async (transaction) => {
       const product = await transaction.execute(sql`SELECT 1 FROM catalog.products WHERE id = ${productId} AND company_id = ${actor.operatorCompanyId} AND seller_id IS NULL FOR UPDATE`);
       if (product.rows.length === 0) throw new ApiError("NOT_FOUND", "notFound");
@@ -428,19 +432,29 @@ export class StoreService {
         ? await transaction.execute(sql`
           UPDATE marketplace.product_commissions SET calculation = ${input.calculation}, referral = ${input.referral}::numeric, staff = ${input.staff}::numeric,
             team_head = ${input.teamHead}::numeric, regional_director = ${input.regionalDirector}::numeric, director = ${input.director}::numeric,
-            updated_by = ${actor.userId}, updated_at = now(), version = version + 1
+            collaborator = ${input.collaborator}::numeric, updated_by = ${actor.userId}, updated_at = now(), version = version + 1
           WHERE product_id = ${productId} AND version = ${input.version} RETURNING product_id`)
         : await transaction.execute(sql`
-          INSERT INTO marketplace.product_commissions (product_id, company_id, calculation, referral, staff, team_head, regional_director, director, updated_by)
+          INSERT INTO marketplace.product_commissions (product_id, company_id, calculation, referral, staff, team_head, regional_director, director, collaborator, updated_by)
           SELECT ${productId}, ${actor.operatorCompanyId}, ${input.calculation}, ${input.referral}::numeric, ${input.staff}::numeric, ${input.teamHead}::numeric,
-            ${input.regionalDirector}::numeric, ${input.director}::numeric, ${actor.userId}
+            ${input.regionalDirector}::numeric, ${input.director}::numeric, ${input.collaborator}::numeric, ${actor.userId}
           WHERE ${input.version} = 0 RETURNING product_id`);
       if (saved.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       await this.record(transaction, actor, "marketplace.product_commission.update", "catalog.products", productId, before, input);
     });
     const row = (
-      await this.database.execute<{ calculation: CommissionCalculation; referral: string; staff: string; team_head: string; regional_director: string; director: string; version: number }>(sql`
-      SELECT calculation, referral::text, staff::text, team_head::text, regional_director::text, director::text, version FROM marketplace.product_commissions WHERE product_id = ${productId}`)
+      await this.database.execute<{
+        calculation: CommissionCalculation;
+        referral: string;
+        staff: string;
+        team_head: string;
+        regional_director: string;
+        director: string;
+        collaborator: string;
+        version: number;
+      }>(sql`
+      SELECT calculation, referral::text, staff::text, team_head::text, regional_director::text, director::text, collaborator::text, version
+      FROM marketplace.product_commissions WHERE product_id = ${productId}`)
     ).rows[0]!;
     return {
       calculation: row.calculation,
@@ -449,6 +463,7 @@ export class StoreService {
       teamHead: trimDecimal(row.team_head),
       regionalDirector: trimDecimal(row.regional_director),
       director: trimDecimal(row.director),
+      collaborator: trimDecimal(row.collaborator),
       version: row.version,
     };
   }
