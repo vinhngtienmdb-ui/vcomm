@@ -19,10 +19,12 @@ const attemptLimit = 10;
 const systemClient: ClientInfo = { ip: null, userAgent: "payment-expiry", requestId: null };
 
 // Lần thanh toán của kết quả cổng: theo số tham chiếu, hoặc mã đơn riêng của cổng (CONG_VIEC_35).
-const paymentMatch = (gatewayCode: string, result: GatewayNotification) =>
-  result.reference ? sql`reference = ${result.reference} AND gateway_code = ${gatewayCode}` : sql`gateway_order_code = ${result.gatewayOrderCode ?? ""} AND gateway_code = ${gatewayCode}`;
-// Cổng có mã riêng thì tìm theo mã cổng, không thì theo số tham chiếu chung.
+// Cổng có mã riêng thì tìm theo mã cổng, không thì theo số tham chiếu chung (CONG_VIEC_37).
 const matchesReference = (reference: string) => sql`(gateway_reference = ${reference} OR (gateway_reference IS NULL AND reference = ${reference}))`;
+const paymentMatch = (gatewayCode: string, result: GatewayNotification) =>
+  result.reference
+    ? sql`gateway_code = ${gatewayCode} AND ${matchesReference(result.reference)}`
+    : sql`gateway_order_code = ${result.gatewayOrderCode ?? ""} AND gateway_code = ${gatewayCode}`;
 // Tên gửi cổng: bỏ dấu tiếng Việt, chỉ giữ chữ, số, dấu cách (BIDV không nhận ký tự có dấu, ký tự đặc biệt).
 const plainText = (value: string, maximumLength: number) =>
   value
@@ -82,10 +84,8 @@ export class MarketplacePaymentsService {
       const amount = Math.round(Number(order.total));
       const gatewayOrderCode = gateway.createOrderCode?.() ?? null;
       await transaction.execute(sql`
-        INSERT INTO marketplace.payments (order_id, gateway_code, method, reference, gateway_order_code, amount, created_by)
-        VALUES (${orderId}, ${order.gateway_code}, ${order.payment_method}, ${reference}, ${gatewayOrderCode}, ${amount}, ${userId})`);
-        INSERT INTO marketplace.payments (order_id, gateway_code, method, reference, gateway_reference, amount, created_by)
-        VALUES (${orderId}, ${order.gateway_code}, ${order.payment_method}, ${reference}, ${gatewayReference}, ${amount}, ${userId})`);
+        INSERT INTO marketplace.payments (order_id, gateway_code, method, reference, gateway_reference, gateway_order_code, amount, created_by)
+        VALUES (${orderId}, ${order.gateway_code}, ${order.payment_method}, ${reference}, ${gatewayReference}, ${gatewayOrderCode}, ${amount}, ${userId})`);
       const deadline = new Date(order.payment_deadline!);
       const instruction = await gateway.start({
         reference,
@@ -123,23 +123,7 @@ export class MarketplacePaymentsService {
     // Lỗi khi ghi nhận (kỳ kế toán đã khóa, cơ sở dữ liệu lỗi): trả lỗi để cổng gửi lại, ghi lại để tra soát.
     let reference = result.reference ?? result.gatewayOrderCode ?? null;
     const outcome = await this.database
-      .transaction(async (transaction): Promise<NotificationOutcome> => {
-        const payment = (
-          await transaction.execute<{ id: string; order_id: string; reference: string; amount: string; status: string }>(sql`
-          SELECT id, order_id, reference, amount::text, status FROM marketplace.payments WHERE ${paymentMatch(gateway.code, result)} FOR UPDATE`)
-          await transaction.execute<{ id: string; order_id: string; amount: string; status: string }>(sql`
-          SELECT id, order_id, amount::text, status FROM marketplace.payments WHERE gateway_code = ${gateway.code} AND ${matchesReference(result.reference)} FOR UPDATE`)
-        ).rows[0];
-        if (!payment) return "not_found";
-        reference = payment.reference;
-        if (Math.round(Number(payment.amount)) !== Math.round(result.amount)) return "invalid_amount";
-        if (payment.status !== "pending") return "already_confirmed";
-        // Cổng báo đang xử lý (CONG_VIEC_33): chờ kết quả cuối, không ghi nhận.
-        if (result.pending) return "pending";
-        await this.complete(transaction, payment.id, payment.order_id, result, gateway.code);
-        return "success";
-      })
-      .transaction((transaction) => this.record(transaction, gateway.code, result))
+      .transaction((transaction) => this.record(transaction, gateway.code, result, (found) => (reference = found)))
       .catch((error: unknown): NotificationOutcome => {
         this.logger.error(`Kết quả cổng ${gateway.code} ${reference}: ${(error as Error).message}`);
         return "error";
@@ -149,18 +133,22 @@ export class MarketplacePaymentsService {
   }
 
   // Ghi nhận kết quả đã xác thực trong giao dịch cơ sở dữ liệu của bên gọi; dùng chung cho đường dẫn nhận kết quả và cổng chuyển khoản (CONG_VIEC_36).
-  async record(transaction: Pick<Database, "execute">, gatewayCode: string, result: GatewayNotification): Promise<NotificationOutcome> {
+  // found: báo số tham chiếu của lần thanh toán tìm được (kết quả PayOS chỉ có mã đơn riêng) để ghi nhật ký.
+  async record(transaction: Pick<Database, "execute">, gatewayCode: string, result: GatewayNotification, found?: (reference: string) => void): Promise<NotificationOutcome> {
     const payment = (
-      await transaction.execute<{ id: string; order_id: string; amount: string; status: string }>(sql`
-      SELECT id, order_id, amount::text, status FROM marketplace.payments WHERE reference = ${result.reference} AND gateway_code = ${gatewayCode} FOR UPDATE`)
+      await transaction.execute<{ id: string; order_id: string; reference: string; amount: string; status: string }>(sql`
+      SELECT id, order_id, reference, amount::text, status FROM marketplace.payments WHERE ${paymentMatch(gatewayCode, result)} FOR UPDATE`)
     ).rows[0];
     if (!payment) return "not_found";
+    found?.(payment.reference);
     if (Math.round(Number(payment.amount)) !== Math.round(result.amount)) return "invalid_amount";
     if (payment.status !== "pending") return "already_confirmed";
     // Cổng báo đang xử lý (CONG_VIEC_33): chờ kết quả cuối, không ghi nhận.
     if (result.pending) return "pending";
     await this.complete(transaction, payment.id, payment.order_id, result, gatewayCode);
     return "success";
+  }
+
   // Cổng vấn tin số tiền cần thu (CONG_VIEC_37; QUYTAC_NGHIEPVU_246): chỉ lần thanh toán đang chờ của đơn đang chờ thanh toán, còn hạn; không ghi nhận tiền.
   async inquire(gatewayCode: string, request: GatewayRequest, ip: string): Promise<{ status: number; body: unknown }> {
     const gateway = gatewayAdapter(gatewayCode);
@@ -232,7 +220,6 @@ export class MarketplacePaymentsService {
     const payment = (
       await this.database.execute<{ order_id: string; status: string }>(sql`
       SELECT order_id, status FROM marketplace.payments WHERE ${paymentMatch(gatewayCode, result)}`)
-      SELECT order_id, status FROM marketplace.payments WHERE gateway_code = ${gatewayCode} AND ${matchesReference(result.reference)}`)
     ).rows[0];
     if (!payment) return { orderId: null, state: "invalid" };
     if (payment.status === "succeeded") return { orderId: payment.order_id, state: "succeeded" };
