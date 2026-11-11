@@ -616,6 +616,19 @@
 - Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_321 → KICHBAN_KIEMTHU_476, KICHBAN_KIEMTHU_477; TIEUCHI_NGHIEMTHU_322 → KICHBAN_KIEMTHU_478; TIEUCHI_NGHIEMTHU_323 → KICHBAN_KIEMTHU_479; TIEUCHI_NGHIEMTHU_324 → KICHBAN_KIEMTHU_480; TIEUCHI_NGHIEMTHU_325 → KICHBAN_KIEMTHU_481; TIEUCHI_NGHIEMTHU_326 → KICHBAN_KIEMTHU_482; TIEUCHI_NGHIEMTHU_327 → KICHBAN_KIEMTHU_483; TIEUCHI_NGHIEMTHU_328 → KICHBAN_KIEMTHU_484, KICHBAN_KIEMTHU_485)
 - Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_485 phần đo thời gian phản hồi (làm thủ công với dữ liệu sinh, kết quả trong đặc tả CONG_VIEC_50 mục 15); giao diện MAN_HINH_140 đến MAN_HINH_144 chưa có kiểm thử tự động (kiểm tra bằng ảnh chụp sau mỗi lát)
 - Kịch bản chưa chạy hoặc kết quả Không đạt: chưa ghi kết quả chính thức ở tài liệu `25`; chưa nghiệm thu
+## Kiểm tra bao phủ CONG_VIEC_52 – 2026-11-12
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_98, 99 → CHUC_NANG_182; YCAU_NGHIEPVU_100 → CHUC_NANG_183; YCAU_NGHIEPVU_101 đến 103 → CHUC_NANG_184; YCAU_NGHIEPVU_104 → CHUC_NANG_185)
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_356 đến 359 → CHUC_NANG_182; QUYTAC_NGHIEPVU_360 đến 362 → CHUC_NANG_183; QUYTAC_NGHIEPVU_363 đến 366 → CHUC_NANG_184; QUYTAC_NGHIEPVU_367 → CHUC_NANG_185)
+- Chức năng chưa có màn hình: Không có (CHUC_NANG_182 → MAN_HINH_153, 154; CHUC_NANG_183 → MAN_HINH_155, 156; CHUC_NANG_184 → MAN_HINH_157, 158, 160; CHUC_NANG_185 → MAN_HINH_159)
+- Chức năng chưa có API: Không có (CHUC_NANG_182 → API_184, API_185; CHUC_NANG_183 → API_186, API_187; CHUC_NANG_184 → API_188 đến API_190; CHUC_NANG_185 → API_191)
+- Chức năng chưa có tiêu chí nghiệm thu: Không có (CHUC_NANG_182 → TIEUCHI_NGHIEMTHU_339 đến 341; CHUC_NANG_183 → 342, 343; CHUC_NANG_184 → 344 đến 346; CHUC_NANG_185 → 347; giao diện → 348)
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (TIEUCHI_NGHIEMTHU_339 → KICHBAN_KIEMTHU_498; 340 → 499, 507; 341 → 500; 342 → 501; 343 → 502; 344 → 503, 507; 345 → 504, 507; 346 → 505; 347 → 506, 507; 348 → 508, 509)
+- Kịch bản kiểm thử và tệp kiểm thử tự động: KICHBAN_KIEMTHU_498 đến 500 → `apps/api/test/c52-tasks.test.ts`; 501, 502 → `c52-workflows.test.ts`; 503 đến 505 → `c52-documents.test.ts`, 505 thêm `c52-document-format.test.ts`; 506 → `c52-bulletin.test.ts`; 507 → phần quyền của cả bốn tệp
+- Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_508, KICHBAN_KIEMTHU_509 (giao diện, kiểm bằng xem trước từng lát)
+- Kịch bản chưa chạy hoặc kết quả Không đạt: Không có; kết quả gửi phiên cha ghi tài liệu `25`
+- Mã nguồn không truy được về yêu cầu nào: Không có (`apps/api/src/office`, `apps/web-office`, `packages/contracts/src/office.ts`, database migration 0090 đến 0093)
+
 ## 32. Kiểm tra bao phủ CONG_VIEC_54 – 2026-11-12
 
 - Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_112 → CHUC_NANG_190; YCAU_NGHIEPVU_113 → CHUC_NANG_190, CHUC_NANG_191; YCAU_NGHIEPVU_114, 115 → CHUC_NANG_191; YCAU_NGHIEPVU_116 → CHUC_NANG_190, CHUC_NANG_191; YCAU_NGHIEPVU_117 → CHUC_NANG_192)

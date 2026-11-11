@@ -237,6 +237,20 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_47.md`.
 
 Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_54.md`.
 
+## MODULE_13 Văn phòng số (phần 1: công việc, quy trình, công văn, bảng tin, CONG_VIEC_52)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_98 | Giao việc có người chủ trì, người phối hợp, người theo dõi, hạn, mức ưu tiên; trao đổi, đính kèm tệp ngay trên việc; biết việc sắp đến hạn, quá hạn | Mọi nhân viên, trưởng phòng | Tài liệu `01` mục 4 (MODULE_13), `05`; quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_99 | Giao việc cho người ở công ty khác trong tập đoàn mà không lộ dữ liệu khác của công ty giao việc | Ban giám đốc, nhân viên | Tài liệu `01` mục 4 (MODULE_13), `05`; quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_100 | Chuẩn hóa quy trình lặp lại thành mẫu có bước, nhánh rẽ theo kết quả hoặc dữ liệu, bước song song; chạy mẫu thì hệ thống tự giao việc từng bước | Trưởng phòng, Ban giám đốc | Tài liệu `01` mục 4 (MODULE_13), `05`; quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_101 | Công văn đến được vào sổ, cấp số đến, trình lãnh đạo, giao xử lý và theo dõi đến khi xong | Văn thư, lãnh đạo, người xử lý | Tài liệu `01` mục 4 (MODULE_13), `05`; quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_102 | Công văn đi soạn đúng thể thức Nghị định 30, trình ký qua luồng duyệt, văn thư cấp số sau khi duyệt, lưu bản đã ký, phát hành đến nơi nhận | Người soạn, người ký, văn thư | Tài liệu `01` mục 4 (MODULE_13), `05`; quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_103 | Sổ công văn đến, đi theo năm, tra cứu, xuất sổ theo mẫu | Văn thư, lãnh đạo | Tài liệu `01` mục 4 (MODULE_13), `05`; quyết định người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_104 | Thông tin nội bộ đến đúng công ty, chi nhánh, phòng ban; biết ai đã đọc tin quan trọng | Ban giám đốc, hành chính, nhân viên | Tài liệu `01` mục 4 (MODULE_13), `05`; quyết định người dùng 2026-11-11 |
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_52.md`.
+
 ## MODULE_11 Điểm thưởng (phần 1, CONG_VIEC_51)
 
 | Mã | Yêu cầu | Nguồn |

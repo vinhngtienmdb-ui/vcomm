@@ -763,3 +763,28 @@ Người phỏng vấn, người chấm, nhân viên xem phiếu của mình kh�
 
 - Người mua chỉ thấy hồ sơ cộng tác viên, ví mua sắm, đơn, người mình mời của chính mình; bảng tin công khai cho người mua đã đăng nhập.
 - Người bị khóa đăng bài và bình luận vẫn xem được bảng tin.
+
+## 50. Vai trò của MODULE_13 Văn phòng số phần 1 (CONG_VIEC_52)
+
+Thêm quyền `office.access` (vào mini app), `office.task.view_all`, `office.workflow.manage`, `office.document.direct`, `office.document.draft`, `office.bulletin.post` (không nhạy cảm), `office.document.clerk`, `office.document.view_all` (nhạy cảm, người được gán bắt buộc xác thực hai lớp); gán ở phạm vi tập đoàn hoặc công ty (gán ở chi nhánh không dùng được). `office.bulletin.post` gán ở phạm vi tập đoàn thì đăng được tin toàn tập đoàn.
+
+| Vai trò | Mã | Quyền thêm | Ghi chú |
+|---|---|---|---|
+| Nhân viên | `employee` | `office.access`, `office.document.draft` | Mọi nhân viên giao việc, khởi tạo quy trình, soạn công văn đi, xem bảng tin |
+| Văn thư (mới, phạm vi công ty) | `office_clerk` | `office.access`, `office.document.clerk`, `office.document.draft`, `office.document.view_all`, `office.bulletin.post` | |
+| Quản trị tập đoàn, Quản trị công ty | | Mọi quyền mới | |
+| Lãnh đạo, người thiết kế quy trình (vai trò tùy chỉnh do quản trị lập) | | `office.document.direct`; `office.workflow.manage`; `office.task.view_all` khi cần | Gán qua MAN_HINH_14 |
+
+| Thao tác | Quản trị | Văn thư | Lãnh đạo (`office.document.direct`) | Người thiết kế quy trình | Nhân viên | Người công ty khác trong tập đoàn |
+|---|---|---|---|---|---|---|
+| Giao việc, việc của mình (chủ trì, phối hợp, theo dõi, người giao) | Có | Có | Có | Có | Có | Việc mình tham gia |
+| Xem mọi việc, phiên quy trình của công ty | Có | Không | Khi có `office.task.view_all` | Có (phiên) | Không | Không |
+| Thiết kế, kích hoạt mẫu quy trình; chỉ định, hủy phiên | Có | Không | Không | Có | Không | Không |
+| Khởi tạo phiên, làm bước được giao, nhận việc theo vai trò | Có | Có | Có | Có | Có | Không |
+| Sổ, loại văn bản, thể thức; vào sổ, trình công văn đến; cấp số, phát hành công văn đi; xuất sổ | Có | Có | Không | Không | Không | Không |
+| Cho ý kiến, giao xử lý công văn đến được trình | Khi được trình | Không | Khi được trình | Không | Không | Không |
+| Soạn, trình, rút công văn đi | Có | Có | Có | Có | Có | Không |
+| Duyệt công văn đi | Theo luồng duyệt chung; không có chính sách thì người ký | | | | | |
+| Xem mọi công văn của công ty | Có | Có | Không | Không | Không | Không |
+| Đăng, sửa, thu hồi tin; xem ai đã đọc | Có | Có | Không | Không | Không | Không |
+| Xem tin, xác nhận đã đọc, bình luận | Tin mình thuộc đối tượng | Như bên trái | Như bên trái | Như bên trái | Như bên trái | Tin toàn tập đoàn |
