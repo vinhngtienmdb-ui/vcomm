@@ -1,7 +1,7 @@
 "use client";
 
 // MAN_HINH_49 Phiếu thu chi (CHUC_NANG_67; API_86): danh sách lọc loại, trạng thái; lập phiếu.
-import { paymentKinds, paymentStatuses, type PaymentKind, type PaymentListItem, type PaymentStatus } from "contracts";
+import { paymentKinds, paymentStatuses, treasuryPaymentKinds, type PaymentKind, type TreasuryPaymentKind, type PaymentListItem, type PaymentStatus } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
@@ -15,7 +15,7 @@ import { PaymentStatusBadge } from "@/components/PaymentStatusBadge";
 export default function PaymentsPage() {
   const t = useTranslations("payments");
   const { can } = useAdmin();
-  const [kind, setKind] = useState<PaymentKind | "">("");
+  const [kind, setKind] = useState<PaymentKind | TreasuryPaymentKind | "">("");
   const [status, setStatus] = useState<PaymentStatus | "">("");
   const query = new URLSearchParams({ ...(kind ? { kind } : {}), ...(status ? { status } : {}) });
   const { state, reload } = useApi<PaymentListItem[]>(`/finance/payments?${query.toString()}`);
@@ -26,18 +26,23 @@ export default function PaymentsPage() {
         <h1>{t("title")}</h1>
         <HistoryLink entityType="payment" />
         {can("finance.payment.manage") && (
-          <Link className="nut chinh" href="/payments/new">
-            {t("create")}
-          </Link>
+          <>
+            <Link className="nut phu" href="/currency-purchases/new">
+              {t("buyCurrency")}
+            </Link>
+            <Link className="nut chinh" href="/payments/new">
+              {t("create")}
+            </Link>
+          </>
         )}
       </div>
       <div className="bo-loc">
         <label className="an-nhan" htmlFor="loc-loai-phieu">
           {t("kind")}
         </label>
-        <select id="loc-loai-phieu" className="o-nhap" style={{ width: "auto" }} value={kind} onChange={(event) => setKind(event.target.value as PaymentKind | "")}>
+        <select id="loc-loai-phieu" className="o-nhap" style={{ width: "auto" }} value={kind} onChange={(event) => setKind(event.target.value as PaymentKind | TreasuryPaymentKind | "")}>
           <option value="">{t("allKinds")}</option>
-          {paymentKinds.map((item) => (
+          {[...paymentKinds, ...treasuryPaymentKinds].map((item) => (
             <option key={item} value={item}>
               {t(`kind_${item}`)}
             </option>

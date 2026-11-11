@@ -1,6 +1,7 @@
 "use client";
 
 // MAN_HINH_46 Chi tiết quỹ (CHUC_NANG_65; API_84): thông tin, sửa, sổ quỹ theo khoảng ngày.
+// Quỹ ngoại tệ (CONG_VIEC_56): số dư ngoại tệ, giá trị ghi sổ, tỷ giá bình quân; sổ quỹ thêm cột ngoại tệ.
 import type { FundLedgerResponse, FundResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -8,7 +9,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
 import { Loaded } from "ui/components/StatusViews";
-import { formatDate, formatMoney, vietnamToday } from "ui/lib/format";
+import { formatDate, formatMoney, formatNumber, vietnamToday } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
 import { FundEditor } from "@/components/FundEditor";
 
@@ -57,12 +58,23 @@ export default function FundPage() {
                 <div className="thong-tin-dong">
                   <span>{t(`kind_${data.kind}`)}</span>
                   {data.kind === "bank" && <span>{[data.bankName, data.accountNo, data.accountHolder].filter(Boolean).join(" · ")}</span>}
+                  {data.foreign && (
+                    <span>
+                      {t("openingForeignBalance")}: {formatMoney(data.foreign.openingBalance, data.foreign.currency)} · {t("openingExchangeRate")}: {data.foreign.openingExchangeRate}
+                    </span>
+                  )}
                   <span>
-                    {t("openingBalance")}: {formatMoney(data.openingBalance, data.currency)}
+                    {data.foreign ? t("bookValue") : t("openingBalance")}: {formatMoney(data.openingBalance, data.currency)}
                   </span>
                 </div>
+                {data.foreign && (
+                  <strong>
+                    {t("foreignBalance")}: {formatMoney(data.foreign.balance, data.foreign.currency)}
+                    {data.foreign.bookRate && ` · ${t("bookRate")} ${formatNumber(data.foreign.bookRate, 2)}`}
+                  </strong>
+                )}
                 <strong>
-                  {t("balance")}: {formatMoney(data.balance, data.currency)}
+                  {data.foreign ? t("bookValue") : t("balance")}: {formatMoney(data.balance, data.currency)}
                 </strong>
               </section>
             )}
@@ -79,10 +91,14 @@ export default function FundPage() {
       <Loaded state={ledger.state} onRetry={() => void ledger.reload()}>
         {(data) => {
           const money = (value: string) => formatMoney(value, data.fund.currency);
+          const foreign = data.foreign;
+          const foreignMoney = (value: string) => formatMoney(value, foreign?.currency ?? data.fund.currency);
+          const columns = foreign ? [...headings.slice(0, 3), t("foreignReceipt"), t("foreignPayment"), t("foreignRunning"), ...headings.slice(3)] : headings;
           return (
             <>
               <p>
                 {t("openingOfPeriod")}: <strong>{money(data.openingBalance)}</strong>
+                {foreign && ` · ${foreignMoney(foreign.openingBalance)}`}
               </p>
               {data.entries.length === 0 ? (
                 <p className="chu-thich">{t("noEntries")}</p>
@@ -91,7 +107,7 @@ export default function FundPage() {
                   <table>
                     <thead>
                       <tr>
-                        {headings.map((heading) => (
+                        {columns.map((heading) => (
                           <th key={heading} scope="col">
                             {heading}
                           </th>
@@ -108,8 +124,21 @@ export default function FundPage() {
                             <Link href={`/payments/${entry.paymentId}`}>{entry.documentNo}</Link>
                           </td>
                           <td data-nhan={headings[2]}>
-                            <span>{entry.partnerName ?? payments("withoutPartner")}</span>
+                            <span>{entry.partnerName ?? (entry.kind === "currency_purchase" ? payments("kind_currency_purchase") : payments("withoutPartner"))}</span>
                           </td>
+                          {entry.foreign && (
+                            <>
+                              <td data-nhan={t("foreignReceipt")}>
+                                <span>{entry.foreign.receipt === "0" ? "—" : foreignMoney(entry.foreign.receipt)}</span>
+                              </td>
+                              <td data-nhan={t("foreignPayment")}>
+                                <span>{entry.foreign.payment === "0" ? "—" : foreignMoney(entry.foreign.payment)}</span>
+                              </td>
+                              <td data-nhan={t("foreignRunning")}>
+                                <span>{foreignMoney(entry.foreign.balance)}</span>
+                              </td>
+                            </>
+                          )}
                           <td data-nhan={headings[3]}>
                             <span>{entry.receipt === "0" ? "—" : money(entry.receipt)}</span>
                           </td>
@@ -127,6 +156,7 @@ export default function FundPage() {
               )}
               <p>
                 {t("closingOfPeriod")}: <strong>{money(data.closingBalance)}</strong>
+                {foreign && ` · ${foreignMoney(foreign.closingBalance)}`}
               </p>
             </>
           );

@@ -10,7 +10,9 @@ import {
   saveOpeningDebtSchema,
   paymentListQuerySchema,
   savePaymentSchema,
+  saveCurrencyPurchaseSchema,
   versionSchema,
+  type PaymentFxPreviewResponse,
   type PaymentListItem,
   type PaymentOptionsResponse,
   type PaymentResponse,
@@ -111,6 +113,23 @@ export class FinanceController {
   @Get("payments/options")
   async paymentOptions(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<PaymentOptionsResponse> {
     return this.payments.options(await this.actor(request, companyId));
+  }
+
+  // API_215 (CONG_VIEC_56): xem trước phiếu chi trả nợ ngoại tệ.
+  @Post("payments/fx-preview")
+  async paymentFxPreview(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentFxPreviewResponse> {
+    return this.payments.fxPreview(await this.actor(request, companyId), savePaymentSchema.parse(body));
+  }
+
+  // API_214 (CONG_VIEC_56): phiếu mua ngoại tệ; gửi, rút, đọc dùng đường dẫn phiếu thu chi.
+  @Post("currency-purchases")
+  async currencyPurchaseCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.payments.saveCurrencyPurchase(await this.actor(request, companyId), null, saveCurrencyPurchaseSchema.parse(body));
+  }
+
+  @Patch("currency-purchases/:id")
+  async currencyPurchaseUpdate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.payments.saveCurrencyPurchase(await this.actor(request, companyId), id, saveCurrencyPurchaseSchema.parse(body));
   }
 
   @Get("payments")

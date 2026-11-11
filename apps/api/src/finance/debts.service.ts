@@ -100,10 +100,10 @@ export class DebtsService implements OnModuleInit {
       const id = (
         await executor.execute<{ id: string }>(sql`
         INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, document_no, document_date, due_date, amount, open_amount,
-          currency, foreign_amount, exchange_rate)
+          currency, foreign_amount, exchange_rate, open_foreign_amount, book_rate)
         VALUES (${document.company_id}, ${document.partner_id}, ${side}, 'debit', ${type}, ${documentId}, ${document.document_no ?? ""}, ${document.document_date}::date,
           ${document.document_date}::date + coalesce((SELECT payment_term_days FROM crm.partner_profiles WHERE company_id = ${document.company_id} AND partner_id = ${document.partner_id}), 0),
-          ${document.amount}::numeric, ${document.amount}::numeric, ${foreign.currency}, ${foreign.amount}::numeric, ${foreign.rate}::numeric)
+          ${document.amount}::numeric, ${document.amount}::numeric, ${foreign.currency}, ${foreign.amount}::numeric, ${foreign.rate}::numeric, ${foreign.amount}::numeric, ${foreign.rate}::numeric)
         RETURNING id`)
       ).rows[0]!.id;
       await this.matchDebit(executor, id);
@@ -118,6 +118,12 @@ export class DebtsService implements OnModuleInit {
         RETURNING id`)
       ).rows[0]!.id;
       await this.matchCredit(executor, id, original ? [{ debitItemId: original, amount: null }] : [], true);
+      // Trả hàng theo tỷ giá phiếu gốc: số ngoại tệ còn nợ của phiếu gốc giảm theo số ngoại tệ trả (QUYTAC_NGHIEPVU_409).
+      if (original && foreign.amount) {
+        await executor.execute(sql`
+          UPDATE finance.debt_items SET open_foreign_amount = CASE WHEN open_amount = 0 THEN 0 ELSE greatest(open_foreign_amount - ${foreign.amount}::numeric, 0) END
+          WHERE id = ${original} AND open_foreign_amount IS NOT NULL`);
+      }
     }
   }
 
@@ -131,10 +137,11 @@ export class DebtsService implements OnModuleInit {
     const id = (
       await executor.execute<{ id: string }>(sql`
       INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, document_no, document_date, due_date, amount, open_amount,
-        currency, foreign_amount, exchange_rate)
+        currency, foreign_amount, exchange_rate, open_foreign_amount, book_rate)
       VALUES (${input.companyId}, ${input.partnerId}, 'payable', 'debit', 'landed_cost', ${input.sourceId}, ${input.documentNo}, ${input.documentDate}::date,
         ${input.documentDate}::date + coalesce((SELECT payment_term_days FROM crm.partner_profiles WHERE company_id = ${input.companyId} AND partner_id = ${input.partnerId}), 0),
-        ${input.amount}::numeric, ${input.amount}::numeric, ${input.foreign?.currency ?? null}, ${input.foreign?.amount ?? null}::numeric, ${input.foreign?.rate ?? null}::numeric)
+        ${input.amount}::numeric, ${input.amount}::numeric, ${input.foreign?.currency ?? null}, ${input.foreign?.amount ?? null}::numeric, ${input.foreign?.rate ?? null}::numeric,
+        ${input.foreign?.amount ?? null}::numeric, ${input.foreign?.rate ?? null}::numeric)
       RETURNING id`)
     ).rows[0]!.id;
     await this.matchDebit(executor, id);
@@ -164,7 +171,7 @@ export class DebtsService implements OnModuleInit {
   }
 
   // Trừ một khoản giảm vào một khoản tăng, không vượt số còn lại của cả hai và mức chỉ định; trả về số còn lại của hai khoản.
-  private async allocate(executor: Executor, debitId: string, creditId: string, cap: string | null): Promise<{ debit: number; credit: number }> {
+  async allocate(executor: Executor, debitId: string, creditId: string, cap: string | null): Promise<{ debit: number; credit: number }> {
     const rows = await executor.execute<{ id: string; open_amount: string }>(sql`
       WITH value AS (
         SELECT c.company_id, least(c.open_amount, d.open_amount, coalesce(${cap}::numeric, c.open_amount)) AS amount
@@ -192,6 +199,7 @@ export class DebtsService implements OnModuleInit {
     const debits = await executor.execute<{ id: string }>(sql`
       SELECT d.id FROM finance.debt_items d JOIN finance.debt_items c ON c.id = ${creditId}
       WHERE d.company_id = c.company_id AND d.side = c.side AND d.partner_id = c.partner_id AND d.direction = 'debit' AND d.open_amount > 0
+        AND d.currency IS NULL AND c.currency IS NULL
       ORDER BY d.due_date, d.document_date, d.created_at, d.id`);
     for (const debit of debits.rows) {
       if (remaining <= 0) return;
@@ -199,11 +207,12 @@ export class DebtsService implements OnModuleInit {
     }
   }
 
-  // Khoản tăng mới tự trừ các khoản giảm còn lại cũ nhất (trả trước).
+  // Khoản tăng mới tự trừ các khoản giảm còn lại cũ nhất (trả trước). Khoản có ngoại tệ không trừ tự động (QUYTAC_NGHIEPVU_409).
   async matchDebit(executor: Executor, debitId: string): Promise<void> {
     const credits = await executor.execute<{ id: string }>(sql`
       SELECT c.id FROM finance.debt_items c JOIN finance.debt_items d ON d.id = ${debitId}
       WHERE c.company_id = d.company_id AND c.side = d.side AND c.partner_id = d.partner_id AND c.direction = 'credit' AND c.open_amount > 0
+        AND d.currency IS NULL AND c.currency IS NULL
       ORDER BY c.document_date, c.created_at, c.id`);
     for (const credit of credits.rows) {
       if ((await this.allocate(executor, debitId, credit.id, null)).debit <= 0) return;
@@ -345,8 +354,21 @@ export class DebtsService implements OnModuleInit {
 
   async openDebtsOf(executor: Executor, companyId: string, side: DebtSide, partnerId: string): Promise<OpenDebtsResponse> {
     const today = this.permissionService.today();
-    const rows = await executor.execute<{ id: string; document_no: string; source_type: DebtSourceType; document_date: string; due_date: string; amount: string; open_amount: string }>(sql`
-      SELECT id, document_no, source_type, document_date::text, due_date::text, amount::text, open_amount::text FROM finance.debt_items
+    const rows = await executor.execute<{
+      id: string;
+      document_no: string;
+      source_type: DebtSourceType;
+      document_date: string;
+      due_date: string;
+      amount: string;
+      open_amount: string;
+      currency: string | null;
+      foreign_amount: string | null;
+      open_foreign_amount: string | null;
+      book_rate: string | null;
+    }>(sql`
+      SELECT id, document_no, source_type, document_date::text, due_date::text, amount::text, open_amount::text,
+        currency, foreign_amount::text, open_foreign_amount::text, book_rate::text FROM finance.debt_items
       WHERE company_id = ${companyId} AND side = ${side} AND partner_id = ${partnerId} AND direction = 'debit' AND open_amount > 0
       ORDER BY due_date, document_date, created_at, id`);
     const advance = (
@@ -365,6 +387,7 @@ export class DebtsService implements OnModuleInit {
         amount: trimDecimal(row.amount),
         openAmount: trimDecimal(row.open_amount),
         overdueDays: Math.max(0, daysBetween(row.due_date, today)),
+        foreign: row.currency ? { currency: row.currency, amount: trimDecimal(row.foreign_amount!), openAmount: trimDecimal(row.open_foreign_amount!), bookRate: trimDecimal(row.book_rate!) } : null,
       })),
     };
   }

@@ -375,6 +375,12 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     excise_tax: "3332",
     environmental_tax: "33381",
     import_vat: "33312",
+    cash_foreign: "111",
+    bank_foreign: "112",
+    exchange_difference: "413",
+    financial_income: "515",
+    financial_expense: "635",
+    late_payment_expense: "811",
   },
   TT133: {
     receivable: "131",
@@ -420,6 +426,12 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     excise_tax: "3332",
     environmental_tax: "3338",
     import_vat: "33312",
+    cash_foreign: "1112",
+    bank_foreign: "1122",
+    exchange_difference: "413",
+    financial_income: "515",
+    financial_expense: "635",
+    late_payment_expense: "811",
   },
 };
 
@@ -467,4 +479,10 @@ export const roleDescriptions: Record<PostingRole, string> = {
   excise_tax: "Thuế tiêu thụ đặc biệt hàng nhập khẩu",
   environmental_tax: "Thuế bảo vệ môi trường hàng nhập khẩu",
   import_vat: "Thuế giá trị gia tăng hàng nhập khẩu",
+  cash_foreign: "Tiền mặt ngoại tệ (quỹ tiền mặt ngoại tệ)",
+  bank_foreign: "Tiền gửi ngân hàng ngoại tệ (quỹ ngân hàng ngoại tệ)",
+  exchange_difference: "Chênh lệch tỷ giá hối đoái (đánh giá lại)",
+  financial_income: "Doanh thu hoạt động tài chính (lãi tỷ giá)",
+  financial_expense: "Chi phí tài chính (lỗ tỷ giá)",
+  late_payment_expense: "Tiền chậm nộp thuế",
 };

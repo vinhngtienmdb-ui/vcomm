@@ -3008,6 +3008,10 @@ export const saveFundSchema = z
     accountHolder: blankToNull(200),
     openingBalance: decimalText(4).default("0"),
     status: z.enum(["active", "inactive"]).default("active"),
+    // CONG_VIEC_56 (QUYTAC_NGHIEPVU_406): quỹ ngoại tệ; trống là tiền tệ công ty. Quỹ ngoại tệ nhập số dư đầu ngoại tệ và tỷ giá, giá trị đầu do hệ thống tính.
+    currency: currencyCode.nullable().optional(),
+    openingForeignBalance: optionalDecimal(4),
+    openingExchangeRate: z.union([rateValue, z.literal(""), z.null()]).optional().transform((value) => (value === "" || value === undefined ? null : value)),
     version: z.number().int().positive().optional(),
   })
   .strict();
@@ -3025,6 +3029,8 @@ export interface FundResponse {
   status: "active" | "inactive";
   hasPostings: boolean;
   currency: string;
+  // Quỹ ngoại tệ (CONG_VIEC_56): balance, openingBalance là giá trị ghi sổ theo tiền tệ công ty (currency).
+  foreign: { currency: string; openingBalance: string; openingExchangeRate: string; balance: string; bookRate: string | null } | null;
   version: number;
   canManage: boolean;
 }
@@ -3038,6 +3044,8 @@ export interface FundLedgerEntry {
   receipt: string;
   payment: string;
   balance: string;
+  // Quỹ ngoại tệ: số ngoại tệ thu, chi, số dư ngoại tệ lũy kế.
+  foreign: { receipt: string; payment: string; balance: string } | null;
 }
 export interface FundLedgerResponse {
   fund: FundResponse;
@@ -3046,6 +3054,7 @@ export interface FundLedgerResponse {
   openingBalance: string;
   entries: FundLedgerEntry[];
   closingBalance: string;
+  foreign: { currency: string; openingBalance: string; closingBalance: string } | null;
 }
 
 export const debtSides = ["receivable", "payable"] as const;
@@ -3150,11 +3159,14 @@ export const paymentKindSide: Record<PaymentKind, DebtSide> = {
 // THAY_DOI_24 (CONG_VIEC_53): chứng từ quỹ bán lẻ do hệ thống lập khi đóng ca, không đối tượng, không trừ nợ; không lập tay.
 export const retailFundDocumentKinds = ["retail_receipt", "retail_refund", "cash_shortage", "cash_surplus"] as const;
 export type RetailFundDocumentKind = (typeof retailFundDocumentKinds)[number];
-export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind;
+// CONG_VIEC_56 (QUYTAC_NGHIEPVU_408): phiếu mua ngoại tệ, không đối tác, lập ở API_214.
+export const treasuryPaymentKinds = ["currency_purchase"] as const;
+export type TreasuryPaymentKind = (typeof treasuryPaymentKinds)[number];
+export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind;
 export const paymentKindIsReceipt = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_refund" || kind === "retail_receipt" || kind === "cash_surplus";
 export const paymentKindSettles = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
 export const paymentListQuerySchema = z
-  .object({ kind: z.enum(paymentKinds).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
+  .object({ kind: z.enum([...paymentKinds, ...treasuryPaymentKinds]).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
   .strict();
 export const savePaymentSchema = z
   .object({
@@ -3162,16 +3174,45 @@ export const savePaymentSchema = z
     partnerId: z.uuid(),
     fundId: z.uuid(),
     paymentDate: isoDate,
-    amount: positiveQuantity,
+    amount: positiveQuantity.optional(),
     note: blankToNull(500),
+    // CONG_VIEC_56 (QUYTAC_NGHIEPVU_410): phiếu chi trả nợ ngoại tệ có currency; dòng nhập foreignAmount, amount do hệ thống tính theo tỷ giá đích danh.
+    // Chi từ quỹ tiền tệ công ty: exchangeRate là tỷ giá ngân hàng bán, amount là số tiền chi (trống thì tính bằng ngoại tệ nhân tỷ giá).
+    currency: currencyCode.nullable().optional(),
+    exchangeRate: z.union([rateValue, z.literal(""), z.null()]).optional().transform((value) => (value === "" || value === undefined ? null : value)),
     lines: z
-      .array(z.object({ debitItemId: z.uuid(), amount: positiveQuantity }).strict())
+      .array(z.object({ debitItemId: z.uuid(), amount: positiveQuantity.optional(), foreignAmount: positiveQuantity.optional() }).strict())
       .max(500)
       .default([]),
     version: z.number().int().positive().optional(),
   })
   .strict();
 export type SavePaymentRequest = z.input<typeof savePaymentSchema>;
+// Phiếu mua ngoại tệ (CONG_VIEC_56; QUYTAC_NGHIEPVU_408; API_214): chi từ quỹ tiền tệ công ty (fundId), nhận vào quỹ ngoại tệ (counterFundId).
+// amount là số tiền chi, trống thì bằng foreignAmount nhân exchangeRate làm tròn.
+export const saveCurrencyPurchaseSchema = z
+  .object({
+    fundId: z.uuid(),
+    counterFundId: z.uuid(),
+    paymentDate: isoDate,
+    foreignAmount: positiveQuantity,
+    exchangeRate: rateValue,
+    amount: positiveQuantity.optional(),
+    note: blankToNull(500),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveCurrencyPurchaseRequest = z.input<typeof saveCurrencyPurchaseSchema>;
+// Xem trước phiếu chi trả nợ ngoại tệ (API_215): giảm nợ theo tỷ giá đích danh, giá trị ra khỏi quỹ, chênh lệch tỷ giá.
+export interface PaymentFxPreviewResponse {
+  currency: string;
+  foreignTotal: string;
+  lines: { debitItemId: string; foreignAmount: string; bookRate: string; bookAmount: string }[];
+  bookTotal: string;
+  fundValue: string;
+  fundRate: string | null;
+  exchangeDifference: string;
+}
 export interface PaymentListItem {
   id: string;
   documentNo: string | null;
@@ -3191,6 +3232,8 @@ export interface OpenDebtResponse {
   amount: string;
   openAmount: string;
   overdueDays: number;
+  // Khoản nợ có ngoại tệ (CONG_VIEC_56; QUYTAC_NGHIEPVU_409).
+  foreign?: { currency: string; amount: string; openAmount: string; bookRate: string } | null;
 }
 export interface PaymentResponse {
   id: string;
@@ -3206,8 +3249,16 @@ export interface PaymentResponse {
   approvalRequestId: string | null;
   // Khóa thông báo lỗi (nhóm errors) khi duyệt xong mà không ghi sổ được.
   postError: string | null;
-  lines: (OpenDebtResponse & { allocated: string })[];
+  lines: (OpenDebtResponse & { allocated: string; allocatedForeign: string | null })[];
   unallocated: string;
+  // Phiếu chi trả nợ ngoại tệ, phiếu mua ngoại tệ (CONG_VIEC_56).
+  foreign: {
+    currency: string;
+    amount: string;
+    exchangeRate: string | null;
+    exchangeDifference: string | null;
+    counterFund: { id: string; code: string; name: string } | null;
+  } | null;
   createdByName: string;
   postedAt: string | null;
   version: number;
@@ -3217,7 +3268,8 @@ export interface PaymentResponse {
 }
 export const openDebtQuerySchema = z.object({ side: z.enum(debtSides), partnerId: z.uuid(), paymentId: z.uuid().optional() }).strict();
 export interface PaymentOptionsResponse {
-  funds: { id: string; code: string; name: string; kind: FundKind; balance: string }[];
+  // fundCurrency trống là tiền tệ công ty; foreignBalance là số dư ngoại tệ của quỹ ngoại tệ.
+  funds: { id: string; code: string; name: string; kind: FundKind; balance: string; fundCurrency: string | null; foreignBalance: string | null }[];
   currency: string;
 }
 export interface OpenDebtsResponse {

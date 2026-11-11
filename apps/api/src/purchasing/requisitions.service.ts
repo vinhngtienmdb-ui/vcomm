@@ -282,7 +282,7 @@ function toItem(row: RequisitionRow): RequisitionListItem {
   };
 }
 
-export async function companyCurrency(executor: Executor, companyId: string): Promise<string> {
+export async function companyCurrency(executor: Pick<Executor, "execute">, companyId: string): Promise<string> {
   return (await executor.execute<{ base_currency: string }>(sql`SELECT base_currency FROM core.companies WHERE id = ${companyId}`)).rows[0]!.base_currency;
 }
 
