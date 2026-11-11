@@ -2,11 +2,13 @@
 // Mỗi cổng (CONG_VIEC_33 đến 39) thêm lớp kết nối của mình vào danh sách trên dòng riêng, không chạy prettier trên tệp này.
 import type { PaymentGatewayCode, PaymentMethodCode } from "contracts";
 import { VnpayGateway } from "./gateways/vnpay-gateway";
+import { MomoGateway } from "./gateways/momo-gateway";
 import { BankTransferGateway } from "./gateways/bank-transfer-gateway";
 import type { PaymentGatewayAdapter } from "./payment-gateway";
 
 export const paymentGateways: PaymentGatewayAdapter[] = [
   new VnpayGateway(),
+  new MomoGateway(),
   new BankTransferGateway(),
 ];
 

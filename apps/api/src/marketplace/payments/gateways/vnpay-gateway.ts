@@ -21,6 +21,8 @@ export function vnpayConfiguration(): VnpayConfiguration | null {
 
 const replies: Record<NotificationOutcome, { RspCode: string; Message: string }> = {
   success: { RspCode: "00", Message: "Confirm Success" },
+  // VNPAY không gửi trạng thái đang xử lý; giữ cho đủ kiểu.
+  pending: { RspCode: "00", Message: "Confirm Success" },
   not_found: { RspCode: "01", Message: "Order not found" },
   already_confirmed: { RspCode: "02", Message: "Order already confirmed" },
   invalid_amount: { RspCode: "04", Message: "Invalid amount" },

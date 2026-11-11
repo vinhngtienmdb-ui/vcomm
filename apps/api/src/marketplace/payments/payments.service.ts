@@ -43,9 +43,13 @@ export class MarketplacePaymentsService {
           total: string;
           document_no: string;
           expired: boolean;
+          buyer_name: string;
+          buyer_phone: string | null;
+          buyer_email: string | null;
         }>(sql`
-        SELECT m.status, m.payment_method, pm.gateway_code, m.payment_deadline, (m.goods_amount + m.shipping_fee)::text AS total, so.document_no, m.payment_deadline <= now() AS expired
-        FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id JOIN marketplace.payment_methods pm ON pm.code = m.payment_method
+        SELECT m.status, m.payment_method, pm.gateway_code, m.payment_deadline, (m.goods_amount + m.shipping_fee)::text AS total, so.document_no, m.payment_deadline <= now() AS expired,
+          u.full_name AS buyer_name, u.phone AS buyer_phone, u.email::text AS buyer_email
+        FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id JOIN marketplace.payment_methods pm ON pm.code = m.payment_method JOIN core.users u ON u.id = m.buyer_user_id
         WHERE m.id = ${orderId} AND m.buyer_user_id = ${userId} FOR UPDATE OF m`)
       ).rows[0];
       if (!order) throw new ApiError("NOT_FOUND", "notFound");
@@ -69,6 +73,7 @@ export class MarketplacePaymentsService {
         ipAddress: client.ip ?? "127.0.0.1",
         createdAt: new Date(),
         expiresAt: deadline,
+        buyer: { name: order.buyer_name, phone: order.buyer_phone, email: order.buyer_email },
       });
       return {
         paymentUrl: instruction.kind === "redirect" ? instruction.url : null,
@@ -89,7 +94,7 @@ export class MarketplacePaymentsService {
       const retryAfterSeconds = await this.rateLimiter.hit(`payment-notify-invalid-${gateway.code}`, ip);
       if (retryAfterSeconds !== null) throw new ApiError("RATE_LIMITED", "rateLimited", { retryAfterSeconds });
       await this.log(gateway.code, null, request, "invalid_signature");
-      return gateway.reply("invalid_signature");
+      return gateway.reply("invalid_signature", null);
     }
     // Lỗi khi ghi nhận (kỳ kế toán đã khóa, cơ sở dữ liệu lỗi): trả lỗi để cổng gửi lại, ghi lại để tra soát.
     const outcome = await this.database
@@ -99,7 +104,7 @@ export class MarketplacePaymentsService {
         return "error";
       });
     await this.log(gateway.code, result.reference, request, outcome);
-    return gateway.reply(outcome);
+    return gateway.reply(outcome, result);
   }
 
   // Ghi nhận kết quả đã xác thực trong giao dịch cơ sở dữ liệu của bên gọi; dùng chung cho đường dẫn nhận kết quả và cổng chuyển khoản (CONG_VIEC_36).
@@ -111,6 +116,8 @@ export class MarketplacePaymentsService {
     if (!payment) return "not_found";
     if (Math.round(Number(payment.amount)) !== Math.round(result.amount)) return "invalid_amount";
     if (payment.status !== "pending") return "already_confirmed";
+    // Cổng báo đang xử lý (CONG_VIEC_33): chờ kết quả cuối, không ghi nhận.
+    if (result.pending) return "pending";
     await this.complete(transaction, payment.id, payment.order_id, result, gatewayCode);
     return "success";
   }
@@ -151,15 +158,15 @@ export class MarketplacePaymentsService {
     ).rows[0];
     if (!payment) return { orderId: null, state: "invalid" };
     if (payment.status === "succeeded") return { orderId: payment.order_id, state: "succeeded" };
-    if (payment.status === "failed" || !result.success) return { orderId: payment.order_id, state: "failed" };
+    if (payment.status === "failed" || (!result.success && !result.pending)) return { orderId: payment.order_id, state: "failed" };
     return { orderId: payment.order_id, state: "pending" };
   }
 
-  // Chỉ lưu tham số dạng chuỗi hoặc số của truy vấn và nội dung (tối đa 40 tham số, mỗi giá trị 255 ký tự), không lưu tiêu đề.
+  // Chỉ lưu tham số dạng chuỗi hoặc số của truy vấn và nội dung (tối đa 40 tham số, mỗi giá trị 255 ký tự), không lưu tiêu đề; bỏ tham số có chữ token (MoMo `callbackToken`, CONG_VIEC_33).
   private async log(gatewayCode: string, reference: string | null, request: GatewayRequest, resultCode: string): Promise<void> {
     const flatten = (value: unknown) =>
       value && typeof value === "object" && !Array.isArray(value)
-        ? Object.entries(value as Record<string, unknown>).filter(([key, item]) => key.length <= 40 && (typeof item === "string" || typeof item === "number"))
+        ? Object.entries(value as Record<string, unknown>).filter(([key, item]) => key.length <= 40 && !/token/i.test(key) && (typeof item === "string" || typeof item === "number"))
         : [];
     const payload = Object.fromEntries([...flatten(request.query), ...flatten(request.body)].slice(0, 40).map(([key, item]) => [key, String(item).slice(0, 255)]));
     await this.database.execute(sql`

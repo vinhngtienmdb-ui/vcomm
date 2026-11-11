@@ -65,12 +65,12 @@ Không thêm quyền. Xác nhận tay: `marketplace.payment.manage`. Đối soá
 ## 8. Kịch bản kiểm thử
 
 - KICHBAN_KIEMTHU_391 đến 394: tự động, `apps/api/test/c36-payment-bank-transfer.test.ts`. Mẫu CRC lấy từ chuỗi công khai của gói mã nguồn mở `sunary/vietqr` (CRC `BE74`); dùng bộ giả lập ngân hàng của CONG_VIEC_18, không gọi máy chủ thật.
-- `apps/api/test/c25-payment-methods.test.ts` (KICHBAN_KIEMTHU_321): so danh sách phương thức chỉ trong cổng `cod`, `vnpay`, vì danh mục có thêm phương thức của cổng mới; nội dung kiểm không đổi.
+- `apps/api/test/c25-payment-methods.test.ts` (KICHBAN_KIEMTHU_321): dùng bản trên nhánh nền (người dùng duyệt phương án A: chỉ so phương thức cổng `cod`, `vnpay`).
 
 ## 9. Kết quả kiểm thử (2026-11-11)
 
 - `c36-payment-bank-transfer`: 4/4 đạt.
-- Hồi quy `pnpm --filter api test`: 47 tệp, 337/337 đạt.
+- Hồi quy `pnpm --filter api test`: 47 tệp, 337/337 đạt; sau khi hợp nhất nhánh nền có cổng MoMo (CONG_VIEC_33): 48 tệp, 340/340 đạt.
 - `pnpm typecheck`, `pnpm lint`: đạt.
 - `pnpm audit --audit-level=high`: không có lỗ hổng Cao, Nghiêm trọng; 2 lỗ hổng Trung bình có sẵn từ trước (`glob`, `minimatch` qua `expo` → `@expo/cli`), không do thư viện mới.
 - Giao diện (MAN_HINH_88, 58, 99): chưa xem trên trình duyệt, điện thoại; cần người dùng xem khi nghiệm thu.

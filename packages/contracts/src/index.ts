@@ -4093,12 +4093,16 @@ export const paymentMethodCodes = [
   "vnpay_qr",
   "vnpay_atm",
   "vnpay_card",
+  "momo_wallet",
+  "momo_atm",
+  "momo_card",
   "bank_transfer_vietqr",
 ] as const;
 export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
 export const paymentGatewayCodes = [
   "cod",
   "vnpay",
+  "momo",
   "bank_transfer",
 ] as const;
 export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];
