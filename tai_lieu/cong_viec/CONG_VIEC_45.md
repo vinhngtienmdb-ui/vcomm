@@ -3,7 +3,7 @@
 - Mô tả: Đơn mua nhập khẩu bằng ngoại tệ, nhập kho quy đổi theo tỷ giá, tờ khai hải quan và các khoản thuế, chi phí nhập khẩu, phân bổ thuế và chi phí vào giá vốn hàng nhập, bút toán theo Thông tư 99/2025/TT-BTC, Thông tư 133/2016/TT-BTC.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; đang xây lát L0.
+- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; đã xây xong lát L0 đến L2, trình nghiệm thu.
 - Nguồn: tài liệu `04` mục 3 ý 3 ("giao dịch ngoại tệ và chi phí nhập khẩu phân bổ vào giá vốn"); tài liệu `05` (Mua hàng: "nhập khẩu bằng ngoại tệ, phân bổ chi phí nhập khẩu"); phần tách từ CONG_VIEC_07 (đặc tả CONG_VIEC_07 mục 2); quyết định của người dùng ngày 2026-11-11 (mục 3).
 - Mức: Lớn. Lý do: nghiệp vụ mới, đổi cách tính giá vốn, bút toán mới, sửa schema Mua hàng, Kho, Tài chính.
 
@@ -184,4 +184,19 @@ Sau mỗi lát: chạy ứng dụng, chụp màn hình, gửi báo cáo ngắn c
 
 ## 17. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa đối chiếu.
+Đối chiếu ngày 2026-11-11, trên nhánh đã hợp nhất main 0.4.0:
+
+- [x] Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: QUYTAC_NGHIEPVU_285 đến 291 có kiểm thử; quyền `purchasing.import.*` theo mục 7.
+- [x] Đúng giao diện: theo bản mẫu đã duyệt; ảnh xem trước lát L0, L1, L2 đã gửi người dùng.
+- [x] Đã xử lý lỗi: lỗi nghiệp vụ trả đúng ô, đúng dòng (tài liệu 17 mục 3w).
+- [x] Đã kiểm thử: `test/c45-imports.test.ts` 6/6; toàn bộ `pnpm --filter api test` 86 tệp, 487/487 đạt. Kết quả gửi phiên cha ghi tài liệu 25.
+- [x] Đạt tiêu chí nghiệm thu bắt buộc TIEUCHI_NGHIEMTHU_282 đến 286.
+- [x] Không phá vỡ chức năng cũ: hồi quy toàn bộ đạt; đơn trong nước giữ nguyên hành vi.
+- [x] Cổng bảo mật: CI "Quét bảo mật" (gitleaks, `pnpm audit`) đạt trên các commit của nhánh; không thêm thư viện; điều kiện công ty nằm trong mọi truy vấn.
+- [x] Tự rà soát mã, dọn dẹp: tệp tạm chỉ trong `tam_thoi/` (Git bỏ qua).
+- [x] Cập nhật tài liệu 06, 07, 09, 10, 11, 14, 16, 17, 21, 22, 27.
+
+Còn lại, cần người dùng biết khi nghiệm thu:
+- Kế toán trưởng xác nhận định khoản (mục 4, 9).
+- Chưa có kịch bản riêng cho kiểm kê đang đếm chặn ghi sổ tờ khai, chứng từ chi phí (mã đã kiểm).
+- Database migration 0084 ngoài dải 0067 đến 0069 được cấp, thêm khi hợp nhất main theo yêu cầu phiên cha.
