@@ -77,6 +77,7 @@ import { LoyaltyAccountsService } from "./loyalty/accounts.service";
 import { BuyerLoyaltyController } from "./loyalty/buyer-loyalty.controller";
 import { LoyaltyPostingsService } from "./loyalty/postings.service";
 import { LoyaltyJobsService } from "./loyalty/jobs.service";
+import { LoyaltyAdminService } from "./loyalty/admin.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
@@ -181,6 +182,7 @@ import { UsersService } from "./users/users.service";
     LoyaltyAccountsService,
     LoyaltyPostingsService,
     LoyaltyJobsService,
+    LoyaltyAdminService,
     ReturnRequestsService,
     SupplierPricesService,
     SalesOrdersService,

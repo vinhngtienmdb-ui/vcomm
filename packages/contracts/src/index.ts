@@ -4682,3 +4682,105 @@ export interface LoyaltyLiabilityResponse {
   currentValue: string;
   expiringPoints: number;
 }
+
+// API_179: ví điểm (quản trị).
+export const loyaltyAccountListQuerySchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+    tierId: z.uuid().optional(),
+    locked: z.enum(["true", "false"]).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const loyaltyLockSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+export interface LoyaltyAccountListItem {
+  userId: string;
+  fullName: string;
+  phone: string;
+  tierName: string | null;
+  balance: number;
+  expiringPoints: number;
+  spendCurrentYear: string;
+  locked: boolean;
+}
+export interface LoyaltyLotItem {
+  id: string;
+  sourceType: LoyaltySourceType;
+  documentNo: string | null;
+  earnedOn: string;
+  expiresOn: string;
+  points: number;
+  remaining: number;
+  pointValue: string;
+}
+export interface LoyaltyAccountDetail extends LoyaltyTierProgress {
+  userId: string;
+  fullName: string;
+  phone: string;
+  balance: number;
+  locked: boolean;
+  lockReason: string | null;
+  lots: LoyaltyLotItem[];
+  tierHistory: { fromTierName: string | null; toTierName: string; reason: "order_completed" | "year_start" | "tiers_changed"; createdAt: string }[];
+  lockHistory: { action: "lock" | "unlock"; reason: string; actorName: string; createdAt: string }[];
+  canManage: boolean;
+}
+
+// API_180: phiếu điều chỉnh điểm (QUYTAC_NGHIEPVU_353).
+export const loyaltyAdjustmentStatuses = ["draft", "pending", "posted", "rejected", "withdrawn", "post_failed"] as const;
+export type LoyaltyAdjustmentStatus = (typeof loyaltyAdjustmentStatuses)[number];
+export const loyaltyAdjustmentSchema = z
+  .object({
+    phone: vietnamPhone,
+    direction: z.enum(["add", "subtract"]),
+    points: z.number().int().min(1).max(10_000_000),
+    reason: z.string().trim().min(1).max(500),
+  })
+  .strict();
+export const loyaltyAdjustmentUpdateSchema = loyaltyAdjustmentSchema.extend({ version: z.number().int().min(0) }).strict();
+export const loyaltyAdjustmentListQuerySchema = z
+  .object({
+    status: z.enum(loyaltyAdjustmentStatuses).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const loyaltyAdjustmentVersionSchema = z.object({ version: z.number().int().min(0) }).strict();
+export interface LoyaltyAdjustmentItem {
+  id: string;
+  documentNo: string | null;
+  userId: string;
+  buyerName: string;
+  buyerPhone: string;
+  direction: "add" | "subtract";
+  points: number;
+  // Giá trị gửi duyệt = điểm × giá trị một điểm (chốt khi gửi; nháp: theo giai đoạn hiện hành).
+  value: string | null;
+  reason: string;
+  status: LoyaltyAdjustmentStatus;
+  failureReason: string | null;
+  approvalRequestId: string | null;
+  createdByName: string;
+  createdAt: string;
+  version: number;
+  canEdit: boolean;
+  canWithdraw: boolean;
+}
+
+// API_181: cảnh báo bất thường trong 90 ngày (QUYTAC_NGHIEPVU_354).
+export const loyaltyAlertKinds = ["shared_contact", "cancel_return", "redeem_burst"] as const;
+export type LoyaltyAlertKind = (typeof loyaltyAlertKinds)[number];
+export const loyaltyAlertQuerySchema = z.object({ kind: z.enum(loyaltyAlertKinds).default("shared_contact") }).strict();
+export interface LoyaltyAlertItem {
+  // Thông tin trùng (số nhận, địa chỉ) hoặc ngày đổi dồn dập; trống với hủy, trả nhiều.
+  label: string | null;
+  buyers: { userId: string; fullName: string; phone: string }[];
+  orderCount: number;
+  cancelledOrReturned: number | null;
+  points: number;
+}
+export interface LoyaltyAlertResponse {
+  kind: LoyaltyAlertKind;
+  items: LoyaltyAlertItem[];
+}

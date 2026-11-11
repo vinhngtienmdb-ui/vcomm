@@ -18,6 +18,9 @@ export const crmMenu = [
   { href: "/refunds", key: "refunds", permission: "marketplace.payment.manage" },
   { href: "/withdrawals", key: "withdrawals", permission: "marketplace.payment.manage" },
   { href: "/loyalty/program", key: "loyaltyProgram", permission: "loyalty.view" },
+  { href: "/loyalty/accounts", key: "loyaltyAccounts", permission: "loyalty.view" },
+  { href: "/loyalty/adjustments", key: "loyaltyAdjustments", permission: "loyalty.view" },
+  { href: "/loyalty/alerts", key: "loyaltyAlerts", permission: "loyalty.view" },
   { href: "/loyalty/liability", key: "loyaltyLiability", permission: "loyalty.view" },
 ] as const;
 

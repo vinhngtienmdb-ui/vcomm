@@ -91,7 +91,8 @@ export async function loyaltyEntryDrafts(executor: Executor, entryId: string): P
     await executor.execute<{ kind: string; points: number; amount: string; source_type: string | null; company_id: string | null; day: string; value: string; document_no: string | null }>(sql`
     SELECT e.kind, e.points, e.amount::text, e.source_type, e.company_id, (e.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS day,
       coalesce((SELECT sum(abs(el.points) * el.point_value) FROM loyalty.entry_lots el WHERE el.entry_id = e.id), 0)::text AS value,
-      CASE WHEN e.source_type = 'marketplace_order' THEN (SELECT so.document_no FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id WHERE m.id = e.source_id) END AS document_no
+      CASE WHEN e.source_type = 'marketplace_order' THEN (SELECT so.document_no FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id WHERE m.id = e.source_id)
+        WHEN e.source_type = 'adjustment' THEN (SELECT d.document_no FROM loyalty.adjustments d WHERE d.id = e.source_id) END AS document_no
     FROM loyalty.entries e WHERE e.id = ${entryId}`)
   ).rows[0];
   if (!entry) return [];

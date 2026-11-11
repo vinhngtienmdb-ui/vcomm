@@ -128,6 +128,20 @@ export async function takeFromLots(executor: Executor, userId: string, points: n
   return allocations;
 }
 
+// Ghi sổ phiếu điều chỉnh đã duyệt (QUYTAC_NGHIEPVU_353): cộng tạo lô theo hạn, giá trị đã chốt khi gửi; trừ lấy lô hạn sớm trước, không vượt số dư.
+export async function adjustPoints(
+  executor: Executor,
+  input: { userId: string; direction: "add" | "subtract"; points: number; adjustmentId: string; companyId: string; pointValue: number; validityMonths: number; day: string },
+): Promise<string> {
+  const account = await lockAccount(executor, input.userId);
+  if (input.direction === "add") {
+    return creditLot(executor, { ...input, kind: "adjust_add", sourceType: "adjustment", sourceId: input.adjustmentId });
+  }
+  if (account.balance < input.points) throw new ApiError("BUSINESS_RULE", "loyaltyInsufficientBalance");
+  const allocations = await takeFromLots(executor, input.userId, input.points);
+  return addEntry(executor, { userId: input.userId, kind: "adjust_subtract", points: -input.points, sourceType: "adjustment", sourceId: input.adjustmentId, companyId: input.companyId, allocations });
+}
+
 // Hết hạn một lô (QUYTAC_NGHIEPVU_350): trừ hết phần còn lại của lô; dòng ví khóa trước, lô khóa sau để cùng thứ tự với dùng điểm.
 export async function expireLot(executor: Executor, lotId: string, day: string): Promise<number> {
   const peek = (await executor.execute<{ user_id: string }>(sql`SELECT user_id FROM loyalty.lots WHERE id = ${lotId}`)).rows[0];

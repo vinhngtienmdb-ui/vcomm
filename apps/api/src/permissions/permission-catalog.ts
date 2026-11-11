@@ -349,6 +349,8 @@ export const documentTypeCatalog = [
   { code: "accounting.journal", appCode: "finance", nameVi: "Phiếu kế toán", nameEn: "Manual journal", requiresApproval: true },
   { code: "finance.collection_statement", appCode: "finance", nameVi: "Bảng đối soát thu hộ", nameEn: "Collection statement", requiresApproval: true },
   { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },
+  // CONG_VIEC_51: phiếu điều chỉnh điểm thưởng (QUYTAC_NGHIEPVU_353).
+  { code: "loyalty.adjustment", appCode: "crm", nameVi: "Phiếu điều chỉnh điểm thưởng", nameEn: "Loyalty points adjustment", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.
