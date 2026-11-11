@@ -3,7 +3,7 @@
 - Mô tả: Người mua trên ứng dụng VComm (Expo, Android và web) trả bằng thẻ đã lưu trong Google Pay. Google Pay không tự thu tiền; đơn vị xử lý thẻ là ZaloPay, Google Pay hiện trên trang thanh toán của ZaloPay.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng chọn ZaloPay qua trang thanh toán và xác nhận thiết kế ngày 2026-11-11. Chưa có tài khoản người bán (ZaloPay, Google Pay), sẽ đăng ký; mã kiểm thử bằng máy chủ giả lập. Chờ nghiệm thu.
+- Trạng thái: Người dùng chọn ZaloPay qua trang thanh toán và xác nhận thiết kế ngày 2026-11-11. Chưa có tài khoản người bán (ZaloPay, Google Pay), sẽ đăng ký; mã kiểm thử bằng máy chủ giả lập. Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-11); trước khi phát hành phải thử với tài khoản thử nghiệm của nhà cung cấp (ZaloPay).
 - Mức: Vừa.
 - Nguồn: người dùng yêu cầu 2026-11-11 "mở thêm phiên để tích hợp google pay và apple pay"; khung CONG_VIEC_32.
 
