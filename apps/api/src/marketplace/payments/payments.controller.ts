@@ -1,19 +1,26 @@
-// API_131: người mua mở trang thanh toán; API_132: kết quả VNPAY gửi về (IPN) và trang trả về (CONG_VIEC_25).
-import { Controller, Get, Param, Post, Query, Req, Res } from "@nestjs/common";
+// API_131: người mua mở thanh toán; API_132: kết quả cổng gửi về và trang trả về (CONG_VIEC_25, CONG_VIEC_32).
+import { All, Controller, Get, Param, Post, Req, Res } from "@nestjs/common";
 import type { BuyerPaymentStart } from "contracts";
 import type { Request, Response } from "express";
 import { clientInfo } from "../../auth/auth.controller";
 import { OwnRateLimit, Public, type AuthenticatedRequest } from "../../auth/auth.guard";
 import { UuidPipe } from "../../common/uuid.pipe";
-import { MarketplacePaymentsService, type IpnReply } from "./payments.service";
+import type { GatewayRequest } from "./payment-gateway";
+import { MarketplacePaymentsService } from "./payments.service";
 
 const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (character) => `&#${character.charCodeAt(0)};`);
 const messages = {
   succeeded: "Thanh toán thành công. Đơn hàng đang chờ giao.",
   failed: "Thanh toán không thành công. Bạn có thể thanh toán lại trong thời hạn của đơn.",
-  pending: "VComm đang chờ kết quả từ VNPAY. Mở đơn hàng để xem trạng thái mới nhất.",
+  pending: "VComm đang chờ kết quả từ cổng thanh toán. Mở đơn hàng để xem trạng thái mới nhất.",
   invalid: "Không xác nhận được kết quả thanh toán.",
 } as const;
+const gatewayRequest = (request: Request): GatewayRequest => ({
+  method: request.method,
+  query: request.query as Record<string, unknown>,
+  body: request.body as unknown,
+  headers: request.headers,
+});
 
 @Controller()
 export class PaymentsController {
@@ -24,19 +31,30 @@ export class PaymentsController {
     return this.payments.start(request.auth.userId, clientInfo(request), id);
   }
 
+  // Đường dẫn IPN đã đăng ký với VNPAY (CONG_VIEC_25).
   @Public()
   @OwnRateLimit()
   @Get("public/payments/vnpay/ipn")
-  ipn(@Req() request: Request, @Query() query: Record<string, unknown>): Promise<IpnReply> {
-    return this.payments.vnpayIpn(query, request.ip ?? "khong-ro");
+  async vnpayIpn(@Req() request: Request, @Res() response: Response): Promise<void> {
+    const reply = await this.payments.notify("vnpay", gatewayRequest(request), request.ip ?? "khong-ro");
+    response.status(reply.status).json(reply.body);
+  }
+
+  // Đường dẫn nhận kết quả chung của mọi cổng (CONG_VIEC_32): mã cổng trên đường dẫn, xác thực bằng chữ ký hoặc khóa của từng cổng.
+  @Public()
+  @OwnRateLimit()
+  @All("public/payments/:gateway/notify")
+  async notify(@Req() request: Request, @Param("gateway") gateway: string, @Res() response: Response): Promise<void> {
+    const reply = await this.payments.notify(gateway, gatewayRequest(request), request.ip ?? "khong-ro");
+    response.status(reply.status).json(reply.body);
   }
 
   // Trang trả về chỉ hiển thị kết quả và liên kết mở lại đơn trên ứng dụng.
   @Public()
   @OwnRateLimit()
-  @Get("public/payments/vnpay/return")
-  async returnPage(@Req() request: Request, @Query() query: Record<string, unknown>, @Res() response: Response): Promise<void> {
-    const outcome = await this.payments.vnpayReturn(query, request.ip ?? "khong-ro");
+  @Get("public/payments/:gateway/return")
+  async returnPage(@Req() request: Request, @Param("gateway") gateway: string, @Res() response: Response): Promise<void> {
+    const outcome = await this.payments.returnOutcome(gateway, gatewayRequest(request), request.ip ?? "khong-ro");
     const base = process.env.VCOMM_APP_LINK_BASE?.trim() || "vcomm://";
     const link = outcome.orderId ? `${base}don-hang/${outcome.orderId}` : base;
     response

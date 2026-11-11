@@ -3328,7 +3328,13 @@
     "accountHolder": "Tên chủ tài khoản",
     "bankAccountSaved": "Đã lưu tài khoản nhận hoàn tiền.",
     "enterBankAccount": "Nhập tài khoản nhận hoàn tiền",
-    "invalidField": "Giá trị không hợp lệ."
+    "invalidField": "Giá trị không hợp lệ.",
+    "transferHint": "Chuyển khoản đúng số tiền và nội dung dưới đây trước hạn thanh toán. VComm tự xác nhận khi nhận được tiền.",
+    "transferQr": "Mã QR chuyển khoản",
+    "transferBank": "Ngân hàng: {bank}",
+    "transferAccount": "Số tài khoản: {account} · {name}",
+    "transferAmount": "Số tiền: {amount}",
+    "transferContent": "Nội dung: {content}"
   },
   "buyers": {
     "title": "Tài khoản người mua",

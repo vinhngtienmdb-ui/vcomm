@@ -3328,7 +3328,13 @@
     "accountHolder": "Account holder",
     "bankAccountSaved": "Refund account saved.",
     "enterBankAccount": "Enter refund account",
-    "invalidField": "Invalid value."
+    "invalidField": "Invalid value.",
+    "transferHint": "Transfer the exact amount with the content below before the deadline. VComm confirms automatically when the money arrives.",
+    "transferQr": "Transfer QR code",
+    "transferBank": "Bank: {bank}",
+    "transferAccount": "Account: {account} · {name}",
+    "transferAmount": "Amount: {amount}",
+    "transferContent": "Content: {content}"
   },
   "buyers": {
     "title": "Buyer accounts",

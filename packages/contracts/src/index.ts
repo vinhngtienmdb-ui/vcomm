@@ -4085,9 +4085,18 @@ export interface CarrierItem {
 }
 
 // CONG_VIEC_25: phương thức thanh toán theo cổng (QUYTAC_NGHIEPVU_163).
-export const paymentMethodCodes = ["cod", "vnpay_qr", "vnpay_atm", "vnpay_card"] as const;
+// CONG_VIEC_32: mỗi cổng thêm mã của mình trên dòng riêng (CONG_VIEC_33 đến 39), không sắp xếp lại các dòng khác.
+export const paymentMethodCodes = [
+  "cod",
+  "vnpay_qr",
+  "vnpay_atm",
+  "vnpay_card",
+] as const;
 export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
-export const paymentGatewayCodes = ["cod", "vnpay"] as const;
+export const paymentGatewayCodes = [
+  "cod",
+  "vnpay",
+] as const;
 export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];
 
 export interface PaymentMethodItem {
@@ -4256,8 +4265,14 @@ export type MarketplaceOrderStatus = (typeof marketplaceOrderStatuses)[number];
 
 const orderLinesInput = z.array(z.object({ variantId: z.uuid(), quantity: z.number().int().min(1).max(999) }).strict()).min(1).max(50);
 export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput }).strict();
+// Mã phương thức theo định dạng; phương thức có thật, đang bật hay không do máy chủ kiểm theo danh mục (CONG_VIEC_32).
+const paymentMethodInput = z
+  .string()
+  .regex(/^[a-z][a-z0-9_]{1,39}$/)
+  .default("cod")
+  .transform((value) => value as PaymentMethodCode);
 // expectedTotal: tổng thanh toán người mua đã thấy; khác tổng tính lại thì báo giá đã thay đổi. paymentMethod mặc định thanh toán khi nhận hàng (ứng dụng bản CONG_VIEC_24).
-export const buyerOrderPlaceSchema = z.object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: z.enum(paymentMethodCodes).default("cod") }).strict();
+export const buyerOrderPlaceSchema = z.object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: paymentMethodInput }).strict();
 
 export interface MarketplaceOrderLine {
   variantId: string;
@@ -4306,9 +4321,22 @@ export interface BuyerOrderListItem {
 export const orderPaymentStatuses = ["unpaid", "paid", "refund_pending", "partially_refunded", "refunded"] as const;
 export type OrderPaymentStatus = (typeof orderPaymentStatuses)[number];
 
-// API_131: mở trang thanh toán của cổng.
+// API_131: mở thanh toán của cổng. Cổng chuyển trang trả paymentUrl; cổng chuyển khoản (VietQR, tài khoản định danh) trả transfer.
+export interface PaymentTransferInstruction {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  amount: string;
+  // Nội dung chuyển khoản bắt buộc để đối chiếu tự động.
+  content: string;
+  // Chuỗi mã QR theo chuẩn VietQR (EMVCo) để ứng dụng vẽ; null khi cổng không cấp.
+  qrData: string | null;
+  // Ảnh mã QR do cổng cấp; null khi không có.
+  qrImageUrl: string | null;
+}
 export interface BuyerPaymentStart {
-  paymentUrl: string;
+  paymentUrl: string | null;
+  transfer: PaymentTransferInstruction | null;
   deadline: string;
 }
 
