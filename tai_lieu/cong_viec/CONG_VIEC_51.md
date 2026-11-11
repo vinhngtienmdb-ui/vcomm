@@ -3,7 +3,7 @@
 - Mô tả: Sổ cái điểm ghi một chiều; tích điểm khi đơn VComm hoàn tất; đổi điểm trừ vào đơn; hạn dùng điểm theo từng lần tích; hạng thành viên theo chi tiêu năm dương lịch; cấu hình theo giai đoạn; chống gian lận cơ bản; hạch toán nghĩa vụ điểm. Trên ứng dụng VComm (`apps/mobile-vcomm`) và web quản trị (`apps/web-crm`).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả.
+- Trạng thái: Người dùng duyệt đặc tả ngày 2026-11-11. Đang làm bản mẫu giao diện.
 - Nguồn: tài liệu `04` (mục 63), `05` (mục 2.3), `01` (rủi ro ví điện tử); quyết định của người dùng ngày 2026-11-11 (mục 17); CONG_VIEC_23 (tài khoản người mua), CONG_VIEC_24 (đặt hàng, hủy, trả hàng, hoàn tất), CONG_VIEC_25 (thanh toán, hoàn tiền, bút toán), CONG_VIEC_26 (mẫu ví, giao dịch ví một chiều); CONG_VIEC_49 (ví mua sắm, đang làm song song).
 - Mức: Lớn (module mới, schema mới `loyalty`, sửa cách đặt hàng, hoàn tiền, hoàn tất đơn).
 
