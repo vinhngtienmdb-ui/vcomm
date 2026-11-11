@@ -197,11 +197,11 @@ Luồng duyệt chung, dãy số chứng từ, đăng nhập, phân quyền hi�
 | Đúng giao diện | Đạt: MAN_HINH_120 đến 125 khớp bản mẫu đã duyệt; người dùng duyệt điểm xem trước từng lát; khổ 1366 và 390 điểm ảnh không lỗi trình duyệt, không cuộn ngang (KICHBAN_KIEMTHU_452, 453) |
 | Đã xử lý lỗi | Đạt: lỗi theo ô, lỗi nghiệp vụ có câu dịch vi, en; vi phạm giới hạn tăng ca hiện ngay khi nhập |
 | Đã kiểm thử, có kết quả trong tài liệu `25` | Kiểm thử tự động c47-calculator, c47-attendance, c47-app-attendance, c47-leave, c47-overtime-timesheet đạt; kết quả toàn bộ kiểm thử API gửi phiên cha ghi tài liệu `25` (sổ dùng chung) |
-| Không phá vỡ chức năng cũ | Toàn bộ kiểm thử API (ghi ở báo cáo nghiệm thu); dữ liệu, API của CONG_VIEC_46 chỉ thêm cột `attendance_code` và mục menu |
+| Không phá vỡ chức năng cũ | Đạt: toàn bộ kiểm thử API 60 tệp, 381 ca đạt ngày 2026-11-11; dữ liệu, API của CONG_VIEC_46 chỉ thêm cột `attendance_code` và mục menu |
 | Đạt tiêu chí nghiệm thu bắt buộc | TIEUCHI_NGHIEMTHU_295 đến 302 có kịch bản và kết quả đạt |
 | Đạt cổng bảo mật | Rà soát quyền, phạm vi công ty, mã QR, dữ liệu vị trí (tài liệu `22`); rủi ro giả vị trí GPS chờ người dùng chấp nhận (tài liệu `22` mục 8) |
 | Đã tự rà soát mã, dọn dẹp | Đạt: truy vấn tham số hóa, khóa đồng thời khi gửi đơn, phiếu, chốt kỳ; không thêm thư viện mới; `qrcode-generator` 2.0.4 dùng lại bản mini app Nền tảng đang dùng cho mã MFA |
-| Đã cập nhật tài liệu `27` và tài liệu liên quan | Đạt: tài liệu 06, 07, 08, 10, 11, 12, 14, 15, 16, 17, 21, 22, 27, `index.md` |
+| Đã cập nhật tài liệu `27` và tài liệu liên quan | Đạt: tài liệu 06, 07, 08, 09 (Luồng 46), 10, 11, 12, 14, 15, 16, 17, 21, 22, 27, `index.md` |
 
 ## 19. Chỗ chỉnh cho khớp mã (lát L0 đến L3)
 

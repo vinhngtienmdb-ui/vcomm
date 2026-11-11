@@ -828,3 +828,31 @@ Trạng thái bổ sung (CONG_VIEC_43):
 | Đơn mua đối ứng nội bộ Đã duyệt | Phiếu nhập dịch vụ tự lập làm mọi dòng đủ số đặt | Đã nhận đủ |
 
 Không còn trạng thái của bảng hoa hồng (Luồng 29) và phiếu giao khách (Luồng 33).
+
+## MODULE_08 Nhân sự (phần 2: Ca làm, chấm công, nghỉ phép, tăng ca, bảng công tháng, CONG_VIEC_47)
+
+### Luồng 46. Chấm công, nghỉ phép, tăng ca, chốt bảng công tháng
+
+- Bắt đầu: quản trị tập đoàn khai báo ngày lễ năm; nhân sự công ty (`hr.attendance.manage`) khai báo ca, lịch tuần mặc định, lịch phòng ban, cài đặt chấm công, địa điểm chấm công (GPS, mạng công ty, mã QR động), mã chấm công của hồ sơ; nhân sự (`hr.leave.manage`) chọn chế độ phép, nhập số dư phép ban đầu (MAN_HINH_120, 123; QUYTAC_NGHIEPVU_302 đến 304, 307, 308).
+- Các bước:
+  1. Trưởng phòng hoặc nhân sự xếp ca tuần tới; người lao động xem lịch ca trên Chấm công của tôi (MAN_HINH_120, 122; QUYTAC_NGHIEPVU_303).
+  2. Hằng ngày người lao động bấm Vào ca, Ra ca trên điện thoại (hoặc quét mã QR tại địa điểm) hoặc chấm máy; nhân sự nhập tệp máy chấm công, ghi thủ công khi cần; hệ thống tính công ngày (MAN_HINH_121, 122; QUYTAC_NGHIEPVU_304, 305).
+  3. Quên chấm, đi công tác: người lao động lập đơn giải trình → luồng duyệt → lượt giải trình, công cập nhật (QUYTAC_NGHIEPVU_306).
+  4. Nghỉ: người lao động xem số dư, lập đơn nghỉ → luồng duyệt → công các ngày ghi nghỉ, sổ phép trừ; nhân sự ghi nhận nghỉ ốm, thai sản kèm giấy tờ, có hiệu lực ngay (MAN_HINH_122, 123; QUYTAC_NGHIEPVU_309).
+  5. Tăng ca: trưởng phòng lập phiếu → người lao động đồng ý trên ứng dụng (hoặc tự lập) → luồng duyệt → hôm đó chấm công → giờ tăng ca tính theo thời gian có mặt (MAN_HINH_124, 122; QUYTAC_NGHIEPVU_310).
+  6. Đầu tháng sau nhân sự (`hr.timesheet.manage`) rà soát bảng công, mở xác nhận có hạn → người lao động xác nhận hoặc giải trình → nhân sự sửa dữ liệu, trả lời → hết hạn hệ thống tự xác nhận (MAN_HINH_125, 122; QUYTAC_NGHIEPVU_311).
+  7. Nhân sự chốt bảng công: khóa dữ liệu tháng, trừ phép tháng không đủ 50% công, thanh toán phép người nghỉ việc, phát `hr.timesheet.closed`; CONG_VIEC_48 tính lương từ dòng bảng công.
+- Nhánh: sai sau khi chốt mà bảng lương kỳ đó chưa chốt thì nhân sự mở lại (lý do), sửa, chốt lại; người lao động không đồng ý tăng ca thì phiếu kết thúc; người không có tài khoản thì nhân sự ghi nhận tăng ca kèm văn bản đồng ý.
+- Ngoại lệ: vượt giới hạn giờ tăng ca, vượt số dư phép, trùng đơn, ghi dữ liệu tháng đã chốt, chấm ngoài địa điểm hoặc mã QR hết hạn: thông báo ở tài liệu `07` mục CONG_VIEC_47.
+- Kết thúc: bảng công tháng đã chốt, là đầu vào tính lương.
+
+Trạng thái kỳ bảng công:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Mở bảng công tháng lần đầu hoặc ghi dữ liệu thuộc tháng | Đang mở (`open`) |
+| Đang mở | Nhân sự mở xác nhận (tháng đã kết thúc) | Đang xác nhận (`confirming`) |
+| Đang mở, Đang xác nhận | Nhân sự chốt (không còn giải trình chờ trả lời) | Đã chốt (`closed`) |
+| Đã chốt | Nhân sự mở lại khi bảng lương chưa chốt | Đang mở |
+
+Trạng thái phiếu tăng ca: Chờ đồng ý → (đồng ý) Chờ duyệt → Đã duyệt; Chờ đồng ý → (không đồng ý) Người lao động không đồng ý; Chờ duyệt → Bị từ chối hoặc Đã rút; Chờ đồng ý, Đã duyệt → Đã hủy. Chưa có chính sách duyệt thì gửi xong là Đã duyệt.
