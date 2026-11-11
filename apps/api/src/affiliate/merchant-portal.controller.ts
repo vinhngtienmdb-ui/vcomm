@@ -1,13 +1,19 @@
 // API_207: cổng cửa hàng liên kết – kích hoạt lời mời, thông tin của tôi, cửa hàng, nhân viên (CONG_VIEC_55).
 // Cửa hàng đang chọn gửi qua header `x-merchant-id` khi người dùng là thành viên của nhiều cửa hàng.
-import { Body, Controller, Get, HttpCode, Param, Post, Put, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req, Res } from "@nestjs/common";
 import {
   affiliateActivationOtpSchema,
   affiliateActivationSchema,
   affiliateCashierInviteSchema,
   affiliateMemberOutletsSchema,
   affiliateMemberVersionSchema,
+  affiliateTransactionCancelSchema,
+  affiliateTransactionCreateSchema,
+  affiliateTransactionListQuerySchema,
   type AffiliateMember,
+  type AffiliateTransactionCreated,
+  type AffiliateTransactionItem,
+  type PageResponse,
   type LoginResponse,
   type MerchantPortalMe,
   type MerchantPortalStore,
@@ -17,6 +23,7 @@ import { clientInfo, setSessionCookies } from "../auth/auth.controller";
 import { Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
 import { MerchantPortalService, type PortalMember } from "./portal.service";
+import { AffiliateTransactionsService } from "./transactions.service";
 
 export function selectedMerchant(request: Request): string | undefined {
   const value = request.header("x-merchant-id");
@@ -25,7 +32,10 @@ export function selectedMerchant(request: Request): string | undefined {
 
 @Controller("merchant-portal")
 export class MerchantPortalController {
-  constructor(private readonly portal: MerchantPortalService) {}
+  constructor(
+    private readonly portal: MerchantPortalService,
+    private readonly transactions: AffiliateTransactionsService,
+  ) {}
 
   private member(request: AuthenticatedRequest): Promise<PortalMember> {
     return this.portal.member(request.auth.userId, selectedMerchant(request), clientInfo(request));
@@ -79,5 +89,26 @@ export class MerchantPortalController {
   @Post("members/:id/unlock")
   async unlock(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateMember[]> {
     return this.portal.setCashierLocked(await this.member(request), id, false, affiliateMemberVersionSchema.parse(body).version);
+  }
+
+  // API_208: giao dịch tại quầy.
+  @Post("transactions")
+  async createTransaction(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<AffiliateTransactionCreated> {
+    return this.transactions.create(await this.member(request), affiliateTransactionCreateSchema.parse(body));
+  }
+
+  @Get("transactions")
+  async listTransactions(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<AffiliateTransactionItem>> {
+    return this.transactions.list(await this.member(request), affiliateTransactionListQuerySchema.parse(query));
+  }
+
+  @Get("transactions/:id")
+  async transaction(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateTransactionItem> {
+    return this.transactions.transaction(await this.member(request), id);
+  }
+
+  @Post("transactions/:id/cancel")
+  async cancelTransaction(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateTransactionItem> {
+    return this.transactions.cancel(await this.member(request), id, affiliateTransactionCancelSchema.parse(body).reason);
   }
 }

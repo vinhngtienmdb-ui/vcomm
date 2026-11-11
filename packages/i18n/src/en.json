@@ -566,7 +566,16 @@
     "retailReturnExpired": "The receipt is past the store's return window.",
     "retailReturnOtherStore": "The sale belongs to another store. Return it at the selling store.",
     "retailReturnsDisabled": "This store does not accept returns.",
-    "retailCashInsufficient": "Not enough cash in the drawer. Refund by bank transfer."
+    "retailCashInsufficient": "Not enough cash in the drawer. Refund by bank transfer.",
+    "affiliateMerchantInactive": "The store is not active or its contract has expired.",
+    "affiliateBillOverCap": "The bill amount exceeds the cap per transaction.",
+    "affiliateCodeInvalid": "The QR code is invalid or has expired.",
+    "affiliatePhoneNoAccount": "This phone number has no VComm account.",
+    "affiliatePhonePending": "This phone number already has a request awaiting confirmation.",
+    "affiliatePhoneLimited": "Too many phone requests were declined or expired within an hour. Try again later.",
+    "affiliateTransactionExpired": "The transaction is no longer awaiting confirmation.",
+    "affiliateTransactionNotCancellable": "Only completed transactions can be cancelled.",
+    "affiliateWeekSettled": "The transaction's week has been settled and cannot be cancelled."
   },
   "login": {
     "title": "Sign in",

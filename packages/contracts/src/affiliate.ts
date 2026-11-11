@@ -151,3 +151,104 @@ export interface MerchantPortalStore extends AffiliateMerchantTerms {
   outlets: AffiliateOutlet[];
   members: AffiliateMember[];
 }
+
+// ---------------------------------------------------------------------------
+// Lát L1: giao dịch tại quầy (QUYTAC_NGHIEPVU_394 đến 400; API_208, API_209).
+// ---------------------------------------------------------------------------
+export const affiliateTransactionMethods = ["merchant_qr", "buyer_qr", "phone"] as const;
+export type AffiliateTransactionMethod = (typeof affiliateTransactionMethods)[number];
+export type AffiliateTransactionStatus = "pending" | "completed" | "declined" | "expired" | "cancelled";
+export type AffiliateSkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | "credit_limit" | "overdue";
+
+export const affiliateTransactionCreateSchema = z
+  .object({
+    outletId: z.string().uuid(),
+    billAmount: money,
+    method: z.enum(affiliateTransactionMethods),
+    phone: vietnamPhone.optional(),
+    memberCode: z.string().trim().min(1).max(500).optional(),
+  })
+  .strict()
+  .refine((value) => value.method !== "phone" || value.phone, { message: "required", path: ["phone"] })
+  .refine((value) => value.method !== "buyer_qr" || value.memberCode, { message: "required", path: ["memberCode"] });
+export const affiliateTransactionCancelSchema = z.object({ reason }).strict();
+export const affiliateTransactionListQuerySchema = z.object({
+  from: isoDate.optional(),
+  to: isoDate.optional(),
+  outletId: z.string().uuid().optional(),
+  status: z.enum(["pending", "completed", "declined", "expired", "cancelled"]).optional(),
+  search: z.string().trim().max(30).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(50),
+});
+
+export interface AffiliateTransactionItem {
+  id: string;
+  documentNo: string;
+  method: AffiliateTransactionMethod;
+  status: AffiliateTransactionStatus;
+  outletId: string;
+  outletName: string;
+  cashierName: string;
+  // Tên khách đã che (QUYTAC_NGHIEPVU_397); trống khi chưa có khách.
+  buyerName: string | null;
+  billAmount: string;
+  voucherDiscount: string;
+  redeemedPoints: number;
+  redeemedAmount: string;
+  paidAmount: string | null;
+  earnedPoints: number;
+  earnedAmount: string;
+  skipReason: AffiliateSkipReason | null;
+  createdAt: string;
+  completedAt: string | null;
+  expiresAt: string | null;
+  cancelReason: string | null;
+  canCancel: boolean;
+}
+export interface AffiliateTransactionCreated {
+  transaction: AffiliateTransactionItem;
+  // Cách 1: chuỗi mã QR hiện trên màn hình quầy (chỉ trả một lần).
+  qrCode: string | null;
+}
+
+// Người mua trên ứng dụng VComm.
+export const buyerAffiliateScanSchema = z.object({ code: z.string().trim().min(1).max(500) }).strict();
+export const buyerAffiliateConfirmSchema = z.object({ points: z.number().int().min(0).max(1_000_000_000), code: z.string().trim().max(500).optional() }).strict();
+export const buyerAffiliateDeclineSchema = z.object({ code: z.string().trim().max(500).optional() }).strict();
+export const buyerMemberCodeSchema = z.object({ points: z.number().int().min(0).max(1_000_000_000) }).strict();
+
+export interface BuyerAffiliateRequest {
+  transactionId: string;
+  documentNo: string;
+  merchantName: string;
+  outletName: string;
+  billAmount: string;
+  expiresAt: string;
+  balance: number;
+  minPoints: number;
+  maxPoints: number;
+  pointValue: string | null;
+  redeemable: boolean;
+  blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null;
+  earnPercent: string;
+}
+export interface BuyerAffiliateTransaction {
+  id: string;
+  documentNo: string;
+  merchantName: string;
+  outletName: string;
+  status: AffiliateTransactionStatus;
+  billAmount: string;
+  voucherDiscount: string;
+  redeemedPoints: number;
+  redeemedAmount: string;
+  paidAmount: string | null;
+  earnedPoints: number;
+  skipReason: AffiliateSkipReason | null;
+  createdAt: string;
+}
+export interface BuyerMemberCode {
+  code: string;
+  expiresAt: string;
+}

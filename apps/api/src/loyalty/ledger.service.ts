@@ -9,7 +9,8 @@ import { phaseById, phaseOn, type ActivePhase } from "./program.service";
 import { lockAccount, recomputeTiers } from "./tiers";
 
 type Executor = Pick<Database, "execute">;
-export type SaleSourceType = "marketplace_order" | "retail_sale";
+// CONG_VIEC_55: giao dịch tại cửa hàng liên kết dùng chung sổ cái điểm.
+export type SaleSourceType = "marketplace_order" | "retail_sale" | "affiliate_transaction";
 export type LoyaltySourceType = SaleSourceType | "retail_return" | "adjustment";
 export type EntryKind = "earn" | "redeem" | "redeem_refund" | "earn_reversal" | "expire" | "adjust_add" | "adjust_subtract";
 export type SkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero";
@@ -420,7 +421,8 @@ export class LoyaltyLedgerService {
   // Giá trị tích = tiền hàng − tiền điểm đã dùng còn lại; chi tiêu năm cộng tiền hàng (QUYTAC_NGHIEPVU_351).
   async earnWithin(
     executor: Executor,
-    input: { sourceType: SaleSourceType; sourceId: string; userId: string; companyId: string; day: string; goodsAmount: number },
+    // CONG_VIEC_55: `earnPercent` thay tỷ lệ tích của giai đoạn (tỷ lệ của cửa hàng liên kết); `countSpend` false thì không cộng chi tiêu xét hạng.
+    input: { sourceType: SaleSourceType; sourceId: string; userId: string; companyId: string; day: string; goodsAmount: number; earnPercent?: number; countSpend?: boolean },
   ): Promise<{ points: number; skipReason: SkipReason | null }> {
     await lockAccount(executor, input.userId);
     let document = await documentOf(executor, input.sourceType, input.sourceId);
@@ -432,7 +434,7 @@ export class LoyaltyLedgerService {
     const earningValue = Math.max(input.goodsAmount - (Number(document.redeemed_amount) - Number(document.refunded_amount)), 0);
     const account = await standing(executor, input.userId);
     const phase = document.phase_id ? await phaseById(executor, document.phase_id) : null;
-    let points = phase ? pointsFor(earningValue, phase, Number(document.multiplier)) : 0;
+    let points = phase ? pointsFor(earningValue, input.earnPercent === undefined ? phase : { ...phase, earnPercent: input.earnPercent }, Number(document.multiplier)) : 0;
     if (phase && phase.monthlyCapPoints !== null && points > 0) {
       const used = (
         await executor.execute<{ total: number }>(sql`
@@ -458,7 +460,7 @@ export class LoyaltyLedgerService {
         validityMonths: phase!.validityMonths,
       });
     }
-    await addSpend(executor, input.userId, input.companyId, input.goodsAmount);
+    if (input.countSpend !== false) await addSpend(executor, input.userId, input.companyId, input.goodsAmount);
     if (!skipReason) {
       await notify(executor, [
         {
