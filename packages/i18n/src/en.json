@@ -325,7 +325,8 @@
     "paymentMethodRequired": "Ordering is open, so at least one payment method must stay enabled. Close ordering first or enable another method.",
     "paymentMethodUnavailable": "This payment method is not available. Choose another method.",
     "orderNotAwaitingPayment": "The order is no longer awaiting payment (paid, cancelled or expired).",
-    "paymentAttemptLimit": "This order has opened the payment page more than 10 times. Please place a new order."
+    "paymentAttemptLimit": "This order has opened the payment page more than 10 times. Please place a new order.",
+    "codNotRecordable": "The order is not cash on delivery, not yet handed to the carrier, or already recorded as collected."
   },
   "login": {
     "title": "Sign in",
@@ -3582,7 +3583,13 @@
     "paymentStatus_refunded": "Refunded",
     "status_paid": "Paid",
     "status_refund_pending": "Refund pending",
-    "orderTotal": "Order total"
+    "orderTotal": "Order total",
+    "recordCodTitle": "Record cash collected",
+    "recordCodHint": "Use when the carrier has not reported it automatically. Check the carrier's statement first.",
+    "collectedOn": "Collected on",
+    "codReference": "Statement reference",
+    "recordCod": "Record collected",
+    "codRecorded": "Cash collected recorded."
   },
   "returnRequests": {
     "title": "Return requests",

@@ -4379,6 +4379,8 @@ export interface MarketplaceOrderDetail extends BuyerOrderDetail {
   salesOrderId: string;
   shipments: MarketplaceShipmentItem[];
   payments: MarketplacePaymentItem[];
+  // Ghi tay đã thu tiền thu hộ khi đơn vị vận chuyển không có API (QUYTAC_NGHIEPVU_167).
+  canRecordCod: boolean;
   canShip: boolean;
   canRefreshShipment: boolean;
   carriers: CarrierItem[];
@@ -4400,6 +4402,9 @@ export const buyerOrderListQuerySchema = z
   })
   .strict();
 export const cancelMarketplaceOrderSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
+export const recordCodCollectedSchema = z
+  .object({ collectedOn: isoDate, reference: z.string().trim().min(1).max(100), version: z.number().int().min(1) })
+  .strict();
 export const shipMarketplaceOrderSchema = z.object({ carrierCode: z.enum(carrierCodes), version: z.number().int().min(1) }).strict();
 
 // API_129: trả hàng trong 7 ngày (QUYTAC_NGHIEPVU_161).

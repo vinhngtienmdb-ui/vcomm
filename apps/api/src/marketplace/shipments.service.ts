@@ -10,7 +10,7 @@ import { SalesDeliveriesService } from "../inventory/sales-deliveries.service";
 import type { Actor } from "../permissions/roles.service";
 import { SalesOrdersService } from "../sales/sales-orders.service";
 import type { BuyerAdminActor } from "./buyer-admin.service";
-import { CarrierFailure, type CreatedShipment } from "./carriers/carrier";
+import { CarrierFailure, type CreatedShipment, type ShipmentInfo } from "./carriers/carrier";
 import { carrierAdapter, webhookKeyOf } from "./carriers/carrier-registry";
 import { MarketplaceOrdersService } from "./marketplace-orders.service";
 import { vietnamToday } from "./shop.service";
@@ -219,12 +219,10 @@ export class ShipmentsService implements OnModuleInit {
       else await this.releaseRequest(orderId);
       return this.orders.adminDetail(actor, orderId, true);
     }
-    const status = await this.adapterOf(shipment.carrier_code)
-      .shipmentStatus(shipment.tracking_code)
-      .catch((error: unknown) => {
-        throw this.failure(error, "carrierRejected");
-      });
-    await this.apply(shipment, status);
+    const info = await this.info(shipment.carrier_code, shipment.tracking_code).catch((error: unknown) => {
+      throw this.failure(error, "carrierRejected");
+    });
+    await this.apply(shipment, info);
     return this.orders.adminDetail(actor, orderId, true);
   }
 
@@ -256,7 +254,7 @@ export class ShipmentsService implements OnModuleInit {
       return { result: "ignored" };
     }
     try {
-      await this.apply(shipment, await adapter.shipmentStatus(shipment.tracking_code!));
+      await this.apply(shipment, await this.info(carrier, shipment.tracking_code!));
       await record("applied");
       return { result: "applied" };
     } catch (error) {
@@ -265,8 +263,14 @@ export class ShipmentsService implements OnModuleInit {
     }
   }
 
+  private async info(code: CarrierCode, trackingCode: string): Promise<ShipmentInfo> {
+    const adapter = this.adapterOf(code);
+    return adapter.shipmentInfo ? adapter.shipmentInfo(trackingCode) : { status: await adapter.shipmentStatus(trackingCode), codCollectedAt: null };
+  }
+
   // Áp trạng thái của đơn vị vận chuyển vào đơn VComm; chỉ chuyển khi trạng thái đơn còn phù hợp nên nhận trùng không đổi kết quả.
-  private async apply(shipment: ShipmentRow, status: string): Promise<void> {
+  private async apply(shipment: ShipmentRow, info: ShipmentInfo): Promise<void> {
+    const status = info.status;
     const adapter = this.adapterOf(shipment.carrier_code);
     const phase = adapter.phaseOf(status);
     await this.database.transaction(async (transaction) => {
@@ -338,6 +342,13 @@ export class ShipmentsService implements OnModuleInit {
       } else if (phase === "attention" && current.carrier_status !== status) {
         // Bất thường, mất hàng: hiện cho nhân viên, đơn giữ trạng thái.
         await this.orders.event(transaction, shipment.order_id, state, note, null);
+      }
+      // Đối soát COD (QUYTAC_NGHIEPVU_167): đơn vị vận chuyển báo đã thu tiền của người mua thì ghi đã thu một lần bằng tiền thu hộ của đơn.
+      if (info.codCollectedAt) {
+        const collected = await transaction.execute(sql`
+          UPDATE marketplace.orders SET paid_amount = cod_amount, paid_at = ${info.codCollectedAt.toISOString()}::timestamptz, version = version + 1
+          WHERE id = ${shipment.order_id} AND payment_method = 'cod' AND cod_amount > 0 AND paid_amount = 0 RETURNING id`);
+        if (collected.rows.length > 0) await this.orders.event(transaction, shipment.order_id, "paid", `${shipment.carrier_code.toUpperCase()}: COD`, null);
       }
     });
   }

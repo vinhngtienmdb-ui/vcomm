@@ -82,6 +82,8 @@ export const permissionCatalog: PermissionDefinition[] = [
     nameEn: "Manage VComm store, listings, shipments and returns",
     isSensitive: true,
   },
+  // CONG_VIEC_25: ghi đã thu tiền thu hộ, đã hoàn tiền đơn VComm.
+  { code: "marketplace.payment.manage", appCode: "crm", nameVi: "Ghi đã thu tiền thu hộ, đã hoàn tiền đơn VComm", nameEn: "Record VComm cash collected and refunds", isSensitive: true },
   { code: "finance.commission.view_own", appCode: "finance", nameVi: "Xem hoa hồng của chính mình", nameEn: "View own commissions", isSensitive: false },
   // CONG_VIEC_07: Mua hàng trong nước (MODULE_04, phần 1).
   { code: "purchasing.price.manage", appCode: "purchasing", nameVi: "Quản lý bảng giá mua", nameEn: "Manage supplier prices", isSensitive: false },
@@ -156,6 +158,7 @@ const companyAdminPermissions = [
   "marketplace.buyer.manage",
   "marketplace.order.view",
   "marketplace.order.manage",
+  "marketplace.payment.manage",
   "finance.commission.view_own",
   "purchasing.price.manage",
   "purchasing.requisition.create",
@@ -283,6 +286,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "finance.collection.manage",
       "crm.access",
       "crm.partner.view",
+      "marketplace.order.view",
+      "marketplace.payment.manage",
     ],
   },
   {
@@ -315,6 +320,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "finance.consolidation.manage",
       "crm.access",
       "crm.partner.view",
+      "marketplace.order.view",
+      "marketplace.payment.manage",
     ],
   },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },

@@ -1,6 +1,6 @@
 // Kết nối Giao Hàng Nhanh (CONG_VIEC_24): tạo vận đơn theo địa chỉ hai cấp, hủy, tra trạng thái, đọc mã vận đơn từ webhook.
 // Viết theo tài liệu công khai của GHN; trước khi phát hành phải thử với tài khoản môi trường thử nghiệm của GHN.
-import type { CarrierAdapter, CarrierPhase, CreatedShipment, ShipmentRequest } from "./carrier";
+import type { CarrierAdapter, CarrierPhase, CreatedShipment, ShipmentInfo, ShipmentRequest } from "./carrier";
 import { CarrierFailure } from "./carrier";
 import type { GhnConfiguration } from "./carrier-registry";
 
@@ -66,8 +66,14 @@ export class GhnCarrier implements CarrierAdapter {
   }
 
   async shipmentStatus(trackingCode: string): Promise<string> {
-    const data = await this.call<{ status: string }>("/shiip/public-api/v2/shipping-order/detail", { order_code: trackingCode });
-    return data.status;
+    return (await this.shipmentInfo(trackingCode)).status;
+  }
+
+  // cod_collect_date: ngày GHN thu tiền của người mua (tài liệu GHN, API chi tiết đơn); null khi chưa thu.
+  async shipmentInfo(trackingCode: string): Promise<ShipmentInfo> {
+    const data = await this.call<{ status: string; cod_collect_date?: string | null }>("/shiip/public-api/v2/shipping-order/detail", { order_code: trackingCode });
+    const collected = data.cod_collect_date ? new Date(data.cod_collect_date) : null;
+    return { status: data.status, codCollectedAt: collected && !Number.isNaN(collected.getTime()) ? collected : null };
   }
 
   async findShipment(clientOrderCode: string): Promise<CreatedShipment | null> {

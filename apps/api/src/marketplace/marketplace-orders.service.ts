@@ -16,6 +16,7 @@ import type {
 import { sql } from "drizzle-orm";
 import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
+import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Actor } from "../permissions/roles.service";
 import { returnedOnOrderLine, SalesOrdersService } from "../sales/sales-orders.service";
@@ -102,6 +103,10 @@ export const cancellableStatuses: MarketplaceOrderStatus[] = ["awaiting_payment"
 // Đơn thanh toán trực tuyến giữ hàng 15 phút (QUYTAC_NGHIEPVU_165).
 export const paymentWindowMinutes = 15;
 
+// Ghi tay đã thu tiền thu hộ: đơn thanh toán khi nhận hàng đã lấy hàng, chưa ghi đã thu (QUYTAC_NGHIEPVU_167).
+const codRecordable = (row: { payment_method: PaymentMethodCode; cod_amount: string; paid_amount: string; status: MarketplaceOrderStatus }) =>
+  row.payment_method === "cod" && Number(row.cod_amount) > 0 && Number(row.paid_amount) === 0 && ["shipping", "delivered", "completed"].includes(row.status);
+
 // Trạng thái thanh toán (QUYTAC_NGHIEPVU_167).
 export function paymentStatusOf(paid: number, refunded: number, pendingRefund: number): OrderPaymentStatus {
   if (pendingRefund > 0) return "refund_pending";
@@ -130,6 +135,7 @@ export class MarketplaceOrdersService {
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     private readonly salesOrders: SalesOrdersService,
+    private readonly audit: AuditService,
   ) {}
 
   private async storeContext(): Promise<StoreContext> {
@@ -409,7 +415,7 @@ export class MarketplaceOrdersService {
     };
   }
 
-  async adminDetail(actor: BuyerAdminActor, orderId: string, canManage: boolean): Promise<MarketplaceOrderDetail> {
+  async adminDetail(actor: BuyerAdminActor, orderId: string, canManage: boolean, canRecordPayment = false): Promise<MarketplaceOrderDetail> {
     const row = await this.row(this.database, orderId);
     const company = (await this.database.execute<{ company_id: string }>(sql`SELECT company_id FROM marketplace.orders WHERE id = ${orderId}`)).rows[0]!;
     if (company.company_id !== actor.operatorCompanyId) throw new ApiError("NOT_FOUND", "notFound");
@@ -461,10 +467,44 @@ export class MarketplaceOrdersService {
         createdAt: iso(payment.created_at)!,
         completedAt: iso(payment.completed_at),
       })),
+      canRecordCod: canRecordPayment && codRecordable(row),
       canShip: canManage && row.status === "awaiting_shipment" && !shipments.rows.some((shipment) => shipment.is_active),
       canRefreshShipment: canManage && shipments.rows.some((shipment) => shipment.is_active) && ["awaiting_shipment", "awaiting_pickup", "shipping"].includes(row.status),
       carriers: carriers.rows.map((carrier) => ({ code: carrier.code, name: carrierNames[carrier.code], isEnabled: carrier.is_enabled, isConfigured: carrierConfigured(carrier.code) })),
     };
+  }
+
+  // Ghi tay "Đã thu COD" kèm số phiên đối soát của đơn vị vận chuyển (QUYTAC_NGHIEPVU_167).
+  async recordCodCollected(actor: BuyerAdminActor, orderId: string, input: { collectedOn: string; reference: string; version: number }, canManage: boolean): Promise<MarketplaceOrderDetail> {
+    await this.database.transaction(async (transaction) => {
+      const company = (await transaction.execute<{ company_id: string }>(sql`SELECT company_id FROM marketplace.orders WHERE id = ${orderId} FOR UPDATE`)).rows[0];
+      if (!company || company.company_id !== actor.operatorCompanyId) throw new ApiError("NOT_FOUND", "notFound");
+      const row = await this.row(transaction, orderId);
+      if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      if (!codRecordable(row)) throw new ApiError("BUSINESS_RULE", "codNotRecordable");
+      const today = await vietnamToday(transaction);
+      if (input.collectedOn > today) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { collectedOn: "invalidValue" } });
+      await transaction.execute(sql`
+        UPDATE marketplace.orders SET paid_amount = cod_amount, paid_at = (${input.collectedOn}::date + time '12:00') AT TIME ZONE 'Asia/Ho_Chi_Minh', version = version + 1 WHERE id = ${orderId}`);
+      await this.event(transaction, orderId, "paid", `COD · ${input.reference}`, actor.userId);
+      await this.audit.record(
+        {
+          actorUserId: actor.userId,
+          companyId: actor.operatorCompanyId,
+          appCode: "marketplace",
+          action: "marketplace.order.cod_collected",
+          entityType: "marketplace.orders",
+          entityId: orderId,
+          beforeData: null,
+          afterData: input,
+          ip: actor.client.ip,
+          userAgent: actor.client.userAgent,
+          requestId: actor.client.requestId,
+        },
+        transaction,
+      );
+    });
+    return this.adminDetail(actor, orderId, canManage, true);
   }
 
   // Tự hoàn tất (QUYTAC_NGHIEPVU_162): đã qua 7 ngày từ lúc giao thành công, không còn yêu cầu trả hàng chờ duyệt hoặc đã duyệt chưa kết thúc.

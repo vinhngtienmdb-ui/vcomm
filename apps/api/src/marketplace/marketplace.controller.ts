@@ -22,6 +22,7 @@ import {
   type StoreSettingsResponse,
   testBuyerSchema,
   updateCarrierSchema,
+  recordCodCollectedSchema,
   updateOrderingOpenSchema,
   updatePaymentMethodSchema,
   updateListingSchema,
@@ -116,7 +117,21 @@ export class MarketplaceController {
   @Get("orders/:id")
   async order(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<MarketplaceOrderDetail> {
     const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.view");
-    return this.orders.adminDetail(actor, id, await this.admin.allows(request.auth.userId, clientInfo(request), "marketplace.order.manage"));
+    return this.orders.adminDetail(
+      actor,
+      id,
+      await this.admin.allows(request.auth.userId, clientInfo(request), "marketplace.order.manage"),
+      await this.admin.allows(request.auth.userId, clientInfo(request), "marketplace.payment.manage"),
+    );
+  }
+
+  // API_133: ghi tay đã thu tiền thu hộ (CONG_VIEC_25; QUYTAC_NGHIEPVU_167).
+  @Post("orders/:id/cod-collected")
+  @HttpCode(200)
+  async codCollected(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<MarketplaceOrderDetail> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.payment.manage");
+    const input = recordCodCollectedSchema.parse(body);
+    return this.orders.recordCodCollected(actor, id, input, await this.admin.allows(request.auth.userId, clientInfo(request), "marketplace.order.manage"));
   }
 
   @Post("orders/:id/cancel")

@@ -325,7 +325,8 @@
     "paymentMethodRequired": "Đang mở đặt hàng nên phải còn ít nhất một phương thức thanh toán đang bật. Tắt đặt hàng trước hoặc bật phương thức khác.",
     "paymentMethodUnavailable": "Phương thức thanh toán này hiện không dùng được. Chọn phương thức khác.",
     "orderNotAwaitingPayment": "Đơn không còn chờ thanh toán (đã thanh toán, đã hủy hoặc quá hạn).",
-    "paymentAttemptLimit": "Đơn này đã mở trang thanh toán quá 10 lần. Vui lòng đặt lại đơn mới."
+    "paymentAttemptLimit": "Đơn này đã mở trang thanh toán quá 10 lần. Vui lòng đặt lại đơn mới.",
+    "codNotRecordable": "Đơn không thanh toán khi nhận hàng, chưa giao cho đơn vị vận chuyển hoặc đã ghi đã thu."
   },
   "login": {
     "title": "Đăng nhập",
@@ -3582,7 +3583,13 @@
     "paymentStatus_refunded": "Đã hoàn tiền",
     "status_paid": "Đã thanh toán",
     "status_refund_pending": "Chờ hoàn tiền",
-    "orderTotal": "Tổng thanh toán"
+    "orderTotal": "Tổng thanh toán",
+    "recordCodTitle": "Ghi đã thu tiền thu hộ",
+    "recordCodHint": "Dùng khi đơn vị vận chuyển chưa báo tự động. Đối chiếu bảng đối soát của đơn vị vận chuyển trước khi ghi.",
+    "collectedOn": "Ngày thu",
+    "codReference": "Số phiên đối soát",
+    "recordCod": "Ghi đã thu",
+    "codRecorded": "Đã ghi đã thu tiền thu hộ."
   },
   "returnRequests": {
     "title": "Yêu cầu trả hàng",

@@ -1,6 +1,7 @@
 "use client";
 
 // MAN_HINH_88 Chi tiết đơn VComm (CHUC_NANG_116, 117; API_127; QUYTAC_NGHIEPVU_159, 160): người mua, địa chỉ, dòng hàng, vận đơn, lịch sử; giao cho đơn vị vận chuyển, tra lại vận đơn, hủy.
+// Thanh toán, các lần thanh toán, ghi tay đã thu tiền thu hộ (CONG_VIEC_25; API_133; QUYTAC_NGHIEPVU_167).
 import type { MarketplaceOrderDetail } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -106,6 +107,47 @@ function Actions({ order, onSaved }: { order: MarketplaceOrderDetail; onSaved: (
   );
 }
 
+function RecordCod({ order, onSaved }: { order: MarketplaceOrderDetail; onSaved: (value: MarketplaceOrderDetail) => void }) {
+  const t = useTranslations("marketplaceOrders");
+  const { notify } = useAdmin();
+  const [collectedOn, setCollectedOn] = useState(new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10));
+  const [reference, setReference] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function save() {
+    setBusy(true);
+    setError(null);
+    try {
+      onSaved(await apiFetch<MarketplaceOrderDetail>(`/marketplace/orders/${order.id}/cod-collected`, { method: "POST", body: JSON.stringify({ collectedOn, reference, version: order.version }) }));
+      notify(t("codRecorded"));
+    } catch (failure) {
+      setError(failureOf(failure).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
+      <h2>{t("recordCodTitle")}</h2>
+      <div className="chu-thich">{t("recordCodHint")}</div>
+      <FormError text={error} />
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--khoang-2)", alignItems: "end" }}>
+        <span style={{ display: "grid", gap: "var(--khoang-1)" }}>
+          <label htmlFor="dvc-ngay-thu">{t("collectedOn")}</label>
+          <input id="dvc-ngay-thu" type="date" className="o-nhap" value={collectedOn} onChange={(event) => setCollectedOn(event.target.value)} />
+        </span>
+        <span style={{ display: "grid", gap: "var(--khoang-1)" }}>
+          <label htmlFor="dvc-phien">{t("codReference")}</label>
+          <input id="dvc-phien" className="o-nhap" maxLength={100} value={reference} onChange={(event) => setReference(event.target.value)} />
+        </span>
+        <button type="button" className="nut chinh" disabled={busy || !reference.trim() || !collectedOn} onClick={() => void save()}>
+          {t("recordCod")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function MarketplaceOrderPage() {
   const t = useTranslations("marketplaceOrders");
   const method = useTranslations("paymentMethods");
@@ -147,6 +189,7 @@ export default function MarketplaceOrderPage() {
               </dl>
             </div>
             <Actions order={order} onSaved={setSaved} />
+            {order.canRecordCod && <RecordCod order={order} onSaved={setSaved} />}
             <div className="khung-bang">
               <table>
                 <thead>

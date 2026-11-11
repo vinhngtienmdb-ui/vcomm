@@ -23,6 +23,12 @@ export interface CreatedShipment {
   status: string;
 }
 
+// Trạng thái vận đơn và ngày đơn vị vận chuyển đã thu tiền thu hộ của người mua (đối soát COD, CONG_VIEC_25; QUYTAC_NGHIEPVU_167).
+export interface ShipmentInfo {
+  status: string;
+  codCollectedAt: Date | null;
+}
+
 // Ý nghĩa trạng thái của đơn vị vận chuyển với đơn VComm.
 export type CarrierPhase = "waiting_pickup" | "picked" | "delivered" | "returned" | "cancelled" | "attention";
 
@@ -31,6 +37,8 @@ export interface CarrierAdapter {
   createShipment(request: ShipmentRequest): Promise<CreatedShipment>;
   cancelShipment(trackingCode: string): Promise<void>;
   shipmentStatus(trackingCode: string): Promise<string>;
+  // Đơn vị vận chuyển có API trả ngày thu tiền thu hộ thì cài đặt; không có thì chỉ dùng trạng thái.
+  shipmentInfo?(trackingCode: string): Promise<ShipmentInfo>;
   // Tra vận đơn theo mã đơn của bên gửi khi không rõ lần tạo trước đã thành công chưa; null khi không có.
   findShipment(clientOrderCode: string): Promise<CreatedShipment | null>;
   phaseOf(status: string): CarrierPhase;
