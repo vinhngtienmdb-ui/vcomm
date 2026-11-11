@@ -18,7 +18,7 @@ let approver: Session;
 let department: string;
 let otherDepartment: string;
 let employeeUser: string;
-// Phiếu thay đổi CONG_VIEC_48 mục 15: dòng phụ cấp lưu mới phải có loại phụ cấp.
+// THAY_DOI_21 (CONG_VIEC_48): dòng phụ cấp lưu mới phải có loại phụ cấp.
 let allowanceType: string;
 const retail: string = testIds.retailCompany;
 const branch: string = testIds.headOfficeBranch;

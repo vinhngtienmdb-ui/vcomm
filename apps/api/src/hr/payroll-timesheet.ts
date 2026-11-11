@@ -14,24 +14,78 @@ export interface MonthTimesheet {
 }
 export interface PayrollTimesheetReader {
   read(executor: Executor, companyId: string, month: string): Promise<MonthTimesheet | null>;
-  // Đánh dấu bảng lương đã chốt kỳ công (khóa mở lại bảng công) hoặc bỏ đánh dấu.
+  // Bảng lương được duyệt: ghi payroll_locked_at của kỳ công để CONG_VIEC_47 chặn mở lại bảng công; false thì xóa.
   lock(executor: Executor, companyId: string, month: string, locked: boolean): Promise<void>;
 }
 
-// Chưa có bảng công của CONG_VIEC_47 trong cơ sở dữ liệu thì trả null: mọi dòng cảnh báo "chưa có bảng công", không gửi duyệt được.
+type LineRow = {
+  employee_id: string;
+  month_standard_units: string;
+  paid_units: string;
+  unpaid_units: string;
+  night_hours: string;
+  overtime_weekday_hours: string;
+  overtime_weekday_night_hours: string;
+  overtime_weekday_night_after_day_hours: string;
+  overtime_rest_day_hours: string;
+  overtime_rest_day_night_hours: string;
+  overtime_holiday_hours: string;
+  overtime_holiday_night_hours: string;
+  annual_leave_payout_units: string;
+};
+
+// Bảng hr.timesheet_periods (database migration 0073), hr.timesheet_lines (0075) của CONG_VIEC_47.
 @Injectable()
 export class DatabaseTimesheetReader implements PayrollTimesheetReader {
-  private async available(executor: Executor): Promise<boolean> {
-    return (await executor.execute<{ found: boolean }>(sql`SELECT to_regclass('hr.timesheet_periods') IS NOT NULL AS found`)).rows[0]!.found;
+  private async exists(executor: Executor, table: string): Promise<boolean> {
+    return (await executor.execute<{ found: boolean }>(sql`SELECT to_regclass(${table}) IS NOT NULL AS found`)).rows[0]!.found;
   }
 
-  async read(executor: Executor, _companyId: string, _month: string): Promise<MonthTimesheet | null> {
-    if (!(await this.available(executor))) return null;
-    // Cấu trúc bảng công tháng do CONG_VIEC_47 làm; đọc khi hợp nhất nhánh chấm công.
-    return null;
+  async read(executor: Executor, companyId: string, month: string): Promise<MonthTimesheet | null> {
+    if (!(await this.exists(executor, "hr.timesheet_periods"))) return null;
+    const [year, monthNumber] = month.split("-").map(Number) as [number, number];
+    const period = (
+      await executor.execute<{ id: string; status: string }>(sql`
+      SELECT id, status FROM hr.timesheet_periods WHERE company_id = ${companyId} AND year = ${year} AND month = ${monthNumber}`)
+    ).rows[0];
+    if (!period) return null;
+    const employees = new Map<string, TimesheetFigures>();
+    // Dòng bảng công chưa có (CONG_VIEC_47 chưa tổng hợp): mọi dòng lương cảnh báo "Chưa có bảng công".
+    if (await this.exists(executor, "hr.timesheet_lines")) {
+      const rows = await executor.execute<LineRow>(sql`
+        SELECT employee_id, month_standard_units::text, paid_units::text,
+          (unpaid_leave_units + social_insurance_leave_units + absent_units)::text AS unpaid_units,
+          night_hours::text, overtime_weekday_hours::text, overtime_weekday_night_hours::text, overtime_weekday_night_after_day_hours::text, overtime_rest_day_hours::text,
+          overtime_rest_day_night_hours::text, overtime_holiday_hours::text, overtime_holiday_night_hours::text, annual_leave_payout_units::text
+        FROM hr.timesheet_lines WHERE period_id = ${period.id}`);
+      for (const row of rows.rows) {
+        employees.set(row.employee_id, {
+          standardDays: row.month_standard_units,
+          paidDays: row.paid_units,
+          // Ngày không làm việc, không hưởng lương: nghỉ không lương, nghỉ bảo hiểm xã hội chi trả, vắng không phép (QUYTAC_NGHIEPVU_319).
+          unpaidDays: row.unpaid_units,
+          nightHours: row.night_hours,
+          overtimeHours: {
+            weekday: row.overtime_weekday_hours,
+            weekdayNight: row.overtime_weekday_night_hours,
+            weekdayNightAfterDay: row.overtime_weekday_night_after_day_hours,
+            weeklyRest: row.overtime_rest_day_hours,
+            weeklyRestNight: row.overtime_rest_day_night_hours,
+            holiday: row.overtime_holiday_hours,
+            holidayNight: row.overtime_holiday_night_hours,
+          },
+          settledLeaveDays: row.annual_leave_payout_units,
+        });
+      }
+    }
+    return { closed: period.status === "closed", employees };
   }
 
-  async lock(executor: Executor, _companyId: string, _month: string, _locked: boolean): Promise<void> {
-    if (!(await this.available(executor))) return;
+  async lock(executor: Executor, companyId: string, month: string, locked: boolean): Promise<void> {
+    if (!(await this.exists(executor, "hr.timesheet_periods"))) return;
+    const [year, monthNumber] = month.split("-").map(Number) as [number, number];
+    await executor.execute(sql`
+      UPDATE hr.timesheet_periods SET payroll_locked_at = ${locked ? sql`now()` : sql`NULL`}, updated_at = now()
+      WHERE company_id = ${companyId} AND year = ${year} AND month = ${monthNumber}`);
   }
 }

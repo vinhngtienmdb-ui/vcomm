@@ -4739,7 +4739,7 @@ export type TerminationReason = (typeof terminationReasons)[number];
 // Tình trạng hiệu lực tính theo ngày (QUYTAC_NGHIEPVU_299).
 export type ContractValidity = "not_started" | "active" | "expired" | "terminated" | null;
 
-// CONG_VIEC_48 (phiếu thay đổi mục 15): mỗi dòng phụ cấp lưu mới phải có loại phụ cấp (QUYTAC_NGHIEPVU_314).
+// CONG_VIEC_48 (THAY_DOI_21): mỗi dòng phụ cấp lưu mới phải có loại phụ cấp (QUYTAC_NGHIEPVU_314).
 const allowanceSchema = z.object({ name: z.string().trim().min(1).max(100), amount: decimalText(4), allowanceTypeId: z.string().uuid() }).strict();
 
 export const saveContractSchema = z

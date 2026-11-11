@@ -46,7 +46,7 @@ export function AllowanceText({ allowances, currency }: { allowances: ContractAl
 }
 
 // Ô nhập danh sách phụ cấp.
-// Dòng phụ cấp gửi lên API: chỉ tên, số tiền, loại (CONG_VIEC_48 phiếu thay đổi mục 15; loại trống thì API báo lỗi theo ô).
+// Dòng phụ cấp gửi lên API: chỉ tên, số tiền, loại (THAY_DOI_21; loại trống thì API báo lỗi theo ô).
 export const allowancePayload = (allowances: ContractAllowance[]) => allowances.map((item) => ({ name: item.name, amount: item.amount, allowanceTypeId: item.allowanceTypeId ?? "" }));
 
 export function AllowanceEditor({ value, onChange, errors }: { value: ContractAllowance[]; onChange: (value: ContractAllowance[]) => void; errors: Record<string, string> }) {
