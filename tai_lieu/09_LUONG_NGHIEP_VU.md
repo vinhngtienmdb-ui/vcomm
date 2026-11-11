@@ -828,3 +828,28 @@ Trạng thái bổ sung (CONG_VIEC_43):
 | Đơn mua đối ứng nội bộ Đã duyệt | Phiếu nhập dịch vụ tự lập làm mọi dòng đủ số đặt | Đã nhận đủ |
 
 Không còn trạng thái của bảng hoa hồng (Luồng 29) và phiếu giao khách (Luồng 33).
+
+## MODULE_08 Nhân sự (phần 3: Lương, CONG_VIEC_48)
+
+### Luồng 47. Tính, duyệt, trả lương tháng
+
+- Bắt đầu: bảng công tháng của công ty đã chốt (CONG_VIEC_47); nhân sự có `hr.payroll.manage` mở "Bảng lương".
+- Các bước:
+  1. Một lần đầu: quản trị tập đoàn nhập bộ tham số pháp luật theo ngày hiệu lực; nhân sự công ty chọn vùng cho chi nhánh, nhóm chi phí phòng ban, loại phụ cấp; khai lương đóng bảo hiểm, cách tính thuế cho nhân viên; hợp đồng mới chọn loại phụ cấp (QUYTAC_NGHIEPVU_312 đến 315).
+  2. Lập bảng lương tháng: hệ thống tính từng nhân viên có hợp đồng đã ký trong tháng từ hợp đồng, phụ lục, bảng công, hồ sơ lương, tham số hiệu lực ngày cuối tháng (QUYTAC_NGHIEPVU_316 đến 320).
+  3. Nhân sự xem cảnh báo, thêm thưởng, tạm ứng (khoản nhập tay); bảng lương tính lại (QUYTAC_NGHIEPVU_321).
+  4. Gửi duyệt: hệ thống tính lại, kiểm bảng công đã chốt, kỳ kế toán mở, công ty đã khởi tạo kế toán, không còn cảnh báo chặn; cấp số `BL`; đi luồng duyệt chung loại `hr.payroll` (QUYTAC_NGHIEPVU_322).
+  5. Duyệt xong: khóa mở lại bảng công tháng; ghi bút toán trích lương ngày cuối tháng; thông báo chuông và email phiếu lương cho nhân viên (QUYTAC_NGHIEPVU_323).
+  6. Kế toán chi lương; nhân sự ghi "Đã trả lương" (ngày, quỹ): bút toán Nợ 334 / Có quỹ.
+- Ngoại lệ: bảng công chưa chốt, chi nhánh chưa chọn vùng, thực lĩnh âm, chưa khởi tạo kế toán, kỳ đã khóa: không gửi được. Bị từ chối, đã rút: sửa, tính lại, gửi lại. Nháp hủy được (lý do). Đã duyệt không sửa, không hủy; sai thì điều chỉnh bằng khoản nhập tay tháng sau. Kỳ cuối tháng khóa sổ sau khi gửi: bút toán ghi ngày duyệt. Email lỗi: gửi lại.
+- Kết thúc: bảng lương "Đã trả"; có bút toán trích lương, trả lương; nhân viên xem phiếu lương trong "Hồ sơ của tôi".
+
+Trạng thái (CONG_VIEC_48):
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| Nháp, Bị từ chối, Đã rút | Gửi duyệt (có chính sách duyệt) | Chờ duyệt |
+| Nháp, Bị từ chối, Đã rút | Gửi duyệt (không có chính sách duyệt) | Đã duyệt |
+| Chờ duyệt | Duyệt, từ chối, rút | Đã duyệt, Bị từ chối, Đã rút |
+| Nháp, Bị từ chối, Đã rút | Hủy (lý do) | Đã hủy |
+| Đã duyệt | Ghi đã trả lương | Đã trả |
