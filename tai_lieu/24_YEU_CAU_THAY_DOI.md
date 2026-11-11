@@ -357,3 +357,14 @@
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-11.
 
+### THAY_DOI_22: Chặn rút tiền ví hoa hồng theo từng tài khoản – 2026-11-11
+- Lý do: quyết định của người dùng khi duyệt CONG_VIEC_49 (ví mua sắm có rủi ro bị coi là ví điện tử): cần chặn rút tiền theo từng tài khoản cho cả ví mua sắm (CONG_VIEC_49) và ví hoa hồng.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11): quản trị bật, tắt chặn rút tiền cho từng tài khoản, có lý do, ghi nhật ký; tài khoản bị chặn không gửi được yêu cầu rút mới từ ví hoa hồng; cách xử lý yêu cầu đang chờ do đặc tả CONG_VIEC_49 đề xuất, người dùng duyệt.
+- Thành phần bị ảnh hưởng: CONG_VIEC_26 (đã phát hành 0.3.0): rút tiền ví hoa hồng (CHUC_NANG_137, API_136); quản trị web-crm.
+- Dữ liệu, API, giao diện, quyền: thêm dữ liệu chặn rút theo tài khoản; API rút tiền trả lỗi nghiệp vụ khi bị chặn.
+- Ảnh hưởng chức năng cũ: tài khoản không bị chặn giữ nguyên hành vi.
+- Kiểm thử cần thực hiện: kịch bản chặn, bỏ chặn, gửi yêu cầu khi bị chặn; hồi quy c26-*.
+- Mức quy mô: Vừa; làm trong CONG_VIEC_49.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-11.
+
