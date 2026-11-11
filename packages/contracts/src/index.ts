@@ -1061,7 +1061,8 @@ export type ProductKind = (typeof productKinds)[number];
 export const saveProductSchema = z
   .object({
     categoryId: z.uuid(),
-    kind: z.enum(productKinds).default("goods"),
+    // Tạo mới bỏ trống thì là Hàng hóa; cập nhật bỏ trống thì giữ loại hiện có (CONG_VIEC_43, lát L4).
+    kind: z.enum(productKinds).optional(),
     code: z.union([productSku, z.literal("")]).optional(),
     name: z.string().trim().min(1).max(255),
     description: z.string().trim().max(5000).nullable().optional(),
@@ -2485,6 +2486,8 @@ export interface SalesOptionsResponse {
   channels: { id: string; code: string; name: string }[];
   warehouses: { id: string; code: string; name: string }[];
   currency: string;
+  // CONG_VIEC_43 (lát L4): cài đặt "Cho phép lập đơn bán tay có hàng hóa"; tắt thì ô chọn mặt hàng chỉ hiện dịch vụ.
+  allowManualGoodsOrders: boolean;
 }
 export const salesPriceQuerySchema = z
   .object({ variantId: z.uuid(), unitId: z.uuid(), channelId: z.uuid(), customerId: z.uuid().optional(), date: isoDate.optional() })

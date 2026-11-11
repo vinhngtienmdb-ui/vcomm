@@ -104,7 +104,8 @@ describe("TIEUCHI_NGHIEMTHU_276: sản phẩm dịch vụ, đơn bán tay chỉ 
       version: cream.version,
     });
     expect(changed.status).toBe(409);
-    expect(changed.body.error.message).toBe("Sản phẩm đã phát sinh tồn kho, chứng từ kho; không đổi loại được.");
+    // Thông báo mở rộng ở lát L4 (thêm liên kết, tin đăng VComm, đơn chưa kết thúc).
+    expect(changed.body.error.message).toBe("Sản phẩm đã có tồn kho, chứng từ kho, liên kết với công ty khác, tin đăng VComm hoặc đơn bán, đơn mua chưa kết thúc; không đổi loại được.");
   });
 
   it("KICHBAN_KIEMTHU_421: đơn bán tay có hàng hóa bị từ chối khi tắt cài đặt, được khi bật; đơn chỉ dịch vụ lập, gửi không giữ hàng, giao đủ", async () => {
@@ -203,5 +204,57 @@ describe("TIEUCHI_NGHIEMTHU_276: sản phẩm dịch vụ, đơn bán tay chỉ 
     ]);
     // Đơn đã giao đủ không hủy được (luật cũ); kho không lập tay phiếu cho dịch vụ.
     expect((await as(accountant, "post", `/sales/orders/${order.id}/cancel`, { version: order.version })).status).toBe(409);
+  });
+});
+
+describe("CONG_VIEC_43 lát L4: dịch vụ không bán trên VComm; khuyến mãi, ô chọn mặt hàng của đơn bán tay", () => {
+  it("sản phẩm dịch vụ không vào danh sách đăng bán, không đăng bán được, không hiện trên ứng dụng; có tin đăng thì không đổi sang dịch vụ", async () => {
+    const listed = await store.call("put", `/marketplace/listings/${serviceProduct.productId}`, { isPublished: true, description: null });
+    expect(listed.status).toBe(409);
+    expect(listed.body.error.message).toBe("Sản phẩm dịch vụ không đăng bán trên sàn VComm.");
+    const listings = (await store.call("get", "/marketplace/listings?pageSize=50")).body.data.map((row: { productId: string }) => row.productId);
+    expect(listings).not.toContain(serviceProduct.productId);
+    const buyer = await store.buyerSession("0943000001");
+    expect((await buyer("get", `/buyer/shop/products/${serviceProduct.productId}`)).status).toBe(404);
+    // Hàng hóa đã có tin đăng VComm không đổi sang dịch vụ.
+    const cream = (await store.call("get", `/catalog/products/${store.products.cream}`)).body;
+    const { id: _id, companyId: _companyId, categoryName: _categoryName, images: _images, status: _status, updatedAt: _updatedAt, ...body } = cream;
+    const changed = await as(groupAdmin, "patch", `/catalog/products/${cream.id}`, { ...body, kind: "service" });
+    expect(changed.status).toBe(409);
+    expect(changed.body.error.message).toBe("Sản phẩm đã có tồn kho, chứng từ kho, liên kết với công ty khác, tin đăng VComm hoặc đơn bán, đơn mua chưa kết thúc; không đổi loại được.");
+  });
+
+  it("ô chọn mặt hàng lọc theo loại; cài đặt tắt thì đơn tay bỏ quà hàng hóa, quà dịch vụ không kiểm tồn", async () => {
+    expect((await as(accountant, "get", "/sales/options")).body.allowManualGoodsOrders).toBe(false);
+    const services = (await as(accountant, "get", `/sales/items?${new URLSearchParams({ search: "Dịch vụ lắp đặt", kind: "service" })}`)).body;
+    expect(services.map((item: { variantId: string }) => item.variantId)).toEqual([serviceProduct.variantId]);
+    expect((await as(accountant, "get", `/sales/items?${new URLSearchParams({ search: "Kem", kind: "service" })}`)).body).toEqual([]);
+    const categoryId = (await store.call("get", `/catalog/products/${serviceProduct.productId}`)).body.categoryId as string;
+    const giftService = await store.call("post", "/catalog/products", productBody(categoryId, "Dịch vụ bảo hành tặng", "service"));
+    expect(giftService.status, JSON.stringify(giftService.body)).toBe(201);
+    const promotion = async (name: string, giftVariantId: string) => {
+      const created = await store.call("post", "/sales/promotions", {
+        name,
+        kind: "buy_get",
+        validFrom: store.today,
+        validTo: "2026-12-31",
+        buyVariantId: serviceProduct.variantId,
+        buyQuantity: "1",
+        giftVariantId,
+        giftQuantity: "1",
+      });
+      expect(created.status, JSON.stringify(created.body)).toBe(201);
+      expect((await store.call("post", `/sales/promotions/${created.body.id}/submit`)).body.status).toBe("active");
+    };
+    await promotion("Tặng bảo hành", giftService.body.variants[0].id);
+    await promotion("Tặng kem", store.variants.cream);
+    const order = await as(accountant, "post", "/sales/orders", orderBody([{ variantId: serviceProduct.variantId, quantity: "2" }]));
+    expect(order.status, JSON.stringify(order.body)).toBe(201);
+    // Quà dịch vụ không có tồn vẫn tặng đủ 2 suất, không ghi thiếu quà; quà hàng hóa (kem) bị bỏ.
+    expect(order.body.lines.map((line: { variantId: string; isGift: boolean; quantity: string }) => [line.variantId, line.isGift, line.quantity])).toEqual([
+      [serviceProduct.variantId, false, "2"],
+      [giftService.body.variants[0].id, true, "2"],
+    ]);
+    expect(order.body.giftShortages).toEqual([]);
   });
 });

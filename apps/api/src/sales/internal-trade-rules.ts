@@ -63,10 +63,30 @@ export async function internalPrice(
 
 // Giao dịch nội bộ chỉ gồm dịch vụ (CONG_VIEC_43; QUYTAC_NGHIEPVU_277). Công ty bán bật cài đặt "Cho phép lập đơn bán tay có hàng hóa"
 // (QUYTAC_NGHIEPVU_276, dùng cho dữ liệu thử) thì giao dịch nội bộ hàng hóa vẫn lập được theo luồng kho cũ.
-async function internalGoodsErrors(executor: Reader, sellerCompanyId: string, variantIds: string[], fields: FieldErrors): Promise<void> {
-  const goods = await goodsVariants(executor, variantIds);
-  if (goods.size === 0 || (await allowsManualGoodsOrders(executor, sellerCompanyId))) return;
-  for (const [index, variantId] of variantIds.entries()) if (goods.has(variantId) && !fields[`lines.${index}.variantId`]) fields[`lines.${index}.variantId`] = "internalServicesOnly";
+// Xét loại cả mặt hàng phía mình lẫn mặt hàng liên kết bên kia (sửa sau rà soát, lát L4): hai bên khác loại thì một bên ghi kho, một bên không,
+// công nợ hai bên lệch nhau và đơn kẹt, nên luôn từ chối dù cài đặt bật.
+async function internalGoodsErrors(executor: Reader, sellerCompanyId: string, variantIds: string[], linkedVariantIds: (string | null)[], fields: FieldErrors): Promise<void> {
+  const goods = await goodsVariants(executor, [...variantIds, ...linkedVariantIds.filter((id): id is string => id !== null)]);
+  if (goods.size === 0) return;
+  const allowsGoods = await allowsManualGoodsOrders(executor, sellerCompanyId);
+  for (const [index, variantId] of variantIds.entries()) {
+    const field = `lines.${index}.variantId`;
+    if (fields[field]) continue;
+    const linkedVariantId = linkedVariantIds[index];
+    const ownIsGoods = goods.has(variantId);
+    if (linkedVariantId && ownIsGoods !== goods.has(linkedVariantId)) fields[field] = "variantLinkKindMismatch";
+    else if (ownIsGoods && !allowsGoods) fields[field] = "internalServicesOnly";
+  }
+}
+
+async function linkedVariantIdsOf(executor: Reader, variantIds: string[], targetCompanyId: string, fields: FieldErrors): Promise<(string | null)[]> {
+  const linkedVariantIds: (string | null)[] = [];
+  for (const [index, variantId] of variantIds.entries()) {
+    const link = await linkedVariant(executor, variantId, targetCompanyId);
+    if (!link) fields[`lines.${index}.variantId`] = "internalVariantNotLinked";
+    linkedVariantIds.push(link?.variantId ?? null);
+  }
+  return linkedVariantIds;
 }
 
 // Đơn bán nội bộ: kênh Nội bộ; công ty mua có hồ sơ nhà cung cấp cho công ty bán; cùng tiền tệ; mọi mặt hàng có liên kết.
@@ -77,10 +97,8 @@ export async function internalSalesErrors(executor: Reader, sellerCompanyId: str
   if (channelId !== (await internalChannel(executor, sellerCompanyId))) fields.channelId = "internalChannelRequired";
   if (!(await activeProfile(executor, buyerCompanyId, await internalPartnerOf(executor, sellerCompanyId), "supplier"))) fields.customerId = "internalProfileMissing";
   if ((await companyCurrency(executor, buyerCompanyId)) !== (await companyCurrency(executor, sellerCompanyId))) fields.customerId = "internalCurrencyMismatch";
-  for (const [index, variantId] of variantIds.entries()) {
-    if (!(await linkedVariant(executor, variantId, buyerCompanyId))) fields[`lines.${index}.variantId`] = "internalVariantNotLinked";
-  }
-  await internalGoodsErrors(executor, sellerCompanyId, variantIds, fields);
+  const linkedVariantIds = await linkedVariantIdsOf(executor, variantIds, buyerCompanyId, fields);
+  await internalGoodsErrors(executor, sellerCompanyId, variantIds, linkedVariantIds, fields);
   return fields;
 }
 
@@ -92,9 +110,7 @@ export async function internalPurchaseErrors(executor: Reader, buyerCompanyId: s
   if (!(await internalChannel(executor, sellerCompanyId))) fields.supplierId = "internalChannelMissing";
   if (!(await activeProfile(executor, sellerCompanyId, await internalPartnerOf(executor, buyerCompanyId), "customer"))) fields.supplierId = "internalProfileMissing";
   if ((await companyCurrency(executor, buyerCompanyId)) !== (await companyCurrency(executor, sellerCompanyId))) fields.supplierId = "internalCurrencyMismatch";
-  for (const [index, variantId] of variantIds.entries()) {
-    if (!(await linkedVariant(executor, variantId, sellerCompanyId))) fields[`lines.${index}.variantId`] = "internalVariantNotLinked";
-  }
-  await internalGoodsErrors(executor, sellerCompanyId, variantIds, fields);
+  const linkedVariantIds = await linkedVariantIdsOf(executor, variantIds, sellerCompanyId, fields);
+  await internalGoodsErrors(executor, sellerCompanyId, variantIds, linkedVariantIds, fields);
   return fields;
 }

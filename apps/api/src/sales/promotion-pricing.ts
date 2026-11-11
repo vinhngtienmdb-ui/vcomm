@@ -69,7 +69,7 @@ export function withoutPromotion(
 
 export async function applyPromotions(
   executor: Reader,
-  context: { companyId: string; orderId: string | null; channelId: string; customerGroupId: string | null; orderDate: string; internal: boolean; warehouseId: string },
+  context: { companyId: string; orderId: string | null; channelId: string; customerGroupId: string | null; orderDate: string; internal: boolean; warehouseId: string; allowsGoodsGifts: boolean },
   priced: PricedLine[],
 ): Promise<{ lines: PricedLine[]; giftShortages: GiftShortage[] }> {
   const lines = priced.map((line) => ({ ...line }));
@@ -178,23 +178,28 @@ export async function applyPromotions(
     if (candidate.max_gift_sets !== null) sets = Math.min(sets, candidate.max_gift_sets - Number(candidate.used_gift_sets));
     if (sets <= 0) continue;
     const gift = (
-      await executor.execute<{ base_unit_id: string; vat_rate: VatRate }>(sql`
-      SELECT p.base_unit_id, p.vat_rate FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id
+      await executor.execute<{ base_unit_id: string; vat_rate: VatRate; kind: string }>(sql`
+      SELECT p.base_unit_id, p.vat_rate, p.kind FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id
       WHERE v.id = ${candidate.gift_variant_id} AND v.company_id = ${context.companyId} AND v.status = 'active' AND p.status = 'active'`)
     ).rows[0];
     if (!gift) continue;
-    // Tặng theo tồn còn lại của hàng tặng tại kho xuất (trừ phần đang giữ cho đơn khác và phần đơn này đã dùng); thiếu thì ghi số suất thiếu.
-    const stock = (
-      await executor.execute<{ available: string }>(sql`
-      SELECT (coalesce((SELECT quantity FROM inventory.costs WHERE warehouse_id = ${context.warehouseId} AND company_id = ${context.companyId} AND variant_id = ${candidate.gift_variant_id}), 0)
-        - coalesce((SELECT sum(quantity) FROM inventory.reservations WHERE warehouse_id = ${context.warehouseId} AND company_id = ${context.companyId}
-            AND variant_id = ${candidate.gift_variant_id} AND status = 'active' AND NOT (source_type = 'sales.order' AND source_id IS NOT DISTINCT FROM ${except})), 0))::text AS available`)
-    ).rows[0]!;
-    const usedHere = lines.filter((line) => line.variantId === candidate.gift_variant_id).reduce((sum, line) => sum + Number(line.baseQuantity), 0);
-    const affordable = Math.max(0, Math.floor((Number(stock.available) - usedHere + 0.00005) / Number(candidate.gift_quantity)));
-    if (affordable < sets) {
-      giftShortages.push({ promotionName: candidate.name, missingSets: sets - affordable });
-      sets = affordable;
+    // Đơn bán lập tay khi công ty chưa bật cài đặt chỉ gồm dịch vụ: không tự thêm quà là hàng hóa, bỏ quà đó (QUYTAC_NGHIEPVU_276; CONG_VIEC_43, lát L4).
+    if (gift.kind === "goods" && !context.allowsGoodsGifts) continue;
+    // Quà là dịch vụ không theo dõi tồn nên không kiểm tồn, không ghi thiếu quà (QUYTAC_NGHIEPVU_275).
+    if (gift.kind === "goods") {
+      // Tặng theo tồn còn lại của hàng tặng tại kho xuất (trừ phần đang giữ cho đơn khác và phần đơn này đã dùng); thiếu thì ghi số suất thiếu.
+      const stock = (
+        await executor.execute<{ available: string }>(sql`
+        SELECT (coalesce((SELECT quantity FROM inventory.costs WHERE warehouse_id = ${context.warehouseId} AND company_id = ${context.companyId} AND variant_id = ${candidate.gift_variant_id}), 0)
+          - coalesce((SELECT sum(quantity) FROM inventory.reservations WHERE warehouse_id = ${context.warehouseId} AND company_id = ${context.companyId}
+              AND variant_id = ${candidate.gift_variant_id} AND status = 'active' AND NOT (source_type = 'sales.order' AND source_id IS NOT DISTINCT FROM ${except})), 0))::text AS available`)
+      ).rows[0]!;
+      const usedHere = lines.filter((line) => line.variantId === candidate.gift_variant_id).reduce((sum, line) => sum + Number(line.baseQuantity), 0);
+      const affordable = Math.max(0, Math.floor((Number(stock.available) - usedHere + 0.00005) / Number(candidate.gift_quantity)));
+      if (affordable < sets) {
+        giftShortages.push({ promotionName: candidate.name, missingSets: sets - affordable });
+        sets = affordable;
+      }
     }
     if (sets <= 0) continue;
     const quantity = (sets * Number(candidate.gift_quantity)).toFixed(4);

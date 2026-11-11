@@ -22,7 +22,7 @@ export function SalesOrderEditor({ order, onSaved, onCancel }: { order: SalesOrd
   const t = useTranslations("salesOrders");
   const common = useTranslations("common");
   const options = useApi<SalesOptionsResponse>("/sales/options");
-  const choices = options.state.kind === "ready" ? options.state.data : { customers: [], channels: [], warehouses: [], currency: "VND" };
+  const choices = options.state.kind === "ready" ? options.state.data : { customers: [], channels: [], warehouses: [], currency: "VND", allowManualGoodsOrders: false };
   const [customerId, setCustomerId] = useState(order?.customerId ?? "");
   const [buyerName, setBuyerName] = useState(order?.buyerName ?? "");
   const [channelId, setChannelId] = useState(order?.channelId ?? "");
@@ -184,8 +184,10 @@ export function SalesOrderEditor({ order, onSaved, onCancel }: { order: SalesOrd
         </fieldset>
       ))}
       <Field id="them-mat-hang" label={t("addItem")}>
+        {/* Chưa bật cài đặt đơn bán tay có hàng hóa thì chỉ chọn dịch vụ (QUYTAC_NGHIEPVU_276). */}
         <ItemPicker
           id="them-mat-hang"
+          kind={choices.allowManualGoodsOrders ? undefined : "service"}
           onPick={(item) => {
             const line: Line = { item, unitId: item.matchedUnitId ?? item.baseUnitId, quantity: "1", discountPercent: "0", price: null };
             setLines((current) => [...current, line]);

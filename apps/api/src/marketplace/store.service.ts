@@ -307,7 +307,8 @@ export class StoreService {
   async listings(actor: BuyerAdminActor, query: { search?: string | undefined; published: "all" | "published" | "unpublished"; page: number; pageSize: number }): Promise<PageResponse<ListingItem>> {
     const companyId = actor.operatorCompanyId;
     const search = query.search?.trim() ? `%${searchText(query.search)}%` : null;
-    const where = sql`p.company_id = ${companyId} AND p.seller_id IS NULL
+    // Sản phẩm dịch vụ không đăng bán trên sàn VComm nên không vào danh sách đăng bán (CONG_VIEC_43, lát L4).
+    const where = sql`p.company_id = ${companyId} AND p.seller_id IS NULL AND p.kind = 'goods'
       AND (${search}::text IS NULL OR p.search_text LIKE ${search}::text OR lower(p.code) LIKE ${search}::text)
       AND (${query.published}::text = 'all' OR (${query.published}::text = 'published') = coalesce(l.is_published, false))`;
     const total = (
@@ -393,8 +394,12 @@ export class StoreService {
 
   async updateListing(actor: BuyerAdminActor, productId: string, input: z.output<typeof updateListingSchema>): Promise<void> {
     await this.database.transaction(async (transaction) => {
-      const product = await transaction.execute(sql`SELECT 1 FROM catalog.products WHERE id = ${productId} AND company_id = ${actor.operatorCompanyId} AND seller_id IS NULL`);
-      if (product.rows.length === 0) throw new ApiError("NOT_FOUND", "notFound");
+      // Khóa dòng sản phẩm để không đổi loại sang dịch vụ cùng lúc với đăng bán (CONG_VIEC_43, lát L4).
+      const product = (
+        await transaction.execute<{ kind: string }>(sql`SELECT kind FROM catalog.products WHERE id = ${productId} AND company_id = ${actor.operatorCompanyId} AND seller_id IS NULL FOR UPDATE`)
+      ).rows[0];
+      if (!product) throw new ApiError("NOT_FOUND", "notFound");
+      if (product.kind !== "goods") throw new ApiError("BUSINESS_RULE", "listingServiceProduct");
       const before = (await transaction.execute(sql`SELECT is_published, description FROM marketplace.listings WHERE product_id = ${productId}`)).rows[0] ?? null;
       await transaction.execute(sql`
         INSERT INTO marketplace.listings (product_id, company_id, is_published, description, updated_by) VALUES (${productId}, ${actor.operatorCompanyId}, ${input.isPublished}, ${input.description || null}, ${actor.userId})

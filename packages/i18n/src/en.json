@@ -329,9 +329,11 @@
     "commissionNeedsPrice": "The product has no VComm price yet, so a fixed commission cannot be set.",
     "serviceNotStocked": "Service items are not stocked: no stock documents, reservations or stocktakes.",
     "serviceNoTracking": "Services do not track lots or serial numbers.",
-    "productKindLocked": "The product already has stock or stock documents; its kind cannot be changed.",
+    "productKindLocked": "The product has stock, stock documents, links to other companies, a VComm listing or unfinished sales or purchase orders; its kind cannot be changed.",
     "manualOrderServicesOnly": "Manually created sales orders may contain services only. Goods are sold through the VComm marketplace.",
-    "internalServicesOnly": "Internal transactions may contain services only."
+    "internalServicesOnly": "Internal transactions may contain services only.",
+    "variantLinkKindMismatch": "Linked items must be of the same kind (both goods or both services).",
+    "listingServiceProduct": "Service products cannot be listed on the VComm marketplace."
   },
   "login": {
     "title": "Sign in",

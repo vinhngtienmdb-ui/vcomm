@@ -1,6 +1,7 @@
 // Phiếu kho dịch vụ tự lập khi đơn xác nhận (CONG_VIEC_43; QUYTAC_NGHIEPVU_275 đến 277; quyết định người dùng 2026-11-11).
 // Dòng dịch vụ của đơn bán coi là đã giao đủ, dòng dịch vụ của đơn mua đối ứng nội bộ coi là đã nhận đủ: một phiếu xuất giao hàng, phiếu nhập mua dịch vụ
 // ghi sổ không qua thẻ kho để công nợ, hóa đơn điện tử, bút toán chạy như phiếu ghi sổ. Đơn VComm không qua đây (chỉ hàng hóa).
+// Đơn mua dịch vụ của nhà cung cấp ngoài tập đoàn khi duyệt cũng coi là đã nhận đủ phần dịch vụ (lát L4).
 import { Injectable, type OnModuleInit } from "@nestjs/common";
 import { sql } from "drizzle-orm";
 import { internalCompanyOf } from "../crm/partners.service";
@@ -43,10 +44,18 @@ export class ServiceDocumentsService implements OnModuleInit {
     await this.deliverSales(transaction, orderId);
   }
 
-  // Đơn mua duyệt: đơn mua nội bộ có đơn bán bên kia đã xác nhận thì giao, nhận dịch vụ.
+  // Đơn mua duyệt. Mua của nhà cung cấp ngoài tập đoàn: nhận ngay phần dịch vụ (quyết định người dùng 2026-11-11, lát L4).
+  // Mua của công ty trong tập đoàn: giữ luồng giao dịch nội bộ, chỉ giao, nhận khi đơn bán bên kia đã xác nhận.
   private async purchaseApproved(transaction: Executor, orderId: string): Promise<void> {
-    const purchase = (await transaction.execute<{ counterpart_order_id: string | null }>(sql`SELECT counterpart_order_id FROM purchasing.orders WHERE id = ${orderId}`)).rows[0];
-    if (!purchase?.counterpart_order_id) return;
+    const purchase = (
+      await transaction.execute<{ supplier_id: string; counterpart_order_id: string | null }>(sql`SELECT supplier_id, counterpart_order_id FROM purchasing.orders WHERE id = ${orderId}`)
+    ).rows[0];
+    if (!purchase) return;
+    if (!(await internalCompanyOf(transaction, purchase.supplier_id))) {
+      await this.receivePurchase(transaction, orderId);
+      return;
+    }
+    if (!purchase.counterpart_order_id) return;
     const sale = (await transaction.execute<{ status: string }>(sql`SELECT status FROM sales.orders WHERE id = ${purchase.counterpart_order_id}`)).rows[0];
     if (sale?.status === "confirmed") await this.settleInternal(transaction, purchase.counterpart_order_id, orderId);
   }

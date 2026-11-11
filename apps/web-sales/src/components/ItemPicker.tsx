@@ -1,7 +1,7 @@
 "use client";
 
 // Ô tìm mặt hàng của công ty đang chọn: gõ mã vạch, mã hàng hoặc tên rồi nhấn Enter (máy quét mã vạch gõ kèm Enter).
-import type { StockItemOption } from "contracts";
+import type { ProductKind, StockItemOption } from "contracts";
 import { useTranslations } from "next-intl";
 import { type KeyboardEvent, useState } from "react";
 import { apiFetch } from "ui/lib/api";
@@ -9,18 +9,19 @@ import { apiFetch } from "ui/lib/api";
 export const itemLabel = (item: { sku: string; productName: string; optionValues: string[] }) =>
   `${item.sku} · ${item.productName}${item.optionValues.length > 0 ? ` (${item.optionValues.join(", ")})` : ""}`;
 
-export async function findItems(search: string): Promise<StockItemOption[]> {
-  return apiFetch<StockItemOption[]>(`/sales/items?${new URLSearchParams({ search: search.trim() })}`).catch(() => []);
+// kind: chỉ tìm mặt hàng một loại (đơn bán tay chỉ dịch vụ khi chưa bật cài đặt, CONG_VIEC_43).
+export async function findItems(search: string, kind?: ProductKind): Promise<StockItemOption[]> {
+  return apiFetch<StockItemOption[]>(`/sales/items?${new URLSearchParams({ search: search.trim(), ...(kind ? { kind } : {}) })}`).catch(() => []);
 }
 
-export function ItemPicker({ id, onPick, invalid }: { id: string; onPick: (item: StockItemOption) => void; invalid?: boolean }) {
+export function ItemPicker({ id, onPick, invalid, kind }: { id: string; onPick: (item: StockItemOption) => void; invalid?: boolean; kind?: ProductKind }) {
   const t = useTranslations("purchasing");
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<StockItemOption[] | null>(null);
 
   async function find() {
     if (!search.trim()) return;
-    const found = await findItems(search);
+    const found = await findItems(search, kind);
     if (found.length === 1) {
       onPick(found[0]!);
       setSearch("");

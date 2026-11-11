@@ -111,11 +111,11 @@ describe("CONG_VIEC_22 khách của tôi", () => {
     });
     expect(created.status, JSON.stringify(created.body)).toBe(201);
     const partnerId = created.body.id as string;
-    // CONG_VIEC_43 (QUYTAC_NGHIEPVU_279): nhân viên thêm đối tác không còn tự có hồ sơ khách hàng; hồ sơ do người quản lý hồ sơ lập (thanh toán ngay).
-    await pool.query("INSERT INTO crm.partner_profiles (company_id, partner_id, is_customer, is_supplier, payment_term_days, credit_limit, status) VALUES ($1, $2, true, false, 0, 0, 'active')", [
-      retail,
-      partnerId,
-    ]);
+    // CONG_VIEC_43 (lát L4): nhân viên ghi ghé thăm, không quản lý hồ sơ, thêm đối tác thì tự có hồ sơ khách hàng mặc định, không gán người phụ trách.
+    const profile = (
+      await pool.query("SELECT is_customer, payment_term_days, credit_limit::text, owner_user_id FROM crm.partner_profiles WHERE company_id = $1 AND partner_id = $2", [retail, partnerId])
+    ).rows;
+    expect(profile).toEqual([{ is_customer: true, payment_term_days: 0, credit_limit: "0.0000", owner_user_id: null }]);
     const debt = (direction: string, amount: number, open: number, due: string | null) =>
       pool.query(
         `INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, document_no, document_date, due_date, amount, open_amount)

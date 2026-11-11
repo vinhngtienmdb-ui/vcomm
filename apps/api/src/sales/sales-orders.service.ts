@@ -36,7 +36,7 @@ import { internalSalesErrors } from "./internal-trade-rules";
 import { receivableBalance } from "../finance/receivable-balance";
 import { applyPromotions, type GiftShortage, type PricedLine, withoutPromotion } from "./promotion-pricing";
 import { promotionGiftUsage, promotionUsage } from "./promotions.service";
-import { goodsVariants, requireManualOrderLines, requireSalesPermission, salesAudit, salesPermissions } from "./sales-context";
+import { allowsManualGoodsOrders, goodsVariants, requireManualOrderLines, requireSalesPermission, salesAudit, salesPermissions } from "./sales-context";
 
 const documentTypeCode = "sales.order";
 export const salesOrderSource = "sales.order";
@@ -161,6 +161,7 @@ export class SalesOrdersService implements OnModuleInit {
       channels: channels.rows,
       warehouses: warehouses.rows,
       currency: await companyCurrency(this.database, actor.companyId),
+      allowManualGoodsOrders: await allowsManualGoodsOrders(this.database, actor.companyId),
     };
   }
 
@@ -644,7 +645,7 @@ export class SalesOrdersService implements OnModuleInit {
     );
     return applyPromotions(
       transaction,
-      { companyId, orderId: null, channelId: input.channelId, customerGroupId: null, orderDate: input.orderDate, internal: false, warehouseId: input.warehouseId },
+      { companyId, orderId: null, channelId: input.channelId, customerGroupId: null, orderDate: input.orderDate, internal: false, warehouseId: input.warehouseId, allowsGoodsGifts: true },
       priced,
     );
   }
@@ -834,7 +835,16 @@ export class SalesOrdersService implements OnModuleInit {
     const internal = input.customerId ? (await internalCompanyOf(transaction, input.customerId)) !== null : false;
     const { lines, giftShortages } = await applyPromotions(
       transaction,
-      { companyId, orderId, channelId: input.channelId, customerGroupId: groupId, orderDate: input.orderDate, internal, warehouseId: input.warehouseId },
+      {
+        companyId,
+        orderId,
+        channelId: input.channelId,
+        customerGroupId: groupId,
+        orderDate: input.orderDate,
+        internal,
+        warehouseId: input.warehouseId,
+        allowsGoodsGifts: await allowsManualGoodsOrders(transaction, companyId),
+      },
       priced,
     );
     // Đơn bán lập tay, kể cả hàng tặng khuyến mãi (QUYTAC_NGHIEPVU_276).

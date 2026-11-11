@@ -18,8 +18,9 @@ export const shopImagePath = (imageId: string | null) => (imageId ? `/api/v1/buy
 export const vietnamToday = async (executor: Executor) => (await executor.execute<{ today: string }>(sql`SELECT (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS today`)).rows[0]!.today;
 
 // Điều kiện sản phẩm được hiện trên ứng dụng, trừ điều kiện có giá (QUYTAC_NGHIEPVU_155).
+// Sàn VComm chỉ bán hàng hóa; sản phẩm dịch vụ không hiện, không đặt được kể cả khi đổi loại sau khi đăng (CONG_VIEC_43, lát L4).
 export const visibleProduct = (context: StoreContext) => sql`
-  p.company_id = ${context.companyId} AND p.seller_id IS NULL AND p.review_status = 'approved' AND p.status = 'active'
+  p.company_id = ${context.companyId} AND p.seller_id IS NULL AND p.review_status = 'approved' AND p.status = 'active' AND p.kind = 'goods'
   AND NOT (p.tracks_lots OR p.tracks_serials)
   AND NOT EXISTS (SELECT 1 FROM catalog.categories c WHERE c.id = p.category_id AND (c.tracks_lots OR c.tracks_serials))
   AND EXISTS (SELECT 1 FROM marketplace.listings l WHERE l.product_id = p.id AND l.is_published)`;

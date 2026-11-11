@@ -28,6 +28,7 @@ export const crmPermissions = {
   manage: "crm.partner.manage",
   viewIdentity: "crm.partner.identity.view",
   manageProfile: "crm.profile.manage",
+  manageVisits: "crm.visit.manage",
 } as const;
 
 type PartnerInput = z.output<typeof savePartnerSchema>;
@@ -327,8 +328,11 @@ export class PartnersService implements OnApplicationBootstrap {
   }
 
   async create(actor: Actor, input: PartnerInput): Promise<PartnerResponse> {
-    await this.require(actor, crmPermissions.manage);
+    const granted = await this.require(actor, crmPermissions.manage);
     await this.validate(input, null);
+    // Nhân viên ghi ghé thăm nhưng không quản lý hồ sơ (nhân viên bán hàng trên ứng dụng): thêm đối tác thì tự có hồ sơ khách hàng mặc định tại công ty,
+    // thanh toán ngay, hạn mức 0, để ghi ghé thăm được ngay; không gán người phụ trách vì không còn giao khách (QUYTAC_NGHIEPVU_135, 279; CONG_VIEC_43, lát L4).
+    const createsCustomerProfile = granted.has(crmPermissions.manageVisits) && !granted.has(crmPermissions.manageProfile);
     const id = await this.database
       .transaction(async (transaction) => {
         const partnerId = (
@@ -338,6 +342,11 @@ export class PartnersService implements OnApplicationBootstrap {
             ${this.search(input)}, ${actor.userId}, ${actor.userId}) RETURNING id`)
         ).rows[0]!.id;
         await this.writeChildren(transaction, partnerId, input);
+        if (createsCustomerProfile) {
+          await transaction.execute(sql`
+            INSERT INTO crm.partner_profiles (company_id, partner_id, is_customer, is_supplier, payment_term_days, credit_limit, status, updated_by)
+            VALUES (${actor.companyId}, ${partnerId}, true, false, 0, 0, 'active', ${actor.userId})`);
+        }
         await this.auditService.record(
           {
             ...crmAudit(actor),

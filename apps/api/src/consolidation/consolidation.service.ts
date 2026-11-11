@@ -372,12 +372,13 @@ export class ConsolidationService implements OnModuleInit {
       }
 
     // 2. Doanh thu thuần bán nội bộ trong kỳ (trừ hàng bán bị trả lại): Nợ doanh thu / Có giá vốn (QUYTAC_NGHIEPVU_126).
+    // Phiếu dịch vụ (is_service) không vào phần hàng hóa: theo TT99 doanh thu hàng hóa, dịch vụ cùng tài khoản 511 (CONG_VIEC_43, lát L4).
     const sales = (
       await executor.execute<{ seller_id: string; buyer_id: string; amount: string }>(sql`
       SELECT j.company_id AS seller_id, p.company_id AS buyer_id,
         sum(CASE WHEN d.type = 'sales_issue' AND r.role = 'revenue' THEN l.credit - l.debit WHEN d.type = 'sales_return' AND r.role = 'sales_return' THEN -(l.debit - l.credit) ELSE 0 END)::text AS amount
       FROM accounting.journal_lines l JOIN accounting.journals j ON j.id = l.journal_id
-      JOIN inventory.documents d ON d.id = j.source_id AND j.source_type = 'inventory_document' AND d.type IN ('sales_issue', 'sales_return')
+      JOIN inventory.documents d ON d.id = j.source_id AND j.source_type = 'inventory_document' AND d.type IN ('sales_issue', 'sales_return') AND NOT d.is_service
       JOIN crm.partners p ON p.id = d.partner_id
       JOIN accounting.posting_rules r ON r.company_id = j.company_id AND r.account_id = l.account_id AND r.role IN ('revenue', 'sales_return')
       WHERE j.company_id IN ${members} AND j.status = 'posted' AND j.journal_date BETWEEN ${row.from_date}::date AND ${row.to_date}::date
@@ -399,6 +400,35 @@ export class ConsolidationService implements OnModuleInit {
         await insertLine("internal_sales", sale.seller_id, revenue, null, 0, -amount, description);
       }
     }
+
+    // 2b. Dịch vụ nội bộ trong kỳ (quyết định người dùng 2026-11-11, CONG_VIEC_43 lát L4): Nợ doanh thu dịch vụ bên bán / Có chi phí dịch vụ bên mua,
+    // theo số tiền chưa thuế trên phiếu xuất dịch vụ của bên bán và phiếu nhập dịch vụ của bên mua giữa hai công ty trong tập đoàn; không giá vốn, không lãi chưa thực hiện.
+    // Hai phiếu lập cùng lúc nên thường bằng nhau; lệch thì chỉ loại trừ phần nhỏ hơn để bút toán cân.
+    const serviceAmounts = (
+      await executor.execute<{ company_id: string; other_id: string; type: string; amount: string }>(sql`
+      SELECT j.company_id, p.company_id AS other_id, d.type,
+        sum(CASE WHEN d.type = 'sales_issue' THEN l.credit - l.debit ELSE l.debit - l.credit END)::text AS amount
+      FROM accounting.journal_lines l JOIN accounting.journals j ON j.id = l.journal_id
+      JOIN inventory.documents d ON d.id = j.source_id AND j.source_type = 'inventory_document' AND d.is_service AND d.type IN ('sales_issue', 'purchase_receipt')
+      JOIN crm.partners p ON p.id = d.partner_id
+      JOIN accounting.posting_rules r ON r.company_id = j.company_id AND r.account_id = l.account_id
+        AND r.role = CASE WHEN d.type = 'sales_issue' THEN 'service_revenue' ELSE 'service_expense' END
+      WHERE j.company_id IN ${members} AND j.status = 'posted' AND j.journal_date BETWEEN ${row.from_date}::date AND ${row.to_date}::date
+        AND p.company_id IN ${members} AND p.company_id <> j.company_id
+      GROUP BY j.company_id, p.company_id, d.type`)
+    ).rows;
+    const serviceAmount = (companyId: string, otherId: string, type: string) =>
+      Number(serviceAmounts.find((item) => item.company_id === companyId && item.other_id === otherId && item.type === type)?.amount ?? 0);
+    for (const seller of memberIds)
+      for (const buyer of memberIds) {
+        if (seller === buyer) continue;
+        const amount = Math.min(serviceAmount(seller, buyer, "sales_issue"), serviceAmount(buyer, seller, "purchase_receipt"));
+        if (amount < 0.00005) continue;
+        entryNo += 1;
+        const description = `Loại trừ doanh thu, chi phí dịch vụ nội bộ ${nameOf.get(seller)} – ${nameOf.get(buyer)}`;
+        await insertLine("internal_sales", seller, await this.roleAccount(executor, seller, "service_revenue"), null, amount, 0, description);
+        await insertLine("internal_sales", buyer, await this.roleAccount(executor, buyer, "service_expense"), null, 0, amount, description);
+      }
 
     // 3. Lãi chưa thực hiện ước tính từng mặt hàng mua nội bộ trong kỳ; giữ số đã sửa tay (QUYTAC_NGHIEPVU_127).
     const overrides = (
@@ -426,7 +456,7 @@ export class ConsolidationService implements OnModuleInit {
         FROM inventory.documents r JOIN inventory.document_lines rl ON rl.document_id = r.id
         JOIN inventory.document_lines il ON il.id = rl.counterpart_line_id JOIN inventory.documents i ON i.id = il.document_id
         JOIN sales.order_lines ol ON ol.id = il.source_line_id
-        WHERE r.type = 'purchase_receipt' AND r.status = 'posted' AND r.counterpart_document_id IS NOT NULL
+        WHERE r.type = 'purchase_receipt' AND r.status = 'posted' AND r.counterpart_document_id IS NOT NULL AND NOT r.is_service
           AND r.company_id IN ${members} AND i.company_id IN ${members} AND r.document_date BETWEEN ${row.from_date}::date AND ${row.to_date}::date
       )
       SELECT buyer_id, seller_id, variant_id, sum(quantity)::text AS internal_quantity,

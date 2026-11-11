@@ -93,8 +93,8 @@ export class VariantLinksService {
 
   // Người liên kết phải có quyền quản lý sản phẩm ở cả hai công ty; mỗi biến thể tối đa một liên kết với mỗi công ty khác.
   private async link(executor: Executor, actor: Actor, variantId: string, linkedVariantId: string, factor: string): Promise<string> {
-    const variants = await executor.execute<{ id: string; company_id: string; product_id: string }>(sql`
-      SELECT v.id, v.company_id, v.product_id FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id
+    const variants = await executor.execute<{ id: string; company_id: string; product_id: string; kind: string }>(sql`
+      SELECT v.id, v.company_id, v.product_id, p.kind FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id
       WHERE v.id IN (${variantId}, ${linkedVariantId}) AND p.seller_id IS NULL`);
     const mine = variants.rows.find((row) => row.id === variantId);
     const other = variants.rows.find((row) => row.id === linkedVariantId);
@@ -103,6 +103,8 @@ export class VariantLinksService {
     await requireCompanyPermission(this.permissionService, actor, catalogPermissions.manageProducts);
     await requireCompanyPermission(this.permissionService, { ...actor, companyId: other.company_id }, catalogPermissions.manageProducts);
     if (Number(factor) <= 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { factor: "invalidValue" } });
+    // Hai mặt hàng liên kết phải cùng loại: khác loại thì giao dịch nội bộ một bên ghi kho, một bên không, công nợ lệch (CONG_VIEC_43, lát L4).
+    if (mine.kind !== other.kind) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { linkedVariantId: "variantLinkKindMismatch" } });
     const taken = await executor.execute(sql`
       SELECT 1 FROM catalog.variant_links
       WHERE (variant_id = ${variantId} AND linked_company_id = ${other.company_id}) OR (linked_variant_id = ${variantId} AND company_id = ${other.company_id})

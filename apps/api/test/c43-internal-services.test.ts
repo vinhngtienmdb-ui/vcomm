@@ -193,3 +193,91 @@ describe("TIEUCHI_NGHIEMTHU_277: giao dịch nội bộ chỉ dịch vụ", () =
     ]);
   });
 });
+
+describe("CONG_VIEC_43 lát L4: sửa sau rà soát độc lập", () => {
+  const product = async (companyId: string, name: string, kind: "goods" | "service") => {
+    const categoryId = (await pool.query<{ id: string }>("SELECT id FROM catalog.categories WHERE code = 'DVNB'")).rows[0]!.id;
+    const created = await groupAdmin.call("post", "/catalog/products", {
+      companyId,
+      body: { categoryId, name, kind, vatRate: "10", tracksLots: false, tracksSerials: false, warrantyMonths: 0, baseUnitId: units.CAI, variants: [{ barcodes: [] }] },
+    });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    return created.body as { id: string; version: number; variants: { id: string }[] } & Record<string, unknown>;
+  };
+
+  it("liên kết mặt hàng hai công ty phải cùng loại; mặt hàng đã liên kết không đổi loại; liên kết khác loại có sẵn bị từ chối ở giao dịch nội bộ", async () => {
+    const service = await product(retail, "Dịch vụ tư vấn", "service");
+    const goods = await product(trading, "Hàng nhận tư vấn", "goods");
+    const link = await groupAdmin.call("post", "/catalog/variant-links", { companyId: retail, body: { variantId: service.variants[0]!.id, linkedVariantId: goods.variants[0]!.id, factor: "1" } });
+    expect(link.status).toBe(400);
+    expect(link.body.error.fields).toEqual({ linkedVariantId: "Hai mặt hàng liên kết phải cùng loại (cùng hàng hóa hoặc cùng dịch vụ)." });
+    // Mặt hàng dịch vụ đã liên kết (beforeAll) không đổi sang hàng hóa được.
+    const linked = (
+      await groupAdmin.call(
+        "get",
+        `/catalog/products/${(await pool.query<{ product_id: string }>("SELECT product_id FROM catalog.variants WHERE id = $1", [items.retailService])).rows[0]!.product_id}`,
+        { companyId: retail },
+      )
+    ).body;
+    const { id: _id, companyId: _companyId, categoryName: _categoryName, images: _images, status: _status, updatedAt: _updatedAt, ...body } = linked;
+    const changed = await groupAdmin.call("patch", `/catalog/products/${linked.id}`, { companyId: retail, body: { ...body, kind: "goods" } });
+    expect(changed.status).toBe(409);
+    expect(changed.body.error.code).toBe("BUSINESS_RULE");
+    // Cập nhật không gửi loại thì giữ loại hiện có (không đổi ngầm về Hàng hóa).
+    const { kind: _kind, ...withoutKind } = body;
+    const kept = await groupAdmin.call("patch", `/catalog/products/${linked.id}`, { companyId: retail, body: withoutKind });
+    expect(kept.status, JSON.stringify(kept.body)).toBe(200);
+    expect(kept.body.kind).toBe("service");
+    // Liên kết khác loại có từ trước (dữ liệu cũ): đơn bán nội bộ báo lỗi đúng dòng.
+    await pool.query("INSERT INTO catalog.variant_links (variant_id, company_id, linked_variant_id, linked_company_id, factor, created_by) SELECT $1, $2, $3, $4, 1, id FROM core.users LIMIT 1", [
+      service.variants[0]!.id,
+      retail,
+      goods.variants[0]!.id,
+      trading,
+    ]);
+    const sale = await sell("/sales/orders", salesBody(service.variants[0]!.id));
+    expect(sale.status).toBe(400);
+    expect(sale.body.error.fields).toEqual({ "lines.0.variantId": "Hai mặt hàng liên kết phải cùng loại (cùng hàng hóa hoặc cùng dịch vụ)." });
+    const purchase = await buy("/purchasing/orders", purchaseBody(goods.variants[0]!.id));
+    expect(purchase.status).toBe(400);
+    expect(purchase.body.error.fields).toEqual({ "lines.0.variantId": "Hai mặt hàng liên kết phải cùng loại (cùng hàng hóa hoặc cùng dịch vụ)." });
+  });
+
+  it("đơn mua dịch vụ của nhà cung cấp ngoài tập đoàn được duyệt: phiếu nhập dịch vụ, công nợ phải trả, bút toán Nợ chi phí dịch vụ / Nợ thuế đầu vào / Có 331; tồn không đổi", async () => {
+    // Kế toán VCT đã khởi tạo ở kiểm thử trước.
+    const service = await product(trading, "Dịch vụ bảo trì thuê ngoài", "service");
+    const supplier = await buy("/crm/partners", { kind: "organization", name: "Công ty bảo trì ngoài", taxCode: "0322000777", contacts: [] });
+    expect(supplier.status, JSON.stringify(supplier.body)).toBe(201);
+    const profile = await groupAdmin.call("put", `/crm/partners/${supplier.body.id}/profile`, {
+      companyId: trading,
+      body: { isCustomer: false, isSupplier: true, paymentTermDays: 30, creditLimit: null, version: 0 },
+    });
+    expect(profile.status, JSON.stringify(profile.body)).toBe(200);
+    const movementsBefore = await movements();
+    const created = await buy("/purchasing/orders", {
+      supplierId: supplier.body.id,
+      warehouseId: buyerWarehouse,
+      orderDate: today,
+      lines: [{ variantId: service.variants[0]!.id, unitId: units.CAI, quantity: "2", unitPrice: "400000", vatRate: "10" }],
+    });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    expect((await buy(`/purchasing/orders/${created.body.id}/submit`, {})).body.status).toBe("received");
+    const receipts = await documentsOf(created.body.id);
+    expect(receipts).toEqual([expect.objectContaining({ company_id: trading, type: "purchase_receipt", status: "posted", is_service: true })]);
+    expect(await movements()).toBe(movementsBefore);
+    const debts = (await pool.query("SELECT company_id, partner_id, side, amount::text FROM finance.debt_items WHERE source_id = $1", [receipts[0]!.id])).rows;
+    expect(debts).toEqual([{ company_id: trading, partner_id: supplier.body.id, side: "payable", amount: "880000.0000" }]);
+    const journal = (
+      await pool.query<{ code: string; debit: string; credit: string }>(
+        `SELECT a.code, jl.debit::text, jl.credit::text FROM accounting.journals j JOIN accounting.journal_lines jl ON jl.journal_id = j.id JOIN accounting.accounts a ON a.id = jl.account_id
+         WHERE j.source_type = 'inventory_document' AND j.source_id = $1 ORDER BY jl.line_no`,
+        [receipts[0]!.id],
+      )
+    ).rows;
+    expect(journal).toEqual([
+      { code: "6427", debit: "800000.0000", credit: "0.0000" },
+      { code: "1331", debit: "80000.0000", credit: "0.0000" },
+      { code: "331", debit: "0.0000", credit: "880000.0000" },
+    ]);
+  });
+});

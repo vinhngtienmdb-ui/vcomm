@@ -119,7 +119,7 @@ export class ProductsService {
       INSERT INTO catalog.products (company_id, category_id, code, name, search_text, description, brand, origin, vat_rate, kind, tracks_lots, tracks_serials, warranty_months,
         base_unit_id, weight_kg, volume_m3, options, specifications, created_by, updated_by)
       VALUES (${companyId}, ${input.categoryId}, ${code}, ${input.name}, ${searchText(input.name, code, input.brand)}, ${input.description ?? null}, ${input.brand ?? null}, ${input.origin ?? null},
-        ${input.vatRate}, ${input.kind}, ${input.tracksLots}, ${input.tracksSerials}, ${input.warrantyMonths}, ${input.baseUnitId}, ${input.weightKg}::numeric, ${input.volumeM3}::numeric,
+        ${input.vatRate}, ${input.kind ?? "goods"}, ${input.tracksLots}, ${input.tracksSerials}, ${input.warrantyMonths}, ${input.baseUnitId}, ${input.weightKg}::numeric, ${input.volumeM3}::numeric,
         ${JSON.stringify(input.options)}::jsonb, ${JSON.stringify(input.specifications)}::jsonb, ${actor.userId}, ${actor.userId})
       RETURNING id`);
     const productId = inserted.rows[0]!.id;
@@ -133,14 +133,19 @@ export class ProductsService {
     const before = await this.read(actor.companyId, id);
     if (input.version === undefined) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { version: "required" } });
     await this.requireStockLockedFieldsUnchanged(id, before, input);
-    if (input.kind !== before.kind) await this.requireKindChangeable(id);
     await this.database.transaction(async (transaction) => {
-      await this.validate(transaction, actor.companyId, input, before);
+      // Khóa dòng sản phẩm rồi mới kiểm điều kiện đổi loại, để kiểm và ghi trong cùng giao dịch (CONG_VIEC_43, lát L4).
+      const locked = (await transaction.execute<{ kind: ProductKind }>(sql`SELECT kind FROM catalog.products WHERE id = ${id} AND company_id = ${actor.companyId} FOR UPDATE`)).rows[0];
+      if (!locked) throw new ApiError("NOT_FOUND", "notFound");
+      // Không gửi loại thì giữ loại hiện có, tránh đổi ngầm về Hàng hóa (CONG_VIEC_43, lát L4).
+      const kind = input.kind ?? locked.kind;
+      if (kind !== locked.kind) await this.requireKindChangeable(transaction, id);
+      await this.validate(transaction, actor.companyId, { ...input, kind }, before);
       const code = input.code || before.code;
       if (code !== before.code) await this.requireFreeCode(transaction, actor.companyId, code, id);
       const updated = await transaction.execute(sql`
         UPDATE catalog.products SET category_id = ${input.categoryId}, code = ${code}, name = ${input.name}, search_text = ${searchText(input.name, code, input.brand)},
-          description = ${input.description ?? null}, brand = ${input.brand ?? null}, origin = ${input.origin ?? null}, vat_rate = ${input.vatRate}, kind = ${input.kind},
+          description = ${input.description ?? null}, brand = ${input.brand ?? null}, origin = ${input.origin ?? null}, vat_rate = ${input.vatRate}, kind = ${kind},
           tracks_lots = ${input.tracksLots}, tracks_serials = ${input.tracksSerials}, warranty_months = ${input.warrantyMonths}, base_unit_id = ${input.baseUnitId},
           weight_kg = ${input.weightKg}::numeric, volume_m3 = ${input.volumeM3}::numeric, options = ${JSON.stringify(input.options)}::jsonb,
           specifications = ${JSON.stringify(input.specifications)}::jsonb, version = version + 1, updated_at = now(), updated_by = ${actor.userId}
@@ -172,13 +177,22 @@ export class ProductsService {
   }
 
   // Đổi loại Hàng hóa, Dịch vụ chỉ khi sản phẩm chưa có tồn kho, chứng từ kho, giữ hàng, kiểm kê (QUYTAC_NGHIEPVU_275). Đọc bảng của mini app Kho (chỉ đọc).
-  private async requireKindChangeable(id: string): Promise<void> {
-    const used = await this.database.execute(sql`
+  // Sửa sau rà soát (lát L4): thêm liên kết mặt hàng với công ty khác, tin đăng VComm, dòng đơn bán, đơn mua chưa kết thúc;
+  // đổi loại khi còn những thứ này thì hai bên giao dịch nội bộ khác loại, sàn bán dịch vụ, đơn đang chạy đổi luồng kho giữa chừng.
+  private async requireKindChangeable(executor: Executor, id: string): Promise<void> {
+    const used = await executor.execute(sql`
       SELECT 1 FROM catalog.variants v WHERE v.product_id = ${id} AND (
         EXISTS (SELECT 1 FROM inventory.balances b WHERE b.variant_id = v.id AND b.quantity <> 0)
         OR EXISTS (SELECT 1 FROM inventory.document_lines l WHERE l.variant_id = v.id)
         OR EXISTS (SELECT 1 FROM inventory.reservations r WHERE r.variant_id = v.id)
-        OR EXISTS (SELECT 1 FROM inventory.stocktake_lines t WHERE t.variant_id = v.id))
+        OR EXISTS (SELECT 1 FROM inventory.stocktake_lines t WHERE t.variant_id = v.id)
+        OR EXISTS (SELECT 1 FROM catalog.variant_links k WHERE k.variant_id = v.id OR k.linked_variant_id = v.id)
+        OR EXISTS (SELECT 1 FROM sales.order_lines sl JOIN sales.orders so ON so.id = sl.order_id
+          WHERE sl.variant_id = v.id AND so.status NOT IN ('rejected', 'withdrawn', 'cancelled', 'closed'))
+        OR EXISTS (SELECT 1 FROM purchasing.order_lines pl JOIN purchasing.orders po ON po.id = pl.order_id
+          WHERE pl.variant_id = v.id AND po.status NOT IN ('rejected', 'withdrawn', 'cancelled', 'closed')))
+      UNION ALL
+      SELECT 1 FROM marketplace.listings ml WHERE ml.product_id = ${id}
       LIMIT 1`);
     if (used.rows.length > 0) throw new ApiError("BUSINESS_RULE", "productKindLocked");
   }
@@ -268,8 +282,9 @@ export class ProductsService {
     else if (category.child_count > 0) errors.categoryId = "productCategoryNotLeaf";
     if (input.tracksLots && input.tracksSerials) errors.tracksSerials = "categoryLotsAndSerials";
     // Dịch vụ không theo dõi lô, số serial (QUYTAC_NGHIEPVU_275).
-    if (input.kind === "service" && input.tracksLots) errors.tracksLots = "serviceNoTracking";
-    if (input.kind === "service" && input.tracksSerials) errors.tracksSerials = "serviceNoTracking";
+    const isService = (input.kind ?? before?.kind ?? "goods") === "service";
+    if (isService && input.tracksLots) errors.tracksLots = "serviceNoTracking";
+    if (isService && input.tracksSerials) errors.tracksSerials = "serviceNoTracking";
 
     const unitIds = [input.baseUnitId, ...input.units.map((unit) => unit.unitId)];
     const activeUnits = new Set(

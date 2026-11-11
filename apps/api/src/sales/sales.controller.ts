@@ -9,6 +9,7 @@ import {
   type PromotionResponse,
   closeSalesOrderSchema,
   confirmCounterpartSchema,
+  productKinds,
   rejectCounterpartSchema,
   saveSalesOrderSchema,
   salesOrderListQuerySchema,
@@ -35,7 +36,8 @@ import { requireSalesPermission, salesPermissions } from "./sales-context";
 import { PromotionsService } from "./promotions.service";
 import { SalesOrdersService } from "./sales-orders.service";
 
-const itemSearchSchema = z.object({ search: z.string().trim().min(1).max(100) }).strict();
+// Lọc theo loại: ô chọn mặt hàng của đơn bán chỉ hiện dịch vụ khi chưa bật cài đặt đơn tay có hàng hóa (CONG_VIEC_43, lát L4).
+const itemSearchSchema = z.object({ search: z.string().trim().min(1).max(100), kind: z.enum(productKinds).optional() }).strict();
 
 @Controller("sales")
 export class SalesController {
@@ -61,7 +63,8 @@ export class SalesController {
     const actor = await this.actor(request, companyId);
     // Tìm mặt hàng khi lập đơn bán hoặc chương trình khuyến mãi.
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders, salesPermissions.managePromotions);
-    return searchVariantOptions(this.database, actor.companyId, itemSearchSchema.parse(query).search);
+    const input = itemSearchSchema.parse(query);
+    return searchVariantOptions(this.database, actor.companyId, input.search, input.kind);
   }
 
   @Get("price")

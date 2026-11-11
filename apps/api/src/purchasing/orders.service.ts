@@ -72,7 +72,7 @@ export const returnedOnOrderLine = (lineId: SQL) => sql`coalesce((
 @Injectable()
 export class PurchaseOrdersService implements OnModuleInit {
   internalHooks: PurchasingInternalHooks | null = null;
-  // Gọi sau khi đơn mua sang đã duyệt, trong cùng giao dịch: nhận dịch vụ của đơn mua đối ứng nội bộ (CONG_VIEC_43; QUYTAC_NGHIEPVU_277).
+  // Gọi sau khi đơn mua sang đã duyệt, trong cùng giao dịch: nhận phần dịch vụ của mọi đơn mua (đơn nội bộ khi đơn bán bên kia đã xác nhận) (CONG_VIEC_43; QUYTAC_NGHIEPVU_277; lát L4).
   readonly approvedHooks: ((transaction: Executor, orderId: string) => Promise<void>)[] = [];
 
   constructor(
@@ -262,8 +262,12 @@ export class PurchaseOrdersService implements OnModuleInit {
         transaction,
       );
       if (reapprove) await this.sendForApproval(transaction, actor, row, lines);
-      // Giảm về đúng số đã nhận thì đơn nhận đủ.
-      else if (wasApproved) await this.refreshReceived(transaction, id);
+      else if (wasApproved) {
+        // Dòng dịch vụ thêm vào đơn đã duyệt mà không cần duyệt lại cũng coi là đã nhận (CONG_VIEC_43, lát L4).
+        for (const hook of this.approvedHooks) await hook(transaction, id);
+        // Giảm về đúng số đã nhận thì đơn nhận đủ.
+        await this.refreshReceived(transaction, id);
+      }
     });
     return this.detail(actor, id);
   }

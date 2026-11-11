@@ -329,9 +329,11 @@
     "commissionNeedsPrice": "Sản phẩm chưa có giá bán trên kênh VComm, chưa đặt được hoa hồng số tiền cố định.",
     "serviceNotStocked": "Mặt hàng dịch vụ không theo dõi tồn kho: không lập phiếu kho, giữ hàng, kiểm kê.",
     "serviceNoTracking": "Dịch vụ không theo dõi lô, số serial.",
-    "productKindLocked": "Sản phẩm đã phát sinh tồn kho, chứng từ kho; không đổi loại được.",
+    "productKindLocked": "Sản phẩm đã có tồn kho, chứng từ kho, liên kết với công ty khác, tin đăng VComm hoặc đơn bán, đơn mua chưa kết thúc; không đổi loại được.",
     "manualOrderServicesOnly": "Đơn bán lập tay chỉ gồm mặt hàng dịch vụ. Hàng hóa bán qua sàn VComm.",
-    "internalServicesOnly": "Giao dịch nội bộ chỉ gồm mặt hàng dịch vụ."
+    "internalServicesOnly": "Giao dịch nội bộ chỉ gồm mặt hàng dịch vụ.",
+    "variantLinkKindMismatch": "Hai mặt hàng liên kết phải cùng loại (cùng hàng hóa hoặc cùng dịch vụ).",
+    "listingServiceProduct": "Sản phẩm dịch vụ không đăng bán trên sàn VComm."
   },
   "login": {
     "title": "Đăng nhập",

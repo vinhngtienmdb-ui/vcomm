@@ -117,10 +117,12 @@ describe("TIEUCHI_NGHIEMTHU_275: tắt giao khách, xem toàn công ty, quyền 
     expect(((await as(seller, "get", "/sales/options")).body.customers as { id: string }[]).map((item) => item.id)).toEqual(expect.arrayContaining([customers.other, customers.none]));
     expect(((await as(seller, "get", "/sales/orders")).body.data as { id: string }[]).map((item) => item.id)).toContain(orderOfOther);
     expect((await as(seller, "get", `/sales/orders/${orderOfOther}`)).status).toBe(200);
-    // Nhân viên thêm đối tác không tự có hồ sơ khách hàng.
+    // Nhân viên ghi ghé thăm, không quản lý hồ sơ, thêm đối tác thì tự có hồ sơ khách hàng mặc định (thanh toán ngay, hạn mức 0), không gán người phụ trách
+    // (quyết định người dùng 2026-11-11, lát L4).
     const added = await as(seller, "post", "/crm/partners", { kind: "organization", name: "Đối tác nhân viên thêm", taxCode: "0343000003" });
     expect(added.status, JSON.stringify(added.body)).toBe(201);
-    expect(added.body.profile).toBeNull();
+    expect(added.body.profile).toMatchObject({ isCustomer: true, isSupplier: false, paymentTermDays: 0, ownerUserId: null, creditLimitHidden: true });
+    expect((await as(retailAdmin, "get", `/crm/partners/${added.body.id}`)).body.profile.creditLimit).toBe("0");
     // Đổi người phụ trách đã có bằng tay (trước đây phải qua phiếu giao khách).
     const before = await as(retailAdmin, "get", `/crm/partners/${customers.other}`);
     const changed = await as(retailAdmin, "put", `/crm/partners/${customers.other}/profile`, {
