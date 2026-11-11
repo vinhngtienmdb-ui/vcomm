@@ -3,7 +3,7 @@
 - Mô tả: Người mua trả bằng thẻ trong Apple Wallet trên ứng dụng VComm (iOS, Safari web) qua trang thanh toán ZaloPay, kết nối vào khung nhiều cổng của CONG_VIEC_32.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11. Đã làm xong, chờ nghiệm thu.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11. Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-11); trước khi phát hành phải thử với tài khoản thử nghiệm của nhà cung cấp (ZaloPay).
 - Nguồn: người dùng yêu cầu 2026-11-11 "mở thêm phiên để tích hợp google pay và apple pay"; CONG_VIEC_25, CONG_VIEC_32.
 
 ## 1. Mục tiêu
