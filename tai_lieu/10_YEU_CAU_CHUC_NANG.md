@@ -1909,6 +1909,21 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 8:
 - Dữ liệu: không xóa dữ liệu giao khách, giao dịch nội bộ đã có; bút toán cũ nguồn hoa hồng giữ nguyên.
 - Không thêm thư viện.
 
+## Ứng dụng kho trên điện thoại (CONG_VIEC_44)
+
+### CHUC_NANG_159: Ứng dụng kho trên điện thoại, máy quét cầm tay
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_53, YCAU_NGHIEPVU_54, YCAU_NGHIEPVU_55; Quy tắc: QUYTAC_NGHIEPVU_280 đến QUYTAC_NGHIEPVU_284 (áp dụng cùng QUYTAC_NGHIEPVU_45 đến 55)
+- Vai trò: Thủ kho, Quản lý kho, quản trị công ty, quản trị tập đoàn
+- Xử lý: đăng nhập phiên `warehouse_app`; chọn công ty, kho thao tác được; quét mã bằng máy quét chế độ bàn phím hoặc camera; tra tồn theo lô, vị trí, serial; nhận hàng đơn mua, xuất giao hàng đơn bán, phiếu nhập khác, xuất khác, chuyển kho (lập, gửi, rút, xác nhận xuất, nhận) qua API kho có sẵn; đếm kiểm kê cộng dồn, lịch sử đếm, đếm mù
+- Màn hình: MAN_HINH_105 đến MAN_HINH_109; API: API_137, API_138, API_139; dùng lại API_15, API_63 đến API_67, API_76, API_79
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_278 đến TIEUCHI_NGHIEMTHU_281
+
+## Yêu cầu phi chức năng của ứng dụng kho (CONG_VIEC_44)
+
+- Bắt buộc có mạng; dữ liệu đang nhập giữ trên màn hình khi gửi lỗi.
+- Token trong bộ nhớ an toàn của máy; phiên ứng dụng 90 ngày.
+- Thư viện mới duy nhất: `expo-camera`.
+
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Vị trí | Nội dung |

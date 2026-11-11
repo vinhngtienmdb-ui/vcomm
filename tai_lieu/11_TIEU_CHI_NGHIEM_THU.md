@@ -369,3 +369,14 @@ Dữ liệu mẫu: công ty con VCR, VTH (giao dịch nội bộ); sản phẩm 
 | TIEUCHI_NGHIEMTHU_275 | CHUC_NANG_158 | Không lập được phiếu giao khách, nhận khách; nhân viên bán hàng xem mọi đối tác, đơn bán; Nhân viên bán hàng không lập đơn bán, Kế toán lập được | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_276 | CHUC_NANG_157, CHUC_NANG_158 | Đơn bán tay có hàng hóa bị từ chối; đơn chỉ dịch vụ xác nhận là đã giao, có hóa đơn, công nợ; đơn VComm hàng hóa vẫn chạy | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_277 | CHUC_NANG_157 | Giao dịch nội bộ chỉ dịch vụ: hàng hóa bị từ chối; đơn dịch vụ sinh đơn mua đối ứng, xác nhận là đã nhận, không phiếu kho ghi thẻ kho | Gọi API | Bắt buộc |
+
+## MODULE_03 Kho (ứng dụng kho trên điện thoại, CONG_VIEC_44)
+
+Dữ liệu mẫu: công ty VCR, kho thuộc chi nhánh Bình Dương và trụ sở; Thủ kho, Quản lý kho thử; sản phẩm thường, theo lô, theo serial có mã vạch. Không dùng dữ liệu thật.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_278 | CHUC_NANG_159 | Đăng nhập ứng dụng kho tạo phiên `warehouse_app` làm mới được bằng token; tài khoản không có `inventory.access` bị từ chối và phiên bị thu hồi; tài khoản bắt buộc xác thực hai lớp phải nhập mã trước khi gọi API kho | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_279 | CHUC_NANG_159 | Trên ứng dụng: nhận đơn mua, xuất giao hàng, nhập khác, xuất khác, chuyển kho xuất và nhận bằng quét mã cho tồn, thẻ kho như web; Thủ kho chi nhánh khác không thấy kho, bị từ chối khi gọi | Gọi API; xem trước bản web | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_280 | CHUC_NANG_159 | Hai người cộng số đếm đồng thời vào cùng dòng thì số đếm bằng tổng; cộng làm âm, serial trùng dòng khác, đợt không đang đếm bị từ chối; Thủ kho cộng được nhưng không lập, kết thúc, sửa số tuyệt đối; người chỉ có quyền đếm không thấy tồn sổ sách, chênh lệch; lịch sử đếm đủ từng lần | Kiểm thử tự động | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_281 | CHUC_NANG_159 | Quét bằng máy quét bàn phím và camera: mã vị trí đổi vị trí hiện tại, mã vạch thêm đúng mặt hàng và đơn vị, quét lại cộng số lượng, serial ghi vào dòng đang chờ; mã không khớp báo lỗi | Kiểm thử tự động phần tra mã; xem trước bản web (máy quét bàn phím); người dùng thử camera trên điện thoại | Bắt buộc (camera: Mong muốn) |

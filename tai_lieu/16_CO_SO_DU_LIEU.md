@@ -3129,3 +3129,14 @@ Quy tắc xóa và lưu giữ bổ sung:
 - Bút toán cũ nguồn `commission` (nếu có) giữ nguyên trong sổ.
 - Không xóa dữ liệu giao khách, lịch sử phụ trách, giao dịch nội bộ đã có.
 - Phiếu dịch vụ không sửa, không xóa (ghi sổ ngay khi lập).
+
+## 28. Database migration 0064 – CONG_VIEC_44 (ứng dụng kho, đếm kiểm kê cộng dồn)
+
+Tệp `database/migrations/0064_stocktake_count_entries.sql` (lát L0). Mã 0065, 0066 dành riêng cho CONG_VIEC_44 không dùng.
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `inventory.stocktake_count_entries` (mới) | Lịch sử đếm, chỉ thêm (QUYTAC_NGHIEPVU_284) | `stocktake_id`, `stocktake_line_id`, `counted_by`, `counted_at`, `quantity` (`numeric(20,4)`, có dấu), `added_serials`, `removed_serials` (`text[]`), `client_type` (`web`, `warehouse_app`, `sales_app`, `vcomm_app`) | Khóa ngoại tới `inventory.stocktakes`, `inventory.stocktake_lines`, `core.users`; chỉ mục (`stocktake_id`, `counted_at` giảm dần) |
+| `inventory.stocktake_lines` | Một dòng cho mỗi (đợt, biến thể, lô, vị trí) | | Chỉ mục duy nhất `stocktake_lines_key_idx` (`stocktake_id`, `variant_id`, `lot_id`, `location_id`) `NULLS NOT DISTINCT` |
+
+Quy tắc xóa và lưu giữ bổ sung: lịch sử đếm không sửa, không xóa; giữ cùng đợt kiểm kê. Quyền mới `inventory.stocktake.count` đồng bộ từ `apps/api/src/permissions/permission-catalog.ts`, không cần database migration.

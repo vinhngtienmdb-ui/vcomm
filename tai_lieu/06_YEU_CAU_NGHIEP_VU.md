@@ -171,6 +171,14 @@
 |---|---|---|
 | YCAU_NGHIEPVU_52 | Người giới thiệu và đội kinh doanh nhiều cấp nhận hoa hồng theo đơn VComm hoàn tất vào ví; rút về tài khoản ngân hàng, có kế toán duyệt chi, khấu trừ thuế thu nhập cá nhân và thu phí rút tiền | THAY_DOI_14, THAY_DOI_16, THAY_DOI_17; người dùng 2026-11-11 |
 
+## MODULE_03 Kho (ứng dụng kho trên điện thoại, CONG_VIEC_44)
+
+| Mã | Yêu cầu | Nguồn |
+|---|---|---|
+| YCAU_NGHIEPVU_53 | Thủ kho nhập, xuất, chuyển kho, tra tồn ngay tại kệ trên điện thoại hoặc máy quét cầm tay, quét mã vạch thay gõ tay; kết quả ghi sổ như trên web | CONG_VIEC_05 mục 2; quyết định của người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_54 | Nhiều Thủ kho cùng đếm một đợt kiểm kê bằng quét mã, số đếm cộng dồn không ghi đè lẫn nhau; người đếm không thấy tồn sổ sách; chỉ Quản lý kho lập và kết thúc kiểm kê | CONG_VIEC_05 mục 2; quyết định của người dùng 2026-11-11 |
+| YCAU_NGHIEPVU_55 | Ứng dụng kho dùng chung tài khoản, phân quyền theo chi nhánh, xác thực hai lớp như web; phiên dài để không đăng nhập lại mỗi ca | CONG_VIEC_05 mục 2; quyết định của người dùng 2026-11-11 |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |

@@ -688,6 +688,40 @@ Ngày 2026-11-11, chưa xác nhận.
 | QUYTAC_NGHIEPVU_277 | Đơn mua dịch vụ từ nhà cung cấp ngoài tập đoàn chưa tự nhận (ngoài phạm vi, chờ người dùng quyết) |
 | QUYTAC_NGHIEPVU_279 | Bỏ quyền `crm.customer.view_all`, `crm.customer.assign` và loại chứng từ `crm.customer_assignment`; lọc nhân viên ở màn hình Ghé thăm lấy mọi nhân viên đang làm việc của công ty (`GET /crm/visit-options`) |
 
+## Ứng dụng kho trên điện thoại (CONG_VIEC_44)
+
+| Mã | Quy tắc | Nguồn |
+|---|---|---|
+| QUYTAC_NGHIEPVU_280 | Ứng dụng kho đăng nhập bằng tài khoản nhân viên (email, tên đăng nhập hoặc số điện thoại và mật khẩu), xác thực hai lớp như web (tài khoản bắt buộc mà chưa đăng ký thì phải đăng ký trên web). Phiên loại `warehouse_app`, token làm mới 90 ngày, đổi mới mỗi lần dùng. Ứng dụng chỉ hiện công ty người dùng có `inventory.access` và kho người dùng thao tác được; mọi thao tác đi qua API kho hiện có với cùng quy tắc, quyền, luồng duyệt, đánh số như web (QUYTAC_NGHIEPVU_45 đến 55) | YCAU_NGHIEPVU_53, 55; quyết định của người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_281 | Bắt buộc có mạng: ứng dụng không lưu phiếu, số đếm trên máy. Mất mạng khi gửi thì báo lỗi, dữ liệu đang nhập giữ trên màn hình để gửi lại; đóng ứng dụng hoặc rời màn hình thì mất phần chưa gửi (hỏi xác nhận trước khi rời màn hình có dữ liệu chưa gửi) | YCAU_NGHIEPVU_53; quyết định của người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_282 | Quét mã trên màn hình lập phiếu, đếm: mã được tra theo thứ tự (1) mã vị trí đang dùng của kho đang chọn (không phân biệt hoa thường), khi kho dùng vị trí: đặt làm vị trí hiện tại cho các lần quét sau; kho dùng vị trí thì phải quét vị trí trước khi quét hàng; (2) mặt hàng khớp đúng mã vạch hoặc mã hàng của công ty chủ hàng (API_65 `/inventory/items`): thêm 1 đơn vị quét (đơn vị khớp mã vạch, không khớp thì đơn vị cơ sở; theo đơn thì quy đổi sang đơn vị dòng đơn; đếm kiểm kê quy đổi sang đơn vị cơ sở) vào dòng gần nhất cùng mặt hàng, đơn vị, vị trí, chưa có thì thêm dòng; khớp nhiều mặt hàng thì cho chọn; (3) đang chờ serial của một dòng (vừa quét mặt hàng theo dõi serial hoặc người dùng chạm dòng): ghi serial vào dòng đó, serial trùng thì báo; (4) chỉ khớp gần đúng theo tên thì cho chọn; (5) không khớp thì báo "Không tìm thấy mã <mã>." kèm rung. Hàng theo lô: nhập số lô, hạn dùng khi nhập; khi xuất gợi ý lô theo QUYTAC_NGHIEPVU_51, chọn lô khác ghi lý do; khi đếm chọn trong lô đã có, kể cả lô hết hạn | YCAU_NGHIEPVU_53; quyết định của người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_283 | Quyền mới `inventory.stocktake.count` (phạm vi công ty, chi nhánh; không nhạy cảm) "Đếm kiểm kê", gán mặc định Thủ kho; Quản lý kho có sẵn vì có mọi quyền `inventory.*`. Người có quyền này tại kho được xem danh sách, chi tiết đợt kiểm kê của kho và cộng số đếm khi đợt đang đếm; không lập, bắt đầu, sửa số tuyệt đối, kết thúc, hủy. Đếm mù: người không có `inventory.stocktake.manage` tại kho không thấy tồn sổ sách, chênh lệch, giá trị chênh lệch của đợt kiểm kê và không thấy dòng chưa ai đếm | YCAU_NGHIEPVU_54; quyết định của người dùng 2026-11-11 |
+| QUYTAC_NGHIEPVU_284 | Số đếm cộng dồn: mỗi lần gửi từ ứng dụng cộng số lượng (có thể âm để sửa nhầm) vào dòng cùng biến thể, lô, vị trí; chưa có dòng thì thêm dòng tồn sổ sách 0. Số đếm sau khi cộng không âm. Hàng serial: gửi danh sách serial thêm, serial bỏ; số đếm bằng số serial khác nhau của dòng; serial đã đếm ở dòng khác của đợt bị từ chối. Mỗi lần cộng ghi một dòng lịch sử đếm (người đếm, thời điểm, số cộng, serial) không sửa, không xóa. Hai lần cộng đồng thời vào cùng dòng đều được tính. Quản lý kho vẫn sửa số tuyệt đối trên web (API_67, ghi đè) | YCAU_NGHIEPVU_54; quyết định của người dùng 2026-11-11 |
+
+Ngoại lệ:
+- Cộng làm số đếm âm: "Số đếm sau khi cộng không được âm." (khóa `stocktakeCountNegative`) (QUYTAC_NGHIEPVU_284).
+- Serial đã đếm ở dòng khác: "Serial đã được đếm ở dòng khác của đợt kiểm kê." (khóa `stocktakeSerialCounted`) (QUYTAC_NGHIEPVU_284).
+- Cộng khi đợt không ở trạng thái đang đếm: lỗi hiện có `stocktakeNotCounting`.
+- Đăng nhập ứng dụng kho bằng tài khoản không có `inventory.access` ở công ty nào: "Tài khoản không có quyền dùng ứng dụng kho." (khóa `warehouseAppNoAccess`), phiên vừa tạo bị thu hồi (QUYTAC_NGHIEPVU_280).
+
+### Quyết định của người dùng (CONG_VIEC_44, 2026-11-11)
+
+- Ứng dụng có mọi thao tác kho: tra tồn, nhận hàng đơn mua, xuất giao hàng, nhập khác, xuất khác, chuyển kho, đếm kiểm kê; duyệt vẫn trên web.
+- Bắt buộc có mạng, không làm ngoại tuyến.
+- Thêm quyền đếm kiểm kê cho Thủ kho; số đếm cộng dồn khi nhiều người cùng đếm.
+- Đếm mù cho người không có quyền quản lý kiểm kê, áp dụng cả web.
+- Thêm thư viện `expo-camera`.
+
+### Quyết định AI tự đưa ra (CONG_VIEC_44)
+
+Ngày 2026-11-11, chưa xác nhận.
+
+| Vị trí | Nội dung |
+|---|---|
+| QUYTAC_NGHIEPVU_282 | Mã không khớp mặt hàng nào khi đang chờ serial được ghi là serial; người dùng chạm dòng serial để thôi chờ |
+| QUYTAC_NGHIEPVU_281 | Nhận hàng đơn mua, xuất giao hàng gửi không được (thiếu hàng, mặt hàng đang kiểm kê…) thì xóa phiếu nháp vừa lập để lần sau lập lại theo số trên màn hình |
+| QUYTAC_NGHIEPVU_284 | Lưu số tuyệt đối trên web (API_67) không ghi lịch sử đếm |
+
 ## Quy tắc do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Mã | Nội dung đề xuất |
