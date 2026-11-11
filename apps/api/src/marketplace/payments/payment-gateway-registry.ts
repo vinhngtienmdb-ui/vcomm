@@ -10,6 +10,7 @@ import { EcopayGateway } from "./gateways/ecopay-gateway";
 import { GpayGateway } from "./gateways/gpay-gateway";
 import { ZalopayGateway } from "./gateways/zalopay-gateway";
 import { GooglePayGateway } from "./gateways/google-pay-gateway";
+import { ApplePayGateway } from "./gateways/apple-pay-gateway";
 import type { PaymentGatewayAdapter } from "./payment-gateway";
 import { SepayGateway } from "./gateways/sepay-gateway";
 
@@ -24,6 +25,7 @@ export const paymentGateways: PaymentGatewayAdapter[] = [
   new GpayGateway(),
   new ZalopayGateway(),
   new GooglePayGateway(),
+  new ApplePayGateway(),
 ];
 
 export function gatewayAdapter(code: string): PaymentGatewayAdapter | null {

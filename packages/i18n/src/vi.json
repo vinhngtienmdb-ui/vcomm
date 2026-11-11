@@ -3691,7 +3691,9 @@
     "zalopay_card": "Thẻ quốc tế Visa, Mastercard, JCB qua ZaloPay",
     "gateway_zalopay": "ZaloPay",
     "google_pay_card": "Thẻ trong Google Pay (qua ZaloPay)",
-    "gateway_google_pay": "Google Pay"
+    "gateway_google_pay": "Google Pay",
+    "apple_pay_wallet": "Apple Pay (qua ZaloPay)",
+    "gateway_apple_pay": "Apple Pay"
   },
   "refunds": {
     "title": "Hoàn tiền đơn VComm",
