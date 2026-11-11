@@ -3630,7 +3630,15 @@
     "codReference": "Statement reference",
     "recordCod": "Record collected",
     "codRecorded": "Cash collected recorded.",
-    "status_refunded": "Refunded"
+    "status_refunded": "Refunded",
+    "commissionsTitle": "Commissions",
+    "share_referral": "Referral",
+    "share_staff": "Sales staff",
+    "share_team_head": "Sales team head",
+    "share_regional_director": "Regional director",
+    "share_director": "Sales director",
+    "commissionCredited": "Credited",
+    "commissionEstimated": "Estimated, credited when the order completes"
   },
   "returnRequests": {
     "title": "Return requests",

@@ -4479,6 +4479,18 @@ export interface MarketplaceShipmentItem {
   syncedAt: string;
 }
 
+// CONG_VIEC_26: hoa hồng của đơn theo người hưởng và phần (QUYTAC_NGHIEPVU_201, 202).
+export const commissionShares = ["referral", "staff", "team_head", "regional_director", "director"] as const;
+export type CommissionShare = (typeof commissionShares)[number];
+export interface MarketplaceOrderCommission {
+  beneficiaryName: string;
+  beneficiaryPhone: string;
+  share: CommissionShare;
+  // Đã cộng ví: số tiền thực; chưa hoàn tất: ước tính theo hàng hiện tại.
+  amount: string;
+  credited: boolean;
+}
+
 export interface MarketplaceOrderDetail extends BuyerOrderDetail {
   buyerId: string;
   buyerName: string;
@@ -4486,6 +4498,7 @@ export interface MarketplaceOrderDetail extends BuyerOrderDetail {
   salesOrderId: string;
   shipments: MarketplaceShipmentItem[];
   payments: MarketplacePaymentItem[];
+  commissions: MarketplaceOrderCommission[];
   // Ghi tay đã thu tiền thu hộ khi đơn vị vận chuyển không có API (QUYTAC_NGHIEPVU_167).
   canRecordCod: boolean;
   canShip: boolean;

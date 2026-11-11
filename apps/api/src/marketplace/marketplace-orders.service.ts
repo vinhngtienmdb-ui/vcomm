@@ -18,6 +18,7 @@ import { sql } from "drizzle-orm";
 import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
+import { MarketplaceCommissionsService } from "./commissions.service";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Actor } from "../permissions/roles.service";
 import { returnedOnOrderLine, SalesOrdersService } from "../sales/sales-orders.service";
@@ -137,6 +138,7 @@ export class MarketplaceOrdersService {
     @Inject(DATABASE) private readonly database: Database,
     private readonly salesOrders: SalesOrdersService,
     private readonly audit: AuditService,
+    private readonly commissions: MarketplaceCommissionsService,
   ) {}
 
   private async storeContext(): Promise<StoreContext> {
@@ -264,6 +266,8 @@ export class MarketplaceOrdersService {
           ${online ? "awaiting_payment" : "awaiting_shipment"}, ${online ? sql`now() + make_interval(mins => ${paymentWindowMinutes})` : null}) RETURNING id`)
       ).rows[0]!.id;
       await this.event(transaction, id, online ? "awaiting_payment" : "awaiting_shipment", null, userId);
+      // Chốt người hưởng, mức hoa hồng lúc đặt (CONG_VIEC_26; QUYTAC_NGHIEPVU_201).
+      await this.commissions.snapshot(transaction, { orderId: id, salesOrderId: sale.orderId, buyerUserId: userId, companyId: context.companyId });
       await transaction.execute(sql`
         DELETE FROM marketplace.cart_lines WHERE buyer_user_id = ${userId} AND variant_id IN (${sql.join(
           input.lines.map((line) => sql`${line.variantId}::uuid`),
@@ -475,6 +479,13 @@ export class MarketplaceOrdersService {
         completedAt: iso(payment.completed_at),
       })),
       canRecordCod: canRecordPayment && codRecordable(row),
+      commissions: (await this.commissions.ofOrder(this.database, orderId)).map((item) => ({
+        beneficiaryName: item.name,
+        beneficiaryPhone: localPhone(item.phone ?? ""),
+        share: item.share,
+        amount: trimDecimal(item.amount),
+        credited: item.credited,
+      })),
       canShip: canManage && row.status === "awaiting_shipment" && !shipments.rows.some((shipment) => shipment.is_active),
       canRefreshShipment: canManage && shipments.rows.some((shipment) => shipment.is_active) && ["awaiting_shipment", "awaiting_pickup", "shipping"].includes(row.status),
       carriers: carriers.rows.map((carrier) => ({ code: carrier.code, name: carrierNames[carrier.code], isEnabled: carrier.is_enabled, isConfigured: carrierConfigured(carrier.code) })),
@@ -538,6 +549,8 @@ export class MarketplaceOrdersService {
           RETURNING m.id`);
         if (updated.rows.length === 0) return;
         await this.event(transaction, order.id, "completed", null, null);
+        // Cộng ví hoa hồng theo hàng thực bán (CONG_VIEC_26; QUYTAC_NGHIEPVU_202).
+        await this.commissions.credit(transaction, order.id);
         completed += 1;
       });
     }

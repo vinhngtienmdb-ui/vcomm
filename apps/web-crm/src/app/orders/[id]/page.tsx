@@ -2,6 +2,7 @@
 
 // MAN_HINH_88 Chi tiết đơn VComm (CHUC_NANG_116, 117; API_127; QUYTAC_NGHIEPVU_159, 160): người mua, địa chỉ, dòng hàng, vận đơn, lịch sử; giao cho đơn vị vận chuyển, tra lại vận đơn, hủy.
 // Thanh toán, các lần thanh toán, ghi tay đã thu tiền thu hộ (CONG_VIEC_25; API_133; QUYTAC_NGHIEPVU_167).
+// Hoa hồng của đơn theo người hưởng (CONG_VIEC_26; QUYTAC_NGHIEPVU_201, 202).
 import type { MarketplaceOrderDetail } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -238,6 +239,19 @@ export default function MarketplaceOrderPage() {
                       {t("shipmentLine", { status: shipment.carrierStatus, fee: shipment.fee ? formatNumber(shipment.fee, 0) : "—", time: formatDateTime(shipment.syncedAt) })}
                       {shipment.isActive ? "" : ` · ${t("shipmentCancelled")}`}
                     </span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {order.commissions.length > 0 && (
+              <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
+                <h2>{t("commissionsTitle")}</h2>
+                {order.commissions.map((item, index) => (
+                  <div key={`${item.share}-${index}`} style={{ display: "flex", justifyContent: "space-between", gap: "var(--khoang-2)", flexWrap: "wrap" }}>
+                    <span>
+                      <strong>{t(`share_${item.share}`)}</strong> · {item.beneficiaryName} · {item.beneficiaryPhone}
+                    </span>
+                    <span>{`${formatNumber(item.amount, 0)} · ${t(item.credited ? "commissionCredited" : "commissionEstimated")}`}</span>
                   </div>
                 ))}
               </div>

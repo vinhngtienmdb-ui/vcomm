@@ -3630,7 +3630,15 @@
     "codReference": "Số phiên đối soát",
     "recordCod": "Ghi đã thu",
     "codRecorded": "Đã ghi đã thu tiền thu hộ.",
-    "status_refunded": "Đã hoàn tiền"
+    "status_refunded": "Đã hoàn tiền",
+    "commissionsTitle": "Hoa hồng",
+    "share_referral": "Giới thiệu",
+    "share_staff": "Nhân viên kinh doanh",
+    "share_team_head": "Trưởng phòng kinh doanh",
+    "share_regional_director": "Giám đốc Vùng",
+    "share_director": "Giám đốc Kinh doanh",
+    "commissionCredited": "Đã cộng ví",
+    "commissionEstimated": "Ước tính, cộng ví khi đơn hoàn tất"
   },
   "returnRequests": {
     "title": "Yêu cầu trả hàng",

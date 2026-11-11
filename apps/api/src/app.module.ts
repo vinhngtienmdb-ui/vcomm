@@ -68,6 +68,7 @@ import { PaymentsController } from "./marketplace/payments/payments.controller";
 import { MarketplacePaymentsService } from "./marketplace/payments/payments.service";
 import { RefundsController } from "./marketplace/payments/refunds.controller";
 import { RefundsService } from "./marketplace/payments/refunds.service";
+import { MarketplaceCommissionsService } from "./marketplace/commissions.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
@@ -169,6 +170,7 @@ import { UsersService } from "./users/users.service";
     ShipmentsService,
     MarketplacePaymentsService,
     RefundsService,
+    MarketplaceCommissionsService,
     ReturnRequestsService,
     SupplierPricesService,
     SalesOrdersService,
