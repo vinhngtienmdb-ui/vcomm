@@ -3,7 +3,7 @@
 - Mô tả: Người mua xem hàng đăng bán, cho vào giỏ, đặt hàng giao tận nơi trên ứng dụng VComm; VComm giao qua đơn vị vận chuyển (GHN đầu tiên), nhận yêu cầu trả hàng trong 7 ngày; đơn tự hoàn tất làm cơ sở hoa hồng.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (không làm bản mẫu riêng, xem trước từng lát). Đang thực hiện.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (không làm bản mẫu riêng, xem trước từng lát). Chờ nghiệm thu.
 - Nguồn: THAY_DOI_14; quyết định của người dùng ngày 2026-11-11 trong tài liệu `02`; CONG_VIEC_23 (tài khoản người mua), CONG_VIEC_27 (đội kinh doanh); CONG_VIEC_04, 05, 08, 12 (sản phẩm, bảng giá, kho, đơn bán, khuyến mãi).
 
 ## 1. Mục tiêu
@@ -141,3 +141,26 @@ Màn hình, API đơn bán, kho, sản phẩm, bảng giá đã có; luồng duy
 - L2: đặt hàng, đơn của tôi, hủy; đơn VComm trên web (API_126, 127 phần xem, hủy; MAN_HINH_93, 95, 96, 88).
 - L3: khung vận chuyển, GHN, webhook, giao, hoàn hàng (API_127 phần giao, API_128).
 - L4: trả hàng, tự hoàn tất (API_129; MAN_HINH_89, 97).
+
+## 15. Kết quả đối chiếu định nghĩa hoàn thành
+
+| Mục | Kết quả |
+|---|---|
+| Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Đạt: QUYTAC_NGHIEPVU_154 đến 162 có kiểm thử tự động (KICHBAN_KIEMTHU_310 đến 318 và phần bổ sung sau rà soát) |
+| Đúng giao diện | Đạt: ứng dụng xem trước bản web khổ iPhone 13; web-crm máy tính và điện thoại không cuộn ngang, không lỗi trình duyệt (KICHBAN_KIEMTHU_319, 320; `tam_thoi/CONG_VIEC_24/xem_l0.js` đến `xem_l4.js`) |
+| Đã xử lý lỗi | Đạt: lỗi nghiệp vụ có thông báo riêng; giao GHN không rõ kết quả có bước tra lại; ghi sổ lỗi khi lấy hàng ghi lịch sử cho kho |
+| Đã kiểm thử, có kết quả trong tài liệu `25`, đạt cổng kiểm thử | Đạt: c24-marketplace-orders 12/12; toàn bộ 324/324 (40 tệp); không còn lỗi Nghiêm trọng, Cao |
+| Không phá vỡ chức năng cũ | Đạt: kiểm thử cũ đạt; module Kho tách bước ghi sổ phiếu nháp, hành vi gửi phiếu cũ không đổi; đơn bán, phiếu kho thường không bị ảnh hưởng |
+| Đạt tiêu chí nghiệm thu bắt buộc | Đạt: TIEUCHI_NGHIEMTHU_175 đến 182; mong muốn TIEUCHI_NGHIEMTHU_183 đạt |
+| Đạt cổng bảo mật | Đạt: lỗi Cao, Trung bình của rà soát đã sửa; không thêm thư viện; không có khóa bí mật trong mã (token GHN ở biến môi trường); gitleaks trong CI chưa chạy do tài khoản GitHub lỗi thanh toán |
+| Đã tự rà soát mã, dọn dẹp | Đạt: rà soát độc lập, sửa ở commit d8e3f7c; tệp tạm trong `tam_thoi/CONG_VIEC_24/` (Git bỏ qua) |
+| Đã cập nhật tài liệu `27` và tài liệu liên quan | Đạt: 06 đến 14, 16, 17, 21, 22, 27, mục lục |
+
+## 16. Giới hạn đã biết
+
+- Kết nối GHN viết theo tài liệu công khai, kiểm thử bằng máy chủ giả lập; trước khi phát hành phải thử với tài khoản GHN môi trường thử nghiệm (tạo vận đơn theo địa chỉ hai cấp, tra theo số đơn, hủy, webhook). Khóa webhook nằm trên đường dẫn (GHN không ký webhook) nên có thể xuất hiện trong nhật ký máy chủ trung gian.
+- Kho xuất của VComm không được quản lý vị trí; hàng quản lý lô, serial chưa bán trên ứng dụng; bán theo đơn vị cơ sở.
+- Ảnh trả hàng chỉ đính kèm trên bản web của ứng dụng; trên điện thoại cần thêm thư viện chọn ảnh (chờ người dùng quyết định).
+- Danh sách cửa hàng tính giá từng biến thể khi tải; số sản phẩm đăng bán lớn sẽ chậm, cần tối ưu khi có số liệu thực.
+- Trạng thái vận chuyển hiện là trạng thái nhận gần nhất; webhook đến trễ có thể ghi đè trạng thái hiển thị (không đổi trạng thái đơn).
+- Phí giao hàng chỉ lưu trên đơn; hạch toán, thu COD, đối soát, hoàn tiền làm ở CONG_VIEC_25; hoa hồng theo đơn hoàn tất ở CONG_VIEC_26.
