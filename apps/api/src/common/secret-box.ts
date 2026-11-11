@@ -1,6 +1,6 @@
 // Mã hóa bí mật khi lưu (AES-256-GCM): khóa TOTP, khóa nhà cung cấp trong Cài đặt tích hợp (tài liệu 22, QUYTAC_NGHIEPVU_31).
 // Khóa mã hóa lấy từ biến môi trường MFA_SECRET_KEY; môi trường thật dùng khóa AWS KMS (tài liệu 22).
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes } from "node:crypto";
 
 function encryptionKey(): Buffer {
   const value = process.env.MFA_SECRET_KEY;
@@ -19,4 +19,9 @@ export function decryptSecret(data: Buffer): string {
   const decipher = createDecipheriv("aes-256-gcm", encryptionKey(), data.subarray(0, 12));
   decipher.setAuthTag(data.subarray(12, 28));
   return Buffer.concat([decipher.update(data.subarray(28)), decipher.final()]).toString("utf8");
+}
+
+// Mã băm có khóa (HMAC-SHA256) để kiểm trùng giá trị đã mã hóa mà không lưu giá trị rõ (CONG_VIEC_46, QUYTAC_NGHIEPVU_295).
+export function blindIndex(plain: string): Buffer {
+  return createHmac("sha256", encryptionKey()).update(plain.trim().toUpperCase(), "utf8").digest();
 }

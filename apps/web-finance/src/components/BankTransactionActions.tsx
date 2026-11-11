@@ -40,9 +40,12 @@ export function BankTransactionActions({ item, onChanged }: { item: BankTransact
             )}
           </>
         ) : (
-          <button type="button" className="nut phu" onClick={() => setAction("reopen")}>
-            {item.status === "matched" ? t("unmatch") : t("unignore")}
-          </button>
+          // Tiền đơn VComm đã ghi nhận thì không bỏ ghép (CONG_VIEC_36).
+          !item.marketplacePayment && (
+            <button type="button" className="nut phu" onClick={() => setAction("reopen")}>
+              {item.status === "matched" ? t("unmatch") : t("unignore")}
+            </button>
+          )
         )}
       </span>
       {action === "receipt" && <ReceiptDrawer item={item} onClose={() => setAction(null)} onDone={done} onFailed={onChanged} />}
