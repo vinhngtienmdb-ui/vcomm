@@ -3,7 +3,7 @@
 - Mô tả: Mini app Nhân sự `apps/web-hr`: nhu cầu tuyển dụng qua luồng duyệt, tin tuyển dụng, trang tuyển dụng công khai chung tập đoàn, hồ sơ ứng viên, vòng phỏng vấn, đánh giá ứng viên, email cho ứng viên, đề nghị nhận việc qua luồng duyệt, chuyển ứng viên nhận việc thành hồ sơ nhân sự (CONG_VIEC_46), lưu giữ và xóa dữ liệu ứng viên; đánh giá hiệu suất theo kỳ (mẫu tiêu chí, mục tiêu, tự đánh giá, người quản lý chấm, nhân sự chốt, công bố).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Đặc tả đã duyệt 2026-11-11; đang làm bản mẫu giao diện.
+- Trạng thái: Đặc tả, bản mẫu đã duyệt 2026-11-11; đang làm lát L0.
 - Mức: Lớn (nghiệp vụ mới, dữ liệu cá nhân của người chưa phải người lao động, bề mặt công khai không đăng nhập, đổi quy tắc giới hạn yêu cầu của tài liệu `22`).
 - Nguồn: tài liệu `01` mục 4 (MODULE_08: tuyển dụng, đánh giá hiệu suất), tài liệu `05`; quyết định của người dùng ngày 2026-11-11 (mục 17).
 - Nền: CONG_VIEC_46 (hồ sơ nhân sự, schema `hr`, mini app cổng 3007), nhánh `chuc-nang/CONG_VIEC_46-nhan-su-ho-so` chưa hợp nhất vào `main`.
