@@ -4073,7 +4073,7 @@ export interface SalesProposalOptionsResponse {
 }
 
 // CONG_VIEC_24: đặt hàng trên VComm (API_123 đến 129; QUYTAC_NGHIEPVU_154 đến 162).
-export const carrierCodes = ["ghn"] as const;
+export const carrierCodes = ["ghn", "vnpost", "viettel_post", "jt", "ghtk"] as const;
 export type CarrierCode = (typeof carrierCodes)[number];
 
 export interface CarrierItem {
