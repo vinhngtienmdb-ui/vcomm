@@ -37,13 +37,17 @@ function TaskDetail({ task, onChanged }: { task: OfficeTaskResponse; onChanged: 
   const [editing, setEditing] = useState(false);
   const [addingChild, setAddingChild] = useState(false);
   const [reasonFor, setReasonFor] = useState<"return" | "cancel" | null>(null);
+  const [choosingOutcome, setChoosingOutcome] = useState(false);
   const [progressOpen, setProgressOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const allowed = new Set(task.allowedActions);
-  const transition = async (action: OfficeTaskAction, reason?: string) => {
+  const transition = async (action: OfficeTaskAction, reason?: string, outcome?: string) => {
     setBusy(true);
     try {
-      await apiFetch(`/office/tasks/${task.id}/transition`, { method: "POST", body: JSON.stringify({ action, version: task.version, ...(reason ? { reason } : {}) }) });
+      await apiFetch(`/office/tasks/${task.id}/transition`, {
+        method: "POST",
+        body: JSON.stringify({ action, version: task.version, ...(reason ? { reason } : {}), ...(outcome ? { outcome } : {}) }),
+      });
       notify(t(`done_${action}`));
       onChanged();
     } catch (error) {
@@ -54,7 +58,12 @@ function TaskDetail({ task, onChanged }: { task: OfficeTaskResponse; onChanged: 
   };
   const actionButton = (action: OfficeTaskAction, tone: string) =>
     allowed.has(action) && (
-      <button type="button" className={`nut ${tone}`} disabled={busy} onClick={() => (action === "return" || action === "cancel" ? setReasonFor(action) : void transition(action))}>
+      <button
+        type="button"
+        className={`nut ${tone}`}
+        disabled={busy}
+        onClick={() => (action === "return" || action === "cancel" ? setReasonFor(action) : action === "report_done" && task.workflow ? setChoosingOutcome(true) : void transition(action))}
+      >
         {t(`action_${action}`)}
       </button>
     );
@@ -65,6 +74,7 @@ function TaskDetail({ task, onChanged }: { task: OfficeTaskResponse; onChanged: 
           {task.title} <TaskStatusBadge status={task.status} overdue={task.overdue} />
         </h1>
         <div className="nhom-nut">
+          {actionButton("claim", "chinh")}
           {actionButton("start", "chinh")}
           {actionButton("report_done", "chinh")}
           {actionButton("confirm", "chinh")}
@@ -82,6 +92,13 @@ function TaskDetail({ task, onChanged }: { task: OfficeTaskResponse; onChanged: 
           {actionButton("cancel", "nguy-hiem")}
         </div>
       </div>
+      {task.workflow && (
+        <div className="khoi-canh-bao thong-tin">
+          {t("workflowStep", { step: task.workflow.stepName, runNo: task.workflow.runNo })} <Link href={`/workflow-runs/${task.workflow.runId}`}>{t("openRun")}</Link>
+          {task.workflow.instructions && <div>{task.workflow.instructions}</div>}
+          {task.workflow.candidateRoleName && !task.owner && <div>{t("claimHint", { role: task.workflow.candidateRoleName })}</div>}
+        </div>
+      )}
       {task.statusReason && task.status !== "completed" && <div className="khoi-canh-bao canh-bao">{t("reasonShown", { reason: task.statusReason })}</div>}
       <div className="the">
         <dl className="thong-tin-dong">
@@ -176,6 +193,13 @@ function TaskDetail({ task, onChanged }: { task: OfficeTaskResponse; onChanged: 
           }}
         />
       )}
+      {choosingOutcome && task.workflow && (
+        <OutcomeDrawer
+          outcomes={task.workflow.outcomes}
+          onClose={() => setChoosingOutcome(false)}
+          onConfirm={(outcome) => (setChoosingOutcome(false), void transition("report_done", undefined, outcome))}
+        />
+      )}
       {reasonFor && <ReasonDrawer action={reasonFor} onClose={() => setReasonFor(null)} onConfirm={(reason) => (setReasonFor(null), void transition(reasonFor, reason))} />}
       {progressOpen && <ProgressDrawer task={task} onClose={() => setProgressOpen(false)} onSaved={() => (setProgressOpen(false), onChanged())} />}
     </>
@@ -196,6 +220,33 @@ function ReasonDrawer({ action, onClose, onConfirm }: { action: "return" | "canc
           {common("cancel")}
         </button>
         <button type="button" className="nut chinh" disabled={!reason.trim()} onClick={() => onConfirm(reason.trim())}>
+          {common("confirm")}
+        </button>
+      </div>
+    </Drawer>
+  );
+}
+
+function OutcomeDrawer({ outcomes, onClose, onConfirm }: { outcomes: string[]; onClose: () => void; onConfirm: (outcome: string) => void }) {
+  const t = useTranslations("officeTasks");
+  const common = useTranslations("common");
+  const [outcome, setOutcome] = useState(outcomes[0] ?? "");
+  return (
+    <Drawer title={t("action_report_done")} onClose={onClose}>
+      <Field id="task-outcome" label={t("outcome")} hint={t("outcomeHint")}>
+        <select id="task-outcome" className="o-nhap" value={outcome} onChange={(event) => setOutcome(event.target.value)}>
+          {outcomes.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <div className="nhom-nut">
+        <button type="button" className="nut phu" onClick={onClose}>
+          {common("cancel")}
+        </button>
+        <button type="button" className="nut chinh" disabled={!outcome} onClick={() => onConfirm(outcome)}>
           {common("confirm")}
         </button>
       </div>

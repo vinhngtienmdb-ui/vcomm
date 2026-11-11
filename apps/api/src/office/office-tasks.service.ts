@@ -49,10 +49,19 @@ type TaskRow = {
   completed_at: Date | null;
   created_at: Date;
   version: number;
+  workflow_step_instance_id: string | null;
+  candidate_role_id: string | null;
+  can_claim?: boolean;
 };
 
+// Móc nối khi việc của bước quy trình hoàn thành: chạy trong cùng giao dịch (dịch vụ quy trình đăng ký).
+export type WorkflowTaskCompletedHook = (transaction: Executor, task: { id: string; stepInstanceId: string; outcome: string }) => Promise<void>;
+// Thông tin bước cho chi tiết việc; dịch vụ quy trình cung cấp.
+export type WorkflowTaskInfoProvider = (stepInstanceId: string, candidateRoleId: string | null) => Promise<OfficeTaskResponse["workflow"]>;
+
 const taskColumns = sql`t.id, t.company_id, c.short_name AS company_name, t.parent_id, t.title, t.description, t.status, t.priority, t.progress,
-  to_char(t.start_date, 'YYYY-MM-DD') AS start_date, t.due_at, t.assigned_by, t.owner_user_id, t.status_reason, t.completed_at, t.created_at, t.version`;
+  to_char(t.start_date, 'YYYY-MM-DD') AS start_date, t.due_at, t.assigned_by, t.owner_user_id, t.status_reason, t.completed_at, t.created_at, t.version,
+  t.workflow_step_instance_id, t.candidate_role_id`;
 
 // Cơ sở dữ liệu trả thời điểm dạng chuỗi; đổi về ISO 8601 thống nhất.
 const isoOrNull = (value: Date | string | null): string | null => (value === null ? null : new Date(value).toISOString());
@@ -99,6 +108,18 @@ export class OfficeTasksService {
     private readonly auditService: AuditService,
   ) {}
 
+  readonly workflowCompletedHooks: WorkflowTaskCompletedHook[] = [];
+  workflowInfo: WorkflowTaskInfoProvider | null = null;
+
+  // Người dùng giữ vai trò ứng viên của việc (gán ở tập đoàn hoặc công ty của việc, còn hiệu lực).
+  private candidateCondition(userId: string): SQL {
+    const today = this.permissionService.today();
+    return sql`(t.owner_user_id IS NULL AND t.candidate_role_id IS NOT NULL AND EXISTS (
+      SELECT 1 FROM core.user_role_assignments a JOIN core.roles r ON r.id = a.role_id AND r.status = 'active'
+      WHERE a.user_id = ${userId} AND a.role_id = t.candidate_role_id AND (a.scope_type = 'group' OR a.company_id = t.company_id)
+        AND a.valid_from <= ${today}::date AND (a.valid_to IS NULL OR a.valid_to >= ${today}::date)))`;
+  }
+
   // Công ty mà người dùng có quyền xem mọi việc (bao trùm công ty; quyền gán ở chi nhánh không dùng được).
   private async viewAllCompanies(userId: string): Promise<SQL> {
     return sql`(
@@ -121,12 +142,13 @@ export class OfficeTasksService {
   private async visibleCondition(userId: string): Promise<SQL> {
     return sql`(t.assigned_by = ${userId} OR t.owner_user_id = ${userId}
       OR EXISTS (SELECT 1 FROM office.task_participants p WHERE p.task_id = t.id AND p.user_id = ${userId})
+      OR ${this.candidateCondition(userId)}
       OR t.company_id IN ${await this.viewAllCompanies(userId)})`;
   }
 
   private async loadVisible(executor: Executor, actor: Actor, id: string, lock = false): Promise<TaskRow> {
     const result = await executor.execute<TaskRow>(sql`
-      SELECT ${taskColumns} FROM office.tasks t JOIN core.companies c ON c.id = t.company_id
+      SELECT ${taskColumns}, ${this.candidateCondition(actor.userId)} AS can_claim FROM office.tasks t JOIN core.companies c ON c.id = t.company_id
       WHERE t.id = ${id} AND ${await this.visibleCondition(actor.userId)} ${lock ? sql`FOR UPDATE OF t` : sql``}`);
     const row = result.rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
@@ -221,6 +243,7 @@ export class OfficeTasksService {
       createdAt: isoOrNull(row.created_at)!,
       version: row.version,
       children: children.map((child) => this.listItem(child, people)),
+      workflow: row.workflow_step_instance_id && this.workflowInfo ? await this.workflowInfo(row.workflow_step_instance_id, row.candidate_role_id) : null,
       allowedActions: this.allowedActions(actor.userId, row),
     };
   }
@@ -230,6 +253,13 @@ export class OfficeTasksService {
     const isAssigner = row.assigned_by === userId;
     const isOwner = row.owner_user_id === userId;
     if (closedStatuses.includes(row.status)) return actions;
+    // Việc của bước quy trình: không sửa, không hủy riêng (hủy cả phiên); báo xong là hoàn thành (QUYTAC_NGHIEPVU_362).
+    if (row.workflow_step_instance_id) {
+      if (row.owner_user_id === null && row.can_claim) actions.push("claim");
+      if (isOwner && row.status === "new") actions.push("start");
+      if (isOwner && ["new", "in_progress"].includes(row.status)) actions.push("report_done", "progress");
+      return actions;
+    }
     if (isAssigner) actions.push("edit", "cancel");
     if (isOwner && row.status === "new") actions.push("start");
     if (isOwner && ["new", "in_progress"].includes(row.status)) actions.push("report_done", "progress");
@@ -360,7 +390,7 @@ export class OfficeTasksService {
     return this.detail(actor, id);
   }
 
-  async transition(actor: Actor, id: string, action: OfficeTaskAction, reason: string | null | undefined, version: number): Promise<OfficeTaskResponse> {
+  async transition(actor: Actor, id: string, action: OfficeTaskAction, reason: string | null | undefined, version: number, outcome?: string | null): Promise<OfficeTaskResponse> {
     await this.database.transaction(async (transaction) => {
       const row = await this.loadVisible(transaction, actor, id, true);
       if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
@@ -372,13 +402,20 @@ export class OfficeTasksService {
         );
       }
       if ((action === "return" || action === "cancel") && !reason) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { reason: "required" } });
+      if (action === "claim") {
+        await transaction.execute(sql`UPDATE office.tasks SET owner_user_id = ${actor.userId}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
+        await this.event(transaction, id, actor.userId, "claimed");
+        return;
+      }
+      const stepOutcomes = row.workflow_step_instance_id && action === "report_done" && this.workflowInfo ? ((await this.workflowInfo(row.workflow_step_instance_id, null))?.outcomes ?? []) : null;
+      if (stepOutcomes && (!outcome || !stepOutcomes.includes(outcome))) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { outcome: "required" } });
       let next: OfficeTaskStatus = row.status;
       if (action === "start") next = "in_progress";
       if (action === "report_done") {
         const open = (await transaction.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM office.tasks WHERE parent_id = ${id} AND status NOT IN ('completed', 'cancelled')`)).rows[0]!
           .total;
         if (open > 0) throw new ApiError("BUSINESS_RULE", "officeSubtasksOpen");
-        next = row.assigned_by === row.owner_user_id ? "completed" : "pending_confirmation";
+        next = stepOutcomes || row.assigned_by === row.owner_user_id ? "completed" : "pending_confirmation";
       }
       if (action === "confirm") next = "completed";
       if (action === "return") next = "in_progress";
@@ -391,7 +428,10 @@ export class OfficeTasksService {
           cancelled_at = CASE WHEN ${next === "cancelled"}::boolean THEN now() ELSE cancelled_at END,
           updated_at = now(), version = version + 1
         WHERE id = ${id}`);
-      await this.event(transaction, id, actor.userId, `status_${action}`, { from: row.status, to: next, ...(reason ? { reason } : {}) });
+      await this.event(transaction, id, actor.userId, `status_${action}`, { from: row.status, to: next, ...(reason ? { reason } : {}), ...(stepOutcomes ? { outcome } : {}) });
+      if (stepOutcomes && row.workflow_step_instance_id) {
+        for (const hook of this.workflowCompletedHooks) await hook(transaction, { id, stepInstanceId: row.workflow_step_instance_id, outcome: outcome! });
+      }
       if (action === "cancel") {
         // Hủy việc cha hủy mọi việc con chưa xong (QUYTAC_NGHIEPVU_358).
         const children = await transaction.execute<{ id: string }>(sql`

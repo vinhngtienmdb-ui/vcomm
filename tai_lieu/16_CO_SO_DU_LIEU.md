@@ -3132,7 +3132,7 @@ Quy tắc xóa và lưu giữ bổ sung:
 
 ## Database migration 0090 đến 0093 – CONG_VIEC_52 (MODULE_13 Văn phòng số phần 1)
 
-Schema `office`, chỉ mini app Văn phòng số ghi (tài liệu `12` mục 2). Tệp `database/migrations/0090_office_tasks.sql` (lát L0); 0091 đến 0093 bổ sung khi làm lát L1 đến L3.
+Schema `office`, chỉ mini app Văn phòng số ghi (tài liệu `12` mục 2). Tệp `database/migrations/0090_office_tasks.sql` (lát L0), `0091_office_workflows.sql` (lát L1); 0092, 0093 bổ sung khi làm lát L2, L3.
 
 | Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
 |---|---|---|---|
@@ -3141,6 +3141,11 @@ Schema `office`, chỉ mini app Văn phòng số ghi (tài liệu `12` mục 2).
 | `office.task_participants` (0090) | Người phối hợp, người theo dõi (QUYTAC_NGHIEPVU_357) | `task_id`, `user_id`, `role` (`collaborator`, `follower`), `created_at` | Khóa chính (`task_id`, `user_id`): một người một vai trò; chỉ mục `user_id` |
 | `office.task_comments` (0090) | Bình luận (QUYTAC_NGHIEPVU_359) | `task_id`, `author_id`, `body` (1 đến 5.000 ký tự), `created_at`, `edited_at`, `deleted_at` | Xóa mềm |
 | `office.task_events` (0090) | Lịch sử việc | `task_id`, `actor_id`, `action`, `details` (jsonb), `created_at` | Chỉ thêm |
+| `office.workflow_templates` (0091) | Mẫu quy trình (QUYTAC_NGHIEPVU_360, 361) | `company_id`, `name`, `description`, `status` (`draft`, `active`, `inactive`), `active_version_id`, `created_by`, `created_at`, `updated_at`, `version` | Chỉ mục (`company_id`, `name`) |
+| `office.workflow_template_versions` (0091) | Phiên bản mẫu | `template_id`, `version_no`, `definition` (jsonb: biểu mẫu khởi tạo, bước, quy tắc chuyển, phòng ban được khởi tạo; kiểm bằng lược đồ zod), `status` (`draft`, `active`, `retired`), `created_by`, `created_at`, `activated_at` | Duy nhất (`template_id`, `version_no`); mỗi mẫu tối đa một bản nháp, một bản đang dùng |
+| `office.workflow_runs` (0091) | Phiên quy trình (QUYTAC_NGHIEPVU_362) | `company_id`, `template_id`, `template_version_id`, `run_no` (dãy số `office.workflow_run`, mặc định `QT`, theo năm, 5 chữ số), `title`, `field_values` (jsonb), `initiator_id`, `status` (`running`, `blocked`, `completed`, `cancelled`), `step_count` (đếm lượt mở bước, giới hạn 100), `cancel_reason`, `created_at`, `completed_at`, `version` | Duy nhất (`company_id`, `run_no`); đã hủy phải có lý do |
+| `office.workflow_step_instances` (0091) | Lượt mở một bước | `run_id`, `step_key`, `status` (`waiting`, `open`, `blocked`, `done`, `cancelled`), `task_id`, `outcome`, `blocked_reason` (`noAssignee`, `stepLimit`), `created_at`, `completed_at` | Xong phải có kết quả; `task_id` duy nhất |
+| `office.tasks` (0091) | Việc của bước quy trình | Thêm `workflow_step_instance_id`, `candidate_role_id` (vai trò được nhận việc khi chưa có chủ trì) | `tasks_owner_or_candidate_check`: có chủ trì hoặc có vai trò ứng viên |
 | `office.files` (0090) | Tệp của Văn phòng số, nội dung ở kho tệp chung (S3 hoặc thư mục cục bộ) | `company_id`, `owner_type` (`task`; thêm giá trị ở lát sau), `owner_id`, `file_name`, `content_type`, `size_bytes`, `storage_key` (duy nhất), `uploaded_by`, `created_at`, `deleted_at`, `deleted_by` | Xóa mềm; chỉ mục (`owner_type`, `owner_id`) |
 
 Quy tắc xóa và lưu giữ: không xóa cứng việc, bình luận, tệp, lịch sử; việc hủy giữ nguyên dữ liệu.

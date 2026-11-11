@@ -119,6 +119,7 @@ import { VariantLinksService } from "./catalog/variant-links.service";
 import { ProposalsService } from "./proposals/proposals.service";
 import { OfficeController } from "./office/office.controller";
 import { OfficeTasksService } from "./office/office-tasks.service";
+import { OfficeWorkflowsService } from "./office/office-workflows.service";
 import { EXCHANGE_RATE_FEED, VietcombankFeed } from "./settings/vietcombank-rates";
 import { DeactivationService } from "./users/deactivation.service";
 import { UsersController } from "./users/users.controller";
@@ -202,6 +203,7 @@ import { UsersService } from "./users/users.service";
     LabelsService,
     ProposalsService,
     OfficeTasksService,
+    OfficeWorkflowsService,
     ProposalPdfService,
     PhoneOtpService,
     OauthService,

@@ -2,6 +2,17 @@
 import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
+  assignWorkflowStepSchema,
+  cancelWorkflowRunSchema,
+  saveWorkflowTemplateSchema,
+  startWorkflowRunSchema,
+  workflowRunListQuerySchema,
+  type WorkflowDesignOptions,
+  type WorkflowRunListItem,
+  type WorkflowRunResponse,
+  type WorkflowStartOption,
+  type WorkflowTemplateListItem,
+  type WorkflowTemplateResponse,
   createOfficeTaskSchema,
   officeCommentSchema,
   officeFileMaximumBytes,
@@ -25,6 +36,7 @@ import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { OfficeTasksService } from "./office-tasks.service";
+import { OfficeWorkflowsService } from "./office-workflows.service";
 
 type UploadedOfficeFile = { buffer: Buffer; size: number; originalname: string };
 
@@ -40,11 +52,12 @@ export class OfficeController {
   constructor(
     private readonly permissionService: PermissionService,
     private readonly tasks: OfficeTasksService,
+    private readonly workflows: OfficeWorkflowsService,
   ) {}
 
   // Mọi API công việc cần quyền vào mini app ở công ty đang chọn; quyền trên từng việc xét theo người tham gia (QUYTAC_NGHIEPVU_357).
-  private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
-    const companyId = await this.permissionService.authorize(request.auth.userId, requestedCompanyId, "office.access");
+  private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined, permission = "office.access"): Promise<Actor> {
+    const companyId = await this.permissionService.authorize(request.auth.userId, requestedCompanyId, permission);
     return { userId: request.auth.userId, companyId, client: clientInfo(request) };
   }
 
@@ -77,7 +90,7 @@ export class OfficeController {
   @HttpCode(200)
   async transition(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<OfficeTaskResponse> {
     const input = officeTaskTransitionSchema.parse(body);
-    return this.tasks.transition(await this.actor(request, companyId), id, input.action, input.reason, input.version);
+    return this.tasks.transition(await this.actor(request, companyId), id, input.action, input.reason, input.version, input.outcome);
   }
 
   @Post("tasks/:id/progress")
@@ -163,5 +176,77 @@ export class OfficeController {
     @Headers("x-company-id") companyId?: string,
   ): Promise<OfficeFileItem[]> {
     return this.tasks.removeFile(await this.actor(request, companyId), id, fileId);
+  }
+
+  // API_186 Mẫu quy trình (CHUC_NANG_183; QUYTAC_NGHIEPVU_360, 361).
+  @Get("workflow-templates")
+  async templates(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<WorkflowTemplateListItem[]> {
+    return this.workflows.listTemplates(await this.actor(request, companyId, "office.workflow.manage"));
+  }
+
+  @Get("workflow-design-options")
+  async designOptions(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<WorkflowDesignOptions> {
+    return this.workflows.designOptions(await this.actor(request, companyId, "office.workflow.manage"));
+  }
+
+  @Post("workflow-templates")
+  async createTemplate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<WorkflowTemplateResponse> {
+    return this.workflows.createTemplate(await this.actor(request, companyId, "office.workflow.manage"), saveWorkflowTemplateSchema.parse(body));
+  }
+
+  @Get("workflow-templates/:id")
+  async template(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<WorkflowTemplateResponse> {
+    return this.workflows.template(await this.actor(request, companyId, "office.workflow.manage"), id);
+  }
+
+  @Patch("workflow-templates/:id")
+  async saveTemplate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<WorkflowTemplateResponse> {
+    return this.workflows.saveTemplate(await this.actor(request, companyId, "office.workflow.manage"), id, saveWorkflowTemplateSchema.parse(body));
+  }
+
+  @Post("workflow-templates/:id/activate")
+  @HttpCode(200)
+  async activate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<WorkflowTemplateResponse> {
+    return this.workflows.activateTemplate(await this.actor(request, companyId, "office.workflow.manage"), id);
+  }
+
+  @Post("workflow-templates/:id/deactivate")
+  @HttpCode(200)
+  async deactivate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<WorkflowTemplateResponse> {
+    return this.workflows.deactivateTemplate(await this.actor(request, companyId, "office.workflow.manage"), id);
+  }
+
+  // API_187 Phiên quy trình (QUYTAC_NGHIEPVU_362).
+  @Get("workflow-start-options")
+  async startOptions(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<WorkflowStartOption[]> {
+    return this.workflows.startOptions(await this.actor(request, companyId));
+  }
+
+  @Get("workflow-runs")
+  async runs(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<PageResponse<WorkflowRunListItem>> {
+    return this.workflows.runs(await this.actor(request, companyId), workflowRunListQuerySchema.parse(query));
+  }
+
+  @Post("workflow-runs")
+  async startRun(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<WorkflowRunResponse> {
+    return this.workflows.startRun(await this.actor(request, companyId), startWorkflowRunSchema.parse(body));
+  }
+
+  @Get("workflow-runs/:id")
+  async run(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<WorkflowRunResponse> {
+    return this.workflows.run(await this.actor(request, companyId), id);
+  }
+
+  @Post("workflow-runs/:id/assign")
+  @HttpCode(200)
+  async assign(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<WorkflowRunResponse> {
+    return this.workflows.assign(await this.actor(request, companyId), id, assignWorkflowStepSchema.parse(body));
+  }
+
+  @Post("workflow-runs/:id/cancel")
+  @HttpCode(200)
+  async cancel(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<WorkflowRunResponse> {
+    const input = cancelWorkflowRunSchema.parse(body);
+    return this.workflows.cancel(await this.actor(request, companyId), id, input.reason, input.version);
   }
 }

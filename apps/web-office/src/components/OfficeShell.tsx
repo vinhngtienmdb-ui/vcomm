@@ -5,7 +5,11 @@ import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { AppShell } from "ui/components/AppShell";
 
-export const officeMenu = [{ href: "/tasks", key: "tasks", permission: "office.access" }] as const;
+export const officeMenu = [
+  { href: "/tasks", key: "tasks", permission: "office.access" },
+  { href: "/workflow-runs", key: "workflowRuns", permission: "office.access" },
+  { href: "/workflow-templates", key: "workflowTemplates", permission: "office.workflow.manage" },
+] as const;
 
 export function OfficeShell({ children }: { children: ReactNode }) {
   const t = useTranslations("officeMenu");
