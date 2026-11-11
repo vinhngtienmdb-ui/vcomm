@@ -3,7 +3,7 @@
 - Mô tả: Cộng tác viên (gồm nhãn KOL, KOC) chia sẻ đường dẫn sản phẩm nhận hoa hồng; thưởng giới thiệu bạn bè một lần; mua chung bậc giá theo tổng số lượng, trả trước, hoàn tiền dư vào ví mua sắm; bảng tin cộng đồng mở (bài đăng, đánh giá đã mua hàng, bình luận, thích) có hậu kiểm. Trên ứng dụng VComm (`apps/mobile-vcomm`) và web quản trị (`apps/web-crm`).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu ngày 2026-11-11. Chờ duyệt dữ liệu và API (mục 9).
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu, dữ liệu và API ngày 2026-11-11; lát L1 xong. Bổ sung THAY_DOI_22 (khóa và chặn ví) chờ người dùng duyệt.
 - Nguồn: tài liệu `04`, `05` (mục 2.2, 2.4); THAY_DOI_14, 16, 17; quyết định của người dùng ngày 2026-11-11 (mục 17); CONG_VIEC_23 (tài khoản người mua, giới thiệu), CONG_VIEC_24 (đặt hàng), CONG_VIEC_25 (thanh toán, hoàn tiền), CONG_VIEC_26 (hoa hồng theo đơn, ví hoa hồng), CONG_VIEC_27 (đội kinh doanh).
 - Mức: Lớn (module mới, dữ liệu mới, sửa cách đặt hàng, thanh toán, hoa hồng).
 
@@ -63,6 +63,8 @@ Ngoài phạm vi: hoa hồng theo ngành hàng, chương trình riêng cho KOL, 
 - QUYTAC_NGHIEPVU_333 Bài đăng: người mua đang hoạt động, không bị khóa đăng, công tắc đăng bài đang bật; nội dung 1 đến 2.000 ký tự, 0 đến 5 ảnh (JPEG, PNG, kiểm theo nội dung tệp, tối đa 5 MB), gắn 0 đến 3 sản phẩm đang bán. Bài đánh giá: gắn một dòng đơn của chính mình (không phải quà tặng) ở đơn Đã giao hoặc Hoàn tất, 1 đến 5 sao; mỗi dòng đơn một đánh giá; nhãn "Đã mua hàng"; trang sản phẩm hiện điểm trung bình, số đánh giá đang hiện. Bài của VComm do người có `marketplace.community.manage` đăng trên web, nhãn "VComm", ghim tối đa 3 bài. Bảng tin: bài ghim trước, còn lại mới nhất trước; lọc theo sản phẩm. Tác giả xóa bài của mình (ẩn vĩnh viễn), không sửa.
 - QUYTAC_NGHIEPVU_334 Bình luận, thích, giới hạn: bình luận một cấp 1 đến 1.000 ký tự, không ảnh, khi công tắc bình luận bật và không bị khóa; tác giả xóa được. Thích bài: bật, tắt, mỗi người một lần mỗi bài. Mỗi người tối đa 10 bài, 100 bình luận mỗi ngày (giờ Việt Nam). Từ cấm: danh sách tối đa 500 cụm từ (không phân biệt hoa thường, dấu); bài, bình luận chứa từ cấm bị từ chối với thông báo chung.
 - QUYTAC_NGHIEPVU_335 Báo cáo và kiểm duyệt: người dùng báo cáo bài, bình luận của người khác (lý do: quảng cáo rác, lừa đảo, xúc phạm, nội dung cấm, khác; mô tả 0 đến 500 ký tự), mỗi người một lần mỗi nội dung. Nội dung có từ 5 báo cáo chờ xử lý tự ẩn tạm. Người có `marketplace.community.manage`: ẩn (lý do), hiện lại, bỏ qua báo cáo; khóa đăng bài và bình luận của tài khoản 1 đến 365 ngày hoặc vĩnh viễn (lý do), mở khóa; sửa từ cấm; bật, tắt đăng bài, bình luận của người mua (tắt thì nội dung cũ vẫn hiện). Tác giả nhận thông báo khi nội dung bị ẩn, tài khoản bị khóa. Mọi thao tác ghi nhật ký.
+- QUYTAC_NGHIEPVU_<chờ cấp 1> Khóa ví mua sắm toàn hệ thống (THAY_DOI_22): công tắc trong cài đặt của công ty vận hành sàn, người có `marketplace.order.manage` bật, tắt, theo phiên bản, ghi nhật ký. Đang khóa: không ai dùng được số dư ví mua sắm để trả đơn; mua hàng, mua chung vẫn chạy bình thường; tiền hoàn, tiền dư mua chung vẫn cộng vào ví (số dư giữ nguyên, dùng lại được khi mở khóa). Ứng dụng hiện "Ví mua sắm đang tạm khóa".
+- QUYTAC_NGHIEPVU_<chờ cấp 2> Chặn ví theo từng tài khoản (THAY_DOI_22): hai công tắc độc lập cho mỗi người mua, chặn ví nào thì chỉ ảnh hưởng ví đó. Chặn ví mua sắm: không dùng số dư ví mua sắm để trả đơn (vẫn nhận tiền hoàn). Chặn ví hoa hồng: không tạo được yêu cầu rút tiền mới; yêu cầu chờ duyệt bị tự từ chối với lý do là lý do chặn, tiền trả lại ví hoa hồng, báo người dùng; yêu cầu đã duyệt chưa chi không ghi được đã chi cho đến khi gỡ chặn (kế toán vẫn thấy, có cảnh báo). Người có `marketplace.payment.manage` tại công ty vận hành sàn chặn hoặc gỡ chặn, bắt buộc lý do 1 đến 500 ký tự, theo phiên bản, ghi lịch sử và nhật ký thao tác, báo người dùng bằng thông báo trong ứng dụng. Phần chặn ví hoa hồng là thay đổi chức năng đã phát hành của CONG_VIEC_26 (QUYTAC_NGHIEPVU_204, 206).
 
 ## 6. Vai trò và quyền
 
@@ -90,6 +92,7 @@ Ngoài phạm vi: hoa hồng theo ngành hàng, chương trình riêng cho KOL, 
 Web-crm:
 - MAN_HINH_137 Cộng tác viên: danh sách (lọc trạng thái, nhãn, tìm số điện thoại), chi tiết (duyệt, từ chối, tạm ngừng, khôi phục, gắn nhãn, lịch sử, thống kê); thẻ Thưởng giới thiệu (cài đặt); sửa MAN_HINH thiết lập hoa hồng sản phẩm thêm mức cộng tác viên.
 - MAN_HINH_138 Mua chung: cài đặt theo biến thể (bậc giá), danh sách nhóm (lọc trạng thái), chi tiết nhóm (đơn tham gia, số lượng, giá chốt), mở nhóm, hủy nhóm.
+- Sửa MAN_HINH_80 (chi tiết người mua): chặn, gỡ chặn ví mua sắm, ví hoa hồng kèm lý do, lịch sử (THAY_DOI_22). Cài đặt khóa ví mua sắm ở MAN_HINH_138 (thẻ Cài đặt).
 - MAN_HINH_139 Kiểm duyệt cộng đồng: hàng chờ báo cáo, nội dung đã ẩn, tài khoản bị khóa, bài VComm (đăng, ghim), từ cấm, công tắc.
 
 ## 9. Dữ liệu và API
@@ -109,6 +112,8 @@ Web-crm:
 
 0080 ví mua sắm:
 - `marketplace.shopping_wallets` (người dùng, số dư ≥ 0, thời điểm).
+- `marketplace.shopping_wallet_settings` (công ty, khóa ví, người sửa, phiên bản) (THAY_DOI_22).
+- `marketplace.wallet_blocks` (người dùng, loại ví `shopping` hoặc `commission`, đang chặn, lý do, người, thời điểm, phiên bản; khóa chính người dùng và loại ví) và `marketplace.wallet_block_history` (THAY_DOI_22).
 - `marketplace.shopping_wallet_transactions` (loại `group_buy_refund`, `group_buy_difference`, `order_payment`, `order_refund`, `return_refund`; số tiền khác 0; số dư sau; đơn; ghi chú; thời điểm).
 - `marketplace.orders.wallet_amount` (trả bằng ví lúc đặt, ≥ 0), `wallet_refunded_amount` (đã hoàn về ví, ≤ `wallet_amount` cộng phần hoàn tiền mặt vào ví của đơn mua chung). `paid_amount` giữ nghĩa cũ: tiền thu qua cổng hoặc COD. Tiền trực tuyến phải trả = tiền hàng + phí giao hàng − `wallet_amount`; tiền thu hộ = phần còn lại khi chọn COD.
 
@@ -131,7 +136,7 @@ Web-crm:
 - API_163 quản trị cộng tác viên, thưởng giới thiệu: `GET /marketplace/collaborators`, `GET /marketplace/collaborators/{userId}`; `POST .../approve`, `/reject`, `/suspend`, `/restore`, `PUT .../label`; `GET`, `PUT /marketplace/referral-bonus-settings`. Thiết lập hoa hồng sản phẩm (API của CONG_VIEC_26) thêm trường `collaborator`.
 - API_164 mua chung (người mua): `GET /buyer/group-buys` (đang mở; lọc sản phẩm; nhóm của tôi), `GET /buyer/group-buys/{id}`, `POST /buyer/group-buys` (cộng tác viên mở), `GET /buyer/group-buy-options` (biến thể bật mua chung). Đặt đơn dùng `POST /buyer/orders` và xem trước thêm `groupBuyId`, `useShoppingWallet`.
 - API_165 mua chung (quản trị): `GET`, `PUT /marketplace/group-buy-settings/{variantId}`, `GET /marketplace/group-buy-settings`; `GET`, `POST /marketplace/group-buys`, `GET /marketplace/group-buys/{id}`, `POST /marketplace/group-buys/{id}/cancel`.
-- API_166 ví mua sắm: `GET /buyer/shopping-wallet` (số dư, lịch sử phân trang).
+- API_166 ví mua sắm: `GET /buyer/shopping-wallet` (số dư, lịch sử phân trang, trạng thái khóa, chặn); quản trị `GET`, `PUT /marketplace/shopping-wallet-settings` (công tắc khóa); `GET /marketplace/buyers/{id}/wallet-blocks`, `PUT /marketplace/buyers/{id}/wallet-blocks/{shopping|commission}` (chặn, gỡ chặn, lý do). Rút tiền hoa hồng (API_136) từ chối tạo yêu cầu, ghi đã chi khi ví hoa hồng bị chặn.
 - API_167 bảng tin (người mua): `GET /buyer/posts` (lọc sản phẩm), `GET /buyer/posts/{id}`, `POST /buyer/posts`, `DELETE /buyer/posts/{id}`; `GET`, `POST /buyer/posts/{id}/comments`, `DELETE /buyer/comments/{id}`; `PUT`, `DELETE /buyer/posts/{id}/like`; `POST /buyer/reports`; `GET /buyer/community` (công tắc, tình trạng khóa của tôi); `GET /buyer/shop/products/{id}` thêm điểm đánh giá.
 - API_168 kiểm duyệt (quản trị): `GET /marketplace/community/reports`, `POST /marketplace/community/posts/{id}/hide`, `/show`, `POST /marketplace/community/comments/{id}/hide`, `/show`, `POST /marketplace/community/reports/dismiss`; `GET`, `POST /marketplace/community/bans`, `POST /marketplace/community/bans/{id}/lift`; `GET`, `PUT /marketplace/community/settings`; `POST /marketplace/community/posts` (bài VComm), `PUT /marketplace/community/posts/{id}/pin`.
 - API_169 ảnh bài đăng: `POST /buyer/posts/images` (tải lên trước khi đăng, kiểm nội dung tệp), `GET /buyer/posts/images/{id}`.
@@ -164,6 +169,7 @@ Web-crm:
 | TIEUCHI_NGHIEMTHU_317 | Ví mua sắm: số dư không âm, trả đơn một phần hoặc toàn bộ, hoàn về ví khi hủy, không có cách rút; đồng thời không trừ quá số dư | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_318 | Bảng tin: đăng bài, ảnh, gắn sản phẩm, đánh giá chỉ cho dòng đơn đã giao của mình, bình luận, thích, giới hạn ngày, từ cấm, công tắc | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_319 | Báo cáo, tự ẩn ở 5 báo cáo, ẩn, hiện lại, khóa, mở khóa; người bị khóa không đăng được; thông báo tác giả | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_<chờ cấp> | Khóa ví mua sắm toàn hệ thống chặn dùng số dư, không chặn mua hàng, mua chung, tiền hoàn vẫn vào ví; chặn từng ví theo tài khoản độc lập; chặn ví hoa hồng tự từ chối yêu cầu chờ duyệt, chặn tạo yêu cầu mới và ghi đã chi; lý do, lịch sử, quyền | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_320 | Giao diện ứng dụng và web đạt danh sách rà soát giao diện, chuỗi trong tệp dịch vi, en | Bắt buộc |
 
 ## 12. Kịch bản kiểm thử
@@ -185,7 +191,7 @@ Cách tính hoa hồng giới thiệu, đội kinh doanh; luồng rút tiền, t
 | Lát | Nội dung | Điểm xem trước |
 |---|---|---|
 | L1 | Migration 0079; cộng tác viên, lượt bấm, phần cộng tác viên, thưởng giới thiệu; MAN_HINH_132, 133, 137 | Đăng ký, duyệt, đặt đơn qua đường dẫn, thấy phần cộng tác viên; thưởng sau hoàn tất |
-| L2 | Migration 0080, 0081; ví mua sắm, mua chung; MAN_HINH_134, 135, 138 | Mở nhóm, tham gia, chốt thành công và thất bại, ví |
+| L2 | Migration 0080, 0081; ví mua sắm (gồm khóa toàn hệ thống, chặn từng ví theo tài khoản, THAY_DOI_22), mua chung; MAN_HINH_134, 135, 138, sửa MAN_HINH_80 | Mở nhóm, tham gia, chốt thành công và thất bại, ví, khóa và chặn ví |
 | L3 | Migration 0082; bảng tin, kiểm duyệt; MAN_HINH_136, 139 | Đăng bài, đánh giá, báo cáo, ẩn, khóa |
 
 Mỗi lát: kiểm thử tự động API, ảnh chụp ứng dụng (bản web của Expo) và web-crm.
@@ -204,6 +210,9 @@ Chưa thực hiện.
 - 2026-11-11: VComm cài bậc giá theo biến thể, người mở nhóm chỉ chọn sản phẩm và thời hạn, trả trước theo giá bậc đầu, chốt theo bậc đạt; người mở nhóm là cộng tác viên nhận hoa hồng cộng tác viên.
 - 2026-11-11: bảng tin mạng xã hội mở (bài đăng tự do kèm sản phẩm, bình luận, thích, đánh giá đã mua); hiện ngay, hậu kiểm, báo vi phạm, khóa có thời hạn, từ cấm, công tắc tắt toàn hệ thống (đã được cảnh báo rủi ro giấy phép mạng xã hội).
 
+- 2026-11-11 (qua phiên cha, THAY_DOI_22): thêm công tắc khóa ví mua sắm toàn hệ thống: khóa thì không thanh toán bằng ví, mua hàng và mua chung vẫn bình thường; chặn ví theo từng tài khoản, chặn ví nào chỉ không dùng được số dư ví đó, hai ví không liên thông; chặn ví hoa hồng thì yêu cầu rút chờ duyệt tự bị từ chối. Bảng tin giữ mở, hậu kiểm; hỏi luật sư sau; rủi ro giấy phép mạng xã hội và ví điện tử chặn triển khai môi trường thật.
+
 ## 18. Giới hạn đã biết
 
-- Hai rủi ro pháp lý ở mục 10 chặn phát hành lên môi trường thật cho đến khi có ý kiến luật sư.
+- Hai rủi ro pháp lý ở mục 10 chặn triển khai lên môi trường thật cho đến khi có ý kiến pháp lý (người dùng xác nhận 2026-11-11).
+- Mã quy tắc, tiêu chí, kịch bản cho THAY_DOI_22 chờ phiên cha cấp ngoài dải.
