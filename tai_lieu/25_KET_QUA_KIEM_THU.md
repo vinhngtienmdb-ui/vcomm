@@ -196,6 +196,14 @@
 - Kết luận cổng kiểm thử: Đạt.
 - Kết luận: Chờ người dùng nghiệm thu.
 
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_47
+
+- Phạm vi: MODULE_08 phần 2 (ca làm, chấm công, nghỉ phép, tăng ca, bảng công tháng); nhánh `chuc-nang/CONG_VIEC_47-cham-cong` (pull request #108).
+- Kết quả: KICHBAN_KIEMTHU_444, 445 (`c47-attendance`), 446 (`c47-calculator`, `c47-attendance`), 447 (`c47-app-attendance`), 448, 449 (`c47-leave`), 450, 451 (`c47-overtime-timesheet`) Đạt; 452, 453 (giao diện 1366 và 390 điểm ảnh, Playwright chụp màn hình, người dùng duyệt từng lát) Đạt; hồi quy `pnpm --filter api test` 60 tệp, 381/381 Đạt; kiểm tra kiểu api, web-hr Đạt.
+- Kiểm thử đã duyệt được sửa: không.
+- Kiểm tra bảo mật: `pnpm audit` 2 lỗ hổng Trung bình đã chấp nhận rủi ro; rủi ro mới giả vị trí GPS chờ người dùng chấp nhận.
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-11 – CONG_VIEC_50
 
 - Phạm vi: MODULE_15 phần 1, mini app `web-analytics`; nhánh `chuc-nang/CONG_VIEC_50-bao-cao-quan-tri` (pull request #93).
