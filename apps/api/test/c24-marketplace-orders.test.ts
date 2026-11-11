@@ -184,11 +184,12 @@ describe("CONG_VIEC_24 cài đặt bán hàng, đăng bán", () => {
     const settings = await call("get", "/marketplace/store-settings");
     expect(settings.body).toMatchObject({ version: 0, canManage: true, channelId: null });
     // Danh sách gồm mọi đơn vị vận chuyển trong bảng marketplace.carriers, xếp theo mã; trong kiểm thử này chỉ GHN đã cấu hình
-    // (CONG_VIEC_31 thêm GHTK, CONG_VIEC_29 thêm Viettel Post).
+    // (CONG_VIEC_31 thêm GHTK, CONG_VIEC_29 thêm Viettel Post, CONG_VIEC_28 thêm VNPost).
     expect(settings.body.carriers).toEqual([
       { code: "ghn", name: "Giao Hàng Nhanh (GHN)", isEnabled: false, isConfigured: true },
       { code: "ghtk", name: "Giao Hàng Tiết Kiệm (GHTK)", isEnabled: false, isConfigured: false },
       { code: "viettel_post", name: "Viettel Post", isEnabled: false, isConfigured: false },
+      { code: "vnpost", name: "Bưu điện Việt Nam (VNPost)", isEnabled: false, isConfigured: false },
     ]);
     const body = { channelId, warehouseId, shippingFee: "30000", freeShippingThreshold: "500000", packageLengthCm: 20, packageWidthCm: 15, packageHeightCm: 10, minimumWeightGrams: 200 };
     // Kho của công ty khác, phí âm bị từ chối.

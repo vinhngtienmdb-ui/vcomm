@@ -5,6 +5,7 @@ import type { CarrierAdapter } from "./carrier";
 import { GhnCarrier } from "./ghn-carrier";
 import { GhtkCarrier } from "./ghtk-carrier";
 import { ViettelPostCarrier } from "./viettel-post-carrier";
+import { VnpostCarrier, vnpostConfiguration } from "./vnpost-carrier";
 
 export interface GhnConfiguration {
   baseUrl: string;
@@ -102,6 +103,10 @@ export function carrierAdapter(code: CarrierCode): CarrierAdapter | null {
     const configuration = viettelPostConfiguration();
     return configuration ? new ViettelPostCarrier(configuration) : null;
   }
+  if (code === "vnpost") {
+    const configuration = vnpostConfiguration();
+    return configuration ? new VnpostCarrier(configuration) : null;
+  }
   return null;
 }
 
@@ -113,5 +118,6 @@ export function webhookKeyOf(code: CarrierCode): string | null {
   if (code === "ghn") return ghnConfiguration()?.webhookKey ?? null;
   if (code === "ghtk") return ghtkConfiguration()?.webhookKey ?? null;
   if (code === "viettel_post") return viettelPostConfiguration()?.webhookKey ?? null;
+  if (code === "vnpost") return vnpostConfiguration()?.webhookKey ?? null;
   return null;
 }
