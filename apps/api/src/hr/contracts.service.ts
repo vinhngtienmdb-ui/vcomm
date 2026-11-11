@@ -68,6 +68,7 @@ type ContractRow = {
   branch_id: string;
   branch_name: string;
   salary: string;
+  current_salary: string;
   probation_level: ProbationLevel | null;
   official_salary: string | null;
   payment_method: SalaryPaymentMethod;
@@ -168,6 +169,8 @@ export class ContractsService implements OnModuleInit {
         c.salary::text, c.probation_level, c.official_salary::text, c.payment_method, c.signer_name, c.signer_title, c.other_terms, c.legal_exception_reason, c.approval_request_id,
         c.sign_date::text, c.signed_storage_key, c.signed_file_name, c.signed_content_type, c.cancel_reason, c.termination_date::text, c.termination_reason, c.termination_note,
         c.created_by, c.created_at, c.version,
+        COALESCE((SELECT a.salary FROM hr.contract_appendices a WHERE a.contract_id = c.id AND a.status = 'signed' AND a.salary IS NOT NULL AND a.effective_date <= ${today}::date
+          ORDER BY a.effective_date DESC LIMIT 1), c.salary)::text AS current_salary,
         e.code AS employee_code, e.full_name AS employee_name, e.status AS employee_status, e.user_id AS employee_user_id,
         d.name AS department_name, b.name AS branch_name,
         CASE WHEN c.end_date IS NULL THEN NULL ELSE (c.end_date - ${today}::date) END AS days_to_end,
@@ -207,7 +210,8 @@ export class ContractsService implements OnModuleInit {
       effectiveDate: row.effective_date,
       endDate: row.end_date,
       terminationDate: row.termination_date,
-      salary: showSalary ? trim(row.salary) : null,
+      // Mức lương hiện hành sau phụ lục đã ký có hiệu lực (QUYTAC_NGHIEPVU_300).
+      salary: showSalary ? trim(row.current_salary) : null,
       daysToEnd: open ? row.days_to_end : null,
       overThirtyDays: open && row.kind === "fixed_term" && row.days_to_end !== null && row.days_to_end < -30,
     };

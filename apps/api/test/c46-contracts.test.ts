@@ -220,6 +220,8 @@ describe("CONG_VIEC_46 hợp đồng lao động", () => {
     expect(after.body.current).toMatchObject({ salary: "16500000", jobTitle: "Trưởng nhóm", allowances: [{ name: "Điện thoại", amount: "300000" }] });
     expect(after.body.original).toMatchObject({ salary: "15000000", jobTitle: "Nhân viên" });
     expect(after.body.endDate).toBe("2027-12-31");
+    const listed = await call(hrStaff, "get", `/hr/contracts?employeeId=${id}`);
+    expect(listed.body.data[0].salary).toBe("16500000");
     const events = (await call(hrStaff, "get", `/hr/employees/${id}/work-events`)).body;
     expect(events.find((event: { effectiveDate: string }) => event.effectiveDate === "2026-06-01")).toMatchObject({ kind: "contract", jobTitle: "Trưởng nhóm", sourceType: "appendix" });
     const membership = await pool.query("SELECT job_title FROM core.user_company_memberships m JOIN core.users u ON u.id = m.user_id WHERE u.email = 'hung.le@vcomm.test'");

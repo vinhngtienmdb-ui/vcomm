@@ -57,7 +57,12 @@ export default function ContractsPage() {
             }}
           >
             {value ? t("tab_expiring") : t("tab_all")}
-            {value && expiringCount.state.kind === "ready" && expiringCount.state.data.total > 0 && <span className="huy-hieu">{expiringCount.state.data.total}</span>}
+            {value && expiringCount.state.kind === "ready" && expiringCount.state.data.total > 0 && (
+              <>
+                {" "}
+                <span className="huy-hieu">{expiringCount.state.data.total}</span>
+              </>
+            )}
           </button>
         ))}
       </div>
