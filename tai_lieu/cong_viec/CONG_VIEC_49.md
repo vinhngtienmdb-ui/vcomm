@@ -3,7 +3,7 @@
 - Mô tả: Cộng tác viên (gồm nhãn KOL, KOC) chia sẻ đường dẫn sản phẩm nhận hoa hồng; thưởng giới thiệu bạn bè một lần; mua chung bậc giá theo tổng số lượng, trả trước, hoàn tiền dư vào ví mua sắm; bảng tin cộng đồng mở (bài đăng, đánh giá đã mua hàng, bình luận, thích) có hậu kiểm. Trên ứng dụng VComm (`apps/mobile-vcomm`) và web quản trị (`apps/web-crm`).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu, dữ liệu và API, phần bổ sung THAY_DOI_22, xem trước L1 ngày 2026-11-11. Đang làm L2.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu, dữ liệu và API, phần bổ sung THAY_DOI_22, xem trước L1, L2, L3 ngày 2026-11-11. Chờ nghiệm thu (pull request #97; kiểm thử 346/346, kết quả gửi phiên cha ghi tài liệu `25`).
 - Nguồn: tài liệu `04`, `05` (mục 2.2, 2.4); THAY_DOI_14, 16, 17; quyết định của người dùng ngày 2026-11-11 (mục 17); CONG_VIEC_23 (tài khoản người mua, giới thiệu), CONG_VIEC_24 (đặt hàng), CONG_VIEC_25 (thanh toán, hoàn tiền), CONG_VIEC_26 (hoa hồng theo đơn, ví hoa hồng), CONG_VIEC_27 (đội kinh doanh).
 - Mức: Lớn (module mới, dữ liệu mới, sửa cách đặt hàng, thanh toán, hoa hồng).
 
@@ -198,7 +198,21 @@ Mỗi lát: kiểm thử tự động API, ảnh chụp ứng dụng (bản web 
 
 ## 16. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa thực hiện.
+Đối chiếu ngày 2026-11-11 trước khi trình nghiệm thu:
+
+- Phân tích, đặc tả, bản mẫu giao diện, thiết kế dữ liệu và API: người dùng duyệt từng cổng (mục 17).
+- Ba lát L1, L2, L3 xong; người dùng duyệt xem trước từng lát (ảnh chụp ứng dụng bản web và web-crm).
+- Kiểm thử tự động: KICHBAN_KIEMTHU_464 đến 475, 532 trong `apps/api/test/c49-collaborators.test.ts`, `c49-group-buys-wallets.test.ts`, `c49-community.test.ts` đạt; toàn bộ `pnpm --filter api test` 55 tệp, 346 kiểm thử đạt. TIEUCHI_NGHIEMTHU_320 (giao diện) kiểm bằng xem trước thủ công.
+- Kiểm tra kiểu api, web-crm, mobile-vcomm đạt; lint mobile-vcomm đạt; tệp dịch khớp khóa.
+- Rà soát mã trước khi trình: sửa lỗi "Hiện lại, bỏ qua báo cáo" với nội dung đang hiện (commit `cdecf24`).
+- Bảo mật: không thêm phụ thuộc; quét bí mật lịch sử nhánh không có phát hiện (khóa ký VNPAY giả của kiểm thử ghi vào `.github/gitleaksignore` theo tiền lệ CONG_VIEC_25).
+- Tài liệu 06, 07, 08, 09 (Luồng 44), 10, 11, 14, 16, 17, 21, 22, 27 đã cập nhật trên nhánh; sổ 02, 03, 25 gửi phiên cha ghi.
+
+Điểm mã khác đặc tả mục 9 (tài liệu 17 ghi theo mã):
+- API_168 dùng `GET /marketplace/community/moderation?view=reported|hidden`; bỏ qua báo cáo qua `POST .../{posts|comments}/{id}/show`; bài VComm ở `/marketplace/community/official-posts` (thêm `GET`) và `/official-posts/{id}/pin`; thêm `GET /marketplace/community/images/{id}`.
+- API_167 không có `GET /buyer/posts/{id}/comments` (bình luận nằm trong chi tiết bài); thêm `GET /buyer/reviewable-lines`.
+- Khóa ví mua sắm trên web ở thẻ riêng "Ví mua sắm" của MAN_HINH_138; khóa tài khoản cộng đồng trên web chọn 7 ngày, 30 ngày, vĩnh viễn (API nhận 1 đến 365 ngày).
+- Quyết định AI tự đưa ra, ghi ở tài liệu 07 (chờ xác nhận khi nghiệm thu): tối đa 30 ảnh chưa đăng trong 24 giờ; bài đã xóa vẫn tính giới hạn 10 bài mỗi ngày; mở khóa cũng báo người dùng; nhân viên mở nhóm trên web không giới hạn số nhóm; người mở nhóm không còn Đã duyệt thì đơn không có phần cộng tác viên; gắn nhãn được cả khi cộng tác viên đang Tạm ngừng.
 
 ## 17. Quyết định của người dùng
 
