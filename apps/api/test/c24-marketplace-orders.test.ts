@@ -227,3 +227,145 @@ describe("CONG_VIEC_24 cửa hàng, giỏ hàng, sổ địa chỉ", () => {
     expect((await buyer("delete", `/buyer/cart/lines/${variants.soap}`)).body.lines).toHaveLength(1);
   });
 });
+
+// Địa chỉ đầu tiên trong sổ của người mua (tạo nếu chưa có).
+async function addressOf(buyer: Awaited<ReturnType<typeof buyerSession>>): Promise<string> {
+  const existing = (await buyer("get", "/buyer/addresses")).body;
+  if (existing.length > 0) return existing[0].id as string;
+  const hanoi = (await buyer("get", "/buyer/regions/provinces")).body.find((item: { name: string }) => item.name === "Thành phố Hà Nội");
+  const ward = (await buyer("get", `/buyer/regions/provinces/${hanoi.code}/wards`)).body[0];
+  const saved = await buyer("post", "/buyer/addresses", { recipientName: "Người Nhận Hàng", phone: "0911222444", provinceCode: hanoi.code, wardCode: ward.code, streetAddress: "1 Tràng Tiền" });
+  return saved.body[0].id as string;
+}
+
+describe("CONG_VIEC_24 đặt hàng, hủy đơn", () => {
+  it("KICHBAN_KIEMTHU_312: xem trước tính giá gồm thuế, phí giao hàng, miễn phí từ mức; đặt hàng tạo đơn bán kênh VComm, giữ hàng không thời hạn, xóa dòng giỏ đã đặt", async () => {
+    const buyer = await buyerSession("0933000001");
+    const addressId = await addressOf(buyer);
+    // Một kem 250.000 + hai xà phòng 88.000 = 338.000 < 500.000: phí 30.000.
+    const lines = [
+      { variantId: variants.cream, quantity: 1 },
+      { variantId: variants.soap, quantity: 2 },
+    ];
+    const preview = await buyer("post", "/buyer/orders/preview", { addressId, lines });
+    expect(preview.status, JSON.stringify(preview.body)).toBe(200);
+    expect(preview.body).toMatchObject({ goodsAmount: "338000", shippingFee: "30000", total: "368000", currency: "VND", canOrder: true });
+    expect(preview.body.lines.map((line: { productName: string; unitPrice: string; total: string }) => [line.productName, line.unitPrice, line.total])).toEqual([
+      ["Kem dưỡng da VComm", "250000", "250000"],
+      ["Xà phòng thảo dược", "44000", "88000"],
+    ]);
+    // Từ 500.000 miễn phí giao hàng.
+    expect((await buyer("post", "/buyer/orders/preview", { addressId, lines: [{ variantId: variants.cream, quantity: 2 }] })).body).toMatchObject({
+      goodsAmount: "500000",
+      shippingFee: "0",
+      total: "500000",
+    });
+    await buyer("put", "/buyer/cart/lines", { variantId: variants.cream, quantity: 1 });
+    await buyer("put", "/buyer/cart/lines", { variantId: variants.soap, quantity: 2 });
+    // Tổng người mua thấy khác tổng tính lại: báo giá đã thay đổi.
+    expect((await buyer("post", "/buyer/orders", { addressId, lines, expectedTotal: "338000" })).body.error.message).toBe("Giá hoặc khuyến mãi đã thay đổi. Xem lại tổng tiền mới rồi đặt hàng.");
+    const placed = await buyer("post", "/buyer/orders", { addressId, lines, expectedTotal: "368000" });
+    expect(placed.status, JSON.stringify(placed.body)).toBe(201);
+    expect(placed.body).toMatchObject({ status: "awaiting_shipment", total: "368000", goodsAmount: "338000", shippingFee: "30000", paymentMethod: "cod", canCancel: true, itemCount: 2 });
+    expect(placed.body.documentNo).toMatch(/^DBH/);
+    expect((await buyer("get", "/buyer/cart")).body.lines).toEqual([]);
+    const sale = (
+      await pool.query("SELECT o.status, o.customer_id, o.channel_id, o.buyer_name, o.total_amount::text FROM sales.orders o JOIN marketplace.orders m ON m.sales_order_id = o.id WHERE m.id = $1", [
+        placed.body.id,
+      ])
+    ).rows[0];
+    expect(sale).toMatchObject({ status: "confirmed", customer_id: null, channel_id: channelId, buyer_name: "Người Nhận Hàng", total_amount: "338000.0000" });
+    const holds = (
+      await pool.query(
+        "SELECT quantity::int, expires_at FROM inventory.reservations r JOIN marketplace.orders m ON m.sales_order_id = r.source_id WHERE m.id = $1 AND r.status = 'active' ORDER BY quantity",
+        [placed.body.id],
+      )
+    ).rows;
+    expect(holds).toEqual([
+      { quantity: 1, expires_at: null },
+      { quantity: 2, expires_at: null },
+    ]);
+    const mine = await buyer("get", "/buyer/orders");
+    expect(mine.body.data.map((order: { id: string }) => order.id)).toEqual([placed.body.id]);
+    // Người mua khác không thấy đơn.
+    const other = await buyerSession("0933000003");
+    expect((await other("get", `/buyer/orders/${placed.body.id}`)).status).toBe(404);
+    // Quản trị thấy đơn, tìm theo số đơn, số điện thoại.
+    const list = await call("get", `/marketplace/orders?search=${placed.body.documentNo}`);
+    expect(list.body.data.map((order: { id: string; buyerName: string }) => [order.id, order.buyerName])).toEqual([[placed.body.id, "Người Mua Thử"]]);
+    expect((await call("get", "/marketplace/orders?search=0933000001")).body.total).toBe(1);
+    const detail = await call("get", `/marketplace/orders/${placed.body.id}`);
+    expect(detail.body).toMatchObject({ canShip: true, canCancel: true, buyerPhone: "0933000001", recipientName: "Người Nhận Hàng" });
+  });
+
+  it("KICHBAN_KIEMTHU_313: chưa là người mua thử, thiếu hàng, sản phẩm ngừng bán, địa chỉ của người khác bị từ chối; tối đa 20 lần đặt mỗi ngày", async () => {
+    const plain = await buyerSession("0933000003");
+    const plainAddress = await addressOf(plain);
+    const lines = [{ variantId: variants.soap, quantity: 1 }];
+    const preview = await plain("post", "/buyer/orders/preview", { addressId: plainAddress, lines });
+    expect(preview.body.canOrder).toBe(false);
+    expect((await plain("post", "/buyer/orders", { addressId: plainAddress, lines, expectedTotal: preview.body.total })).body.error.message).toBe("VComm chưa mở đặt hàng trên ứng dụng.");
+    const buyer = await buyerSession("0933000001");
+    const addressId = await addressOf(buyer);
+    // Xà phòng còn 3 có thể bán.
+    const many = await buyer("post", "/buyer/orders/preview", { addressId, lines: [{ variantId: variants.soap, quantity: 4 }] });
+    expect((await buyer("post", "/buyer/orders", { addressId, lines: [{ variantId: variants.soap, quantity: 4 }], expectedTotal: many.body.total })).body.error.message).toBe(
+      "Một số sản phẩm không còn đủ hàng. Giảm số lượng hoặc bỏ sản phẩm đó.",
+    );
+    expect((await buyer("post", "/buyer/orders/preview", { addressId, lines: [{ variantId: variants.phone, quantity: 1 }] })).body.error.message).toBe("Sản phẩm này hiện không bán trên ứng dụng.");
+    expect((await buyer("post", "/buyer/orders", { addressId: plainAddress, lines, expectedTotal: preview.body.total })).status).toBe(400);
+    const buyerId = (await pool.query("SELECT id FROM core.users WHERE phone = '+84933000001'")).rows[0].id;
+    // Giả lập đã đặt 20 đơn hôm nay.
+    const sample = (await pool.query("SELECT * FROM marketplace.orders WHERE buyer_user_id = $1 LIMIT 1", [buyerId])).rows[0];
+    for (let index = 0; index < 19; index += 1) {
+      const sale = (
+        await pool.query("INSERT INTO sales.orders (company_id, buyer_name, channel_id, warehouse_id, order_date, currency, created_by) VALUES ($1, 'Thử', $2, $3, $4, 'VND', $5) RETURNING id", [
+          retail,
+          channelId,
+          warehouseId,
+          today,
+          buyerId,
+        ])
+      ).rows[0].id;
+      await pool.query(
+        `INSERT INTO marketplace.orders (sales_order_id, company_id, buyer_user_id, recipient_name, recipient_phone, province_code, province_name, ward_code, ward_name, street_address,
+          goods_amount, shipping_fee, cod_amount, status, cancelled_by_kind) SELECT $1, company_id, buyer_user_id, recipient_name, recipient_phone, province_code, province_name, ward_code, ward_name,
+          street_address, 0, 0, 0, 'cancelled', 'staff' FROM marketplace.orders WHERE id = $2`,
+        [sale, sample.id],
+      );
+    }
+    expect((await buyer("post", "/buyer/orders", { addressId, lines, expectedTotal: preview.body.total })).body.error.message).toBe("Bạn đã đặt 20 đơn hôm nay. Vui lòng đặt tiếp vào ngày mai.");
+    await pool.query("DELETE FROM marketplace.order_events WHERE order_id IN (SELECT id FROM marketplace.orders WHERE status = 'cancelled' AND cancelled_by_kind = 'staff' AND goods_amount = 0)");
+    const dummies = (await pool.query("DELETE FROM marketplace.orders WHERE status = 'cancelled' AND cancelled_by_kind = 'staff' AND goods_amount = 0 RETURNING sales_order_id")).rows;
+    await pool.query("DELETE FROM sales.orders WHERE id = ANY($1::uuid[])", [dummies.map((row) => row.sales_order_id)]);
+  });
+
+  it("KICHBAN_KIEMTHU_314: người mua hủy đơn chờ giao, nhả hàng giữ, hủy đơn bán; đơn đã hủy không hủy lại; nhân viên hủy kèm lý do; sai phiên bản bị từ chối", async () => {
+    const buyer = await buyerSession("0933000001");
+    const addressId = await addressOf(buyer);
+    const lines = [{ variantId: variants.soap, quantity: 1 }];
+    const total = (await buyer("post", "/buyer/orders/preview", { addressId, lines })).body.total;
+    const first = (await buyer("post", "/buyer/orders", { addressId, lines, expectedTotal: total })).body;
+    expect((await buyer("post", `/buyer/orders/${first.id}/cancel`, { reason: "Đặt nhầm", version: first.version + 1 })).status).toBe(409);
+    const cancelled = await buyer("post", `/buyer/orders/${first.id}/cancel`, { reason: "Đặt nhầm", version: first.version });
+    expect(cancelled.status, JSON.stringify(cancelled.body)).toBe(200);
+    expect(cancelled.body).toMatchObject({ status: "cancelled", cancelReason: "Đặt nhầm", canCancel: false });
+    expect(cancelled.body.events.map((event: { status: string }) => event.status)).toEqual(["awaiting_shipment", "cancelled"]);
+    const sale = (await pool.query("SELECT o.status FROM sales.orders o JOIN marketplace.orders m ON m.sales_order_id = o.id WHERE m.id = $1", [first.id])).rows[0];
+    expect(sale.status).toBe("cancelled");
+    expect(
+      (await pool.query("SELECT count(*)::int AS count FROM inventory.reservations r JOIN marketplace.orders m ON m.sales_order_id = r.source_id WHERE m.id = $1 AND r.status = 'active'", [first.id]))
+        .rows[0].count,
+    ).toBe(0);
+    expect((await buyer("post", `/buyer/orders/${first.id}/cancel`, { reason: "Lần nữa", version: cancelled.body.version })).body.error.message).toBe(
+      "Đơn đã được đơn vị vận chuyển lấy hàng hoặc đã kết thúc, không hủy được.",
+    );
+    const second = (await buyer("post", "/buyer/orders", { addressId, lines, expectedTotal: total })).body;
+    const other = await buyerSession("0933000003");
+    expect((await other("post", `/buyer/orders/${second.id}/cancel`, { reason: "Không phải của tôi", version: second.version })).status).toBe(404);
+    const staff = await call("post", `/marketplace/orders/${second.id}/cancel`, { reason: "Khách gọi điện hủy", version: second.version });
+    expect(staff.status, JSON.stringify(staff.body)).toBe(200);
+    expect(staff.body).toMatchObject({ status: "cancelled", cancelReason: "Khách gọi điện hủy" });
+    expect((await call("get", "/marketplace/orders?status=cancelled")).body.total).toBe(2);
+  });
+});

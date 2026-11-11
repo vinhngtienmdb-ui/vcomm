@@ -60,6 +60,7 @@ import { SalesProposalsService } from "./marketplace/sales-proposals.service";
 import { StoreService } from "./marketplace/store.service";
 import { ShopController } from "./marketplace/shop.controller";
 import { ShopService } from "./marketplace/shop.service";
+import { MarketplaceOrdersService } from "./marketplace/marketplace-orders.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
@@ -157,6 +158,7 @@ import { UsersService } from "./users/users.service";
     SalesProposalsService,
     StoreService,
     ShopService,
+    MarketplaceOrdersService,
     SupplierPricesService,
     SalesOrdersService,
     InternalTradeService,

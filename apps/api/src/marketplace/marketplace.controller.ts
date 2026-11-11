@@ -24,6 +24,10 @@ import {
   updateCarrierSchema,
   updateListingSchema,
   updateStoreSettingsSchema,
+  cancelMarketplaceOrderSchema,
+  marketplaceOrderListQuerySchema,
+  type MarketplaceOrderDetail,
+  type MarketplaceOrderListItem,
 } from "contracts";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
@@ -31,6 +35,7 @@ import { UuidPipe } from "../common/uuid.pipe";
 import { BuyerAdminService } from "./buyer-admin.service";
 import { SalesProposalsService } from "./sales-proposals.service";
 import { SalesTeamService } from "./sales-team.service";
+import { MarketplaceOrdersService } from "./marketplace-orders.service";
 import { StoreService } from "./store.service";
 
 @Controller("marketplace")
@@ -40,7 +45,27 @@ export class MarketplaceController {
     private readonly salesTeam: SalesTeamService,
     private readonly proposals: SalesProposalsService,
     private readonly store: StoreService,
+    private readonly orders: MarketplaceOrdersService,
   ) {}
+
+  // API_127: đơn VComm trên web (CONG_VIEC_24).
+  @Get("orders")
+  async orderList(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<MarketplaceOrderListItem>> {
+    return this.orders.adminList(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.view"), marketplaceOrderListQuerySchema.parse(query));
+  }
+
+  @Get("orders/:id")
+  async order(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<MarketplaceOrderDetail> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.view");
+    return this.orders.adminDetail(actor, id, await this.admin.allows(request.auth.userId, clientInfo(request), "marketplace.order.manage"));
+  }
+
+  @Post("orders/:id/cancel")
+  @HttpCode(200)
+  async cancelOrder(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<MarketplaceOrderDetail> {
+    const input = cancelMarketplaceOrderSchema.parse(body);
+    return this.orders.adminCancel(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage"), id, input.version, input.reason);
+  }
 
   // API_123: cài đặt bán hàng VComm, đơn vị vận chuyển, đăng bán, người mua thử (CONG_VIEC_24).
   @Get("store-settings")

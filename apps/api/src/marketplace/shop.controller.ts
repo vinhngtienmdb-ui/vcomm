@@ -1,5 +1,5 @@
 // API_124, API_125: cửa hàng, giỏ hàng, danh mục tỉnh xã, sổ địa chỉ của người mua trên ứng dụng VComm (CONG_VIEC_24).
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req, Res } from "@nestjs/common";
 import {
   buyerAddressSchema,
   type BuyerAddressItem,
@@ -10,15 +10,56 @@ import {
   type ShopProductDetail,
   type ShopProductItem,
   shopProductQuerySchema,
+  buyerOrderListQuerySchema,
+  buyerOrderPlaceSchema,
+  buyerOrderPreviewSchema,
+  cancelMarketplaceOrderSchema,
+  type BuyerOrderDetail,
+  type BuyerOrderListItem,
+  type BuyerOrderPreview,
 } from "contracts";
 import type { Response } from "express";
 import { Public, type AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
+import { clientInfo } from "../auth/auth.controller";
+import { MarketplaceOrdersService } from "./marketplace-orders.service";
 import { ShopService } from "./shop.service";
 
 @Controller("buyer")
 export class ShopController {
-  constructor(private readonly shop: ShopService) {}
+  constructor(
+    private readonly shop: ShopService,
+    private readonly orders: MarketplaceOrdersService,
+  ) {}
+
+  // API_126: đơn của người mua.
+  @Post("orders/preview")
+  @HttpCode(200)
+  previewOrder(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<BuyerOrderPreview> {
+    return this.orders.preview(request.auth.userId, buyerOrderPreviewSchema.parse(body).lines);
+  }
+
+  @Post("orders")
+  placeOrder(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<BuyerOrderDetail> {
+    return this.orders.place(request.auth.userId, clientInfo(request), buyerOrderPlaceSchema.parse(body));
+  }
+
+  @Get("orders")
+  myOrders(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<BuyerOrderListItem>> {
+    return this.orders.buyerList(request.auth.userId, buyerOrderListQuerySchema.parse(query));
+  }
+
+  @Get("orders/:id")
+  myOrder(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<BuyerOrderDetail> {
+    return this.orders.buyerDetail(request.auth.userId, id);
+  }
+
+  @Post("orders/:id/cancel")
+  @HttpCode(200)
+  cancelOrder(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<BuyerOrderDetail> {
+    const input = cancelMarketplaceOrderSchema.parse(body);
+    return this.orders.buyerCancel(request.auth.userId, clientInfo(request), id, input.version, input.reason);
+  }
 
   @Get("shop/products")
   products(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<ShopProductItem>> {

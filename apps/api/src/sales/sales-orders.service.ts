@@ -617,6 +617,83 @@ export class SalesOrdersService implements OnModuleInit {
     if (updated.rows.length > 0) await this.reservations.closeBySource(executor, salesOrderSource, orderId, "consumed");
   }
 
+  // Đơn của người mua VComm (CONG_VIEC_24; QUYTAC_NGHIEPVU_158): giá theo kênh, khuyến mãi như đơn bán, không gắn khách hàng, không chiết khấu tay.
+  async quoteMarketplace(
+    transaction: Executor,
+    companyId: string,
+    input: { channelId: string; warehouseId: string; orderDate: string; lines: { variantId: string; unitId: string; quantity: string }[] },
+  ): Promise<{ lines: PreparedLine[]; giftShortages: GiftShortage[] }> {
+    const priced = await this.priceLines(
+      transaction,
+      companyId,
+      input.channelId,
+      null,
+      input.orderDate,
+      input.lines.map((line) => ({ ...line, discountPercent: "0" })),
+    );
+    return applyPromotions(
+      transaction,
+      { companyId, orderId: null, channelId: input.channelId, customerGroupId: null, orderDate: input.orderDate, internal: false, warehouseId: input.warehouseId },
+      priced,
+    );
+  }
+
+  // Dãy số đơn bán của công ty, tạo ngoài giao dịch đặt hàng.
+  async prepareNumbering(actor: Actor): Promise<void> {
+    await ensureSequence(this.database, this.sequences, actor, documentTypeCode, "DBH");
+  }
+
+  // Lập và xác nhận ngay đơn của người mua trong giao dịch của bên gọi: giữ hàng không thời hạn (đơn chờ giao); có ngoại lệ cần duyệt thì không lập.
+  async placeMarketplaceWithin(
+    transaction: Executor,
+    actor: Actor,
+    input: { channelId: string; warehouseId: string; orderDate: string; buyerName: string; deliveryAddress: string; lines: { variantId: string; unitId: string; quantity: string }[] },
+  ): Promise<{ orderId: string; documentNo: string }> {
+    const { lines, giftShortages } = await this.quoteMarketplace(transaction, actor.companyId, input);
+    const orderId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, customer_group_id, warehouse_id, order_date, delivery_address, note, currency, gift_shortages, created_by)
+      VALUES (${actor.companyId}, NULL, ${input.buyerName}, ${input.channelId}, NULL, ${input.warehouseId}, ${input.orderDate}::date, ${input.deliveryAddress}, NULL,
+        ${await companyCurrency(transaction, actor.companyId)}, ${JSON.stringify(giftShortages)}::jsonb, ${actor.userId}) RETURNING id`)
+    ).rows[0]!.id;
+    await this.writeLines(transaction, orderId, lines);
+    await this.checkPromotionLimits(transaction, orderId);
+    const documentNo = await this.sequences.next(actor.companyId, documentTypeCode, transaction);
+    const totals = new Map<string, number>();
+    for (const line of lines) totals.set(line.variantId, (totals.get(line.variantId) ?? 0) + Number(line.baseQuantity));
+    for (const [variantId, quantity] of [...totals].sort(([left], [right]) => left.localeCompare(right))) {
+      await this.reservations.reserve(transaction, {
+        warehouseId: input.warehouseId,
+        companyId: actor.companyId,
+        variantId,
+        quantity: quantity.toFixed(4),
+        sourceType: salesOrderSource,
+        sourceId: orderId,
+        sourceNo: documentNo,
+        expiresAt: null,
+        userId: actor.userId,
+      });
+    }
+    const current = await this.single(transaction, actor.companyId, orderId);
+    const exceptionLines = await transaction.execute<ExceptionLine>(sql`
+      SELECT line_no, variant_id, base_quantity::text, discount_percent::text, net_amount::text, is_gift, promotion_discount_total::text, vat_rate
+      FROM sales.order_lines WHERE order_id = ${orderId} ORDER BY line_no`);
+    if ((await this.exceptions(transaction, current, exceptionLines.rows)).length > 0) throw new ApiError("BUSINESS_RULE", "marketplaceOrderNeedsReview");
+    await transaction.execute(sql`
+      UPDATE sales.orders SET status = 'confirmed', document_no = ${documentNo}, submitted_at = now(), confirmed_at = now(), updated_at = now(), version = version + 1 WHERE id = ${orderId}`);
+    await this.auditService.record({ ...salesAudit(actor, "sales_order"), action: "sales_order.marketplace_place", entityId: orderId, afterData: { documentNo, input } }, transaction);
+    return { orderId, documentNo };
+  }
+
+  // Hủy đơn của người mua chưa xuất kho, trong giao dịch của bên gọi: nhả hàng giữ.
+  async cancelMarketplaceWithin(transaction: Executor, actor: Actor, orderId: string): Promise<void> {
+    const issued = await transaction.execute(sql`SELECT 1 FROM inventory.documents WHERE type = 'sales_issue' AND source_id = ${orderId} LIMIT 1`);
+    if (issued.rows.length > 0) throw new ApiError("BUSINESS_RULE", "salesOrderNotCancellable");
+    await transaction.execute(sql`UPDATE sales.orders SET status = 'cancelled', updated_at = now(), version = version + 1 WHERE id = ${orderId} AND status = 'confirmed'`);
+    await this.reservations.closeBySource(transaction, salesOrderSource, orderId, "released");
+    await this.auditService.record({ ...salesAudit(actor, "sales_order"), action: "sales_order.cancel", entityId: orderId }, transaction);
+  }
+
   async settings(actor: Actor): Promise<SalesSettingsResponse> {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.viewOrders, salesPermissions.manageOrders, salesPermissions.manageSettings);
     return readSettings(this.database, actor.companyId);

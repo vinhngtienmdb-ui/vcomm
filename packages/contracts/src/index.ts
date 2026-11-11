@@ -4230,3 +4230,120 @@ export const buyerAddressSchema = z
     isDefault: z.boolean().default(false),
   })
   .strict();
+
+// API_126, API_127: đơn VComm (QUYTAC_NGHIEPVU_158, 159, 162).
+export const marketplaceOrderStatuses = ["awaiting_shipment", "awaiting_pickup", "shipping", "delivered", "completed", "cancelled"] as const;
+export type MarketplaceOrderStatus = (typeof marketplaceOrderStatuses)[number];
+
+const orderLinesInput = z.array(z.object({ variantId: z.uuid(), quantity: z.number().int().min(1).max(999) }).strict()).min(1).max(50);
+export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput }).strict();
+// expectedTotal: tổng thanh toán người mua đã thấy; khác tổng tính lại thì báo giá đã thay đổi.
+export const buyerOrderPlaceSchema = z.object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney }).strict();
+
+export interface MarketplaceOrderLine {
+  variantId: string;
+  productName: string;
+  variantLabel: string;
+  imageUrl: string | null;
+  quantity: string;
+  // Giá gồm thuế của một đơn vị trước khuyến mãi; tiền dòng sau khuyến mãi.
+  unitPrice: string;
+  promotionDiscount: string;
+  total: string;
+  isGift: boolean;
+  orderLineId: string | null;
+}
+
+export interface BuyerOrderPreview {
+  lines: MarketplaceOrderLine[];
+  goodsAmount: string;
+  shippingFee: string;
+  total: string;
+  currency: string;
+  // Chưa mở đặt hàng: chỉ người mua thử đặt được.
+  canOrder: boolean;
+}
+
+export interface MarketplaceOrderEvent {
+  status: string;
+  note: string | null;
+  at: string;
+}
+
+export interface BuyerOrderListItem {
+  id: string;
+  documentNo: string;
+  status: MarketplaceOrderStatus;
+  createdAt: string;
+  total: string;
+  itemCount: number;
+  firstProductName: string;
+  imageUrl: string | null;
+}
+
+export interface BuyerOrderDetail extends BuyerOrderListItem {
+  recipientName: string;
+  recipientPhone: string;
+  address: string;
+  lines: MarketplaceOrderLine[];
+  goodsAmount: string;
+  shippingFee: string;
+  paymentMethod: "cod";
+  carrierName: string | null;
+  trackingCode: string | null;
+  deliveredAt: string | null;
+  // Hạn gửi yêu cầu trả hàng (7 ngày từ lúc giao thành công).
+  returnDeadline: string | null;
+  completedAt: string | null;
+  completedAmount: string | null;
+  cancelReason: string | null;
+  events: MarketplaceOrderEvent[];
+  canCancel: boolean;
+  version: number;
+}
+
+export interface MarketplaceOrderListItem extends BuyerOrderListItem {
+  buyerName: string;
+  buyerPhone: string;
+  recipientName: string;
+  carrierStatus: string | null;
+}
+
+export interface MarketplaceShipmentItem {
+  carrierCode: string;
+  carrierName: string;
+  trackingCode: string;
+  carrierStatus: string;
+  fee: string | null;
+  isActive: boolean;
+  createdAt: string;
+  syncedAt: string;
+}
+
+export interface MarketplaceOrderDetail extends BuyerOrderDetail {
+  buyerId: string;
+  buyerName: string;
+  buyerPhone: string;
+  salesOrderId: string;
+  shipments: MarketplaceShipmentItem[];
+  canShip: boolean;
+  canRefreshShipment: boolean;
+  carriers: CarrierItem[];
+}
+
+export const marketplaceOrderListQuerySchema = z
+  .object({
+    status: z.enum(marketplaceOrderStatuses).optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const buyerOrderListQuerySchema = z
+  .object({
+    status: z.enum(marketplaceOrderStatuses).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(50).default(20),
+  })
+  .strict();
+export const cancelMarketplaceOrderSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
