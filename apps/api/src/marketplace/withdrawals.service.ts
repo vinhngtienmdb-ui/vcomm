@@ -2,6 +2,8 @@
 import { Inject, Injectable } from "@nestjs/common";
 import type { BuyerWithdrawalInfo, PageResponse, WithdrawalItem, WithdrawalStatus, WithdrawalTaxReport } from "contracts";
 import { sql } from "drizzle-orm";
+import { LedgerService } from "../accounting/ledger.service";
+import { marketplaceWithdrawalDraft } from "../accounting/postings";
 import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
@@ -47,6 +49,7 @@ export class WithdrawalsService {
   constructor(
     @Inject(DATABASE) private readonly database: Database,
     private readonly audit: AuditService,
+    private readonly ledger: LedgerService,
   ) {}
 
   private readonly select = sql`
@@ -205,6 +208,7 @@ export class WithdrawalsService {
       await transaction.execute(sql`
         UPDATE marketplace.withdrawals SET status = 'paid', bank_transaction_no = ${input.bankTransactionNo}, paid_on = ${input.paidOn}::date, paid_by = ${actor.userId}, paid_at = now(),
           version = version + 1 WHERE id = ${withdrawalId}`);
+      await this.ledger.record(transaction, await marketplaceWithdrawalDraft(transaction, withdrawalId));
       await this.finish(transaction, actor, row, "pay", input, "VComm đã chuyển tiền hoa hồng vào tài khoản của bạn");
     });
     return this.one(this.database, withdrawalId);

@@ -26,6 +26,8 @@ import {
   collectionDraft,
   marketplacePaymentDraft,
   marketplaceRefundDraft,
+  marketplaceCommissionDraft,
+  marketplaceWithdrawalDraft,
 } from "./postings";
 
 export const ledgerPermissions = {
@@ -168,6 +170,12 @@ export class LedgerService implements OnModuleInit {
     const refunds = await executor.execute<{ id: string }>(sql`
       SELECT f.id FROM marketplace.refunds f JOIN marketplace.orders m ON m.id = f.order_id WHERE m.company_id = ${companyId} AND f.status = 'completed' ORDER BY f.completed_at`);
     for (const refund of refunds.rows) await this.record(executor, await marketplaceRefundDraft(executor, refund.id), false);
+    // Hoa hồng đơn VComm hoàn tất, chi trả rút tiền (CONG_VIEC_26).
+    const completed = await executor.execute<{ id: string }>(sql`
+      SELECT id FROM marketplace.orders WHERE company_id = ${companyId} AND status = 'completed' ORDER BY completed_at`);
+    for (const order of completed.rows) await this.record(executor, await marketplaceCommissionDraft(executor, order.id), false);
+    const withdrawals = await executor.execute<{ id: string }>(sql`SELECT id FROM marketplace.withdrawals WHERE company_id = ${companyId} AND status = 'paid' ORDER BY paid_at`);
+    for (const withdrawal of withdrawals.rows) await this.record(executor, await marketplaceWithdrawalDraft(executor, withdrawal.id), false);
   }
 
   private async requireInitialized(executor: Executor, companyId: string): Promise<void> {

@@ -2532,7 +2532,9 @@
     "source_collection_statement": "Bảng đối soát thu hộ",
     "source_commission": "Bảng hoa hồng",
     "source_marketplace_payment": "Thu tiền đơn VComm",
-    "source_marketplace_refund": "Hoàn tiền đơn VComm"
+    "source_marketplace_refund": "Hoàn tiền đơn VComm",
+    "source_marketplace_commission": "Hoa hồng đơn VComm",
+    "source_marketplace_withdrawal": "Chi hoa hồng"
   },
   "statements": {
     "title": "Báo cáo tài chính",

@@ -355,6 +355,8 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     collector_receivable: "1388",
     collection_fee: "6418",
     service_revenue: "511",
+    commission_payable: "3388",
+    personal_income_tax: "3335",
   },
   TT133: {
     receivable: "131",
@@ -380,6 +382,8 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     collector_receivable: "1388",
     collection_fee: "6421",
     service_revenue: "5113",
+    commission_payable: "3388",
+    personal_income_tax: "3335",
   },
 };
 
@@ -407,4 +411,6 @@ export const roleDescriptions: Record<PostingRole, string> = {
   collector_receivable: "Phải thu đơn vị thu hộ",
   collection_fee: "Phí thu hộ, phí cổng thanh toán",
   service_revenue: "Doanh thu cung cấp dịch vụ (phí giao hàng)",
+  commission_payable: "Phải trả hoa hồng người giới thiệu, đội kinh doanh",
+  personal_income_tax: "Thuế thu nhập cá nhân khấu trừ",
 };

@@ -26,7 +26,9 @@ export type PostingRole =
   | "staff_payable"
   | "collector_receivable"
   | "collection_fee"
-  | "service_revenue";
+  | "service_revenue"
+  | "commission_payable"
+  | "personal_income_tax";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -51,6 +53,8 @@ export const postingRoles: PostingRole[] = [
   "collector_receivable",
   "collection_fee",
   "service_revenue",
+  "commission_payable",
+  "personal_income_tax",
 ];
 
 export interface DraftLine {
@@ -61,7 +65,16 @@ export interface DraftLine {
 }
 export interface DraftJournal {
   companyId: string;
-  sourceType: "inventory_document" | "payment" | "internal_write_off" | "commission" | "collection_statement" | "marketplace_payment" | "marketplace_refund";
+  sourceType:
+    | "inventory_document"
+    | "payment"
+    | "internal_write_off"
+    | "commission"
+    | "collection_statement"
+    | "marketplace_payment"
+    | "marketplace_refund"
+    | "marketplace_commission"
+    | "marketplace_withdrawal";
   sourceId: string;
   journalNo: string;
   date: string;
@@ -229,6 +242,46 @@ export async function marketplaceRefundDraft(executor: Executor, refundId: strin
     date: row.refunded_on,
     description: `Hoàn tiền đơn VComm ${row.document_no}, giao dịch ${row.bank_transaction_no}`,
     lines: [debit("receivable", amount), credit("bank", amount)],
+  };
+}
+
+// Hoa hồng đơn VComm hoàn tất (CONG_VIEC_26; QUYTAC_NGHIEPVU_207): Nợ chi phí hoa hồng / Có phải trả hoa hồng (3388), tổng số đã cộng ví của đơn, ngày hoàn tất.
+export async function marketplaceCommissionDraft(executor: Executor, orderId: string): Promise<DraftJournal | null> {
+  const row = (
+    await executor.execute<{ company_id: string; document_no: string; completed_on: string; total: string | null }>(sql`
+    SELECT m.company_id, so.document_no, (m.completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS completed_on,
+      (SELECT sum(c.amount) FROM marketplace.order_commissions c WHERE c.order_id = m.id AND c.status = 'credited')::text AS total
+    FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id WHERE m.id = ${orderId} AND m.status = 'completed'`)
+  ).rows[0];
+  const total = Number(row?.total ?? 0);
+  if (!row || total <= 0) return null;
+  return {
+    companyId: row.company_id,
+    sourceType: "marketplace_commission",
+    sourceId: orderId,
+    journalNo: `${row.document_no}-HH`,
+    date: row.completed_on,
+    description: `Hoa hồng đơn VComm ${row.document_no}`,
+    lines: [debit("commission_expense", total), credit("commission_payable", total)],
+  };
+}
+
+// Chi trả rút tiền hoa hồng đã ghi đã chi (QUYTAC_NGHIEPVU_207): Nợ 3388 số tiền yêu cầu / Có tiền gửi ngân hàng số thực nhận / Có thuế thu nhập cá nhân (3335), ngày chi.
+export async function marketplaceWithdrawalDraft(executor: Executor, withdrawalId: string): Promise<DraftJournal | null> {
+  const row = (
+    await executor.execute<{ company_id: string; amount: string; tax_amount: string; net_amount: string; paid_on: string; bank_transaction_no: string; full_name: string }>(sql`
+    SELECT w.company_id, w.amount::text, w.tax_amount::text, w.net_amount::text, w.paid_on::text, w.bank_transaction_no, u.full_name
+    FROM marketplace.withdrawals w JOIN core.users u ON u.id = w.user_id WHERE w.id = ${withdrawalId} AND w.status = 'paid'`)
+  ).rows[0];
+  if (!row) return null;
+  return {
+    companyId: row.company_id,
+    sourceType: "marketplace_withdrawal",
+    sourceId: withdrawalId,
+    journalNo: `RTHH-${withdrawalId.slice(0, 8).toUpperCase()}`,
+    date: row.paid_on,
+    description: `Chi hoa hồng cho ${row.full_name}, giao dịch ${row.bank_transaction_no}`,
+    lines: [debit("commission_payable", Number(row.amount)), credit("bank", Number(row.net_amount)), credit("personal_income_tax", Number(row.tax_amount))],
   };
 }
 

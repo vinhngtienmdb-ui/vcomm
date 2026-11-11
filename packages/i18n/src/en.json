@@ -2532,7 +2532,9 @@
     "source_collection_statement": "Collection statement",
     "source_commission": "Commission statement",
     "source_marketplace_payment": "VComm order payment",
-    "source_marketplace_refund": "VComm order refund"
+    "source_marketplace_refund": "VComm order refund",
+    "source_marketplace_commission": "VComm order commission",
+    "source_marketplace_withdrawal": "Commission payout"
   },
   "statements": {
     "title": "Financial statements",

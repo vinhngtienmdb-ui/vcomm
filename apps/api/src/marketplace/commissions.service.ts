@@ -4,6 +4,8 @@ import type { BuyerWalletResponse, SalesTitle, WalletTransactionKind } from "con
 import { sql } from "drizzle-orm";
 import type { Database } from "../database/database.module";
 import { returnedOnOrderLine } from "../sales/sales-orders.service";
+import { LedgerService } from "../accounting/ledger.service";
+import { marketplaceCommissionDraft } from "../accounting/postings";
 import { SalesTeamService } from "./sales-team.service";
 
 type Executor = Pick<Database, "execute">;
@@ -40,7 +42,10 @@ const estimate = sql`round(CASE WHEN c.calculation = 'percent'
 
 @Injectable()
 export class MarketplaceCommissionsService {
-  constructor(private readonly team: SalesTeamService) {}
+  constructor(
+    private readonly team: SalesTeamService,
+    private readonly ledger: LedgerService,
+  ) {}
 
   // Gọi trong giao dịch đặt hàng, sau khi lập đơn bán và đơn VComm.
   async snapshot(executor: Executor, input: { orderId: string; salesOrderId: string; buyerUserId: string; companyId: string }): Promise<void> {
@@ -173,6 +178,8 @@ export class MarketplaceCommissionsService {
         INSERT INTO marketplace.wallet_transactions (user_id, kind, amount, balance_after, order_id)
         VALUES (${total.user_id}, 'commission', ${total.amount}::numeric, ${wallet.balance}::numeric, ${orderId})`);
     }
+    // Bút toán hoa hồng (QUYTAC_NGHIEPVU_207); công ty chưa khởi tạo kế toán thì bỏ qua.
+    await this.ledger.record(executor, await marketplaceCommissionDraft(executor, orderId));
     return totals.rows.map((row) => ({ userId: row.user_id, amount: Number(row.amount) }));
   }
 }
