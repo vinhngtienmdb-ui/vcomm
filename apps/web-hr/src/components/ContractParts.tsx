@@ -1,7 +1,7 @@
 "use client";
 
 // Thành phần dùng chung của MAN_HINH_117, 118: nhãn trạng thái, số ngày đến hạn, danh sách phụ cấp, các ngăn kéo ký, hủy, chấm dứt (CHUC_NANG_163).
-import type { ContractAllowance, ContractListItem, ContractStatus, TerminationReason } from "contracts";
+import type { AllowanceTypeItem, ContractAllowance, ContractListItem, ContractStatus, TerminationReason } from "contracts";
 import { terminationReasons } from "contracts";
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
@@ -9,6 +9,7 @@ import { Drawer } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { apiFetch, apiUpload } from "ui/lib/api";
 import { formatMoney, vietnamToday } from "ui/lib/format";
+import { useApi } from "ui/lib/use-api";
 
 const statusTone: Record<ContractStatus, string> = {
   draft: "trung-tinh",
@@ -45,8 +46,13 @@ export function AllowanceText({ allowances, currency }: { allowances: ContractAl
 }
 
 // Ô nhập danh sách phụ cấp.
+// Dòng phụ cấp gửi lên API: chỉ tên, số tiền, loại (CONG_VIEC_48 phiếu thay đổi mục 15; loại trống thì API báo lỗi theo ô).
+export const allowancePayload = (allowances: ContractAllowance[]) => allowances.map((item) => ({ name: item.name, amount: item.amount, allowanceTypeId: item.allowanceTypeId ?? "" }));
+
 export function AllowanceEditor({ value, onChange, errors }: { value: ContractAllowance[]; onChange: (value: ContractAllowance[]) => void; errors: Record<string, string> }) {
   const t = useTranslations("contracts");
+  const types = useApi<AllowanceTypeItem[]>("/hr/allowance-types");
+  const typeList = types.state.kind === "ready" ? types.state.data : [];
   return (
     <div className="truong">
       <span>{t("allowances")}</span>
@@ -59,6 +65,24 @@ export function AllowanceEditor({ value, onChange, errors }: { value: ContractAl
             value={item.name}
             onChange={(event) => onChange(value.map((current, position) => (position === index ? { ...current, name: event.target.value } : current)))}
           />
+          <select
+            className={`o-nhap${errors[`allowances.${index}.allowanceTypeId`] ? " loi" : ""}`}
+            aria-label={t("allowanceType")}
+            value={item.allowanceTypeId ?? ""}
+            onChange={(event) => {
+              const chosen = typeList.find((type) => type.id === event.target.value);
+              onChange(value.map((current, position) => (position === index ? { ...current, allowanceTypeId: chosen?.id ?? null, allowanceTypeName: chosen?.name ?? null } : current)));
+            }}
+          >
+            <option value="">{t("chooseAllowanceType")}</option>
+            {typeList
+              .filter((type) => type.status === "active" || type.id === item.allowanceTypeId)
+              .map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+          </select>
           <input
             className={`o-nhap${errors[`allowances.${index}.amount`] ? " loi" : ""}`}
             aria-label={t("allowanceAmount")}
@@ -72,8 +96,9 @@ export function AllowanceEditor({ value, onChange, errors }: { value: ContractAl
           </button>
         </div>
       ))}
+      {Object.keys(errors).some((key) => key.endsWith(".allowanceTypeId")) && <span className="loi-o">{t("allowanceTypeRequired")}</span>}
       <div>
-        <button type="button" className="nut phu" onClick={() => onChange([...value, { name: "", amount: "" }])}>
+        <button type="button" className="nut phu" onClick={() => onChange([...value, { name: "", amount: "", allowanceTypeId: null, allowanceTypeName: null }])}>
           {t("addAllowance")}
         </button>
       </div>

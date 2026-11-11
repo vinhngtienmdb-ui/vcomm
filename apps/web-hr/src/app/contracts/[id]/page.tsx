@@ -15,7 +15,7 @@ import { Loaded, MessageView } from "ui/components/StatusViews";
 import { apiDownload, apiFetch } from "ui/lib/api";
 import { formatDate } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
-import { AllowanceEditor, AllowanceText, CancelDrawer, ContractStatusBadges, money, SignDrawer, TerminateDrawer } from "@/components/ContractParts";
+import { AllowanceEditor, allowancePayload, AllowanceText, CancelDrawer, ContractStatusBadges, money, SignDrawer, TerminateDrawer } from "@/components/ContractParts";
 import { ContractForm } from "@/components/ContractForm";
 
 type Panel =
@@ -347,7 +347,7 @@ function AppendixDrawer({ contract, appendix, onClose, onDone }: { contract: Con
         branchId: branchId || null,
         salary: salary || null,
         paymentMethod: paymentMethod || null,
-        allowances: replace ? allowances : null,
+        allowances: replace ? allowancePayload(allowances) : null,
         description,
         ...(appendix ? { version: appendix.version } : {}),
       };

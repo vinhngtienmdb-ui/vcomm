@@ -80,6 +80,8 @@ import { ContractRemindersService } from "./hr/contract-reminders.service";
 import { ContractsService } from "./hr/contracts.service";
 import { EmployeesService } from "./hr/employees.service";
 import { HrController } from "./hr/hr.controller";
+import { PayrollController } from "./hr/payroll.controller";
+import { PayrollSetupService } from "./hr/payroll-setup.service";
 import { WorkEventsService } from "./hr/work-events.service";
 import { DebtsService } from "./finance/debts.service";
 import { FundsService } from "./finance/funds.service";
@@ -131,7 +133,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, PayrollController],
   providers: [
     AuthService,
     ActivationService,
@@ -150,6 +152,7 @@ import { UsersService } from "./users/users.service";
     EmployeesService,
     WorkEventsService,
     ContractsService,
+    PayrollSetupService,
     ContractRemindersService,
     CategoriesService,
     UnitsService,

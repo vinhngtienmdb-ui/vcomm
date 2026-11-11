@@ -4739,7 +4739,8 @@ export type TerminationReason = (typeof terminationReasons)[number];
 // Tình trạng hiệu lực tính theo ngày (QUYTAC_NGHIEPVU_299).
 export type ContractValidity = "not_started" | "active" | "expired" | "terminated" | null;
 
-const allowanceSchema = z.object({ name: z.string().trim().min(1).max(100), amount: decimalText(4) }).strict();
+// CONG_VIEC_48 (phiếu thay đổi mục 15): mỗi dòng phụ cấp lưu mới phải có loại phụ cấp (QUYTAC_NGHIEPVU_314).
+const allowanceSchema = z.object({ name: z.string().trim().min(1).max(100), amount: decimalText(4), allowanceTypeId: z.string().uuid() }).strict();
 
 export const saveContractSchema = z
   .object({
@@ -4786,6 +4787,9 @@ export const terminateEmployeeSchema = terminateContractSchema;
 export interface ContractAllowance {
   name: string;
   amount: string;
+  // null với dòng lập trước CONG_VIEC_48.
+  allowanceTypeId: string | null;
+  allowanceTypeName: string | null;
 }
 export interface ContractTerms {
   jobTitle: string;
@@ -4880,4 +4884,167 @@ export type SaveAppendixRequest = z.input<typeof saveAppendixSchema>;
 export interface MyContractsResponse {
   currency: string;
   contracts: ContractResponse[];
+}
+
+// CONG_VIEC_48 lát L0: thiết lập lương, loại phụ cấp, hồ sơ lương (API_156 đến API_158; QUYTAC_NGHIEPVU_312 đến 315).
+const firstOfMonth = isoDate.refine((value) => value.endsWith("-01"), { message: "invalidValue" });
+const rateText = decimalText(4);
+const taxBracketSchema = z.object({ upperBound: decimalText(4).nullable(), rate: rateText }).strict();
+export const savePayrollParametersSchema = z
+  .object({
+    effectiveFrom: firstOfMonth,
+    baseSalary: decimalText(4),
+    insuranceReference: decimalText(4).nullable().optional(),
+    regionMinimums: z.tuple([decimalText(4), decimalText(4), decimalText(4), decimalText(4)]),
+    employeeSocialRate: rateText,
+    employeeHealthRate: rateText,
+    employeeUnemploymentRate: rateText,
+    employerRetirementRate: rateText,
+    employerSicknessRate: rateText,
+    employerHealthRate: rateText,
+    employerUnemploymentRate: rateText,
+    socialCapMultiplier: rateText,
+    healthCapMultiplier: rateText,
+    unemploymentCapMultiplier: rateText,
+    personalDeduction: decimalText(4),
+    dependentDeduction: decimalText(4),
+    flatWithholdingRate: rateText,
+    unpaidDaysThreshold: z.number().int().min(1).max(31),
+    taxBrackets: z.array(taxBracketSchema).min(1).max(10),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePayrollParametersRequest = z.input<typeof savePayrollParametersSchema>;
+export interface PayrollParametersItem {
+  id: string;
+  effectiveFrom: string;
+  baseSalary: string;
+  insuranceReference: string | null;
+  regionMinimums: [string, string, string, string];
+  employeeSocialRate: string;
+  employeeHealthRate: string;
+  employeeUnemploymentRate: string;
+  employerRetirementRate: string;
+  employerSicknessRate: string;
+  employerHealthRate: string;
+  employerUnemploymentRate: string;
+  socialCapMultiplier: string;
+  healthCapMultiplier: string;
+  unemploymentCapMultiplier: string;
+  personalDeduction: string;
+  dependentDeduction: string;
+  flatWithholdingRate: string;
+  unpaidDaysThreshold: number;
+  taxBrackets: { upperBound: string | null; rate: string }[];
+  // Đang áp dụng: bộ có ngày hiệu lực gần nhất không sau hôm nay.
+  current: boolean;
+  // Đã được bảng lương đã duyệt dùng thì không sửa, không xóa (QUYTAC_NGHIEPVU_312).
+  used: boolean;
+  version: number;
+}
+
+export const savePayrollCompanySettingsSchema = z
+  .object({
+    unionFeeEnabled: z.boolean(),
+    unionFeeRate: rateText,
+    accidentRate: rateText,
+    withholdingThreshold: decimalText(4),
+    fallbackStandardDays: z.number().int().min(1).max(31),
+    overtimeWeekdayRate: rateText,
+    overtimeWeeklyRestRate: rateText,
+    overtimeHolidayRate: rateText,
+    nightRate: rateText,
+    nightOvertimeRate: rateText,
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePayrollCompanySettingsRequest = z.input<typeof savePayrollCompanySettingsSchema>;
+export type PayrollCompanySettings = z.output<typeof savePayrollCompanySettingsSchema> & { version: number };
+
+export const payrollCostGroups = ["selling", "admin"] as const;
+export type PayrollCostGroup = (typeof payrollCostGroups)[number];
+export const saveBranchRegionsSchema = z
+  .object({ items: z.array(z.object({ branchId: z.string().uuid(), region: z.number().int().min(1).max(4).nullable() }).strict()).max(500) })
+  .strict();
+export const saveDepartmentGroupsSchema = z
+  .object({ items: z.array(z.object({ departmentId: z.string().uuid(), costGroup: z.enum(payrollCostGroups) }).strict()).max(500) })
+  .strict();
+export interface PayrollSettingsResponse {
+  parameters: PayrollParametersItem[];
+  canEditParameters: boolean;
+  canEditCompany: boolean;
+  company: PayrollCompanySettings;
+  branches: { branchId: string; code: string; name: string; region: number | null }[];
+  departments: { departmentId: string; name: string; costGroup: PayrollCostGroup }[];
+}
+
+export const allowanceTaxModes = ["taxable", "exempt", "exempt_up_to"] as const;
+export type AllowanceTaxMode = (typeof allowanceTaxModes)[number];
+export const saveAllowanceTypeSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    taxMode: z.enum(allowanceTaxModes),
+    exemptLimit: decimalText(4).nullable().optional(),
+    prorated: z.boolean(),
+    overtimeBase: z.boolean(),
+    status: z.enum(["active", "inactive"]).default("active"),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveAllowanceTypeRequest = z.input<typeof saveAllowanceTypeSchema>;
+export interface AllowanceTypeItem {
+  id: string;
+  name: string;
+  taxMode: AllowanceTaxMode;
+  exemptLimit: string | null;
+  prorated: boolean;
+  overtimeBase: boolean;
+  status: "active" | "inactive";
+  version: number;
+}
+
+export const payrollTaxMethods = ["auto", "progressive", "flat"] as const;
+export type PayrollTaxMethod = (typeof payrollTaxMethods)[number];
+export const savePayrollProfileSchema = z
+  .object({
+    socialExempt: z.boolean(),
+    healthExempt: z.boolean(),
+    unemploymentExempt: z.boolean(),
+    exemptionReason: blankToNull(500),
+    taxMethod: z.enum(payrollTaxMethods),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SavePayrollProfileRequest = z.input<typeof savePayrollProfileSchema>;
+export const saveInsuranceSalarySchema = z.object({ effectiveMonth: firstOfMonth, amount: decimalText(4), note: blankToNull(500) }).strict();
+export type SaveInsuranceSalaryRequest = z.input<typeof saveInsuranceSalarySchema>;
+export const uploadTaxCommitmentSchema = z.object({ year: z.coerce.number().int().min(2000).max(2100) }).strict();
+export interface InsuranceSalaryItem {
+  id: string;
+  effectiveMonth: string;
+  amount: string;
+  note: string | null;
+  createdByName: string;
+  createdAt: string;
+  // Thấp hơn lương tối thiểu vùng của chi nhánh làm việc tại tháng hiệu lực (cảnh báo, không chặn).
+  belowRegionalMinimum: boolean;
+}
+export interface PayrollProfileResponse {
+  employeeId: string;
+  socialExempt: boolean;
+  healthExempt: boolean;
+  unemploymentExempt: boolean;
+  exemptionReason: string | null;
+  taxMethod: PayrollTaxMethod;
+  hasTaxCode: boolean;
+  insuranceSalaries: InsuranceSalaryItem[];
+  taxCommitments: { id: string; year: number; fileName: string; uploadedAt: string }[];
+  version: number | null;
+}
+export interface MissingInsuranceItem {
+  employeeId: string;
+  code: string;
+  fullName: string;
+  contractKind: ContractKind | null;
+  contractEndDate: string | null;
 }

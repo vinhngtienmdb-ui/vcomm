@@ -218,9 +218,11 @@ export class ContractsService implements OnModuleInit {
   }
 
   private async allowances(contractId: string, appendixId: string | null): Promise<ContractAllowance[]> {
-    const rows = await this.database.execute<{ name: string; amount: string }>(sql`
-      SELECT name, amount::text FROM hr.contract_allowances WHERE contract_id = ${contractId} AND appendix_id IS NOT DISTINCT FROM ${appendixId}::uuid ORDER BY sort_order`);
-    return rows.rows.map((row) => ({ name: row.name, amount: trim(row.amount)! }));
+    const rows = await this.database.execute<{ name: string; amount: string; allowance_type_id: string | null; allowance_type_name: string | null }>(sql`
+      SELECT a.name, a.amount::text, a.allowance_type_id, t.name AS allowance_type_name
+      FROM hr.contract_allowances a LEFT JOIN hr.allowance_types t ON t.id = a.allowance_type_id
+      WHERE a.contract_id = ${contractId} AND a.appendix_id IS NOT DISTINCT FROM ${appendixId}::uuid ORDER BY a.sort_order`);
+    return rows.rows.map((row) => ({ name: row.name, amount: trim(row.amount)!, allowanceTypeId: row.allowance_type_id, allowanceTypeName: row.allowance_type_name }));
   }
 
   private async appendixRows(contractId: string): Promise<AppendixRow[]> {
@@ -413,11 +415,26 @@ export class ContractsService implements OnModuleInit {
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
   }
 
-  private async writeAllowances(executor: Executor, contractId: string, appendixId: string | null, allowances: ContractAllowance[] | null | undefined): Promise<void> {
+  // Loại phụ cấp phải thuộc công ty, đang dùng (QUYTAC_NGHIEPVU_314).
+  private async writeAllowances(
+    executor: Executor,
+    companyId: string,
+    contractId: string,
+    appendixId: string | null,
+    allowances: { name: string; amount: string; allowanceTypeId: string }[] | null | undefined,
+  ): Promise<void> {
+    const list = allowances ?? [];
+    const fields: Record<string, ErrorMessageKey> = {};
+    for (const [index, allowance] of list.entries()) {
+      const found = await executor.execute(sql`SELECT 1 FROM hr.allowance_types WHERE id = ${allowance.allowanceTypeId} AND company_id = ${companyId} AND status = 'active'`);
+      if (found.rows.length === 0) fields[`allowances.${index}.allowanceTypeId`] = "invalidValue";
+    }
+    if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
     await executor.execute(sql`DELETE FROM hr.contract_allowances WHERE contract_id = ${contractId} AND appendix_id IS NOT DISTINCT FROM ${appendixId}::uuid`);
-    for (const [index, allowance] of (allowances ?? []).entries()) {
+    for (const [index, allowance] of list.entries()) {
       await executor.execute(sql`
-        INSERT INTO hr.contract_allowances (contract_id, appendix_id, sort_order, name, amount) VALUES (${contractId}, ${appendixId}, ${index + 1}, ${allowance.name}, ${allowance.amount}::numeric)`);
+        INSERT INTO hr.contract_allowances (contract_id, appendix_id, sort_order, name, amount, allowance_type_id)
+        VALUES (${contractId}, ${appendixId}, ${index + 1}, ${allowance.name}, ${allowance.amount}::numeric, ${allowance.allowanceTypeId})`);
     }
   }
 
@@ -445,7 +462,7 @@ export class ContractsService implements OnModuleInit {
           ${input.salary}::numeric, ${values.level}, ${values.official}::numeric, ${input.paymentMethod}, ${input.signerName}, ${input.signerTitle}, ${input.otherTerms}, ${values.exception}, ${actor.userId})
         RETURNING id`)
       ).rows[0]!.id;
-      await this.writeAllowances(transaction, created, null, input.allowances);
+      await this.writeAllowances(transaction, actor.companyId, created, null, input.allowances);
       await this.auditService.record({ ...hrAudit(actor, "contract"), action: "contract.create", entityId: created, afterData: input }, transaction);
       return created;
     });
@@ -468,7 +485,7 @@ export class ContractsService implements OnModuleInit {
           official_salary = ${values.official}::numeric, payment_method = ${input.paymentMethod}, signer_name = ${input.signerName}, signer_title = ${input.signerTitle},
           other_terms = ${input.otherTerms}, legal_exception_reason = ${values.exception}, status = 'draft', updated_at = now(), version = version + 1
         WHERE id = ${id}`);
-      await this.writeAllowances(transaction, id, null, input.allowances);
+      await this.writeAllowances(transaction, actor.companyId, id, null, input.allowances);
       await this.auditService.record(
         { ...hrAudit(actor, "contract"), action: "contract.update", entityId: id, beforeData: { status: before.status, salary: before.salary }, afterData: input },
         transaction,
@@ -490,7 +507,8 @@ export class ContractsService implements OnModuleInit {
       probationLevel: row.probation_level,
       officialSalary: trim(row.official_salary),
       paymentMethod: row.payment_method,
-      allowances,
+      // Chỉ dùng để kiểm luật khi gửi, ký (không ghi lại dòng phụ cấp); dòng cũ chưa có loại.
+      allowances: allowances.map((allowance) => ({ name: allowance.name, amount: allowance.amount, allowanceTypeId: allowance.allowanceTypeId ?? "" })),
       signerName: row.signer_name,
       signerTitle: row.signer_title,
       otherTerms: row.other_terms,
@@ -763,7 +781,7 @@ export class ContractsService implements OnModuleInit {
             description = ${input.description}, status = 'draft', updated_at = now(), version = version + 1
           WHERE id = ${id}`);
       }
-      await this.writeAllowances(transaction, contractId, id, replaces ? input.allowances : []);
+      await this.writeAllowances(transaction, actor.companyId, contractId, id, replaces ? input.allowances : []);
       await this.auditService.record(
         { ...hrAudit(actor, "contract"), action: appendixId ? "contract.appendix.update" : "contract.appendix.create", entityId: contractId, afterData: { appendixId: id, ...input } },
         transaction,
@@ -790,7 +808,8 @@ export class ContractsService implements OnModuleInit {
           branchId: row.branch_id,
           salary: row.salary,
           paymentMethod: row.payment_method,
-          allowances,
+          // Chỉ dùng để kiểm luật khi gửi; dòng cũ chưa có loại.
+          allowances: allowances?.map((allowance) => ({ name: allowance.name, amount: allowance.amount, allowanceTypeId: allowance.allowanceTypeId ?? "" })) ?? null,
           description: row.description,
         },
         appendixId,

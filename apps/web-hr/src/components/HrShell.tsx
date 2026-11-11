@@ -8,6 +8,8 @@ import { AppShell } from "ui/components/AppShell";
 export const hrMenu = [
   { href: "/employees", key: "employees", permission: "hr.employee.view" },
   { href: "/contracts", key: "contracts", permission: "hr.employee.view" },
+  // CONG_VIEC_48: MAN_HINH_131.
+  { href: "/payroll-settings", key: "payrollSettings", permission: "hr.payroll.setup" },
   { href: "/me", key: "me", permission: "platform.access" },
 ] as const;
 

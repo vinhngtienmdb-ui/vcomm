@@ -11,7 +11,7 @@ import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
 import { useApi } from "ui/lib/use-api";
-import { AllowanceEditor } from "./ContractParts";
+import { AllowanceEditor, allowancePayload } from "./ContractParts";
 
 const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "var(--khoang-3)", alignItems: "start" } as const;
 
@@ -100,7 +100,7 @@ function ContractFormBody({
         probationLevel: kind === "probation" ? probationLevel : null,
         officialSalary: kind === "probation" ? officialSalary || null : null,
         paymentMethod,
-        allowances,
+        allowances: allowancePayload(allowances),
         signerName,
         signerTitle,
         otherTerms,
