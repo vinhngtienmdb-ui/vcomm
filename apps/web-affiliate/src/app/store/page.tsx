@@ -174,7 +174,7 @@ export default function StorePage() {
                   <tr key={member.id}>
                     <td data-nhan={t("memberName")}>{member.fullName}</td>
                     <td data-nhan={t("phone")}>{member.phone}</td>
-                    <td data-nhan={t("role")}>{t(`role_${member.role}`)}</td>
+                    <td data-nhan={t("role")}>{t(`roleLabel_${member.role}`)}</td>
                     <td data-nhan={t("outlets")}>
                       {member.role === "owner"
                         ? t("allOutlets")

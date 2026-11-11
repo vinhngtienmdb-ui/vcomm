@@ -7192,6 +7192,8 @@
     "invitationExpires": "Lời mời hết hạn {time}",
     "changeOutlets": "Đổi điểm bán",
     "saved": "Đã lưu.",
-    "inviteSent": "Đã gửi lời mời."
+    "inviteSent": "Đã gửi lời mời.",
+    "roleLabel_owner": "Chủ cửa hàng",
+    "roleLabel_cashier": "Thu ngân"
   }
 }

@@ -52,7 +52,7 @@ export function TermsFields({
     </Field>
   );
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "var(--khoang-3)" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "var(--khoang-3)", alignItems: "start" }}>
       {input("contractNo")}
       {input("startsOn", "date")}
       {input("endsOn", "date", t("endsOnHint"))}

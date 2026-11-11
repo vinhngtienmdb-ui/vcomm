@@ -7192,6 +7192,8 @@
     "invitationExpires": "Invitation expires {time}",
     "changeOutlets": "Change outlets",
     "saved": "Saved.",
-    "inviteSent": "Invitation sent."
+    "inviteSent": "Invitation sent.",
+    "roleLabel_owner": "Store owner",
+    "roleLabel_cashier": "Cashier"
   }
 }
