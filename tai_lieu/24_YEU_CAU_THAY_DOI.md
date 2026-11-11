@@ -303,7 +303,7 @@
 - Kiểm thử cần thực hiện: thêm KICHBAN_KIEMTHU_362; chạy lại KICHBAN_KIEMTHU_359, 360.
 - Mức quy mô: Vừa.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-11.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã thực hiện 2026-11-11 (commit `399018b`, kết quả kiểm thử tài liệu `25`), chờ nghiệm thu.
 
 ### THAY_DOI_18: Sửa các công việc đã nghiệm thu theo mô hình B2C (THAY_DOI_14) – 2026-11-11
 - Lý do: THAY_DOI_14 đổi mô hình kinh doanh sang bán B2C qua sàn VComm; các công việc nội bộ, B2B đã nghiệm thu cần sửa theo.

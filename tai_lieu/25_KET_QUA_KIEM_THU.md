@@ -196,6 +196,16 @@
 - Kết luận cổng kiểm thử: Đạt.
 - Kết luận: Chờ người dùng nghiệm thu.
 
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_26 theo THAY_DOI_19 (ngưỡng thuế cộng dồn theo tháng)
+
+- Phạm vi: QUYTAC_NGHIEPVU_205 sửa theo THAY_DOI_19; API_135 thêm `approvedThisMonth`; màn hình rút tiền của ứng dụng tính thuế dự kiến theo cộng dồn. Commit `399018b` trên nhánh CONG_VIEC_26; hợp nhất vào nhánh CONG_VIEC_43 (`33bf005`).
+- Lệnh đã chạy: `pnpm typecheck`; `pnpm --filter api test` (toàn bộ); `c26-*`, `c43-*` trên nhánh CONG_VIEC_43 sau hợp nhất.
+- Kết quả: toàn bộ 338 kịch bản tự động: 336 đạt, 2 không đạt ở `c5-documents` do hai tiến trình kiểm thử chạy chồng trên cùng cơ sở dữ liệu kiểm thử; chạy lại riêng tệp đạt 6/6, không liên quan thay đổi. Nhánh CONG_VIEC_43 sau hợp nhất: `c26-*`, `c43-*` 22/22 đạt.
+- Kiểm thử đã duyệt được sửa theo phiếu thay đổi đã duyệt: KICHBAN_KIEMTHU_359 thêm kịch bản cộng dồn (đã duyệt 5.500.000, rút 400.000 với ngưỡng 1.000.000, tỷ lệ 20%: thuế 80.000) và kiểm tra trường `approvedThisMonth`; KICHBAN_KIEMTHU_362 lần rút thứ tư 1.000.000 sau khi đã duyệt 9.000.000 nay bị khấu trừ thuế 100.000 (thực nhận 893.500).
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_219, 222 – Đạt.
+- Kiểm tra bảo mật phần B, C: không thêm thư viện, không thêm endpoint; dữ liệu cộng dồn chỉ của chính người dùng. Đạt.
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu thay đổi.
+
 ## Lần kiểm thử 2026-11-11 – CONG_VIEC_26
 
 - Phạm vi: lát L0 đến L5 (thiết lập hoa hồng sản phẩm, cài đặt chung; chốt người hưởng khi đặt, cộng ví khi hoàn tất, đơn hủy bỏ hoa hồng; ví, hoa hồng cấp dưới; rút tiền, duyệt chi, thuế thu nhập cá nhân, bảng kê; bút toán 3388, 3335; phí rút tiền theo THAY_DOI_17, Có 711) và các bản sửa sau rà soát độc lập.
