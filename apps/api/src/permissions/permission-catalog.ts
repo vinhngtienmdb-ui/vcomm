@@ -114,7 +114,14 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "finance.consolidation.manage", appCode: "finance", nameVi: "Lập, gửi bảng hợp nhất (phạm vi tập đoàn)", nameEn: "Manage consolidation", isSensitive: true },
   { code: "inventory.sales.issue", appCode: "inventory", nameVi: "Xuất giao hàng, nhận hàng trả lại", nameEn: "Issue sales deliveries and receive returns", isSensitive: false },
   { code: "inventory.purchase.receive", appCode: "inventory", nameVi: "Nhập mua, trả hàng nhà cung cấp", nameEn: "Receive purchases and return to suppliers", isSensitive: false },
+  // CONG_VIEC_46: Nhân sự phần 1 (MODULE_08). Dữ liệu cá nhân: mọi quyền là nhạy cảm.
+  { code: "hr.employee.view", appCode: "hr", nameVi: "Xem hồ sơ nhân sự", nameEn: "View employee records", isSensitive: true },
+  { code: "hr.employee.manage", appCode: "hr", nameVi: "Lập, sửa hồ sơ nhân sự, quá trình công tác, nghỉ việc", nameEn: "Manage employee records", isSensitive: true },
+  { code: "hr.identity.view", appCode: "hr", nameVi: "Xem số giấy tờ, tài khoản ngân hàng, tải tệp giấy tờ", nameEn: "View identity numbers and documents", isSensitive: true },
+  { code: "hr.contract.manage", appCode: "hr", nameVi: "Lập, gửi, ký, chấm dứt hợp đồng lao động; xem mức lương", nameEn: "Manage labour contracts", isSensitive: true },
 ];
+
+export const hrPermissions = ["hr.employee.view", "hr.employee.manage", "hr.identity.view", "hr.contract.manage"];
 
 const inventoryPermissions = permissionCatalog.filter((permission) => permission.appCode === "inventory").map((permission) => permission.code);
 
@@ -177,6 +184,7 @@ const companyAdminPermissions = [
   "finance.collection.view",
   "finance.collection.manage",
   "finance.collection.setup",
+  ...hrPermissions,
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [
@@ -186,7 +194,7 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     nameEn: "Group administrator",
     // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), Đối tác (CONG_VIEC_06), Mua hàng (CONG_VIEC_07), Bán hàng (CONG_VIEC_08), Tài chính – Kế toán (CONG_VIEC_13), cộng quyền truy cập mọi mini app.
     permissionCodes: permissionCatalog
-      .filter((permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance"].includes(permission.appCode) || permission.code.endsWith(".access"))
+      .filter((permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance", "hr"].includes(permission.appCode) || permission.code.endsWith(".access"))
       .map((permission) => permission.code),
   },
   { code: "company_admin", nameVi: "Quản trị công ty", nameEn: "Company administrator", permissionCodes: companyAdminPermissions },
@@ -314,6 +322,9 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     ],
   },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },
+  // CONG_VIEC_46 (tài liệu 08): gán ở phạm vi công ty.
+  { code: "hr_manager", nameVi: "Quản lý nhân sự", nameEn: "HR manager", permissionCodes: ["hr.access", ...hrPermissions, "platform.proposal.create"] },
+  { code: "hr_staff", nameVi: "Nhân viên nhân sự", nameEn: "HR staff", permissionCodes: ["hr.access", "hr.employee.view", "hr.employee.manage", "hr.contract.manage"] },
 ];
 
 // Loại chứng từ do mã khai báo. Chứng từ thử của Nền tảng dùng để thử luồng duyệt khi chưa có module khác (CONG_VIEC_02 lát L7).
@@ -338,6 +349,10 @@ export const documentTypeCatalog = [
   { code: "accounting.journal", appCode: "finance", nameVi: "Phiếu kế toán", nameEn: "Manual journal", requiresApproval: true },
   { code: "finance.collection_statement", appCode: "finance", nameVi: "Bảng đối soát thu hộ", nameEn: "Collection statement", requiresApproval: true },
   { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },
+  // CONG_VIEC_46: mã nhân viên chỉ dùng dãy số; hợp đồng, phụ lục qua luồng duyệt.
+  { code: "hr.employee", appCode: "hr", nameVi: "Mã nhân viên", nameEn: "Employee code", requiresApproval: false },
+  { code: "hr.contract", appCode: "hr", nameVi: "Hợp đồng lao động", nameEn: "Labour contract", requiresApproval: true },
+  { code: "hr.contract_appendix", appCode: "hr", nameVi: "Phụ lục hợp đồng lao động", nameEn: "Labour contract appendix", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.

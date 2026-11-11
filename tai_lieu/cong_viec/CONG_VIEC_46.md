@@ -3,7 +3,7 @@
 - Mô tả: Mini app Nhân sự `apps/web-hr`: hồ sơ nhân sự theo công ty (thông tin cá nhân, giấy tờ, người phụ thuộc, quá trình công tác) gắn với tài khoản người dùng và cơ cấu công ty, chi nhánh, phòng ban đã có; hợp đồng lao động, phụ lục qua luồng duyệt; nhắc hết hạn hợp đồng; nhân viên tự xem hồ sơ của mình.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả. Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ.
+- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11. Đang thực hiện lát L0.
 - Mức: Lớn (module mới, mini app mới, dữ liệu cá nhân nhạy cảm, đổi dữ liệu thành viên công ty ở `core`).
 - Nguồn: tài liệu `01` mục 4 (MODULE_08), tài liệu `05` mục 2.1 (Nhân sự: hồ sơ nhân viên, hợp đồng); quyết định của người dùng ngày 2026-11-11 (mục 17).
 
@@ -192,3 +192,14 @@ Luồng duyệt chung, dãy số chứng từ, đăng nhập, phân quyền hi�
 ## 18. Kết quả đối chiếu định nghĩa hoàn thành
 
 Chưa đối chiếu.
+
+## 19. Chỗ chỉnh cho khớp mã (lát L0)
+
+| Vị trí | Đặc tả 0.1 | Mã đã làm |
+|---|---|---|
+| QUYTAC_NGHIEPVU_292 | Mã nhân viên `NV` + 6 chữ số | Theo định dạng chung của dãy số chứng từ: `NV-<mã công ty>-000001` (không đặt lại theo kỳ); tiền tố đổi được ở Dãy số chứng từ |
+| QUYTAC_NGHIEPVU_295, mục 9 | Bảng `hr.employee_consents` | Không tạo bảng riêng: đồng ý xử lý dữ liệu là tệp loại "Văn bản đồng ý xử lý dữ liệu" có ngày đồng ý trong `hr.employee_documents`; ngày đồng ý của hồ sơ là ngày mới nhất |
+| QUYTAC_NGHIEPVU_295 | Kiểm trùng số căn cước | Số mã hóa có véc-tơ khởi tạo ngẫu nhiên nên kiểm trùng bằng mã băm có khóa (HMAC-SHA256, cột `identity_hash`) |
+| QUYTAC_NGHIEPVU_296 | Cập nhật khi quyết định đến ngày hiệu lực | Thêm: liên kết tài khoản mới thì cập nhật ngay theo vị trí hiện hành; quyết định ghi lùi ngày áp dụng ngay; ngày hiệu lực phải sau ngày vào làm |
+| Mục 6 | Trang "Hồ sơ của tôi" không cần `hr.access` | Menu dùng quyền `platform.access` (mọi nhân viên có); API `/hr/me` chỉ cần là thành viên công ty đang chọn |
+| MAN_HINH_116 | Thẻ Hợp đồng | Làm ở lát L1 cùng MAN_HINH_117, 118 |

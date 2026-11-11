@@ -2190,4 +2190,4 @@ Mini app Nhân sự `apps/web-hr`, đường dẫn `/hr`. Bản mẫu: `tai_lieu
 
 Điều hướng: trang chủ → Nhân sự → menu Hồ sơ nhân sự (114 → 116 → 115, 118), Hợp đồng (117 → 118), Hồ sơ của tôi (119). Thông báo nhắc hết hạn mở 118. Không dùng giá trị mới ngoài tài liệu `15`.
 
-- Trạng thái phê duyệt: chờ người dùng duyệt bản mẫu.
+- Trạng thái phê duyệt: người dùng duyệt bản mẫu ngày 2026-11-11.
