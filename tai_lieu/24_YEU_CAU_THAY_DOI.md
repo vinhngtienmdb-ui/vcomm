@@ -373,3 +373,14 @@
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-11.
 
+### THAY_DOI_23: Bỏ giới hạn yêu cầu theo IP cho API nộp hồ sơ ứng tuyển công khai – 2026-11-11
+- Lý do: CONG_VIEC_54 (tuyển dụng): người dùng không muốn chặn ứng viên nộp hồ sơ vì giới hạn theo IP (nhiều ứng viên dùng chung mạng).
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11): API_204 `/careers` (trang tuyển dụng công khai chung tập đoàn) không áp giới hạn yêu cầu theo IP (tài liệu 22 mục 3, LOI_02), không OTP, không giới hạn số lần nộp. Các API công khai khác giữ nguyên giới hạn.
+- Thành phần bị ảnh hưởng: tài liệu 22 mục 3 (ngoại lệ cho API_204); CONG_VIEC_54.
+- Dữ liệu, API, giao diện, quyền: không đổi API khác.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: API_204 nhận nhiều yêu cầu liên tiếp từ cùng IP; API công khai khác vẫn bị giới hạn.
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_54.
+- Rủi ro (người dùng chấp nhận): hồ sơ rác hàng loạt, đầy kho lưu tệp đính kèm, tốn tài nguyên máy chủ; giảm thiểu đề xuất trong tài liệu 22 (giới hạn kích thước, loại tệp, theo dõi dung lượng).
+- Trạng thái: Đã phê duyệt 2026-11-11.
+
