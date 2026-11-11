@@ -1,10 +1,10 @@
 # 13. CÔNG NGHỆ SỬ DỤNG
 
 - Mô tả: Công nghệ, thư viện, dịch vụ hạ tầng và phân tích giải pháp có sẵn.
-- Phiên bản: 1.3
+- Phiên bản: 1.4
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1); CONG_VIEC_24 (2026-11-11): đơn vị vận chuyển GHN (REST bằng `fetch`, không thêm thư viện), biến môi trường kết nối; danh mục tỉnh xã từ bộ dữ liệu giấy phép MIT
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1); CONG_VIEC_24 (2026-11-11): đơn vị vận chuyển GHN (REST bằng `fetch`, không thêm thư viện), biến môi trường kết nối; danh mục tỉnh xã từ bộ dữ liệu giấy phép MIT; CONG_VIEC_25 (2026-11-11): cổng thanh toán VNPAY (ký bằng `node:crypto`, không thêm thư viện), biến môi trường kết nối
 
 ## 1. Danh sách công nghệ
 
@@ -29,6 +29,7 @@
 | Xác thực nhà bán qua VNeID | **CHƯA XÁC ĐỊNH:** tổ chức cung cấp dịch vụ xác thực điện tử | MODULE_02 (THAY_DOI_02) |
 | Hóa đơn điện tử | MISA meInvoice (REST, gọi bằng `fetch` của Node.js, không thêm thư viện); bộ giả lập tự viết cho môi trường không phải môi trường thật; nhà cung cấp chọn theo từng công ty | CONG_VIEC_16; tài liệu API chính thức chưa đối chiếu (đặc tả `cong_viec/CONG_VIEC_16.md` mục 9, 16) |
 | Đơn vị vận chuyển | Giao Hàng Nhanh (GHN) qua REST, gọi bằng `fetch` của Node.js, không thêm thư viện; biến môi trường `GHN_API_TOKEN`, `GHN_SHOP_ID`, `GHN_WEBHOOK_KEY`, `GHN_BASE_URL` (để trống: môi trường thử nghiệm `https://dev-online-gateway.ghn.vn`); kiểm thử dùng máy chủ giả lập | CONG_VIEC_24 (người dùng chọn GHN ngày 2026-11-11) |
+| Cổng thanh toán | VNPAY theo đặc tả công khai phiên bản 2.1.0 (QR VNPAY, thẻ ATM nội địa, thẻ quốc tế), ký HMAC SHA512 bằng `node:crypto`, không thêm thư viện; biến môi trường `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, `VNPAY_RETURN_URL`, `VNPAY_PAYMENT_URL` (để trống: môi trường thử nghiệm `https://sandbox.vnpayment.vn/paymentv2/vpcpay.html`), `VCOMM_APP_LINK_BASE` (liên kết mở ứng dụng từ trang trả về, mặc định `vcomm://`); kiểm thử dùng giả lập; phải thử với tài khoản môi trường thử nghiệm của VNPAY trước khi phát hành | CONG_VIEC_25 (người dùng chọn VNPAY ngày 2026-11-11) |
 | Danh mục tỉnh, xã hai cấp | Bộ dữ liệu `thanglequoc/vietnamese-provinces-database` v5.2.0 (giấy phép MIT, mã Tổng cục Thống kê), chuyển thành câu lệnh nạp trong database migration 0025; không thêm thư viện | CONG_VIEC_24 (người dùng chọn ngày 2026-11-11) |
 | Bí mật hệ thống | AWS Secrets Manager | Tài liệu `22` mục 5 |
 | Kiểm thử | Vitest (đơn vị, tích hợp với PostgreSQL thật), Playwright (giao diện) | |
