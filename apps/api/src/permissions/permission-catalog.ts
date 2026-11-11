@@ -344,6 +344,8 @@ export const documentTypeCatalog = [
   { code: "inventory.purchase_return", appCode: "inventory", nameVi: "Phiếu trả hàng nhà cung cấp", nameEn: "Purchase return", requiresApproval: false },
   { code: "purchasing.requisition", appCode: "purchasing", nameVi: "Đề nghị mua", nameEn: "Purchase requisition", requiresApproval: true },
   { code: "purchasing.order", appCode: "purchasing", nameVi: "Đơn mua", nameEn: "Purchase order", requiresApproval: true },
+  // CONG_VIEC_45: chứng từ chi phí nhập khẩu có hóa đơn gốc, không đi luồng duyệt; chỉ dùng dãy số.
+  { code: "purchasing.landed_cost", appCode: "purchasing", nameVi: "Chứng từ chi phí nhập khẩu", nameEn: "Landed cost", requiresApproval: false },
   { code: "sales.order", appCode: "sales", nameVi: "Đơn bán", nameEn: "Sales order", requiresApproval: true },
   { code: "sales.promotion", appCode: "sales", nameVi: "Chương trình khuyến mãi", nameEn: "Promotion", requiresApproval: true },
   { code: "inventory.sales_issue", appCode: "inventory", nameVi: "Phiếu xuất giao hàng", nameEn: "Sales delivery", requiresApproval: false },

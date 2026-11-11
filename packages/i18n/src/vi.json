@@ -337,7 +337,9 @@
     "importOrderInvalid": "Chỉ lập tờ khai cho đơn mua nhập khẩu đã duyệt hoặc đã nhận đủ.",
     "declarationNoDuplicate": "Số tờ khai đã có trong công ty.",
     "importDeclaredExceeded": "Vượt số lượng đặt còn khai được của dòng đơn mua.",
-    "importNotReceived": "Hàng của dòng chưa nhập kho đủ số lượng khai."
+    "importNotReceived": "Hàng của dòng chưa nhập kho đủ số lượng khai.",
+    "declarationNotPosted": "Chọn tờ khai nhập khẩu đã ghi sổ.",
+    "allocationBasisEmpty": "Tiêu thức của khoản này có tổng bằng 0 trên các dòng tờ khai, không phân bổ được."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1926,7 +1928,8 @@
     "orders": "Đơn mua",
     "requisitions": "Đề nghị mua",
     "supplierPrices": "Bảng giá mua",
-    "importDeclarations": "Tờ khai nhập khẩu"
+    "importDeclarations": "Tờ khai nhập khẩu",
+    "landedCosts": "Chi phí nhập khẩu"
   },
   "purchasing": {
     "itemSearchHint": "Mã vạch, mã hàng hoặc tên rồi nhấn Enter",
@@ -2327,7 +2330,8 @@
     "paymentKind_supplier_refund": "Nhà cung cấp hoàn tiền",
     "source_internal_write_off": "Ghi tổn thất hàng thiếu nội bộ",
     "source_collection_statement": "Bảng đối soát thu hộ",
-    "foreignAmount": "{amount}, tỷ giá {rate}"
+    "foreignAmount": "{amount}, tỷ giá {rate}",
+    "source_landed_cost": "Chi phí nhập khẩu"
   },
   "funds": {
     "title": "Quỹ",
@@ -2434,7 +2438,8 @@
     "source_payment": "Phiếu thu chi",
     "fundInactive": "đã ngừng dùng",
     "source_internal_write_off": "Ghi tổn thất hàng thiếu nội bộ",
-    "source_collection_statement": "Bảng đối soát thu hộ"
+    "source_collection_statement": "Bảng đối soát thu hộ",
+    "source_landed_cost": "Chi phí nhập khẩu"
   },
   "ledger": {
     "accountsTitle": "Hệ thống tài khoản",
@@ -2545,7 +2550,9 @@
     "source_marketplace_payment": "Thu tiền đơn VComm",
     "source_marketplace_refund": "Hoàn tiền đơn VComm",
     "source_marketplace_commission": "Hoa hồng đơn VComm",
-    "source_marketplace_withdrawal": "Chi hoa hồng"
+    "source_marketplace_withdrawal": "Chi hoa hồng",
+    "source_import_declaration": "Tờ khai nhập khẩu",
+    "source_landed_cost": "Chi phí nhập khẩu"
   },
   "statements": {
     "title": "Báo cáo tài chính",
@@ -3731,5 +3738,80 @@
     "stockValue": "Vào giá trị tồn kho",
     "expensedValue": "Vào giá vốn hàng bán",
     "editButton": "Sửa tờ khai"
+  },
+  "landedCosts": {
+    "title": "Chi phí nhập khẩu",
+    "add": "Lập chứng từ chi phí",
+    "edit": "Sửa chứng từ chi phí",
+    "editButton": "Sửa chứng từ",
+    "heading": "Chứng từ chi phí {number}",
+    "draftHeading": "Chứng từ chi phí (nháp)",
+    "back": "Danh sách chi phí nhập khẩu",
+    "draftNo": "(nháp)",
+    "intro": "Vận chuyển, bảo hiểm, phí hải quan, lưu kho bãi của một tờ khai đã ghi sổ. Ghi sổ thì phân bổ vào giá vốn các mặt hàng của tờ khai và ghi công nợ phải trả nhà cung cấp dịch vụ.",
+    "searchHint": "Số chứng từ, số hóa đơn, tờ khai, nhà cung cấp",
+    "none": "Chưa có chứng từ chi phí nhập khẩu.",
+    "documentNo": "Số chứng từ",
+    "documentDate": "Ngày chứng từ",
+    "documentDateHint": "Ngày ghi sổ; ngoại tệ quy đổi theo tỷ giá hạch toán ngày này.",
+    "declaration": "Tờ khai",
+    "declarationHint": "Chỉ tờ khai đã ghi sổ.",
+    "supplier": "Nhà cung cấp dịch vụ",
+    "supplierHint": "Đối tác có hồ sơ nhà cung cấp ở công ty.",
+    "invoiceNo": "Số hóa đơn",
+    "netAmount": "Chưa thuế",
+    "vatAmount": "Thuế giá trị gia tăng",
+    "status": "Trạng thái",
+    "currency": "Tiền tệ",
+    "currencyHint": "Ngoại tệ: quy đổi theo tỷ giá hạch toán ngày chứng từ.",
+    "note": "Ghi chú",
+    "choose": "Chọn…",
+    "lines": "Khoản chi phí",
+    "lineLegend": "Khoản {number}",
+    "basisHint": "Theo giá trị: tỷ lệ trị giá quy đổi trên tờ khai; theo số lượng: tỷ lệ số lượng đơn vị cơ sở. Phần lẻ làm tròn cộng vào dòng có phần lớn nhất.",
+    "kind": "Loại",
+    "kind_international_freight": "Vận chuyển quốc tế",
+    "kind_insurance": "Bảo hiểm",
+    "kind_domestic_freight": "Vận chuyển nội địa",
+    "kind_customs_fee": "Phí hải quan, lưu kho bãi",
+    "kind_other": "Khác",
+    "description": "Diễn giải",
+    "amount": "Chưa thuế",
+    "vatRate": "Thuế suất",
+    "vat_0": "0%",
+    "vat_5": "5%",
+    "vat_8": "8%",
+    "vat_10": "10%",
+    "vat_exempt": "Không chịu thuế",
+    "vat_not_declared": "Không kê khai",
+    "basis": "Tiêu thức",
+    "basis_value": "Theo giá trị",
+    "basis_quantity": "Theo số lượng",
+    "removeLine": "Bỏ khoản",
+    "addLine": "+ Thêm khoản chi phí",
+    "exchangeRate": "Tỷ giá",
+    "exchangeRateValue": "1 {currency} = {rate} (tỷ giá hạch toán ngày chứng từ)",
+    "totals": "Chưa thuế {net} · Thuế {vat} · Gồm thuế {gross}",
+    "post": "Ghi sổ",
+    "cancel": "Hủy chứng từ",
+    "saved": "Đã lưu chứng từ chi phí.",
+    "posted": "Đã ghi sổ chứng từ chi phí.",
+    "cancelled": "Đã hủy chứng từ chi phí.",
+    "postTitle": "Ghi sổ chứng từ chi phí",
+    "postMessage": "Chi phí phân bổ vào giá vốn theo tồn tại lúc ghi sổ, ghi công nợ phải trả nhà cung cấp dịch vụ; ghi sổ xong không sửa được.",
+    "cancelTitle": "Hủy chứng từ nháp",
+    "cancelMessage": "Chứng từ đã hủy không ghi sổ được.",
+    "allocationPreview": "Xem trước phân bổ",
+    "allocationPreviewHint": "Tính theo tồn hiện tại; số khi ghi sổ có thể khác nếu kho xuất thêm trước khi ghi sổ.",
+    "allocationPosted": "Phân bổ đã ghi sổ",
+    "allocationPostedHint": "Phần ứng với hàng còn tồn tại lúc ghi sổ cộng vào giá trị tồn kho; phần đã xuất ghi giá vốn hàng bán.",
+    "item": "Mặt hàng",
+    "convertedValue": "Trị giá quy đổi",
+    "quantity": "Số lượng",
+    "lineTotal": "Cộng",
+    "stockValue": "Vào tồn kho",
+    "expensedValue": "Vào giá vốn hàng bán",
+    "total": "Tổng",
+    "onHandOf": "tồn {onHand} / khai {quantity}"
   }
 }

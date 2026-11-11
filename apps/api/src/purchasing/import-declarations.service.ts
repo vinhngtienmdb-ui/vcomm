@@ -487,7 +487,7 @@ async function writeLines(transaction: Executor, declarationId: string, lines: P
   }
 }
 
-async function minorUnits(executor: Executor, companyId: string): Promise<number> {
+export async function minorUnits(executor: Executor, companyId: string): Promise<number> {
   return Number((await executor.execute<{ units: number }>(sql`SELECT finance.company_minor_units(${companyId}) AS units`)).rows[0]!.units);
 }
 

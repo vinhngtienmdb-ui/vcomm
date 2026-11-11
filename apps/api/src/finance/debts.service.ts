@@ -121,6 +121,25 @@ export class DebtsService implements OnModuleInit {
     }
   }
 
+  // Chứng từ chi phí nhập khẩu đã ghi sổ (CONG_VIEC_45; QUYTAC_NGHIEPVU_289): phải trả nhà cung cấp dịch vụ, gồm thuế, theo tiền tệ công ty; ngoại tệ kèm để đối chiếu.
+  async recordLandedCost(
+    executor: Executor,
+    input: { companyId: string; partnerId: string; sourceId: string; documentNo: string; documentDate: string; amount: string; foreign: { currency: string; amount: string; rate: string } | null },
+  ): Promise<void> {
+    if (Number(input.amount) <= 0) return;
+    await this.lockPartner(executor, input.companyId, "payable", input.partnerId);
+    const id = (
+      await executor.execute<{ id: string }>(sql`
+      INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, source_id, document_no, document_date, due_date, amount, open_amount,
+        currency, foreign_amount, exchange_rate)
+      VALUES (${input.companyId}, ${input.partnerId}, 'payable', 'debit', 'landed_cost', ${input.sourceId}, ${input.documentNo}, ${input.documentDate}::date,
+        ${input.documentDate}::date + coalesce((SELECT payment_term_days FROM crm.partner_profiles WHERE company_id = ${input.companyId} AND partner_id = ${input.partnerId}), 0),
+        ${input.amount}::numeric, ${input.amount}::numeric, ${input.foreign?.currency ?? null}, ${input.foreign?.amount ?? null}::numeric, ${input.foreign?.rate ?? null}::numeric)
+      RETURNING id`)
+    ).rows[0]!.id;
+    await this.matchDebit(executor, id);
+  }
+
   // Giao nội bộ thiếu, bên bán ghi tổn thất: giảm phải thu của công ty mua theo giá đơn bán của phần thiếu, trừ trước vào phiếu xuất gốc (quyết định người dùng 2026-11-10).
   async recordInternalWriteOff(executor: Executor, discrepancyId: string): Promise<void> {
     const row = (

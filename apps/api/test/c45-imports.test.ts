@@ -430,3 +430,128 @@ describe("TIEUCHI_NGHIEMTHU_286: phân quyền tờ khai", () => {
     expect((await keeper.call("get", `/purchasing/import-declarations/${declarationId}`, { companyId: retail })).status).toBe(403);
   });
 });
+
+describe("TIEUCHI_NGHIEMTHU_285: chứng từ chi phí nhập khẩu, phân bổ", () => {
+  it("KICHBAN_KIEMTHU_432: hai tiêu thức chia ba dòng, tổng đúng bằng khoản; phần đã xuất vào giá vốn hàng bán; chi phí ngoại tệ quy đổi; công nợ, bút toán; tờ khai chưa ghi sổ không chọn được", async () => {
+    const groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
+    const category = (await groupAdmin.call("post", "/catalog/categories", { companyId: retail, body: { code: "NKPK", nameVi: "Phụ kiện nhập khẩu", nameEn: "Imported accessories" } })).body.id;
+    const product = async (name: string) => {
+      const created = await retailAdmin.call("post", "/catalog/products", {
+        companyId: retail,
+        body: { categoryId: category, name, vatRate: "10", tracksLots: false, tracksSerials: false, warrantyMonths: 0, baseUnitId: pieceUnitId, variants: [{ barcodes: [] }] },
+      });
+      expect(created.status, JSON.stringify(created.body)).toBe(201);
+      return created.body.variants[0].id as string;
+    };
+    const cableVariantId = await product("Cáp sạc nhập khẩu");
+    const caseVariantId = await product("Ốp lưng nhập khẩu");
+    const created = await purchaser.call("post", "/purchasing/orders", {
+      companyId: retail,
+      body: orderBody({
+        lines: [
+          { variantId: headphoneVariantId, unitId: pieceUnitId, quantity: "10", unitPrice: "10", vatRate: "not_declared" },
+          { variantId: cableVariantId, unitId: pieceUnitId, quantity: "20", unitPrice: "3", vatRate: "not_declared" },
+          { variantId: caseVariantId, unitId: pieceUnitId, quantity: "30", unitPrice: "1", vatRate: "not_declared" },
+        ],
+      }),
+    });
+    const submitted = await purchaser.call("post", `/purchasing/orders/${created.body.id}/submit`, { companyId: retail });
+    await decide(submitted.body.approvalRequestId);
+    const orderLines = created.body.lines as { id: string; quantity: string }[];
+    const receipt = await keeper.call("post", "/inventory/purchase-receipts", {
+      companyId: retail,
+      body: { orderId: created.body.id, documentDate: today, lines: orderLines.map((line) => ({ orderLineId: line.id, quantity: line.quantity })) },
+    });
+    expect((await keeper.call("post", `/inventory/documents/${receipt.body.id}/submit`, { companyId: retail })).body.status).toBe("posted");
+    // Xuất 5 ốp lưng: còn 25 trên 30.
+    const issue = await retailAdmin.call("post", "/inventory/documents", {
+      companyId: retail,
+      body: {
+        type: "issue_other",
+        warehouseId,
+        companyId: retail,
+        documentDate: today,
+        reasonCode: "internal_use",
+        reason: "Kiểm thử",
+        lines: [{ variantId: caseVariantId, unitId: pieceUnitId, quantity: "5" }],
+      },
+    });
+    expect((await retailAdmin.call("post", `/inventory/documents/${issue.body.id}/submit`, { companyId: retail })).body.status).toBe("posted");
+    // Tờ khai: trị giá 100, 60, 30 USD × 25.400 = 2.540.000; 1.524.000; 762.000; không thuế.
+    const declaration = await accountant.call("post", "/purchasing/import-declarations", {
+      companyId: retail,
+      body: {
+        ...declarationBody({ orderId: created.body.id, declarationNo: "107055550001" }),
+        lines: orderLines.map((line, index) => ({ orderLineId: line.id, quantity: line.quantity, customsValue: ["100", "60", "30"][index], importDutyRate: "0", vatRate: "0" })),
+      },
+    });
+    expect(declaration.status, JSON.stringify(declaration.body)).toBe(201);
+    const forwarderId = await partner("Công ty Giao nhận Mẫu", "0310000046");
+    const costBody = (extra: Record<string, unknown> = {}) => ({
+      declarationId: declaration.body.id,
+      supplierId: forwarderId,
+      invoiceNo: "00001234",
+      documentDate: today,
+      lines: [
+        { kind: "international_freight", description: "Cước biển", amount: "1000000", vatRate: "not_declared", basis: "value" },
+        { kind: "insurance", description: "Bảo hiểm hàng hóa", amount: "100000", vatRate: "10", basis: "value" },
+        { kind: "domestic_freight", description: "Cảng về kho", amount: "100001", vatRate: "8", basis: "quantity" },
+      ],
+      ...extra,
+    });
+    // Tờ khai chưa ghi sổ: không lập chứng từ chi phí.
+    const notPosted = await accountant.call("post", "/purchasing/landed-costs", { companyId: retail, body: costBody() });
+    expect(notPosted.body.error.fields).toEqual({ declarationId: "Chọn tờ khai nhập khẩu đã ghi sổ." });
+    expect((await accountant.call("post", `/purchasing/import-declarations/${declaration.body.id}/post`, { companyId: retail, body: { version: declaration.body.version } })).status).toBe(201);
+    expect((await keeper.call("post", "/purchasing/landed-costs", { companyId: retail, body: costBody() })).status).toBe(403);
+
+    const cost = await accountant.call("post", "/purchasing/landed-costs", { companyId: retail, body: costBody() });
+    expect(cost.status, JSON.stringify(cost.body)).toBe(201);
+    expect(cost.body).toMatchObject({ status: "draft", documentNo: null, currency: "VND", netAmount: "1200001", vatAmount: "18000", canPost: true });
+    // Theo giá trị: 526.316 / 315.789 / 157.895 và 52.632 / 31.579 / 15.789; theo số lượng 10/20/30: 16.667 / 33.334 / 50.000 (phần lẻ vào dòng lớn nhất).
+    const preview = (await accountant.call("get", `/purchasing/landed-costs/${cost.body.id}/allocation`, { companyId: retail })).body;
+    expect(preview.lines.map((line: { byCostLine: string[]; amount: string }) => [line.byCostLine, line.amount])).toEqual([
+      [["526316", "52632", "16667"], "595615"],
+      [["315789", "31579", "33334"], "380702"],
+      [["157895", "15789", "50000"], "223684"],
+    ]);
+    expect(preview.lines[2]).toMatchObject({ onHand: "25", stockValue: "186403", expensedValue: "37281" });
+
+    const posted = await accountant.call("post", `/purchasing/landed-costs/${cost.body.id}/post`, { companyId: retail, body: { version: cost.body.version } });
+    expect(posted.status, JSON.stringify(posted.body)).toBe(201);
+    expect(posted.body).toMatchObject({ status: "posted", documentNo: expect.stringMatching(/^CPNK/), canEdit: false });
+    const stored = (await accountant.call("get", `/purchasing/landed-costs/${cost.body.id}/allocation`, { companyId: retail })).body;
+    expect(stored.lines.map((line: { stockValue: string; expensedValue: string }) => [line.stockValue, line.expensedValue])).toEqual([
+      ["595615", "0"],
+      ["380702", "0"],
+      ["186403", "37281"],
+    ]);
+    const stock = (await retailAdmin.call("get", `/inventory/stock?warehouseId=${warehouseId}&onlyInStock=false&search=Ốp lưng nhập khẩu`, { companyId: retail })).body.data[0];
+    // 25 × 25.000 = 625.000 cộng 186.403.
+    expect(stock).toMatchObject({ onHand: "25", value: "811403" });
+    const debts = (await accountant.call("get", `/finance/debts/partners/${forwarderId}?side=payable`, { companyId: retail })).body;
+    expect(debts.items[0]).toMatchObject({ sourceType: "landed_cost", amount: "1218001", documentNo: posted.body.documentNo, foreign: null });
+    expect(await entries(cost.body.id)).toEqual([
+      ["156", "1162720", "0"],
+      ["632", "37281", "0"],
+      ["1331", "18000", "0"],
+      ["331", "0", "1218001"],
+    ]);
+    // Đã ghi sổ: không sửa.
+    expect((await accountant.call("patch", `/purchasing/landed-costs/${cost.body.id}`, { companyId: retail, body: { ...costBody(), version: posted.body.version } })).status).toBe(409);
+
+    // Chi phí bằng USD: 40 USD × 25.000 = 1.000.000; ngày chưa có tỷ giá bị từ chối; công nợ kèm 40 USD.
+    const usdBody = costBody({ currency: "USD", invoiceNo: "INV-USD-1", lines: [{ kind: "other", amount: "40", vatRate: "not_declared", basis: "quantity" }] });
+    const missingRate = await accountant.call("post", "/purchasing/landed-costs", { companyId: retail, body: { ...usdBody, documentDate: yesterday } });
+    expect(missingRate.body.error.fields).toEqual({ currency: "Chưa có tỷ giá hạch toán ngày lập chứng từ." });
+    const usd = await accountant.call("post", "/purchasing/landed-costs", { companyId: retail, body: usdBody });
+    expect(usd.body).toMatchObject({ currency: "USD", exchangeRate: "25000", netAmount: "1000000" });
+    expect(usd.body.lines[0]).toMatchObject({ amount: "40", amountConverted: "1000000" });
+    const usdPosted = await accountant.call("post", `/purchasing/landed-costs/${usd.body.id}/post`, { companyId: retail, body: { version: usd.body.version } });
+    expect(usdPosted.status, JSON.stringify(usdPosted.body)).toBe(201);
+    const usdDebt = (await accountant.call("get", `/finance/debts/partners/${forwarderId}?side=payable`, { companyId: retail })).body.items.find(
+      (item: { documentNo: string }) => item.documentNo === usdPosted.body.documentNo,
+    );
+    expect(usdDebt).toMatchObject({ amount: "1000000", foreign: { currency: "USD", amount: "40", exchangeRate: "25000" } });
+  });
+});

@@ -73,6 +73,7 @@ import { MarketplaceCommissionsService } from "./marketplace/commissions.service
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { PurchasingImportsController } from "./purchasing/imports.controller";
 import { ImportDeclarationsService } from "./purchasing/import-declarations.service";
+import { LandedCostsService } from "./purchasing/landed-costs.service";
 import { CostAdjustmentsService } from "./inventory/cost-adjustments.service";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
@@ -158,6 +159,7 @@ import { UsersService } from "./users/users.service";
     PurchaseReceiptsService,
     CostAdjustmentsService,
     ImportDeclarationsService,
+    LandedCostsService,
     SalesDeliveriesService,
     InternalReceiptsService,
     PartnersService,

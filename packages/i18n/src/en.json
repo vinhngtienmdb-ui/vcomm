@@ -337,7 +337,9 @@
     "importOrderInvalid": "Declarations can only be made for approved or fully received import orders.",
     "declarationNoDuplicate": "This declaration number already exists in the company.",
     "importDeclaredExceeded": "Exceeds the ordered quantity still available to declare for the order line.",
-    "importNotReceived": "The goods of this line have not been received in the declared quantity."
+    "importNotReceived": "The goods of this line have not been received in the declared quantity.",
+    "declarationNotPosted": "Choose a posted import declaration.",
+    "allocationBasisEmpty": "This cost's allocation basis totals zero across the declaration lines and cannot be allocated."
   },
   "login": {
     "title": "Sign in",
@@ -1926,7 +1928,8 @@
     "orders": "Purchase orders",
     "requisitions": "Purchase requisitions",
     "supplierPrices": "Supplier prices",
-    "importDeclarations": "Import declarations"
+    "importDeclarations": "Import declarations",
+    "landedCosts": "Landed costs"
   },
   "purchasing": {
     "itemSearchHint": "Barcode, SKU or name, then press Enter",
@@ -2327,7 +2330,8 @@
     "paymentKind_supplier_refund": "Supplier refund",
     "source_internal_write_off": "Internal shortage write-off",
     "source_collection_statement": "Collection statement",
-    "foreignAmount": "{amount}, rate {rate}"
+    "foreignAmount": "{amount}, rate {rate}",
+    "source_landed_cost": "Landed cost"
   },
   "funds": {
     "title": "Funds",
@@ -2434,7 +2438,8 @@
     "source_payment": "Receipt or payment",
     "fundInactive": "inactive",
     "source_internal_write_off": "Internal shortage write-off",
-    "source_collection_statement": "Collection statement"
+    "source_collection_statement": "Collection statement",
+    "source_landed_cost": "Landed cost"
   },
   "ledger": {
     "accountsTitle": "Chart of accounts",
@@ -2545,7 +2550,9 @@
     "source_marketplace_payment": "VComm order payment",
     "source_marketplace_refund": "VComm order refund",
     "source_marketplace_commission": "VComm order commission",
-    "source_marketplace_withdrawal": "Commission payout"
+    "source_marketplace_withdrawal": "Commission payout",
+    "source_import_declaration": "Import declaration",
+    "source_landed_cost": "Landed cost"
   },
   "statements": {
     "title": "Financial statements",
@@ -3731,5 +3738,80 @@
     "stockValue": "Into inventory value",
     "expensedValue": "Into cost of goods sold",
     "editButton": "Edit declaration"
+  },
+  "landedCosts": {
+    "title": "Landed costs",
+    "add": "New landed cost",
+    "edit": "Edit landed cost",
+    "editButton": "Edit",
+    "heading": "Landed cost {number}",
+    "draftHeading": "Landed cost (draft)",
+    "back": "Landed cost list",
+    "draftNo": "(draft)",
+    "intro": "Freight, insurance, customs and storage fees of a posted declaration. Posting allocates them into the cost of the declaration's items and records a payable to the service provider.",
+    "searchHint": "Document, invoice, declaration, supplier",
+    "none": "No landed costs yet.",
+    "documentNo": "Document number",
+    "documentDate": "Document date",
+    "documentDateHint": "Posting date; foreign currency converted at this date's accounting rate.",
+    "declaration": "Declaration",
+    "declarationHint": "Posted declarations only.",
+    "supplier": "Service provider",
+    "supplierHint": "Partners with a supplier profile in the company.",
+    "invoiceNo": "Invoice number",
+    "netAmount": "Net",
+    "vatAmount": "VAT",
+    "status": "Status",
+    "currency": "Currency",
+    "currencyHint": "Foreign currency: converted at the accounting rate of the document date.",
+    "note": "Note",
+    "choose": "Choose…",
+    "lines": "Cost lines",
+    "lineLegend": "Line {number}",
+    "basisHint": "By value: share of converted customs value; by quantity: share of base-unit quantity. Rounding remainder goes to the line with the largest share.",
+    "kind": "Type",
+    "kind_international_freight": "International freight",
+    "kind_insurance": "Insurance",
+    "kind_domestic_freight": "Domestic freight",
+    "kind_customs_fee": "Customs and storage fees",
+    "kind_other": "Other",
+    "description": "Description",
+    "amount": "Net amount",
+    "vatRate": "VAT rate",
+    "vat_0": "0%",
+    "vat_5": "5%",
+    "vat_8": "8%",
+    "vat_10": "10%",
+    "vat_exempt": "Exempt",
+    "vat_not_declared": "Not declared",
+    "basis": "Basis",
+    "basis_value": "By value",
+    "basis_quantity": "By quantity",
+    "removeLine": "Remove line",
+    "addLine": "+ Add cost line",
+    "exchangeRate": "Exchange rate",
+    "exchangeRateValue": "1 {currency} = {rate} (accounting rate on the document date)",
+    "totals": "Net {net} · VAT {vat} · Gross {gross}",
+    "post": "Post",
+    "cancel": "Cancel document",
+    "saved": "Landed cost saved.",
+    "posted": "Landed cost posted.",
+    "cancelled": "Landed cost cancelled.",
+    "postTitle": "Post landed cost",
+    "postMessage": "Costs are allocated into cost based on stock at posting, and a payable to the service provider is recorded; it cannot be edited afterwards.",
+    "cancelTitle": "Cancel draft",
+    "cancelMessage": "A cancelled document cannot be posted.",
+    "allocationPreview": "Allocation preview",
+    "allocationPreviewHint": "Based on current stock; amounts at posting may differ if more stock is issued before posting.",
+    "allocationPosted": "Posted allocation",
+    "allocationPostedHint": "The share for goods still in stock at posting was added to inventory value; the share for goods already issued went to cost of goods sold.",
+    "item": "Item",
+    "convertedValue": "Converted value",
+    "quantity": "Quantity",
+    "lineTotal": "Total",
+    "stockValue": "Into inventory",
+    "expensedValue": "Into cost of goods sold",
+    "total": "Total",
+    "onHandOf": "on hand {onHand} / declared {quantity}"
   }
 }

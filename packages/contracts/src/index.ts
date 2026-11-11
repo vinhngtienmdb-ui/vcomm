@@ -2442,6 +2442,96 @@ export interface ImportOrderOption {
   lines: ImportOrderLineOption[];
 }
 // Xem trước phân bổ: theo dòng tờ khai, phần vào tồn, phần vào giá vốn hàng bán tại lúc xem.
+// CONG_VIEC_45, API_142, API_143: chứng từ chi phí nhập khẩu (CHUC_NANG_161; QUYTAC_NGHIEPVU_289 đến 291).
+export const landedCostKinds = ["international_freight", "insurance", "domestic_freight", "customs_fee", "other"] as const;
+export type LandedCostKind = (typeof landedCostKinds)[number];
+export const landedCostBases = ["value", "quantity"] as const;
+export type LandedCostBasis = (typeof landedCostBases)[number];
+export const saveLandedCostSchema = z
+  .object({
+    declarationId: z.uuid(),
+    supplierId: z.uuid(),
+    invoiceNo: z.string().trim().min(1).max(50),
+    documentDate: isoDate,
+    currency: currencyCode.nullable().optional(),
+    note: blankToNull(1000),
+    lines: z
+      .array(
+        z
+          .object({
+            kind: z.enum(landedCostKinds),
+            description: blankToNull(200),
+            amount: requiredMoney.refine((value) => Number(value) > 0, "invalidValue"),
+            vatRate: z.enum(vatRates),
+            basis: z.enum(landedCostBases).default("value"),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(50),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveLandedCostRequest = z.input<typeof saveLandedCostSchema>;
+export const landedCostListQuerySchema = z
+  .object({
+    status: z.enum(importDeclarationStatuses).optional(),
+    declarationId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export interface LandedCostListItem {
+  id: string;
+  documentNo: string | null;
+  invoiceNo: string;
+  documentDate: string;
+  declarationId: string;
+  declarationNo: string;
+  supplierId: string;
+  supplierName: string;
+  currency: string;
+  // Tiền tệ công ty.
+  netAmount: string;
+  vatAmount: string;
+  status: ImportDeclarationStatus;
+}
+export interface LandedCostLineResponse {
+  id: string;
+  lineNo: number;
+  kind: LandedCostKind;
+  description: string | null;
+  amount: string;
+  amountConverted: string;
+  vatRate: VatRate;
+  vatAmount: string;
+  basis: LandedCostBasis;
+}
+// Phân bổ theo dòng tờ khai: phần của từng khoản (theo thứ tự khoản), cộng, phần vào tồn, vào giá vốn hàng bán.
+export interface LandedCostAllocation {
+  lines: {
+    declarationLineId: string;
+    sku: string;
+    productName: string;
+    customsValueConverted: string;
+    baseQuantity: string;
+    byCostLine: string[];
+    amount: string;
+    onHand: string | null;
+    stockValue: string;
+    expensedValue: string;
+  }[];
+}
+export interface LandedCostResponse extends LandedCostListItem {
+  exchangeRate: string;
+  companyCurrency: string;
+  note: string | null;
+  lines: LandedCostLineResponse[];
+  version: number;
+  canEdit: boolean;
+  canPost: boolean;
+}
 export interface ImportAllocationPreview {
   lines: { orderLineId: string; sku: string; productName: string; amount: string; onHand: string; baseQuantity: string; stockValue: string; expensedValue: string }[];
 }
@@ -2912,7 +3002,7 @@ export interface FundLedgerResponse {
 
 export const debtSides = ["receivable", "payable"] as const;
 export type DebtSide = (typeof debtSides)[number];
-export const debtSourceTypes = ["opening", "sales_issue", "sales_return", "purchase_receipt", "purchase_return", "payment", "internal_write_off", "collection_statement"] as const;
+export const debtSourceTypes = ["opening", "sales_issue", "sales_return", "purchase_receipt", "purchase_return", "payment", "internal_write_off", "collection_statement", "landed_cost"] as const;
 export type DebtSourceType = (typeof debtSourceTypes)[number];
 export const debtSummaryQuerySchema = z
   .object({ side: z.enum(debtSides), search: z.string().trim().max(100).optional(), overdueOnly: z.enum(["true", "false"]).optional() })
@@ -3123,7 +3213,7 @@ export interface PostingRuleResponse {
   canEdit: boolean;
 }
 export const updatePostingRuleSchema = z.object({ accountId: z.uuid() }).strict();
-export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal"] as const;
+export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal", "import_declaration", "landed_cost"] as const;
 export type JournalSourceType = (typeof journalSourceTypes)[number];
 export const journalStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
 export type JournalStatus = (typeof journalStatuses)[number];
