@@ -22,6 +22,8 @@ import {
   type StoreSettingsResponse,
   testBuyerSchema,
   updateCarrierSchema,
+  updateOrderingOpenSchema,
+  updatePaymentMethodSchema,
   updateListingSchema,
   updateStoreSettingsSchema,
   cancelMarketplaceOrderSchema,
@@ -139,6 +141,17 @@ export class MarketplaceController {
   @Put("carriers/:code")
   async carrier(@Req() request: AuthenticatedRequest, @Param("code") code: string, @Body() body: unknown): Promise<StoreSettingsResponse> {
     return this.store.setCarrier(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage"), code, updateCarrierSchema.parse(body).isEnabled);
+  }
+
+  // API_130: phương thức thanh toán, mở đặt hàng (CONG_VIEC_25).
+  @Put("payment-methods/:code")
+  async paymentMethod(@Req() request: AuthenticatedRequest, @Param("code") code: string, @Body() body: unknown): Promise<StoreSettingsResponse> {
+    return this.store.setPaymentMethod(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage"), code, updatePaymentMethodSchema.parse(body).isEnabled);
+  }
+
+  @Put("ordering-open")
+  async orderingOpen(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<StoreSettingsResponse> {
+    return this.store.setOrderingOpen(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage"), updateOrderingOpenSchema.parse(body).orderingOpen);
   }
 
   @Get("listings")

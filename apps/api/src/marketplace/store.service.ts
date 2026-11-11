@@ -1,7 +1,21 @@
 // Cài đặt bán hàng VComm, đăng bán, đơn vị vận chuyển, người mua thử (CONG_VIEC_24; CHUC_NANG_113; QUYTAC_NGHIEPVU_154, 155, 160; API_123).
+// Phương thức thanh toán, mở đặt hàng (CONG_VIEC_25; CHUC_NANG_120; QUYTAC_NGHIEPVU_163, 164; API_130).
 import { Inject, Injectable } from "@nestjs/common";
-import type { CarrierCode, CarrierItem, ListingBlocker, ListingItem, PageResponse, StoreSettingsResponse, updateListingSchema, updateStoreSettingsSchema, VatRate } from "contracts";
-import { carrierCodes } from "contracts";
+import type {
+  CarrierCode,
+  CarrierItem,
+  ListingBlocker,
+  ListingItem,
+  PageResponse,
+  PaymentGatewayCode,
+  PaymentMethodCode,
+  PaymentMethodItem,
+  StoreSettingsResponse,
+  updateListingSchema,
+  updateStoreSettingsSchema,
+  VatRate,
+} from "contracts";
+import { carrierCodes, paymentMethodCodes } from "contracts";
 import { sql } from "drizzle-orm";
 import type { z } from "zod";
 import { searchText, trimDecimal } from "../catalog/catalog-context";
@@ -12,6 +26,7 @@ import { DATABASE, type Database } from "../database/database.module";
 import { isReceivingWarehouse } from "../purchasing/purchasing-context";
 import type { BuyerAdminActor } from "./buyer-admin.service";
 import { carrierConfigured } from "./carriers/carrier-registry";
+import { gatewayConfigured } from "./payments/payment-gateway-registry";
 
 type Executor = Pick<Database, "execute">;
 
@@ -26,6 +41,7 @@ export interface StoreContext {
   packageWidthCm: number;
   packageHeightCm: number;
   minimumWeightGrams: number;
+  orderingOpen: boolean;
 }
 
 type SettingsRow = {
@@ -38,6 +54,7 @@ type SettingsRow = {
   package_width_cm: number;
   package_height_cm: number;
   minimum_weight_grams: number;
+  ordering_open: boolean;
   version: number;
 };
 
@@ -54,7 +71,7 @@ async function readSettings(executor: Executor, companyId: string): Promise<Sett
   return (
     (
       await executor.execute<SettingsRow>(sql`
-      SELECT company_id, channel_id, warehouse_id, shipping_fee::text, free_shipping_threshold::text, package_length_cm, package_width_cm, package_height_cm, minimum_weight_grams, version
+      SELECT company_id, channel_id, warehouse_id, shipping_fee::text, free_shipping_threshold::text, package_length_cm, package_width_cm, package_height_cm, minimum_weight_grams, ordering_open, version
       FROM marketplace.store_settings WHERE company_id = ${companyId}`)
     ).rows[0] ?? null
   );
@@ -65,7 +82,7 @@ export async function loadStoreContext(executor: Executor): Promise<StoreContext
   const row = (
     await executor.execute<SettingsRow & { currency: string }>(sql`
     SELECT s.company_id, s.channel_id, s.warehouse_id, s.shipping_fee::text, s.free_shipping_threshold::text, s.package_length_cm, s.package_width_cm, s.package_height_cm,
-      s.minimum_weight_grams, s.version, c.base_currency AS currency
+      s.minimum_weight_grams, s.ordering_open, s.version, c.base_currency AS currency
     FROM core.companies c JOIN marketplace.store_settings s ON s.company_id = c.id
     JOIN catalog.sales_channels ch ON ch.id = s.channel_id AND ch.company_id = c.id AND ch.status = 'active'
     JOIN inventory.warehouses w ON w.id = s.warehouse_id AND w.status = 'active'
@@ -83,7 +100,16 @@ export async function loadStoreContext(executor: Executor): Promise<StoreContext
     packageWidthCm: row.package_width_cm,
     packageHeightCm: row.package_height_cm,
     minimumWeightGrams: row.minimum_weight_grams,
+    orderingOpen: row.ordering_open,
   };
+}
+
+// Phương thức đang bật mà cổng có thông tin kết nối, theo thứ tự hiển thị (QUYTAC_NGHIEPVU_163).
+export async function enabledPaymentMethods(executor: Executor): Promise<PaymentMethodCode[]> {
+  const rows = await executor.execute<{ code: PaymentMethodCode; gateway_code: PaymentGatewayCode }>(
+    sql`SELECT code, gateway_code FROM marketplace.payment_methods WHERE is_enabled ORDER BY sort_order`,
+  );
+  return rows.rows.filter((row) => gatewayConfigured(row.gateway_code)).map((row) => row.code);
 }
 
 // Số có thể bán tại kho xuất (tồn trừ giữ hàng đang hiệu lực), chỉ đọc.
@@ -143,6 +169,13 @@ export class StoreService {
     return rows.rows.map((row) => ({ code: row.code, name: carrierNames[row.code], isEnabled: row.is_enabled, isConfigured: carrierConfigured(row.code) }));
   }
 
+  private async paymentMethods(): Promise<PaymentMethodItem[]> {
+    const rows = await this.database.execute<{ code: PaymentMethodCode; gateway_code: PaymentGatewayCode; is_enabled: boolean }>(
+      sql`SELECT code, gateway_code, is_enabled FROM marketplace.payment_methods ORDER BY sort_order`,
+    );
+    return rows.rows.map((row) => ({ code: row.code, gatewayCode: row.gateway_code, isEnabled: row.is_enabled, isConfigured: gatewayConfigured(row.gateway_code) }));
+  }
+
   async settings(actor: BuyerAdminActor, canManage: boolean): Promise<StoreSettingsResponse> {
     const row = await readSettings(this.database, actor.operatorCompanyId);
     const company = (await this.database.execute<{ short_name: string }>(sql`SELECT short_name FROM core.companies WHERE id = ${actor.operatorCompanyId}`)).rows[0]!;
@@ -167,6 +200,8 @@ export class StoreService {
       channels: channels.rows,
       warehouses: warehouses.rows,
       carriers: await this.carriers(),
+      orderingOpen: row?.ordering_open ?? false,
+      paymentMethods: await this.paymentMethods(),
     };
   }
 
@@ -205,6 +240,42 @@ export class StoreService {
     await this.database.transaction(async (transaction) => {
       await transaction.execute(sql`UPDATE marketplace.carriers SET is_enabled = ${isEnabled}, updated_by = ${actor.userId}, updated_at = now() WHERE code = ${code}`);
       await this.record(transaction, actor, "marketplace.carrier.update", "marketplace.carriers", null, null, { code, isEnabled });
+    });
+    return this.settings(actor, true);
+  }
+
+  // Bật tắt phương thức (QUYTAC_NGHIEPVU_163): cổng chưa có thông tin kết nối thì không bật được; đang mở đặt hàng thì không tắt phương thức cuối cùng.
+  async setPaymentMethod(actor: BuyerAdminActor, code: string, isEnabled: boolean): Promise<StoreSettingsResponse> {
+    if (!(paymentMethodCodes as readonly string[]).includes(code)) throw new ApiError("NOT_FOUND", "notFound");
+    await this.database.transaction(async (transaction) => {
+      // Khóa cài đặt: bật tắt phương thức và mở đặt hàng không chạy đồng thời.
+      const settings = (await transaction.execute<{ ordering_open: boolean }>(sql`SELECT ordering_open FROM marketplace.store_settings WHERE company_id = ${actor.operatorCompanyId} FOR UPDATE`))
+        .rows[0];
+      const method = (
+        await transaction.execute<{ gateway_code: PaymentGatewayCode; is_enabled: boolean }>(sql`SELECT gateway_code, is_enabled FROM marketplace.payment_methods WHERE code = ${code} FOR UPDATE`)
+      ).rows[0]!;
+      if (isEnabled && !gatewayConfigured(method.gateway_code)) throw new ApiError("BUSINESS_RULE", "paymentGatewayNotConfigured");
+      await transaction.execute(sql`UPDATE marketplace.payment_methods SET is_enabled = ${isEnabled}, updated_by = ${actor.userId}, updated_at = now() WHERE code = ${code}`);
+      if (!isEnabled && settings?.ordering_open && (await enabledPaymentMethods(transaction)).length === 0) throw new ApiError("BUSINESS_RULE", "paymentMethodRequired");
+      await this.record(transaction, actor, "marketplace.payment_method.update", "marketplace.payment_methods", null, { code, isEnabled: method.is_enabled }, { code, isEnabled });
+    });
+    return this.settings(actor, true);
+  }
+
+  // Mở đặt hàng cho mọi người mua (QUYTAC_NGHIEPVU_164): cần cài đặt bán hàng đã lưu và ít nhất một phương thức đang bật.
+  async setOrderingOpen(actor: BuyerAdminActor, orderingOpen: boolean): Promise<StoreSettingsResponse> {
+    await this.database.transaction(async (transaction) => {
+      const settings = (await transaction.execute<{ ordering_open: boolean }>(sql`SELECT ordering_open FROM marketplace.store_settings WHERE company_id = ${actor.operatorCompanyId} FOR UPDATE`))
+        .rows[0];
+      if (!settings) throw new ApiError("BUSINESS_RULE", "storeNotReady");
+      if (orderingOpen) {
+        await transaction.execute(sql`SELECT 1 FROM marketplace.payment_methods FOR UPDATE`);
+        if ((await enabledPaymentMethods(transaction)).length === 0) throw new ApiError("BUSINESS_RULE", "paymentMethodRequired");
+      }
+      await transaction.execute(
+        sql`UPDATE marketplace.store_settings SET ordering_open = ${orderingOpen}, updated_by = ${actor.userId}, updated_at = now() WHERE company_id = ${actor.operatorCompanyId}`,
+      );
+      await this.record(transaction, actor, "marketplace.ordering_open.update", "marketplace.store_settings", actor.operatorCompanyId, { orderingOpen: settings.ordering_open }, { orderingOpen });
     });
     return this.settings(actor, true);
   }

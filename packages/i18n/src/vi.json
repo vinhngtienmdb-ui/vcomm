@@ -320,7 +320,10 @@
     "returnRequestNotOpen": "Yêu cầu trả hàng không ở trạng thái phù hợp cho thao tác này.",
     "marketplaceOrderManagedInApp": "Đơn này là đơn của người mua VComm; xử lý ở màn hình Đơn VComm.",
     "carrierOutcomeUnknown": "Chưa rõ đơn vị vận chuyển đã tạo vận đơn hay chưa. Bấm \"Tra lại vận đơn\" để kiểm tra trước khi giao lại.",
-    "shipmentRequesting": "Đơn đang chờ xác nhận tạo vận đơn. Bấm \"Tra lại vận đơn\" trước."
+    "shipmentRequesting": "Đơn đang chờ xác nhận tạo vận đơn. Bấm \"Tra lại vận đơn\" trước.",
+    "paymentGatewayNotConfigured": "Cổng thanh toán chưa có thông tin kết nối (mã website, khóa bí mật, địa chỉ trả về) trên máy chủ.",
+    "paymentMethodRequired": "Đang mở đặt hàng nên phải còn ít nhất một phương thức thanh toán đang bật. Tắt đặt hàng trước hoặc bật phương thức khác.",
+    "paymentMethodUnavailable": "Phương thức thanh toán này hiện không dùng được. Chọn phương thức khác."
   },
   "login": {
     "title": "Đăng nhập",
@@ -3288,7 +3291,9 @@
     "returnSendBack": "Vui lòng đóng gói và gửi hàng về VComm. Nhân viên sẽ liên hệ hướng dẫn.",
     "returnWithdraw": "Rút yêu cầu",
     "requestReturn": "Yêu cầu trả hàng",
-    "returnPhotoPermission": "Chưa có quyền truy cập ảnh. Cho phép VComm truy cập ảnh trong cài đặt của điện thoại."
+    "returnPhotoPermission": "Chưa có quyền truy cập ảnh. Cho phép VComm truy cập ảnh trong cài đặt của điện thoại.",
+    "paymentMethod": "Phương thức thanh toán",
+    "paidBy": "Thanh toán: {method}"
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -3445,7 +3450,20 @@
     "enable": "Bật",
     "disable": "Tắt",
     "carrierEnabled": "Đã bật đơn vị vận chuyển.",
-    "carrierDisabled": "Đã tắt đơn vị vận chuyển."
+    "carrierDisabled": "Đã tắt đơn vị vận chuyển.",
+    "paymentsTitle": "Đặt hàng và thanh toán",
+    "orderingOpenLabel": "Mở đặt hàng cho mọi người mua",
+    "orderingOpenHint": "Mọi người mua trên ứng dụng đặt được hàng.",
+    "orderingClosedHint": "Chỉ người mua thử đặt được hàng. Cần lưu cài đặt bán hàng và bật ít nhất một phương thức thanh toán để mở.",
+    "orderingOpen": "Đang mở",
+    "orderingClosed": "Đang đóng",
+    "openOrdering": "Mở đặt hàng",
+    "closeOrdering": "Đóng đặt hàng",
+    "orderingOpenSaved": "Đã mở đặt hàng.",
+    "orderingClosedSaved": "Đã đóng đặt hàng.",
+    "paymentMethodsHint": "Người mua chỉ thấy phương thức đang bật. Thông tin kết nối cổng thanh toán do quản trị hệ thống đặt trên máy chủ.",
+    "paymentMethodEnabled": "Đã bật phương thức thanh toán.",
+    "paymentMethodDisabled": "Đã tắt phương thức thanh toán."
   },
   "listings": {
     "title": "Đăng bán",
@@ -3559,5 +3577,13 @@
     "done_reject": "Đã từ chối yêu cầu.",
     "done_receive": "Đã nhận hàng trả, nhập lại kho.",
     "done_not-received": "Đã kết thúc yêu cầu."
+  },
+  "paymentMethods": {
+    "cod": "Thanh toán khi nhận hàng",
+    "vnpay_qr": "Quét mã QR VNPAY",
+    "vnpay_atm": "Thẻ ATM nội địa",
+    "vnpay_card": "Thẻ quốc tế Visa, Mastercard",
+    "gateway_cod": "Thu hộ khi giao",
+    "gateway_vnpay": "VNPAY"
   }
 }

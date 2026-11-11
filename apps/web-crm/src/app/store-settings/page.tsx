@@ -1,6 +1,7 @@
 "use client";
 
 // MAN_HINH_86 Cài đặt bán hàng VComm (CHUC_NANG_113, 117; API_123; QUYTAC_NGHIEPVU_154, 160): kênh bán, kho xuất, phí giao hàng, kích thước gói; bật tắt đơn vị vận chuyển.
+// Mở đặt hàng, phương thức thanh toán (CONG_VIEC_25; CHUC_NANG_120; API_130; QUYTAC_NGHIEPVU_163, 164).
 import type { StoreSettingsResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -185,6 +186,76 @@ function Carriers({ settings, onSaved }: { settings: StoreSettingsResponse; onSa
   );
 }
 
+function Payments({ settings, onSaved }: { settings: StoreSettingsResponse; onSaved: (value: StoreSettingsResponse) => void }) {
+  const t = useTranslations("storeSettings");
+  const method = useTranslations("paymentMethods");
+  const { notify } = useAdmin();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function save(path: string, body: object, message: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      onSaved(await apiFetch<StoreSettingsResponse>(path, { method: "PUT", body: JSON.stringify(body) }));
+      notify(message);
+    } catch (failure) {
+      setError(failureOf(failure).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  const anyEnabled = settings.paymentMethods.some((item) => item.isEnabled && item.isConfigured);
+  const row = { display: "flex", flexWrap: "wrap", gap: "var(--khoang-2)", alignItems: "center", justifyContent: "space-between" } as const;
+  return (
+    <div className="the" style={{ display: "grid", gap: "var(--khoang-3)" }}>
+      <h2>{t("paymentsTitle")}</h2>
+      <FormError text={error} />
+      <div style={row}>
+        <span style={{ display: "grid", gap: "var(--khoang-1)" }}>
+          <strong>{t("orderingOpenLabel")}</strong>
+          <span className="chu-thich">{t(settings.orderingOpen ? "orderingOpenHint" : "orderingClosedHint")}</span>
+          <span className="nhom-nut">
+            <span className={`nhan ${settings.orderingOpen ? "thanh-cong" : "trung-tinh"}`}>{t(settings.orderingOpen ? "orderingOpen" : "orderingClosed")}</span>
+          </span>
+        </span>
+        {settings.canManage && (
+          <button
+            type="button"
+            className={`nut ${settings.orderingOpen ? "phu" : "chinh"}`}
+            disabled={busy || (!settings.orderingOpen && (!anyEnabled || settings.version === 0))}
+            onClick={() => void save("/marketplace/ordering-open", { orderingOpen: !settings.orderingOpen }, t(settings.orderingOpen ? "orderingClosedSaved" : "orderingOpenSaved"))}
+          >
+            {t(settings.orderingOpen ? "closeOrdering" : "openOrdering")}
+          </button>
+        )}
+      </div>
+      <div className="chu-thich">{t("paymentMethodsHint")}</div>
+      {settings.paymentMethods.map((item) => (
+        <div key={item.code} style={row}>
+          <span style={{ display: "grid", gap: "var(--khoang-1)" }}>
+            <strong>{method(item.code)}</strong>
+            <span className="nhom-nut">
+              <span className="nhan trung-tinh">{method(`gateway_${item.gatewayCode}`)}</span>
+              <span className={`nhan ${item.isEnabled ? "thanh-cong" : "trung-tinh"}`}>{t(item.isEnabled ? "enabled" : "disabled")}</span>
+              {item.gatewayCode !== "cod" && <span className={`nhan ${item.isConfigured ? "thanh-cong" : "canh-bao"}`}>{t(item.isConfigured ? "configured" : "notConfigured")}</span>}
+            </span>
+          </span>
+          {settings.canManage && (
+            <button
+              type="button"
+              className={`nut ${item.isEnabled ? "phu" : "chinh"}`}
+              disabled={busy || (!item.isEnabled && !item.isConfigured)}
+              onClick={() => void save(`/marketplace/payment-methods/${item.code}`, { isEnabled: !item.isEnabled }, t(item.isEnabled ? "paymentMethodDisabled" : "paymentMethodEnabled"))}
+            >
+              {t(item.isEnabled ? "disable" : "enable")}
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function StoreSettingsPage() {
   const t = useTranslations("storeSettings");
   const { state, reload } = useApi<StoreSettingsResponse>("/marketplace/store-settings");
@@ -200,6 +271,7 @@ export default function StoreSettingsPage() {
           return (
             <div style={{ display: "grid", gap: "var(--khoang-4)" }}>
               <SettingsForm settings={settings} onSaved={setSaved} />
+              <Payments settings={settings} onSaved={setSaved} />
               <Carriers settings={settings} onSaved={setSaved} />
             </div>
           );

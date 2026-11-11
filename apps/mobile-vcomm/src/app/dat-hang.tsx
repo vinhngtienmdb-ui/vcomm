@@ -1,16 +1,18 @@
-// MAN_HINH_93 Đặt hàng (CHUC_NANG_116; API_126; QUYTAC_NGHIEPVU_158): địa chỉ nhận, dòng hàng, tiền hàng, phí giao hàng, tổng thanh toán khi nhận hàng.
-import type { BuyerAddressItem, BuyerOrderDetail, BuyerOrderPreview, CartResponse } from "contracts";
+// MAN_HINH_93 Đặt hàng (CHUC_NANG_116; API_126; QUYTAC_NGHIEPVU_158): địa chỉ nhận, dòng hàng, tiền hàng, phí giao hàng, tổng thanh toán.
+// Chọn phương thức thanh toán đang bật (CONG_VIEC_25; QUYTAC_NGHIEPVU_163).
+import type { BuyerAddressItem, BuyerOrderDetail, BuyerOrderPreview, CartResponse, PaymentMethodCode } from "contracts";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { AmountRow, OrderLines } from "@/components/OrderLines";
-import { Button, Card, Loading, Muted, Notice, Screen, Title } from "@/components/ui";
+import { Button, Card, Choice, Loading, Muted, Notice, Screen, Title } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
 import { money, translator } from "@/lib/i18n";
 import { takeChosenAddress } from "@/lib/selection";
 import { colors, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
+const method = translator("paymentMethods");
 
 export default function CheckoutScreen() {
   const params = useLocalSearchParams<{ lines?: string }>();
@@ -23,6 +25,7 @@ export default function CheckoutScreen() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodCode | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -33,7 +36,12 @@ export default function CheckoutScreen() {
       const wanted = takeChosenAddress();
       const current = book.find((item) => item.id === wanted) ?? book.find((item) => item.id === address?.id) ?? book.find((item) => item.isDefault) ?? null;
       setAddress(current);
-      if (picked.length > 0) setPreview(await api<BuyerOrderPreview>("/buyer/orders/preview", { method: "POST", json: { addressId: current?.id ?? null, lines: picked } }));
+      if (picked.length > 0) {
+        const next = await api<BuyerOrderPreview>("/buyer/orders/preview", { method: "POST", json: { addressId: current?.id ?? null, lines: picked } });
+        setPreview(next);
+        // Giữ phương thức đã chọn nếu còn bật; chưa chọn thì lấy phương thức đầu tiên.
+        setPaymentMethod((selected) => (selected && next.paymentMethods.includes(selected) ? selected : (next.paymentMethods[0] ?? null)));
+      }
     } catch (failure) {
       setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
     }
@@ -47,12 +55,12 @@ export default function CheckoutScreen() {
   );
 
   async function place() {
-    if (!address || !lines || !preview) return;
+    if (!address || !lines || !preview || !paymentMethod) return;
     setBusy(true);
     setError(null);
     setNotice(null);
     try {
-      const order = await api<BuyerOrderDetail>("/buyer/orders", { method: "POST", json: { addressId: address.id, lines, expectedTotal: preview.total } });
+      const order = await api<BuyerOrderDetail>("/buyer/orders", { method: "POST", json: { addressId: address.id, lines, expectedTotal: preview.total, paymentMethod } });
       router.replace(`/don-hang/${order.id}`);
     } catch (failure) {
       const message = failure instanceof ApiFailure ? failure.message : t("unknownError");
@@ -101,10 +109,14 @@ export default function CheckoutScreen() {
               <AmountRow label={t("goodsAmount")} value={money(preview.goodsAmount)} />
               <AmountRow label={t("shippingFee")} value={Number(preview.shippingFee) === 0 ? t("free") : money(preview.shippingFee)} />
               <AmountRow label={t("orderTotal")} value={money(preview.total)} strong />
-              <Muted>{t("paymentCod")}</Muted>
             </Card>
+            {preview.paymentMethods.length > 0 ? (
+              <Card>
+                <Choice label={t("paymentMethod")} value={paymentMethod} options={preview.paymentMethods.map((code) => ({ value: code, label: method(code) }))} onChange={setPaymentMethod} />
+              </Card>
+            ) : null}
             {preview.canOrder ? null : <Notice tone="warning" text={t("orderingNotOpen")} />}
-            <Button label={t("placeOrder")} busy={busy} disabled={!address || !preview.canOrder} onPress={() => void place()} />
+            <Button label={t("placeOrder")} busy={busy} disabled={!address || !preview.canOrder || !paymentMethod} onPress={() => void place()} />
           </>
         ) : null}
       </Screen>

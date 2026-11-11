@@ -4084,6 +4084,20 @@ export interface CarrierItem {
   isConfigured: boolean;
 }
 
+// CONG_VIEC_25: phương thức thanh toán theo cổng (QUYTAC_NGHIEPVU_163).
+export const paymentMethodCodes = ["cod", "vnpay_qr", "vnpay_atm", "vnpay_card"] as const;
+export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
+export const paymentGatewayCodes = ["cod", "vnpay"] as const;
+export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];
+
+export interface PaymentMethodItem {
+  code: PaymentMethodCode;
+  gatewayCode: PaymentGatewayCode;
+  isEnabled: boolean;
+  // Cổng đã có thông tin kết nối trong biến môi trường (thanh toán khi nhận hàng luôn có).
+  isConfigured: boolean;
+}
+
 // API_123: cài đặt bán hàng VComm (QUYTAC_NGHIEPVU_154).
 export interface StoreSettingsResponse {
   companyName: string;
@@ -4100,6 +4114,9 @@ export interface StoreSettingsResponse {
   channels: Array<{ id: string; name: string }>;
   warehouses: Array<{ id: string; name: string }>;
   carriers: CarrierItem[];
+  // API_130: mở đặt hàng cho mọi người mua (QUYTAC_NGHIEPVU_164).
+  orderingOpen: boolean;
+  paymentMethods: PaymentMethodItem[];
 }
 
 const packageSize = z.number().int().min(1).max(200);
@@ -4118,6 +4135,8 @@ export const updateStoreSettingsSchema = z
   })
   .strict();
 export const updateCarrierSchema = z.object({ isEnabled: z.boolean() }).strict();
+export const updatePaymentMethodSchema = z.object({ isEnabled: z.boolean() }).strict();
+export const updateOrderingOpenSchema = z.object({ orderingOpen: z.boolean() }).strict();
 
 // Lý do sản phẩm không hiện trên ứng dụng (QUYTAC_NGHIEPVU_155).
 export const listingBlockers = ["storeNotReady", "notApproved", "inactive", "lotOrSerial", "noPrice"] as const;
@@ -4237,8 +4256,8 @@ export type MarketplaceOrderStatus = (typeof marketplaceOrderStatuses)[number];
 
 const orderLinesInput = z.array(z.object({ variantId: z.uuid(), quantity: z.number().int().min(1).max(999) }).strict()).min(1).max(50);
 export const buyerOrderPreviewSchema = z.object({ addressId: z.uuid().nullable(), lines: orderLinesInput }).strict();
-// expectedTotal: tổng thanh toán người mua đã thấy; khác tổng tính lại thì báo giá đã thay đổi.
-export const buyerOrderPlaceSchema = z.object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney }).strict();
+// expectedTotal: tổng thanh toán người mua đã thấy; khác tổng tính lại thì báo giá đã thay đổi. paymentMethod mặc định thanh toán khi nhận hàng (ứng dụng bản CONG_VIEC_24).
+export const buyerOrderPlaceSchema = z.object({ addressId: z.uuid(), lines: orderLinesInput, expectedTotal: requiredMoney, paymentMethod: z.enum(paymentMethodCodes).default("cod") }).strict();
 
 export interface MarketplaceOrderLine {
   variantId: string;
@@ -4262,6 +4281,8 @@ export interface BuyerOrderPreview {
   currency: string;
   // Chưa mở đặt hàng: chỉ người mua thử đặt được.
   canOrder: boolean;
+  // Phương thức đang bật, theo thứ tự hiển thị.
+  paymentMethods: PaymentMethodCode[];
 }
 
 export interface MarketplaceOrderEvent {
@@ -4288,7 +4309,7 @@ export interface BuyerOrderDetail extends BuyerOrderListItem {
   lines: MarketplaceOrderLine[];
   goodsAmount: string;
   shippingFee: string;
-  paymentMethod: "cod";
+  paymentMethod: PaymentMethodCode;
   carrierName: string | null;
   trackingCode: string | null;
   deliveredAt: string | null;

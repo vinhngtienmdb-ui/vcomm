@@ -10,6 +10,7 @@ import { money, translator } from "@/lib/i18n";
 import { colors, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
+const method = translator("paymentMethods");
 const returnTone = { pending: "warning", approved: "info", rejected: "error", withdrawn: "neutral", received: "success", not_received: "neutral" } as const;
 const dateTime = (iso: string) =>
   new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(iso));
@@ -88,7 +89,7 @@ export default function OrderScreen() {
               <AmountRow label={t("goodsAmount")} value={money(order.goodsAmount)} />
               <AmountRow label={t("shippingFee")} value={Number(order.shippingFee) === 0 ? t("free") : money(order.shippingFee)} />
               <AmountRow label={t("orderTotal")} value={money(order.total)} strong />
-              <Muted>{t("paymentCod")}</Muted>
+              <Muted>{t("paidBy", { method: method(order.paymentMethod) })}</Muted>
             </Card>
             <Card>
               <Text style={{ fontWeight: "700", color: colors.text }}>{t("orderHistory")}</Text>

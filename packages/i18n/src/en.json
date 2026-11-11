@@ -320,7 +320,10 @@
     "returnRequestNotOpen": "The return request is not in a state for this action.",
     "marketplaceOrderManagedInApp": "This is a VComm buyer order; handle it on the VComm orders screen.",
     "carrierOutcomeUnknown": "It is unclear whether the carrier created the shipment. Click \"Refresh shipment\" before handing over again.",
-    "shipmentRequesting": "The order is waiting for shipment confirmation. Click \"Refresh shipment\" first."
+    "shipmentRequesting": "The order is waiting for shipment confirmation. Click \"Refresh shipment\" first.",
+    "paymentGatewayNotConfigured": "The payment gateway has no connection settings (merchant code, secret key, return URL) on the server.",
+    "paymentMethodRequired": "Ordering is open, so at least one payment method must stay enabled. Close ordering first or enable another method.",
+    "paymentMethodUnavailable": "This payment method is not available. Choose another method."
   },
   "login": {
     "title": "Sign in",
@@ -3288,7 +3291,9 @@
     "returnSendBack": "Please pack and send the items back to VComm. Staff will contact you.",
     "returnWithdraw": "Withdraw request",
     "requestReturn": "Request a return",
-    "returnPhotoPermission": "Photo access is not allowed. Allow VComm to access photos in your phone settings."
+    "returnPhotoPermission": "Photo access is not allowed. Allow VComm to access photos in your phone settings.",
+    "paymentMethod": "Payment method",
+    "paidBy": "Payment: {method}"
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -3445,7 +3450,20 @@
     "enable": "Enable",
     "disable": "Disable",
     "carrierEnabled": "Carrier enabled.",
-    "carrierDisabled": "Carrier disabled."
+    "carrierDisabled": "Carrier disabled.",
+    "paymentsTitle": "Ordering and payment",
+    "orderingOpenLabel": "Open ordering to all buyers",
+    "orderingOpenHint": "All buyers on the app can place orders.",
+    "orderingClosedHint": "Only test buyers can order. Save the store settings and enable at least one payment method to open.",
+    "orderingOpen": "Open",
+    "orderingClosed": "Closed",
+    "openOrdering": "Open ordering",
+    "closeOrdering": "Close ordering",
+    "orderingOpenSaved": "Ordering opened.",
+    "orderingClosedSaved": "Ordering closed.",
+    "paymentMethodsHint": "Buyers only see enabled methods. Gateway connection settings are set on the server by the system administrator.",
+    "paymentMethodEnabled": "Payment method enabled.",
+    "paymentMethodDisabled": "Payment method disabled."
   },
   "listings": {
     "title": "Listings",
@@ -3559,5 +3577,13 @@
     "done_reject": "Request rejected.",
     "done_receive": "Goods received back into stock.",
     "done_not-received": "Request closed."
+  },
+  "paymentMethods": {
+    "cod": "Cash on delivery",
+    "vnpay_qr": "VNPAY QR",
+    "vnpay_atm": "Domestic ATM card",
+    "vnpay_card": "International card (Visa, Mastercard)",
+    "gateway_cod": "Collected on delivery",
+    "gateway_vnpay": "VNPAY"
   }
 }
