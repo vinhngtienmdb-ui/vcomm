@@ -4,7 +4,7 @@
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
 - Mức quy mô: Vừa (chức năng mới trong MODULE_09, thêm giá trị mã đơn vị vận chuyển, không đổi kiến trúc).
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11; chờ nghiệm thu.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11. Đã nghiệm thu 2026-11-11, chờ phát hành (trước khi phát hành phải thử với tài khoản môi trường thử nghiệm của Viettel Post, mục 4).
 - Nguồn: yêu cầu của người dùng ngày 2026-11-11 (phiên CONG_VIEC_25 mở phiên con); khung đơn vị vận chuyển của CONG_VIEC_24 (QUYTAC_NGHIEPVU_159, 160; CHUC_NANG_117).
 - Nhánh: `chuc-nang/CONG_VIEC_29-giao-van-viettel-post`, tách từ `chuc-nang/CONG_VIEC_24-dat-hang-vcomm`.
 
