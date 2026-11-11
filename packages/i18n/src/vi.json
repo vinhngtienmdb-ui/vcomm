@@ -3729,7 +3729,19 @@
     "communityPublish": "Đăng",
     "communityProductRating": "{average} · {count} đánh giá đã mua · Xem bảng tin",
     "communityProductNoRating": "Chưa có đánh giá · Xem bảng tin",
-    "communityReviewProduct": "Viết đánh giá: {product}"
+    "communityReviewProduct": "Viết đánh giá: {product}",
+    "smartOtpTitle": "Smart OTP dùng điểm tại quầy",
+    "smartOtpIntro": "Dùng điểm tại cửa hàng cần mã Smart OTP trên điện thoại này. Mã đổi mỗi 30 giây, dùng được khi không có mạng.",
+    "smartOtpActivate": "Kích hoạt Smart OTP",
+    "smartOtpActivateHere": "Kích hoạt trên máy này",
+    "smartOtpSent": "Mã 6 số đã gửi qua tin nhắn tới {phone}.",
+    "smartOtpSmsCode": "Mã xác nhận",
+    "smartOtpOtherDevice": "Smart OTP đang dùng trên máy khác ({device}). Kích hoạt trên máy này thì máy kia hết hiệu lực.",
+    "smartOtpUse": "Đọc mã này cho thu ngân khi dùng điểm. Không đưa mã cho người khác. Còn {seconds} giây.",
+    "smartOtpDevice": "Máy: {device} · kích hoạt {date}",
+    "smartOtpRevoke": "Hủy Smart OTP",
+    "smartOtpLocked": "Dùng điểm tại quầy đang tạm khóa đến {time} do nhập sai mã nhiều lần.",
+    "smartOtpCodeLabel": "Mã Smart OTP {code}"
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -6970,7 +6982,21 @@
     "transferReceived": "Đã nhận chuyển khoản {amount}",
     "transferContent": "Nội dung: {content}",
     "qrLabel": "Mã VietQR chuyển khoản",
-    "transferOverTotal": "Tiền chuyển khoản không được vượt số phải trả."
+    "transferOverTotal": "Tiền chuyển khoản không được vượt số phải trả.",
+    "customerPhone": "Số điện thoại khách VComm",
+    "findCustomer": "Tìm",
+    "removeCustomer": "Bỏ",
+    "customerInfo": "Hạng {tier} · {points} điểm khả dụng",
+    "smartOtpOn": "Smart OTP đã kích hoạt",
+    "expectedPoints": "Hóa đơn này dự kiến được tích khoảng {points} điểm.",
+    "smartOtpInactive": "Khách chưa kích hoạt Smart OTP: vẫn tích điểm được; muốn dùng điểm, mời khách mở ứng dụng VComm → Điểm thưởng → Kích hoạt Smart OTP.",
+    "smartOtpLocked": "Dùng điểm tại quầy đang tạm khóa đến {time} do nhập sai mã nhiều lần; vẫn tích điểm được.",
+    "customerNotFound": "Số {phone} chưa có tài khoản VComm. Hóa đơn không tích điểm; hóa đơn in dòng mời cài ứng dụng VComm.",
+    "usePoints": "Dùng điểm (khả dụng {points} điểm)",
+    "pointsToUse": "Số điểm dùng",
+    "pointsRange": "= {amount} · tối thiểu {min}, tối đa {max} điểm",
+    "smartOtp": "Mã Smart OTP của khách",
+    "smartOtpHint": "Khách đọc mã 6 số trong ứng dụng VComm (đổi mỗi 30 giây)"
   },
   "retailSales": {
     "title": "Hóa đơn bán lẻ",
@@ -7019,7 +7045,12 @@
     "einvoiceLookup": "Mã tra cứu: {code}",
     "einvoiceTaxAuthorityCode": "Mã CQT: {code}",
     "footer": "Cảm ơn quý khách!",
-    "returnPolicy": "Đổi trả trong {days} ngày kèm hóa đơn này."
+    "returnPolicy": "Đổi trả trong {days} ngày kèm hóa đơn này.",
+    "pointsCount": "{points} điểm",
+    "loyaltyCustomer": "Khách VComm: {name} · {phone}",
+    "loyaltyPoints": "Điểm đã dùng: {used} · Điểm được tích: {earned}",
+    "loyaltyBalance": "Số dư sau giao dịch: {points} điểm",
+    "inviteApp": "Chưa có tài khoản? Cài ứng dụng VComm để tích điểm cho lần mua sau."
   },
   "retailReturns": {
     "title": "Trả hàng",
@@ -7056,6 +7087,7 @@
     "noReturnPermission": "Bạn không có quyền trả hàng.",
     "slipTitle": "PHIẾU TRẢ HÀNG",
     "slipSale": "Theo hóa đơn {number}",
-    "serials": "Serial trả"
+    "serials": "Serial trả",
+    "pointsEffect": "Giá trị hàng trả {goods}; hoàn lại {refunded} điểm đã dùng, thu hồi {reversed} điểm đã tích; tiền thiếu quy đổi {shortfall} trừ vào tiền hoàn."
   }
 }

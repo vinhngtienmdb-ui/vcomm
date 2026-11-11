@@ -12,11 +12,11 @@ export const apiBase = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:4000
 export const appBase = process.env.EXPO_PUBLIC_APP_URL ?? "http://localhost:8083";
 const tokenKey = "vcomm.tokens";
 
-async function read(key: string): Promise<string | null> {
+export async function read(key: string): Promise<string | null> {
   if (Platform.OS === "web") return globalThis.sessionStorage?.getItem(key) ?? null;
   return SecureStore.getItemAsync(key);
 }
-async function write(key: string, value: string | null): Promise<void> {
+export async function write(key: string, value: string | null): Promise<void> {
   if (Platform.OS === "web") {
     if (value === null) globalThis.sessionStorage?.removeItem(key);
     else globalThis.sessionStorage?.setItem(key, value);
