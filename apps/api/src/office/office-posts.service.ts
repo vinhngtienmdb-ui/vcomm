@@ -16,7 +16,7 @@ import {
 import { sql, type SQL } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import type { z } from "zod";
-import type { postListQuerySchema } from "contracts";
+import type { officePostListQuerySchema } from "contracts";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { CLOCK, type Clock } from "../common/clock";
@@ -29,7 +29,7 @@ import { groupRootOf, peopleById } from "./office-access";
 import { checkOfficeFile } from "./office-tasks.service";
 
 type Executor = Pick<Database, "execute">;
-type PostListQuery = z.infer<typeof postListQuerySchema>;
+type PostListQuery = z.infer<typeof officePostListQuerySchema>;
 
 type PostRow = {
   id: string;

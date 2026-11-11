@@ -371,7 +371,7 @@
 - Kiểm thử cần thực hiện: kịch bản chặn, bỏ chặn, gửi yêu cầu khi bị chặn; hồi quy c26-*.
 - Mức quy mô: Vừa; làm trong CONG_VIEC_49.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-11.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã phát hành v0.5.0 2026-11-12, chờ triển khai.
 
 ### THAY_DOI_23: Bỏ giới hạn yêu cầu theo IP cho API nộp hồ sơ ứng tuyển công khai – 2026-11-11
 - Lý do: CONG_VIEC_54 (tuyển dụng): người dùng không muốn chặn ứng viên nộp hồ sơ vì giới hạn theo IP (nhiều ứng viên dùng chung mạng).
@@ -382,7 +382,7 @@
 - Kiểm thử cần thực hiện: API_204 nhận nhiều yêu cầu liên tiếp từ cùng IP; API công khai khác vẫn bị giới hạn.
 - Mức quy mô: Nhỏ; làm trong CONG_VIEC_54.
 - Rủi ro (người dùng chấp nhận): hồ sơ rác hàng loạt, đầy kho lưu tệp đính kèm, tốn tài nguyên máy chủ; giảm thiểu đề xuất trong tài liệu 22 (giới hạn kích thước, loại tệp, theo dõi dung lượng).
-- Trạng thái: Đã phê duyệt 2026-11-11.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã phát hành v0.5.0 2026-11-12, chờ triển khai.
 
 ### THAY_DOI_24: Bán lẻ tại quầy dùng lại hóa đơn điện tử, quỹ, đơn bán – 2026-11-11
 - Lý do: CONG_VIEC_53 (bán lẻ tại quầy) cần mở rộng hành vi đã duyệt của các công việc đã phát hành 0.3.0.
@@ -396,7 +396,7 @@
 - Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_53; hồi quy c8-*, c13-*, c16-*.
 - Mức quy mô: Vừa; làm trong CONG_VIEC_53.
 - Rủi ro: chưa đối chiếu nguyên văn quy định hóa đơn khởi tạo từ máy tính tiền (phải tra trước lát hóa đơn).
-- Trạng thái: Đã phê duyệt 2026-11-11.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã phát hành v0.5.0 2026-11-12, chờ triển khai.
 
 ### THAY_DOI_25: Ứng viên tự trả lời đề nghị nhận việc, email mời phỏng vấn kèm lịch – 2026-11-11
 - Lý do: người dùng thay đổi đặc tả CONG_VIEC_54 đã duyệt (bản 0.1) sau khi xem lát L0.
@@ -407,5 +407,22 @@
 - Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_54.
 - Mức quy mô: Nhỏ; làm trong CONG_VIEC_54.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-11.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã phát hành v0.5.0 2026-11-12, chờ triển khai.
 
+### THAY_DOI_26: CONG_VIEC_22 làm lại thành phần Kinh doanh của ứng dụng VComm – 2026-11-12
+- Lý do: THAY_DOI_14 bỏ ứng dụng nhân viên kinh doanh riêng; người dùng mở lại CONG_VIEC_22 và chọn lại phạm vi ngày 2026-11-12.
+- Nội dung thay đổi (quyết định của người dùng):
+  1. Gộp vào mục Kinh doanh của ứng dụng VComm, không làm ứng dụng riêng.
+  2. Ghé thăm khách (THAY_DOI_13): ẩn menu, MAN_HINH_72 và thẻ trên MAN_HINH_37; API từ chối ghi mới; giữ bảng `crm.visits` và mã nguồn để có thể bật lại.
+  3. Không tạo đơn hộ khách (giữ THAY_DOI_14); thêm chia sẻ đường dẫn sản phẩm có sẵn mã giới thiệu của người chia sẻ.
+  4. Chi tiết khách người mua cho nhân viên phụ trách và cấp trên trong nhánh: họ tên, số điện thoại, ngày đăng ký, người giới thiệu; 10 đơn gần nhất; tổng mua của đơn hoàn tất; hoa hồng của chính người xem từ khách này; ghi chú, lịch hẹn. Không hiện địa chỉ giao hàng.
+  5. Doanh số của tôi theo tháng: tổng tiền đơn hoàn tất (hết 7 ngày trả hàng) của khách mình phụ trách, tính theo ngày hoàn tất, trừ phần đã trả; kèm số đơn đang xử lý; quản lý xem theo từng người trong nhánh.
+  6. Ghi chú chăm sóc: kênh (gọi, nhắn tin, gặp), nội dung, ngày hẹn tiếp theo (tùy chọn); không sửa, không xóa; cấp trên trong nhánh xem được; danh sách hẹn hôm nay và quá hạn, đánh dấu đã xong.
+  7. Nhắc hẹn bằng thông báo trong ứng dụng: mỗi sáng tạo bản ghi `core.notifications`; ứng dụng VComm thêm mục Thông báo kèm số chưa đọc; thông báo đẩy thật để sau khi đóng gói ứng dụng; không thêm thư viện.
+- Thành phần bị ảnh hưởng: CONG_VIEC_22 (viết lại đặc tả), CONG_VIEC_23, 27 (mục Kinh doanh), CONG_VIEC_06 (MAN_HINH_37), THAY_DOI_13; tài liệu 05, 06, 07, 08, 10, 11, 14, 16, 17, 21, 22, 27.
+- Dữ liệu, API, giao diện, quyền: bảng mới ghi chú chăm sóc kèm ngày hẹn (database migration trong dải 0113 đến 0115), `crm.visits` giữ nguyên; API mới chi tiết khách, doanh số, ghi chú và hẹn, thông báo của tôi (API_228 đến 234), API_114 POST từ chối ghi mới; MAN_HINH_196 đến 203 trên ứng dụng VComm, ẩn MAN_HINH_72; dùng đánh dấu nhân viên kinh doanh và phạm vi nhánh của CONG_VIEC_27, quyền `crm.visit.manage` không còn dùng.
+- Ảnh hưởng chức năng cũ: ghé thăm bị ẩn (chưa triển khai lên môi trường thật, chưa có dữ liệu thật).
+- Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_573 đến 584; KICHBAN_KIEMTHU_290, 291 chuyển sang kiểm tra API từ chối ghi mới; hồi quy toàn bộ.
+- Mức quy mô: Lớn; làm trong CONG_VIEC_22.
+- Rủi ro: trung bình (dữ liệu cá nhân khách, phạm vi xem theo nhánh).
+- Trạng thái: Đã phê duyệt 2026-11-12 (người dùng chọn qua câu hỏi trong phiên CONG_VIEC_22).

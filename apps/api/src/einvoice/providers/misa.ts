@@ -187,6 +187,8 @@ export class MisaProvider implements EinvoiceProviderAdapter {
   }
 
   async publish(config: ProviderConfig, invoice: ProviderInvoice): Promise<ProviderResult> {
+    // Hóa đơn khởi tạo từ máy tính tiền qua MISA chưa có tài liệu API (CONG_VIEC_53 mục 16).
+    if (invoice.cashRegister) return { outcome: "data_error", errorCode: "Unsupported", message: "einvoiceCashRegisterUnsupported" };
     return this.guarded(async () => {
       const response = await this.authorized(config, "POST", "/invoice", { SignType: signTypeRemoteSynchronous, InvoiceData: [this.invoiceData(invoice)], PublishInvoiceData: null });
       const items = parseData<MisaInvoiceResult[]>(response.Data);

@@ -615,7 +615,7 @@ export const savePostSchema = z
   .strict();
 export type SavePostInput = z.infer<typeof savePostSchema>;
 
-export const postListQuerySchema = z
+export const officePostListQuerySchema = z
   .object({
     // feed: tin mình nhận; manage: tin của công ty (người có quyền đăng), kể cả hẹn giờ, hết hạn, thu hồi.
     view: z.enum(["feed", "manage"]).default("feed"),

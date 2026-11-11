@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_162 Mở ca, đóng ca – VComm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="ban_le.css">
+</head>
+<body>
+<header class="thanh-tren"><span class="logo">VComm</span><span>Bán lẻ</span><span class="gian"></span><span>Nguyễn Thị Lan</span></header>
+<div class="trang">
+  <section class="the" style="display:grid;gap:var(--khoang-4);max-width:520px" id="mo-ca">
+    <h2>Mở ca</h2>
+    <label class="truong">Cửa hàng<select><option>Cửa hàng Thủ Đức</option></select></label>
+    <label class="truong">Quầy<select><option>Q01 – Quầy 1</option><option disabled>Q02 – Quầy 2 (đang có ca của Lê Văn Hùng)</option></select></label>
+    <label class="truong">Tiền đầu ca<input value="1.500.000"><span class="chu-phu">Tiền cuối ca trước ở quầy này: 2.000.000 (ca 10/11, Lê Văn Hùng)</span></label>
+    <label class="truong">Ghi chú<textarea rows="2">Đã nộp 500.000 về két tổng</textarea><span class="loi-o">Tiền đầu ca khác tiền cuối ca trước: bắt buộc ghi chú.</span></label>
+    <button class="nut chinh" type="button">Mở ca</button>
+  </section>
+
+  <section class="the" style="display:grid;gap:var(--khoang-4)" id="dong-ca">
+    <div class="dong"><h2>Đóng ca · Quầy Q01 · mở 07:58 11/11/2026</h2><span class="nhan thong-tin">Đang mở</span></div>
+    <table>
+      <thead><tr><th>Phương thức</th><th class="so">Thu bán</th><th class="so">Hoàn trả hàng</th><th class="so">Thực thu</th><th>Quỹ</th></tr></thead>
+      <tbody>
+        <tr><td>Tiền mặt (đã trừ tiền thừa)</td><td class="so">2.212.000</td><td class="so">−230.000</td><td class="so">1.982.000</td><td>Tiền mặt Cửa hàng Thủ Đức</td></tr>
+        <tr><td>Chuyển khoản</td><td class="so">1.450.000</td><td class="so">0</td><td class="so">1.450.000</td><td>Vietcombank 0123456789</td></tr>
+        <tr><td>Điểm</td><td class="so">150.000</td><td class="so">0</td><td class="so">150.000</td><td>Không vào quỹ</td></tr>
+      </tbody>
+    </table>
+    <div class="luoi-2">
+      <div style="display:grid;gap:var(--khoang-2)">
+        <div class="dong"><span>Tiền đầu ca</span><span>1.500.000</span></div>
+        <div class="dong"><span>Tiền mặt thực thu</span><span>1.982.000</span></div>
+        <div class="dong"><strong>Tiền mặt hệ thống tính</strong><strong>3.482.000</strong></div>
+        <label class="truong">Tiền mặt đếm được<input value="3.470.000"></label>
+        <div class="dong"><strong>Lệch</strong><span class="nhan loi">Thiếu 12.000</span></div>
+        <label class="truong">Lý do lệch<textarea rows="2">Trả nhầm tiền thừa một khách</textarea></label>
+      </div>
+      <div>
+        <h3>Đếm theo mệnh giá (không bắt buộc)</h3>
+        <table>
+          <thead><tr><th>Mệnh giá</th><th class="so">Số tờ</th><th class="so">Thành tiền</th></tr></thead>
+          <tbody>
+            <tr><td>500.000</td><td class="so">4</td><td class="so">2.000.000</td></tr>
+            <tr><td>200.000</td><td class="so">5</td><td class="so">1.000.000</td></tr>
+            <tr><td>100.000</td><td class="so">3</td><td class="so">300.000</td></tr>
+            <tr><td>50.000</td><td class="so">2</td><td class="so">100.000</td></tr>
+            <tr><td>10.000 và nhỏ hơn</td><td class="so"></td><td class="so">70.000</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="khoi thong-tin">Khi đóng ca, hệ thống lập và ghi sổ: phiếu thu bán lẻ 2.212.000 (quỹ tiền mặt), phiếu thu bán lẻ 1.450.000 (quỹ chuyển khoản), phiếu chi hoàn tiền 230.000 (quỹ tiền mặt), phiếu chi thiếu tiền 12.000 (phải thu Nguyễn Thị Lan, 1388).</div>
+    <div style="display:flex;gap:var(--khoang-2);flex-wrap:wrap"><button class="nut chinh" type="button">Đóng ca</button><button class="nut phu" type="button">In biên bản đóng ca</button></div>
+  </section>
+</div>
+<div class="ghi-chu-ban-mau">Bản mẫu MAN_HINH_162 · dữ liệu giả. Phần mở ca hiện ở MAN_HINH_161 khi chưa có ca.</div>
+</body>
+</html>

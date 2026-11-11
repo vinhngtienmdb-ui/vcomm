@@ -12,7 +12,7 @@ import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
-import { checkingOnOrderLine, PurchaseOrdersService, receivedOnOrderLine } from "../purchasing/orders.service";
+import { accountingRate, checkingOnOrderLine, PurchaseOrdersService, receivedOnOrderLine } from "../purchasing/orders.service";
 import { readSettings } from "../purchasing/supplier-prices.service";
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { inventoryAudit, inventoryPermissions } from "./inventory-context";
@@ -207,12 +207,16 @@ export class PurchaseReceiptsService {
         const order = await this.order(transaction, row.source_id!, true);
         if (order.status !== "approved") throw new ApiError("BUSINESS_RULE", "purchaseOrderNotOpen");
         orderId = order.id;
+        await this.applyExchangeRate(transaction, id, order);
         fields = await this.receivableErrors(
           transaction,
           order,
           lines.map((line) => ({ orderLineId: line.source_line_id!, baseQuantity: Number(line.base_quantity) })),
         );
       } else {
+        // Trả hàng theo đơn ngoại tệ: tiền tệ, tỷ giá theo phiếu nhập gốc (QUYTAC_NGHIEPVU_286).
+        await transaction.execute(sql`
+          UPDATE inventory.documents r SET currency = i.currency, exchange_rate = i.exchange_rate FROM inventory.documents i WHERE r.id = ${id} AND i.id = r.source_id`);
         fields = await this.returnableErrors(
           transaction,
           lines.map((line) => ({ receiptLineId: line.source_line_id!, baseQuantity: Math.abs(Number(line.base_quantity)) })),
@@ -276,6 +280,17 @@ export class PurchaseReceiptsService {
       await this.auditService.record({ ...inventoryAudit(actor, "stock_document"), companyId: row.company_id, action: "stock_document.quality_check", entityId: id, afterData: input }, transaction);
     });
     return this.documents.detail(actor, id);
+  }
+
+  // Đơn ngoại tệ: lấy tỷ giá hạch toán ngày phiếu, lưu trên phiếu, quy đổi giá nhập sang tiền tệ công ty trước khi ghi sổ (QUYTAC_NGHIEPVU_286).
+  private async applyExchangeRate(transaction: Executor, documentId: string, order: OrderRow): Promise<void> {
+    const document = (await transaction.execute<{ document_date: string }>(sql`SELECT document_date::text FROM inventory.documents WHERE id = ${documentId}`)).rows[0]!;
+    const currency = (await transaction.execute<{ currency: string }>(sql`SELECT currency FROM purchasing.orders WHERE id = ${order.id}`)).rows[0]!.currency;
+    const rate = await accountingRate(transaction, order.company_id, currency, document.document_date);
+    if (rate === null) throw new ApiError("BUSINESS_RULE", "exchangeRateMissing");
+    if (rate === "1") return;
+    await transaction.execute(sql`UPDATE inventory.documents SET currency = ${currency}, exchange_rate = ${rate}::numeric WHERE id = ${documentId}`);
+    await transaction.execute(sql`UPDATE inventory.document_lines SET unit_cost = round(unit_cost * ${rate}::numeric, 4) WHERE document_id = ${documentId} AND unit_cost IS NOT NULL`);
   }
 
   private async receiptInput(order: OrderRow, input: ReceiptInput): Promise<{ documentInput: DocumentInput; sourceLines: string[] }> {

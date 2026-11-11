@@ -4,7 +4,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import {
   officeCommentSchema,
   officeFileMaximumBytes,
-  postListQuerySchema,
+  officePostListQuerySchema,
   postRevokeSchema,
   savePostSchema,
   type PageResponse,
@@ -43,7 +43,7 @@ export class OfficePostsController {
 
   @Get("posts")
   async list(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<PageResponse<PostListItem>> {
-    return this.posts.list(await this.actor(request, companyId), postListQuerySchema.parse(query));
+    return this.posts.list(await this.actor(request, companyId), officePostListQuerySchema.parse(query));
   }
 
   @Post("posts")

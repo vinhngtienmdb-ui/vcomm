@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_161 Bán hàng tại quầy – VComm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="ban_le.css">
+</head>
+<body>
+<div class="quay">
+  <header class="thanh-tren">
+    <span class="logo">VComm</span>
+    <span>Bán lẻ · <strong>Cửa hàng Thủ Đức</strong> · Quầy Q01</span>
+    <span class="trang-thai-mang">● Có mạng</span>
+    <span class="gian"></span>
+    <span>Thu ngân: Nguyễn Thị Lan · Ca mở 07:58</span>
+    <button type="button">Hóa đơn bán lẻ</button>
+    <a href="MAN_HINH_164_TRA_HANG.html">Trả hàng</a>
+    <a href="MAN_HINH_162_MO_DONG_CA.html#dong-ca">Đóng ca</a>
+  </header>
+
+  <main class="quay-than">
+    <section class="cot-gio">
+      <div class="the o-quet">
+        <input autofocus placeholder="Quét mã vạch hoặc gõ mã, tên hàng rồi nhấn Enter" aria-label="Quét mã vạch hoặc tìm hàng">
+        <button class="nut phu" type="button">Tìm hàng</button>
+      </div>
+      <div class="the bang-gio">
+        <table>
+          <thead><tr><th>#</th><th>Hàng</th><th>Đơn vị</th><th class="so">Số lượng</th><th class="so">Đơn giá</th><th class="so">Giảm tay</th><th class="so">Thành tiền</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Sữa tươi tiệt trùng VinaMilk 1L<div class="chu-phu">8934673001234 · <span class="nhan thong-tin">Giảm 10% – CTKM Tuần lễ sữa</span></div></td><td>Hộp</td>
+              <td class="so"><span class="so-luong"><button type="button" aria-label="Giảm">−</button><input value="3" aria-label="Số lượng"><button type="button" aria-label="Tăng">+</button></span></td>
+              <td class="so">32.000<div class="chu-phu">28.800 sau giảm</div></td><td class="so">0%</td><td class="so">86.400</td><td><button class="nut chu" type="button" aria-label="Xóa dòng">✕</button></td></tr>
+            <tr class="chon"><td>2</td><td>Gạo ST25 túi 5kg<div class="chu-phu">8936012345678</div></td><td>Túi</td>
+              <td class="so"><span class="so-luong"><button type="button" aria-label="Giảm">−</button><input value="1" aria-label="Số lượng"><button type="button" aria-label="Tăng">+</button></span></td>
+              <td class="so">185.000</td><td class="so">5%<div class="chu-phu">tối đa 10%</div></td><td class="so">175.750</td><td><button class="nut chu" type="button" aria-label="Xóa dòng">✕</button></td></tr>
+            <tr><td>3</td><td>Nước rửa chén 750ml<div class="chu-phu"><span class="nhan thanh-cong">Hàng tặng – Mua 2 gạo tặng 1</span></div></td><td>Chai</td>
+              <td class="so">1</td><td class="so">0</td><td class="so">—</td><td class="so">0</td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="chu-phu">Dòng đang chọn: Gạo ST25. <span class="phim">F4</span> giảm tay · <span class="phim">Delete</span> xóa dòng · <span class="phim">+</span>/<span class="phim">−</span> số lượng</p>
+      </div>
+    </section>
+
+    <aside class="cot-phai">
+      <div class="the" style="display:grid;gap:var(--khoang-2)">
+        <h3>Khách</h3>
+        <div class="dong"><span><strong>Trần Văn Minh</strong> · 090****321<br><span class="chu-phu">Tài khoản VComm · Hạng Bạc · 12.500 điểm</span></span><button class="nut chu" type="button">Bỏ</button></div>
+        <button class="nut chu" type="button" style="justify-self:start">Thông tin người mua lấy hóa đơn <span class="phim">F2</span></button>
+      </div>
+      <div class="the" style="display:grid;gap:var(--khoang-2)">
+        <div class="dong"><span>Tiền hàng (3 mặt hàng, 5 đơn vị)</span><span>281.000</span></div>
+        <div class="dong"><span>Khuyến mãi</span><span>−9.600</span></div>
+        <div class="dong"><span>Giảm tay</span><span>−9.250</span></div>
+        <div class="dong chu-phu"><span>Trong đó thuế giá trị gia tăng</span><span>19.419</span></div>
+        <hr style="border:0;border-top:1px solid var(--mau-vien);width:100%">
+        <div class="dong"><span class="tong">Phải trả</span><span class="tong">262.150</span></div>
+      </div>
+      <button class="nut chinh lon" type="button" onclick="document.getElementById('thanh-toan').hidden=false">Thanh toán <span class="phim">F9</span></button>
+      <div class="khoi thong-tin">Ca đang mở từ 07:58 · 23 hóa đơn · Tiền mặt trong két dự tính 3.482.000</div>
+    </aside>
+  </main>
+</div>
+
+<div class="lop-phu" id="thanh-toan" hidden>
+  <div class="hop-thoai" role="dialog" aria-labelledby="tieu-de-tt">
+    <div class="dong"><h2 id="tieu-de-tt">Thanh toán · 262.150</h2><button class="nut chu" type="button" onclick="document.getElementById('thanh-toan').hidden=true">Đóng <span class="phim">Esc</span></button></div>
+    <div class="phuong-thuc">
+      <strong>Điểm</strong><label class="truong"><input value="50.000" aria-label="Số tiền trả bằng điểm"><span class="chu-phu">Dùng 5.000 điểm · khả dụng 12.500 điểm</span></label><button class="nut chu" type="button">Bỏ</button>
+      <strong>Chuyển khoản</strong><label class="truong"><input value="100.000" aria-label="Số tiền chuyển khoản"></label><button class="nut chu" type="button">Bỏ</button>
+      <strong>Tiền mặt</strong><label class="truong"><input value="120.000" aria-label="Tiền khách đưa"></label><span></span>
+    </div>
+    <div class="menh-gia" aria-label="Gợi ý tiền khách đưa"><button type="button">112.150</button><button type="button">120.000</button><button type="button">150.000</button><button type="button">200.000</button><button type="button">500.000</button></div>
+    <div class="luoi-2">
+      <div style="display:grid;gap:var(--khoang-2);justify-items:start">
+        <div class="qr" role="img" aria-label="Mã VietQR"><span>VietQR</span></div>
+        <span class="chu-phu">Vietcombank · 0123456789 · CONG TY VCR<br>Số tiền 100.000 · Nội dung BL2611-000124</span>
+      </div>
+      <div style="display:grid;gap:var(--khoang-3);align-content:start">
+        <label class="truong">Mã giao dịch ngân hàng (không bắt buộc)<input placeholder="Ví dụ FT2631512345"></label>
+        <label style="display:flex;gap:var(--khoang-2);align-items:center"><input type="checkbox" checked> Đã nhận chuyển khoản 100.000</label>
+        <div class="dong"><span>Khách đưa</span><span>270.000</span></div>
+        <div class="dong"><span class="tong">Tiền thừa</span><span class="tong">7.850</span></div>
+      </div>
+    </div>
+    <div class="khoi canh-bao">Giá hoặc khuyến mãi đã thay đổi từ lúc thêm hàng thì hệ thống báo tổng mới, cần xác nhận lại.</div>
+    <button class="nut chinh lon" type="button">Xác nhận thanh toán <span class="phim">Enter</span></button>
+  </div>
+</div>
+
+<div class="ghi-chu-ban-mau">Bản mẫu MAN_HINH_161 · dữ liệu giả. Bấm "Thanh toán" để xem hộp thoại. Sau khi ghi: hiện số hóa đơn, nút "In hóa đơn" (MAN_HINH_167), "Đơn mới".</div>
+</body>
+</html>

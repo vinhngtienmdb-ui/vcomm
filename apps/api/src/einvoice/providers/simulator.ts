@@ -37,7 +37,7 @@ export class SimulatorProvider implements EinvoiceProviderAdapter {
     if (existing) return { outcome: existing.outcome, invoiceNo: existing.invoiceNo, taxAuthorityCode: existing.taxAuthorityCode, transactionId: invoice.referenceId };
     if (config.simulation === "data_error") return { outcome: "data_error", errorCode: "InvalidData", message: "Dữ liệu hóa đơn không hợp lệ (giả lập)." };
     if (config.simulation === "temporary_error" && calls === 1) return { outcome: "temporary_error", errorCode: "ServiceUnavailable", message: "Nhà cung cấp tạm thời không phản hồi (giả lập)." };
-    const invoiceNo = await this.nextNumber(config, invoice.series);
+    const invoiceNo = invoice.invoiceNo ?? (await this.nextNumber(config, invoice.series));
     const code = config.withTaxCode ? `M${invoice.series.slice(1, 3)}-${randomBytes(6).toString("hex").toUpperCase()}` : null;
     if (config.simulation === "rejected") {
       this.received.set(key, { invoiceNo, taxAuthorityCode: null, outcome: "rejected", statusChecks: 0 });

@@ -183,6 +183,27 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_53 (lát L0 đến L5)
+
+- Phạm vi: Bán lẻ tại quầy phần 1, nhánh `chuc-nang/CONG_VIEC_53-ban-le-tai-quay` (pull request #100, commit `f500d84`, đã hợp nhất main 0.4.0).
+- Kết quả: `c53-retail-setup` 8/8 (KICHBAN_KIEMTHU_510, 511, 516), `c53-retail-sales` 9/9 (512 đến 516), `c53-retail-returns` 5/5 (517), `c53-retail-einvoice` 7/7 (518) đạt; KICHBAN_KIEMTHU_519 (điểm) chưa chạy, thuộc L6; 520, 521 (giao diện, in) kiểm tra bằng ảnh xem trước L1 đến L5, đạt. Hồi quy toàn API 89 tệp, 510/510 đạt. Kiểm tra kiểu api, web-platform, web-retail, web-finance, web-hr, web-analytics, web-sales đạt; khóa dịch khớp.
+- Kiểm tra bảo mật: `pnpm audit` 2 lỗ hổng Trung bình ở mobile-vcomm (đã chấp nhận, không thuộc công việc); gitleaks không có phát hiện.
+- Kết luận cổng kiểm thử: Đạt cho L0 đến L5. Người dùng nghiệm thu 2026-11-12.
+
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_45
+
+- Phạm vi: nhập khẩu và phân bổ chi phí mua hàng, lát L0 đến L2, nhánh `chuc-nang/CONG_VIEC_45-nhap-khau` (pull request #85, head `322d283`, đã hợp nhất main 0.4.0).
+- Kết quả: KICHBAN_KIEMTHU_428 đến 433 Đạt (`c45-imports.test.ts` 6/6); hồi quy toàn bộ API 86 tệp, 487/487 đạt. Một lần chạy trước hợp nhất gặp LOI_08 (có sẵn), chạy lại đạt.
+- Kiểm tra bảo mật: không thêm thư viện; CI quét bảo mật (gitleaks, `pnpm audit`) đạt.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
+## Lần kiểm thử 2026-11-12 – Phát hành 0.5.0
+
+- Phạm vi: nhánh `phat-hanh/v0.5.0` gộp CONG_VIEC_54, 51, 49, 45, 53 (lát L0 đến L5); LOI_08; THAY_DOI_22 đến 25 (pull request #121 thay pull request nháp #117, commit hợp nhất `b1cc147`).
+- Gộp: công thức tiền người mua phải trả ghép theo đặc tả CONG_VIEC_51 mục 19 (trừ điểm trước, rồi ví mua sắm; đơn mua chung không dùng điểm); database migration 0101 đặt lại ràng buộc nguồn bút toán bằng hợp mọi nguồn; đánh lại số mục trùng ở tài liệu 08, 12, 14, 16, 17, 27.
+- Kết quả: kiểm tra kiểu 17/17, lint đạt, khóa dịch khớp; toàn bộ kiểm thử API 101 tệp, 549/549 đạt (một tiến trình); CI pull request #121 (kiểm tra kiểu, lint, kiểm thử, quét bảo mật) đạt. Phiên cha kiểm lại: đủ đầu nhánh của 5 pull request công việc, không trùng số database migration.
+- Kết luận: Đạt; tag `v0.5.0` gắn tự động sau CI trên `main`.
+
 ## Lần kiểm thử 2026-11-12 – Phát hành 0.4.0
 
 - Phạm vi: nhánh `phat-hanh/v0.4.0` gộp CONG_VIEC_28 đến 42, 44, 46, 47, 48, 50; LOI_06, LOI_07; THAY_DOI_20, 21 (pull request #112, commit hợp nhất `fcf9ab5`).
@@ -206,7 +227,7 @@
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_311 đến 319, 367 – Đạt (tự động). TIEUCHI_NGHIEMTHU_320 (giao diện) – Đạt qua xem trước, người dùng duyệt L1, L2, L3.
 - Kiểm tra bảo mật phần B, C: không thêm phụ thuộc mới; gitleaks không có phát hiện (khóa ký VNPAY giả của kiểm thử thêm vào `.github/gitleaksignore` theo tiền lệ CONG_VIEC_25); phân quyền: API quản trị bằng người không có quyền trả 403, thao tác trên nội dung của người khác trả 404; dữ liệu độc hại: ảnh kiểm theo nội dung tệp, nội dung giới hạn độ dài, trường thừa trả 400, từ cấm không phân biệt hoa thường và dấu; số dư ví đổi trong giao dịch khóa dòng ví.
 - Lỗi phát hiện: "hiện lại, bỏ qua báo cáo" với nội dung đang hiện trả 409 – đã sửa trong công việc (commit `cdecf24`), thêm bước vào KICHBAN_KIEMTHU_475.
-- Kết luận cổng kiểm thử: Đạt, chờ người dùng nghiệm thu.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
 
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_51
 
@@ -556,3 +577,4 @@
 | LOI_05 | Bước chuẩn bị của tệp kiểm thử API (dựng lại cơ sở dữ liệu thử, chạy toàn bộ database migration) đôi khi vượt giới hạn mặc định 10 giây trên CI, cả tệp bị bỏ qua (`l8-settings` trên pull request số 40, commit chỉ có tài liệu; một lần ở máy phát triển khi làm CONG_VIEC_08) | Thấp | Toàn bộ kiểm thử tự động | Nâng giới hạn thời gian bước chuẩn bị lên 60 giây, không đổi nội dung kiểm thử; đã sửa (pull request số 46, 186/186 đạt), chờ nghiệm thu | Đã sửa |
 | LOI_06 | Dòng thời gian đơn VComm: hai sự kiện ghi trong cùng giao dịch cơ sở dữ liệu (ví dụ Đã giao và Đã thanh toán khi ghi đã thu COD) có cùng thời điểm (`now()` là thời điểm bắt đầu giao dịch), sắp xếp phụ theo uuid ngẫu nhiên nên hiển thị đảo thứ tự; phát hiện khi CI pull request #82 thất bại không đều ở KICHBAN_KIEMTHU_345. Có từ phát hành 0.3.0 | Thấp | KICHBAN_KIEMTHU_345 | Sửa: ghi `created_at = clock_timestamp()` khi thêm sự kiện (commit `1c9a57b` trên nhánh `gop/giao-van`, pull request #82); phát hành cùng đơn vị vận chuyển | Đã sửa, đã phát hành v0.4.0 |
 | LOI_07 | Ghi đã trả lương (CONG_VIEC_48): ngày duyệt bảng lương ghi theo đồng hồ cơ sở dữ liệu (`now()`), còn ngày hôm nay so sánh theo đồng hồ ứng dụng; khi hai đồng hồ khác ngày (kiểm thử cố định đồng hồ, chạy sau nửa đêm giờ Việt Nam) thì ngày trả hợp lệ bị báo sai. Phát hiện khi chạy toàn bộ kiểm thử nhánh phát hành 0.4.0 ở KICHBAN_KIEMTHU_461. Chưa phát hành | Thấp | KICHBAN_KIEMTHU_461 | Sửa: ghi `approved_at` theo đồng hồ ứng dụng trên nhánh `phat-hanh/v0.4.0` | Đã sửa, đã phát hành v0.4.0 |
+| LOI_08 | KICHBAN_KIEMTHU_167 (`c7-purchasing.test.ts`) lỗi không đều: nhật ký thao tác sắp theo `occurred_at`, hai thao tác `purchase_order.update` và `purchase_order.submit` ghi trong cùng giao dịch có cùng `now()` nên thứ tự đôi khi đảo. Phát hiện khi CONG_VIEC_45 chạy toàn bộ kiểm thử (339/340, chạy lại đạt). Có sẵn trên main, không do nhánh mới | Thấp | KICHBAN_KIEMTHU_167 | Sửa: AuditService ghi thời điểm bằng `clock_timestamp()` (nhánh `phat-hanh/v0.5.0`) | Đã sửa, đã phát hành v0.5.0 |

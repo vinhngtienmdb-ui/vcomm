@@ -118,6 +118,29 @@ export class StockLedgerService {
     return { value: signedValue, serialIds };
   }
 
+  // Điều chỉnh giá trị tồn không đổi số lượng (CONG_VIEC_45; QUYTAC_NGHIEPVU_291): cộng vào giá trị, tính lại giá vốn bình quân;
+  // hàng serial cộng vào giá đích danh từng serial; thẻ kho ghi một dòng số lượng 0.
+  async adjustValue(
+    transaction: Executor,
+    entry: { warehouseId: string; companyId: string; variantId: string; value: string; serialShares?: { serialId: string; value: string }[]; documentId: string; lineId: string },
+  ): Promise<void> {
+    await this.checkStocktakeLock(transaction, { ...entry, lotId: null, locationId: null, quantity: "0" });
+    const cost = (
+      await transaction.execute<{ quantity: string }>(sql`
+      SELECT quantity::text FROM inventory.costs WHERE warehouse_id = ${entry.warehouseId} AND company_id = ${entry.companyId} AND variant_id = ${entry.variantId} FOR UPDATE`)
+    ).rows[0];
+    if (!cost || Number(cost.quantity) <= 0) throw new ApiError("BUSINESS_RULE", "insufficientStock");
+    for (const share of entry.serialShares ?? []) {
+      await transaction.execute(sql`UPDATE inventory.serials SET unit_cost = unit_cost + ${share.value}::numeric, updated_at = now() WHERE id = ${share.serialId} AND status = 'in_stock'`);
+    }
+    await transaction.execute(sql`
+      UPDATE inventory.costs SET value = value + ${entry.value}::numeric, average_cost = round((value + ${entry.value}::numeric) / quantity, 4), updated_at = now()
+      WHERE warehouse_id = ${entry.warehouseId} AND company_id = ${entry.companyId} AND variant_id = ${entry.variantId}`);
+    await transaction.execute(sql`
+      INSERT INTO inventory.movements (warehouse_id, company_id, variant_id, quantity, unit_cost, value, balance_after, document_id, line_id)
+      VALUES (${entry.warehouseId}, ${entry.companyId}, ${entry.variantId}, 0, 0, ${entry.value}::numeric, ${cost.quantity}::numeric, ${entry.documentId}, ${entry.lineId})`);
+  }
+
   // Kiểm kê đang đếm khóa mặt hàng (và vị trí) trong phạm vi (QUYTAC_NGHIEPVU_53).
   private async checkStocktakeLock(transaction: Executor, entry: LedgerEntry): Promise<void> {
     const locked = await transaction.execute(sql`

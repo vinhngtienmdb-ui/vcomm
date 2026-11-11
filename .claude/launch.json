@@ -8,6 +8,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "web-platform", "dev"],
       "port": 3000
+    },
+    {
+      "name": "web-retail",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "web-retail", "dev"],
+      "port": 3012
     }
   ]
 }
