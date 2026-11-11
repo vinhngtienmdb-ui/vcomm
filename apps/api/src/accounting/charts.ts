@@ -358,6 +358,10 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     personal_income_tax: "3335",
     other_income: "711",
     service_expense: "6427",
+    import_duty: "3333",
+    excise_tax: "3332",
+    environmental_tax: "33381",
+    import_vat: "33312",
   },
   TT133: {
     receivable: "131",
@@ -386,6 +390,10 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     personal_income_tax: "3335",
     other_income: "711",
     service_expense: "6422",
+    import_duty: "3333",
+    excise_tax: "3332",
+    environmental_tax: "3338",
+    import_vat: "33312",
   },
 };
 
@@ -416,4 +424,8 @@ export const roleDescriptions: Record<PostingRole, string> = {
   personal_income_tax: "Thuế thu nhập cá nhân khấu trừ",
   other_income: "Thu nhập khác (phí rút tiền hoa hồng)",
   service_expense: "Chi phí dịch vụ mua vào (giao dịch nội bộ dịch vụ)",
+  import_duty: "Thuế nhập khẩu (tờ khai hải quan)",
+  excise_tax: "Thuế tiêu thụ đặc biệt hàng nhập khẩu",
+  environmental_tax: "Thuế bảo vệ môi trường hàng nhập khẩu",
+  import_vat: "Thuế giá trị gia tăng hàng nhập khẩu",
 };

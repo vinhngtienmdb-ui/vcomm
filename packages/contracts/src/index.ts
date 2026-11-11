@@ -1439,7 +1439,7 @@ export interface WarehouseOptionsResponse {
 }
 
 // CONG_VIEC_05, API_64, API_65: phiếu kho, tồn kho, thẻ kho (CHUC_NANG_39, 40; QUYTAC_NGHIEPVU_47 đến 51).
-export const stockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer", "purchase_receipt", "purchase_return", "sales_issue", "sales_return"] as const;
+export const stockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer", "purchase_receipt", "purchase_return", "sales_issue", "sales_return", "cost_adjustment"] as const;
 // Loại phiếu lập tay ở màn hình phiếu kho; phiếu nhập mua, trả hàng nhà cung cấp lập từ đơn mua, phiếu nhập mua (CONG_VIEC_07).
 export const manualStockDocumentTypes = ["receipt_other", "issue_other", "adjustment", "transfer"] as const;
 export type StockDocumentType = (typeof stockDocumentTypes)[number];
@@ -1455,6 +1455,7 @@ export const stockReasonCodes = {
   purchase_return: ["purchase_return"],
   sales_issue: ["sale"],
   sales_return: ["sales_return"],
+  cost_adjustment: ["import_cost"],
 } as const satisfies Record<StockDocumentType, readonly string[]>;
 export type StockReasonCode = (typeof stockReasonCodes)[StockDocumentType][number];
 const signedDecimal = z.union([z.number(), z.string()]).transform((value, context) => {
@@ -2317,6 +2318,133 @@ export const closePurchaseOrderSchema = z.object({ reason: z.string().trim().min
 // CONG_VIEC_09, API_80, API_81: xác nhận (chọn kho), từ chối chứng từ đối ứng nội bộ.
 export const confirmCounterpartSchema = z.object({ warehouseId: z.uuid(), version: z.number().int().positive() }).strict();
 export const rejectCounterpartSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().positive() }).strict();
+
+// CONG_VIEC_45, API_140, API_141: tờ khai hải quan nhập khẩu (CHUC_NANG_160; QUYTAC_NGHIEPVU_287, 288, 291).
+export const importDeclarationStatuses = ["draft", "posted", "cancelled"] as const;
+export type ImportDeclarationStatus = (typeof importDeclarationStatuses)[number];
+const taxPercent = z
+  .union([z.number(), z.string()])
+  .transform((value) => String(value).trim().replace(",", "."))
+  .pipe(
+    z
+      .string()
+      .regex(/^\d{1,3}(\.\d{1,4})?$/)
+      .refine((value) => Number(value) <= 100, "invalidValue"),
+  );
+export const saveImportDeclarationSchema = z
+  .object({
+    orderId: z.uuid(),
+    declarationNo: z.string().trim().min(1).max(50),
+    registeredOn: isoDate,
+    postingDate: isoDate,
+    customsRate: rateValue.refine((value) => Number(value) > 0, "invalidValue"),
+    note: blankToNull(1000),
+    lines: z
+      .array(
+        z
+          .object({
+            orderLineId: z.uuid(),
+            quantity: positiveQuantity,
+            customsValue: requiredMoney,
+            importDutyRate: taxPercent.default("0"),
+            // Trống: lấy số gợi ý; có số khác gợi ý thì đánh dấu đã sửa.
+            importDuty: requiredMoney.nullable().optional(),
+            exciseTax: requiredMoney.default("0"),
+            environmentalTax: requiredMoney.default("0"),
+            vatRate: taxPercent.default("0"),
+            vatAmount: requiredMoney.nullable().optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveImportDeclarationRequest = z.input<typeof saveImportDeclarationSchema>;
+export const importDeclarationListQuerySchema = z
+  .object({
+    status: z.enum(importDeclarationStatuses).optional(),
+    orderId: z.uuid().optional(),
+    search: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export const postImportDeclarationSchema = z.object({ version: z.number().int().positive() }).strict();
+export interface ImportDeclarationListItem {
+  id: string;
+  declarationNo: string;
+  registeredOn: string;
+  postingDate: string;
+  orderId: string;
+  orderNo: string | null;
+  supplierName: string;
+  currency: string;
+  customsValue: string;
+  customsValueConverted: string;
+  totalTax: string;
+  status: ImportDeclarationStatus;
+}
+export interface ImportDeclarationLineResponse {
+  id: string;
+  lineNo: number;
+  orderLineId: string;
+  sku: string;
+  productName: string;
+  unitName: string;
+  quantity: string;
+  baseQuantity: string;
+  customsValue: string;
+  customsValueConverted: string;
+  importDutyRate: string;
+  importDuty: string;
+  suggestedImportDuty: string;
+  importDutyEdited: boolean;
+  exciseTax: string;
+  environmentalTax: string;
+  vatRate: string;
+  vatAmount: string;
+  suggestedVatAmount: string;
+  vatEdited: boolean;
+  // Sau ghi sổ: thuế (nhập khẩu, tiêu thụ đặc biệt, bảo vệ môi trường) vào giá trị tồn kho, vào giá vốn hàng bán.
+  stockValue: string | null;
+  expensedValue: string | null;
+}
+export interface ImportDeclarationResponse extends ImportDeclarationListItem {
+  warehouseName: string;
+  customsRate: string;
+  note: string | null;
+  companyCurrency: string;
+  lines: ImportDeclarationLineResponse[];
+  version: number;
+  canEdit: boolean;
+  canPost: boolean;
+}
+// Dòng đơn mua nhập khẩu còn khai được: số đặt, đã khai trên tờ khai chưa hủy, đã nhận (đơn vị cơ sở).
+export interface ImportOrderLineOption {
+  orderLineId: string;
+  sku: string;
+  productName: string;
+  unitName: string;
+  factor: string;
+  quantity: string;
+  unitPrice: string;
+  orderedBaseQuantity: string;
+  declaredBaseQuantity: string;
+  receivedBaseQuantity: string;
+}
+export interface ImportOrderOption {
+  id: string;
+  documentNo: string;
+  supplierName: string;
+  currency: string;
+  lines: ImportOrderLineOption[];
+}
+// Xem trước phân bổ: theo dòng tờ khai, phần vào tồn, phần vào giá vốn hàng bán tại lúc xem.
+export interface ImportAllocationPreview {
+  lines: { orderLineId: string; sku: string; productName: string; amount: string; onHand: string; baseQuantity: string; stockValue: string; expensedValue: string }[];
+}
 
 // CONG_VIEC_07, API_76: phiếu nhập mua theo đơn mua, kết quả kiểm tra chất lượng, phiếu trả hàng nhà cung cấp (CHUC_NANG_52, 53; QUYTAC_NGHIEPVU_64 đến 66).
 const serialList = z.array(z.string().trim().min(1).max(100)).max(1000).default([]);

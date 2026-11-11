@@ -7,6 +7,8 @@ import { AppShell } from "ui/components/AppShell";
 
 export const purchasingMenu = [
   { href: "/orders", key: "orders", permission: "purchasing.order.view" },
+  // CONG_VIEC_45: MAN_HINH_110, MAN_HINH_112.
+  { href: "/import-declarations", key: "importDeclarations", permission: "purchasing.import.view" },
   { href: "/requisitions", key: "requisitions", permission: "purchasing.requisition.create" },
   { href: "/supplier-prices", key: "supplierPrices", permission: "purchasing.access" },
 ] as const;

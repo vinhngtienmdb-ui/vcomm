@@ -47,6 +47,7 @@ export const documentTypeCodes: Record<StockDocumentType, string> = {
   purchase_return: "inventory.purchase_return",
   sales_issue: "inventory.sales_issue",
   sales_return: "inventory.sales_return",
+  cost_adjustment: "inventory.cost_adjustment",
 };
 export const prefixes: Record<StockDocumentType, string> = {
   receipt_other: "NK",
@@ -57,11 +58,13 @@ export const prefixes: Record<StockDocumentType, string> = {
   purchase_return: "TNCC",
   sales_issue: "XBH",
   sales_return: "NTL",
+  // Phiếu điều chỉnh giá trị (CONG_VIEC_45): số phiếu theo số chứng từ nguồn, không dùng dãy số.
+  cost_adjustment: "DCGT",
 };
 // Phiếu có chứng từ gốc của Mua hàng (CONG_VIEC_07), Bán hàng (CONG_VIEC_08): lập, gửi qua PurchaseReceiptsService, SalesDeliveriesService.
 export const purchaseTypes: StockDocumentType[] = ["purchase_receipt", "purchase_return"];
 export const salesTypes: StockDocumentType[] = ["sales_issue", "sales_return"];
-export const sourcedTypes: StockDocumentType[] = ["purchase_receipt", "purchase_return", "sales_issue", "sales_return"];
+export const sourcedTypes: StockDocumentType[] = ["purchase_receipt", "purchase_return", "sales_issue", "sales_return", "cost_adjustment"];
 
 type VariantInfo = {
   id: string;

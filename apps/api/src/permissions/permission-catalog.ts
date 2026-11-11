@@ -87,6 +87,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "purchasing.order.view", appCode: "purchasing", nameVi: "Xem đơn mua", nameEn: "View purchase orders", isSensitive: false },
   { code: "purchasing.order.manage", appCode: "purchasing", nameVi: "Lập, sửa, đóng đơn mua", nameEn: "Manage purchase orders", isSensitive: false },
   { code: "purchasing.settings.manage", appCode: "purchasing", nameVi: "Cài đặt mua hàng", nameEn: "Manage purchasing settings", isSensitive: false },
+  // CONG_VIEC_45: tờ khai, chi phí nhập khẩu.
+  { code: "purchasing.import.view", appCode: "purchasing", nameVi: "Xem tờ khai, chi phí nhập khẩu", nameEn: "View import declarations and landed costs", isSensitive: false },
+  { code: "purchasing.import.manage", appCode: "purchasing", nameVi: "Lập, ghi sổ tờ khai, chi phí nhập khẩu", nameEn: "Manage import declarations and landed costs", isSensitive: false },
   // CONG_VIEC_08: Bán hàng (MODULE_05, phần 1).
   { code: "sales.order.view", appCode: "sales", nameVi: "Xem đơn bán", nameEn: "View sales orders", isSensitive: false },
   { code: "sales.order.manage", appCode: "sales", nameVi: "Lập, sửa, gửi, hủy, đóng đơn bán", nameEn: "Manage sales orders", isSensitive: false },
@@ -155,6 +158,8 @@ const companyAdminPermissions = [
   "purchasing.order.view",
   "purchasing.order.manage",
   "purchasing.settings.manage",
+  "purchasing.import.view",
+  "purchasing.import.manage",
   "sales.order.view",
   "sales.order.manage",
   "sales.settings.manage",
@@ -227,6 +232,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "purchasing.requisition.create",
       "purchasing.order.view",
       "purchasing.order.manage",
+      "purchasing.import.view",
+      "purchasing.import.manage",
       "crm.access",
       "crm.partner.view",
       "crm.partner.manage",
@@ -255,6 +262,10 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     nameVi: "Kế toán",
     nameEn: "Accountant",
     permissionCodes: [
+      // CONG_VIEC_45: tờ khai, chi phí nhập khẩu ở mini app Mua hàng.
+      "purchasing.access",
+      "purchasing.import.view",
+      "purchasing.import.manage",
       "finance.access",
       "finance.debt.view",
       "finance.fund.manage",
@@ -283,6 +294,10 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     nameVi: "Kế toán trưởng",
     nameEn: "Chief accountant",
     permissionCodes: [
+      // CONG_VIEC_45: tờ khai, chi phí nhập khẩu ở mini app Mua hàng.
+      "purchasing.access",
+      "purchasing.import.view",
+      "purchasing.import.manage",
       "finance.access",
       "finance.debt.view",
       "finance.fund.manage",

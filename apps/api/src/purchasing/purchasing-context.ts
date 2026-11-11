@@ -12,6 +12,8 @@ export const purchasingPermissions = {
   viewOrders: "purchasing.order.view",
   manageOrders: "purchasing.order.manage",
   manageSettings: "purchasing.settings.manage",
+  viewImports: "purchasing.import.view",
+  manageImports: "purchasing.import.manage",
 } as const;
 
 export type FieldErrors = Record<string, keyof Messages["errors"]>;

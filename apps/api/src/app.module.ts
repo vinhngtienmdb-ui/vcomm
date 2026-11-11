@@ -71,6 +71,9 @@ import { WithdrawalsController } from "./marketplace/withdrawals.controller";
 import { WithdrawalsService } from "./marketplace/withdrawals.service";
 import { MarketplaceCommissionsService } from "./marketplace/commissions.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
+import { PurchasingImportsController } from "./purchasing/imports.controller";
+import { ImportDeclarationsService } from "./purchasing/import-declarations.service";
+import { CostAdjustmentsService } from "./inventory/cost-adjustments.service";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
 import { InternalTradeService } from "./sales/internal-trade.service";
@@ -126,7 +129,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingImportsController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController],
   providers: [
     AuthService,
     ActivationService,
@@ -153,6 +156,8 @@ import { UsersService } from "./users/users.service";
     PriceChangesService,
     WarehousesService,
     PurchaseReceiptsService,
+    CostAdjustmentsService,
+    ImportDeclarationsService,
     SalesDeliveriesService,
     InternalReceiptsService,
     PartnersService,

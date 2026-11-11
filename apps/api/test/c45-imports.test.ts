@@ -23,6 +23,9 @@ let foreignSupplierId: string;
 let localSupplierId: string;
 let headphoneVariantId: string;
 let pieceUnitId: string;
+// Đơn USD của KICHBAN_KIEMTHU_428 (đã nhận 60, trả 10): dùng tiếp cho tờ khai.
+let importOrderId: string;
+let importOrderLineId: string;
 const retail: string = testIds.retailCompany;
 
 async function assign(email: string, name: string, role: string, branchId?: string) {
@@ -141,6 +144,8 @@ describe("TIEUCHI_NGHIEMTHU_282: đơn mua nhập khẩu bằng ngoại tệ", (
     const order = (await purchaser.call("get", `/purchasing/orders/${created.body.id}`, { companyId: retail })).body;
     expect(order.status).toBe("approved");
     const orderLineId = order.lines[0].id as string;
+    importOrderId = order.id;
+    importOrderLineId = orderLineId;
 
     // Ngày phiếu chưa có tỷ giá: không gửi được.
     const missing = await receive(order.id, orderLineId, "60", yesterday);
@@ -204,5 +209,224 @@ describe("TIEUCHI_NGHIEMTHU_282: đơn mua nhập khẩu bằng ngoại tệ", (
     expect(domestic.status, JSON.stringify(domestic.body)).toBe(201);
     expect(domestic.body).toMatchObject({ isImport: false, currency: "VND", convertedTotal: null, taxAmount: "40000" });
     expect(domestic.body.lines[0].vatRate).toBe("10");
+  });
+});
+
+const declarationBody = (extra: Record<string, unknown> = {}, line: Record<string, unknown> = {}) => ({
+  orderId: importOrderId,
+  declarationNo: "107012345670",
+  registeredOn: today,
+  postingDate: today,
+  customsRate: "25400",
+  lines: [{ orderLineId: importOrderLineId, quantity: "50", customsValue: "425", importDutyRate: "10", vatRate: "10", ...line }],
+  ...extra,
+});
+let declarationId: string;
+
+describe("TIEUCHI_NGHIEMTHU_283: tờ khai, thuế gợi ý", () => {
+  it("KICHBAN_KIEMTHU_429: thuế gợi ý theo công thức; sửa số thuế có đánh dấu; khai vượt số đặt, trùng số tờ khai bị từ chối; thủ kho không lập được", async () => {
+    expect((await keeper.call("post", "/purchasing/import-declarations", { companyId: retail, body: declarationBody() })).status).toBe(403);
+    const options = (await purchaser.call("get", "/purchasing/import-orders", { companyId: retail })).body;
+    expect(options.find((option: { id: string }) => option.id === importOrderId).lines[0]).toMatchObject({ orderedBaseQuantity: "100", declaredBaseQuantity: "0", receivedBaseQuantity: "50" });
+
+    // 425 USD × 25.400 = 10.795.000; thuế nhập khẩu 10% = 1.079.500; giá trị gia tăng 10% × (10.795.000 + 1.079.500) = 1.187.450.
+    const created = await purchaser.call("post", "/purchasing/import-declarations", { companyId: retail, body: declarationBody() });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    expect(created.body).toMatchObject({ status: "draft", currency: "USD", customsValue: "425", customsValueConverted: "10795000", canPost: true });
+    expect(created.body.lines[0]).toMatchObject({
+      baseQuantity: "50",
+      importDuty: "1079500",
+      suggestedImportDuty: "1079500",
+      importDutyEdited: false,
+      vatAmount: "1187450",
+      suggestedVatAmount: "1187450",
+      vatEdited: false,
+    });
+    declarationId = created.body.id;
+
+    // Sửa thuế nhập khẩu cho khớp tờ khai: đánh dấu đã sửa, thuế giá trị gia tăng gợi ý tính lại trên số đã sửa.
+    const edited = await purchaser.call("patch", `/purchasing/import-declarations/${declarationId}`, {
+      companyId: retail,
+      body: declarationBody({ version: created.body.version }, { importDuty: "1080000" }),
+    });
+    expect(edited.status, JSON.stringify(edited.body)).toBe(200);
+    expect(edited.body.lines[0]).toMatchObject({ importDuty: "1080000", importDutyEdited: true, suggestedImportDuty: "1079500", vatAmount: "1187500", vatEdited: false });
+
+    // Thuế suất 0: không có thuế.
+    const zero = await purchaser.call("post", "/purchasing/import-declarations", {
+      companyId: retail,
+      body: declarationBody({ declarationNo: "107012345671" }, { quantity: "1", customsValue: "8.5", importDutyRate: "0", vatRate: "0" }),
+    });
+    expect(zero.body.lines[0]).toMatchObject({ customsValueConverted: "215900", importDuty: "0", vatAmount: "0" });
+    expect((await purchaser.call("post", `/purchasing/import-declarations/${zero.body.id}/cancel`, { companyId: retail, body: { version: zero.body.version } })).body.status).toBe("cancelled");
+
+    // Đã khai 50 trên tờ khai nháp: khai thêm 60 vượt số đặt 100; trùng số tờ khai chưa hủy.
+    const over = await purchaser.call("post", "/purchasing/import-declarations", { companyId: retail, body: declarationBody({ declarationNo: "107012345672" }, { quantity: "60" }) });
+    expect(over.body.error.fields).toEqual({ "lines.0.quantity": "Vượt số lượng đặt còn khai được của dòng đơn mua." });
+    const duplicate = await purchaser.call("post", "/purchasing/import-declarations", { companyId: retail, body: declarationBody({}, { quantity: "1" }) });
+    expect(duplicate.body.error.fields).toEqual({ declarationNo: "Số tờ khai đã có trong công ty." });
+    // Đơn trong nước không lập tờ khai.
+    expect((await purchaser.call("get", "/purchasing/import-orders", { companyId: retail })).body.every((option: { currency: string }) => option.currency === "USD")).toBe(true);
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_284: ghi sổ tờ khai, phân bổ thuế vào giá vốn", () => {
+  it("KICHBAN_KIEMTHU_430: đã xuất một phần thì chia tồn và giá vốn hàng bán; chưa nhập đủ, kỳ đã khóa bị từ chối; đã ghi sổ không sửa được", async () => {
+    // Xuất dùng nội bộ 10 cái: còn tồn 40 trên 50 khai.
+    const issue = await retailAdmin.call("post", "/inventory/documents", {
+      companyId: retail,
+      body: {
+        type: "issue_other",
+        warehouseId,
+        companyId: retail,
+        documentDate: today,
+        reasonCode: "internal_use",
+        reason: "Kiểm thử",
+        lines: [{ variantId: headphoneVariantId, unitId: pieceUnitId, quantity: "10" }],
+      },
+    });
+    expect(issue.status, JSON.stringify(issue.body)).toBe(201);
+    expect((await retailAdmin.call("post", `/inventory/documents/${issue.body.id}/submit`, { companyId: retail })).body.status).toBe("posted");
+
+    const preview = (await accountant.call("get", `/purchasing/import-declarations/${declarationId}/allocation-preview`, { companyId: retail })).body;
+    expect(preview.lines[0]).toMatchObject({ amount: "1080000", onHand: "40", baseQuantity: "50", stockValue: "864000", expensedValue: "216000" });
+
+    const current = (await accountant.call("get", `/purchasing/import-declarations/${declarationId}`, { companyId: retail })).body;
+    const posted = await accountant.call("post", `/purchasing/import-declarations/${declarationId}/post`, { companyId: retail, body: { version: current.version } });
+    expect(posted.status, JSON.stringify(posted.body)).toBe(201);
+    expect(posted.body).toMatchObject({ status: "posted", canEdit: false, canPost: false });
+    expect(posted.body.lines[0]).toMatchObject({ stockValue: "864000", expensedValue: "216000" });
+
+    // Giá trị tồn: 40 × 212.500 = 8.500.000 cộng 864.000.
+    const stock = (await retailAdmin.call("get", `/inventory/stock?warehouseId=${warehouseId}&onlyInStock=false&search=Tai nghe không dây`, { companyId: retail })).body.data[0];
+    expect(stock).toMatchObject({ onHand: "40", value: "9364000", averageCost: "234100" });
+    expect(await entries(declarationId)).toEqual([
+      ["156", "864000", "0"],
+      ["632", "216000", "0"],
+      ["3333", "0", "1080000"],
+      ["1331", "1187500", "0"],
+      ["33312", "0", "1187500"],
+    ]);
+    // Thẻ kho: dòng điều chỉnh giá trị số lượng 0.
+    const movement = (
+      await pool.query("SELECT m.quantity::text, m.value::text FROM inventory.movements m JOIN inventory.documents d ON d.id = m.document_id WHERE d.type = 'cost_adjustment' AND d.source_id = $1", [
+        declarationId,
+      ])
+    ).rows;
+    expect(movement).toEqual([{ quantity: "0.0000", value: "864000.0000" }]);
+
+    // Đã ghi sổ: không sửa, không ghi sổ lại.
+    const locked = await accountant.call("patch", `/purchasing/import-declarations/${declarationId}`, { companyId: retail, body: declarationBody({ version: posted.body.version }) });
+    expect(locked.status).toBe(409);
+
+    // Tờ khai thứ hai 30 cái: kỳ tháng 10 đã khóa thì từ chối; ngày hôm nay thì chưa nhập đủ (đã ghi sổ 50 trên nhận 50).
+    const second = await accountant.call("post", "/purchasing/import-declarations", {
+      companyId: retail,
+      body: declarationBody({ declarationNo: "107012349999", postingDate: "2026-10-31" }, { quantity: "30" }),
+    });
+    expect(second.status, JSON.stringify(second.body)).toBe(201);
+    // Kế toán khởi tạo trong tháng hiện tại nên không khóa tháng 10 qua API được: đặt ngày khóa sổ trực tiếp.
+    await pool.query("UPDATE accounting.settings SET locked_through = '2026-10-31' WHERE company_id = $1", [retail]);
+    const lockedPeriod = await accountant.call("post", `/purchasing/import-declarations/${second.body.id}/post`, { companyId: retail, body: { version: second.body.version } });
+    expect(lockedPeriod.status).toBe(409);
+    expect(JSON.stringify(lockedPeriod.body)).toContain("Ngày chứng từ thuộc kỳ kế toán đã khóa sổ.");
+    const moved = await accountant.call("patch", `/purchasing/import-declarations/${second.body.id}`, {
+      companyId: retail,
+      body: declarationBody({ declarationNo: "107012349999", version: second.body.version }, { quantity: "30" }),
+    });
+    const notReceived = await accountant.call("post", `/purchasing/import-declarations/${second.body.id}/post`, { companyId: retail, body: { version: moved.body.version } });
+    expect(notReceived.body.error.fields).toEqual({ "lines.0.quantity": "Hàng của dòng chưa nhập kho đủ số lượng khai." });
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_284: hàng serial, công ty theo Thông tư 133", () => {
+  it("KICHBAN_KIEMTHU_431: serial còn trong kho nhận phần thuế đều nhau, serial đã xuất vào giá vốn hàng bán; định khoản thuế nhập khẩu theo Thông tư 133", async () => {
+    const groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
+    const category = (
+      await groupAdmin.call("post", "/catalog/categories", { companyId: retail, body: { code: "NKDT", nameVi: "Điện thoại nhập khẩu", nameEn: "Imported phones", tracksSerials: true } })
+    ).body.id;
+    const product = await retailAdmin.call("post", "/catalog/products", {
+      companyId: retail,
+      body: { categoryId: category, name: "Điện thoại nhập khẩu", vatRate: "10", tracksLots: false, tracksSerials: true, warrantyMonths: 12, baseUnitId: pieceUnitId, variants: [{ barcodes: [] }] },
+    });
+    expect(product.status, JSON.stringify(product.body)).toBe(201);
+    const phoneVariantId = product.body.variants[0].id as string;
+    const created = await purchaser.call("post", "/purchasing/orders", {
+      companyId: retail,
+      body: orderBody({ lines: [{ variantId: phoneVariantId, unitId: pieceUnitId, quantity: "3", unitPrice: "100", vatRate: "not_declared" }] }),
+    });
+    const submitted = await purchaser.call("post", `/purchasing/orders/${created.body.id}/submit`, { companyId: retail });
+    await decide(submitted.body.approvalRequestId);
+    const orderLineId = created.body.lines[0].id as string;
+    const receipt = await keeper.call("post", "/inventory/purchase-receipts", {
+      companyId: retail,
+      body: { orderId: created.body.id, documentDate: today, lines: [{ orderLineId, quantity: "3", serials: ["NK-S1", "NK-S2", "NK-S3"] }] },
+    });
+    expect((await keeper.call("post", `/inventory/documents/${receipt.body.id}/submit`, { companyId: retail })).body.status).toBe("posted");
+    // Xuất một serial: 2 trên 3 serial còn trong kho.
+    const issue = await retailAdmin.call("post", "/inventory/documents", {
+      companyId: retail,
+      body: {
+        type: "issue_other",
+        warehouseId,
+        companyId: retail,
+        documentDate: today,
+        reasonCode: "internal_use",
+        reason: "Kiểm thử",
+        lines: [{ variantId: phoneVariantId, unitId: pieceUnitId, quantity: "1", serials: ["NK-S3"] }],
+      },
+    });
+    expect(issue.status, JSON.stringify(issue.body)).toBe(201);
+    expect((await retailAdmin.call("post", `/inventory/documents/${issue.body.id}/submit`, { companyId: retail })).body.status).toBe("posted");
+
+    // 300 USD × 25.400 = 7.620.000; thuế nhập khẩu 10% = 762.000: 2/3 vào tồn (508.000, mỗi serial 254.000), 1/3 vào giá vốn hàng bán.
+    const declaration = await accountant.call("post", "/purchasing/import-declarations", {
+      companyId: retail,
+      body: { ...declarationBody({ orderId: created.body.id, declarationNo: "107099990001" }), lines: [{ orderLineId, quantity: "3", customsValue: "300", importDutyRate: "10", vatRate: "10" }] },
+    });
+    expect(declaration.status, JSON.stringify(declaration.body)).toBe(201);
+    const posted = await accountant.call("post", `/purchasing/import-declarations/${declaration.body.id}/post`, { companyId: retail, body: { version: declaration.body.version } });
+    expect(posted.status, JSON.stringify(posted.body)).toBe(201);
+    expect(posted.body.lines[0]).toMatchObject({ importDuty: "762000", stockValue: "508000", expensedValue: "254000" });
+    const serials = (await pool.query("SELECT serial_no, status, unit_cost::text FROM inventory.serials WHERE serial_no LIKE 'NK-S%' ORDER BY serial_no")).rows;
+    expect(serials).toEqual([
+      { serial_no: "NK-S1", status: "in_stock", unit_cost: "2754000.0000" },
+      { serial_no: "NK-S2", status: "in_stock", unit_cost: "2754000.0000" },
+      { serial_no: "NK-S3", status: "issued", unit_cost: "2500000.0000" },
+    ]);
+    const stock = (await retailAdmin.call("get", `/inventory/stock?warehouseId=${warehouseId}&onlyInStock=false&search=Điện thoại nhập khẩu`, { companyId: retail })).body.data[0];
+    expect(stock).toMatchObject({ onHand: "2", value: "5508000" });
+
+    // Công ty theo Thông tư 133: thuế bảo vệ môi trường ghi 3338 (Thông tư 99: 33381); thuế nhập khẩu 3333, giá trị gia tăng hàng nhập khẩu 33312.
+    const trading = testIds.tradingCompany;
+    await pool.query("UPDATE core.companies SET accounting_regime = 'TT133' WHERE id = $1", [trading]);
+    const userId = await createTestUser(pool, "ketoan.vct.nhapkhau@vcomm.test", "Kế Toán VCT", [{ companyId: trading }]);
+    const roleId = (await pool.query<{ id: string }>("SELECT id FROM core.roles WHERE code = 'chief_accountant' AND company_id IS NULL")).rows[0]!.id;
+    await pool.query("INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, valid_from) VALUES ($1, $2, 'company', $3, '2026-01-01')", [userId, roleId, trading]);
+    const tradingAccountant = await signIn(application, "ketoan.vct.nhapkhau@vcomm.test");
+    expect((await tradingAccountant.call("post", "/finance/ledger/setup", { companyId: trading })).status).toBe(201);
+    const rules = async (companyId: string) =>
+      Object.fromEntries(
+        (
+          await pool.query<{ role: string; code: string }>(
+            "SELECT r.role, a.code FROM accounting.posting_rules r JOIN accounting.accounts a ON a.id = r.account_id WHERE r.company_id = $1 AND r.role IN ('import_duty', 'excise_tax', 'environmental_tax', 'import_vat')",
+            [companyId],
+          )
+        ).rows.map((row) => [row.role, row.code]),
+      );
+    expect(await rules(trading)).toEqual({ import_duty: "3333", excise_tax: "3332", environmental_tax: "3338", import_vat: "33312" });
+    expect(await rules(retail)).toEqual({ import_duty: "3333", excise_tax: "3332", environmental_tax: "33381", import_vat: "33312" });
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_286: phân quyền tờ khai", () => {
+  it("KICHBAN_KIEMTHU_433: công ty khác không xem, không ghi sổ được; thủ kho không xem được tờ khai", async () => {
+    const otherCompany = await signIn(application, "ketoan.vct.nhapkhau@vcomm.test");
+    expect((await otherCompany.call("get", `/purchasing/import-declarations/${declarationId}`, { companyId: testIds.tradingCompany })).status).toBe(404);
+    expect((await otherCompany.call("get", `/purchasing/import-declarations/${declarationId}`, { companyId: retail })).status).toBe(403);
+    expect((await otherCompany.call("post", `/purchasing/import-declarations/${declarationId}/post`, { companyId: testIds.tradingCompany, body: { version: 1 } })).status).toBe(404);
+    expect((await otherCompany.call("get", "/purchasing/import-declarations", { companyId: testIds.tradingCompany })).body.data).toEqual([]);
+    expect((await keeper.call("get", "/purchasing/import-declarations", { companyId: retail })).status).toBe(403);
+    expect((await keeper.call("get", `/purchasing/import-declarations/${declarationId}`, { companyId: retail })).status).toBe(403);
   });
 });
