@@ -304,3 +304,22 @@
 - Mức quy mô: Vừa.
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-11.
+
+### THAY_DOI_18: Sửa các công việc đã nghiệm thu theo mô hình B2C (THAY_DOI_14) – 2026-11-11
+- Lý do: THAY_DOI_14 đổi mô hình kinh doanh sang bán B2C qua sàn VComm; các công việc nội bộ, B2B đã nghiệm thu cần sửa theo.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11):
+  - CONG_VIEC_09 giao dịch nội bộ: chỉ cho mặt hàng dịch vụ; không xuất kho, không phiếu nhập chờ, không biên bản chênh lệch hàng; giữ luồng đơn bán nội bộ sinh đơn mua đối ứng.
+  - CONG_VIEC_17 hoa hồng đội kinh doanh theo tiền thu, bảng tháng, chỉ tiêu: xóa hẳn chức năng (mã, menu, quyền, bảng dữ liệu; dữ liệu chưa có trên môi trường thật), thay bằng hoa hồng theo đơn của CONG_VIEC_26.
+  - CONG_VIEC_21 giao khách cho nhân viên kinh doanh: tắt (ẩn giao diện, API từ chối tạo mới); khách của người mua thuộc người giới thiệu (CONG_VIEC_23).
+  - CONG_VIEC_08 đơn bán: chặn tạo đơn bán tay có mặt hàng hàng hóa; đơn bán hàng hóa chỉ sinh từ đơn VComm; kế toán vẫn lập đơn bán dịch vụ.
+  - CONG_VIEC_20 báo cáo hợp nhất: giữ nguyên.
+- Thành phần bị ảnh hưởng: CONG_VIEC_08, 09, 17, 21 (đã nghiệm thu, chưa phát hành); tài liệu `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27`.
+- Dữ liệu bị ảnh hưởng: xóa bảng hoa hồng cũ của CONG_VIEC_17; đánh dấu mặt hàng dịch vụ.
+- API bị ảnh hưởng: bỏ API hoa hồng cũ; API giao khách, đơn bán, giao dịch nội bộ thêm điều kiện.
+- Giao diện bị ảnh hưởng: bỏ màn hình hoa hồng cũ; ẩn giao khách; đơn bán, giao dịch nội bộ chỉ chọn mặt hàng hợp lệ.
+- Quyền bị ảnh hưởng: bỏ quyền `finance.commission.*`; quyền giao khách không còn dùng.
+- Ảnh hưởng chức năng cũ: như trên (các công việc chưa phát hành).
+- Kiểm thử cần thực hiện: kịch bản mới của CONG_VIEC_43; hồi quy toàn bộ; kiểm thử của CONG_VIEC_17 bỏ theo chức năng (người dùng đồng ý xóa chức năng).
+- Mức quy mô: Lớn.
+- Rủi ro: trung bình (xóa chức năng, đổi quyền xem).
+- Trạng thái: Đã phê duyệt 2026-11-11 (thiết kế chi tiết chờ xác nhận trong đặc tả CONG_VIEC_43).
