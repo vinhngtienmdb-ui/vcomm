@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.11
+- Phiên bản: 2.12
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -25,6 +25,7 @@
 - Cập nhật CONG_VIEC_23 (2026-11-10): thêm MAN_HINH_73 đến MAN_HINH_80 (ứng dụng VComm cho người mua; web-crm người mua VComm); không làm bản mẫu riêng, xem trước từng lát thay cho bản mẫu (quyết định của người dùng)
 - Cập nhật CONG_VIEC_27 (2026-11-10): thêm MAN_HINH_81 đến MAN_HINH_85; sửa MAN_HINH_78, MAN_HINH_80; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_24 (2026-11-11): thêm MAN_HINH_86 đến MAN_HINH_97 (mục 58, mục 59); sửa MAN_HINH_80, MAN_HINH_76 (Tài khoản: nút Sổ địa chỉ); thanh điều hướng ứng dụng thêm thẻ Cửa hàng, Đơn hàng; menu web-crm thêm Cài đặt bán hàng VComm, Đăng bán, Đơn VComm, Yêu cầu trả hàng; xem trước từng lát thay cho bản mẫu
+- Cập nhật CONG_VIEC_25 (2026-11-11): thêm MAN_HINH_98 đến MAN_HINH_100 (mục 60, mục 61); sửa MAN_HINH_86 (Đặt hàng và thanh toán), MAN_HINH_88 (thanh toán, các lần thanh toán, ghi đã thu tiền thu hộ), MAN_HINH_93 (chọn phương thức thanh toán), MAN_HINH_96 (trạng thái thanh toán, hoàn tiền), MAN_HINH_76 (nút Tài khoản nhận hoàn tiền); menu web-crm thêm Hoàn tiền; xem trước từng lát thay cho bản mẫu
 
 ## MODULE_01 Nền tảng
 
@@ -2036,3 +2037,51 @@ flowchart TD
 - MAN_HINH_97 (`/tra-hang`): dòng hàng với "Còn trả được n", nút "Không trả", −, +; Lý do (Hàng lỗi, Sai hàng, Không đúng mô tả, Khác); Mô tả; "Ảnh (n/5)", "Thêm ảnh" (chọn từ thư viện ảnh; điện thoại hỏi quyền truy cập ảnh, từ chối thì báo "Chưa có quyền truy cập ảnh…"); "Gửi yêu cầu".
 - Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
 
+## MODULE_09 Sàn thương mại điện tử (phần lõi 3: Thanh toán đơn người mua, CONG_VIEC_25)
+
+## 60. Danh sách màn hình và điều hướng (MODULE_09 phần lõi 3)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_98 | Web-crm: Hoàn tiền (lọc Chờ hoàn, Đã hoàn; số đơn, người mua, lý do, số tiền, tài khoản nhận, lập lúc; ghi đã hoàn tiền: mã giao dịch ngân hàng, ngày chuyển, ghi chú) | CHUC_NANG_122 | `marketplace.payment.manage` (Quản trị tập đoàn, Quản trị công ty, Kế toán, Kế toán trưởng) | Menu "Hoàn tiền" | Không làm |
+| MAN_HINH_99 | Ứng dụng: khối Thanh toán trong MAN_HINH_96 Chi tiết đơn (phương thức, hạn thanh toán; "Thanh toán", "Thanh toán lại", "Kiểm tra lại"; mở trang VNPAY) | CHUC_NANG_121 | Người mua (đơn của mình, đơn Chờ thanh toán còn hạn) | MAN_HINH_96, MAN_HINH_93 (đặt xong) | Không làm |
+| MAN_HINH_100 | Ứng dụng: Tài khoản nhận hoàn tiền (ngân hàng, số tài khoản, tên chủ tài khoản, Lưu) | CHUC_NANG_122 | Người mua | MAN_HINH_76 (Tài khoản), MAN_HINH_96 | Không làm |
+
+Sửa:
+- MAN_HINH_86: thẻ Đặt hàng và thanh toán: nhãn Đang mở, Đang đóng, nút "Mở đặt hàng", "Đóng đặt hàng"; bảng phương thức (tên, cổng, Đang bật hoặc Đang tắt, Đã có kết nối hoặc Chưa có kết nối, Bật, Tắt). Thay đổi cần `marketplace.order.manage`.
+- MAN_HINH_88: chi tiết đơn thêm thẻ Thanh toán (phương thức, trạng thái thanh toán, đã thu, đã hoàn, hạn thanh toán), bảng Các lần thanh toán, biểu mẫu Ghi đã thu tiền thu hộ (cần `marketplace.payment.manage`); danh sách lọc thêm Chờ thanh toán. Kế toán, Kế toán trưởng xem được (`marketplace.order.view`).
+- MAN_HINH_93: chọn phương thức thanh toán đang bật.
+- MAN_HINH_96: dòng "Thanh toán: <phương thức> · <trạng thái thanh toán>", đã thanh toán, đã hoàn; thẻ Hoàn tiền; khối Thanh toán (MAN_HINH_99).
+- MAN_HINH_76: thêm nút Tài khoản nhận hoàn tiền.
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty vận hành sàn | Kế toán, Kế toán trưởng | Nhân viên có `marketplace.order.view` | Người mua |
+|---|---|---|---|---|
+| MAN_HINH_86 (thẻ Đặt hàng và thanh toán) | Xem, Sửa | Không thấy | Xem | Không thấy |
+| MAN_HINH_88 (thanh toán) | Xem, Ghi đã thu | Xem, Ghi đã thu | Xem | Không thấy |
+| MAN_HINH_98 Hoàn tiền | Xem, Ghi đã hoàn | Xem, Ghi đã hoàn | Không thấy | Không thấy |
+| MAN_HINH_93, MAN_HINH_96, MAN_HINH_99, MAN_HINH_100 | Dùng (là người mua) | Dùng (là người mua) | Dùng (là người mua) | Dùng |
+
+```mermaid
+flowchart TD
+    D[MAN_HINH_93 Đặt hàng] -->|đặt xong| C[MAN_HINH_96 Chi tiết đơn]
+    C --> Q[MAN_HINH_99 Khối Thanh toán]
+    Q -->|Thanh toán, Thanh toán lại| V[Trang VNPAY]
+    V -->|trang kết quả, Mở đơn hàng| C
+    C -->|Nhập tài khoản nhận hoàn tiền| H[MAN_HINH_100 Tài khoản nhận hoàn tiền]
+    T[MAN_HINH_76 Tài khoản] -->|Tài khoản nhận hoàn tiền| H
+    M{Menu web-crm} -->|Cài đặt bán hàng VComm| K[MAN_HINH_86]
+    M -->|Đơn VComm| W[MAN_HINH_88 Đơn VComm]
+    M -->|Hoàn tiền| R[MAN_HINH_98 Hoàn tiền]
+    R -->|số đơn| W
+```
+
+## 61. Đặc tả màn hình (MODULE_09 phần lõi 3)
+
+- MAN_HINH_86 (`/crm/store-settings`): thẻ "Đặt hàng và thanh toán": "Mở đặt hàng cho mọi người mua" với nhãn Đang mở hoặc Đang đóng, gợi ý ("Mọi người mua trên ứng dụng đặt được hàng." hoặc "Chỉ người mua thử đặt được hàng. Cần lưu cài đặt bán hàng và bật ít nhất một phương thức thanh toán để mở."), nút "Mở đặt hàng" hoặc "Đóng đặt hàng"; bảng phương thức: Thanh toán khi nhận hàng, Quét mã QR VNPAY, Thẻ ATM nội địa, Thẻ quốc tế Visa, Mastercard; cổng (Thu hộ khi giao, VNPAY), nhãn bật, nhãn kết nối, nút Bật (khóa khi chưa có kết nối), Tắt.
+- MAN_HINH_88 (`/crm/orders/<id>`): thẻ Thanh toán: Phương thức, Trạng thái thanh toán (Chưa thu, Đã thu, Chờ hoàn tiền, Đã hoàn một phần, Đã hoàn tiền), Tổng thanh toán, Đã thu, Đã hoàn, Hạn thanh toán (đơn Chờ thanh toán); bảng Các lần thanh toán (Số tham chiếu, phương thức, số tiền, Đang chờ, Thành công, Không thành công, Mã giao dịch cổng, thời điểm); biểu mẫu "Ghi đã thu tiền thu hộ" (Ngày thu, Số phiên đối soát, "Ghi đã thu"; gợi ý đối chiếu bảng đối soát của đơn vị vận chuyển) hiện khi đơn COD đã lấy hàng, chưa ghi đã thu và người xem có `marketplace.payment.manage`.
+- MAN_HINH_98 (`/crm/refunds`): tiêu đề "Hoàn tiền đơn VComm", gợi ý cách làm; nút lọc Chờ hoàn, Đã hoàn; bảng Đơn (liên kết MAN_HINH_88), Người mua (tên, số điện thoại), Lý do (Tiền về sau khi đơn đã hủy, Thanh toán trùng, Hủy đơn đã thanh toán, Nhận hàng trả), Số tiền, Tài khoản nhận (ngân hàng, số tài khoản, tên chủ tài khoản hoặc "Người mua chưa nhập tài khoản"), Lập lúc; việc chờ hoàn có "Ghi đã hoàn tiền" (Mã giao dịch ngân hàng, Ngày chuyển, Ghi chú); việc đã hoàn hiện mã giao dịch, ngày chuyển; phân trang 20.
+- MAN_HINH_93 (`/dat-hang`): thẻ "Phương thức thanh toán" chọn một trong các phương thức đang bật (mặc định phương thức đầu); không còn phương thức thì nút "Đặt hàng" khóa.
+- MAN_HINH_96, MAN_HINH_99 (`/don-hang/<id>`): dòng "Thanh toán: <phương thức> · <trạng thái>" (Chưa thanh toán, Đã thanh toán, Chờ hoàn tiền, Đã hoàn một phần, Đã hoàn tiền), "Đã thanh toán: <số tiền>", "Đã hoàn: <số tiền>"; thẻ Hoàn tiền: "<số tiền> · Chờ hoàn" hoặc "<số tiền> · Đã hoàn ngày <ngày>", chưa có tài khoản thì cảnh báo "VComm cần tài khoản ngân hàng của bạn để hoàn tiền." và nút "Nhập tài khoản nhận hoàn tiền"; khối Thanh toán (đơn Chờ thanh toán còn hạn): tên phương thức, "Thanh toán trước <thời điểm>, quá hạn đơn tự hủy.", nút "Thanh toán" mở trang VNPAY trên trình duyệt; sau khi mở: "Đã mở trang thanh toán VNPAY. Thanh toán xong, quay lại ứng dụng và bấm Kiểm tra lại.", nút "Thanh toán lại", "Kiểm tra lại" (tải lại đơn).
+- Trang kết quả trả về (`/api/v1/public/payments/vnpay/return`, không phải màn hình ứng dụng): một câu kết quả (thành công, không thành công, đang chờ, không xác nhận được) và liên kết "Mở đơn hàng trên ứng dụng VComm".
+- MAN_HINH_100 (`/tai-khoan-hoan-tien`): tiêu đề "Tài khoản nhận hoàn tiền", gợi ý "VComm chuyển khoản hoàn tiền vào tài khoản này. Tên chủ tài khoản viết không dấu như trên thẻ."; Ngân hàng, Số tài khoản, Tên chủ tài khoản; "Lưu"; lưu xong báo "Đã lưu tài khoản nhận hoàn tiền.".
+- Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
