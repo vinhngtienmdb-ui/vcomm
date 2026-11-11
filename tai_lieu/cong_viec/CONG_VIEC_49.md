@@ -216,4 +216,6 @@ Chưa thực hiện.
 
 - Hai rủi ro pháp lý ở mục 10 chặn triển khai lên môi trường thật cho đến khi có ý kiến pháp lý (người dùng xác nhận 2026-11-11).
 - Mã cho THAY_DOI_22 do phiên cha cấp ngoài dải: QUYTAC_NGHIEPVU_390, 391, TIEUCHI_NGHIEMTHU_367, KICHBAN_KIEMTHU_532; luồng nghiệp vụ tài liệu `09` dành riêng: Luồng 44.
+- Mỗi dòng hàng chỉ đánh giá một lần kể cả khi người mua đã xóa bài đánh giá (không đánh giá lại được); bài và bình luận không sửa được, chỉ xóa.
+- Ảnh bài đăng cần đăng nhập mới xem được; bản web của ứng dụng tải ảnh bằng header đăng nhập rồi hiện từ bộ nhớ trình duyệt.
 - Chồng lấn CONG_VIEC_51 (điểm thưởng): đơn dùng được cả điểm và ví mua sắm, điểm trừ trước rồi đến ví; đơn mua chung không dùng điểm nhưng vẫn tích. Khấu trừ trả trước gom ở một hàm (`orderDeductions`) để ghép khi hợp nhất.
