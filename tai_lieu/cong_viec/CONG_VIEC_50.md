@@ -75,7 +75,7 @@ Các vai trò khác không có sẵn; quản trị gán thêm bằng vai trò t�
 
 ## 6. Luồng nghiệp vụ
 
-Người dùng mở ô "Báo cáo quản trị" trên trang chủ → trang tổng quan (chỉ tiêu theo quyền) → chọn báo cáo → chọn công ty, khoảng ngày, cách nhóm → xem → xuất Excel.
+Luồng 49 (tài liệu `09`): người dùng mở ô "Báo cáo quản trị" trên trang chủ → trang tổng quan (chỉ tiêu theo quyền) → chọn báo cáo → chọn công ty, khoảng ngày, cách nhóm → xem → xuất Excel.
 
 ## 7. Màn hình
 
