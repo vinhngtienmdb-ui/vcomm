@@ -196,6 +196,14 @@
 - Kết luận cổng kiểm thử: Đạt.
 - Kết luận: Chờ người dùng nghiệm thu.
 
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_50
+
+- Phạm vi: MODULE_15 phần 1, mini app `web-analytics`; nhánh `chuc-nang/CONG_VIEC_50-bao-cao-quan-tri` (pull request #93).
+- Kết quả: KICHBAN_KIEMTHU_476 đến 485 Đạt (`c50-analytics-scope`, `-sales`, `-inventory`, `-debts`, `-commissions`: 13/13); hồi quy `pnpm --filter api test` 57 tệp, 347/347 Đạt. Hiệu năng (366 ngày, 1.000.000 dòng thẻ kho, 200.000 dòng phiếu): bán hàng khoảng 2,1 giây, tồn kho 1,5 giây, tổng quan 2,0 giây, công nợ và hoa hồng dưới 0,1 giây (TIEUCHI_NGHIEMTHU_328 Mong muốn: Đạt).
+- Kiểm thử đã duyệt được sửa: không.
+- Kiểm tra bảo mật phần C: C1 `pnpm audit` không có mức Cao, Nghiêm trọng (2 Trung bình có sẵn qua expo); C2 quét thủ công phần thay đổi, gitleaks chạy ở CI: không phát hiện; C3 phân quyền (401, 403 theo nhóm quyền và phạm vi công ty): Đạt; C4 đầu vào độc hại (400, không lộ chi tiết kỹ thuật): Đạt; C6 OWASP A01, A03, A04 (giới hạn 366 ngày, 20.000 dòng), A09 (xuất Excel ghi nhật ký): Đạt. Không có lỗi mới.
+- Kết luận cổng kiểm thử: Đạt. Chờ người dùng nghiệm thu.
+
 ## Lần kiểm thử 2026-11-11 – CONG_VIEC_46
 
 - Phạm vi: MODULE_08 phần 1 (hồ sơ nhân sự, giấy tờ, người phụ thuộc, quá trình công tác, hợp đồng, phụ lục, nghỉ việc, nhắc hết hạn); mini app `apps/web-hr`; database migration 0070 đến 0072; nhánh `chuc-nang/CONG_VIEC_46-nhan-su-ho-so` (pull request #84, `e5029e8`).
