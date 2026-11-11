@@ -183,6 +183,23 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-11 – CONG_VIEC_25
+
+- Phạm vi: lát L0 đến L4 (phương thức thanh toán theo cổng, mở đặt hàng; VNPAY, chờ thanh toán 15 phút, tự hủy; đối soát COD theo API GHN, ghi tay đã thu; hoàn tiền; bút toán tiền thu, phí giao hàng, hoàn tiền, hóa đơn có dòng phí giao hàng) và các bản sửa sau rà soát độc lập.
+- Môi trường: máy phát triển trong container; PostgreSQL 16, cơ sở dữ liệu `vcomm_test`; Redis 7; Node.js 22; Expo bản web cổng 8083; VNPAY giả lập (ký bằng khóa thử trong kiểm thử; `tam_thoi/CONG_VIEC_25/vnpay_gia_lap.js` khi xem trước); GHN giả lập.
+- Lệnh đã chạy: `pnpm --filter api typecheck`, `pnpm --filter api lint`, `pnpm --filter web-crm typecheck`, `pnpm --filter web-crm lint`, `pnpm --filter mobile-vcomm typecheck`, `pnpm --filter mobile-vcomm lint`, `pnpm --filter api test`, `pnpm audit`; database migration 0027 đến 0031 trên cơ sở dữ liệu phát triển; thử trên trình duyệt bằng Playwright: cài đặt thanh toán, mở đặt hàng, chi tiết đơn có các lần thanh toán, hoàn tiền (web-crm máy tính); ứng dụng: chọn phương thức, chờ thanh toán, trang VNPAY giả lập, trang trả về, đơn đã thanh toán, việc hoàn tiền, tài khoản nhận hoàn tiền (khổ iPhone 13).
+- Kết quả: 332 đạt / 0 không đạt / 332 kịch bản tự động (45 tệp; phần mới: `c25-payment-methods` 1, `c25-vnpay-payments` 3, `c25-cod-collection` 1, `c25-refunds` 1, `c25-payment-postings` 2 – KICHBAN_KIEMTHU_321 đến 325, 327). KICHBAN_KIEMTHU_326 (thủ công) đạt, không lỗi trình duyệt.
+- Kiểm thử đã duyệt được sửa: không (giữ mặc định phương thức thanh toán khi nhận hàng để kiểm thử CONG_VIEC_24 chạy nguyên).
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_184 đến 190 (bắt buộc) – Đạt.
+- Kiểm tra bảo mật phần B, C:
+  - C1 `pnpm audit`: không thêm thư viện (ký bằng `node:crypto`); 2 lỗ hổng Trung bình đã biết trong `@expo/cli` (rủi ro đã chấp nhận, tài liệu 22 mục 8).
+  - C2 gitleaks trong CI chưa chạy được do tài khoản GitHub lỗi thanh toán; đã rà các dòng thêm mới không có khóa bí mật; khóa VNPAY ở biến môi trường.
+  - C3 phân quyền: Đạt – người mua chỉ mở thanh toán, xem hoàn tiền của đơn mình (`404` với đơn người khác); bật tắt phương thức, mở đặt hàng cần quyền quản lý đơn VComm; danh sách hoàn tiền, tài khoản ngân hàng người mua, ghi đã hoàn, ghi đã thu COD cần `marketplace.payment.manage` (người mua `403`).
+  - C4 toàn vẹn dữ liệu: Đạt – IPN kiểm chữ ký, số tiền, mỗi lần thanh toán ghi nhận một lần (khóa dòng); tiền về sau khi hủy, thanh toán trùng, hủy đơn đã thu lập việc chờ hoàn; tự hủy kiểm lại trạng thái dưới khóa; phí giao hàng chỉ tính ở một phiếu xuất; bút toán cân Nợ Có.
+- Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập không thấy lỗi Nghiêm trọng; tìm 2 lỗi Cao (đơn vị vận chuyển hủy đơn đã thanh toán không lập việc hoàn; IPN, trang trả về không giới hạn, ghi mọi yêu cầu sai chữ ký), 4 Trung bình, 3 Thấp; đã sửa ở commit 8b18a3b, kiểm thử lại đạt; 2 mục Thấp giữ nguyên có lý do (đặc tả mục 15). Tệp tạm trong `tam_thoi/CONG_VIEC_25/` (Git bỏ qua).
+- Kết luận cổng kiểm thử: Đạt.
+- Kết luận: Chờ người dùng nghiệm thu; trước khi phát hành phải thử với tài khoản môi trường thử nghiệm của VNPAY.
+
 ## Lần kiểm thử 2026-11-11 – CONG_VIEC_24
 
 - Phạm vi: lát L0 đến L4 (cài đặt bán hàng VComm, đăng bán, người mua thử, danh mục tỉnh xã hai cấp, sổ địa chỉ, cửa hàng, giỏ hàng, đặt hàng thanh toán khi nhận hàng, hủy đơn, giao GHN qua khung đơn vị vận chuyển, webhook, hoàn hàng, trả hàng trong 7 ngày, tự hoàn tất) và các bản sửa sau rà soát độc lập.
