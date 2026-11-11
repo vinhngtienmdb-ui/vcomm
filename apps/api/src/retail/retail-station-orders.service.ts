@@ -2,7 +2,17 @@
 // (CONG_VIEC_57; CHUC_NANG_202; QUYTAC_NGHIEPVU_424, 425, 426, 431; API_223, API_224).
 import { randomInt } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
-import type { MarketplaceOrderStatus, PaymentMethodCode, stationHandoverSchema, StationOrderDetail, StationOrderListItem, stationOrderListQuerySchema, StationOrderListResponse } from "contracts";
+import type {
+  DeliveryFailureReason,
+  MarketplaceOrderStatus,
+  MyDeliveriesResponse,
+  PaymentMethodCode,
+  stationHandoverSchema,
+  StationOrderDetail,
+  StationOrderListItem,
+  stationOrderListQuerySchema,
+  StationOrderListResponse,
+} from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import type { z } from "zod";
 import { trimDecimal } from "../catalog/catalog-context";
@@ -51,6 +61,7 @@ type Row = {
   code_locked_until: Date | null;
   delivery_attempts: number | null;
   courier_name: string | null;
+  courier_user_id: string | null;
   expiring_soon: boolean;
 };
 
@@ -58,7 +69,7 @@ const rowSelect = sql`
   SELECT m.id, m.sales_order_id, so.document_no, m.created_at, s.id AS store_id, s.display_name AS store_name, s.branch_id, s.cash_fund_id, s.bank_fund_id,
     u.full_name AS buyer_name, u.phone AS buyer_phone, m.recipient_name, m.recipient_phone, m.street_address, m.ward_name, m.province_name, m.fulfillment_mode, m.status,
     m.goods_amount::text, m.shipping_fee::text, m.cod_amount::text, m.paid_amount::text, m.payment_method, m.version,
-    st.hold_until, st.ready_at, st.code_locked_until, st.delivery_attempts, cu.full_name AS courier_name,
+    st.hold_until, st.ready_at, st.code_locked_until, st.delivery_attempts, cu.full_name AS courier_name, st.courier_user_id,
     (m.status = 'ready_for_pickup' AND st.hold_until < now() + interval '24 hours') AS expiring_soon
   FROM marketplace.orders m
   JOIN sales.orders so ON so.id = m.sales_order_id
@@ -71,6 +82,7 @@ const rowSelect = sql`
 const openStatuses = ["awaiting_shipment", "ready_for_pickup", "shipping"];
 const maximumWrongCodes = 5;
 const codeLockMinutes = 15;
+const maximumDeliveryAttempts = 3;
 const localPhone = (phone: string | null) => (phone ? phone.replace(/^\+84/, "0") : "");
 
 @Injectable()
@@ -161,6 +173,9 @@ export class RetailStationOrdersService {
     const row = await this.visibleRow(this.database, actor, id);
     const granted = await retailPermissionsAt(this.permissionService, actor, row.branch_id);
     const handle = granted.has(retailPermissions.o2o);
+    const deliver = granted.has(retailPermissions.o2oDeliver);
+    const delivery = row.fulfillment_mode === "station_delivery";
+    const canAssign = handle && delivery && row.status === "ready_for_pickup";
     const [collections, stock, events] = await Promise.all([
       this.database.execute<{ method: "cash" | "bank_transfer"; amount: string; change_amount: string; shift_id: string }>(sql`
         SELECT method, amount::text, change_amount::text, shift_id FROM retail.station_collections WHERE order_id = ${id} ORDER BY line_no`),
@@ -189,6 +204,11 @@ export class RetailStationOrdersService {
       canPrepare: handle && row.status === "awaiting_shipment",
       canHandOver: handle && row.status === "ready_for_pickup" && row.fulfillment_mode === "station_pickup",
       canCancel: handle && ["awaiting_shipment", "ready_for_pickup"].includes(row.status),
+      courierUserId: row.courier_user_id,
+      couriers: canAssign ? await this.couriers(row.branch_id, actor.companyId) : [],
+      canAssign,
+      canDispatch: deliver && delivery && row.status === "ready_for_pickup" && (row.courier_user_id === null || row.courier_user_id === actor.userId),
+      canDeliver: deliver && row.status === "shipping" && row.courier_user_id === actor.userId,
       version: row.version,
     };
   }
@@ -301,14 +321,14 @@ export class RetailStationOrdersService {
   }
 
   // Thu tiền khi nhận (QUYTAC_NGHIEPVU_426, theo QUYTAC_NGHIEPVU_373): không tiền mặt không vượt số phải thu; tổng đã đưa không nhỏ hơn số phải thu; tiền thừa trả bằng tiền mặt.
-  private async collect(transaction: Parameters<Parameters<Database["transaction"]>[0]>[0], actor: Actor, row: Row, input: HandoverInput): Promise<void> {
+  private async collect(transaction: Parameters<Parameters<Database["transaction"]>[0]>[0], actor: Actor, row: Row, input: HandoverInput, permission: string = retailPermissions.o2o): Promise<void> {
     const due = this.dueAmount(row);
     if (due <= 0) {
       if (input.payments.length > 0) throw new ApiError("BUSINESS_RULE", "stationNothingToCollect");
       return;
     }
     if (!input.shiftId) throw new ApiError("BUSINESS_RULE", "stationShiftRequired");
-    const shift = await this.shifts.requireOwnOpenShift(transaction, actor, input.shiftId, retailPermissions.o2o);
+    const shift = await this.shifts.requireOwnOpenShift(transaction, actor, input.shiftId, permission);
     if (shift.store_id !== row.store_id) throw new ApiError("BUSINESS_RULE", "stationShiftOtherStore");
     if (input.payments.length === 0) throw new ApiError("BUSINESS_RULE", "retailPaymentShort");
     if (input.payments.some((payment) => payment.method === "bank_transfer") && !row.bank_fund_id) throw new ApiError("BUSINESS_RULE", "retailNoBankFund");
@@ -327,5 +347,141 @@ export class RetailStationOrdersService {
     }
     await transaction.execute(sql`UPDATE marketplace.orders SET paid_amount = cod_amount, paid_at = now() WHERE id = ${row.id}`);
     await this.orders.event(transaction, row.id, "paid", row.store_name, actor.userId);
+  }
+
+  // Người có quyền giao đơn tại chi nhánh của trạm (gán ở chi nhánh đó hoặc cả công ty), đang hiệu lực.
+  private async couriers(branchId: string, companyId: string): Promise<{ id: string; name: string }[]> {
+    return (
+      await this.database.execute<{ id: string; name: string }>(sql`
+      SELECT DISTINCT u.id, u.full_name AS name FROM core.user_role_assignments a
+      JOIN core.role_permissions rp ON rp.role_id = a.role_id AND rp.permission_code = ${retailPermissions.o2oDeliver}
+      JOIN core.users u ON u.id = a.user_id AND u.status = 'active'
+      WHERE a.company_id = ${companyId} AND (a.branch_id = ${branchId} OR a.scope_type = 'company')
+        AND a.valid_from <= (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date AND (a.valid_to IS NULL OR a.valid_to >= (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date)
+      ORDER BY name`)
+    ).rows;
+  }
+
+  private async requireDeliver(actor: Actor, row: Row): Promise<void> {
+    const granted = await retailPermissionsAt(this.permissionService, actor, row.branch_id);
+    if (!granted.has(retailPermissions.o2oDeliver)) throw new ApiError("FORBIDDEN", "forbidden");
+  }
+
+  // Cửa hàng trưởng giao đơn Sẵn sàng nhận của trạm giao cho một nhân viên giao (QUYTAC_NGHIEPVU_427).
+  async assign(actor: Actor, id: string, input: { courierUserId: string; version: number }): Promise<StationOrderDetail> {
+    await this.database.transaction(async (transaction) => {
+      const row = await this.visibleRow(transaction, actor, id, true);
+      await this.requireHandle(actor, row);
+      if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      if (row.fulfillment_mode !== "station_delivery" || row.status !== "ready_for_pickup") throw new ApiError("BUSINESS_RULE", "stationOrderNotReady");
+      if (!(await this.couriers(row.branch_id, actor.companyId)).some((courier) => courier.id === input.courierUserId)) {
+        throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { courierUserId: "invalidValue" } });
+      }
+      await transaction.execute(sql`UPDATE retail.station_orders SET courier_user_id = ${input.courierUserId} WHERE order_id = ${id}`);
+      await transaction.execute(sql`UPDATE marketplace.orders SET version = version + 1 WHERE id = ${id}`);
+      await this.auditService.record({ ...retailAudit(actor, "station_order"), action: "station_order.assign", entityId: id, afterData: { courierUserId: input.courierUserId } }, transaction);
+    });
+    return this.detail(actor, id);
+  }
+
+  // Nhân viên giao nhận đơn đi giao: đơn chưa thu tiền thì phải có ca đang mở của mình tại trạm (QUYTAC_NGHIEPVU_427).
+  async dispatch(actor: Actor, id: string, input: { shiftId: string | null; version: number }): Promise<StationOrderDetail> {
+    await this.database.transaction(async (transaction) => {
+      const row = await this.visibleRow(transaction, actor, id, true);
+      await this.requireDeliver(actor, row);
+      if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      if (row.fulfillment_mode !== "station_delivery" || row.status !== "ready_for_pickup") throw new ApiError("BUSINESS_RULE", "stationOrderNotReady");
+      if (row.courier_user_id !== null && row.courier_user_id !== actor.userId) throw new ApiError("BUSINESS_RULE", "stationOrderOtherCourier");
+      if (this.dueAmount(row) > 0) {
+        if (!input.shiftId) throw new ApiError("BUSINESS_RULE", "stationShiftRequired");
+        const shift = await this.shifts.requireOwnOpenShift(transaction, actor, input.shiftId, retailPermissions.o2oDeliver);
+        if (shift.store_id !== row.store_id) throw new ApiError("BUSINESS_RULE", "stationShiftOtherStore");
+      }
+      await transaction.execute(sql`UPDATE retail.station_orders SET courier_user_id = ${actor.userId} WHERE order_id = ${id}`);
+      await transaction.execute(sql`UPDATE marketplace.orders SET status = 'shipping', version = version + 1 WHERE id = ${id}`);
+      await this.orders.event(transaction, id, "shipping", row.store_name, actor.userId);
+      await this.auditService.record({ ...retailAudit(actor, "station_order"), action: "station_order.dispatch", entityId: id }, transaction);
+    });
+    return this.detail(actor, id);
+  }
+
+  // Giao thành công tận nơi: mã do khách đọc hoặc mã QR, thu tiền vào ca của nhân viên giao, ghi sổ phiếu xuất (QUYTAC_NGHIEPVU_427).
+  async deliver(actor: Actor, id: string, input: HandoverInput): Promise<StationOrderDetail> {
+    const before = await this.visibleRow(this.database, actor, id);
+    await this.requireDeliver(actor, before);
+    if (before.status !== "shipping" || before.courier_user_id !== actor.userId) throw new ApiError("BUSINESS_RULE", "stationOrderNotOut");
+    await this.verifyCode(id, input.code);
+    await this.deliveries.ensureSequences(actor, actor.companyId);
+    await this.database.transaction(async (transaction) => {
+      const row = await this.visibleRow(transaction, actor, id, true);
+      if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      if (row.status !== "shipping" || row.courier_user_id !== actor.userId) throw new ApiError("BUSINESS_RULE", "stationOrderNotOut");
+      await this.collect(transaction, actor, row, input, retailPermissions.o2oDeliver);
+      await this.deliveries.issueRetailWithin(transaction, actor, {
+        orderId: row.sales_order_id,
+        documentDate: this.permissionService.today(),
+        serials: new Map(),
+        reason: `Trạm giao đơn VComm ${row.document_no}`,
+      });
+      await transaction.execute(sql`UPDATE marketplace.orders SET status = 'delivered', delivered_at = now(), version = version + 1 WHERE id = ${id}`);
+      await transaction.execute(sql`UPDATE retail.station_orders SET is_active = false, handed_over_at = now(), handed_over_by = ${actor.userId} WHERE order_id = ${id}`);
+      await this.orders.event(transaction, id, "delivered", row.store_name, actor.userId);
+      await this.auditService.record(
+        { ...retailAudit(actor, "station_order"), action: "station_order.deliver", entityId: id, afterData: { payments: input.payments, shiftId: input.shiftId } },
+        transaction,
+      );
+    });
+    return this.detail(actor, id);
+  }
+
+  // Giao không thành công: đơn về Sẵn sàng nhận, cộng số lần giao; khách từ chối nhận hoặc đủ 3 lần thì hủy, hàng còn ở kho trạm (QUYTAC_NGHIEPVU_427).
+  async attempt(actor: Actor, id: string, input: { reason: DeliveryFailureReason; note: string | null; version: number }): Promise<StationOrderDetail> {
+    const reasonText = { absent: "Khách vắng", refused: "Khách từ chối nhận", wrong_address: "Sai địa chỉ", other: "Khác" }[input.reason];
+    const note = input.note ? `${reasonText}: ${input.note}` : reasonText;
+    const outcome = await this.database.transaction(async (transaction) => {
+      const row = await this.visibleRow(transaction, actor, id, true);
+      await this.requireDeliver(actor, row);
+      if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      if (row.status !== "shipping" || row.courier_user_id !== actor.userId) throw new ApiError("BUSINESS_RULE", "stationOrderNotOut");
+      const attempts = (row.delivery_attempts ?? 0) + 1;
+      await transaction.execute(sql`UPDATE retail.station_orders SET delivery_attempts = ${attempts}, courier_user_id = NULL WHERE order_id = ${id}`);
+      const version = (await transaction.execute<{ version: number }>(sql`UPDATE marketplace.orders SET status = 'ready_for_pickup', version = version + 1 WHERE id = ${id} RETURNING version`))
+        .rows[0]!.version;
+      await this.orders.event(transaction, id, "delivery_failed", `${note} (${attempts}/${maximumDeliveryAttempts})`, actor.userId);
+      await this.auditService.record(
+        { ...retailAudit(actor, "station_order"), action: "station_order.attempt", entityId: id, afterData: { reason: input.reason, note: input.note, attempts } },
+        transaction,
+      );
+      return { cancel: input.reason === "refused" || attempts >= maximumDeliveryAttempts, version };
+    });
+    if (outcome.cancel) await this.orders.stationCancel(actor, id, outcome.version, `Giao không thành công: ${note}`);
+    return this.detail(actor, id);
+  }
+
+  // Màn hình nhân viên giao (MAN_HINH_190): ca đang mở, quầy của trạm để mở ca, đơn chờ người giao, đơn mình đang giao.
+  async myDeliveries(actor: Actor): Promise<MyDeliveriesResponse> {
+    const deliver = await retailScope(this.permissionService, actor, retailPermissions.o2oDeliver);
+    if (!deliver) throw new ApiError("FORBIDDEN", "forbidden");
+    const scope = scopeCondition(deliver, sql`s.branch_id`);
+    const [orders, registers] = await Promise.all([
+      this.database.execute<{ id: string }>(sql`
+        SELECT m.id FROM marketplace.orders m JOIN retail.stores s ON s.id = m.station_id LEFT JOIN retail.station_orders st ON st.order_id = m.id
+        WHERE m.company_id = ${actor.companyId} AND m.fulfillment_mode = 'station_delivery' AND ${scope}
+          AND ((m.status = 'ready_for_pickup' AND (st.courier_user_id IS NULL OR st.courier_user_id = ${actor.userId})) OR (m.status = 'shipping' AND st.courier_user_id = ${actor.userId}))
+        ORDER BY st.hold_until, m.created_at LIMIT 100`),
+      this.database.execute<{ id: string; code: string; name: string; store_id: string; store_name: string; busy: boolean }>(sql`
+        SELECT r.id, r.code, r.name, s.id AS store_id, s.display_name AS store_name, EXISTS (SELECT 1 FROM retail.shifts o WHERE o.register_id = r.id AND o.status = 'open') AS busy
+        FROM retail.registers r JOIN retail.stores s ON s.id = r.store_id
+        WHERE s.company_id = ${actor.companyId} AND s.status = 'active' AND r.status = 'active' AND s.delivery_enabled AND ${scope} ORDER BY s.display_name, r.code`),
+    ]);
+    const details = [];
+    for (const order of orders.rows) details.push(await this.detail(actor, order.id));
+    const open = (await this.database.execute<{ id: string }>(sql`SELECT id FROM retail.shifts WHERE company_id = ${actor.companyId} AND cashier_id = ${actor.userId} AND status = 'open'`)).rows[0];
+    return {
+      currentShift: open ? await this.shifts.detail(actor, open.id) : null,
+      registers: registers.rows.map((row) => ({ id: row.id, code: row.code, name: row.name, storeId: row.store_id, storeName: row.store_name, busy: row.busy })),
+      available: details.filter((order) => order.status === "ready_for_pickup"),
+      mine: details.filter((order) => order.status === "shipping"),
+    };
   }
 }

@@ -4073,6 +4073,28 @@ Dữ liệu chung: công ty VCR; phòng ban có trưởng phòng; tài khoản Q
 - Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-handover.test.ts`
 - Lát: L3 (CONG_VIEC_57)
 
+### KICHBAN_KIEMTHU_567: Trạm giao: giao cho nhân viên, giao thành công
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_397, TIEUCHI_NGHIEMTHU_401
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Cửa hàng trưởng; hai Nhân viên giao hàng trạm; Khách mua
+- Điều kiện ban đầu và dữ liệu: Dữ liệu của KICHBAN_KIEMTHU_561; quầy GH1 của trạm Thủ Đức; đơn trạm giao 1 kem (265.000, trả khi nhận) đã Sẵn sàng nhận.
+- Các bước: (1) Cửa hàng trưởng xem danh sách nhân viên giao, giao cho người không có quyền, giao cho nhân viên A. (2) Nhân viên B nhận đi giao, xem màn hình của mình. (3) Nhân viên A xem màn hình, vào màn hình bán. (4) A nhận đi giao không có ca; mở ca; tìm hàng bán; nhận đi giao. (5) Cửa hàng trưởng ghi giao thành công; A giao thành công với mã, tiền mặt 300.000. (6) Xem ca của A.
+- Kết quả mong đợi: Bước 1: danh sách gồm A, B, cửa hàng trưởng; `400`; `200`. Bước 2: "Đơn đã giao cho nhân viên khác."; không có đơn. Bước 3: đơn ở mục chờ giao, có quầy GH1; `403`. Bước 4: "Đơn chưa thu tiền: mở ca trước khi giao."; `201`; `403`; Đang giao, khách vẫn thấy mã. Bước 5: `409`; Đã giao, đã thu 265.000, tiền thừa 35.000, phiếu xuất ghi sổ. Bước 6: thu đơn trực tuyến 265.000, tiền hệ thống tính 265.000, được đóng ca.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-delivery.test.ts`
+- Lát: L4 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_568: Trạm giao không thành công
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_397
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Nhân viên giao hàng trạm
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_567, nhân viên có ca mở.
+- Các bước: (1) Đơn mới: ba lần nhận đi giao rồi ghi khách vắng. (2) Đơn mới: ghi lý do Khác không ghi chú; ghi khách từ chối nhận.
+- Kết quả mong đợi: Bước 1: lần 1, 2 về Sẵn sàng nhận, số lần giao 1, 2, bỏ nhân viên giao, lịch sử "Khách vắng (1/3)"; lần 3 Đã hủy, nhả giữ hàng. Bước 2: `400`; Đã hủy ngay, lý do "Giao không thành công: Khách từ chối nhận: Đổi ý", nhả giữ hàng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-delivery.test.ts`
+- Lát: L4 (CONG_VIEC_57)
+
 ### KICHBAN_KIEMTHU_434: Lập hồ sơ, mã tự cấp, kiểm dữ liệu, liên kết tài khoản
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_287
 - Chức năng: CHUC_NANG_162

@@ -574,7 +574,9 @@
     "stationCodeWrongLast": "Mã nhận hàng không đúng. Sai thêm một lần nữa sẽ khóa nhập mã 15 phút.",
     "stationNothingToCollect": "Đơn đã thanh toán đủ, không thu thêm.",
     "stationShiftRequired": "Đơn chưa thu tiền: mở ca trước khi giao.",
-    "stationShiftOtherStore": "Ca đang mở thuộc trạm khác. Mở ca tại quầy của trạm này."
+    "stationShiftOtherStore": "Ca đang mở thuộc trạm khác. Mở ca tại quầy của trạm này.",
+    "stationOrderOtherCourier": "Đơn đã giao cho nhân viên khác.",
+    "stationOrderNotOut": "Đơn không ở trạng thái Đang giao của bạn."
   },
   "login": {
     "title": "Đăng nhập",
@@ -3753,7 +3755,8 @@
     "orderStatus_ready_for_pickup": "Sẵn sàng nhận",
     "pickupCodeTitle": "Mã nhận hàng",
     "pickupReady": "Đơn đã sẵn sàng. Đến trạm trước {time} và đưa mã cho nhân viên.",
-    "stationPreparing": "Trạm đang soạn hàng. Bạn sẽ nhận thông báo khi đơn sẵn sàng."
+    "stationPreparing": "Trạm đang soạn hàng. Bạn sẽ nhận thông báo khi đơn sẵn sàng.",
+    "orderStatus_delivery_failed": "Giao không thành công"
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -6845,7 +6848,8 @@
     "sales": "Hóa đơn bán lẻ",
     "returns": "Trả hàng",
     "onlineOrders": "Đơn trực tuyến",
-    "handover": "Giao cho khách"
+    "handover": "Giao cho khách",
+    "deliveries": "Đơn tôi đang giao"
   },
   "retailStores": {
     "title": "Cài đặt cửa hàng",
@@ -7192,6 +7196,37 @@
     "openShift": "Mở ca",
     "prepaidHandover": "Đơn đã trả trước, không thu tiền.",
     "handoverConfirm": "Giao cho khách",
-    "handoverDone": "Đã giao đơn {number}."
+    "handoverDone": "Đã giao đơn {number}.",
+    "event_delivery_failed": "Giao không thành công",
+    "deliveriesTitle": "Đơn tôi đang giao",
+    "shiftOpen": "Ca đang mở: quầy {register}, {store}, từ {time}",
+    "closeShift": "Đóng ca",
+    "shiftHint": "Mở ca để giữ tiền thu khi giao đơn chưa thanh toán.",
+    "register": "Quầy",
+    "chooseRegister": "Chọn quầy",
+    "openingCash": "Tiền đầu ca",
+    "shiftOpened": "Đã mở ca.",
+    "mineTitle": "Đang giao ({count})",
+    "mineNone": "Bạn chưa nhận đơn nào đi giao.",
+    "availableTitle": "Sẵn sàng, chờ người giao ({count})",
+    "availableNone": "Không có đơn chờ giao.",
+    "dispatch": "Nhận đi giao",
+    "dispatchDone": "Đã nhận đơn {number} đi giao.",
+    "attempt": "Lần giao {count}/3",
+    "deliverSuccess": "Giao thành công",
+    "deliverDone": "Đã giao đơn {number}.",
+    "deliverFailed": "Không giao được",
+    "reason_absent": "Khách vắng",
+    "reason_refused": "Khách từ chối nhận (đơn sẽ hủy)",
+    "reason_wrong_address": "Sai địa chỉ",
+    "reason_other": "Khác",
+    "note": "Ghi chú",
+    "failedHint": "Đơn về Sẵn sàng nhận tại trạm. Lần thứ 3 không thành công thì đơn hủy.",
+    "failedConfirm": "Ghi không giao được",
+    "failedDone": "Đã ghi không giao được đơn {number}.",
+    "assign": "Giao cho nhân viên",
+    "assignTo": "Chọn nhân viên giao",
+    "assignDone": "Đã giao đơn cho nhân viên.",
+    "readyDeliveryHint": "Giao đơn cho nhân viên giao hoặc để nhân viên giao tự nhận. Khách đọc mã nhận hàng khi nhận."
   }
 }

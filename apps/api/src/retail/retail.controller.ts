@@ -13,7 +13,11 @@ import {
   retailShiftListQuerySchema,
   saveRetailRegisterSchema,
   saveRetailStationSchema,
+  stationAssignSchema,
+  stationAttemptSchema,
+  stationDispatchSchema,
   stationHandoverSchema,
+  type MyDeliveriesResponse,
   stationOrderCancelSchema,
   stationOrderListQuerySchema,
   stationOrderVersionSchema,
@@ -106,6 +110,36 @@ export class RetailController {
     @Headers("x-company-id") companyId?: string,
   ): Promise<StationOrderDetail> {
     return this.stationOrders.byCode(await this.actor(request, companyId), storeId, String(code ?? "").slice(0, 120));
+  }
+
+  // API_225: trạm giao tận nơi (CONG_VIEC_57).
+  @Get("station-orders/my-deliveries")
+  async myDeliveries(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<MyDeliveriesResponse> {
+    return this.stationOrders.myDeliveries(await this.actor(request, companyId));
+  }
+
+  @Post("station-orders/:id/assign")
+  @HttpCode(200)
+  async stationOrderAssign(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StationOrderDetail> {
+    return this.stationOrders.assign(await this.actor(request, companyId), id, stationAssignSchema.parse(body));
+  }
+
+  @Post("station-orders/:id/dispatch")
+  @HttpCode(200)
+  async stationOrderDispatch(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StationOrderDetail> {
+    return this.stationOrders.dispatch(await this.actor(request, companyId), id, stationDispatchSchema.parse(body));
+  }
+
+  @Post("station-orders/:id/deliver")
+  @HttpCode(200)
+  async stationOrderDeliver(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StationOrderDetail> {
+    return this.stationOrders.deliver(await this.actor(request, companyId), id, stationHandoverSchema.parse(body));
+  }
+
+  @Post("station-orders/:id/attempts")
+  @HttpCode(200)
+  async stationOrderAttempt(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StationOrderDetail> {
+    return this.stationOrders.attempt(await this.actor(request, companyId), id, stationAttemptSchema.parse(body));
   }
 
   @Get("station-orders/:id")

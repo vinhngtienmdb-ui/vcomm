@@ -5511,6 +5511,12 @@ export interface StationOrderDetail extends StationOrderListItem {
   canPrepare: boolean;
   canHandOver: boolean;
   canCancel: boolean;
+  // CONG_VIEC_57 L4: trạm giao tận nơi (QUYTAC_NGHIEPVU_427).
+  courierUserId: string | null;
+  couriers: { id: string; name: string }[];
+  canAssign: boolean;
+  canDispatch: boolean;
+  canDeliver: boolean;
   version: number;
 }
 export const stationOrderVersionSchema = z.object({ version: z.number().int().positive() }).strict();
@@ -5535,6 +5541,21 @@ export const stationHandoverSchema = z
   })
   .strict();
 export type StationHandoverRequest = z.input<typeof stationHandoverSchema>;
+// CONG_VIEC_57 L4: giao cho nhân viên, nhận đi giao, giao không thành công (API_225; QUYTAC_NGHIEPVU_427).
+export const stationAssignSchema = z.object({ courierUserId: z.uuid(), version: z.number().int().positive() }).strict();
+export const stationDispatchSchema = z.object({ shiftId: z.uuid().nullable().default(null), version: z.number().int().positive() }).strict();
+export const deliveryFailureReasons = ["absent", "refused", "wrong_address", "other"] as const;
+export type DeliveryFailureReason = (typeof deliveryFailureReasons)[number];
+export const stationAttemptSchema = z
+  .object({ reason: z.enum(deliveryFailureReasons), note: blankToNull(500), version: z.number().int().positive() })
+  .strict()
+  .refine((value) => value.reason !== "other" || value.note !== null, { message: "required", path: ["note"] });
+export interface MyDeliveriesResponse {
+  currentShift: RetailShiftResponse | null;
+  registers: { id: string; code: string; name: string; storeId: string; storeName: string; busy: boolean }[];
+  available: StationOrderDetail[];
+  mine: StationOrderDetail[];
+}
 export interface RetailRegionItem {
   code: string;
   name: string;

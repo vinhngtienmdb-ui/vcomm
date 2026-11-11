@@ -134,7 +134,8 @@ export class RetailShiftsService {
   private async canClose(actor: Actor, row: ShiftRow): Promise<boolean> {
     if (row.status !== "open") return false;
     const granted = await retailPermissionsAt(this.permissionService, actor, row.branch_id);
-    return granted.has(retailPermissions.manageShifts) || (row.cashier_id === actor.userId && granted.has(retailPermissions.sale));
+    // Nhân viên giao hàng trạm đóng ca của mình (CONG_VIEC_57; mục 6).
+    return granted.has(retailPermissions.manageShifts) || (row.cashier_id === actor.userId && (granted.has(retailPermissions.sale) || granted.has(retailPermissions.o2oDeliver)));
   }
 
   private async toResponse(actor: Actor, row: ShiftRow): Promise<RetailShiftResponse> {
@@ -178,8 +179,9 @@ export class RetailShiftsService {
   private async visibility(actor: Actor): Promise<SQL> {
     const manage = await retailScope(this.permissionService, actor, retailPermissions.manageShifts);
     const sale = await retailScope(this.permissionService, actor, retailPermissions.sale);
-    if (!manage && !sale) throw new ApiError("FORBIDDEN", "forbidden");
-    return sql`(${scopeCondition(manage, sql`s.branch_id`)} OR (sh.cashier_id = ${actor.userId} AND ${scopeCondition(sale, sql`s.branch_id`)}))`;
+    const deliver = await retailScope(this.permissionService, actor, retailPermissions.o2oDeliver);
+    if (!manage && !sale && !deliver) throw new ApiError("FORBIDDEN", "forbidden");
+    return sql`(${scopeCondition(manage, sql`s.branch_id`)} OR (sh.cashier_id = ${actor.userId} AND (${scopeCondition(sale, sql`s.branch_id`)} OR ${scopeCondition(deliver, sql`s.branch_id`)})))`;
   }
 
   async detail(actor: Actor, id: string): Promise<RetailShiftResponse> {
@@ -269,7 +271,8 @@ export class RetailShiftsService {
       ).rows[0];
       if (!register) throw new ApiError("NOT_FOUND", "notFound");
       const granted = await retailPermissionsAt(this.permissionService, actor, register.branch_id);
-      if (!granted.has(retailPermissions.sale)) throw new ApiError("FORBIDDEN", "forbidden");
+      // Người chỉ có quyền giao đơn trực tuyến mở ca để giữ tiền thu khi giao (CONG_VIEC_57; mục 6).
+      if (!granted.has(retailPermissions.sale) && !granted.has(retailPermissions.o2oDeliver)) throw new ApiError("FORBIDDEN", "forbidden");
       if (!register.available) throw new ApiError("BUSINESS_RULE", "retailRegisterUnavailable");
       const own = await transaction.execute(sql`SELECT 1 FROM retail.shifts WHERE cashier_id = ${actor.userId} AND status = 'open'`);
       if (own.rows.length > 0) throw new ApiError("BUSINESS_RULE", "retailCashierHasShift");

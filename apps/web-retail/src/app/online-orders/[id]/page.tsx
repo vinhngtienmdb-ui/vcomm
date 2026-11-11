@@ -22,6 +22,7 @@ export default function OnlineOrderDetailPage() {
   const { state, reload } = useApi<StationOrderDetail>(`/retail/station-orders/${id}`);
   const [cancelling, setCancelling] = useState(false);
   const [reason, setReason] = useState("");
+  const [courier, setCourier] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   async function act(path: string, body: object, done: string) {
@@ -66,7 +67,27 @@ export default function OnlineOrderDetailPage() {
             )}
             <Link href="/online-orders">{t("back")}</Link>
           </div>
-          {order.status === "ready_for_pickup" && <p className="khoi thong-tin">{t("readyHint")}</p>}
+          {order.status === "ready_for_pickup" && <p className="khoi thong-tin">{t(order.fulfillmentMode === "station_delivery" ? "readyDeliveryHint" : "readyHint")}</p>}
+          {order.canAssign && (
+            <div className="bo-loc">
+              <select className="o-nhap" aria-label={t("assignTo")} value={courier} onChange={(event) => setCourier(event.target.value)}>
+                <option value="">{t("assignTo")}</option>
+                {order.couriers.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className={`nut phu${busy ? " dang-xu-ly" : ""}`}
+                disabled={busy || !courier}
+                onClick={() => void act("assign", { courierUserId: courier, version: order.version }, t("assignDone"))}
+              >
+                {t("assign")}
+              </button>
+            </div>
+          )}
           {cancelling && (
             <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
               <label htmlFor="ly-do-huy">{t("cancelReason")}</label>

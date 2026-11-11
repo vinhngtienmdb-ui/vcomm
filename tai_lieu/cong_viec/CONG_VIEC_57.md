@@ -195,7 +195,7 @@ Kịch bản kiểm thử KICHBAN_KIEMTHU_559 đến KICHBAN_KIEMTHU_572 lập �
 | Mã nhận hàng, vai trò                    | Không gửi mã qua Zalo ZNS (QUYTAC_NGHIEPVU_425); thêm vai trò Nhân viên giao hàng trạm (mục 6)                 |
 | Đơn mua chung (2026-11-11, khi duyệt L2) | Giữ chặn: đơn mua chung chỉ giao qua đơn vị vận chuyển                                                         |
 
-Điều chỉnh khi lập trình (không đổi nghiệp vụ đã duyệt): danh sách trạm trả trong xem trước đơn (API_221 không lập đường dẫn riêng); `marketplace.orders` thêm `station_id`; bảng `retail.station_orders`, `retail.station_collections` lập ở 0111, `retail.delivery_attempts` ở lát L4; phiếu xuất lập và ghi sổ khi giao thành công thay cho phiếu nháp lúc Đã soạn xong (nhân viên trạm không cần quyền lập phiếu kho).
+Điều chỉnh khi lập trình (không đổi nghiệp vụ đã duyệt): danh sách trạm trả trong xem trước đơn (API_221 không lập đường dẫn riêng); `marketplace.orders` thêm `station_id`; bảng `retail.station_orders`, `retail.station_collections` lập ở 0111, lần giao không thành công ghi ở lịch sử đơn (`delivery_failed`) và số lần ở `retail.station_orders`, không lập bảng `retail.delivery_attempts`; phiếu xuất lập và ghi sổ khi giao thành công thay cho phiếu nháp lúc Đã soạn xong (nhân viên trạm không cần quyền lập phiếu kho).
 
 ## 15. Lát và điểm xem trước
 
