@@ -62,6 +62,7 @@ import { ShopController } from "./marketplace/shop.controller";
 import { ShopService } from "./marketplace/shop.service";
 import { MarketplaceOrdersService } from "./marketplace/marketplace-orders.service";
 import { ShipmentsService } from "./marketplace/shipments.service";
+import { ReturnRequestsService } from "./marketplace/return-requests.service";
 import { CarrierWebhookController } from "./marketplace/carrier-webhook.controller";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { SalesController } from "./sales/sales.controller";
@@ -162,6 +163,7 @@ import { UsersService } from "./users/users.service";
     ShopService,
     MarketplaceOrdersService,
     ShipmentsService,
+    ReturnRequestsService,
     SupplierPricesService,
     SalesOrdersService,
     InternalTradeService,

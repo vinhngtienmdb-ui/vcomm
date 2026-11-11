@@ -1,5 +1,6 @@
 // API_124, API_125: cửa hàng, giỏ hàng, danh mục tỉnh xã, sổ địa chỉ của người mua trên ứng dụng VComm (CONG_VIEC_24).
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req, Res } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import {
   buyerAddressSchema,
   type BuyerAddressItem,
@@ -17,12 +18,16 @@ import {
   type BuyerOrderDetail,
   type BuyerOrderListItem,
   type BuyerOrderPreview,
+  createReturnRequestSchema,
+  returnDecisionSchema,
+  type ReturnRequestItem,
 } from "contracts";
 import type { Response } from "express";
 import { Public, type AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
 import { clientInfo } from "../auth/auth.controller";
 import { MarketplaceOrdersService } from "./marketplace-orders.service";
+import { ReturnRequestsService } from "./return-requests.service";
 import { ShopService } from "./shop.service";
 
 @Controller("buyer")
@@ -30,7 +35,35 @@ export class ShopController {
   constructor(
     private readonly shop: ShopService,
     private readonly orders: MarketplaceOrdersService,
+    private readonly returns: ReturnRequestsService,
   ) {}
+
+  // API_129: trả hàng trong 7 ngày.
+  @Post("return-requests/images")
+  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: 6 * 1024 * 1024, files: 1 } }))
+  uploadReturnImage(@Req() request: AuthenticatedRequest, @UploadedFile() file: { buffer: Buffer; size: number } | undefined): Promise<{ id: string }> {
+    return this.returns.uploadImage(request.auth.userId, file);
+  }
+
+  @Get("return-requests/images/:id")
+  async returnImage(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Res() response: Response): Promise<void> {
+    const file = await this.returns.image(id, { buyerUserId: request.auth.userId });
+    response.setHeader("content-type", file.contentType);
+    response.setHeader("cache-control", "private, max-age=3600");
+    response.setHeader("x-content-type-options", "nosniff");
+    response.send(file.content);
+  }
+
+  @Post("orders/:id/return-requests")
+  createReturn(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<ReturnRequestItem[]> {
+    return this.returns.create(request.auth.userId, id, createReturnRequestSchema.parse(body));
+  }
+
+  @Post("return-requests/:id/withdraw")
+  @HttpCode(200)
+  withdrawReturn(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<ReturnRequestItem[]> {
+    return this.returns.withdraw(request.auth.userId, id, returnDecisionSchema.parse(body).version);
+  }
 
   // API_126: đơn của người mua.
   @Post("orders/preview")

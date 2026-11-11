@@ -10,6 +10,7 @@ import { money, translator } from "@/lib/i18n";
 import { colors, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
+const returnTone = { pending: "warning", approved: "info", rejected: "error", withdrawn: "neutral", received: "success", not_received: "neutral" } as const;
 const dateTime = (iso: string) =>
   new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(iso));
 
@@ -27,6 +28,16 @@ export default function OrderScreen() {
       .catch((failure: unknown) => setError(failure instanceof ApiFailure ? failure.message : t("unknownError")));
   }, [id]);
   useFocusEffect(load);
+
+  async function withdraw(requestId: string, version: number) {
+    setError(null);
+    try {
+      await api(`/buyer/return-requests/${requestId}/withdraw`, { method: "POST", json: { version } });
+      load();
+    } catch (failure) {
+      setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
+    }
+  }
 
   async function cancel() {
     if (!order) return;
@@ -88,6 +99,25 @@ export default function OrderScreen() {
                 </View>
               ))}
             </Card>
+            {order.returnRequests.length > 0 ? (
+              <Card>
+                <Text style={{ fontWeight: "700", color: colors.text }}>{t("returnRequests")}</Text>
+                {order.returnRequests.map((request) => (
+                  <View key={request.id} style={{ gap: space[1], borderTopWidth: 1, borderTopColor: colors.border, paddingTop: space[2] }}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", gap: space[2], flexWrap: "wrap" }}>
+                      <Text style={{ color: colors.text, fontWeight: "600" }}>{t(`returnReason_${request.reason}`)}</Text>
+                      <StatusBadge text={t(`returnStatus_${request.status}`)} tone={returnTone[request.status]} />
+                    </View>
+                    <Muted>{request.lines.map((line) => `${line.quantity} × ${line.productName}`).join(", ")}</Muted>
+                    <Muted>{`${dateTime(request.createdAt)} · ${request.description}`}</Muted>
+                    {request.decisionNote ? <Muted>{t("returnNote", { note: request.decisionNote })}</Muted> : null}
+                    {request.status === "approved" ? <Notice tone="info" text={t("returnSendBack")} /> : null}
+                    {request.canWithdraw ? <Button label={t("returnWithdraw")} kind="secondary" onPress={() => void withdraw(request.id, request.version)} /> : null}
+                  </View>
+                ))}
+              </Card>
+            ) : null}
+            {order.canRequestReturn ? <Button label={t("requestReturn")} kind="secondary" onPress={() => router.push({ pathname: "/tra-hang", params: { id: order.id } })} /> : null}
             {order.canCancel ? (
               cancelling ? (
                 <Card>

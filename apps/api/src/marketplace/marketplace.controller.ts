@@ -1,5 +1,5 @@
 // API_119: quản trị tài khoản người mua VComm trên web-crm (CONG_VIEC_23). Quyền xét tại công ty vận hành sàn.
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req, Res } from "@nestjs/common";
 import {
   buyerChangeReferrerSchema,
   buyerListQuerySchema,
@@ -27,17 +27,24 @@ import {
   cancelMarketplaceOrderSchema,
   marketplaceOrderListQuerySchema,
   shipMarketplaceOrderSchema,
+  returnDecisionSchema,
+  returnRejectSchema,
+  returnRequestListQuerySchema,
+  type ReturnRequestAdminItem,
   type MarketplaceOrderDetail,
   type MarketplaceOrderListItem,
 } from "contracts";
+import type { Response } from "express";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
+import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { BuyerAdminService } from "./buyer-admin.service";
 import { SalesProposalsService } from "./sales-proposals.service";
 import { SalesTeamService } from "./sales-team.service";
 import { MarketplaceOrdersService } from "./marketplace-orders.service";
 import { ShipmentsService } from "./shipments.service";
+import { ReturnRequestsService } from "./return-requests.service";
 import { StoreService } from "./store.service";
 
 @Controller("marketplace")
@@ -49,7 +56,41 @@ export class MarketplaceController {
     private readonly store: StoreService,
     private readonly orders: MarketplaceOrdersService,
     private readonly shipments: ShipmentsService,
+    private readonly returns: ReturnRequestsService,
   ) {}
+
+  // API_129: yêu cầu trả hàng (CONG_VIEC_24).
+  @Get("return-requests")
+  async returnRequests(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<ReturnRequestAdminItem>> {
+    return this.returns.list(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.view"), returnRequestListQuerySchema.parse(query));
+  }
+
+  @Get("return-requests/images/:id")
+  async returnImage(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Res() response: Response): Promise<void> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.view");
+    const file = await this.returns.image(id, { companyId: actor.operatorCompanyId });
+    response.setHeader("content-type", file.contentType);
+    response.setHeader("cache-control", "private, max-age=3600");
+    response.setHeader("x-content-type-options", "nosniff");
+    response.send(file.content);
+  }
+
+  @Get("return-requests/:id")
+  async returnRequest(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<ReturnRequestAdminItem> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.view");
+    return this.returns.detail(actor, id, await this.admin.allows(request.auth.userId, clientInfo(request), "marketplace.order.manage"));
+  }
+
+  @Post("return-requests/:id/:action")
+  @HttpCode(200)
+  async decideReturn(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Param("action") action: string, @Body() body: unknown): Promise<ReturnRequestAdminItem> {
+    const actions = { approve: "approve", reject: "reject", receive: "receive", "not-received": "not_received" } as const;
+    const chosen = actions[action as keyof typeof actions];
+    if (!chosen) throw new ApiError("NOT_FOUND", "notFound");
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.manage");
+    const input = chosen === "reject" || chosen === "not_received" ? returnRejectSchema.parse(body) : returnDecisionSchema.parse(body);
+    return this.returns.decide(actor, id, chosen, input.note, input.version);
+  }
 
   @Post("orders/:id/ship")
   @HttpCode(200)

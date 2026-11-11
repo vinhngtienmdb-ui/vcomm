@@ -38,6 +38,7 @@ function Gate() {
       <Stack.Screen name="so-dia-chi" />
       <Stack.Screen name="dat-hang" />
       <Stack.Screen name="don-hang/[id]" />
+      <Stack.Screen name="tra-hang" />
       <Stack.Screen name="index" />
     </Stack>
   );

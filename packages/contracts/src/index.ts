@@ -4299,6 +4299,9 @@ export interface BuyerOrderDetail extends BuyerOrderListItem {
   cancelReason: string | null;
   events: MarketplaceOrderEvent[];
   canCancel: boolean;
+  // Trả hàng trong 7 ngày (QUYTAC_NGHIEPVU_161).
+  returnRequests: ReturnRequestItem[];
+  canRequestReturn: boolean;
   version: number;
 }
 
@@ -4348,3 +4351,54 @@ export const buyerOrderListQuerySchema = z
   .strict();
 export const cancelMarketplaceOrderSchema = z.object({ reason: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
 export const shipMarketplaceOrderSchema = z.object({ carrierCode: z.enum(carrierCodes), version: z.number().int().min(1) }).strict();
+
+// API_129: trả hàng trong 7 ngày (QUYTAC_NGHIEPVU_161).
+export const returnReasons = ["defective", "wrong_item", "not_as_described", "other"] as const;
+export type ReturnReason = (typeof returnReasons)[number];
+export const returnRequestStatuses = ["pending", "approved", "rejected", "withdrawn", "received", "not_received"] as const;
+export type ReturnRequestStatus = (typeof returnRequestStatuses)[number];
+
+export interface ReturnRequestItem {
+  id: string;
+  orderId: string;
+  documentNo: string;
+  status: ReturnRequestStatus;
+  reason: ReturnReason;
+  description: string;
+  lines: Array<{ orderLineId: string; productName: string; variantLabel: string; quantity: string }>;
+  images: string[];
+  decisionNote: string | null;
+  createdAt: string;
+  decidedAt: string | null;
+  closedAt: string | null;
+  canWithdraw: boolean;
+  version: number;
+}
+
+export interface ReturnRequestAdminItem extends ReturnRequestItem {
+  buyerName: string;
+  buyerPhone: string;
+  canDecide: boolean;
+  canClose: boolean;
+}
+
+export const createReturnRequestSchema = z
+  .object({
+    reason: z.enum(returnReasons),
+    description: z.string().trim().min(1).max(500),
+    lines: z
+      .array(z.object({ orderLineId: z.uuid(), quantity: z.number().int().min(1).max(999) }).strict())
+      .min(1)
+      .max(50),
+    imageIds: z.array(z.uuid()).max(5).default([]),
+  })
+  .strict();
+export const returnDecisionSchema = z.object({ note: z.string().trim().max(500).nullable().default(null), version: z.number().int().min(1) }).strict();
+export const returnRejectSchema = z.object({ note: z.string().trim().min(1).max(500), version: z.number().int().min(1) }).strict();
+export const returnRequestListQuerySchema = z
+  .object({
+    status: z.enum(returnRequestStatuses).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();

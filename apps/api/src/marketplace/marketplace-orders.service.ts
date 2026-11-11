@@ -16,18 +16,18 @@ import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Actor } from "../permissions/roles.service";
-import { SalesOrdersService } from "../sales/sales-orders.service";
+import { returnedOnOrderLine, SalesOrdersService } from "../sales/sales-orders.service";
 import type { ClientInfo } from "../auth/auth.service";
 import { localPhone } from "./buyer-accounts.service";
 import type { BuyerAdminActor } from "./buyer-admin.service";
 import { buyerAccount, sellableVariants, shopImagePath, vietnamToday } from "./shop.service";
 import { carrierNames, loadStoreContext, type StoreContext } from "./store.service";
 import { carrierConfigured } from "./carriers/carrier-registry";
+import { buyerReturnRequests, returnWindowHours } from "./return-requests.service";
 
 type Executor = Pick<Database, "execute" | "insert">;
 type Line = { variantId: string; quantity: number };
 const dailyOrderLimit = 20;
-const returnWindowHours = 168;
 
 type OrderRow = {
   id: string;
@@ -272,6 +272,7 @@ export class MarketplaceOrdersService {
   }
 
   private async detailOf(row: OrderRow): Promise<BuyerOrderDetail> {
+    const returnRequests = await buyerReturnRequests(this.database, row.id);
     const events = await this.database.execute<{ status: string; note: string | null; created_at: Date }>(
       sql`SELECT status, note, created_at FROM marketplace.order_events WHERE order_id = ${row.id} ORDER BY created_at, id`,
     );
@@ -293,6 +294,13 @@ export class MarketplaceOrdersService {
       cancelReason: row.cancel_reason,
       events: events.rows.map((event) => ({ status: event.status, note: event.note, at: iso(event.created_at)! })),
       canCancel: cancellableStatuses.includes(row.status),
+      returnRequests,
+      // Trong 7 ngày từ lúc giao thành công và không có yêu cầu đang xử lý (QUYTAC_NGHIEPVU_161).
+      canRequestReturn:
+        row.status === "delivered" &&
+        row.delivered_at !== null &&
+        new Date(row.delivered_at).getTime() + returnWindowHours * 3_600_000 > Date.now() &&
+        !returnRequests.some((request) => request.status === "pending" || request.status === "approved"),
       version: row.version,
     };
   }
@@ -400,5 +408,32 @@ export class MarketplaceOrdersService {
       canRefreshShipment: canManage && row.tracking_code !== null,
       carriers: carriers.rows.map((carrier) => ({ code: carrier.code, name: carrierNames[carrier.code], isEnabled: carrier.is_enabled, isConfigured: carrierConfigured(carrier.code) })),
     };
+  }
+
+  // Tự hoàn tất (QUYTAC_NGHIEPVU_162): đã qua 7 ngày từ lúc giao thành công, không còn yêu cầu trả hàng chờ duyệt hoặc đã duyệt chưa kết thúc.
+  // Giá trị hoàn tất là tiền hàng gồm thuế trừ phần hàng trả đã nhận, làm tròn đến đồng; chạy mỗi giờ.
+  async completeDue(): Promise<number> {
+    const due = await this.database.execute<{ id: string }>(sql`
+      SELECT m.id FROM marketplace.orders m
+      WHERE m.status = 'delivered' AND m.delivered_at + make_interval(hours => ${returnWindowHours}) <= now()
+        AND NOT EXISTS (SELECT 1 FROM marketplace.return_requests r WHERE r.order_id = m.id AND r.status IN ('pending', 'approved'))
+      ORDER BY m.delivered_at LIMIT 500`);
+    let completed = 0;
+    for (const order of due.rows) {
+      await this.database.transaction(async (transaction) => {
+        const updated = await transaction.execute(sql`
+          UPDATE marketplace.orders m SET status = 'completed', completed_at = now(), version = version + 1,
+            completed_amount = round(coalesce((
+              SELECT sum(l.total_amount * greatest(l.base_quantity - ${returnedOnOrderLine(sql`l.id`)}, 0) / l.base_quantity)
+              FROM sales.order_lines l WHERE l.order_id = m.sales_order_id), 0))
+          WHERE m.id = ${order.id} AND m.status = 'delivered'
+            AND NOT EXISTS (SELECT 1 FROM marketplace.return_requests r WHERE r.order_id = m.id AND r.status IN ('pending', 'approved'))
+          RETURNING m.id`);
+        if (updated.rows.length === 0) return;
+        await this.event(transaction, order.id, "completed", null, null);
+        completed += 1;
+      });
+    }
+    return completed;
   }
 }

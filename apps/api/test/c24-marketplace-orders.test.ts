@@ -7,6 +7,7 @@ import type { Pool } from "pg";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
+import { MarketplaceOrdersService } from "../src/marketplace/marketplace-orders.service";
 import { PermissionService } from "../src/permissions/permission.service";
 import { signIn, type Session } from "./helpers";
 import { startTestApplication } from "./setup-database";
@@ -534,5 +535,125 @@ describe("CONG_VIEC_24 giao hàng qua GHN", () => {
       { type: "sales_issue", status: "posted" },
       { type: "sales_return", status: "posted" },
     ]);
+  });
+});
+
+// Đặt, giao cho GHN, lấy hàng, giao thành công; trả về chi tiết đơn của người mua.
+async function deliveredOrder(lines: { variantId: string; quantity: number }[]) {
+  const order = await placeOrder(lines);
+  const shipped = (await call("post", `/marketplace/orders/${order.id}/ship`, { carrierCode: "ghn", version: order.version })).body;
+  ghnStatus.set(shipped.trackingCode, "delivered");
+  await webhook(webhookKey, { OrderCode: shipped.trackingCode });
+  const buyer = await buyerSession("0933000001");
+  const detail = (await buyer("get", `/buyer/orders/${order.id}`)).body;
+  expect(detail.status).toBe("delivered");
+  return { detail, buyer };
+}
+const png = Buffer.from("89504e470d0a1a0a0000000d4948445200000001000000010806000000", "hex");
+
+describe("CONG_VIEC_24 trả hàng, hoàn tất", () => {
+  it("KICHBAN_KIEMTHU_317: yêu cầu trả hàng trong 7 ngày, số lượng không vượt, ảnh, một yêu cầu đang xử lý; rút, từ chối, duyệt, nhận hàng trả, không nhận được hàng", async () => {
+    const { detail, buyer } = await deliveredOrder([
+      { variantId: variants.cream, quantity: 2 },
+      { variantId: variants.soap, quantity: 1 },
+    ]);
+    expect(detail.canRequestReturn).toBe(true);
+    const creamLine = detail.lines.find((line: { productName: string }) => line.productName === "Kem dưỡng da VComm").orderLineId;
+    const soapLine = detail.lines.find((line: { productName: string }) => line.productName === "Xà phòng thảo dược").orderLineId;
+    // Ảnh: chỉ nhận JPG, PNG theo nội dung.
+    const token = (await http().post("/api/v1/buyer/login").send({ phone: "0933000001", password })).body.tokens.accessToken;
+    const upload = (content: Buffer, name: string) => http().post("/api/v1/buyer/return-requests/images").set("authorization", `Bearer ${token}`).attach("file", content, name);
+    expect((await upload(Buffer.from("khong phai anh"), "a.png")).status).toBe(400);
+    const image = await upload(png, "loi.png");
+    expect(image.status, JSON.stringify(image.body)).toBe(201);
+    const base = { reason: "defective", description: "Kem bị vỡ nắp" };
+    expect((await buyer("post", `/buyer/orders/${detail.id}/return-requests`, { ...base, lines: [{ orderLineId: creamLine, quantity: 3 }] })).body.error.fields["lines.0.quantity"]).toBe(
+      "Số lượng trả vượt số đã giao còn được trả.",
+    );
+    const created = await buyer("post", `/buyer/orders/${detail.id}/return-requests`, { ...base, lines: [{ orderLineId: creamLine, quantity: 1 }], imageIds: [image.body.id] });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    expect(created.body[0]).toMatchObject({ status: "pending", reason: "defective", canWithdraw: true });
+    expect(created.body[0].images).toHaveLength(1);
+    expect((await buyer("get", created.body[0].images[0].replace("/api/v1", ""))).status).toBe(200);
+    // Một yêu cầu đang xử lý mỗi đơn.
+    expect((await buyer("post", `/buyer/orders/${detail.id}/return-requests`, { ...base, lines: [{ orderLineId: soapLine, quantity: 1 }] })).body.error.message).toBe(
+      "Đơn đang có yêu cầu trả hàng chưa xử lý xong.",
+    );
+    expect((await buyer("get", `/buyer/orders/${detail.id}`)).body.canRequestReturn).toBe(false);
+    // Rút; gửi lại; quản trị từ chối có ghi chú.
+    expect((await buyer("post", `/buyer/return-requests/${created.body[0].id}/withdraw`, { version: created.body[0].version })).body[0].status).toBe("withdrawn");
+    const again = (await buyer("post", `/buyer/orders/${detail.id}/return-requests`, { ...base, lines: [{ orderLineId: creamLine, quantity: 2 }] })).body[0];
+    expect((await call("post", `/marketplace/return-requests/${again.id}/reject`, { note: "", version: again.version })).status).toBe(400);
+    const rejected = await call("post", `/marketplace/return-requests/${again.id}/reject`, { note: "Ảnh không cho thấy lỗi", version: again.version });
+    expect(rejected.body).toMatchObject({ status: "rejected", decisionNote: "Ảnh không cho thấy lỗi", canDecide: false });
+    const buyerId = (await pool.query("SELECT id FROM core.users WHERE phone = '+84933000001'")).rows[0].id;
+    expect((await pool.query("SELECT title FROM core.notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1", [buyerId])).rows[0].title).toBe("Yêu cầu trả hàng bị từ chối");
+    // Duyệt rồi nhận hàng trả: nhập lại kho đúng số lượng.
+    const third = (
+      await buyer("post", `/buyer/orders/${detail.id}/return-requests`, {
+        ...base,
+        lines: [
+          { orderLineId: creamLine, quantity: 1 },
+          { orderLineId: soapLine, quantity: 1 },
+        ],
+      })
+    ).body[0];
+    const creamBefore = await stockOf(variants.cream);
+    const soapBefore = await stockOf(variants.soap);
+    const approved = (await call("post", `/marketplace/return-requests/${third.id}/approve`, { note: null, version: third.version })).body;
+    expect(approved).toMatchObject({ status: "approved", canClose: true });
+    expect((await call("post", `/marketplace/return-requests/${third.id}/approve`, { note: null, version: approved.version })).status).toBe(409);
+    const received = (await call("post", `/marketplace/return-requests/${third.id}/receive`, { note: null, version: approved.version })).body;
+    expect(received.status).toBe("received");
+    expect(await stockOf(variants.cream)).toBe(creamBefore + 1);
+    expect(await stockOf(variants.soap)).toBe(soapBefore + 1);
+    // Còn 1 kem được trả; yêu cầu thứ tư duyệt rồi không nhận được hàng: không nhập kho.
+    expect((await buyer("post", `/buyer/orders/${detail.id}/return-requests`, { ...base, lines: [{ orderLineId: soapLine, quantity: 1 }] })).status).toBe(400);
+    const fourth = (await buyer("post", `/buyer/orders/${detail.id}/return-requests`, { ...base, lines: [{ orderLineId: creamLine, quantity: 1 }] })).body[0];
+    const fourthApproved = (await call("post", `/marketplace/return-requests/${fourth.id}/approve`, { note: null, version: fourth.version })).body;
+    const lost = (await call("post", `/marketplace/return-requests/${fourth.id}/not-received`, { note: "Quá hạn không thấy hàng về", version: fourthApproved.version })).body;
+    expect(lost).toMatchObject({ status: "not_received", decisionNote: "Quá hạn không thấy hàng về" });
+    expect(await stockOf(variants.cream)).toBe(creamBefore + 1);
+    const listed = await call("get", "/marketplace/return-requests?status=received");
+    expect(listed.body.data.map((item: { id: string }) => item.id)).toEqual([third.id]);
+    // Hết 7 ngày: không gửi được yêu cầu.
+    await pool.query("UPDATE marketplace.orders SET delivered_at = now() - interval '169 hours' WHERE id = $1", [detail.id]);
+    expect((await buyer("post", `/buyer/orders/${detail.id}/return-requests`, { ...base, lines: [{ orderLineId: creamLine, quantity: 1 }] })).body.error.message).toBe(
+      "Đơn này không còn trong thời hạn trả hàng 7 ngày kể từ khi giao thành công.",
+    );
+    // Người mua khác không gửi được, không xem được ảnh.
+    const other = await buyerSession("0933000003");
+    expect((await other("get", created.body[0].images[0].replace("/api/v1", ""))).status).toBe(404);
+  });
+
+  it("KICHBAN_KIEMTHU_318: tự hoàn tất sau 7 ngày, chờ yêu cầu trả hàng đang xử lý; giá trị hoàn tất trừ phần trả đã nhận, không gồm phí giao hàng", async () => {
+    const service = application.get(MarketplaceOrdersService);
+    const { detail: plain } = await deliveredOrder([{ variantId: variants.cream, quantity: 1 }]);
+    const { detail: returned, buyer } = await deliveredOrder([
+      { variantId: variants.cream, quantity: 1 },
+      { variantId: variants.soap, quantity: 1 },
+    ]);
+    // Chưa đủ 7 ngày: không hoàn tất.
+    await service.completeDue();
+    expect((await buyer("get", `/buyer/orders/${plain.id}`)).body.status).toBe("delivered");
+    const soapLine = returned.lines.find((line: { productName: string }) => line.productName === "Xà phòng thảo dược").orderLineId;
+    const request = (await buyer("post", `/buyer/orders/${returned.id}/return-requests`, { reason: "wrong_item", description: "Giao nhầm mùi", lines: [{ orderLineId: soapLine, quantity: 1 }] }))
+      .body[0];
+    await pool.query("UPDATE marketplace.orders SET delivered_at = now() - interval '169 hours' WHERE id = ANY($1::uuid[])", [[plain.id, returned.id]]);
+    await service.completeDue();
+    const completed = (await buyer("get", `/buyer/orders/${plain.id}`)).body;
+    expect(completed).toMatchObject({ status: "completed", completedAmount: "250000" });
+    expect(completed.events.at(-1).status).toBe("completed");
+    // Yêu cầu đang xử lý: chờ.
+    expect((await buyer("get", `/buyer/orders/${returned.id}`)).body.status).toBe("delivered");
+    const approved = (await call("post", `/marketplace/return-requests/${request.id}/approve`, { note: null, version: request.version })).body;
+    await service.completeDue();
+    expect((await buyer("get", `/buyer/orders/${returned.id}`)).body.status).toBe("delivered");
+    await call("post", `/marketplace/return-requests/${request.id}/receive`, { note: null, version: approved.version });
+    await service.completeDue();
+    expect((await buyer("get", `/buyer/orders/${returned.id}`)).body).toMatchObject({ status: "completed", completedAmount: "250000", canRequestReturn: false });
+    // Đơn hoàn tất không hủy, không trả được nữa.
+    expect((await buyer("post", `/buyer/orders/${plain.id}/cancel`, { reason: "Muộn", version: completed.version })).status).toBe(409);
+    expect(await service.completeDue()).toBe(0);
   });
 });
