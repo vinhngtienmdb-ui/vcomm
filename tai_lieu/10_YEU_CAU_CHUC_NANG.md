@@ -1,9 +1,11 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.15
+- Phiên bản: 2.16
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: trả trước nội bộ, số dư ngược chiều, chốt số khi gửi, công ty và đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm CHUC_NANG_96 đến CHUC_NANG_98 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh); phạm vi xem đối tác (CHUC_NANG_46, CHUC_NANG_48) và đơn bán theo nhân viên phụ trách; CONG_VIEC_23 (2026-11-10): thêm CHUC_NANG_104 đến CHUC_NANG_108 của MODULE_09 (tài khoản người mua); CONG_VIEC_27 (2026-11-10): thêm CHUC_NANG_109 đến CHUC_NANG_112 (đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm CHUC_NANG_113 đến CHUC_NANG_119 của MODULE_09 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm CHUC_NANG_120 đến CHUC_NANG_124 của MODULE_09 (thanh toán đơn người mua); CHUC_NANG_116 thêm chọn phương thức thanh toán; CONG_VIEC_26 (2026-11-11): thêm CHUC_NANG_134 đến CHUC_NANG_138 của MODULE_09 (hoa hồng theo đơn và ví hoa hồng; phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm CHUC_NANG_157, CHUC_NANG_158 (sửa theo mô hình B2C); đánh dấu CHUC_NANG_80 đến CHUC_NANG_83 (CONG_VIEC_17) đã bỏ, CHUC_NANG_96 đến CHUC_NANG_98 (CONG_VIEC_21) đã tắt; CHUC_NANG_31, 54, 55, 56, 58, 59, 60 bổ sung; CONG_VIEC_50 (2026-11-11): thêm CHUC_NANG_175 đến CHUC_NANG_177 của MODULE_15 (báo cáo quản trị), yêu cầu phi chức năng
+
 - Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: trả trước nội bộ, số dư ngược chiều, chốt số khi gửi, công ty và đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm CHUC_NANG_96 đến CHUC_NANG_98 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh); phạm vi xem đối tác (CHUC_NANG_46, CHUC_NANG_48) và đơn bán theo nhân viên phụ trách; CONG_VIEC_23 (2026-11-10): thêm CHUC_NANG_104 đến CHUC_NANG_108 của MODULE_09 (tài khoản người mua); CONG_VIEC_27 (2026-11-10): thêm CHUC_NANG_109 đến CHUC_NANG_112 (đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm CHUC_NANG_113 đến CHUC_NANG_119 của MODULE_09 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm CHUC_NANG_120 đến CHUC_NANG_124 của MODULE_09 (thanh toán đơn người mua); CHUC_NANG_116 thêm chọn phương thức thanh toán; CONG_VIEC_26 (2026-11-11): thêm CHUC_NANG_134 đến CHUC_NANG_138 của MODULE_09 (hoa hồng theo đơn và ví hoa hồng; phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm CHUC_NANG_157, CHUC_NANG_158 (sửa theo mô hình B2C); đánh dấu CHUC_NANG_80 đến CHUC_NANG_83 (CONG_VIEC_17) đã bỏ, CHUC_NANG_96 đến CHUC_NANG_98 (CONG_VIEC_21) đã tắt; CHUC_NANG_31, 54, 55, 56, 58, 59, 60 bổ sung; CONG_VIEC_45 (2026-11-11): thêm CHUC_NANG_160, CHUC_NANG_161 (nhập khẩu)
 
 ## MODULE_01 Nền tảng
@@ -1909,6 +1911,94 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 8:
 - Dữ liệu: không xóa dữ liệu giao khách, giao dịch nội bộ đã có; bút toán cũ nguồn hoa hồng giữ nguyên.
 - Không thêm thư viện.
 
+## MODULE_08 Nhân sự (phần 1, CONG_VIEC_46)
+
+| Mã | Chức năng | Yêu cầu |
+|---|---|---|
+| CHUC_NANG_162 | Hồ sơ nhân sự: danh sách, lập, sửa; liên kết tài khoản; giấy tờ và tệp; ghi nhận đồng ý xử lý dữ liệu nhạy cảm; người phụ thuộc; quá trình công tác (tự cập nhật thành viên công ty khi đến ngày hiệu lực); nghỉ việc; trang "Hồ sơ của tôi" | YCAU_NGHIEPVU_59, 60, 61, 62, 65 |
+| CHUC_NANG_163 | Hợp đồng lao động, hợp đồng thử việc, phụ lục: lập, sửa, gửi duyệt, rút, xác nhận đã ký (tải bản đã ký), chấm dứt, hủy; giá trị hiện hành sau phụ lục | YCAU_NGHIEPVU_63, 64 |
+| CHUC_NANG_164 | Nhắc hết hạn hợp đồng: danh sách sắp hết hạn, đã hết hạn chưa xử lý; thông báo theo mốc | YCAU_NGHIEPVU_65 |
+
+Yêu cầu phi chức năng: số giấy tờ, tài khoản ngân hàng, mã số thuế, số sổ bảo hiểm xã hội mã hóa khi lưu, mỗi lần hiện hoặc tải tệp ghi nhật ký thao tác; việc nền áp dụng quyết định công tác lúc 0 giờ 5 phút, nhắc hết hạn lúc 7 giờ giờ Việt Nam. Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md`.
+
+## MODULE_08 Nhân sự (phần 2, CONG_VIEC_47)
+
+| Mã | Chức năng | Yêu cầu |
+|---|---|---|
+| CHUC_NANG_165 | Ca làm, lịch tuần, xếp ca theo ngày, ngày lễ, cài đặt chấm công và địa điểm chấm công; lượt chấm (nhập tệp, thủ công, ứng dụng, mã QR động); tính công ngày; đơn giải trình công | YCAU_NGHIEPVU_66, 67, 68 |
+| CHUC_NANG_166 | Nghỉ phép: loại nghỉ, chế độ phép năm của nhân viên, sổ phép (cộng dần, điều chỉnh, hết hạn, thanh toán), đơn nghỉ qua luồng duyệt, nhân sự ghi nhận nghỉ | YCAU_NGHIEPVU_69 |
+| CHUC_NANG_167 | Tăng ca (phiếu đăng ký, đồng ý, luồng duyệt, giới hạn); bảng công tháng (kỳ, tổng hợp, xác nhận, giải trình, chốt, mở lại, xuất Excel); trang "Chấm công của tôi" | YCAU_NGHIEPVU_70, 71 |
+
+Yêu cầu phi chức năng: tính lại công ngày, sổ phép, trạng thái đơn trong cùng giao dịch; gửi đơn nghỉ, phiếu tăng ca khóa hồ sơ để kiểm số dư, giới hạn; mọi ghi dữ liệu thuộc tháng kiểm kỳ bảng công đã chốt; việc nền giờ Việt Nam: tính lại công 1 giờ, cộng phép 0 giờ 15 phút, tự xác nhận bảng công 0 giờ 30 phút; tọa độ GPS chỉ lưu tại lượt chấm. Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_47.md`.
+## Ứng dụng kho trên điện thoại (CONG_VIEC_44)
+
+### CHUC_NANG_159: Ứng dụng kho trên điện thoại, máy quét cầm tay
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_53, YCAU_NGHIEPVU_54, YCAU_NGHIEPVU_55; Quy tắc: QUYTAC_NGHIEPVU_280 đến QUYTAC_NGHIEPVU_284 (áp dụng cùng QUYTAC_NGHIEPVU_45 đến 55)
+- Vai trò: Thủ kho, Quản lý kho, quản trị công ty, quản trị tập đoàn
+- Xử lý: đăng nhập phiên `warehouse_app`; chọn công ty, kho thao tác được; quét mã bằng máy quét chế độ bàn phím hoặc camera; tra tồn theo lô, vị trí, serial; nhận hàng đơn mua, xuất giao hàng đơn bán, phiếu nhập khác, xuất khác, chuyển kho (lập, gửi, rút, xác nhận xuất, nhận) qua API kho có sẵn; đếm kiểm kê cộng dồn, lịch sử đếm, đếm mù
+- Màn hình: MAN_HINH_105 đến MAN_HINH_109; API: API_137, API_138, API_139; dùng lại API_15, API_63 đến API_67, API_76, API_79
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_278 đến TIEUCHI_NGHIEMTHU_281
+
+## Yêu cầu phi chức năng của ứng dụng kho (CONG_VIEC_44)
+
+- Bắt buộc có mạng; dữ liệu đang nhập giữ trên màn hình khi gửi lỗi.
+- Token trong bộ nhớ an toàn của máy; phiên ứng dụng 90 ngày.
+- Thư viện mới duy nhất: `expo-camera`.
+## MODULE_15 Báo cáo quản trị (phần 1, CONG_VIEC_50)
+
+### CHUC_NANG_175: Mini app Báo cáo quản trị; phạm vi xem, bộ lọc công ty, tổng quan, xuất Excel
+- Mục đích: Ban điều hành tập đoàn và lãnh đạo từng công ty xem chỉ tiêu chính của bán hàng, hàng tồn, công nợ, hoa hồng trên cùng một nơi, trong đúng phạm vi công ty được xem.
+- Người sử dụng: Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán, Quản lý kho và người được gán vai trò tự tạo có quyền báo cáo quản trị.
+- Điều kiện thực hiện: `analytics.access` ở công ty đang chọn; mỗi báo cáo cần thêm quyền của nhóm (`analytics.sales.view`, `analytics.inventory.view`, `analytics.debt.view`, `analytics.commission.view`) gán ở phạm vi tập đoàn hoặc công ty.
+- Dữ liệu đầu vào: Phạm vi: công ty đang chọn. Tổng quan: danh sách công ty (`companyIds`, không bắt buộc, tối đa 100), từ ngày, đến ngày. Xuất Excel: bộ lọc của báo cáo đang xem kèm `format=xlsx`.
+- Quy trình xử lý: Phạm vi: lấy tập đoàn (công ty gốc của công ty đang chọn và mọi công ty con các cấp, như QUYTAC_NGHIEPVU_123); với từng nhóm báo cáo, quyền gán ở phạm vi tập đoàn cho mọi công ty của tập đoàn, quyền gán ở phạm vi công ty cho công ty đang chọn, quyền ở phạm vi chi nhánh không tính; đánh dấu công ty cùng đồng tiền hạch toán với công ty gốc được cộng vào tổng (QUYTAC_NGHIEPVU_336, QUYTAC_NGHIEPVU_339). Bộ lọc công ty chỉ liệt kê công ty được xem, mặc định chọn tất cả; yêu cầu chứa công ty ngoài phạm vi bị từ chối cả yêu cầu. Kiểm khoảng ngày bắt buộc, từ ngày không sau đến ngày, tối đa 366 ngày; mặc định từ đầu tháng đến hôm nay (QUYTAC_NGHIEPVU_343). Tổng quan: với từng nhóm có quyền, tính chỉ tiêu bằng đúng phần tính của báo cáo đó; nhóm không có quyền hoặc không có công ty đã chọn được xem thì để trống. Xuất Excel: dựng tệp từ đúng số liệu của báo cáo cùng bộ lọc, tối đa 20.000 dòng, ghi nhật ký thao tác (người xuất, báo cáo, bộ lọc, số dòng). Chỉ đọc, không ghi dữ liệu nghiệp vụ.
+- Kết quả đầu ra: Phạm vi: tập đoàn (mã, tên, đồng tiền), hôm nay, danh sách công ty được xem (mã, tên, đồng tiền, cộng vào tổng hay không), công ty được xem theo từng nhóm báo cáo. Tổng quan: doanh số, lãi gộp, bảng doanh số theo công ty; giá trị tồn cuối kỳ; phải thu (trong đó quá hạn), phải trả; hoa hồng đã ghi có, đang chờ, số dư ví. Xuất: tệp `.xlsx`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_90
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_336, QUYTAC_NGHIEPVU_339, QUYTAC_NGHIEPVU_343
+- Trường hợp ngoại lệ: Quyền nhóm này ở phạm vi tập đoàn, nhóm khác ở phạm vi công ty: mỗi báo cáo theo phạm vi của nhóm đó. Người chỉ có quyền ở phạm vi chi nhánh: không xem được công ty nào. Công ty khác đồng tiền: hiện dòng riêng, ghi chú "Không cộng vào tổng (khác đồng tiền)".
+- Phân quyền: Không có `analytics.access` nhận 403; không có quyền nhóm báo cáo nhận 403 ở API của nhóm đó; menu, thẻ chỉ tiêu tổng quan hiện theo quyền từng nhóm.
+- Thông báo lỗi: "Bạn không có quyền thực hiện thao tác này." · "Vui lòng nhập thông tin này." (từ ngày, đến ngày) · "Từ ngày không được sau đến ngày." · "Khoảng ngày tối đa 366 ngày. Hãy thu hẹp khoảng ngày." · "Quá 20.000 dòng. Hãy thu hẹp bộ lọc rồi xuất lại."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_321, TIEUCHI_NGHIEMTHU_328
+
+### CHUC_NANG_176: Báo cáo bán hàng; báo cáo tồn kho và luân chuyển
+- Mục đích: Xem doanh số hàng đã giao kèm giá vốn, lãi gộp theo kênh, công ty, sản phẩm, thời gian (gồm đơn VComm) và xem nhập xuất tồn, vòng quay hàng tồn kho, số liệu khớp sổ của Kho, Bán hàng, Tài chính – Kế toán.
+- Người sử dụng: Ban điều hành, giám đốc công ty, trưởng phòng kinh doanh (bán hàng); Ban điều hành, Quản lý kho (tồn kho).
+- Điều kiện thực hiện: `analytics.access` và `analytics.sales.view` (bán hàng) hoặc `analytics.inventory.view` (tồn kho), ở phạm vi tập đoàn hoặc công ty.
+- Dữ liệu đầu vào: Bán hàng: công ty (`companyIds`), từ ngày, đến ngày, cách nhóm (công ty, kênh, sản phẩm, ngày, tháng; mặc định công ty), kênh (không bắt buộc), chỉ đơn VComm (mặc định không), định dạng (`json`, `xlsx`). Tồn kho: công ty, kho (không bắt buộc), từ ngày, đến ngày, cách nhóm (công ty, kho, sản phẩm; mặc định kho), định dạng.
+- Quy trình xử lý: Bán hàng: doanh số trong kỳ = phiếu xuất giao hàng đã ghi sổ có ngày phiếu trong kỳ trừ phiếu nhận hàng trả lại đã ghi sổ có ngày phiếu trong kỳ; số tiền chưa thuế tính bằng hàm `finance.inventory_amounts` như bút toán doanh thu; giá vốn là giá trị xuất kho đã ghi sổ của dòng phiếu, phiếu dịch vụ không có giá vốn; lãi gộp = doanh số − giá vốn, tỷ lệ lãi gộp = lãi gộp ÷ doanh số (doanh số bằng 0 thì để trống); số lượng theo đơn vị cơ sở; hàng tặng doanh số 0 vẫn tính số lượng, giá vốn; đơn VComm là đơn bán sinh từ đơn người mua, không tính đơn của người mua thử, không tính phí giao hàng (QUYTAC_NGHIEPVU_337). Dòng bán cho đối tác nội bộ thuộc tập đoàn tách cột "Trong đó bán nội bộ"; dòng tổng có "Cộng các công ty" và "Tổng loại trừ nội bộ" (QUYTAC_NGHIEPVU_338). Tồn kho: theo công ty chủ hàng, kho, biến thể, từ thẻ kho, ngày theo giờ Việt Nam: tồn đầu kỳ, nhập, xuất, tồn cuối kỳ (số lượng, giá trị); giá vốn hàng bán theo QUYTAC_NGHIEPVU_337; vòng quay = giá vốn hàng bán ÷ tồn bình quân, số ngày tồn = số ngày của kỳ ÷ vòng quay, chia cho 0 thì để trống; chuyển kho là xuất của kho đi, nhập của kho đến (QUYTAC_NGHIEPVU_340). Hai báo cáo: tiền theo đồng tiền hạch toán từng công ty, dòng tổng chỉ cộng công ty cùng đồng tiền với công ty gốc (QUYTAC_NGHIEPVU_339); bảng hiện tối đa 500 dòng theo số tiền giảm dần, dòng tổng tính trên toàn bộ dữ liệu (QUYTAC_NGHIEPVU_343).
+- Kết quả đầu ra: Bán hàng: kỳ, cách nhóm, đồng tiền, công ty, kênh, dòng (khóa, nhãn, đồng tiền, cộng vào tổng hay không, số lượng, doanh số, giá vốn, lãi gộp, trong đó bán nội bộ), dòng tổng (kèm tổng loại trừ nội bộ), số dòng có dữ liệu khi bị cắt. Tồn kho: kỳ, số ngày, cách nhóm, đồng tiền, công ty, kho, dòng (đầu kỳ, nhập, xuất, cuối kỳ theo số lượng và giá trị, giá vốn hàng bán, vòng quay, số ngày tồn), dòng tổng giá trị, số dòng có dữ liệu khi bị cắt. Xuất: tệp `.xlsx`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_86, YCAU_NGHIEPVU_87
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_337 đến QUYTAC_NGHIEPVU_340, QUYTAC_NGHIEPVU_343
+- Trường hợp ngoại lệ: Hàng trả lại trừ vào kỳ nhận trả, không sửa kỳ bán. Kỳ không phát sinh: nhập, xuất bằng 0, tồn cuối kỳ bằng tồn đầu kỳ, vòng quay để trống. Xem gộp theo công ty: nhập, xuất gồm cả chuyển kho, tồn cuối kỳ của công ty không đổi. Kho không thuộc công ty được xem: 403.
+- Phân quyền: Không có quyền nhóm báo cáo nhận 403; mục menu "Bán hàng", "Tồn kho và luân chuyển" hiện theo quyền.
+- Thông báo lỗi: "Bạn không có quyền thực hiện thao tác này." · "Vui lòng nhập thông tin này." · "Từ ngày không được sau đến ngày." · "Khoảng ngày tối đa 366 ngày. Hãy thu hẹp khoảng ngày." · "Quá 20.000 dòng. Hãy thu hẹp bộ lọc rồi xuất lại."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_322, TIEUCHI_NGHIEMTHU_323, TIEUCHI_NGHIEMTHU_324, TIEUCHI_NGHIEMTHU_325, TIEUCHI_NGHIEMTHU_328
+
+### CHUC_NANG_177: Báo cáo công nợ theo tuổi nợ; báo cáo hoa hồng và ví
+- Mục đích: Xem công nợ phải thu, phải trả theo tuổi nợ của mọi công ty và hoa hồng đã ghi có, đang chờ, rút tiền, số dư ví của người hưởng, số liệu khớp sổ công nợ và dữ liệu hoa hồng, ví.
+- Người sử dụng: Ban điều hành, Kế toán trưởng, Kế toán.
+- Điều kiện thực hiện: `analytics.access` và `analytics.debt.view` (công nợ) hoặc `analytics.commission.view` (hoa hồng và ví), ở phạm vi tập đoàn hoặc công ty.
+- Dữ liệu đầu vào: Công nợ: công ty, phía (phải thu, phải trả; mặc định phải thu), cách nhóm (công ty, đối tác; mặc định công ty), định dạng; không có khoảng ngày. Hoa hồng: công ty, từ ngày, đến ngày, cách nhóm (loại phần hưởng, người hưởng; mặc định loại phần hưởng), định dạng.
+- Quy trình xử lý: Công nợ: dùng hàm tuổi nợ dùng chung với sổ công nợ (QUYTAC_NGHIEPVU_91) tại ngày hôm nay: số dư, chưa đến hạn, quá hạn 1 đến 30, 31 đến 60, 61 đến 90, trên 90 ngày, trả trước; cột "Trong đó nội bộ" là công nợ với đối tác nội bộ; dòng tổng kèm tổng loại trừ nội bộ; thẻ phải thu, phải trả (số dư, quá hạn) của các công ty cùng đồng tiền với công ty gốc (QUYTAC_NGHIEPVU_338, QUYTAC_NGHIEPVU_341). Hoa hồng: thuộc công ty vận hành VComm; trong kỳ: hoa hồng đã ghi có theo thời điểm ghi có, theo loại phần hưởng (giới thiệu, nhân viên, trưởng nhóm, giám đốc vùng, giám đốc) hoặc người hưởng; yêu cầu rút tiền đã chi theo ngày chi (số tiền, thuế thu nhập cá nhân, phí, thực nhận); tại hôm nay: hoa hồng đang chờ, yêu cầu rút đang chờ duyệt, tổng số dư ví; người hưởng hiện họ tên, không hiện số điện thoại, tài khoản ngân hàng (QUYTAC_NGHIEPVU_342). Hai báo cáo: bảng hiện tối đa 500 dòng, dòng tổng trên toàn bộ dữ liệu (QUYTAC_NGHIEPVU_343).
+- Kết quả đầu ra: Công nợ: hôm nay, phía, cách nhóm, đồng tiền, công ty, thẻ phải thu, phải trả, dòng (số dư, các cột tuổi nợ, trả trước, trong đó nội bộ), dòng tổng (kèm tổng loại trừ nội bộ), số dòng có dữ liệu khi bị cắt. Hoa hồng: kỳ, cách nhóm, đồng tiền, công ty, chỉ tiêu (đã ghi có, số dòng, đang chờ, rút tiền đã chi, rút tiền đang chờ, số dư ví), dòng (khóa, nhãn, số dòng, số tiền), bảng rút tiền đã chi (người nhận, ngày chi, số tiền, thuế, phí, thực nhận), số dòng có dữ liệu khi bị cắt. Xuất: tệp `.xlsx`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_88, YCAU_NGHIEPVU_89
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_338, QUYTAC_NGHIEPVU_339, QUYTAC_NGHIEPVU_341, QUYTAC_NGHIEPVU_342, QUYTAC_NGHIEPVU_343
+- Trường hợp ngoại lệ: Công ty vận hành VComm không nằm trong các công ty đã chọn: số dư ví để trống. Công nợ không có khoảng ngày, không xem được tại ngày trong quá khứ.
+- Phân quyền: Không có quyền nhóm báo cáo nhận 403; mục menu "Công nợ theo tuổi nợ", "Hoa hồng và ví" hiện theo quyền; hai quyền này là quyền nhạy cảm (tài liệu `22`).
+- Thông báo lỗi: "Bạn không có quyền thực hiện thao tác này." · "Vui lòng nhập thông tin này." (hoa hồng) · "Từ ngày không được sau đến ngày." · "Khoảng ngày tối đa 366 ngày. Hãy thu hẹp khoảng ngày." · "Quá 20.000 dòng. Hãy thu hẹp bộ lọc rồi xuất lại."
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_324, TIEUCHI_NGHIEMTHU_326, TIEUCHI_NGHIEMTHU_327, TIEUCHI_NGHIEMTHU_328
+
+## Yêu cầu phi chức năng của MODULE_15 (phần 1)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Bảo mật | Quyền xét riêng từng nhóm báo cáo; điều kiện phạm vi công ty nằm trong truy vấn; quyền công nợ, hoa hồng và ví là quyền nhạy cảm; mỗi lần xuất Excel ghi nhật ký thao tác; người hưởng không hiện số điện thoại, tài khoản ngân hàng (tài liệu `22`) |
+| Toàn vẹn | Chỉ đọc, không ghi dữ liệu nghiệp vụ; không tính lại khác đi: doanh số dùng `finance.inventory_amounts`, giá vốn dùng giá trị xuất kho đã ghi sổ, tuổi nợ dùng hàm dùng chung với sổ công nợ (sổ công nợ không đổi kết quả), tồn kho theo thẻ kho, hoa hồng theo bảng hoa hồng đơn và ví |
+| Ranh giới module | Module `apps/api/src/analytics` chỉ đọc; truy vấn Drizzle `sql` có tham số, không ghép chuỗi |
+| Hiệu năng | Lọc theo công ty, khoảng ngày trong truy vấn; chỉ mục của database migration 0083; giới hạn 366 ngày, 500 dòng hiện, 20.000 dòng xuất; mục tiêu mỗi báo cáo trả về dưới 3 giây với 1.000.000 dòng thẻ kho, 200.000 dòng phiếu |
+| Thư viện | Không thêm thư viện; xuất Excel bằng `write-excel-file` đã có |
+| Giao diện | Mini app `web-analytics` (đường dẫn `/analytics`) theo khung `web-finance`; dùng được trên điện thoại |
+
 ## MODULE_04 Mua hàng (phần 2: Nhập khẩu và phân bổ chi phí, CONG_VIEC_45)
 
 ### CHUC_NANG_160: Đơn mua nhập khẩu ngoại tệ, nhập kho theo tỷ giá, tờ khai hải quan
@@ -1938,3 +2028,13 @@ Yêu cầu phi chức năng: tiền dùng `numeric`, làm tròn theo đơn vị 
 | CHUC_NANG_18 | Tác vụ kiểm tra quá hạn chạy mỗi 15 phút |
 | CHUC_NANG_19 | Vô hiệu hóa ở một công ty chỉ gỡ khỏi công ty đó |
 | Phi chức năng | Mốc 200 người dùng đồng thời |
+
+## MODULE_08 Nhân sự (phần 3, CONG_VIEC_48)
+
+| Mã | Chức năng | Yêu cầu |
+|---|---|---|
+| CHUC_NANG_168 | Thiết lập lương: tham số pháp luật theo ngày hiệu lực (cấp tập đoàn); thiết lập công ty (kinh phí công đoàn, tỷ lệ tai nạn lao động, vùng của chi nhánh, nhóm chi phí của phòng ban, ngưỡng khấu trừ 10%); danh mục loại phụ cấp; chọn loại phụ cấp trên hợp đồng, phụ lục; hồ sơ lương của nhân viên (lương đóng bảo hiểm theo tháng hiệu lực, miễn đóng, cách tính thuế, cam kết) | YCAU_NGHIEPVU_72, 73 |
+| CHUC_NANG_169 | Bảng lương tháng: lập theo công ty và tháng, tính, tính lại, khoản cộng thêm và khấu trừ nhập tay, cảnh báo, gửi duyệt, rút, hủy, xuất Excel; giải trình từng dòng                                                                                                                                                                                                                  | YCAU_NGHIEPVU_74, 75 |
+| CHUC_NANG_170 | Bút toán lương khi duyệt; ghi đã trả lương sinh bút toán trả; phiếu lương trong "Hồ sơ của tôi", thông báo chuông và email                                                                                                                                                                                                                                                          | YCAU_NGHIEPVU_76, 77 |
+
+Yêu cầu phi chức năng: tiền tính bằng số nguyên đồng (bigint) và `numeric`, không dùng số thực; tham số pháp luật cấu hình theo ngày hiệu lực; nhật ký thao tác không ghi số tiền lương; email phiếu lương gửi sau khi duyệt, lỗi gửi không làm hỏng duyệt.

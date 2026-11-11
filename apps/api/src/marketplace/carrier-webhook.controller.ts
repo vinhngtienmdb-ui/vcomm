@@ -12,7 +12,7 @@ export class CarrierWebhookController {
   @OwnRateLimit()
   @Post(":code/webhook/:key")
   @HttpCode(200)
-  receive(@Req() request: Request, @Param("code") code: string, @Param("key") key: string, @Body() body: unknown): Promise<{ result: string }> {
+  receive(@Req() request: Request, @Param("code") code: string, @Param("key") key: string, @Body() body: unknown): Promise<unknown> {
     return this.shipments.webhook(code, key, body, request.ip ?? "khong-ro");
   }
 }

@@ -32,8 +32,8 @@ type Direction = "debit" | "credit";
 const inventoryTypes = ["sales_issue", "sales_return", "purchase_receipt", "purchase_return"] as const;
 type InventoryType = (typeof inventoryTypes)[number];
 
-// Tuổi nợ trên số còn lại của khoản tăng nợ theo hạn thanh toán (QUYTAC_NGHIEPVU_91).
-const ageingColumns = (today: string) => sql`
+// Tuổi nợ trên số còn lại của khoản tăng nợ theo hạn thanh toán (QUYTAC_NGHIEPVU_91). Báo cáo quản trị dùng lại (CONG_VIEC_50).
+export const ageingColumns = (today: string) => sql`
   coalesce(sum(CASE WHEN i.direction = 'debit' AND i.due_date >= ${today}::date THEN i.open_amount END), 0)::text AS not_due,
   coalesce(sum(CASE WHEN i.direction = 'debit' AND ${today}::date - i.due_date BETWEEN 1 AND 30 THEN i.open_amount END), 0)::text AS overdue_1_30,
   coalesce(sum(CASE WHEN i.direction = 'debit' AND ${today}::date - i.due_date BETWEEN 31 AND 60 THEN i.open_amount END), 0)::text AS overdue_31_60,
@@ -41,7 +41,7 @@ const ageingColumns = (today: string) => sql`
   coalesce(sum(CASE WHEN i.direction = 'debit' AND ${today}::date - i.due_date > 90 THEN i.open_amount END), 0)::text AS overdue_over_90,
   coalesce(sum(CASE WHEN i.direction = 'debit' THEN i.open_amount ELSE -i.open_amount END), 0)::text AS balance,
   coalesce(sum(CASE WHEN i.direction = 'credit' THEN i.open_amount END), 0)::text AS advance`;
-type AgeingRow = { not_due: string; overdue_1_30: string; overdue_31_60: string; overdue_61_90: string; overdue_over_90: string; balance: string; advance: string };
+export type AgeingRow = { not_due: string; overdue_1_30: string; overdue_31_60: string; overdue_61_90: string; overdue_over_90: string; balance: string; advance: string };
 const toAgeing = (row: AgeingRow): DebtAgeing => ({
   notDue: trimDecimal(row.not_due),
   overdue1To30: trimDecimal(row.overdue_1_30),
