@@ -2,10 +2,12 @@
 // Mỗi cổng (CONG_VIEC_33 đến 39) thêm lớp kết nối của mình vào danh sách trên dòng riêng, không chạy prettier trên tệp này.
 import type { PaymentGatewayCode, PaymentMethodCode } from "contracts";
 import { VnpayGateway } from "./gateways/vnpay-gateway";
+import { ApplePayGateway } from "./gateways/apple-pay-gateway";
 import type { PaymentGatewayAdapter } from "./payment-gateway";
 
 export const paymentGateways: PaymentGatewayAdapter[] = [
   new VnpayGateway(),
+  new ApplePayGateway(),
 ];
 
 export function gatewayAdapter(code: string): PaymentGatewayAdapter | null {

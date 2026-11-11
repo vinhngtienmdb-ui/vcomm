@@ -3653,7 +3653,9 @@
     "vnpay_atm": "Thẻ ATM nội địa",
     "vnpay_card": "Thẻ quốc tế Visa, Mastercard",
     "gateway_cod": "Thu hộ khi giao",
-    "gateway_vnpay": "VNPAY"
+    "gateway_vnpay": "VNPAY",
+    "apple_pay_wallet": "Apple Pay (qua ZaloPay)",
+    "gateway_apple_pay": "Apple Pay"
   },
   "refunds": {
     "title": "Hoàn tiền đơn VComm",

@@ -3653,7 +3653,9 @@
     "vnpay_atm": "Domestic ATM card",
     "vnpay_card": "International card (Visa, Mastercard)",
     "gateway_cod": "Collected on delivery",
-    "gateway_vnpay": "VNPAY"
+    "gateway_vnpay": "VNPAY",
+    "apple_pay_wallet": "Apple Pay (via ZaloPay)",
+    "gateway_apple_pay": "Apple Pay"
   },
   "refunds": {
     "title": "VComm refunds",
