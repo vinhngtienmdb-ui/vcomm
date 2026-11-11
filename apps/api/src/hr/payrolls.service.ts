@@ -26,6 +26,7 @@ import { payrollDraft, payrollPaymentDraft } from "../accounting/postings";
 import { ApprovalRequestsService } from "../approvals/approval-requests.service";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
+import { CLOCK, type Clock } from "../common/clock";
 import { notify } from "../common/notifications";
 import { OUTBOUND_MESSAGES, type OutboundMessages, webOrigin } from "../common/outbound-messages";
 import { OutboxService } from "../common/outbox.service";
@@ -142,6 +143,7 @@ export class PayrollsService implements OnModuleInit {
     private readonly setup: PayrollSetupService,
     private readonly ledger: LedgerService,
     @Inject(OUTBOUND_MESSAGES) private readonly messages: OutboundMessages,
+    @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
   private readonly logger = new Logger("PayrollsService");
@@ -172,7 +174,7 @@ export class PayrollsService implements OnModuleInit {
   // Đã duyệt: khóa mở lại bảng công, ghi bút toán trích lương, thông báo phiếu lương (QUYTAC_NGHIEPVU_323).
   // Bút toán ghi ngày cuối tháng; kỳ đó đã khóa sổ sau khi gửi duyệt thì ghi ngày duyệt để không ghi vào kỳ đã khóa.
   private async approve(transaction: Executor, payrollId: string, companyId: string, month: string): Promise<void> {
-    await transaction.execute(sql`UPDATE hr.payrolls SET status = 'approved', approved_at = now(), updated_at = now() WHERE id = ${payrollId}`);
+    await transaction.execute(sql`UPDATE hr.payrolls SET status = 'approved', approved_at = ${this.clock.now().toISOString()}::timestamptz, updated_at = now() WHERE id = ${payrollId}`);
     await this.timesheet.lock(transaction, companyId, month, true);
     const settings = await ledgerSettings(transaction, companyId);
     const end = monthEnd(month);
