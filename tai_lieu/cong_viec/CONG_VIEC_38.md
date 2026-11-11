@@ -96,7 +96,8 @@ Tệp `apps/api/test/c38-payment-ecopay.test.ts`. Máy chủ Ecopay giả lập 
 
 ## Kết quả kiểm thử
 
-- 2026-11-11: `c38-payment-ecopay.test.ts` đạt 4/4. Kiểm tra kiểu, lint đạt. Kết quả hồi quy toàn bộ `pnpm --filter api test`: xem mục bên dưới.
+- 2026-11-11: `c38-payment-ecopay.test.ts` đạt 4/4. Kiểm tra kiểu, lint đạt.
+- Hồi quy `pnpm --filter api test`: 46/47 tệp đạt; `c25-payment-methods.test.ts` so khớp đúng toàn bộ danh sách phương thức nên lệch khi thêm phương thức Ecopay. Đã sửa để kiểm thử đó chỉ so 4 phương thức đầu (COD, VNPAY) theo thứ tự; chạy lại đạt. Các cổng CONG_VIEC_33 đến 39 có thể gặp cùng lỗi này, phiên chính chọn một cách sửa khi hợp nhất.
 
 ## Các dòng phiên chính cập nhật khi hợp nhất
 
