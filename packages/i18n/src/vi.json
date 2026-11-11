@@ -558,7 +558,13 @@
     "retailReturnExpired": "Hóa đơn đã quá hạn trả hàng của cửa hàng.",
     "retailReturnOtherStore": "Hóa đơn bán ở cửa hàng khác. Trả hàng tại cửa hàng đã bán.",
     "retailReturnsDisabled": "Cửa hàng không nhận trả hàng.",
-    "retailCashInsufficient": "Tiền mặt trong két không đủ để hoàn. Chọn hoàn chuyển khoản."
+    "retailCashInsufficient": "Tiền mặt trong két không đủ để hoàn. Chọn hoàn chuyển khoản.",
+    "retailSmartOtpInactive": "Khách chưa kích hoạt Smart OTP. Mời khách mở ứng dụng VComm → Điểm thưởng → Kích hoạt Smart OTP.",
+    "retailSmartOtpLocked": "Dùng điểm tại quầy đang tạm khóa 15 phút do nhập sai mã Smart OTP nhiều lần.",
+    "retailSmartOtpInvalid": "Mã Smart OTP không đúng hoặc đã dùng. Nhờ khách đọc mã mới trong ứng dụng.",
+    "retailSmartOtpRequired": "Nhập mã Smart OTP của khách để dùng điểm.",
+    "retailCustomerNotFound": "Không tìm thấy khách VComm theo số điện thoại này.",
+    "retailCustomerChanged": "Khách đã đổi hoặc tạm khóa dùng điểm. Tra lại khách rồi thanh toán."
   },
   "login": {
     "title": "Đăng nhập",

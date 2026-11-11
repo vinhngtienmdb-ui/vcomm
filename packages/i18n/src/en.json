@@ -558,7 +558,13 @@
     "retailReturnExpired": "The receipt is past the store's return window.",
     "retailReturnOtherStore": "The sale belongs to another store. Return it at the selling store.",
     "retailReturnsDisabled": "This store does not accept returns.",
-    "retailCashInsufficient": "Not enough cash in the drawer. Refund by bank transfer."
+    "retailCashInsufficient": "Not enough cash in the drawer. Refund by bank transfer.",
+    "retailSmartOtpInactive": "The customer has not activated Smart OTP. Ask them to open the VComm app → Rewards → Activate Smart OTP.",
+    "retailSmartOtpLocked": "Using points at the counter is locked for 15 minutes after too many wrong Smart OTP codes.",
+    "retailSmartOtpInvalid": "The Smart OTP code is wrong or already used. Ask the customer for a new code.",
+    "retailSmartOtpRequired": "Enter the customer's Smart OTP code to use points.",
+    "retailCustomerNotFound": "No VComm customer found for this phone number.",
+    "retailCustomerChanged": "The customer changed or points are locked. Look up the customer again and retry."
   },
   "login": {
     "title": "Sign in",

@@ -5570,6 +5570,18 @@ export const createRetailSaleSchema = z
       })
       .strict()
       .optional(),
+    // Khách VComm (lát L6; QUYTAC_NGHIEPVU_379): tích điểm chỉ cần khách; dùng điểm cần mã Smart OTP 6 số. Tiền điểm do máy chủ tính.
+    customer: z
+      .object({
+        userId: z.uuid(),
+        points: z.number().int().min(0).max(1_000_000_000).default(0),
+        smartOtp: z
+          .string()
+          .regex(/^[0-9]{6}$/, "invalidValue")
+          .optional(),
+      })
+      .strict()
+      .optional(),
     payments: z
       .array(
         z
@@ -5580,12 +5592,34 @@ export const createRetailSaleSchema = z
           })
           .strict(),
       )
-      .min(1)
       .max(5),
     expectedTotal: decimalText(4),
   })
   .strict();
 export type CreateRetailSaleRequest = z.input<typeof createRetailSaleSchema>;
+// API_198: tra khách VComm tại quầy theo số điện thoại.
+export const retailCustomerQuerySchema = z
+  .object({
+    shiftId: z.uuid(),
+    phone: z.string().trim().min(9).max(20),
+    goodsAmount: decimalText(4).optional(),
+  })
+  .strict();
+export interface RetailCustomerResponse {
+  found: boolean;
+  userId: string | null;
+  maskedName: string | null;
+  maskedPhone: string;
+  tierName: string | null;
+  balance: number;
+  minPoints: number;
+  maxPoints: number;
+  pointValue: string | null;
+  redeemBlockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | "smart_otp_inactive" | "smart_otp_locked" | null;
+  smartOtpActive: boolean;
+  smartOtpLockedUntil: string | null;
+  expectedPoints: number;
+}
 export interface RetailSaleResponse {
   id: string;
   documentNo: string;
@@ -5611,6 +5645,15 @@ export interface RetailSaleResponse {
   // Các lần trả hàng của hóa đơn (CHUC_NANG_188).
   returns: { id: string; documentNo: string; returnedAt: string; refundAmount: string }[];
   // Hóa đơn điện tử khởi tạo từ máy tính tiền (QUYTAC_NGHIEPVU_378); null khi công ty chưa bật hóa đơn điện tử.
+  // Điểm của khách VComm (lát L6); null khi hóa đơn không có khách VComm.
+  loyalty: {
+    maskedName: string;
+    maskedPhone: string;
+    pointsUsed: number;
+    pointsAmount: string;
+    pointsEarned: number;
+    balanceAfter: number;
+  } | null;
   einvoice: {
     id: string;
     templateCode: string;
@@ -5715,6 +5758,11 @@ export interface RetailReturnQuoteResponse {
   lines: { orderLineId: string; quantity: string; amount: string }[];
   goodsAmount: string;
   refundAmount: string;
+  // Hóa đơn có khách VComm (lát L6): điểm hoàn, điểm thu hồi, tiền thiếu quy đổi trừ vào tiền hoàn.
+  refundedPoints: number;
+  refundedPointsAmount: string;
+  reversedPoints: number;
+  shortfallAmount: string;
   currency: string;
 }
 export interface RetailReturnResponse {
@@ -7339,6 +7387,25 @@ export interface LoyaltyTierProgress {
   // Hạng kế tiếp và số tiền còn thiếu trong năm nay; trống khi đã ở hạng cao nhất.
   nextTier: LoyaltyTier | null;
   remainingToNext: string | null;
+}
+// API_199: Smart OTP dùng điểm tại quầy (CONG_VIEC_53 lát L6). Khóa TOTP chỉ trả một lần khi kích hoạt.
+export const activateSmartOtpSchema = z
+  .object({
+    code: z.string().regex(/^[0-9]{6}$/, "invalidValue"),
+    deviceName: z.string().trim().min(1).max(100),
+  })
+  .strict();
+export interface SmartOtpStatusResponse {
+  active: boolean;
+  deviceName: string | null;
+  activatedAt: string | null;
+  lockedUntil: string | null;
+  maskedPhone: string | null;
+}
+export interface SmartOtpActivationResponse extends SmartOtpStatusResponse {
+  secret: string;
+  digits: 6;
+  period: 30;
 }
 export interface BuyerLoyaltyResponse extends LoyaltyTierProgress {
   balance: number;
