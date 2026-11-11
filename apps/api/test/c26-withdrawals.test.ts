@@ -36,6 +36,7 @@ describe("CONG_VIEC_26 rút tiền hoa hồng", () => {
       taxRate: "10",
       withdrawalFees: { byCount: [], byAmount: [] },
       withdrawalsThisMonth: 0,
+      approvedThisMonth: "0",
       bankAccount: null,
       open: null,
     });
@@ -110,5 +111,12 @@ describe("CONG_VIEC_26 rút tiền hoa hồng", () => {
     expect(notices).toEqual(["marketplace_withdrawal.reject", "marketplace_withdrawal.approve", "marketplace_withdrawal.pay"]);
     const audits = (await pool.query("SELECT action FROM core.audit_events WHERE entity_type = 'marketplace.withdrawals' ORDER BY occurred_at")).rows.map((row) => row.action);
     expect(audits).toEqual(["marketplace.withdrawal.reject", "marketplace.withdrawal.approve", "marketplace.withdrawal.pay"]);
+
+    // THAY_DOI_19: ngưỡng thuế cộng dồn số tiền đã duyệt trong tháng. Đã duyệt 5.500.000; cài đặt hiện ngưỡng 1.000.000, tỷ lệ 20%.
+    // Lần này 400.000 (dưới ngưỡng nếu xét riêng) nhưng cộng dồn 5.900.000 vượt ngưỡng: khấu trừ 20% × 400.000 = 80.000.
+    expect((await user("get", "/buyer/wallet")).body.withdrawal.approvedThisMonth).toBe("5500000");
+    const cumulative = (await create("400000")).body;
+    expect(cumulative).toMatchObject({ taxAmount: "80000", netAmount: "320000" });
+    expect((await store.call("post", `/marketplace/withdrawals/${cumulative.id}/approve`, { version: 1 })).body).toMatchObject({ taxAmount: "80000", netAmount: "320000" });
   });
 });

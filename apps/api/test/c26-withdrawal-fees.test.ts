@@ -91,9 +91,10 @@ describe("CONG_VIEC_26 phí rút tiền", () => {
     ]);
 
     // Lần 3, 1.000.000: phí theo lần 5.000 + 0,1% = 1.000 nâng lên tối thiểu 1.500 = 6.500.
+    // THAY_DOI_19: đã duyệt 9.000.000 trong tháng, cộng dồn vượt ngưỡng nên khấu trừ thuế 10% = 100.000.
     expect((await user("get", "/buyer/wallet")).body.withdrawal.withdrawalsThisMonth).toBe(2);
     const fourth = (await user("post", "/buyer/withdrawals", { amount: "1000000" })).body;
-    expect(fourth).toMatchObject({ feeAmount: "6500", netAmount: "993500" });
+    expect(fourth).toMatchObject({ taxAmount: "100000", feeAmount: "6500", netAmount: "893500" });
     expect((await user("post", `/buyer/withdrawals/${fourth.id}/cancel`, { version: 1 })).status).toBe(200);
     // Phí không được hết số tiền rút.
     expect((await settings({ byCount: [{ fromCount: 1, fee: "200000" }], byAmount: [] }, 4)).status).toBe(200);

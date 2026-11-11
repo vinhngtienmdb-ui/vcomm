@@ -4512,6 +4512,8 @@ export interface BuyerWithdrawalInfo {
   withdrawalFees: WithdrawalFeeRules;
   // Số yêu cầu đã gửi trong tháng này (không tính bị từ chối, đã rút lại): yêu cầu mới là lần thứ withdrawalsThisMonth + 1.
   withdrawalsThisMonth: number;
+  // THAY_DOI_19: tổng số tiền đã duyệt trong tháng này, để xét ngưỡng thuế cộng dồn.
+  approvedThisMonth: string;
   bankAccount: BuyerBankAccount | null;
   // Yêu cầu đang chờ duyệt hoặc đã duyệt chưa chi.
   open: WithdrawalItem | null;

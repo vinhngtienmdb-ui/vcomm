@@ -44,7 +44,8 @@ export default function WithdrawalScreen() {
 
   const info = wallet?.withdrawal;
   const value = Number(amount.replace(/\D/g, "") || 0);
-  const tax = info && value > Number(info.taxThreshold) ? Math.round((value * Number(info.taxRate)) / 100) : 0;
+  // Ngưỡng thuế cộng dồn số tiền đã duyệt trong tháng (THAY_DOI_19).
+  const tax = info && Number(info.approvedThisMonth) + value > Number(info.taxThreshold) ? Math.round((value * Number(info.taxRate)) / 100) : 0;
   // Phí rút tiền (THAY_DOI_17): yêu cầu mới là lần rút thứ withdrawalsThisMonth + 1 trong tháng.
   const fee = info ? withdrawalFee(value, info.withdrawalsThisMonth + 1, info.withdrawalFees) : 0;
   return (

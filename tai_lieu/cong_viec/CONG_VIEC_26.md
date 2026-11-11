@@ -32,7 +32,7 @@ Ngoài phạm vi: chi trả tự động qua ngân hàng; quyết toán thuế c
 - QUYTAC_NGHIEPVU_202: Tính khi đơn hoàn tất: phần trăm × tiền hàng chưa thuế giá trị gia tăng sau khuyến mãi của dòng (không tính quà tặng, phí giao hàng) theo phần số lượng không trả; số tiền cố định × số lượng không trả; làm tròn đến đồng. Cộng vào ví từng người hưởng (một giao dịch ví mỗi đơn mỗi người). Đơn hủy thì hoa hồng của đơn bỏ.
 - QUYTAC_NGHIEPVU_203: Ví: số dư = tổng cộng trừ tổng rút; hoa hồng đang chờ = ước tính của đơn chưa hoàn tất (theo tiền hàng hiện tại). Người dùng chỉ xem ví của mình; người quản lý xem tổng hoa hồng đã nhận, đang chờ của từng cấp dưới trong nhánh.
 - QUYTAC_NGHIEPVU_204: Rút tiền: số tiền từ mức tối thiểu (mặc định 100.000 đồng, cấu hình được) đến số dư; cần tài khoản ngân hàng đã lưu (MAN_HINH_100); một yêu cầu đang chờ mỗi người; tạo yêu cầu thì trừ số dư ngay (giữ tiền); từ chối hoặc người dùng rút lại thì cộng lại.
-- QUYTAC_NGHIEPVU_205: Thuế thu nhập cá nhân: yêu cầu có số tiền trên ngưỡng (mặc định 5.000.000 đồng) thì khấu trừ theo tỷ lệ (mặc định 10%) trên toàn bộ số tiền; ngưỡng, tỷ lệ cấu hình được; số thuế, số thực nhận chốt khi kế toán duyệt; bảng kê thuế đã khấu trừ theo tháng.
+- QUYTAC_NGHIEPVU_205: Thuế thu nhập cá nhân: tổng số tiền các yêu cầu đã duyệt (kể cả đã chi) của người đó trong cùng tháng duyệt (giờ Việt Nam) cộng số tiền yêu cầu đang xét vượt ngưỡng (mặc định 5.000.000 đồng; THAY_DOI_19) thì khấu trừ theo tỷ lệ (mặc định 10%) trên toàn bộ số tiền; ngưỡng, tỷ lệ cấu hình được; số thuế, số thực nhận chốt khi kế toán duyệt; bảng kê thuế đã khấu trừ theo tháng.
 - QUYTAC_NGHIEPVU_206: Duyệt chi: người có `marketplace.payment.manage` duyệt (chốt thuế, phí, số thực nhận) hoặc từ chối (lý do); sau khi chuyển khoản ghi đã chi (mã giao dịch ngân hàng, ngày); báo người dùng bằng thông báo trong ứng dụng. Bổ sung sau rà soát: không tự duyệt, từ chối, ghi đã chi yêu cầu của chính mình; ngày chi không trước ngày duyệt.
 - QUYTAC_NGHIEPVU_207: Hạch toán (công ty đã khởi tạo kế toán): đơn hoàn tất Nợ chi phí hoa hồng / Có phải trả hoa hồng (3388); ghi đã chi Nợ 3388 số tiền yêu cầu / Có tiền gửi ngân hàng số thực nhận / Có thuế thu nhập cá nhân phải nộp (3335) số thuế / Có thu nhập khác (711) số phí rút tiền (QUYTAC_NGHIEPVU_208).
 
@@ -70,7 +70,7 @@ Web-crm:
 - Database migration 0047 (`0047_marketplace_commission_postings.sql`): nguồn bút toán `marketplace_commission`, `marketplace_withdrawal`; vai trò định khoản `commission_payable` (3388), `personal_income_tax` (3335).
 - Database migration 0048 (`0048_marketplace_withdrawal_fees.sql`, THAY_DOI_17): `marketplace.commission_settings.withdrawal_fees`; `marketplace.withdrawals.fee_amount`, ràng buộc thực nhận + thuế + phí = số tiền; vai trò định khoản `other_income` (711).
 - API_134 thiết lập hoa hồng sản phẩm, cài đặt chung (quản trị; cài đặt chung thêm `withdrawalFees`).
-- API_135 ví, lịch sử, hoa hồng cấp dưới (ứng dụng; phần rút tiền thêm `withdrawalFees`, `withdrawalsThisMonth`).
+- API_135 ví, lịch sử, hoa hồng cấp dưới (ứng dụng; phần rút tiền thêm `withdrawalFees`, `withdrawalsThisMonth`, `approvedThisMonth` theo THAY_DOI_19).
 - API_136 rút tiền (ứng dụng: tạo, rút lại; quản trị: danh sách, duyệt, từ chối, ghi đã chi, bảng kê thuế; yêu cầu, bảng kê thêm `feeAmount`).
 
 ## 9. Điều kiện đặc biệt
