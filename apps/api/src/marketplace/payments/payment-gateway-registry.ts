@@ -3,9 +3,11 @@
 import type { PaymentGatewayCode, PaymentMethodCode } from "contracts";
 import { VnpayGateway } from "./gateways/vnpay-gateway";
 import type { PaymentGatewayAdapter } from "./payment-gateway";
+import { SepayGateway } from "./gateways/sepay-gateway";
 
 export const paymentGateways: PaymentGatewayAdapter[] = [
   new VnpayGateway(),
+  new SepayGateway(),
 ];
 
 export function gatewayAdapter(code: string): PaymentGatewayAdapter | null {

@@ -4091,11 +4091,13 @@ export const paymentMethodCodes = [
   "vnpay_qr",
   "vnpay_atm",
   "vnpay_card",
+  "sepay_bank_transfer",
 ] as const;
 export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
 export const paymentGatewayCodes = [
   "cod",
   "vnpay",
+  "sepay",
 ] as const;
 export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];
 
