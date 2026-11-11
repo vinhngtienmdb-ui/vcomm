@@ -9,12 +9,13 @@
 
 ### Công việc đã thực hiện
 
+- CONG_VIEC_24: Người dùng nghiệm thu; chờ người dùng hợp nhất pull request số 60 (sau số 59). Tiếp theo CONG_VIEC_25 Thanh toán đơn người mua.
 - CONG_VIEC_24: Xong lát L0 đến L4 trên nhánh `chuc-nang/CONG_VIEC_24-dat-hang-vcomm` (pull request số 60, tách từ nhánh CONG_VIEC_27). Database migration 0025 (danh mục 34 tỉnh, 3.321 xã từ bộ dữ liệu giấy phép MIT; cài đặt bán hàng, đăng bán, sổ địa chỉ, giỏ hàng, đơn VComm, vận đơn, trả hàng), 0026; API_123 đến 129; MAN_HINH_86 đến 97; khung đơn vị vận chuyển và GHN (giả lập trong kiểm thử); việc nền tự hoàn tất. Kiểm thử 324/324 đạt. Không thêm thư viện. Rà soát độc lập, sửa 2 lỗi Cao, 3 Trung bình, các mục Thấp. Chờ người dùng nghiệm thu.
 - CONG_VIEC_24: Bắt đầu Đặt hàng trên VComm (mức Lớn), nhánh `chuc-nang/CONG_VIEC_24-dat-hang-vcomm` tách từ nhánh CONG_VIEC_27.
 
 ### Vấn đề tồn đọng
 
-- CONG_VIEC_24: kết nối GHN cần thử với tài khoản môi trường thử nghiệm của GHN trước khi phát hành; đính kèm ảnh trả hàng trên điện thoại cần thêm thư viện `expo-image-picker` (chờ quyết định); CI GitHub Actions không chạy do tài khoản lỗi thanh toán.
+- CONG_VIEC_24: kết nối GHN cần thử với tài khoản môi trường thử nghiệm của GHN trước khi phát hành; CI GitHub Actions không chạy do tài khoản lỗi thanh toán.
 
 ### Quyết định
 
@@ -28,6 +29,7 @@
   - Địa chỉ: chọn tỉnh, xã theo đơn vị hành chính hai cấp từ 01/07/2025 cộng địa chỉ chi tiết; sổ nhiều địa chỉ, một địa chỉ mặc định. Danh mục lấy từ bộ dữ liệu công khai kèm mã (kho `thanglequoc/vietnamese-provinces-database`, giấy phép MIT, mã của Tổng cục Thống kê).
   - Hủy, hoàn tất: người mua tự hủy trước khi đơn vị vận chuyển lấy hàng; giao thất bại, hàng hoàn về thì đơn hủy, hàng nhập lại kho; đơn hoàn tất khi đủ 7 ngày từ lúc giao thành công và không còn yêu cầu trả hàng đang xử lý; trả một phần thì đơn hoàn tất với giá trị phần còn giữ (cơ sở hoa hồng ở CONG_VIEC_26).
   - Giao diện: không làm bản mẫu riêng, xem trước từng lát (như CONG_VIEC_23, CONG_VIEC_27).
+  - Nghiệm thu (2026-11-11): đồng ý; thêm thư viện `expo-image-picker` (Expo, giấy phép MIT) để đính kèm ảnh trả hàng trên điện thoại, làm thành sửa nhỏ trên cùng nhánh.
   - Xác nhận thiết kế: đơn người mua dùng lại đơn bán của công ty vận hành sàn trên kênh VComm; năm lát L0 đến L4; phí giao hàng chỉ lưu trên đơn, hạch toán khi thu tiền ở CONG_VIEC_25; chưa có mã giảm giá.
 
 ## 2026-11-10

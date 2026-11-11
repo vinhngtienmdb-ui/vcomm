@@ -198,7 +198,7 @@
   - C4 toàn vẹn dữ liệu: Đạt – đặt hàng khóa tài khoản người mua, so tổng đã thấy; giữ hàng không thời hạn tới khi xuất; vận đơn chờ xác nhận chặn giao trùng, chỉ một lần tạo ở GHN khi mất phản hồi; nhận webhook trùng không đổi kết quả; hoàn hàng nhập lại kho đúng số đã xuất; một yêu cầu trả hàng đang xử lý mỗi đơn; hoàn tất khóa đơn trước khi xét yêu cầu.
 - Tự rà soát mã và dọn dẹp: Đạt. Rà soát độc lập không thấy lỗi Nghiêm trọng; tìm 2 lỗi Cao (gọi GHN trong giao dịch có thể để lại vận đơn ngoài hệ thống; đơn VComm xử lý được từ màn hình đơn bán, phiếu kho làm kẹt hàng giữ), 3 Trung bình, các mục Thấp; đã sửa ở commit d8e3f7c, kiểm thử lại đạt. Ghi nhận còn lại ở đặc tả mục 16. Tệp tạm trong `tam_thoi/CONG_VIEC_24/` (Git bỏ qua).
 - Kết luận cổng kiểm thử: Đạt.
-- Kết luận: Chờ người dùng nghiệm thu; pull request số 60 (nền pull request số 59).
+- Kết luận: Người dùng nghiệm thu 2026-11-11; pull request số 60 (nền pull request số 59).
 
 ## Lần kiểm thử 2026-11-10 – CONG_VIEC_27
 
