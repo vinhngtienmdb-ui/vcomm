@@ -687,6 +687,15 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
               </dd>
             </>
           )}
+          {document.currency && document.exchangeRate && (
+            <>
+              <dt>{t("exchangeRate")}</dt>
+              <dd>
+                {t("exchangeRateValue", { currency: document.currency, rate: formatNumber(document.exchangeRate) })}
+                {document.foreignAmount && ` · ${formatMoney(document.foreignAmount, document.currency)}`}
+              </dd>
+            </>
+          )}
           <dt>{t("date")}</dt>
           <dd>{formatDate(document.documentDate)}</dd>
           <dt>{t("reason")}</dt>

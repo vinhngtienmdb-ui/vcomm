@@ -12,7 +12,8 @@ import { apiFetch } from "ui/lib/api";
 import { formatNumber } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 
-const levels = ["referral", "staff", "teamHead", "regionalDirector", "director"] as const;
+// CONG_VIEC_49: thêm mức cộng tác viên (QUYTAC_NGHIEPVU_326).
+const levels = ["referral", "collaborator", "staff", "teamHead", "regionalDirector", "director"] as const;
 type Level = (typeof levels)[number];
 
 function CommissionForm({ item, onDone }: { item: ListingItem; onDone: (saved: boolean) => void }) {
@@ -22,6 +23,7 @@ function CommissionForm({ item, onDone }: { item: ListingItem; onDone: (saved: b
   const [calculation, setCalculation] = useState<CommissionCalculation>(item.commission?.calculation ?? "percent");
   const [values, setValues] = useState<Record<Level, string>>({
     referral: item.commission?.referral ?? "0",
+    collaborator: item.commission?.collaborator ?? "0",
     staff: item.commission?.staff ?? "0",
     teamHead: item.commission?.teamHead ?? "0",
     regionalDirector: item.commission?.regionalDirector ?? "0",

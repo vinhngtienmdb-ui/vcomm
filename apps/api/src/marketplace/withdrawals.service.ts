@@ -11,6 +11,7 @@ import { notify } from "../common/notifications";
 import { DATABASE, type Database } from "../database/database.module";
 import type { BuyerAdminActor } from "./buyer-admin.service";
 import { localPhone } from "./local-phone";
+import { walletBlocked } from "./shopping-wallet";
 import { vietnamToday } from "./shop.service";
 import { commissionSettings } from "./store.service";
 
@@ -101,6 +102,7 @@ export class WithdrawalsService {
       paidOn: row.paid_on,
       createdAt: iso(row.created_at)!,
       decidedAt: iso(row.decided_at),
+      walletBlocked: await walletBlocked(executor, row.user_id, "commission"),
       version: row.version,
     };
   }
@@ -152,6 +154,7 @@ export class WithdrawalsService {
       withdrawalsThisMonth: await this.countThisMonth(executor, userId),
       approvedThisMonth: String(await this.approvedThisMonth(executor, userId)),
       bankAccount: bank ? { bankName: bank.bank_name, accountNumber: bank.account_number, accountHolder: bank.account_holder } : null,
+      blocked: await walletBlocked(executor, userId, "commission"),
       open: open ? await this.item(executor, open) : null,
     };
   }
@@ -173,6 +176,8 @@ export class WithdrawalsService {
       const companyId = await this.operatorCompany(transaction);
       const settings = await commissionSettings(transaction, companyId);
       const wallet = (await transaction.execute<{ balance: string }>(sql`SELECT balance::text FROM marketplace.wallets WHERE user_id = ${userId} FOR UPDATE`)).rows[0];
+      // Ví hoa hồng bị chặn: không tạo yêu cầu mới (THAY_DOI_22).
+      if (await walletBlocked(transaction, userId, "commission")) throw new ApiError("BUSINESS_RULE", "commissionWalletBlocked");
       const open = await transaction.execute(sql`SELECT 1 FROM marketplace.withdrawals WHERE user_id = ${userId} AND status IN ('pending', 'approved')`);
       if (open.rows.length > 0) throw new ApiError("BUSINESS_RULE", "withdrawalAlreadyOpen");
       if (amount < Number(settings.minimumWithdrawal)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { amount: "withdrawalBelowMinimum" } });
@@ -253,10 +258,24 @@ export class WithdrawalsService {
     return this.one(this.database, withdrawalId);
   }
 
+  // Chặn ví hoa hồng (THAY_DOI_22; QUYTAC_NGHIEPVU_391): yêu cầu chờ duyệt của người đó tự bị từ chối với lý do chặn, cộng lại số dư; gọi trong giao dịch của bên chặn.
+  async rejectPendingWithin(executor: Transaction, actor: BuyerAdminActor, userId: string, reason: string): Promise<void> {
+    const pending = await executor.execute<WithdrawalRow>(sql`${this.select} WHERE w.user_id = ${userId} AND w.status = 'pending' FOR UPDATE OF w`);
+    for (const row of pending.rows) {
+      await executor.execute(sql`SELECT 1 FROM marketplace.wallets WHERE user_id = ${userId} FOR UPDATE`);
+      await executor.execute(sql`
+        UPDATE marketplace.withdrawals SET status = 'rejected', reject_reason = ${reason}, decided_by = ${actor.userId}, decided_at = now(), version = version + 1 WHERE id = ${row.id}`);
+      await this.move(executor, { userId, withdrawalId: row.id, amount: Number(row.amount), kind: "withdrawal_reversal", note: reason });
+      await this.finish(executor, actor, row, "reject", { reason, walletBlocked: true }, "Yêu cầu rút tiền hoa hồng bị từ chối, số tiền đã trả lại ví");
+    }
+  }
+
   // Sau khi chuyển khoản số thực nhận: ghi đã chi kèm mã giao dịch ngân hàng, ngày chi.
   async pay(actor: BuyerAdminActor, withdrawalId: string, input: { bankTransactionNo: string; paidOn: string; version: number }): Promise<WithdrawalItem> {
     await this.database.transaction(async (transaction) => {
       const row = await this.adminLock(transaction, actor, withdrawalId, input.version, "approved");
+      // Ví hoa hồng bị chặn: không ghi đã chi cho đến khi gỡ chặn (THAY_DOI_22).
+      if (await walletBlocked(transaction, row.user_id, "commission")) throw new ApiError("BUSINESS_RULE", "commissionWalletBlocked");
       // Ngày chi từ ngày duyệt đến hôm nay (giờ Việt Nam): không ghi lùi về kỳ trước khi duyệt.
       if (input.paidOn > (await vietnamToday(transaction)) || (row.decided_at && input.paidOn < vietnamDate(row.decided_at))) {
         throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { paidOn: "invalidValue" } });

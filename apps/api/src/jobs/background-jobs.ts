@@ -2,9 +2,10 @@
 // tạo trước partition nhật ký thao tác mỗi ngày (tài liệu 16), lấy tỷ giá Vietcombank lúc 8:30 sáng giờ Việt Nam (CHUC_NANG_21),
 // nhả hàng giữ hết hạn mỗi 5 phút (CHUC_NANG_43), thông báo hàng dưới tồn an toàn lúc 7 giờ sáng (CHUC_NANG_44),
 // gửi hóa đơn điện tử mỗi 30 giây, báo hóa đơn quá hạn mỗi giờ (CHUC_NANG_77), tự hoàn tất đơn VComm mỗi giờ (CHUC_NANG_119),
+// hết hạn, nhắc hạn điểm thưởng và xét hạng lúc 0 giờ 10 phút (CHUC_NANG_179),
 // áp dụng quyết định công tác lúc 0 giờ 5 phút (CHUC_NANG_162), nhắc hết hạn hợp đồng lúc 7 giờ (CHUC_NANG_164),
 // tính lại công ngày hôm trước lúc 1 giờ (CHUC_NANG_165), cộng phép năm, hết hạn phép tồn lúc 0 giờ 15 phút (CHUC_NANG_166),
-// tự xác nhận bảng công hết hạn lúc 0 giờ 30 phút (CHUC_NANG_167).
+// tự xác nhận bảng công hết hạn lúc 0 giờ 30 phút (CHUC_NANG_167), chốt nhóm mua chung mỗi phút (CHUC_NANG_172).
 // Chỉ chạy trong tiến trình API; kiểm thử gọi thẳng dịch vụ nên không cần Redis.
 import { Logger, type INestApplication } from "@nestjs/common";
 import { Queue, Worker } from "bullmq";
@@ -12,6 +13,8 @@ import { ApprovalRequestsService } from "../approvals/approval-requests.service"
 import { vietnamDate } from "../common/clock";
 import { OutboxService } from "../common/outbox.service";
 import { EinvoicesService } from "../einvoice/einvoices.service";
+import { LoyaltyJobsService } from "../loyalty/jobs.service";
+import { GroupBuysService } from "../marketplace/group-buys.service";
 import { MarketplaceOrdersService } from "../marketplace/marketplace-orders.service";
 import { MarketplacePaymentsService } from "../marketplace/payments/payments.service";
 import { ReservationsService } from "../inventory/reservations.service";
@@ -23,6 +26,10 @@ import { WorkEventsService } from "../hr/work-events.service";
 import { AttendanceDaysService } from "../hr/attendance-days.service";
 import { LeaveService } from "../hr/leave.service";
 import { TimesheetsService } from "../hr/timesheets.service";
+import { RecruitmentService } from "../hr/recruitment.service";
+import { JobOffersService } from "../hr/job-offers.service";
+import { CandidatesService } from "../hr/candidates.service";
+import { ReviewsService } from "../hr/reviews.service";
 
 const queueName = "nen-tang";
 const einvoiceQueueName = "hoa-don-dien-tu";
@@ -45,11 +52,17 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const einvoices = application.get(EinvoicesService);
   const marketplaceOrders = application.get(MarketplaceOrdersService);
   const payments = application.get(MarketplacePaymentsService);
+  const loyalty = application.get(LoyaltyJobsService);
+  const groupBuys = application.get(GroupBuysService);
   const workEvents = application.get(WorkEventsService);
   const contractReminders = application.get(ContractRemindersService);
   const attendanceDays = application.get(AttendanceDaysService);
   const leave = application.get(LeaveService);
   const timesheets = application.get(TimesheetsService);
+  const recruitment = application.get(RecruitmentService);
+  const jobOffers = application.get(JobOffersService);
+  const candidates = application.get(CandidatesService);
+  const reviews = application.get(ReviewsService);
   const queue = new Queue(queueName, { connection });
   await queue.upsertJobScheduler("approval-overdue", { every: 15 * 60_000 }, { name: "approval-overdue" });
   await queue.upsertJobScheduler("outbox-dispatch", { every: 10_000 }, { name: "outbox-dispatch" });
@@ -62,10 +75,19 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("hr-timesheet-confirmation", { pattern: "30 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-timesheet-confirmation" });
   await queue.upsertJobScheduler("hr-leave-accrual", { pattern: "15 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-leave-accrual" });
   await queue.upsertJobScheduler("hr-attendance-recalculate", { pattern: "0 1 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-attendance-recalculate" });
+  // Tuyển dụng (CONG_VIEC_54): đóng tin quá hạn nộp, đề nghị hết hạn lúc 0 giờ 10 phút; xóa ứng viên đến hạn lúc 1 giờ.
+  await queue.upsertJobScheduler("hr-recruitment-daily", { pattern: "10 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-recruitment-daily" });
+  await queue.upsertJobScheduler("hr-candidate-erasure", { pattern: "0 1 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-candidate-erasure" });
+  // Đánh giá hiệu suất (CONG_VIEC_54): nhắc quá hạn lúc 8 giờ.
+  await queue.upsertJobScheduler("hr-review-reminders", { pattern: "0 8 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-review-reminders" });
   // Tự hoàn tất đơn VComm hết hạn trả hàng (CONG_VIEC_24; QUYTAC_NGHIEPVU_162).
   await queue.upsertJobScheduler("marketplace-order-completion", { every: 60 * 60_000 }, { name: "marketplace-order-completion" });
   // Hủy đơn VComm quá hạn thanh toán, nhả hàng (CONG_VIEC_25; QUYTAC_NGHIEPVU_165).
   await queue.upsertJobScheduler("marketplace-payment-expiry", { every: 60_000 }, { name: "marketplace-payment-expiry" });
+  // Hết hạn, nhắc hạn điểm thưởng, chuyển năm chi tiêu và xét hạng (CONG_VIEC_51; QUYTAC_NGHIEPVU_350, 351).
+  await queue.upsertJobScheduler("loyalty-daily", { pattern: "10 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-daily" });
+  // Chốt nhóm mua chung hết hạn (CONG_VIEC_49; QUYTAC_NGHIEPVU_331).
+  await queue.upsertJobScheduler("marketplace-group-buy-close", { every: 60_000 }, { name: "marketplace-group-buy-close" });
   // Hóa đơn điện tử chạy hàng đợi riêng: gọi nhà cung cấp chậm không làm chậm các tác vụ khác.
   const einvoiceQueue = new Queue(einvoiceQueueName, { connection });
   await einvoiceQueue.upsertJobScheduler("einvoice-send", { every: 30_000 }, { name: "einvoice-send" });
@@ -94,8 +116,13 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "hr-attendance-recalculate") return attendanceDays.recalculateRecent();
       if (job.name === "hr-leave-accrual") return leave.accrueDue();
       if (job.name === "hr-timesheet-confirmation") return timesheets.autoConfirm();
+      if (job.name === "hr-recruitment-daily") return { ...(await recruitment.runDaily()), expiredOffers: await jobOffers.expireDue() };
+      if (job.name === "hr-candidate-erasure") return candidates.eraseDue();
+      if (job.name === "hr-review-reminders") return reviews.sendReminders();
       if (job.name === "marketplace-order-completion") return marketplaceOrders.completeDue();
       if (job.name === "marketplace-payment-expiry") return payments.expireDue();
+      if (job.name === "loyalty-daily") return loyalty.runDaily();
+      if (job.name === "marketplace-group-buy-close") return groupBuys.closeDue();
       return null;
     },
     { connection, concurrency: 1 },
