@@ -103,7 +103,7 @@ Schema mới `retail` (đứng sau `core`, `catalog`, `inventory`, `sales`, `fin
 
 - `0094_retail_setup.sql`: `core.apps` dòng `retail`; loại chứng từ `retail.sale` (`BL`), `retail.return` (`TL`); bảng `retail.stores` (công ty, chi nhánh duy nhất, kho, kênh, quỹ tiền mặt, quỹ chuyển khoản, mã ngân hàng VietQR, chủ tài khoản, số ngày trả hàng, chân hóa đơn, trạng thái, phiên bản), `retail.registers` (cửa hàng, mã, tên, trạng thái), `retail.shifts` (công ty, cửa hàng, quầy, người mở, giờ mở, tiền đầu ca, ghi chú mở, trạng thái mở/đã đóng, người đóng, giờ đóng, tiền hệ thống tính, đếm được, lệch, lý do; chỉ mục duy nhất một ca mở mỗi quầy, mỗi người).
 - `0095_retail_sales.sql`: `sales.orders` thêm `is_retail`, `buyer_tax_code`, `buyer_address`, `buyer_identity_no`; `retail.sales` (công ty, cửa hàng, quầy, ca, số, ngày giờ, người bán, tài khoản VComm, người mua, đơn bán, phiếu xuất, tiền hàng, khuyến mãi, giảm tay, thuế, phải trả, đã đưa, tiền thừa, khóa yêu cầu duy nhất theo quầy), `retail.sale_payments` (hóa đơn, phương thức `cash`/`bank_transfer`/`points`, số tiền, quỹ, mã giao dịch, số điểm).
-- `0096_retail_returns.sql`: `retail.returns` (hóa đơn gốc, ca, số, ngày, lý do, phiếu nhận hàng trả lại, tiền hoàn, người nhận chuyển khoản), `retail.return_lines`, `retail.return_refunds` (phương thức, số tiền, quỹ, mã giao dịch, số điểm); `finance.payments`: thêm loại `retail_receipt`, `retail_refund`, `cash_shortage`, `cash_surplus`, cho phép đối tượng trống với các loại này, thêm `source_type`, `source_id` (ca thu ngân), `staff_user_id` (thiếu tiền); vai trò định khoản `staff_receivable` (1388), dùng lại `surplus_pending` (3381).
+- `0096_retail_cash_and_returns.sql`: `retail.returns` (hóa đơn gốc, ca, số, ngày, lý do, phiếu nhận hàng trả lại, tiền hoàn, người nhận chuyển khoản), `retail.return_lines`, `retail.return_refunds` (phương thức, số tiền, quỹ, mã giao dịch, số điểm); `finance.payments`: thêm loại `retail_receipt`, `retail_refund`, `cash_shortage`, `cash_surplus`, cho phép đối tượng trống với các loại này, thêm `source_type`, `source_id` (ca thu ngân), `staff_user_id` (thiếu tiền); vai trò định khoản `staff_receivable` (1388), dùng lại `surplus_pending` (3381).
 - `0097_retail_einvoice.sql`: `finance.einvoice_series` thêm `kind` (`standard`, `cash_register`) và `last_no` (số đã cấp tại quầy), ràng buộc định dạng theo loại (ký tự thứ tư `T` hoặc `M`), khóa chính công ty, năm, loại; `finance.einvoices` thêm `origin` (`standard`, `cash_register`), `lookup_code` (12 ký tự, duy nhất). Điểm (lát L6) dùng sổ cái điểm của CONG_VIEC_51, không cần bảng mới.
 
 Chi tiết cột, chỉ mục ghi vào tài liệu `16` khi lập trình từng lát.
@@ -113,11 +113,11 @@ Chi tiết cột, chỉ mục ghi vào tài liệu `16` khi lập trình từng 
 | Mã | Đường dẫn | Nội dung |
 |---|---|---|
 | API_192 | `GET /retail/options`; `GET`, `POST /retail/stores`; `GET`, `PATCH /retail/stores/{id}`; `POST /retail/stores/{id}/registers`; `PATCH /retail/registers/{id}` | Cửa hàng, quầy |
-| API_193 | `GET /retail/shifts`; `GET /retail/shifts/current`; `POST /retail/shifts`; `GET /retail/shifts/{id}`; `POST /retail/shifts/{id}/close` | Ca thu ngân |
-| API_194 | `GET /retail/items?registerId=&barcode=` hoặc `&q=` | Tìm, quét hàng tại quầy: biến thể, đơn vị, giá kênh, tồn khả dụng |
+| API_193 | `GET /retail/shifts`; `GET /retail/counter` (ca đang mở của người dùng, quầy, cửa hàng); `POST /retail/shifts`; `GET /retail/shifts/{id}`; `POST /retail/shifts/{id}/close` | Ca thu ngân |
+| API_194 | `GET /retail/items?shiftId=&search=` (mã vạch, serial, mã hoặc tên hàng) | Tìm, quét hàng tại quầy: biến thể, đơn vị, giá kênh, tồn khả dụng |
 | API_195 | `POST /retail/quote` | Tính giỏ: giá, khuyến mãi, suất tặng, giảm tay, thuế, tổng; kiểm giới hạn |
 | API_196 | `POST /retail/sales`; `GET /retail/sales`; `GET /retail/sales/{id}` | Thanh toán và ghi hóa đơn bán lẻ; danh sách; chi tiết kèm dữ liệu in |
-| API_197 | `GET /retail/sales/{id}/returnable`; `POST /retail/returns`; `GET /retail/returns`; `GET /retail/returns/{id}` | Trả hàng |
+| API_197 | `GET /retail/sales/{id}/returnable?shiftId=`; `POST /retail/returns/quote`; `POST /retail/returns`; `GET /retail/returns/{id}` (danh sách phiếu trả xem trong chi tiết hóa đơn bán lẻ; danh sách riêng làm ở phần 2) | Trả hàng |
 | API_198 | `GET /retail/customers?phone=` | Tra tài khoản VComm tại quầy (tên che một phần, hạng, điểm khả dụng) |
 | API_199 | Dành cho điểm tại quầy (lát L6) nếu CONG_VIEC_51 cần đường dẫn riêng | Điểm |
 
