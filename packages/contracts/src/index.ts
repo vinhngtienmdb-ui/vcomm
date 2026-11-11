@@ -4977,6 +4977,7 @@ export interface CommentItem {
 }
 export interface PostDetail extends PostItem {
   comments: CommentItem[];
+}
 export interface CommunityStatus {
   postingEnabled: boolean;
   commentsEnabled: boolean;
