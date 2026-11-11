@@ -5912,6 +5912,8 @@ export interface MyTimesheetResponse {
   status: TimesheetStatus | null;
   confirmationDeadline: string | null;
   line: TimesheetLineItem | null;
+}
+
 // CONG_VIEC_50: báo cáo quản trị (MODULE_15; API_170 đến API_175).
 export const analyticsReportKinds = ["sales", "inventory", "debt", "commission"] as const;
 export type AnalyticsReportKind = (typeof analyticsReportKinds)[number];
