@@ -145,7 +145,8 @@ describe("Ca thu ngân (KICHBAN_KIEMTHU_511, 516)", () => {
     const store = (await call(admin, "get", `/retail/stores/${storeId}`)).body;
     const stop = await call(admin, "patch", `/retail/stores/${storeId}`, { ...storeBody(fixture), status: "inactive", version: store.version });
     expect(stop.status).toBe(409);
-    expect(stop.body.error.message).toBe("Đang có ca mở. Đóng ca trước khi ngừng hoặc đổi chi nhánh, kho.");
+    expect(stop.body.error.message).toBe("Đang có ca mở. Đóng ca trước khi ngừng hoặc đổi chi nhánh, kho, kênh giá, quỹ.");
+    expect((await call(admin, "patch", `/retail/stores/${storeId}`, { ...storeBody(fixture), bankFundId: null, version: store.version })).status).toBe(409);
     const register = store.registers.find((item: { id: string }) => item.id === registerOne);
     expect((await call(admin, "patch", `/retail/registers/${registerOne}`, { code: "Q01", name: "Quầy 1", status: "inactive", version: register.version })).status).toBe(409);
     const renamed = await call(admin, "patch", `/retail/stores/${storeId}`, { ...storeBody(fixture), returnDays: 5, version: store.version });

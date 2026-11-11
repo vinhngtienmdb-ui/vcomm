@@ -90,6 +90,16 @@ describe("Trả hàng theo hóa đơn bán lẻ (KICHBAN_KIEMTHU_517)", () => {
     expect(
       (await call(manager, "post", "/retail/returns/quote", { shiftId: managerShift, saleId: sale.id, lines: [{ orderLineId: lineIds.phone, quantity: "1", serials: ["IMEI-2"] }] })).body.error.fields,
     ).toEqual({ "lines.0.serials": "Số serial quét chưa khớp số lượng hàng theo serial." });
+    // Hai dòng trả cùng một dòng bán: chặn để không hoàn thừa tiền, không nhận trùng serial.
+    const duplicate = await call(manager, "post", "/retail/returns/quote", {
+      shiftId: managerShift,
+      saleId: sale.id,
+      lines: [
+        { orderLineId: lineIds.milk, quantity: "1" },
+        { orderLineId: lineIds.milk, quantity: "2" },
+      ],
+    });
+    expect(duplicate.body.error.fields).toEqual({ "lines.1.orderLineId": "Hàng này đã có ở dòng trả khác. Gộp số lượng vào một dòng." });
   });
 
   it("trả hàng: nhập lại kho, serial về kho, tiền mặt trừ vào ca; hoàn tiền vượt tiền mặt trong két bị chặn; gửi lại cùng khóa không ghi trùng", async () => {

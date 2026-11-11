@@ -45,6 +45,9 @@ export async function seriesFor(executor: Executor, companyId: string, year: num
   return (await executor.execute<{ series: string }>(sql`SELECT series FROM finance.einvoice_series WHERE company_id = ${companyId} AND year = ${year} AND kind = 'standard'`)).rows[0]?.series ?? null;
 }
 
+// Nhà cung cấp lập được hóa đơn khởi tạo từ máy tính tiền (MISA chưa có tài liệu API, CONG_VIEC_53 mục 16): nhà cung cấp khác thì bán lẻ lập hóa đơn thường.
+export const cashRegisterSupported = (provider: EinvoiceProvider) => provider === "simulator";
+
 // Cấp số hóa đơn khởi tạo từ máy tính tiền tại quầy: liên tục từ 1 theo ký hiệu của năm (CONG_VIEC_53; QUYTAC_NGHIEPVU_378). Khóa dòng ký hiệu đến hết giao dịch.
 export async function nextCashRegisterNumber(executor: Executor, companyId: string, year: number): Promise<{ series: string; invoiceNo: string } | null> {
   const row = (
@@ -132,6 +135,11 @@ export class EinvoiceSettingsService {
         if (!input.password && !before?.secret_value) fields.password = "required";
       }
       if (input.enabled && input.startDate && !input.series.some((item) => item.year === Number(input.startDate!.slice(0, 4)))) fields.series = "einvoiceSeriesMissingStart";
+      // Có cửa hàng bán lẻ đang dùng: thiếu ký hiệu máy tính tiền thì quầy bị chặn bán, báo ngay khi lưu.
+      if (input.enabled && input.startDate && cashRegisterSupported(input.provider) && !input.cashRegisterSeries.some((item) => item.year === Number(input.startDate!.slice(0, 4)))) {
+        const stores = await transaction.execute(sql`SELECT 1 FROM retail.stores WHERE company_id = ${actor.companyId} AND status = 'active' LIMIT 1`);
+        if (stores.rows.length > 0) fields.cashRegisterSeries = "einvoiceCashRegisterSeriesMissingStart";
+      }
       // Ký hiệu máy tính tiền đã cấp số thì không đổi, không xóa (số hóa đơn liên tục theo ký hiệu).
       const used = await transaction.execute<{ year: number; series: string }>(sql`
         SELECT year, series FROM finance.einvoice_series WHERE company_id = ${actor.companyId} AND kind = 'cash_register' AND last_no > 0 FOR UPDATE`);

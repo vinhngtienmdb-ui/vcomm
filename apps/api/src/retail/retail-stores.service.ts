@@ -252,7 +252,15 @@ export class RetailStoresService {
       const before = await this.store(transaction, actor.companyId, id, true);
       if (before.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       await this.validate(transaction, actor.companyId, input, id);
-      if (input.status === "inactive" || input.warehouseId !== before.warehouse_id || input.branchId !== before.branch_id) {
+      // Ca đang mở dùng kho, kênh giá, quỹ của cửa hàng đến khi đóng ca (chứng từ quỹ lập theo quỹ của cửa hàng).
+      if (
+        input.status === "inactive" ||
+        input.warehouseId !== before.warehouse_id ||
+        input.branchId !== before.branch_id ||
+        input.channelId !== before.channel_id ||
+        input.cashFundId !== before.cash_fund_id ||
+        (input.bankFundId ?? null) !== before.bank_fund_id
+      ) {
         const open = await transaction.execute(sql`SELECT 1 FROM retail.shifts WHERE store_id = ${id} AND status = 'open' LIMIT 1`);
         if (open.rows.length > 0) throw new ApiError("BUSINESS_RULE", "retailStoreHasOpenShift");
       }

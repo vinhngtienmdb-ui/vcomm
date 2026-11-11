@@ -18,7 +18,7 @@ import { StockDocumentsService } from "../inventory/stock-documents.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { amountInWords } from "./amount-in-words";
-import { einvoicePermissions, nextCashRegisterNumber, providerConfig, seriesFor, settingsRow } from "./einvoice-settings.service";
+import { cashRegisterSupported, einvoicePermissions, nextCashRegisterNumber, providerConfig, seriesFor, settingsRow } from "./einvoice-settings.service";
 import type { EinvoiceProviderAdapter, ProviderInvoice, ProviderResult } from "./providers/provider";
 import { MisaProvider } from "./providers/misa";
 import { SimulatorProvider } from "./providers/simulator";
@@ -75,13 +75,13 @@ export async function insertInvoice(
     items: InvoiceItem[];
     note: string | null;
     // Khởi tạo từ máy tính tiền: ký hiệu, số cấp tại quầy, mã tra cứu; hạn gửi cuối ngày hóa đơn (CONG_VIEC_53; QUYTAC_NGHIEPVU_378).
-    cashRegister?: { series: string; invoiceNo: string; lookupCode: string; setupError: string | null };
+    cashRegister?: { series: string; invoiceNo: string; lookupCode: string };
   },
 ): Promise<string> {
   const total = (key: "netAmount" | "taxAmount" | "totalAmount") => Math.round(input.items.reduce((sum, item) => sum + item[key], 0) * 10000) / 10000;
   const cashRegister = input.cashRegister;
   const series = cashRegister ? cashRegister.series : await seriesFor(transaction, input.companyId, Number(input.invoiceDate.slice(0, 4)));
-  const setupError = cashRegister ? cashRegister.setupError : series ? null : "einvoiceSeriesMissing";
+  const setupError = series ? null : "einvoiceSeriesMissing";
   const inserted = await transaction.execute<{ id: string }>(sql`
     INSERT INTO finance.einvoices (company_id, source_document_id, kind, related_invoice_id, provider, invoice_date, template_code, series, invoice_no, with_tax_code, seller, buyer,
       currency, net_amount, tax_amount, total_amount, note, status, last_error, due_date, origin, lookup_code)
@@ -267,12 +267,12 @@ export class EinvoicesService implements OnModuleInit {
             anonymous: !retailBuyer,
           }
         : { partnerId: null, name: document.buyer_name, taxCode: null, address: null, anonymous: true };
-    let cashRegister: { series: string; invoiceNo: string; lookupCode: string; setupError: string | null } | undefined;
-    if (document.is_retail) {
+    let cashRegister: { series: string; invoiceNo: string; lookupCode: string } | undefined;
+    if (document.is_retail && cashRegisterSupported(settings.provider)) {
       // Hóa đơn khởi tạo từ máy tính tiền: năm chưa khai ký hiệu thì chặn bán (QUYTAC_NGHIEPVU_378).
       const numbered = await nextCashRegisterNumber(transaction, document.company_id, Number(document.document_date.slice(0, 4)));
       if (!numbered) throw new ApiError("BUSINESS_RULE", "retailEinvoiceSeriesMissing");
-      cashRegister = { ...numbered, lookupCode: lookupCode(), setupError: settings.provider === "simulator" ? null : "einvoiceCashRegisterUnsupported" };
+      cashRegister = { ...numbered, lookupCode: lookupCode() };
     }
     const items = await documentItems(transaction, documentId, "sales_issue");
     // Phí giao hàng của đơn VComm: dòng dịch vụ thuế 10%, phí đã gồm thuế (CONG_VIEC_25; QUYTAC_NGHIEPVU_169).

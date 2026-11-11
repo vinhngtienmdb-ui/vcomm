@@ -19,6 +19,8 @@ let otherBranchCashier: Session;
 let manager: Session;
 let today: string;
 let shiftId: string;
+let retriedBody: Record<string, unknown>;
+let retriedSaleId: string;
 let units: Record<string, string> = {};
 let items: Record<string, string> = {};
 
@@ -104,6 +106,8 @@ describe("Thanh toán, ghi sổ (KICHBAN_KIEMTHU_514, 515)", () => {
     const created = await call(cashier, "post", "/retail/sales", body);
     expect(created.status, JSON.stringify(created.body)).toBe(201);
     saleId = created.body.id;
+    retriedBody = body;
+    retriedSaleId = created.body.id;
     expect(created.body).toMatchObject({
       documentNo: expect.stringMatching(/^BL/),
       totalAmount: "298100",
@@ -236,5 +240,8 @@ describe("Chuyển khoản, nhiều phương thức, đóng ca (KICHBAN_KIEMTHU_
       (await call(cashier, "post", "/retail/sales", { shiftId, clientKey: randomUUID(), lines: [line("rice", "1")], expectedTotal: "110000", payments: [{ method: "cash", amount: "110000" }] })).body
         .error.message,
     ).toBe("Ca đã đóng.");
+    // Gửi lại yêu cầu đã ghi sau khi ca đóng: trả về hóa đơn đã ghi, không báo lỗi ca.
+    const retried = await call(cashier, "post", "/retail/sales", retriedBody);
+    expect(retried.body.id).toBe(retriedSaleId);
   });
 });

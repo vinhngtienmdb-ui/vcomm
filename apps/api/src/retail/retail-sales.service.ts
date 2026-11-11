@@ -227,6 +227,13 @@ export class RetailSalesService {
 
   // Thanh toán và ghi hóa đơn bán lẻ (API_196; QUYTAC_NGHIEPVU_373, 374): mọi bước trong một giao dịch; gửi lại cùng khóa trả hóa đơn đã ghi.
   async create(actor: Actor, input: SaleInput): Promise<RetailSaleResponse> {
+    // Gửi lại cùng khóa sau khi đã ghi (kể cả khi ca đã đóng): trả về chứng từ đã ghi của chính người gửi, không báo lỗi ca.
+    const recorded = (
+      await this.database.execute<{ id: string }>(sql`
+      SELECT x.id FROM retail.sales x JOIN retail.shifts sh ON sh.register_id = x.register_id
+      WHERE sh.id = ${input.shiftId} AND sh.company_id = ${actor.companyId} AND x.client_key = ${input.clientKey} AND x.cashier_id = ${actor.userId}`)
+    ).rows[0];
+    if (recorded) return this.detail(actor, recorded.id);
     await ensureSequence(this.database, this.sequences, actor, saleTypeCode, "BL");
     await this.salesOrders.prepareNumbering(actor);
     await this.deliveries.ensureSequences(actor, actor.companyId);

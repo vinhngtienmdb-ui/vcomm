@@ -173,19 +173,24 @@ export class RetailReturnsService {
   private async plan(executor: Executor, actor: Actor, sale: SaleRow, input: QuoteInput["lines"]): Promise<PlannedLine[]> {
     const units = Number((await executor.execute<{ units: number }>(sql`SELECT finance.company_minor_units(${actor.companyId}) AS units`)).rows[0]!.units);
     const lines = new Map((await this.lines(executor, sale)).map((line) => [line.order_line_id, line]));
-    const fields: Record<string, "invalidValue" | "salesReturnExceeded" | "retailSerialCount"> = {};
+    const fields: Record<string, "invalidValue" | "salesReturnExceeded" | "retailSerialCount" | "retailReturnLineDuplicate"> = {};
     const planned: PlannedLine[] = [];
-    const seen = new Map<string, number>();
+    // Mỗi dòng bán chỉ một dòng trả trong một yêu cầu: tiền "trả hết lấy phần còn lại" và serial tính theo cả dòng.
+    const seen = new Set<string>();
     for (const [index, item] of input.entries()) {
       const line = lines.get(item.orderLineId);
       if (!line) {
         fields[`lines.${index}.orderLineId`] = "invalidValue";
         continue;
       }
+      if (seen.has(item.orderLineId)) {
+        fields[`lines.${index}.orderLineId`] = "retailReturnLineDuplicate";
+        continue;
+      }
+      seen.add(item.orderLineId);
       const factor = Number(line.base_quantity) / Number(line.quantity);
       const baseQuantity = Number(item.quantity) * factor;
-      const already = Number(line.returned_base) + (seen.get(item.orderLineId) ?? 0);
-      seen.set(item.orderLineId, (seen.get(item.orderLineId) ?? 0) + baseQuantity);
+      const already = Number(line.returned_base);
       if (already + baseQuantity > Number(line.base_quantity) + 0.00005) {
         fields[`lines.${index}.quantity`] = "salesReturnExceeded";
         continue;
@@ -255,6 +260,13 @@ export class RetailReturnsService {
 
   // Ghi trả hàng (QUYTAC_NGHIEPVU_377): phiếu trả hàng bán lẻ, phiếu nhận hàng trả lại đã ghi sổ, cách hoàn; gửi lại cùng khóa không ghi trùng.
   async create(actor: Actor, input: ReturnInput): Promise<RetailReturnResponse> {
+    // Gửi lại cùng khóa sau khi đã ghi (kể cả khi ca đã đóng): trả về chứng từ đã ghi của chính người gửi, không báo lỗi ca.
+    const recorded = (
+      await this.database.execute<{ id: string }>(sql`
+      SELECT x.id FROM retail.returns x JOIN retail.shifts sh ON sh.register_id = x.register_id
+      WHERE sh.id = ${input.shiftId} AND sh.company_id = ${actor.companyId} AND x.client_key = ${input.clientKey} AND x.cashier_id = ${actor.userId}`)
+    ).rows[0];
+    if (recorded) return this.detail(actor, recorded.id);
     await ensureSequence(this.database, this.sequences, actor, returnTypeCode, "TL");
     await this.deliveries.ensureSequences(actor, actor.companyId);
     const id = await this.database.transaction(async (transaction) => {

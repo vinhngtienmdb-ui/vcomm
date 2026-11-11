@@ -81,8 +81,13 @@ describe("Hóa đơn điện tử khởi tạo từ máy tính tiền (KICHBAN_K
     expect(wrongKind.body.error.fields).toEqual({ "cashRegisterSeries.0.series": "Ký hiệu bắt đầu bằng C cho hóa đơn có mã, K cho hóa đơn không mã." });
   });
 
-  it("chưa khai ký hiệu máy tính tiền của năm: chặn bán, không ghi gì", async () => {
-    expect((await saveSettings({ cashRegisterSeries: [] })).status).toBe(200);
+  it("chưa khai ký hiệu máy tính tiền của năm: cài đặt báo ngay khi có cửa hàng; quầy chặn bán, không ghi gì", async () => {
+    expect((await saveSettings({ cashRegisterSeries: [] })).body.error.fields).toEqual({
+      cashRegisterSeries: "Công ty có cửa hàng bán lẻ: khai ký hiệu máy tính tiền cho năm của ngày bắt đầu.",
+    });
+    expect((await saveSettings()).status).toBe(200);
+    // Sang năm mới chưa khai ký hiệu.
+    await pool.query("DELETE FROM finance.einvoice_series WHERE company_id = $1 AND kind = 'cash_register'", [retail]);
     const before = (await pool.query("SELECT count(*)::int AS count FROM retail.sales")).rows[0].count;
     const blocked = await sell([rice("1")], "110000");
     expect(blocked.status).toBe(409);
@@ -141,12 +146,12 @@ describe("Hóa đơn điện tử khởi tạo từ máy tính tiền (KICHBAN_K
     expect(task.original_invoice_id).toBe(sale.body.einvoice.id);
   });
 
-  it("nhà cung cấp chưa hỗ trợ máy tính tiền: vẫn bán, hóa đơn dừng ở lỗi cài đặt", async () => {
+  it("nhà cung cấp chưa hỗ trợ máy tính tiền: lập hóa đơn thường để gửi qua nhà cung cấp", async () => {
     expect((await saveSettings({ provider: "misa", appId: "APP", taxCode: "0101010101", username: "ketoan", password: "matkhau-thu" })).status).toBe(200);
     const sale = await sell([rice("1")], "110000");
     expect(sale.status, JSON.stringify(sale.body)).toBe(201);
-    expect(sale.body.einvoice).toMatchObject({ status: "setup_error", invoiceNo: "5" });
-    const lastError = (await pool.query("SELECT last_error FROM finance.einvoices WHERE id = $1", [sale.body.einvoice.id])).rows[0].last_error;
-    expect(lastError).toBe("einvoiceCashRegisterUnsupported");
+    expect(sale.body.einvoice).toMatchObject({ status: "pending", series: `C${String(year).slice(2)}TAA`, invoiceNo: null, lookupCode: null });
+    const origin = (await pool.query("SELECT origin FROM finance.einvoices WHERE id = $1", [sale.body.einvoice.id])).rows[0].origin;
+    expect(origin).toBe("standard");
   });
 });
