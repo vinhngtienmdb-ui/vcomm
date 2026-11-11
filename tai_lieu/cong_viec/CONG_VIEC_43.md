@@ -28,9 +28,9 @@ Ngoài phạm vi: CONG_VIEC_20 giữ nguyên (loại trừ hàng hóa nội bộ
 
 ## 4. Quy tắc nghiệp vụ
 
-- QUYTAC_NGHIEPVU_275: Sản phẩm có loại Hàng hóa (mặc định) hoặc Dịch vụ. Dịch vụ không theo dõi tồn kho, lô, số serial; không có phiếu nhập, xuất, giữ hàng, kiểm kê. Đổi loại chỉ khi sản phẩm chưa phát sinh tồn kho, chứng từ kho.
-- QUYTAC_NGHIEPVU_276: Đơn bán lập tay (không sinh từ đơn VComm) chỉ gồm mặt hàng dịch vụ; đơn bán hàng hóa chỉ sinh từ đơn VComm. Cài đặt công ty "Cho phép lập đơn bán tay có hàng hóa" (mặc định tắt; quyết định người dùng 2026-11-11) bật lại khả năng này khi cần, ví dụ dữ liệu thử. Đơn chỉ gồm dịch vụ khi xác nhận thì coi là đã giao đủ (không qua kho); hóa đơn điện tử, công nợ, doanh thu chạy như đơn đã giao.
-- QUYTAC_NGHIEPVU_277: Giao dịch nội bộ (CONG_VIEC_09) chỉ gồm mặt hàng dịch vụ; giữ luồng đơn bán nội bộ sinh đơn mua đối ứng, bên kia xác nhận. Không xuất kho, không phiếu nhập chờ, không biên bản chênh lệch. Đơn mua đối ứng chỉ gồm dịch vụ khi bên mua xác nhận thì coi là đã nhận đủ.
+- QUYTAC_NGHIEPVU_275: Sản phẩm có loại Hàng hóa (mặc định) hoặc Dịch vụ. Dịch vụ không theo dõi tồn kho, lô, số serial; không lập tay phiếu nhập, xuất, giữ hàng, kiểm kê. Ngoại lệ (quyết định người dùng 2026-11-11): hệ thống tự lập phiếu xuất, phiếu nhập dịch vụ không ghi thẻ kho để chạy công nợ, hóa đơn, bút toán (QUYTAC_NGHIEPVU_276, 277). Đổi loại chỉ khi sản phẩm chưa phát sinh tồn kho, chứng từ kho.
+- QUYTAC_NGHIEPVU_276: Đơn bán lập tay (không sinh từ đơn VComm) chỉ gồm mặt hàng dịch vụ; đơn bán hàng hóa chỉ sinh từ đơn VComm. Cài đặt công ty "Cho phép lập đơn bán tay có hàng hóa" (mặc định tắt; quyết định người dùng 2026-11-11) bật lại khả năng này khi cần, ví dụ dữ liệu thử. Dòng dịch vụ khi đơn xác nhận thì coi là đã giao đủ: hệ thống tự lập và ghi sổ một phiếu xuất dịch vụ (không ghi thẻ kho, không giá vốn) để công nợ, hóa đơn điện tử, bút toán doanh thu chạy như đơn đã giao (quyết định người dùng 2026-11-11: dùng phiếu xuất không ghi thẻ kho).
+- QUYTAC_NGHIEPVU_277: Giao dịch nội bộ (CONG_VIEC_09) chỉ gồm mặt hàng dịch vụ; giữ luồng đơn bán nội bộ sinh đơn mua đối ứng, bên kia xác nhận. Không xuất kho, không phiếu nhập chờ, không biên bản chênh lệch. Đơn mua đối ứng gồm dịch vụ khi bên mua xác nhận thì coi là đã nhận đủ: hệ thống tự lập, ghi sổ phiếu nhập dịch vụ không ghi thẻ kho; bút toán Nợ chi phí quản lý doanh nghiệp (6427 theo TT99, 6422 theo TT133, kế toán đổi được định khoản) / Nợ thuế đầu vào / Có phải trả người bán. Giao dịch nội bộ hàng hóa vẫn được khi công ty bán bật cài đặt cho phép lập đơn bán tay có hàng hóa (mặc định tắt; người dùng đồng ý 2026-11-11).
 - QUYTAC_NGHIEPVU_278: Không còn hoa hồng đội kinh doanh theo tiền thu, bảng tháng, chỉ tiêu (CONG_VIEC_17); hoa hồng chỉ theo đơn VComm (CONG_VIEC_26).
 - QUYTAC_NGHIEPVU_279: Không còn giao khách cho nhân viên kinh doanh. Người có quyền xem đối tác, đơn bán xem mọi đối tác, đơn bán của công ty. Người phụ trách trên hồ sơ đối tác vẫn sửa được bằng tay; phiếu giao khách, nhận khách, lịch sử phụ trách không còn trên giao diện, API.
 
@@ -56,7 +56,8 @@ Ngoài phạm vi: CONG_VIEC_20 giữ nguyên (loại trừ hàng hóa nội bộ
 
 - L0: xóa hoa hồng cũ (CONG_VIEC_17) – mã, quyền, màn hình, migration 0061 phần hoa hồng.
 - L1: tắt giao khách, phạm vi xem như trước; quyền đơn bán Kế toán, Nhân viên bán hàng.
-- L2: loại sản phẩm; đơn bán tay chỉ dịch vụ, đơn dịch vụ coi là đã giao; giao dịch nội bộ chỉ dịch vụ.
+- L2: loại sản phẩm; đơn bán tay chỉ dịch vụ; giao dịch nội bộ chỉ dịch vụ.
+- L3: phiếu xuất, phiếu nhập dịch vụ tự lập không ghi thẻ kho khi xác nhận; công nợ, hóa đơn, bút toán; định khoản chi phí dịch vụ mua vào.
 
 ## 9. Tiêu chí nghiệm thu
 
