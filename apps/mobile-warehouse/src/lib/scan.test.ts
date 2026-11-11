@@ -61,4 +61,16 @@ describe("KICHBAN_KIEMTHU_427: tra mã quét", () => {
     expect(addItem(two.lines, phone, null).line.quantity).toBe(2);
     expect(removeSerial(two.lines, added.line.key, "SN-0001")[0]).toMatchObject({ quantity: 1, serials: ["SN-0002"] });
   });
+
+  it("theo đơn: quy đổi đơn vị quét sang đơn vị dòng đơn; hai dòng đơn cùng mặt hàng tách riêng", () => {
+    const carton = option({ matchedUnitId: "thung" });
+    const target = { orderLineId: "dong-don-1", unitId: "chai", unitName: "Chai", factor: 1 };
+    const first = addItem([], carton, null, target);
+    expect(first.line).toMatchObject({ unitName: "Chai", quantity: 24, orderLineId: "dong-don-1" });
+    const second = addItem(first.lines, option(), null, target);
+    expect(second.line.quantity).toBe(25);
+    const byCarton = addItem(second.lines, option(), null, { orderLineId: "dong-don-2", unitId: "thung", unitName: "Thùng", factor: 24 });
+    expect(byCarton.lines).toHaveLength(2);
+    expect(byCarton.line.quantity).toBe(0.0417);
+  });
 });

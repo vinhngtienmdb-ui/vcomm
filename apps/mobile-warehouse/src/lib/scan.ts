@@ -21,7 +21,15 @@ export type ScanLine = {
   lotNo: string | null;
   expiresOn: string | null;
   serials: string[];
+  // Dòng theo đơn mua, đơn bán: dòng đơn; số lượng theo đơn vị của dòng đơn.
+  orderLineId: string | null;
+  // Nhập khác: đơn giá theo đơn vị của dòng; xuất theo lô khác gợi ý: lý do.
+  unitCost: string;
+  lotOverrideReason: string;
 };
+
+// Dòng đơn đích khi quét theo đơn: đơn vị, hệ số quy đổi của dòng đơn.
+export type OrderTarget = { orderLineId: string; unitId: string; unitName: string; factor: number };
 
 export const normalizeCode = (raw: string) => raw.trim();
 
@@ -51,14 +59,18 @@ export function decide(code: string, options: StockItemOption[], awaitingSerial:
 
 // Thêm một đơn vị quét: đơn vị khớp mã vạch, không khớp thì đơn vị cơ sở. Cộng vào dòng gần nhất cùng mặt hàng, đơn vị, vị trí; chưa có thì thêm dòng.
 // Hàng serial: không cộng số lượng, trả dòng để chờ quét serial.
-export function addItem(lines: ScanLine[], option: StockItemOption, location: ScanLocation | null): { lines: ScanLine[]; line: ScanLine } {
-  const unitId = option.tracksSerials ? option.baseUnitId : (option.matchedUnitId ?? option.baseUnitId);
-  const unit = option.units.find((item) => item.unitId === unitId);
+// Theo đơn: quy đổi đơn vị quét sang đơn vị của dòng đơn (1 thùng 24 chai quét vào dòng đơn tính theo chai thì cộng 24).
+export function addItem(lines: ScanLine[], option: StockItemOption, location: ScanLocation | null, target?: OrderTarget): { lines: ScanLine[]; line: ScanLine } {
+  const scannedUnitId = option.tracksSerials ? option.baseUnitId : (option.matchedUnitId ?? option.baseUnitId);
+  const scannedFactor = Number(option.units.find((item) => item.unitId === scannedUnitId)?.factor ?? "1");
+  const unitId = target?.unitId ?? scannedUnitId;
+  const unit = target ? { unitName: target.unitName, factor: String(target.factor) } : option.units.find((item) => item.unitId === unitId);
+  const increment = option.tracksSerials ? 0 : target ? round(scannedFactor / target.factor) : 1;
   const locationId = location?.id ?? null;
-  const index = findLastIndex(lines, (line) => line.variantId === option.variantId && line.unitId === unitId && line.locationId === locationId);
+  const index = findLastIndex(lines, (line) => line.variantId === option.variantId && line.unitId === unitId && line.locationId === locationId && line.orderLineId === (target?.orderLineId ?? null));
   if (index >= 0) {
     const existing = lines[index]!;
-    const line = option.tracksSerials ? existing : { ...existing, quantity: existing.quantity + 1 };
+    const line = { ...existing, quantity: round(existing.quantity + increment) };
     return { lines: lines.map((item, position) => (position === index ? line : item)), line };
   }
   const line: ScanLine = {
@@ -71,13 +83,16 @@ export function addItem(lines: ScanLine[], option: StockItemOption, location: Sc
     unitId,
     unitName: unit?.unitName ?? "",
     factor: Number(unit?.factor ?? "1"),
-    quantity: option.tracksSerials ? 0 : 1,
+    quantity: increment,
     locationId,
     locationCode: location?.code ?? null,
     lotId: null,
     lotNo: null,
     expiresOn: null,
     serials: [],
+    orderLineId: target?.orderLineId ?? null,
+    unitCost: "",
+    lotOverrideReason: "",
   };
   return { lines: [...lines, line], line };
 }
@@ -98,6 +113,8 @@ export function removeSerial(lines: ScanLine[], key: string, serial: string): Sc
     return { ...line, serials, quantity: serials.length };
   });
 }
+
+const round = (value: number) => Math.round(value * 10000) / 10000;
 
 function findLastIndex<T>(items: T[], predicate: (item: T) => boolean): number {
   for (let index = items.length - 1; index >= 0; index -= 1) if (predicate(items[index]!)) return index;
