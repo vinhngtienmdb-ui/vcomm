@@ -3,7 +3,7 @@
 - Mô tả: Cộng tác viên (gồm nhãn KOL, KOC) chia sẻ đường dẫn sản phẩm nhận hoa hồng; thưởng giới thiệu bạn bè một lần; mua chung bậc giá theo tổng số lượng, trả trước, hoàn tiền dư vào ví mua sắm; bảng tin cộng đồng mở (bài đăng, đánh giá đã mua hàng, bình luận, thích) có hậu kiểm. Trên ứng dụng VComm (`apps/mobile-vcomm`) và web quản trị (`apps/web-crm`).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả ngày 2026-11-11 (giá trị AI đề xuất được duyệt nguyên). Đang làm bản mẫu giao diện.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu ngày 2026-11-11. Chờ duyệt dữ liệu và API (mục 9).
 - Nguồn: tài liệu `04`, `05` (mục 2.2, 2.4); THAY_DOI_14, 16, 17; quyết định của người dùng ngày 2026-11-11 (mục 17); CONG_VIEC_23 (tài khoản người mua, giới thiệu), CONG_VIEC_24 (đặt hàng), CONG_VIEC_25 (thanh toán, hoàn tiền), CONG_VIEC_26 (hoa hồng theo đơn, ví hoa hồng), CONG_VIEC_27 (đội kinh doanh).
 - Mức: Lớn (module mới, dữ liệu mới, sửa cách đặt hàng, thanh toán, hoa hồng).
 
@@ -92,14 +92,57 @@ Web-crm:
 - MAN_HINH_138 Mua chung: cài đặt theo biến thể (bậc giá), danh sách nhóm (lọc trạng thái), chi tiết nhóm (đơn tham gia, số lượng, giá chốt), mở nhóm, hủy nhóm.
 - MAN_HINH_139 Kiểm duyệt cộng đồng: hàng chờ báo cáo, nội dung đã ẩn, tài khoản bị khóa, bài VComm (đăng, ghim), từ cấm, công tắc.
 
-## 9. Dữ liệu và API (dự kiến; chi tiết trình ở cổng dữ liệu và API)
+## 9. Dữ liệu và API
 
-- Database migration 0079 (cộng tác viên, thưởng giới thiệu): `marketplace.collaborators`, `collaborator_history`, `collaborator_clicks`; `product_commissions.collaborator`; `order_commissions.share` thêm `collaborator`; `marketplace.orders.referrer_user_id`; `marketplace.referral_bonus_settings`; `wallet_transactions.kind` thêm `referral_bonus`.
-- Database migration 0080 (ví mua sắm): `marketplace.shopping_wallets`, `shopping_wallet_transactions`; sổ thanh toán đơn thêm phần trả bằng ví.
-- Database migration 0081 (mua chung): `marketplace.group_buy_settings`, `group_buy_tiers`, `group_buys`; `marketplace.orders.group_buy_id`, trạng thái `awaiting_group`.
-- Database migration 0082 (bảng tin): `marketplace.posts`, `post_images`, `post_products`, `post_comments`, `post_likes`, `content_reports`, `community_bans`, `community_settings` (công tắc, từ cấm); quyền `marketplace.community.manage`.
-- API_162 cộng tác viên, mời bạn bè (người mua); API_163 cộng tác viên, thưởng giới thiệu (quản trị); API_164 mua chung (người mua); API_165 mua chung (quản trị); API_166 ví mua sắm; API_167 bảng tin (người mua); API_168 kiểm duyệt (quản trị); API_169 ảnh bài đăng.
-- Việc nền mỗi phút: chốt nhóm mua chung.
+### 9.1 Database migration
+
+0079 cộng tác viên, thưởng giới thiệu:
+- `marketplace.collaborators` (người dùng khóa chính, công ty vận hành sàn, mã duy nhất có thể trống đến khi duyệt, trạng thái `pending`, `approved`, `rejected`, `suspended`, nhãn `kol`, `koc` hoặc trống, kênh chia sẻ, phiên bản điều khoản, lý do, thời điểm gửi, người và thời điểm xét, phiên bản).
+- `marketplace.collaborator_history` (hành động `submit`, `approve`, `reject`, `suspend`, `restore`, `label`; lý do; người; thời điểm).
+- `marketplace.collaborator_clicks` (người mua, cộng tác viên, sản phẩm, lần bấm gần nhất; khóa chính ba cột; chỉ mục theo người mua, sản phẩm, thời điểm).
+- `marketplace.product_commissions.collaborator` numeric ≥ 0 mặc định 0; ràng buộc tổng phần trăm sáu mức ≤ 100.
+- `marketplace.order_commissions.share` thêm `collaborator`.
+- `marketplace.orders.referrer_user_id` (chụp lúc đặt; đơn cũ để trống), `marketplace.orders.collaborator_user_id` không cần (đã ở dòng hoa hồng).
+- `marketplace.referral_bonus_settings` (công ty, bật, mức thưởng, giá trị tối thiểu, người sửa, phiên bản).
+- `marketplace.referral_bonuses` (người được giới thiệu khóa chính, người hưởng, đơn, số tiền, thời điểm) bảo đảm một lần.
+- `marketplace.wallet_transactions.kind` thêm `referral_bonus` (gắn đơn; chỉ mục duy nhất người, đơn, loại).
+
+0080 ví mua sắm:
+- `marketplace.shopping_wallets` (người dùng, số dư ≥ 0, thời điểm).
+- `marketplace.shopping_wallet_transactions` (loại `group_buy_refund`, `group_buy_difference`, `order_payment`, `order_refund`, `return_refund`; số tiền khác 0; số dư sau; đơn; ghi chú; thời điểm).
+- `marketplace.orders.wallet_amount` (trả bằng ví lúc đặt, ≥ 0), `wallet_refunded_amount` (đã hoàn về ví, ≤ `wallet_amount` cộng phần hoàn tiền mặt vào ví của đơn mua chung). `paid_amount` giữ nghĩa cũ: tiền thu qua cổng hoặc COD. Tiền trực tuyến phải trả = tiền hàng + phí giao hàng − `wallet_amount`; tiền thu hộ = phần còn lại khi chọn COD.
+
+0081 mua chung:
+- `marketplace.group_buy_settings` (biến thể khóa chính, công ty, bật, thời hạn tối đa giờ, tối đa mỗi người, người sửa, phiên bản) và `group_buy_setting_tiers` (biến thể, thứ tự, từ số lượng, đơn giá gồm thuế).
+- `marketplace.group_buys` (biến thể, người mở, loại người mở `collaborator` hoặc `staff`, trạng thái `open`, `succeeded`, `failed`, `cancelled`, bắt đầu, kết thúc, bậc chụp dạng jsonb, tối đa mỗi người, số lượng chốt, giá chốt, lý do hủy, thời điểm chốt, phiên bản).
+- `marketplace.orders.group_buy_id`; trạng thái đơn thêm `awaiting_group`; chỉ mục nhóm, trạng thái.
+
+0082 bảng tin:
+- `marketplace.posts` (tác giả, loại `member`, `review`, `official`, nội dung, sao, dòng đơn được đánh giá (duy nhất), trạng thái `visible`, `auto_hidden`, `hidden`, `deleted`, ghim, lý do ẩn, số thích, số bình luận, thời điểm).
+- `marketplace.post_images`, `marketplace.post_products` (tối đa 3), `marketplace.post_comments` (trạng thái như bài), `marketplace.post_likes` (khóa chính bài, người).
+- `marketplace.content_reports` (bài hoặc bình luận, người báo, lý do, mô tả, trạng thái `pending`, `resolved`, `dismissed`; duy nhất người, nội dung).
+- `marketplace.community_bans` (người, đến lúc hoặc vĩnh viễn, lý do, người khóa, gỡ lúc).
+- `marketplace.community_settings` (công ty, cho đăng bài, cho bình luận, từ cấm mảng văn bản, phiên bản).
+- Quyền `marketplace.community.manage`.
+
+### 9.2 API (đường dẫn sau `/api/v1`)
+
+- API_162 cộng tác viên, mời bạn bè (người mua): `GET`, `POST /buyer/collaborator` (xem, gửi đăng ký); `POST /buyer/collaborator/clicks` (mã cộng tác viên, sản phẩm); `GET /buyer/collaborator/orders`; `GET /buyer/invitations` (thưởng hiện tại, người đã mời và trạng thái thưởng).
+- API_163 quản trị cộng tác viên, thưởng giới thiệu: `GET /marketplace/collaborators`, `GET /marketplace/collaborators/{userId}`; `POST .../approve`, `/reject`, `/suspend`, `/restore`, `PUT .../label`; `GET`, `PUT /marketplace/referral-bonus-settings`. Thiết lập hoa hồng sản phẩm (API của CONG_VIEC_26) thêm trường `collaborator`.
+- API_164 mua chung (người mua): `GET /buyer/group-buys` (đang mở; lọc sản phẩm; nhóm của tôi), `GET /buyer/group-buys/{id}`, `POST /buyer/group-buys` (cộng tác viên mở), `GET /buyer/group-buy-options` (biến thể bật mua chung). Đặt đơn dùng `POST /buyer/orders` và xem trước thêm `groupBuyId`, `useShoppingWallet`.
+- API_165 mua chung (quản trị): `GET`, `PUT /marketplace/group-buy-settings/{variantId}`, `GET /marketplace/group-buy-settings`; `GET`, `POST /marketplace/group-buys`, `GET /marketplace/group-buys/{id}`, `POST /marketplace/group-buys/{id}/cancel`.
+- API_166 ví mua sắm: `GET /buyer/shopping-wallet` (số dư, lịch sử phân trang).
+- API_167 bảng tin (người mua): `GET /buyer/posts` (lọc sản phẩm), `GET /buyer/posts/{id}`, `POST /buyer/posts`, `DELETE /buyer/posts/{id}`; `GET`, `POST /buyer/posts/{id}/comments`, `DELETE /buyer/comments/{id}`; `PUT`, `DELETE /buyer/posts/{id}/like`; `POST /buyer/reports`; `GET /buyer/community` (công tắc, tình trạng khóa của tôi); `GET /buyer/shop/products/{id}` thêm điểm đánh giá.
+- API_168 kiểm duyệt (quản trị): `GET /marketplace/community/reports`, `POST /marketplace/community/posts/{id}/hide`, `/show`, `POST /marketplace/community/comments/{id}/hide`, `/show`, `POST /marketplace/community/reports/dismiss`; `GET`, `POST /marketplace/community/bans`, `POST /marketplace/community/bans/{id}/lift`; `GET`, `PUT /marketplace/community/settings`; `POST /marketplace/community/posts` (bài VComm), `PUT /marketplace/community/posts/{id}/pin`.
+- API_169 ảnh bài đăng: `POST /buyer/posts/images` (tải lên trước khi đăng, kiểm nội dung tệp), `GET /buyer/posts/images/{id}`.
+- Việc nền mỗi phút: chốt nhóm mua chung hết hạn (mỗi lần tối đa 100 nhóm).
+
+### 9.3 Quyết định thiết kế kèm theo
+
+- Phần trả bằng ví ghi ở `wallet_amount`, không qua bảng thanh toán cổng; các luồng hoàn tiền ngân hàng hiện có chỉ xét tiền mặt (`paid_amount`), phần ví hoàn về ví.
+- Đơn mua chung: mọi tiền hoàn khi hủy (do người mua, nhóm thất bại, nhóm bị hủy, hết hạn thanh toán sau khi đã trả một phần ví) vào ví mua sắm. Hoàn hàng trả sau khi giao: phần tiền mặt theo QUYTAC_NGHIEPVU_168, phần vượt tiền mặt hoàn về ví.
+- Đơn giá mua chung: dòng đơn bán lập với giá bảng giá thay bằng đơn giá bậc (gồm thuế), không khuyến mãi; chốt nhóm sửa đơn giá, tiền dòng, tổng đơn bán trước khi xuất kho nên doanh thu, hóa đơn theo giá chốt.
+- Tiền về từ cổng sau khi đơn mua chung đã hủy: theo luồng cũ (việc chờ hoàn ngân hàng).
 
 ## 10. Điều kiện đặc biệt và rủi ro
 
