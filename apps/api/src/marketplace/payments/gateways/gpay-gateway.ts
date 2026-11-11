@@ -87,14 +87,15 @@ export function gpayStatusKind(status: unknown): "succeeded" | "failed" | "pendi
 }
 
 // Kết quả đã ký (kết quả gửi về hoặc tra cứu đơn) thành kết quả chung; số tham chiếu phải trùng mã đơn đã gửi G-Pay.
-function notificationOf(fields: Record<string, unknown>, success: boolean): GatewayNotification | null {
+function notificationOf(fields: Record<string, unknown>): GatewayNotification | null {
   const embedded = readEmbedData(fields.embed_data);
   if (!embedded || embedded.reference !== fields.merchant_order_id) return null;
   const text = (value: unknown) => (typeof value === "string" && value ? value.slice(0, 100) : null);
   return {
     reference: embedded.reference,
     amount: embedded.amount,
-    success,
+    success: gpayStatusKind(fields.status) === "succeeded",
+    pending: gpayStatusKind(fields.status) === "pending",
     responseCode: text(fields.status) ?? "UNKNOWN",
     transactionNo: text(fields.gpay_trans_id),
     bankCode: text(fields.user_payment_method),
@@ -103,6 +104,8 @@ function notificationOf(fields: Record<string, unknown>, success: boolean): Gate
 
 const replies: Record<NotificationOutcome, { status: number; body: { code: string; message: string } }> = {
   success: { status: 200, body: { code: "00", message: "OK" } },
+  // Đã nhận kết quả chưa kết thúc, chờ kết quả cuối.
+  pending: { status: 200, body: { code: "00", message: "OK" } },
   already_confirmed: { status: 200, body: { code: "02", message: "Order already confirmed" } },
   not_found: { status: 400, body: { code: "01", message: "Order not found" } },
   invalid_amount: { status: 400, body: { code: "04", message: "Invalid amount" } },
@@ -141,6 +144,10 @@ export class GpayGateway implements PaymentGatewayAdapter {
       callback_url: configuration.returnUrl,
       webhook_url: configuration.webhookUrl,
       embed_data: embedData(input.reference, input.amount),
+      // Thông tin người mua (tên, điện thoại, email) nếu có; G-Pay hiện trên trang thanh toán.
+      ...(input.buyer?.name ? { customer_name: input.buyer.name.slice(0, 100) } : {}),
+      ...(input.buyer?.phone ? { phone: input.buyer.phone } : {}),
+      ...(input.buyer?.email ? { email: input.buyer.email } : {}),
     });
     const billUrl = response.data?.bill_url;
     if (typeof billUrl !== "string" || !/^https:\/\//.test(billUrl)) throw new ApiError("BUSINESS_RULE", "paymentMethodUnavailable");
@@ -155,9 +162,8 @@ export class GpayGateway implements PaymentGatewayAdapter {
     const fields = body as Record<string, unknown>;
     if (typeof fields.signature !== "string" || !/^[A-Za-z0-9+/]+={0,2}$/.test(fields.signature)) return null;
     const valid = verify("sha256", Buffer.from(notificationSigningText(fields), "utf8"), configuration.gatewayPublicKey, Buffer.from(fields.signature, "base64"));
-    // Kết quả chưa kết thúc thì không ghi nhận (G-Pay chỉ gửi khi giao dịch kết thúc; gặp thì coi như không đọc được).
-    if (!valid || gpayStatusKind(fields.status) === "pending") return null;
-    return notificationOf(fields, gpayStatusKind(fields.status) === "succeeded");
+    // Kết quả chưa kết thúc (pending) thì khung không đổi trạng thái lần thanh toán.
+    return valid ? notificationOf(fields) : null;
   }
 
   // Trang trả về: không tin tham số trên đường dẫn, tra cứu đơn với G-Pay để hiển thị (QUYTAC_NGHIEPVU_259).
@@ -171,8 +177,7 @@ export class GpayGateway implements PaymentGatewayAdapter {
       merchant_order_id: merchantOrderId,
       gpay_bill_id: text(query.gpay_bill_id) ?? text(query.bill_id) ?? "",
     });
-    // Trang trả về chỉ hiển thị, "thành công" lấy theo lần thanh toán đã ghi nhận; đơn G-Pay chưa xong thì không báo thất bại để trang hiện "đang chờ".
-    const result = response.data ? notificationOf(response.data, gpayStatusKind(response.data.status) !== "failed") : null;
+    const result = response.data ? notificationOf(response.data) : null;
     return result && result.reference === merchantOrderId ? result : null;
   }
 

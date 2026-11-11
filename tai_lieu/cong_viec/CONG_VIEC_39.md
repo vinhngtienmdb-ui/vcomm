@@ -28,8 +28,8 @@ Người mua đơn VComm trả tiền qua cổng G-Pay. VComm chỉ ghi nhận t
 ## 5. Quy tắc nghiệp vụ
 
 - QUYTAC_NGHIEPVU_255: Cổng G-Pay (mã `gpay`) có ba phương thức, mặc định tắt: `gpay_atm` (G-Pay `BANK_ATM`, thẻ ATM hoặc tài khoản nội địa), `gpay_international` (`BANK_INTERNATIONAL`, thẻ quốc tế), `gpay_va` (`VA`, chuyển khoản tài khoản ảo). Thứ tự 70, 71, 72. Thiếu một biến môi trường hoặc khóa không đọc được thì cổng chưa có thông tin kết nối, không bật được.
-- QUYTAC_NGHIEPVU_256: Mở thanh toán tạo đơn G-Pay (`POST /payments/gateway/init-order`, `payment_type` = `IMMEDIATE`): `request_id` là số tham chiếu của lần thanh toán, `amount` là số tiền đồng, `embed_data` = `<số tham chiếu>|<số tiền>`. G-Pay trả `bill_url`, người mua được chuyển tới đó. G-Pay không trả lời hoặc báo lỗi thì người mua nhận lỗi "Phương thức thanh toán này hiện không dùng được", không tạo lần thanh toán.
-- QUYTAC_NGHIEPVU_257: Kết quả G-Pay gửi về (`POST /api/v1/public/payments/gpay/notify`, JSON) phải có chữ ký SHA256withRSA (base64) của G-Pay trên chuỗi `merchant_order_id=…&gpay_trans_id=…&gpay_bill_id=…&status=…&embed_data=…&user_payment_method=…`, kiểm bằng khóa công khai của G-Pay. `embed_data` phải trùng mã đơn; số tiền trong `embed_data` phải bằng số tiền lần thanh toán. `ORDER_SUCCESS` là thành công; trạng thái có `FAIL`, `CANCEL`, `EXPIRE`, `REJECT` là thất bại; trạng thái khác không ghi nhận. Trả lời: 200 khi đã ghi nhận hoặc đã ghi nhận trước đó; 400 khi không có đơn, sai số tiền; 401 khi sai chữ ký; 500 khi lỗi máy chủ để G-Pay gửi lại.
+- QUYTAC_NGHIEPVU_256: Mở thanh toán tạo đơn G-Pay (`POST /payments/gateway/init-order`, `payment_type` = `IMMEDIATE`): `request_id` là số tham chiếu của lần thanh toán, `amount` là số tiền đồng, `embed_data` = `<số tham chiếu>|<số tiền>`; có thông tin người mua thì gửi `customer_name`, `phone`, `email`. G-Pay trả `bill_url`, người mua được chuyển tới đó. G-Pay không trả lời hoặc báo lỗi thì người mua nhận lỗi "Phương thức thanh toán này hiện không dùng được", không tạo lần thanh toán.
+- QUYTAC_NGHIEPVU_257: Kết quả G-Pay gửi về (`POST /api/v1/public/payments/gpay/notify`, JSON) phải có chữ ký SHA256withRSA (base64) của G-Pay trên chuỗi `merchant_order_id=…&gpay_trans_id=…&gpay_bill_id=…&status=…&embed_data=…&user_payment_method=…`, kiểm bằng khóa công khai của G-Pay. `embed_data` phải trùng mã đơn; số tiền trong `embed_data` phải bằng số tiền lần thanh toán. `ORDER_SUCCESS` là thành công; trạng thái có `FAIL`, `CANCEL`, `EXPIRE`, `REJECT` là thất bại; trạng thái khác là đang xử lý, không đổi trạng thái lần thanh toán (khung `pending` của CONG_VIEC_33). Trả lời: 200 khi đã ghi nhận, đã ghi nhận trước đó hoặc đang xử lý; 400 khi không có đơn, sai số tiền; 401 khi sai chữ ký; 500 khi lỗi máy chủ để G-Pay gửi lại.
 - QUYTAC_NGHIEPVU_258: Mọi yêu cầu VComm gửi G-Pay kèm mã truy cập (`POST /auth/token` bằng `client_id`, `client_secret`; dùng lại tới 30 giây trước khi hết hạn; bị 401 thì lấy lại một lần) và các tiêu đề `x-timestamp`, `x-requests-id`, `x-certificate` (chứng thư công khai của VComm, base64), `signature` (SHA256withRSA bằng khóa riêng của VComm trên `x-timestamp + x-requests-id + nội dung JSON`).
 - QUYTAC_NGHIEPVU_259: Trang trả về (`/api/v1/public/payments/gpay/return`) không tin tham số trên đường dẫn. Trang lấy `merchant_order_id` (hoặc `request_id`) để tra cứu đơn với G-Pay (`POST /payments/gateway/query-order`), chỉ để hiển thị. Tiền chỉ ghi nhận qua kết quả gửi về (QUYTAC_NGHIEPVU_166).
 
@@ -50,7 +50,7 @@ Tạo khóa theo hướng dẫn G-Pay: `openssl genrsa -out khoa_rieng.pem 2048`
 
 1. Đường dẫn lấy mã truy cập: mã mẫu gọi `/auth/token`, nhưng danh sách đường dẫn trong mẫu Java còn có `/authentication/token/create`.
 2. Tham số G-Pay gắn vào `callback_url` khi chuyển người mua về (đang đọc `merchant_order_id` hoặc `request_id`, `gpay_bill_id` hoặc `bill_id`).
-3. Các trường bắt buộc của tạo đơn: mẫu có thêm `customer_id`, `customer_name`, `email`, `phone`, `address`; VComm chưa gửi.
+3. Các trường bắt buộc của tạo đơn: mẫu có thêm `customer_id`, `address`; VComm chưa gửi (đã gửi `customer_name`, `phone`, `email` khi có).
 4. Định dạng `x-certificate`: mẫu Java gửi base64 không kèm dòng BEGIN, END; mẫu Go gửi nguyên tệp. VComm gửi theo mẫu Java.
 5. Số lần G-Pay gửi lại kết quả, nội dung trả lời G-Pay cần; danh sách đầy đủ các trạng thái ngoài `ORDER_SUCCESS`, `ORDER_FAILED`.
 6. Kiểu dữ liệu `meta.code` (chuỗi hoặc số); VComm chấp nhận cả hai.
@@ -70,10 +70,10 @@ Tạo khóa theo hướng dẫn G-Pay: `openssl genrsa -out khoa_rieng.pem 2048`
 
 - KICHBAN_KIEMTHU_403: chưa có biến môi trường hoặc khóa sai thì bật bị từ chối; đủ thì bật cả ba, người mua thấy `cod, gpay_atm, gpay_international, gpay_va`.
 - KICHBAN_KIEMTHU_404: kiểm chữ ký yêu cầu tạo đơn, mã truy cập, chứng thư, nội dung; kết quả ký bằng khóa khác, bị sửa sau khi ký, không có chữ ký thì 401; sai số tiền 400; không có đơn 400; thành công 200, đơn Chờ giao, ghi chú `GPAY <mã giao dịch>`; nhận trùng 200 không ghi lại; mã truy cập lấy một lần.
-- KICHBAN_KIEMTHU_405: `ORDER_FAILED` thì lần thanh toán thất bại, đơn vẫn chờ thanh toán; `ORDER_PROCESSING` không ghi nhận; `gpay_international`, `gpay_va` gửi `BANK_INTERNATIONAL`, `VA`.
+- KICHBAN_KIEMTHU_405: `ORDER_FAILED` thì lần thanh toán thất bại, đơn vẫn chờ thanh toán; `ORDER_PROCESSING` trả 200, ghi lại kết quả `pending`, lần thanh toán vẫn chờ; `gpay_international`, `gpay_va` gửi `BANK_INTERNATIONAL`, `VA`.
 - KICHBAN_KIEMTHU_406: đường dẫn ghi thành công nhưng G-Pay đang xử lý thì trang hiện "đang chờ"; G-Pay báo thất bại thì hiện thất bại; mã đơn không có hoặc thiếu thì "không xác nhận được"; G-Pay không trả lời khi mở thanh toán thì 409, không thêm lần thanh toán.
 
-Hồi quy: `c25-payment-methods.test.ts` sửa so sánh danh mục phương thức thành 4 dòng đầu (phương thức các cổng sau đứng sau); `c25-*`, `c32-*`.
+Hồi quy: `c25-*`, `c32-*`, `c33-*` (giữ bản `c25-payment-methods.test.ts` của nhánh nền, người dùng duyệt phương án A: chỉ so phương thức cổng cod, vnpay).
 
 ## 10. Thành phần không được thay đổi
 
@@ -96,4 +96,5 @@ Khung `payment-gateway.ts`, `payments.service.ts`, `payments.controller.ts` (CON
 
 - Kiểm tra kiểu toàn dự án (`pnpm typecheck`), `pnpm lint`: đạt.
 - `c39-payment-gpay.test.ts`: 4/4 đạt.
-- Kiểm thử hồi quy `pnpm --filter api test`: 47 tệp, 337 kiểm thử đạt (2026-11-11).
+- Kiểm thử hồi quy `pnpm --filter api test`: 47 tệp, 337 kiểm thử đạt (2026-11-11, trước khi hợp nhất CONG_VIEC_33).
+- Sau khi merge nhánh nền có CONG_VIEC_33 (MoMo): theo khung mới dùng `pending` cho trạng thái chưa kết thúc và gửi thông tin người mua; `c39`, `c25-*`, `c32`, `c33` đạt; kiểm thử hồi quy toàn bộ: xem dưới.

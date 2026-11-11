@@ -177,6 +177,7 @@ describe("CONG_VIEC_39 cổng thanh toán G-Pay", () => {
       webhook_url: "http://localhost:4000/api/v1/public/payments/gpay/notify",
       callback_url: "http://localhost:4000/api/v1/public/payments/gpay/return",
     });
+    expect(sent.body).toMatchObject({ customer_name: "Người Mua G-Pay", phone: expect.stringMatching(/939000001$/) });
     const fields = { merchant_order_id: reference, gpay_trans_id: "GT1001", gpay_bill_id: "BILL1", status: "ORDER_SUCCESS", embed_data: `${reference}|74000`, user_payment_method: "BANK_ATM" };
     // Sai chữ ký: ký bằng khóa khác, hoặc sửa nội dung sau khi ký.
     expect((await notify(webhook(fields, otherPair.privateKey))).status).toBe(401);
@@ -224,8 +225,9 @@ describe("CONG_VIEC_39 cổng thanh toán G-Pay", () => {
       embed_data: `${processingReference}|74000`,
       user_payment_method: "BANK_ATM",
     };
-    expect((await notify(webhook(notFinished))).status).toBe(401);
+    expect((await notify(webhook(notFinished))).status).toBe(200);
     expect((await pool.query("SELECT status FROM marketplace.payments WHERE reference = $1", [processingReference])).rows[0].status).toBe("pending");
+    expect((await pool.query("SELECT result_code FROM marketplace.payment_notifications WHERE reference = $1", [processingReference])).rows[0].result_code).toBe("pending");
     expect((await buyer("get", `/buyer/orders/${orderId}`)).body).toMatchObject({ status: "awaiting_payment", paymentStatus: "unpaid", canPay: true });
     expect((await placeAndStart("gpay_va")).sent.body.payment_method).toBe("VA");
   });
