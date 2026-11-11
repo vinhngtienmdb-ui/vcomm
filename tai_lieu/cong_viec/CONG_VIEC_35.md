@@ -45,7 +45,7 @@
 ## Dữ liệu, API
 
 - Database migration 0053 (`database/migrations/0053_payment_payos.sql`): thêm cột `marketplace.payments.gateway_order_code text`, chỉ mục duy nhất `payments_gateway_order_code_key (gateway_code, gateway_order_code) WHERE gateway_order_code IS NOT NULL`, phương thức `payos_vietqr`. Đây là thay đổi cấu trúc dữ liệu ngoài phạm vi "chỉ INSERT" của hướng dẫn chung, người dùng đã đồng ý 2026-11-11.
-- Khung (CONG_VIEC_32) mở rộng không phá vỡ: `PaymentGatewayAdapter.createOrderCode?()`, `PaymentStartInput.gatewayOrderCode`, `GatewayNotification.reference` có thể null kèm `gatewayOrderCode`. VNPAY không đổi.
+- Khung (CONG_VIEC_32) mở rộng không phá vỡ: `PaymentGatewayAdapter.createOrderCode?()`, `PaymentStartInput.gatewayOrderCode` (tùy chọn), `GatewayNotification.reference` có thể null kèm `gatewayOrderCode`. VNPAY không đổi.
 - Không thêm API mới; dùng API_131, API_132 (đường dẫn chung).
 
 ## Tiêu chí nghiệm thu
@@ -71,7 +71,7 @@ Tệp `apps/api/test/c35-payment-payos.test.ts`, chạy với máy chủ PayOS g
 ## Kết quả kiểm thử (2026-11-11)
 
 - `c35-payment-payos.test.ts`: 4/4 đạt.
-- Hồi quy `pnpm --filter api test`: 47 tệp, 337 kiểm thử đạt. Riêng `c25-payment-methods.test.ts` được sửa để chỉ so 4 phương thức đầu (cod, VNPAY), vì cổng mới thêm phương thức vào danh mục.
+- Hồi quy `pnpm --filter api test` sau khi hợp nhất nhánh nền có cổng MoMo (CONG_VIEC_33): 48 tệp, 340 kiểm thử đạt. `c25-payment-methods.test.ts` giữ bản trên nhánh nền (chỉ so phương thức của cổng cod, vnpay).
 - `pnpm turbo run typecheck lint`: đạt.
 
 ## Dòng cần thêm vào tài liệu dùng chung (phiên chính cập nhật khi hợp nhất)

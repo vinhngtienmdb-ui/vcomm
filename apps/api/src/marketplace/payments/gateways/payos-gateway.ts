@@ -78,6 +78,7 @@ const replies: Record<NotificationOutcome, { status: number; body: { success: bo
   success: { status: 200, body: { success: true, message: "Confirm Success" } },
   not_found: { status: 200, body: { success: true, message: "Order not found" } },
   already_confirmed: { status: 200, body: { success: true, message: "Order already confirmed" } },
+  pending: { status: 200, body: { success: true, message: "Pending" } },
   invalid_amount: { status: 200, body: { success: true, message: "Invalid amount" } },
   invalid_signature: { status: 400, body: { success: false, message: "Invalid signature" } },
   error: { status: 500, body: { success: false, message: "Unknown error" } },
