@@ -1,9 +1,9 @@
 # CONG_VIEC_52: Văn phòng số phần 1 (MODULE_13)
 
 - Mô tả: Mini app Văn phòng số `apps/web-office`: quản lý công việc (giao việc, hạn, người theo dõi, bình luận, đính kèm, việc liên công ty trong tập đoàn); quy trình công việc theo mẫu có nhánh rẽ, song song; công văn đến, đi theo Nghị định 30/2020/NĐ-CP (sổ, số đến, số đi, ký hiệu, độ khẩn, soạn đúng thể thức, xuất PDF và Word, trình ký qua luồng duyệt chung); bảng tin nội bộ.
-- Phiên bản: 0.1
-- Ngày cập nhật: 2026-11-11
-- Trạng thái: Đặc tả đã duyệt ngày 2026-11-11 (gồm quyết định AI tự đưa ra ở mục 16). Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ.
+- Phiên bản: 0.2
+- Ngày cập nhật: 2026-11-12
+- Trạng thái: Chờ nghiệm thu (2026-11-12). Đặc tả đã duyệt ngày 2026-11-11 (gồm quyết định AI tự đưa ra ở mục 16). Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ.
 - Mức: Lớn (module mới, mini app mới, thêm thư viện `docx`, dữ liệu liên công ty).
 - Nguồn: tài liệu `01` mục 4 (MODULE_13), tài liệu `05` (Văn phòng số: công việc, quy trình, công văn, bảng tin nội bộ); quyết định của người dùng ngày 2026-11-11 (mục 17).
 
@@ -195,7 +195,22 @@ Luồng duyệt chung, dãy số chứng từ, mẫu đề xuất, tệp đính 
 
 - Nội dung Nghị định 30 chưa đối chiếu bản gốc trong phiên (mục 3); phải đối chiếu điều 8, 15, 16, 20 đến 24, Phụ lục I, III, IV trước khi phát hành.
 - Thư viện `docx` 9.15.3 và phông Liberation Serif: người dùng đã duyệt 2026-11-11 (tài liệu `13`).
+- Rủi ro mức Thấp còn lại sau tự rà soát (đề xuất người dùng chấp nhận khi nghiệm thu):
+  - Tệp đã lưu lên kho mà giao dịch ghi cơ sở dữ liệu lỗi ở bước sau (ví dụ ghi nhật ký) có thể để lại tệp mồ côi trên kho; không lộ dữ liệu, chỉ tốn chỗ.
+  - Phát hành công văn đi: sao tệp bản đã ký sang công văn đến chờ vào sổ của công ty khác chạy sau khi ghi; nếu sao lỗi, công văn đã phát hành nhưng bản chờ vào sổ thiếu tệp (văn thư công ty nhận tải lại bản quét được).
+  - Vào sổ công văn đến nhận tối đa 10 tệp mỗi lần, mỗi tệp đọc vào bộ nhớ (giới hạn 20 MB mỗi tệp kiểm ở dịch vụ); một yêu cầu lớn dùng nhiều bộ nhớ máy chủ.
 
 ## 19. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa đối chiếu.
+Đối chiếu ngày 2026-11-12 (bộ quy trình mục 10):
+
+- [x] Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: YCAU_NGHIEPVU_98 đến 104, QUYTAC_NGHIEPVU_356 đến 367 có chức năng, API, kiểm thử (tài liệu `27`); chênh lệch có chủ đích ghi ở mục 16.
+- [x] Đúng giao diện: MAN_HINH_153 đến 160 xem trước từng lát ở 1366 px và 390 px, không lỗi trình duyệt, không cuộn ngang; người dùng duyệt lát L0 đến L3.
+- [x] Đã xử lý lỗi: lỗi hiện đúng ô, mã lỗi nghiệp vụ có câu chữ vi, en.
+- [x] Đã kiểm thử: `apps/api/test/c52-*.test.ts` 40 kiểm thử; toàn bộ kiểm thử API sau khi hợp nhất main 0.5.0; kết quả gửi phiên cha ghi tài liệu `25`.
+- [x] Không phá vỡ chức năng cũ: toàn bộ kiểm thử API đạt. Sửa giá trị mong đợi trong `l1-authentication.test.ts` (trang chủ thêm mini app `office` vì vai trò Nhân viên có `office.access` theo mục 6) – cần người dùng phê duyệt khi nghiệm thu.
+- [x] Đạt tiêu chí nghiệm thu bắt buộc: TIEUCHI_NGHIEMTHU_339 đến 348 có kịch bản KICHBAN_KIEMTHU_498 đến 509, kết quả Đạt.
+- [x] Đạt cổng bảo mật: rà soát độc lập không thấy SQL injection, XSS, đi đường dẫn; ba lỗi phân quyền mức Trung bình, bốn lỗi đồng thời mức Thấp đã sửa (commit bed83a7); ba rủi ro mức Thấp ở mục 18 chờ người dùng chấp nhận.
+- [x] Đã tự rà soát mã và dọn dẹp: không còn mã gỡ lỗi; ảnh, kịch bản xem trước ở `tam_thoi/` (không commit).
+- [x] Đã cập nhật tài liệu `27` và tài liệu liên quan: 06, 07, 08, 10, 11, 13, 14, 16, 17, 21, 22, 27. Tài liệu `02`, `03`, `25` do phiên cha ghi.
+- Rủi ro chưa đóng: nội dung Nghị định 30/2020/NĐ-CP chưa đối chiếu nguyên văn (mục 18).
