@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.18
+- Phiên bản: 1.19
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm luồng 40 (đơn bán dịch vụ lập tay), luồng 41 (giao dịch nội bộ dịch vụ); Luồng 9, 10, 12, 13, 14 bổ sung; đánh dấu Luồng 29 (CONG_VIEC_17) đã bỏ, Luồng 33 (CONG_VIEC_21) đã tắt
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm luồng 40 (đơn bán dịch vụ lập tay), luồng 41 (giao dịch nội bộ dịch vụ); Luồng 9, 10, 12, 13, 14 bổ sung; đánh dấu Luồng 29 (CONG_VIEC_17) đã bỏ, Luồng 33 (CONG_VIEC_21) đã tắt; CONG_VIEC_53 (2026-11-11), THAY_DOI_24: thêm luồng 43 (bán, trả hàng, đóng ca tại quầy của MODULE_14 phần 1), trạng thái ca thu ngân; phần điểm tại quầy chưa làm, chờ CONG_VIEC_51
 
 ## MODULE_01 Nền tảng
 
@@ -828,3 +828,40 @@ Trạng thái bổ sung (CONG_VIEC_43):
 | Đơn mua đối ứng nội bộ Đã duyệt | Phiếu nhập dịch vụ tự lập làm mọi dòng đủ số đặt | Đã nhận đủ |
 
 Không còn trạng thái của bảng hoa hồng (Luồng 29) và phiếu giao khách (Luồng 33).
+
+## MODULE_14 Bán lẻ tại quầy và trạm giao hàng (phần 1: Bán lẻ tại quầy, CONG_VIEC_53)
+
+### Luồng 43. Bán, trả hàng, đóng ca tại quầy
+
+- Bắt đầu: quản trị (`retail.setup`) đã cài đặt cửa hàng, quầy (MAN_HINH_166; QUYTAC_NGHIEPVU_368); kế toán đã khai ký hiệu hóa đơn máy tính tiền của năm khi công ty bật hóa đơn điện tử (QUYTAC_NGHIEPVU_378). Thu ngân (`retail.sale` tại chi nhánh của cửa hàng) mở màn hình Bán hàng (MAN_HINH_161).
+- Các bước mở ca:
+  1. Chưa có ca thì màn hình hiện phần mở ca (MAN_HINH_162): chọn cửa hàng, quầy đang hoạt động, xem gợi ý tiền cuối ca trước của quầy, nhập tiền đầu ca; khác gợi ý thì ghi chú (QUYTAC_NGHIEPVU_369).
+  2. Hệ thống tạo ca "Đang mở"; tiền đầu ca không lập chứng từ quỹ.
+- Các bước bán:
+  1. Thu ngân quét mã vạch, serial hoặc gõ mã, tên rồi nhấn Enter; khớp đúng một mặt hàng thì thêm 1 đơn vị, quét lại cộng số lượng; hàng theo serial quét từng serial (QUYTAC_NGHIEPVU_370).
+  2. Máy chủ tính giỏ: giá kênh của cửa hàng, khuyến mãi, hàng tặng, giảm tay (F4) trong mức, thuế, phải trả (QUYTAC_NGHIEPVU_371). Thu ngân nhập người mua lấy hóa đơn khi khách yêu cầu (F2) (QUYTAC_NGHIEPVU_372).
+  3. Thu ngân bấm "Thanh toán" (F9): chọn tiền mặt (gợi ý mệnh giá, tiền thừa), chuyển khoản (mã VietQR, xác nhận đã nhận, mã giao dịch) hoặc kết hợp; bấm "Xác nhận thanh toán" (QUYTAC_NGHIEPVU_373).
+  4. Trong một giao dịch, hệ thống tính lại tổng, ghi hóa đơn bán lẻ, đơn bán bán lẻ đã xác nhận, phiếu xuất đã ghi sổ (giá vốn, lô hết hạn trước, serial), bút toán, hóa đơn điện tử khởi tạo từ máy tính tiền (số cấp tại quầy, mã tra cứu) (QUYTAC_NGHIEPVU_374, 378).
+  5. Màn hình hiện số hóa đơn; thu ngân bấm "In hóa đơn" (khổ 80 mm, MAN_HINH_167), "Đơn mới". Hóa đơn điện tử gửi nền đến cơ quan thuế qua nhà cung cấp trong ngày.
+- Các bước trả hàng:
+  1. Người có `retail.return`, có ca đang mở, bấm "Trả hàng" (MAN_HINH_164), quét mã QR hoặc gõ số hóa đơn bán lẻ; hệ thống kiểm cùng cửa hàng, trong hạn, cửa hàng có nhận trả (QUYTAC_NGHIEPVU_376).
+  2. Chọn dòng, số trả (serial đã bán), lý do; hệ thống tính tiền hoàn theo tỷ lệ.
+  3. Chọn hoàn tiền mặt từ ca (không vượt tiền mặt hệ thống tính của ca) hoặc chuyển khoản (người nhận, mã giao dịch), bấm "Xác nhận trả hàng".
+  4. Trong một giao dịch, hệ thống ghi phiếu trả hàng bán lẻ, phiếu nhận hàng trả lại đã ghi sổ vào kho bán theo giá vốn lúc xuất, bút toán trả hàng, việc chờ xử lý hóa đơn điện tử cho kế toán (QUYTAC_NGHIEPVU_377); in phiếu trả hàng.
+- Các bước đóng ca:
+  1. Thu ngân (hoặc người có `retail.shift.manage`) mở "Đóng ca" (MAN_HINH_162): xem tổng theo phương thức (thu bán, hoàn trả hàng, thực thu), tiền mặt hệ thống tính; đếm tiền (bảng đếm theo mệnh giá không bắt buộc), nhập tiền đếm được, lý do khi lệch (QUYTAC_NGHIEPVU_375).
+  2. Hệ thống đóng ca, lập và ghi sổ ngay theo từng quỹ: phiếu thu bán lẻ, phiếu chi hoàn tiền bán lẻ, phiếu chi thiếu tiền (1388, người mở ca chịu) hoặc phiếu thu thừa tiền (3381); bút toán đưa phải thu không đối tượng của ca về 0.
+  3. Thu ngân in biên bản đóng ca; kế toán xem ca, chứng từ quỹ ở Ca thu ngân (MAN_HINH_165) và mini app Tài chính – Kế toán.
+- Nhánh: thanh toán, trả hàng gửi lại cùng khóa yêu cầu (mạng chập chờn, bấm hai lần) thì trả về chứng từ đã ghi, không ghi trùng; người quản lý ca đóng ca của thu ngân vắng mặt; khách VComm dùng điểm, tích điểm, hoàn điểm khi trả hàng: chưa làm, chờ CONG_VIEC_51 (lát L6; QUYTAC_NGHIEPVU_379).
+- Ngoại lệ: mất mạng thì màn hình báo, chặn thanh toán; giá, khuyến mãi đổi so với lúc xem thì báo tổng mới, không ghi; thiếu tiền, chuyển khoản vượt số phải trả, giảm tay vượt mức, dưới giá vốn, thiếu tồn, serial thiếu, năm chưa khai ký hiệu máy tính tiền, kỳ kế toán khóa, kho khóa kiểm kê thì chặn, không ghi gì; thông báo ở tài liệu `07` mục CONG_VIEC_53.
+- Kết thúc: ca "Đã đóng"; mọi hóa đơn, phiếu trả của ca có phiếu kho, bút toán, hóa đơn điện tử; tiền đã vào quỹ bằng chứng từ quỹ đã ghi sổ.
+
+Trạng thái ca thu ngân:
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Thu ngân mở ca tại quầy chưa có ca mở | Đang mở (`open`) |
+| Đang mở | Bán, trả hàng | Đang mở |
+| Đang mở | Người mở ca hoặc người quản lý ca đóng ca (lập chứng từ quỹ) | Đã đóng (`closed`) |
+
+Ca đã đóng không sửa, không mở lại. Hóa đơn bán lẻ, phiếu trả hàng bán lẻ không có trạng thái (ghi xong là hoàn tất, không sửa, không hủy).
