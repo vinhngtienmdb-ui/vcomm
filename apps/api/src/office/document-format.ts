@@ -1,6 +1,6 @@
 // Dựng công văn đi theo thể thức Nghị định 30/2020/NĐ-CP Phụ lục I (QUYTAC_NGHIEPVU_366): PDF bằng pdfmake, Word bằng docx.
 import type { DocumentParagraph, DocumentUrgency } from "contracts";
-import { AlignmentType, BorderStyle, Document, Packer, Paragraph, Table, TableCell, TableLayoutType, TableRow, TextRun, WidthType } from "docx";
+import { AlignmentType, BorderStyle, Document, Header, Packer, PageNumber, Paragraph, Table, TableCell, TableLayoutType, TableRow, TextRun, WidthType } from "docx";
 
 // Đổi milimét sang twip (1/1440 inch), làm tròn: A4 là 11906 x 16838.
 const convertMillimetersToTwip = (millimeters: number) => Math.round((millimeters * 1440) / 25.4);
@@ -149,6 +149,8 @@ export async function renderDocumentPdf(document: FormattedDocument): Promise<Bu
     pageOrientation: "portrait",
     pageMargins: [document.margins.left * millimeter, document.margins.top * millimeter, document.margins.right * millimeter, document.margins.bottom * millimeter],
     defaultStyle: { font: "LiberationSerif", fontSize: size.body },
+    // Số trang giữa, phía trên, không hiện ở trang đầu (Phụ lục I Nghị định 30).
+    header: (currentPage: number) => (currentPage > 1 ? { text: String(currentPage), alignment: "center", fontSize: size.body, margin: [0, (document.margins.top * millimeter) / 2, 0, 0] } : null),
     info: { title: document.summary },
     content,
   });
@@ -243,6 +245,7 @@ export async function renderDocumentWord(document: FormattedDocument): Promise<B
     sections: [
       {
         properties: {
+          titlePage: true,
           page: {
             size: { width: convertMillimetersToTwip(210), height: convertMillimetersToTwip(297) },
             margin: {
@@ -252,6 +255,10 @@ export async function renderDocumentWord(document: FormattedDocument): Promise<B
               right: convertMillimetersToTwip(document.margins.right),
             },
           },
+        },
+        headers: {
+          default: new Header({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ children: [PageNumber.CURRENT], size: size.body * 2 })] })] }),
+          first: new Header({ children: [] }),
         },
         children,
       },

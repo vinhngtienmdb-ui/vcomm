@@ -305,6 +305,8 @@ describe("KICHBAN_KIEMTHU_505: thể thức PDF, Word; xuất sổ", () => {
       expect(text).toContain("- Lưu: VT, KT.");
       expect(text).toContain("BN.03");
       expect(text).not.toContain("DỰ THẢO");
+      expect(text).toContain("Kính gửi: Cục Thuế Thành phố Hồ Chí Minh.");
+      expect(text).not.toContain("Kính gửi: Kính gửi");
       expect(execFileSync("/usr/bin/pdffonts", [join(folder, "cv.pdf")]).toString()).toContain("LiberationSerif");
     }
     const word = await signer.call("get", `/office/outgoing/${ids.outgoing}/render?format=docx`, { companyId: retail }).buffer(true).parse(binary);
@@ -329,8 +331,32 @@ describe("KICHBAN_KIEMTHU_505: thể thức PDF, Word; xuất sổ", () => {
     expect((await clerk.call("put", "/office/document-settings", { companyId: retail, body: { ...saved.body, marginLeft: 40 } })).status).toBe(400);
     const draft = await drafter.call("post", "/office/outgoing", {
       companyId: retail,
-      body: outgoingBody({ summary: "Dự thảo thử", signerAuthority: "KT.", signerAuthorityOf: "Giám đốc", signerTitle: "Phó giám đốc" }),
+      body: outgoingBody({
+        summary: "Dự thảo thử",
+        signerAuthority: "KT.",
+        signerAuthorityOf: "Giám đốc",
+        signerTitle: "Phó giám đốc",
+        // Nội dung dài để văn bản sang trang thứ hai, kiểm số trang.
+        body: Array.from({ length: 60 }, (_, index) => ({
+          kind: "paragraph",
+          text: `Đoạn nội dung thứ ${index + 1} của dự thảo để kiểm tra việc đánh số trang theo thể thức.`,
+          bold: false,
+          italic: false,
+        })),
+        recipientLine: "Công ty Cổ phần ABC",
+      }),
     });
+    const pdfFile = await drafter.call("get", `/office/outgoing/${draft.body.id}/render?format=pdf`, { companyId: retail }).buffer(true);
+    if (existsSync("/usr/bin/pdftotext")) {
+      const folder = mkdtempSync(join(tmpdir(), "du-thao-pdf-"));
+      writeFileSync(join(folder, "dt.pdf"), pdfFile.body as Buffer);
+      const firstPage = execFileSync("/usr/bin/pdftotext", ["-f", "1", "-l", "1", join(folder, "dt.pdf"), "-"]).toString();
+      const secondPage = execFileSync("/usr/bin/pdftotext", ["-f", "2", "-l", "2", join(folder, "dt.pdf"), "-"]).toString();
+      // Số trang giữa, phía trên, không hiện ở trang đầu; công văn tự thêm "Kính gửi:".
+      expect(firstPage.trimStart().startsWith("1")).toBe(false);
+      expect(secondPage.trimStart().startsWith("2")).toBe(true);
+      expect(firstPage).toContain("Kính gửi: Công ty Cổ phần ABC");
+    }
     const file = await drafter.call("get", `/office/outgoing/${draft.body.id}/render?format=docx`, { companyId: retail }).buffer(true).parse(binary);
     if (existsSync("/usr/bin/unzip")) {
       const folder = mkdtempSync(join(tmpdir(), "du-thao-"));
@@ -343,6 +369,10 @@ describe("KICHBAN_KIEMTHU_505: thể thức PDF, Word; xuất sổ", () => {
       expect(xml).toContain('<w:sz w:val="28"/>');
       expect(xml).toMatch(/w:right="850"/);
       expect(xml).toMatch(/Số:\s+\/VCR-KT/);
+      expect(xml).toContain("<w:titlePg/>");
+      const header =
+        execFileSync("/usr/bin/unzip", ["-p", join(folder, "dt.docx"), "word/header1.xml"]).toString() + execFileSync("/usr/bin/unzip", ["-p", join(folder, "dt.docx"), "word/header2.xml"]).toString();
+      expect(header).toContain("PAGE");
     }
   });
 
