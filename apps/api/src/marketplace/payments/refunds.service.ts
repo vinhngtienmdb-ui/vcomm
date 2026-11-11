@@ -3,6 +3,8 @@ import { Inject, Injectable } from "@nestjs/common";
 import type { BuyerBankAccount, PageResponse, RefundItem, RefundReason, RefundStatus } from "contracts";
 import { sql } from "drizzle-orm";
 import { trimDecimal } from "../../catalog/catalog-context";
+import { LedgerService } from "../../accounting/ledger.service";
+import { marketplaceRefundDraft } from "../../accounting/postings";
 import { ApiError } from "../../common/api-error";
 import { AuditService } from "../../common/audit.service";
 import { notify } from "../../common/notifications";
@@ -40,6 +42,7 @@ export class RefundsService {
     @Inject(DATABASE) private readonly database: Database,
     private readonly orders: MarketplaceOrdersService,
     private readonly audit: AuditService,
+    private readonly ledger: LedgerService,
   ) {}
 
   async bankAccount(userId: string): Promise<BuyerBankAccount | null> {
@@ -111,6 +114,7 @@ export class RefundsService {
         UPDATE marketplace.refunds SET status = 'completed', bank_transaction_no = ${input.bankTransactionNo}, refunded_on = ${input.refundedOn}::date, note = ${input.note},
           completed_by = ${actor.userId}, completed_at = now(), version = version + 1 WHERE id = ${refundId}`);
       await transaction.execute(sql`UPDATE marketplace.orders SET refunded_amount = refunded_amount + ${refund.amount}::numeric, version = version + 1 WHERE id = ${refund.order_id}`);
+      await this.ledger.record(transaction, await marketplaceRefundDraft(transaction, refundId));
       await this.orders.event(transaction, refund.order_id, "refunded", trimDecimal(refund.amount), actor.userId);
       await notify(transaction, [
         {

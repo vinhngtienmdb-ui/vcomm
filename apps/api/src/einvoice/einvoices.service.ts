@@ -4,6 +4,7 @@ import { Inject, Injectable, Logger, type OnModuleInit } from "@nestjs/common";
 import type { EinvoiceKind, EinvoiceListItem, EinvoiceProvider, EinvoiceResponse, EinvoiceStatus, PageResponse, einvoiceListQuerySchema } from "contracts";
 import { type SQL, sql } from "drizzle-orm";
 import type { z } from "zod";
+import { marketplaceShippingFee, shippingVatRate } from "../accounting/postings";
 import { trimDecimal } from "../catalog/catalog-context";
 import { day } from "../catalog/price-lists.service";
 import { ApiError } from "../common/api-error";
@@ -231,6 +232,24 @@ export class EinvoicesService implements OnModuleInit {
       ? { partnerId: document.partner_id, name: partner.name, taxCode: partner.tax_code, address: partner.address, anonymous: false }
       : { partnerId: null, name: document.buyer_name, taxCode: null, address: null, anonymous: true };
     const items = await documentItems(transaction, documentId, "sales_issue");
+    // Phí giao hàng của đơn VComm: dòng dịch vụ thuế 10%, phí đã gồm thuế (CONG_VIEC_25; QUYTAC_NGHIEPVU_169).
+    const shippingFee = await marketplaceShippingFee(transaction, documentId);
+    if (shippingFee > 0) {
+      const net = Math.round(shippingFee / (1 + shippingVatRate / 100));
+      items.push({
+        lineNo: items.length + 1,
+        itemCode: null,
+        itemName: "Phí giao hàng",
+        unitName: "Lần",
+        quantity: 1,
+        unitPrice: net,
+        vatRate: "10",
+        netAmount: net,
+        taxAmount: shippingFee - net,
+        totalAmount: shippingFee,
+        isPromotion: false,
+      });
+    }
     await insertInvoice(transaction, {
       companyId: document.company_id,
       sourceDocumentId: documentId,

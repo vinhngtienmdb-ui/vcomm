@@ -2521,7 +2521,9 @@
     "longTerm": "Dài hạn",
     "longTermHint": "(số dư vào chỉ tiêu dài hạn trên báo cáo tình hình tài chính)",
     "source_collection_statement": "Bảng đối soát thu hộ",
-    "source_commission": "Bảng hoa hồng"
+    "source_commission": "Bảng hoa hồng",
+    "source_marketplace_payment": "Thu tiền đơn VComm",
+    "source_marketplace_refund": "Hoàn tiền đơn VComm"
   },
   "statements": {
     "title": "Báo cáo tài chính",

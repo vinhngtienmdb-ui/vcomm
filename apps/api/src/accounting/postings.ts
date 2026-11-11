@@ -25,7 +25,8 @@ export type PostingRole =
   | "commission_expense"
   | "staff_payable"
   | "collector_receivable"
-  | "collection_fee";
+  | "collection_fee"
+  | "service_revenue";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -49,6 +50,7 @@ export const postingRoles: PostingRole[] = [
   "staff_payable",
   "collector_receivable",
   "collection_fee",
+  "service_revenue",
 ];
 
 export interface DraftLine {
@@ -59,7 +61,7 @@ export interface DraftLine {
 }
 export interface DraftJournal {
   companyId: string;
-  sourceType: "inventory_document" | "payment" | "internal_write_off" | "commission" | "collection_statement";
+  sourceType: "inventory_document" | "payment" | "internal_write_off" | "commission" | "collection_statement" | "marketplace_payment" | "marketplace_refund";
   sourceId: string;
   journalNo: string;
   date: string;
@@ -112,6 +114,8 @@ export async function inventoryDraft(executor: Executor, documentId: string): Pr
     case "sales_issue":
       lines = [debit("receivable", saleNet + saleTax, partner), credit("revenue", saleNet), credit("vat_output", saleTax), debit("cogs", cost), credit("goods", cost)];
       description = "Xuất bán hàng";
+      // Phí giao hàng của đơn VComm (CONG_VIEC_25; QUYTAC_NGHIEPVU_169): doanh thu cung cấp dịch vụ, thuế 10% đã gồm trong phí, ghi ở phiếu xuất đầu tiên của đơn.
+      lines.push(...(await shippingFeeLines(executor, documentId, money)));
       break;
     case "sales_return":
       lines = [debit("sales_return", saleNet), debit("vat_output", saleTax), credit("receivable", saleNet + saleTax, partner), debit("goods", cost), credit("cogs", cost)];
@@ -159,6 +163,69 @@ export async function inventoryDraft(executor: Executor, documentId: string): Pr
     date: document.document_date,
     description: description || "Phiếu kho",
     lines,
+  };
+}
+
+// Phí giao hàng của đơn VComm: chỉ phiếu xuất ghi sổ sớm nhất của đơn bán mang phí.
+export async function marketplaceShippingFee(executor: Executor, documentId: string): Promise<number> {
+  const row = (
+    await executor.execute<{ shipping_fee: string }>(sql`
+    SELECT m.shipping_fee::text FROM inventory.documents d JOIN marketplace.orders m ON m.sales_order_id = d.source_id
+    WHERE d.id = ${documentId} AND d.type = 'sales_issue'
+      AND NOT EXISTS (
+        SELECT 1 FROM inventory.documents e WHERE e.type = 'sales_issue' AND e.status = 'posted' AND e.source_id = d.source_id AND e.id <> d.id
+          AND (e.posted_at, e.id) < (d.posted_at, d.id))`)
+  ).rows[0];
+  return Number(row?.shipping_fee ?? 0);
+}
+export const shippingVatRate = 10;
+
+async function shippingFeeLines(executor: Executor, documentId: string, money: (value: number) => number): Promise<DraftLine[]> {
+  const fee = money(await marketplaceShippingFee(executor, documentId));
+  if (fee <= 0) return [];
+  const net = money(fee / (1 + shippingVatRate / 100));
+  return [debit("receivable", fee), credit("service_revenue", net), credit("vat_output", round(fee - net))];
+}
+
+// Tiền thu trực tuyến của đơn VComm (CONG_VIEC_25; QUYTAC_NGHIEPVU_169): Nợ tiền gửi ngân hàng / Có phải thu khách hàng (không đối tác), ngày cổng báo thành công.
+export async function marketplacePaymentDraft(executor: Executor, paymentId: string): Promise<DraftJournal | null> {
+  const row = (
+    await executor.execute<{ company_id: string; reference: string; document_no: string; amount: string; paid_on: string }>(sql`
+    SELECT m.company_id, p.reference, so.document_no, p.amount::text, (p.completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS paid_on
+    FROM marketplace.payments p JOIN marketplace.orders m ON m.id = p.order_id JOIN sales.orders so ON so.id = m.sales_order_id
+    WHERE p.id = ${paymentId} AND p.status = 'succeeded'`)
+  ).rows[0];
+  if (!row) return null;
+  const amount = Number(row.amount);
+  return {
+    companyId: row.company_id,
+    sourceType: "marketplace_payment",
+    sourceId: paymentId,
+    journalNo: row.reference,
+    date: row.paid_on,
+    description: `Thu tiền đơn VComm ${row.document_no} qua cổng thanh toán`,
+    lines: [debit("bank", amount), credit("receivable", amount)],
+  };
+}
+
+// Hoàn tiền đơn VComm đã chuyển khoản (QUYTAC_NGHIEPVU_169): Nợ phải thu khách hàng / Có tiền gửi ngân hàng, ngày chuyển.
+export async function marketplaceRefundDraft(executor: Executor, refundId: string): Promise<DraftJournal | null> {
+  const row = (
+    await executor.execute<{ company_id: string; bank_transaction_no: string; document_no: string; amount: string; refunded_on: string }>(sql`
+    SELECT m.company_id, f.bank_transaction_no, so.document_no, f.amount::text, f.refunded_on::text
+    FROM marketplace.refunds f JOIN marketplace.orders m ON m.id = f.order_id JOIN sales.orders so ON so.id = m.sales_order_id
+    WHERE f.id = ${refundId} AND f.status = 'completed'`)
+  ).rows[0];
+  if (!row) return null;
+  const amount = Number(row.amount);
+  return {
+    companyId: row.company_id,
+    sourceType: "marketplace_refund",
+    sourceId: refundId,
+    journalNo: row.bank_transaction_no,
+    date: row.refunded_on,
+    description: `Hoàn tiền đơn VComm ${row.document_no}`,
+    lines: [debit("receivable", amount), credit("bank", amount)],
   };
 }
 

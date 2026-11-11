@@ -14,7 +14,19 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { charts, defaultPostingRules, roleDescriptions } from "./charts";
 import { assertOpenPeriod, ledgerSettings } from "./period-guard";
-import { inventoryDraft, paymentDraft, postingRoles, writeOffDraft, type DraftJournal, type Executor, type PostingRole, commissionDraft, collectionDraft } from "./postings";
+import {
+  inventoryDraft,
+  paymentDraft,
+  postingRoles,
+  writeOffDraft,
+  type DraftJournal,
+  type Executor,
+  type PostingRole,
+  commissionDraft,
+  collectionDraft,
+  marketplacePaymentDraft,
+  marketplaceRefundDraft,
+} from "./postings";
 
 export const ledgerPermissions = {
   view: "finance.ledger.view",
@@ -149,6 +161,13 @@ export class LedgerService implements OnModuleInit {
     for (const statement of statements.rows) await this.record(executor, await commissionDraft(executor, statement.id), false);
     const collections = await executor.execute<{ id: string }>(sql`SELECT id FROM finance.collection_statements WHERE company_id = ${companyId} AND status = 'posted' ORDER BY posted_at`);
     for (const statement of collections.rows) await this.record(executor, await collectionDraft(executor, statement.id), false);
+    // Tiền thu trực tuyến, hoàn tiền đơn VComm (CONG_VIEC_25).
+    const marketplacePayments = await executor.execute<{ id: string }>(sql`
+      SELECT p.id FROM marketplace.payments p JOIN marketplace.orders m ON m.id = p.order_id WHERE m.company_id = ${companyId} AND p.status = 'succeeded' ORDER BY p.completed_at`);
+    for (const payment of marketplacePayments.rows) await this.record(executor, await marketplacePaymentDraft(executor, payment.id), false);
+    const refunds = await executor.execute<{ id: string }>(sql`
+      SELECT f.id FROM marketplace.refunds f JOIN marketplace.orders m ON m.id = f.order_id WHERE m.company_id = ${companyId} AND f.status = 'completed' ORDER BY f.completed_at`);
+    for (const refund of refunds.rows) await this.record(executor, await marketplaceRefundDraft(executor, refund.id), false);
   }
 
   private async requireInitialized(executor: Executor, companyId: string): Promise<void> {

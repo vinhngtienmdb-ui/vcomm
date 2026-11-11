@@ -3,6 +3,8 @@ import { Inject, Injectable } from "@nestjs/common";
 import type { BuyerPaymentStart, PaymentMethodCode } from "contracts";
 import { sql } from "drizzle-orm";
 import type { ClientInfo } from "../../auth/auth.service";
+import { LedgerService } from "../../accounting/ledger.service";
+import { marketplacePaymentDraft } from "../../accounting/postings";
 import { ApiError } from "../../common/api-error";
 import { DATABASE, type Database } from "../../database/database.module";
 import type { Actor } from "../../permissions/roles.service";
@@ -24,6 +26,7 @@ export class MarketplacePaymentsService {
     @Inject(DATABASE) private readonly database: Database,
     private readonly orders: MarketplaceOrdersService,
     private readonly salesOrders: SalesOrdersService,
+    private readonly ledger: LedgerService,
   ) {}
 
   // Người mua mở trang thanh toán (QUYTAC_NGHIEPVU_165): đơn của mình, đang chờ thanh toán, còn hạn; mỗi lần một số tham chiếu mới.
@@ -91,6 +94,8 @@ export class MarketplacePaymentsService {
       UPDATE marketplace.payments SET status = ${result.success ? "succeeded" : "failed"}, response_code = ${result.responseCode}, gateway_transaction_no = ${result.transactionNo},
         bank_code = ${result.bankCode}, completed_at = now() WHERE id = ${paymentId}`);
     if (!result.success) return;
+    // Bút toán tiền thu (QUYTAC_NGHIEPVU_169); công ty chưa khởi tạo kế toán thì lập khi khởi tạo.
+    await this.ledger.record(transaction, await marketplacePaymentDraft(transaction, paymentId));
     const order = (await transaction.execute<{ status: string; buyer_user_id: string }>(sql`SELECT status, buyer_user_id FROM marketplace.orders WHERE id = ${orderId} FOR UPDATE`)).rows[0]!;
     await transaction.execute(sql`
       UPDATE marketplace.orders SET paid_amount = paid_amount + ${result.amount}, paid_at = coalesce(paid_at, now()), version = version + 1,
