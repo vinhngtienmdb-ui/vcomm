@@ -4,7 +4,7 @@
 - Mức: Vừa.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (tra cứu trạng thái viết hàm riêng chưa gắn vào luồng; không thêm VietQR qua ZaloPay; nội dung "VComm - Thanh toan don <số đơn>", app_user "VComm"). Chờ nghiệm thu.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (tra cứu trạng thái viết hàm riêng chưa gắn vào luồng; không thêm VietQR qua ZaloPay; nội dung "VComm - Thanh toan don <số đơn>", app_user "VComm"). Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-11); trước khi phát hành phải thử với tài khoản thử nghiệm của nhà cung cấp (ZaloPay).
 - Nguồn: người dùng yêu cầu 2026-11-11 "Bổ sung thêm cổng zalopay"; tài liệu `05` (phạm vi có ZaloPay); CONG_VIEC_25, CONG_VIEC_32.
 
 ## 1. Mục tiêu
