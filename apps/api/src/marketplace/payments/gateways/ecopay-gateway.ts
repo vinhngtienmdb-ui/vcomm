@@ -75,12 +75,13 @@ async function signedCall(configuration: EcopayConfiguration, path: string, fiel
   return signatureMatches(data, answer.signature, configuration.signingSecret) ? data : null;
 }
 
-// Trạng thái cuối của giao dịch: thành công, hoặc thất bại; trạng thái khác (đang xử lý) chưa ghi nhận (QUYTAC_NGHIEPVU_252).
+// Trạng thái cuối của giao dịch: thành công, hoặc thất bại; trạng thái khác (đang xử lý) báo đang chờ, không đổi lần thanh toán (QUYTAC_NGHIEPVU_252).
 const failedStatuses = new Set(["failed", "cancelled", "timeout"]);
 
 // Câu trả lời cho Ecopay (QUYTAC_NGHIEPVU_253): result_code "00" là đã nhận; lỗi máy chủ trả HTTP 500 để Ecopay gửi lại.
 const replies: Record<NotificationOutcome, { status: number; body: { result_code: string; message: string } }> = {
   success: { status: 200, body: { result_code: "00", message: "Success" } },
+  pending: { status: 200, body: { result_code: "00", message: "Pending" } },
   already_confirmed: { status: 200, body: { result_code: "00", message: "Already confirmed" } },
   not_found: { status: 200, body: { result_code: "01", message: "Order not found" } },
   invalid_amount: { status: 200, body: { result_code: "02", message: "Invalid amount" } },
@@ -127,11 +128,11 @@ export class EcopayGateway implements PaymentGatewayAdapter {
     const transaction = await signedCall(configuration, "/api/v1/payment/checktrans", { merchant_order_id: reference });
     if (!transaction || transaction.merchant_order_id !== reference || asAmount(transaction.amount) !== amount || transaction.status !== body.status) return null;
     const status = String(transaction.status);
-    if (status !== "success" && !failedStatuses.has(status)) return null;
     return {
       reference,
       amount,
       success: status === "success",
+      pending: status !== "success" && !failedStatuses.has(status),
       responseCode: status,
       transactionNo: typeof body.fv_transid === "string" ? body.fv_transid : null,
       bankCode: typeof body.bank_code === "string" && body.bank_code ? body.bank_code : null,
@@ -146,7 +147,16 @@ export class EcopayGateway implements PaymentGatewayAdapter {
     for (const [name, value] of Object.entries(request.query)) if (typeof value === "string") fields[name] = value;
     const received = fields.Signature ?? fields.signature;
     if (!signatureMatches(fields, received, configuration.signingSecret) || !fields.order_id) return null;
-    return { reference: fields.order_id, amount: 0, success: fields.status === "success", responseCode: fields.status ?? "", transactionNo: fields.fv_payment_transid ?? null, bankCode: null };
+    const status = fields.status ?? "";
+    return {
+      reference: fields.order_id,
+      amount: 0,
+      success: status === "success",
+      pending: status !== "success" && !failedStatuses.has(status),
+      responseCode: status,
+      transactionNo: fields.fv_payment_transid ?? null,
+      bankCode: null,
+    };
   }
 
   reply(outcome: NotificationOutcome): { status: number; body: unknown } {

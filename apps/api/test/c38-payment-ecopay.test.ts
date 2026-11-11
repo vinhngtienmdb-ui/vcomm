@@ -168,11 +168,12 @@ describe("CONG_VIEC_38 cổng Ecopay", () => {
     expect(logged).toEqual(["invalid_signature", "invalid_signature", "invalid_amount", "success", "already_confirmed"]);
   });
 
-  it("KICHBAN_KIEMTHU_401: thẻ ATM nội địa qua Ecopay; giao dịch thất bại ghi lần thanh toán thất bại, đơn vẫn chờ thanh toán; trạng thái đang xử lý chưa ghi nhận", async () => {
+  it("KICHBAN_KIEMTHU_401: thẻ ATM nội địa qua Ecopay; giao dịch thất bại ghi lần thanh toán thất bại, đơn vẫn chờ thanh toán; trạng thái đang xử lý báo đang chờ, chưa ghi nhận", async () => {
     const { orderId, reference } = await placeAndStart("ecopay_atm");
     expect(initRequests.at(-1)).toMatchObject({ payment_channel: "atm", bank_type: "domestic", merchant_order_id: reference });
     transactions.set(reference, { status: "processing", amount: 74000 });
-    expect((await notify(ipnBody(reference, 74000, "processing"))).status).toBe(400);
+    expect((await notify(ipnBody(reference, 74000, "processing"))).body).toEqual({ result_code: "00", message: "Pending" });
+    expect((await pool.query("SELECT status FROM marketplace.payments WHERE reference = $1", [reference])).rows[0].status).toBe("pending");
     transactions.set(reference, { status: "failed", amount: 74000 });
     expect((await notify(ipnBody(reference, 74000, "failed", { objectsAsJson: true }))).body).toEqual({ result_code: "00", message: "Success" });
     const payment = (await pool.query("SELECT status, response_code FROM marketplace.payments WHERE reference = $1", [reference])).rows[0];

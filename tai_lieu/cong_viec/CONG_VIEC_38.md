@@ -20,7 +20,7 @@
   1. Cách ký trường dạng đối tượng (`extra_data`). Một SDK bỏ qua trường này, SDK kia ghép chuỗi JSON. VComm chấp nhận chữ ký đúng theo một trong hai cách.
   2. Mã trả lời kết quả gửi về: SDK chỉ ví dụ `{ "result_code": "00" }` khi nhận thành công. Mã cho các trường hợp lỗi do VComm tự đặt.
   3. Nơi khai đường dẫn nhận kết quả (IPN): SDK không có trường này khi mở thanh toán, có thể khai trong trang quản trị Finviet. Đường dẫn của VComm: `<địa chỉ API>/api/v1/public/payments/ecopay/notify`.
-  4. Ý nghĩa trạng thái `paid`, `paid_processing`: chưa rõ, nên VComm chưa ghi nhận hai trạng thái này.
+  4. Ý nghĩa trạng thái `paid`, `paid_processing`: chưa rõ, nên VComm coi là đang chờ, chưa ghi nhận tiền. Chưa rõ Ecopay có gửi lại kết quả cuối sau khi nhận `00` cho trạng thái đang chờ hay không.
   5. Kênh mã QR (`qrcode`): hai SDK yêu cầu các trường khác nhau, để đợt sau.
 
 ## Quy tắc nghiệp vụ
@@ -42,11 +42,11 @@
   Sau khi kiểm, xử lý theo trạng thái:
   - `success`: ghi nhận tiền.
   - `failed`, `cancelled`, `timeout`: ghi lần thanh toán thất bại.
-  - Trạng thái khác: chưa ghi nhận.
+  - Trạng thái khác (đang xử lý): báo đang chờ (`pending` của khung, CONG_VIEC_33), không đổi lần thanh toán.
 
   Không đạt một bước nào thì xử lý như sai chữ ký (QUYTAC_NGHIEPVU_221).
 - QUYTAC_NGHIEPVU_253: Trả lời Ecopay:
-  - Đã nhận, kể cả nhận trùng: HTTP 200, `result_code` `00`.
+  - Đã nhận, kể cả nhận trùng hoặc đang chờ: HTTP 200, `result_code` `00`.
   - Không thấy đơn: HTTP 200, `01`.
   - Sai số tiền: HTTP 200, `02`.
   - Sai chữ ký: HTTP 400, `97`.
@@ -68,7 +68,7 @@
 |---|---|---|---|
 | TIEUCHI_NGHIEMTHU_254 | Có đủ biến môi trường thì phương thức Ecopay sẵn sàng. Mở thanh toán gửi yêu cầu có ký và trả trang Ecopay; phản hồi sai chữ ký thì không mở, không tạo lần thanh toán | Bắt buộc | KICHBAN_KIEMTHU_399 |
 | TIEUCHI_NGHIEMTHU_255 | Kết quả gửi về sai chữ ký, chưa khớp trạng thái trên Ecopay hoặc sai số tiền bị từ chối; đúng thì ghi nhận một lần, đơn chuyển chờ giao | Bắt buộc | KICHBAN_KIEMTHU_400 |
-| TIEUCHI_NGHIEMTHU_256 | Thẻ ATM nội địa gửi đúng kênh. Giao dịch thất bại thì ghi lần thanh toán thất bại, đơn vẫn chờ thanh toán; trạng thái đang xử lý thì chưa ghi nhận | Bắt buộc | KICHBAN_KIEMTHU_401 |
+| TIEUCHI_NGHIEMTHU_256 | Thẻ ATM nội địa gửi đúng kênh. Giao dịch thất bại thì ghi lần thanh toán thất bại, đơn vẫn chờ thanh toán; trạng thái đang xử lý thì báo đang chờ, chưa ghi nhận | Bắt buộc | KICHBAN_KIEMTHU_401 |
 | TIEUCHI_NGHIEMTHU_257 | Trang trả về kiểm chữ ký, chỉ hiển thị. Thiếu thông tin kết nối thì phương thức chưa sẵn sàng | Bắt buộc | KICHBAN_KIEMTHU_402 |
 
 ## Kịch bản kiểm thử
@@ -87,7 +87,7 @@ Tệp `apps/api/test/c38-payment-ecopay.test.ts`. Máy chủ Ecopay giả lập 
   - Gửi lại (ký kiểu ghép JSON): `00`, nhận trùng.
   - Nhật ký ghi đủ 5 lần.
 - KICHBAN_KIEMTHU_401: `ecopay_atm` gửi kênh `atm`, `bank_type` là `domestic`.
-  - `processing`: từ chối.
+  - `processing`: trả `00` (đang chờ), lần thanh toán vẫn chờ.
   - `failed`: lần thanh toán thất bại, đơn vẫn chờ thanh toán, đã thu 0.
 - KICHBAN_KIEMTHU_402:
   - Trang trả về đúng chữ ký hiện "Thanh toán thành công".
@@ -97,7 +97,7 @@ Tệp `apps/api/test/c38-payment-ecopay.test.ts`. Máy chủ Ecopay giả lập 
 ## Kết quả kiểm thử
 
 - 2026-11-11: `c38-payment-ecopay.test.ts` đạt 4/4. Kiểm tra kiểu, lint đạt.
-- Hồi quy `pnpm --filter api test`: 46/47 tệp đạt; `c25-payment-methods.test.ts` so khớp đúng toàn bộ danh sách phương thức nên lệch khi thêm phương thức Ecopay. Đã sửa để kiểm thử đó chỉ so 4 phương thức đầu (COD, VNPAY) theo thứ tự; chạy lại đạt. Các cổng CONG_VIEC_33 đến 39 có thể gặp cùng lỗi này, phiên chính chọn một cách sửa khi hợp nhất.
+- Hồi quy `pnpm --filter api test`: 46/47 tệp đạt; `c25-payment-methods.test.ts` so khớp đúng toàn bộ danh sách phương thức nên lệch khi thêm phương thức Ecopay. Sau khi hợp nhất nhánh nền (đã có cổng MoMo), dùng bản sửa của nhánh nền theo phương án A người dùng duyệt (chỉ so phương thức cổng cod, vnpay); chạy lại c25-*, c33, c38 đạt.
 
 ## Các dòng phiên chính cập nhật khi hợp nhất
 

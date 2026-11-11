@@ -4091,6 +4091,9 @@ export const paymentMethodCodes = [
   "vnpay_qr",
   "vnpay_atm",
   "vnpay_card",
+  "momo_wallet",
+  "momo_atm",
+  "momo_card",
   "ecopay_wallet",
   "ecopay_atm",
 ] as const;
@@ -4098,6 +4101,7 @@ export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
 export const paymentGatewayCodes = [
   "cod",
   "vnpay",
+  "momo",
   "ecopay",
 ] as const;
 export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];
