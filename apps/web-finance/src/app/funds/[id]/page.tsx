@@ -14,6 +14,7 @@ import { FundEditor } from "@/components/FundEditor";
 
 export default function FundPage() {
   const t = useTranslations("funds");
+  const payments = useTranslations("payments");
   const { notify } = useAdmin();
   const { id } = useParams<{ id: string }>();
   const today = vietnamToday();
@@ -107,7 +108,7 @@ export default function FundPage() {
                             <Link href={`/payments/${entry.paymentId}`}>{entry.documentNo}</Link>
                           </td>
                           <td data-nhan={headings[2]}>
-                            <span>{entry.partnerName}</span>
+                            <span>{entry.partnerName ?? payments("noPartner")}</span>
                           </td>
                           <td data-nhan={headings[3]}>
                             <span>{entry.receipt === "0" ? "—" : money(entry.receipt)}</span>

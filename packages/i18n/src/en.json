@@ -2409,7 +2409,7 @@
     "none": "No receipts or payments yet.",
     "partnerSearch": "Type partner name or code, then press Enter",
     "find": "Find",
-    "noPartner": "No partner found.",
+    "noPartner": "No partner (retail counter)",
     "choosePartner": "Choose partner",
     "partnerAdvance": "Remaining advance",
     "openDebts": "Open documents",
@@ -2448,7 +2448,11 @@
     "source_payment": "Receipt or payment",
     "fundInactive": "inactive",
     "source_internal_write_off": "Internal shortage write-off",
-    "source_collection_statement": "Collection statement"
+    "source_collection_statement": "Collection statement",
+    "kind_retail_receipt": "Retail receipt",
+    "kind_retail_refund": "Retail refund",
+    "kind_cash_shortage": "Cash shortage",
+    "kind_cash_surplus": "Cash surplus"
   },
   "ledger": {
     "accountsTitle": "Chart of accounts",
@@ -3770,7 +3774,12 @@
     "currentShift": "Open shift: register {register}, opened at {time}",
     "sellingLater": "The selling screen comes in slice L2.",
     "reportTitle": "SHIFT CLOSING REPORT",
-    "closedBy": "Closed by"
+    "closedBy": "Closed by",
+    "fundDocuments": "Fund documents",
+    "fundDocumentsHint": "On closing, the system posts retail receipts and refunds per fund and a shortage or surplus document for any difference.",
+    "fund": "Fund",
+    "documentNo": "Document number",
+    "documentKind": "Document type"
   },
   "retailCounter": {
     "scanPlaceholder": "Scan a barcode or serial, or type a code or name, then press Enter",
@@ -3822,11 +3831,17 @@
     "change": "Change",
     "remaining": "Remaining",
     "confirmPay": "Confirm payment",
-    "totalChanged": "The total was recalculated. Check and confirm again.",
     "paid": "Sale {number} paid",
     "print": "Print receipt",
     "newSale": "New sale",
-    "quoting": "Calculating…"
+    "quoting": "Calculating…",
+    "transfer": "Bank transfer",
+    "transferAmount": "Transfer amount",
+    "transferReference": "Bank transaction reference (optional)",
+    "transferReceived": "Transfer of {amount} received",
+    "transferContent": "Content: {content}",
+    "qrLabel": "VietQR transfer code",
+    "transferOverTotal": "The transfer cannot exceed the amount due."
   },
   "retailSales": {
     "title": "Retail sales",

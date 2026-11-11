@@ -29,7 +29,8 @@ export type PostingRole =
   | "commission_payable"
   | "personal_income_tax"
   | "other_income"
-  | "service_expense";
+  | "service_expense"
+  | "staff_receivable";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -57,6 +58,7 @@ export const postingRoles: PostingRole[] = [
   "personal_income_tax",
   "other_income",
   "service_expense",
+  "staff_receivable",
 ];
 
 export interface DraftLine {
@@ -307,7 +309,7 @@ export async function marketplaceWithdrawalDraft(executor: Executor, withdrawalI
 // Phiếu thu chi đã ghi sổ: quỹ tiền mặt hoặc ngân hàng đối ứng phải thu, phải trả của đối tác.
 export async function paymentDraft(executor: Executor, paymentId: string): Promise<DraftJournal | null> {
   const payment = (
-    await executor.execute<{ company_id: string; kind: string; partner_id: string; fund_kind: "cash" | "bank"; document_no: string; payment_date: string; amount: string; note: string | null }>(sql`
+    await executor.execute<{ company_id: string; kind: string; partner_id: string | null; fund_kind: "cash" | "bank"; document_no: string; payment_date: string; amount: string; note: string | null }>(sql`
     SELECT p.company_id, p.kind, p.partner_id, f.kind AS fund_kind, p.document_no, p.payment_date::text, p.amount::text, p.note
     FROM finance.payments p JOIN finance.funds f ON f.id = p.fund_id WHERE p.id = ${paymentId}`)
   ).rows[0];
@@ -323,12 +325,21 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
     customer_refund: [debit(receivable, amount, partner), credit(fund, amount)],
     supplier_payment: [debit("payable", amount, partner), credit(fund, amount)],
     supplier_refund: [debit(fund, amount), credit("payable", amount, partner)],
+    // THAY_DOI_24 (CONG_VIEC_53; QUYTAC_NGHIEPVU_375): chứng từ quỹ bán lẻ lập khi đóng ca; phải thu không đối tượng của phiếu xuất bán lẻ.
+    retail_receipt: [debit(fund, amount), credit("receivable", amount)],
+    retail_refund: [debit("receivable", amount), credit(fund, amount)],
+    cash_shortage: [debit("staff_receivable", amount), credit(fund, amount)],
+    cash_surplus: [debit(fund, amount), credit("surplus_pending", amount)],
   };
   const descriptions: Record<string, string> = {
     customer_receipt: "Thu tiền khách hàng",
     customer_refund: "Hoàn tiền cho khách hàng",
     supplier_payment: "Trả tiền nhà cung cấp",
     supplier_refund: "Nhà cung cấp hoàn tiền",
+    retail_receipt: "Thu tiền bán lẻ tại quầy",
+    retail_refund: "Hoàn tiền trả hàng bán lẻ",
+    cash_shortage: "Thiếu tiền mặt khi đóng ca thu ngân",
+    cash_surplus: "Thừa tiền mặt khi đóng ca thu ngân",
   };
   return {
     companyId: payment.company_id,

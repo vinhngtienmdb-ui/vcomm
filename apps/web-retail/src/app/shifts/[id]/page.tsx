@@ -116,6 +116,7 @@ function CloseShiftForm({ shift, onClosed }: { shift: RetailShiftResponse; onClo
 
 export default function ShiftDetailPage() {
   const t = useTranslations("retailShifts");
+  const payments = useTranslations("payments");
   const { notify } = useAdmin();
   const { id } = useParams<{ id: string }>();
   const { state, reload } = useApi<RetailShiftResponse>(`/retail/shifts/${id}`);
@@ -200,6 +201,44 @@ export default function ShiftDetailPage() {
               </tbody>
             </table>
           </div>
+          {shift.status === "closed" ? (
+            <div className="khung-bang">
+              <table>
+                <caption className="chu-thich" style={{ textAlign: "left", padding: "var(--khoang-2)" }}>
+                  {t("fundDocuments")}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{t("documentNo")}</th>
+                    <th scope="col">{t("documentKind")}</th>
+                    <th scope="col">{t("fund")}</th>
+                    <th scope="col">{t("amount")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {shift.fundDocuments.map((document) => (
+                    <tr key={document.id}>
+                      <td data-nhan={t("documentNo")}>
+                        {/* Thẻ a thường: phiếu thu chi nằm ở mini app Tài chính – Kế toán. */}
+                        <a href={`/finance/payments/${document.id}`}>{document.documentNo}</a>
+                      </td>
+                      <td data-nhan={t("documentKind")}>
+                        <span>{payments(`kind_${document.kind}`)}</span>
+                      </td>
+                      <td data-nhan={t("fund")}>
+                        <span>{document.fundName}</span>
+                      </td>
+                      <td data-nhan={t("amount")} className="so-tien">
+                        <span>{formatMoney(document.amount, shift.currency)}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="khoi-canh-bao thong-tin">{t("fundDocumentsHint")}</div>
+          )}
           {shift.canClose && (
             <CloseShiftForm
               shift={shift}

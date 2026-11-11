@@ -358,6 +358,7 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     personal_income_tax: "3335",
     other_income: "711",
     service_expense: "6427",
+    staff_receivable: "1388",
   },
   TT133: {
     receivable: "131",
@@ -386,6 +387,7 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     personal_income_tax: "3335",
     other_income: "711",
     service_expense: "6422",
+    staff_receivable: "1388",
   },
 };
 
@@ -416,4 +418,5 @@ export const roleDescriptions: Record<PostingRole, string> = {
   personal_income_tax: "Thuế thu nhập cá nhân khấu trừ",
   other_income: "Thu nhập khác (phí rút tiền hoa hồng)",
   service_expense: "Chi phí dịch vụ mua vào (giao dịch nội bộ dịch vụ)",
+  staff_receivable: "Phải thu nhân viên (thiếu tiền ca thu ngân)",
 };

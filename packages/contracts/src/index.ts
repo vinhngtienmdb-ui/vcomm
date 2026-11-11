@@ -2748,8 +2748,8 @@ export interface FundLedgerEntry {
   paymentId: string;
   date: string;
   documentNo: string;
-  kind: PaymentKind;
-  partnerName: string;
+  kind: AnyPaymentKind;
+  partnerName: string | null;
   receipt: string;
   payment: string;
   balance: string;
@@ -2860,8 +2860,12 @@ export const paymentKindSide: Record<PaymentKind, DebtSide> = {
   supplier_payment: "payable",
   supplier_refund: "payable",
 };
-export const paymentKindIsReceipt = (kind: PaymentKind) => kind === "customer_receipt" || kind === "supplier_refund";
-export const paymentKindSettles = (kind: PaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
+// THAY_DOI_24 (CONG_VIEC_53): chứng từ quỹ bán lẻ do hệ thống lập khi đóng ca, không đối tượng, không trừ nợ; không lập tay.
+export const retailFundDocumentKinds = ["retail_receipt", "retail_refund", "cash_shortage", "cash_surplus"] as const;
+export type RetailFundDocumentKind = (typeof retailFundDocumentKinds)[number];
+export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind;
+export const paymentKindIsReceipt = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_refund" || kind === "retail_receipt" || kind === "cash_surplus";
+export const paymentKindSettles = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
 export const paymentListQuerySchema = z
   .object({ kind: z.enum(paymentKinds).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
   .strict();
@@ -2884,9 +2888,9 @@ export type SavePaymentRequest = z.input<typeof savePaymentSchema>;
 export interface PaymentListItem {
   id: string;
   documentNo: string | null;
-  kind: PaymentKind;
+  kind: AnyPaymentKind;
   paymentDate: string;
-  partnerName: string;
+  partnerName: string | null;
   fundName: string;
   amount: string;
   status: PaymentStatus;
@@ -2904,8 +2908,8 @@ export interface OpenDebtResponse {
 export interface PaymentResponse {
   id: string;
   documentNo: string | null;
-  kind: PaymentKind;
-  partner: { id: string; code: string; name: string };
+  kind: AnyPaymentKind;
+  partner: { id: string; code: string; name: string } | null;
   fund: { id: string; code: string; name: string };
   paymentDate: string;
   amount: string;
@@ -4630,7 +4634,8 @@ export interface RetailShiftSummaryLine {
 }
 export interface RetailShiftResponse {
   id: string;
-  store: { id: string; name: string };
+  // Thông tin nhận chuyển khoản để tạo mã VietQR tại quầy; null khi cửa hàng không nhận chuyển khoản.
+  store: { id: string; name: string; bankTransfer: { bankBin: string; accountNo: string; accountName: string } | null };
   register: { id: string; code: string; name: string };
   cashier: { id: string; name: string };
   openedAt: string;
@@ -4648,6 +4653,8 @@ export interface RetailShiftResponse {
   currency: string;
   version: number;
   canClose: boolean;
+  // Chứng từ quỹ lập khi đóng ca (QUYTAC_NGHIEPVU_375).
+  fundDocuments: { id: string; documentNo: string; kind: RetailFundDocumentKind; fundName: string; amount: string }[];
 }
 export interface RetailShiftListItem {
   id: string;

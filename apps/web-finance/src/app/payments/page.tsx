@@ -84,7 +84,7 @@ export default function PaymentsPage() {
                         <span>{formatDate(item.paymentDate)}</span>
                       </td>
                       <td data-nhan={headings[3]}>
-                        <span>{item.partnerName}</span>
+                        <span>{item.partnerName ?? t("noPartner")}</span>
                       </td>
                       <td data-nhan={headings[4]}>
                         <span>{item.fundName}</span>

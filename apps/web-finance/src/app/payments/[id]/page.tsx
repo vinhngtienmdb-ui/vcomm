@@ -1,7 +1,7 @@
 "use client";
 
 // MAN_HINH_49 Chi tiết phiếu thu, phiếu chi (CHUC_NANG_67; QUYTAC_NGHIEPVU_89): thông tin, chứng từ đã trừ, sửa, gửi, rút, lịch sử.
-import type { PaymentResponse } from "contracts";
+import type { PaymentKind, PaymentResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -51,7 +51,8 @@ export default function PaymentPage() {
           return editing ? (
             <PaymentEditor
               payment={payment}
-              initialKind={payment.kind}
+              // Chứng từ quỹ bán lẻ (THAY_DOI_24) đã ghi sổ ngay nên không vào được chế độ sửa.
+              initialKind={payment.kind as PaymentKind}
               initialPartner={null}
               onSaved={() => {
                 setEditing(false);
@@ -88,9 +89,13 @@ export default function PaymentPage() {
               {payment.postError && <div className="khoi-canh-bao loi">{t("postError", { reason: errorText(payment.postError as Parameters<typeof errorText>[0]) })}</div>}
               <section className="the" style={{ display: "grid", gap: "var(--khoang-2)" }}>
                 <strong>
-                  <Link href={`/debts/${payment.partner.id}?side=${payment.kind.startsWith("customer") ? "receivable" : "payable"}`}>
-                    {payment.partner.code} · {payment.partner.name}
-                  </Link>
+                  {payment.partner ? (
+                    <Link href={`/debts/${payment.partner.id}?side=${payment.kind.startsWith("customer") ? "receivable" : "payable"}`}>
+                      {payment.partner.code} · {payment.partner.name}
+                    </Link>
+                  ) : (
+                    t("noPartner")
+                  )}
                 </strong>
                 <div className="thong-tin-dong">
                   <span>

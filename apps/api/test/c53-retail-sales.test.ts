@@ -1,4 +1,5 @@
-// CONG_VIEC_53 lát L2: bán hàng tại quầy, thanh toán tiền mặt, ghi sổ (TIEUCHI_NGHIEMTHU_351, 352, 353; KICHBAN_KIEMTHU_512 đến 515, 520).
+// CONG_VIEC_53 lát L2, L3: bán hàng tại quầy, thanh toán tiền mặt, chuyển khoản, ghi sổ, chứng từ quỹ khi đóng ca
+// (TIEUCHI_NGHIEMTHU_351 đến 354; KICHBAN_KIEMTHU_512 đến 516, 520).
 // Hàng thuế 10%, giá bảng giá kênh Bán lẻ gồm thuế: Gạo 110.000 (giá vốn 80.000 chưa thuế), Sữa 33.000 (khuyến mãi giảm 10%), Nước rửa chén 22.000 (tặng khi mua 2 Gạo),
 // Bánh theo lô 11.000, Điện thoại theo serial 5.500.000.
 import type { NestExpressApplication } from "@nestjs/platform-express";
@@ -232,5 +233,68 @@ describe("Thanh toán, ghi sổ (KICHBAN_KIEMTHU_514, 515)", () => {
     expect((await call(otherBranchCashier, "get", `/retail/sales/${saleId}`)).status).toBe(404);
     expect((await call(manager, "get", "/retail/sales")).body.total).toBe(3);
     expect((await otherBranchCashier.call("get", "/retail/sales", { companyId: testIds.retailCompany })).body.total).toBe(0);
+  });
+});
+
+describe("Chuyển khoản, nhiều phương thức, đóng ca (KICHBAN_KIEMTHU_514, 516)", () => {
+  it("kết hợp chuyển khoản và tiền mặt; chuyển khoản vượt số phải trả bị chặn", async () => {
+    expect((await sale([line("rice", "1")], "110000", [{ method: "bank_transfer", amount: "110001" }])).body.error.message).toBe("Tiền chuyển khoản, điểm không được vượt số phải trả.");
+    const mixed = await sale([line("rice", "1")], "110000", [
+      { method: "bank_transfer", amount: "60000", bankReference: "FT2631512345" },
+      { method: "cash", amount: "100000" },
+    ]);
+    expect(mixed.status, JSON.stringify(mixed.body)).toBe(201);
+    expect(mixed.body).toMatchObject({
+      changeAmount: "50000",
+      payments: [
+        { method: "bank_transfer", amount: "60000", bankReference: "FT2631512345" },
+        { method: "cash", amount: "100000" },
+      ],
+    });
+    const shift = (await call(cashier, "get", `/retail/shifts/${shiftId}`)).body;
+    expect(shift.store.bankTransfer).toEqual({ bankBin: "970436", accountNo: "0123456789", accountName: "CONG TY VCOMM BAN LE" });
+    expect(shift.summary.slice(0, 2)).toMatchObject([
+      { method: "cash", sales: String(298100 + 5500000 + 33000 + 50000) },
+      { method: "bank_transfer", sales: "60000" },
+    ]);
+  });
+
+  it("đóng ca thiếu tiền: phiếu thu theo quỹ, phiếu chi thiếu tiền; phải thu không đối tượng về 0; số dư quỹ khớp tiền đếm được", async () => {
+    const shift = (await call(cashier, "get", `/retail/shifts/${shiftId}`)).body;
+    const cashSales = 298100 + 5500000 + 33000 + 50000;
+    expect(shift.expectedCash).toBe(String(1000000 + cashSales));
+    const closed = await call(cashier, "post", `/retail/shifts/${shiftId}/close`, { countedCash: String(1000000 + cashSales - 10000), differenceReason: "Trả nhầm tiền thừa", version: shift.version });
+    expect(closed.status, JSON.stringify(closed.body)).toBe(201);
+    expect(closed.body.fundDocuments.map((document: { kind: string; amount: string; fundName: string }) => [document.kind, document.fundName, document.amount]).sort()).toEqual(
+      [
+        ["cash_shortage", "Tiền mặt Cửa hàng Thủ Đức", "10000"],
+        ["retail_receipt", "Tiền mặt Cửa hàng Thủ Đức", String(cashSales)],
+        ["retail_receipt", "Vietcombank Thủ Đức", "60000"],
+      ].sort(),
+    );
+    const shortage = (await pool.query("SELECT partner_id, staff_user_id, status FROM finance.payments WHERE kind = 'cash_shortage'")).rows[0];
+    expect(shortage).toMatchObject({ partner_id: null, status: "posted", staff_user_id: expect.any(String) });
+    const receivable = await pool.query<{ balance: string }>(
+      `
+      SELECT coalesce(sum(l.debit - l.credit), 0)::text AS balance FROM accounting.journal_lines l JOIN accounting.accounts a ON a.id = l.account_id JOIN accounting.journals j ON j.id = l.journal_id
+      WHERE a.code = '131' AND l.partner_id IS NULL AND j.company_id = $1`,
+      [retail],
+    );
+    expect(Number(receivable.rows[0]!.balance)).toBe(0);
+    const staff = await pool.query<{ debit: string }>(
+      `
+      SELECT sum(l.debit)::text AS debit FROM accounting.journal_lines l JOIN accounting.accounts a ON a.id = l.account_id JOIN accounting.journals j ON j.id = l.journal_id
+      WHERE a.code = '1388' AND j.source_type = 'payment' AND j.company_id = $1`,
+      [retail],
+    );
+    expect(Number(staff.rows[0]!.debit)).toBe(10000);
+    const fund = (await call(admin, "get", `/finance/funds/${fixture.cashFund}`)).body;
+    expect(fund.balance).toBe(String(cashSales - 10000));
+    const payments = (await call(admin, "get", "/finance/payments")).body as { kind: string; partnerName: string | null }[];
+    expect(payments.filter((payment) => payment.kind.startsWith("retail_") || payment.kind.startsWith("cash_")).every((payment) => payment.partnerName === null)).toBe(true);
+    expect(
+      (await call(cashier, "post", "/retail/sales", { shiftId, clientKey: randomUUID(), lines: [line("rice", "1")], expectedTotal: "110000", payments: [{ method: "cash", amount: "110000" }] })).body
+        .error.message,
+    ).toBe("Ca đã đóng.");
   });
 });

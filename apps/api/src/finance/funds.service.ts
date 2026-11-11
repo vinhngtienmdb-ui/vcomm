@@ -1,6 +1,6 @@
 // Quỹ tiền mặt, tài khoản ngân hàng (CONG_VIEC_13; CHUC_NANG_65; QUYTAC_NGHIEPVU_85; API_84): thêm, sửa, ngừng dùng; số dư; sổ quỹ.
 import { Inject, Injectable } from "@nestjs/common";
-import type { FundKind, FundLedgerResponse, FundResponse, PaymentKind, saveFundSchema } from "contracts";
+import type { AnyPaymentKind, FundKind, FundLedgerResponse, FundResponse, saveFundSchema } from "contracts";
 import { paymentKindIsReceipt } from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import type { z } from "zod";
@@ -32,7 +32,7 @@ type FundRow = {
 };
 
 // Phiếu thu cộng, phiếu chi trừ vào quỹ (chỉ phiếu đã ghi sổ).
-export const signedPaymentAmount = sql`CASE WHEN p.kind IN ('customer_receipt', 'supplier_refund') THEN p.amount ELSE -p.amount END`;
+export const signedPaymentAmount = sql`CASE WHEN p.kind IN ('customer_receipt', 'supplier_refund', 'retail_receipt', 'cash_surplus') THEN p.amount ELSE -p.amount END`;
 export const fundBalance = (fundId: SQL | string) => sql`
   (SELECT balance_fund.opening_balance + coalesce((SELECT sum(${signedPaymentAmount}) FROM finance.payments p WHERE p.fund_id = balance_fund.id AND p.status = 'posted'), 0)
    FROM finance.funds balance_fund WHERE balance_fund.id = ${fundId})`;
@@ -154,9 +154,9 @@ export class FundsService {
       SELECT (f.opening_balance + coalesce((SELECT sum(${signedPaymentAmount}) FROM finance.payments p WHERE p.fund_id = f.id AND p.status = 'posted' AND p.payment_date < ${from}::date), 0))::text AS value
       FROM finance.funds f WHERE f.id = ${id}`)
     ).rows[0]!.value;
-    const rows = await this.database.execute<{ id: string; payment_date: string; document_no: string; kind: PaymentKind; partner_name: string; amount: string }>(sql`
+    const rows = await this.database.execute<{ id: string; payment_date: string; document_no: string; kind: AnyPaymentKind; partner_name: string | null; amount: string }>(sql`
       SELECT p.id, p.payment_date::text, p.document_no, p.kind, pr.name AS partner_name, p.amount::text
-      FROM finance.payments p JOIN crm.partners pr ON pr.id = p.partner_id
+      FROM finance.payments p LEFT JOIN crm.partners pr ON pr.id = p.partner_id
       WHERE p.fund_id = ${id} AND p.status = 'posted' AND p.payment_date BETWEEN ${from}::date AND ${to}::date
       ORDER BY p.payment_date, p.posted_at, p.id
       LIMIT 5000`);

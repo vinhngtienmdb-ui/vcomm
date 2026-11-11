@@ -1,6 +1,15 @@
 // Ca thu ngân: mở ca, đóng ca, đối chiếu tiền mặt (CONG_VIEC_53; CHUC_NANG_186; QUYTAC_NGHIEPVU_369, 375; API_193).
 import { Inject, Injectable } from "@nestjs/common";
-import type { closeRetailShiftSchema, openRetailShiftSchema, RetailCounterContext, RetailShiftListResponse, RetailShiftResponse, retailShiftListQuerySchema, RetailShiftSummaryLine } from "contracts";
+import type {
+  closeRetailShiftSchema,
+  openRetailShiftSchema,
+  RetailCounterContext,
+  RetailFundDocumentKind,
+  RetailShiftListResponse,
+  RetailShiftResponse,
+  retailShiftListQuerySchema,
+  RetailShiftSummaryLine,
+} from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import type { z } from "zod";
 import { trimDecimal } from "../catalog/catalog-context";
@@ -9,6 +18,7 @@ import { AuditService } from "../common/audit.service";
 import { CLOCK, type Clock } from "../common/clock";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Executor } from "../finance/debts.service";
+import { PaymentsService } from "../finance/payments.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { companyCurrency } from "../purchasing/requisitions.service";
@@ -24,6 +34,10 @@ type ShiftRow = {
   store_id: string;
   store_name: string;
   branch_id: string;
+  cash_fund_id: string;
+  vietqr_bank_bin: string | null;
+  vietqr_account_name: string | null;
+  bank_account_no: string | null;
   register_id: string;
   register_code: string;
   register_name: string;
@@ -45,17 +59,19 @@ type ShiftRow = {
 export type RetailShift = ShiftRow;
 
 const shiftSelect = sql`
-  SELECT sh.id, sh.company_id, sh.store_id, b.name AS store_name, s.branch_id, sh.register_id, r.code AS register_code, r.name AS register_name,
+  SELECT sh.id, sh.company_id, sh.store_id, b.name AS store_name, s.branch_id, s.cash_fund_id, s.vietqr_bank_bin, s.vietqr_account_name, bf.account_no AS bank_account_no, sh.register_id, r.code AS register_code, r.name AS register_name,
     sh.cashier_id, cu.full_name AS cashier_name, sh.opened_at, sh.opening_cash::text, sh.opening_note, sh.status, sh.closed_at, xu.full_name AS closed_by_name,
     sh.expected_cash::text, sh.counted_cash::text, sh.difference::text, sh.difference_reason, sh.version
   FROM retail.shifts sh
   JOIN retail.stores s ON s.id = sh.store_id
   JOIN core.branches b ON b.id = s.branch_id
+  LEFT JOIN finance.funds bf ON bf.id = s.bank_fund_id
   JOIN retail.registers r ON r.id = sh.register_id
   JOIN core.users cu ON cu.id = sh.cashier_id
   LEFT JOIN core.users xu ON xu.id = sh.closed_by`;
 
 const longShiftHours = 24;
+const shiftSource = "retail.shift";
 
 @Injectable()
 export class RetailShiftsService {
@@ -64,6 +80,7 @@ export class RetailShiftsService {
     @Inject(CLOCK) private readonly clock: Clock,
     private readonly permissionService: PermissionService,
     private readonly auditService: AuditService,
+    private readonly payments: PaymentsService,
   ) {}
 
   async shift(executor: Executor, companyId: string, id: string, lock = false): Promise<RetailShift> {
@@ -72,16 +89,33 @@ export class RetailShiftsService {
     return row;
   }
 
-  // Tiền theo phương thức của ca: thu bán (tiền mặt đã trừ tiền thừa), hoàn trả hàng (lát L4).
+  // Tiền theo phương thức của ca: thu bán (tiền mặt đã trừ tiền thừa), hoàn trả hàng.
   async summary(executor: Executor, shiftId: string): Promise<RetailShiftSummaryLine[]> {
-    const rows = await executor.execute<{ method: RetailShiftSummaryLine["method"]; sales: string }>(sql`
-      SELECT p.method, (sum(p.amount) - CASE WHEN p.method = 'cash' THEN coalesce((SELECT sum(change_amount) FROM retail.sales WHERE shift_id = ${shiftId}), 0) ELSE 0 END)::text AS sales
-      FROM retail.sale_payments p JOIN retail.sales s ON s.id = p.sale_id WHERE s.shift_id = ${shiftId} GROUP BY p.method`);
-    const sales = new Map(rows.rows.map((row) => [row.method, Number(row.sales)]));
+    const rows = await executor.execute<{ method: RetailShiftSummaryLine["method"]; sales: string; refunds: string }>(sql`
+      SELECT method, sum(sales)::text AS sales, sum(refunds)::text AS refunds FROM (
+        SELECT p.method, p.amount AS sales, 0 AS refunds FROM retail.sale_payments p JOIN retail.sales s ON s.id = p.sale_id WHERE s.shift_id = ${shiftId}
+        UNION ALL SELECT 'cash', -s.change_amount, 0 FROM retail.sales s WHERE s.shift_id = ${shiftId}
+        UNION ALL SELECT f.method, 0, f.amount FROM retail.return_refunds f JOIN retail.returns r ON r.id = f.return_id WHERE r.shift_id = ${shiftId}
+      ) movements GROUP BY method`);
+    const found = new Map(rows.rows.map((row) => [row.method, row]));
     return (["cash", "bank_transfer", "points"] as const).map((method) => {
-      const amount = sales.get(method) ?? 0;
-      return { method, sales: trimDecimal(amount.toFixed(4)), refunds: "0", net: trimDecimal(amount.toFixed(4)) };
+      const sales = Number(found.get(method)?.sales ?? 0);
+      const refunds = Number(found.get(method)?.refunds ?? 0);
+      return { method, sales: trimDecimal(sales.toFixed(4)), refunds: trimDecimal(refunds.toFixed(4)), net: trimDecimal((sales - refunds).toFixed(4)) };
     });
+  }
+
+  // Tiền theo quỹ để lập chứng từ khi đóng ca: thu bán, hoàn trả hàng (không gồm điểm).
+  private async byFund(executor: Executor, shiftId: string): Promise<{ fund_id: string; sales: string; refunds: string }[]> {
+    return (
+      await executor.execute<{ fund_id: string; sales: string; refunds: string }>(sql`
+      SELECT fund_id, round(sum(sales), 4)::text AS sales, round(sum(refunds), 4)::text AS refunds FROM (
+        SELECT p.fund_id, p.amount AS sales, 0 AS refunds
+          FROM retail.sale_payments p JOIN retail.sales s ON s.id = p.sale_id WHERE s.shift_id = ${shiftId} AND p.fund_id IS NOT NULL
+        UNION ALL SELECT st.cash_fund_id, -s.change_amount, 0 FROM retail.sales s JOIN retail.stores st ON st.id = s.store_id WHERE s.shift_id = ${shiftId}
+        UNION ALL SELECT f.fund_id, 0, f.amount FROM retail.return_refunds f JOIN retail.returns r ON r.id = f.return_id WHERE r.shift_id = ${shiftId} AND f.fund_id IS NOT NULL
+      ) movements GROUP BY fund_id ORDER BY fund_id`)
+    ).rows;
   }
 
   // Tiền mặt hệ thống tính = tiền đầu ca + tiền mặt thu (đã trừ tiền thừa) − tiền mặt hoàn (QUYTAC_NGHIEPVU_375).
@@ -104,7 +138,11 @@ export class RetailShiftsService {
   private async toResponse(actor: Actor, row: ShiftRow): Promise<RetailShiftResponse> {
     return {
       id: row.id,
-      store: { id: row.store_id, name: row.store_name },
+      store: {
+        id: row.store_id,
+        name: row.store_name,
+        bankTransfer: row.vietqr_bank_bin && row.bank_account_no ? { bankBin: row.vietqr_bank_bin, accountNo: row.bank_account_no, accountName: row.vietqr_account_name! } : null,
+      },
       register: { id: row.register_id, code: row.register_code, name: row.register_name },
       cashier: { id: row.cashier_id, name: row.cashier_name },
       openedAt: new Date(row.opened_at).toISOString(),
@@ -122,6 +160,11 @@ export class RetailShiftsService {
       currency: await companyCurrency(this.database, actor.companyId),
       version: row.version,
       canClose: await this.canClose(actor, row),
+      fundDocuments: (
+        await this.database.execute<{ id: string; document_no: string; kind: RetailFundDocumentKind; fund_name: string; amount: string }>(sql`
+        SELECT p.id, p.document_no, p.kind, f.name AS fund_name, p.amount::text FROM finance.payments p JOIN finance.funds f ON f.id = p.fund_id
+        WHERE p.source_type = ${shiftSource} AND p.source_id = ${row.id} ORDER BY p.document_no`)
+      ).rows.map((document) => ({ id: document.id, documentNo: document.document_no, kind: document.kind, fundName: document.fund_name, amount: trimDecimal(document.amount) })),
     };
   }
 
@@ -247,8 +290,33 @@ export class RetailShiftsService {
     return this.detail(actor, id);
   }
 
+  // Chứng từ quỹ khi đóng ca (QUYTAC_NGHIEPVU_375; THAY_DOI_24): mỗi quỹ một phiếu thu bán lẻ, một phiếu chi hoàn tiền; lệch tiền mặt thì phiếu chi thiếu (thu ngân chịu)
+  // hoặc phiếu thu thừa; số tiền 0 thì không lập.
+  private async recordFundDocuments(transaction: Parameters<Parameters<Database["transaction"]>[0]>[0], actor: Actor, shift: RetailShift, difference: number): Promise<void> {
+    const date = this.permissionService.today();
+    const note = (text: string) => `${text} – ca quầy ${shift.register_code}, ${shift.cashier_name}`;
+    const record = (kind: RetailFundDocumentKind, fundId: string, amount: number, text: string) =>
+      this.payments.recordRetailWithin(transaction, actor, {
+        kind,
+        fundId,
+        paymentDate: date,
+        amount: amount.toFixed(4),
+        note: note(text),
+        sourceType: shiftSource,
+        sourceId: shift.id,
+        staffUserId: kind === "cash_shortage" ? shift.cashier_id : null,
+      });
+    for (const fund of await this.byFund(transaction, shift.id)) {
+      if (Number(fund.sales) > 0) await record("retail_receipt", fund.fund_id, Number(fund.sales), "Thu tiền bán lẻ");
+      if (Number(fund.refunds) > 0) await record("retail_refund", fund.fund_id, Number(fund.refunds), "Hoàn tiền trả hàng bán lẻ");
+    }
+    if (difference < 0) await record("cash_shortage", shift.cash_fund_id, -difference, "Thiếu tiền mặt khi đóng ca");
+    if (difference > 0) await record("cash_surplus", shift.cash_fund_id, difference, "Thừa tiền mặt khi đóng ca");
+  }
+
   // Đóng ca (QUYTAC_NGHIEPVU_375).
   async close(actor: Actor, id: string, input: CloseInput): Promise<RetailShiftResponse> {
+    await this.payments.prepareRetailNumbering(actor);
     await this.database.transaction(async (transaction) => {
       const row = await this.shift(transaction, actor.companyId, id, true);
       if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
@@ -269,6 +337,7 @@ export class RetailShiftsService {
         UPDATE retail.shifts SET status = 'closed', closed_at = ${this.clock.now()}, closed_by = ${actor.userId}, expected_cash = ${expected}::numeric, counted_cash = ${counted}::numeric,
           difference = ${difference}::numeric, difference_reason = ${Number(difference) === 0 ? null : input.differenceReason}, version = version + 1
         WHERE id = ${id}`);
+      await this.recordFundDocuments(transaction, actor, row, Number(difference));
       await this.auditService.record(
         { ...retailAudit(actor, "retail_shift"), action: "retail_shift.close", entityId: id, beforeData: { status: "open" }, afterData: { ...closing, reason: input.differenceReason } },
         transaction,

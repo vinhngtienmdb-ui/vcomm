@@ -2409,7 +2409,7 @@
     "none": "Chưa có phiếu thu chi.",
     "partnerSearch": "Gõ tên, mã đối tác rồi nhấn Enter",
     "find": "Tìm",
-    "noPartner": "Không tìm thấy đối tác.",
+    "noPartner": "Không đối tượng (bán lẻ tại quầy)",
     "choosePartner": "Chọn đối tác",
     "partnerAdvance": "Trả trước đang còn",
     "openDebts": "Chứng từ còn nợ",
@@ -2448,7 +2448,11 @@
     "source_payment": "Phiếu thu chi",
     "fundInactive": "đã ngừng dùng",
     "source_internal_write_off": "Ghi tổn thất hàng thiếu nội bộ",
-    "source_collection_statement": "Bảng đối soát thu hộ"
+    "source_collection_statement": "Bảng đối soát thu hộ",
+    "kind_retail_receipt": "Phiếu thu bán lẻ",
+    "kind_retail_refund": "Phiếu chi hoàn tiền bán lẻ",
+    "kind_cash_shortage": "Phiếu chi thiếu tiền ca",
+    "kind_cash_surplus": "Phiếu thu thừa tiền ca"
   },
   "ledger": {
     "accountsTitle": "Hệ thống tài khoản",
@@ -3770,7 +3774,12 @@
     "currentShift": "Ca đang mở: quầy {register}, mở lúc {time}",
     "sellingLater": "Màn hình bán hàng có ở lát L2.",
     "reportTitle": "BIÊN BẢN ĐÓNG CA",
-    "closedBy": "Người đóng"
+    "closedBy": "Người đóng",
+    "fundDocuments": "Chứng từ quỹ đã lập",
+    "fundDocumentsHint": "Khi đóng ca, hệ thống lập và ghi sổ phiếu thu bán lẻ, phiếu chi hoàn tiền theo từng quỹ và phiếu chi thiếu tiền hoặc phiếu thu thừa tiền khi lệch.",
+    "fund": "Quỹ",
+    "documentNo": "Số chứng từ",
+    "documentKind": "Loại chứng từ"
   },
   "retailCounter": {
     "scanPlaceholder": "Quét mã vạch, serial hoặc gõ mã, tên hàng rồi nhấn Enter",
@@ -3822,11 +3831,17 @@
     "change": "Tiền thừa",
     "remaining": "Còn thiếu",
     "confirmPay": "Xác nhận thanh toán",
-    "totalChanged": "Tổng tiền đã được tính lại. Kiểm tra rồi xác nhận lại.",
     "paid": "Đã thanh toán hóa đơn {number}",
     "print": "In hóa đơn",
     "newSale": "Đơn mới",
-    "quoting": "Đang tính tiền…"
+    "quoting": "Đang tính tiền…",
+    "transfer": "Khách chuyển khoản",
+    "transferAmount": "Số tiền chuyển khoản",
+    "transferReference": "Mã giao dịch ngân hàng (không bắt buộc)",
+    "transferReceived": "Đã nhận chuyển khoản {amount}",
+    "transferContent": "Nội dung: {content}",
+    "qrLabel": "Mã VietQR chuyển khoản",
+    "transferOverTotal": "Tiền chuyển khoản không được vượt số phải trả."
   },
   "retailSales": {
     "title": "Hóa đơn bán lẻ",
