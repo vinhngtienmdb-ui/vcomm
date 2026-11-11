@@ -191,6 +191,8 @@ Phiếu THAY_DOI_21: "Thêm loại phụ cấp cho dòng phụ cấp hợp đồ
 - Ghi "Đã trả" tại bảng lương sinh bút toán trả; nộp bảo hiểm, thuế làm bút toán thủ công.
 - Có khoản cộng thêm, khấu trừ nhập tay.
 - Phiếu lương trong "Hồ sơ của tôi", thông báo chuông và gửi email.
+- Ngày không làm việc, không hưởng lương (ngưỡng 14 ngày không đóng bảo hiểm) = nghỉ không lương + nghỉ ốm đau, thai sản, tai nạn lao động do bảo hiểm xã hội chi trả + vắng không phép (`unpaid_leave_units` + `social_insurance_leave_units` + `absent_units`).
+- Lương chia theo công chuẩn cả tháng theo lịch (`month_standard_units`); người vào làm giữa tháng nhận theo ngày công thực tế.
 
 ## 19. Chỗ chỉnh cho khớp mã (lát L0 đến L2)
 
