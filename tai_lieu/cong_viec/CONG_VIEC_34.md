@@ -4,7 +4,7 @@
 - Mức: Vừa.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11. Đã lập trình; kiểm thử hồi quy còn một kiểm thử c25 chờ quyết định.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11. Đã lập trình, kiểm thử hồi quy đạt; chờ nghiệm thu.
 - Nguồn: người dùng yêu cầu 2026-11-11 tích hợp MoMo, SePay, PayOS, chuyển khoản, VietQR, BIDV, Ecopay, GPay; CONG_VIEC_32; CONG_VIEC_18 (đọc webhook SePay).
 
 ## 1. Mục tiêu
@@ -78,4 +78,5 @@ KICHBAN_KIEMTHU_383 đến 386: tự động, tệp `apps/api/test/c34-payment-s
 ## 11. Kết quả thực hiện
 
 - 2026-11-11: `c34-payment-sepay.test.ts` 4/4 đạt (KICHBAN_KIEMTHU_383 đến 386). Kiểm tra kiểu, lint toàn dự án đạt.
-- Kiểm thử hồi quy `pnpm --filter api test`: 336/337 đạt. Thất bại: `c25-payment-methods.test.ts` KICHBAN_KIEMTHU_321 so sánh đúng nguyên danh sách phương thức, nay có thêm `sepay_bank_transfer` (chưa cấu hình, tắt). Chờ người dùng quyết định cách sửa kiểm thử.
+- Kiểm thử hồi quy lần 1: 336/337, `c25-payment-methods.test.ts` KICHBAN_KIEMTHU_321 so nguyên danh sách phương thức. Người dùng chọn phương án A (chỉ so phương thức cổng `cod`, `vnpay`), đã có trên nhánh nền qua CONG_VIEC_33.
+- 2026-11-11 sau khi hợp nhất nhánh nền (có MoMo, CONG_VIEC_33): kiểm tra kiểu, lint đạt; `pnpm --filter api test` 48/48 tệp, 340/340 kiểm thử đạt.
