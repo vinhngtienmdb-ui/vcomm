@@ -3,7 +3,7 @@
 - Mô tả: Thiết lập hoa hồng từng sản phẩm (giới thiệu, bốn chức danh đội kinh doanh); chốt người hưởng khi đặt đơn; cộng ví khi đơn hoàn tất theo tiền hàng thực bán; ví hoa hồng trên ứng dụng; yêu cầu rút tiền, kế toán duyệt chi, khấu trừ thuế thu nhập cá nhân; hạch toán.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Chờ người dùng xác nhận thiết kế.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (không làm bản mẫu riêng, xem trước từng lát). Đang thực hiện.
 - Nguồn: THAY_DOI_14, THAY_DOI_16; quyết định người dùng 2026-11-11 (tài liệu `02`); CONG_VIEC_23 (người giới thiệu, nhân viên phụ trách), CONG_VIEC_27 (chức danh, chuỗi cấp trên), CONG_VIEC_24 (đơn hoàn tất), CONG_VIEC_25 (tài khoản ngân hàng người mua, bút toán).
 
 ## 1. Mục tiêu
