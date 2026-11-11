@@ -463,13 +463,15 @@ export class CommunityService {
       const current = (await transaction.execute<{ status: ContentStatus; author_user_id: string }>(sql`SELECT status, author_user_id FROM ${table} WHERE id = ${id} FOR UPDATE`)).rows[0]!;
       if (current.status === "deleted") throw new ApiError("NOT_FOUND", "notFound");
       const next: ContentStatus = action === "hide" ? "hidden" : "visible";
-      if (current.status === next) throw new ApiError("BUSINESS_RULE", "communityStatusUnchanged");
-      await transaction.execute(sql`UPDATE ${table} SET status = ${next}, hidden_reason = ${action === "hide" ? reason : null}, version = version + 1 WHERE id = ${id}`);
+      const column = target === "post" ? sql`post_id` : sql`comment_id`;
+      // Nội dung đang hiện mà còn báo cáo chờ xử lý: "hiện lại" nghĩa là bỏ qua các báo cáo, không đổi trạng thái.
+      const pendingReports = (await transaction.execute(sql`SELECT 1 FROM marketplace.content_reports WHERE ${column} = ${id} AND status = 'pending' LIMIT 1`)).rows.length > 0;
+      if (current.status === next && !(action === "show" && pendingReports)) throw new ApiError("BUSINESS_RULE", "communityStatusUnchanged");
+      if (current.status !== next) await transaction.execute(sql`UPDATE ${table} SET status = ${next}, hidden_reason = ${action === "hide" ? reason : null}, version = version + 1 WHERE id = ${id}`);
       if (target === "comment") {
         const wasCounted = current.status === "visible";
         if (wasCounted !== (next === "visible")) await this.adjustCommentCount(transaction, id, next === "visible" ? 1 : -1);
       }
-      const column = target === "post" ? sql`post_id` : sql`comment_id`;
       await transaction.execute(sql`
         UPDATE marketplace.content_reports SET status = ${action === "hide" ? "resolved" : "dismissed"}, handled_by = ${actor.userId}, handled_at = now()
         WHERE ${column} = ${id} AND status = 'pending'`);

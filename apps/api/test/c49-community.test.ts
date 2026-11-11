@@ -192,6 +192,15 @@ describe("CONG_VIEC_49 bảng tin cộng đồng", () => {
     const target = (await people.others("post", "/buyer/posts", { content: "Bài có bình luận" })).body;
     const withComment = (await people.others("post", `/buyer/posts/${target.id}/comments`, { content: "Shop dở tệ" })).body;
     expect(withComment.commentCount).toBe(1);
+    // Bình luận đang hiện có một báo cáo: "hiện lại" bỏ qua báo cáo, không đổi trạng thái; không còn báo cáo thì báo không đổi.
+    const commentId = withComment.comments[0].id;
+    expect((await author("post", "/buyer/reports", { commentId, reason: "abuse" })).status).toBe(204);
+    expect((await store.call("get", "/marketplace/community/moderation?view=reported")).body.data).toEqual([
+      expect.objectContaining({ target: "comment", id: commentId, status: "visible", pendingReports: 1 }),
+    ]);
+    expect((await store.call("post", `/marketplace/community/comments/${commentId}/show`)).status).toBe(204);
+    expect((await store.call("get", "/marketplace/community/moderation?view=reported")).body.total).toBe(0);
+    expect((await store.call("post", `/marketplace/community/comments/${commentId}/show`)).status).toBe(409);
     expect((await store.call("post", `/marketplace/community/comments/${withComment.comments[0].id}/hide`, { reason: "Xúc phạm" })).status).toBe(204);
     expect((await people.others("get", `/buyer/posts/${target.id}`)).body).toMatchObject({ commentCount: 0, comments: [expect.objectContaining({ content: null, status: "hidden" })] });
 
