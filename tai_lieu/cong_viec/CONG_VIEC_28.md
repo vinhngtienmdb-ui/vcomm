@@ -4,7 +4,7 @@
 - Mức: Vừa (chức năng mới trong một module; thêm giá trị mã đơn vị vận chuyển, không đổi API, không đổi màn hình).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (tra mã địa chỉ theo tên; người gửi ở biến môi trường; không kiểm chữ ký RSA của webhook; ánh xạ trạng thái như mục 4). Chờ nghiệm thu.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11 (tra mã địa chỉ theo tên; người gửi ở biến môi trường; không kiểm chữ ký RSA của webhook; ánh xạ trạng thái như mục 4). Đã nghiệm thu 2026-11-11, chờ phát hành (trước khi phát hành phải thử với tài khoản thử nghiệm của hãng).
 - Nguồn: yêu cầu của người dùng ngày 2026-11-11 qua phiên chính CONG_VIEC_25 ("tích hợp giao vận của vnpost, viettel, j&t, ghtk"); khung CONG_VIEC_24 (QUYTAC_NGHIEPVU_159, 160).
 - Nhánh: `chuc-nang/CONG_VIEC_28-giao-van-vnpost` (tách từ `chuc-nang/CONG_VIEC_24-dat-hang-vcomm`).
 

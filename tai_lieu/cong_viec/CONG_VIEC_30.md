@@ -4,7 +4,7 @@
 - Mức quy mô: Vừa (thêm lớp kết nối vào khung có sẵn; không màn hình mới, không API mới, không đổi kiến trúc).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11. Chờ nghiệm thu.
+- Trạng thái: Người dùng xác nhận thiết kế ngày 2026-11-11. Đã nghiệm thu 2026-11-11, chờ phát hành (trước khi phát hành phải thử với tài khoản thử nghiệm của hãng).
 - Nguồn: yêu cầu của người dùng ngày 2026-11-11 (phiên chính CONG_VIEC_25 mở phiên con); CONG_VIEC_24 (QUYTAC_NGHIEPVU_159, 160, 162).
 - Nhánh: `chuc-nang/CONG_VIEC_30-giao-van-jt`, tách từ `chuc-nang/CONG_VIEC_24-dat-hang-vcomm`.
 
