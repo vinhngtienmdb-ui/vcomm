@@ -283,7 +283,12 @@ export class SalesDeliveriesService {
   }
 
   // Đơn VComm (CONG_VIEC_24): nhận hàng trả lại theo dòng phiếu xuất (hàng hoàn về, yêu cầu trả hàng đã duyệt), không xét quyền kho; ghi sổ ngay.
-  async returnAsSystem(transaction: Executor, actor: Actor, input: { issueId: string; documentDate: string; reason: string; lines: { issueLineId: string; quantity: string }[] }): Promise<string> {
+  // serials: hàng theo serial trả lại (bán lẻ tại quầy, CONG_VIEC_53); đơn VComm không truyền.
+  async returnAsSystem(
+    transaction: Executor,
+    actor: Actor,
+    input: { issueId: string; documentDate: string; reason: string; lines: { issueLineId: string; quantity: string; serials?: string[] }[] },
+  ): Promise<string> {
     const issue = (
       await transaction.execute<{ id: string; company_id: string; warehouse_id: string; partner_id: string | null; status: string; type: string }>(sql`
       SELECT id, company_id, warehouse_id, partner_id, status, type FROM inventory.documents WHERE id = ${input.issueId}`)
@@ -306,7 +311,7 @@ export class SalesDeliveriesService {
         lotOverrideReason: null,
         locationId: source.location_id,
         destinationLocationId: null,
-        serials: [],
+        serials: line.serials ?? [],
         responsibleUserId: null,
         compensationAmount: null,
       };

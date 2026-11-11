@@ -355,7 +355,11 @@
     "retailNonCashOverTotal": "Tiền chuyển khoản, điểm không được vượt số phải trả.",
     "retailNoBankFund": "Cửa hàng chưa cài đặt quỹ chuyển khoản.",
     "retailSerialNotFound": "Không tìm thấy serial trong kho bán của cửa hàng.",
-    "retailSerialCount": "Số serial quét chưa khớp số lượng hàng theo serial."
+    "retailSerialCount": "Số serial quét chưa khớp số lượng hàng theo serial.",
+    "retailReturnExpired": "Hóa đơn đã quá hạn trả hàng của cửa hàng.",
+    "retailReturnOtherStore": "Hóa đơn bán ở cửa hàng khác. Trả hàng tại cửa hàng đã bán.",
+    "retailReturnsDisabled": "Cửa hàng không nhận trả hàng.",
+    "retailCashInsufficient": "Tiền mặt trong két không đủ để hoàn. Chọn hoàn chuyển khoản."
   },
   "login": {
     "title": "Đăng nhập",
@@ -1047,7 +1051,9 @@
     "retail_register_create": "Thêm quầy thu ngân",
     "retail_register_update": "Sửa quầy thu ngân",
     "retail_shift_open": "Mở ca thu ngân",
-    "retail_shift_close": "Đóng ca thu ngân"
+    "retail_shift_close": "Đóng ca thu ngân",
+    "retail_sale_create": "Bán hàng tại quầy",
+    "retail_return_create": "Trả hàng bán lẻ"
   },
   "notifications": {
     "title": "Thông báo",
@@ -3687,7 +3693,8 @@
     "counter": "Bán hàng",
     "shifts": "Ca thu ngân",
     "stores": "Cài đặt cửa hàng",
-    "sales": "Hóa đơn bán lẻ"
+    "sales": "Hóa đơn bán lẻ",
+    "returns": "Trả hàng"
   },
   "retailStores": {
     "title": "Cài đặt cửa hàng",
@@ -3865,7 +3872,9 @@
     "stockDocument": "Phiếu xuất",
     "print": "In lại",
     "bankReference": "Mã giao dịch",
-    "walkIn": "Khách lẻ"
+    "walkIn": "Khách lẻ",
+    "returnAction": "Trả hàng",
+    "returns": "Các lần trả hàng"
   },
   "retailReceipt": {
     "taxCode": "MST",
@@ -3885,5 +3894,42 @@
     "buyerTaxCode": "MST người mua: {taxCode}",
     "footer": "Cảm ơn quý khách!",
     "returnPolicy": "Đổi trả trong {days} ngày kèm hóa đơn này."
+  },
+  "retailReturns": {
+    "title": "Trả hàng",
+    "searchLabel": "Số hóa đơn bán lẻ",
+    "searchPlaceholder": "Quét mã QR trên hóa đơn hoặc gõ số hóa đơn rồi nhấn Enter",
+    "find": "Tìm",
+    "notFound": "Không tìm thấy hóa đơn bán lẻ.",
+    "saleInfo": "{number} · {time} · Quầy {register} · {cashier}",
+    "returnUntil": "Hạn trả hàng đến {date}",
+    "blocked_expired": "Hóa đơn đã quá hạn trả hàng.",
+    "blocked_otherStore": "Hóa đơn của cửa hàng khác.",
+    "blocked_returnsDisabled": "Cửa hàng không nhận trả hàng.",
+    "inWindow": "Trong hạn",
+    "item": "Hàng",
+    "sold": "Đã bán",
+    "returned": "Đã trả",
+    "remaining": "Còn trả được",
+    "quantity": "Số trả",
+    "amount": "Tiền hoàn",
+    "gift": "Hàng tặng",
+    "reason": "Lý do trả",
+    "refundTo": "Hoàn cho khách",
+    "total": "Tổng hoàn",
+    "cash": "Tiền mặt từ ca đang mở",
+    "transfer": "Chuyển khoản",
+    "recipient": "Ngân hàng, số tài khoản, tên người nhận",
+    "reference": "Mã giao dịch (không bắt buộc)",
+    "transferSent": "Đã chuyển khoản cho khách",
+    "hint": "Hệ thống ghi phiếu trả hàng bán lẻ, phiếu nhận hàng trả lại vào kho bán (giá vốn lúc xuất), bút toán trả hàng và việc chờ xử lý hóa đơn điện tử cho kế toán.",
+    "confirm": "Xác nhận trả hàng",
+    "done": "Đã trả hàng {number}",
+    "print": "In phiếu trả hàng",
+    "next": "Trả hóa đơn khác",
+    "noReturnPermission": "Bạn không có quyền trả hàng.",
+    "slipTitle": "PHIẾU TRẢ HÀNG",
+    "slipSale": "Theo hóa đơn {number}",
+    "serials": "Serial trả"
   }
 }

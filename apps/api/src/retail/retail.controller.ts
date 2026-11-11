@@ -2,10 +2,12 @@
 import { Body, Controller, Get, Headers, HttpCode, Param, Patch, Post, Query, Req } from "@nestjs/common";
 import {
   closeRetailShiftSchema,
+  createRetailReturnSchema,
   createRetailSaleSchema,
   openRetailShiftSchema,
   retailItemsQuerySchema,
   retailQuoteSchema,
+  retailReturnQuoteSchema,
   retailSaleListQuerySchema,
   retailPermissions,
   retailShiftListQuerySchema,
@@ -14,6 +16,9 @@ import {
   type RetailCounterContext,
   type RetailItemOption,
   type RetailQuoteResponse,
+  type RetailReturnableResponse,
+  type RetailReturnQuoteResponse,
+  type RetailReturnResponse,
   type RetailSaleListResponse,
   type RetailSaleResponse,
   type RetailSetupOptions,
@@ -26,6 +31,7 @@ import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
+import { RetailReturnsService } from "./retail-returns.service";
 import { RetailSalesService } from "./retail-sales.service";
 import { RetailShiftsService } from "./retail-shifts.service";
 import { RetailStoresService } from "./retail-stores.service";
@@ -37,6 +43,7 @@ export class RetailController {
     private readonly stores: RetailStoresService,
     private readonly shifts: RetailShiftsService,
     private readonly sales: RetailSalesService,
+    private readonly returns: RetailReturnsService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -129,5 +136,31 @@ export class RetailController {
   @Get("sales/:id")
   async saleDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<RetailSaleResponse> {
     return this.sales.detail(await this.actor(request, companyId), id);
+  }
+
+  @Get("sales/:id/returnable")
+  async returnable(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Query("shiftId", UuidPipe) shiftId: string,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<RetailReturnableResponse> {
+    return this.returns.returnable(await this.actor(request, companyId), id, shiftId);
+  }
+
+  @Post("returns/quote")
+  @HttpCode(200)
+  async returnQuote(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<RetailReturnQuoteResponse> {
+    return this.returns.quote(await this.actor(request, companyId), retailReturnQuoteSchema.parse(body));
+  }
+
+  @Post("returns")
+  async returnCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<RetailReturnResponse> {
+    return this.returns.create(await this.actor(request, companyId), createRetailReturnSchema.parse(body));
+  }
+
+  @Get("returns/:id")
+  async returnDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<RetailReturnResponse> {
+    return this.returns.detail(await this.actor(request, companyId), id);
   }
 }

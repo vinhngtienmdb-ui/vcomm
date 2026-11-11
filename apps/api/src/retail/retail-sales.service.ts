@@ -398,6 +398,10 @@ export class RetailSalesService {
       })),
       salesOrder: { id: row.sales_order_id, documentNo: row.order_no },
       stockDocument: { id: row.stock_document_id, documentNo: row.stock_document_no },
+      returns: (
+        await this.database.execute<{ id: string; document_no: string; returned_at: Date; refund_amount: string }>(sql`
+        SELECT id, document_no, returned_at, refund_amount::text FROM retail.returns WHERE sale_id = ${id} ORDER BY returned_at`)
+      ).rows.map((item) => ({ id: item.id, documentNo: item.document_no, returnedAt: new Date(item.returned_at).toISOString(), refundAmount: trimDecimal(item.refund_amount) })),
       currency: await companyCurrency(this.database, actor.companyId),
     };
   }

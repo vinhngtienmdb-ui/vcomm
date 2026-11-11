@@ -355,7 +355,11 @@
     "retailNonCashOverTotal": "Bank transfer and points cannot exceed the amount due.",
     "retailNoBankFund": "The store has no bank transfer fund.",
     "retailSerialNotFound": "The serial number is not in the store warehouse.",
-    "retailSerialCount": "Scanned serial numbers do not match the quantity."
+    "retailSerialCount": "Scanned serial numbers do not match the quantity.",
+    "retailReturnExpired": "The receipt is past the store's return window.",
+    "retailReturnOtherStore": "The sale belongs to another store. Return it at the selling store.",
+    "retailReturnsDisabled": "This store does not accept returns.",
+    "retailCashInsufficient": "Not enough cash in the drawer. Refund by bank transfer."
   },
   "login": {
     "title": "Sign in",
@@ -1047,7 +1051,9 @@
     "retail_register_create": "Create register",
     "retail_register_update": "Update register",
     "retail_shift_open": "Open cashier shift",
-    "retail_shift_close": "Close cashier shift"
+    "retail_shift_close": "Close cashier shift",
+    "retail_sale_create": "Counter sale",
+    "retail_return_create": "Retail return"
   },
   "notifications": {
     "title": "Notifications",
@@ -3687,7 +3693,8 @@
     "counter": "Sell",
     "shifts": "Cashier shifts",
     "stores": "Store setup",
-    "sales": "Retail sales"
+    "sales": "Retail sales",
+    "returns": "Returns"
   },
   "retailStores": {
     "title": "Store setup",
@@ -3865,7 +3872,9 @@
     "stockDocument": "Delivery",
     "print": "Reprint",
     "bankReference": "Transaction reference",
-    "walkIn": "Walk-in customer"
+    "walkIn": "Walk-in customer",
+    "returnAction": "Return",
+    "returns": "Returns"
   },
   "retailReceipt": {
     "taxCode": "Tax code",
@@ -3885,5 +3894,42 @@
     "buyerTaxCode": "Buyer tax code: {taxCode}",
     "footer": "Thank you!",
     "returnPolicy": "Returns within {days} days with this receipt."
+  },
+  "retailReturns": {
+    "title": "Returns",
+    "searchLabel": "Receipt number",
+    "searchPlaceholder": "Scan the receipt QR code or type its number, then press Enter",
+    "find": "Find",
+    "notFound": "Receipt not found.",
+    "saleInfo": "{number} · {time} · Register {register} · {cashier}",
+    "returnUntil": "Returns until {date}",
+    "blocked_expired": "The receipt is past the return window.",
+    "blocked_otherStore": "The receipt belongs to another store.",
+    "blocked_returnsDisabled": "This store does not accept returns.",
+    "inWindow": "Within window",
+    "item": "Item",
+    "sold": "Sold",
+    "returned": "Returned",
+    "remaining": "Returnable",
+    "quantity": "Return quantity",
+    "amount": "Refund",
+    "gift": "Gift",
+    "reason": "Reason",
+    "refundTo": "Refund to customer",
+    "total": "Total refund",
+    "cash": "Cash from the open shift",
+    "transfer": "Bank transfer",
+    "recipient": "Bank, account number, recipient name",
+    "reference": "Transaction reference (optional)",
+    "transferSent": "Transfer sent to customer",
+    "hint": "The system posts the return slip, the sales return into the store warehouse at the original cost, the journal entry and an e-invoice task for accounting.",
+    "confirm": "Confirm return",
+    "done": "Return {number} recorded",
+    "print": "Print return slip",
+    "next": "Another return",
+    "noReturnPermission": "You cannot process returns.",
+    "slipTitle": "RETURN SLIP",
+    "slipSale": "For receipt {number}",
+    "serials": "Serials returned"
   }
 }

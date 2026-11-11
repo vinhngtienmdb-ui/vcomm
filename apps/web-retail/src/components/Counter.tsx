@@ -6,6 +6,7 @@ import type { RetailItemOption, RetailQuoteResponse, RetailSaleResponse, RetailS
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { type FormEvent, type KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useAdmin } from "ui/components/AppShell";
 import { failureOf } from "ui/lib/use-api";
 import { apiFetch } from "ui/lib/api";
 import { formatDateTime, formatMoney } from "ui/lib/format";
@@ -29,6 +30,7 @@ const emptyBuyer: Buyer = { name: "", taxCode: "", address: "", identityNo: "" }
 
 export function Counter({ shift, onShiftChanged }: { shift: RetailShiftResponse; onShiftChanged: () => void }) {
   const t = useTranslations("retailCounter");
+  const { can } = useAdmin();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selected, setSelected] = useState(0);
   const [search, setSearch] = useState("");
@@ -192,6 +194,11 @@ export function Counter({ shift, onShiftChanged }: { shift: RetailShiftResponse;
         <Link className="nut phu" href="/sales">
           {t("sales")}
         </Link>
+        {can("retail.return") && (
+          <Link className="nut phu" href="/returns">
+            {t("returns")}
+          </Link>
+        )}
         <Link className="nut phu" href={`/shifts/${shift.id}`}>
           {t("closeShift")}
         </Link>

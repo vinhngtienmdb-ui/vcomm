@@ -4793,6 +4793,8 @@ export interface RetailSaleResponse {
   payments: { method: RetailPaymentMethod; amount: string; bankReference: string | null; points: string | null }[];
   salesOrder: { id: string; documentNo: string };
   stockDocument: { id: string; documentNo: string };
+  // Các lần trả hàng của hóa đơn (CHUC_NANG_188).
+  returns: { id: string; documentNo: string; returnedAt: string; refundAmount: string }[];
   currency: string;
 }
 export const retailSaleListQuerySchema = z
@@ -4821,4 +4823,89 @@ export interface RetailSaleListResponse {
   items: RetailSaleListItem[];
   total: number;
   page: number;
+}
+
+// CONG_VIEC_53, API_197: trả hàng theo hóa đơn bán lẻ (CHUC_NANG_188; QUYTAC_NGHIEPVU_376, 377).
+export interface RetailReturnableLine {
+  orderLineId: string;
+  productName: string;
+  sku: string;
+  unitName: string;
+  isGift: boolean;
+  tracksSerials: boolean;
+  // Số lượng theo đơn vị bán của dòng.
+  soldQuantity: string;
+  returnedQuantity: string;
+  remainingQuantity: string;
+  lineTotal: string;
+  // Serial đã bán còn trả được (hàng theo serial).
+  serials: string[];
+}
+export interface RetailReturnableResponse {
+  saleId: string;
+  documentNo: string;
+  soldAt: string;
+  storeName: string;
+  registerCode: string;
+  cashierName: string;
+  buyerName: string | null;
+  returnUntil: string;
+  // Lý do không trả được: hết hạn, cửa hàng khác, cửa hàng không nhận trả; null là trả được.
+  blockedReason: "expired" | "otherStore" | "returnsDisabled" | null;
+  lines: RetailReturnableLine[];
+  currency: string;
+}
+export const createRetailReturnSchema = z
+  .object({
+    shiftId: z.uuid(),
+    saleId: z.uuid(),
+    clientKey: z.uuid(),
+    reason: z.string().trim().min(1).max(500),
+    lines: z
+      .array(
+        z
+          .object({
+            orderLineId: z.uuid(),
+            quantity: decimalText(4).refine((value) => Number(value) > 0, "invalidValue"),
+            serials: z.array(z.string().trim().min(1).max(100)).max(1000).default([]),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    refund: z
+      .object({
+        method: z.enum(["cash", "bank_transfer"]),
+        bankReference: blankToNull(50),
+        recipient: blankToNull(300),
+      })
+      .strict(),
+    expectedRefund: decimalText(4),
+  })
+  .strict();
+export type CreateRetailReturnRequest = z.input<typeof createRetailReturnSchema>;
+export const retailReturnQuoteSchema = createRetailReturnSchema.pick({ shiftId: true, saleId: true, lines: true });
+export type RetailReturnQuoteRequest = z.input<typeof retailReturnQuoteSchema>;
+export interface RetailReturnQuoteResponse {
+  lines: { orderLineId: string; quantity: string; amount: string }[];
+  goodsAmount: string;
+  refundAmount: string;
+  currency: string;
+}
+export interface RetailReturnResponse {
+  id: string;
+  documentNo: string;
+  returnedAt: string;
+  sale: { id: string; documentNo: string };
+  store: { name: string; address: string | null; phone: string | null };
+  company: { legalName: string; taxCode: string | null; address: string | null };
+  registerCode: string;
+  cashierName: string;
+  reason: string;
+  lines: { productName: string; unitName: string; quantity: string; amount: string }[];
+  goodsAmount: string;
+  refundAmount: string;
+  refunds: { method: RetailPaymentMethod; amount: string; bankReference: string | null; recipient: string | null; points: string | null }[];
+  stockDocument: { id: string; documentNo: string };
+  currency: string;
 }

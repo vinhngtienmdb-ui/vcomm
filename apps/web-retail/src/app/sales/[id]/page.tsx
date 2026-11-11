@@ -5,6 +5,7 @@ import type { RetailSaleResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useAdmin } from "ui/components/AppShell";
 import { Loaded } from "ui/components/StatusViews";
 import { formatDateTime, formatMoney } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
@@ -13,6 +14,7 @@ import { Receipt } from "@/components/Receipt";
 export default function SaleDetailPage() {
   const t = useTranslations("retailSales");
   const counter = useTranslations("retailCounter");
+  const { can } = useAdmin();
   const { id } = useParams<{ id: string }>();
   const { state, reload } = useApi<RetailSaleResponse>(`/retail/sales/${id}`);
   return (
@@ -26,6 +28,11 @@ export default function SaleDetailPage() {
               <button type="button" className="nut phu" onClick={() => window.print()}>
                 {t("print")}
               </button>
+              {can("retail.return") && (
+                <Link className="nut phu" href={`/returns?sale=${sale.id}`}>
+                  {t("returnAction")}
+                </Link>
+              )}
               <Link href="/sales">{t("back")}</Link>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--khoang-4)", alignItems: "flex-start" }}>
@@ -121,6 +128,15 @@ export default function SaleDetailPage() {
                     <span>{counter("change")}</span>
                     <span>{money(sale.changeAmount)}</span>
                   </div>
+                  {sale.returns.length > 0 && <h3>{t("returns")}</h3>}
+                  {sale.returns.map((item) => (
+                    <div key={item.id} className="dong-tien">
+                      <span>
+                        {item.documentNo} · {formatDateTime(item.returnedAt)}
+                      </span>
+                      <span>−{money(item.refundAmount)}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
               <div className="the">
