@@ -3653,7 +3653,11 @@
     "vnpay_atm": "Thẻ ATM nội địa",
     "vnpay_card": "Thẻ quốc tế Visa, Mastercard",
     "gateway_cod": "Thu hộ khi giao",
-    "gateway_vnpay": "VNPAY"
+    "gateway_vnpay": "VNPAY",
+    "zalopay_wallet": "Ví ZaloPay (ứng dụng ZaloPay, mã QR)",
+    "zalopay_atm": "Thẻ ATM, tài khoản ngân hàng qua ZaloPay",
+    "zalopay_card": "Thẻ quốc tế Visa, Mastercard, JCB qua ZaloPay",
+    "gateway_zalopay": "ZaloPay"
   },
   "refunds": {
     "title": "Hoàn tiền đơn VComm",
