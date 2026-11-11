@@ -3,7 +3,7 @@
 - Mô tả: Kết nối PayOS vào khung nhiều cổng thanh toán (CONG_VIEC_32): tạo link thanh toán PayOS, hiện thông tin chuyển khoản và chuỗi VietQR do PayOS cấp trong ứng dụng, nhận kết quả qua webhook ký HMAC-SHA256.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Chờ nghiệm thu (phiên con, pull request nháp vào nhánh CONG_VIEC_32).
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-11); trước khi phát hành phải thử với tài khoản thử nghiệm của nhà cung cấp (PayOS không có môi trường thử nghiệm riêng: dùng kênh thanh toán thật, số tiền nhỏ).
 - Mức: Vừa.
 - Nguồn: người dùng yêu cầu 2026-11-11 tích hợp PayOS; CONG_VIEC_25, CONG_VIEC_32. Thiết kế được người dùng xác nhận 2026-11-11 (thêm cột đối chiếu mã đơn PayOS; chỉ mở phương thức `payos_vietqr`).
 - Tài liệu cổng: tài liệu công khai payos.vn/docs, gồm API tạo link thanh toán (`POST /v2/payment-requests`), dữ liệu webhook, kiểm tra dữ liệu với signature, dữ liệu trả về returnUrl. Tra cứu 2026-11-11.
