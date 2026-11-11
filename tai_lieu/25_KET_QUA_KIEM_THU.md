@@ -188,7 +188,7 @@
 - Phạm vi: Nhân sự phần 4 (tuyển dụng, đánh giá hiệu suất), nhánh `chuc-nang/CONG_VIEC_54-tuyen-dung-danh-gia` (pull request #105, head `bbe6c73`): MAN_HINH_168 đến 173, API_200 đến 205, database migration 0098 đến 0100.
 - Kết quả: `pnpm --filter api test` một tiến trình 58 tệp, 354 kiểm thử đạt; KICHBAN_KIEMTHU_522 đến 531 đạt; kiểm tra kiểu api, web-hr đạt; CI xanh. Người dùng duyệt xem trước L0, L1, L2.
 - Lỗi phát hiện và sửa trong công việc: thời điểm kết thúc hồ sơ ứng tuyển lệch ngày quanh nửa đêm (ghi theo đồng hồ ứng dụng); xóa theo yêu cầu không chạy lại khi kho lưu trữ lỗi; điểm điều chỉnh không hiển thị.
-- Kết luận cổng kiểm thử: Đạt, chờ người dùng nghiệm thu.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
 
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_49
 
