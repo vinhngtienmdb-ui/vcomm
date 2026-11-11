@@ -5,7 +5,7 @@ import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
-import { createTestUser, signIn, type Session } from "./helpers";
+import { createTestUser, signIn, type Session, grantSalesOrderManage } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -65,6 +65,7 @@ beforeAll(async () => {
   retailAdmin = await signIn(application, "quantri.vcr@vcomm.test");
   keeper = await assign("thukho.noibo@vcomm.test", "Mạc Văn Kho", "warehouse_keeper", retail, testIds.binhDuongWarehouse);
   tradingSeller = await assign("banhang.vct.noibo@vcomm.test", "Ông Thị Bán", "salesperson", trading);
+  await grantSalesOrderManage(pool, "banhang.vct.noibo@vcomm.test", trading);
 
   for (const row of (await pool.query("SELECT id, code FROM catalog.units")).rows) units[row.code] = row.id;
   const category = (companyId: string, code: string) => groupAdmin.call("post", "/catalog/categories", { companyId, body: { code, nameVi: code, nameEn: code } });

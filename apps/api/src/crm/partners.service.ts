@@ -22,7 +22,6 @@ import { isUniqueViolation } from "../common/database-errors";
 import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
-import { customerScope, ownedCustomer, recordOwner, visibleOrder } from "./customer-scope";
 
 export const crmPermissions = {
   view: "crm.partner.view",
@@ -196,9 +195,6 @@ export class PartnersService implements OnApplicationBootstrap {
     if (query.role === "customer") conditions.push(sql`pr.is_customer`);
     if (query.role === "supplier") conditions.push(sql`pr.is_supplier`);
     if (query.role === "internal") conditions.push(sql`p.company_id IS NOT NULL`);
-    if (query.owner) conditions.push(sql`pr.owner_user_id = ${query.owner === "mine" ? actor.userId : query.owner}`);
-    // Không có quyền xem mọi khách: chỉ khách do mình hoặc nhân viên phòng mình quản lý phụ trách (QUYTAC_NGHIEPVU_129).
-    conditions.push(ownedCustomer(await customerScope(this.database, this.permissionService, actor), sql`${actor.companyId}::uuid`, sql`p.id`));
     const where = sql.join(conditions, sql` AND `);
     const from = sql`FROM crm.partners p LEFT JOIN crm.partner_profiles pr ON pr.partner_id = p.id AND pr.company_id = ${actor.companyId}
       LEFT JOIN core.users owner ON owner.id = pr.owner_user_id`;
@@ -220,7 +216,7 @@ export class PartnersService implements OnApplicationBootstrap {
       await this.database.execute<PartnerRow>(sql`
       SELECT p.*, pr.is_customer, pr.is_supplier, owner.full_name AS owner_user_name
       FROM crm.partners p LEFT JOIN crm.partner_profiles pr ON pr.partner_id = p.id AND pr.company_id = ${actor.companyId} LEFT JOIN core.users owner ON owner.id = pr.owner_user_id
-      WHERE p.id = ${id} AND ${ownedCustomer(await customerScope(this.database, this.permissionService, actor), sql`${actor.companyId}::uuid`, sql`p.id`)}`)
+      WHERE p.id = ${id}`)
     ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
     const contacts = await this.database.execute<{
@@ -280,14 +276,12 @@ export class PartnersService implements OnApplicationBootstrap {
       }>(sql`
       SELECT id, code, name FROM crm.partners WHERE (${taxCode ?? null}::text IS NOT NULL AND tax_code = ${taxCode ?? null}) OR (${citizenId ?? null}::text IS NOT NULL AND citizen_id = ${citizenId ?? null}) LIMIT 1`)
     ).rows[0];
-    if (!row) return { partner: null };
-    return { partner: row, canClaim: granted.has(crmPermissions.manage) && (await this.claimable(actor, row.id)) };
+    return { partner: row ?? null };
   }
 
-  // Tóm tắt khách trong phạm vi xem: liên hệ, công nợ phải thu, đơn gần đây (API_113; QUYTAC_NGHIEPVU_137).
+  // Tóm tắt khách: liên hệ, công nợ phải thu, đơn gần đây (API_113; QUYTAC_NGHIEPVU_137).
   async summary(actor: Actor, id: string): Promise<PartnerSummaryResponse> {
     await this.require(actor, crmPermissions.view);
-    const scope = await customerScope(this.database, this.permissionService, actor);
     const row = (
       await this.database.execute<{
         id: string;
@@ -301,7 +295,7 @@ export class PartnersService implements OnApplicationBootstrap {
       }>(sql`
       SELECT p.id, p.code, p.name, p.phone, p.email, p.address, pr.payment_term_days, c.base_currency AS currency
       FROM crm.partners p JOIN core.companies c ON c.id = ${actor.companyId} LEFT JOIN crm.partner_profiles pr ON pr.partner_id = p.id AND pr.company_id = c.id
-      WHERE p.id = ${id} AND ${ownedCustomer(scope, sql`${actor.companyId}::uuid`, sql`p.id`)}`)
+      WHERE p.id = ${id}`)
     ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
     const contacts = await this.database.execute<{ full_name: string; position: string | null; phone: string | null; is_primary: boolean }>(sql`
@@ -312,10 +306,10 @@ export class PartnersService implements OnApplicationBootstrap {
         coalesce(sum(CASE WHEN direction = 'debit' AND due_date < ${this.permissionService.today()}::date THEN open_amount ELSE 0 END), 0)::text AS overdue
       FROM finance.debt_items WHERE company_id = ${actor.companyId} AND side = 'receivable' AND partner_id = ${id} AND open_amount > 0`)
     ).rows[0]!;
-    // Đơn gần đây: chỉ đơn người xem được thấy (QUYTAC_NGHIEPVU_129).
+    // Đơn gần đây: người có quyền xem đối tác xem mọi đơn bán của công ty (QUYTAC_NGHIEPVU_279).
     const orders = await this.database.execute<{ id: string; document_no: string | null; order_date: string; status: string; total_amount: string }>(sql`
       SELECT o.id, o.document_no, o.order_date::text, o.status, o.total_amount::text FROM sales.orders o
-      WHERE o.company_id = ${actor.companyId} AND o.customer_id = ${id} AND ${visibleOrder(scope, "o")} ORDER BY o.order_date DESC, o.created_at DESC LIMIT 10`);
+      WHERE o.company_id = ${actor.companyId} AND o.customer_id = ${id} ORDER BY o.order_date DESC, o.created_at DESC LIMIT 10`);
     return {
       id: row.id,
       code: row.code,
@@ -332,34 +326,9 @@ export class PartnersService implements OnApplicationBootstrap {
     };
   }
 
-  // Đối tác nhận được: đang giao dịch, không phải công ty trong tập đoàn, chưa có hồ sơ tại công ty; người nhận chỉ xem khách của mình.
-  private async claimable(actor: Actor, id: string): Promise<boolean> {
-    if ((await customerScope(this.database, this.permissionService, actor)).kind === "all") return false;
-    const found = await this.database.execute(sql`
-      SELECT 1 FROM crm.partners p WHERE p.id = ${id} AND p.status = 'active' AND p.company_id IS NULL
-        AND NOT EXISTS (SELECT 1 FROM crm.partner_profiles pr WHERE pr.partner_id = p.id AND pr.company_id = ${actor.companyId})`);
-    return found.rows.length > 0;
-  }
-
-  // Nhận đối tác có sẵn làm khách của mình: hồ sơ khách hàng do mình phụ trách, thanh toán ngay, hạn mức 0 (QUYTAC_NGHIEPVU_135).
-  async claim(actor: Actor, id: string): Promise<PartnerResponse> {
-    await this.require(actor, crmPermissions.manage);
-    if (!(await this.claimable(actor, id))) throw new ApiError("BUSINESS_RULE", "partnerNotClaimable");
-    await this.database.transaction(async (transaction) => {
-      const inserted = await transaction.execute(sql`
-        INSERT INTO crm.partner_profiles (company_id, partner_id, is_customer, is_supplier, payment_term_days, credit_limit, owner_user_id, status, updated_by)
-        VALUES (${actor.companyId}, ${id}, true, false, 0, 0, ${actor.userId}, 'active', ${actor.userId}) ON CONFLICT (company_id, partner_id) DO NOTHING RETURNING partner_id`);
-      if (inserted.rows.length === 0) throw new ApiError("BUSINESS_RULE", "partnerNotClaimable");
-      await recordOwner(transaction, { companyId: actor.companyId, partnerId: id, userId: actor.userId, assignmentId: null, actorUserId: actor.userId });
-      await this.auditService.record({ ...crmAudit(actor), entityType: "partner_profile", action: "partner_profile.claim", entityId: id }, transaction);
-    });
-    return this.detail(actor, id);
-  }
-
   async create(actor: Actor, input: PartnerInput): Promise<PartnerResponse> {
     await this.require(actor, crmPermissions.manage);
     await this.validate(input, null);
-    const scope = await customerScope(this.database, this.permissionService, actor);
     const id = await this.database
       .transaction(async (transaction) => {
         const partnerId = (
@@ -369,13 +338,6 @@ export class PartnersService implements OnApplicationBootstrap {
             ${this.search(input)}, ${actor.userId}, ${actor.userId}) RETURNING id`)
         ).rows[0]!.id;
         await this.writeChildren(transaction, partnerId, input);
-        // Nhân viên chỉ xem khách của mình: tự lập hồ sơ khách hàng do mình phụ trách, thanh toán ngay, hạn mức 0 (QUYTAC_NGHIEPVU_135).
-        if (scope.kind === "owned") {
-          await transaction.execute(sql`
-            INSERT INTO crm.partner_profiles (company_id, partner_id, is_customer, is_supplier, payment_term_days, credit_limit, owner_user_id, status, updated_by)
-            VALUES (${actor.companyId}, ${partnerId}, true, false, 0, 0, ${actor.userId}, 'active', ${actor.userId})`);
-          await recordOwner(transaction, { companyId: actor.companyId, partnerId, userId: actor.userId, assignmentId: null, actorUserId: actor.userId });
-        }
         await this.auditService.record(
           {
             ...crmAudit(actor),
@@ -451,7 +413,7 @@ export class PartnersService implements OnApplicationBootstrap {
     await this.require(actor, crmPermissions.viewIdentity);
     const row = (
       await this.database.execute<{ citizen_id: string | null }>(sql`
-      SELECT citizen_id FROM crm.partners p WHERE p.id = ${id} AND ${ownedCustomer(await customerScope(this.database, this.permissionService, actor), sql`${actor.companyId}::uuid`, sql`p.id`)}`)
+      SELECT citizen_id FROM crm.partners p WHERE p.id = ${id}`)
     ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
     if (row.citizen_id === null) return { citizenId: null };
@@ -490,8 +452,6 @@ export class PartnersService implements OnApplicationBootstrap {
       }>(sql`SELECT status, company_id FROM crm.partners WHERE id = ${id}`)
     ).rows[0];
     if (!partner) throw new ApiError("NOT_FOUND", "notFound");
-    // Người không xem mọi khách chỉ sửa hồ sơ khách trong phạm vi của mình.
-    await this.detail(actor, id);
     const fields: Record<string, keyof Messages["errors"]> = {};
     if (partner.company_id === actor.companyId) fields.partnerId = "partnerIsSelf";
     if (input.customerGroupId) {
@@ -500,9 +460,8 @@ export class PartnersService implements OnApplicationBootstrap {
     }
     const before = await this.profile(actor.companyId, id, true);
     const ownerUserId = input.ownerUserId ?? null;
-    // Khách đã có nhân viên phụ trách chỉ đổi, bỏ bằng phiếu giao khách (QUYTAC_NGHIEPVU_134).
-    if (before?.ownerUserId && ownerUserId !== before.ownerUserId) fields.ownerUserId = "ownerNeedsAssignment";
-    else if (ownerUserId && ownerUserId !== before?.ownerUserId) {
+    // Người phụ trách sửa bằng tay trên hồ sơ (QUYTAC_NGHIEPVU_279); chỉ kiểm khi chọn người mới.
+    if (ownerUserId && ownerUserId !== before?.ownerUserId) {
       const member = await this.database.execute(sql`SELECT 1 FROM core.user_company_memberships WHERE user_id = ${ownerUserId} AND company_id = ${actor.companyId} AND status = 'active'`);
       if (member.rows.length === 0) fields.ownerUserId = "invalidValue";
     }
@@ -518,7 +477,6 @@ export class PartnersService implements OnApplicationBootstrap {
           updated_by = EXCLUDED.updated_by, updated_at = now(), version = crm.partner_profiles.version + 1
         WHERE crm.partner_profiles.version = ${input.version} RETURNING company_id`);
       if (saved.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-      if (ownerUserId && !before?.ownerUserId) await recordOwner(transaction, { companyId: actor.companyId, partnerId: id, userId: ownerUserId, assignmentId: null, actorUserId: actor.userId });
       await this.auditService.record(
         {
           ...crmAudit(actor),

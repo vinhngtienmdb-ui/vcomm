@@ -7,7 +7,6 @@ import { AppShell } from "ui/components/AppShell";
 
 export const crmMenu = [
   { href: "/partners", key: "partners", permission: "crm.partner.view" },
-  { href: "/customer-assignments", key: "customerAssignments", permission: "crm.partner.view" },
   { href: "/visits", key: "visits", permission: "crm.partner.view" },
   { href: "/buyers", key: "buyers", permission: "marketplace.buyer.view" },
   { href: "/sales-team", key: "salesTeam", permission: "marketplace.buyer.view" },

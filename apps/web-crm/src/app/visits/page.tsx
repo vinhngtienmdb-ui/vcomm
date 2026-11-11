@@ -1,7 +1,7 @@
 "use client";
 
-// MAN_HINH_72 Ghé thăm khách (CHUC_NANG_103; API_114; QUYTAC_NGHIEPVU_139): lọc nhân viên, khoảng ngày; theo phạm vi xem.
-import type { CustomerAssignmentOptionsResponse, PageResponse, VisitItem } from "contracts";
+// MAN_HINH_72 Ghé thăm khách (CHUC_NANG_103; API_114; QUYTAC_NGHIEPVU_139): lọc nhân viên, khoảng ngày; xem mọi lượt của công ty.
+import type { PageResponse, VisitItem, VisitStaffOptionsResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Loaded, MessageView } from "ui/components/StatusViews";
@@ -20,8 +20,8 @@ export default function VisitsPage() {
   if (from) parameters.set("from", from);
   if (to) parameters.set("to", to);
   const { state, reload } = useApi<PageResponse<VisitItem>>(`/crm/visits?${parameters}`);
-  // Danh sách nhân viên để lọc: trưởng phòng, người có quyền giao khách (cùng phạm vi với phiếu giao khách).
-  const staff = useApi<CustomerAssignmentOptionsResponse>("/crm/customer-assignment-options");
+  // Danh sách nhân viên của công ty để lọc (QUYTAC_NGHIEPVU_279: xem mọi lượt của công ty).
+  const staff = useApi<VisitStaffOptionsResponse>("/crm/visit-options");
   const filtered = Boolean(userId || from || to);
   return (
     <>

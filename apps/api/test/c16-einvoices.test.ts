@@ -8,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { EinvoicesService } from "../src/einvoice/einvoices.service";
 import { PermissionService } from "../src/permissions/permission.service";
-import { createTestUser, signIn, type Session, salespersonSeesAllCustomers } from "./helpers";
+import { createTestUser, signIn, type Session, grantSalesOrderManage } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -76,13 +76,13 @@ async function deliver(order: { id: string; lines: { id: string }[] }, quantity:
 }
 beforeAll(async () => {
   ({ application, pool } = await startTestApplication());
-  await salespersonSeesAllCustomers(pool);
   today = application.get(PermissionService).today();
   groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
   admin = await signIn(application, "quantri.vcr@vcomm.test");
   accountant = await assign("ketoan.hd@vcomm.test", "Đào Thị Toán", "accountant");
   chief = await assign("ketoantruong.hd@vcomm.test", "Mai Văn Trưởng", "chief_accountant");
   seller = await assign("banhang.hd@vcomm.test", "Lạc Văn Bán", "salesperson");
+  await grantSalesOrderManage(pool, "banhang.hd@vcomm.test", retail);
   keeper = await assign("thukho.hd@vcomm.test", "Trịnh Văn Kho", "warehouse_keeper", testIds.binhDuongWarehouse);
 
   unitId = (await pool.query<{ id: string }>("SELECT id FROM catalog.units WHERE code = 'CAI'")).rows[0]!.id;

@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
-import { createTestUser, signIn, type Session } from "./helpers";
+import { createTestUser, signIn, type Session, grantSalesOrderManage } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -74,6 +74,7 @@ beforeAll(async () => {
   chief = await signIn(application, "ketoantruong.hn@vcomm.test");
   keeper = await assign("thukho.hn@vcomm.test", "Mạc Văn Hợp", "warehouse_keeper", retail, testIds.binhDuongWarehouse);
   tradingSeller = await assign("banhang.hn@vcomm.test", "Ông Thị Nhất", "salesperson", trading);
+  await grantSalesOrderManage(pool, "banhang.hn@vcomm.test", trading);
 
   for (const row of (await pool.query("SELECT id, code FROM catalog.units")).rows) units[row.code] = row.id;
   const category = (companyId: string, code: string) => groupAdmin.call("post", "/catalog/categories", { companyId, body: { code, nameVi: code, nameEn: code } });

@@ -77,10 +77,23 @@ export async function createTestUser(pool: Pool, email: string, fullName: string
   return id;
 }
 
-// CONG_VIEC_21 (THAY_DOI_12): kiểm thử viết trước khi có phạm vi xem theo nhân viên phụ trách giữ hành vi cũ của vai trò Nhân viên bán hàng (xem mọi khách).
-// Người dùng cho phép thêm vào bước chuẩn bị ngày 2026-11-10; phạm vi xem mới kiểm trong c21-customer-assignment.
-export async function salespersonSeesAllCustomers(pool: Pool): Promise<void> {
-  await pool.query(`
-    INSERT INTO core.role_permissions (role_id, permission_code)
-    SELECT id, 'crm.customer.view_all' FROM core.roles WHERE company_id IS NULL AND code = 'salesperson' ON CONFLICT DO NOTHING`);
+// CONG_VIEC_43 (QUYTAC_NGHIEPVU_276): Nhân viên bán hàng không còn quyền lập đơn bán. Kiểm thử viết trước dùng nhân viên bán hàng lập đơn
+// được giao thêm vai trò thử của công ty có quyền lập đơn bán ở bước chuẩn bị (người dùng đồng ý 2026-11-11); quyền mới kiểm trong c43-scope-and-roles.
+export async function grantSalesOrderManage(pool: Pool, email: string, companyId: string): Promise<void> {
+  const existing = await pool.query<{ id: string }>("SELECT id FROM core.roles WHERE company_id = $1 AND code = 'test_sales_order_manager'", [companyId]);
+  let roleId = existing.rows[0]?.id;
+  if (!roleId) {
+    roleId = (
+      await pool.query<{ id: string }>(
+        "INSERT INTO core.roles (company_id, code, name_vi, name_en, status) VALUES ($1, 'test_sales_order_manager', 'Lập đơn bán (kiểm thử)', 'Sales order manager (test)', 'active') RETURNING id",
+        [companyId],
+      )
+    ).rows[0]!.id;
+    await pool.query("INSERT INTO core.role_permissions (role_id, permission_code) SELECT $1, unnest(ARRAY['sales.access', 'sales.order.view', 'sales.order.manage'])", [roleId]);
+  }
+  await pool.query("INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, valid_from) SELECT id, $2, 'company', $3, '2026-01-01' FROM core.users WHERE email = $1", [
+    email,
+    roleId,
+    companyId,
+  ]);
 }

@@ -1956,8 +1956,6 @@ export const partnerListQuerySchema = z
     kind: z.enum(partnerKinds).optional(),
     role: z.enum(["customer", "supplier", "internal"]).optional(),
     status: z.enum(["active", "inactive"]).optional(),
-    // CONG_VIEC_21: khách của tôi, khách theo nhân viên phụ trách.
-    owner: z.union([z.literal("mine"), z.uuid()]).optional(),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
   })
@@ -2011,8 +2009,6 @@ export interface PartnerResponse extends PartnerListItem {
 export const partnerLookupQuerySchema = z.object({ taxCode: z.string().trim().optional(), citizenId: z.string().trim().optional() }).strict();
 export interface PartnerLookupResponse {
   partner: { id: string; code: string; name: string } | null;
-  // CONG_VIEC_21: người chỉ xem khách của mình nhận được đối tác chưa có hồ sơ tại công ty (QUYTAC_NGHIEPVU_135).
-  canClaim?: boolean;
 }
 export const savePartnerProfileSchema = z
   .object({
@@ -3592,71 +3588,9 @@ export interface ConsolidationResponse extends ConsolidationListItem {
   version: number;
 }
 
-// API_110, API_111: phiếu giao khách, lịch sử phụ trách (CONG_VIEC_21).
-export const customerAssignmentStatuses = ["draft", "pending", "applied", "rejected", "withdrawn"] as const;
-export type CustomerAssignmentStatus = (typeof customerAssignmentStatuses)[number];
-export const customerAssignmentListQuerySchema = z
-  .object({
-    status: z.enum(customerAssignmentStatuses).optional(),
-    page: z.coerce.number().int().min(1).default(1),
-    pageSize: z.coerce.number().int().min(1).max(100).default(20),
-  })
-  .strict();
-export const saveCustomerAssignmentSchema = z
-  .object({
-    targetUserId: z.uuid(),
-    reason: z.string().trim().min(1).max(500),
-    partnerIds: z
-      .array(z.uuid())
-      .min(1)
-      .max(500)
-      .refine((items) => new Set(items).size === items.length, { message: "duplicate" }),
-    version: z.number().int().positive().optional(),
-  })
-  .strict();
-export interface CustomerAssignmentListItem {
-  id: string;
-  documentNo: string | null;
-  status: CustomerAssignmentStatus;
-  targetUserName: string;
-  reason: string;
-  customerCount: number;
-  createdByName: string;
-  createdAt: string;
-}
-export interface CustomerAssignmentLine {
-  partnerId: string;
-  code: string;
-  name: string;
-  // Nhân viên phụ trách hiện tại; lúc gửi (để so khi áp dụng).
-  currentOwnerName: string | null;
-  previousOwnerName: string | null;
-}
-export interface CustomerAssignmentResponse extends CustomerAssignmentListItem {
-  targetUserId: string;
-  lines: CustomerAssignmentLine[];
-  // Khóa thông báo (errors) và danh sách khách đã đổi nhân viên phụ trách.
-  applyError: string | null;
-  applyErrorDetail: string | null;
-  submittedAt: string | null;
-  appliedAt: string | null;
-  version: number;
-  canEdit: boolean;
-  canSubmit: boolean;
-  canWithdraw: boolean;
-  canDiscard: boolean;
-}
-export interface CustomerAssignmentOptionsResponse {
-  // Nhân viên nhận được chọn: mọi thành viên (quyền giao khách) hoặc nhân viên phòng mình quản lý.
+// API_114: nhân viên để lọc ghé thăm khách (CONG_VIEC_22; CONG_VIEC_43 thay tùy chọn phiếu giao khách đã tắt).
+export interface VisitStaffOptionsResponse {
   users: { id: string; fullName: string }[];
-  canAssignAll: boolean;
-}
-export interface PartnerOwnerHistoryItem {
-  userName: string;
-  validFrom: string;
-  validTo: string | null;
-  assignmentId: string | null;
-  documentNo: string | null;
 }
 
 // API_113: tóm tắt khách cho ứng dụng nhân viên kinh doanh (CONG_VIEC_22; QUYTAC_NGHIEPVU_137). Không có hạn mức công nợ.

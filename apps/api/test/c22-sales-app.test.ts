@@ -100,7 +100,7 @@ describe("CONG_VIEC_22 đăng nhập ứng dụng", () => {
 });
 
 describe("CONG_VIEC_22 khách của tôi", () => {
-  it("KICHBAN_KIEMTHU_289: tóm tắt khách trong phạm vi: liên hệ, phải thu còn lại sau khi trừ trả trước, phần quá hạn, đơn gần đây; không có hạn mức; khách ngoài phạm vi nhận 404", async () => {
+  it("KICHBAN_KIEMTHU_289: tóm tắt khách: liên hệ, phải thu còn lại sau khi trừ trả trước, phần quá hạn, đơn gần đây; không có hạn mức; xem mọi đối tác của công ty (CONG_VIEC_43)", async () => {
     const token = (await appLogin("banhang.app@vcomm.test")).body.tokens.accessToken as string;
     const created = await bearer("post", "/crm/partners", token, {
       kind: "organization",
@@ -111,6 +111,11 @@ describe("CONG_VIEC_22 khách của tôi", () => {
     });
     expect(created.status, JSON.stringify(created.body)).toBe(201);
     const partnerId = created.body.id as string;
+    // CONG_VIEC_43 (QUYTAC_NGHIEPVU_279): nhân viên thêm đối tác không còn tự có hồ sơ khách hàng; hồ sơ do người quản lý hồ sơ lập (thanh toán ngay).
+    await pool.query("INSERT INTO crm.partner_profiles (company_id, partner_id, is_customer, is_supplier, payment_term_days, credit_limit, status) VALUES ($1, $2, true, false, 0, 0, 'active')", [
+      retail,
+      partnerId,
+    ]);
     const debt = (direction: string, amount: number, open: number, due: string | null) =>
       pool.query(
         `INSERT INTO finance.debt_items (company_id, partner_id, side, direction, source_type, document_no, document_date, due_date, amount, open_amount)
@@ -133,9 +138,9 @@ describe("CONG_VIEC_22 khách của tôi", () => {
       contacts: [{ fullName: "Chị Lan", phone: "0909000111", isPrimary: true }],
     });
     expect(summary.body).not.toHaveProperty("creditLimit");
-    // Khách của người khác (đối tác nội bộ, chưa có người phụ trách) ngoài phạm vi.
+    // CONG_VIEC_43 (QUYTAC_NGHIEPVU_279): đối tác không do mình phụ trách vẫn xem được.
     const other = (await pool.query<{ id: string }>("SELECT id FROM crm.partners WHERE company_id IS NOT NULL LIMIT 1")).rows[0]!.id;
-    expect((await bearer("get", `/crm/partners/${other}/summary`, token)).status).toBe(404);
+    expect((await bearer("get", `/crm/partners/${other}/summary`, token)).status).toBe(200);
   });
 });
 
@@ -150,7 +155,7 @@ describe("CONG_VIEC_22 ghé thăm khách", () => {
   };
   const location = { latitude: "10.776889", longitude: "106.700806", accuracyMeters: "12.5" };
 
-  it("KICHBAN_KIEMTHU_290: ghi lượt ghé thăm bắt buộc vị trí, ghi chú; 0 đến 3 ảnh JPEG, PNG kiểm theo nội dung, tối đa 5 MB; chỉ khách trong phạm vi", async () => {
+  it("KICHBAN_KIEMTHU_290: ghi lượt ghé thăm bắt buộc vị trí, ghi chú; 0 đến 3 ảnh JPEG, PNG kiểm theo nội dung, tối đa 5 MB; chỉ khách hàng đang giao dịch của công ty", async () => {
     const token = (await appLogin("banhang.app@vcomm.test")).body.tokens.accessToken as string;
     const partnerId = (await bearer("get", "/crm/partners?search=0322000002", token)).body.data[0].id as string;
     const created = await visit(token, { partnerId, ...location, note: "Khách hẹn đặt hàng tuần sau" }, [
@@ -181,7 +186,7 @@ describe("CONG_VIEC_22 ghé thăm khách", () => {
     const large = await visit(token, { partnerId, ...location, note: "Ảnh lớn" }, [{ content: Buffer.concat([png, Buffer.alloc(5 * 1024 * 1024)]), name: "big.png" }]);
     expect(large.status).toBe(400);
     expect(large.body.error.fields["photos.0"]).toBe("Ảnh vượt quá 5 MB.");
-    // Khách ngoài phạm vi.
+    // Đối tác chưa có hồ sơ khách hàng ở công ty.
     const other = (await pool.query<{ id: string }>("SELECT id FROM crm.partners WHERE company_id IS NOT NULL LIMIT 1")).rows[0]!.id;
     const outside = await visit(token, { partnerId: other, ...location, note: "Ngoài phạm vi" });
     expect(outside.status).toBe(400);
@@ -189,21 +194,19 @@ describe("CONG_VIEC_22 ghé thăm khách", () => {
     expect((await pool.query("SELECT count(*)::int AS total FROM crm.visits")).rows[0].total).toBe(1);
   });
 
-  it("KICHBAN_KIEMTHU_291: xem ghé thăm theo phạm vi: người ghi, trưởng phòng của người ghi, người xem mọi khách thấy; nhân viên khác không thấy lượt, ảnh; lọc theo khách, ngày", async () => {
+  it("KICHBAN_KIEMTHU_291: xem ghé thăm: người có quyền xem đối tác thấy mọi lượt, ảnh của công ty (CONG_VIEC_43); lọc theo khách, ngày", async () => {
     const seller = (await appLogin("banhang.app@vcomm.test")).body.tokens.accessToken as string;
     const other = (await appLogin("banhang.khac@vcomm.test")).body.tokens.accessToken as string;
     const mine = (await bearer("get", "/crm/visits", seller)).body;
     expect(mine.total).toBe(1);
     const visitId = mine.data[0].id as string;
-    expect((await bearer("get", "/crm/visits", other)).body.total).toBe(0);
-    expect((await bearer("get", `/crm/visits/${visitId}`, other)).status).toBe(404);
-    expect((await bearer("get", `/crm/visits/${visitId}/photos/${mine.data[0].photoIds[0]}`, other)).status).toBe(404);
-    // Trưởng phòng của người ghi thấy lượt ghé thăm.
-    const department = (
-      await pool.query<{ id: string }>("INSERT INTO core.departments (company_id, code, name, manager_user_id) VALUES ($1, 'KDUD', 'Kinh doanh ứng dụng', $2) RETURNING id", [retail, ids.other])
-    ).rows[0]!.id;
-    await pool.query("UPDATE core.user_company_memberships SET department_id = $1 WHERE user_id = $2 AND company_id = $3", [department, ids.seller, retail]);
+    // CONG_VIEC_43 (QUYTAC_NGHIEPVU_279): nhân viên khác cũng thấy lượt, ảnh; lọc theo nhân viên ghi.
     expect((await bearer("get", "/crm/visits", other)).body.total).toBe(1);
+    expect((await bearer("get", `/crm/visits/${visitId}`, other)).status).toBe(200);
+    expect((await bearer("get", `/crm/visits/${visitId}/photos/${mine.data[0].photoIds[0]}`, other)).status).toBe(200);
+    expect((await bearer("get", `/crm/visits?userId=${ids.other}`, other)).body.total).toBe(0);
+    const staff = (await bearer("get", "/crm/visit-options", other)).body.users.map((user: { fullName: string }) => user.fullName);
+    expect(staff).toEqual(expect.arrayContaining(["Bán Hàng Ứng Dụng", "Bán Hàng Khác"]));
     const admin = await signIn(application, "quantri.vcr@vcomm.test");
     const all = await admin.call("get", `/crm/visits?partnerId=${mine.data[0].partnerId}`, { companyId: retail });
     expect(all.body.total).toBe(1);

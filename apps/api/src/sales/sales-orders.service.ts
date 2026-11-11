@@ -32,7 +32,6 @@ import { isReceivingWarehouse, variantUnitFactor } from "../purchasing/purchasin
 import { companyCurrency, ensureSequence } from "../purchasing/requisitions.service";
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { internalCompanyOf } from "../crm/partners.service";
-import { customerScope, type CustomerScope, ownedCustomer, visibleOrder } from "../crm/customer-scope";
 import { internalSalesErrors } from "./internal-trade-rules";
 import { receivableBalance } from "../finance/receivable-balance";
 import { applyPromotions, type GiftShortage, type PricedLine, withoutPromotion } from "./promotion-pricing";
@@ -149,7 +148,7 @@ export class SalesOrdersService implements OnModuleInit {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.viewOrders, salesPermissions.manageOrders);
     const customers = await this.database.execute<{ id: string; code: string; name: string; customer_group_id: string | null }>(sql`
       SELECT p.id, p.code, p.name, pr.customer_group_id FROM crm.partners p JOIN crm.partner_profiles pr ON pr.partner_id = p.id AND pr.company_id = ${actor.companyId}
-      WHERE p.status = 'active' AND pr.status = 'active' AND pr.is_customer AND ${ownedCustomer(await this.scope(actor), sql`${actor.companyId}::uuid`, sql`p.id`)} ORDER BY p.name`);
+      WHERE p.status = 'active' AND pr.status = 'active' AND pr.is_customer ORDER BY p.name`);
     const channels = await this.database.execute<{ id: string; code: string; name: string }>(sql`
       SELECT id, code, name FROM catalog.sales_channels WHERE company_id = ${actor.companyId} AND status = 'active' ORDER BY code`);
     const warehouses = await this.database.execute<{ id: string; code: string; name: string }>(sql`
@@ -168,12 +167,7 @@ export class SalesOrdersService implements OnModuleInit {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
     const unit = await variantUnitFactor(this.database, actor.companyId, query.variantId, query.unitId);
     if (!unit) throw new ApiError("NOT_FOUND", "notFound");
-    // Khách ngoài phạm vi xem thì tra giá như đơn không có khách.
-    const visible =
-      query.customerId &&
-      (await this.database.execute(sql`SELECT 1 FROM crm.partners p WHERE p.id = ${query.customerId} AND ${ownedCustomer(await this.scope(actor), sql`${actor.companyId}::uuid`, sql`p.id`)}`)).rows
-        .length > 0;
-    const groupId = visible && query.customerId ? await this.customerGroup(this.database, actor.companyId, query.customerId) : null;
+    const groupId = query.customerId ? await this.customerGroup(this.database, actor.companyId, query.customerId) : null;
     const found = await lookupPrice(
       this.database,
       actor.companyId,
@@ -186,7 +180,7 @@ export class SalesOrdersService implements OnModuleInit {
 
   async list(actor: Actor, query: z.output<typeof salesOrderListQuerySchema>): Promise<PageResponse<SalesOrderListItem>> {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.viewOrders, salesPermissions.manageOrders);
-    const conditions: SQL[] = [sql`o.company_id = ${actor.companyId}`, visibleOrder(await this.scope(actor), "o")];
+    const conditions: SQL[] = [sql`o.company_id = ${actor.companyId}`];
     if (query.status) conditions.push(sql`o.status = ${query.status}`);
     if (query.customerId) conditions.push(sql`o.customer_id = ${query.customerId}`);
     if (query.search) {
@@ -203,7 +197,6 @@ export class SalesOrdersService implements OnModuleInit {
 
   async detail(actor: Actor, id: string): Promise<SalesOrderResponse> {
     const granted = await requireSalesPermission(this.permissionService, actor, salesPermissions.viewOrders, salesPermissions.manageOrders);
-    await this.ensureVisible(actor, id);
     const row = await this.single(this.database, actor.companyId, id);
     const lines = await this.database.execute<{
       id: string;
@@ -316,7 +309,7 @@ export class SalesOrdersService implements OnModuleInit {
   async create(actor: Actor, input: Input): Promise<SalesOrderResponse> {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
     const id = await this.database.transaction(async (transaction) => {
-      const { lines, groupId, giftShortages } = await this.prepare(transaction, actor.companyId, input, null, await this.scope(actor));
+      const { lines, groupId, giftShortages } = await this.prepare(transaction, actor.companyId, input, null);
       const orderId = (
         await transaction.execute<{ id: string }>(sql`
         INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, customer_group_id, warehouse_id, order_date, delivery_address, note, currency, gift_shortages, created_by)
@@ -337,7 +330,7 @@ export class SalesOrdersService implements OnModuleInit {
     const before = await this.detail(actor, id);
     if (!before.canEdit) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
     await this.database.transaction(async (transaction) => {
-      const { lines, groupId, giftShortages } = await this.prepare(transaction, actor.companyId, input, id, await this.scope(actor));
+      const { lines, groupId, giftShortages } = await this.prepare(transaction, actor.companyId, input, id);
       const updated = await transaction.execute(sql`
         UPDATE sales.orders SET customer_id = ${input.customerId ?? null}, buyer_name = ${input.buyerName}, channel_id = ${input.channelId}, customer_group_id = ${groupId},
           warehouse_id = ${input.warehouseId}, order_date = ${input.orderDate}::date, delivery_address = ${input.deliveryAddress}, note = ${input.note}, status = 'draft',
@@ -356,7 +349,6 @@ export class SalesOrdersService implements OnModuleInit {
   async submit(actor: Actor, id: string): Promise<SalesOrderResponse> {
     await requireNotMarketplace(this.database, id);
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
-    await this.ensureVisible(actor, id);
     const current = await this.single(this.database, actor.companyId, id);
     if (current.status !== "draft") throw new ApiError("BUSINESS_RULE", "documentNotDraft");
     const hours = await this.beforeSubmit(actor);
@@ -453,7 +445,6 @@ export class SalesOrdersService implements OnModuleInit {
   async withdraw(actor: Actor, id: string): Promise<SalesOrderResponse> {
     await requireNotMarketplace(this.database, id);
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
-    await this.ensureVisible(actor, id);
     const row = await this.single(this.database, actor.companyId, id);
     if (row.created_by !== actor.userId || !row.approval_request_id || row.status !== "pending") throw new ApiError("FORBIDDEN", "forbidden");
     await this.approvals.withdraw(actor.userId, row.approval_request_id);
@@ -470,7 +461,6 @@ export class SalesOrdersService implements OnModuleInit {
   async cancel(actor: Actor, id: string, version: number): Promise<SalesOrderResponse> {
     await requireNotMarketplace(this.database, id);
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
-    await this.ensureVisible(actor, id);
     await this.database.transaction(async (transaction) => {
       const locked = await transaction.execute<{ status: SalesOrderStatus }>(sql`
         SELECT status FROM sales.orders WHERE id = ${id} AND company_id = ${actor.companyId} AND version = ${version} FOR UPDATE`);
@@ -491,7 +481,6 @@ export class SalesOrdersService implements OnModuleInit {
   async close(actor: Actor, id: string, reason: string, version: number): Promise<SalesOrderResponse> {
     await requireNotMarketplace(this.database, id);
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
-    await this.ensureVisible(actor, id);
     await this.database.transaction(async (transaction) => {
       const locked = await transaction.execute(sql`
         SELECT 1 FROM sales.orders WHERE id = ${id} AND company_id = ${actor.companyId} AND status = 'confirmed' AND version = ${version} FOR UPDATE`);
@@ -510,7 +499,6 @@ export class SalesOrdersService implements OnModuleInit {
   // Bên bán xác nhận đơn đối ứng nội bộ: chọn kho xuất rồi gửi như đơn thường (kiểm ngoại lệ, giữ hàng) (QUYTAC_NGHIEPVU_74).
   async confirmCounterpart(actor: Actor, id: string, input: { warehouseId: string; version: number }): Promise<SalesOrderResponse> {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
-    await this.ensureVisible(actor, id);
     const hours = await this.beforeSubmit(actor);
     await this.database.transaction(async (transaction) => {
       const locked = await transaction.execute(sql`
@@ -529,7 +517,6 @@ export class SalesOrdersService implements OnModuleInit {
   // Bên bán từ chối đơn đối ứng: hủy, đơn mua bên kia đóng theo.
   async rejectCounterpart(actor: Actor, id: string, input: { reason: string; version: number }): Promise<SalesOrderResponse> {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
-    await this.ensureVisible(actor, id);
     await this.database.transaction(async (transaction) => {
       const updated = await transaction.execute(sql`
         UPDATE sales.orders SET status = 'cancelled', counterpart_rejected_reason = ${input.reason}, updated_at = now(), version = version + 1
@@ -788,21 +775,14 @@ export class SalesOrdersService implements OnModuleInit {
   }
 
   // Kiểm khách, kênh, kho; tra giá từng dòng theo kênh, nhóm khách tại ngày đơn; tính tiền theo cách tính thuế của bảng giá (QUYTAC_NGHIEPVU_67).
-  private async prepare(
-    transaction: Executor,
-    companyId: string,
-    input: Input,
-    orderId: string | null,
-    scope: CustomerScope,
-  ): Promise<{ lines: PreparedLine[]; groupId: string | null; giftShortages: GiftShortage[] }> {
+  private async prepare(transaction: Executor, companyId: string, input: Input, orderId: string | null): Promise<{ lines: PreparedLine[]; groupId: string | null; giftShortages: GiftShortage[] }> {
     const fields: FieldErrors = {};
     let groupId: string | null = null;
     if (input.customerId) {
       const customer = (
         await transaction.execute<{ customer_group_id: string | null }>(sql`
         SELECT pr.customer_group_id FROM crm.partners p JOIN crm.partner_profiles pr ON pr.partner_id = p.id AND pr.company_id = ${companyId}
-        WHERE p.id = ${input.customerId} AND p.status = 'active' AND pr.status = 'active' AND pr.is_customer
-          AND (${ownedCustomer(scope, sql`${companyId}::uuid`, sql`p.id`)} OR EXISTS (SELECT 1 FROM sales.orders kept WHERE kept.id = ${orderId} AND kept.customer_id = p.id))`)
+        WHERE p.id = ${input.customerId} AND p.status = 'active' AND pr.status = 'active' AND pr.is_customer`)
       ).rows[0];
       if (!customer) fields.customerId = "customerNotActive";
       else groupId = customer.customer_group_id;
@@ -906,18 +886,6 @@ export class SalesOrdersService implements OnModuleInit {
       (await executor.execute<{ customer_group_id: string | null }>(sql`SELECT customer_group_id FROM crm.partner_profiles WHERE company_id = ${companyId} AND partner_id = ${customerId}`)).rows[0]
         ?.customer_group_id ?? null
     );
-  }
-
-  // Phạm vi xem khách, đơn bán của người dùng (QUYTAC_NGHIEPVU_129).
-  private scope(actor: Actor): Promise<CustomerScope> {
-    return customerScope(this.database, this.permissionService, actor);
-  }
-
-  private async ensureVisible(actor: Actor, id: string): Promise<void> {
-    const scope = await this.scope(actor);
-    if (scope.kind === "all") return;
-    const found = await this.database.execute(sql`SELECT 1 FROM sales.orders o WHERE o.id = ${id} AND o.company_id = ${actor.companyId} AND ${visibleOrder(scope, "o")}`);
-    if (found.rows.length === 0) throw new ApiError("NOT_FOUND", "notFound");
   }
 
   async single(executor: Executor, companyId: string, id: string): Promise<OrderRow> {

@@ -5,7 +5,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
-import { createTestUser, signIn, type Session } from "./helpers";
+import { createTestUser, signIn, type Session, grantSalesOrderManage } from "./helpers";
 import { startTestApplication, testRateLimit } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -83,6 +83,7 @@ beforeAll(async () => {
   accountant = await assign("ketoan.ns@vcomm.test", "Lý Thị Sổ", "accountant");
   chief = await assign("ketoantruong.ns@vcomm.test", "Tạ Văn Khớp", "chief_accountant");
   seller = await assign("banhang.ns@vcomm.test", "Ông Văn Hàng", "salesperson");
+  await grantSalesOrderManage(pool, "banhang.ns@vcomm.test", retail);
   const fund = await call(accountant, "post", "/finance/funds", { code: "VCB", name: "Vietcombank", kind: "bank", bankName: "Vietcombank", accountNo: "0071 000 123 456", accountHolder: "VCR" });
   expect(fund.status, JSON.stringify(fund.body)).toBe(201);
   bankFund = fund.body.id;

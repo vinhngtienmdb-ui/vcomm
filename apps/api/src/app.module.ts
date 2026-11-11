@@ -49,7 +49,6 @@ import { PricingController } from "./catalog/pricing.controller";
 import { InventoryController } from "./inventory/inventory.controller";
 import { CrmController } from "./crm/crm.controller";
 import { PartnersService } from "./crm/partners.service";
-import { CustomerAssignmentsService } from "./crm/customer-assignments.service";
 import { VisitsService } from "./crm/visits.service";
 import { BuyerController } from "./marketplace/buyer.controller";
 import { BuyerAccountsService } from "./marketplace/buyer-accounts.service";
@@ -156,7 +155,6 @@ import { UsersService } from "./users/users.service";
     SalesDeliveriesService,
     InternalReceiptsService,
     PartnersService,
-    CustomerAssignmentsService,
     VisitsService,
     BuyerAccountsService,
     BuyerAdminService,

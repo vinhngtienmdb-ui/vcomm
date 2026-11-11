@@ -66,9 +66,6 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "crm.partner.manage", appCode: "crm", nameVi: "Thêm, sửa đối tác dùng chung", nameEn: "Manage shared partners", isSensitive: false },
   { code: "crm.partner.identity.view", appCode: "crm", nameVi: "Xem số Căn cước công dân của đối tác", nameEn: "View partner citizen identity numbers", isSensitive: true },
   { code: "crm.profile.manage", appCode: "crm", nameVi: "Quản lý hồ sơ đối tác của công ty (hạn mức công nợ)", nameEn: "Manage company partner profiles (credit limits)", isSensitive: true },
-  // CONG_VIEC_21: gán khách hàng cho nhân viên kinh doanh (THAY_DOI_12).
-  { code: "crm.customer.view_all", appCode: "crm", nameVi: "Xem mọi khách hàng, đơn bán của công ty", nameEn: "View all customers and sales orders of the company", isSensitive: false },
-  { code: "crm.customer.assign", appCode: "crm", nameVi: "Giao, chuyển khách hàng cho nhân viên", nameEn: "Assign customers to staff", isSensitive: false },
   // CONG_VIEC_22: ứng dụng nhân viên kinh doanh (THAY_DOI_13).
   { code: "crm.visit.manage", appCode: "crm", nameVi: "Ghi lượt ghé thăm khách", nameEn: "Record customer visits", isSensitive: false },
   // CONG_VIEC_23: tài khoản người mua VComm (xét tại công ty vận hành sàn).
@@ -147,8 +144,6 @@ const companyAdminPermissions = [
   "crm.partner.manage",
   "crm.partner.identity.view",
   "crm.profile.manage",
-  "crm.customer.view_all",
-  "crm.customer.assign",
   "crm.visit.manage",
   "marketplace.buyer.view",
   "marketplace.buyer.manage",
@@ -242,9 +237,9 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     nameVi: "Nhân viên bán hàng",
     nameEn: "Salesperson",
     permissionCodes: [
+      // CONG_VIEC_43 (QUYTAC_NGHIEPVU_276): nhân viên bán hàng xem đơn bán, không lập đơn bán.
       "sales.access",
       "sales.order.view",
-      "sales.order.manage",
       "sales.promotion.view",
       "crm.access",
       "crm.partner.view",
@@ -277,6 +272,10 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "crm.partner.view",
       "marketplace.order.view",
       "marketplace.payment.manage",
+      // CONG_VIEC_43 (QUYTAC_NGHIEPVU_276): kế toán lập đơn bán dịch vụ.
+      "sales.access",
+      "sales.order.view",
+      "sales.order.manage",
     ],
   },
   {
@@ -308,14 +307,14 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "crm.partner.view",
       "marketplace.order.view",
       "marketplace.payment.manage",
+      // CONG_VIEC_43 (QUYTAC_NGHIEPVU_276): kế toán lập đơn bán dịch vụ.
+      "sales.access",
+      "sales.order.view",
+      "sales.order.manage",
     ],
   },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },
 ];
-// THAY_DOI_12: vai trò hệ thống đang xem đối tác hoặc đơn bán (trừ Nhân viên bán hàng) giữ phạm vi xem mọi khách như cũ.
-for (const role of systemRoles)
-  if (role.code !== "salesperson" && role.permissionCodes.some((code) => code === "crm.partner.view" || code === "sales.order.view") && !role.permissionCodes.includes("crm.customer.view_all"))
-    role.permissionCodes.push("crm.customer.view_all");
 
 // Loại chứng từ do mã khai báo. Chứng từ thử của Nền tảng dùng để thử luồng duyệt khi chưa có module khác (CONG_VIEC_02 lát L7).
 export const documentTypeCatalog = [
@@ -339,7 +338,6 @@ export const documentTypeCatalog = [
   { code: "accounting.journal", appCode: "finance", nameVi: "Phiếu kế toán", nameEn: "Manual journal", requiresApproval: true },
   { code: "finance.collection_statement", appCode: "finance", nameVi: "Bảng đối soát thu hộ", nameEn: "Collection statement", requiresApproval: true },
   { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },
-  { code: "crm.customer_assignment", appCode: "crm", nameVi: "Phiếu giao khách", nameEn: "Customer assignment", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.

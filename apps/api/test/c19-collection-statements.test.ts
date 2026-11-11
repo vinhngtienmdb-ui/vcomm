@@ -7,7 +7,7 @@ import writeXlsxFile from "write-excel-file/node";
 import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
-import { createTestUser, signIn, type Session, salespersonSeesAllCustomers } from "./helpers";
+import { createTestUser, signIn, type Session, grantSalesOrderManage } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -75,13 +75,13 @@ async function deliver(order: { id: string; lines: { id: string }[] }, quantity:
 }
 beforeAll(async () => {
   ({ application, pool } = await startTestApplication());
-  await salespersonSeesAllCustomers(pool);
   today = application.get(PermissionService).today();
   groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
   admin = await signIn(application, "quantri.vcr@vcomm.test");
   accountant = await assign("ketoan.th@vcomm.test", "Phan Thị Hộ", "accountant");
   chief = await assign("ketoantruong.th@vcomm.test", "Hồ Văn Soát", "chief_accountant");
   seller = await assign("banhang.th@vcomm.test", "Kha Văn Giao", "salesperson");
+  await grantSalesOrderManage(pool, "banhang.th@vcomm.test", retail);
   keeper = await assign("thukho.th@vcomm.test", "Âu Văn Xuất", "warehouse_keeper", testIds.binhDuongWarehouse);
 
   unitId = (await pool.query<{ id: string }>("SELECT id FROM catalog.units WHERE code = 'CAI'")).rows[0]!.id;

@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
-import { createTestUser, signIn, type Session, salespersonSeesAllCustomers } from "./helpers";
+import { createTestUser, signIn, type Session, grantSalesOrderManage } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -63,12 +63,12 @@ async function stopAll() {
 
 beforeAll(async () => {
   ({ application, pool } = await startTestApplication());
-  await salespersonSeesAllCustomers(pool);
   today = application.get(PermissionService).today();
   groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
   admin = await signIn(application, "quantri.vcr@vcomm.test");
   approver = await signIn(application, "phuc.le@vcomm.test");
   seller = await assign("banhang.km@vcomm.test", "Lạc Văn Bán", "salesperson");
+  await grantSalesOrderManage(pool, "banhang.km@vcomm.test", retail);
   keeper = await assign("thukho.km@vcomm.test", "Trịnh Văn Kho", "warehouse_keeper", testIds.binhDuongWarehouse);
 
   for (const row of (await pool.query("SELECT id, code FROM catalog.units")).rows) units[row.code] = row.id;

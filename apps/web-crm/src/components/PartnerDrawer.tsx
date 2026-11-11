@@ -9,7 +9,6 @@ import { type FormEvent, useState } from "react";
 import { Drawer } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { apiFetch } from "ui/lib/api";
-import { failureOf } from "ui/lib/use-api";
 
 type Contact = SavePartnerRequest["contacts"] extends (infer Item)[] | undefined ? Item : never;
 type BankAccount = SavePartnerRequest["bankAccounts"] extends (infer Item)[] | undefined ? Item : never;
@@ -29,29 +28,13 @@ export function PartnerDrawer({ partner, onClose, onSaved }: { partner: PartnerR
   const [contacts, setContacts] = useState<Contact[]>(partner?.contacts ?? []);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>(partner?.bankAccounts ?? []);
   const [existing, setExisting] = useState<PartnerLookupResponse["partner"]>(null);
-  const [canClaim, setCanClaim] = useState(false);
-  const [claiming, setClaiming] = useState(false);
-  const [claimError, setClaimError] = useState<string | null>(null);
   const { submitting, fields, formError, run, inputClass } = useSubmit();
 
   async function lookup(parameter: "taxCode" | "citizenId", value: string) {
     setExisting(null);
     if (!value.trim()) return;
     const result = await apiFetch<PartnerLookupResponse>(`/crm/partners/lookup?${parameter}=${encodeURIComponent(value.trim())}`).catch(() => ({ partner: null }));
-    if (result.partner && result.partner.id !== partner?.id) {
-      setExisting(result.partner);
-      setCanClaim(result.canClaim ?? false);
-    }
-  }
-
-  // Nhận đối tác có sẵn làm khách của mình (QUYTAC_NGHIEPVU_135).
-  function claim(id: string) {
-    setClaiming(true);
-    setClaimError(null);
-    apiFetch<PartnerResponse>(`/crm/partners/${id}/claim`, { method: "POST" })
-      .then(onSaved)
-      .catch((failure: unknown) => setClaimError(failureOf(failure).message))
-      .finally(() => setClaiming(false));
+    if (result.partner && result.partner.id !== partner?.id) setExisting(result.partner);
   }
 
   function submit(event: FormEvent) {
@@ -123,16 +106,9 @@ export function PartnerDrawer({ partner, onClose, onSaved }: { partner: PartnerR
         {existing && (
           <div className="khoi-canh-bao canh-bao" role="status">
             {t("exists", { code: existing.code, name: existing.name })}{" "}
-            {canClaim ? (
-              <button type="button" className="nut phu" disabled={claiming} onClick={() => claim(existing.id)}>
-                {t("claim")}
-              </button>
-            ) : (
-              <Link href={`/partners/${existing.id}`} onClick={onClose}>
-                {t("open")}
-              </Link>
-            )}
-            {claimError && <div className="loi-o">{claimError}</div>}
+            <Link href={`/partners/${existing.id}`} onClick={onClose}>
+              {t("open")}
+            </Link>
           </div>
         )}
         <Field id="ten-doi-tac" label={`${t("name")} *`} error={fields.name}>

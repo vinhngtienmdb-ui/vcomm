@@ -1,7 +1,7 @@
-// Ghé thăm khách (CHUC_NANG_103; QUYTAC_NGHIEPVU_138, 139; API_114): ghi lượt có vị trí, ảnh; xem theo phạm vi.
+// Ghé thăm khách (CHUC_NANG_103; QUYTAC_NGHIEPVU_138, 139; API_114): ghi lượt có vị trí, ảnh; người có quyền xem đối tác xem mọi lượt của công ty (QUYTAC_NGHIEPVU_279).
 import { randomUUID } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
-import { type createVisitSchema, type PageResponse, type visitListQuerySchema, type VisitItem, visitPhotoMaximumBytes, visitPhotoMaximumCount } from "contracts";
+import { type createVisitSchema, type PageResponse, type visitListQuerySchema, type VisitItem, type VisitStaffOptionsResponse, visitPhotoMaximumBytes, visitPhotoMaximumCount } from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import type { Messages } from "i18n";
 import type { z } from "zod";
@@ -12,7 +12,6 @@ import { FILE_STORAGE, type FileStorage } from "../common/file-storage";
 import { DATABASE, type Database } from "../database/database.module";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
-import { customerScope, ownedCustomer, userList } from "./customer-scope";
 
 export const visitPermission = "crm.visit.manage";
 export type UploadedPhoto = { buffer: Buffer; size: number };
@@ -50,11 +49,10 @@ export class VisitsService {
   async create(actor: Actor, input: z.output<typeof createVisitSchema>, photos: UploadedPhoto[]): Promise<VisitItem> {
     if (!(await this.permissionService.permissionsInCompany(actor.userId, actor.companyId)).includes(visitPermission)) throw new ApiError("FORBIDDEN", "forbidden");
     const fields: Record<string, keyof Messages["errors"]> = {};
-    // Chỉ khách hàng trong phạm vi xem của người ghi (QUYTAC_NGHIEPVU_138).
-    const scope = await customerScope(this.database, this.permissionService, actor);
+    // Chỉ khách hàng đang giao dịch của công ty (QUYTAC_NGHIEPVU_138; phạm vi xem toàn công ty theo QUYTAC_NGHIEPVU_279).
     const customer = await this.database.execute(sql`
       SELECT 1 FROM crm.partners p JOIN crm.partner_profiles pr ON pr.partner_id = p.id AND pr.company_id = ${actor.companyId}
-      WHERE p.id = ${input.partnerId} AND p.status = 'active' AND pr.is_customer AND ${ownedCustomer(scope, sql`${actor.companyId}::uuid`, sql`p.id`)}`);
+      WHERE p.id = ${input.partnerId} AND p.status = 'active' AND pr.is_customer`);
     if (customer.rows.length === 0) fields.partnerId = "customerNotActive";
     if (photos.length > visitPhotoMaximumCount) fields.photos = "visitTooManyPhotos";
     const kinds = photos.map((photo, index) => {
@@ -99,14 +97,16 @@ export class VisitsService {
     return this.detail(actor, id);
   }
 
-  // Người có quyền xem mọi khách xem mọi lượt; người khác xem lượt do mình hoặc nhân viên phòng mình quản lý ghi (QUYTAC_NGHIEPVU_139).
-  private async visible(actor: Actor): Promise<SQL> {
-    const scope = await customerScope(this.database, this.permissionService, actor);
-    return scope.kind === "all" ? sql`TRUE` : sql`v.user_id IN (${userList(scope.userIds)})`;
+  // Nhân viên đang làm việc của công ty để lọc ghé thăm (QUYTAC_NGHIEPVU_139, 279).
+  async staffOptions(actor: Actor): Promise<VisitStaffOptionsResponse> {
+    const users = await this.database.execute<{ id: string; full_name: string }>(sql`
+      SELECT u.id, u.full_name FROM core.users u JOIN core.user_company_memberships m ON m.user_id = u.id
+      WHERE m.company_id = ${actor.companyId} AND m.status = 'active' AND u.status = 'active' ORDER BY u.full_name`);
+    return { users: users.rows.map((row) => ({ id: row.id, fullName: row.full_name })) };
   }
 
   async list(actor: Actor, query: z.output<typeof visitListQuerySchema>): Promise<PageResponse<VisitItem>> {
-    const conditions: SQL[] = [sql`v.company_id = ${actor.companyId}`, await this.visible(actor)];
+    const conditions: SQL[] = [sql`v.company_id = ${actor.companyId}`];
     if (query.partnerId) conditions.push(sql`v.partner_id = ${query.partnerId}`);
     if (query.userId) conditions.push(sql`v.user_id = ${query.userId}`);
     if (query.from) conditions.push(sql`v.visited_at >= (${query.from}::date::timestamp AT TIME ZONE 'Asia/Ho_Chi_Minh')`);
@@ -118,7 +118,7 @@ export class VisitsService {
   }
 
   async detail(actor: Actor, id: string): Promise<VisitItem> {
-    const row = (await this.database.execute<Row>(sql`${this.select()} WHERE v.id = ${id} AND v.company_id = ${actor.companyId} AND ${await this.visible(actor)}`)).rows[0];
+    const row = (await this.database.execute<Row>(sql`${this.select()} WHERE v.id = ${id} AND v.company_id = ${actor.companyId}`)).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
     return this.toItem(row);
   }

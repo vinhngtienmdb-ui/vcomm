@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
-import { createTestUser, signIn, type Session, salespersonSeesAllCustomers } from "./helpers";
+import { createTestUser, signIn, type Session, grantSalesOrderManage } from "./helpers";
 import { startTestApplication } from "./setup-database";
 
 let application: NestExpressApplication;
@@ -76,12 +76,12 @@ const items = async (session: Session, partnerId: string, side: "receivable" | "
 
 beforeAll(async () => {
   ({ application, pool } = await startTestApplication());
-  await salespersonSeesAllCustomers(pool);
   today = application.get(PermissionService).today();
   groupAdmin = await signIn(application, "quantri.tapdoan@vcomm.test");
   admin = await signIn(application, "quantri.vcr@vcomm.test");
   accountant = await assign("ketoantruong.kt@vcomm.test", "Đào Thị Toán", "chief_accountant");
   seller = await assign("banhang.kt@vcomm.test", "Lạc Văn Bán", "salesperson");
+  await grantSalesOrderManage(pool, "banhang.kt@vcomm.test", retail);
   keeper = await assign("thukho.kt@vcomm.test", "Trịnh Văn Kho", "warehouse_keeper", testIds.binhDuongWarehouse);
   approver = await signIn(application, "phuc.le@vcomm.test");
 

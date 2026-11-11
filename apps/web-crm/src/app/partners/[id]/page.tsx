@@ -1,7 +1,7 @@
 "use client";
 
 // MAN_HINH_37 Chi tiết đối tác (CHUC_NANG_46 đến 48; API_71, API_72): thông tin chung, người liên hệ, tài khoản ngân hàng, hồ sơ của công ty đang chọn, lịch sử.
-import type { PageResponse, PartnerOwnerHistoryItem, PartnerProfileOptionsResponse, PartnerResponse, VisitItem } from "contracts";
+import type { PageResponse, PartnerProfileOptionsResponse, PartnerResponse, VisitItem } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -12,7 +12,7 @@ import { Field, FormError, useSubmit } from "ui/components/Form";
 import { HistoryLink } from "ui/components/HistoryLink";
 import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
-import { formatDateTime, formatMoney } from "ui/lib/format";
+import { formatMoney } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 import { PartnerDrawer } from "@/components/PartnerDrawer";
 import { VisitList } from "@/components/VisitList";
@@ -158,7 +158,6 @@ function PartnerDetail({ partner, reload }: { partner: PartnerResponse; reload: 
       </section>
 
       <Profile partner={partner} reload={reload} />
-      {partner.profile?.isCustomer && <OwnerHistory partnerId={partner.id} />}
       {partner.profile?.isCustomer && <RecentVisits partnerId={partner.id} />}
 
       {editing && (
@@ -195,35 +194,6 @@ function RecentVisits({ partnerId }: { partnerId: string }) {
     <section className="the">
       <h2 style={{ margin: 0 }}>{t("recent")}</h2>
       {state.data.data.length === 0 ? <span className="chu-thich">{t("none")}</span> : <VisitList visits={state.data.data} showCustomer={false} />}
-    </section>
-  );
-}
-
-// Lịch sử nhân viên phụ trách tại công ty đang chọn (CHUC_NANG_98; API_111).
-function OwnerHistory({ partnerId }: { partnerId: string }) {
-  const t = useTranslations("partners");
-  const { state } = useApi<PartnerOwnerHistoryItem[]>(`/crm/partners/${partnerId}/owner-history`);
-  if (state.kind !== "ready") return null;
-  return (
-    <section className="the">
-      <h2 style={{ margin: 0 }}>{t("ownerHistory")}</h2>
-      {state.data.length === 0 ? (
-        <span className="chu-thich">{t("noOwnerHistory")}</span>
-      ) : (
-        <ul style={{ margin: 0, paddingLeft: "var(--khoang-4)" }}>
-          {state.data.map((item, index) => (
-            <li key={index}>
-              <strong>{item.userName}</strong> · {formatDateTime(item.validFrom)} – {item.validTo ? formatDateTime(item.validTo) : t("ownerNow")}
-              {item.assignmentId && (
-                <>
-                  {" · "}
-                  <Link href={`/customer-assignments/${item.assignmentId}`}>{item.documentNo}</Link>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
     </section>
   );
 }
@@ -352,15 +322,8 @@ function ProfileDrawer({ partner, onClose, onSaved }: { partner: PartnerResponse
           </select>
         </Field>
         <Field id="phu-trach" label={t("owner")} error={fields.ownerUserId}>
-          {/* Khách đã có nhân viên phụ trách chỉ đổi bằng phiếu giao khách (QUYTAC_NGHIEPVU_134). */}
-          <select
-            id="phu-trach"
-            className={inputClass("ownerUserId")}
-            value={ownerUserId}
-            disabled={Boolean(profile?.ownerUserId)}
-            aria-describedby={profile?.ownerUserId ? "phu-trach-goi-y" : undefined}
-            onChange={(event) => setOwnerUserId(event.target.value)}
-          >
+          {/* Người phụ trách sửa bằng tay trên hồ sơ (QUYTAC_NGHIEPVU_279). */}
+          <select id="phu-trach" className={inputClass("ownerUserId")} value={ownerUserId} onChange={(event) => setOwnerUserId(event.target.value)}>
             <option value="">{common("none")}</option>
             {choices.users.map((user) => (
               <option key={user.id} value={user.id}>
@@ -368,11 +331,6 @@ function ProfileDrawer({ partner, onClose, onSaved }: { partner: PartnerResponse
               </option>
             ))}
           </select>
-          {profile?.ownerUserId && (
-            <span id="phu-trach-goi-y" className="chu-thich">
-              {t("ownerChangeHint")}
-            </span>
-          )}
         </Field>
         <Field id="ghi-chu" label={t("note")} error={fields.note}>
           <textarea id="ghi-chu" className={inputClass("note")} rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
