@@ -111,5 +111,5 @@ Hành vi khung CONG_VIEC_32 và VNPAY giữ nguyên; chỉ thêm dòng vào `pay
 
 Ngày 2026-11-11:
 - `c41-payment-apple-pay.test.ts`: 4/4 kịch bản đạt.
-- Kiểm thử hồi quy `pnpm --filter api test` lần 1: 336/337 đạt; `c25-payment-methods` (KICHBAN_KIEMTHU_321) so cả danh mục phương thức nên lệch khi thêm `apple_pay_wallet`, sửa để chỉ xét phương thức của COD, VNPAY (cổng thêm sau cũng không làm vỡ kiểm thử); chạy lại tệp đạt. Lần 2: đang chạy.
+- Kiểm thử hồi quy `pnpm --filter api test` lần 1: 336/337 đạt; `c25-payment-methods` (KICHBAN_KIEMTHU_321) so cả danh mục phương thức nên lệch khi thêm `apple_pay_wallet`, sửa để chỉ xét phương thức của COD, VNPAY (cổng thêm sau cũng không làm vỡ kiểm thử); chạy lại tệp đạt. Lần 2: 47 tệp, 337/337 đạt.
 - `pnpm typecheck` (13 gói), `pnpm lint`: đạt.
