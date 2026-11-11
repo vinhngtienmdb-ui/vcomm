@@ -344,7 +344,7 @@
 - Kiểm thử cần thực hiện: kịch bản giao thành công đơn COD, đơn không COD, webhook lặp; chạy lại toàn bộ kiểm thử API.
 - Mức quy mô: Nhỏ.
 - Rủi ro: ngày thu ghi sổ có thể sớm hơn ngày Viettel Post chuyển tiền; đối soát thu hộ (CONG_VIEC_19) vẫn đối chiếu số tiền thật.
-- Trạng thái: Đã phê duyệt 2026-11-11; đã thực hiện 2026-11-11 (commit `af6df92`, pull request #82), chờ phát hành.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã thực hiện 2026-11-11 (commit `af6df92`, pull request #82); đã phát hành v0.4.0 2026-11-12, chờ triển khai.
 
 ### THAY_DOI_21: Loại phụ cấp cho dòng phụ cấp của hợp đồng, phụ lục – 2026-11-11
 - Lý do: CONG_VIEC_48 (lương) cần biết loại từng khoản phụ cấp để tính bảo hiểm xã hội, thuế thu nhập cá nhân (khoản nào tính, khoản nào miễn).
@@ -355,7 +355,7 @@
 - Kiểm thử cần thực hiện: `c46-contracts` (cập nhật), kiểm thử lương của CONG_VIEC_48.
 - Mức quy mô: Vừa; làm trong CONG_VIEC_48 (database migration 0076).
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-11.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã phát hành v0.4.0 2026-11-12, chờ triển khai.
 
 ### THAY_DOI_22: Chặn rút tiền ví hoa hồng theo từng tài khoản – 2026-11-11
 - Lý do: quyết định của người dùng khi duyệt CONG_VIEC_49 (ví mua sắm có rủi ro bị coi là ví điện tử): cần chặn rút tiền theo từng tài khoản cho cả ví mua sắm (CONG_VIEC_49) và ví hoa hồng.
