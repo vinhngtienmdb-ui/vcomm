@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.14
+- Phiên bản: 2.15
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
@@ -28,6 +28,7 @@
 - Cập nhật CONG_VIEC_25 (2026-11-11): thêm MAN_HINH_98 đến MAN_HINH_100 (mục 60, mục 61); sửa MAN_HINH_86 (Đặt hàng và thanh toán), MAN_HINH_88 (thanh toán, các lần thanh toán, ghi đã thu tiền thu hộ), MAN_HINH_93 (chọn phương thức thanh toán), MAN_HINH_96 (trạng thái thanh toán, hoàn tiền), MAN_HINH_76 (nút Tài khoản nhận hoàn tiền); menu web-crm thêm Hoàn tiền; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_26 (2026-11-11): thêm MAN_HINH_101 đến MAN_HINH_104 (mục 62, mục 63); sửa MAN_HINH_86 (Hoa hồng và rút tiền, bảng phí rút tiền theo THAY_DOI_17), MAN_HINH_87 (cột Hoa hồng, nút Thiết lập hoa hồng), MAN_HINH_88 (thẻ Hoa hồng), MAN_HINH_83 (hoa hồng từng cấp dưới), MAN_HINH_76 (nút Ví hoa hồng); menu web-crm thêm Rút tiền hoa hồng; xem trước từng lát thay cho bản mẫu
 - Cập nhật CONG_VIEC_43 (2026-11-11), THAY_DOI_18: bỏ MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40) và mục menu "Hoa hồng", "Cài đặt hoa hồng"; tắt MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52) và mục menu "Giao khách hàng"; sửa MAN_HINH_24 (chọn loại Hàng hóa, Dịch vụ), MAN_HINH_42 (công tắc "Cho phép lập đơn bán tay có hàng hóa"), MAN_HINH_43 (bỏ người hưởng hoa hồng; nút lập đơn theo quyền mới), MAN_HINH_32 (nhãn "Phiếu dịch vụ"), MAN_HINH_36 (bỏ lọc nhân viên phụ trách), MAN_HINH_37 (bỏ lịch sử phụ trách, nút nhận khách; nhân viên phụ trách sửa bằng tay); không làm bản mẫu, xem trước từng lát (mục 64)
+- Cập nhật CONG_VIEC_53 (2026-11-11): thêm MAN_HINH_161 đến MAN_HINH_167 của MODULE_14 (mini app Bán lẻ, bán lẻ tại quầy phần 1; bản mẫu MAN_HINH_161, 162, 164, 167); sửa MAN_HINH_46, MAN_HINH_49, MAN_HINH_54, MAN_HINH_55 (mục 65, 66)
 
 ## MODULE_01 Nền tảng
 
@@ -2174,3 +2175,64 @@ Không thêm màn hình. Không làm bản mẫu; xem trước từng lát thay 
 
 - Màn hình Ghé thăm khách của web-crm (`/crm/visits`): lọc "Nhân viên" lấy mọi nhân viên đang làm việc của công ty qua `GET /crm/visit-options` (thay danh sách nhân viên của phiếu giao khách); xem mọi lượt của công ty.
 - Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
+
+## MODULE_14 Bán lẻ tại quầy và trạm giao hàng (phần 1: Bán lẻ tại quầy, CONG_VIEC_53)
+
+## 65. Danh sách màn hình và điều hướng (MODULE_14 phần 1)
+
+Mini app mới Bán lẻ (`apps/web-retail`, đường dẫn `/retail`, cổng phát triển 3012; tài liệu `12` mục 3a). Trang `/retail` mở mục menu đầu tiên người dùng có quyền. Menu (hiện theo quyền): Bán hàng, Hóa đơn bán lẻ, Trả hàng, Ca thu ngân, Cài đặt cửa hàng.
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_161 | Bán hàng tại quầy (thanh trên, ô quét, giỏ, khách, tổng, hộp thoại thanh toán, kết quả) | CHUC_NANG_187, CHUC_NANG_189 | `retail.sale` (Thu ngân, Cửa hàng trưởng, quản trị) | Menu "Bán hàng" | `tai_lieu/ban_mau/MAN_HINH_161_BAN_HANG_TAI_QUAY.html` (duyệt 2026-11-11) |
+| MAN_HINH_162 | Mở ca, đóng ca (phần mở ca trên MAN_HINH_161; đóng ca trên chi tiết ca) | CHUC_NANG_186 | `retail.sale` (ca của mình); đóng ca người khác: `retail.shift.manage` | MAN_HINH_161 (chưa có ca), nút "Đóng ca"; MAN_HINH_165 | `tai_lieu/ban_mau/MAN_HINH_162_MO_DONG_CA.html` (duyệt 2026-11-11) |
+| MAN_HINH_163 | Hóa đơn bán lẻ (danh sách, chi tiết, in lại) | CHUC_NANG_187, CHUC_NANG_188, CHUC_NANG_189 | `retail.sale`, `retail.return`, `retail.shift.manage` (trong phạm vi chi nhánh) | Menu "Hóa đơn bán lẻ"; MAN_HINH_161 | Không làm |
+| MAN_HINH_164 | Trả hàng | CHUC_NANG_188 | `retail.return` (Cửa hàng trưởng, quản trị), có ca đang mở | Menu "Trả hàng"; nút "Trả hàng" ở MAN_HINH_161, MAN_HINH_163 | `tai_lieu/ban_mau/MAN_HINH_164_TRA_HANG.html` (duyệt 2026-11-11) |
+| MAN_HINH_165 | Ca thu ngân (danh sách, chi tiết) | CHUC_NANG_186 | `retail.sale` (ca của mình); `retail.shift.manage` (Cửa hàng trưởng, Kế toán, Kế toán trưởng, quản trị) | Menu "Ca thu ngân" | Không làm |
+| MAN_HINH_166 | Cài đặt cửa hàng (danh sách, ngăn kéo cửa hàng, quầy) | CHUC_NANG_186 | Sửa: `retail.setup` (quản trị); xem: thêm người có `retail.sale`, `retail.shift.manage` | Menu "Cài đặt cửa hàng" | Không làm |
+| MAN_HINH_167 | Mẫu in hóa đơn bán lẻ khổ 80 mm (cùng khuôn cho phiếu trả hàng, biên bản đóng ca) | CHUC_NANG_186 đến CHUC_NANG_189 | Theo màn hình mở bản in | MAN_HINH_161, MAN_HINH_163, MAN_HINH_164, MAN_HINH_162 | `tai_lieu/ban_mau/MAN_HINH_167_MAU_IN_HOA_DON.html` (duyệt 2026-11-11) |
+
+Sửa (mini app Tài chính – Kế toán, mini app Nền tảng):
+- MAN_HINH_46 (Quỹ): sổ quỹ hiện "Không đối tượng (bán lẻ tại quầy)" cho chứng từ quỹ bán lẻ.
+- MAN_HINH_49 (Phiếu thu, phiếu chi): bốn loại mới "Phiếu thu bán lẻ", "Phiếu chi hoàn tiền bán lẻ", "Phiếu chi thiếu tiền ca", "Phiếu thu thừa tiền ca"; đối tác hiện "Không đối tượng (bán lẻ tại quầy)"; đã ghi sổ ngay nên không sửa.
+- MAN_HINH_54 (Hóa đơn điện tử): chi tiết hiện nhãn "Khởi tạo từ máy tính tiền" và "Mã tra cứu" với hóa đơn loại này.
+- MAN_HINH_55 (Cài đặt hóa đơn điện tử): thêm bảng "Ký hiệu hóa đơn khởi tạo từ máy tính tiền theo năm" (năm, ký hiệu dạng `C26MAA`, số đã cấp); ký hiệu đã cấp số khóa sửa, xóa.
+- Trang chủ mini app (web-platform): thẻ Bán lẻ mở `/retail`.
+
+| Màn hình | Quản trị tập đoàn, Quản trị công ty | Cửa hàng trưởng | Thu ngân | Kế toán, Kế toán trưởng |
+|---|---|---|---|---|
+| MAN_HINH_161, MAN_HINH_162 (ca của mình) | Dùng | Dùng | Dùng | Không thấy |
+| MAN_HINH_162 (đóng ca người khác), MAN_HINH_165 | Xem, Đóng ca | Xem, Đóng ca (chi nhánh) | Chỉ ca của mình | Xem, Đóng ca |
+| MAN_HINH_163 | Xem, In lại, Trả hàng | Xem, In lại, Trả hàng (chi nhánh) | Xem, In lại (chi nhánh) | Xem, In lại |
+| MAN_HINH_164 | Dùng | Dùng (chi nhánh) | Không thấy | Không thấy |
+| MAN_HINH_166 | Xem, Sửa | Xem | Xem | Xem |
+
+```mermaid
+flowchart TD
+    M{Menu Bán lẻ} -->|Bán hàng| B[MAN_HINH_161 Bán hàng tại quầy]
+    B -->|chưa có ca| O[MAN_HINH_162 Mở ca]
+    O --> B
+    B -->|F9 Thanh toán, In hóa đơn| P[MAN_HINH_167 Mẫu in]
+    B -->|Trả hàng| R[MAN_HINH_164 Trả hàng]
+    B -->|Đóng ca| D[MAN_HINH_162 Đóng ca]
+    D -->|In biên bản đóng ca| P
+    M -->|Hóa đơn bán lẻ| H[MAN_HINH_163 Hóa đơn bán lẻ]
+    H -->|In lại| P
+    H -->|Trả hàng| R
+    R -->|In phiếu trả hàng| P
+    M -->|Trả hàng| R
+    M -->|Ca thu ngân| C[MAN_HINH_165 Ca thu ngân]
+    C -->|chi tiết ca, Đóng ca| D
+    M -->|Cài đặt cửa hàng| S[MAN_HINH_166 Cài đặt cửa hàng]
+```
+
+## 66. Đặc tả màn hình (MODULE_14 phần 1)
+
+- MAN_HINH_161 (`/retail/counter`): toàn màn hình, tối ưu máy tính và máy tính bảng ngang. Thanh trên: cửa hàng, quầy, thu ngân, "Ca mở <giờ> · <số> hóa đơn · tiền mặt dự tính <số tiền>", nhãn "Có mạng" hoặc "Mất mạng", nút "Trả hàng", "Hóa đơn bán lẻ", "Đóng ca". Trái: ô "Quét hoặc tìm hàng" (gợi ý "Quét mã vạch, serial hoặc gõ mã, tên hàng rồi nhấn Enter"; luôn nhận bàn phím sau mỗi thao tác); nhiều kết quả thì danh sách "Chọn mặt hàng" kèm "Còn <số lượng>"; bảng giỏ: Hàng, Đơn vị, Số lượng (Giảm, Tăng), Đơn giá, Giảm tay (%), Thành tiền, Xóa dòng; dòng "Hàng tặng", "Serial: …"; giỏ trống "Chưa có hàng. Quét mã vạch hoặc tìm hàng để bắt đầu."; dòng phím tắt "F2 người mua lấy hóa đơn · F4 giảm tay dòng đang chọn · F9 thanh toán · Delete xóa dòng". Phải: Khách "Khách lẻ" (tra khách VComm chưa làm, chờ CONG_VIEC_51), "Thông tin người mua lấy hóa đơn" (Tên người mua hoặc đơn vị, Mã số thuế, Địa chỉ, Số định danh cá nhân; "Có mã số thuế thì bắt buộc tên và địa chỉ."; "Áp dụng", "Bỏ thông tin"); Tiền hàng, Khuyến mãi, Giảm tay, Trong đó thuế giá trị gia tăng, Phải trả (chữ lớn); cảnh báo thiếu suất quà; nút "Thanh toán" (F9). Hộp thoại "Thanh toán · <số tiền>": "Tiền mặt khách đưa" (gợi ý mệnh giá), "Khách chuyển khoản" (cửa hàng có quỹ chuyển khoản: "Số tiền chuyển khoản", mã VietQR với "Nội dung: <số hóa đơn>", "Mã giao dịch ngân hàng (không bắt buộc)", "Đã nhận chuyển khoản <số tiền>"), Khách đưa, Tiền thừa hoặc Còn thiếu; nút "Xác nhận thanh toán"; Esc đóng. Sau khi ghi: "Đã thanh toán hóa đơn <số>", nút "In hóa đơn", "Đơn mới". Mất mạng: "Mất mạng: không thanh toán được. Kiểm tra kết nối rồi thử lại.". API_193, API_194, API_195, API_196.
+- MAN_HINH_162: mở ca (trên `/retail/counter` khi chưa có ca): chọn cửa hàng, quầy ("đang có ca" khóa chọn), "Tiền cuối ca trước ở quầy này: <số tiền>", Tiền đầu ca, Ghi chú, nút "Mở ca"; không có quầy "Bạn chưa được giao quầy nào đang hoạt động.". Đóng ca (`/retail/shifts/<id>`): bảng theo phương thức (Tiền mặt (đã trừ tiền thừa), Chuyển khoản; Thu bán, Hoàn trả hàng, Thực thu), Tiền mặt hệ thống tính, "Đếm theo mệnh giá (không bắt buộc)" (Mệnh giá, Số tờ, Thành tiền, "Dùng tổng đếm"), Tiền mặt đếm được, Lệch ("Thiếu …", "Thừa …", "Khớp"), Lý do lệch; nút "Đóng ca" (xác nhận "Đóng ca? Ca đã đóng không sửa, không mở lại được."), "In biên bản đóng ca". API_193.
+- MAN_HINH_163 (`/retail/sales`, `/retail/sales/<id>`): danh sách lọc cửa hàng, ca, Từ ngày, Đến ngày, tìm "Số hóa đơn, tên người mua"; cột Số hóa đơn, Thời gian, Cửa hàng, Quầy, Thu ngân, Người mua ("Khách lẻ"), Tổng tiền, Thanh toán; phân trang 20; rỗng "Chưa có hóa đơn bán lẻ.". Chi tiết: dòng hàng, khuyến mãi, thanh toán (phương thức, mã giao dịch), người mua, Đơn bán, Phiếu xuất, hóa đơn điện tử, "Các lần trả hàng"; nút "In lại", "Trả hàng". Bảng chuyển thành thẻ trên điện thoại. API_196.
+- MAN_HINH_164 (`/retail/returns`): ô "Số hóa đơn bán lẻ" ("Quét mã QR trên hóa đơn hoặc gõ số hóa đơn rồi nhấn Enter"), "Tìm"; thông tin hóa đơn "<số> · <thời gian> · Quầy <mã> · <thu ngân>", "Hạn trả hàng đến <ngày>" hoặc lý do chặn ("Hóa đơn đã quá hạn trả hàng.", "Hóa đơn của cửa hàng khác.", "Cửa hàng không nhận trả hàng."); bảng Hàng, Đã bán, Đã trả, Còn trả được, Số trả, Tiền hoàn ("Hàng tặng", "Serial trả"); Lý do trả; "Hoàn cho khách": "Tiền mặt từ ca đang mở" hoặc "Chuyển khoản" (Ngân hàng, số tài khoản, tên người nhận; Mã giao dịch; "Đã chuyển khoản cho khách"); Tổng hoàn; gợi ý chứng từ hệ thống ghi; nút "Xác nhận trả hàng"; xong "Đã trả hàng <số>", "In phiếu trả hàng", "Trả hóa đơn khác". Không có quyền: "Bạn không có quyền trả hàng.". API_197.
+- MAN_HINH_165 (`/retail/shifts`, `/retail/shifts/<id>`): danh sách lọc cửa hàng, trạng thái (Đang mở, Đã đóng), Từ ngày, Đến ngày, "Chỉ ca lệch"; nhãn "Mở quá 24 giờ"; cột Cửa hàng, Quầy, Thu ngân, Giờ mở, Giờ đóng, Trạng thái, Tiền đầu ca, Tiền mặt hệ thống tính, đếm được, Lệch; phân trang 20; rỗng "Chưa có ca.". Chi tiết: giờ mở, đóng, Người đóng, tiền đầu ca, ghi chú, tổng theo phương thức, Số hóa đơn, tiền hệ thống tính, đếm được, lệch, lý do; "Chứng từ quỹ đã lập" (Số chứng từ, Loại chứng từ, Quỹ, số tiền; gợi ý cách lập); phần đóng ca (MAN_HINH_162) khi ca đang mở và người xem đóng được. API_193.
+- MAN_HINH_166 (`/retail/stores`): danh sách cửa hàng ("Chưa có cửa hàng bán lẻ."), nút "Thêm cửa hàng", "Sửa"; ngăn kéo: Chi nhánh, Kho bán, Kênh bán, Quỹ tiền mặt, Quỹ chuyển khoản ("Không nhận chuyển khoản"), Mã ngân hàng VietQR (6 chữ số), Tên chủ tài khoản (in hoa không dấu), Số ngày được trả hàng ("0 là không nhận trả hàng."), Chân hóa đơn bán lẻ, Trạng thái; "Lưu", "Hủy"; công ty chưa có chi nhánh loại Cửa hàng: "Công ty chưa có chi nhánh loại Cửa hàng. Thêm chi nhánh ở mini app Quản trị hệ thống."; danh sách "Quầy thu ngân" (Mã quầy, Tên quầy, trạng thái, "Ca mở: <tên>"), "Thêm quầy", sửa, ngừng. Người không có `retail.setup` chỉ xem. API_192.
+- MAN_HINH_167 (thành phần `Receipt`, `ReturnSlip`, biên bản đóng ca): khổ 80 mm (vùng in 72 mm), in bằng hộp thoại in của trình duyệt; tên, mã số thuế, địa chỉ công ty, cửa hàng; "HÓA ĐƠN BÁN LẺ", "Số: <số>", ngày giờ, "Quầy <mã>", "Thu ngân: <tên>"; dòng hàng ("tặng", "KM", "giảm <phần trăm>%"), Tiền hàng, "Khuyến mãi, giảm giá", "TỔNG THANH TOÁN", "Trong đó thuế GTGT", thanh toán, Tiền thừa; "Người mua: …", "MST người mua: …"; "Hóa đơn điện tử khởi tạo từ máy tính tiền", "Mẫu số … · Ký hiệu … · Số …", "Mã tra cứu: …", "Mã CQT: …" (khi có); mã QR số hóa đơn (để quét khi trả hàng); chân hóa đơn của cửa hàng hoặc "Cảm ơn quý khách!", "Đổi trả trong <số ngày> ngày kèm hóa đơn này.". Phiếu trả hàng ("PHIẾU TRẢ HÀNG", "Theo hóa đơn <số>"), biên bản đóng ca ("BIÊN BẢN ĐÓNG CA") cùng khuôn. Dòng điểm tích, số dư điểm: chưa làm, chờ CONG_VIEC_51.
+- Trạng thái phê duyệt: bản mẫu MAN_HINH_161, 162, 164, 167 duyệt 2026-11-11; MAN_HINH_163, 165, 166 xem trước từng lát thay cho bản mẫu.
