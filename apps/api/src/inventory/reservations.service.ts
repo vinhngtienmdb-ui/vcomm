@@ -9,7 +9,7 @@ import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Actor } from "../permissions/roles.service";
-import { inventoryAudit, inventoryPermissions } from "./inventory-context";
+import { inventoryAudit, inventoryPermissions, requireStockedVariant } from "./inventory-context";
 import { pgArray, type Executor } from "./stock-ledger.service";
 import { WarehousesService } from "./warehouses.service";
 
@@ -180,6 +180,8 @@ export class ReservationsService {
   }
 
   async reserve(transaction: Executor, request: ReservationRequest): Promise<string> {
+    // Dịch vụ không giữ hàng (QUYTAC_NGHIEPVU_275); bên gọi bỏ dòng dịch vụ trước khi giữ.
+    await requireStockedVariant(transaction, request.variantId);
     const available = await this.available(transaction, request.warehouseId, request.companyId, request.variantId, { type: request.sourceType, id: request.sourceId });
     if (Number(available) < Number(request.quantity)) throw new ApiError("BUSINESS_RULE", "insufficientAvailableStock");
     const row = (
@@ -192,6 +194,25 @@ export class ReservationsService {
   }
 
   // Nguồn kết thúc: đã dùng (xuất kho) hoặc nhả (từ chối, rút, hủy).
+  // Giao hàng theo đơn bán dùng phần đang giữ trước (QUYTAC_NGHIEPVU_70): giảm số giữ của mặt hàng, hết thì đánh dấu đã dùng.
+  async consumeFromSource(transaction: Executor, sourceType: string, sourceId: string, warehouseId: string, variantId: string, quantity: string): Promise<void> {
+    const rows = await transaction.execute<{ id: string; quantity: string }>(sql`
+      SELECT id, quantity::text FROM inventory.reservations
+      WHERE source_type = ${sourceType} AND source_id = ${sourceId} AND warehouse_id = ${warehouseId} AND variant_id = ${variantId} AND status = 'active'
+      ORDER BY created_at FOR UPDATE`);
+    let remaining = Number(quantity);
+    for (const row of rows.rows) {
+      if (remaining <= 0) break;
+      if (Number(row.quantity) <= remaining + 0.00005) {
+        await transaction.execute(sql`UPDATE inventory.reservations SET status = 'consumed', released_at = now(), version = version + 1 WHERE id = ${row.id}`);
+        remaining -= Number(row.quantity);
+      } else {
+        await transaction.execute(sql`UPDATE inventory.reservations SET quantity = quantity - ${remaining.toFixed(4)}::numeric, version = version + 1 WHERE id = ${row.id}`);
+        remaining = 0;
+      }
+    }
+  }
+
   async closeBySource(transaction: Executor, sourceType: string, sourceId: string, status: "released" | "consumed"): Promise<void> {
     await transaction.execute(sql`
       UPDATE inventory.reservations SET status = ${status}, released_at = now(), version = version + 1

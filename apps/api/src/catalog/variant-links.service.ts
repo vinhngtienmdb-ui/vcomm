@@ -93,8 +93,8 @@ export class VariantLinksService {
 
   // Người liên kết phải có quyền quản lý sản phẩm ở cả hai công ty; mỗi biến thể tối đa một liên kết với mỗi công ty khác.
   private async link(executor: Executor, actor: Actor, variantId: string, linkedVariantId: string, factor: string): Promise<string> {
-    const variants = await executor.execute<{ id: string; company_id: string; product_id: string }>(sql`
-      SELECT v.id, v.company_id, v.product_id FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id
+    const variants = await executor.execute<{ id: string; company_id: string; product_id: string; kind: string }>(sql`
+      SELECT v.id, v.company_id, v.product_id, p.kind FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id
       WHERE v.id IN (${variantId}, ${linkedVariantId}) AND p.seller_id IS NULL`);
     const mine = variants.rows.find((row) => row.id === variantId);
     const other = variants.rows.find((row) => row.id === linkedVariantId);
@@ -103,6 +103,8 @@ export class VariantLinksService {
     await requireCompanyPermission(this.permissionService, actor, catalogPermissions.manageProducts);
     await requireCompanyPermission(this.permissionService, { ...actor, companyId: other.company_id }, catalogPermissions.manageProducts);
     if (Number(factor) <= 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { factor: "invalidValue" } });
+    // Hai mặt hàng liên kết phải cùng loại: khác loại thì giao dịch nội bộ một bên ghi kho, một bên không, công nợ lệch (CONG_VIEC_43, lát L4).
+    if (mine.kind !== other.kind) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { linkedVariantId: "variantLinkKindMismatch" } });
     const taken = await executor.execute(sql`
       SELECT 1 FROM catalog.variant_links
       WHERE (variant_id = ${variantId} AND linked_company_id = ${other.company_id}) OR (linked_variant_id = ${variantId} AND company_id = ${other.company_id})
@@ -175,6 +177,7 @@ export class VariantLinksService {
         brand: source.brand,
         origin: source.origin,
         vatRate: source.vatRate,
+        kind: source.kind,
         tracksLots: source.tracksLots,
         tracksSerials: source.tracksSerials,
         warrantyMonths: source.warrantyMonths,
@@ -201,4 +204,18 @@ export class VariantLinksService {
     });
     return { productId: newId };
   }
+}
+
+// Mặt hàng tương ứng ở công ty khác qua liên kết (QUYTAC_NGHIEPVU_41), đọc hai chiều; factor là số đơn vị cơ sở bên kia cho một đơn vị cơ sở bên này.
+export async function linkedVariant(executor: Pick<Database, "execute">, variantId: string, targetCompanyId: string): Promise<{ variantId: string; baseUnitId: string; factor: number } | null> {
+  const row = (
+    await executor.execute<{ variant_id: string; base_unit_id: string; factor: string }>(sql`
+    SELECT l.variant_id, p.base_unit_id, l.factor::text FROM (
+      SELECT linked_variant_id AS variant_id, factor FROM catalog.variant_links WHERE variant_id = ${variantId} AND linked_company_id = ${targetCompanyId}
+      UNION ALL
+      SELECT variant_id, 1 / factor FROM catalog.variant_links WHERE linked_variant_id = ${variantId} AND company_id = ${targetCompanyId}
+    ) l JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id
+    WHERE v.status = 'active' LIMIT 1`)
+  ).rows[0];
+  return row ? { variantId: row.variant_id, baseUnitId: row.base_unit_id, factor: Number(row.factor) } : null;
 }

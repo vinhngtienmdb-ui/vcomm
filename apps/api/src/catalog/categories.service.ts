@@ -20,6 +20,7 @@ type CategoryRow = {
   tracks_lots: boolean;
   tracks_serials: boolean;
   warranty_months: number;
+  requires_quality_check: boolean;
   status: "active" | "inactive";
   version: number;
   product_count: number;
@@ -36,6 +37,7 @@ const toResponse = (row: CategoryRow): CategoryResponse => ({
   tracksLots: row.tracks_lots,
   tracksSerials: row.tracks_serials,
   warrantyMonths: row.warranty_months,
+  requiresQualityCheck: row.requires_quality_check,
   status: row.status,
   version: row.version,
   productCount: row.product_count,
@@ -62,8 +64,9 @@ export class CategoriesService {
     const level = await this.validate(input, null);
     const id = await this.database.transaction(async (transaction) => {
       const inserted = await transaction.execute<{ id: string }>(sql`
-        INSERT INTO catalog.categories (parent_id, code, name_vi, name_en, level, tracks_lots, tracks_serials, warranty_months, created_by, updated_by)
-        VALUES (${input.parentId ?? null}, ${input.code}, ${input.nameVi}, ${input.nameEn}, ${level}, ${input.tracksLots}, ${input.tracksSerials}, ${input.warrantyMonths}, ${actor.userId}, ${actor.userId})
+        INSERT INTO catalog.categories (parent_id, code, name_vi, name_en, level, tracks_lots, tracks_serials, warranty_months, requires_quality_check, created_by, updated_by)
+        VALUES (${input.parentId ?? null}, ${input.code}, ${input.nameVi}, ${input.nameEn}, ${level}, ${input.tracksLots}, ${input.tracksSerials}, ${input.warrantyMonths},
+          ${input.requiresQualityCheck ?? false}, ${actor.userId}, ${actor.userId})
         RETURNING id`);
       const categoryId = inserted.rows[0]!.id;
       await this.auditService.record({ ...catalogAudit(actor, "category"), action: "category.create", entityId: categoryId, afterData: input }, transaction);
@@ -82,6 +85,7 @@ export class CategoriesService {
       const updated = await transaction.execute(sql`
         UPDATE catalog.categories SET parent_id = ${input.parentId ?? null}, code = ${input.code}, name_vi = ${input.nameVi}, name_en = ${input.nameEn}, level = ${level},
           tracks_lots = ${input.tracksLots}, tracks_serials = ${input.tracksSerials}, warranty_months = ${input.warrantyMonths},
+          requires_quality_check = coalesce(${input.requiresQualityCheck ?? null}::boolean, requires_quality_check),
           version = version + 1, updated_at = now(), updated_by = ${actor.userId}
         WHERE id = ${id} AND version = ${input.version} RETURNING id`);
       if (updated.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
@@ -164,7 +168,7 @@ export class CategoriesService {
 
   private select() {
     return sql`
-      SELECT c.id, c.parent_id, c.code, c.name_vi, c.name_en, c.level, c.tracks_lots, c.tracks_serials, c.warranty_months, c.status, c.version,
+      SELECT c.id, c.parent_id, c.code, c.name_vi, c.name_en, c.level, c.tracks_lots, c.tracks_serials, c.warranty_months, c.requires_quality_check, c.status, c.version,
         (SELECT count(*)::int FROM catalog.products p WHERE p.category_id = c.id) AS product_count,
         (SELECT count(*)::int FROM catalog.categories child WHERE child.parent_id = c.id) AS child_count
       FROM catalog.categories c`;

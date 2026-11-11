@@ -140,6 +140,12 @@ export class StocktakesService {
     if (!warehouse.ownerIds.includes(input.companyId)) fields.companyId = "warehouseOwnerNotAllowed";
     if (input.scopeType === "full" ? input.scopeIds.length > 0 : input.scopeIds.length === 0) fields.scopeIds = input.scopeType === "full" ? "invalidValue" : "required";
     if (input.scopeType === "locations" && !warehouse.usesLocations) fields.scopeType = "invalidValue";
+    // Kiểm kê theo danh sách mặt hàng: không gồm dịch vụ (QUYTAC_NGHIEPVU_275).
+    if (input.scopeType === "variants" && input.scopeIds.length > 0) {
+      const services = await this.database.execute(sql`
+        SELECT 1 FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id WHERE v.id = ANY(${pgArray(input.scopeIds)}::uuid[]) AND p.kind = 'service' LIMIT 1`);
+      if (services.rows.length > 0) fields.scopeIds = "serviceNotStocked";
+    }
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
     const id = await this.database.transaction(async (transaction) => {
       const stocktakeId = (

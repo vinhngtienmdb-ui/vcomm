@@ -5,6 +5,35 @@
 - Ngày cập nhật: 2026-11-09
 - Trạng thái: Đang cập nhật
 
+## Phiên bản 0.3.0 – 2026-11-11 – Đã phát hành
+
+- Chức năng mới:
+  - Sản phẩm (CONG_VIEC_04): ngành hàng, đơn vị tính, sản phẩm, biến thể, mã vạch, ảnh; nhập Excel; liên kết, sao chép giữa công ty; kênh bán, nhóm khách, bảng giá, phiếu điều chỉnh giá.
+  - Kho (CONG_VIEC_05): kho, vị trí, chủ hàng; phiếu nhập, xuất, điều chỉnh; tồn, lô, serial, giá vốn, thẻ kho; chuyển kho, kiểm kê, giữ hàng, tồn an toàn, in tem.
+  - Đối tác (CONG_VIEC_06), Mua hàng (CONG_VIEC_07), Bán hàng (CONG_VIEC_08), Giao dịch nội bộ giữa công ty con (CONG_VIEC_09), Khuyến mãi (CONG_VIEC_12), Công nợ (CONG_VIEC_13).
+  - Kế toán tổng hợp (CONG_VIEC_14), báo cáo tài chính theo Thông tư 99, Thông tư 133 (CONG_VIEC_15), hóa đơn điện tử (CONG_VIEC_16), đối soát ngân hàng (CONG_VIEC_18), đối soát thu hộ (CONG_VIEC_19), báo cáo tài chính hợp nhất (CONG_VIEC_20).
+  - Mô hình B2C (THAY_DOI_14): tài khoản người mua VComm, giới thiệu (CONG_VIEC_23); đội kinh doanh nhiều cấp (CONG_VIEC_27); đặt hàng trên VComm, giao vận GHN (CONG_VIEC_24); thanh toán VNPAY, COD, hoàn tiền (CONG_VIEC_25); hoa hồng theo đơn, ví hoa hồng, rút tiền, thuế thu nhập cá nhân cộng dồn theo tháng, phí rút tiền (CONG_VIEC_26, THAY_DOI_17, THAY_DOI_19).
+  - Sửa các công việc đã nghiệm thu theo mô hình B2C (CONG_VIEC_43, THAY_DOI_18): bỏ hoa hồng đội kinh doanh cũ (CONG_VIEC_17), tắt gán khách (CONG_VIEC_21), chặn đơn bán tay có hàng hóa theo cài đặt công ty, chứng từ dịch vụ không ghi thẻ kho, giao dịch nội bộ chỉ cho dịch vụ.
+  - Ứng dụng: 6 mini app web mới (`web-catalog`, `web-inventory`, `web-purchasing`, `web-sales`, `web-finance`, `web-crm`), ứng dụng VComm (`mobile-vcomm`, Expo SDK 58).
+- Lỗi đã sửa: LOI_03 (phiếu kho đồng thời tranh hàng khả dụng trả `400` thống nhất), LOI_04 (danh sách chỉ nhận phản hồi của lần tải mới nhất, CONG_VIEC_10), LOI_05 (giới hạn thời gian bước chuẩn bị kiểm thử, CONG_VIEC_11).
+- Thay đổi dữ liệu: database migration `0003_catalog.sql` đến `0031_marketplace_shipping_fee_document.sql`, `0044` đến `0048` (hoa hồng, ví, rút tiền), `0061` đến `0063` (CONG_VIEC_43). Số `0032` đến `0043`, `0049` đến `0060` dành cho khung cổng thanh toán và các cổng chưa phát hành; trình chạy database migration chạy mọi tệp chưa có trong `public.schema_migrations` theo thứ tự tên nên các tệp số nhỏ hơn phát hành sau vẫn được chạy.
+- Thay đổi API: thêm API theo tài liệu `17` của các module trên; API của 0.2.0 giữ nguyên.
+- Thư viện mới: Next.js 16.4.5, next-intl 4.14.9, React 19.3.1 cho các mini app mới; Expo SDK 58, React Native 0.88.1, expo-router, expo-secure-store, expo-image-picker, react-native-web cho ứng dụng VComm.
+- Biến môi trường mới: `APP_WEB_ORIGINS`; `GHN_API_TOKEN`, `GHN_SHOP_ID`, `GHN_WEBHOOK_KEY`, `GHN_BASE_URL`; `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, `VNPAY_PAYMENT_URL`, `VNPAY_RETURN_URL`.
+- Không gồm trong phiên bản: khung nhiều cổng thanh toán và các cổng CONG_VIEC_32 đến 42 (phải thử với tài khoản thử nghiệm của nhà cung cấp trước khi phát hành); đơn vị vận chuyển VNPost, Viettel Post, J&T, GHTK (CONG_VIEC_28 đến 31, đang làm). Mã của ứng dụng nhân viên kinh doanh (CONG_VIEC_22, tạm dừng theo THAY_DOI_14) có trong mã nguồn vì công việc sau xây trên nó.
+- Rủi ro:
+  - GHN, VNPAY, hóa đơn điện tử, ngân hàng chỉ thử trên bản giả lập; phải nhập khóa và thử trên môi trường thử nghiệm trước môi trường thật.
+  - Số lượng database migration lớn (32 tệp); phải sao lưu trước khi chạy.
+  - LOI_01 còn mở; 2 lỗ hổng Trung bình đã biết trong `@expo/cli` (rủi ro đã chấp nhận, tài liệu `22`).
+- Khả năng tương thích: tương thích ngược với 0.2.0; database migration chỉ thêm schema, bảng, cột, không xóa dữ liệu của 0.2.0.
+- Công việc gộp trong phiên bản: CONG_VIEC_04 đến 21, 23 đến 27, 43; LOI_03; CONG_VIEC_10 (LOI_04), CONG_VIEC_11 (LOI_05).
+- Kiểm thử trên nhánh phát hành: xem tài liệu `25`.
+- Tag: `v0.3.0` trên commit hợp nhất nhánh `phat-hanh/v0.3.0` vào `main` (gắn tự động khi CI trên `main` đạt).
+- Phương án quay lui riêng của phiên bản:
+  - Mã nguồn: triển khai lại tag `v0.2.0`.
+  - Database migration: bản 0.2.0 không đọc schema, bảng mới nên giữ nguyên khi quay lui mã. Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.3.0 (không xóa tay từng bảng vì các module có khóa ngoại chéo).
+  - Dữ liệu cần sao lưu thêm: thư mục hoặc bucket lưu ảnh sản phẩm, tệp đính kèm, tệp hóa đơn điện tử.
+
 ## Phiên bản 0.2.0 – 2026-11-09 – Đã phát hành
 
 - Chức năng mới (CONG_VIEC_03, hoàn thiện MODULE_01):

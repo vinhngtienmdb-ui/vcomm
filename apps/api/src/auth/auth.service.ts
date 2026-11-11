@@ -13,6 +13,7 @@ import { loginAttempts, sessions, userIdentities, users } from "../database/sche
 import { accessTokenLifetimeSeconds, hashToken, newRandomToken, refreshTokenLifetimeDays, signAccessToken } from "./tokens";
 
 // QUYTAC_NGHIEPVU_07: sai 5 lần liên tiếp thì khóa 15 phút.
+export type SessionClientType = keyof typeof refreshTokenLifetimeDays;
 export const maximumConsecutiveFailures = 5;
 export const lockMinutes = 15;
 
@@ -42,7 +43,7 @@ export class AuthService {
     private readonly mfa: MfaService,
   ) {}
 
-  async login(request: LoginRequest, client: ClientInfo): Promise<{ response: LoginResponse; session: IssuedSession }> {
+  async login(request: LoginRequest, client: ClientInfo, clientType: SessionClientType = "web"): Promise<{ response: LoginResponse; session: IssuedSession }> {
     const now = client.now ?? new Date();
     const typed = request.identifier.trim().toLowerCase();
     // Số điện thoại nhập dạng 0912… được đổi sang dạng lưu +84912… (tài liệu 16).
@@ -70,11 +71,17 @@ export class AuthService {
       throw new ApiError("UNAUTHENTICATED", "invalidCredentials");
     }
 
-    return this.completeLogin(match.user, "password", identifier, client);
+    return this.completeLogin(match.user, "password", identifier, client, clientType);
   }
 
   // Bước chung sau khi đã xác minh danh tính bằng mật khẩu, mã OTP hoặc nhà cung cấp (luồng 2 tài liệu 09).
-  async completeLogin(user: typeof users.$inferSelect, provider: IdentityProvider, identifier: string, client: ClientInfo): Promise<{ response: LoginResponse; session: IssuedSession }> {
+  async completeLogin(
+    user: typeof users.$inferSelect,
+    provider: IdentityProvider,
+    identifier: string,
+    client: ClientInfo,
+    clientType: SessionClientType = "web",
+  ): Promise<{ response: LoginResponse; session: IssuedSession }> {
     const now = client.now ?? new Date();
     const mfaEnrolled = await this.mfa.isEnrolled(user.id);
     const needsMfa = user.mfaRequired || mfaEnrolled;
@@ -85,9 +92,19 @@ export class AuthService {
         .set({ lastUsedAt: now })
         .where(and(eq(userIdentities.userId, user.id), eq(userIdentities.provider, provider)));
       // Bắt buộc xác thực hai lớp hoặc đã tự bật thì phiên chờ nhập mã (QUYTAC_NGHIEPVU_09).
-      const issued = await this.issueSession(transaction, user.id, randomUUID(), client, now, !needsMfa);
+      const issued = await this.issueSession(transaction, user.id, randomUUID(), client, now, !needsMfa, clientType);
       await this.audit.record(
-        { actorUserId: user.id, appCode: "platform", action: "login", entityType: "core.users", entityId: user.id, afterData: { provider }, ip: client.ip, userAgent: client.userAgent, requestId: client.requestId },
+        {
+          actorUserId: user.id,
+          appCode: "platform",
+          action: "login",
+          entityType: "core.users",
+          entityId: user.id,
+          afterData: { provider },
+          ip: client.ip,
+          userAgent: client.userAgent,
+          requestId: client.requestId,
+        },
         transaction,
       );
       return issued;
@@ -100,29 +117,64 @@ export class AuthService {
   }
 
   // Đổi token làm mới mỗi lần dùng; dùng lại token cũ thì thu hồi cả chuỗi phiên (tài liệu 22 mục 3).
-  async refresh(refreshToken: string, client: ClientInfo): Promise<IssuedSession> {
+  // appOnly: ứng dụng di động gửi token làm mới trong thân yêu cầu, chỉ làm mới được phiên của ứng dụng (CONG_VIEC_22, 23).
+  async refresh(refreshToken: string, client: ClientInfo, appOnly = false): Promise<IssuedSession> {
     const now = client.now ?? new Date();
-    const found = await this.database.select().from(sessions).where(eq(sessions.refreshTokenHash, hashToken(refreshToken))).limit(1);
+    const found = await this.database
+      .select()
+      .from(sessions)
+      .where(eq(sessions.refreshTokenHash, hashToken(refreshToken)))
+      .limit(1);
     const current = found[0];
     if (!current) throw new ApiError("UNAUTHENTICATED", "unauthenticated");
-    if (current.revokedAt) {
-      await this.database.update(sessions).set({ revokedAt: now }).where(and(eq(sessions.familyId, current.familyId), isNull(sessions.revokedAt)));
-      throw new ApiError("UNAUTHENTICATED", "unauthenticated");
-    }
+    if (appOnly && current.clientType === "web") throw new ApiError("UNAUTHENTICATED", "unauthenticated");
+    if (current.revokedAt) await this.revokeFamily(current.familyId, now);
     if (current.expiresAt <= now) throw new ApiError("UNAUTHENTICATED", "unauthenticated");
+    // Phiên chưa nhập mã xác thực hai lớp không được làm mới: số lần nhập sai đếm theo phiên,
+    // làm mới để có phiên mới sẽ đếm lại từ đầu (rà soát CONG_VIEC_23). Hết 15 phút thì đăng nhập lại.
+    if (!current.mfaVerified) throw new ApiError("UNAUTHENTICATED", "unauthenticated");
     const active = await this.database.select({ status: users.status }).from(users).where(eq(users.id, current.userId));
     if (active[0]?.status !== "active") throw new ApiError("UNAUTHENTICATED", "unauthenticated");
 
-    return this.database.transaction(async (transaction) => {
-      await transaction.update(sessions).set({ revokedAt: now }).where(eq(sessions.id, current.id));
-      return this.issueSession(transaction, current.userId, current.familyId, client, now, current.mfaVerified);
+    // Hai yêu cầu làm mới cùng một token cùng lúc: chỉ yêu cầu thu hồi được dòng phiên mới được cấp phiên mới,
+    // yêu cầu còn lại bị coi là dùng lại token và thu hồi cả chuỗi (rà soát CONG_VIEC_22).
+    const issued = await this.database.transaction(async (transaction) => {
+      const revoked = await transaction
+        .update(sessions)
+        .set({ revokedAt: now })
+        .where(and(eq(sessions.id, current.id), isNull(sessions.revokedAt)))
+        .returning({ id: sessions.id });
+      if (revoked.length === 0) return null;
+      return this.issueSession(transaction, current.userId, current.familyId, client, now, current.mfaVerified, current.clientType as SessionClientType);
     });
+    if (!issued) await this.revokeFamily(current.familyId, now);
+    return issued!;
+  }
+
+  private async revokeFamily(familyId: string, now: Date): Promise<never> {
+    await this.database
+      .update(sessions)
+      .set({ revokedAt: now })
+      .where(and(eq(sessions.familyId, familyId), isNull(sessions.revokedAt)));
+    throw new ApiError("UNAUTHENTICATED", "unauthenticated");
   }
 
   async logout(sessionId: string, userId: string, client: ClientInfo): Promise<void> {
     const now = client.now ?? new Date();
-    await this.database.update(sessions).set({ revokedAt: now }).where(and(eq(sessions.id, sessionId), isNull(sessions.revokedAt)));
-    await this.audit.record({ actorUserId: userId, appCode: "platform", action: "logout", entityType: "core.sessions", entityId: sessionId, ip: client.ip, userAgent: client.userAgent, requestId: client.requestId });
+    await this.database
+      .update(sessions)
+      .set({ revokedAt: now })
+      .where(and(eq(sessions.id, sessionId), isNull(sessions.revokedAt)));
+    await this.audit.record({
+      actorUserId: userId,
+      appCode: "platform",
+      action: "logout",
+      entityType: "core.sessions",
+      entityId: sessionId,
+      ip: client.ip,
+      userAgent: client.userAgent,
+      requestId: client.requestId,
+    });
   }
 
   private async issueSession(
@@ -132,16 +184,18 @@ export class AuthService {
     client: ClientInfo,
     now: Date,
     mfaVerified = false,
+    clientType: SessionClientType = "web",
   ): Promise<IssuedSession> {
     const refreshToken = newRandomToken();
-    const refreshExpiresAt = new Date(now.getTime() + refreshTokenLifetimeDays.web * 86_400_000);
+    // Token làm mới 30 ngày trên web, 90 ngày trên các ứng dụng di động (tài liệu 22 mục 3).
+    const refreshExpiresAt = new Date(now.getTime() + refreshTokenLifetimeDays[clientType] * 86_400_000);
     const inserted = await executor
       .insert(sessions)
       .values({
         userId,
         refreshTokenHash: hashToken(refreshToken),
         familyId,
-        clientType: "web",
+        clientType,
         ip: client.ip,
         userAgent: client.userAgent,
         mfaVerified,
@@ -153,7 +207,15 @@ export class AuthService {
     return { accessToken, refreshToken, accessExpiresAt, refreshExpiresAt };
   }
 
-  async recordAttempt(identifier: string, userId: string | null, success: boolean, failureReason: string | null, client: ClientInfo, now: Date, provider: IdentityProvider = "password"): Promise<void> {
+  async recordAttempt(
+    identifier: string,
+    userId: string | null,
+    success: boolean,
+    failureReason: string | null,
+    client: ClientInfo,
+    now: Date,
+    provider: IdentityProvider = "password",
+  ): Promise<void> {
     await this.database.insert(loginAttempts).values({
       attemptedAt: now,
       provider,
@@ -193,7 +255,10 @@ export class AuthService {
       .from(loginAttempts)
       .where(and(eq(loginAttempts.userId, userId), eq(loginAttempts.success, false), eq(loginAttempts.provider, "password"), gt(loginAttempts.attemptedAt, since)));
     if ((failures[0]?.total ?? 0) >= maximumConsecutiveFailures) {
-      await this.database.update(users).set({ loginLockedUntil: new Date(now.getTime() + lockMinutes * 60_000) }).where(eq(users.id, userId));
+      await this.database
+        .update(users)
+        .set({ loginLockedUntil: new Date(now.getTime() + lockMinutes * 60_000) })
+        .where(eq(users.id, userId));
     }
   }
 }

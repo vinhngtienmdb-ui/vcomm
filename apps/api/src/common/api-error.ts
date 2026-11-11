@@ -6,7 +6,7 @@ import { messages, resolveLocale, type Messages } from "i18n";
 import { randomUUID } from "node:crypto";
 import { ZodError } from "zod";
 
-type ErrorMessageKey = keyof Messages["errors"];
+export type ErrorMessageKey = keyof Messages["errors"];
 
 const statusByCode: Record<ErrorCode, number> = {
   VALIDATION_FAILED: 400,

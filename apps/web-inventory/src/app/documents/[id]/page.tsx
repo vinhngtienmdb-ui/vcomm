@@ -252,6 +252,8 @@ function DocumentForm({ type, document, onChanged }: { type: StockDocumentType; 
     <>
       <div className="tieu-de">
         <h1>{document?.documentNo ?? t(`new_${type}`)}</h1>
+        {/* Phiếu dịch vụ hệ thống tự lập, không ghi thẻ kho (QUYTAC_NGHIEPVU_275). */}
+        {document?.isService && <span className="nhan trung-tinh">{t("serviceDocument")}</span>}
         <Link className="nut phu" href="/documents">
           {t("backToList")}
         </Link>
@@ -544,6 +546,26 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
   const [withdrawing, setWithdrawing] = useState(false);
   const [busy, setBusy] = useState(false);
   const money = (value: string | null) => (value === null ? "—" : formatMoney(value, "VND"));
+  // Phiếu nháp nhập mua, trả hàng: chỉ gửi hoặc xóa (lập lại từ đơn mua, phiếu nhập gốc).
+  const purchaseDraft = ["purchase_receipt", "purchase_return", "sales_issue", "sales_return"].includes(document.type) && document.status === "draft";
+
+  async function act(action: "submit" | "delete") {
+    setBusy(true);
+    try {
+      if (action === "delete") {
+        await apiFetch(`/inventory/documents/${document.id}`, { method: "DELETE" });
+        window.location.assign("/inventory/documents");
+        return;
+      }
+      await apiFetch(`/inventory/documents/${document.id}/submit`, { method: "POST" });
+      notify(t("purchaseSubmitted"));
+      onChanged();
+    } catch (error) {
+      notify(failureOf(error).message, "loi");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function ship() {
     setBusy(true);
@@ -611,6 +633,21 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
             {t("withdraw")}
           </button>
         )}
+        {purchaseDraft && (
+          <>
+            <button type="button" className="nut phu" disabled={busy} onClick={() => void act("delete")}>
+              {t("deleteDraft")}
+            </button>
+            <button type="button" className="nut chinh" disabled={busy} onClick={() => void act("submit")}>
+              {t("submitPurchase")}
+            </button>
+          </>
+        )}
+        {document.canReturn && (
+          <Link className="nut phu" href={document.type === "sales_issue" ? `/sales-returns/new?issueId=${document.id}` : `/purchase-returns/new?receiptId=${document.id}`}>
+            {document.type === "sales_issue" ? t("receiveReturn") : t("returnToSupplier")}
+          </Link>
+        )}
       </div>
       <section className="the">
         <dl className="thong-tin-dong">
@@ -621,6 +658,35 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
           </dd>
           <dt>{t("owner")}</dt>
           <dd>{document.companyName}</dd>
+          {document.partnerName && (
+            <>
+              <dt>{t(document.type.startsWith("sales") ? "customer" : "supplier")}</dt>
+              <dd>{document.partnerName}</dd>
+            </>
+          )}
+          {document.internalReceipt && (
+            <>
+              <dt>{t("internalIssue")}</dt>
+              <dd>
+                {document.internalReceipt.sellerCompanyName}: {document.internalReceipt.issueDocumentNo}
+              </dd>
+            </>
+          )}
+          {document.sourceNo && (
+            <>
+              <dt>
+                {t(document.type === "purchase_receipt" ? "sourceOrder" : document.type === "sales_issue" ? "sourceSalesOrder" : document.type === "sales_return" ? "sourceIssue" : "sourceReceipt")}
+              </dt>
+              <dd>
+                {document.type === "purchase_receipt" || document.type === "sales_issue" ? (
+                  // Thẻ a thường: đơn mua, đơn bán nằm ở mini app Mua hàng, Bán hàng.
+                  <a href={`/${document.type === "sales_issue" ? "sales" : "purchasing"}/orders/${document.sourceId}`}>{document.sourceNo}</a>
+                ) : (
+                  <Link href={`/documents/${document.sourceId}`}>{document.sourceNo}</Link>
+                )}
+              </dd>
+            </>
+          )}
           <dt>{t("date")}</dt>
           <dd>{formatDate(document.documentDate)}</dd>
           <dt>{t("reason")}</dt>
@@ -680,7 +746,15 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
                   <span>{line.locationCode ?? "—"}</span>
                 </td>
                 <td data-nhan={headings[4]}>
-                  <span>{line.serials.join(", ") || "—"}</span>
+                  <span>
+                    {line.serials.join(", ") || "—"}
+                    {line.rejectedBaseQuantity !== null && Number(line.rejectedBaseQuantity) > 0 && (
+                      <span className="nhan loi">
+                        {" "}
+                        {t("rejected", { count: formatNumber(line.rejectedBaseQuantity), unit: line.baseUnitName })}: {line.rejectionReason}
+                      </span>
+                    )}
+                  </span>
                 </td>
                 <td data-nhan={headings[5]}>
                   <span>{money(line.costValue)}</span>
@@ -691,6 +765,8 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
         </table>
       </div>
       {document.canReceive && <ReceiveForm document={document} onReceived={onChanged} />}
+      {document.canQualityCheck && <QualityCheckForm document={document} onChecked={onChanged} />}
+      {document.canReceiveInternal && <InternalReceiveForm document={document} onReceived={onChanged} />}
       {document.discrepancies.length > 0 && (
         <section className="the" style={{ marginTop: "var(--khoang-4)" }}>
           <h2>{t("discrepancies")}</h2>
@@ -813,6 +889,208 @@ function ReceiveForm({ document, onReceived }: { document: StockDocumentResponse
       <FormError text={formError} />
       <button type="button" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting} style={{ justifySelf: "start" }} onClick={submit}>
         {t("receive")}
+      </button>
+    </section>
+  );
+}
+
+// Kết quả kiểm tra chất lượng phiếu nhập mua (QUYTAC_NGHIEPVU_65): số không đạt theo đơn vị của dòng, serial không đạt, lý do; phần đạt ghi sổ kho.
+function QualityCheckForm({ document, onChecked }: { document: StockDocumentResponse; onChecked: () => void }) {
+  const t = useTranslations("documents");
+  const { notify } = useAdmin();
+  const [results, setResults] = useState<Record<string, { rejectedQuantity: string; rejectedSerials: string[]; rejectionReason: string }>>({});
+  const { submitting, fields, formError, run, inputClass } = useSubmit();
+  const result = (lineId: string) => results[lineId] ?? { rejectedQuantity: "0", rejectedSerials: [], rejectionReason: "" };
+  const change = (lineId: string, value: Partial<ReturnType<typeof result>>) => setResults({ ...results, [lineId]: { ...result(lineId), ...value } });
+
+  function submit() {
+    void run(async () => {
+      await apiFetch(`/inventory/documents/${document.id}/quality-check`, {
+        method: "POST",
+        body: JSON.stringify({
+          lines: document.lines.map((line) => ({ lineId: line.id, ...result(line.id), rejectedQuantity: line.tracksSerials ? "0" : result(line.id).rejectedQuantity || "0" })),
+          version: document.version,
+        }),
+      });
+      notify(t("qualityChecked"));
+      onChecked();
+    });
+  }
+
+  return (
+    <section className="the" style={{ marginTop: "var(--khoang-4)" }}>
+      <h2 style={{ margin: 0 }}>{t("qualityCheck")}</h2>
+      <div className="chu-thich">{t("qualityCheckHint")}</div>
+      {document.lines.map((line, index) => (
+        <fieldset key={line.id} className="the" style={{ margin: 0 }}>
+          <legend className="an-nhan">{line.sku}</legend>
+          <strong>
+            {line.sku} · {line.productName} · {formatNumber(line.quantity)} {line.unitName}
+          </strong>
+          {line.tracksSerials ? (
+            <Field id={`serial-loi-${index}`} label={t("rejectedSerials")} error={fields[`lines.${index}.rejectedSerials`]}>
+              <span className="nhom-nut">
+                {line.serials.map((serial) => (
+                  <label key={serial}>
+                    <input
+                      type="checkbox"
+                      checked={result(line.id).rejectedSerials.includes(serial)}
+                      onChange={(event) =>
+                        change(line.id, {
+                          rejectedSerials: event.target.checked ? [...result(line.id).rejectedSerials, serial] : result(line.id).rejectedSerials.filter((item) => item !== serial),
+                        })
+                      }
+                    />{" "}
+                    {serial}
+                  </label>
+                ))}
+              </span>
+            </Field>
+          ) : (
+            <Field id={`so-loi-${index}`} label={t("rejectedQuantity", { unit: line.unitName })} error={fields[`lines.${index}.rejectedQuantity`]}>
+              <input
+                id={`so-loi-${index}`}
+                className={inputClass(`lines.${index}.rejectedQuantity`)}
+                inputMode="decimal"
+                value={result(line.id).rejectedQuantity}
+                onChange={(event) => change(line.id, { rejectedQuantity: event.target.value })}
+              />
+            </Field>
+          )}
+          <Field id={`ly-do-loi-${index}`} label={t("rejectionReason")} error={fields[`lines.${index}.rejectionReason`]}>
+            <input
+              id={`ly-do-loi-${index}`}
+              className={inputClass(`lines.${index}.rejectionReason`)}
+              value={result(line.id).rejectionReason}
+              onChange={(event) => change(line.id, { rejectionReason: event.target.value })}
+            />
+          </Field>
+        </fieldset>
+      ))}
+      <FormError text={formError} />
+      <button type="button" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting} style={{ justifySelf: "start" }} onClick={submit}>
+        {t("confirmQualityCheck")}
+      </button>
+    </section>
+  );
+}
+
+// CONG_VIEC_09 (MAN_HINH_32 sửa): nhận hàng nội bộ theo số thực nhận (đơn vị cơ sở), chọn serial đã xuất, vị trí; nhận thiếu ghi lý do (API_82).
+function InternalReceiveForm({ document, onReceived }: { document: StockDocumentResponse; onReceived: () => void }) {
+  const t = useTranslations("documents");
+  const { notify } = useAdmin();
+  const warehouse = useApi<WarehouseResponse>(`/inventory/warehouses/${document.warehouseId}`);
+  const usesLocations = warehouse.state.kind === "ready" && warehouse.state.data.usesLocations;
+  const locations = useApi<LocationResponse[]>(usesLocations ? `/inventory/warehouses/${document.warehouseId}/locations` : null);
+  const shipped = new Map((document.internalReceipt?.lines ?? []).map((line) => [line.lineId, line]));
+  const [entries, setEntries] = useState(() =>
+    document.lines.map((line) => ({ lineId: line.id, receivedQuantity: line.baseQuantity, locationId: "", serials: shipped.get(line.id)?.shippedSerials ?? [] })),
+  );
+  const [shortageReason, setShortageReason] = useState("");
+  const { submitting, fields, formError, run, inputClass } = useSubmit();
+  const change = (index: number, value: Partial<(typeof entries)[number]>) => setEntries(entries.map((entry, position) => (position === index ? { ...entry, ...value } : entry)));
+  const short = entries.some((entry) => Number(entry.receivedQuantity || 0) < Number(shipped.get(entry.lineId)?.shippedBaseQuantity ?? 0));
+
+  function submit() {
+    void run(async () => {
+      await apiFetch(`/inventory/internal-receipts/${document.id}/receive`, {
+        method: "POST",
+        body: JSON.stringify({
+          lines: entries.map((entry) => ({ ...entry, receivedQuantity: entry.receivedQuantity || "0", locationId: entry.locationId || null })),
+          shortageReason,
+          version: document.version,
+        }),
+      });
+      notify(t("internalReceived"));
+      onReceived();
+    });
+  }
+
+  return (
+    <section className="the" style={{ marginTop: "var(--khoang-4)" }}>
+      <h2 style={{ margin: 0 }}>{t("receiveInternal")}</h2>
+      <div className="chu-thich">{t("receiveInternalHint")}</div>
+      {document.lines.map((line, index) => {
+        const entry = entries[index]!;
+        const sent = shipped.get(line.id);
+        return (
+          <fieldset key={line.id} className="the" style={{ margin: 0 }}>
+            <legend className="an-nhan">{line.sku}</legend>
+            <strong>
+              {line.sku} · {line.productName}
+            </strong>
+            <span className="chu-thich">{t("internalShipped", { count: formatNumber(sent?.shippedBaseQuantity ?? line.baseQuantity), unit: line.baseUnitName })}</span>
+            {line.tracksSerials && (sent?.shippedSerials.length ?? 0) > 0 ? (
+              <Field id={`serial-nhan-${index}`} label={t("serials")} error={fields[`lines.${index}.serials`] ?? fields[`lines.${index}.receivedQuantity`]}>
+                <span className="nhom-nut">
+                  {sent!.shippedSerials.map((serial) => (
+                    <label key={serial}>
+                      <input
+                        type="checkbox"
+                        checked={entry.serials.includes(serial)}
+                        onChange={(event) => {
+                          const serials = event.target.checked ? [...entry.serials, serial] : entry.serials.filter((item) => item !== serial);
+                          change(index, { serials, receivedQuantity: String(serials.length) });
+                        }}
+                      />{" "}
+                      {serial}
+                    </label>
+                  ))}
+                </span>
+              </Field>
+            ) : (
+              <Field id={`so-nhan-${index}`} label={t("internalReceivedQuantity", { unit: line.baseUnitName })} error={fields[`lines.${index}.receivedQuantity`]}>
+                <input
+                  id={`so-nhan-${index}`}
+                  className={inputClass(`lines.${index}.receivedQuantity`)}
+                  inputMode="decimal"
+                  value={entry.receivedQuantity}
+                  onChange={(event) => change(index, { receivedQuantity: event.target.value })}
+                />
+              </Field>
+            )}
+            {usesLocations && (
+              <Field id={`vi-tri-nhan-${index}`} label={t("location")} error={fields[`lines.${index}.locationId`]}>
+                <select
+                  id={`vi-tri-nhan-${index}`}
+                  className={inputClass(`lines.${index}.locationId`)}
+                  value={entry.locationId}
+                  onChange={(event) => change(index, { locationId: event.target.value })}
+                >
+                  <option value="">—</option>
+                  {(locations.state.kind === "ready" ? locations.state.data : [])
+                    .filter((location) => location.status === "active")
+                    .map((location) => (
+                      <option key={location.id} value={location.id}>
+                        {location.code}
+                      </option>
+                    ))}
+                </select>
+              </Field>
+            )}
+          </fieldset>
+        );
+      })}
+      {short && (
+        <Field id="ly-do-thieu" label={`${t("shortageReason")} *`} error={fields.shortageReason}>
+          <input id="ly-do-thieu" className={inputClass("shortageReason")} value={shortageReason} onChange={(event) => setShortageReason(event.target.value)} />
+        </Field>
+      )}
+      <FormError text={formError} />
+      {/* Lỗi lô, hạn dùng… không có ô trên form này: hiện kèm số dòng. */}
+      <FormError
+        text={
+          Object.entries(fields)
+            .filter(([key]) => key !== "shortageReason" && !/^lines\.\d+\.(receivedQuantity|serials|locationId)$/.test(key))
+            .map(([key, text]) => {
+              const line = /^lines\.(\d+)\./.exec(key);
+              return line ? `${document.lines[Number(line[1])]?.sku ?? ""}: ${text}` : text;
+            })
+            .join(" ") || null
+        }
+      />
+      <button type="button" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting} style={{ justifySelf: "start" }} onClick={submit}>
+        {t("confirmReceiveInternal")}
       </button>
     </section>
   );

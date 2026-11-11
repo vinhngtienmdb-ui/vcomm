@@ -1,0 +1,145 @@
+// MAN_HINH_97 Yêu cầu trả hàng (CHUC_NANG_118; API_129; QUYTAC_NGHIEPVU_161): chọn dòng, số lượng, lý do, mô tả, ảnh.
+import { returnReasons, type BuyerOrderDetail, type ReturnReason } from "contracts";
+import * as ImagePicker from "expo-image-picker";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useRef, useState } from "react";
+import { Platform, ScrollView, Text, View } from "react-native";
+import { Button, Card, Choice, Field, Loading, Muted, Notice, QuantityStepper, Screen, Title } from "@/components/ui";
+import { api, ApiFailure } from "@/lib/api";
+import { translator } from "@/lib/i18n";
+import { colors, space } from "@/lib/theme";
+
+const t = translator("vcommApp");
+const counted = ["pending", "approved", "received"];
+
+export default function ReturnRequestScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [order, setOrder] = useState<BuyerOrderDetail | null>(null);
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [reason, setReason] = useState<ReturnReason | null>(null);
+  const [description, setDescription] = useState("");
+  const [images, setImages] = useState<{ id: string; name: string }[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [fields, setFields] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const submitted = useRef<string[]>([]);
+
+  useEffect(() => {
+    api<BuyerOrderDetail>(`/buyer/orders/${encodeURIComponent(String(id))}`)
+      .then(setOrder)
+      .catch((failure: unknown) => setError(failure instanceof ApiFailure ? failure.message : t("unknownError")));
+  }, [id]);
+
+  // Số còn được yêu cầu của mỗi dòng: đã giao trừ phần ở các yêu cầu chưa bị từ chối, chưa rút.
+  const remaining = (orderLineId: string, quantity: string) =>
+    Number(quantity) -
+    (order?.returnRequests ?? [])
+      .filter((request) => counted.includes(request.status))
+      .flatMap((request) => request.lines)
+      .filter((line) => line.orderLineId === orderLineId)
+      .reduce((sum, line) => sum + Number(line.quantity), 0);
+
+  // Chọn ảnh từ thư viện ảnh (điện thoại, bản web); JPEG hoặc PNG, máy chủ kiểm lại theo nội dung tệp.
+  async function pickImage() {
+    setError(null);
+    const permission = Platform.OS === "web" ? { granted: true } : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) return setError(t("returnPhotoPermission"));
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7, allowsMultipleSelection: false });
+    const asset = result.canceled ? null : result.assets[0];
+    if (!asset) return;
+    try {
+      const form = new FormData();
+      const name = asset.fileName ?? `anh-${Date.now()}.jpg`;
+      if (asset.file) form.append("file", asset.file);
+      else form.append("file", { uri: asset.uri, name, type: asset.mimeType ?? "image/jpeg" } as unknown as Blob);
+      const uploaded = await api<{ id: string }>("/buyer/return-requests/images", { method: "POST", body: form });
+      setImages((current) => [...current, { id: uploaded.id, name }]);
+    } catch (failure) {
+      setError(failure instanceof ApiFailure ? (Object.values(failure.fields)[0] ?? failure.message) : t("unknownError"));
+    }
+  }
+
+  async function submit() {
+    if (!order || !reason) return;
+    setBusy(true);
+    setError(null);
+    setFields({});
+    try {
+      const lines = Object.entries(quantities)
+        .filter(([, quantity]) => quantity > 0)
+        .map(([orderLineId, quantity]) => ({ orderLineId, quantity }));
+      submitted.current = lines.map((line) => line.orderLineId);
+      await api(`/buyer/orders/${order.id}/return-requests`, { method: "POST", json: { reason, description, lines, imageIds: images.map((image) => image.id) } });
+      router.replace(`/don-hang/${order.id}`);
+    } catch (failure) {
+      // Lỗi theo vị trí dòng đã gửi: đổi sang mã dòng đơn để hiện đúng sản phẩm.
+      if (failure instanceof ApiFailure && Object.keys(failure.fields).length > 0)
+        setFields(
+          Object.fromEntries(
+            Object.entries(failure.fields).map(([key, value]) => {
+              const match = /^lines\.(\d+)\./.exec(key);
+              return [match ? `line:${submitted.current[Number(match[1])] ?? ""}` : key, value];
+            }),
+          ),
+        );
+      setError(failure instanceof ApiFailure ? failure.message : t("unknownError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const chosen = Object.values(quantities).some((quantity) => quantity > 0);
+  return (
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+      <Screen>
+        <Text accessibilityRole="link" onPress={() => router.back()} style={{ color: colors.primary, fontWeight: "600", paddingVertical: space[2] }}>
+          {t("back")}
+        </Text>
+        <Title>{t("returnTitle")}</Title>
+        {error ? <Notice text={error} /> : null}
+        {!order && !error ? <Loading /> : null}
+        {order ? (
+          <>
+            <Muted>{t("returnHint", { number: order.documentNo })}</Muted>
+            <Card>
+              <Text style={{ fontWeight: "700", color: colors.text }}>{t("returnChooseLines")}</Text>
+              {order.lines
+                .filter((line) => line.orderLineId && !line.isGift)
+                .map((line) => {
+                  const maximum = Math.floor(remaining(line.orderLineId!, line.quantity));
+                  return (
+                    <View key={line.orderLineId} style={{ gap: space[1] }}>
+                      <Text style={{ color: colors.text, fontWeight: "600" }}>{line.productName}</Text>
+                      <Muted>{t("returnRemaining", { count: maximum })}</Muted>
+                      {maximum > 0 ? (
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
+                          <Button label={t("returnNone")} kind="secondary" disabled={!quantities[line.orderLineId!]} onPress={() => setQuantities({ ...quantities, [line.orderLineId!]: 0 })} />
+                          <QuantityStepper
+                            label={t("quantity")}
+                            value={quantities[line.orderLineId!] ?? 0}
+                            maximum={maximum}
+                            onChange={(value) => setQuantities({ ...quantities, [line.orderLineId!]: Math.max(value, 1) })}
+                          />
+                        </View>
+                      ) : null}
+                      {fields[`line:${line.orderLineId}`] ? <Text style={{ color: colors.error }}>{fields[`line:${line.orderLineId}`]}</Text> : null}
+                    </View>
+                  );
+                })}
+            </Card>
+            <Card>
+              <Choice label={t("returnReason")} value={reason} options={returnReasons.map((value) => ({ value, label: t(`returnReason_${value}`) }))} onChange={setReason} />
+              <Field label={t("returnDescription")} value={description} onChangeText={setDescription} maxLength={500} multiline error={fields.description} />
+              <Text style={{ fontWeight: "600", color: colors.text }}>{t("returnImages", { count: images.length })}</Text>
+              {images.map((image) => (
+                <Muted key={image.id}>{image.name}</Muted>
+              ))}
+              {images.length < 5 ? <Button label={t("returnAddImage")} kind="secondary" onPress={() => void pickImage()} /> : null}
+            </Card>
+            <Button label={t("returnSubmit")} busy={busy} disabled={!chosen || !reason || !description.trim()} onPress={() => void submit()} />
+          </>
+        ) : null}
+      </Screen>
+    </ScrollView>
+  );
+}

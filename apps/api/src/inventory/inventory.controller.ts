@@ -1,6 +1,15 @@
 // API_63: kho, vị trí, cài đặt kho (CONG_VIEC_05). Quyền chi tiết kiểm trong service theo chi nhánh sở hữu kho.
 import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from "@nestjs/common";
 import {
+  internalDiscrepancyListQuerySchema,
+  receiveInternalSchema,
+  resolveInternalDiscrepancySchema,
+  type InternalDiscrepancyItem,
+  saveSalesIssueSchema,
+  saveSalesReturnSchema,
+  qualityCheckSchema,
+  savePurchaseReceiptSchema,
+  savePurchaseReturnSchema,
   createLocationsSchema,
   createReservationSchema,
   extendReservationSchema,
@@ -55,6 +64,10 @@ import { LabelsService } from "./labels.service";
 import { ReservationsService } from "./reservations.service";
 import { StockLevelsService } from "./stock-levels.service";
 import { StockService } from "./stock.service";
+import { PurchaseReceiptsService } from "./purchase-receipts.service";
+import { SalesDeliveriesService } from "./sales-deliveries.service";
+import { InternalReceiptsService } from "./internal-receipts.service";
+import { salesTypes, sourcedTypes } from "./stock-documents.service";
 import { StocktakesService } from "./stocktakes.service";
 import { TransfersService } from "./transfers.service";
 import { WarehousesService } from "./warehouses.service";
@@ -73,6 +86,9 @@ export class InventoryController {
     private readonly reservations: ReservationsService,
     private readonly stockLevels: StockLevelsService,
     private readonly labels: LabelsService,
+    private readonly purchases: PurchaseReceiptsService,
+    private readonly deliveries: SalesDeliveriesService,
+    private readonly internalReceipts: InternalReceiptsService,
   ) {}
 
   // Vào mini app Kho: quyền kho ở công ty đang chọn hoặc ở bất kỳ chi nhánh nào của công ty đó.
@@ -207,12 +223,109 @@ export class InventoryController {
   @Delete("documents/:id")
   @HttpCode(204)
   async removeDocument(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<void> {
-    await this.documents.remove(await this.actor(request, companyId), id);
+    const actor = await this.actor(request, companyId);
+    const row = await this.documents.visibleRow(actor, id);
+    // Nháp phiếu nhập mua, trả hàng: người lập có quyền nhập mua xóa được (không cần quyền lập phiếu kho thường).
+    if (salesTypes.includes(row.type)) await this.deliveries.remove(actor, id);
+    else if (sourcedTypes.includes(row.type)) await this.purchases.remove(actor, id);
+    else await this.documents.remove(actor, id);
   }
 
+  // Phiếu nhập mua, trả hàng nhà cung cấp gửi qua luồng riêng (không đi luồng duyệt, CONG_VIEC_07).
   @Post("documents/:id/submit")
   async submitDocument(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
-    return this.documents.submit(await this.actor(request, companyId), id);
+    const actor = await this.actor(request, companyId);
+    const row = await this.documents.visibleRow(actor, id);
+    if (salesTypes.includes(row.type)) return this.deliveries.submit(actor, id);
+    return sourcedTypes.includes(row.type) ? this.purchases.submit(actor, id) : this.documents.submit(actor, id);
+  }
+
+  // API_79: đơn bán đã xác nhận chờ giao; phiếu xuất giao hàng; phiếu nhận hàng trả lại (CONG_VIEC_08).
+  @Get("sales-orders")
+  async openSalesOrders(@Req() request: AuthenticatedRequest, @Query("search") search: string | undefined, @Headers("x-company-id") companyId?: string) {
+    return this.deliveries.openOrders(await this.actor(request, companyId), search?.trim().slice(0, 100) || undefined);
+  }
+
+  @Get("sales-orders/:id")
+  async salesOrderLines(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string) {
+    return this.deliveries.orderLines(await this.actor(request, companyId), id);
+  }
+
+  @Post("sales-issues")
+  async createSalesIssue(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.deliveries.createIssue(await this.actor(request, companyId), saveSalesIssueSchema.parse(body));
+  }
+
+  @Post("sales-returns")
+  async createSalesReturn(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.deliveries.createReturn(await this.actor(request, companyId), saveSalesReturnSchema.parse(body));
+  }
+
+  // API_82 (CONG_VIEC_09): nhận hàng nội bộ; biên bản chênh lệch giao nhận nội bộ.
+  @Post("internal-receipts/:id/receive")
+  async receiveInternal(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.internalReceipts.receive(await this.actor(request, companyId), id, receiveInternalSchema.parse(body));
+  }
+
+  @Get("internal-discrepancies")
+  async internalDiscrepancies(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<InternalDiscrepancyItem[]> {
+    return this.internalReceipts.discrepancies(await this.actor(request, companyId), internalDiscrepancyListQuerySchema.parse(query).status);
+  }
+
+  @Post("internal-discrepancies/:id/resolve")
+  async resolveInternalDiscrepancy(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<InternalDiscrepancyItem[]> {
+    return this.internalReceipts.resolve(await this.actor(request, companyId), id, resolveInternalDiscrepancySchema.parse(body));
+  }
+
+  // API_76: đơn mua đã duyệt nhận vào kho người dùng nhập mua được; dòng còn nhận được.
+  @Get("purchase-orders")
+  async openPurchaseOrders(@Req() request: AuthenticatedRequest, @Query("search") search: string | undefined, @Headers("x-company-id") companyId?: string) {
+    return this.purchases.openOrders(await this.actor(request, companyId), search?.trim().slice(0, 100) || undefined);
+  }
+
+  @Get("purchase-orders/:id")
+  async purchaseOrderLines(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string) {
+    return this.purchases.orderLines(await this.actor(request, companyId), id);
+  }
+
+  @Post("purchase-receipts")
+  async createPurchaseReceipt(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.purchases.createReceipt(await this.actor(request, companyId), savePurchaseReceiptSchema.parse(body));
+  }
+
+  @Patch("purchase-receipts/:id")
+  async updatePurchaseReceipt(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<StockDocumentResponse> {
+    return this.purchases.updateReceipt(await this.actor(request, companyId), id, savePurchaseReceiptSchema.parse(body));
+  }
+
+  @Post("documents/:id/quality-check")
+  async qualityCheck(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.purchases.qualityCheck(await this.actor(request, companyId), id, qualityCheckSchema.parse(body));
+  }
+
+  @Post("purchase-returns")
+  async createPurchaseReturn(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<StockDocumentResponse> {
+    return this.purchases.createReturn(await this.actor(request, companyId), savePurchaseReturnSchema.parse(body));
+  }
+
+  @Patch("purchase-returns/:id")
+  async updatePurchaseReturn(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<StockDocumentResponse> {
+    return this.purchases.updateReturn(await this.actor(request, companyId), id, savePurchaseReturnSchema.parse(body));
   }
 
   @Post("documents/:id/withdraw")

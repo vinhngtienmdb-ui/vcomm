@@ -1,13 +1,33 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 1.4
-- Ngày cập nhật: 2026-11-10
+- Phiên bản: 2.14
+- Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
 - Cập nhật CONG_VIEC_03 (2026-11-09): thêm MAN_HINH_19, MAN_HINH_20, MAN_HINH_21; mở rộng MAN_HINH_01, MAN_HINH_06, MAN_HINH_08 (THAY_DOI_04, THAY_DOI_08)
 - Cập nhật CONG_VIEC_04 (2026-11-09): thêm MODULE_02 phần Sản phẩm, MAN_HINH_22 đến MAN_HINH_27 (mục 5 đến mục 7)
 - Cập nhật CONG_VIEC_05 (2026-11-10): thêm MODULE_03 Kho phần web, MAN_HINH_28 đến MAN_HINH_35 (mục 8 đến mục 10)
+- Cập nhật CONG_VIEC_06 (2026-11-10): thêm MODULE_07 Khách hàng và Đối tác phần tối thiểu, MAN_HINH_36, MAN_HINH_37 (mục 11 đến mục 13)
+- Cập nhật CONG_VIEC_07 (2026-11-10): thêm MODULE_04 Mua hàng phần 1, MAN_HINH_38 đến MAN_HINH_41 (mục 14 đến mục 16); sửa MAN_HINH_22, MAN_HINH_31, MAN_HINH_32
+- Cập nhật CONG_VIEC_08 (2026-11-10): thêm MODULE_05 Bán hàng phần 1, MAN_HINH_42, MAN_HINH_43 (mục 17 đến mục 19); sửa MAN_HINH_31, MAN_HINH_32
+- Cập nhật CONG_VIEC_09 (2026-11-10): thêm MODULE_05 phần 2 Giao dịch nội bộ, MAN_HINH_44 (mục 20 đến mục 22); sửa MAN_HINH_31, MAN_HINH_32, MAN_HINH_40, MAN_HINH_41, MAN_HINH_43
+- Cập nhật CONG_VIEC_12 (2026-11-10): thêm MODULE_05 phần 3 Khuyến mãi, MAN_HINH_45 (mục 23 đến mục 25); sửa MAN_HINH_42 (menu), MAN_HINH_43 (khuyến mãi trên dòng đơn)
+- Cập nhật CONG_VIEC_13 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 1, MAN_HINH_46 đến MAN_HINH_49 (mục 26 đến mục 28)
+- Cập nhật CONG_VIEC_14 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 2, MAN_HINH_50 đến MAN_HINH_52 (mục 29 đến mục 31); menu mini app Tài chính – Kế toán thêm ba mục
+- Cập nhật CONG_VIEC_15 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 3, MAN_HINH_53 (mục 32 đến mục 34); menu mini app Tài chính – Kế toán thêm mục "Báo cáo tài chính"; sửa MAN_HINH_50 (ô, nhãn "Dài hạn")
+- Cập nhật CONG_VIEC_16 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 4, MAN_HINH_54, MAN_HINH_55 (mục 35 đến mục 37); menu mini app Tài chính – Kế toán thêm mục "Hóa đơn điện tử", "Cài đặt hóa đơn điện tử"
+- Cập nhật CONG_VIEC_17 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 5, MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40); menu mini app Tài chính – Kế toán thêm mục "Hoa hồng", "Cài đặt hoa hồng". Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11)
+- Cập nhật CONG_VIEC_18 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 6, MAN_HINH_58, MAN_HINH_59 (mục 41 đến mục 43); menu mini app Tài chính – Kế toán thêm mục "Giao dịch ngân hàng", "Kết nối ngân hàng"
+- Cập nhật CONG_VIEC_19 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 7, MAN_HINH_60, MAN_HINH_61 (mục 44 đến mục 46); menu mini app Tài chính – Kế toán thêm mục "Đối soát thu hộ"; MAN_HINH_51 (Bút toán) bộ lọc, cột "Nguồn" thêm "Bảng hoa hồng" (sửa lỗi hiện mã thô `commission` từ CONG_VIEC_17), "Bảng đối soát thu hộ"
+- Cập nhật CONG_VIEC_20 (2026-11-10): thêm MODULE_06 Tài chính – Kế toán phần 8, MAN_HINH_62, MAN_HINH_63 (mục 47 đến mục 49); menu mini app Tài chính – Kế toán thêm mục "Báo cáo hợp nhất" sau "Báo cáo tài chính"; sửa sau rà soát: công ty, đối tác trong ngăn kéo điều chỉnh tay, lý do không chốt được hiện câu đã dịch, thẻ xem nhanh chỉ tải khi mở
+- Cập nhật CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm MODULE_07 Khách hàng và Đối tác phần 2, MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52); menu mini app Khách hàng và Đối tác thêm mục "Giao khách hàng"; sơ đồ điều hướng MODULE_07 thay ở mục 50; sửa MAN_HINH_36 (lọc "Khách của tôi", cột nhân viên phụ trách, nút "Nhận làm khách của tôi" trong ngăn kéo thêm đối tác), MAN_HINH_37 (ô nhân viên phụ trách khóa khi đã có, thẻ lịch sử phụ trách). Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11)
+- Cập nhật CONG_VIEC_23 (2026-11-10): thêm MAN_HINH_73 đến MAN_HINH_80 (ứng dụng VComm cho người mua; web-crm người mua VComm); không làm bản mẫu riêng, xem trước từng lát thay cho bản mẫu (quyết định của người dùng)
+- Cập nhật CONG_VIEC_27 (2026-11-10): thêm MAN_HINH_81 đến MAN_HINH_85; sửa MAN_HINH_78, MAN_HINH_80; xem trước từng lát thay cho bản mẫu
+- Cập nhật CONG_VIEC_24 (2026-11-11): thêm MAN_HINH_86 đến MAN_HINH_97 (mục 58, mục 59); sửa MAN_HINH_80, MAN_HINH_76 (Tài khoản: nút Sổ địa chỉ); thanh điều hướng ứng dụng thêm thẻ Cửa hàng, Đơn hàng; menu web-crm thêm Cài đặt bán hàng VComm, Đăng bán, Đơn VComm, Yêu cầu trả hàng; xem trước từng lát thay cho bản mẫu
+- Cập nhật CONG_VIEC_25 (2026-11-11): thêm MAN_HINH_98 đến MAN_HINH_100 (mục 60, mục 61); sửa MAN_HINH_86 (Đặt hàng và thanh toán), MAN_HINH_88 (thanh toán, các lần thanh toán, ghi đã thu tiền thu hộ), MAN_HINH_93 (chọn phương thức thanh toán), MAN_HINH_96 (trạng thái thanh toán, hoàn tiền), MAN_HINH_76 (nút Tài khoản nhận hoàn tiền); menu web-crm thêm Hoàn tiền; xem trước từng lát thay cho bản mẫu
+- Cập nhật CONG_VIEC_26 (2026-11-11): thêm MAN_HINH_101 đến MAN_HINH_104 (mục 62, mục 63); sửa MAN_HINH_86 (Hoa hồng và rút tiền, bảng phí rút tiền theo THAY_DOI_17), MAN_HINH_87 (cột Hoa hồng, nút Thiết lập hoa hồng), MAN_HINH_88 (thẻ Hoa hồng), MAN_HINH_83 (hoa hồng từng cấp dưới), MAN_HINH_76 (nút Ví hoa hồng); menu web-crm thêm Rút tiền hoa hồng; xem trước từng lát thay cho bản mẫu
+- Cập nhật CONG_VIEC_43 (2026-11-11), THAY_DOI_18: bỏ MAN_HINH_56, MAN_HINH_57 (mục 38 đến mục 40) và mục menu "Hoa hồng", "Cài đặt hoa hồng"; tắt MAN_HINH_64, MAN_HINH_65 (mục 50 đến mục 52) và mục menu "Giao khách hàng"; sửa MAN_HINH_24 (chọn loại Hàng hóa, Dịch vụ), MAN_HINH_42 (công tắc "Cho phép lập đơn bán tay có hàng hóa"), MAN_HINH_43 (bỏ người hưởng hoa hồng; nút lập đơn theo quyền mới), MAN_HINH_32 (nhãn "Phiếu dịch vụ"), MAN_HINH_36 (bỏ lọc nhân viên phụ trách), MAN_HINH_37 (bỏ lịch sử phụ trách, nút nhận khách; nhân viên phụ trách sửa bằng tay); không làm bản mẫu, xem trước từng lát (mục 64)
 
 ## MODULE_01 Nền tảng
 
@@ -491,6 +511,7 @@ flowchart TD
 - Thông báo: "Đã lưu."; lỗi theo CHUC_NANG_30 dưới đúng ô nhập.
 - Quyền hiển thị: nút thêm, sửa, ngừng dùng chỉ với `catalog.category.manage`.
 - Responsive: chung.
+- Bổ sung CONG_VIEC_07: khối chi tiết thêm dòng "Kiểm tra chất lượng khi nhập mua" (Có, Không); ngăn kéo thêm ô đánh dấu "Cần kiểm tra chất lượng khi nhập mua (hàng chưa vào tồn đến khi kiểm xong)", ngành hàng con mặc định theo ngành hàng cha; sửa không gửi ô này thì giữ nguyên (CHUC_NANG_52, QUYTAC_NGHIEPVU_65).
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_04 mục 14)
 
 ### MAN_HINH_23: Danh sách sản phẩm
@@ -521,6 +542,7 @@ flowchart TD
 - Thông báo: "Đã lưu sản phẩm." · "Đã liên kết." · "Đã sao chép sang <công ty> và liên kết từng biến thể."; lỗi theo CHUC_NANG_31, 32, 34 dưới đúng ô, đúng dòng.
 - Quyền hiển thị: sửa, ảnh, liên kết với `catalog.product.manage`; khu chọn công ty để sao chép, gợi ý chỉ hiện khi nhân viên thuộc công ty khác, kèm câu "Cần quyền quản lý sản phẩm ở cả công ty đích."; phần Giá bán với `catalog.price.view`, nút lập phiếu với `catalog.price.manage`.
 - Responsive: bảng chuyển thành thẻ.
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11) (CHUC_NANG_157): phần "Thông tin chung" thêm ô "Loại" ("Hàng hóa" mặc định, "Dịch vụ"), gợi ý "Dịch vụ không theo dõi tồn kho, lô, số serial."; chọn Dịch vụ thì ẩn ô theo dõi lô, serial, trọng lượng, thể tích. Lỗi: "Dịch vụ không theo dõi lô, số serial.", "Sản phẩm đã phát sinh tồn kho, chứng từ kho; không đổi loại được.".
 - Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_04 mục 14)
 
 ### MAN_HINH_25: Kênh bán và nhóm khách hàng
@@ -680,6 +702,9 @@ flowchart TD
 - Thông báo: không có.
 - Quyền hiển thị: màn hình với `inventory.stock.view`; nút lập phiếu với `inventory.document.manage`.
 - Responsive: bảng chuyển thành thẻ.
+- Bổ sung CONG_VIEC_07: nút "Nhập mua theo đơn" (mở `/inventory/purchase-receipts/new`) với `inventory.purchase.receive`; lọc, hiện thêm loại "Phiếu nhập mua", "Phiếu trả hàng nhà cung cấp", trạng thái "Chờ kiểm tra chất lượng". Phiếu nhập mua, trả hàng không lập bằng các nút lập phiếu thường.
+- Bổ sung CONG_VIEC_08: nút "Giao hàng theo đơn bán" (mở `/inventory/sales-issues/new`) với `inventory.sales.issue`; lọc, hiện thêm loại "Phiếu xuất giao hàng", "Phiếu nhận hàng trả lại". Hai loại phiếu này không lập bằng các nút lập phiếu thường.
+- Bổ sung CONG_VIEC_09: phiếu nhập mua nội bộ sinh từ phiếu xuất giao hàng của công ty bán hiện ở công ty mua với loại "Phiếu nhập mua", trạng thái "Đang vận chuyển" (chờ nhận; lọc được), chưa có số đến khi nhận.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
 
 ### MAN_HINH_32: Phiếu nhập khác, xuất khác, điều chỉnh
@@ -695,6 +720,18 @@ flowchart TD
 - Thông báo: "Đã lưu nháp." · "Đã gửi phiếu đi duyệt." · "Công ty chủ hàng chưa có chính sách duyệt cho loại phiếu này nên phiếu đã ghi sổ." · "Đã xóa phiếu nháp." · "Đã rút phiếu."; lỗi theo CHUC_NANG_40 dưới đúng ô, đúng dòng.
 - Quyền hiển thị: sửa, gửi, xóa theo `canEdit`; rút theo `canWithdraw` của API.
 - Responsive: dòng mặt hàng xếp dọc trên điện thoại.
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11) (CHUC_NANG_157): phiếu dịch vụ do hệ thống tự lập hiện nhãn "Phiếu dịch vụ" cạnh trạng thái; chỉ xem. Chọn mặt hàng dịch vụ trong phiếu kho báo "Mặt hàng dịch vụ không theo dõi tồn kho: không lập phiếu kho, giữ hàng, kiểm kê." dưới dòng.
+- Bổ sung CONG_VIEC_07 (CHUC_NANG_52, CHUC_NANG_53; API_76):
+  - Lập phiếu nhập mua `/inventory/purchase-receipts/new`: chọn "Đơn mua" ("Chọn đơn mua…"; đơn đã duyệt nhận vào kho người dùng có quyền; không có thì "Không có đơn mua đã duyệt cần nhận vào kho bạn quản lý."); ngày phiếu; câu "Nhập số thực nhận cho dòng có hàng về; dòng để trống không nhận lần này."; mỗi dòng đơn: mặt hàng, nhãn "Cần kiểm tra chất lượng", "Đặt <số> <đơn vị>, còn nhận được <số> <đơn vị>", ô "Thực nhận (<đơn vị>)", số lô, hạn dùng (hàng theo lô), vị trí (kho dùng vị trí), serial (hàng serial); nút "Lưu nháp".
+  - Lập phiếu trả hàng `/inventory/purchase-returns/new?receiptId=<phiếu nhập>` (mở bằng nút "Trả hàng nhà cung cấp" ở phiếu nhập mua đã ghi sổ): tiêu đề "Trả hàng nhà cung cấp: <số phiếu nhập>", nhà cung cấp và câu "Hàng trả xuất theo giá trên phiếu nhập gốc."; ngày phiếu, lý do; mỗi dòng gốc "Đã nhập <số> <đơn vị cơ sở>", ô "Số trả (<đơn vị>)" hoặc chọn serial; nút "Lưu nháp".
+  - Chi tiết phiếu nhập mua, trả hàng `/inventory/documents/[id]`: thêm "Nhà cung cấp", "Đơn mua" (liên kết sang MAN_HINH_41) hoặc "Phiếu nhập gốc"; dòng có phần không đạt hiện nhãn "không đạt <số> <đơn vị>: <lý do>". Phiếu nháp chỉ có nút "Xóa nháp", "Gửi" (không sửa; cần sửa thì xóa, lập lại); thông báo "Đã gửi phiếu.". Phiếu chờ kiểm tra hiện khối "Kiểm tra chất lượng" ("Nhập số không đạt từng dòng; phần đạt ghi sổ kho, phần không đạt ghi biên bản kèm lý do."): mỗi dòng "Số không đạt (<đơn vị>)" hoặc "Serial không đạt", "Lý do không đạt"; nút "Ghi kết quả kiểm tra"; thông báo "Đã ghi kết quả kiểm tra, phần đạt đã vào tồn.". Quyền hiển thị theo `canQualityCheck`, `canReturn` của API.
+- Bổ sung CONG_VIEC_08 (CHUC_NANG_56, CHUC_NANG_57; API_79):
+  - Lập phiếu xuất giao hàng `/inventory/sales-issues/new`: tiêu đề "Giao hàng theo đơn bán"; chọn "Đơn bán" (đơn đã xác nhận xuất từ kho người dùng có quyền, hiện số đơn, khách hoặc người mua, kho; không có thì "Không có đơn bán đã xác nhận cần giao từ kho bạn quản lý."); ngày phiếu; câu "Nhập số giao cho dòng có hàng xuất lần này; dòng để trống không giao lần này."; mỗi dòng đơn: mặt hàng, "Đặt <số> <đơn vị>, còn phải giao <số> <đơn vị>", ô "Giao (<đơn vị>)", "Lô" (hàng theo lô; gợi ý lô hết hạn trước, chọn sẵn lô đầu, "Chọn lô…"), "Vị trí" (kho dùng vị trí), "Serial" (hàng serial, mỗi dòng một serial); nút "Lưu nháp" (chỉ bật khi có ít nhất một dòng nhập số giao), lưu xong mở chi tiết phiếu.
+  - Lập phiếu nhận hàng trả lại `/inventory/sales-returns/new?issueId=<phiếu xuất>` (mở bằng nút "Nhận hàng trả lại" ở phiếu xuất giao hàng đã ghi sổ; thiếu `issueId` thì "Chọn phiếu xuất giao hàng để nhận hàng trả lại."): tiêu đề "Nhận hàng trả lại: <số phiếu xuất>", tên khách và câu "Hàng trả nhập lại theo giá vốn trên phiếu xuất gốc."; ngày phiếu, lý do (bắt buộc); mỗi dòng gốc "Đã giao <số> <đơn vị cơ sở>", ô "Số trả (<đơn vị cơ sở>)" hoặc ô chọn từng serial đã giao (số trả bằng số serial chọn); nút "Lưu nháp".
+  - Chi tiết phiếu xuất giao hàng, nhận hàng trả lại `/inventory/documents/[id]`: thêm "Khách hàng", "Đơn bán" (liên kết sang MAN_HINH_43) hoặc "Phiếu xuất gốc" (liên kết sang phiếu xuất). Phiếu nháp chỉ có nút "Xóa nháp", "Gửi" (không sửa; cần sửa thì xóa, lập lại). Phiếu xuất đã ghi sổ có nút "Nhận hàng trả lại" theo `canReturn` của API.
+- Bổ sung CONG_VIEC_09 (CHUC_NANG_60; API_82):
+  - Chi tiết phiếu nhập mua nội bộ `/inventory/documents/[id]`: thêm "Phiếu xuất của bên bán" (<tên công ty bán>: <số phiếu xuất>).
+  - Phiếu "Đang vận chuyển" mà người dùng có quyền nhận tại kho nhận hiện khối "Nhận hàng nội bộ" ("Nhập số thực nhận theo đơn vị cơ sở; hàng serial chọn serial đã nhận. Nhận thiếu thì ghi lý do, công ty bán nhận biên bản chênh lệch để xử lý."): mỗi dòng mặt hàng (mã, tên), "Đã xuất <số> <đơn vị cơ sở>"; hàng không serial có ô "Số thực nhận (<đơn vị cơ sở>)" (mặc định bằng số xuất); hàng serial có ô chọn từng serial đã xuất (mặc định chọn hết, số nhận bằng số serial chọn); "Vị trí" (kho dùng vị trí); khi có dòng nhận thiếu hiện ô "Lý do nhận thiếu" (bắt buộc); nút "Xác nhận nhận hàng". Thông báo "Đã nhận hàng nội bộ."; lỗi dưới ô số nhận, serial, vị trí, lý do; lỗi lô, hạn dùng hiện kèm mã hàng. Quyền hiển thị theo `canReceiveInternal` của API.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
 
 ### MAN_HINH_33: Phiếu chuyển kho
@@ -743,3 +780,1397 @@ flowchart TD
 - Quyền hiển thị: khối giữ, đặt mức, nút gia hạn, nhả, bỏ với `inventory.reservation.manage`.
 - Responsive: bảng chuyển thành thẻ.
 - Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_05 mục 14)
+
+## MODULE_07 Khách hàng và Đối tác (phần tối thiểu, CONG_VIEC_06)
+
+Mini app `apps/web-crm`, tên "Khách hàng và Đối tác", đường dẫn gốc `/crm` (mini app Nền tảng chuyển tiếp `/crm` sang ứng dụng này, cùng tên miền và cookie phiên). Khung trang, thành phần dùng chung lấy từ `packages/ui`; quy ước chung như mục 3 của MODULE_01. Mở `/crm` thì chuyển tới mục menu đầu tiên có quyền; không có mục nào thì hiện "Bạn không có quyền xem trang này". Số Căn cước công dân luôn hiện dạng che `*********` + 3 số cuối, trừ khi người có quyền bấm "Xem đầy đủ".
+
+## 11. Danh sách màn hình và điều hướng (MODULE_07)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_36 | Danh sách đối tác (kèm ngăn kéo thêm đối tác) | CHUC_NANG_46, CHUC_NANG_47 | Quản trị tập đoàn, quản trị công ty, Quản lý đối tác (thêm); Thủ kho (xem) | Menu Khách hàng và Đối tác | Không lập (CONG_VIEC_06 mục 14) |
+| MAN_HINH_37 | Chi tiết đối tác (kèm ngăn kéo sửa thông tin chung, sửa hồ sơ của công ty) | CHUC_NANG_46, CHUC_NANG_47, CHUC_NANG_48 | Như MAN_HINH_36; sửa hồ sơ: quản trị tập đoàn, quản trị công ty | MAN_HINH_36 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Khách hàng và Đối tác| M{{Menu Khách hàng và Đối tác}}
+    M --> L[MAN_HINH_36 Danh sách đối tác]
+    L -->|Mã đối tác| D[MAN_HINH_37 Chi tiết đối tác]
+    L -->|Thêm đối tác, lưu xong| D
+    L -->|Đã có đối tác: Mở| D
+    D -->|Danh sách đối tác| L
+    D -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+```
+
+- Thứ tự menu và quyền hiện mục: Đối tác (`crm.partner.view`). Từ CONG_VIEC_21 thêm "Giao khách hàng" (`crm.partner.view`); sơ đồ điều hướng đầy đủ ở mục 50. Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): bỏ mục "Giao khách hàng".
+- Danh sách và chi tiết có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng.
+
+## 12. Bảng vai trò – màn hình (MODULE_07)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Quản lý đối tác | Thủ kho |
+|---|---|---|---|
+| MAN_HINH_36 Danh sách đối tác | Xem, Thêm | Xem, Thêm | Xem |
+| MAN_HINH_37 Chi tiết đối tác | Xem, Sửa, Ngừng giao dịch, Giao dịch lại (trừ đối tác nội bộ), Xem đầy đủ số Căn cước công dân, Lập, sửa hồ sơ | Xem, Sửa, Ngừng giao dịch, Giao dịch lại (trừ đối tác nội bộ) | Xem |
+
+## 13. Đặc tả từng màn hình (MODULE_07)
+
+### MAN_HINH_36: Danh sách đối tác
+- Mục đích: Tìm đối tác dùng chung tập đoàn, biết vai trò của đối tác với công ty đang chọn; thêm đối tác mới không trùng.
+- Chức năng thực hiện: CHUC_NANG_46, CHUC_NANG_47
+- Đường dẫn: `/crm/partners`
+- Bố cục: tiêu đề "Đối tác" kèm "Lịch sử", nút "Thêm đối tác"; câu "Đối tác dùng chung toàn tập đoàn; hồ sơ khách hàng, nhà cung cấp riêng từng công ty."; bộ lọc: ô tìm "Tên, mã, mã số thuế, điện thoại", "Loại" (Tổ chức, Hộ kinh doanh, Cá nhân), "Vai trò với công ty" (Khách hàng, Nhà cung cấp, Nội bộ), "Trạng thái" (Đang giao dịch, Ngừng giao dịch); bảng mã (liên kết mở MAN_HINH_37), tên kèm tên viết tắt, loại, giấy tờ (mã số thuế hoặc số Căn cước công dân đã che), điện thoại, nhãn "Nội bộ", "Khách hàng", "Nhà cung cấp", trạng thái; phân trang 20 dòng. Ngăn kéo "Thêm đối tác": loại; cá nhân nhập "Số Căn cước công dân" (gợi ý "12 số. Khách không cung cấp thì không lập đối tác; bán hàng chọn người mua không lấy hóa đơn."), loại khác nhập "Mã số thuế" (gợi ý "10 số, hoặc 10 số kèm "-" và 3 số chi nhánh."); rời ô thì kiểm trùng, trùng hiện "Đã có đối tác <mã> · <tên>." kèm nút "Mở"; tên, tên viết tắt, địa chỉ, điện thoại, email; khối "Người liên hệ" (họ tên, chức vụ, điện thoại, email, "Liên hệ chính", "Bỏ", "Thêm người liên hệ"); khối "Tài khoản ngân hàng" (ngân hàng, số tài khoản, chủ tài khoản, chi nhánh ngân hàng, "Mặc định", "Bỏ", "Thêm tài khoản").
+- Dữ liệu hiển thị: mọi đối tác của tập đoàn, đang giao dịch trước, theo tên; vai trò khách hàng, nhà cung cấp theo hồ sơ của công ty đang chọn.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_71.
+- Thao tác: gõ ô tìm thì tìm sau 300 mili giây; đổi bộ lọc về trang 1; lưu đối tác mới thì mở MAN_HINH_37 của đối tác đó.
+- Trạng thái: rỗng ("Chưa có đối tác."; có lọc thì "Không có kết quả phù hợp.").
+- Thông báo: "Đã lưu đối tác."; lỗi theo CHUC_NANG_46.
+- Quyền hiển thị: màn hình với `crm.partner.view`; nút "Thêm đối tác" với `crm.partner.manage`.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_06 mục 14)
+- Bổ sung CONG_VIEC_21 (CHUC_NANG_96, CHUC_NANG_98; API_71, API_111): bộ lọc thêm "Nhân viên phụ trách" với lựa chọn "Khách của tôi"; trưởng phòng, người có quyền giao khách chọn thêm được từng nhân viên trong phạm vi giao của mình; bảng thêm cột "Nhân viên phụ trách" (trước cột trạng thái; trống hiện "—"). Người không có quyền xem mọi khách chỉ thấy khách mình (và nhân viên phòng mình quản lý) phụ trách (QUYTAC_NGHIEPVU_129); thêm đối tác mới thì tự có hồ sơ khách hàng do mình phụ trách. Ngăn kéo "Thêm đối tác": kiểm trùng trả `canClaim` thì khối "Đã có đối tác <mã> · <tên>." hiện nút "Nhận làm khách của tôi" thay cho "Mở"; bấm thì nhận đối tác, mở MAN_HINH_37; lỗi hiện trong khối đó (QUYTAC_NGHIEPVU_135).
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): bỏ bộ lọc "Nhân viên phụ trách", cột nhân viên phụ trách vẫn hiện; ngăn kéo thêm đối tác bỏ nút "Nhận làm khách của tôi"; mọi người có `crm.partner.view` xem mọi đối tác.
+
+### MAN_HINH_37: Chi tiết đối tác
+- Mục đích: Xem, sửa thông tin chung của đối tác; xem, lập hồ sơ đối tác của công ty đang chọn.
+- Chức năng thực hiện: CHUC_NANG_46, CHUC_NANG_47, CHUC_NANG_48
+- Đường dẫn: `/crm/partners/[id]`
+- Bố cục: liên kết "Danh sách đối tác"; tiêu đề mã · tên, nhãn trạng thái, nhãn "Nội bộ", "Lịch sử", nút "Ngừng giao dịch"/"Giao dịch lại", "Sửa thông tin chung"; đối tác nội bộ hiện khối "Đối tác nội bộ lấy thông tin từ công ty con; sửa ở màn hình Công ty.". Thẻ "Thông tin chung": loại, số Căn cước công dân (đã che, nút "Xem đầy đủ" có chú thích "Mỗi lần xem số đầy đủ được ghi nhật ký.") hoặc mã số thuế, tên viết tắt, địa chỉ, điện thoại, email. Thẻ "Người liên hệ", "Tài khoản ngân hàng". Thẻ "Hồ sơ của công ty đang chọn": vai trò với công ty, số ngày được nợ, hạn mức công nợ ("Không giới hạn" khi trống), nhóm khách hàng, nhân viên phụ trách, ghi chú, trạng thái hồ sơ; nút "Lập hồ sơ"/"Sửa hồ sơ" mở ngăn kéo: "Là khách hàng", "Là nhà cung cấp", số ngày được nợ, hạn mức công nợ ("Theo tiền tệ công ty. Để trống: không giới hạn."), nhóm khách hàng, nhân viên phụ trách, ghi chú, trạng thái hồ sơ. Ngăn kéo sửa thông tin chung như ngăn kéo thêm của MAN_HINH_36; cá nhân để trống số Căn cước công dân thì giữ số đã lưu (gợi ý hiện số đã che).
+- Dữ liệu hiển thị: đối tác dùng chung; hồ sơ chỉ của công ty đang chọn.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, NhanTrangThai, NganKeo, ONhap, OChon, Nut, HopThoaiXacNhan (tài liệu `15`).
+- API: API_71, API_72.
+- Thao tác: "Ngừng giao dịch" hỏi xác nhận "Ngừng giao dịch với <tên>? Đối tác không chọn được trên chứng từ mới, dữ liệu cũ giữ nguyên."; "Giao dịch lại" không hỏi. "Xem đầy đủ" thay số đã che bằng số đầy đủ đến khi rời trang.
+- Trạng thái: rỗng ("Chưa có người liên hệ.", "Chưa có tài khoản ngân hàng.", "Công ty đang chọn chưa giao dịch với đối tác này."); đối tác nội bộ của chính công ty đang chọn hiện "Đây là công ty đang chọn, không lập hồ sơ đối tác.".
+- Thông báo: "Đã lưu đối tác." · "Đã lưu hồ sơ."; lỗi theo CHUC_NANG_46 đến CHUC_NANG_48.
+- Quyền hiển thị: nút sửa, ngừng giao dịch theo `canManage` (có `crm.partner.manage`, không phải đối tác nội bộ); "Xem đầy đủ" theo `canViewIdentity`; nút hồ sơ theo `canManageProfile`.
+- Responsive: thẻ xếp dọc; nhãn và giá trị xếp hai cột.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_06 mục 14)
+- Bổ sung CONG_VIEC_21 (CHUC_NANG_96, CHUC_NANG_98; API_72, API_111): đối tác ngoài phạm vi xem hiện "Không tìm thấy dữ liệu hoặc bạn không có quyền xem.". Ngăn kéo hồ sơ: ô "Nhân viên phụ trách" chỉ chọn được khi hồ sơ chưa có nhân viên phụ trách; đã có thì khóa, kèm gợi ý "Đổi nhân viên phụ trách bằng phiếu giao khách." (QUYTAC_NGHIEPVU_134). Hồ sơ là khách hàng: thêm thẻ "Lịch sử phụ trách" sau thẻ hồ sơ, mỗi dòng "<nhân viên> · <từ thời điểm> – <đến thời điểm hoặc "nay">" kèm số phiếu giao khách (liên kết mở MAN_HINH_65) khi có; trống: "Chưa có nhân viên phụ trách.".
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): bỏ thẻ lịch sử phụ trách; ô "Nhân viên phụ trách" trong ngăn kéo hồ sơ luôn chọn được (đổi, bỏ bằng tay), bỏ gợi ý đổi bằng phiếu giao khách.
+
+## MODULE_04 Mua hàng (phần 1: Mua hàng trong nước, CONG_VIEC_07)
+
+Mini app `apps/web-purchasing`, tên "Mua hàng", đường dẫn gốc `/purchasing` (mini app Nền tảng chuyển tiếp `/purchasing` sang ứng dụng này, cùng tên miền và cookie phiên). Khung trang, thành phần dùng chung lấy từ `packages/ui`; quy ước chung như mục 3 của MODULE_01. Mở `/purchasing` thì chuyển tới mục menu đầu tiên có quyền; không có mục nào thì hiện "Bạn không có quyền xem trang này". Phiếu nhập mua, kiểm tra chất lượng, phiếu trả hàng nhà cung cấp làm ở mini app Kho (MAN_HINH_31, MAN_HINH_32); ô cần kiểm tra chất lượng ở MAN_HINH_22.
+
+## 14. Danh sách màn hình và điều hướng (MODULE_04)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_38 | Bảng giá mua (kèm ngăn kéo thêm, sửa giá) | CHUC_NANG_49 | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng (thêm, sửa); Thủ kho (xem) | Menu Mua hàng | Không lập (CONG_VIEC_07 mục 14) |
+| MAN_HINH_39 | Đề nghị mua: danh sách, chi tiết (kèm ngăn kéo lập, sửa) | CHUC_NANG_50 | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng, Thủ kho | Menu Mua hàng | Không lập |
+| MAN_HINH_40 | Đơn mua: danh sách, lập đơn (kèm ngăn kéo cài đặt dung sai) | CHUC_NANG_51 | Quản trị tập đoàn, quản trị công ty, Nhân viên mua hàng (lập); Thủ kho (xem) | Menu Mua hàng; nút "Lập đơn mua" ở MAN_HINH_39 | Không lập |
+| MAN_HINH_41 | Chi tiết đơn mua (kèm sửa đơn, hộp thoại đóng đơn) | CHUC_NANG_51 | Như MAN_HINH_40 | MAN_HINH_40; liên kết "Đơn mua" ở MAN_HINH_32 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Mua hàng| M{{Menu Mua hàng}}
+    M --> O[MAN_HINH_40 Đơn mua]
+    M --> R[MAN_HINH_39 Đề nghị mua]
+    M --> P[MAN_HINH_38 Bảng giá mua]
+    R -->|Lập đơn mua| N[MAN_HINH_40 Lập đơn mua]
+    O -->|Lập đơn mua| N
+    N -->|lưu xong| D[MAN_HINH_41 Chi tiết đơn mua]
+    O -->|Số đơn| D
+    D -->|Phiếu kho liên quan| K[MAN_HINH_32 Phiếu kho]
+    K -->|Đơn mua| D
+    D -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+```
+
+- Thứ tự menu và quyền hiện mục: Đơn mua (`purchasing.order.view`), Đề nghị mua (`purchasing.requisition.create`), Bảng giá mua (`purchasing.access`).
+- Danh sách và chi tiết có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng.
+
+## 15. Bảng vai trò – màn hình (MODULE_04)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Nhân viên mua hàng | Thủ kho | Quản lý kho |
+|---|---|---|---|---|
+| MAN_HINH_38 Bảng giá mua | Xem, Thêm, Sửa, Ngừng dùng, Dùng lại | Xem, Thêm, Sửa, Ngừng dùng, Dùng lại | Xem | Không |
+| MAN_HINH_39 Đề nghị mua | Xem, Lập, Sửa, Gửi duyệt, Rút (của mình), Đóng, Lập đơn mua | Xem, Lập, Sửa, Gửi duyệt, Rút (của mình), Đóng, Lập đơn mua | Xem, Lập, Sửa, Gửi duyệt, Rút (của mình) | Không |
+| MAN_HINH_40 Đơn mua | Xem, Lập đơn, Cài đặt | Xem, Lập đơn | Xem | Không |
+| MAN_HINH_41 Chi tiết đơn mua | Xem, Sửa, Gửi, Rút (của mình), Đóng đơn | Xem, Sửa, Gửi, Rút (của mình), Đóng đơn | Xem | Không |
+| MAN_HINH_31, MAN_HINH_32 phần nhập mua, kiểm tra, trả hàng | Lập, Gửi, Xóa nháp, Kiểm tra chất lượng, Trả hàng (kho của công ty mình) | Không | Kho trong phạm vi gán | Kho trong phạm vi gán |
+
+## 16. Đặc tả từng màn hình (MODULE_04)
+
+### MAN_HINH_38: Bảng giá mua
+- Mục đích: Xem, quản lý giá mua đã thỏa thuận với nhà cung cấp để đơn mua gợi ý đúng giá.
+- Chức năng thực hiện: CHUC_NANG_49
+- Đường dẫn: `/purchasing/supplier-prices`
+- Bố cục: tiêu đề "Bảng giá mua" kèm "Lịch sử", nút "Thêm giá mua"; câu "Giá chưa gồm thuế giá trị gia tăng, theo tiền tệ công ty. Đơn mua gợi ý giá có hiệu lực tại ngày đơn với số lượng tối thiểu lớn nhất không vượt số lượng đặt."; bộ lọc: ô tìm "Mã hàng, tên, mã hàng nhà cung cấp", "Nhà cung cấp", "Trạng thái" (Đang dùng, Ngừng dùng); bảng nhà cung cấp, mặt hàng, đơn vị mua, số lượng tối thiểu, đơn giá, hiệu lực ("từ – đến" hoặc "không thời hạn"), trạng thái, nút "Sửa", "Ngừng dùng"/"Dùng lại"; phân trang 20 dòng. Ngăn kéo "Thêm giá mua"/"Sửa giá mua": "Nhà cung cấp" (gợi ý "Chỉ hiện đối tác có hồ sơ nhà cung cấp ở công ty."), "Mặt hàng" (ô tìm "Mã vạch, mã hàng hoặc tên rồi nhấn Enter", nút "Đổi mặt hàng"), "Đơn vị mua", "Số lượng tối thiểu" ("Mua từ số lượng này trở lên thì áp dụng giá. 0: mọi số lượng."), "Đơn giá" ("Chưa gồm thuế giá trị gia tăng."), "Mã hàng nhà cung cấp", "Hiệu lực từ", "Hiệu lực đến" ("Để trống: không có ngày kết thúc.").
+- Dữ liệu hiển thị: giá mua của công ty đang chọn, đang dùng trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_73.
+- Thao tác: gõ ô tìm thì tìm sau 300 mili giây; đổi bộ lọc về trang 1; "Ngừng dùng", "Dùng lại" đổi trạng thái ngay.
+- Trạng thái: rỗng ("Chưa có giá mua."; có lọc thì "Không có kết quả phù hợp.").
+- Thông báo: "Đã lưu giá mua."; lỗi theo CHUC_NANG_49 dưới đúng ô.
+- Quyền hiển thị: màn hình với `purchasing.access`; nút thêm, sửa, ngừng dùng với `purchasing.price.manage`.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_07 mục 14)
+
+### MAN_HINH_39: Đề nghị mua
+- Mục đích: Lập, gửi duyệt đề nghị mua; xem đã đặt bao nhiêu.
+- Chức năng thực hiện: CHUC_NANG_50
+- Đường dẫn: `/purchasing/requisitions` (danh sách); `/purchasing/requisitions/[id]` (chi tiết).
+- Bố cục: danh sách: tiêu đề "Đề nghị mua" kèm "Lịch sử", nút "Lập đề nghị mua"; lọc "Trạng thái" (các trạng thái và "Còn đặt được"); bảng số (nháp hiện "(nháp)"), lý do, kho nhận, ngày cần, giá trị ước tính, người lập, trạng thái. Chi tiết: liên kết "Danh sách đề nghị mua"; số, nhãn trạng thái, "Lịch sử", nút "Sửa", "Gửi duyệt", "Rút", "Đóng đề nghị", "Lập đơn mua"; kho nhận, ngày cần, người lập, giá trị ước tính; bảng dòng: mặt hàng, đơn vị, số lượng, đơn giá ước tính, nhà cung cấp đề xuất, đã đặt ("<đã đặt> / <số lượng> đơn vị cơ sở"). Ngăn kéo "Lập đề nghị mua"/"Sửa đề nghị mua": "Kho nhận", "Ngày cần", "Lý do"; khối "Dòng hàng" mỗi dòng mặt hàng, đơn vị, số lượng, đơn giá ước tính, nhà cung cấp đề xuất, "Bỏ dòng"; ô "Thêm mặt hàng".
+- Dữ liệu hiển thị: đề nghị của công ty đang chọn, mới lập trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_73 (danh sách chọn, tìm mặt hàng), API_74.
+- Thao tác: "Lập đơn mua" mở MAN_HINH_40 lập đơn với các dòng còn đặt được của đề nghị.
+- Trạng thái: rỗng ("Chưa có đề nghị mua."; có lọc thì "Không có kết quả phù hợp.").
+- Thông báo: "Đã lưu đề nghị mua."; lỗi theo CHUC_NANG_50.
+- Quyền hiển thị: màn hình, nút lập với `purchasing.requisition.create`; sửa, rút theo `canEdit`, `canWithdraw`; "Đóng đề nghị", "Lập đơn mua" theo `canOrder` (có `purchasing.order.manage`, đề nghị đã duyệt còn đặt được).
+- Responsive: bảng chuyển thành thẻ; dòng hàng trong ngăn kéo xếp dọc.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_07 mục 14)
+
+### MAN_HINH_40: Đơn mua
+- Mục đích: Tìm đơn mua; lập đơn trực tiếp hoặc từ đề nghị; cài đặt dung sai nhận vượt.
+- Chức năng thực hiện: CHUC_NANG_51
+- Đường dẫn: `/purchasing/orders` (danh sách); `/purchasing/orders/new` (lập trực tiếp), `/purchasing/orders/new?requisitionId=<đề nghị>` (lập từ đề nghị).
+- Bố cục: danh sách: tiêu đề "Đơn mua" kèm "Lịch sử", nút "Cài đặt", "Lập đơn mua"; bộ lọc ô tìm "Số đơn, nhà cung cấp", "Nhà cung cấp", "Trạng thái"; bảng số, nhà cung cấp, kho nhận, ngày đơn, ngày giao dự kiến, tổng chưa thuế, trạng thái; phân trang. Ngăn kéo "Cài đặt": "Dung sai nhận vượt (%)" ("Kho được nhận vượt số đặt tối đa theo phần trăm này. Mặc định 0."). Trang lập đơn: "Nhà cung cấp", "Kho nhận", "Ngày đơn", "Ngày giao dự kiến", "Ghi chú"; khối "Dòng hàng" mỗi dòng mặt hàng (nhãn "Từ đề nghị mua" nếu có), đơn vị, số lượng, "Đơn giá chưa thuế" (gợi ý theo bảng giá mua khi đổi nhà cung cấp, ngày đơn, đơn vị, số lượng; dòng đã có giá không ghi đè), "Thuế suất", "Bỏ dòng"; ô "Thêm mặt hàng"; tổng chưa thuế.
+- Dữ liệu hiển thị: đơn mua của công ty đang chọn, mới lập trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_73 (danh sách chọn, giá gợi ý, tìm mặt hàng), API_74 (đọc đề nghị), API_75.
+- Thao tác: lưu đơn mới thì mở MAN_HINH_41.
+- Trạng thái: rỗng ("Chưa có đơn mua."; có lọc thì "Không có kết quả phù hợp.").
+- Thông báo: "Đã lưu đơn mua."; lỗi theo CHUC_NANG_51 dưới đúng ô, đúng dòng.
+- Quyền hiển thị: màn hình với `purchasing.order.view`; "Lập đơn mua" với `purchasing.order.manage`; "Cài đặt" với `purchasing.settings.manage`.
+- Responsive: bảng chuyển thành thẻ; dòng hàng xếp dọc.
+- Bổ sung CONG_VIEC_09 (CHUC_NANG_59; API_73): bộ lọc "Trạng thái" thêm "Chờ xác nhận nội bộ"; đơn đối ứng chưa xác nhận có kho nhận trống. Trang lập đơn: chọn nhà cung cấp nội bộ thì đơn giá, thuế suất tự lấy theo bảng giá kênh Nội bộ của công ty bán, ô đơn giá chỉ đọc, ô thuế suất khóa, hiện khối "Nhà cung cấp nội bộ: giá theo bảng giá kênh Nội bộ của công ty bán, không sửa được.".
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_07 mục 14)
+
+### MAN_HINH_41: Chi tiết đơn mua
+- Mục đích: Theo dõi đơn mua: đã nhận, đã trả, còn nhận được, phiếu kho liên quan; sửa, gửi, rút, đóng đơn.
+- Chức năng thực hiện: CHUC_NANG_51
+- Đường dẫn: `/purchasing/orders/[id]`
+- Bố cục: liên kết "Danh sách đơn mua"; tiêu đề số đơn (nháp: "(nháp)"), nhãn trạng thái, "Lịch sử", nút "Sửa", "Rút", "Đóng đơn", "Gửi"; thẻ nhà cung cấp, kho nhận, ngày đơn, ngày giao dự kiến, người lập, ghi chú, "Lý do đóng" (đơn đã đóng), "Tổng chưa thuế", "Thuế giá trị gia tăng"; bảng dòng: mặt hàng, đơn vị, số lượng, đơn giá chưa thuế, thuế suất, thành tiền, đã nhận (kèm "đã trả <số>"), còn nhận được; chú thích "Đã nhận, còn nhận được tính theo đơn vị cơ sở; còn nhận được đã cộng dung sai nhận vượt."; khối "Phiếu kho liên quan" (số phiếu liên kết sang MAN_HINH_32, loại, ngày, trạng thái; trống: "Chưa có phiếu nhập."). Sửa đơn dùng cùng biểu mẫu lập đơn; đơn đã duyệt hiện "Đơn đã duyệt: sửa làm tăng tổng giá trị hoặc đổi nhà cung cấp thì đơn được gửi duyệt lại.". "Đóng đơn" mở hộp thoại "Lý do đóng" kèm "Phần chưa nhận bị hủy, kho không nhận thêm theo đơn này.".
+- Dữ liệu hiển thị: đơn của công ty đang chọn; số đã nhận, đã trả tính từ phiếu kho.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, HopThoaiXacNhan (tài liệu `15`).
+- API: API_73, API_75.
+- Thao tác: như bố cục; lưu, gửi, rút, đóng xong tải lại đơn.
+- Trạng thái: chưa có phiếu kho ("Chưa có phiếu nhập.").
+- Thông báo: "Đã lưu đơn mua."; lỗi theo CHUC_NANG_51.
+- Quyền hiển thị: theo `canEdit`, `canSubmit`, `canWithdraw`, `canClose` của API.
+- Responsive: bảng chuyển thành thẻ.
+- Bổ sung CONG_VIEC_09 (CHUC_NANG_58, CHUC_NANG_59; API_81): đơn nội bộ hiện thẻ có nhãn "Nội bộ" kèm "Đơn bán đối ứng của <công ty>: <số, chưa có thì "chưa có số"> (<trạng thái>)" (đơn khởi tạo) hoặc "Sinh từ đơn bán của <công ty>: <số>" (đơn đối ứng); bên kia đã từ chối thì khối cảnh báo "Đã từ chối: <lý do>". Đơn "Chờ xác nhận nội bộ" (theo `canConfirmCounterpart`) hiện câu "Công ty bán đã bán cho công ty này. Chọn kho nhận rồi xác nhận (đơn mua đi luồng duyệt như thường), hoặc từ chối kèm lý do.", ô "Kho nhận" (bắt buộc), nút "Xác nhận" (bật khi đã chọn kho), ô "Lý do từ chối", nút "Từ chối" (bật khi có lý do); lỗi không gắn ô hiện kèm "Dòng <số>". Đơn đối ứng, đơn nội bộ đã có đơn đối ứng không có nút "Sửa".
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_07 mục 14)
+
+## MODULE_05 Bán hàng (phần 1, CONG_VIEC_08)
+
+Mini app `apps/web-sales`, tên "Bán hàng", đường dẫn gốc `/sales` (mini app Nền tảng chuyển tiếp `/sales` sang ứng dụng này, cùng tên miền và cookie phiên). Khung trang, thành phần dùng chung lấy từ `packages/ui`; quy ước chung như mục 3 của MODULE_01. Mở `/sales` thì chuyển tới mục menu đầu tiên có quyền; không có mục nào thì hiện "Bạn không có quyền xem trang này". Phiếu xuất giao hàng, phiếu nhận hàng trả lại làm ở mini app Kho (MAN_HINH_31, MAN_HINH_32).
+
+## 17. Danh sách màn hình và điều hướng (MODULE_05)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_42 | Đơn bán: danh sách (kèm ngăn kéo cài đặt chiết khấu tay tối đa) | CHUC_NANG_54, CHUC_NANG_55 | Quản trị tập đoàn, quản trị công ty, Nhân viên bán hàng (lập); Thủ kho (xem) | Menu Bán hàng | Không lập (CONG_VIEC_08 mục 14) |
+| MAN_HINH_43 | Chi tiết, soạn đơn bán (lập, sửa; kèm ngăn kéo đóng đơn) | CHUC_NANG_54 | Như MAN_HINH_42 | MAN_HINH_42; liên kết "Đơn bán" ở MAN_HINH_32 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Bán hàng| M{{Menu Bán hàng}}
+    M --> O[MAN_HINH_42 Đơn bán]
+    O -->|Lập đơn bán| N[MAN_HINH_43 Lập đơn bán]
+    N -->|lưu xong| D[MAN_HINH_43 Chi tiết đơn bán]
+    O -->|Số đơn| D
+    D -->|Sửa| N
+    D -->|Phiếu kho liên quan| K[MAN_HINH_32 Phiếu kho]
+    K -->|Đơn bán| D
+    D -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+    Q[MAN_HINH_31 Phiếu kho] -->|Giao hàng theo đơn bán| G[MAN_HINH_32 Lập phiếu xuất giao hàng]
+    K -->|Nhận hàng trả lại| R[MAN_HINH_32 Lập phiếu nhận hàng trả lại]
+```
+
+- Thứ tự menu và quyền hiện mục: Đơn bán (`sales.order.view`), Khuyến mãi (`sales.promotion.view`, thêm ở CONG_VIEC_12).
+- Danh sách và chi tiết có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng.
+
+## 18. Bảng vai trò – màn hình (MODULE_05)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Nhân viên bán hàng | Thủ kho | Quản lý kho |
+|---|---|---|---|---|
+| MAN_HINH_42 Đơn bán | Xem, Lập đơn, Cài đặt | Xem, Lập đơn | Xem | Không |
+| MAN_HINH_43 Chi tiết, soạn đơn bán | Xem, Sửa, Gửi, Rút (của mình), Hủy, Đóng đơn | Xem, Sửa, Gửi, Rút (của mình), Hủy, Đóng đơn | Xem | Không |
+| MAN_HINH_31, MAN_HINH_32 phần giao hàng, nhận hàng trả lại | Lập, Gửi, Xóa nháp (kho của công ty mình) | Không | Kho trong phạm vi gán | Kho trong phạm vi gán |
+
+## 19. Đặc tả từng màn hình (MODULE_05)
+
+### MAN_HINH_42: Đơn bán
+- Mục đích: Tìm đơn bán theo trạng thái, khách; lập đơn; cài đặt chiết khấu tay tối đa không cần duyệt.
+- Chức năng thực hiện: CHUC_NANG_54, CHUC_NANG_55
+- Đường dẫn: `/sales/orders`
+- Bố cục: tiêu đề "Đơn bán" kèm "Lịch sử", nút "Cài đặt", "Lập đơn bán"; bộ lọc: ô tìm "Số đơn, khách, người mua", "Khách hàng" (khách có hồ sơ khách hàng ở công ty), "Trạng thái" (Nháp, Chờ duyệt, Đã xác nhận, Bị từ chối, Đã rút, Đã giao đủ, Đã hủy, Đã đóng); bảng số (nháp hiện "(nháp)"), khách hàng (trống: tên người mua hoặc "Người mua không lấy hóa đơn"), kênh bán, kho xuất, ngày đơn, tổng gồm thuế, trạng thái; phân trang 20 dòng. Ngăn kéo "Cài đặt": "Chiết khấu tay tối đa không cần duyệt (%)" ("Dòng có chiết khấu lớn hơn mức này thì đơn phải duyệt. Mặc định 0.").
+- Dữ liệu hiển thị: đơn bán của công ty đang chọn, mới lập trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_77 (danh sách, danh sách chọn), API_78.
+- Thao tác: gõ ô tìm thì tìm sau 300 mili giây; đổi bộ lọc về trang 1; số đơn mở MAN_HINH_43; "Lập đơn bán" mở `/sales/orders/new`.
+- Trạng thái: rỗng ("Chưa có đơn bán."; có lọc thì "Không có kết quả phù hợp.").
+- Thông báo: "Đã lưu." (cài đặt); lỗi dưới ô chiết khấu.
+- Quyền hiển thị: màn hình với `sales.order.view`; "Lập đơn bán" với `sales.order.manage`; "Cài đặt" với `sales.settings.manage`.
+- Responsive: bảng chuyển thành thẻ.
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11) (CHUC_NANG_158): ngăn kéo "Cài đặt" thêm ô đánh dấu "Cho phép lập đơn bán tay có hàng hóa", gợi ý "Mặc định tắt: đơn bán lập tay chỉ gồm dịch vụ, hàng hóa bán qua sàn VComm.". Nút "Lập đơn bán" với `sales.order.manage` (Kế toán, Kế toán trưởng; Nhân viên bán hàng không thấy).
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_08 mục 14)
+
+### MAN_HINH_43: Chi tiết, soạn đơn bán
+- Mục đích: Lập, sửa đơn bán với giá tự lấy theo bảng giá; xem ngoại lệ cần duyệt, đã giao, đã trả, phiếu kho liên quan; gửi, rút, hủy, đóng đơn.
+- Chức năng thực hiện: CHUC_NANG_54
+- Đường dẫn: `/sales/orders/new` (lập); `/sales/orders/[id]` (chi tiết; "Sửa" mở biểu mẫu trên cùng trang).
+- Bố cục: biểu mẫu soạn: "Khách hàng" (mặc định "Người mua không lấy hóa đơn"; gợi ý "Để trống: người mua không lấy hóa đơn."), "Tên người mua" (chỉ hiện khi không chọn khách), "Kênh bán" (mặc định kênh đầu), "Kho xuất" (mặc định kho đầu), "Ngày đơn" (mặc định hôm nay), "Địa chỉ giao", "Ghi chú"; khối "Dòng hàng" mỗi dòng: mặt hàng, câu "Giá <giá> theo bảng giá <mã> (gồm thuế | chưa thuế)" hoặc "Chưa có giá trong bảng giá cho kênh, nhóm khách này.", "Đơn vị", "Số lượng", "Chiết khấu (%)", "Thành tiền gồm thuế", "Bỏ dòng"; ô "Thêm mặt hàng" (tìm mã vạch, mã hàng, tên); "Tổng gồm thuế (tạm tính)"; nút "Lưu", "Hủy". Giá dòng tra lại khi đổi kênh, khách, ngày đơn, đơn vị. Chi tiết: liên kết "Danh sách đơn bán"; số đơn (nháp: "(nháp)"), nhãn trạng thái, "Lịch sử", nút "Sửa đơn bán", "Rút", "Hủy đơn", "Đóng đơn", "Gửi"; khối cảnh báo "Ngoại lệ cần duyệt" liệt kê "Chiết khấu vượt mức (dòng <số>)", "Dưới giá vốn (dòng <số>)", "Vượt hạn mức công nợ" kèm diễn giải số (người không có quyền xem hạn mức công nợ, giá vốn chỉ thấy loại ngoại lệ, không thấy số); thẻ khách hoặc người mua, kênh, kho xuất, ngày đơn, người lập, địa chỉ giao, ghi chú, "Lý do đóng" (đơn đã đóng), "Chưa thuế", "Thuế", "Tổng gồm thuế"; bảng dòng: mặt hàng, số lượng, giá bảng giá (kèm gồm thuế hay chưa thuế), chiết khấu, thuế suất, thành tiền gồm thuế, đã giao ("<đã giao> / <số lượng cơ sở>", kèm "đã trả <số>"); chú thích "Đã giao tính theo đơn vị cơ sở."; khối "Phiếu kho liên quan" (số phiếu liên kết sang MAN_HINH_32, loại, ngày; trống: "Chưa có phiếu xuất giao hàng."). "Đóng đơn" mở ngăn kéo "Lý do đóng" (bắt buộc) kèm "Phần chưa giao bị hủy, hàng đang giữ được nhả.".
+- Dữ liệu hiển thị: đơn của công ty đang chọn; số đã giao, đã trả tính từ phiếu kho.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, KhoiCanhBao (tài liệu `15`).
+- API: API_77.
+- Thao tác: lưu đơn mới thì mở chi tiết; gửi, rút, hủy, đóng xong tải lại đơn.
+- Trạng thái: chưa có phiếu kho ("Chưa có phiếu xuất giao hàng.").
+- Thông báo: "Đã lưu đơn bán."; lỗi theo CHUC_NANG_54 dưới đúng ô, đúng dòng khi soạn; ở chi tiết, lỗi theo dòng khi gửi (ví dụ thiếu hàng) hiện trong thông báo kèm "dòng <số> (<mã hàng>)".
+- Quyền hiển thị: theo `canEdit`, `canSubmit`, `canWithdraw`, `canCancel`, `canClose` của API ("Đóng đơn" chỉ khi đơn đã xác nhận đã có giao hàng, không còn phiếu xuất nháp; "Hủy đơn" khi chưa có phiếu xuất).
+- Responsive: bảng chuyển thành thẻ; dòng hàng xếp dọc.
+- Bổ sung CONG_VIEC_09 (CHUC_NANG_58, CHUC_NANG_59; API_80): bộ lọc trạng thái ở MAN_HINH_42 thêm "Chờ xác nhận nội bộ". Chi tiết đơn nội bộ hiện thẻ có nhãn "Nội bộ" kèm "Đơn mua đối ứng của <công ty>: <số, chưa có thì "chưa có số"> (<trạng thái>)" (đơn khởi tạo) hoặc "Sinh từ đơn mua của <công ty>: <số>" (đơn đối ứng); bên kia đã từ chối thì khối cảnh báo "Đã từ chối: <lý do>". Đơn "Chờ xác nhận nội bộ" (theo `canConfirmCounterpart`) hiện câu "Công ty mua đã đặt hàng. Chọn kho xuất rồi xác nhận (kiểm ngoại lệ, giữ hàng như đơn thường), hoặc từ chối kèm lý do.", ô "Kho xuất" (bắt buộc), nút "Xác nhận" (bật khi đã chọn kho), ô "Lý do từ chối", nút "Từ chối" (bật khi có lý do); thông báo "Đã lưu đơn bán."; lỗi thiếu hàng, thiếu liên kết, hồ sơ đối tác hiện kèm "Dòng <số>". Đơn đối ứng không có nút "Sửa đơn bán"; khi "Chờ xác nhận nội bộ" không có nút "Hủy đơn".
+- Bổ sung CONG_VIEC_12 (CHUC_NANG_63; API_77): bảng dòng ở chi tiết, cột mặt hàng thêm: dòng hàng tặng có nhãn "Hàng tặng" kèm " · <tên chương trình>"; dòng có giảm theo sản phẩm thêm " · <tên chương trình>: giảm <phần trăm>%"; dòng nhận phần giảm theo đơn (lớn hơn 0) thêm " · <tên chương trình>: giảm <số tiền>". Dòng hàng tặng có giá 0, giữ hàng, giao hàng như dòng thường. Biểu mẫu soạn không hiện dòng hàng tặng (tự tạo lại khi lưu); dưới "Tổng gồm thuế (tạm tính)" có chú thích "Khuyến mãi đang chạy tự áp khi lưu (giảm theo dòng, theo đơn, hàng tặng); tổng tạm tính chưa gồm khuyến mãi.". Gửi đơn khi chương trình hết ngân sách, hết suất thì thông báo lỗi "Chương trình khuyến mãi đã hết ngân sách hoặc hết suất. Lưu lại đơn để tính lại khuyến mãi rồi gửi.". Kho xuất không đủ hàng tặng lúc lưu: chi tiết đơn hiện khối cảnh báo (dưới khối chứng từ đối ứng, trên khối ngoại lệ) "<chương trình>: thiếu <số> suất tặng do kho xuất không đủ hàng tặng." cho từng chương trình.
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11) (CHUC_NANG_157, CHUC_NANG_158): bỏ "Nhân viên hưởng hoa hồng" ở đầu chi tiết; lưu, gửi đơn có hàng hóa khi cài đặt tắt báo "Đơn bán lập tay chỉ gồm mặt hàng dịch vụ. Hàng hóa bán qua sàn VComm."; đơn nội bộ có hàng hóa báo "Giao dịch nội bộ chỉ gồm mặt hàng dịch vụ." dưới dòng; đơn dịch vụ xác nhận thì phiếu xuất dịch vụ hiện trong danh sách phiếu kho của đơn.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_08 mục 14)
+
+## MODULE_05 Bán hàng (phần 2: Giao dịch nội bộ, CONG_VIEC_09)
+
+Phần nội bộ của đơn bán, đơn mua nằm trên MAN_HINH_43, MAN_HINH_40, MAN_HINH_41 (khối chứng từ đối ứng); nhận hàng nội bộ trên MAN_HINH_32; biên bản chênh lệch là màn hình mới MAN_HINH_44 ở mini app Kho.
+
+## 20. Danh sách màn hình và điều hướng (MODULE_05 phần 2)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_44 | Biên bản chênh lệch giao nhận nội bộ | CHUC_NANG_61 | Quản trị tập đoàn, quản trị công ty, Quản lý kho, Thủ kho có `inventory.sales.issue` tại kho xuất | Menu Kho | Không lập (CONG_VIEC_09 mục 14) |
+| MAN_HINH_43 (sửa) | Chi tiết đơn bán: khối chứng từ đối ứng, xác nhận, từ chối | CHUC_NANG_58, CHUC_NANG_59 | Như MAN_HINH_42; xác nhận, từ chối với `sales.order.manage` | MAN_HINH_42 | Không lập |
+| MAN_HINH_40, MAN_HINH_41 (sửa) | Đơn mua: giá nội bộ; chi tiết: khối chứng từ đối ứng, xác nhận, từ chối | CHUC_NANG_58, CHUC_NANG_59 | Như MAN_HINH_40; xác nhận, từ chối với `purchasing.order.manage` | MAN_HINH_40 | Không lập |
+| MAN_HINH_31, MAN_HINH_32 (sửa) | Phiếu kho: phiếu nhập nội bộ chờ nhận, nhận hàng | CHUC_NANG_60 | Như MAN_HINH_32; nhận với `inventory.purchase.receive` tại kho nhận | MAN_HINH_31 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    SO[MAN_HINH_43 Chi tiết đơn bán nội bộ] -.->|đơn đối ứng ở công ty kia| PO[MAN_HINH_41 Chi tiết đơn mua nội bộ]
+    PO -.->|đơn đối ứng ở công ty kia| SO
+    MK{{Menu Kho}} --> D[MAN_HINH_31 Phiếu kho]
+    D -->|Phiếu nhập mua Đang vận chuyển| R[MAN_HINH_32 Nhận hàng nội bộ]
+    MK -->|Chênh lệch giao nội bộ| X[MAN_HINH_44 Biên bản chênh lệch nội bộ]
+    X -->|Số phiếu xuất| P[MAN_HINH_32 Phiếu xuất giao hàng]
+    X -->|Phiếu trả| T[MAN_HINH_32 Phiếu nhận hàng trả lại]
+    X -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+```
+
+- Đường nét đứt: chứng từ đối ứng thuộc công ty khác, chỉ hiện tên công ty, số, trạng thái, không có liên kết; người dùng chuyển công ty rồi mở ở mini app tương ứng.
+- Thứ tự menu Kho và quyền hiện mục: Tồn kho, Phiếu kho, Kiểm kê, Giữ hàng, tồn an toàn, Chênh lệch giao nội bộ (`inventory.sales.issue`), Kho và vị trí.
+
+## 21. Bảng vai trò – màn hình (MODULE_05 phần 2)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Nhân viên bán hàng | Nhân viên mua hàng | Thủ kho | Quản lý kho |
+|---|---|---|---|---|---|
+| MAN_HINH_43 khối đối ứng | Xem, Xác nhận, Từ chối (công ty bán) | Xem, Xác nhận, Từ chối | Không | Xem | Không |
+| MAN_HINH_40, MAN_HINH_41 phần nội bộ | Xem, Lập đơn giá nội bộ, Xác nhận, Từ chối (công ty mua) | Không | Xem, Lập đơn giá nội bộ, Xác nhận, Từ chối | Xem | Không |
+| MAN_HINH_32 Nhận hàng nội bộ | Nhận (kho của công ty mình) | Không | Không | Kho nhận trong phạm vi gán | Kho nhận trong phạm vi gán |
+| MAN_HINH_44 Biên bản chênh lệch nội bộ | Xem, Nhập lại kho, Ghi tổn thất, xem giá trị | Không | Không | Xem, Nhập lại kho, Ghi tổn thất ở kho xuất trong phạm vi gán; không thấy giá trị | Như Thủ kho, thấy giá trị |
+
+## 22. Đặc tả từng màn hình (MODULE_05 phần 2)
+
+### MAN_HINH_44: Biên bản chênh lệch giao nhận nội bộ
+- Mục đích: Công ty bán xem hàng giao nội bộ bị nhận thiếu và xử lý từng biên bản: nhập lại kho hoặc ghi tổn thất.
+- Chức năng thực hiện: CHUC_NANG_61
+- Đường dẫn: `/inventory/internal-discrepancies`
+- Bố cục: tiêu đề "Biên bản chênh lệch giao nhận nội bộ" kèm "Lịch sử"; câu "Công ty mua nhận thiếu so với phiếu xuất. Nhập lại kho: lập và ghi sổ phiếu nhận hàng trả lại vào kho xuất theo giá vốn phiếu xuất. Ghi tổn thất: chỉ đóng biên bản, hạch toán làm cùng Tài chính – Kế toán."; lọc "Trạng thái" (Chờ xử lý, mặc định; Đã nhập lại kho; Đã ghi tổn thất); bảng: "Mặt hàng" (mã · tên · kho), "Số thiếu" (số, đơn vị cơ sở, serial chưa nhận), "Phiếu xuất → phiếu nhập" (số phiếu xuất liên kết sang MAN_HINH_32 → <công ty mua>: <số phiếu nhập>), "Lý do bên nhận" (kèm thời điểm), "Giá trị" ("—" khi không xem được giá vốn), "Trạng thái" (nhãn, người xử lý, ghi chú, liên kết "Phiếu trả"), cột thao tác: ô "Ghi chú xử lý", nút "Nhập lại kho", "Ghi tổn thất".
+- Dữ liệu hiển thị: biên bản của công ty đang chọn tại các kho người dùng có `inventory.sales.issue`, mới trước, tối đa 500.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, ONhap, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_82.
+- Thao tác: đổi lọc tải lại danh sách; bấm "Nhập lại kho" hoặc "Ghi tổn thất" gửi ngay kèm ghi chú (không bắt buộc), xong tải lại danh sách.
+- Trạng thái: rỗng ("Không có biên bản.").
+- Thông báo: "Đã nhập lại kho." · "Đã ghi tổn thất."; lỗi (đã xử lý, lỗi phiếu trả) hiện ở thông báo lỗi.
+- Quyền hiển thị: mục menu với `inventory.sales.issue`; nút xử lý theo `canResolve` của API; giá trị theo quyền xem giá vốn.
+- Responsive: bảng chuyển thành thẻ.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_09 mục 14)
+
+## MODULE_05 Bán hàng (phần 3: Khuyến mãi, CONG_VIEC_12)
+
+Chương trình khuyến mãi là màn hình mới MAN_HINH_45 ở mini app Bán hàng; khuyến mãi trên đơn bán hiện ở MAN_HINH_43; menu Bán hàng (MAN_HINH_42) thêm mục "Khuyến mãi".
+
+## 23. Danh sách màn hình và điều hướng (MODULE_05 phần 3)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_45 | Khuyến mãi: danh sách, lập, chi tiết chương trình | CHUC_NANG_62, CHUC_NANG_64 | Quản trị tập đoàn, quản trị công ty (lập, sửa, gửi duyệt, rút, dừng); Nhân viên bán hàng (xem) | Menu Bán hàng | Không lập (CONG_VIEC_12 mục 14) |
+| MAN_HINH_42 (sửa) | Menu Bán hàng thêm "Khuyến mãi"; danh sách đơn bán không đổi | CHUC_NANG_62 | Như MAN_HINH_42 | Menu Bán hàng | Không lập |
+| MAN_HINH_43 (sửa) | Chi tiết, soạn đơn bán: khuyến mãi trên dòng, dòng hàng tặng, cảnh báo thiếu suất tặng | CHUC_NANG_63 | Như MAN_HINH_42 | MAN_HINH_42 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Bán hàng}} --> O[MAN_HINH_42 Đơn bán]
+    M --> P[MAN_HINH_45 Khuyến mãi]
+    P -->|Lập chương trình| N[MAN_HINH_45 Lập chương trình]
+    N -->|lưu xong| D[MAN_HINH_45 Chi tiết chương trình]
+    P -->|Số chương trình| D
+    D -->|Sửa| D
+    D -->|Danh sách chương trình| P
+    D -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+    P -->|Lịch sử| H
+    O -->|Số đơn| S[MAN_HINH_43 Chi tiết đơn bán: khuyến mãi, hàng tặng]
+```
+
+- Thứ tự menu Bán hàng và quyền hiện mục: Đơn bán (`sales.order.view`), Khuyến mãi (`sales.promotion.view`).
+- Duyệt chương trình ở Hộp duyệt (MAN_HINH_07) như chứng từ khác, loại "Chương trình khuyến mãi".
+
+## 24. Bảng vai trò – màn hình (MODULE_05 phần 3)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Nhân viên bán hàng | Thủ kho | Quản lý kho |
+|---|---|---|---|---|
+| MAN_HINH_45 Khuyến mãi | Xem, Lập, Sửa, Gửi duyệt, Rút (của mình), Dừng | Xem | Không | Không |
+| MAN_HINH_43 khuyến mãi trên dòng | Xem; khuyến mãi tự áp khi lưu đơn | Xem; khuyến mãi tự áp khi lưu đơn | Xem | Không |
+
+## 25. Đặc tả từng màn hình (MODULE_05 phần 3)
+
+### MAN_HINH_45: Khuyến mãi
+- Mục đích: Lập chương trình khuyến mãi, gửi duyệt, theo dõi đã dùng, dừng chương trình.
+- Chức năng thực hiện: CHUC_NANG_62, CHUC_NANG_64
+- Đường dẫn: `/sales/promotions` (danh sách); `/sales/promotions/new` (lập); `/sales/promotions/[id]` (chi tiết; "Sửa" mở biểu mẫu trên cùng trang).
+- Bố cục: danh sách: tiêu đề "Chương trình khuyến mãi" kèm "Lịch sử", nút "Lập chương trình"; lọc "Trạng thái: tất cả" (Nháp, Chờ duyệt, Đang chạy, Bị từ chối, Đã rút, Đã dừng); bảng "Số" (nháp: "(nháp)"; liên kết sang chi tiết), "Tên chương trình", "Loại" (Giảm theo sản phẩm, Giảm theo đơn, Mua X tặng Y), "Thời gian" (từ ngày – đến ngày), "Đã dùng" ("Đã giảm <tiền> / <ngân sách hoặc ∞>" hoặc "Đã tặng <số> / <số suất hoặc ∞> suất"), "Trạng thái". Biểu mẫu soạn: "Tên chương trình" *, "Loại" *, "Từ ngày" *, "Đến ngày" * (mặc định hôm nay), "Kênh bán áp dụng" (ô chọn nhiều; gợi ý "Không chọn: mọi kênh trừ kênh Nội bộ."), "Nhóm khách áp dụng" (gợi ý "Không chọn: mọi khách, kể cả người mua không lấy hóa đơn."); theo loại: "Mặt hàng giảm giá" (mỗi dòng mặt hàng, "Giảm (%)", "Bỏ"; ô "Thêm mặt hàng" tìm mã vạch, mã hàng, tên) hoặc "Tổng đơn từ (gồm thuế)" *, "Giảm (%)" *, "Giảm tối đa" hoặc "Mặt hàng mua" *, "Số lượng mua (đơn vị cơ sở)" *, "Mặt hàng tặng" *, "Số lượng tặng mỗi suất (đơn vị cơ sở)" *, "Số suất tối đa (để trống: không giới hạn)"; "Ngân sách giảm tối đa, gồm thuế (<tiền tệ>; để trống: không giới hạn)" (không hiện với mua X tặng Y); "Ghi chú"; nút "Lưu", "Hủy". Chi tiết: liên kết "Danh sách chương trình"; số (nháp: "(nháp)"), nhãn trạng thái, "Lịch sử", nút "Sửa", "Rút", "Gửi duyệt"; thẻ: tên, loại · thời gian · "Người lập", "Kênh bán áp dụng" (trống: "mọi kênh trừ Nội bộ"), "Nhóm khách áp dụng" (trống: "mọi khách"), nội dung theo loại ("<mã> · <tên>: giảm <phần trăm>%"; "Tổng đơn từ <ngưỡng> giảm <phần trăm>%, tối đa <trần hoặc "không giới hạn">"; "Mua <số> <đơn vị> <mặt hàng> tặng <số> <đơn vị> <mặt hàng>"), đã dùng, ghi chú, khối "Đã dừng: <lý do>"; chương trình đang chạy có thẻ "Lý do dừng" * và nút "Dừng chương trình" (bật khi có lý do).
+- Dữ liệu hiển thị: chương trình của công ty đang chọn, mới lập trước, tối đa 500; đã dùng tính từ đơn bán chờ duyệt, đã xác nhận, đã giao đủ, đã đóng.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, KhoiCanhBao, TrangThaiRong (tài liệu `15`).
+- API: API_83; tìm mặt hàng API_77 (`/sales/items`).
+- Thao tác: đổi lọc tải lại danh sách; lưu chương trình mới thì mở chi tiết; gửi duyệt, rút, dừng xong tải lại chương trình.
+- Trạng thái: rỗng ("Chưa có chương trình.").
+- Thông báo: "Đã lưu chương trình." (lưu, gửi duyệt, rút) · "Đã dừng chương trình."; lỗi dưới đúng ô khi soạn; lỗi gửi, rút hiện ở thông báo lỗi.
+- Quyền hiển thị: mục menu, màn hình với `sales.promotion.view`; "Lập chương trình" với `sales.promotion.manage`; "Sửa", "Gửi duyệt", "Rút", "Dừng chương trình" theo `canEdit`, `canSubmit`, `canWithdraw`, `canStop` của API.
+- Responsive: bảng chuyển thành thẻ; ô theo loại xếp lưới tự co, xếp dọc trên điện thoại.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_12 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 1: Công nợ phải thu, phải trả, CONG_VIEC_13)
+
+Mini app `apps/web-finance`, tên "Tài chính – Kế toán", đường dẫn gốc `/finance` (mini app Nền tảng chuyển tiếp `/finance` sang ứng dụng này theo `FINANCE_ORIGIN`, cùng tên miền và cookie phiên). Khung trang, thành phần dùng chung lấy từ `packages/ui`; quy ước chung như mục 3 của MODULE_01. Mở `/finance` thì chuyển tới mục menu đầu tiên có quyền; không có mục nào thì hiện "Bạn không có quyền xem trang này". Công nợ tự phát sinh khi ghi sổ phiếu kho ở mini app Kho (MAN_HINH_32), không có thao tác mới ở đó.
+
+## 26. Danh sách màn hình và điều hướng (MODULE_06 phần 1)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_46 | Quỹ: danh sách, thêm, chi tiết, sửa, sổ quỹ | CHUC_NANG_65 | Quản trị tập đoàn, quản trị công ty, Kế toán | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_13 mục 14) |
+| MAN_HINH_47 | Công nợ: phải thu, phải trả theo đối tác, tuổi nợ | CHUC_NANG_66 | Như MAN_HINH_46 | Menu Tài chính – Kế toán | Không lập |
+| MAN_HINH_48 | Chi tiết công nợ đối tác (kèm biểu mẫu số dư đầu kỳ) | CHUC_NANG_66 | Như MAN_HINH_46 | MAN_HINH_47; liên kết đối tác ở MAN_HINH_49 | Không lập |
+| MAN_HINH_49 | Phiếu thu, phiếu chi: danh sách, lập, chi tiết, sửa | CHUC_NANG_67 | Như MAN_HINH_46; người duyệt phiếu chi xem qua Hộp duyệt | Menu Tài chính – Kế toán; nút "Lập phiếu thu", "Lập phiếu chi" ở MAN_HINH_48; số phiếu ở sổ quỹ MAN_HINH_46 | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Tài chính – Kế toán| M{{Menu Tài chính – Kế toán}}
+    M --> C[MAN_HINH_47 Công nợ]
+    M --> P[MAN_HINH_49 Phiếu thu chi]
+    M --> F[MAN_HINH_46 Quỹ]
+    C -->|Tên đối tác| D[MAN_HINH_48 Chi tiết công nợ đối tác]
+    D -->|Danh sách công nợ| C
+    D -->|Lập phiếu thu, Lập phiếu chi| N[MAN_HINH_49 Lập phiếu]
+    P -->|Lập phiếu| N
+    N -->|lưu xong| PD[MAN_HINH_49 Chi tiết phiếu]
+    P -->|Số phiếu| PD
+    PD -->|Sửa| PD
+    PD -->|Tên đối tác| D
+    F -->|Mã quỹ| FD[MAN_HINH_46 Chi tiết quỹ, sổ quỹ]
+    FD -->|Số phiếu| PD
+    PD -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+    C -->|Lịch sử| H
+    F -->|Lịch sử| H
+    A[MAN_HINH_07 Hộp duyệt] -->|Phiếu chi| PD
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (cả ba với `finance.debt.view`).
+- Duyệt phiếu chi ở Hộp duyệt (MAN_HINH_07) như chứng từ khác, loại "Phiếu chi".
+- Danh sách và chi tiết phiếu có nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng (`fund`, `debt_item`, `payment`).
+
+## 27. Bảng vai trò – màn hình (MODULE_06 phần 1)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán | Nhân viên bán hàng | Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_46 Quỹ | Xem, Thêm, Sửa, Ngừng dùng, Sổ quỹ | Xem, Thêm, Sửa, Ngừng dùng, Sổ quỹ | Không | Không |
+| MAN_HINH_47 Công nợ | Xem | Xem | Không | Không |
+| MAN_HINH_48 Chi tiết công nợ đối tác | Xem, Nhập, Xóa số dư đầu kỳ, Lập phiếu | Xem, Nhập, Xóa số dư đầu kỳ, Lập phiếu | Không | Không |
+| MAN_HINH_49 Phiếu thu chi | Xem, Lập, Sửa, Gửi, Rút (của mình) | Xem, Lập, Sửa, Gửi, Rút (của mình) | Không | Không |
+
+## 28. Đặc tả từng màn hình (MODULE_06 phần 1)
+
+### MAN_HINH_46: Quỹ
+- Mục đích: Quản lý quỹ tiền mặt, tài khoản ngân hàng; xem số dư, sổ quỹ.
+- Chức năng thực hiện: CHUC_NANG_65
+- Đường dẫn: `/finance/funds` (danh sách, biểu mẫu thêm trên cùng trang); `/finance/funds/[id]` (chi tiết, "Sửa" mở biểu mẫu trên cùng trang, sổ quỹ).
+- Bố cục: danh sách: tiêu đề "Quỹ" kèm "Lịch sử", nút "Thêm quỹ"; bảng "Mã quỹ" (liên kết sang chi tiết), "Tên quỹ" (ngân hàng kèm tên ngân hàng, số tài khoản), "Loại" (Tiền mặt, Ngân hàng), "Số dư hiện tại", "Trạng thái" (Đang dùng, Ngừng dùng). Biểu mẫu: "Mã quỹ" *, "Tên quỹ" *, "Loại" *, "Số dư đầu" (khóa khi quỹ đã có phiếu ghi sổ); loại ngân hàng thêm "Tên ngân hàng" *, "Số tài khoản" *, "Chủ tài khoản"; khi sửa có ô chọn "Đang dùng"; nút "Lưu", "Hủy". Chi tiết: liên kết "Danh sách quỹ"; "<mã> · <tên>", nhãn trạng thái, nút "Sửa"; thẻ: loại, thông tin ngân hàng, "Số dư đầu", "Số dư hiện tại"; khối "Sổ quỹ": "Từ ngày" (mặc định đầu tháng), "Đến ngày" (mặc định hôm nay), "Số dư đầu kỳ", bảng "Ngày", "Số phiếu" (liên kết sang MAN_HINH_49), "Đối tác", "Thu", "Chi", "Số dư", "Số dư cuối kỳ".
+- Dữ liệu hiển thị: quỹ của công ty đang chọn, đang dùng trước, theo mã; sổ quỹ chỉ phiếu đã ghi sổ.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_84.
+- Thao tác: lưu quỹ mới tải lại danh sách; sửa xong tải lại quỹ và sổ quỹ; đổi khoảng ngày tải lại sổ quỹ.
+- Trạng thái: rỗng ("Chưa có quỹ.", "Không có phiếu trong khoảng ngày.").
+- Thông báo: "Đã lưu quỹ."; lỗi dưới đúng ô (mã trùng, thiếu thông tin ngân hàng, số dư đầu khi đã có phiếu).
+- Quyền hiển thị: mục menu với `finance.debt.view`; "Thêm quỹ" với `finance.fund.manage`; "Sửa" theo `canManage` của API.
+- Responsive: bảng chuyển thành thẻ; ô biểu mẫu xếp lưới tự co, xếp dọc trên điện thoại.
+- Trạng thái phê duyệt: Chưa phê duyệt (người dùng cho AI làm tiếp không dừng ở điểm xem trước, CONG_VIEC_13 mục 14)
+
+### MAN_HINH_47: Công nợ
+- Mục đích: Xem đối tác còn nợ, trả trước, quá hạn theo phải thu, phải trả.
+- Chức năng thực hiện: CHUC_NANG_66
+- Đường dẫn: `/finance/debts` (tham số `side=payable` mở thẻ Phải trả).
+- Bố cục: tiêu đề "Công nợ" kèm "Lịch sử"; hai thẻ "Phải thu", "Phải trả"; lọc: ô "Tìm theo tên, mã đối tác", ô chọn "Chỉ đối tác quá hạn"; bảng "Đối tác" (mã · tên, liên kết sang MAN_HINH_48), "Số dư", "Trả trước", "Chưa đến hạn", "Quá hạn 1–30 ngày", "Quá hạn 31–60 ngày", "Quá hạn 61–90 ngày", "Quá hạn trên 90 ngày" (số quá hạn lớn hơn 0 tô màu lỗi); dòng "Tổng cộng".
+- Dữ liệu hiển thị: đối tác của công ty đang chọn có khoản còn số còn lại ở phía đang chọn, số dư giảm dần, tối đa 1.000.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BoLoc, BangDuLieu, ONhap, TrangThaiRong (tài liệu `15`).
+- API: API_85.
+- Thao tác: đổi thẻ, gõ tìm, đổi ô chọn thì tải lại danh sách.
+- Trạng thái: rỗng ("Không có đối tác còn công nợ.").
+- Thông báo: không có.
+- Quyền hiển thị: mục menu, màn hình với `finance.debt.view`.
+- Responsive: bảng chuyển thành thẻ; thẻ phía và lọc xuống dòng.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_13 mục 14)
+
+### MAN_HINH_48: Chi tiết công nợ đối tác
+- Mục đích: Xem từng chứng từ còn nợ, các lần trừ nợ; nhập số dư đầu kỳ; mở lập phiếu thu, phiếu chi cho đối tác.
+- Chức năng thực hiện: CHUC_NANG_66
+- Đường dẫn: `/finance/debts/[partnerId]?side=receivable|payable`.
+- Bố cục: liên kết "Danh sách công nợ"; "<mã> · <tên>", nhãn phía; nút "Lập phiếu thu" (phải thu) hoặc "Lập phiếu chi" (phải trả), nút "Nhập số dư đầu kỳ"; thẻ: "Số dư", "Trả trước", tuổi nợ (quá hạn lớn hơn 0 tô màu lỗi); biểu mẫu số dư đầu kỳ: "Loại số dư" (Còn nợ, Trả trước), "Số chứng từ" *, "Ngày" *, "Hạn thanh toán" * (chỉ với Còn nợ), "Số tiền" *, "Ghi chú", nút "Lưu", "Hủy"; bảng khoản: "Số chứng từ", "Loại" (Số dư đầu kỳ kèm Còn nợ hoặc Trả trước, Xuất giao hàng, Nhận hàng trả lại, Nhập mua, Trả hàng nhà cung cấp, loại phiếu thu chi), "Ngày", "Hạn thanh toán" (kèm "quá hạn <số> ngày"), "Số tiền" (khoản giảm có dấu trừ), "Còn lại", "Trừ nợ" ("<chứng từ>: <số tiền>"), nút "Xóa" (khoản số dư đầu kỳ xóa được).
+- Dữ liệu hiển thị: khoản của đối tác ở phía đang chọn trong công ty đang chọn, mới trước, tối đa 1.000.
+- Thành phần: ThanhTrenCung, MenuMiniApp, NhanTrangThai, The, BangDuLieu, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_85.
+- Thao tác: lưu số dư đầu kỳ, xóa xong tải lại chi tiết; "Lập phiếu thu", "Lập phiếu chi" mở MAN_HINH_49 lập phiếu với loại và đối tác chọn sẵn.
+- Trạng thái: rỗng ("Chưa có khoản công nợ.").
+- Thông báo: "Đã lưu số dư đầu kỳ." · "Đã xóa số dư đầu kỳ."; lỗi dưới đúng ô; lỗi xóa ("Khoản số dư đầu kỳ đã được trừ nợ hoặc đang được chọn trên phiếu thu chi, không xóa được.") hiện trên bảng.
+- Quyền hiển thị: "Lập phiếu thu", "Lập phiếu chi" theo `canManagePayments`; "Nhập số dư đầu kỳ" theo `canManageOpening`; "Xóa" theo `canDelete` của từng khoản.
+- Responsive: bảng chuyển thành thẻ; ô biểu mẫu xếp dọc trên điện thoại.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_13 mục 14)
+
+### MAN_HINH_49: Phiếu thu, phiếu chi
+- Mục đích: Lập, gửi phiếu thu, phiếu chi, hoàn tiền; theo dõi trạng thái; sửa phiếu bị từ chối.
+- Chức năng thực hiện: CHUC_NANG_67
+- Đường dẫn: `/finance/payments` (danh sách); `/finance/payments/new?kind=&partnerId=` (lập); `/finance/payments/[id]` (chi tiết; "Sửa" mở biểu mẫu trên cùng trang).
+- Bố cục: danh sách: tiêu đề "Phiếu thu chi" kèm "Lịch sử", nút "Lập phiếu"; lọc "Loại: tất cả" (Thu tiền khách hàng, Trả tiền nhà cung cấp, Hoàn tiền cho khách hàng, Nhà cung cấp hoàn tiền), "Trạng thái: tất cả" (Nháp, Chờ duyệt, Đã ghi sổ, Bị từ chối, Đã rút); bảng "Số phiếu" (nháp: "(nháp)"; liên kết sang chi tiết), "Loại phiếu", "Ngày", "Đối tác", "Quỹ", "Số tiền", "Trạng thái". Biểu mẫu: "Loại phiếu" *, "Quỹ" * (mã · tên kèm số dư; quỹ đã ngừng dùng của phiếu đang sửa hiện kèm "đã ngừng dùng"), "Ngày" *, "Số tiền" *, "Khách hàng" * hoặc "Nhà cung cấp" * (ô tìm "Gõ tên, mã đối tác rồi nhấn Enter"); khi đã chọn đối tác: "Trả trước đang còn"; thu tiền khách, trả tiền nhà cung cấp có bảng "Chứng từ còn nợ" ("Số chứng từ", "Ngày chứng từ", "Hạn thanh toán" kèm "quá hạn <số> ngày", "Còn nợ", ô "Số trừ"), nút "Chia lại từ cũ nhất", dòng "Tổng trừ: <tiền> · Trả trước: <tiền>" hoặc "Không chọn chứng từ: tự trừ cũ nhất trước khi ghi sổ"; đối tác không còn chứng từ nợ thì "Đối tác không còn chứng từ nợ; toàn bộ số tiền là trả trước."; hoàn tiền hiện gợi ý không vượt trả trước; "Nội dung"; nút "Lưu", "Hủy". Chi tiết: liên kết "Danh sách phiếu thu chi"; "<loại> <số hoặc (nháp)>", nhãn trạng thái, "Lịch sử", nút "Sửa", "Rút", "Gửi"; khối lỗi "Duyệt xong nhưng không ghi sổ được: <lý do> Sửa phiếu rồi gửi lại." khi phiếu bị từ chối do không ghi sổ được; thẻ: đối tác (liên kết sang MAN_HINH_48), quỹ, ngày, số tiền, nội dung, "Người lập", "Ghi sổ lúc"; bảng "Chứng từ sẽ trừ" (chưa ghi sổ) hoặc "Chứng từ đã trừ" (đã ghi sổ) kèm "Đã trừ", dòng "Trả trước".
+- Dữ liệu hiển thị: phiếu của công ty đang chọn, ngày mới trước, tối đa 500.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, KhoiCanhBao, TrangThaiRong (tài liệu `15`).
+- API: API_86; chứng từ còn nợ, chọn đối tác API_85.
+- Thao tác: đổi lọc tải lại danh sách; đổi loại sang phía khác thì bỏ đối tác, bỏ số trừ; lưu phiếu mới thì mở chi tiết; gửi, rút xong tải lại phiếu.
+- Trạng thái: rỗng ("Chưa có phiếu thu chi."); chưa có quỹ đang dùng ("Chưa có quỹ đang dùng").
+- Thông báo: "Đã lưu phiếu." · "Đã ghi sổ." · "Đã gửi duyệt." · "Đã rút phiếu."; lỗi dưới đúng ô, lỗi dòng chứng từ dưới bảng; lỗi gửi, rút hiện ở thông báo lỗi.
+- Quyền hiển thị: mục menu, màn hình với `finance.debt.view`; "Lập phiếu" với `finance.payment.manage`; "Sửa", "Gửi", "Rút" theo `canEdit`, `canSubmit`, `canWithdraw` của API.
+- Responsive: bảng chuyển thành thẻ; ô biểu mẫu xếp lưới tự co, xếp dọc trên điện thoại; ô số trừ nằm trong thẻ của từng chứng từ.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_13 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 2: Kế toán tổng hợp, CONG_VIEC_14)
+
+Cùng mini app `apps/web-finance` (mục 26). Bút toán tự sinh khi ghi sổ phiếu kho (MAN_HINH_32), phiếu thu chi (MAN_HINH_49), ghi tổn thất biên bản nội bộ (MAN_HINH_44), không có thao tác mới ở đó. Chế độ kế toán của công ty đổi ở màn hình Công ty (MAN_HINH_09 của MODULE_01); đổi khi đã có bút toán thì lỗi hiện dưới ô "Chế độ kế toán".
+
+## 29. Danh sách màn hình và điều hướng (MODULE_06 phần 2)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_50 | Hệ thống tài khoản: khởi tạo kế toán, cây tài khoản, tài khoản chi tiết, định khoản mặc định | CHUC_NANG_69, CHUC_NANG_70 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán (xem) | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_14 mục 14) |
+| MAN_HINH_51 | Bút toán: danh sách, lập, chi tiết, sửa phiếu kế toán | CHUC_NANG_71, CHUC_NANG_72 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán; người duyệt phiếu kế toán xem qua Hộp duyệt | Menu Tài chính – Kế toán; số bút toán ở sổ cái MAN_HINH_52 | Không lập |
+| MAN_HINH_52 | Sổ sách: bảng cân đối số phát sinh, sổ cái, khóa sổ | CHUC_NANG_73 | Như MAN_HINH_51 (khóa sổ, mở lại: Kế toán trưởng, quản trị) | Menu Tài chính – Kế toán | Không lập |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> J[MAN_HINH_51 Bút toán]
+    M --> B[MAN_HINH_52 Sổ sách]
+    M --> A[MAN_HINH_50 Hệ thống tài khoản]
+    J -->|Lập phiếu kế toán| N[MAN_HINH_51 Lập phiếu]
+    N -->|lưu xong| JD[MAN_HINH_51 Chi tiết bút toán]
+    J -->|Số bút toán| JD
+    JD -->|Sửa| JD
+    JD -->|Mở chứng từ gốc| S[MAN_HINH_32 Phiếu kho hoặc MAN_HINH_49 Phiếu thu chi]
+    B -->|Số bút toán ở sổ cái| JD
+    J -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+    A -->|Lịch sử| H
+    B -->|Lịch sử| H
+    AP[MAN_HINH_07 Hộp duyệt] -->|Phiếu kế toán| JD
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Bút toán, Sổ sách, Hệ thống tài khoản (`finance.ledger.view`). Mở `/finance` thì chuyển tới mục đầu tiên có quyền.
+- Duyệt phiếu kế toán ở Hộp duyệt (MAN_HINH_07) như chứng từ khác, loại "Phiếu kế toán".
+- Nút "Lịch sử" mở MAN_HINH_18 lọc theo đối tượng `account` (MAN_HINH_50), `journal` (MAN_HINH_51), `ledger_period` (MAN_HINH_52).
+
+## 30. Bảng vai trò – màn hình (MODULE_06 phần 2)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_50 Hệ thống tài khoản | Xem, Khởi tạo, Thêm chi tiết, Sửa, Đổi định khoản | Xem, Khởi tạo, Thêm chi tiết, Sửa, Đổi định khoản | Xem | Không |
+| MAN_HINH_51 Bút toán | Xem, Lập, Sửa, Gửi, Rút (của mình) | Xem, Lập, Sửa, Gửi, Rút (của mình) | Xem, Lập, Sửa, Gửi, Rút (của mình) | Không |
+| MAN_HINH_52 Sổ sách | Xem, Khóa sổ, Mở lại | Xem, Khóa sổ, Mở lại | Xem | Không |
+
+## 31. Đặc tả từng màn hình (MODULE_06 phần 2)
+
+### MAN_HINH_50: Hệ thống tài khoản
+- Mục đích: Khởi tạo kế toán của công ty; xem, mở tài khoản chi tiết; đổi định khoản mặc định.
+- Chức năng thực hiện: CHUC_NANG_69, CHUC_NANG_70, CHUC_NANG_75 (đánh dấu dài hạn)
+- Đường dẫn: `/finance/accounts`.
+- Bố cục: tiêu đề "Hệ thống tài khoản" kèm "Lịch sử". Chưa khởi tạo: thẻ "Công ty chưa khởi tạo kế toán. Chế độ kế toán của công ty: <chế độ>.", chú thích "Khởi tạo sẽ nạp hệ thống tài khoản, định khoản mặc định và tạo bút toán cho các chứng từ đã ghi sổ. Đổi chế độ kế toán ở phần quản lý công ty trước khi khởi tạo.", nút "Khởi tạo kế toán". Đã khởi tạo: dòng "Chế độ kế toán: <chế độ>."; hai thẻ "Tài khoản", "Định khoản mặc định". Thẻ "Tài khoản": bảng "Số hiệu" (thụt lề theo cấp, cấp 1 in đậm), "Tên tài khoản" (tài khoản dài hạn kèm nhãn "Dài hạn"), "Tính chất" (Dư Nợ, Dư Có, Lưỡng tính), "Trạng thái" (Nhận bút toán, Tổng hợp, Ngừng dùng), nút "Thêm chi tiết", "Sửa" trên dòng đang dùng; biểu mẫu thêm "Thêm tài khoản chi tiết của <số hiệu> · <tên>": "Số hiệu" * (điền sẵn số hiệu cha, gợi ý "Bắt đầu bằng số hiệu tài khoản cha và dài hơn."), "Tên tài khoản" *; biểu mẫu sửa "Sửa tài khoản <số hiệu>": "Tên tài khoản" *, ô chọn "Đang dùng" (chỉ tài khoản chi tiết), ô chọn "Dài hạn" kèm chú thích "(số dư vào chỉ tiêu dài hạn trên báo cáo tình hình tài chính)" (chỉ tài khoản chi tiết do kế toán mở); nút "Lưu", "Hủy". Thẻ "Định khoản mặc định": chú thích "Tài khoản dùng khi hệ thống tự sinh bút toán; thay đổi áp dụng cho chứng từ ghi sổ sau đó."; bảng "Nghiệp vụ", "Tài khoản" (ô chọn các tài khoản nhận bút toán "<số hiệu> · <tên>").
+- Dữ liệu hiển thị: tài khoản của công ty đang chọn theo số hiệu; định khoản theo thứ tự vai trò.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_87.
+- Thao tác: khởi tạo xong tải lại trang; lưu tài khoản tải lại cây; đổi ô chọn tài khoản của vai trò thì lưu ngay.
+- Trạng thái: chưa khởi tạo (như bố cục).
+- Thông báo: "Đã khởi tạo kế toán." · "Đã lưu tài khoản." · "Đã đổi định khoản."; lỗi dưới đúng ô (số hiệu sai quy tắc, trùng; ngừng dùng tài khoản đang trong định khoản, còn tài khoản con).
+- Quyền hiển thị: mục menu với `finance.ledger.view`; "Khởi tạo kế toán" theo `canSetup`; "Thêm chi tiết", "Sửa" theo `canEdit` của tài khoản; ô chọn định khoản theo `canEdit` của vai trò, không có quyền thì hiện chữ.
+- Responsive: bảng chuyển thành thẻ; ô biểu mẫu xếp lưới tự co, xếp dọc trên điện thoại.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_14 mục 14)
+
+### MAN_HINH_51: Bút toán
+- Mục đích: Xem mọi bút toán của công ty; lập, gửi phiếu kế toán; mở chứng từ gốc của bút toán tự sinh.
+- Chức năng thực hiện: CHUC_NANG_71, CHUC_NANG_72
+- Đường dẫn: `/finance/journals` (danh sách); `/finance/journals/new` (lập); `/finance/journals/[id]` (chi tiết; "Sửa" mở biểu mẫu trên cùng trang).
+- Bố cục: danh sách: tiêu đề "Bút toán" kèm "Lịch sử", nút "Lập phiếu kế toán"; lọc "Nguồn: tất cả" (Phiếu kế toán, Phiếu kho, Phiếu thu chi, Ghi tổn thất hàng thiếu nội bộ, Kết chuyển cuối kỳ, Bảng hoa hồng, Bảng đối soát thu hộ; cột "Nguồn" và tiêu đề chi tiết dùng cùng nhãn, CONG_VIEC_19), "Trạng thái: tất cả" (Nháp, Chờ duyệt, Đã ghi sổ, Bị từ chối, Đã rút), "Từ ngày", "Đến ngày"; bảng "Số" (nháp: "(nháp)"; liên kết sang chi tiết), "Ngày", "Nguồn", "Diễn giải", "Số tiền", "Trạng thái". Biểu mẫu: "Ngày" *, "Diễn giải" *; bảng dòng "Tài khoản" (ô chọn tài khoản nhận bút toán), "Đối tác", "Diễn giải dòng", "Nợ", "Có", nút "Bỏ dòng"; nút "Thêm dòng"; dòng "Tổng Nợ <tiền> · Tổng Có <tiền>", "Chênh lệch <tiền>"; nút "Lưu", "Hủy". Chi tiết: liên kết "Danh sách bút toán"; "<nguồn> <số hoặc (nháp)>", nhãn trạng thái, "Lịch sử", nút "Sửa", "Rút", "Gửi", "Mở chứng từ gốc" (phiếu kho, phiếu thu chi); khối lỗi "Duyệt xong nhưng không ghi sổ được: <lý do> Sửa phiếu rồi gửi lại."; thẻ: ngày, số tiền, diễn giải, "Người lập"; bảng dòng "Tài khoản", "Đối tác", "Diễn giải dòng", "Nợ", "Có".
+- Dữ liệu hiển thị: bút toán của công ty đang chọn, ngày mới trước, tối đa 500.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, KhoiCanhBao, TrangThaiRong (tài liệu `15`).
+- API: API_88; tài khoản API_87; chọn đối tác API_85.
+- Thao tác: đổi lọc tải lại danh sách; lưu phiếu mới thì mở chi tiết; gửi, rút xong tải lại phiếu.
+- Trạng thái: rỗng ("Chưa có bút toán.").
+- Thông báo: "Đã lưu phiếu kế toán." · "Đã ghi sổ." · "Đã gửi duyệt." · "Đã rút phiếu."; lỗi dưới đúng ô, lỗi dòng dưới bảng.
+- Quyền hiển thị: mục menu với `finance.ledger.view`; "Lập phiếu kế toán" với `finance.journal.manage`; "Sửa", "Gửi", "Rút" theo `canEdit`, `canSubmit`, `canWithdraw` của API.
+- Responsive: bảng chuyển thành thẻ; mỗi dòng phiếu một thẻ, ô xếp dọc trên điện thoại.
+- Sửa theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): lọc nguồn "Bảng hoa hồng" giữ để đọc bút toán cũ của CONG_VIEC_17 (nếu có); không sinh bút toán mới nguồn này.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_14 mục 14)
+
+### MAN_HINH_52: Sổ sách
+- Mục đích: Xem bảng cân đối số phát sinh, sổ cái; khóa sổ, mở lại sổ theo tháng.
+- Chức năng thực hiện: CHUC_NANG_73
+- Đường dẫn: `/finance/books`.
+- Bố cục: tiêu đề "Sổ sách" kèm "Lịch sử"; ba thẻ "Bảng cân đối số phát sinh", "Sổ cái", "Khóa sổ". Hai thẻ đầu có "Từ ngày" (mặc định đầu tháng), "Đến ngày" (mặc định hôm nay). Bảng cân đối: "Số hiệu" (thụt lề theo cấp, cấp 1 in đậm), "Tên tài khoản", "Dư đầu Nợ", "Dư đầu Có", "Nợ", "Có", "Dư cuối Nợ", "Dư cuối Có", dòng "Tổng cộng". Sổ cái: ô chọn tài khoản "<số hiệu> · <tên>" (mặc định "Chọn tài khoản"); "Số dư đầu kỳ"; bảng "Ngày", "Số" (liên kết sang MAN_HINH_51), "Diễn giải", "Tài khoản đối ứng", "Nợ", "Có", "Số dư" (kèm "Nợ" hoặc "Có"); dòng "Phát sinh Nợ <tiền> · phát sinh Có <tiền>", "Số dư cuối kỳ". Khóa sổ: chú thích "Khóa lần lượt từng tháng đã kết thúc. …"; "Đã khóa sổ đến: <ngày hoặc chưa khóa>", "Tháng tiếp theo cần khóa: <tháng>"; nút "Khóa sổ tháng <tháng>", "Mở lại tháng <tháng>"; hộp xác nhận "Hệ thống tạo bút toán kết chuyển và chặn ghi sổ chứng từ trong tháng này." hoặc "Bút toán kết chuyển của tháng sẽ bị xóa; chứng từ trong tháng lại ghi sổ được.", nút "Khóa sổ", "Mở lại".
+- Dữ liệu hiển thị: chỉ bút toán đã ghi sổ của công ty đang chọn; bảng cân đối chỉ tài khoản có số; sổ cái tối đa 10.000 dòng.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BoLoc, BangDuLieu, The, ONhap, OChon, Nut, HopThoaiXacNhan, TrangThaiRong (tài liệu `15`).
+- API: API_89; tài khoản API_87.
+- Thao tác: đổi khoảng ngày, tài khoản tải lại bảng; khóa, mở lại xong tải lại thẻ "Khóa sổ".
+- Trạng thái: chưa chọn tài khoản (chỉ ô chọn); công ty chưa khởi tạo ("Công ty chưa khởi tạo kế toán.").
+- Thông báo: "Đã khóa sổ." · "Đã mở lại sổ."; lỗi khóa sổ hiện trong hộp xác nhận.
+- Quyền hiển thị: mục menu với `finance.ledger.view`; "Khóa sổ tháng …" theo `canClose`, "Mở lại tháng …" theo `canReopen` của API.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; thẻ và bộ lọc xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_14 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 3: Báo cáo tài chính, CONG_VIEC_15)
+
+Cùng mini app `apps/web-finance` (mục 26). Đánh dấu tài khoản chi tiết dài hạn ở MAN_HINH_50 (biểu mẫu "Sửa tài khoản").
+
+## 32. Danh sách màn hình và điều hướng (MODULE_06 phần 3)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_53 | Báo cáo tài chính: tình hình tài chính, kết quả kinh doanh; xuất Excel, PDF | CHUC_NANG_74, CHUC_NANG_75 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_15 mục 14) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> R[MAN_HINH_53 Báo cáo tài chính]
+    M --> A[MAN_HINH_50 Hệ thống tài khoản]
+    R -->|Xuất Excel| X[/Tệp Excel tải về/]
+    R -->|Xuất PDF| P[/Tệp PDF mở ở thẻ mới/]
+    A -->|Sửa tài khoản chi tiết, chọn Dài hạn| A
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Bút toán, Sổ sách, Báo cáo tài chính, Hệ thống tài khoản (`finance.ledger.view`).
+
+## 33. Bảng vai trò – màn hình (MODULE_06 phần 3)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_53 Báo cáo tài chính | Xem, Xuất Excel, Xuất PDF | Xem, Xuất Excel, Xuất PDF | Xem, Xuất Excel, Xuất PDF | Không |
+| MAN_HINH_50 ô "Dài hạn" | Sửa | Sửa | Không (chỉ thấy nhãn) | Không |
+
+## 34. Đặc tả từng màn hình (MODULE_06 phần 3)
+
+### MAN_HINH_53: Báo cáo tài chính
+- Mục đích: Xem báo cáo tình hình tài chính, báo cáo kết quả hoạt động kinh doanh theo mẫu của chế độ kế toán công ty; xuất Excel, PDF.
+- Chức năng thực hiện: CHUC_NANG_74, CHUC_NANG_75
+- Đường dẫn: `/finance/statements`.
+- Bố cục: tiêu đề "Báo cáo tài chính"; hai thẻ "Tình hình tài chính" (mặc định), "Kết quả kinh doanh"; bộ lọc: thẻ tình hình tài chính có "Tại ngày" (mặc định hôm nay); thẻ kết quả kinh doanh có "Từ ngày" (mặc định ngày 1 tháng 1 năm hiện tại), "Đến ngày" (mặc định hôm nay); ô chọn "Mẫu" chỉ hiện khi chế độ có nhiều mẫu (Thông tư 133: B01a-DNN, B01b-DNN). Khối tiêu đề báo cáo: "<tên báo cáo> (<mẫu>)", chú thích "<tên công ty> · Đơn vị tính: <tiền tệ>", nút "Xuất Excel", "Xuất PDF". Bảng: "Mã số", "Chỉ tiêu" (thụt lề theo cấp, cấp 0 in đậm), "Ghi chú" (mục thu gọn "Cách lấy số liệu" khi chỉ tiêu có ghi chú), hai cột số: "Số cuối kỳ (<ngày>)", "Số đầu năm (<ngày>)" hoặc "Kỳ này (<từ ngày> – <đến ngày>)", "Cùng kỳ năm trước (<từ ngày> – <đến ngày>)". "Từ ngày" mặc định là ngày 1 tháng 1, không theo tháng bắt đầu năm tài chính của công ty.
+- Dữ liệu hiển thị: chỉ tiêu theo thứ tự của mẫu; số định dạng theo tiếng Việt, số 0 để trống, số âm trong ngoặc đơn; dòng cấp 0 in đậm.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BoLoc, BangDuLieu, ONhap, OChon, Nut, KhoiCanhBao (tài liệu `15`).
+- API: API_90; đánh dấu dài hạn API_87.
+- Thao tác: đổi thẻ (bỏ mẫu đã chọn), ngày, mẫu thì tải lại báo cáo; "Xuất Excel" tải tệp `<mẫu>-<đến ngày>.xlsx` (ví dụ `B01-DN-2026-11-10.xlsx`, trùng tên API đặt); "Xuất PDF" mở tệp ở thẻ mới; khi đang xuất, hai nút bị khóa, nút đang xuất hiện trạng thái đang xử lý.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại" (ví dụ "Công ty chưa khởi tạo kế toán."); ngày không hợp lệ hoặc từ ngày sau đến ngày: "Chọn ngày hợp lệ; từ ngày không sau đến ngày." và không gọi API.
+- Thông báo: lỗi xuất tệp hiện dưới nút xuất.
+- Quyền hiển thị: mục menu, màn hình với `finance.ledger.view`.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; thẻ, bộ lọc, nút xuất xuống dòng; số không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_15 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 4: Hóa đơn điện tử, CONG_VIEC_16)
+
+Cùng mini app `apps/web-finance` (mục 26).
+
+## 35. Danh sách màn hình và điều hướng (MODULE_06 phần 4)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_54 | Hóa đơn điện tử: danh sách, chờ xử lý trả hàng, chi tiết, hóa đơn thay thế | CHUC_NANG_77, CHUC_NANG_78, CHUC_NANG_79 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán | Menu Tài chính – Kế toán; thông báo hóa đơn quá hạn | Không lập (CONG_VIEC_16 mục 14) |
+| MAN_HINH_55 | Cài đặt hóa đơn điện tử | CHUC_NANG_76 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_16 mục 14) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> L[MAN_HINH_54 Hóa đơn điện tử]
+    M --> S[MAN_HINH_55 Cài đặt hóa đơn điện tử]
+    N{{Thông báo hóa đơn quá hạn}} -->|lọc quá hạn| L
+    L -->|Thẻ Hóa đơn, bấm ký hiệu · số| D[MAN_HINH_54 Chi tiết hóa đơn]
+    L -->|Thẻ Chờ xử lý trả hàng| R[Danh sách việc trả hàng]
+    R -->|Lập hóa đơn điều chỉnh giảm| R
+    R -->|Ghi hóa đơn trả hàng của người mua| R
+    R -->|Hóa đơn gốc, xem hóa đơn điều chỉnh| D
+    D -->|Lập hóa đơn thay thế| D2[Chi tiết hóa đơn thay thế]
+    D -->|Hóa đơn liên quan| D
+    D -->|Tải PDF| P[/PDF mở ở thẻ mới/]
+    D -->|Tải XML| X[/Tệp XML tải về/]
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Bút toán, Sổ sách, Báo cáo tài chính, Hệ thống tài khoản (`finance.ledger.view`); Hóa đơn điện tử (`finance.einvoice.view`); Cài đặt hóa đơn điện tử (`finance.einvoice.setup`).
+
+## 36. Bảng vai trò – màn hình (MODULE_06 phần 4)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_54 thẻ "Hóa đơn", chi tiết | Xem, Tải PDF, Tải XML, Gửi lại, Lập hóa đơn thay thế | Xem, Tải PDF, Tải XML, Gửi lại, Lập hóa đơn thay thế | Xem, Tải PDF, Tải XML, Gửi lại, Lập hóa đơn thay thế | Không |
+| MAN_HINH_54 thẻ "Chờ xử lý trả hàng" | Xem, Lập hóa đơn điều chỉnh giảm, Ghi hóa đơn trả hàng của người mua | Như bên trái | Như bên trái | Không |
+| MAN_HINH_55 Cài đặt hóa đơn điện tử | Xem, Lưu, Kiểm tra kết nối | Xem, Lưu, Kiểm tra kết nối | Không có mục menu; mở đường dẫn thì chỉ xem | Không |
+
+## 37. Đặc tả từng màn hình (MODULE_06 phần 4)
+
+### MAN_HINH_54: Hóa đơn điện tử
+- Mục đích: Theo dõi hóa đơn điện tử lập khi giao hàng; gửi lại hóa đơn lỗi; tải PDF, XML; xử lý hóa đơn khi trả hàng; lập hóa đơn thay thế.
+- Chức năng thực hiện: CHUC_NANG_77, CHUC_NANG_78, CHUC_NANG_79
+- Đường dẫn: `/finance/einvoices` (thẻ "Chờ xử lý trả hàng" mở bằng `?tab=returns`; thông báo quá hạn mở `?overdue=true`), chi tiết `/finance/einvoices/<mã>`.
+- Bố cục danh sách: tiêu đề "Hóa đơn điện tử"; hai thẻ "Hóa đơn" (mặc định), "Chờ xử lý trả hàng".
+  - Thẻ "Hóa đơn": bộ lọc ô chọn trạng thái ("Mọi trạng thái", "Chờ gửi", "Chờ gửi lại", "Chờ cấp mã", "Đã phát hành", "Lỗi", "Bị từ chối", "Lỗi cài đặt"), "Từ ngày", "Đến ngày", ô tìm (gợi ý "Người mua, mã số thuế, số hóa đơn, số phiếu"), ô chọn "Chỉ hóa đơn quá hạn". Bảng: "Ngày hóa đơn", "Ký hiệu · số" (liên kết tới chi tiết; chưa có số thì "Chưa có số"), "Người mua" (trống thì "Người mua không cung cấp thông tin"), "Phiếu kho", "Tổng thanh toán" (kèm tiền tệ), "Loại" (Gốc, Điều chỉnh, Thay thế), "Trạng thái" (nhãn trạng thái, kèm nhãn "Quá hạn", "Đã bị thay thế"); phân trang 20 dòng, tổng số dòng, nút trang trước, trang sau.
+  - Thẻ "Chờ xử lý trả hàng": ô chọn "Xử lý" ("Mọi trạng thái", "Chờ xử lý" mặc định, "Đã lập hóa đơn điều chỉnh", "Người mua lập hóa đơn trả hàng"). Bảng: "Phiếu nhận hàng trả lại" (số, ngày), "Người mua", "Tiền hàng trả", "Hóa đơn gốc" (liên kết; chưa phát hành thì kèm "chờ hóa đơn gốc phát hành"), "Xử lý" (trạng thái; kèm "xem hóa đơn điều chỉnh" hoặc "hóa đơn <ký hiệu> số <số> ngày <ngày>"), cột nút "Lập hóa đơn điều chỉnh giảm", "Ghi hóa đơn trả hàng của người mua" (khi xử lý được). Biểu mẫu "Hóa đơn trả hàng của <người mua> cho phiếu <số phiếu>": "Ký hiệu", "Số hóa đơn" *, "Ngày hóa đơn" *; nút "Lưu", "Hủy".
+- Bố cục chi tiết: liên kết "‹ Hóa đơn điện tử"; tiêu đề "Hóa đơn <ký hiệu> số <số>" (chưa có số: "Hóa đơn chưa có số"); nút "Gửi lại" (hóa đơn Lỗi, Lỗi cài đặt, Chờ gửi lại), "Lập hóa đơn thay thế" (hóa đơn đã phát hành, không phải điều chỉnh, chưa bị thay thế, chưa có điều chỉnh), "Tải PDF", "Tải XML" (khi có tệp). Dòng "Ghi chú: …"; thẻ "Hóa đơn liên quan" ("Hóa đơn gốc", "Hóa đơn thay thế", "Hóa đơn điều chỉnh" kèm liên kết, ngày); khối lỗi "Lỗi gần nhất: …"; khối cảnh báo "Hóa đơn gửi qua bộ giả lập, không có giá trị pháp lý." với nhà cung cấp bộ giả lập. Thẻ thông tin: "Trạng thái", "Ngày hóa đơn", "Mẫu số · ký hiệu", "Mã của cơ quan thuế" (hóa đơn không mã: "Hóa đơn không có mã"), "Hạn gửi cơ quan thuế", "Phiếu kho". Thẻ "Người bán", "Người mua" (tên, "Mã số thuế", "Địa chỉ"; người mua không cung cấp thông tin ghi rõ). Bảng dòng: "STT", "Tên hàng" (kèm "hàng khuyến mại"), "Đơn vị tính", "Số lượng", "Đơn giá", "Thuế suất" (`0%`, `5%`, `8%`, `10%`, `KCT`, `KKKNT`), "Tiền chưa thuế", "Tiền thuế". Thẻ tổng: "Thuế suất <x>: chưa thuế <…>, thuế <…>" từng thuế suất, "Tiền chưa thuế", "Tiền thuế", "Tổng thanh toán". Thẻ "Các lần gửi": thời điểm, "Phát hành" hoặc "Tra trạng thái", kết quả ("đã phát hành", "chờ cấp mã", "bị từ chối", "lỗi tạm thời", "lỗi dữ liệu", "không rõ kết quả", "không tìm thấy", "đang gửi"), thông báo; chưa có: "Chưa gửi lần nào.".
+- Biểu mẫu "Hóa đơn thay thế" (trên chi tiết): chú thích "Chỉ dùng khi sai tên, địa chỉ, mã số thuế người mua; dòng hàng, số tiền giữ nguyên. Hóa đơn này sẽ ghi "Đã bị thay thế"."; "Tên người mua" * (điền sẵn), "Mã số thuế", "Địa chỉ", "Lý do" *; nút "Lập hóa đơn thay thế", "Hủy".
+- Dữ liệu hiển thị: hóa đơn của công ty đang chọn, ngày hóa đơn mới nhất trước; số định dạng theo tiếng Việt; việc trả hàng mới nhất trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BoLoc, BangDuLieu, NhanTrangThai, The, ONhap, OChon, Nut, KhoiCanhBao, TrangThaiRong (tài liệu `15`).
+- API: API_91.
+- Thao tác: đổi bộ lọc về trang 1 và tải lại; "Gửi lại" gửi ngay, báo "Đã gửi lại hóa đơn.", tải lại chi tiết; "Tải PDF" mở thẻ mới, "Tải XML" tải tệp `<ký hiệu>-<số>.xml`; "Lập hóa đơn điều chỉnh giảm" báo "Đã lập hóa đơn điều chỉnh giảm (<trạng thái>)."; lưu hóa đơn của người mua báo "Đã ghi hóa đơn trả hàng của người mua."; lập hóa đơn thay thế báo "Đã lập hóa đơn thay thế." và mở chi tiết hóa đơn mới; hóa đơn cũ có nhãn "Đã bị thay thế" khi hóa đơn thay thế đã phát hành; đang có hóa đơn thay thế chưa phát hành thì báo "Hóa đơn đang có hóa đơn thay thế chưa phát hành."; "Gửi lại" khi đang gửi báo "Hóa đơn đang được gửi; thử lại sau ít phút.". Hóa đơn "Bị từ chối" chưa có nút "Gửi lại" (API cho phép).
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; danh sách rỗng "Chưa có hóa đơn.", "Không có phiếu trả hàng cần xử lý.".
+- Thông báo: lỗi gửi lại, tải tệp hiện dưới tiêu đề; lỗi biểu mẫu hiện tại trường và cuối biểu mẫu; lỗi nhà cung cấp hiện bằng thông báo của hệ thống nếu có, không thì câu chữ của nhà cung cấp.
+- Quyền hiển thị: mục menu, màn hình với `finance.einvoice.view`; "Gửi lại", "Lập hóa đơn thay thế", nút xử lý trả hàng theo `canManage`, `canResolve` của API.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; thẻ, bộ lọc, nút xuống dòng; số tiền không xuống dòng; mã của cơ quan thuế ngắt dòng; ô biểu mẫu xếp dọc; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_16 mục 14)
+
+### MAN_HINH_55: Cài đặt hóa đơn điện tử
+- Mục đích: Cài đặt nhà cung cấp, loại hóa đơn, ký hiệu, thông tin kết nối của công ty; kiểm tra kết nối.
+- Chức năng thực hiện: CHUC_NANG_76
+- Đường dẫn: `/finance/einvoice-settings`.
+- Bố cục: tiêu đề "Cài đặt hóa đơn điện tử" kèm "Lịch sử"; người chỉ xem thấy "Bạn chỉ xem được cài đặt." và mọi ô bị khóa. Ô chọn "Lập hóa đơn điện tử khi phiếu xuất giao hàng ghi sổ"; "Ngày bắt đầu" (gợi ý "Phiếu có ngày từ ngày này mới lập hóa đơn"); "Nhà cung cấp" ("Bộ giả lập (thử nghiệm)" chỉ hiện khi được dùng hoặc đang chọn, "MISA meInvoice"); "Môi trường" ("Thử nghiệm", "Chính thức"); "Loại hóa đơn" ("Có mã của cơ quan thuế", "Không có mã"); "Ký hiệu mẫu số" ("1 – Hóa đơn giá trị gia tăng", "2 – Hóa đơn bán hàng"). Khi chọn MISA: "Mã ứng dụng" *, "Mã số thuế" *, "Tên đăng nhập" *, "Mật khẩu" * (đã lưu thì gợi ý "Để trống: giữ mật khẩu ••••<4 ký tự cuối>"). Khi chọn bộ giả lập: "Tình huống giả lập" (gợi ý "Dùng để thử các trường hợp lỗi"; "Bình thường", "Cơ quan thuế cấp mã chậm", "Lỗi tạm thời lần đầu", "Lỗi dữ liệu", "Hết thời gian chờ lần đầu", "Cơ quan thuế từ chối"). Khối "Ký hiệu hóa đơn theo năm" (chú thích "6 ký tự: C (có mã) hoặc K (không mã), 2 số cuối năm, T, 2 chữ cái. Ví dụ C26TAA."): mỗi dòng "Năm", "Ký hiệu", nút "Bỏ"; nút "Thêm năm". Nút "Lưu", "Kiểm tra kết nối" (chỉ khi đã lưu cài đặt; chú thích "Kiểm tra theo cài đặt đã lưu.").
+- Dữ liệu hiển thị: cài đặt của công ty đang chọn; mật khẩu không hiện; 4 ký tự cuối trong gợi ý chỉ với người có `finance.einvoice.setup`.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, ONhap, OChon, Nut, KhoiCanhBao (tài liệu `15`).
+- API: API_92.
+- Thao tác: "Lưu" gửi toàn bộ cài đặt kèm `version`, báo "Đã lưu cài đặt hóa đơn điện tử.", tải lại; "Kiểm tra kết nối" báo "Kết nối được với nhà cung cấp." hoặc "Không kết nối được: <lý do>".
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại".
+- Thông báo: lỗi tại từng trường (ngày bắt đầu, nhà cung cấp, thông tin kết nối, năm, ký hiệu) và cuối biểu mẫu.
+- Quyền hiển thị: mục menu với `finance.einvoice.setup`; người có `finance.einvoice.view` mở đường dẫn thì chỉ xem; nút theo `canSetup` của API.
+- Responsive: ô biểu mẫu xếp dọc, dòng ký hiệu xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_16 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 5: Hoa hồng đội kinh doanh, CONG_VIEC_17)
+
+Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): trang `/finance/commissions`, `/finance/commission-settings`, mục menu "Hoa hồng", "Cài đặt hoa hồng" đã xóa. Mục 38 đến mục 40 giữ để tra cứu.
+
+Cùng mini app `apps/web-finance` (mục 26).
+
+## 38. Danh sách màn hình và điều hướng (MODULE_06 phần 5)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_56 | Hoa hồng: bảng hoa hồng tháng, chi tiết bảng, phát sinh | CHUC_NANG_82, CHUC_NANG_83 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_17 mục 14) |
+| MAN_HINH_57 | Cài đặt hoa hồng: cài đặt, chỉ tiêu | CHUC_NANG_80 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_17 mục 14) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> H[MAN_HINH_56 Hoa hồng]
+    M --> C[MAN_HINH_57 Cài đặt hoa hồng]
+    H -->|Thẻ Bảng hoa hồng, Lập bảng tháng| B[Chi tiết bảng hoa hồng]
+    H -->|Thẻ Bảng hoa hồng, bấm tháng| B
+    B -->|Gửi, Rút| B
+    B -->|Bỏ bảng nháp, Đóng| H
+    H -->|Thẻ Phát sinh| P[Danh sách phát sinh]
+    C -->|Thẻ Chỉ tiêu| T[Chỉ tiêu tháng]
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Bút toán, Sổ sách, Báo cáo tài chính, Hệ thống tài khoản (`finance.ledger.view`); Hóa đơn điện tử (`finance.einvoice.view`); Cài đặt hóa đơn điện tử (`finance.einvoice.setup`); Hoa hồng (`finance.commission.view`); Cài đặt hoa hồng (`finance.commission.setup`).
+
+## 39. Bảng vai trò – màn hình (MODULE_06 phần 5)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_56 thẻ "Bảng hoa hồng", chi tiết | Xem, Lập bảng, Gửi, Bỏ bảng nháp, Rút (của mình) | Xem, Lập bảng, Gửi, Bỏ bảng nháp, Rút (của mình) | Xem, Lập bảng, Gửi, Bỏ bảng nháp, Rút (của mình) | Không |
+| MAN_HINH_56 thẻ "Phát sinh" | Xem | Xem | Xem | Không |
+| MAN_HINH_57 Cài đặt hoa hồng (cả hai thẻ) | Xem, Lưu | Xem, Lưu | Không có mục menu; mở đường dẫn thì chỉ xem | Không |
+
+## 40. Đặc tả từng màn hình (MODULE_06 phần 5)
+
+### MAN_HINH_56: Hoa hồng
+- Trạng thái màn hình: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); không còn trên giao diện.
+- Mục đích: Xem phát sinh hoa hồng; lập, gửi, rút, bỏ bảng hoa hồng tháng.
+- Chức năng thực hiện: CHUC_NANG_82, CHUC_NANG_83
+- Đường dẫn: `/finance/commissions`.
+- Bố cục: tiêu đề "Hoa hồng"; hai thẻ "Bảng hoa hồng" (mặc định), "Phát sinh".
+  - Thẻ "Bảng hoa hồng": chú thích "Tháng tiếp theo cần chốt: <tháng/năm>" hoặc "Chưa có tháng nào cần chốt."; nút "Lập bảng tháng <tháng/năm>" (khi lập được). Bảng: "Tháng" (nút mở chi tiết), "Số", "Trạng thái" (nhãn "Nháp", "Chờ duyệt", "Đã ghi sổ", "Bị từ chối", "Đã rút"; kèm lý do không ghi sổ được), "Tổng hoa hồng" (kèm tiền tệ).
+  - Chi tiết bảng (khối hiện trên danh sách trong cùng thẻ): tiêu đề "Bảng hoa hồng tháng <tháng/năm> (<số> phát sinh)"; nút "Gửi", "Bỏ bảng nháp" (bảng nháp), "Rút" (người lập, bảng chờ duyệt), "Đóng". Bảng: "Nhân viên", "Tiền chưa thuế", "Hoa hồng trước hệ số", "Chỉ tiêu" (không có: "Không có"), "Đạt" (phần trăm; không có chỉ tiêu: "—"), "Hệ số", "Hoa hồng". Dòng "Tổng hoa hồng: <số> <tiền tệ>".
+  - Thẻ "Phát sinh": bộ lọc "Từ ngày", "Đến ngày". Bảng: "Ngày", "Nhân viên", "Nguồn" ("Thu tiền", "Hoàn tiền trả hàng", "Bán lẻ giao hàng", "Bán lẻ trả hàng", kèm số chứng từ), "Đơn bán", "Mặt hàng", "Tiền chưa thuế", "Mức" (phần trăm), "Hoa hồng", "Bảng hoa hồng" (số bảng hoặc "Chưa vào bảng"); phân trang 50 dòng, tổng số dòng, nút trang trước, trang sau.
+- Dữ liệu hiển thị: bảng của công ty đang chọn, tháng mới nhất trước (tối đa 120 bảng); phát sinh ngày mới nhất trước; số âm với hoàn tiền, trả hàng; số định dạng theo tiếng Việt.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BoLoc, BangDuLieu, NhanTrangThai, The, ONhap, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_94.
+- Thao tác: "Lập bảng tháng" báo "Đã lập bảng hoa hồng tháng <tháng/năm>." và mở chi tiết; "Gửi" báo "Đã ghi sổ bảng hoa hồng." (chưa có chính sách duyệt) hoặc "Đã gửi duyệt bảng hoa hồng.", tải lại chi tiết và danh sách; "Bỏ bảng nháp" báo "Đã bỏ bảng nháp.", đóng chi tiết; "Rút" báo "Đã rút bảng hoa hồng."; đổi ngày lọc về trang 1.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; danh sách rỗng "Chưa có bảng hoa hồng.", "Chưa có phát sinh hoa hồng.".
+- Thông báo: lỗi lập bảng hiện dưới dòng tháng tiếp theo; lỗi gửi, rút, bỏ hiện trong khối chi tiết.
+- Quyền hiển thị: mục menu, màn hình với `finance.commission.view`; nút theo `canCreate`, `canManage`, `canWithdraw` của API.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; nút, bộ lọc xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Ô lọc theo nhân viên (danh sách nhân viên của công ty, mặc định mọi nhân viên).
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_17 mục 14)
+
+### MAN_HINH_57: Cài đặt hoa hồng
+- Trạng thái màn hình: Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); không còn trên giao diện.
+- Mục đích: Cài đặt chính sách hoa hồng đội kinh doanh của công ty; nhập chỉ tiêu tháng của nhân viên.
+- Chức năng thực hiện: CHUC_NANG_80
+- Đường dẫn: `/finance/commission-settings`.
+- Bố cục: tiêu đề "Cài đặt hoa hồng" kèm "Lịch sử"; hai thẻ "Cài đặt" (mặc định), "Chỉ tiêu".
+  - Thẻ "Cài đặt": người chỉ xem thấy "Bạn chỉ xem được cài đặt.", mọi ô bị khóa, không có nút thêm, bỏ, lưu. Ô chọn "Tính hoa hồng đội kinh doanh"; "Ngày bắt đầu"; "Đơn bán tính cho" ("Nhân viên phụ trách khách", "Người lập đơn"); "Kết hợp ngành hàng và kênh" ("Bảng ngành hàng và kênh", "Kênh nhân hệ số"); "Mức mặc định (%)". Khối "Mức theo ngành hàng" (chú thích theo cách kết hợp): mỗi dòng "Ngành hàng" ("Chọn ngành hàng"), "Kênh bán" (chỉ khi bảng ngành hàng và kênh; "Mọi kênh"), "Phần trăm", nút "Bỏ"; nút "Thêm mức". Khối "Hệ số kênh" (chỉ khi kênh nhân hệ số): mỗi dòng "Kênh bán" ("Chọn kênh"), "Hệ số", nút "Bỏ"; nút "Thêm hệ số kênh". Khối "Hệ số theo phần trăm đạt chỉ tiêu" (chú thích "Bậc đầu từ 0%. Nhân viên không có chỉ tiêu tháng thì hệ số 1."): mỗi dòng "Từ % đạt", "Hệ số", nút "Bỏ" (khi có hơn một bậc); nút "Thêm bậc". Nút "Lưu".
+  - Thẻ "Chỉ tiêu": "Tháng" (mặc định tháng hiện tại); chú thích "Để trống: không có chỉ tiêu (hệ số 1)."; bảng "Nhân viên", "Chỉ tiêu tiền thu chưa thuế" (ô nhập); nút "Lưu" (người có quyền cài đặt).
+- Dữ liệu hiển thị: cài đặt của công ty đang chọn; ngành hàng đang dùng của tập đoàn; kênh đang dùng của công ty; nhân viên đang làm việc của công ty theo họ tên.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, The, ONhap, OChon, BangDuLieu, Nut (tài liệu `15`).
+- API: API_93.
+- Thao tác: "Lưu" cài đặt gửi toàn bộ cài đặt kèm `version`, báo "Đã lưu cài đặt hoa hồng.", tải lại; "Lưu" chỉ tiêu báo "Đã lưu chỉ tiêu."; đổi tháng tải chỉ tiêu của tháng đó.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại".
+- Thông báo: lỗi tại từng trường (ngày bắt đầu, mức mặc định, ngành hàng, kênh, phần trăm, hệ số, bậc, chỉ tiêu) và cuối biểu mẫu.
+- Quyền hiển thị: mục menu với `finance.commission.setup`; người có `finance.commission.view` mở đường dẫn thì chỉ xem; nút theo `canSetup` của API.
+- Responsive: ô biểu mẫu xếp dọc, dòng mức, hệ số, bậc xuống dòng; bảng chỉ tiêu chuyển thành thẻ; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_17 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 6: Đối soát ngân hàng, CONG_VIEC_18)
+
+Cùng mini app `apps/web-finance` (mục 26).
+
+## 41. Danh sách màn hình và điều hướng (MODULE_06 phần 6)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_58 | Giao dịch ngân hàng: danh sách, xử lý giao dịch chưa ghép, ô đối chiếu | CHUC_NANG_85, CHUC_NANG_86, CHUC_NANG_87 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_18 mục 14) |
+| MAN_HINH_59 | Kết nối ngân hàng: quỹ ngân hàng, kết nối, gửi giao dịch thử | CHUC_NANG_84 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_18 mục 14) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> G[MAN_HINH_58 Giao dịch ngân hàng]
+    M --> K[MAN_HINH_59 Kết nối ngân hàng]
+    G -->|Chọn quỹ| D[Ô đối chiếu]
+    G -->|Lập phiếu thu, Ghép tay, Bỏ qua| X[Ngăn kéo xử lý]
+    G -->|Bỏ ghép, Thôi bỏ qua| C[Hộp xác nhận]
+    G -->|Số phiếu| P[MAN_HINH_49 Chi tiết phiếu thu chi]
+    K -->|Kết nối, Sửa| S[Ngăn kéo kết nối]
+    K -->|Gửi thử| T[Ngăn kéo gửi giao dịch thử]
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Giao dịch ngân hàng (`finance.bank.view`); Kết nối ngân hàng (`finance.bank.setup`); Bút toán, Sổ sách, Báo cáo tài chính, Hệ thống tài khoản (`finance.ledger.view`); Hóa đơn điện tử (`finance.einvoice.view`); Cài đặt hóa đơn điện tử (`finance.einvoice.setup`); Hoa hồng (`finance.commission.view`); Cài đặt hoa hồng (`finance.commission.setup`).
+
+## 42. Bảng vai trò – màn hình (MODULE_06 phần 6)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_58 Giao dịch ngân hàng, ô đối chiếu | Xem, Lập phiếu thu, Ghép tay, Bỏ qua, Bỏ ghép, Thôi bỏ qua | Xem, Lập phiếu thu, Ghép tay, Bỏ qua, Bỏ ghép, Thôi bỏ qua | Xem, Lập phiếu thu, Ghép tay, Bỏ qua, Bỏ ghép, Thôi bỏ qua | Không |
+| MAN_HINH_59 Kết nối ngân hàng | Xem, Kết nối, Sửa, Gửi thử | Xem, Kết nối, Sửa, Gửi thử | Không có mục menu; mở đường dẫn thì chỉ xem | Không |
+
+## 43. Đặc tả từng màn hình (MODULE_06 phần 6)
+
+### MAN_HINH_58: Giao dịch ngân hàng
+- Mục đích: Xem giao dịch ngân hàng nhận qua webhook; xử lý giao dịch chưa ghép; đối chiếu số dư quỹ ngân hàng.
+- Chức năng thực hiện: CHUC_NANG_85, CHUC_NANG_86, CHUC_NANG_87
+- Đường dẫn: `/finance/bank-transactions`.
+- Bố cục: tiêu đề "Giao dịch ngân hàng".
+  - Bộ lọc: quỹ ("Mọi quỹ ngân hàng"), trạng thái ("Mọi trạng thái", "Chưa ghép" (mặc định), "Đã ghép", "Bỏ qua"), chiều ("Tiền vào và ra", "Tiền vào", "Tiền ra"), "Từ ngày", "Đến ngày", ô tìm "Nội dung, mã tham chiếu, số tiền".
+  - Ô đối chiếu (chỉ khi chọn một quỹ): tiêu đề "Đối chiếu từ <ngày> đến <ngày>" (theo bộ lọc ngày; "Đến ngày" trống là hôm nay, "Từ ngày" trống là đầu tháng của ngày cuối); "Số dư sổ"; "Số dư ngân hàng" (hoặc "Dịch vụ chưa gửi số dư"; kèm "lúc <thời điểm>"); "Chênh lệch" (khác 0 thì tô màu lỗi; không có số dư ngân hàng: "—"); "Tiền vào chưa ghép", "Tiền ra chưa ghép" (số giao dịch · số tiền); "Phiếu chưa có giao dịch" (kèm "<số> giao dịch bỏ qua"); nút "Xem phiếu chưa có giao dịch" / "Ẩn danh sách phiếu" mở danh sách số phiếu (liên kết), ngày, loại, đối tác, số tiền.
+  - Bảng: "Thời gian", "Quỹ", "Chiều" (nhãn "Tiền vào", "Tiền ra"), "Số tiền" (dấu + hoặc −), "Nội dung" (kèm mã tham chiếu), "Trạng thái" (nhãn "Chưa ghép", "Đã ghép", "Bỏ qua"; kèm "Tự ghép"), "Phiếu thu chi" (đã ghép: số phiếu liên kết, đối tác, ngày; bỏ qua: "Lý do: <lý do>"; có phiếu thu lập từ gợi ý: số phiếu hoặc "Phiếu nháp" kèm trạng thái phiếu; có gợi ý: "Gợi ý: <tên khách>" kèm căn cứ "số đơn bán", "mã khách hàng", "mã số thuế"), cột thao tác. Phân trang 20 dòng, tổng số dòng, nút trang trước, trang sau.
+  - Thao tác theo trạng thái: chưa ghép: "Lập phiếu thu" (tiền vào, không có phiếu thu chờ duyệt), "Ghép tay", "Bỏ qua" (không có phiếu thu chờ duyệt); đã ghép: "Bỏ ghép"; bỏ qua: "Thôi bỏ qua".
+  - Ngăn kéo "Lập phiếu thu": tóm tắt giao dịch (chiều, số tiền, ngày, nội dung); "Hệ thống gợi ý khách theo <căn cứ>."; "Khách hàng" (mặc định khách gợi ý, chọn lại bằng ô tìm khách); chú thích "Phiếu thu lập theo quỹ, ngày và số tiền của giao dịch, nội dung chuyển khoản làm ghi chú, rồi gửi theo luồng duyệt phiếu thu."; nút "Hủy", "Xác nhận lập phiếu thu".
+  - Gửi "Xác nhận lập phiếu thu" lỗi thì tải lại danh sách để lần gửi sau dùng phiên bản mới của giao dịch.
+  - Ngăn kéo "Ghép tay": tóm tắt giao dịch; danh sách phiếu đủ điều kiện (số, ngày, loại, đối tác, ghi chú), mỗi phiếu nút "Ghép".
+  - Ngăn kéo "Bỏ qua": tóm tắt giao dịch; ô "Lý do bỏ qua" (tối đa 500 ký tự); nút "Hủy", "Bỏ qua".
+  - Hộp xác nhận "Bỏ ghép" / "Thôi bỏ qua": "Giao dịch về trạng thái chưa ghép; phiếu thu chi không thay đổi.".
+- Dữ liệu hiển thị: giao dịch của công ty đang chọn, thời điểm mới nhất trước; số định dạng theo tiếng Việt.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, The, BangDuLieu, NhanTrangThai, NganKeo, HopThoaiXacNhan, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_95 (danh sách quỹ cho bộ lọc), API_99, API_100, API_101.
+- Thao tác: "Xác nhận lập phiếu thu" báo "Đã ghi sổ phiếu thu <số> và ghép giao dịch." hoặc "Phiếu thu <số> đang chờ duyệt; giao dịch tự ghép khi phiếu ghi sổ."; "Ghép" báo "Đã ghép với phiếu <số>."; "Bỏ qua" báo "Đã bỏ qua giao dịch."; "Bỏ ghép", "Thôi bỏ qua" báo "Giao dịch đã về trạng thái chưa ghép."; sau mỗi thao tác tải lại danh sách và ô đối chiếu; đổi bộ lọc về trang 1.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; danh sách rỗng "Không có giao dịch."; ghép tay không có phiếu: "Không có phiếu đã ghi sổ cùng quỹ, cùng chiều, cùng số tiền chưa ghép.".
+- Thông báo: lỗi lập phiếu thu, bỏ qua hiện tại trường và cuối ngăn kéo; lỗi ghép, bỏ ghép hiện trong ngăn kéo hoặc hộp xác nhận.
+- Quyền hiển thị: mục menu, màn hình với `finance.bank.view`; cột thao tác theo `canManage` của API.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc, nút xuống dòng; ô đối chiếu xếp lưới tự co; số tiền, thời gian không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_18 mục 14)
+
+### MAN_HINH_59: Kết nối ngân hàng
+- Mục đích: Kết nối quỹ ngân hàng với dịch vụ trung gian; lấy địa chỉ webhook, khóa; gửi giao dịch thử.
+- Chức năng thực hiện: CHUC_NANG_84
+- Đường dẫn: `/finance/bank-connections`.
+- Bố cục: tiêu đề "Kết nối ngân hàng" kèm "Lịch sử"; người chỉ xem thấy "Bạn chỉ được xem kết nối ngân hàng.".
+  - Khối khóa (sau khi tạo kết nối hoặc đổi khóa): "Khóa xác thực webhook chỉ hiện một lần. Sao chép và khai vào dịch vụ trung gian (tiêu đề Authorization có dạng "Apikey" cách một khoảng rồi đến khóa)."; khóa; nút "Sao chép", "Đã lưu khóa, ẩn đi".
+  - Bảng: "Quỹ" (tên · mã), "Tài khoản" (ngân hàng · số tài khoản), "Dịch vụ trung gian" ("Bộ giả lập", "SePay"; nhãn "Đang bật", "Đang tắt"; chưa có: "Chưa kết nối"), "Địa chỉ webhook" (địa chỉ đầy đủ · "khóa …<bốn ký tự cuối>"), "Nhận lần cuối", cột thao tác "Kết nối" hoặc "Sửa", "Gửi thử" (kết nối bộ giả lập, ngoài môi trường thật).
+  - Ngăn kéo "Kết nối ngân hàng: <quỹ>": "Dịch vụ trung gian" (bộ giả lập chỉ hiện ngoài môi trường thật hoặc khi kết nối đang dùng bộ giả lập), chú thích theo dịch vụ ("Chỉ dùng ngoài môi trường thật để thử; gửi giao dịch thử bằng nút Gửi thử.", "Khai địa chỉ webhook và khóa vào trang quản trị SePay, kiểu chứng thực API Key."); ô chọn "Đang bật"; "Đổi khóa xác thực (khóa cũ hết hiệu lực ngay)" (khi đã có kết nối); nút "Hủy", "Lưu".
+  - Ngăn kéo "Gửi giao dịch thử: <quỹ>": "Chiều", "Số tiền", "Nội dung", "Ngày giao dịch" (gợi ý "Để trống là hôm nay."); nút "Hủy", "Gửi".
+- Dữ liệu hiển thị: quỹ ngân hàng đang dùng của công ty đang chọn và quỹ ngừng dùng đã có kết nối, theo mã quỹ.
+- Thành phần: ThanhTrenCung, MenuMiniApp, KhoiCanhBao, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_95, API_96, API_97.
+- Thao tác: "Lưu" báo "Đã lưu kết nối ngân hàng.", hiện khối khóa khi có khóa mới, tải lại; "Gửi" báo "Đã nhận giao dịch thử, tự ghép với phiếu <số>." hoặc "Đã nhận giao dịch thử, chưa ghép được phiếu.".
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có quỹ ngân hàng. Thêm quỹ loại ngân hàng ở màn hình Quỹ.".
+- Thông báo: lỗi tại trường và cuối ngăn kéo.
+- Quyền hiển thị: mục menu với `finance.bank.setup`; người có `finance.bank.view` mở đường dẫn thì chỉ xem; nút theo `canSetup`, `simulatorAllowed` của API.
+- Responsive: bảng chuyển thành thẻ; địa chỉ webhook, khóa xuống dòng theo ký tự; ô biểu mẫu xếp dọc; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_18 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 7: Đối soát thu hộ COD, cổng thanh toán, CONG_VIEC_19)
+
+Cùng mini app `apps/web-finance` (mục 26).
+
+## 44. Danh sách màn hình và điều hướng (MODULE_06 phần 7)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_60 | Đối soát thu hộ: danh sách bảng đối soát, nhập tệp; thẻ đơn vị thu hộ | CHUC_NANG_88, CHUC_NANG_89, CHUC_NANG_91 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán | Menu Tài chính – Kế toán | Không lập (CONG_VIEC_19 mục 14) |
+| MAN_HINH_61 | Chi tiết bảng đối soát: tổng, các dòng, bỏ dòng, nhập lại, gửi, rút, bỏ bảng nháp | CHUC_NANG_89, CHUC_NANG_90, CHUC_NANG_91 | Quản trị tập đoàn, quản trị công ty, Kế toán trưởng, Kế toán | MAN_HINH_60 | Không lập (CONG_VIEC_19 mục 14) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> D[MAN_HINH_60 Đối soát thu hộ]
+    D -->|Thẻ Đơn vị thu hộ: Thêm, Sửa| V[Ngăn kéo đơn vị thu hộ]
+    D -->|Nhập tệp| N[Ngăn kéo nhập bảng đối soát]
+    N -->|Nhập thành công| C[MAN_HINH_61 Chi tiết bảng đối soát]
+    D -->|Số bảng| C
+    C -->|Nhập lại tệp| L[Ngăn kéo nhập lại]
+    C -->|Bỏ bảng nháp| X[Hộp xác nhận]
+    X -->|Đã bỏ| D
+    C -->|Danh sách| D
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Giao dịch ngân hàng (`finance.bank.view`); Kết nối ngân hàng (`finance.bank.setup`); Đối soát thu hộ (`finance.collection.view`); Bút toán, Sổ sách, Báo cáo tài chính, Hệ thống tài khoản (`finance.ledger.view`); Hóa đơn điện tử (`finance.einvoice.view`); Cài đặt hóa đơn điện tử (`finance.einvoice.setup`); Hoa hồng (`finance.commission.view`); Cài đặt hoa hồng (`finance.commission.setup`).
+
+## 45. Bảng vai trò – màn hình (MODULE_06 phần 7)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Kế toán trưởng | Kế toán | Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|---|
+| MAN_HINH_60 thẻ "Bảng đối soát" | Xem, Nhập tệp | Xem, Nhập tệp | Xem, Nhập tệp | Không |
+| MAN_HINH_60 thẻ "Đơn vị thu hộ" | Xem, Thêm, Sửa | Xem, Thêm, Sửa | Xem | Không |
+| MAN_HINH_61 Chi tiết bảng đối soát | Xem, Bỏ dòng, Nhập lại tệp, Bỏ bảng nháp, Gửi, Rút (bảng mình gửi) | Xem, Bỏ dòng, Nhập lại tệp, Bỏ bảng nháp, Gửi, Rút (bảng mình gửi) | Xem, Bỏ dòng, Nhập lại tệp, Bỏ bảng nháp, Gửi, Rút (bảng mình gửi) | Không |
+
+## 46. Đặc tả từng màn hình (MODULE_06 phần 7)
+
+### MAN_HINH_60: Đối soát thu hộ
+- Mục đích: Xem bảng đối soát của các đơn vị thu hộ; nhập bảng mới từ tệp Excel; khai đơn vị thu hộ.
+- Chức năng thực hiện: CHUC_NANG_88, CHUC_NANG_89, CHUC_NANG_91
+- Đường dẫn: `/finance/collection-statements`.
+- Bố cục: tiêu đề "Đối soát thu hộ" kèm "Lịch sử" (theo thẻ đang chọn: bảng đối soát hoặc đơn vị thu hộ); hai thẻ "Bảng đối soát" (mặc định), "Đơn vị thu hộ".
+  - Thẻ "Bảng đối soát": bộ lọc "Mọi đơn vị thu hộ", "Mọi trạng thái" ("Nháp", "Chờ duyệt", "Đã ghi sổ", "Bị từ chối", "Đã rút"), "Từ ngày", "Đến ngày"; nút "Nhập tệp" (khi có `canManage`; mờ khi chưa có đơn vị đang dùng); chưa có đơn vị: "Chưa có đơn vị thu hộ. Khai ở thẻ Đơn vị thu hộ trước khi nhập bảng đối soát.". Bảng: "Ngày bảng", "Đơn vị thu hộ" (tên · "Thu COD" hoặc "Cổng thanh toán"), "Số bảng của đơn vị" (liên kết sang MAN_HINH_61 · số nội bộ `DST…` khi có), "Tổng thu hộ", "Tổng phí", "Thực nhận", "Trạng thái" (nhãn trạng thái; kèm "<số> dòng lỗi" khi có). Phân trang 20 dòng, tổng số dòng, nút trang trước, trang sau.
+  - Thẻ "Đơn vị thu hộ": nút "Thêm đơn vị thu hộ" (khi có `canSetup`); chú thích "Đơn vị thu hộ là đối tác có hồ sơ khách hàng của công ty; tiền đơn vị chuyển về ngân hàng lập phiếu thu khách hàng cho đối tác này."; bảng "Đối tác" (tên · mã), "Loại", "Trạng thái" (nhãn "Đang dùng", "Ngừng dùng"), cột nút "Sửa" (khi có `canSetup`).
+  - Ngăn kéo "Thêm đơn vị thu hộ" / "Sửa đơn vị thu hộ": "Đối tác" (khi thêm: ô tìm đối tác có hồ sơ khách hàng, gợi ý "Tìm đối tác có hồ sơ khách hàng, gõ tên hoặc mã rồi nhấn Enter."; khi sửa: chỉ hiện tên · mã), "Loại" ("Thu COD", "Cổng thanh toán"), ô chọn "Đang dùng"; nút "Hủy", "Lưu".
+  - Ngăn kéo "Nhập bảng đối soát": chú thích "Tệp Excel theo mẫu chung: mã vận đơn hoặc mã giao dịch, số đơn bán, tiền thu hộ, phí, ngày thu; tối đa 5.000 dòng, 5 MB. Nhập lại thay toàn bộ các dòng."; nút "Tải tệp mẫu" (tệp `mau-doi-soat-thu-ho.xlsx`); "Đơn vị thu hộ" (đơn vị đang dùng: tên · loại), "Số bảng của đơn vị", "Ngày bảng" (mặc định hôm nay), "Tệp Excel" (chỉ `.xlsx`); khối lỗi "Tệp có dòng sai, chưa nhập:" liệt kê tối đa 20 lỗi "Dòng <số>, cột <tên cột>: <lỗi>"; nút "Hủy", "Nhập tệp" (mờ khi chưa chọn tệp).
+- Dữ liệu hiển thị: bảng của công ty đang chọn, ngày bảng mới nhất trước; số định dạng theo tiếng Việt.
+- Thành phần: ThanhTrenCung, MenuMiniApp, CacThe, BoLoc, BangDuLieu, NhanTrangThai, NganKeo, ONhap, OChon, Nut, KhoiCanhBao, TrangThaiRong (tài liệu `15`).
+- API: API_102, API_103, API_105.
+- Thao tác: "Lưu" đơn vị báo "Đã lưu đơn vị thu hộ.", tải lại; "Nhập tệp" thành công mở MAN_HINH_61 của bảng vừa nhập; đổi bộ lọc về trang 1.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có bảng đối soát.", "Chưa có đơn vị thu hộ.".
+- Thông báo: lỗi tại trường, khối lỗi dòng, cuối ngăn kéo; lỗi tải tệp mẫu hiện dưới nút "Tải tệp mẫu".
+- Quyền hiển thị: mục menu, màn hình với `finance.collection.view`; nút "Nhập tệp" theo `canManage`, "Thêm đơn vị thu hộ", "Sửa" theo `canSetup` của API_102.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc, nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_19 mục 14)
+
+### MAN_HINH_61: Chi tiết bảng đối soát
+- Mục đích: Xem các dòng đã ghép, sửa lỗi, gửi bảng đối soát.
+- Chức năng thực hiện: CHUC_NANG_89, CHUC_NANG_90, CHUC_NANG_91
+- Đường dẫn: `/finance/collection-statements/<mã>`.
+- Bố cục: tiêu đề "Bảng đối soát <số bảng của đơn vị>", nút "Danh sách".
+  - Thẻ thông tin: nhãn trạng thái, số nội bộ (khi có), "<đơn vị> · <loại> · <ngày bảng>"; ô "Tổng thu hộ", "Tổng phí", "Thực nhận" (kèm tiền tệ), "Số dòng"; khối lỗi "<số> dòng lỗi phải bỏ dòng hoặc sửa tệp rồi nhập lại trước khi gửi."; khối cảnh báo "<số> dòng có tiền thu hộ khác số khách còn nợ của đơn: thiếu thì đơn còn nợ, thừa thì thành tiền trả trước của khách."; khối lỗi "Không ghi sổ được: <lý do>" (câu đã dịch theo khóa lý do; khi có).
+  - Nút theo trạng thái: nháp, bị từ chối, đã rút (có `canManage`): "Gửi" (mờ khi còn dòng lỗi), "Nhập lại tệp"; thêm "Bỏ bảng nháp" khi nháp chưa có số; chờ duyệt (`canWithdraw`: người gửi): "Rút".
+  - Bảng dòng: "Dòng", "Mã vận đơn, giao dịch" (kèm ngày thu), "Đơn bán", "Khách hàng" (đơn không có khách: "Đơn không có khách"; không tìm thấy đơn: "—"), "Thu hộ", "Phí", "Khách còn nợ" (bảng đã ghi sổ hoặc dòng không có khách: "—"), "Kiểm tra" (lỗi: "Không tìm thấy đơn", "Đơn đã hủy", "Mã trùng trong bảng", "Mã đã có ở bảng khác"; cảnh báo: "Thừa so với còn nợ", "Thiếu so với còn nợ"; khác: "—"), cột nút "Bỏ dòng" (khi sửa được và bảng còn hơn một dòng).
+  - Ngăn kéo "Nhập lại bảng đối soát": như ngăn kéo nhập của MAN_HINH_60, điền sẵn đơn vị, số bảng, ngày bảng.
+  - Hộp xác nhận "Bỏ bảng nháp": "Bảng nháp và các dòng sẽ bị xóa."; nút "Bỏ bảng nháp".
+- Dữ liệu hiển thị: các dòng theo thứ tự trong tệp; số định dạng theo tiếng Việt.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, NhanTrangThai, KhoiCanhBao, BangDuLieu, NganKeo, HopThoaiXacNhan, ONhap, OChon, Nut (tài liệu `15`).
+- API: API_102 (đơn vị cho ngăn kéo nhập lại), API_103 (nhập lại), API_104.
+- Thao tác: "Gửi" báo "Đã gửi bảng đối soát." (chờ duyệt thì thêm "Bảng đối soát đang chờ duyệt."); "Rút" báo "Đã rút bảng đối soát."; "Bỏ dòng" báo "Đã bỏ dòng."; nhập lại báo "Đã nhập lại bảng đối soát."; "Bỏ bảng nháp" báo "Đã bỏ bảng nháp.", về MAN_HINH_60; sau mỗi thao tác tải lại bảng.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại".
+- Thông báo: lỗi thao tác hiện trong thẻ thông tin; lỗi bỏ bảng hiện trong hộp xác nhận.
+- Quyền hiển thị: nút theo `canManage`, `canWithdraw` của API và trạng thái bảng.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; ô tổng xếp lưới tự co; nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_19 mục 14)
+
+## MODULE_06 Tài chính – Kế toán (phần 8: Báo cáo tài chính hợp nhất, CONG_VIEC_20)
+
+Cùng mini app `apps/web-finance` (mục 26).
+
+## 47. Danh sách màn hình và điều hướng (MODULE_06 phần 8)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_62 | Báo cáo tài chính hợp nhất: phạm vi thành viên; thẻ bảng hợp nhất (danh sách, lập bảng), thẻ xem nhanh cộng gộp | CHUC_NANG_92, CHUC_NANG_93 | Quản trị tập đoàn, Kế toán trưởng có phạm vi tập đoàn | Menu Tài chính – Kế toán | Không lập (xem trước trên ứng dụng, CONG_VIEC_20 mục 14) |
+| MAN_HINH_63 | Chi tiết bảng hợp nhất: báo cáo, bút toán loại trừ, lãi chưa thực hiện; tính lại, gửi, rút, xuất, bỏ bảng nháp | CHUC_NANG_93, CHUC_NANG_94, CHUC_NANG_95 | Quản trị tập đoàn, Kế toán trưởng có phạm vi tập đoàn | MAN_HINH_62 | Không lập (xem trước trên ứng dụng, CONG_VIEC_20 mục 14) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Tài chính – Kế toán}} --> H[MAN_HINH_62 Báo cáo tài chính hợp nhất]
+    H -->|Lập bảng hợp nhất| C[MAN_HINH_63 Chi tiết bảng hợp nhất]
+    H -->|Kỳ| C
+    C -->|Thêm điều chỉnh tay| D[Ngăn kéo điều chỉnh tay]
+    C -->|Sửa lãi chưa thực hiện| L[Ngăn kéo sửa lãi chưa thực hiện]
+    C -->|Bỏ bảng nháp| X[Hộp xác nhận]
+    X -->|Đã bỏ| H
+    C -->|Danh sách| H
+```
+
+- Thứ tự menu và quyền hiện mục: Công nợ, Phiếu thu chi, Quỹ (`finance.debt.view`); Giao dịch ngân hàng (`finance.bank.view`); Kết nối ngân hàng (`finance.bank.setup`); Đối soát thu hộ (`finance.collection.view`); Bút toán, Sổ sách, Báo cáo tài chính (`finance.ledger.view`); Báo cáo hợp nhất (`finance.consolidation.view`); Hệ thống tài khoản (`finance.ledger.view`); Hóa đơn điện tử (`finance.einvoice.view`); Cài đặt hóa đơn điện tử (`finance.einvoice.setup`); Hoa hồng (`finance.commission.view`); Cài đặt hoa hồng (`finance.commission.setup`).
+- Mục menu "Báo cáo hợp nhất" hiện theo quyền ở mọi phạm vi; người chỉ có quyền ở phạm vi công ty mở màn hình nhận lỗi không có quyền.
+
+## 48. Bảng vai trò – màn hình (MODULE_06 phần 8)
+
+| Màn hình | Quản trị tập đoàn | Kế toán trưởng (phạm vi tập đoàn) | Quản trị công ty, Kế toán trưởng (phạm vi công ty), Kế toán, Nhân viên bán hàng, Thủ kho |
+|---|---|---|---|
+| MAN_HINH_62 Báo cáo tài chính hợp nhất | Xem, Lập bảng | Xem, Lập bảng | Không |
+| MAN_HINH_63 Chi tiết bảng hợp nhất | Xem, Xuất, Tính lại, Sửa lãi chưa thực hiện, Thêm, Xóa điều chỉnh tay, Bỏ bảng nháp, Gửi, Rút (bảng mình gửi) | Xem, Xuất, Tính lại, Sửa lãi chưa thực hiện, Thêm, Xóa điều chỉnh tay, Bỏ bảng nháp, Gửi, Rút (bảng mình gửi) | Không |
+
+## 49. Đặc tả từng màn hình (MODULE_06 phần 8)
+
+### MAN_HINH_62: Báo cáo tài chính hợp nhất
+- Mục đích: Xem phạm vi hợp nhất, các bảng hợp nhất theo kỳ, lập bảng mới; xem nhanh số cộng gộp.
+- Chức năng thực hiện: CHUC_NANG_92, CHUC_NANG_93
+- Đường dẫn: `/finance/consolidation`.
+- Bố cục: tiêu đề "Báo cáo tài chính hợp nhất".
+  - Thẻ phạm vi: "Tập đoàn <tên> · đồng tiền <mã>"; danh sách thành viên: tên (đậm) · mã · "Thông tư 99" hoặc "Thông tư 133" · đồng tiền · "công ty gốc" (khi là công ty gốc); nhãn "Hợp nhất" hoặc "Không hợp nhất: khác đồng tiền", "Không hợp nhất: chưa khởi tạo kế toán".
+  - Hai thẻ "Bảng hợp nhất" (mặc định), "Xem nhanh cộng gộp".
+  - Thẻ "Bảng hợp nhất": ô "Từ ngày" (mặc định ngày 1 tháng 1 năm nay), "Đến ngày" (mặc định hôm nay), nút "Lập bảng hợp nhất" (khi có `canManage`); bảng "Kỳ" (liên kết sang MAN_HINH_63), "Số", "Trạng thái" (nhãn "Nháp", "Chờ duyệt", "Đã ghi sổ", "Bị từ chối", "Đã rút"), "Tính lại lúc".
+  - Thẻ "Xem nhanh cộng gộp": hai thẻ "Tình hình tài chính" (mặc định), "Kết quả kinh doanh"; ô "Từ ngày", "Đến ngày"; dòng "<tên báo cáo> (<mẫu>) · số cộng gộp của <thành viên>, chưa loại trừ nội bộ"; bảng chỉ tiêu (bảng chỉ tiêu hợp nhất như MAN_HINH_63). Chỉ gọi API xem trước khi mở thẻ này.
+- Dữ liệu hiển thị: bảng của tập đoàn, đến ngày mới nhất trước; số định dạng theo tiếng Việt, số âm trong ngoặc, số 0 để trống.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, NhanTrangThai, CacThe, BoLoc, ONhap, BangDuLieu, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_106.
+- Thao tác: "Lập bảng hợp nhất" thành công mở MAN_HINH_63 của bảng vừa lập; đổi ngày, đổi báo cáo ở thẻ xem nhanh tải lại số.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có bảng hợp nhất."; khoảng ngày sai ở thẻ xem nhanh: "Chọn ngày hợp lệ; từ ngày không sau đến ngày.".
+- Thông báo: lỗi lập bảng hiện dưới ô kỳ ("Kỳ này đã có bảng hợp nhất đang dùng.", "Ngày kết thúc phải sau ngày bắt đầu.").
+- Quyền hiển thị: mục menu với `finance.consolidation.view`; nội dung khi có quyền ở phạm vi tập đoàn (không có thì thông báo lỗi không có quyền); ô lập bảng theo `canManage` của API_106.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc, nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_20 mục 14)
+
+### MAN_HINH_63: Chi tiết bảng hợp nhất
+- Mục đích: Xem báo cáo hợp nhất của kỳ, kiểm bút toán loại trừ, sửa lãi chưa thực hiện, thêm điều chỉnh tay, gửi duyệt, xuất tệp.
+- Chức năng thực hiện: CHUC_NANG_93, CHUC_NANG_94, CHUC_NANG_95
+- Đường dẫn: `/finance/consolidation/<mã>`.
+- Bố cục: tiêu đề "Bảng hợp nhất <từ ngày> – <đến ngày>", nút "Danh sách".
+  - Thẻ thông tin: nhãn trạng thái, số `HN…` (khi có), "Thành viên: <danh sách> · tính lại lúc <thời điểm>"; khối cảnh báo "Công nợ nội bộ hai bên chưa khớp (đã loại trừ phần nhỏ hơn; đối chiếu rồi điều chỉnh tay nếu cần):" kèm từng dòng "<công ty A> phải thu <công ty B>: <số>; <công ty B> phải trả: <số>; chênh lệch <số>"; khối lỗi lý do không chốt được (câu thông báo đã dịch theo khóa lý do; khi có).
+  - Nút: "Gửi" (khi `canEdit`), "Rút" (khi `canWithdraw`), "Tình hình tài chính (Excel)", "Tình hình tài chính (PDF)", "Kết quả kinh doanh (Excel)", "Kết quả kinh doanh (PDF)" (mọi trạng thái); hàng thứ hai khi `canEdit`: "Tính lại", "Bỏ bảng nháp" (khi nháp chưa có số).
+  - Bốn thẻ "Tình hình tài chính" (mặc định), "Kết quả kinh doanh", "Bút toán loại trừ", "Lãi chưa thực hiện".
+  - Thẻ báo cáo: bảng "Mã số", "Chỉ tiêu" (thụt lề theo cấp, cấp 0 chữ đậm), "Cộng gộp", "Loại trừ", "Hợp nhất · Số cuối kỳ (<ngày>)" hoặc "Hợp nhất · Kỳ này (<từ ngày> – <đến ngày>)", "Cộng gộp · Số đầu năm (<ngày>)" hoặc "Cộng gộp · Cùng kỳ năm trước (<từ ngày> – <đến ngày>)".
+  - Thẻ "Bút toán loại trừ": nút "Thêm điều chỉnh tay" (khi `canEdit`); bảng "Bút toán" (loại "Công nợ nội bộ", "Doanh thu, giá vốn nội bộ", "Lãi chưa thực hiện", "Điều chỉnh tay" · diễn giải; nút "Xóa" ở điều chỉnh tay khi `canEdit`), "Công ty" (bút toán lãi chưa thực hiện: "—"), "Tài khoản" (mã Thông tư 99), "Đối tác", "Nợ", "Có".
+  - Thẻ "Lãi chưa thực hiện": chú thích "Lãi chưa thực hiện = số còn tồn cuối kỳ (tối đa số mua nội bộ trong kỳ) × lãi gộp mỗi đơn vị của bên bán; sửa được khi bảng còn nháp."; bảng "Công ty mua", "Công ty bán", "Mặt hàng" (tên · mã hàng), "Mua nội bộ", "Tồn cuối kỳ", "Lãi gộp mỗi đơn vị", "Ước tính", "Số dùng" (kèm "đã sửa: <lý do>"), cột nút "Sửa" (khi `canEdit`).
+  - Ngăn kéo "Thêm điều chỉnh tay": chú thích "Ghi theo mã tài khoản Thông tư 99, tổng Nợ bằng tổng Có; ví dụ loại trừ khoản đầu tư vào công ty con (Có 221) với vốn chủ sở hữu của công ty con (Nợ 411)."; "Diễn giải"; mỗi dòng "Tài khoản" (gợi ý danh sách tài khoản Thông tư 99), "Nợ", "Công ty" (mặc định "Công ty gốc trước", hoặc chọn một thành viên), "Đối tác" (mặc định "Chọn đối tác (bắt buộc)" khi tài khoản lấy số dư theo đối tác, khác thì "Không chọn đối tác"; danh sách đối tác của các thành viên), "Có"; mặc định hai dòng; nút "Thêm dòng" (tối đa 20 dòng), "Hủy", "Lưu".
+  - Ngăn kéo "Sửa" lãi chưa thực hiện: "<mặt hàng> · Ước tính: <số>"; "Số dùng" (điền sẵn số đang dùng), "Lý do"; nút "Hủy", "Dùng số ước tính" (khi đã sửa), "Lưu".
+  - Hộp xác nhận "Bỏ bảng nháp": "Bảng hợp nhất nháp, bút toán điều chỉnh tay và số đã sửa sẽ bị xóa."; nút "Bỏ bảng nháp".
+- Dữ liệu hiển thị: bảng chờ duyệt, đã chốt hiện số đã lưu lúc gửi; bảng khác tính khi mở; số định dạng theo tiếng Việt, số âm trong ngoặc.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, NhanTrangThai, KhoiCanhBao, CacThe, BangDuLieu, NganKeo, HopThoaiXacNhan, ONhap, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_107, API_108, API_109.
+- Thao tác: "Gửi" báo "Đã gửi bảng hợp nhất." (chờ duyệt thì thêm "Bảng hợp nhất đang chờ duyệt."); "Rút" báo "Đã rút bảng hợp nhất."; "Tính lại" báo "Đã tính lại bảng hợp nhất."; thêm, xóa điều chỉnh tay báo "Đã thêm bút toán điều chỉnh.", "Đã xóa bút toán điều chỉnh." (xóa không hỏi lại); sửa lãi báo "Đã lưu lãi chưa thực hiện."; xuất Excel tải tệp `HN-<loại báo cáo>-<đến ngày>.xlsx`, xuất PDF mở thẻ trình duyệt mới; "Bỏ bảng nháp" về MAN_HINH_62; sau mỗi thao tác tải lại bảng.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Không có bút toán loại trừ.", "Không có hàng mua nội bộ trong kỳ.".
+- Thông báo: lỗi thao tác, lỗi xuất hiện trong thẻ thông tin; lỗi xóa điều chỉnh tay hiện trên bảng bút toán; lỗi tại trường, cuối ngăn kéo; lỗi bỏ bảng hiện trong hộp xác nhận.
+- Quyền hiển thị: nút theo `canEdit`, `canWithdraw` của API_107 và trạng thái bảng.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; dòng điều chỉnh tay xếp lưới tự co; nút xuống dòng; số tiền không xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_20 mục 14)
+
+## MODULE_07 Khách hàng và Đối tác (phần 2: Gán khách hàng cho nhân viên kinh doanh, CONG_VIEC_21)
+
+Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): trang `/crm/customer-assignments` và mục menu "Giao khách hàng" đã xóa; phần sửa MAN_HINH_36, MAN_HINH_37 bỏ theo mục 64. Mục 50 đến mục 52 giữ để tra cứu.
+
+Cùng mini app `apps/web-crm` (mục 11). Phạm vi xem đối tác theo nhân viên phụ trách (QUYTAC_NGHIEPVU_129) áp dụng cho MAN_HINH_36, MAN_HINH_37 và màn hình đơn bán MAN_HINH_42, MAN_HINH_43 (không đổi giao diện đơn bán; danh sách chọn khách chỉ gồm khách trong phạm vi).
+
+## 50. Danh sách màn hình và điều hướng (MODULE_07 phần 2)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_64 | Danh sách phiếu giao khách: lọc trạng thái; nút lập phiếu | CHUC_NANG_97 | Mọi người có `crm.partner.view`; lập phiếu: trưởng phòng, người có `crm.customer.assign` (Quản trị tập đoàn, quản trị công ty) | Menu Khách hàng và Đối tác | Không lập (xem trước trên ứng dụng, CONG_VIEC_21 mục 14) |
+| MAN_HINH_65 | Phiếu giao khách: lập, sửa (chọn khách, nhân viên nhận, lý do); gửi, rút, bỏ phiếu nháp; trạng thái, lý do không áp dụng được | CHUC_NANG_97 | Như MAN_HINH_64 | MAN_HINH_64; liên kết số phiếu ở thẻ lịch sử phụ trách của MAN_HINH_37; thông báo áp dụng phiếu | Không lập (xem trước trên ứng dụng, CONG_VIEC_21 mục 14) |
+
+Sơ đồ điều hướng (thay sơ đồ mục 11):
+
+```mermaid
+flowchart TD
+    E[MAN_HINH_05 Trang chủ mini app] -->|mở mini app Khách hàng và Đối tác| M{{Menu Khách hàng và Đối tác}}
+    M --> L[MAN_HINH_36 Danh sách đối tác]
+    M --> G[MAN_HINH_64 Danh sách phiếu giao khách]
+    L -->|Mã đối tác| D[MAN_HINH_37 Chi tiết đối tác]
+    L -->|Thêm đối tác, lưu xong| D
+    L -->|Đã có đối tác: Mở| D
+    L -->|Đã có đối tác: Nhận làm khách của tôi| D
+    D -->|Danh sách đối tác| L
+    D -->|Lịch sử| H[MAN_HINH_18 Nhật ký thao tác]
+    D -->|Số phiếu ở thẻ lịch sử phụ trách| P[MAN_HINH_65 Phiếu giao khách]
+    G -->|Lập phiếu giao khách, lưu xong| P
+    G -->|Số phiếu| P
+    P -->|Danh sách| G
+    P -->|Bỏ phiếu nháp| X[Hộp xác nhận]
+    X -->|Đã bỏ| G
+    N[Thông báo trong ứng dụng] -->|Được giao, bị chuyển khách| P
+```
+
+- Thứ tự menu và quyền hiện mục: Đối tác (`crm.partner.view`); Giao khách hàng (`crm.partner.view`).
+- Nút "Lập phiếu giao khách" chỉ hiện khi người dùng là trưởng phòng hoặc có `crm.customer.assign` (API tùy chọn phiếu trả được).
+
+## 51. Bảng vai trò – màn hình (MODULE_07 phần 2)
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty | Trưởng phòng | Nhân viên bán hàng | Kế toán, Kế toán trưởng, Thủ kho, Nhân viên mua hàng, Quản lý đối tác |
+|---|---|---|---|---|
+| MAN_HINH_36 Danh sách đối tác (phần sửa) | Xem mọi đối tác, lọc "Khách của tôi" | Xem khách của nhân viên phòng mình quản lý | Xem khách mình phụ trách, Thêm, Nhận làm khách của tôi | Xem mọi đối tác (Quản lý đối tác: Thêm) |
+| MAN_HINH_37 Chi tiết đối tác (phần sửa) | Xem lịch sử phụ trách; đặt nhân viên phụ trách khi chưa có | Xem lịch sử phụ trách (khách trong phạm vi) | Xem lịch sử phụ trách (khách mình phụ trách) | Xem lịch sử phụ trách |
+| MAN_HINH_64 Danh sách phiếu giao khách | Xem mọi phiếu, Lập phiếu | Xem phiếu mình lập, mình gửi, giao cho mình; Lập phiếu | Xem phiếu giao cho mình | Xem phiếu giao cho mình |
+| MAN_HINH_65 Phiếu giao khách | Xem, Sửa, Gửi, Bỏ phiếu nháp, Rút (phiếu mình gửi) | Xem, Sửa, Gửi, Bỏ phiếu nháp (phiếu mình lập), Rút (phiếu mình gửi) | Xem | Xem |
+
+## 52. Đặc tả từng màn hình (MODULE_07 phần 2)
+
+### MAN_HINH_64: Danh sách phiếu giao khách
+- Trạng thái màn hình: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); không còn trên giao diện.
+- Mục đích: Theo dõi các phiếu giao, chuyển khách; lập phiếu mới.
+- Chức năng thực hiện: CHUC_NANG_97
+- Đường dẫn: `/crm/customer-assignments`.
+- Bố cục: tiêu đề "Giao khách hàng", nút "Lập phiếu giao khách" (khi là trưởng phòng hoặc có quyền giao khách); câu "Giao, chuyển khách cho nhân viên kinh doanh; đi theo chính sách duyệt của công ty."; bộ lọc "Trạng thái: Tất cả" (Nháp, Chờ duyệt, Đã áp dụng, Bị từ chối, Đã rút); bảng "Số phiếu" (liên kết mở MAN_HINH_65; chưa có số hiện "(nháp)"), "Nhân viên nhận", "Số khách", "Lý do", "Người lập" (kèm thời điểm lập), "Trạng thái" (nhãn màu: Nháp, Đã rút trung tính; Chờ duyệt cảnh báo; Đã áp dụng thành công; Bị từ chối nguy hiểm); phân trang 20 dòng.
+- Dữ liệu hiển thị: phiếu của công ty đang chọn trong phạm vi xem (QUYTAC_NGHIEPVU_132), mới lập trước.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, OChon, BangDuLieu, NhanTrangThai, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_110.
+- Thao tác: đổi trạng thái về trang 1; "Lập phiếu giao khách" mở `/crm/customer-assignments/new` (MAN_HINH_65 ở chế độ lập).
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có phiếu giao khách." (có lọc thì "Không có kết quả phù hợp.").
+- Thông báo: không có.
+- Quyền hiển thị: mục menu với `crm.partner.view`; nút lập phiếu khi API tùy chọn phiếu trả được (không phải trưởng phòng, không có quyền giao khách thì API trả 403, nút ẩn).
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_21 mục 14)
+
+### MAN_HINH_65: Phiếu giao khách
+- Trạng thái màn hình: Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); không còn trên giao diện.
+- Mục đích: Lập, sửa phiếu giao khách; gửi duyệt; xem kết quả áp dụng.
+- Chức năng thực hiện: CHUC_NANG_97
+- Đường dẫn: `/crm/customer-assignments/new` (lập), `/crm/customer-assignments/<mã>` (chi tiết, sửa).
+- Bố cục:
+  - Chế độ lập (tiêu đề "Lập phiếu giao khách") và sửa (nút "Sửa" trên chi tiết): biểu mẫu "Nhân viên nhận *" (danh sách chọn "Chọn nhân viên": mọi thành viên đang hoạt động hoặc nhân viên phòng mình quản lý), "Lý do *" (tối đa 500 ký tự); khối "Khách đã chọn: <số>" liệt kê "<mã> · <tên> · <nhân viên phụ trách hoặc "chưa có người phụ trách">" kèm nút "Bỏ", lỗi từng khách hiện dưới khách đó (trống: "Chưa chọn khách nào."); ô "Tìm khách để thêm" (gợi ý "Tên, mã, mã số thuế, điện thoại"; tìm khách hàng đang giao dịch trong phạm vi xem, 20 kết quả, bỏ khách đã chọn) mỗi dòng "<mã> · <tên> · <nhân viên phụ trách>" kèm nút "Thêm" (tối đa 500 khách); nút "Lưu", "Hủy". Không phải trưởng phòng, không có quyền giao khách: khối cảnh báo "Bạn không phải trưởng phòng và không có quyền giao khách.".
+  - Chế độ xem: tiêu đề "Phiếu giao khách <số hoặc "(nháp)">", nút "Danh sách"; thẻ thông tin: "Trạng thái" (nhãn), "Nhân viên nhận", "Lý do", "Người lập" (kèm thời điểm), "Áp dụng lúc" (khi đã áp dụng); khối lỗi lý do không áp dụng được (câu đã dịch theo khóa) kèm "Khách đã đổi: <tên các khách>"; nút "Gửi", "Sửa" (khi `canSubmit`, `canEdit`), "Rút" (khi `canWithdraw`), "Bỏ phiếu nháp" (khi `canDiscard`); bảng "Khách hàng" (mã · tên), "Đang phụ trách" (hoặc "chưa có người phụ trách"), "Phụ trách lúc gửi" (chưa gửi hiện "—").
+  - Hộp xác nhận "Bỏ phiếu nháp": "Bỏ phiếu nháp này? Không khôi phục được."; nút "Bỏ phiếu nháp".
+- Dữ liệu hiển thị: phiếu trong phạm vi xem; khách theo tên.
+- Thành phần: ThanhTrenCung, MenuMiniApp, The, NhanTrangThai, KhoiCanhBao, ONhap, OChon, BangDuLieu, HopThoaiXacNhan, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_110, API_71 (tìm khách).
+- Thao tác: lưu phiếu mới báo "Đã lưu phiếu giao khách." rồi mở chi tiết; "Gửi" báo "Đã gửi phiếu giao khách."; "Rút" báo "Đã rút phiếu."; "Bỏ phiếu nháp" báo "Đã bỏ phiếu nháp." rồi về MAN_HINH_64; gõ ô tìm thì tìm sau 300 mili giây; sau mỗi thao tác tải lại phiếu.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; không tìm thấy phiếu: "Không tìm thấy dữ liệu hoặc bạn không có quyền xem.".
+- Thông báo: lỗi gửi, rút hiện trong thẻ thông tin; lỗi tại trường, cuối biểu mẫu; lỗi bỏ phiếu hiện trong hộp xác nhận.
+- Quyền hiển thị: nút theo `canEdit`, `canSubmit`, `canWithdraw`, `canDiscard` của API_110.
+- Responsive: bảng chuyển thành thẻ; nút xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: Chưa phê duyệt (CONG_VIEC_21 mục 14)
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 1: Tài khoản người mua, CONG_VIEC_23)
+
+Ứng dụng VComm `apps/mobile-vcomm` (Expo; khổ điện thoại; xem trước bằng bản web) thay ứng dụng kinh doanh của CONG_VIEC_22: MAN_HINH_66 đến MAN_HINH_71 không dùng nữa (THAY_DOI_14). Web-crm thêm mục "Người mua VComm". Màu, khoảng cách lấy từ tài liệu `15` (tệp chủ đề của ứng dụng sao giá trị từ `packages/ui/src/styles.css`).
+
+## 53. Danh sách màn hình và điều hướng (MODULE_09 phần lõi 1)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_73 | Ứng dụng: Đăng nhập (số điện thoại và mật khẩu, hoặc mã OTP; mã xác thực hai lớp với tài khoản nhân viên bắt buộc) | CHUC_NANG_105 | Mọi người | Mở ứng dụng khi chưa đăng nhập; phiên bị từ chối | Không làm (xem trước từng lát) |
+| MAN_HINH_74 | Ứng dụng: Đăng ký hai bước (số điện thoại, mã giới thiệu; mã OTP, họ tên, mật khẩu) | CHUC_NANG_104 | Mọi người | MAN_HINH_73; đường dẫn `/r/<số điện thoại>` | Không làm |
+| MAN_HINH_75 | Ứng dụng: Quên mật khẩu (số điện thoại; mã OTP, mật khẩu mới) | CHUC_NANG_105 | Mọi người | MAN_HINH_73 | Không làm |
+| MAN_HINH_76 | Ứng dụng: Tài khoản (họ tên, số điện thoại; mã, đường dẫn giới thiệu, Chia sẻ, Sao chép; người giới thiệu, nhập mã một lần; Đăng xuất) | CHUC_NANG_106 | Người mua | Thanh điều hướng dưới; đường dẫn giới thiệu khi đã đăng nhập | Không làm |
+| MAN_HINH_77 | Ứng dụng: Người tôi giới thiệu (thẻ trong MAN_HINH_76) | CHUC_NANG_106 | Người mua | MAN_HINH_76 | Không làm |
+| MAN_HINH_78 | Ứng dụng: Kinh doanh – khách tôi phụ trách (họ tên, số điện thoại, ngày đăng ký, nút Gọi) | CHUC_NANG_108 | Nhân viên kinh doanh | Thanh điều hướng dưới (chỉ hiện với nhân viên kinh doanh) | Không làm |
+| MAN_HINH_79 | Web-crm: Tài khoản người mua (công ty vận hành sàn; tìm, lọc loại tài khoản, bảng, phân trang) | CHUC_NANG_107 | `marketplace.buyer.view` | Menu "Người mua VComm" | Không làm |
+| MAN_HINH_80 | Web-crm: Chi tiết tài khoản người mua (thông tin; nhân viên kinh doanh; đổi người giới thiệu; lịch sử người giới thiệu, đánh dấu; người được giới thiệu) | CHUC_NANG_107, CHUC_NANG_108 | `marketplace.buyer.view`; thao tác cần `marketplace.buyer.manage` | MAN_HINH_79; liên kết người được giới thiệu | Không làm |
+
+```mermaid
+flowchart TD
+    A[Mở ứng dụng VComm] -->|chưa đăng nhập| L[MAN_HINH_73 Đăng nhập]
+    R[Đường dẫn /r/số điện thoại] -->|chưa đăng nhập| K[MAN_HINH_74 Đăng ký]
+    R -->|đã đăng nhập| T[MAN_HINH_76 Tài khoản]
+    L -->|Đăng ký| K
+    L -->|Quên mật khẩu?| Q[MAN_HINH_75 Quên mật khẩu]
+    Q -->|đặt xong| L
+    K -->|Đã có tài khoản? Đăng nhập| L
+    L -->|đăng nhập xong| H[Trang chủ]
+    K -->|tạo tài khoản xong| H
+    H --- B{Thanh điều hướng dưới}
+    B --> H
+    B -->|chỉ nhân viên kinh doanh| D[MAN_HINH_78 Kinh doanh]
+    B --> T
+    T --> G[MAN_HINH_77 Người tôi giới thiệu]
+    T -->|Đăng xuất| L
+    M{Menu web-crm} -->|Người mua VComm| W[MAN_HINH_79 Tài khoản người mua]
+    W -->|Họ tên| X[MAN_HINH_80 Chi tiết]
+    X -->|Danh sách người mua| W
+    X -->|người được giới thiệu| X
+```
+
+## 54. Bảng vai trò – màn hình (MODULE_09 phần lõi 1)
+
+| Màn hình | Người mua | Nhân viên kinh doanh | Quản trị công ty vận hành sàn | Quản trị tập đoàn |
+|---|---|---|---|---|
+| MAN_HINH_73 đến MAN_HINH_77 | Dùng | Dùng | Dùng (nếu có số điện thoại) | Dùng (nếu có số điện thoại) |
+| MAN_HINH_78 | Không | Xem, Gọi | Không | Không |
+| MAN_HINH_79 | Không | Không | Xem | Xem, chọn công ty vận hành sàn |
+| MAN_HINH_80 | Không | Không | Xem, Đổi người giới thiệu, Đánh dấu, Bỏ đánh dấu | Như quản trị công ty vận hành sàn |
+
+## 55. Đặc tả từng màn hình (MODULE_09 phần lõi 1)
+
+### MAN_HINH_73: Đăng nhập (ứng dụng)
+- Mục đích: Người mua, nhân viên kinh doanh đăng nhập ứng dụng VComm.
+- Chức năng thực hiện: CHUC_NANG_105
+- Đường dẫn: `/dang-nhap`.
+- Bố cục: chữ "VComm", tiêu đề "Đăng nhập"; thẻ: chọn "Mật khẩu" hoặc "Mã OTP"; ô Số điện thoại; Mật khẩu và nút Đăng nhập, hoặc nút Gửi mã, ô Mã OTP (6 số), nút Đăng nhập, nút Gửi lại (đếm ngược 60 giây); liên kết "Quên mật khẩu?"; "Chưa có tài khoản?" và nút Đăng ký. Tài khoản bắt buộc xác thực hai lớp: ô Mã xác thực hoặc Mã dự phòng, nút Xác nhận, Quay lại đăng nhập.
+- API: API_117, API_112 (xác thực hai lớp dùng API_06).
+- Trạng thái: đang gửi (nút xoay); lỗi chung hiện khối thông báo trong thẻ; lỗi theo ô hiện dưới ô; đặt lại mật khẩu xong hiện "Đã đặt mật khẩu mới. Hãy đăng nhập.".
+- Responsive: khổ điện thoại; cuộn khi bàn phím mở.
+- Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-10).
+
+### MAN_HINH_74: Đăng ký (ứng dụng)
+- Mục đích: Khách tự tạo tài khoản, gắn người giới thiệu.
+- Chức năng thực hiện: CHUC_NANG_104
+- Đường dẫn: `/dang-ky?ma=<mã>`; `/r/<số điện thoại>` chuyển tới đây với mã điền sẵn.
+- Bố cục: bước 1: Số điện thoại, "Số điện thoại của bạn sẽ là mã giới thiệu của bạn.", Mã giới thiệu (không bắt buộc), "Mã giới thiệu là số điện thoại của người giới thiệu bạn.", nút Gửi mã. Bước 2: "Mã đã gửi tới …", Mã OTP (6 số), Họ tên, Mật khẩu ("Ít nhất 10 ký tự."), Mã giới thiệu (sửa được), nút Tạo tài khoản, nút Gửi lại (đếm ngược 60 giây), liên kết Đổi số điện thoại; dưới thẻ: "Đã có tài khoản? Đăng nhập".
+- API: API_116.
+- Thông báo lỗi theo ô: "Số điện thoại đã có tài khoản. Hãy đăng nhập.", "Mã giới thiệu không đúng.", "Mã không đúng hoặc đã hết hạn.", mật khẩu quá ngắn.
+- Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.
+
+### MAN_HINH_75: Quên mật khẩu (ứng dụng)
+- Chức năng thực hiện: CHUC_NANG_105. Đường dẫn `/quen-mat-khau`.
+- Bố cục: Số điện thoại, nút Gửi mã; sau khi gửi: Mã OTP, Mật khẩu mới, nút Đặt lại mật khẩu, nút Gửi lại; liên kết Quay lại đăng nhập. Đặt xong về MAN_HINH_73 kèm thông báo thành công.
+- API: API_117. Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.
+
+### MAN_HINH_76, MAN_HINH_77: Tài khoản, người tôi giới thiệu (ứng dụng)
+- Chức năng thực hiện: CHUC_NANG_106. Đường dẫn `/tai-khoan` (thẻ Tài khoản).
+- Bố cục: thẻ họ tên, số điện thoại; thẻ "Mã giới thiệu của bạn" (số điện thoại cỡ lớn), "Đường dẫn giới thiệu" (chọn được để sao chép), nút Chia sẻ (hộp chia sẻ của máy; bản web: hộp chia sẻ của trình duyệt hoặc sao chép), nút Sao chép (bản web), thông báo "Đã sao chép."; thẻ "Người giới thiệu": tên và số che, hoặc "Chưa có người giới thiệu." kèm ô Mã người giới thiệu, "Bạn chỉ nhập được một lần.", nút Lưu người giới thiệu; thẻ "Người tôi giới thiệu (số lượng)": họ tên, số che, "Đăng ký dd/mm/yyyy", rỗng "Chưa có ai đăng ký bằng mã của bạn."; nút Đăng xuất.
+- API: API_118. Tải lại danh sách khi quay lại thẻ.
+- Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.
+
+### MAN_HINH_78: Kinh doanh – khách tôi phụ trách (ứng dụng)
+- Chức năng thực hiện: CHUC_NANG_108. Đường dẫn `/kinh-doanh`; thẻ chỉ hiện khi tài khoản đang được đánh dấu nhân viên kinh doanh.
+- Bố cục: thẻ "Khách tôi phụ trách", "n khách"; mỗi khách: họ tên, số điện thoại, ngày đăng ký, nút Gọi (mở ứng dụng gọi điện); rỗng "Chưa có khách nào.".
+- API: API_118. Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.
+
+### MAN_HINH_79: Tài khoản người mua (web-crm)
+- Chức năng thực hiện: CHUC_NANG_107. Đường dẫn `/crm/buyers`.
+- Bố cục: tiêu đề "Tài khoản người mua", câu giải thích; dòng "Công ty vận hành sàn: …" (quản trị tập đoàn có nút Chọn công ty); chưa chọn công ty: khối cảnh báo và ô chọn công ty, nút Lưu công ty vận hành sàn (chỉ quản trị tập đoàn; người khác thấy "Nhờ quản trị tập đoàn chọn công ty vận hành sàn."); bộ lọc: ô tìm theo tên hoặc số điện thoại, Loại tài khoản (tất cả, nhân viên kinh doanh, người mua); bảng: Họ tên (liên kết), Số điện thoại, Loại (nhãn), Người giới thiệu (tên · số), Đã giới thiệu, Ngày đăng ký; phân trang 20.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, OChon, BangDuLieu, Nhan, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_119. Trạng thái: đang tải; lỗi kèm "Thử lại"; rỗng "Chưa có tài khoản người mua." (có lọc: "Không có kết quả phù hợp.").
+- Responsive: bảng chuyển thành thẻ; không cuộn ngang.
+- Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.
+
+### MAN_HINH_80: Chi tiết tài khoản người mua (web-crm)
+- Chức năng thực hiện: CHUC_NANG_107, CHUC_NANG_108. Đường dẫn `/crm/buyers/{id}`.
+- Bố cục: liên kết "‹ Danh sách người mua"; tiêu đề họ tên; thẻ thông tin (Số điện thoại, Trạng thái, Ngày đăng ký, Người giới thiệu); thẻ "Nhân viên kinh doanh": "Đang là nhân viên kinh doanh, phòng …" và nút Bỏ đánh dấu (hộp xác nhận nêu hậu quả), hoặc "Chưa được đánh dấu nhân viên kinh doanh." và ô Phòng ban, nút Đánh dấu nhân viên kinh doanh (công ty chưa có phòng ban thì khối cảnh báo); thẻ "Đổi người giới thiệu" (chỉ người có quyền quản lý): Mã người giới thiệu mới (để trống để bỏ), Lý do *, nút Đổi người giới thiệu; thẻ "Lịch sử người giới thiệu" (cũ → mới · nguồn, lý do, thời điểm · bởi ai); thẻ "Lịch sử đánh dấu"; thẻ "Người được giới thiệu (n)" (liên kết sang chi tiết).
+- API: API_119. Thông báo: "Đã đổi người giới thiệu.", "Đã đánh dấu nhân viên kinh doanh.", "Đã bỏ đánh dấu."; lỗi phiên bản "Dữ liệu đã được người khác sửa…".
+- Trạng thái phê duyệt: Xem trước từng lát thay cho bản mẫu.
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 1b: Đội kinh doanh nhiều cấp, CONG_VIEC_27)
+
+## 56. Danh sách màn hình và điều hướng (MODULE_09 phần lõi 1b)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_81 | Web-crm: Đội kinh doanh (cây phòng ban, loại đơn vị, quản lý, thành viên, chức danh, số khách; gắn loại, bổ nhiệm, bỏ quản lý, chuyển đơn vị) | CHUC_NANG_109, CHUC_NANG_110 | `marketplace.buyer.view`; thao tác cần `marketplace.buyer.manage` | Menu "Đội kinh doanh" | Không làm (xem trước từng lát) |
+| MAN_HINH_82 | Web-crm: Đề xuất đội kinh doanh (lọc trạng thái; duyệt, từ chối kèm ghi chú) | CHUC_NANG_112 | Như MAN_HINH_81 | Menu "Đề xuất đội kinh doanh" | Không làm |
+| MAN_HINH_83 | Ứng dụng: Đội của tôi (thẻ trong MAN_HINH_78; cấp dưới, chức danh, đơn vị, số khách; nút Đề xuất thay đổi đội) | CHUC_NANG_111 | Người quản lý trong đội | Thẻ Kinh doanh | Không làm |
+| MAN_HINH_84 | Ứng dụng: Khách của một cấp dưới | CHUC_NANG_111 | Người quản lý trong đội | MAN_HINH_83 | Không làm |
+| MAN_HINH_85 | Ứng dụng: Đề xuất thay đổi đội (lập đề xuất; đề xuất của tôi, trạng thái, rút) | CHUC_NANG_112 | Người quản lý trong đội | MAN_HINH_83 | Không làm |
+
+Sửa: MAN_HINH_78 thêm thẻ chức danh, đơn vị; MAN_HINH_80 thêm chức danh, chuỗi cấp trên, chỉ chọn đơn vị kinh doanh khi đánh dấu, lịch sử có chuyển đơn vị, bổ nhiệm, bỏ quản lý.
+
+```mermaid
+flowchart TD
+    K[MAN_HINH_78 Kinh doanh] --> D[MAN_HINH_83 Đội của tôi]
+    D -->|cấp dưới| C[MAN_HINH_84 Khách của cấp dưới]
+    D -->|Đề xuất thay đổi đội| P[MAN_HINH_85 Đề xuất]
+    C -->|Quay lại| K
+    P -->|Quay lại| K
+    M{Menu web-crm} -->|Đội kinh doanh| T[MAN_HINH_81 Đội kinh doanh]
+    M -->|Đề xuất đội kinh doanh| A[MAN_HINH_82 Đề xuất]
+    T -->|họ tên| B[MAN_HINH_80 Chi tiết người mua]
+    A -->|người được đề xuất| B
+```
+
+## 57. Đặc tả màn hình (MODULE_09 phần lõi 1b)
+
+- MAN_HINH_81 (`/crm/sales-team`): mỗi phòng ban là một thẻ thụt theo cấp; ô chọn loại đơn vị (Không phải đơn vị kinh doanh, Khối kinh doanh, Vùng, Phòng kinh doanh); với đơn vị kinh doanh: dòng Quản lý (tên hoặc "Chưa có quản lý", nút Bỏ quản lý), "Thành viên (n)": họ tên (liên kết MAN_HINH_80), số điện thoại, nhãn chức danh, số khách, nút Bổ nhiệm quản lý, ô Chuyển sang và nút Chuyển. Lỗi hiện ở khối lỗi đầu trang; lưu xong thông báo "Đã lưu.". API_120.
+- MAN_HINH_82 (`/crm/sales-proposals`): ô lọc trạng thái (mặc định Chờ duyệt); bảng Loại, Người được đề xuất (liên kết, số điện thoại), Đơn vị, Người đề xuất · thời điểm, Lý do, Trạng thái (nhãn; người duyệt, thời điểm, ghi chú), Xử lý (Duyệt; Từ chối mở ô ghi chú bắt buộc). Bảng chuyển thành thẻ trên điện thoại. API_121.
+- MAN_HINH_83, MAN_HINH_84 (ứng dụng): thẻ chức danh, đơn vị; "Đội của tôi (n)": họ tên (bấm mở MAN_HINH_84), chức danh · đơn vị · số khách; MAN_HINH_84: "‹ Quay lại", "Khách của <tên>", danh sách khách như khách tôi phụ trách. API_122.
+- MAN_HINH_85 (ứng dụng, `/de-xuat`): "Lập đề xuất": Loại đề xuất (Thêm người, Chuyển đơn vị, Bổ nhiệm quản lý, Đưa ra khỏi đội); Số điện thoại người được thêm hoặc chọn Thành viên; chọn Đơn vị (thêm người, chuyển đơn vị); Lý do; nút Gửi đề xuất; "Đã gửi đề xuất, chờ quản trị duyệt."; "Đề xuất của tôi": nhãn trạng thái, nội dung, lý do, ngày, ghi chú từ chối, nút Rút đề xuất khi chờ duyệt. API_121.
+- Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-10).
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 2: Đặt hàng trên VComm, CONG_VIEC_24)
+
+## 58. Danh sách màn hình và điều hướng (MODULE_09 phần lõi 2)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_86 | Web-crm: Cài đặt bán hàng VComm (kênh bán, kho xuất, phí giao hàng, mức miễn phí, gói hàng mặc định; đơn vị vận chuyển bật, tắt, trạng thái kết nối) | CHUC_NANG_113, CHUC_NANG_117 | `marketplace.order.view`; thay đổi cần `marketplace.order.manage` | Menu "Cài đặt bán hàng VComm" | Không làm |
+| MAN_HINH_87 | Web-crm: Đăng bán (tìm, lọc đã đăng, chưa đăng; giá gồm thuế, số có thể bán, trạng thái, lý do chưa hiện; đăng bán, ngừng, mô tả) | CHUC_NANG_113 | Như MAN_HINH_86 | Menu "Đăng bán" | Không làm |
+| MAN_HINH_88 | Web-crm: Đơn VComm (danh sách lọc trạng thái, tìm số đơn, số điện thoại; chi tiết: người mua, địa chỉ, tiền, dòng hàng, vận đơn, lịch sử; giao cho đơn vị vận chuyển, tra lại vận đơn, hủy) | CHUC_NANG_116, CHUC_NANG_117 | Như MAN_HINH_86 | Menu "Đơn VComm"; MAN_HINH_89 | Không làm |
+| MAN_HINH_89 | Web-crm: Yêu cầu trả hàng (lọc trạng thái; lý do, mô tả, dòng, ảnh; duyệt, từ chối, đã nhận hàng trả, không nhận được hàng) | CHUC_NANG_118 | Như MAN_HINH_86 | Menu "Yêu cầu trả hàng" | Không làm |
+| MAN_HINH_90 | Ứng dụng: Cửa hàng (thẻ; tìm kiếm, lưới sản phẩm: ảnh, tên, giá, hết hàng; nút Giỏ hàng có số dòng) | CHUC_NANG_115 | Người mua | Thẻ Cửa hàng | Không làm |
+| MAN_HINH_91 | Ứng dụng: Chi tiết sản phẩm (ảnh, giá gồm thuế, phân loại, số lượng, còn hàng, mô tả, thêm vào giỏ) | CHUC_NANG_115 | Người mua | MAN_HINH_90 | Không làm |
+| MAN_HINH_92 | Ứng dụng: Giỏ hàng (chọn dòng, số lượng, xóa, ngừng bán, không đủ hàng, tạm tính) | CHUC_NANG_115 | Người mua | MAN_HINH_90, MAN_HINH_91 | Không làm |
+| MAN_HINH_93 | Ứng dụng: Đặt hàng (địa chỉ nhận, đổi địa chỉ, dòng hàng, tiền hàng, phí giao hàng, tổng thanh toán khi nhận hàng, Đặt hàng) | CHUC_NANG_116 | Người mua; đặt được khi là người mua thử | MAN_HINH_92 | Không làm |
+| MAN_HINH_94 | Ứng dụng: Sổ địa chỉ (danh sách, thêm, sửa, xóa, đặt mặc định; chọn tỉnh, xã có tìm; chế độ chọn địa chỉ khi đặt hàng) | CHUC_NANG_114 | Người mua | MAN_HINH_76 (Tài khoản), MAN_HINH_93 | Không làm |
+| MAN_HINH_95 | Ứng dụng: Đơn hàng (thẻ; lọc trạng thái; số đơn, trạng thái, sản phẩm đầu, số sản phẩm, ngày, tổng) | CHUC_NANG_116 | Người mua | Thẻ Đơn hàng | Không làm |
+| MAN_HINH_96 | Ứng dụng: Chi tiết đơn (trạng thái, hạn trả hàng, địa chỉ, vận đơn, dòng, tiền, lịch sử, yêu cầu trả hàng, rút yêu cầu, hủy đơn kèm lý do) | CHUC_NANG_116, CHUC_NANG_118, CHUC_NANG_119 | Người mua (đơn của mình) | MAN_HINH_95, MAN_HINH_93 | Không làm |
+| MAN_HINH_97 | Ứng dụng: Yêu cầu trả hàng (dòng, số lượng còn trả được, lý do, mô tả, ảnh trên bản web, gửi) | CHUC_NANG_118 | Người mua | MAN_HINH_96 | Không làm |
+
+Sửa: MAN_HINH_80 thêm thẻ Người mua thử (đánh dấu, bỏ; cần `marketplace.order.manage`); MAN_HINH_76 thêm nút Sổ địa chỉ.
+
+```mermaid
+flowchart TD
+    S[MAN_HINH_90 Cửa hàng] -->|sản phẩm| P[MAN_HINH_91 Chi tiết sản phẩm]
+    S -->|Giỏ hàng| G[MAN_HINH_92 Giỏ hàng]
+    P -->|Xem giỏ hàng| G
+    G -->|Đặt hàng| D[MAN_HINH_93 Đặt hàng]
+    D -->|Đổi địa chỉ| A[MAN_HINH_94 Sổ địa chỉ]
+    T[MAN_HINH_76 Tài khoản] -->|Sổ địa chỉ| A
+    D -->|đặt xong| C[MAN_HINH_96 Chi tiết đơn]
+    O[MAN_HINH_95 Đơn hàng] --> C
+    C -->|Yêu cầu trả hàng| R[MAN_HINH_97 Yêu cầu trả hàng]
+    M{Menu web-crm} -->|Cài đặt bán hàng VComm| K[MAN_HINH_86]
+    M -->|Đăng bán| L[MAN_HINH_87]
+    M -->|Đơn VComm| W[MAN_HINH_88 Đơn VComm]
+    M -->|Yêu cầu trả hàng| Y[MAN_HINH_89]
+    Y -->|số đơn| W
+    W -->|người mua| B[MAN_HINH_80 Chi tiết người mua]
+```
+
+## 59. Đặc tả màn hình (MODULE_09 phần lõi 2)
+
+- MAN_HINH_86 (`/crm/store-settings`): thẻ Bán hàng: Kênh bán, Kho xuất (chọn), Phí giao hàng mỗi đơn, Miễn phí giao hàng từ (để trống: không miễn), Dài, Rộng, Cao (cm), Khối lượng tối thiểu (g), "Lưu"; thẻ Đơn vị vận chuyển: tên, nhãn Đang bật hoặc Đang tắt, Đã có kết nối hoặc Chưa có kết nối, nút Bật, Tắt (Bật bị khóa khi chưa có kết nối). Người chỉ có quyền xem thấy các ô bị khóa, không có nút.
+- MAN_HINH_87 (`/crm/listings`): ô tìm tên, mã; lọc Tất cả, Đã đăng bán, Chưa đăng bán; bảng Sản phẩm (ảnh, tên, ngành hàng), Giá gồm thuế ("Từ <giá>"), Có thể bán, Trạng thái (Đang hiện trên ứng dụng, Đã đăng bán chưa hiện, Chưa đăng bán; các lý do), Thao tác (Đăng bán hoặc Ngừng đăng bán; Mô tả: ô mô tả cho người mua tối đa 5.000 ký tự, để trống dùng mô tả sản phẩm); phân trang 20.
+- MAN_HINH_88 (`/crm/orders`, `/crm/orders/<id>`): danh sách Số đơn (liên kết), Người mua · số điện thoại, Người nhận, Tổng thu, Trạng thái (nhãn; trạng thái vận chuyển), Đặt lúc; chi tiết: thông tin người mua, người nhận, địa chỉ, thanh toán, tiền hàng, phí giao hàng, tiền thu hộ, thời điểm; thẻ Xử lý đơn: chọn đơn vị vận chuyển đang bật, "Giao cho đơn vị vận chuyển" (xác nhận), "Tra lại vận đơn", "Hủy đơn" (ô lý do); bảng dòng hàng; thẻ Vận đơn (đơn vị, mã, trạng thái, phí, thời điểm cập nhật); Lịch sử đơn.
+- MAN_HINH_89 (`/crm/return-requests`): lọc trạng thái (mặc định Chờ duyệt); mỗi yêu cầu là một thẻ: số đơn (liên kết), người mua, nhãn trạng thái, lý do, mô tả, dòng, ảnh thu nhỏ (bấm mở ảnh), thời điểm, ghi chú; Chờ duyệt: "Duyệt" (ghi chú không bắt buộc), "Từ chối" (ghi chú bắt buộc); Đã duyệt: "Đã nhận hàng trả" (xác nhận), "Không nhận được hàng" (ghi chú bắt buộc).
+- MAN_HINH_90 đến MAN_HINH_92 (ứng dụng, `/cua-hang`, `/san-pham/<id>`, `/gio-hang`): lưới hai cột; sản phẩm không có ảnh hiện chữ cái đầu; chi tiết: "‹ Quay lại", ảnh trượt ngang, giá, "Giá một <đơn vị>, đã gồm thuế giá trị gia tăng.", nút chọn phân loại, nút −, +, "Còn n sản phẩm.", "Thêm vào giỏ hàng" rồi "Xem giỏ hàng"; giỏ: ô chọn từng dòng, giá hoặc nhãn "Ngừng bán", "Chỉ còn n", nút −, +, "Xóa", "Tạm tính (n sản phẩm)", "Đặt hàng".
+- MAN_HINH_93 (`/dat-hang`): thẻ Giao đến (người nhận · số điện thoại, địa chỉ; "Đổi địa chỉ" mở MAN_HINH_94 chế độ chọn); dòng hàng (số lượng × giá, khuyến mãi, quà tặng); Tiền hàng, Phí giao hàng (hoặc Miễn phí), Tổng thanh toán, "Thanh toán khi nhận hàng."; chưa là người mua thử: thông báo chưa mở đặt hàng, nút Đặt hàng khóa; giá đổi: thông báo và tải lại tổng.
+- MAN_HINH_94 (`/so-dia-chi`): danh sách địa chỉ (tên, số điện thoại, nhãn Mặc định, địa chỉ, xã, tỉnh; Sửa, Đặt mặc định, Xóa có xác nhận); biểu mẫu: Tên người nhận, Số điện thoại người nhận, Tỉnh, thành phố và Phường, xã (mở danh sách có ô tìm không dấu), Địa chỉ chi tiết, Đặt làm địa chỉ mặc định, Lưu, Hủy; sổ trống thì mở sẵn biểu mẫu.
+- MAN_HINH_95, MAN_HINH_96 (`/don-hang`, `/don-hang/<id>`): nút lọc trạng thái cuộn ngang; thẻ đơn: số đơn, nhãn trạng thái, ảnh, sản phẩm đầu, "n sản phẩm · ngày", tổng; chi tiết: số đơn, nhãn, "Đặt lúc", lý do hủy, "Bạn có thể yêu cầu trả hàng đến <thời điểm>." khi Đã giao, Giao đến, vận đơn, dòng, tiền, Lịch sử đơn, Yêu cầu trả hàng (lý do, nhãn trạng thái, dòng, ghi chú, "Rút yêu cầu"), "Yêu cầu trả hàng", "Hủy đơn" (ô lý do, "Xác nhận hủy đơn", "Giữ đơn").
+- MAN_HINH_97 (`/tra-hang`): dòng hàng với "Còn trả được n", nút "Không trả", −, +; Lý do (Hàng lỗi, Sai hàng, Không đúng mô tả, Khác); Mô tả; "Ảnh (n/5)", "Thêm ảnh" (chọn từ thư viện ảnh; điện thoại hỏi quyền truy cập ảnh, từ chối thì báo "Chưa có quyền truy cập ảnh…"); "Gửi yêu cầu".
+- Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 3: Thanh toán đơn người mua, CONG_VIEC_25)
+
+## 60. Danh sách màn hình và điều hướng (MODULE_09 phần lõi 3)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_98 | Web-crm: Hoàn tiền (lọc Chờ hoàn, Đã hoàn; số đơn, người mua, lý do, số tiền, tài khoản nhận, lập lúc; ghi đã hoàn tiền: mã giao dịch ngân hàng, ngày chuyển, ghi chú) | CHUC_NANG_122 | `marketplace.payment.manage` (Quản trị tập đoàn, Quản trị công ty, Kế toán, Kế toán trưởng) | Menu "Hoàn tiền" | Không làm |
+| MAN_HINH_99 | Ứng dụng: khối Thanh toán trong MAN_HINH_96 Chi tiết đơn (phương thức, hạn thanh toán; "Thanh toán", "Thanh toán lại", "Kiểm tra lại"; mở trang VNPAY) | CHUC_NANG_121 | Người mua (đơn của mình, đơn Chờ thanh toán còn hạn) | MAN_HINH_96, MAN_HINH_93 (đặt xong) | Không làm |
+| MAN_HINH_100 | Ứng dụng: Tài khoản nhận hoàn tiền (ngân hàng, số tài khoản, tên chủ tài khoản, Lưu) | CHUC_NANG_122 | Người mua | MAN_HINH_76 (Tài khoản), MAN_HINH_96 | Không làm |
+
+Sửa:
+- MAN_HINH_86: thẻ Đặt hàng và thanh toán: nhãn Đang mở, Đang đóng, nút "Mở đặt hàng", "Đóng đặt hàng"; bảng phương thức (tên, cổng, Đang bật hoặc Đang tắt, Đã có kết nối hoặc Chưa có kết nối, Bật, Tắt). Thay đổi cần `marketplace.order.manage`.
+- MAN_HINH_88: chi tiết đơn thêm thẻ Thanh toán (phương thức, trạng thái thanh toán, đã thu, đã hoàn, hạn thanh toán), bảng Các lần thanh toán, biểu mẫu Ghi đã thu tiền thu hộ (cần `marketplace.payment.manage`); danh sách lọc thêm Chờ thanh toán. Kế toán, Kế toán trưởng xem được (`marketplace.order.view`).
+- MAN_HINH_93: chọn phương thức thanh toán đang bật.
+- MAN_HINH_96: dòng "Thanh toán: <phương thức> · <trạng thái thanh toán>", đã thanh toán, đã hoàn; thẻ Hoàn tiền; khối Thanh toán (MAN_HINH_99).
+- MAN_HINH_76: thêm nút Tài khoản nhận hoàn tiền.
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty vận hành sàn | Kế toán, Kế toán trưởng | Nhân viên có `marketplace.order.view` | Người mua |
+|---|---|---|---|---|
+| MAN_HINH_86 (thẻ Đặt hàng và thanh toán) | Xem, Sửa | Không thấy | Xem | Không thấy |
+| MAN_HINH_88 (thanh toán) | Xem, Ghi đã thu | Xem, Ghi đã thu | Xem | Không thấy |
+| MAN_HINH_98 Hoàn tiền | Xem, Ghi đã hoàn | Xem, Ghi đã hoàn | Không thấy | Không thấy |
+| MAN_HINH_93, MAN_HINH_96, MAN_HINH_99, MAN_HINH_100 | Dùng (là người mua) | Dùng (là người mua) | Dùng (là người mua) | Dùng |
+
+```mermaid
+flowchart TD
+    D[MAN_HINH_93 Đặt hàng] -->|đặt xong| C[MAN_HINH_96 Chi tiết đơn]
+    C --> Q[MAN_HINH_99 Khối Thanh toán]
+    Q -->|Thanh toán, Thanh toán lại| V[Trang VNPAY]
+    V -->|trang kết quả, Mở đơn hàng| C
+    C -->|Nhập tài khoản nhận hoàn tiền| H[MAN_HINH_100 Tài khoản nhận hoàn tiền]
+    T[MAN_HINH_76 Tài khoản] -->|Tài khoản nhận hoàn tiền| H
+    M{Menu web-crm} -->|Cài đặt bán hàng VComm| K[MAN_HINH_86]
+    M -->|Đơn VComm| W[MAN_HINH_88 Đơn VComm]
+    M -->|Hoàn tiền| R[MAN_HINH_98 Hoàn tiền]
+    R -->|số đơn| W
+```
+
+## 61. Đặc tả màn hình (MODULE_09 phần lõi 3)
+
+- MAN_HINH_86 (`/crm/store-settings`): thẻ "Đặt hàng và thanh toán": "Mở đặt hàng cho mọi người mua" với nhãn Đang mở hoặc Đang đóng, gợi ý ("Mọi người mua trên ứng dụng đặt được hàng." hoặc "Chỉ người mua thử đặt được hàng. Cần lưu cài đặt bán hàng và bật ít nhất một phương thức thanh toán để mở."), nút "Mở đặt hàng" hoặc "Đóng đặt hàng"; bảng phương thức: Thanh toán khi nhận hàng, Quét mã QR VNPAY, Thẻ ATM nội địa, Thẻ quốc tế Visa, Mastercard; cổng (Thu hộ khi giao, VNPAY), nhãn bật, nhãn kết nối, nút Bật (khóa khi chưa có kết nối), Tắt.
+- MAN_HINH_88 (`/crm/orders/<id>`): thẻ Thanh toán: Phương thức, Trạng thái thanh toán (Chưa thu, Đã thu, Chờ hoàn tiền, Đã hoàn một phần, Đã hoàn tiền), Tổng thanh toán, Đã thu, Đã hoàn, Hạn thanh toán (đơn Chờ thanh toán); bảng Các lần thanh toán (Số tham chiếu, phương thức, số tiền, Đang chờ, Thành công, Không thành công, Mã giao dịch cổng, thời điểm); biểu mẫu "Ghi đã thu tiền thu hộ" (Ngày thu, Số phiên đối soát, "Ghi đã thu"; gợi ý đối chiếu bảng đối soát của đơn vị vận chuyển) hiện khi đơn COD đã lấy hàng, chưa ghi đã thu và người xem có `marketplace.payment.manage`.
+- MAN_HINH_98 (`/crm/refunds`): tiêu đề "Hoàn tiền đơn VComm", gợi ý cách làm; nút lọc Chờ hoàn, Đã hoàn; bảng Đơn (liên kết MAN_HINH_88), Người mua (tên, số điện thoại), Lý do (Tiền về sau khi đơn đã hủy, Thanh toán trùng, Hủy đơn đã thanh toán, Nhận hàng trả), Số tiền, Tài khoản nhận (ngân hàng, số tài khoản, tên chủ tài khoản hoặc "Người mua chưa nhập tài khoản"), Lập lúc; việc chờ hoàn có "Ghi đã hoàn tiền" (Mã giao dịch ngân hàng, Ngày chuyển, Ghi chú); việc đã hoàn hiện mã giao dịch, ngày chuyển; phân trang 20.
+- MAN_HINH_93 (`/dat-hang`): thẻ "Phương thức thanh toán" chọn một trong các phương thức đang bật (mặc định phương thức đầu); không còn phương thức thì nút "Đặt hàng" khóa.
+- MAN_HINH_96, MAN_HINH_99 (`/don-hang/<id>`): dòng "Thanh toán: <phương thức> · <trạng thái>" (Chưa thanh toán, Đã thanh toán, Chờ hoàn tiền, Đã hoàn một phần, Đã hoàn tiền), "Đã thanh toán: <số tiền>", "Đã hoàn: <số tiền>"; thẻ Hoàn tiền: "<số tiền> · Chờ hoàn" hoặc "<số tiền> · Đã hoàn ngày <ngày>", chưa có tài khoản thì cảnh báo "VComm cần tài khoản ngân hàng của bạn để hoàn tiền." và nút "Nhập tài khoản nhận hoàn tiền"; khối Thanh toán (đơn Chờ thanh toán còn hạn): tên phương thức, "Thanh toán trước <thời điểm>, quá hạn đơn tự hủy.", nút "Thanh toán" mở trang VNPAY trên trình duyệt; sau khi mở: "Đã mở trang thanh toán VNPAY. Thanh toán xong, quay lại ứng dụng và bấm Kiểm tra lại.", nút "Thanh toán lại", "Kiểm tra lại" (tải lại đơn).
+- Trang kết quả trả về (`/api/v1/public/payments/vnpay/return`, không phải màn hình ứng dụng): một câu kết quả (thành công, không thành công, đang chờ, không xác nhận được) và liên kết "Mở đơn hàng trên ứng dụng VComm".
+- MAN_HINH_100 (`/tai-khoan-hoan-tien`): tiêu đề "Tài khoản nhận hoàn tiền", gợi ý "VComm chuyển khoản hoàn tiền vào tài khoản này. Tên chủ tài khoản viết không dấu như trên thẻ."; Ngân hàng, Số tài khoản, Tên chủ tài khoản; "Lưu"; lưu xong báo "Đã lưu tài khoản nhận hoàn tiền.".
+- Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 4: Hoa hồng theo đơn và ví hoa hồng, CONG_VIEC_26)
+
+## 62. Danh sách màn hình và điều hướng (MODULE_09 phần lõi 4)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_101 | Web-crm: Thiết lập hoa hồng sản phẩm (biểu mẫu trong MAN_HINH_87: cách tính, năm mức, Lưu) | CHUC_NANG_134 | `marketplace.order.manage` | MAN_HINH_87, nút "Thiết lập hoa hồng" | Không làm |
+| MAN_HINH_102 | Web-crm: Rút tiền hoa hồng (lọc trạng thái; người nhận, số tiền, thuế, phí, thực nhận, tài khoản nhận; duyệt, từ chối, ghi đã chi; bảng kê thuế theo tháng) | CHUC_NANG_137 | `marketplace.payment.manage` (Quản trị tập đoàn, Quản trị công ty, Kế toán, Kế toán trưởng) | Menu "Rút tiền hoa hồng" | Không làm |
+| MAN_HINH_103 | Ứng dụng: Ví hoa hồng (số dư, đang chờ, yêu cầu đang chờ, lịch sử giao dịch ví, Rút tiền) | CHUC_NANG_136 | Người dùng ứng dụng VComm (ví của mình) | MAN_HINH_76 (Tài khoản), nút "Ví hoa hồng" | Không làm |
+| MAN_HINH_104 | Ứng dụng: Yêu cầu rút tiền (số tiền, tài khoản nhận, thuế và phí dự kiến, gửi) | CHUC_NANG_137 | Người dùng ứng dụng VComm có số dư | MAN_HINH_103 | Không làm |
+
+Sửa:
+- MAN_HINH_86: thẻ "Hoa hồng và rút tiền": ngưỡng khấu trừ thuế, tỷ lệ khấu trừ, số tiền rút tối thiểu; bảng phí theo lần rút trong tháng, bảng phí theo số tiền (THAY_DOI_17). Sửa cần `marketplace.order.manage`; người chỉ có `marketplace.order.view` xem, ô bị khóa.
+- MAN_HINH_87: cột Hoa hồng (tóm tắt tổng mức, mức giới thiệu, hoặc "Chưa thiết lập"); nút "Thiết lập hoa hồng" mở MAN_HINH_101.
+- MAN_HINH_88: chi tiết đơn thêm thẻ Hoa hồng khi đơn có hoa hồng (phần, người hưởng, số điện thoại, số tiền, Đã cộng ví hoặc ước tính); đơn hủy không hiện.
+- MAN_HINH_83: mỗi cấp dưới thêm dòng "Hoa hồng đã nhận <số tiền> · đang chờ <số tiền>".
+- MAN_HINH_76: thêm nút "Ví hoa hồng".
+
+| Màn hình | Quản trị tập đoàn, quản trị công ty vận hành sàn | Kế toán, Kế toán trưởng | Nhân viên có `marketplace.order.view` | Người dùng ứng dụng VComm |
+|---|---|---|---|---|
+| MAN_HINH_86 (thẻ Hoa hồng và rút tiền), MAN_HINH_101 | Xem, Sửa | Xem | Xem | Không thấy |
+| MAN_HINH_88 (thẻ Hoa hồng) | Xem | Xem | Xem | Không thấy |
+| MAN_HINH_102 Rút tiền hoa hồng | Xem, Duyệt, Từ chối, Ghi đã chi | Xem, Duyệt, Từ chối, Ghi đã chi | Không thấy | Không thấy |
+| MAN_HINH_103, MAN_HINH_104 | Dùng (ví của mình) | Dùng (ví của mình) | Dùng (ví của mình) | Dùng (ví của mình) |
+| MAN_HINH_83 (hoa hồng cấp dưới) | Theo đội kinh doanh | Theo đội kinh doanh | Theo đội kinh doanh | Người quản lý trong đội |
+
+```mermaid
+flowchart TD
+    T[MAN_HINH_76 Tài khoản] -->|Ví hoa hồng| V[MAN_HINH_103 Ví hoa hồng]
+    V -->|Rút tiền| R[MAN_HINH_104 Yêu cầu rút tiền]
+    R -->|Nhập tài khoản| H[MAN_HINH_100 Tài khoản nhận hoàn tiền]
+    R -->|gửi xong| V
+    K[MAN_HINH_78 Kinh doanh] --> D[MAN_HINH_83 Đội của tôi]
+    M{Menu web-crm} -->|Đăng bán| L[MAN_HINH_87 Đăng bán]
+    L -->|Thiết lập hoa hồng| C[MAN_HINH_101 Thiết lập hoa hồng]
+    M -->|Cài đặt bán hàng VComm| S[MAN_HINH_86]
+    M -->|Đơn VComm| W[MAN_HINH_88 Đơn VComm]
+    M -->|Rút tiền hoa hồng| X[MAN_HINH_102 Rút tiền hoa hồng]
+```
+
+## 63. Đặc tả màn hình (MODULE_09 phần lõi 4)
+
+- MAN_HINH_101 (`/crm/listings`, biểu mẫu trên danh sách): tiêu đề "Hoa hồng: <tên sản phẩm>", gợi ý "Sản phẩm chưa thiết lập thì không có hoa hồng. Thay đổi chỉ áp dụng cho đơn đặt sau. Phần trăm tính trên tiền hàng chưa thuế sau khuyến mãi; số tiền tính trên mỗi đơn vị."; Cách tính (Phần trăm, Số tiền mỗi đơn vị); năm ô: Giới thiệu, Nhân viên kinh doanh, Trưởng phòng kinh doanh, Giám đốc Vùng, Giám đốc Kinh doanh; "Lưu", "Hủy"; lưu xong báo "Đã lưu thiết lập hoa hồng.". API_134.
+- MAN_HINH_86 (`/crm/store-settings`): thẻ "Hoa hồng và rút tiền": "Khấu trừ thuế thu nhập cá nhân khi rút trên", "Tỷ lệ khấu trừ (%)", "Số tiền rút tối thiểu"; bảng phí theo lần rút trong tháng (từ lần thứ, phí cố định; thêm, bỏ dòng); bảng phí theo số tiền (từ số tiền, phí cố định, phần trăm, phí phần trăm tối thiểu, tối đa để trống là không giới hạn; thêm, bỏ dòng); bảng trống thì không thu phí; "Lưu"; lưu xong báo "Đã lưu cài đặt hoa hồng.". API_134.
+- MAN_HINH_88 (`/crm/orders/<id>`): thẻ "Hoa hồng": mỗi dòng "<phần> · <người hưởng> · <số điện thoại>" và "<số tiền> · Đã cộng ví" hoặc "<số tiền> · Ước tính, cộng ví khi đơn hoàn tất"; phần: Giới thiệu, Nhân viên kinh doanh, Trưởng phòng kinh doanh, Giám đốc Vùng, Giám đốc Kinh doanh. API_127.
+- MAN_HINH_102 (`/crm/withdrawals`): tiêu đề "Rút tiền hoa hồng", gợi ý "Duyệt yêu cầu thì chốt thuế thu nhập cá nhân và số thực nhận theo cài đặt hoa hồng lúc duyệt. Chuyển khoản số thực nhận rồi ghi mã giao dịch, ngày chi."; nút lọc Chờ duyệt, Đã duyệt, chờ chi, Từ chối, Người dùng rút lại, Đã chi; mỗi yêu cầu: người nhận (tên, số điện thoại), Số tiền, Gửi lúc, xử lý lúc, Tài khoản nhận, Thuế dự kiến (chờ duyệt) hoặc Thuế thu nhập cá nhân, phí rút tiền, Thực nhận; chờ duyệt có "Duyệt" và "Lý do từ chối" + "Từ chối"; đã duyệt có "Mã giao dịch ngân hàng", "Ngày chi", "Ghi đã chi"; bị từ chối hiện lý do; đã chi hiện mã giao dịch, ngày chi; phân trang 20. Thẻ "Bảng kê thuế thu nhập cá nhân đã khấu trừ": chọn "Tháng chi"; bảng Người nhận, Ngày chi, Mã giao dịch ngân hàng, Số tiền, Thuế, Phí, Thực nhận; dòng tổng "Tổng số tiền … · tổng thuế …"; không có thì "Tháng này không có khoản khấu trừ thuế.". API_136.
+- MAN_HINH_103 (`/vi-hoa-hong`): "‹ Quay lại", tiêu đề "Ví hoa hồng"; thẻ số dư: "Số dư", số tiền lớn, "Đang chờ: <số tiền>", gợi ý "Hoa hồng của đơn chưa hoàn tất, ước tính theo hàng hiện tại; cộng vào số dư khi đơn hoàn tất.", nút "Rút tiền" (khóa khi số dư bằng 0; ẩn khi có yêu cầu đang chờ); thẻ yêu cầu đang chờ: trạng thái ("Yêu cầu rút tiền đang chờ duyệt", "Yêu cầu rút tiền đã duyệt, chờ chuyển khoản"), "Số tiền … · thuế … · thực nhận …", nút "Rút lại yêu cầu" (chỉ khi chờ duyệt); "Lịch sử": "Hoa hồng đơn <số đơn>", "Rút tiền", "Hoàn lại yêu cầu rút", số tiền có dấu, thời điểm, "Số dư <số tiền>"; "Xem thêm". API_135, API_136.
+- MAN_HINH_104 (`/rut-tien`): tiêu đề "Rút tiền"; "Số dư có thể rút: <số tiền>"; ô "Số tiền rút (đồng)", "Tối thiểu <số tiền>."; quy tắc thuế "Trên <ngưỡng> thì khấu trừ thuế thu nhập cá nhân <tỷ lệ>% trên toàn bộ số tiền; số thuế chốt khi kế toán duyệt."; "Thuế dự kiến … · thực nhận …" và phí dự kiến theo bảng phí, lần rút thứ mấy trong tháng (THAY_DOI_17); "Chuyển vào: <tài khoản>"; chưa có tài khoản thì "Nhập tài khoản ngân hàng nhận tiền trước khi rút." và nút mở MAN_HINH_100; nút "Gửi yêu cầu rút tiền". API_135, API_136.
+- MAN_HINH_83 (`/kinh-doanh`, thẻ Đội của tôi): mỗi cấp dưới thêm "Hoa hồng đã nhận <số tiền> · đang chờ <số tiền>". API_122.
+- MAN_HINH_76 (`/tai-khoan`): nút "Ví hoa hồng" mở MAN_HINH_103.
+- Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11); ảnh xem trước ở `tam_thoi/CONG_VIEC_26/`.
+
+## Sửa theo mô hình B2C (THAY_DOI_18, CONG_VIEC_43)
+
+## 64. Màn hình sửa, bỏ (CONG_VIEC_43)
+
+Không thêm màn hình. Không làm bản mẫu; xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).
+
+| Mã | Tên màn hình | Thay đổi | Chức năng (10) | Vai trò được truy cập (08) |
+|---|---|---|---|---|
+| MAN_HINH_24 | Chi tiết sản phẩm | Ô "Loại" (Hàng hóa, Dịch vụ); dịch vụ ẩn lô, serial, trọng lượng, thể tích | CHUC_NANG_157 | Như trước |
+| MAN_HINH_42 | Đơn bán | Công tắc "Cho phép lập đơn bán tay có hàng hóa" trong ngăn kéo Cài đặt | CHUC_NANG_158 | Lập đơn: Kế toán, Kế toán trưởng, quản trị; xem: thêm Kế toán, Kế toán trưởng; Nhân viên bán hàng chỉ xem |
+| MAN_HINH_43 | Chi tiết, soạn đơn bán | Bỏ người hưởng hoa hồng; lỗi đơn tay chỉ dịch vụ, giao dịch nội bộ chỉ dịch vụ | CHUC_NANG_157, CHUC_NANG_158 | Như MAN_HINH_42 |
+| MAN_HINH_32 | Chi tiết phiếu kho | Nhãn "Phiếu dịch vụ"; lỗi mặt hàng dịch vụ | CHUC_NANG_157 | Như trước |
+| MAN_HINH_36 | Danh sách đối tác | Bỏ lọc nhân viên phụ trách, nút nhận khách | CHUC_NANG_158 | Mọi người có `crm.partner.view`, xem mọi đối tác |
+| MAN_HINH_37 | Chi tiết đối tác | Bỏ lịch sử phụ trách; nhân viên phụ trách sửa bằng tay | CHUC_NANG_158 | Như trước |
+| MAN_HINH_56, MAN_HINH_57 | Hoa hồng, Cài đặt hoa hồng | Đã bỏ | CHUC_NANG_158 | – |
+| MAN_HINH_64, MAN_HINH_65 | Phiếu giao khách | Đã tắt | CHUC_NANG_158 | – |
+
+- Màn hình Ghé thăm khách của web-crm (`/crm/visits`): lọc "Nhân viên" lấy mọi nhân viên đang làm việc của công ty qua `GET /crm/visit-options` (thay danh sách nhân viên của phiếu giao khách); xem mọi lượt của công ty.
+- Trạng thái phê duyệt: xem trước từng lát thay cho bản mẫu (quyết định của người dùng 2026-11-11).

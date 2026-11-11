@@ -1,0 +1,36 @@
+"use client";
+
+// Khung mini app Khách hàng và Đối tác: menu MAN_HINH_36 (CONG_VIEC_06), MAN_HINH_64 (CONG_VIEC_21), MAN_HINH_79 (CONG_VIEC_23), MAN_HINH_81, MAN_HINH_82 (CONG_VIEC_27), MAN_HINH_86 đến MAN_HINH_89 (CONG_VIEC_24), MAN_HINH_98 (CONG_VIEC_25), MAN_HINH_102 (CONG_VIEC_26); mục thêm dần theo module.
+import { useTranslations } from "next-intl";
+import type { ReactNode } from "react";
+import { AppShell } from "ui/components/AppShell";
+
+export const crmMenu = [
+  { href: "/partners", key: "partners", permission: "crm.partner.view" },
+  { href: "/visits", key: "visits", permission: "crm.partner.view" },
+  { href: "/buyers", key: "buyers", permission: "marketplace.buyer.view" },
+  { href: "/sales-team", key: "salesTeam", permission: "marketplace.buyer.view" },
+  { href: "/sales-proposals", key: "salesProposals", permission: "marketplace.buyer.view" },
+  { href: "/store-settings", key: "storeSettings", permission: "marketplace.order.view" },
+  { href: "/listings", key: "listings", permission: "marketplace.order.view" },
+  { href: "/orders", key: "orders", permission: "marketplace.order.view" },
+  { href: "/return-requests", key: "returnRequests", permission: "marketplace.order.view" },
+  { href: "/refunds", key: "refunds", permission: "marketplace.payment.manage" },
+  { href: "/withdrawals", key: "withdrawals", permission: "marketplace.payment.manage" },
+] as const;
+
+export function CrmShell({ children }: { children: ReactNode }) {
+  const t = useTranslations("crmMenu");
+  return (
+    <AppShell
+      title={t("title")}
+      menu={crmMenu.map((item) => ({
+        href: item.href,
+        label: t(item.key),
+        permission: item.permission,
+      }))}
+    >
+      {children}
+    </AppShell>
+  );
+}

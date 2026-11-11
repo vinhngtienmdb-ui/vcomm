@@ -1,10 +1,10 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Yêu cầu nghiệp vụ theo module, có mã định danh.
-- Phiên bản: 1.4
-- Ngày cập nhật: 2026-11-10
+- Phiên bản: 2.14
+- Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm YCAU_NGHIEPVU_22 đến YCAU_NGHIEPVU_25 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm YCAU_NGHIEPVU_26 đến YCAU_NGHIEPVU_29 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm YCAU_NGHIEPVU_30, YCAU_NGHIEPVU_31 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm YCAU_NGHIEPVU_32, YCAU_NGHIEPVU_33 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm YCAU_NGHIEPVU_34, YCAU_NGHIEPVU_35 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm YCAU_NGHIEPVU_36 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm YCAU_NGHIEPVU_37 của MODULE_05 (khuyến mãi), đối tượng chương trình khuyến mãi, trường khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm YCAU_NGHIEPVU_38 của MODULE_06 (công nợ phải thu, phải trả), đối tượng quỹ, khoản công nợ, trừ nợ, phiếu thu chi; CONG_VIEC_14 (2026-11-10): thêm YCAU_NGHIEPVU_39 của MODULE_06 (kế toán tổng hợp), đối tượng tài khoản kế toán, định khoản mặc định, bút toán, cài đặt kế toán; CONG_VIEC_15 (2026-11-10): thêm YCAU_NGHIEPVU_40 của MODULE_06 (báo cáo tài chính), đối tượng báo cáo tài chính; tài khoản kế toán thêm thuộc tính dài hạn; CONG_VIEC_16 (2026-11-10): thêm YCAU_NGHIEPVU_41 của MODULE_06 (hóa đơn điện tử), đối tượng cài đặt hóa đơn điện tử, ký hiệu hóa đơn, hóa đơn điện tử, lần gửi hóa đơn, việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm YCAU_NGHIEPVU_42 của MODULE_06 (hoa hồng đội kinh doanh), đối tượng cài đặt hoa hồng, chỉ tiêu hoa hồng, phát sinh hoa hồng, bảng hoa hồng; đơn bán thêm nhân viên hưởng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm YCAU_NGHIEPVU_43 của MODULE_06 (đối soát ngân hàng), đối tượng kết nối ngân hàng, giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm YCAU_NGHIEPVU_44 của MODULE_06 (đối soát thu hộ), đối tượng đơn vị thu hộ, bảng đối soát thu hộ, dòng bảng đối soát; CONG_VIEC_20 (2026-11-10): thêm YCAU_NGHIEPVU_45 của MODULE_06 (báo cáo tài chính hợp nhất), đối tượng bảng hợp nhất, bút toán loại trừ hợp nhất, dòng lãi chưa thực hiện; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm YCAU_NGHIEPVU_46 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh), đối tượng phiếu giao khách, lịch sử phụ trách; hồ sơ đối tác: nhân viên phụ trách quyết định phạm vi xem của nhân viên kinh doanh; CONG_VIEC_23 (2026-11-10): thêm YCAU_NGHIEPVU_48 của MODULE_09 (THAY_DOI_14); CONG_VIEC_27 (2026-11-10): thêm YCAU_NGHIEPVU_49 (THAY_DOI_16); CONG_VIEC_24 (2026-11-11): thêm YCAU_NGHIEPVU_50 của MODULE_09 (đặt hàng trên VComm), đối tượng tỉnh, xã, cài đặt bán hàng VComm, đăng bán, địa chỉ nhận hàng, giỏ hàng, đơn VComm, vận đơn, yêu cầu trả hàng; tài khoản người mua thêm người mua thử; CONG_VIEC_25 (2026-11-11): thêm YCAU_NGHIEPVU_51 của MODULE_09 (thanh toán đơn người mua), đối tượng phương thức thanh toán, lần thanh toán, kết quả cổng gửi về, việc hoàn tiền, tài khoản nhận hoàn tiền; cài đặt bán hàng VComm thêm mở đặt hàng; đơn VComm thêm trạng thái chờ thanh toán, hạn thanh toán, tiền đã thu, đã hoàn; CONG_VIEC_26 (2026-11-11): thêm YCAU_NGHIEPVU_52 của MODULE_09 (hoa hồng theo đơn và ví hoa hồng), đối tượng thiết lập hoa hồng sản phẩm, cài đặt hoa hồng chung, hoa hồng của đơn, ví hoa hồng, giao dịch ví, yêu cầu rút tiền (có phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: đánh dấu YCAU_NGHIEPVU_42 (CONG_VIEC_17) đã bỏ, YCAU_NGHIEPVU_46 (CONG_VIEC_21) đã tắt; YCAU_NGHIEPVU_34 bổ sung đơn bán tay chỉ dịch vụ, YCAU_NGHIEPVU_36 bổ sung giao dịch nội bộ chỉ dịch vụ; đối tượng sản phẩm thêm loại, cài đặt bán hàng thêm cho phép lập đơn bán tay có hàng hóa, phiếu dịch vụ tự lập; đối tượng hoa hồng cũ đã bỏ, giao khách đã tắt
 
 ## MODULE_01 Nền tảng
 
@@ -50,6 +50,127 @@
 | YCAU_NGHIEPVU_28 | Nhập, xuất không có chứng từ gốc, chuyển kho, kiểm kê có kiểm soát: duyệt, biên bản chênh lệch, quy trách nhiệm | Quản lý kho, Ban giám đốc, Kế toán | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09 |
 | YCAU_NGHIEPVU_29 | Giữ hàng cho đơn đã xác nhận; cảnh báo hàng dưới tồn an toàn và gợi ý bổ sung; in tem mã vạch | Bán hàng, Mua hàng, Thủ kho | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09 |
 
+## MODULE_07 Khách hàng và Đối tác (phần tối thiểu, CONG_VIEC_06)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_30 | Danh mục đối tác dùng chung tập đoàn, không trùng, định danh theo mã số thuế hoặc số Căn cước công dân; công ty con là đối tác nội bộ | Mua hàng, Bán hàng, Kế toán mọi công ty | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
+| YCAU_NGHIEPVU_31 | Mỗi công ty có hồ sơ riêng với đối tác: là khách hàng, nhà cung cấp, điều khoản thanh toán, hạn mức công nợ, nhóm khách, nhân viên phụ trách | Bán hàng, Mua hàng, Kế toán | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09 |
+
+## MODULE_07 Khách hàng và Đối tác (phần 2: Gán khách hàng cho nhân viên kinh doanh, CONG_VIEC_21)
+
+Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): không còn giao khách; phạm vi xem trở về toàn công ty. Mã đã cấp không dùng lại.
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_46 | Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); người có quyền xem đối tác, đơn bán xem mọi đối tác, đơn bán của công ty (QUYTAC_NGHIEPVU_279); nội dung cũ giữ để tra cứu: Gán khách hàng cho nhân viên kinh doanh; nhân viên chỉ làm việc với khách mình phụ trách (trưởng phòng với khách của nhân viên phòng mình); giao, chuyển khách có duyệt, có lịch sử | Nhân viên bán hàng, trưởng phòng kinh doanh, Quản trị công ty | Tài liệu `05` mục 2.1; THAY_DOI_12; quyết định của người dùng 2026-11-10 (tài liệu `02`) |
+
+## MODULE_04 Mua hàng (phần 1: Mua hàng trong nước, CONG_VIEC_07)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_32 | Đề nghị mua hàng trong danh mục được duyệt trước khi đặt; đơn mua có duyệt, sửa tăng giá trị hoặc đổi nhà cung cấp thì duyệt lại; giá mua gợi ý theo bảng giá nhà cung cấp | Mua hàng, quản lý | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
+| YCAU_NGHIEPVU_33 | Kho nhận hàng theo đơn mua, không vượt dung sai; hàng cần kiểm tra chất lượng chỉ vào tồn khi đạt; trả hàng nhà cung cấp theo phiếu nhập gốc | Thủ kho, Mua hàng, Kế toán | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
+
+## MODULE_05 Bán hàng (phần 1, CONG_VIEC_08)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_34 | Lập đơn bán đúng giá bảng giá theo kênh, nhóm khách; đơn chỉ duyệt khi có ngoại lệ (chiết khấu tay vượt mức, bán dưới giá vốn, vượt hạn mức công nợ); hàng được giữ khi gửi đơn. Bổ sung theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): đơn bán lập tay chỉ gồm dịch vụ, hàng hóa bán qua sàn VComm, trừ khi công ty bật cài đặt cho phép lập đơn bán tay có hàng hóa; Kế toán lập đơn bán dịch vụ, Nhân viên bán hàng chỉ xem đơn bán | Nhân viên bán hàng, quản lý | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
+| YCAU_NGHIEPVU_35 | Kho giao hàng theo đơn, giao nhiều lần; khách trả hàng gắn đơn gốc, trả một phần | Thủ kho, Bán hàng, Kế toán | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
+
+## MODULE_05 Bán hàng (phần 2: Giao dịch nội bộ, CONG_VIEC_09)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_36 | Mua bán giữa công ty con tự sinh chứng từ hai phía, bên kia xác nhận; hàng giao, hàng nhận khớp nhau, lệch có biên bản. Bổ sung theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): giao dịch nội bộ chỉ gồm dịch vụ, không qua kho, trừ khi công ty bán bật cài đặt cho phép lập đơn bán tay có hàng hóa | Bán hàng, Mua hàng, Thủ kho, Kế toán các công ty con | Tài liệu `04` mục ràng buộc 1; tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
+
+## MODULE_05 Bán hàng (phần 3: Khuyến mãi, CONG_VIEC_12)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_37 | Khai báo chương trình khuyến mãi (giảm theo sản phẩm, giảm theo đơn, mua X tặng Y) có điều kiện kênh, nhóm khách, thời gian, được duyệt, tự áp dụng vào đơn bán, có giới hạn ngân sách, số suất | Quản lý kinh doanh, Nhân viên bán hàng | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-09, 2026-11-10 (tài liệu `02`) |
+
+## MODULE_06 Tài chính – Kế toán (phần 1: Công nợ phải thu, phải trả, CONG_VIEC_13)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_38 | Theo dõi công nợ phải thu, phải trả theo đối tác và theo từng chứng từ (hạn thanh toán, quá hạn); thu, chi tiền qua quỹ có số dư; trả trước, hoàn tiền | Kế toán, Quản lý kinh doanh, Quản lý mua hàng | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`); THAY_DOI_09 |
+
+## MODULE_06 Tài chính – Kế toán (phần 2: Kế toán tổng hợp, CONG_VIEC_14)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_39 | Ghi sổ kế toán kép theo chế độ kế toán từng công ty (Thông tư 99/2025 hoặc Thông tư 133); bút toán tự sinh từ nghiệp vụ; điều chỉnh bằng phiếu kế toán qua luồng duyệt; khóa sổ theo tháng; xem sổ cái, bảng cân đối số phát sinh | Kế toán, Kế toán trưởng | Tài liệu `05` mục 2.1; THAY_DOI_03; quyết định của người dùng 2026-11-10 (tài liệu `02`) |
+
+## MODULE_06 Tài chính – Kế toán (phần 3: Báo cáo tài chính, CONG_VIEC_15)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_40 | Lập báo cáo tình hình tài chính, báo cáo kết quả hoạt động kinh doanh theo mẫu của chế độ kế toán từng công ty từ số liệu sổ cái; xem trên màn hình, xuất Excel, PDF | Kế toán trưởng, Ban giám đốc | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`); Thông tư 99/2025/TT-BTC Điều 17, Phụ lục IV; Thông tư 133/2016/TT-BTC Điều 81 |
+
+## MODULE_06 Tài chính – Kế toán (phần 4: Hóa đơn điện tử, CONG_VIEC_16)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_41 | Lập, gửi hóa đơn điện tử cho mỗi lần giao hàng theo cài đặt của từng công ty; xử lý hóa đơn khi trả hàng, khi sai thông tin người mua | Kế toán, Kế toán trưởng | Tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`); THAY_DOI_11; Nghị định 254/2026/NĐ-CP; Thông tư 91/2026/TT-BTC |
+
+## MODULE_06 Tài chính – Kế toán (phần 5: Hoa hồng đội kinh doanh, CONG_VIEC_17)
+
+Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11): CONG_VIEC_17 bị xóa hẳn (mã, màn hình, quyền, bảng dữ liệu, kiểm thử). Hoa hồng chỉ theo đơn VComm (CONG_VIEC_26). Mã đã cấp không dùng lại.
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_42 | Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); hoa hồng chỉ theo đơn VComm, thay bằng YCAU_NGHIEPVU_52 (CONG_VIEC_26); nội dung cũ giữ để tra cứu: Tính, chốt, hạch toán hoa hồng đội kinh doanh theo tiền đã thu, theo chính sách của từng công ty | Kế toán, Kế toán trưởng, Nhân viên kinh doanh | Tài liệu `04` mục 6; tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`) |
+
+## MODULE_06 Tài chính – Kế toán (phần 6: Đối soát ngân hàng, CONG_VIEC_18)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_43 | Nhận giao dịch ngân hàng tự động qua dịch vụ trung gian chọn theo từng công ty, ghép với phiếu thu chi, đối chiếu số dư quỹ ngân hàng | Kế toán, Kế toán trưởng | Tài liệu `04` mục 6; tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`) |
+
+## MODULE_06 Tài chính – Kế toán (phần 7: Đối soát thu hộ COD, cổng thanh toán, CONG_VIEC_19)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_44 | Đối soát tiền đơn vị thu hộ (COD, cổng thanh toán) đã thu với đơn bán, ghi nhận phí, theo dõi tiền đơn vị thu hộ còn phải trả | Kế toán, Kế toán trưởng | Tài liệu `04` mục 6; tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`) |
+
+## MODULE_06 Tài chính – Kế toán (phần 8: Báo cáo tài chính hợp nhất, CONG_VIEC_20)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_45 | Lập báo cáo tài chính hợp nhất của tập đoàn theo kỳ, loại trừ giao dịch nội bộ, có duyệt | Kế toán trưởng tập đoàn, Ban điều hành | Tài liệu `04` mục 6; tài liệu `05` mục 2.1; quyết định của người dùng 2026-11-10 (tài liệu `02`) |
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 1: Tài khoản người mua, CONG_VIEC_23)
+
+| Mã | Yêu cầu | Nguồn |
+|---|---|---|
+| YCAU_NGHIEPVU_48 | Khách tự đăng ký tài khoản sàn VComm bằng số điện thoại, gắn với người giới thiệu (mã giới thiệu là số điện thoại, hoặc đường dẫn giới thiệu); tài khoản nhân viên kinh doanh là tài khoản người mua được đánh dấu để cấp quyền | THAY_DOI_14; quyết định của người dùng 2026-11-10 |
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 1b: Đội kinh doanh nhiều cấp, CONG_VIEC_27)
+
+| Mã | Yêu cầu | Nguồn |
+|---|---|---|
+| YCAU_NGHIEPVU_49 | Đội kinh doanh nhiều cấp bậc chức danh (Giám đốc Kinh doanh, Giám đốc Vùng, Trưởng phòng kinh doanh, Nhân viên kinh doanh), phân quyền và hoa hồng khác nhau theo chức danh | THAY_DOI_16; người dùng 2026-11-10 |
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 2: Đặt hàng trên VComm, CONG_VIEC_24)
+
+| Mã | Yêu cầu | Nguồn |
+|---|---|---|
+| YCAU_NGHIEPVU_50 | Người mua tự đặt hàng của VComm trên ứng dụng VComm, giao tận nơi qua đơn vị vận chuyển (GHN đầu tiên), trả hàng trong 7 ngày; đơn hoàn tất khi hết hạn trả hàng làm cơ sở hoa hồng | THAY_DOI_14; người dùng 2026-11-11 |
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 3: Thanh toán đơn người mua, CONG_VIEC_25)
+
+| Mã | Yêu cầu | Nguồn |
+|---|---|---|
+| YCAU_NGHIEPVU_51 | Người mua VComm thanh toán trực tuyến qua cổng thanh toán (VNPAY đầu tiên) hoặc khi nhận hàng; VComm theo dõi tiền thu, hoàn tiền theo từng đơn (không công nợ) và mở đặt hàng cho mọi người mua | THAY_DOI_14; người dùng 2026-11-11 |
+
+## MODULE_09 Sàn thương mại điện tử (phần lõi 4: Hoa hồng theo đơn và ví hoa hồng, CONG_VIEC_26)
+
+| Mã | Yêu cầu | Nguồn |
+|---|---|---|
+| YCAU_NGHIEPVU_52 | Người giới thiệu và đội kinh doanh nhiều cấp nhận hoa hồng theo đơn VComm hoàn tất vào ví; rút về tài khoản ngân hàng, có kế toán duyệt chi, khấu trừ thuế thu nhập cá nhân và thu phí rút tiền | THAY_DOI_14, THAY_DOI_16, THAY_DOI_17; người dùng 2026-11-11 |
+
 ## Đối tượng nghiệp vụ
 
 | Đối tượng | Thuộc tính chính | Quan hệ |
@@ -73,7 +194,7 @@
 | Tệp đính kèm | Tên tệp, loại, kích thước, người tải lên | Thuộc một đề xuất |
 | Ngành hàng | Mã (tiền tố mã hàng), tên tiếng Việt, tiếng Anh, cấp (1 đến 4), theo dõi lô và hạn dùng, theo dõi serial, số tháng bảo hành, trạng thái | Dùng chung tập đoàn; có ngành hàng cha; có nhiều sản phẩm |
 | Đơn vị tính | Mã, tên tiếng Việt, tiếng Anh, trạng thái | Dùng chung tập đoàn |
-| Sản phẩm | Mã, tên, mô tả, thương hiệu, xuất xứ, thuế suất giá trị gia tăng, theo dõi lô hoặc serial, số tháng bảo hành, đơn vị cơ sở, trọng lượng, thể tích, thuộc tính phân loại, thông số, trạng thái | Thuộc một công ty, một ngành hàng lá; có nhiều đơn vị quy đổi, biến thể, ảnh |
+| Sản phẩm | Mã, tên, mô tả, thương hiệu, xuất xứ, thuế suất giá trị gia tăng, theo dõi lô hoặc serial, số tháng bảo hành, đơn vị cơ sở, trọng lượng, thể tích, thuộc tính phân loại, thông số, trạng thái, loại (hàng hóa, dịch vụ; dịch vụ không theo dõi tồn kho, lô, serial; CONG_VIEC_43) | Thuộc một công ty, một ngành hàng lá; có nhiều đơn vị quy đổi, biến thể, ảnh |
 | Biến thể | Mã hàng, giá trị phân loại, trạng thái | Thuộc một sản phẩm; có nhiều mã vạch; liên kết với biến thể tương ứng ở công ty khác |
 | Mã vạch | Mã vạch, đơn vị tính | Thuộc một biến thể; duy nhất trong công ty |
 | Liên kết biến thể | Hệ số quy đổi đơn vị cơ sở | Nối hai biến thể của hai công ty khác nhau |
@@ -93,3 +214,79 @@
 | Kiểm kê | Số kiểm kê, phạm vi (toàn kho, ngành hàng, vị trí, danh sách sản phẩm), trạng thái; các dòng (tồn sổ sách, số đếm, serial đếm được, người chịu trách nhiệm, tiền bồi thường) | Thuộc công ty chủ hàng, một kho; sinh một phiếu điều chỉnh khi kết thúc |
 | Hàng giữ | Số lượng, nguồn, hạn giữ, trạng thái (đang giữ, đã nhả, đã dùng) | Theo kho, công ty chủ hàng, biến thể |
 | Tồn an toàn | Tối thiểu, tối đa | Theo kho, công ty chủ hàng, biến thể |
+| Đối tác | Mã (`DT` + 6 số), loại (tổ chức, hộ kinh doanh, cá nhân), tên, tên ngắn, mã số thuế, số Căn cước công dân, địa chỉ, điện thoại, email, trạng thái | Dùng chung tập đoàn; đối tác nội bộ gắn với một công ty con; có nhiều người liên hệ, tài khoản ngân hàng, hồ sơ theo công ty |
+| Người liên hệ của đối tác | Họ tên, chức vụ, điện thoại, email, liên hệ chính | Thuộc một đối tác |
+| Tài khoản ngân hàng của đối tác | Ngân hàng, số tài khoản, chủ tài khoản, chi nhánh, mặc định | Thuộc một đối tác |
+| Hồ sơ đối tác của công ty | Là khách hàng, là nhà cung cấp, số ngày được nợ, hạn mức công nợ, ghi chú, trạng thái | Một công ty với một đối tác; có nhóm khách hàng, nhân viên phụ trách của công ty |
+| Giá mua của nhà cung cấp | Nhà cung cấp, mặt hàng, đơn vị mua, số lượng tối thiểu, đơn giá chưa thuế, mã hàng nhà cung cấp, hiệu lực từ, đến, trạng thái | Thuộc công ty; nhà cung cấp là đối tác có hồ sơ nhà cung cấp ở công ty |
+| Cài đặt mua hàng | Dung sai nhận vượt (phần trăm, mặc định 0) | Một bản mỗi công ty |
+| Đề nghị mua | Số (`DNM`…), kho nhận, ngày cần, lý do, trạng thái (nháp, chờ duyệt, đã duyệt, bị từ chối, đã rút, đã đóng); các dòng (mặt hàng, đơn vị, số lượng, đơn giá ước tính, nhà cung cấp đề xuất, ghi chú) | Thuộc công ty; mỗi dòng được đặt qua một hoặc nhiều dòng đơn mua |
+| Đơn mua | Số (`DMH`…), nhà cung cấp, kho nhận, ngày đơn, ngày giao dự kiến, tiền tệ của công ty, ghi chú, tổng chưa thuế, thuế, trạng thái (chờ xác nhận nội bộ, nháp, chờ duyệt, đã duyệt, bị từ chối, đã rút, đã nhận đủ, đã đóng), lý do đóng, đơn bán đối ứng, là đơn đối ứng hay không, lý do bên kia từ chối; các dòng (mặt hàng, đơn vị, số lượng, đơn giá chưa thuế, thuế suất, thành tiền) | Thuộc công ty; dòng có thể lấy từ dòng đề nghị mua; số đã nhận, đã trả tính từ phiếu kho; nhà cung cấp nội bộ thì có một đơn bán đối ứng ở công ty bán |
+| Phiếu nhập mua | Như phiếu kho; nhà cung cấp, đơn mua gốc, trạng thái thêm "Chờ kiểm tra chất lượng", "Chờ nhận" (nội bộ), số không đạt và lý do từng dòng, người và thời điểm kiểm, phiếu xuất gốc bên bán (nội bộ); là phiếu dịch vụ hay không (phiếu dịch vụ do hệ thống tự lập cho đơn mua đối ứng nội bộ, không ghi thẻ kho; CONG_VIEC_43) | Phiếu kho của công ty đặt đơn ở kho nhận của đơn; mỗi dòng gắn một dòng đơn mua; phiếu nhập nội bộ mỗi dòng gắn một dòng phiếu xuất giao hàng gốc |
+| Phiếu trả hàng nhà cung cấp | Như phiếu kho; nhà cung cấp, phiếu nhập mua gốc, lý do | Mỗi dòng gắn một dòng phiếu nhập mua gốc |
+| Cài đặt bán hàng | Chiết khấu tay tối đa không cần duyệt (phần trăm, mặc định 0); cho phép lập đơn bán tay có hàng hóa (mặc định tắt; CONG_VIEC_43) | Một bản mỗi công ty |
+| Đơn bán | Số (`DBH`…), khách hàng (trống: người mua không lấy hóa đơn, kèm tên người mua), kênh bán, nhóm khách lúc lập, kho xuất, ngày đơn, địa chỉ giao, ghi chú, tiền tệ của công ty, tổng chưa thuế, thuế, tổng gồm thuế, ngoại lệ cần duyệt, trạng thái (chờ xác nhận nội bộ, nháp, chờ duyệt, đã xác nhận, bị từ chối, đã rút, đã giao đủ, đã hủy, đã đóng), lý do đóng, đơn mua đối ứng, là đơn đối ứng hay không, lý do bên kia từ chối; các dòng (mặt hàng, đơn vị, số lượng, bảng giá, giá bảng giá, giá gồm thuế hay chưa, chiết khấu tay phần trăm, đơn giá sau chiết khấu, thuế suất, tiền chưa thuế, thuế, tổng; khuyến mãi theo sản phẩm và phần trăm, khuyến mãi theo đơn và phần giảm chia vào dòng, tổng giảm do khuyến mãi gồm thuế, là dòng hàng tặng hay không, số suất tặng) | Thuộc công ty; khách là đối tác có hồ sơ khách hàng ở công ty; hàng giữ theo nguồn `sales.order`; số đã giao, đã trả tính từ phiếu kho; khách nội bộ thì có một đơn mua đối ứng ở công ty mua; dòng tham chiếu chương trình khuyến mãi đã áp; đơn ghi suất tặng thiếu (chương trình, số suất) khi kho xuất không đủ hàng tặng |
+| Phiếu xuất giao hàng | Như phiếu kho; khách hàng, đơn bán gốc; là phiếu dịch vụ hay không (phiếu dịch vụ do hệ thống tự lập khi đơn xác nhận, không ghi thẻ kho; CONG_VIEC_43) | Phiếu kho của công ty bán ở kho xuất của đơn; mỗi dòng gắn một dòng đơn bán |
+| Phiếu nhận hàng trả lại | Như phiếu kho; khách hàng, phiếu xuất giao hàng gốc, lý do | Mỗi dòng gắn một dòng phiếu xuất giao hàng gốc |
+| Biên bản chênh lệch giao nhận nội bộ | Số thiếu (đơn vị cơ sở bên bán), giá trị theo giá vốn phiếu xuất, serial chưa nhận, lý do bên nhận, trạng thái (chờ xử lý, đã nhập lại kho, đã ghi tổn thất), ghi chú, người và thời điểm xử lý | Thuộc công ty bán, kho xuất; gắn một dòng phiếu xuất giao hàng và một phiếu nhập mua nội bộ; có phiếu nhận hàng trả lại khi nhập lại kho |
+| Chương trình khuyến mãi | Số (`KM`…), tên, loại (giảm theo sản phẩm, giảm theo đơn, mua X tặng Y), từ ngày, đến ngày, kênh áp dụng, nhóm khách áp dụng, mặt hàng và phần trăm giảm (giảm theo sản phẩm), ngưỡng tổng đơn gồm thuế, phần trăm, mức giảm tối đa (giảm theo đơn), mặt hàng mua, số lượng mua, mặt hàng tặng, số lượng tặng mỗi suất (mua X tặng Y), ngân sách gồm thuế, số suất tối đa, ghi chú, trạng thái (nháp, chờ duyệt, đang chạy, bị từ chối, đã rút, đã dừng), lý do dừng; đã dùng (tiền đã giảm, số suất đã tặng) | Thuộc công ty; đã dùng tính từ dòng đơn bán chờ duyệt, đã xác nhận, đã giao đủ, đã đóng |
+| Quỹ | Mã (duy nhất trong công ty), tên, loại (tiền mặt, ngân hàng), tên ngân hàng, số tài khoản, chủ tài khoản, số dư đầu, trạng thái (đang dùng, ngừng dùng); số dư hiện tại tính từ phiếu thu chi đã ghi sổ | Thuộc công ty; tiền tệ của công ty; có nhiều phiếu thu chi |
+| Khoản công nợ | Phía (phải thu, phải trả), hướng (tăng nợ, giảm nợ), nguồn (số dư đầu kỳ, xuất giao hàng, nhận hàng trả lại, nhập mua, trả hàng nhà cung cấp, phiếu thu chi, ghi tổn thất hàng thiếu nội bộ), số chứng từ, ngày chứng từ, hạn thanh toán (khoản tăng nợ), số tiền gồm thuế, số còn lại, ghi chú | Thuộc công ty, một đối tác; sinh từ một phiếu kho đã ghi sổ, một phiếu thu chi đã ghi sổ, một biên bản chênh lệch nội bộ ghi tổn thất hoặc nhập tay (số dư đầu kỳ); khoản giảm do trả hàng gắn khoản tăng của phiếu gốc |
+| Trừ nợ | Số tiền, thời điểm | Ghép một khoản giảm nợ với một khoản tăng nợ cùng công ty, đối tác, phía |
+| Phiếu thu, phiếu chi | Số (`PT`…, `PC`…), loại (thu tiền khách hàng, trả tiền nhà cung cấp, hoàn tiền cho khách hàng, nhận tiền nhà cung cấp hoàn), đối tác, quỹ, ngày, số tiền, nội dung, trạng thái (nháp, chờ duyệt, đã ghi sổ, bị từ chối, đã rút), lý do không ghi sổ được, thời điểm ghi sổ; các chứng từ chọn trừ (khoản tăng nợ, số trừ) | Thuộc công ty; phiếu chi có một yêu cầu duyệt khi gửi; ghi sổ sinh một khoản công nợ |
+| Cài đặt kế toán | Đã khởi tạo hay chưa, người và thời điểm khởi tạo, đã khóa sổ đến ngày; chế độ kế toán lấy từ công ty | Một bản mỗi công ty đã khởi tạo kế toán |
+| Tài khoản kế toán | Số hiệu (duy nhất trong công ty), tên, tính chất số dư (dư Nợ, dư Có, lưỡng tính), là tài khoản của chế độ hay tài khoản chi tiết, dài hạn (chỉ tài khoản chi tiết; tài khoản con kế thừa), trạng thái (đang dùng, ngừng dùng); nhận bút toán được khi đang dùng và không có tài khoản con đang dùng | Thuộc công ty; có tài khoản cha; nạp từ chế độ kế toán khi khởi tạo |
+| Định khoản mặc định | Vai trò (phải thu khách hàng, doanh thu, thuế đầu ra...), tài khoản, người và thời điểm sửa | Một tài khoản cho mỗi vai trò của công ty |
+| Bút toán | Số (số chứng từ gốc, `PKT`… với phiếu kế toán, `KC-YYYY-MM` với kết chuyển), ngày, nguồn (phiếu kế toán, phiếu kho, phiếu thu chi, ghi tổn thất hàng thiếu nội bộ, kết chuyển cuối kỳ), diễn giải, tổng tiền, trạng thái (nháp, chờ duyệt, đã ghi sổ, bị từ chối, đã rút; bút toán tự sinh luôn đã ghi sổ), lý do không ghi sổ được, người lập; các dòng (tài khoản, đối tác, Nợ, Có, diễn giải) | Thuộc công ty; bút toán tự sinh gắn một chứng từ gốc; phiếu kế toán có một yêu cầu duyệt khi gửi |
+| Báo cáo tài chính | Loại (tình hình tài chính, kết quả hoạt động kinh doanh), mẫu (B01-DN, B02-DN; B01a-DNN, B01b-DNN, B02-DNN), ngày báo cáo hoặc khoảng ngày; các chỉ tiêu (mã số, tên, cấp, ghi chú cách lấy số liệu, số kỳ này, số so sánh) | Không lưu; tính khi xem từ bút toán đã ghi sổ của công ty; mẫu theo chế độ kế toán của công ty, khai báo trong mã |
+| Cài đặt hóa đơn điện tử | Bật, ngày bắt đầu, nhà cung cấp (bộ giả lập, MISA meInvoice), môi trường (thử nghiệm, chính thức), có mã của cơ quan thuế hay không, ký hiệu mẫu số (1, 2), thông tin kết nối (mã ứng dụng, mã số thuế, tên đăng nhập), mật khẩu mã hóa, tình huống giả lập | Một bản mỗi công ty |
+| Ký hiệu hóa đơn | Năm, ký hiệu 6 ký tự (`C` hoặc `K`, 2 số cuối năm, `T`, 2 chữ cái in hoa) | Mỗi công ty một ký hiệu cho mỗi năm |
+| Hóa đơn điện tử | Loại (gốc, điều chỉnh, thay thế), mã tham chiếu duy nhất, nhà cung cấp, ngày, ký hiệu mẫu số, ký hiệu, số, có mã hay không, mã của cơ quan thuế, mã giao dịch nhà cung cấp, người bán, người mua (lưu cố định khi lập), tiền tệ, tiền chưa thuế, tiền thuế, tổng thanh toán, ghi chú, trạng thái (chờ gửi, chờ gửi lại, chờ cấp mã, đã phát hành, lỗi, bị từ chối, lỗi cài đặt), lỗi gần nhất, số lần gửi, giờ gửi lại, hạn gửi, đã báo quá hạn, thời điểm phát hành, tệp PDF, XML; các dòng (tên hàng, đơn vị tính, số lượng, đơn giá chưa thuế, thuế suất, tiền chưa thuế, tiền thuế, tiền gồm thuế, hàng khuyến mại) | Thuộc công ty; nguồn là một phiếu kho (phiếu xuất giao hàng với hóa đơn gốc, thay thế; phiếu nhận hàng trả lại với hóa đơn điều chỉnh); hóa đơn điều chỉnh, thay thế tham chiếu một hóa đơn liên quan; hóa đơn bị thay thế trỏ tới hóa đơn thay thế |
+| Lần gửi hóa đơn | Thao tác (phát hành, tra trạng thái), thời điểm bắt đầu, kết thúc, kết quả, mã lỗi, thông báo | Thuộc một hóa đơn điện tử |
+| Việc chờ xử lý hóa đơn trả hàng | Phiếu nhận hàng trả lại, hóa đơn gốc, trạng thái (chờ xử lý, đã lập hóa đơn điều chỉnh, người mua lập hóa đơn trả hàng), hóa đơn điều chỉnh hoặc hóa đơn trả hàng của người mua (ký hiệu, số, ngày), người và thời điểm xử lý | Một việc cho mỗi phiếu nhận hàng trả lại mà phiếu xuất gốc có hóa đơn gốc |
+| Cài đặt hoa hồng | Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); dữ liệu đã xóa. Nội dung cũ: Bật, ngày bắt đầu, cách gán (nhân viên phụ trách khách, người lập đơn), cách kết hợp (bảng ngành hàng và kênh, kênh nhân hệ số), mức mặc định, bậc hệ số theo phần trăm đạt chỉ tiêu; mức theo ngành hàng (và kênh); hệ số kênh; người và thời điểm sửa | Một bản mỗi công ty; mức tham chiếu ngành hàng dùng chung tập đoàn, kênh của công ty |
+| Chỉ tiêu hoa hồng | Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); dữ liệu đã xóa. Nội dung cũ: Nhân viên, tháng, tiền thu chưa thuế | Mỗi công ty, nhân viên, tháng một chỉ tiêu |
+| Phát sinh hoa hồng | Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); dữ liệu đã xóa. Nội dung cũ: Nhân viên, đơn bán, dòng đơn, nguồn (thu tiền, hoàn tiền trả hàng, bán lẻ giao hàng, bán lẻ trả hàng), chứng từ nguồn (lần trừ nợ hoặc phiếu kho), phiếu xuất hoặc phiếu trả, ngày, tiền gồm thuế, tiền chưa thuế, phần trăm, hoa hồng (có dấu), bảng hoa hồng | Thuộc công ty; mỗi chứng từ nguồn một phát sinh cho mỗi dòng đơn; vào nhiều nhất một bảng hoa hồng |
+| Bảng hoa hồng | Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); dữ liệu đã xóa. Nội dung cũ: Tháng, số (`HH`…), trạng thái (nháp, chờ duyệt, đã ghi sổ, bị từ chối, đã rút), tổng hoa hồng, lý do không ghi sổ được, người lập; các dòng theo nhân viên (cơ sở, hoa hồng trước hệ số, chỉ tiêu, phần trăm đạt, hệ số, hoa hồng) | Thuộc công ty; mỗi tháng một bảng đang dùng; có một yêu cầu duyệt khi gửi; ghi sổ sinh một bút toán |
+| Đơn bán (bổ sung) | Đã bỏ theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); dữ liệu đã xóa. Nội dung cũ: Nhân viên hưởng hoa hồng | Gán khi gửi đơn (CONG_VIEC_17) |
+
+| Kết nối ngân hàng | Quỹ ngân hàng, dịch vụ trung gian (bộ giả lập, SePay), khóa xác thực webhook (lưu mã hóa, chỉ hiện bốn ký tự cuối), bật tắt, lần nhận cuối, người và thời điểm sửa | Mỗi quỹ ngân hàng tối đa một kết nối; thuộc công ty của quỹ (CONG_VIEC_18) |
+| Giao dịch ngân hàng | Mã giao dịch của dịch vụ, thời điểm, ngày theo giờ Việt Nam, chiều (tiền vào, tiền ra), số tiền, nội dung chuyển khoản, mã tham chiếu, số dư sau giao dịch, trạng thái (chưa ghép, đã ghép, bỏ qua), phiếu thu chi đã ghép, người ghép (trống: tự ghép), khách gợi ý và căn cứ gợi ý, phiếu thu lập từ gợi ý, lý do bỏ qua, dữ liệu webhook gốc | Thuộc một kết nối và một quỹ; mỗi kết nối lưu một lần cho mỗi mã giao dịch của dịch vụ; ghép tối đa một phiếu thu chi, mỗi phiếu ghép tối đa một giao dịch (CONG_VIEC_18) |
+| Đơn vị thu hộ | Đối tác (phải có hồ sơ khách hàng của công ty), loại (thu COD, cổng thanh toán), trạng thái (đang dùng, ngừng dùng) | Thuộc công ty; mỗi đối tác một đơn vị thu hộ trong công ty; công nợ phải thu ghi theo đối tác (CONG_VIEC_19) |
+| Bảng đối soát thu hộ | Đơn vị thu hộ, số bảng của đơn vị, số nội bộ (`DST`…, cấp khi gửi lần đầu), ngày bảng, trạng thái (nháp, chờ duyệt, đã ghi sổ, bị từ chối, đã rút), tổng tiền thu hộ, tổng phí, thực nhận, lý do không ghi sổ được, người lập, người gửi (được rút) | Thuộc công ty; số bảng không trùng trong cùng đơn vị (trừ bảng bị từ chối, đã rút); có một yêu cầu duyệt khi gửi; ghi sổ sinh khoản công nợ và một bút toán |
+| Dòng bảng đối soát | Dòng trong tệp, mã vận đơn hoặc mã giao dịch, số đơn bán, đơn bán ghép được, khách của đơn, tiền thu hộ, phí, ngày thu | Thuộc một bảng; ghi sổ sinh một khoản giảm nợ của khách khi có khách và tiền thu hộ lớn hơn 0 |
+| Bảng hợp nhất | Tập đoàn (công ty gốc), từ ngày, đến ngày, số (`HN`…, cấp khi gửi lần đầu), trạng thái (nháp, chờ duyệt, đã chốt số, bị từ chối, đã rút), thành viên lúc tính lại gần nhất, cảnh báo chênh lệch công nợ nội bộ, số liệu B01-DN, B02-DN đã chốt, thời điểm tính lại, lý do không chốt được, người lập, người gửi (được rút) | Thuộc công ty gốc; mỗi kỳ một bảng không bị từ chối, không rút; không ghi bút toán vào sổ các công ty (CONG_VIEC_20) |
+| Bút toán loại trừ hợp nhất | Số bút toán, loại (công nợ nội bộ, doanh thu và giá vốn nội bộ, điều chỉnh tay), công ty, tài khoản, đối tác, Nợ, Có, diễn giải, người lập (trống: tự động) | Thuộc một bảng hợp nhất; tính lại lập lại bút toán tự động, giữ điều chỉnh tay |
+| Dòng lãi chưa thực hiện | Công ty mua, công ty bán, mặt hàng (của bên mua), số mua nội bộ trong kỳ, tồn cuối kỳ, lãi gộp mỗi đơn vị, số ước tính, số sửa, lý do sửa | Thuộc một bảng hợp nhất; tính lại giữ số sửa của cùng công ty mua, công ty bán, mặt hàng |
+| Phiếu giao khách | Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); dữ liệu cũ giữ trong cơ sở dữ liệu để tra cứu, không còn trên giao diện, API. Nội dung cũ: Số (`GK`…, cấp khi gửi lần đầu), nhân viên nhận, lý do, trạng thái (nháp, chờ duyệt, đã áp dụng, bị từ chối, đã rút), lý do không áp dụng được (kèm danh sách khách đã đổi), người lập, người gửi (được rút), thời điểm gửi, áp dụng; các khách (1 đến 500, nhân viên phụ trách lúc gửi) | Thuộc công ty; có một yêu cầu duyệt khi gửi nếu công ty có chính sách duyệt; áp dụng đổi nhân viên phụ trách trong hồ sơ đối tác của các khách (CONG_VIEC_21) |
+| Lịch sử phụ trách | Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11); dữ liệu cũ giữ trong cơ sở dữ liệu để tra cứu, không còn trên giao diện, API. Nội dung cũ: Công ty, khách, nhân viên phụ trách, từ thời điểm, đến thời điểm (trống: đang phụ trách), phiếu giao khách (trống: đặt trên hồ sơ, tự lập khi thêm, nhận đối tác) | Mỗi khách tại mỗi công ty một dòng đang mở; ghi khi nhân viên phụ trách đổi (CONG_VIEC_21) |
+
+| Tài khoản người mua | Người dùng (số điện thoại, họ tên, mật khẩu), người giới thiệu (trống được), thời điểm đăng ký, là nhân viên kinh doanh, công ty và phòng ban khi được đánh dấu | Không thuộc công ty nào trừ khi được đánh dấu nhân viên kinh doanh; mã giới thiệu là số điện thoại (CONG_VIEC_23) |
+| Lịch sử người giới thiệu | Người mua, người giới thiệu cũ, người giới thiệu mới, nguồn (đăng ký, khách tự nhập, quản trị đổi), lý do (bắt buộc khi quản trị đổi), người đổi, thời điểm | Không sửa, không xóa (CONG_VIEC_23) |
+| Lịch sử đánh dấu nhân viên kinh doanh | Người mua, đánh dấu hoặc bỏ đánh dấu, công ty, phòng ban, người làm, thời điểm | Không sửa, không xóa (CONG_VIEC_23) |
+| Công ty (bổ sung) | Là công ty vận hành sàn VComm | Tối đa một công ty trong tập đoàn (CONG_VIEC_23) |
+
+| Đơn vị kinh doanh | Phòng ban của công ty vận hành sàn gắn loại Khối kinh doanh, Vùng, Phòng kinh doanh; người quản lý | Thứ bậc Khối > Vùng > Phòng (CONG_VIEC_27) |
+| Đề xuất thay đổi đội kinh doanh | Người đề xuất, loại (thêm người, chuyển đơn vị, bổ nhiệm quản lý, đưa ra khỏi đội), người được đề xuất, đơn vị, lý do, trạng thái (chờ duyệt, đã duyệt, bị từ chối, đã rút), người duyệt, ghi chú | Mỗi người tối đa một đề xuất chờ duyệt (CONG_VIEC_27) |
+| Tỉnh, xã | Mã Tổng cục Thống kê, tên, tên đầy đủ, loại (thành phố, tỉnh; phường, xã, đặc khu) | Danh mục hai cấp từ 01/07/2025: 34 tỉnh, 3.321 xã; xã thuộc một tỉnh (CONG_VIEC_24) |
+| Cài đặt bán hàng VComm | Kênh bán, kho xuất (không quản lý vị trí), phí giao hàng mỗi đơn, mức miễn phí giao hàng, kích thước, khối lượng tối thiểu của gói | Một bản ghi cho công ty vận hành sàn (CONG_VIEC_24) |
+| Đăng bán | Sản phẩm, đăng bán hay không, mô tả cho người mua | Mỗi sản phẩm của công ty vận hành sàn một bản ghi (CONG_VIEC_24) |
+| Địa chỉ nhận hàng | Tên người nhận, số điện thoại, tỉnh, xã, địa chỉ chi tiết, mặc định | Mỗi người mua tối đa 10, đúng một mặc định (CONG_VIEC_24) |
+| Dòng giỏ hàng | Người mua, biến thể, số lượng | Mỗi người mua tối đa 50 dòng, mỗi biến thể một dòng (CONG_VIEC_24) |
+| Đơn VComm | Đơn bán, người mua, địa chỉ sao chép lúc đặt, tiền hàng, phí giao hàng, tiền thu hộ, phương thức thanh toán (thu khi nhận hàng), trạng thái, thời điểm giao thành công, hoàn tất, giá trị hoàn tất, lý do hủy, bên hủy, lịch sử trạng thái | Mở rộng một đơn bán của công ty vận hành sàn trên kênh VComm, không gắn khách hàng (CONG_VIEC_24) |
+| Đơn vị vận chuyển, vận đơn | Mã đơn vị, bật hay không; vận đơn: đơn vị, mã vận đơn, trạng thái của đơn vị vận chuyển, phí, đang hoạt động; lần nhận webhook | Mỗi đơn tối đa một vận đơn đang hoạt động (CONG_VIEC_24) |
+| Yêu cầu trả hàng | Đơn VComm, lý do, mô tả, dòng và số lượng, ảnh, trạng thái (chờ duyệt, đã duyệt, từ chối, đã rút, đã nhận hàng trả, không nhận được hàng), ghi chú, người và thời điểm xử lý, phiếu nhận hàng trả lại | Mỗi đơn tối đa một yêu cầu chờ duyệt hoặc đã duyệt (CONG_VIEC_24) |
+| Tài khoản người mua (bổ sung) | Người mua thử | Đặt được hàng khi chưa mở đặt hàng (CONG_VIEC_24) |
+| Phương thức thanh toán | Mã (`cod`, `vnpay_qr`, `vnpay_atm`, `vnpay_card`), cổng (thanh toán khi nhận hàng, VNPAY), thứ tự, bật hay không | Thông tin kết nối cổng ở biến môi trường (CONG_VIEC_25) |
+| Cài đặt bán hàng VComm (bổ sung) | Mở đặt hàng | Mở thì mọi người mua đặt được (CONG_VIEC_25) |
+| Đơn VComm (bổ sung) | Phương thức thanh toán (thu khi nhận hàng hoặc trực tuyến), trạng thái Chờ thanh toán, hạn thanh toán, tiền đã thu, thời điểm thu, tiền đã hoàn, bên hủy hệ thống | Tiền thu hộ chỉ có ở đơn thu khi nhận hàng (CONG_VIEC_25) |
+| Lần thanh toán | Đơn VComm, cổng, phương thức, số tham chiếu, số tiền, trạng thái (chờ kết quả, thành công, không thành công), mã giao dịch của cổng, mã ngân hàng, mã phản hồi | Mỗi đơn tối đa 10 lần; số tham chiếu duy nhất (CONG_VIEC_25) |
+| Kết quả cổng gửi về | Cổng, số tham chiếu, nội dung nguyên văn, mã trả lời | Lưu để tra soát (CONG_VIEC_25) |
+| Việc hoàn tiền | Đơn VComm, lần thanh toán hoặc yêu cầu trả hàng, lý do, số tiền, trạng thái (chờ hoàn, đã hoàn), mã giao dịch ngân hàng, ngày hoàn, ghi chú, người ghi | Mỗi lần thanh toán, mỗi yêu cầu trả hàng tối đa một việc (CONG_VIEC_25) |
+| Tài khoản nhận hoàn tiền | Ngân hàng, số tài khoản, tên chủ tài khoản | Mỗi người mua một tài khoản (CONG_VIEC_25) |
+| Thiết lập hoa hồng sản phẩm | Sản phẩm, cách tính (phần trăm hoặc số tiền cố định trên mỗi đơn vị cơ sở), năm mức (giới thiệu, Nhân viên kinh doanh, Trưởng phòng kinh doanh, Giám đốc Vùng, Giám đốc Kinh doanh), người sửa, phiên bản | Mỗi sản phẩm của công ty vận hành sàn tối đa một thiết lập; chưa thiết lập thì không có hoa hồng (CONG_VIEC_26) |
+| Cài đặt hoa hồng chung | Ngưỡng thuế thu nhập cá nhân, tỷ lệ thuế, mức rút tối thiểu, bảng phí rút tiền theo lần rút trong tháng, bảng phí rút tiền theo số tiền (THAY_DOI_17) | Một bản ghi cho công ty vận hành sàn; chưa lưu thì dùng mặc định (CONG_VIEC_26) |
+| Hoa hồng của đơn | Đơn VComm, dòng hàng, phần (giới thiệu hoặc chức danh), người hưởng, cách tính, mức chụp lúc đặt, số tiền, trạng thái (chờ, đã cộng ví) | Mỗi dòng hàng mỗi phần một người hưởng (CONG_VIEC_26) |
+| Ví hoa hồng | Người dùng, số dư | Mỗi người một ví; số dư chỉ đổi qua giao dịch ví (CONG_VIEC_26) |
+| Giao dịch ví | Ví, loại (hoa hồng, rút tiền, hoàn lại rút tiền), số tiền, số dư sau giao dịch, đơn VComm hoặc yêu cầu rút tiền, ghi chú | Không sửa, không xóa; mỗi đơn mỗi người một giao dịch hoa hồng (CONG_VIEC_26) |
+| Yêu cầu rút tiền | Người dùng, số tiền, tài khoản nhận chụp lúc tạo, trạng thái (chờ duyệt, đã duyệt, bị từ chối, đã rút lại, đã chi), thuế, phí rút tiền (THAY_DOI_17), số thực nhận, lý do từ chối, mã giao dịch ngân hàng, ngày chi, người duyệt, người ghi đã chi | Mỗi người tối đa một yêu cầu chờ duyệt hoặc đã duyệt chưa chi (CONG_VIEC_26) |

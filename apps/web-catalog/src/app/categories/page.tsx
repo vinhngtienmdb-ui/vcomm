@@ -112,6 +112,8 @@ function Categories({ canManage }: { canManage: boolean }) {
                     <dd>{selected.tracksLots ? t("tracksLots") : selected.tracksSerials ? t("tracksSerials") : t("noTracking")}</dd>
                     <dt>{t("warrantyMonths")}</dt>
                     <dd>{selected.warrantyMonths > 0 ? t("months", { count: selected.warrantyMonths }) : "—"}</dd>
+                    <dt>{t("requiresQualityCheck")}</dt>
+                    <dd>{selected.requiresQualityCheck ? t("yes") : t("no")}</dd>
                     <dt>{t("productCount")}</dt>
                     <dd>{selected.productCount}</dd>
                     <dt>{t("status")}</dt>
@@ -200,6 +202,7 @@ function CategoryDrawer({
     category ? (category.tracksLots ? "lots" : category.tracksSerials ? "serials" : "none") : parent?.tracksLots ? "lots" : parent?.tracksSerials ? "serials" : "none",
   );
   const [warrantyMonths, setWarrantyMonths] = useState(String(category?.warrantyMonths ?? parent?.warrantyMonths ?? 0));
+  const [requiresQualityCheck, setRequiresQualityCheck] = useState(category?.requiresQualityCheck ?? parent?.requiresQualityCheck ?? false);
   const { submitting, fields, formError, run, inputClass } = useSubmit();
   // Ngành hàng cha chọn được: chưa có sản phẩm, chưa đủ 4 cấp, không phải chính nó.
   const parents = categories.filter((item) => item.id !== category?.id && item.productCount === 0 && item.level < categoryMaximumLevel);
@@ -207,7 +210,7 @@ function CategoryDrawer({
   function submit(event: FormEvent) {
     event.preventDefault();
     void run(async () => {
-      const body = { parentId: parentId || null, code, nameVi, nameEn, tracksLots: tracking === "lots", tracksSerials: tracking === "serials", warrantyMonths: Number(warrantyMonths) || 0 };
+      const body = { parentId: parentId || null, code, nameVi, nameEn, tracksLots: tracking === "lots", tracksSerials: tracking === "serials", warrantyMonths: Number(warrantyMonths) || 0, requiresQualityCheck };
       const saved = category
         ? await apiFetch<CategoryResponse>(`/catalog/categories/${category.id}`, { method: "PATCH", body: JSON.stringify({ ...body, version: category.version }) })
         : await apiFetch<CategoryResponse>("/catalog/categories", { method: "POST", body: JSON.stringify(body) });
@@ -248,6 +251,9 @@ function CategoryDrawer({
         <Field id="bao-hanh" label={t("warrantyMonths")} error={fields.warrantyMonths}>
           <input id="bao-hanh" type="number" min={0} max={120} className={inputClass("warrantyMonths")} value={warrantyMonths} onChange={(event) => setWarrantyMonths(event.target.value)} />
         </Field>
+        <label>
+          <input type="checkbox" checked={requiresQualityCheck} onChange={(event) => setRequiresQualityCheck(event.target.checked)} /> {t("requiresQualityCheckLabel")}
+        </label>
         <FormError text={formError} />
         <div className="nhom-nut">
           <button type="button" className="nut phu" onClick={onClose}>

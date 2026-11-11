@@ -1,6 +1,6 @@
 // Sản phẩm của công ty: thông tin chung, biến thể, mã hàng, đơn vị quy đổi, mã vạch (CHUC_NANG_31, 32; QUYTAC_NGHIEPVU_38 đến 40; API_56).
 import { Inject, Injectable } from "@nestjs/common";
-import { productLimits, type PageResponse, type ProductListItem, type ProductResponse, type productListQuerySchema, type saveProductSchema, type VatRate } from "contracts";
+import { productLimits, type PageResponse, type ProductKind, type ProductListItem, type ProductResponse, type productListQuerySchema, type saveProductSchema, type VatRate } from "contracts";
 import { sql } from "drizzle-orm";
 import type { z } from "zod";
 import { ApiError } from "../common/api-error";
@@ -25,6 +25,7 @@ type ProductRow = {
   brand: string | null;
   origin: string | null;
   vat_rate: VatRate;
+  kind: ProductKind;
   tracks_lots: boolean;
   tracks_serials: boolean;
   warranty_months: number;
@@ -115,10 +116,10 @@ export class ProductsService {
     const category = await this.validate(transaction, companyId, input, null);
     const code = input.code || (await this.nextCode(transaction, companyId, category.code));
     const inserted = await transaction.execute<{ id: string }>(sql`
-      INSERT INTO catalog.products (company_id, category_id, code, name, search_text, description, brand, origin, vat_rate, tracks_lots, tracks_serials, warranty_months,
+      INSERT INTO catalog.products (company_id, category_id, code, name, search_text, description, brand, origin, vat_rate, kind, tracks_lots, tracks_serials, warranty_months,
         base_unit_id, weight_kg, volume_m3, options, specifications, created_by, updated_by)
       VALUES (${companyId}, ${input.categoryId}, ${code}, ${input.name}, ${searchText(input.name, code, input.brand)}, ${input.description ?? null}, ${input.brand ?? null}, ${input.origin ?? null},
-        ${input.vatRate}, ${input.tracksLots}, ${input.tracksSerials}, ${input.warrantyMonths}, ${input.baseUnitId}, ${input.weightKg}::numeric, ${input.volumeM3}::numeric,
+        ${input.vatRate}, ${input.kind ?? "goods"}, ${input.tracksLots}, ${input.tracksSerials}, ${input.warrantyMonths}, ${input.baseUnitId}, ${input.weightKg}::numeric, ${input.volumeM3}::numeric,
         ${JSON.stringify(input.options)}::jsonb, ${JSON.stringify(input.specifications)}::jsonb, ${actor.userId}, ${actor.userId})
       RETURNING id`);
     const productId = inserted.rows[0]!.id;
@@ -133,12 +134,18 @@ export class ProductsService {
     if (input.version === undefined) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { version: "required" } });
     await this.requireStockLockedFieldsUnchanged(id, before, input);
     await this.database.transaction(async (transaction) => {
-      await this.validate(transaction, actor.companyId, input, before);
+      // Khóa dòng sản phẩm rồi mới kiểm điều kiện đổi loại, để kiểm và ghi trong cùng giao dịch (CONG_VIEC_43, lát L4).
+      const locked = (await transaction.execute<{ kind: ProductKind }>(sql`SELECT kind FROM catalog.products WHERE id = ${id} AND company_id = ${actor.companyId} FOR UPDATE`)).rows[0];
+      if (!locked) throw new ApiError("NOT_FOUND", "notFound");
+      // Không gửi loại thì giữ loại hiện có, tránh đổi ngầm về Hàng hóa (CONG_VIEC_43, lát L4).
+      const kind = input.kind ?? locked.kind;
+      if (kind !== locked.kind) await this.requireKindChangeable(transaction, id);
+      await this.validate(transaction, actor.companyId, { ...input, kind }, before);
       const code = input.code || before.code;
       if (code !== before.code) await this.requireFreeCode(transaction, actor.companyId, code, id);
       const updated = await transaction.execute(sql`
         UPDATE catalog.products SET category_id = ${input.categoryId}, code = ${code}, name = ${input.name}, search_text = ${searchText(input.name, code, input.brand)},
-          description = ${input.description ?? null}, brand = ${input.brand ?? null}, origin = ${input.origin ?? null}, vat_rate = ${input.vatRate},
+          description = ${input.description ?? null}, brand = ${input.brand ?? null}, origin = ${input.origin ?? null}, vat_rate = ${input.vatRate}, kind = ${kind},
           tracks_lots = ${input.tracksLots}, tracks_serials = ${input.tracksSerials}, warranty_months = ${input.warrantyMonths}, base_unit_id = ${input.baseUnitId},
           weight_kg = ${input.weightKg}::numeric, volume_m3 = ${input.volumeM3}::numeric, options = ${JSON.stringify(input.options)}::jsonb,
           specifications = ${JSON.stringify(input.specifications)}::jsonb, version = version + 1, updated_at = now(), updated_by = ${actor.userId}
@@ -169,6 +176,27 @@ export class ProductsService {
     if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
   }
 
+  // Đổi loại Hàng hóa, Dịch vụ chỉ khi sản phẩm chưa có tồn kho, chứng từ kho, giữ hàng, kiểm kê (QUYTAC_NGHIEPVU_275). Đọc bảng của mini app Kho (chỉ đọc).
+  // Sửa sau rà soát (lát L4): thêm liên kết mặt hàng với công ty khác, tin đăng VComm, dòng đơn bán, đơn mua chưa kết thúc;
+  // đổi loại khi còn những thứ này thì hai bên giao dịch nội bộ khác loại, sàn bán dịch vụ, đơn đang chạy đổi luồng kho giữa chừng.
+  private async requireKindChangeable(executor: Executor, id: string): Promise<void> {
+    const used = await executor.execute(sql`
+      SELECT 1 FROM catalog.variants v WHERE v.product_id = ${id} AND (
+        EXISTS (SELECT 1 FROM inventory.balances b WHERE b.variant_id = v.id AND b.quantity <> 0)
+        OR EXISTS (SELECT 1 FROM inventory.document_lines l WHERE l.variant_id = v.id)
+        OR EXISTS (SELECT 1 FROM inventory.reservations r WHERE r.variant_id = v.id)
+        OR EXISTS (SELECT 1 FROM inventory.stocktake_lines t WHERE t.variant_id = v.id)
+        OR EXISTS (SELECT 1 FROM catalog.variant_links k WHERE k.variant_id = v.id OR k.linked_variant_id = v.id)
+        OR EXISTS (SELECT 1 FROM sales.order_lines sl JOIN sales.orders so ON so.id = sl.order_id
+          WHERE sl.variant_id = v.id AND so.status NOT IN ('rejected', 'withdrawn', 'cancelled', 'closed'))
+        OR EXISTS (SELECT 1 FROM purchasing.order_lines pl JOIN purchasing.orders po ON po.id = pl.order_id
+          WHERE pl.variant_id = v.id AND po.status NOT IN ('rejected', 'withdrawn', 'cancelled', 'closed')))
+      UNION ALL
+      SELECT 1 FROM marketplace.listings ml WHERE ml.product_id = ${id}
+      LIMIT 1`);
+    if (used.rows.length > 0) throw new ApiError("BUSINESS_RULE", "productKindLocked");
+  }
+
   // Không xóa sản phẩm, chỉ ngừng bán hoặc bán lại (QUYTAC_NGHIEPVU_38).
   async setStatus(actor: Actor, id: string, status: "active" | "inactive", version: number): Promise<ProductResponse> {
     await requireCompanyPermission(this.permissionService, actor, catalogPermissions.manageProducts);
@@ -190,7 +218,7 @@ export class ProductsService {
   async read(companyId: string, id: string, executor: Executor = this.database): Promise<ProductResponse> {
     const row = (
       await executor.execute<ProductRow>(sql`
-      SELECT p.id, p.company_id, p.category_id, c.name_vi AS category_name, p.code, p.name, p.description, p.brand, p.origin, p.vat_rate, p.tracks_lots, p.tracks_serials,
+      SELECT p.id, p.company_id, p.category_id, c.name_vi AS category_name, p.code, p.name, p.description, p.brand, p.origin, p.vat_rate, p.kind, p.tracks_lots, p.tracks_serials,
         p.warranty_months, p.base_unit_id, p.weight_kg::text AS weight_kg, p.volume_m3::text AS volume_m3, p.options, p.specifications, p.status, p.version, p.updated_at
       FROM catalog.products p JOIN catalog.categories c ON c.id = p.category_id
       WHERE p.id = ${id} AND p.company_id = ${companyId} AND p.seller_id IS NULL`)
@@ -219,6 +247,7 @@ export class ProductsService {
       brand: row.brand,
       origin: row.origin,
       vatRate: row.vat_rate,
+      kind: row.kind,
       tracksLots: row.tracks_lots,
       tracksSerials: row.tracks_serials,
       warrantyMonths: row.warranty_months,
@@ -252,6 +281,10 @@ export class ProductsService {
     if (!category || (category.status !== "active" && before?.categoryId !== input.categoryId)) errors.categoryId = "invalidValue";
     else if (category.child_count > 0) errors.categoryId = "productCategoryNotLeaf";
     if (input.tracksLots && input.tracksSerials) errors.tracksSerials = "categoryLotsAndSerials";
+    // Dịch vụ không theo dõi lô, số serial (QUYTAC_NGHIEPVU_275).
+    const isService = (input.kind ?? before?.kind ?? "goods") === "service";
+    if (isService && input.tracksLots) errors.tracksLots = "serviceNoTracking";
+    if (isService && input.tracksSerials) errors.tracksSerials = "serviceNoTracking";
 
     const unitIds = [input.baseUnitId, ...input.units.map((unit) => unit.unitId)];
     const activeUnits = new Set(

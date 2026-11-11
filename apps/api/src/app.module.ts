@@ -47,6 +47,56 @@ import { PriceChangesService } from "./catalog/price-changes.service";
 import { PriceListsService } from "./catalog/price-lists.service";
 import { PricingController } from "./catalog/pricing.controller";
 import { InventoryController } from "./inventory/inventory.controller";
+import { CrmController } from "./crm/crm.controller";
+import { PartnersService } from "./crm/partners.service";
+import { VisitsService } from "./crm/visits.service";
+import { BuyerController } from "./marketplace/buyer.controller";
+import { BuyerAccountsService } from "./marketplace/buyer-accounts.service";
+import { BuyerAdminService } from "./marketplace/buyer-admin.service";
+import { MarketplaceController } from "./marketplace/marketplace.controller";
+import { SalesTeamService } from "./marketplace/sales-team.service";
+import { SalesProposalsService } from "./marketplace/sales-proposals.service";
+import { StoreService } from "./marketplace/store.service";
+import { ShopController } from "./marketplace/shop.controller";
+import { ShopService } from "./marketplace/shop.service";
+import { MarketplaceOrdersService } from "./marketplace/marketplace-orders.service";
+import { ShipmentsService } from "./marketplace/shipments.service";
+import { ReturnRequestsService } from "./marketplace/return-requests.service";
+import { CarrierWebhookController } from "./marketplace/carrier-webhook.controller";
+import { PaymentsController } from "./marketplace/payments/payments.controller";
+import { MarketplacePaymentsService } from "./marketplace/payments/payments.service";
+import { RefundsController } from "./marketplace/payments/refunds.controller";
+import { RefundsService } from "./marketplace/payments/refunds.service";
+import { WithdrawalsController } from "./marketplace/withdrawals.controller";
+import { WithdrawalsService } from "./marketplace/withdrawals.service";
+import { MarketplaceCommissionsService } from "./marketplace/commissions.service";
+import { PurchasingController } from "./purchasing/purchasing.controller";
+import { SalesController } from "./sales/sales.controller";
+import { SalesOrdersService } from "./sales/sales-orders.service";
+import { InternalTradeService } from "./sales/internal-trade.service";
+import { PromotionsService } from "./sales/promotions.service";
+import { FinanceController } from "./finance/finance.controller";
+import { DebtsService } from "./finance/debts.service";
+import { FundsService } from "./finance/funds.service";
+import { PaymentsService } from "./finance/payments.service";
+import { LedgerService } from "./accounting/ledger.service";
+import { LedgerController } from "./accounting/ledger.controller";
+import { JournalsService } from "./accounting/journals.service";
+import { LedgerReportsService } from "./accounting/ledger-reports.service";
+import { StatementsService } from "./accounting/statements.service";
+import { BankReconciliationController } from "./bank/bank-reconciliation.controller";
+import { BankReconciliationService } from "./bank/bank-reconciliation.service";
+import { CollectionStatementsController } from "./collection/collection-statements.controller";
+import { CollectionStatementsService } from "./collection/collection-statements.service";
+import { ConsolidationController } from "./consolidation/consolidation.controller";
+import { ConsolidationService } from "./consolidation/consolidation.service";
+import { EinvoiceCorrectionsService } from "./einvoice/einvoice-corrections.service";
+import { EinvoiceSettingsService } from "./einvoice/einvoice-settings.service";
+import { EinvoicesController } from "./einvoice/einvoices.controller";
+import { EinvoicesService } from "./einvoice/einvoices.service";
+import { SupplierPricesService } from "./purchasing/supplier-prices.service";
+import { RequisitionsService } from "./purchasing/requisitions.service";
+import { PurchaseOrdersService } from "./purchasing/orders.service";
 import { ReservationsService } from "./inventory/reservations.service";
 import { StockDocumentsService } from "./inventory/stock-documents.service";
 import { StockLedgerService } from "./inventory/stock-ledger.service";
@@ -56,6 +106,10 @@ import { StockLevelsService } from "./inventory/stock-levels.service";
 import { StocktakesService } from "./inventory/stocktakes.service";
 import { TransfersService } from "./inventory/transfers.service";
 import { WarehousesService } from "./inventory/warehouses.service";
+import { PurchaseReceiptsService } from "./inventory/purchase-receipts.service";
+import { SalesDeliveriesService } from "./inventory/sales-deliveries.service";
+import { ServiceDocumentsService } from "./inventory/service-documents.service";
+import { InternalReceiptsService } from "./inventory/internal-receipts.service";
 import { CategoriesService } from "./catalog/categories.service";
 import { UnitsService } from "./catalog/units.service";
 import { ProductsService } from "./catalog/products.service";
@@ -72,7 +126,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController],
   providers: [
     AuthService,
     ActivationService,
@@ -98,6 +152,44 @@ import { UsersService } from "./users/users.service";
     PriceListsService,
     PriceChangesService,
     WarehousesService,
+    PurchaseReceiptsService,
+    SalesDeliveriesService,
+    InternalReceiptsService,
+    PartnersService,
+    VisitsService,
+    BuyerAccountsService,
+    BuyerAdminService,
+    SalesTeamService,
+    SalesProposalsService,
+    StoreService,
+    ShopService,
+    MarketplaceOrdersService,
+    ShipmentsService,
+    MarketplacePaymentsService,
+    RefundsService,
+    WithdrawalsService,
+    MarketplaceCommissionsService,
+    ReturnRequestsService,
+    SupplierPricesService,
+    SalesOrdersService,
+    InternalTradeService,
+    ServiceDocumentsService,
+    PromotionsService,
+    DebtsService,
+    FundsService,
+    PaymentsService,
+    LedgerService,
+    JournalsService,
+    LedgerReportsService,
+    StatementsService,
+    EinvoiceSettingsService,
+    EinvoicesService,
+    EinvoiceCorrectionsService,
+    BankReconciliationService,
+    CollectionStatementsService,
+    ConsolidationService,
+    RequisitionsService,
+    PurchaseOrdersService,
     StockLedgerService,
     ReservationsService,
     StockService,

@@ -1,12 +1,36 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Query, Req, Res } from "@nestjs/common";
-import { activationSchema, forgotPasswordSchema, loginRequestSchema, mfaCodeSchema, mfaVerifySchema, otpSendSchema, otpVerifySchema, resetPasswordSchema, type ActivationInfoResponse, type AuthMethodsResponse, type LoginResponse, type MfaBackupCodesResponse, type MfaEnrollResponse } from "contracts";
+import {
+  activationSchema,
+  appRefreshSchema,
+  forgotPasswordSchema,
+  loginRequestSchema,
+  type AppLoginResponse,
+  type AppTokens,
+  mfaCodeSchema,
+  mfaVerifySchema,
+  otpSendSchema,
+  otpVerifySchema,
+  resetPasswordSchema,
+  type ActivationInfoResponse,
+  type AuthMethodsResponse,
+  type LoginResponse,
+  type MfaBackupCodesResponse,
+  type MfaEnrollResponse,
+} from "contracts";
 import type { Request, Response } from "express";
 import { ApiError, localeOf } from "../common/api-error";
-import { accessCookieName, AllowMfaPending, csrfCookieName, csrfMatches, Public, refreshCookieName, type AuthenticatedRequest } from "./auth.guard";
+import { accessCookieName, AllowMfaPending, csrfCookieName, csrfMatches, Public, RateLimitGroup, refreshCookieName, type AuthenticatedRequest } from "./auth.guard";
 import { ActivationService } from "./activation.service";
 import { MfaService } from "./mfa.service";
 import { PasswordService } from "./password.service";
 import { AuthService, type ClientInfo, type IssuedSession } from "./auth.service";
+
+const appTokens = (session: IssuedSession): AppTokens => ({
+  accessToken: session.accessToken,
+  refreshToken: session.refreshToken,
+  accessExpiresAt: session.accessExpiresAt.toISOString(),
+  refreshExpiresAt: session.refreshExpiresAt.toISOString(),
+});
 import { newRandomToken } from "./tokens";
 import { MessagingService } from "../integrations/messaging.service";
 import { webOrigin } from "../common/outbound-messages";
@@ -69,6 +93,7 @@ export class AuthController {
 
   // API_03
   @Public()
+  @RateLimitGroup("otp-verify")
   @Post("otp/verify")
   @HttpCode(200)
   async verifyOtp(@Body() body: unknown, @Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<LoginResponse> {
@@ -81,7 +106,13 @@ export class AuthController {
   // API_04: chuyển hướng tới nhà cung cấp. Lỗi thì quay về trang đăng nhập, hồ sơ hoặc kích hoạt kèm mã lỗi.
   @Public()
   @Get("oauth/:provider/start")
-  async oauthStart(@Param("provider") provider: string, @Query("mode") mode: string | undefined, @Query("token") token: string | undefined, @Req() request: Request, @Res() response: Response): Promise<void> {
+  async oauthStart(
+    @Param("provider") provider: string,
+    @Query("mode") mode: string | undefined,
+    @Query("token") token: string | undefined,
+    @Req() request: Request,
+    @Res() response: Response,
+  ): Promise<void> {
     const chosen = mode === "link" || mode === "activate" ? mode : "login";
     try {
       const started = await this.oauth.start(oauthProvider(provider), chosen, request.cookies?.[accessCookieName] as string | undefined, token);
@@ -96,7 +127,13 @@ export class AuthController {
   // liên kết xong về hồ sơ, kích hoạt xong về trang đăng nhập kèm thông báo (MAN_HINH_03).
   @Public()
   @Get("oauth/:provider/callback")
-  async oauthCallback(@Param("provider") provider: string, @Query("code") code: string | undefined, @Query("state") state: string | undefined, @Req() request: Request, @Res() response: Response): Promise<void> {
+  async oauthCallback(
+    @Param("provider") provider: string,
+    @Query("code") code: string | undefined,
+    @Query("state") state: string | undefined,
+    @Req() request: Request,
+    @Res() response: Response,
+  ): Promise<void> {
     const stateCookie = request.cookies?.[oauthStateCookieName] as string | undefined;
     response.clearCookie(oauthStateCookieName, { path: "/api/v1/auth/oauth" });
     const pending = this.oauth.pending(stateCookie);
@@ -168,6 +205,7 @@ export class AuthController {
 
   // API_01
   @Public()
+  @RateLimitGroup("login")
   @Post("login")
   @HttpCode(200)
   async login(@Body() body: unknown, @Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<LoginResponse> {
@@ -175,6 +213,24 @@ export class AuthController {
     const { response: result, session } = await this.auth.login(input, clientInfo(request));
     setSessionCookies(response, session);
     return result;
+  }
+
+  // API_112: ứng dụng nhân viên kinh doanh đăng nhập bằng mật khẩu, nhận token trong thân phản hồi (QUYTAC_NGHIEPVU_136).
+  // Xác thực hai lớp, đăng xuất dùng API hiện có với header Authorization.
+  @Public()
+  @RateLimitGroup("login")
+  @Post("app/login")
+  @HttpCode(200)
+  async appLogin(@Body() body: unknown, @Req() request: Request): Promise<AppLoginResponse> {
+    const { response, session } = await this.auth.login(loginRequestSchema.parse(body), clientInfo(request), "sales_app");
+    return { ...response, tokens: appTokens(session) };
+  }
+
+  @Public()
+  @Post("app/refresh")
+  @HttpCode(200)
+  async appRefresh(@Body() body: unknown, @Req() request: Request): Promise<AppTokens> {
+    return appTokens(await this.auth.refresh(appRefreshSchema.parse(body).refreshToken, clientInfo(request), true));
   }
 
   // API_09

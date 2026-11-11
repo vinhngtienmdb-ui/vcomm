@@ -10,6 +10,7 @@ export const inventoryMenu = [
   { href: "/documents", key: "documents", permission: "inventory.stock.view" },
   { href: "/stocktakes", key: "stocktakes", permission: "inventory.stocktake.manage" },
   { href: "/reservations", key: "reservations", permission: "inventory.access" },
+  { href: "/internal-discrepancies", key: "internalDiscrepancies", permission: "inventory.sales.issue" },
   { href: "/warehouses", key: "warehouses", permission: "inventory.access" },
 ] as const;
 

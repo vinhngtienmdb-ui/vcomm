@@ -14,6 +14,13 @@ export function configureApplication(application: NestExpressApplication): NestE
   application.use(cookieParser());
   application.disable("x-powered-by");
   application.set("trust proxy", 1);
+  // Bản web của ứng dụng di động (CONG_VIEC_22) gọi API từ nguồn khác bằng header Authorization, không dùng cookie;
+  // chỉ cho các nguồn khai trong APP_WEB_ORIGINS (phân tách bằng dấu phẩy), không gửi kèm thông tin đăng nhập trình duyệt.
+  const appOrigins = (process.env.APP_WEB_ORIGINS ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  if (appOrigins.length > 0) application.enableCors({ origin: appOrigins, credentials: false, allowedHeaders: ["authorization", "content-type", "x-company-id", "accept-language"], maxAge: 600 });
   return application;
 }
 

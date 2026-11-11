@@ -61,6 +61,59 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "inventory.document.manage", appCode: "inventory", nameVi: "Lập phiếu kho", nameEn: "Manage stock documents", isSensitive: false },
   { code: "inventory.stocktake.manage", appCode: "inventory", nameVi: "Kiểm kê", nameEn: "Manage stocktakes", isSensitive: false },
   { code: "inventory.reservation.manage", appCode: "inventory", nameVi: "Quản lý giữ hàng, tồn an toàn", nameEn: "Manage reservations and stock levels", isSensitive: false },
+  // CONG_VIEC_06: danh mục đối tác (MODULE_07, phần tối thiểu).
+  { code: "crm.partner.view", appCode: "crm", nameVi: "Xem đối tác", nameEn: "View partners", isSensitive: false },
+  { code: "crm.partner.manage", appCode: "crm", nameVi: "Thêm, sửa đối tác dùng chung", nameEn: "Manage shared partners", isSensitive: false },
+  { code: "crm.partner.identity.view", appCode: "crm", nameVi: "Xem số Căn cước công dân của đối tác", nameEn: "View partner citizen identity numbers", isSensitive: true },
+  { code: "crm.profile.manage", appCode: "crm", nameVi: "Quản lý hồ sơ đối tác của công ty (hạn mức công nợ)", nameEn: "Manage company partner profiles (credit limits)", isSensitive: true },
+  // CONG_VIEC_22: ứng dụng nhân viên kinh doanh (THAY_DOI_13).
+  { code: "crm.visit.manage", appCode: "crm", nameVi: "Ghi lượt ghé thăm khách", nameEn: "Record customer visits", isSensitive: false },
+  // CONG_VIEC_23: tài khoản người mua VComm (xét tại công ty vận hành sàn).
+  { code: "marketplace.buyer.view", appCode: "crm", nameVi: "Xem tài khoản người mua", nameEn: "View buyer accounts", isSensitive: false },
+  { code: "marketplace.buyer.manage", appCode: "crm", nameVi: "Đổi người giới thiệu, đánh dấu nhân viên kinh doanh", nameEn: "Change referrers, flag sales staff", isSensitive: true },
+  { code: "marketplace.order.view", appCode: "crm", nameVi: "Xem đơn VComm, yêu cầu trả hàng", nameEn: "View VComm orders and return requests", isSensitive: false },
+  {
+    code: "marketplace.order.manage",
+    appCode: "crm",
+    nameVi: "Cài đặt bán hàng VComm, đăng bán, giao đơn, xử lý trả hàng",
+    nameEn: "Manage VComm store, listings, shipments and returns",
+    isSensitive: true,
+  },
+  // CONG_VIEC_25: ghi đã thu tiền thu hộ, đã hoàn tiền đơn VComm.
+  { code: "marketplace.payment.manage", appCode: "crm", nameVi: "Ghi đã thu tiền thu hộ, đã hoàn tiền đơn VComm", nameEn: "Record VComm cash collected and refunds", isSensitive: true },
+  // CONG_VIEC_07: Mua hàng trong nước (MODULE_04, phần 1).
+  { code: "purchasing.price.manage", appCode: "purchasing", nameVi: "Quản lý bảng giá mua", nameEn: "Manage supplier prices", isSensitive: false },
+  { code: "purchasing.requisition.create", appCode: "purchasing", nameVi: "Lập đề nghị mua", nameEn: "Create purchase requisitions", isSensitive: false },
+  { code: "purchasing.order.view", appCode: "purchasing", nameVi: "Xem đơn mua", nameEn: "View purchase orders", isSensitive: false },
+  { code: "purchasing.order.manage", appCode: "purchasing", nameVi: "Lập, sửa, đóng đơn mua", nameEn: "Manage purchase orders", isSensitive: false },
+  { code: "purchasing.settings.manage", appCode: "purchasing", nameVi: "Cài đặt mua hàng", nameEn: "Manage purchasing settings", isSensitive: false },
+  // CONG_VIEC_08: Bán hàng (MODULE_05, phần 1).
+  { code: "sales.order.view", appCode: "sales", nameVi: "Xem đơn bán", nameEn: "View sales orders", isSensitive: false },
+  { code: "sales.order.manage", appCode: "sales", nameVi: "Lập, sửa, gửi, hủy, đóng đơn bán", nameEn: "Manage sales orders", isSensitive: false },
+  { code: "sales.settings.manage", appCode: "sales", nameVi: "Cài đặt bán hàng", nameEn: "Manage sales settings", isSensitive: false },
+  { code: "sales.promotion.view", appCode: "sales", nameVi: "Xem chương trình khuyến mãi", nameEn: "View promotions", isSensitive: false },
+  { code: "sales.promotion.manage", appCode: "sales", nameVi: "Lập, gửi duyệt, dừng chương trình khuyến mãi", nameEn: "Manage promotions", isSensitive: false },
+  { code: "finance.debt.view", appCode: "finance", nameVi: "Xem quỹ, công nợ, phiếu thu chi", nameEn: "View funds, debts and payments", isSensitive: false },
+  { code: "finance.fund.manage", appCode: "finance", nameVi: "Quản lý quỹ", nameEn: "Manage funds", isSensitive: false },
+  { code: "finance.debt.manage", appCode: "finance", nameVi: "Nhập số dư đầu kỳ công nợ", nameEn: "Manage opening debt balances", isSensitive: false },
+  { code: "finance.payment.manage", appCode: "finance", nameVi: "Lập, gửi phiếu thu, phiếu chi", nameEn: "Manage receipts and payments", isSensitive: false },
+  { code: "finance.ledger.view", appCode: "finance", nameVi: "Xem tài khoản, bút toán, sổ cái", nameEn: "View accounts, journals and ledgers", isSensitive: false },
+  { code: "finance.ledger.setup", appCode: "finance", nameVi: "Khởi tạo kế toán, sửa tài khoản, định khoản", nameEn: "Set up accounts and posting rules", isSensitive: false },
+  { code: "finance.journal.manage", appCode: "finance", nameVi: "Lập, gửi phiếu kế toán", nameEn: "Manage manual journals", isSensitive: false },
+  { code: "finance.period.close", appCode: "finance", nameVi: "Khóa sổ, mở lại sổ", nameEn: "Close and reopen periods", isSensitive: true },
+  { code: "finance.einvoice.view", appCode: "finance", nameVi: "Xem hóa đơn điện tử", nameEn: "View e-invoices", isSensitive: false },
+  { code: "finance.einvoice.manage", appCode: "finance", nameVi: "Gửi lại, điều chỉnh, thay thế hóa đơn điện tử", nameEn: "Manage e-invoices", isSensitive: false },
+  { code: "finance.einvoice.setup", appCode: "finance", nameVi: "Cài đặt hóa đơn điện tử", nameEn: "Set up e-invoicing", isSensitive: true },
+  { code: "finance.bank.view", appCode: "finance", nameVi: "Xem giao dịch ngân hàng, đối chiếu", nameEn: "View bank transactions and reconciliation", isSensitive: false },
+  { code: "finance.bank.manage", appCode: "finance", nameVi: "Ghép, bỏ qua giao dịch ngân hàng, lập phiếu thu từ gợi ý", nameEn: "Reconcile bank transactions", isSensitive: false },
+  { code: "finance.bank.setup", appCode: "finance", nameVi: "Cài đặt kết nối ngân hàng", nameEn: "Set up bank connections", isSensitive: true },
+  { code: "finance.collection.view", appCode: "finance", nameVi: "Xem bảng đối soát thu hộ", nameEn: "View collection statements", isSensitive: false },
+  { code: "finance.collection.manage", appCode: "finance", nameVi: "Nhập, gửi bảng đối soát thu hộ", nameEn: "Manage collection statements", isSensitive: false },
+  { code: "finance.collection.setup", appCode: "finance", nameVi: "Khai đơn vị thu hộ", nameEn: "Set up collectors", isSensitive: true },
+  { code: "finance.consolidation.view", appCode: "finance", nameVi: "Xem báo cáo hợp nhất (phạm vi tập đoàn)", nameEn: "View consolidated statements", isSensitive: false },
+  { code: "finance.consolidation.manage", appCode: "finance", nameVi: "Lập, gửi bảng hợp nhất (phạm vi tập đoàn)", nameEn: "Manage consolidation", isSensitive: true },
+  { code: "inventory.sales.issue", appCode: "inventory", nameVi: "Xuất giao hàng, nhận hàng trả lại", nameEn: "Issue sales deliveries and receive returns", isSensitive: false },
+  { code: "inventory.purchase.receive", appCode: "inventory", nameVi: "Nhập mua, trả hàng nhà cung cấp", nameEn: "Receive purchases and return to suppliers", isSensitive: false },
 ];
 
 const inventoryPermissions = permissionCatalog.filter((permission) => permission.appCode === "inventory").map((permission) => permission.code);
@@ -87,6 +140,43 @@ const companyAdminPermissions = [
   "catalog.price.view",
   "catalog.price.manage",
   ...inventoryPermissions.filter((code) => code !== "inventory.access"),
+  "crm.partner.view",
+  "crm.partner.manage",
+  "crm.partner.identity.view",
+  "crm.profile.manage",
+  "crm.visit.manage",
+  "marketplace.buyer.view",
+  "marketplace.buyer.manage",
+  "marketplace.order.view",
+  "marketplace.order.manage",
+  "marketplace.payment.manage",
+  "purchasing.price.manage",
+  "purchasing.requisition.create",
+  "purchasing.order.view",
+  "purchasing.order.manage",
+  "purchasing.settings.manage",
+  "sales.order.view",
+  "sales.order.manage",
+  "sales.settings.manage",
+  "sales.promotion.view",
+  "sales.promotion.manage",
+  "finance.debt.view",
+  "finance.fund.manage",
+  "finance.debt.manage",
+  "finance.payment.manage",
+  "finance.ledger.view",
+  "finance.ledger.setup",
+  "finance.journal.manage",
+  "finance.period.close",
+  "finance.einvoice.view",
+  "finance.einvoice.manage",
+  "finance.einvoice.setup",
+  "finance.bank.view",
+  "finance.bank.manage",
+  "finance.bank.setup",
+  "finance.collection.view",
+  "finance.collection.manage",
+  "finance.collection.setup",
 ];
 
 export const systemRoles: { code: string; nameVi: string; nameEn: string; permissionCodes: string[] }[] = [
@@ -94,9 +184,9 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     code: "group_admin",
     nameVi: "Quản trị tập đoàn",
     nameEn: "Group administrator",
-    // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), cộng quyền truy cập mọi mini app.
+    // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), Đối tác (CONG_VIEC_06), Mua hàng (CONG_VIEC_07), Bán hàng (CONG_VIEC_08), Tài chính – Kế toán (CONG_VIEC_13), cộng quyền truy cập mọi mini app.
     permissionCodes: permissionCatalog
-      .filter((permission) => ["platform", "catalog", "inventory"].includes(permission.appCode) || permission.code.endsWith(".access"))
+      .filter((permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance"].includes(permission.appCode) || permission.code.endsWith(".access"))
       .map((permission) => permission.code),
   },
   { code: "company_admin", nameVi: "Quản trị công ty", nameEn: "Company administrator", permissionCodes: companyAdminPermissions },
@@ -108,8 +198,122 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     nameEn: "Product manager",
     permissionCodes: ["catalog.access", "catalog.product.view", "catalog.product.manage", "catalog.price.view"],
   },
-  { code: "warehouse_keeper", nameVi: "Thủ kho", nameEn: "Warehouse keeper", permissionCodes: ["inventory.access", "inventory.stock.view", "inventory.document.manage"] },
+  {
+    code: "warehouse_keeper",
+    nameVi: "Thủ kho",
+    nameEn: "Warehouse keeper",
+    permissionCodes: [
+      "inventory.access",
+      "inventory.stock.view",
+      "inventory.document.manage",
+      "inventory.purchase.receive",
+      "inventory.sales.issue",
+      "crm.partner.view",
+      "purchasing.access",
+      "purchasing.requisition.create",
+      "purchasing.order.view",
+      "sales.access",
+      "sales.order.view",
+    ],
+  },
   { code: "warehouse_manager", nameVi: "Quản lý kho", nameEn: "Warehouse manager", permissionCodes: inventoryPermissions },
+  {
+    code: "purchaser",
+    nameVi: "Nhân viên mua hàng",
+    nameEn: "Purchaser",
+    permissionCodes: [
+      "purchasing.access",
+      "purchasing.price.manage",
+      "purchasing.requisition.create",
+      "purchasing.order.view",
+      "purchasing.order.manage",
+      "crm.access",
+      "crm.partner.view",
+      "crm.partner.manage",
+    ],
+  },
+  {
+    code: "salesperson",
+    nameVi: "Nhân viên bán hàng",
+    nameEn: "Salesperson",
+    permissionCodes: [
+      // CONG_VIEC_43 (QUYTAC_NGHIEPVU_276): nhân viên bán hàng xem đơn bán, không lập đơn bán.
+      "sales.access",
+      "sales.order.view",
+      "sales.promotion.view",
+      "crm.access",
+      "crm.partner.view",
+      "crm.partner.manage",
+      "catalog.access",
+      "catalog.price.view",
+      // CONG_VIEC_22: ghé thăm khách trên ứng dụng (THAY_DOI_13).
+      "crm.visit.manage",
+    ],
+  },
+  {
+    code: "accountant",
+    nameVi: "Kế toán",
+    nameEn: "Accountant",
+    permissionCodes: [
+      "finance.access",
+      "finance.debt.view",
+      "finance.fund.manage",
+      "finance.debt.manage",
+      "finance.payment.manage",
+      "finance.ledger.view",
+      "finance.journal.manage",
+      "finance.einvoice.view",
+      "finance.einvoice.manage",
+      "finance.bank.view",
+      "finance.bank.manage",
+      "finance.collection.view",
+      "finance.collection.manage",
+      "crm.access",
+      "crm.partner.view",
+      "marketplace.order.view",
+      "marketplace.payment.manage",
+      // CONG_VIEC_43 (QUYTAC_NGHIEPVU_276): kế toán lập đơn bán dịch vụ.
+      "sales.access",
+      "sales.order.view",
+      "sales.order.manage",
+    ],
+  },
+  {
+    code: "chief_accountant",
+    nameVi: "Kế toán trưởng",
+    nameEn: "Chief accountant",
+    permissionCodes: [
+      "finance.access",
+      "finance.debt.view",
+      "finance.fund.manage",
+      "finance.debt.manage",
+      "finance.payment.manage",
+      "finance.ledger.view",
+      "finance.ledger.setup",
+      "finance.journal.manage",
+      "finance.period.close",
+      "finance.einvoice.view",
+      "finance.einvoice.manage",
+      "finance.einvoice.setup",
+      "finance.bank.view",
+      "finance.bank.manage",
+      "finance.bank.setup",
+      "finance.collection.view",
+      "finance.collection.manage",
+      "finance.collection.setup",
+      "finance.consolidation.view",
+      "finance.consolidation.manage",
+      "crm.access",
+      "crm.partner.view",
+      "marketplace.order.view",
+      "marketplace.payment.manage",
+      // CONG_VIEC_43 (QUYTAC_NGHIEPVU_276): kế toán lập đơn bán dịch vụ.
+      "sales.access",
+      "sales.order.view",
+      "sales.order.manage",
+    ],
+  },
+  { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },
 ];
 
 // Loại chứng từ do mã khai báo. Chứng từ thử của Nền tảng dùng để thử luồng duyệt khi chưa có module khác (CONG_VIEC_02 lát L7).
@@ -121,6 +325,19 @@ export const documentTypeCatalog = [
   { code: "inventory.adjustment", appCode: "inventory", nameVi: "Phiếu điều chỉnh kho", nameEn: "Stock adjustment", requiresApproval: true },
   { code: "inventory.transfer", appCode: "inventory", nameVi: "Phiếu chuyển kho", nameEn: "Stock transfer", requiresApproval: true },
   { code: "inventory.stocktake", appCode: "inventory", nameVi: "Phiếu kiểm kê", nameEn: "Stocktake", requiresApproval: false },
+  { code: "inventory.purchase_receipt", appCode: "inventory", nameVi: "Phiếu nhập mua", nameEn: "Purchase receipt", requiresApproval: false },
+  { code: "inventory.purchase_return", appCode: "inventory", nameVi: "Phiếu trả hàng nhà cung cấp", nameEn: "Purchase return", requiresApproval: false },
+  { code: "purchasing.requisition", appCode: "purchasing", nameVi: "Đề nghị mua", nameEn: "Purchase requisition", requiresApproval: true },
+  { code: "purchasing.order", appCode: "purchasing", nameVi: "Đơn mua", nameEn: "Purchase order", requiresApproval: true },
+  { code: "sales.order", appCode: "sales", nameVi: "Đơn bán", nameEn: "Sales order", requiresApproval: true },
+  { code: "sales.promotion", appCode: "sales", nameVi: "Chương trình khuyến mãi", nameEn: "Promotion", requiresApproval: true },
+  { code: "inventory.sales_issue", appCode: "inventory", nameVi: "Phiếu xuất giao hàng", nameEn: "Sales delivery", requiresApproval: false },
+  { code: "inventory.sales_return", appCode: "inventory", nameVi: "Phiếu nhận hàng trả lại", nameEn: "Sales return", requiresApproval: false },
+  { code: "finance.receipt", appCode: "finance", nameVi: "Phiếu thu", nameEn: "Cash receipt", requiresApproval: false },
+  { code: "finance.payment", appCode: "finance", nameVi: "Phiếu chi", nameEn: "Cash payment", requiresApproval: true },
+  { code: "accounting.journal", appCode: "finance", nameVi: "Phiếu kế toán", nameEn: "Manual journal", requiresApproval: true },
+  { code: "finance.collection_statement", appCode: "finance", nameVi: "Bảng đối soát thu hộ", nameEn: "Collection statement", requiresApproval: true },
+  { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.
@@ -142,15 +359,10 @@ export async function syncPermissionCatalog(database: Database): Promise<void> {
         });
     }
     for (const role of systemRoles) {
-      const existing = await transaction.execute<{ id: string }>(
-        sql`SELECT id FROM core.roles WHERE company_id IS NULL AND code = ${role.code}`,
-      );
+      const existing = await transaction.execute<{ id: string }>(sql`SELECT id FROM core.roles WHERE company_id IS NULL AND code = ${role.code}`);
       let roleId = existing.rows[0]?.id;
       if (!roleId) {
-        const inserted = await transaction
-          .insert(roles)
-          .values({ code: role.code, nameVi: role.nameVi, nameEn: role.nameEn, isSystem: true, status: "active" })
-          .returning({ id: roles.id });
+        const inserted = await transaction.insert(roles).values({ code: role.code, nameVi: role.nameVi, nameEn: role.nameEn, isSystem: true, status: "active" }).returning({ id: roles.id });
         roleId = inserted[0]!.id;
       }
       await transaction.delete(rolePermissions).where(sql`${rolePermissions.roleId} = ${roleId}`);

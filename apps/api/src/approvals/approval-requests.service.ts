@@ -377,6 +377,14 @@ export class ApprovalRequestsService {
     return this.detail(userId, requestId);
   }
 
+  // Chứng từ bị hủy, đóng theo chứng từ đối ứng nội bộ (CONG_VIEC_09): rút yêu cầu còn chờ để không treo trong hộp duyệt.
+  // Không phát sự kiện hoàn tất vì chứng từ đã kết thúc trong cùng giao dịch.
+  async cancelWithin(transaction: Executor, requestId: string): Promise<void> {
+    await transaction.execute(sql`
+      UPDATE core.approval_requests SET status = 'withdrawn', current_level_no = NULL, completed_at = ${this.clock.now().toISOString()}::timestamptz
+      WHERE id = ${requestId} AND status = 'pending'`);
+  }
+
   // Số yêu cầu đang chờ nhân viên theo mini app, và 5 yêu cầu mới nhất (trang chủ, API_19).
   async summary(userId: string, companyId: string): Promise<{ countsByApp: Map<string, number>; latest: ApprovalInboxItem[] }> {
     const items = await this.inbox(userId, {});

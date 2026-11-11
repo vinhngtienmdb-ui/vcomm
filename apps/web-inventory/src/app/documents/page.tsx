@@ -43,6 +43,16 @@ export default function DocumentsPage() {
               {t(`new_${item}`)}
             </Link>
           ))}
+        {can("inventory.sales.issue") && (
+          <Link className="nut phu" href="/sales-issues/new">
+            {t("new_sales_issue")}
+          </Link>
+        )}
+        {can("inventory.purchase.receive") && (
+          <Link className="nut phu" href="/purchase-receipts/new">
+            {t("new_purchase_receipt")}
+          </Link>
+        )}
       </div>
       <div className="bo-loc">
         {(

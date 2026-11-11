@@ -1,4 +1,5 @@
 // Quản lý công ty (CHUC_NANG_01; QUYTAC_NGHIEPVU_01 đến 04).
+import { beforeRegimeChange } from "../accounting/regime-guard";
 import { Inject, Injectable } from "@nestjs/common";
 import type { CompanyResponse, CreateCompanyRequest, UpdateCompanyRequest } from "contracts";
 import { createCompanySchema, updateCompanySchema } from "contracts";
@@ -109,6 +110,7 @@ export class CompaniesService {
     await this.validate(input, id);
     const assignments = setClause(input, columns);
     await this.database.transaction(async (transaction) => {
+      if (input.accountingRegime !== undefined && input.accountingRegime !== before.accountingRegime) await beforeRegimeChange(transaction, id);
       const updated = await transaction.execute(sql`
         UPDATE core.companies SET ${sql.join([...assignments, sql`version = version + 1`, sql`updated_at = now()`, sql`updated_by = ${actor.userId}`], sql`, `)}
         WHERE id = ${id} AND version = ${input.version} RETURNING id`);
