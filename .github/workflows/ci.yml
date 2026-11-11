@@ -118,6 +118,6 @@ jobs:
           tar -xzf "$RUNNER_TEMP/$tep" -C "$RUNNER_TEMP" gitleaks
           "$RUNNER_TEMP/gitleaks" version
 
-      # Quét bí mật trên toàn bộ lịch sử git.
+      # Quét bí mật trên toàn bộ lịch sử của nhánh đang kiểm (không quét nhánh khác).
       - name: Quét bí mật (gitleaks)
-        run: $RUNNER_TEMP/gitleaks git . --redact --verbose --no-banner --exit-code 1 --gitleaks-ignore-path .github/gitleaksignore
+        run: $RUNNER_TEMP/gitleaks git . --log-opts=HEAD --redact --verbose --no-banner --exit-code 1 --gitleaks-ignore-path .github/gitleaksignore
