@@ -3662,7 +3662,9 @@
     "momo_card": "Thẻ quốc tế qua MoMo",
     "gateway_momo": "MoMo",
     "sepay_bank_transfer": "Chuyển khoản ngân hàng (SePay)",
-    "gateway_sepay": "SePay"
+    "gateway_sepay": "SePay",
+    "payos_vietqr": "Chuyển khoản VietQR qua PayOS",
+    "gateway_payos": "PayOS"
   },
   "refunds": {
     "title": "Hoàn tiền đơn VComm",

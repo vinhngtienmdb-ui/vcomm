@@ -3662,7 +3662,9 @@
     "momo_card": "International card via MoMo",
     "gateway_momo": "MoMo",
     "sepay_bank_transfer": "Bank transfer (SePay)",
-    "gateway_sepay": "SePay"
+    "gateway_sepay": "SePay",
+    "payos_vietqr": "VietQR bank transfer via PayOS",
+    "gateway_payos": "PayOS"
   },
   "refunds": {
     "title": "VComm refunds",

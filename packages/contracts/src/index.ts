@@ -4095,6 +4095,7 @@ export const paymentMethodCodes = [
   "momo_atm",
   "momo_card",
   "sepay_bank_transfer",
+  "payos_vietqr",
 ] as const;
 export type PaymentMethodCode = (typeof paymentMethodCodes)[number];
 export const paymentGatewayCodes = [
@@ -4102,6 +4103,7 @@ export const paymentGatewayCodes = [
   "vnpay",
   "momo",
   "sepay",
+  "payos",
 ] as const;
 export type PaymentGatewayCode = (typeof paymentGatewayCodes)[number];
 

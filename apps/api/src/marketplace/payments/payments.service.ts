@@ -18,6 +18,10 @@ import { gatewayAdapter, isOnlineMethod } from "./payment-gateway-registry";
 const attemptLimit = 10;
 const systemClient: ClientInfo = { ip: null, userAgent: "payment-expiry", requestId: null };
 
+// Lần thanh toán của kết quả cổng: theo số tham chiếu, hoặc mã đơn riêng của cổng (CONG_VIEC_35).
+const paymentMatch = (gatewayCode: string, result: GatewayNotification) =>
+  result.reference ? sql`reference = ${result.reference} AND gateway_code = ${gatewayCode}` : sql`gateway_order_code = ${result.gatewayOrderCode ?? ""} AND gateway_code = ${gatewayCode}`;
+
 export type ReturnOutcome = { orderId: string | null; state: "succeeded" | "failed" | "pending" | "invalid" };
 
 @Injectable()
@@ -61,9 +65,10 @@ export class MarketplacePaymentsService {
       // Số tham chiếu gửi cổng: số đơn chỉ giữ chữ và số, thêm số thứ tự lần thanh toán.
       const reference = `${order.document_no.replace(/[^A-Za-z0-9]/g, "")}T${String(attempts + 1).padStart(2, "0")}`;
       const amount = Math.round(Number(order.total));
+      const gatewayOrderCode = gateway.createOrderCode?.() ?? null;
       await transaction.execute(sql`
-        INSERT INTO marketplace.payments (order_id, gateway_code, method, reference, amount, created_by)
-        VALUES (${orderId}, ${order.gateway_code}, ${order.payment_method}, ${reference}, ${amount}, ${userId})`);
+        INSERT INTO marketplace.payments (order_id, gateway_code, method, reference, gateway_order_code, amount, created_by)
+        VALUES (${orderId}, ${order.gateway_code}, ${order.payment_method}, ${reference}, ${gatewayOrderCode}, ${amount}, ${userId})`);
       const deadline = new Date(order.payment_deadline!);
       const instruction = await gateway.start({
         reference,
@@ -73,6 +78,7 @@ export class MarketplacePaymentsService {
         ipAddress: client.ip ?? "127.0.0.1",
         createdAt: new Date(),
         expiresAt: deadline,
+        gatewayOrderCode,
         buyer: { name: order.buyer_name, phone: order.buyer_phone, email: order.buyer_email },
       });
       return {
@@ -97,13 +103,15 @@ export class MarketplacePaymentsService {
       return gateway.reply("invalid_signature", null);
     }
     // Lỗi khi ghi nhận (kỳ kế toán đã khóa, cơ sở dữ liệu lỗi): trả lỗi để cổng gửi lại, ghi lại để tra soát.
+    let reference = result.reference ?? result.gatewayOrderCode ?? null;
     const outcome = await this.database
       .transaction(async (transaction): Promise<NotificationOutcome> => {
         const payment = (
-          await transaction.execute<{ id: string; order_id: string; amount: string; status: string }>(sql`
-          SELECT id, order_id, amount::text, status FROM marketplace.payments WHERE reference = ${result.reference} AND gateway_code = ${gateway.code} FOR UPDATE`)
+          await transaction.execute<{ id: string; order_id: string; reference: string; amount: string; status: string }>(sql`
+          SELECT id, order_id, reference, amount::text, status FROM marketplace.payments WHERE ${paymentMatch(gateway.code, result)} FOR UPDATE`)
         ).rows[0];
         if (!payment) return "not_found";
+        reference = payment.reference;
         if (Math.round(Number(payment.amount)) !== Math.round(result.amount)) return "invalid_amount";
         if (payment.status !== "pending") return "already_confirmed";
         // Cổng báo đang xử lý (CONG_VIEC_33): chờ kết quả cuối, không ghi nhận.
@@ -112,10 +120,10 @@ export class MarketplacePaymentsService {
         return "success";
       })
       .catch((error: unknown): NotificationOutcome => {
-        this.logger.error(`Kết quả cổng ${gateway.code} ${result.reference}: ${(error as Error).message}`);
+        this.logger.error(`Kết quả cổng ${gateway.code} ${reference}: ${(error as Error).message}`);
         return "error";
       });
-    await this.log(gateway.code, result.reference, request, outcome);
+    await this.log(gateway.code, reference, request, outcome);
     return gateway.reply(outcome, result);
   }
 
@@ -151,7 +159,7 @@ export class MarketplacePaymentsService {
     if (!result) return { orderId: null, state: "invalid" };
     const payment = (
       await this.database.execute<{ order_id: string; status: string }>(sql`
-      SELECT order_id, status FROM marketplace.payments WHERE reference = ${result.reference} AND gateway_code = ${gatewayCode}`)
+      SELECT order_id, status FROM marketplace.payments WHERE ${paymentMatch(gatewayCode, result)}`)
     ).rows[0];
     if (!payment) return { orderId: null, state: "invalid" };
     if (payment.status === "succeeded") return { orderId: payment.order_id, state: "succeeded" };
