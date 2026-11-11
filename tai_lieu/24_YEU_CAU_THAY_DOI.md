@@ -169,7 +169,7 @@
 - Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_183, 184 cập nhật dữ liệu theo công nợ thật (sửa kiểm thử đã có, theo phiếu này); kịch bản mới của CONG_VIEC_13.
 - Mức quy mô: Lớn (gộp trong CONG_VIEC_13).
 - Rủi ro: đơn đang chờ duyệt có thể đổi kết quả kiểm ngoại lệ ở lần gửi sau; thấp vì chưa phát hành.
-- Trạng thái: Đã phê duyệt 2026-11-10 (người dùng chọn đổi dư nợ tạm tính sang công nợ thật).
+- Trạng thái: Đã phê duyệt 2026-11-10 (người dùng chọn đổi dư nợ tạm tính sang công nợ thật); đã phát hành trong phiên bản 0.3.0 (2026-11-11).
 
 ### THAY_DOI_10: Công nợ làm tròn theo đơn vị tiền tệ công ty – 2026-11-10
 - Lý do: rà soát CONG_VIEC_14 phát hiện công nợ (CONG_VIEC_13) lưu 4 chữ số lẻ trong khi sổ cái 131, 331 làm tròn đến đồng, nên hai bên lệch vài đồng (ví dụ giao 3 lần mỗi lần một phần ba dòng đơn). Người dùng chọn làm tròn công nợ đến đồng (tài liệu `02`, 2026-11-10).
@@ -183,7 +183,7 @@
 - Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_201 đến 206, 209; thêm KICHBAN_KIEMTHU_217.
 - Mức quy mô: Vừa (gộp trong CONG_VIEC_14).
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-10.
+- Trạng thái: Đã phê duyệt 2026-11-10; đã phát hành trong phiên bản 0.3.0 (2026-11-11).
 
 ### THAY_DOI_11: Đơn bán không có khách vẫn lập hóa đơn điện tử – 2026-11-10
 - Lý do: Nghị định 254/2026/NĐ-CP Điều 9 bắt buộc lập hóa đơn khi chuyển giao quyền sở hữu hàng hóa, mỗi lần giao hàng một hóa đơn; người mua không cung cấp thông tin thì hóa đơn ghi người mua không cung cấp tên, địa chỉ, mã số thuế (Phụ lục, điểm 4.b). Người dùng chọn lập hóa đơn cho mọi phiếu xuất giao hàng (tài liệu `02`, 2026-11-10).
@@ -197,7 +197,7 @@
 - Kiểm thử cần thực hiện: kịch bản của CONG_VIEC_16 (đơn không có khách lập hóa đơn); hồi quy CONG_VIEC_08, 12.
 - Mức quy mô: Nhỏ (gộp trong CONG_VIEC_16).
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-10.
+- Trạng thái: Đã phê duyệt 2026-11-10; đã phát hành trong phiên bản 0.3.0 (2026-11-11).
 
 ### THAY_DOI_12: Nhân viên bán hàng chỉ xem khách mình phụ trách – 2026-11-10
 - Lý do: gán khách hàng cho nhân viên kinh doanh (tài liệu `05` mục 2.1, MODULE_07). Người dùng chọn: nhân viên chỉ xem khách của mình; trưởng phòng xem, giao khách theo phòng ban; giao, chuyển khách theo chính sách duyệt; đơn đã gán nhân viên hưởng hoa hồng giữ nguyên (tài liệu `02`, 2026-11-10).
@@ -211,7 +211,7 @@
 - Kiểm thử cần thực hiện: kịch bản của CONG_VIEC_21; hồi quy CONG_VIEC_06, 08, 17.
 - Mức quy mô: Lớn (gộp trong CONG_VIEC_21).
 - Rủi ro: trung bình (vai trò tự tạo đang có quyền xem đối tác sẽ không còn thấy mọi khách cho tới khi được thêm quyền mới; database migration thêm quyền mới vào vai trò tự tạo đang có `crm.partner.view` hoặc `sales.order.view`).
-- Trạng thái: Đã phê duyệt 2026-11-10.
+- Trạng thái: Đã phê duyệt 2026-11-10; đã phát hành trong phiên bản 0.3.0 (2026-11-11).
 
 ### THAY_DOI_13: Ghé thăm khách và hoa hồng của tôi trong ứng dụng nhân viên kinh doanh – 2026-11-10
 - Lý do: người dùng chọn phạm vi bản đầu của ứng dụng nhân viên kinh doanh gồm ghé thăm khách và hoa hồng của tôi (tài liệu `02`, 2026-11-10); hai chức năng này chưa có trong tài liệu `05`.
@@ -225,7 +225,7 @@
 - Kiểm thử cần thực hiện: kịch bản của CONG_VIEC_22; hồi quy CONG_VIEC_17, 21.
 - Mức quy mô: Lớn (gộp trong CONG_VIEC_22).
 - Rủi ro: trung bình (lưu vị trí, ảnh là dữ liệu cá nhân của nhân viên và khách; cần tài liệu `22`).
-- Trạng thái: Đã phê duyệt 2026-11-10.
+- Trạng thái: Đã phê duyệt 2026-11-10; đã phát hành trong phiên bản 0.3.0 (2026-11-11).
 
 ### THAY_DOI_14: Mô hình kinh doanh B2C qua sàn VComm, giới thiệu khách và hoa hồng theo đơn – 2026-11-10
 - Lý do: người dùng bổ sung mô hình kinh doanh (tài liệu `02`, 2026-11-10): khách hàng tự đăng ký tài khoản trên ứng dụng sàn VComm (ứng dụng cho người mua), gắn với tài khoản giới thiệu cấp trên qua đường dẫn hoặc mã giới thiệu là số điện thoại; tài khoản nhân viên kinh doanh là tài khoản thường được đánh dấu để cấp quyền; hoa hồng đến từ việc khách mua hàng; nhân viên kinh doanh chỉ bán B2C, không tạo đơn giùm khách (khách tự đặt trên ứng dụng VComm); các công ty nội bộ chỉ bán dịch vụ cho nhau, không bán hàng hóa; chỉ VComm là sàn bán hàng hóa; hoa hồng chi trả khi đơn hoàn tất (sau 7 ngày trả hàng).
@@ -251,7 +251,7 @@
 - Kiểm thử cần thực hiện: kịch bản của các công việc mới; hồi quy CONG_VIEC_08, 09, 17, 20, 21 khi sửa.
 - Mức quy mô: Lớn.
 - Rủi ro: cao (đổi mô hình kinh doanh; ví tiền của người dùng cần kiểm soát chặt; hoa hồng một cấp để tránh rủi ro bán hàng đa cấp, cần kiểm tra pháp lý về khấu trừ thuế thu nhập cá nhân trên hoa hồng và chương trình giới thiệu).
-- Trạng thái: Đã phê duyệt 2026-11-10.
+- Trạng thái: Đã phê duyệt 2026-11-10; đã phát hành trong phiên bản 0.3.0 (2026-11-11).
 
 ### THAY_DOI_15: Tài khoản được đánh dấu nhân viên kinh doanh không có quyền bán B2B – 2026-11-10
 - Lý do: người dùng quyết định ngày 2026-11-10 khi nghiệm thu CONG_VIEC_23: nhân viên kinh doanh không bán B2B nên bỏ phần quyền này. Vai trò hệ thống Nhân viên bán hàng có quyền lập đơn bán, sửa đối tác (B2B); QUYTAC_NGHIEPVU_144 đang gán vai trò này khi đánh dấu.
@@ -265,7 +265,7 @@
 - Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_299 sửa theo hành vi mới (người dùng cho phép qua quyết định này); hồi quy toàn bộ.
 - Mức quy mô: Vừa.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-10; đã thực hiện trên nhánh CONG_VIEC_23 (commit eeaf0e9), chờ phát hành.
+- Trạng thái: Đã phê duyệt 2026-11-10; đã thực hiện trên nhánh CONG_VIEC_23 (commit eeaf0e9), chờ phát hành; đã phát hành trong phiên bản 0.3.0 (2026-11-11).
 
 ### THAY_DOI_16: Đội kinh doanh nhiều cấp bậc chức danh – 2026-11-10
 - Lý do: người dùng bổ sung ngày 2026-11-10: đội ngũ kinh doanh có các chức danh Giám đốc Kinh doanh, Giám đốc Vùng, Trưởng phòng kinh doanh, Nhân viên kinh doanh, phân quyền và hoa hồng khác nhau.
@@ -283,7 +283,7 @@
 - Kiểm thử cần thực hiện: kịch bản mới của công việc; hồi quy c23.
 - Mức quy mô: Lớn.
 - Rủi ro: trung bình (quyền xem dữ liệu khách theo nhánh; hoa hồng nhiều cấp chỉ theo cơ cấu tổ chức, không theo cây giới thiệu).
-- Trạng thái: Đã phê duyệt 2026-11-10.
+- Trạng thái: Đã phê duyệt 2026-11-10; đã phát hành trong phiên bản 0.3.0 (2026-11-11).
 
 
 ### THAY_DOI_17: Phí rút tiền hoa hồng cấu hình được – 2026-11-11
@@ -303,7 +303,7 @@
 - Kiểm thử cần thực hiện: thêm KICHBAN_KIEMTHU_362; chạy lại KICHBAN_KIEMTHU_359, 360.
 - Mức quy mô: Vừa.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-11; đã thực hiện 2026-11-11 (commit `399018b`, kết quả kiểm thử tài liệu `25`), chờ nghiệm thu.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã phát hành trong phiên bản 0.3.0 (2026-11-11).
 
 ### THAY_DOI_18: Sửa các công việc đã nghiệm thu theo mô hình B2C (THAY_DOI_14) – 2026-11-11
 - Lý do: THAY_DOI_14 đổi mô hình kinh doanh sang bán B2C qua sàn VComm; các công việc nội bộ, B2B đã nghiệm thu cần sửa theo.
@@ -322,7 +322,7 @@
 - Kiểm thử cần thực hiện: kịch bản mới của CONG_VIEC_43; hồi quy toàn bộ; kiểm thử của CONG_VIEC_17 bỏ theo chức năng (người dùng đồng ý xóa chức năng).
 - Mức quy mô: Lớn.
 - Rủi ro: trung bình (xóa chức năng, đổi quyền xem).
-- Trạng thái: Đã phê duyệt 2026-11-11 (thiết kế chi tiết chờ xác nhận trong đặc tả CONG_VIEC_43).
+- Trạng thái: Đã phê duyệt 2026-11-11 (thiết kế chi tiết chờ xác nhận trong đặc tả CONG_VIEC_43); đã phát hành trong phiên bản 0.3.0 (2026-11-11).
 
 ### THAY_DOI_19: Ngưỡng thuế thu nhập cá nhân khi rút hoa hồng cộng dồn theo tháng – 2026-11-11
 - Lý do: rà soát CONG_VIEC_26: xét ngưỡng thuế từng lần rút thì người nhận chia nhỏ yêu cầu dưới ngưỡng để không bị khấu trừ.
@@ -333,4 +333,79 @@
 - Kiểm thử cần thực hiện: bổ sung kịch bản cộng dồn vào KICHBAN_KIEMTHU_359; chạy lại c26-*.
 - Mức quy mô: Nhỏ.
 - Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã thực hiện 2026-11-11 (commit `399018b`), người dùng nghiệm thu khi yêu cầu hợp nhất 2026-11-11; đã phát hành trong phiên bản 0.3.0 (2026-11-11).
+
+### THAY_DOI_20: Tự ghi đã thu COD khi Viettel Post báo giao thành công – 2026-11-11
+- Lý do: gộp các đơn vị vận chuyển (pull request #82): webhook Viettel Post không gửi ngày thu tiền hộ nên đơn COD giao qua Viettel Post không tự ghi đã thu COD.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11): khi webhook Viettel Post báo giao thành công đơn COD, tự ghi đã thu COD, ngày thu là thời điểm nhận webhook; webhook lặp không ghi lần hai.
+- Thành phần bị ảnh hưởng: CONG_VIEC_29 (đã nghiệm thu, chưa phát hành): đặc tả, quy tắc, kịch bản kiểm thử; `shipments.service.ts`.
+- Dữ liệu, API, giao diện, quyền: không đổi.
+- Ảnh hưởng chức năng cũ: không; GHN và các đơn vị khác giữ cách cũ.
+- Kiểm thử cần thực hiện: kịch bản giao thành công đơn COD, đơn không COD, webhook lặp; chạy lại toàn bộ kiểm thử API.
+- Mức quy mô: Nhỏ.
+- Rủi ro: ngày thu ghi sổ có thể sớm hơn ngày Viettel Post chuyển tiền; đối soát thu hộ (CONG_VIEC_19) vẫn đối chiếu số tiền thật.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã thực hiện 2026-11-11 (commit `af6df92`, pull request #82); đã phát hành v0.4.0 2026-11-12, chờ triển khai.
+
+### THAY_DOI_21: Loại phụ cấp cho dòng phụ cấp của hợp đồng, phụ lục – 2026-11-11
+- Lý do: CONG_VIEC_48 (lương) cần biết loại từng khoản phụ cấp để tính bảo hiểm xã hội, thuế thu nhập cá nhân (khoản nào tính, khoản nào miễn).
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11): dòng phụ cấp của hợp đồng, phụ lục (CONG_VIEC_46) có thêm loại phụ cấp chọn từ danh mục; bắt buộc khi lập hoặc sửa mới, dữ liệu cũ được để trống.
+- Thành phần bị ảnh hưởng: CONG_VIEC_46 (chờ nghiệm thu, chưa phát hành): QUYTAC_NGHIEPVU_297, 300; CHUC_NANG_163; MAN_HINH_118; API_147, 148; bảng `hr.contract_allowances` (thêm cột `allowance_type_id` cho phép trống).
+- Dữ liệu, API, giao diện, quyền: thêm cột, thêm trường; tương thích dữ liệu cũ.
+- Ảnh hưởng chức năng cũ: lập, sửa phụ cấp phải chọn loại.
+- Kiểm thử cần thực hiện: `c46-contracts` (cập nhật), kiểm thử lương của CONG_VIEC_48.
+- Mức quy mô: Vừa; làm trong CONG_VIEC_48 (database migration 0076).
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã phát hành v0.4.0 2026-11-12, chờ triển khai.
+
+### THAY_DOI_22: Chặn rút tiền ví hoa hồng theo từng tài khoản – 2026-11-11
+- Lý do: quyết định của người dùng khi duyệt CONG_VIEC_49 (ví mua sắm có rủi ro bị coi là ví điện tử): cần chặn rút tiền theo từng tài khoản cho cả ví mua sắm (CONG_VIEC_49) và ví hoa hồng.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11, chốt chi tiết trong CONG_VIEC_49):
+  - Khóa ví mua sắm toàn hệ thống: không thanh toán bằng ví; mua hàng, mua chung vẫn chạy, tiền hoàn vẫn cộng vào ví và giữ đến khi mở khóa.
+  - Chặn theo từng tài khoản, riêng từng ví, không liên thông: chặn ví mua sắm thì không dùng số dư trả đơn; chặn ví hoa hồng thì không tạo yêu cầu rút.
+  - Khi chặn ví hoa hồng: yêu cầu rút đang chờ duyệt tự bị từ chối; yêu cầu đã duyệt chưa chi bị khóa ghi đã chi đến khi gỡ chặn.
+  - Quyền chặn: `marketplace.payment.manage`; lý do 1 đến 500 ký tự; lưu lịch sử; gửi thông báo cho người dùng.
+  - Mã cấp thêm ngoài dải CONG_VIEC_49: QUYTAC_NGHIEPVU_390 (khóa ví mua sắm toàn hệ thống), QUYTAC_NGHIEPVU_391 (chặn ví theo tài khoản), TIEUCHI_NGHIEMTHU_367, KICHBAN_KIEMTHU_532; dữ liệu trong database migration 0080; API gộp vào API_166 và sửa hành vi API_136.
+- Thành phần bị ảnh hưởng: CONG_VIEC_26 (đã phát hành 0.3.0): rút tiền ví hoa hồng (CHUC_NANG_137, API_136); quản trị web-crm.
+- Dữ liệu, API, giao diện, quyền: thêm dữ liệu chặn rút theo tài khoản; API rút tiền trả lỗi nghiệp vụ khi bị chặn.
+- Ảnh hưởng chức năng cũ: tài khoản không bị chặn giữ nguyên hành vi.
+- Kiểm thử cần thực hiện: kịch bản chặn, bỏ chặn, gửi yêu cầu khi bị chặn; hồi quy c26-*.
+- Mức quy mô: Vừa; làm trong CONG_VIEC_49.
+- Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-11.
+
+### THAY_DOI_23: Bỏ giới hạn yêu cầu theo IP cho API nộp hồ sơ ứng tuyển công khai – 2026-11-11
+- Lý do: CONG_VIEC_54 (tuyển dụng): người dùng không muốn chặn ứng viên nộp hồ sơ vì giới hạn theo IP (nhiều ứng viên dùng chung mạng).
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11): API_204 `/careers` (trang tuyển dụng công khai chung tập đoàn) không áp giới hạn yêu cầu theo IP (tài liệu 22 mục 3, LOI_02), không OTP, không giới hạn số lần nộp. Các API công khai khác giữ nguyên giới hạn.
+- Thành phần bị ảnh hưởng: tài liệu 22 mục 3 (ngoại lệ cho API_204); CONG_VIEC_54.
+- Dữ liệu, API, giao diện, quyền: không đổi API khác.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: API_204 nhận nhiều yêu cầu liên tiếp từ cùng IP; API công khai khác vẫn bị giới hạn.
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_54.
+- Rủi ro (người dùng chấp nhận): hồ sơ rác hàng loạt, đầy kho lưu tệp đính kèm, tốn tài nguyên máy chủ; giảm thiểu đề xuất trong tài liệu 22 (giới hạn kích thước, loại tệp, theo dõi dung lượng).
+- Trạng thái: Đã phê duyệt 2026-11-11.
+
+### THAY_DOI_24: Bán lẻ tại quầy dùng lại hóa đơn điện tử, quỹ, đơn bán – 2026-11-11
+- Lý do: CONG_VIEC_53 (bán lẻ tại quầy) cần mở rộng hành vi đã duyệt của các công việc đã phát hành 0.3.0.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11):
+  - CONG_VIEC_16 (hóa đơn điện tử): thêm loại hóa đơn khởi tạo từ máy tính tiền; hóa đơn bán lẻ tại quầy luôn dùng loại này.
+  - CONG_VIEC_13 (quỹ, công nợ): thêm chứng từ quỹ không gắn đối tượng: thu bán lẻ (`retail_receipt`), chi trả lại bán lẻ (`retail_refund`), thiếu quỹ (`cash_shortage`, hạch toán 1388), thừa quỹ (`cash_surplus`, hạch toán 3381); tiền vào quỹ bằng phiếu thu tổng khi đóng ca.
+  - CONG_VIEC_08 (bán hàng): đơn bán có cờ bán lẻ (`is_retail`) và thông tin người mua lấy hóa đơn.
+- Thành phần bị ảnh hưởng: CONG_VIEC_08, 13, 16; tài liệu 07, 10, 16, 17 phần liên quan.
+- Dữ liệu, API, giao diện, quyền: thêm cột, giá trị loại chứng từ; không đổi hành vi cũ.
+- Ảnh hưởng chức năng cũ: không; đơn và chứng từ cũ giữ nguyên.
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_53; hồi quy c8-*, c13-*, c16-*.
+- Mức quy mô: Vừa; làm trong CONG_VIEC_53.
+- Rủi ro: chưa đối chiếu nguyên văn quy định hóa đơn khởi tạo từ máy tính tiền (phải tra trước lát hóa đơn).
+- Trạng thái: Đã phê duyệt 2026-11-11.
+
+### THAY_DOI_25: Ứng viên tự trả lời đề nghị nhận việc, email mời phỏng vấn kèm lịch – 2026-11-11
+- Lý do: người dùng thay đổi đặc tả CONG_VIEC_54 đã duyệt (bản 0.1) sau khi xem lát L0.
+- Nội dung thay đổi (quyết định của người dùng 2026-11-11): ứng viên tự trả lời đề nghị nhận việc qua liên kết dùng một lần trong email (bản 0.1 chỉ có nhân sự ghi tay); email mời, đổi, hủy phỏng vấn kèm tệp lịch `.ics`.
+- Thành phần bị ảnh hưởng: CONG_VIEC_54 (đặc tả bản 0.2 mục 17); API công khai trả lời đề nghị giữ giới hạn yêu cầu theo IP mặc định.
+- Dữ liệu, API, giao diện, quyền: thêm liên kết dùng một lần, API công khai trả lời đề nghị; tệp đính kèm trong thư gửi đi (không bắt buộc, tương thích ngược).
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_54.
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_54.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-11.
+

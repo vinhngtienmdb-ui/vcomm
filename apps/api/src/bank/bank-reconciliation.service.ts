@@ -36,6 +36,11 @@ import { accountDigits, authorized, parseWebhook, type ParsedTransaction } from 
 export const bankPermissions = { view: "finance.bank.view", manage: "finance.bank.manage", setup: "finance.bank.setup" } as const;
 type Executor = Pick<Database, "execute">;
 
+// Tiền vào vừa lưu, chuyển cho phần thanh toán đơn VComm thử ghép (CONG_VIEC_36; QUYTAC_NGHIEPVU_241).
+export type IncomingBankTransaction = { id: string; companyId: string; fundAccountNo: string | null; amount: string; content: string; transactionNo: string };
+// Trả mã lần thanh toán đơn VComm đã ghi nhận, hoặc null khi không ghép.
+export type IncomingBankHook = (executor: Executor, incoming: IncomingBankTransaction) => Promise<string | null>;
+
 // Chiều tiền và loại phiếu tương ứng (QUYTAC_NGHIEPVU_115).
 const kindsOf = { in: sql`('customer_receipt', 'supplier_refund')`, out: sql`('supplier_payment', 'customer_refund')` } as const;
 // Ngày phiếu cách ngày giao dịch tối đa 3 ngày (quyết định của người dùng ngày 2026-11-10).
@@ -64,6 +69,8 @@ export class BankReconciliationService implements OnModuleInit {
     private readonly payments: PaymentsService,
     private readonly rateLimiter: RateLimiter,
   ) {}
+
+  readonly incomingHooks: IncomingBankHook[] = [];
 
   onModuleInit(): void {
     // Phiếu ghi sổ sau giao dịch: thử ghép lại.
@@ -210,12 +217,32 @@ export class BankReconciliationService implements OnModuleInit {
       ).rows[0];
       await transaction.execute(sql`UPDATE finance.bank_connections SET last_received_at = now() WHERE id = ${connection.id}`);
       if (inserted) {
+        if (parsed.direction === "in" && (await this.matchMarketplacePayment(transaction, connection, inserted.id, parsed))) return inserted.id;
         await this.matchTransaction(transaction, inserted.id);
         if (parsed.direction === "in") await this.suggest(transaction, inserted.id, connection.company_id, parsed.content);
         return inserted.id;
       }
       return (await transaction.execute<{ id: string }>(sql`SELECT id FROM finance.bank_transactions WHERE connection_id = ${connection.id} AND external_id = ${parsed.externalId}`)).rows[0]!.id;
     });
+  }
+
+  // Lần thanh toán đơn VComm bằng chuyển khoản (CONG_VIEC_36): ghép trước phiếu thu chi vì nội dung chứa số tham chiếu.
+  private async matchMarketplacePayment(executor: Executor, connection: ConnectionRow, transactionId: string, parsed: ParsedTransaction): Promise<boolean> {
+    for (const hook of this.incomingHooks) {
+      const marketplacePaymentId = await hook(executor, {
+        id: transactionId,
+        companyId: connection.company_id,
+        fundAccountNo: connection.account_no,
+        amount: parsed.amount,
+        content: parsed.content,
+        transactionNo: parsed.referenceCode ?? parsed.externalId,
+      });
+      if (!marketplacePaymentId) continue;
+      await executor.execute(sql`
+        UPDATE finance.bank_transactions SET status = 'matched', marketplace_payment_id = ${marketplacePaymentId}, matched_at = now(), version = version + 1 WHERE id = ${transactionId}`);
+      return true;
+    }
+    return false;
   }
 
   // ---------- Tự ghép (QUYTAC_NGHIEPVU_115) ----------
@@ -302,9 +329,11 @@ export class BankReconciliationService implements OnModuleInit {
         receipt_no: string | null;
         receipt_status: string | null;
         ignore_reason: string | null;
+        marketplace_reference: string | null;
+        marketplace_document_no: string | null;
         version: number;
       }>(sql`
-      SELECT b.id, b.fund_id, f.name AS fund_name, b.transaction_at, b.transaction_date::text, b.direction, b.amount::text, b.content, b.reference_code, b.balance_after::text,
+      SELECT mp.reference AS marketplace_reference, mso.document_no AS marketplace_document_no, b.id, b.fund_id, f.name AS fund_name, b.transaction_at, b.transaction_date::text, b.direction, b.amount::text, b.content, b.reference_code, b.balance_after::text,
         b.status, b.payment_id, p.document_no AS payment_no, p.kind AS payment_kind, pp.name AS payment_partner, p.payment_date::text, b.matched_by,
         b.suggested_partner_id, sp.name AS suggested_partner_name, b.suggestion_reason, b.receipt_id, r.document_no AS receipt_no, r.status AS receipt_status, b.ignore_reason, b.version
       FROM finance.bank_transactions b
@@ -313,6 +342,9 @@ export class BankReconciliationService implements OnModuleInit {
       LEFT JOIN crm.partners pp ON pp.id = p.partner_id
       LEFT JOIN crm.partners sp ON sp.id = b.suggested_partner_id
       LEFT JOIN finance.payments r ON r.id = b.receipt_id
+      LEFT JOIN marketplace.payments mp ON mp.id = b.marketplace_payment_id
+      LEFT JOIN marketplace.orders mo ON mo.id = mp.order_id
+      LEFT JOIN sales.orders mso ON mso.id = mo.sales_order_id
       WHERE ${where}
       ORDER BY b.transaction_at DESC, b.created_at DESC
       LIMIT ${limit} OFFSET ${offset}`)
@@ -330,7 +362,8 @@ export class BankReconciliationService implements OnModuleInit {
       balanceAfter: trimDecimal(row.balance_after),
       status: row.status,
       payment: row.payment_id ? { id: row.payment_id, documentNo: row.payment_no, kind: row.payment_kind, partnerName: row.payment_partner ?? "", paymentDate: row.payment_date! } : null,
-      autoMatched: row.payment_id !== null && row.matched_by === null,
+      autoMatched: row.status === "matched" && row.matched_by === null,
+      marketplacePayment: row.marketplace_reference ? { reference: row.marketplace_reference, documentNo: row.marketplace_document_no ?? "" } : null,
       suggestion: row.suggested_partner_id && row.suggestion_reason ? { partnerId: row.suggested_partner_id, partnerName: row.suggested_partner_name ?? "", reason: row.suggestion_reason } : null,
       receipt: row.receipt_id ? { id: row.receipt_id, documentNo: row.receipt_no, status: row.receipt_status ?? "" } : null,
       ignoreReason: row.ignore_reason,
@@ -419,9 +452,10 @@ export class BankReconciliationService implements OnModuleInit {
         payment_id: string | null;
         receipt_id: string | null;
         receipt_status: string | null;
+        marketplace_payment_id: string | null;
         version: number;
       }>(sql`
-      SELECT b.id, b.fund_id, b.direction, b.amount::text, b.transaction_date::text, b.content, b.status, b.payment_id, b.receipt_id, r.status AS receipt_status, b.version
+      SELECT b.id, b.fund_id, b.direction, b.amount::text, b.transaction_date::text, b.content, b.status, b.payment_id, b.receipt_id, r.status AS receipt_status, b.marketplace_payment_id, b.version
       FROM finance.bank_transactions b LEFT JOIN finance.payments r ON r.id = b.receipt_id
       WHERE b.id = ${id} AND b.company_id = ${actor.companyId} FOR UPDATE OF b`)
     ).rows[0];
@@ -555,6 +589,8 @@ export class BankReconciliationService implements OnModuleInit {
     await this.database.transaction(async (transaction) => {
       const current = await this.open(transaction, actor, id, version);
       if (current.status === "unmatched") throw new ApiError("BUSINESS_RULE", "bankTransactionAlreadyOpen");
+      // Tiền đơn VComm đã ghi nhận, bút toán đã lập: không bỏ ghép (QUYTAC_NGHIEPVU_241).
+      if (current.marketplace_payment_id) throw new ApiError("BUSINESS_RULE", "bankTransactionMarketplaceLinked");
       await transaction.execute(sql`
         UPDATE finance.bank_transactions SET status = 'unmatched', payment_id = NULL, ignore_reason = NULL, matched_by = NULL, matched_at = NULL, version = version + 1 WHERE id = ${id}`);
       await this.audit(transaction, actor, "reopen", id, { previousStatus: current.status, previousPaymentId: current.payment_id });

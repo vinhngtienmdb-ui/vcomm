@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
     const purchasingOrigin = process.env.PURCHASING_ORIGIN ?? "http://localhost:3004";
     const salesOrigin = process.env.SALES_ORIGIN ?? "http://localhost:3005";
     const financeOrigin = process.env.FINANCE_ORIGIN ?? "http://localhost:3006";
+    const hrOrigin = process.env.HR_ORIGIN ?? "http://localhost:3007";
+    const analyticsOrigin = process.env.ANALYTICS_ORIGIN ?? "http://localhost:3009";
     const officeOrigin = process.env.OFFICE_ORIGIN ?? "http://localhost:3011";
     return [
       { source: "/api/v1/:path*", destination: `${apiOrigin}/api/v1/:path*` },
@@ -31,6 +33,10 @@ const nextConfig: NextConfig = {
       { source: "/sales/:path*", destination: `${salesOrigin}/sales/:path*` },
       { source: "/finance", destination: `${financeOrigin}/finance` },
       { source: "/finance/:path*", destination: `${financeOrigin}/finance/:path*` },
+      { source: "/hr", destination: `${hrOrigin}/hr` },
+      { source: "/hr/:path*", destination: `${hrOrigin}/hr/:path*` },
+      { source: "/analytics", destination: `${analyticsOrigin}/analytics` },
+      { source: "/analytics/:path*", destination: `${analyticsOrigin}/analytics/:path*` },
       { source: "/office", destination: `${officeOrigin}/office` },
       { source: "/office/:path*", destination: `${officeOrigin}/office/:path*` },
     ];
