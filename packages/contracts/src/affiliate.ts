@@ -214,9 +214,11 @@ export interface AffiliateTransactionCreated {
 
 // Người mua trên ứng dụng VComm.
 export const buyerAffiliateScanSchema = z.object({ code: z.string().trim().min(1).max(500) }).strict();
-export const buyerAffiliateConfirmSchema = z.object({ points: z.number().int().min(0).max(1_000_000_000), code: z.string().trim().max(500).optional() }).strict();
+export const buyerAffiliateConfirmSchema = z
+  .object({ points: z.number().int().min(0).max(1_000_000_000), code: z.string().trim().max(500).optional(), voucherCodeId: z.string().uuid().nullable().optional() })
+  .strict();
 export const buyerAffiliateDeclineSchema = z.object({ code: z.string().trim().max(500).optional() }).strict();
-export const buyerMemberCodeSchema = z.object({ points: z.number().int().min(0).max(1_000_000_000) }).strict();
+export const buyerMemberCodeSchema = z.object({ points: z.number().int().min(0).max(1_000_000_000), voucherCodeId: z.string().uuid().nullable().optional() }).strict();
 
 export interface BuyerAffiliateRequest {
   transactionId: string;
@@ -232,6 +234,8 @@ export interface BuyerAffiliateRequest {
   redeemable: boolean;
   blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null;
   earnPercent: string;
+  // Voucher của khách dùng được cho giao dịch này, kèm tiền giảm tính theo tiền hóa đơn (lát L2).
+  vouchers: (BuyerVoucherCode & { discount: string })[];
 }
 export interface BuyerAffiliateTransaction {
   id: string;
@@ -251,4 +255,125 @@ export interface BuyerAffiliateTransaction {
 export interface BuyerMemberCode {
   code: string;
   expiresAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Lát L2: voucher liên kết (QUYTAC_NGHIEPVU_401, 402; API_210, API_211).
+// ---------------------------------------------------------------------------
+export type AffiliateVoucherIssuer = "merchant_points" | "merchant_free" | "company";
+export type AffiliateVoucherStatus = "draft" | "pending" | "approved" | "paused" | "rejected" | "withdrawn";
+// Trạng thái hiển thị: đã duyệt chia theo thời gian nhận.
+export type AffiliateVoucherDisplayStatus = "draft" | "pending" | "scheduled" | "active" | "paused" | "ended" | "rejected" | "withdrawn";
+
+const count = (minimum: number, maximum: number) => z.number().int().min(minimum).max(maximum);
+const voucherFields = {
+  titleVi: z.string().trim().min(1).max(120),
+  titleEn: z.string().trim().min(1).max(120),
+  discountKind: z.enum(["amount", "percent"]),
+  discountValue: money,
+  maxDiscount: money.nullable().optional(),
+  minBill: decimal(14),
+  totalQuantity: count(1, 1_000_000),
+  perBuyerLimit: count(1, 100),
+  claimFrom: isoDate,
+  claimTo: isoDate,
+  validDays: count(1, 90),
+};
+type VoucherShape = { discountKind: "amount" | "percent"; discountValue: string; maxDiscount?: string | null | undefined; claimFrom: string; claimTo: string };
+const voucherRules = <T extends z.ZodType<VoucherShape>>(schema: T) =>
+  schema
+    .refine((value) => value.claimTo >= value.claimFrom, { message: "invalidValue", path: ["claimTo"] })
+    .refine((value) => value.discountKind === "amount" || Number(value.discountValue) <= 100, { message: "invalidValue", path: ["discountValue"] })
+    .refine((value) => value.discountKind === "amount" || Boolean(value.maxDiscount), { message: "required", path: ["maxDiscount"] });
+// Chủ cửa hàng tạo voucher cửa hàng: đổi bằng điểm (có giá điểm) hoặc tặng miễn phí.
+export const merchantVoucherSchema = voucherRules(
+  z
+    .object({ issuer: z.enum(["merchant_points", "merchant_free"]), pointsPrice: count(1, 1_000_000).nullable().optional(), ...voucherFields })
+    .strict()
+    .refine((value) => (value.issuer === "merchant_points") === Boolean(value.pointsPrice), { message: "required", path: ["pointsPrice"] }),
+);
+export const merchantVoucherUpdateSchema = voucherRules(
+  z
+    .object({ issuer: z.enum(["merchant_points", "merchant_free"]), pointsPrice: count(1, 1_000_000).nullable().optional(), ...voucherFields, version: count(1, 1_000_000_000) })
+    .strict()
+    .refine((value) => (value.issuer === "merchant_points") === Boolean(value.pointsPrice), { message: "required", path: ["pointsPrice"] }),
+);
+// Công ty tạo voucher dùng tại mọi cửa hàng (merchantIds rỗng) hoặc các cửa hàng được chọn.
+export const companyVoucherSchema = voucherRules(z.object({ ...voucherFields, merchantIds: z.array(z.string().uuid()).max(500).default([]) }).strict());
+export const companyVoucherUpdateSchema = voucherRules(z.object({ ...voucherFields, merchantIds: z.array(z.string().uuid()).max(500).default([]), version: count(1, 1_000_000_000) }).strict());
+export const affiliateVoucherVersionSchema = z.object({ version: count(1, 1_000_000_000) }).strict();
+// Đã duyệt: chỉ giảm tổng số lượng (không dưới số đã nhận).
+export const affiliateVoucherQuantitySchema = z.object({ totalQuantity: count(1, 1_000_000), version: count(1, 1_000_000_000) }).strict();
+export const affiliateVoucherListQuerySchema = z.object({
+  issuer: z.enum(["merchant_points", "merchant_free", "company"]).optional(),
+  merchantId: z.string().uuid().optional(),
+  status: z.enum(["draft", "pending", "scheduled", "active", "paused", "ended", "rejected", "withdrawn"]).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export interface AffiliateVoucherItem {
+  id: string;
+  code: string;
+  issuer: AffiliateVoucherIssuer;
+  merchantId: string | null;
+  merchantName: string | null;
+  titleVi: string;
+  titleEn: string;
+  discountKind: "amount" | "percent";
+  discountValue: string;
+  maxDiscount: string;
+  minBill: string;
+  totalQuantity: number;
+  perBuyerLimit: number;
+  pointsPrice: number | null;
+  claimFrom: string;
+  claimTo: string;
+  validDays: number;
+  status: AffiliateVoucherStatus;
+  displayStatus: AffiliateVoucherDisplayStatus;
+  claimedCount: number;
+  usedCount: number;
+  merchantIds: string[];
+  approvalRequestId: string | null;
+  createdByName: string;
+  version: number;
+}
+
+// Người mua.
+export const buyerVoucherClaimSchema = z.object({}).strict();
+export interface BuyerVoucherOffer {
+  id: string;
+  code: string;
+  issuer: AffiliateVoucherIssuer;
+  merchantName: string | null;
+  titleVi: string;
+  titleEn: string;
+  discountKind: "amount" | "percent";
+  discountValue: string;
+  maxDiscount: string;
+  minBill: string;
+  pointsPrice: number | null;
+  validDays: number;
+  claimTo: string;
+  remaining: number;
+  claimedByMe: number;
+  perBuyerLimit: number;
+}
+export interface BuyerVoucherCode {
+  id: string;
+  voucherId: string;
+  voucherCode: string;
+  issuer: AffiliateVoucherIssuer;
+  merchantName: string | null;
+  titleVi: string;
+  titleEn: string;
+  discountKind: "amount" | "percent";
+  discountValue: string;
+  maxDiscount: string;
+  minBill: string;
+  pointsPaid: number;
+  claimedAt: string;
+  expiresAt: string;
+  status: "unused" | "used" | "expired";
 }

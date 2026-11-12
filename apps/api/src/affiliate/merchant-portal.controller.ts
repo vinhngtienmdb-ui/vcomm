@@ -8,6 +8,12 @@ import {
   affiliateMemberOutletsSchema,
   affiliateMemberVersionSchema,
   affiliateTransactionCancelSchema,
+  affiliateVoucherListQuerySchema,
+  affiliateVoucherQuantitySchema,
+  affiliateVoucherVersionSchema,
+  merchantVoucherSchema,
+  merchantVoucherUpdateSchema,
+  type AffiliateVoucherItem,
   affiliateTransactionCreateSchema,
   affiliateTransactionListQuerySchema,
   type AffiliateMember,
@@ -21,9 +27,11 @@ import {
 import type { Request, Response } from "express";
 import { clientInfo, setSessionCookies } from "../auth/auth.controller";
 import { Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.guard";
+import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
-import { MerchantPortalService, type PortalMember } from "./portal.service";
+import { MerchantPortalService, requireOwner, type PortalMember } from "./portal.service";
 import { AffiliateTransactionsService } from "./transactions.service";
+import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
 
 export function selectedMerchant(request: Request): string | undefined {
   const value = request.header("x-merchant-id");
@@ -35,7 +43,15 @@ export class MerchantPortalController {
   constructor(
     private readonly portal: MerchantPortalService,
     private readonly transactions: AffiliateTransactionsService,
+    private readonly vouchers: AffiliateVouchersService,
   ) {}
+
+  // Voucher của cửa hàng: chỉ chủ cửa hàng (QUYTAC_NGHIEPVU_401).
+  private async voucherActor(request: AuthenticatedRequest): Promise<VoucherActor> {
+    const member = await this.member(request);
+    requireOwner(member);
+    return { userId: member.userId, companyId: member.companyId, merchantId: member.merchantId, client: member.client };
+  }
 
   private member(request: AuthenticatedRequest): Promise<PortalMember> {
     return this.portal.member(request.auth.userId, selectedMerchant(request), clientInfo(request));
@@ -111,4 +127,44 @@ export class MerchantPortalController {
   async cancelTransaction(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateTransactionItem> {
     return this.transactions.cancel(await this.member(request), id, affiliateTransactionCancelSchema.parse(body).reason);
   }
+
+  // API_210: voucher của cửa hàng.
+  @Get("vouchers")
+  async listVouchers(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<AffiliateVoucherItem>> {
+    return this.vouchers.list(await this.voucherActor(request), affiliateVoucherListQuerySchema.parse(query));
+  }
+
+  @Post("vouchers")
+  async createVoucher(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<AffiliateVoucherItem> {
+    return this.vouchers.create(await this.voucherActor(request), merchantVoucherSchema.parse(body));
+  }
+
+  @Get("vouchers/:id")
+  async voucher(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateVoucherItem> {
+    return this.vouchers.voucher(await this.voucherActor(request), id);
+  }
+
+  @Put("vouchers/:id")
+  async updateVoucher(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateVoucherItem> {
+    return this.vouchers.update(await this.voucherActor(request), id, merchantVoucherUpdateSchema.parse(body));
+  }
+
+  @Post("vouchers/:id/:action")
+  async voucherAction(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Param("action") action: string, @Body() body: unknown): Promise<AffiliateVoucherItem> {
+    return voucherAction(this.vouchers, await this.voucherActor(request), id, action, body);
+  }
+}
+
+// Thao tác voucher dùng chung cho cổng cửa hàng và web quản trị.
+export async function voucherAction(vouchers: AffiliateVouchersService, actor: VoucherActor, id: string, action: string, body: unknown): Promise<AffiliateVoucherItem> {
+  if (action === "quantity") {
+    const input = affiliateVoucherQuantitySchema.parse(body);
+    return vouchers.reduceQuantity(actor, id, input.totalQuantity, input.version);
+  }
+  const version = affiliateVoucherVersionSchema.parse(body).version;
+  if (action === "submit") return vouchers.submit(actor, id, version);
+  if (action === "withdraw") return vouchers.withdraw(actor, id, version);
+  if (action === "pause") return vouchers.setPaused(actor, id, true, version);
+  if (action === "resume") return vouchers.setPaused(actor, id, false, version);
+  throw new ApiError("NOT_FOUND", "notFound");
 }

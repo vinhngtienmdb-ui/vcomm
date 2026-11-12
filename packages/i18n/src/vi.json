@@ -575,7 +575,13 @@
     "affiliatePhoneLimited": "Quá nhiều yêu cầu theo số điện thoại bị từ chối hoặc hết hạn trong một giờ. Thử lại sau.",
     "affiliateTransactionExpired": "Giao dịch đã hết hạn chờ xác nhận.",
     "affiliateTransactionNotCancellable": "Chỉ hủy được giao dịch đã hoàn tất.",
-    "affiliateWeekSettled": "Tuần của giao dịch đã chốt đối soát, không hủy được."
+    "affiliateWeekSettled": "Tuần của giao dịch đã chốt đối soát, không hủy được.",
+    "affiliateVoucherNotUsable": "Voucher không dùng được cho giao dịch này.",
+    "affiliateVoucherUnavailable": "Voucher đã hết số lượng hoặc bạn đã nhận đủ.",
+    "affiliateVoucherNotEditable": "Chỉ sửa, gửi duyệt được voucher nháp, bị từ chối hoặc đã rút.",
+    "affiliateVoucherNotPending": "Voucher không ở trạng thái chờ duyệt.",
+    "affiliateVoucherStatusInvalid": "Không đổi được trạng thái voucher từ trạng thái hiện tại.",
+    "affiliateVoucherQuantityInvalid": "Chỉ giảm được tổng số lượng, không dưới số đã nhận."
   },
   "login": {
     "title": "Đăng nhập",

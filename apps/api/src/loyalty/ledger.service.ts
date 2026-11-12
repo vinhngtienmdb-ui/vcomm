@@ -11,7 +11,7 @@ import { lockAccount, recomputeTiers } from "./tiers";
 type Executor = Pick<Database, "execute">;
 // CONG_VIEC_55: giao dịch tại cửa hàng liên kết dùng chung sổ cái điểm.
 export type SaleSourceType = "marketplace_order" | "retail_sale" | "affiliate_transaction";
-export type LoyaltySourceType = SaleSourceType | "retail_return" | "adjustment";
+export type LoyaltySourceType = SaleSourceType | "retail_return" | "adjustment" | "affiliate_voucher";
 export type EntryKind = "earn" | "redeem" | "redeem_refund" | "earn_reversal" | "expire" | "adjust_add" | "adjust_subtract";
 export type SkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero";
 export type BlockedReason = "no_phase" | "locked" | "inactive" | "insufficient";
@@ -127,6 +127,23 @@ export async function takeFromLots(executor: Executor, userId: string, points: n
   }
   if (left > 0) throw new ApiError("BUSINESS_RULE", "loyaltyRedeemInvalid");
   return allocations;
+}
+
+// CONG_VIEC_55 (QUYTAC_NGHIEPVU_402): khách đổi điểm lấy voucher của cửa hàng liên kết. Cần giai đoạn hiệu lực, ví không khóa, tài khoản hoạt động;
+// lấy lô còn hạn, hạn sớm trước; không áp mức đổi tối thiểu, phần trăm đơn (giá điểm do voucher quy định). Trả giá trị một điểm lúc đổi.
+export async function spendPointsWithin(
+  executor: Executor,
+  input: { userId: string; companyId: string; sourceType: "affiliate_voucher"; sourceId: string; day: string; points: number },
+): Promise<{ pointValue: number; amount: number }> {
+  await lockAccount(executor, input.userId);
+  const phase = await phaseOn(executor, input.day);
+  if (!phase) throw new ApiError("BUSINESS_RULE", "loyaltyNoPhase");
+  const account = await standing(executor, input.userId);
+  if (account.locked || account.inactive) throw new ApiError("BUSINESS_RULE", "loyaltyLocked");
+  const amount = Math.floor(input.points * phase.pointValue);
+  const allocations = await takeFromLots(executor, input.userId, input.points, null, input.day);
+  await addEntry(executor, { userId: input.userId, kind: "redeem", points: -input.points, amount, sourceType: input.sourceType, sourceId: input.sourceId, companyId: input.companyId, allocations });
+  return { pointValue: phase.pointValue, amount };
 }
 
 // Ghi sổ phiếu điều chỉnh đã duyệt (QUYTAC_NGHIEPVU_353): cộng tạo lô theo hạn, giá trị đã chốt khi gửi; trừ lấy lô hạn sớm trước, không vượt số dư.

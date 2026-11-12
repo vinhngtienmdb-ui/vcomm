@@ -9,6 +9,10 @@ import {
   affiliateOutletSchema,
   affiliateOutletUpdateSchema,
   affiliateOwnerInviteSchema,
+  affiliateVoucherListQuerySchema,
+  companyVoucherSchema,
+  companyVoucherUpdateSchema,
+  type AffiliateVoucherItem,
   type AffiliateMember,
   type AffiliateMerchantDetail,
   type AffiliateMerchantListItem,
@@ -17,16 +21,25 @@ import {
 } from "contracts";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
+import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { BuyerAdminService } from "../marketplace/buyer-admin.service";
+import { voucherAction } from "./merchant-portal.controller";
 import { AffiliateMerchantsService } from "./merchants.service";
+import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
 
 @Controller("affiliate")
 export class AffiliateController {
   constructor(
     private readonly admin: BuyerAdminService,
     private readonly merchants: AffiliateMerchantsService,
+    private readonly vouchers: AffiliateVouchersService,
   ) {}
+
+  private async voucherActor(request: AuthenticatedRequest, permission: "affiliate.view" | "affiliate.manage"): Promise<VoucherActor> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), permission);
+    return { userId: actor.userId, companyId: actor.operatorCompanyId, merchantId: null, client: actor.client };
+  }
 
   private manager(request: AuthenticatedRequest) {
     return this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.manage");
@@ -95,5 +108,40 @@ export class AffiliateController {
   @Post("members/:id/unlock")
   async unlockMember(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateMember[]> {
     return this.merchants.setMemberLocked(await this.manager(request), id, false, affiliateMemberVersionSchema.parse(body).version);
+  }
+
+  // API_210: mọi voucher liên kết; tạo, sửa voucher công ty phát hành.
+  @Get("vouchers")
+  async listVouchers(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<AffiliateVoucherItem>> {
+    return this.vouchers.list(await this.voucherActor(request, "affiliate.view"), affiliateVoucherListQuerySchema.parse(query));
+  }
+
+  @Get("vouchers/:id")
+  async voucher(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateVoucherItem> {
+    return this.vouchers.voucher(await this.voucherActor(request, "affiliate.view"), id);
+  }
+
+  @Post("vouchers")
+  async createVoucher(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<AffiliateVoucherItem> {
+    return this.vouchers.create(await this.voucherActor(request, "affiliate.manage"), { issuer: "company", ...companyVoucherSchema.parse(body) });
+  }
+
+  @Put("vouchers/:id")
+  async updateVoucher(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateVoucherItem> {
+    const actor = await this.voucherActor(request, "affiliate.manage");
+    await this.companyIssued(actor, id);
+    return this.vouchers.update(actor, id, { issuer: "company", ...companyVoucherUpdateSchema.parse(body) });
+  }
+
+  // Công ty gửi duyệt, rút, tạm dừng, giảm số lượng voucher do công ty phát hành; tạm dừng được cả voucher cửa hàng.
+  @Post("vouchers/:id/:action")
+  async voucherAction(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Param("action") action: string, @Body() body: unknown): Promise<AffiliateVoucherItem> {
+    const actor = await this.voucherActor(request, "affiliate.manage");
+    if (action !== "pause" && action !== "resume") await this.companyIssued(actor, id);
+    return voucherAction(this.vouchers, actor, id, action, body);
+  }
+
+  private async companyIssued(actor: VoucherActor, id: string): Promise<void> {
+    if ((await this.vouchers.voucher(actor, id)).issuer !== "company") throw new ApiError("FORBIDDEN", "forbidden");
   }
 }

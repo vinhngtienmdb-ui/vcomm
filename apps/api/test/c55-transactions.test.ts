@@ -171,11 +171,12 @@ describe("CONG_VIEC_55 giao dịch tại quầy", () => {
     expect((await create(cashier, { outletId: outletA, billAmount: "200000", method: "buyer_qr", memberCode: code.code })).body.error.message).toBe("Mã QR không hợp lệ hoặc đã hết hạn.");
     // Sửa chữ ký hoặc số điểm thì bị từ chối.
     const other = (await second.call("post", "/buyer/affiliate/member-code", { points: 0 })).body.code as string;
-    const forged = other.replace(/\.0\.(\d+)\./, ".999.$1.");
+    const forgedParts = other.split(".");
+    const forged = [forgedParts[0], forgedParts[1], "999", ...forgedParts.slice(3)].join(".");
     expect((await create(cashier, { outletId: outletA, billAmount: "200000", method: "buyer_qr", memberCode: forged })).status).toBe(409);
     // Quá 60 giây.
     const parts = other.split(".");
-    const stale = [parts[0], parts[1], parts[2], String(Number(parts[3]) - 120), parts[4], parts[5]].join(".");
+    const stale = [parts[0], parts[1], parts[2], parts[3], String(Number(parts[4]) - 120), parts[5], parts[6]].join(".");
     expect((await create(cashier, { outletId: outletA, billAmount: "200000", method: "buyer_qr", memberCode: stale })).status).toBe(409);
     // Chỉ tích (0 điểm cho phép).
     const earnOnly = await create(cashier, { outletId: outletA, billAmount: "100000", method: "buyer_qr", memberCode: other });

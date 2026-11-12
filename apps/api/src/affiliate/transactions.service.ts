@@ -29,6 +29,7 @@ import { pgArray } from "../inventory/stock-ledger.service";
 import { LoyaltyLedgerService } from "../loyalty/ledger.service";
 import { vietnamToday } from "../marketplace/shop.service";
 import { requireOwner, type PortalMember } from "./portal.service";
+import { releaseVoucherWithin, usableCodes, useVoucherWithin } from "./vouchers.service";
 
 type Executor = Pick<Database, "execute">;
 const merchantQrMinutes = 3;
@@ -54,26 +55,27 @@ export function maskName(fullName: string | null): string | null {
 const memberKey = () => purposeKey("affiliate-member-code");
 const sign = (body: string) => createHmac("sha256", memberKey()).update(body, "utf8").digest("base64url");
 
-export function issueMemberCode(userId: string, points: number, now: Date): BuyerMemberCode {
+export function issueMemberCode(userId: string, points: number, voucherCodeId: string | null, now: Date): BuyerMemberCode {
   const issued = Math.floor(now.getTime() / 1000);
-  const body = [memberPrefix, userId, points, issued, randomBytes(8).toString("hex")].join(".");
+  const body = [memberPrefix, userId, points, voucherCodeId ?? "0", issued, randomBytes(8).toString("hex")].join(".");
   return { code: `${body}.${sign(body)}`, expiresAt: new Date((issued + memberCodeSeconds) * 1000).toISOString() };
 }
 
-function readMemberCode(code: string, now: Date): { userId: string; points: number; expiresAt: Date } {
+function readMemberCode(code: string, now: Date): { userId: string; points: number; voucherCodeId: string | null; expiresAt: Date } {
   const parts = code.trim().split(".");
-  if (parts.length !== 6 || parts[0] !== memberPrefix) throw new ApiError("BUSINESS_RULE", "affiliateCodeInvalid");
-  const body = parts.slice(0, 5).join(".");
+  if (parts.length !== 7 || parts[0] !== memberPrefix) throw new ApiError("BUSINESS_RULE", "affiliateCodeInvalid");
+  const body = parts.slice(0, 6).join(".");
   const expected = Buffer.from(sign(body));
-  const given = Buffer.from(parts[5]!);
+  const given = Buffer.from(parts[6]!);
   if (expected.length !== given.length || !timingSafeEqual(expected, given)) throw new ApiError("BUSINESS_RULE", "affiliateCodeInvalid");
-  const issued = Number(parts[3]);
+  const issued = Number(parts[4]);
   const points = Number(parts[2]);
   const nowSeconds = now.getTime() / 1000;
   if (!Number.isInteger(issued) || !Number.isInteger(points) || points < 0 || nowSeconds > issued + memberCodeSeconds || issued > nowSeconds + 5) {
     throw new ApiError("BUSINESS_RULE", "affiliateCodeInvalid");
   }
-  return { userId: parts[1]!, points, expiresAt: new Date((issued + memberCodeSeconds) * 1000) };
+  const voucherCodeId = parts[3] === "0" ? null : parts[3]!;
+  return { userId: parts[1]!, points, voucherCodeId, expiresAt: new Date((issued + memberCodeSeconds) * 1000) };
 }
 
 type TransactionRow = {
@@ -254,14 +256,7 @@ export class AffiliateTransactionsService {
         INSERT INTO affiliate.used_member_codes (code_hash, transaction_id, expires_at) VALUES (${hash(input.memberCode!)}, ${created}, ${code.expiresAt})
         ON CONFLICT (code_hash) DO NOTHING RETURNING code_hash`);
       if (used.rows.length === 0) throw new ApiError("BUSINESS_RULE", "affiliateCodeInvalid");
-      const quote = await this.ledger.quoteRedemption(transaction, {
-        userId: buyer.id,
-        sourceType: "affiliate_transaction",
-        day: await vietnamToday(transaction),
-        goodsAmount: Number(input.billAmount),
-      });
-      const points = quote.redeemable && code.points >= quote.minPoints ? Math.min(code.points, quote.maxPoints) : 0;
-      await this.complete(transaction, created, buyer.id, points);
+      await this.complete(transaction, created, buyer.id, { points: code.points, voucherCodeId: code.voucherCodeId, capToMax: true });
       return created;
     });
     return { transaction: await this.transaction(member, id), qrCode: null };
@@ -292,7 +287,8 @@ export class AffiliateTransactionsService {
 
   // Hoàn tất (QUYTAC_NGHIEPVU_394, 398, 399): dùng điểm trên tiền sau voucher; tích trên tiền khách trả theo tỷ lệ của cửa hàng;
   // vượt hạn mức nợ thì không tích (vẫn dùng điểm). Chi tiêu tại cửa hàng liên kết không cộng vào xét hạng.
-  private async complete(executor: Executor, id: string, buyerId: string, points: number): Promise<void> {
+  // capToMax: số điểm khách cho phép là mức trần (mã thành viên, hoặc có voucher làm giảm tiền tính giới hạn); không đủ mức tối thiểu thì không dùng điểm.
+  private async complete(executor: Executor, id: string, buyerId: string, input: { points: number; voucherCodeId: string | null; capToMax: boolean }): Promise<void> {
     const row = (
       await executor.execute<{ merchant_id: string; status: string; expired: boolean; bill_amount: string; voucher_discount: string; earn_percent: string }>(sql`
         SELECT merchant_id, status, (expires_at IS NOT NULL AND expires_at < now()) AS expired, bill_amount::text, voucher_discount::text, earn_percent::text
@@ -302,7 +298,16 @@ export class AffiliateTransactionsService {
     const merchant = await merchantTerms(executor, row.merchant_id, true);
     if (merchant.status !== "active" || !merchant.in_contract) throw new ApiError("BUSINESS_RULE", "affiliateMerchantInactive");
     const day = await vietnamToday(executor);
-    const afterVoucher = Number(row.bill_amount) - Number(row.voucher_discount);
+    const bill = Number(row.bill_amount);
+    const voucher = input.voucherCodeId
+      ? await useVoucherWithin(executor, { codeId: input.voucherCodeId, buyerId, merchantId: row.merchant_id, bill, transactionId: id })
+      : { discount: 0, payable: 0 };
+    const afterVoucher = bill - voucher.discount;
+    let points = input.points;
+    if (input.capToMax || input.voucherCodeId) {
+      const quote = await this.ledger.quoteRedemption(executor, { userId: buyerId, sourceType: "affiliate_transaction", day, goodsAmount: afterVoucher });
+      points = quote.redeemable && points >= quote.minPoints ? Math.min(points, quote.maxPoints) : 0;
+    }
     const redeemed = await this.ledger.redeemWithin(executor, {
       userId: buyerId,
       companyId: merchant.company_id,
@@ -335,7 +340,7 @@ export class AffiliateTransactionsService {
     await executor.execute(sql`
       UPDATE affiliate.transactions SET status = 'completed', buyer_user_id = ${buyerId}, redeemed_points = ${redeemed.points}, redeemed_amount = ${redeemed.amount},
         paid_amount = ${paid}, earned_points = ${earned.points}, earned_amount = ${pointValue === null ? 0 : Math.round(earned.points * pointValue)}, skip_reason = ${skipReason},
-        point_value = ${pointValue}, completed_at = now()
+        point_value = ${pointValue}, voucher_code_id = ${input.voucherCodeId}, voucher_discount = ${voucher.discount}, voucher_payable = ${voucher.payable}, completed_at = now()
       WHERE id = ${id}`);
   }
 
@@ -344,12 +349,13 @@ export class AffiliateTransactionsService {
     requireOwner(member);
     await this.database.transaction(async (transaction) => {
       const row = (
-        await transaction.execute<{ status: string; settlement_id: string | null; merchant_id: string; buyer_user_id: string; document_no: string }>(sql`
-          SELECT status, settlement_id, merchant_id, buyer_user_id, document_no FROM affiliate.transactions WHERE id = ${id} AND merchant_id = ${member.merchantId} FOR UPDATE`)
+        await transaction.execute<{ status: string; settlement_id: string | null; merchant_id: string; buyer_user_id: string; document_no: string; voucher_code_id: string | null }>(sql`
+          SELECT status, settlement_id, merchant_id, buyer_user_id, document_no, voucher_code_id FROM affiliate.transactions WHERE id = ${id} AND merchant_id = ${member.merchantId} FOR UPDATE`)
       ).rows[0];
       if (!row) throw new ApiError("NOT_FOUND", "notFound");
       if (row.status !== "completed") throw new ApiError("BUSINESS_RULE", "affiliateTransactionNotCancellable");
       if (row.settlement_id) throw new ApiError("BUSINESS_RULE", "affiliateWeekSettled");
+      if (row.voucher_code_id) await releaseVoucherWithin(transaction, row.voucher_code_id);
       const result = await this.ledger.cancelWithin(transaction, { sourceType: "affiliate_transaction", sourceId: id, companyId: member.companyId, day: await vietnamToday(transaction) });
       await transaction.execute(sql`
         UPDATE affiliate.transactions SET status = 'cancelled', cancel_reason = ${reason}, cancelled_by = ${member.userId}, cancelled_at = now(), shortfall_amount = ${result.shortfallAmount}
@@ -397,8 +403,9 @@ export class AffiliateTransactionsService {
         voucher_discount: string;
         expires_at: Date;
         earn_percent: string;
+        merchant_id: string;
       }>(sql`
-        SELECT t.id, t.document_no, p.name AS merchant_name, o.name AS outlet_name, t.bill_amount::text, t.voucher_discount::text, t.expires_at, t.earn_percent::text
+        SELECT t.id, t.document_no, p.name AS merchant_name, o.name AS outlet_name, t.bill_amount::text, t.voucher_discount::text, t.expires_at, t.earn_percent::text, t.merchant_id
         FROM affiliate.transactions t JOIN affiliate.merchants m ON m.id = t.merchant_id JOIN crm.partners p ON p.id = m.partner_id JOIN affiliate.outlets o ON o.id = t.outlet_id
         WHERE t.id = ${id}`)
     ).rows[0]!;
@@ -422,6 +429,7 @@ export class AffiliateTransactionsService {
       redeemable: quote.redeemable,
       blockedReason: quote.blockedReason,
       earnPercent: trimDecimal(row.earn_percent),
+      vouchers: await usableCodes(executor, buyerId, row.merchant_id, Number(row.bill_amount)),
     };
   }
 
@@ -453,10 +461,10 @@ export class AffiliateTransactionsService {
     return result;
   }
 
-  async confirm(buyerId: string, transactionId: string, points: number, code: string | undefined): Promise<BuyerAffiliateTransaction> {
+  async confirm(buyerId: string, transactionId: string, points: number, code: string | undefined, voucherCodeId: string | null): Promise<BuyerAffiliateTransaction> {
     await this.database.transaction(async (transaction) => {
       const id = await this.pendingFor(transaction, buyerId, transactionId, code, true);
-      await this.complete(transaction, id, buyerId, points);
+      await this.complete(transaction, id, buyerId, { points, voucherCodeId, capToMax: false });
     });
     return (await this.history(buyerId, transactionId))[0]!;
   }
@@ -468,10 +476,10 @@ export class AffiliateTransactionsService {
     });
   }
 
-  async memberCode(buyerId: string, points: number): Promise<BuyerMemberCode> {
+  async memberCode(buyerId: string, points: number, voucherCodeId: string | null): Promise<BuyerMemberCode> {
     const buyer = (await this.database.execute(sql`SELECT 1 FROM marketplace.buyer_accounts WHERE user_id = ${buyerId}`)).rows[0];
     if (!buyer) throw new ApiError("FORBIDDEN", "forbidden");
-    return issueMemberCode(buyerId, points, new Date());
+    return issueMemberCode(buyerId, points, voucherCodeId, new Date());
   }
 
   async history(buyerId: string, transactionId: string | null = null): Promise<BuyerAffiliateTransaction[]> {

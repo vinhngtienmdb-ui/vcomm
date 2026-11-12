@@ -575,7 +575,13 @@
     "affiliatePhoneLimited": "Too many phone requests were declined or expired within an hour. Try again later.",
     "affiliateTransactionExpired": "The transaction is no longer awaiting confirmation.",
     "affiliateTransactionNotCancellable": "Only completed transactions can be cancelled.",
-    "affiliateWeekSettled": "The transaction's week has been settled and cannot be cancelled."
+    "affiliateWeekSettled": "The transaction's week has been settled and cannot be cancelled.",
+    "affiliateVoucherNotUsable": "The voucher cannot be used for this transaction.",
+    "affiliateVoucherUnavailable": "The voucher is out of stock or you have claimed the maximum.",
+    "affiliateVoucherNotEditable": "Only draft, rejected or withdrawn vouchers can be edited or submitted.",
+    "affiliateVoucherNotPending": "The voucher is not awaiting approval.",
+    "affiliateVoucherStatusInvalid": "The voucher status cannot be changed from its current status.",
+    "affiliateVoucherQuantityInvalid": "The total can only be reduced, not below the number claimed."
   },
   "login": {
     "title": "Sign in",

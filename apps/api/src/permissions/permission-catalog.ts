@@ -467,6 +467,8 @@ export const documentTypeCatalog = [
   { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },
   // CONG_VIEC_51: phiếu điều chỉnh điểm thưởng (QUYTAC_NGHIEPVU_353).
   { code: "loyalty.adjustment", appCode: "crm", nameVi: "Phiếu điều chỉnh điểm thưởng", nameEn: "Loyalty points adjustment", requiresApproval: true },
+  // CONG_VIEC_55: voucher liên kết (QUYTAC_NGHIEPVU_401).
+  { code: "affiliate.voucher", appCode: "crm", nameVi: "Voucher cửa hàng liên kết", nameEn: "Affiliate voucher", requiresApproval: true },
   { code: "retail.sale", appCode: "retail", nameVi: "Hóa đơn bán lẻ", nameEn: "Retail sale", requiresApproval: false },
   { code: "retail.return", appCode: "retail", nameVi: "Phiếu trả hàng bán lẻ", nameEn: "Retail return", requiresApproval: false },
   // CONG_VIEC_46: mã nhân viên chỉ dùng dãy số; hợp đồng, phụ lục qua luồng duyệt.
