@@ -10,6 +10,7 @@
 ### Công việc đã thực hiện
 
 - Phát hành 0.6.0 (pull request #129): CONG_VIEC_22, 53 (lát L6), 57, 58; THAY_DOI_26, 28. Kiểm thử API 601/601. Chưa triển khai.
+- Người dùng yêu cầu mở tiếp phiên song song: cấp CONG_VIEC_59 (Văn phòng số phần 2), CONG_VIEC_60 (Điểm thưởng phần 2), CONG_VIEC_61 (Mở rộng kinh doanh phần 1, người dùng chọn Open API cho đối tác). Cấp trước CONG_VIEC_62 (Dropship), 63 (trợ lý AI), 64 (quản lý sản xuất), mở phiên sau theo quyết định của người dùng. Người dùng đồng ý CONG_VIEC_55 lát L3; quyết định chưa triển khai các bản 0.4.0 đến 0.6.0.
 - Người dùng nghiệm thu CONG_VIEC_58 (kế hoạch mua theo ngân sách) lát L0 đến L3, pull request #123 (kiểm thử 561/561): kế hoạch ngân sách theo ngành hàng cấp 1, kho, tháng; số còn được mua; kiểm tra ngân sách đơn mua và luồng duyệt vượt ngân sách; phiếu điều chỉnh; menu phẳng trong mini app Mua hàng.
 - Trình nghiệm thu CONG_VIEC_22 (thành phần Kinh doanh trên ứng dụng VComm, THAY_DOI_26, 28) lát L0 đến L4, pull request #122 (kiểm thử 556/556); người dùng yêu cầu đo hiệu năng (đạt) và sửa hai giới hạn, sau đó nghiệm thu bản cuối (kiểm thử 557/557). Rà soát độc lập sửa 1 lỗi Trung bình (ước lượng người phụ trách cho đơn cũ trong database migration 0114), 6 lỗi Thấp; không cấp mã LOI.
 - CONG_VIEC_56 xong lát L2 (nộp thuế hải quan, tiền chậm nộp, nhận hoàn thuế); CONG_VIEC_55 xong lát L2 (voucher liên kết).
