@@ -29,6 +29,7 @@
 
 ### Quyết định
 
+- Người dùng quyết định phát hành 0.6.0 ngay với CONG_VIEC_22, 53 (lát L6), 57, 58; CONG_VIEC_52 vào bản sau khi đối chiếu xong Nghị định 30/2020/NĐ-CP. Dành database migration 0120 cho bản phát hành 0.6.0. Người dùng đồng ý CONG_VIEC_56 lát L2.
 - CONG_VIEC_22: người dùng giữ nút Chia sẻ dùng bảng chia sẻ chung của máy, không làm nút riêng cho từng ứng dụng nhắn tin, mạng xã hội.
 - CONG_VIEC_22, người dùng quyết định khi nghiệm thu: duyệt thư viện `expo-clipboard` ~58.0.4 (MIT) để nút Sao chép trên ứng dụng VComm chạy được trên máy thật (gồm nút ở trang sản phẩm, Tài khoản, Mời bạn bè, Mua chung của CONG_VIEC_49); database migration 0114 bỏ phần ước lượng người phụ trách cho đơn cũ, đơn cũ không tính doanh số cho ai.
 - CONG_VIEC_57, người dùng quyết định khi lập trình: mua chung chỉ giao qua đơn vị vận chuyển; phiếu xuất tại kho trạm lập và ghi sổ khi giao thành công; không gửi mã nhận hàng qua Zalo ZNS; vai trò Nhân viên giao hàng trạm; trả hàng đơn của trạm: khách mang hàng đến trạm của đơn, trạm xác nhận đã nhận; vận hành sàn chỉ xem đơn của trạm (không hủy, không giao vận chuyển, không thấy mã nhận hàng); trạm hủy khi Chờ soạn hàng hoặc Sẵn sàng nhận, đơn Đang giao phải báo không giao được trước.
