@@ -51,9 +51,9 @@ Ngoài phạm vi:
 - QUYTAC_NGHIEPVU_495 (chốt từ dự phòng của CONG_VIEC_61) Khóa API cửa hàng liên kết:
   1. Người có `affiliate.manage` ở công ty vận hành sàn cấp khóa cho cửa hàng ở trạng thái nháp, đang hoạt động hoặc tạm ngưng (không cấp cho cửa hàng đã chấm dứt). Khóa loại "Đối tác", đối tác là đối tác của cửa hàng, phạm vi đúng một giá trị `loyalty.member`, không kênh bán, không kho.
   2. Cấu hình: tên (như QUYTAC_NGHIEPVU_482), điểm bán (ít nhất một, thuộc cửa hàng), giới hạn mỗi phút (1 đến 600, mặc định 60), số tin OTP SMS tối đa mỗi ngày (0 đến 5.000, mặc định 200; 0 là không gửi SMS), hạn dùng, danh sách IP (tùy chọn). Định dạng khóa, băm, cấp lại, thu hồi, nhật ký gọi, nhật ký thao tác như QUYTAC_NGHIEPVU_480, 483, 487, 488, 493.
-  3. Màn hình Khóa API của Nền tảng (MAN_HINH_224) hiện cả khóa cửa hàng liên kết (chỉ xem; sửa, thu hồi được bằng `platform.api_key.manage`); không cấp khóa `loyalty.member` ở màn hình đó.
+  3. Màn hình Khóa API của Nền tảng (MAN_HINH_224) hiện cả khóa cửa hàng liên kết; người có `platform.api_key.manage` cấp lại, thu hồi được, không sửa được (sửa ở màn hình Cửa hàng liên kết); không cấp khóa `loyalty.member` ở màn hình đó.
   4. Xác thực khi gọi (bổ sung QUYTAC_NGHIEPVU_484): khóa `loyalty.member` không xét hồ sơ khách hàng của đối tác; đối tác ngừng giao dịch trả `401`. Cửa hàng không đang hoạt động hoặc ngoài thời hạn hợp đồng: API giao dịch, tra điểm, gửi OTP trả `409 BUSINESS_RULE` "Cửa hàng chưa hoạt động hoặc hợp đồng hết hạn."; tra, liệt kê giao dịch vẫn được.
-  5. Điểm bán gửi theo `outletId`; điểm bán ngoài danh sách của khóa hoặc đã ngưng trả `422` trường `outletId`.
+  5. Điểm bán gửi theo `outletId`; điểm bán ngoài danh sách của khóa hoặc đã ngưng trả `400 VALIDATION_FAILED` trường `outletId` (mô hình lỗi chung, tài liệu `17` mục 1).
 
 - Bổ sung QUYTAC_NGHIEPVU_394 (giao dịch qua API): giao dịch ghi nguồn `open_api`, khóa đã tạo, mã giao dịch đối tác; không có thu ngân. Mã giao dịch đối tác bắt buộc (1 đến 50 ký tự chữ, số, `-`, `_`, `.`), duy nhất theo cửa hàng; gửi lại cùng mã trả `200` kèm giao dịch đã có, không so nội dung (như QUYTAC_NGHIEPVU_491). Thứ tự tính tiền, tích, dùng điểm, voucher, hạn mức, quá hạn, trần mỗi giao dịch như QUYTAC_NGHIEPVU_394, 398, 399, 402.
 
@@ -65,11 +65,11 @@ Ngoài phạm vi:
   1. Phần mềm cửa hàng tra điểm bằng số điện thoại; kết quả cho biết khách có Smart OTP đang hoạt động hay không.
   2. Khách có Smart OTP: đọc mã 6 số trên ứng dụng VComm; kiểm bằng cách của CONG_VIEC_53 (bước 30 giây, mỗi bước dùng một lần, sai 5 lần liên tiếp khóa 15 phút).
   3. Khách chưa kích hoạt Smart OTP: phần mềm cửa hàng gọi API gửi mã; VComm gửi SMS mã 6 số (hiệu lực 5 phút, sai 5 lần hết hiệu lực, tối đa 5 mã mỗi giờ mỗi số – tính chung mọi mục đích). Khách có Smart OTP đang hoạt động thì không gửi SMS (`409` "Khách đã có Smart OTP, dùng mã trên ứng dụng VComm."). Số không có tài khoản người mua đang hoạt động: `409` "Số điện thoại chưa có tài khoản VComm.". Vượt số tin mỗi ngày của khóa: `429`.
-  4. Tạo giao dịch kèm số điện thoại, mã OTP, số điểm muốn dùng, mã voucher (tùy chọn); mã đúng thì hoàn tất ngay, điểm dùng = nhỏ hơn giữa số yêu cầu và số tối đa dùng được (dưới mức tối thiểu thì không dùng điểm); mã sai trả `422` trường `otp`, không lập giao dịch.
+  4. Tạo giao dịch kèm số điện thoại, mã OTP, số điểm muốn dùng, mã voucher (tùy chọn); mã đúng thì hoàn tất ngay, điểm dùng = nhỏ hơn giữa số yêu cầu và số tối đa dùng được (dưới mức tối thiểu thì không dùng điểm); mã sai trả `400` trường `otp`, không lập giao dịch.
 
-- Bổ sung QUYTAC_NGHIEPVU_400 (hủy qua API): khóa hủy được giao dịch của chính cửa hàng (mọi nguồn) như chủ cửa hàng, lý do 1 đến 500 ký tự; nhật ký thao tác ghi tác nhân là khóa.
+- Bổ sung QUYTAC_NGHIEPVU_400 (hủy qua API): khóa hủy được giao dịch của cửa hàng tạo qua Open API (tìm theo mã giao dịch đối tác, mọi khóa của cửa hàng) như chủ cửa hàng, lý do 1 đến 500 ký tự; nhật ký thao tác ghi tác nhân là khóa.
 
-- Bổ sung QUYTAC_NGHIEPVU_402 (voucher qua API): voucher đi theo mã thành viên (cách 2), khách chọn khi xác nhận trên ứng dụng (cách 3); cách OTP: phần mềm cửa hàng gửi `voucherCode` khách đọc. Tra điểm trả danh sách voucher khách dùng được tại cửa hàng cho tiền hóa đơn (mã, tên, tiền giảm).
+- Bổ sung QUYTAC_NGHIEPVU_402 (voucher qua API): voucher đi theo mã thành viên (cách 2), khách chọn khi xác nhận trên ứng dụng (cách 3); cách OTP: phần mềm cửa hàng gửi `voucherCodeId` lấy từ kết quả tra điểm. Tra điểm trả danh sách voucher khách dùng được tại cửa hàng cho tiền hóa đơn (mã, tên, tiền giảm, hạn).
 
 - Tra điểm (YCAU_NGHIEPVU_169): đầu vào điểm bán, tiền hóa đơn, mã thành viên hoặc số điện thoại. Kết quả: tên khách đã che, dùng điểm được hay không và lý do, điểm tối thiểu, tối đa dùng được, giá trị một điểm, điểm dự kiến tích (chưa xét hạn mức), voucher dùng được, khách có Smart OTP. Không trả số dư, tên đầy đủ, số điện thoại. Tra điểm không giữ điểm, không lập giao dịch.
 
@@ -119,7 +119,7 @@ flowchart LR
 
 | Mã | Tên | Ứng dụng | Nội dung | Bản mẫu |
 |---|---|---|---|---|
-| MAN_HINH_231 | Kết nối phần mềm (thẻ trong chi tiết cửa hàng MAN_HINH_178) | `apps/web-crm` | Danh sách khóa của cửa hàng (tên, đầu khóa, điểm bán, giới hạn mỗi phút, tin SMS mỗi ngày, hạn, lần gọi gần nhất, trạng thái); ngăn kéo cấp, sửa; hộp hiện khóa một lần; cấp lại; thu hồi; liên kết nhật ký gọi (MAN_HINH_226 lọc theo khóa). Phí mỗi tin OTP trong phần hợp đồng | `ban_mau/MAN_HINH_231_KET_NOI_PHAN_MEM.html` |
+| MAN_HINH_231 | Kết nối phần mềm (khối trong chi tiết cửa hàng MAN_HINH_178, cùng kiểu các khối Hợp đồng, Điểm bán, Thành viên) | `apps/web-crm` | Danh sách khóa của cửa hàng (tên, đầu khóa, điểm bán, giới hạn mỗi phút, tin SMS mỗi ngày, hạn, lần gọi gần nhất, trạng thái); ngăn kéo cấp, sửa; hộp hiện khóa một lần; cấp lại; thu hồi; liên kết nhật ký gọi (MAN_HINH_226 lọc theo khóa). Phí mỗi tin OTP trong phần hợp đồng | `ban_mau/MAN_HINH_231_KET_NOI_PHAN_MEM.html` |
 | MAN_HINH_232 | Kết nối phần mềm (chủ cửa hàng) | `apps/web-affiliate` | Chỉ xem: khóa của cửa hàng, điểm bán, trạng thái, lần gọi gần nhất; số lần gọi và số tin SMS hôm nay, tuần này; phí tin nhắn tạm tính | `ban_mau/MAN_HINH_232_KET_NOI_PHAN_MEM_CUA_HANG.html` |
 | MAN_HINH_233 | Dự phòng | — | Chưa dùng | — |
 
@@ -154,7 +154,7 @@ Không đổi nguồn chứng từ `loyalty`, `accounting.journals`, `finance.de
 |---|---|---|
 | API_296 | `GET /outlets`; `POST /quote` | Điểm bán của khóa; tra điểm (`outletId`, `billAmount`, `memberCode` hoặc `phone`) |
 | API_297 | `POST /otp` | Gửi mã OTP SMS (`phone`); `204` khi gửi |
-| API_298 | `POST /transactions` | Tạo giao dịch: `partnerTransactionCode`, `outletId`, `billAmount`, `method` (`member_code`, `phone`, `otp`), `memberCode` hoặc `phone`, `otp`, `points`, `voucherCode`. `201` khi tạo mới (hoàn tất hoặc chờ), `200` khi mã đã có |
+| API_298 | `POST /transactions` | Tạo giao dịch: `partnerTransactionCode`, `outletId`, `billAmount`, `method` (`member_code`, `phone`, `otp`), `memberCode` hoặc `phone`, `otp`, `points`, `voucherCodeId`. `201` khi tạo mới (hoàn tất hoặc chờ), `200` khi mã đã có |
 | API_299 | `GET /transactions`, `GET /transactions/{partnerTransactionCode}` | Liệt kê (lọc `status`, `from`, `to`, `page`, `pageSize` ≤ 100), tra trạng thái và số liệu giao dịch của cửa hàng tạo qua API |
 | API_300 | `POST /transactions/{partnerTransactionCode}/cancel` | Hủy (`reason`) |
 
@@ -183,12 +183,12 @@ Kết quả giao dịch: mã đối tác, số `LK…`, trạng thái, cách, đ
 | Mã | Tiêu chí | Mức | Lát |
 |---|---|---|---|
 | TIEUCHI_NGHIEMTHU_504 | `affiliate.manage` cấp khóa cho cửa hàng: nhận `vck_…` một lần, phạm vi đúng `loyalty.member`, điểm bán thuộc cửa hàng; cửa hàng đã chấm dứt, điểm bán cửa hàng khác bị từ chối; `affiliate.view` chỉ xem; chủ cửa hàng chỉ xem khóa cửa hàng mình | Bắt buộc | L1 |
-| TIEUCHI_NGHIEMTHU_505 | Khóa cửa hàng gọi API ngoài `loyalty.member` nhận `403`; khóa khác phạm vi gọi API điểm nhận `403`; cửa hàng tạm ngưng nhận `409` khi tạo giao dịch nhưng tra được giao dịch; điểm bán ngoài khóa nhận `422` | Bắt buộc | L1 |
+| TIEUCHI_NGHIEMTHU_505 | Khóa cửa hàng gọi API ngoài `loyalty.member` nhận `403`; khóa khác phạm vi gọi API điểm nhận `403`; cửa hàng tạm ngưng nhận `409` khi tạo giao dịch nhưng tra được giao dịch; điểm bán ngoài khóa nhận `400` | Bắt buộc | L1 |
 | TIEUCHI_NGHIEMTHU_506 | Tra điểm trả điểm tối thiểu, tối đa, điểm dự kiến, voucher dùng được, tên đã che; không có số dư, số điện thoại, tên đầy đủ | Bắt buộc | L1 |
 | TIEUCHI_NGHIEMTHU_507 | Mã thành viên qua API hoàn tất ngay, dùng một lần, hết hạn 60 giây; số tiền, điểm tích, dùng, voucher, hạn mức bằng giao dịch cùng dữ liệu trên cổng cửa hàng | Bắt buộc | L1 |
 | TIEUCHI_NGHIEMTHU_508 | Số điện thoại qua API: chờ khách xác nhận trên ứng dụng, tra trạng thái thấy hoàn tất, từ chối, hết hạn; giới hạn 10 lần từ chối mỗi giờ theo khóa | Bắt buộc | L1 |
 | TIEUCHI_NGHIEMTHU_509 | Gửi lại cùng mã giao dịch đối tác (kể cả hai lần cùng lúc) chỉ có một giao dịch, lần sau `200`; hủy qua API hoàn điểm, trừ điểm tích, trả voucher, bút toán ngược; tuần đã chốt không hủy được | Bắt buộc | L1 |
-| TIEUCHI_NGHIEMTHU_510 | OTP: khách có Smart OTP hoàn tất bằng mã đúng, sai 5 lần bị khóa; khách chưa có Smart OTP nhận SMS, mã đúng hoàn tất, mã sai `422`; khách có Smart OTP không gửi SMS; giới hạn 5 mã mỗi giờ mỗi số, số tin mỗi ngày của khóa | Bắt buộc | L2 |
+| TIEUCHI_NGHIEMTHU_510 | OTP: khách có Smart OTP hoàn tất bằng mã đúng, sai 5 lần bị khóa; khách chưa có Smart OTP nhận SMS, mã đúng hoàn tất, mã sai `400`; khách có Smart OTP không gửi SMS; giới hạn 5 mã mỗi giờ mỗi số, số tin mỗi ngày của khóa | Bắt buộc | L2 |
 | TIEUCHI_NGHIEMTHU_511 | Mỗi tin SMS gửi thành công ghi phí theo đơn giá hợp đồng lúc gửi; bảng đối soát tuần có F, E tính trên D + F, số còn lại đúng; bút toán F vào 511, thuế vào 3331 | Bắt buộc | L2 |
 | TIEUCHI_NGHIEMTHU_512 | Giao dịch qua API vào báo cáo, cảnh báo, đối soát như giao dịch cổng; danh sách giao dịch hiện nguồn "Phần mềm cửa hàng"; nhật ký gọi ghi mỗi lần gọi, không có mã OTP, số điện thoại | Bắt buộc | L1 |
 | TIEUCHI_NGHIEMTHU_513 | MAN_HINH_231, 232 và phần sửa màn hình đủ trạng thái rỗng, đang tải, lỗi, không quyền; tiếng Việt, tiếng Anh; chạy được trên máy tính, máy tính bảng, điện thoại | Bắt buộc | L1, L2 |
