@@ -93,6 +93,7 @@ export class LoyaltyAccountsService {
       SELECT e.id, e.kind, e.points, e.balance_after, e.source_type, e.source_id, e.created_at,
         CASE e.source_type WHEN 'marketplace_order' THEN (SELECT so.document_no FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id WHERE m.id = e.source_id)
           WHEN 'adjustment' THEN (SELECT d.document_no FROM loyalty.adjustments d WHERE d.id = e.source_id)
+          WHEN 'partner_exchange' THEN (SELECT x.document_no FROM loyalty.partner_exchanges x WHERE x.id = e.source_id)
           END AS document_no,
         CASE WHEN e.points > 0 THEN (SELECT max(l.expires_on)::text FROM loyalty.entry_lots el JOIN loyalty.lots l ON l.id = el.lot_id WHERE el.entry_id = e.id) END AS expires_on
       FROM loyalty.entries e WHERE e.user_id = ${userId}

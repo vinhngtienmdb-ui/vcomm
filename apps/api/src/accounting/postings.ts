@@ -59,6 +59,11 @@ export type PostingRole =
   | "affiliate_receivable"
   | "affiliate_payable"
   | "affiliate_fee_revenue"
+  // CONG_VIEC_65: đối tác liên minh điểm ngoài tập đoàn.
+  | "loyalty_partner_receivable"
+  | "loyalty_partner_payable"
+  | "loyalty_partner_revenue"
+  | "loyalty_partner_tax"
   | "affiliate_fee_tax"
   | "affiliate_voucher_deferred";
 export const postingRoles: PostingRole[] = [
@@ -114,6 +119,10 @@ export const postingRoles: PostingRole[] = [
   "affiliate_receivable",
   "affiliate_payable",
   "affiliate_fee_revenue",
+  "loyalty_partner_receivable",
+  "loyalty_partner_payable",
+  "loyalty_partner_revenue",
+  "loyalty_partner_tax",
   "affiliate_fee_tax",
   "affiliate_voucher_deferred",
 ];
@@ -149,7 +158,8 @@ export interface DraftJournal {
     | "affiliate_transaction_cancel"
     | "affiliate_voucher"
     | "affiliate_voucher_expire"
-    | "affiliate_settlement";
+    | "affiliate_settlement"
+    | "loyalty_partner_exchange";
   sourceId: string;
   journalNo: string;
   date: string;
