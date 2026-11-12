@@ -4,7 +4,7 @@
 - Phiên bản: 1.4
 - Ngày cập nhật: 2026-11-11
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1); CONG_VIEC_24 (2026-11-11): đơn vị vận chuyển GHN (REST bằng `fetch`, không thêm thư viện), biến môi trường kết nối; danh mục tỉnh xã từ bộ dữ liệu giấy phép MIT; CONG_VIEC_25 (2026-11-11): cổng thanh toán VNPAY (ký bằng `node:crypto`, không thêm thư viện), biến môi trường kết nối
+- Thay đổi theo: THAY_DOI_01, THAY_DOI_02 (2026-11-09); CONG_VIEC_16 (2026-11-10): nhà cung cấp hóa đơn điện tử (mục 1); CONG_VIEC_24 (2026-11-11): đơn vị vận chuyển GHN (REST bằng `fetch`, không thêm thư viện), biến môi trường kết nối; danh mục tỉnh xã từ bộ dữ liệu giấy phép MIT; CONG_VIEC_25 (2026-11-11): cổng thanh toán VNPAY (ký bằng `node:crypto`, không thêm thư viện), biến môi trường kết nối; CONG_VIEC_55 (2026-11-11): thư viện `jsqr` đọc mã QR trên web (mục 8)
 
 ## 1. Danh sách công nghệ
 
@@ -164,7 +164,21 @@
 
 Quyết định: người dùng đồng ý thêm `expo-camera` ngày 2026-11-11. Kiểm thử đơn vị của ứng dụng dùng `vitest` (đã có trong dự án). Không thêm thư viện âm thanh: báo lỗi quét bằng rung (`Vibration` của React Native).
 
-## 8. Phân tích giải pháp có sẵn – CONG_VIEC_22 sao chép trên ứng dụng VComm – 2026-11-12
+
+## 8. Phân tích giải pháp có sẵn – CONG_VIEC_55 cửa hàng liên kết – 2026-11-11
+
+- Yêu cầu cần đáp ứng: CHUC_NANG_194 (cổng cửa hàng trên web đọc mã thành viên của khách bằng camera máy tính bảng, điện thoại).
+- Nguồn đã tìm: mã nguồn dự án (`qrcode-generator` chỉ vẽ mã; `expo-camera` chỉ dùng trên ứng dụng Expo); kho npm.
+- Từ khóa đã dùng: tên thư viện cụ thể; không chứa thông tin nghiệp vụ.
+
+| Ứng viên | Dùng cho | Giấy phép | Phiên bản, cập nhật gần nhất | Tương thích công nghệ | Công sức điều chỉnh |
+|---|---|---|---|---|---|
+| `jsqr` | Giải mã QR từ ảnh khung hình camera trình duyệt (`getUserMedia`, canvas) | Apache-2.0 | 1.4.0 (bản cuối năm 2021) | Mọi trình duyệt hiện đại, gồm Safari iPhone, iPad | Thấp |
+| Không thêm thư viện | Máy quét cầm tay chế độ bàn phím; API `BarcodeDetector` không có trên Safari | Không áp dụng | Không áp dụng | Không đủ cho camera trên iPhone | Thấp |
+| Ứng dụng Expo riêng cho cửa hàng | `expo-camera` đã có | MIT | Expo SDK 58 | Phải cài ứng dụng | Cao |
+
+Quyết định: người dùng đồng ý thêm `jsqr` 1.4.0 ngày 2026-11-11. Thư viện không còn cập nhật tích cực nhưng chỉ giải mã ảnh, không gọi mạng; rủi ro thấp. Máy quét cầm tay vẫn dùng được.
+## 9. Phân tích giải pháp có sẵn – CONG_VIEC_22 sao chép trên ứng dụng VComm – 2026-11-12
 
 - Yêu cầu cần đáp ứng: QUYTAC_NGHIEPVU_434 (nút Sao chép đường dẫn chia sẻ sản phẩm); các nút Sao chép đã có ở Tài khoản, Mời bạn bè, Mua chung dùng `navigator.clipboard` nên không chạy trên máy thật.
 - Nguồn đã tìm: mã nguồn dự án (`apps/mobile-vcomm`: Expo SDK 58), React Native (bộ nhớ tạm đã bỏ khỏi lõi), kho npm.

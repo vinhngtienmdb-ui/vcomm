@@ -9,6 +9,15 @@
 
 ### Công việc đã thực hiện
 
+- Phát hành 0.7.0 (pull request #137, commit hợp nhất `bab8d3b`): CONG_VIEC_55, CONG_VIEC_61 (lát L1, L2); THAY_DOI_27, 29. Kiểm thử API 633/633. Không tạo database migration 0144 (ràng buộc dùng chung chỉ CONG_VIEC_55 định nghĩa lại). Thư viện mới: jsqr 1.4.0, expo-camera ~58.0.14 (mobile-vcomm). Môi trường thật bắt buộc đặt MFA_SECRET_KEY. Chưa triển khai.
+- Người dùng nghiệm thu CONG_VIEC_61 (Open API cho đối tác, MODULE_16) lát L1, L2, pull request #134 (commit `9b19474`, đã hợp nhất main 0.6.0; kiểm thử 617/617): khóa API theo công ty và đối tác (có khóa nội bộ), phạm vi quyền, hạn và IP tùy chọn, 60 yêu cầu mỗi phút chỉnh theo khóa, nhật ký gọi không ghi nội dung giữ 90 ngày, API sản phẩm, giá, tồn; đơn bán Nháp qua API, bắt buộc mã đơn đối tác (gửi lại trả đơn cũ), tra, hủy đơn Nháp. Database migration 0128 đến 0130. Không thêm thư viện.
+- Người dùng nghiệm thu CONG_VIEC_55 (cửa hàng liên kết phần 1); phần thủ công của KICHBAN_KIEMTHU_546 (quét mã QR bằng camera trên điện thoại thật) kiểm thử sau khi triển khai thử nghiệm. Người dùng duyệt đặc tả CONG_VIEC_59 (làm hết theo lát), lát L0 CONG_VIEC_60, lát L1 CONG_VIEC_61.
+- CONG_VIEC_55 (cửa hàng liên kết phần 1, MODULE_12) trình nghiệm thu lát L0 đến L4, pull request #120 (commit `459f69d`, đã hợp nhất main 0.6.0; kiểm thử 617/617): database migration 0102 đến 0105 (schema affiliate; 0103, 0104 định nghĩa lại ràng buộc source_type của loyalty.lots, entries, document_points, refund_links; 0105 định nghĩa lại finance.debt_items.source_type thêm affiliate_settlement và accounting.journals.source_type thêm affiliate_transaction, affiliate_transaction_cancel, affiliate_voucher, affiliate_voucher_expire, affiliate_settlement, gồm mọi giá trị trên main); ứng dụng mới apps/web-affiliate (/merchant, cổng 3013); luồng OAuth dùng chung nhận app=merchant (không đổi hành vi cũ).
+- CONG_VIEC_56, 52, 60 hợp nhất main 0.6.0 vào nhánh: kiểm thử API lần lượt 616/616, 641/641, các tệp liên quan 28/28 đạt.
+- CONG_VIEC_59 có đặc tả nháp và bản mẫu MAN_HINH_210 đến 217 (pull request nháp #132); CONG_VIEC_60 xong lát L0 (database migration 0125, pull request #133); CONG_VIEC_61 xong lát L1 Open API (database migration 0128, 0129; pull request #134).
+
+- Phát hành 0.6.0 (pull request #129): CONG_VIEC_22, 53 (lát L6), 57, 58; THAY_DOI_26, 28. Kiểm thử API 601/601. Chưa triển khai.
+- Người dùng yêu cầu mở tiếp phiên song song: cấp CONG_VIEC_59 (Văn phòng số phần 2), CONG_VIEC_60 (Điểm thưởng phần 2), CONG_VIEC_61 (Mở rộng kinh doanh phần 1, người dùng chọn Open API cho đối tác). Cấp trước CONG_VIEC_62 (Dropship), 63 (trợ lý AI), 64 (quản lý sản xuất), mở phiên sau theo quyết định của người dùng. Người dùng đồng ý CONG_VIEC_55 lát L3; quyết định chưa triển khai các bản 0.4.0 đến 0.6.0.
 - Người dùng nghiệm thu CONG_VIEC_58 (kế hoạch mua theo ngân sách) lát L0 đến L3, pull request #123 (kiểm thử 561/561): kế hoạch ngân sách theo ngành hàng cấp 1, kho, tháng; số còn được mua; kiểm tra ngân sách đơn mua và luồng duyệt vượt ngân sách; phiếu điều chỉnh; menu phẳng trong mini app Mua hàng.
 - Trình nghiệm thu CONG_VIEC_22 (thành phần Kinh doanh trên ứng dụng VComm, THAY_DOI_26, 28) lát L0 đến L4, pull request #122 (kiểm thử 556/556); người dùng yêu cầu đo hiệu năng (đạt) và sửa hai giới hạn, sau đó nghiệm thu bản cuối (kiểm thử 557/557). Rà soát độc lập sửa 1 lỗi Trung bình (ước lượng người phụ trách cho đơn cũ trong database migration 0114), 6 lỗi Thấp; không cấp mã LOI.
 - CONG_VIEC_56 xong lát L2 (nộp thuế hải quan, tiền chậm nộp, nhận hoàn thuế); CONG_VIEC_55 xong lát L2 (voucher liên kết).
@@ -28,6 +37,15 @@
 - CONG_VIEC_49 (Cộng đồng phần 1, MODULE_10) trình nghiệm thu, pull request #97 (kiểm thử 346/346). L1 cộng tác viên theo đường dẫn sản phẩm (7 ngày từ lần bấm cuối, mức hoa hồng thứ sáu) và thưởng giới thiệu bạn bè một lần vào ví hoa hồng; L2 mua chung bậc giá theo tổng số lượng, trả trước 100%, chốt nhóm hoàn chênh lệch hoặc toàn bộ vào ví mua sắm riêng, khóa ví mua sắm toàn hệ thống và chặn từng ví theo tài khoản (THAY_DOI_22); L3 bảng tin mở (bài đăng có ảnh, sản phẩm; đánh giá đã mua hàng; bình luận; thích; báo cáo tự ẩn tạm ở 5 báo cáo; ẩn, khóa tài khoản, từ cấm, bài VComm ghim tối đa 3). Rà soát mã sửa lỗi "hiện lại, bỏ qua báo cáo" với nội dung đang hiện.
 
 ### Quyết định
+
+- Phát hành 0.7.0 gồm CONG_VIEC_55 và 61 khi CONG_VIEC_61 được nghiệm thu (dành database migration 0144 cho việc gộp ràng buộc kiểm tra dùng chung nếu cần); CONG_VIEC_52, 56 vào bản sau khi đối chiếu luật ngày 13/11.
+- CONG_VIEC_61: chốt phạm vi ở L1, L2; tách L3 (khách hàng do đối tác tạo, giao thẳng người nhận cuối) thành CONG_VIEC_66 (MODULE_16), L4 (điểm thưởng tại đối tác) thành CONG_VIEC_67 và gộp vào MODULE_12 (Cửa hàng liên kết phần 2). Đơn Open API theo cài đặt "Cho phép lập đơn bán tay có hàng hóa" (QUYTAC_NGHIEPVU_276, không đổi quy tắc); người lập đơn Open API là người cấp khóa.
+- Tạm dừng mở phiên cho CONG_VIEC_62 đến 67 đến khi các phiên đang chạy hoàn tất.
+- CONG_VIEC_59: người dùng đồng ý dùng node-forge 1.4.3 thay 1.4.2 (bản 1.4.2 có 3 lỗ hổng Trung bình, 1 Thấp, đã vá ở 1.4.3).
+- CONG_VIEC_55: khi xem trước, người dùng chọn thêm API GET /affiliate/transactions (thuộc API_213), thẻ Giao dịch MAN_HINH_180 và nguồn bút toán riêng affiliate_transaction_cancel, affiliate_voucher_expire (ghi THAY_DOI_29).
+- CONG_VIEC_60: một điểm chung do công ty vận hành sàn phát hành; chi phí khi tích ở công ty A dùng ở công ty B cài một trong ba kiểu cho cả tập đoàn (nơi tích chịu, nơi dùng chịu, công ty vận hành sàn chịu); đối soát nội bộ hằng tháng có hai bên xác nhận, bù trừ 1368/3368; chống gian lận 4 quy tắc (số tài khoản trên một thiết bị, đổi điểm dồn dập, tích rồi trả hàng lặp lại, giao dịch bất thường theo nhân viên), mức xử lý cấu hình (cảnh báo, chặn giao dịch, chặn và khóa ví). Người dùng duyệt đặc tả, bản mẫu. Tách đối tác liên minh điểm ngoài tập đoàn thành CONG_VIEC_65.
+- CONG_VIEC_59: lớp kết nối ký số từ xa có bộ giả lập; ký công văn đi, hợp đồng trong kho, hợp đồng lao động, mọi tệp PDF; người ký cá nhân cộng chữ ký số công ty; đối tác ký từ xa qua đường dẫn; người dùng duyệt thư viện @signpdf/signpdf, @signpdf/placeholder-pdf-lib, @signpdf/utils 4.0.0, pdf-lib 1.17.1, node-forge 1.4.2, @types/node-forge 1.3.14.
+- CONG_VIEC_61: 4 nhóm phạm vi (sản phẩm, giá, tồn; đơn bán; khách hàng do đối tác tạo; điểm thưởng); khóa theo công ty và đối tác; 60 yêu cầu mỗi phút chỉnh theo khóa; nhật ký gọi không ghi nội dung, giữ 90 ngày; đơn vào trạng thái Nháp, bắt buộc mã đơn đối tác.
 
 - Người dùng quyết định phát hành 0.6.0 ngay với CONG_VIEC_22, 53 (lát L6), 57, 58; CONG_VIEC_52 vào bản sau khi đối chiếu xong Nghị định 30/2020/NĐ-CP. Dành database migration 0120 cho bản phát hành 0.6.0. Người dùng đồng ý CONG_VIEC_56 lát L2.
 - CONG_VIEC_22: người dùng giữ nút Chia sẻ dùng bảng chia sẻ chung của máy, không làm nút riêng cho từng ứng dụng nhắn tin, mạng xã hội.
@@ -56,6 +74,7 @@
 
 ### Vấn đề tồn đọng
 
+- Tài liệu 16 còn mô tả cột cũ `retail.sales.buyer_user_id` là dành cho CONG_VIEC_53 lát L6, trong khi L6 dùng `loyalty_user_id`; sửa ở lần cập nhật tài liệu sau.
 - CONG_VIEC_57 (không chặn): việc nền xử lý tối đa 500 đơn mỗi lần; phương thức Thanh toán khi nhận tại trạm cài sẵn ở trạng thái tắt; trạm nhận thông báo cả đơn trả trước còn chờ thanh toán. Khi gộp phát hành: 0110 định nghĩa lại ràng buộc thu hộ của đơn VComm, 0111 định nghĩa lại ràng buộc trạng thái (thêm `ready_for_pickup`).
 - CONG_VIEC_53 L6: tin nhắn kích hoạt Smart OTP dùng mẫu mã xác thực đăng nhập hiện có (chưa có mẫu riêng); bản web của ứng dụng giữ khóa trong phiên trình duyệt.
 - Khi gộp phát hành: CONG_VIEC_55 (database migration 0103) và CONG_VIEC_53 L6 cùng sửa ràng buộc nguồn của sổ điểm; CONG_VIEC_57 (0110, 0111) định nghĩa lại ràng buộc trạng thái và thu hộ của đơn VComm; phải gộp đủ giá trị.

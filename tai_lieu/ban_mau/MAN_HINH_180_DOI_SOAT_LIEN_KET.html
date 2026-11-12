@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_180 Đối soát và giao dịch liên kết – VComm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="cua_hang_lien_ket.css">
+</head>
+<body data-man-hinh="180" data-khu="crm">
+<div id="thanh-tren"></div>
+<div class="than">
+  <div id="menu"></div>
+  <main class="noi-dung">
+    <h1>Đối soát và giao dịch liên kết</h1>
+    <div>
+      <div class="cac-the" role="tablist">
+        <button type="button" data-the="doi-soat" class="chon">Đối soát <span class="huy-hieu">1</span></button>
+        <button type="button" data-the="giao-dich">Giao dịch</button>
+        <button type="button" data-the="bao-cao">Báo cáo</button>
+        <button type="button" data-the="canh-bao">Cảnh báo bất thường <span class="huy-hieu">3</span></button>
+      </div>
+
+      <section data-noi-dung-the="doi-soat" class="vung-the">
+        <div class="bo-loc"><select class="o-nhap" aria-label="Tuần"><option>Tuần 03/11 – 09/11/2026</option></select><select class="o-nhap" aria-label="Trạng thái"><option>Trạng thái: tất cả</option><option>Chờ xác nhận</option><option>Khiếu nại</option><option>Đã xác nhận</option><option>Đã thanh toán</option></select></div>
+        <div class="khung-bang"><table><thead><tr><th>Số</th><th>Cửa hàng</th><th class="so">A tích</th><th class="so">B dùng</th><th class="so">C voucher</th><th class="so">D + E phí</th><th class="so">Còn lại</th><th>Trạng thái</th></tr></thead><tbody>
+          <tr><td data-nhan="Số"><a href="#kn">DS-000048</a></td><td data-nhan="Cửa hàng">Tiệm bánh Mây</td><td data-nhan="A tích" class="so">2.100.000</td><td data-nhan="B dùng" class="so">900.000</td><td data-nhan="C voucher" class="so">0</td><td data-nhan="D + E phí" class="so">49.500</td><td data-nhan="Còn lại" class="so">CH trả 1.249.500</td><td data-nhan="Trạng thái"><span class="nhan loi">Khiếu nại</span></td></tr>
+          <tr><td data-nhan="Số"><a href="#">DS-000047</a></td><td data-nhan="Cửa hàng">Cà phê Hạt Nâu</td><td data-nhan="A tích" class="so">6.420.000</td><td data-nhan="B dùng" class="so">4.800.000</td><td data-nhan="C voucher" class="so">300.000</td><td data-nhan="D + E phí" class="so">422.400</td><td data-nhan="Còn lại" class="so">CH trả 1.742.400</td><td data-nhan="Trạng thái"><span class="nhan thong-tin">Chờ xác nhận</span></td></tr>
+          <tr><td data-nhan="Số"><a href="#">DS-000046</a></td><td data-nhan="Cửa hàng">Nhà thuốc An Tâm</td><td data-nhan="A tích" class="so">800.000</td><td data-nhan="B dùng" class="so">1.500.000</td><td data-nhan="C voucher" class="so">120.000</td><td data-nhan="D + E phí" class="so">0</td><td data-nhan="Còn lại" class="so">VComm trả 820.000</td><td data-nhan="Trạng thái"><span class="nhan canh-bao">Đã xác nhận</span><div class="chu-thich">Chờ phiếu chi</div></td></tr>
+        </tbody></table></div>
+        <div class="the" id="kn"><h3>Khiếu nại DS-000048 · Tiệm bánh Mây</h3>
+          <p>"Giao dịch LK-2611-000250 khách trả hàng sau khi tuần đã chốt, đề nghị trừ 45.000 đ tiền điểm tích."</p>
+          <div class="hai-cot-deu"><div class="truong"><label for="dc">Điều chỉnh tiền (đ, âm: giảm phải thu)</label><input id="dc" class="o-nhap" value="-45.000"></div><div class="truong"><label for="ld">Lý do</label><input id="ld" class="o-nhap" value="Khách trả hàng LK-2611-000250; đã lập phiếu điều chỉnh điểm DD-000031"></div></div>
+          <div class="truong"><label for="tl">Trả lời cửa hàng</label><textarea id="tl" class="o-nhap" rows="2">Chấp nhận, đã trừ 45.000 đ.</textarea></div>
+          <button type="button" class="nut chinh" data-thong-bao="Đã trả lời và chốt lại DS-000048; chờ cửa hàng xác nhận.">Trả lời và chốt lại</button>
+        </div>
+      </section>
+
+      <section data-noi-dung-the="giao-dich" class="vung-the" hidden>
+        <div class="bo-loc"><input class="o-nhap" aria-label="Tìm" placeholder="Số giao dịch, cửa hàng"><select class="o-nhap" aria-label="Cách"><option>Cách: tất cả</option><option>Mã QR cửa hàng</option><option>Mã thành viên</option><option>Số điện thoại</option></select><select class="o-nhap" aria-label="Trạng thái"><option>Trạng thái: tất cả</option></select></div>
+        <div class="khung-bang"><table><thead><tr><th>Số</th><th>Thời điểm</th><th>Cửa hàng · điểm bán</th><th>Khách</th><th class="so">Hóa đơn</th><th class="so">Điểm dùng</th><th class="so">Điểm tích</th><th>Trạng thái</th></tr></thead><tbody>
+          <tr><td data-nhan="Số"><a href="#">LK-2611-000317</a></td><td data-nhan="Thời điểm">11/11 10:42</td><td data-nhan="Cửa hàng · điểm bán">Cà phê Hạt Nâu · Lê Lợi</td><td data-nhan="Khách"><a href="#">0903 *** 789</a></td><td data-nhan="Hóa đơn" class="so">450.000</td><td data-nhan="Điểm dùng" class="so">50</td><td data-nhan="Điểm tích" class="so">11</td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Hoàn tất</span></td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section data-noi-dung-the="bao-cao" class="vung-the" hidden>
+        <div class="bo-loc"><select class="o-nhap" aria-label="Kỳ"><option>Tháng 11/2026</option></select></div>
+        <div class="khung-bang"><table><thead><tr><th>Cửa hàng</th><th class="so">Giao dịch</th><th class="so">Hóa đơn</th><th class="so">Tiền điểm tích</th><th class="so">Tiền điểm dùng</th><th class="so">Voucher</th><th class="so">Phí</th><th class="so">Khách mới</th></tr></thead><tbody>
+          <tr><td data-nhan="Cửa hàng">Cà phê Hạt Nâu</td><td data-nhan="Giao dịch" class="so">1.284</td><td data-nhan="Hóa đơn" class="so">231.400.000</td><td data-nhan="Tiền điểm tích" class="so">6.920.000</td><td data-nhan="Tiền điểm dùng" class="so">3.150.000</td><td data-nhan="Voucher" class="so">147</td><td data-nhan="Phí" class="so">252.000</td><td data-nhan="Khách mới" class="so">148</td></tr>
+          <tr><td data-nhan="Cửa hàng">Tiệm bánh Mây</td><td data-nhan="Giao dịch" class="so">402</td><td data-nhan="Hóa đơn" class="so">58.900.000</td><td data-nhan="Tiền điểm tích" class="so">2.630.000</td><td data-nhan="Tiền điểm dùng" class="so">1.100.000</td><td data-nhan="Voucher" class="so">21</td><td data-nhan="Phí" class="so">55.000</td><td data-nhan="Khách mới" class="so">60</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section data-noi-dung-the="canh-bao" class="vung-the" hidden>
+        <div class="bo-loc"><select class="o-nhap" aria-label="Loại cảnh báo"><option>Mọi loại</option><option>Một khách ≥ 3 giao dịch/ngày tại một cửa hàng</option><option>Nhiều hóa đơn sát trần</option><option>Tỷ lệ hủy ≥ 20 %</option><option>Thu ngân bị từ chối nhiều</option></select></div>
+        <div class="khung-bang"><table><thead><tr><th>Loại</th><th>Cửa hàng</th><th>Số liệu (7 ngày)</th><th></th></tr></thead><tbody>
+          <tr><td data-nhan="Loại"><span class="nhan canh-bao">Một khách nhiều giao dịch</span></td><td data-nhan="Cửa hàng">Tiệm bánh Mây</td><td data-nhan="Số liệu (7 ngày)">Khách 0977 *** 120: 5 giao dịch ngày 09/11</td><td data-nhan=""><a href="#">Xem giao dịch</a></td></tr>
+          <tr><td data-nhan="Loại"><span class="nhan canh-bao">Hóa đơn sát trần</span></td><td data-nhan="Cửa hàng">Tiệm bánh Mây</td><td data-nhan="Số liệu (7 ngày)">41 % giao dịch ≥ 80 % trần 2.000.000 đ</td><td data-nhan=""><a href="#">Xem giao dịch</a></td></tr>
+          <tr><td data-nhan="Loại"><span class="nhan canh-bao">Dư nợ ≥ 80 %</span></td><td data-nhan="Cửa hàng">Cà phê Hạt Nâu</td><td data-nhan="Số liệu (7 ngày)">41.200.000 / 50.000.000 đ</td><td data-nhan=""><a href="MAN_HINH_178_CUA_HANG_LIEN_KET.html">Xem cửa hàng</a></td></tr>
+        </tbody></table></div>
+      </section>
+    </div>
+  </main>
+</div>
+<script src="cua_hang_lien_ket.js"></script>
+</body>
+</html>
