@@ -3,7 +3,7 @@
 - Mô tả: Ký số tài liệu PDF trên hệ thống qua nhà cung cấp ký số từ xa (lớp kết nối chung, bộ giả lập để thử); trình ký tài liệu PDF bất kỳ cho nhiều người ký theo thứ tự (người trong công ty, chữ ký số của công ty, đối tác bên ngoài qua đường dẫn); kiểm tra chữ ký số trong tệp PDF; kho hợp đồng (mua, bán, dịch vụ, thuê, khác) có duyệt, ký số, phụ lục, nhắc hạn, phân quyền xem; gắn ký số vào công văn đi (CONG_VIEC_52) và hợp đồng lao động (CONG_VIEC_46).
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Đã lập trình xong L1, L2, L3 (người dùng duyệt từng điểm xem trước ngày 2026-11-12); chờ nghiệm thu. Còn tra nguyên văn căn cứ pháp lý (mục 3).
+- Trạng thái: Người dùng nghiệm thu ngày 2026-11-12 (pull request #132); chờ phát hành.
 - Mức: Lớn (nghiệp vụ mới, tích hợp dịch vụ ngoài, thêm thư viện, chạm ba module: Văn phòng số, Nhân sự, Quan hệ khách hàng).
 - Nguồn: tài liệu `01` mục 4 (MODULE_13: chữ ký số, kho hợp đồng); CONG_VIEC_52 mục 2 (ngoài phạm vi phần 1); CONG_VIEC_46 (ký số hợp đồng lao động để công việc sau); quyết định của người dùng ngày 2026-11-12 (mục 17).
 
@@ -25,7 +25,7 @@ Ngoài phạm vi (đề xuất công việc sau):
 
 ## 3. Căn cứ pháp lý
 
-Ngày 2026-11-12 chưa tra được nguyên văn (công cụ tra cứu văn bản pháp luật hết lượt trong ngày). Các văn bản dưới đây **phải tra nguyên văn, ghi Điều, khoản trước khi người dùng duyệt đặc tả**; chưa trích dẫn nội dung.
+Người dùng quyết định ngày 2026-11-12: không tra cứu nguyên văn căn cứ pháp lý cho công việc này (bỏ điều kiện tra trước khi duyệt, nghiệm thu). Bảng dưới chỉ là danh sách văn bản liên quan để tham khảo; tài liệu không trích dẫn Điều, khoản nào.
 
 | Văn bản | Nội dung cần đối chiếu |
 |---|---|
@@ -199,7 +199,7 @@ Ghi nhận khi lập trình (2026-11-12):
 - Chỗ mã khác phác thảo ở mục 8, 9 (ghi theo mã ở tài liệu 14, 16, 17): quyền, vai trò, loại chứng từ khai báo trong `apps/api/src/permissions/permission-catalog.ts`, không nằm trong database migration 0123; chỉ có sự kiện outbox `office.signing.completed` (Nhân sự nhận), kho hợp đồng và công văn đi nhận kết quả phiên ký trong cùng tiến trình; kho hợp đồng lọc "hợp đồng tôi liên quan" thay cho lọc theo người phụ trách; menu "Cài đặt ký số" hiện với `office.signing.manage`, người chỉ có `office.contract.manage` vào thẻ Loại hợp đồng qua nút trên MAN_HINH_215.
 - Công văn soạn bằng tệp: văn thư tải bản PDF đã ghi số, ký hiệu khi chọn Ký số (công văn soạn trên hệ thống thì hệ thống dựng bản PDF đã cấp số). Đang ký số thì chưa phát hành, chưa xác nhận ký thủ công hợp đồng lao động.
 
-- Căn cứ pháp lý chưa tra nguyên văn (mục 3): phải tra trước khi duyệt đặc tả.
+- Căn cứ pháp lý không tra nguyên văn theo quyết định của người dùng (mục 3); chưa đối chiếu điều khoản cụ thể của các văn bản liên quan.
 - Đối tác chỉ ký được khi có tài khoản ký số từ xa ở cùng nhà cung cấp mà công ty kết nối; đối tác dùng nhà cung cấp khác thì không ký qua đường dẫn được (cần phương án dự phòng, ví dụ đối tác tải lên bản đã ký số, nếu người dùng đồng ý).
 - Không kiểm tra thu hồi chứng thư, không có dấu thời gian của tổ chức cung cấp dịch vụ dấu thời gian: thời gian ký lấy theo đồng hồ hệ thống; chữ ký có thể không đạt yêu cầu lưu trữ dài hạn. Cần đánh giá theo nghị định về chữ ký điện tử khi tra luật.
 - Bộ giả lập không có giá trị pháp lý; môi trường chính thức cần nhà cung cấp thật.
