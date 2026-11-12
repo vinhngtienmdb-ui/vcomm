@@ -33,9 +33,10 @@ export function gatewayAdapter(code: string): PaymentGatewayAdapter | null {
 }
 
 export function gatewayConfigured(code: PaymentGatewayCode | string): boolean {
-  if (code === "cod") return true;
+  // Thu khi nhận hàng (đơn vị vận chuyển) và thu tại trạm (CONG_VIEC_57) không cần kết nối.
+  if (code === "cod" || code === "station") return true;
   return gatewayAdapter(code)?.configured() ?? false;
 }
 
 // Thanh toán trực tuyến: đơn chờ thanh toán, giữ hàng có hạn (QUYTAC_NGHIEPVU_165).
-export const isOnlineMethod = (method: PaymentMethodCode) => method !== "cod";
+export const isOnlineMethod = (method: PaymentMethodCode) => method !== "cod" && method !== "pay_at_station";

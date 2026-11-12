@@ -19,11 +19,12 @@ export function Muted({ children }: { children: ReactNode }) {
   return <Text style={styles.muted}>{children}</Text>;
 }
 
-export function Field({ label, error, ...input }: TextInputProps & { label: string; error?: string | undefined }) {
+export function Field({ label, error, style, ...input }: TextInputProps & { label: string; error?: string | undefined }) {
   return (
     <View style={{ gap: space[1] }}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput accessibilityLabel={label} style={[styles.input, error ? { borderColor: colors.error } : null]} placeholderTextColor={colors.textMuted} {...input} />
+      {/* Kiểu riêng (chiều cao ô nhiều dòng) gộp sau kiểu chung, không thay viền. */}
+      <TextInput accessibilityLabel={label} style={[styles.input, style, error ? { borderColor: colors.error } : null]} placeholderTextColor={colors.textMuted} {...input} />
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );

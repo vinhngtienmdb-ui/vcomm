@@ -1,6 +1,7 @@
 // Trả hàng theo hóa đơn bán lẻ (CONG_VIEC_53; CHUC_NANG_188; QUYTAC_NGHIEPVU_376, 377; API_197).
 // Nhập lại kho bằng phiếu nhận hàng trả lại của module Kho (giá vốn lúc xuất); bút toán, việc chờ xử lý hóa đơn điện tử chạy qua móc nối ghi sổ phiếu kho.
 import { Inject, Injectable } from "@nestjs/common";
+import { randomUUID } from "node:crypto";
 import type { createRetailReturnSchema, RetailPaymentMethod, RetailReturnableResponse, RetailReturnQuoteResponse, retailReturnQuoteSchema, RetailReturnResponse } from "contracts";
 import { sql } from "drizzle-orm";
 import type { z } from "zod";
@@ -11,6 +12,7 @@ import { CLOCK, type Clock } from "../common/clock";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Executor } from "../finance/debts.service";
 import { SalesDeliveriesService } from "../inventory/sales-deliveries.service";
+import { LoyaltyLedgerService, type ReturnResult } from "../loyalty/ledger.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { companyCurrency, ensureSequence } from "../purchasing/requisitions.service";
@@ -66,6 +68,7 @@ export class RetailReturnsService {
     private readonly sequences: NumberSequencesService,
     private readonly shifts: RetailShiftsService,
     private readonly deliveries: SalesDeliveriesService,
+    private readonly loyalty: LoyaltyLedgerService,
   ) {}
 
   private async sale(executor: Executor, companyId: string, saleId: string, lock = false): Promise<SaleRow> {
@@ -210,21 +213,47 @@ export class RetailReturnsService {
     return planned;
   }
 
-  async quote(actor: Actor, input: QuoteInput): Promise<RetailReturnQuoteResponse> {
-    return this.database.transaction(async (transaction) => {
-      const shift = await this.openShift(transaction, actor, input.shiftId);
-      const sale = await this.visibleSale(transaction, actor, input.saleId);
-      const blocked = this.blockedReason(sale, shift);
-      if (blocked) throw new ApiError("BUSINESS_RULE", blockedMessage[blocked]);
-      const planned = await this.plan(transaction, actor, sale, input.lines);
-      const goods = planned.reduce((sum, line) => sum + line.amount, 0);
-      return {
-        lines: planned.map((line) => ({ orderLineId: line.orderLineId, quantity: line.quantity, amount: trimDecimal(line.amount.toFixed(4)) })),
-        goodsAmount: trimDecimal(goods.toFixed(4)),
-        refundAmount: trimDecimal(goods.toFixed(4)),
-        currency: await companyCurrency(transaction, actor.companyId),
-      };
+  // Điểm của hóa đơn có khách VComm khi trả (lát L6; QUYTAC_NGHIEPVU_377): sổ cái điểm hoàn điểm đã dùng, thu hồi điểm đã tích theo tỷ lệ; tiền hoàn trừ phần điểm và tiền thiếu quy đổi.
+  private async loyaltyReturn(executor: Executor, actor: Actor, sale: SaleRow, returnId: string, goods: number): Promise<ReturnResult> {
+    return this.loyalty.returnWithin(executor, {
+      saleSourceType: "retail_sale",
+      saleSourceId: sale.id,
+      returnSourceId: returnId,
+      companyId: actor.companyId,
+      day: this.permissionService.today(),
+      returnedGoodsAmount: goods,
     });
+  }
+
+  async quote(actor: Actor, input: QuoteInput): Promise<RetailReturnQuoteResponse> {
+    // Tính thử phần điểm bằng chính sổ cái điểm trong giao dịch rồi hủy giao dịch, không ghi gì.
+    const rollback = new Error("rollback");
+    let result: RetailReturnQuoteResponse | null = null;
+    try {
+      await this.database.transaction(async (transaction) => {
+        const shift = await this.openShift(transaction, actor, input.shiftId);
+        const sale = await this.visibleSale(transaction, actor, input.saleId);
+        const blocked = this.blockedReason(sale, shift);
+        if (blocked) throw new ApiError("BUSINESS_RULE", blockedMessage[blocked]);
+        const planned = await this.plan(transaction, actor, sale, input.lines);
+        const goods = Number(planned.reduce((sum, line) => sum + line.amount, 0).toFixed(4));
+        const points = await this.loyaltyReturn(transaction, actor, sale, randomUUID(), goods);
+        result = {
+          lines: planned.map((line) => ({ orderLineId: line.orderLineId, quantity: line.quantity, amount: trimDecimal(line.amount.toFixed(4)) })),
+          goodsAmount: trimDecimal(goods.toFixed(4)),
+          refundAmount: trimDecimal(Math.max(goods - points.refundedPointsAmount - points.shortfallAmount, 0).toFixed(4)),
+          refundedPoints: points.refundedPoints,
+          refundedPointsAmount: String(points.refundedPointsAmount),
+          reversedPoints: points.reversedPoints,
+          shortfallAmount: String(points.shortfallAmount),
+          currency: await companyCurrency(transaction, actor.companyId),
+        };
+        throw rollback;
+      });
+    } catch (error) {
+      if (error !== rollback) throw error;
+    }
+    return result!;
   }
 
   // Phân dòng trả theo dòng phiếu xuất gốc (hàng theo lô có thể nhiều dòng phiếu cho một dòng đơn): theo serial nếu có, không thì lấp dần phần còn trả được.
@@ -279,13 +308,16 @@ export class RetailReturnsService {
       if (blocked) throw new ApiError("BUSINESS_RULE", blockedMessage[blocked]);
       const planned = await this.plan(transaction, actor, sale, input.lines);
       const goods = Number(planned.reduce((sum, line) => sum + line.amount, 0).toFixed(4));
-      if (Math.abs(goods - Number(input.expectedRefund)) > 0.00005) throw new ApiError("BUSINESS_RULE", "retailTotalChanged");
+      const returnId = randomUUID();
+      const points = await this.loyaltyReturn(transaction, actor, sale, returnId, goods);
+      const refund = Number(Math.max(goods - points.refundedPointsAmount - points.shortfallAmount, 0).toFixed(4));
+      if (Math.abs(refund - Number(input.expectedRefund)) > 0.00005) throw new ApiError("BUSINESS_RULE", "retailTotalChanged");
       const store = (await transaction.execute<{ cash_fund_id: string; bank_fund_id: string | null }>(sql`SELECT cash_fund_id, bank_fund_id FROM retail.stores WHERE id = ${shift.store_id}`)).rows[0]!;
       const fundId = input.refund.method === "cash" ? store.cash_fund_id : store.bank_fund_id;
       if (!fundId) throw new ApiError("BUSINESS_RULE", "retailNoBankFund");
       if (input.refund.method === "bank_transfer" && !input.refund.recipient) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { "refund.recipient": "required" } });
       // Hoàn tiền mặt không vượt tiền mặt đang có trong két theo hệ thống.
-      if (input.refund.method === "cash" && goods > Number(await this.shifts.expectedCash(transaction, shift)) + 0.00005) throw new ApiError("BUSINESS_RULE", "retailCashInsufficient");
+      if (input.refund.method === "cash" && refund > Number(await this.shifts.expectedCash(transaction, shift)) + 0.00005) throw new ApiError("BUSINESS_RULE", "retailCashInsufficient");
       const today = this.permissionService.today();
       const documentId = await this.deliveries.returnAsSystem(transaction, actor, {
         issueId: sale.stock_document_id,
@@ -294,26 +326,33 @@ export class RetailReturnsService {
         lines: await this.issueLines(transaction, sale, planned),
       });
       const documentNo = await this.sequences.next(actor.companyId, returnTypeCode, transaction);
-      const returnId = (
-        await transaction.execute<{ id: string }>(sql`
-        INSERT INTO retail.returns (company_id, store_id, register_id, shift_id, sale_id, document_no, returned_at, return_date, cashier_id, reason, stock_document_id, goods_amount,
+      await transaction.execute(sql`
+        INSERT INTO retail.returns (id, company_id, store_id, register_id, shift_id, sale_id, document_no, returned_at, return_date, cashier_id, reason, stock_document_id, goods_amount,
           refund_amount, client_key)
-        VALUES (${actor.companyId}, ${shift.store_id}, ${shift.register_id}, ${shift.id}, ${sale.id}, ${documentNo}, ${this.clock.now()}, ${today}::date, ${actor.userId}, ${input.reason},
-          ${documentId}, ${goods.toFixed(4)}::numeric, ${goods.toFixed(4)}::numeric, ${input.clientKey})
-        RETURNING id`)
-      ).rows[0]!.id;
+        VALUES (${returnId}, ${actor.companyId}, ${shift.store_id}, ${shift.register_id}, ${shift.id}, ${sale.id}, ${documentNo}, ${this.clock.now()}, ${today}::date, ${actor.userId},
+          ${input.reason}, ${documentId}, ${goods.toFixed(4)}::numeric, ${refund.toFixed(4)}::numeric, ${input.clientKey})`);
       for (const [index, line] of planned.entries()) {
         await transaction.execute(sql`
           INSERT INTO retail.return_lines (return_id, line_no, order_line_id, base_quantity, amount)
           VALUES (${returnId}, ${index + 1}, ${line.orderLineId}, ${line.baseQuantity.toFixed(4)}::numeric, ${line.amount.toFixed(4)}::numeric)`);
       }
-      if (goods > 0) {
+      let lineNo = 0;
+      if (refund > 0) {
         await transaction.execute(sql`
           INSERT INTO retail.return_refunds (return_id, line_no, method, amount, fund_id, bank_reference, recipient)
-          VALUES (${returnId}, 1, ${input.refund.method}, ${goods.toFixed(4)}::numeric, ${fundId}, ${input.refund.bankReference}, ${input.refund.method === "cash" ? null : input.refund.recipient})`);
+          VALUES (${returnId}, ${++lineNo}, ${input.refund.method}, ${refund.toFixed(4)}::numeric, ${fundId}, ${input.refund.bankReference}, ${input.refund.method === "cash" ? null : input.refund.recipient})`);
+      }
+      if (points.refundedPoints > 0 && points.refundedPointsAmount > 0) {
+        await transaction.execute(sql`
+          INSERT INTO retail.return_refunds (return_id, line_no, method, amount, points) VALUES (${returnId}, ${++lineNo}, 'points', ${points.refundedPointsAmount}::numeric, ${points.refundedPoints})`);
       }
       await this.auditService.record(
-        { ...retailAudit(actor, "retail_return"), action: "retail_return.create", entityId: returnId, afterData: { documentNo, saleId: sale.id, goods, refund: input.refund } },
+        {
+          ...retailAudit(actor, "retail_return"),
+          action: "retail_return.create",
+          entityId: returnId,
+          afterData: { documentNo, saleId: sale.id, goods, refund: input.refund, refundAmount: refund, points },
+        },
         transaction,
       );
       return returnId;

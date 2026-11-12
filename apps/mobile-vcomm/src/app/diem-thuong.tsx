@@ -1,8 +1,9 @@
-// MAN_HINH_151 Điểm của tôi (CONG_VIEC_51; CHUC_NANG_179; API_177; QUYTAC_NGHIEPVU_344, 350, 352): số dư, giá trị quy đổi, điểm sắp hết hạn, lịch sử.
+// MAN_HINH_151 Điểm của tôi (CONG_VIEC_51; Smart OTP dùng điểm tại quầy: CONG_VIEC_53 lát L6; CHUC_NANG_179; API_177; QUYTAC_NGHIEPVU_344, 350, 352): số dư, giá trị quy đổi, điểm sắp hết hạn, lịch sử.
 import type { BuyerLoyaltyResponse, LoyaltyEntryItem, PageResponse } from "contracts";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
+import { SmartOtpCard } from "@/components/SmartOtpCard";
 import { Button, Card, Loading, Muted, Notice, Screen, Title } from "@/components/ui";
 import { api, ApiFailure } from "@/lib/api";
 import { money, shortDate, translator } from "@/lib/i18n";
@@ -77,6 +78,7 @@ export default function LoyaltyScreen() {
             {summary.expiringPoints > 0 && summary.expiringOn ? (
               <Notice tone="warning" text={t("loyaltyExpiring", { points: points(summary.expiringPoints), date: date(summary.expiringOn) })} />
             ) : null}
+            <SmartOtpCard />
             <Card>
               <Text style={{ fontWeight: "700", color: colors.text }}>{t("loyaltyHistory")}</Text>
               {entries.data.length === 0 ? <Muted>{t("loyaltyEmpty")}</Muted> : null}

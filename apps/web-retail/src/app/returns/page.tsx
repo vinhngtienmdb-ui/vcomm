@@ -260,6 +260,16 @@ function ReturnForm({ shiftId, initialSale }: { shiftId: string; initialSale: st
                 <span>{t("total")}</span>
                 <strong className="tong-lon">{quote ? money(quote.refundAmount) : "—"}</strong>
               </div>
+              {quote && (quote.refundedPoints > 0 || quote.reversedPoints > 0) && (
+                <span className="chu-thich">
+                  {t("pointsEffect", {
+                    goods: money(quote.goodsAmount),
+                    refunded: quote.refundedPoints.toLocaleString("vi-VN"),
+                    reversed: quote.reversedPoints.toLocaleString("vi-VN"),
+                    shortfall: money(quote.shortfallAmount),
+                  })}
+                </span>
+              )}
             </div>
             <div style={{ display: "grid", gap: "var(--khoang-2)", flex: "1 1 280px" }}>
               <label>

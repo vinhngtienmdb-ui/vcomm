@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MAN_HINH_191 Cài đặt trạm – VComm</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" />
+    <link rel="stylesheet" href="chung.css" />
+    <link rel="stylesheet" href="ban_le.css" />
+  </head>
+  <body>
+    <header class="thanh-tren"><span class="logo">VComm</span><span>Bán lẻ · Cài đặt cửa hàng</span></header>
+    <div class="trang">
+      <h1>Cửa hàng Thủ Đức · Trạm giao hàng</h1>
+      <section class="the" style="display: grid; gap: var(--khoang-3)">
+        <div class="luoi-2">
+          <label class="truong"
+            >Loại trạm<select>
+              <option>Cửa hàng (bán tại quầy)</option>
+              <option>Điểm giao nhận (không bán tại quầy)</option>
+            </select></label
+          >
+          <label class="truong">Số ngày giữ hàng<input value="3" inputmode="numeric" /><span class="chu-phu">1 đến 14 ngày, tính đến 23:59 của ngày cuối</span></label>
+        </div>
+        <div style="display: flex; gap: var(--khoang-5); flex-wrap: wrap">
+          <label><input type="checkbox" checked /> Nhận tại trạm</label>
+          <label><input type="checkbox" checked /> Trạm giao tận nơi</label>
+        </div>
+        <h3>Thông tin hiện cho khách</h3>
+        <div class="luoi-2">
+          <label class="truong">Tên hiển thị<input value="VComm Thủ Đức" /></label>
+          <label class="truong">Số điện thoại<input value="028 3896 1234" /></label>
+          <label class="truong"
+            >Tỉnh<select>
+              <option>Thành phố Hồ Chí Minh</option>
+            </select></label
+          >
+          <label class="truong"
+            >Xã<select>
+              <option>Phường Linh Xuân</option>
+            </select></label
+          >
+          <label class="truong">Địa chỉ chi tiết<input value="45 Hoàng Diệu 2" /></label>
+          <label class="truong">Giờ mở cửa<input value="7:00 – 21:00 mỗi ngày" /></label>
+        </div>
+        <h3>Trạm giao tận nơi</h3>
+        <div class="luoi-2">
+          <label class="truong">Phí giao mỗi đơn<input value="15.000" style="text-align: right" /></label>
+          <label class="truong">Miễn phí giao khi tiền hàng từ<input value="300.000" style="text-align: right" /><span class="chu-phu">Để trống: không miễn</span></label>
+        </div>
+        <label class="truong">Xã được giao (12)<input value="Linh Xuân, Linh Trung, Linh Tây, Tam Bình, Hiệp Bình…" /></label>
+        <div class="khoi canh-bao">Chỉ cửa hàng, điểm giao nhận của công ty vận hành sàn VComm bật được trạm. Tắt trạm khi còn đơn chưa kết thúc: đơn cũ vẫn xử lý, chỉ chặn đơn mới.</div>
+        <div style="display: flex; gap: var(--khoang-2)"><button class="nut chinh" type="button">Lưu</button><button class="nut phu" type="button">Hủy</button></div>
+      </section>
+    </div>
+    <div class="ghi-chu-ban-mau">Bản mẫu MAN_HINH_191 · phần thêm vào ngăn kéo cài đặt cửa hàng MAN_HINH_166 · dữ liệu giả.</div>
+  </body>
+</html>

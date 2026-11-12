@@ -12,7 +12,7 @@ import { users } from "../database/schema";
 import { MessagingService } from "../integrations/messaging.service";
 import { AuthService, type ClientInfo, type IssuedSession, type SessionClientType } from "./auth.service";
 
-export type OtpPurpose = "login" | "register" | "password_reset";
+export type OtpPurpose = "login" | "register" | "password_reset" | "smart_otp";
 
 const lifetimeMinutes = 5;
 const maximumWrongCodes = 5;

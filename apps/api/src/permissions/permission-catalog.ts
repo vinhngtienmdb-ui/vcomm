@@ -107,6 +107,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   // CONG_VIEC_45: tờ khai, chi phí nhập khẩu.
   { code: "purchasing.import.view", appCode: "purchasing", nameVi: "Xem tờ khai, chi phí nhập khẩu", nameEn: "View import declarations and landed costs", isSensitive: false },
   { code: "purchasing.import.manage", appCode: "purchasing", nameVi: "Lập, ghi sổ tờ khai, chi phí nhập khẩu", nameEn: "Manage import declarations and landed costs", isSensitive: false },
+  // CONG_VIEC_58 (QUYTAC_NGHIEPVU_453).
+  { code: "purchasing.budget.view", appCode: "purchasing", nameVi: "Xem ngân sách mua", nameEn: "View purchase budgets", isSensitive: false },
+  { code: "purchasing.budget.manage", appCode: "purchasing", nameVi: "Lập, điều chỉnh ngân sách mua", nameEn: "Manage purchase budgets", isSensitive: false },
   // CONG_VIEC_08: Bán hàng (MODULE_05, phần 1).
   { code: "sales.order.view", appCode: "sales", nameVi: "Xem đơn bán", nameEn: "View sales orders", isSensitive: false },
   { code: "sales.order.manage", appCode: "sales", nameVi: "Lập, sửa, gửi, hủy, đóng đơn bán", nameEn: "Manage sales orders", isSensitive: false },
@@ -139,6 +142,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "retail.return", appCode: "retail", nameVi: "Trả hàng theo hóa đơn bán lẻ", nameEn: "Process retail returns", isSensitive: false },
   { code: "retail.shift.manage", appCode: "retail", nameVi: "Xem mọi ca, đóng ca của người khác", nameEn: "View all shifts and close shifts of others", isSensitive: false },
   { code: "retail.setup", appCode: "retail", nameVi: "Cài đặt cửa hàng, quầy", nameEn: "Set up stores and registers", isSensitive: false },
+  // CONG_VIEC_57: đơn trực tuyến tại trạm giao hàng O2O.
+  { code: "retail.o2o", appCode: "retail", nameVi: "Xử lý đơn trực tuyến tại trạm", nameEn: "Handle online orders at stations", isSensitive: false },
+  { code: "retail.o2o.deliver", appCode: "retail", nameVi: "Giao đơn trực tuyến tận nơi từ trạm", nameEn: "Deliver online orders from stations", isSensitive: false },
   // CONG_VIEC_46: Nhân sự phần 1 (MODULE_08). Dữ liệu cá nhân: mọi quyền là nhạy cảm.
   { code: "hr.employee.view", appCode: "hr", nameVi: "Xem hồ sơ nhân sự", nameEn: "View employee records", isSensitive: true },
   { code: "hr.employee.manage", appCode: "hr", nameVi: "Lập, sửa hồ sơ nhân sự, quá trình công tác, nghỉ việc", nameEn: "Manage employee records", isSensitive: true },
@@ -218,6 +224,8 @@ const companyAdminPermissions = [
   "purchasing.settings.manage",
   "purchasing.import.view",
   "purchasing.import.manage",
+  "purchasing.budget.view",
+  "purchasing.budget.manage",
   "sales.order.view",
   "sales.order.manage",
   "sales.settings.manage",
@@ -244,6 +252,8 @@ const companyAdminPermissions = [
   "retail.return",
   "retail.shift.manage",
   "retail.setup",
+  "retail.o2o",
+  "retail.o2o.deliver",
   ...hrPermissions,
   ...hrRecruitmentPermissions,
 ];
@@ -301,6 +311,7 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "purchasing.order.manage",
       "purchasing.import.view",
       "purchasing.import.manage",
+      "purchasing.budget.view",
       "crm.access",
       "crm.partner.view",
       "crm.partner.manage",
@@ -411,8 +422,15 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     ],
   },
   // CONG_VIEC_53: vai trò tại cửa hàng bán lẻ, thường gán ở phạm vi chi nhánh của cửa hàng.
-  { code: "cashier", nameVi: "Thu ngân", nameEn: "Cashier", permissionCodes: ["retail.access", "retail.sale"] },
-  { code: "store_manager", nameVi: "Cửa hàng trưởng", nameEn: "Store manager", permissionCodes: ["retail.access", "retail.sale", "retail.return", "retail.shift.manage"] },
+  { code: "cashier", nameVi: "Thu ngân", nameEn: "Cashier", permissionCodes: ["retail.access", "retail.sale", "retail.o2o"] },
+  {
+    code: "store_manager",
+    nameVi: "Cửa hàng trưởng",
+    nameEn: "Store manager",
+    permissionCodes: ["retail.access", "retail.sale", "retail.return", "retail.shift.manage", "retail.o2o", "retail.o2o.deliver"],
+  },
+  // CONG_VIEC_57: chỉ giao đơn trực tuyến, mở ca giữ tiền thu khi giao, không bán tại quầy.
+  { code: "station_courier", nameVi: "Nhân viên giao hàng trạm", nameEn: "Station courier", permissionCodes: ["retail.access", "retail.o2o.deliver"] },
   { code: "partner_manager", nameVi: "Quản lý đối tác", nameEn: "Partner manager", permissionCodes: ["crm.access", "crm.partner.view", "crm.partner.manage"] },
   // CONG_VIEC_46 (tài liệu 08): gán ở phạm vi công ty.
   { code: "hr_manager", nameVi: "Quản lý nhân sự", nameEn: "HR manager", permissionCodes: ["hr.access", ...hrPermissions, ...hrRecruitmentPermissions, "platform.proposal.create"] },
@@ -450,6 +468,10 @@ export const documentTypeCatalog = [
   { code: "purchasing.order", appCode: "purchasing", nameVi: "Đơn mua", nameEn: "Purchase order", requiresApproval: true },
   // CONG_VIEC_45: chứng từ chi phí nhập khẩu có hóa đơn gốc, không đi luồng duyệt; chỉ dùng dãy số.
   { code: "purchasing.landed_cost", appCode: "purchasing", nameVi: "Chứng từ chi phí nhập khẩu", nameEn: "Landed cost", requiresApproval: false },
+  // CONG_VIEC_58 (QUYTAC_NGHIEPVU_445, 448, 452).
+  { code: "purchasing.budget_plan", appCode: "purchasing", nameVi: "Kế hoạch ngân sách mua", nameEn: "Purchase budget plan", requiresApproval: true },
+  { code: "purchasing.budget_adjustment", appCode: "purchasing", nameVi: "Điều chỉnh ngân sách mua", nameEn: "Purchase budget adjustment", requiresApproval: true },
+  { code: "purchasing.order_over_budget", appCode: "purchasing", nameVi: "Đơn mua vượt ngân sách", nameEn: "Over-budget purchase order", requiresApproval: true },
   { code: "sales.order", appCode: "sales", nameVi: "Đơn bán", nameEn: "Sales order", requiresApproval: true },
   { code: "sales.promotion", appCode: "sales", nameVi: "Chương trình khuyến mãi", nameEn: "Promotion", requiresApproval: true },
   { code: "inventory.sales_issue", appCode: "inventory", nameVi: "Phiếu xuất giao hàng", nameEn: "Sales delivery", requiresApproval: false },

@@ -1,10 +1,10 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Quy trình chính, phụ, ngoại lệ; điều kiện bắt đầu, kết thúc; trạng thái và chuyển trạng thái.
-- Phiên bản: 1.20
-- Ngày cập nhật: 2026-11-11
+- Phiên bản: 1.21
+- Ngày cập nhật: 2026-11-12
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm luồng 40 (đơn bán dịch vụ lập tay), luồng 41 (giao dịch nội bộ dịch vụ); Luồng 9, 10, 12, 13, 14 bổ sung; đánh dấu Luồng 29 (CONG_VIEC_17) đã bỏ, Luồng 33 (CONG_VIEC_21) đã tắt; CONG_VIEC_50 (2026-11-11): thêm Luồng 49 xem và xuất báo cáo quản trị của MODULE_15; CONG_VIEC_53 (2026-11-11), THAY_DOI_24: thêm luồng 43 (bán, trả hàng, đóng ca tại quầy của MODULE_14 phần 1), trạng thái ca thu ngân; phần điểm tại quầy chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm luồng 44 (cộng đồng: cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, khóa và chặn ví, bảng tin và kiểm duyệt; luồng con 44.1 đến 44.5), trạng thái hồ sơ cộng tác viên, nhóm mua chung, đơn mua chung, bài đăng và bình luận
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm luồng 40 (đơn bán dịch vụ lập tay), luồng 41 (giao dịch nội bộ dịch vụ); Luồng 9, 10, 12, 13, 14 bổ sung; đánh dấu Luồng 29 (CONG_VIEC_17) đã bỏ, Luồng 33 (CONG_VIEC_21) đã tắt; CONG_VIEC_50 (2026-11-11): thêm Luồng 49 xem và xuất báo cáo quản trị của MODULE_15; CONG_VIEC_53 (2026-11-11), THAY_DOI_24: thêm luồng 43 (bán, trả hàng, đóng ca tại quầy của MODULE_14 phần 1), trạng thái ca thu ngân; phần điểm tại quầy chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm luồng 44 (cộng đồng: cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, khóa và chặn ví, bảng tin và kiểm duyệt; luồng con 44.1 đến 44.5), trạng thái hồ sơ cộng tác viên, nhóm mua chung, đơn mua chung, bài đăng và bình luận; CONG_VIEC_58 (2026-11-12): thêm Luồng 55 kế hoạch mua theo ngân sách của MODULE_14 phần 3 (lập, duyệt kế hoạch; kiểm tra ngân sách khi lập, gửi duyệt đơn mua; phiếu điều chỉnh), trạng thái kế hoạch ngân sách mua, phiếu điều chỉnh ngân sách; CONG_VIEC_57 (2026-11-12): thêm luồng 53 (đơn VComm nhận tại trạm hoặc trạm giao: đặt đơn có trạm, soạn, sẵn sàng, giao tại trạm, trạm giao, hết hạn giữ, đóng ca, trả hàng tại trạm của MODULE_14 phần 2), trạng thái đơn của trạm (thêm Sẵn sàng nhận)
 
 ## MODULE_01 Nền tảng
 
@@ -865,6 +865,58 @@ Trạng thái ca thu ngân:
 | Đang mở | Người mở ca hoặc người quản lý ca đóng ca (lập chứng từ quỹ) | Đã đóng (`closed`) |
 
 Ca đã đóng không sửa, không mở lại. Hóa đơn bán lẻ, phiếu trả hàng bán lẻ không có trạng thái (ghi xong là hoàn tất, không sửa, không hủy).
+
+## MODULE_14 Bán lẻ tại quầy và trạm giao hàng (phần 2: Trạm giao hàng O2O, CONG_VIEC_57)
+
+### Luồng 53. Đơn VComm nhận tại trạm hoặc trạm giao
+
+- Bắt đầu: quản trị (`retail.setup`) của công ty vận hành sàn đã cài đặt trạm cho cửa hàng hoặc điểm giao nhận: bật nhận tại trạm hoặc trạm giao, thông tin hiện cho khách, số ngày giữ hàng; trạm giao có xã được giao, phí giao, mức miễn phí (MAN_HINH_191; QUYTAC_NGHIEPVU_418 đến 420). Người mua mở màn hình Đặt hàng trên ứng dụng VComm (MAN_HINH_192).
+- Các bước đặt hàng:
+  1. Người mua chọn hàng, chọn địa chỉ trong sổ địa chỉ (bắt buộc), chọn cách nhận "Giao qua đơn vị vận chuyển", "Nhận tại trạm" hoặc "Trạm giao tận nơi" (QUYTAC_NGHIEPVU_421).
+  2. Với cách nhận của trạm, hệ thống hiện trạm đang bật cách nhận đó, kho trạm đủ tồn khả dụng cho mọi dòng (gồm hàng tặng), trạm giao chỉ khi có xã của địa chỉ; cùng xã, cùng tỉnh trước, lọc theo tỉnh. Không trạm nào đủ hàng thì chỉ cho chọn đơn vị vận chuyển.
+  3. Người mua chọn trạm; hệ thống tính giá, khuyến mãi theo kênh VComm, phí giao (nhận tại trạm bằng 0; trạm giao theo cài đặt trạm) (QUYTAC_NGHIEPVU_422).
+  4. Người mua chọn thanh toán trực tuyến đang bật hoặc "Thanh toán khi nhận tại trạm" (không có thanh toán khi nhận hàng qua đơn vị vận chuyển) (QUYTAC_NGHIEPVU_423), bấm "Đặt hàng".
+  5. Hệ thống ghi đơn có cách nhận, trạm, kho xuất là kho trạm; giữ hàng tại kho trạm (kho trạm không còn đủ thì chặn, báo chọn trạm khác); báo nhân viên có `retail.o2o` của trạm (QUYTAC_NGHIEPVU_422, 429). Đơn trả trước chờ thanh toán, quá hạn 15 phút thì hủy như hiện có; thanh toán xong thì đơn Chờ soạn hàng.
+- Các bước nhận tại trạm:
+  1. Nhân viên trạm (`retail.o2o` tại chi nhánh của trạm) mở Đơn trực tuyến (MAN_HINH_188), bấm "In phiếu soạn hàng", soạn hàng, bấm "Đã soạn xong" (QUYTAC_NGHIEPVU_424).
+  2. Hệ thống chuyển đơn Sẵn sàng nhận, cấp mã nhận hàng 6 số (không trùng trong trạm), hạn giữ đến 23 giờ 59 của ngày thứ N; hàng vẫn giữ tại kho trạm; báo người mua trong ứng dụng và Zalo ZNS (không gửi mã) (QUYTAC_NGHIEPVU_425, 429).
+  3. Người mua xem mã 6 số, mã QR trong chi tiết đơn (MAN_HINH_193), đến trạm đưa mã.
+  4. Nhân viên mở Giao cho khách (MAN_HINH_189), quét hoặc nhập mã, xem dòng hàng, số còn phải thu; đơn chưa thu đủ thì thu tiền mặt, VietQR hoặc kết hợp trong ca đang mở của chính mình tại quầy của trạm; bấm "Giao cho khách" (F9) (QUYTAC_NGHIEPVU_426).
+  5. Trong một giao dịch, hệ thống lập và ghi sổ phiếu xuất giao hàng tại kho trạm (dùng hàng giữ, giá vốn, bút toán như đơn VComm), ghi đã thu của đơn, khoản thu tại trạm gắn ca, đơn Đã giao; nhân viên in phiếu giao hàng khổ 80 mm. Hóa đơn điện tử theo luồng đơn VComm hiện có.
+- Các bước trạm giao tận nơi:
+  1. Đơn Sẵn sàng nhận: Cửa hàng trưởng (người có `retail.o2o`) bấm "Giao cho nhân viên" chọn nhân viên có `retail.o2o.deliver`, hoặc nhân viên giao tự nhận ở Đơn tôi đang giao (MAN_HINH_190) (QUYTAC_NGHIEPVU_427).
+  2. Nhân viên giao bấm "Nhận đi giao"; đơn chưa thu tiền thì phải có ca đang mở của mình tại quầy của trạm. Đơn Đang giao; báo người mua.
+  3. Giao thành công: nhân viên nhập mã khách đọc hoặc quét mã QR, thu tiền vào ca của mình như bước 4 của nhận tại trạm; hệ thống ghi như bước 5, đơn Đã giao. Phiếu xuất ghi sổ lúc này, không ghi khi nhân viên mang hàng đi.
+  4. Không giao được: nhân viên chọn lý do (khách vắng, khách từ chối nhận, sai địa chỉ, khác kèm ghi chú); đơn về Sẵn sàng nhận, cộng số lần giao, bỏ nhân viên giao, ghi lịch sử; khách từ chối nhận hoặc đủ 3 lần không thành công thì hủy, báo người mua.
+- Các bước hết hạn giữ (việc nền mỗi giờ): đơn Sẵn sàng nhận còn 24 giờ tới hạn giữ thì nhắc người mua một lần; quá hạn giữ thì hệ thống hủy, nhả giữ hàng, mã hết hiệu lực, lập việc hoàn phần đã thu trực tuyến, báo người mua. Đơn Đang giao không tự hủy (QUYTAC_NGHIEPVU_428).
+- Các bước đóng ca: tiền mặt thu đơn trực tuyến (đã trừ tiền thừa) cộng vào tiền mặt hệ thống tính; phiếu thu theo quỹ gồm cả khoản thu đơn trực tuyến; biên bản đóng ca có dòng "Thu đơn trực tuyến" (QUYTAC_NGHIEPVU_431; Luồng 43).
+- Các bước trả hàng:
+  1. Người mua gửi yêu cầu trả hàng như Luồng 37; nhân viên vận hành duyệt; thông báo duyệt và chi tiết đơn ghi trạm của đơn (tên, địa chỉ, giờ mở cửa) là nơi mang hàng trả (QUYTAC_NGHIEPVU_430).
+  2. Người mua mang hàng đến trạm; nhân viên trạm (`retail.o2o`) mở Nhận hàng trả (MAN_HINH_194), bấm "Đã nhận hàng trả".
+  3. Trong một giao dịch, hệ thống ghi sổ phiếu nhận hàng trả lại vào kho trạm theo giá vốn lúc xuất, lập việc chờ hoàn tiền theo luồng hoàn tiền VComm, yêu cầu Đã nhận hàng trả, báo người mua.
+  4. Người mua không mang hàng đến: nhân viên vận hành sàn kết thúc yêu cầu bằng "Không nhận được hàng" (không nhập kho).
+- Nhánh: khách hủy, nhân viên trạm hủy (lý do) khi Chờ soạn hàng hoặc Sẵn sàng nhận (đơn Đang giao kết thúc bằng giao thành công hoặc không giao được); hủy thì nhả giữ hàng, mã hết hiệu lực, hoàn phần đã thu (QUYTAC_NGHIEPVU_424). Nhân viên vận hành sàn xem đơn của trạm, lọc theo cách nhận, trạm; không giao cho đơn vị vận chuyển, không hủy, không nhận hàng trả thay trạm (QUYTAC_NGHIEPVU_431).
+- Ngoại lệ: trạm hết hàng, tắt cách nhận lúc đặt thì chặn, báo chọn trạm khác; đơn mua chung chỉ giao qua đơn vị vận chuyển; mã sai thì báo, sai 5 lần khóa nhập mã đơn đó 15 phút; đơn chưa thu tiền mà không có ca đang mở của chính người giao tại quầy của trạm thì chặn; thông báo ở tài liệu `07` mục CONG_VIEC_57.
+- Kết thúc: đơn Đã giao rồi Hoàn tất như Luồng 37 (tồn kho trạm giảm, giá vốn, doanh thu, tiền thu tại trạm vào quỹ qua đóng ca), hoặc Đã hủy (hàng nhả về tồn khả dụng của kho trạm, tiền đã thu trực tuyến có việc hoàn tiền).
+
+Trạng thái đơn của trạm (bổ sung trạng thái đơn VComm ở Luồng 37):
+
+| Trạng thái | Sự kiện | Trạng thái sau |
+|---|---|---|
+| (Chưa có) | Người mua đặt đơn có trạm, thanh toán khi nhận tại trạm | Chờ soạn hàng (`awaiting_shipment`) |
+| (Chưa có) | Người mua đặt đơn có trạm, thanh toán trực tuyến | Chờ thanh toán (`awaiting_payment`), thanh toán xong thì Chờ soạn hàng |
+| Chờ soạn hàng | Nhân viên trạm bấm "Đã soạn xong" (cấp mã, hạn giữ) | Sẵn sàng nhận (`ready_for_pickup`) |
+| Sẵn sàng nhận | Giao tại trạm bằng mã, thu tiền (nhận tại trạm) | Đã giao (`delivered`) |
+| Sẵn sàng nhận | Nhân viên giao nhận đi giao (trạm giao) | Đang giao (`shipping`) |
+| Đang giao | Giao thành công bằng mã, thu tiền | Đã giao |
+| Đang giao | Không giao được, chưa đủ 3 lần, khách không từ chối | Sẵn sàng nhận |
+| Đang giao | Không giao được do khách từ chối nhận hoặc lần thứ 3 | Đã hủy (`cancelled`) |
+| Chờ soạn hàng, Sẵn sàng nhận | Người mua hủy; nhân viên trạm hủy (lý do) | Đã hủy |
+| Sẵn sàng nhận | Quá hạn giữ (việc nền) | Đã hủy |
+| Đã giao | Qua 7 ngày, không còn yêu cầu trả hàng đang xử lý | Hoàn tất (`completed`) |
+
+Đơn của trạm không qua Chờ lấy hàng (`awaiting_pickup`), không có vận đơn. Yêu cầu trả hàng của đơn của trạm dùng trạng thái như Luồng 37; "Đã nhận hàng trả" do trạm ghi.
+
 ## MODULE_08 Nhân sự (phần 2: Ca làm, chấm công, nghỉ phép, tăng ca, bảng công tháng, CONG_VIEC_47)
 
 ### Luồng 46. Chấm công, nghỉ phép, tăng ca, chốt bảng công tháng
@@ -954,7 +1006,7 @@ CONG_VIEC_49 (gồm THAY_DOI_22) chỉ được cấp một số luồng (Luồn
 - Luồng con 44.1 Cộng tác viên:
   1. Người mua mở Cộng tác viên (MAN_HINH_132), đồng ý điều khoản, nhập kênh chia sẻ, gửi đăng ký; hồ sơ Chờ duyệt (QUYTAC_NGHIEPVU_324).
   2. Quản trị (`marketplace.buyer.manage`) mở Cộng tác viên trên web (MAN_HINH_137), duyệt (cấp mã lần đầu) hoặc từ chối (lý do); người mua nhận thông báo; bị từ chối thì sửa và gửi lại.
-  3. Cộng tác viên mở trang sản phẩm (MAN_HINH_91), bấm "Chia sẻ nhận hoa hồng" lấy đường dẫn `/p/<mã sản phẩm>?ctv=<mã>`.
+  3. Cộng tác viên mở trang sản phẩm (MAN_HINH_91), bấm "Chia sẻ sản phẩm" lấy đường dẫn `/r/<mã giới thiệu>?sp=<mã sản phẩm>&ctv=<mã>` (THAY_DOI_28; không có mã giới thiệu thì `/p/<mã sản phẩm>?ctv=<mã>`).
   4. Người mua khác mở đường dẫn: đã đăng nhập thì ghi lượt bấm ngay; chưa đăng nhập thì ứng dụng giữ mã, ghi sau khi đăng nhập, đăng ký (QUYTAC_NGHIEPVU_325).
   5. Người mua đặt đơn có sản phẩm đó trong 168 giờ từ lần bấm gần nhất: hệ thống chụp phần "cộng tác viên" cho cộng tác viên của lượt bấm gần nhất, độc lập với phần giới thiệu, đội kinh doanh (QUYTAC_NGHIEPVU_326).
   6. Đơn hoàn tất (Luồng 37): phần cộng tác viên tính và cộng ví hoa hồng như Luồng 39; cộng tác viên rút tiền như Luồng 39.
@@ -1044,6 +1096,33 @@ Trạng thái bài đăng, bình luận:
 |---|---|---|
 | Tờ khai, chứng từ chi phí Nháp | Ghi sổ | Đã ghi sổ |
 | Tờ khai, chứng từ chi phí Nháp | Hủy | Đã hủy |
+
+## MODULE_14 Bán lẻ tại quầy và trạm giao hàng (phần 3: Kế hoạch mua theo ngân sách, CONG_VIEC_58)
+
+### Luồng 55. Kế hoạch mua theo ngân sách (Open-to-Buy)
+
+- Bắt đầu: người có `purchasing.budget.manage` (trưởng phòng mua hàng) mở "Kế hoạch ngân sách" trong mini app Mua hàng.
+- Các bước:
+  1. Trưởng phòng mua hàng lập kế hoạch: chọn kỳ (từ tháng, đến tháng, tối đa 12 tháng), nhập bảng ngành hàng cấp 1 × kho × tháng (MAN_HINH_205), lưu nháp (QUYTAC_NGHIEPVU_442, 443).
+  2. Gửi duyệt: hệ thống kiểm tra kỳ không trùng kế hoạch chờ duyệt, đã duyệt khác, cấp số `NSM`, gửi luồng duyệt dùng chung loại chứng từ `purchasing.budget_plan` với số tiền = tổng các ô (QUYTAC_NGHIEPVU_444, 445).
+  3. Người duyệt duyệt hết các cấp: kế hoạch Đã duyệt, ngân sách các tháng trong kỳ có hiệu lực.
+  4. Nhân viên mua hàng lập, sửa đơn mua: khối "Ngân sách mua" (MAN_HINH_209) hiện từng ô đơn chạm tới (ngân sách, đã dùng không gồm đơn này, giá trị đơn, còn lại sau đơn) và cảnh báo ô vượt hoặc chưa có ngân sách; không chặn lưu (QUYTAC_NGHIEPVU_451).
+  5. Gửi duyệt đơn mua: trong cùng giao dịch, hệ thống tính lại theo ô; trong ngân sách thì đi luồng `purchasing.order` (hoặc miễn duyệt như hiện nay); vượt hoặc chưa có ngân sách thì đi luồng `purchasing.order_over_budget`, lưu ảnh chụp các ô vượt (QUYTAC_NGHIEPVU_452). Tháng của ngày đơn không thuộc kế hoạch đã duyệt nào thì không kiểm tra (QUYTAC_NGHIEPVU_450).
+  6. Đơn được duyệt: số đã dùng của ô tăng; đơn đóng sớm chỉ còn tính phần đã nhận; đơn chờ duyệt không giữ chỗ ngân sách (QUYTAC_NGHIEPVU_446).
+  7. Theo dõi số còn được mua (MAN_HINH_206) theo tháng, quý, năm, ngành hàng, kho; nhấn ô xem các đơn đã tính (QUYTAC_NGHIEPVU_447).
+  8. Cần thêm hoặc chuyển ngân sách: trưởng phòng mua hàng lập phiếu điều chỉnh của kế hoạch đã duyệt (dòng tăng, giảm, lý do), gửi duyệt loại chứng từ `purchasing.budget_adjustment` (số `DCNS`, số tiền = tổng số tăng); duyệt xong hệ thống áp vào ô, ô chưa có thì tạo với ngân sách gốc 0 (QUYTAC_NGHIEPVU_448, 449).
+- Ngoại lệ: chưa có chính sách duyệt kế hoạch, phiếu hoặc đơn vượt ngân sách: không gửi được, báo lỗi, chứng từ giữ trạng thái cũ; kỳ trùng: từ chối khi gửi; dòng giảm làm ô nhỏ hơn số đã dùng: từ chối khi gửi, còn nếu điều kiện chỉ sai lúc duyệt thì vẫn áp, ghi nhật ký; người lập rút khi cấp 1 chưa quyết định; bị từ chối, đã rút: sửa rồi gửi lại hoặc hủy; hai đơn gửi duyệt cùng lúc: hệ thống giữ khóa theo công ty, đơn sau tính cả đơn trước nếu đơn trước đã được duyệt ngay.
+- Kết thúc: kế hoạch Đã duyệt hoặc Đã hủy; phiếu điều chỉnh Đã duyệt (đã áp vào ô) hoặc Đã hủy; đơn mua đi đúng luồng duyệt.
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| Kế hoạch, phiếu điều chỉnh Nháp, Bị từ chối, Đã rút | Sửa | Nháp |
+| Kế hoạch, phiếu điều chỉnh Nháp, Bị từ chối, Đã rút | Gửi duyệt (có chính sách; kế hoạch có ô, không trùng tháng; phiếu không giảm dưới số đã dùng) | Chờ duyệt |
+| Kế hoạch, phiếu điều chỉnh Chờ duyệt | Duyệt hết các cấp | Đã duyệt (phiếu: áp vào ô) |
+| Kế hoạch, phiếu điều chỉnh Chờ duyệt | Từ chối | Bị từ chối |
+| Kế hoạch, phiếu điều chỉnh Chờ duyệt | Người lập rút khi cấp 1 chưa quyết định | Đã rút |
+| Kế hoạch, phiếu điều chỉnh Nháp, Bị từ chối, Đã rút | Hủy | Đã hủy |
+| Đơn mua Nháp, Bị từ chối, Đã rút (hoặc đơn đã duyệt sửa tăng giá trị) | Gửi duyệt khi có ô vượt hoặc chưa có ngân sách trong tháng đã áp dụng | Chờ duyệt theo luồng `purchasing.order_over_budget`; kết quả duyệt như đơn mua thường |
 
 ## MODULE_16 Mở rộng kinh doanh (phần 1: Open API cho đối tác, CONG_VIEC_61)
 

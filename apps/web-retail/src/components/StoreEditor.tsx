@@ -9,7 +9,8 @@ import { apiFetch } from "ui/lib/api";
 
 export function StoreEditor({ store, options, onSaved, onCancel }: { store: RetailStoreResponse | null; options: RetailSetupOptions; onSaved: () => void; onCancel: () => void }) {
   const t = useTranslations("retailStores");
-  const [branchId, setBranchId] = useState(store?.branch.id ?? options.branches.find((branch) => !branch.hasStore)?.id ?? "");
+  const [kind, setKind] = useState<"store" | "pickup_point">(store?.kind ?? "store");
+  const [branchId, setBranchId] = useState(store?.branch.id ?? options.branches.find((branch) => !branch.hasStore && branch.branchType === "store")?.id ?? "");
   const [warehouseId, setWarehouseId] = useState(store?.warehouse.id ?? "");
   const [channelId, setChannelId] = useState(store?.channel.id ?? options.channels.find((channel) => channel.code === "BAN_LE")?.id ?? "");
   const [cashFundId, setCashFundId] = useState(store?.cashFund.id ?? "");
@@ -25,6 +26,7 @@ export function StoreEditor({ store, options, onSaved, onCancel }: { store: Reta
     event.preventDefault();
     void run(async () => {
       const body: SaveRetailStoreRequest = {
+        kind,
         branchId,
         warehouseId,
         channelId,
@@ -55,13 +57,22 @@ export function StoreEditor({ store, options, onSaved, onCancel }: { store: Reta
   );
   return (
     <form onSubmit={submit} style={{ display: "grid", gap: "var(--khoang-3)" }}>
+      <Field id="loai-tram" label={`${t("kind")} *`} error={fields.kind}>
+        <select id="loai-tram" className={inputClass("kind")} value={kind} onChange={(event) => setKind(event.target.value as "store" | "pickup_point")}>
+          <option value="store">{t("kind_store")}</option>
+          <option value="pickup_point">{t("kind_pickup_point")}</option>
+        </select>
+      </Field>
       {select(
         "chi-nhanh",
         `${t("branch")} *`,
         branchId,
         (value) => (setBranchId(value), setWarehouseId("")),
         "branchId",
-        options.branches.filter((branch) => !branch.hasStore || branch.id === store?.branch.id).map((branch) => ({ id: branch.id, label: `${branch.code} – ${branch.name}` })),
+        // Chi nhánh loại "Khác" chỉ cho điểm giao nhận (QUYTAC_NGHIEPVU_418).
+        options.branches
+          .filter((branch) => (!branch.hasStore || branch.id === store?.branch.id) && (kind === "pickup_point" || branch.branchType === "store"))
+          .map((branch) => ({ id: branch.id, label: `${branch.code} – ${branch.name}` })),
         t("choose"),
       )}
       {select(
