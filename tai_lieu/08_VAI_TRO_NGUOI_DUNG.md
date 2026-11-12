@@ -791,7 +791,8 @@ Không thêm vai trò hệ thống. Hai quyền mới của mini app Mua hàng (
 | Lập, sửa, gửi duyệt, hủy kế hoạch ngân sách | `purchasing.budget.manage` | Có | Trong công ty mình | Có | Không | Không |
 | Lập, sửa, gửi duyệt, hủy phiếu điều chỉnh ngân sách | `purchasing.budget.manage` | Có | Trong công ty mình | Có | Không | Không |
 | Rút kế hoạch, phiếu điều chỉnh đang chờ duyệt | `purchasing.budget.manage`, người lập, cấp 1 chưa quyết định | Của mình | Của mình | Của mình | Không | Không |
-| Xem cảnh báo ngân sách khi lập, sửa đơn mua; ảnh chụp ô vượt của đơn | `purchasing.order.manage` hoặc quyền ngân sách | Có | Trong công ty mình | Có | Có | Không |
+| Kiểm tra ngân sách của đơn đang lập, sửa (API_240) | `purchasing.order.manage` hoặc quyền ngân sách | Có | Trong công ty mình | Có | Có | Không |
+| Xem khối ngân sách, ảnh chụp ô vượt ở chi tiết đơn mua | `purchasing.order.view` hoặc `purchasing.order.manage` | Có | Trong công ty mình | Khi có quyền đơn mua | Có | Thủ kho: Có (có `purchasing.order.view`) |
 | Duyệt kế hoạch, phiếu điều chỉnh, đơn mua vượt ngân sách | Người được chỉ định trong cấp duyệt | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định | Khi được chỉ định |
 
 - Người lập không tự duyệt chứng từ của mình (QUYTAC_NGHIEPVU_20).

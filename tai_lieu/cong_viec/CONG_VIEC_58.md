@@ -58,7 +58,7 @@ Ngoài phạm vi:
 - QUYTAC_NGHIEPVU_450: Công ty chưa áp dụng ngân sách tháng đó. Tháng của ngày đơn không thuộc kế hoạch đã duyệt nào của công ty thì đơn mua không kiểm tra ngân sách, đi luồng duyệt như hiện nay.
 - QUYTAC_NGHIEPVU_451: Kiểm tra khi lập, sửa đơn mua. Màn hình đơn mua hiện theo từng ô mà đơn chạm tới: ngân sách, đã dùng (không gồm chính đơn này), giá trị đơn trong ô, còn lại sau đơn; ô vượt hoặc chưa có ngân sách (trong tháng đã áp dụng) có cảnh báo. Chỉ cảnh báo, không chặn lưu.
 - QUYTAC_NGHIEPVU_452: Chuyển luồng duyệt khi gửi duyệt. Khi gửi duyệt (lần đầu hoặc duyệt lại theo QUYTAC_NGHIEPVU_63), nếu có ít nhất một ô mà giá trị đơn trong ô lớn hơn số còn được mua của ô (không tính chính đơn), hoặc ô chưa có ngân sách trong tháng đã áp dụng, thì đơn gửi duyệt loại chứng từ `purchasing.order_over_budget` thay cho `purchasing.order`, kể cả đơn đang được miễn duyệt (lấy từ đề nghị mua đã duyệt). Chưa có chính sách duyệt hiệu lực cho `purchasing.order_over_budget` thì không gửi được (báo lỗi), không duyệt ngay. Kết quả duyệt xử lý như đơn mua thường (đơn đối ứng nội bộ, nhận hàng không đổi). Yêu cầu duyệt lưu ảnh chụp số vượt từng ô để người duyệt xem.
-- QUYTAC_NGHIEPVU_453: Quyền. `purchasing.budget.view` xem kế hoạch, phiếu, số còn được mua; `purchasing.budget.manage` lập, sửa, gửi, rút, hủy kế hoạch và phiếu điều chỉnh (gán ở tập đoàn hoặc công ty). Người lập, sửa đơn mua (`purchasing.order.manage`) thấy cảnh báo ngân sách của đơn mình mà không cần `purchasing.budget.view`. Dữ liệu lọc theo công ty đang làm việc (QUYTAC_NGHIEPVU_12).
+- QUYTAC_NGHIEPVU_453: Quyền. `purchasing.budget.view` xem kế hoạch, phiếu, số còn được mua; `purchasing.budget.manage` lập, sửa, gửi, rút, hủy kế hoạch và phiếu điều chỉnh (gán ở tập đoàn hoặc công ty). Người lập, sửa đơn mua (`purchasing.order.manage`) thấy cảnh báo ngân sách của đơn (API_240, chi tiết đơn mua) mà không cần `purchasing.budget.view`. Dữ liệu lọc theo công ty đang làm việc (QUYTAC_NGHIEPVU_12).
 
 ## 5. Vai trò và quyền
 
@@ -92,13 +92,13 @@ Loại chứng từ duyệt mới (`core.document_types`, mini app `purchasing`)
 ## 8. Dữ liệu và API
 
 Database migration:
-- 0116: bảng `purchasing.budget_plans` (công ty, số chứng từ, tháng bắt đầu, kết thúc, trạng thái, `approval_request_id`, ghi chú, phiên bản, người lập, thời điểm), `purchasing.budget_lines` (kế hoạch, ngành hàng, kho, tháng, số tiền gốc, số điều chỉnh đã duyệt; duy nhất kế hoạch + ngành hàng + kho + tháng); quyền, loại chứng từ, dãy số chứng từ.
+- 0116: bảng `purchasing.budget_plans` (công ty, số chứng từ, tháng bắt đầu, kết thúc, trạng thái, `approval_request_id`, ghi chú, phiên bản, người lập, thời điểm), `purchasing.budget_lines` (kế hoạch, ngành hàng, kho, tháng, số tiền gốc, số điều chỉnh đã duyệt; duy nhất kế hoạch + ngành hàng + kho + tháng). Quyền, loại chứng từ khai báo trong `permission-catalog.ts`, đồng bộ khi khởi động; dãy số chứng từ tự tạo khi gửi duyệt lần đầu (tiền tố `NSM` kế hoạch, `DCNS` phiếu điều chỉnh).
 - 0117: bảng `purchasing.budget_adjustments`, `purchasing.budget_adjustment_lines`.
-- 0118: cột `budget_snapshot jsonb` của đơn mua (ảnh chụp ô vượt khi gửi duyệt); chỉ mục `purchasing.orders (company_id, order_date) WHERE status IN ('approved', 'received', 'closed')`.
+- 0118: cột `budget_snapshot jsonb` của đơn mua (ảnh chụp ô vượt khi gửi duyệt); chỉ mục `purchasing.orders (company_id, order_date) WHERE status IN ('approved', 'received', 'closed', 'pending', 'rejected', 'withdrawn')` (gồm đơn từng được duyệt đang duyệt lại).
 
 | Mã | Phương thức, đường dẫn | Mô tả |
 |---|---|---|
-| API_235 | `GET`, `POST /purchasing/budget-plans`; `GET`, `PATCH /purchasing/budget-plans/{id}` | Danh sách, lập, xem, sửa kế hoạch |
+| API_235 | `GET`, `POST /purchasing/budget-plans`; `GET`, `PATCH /purchasing/budget-plans/{id}`; `GET /purchasing/budget-options` | Danh sách, lập, xem, sửa kế hoạch; danh sách chọn ngành hàng cấp 1, kho, đồng tiền |
 | API_236 | `POST /purchasing/budget-plans/{id}/submit`, `/withdraw`, `/cancel` | Gửi duyệt, rút, hủy kế hoạch |
 | API_237 | `GET`, `POST /purchasing/budget-adjustments`; `GET`, `PATCH /purchasing/budget-adjustments/{id}` | Danh sách, lập, xem, sửa phiếu điều chỉnh |
 | API_238 | `POST /purchasing/budget-adjustments/{id}/submit`, `/withdraw`, `/cancel` | Gửi duyệt, rút, hủy phiếu |
@@ -109,7 +109,7 @@ Mini app Mua hàng nghe `core.approval.completed` của `purchasing.budget_plan`
 
 ## 9. Điều kiện đặc biệt
 
-- Kiểm tra ngân sách khi gửi duyệt đơn mua chạy trong cùng giao dịch gửi duyệt, khóa các dòng ngân sách liên quan (`FOR UPDATE`) để hai đơn gửi cùng lúc không cùng lọt trong ngân sách.
+- Kiểm tra ngân sách khi gửi duyệt đơn mua chạy trong cùng giao dịch gửi duyệt, khóa theo công ty (`pg_advisory_xact_lock`) để hai đơn được duyệt ngay khi gửi không cùng lọt trong ngân sách; gửi duyệt kế hoạch cũng khóa theo công ty để không có hai kế hoạch trùng tháng. Đơn chờ duyệt không giữ chỗ ngân sách (QUYTAC_NGHIEPVU_446).
 - Tính đã dùng trong một truy vấn có tham số; điều kiện công ty nằm trong truy vấn.
 - Không đổi kết quả luồng duyệt đơn mua của công ty chưa lập ngân sách (QUYTAC_NGHIEPVU_450).
 
