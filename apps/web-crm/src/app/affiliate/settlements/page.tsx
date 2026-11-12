@@ -369,6 +369,7 @@ function AlertsTab() {
 function TransactionsTab() {
   const t = useTranslations("affiliateReport");
   const portal = useTranslations("merchantPortal");
+  const affiliate = useTranslations("affiliate");
   const common = useTranslations("common");
   const today = vietnamToday();
   const [filter, setFilter] = useState({ from: `${today.slice(0, 8)}01`, to: today, merchantId: "", method: "", status: "", search: "" });
@@ -463,7 +464,15 @@ function TransactionsTab() {
                           {item.merchantName} · {item.outletName}
                         </td>
                         <td data-nhan={t("column_buyer")}>{item.buyerPhone ?? "—"}</td>
-                        <td data-nhan={t("column_method")}>{portal(`method_${item.method}`)}</td>
+                        <td data-nhan={t("column_method")}>
+                          {portal(`method_${item.method}`)}
+                          {item.source === "open_api" && (
+                            <>
+                              {" "}
+                              <span className="nhan thong-tin">{affiliate("source_open_api")}</span>
+                            </>
+                          )}
+                        </td>
                         <td data-nhan={t("billAmount")} className="so">
                           {amount(item.billAmount)}
                         </td>

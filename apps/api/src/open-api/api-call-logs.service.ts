@@ -8,7 +8,7 @@ import type { Actor } from "../permissions/roles.service";
 
 export const callLogRetentionDays = 90;
 // Chỉ giữ tham số truy vấn không chứa dữ liệu cá nhân (QUYTAC_NGHIEPVU_488).
-const loggedQueryParameters = new Set(["page", "pageSize", "warehouse", "updatedSince", "status"]);
+const loggedQueryParameters = new Set(["page", "pageSize", "warehouse", "updatedSince", "status", "from", "to"]);
 
 export interface ApiCallRecord {
   apiKeyId: string;

@@ -9,6 +9,7 @@ import type {
   AffiliateTransactionCreated,
   AffiliateTransactionItem,
   AffiliateTransactionMethod,
+  AffiliateTransactionSource,
   AffiliateTransactionStatus,
   BuyerAffiliateRequest,
   BuyerAffiliateTransaction,
@@ -25,7 +26,7 @@ import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { notify } from "../common/notifications";
 import { purposeKey } from "../common/secret-box";
-import { isUniqueViolation } from "../common/database-errors";
+import { isUniqueViolation, violatedConstraint } from "../common/database-errors";
 import { DATABASE, type Database } from "../database/database.module";
 import { pgArray } from "../inventory/stock-ledger.service";
 import { LedgerService } from "../accounting/ledger.service";
@@ -37,6 +38,24 @@ import { merchantOverdue } from "./settlements.service";
 import { releaseVoucherWithin, usableCodes, useVoucherWithin } from "./vouchers.service";
 
 type Executor = Pick<Database, "execute">;
+
+// Bên lập giao dịch tại quầy: thành viên cổng cửa hàng (thu ngân, chủ) hoặc phần mềm cửa hàng qua Open API (CONG_VIEC_67).
+export interface CounterActor {
+  merchantId: string;
+  companyId: string;
+  cashierUserId: string | null;
+  apiKey: { id: string; name: string; prefix: string; partnerTransactionCode: string | null } | null;
+  client: { ip: string | null; userAgent: string | null; requestId: string | null };
+}
+
+export const counterOfMember = (member: PortalMember): CounterActor => ({
+  merchantId: member.merchantId,
+  companyId: member.companyId,
+  cashierUserId: member.userId,
+  apiKey: null,
+  client: member.client,
+});
+
 const merchantQrMinutes = 3;
 const phoneMinutes = 5;
 const memberCodeSeconds = 60;
@@ -66,7 +85,7 @@ export function issueMemberCode(userId: string, points: number, voucherCodeId: s
   return { code: `${body}.${sign(body)}`, expiresAt: new Date((issued + memberCodeSeconds) * 1000).toISOString() };
 }
 
-function readMemberCode(code: string, now: Date): { userId: string; points: number; voucherCodeId: string | null; expiresAt: Date } {
+export function readMemberCode(code: string, now: Date): { userId: string; points: number; voucherCodeId: string | null; expiresAt: Date } {
   const parts = code.trim().split(".");
   if (parts.length !== 7 || parts[0] !== memberPrefix) throw new ApiError("BUSINESS_RULE", "affiliateCodeInvalid");
   const body = parts.slice(0, 6).join(".");
@@ -87,10 +106,12 @@ type TransactionRow = {
   id: string;
   document_no: string;
   method: AffiliateTransactionMethod;
+  source: AffiliateTransactionSource;
+  partner_transaction_code: string | null;
   status: AffiliateTransactionStatus;
   outlet_id: string;
   outlet_name: string;
-  cashier_name: string;
+  cashier_name: string | null;
   buyer_name: string | null;
   bill_amount: string;
   voucher_discount: string;
@@ -108,12 +129,12 @@ type TransactionRow = {
 };
 
 const transactionColumns = sql`
-  t.id, t.document_no, t.method,
+  t.id, t.document_no, t.method, t.source, t.partner_transaction_code,
   CASE WHEN t.status = 'pending' AND t.expires_at < now() THEN 'expired' ELSE t.status END AS status,
   t.outlet_id, o.name AS outlet_name, c.full_name AS cashier_name, b.full_name AS buyer_name, t.bill_amount::text, t.voucher_discount::text, t.redeemed_points,
   t.redeemed_amount::text, t.paid_amount::text, t.earned_points, t.earned_amount::text, t.skip_reason, t.created_at, t.completed_at, t.expires_at, t.cancel_reason, t.settlement_id`;
 const transactionFrom = sql`
-  affiliate.transactions t JOIN affiliate.outlets o ON o.id = t.outlet_id JOIN core.users c ON c.id = t.cashier_user_id LEFT JOIN core.users b ON b.id = t.buyer_user_id`;
+  affiliate.transactions t JOIN affiliate.outlets o ON o.id = t.outlet_id LEFT JOIN core.users c ON c.id = t.cashier_user_id LEFT JOIN core.users b ON b.id = t.buyer_user_id`;
 
 function itemOf(row: TransactionRow, member: PortalMember | null): AffiliateTransactionItem {
   return {
@@ -124,6 +145,8 @@ function itemOf(row: TransactionRow, member: PortalMember | null): AffiliateTran
     outletId: row.outlet_id,
     outletName: row.outlet_name,
     cashierName: row.cashier_name,
+    source: row.source,
+    partnerTransactionCode: row.partner_transaction_code,
     buyerName: maskName(row.buyer_name),
     billAmount: trimDecimal(row.bill_amount),
     voucherDiscount: trimDecimal(row.voucher_discount),
@@ -238,25 +261,35 @@ export class AffiliateTransactionsService {
 
   // API_208: lập giao dịch (QUYTAC_NGHIEPVU_394 đến 397).
   async create(member: PortalMember, input: z.infer<typeof affiliateTransactionCreateSchema>): Promise<AffiliateTransactionCreated> {
-    const merchant = await merchantTerms(this.database, member.merchantId);
-    if (merchant.status !== "active" || !merchant.in_contract) throw new ApiError("BUSINESS_RULE", "affiliateMerchantInactive");
     if (member.role === "cashier" && !member.outletIds.includes(input.outletId)) throw new ApiError("FORBIDDEN", "forbidden");
-    const outlet = (await this.database.execute<{ status: string }>(sql`SELECT status FROM affiliate.outlets WHERE id = ${input.outletId} AND merchant_id = ${member.merchantId}`)).rows[0];
+    const created = await this.createFor(counterOfMember(member), input);
+    return { transaction: await this.transaction(member, created.id), qrCode: created.qrCode };
+  }
+
+  // Lập giao dịch cho thu ngân hoặc phần mềm cửa hàng; điểm bán đã kiểm thuộc phạm vi của bên lập.
+  async createFor(
+    counter: CounterActor,
+    input: { outletId: string; billAmount: string; method: AffiliateTransactionMethod; phone?: string | undefined; memberCode?: string | undefined },
+  ): Promise<{ id: string; qrCode: string | null }> {
+    const merchant = await merchantTerms(this.database, counter.merchantId);
+    if (merchant.status !== "active" || !merchant.in_contract) throw new ApiError("BUSINESS_RULE", "affiliateMerchantInactive");
+    const outlet = (await this.database.execute<{ status: string }>(sql`SELECT status FROM affiliate.outlets WHERE id = ${input.outletId} AND merchant_id = ${counter.merchantId}`)).rows[0];
     if (!outlet || outlet.status !== "active") throw new ApiError("VALIDATION_FAILED", "invalidValue", { fields: { outletId: "invalidValue" } });
     if (Number(input.billAmount) > Number(merchant.transaction_cap)) throw new ApiError("BUSINESS_RULE", "affiliateBillOverCap");
-    const base = { merchantId: member.merchantId, outletId: input.outletId, cashier: member.userId, bill: input.billAmount, earnPercent: merchant.earn_percent };
+    const base = { merchantId: counter.merchantId, outletId: input.outletId, counter, bill: input.billAmount, earnPercent: merchant.earn_percent };
 
     if (input.method === "merchant_qr") {
       const token = randomBytes(24).toString("base64url");
       const id = await this.insert(this.database, { ...base, method: "merchant_qr", buyer: null, tokenHash: hash(token), minutes: merchantQrMinutes });
-      return { transaction: await this.transaction(member, id), qrCode: `${qrPrefix}${token}` };
+      return { id, qrCode: `${qrPrefix}${token}` };
     }
 
     if (input.method === "phone") {
+      // Giới hạn yêu cầu bị từ chối, hết hạn mỗi giờ theo thu ngân; qua Open API theo khóa (CONG_VIEC_67).
       const declined = (
         await this.database.execute<{ total: number }>(sql`
           SELECT count(*)::int AS total FROM affiliate.transactions
-          WHERE cashier_user_id = ${member.userId} AND method = 'phone' AND created_at > now() - interval '1 hour'
+          WHERE ${counter.apiKey ? sql`api_key_id = ${counter.apiKey.id}` : sql`cashier_user_id = ${counter.cashierUserId}`} AND method = 'phone' AND created_at > now() - interval '1 hour'
             AND (status = 'declined' OR (status IN ('pending', 'expired') AND expires_at < now()))`)
       ).rows[0]!.total;
       if (declined >= declinedPerHourLimit) throw new ApiError("RATE_LIMITED", "affiliatePhoneLimited");
@@ -269,7 +302,7 @@ export class AffiliateTransactionsService {
       await this.database.execute(sql`
         UPDATE affiliate.transactions SET status = 'expired' WHERE buyer_user_id = ${buyer.id} AND method = 'phone' AND status = 'pending' AND expires_at < now()`);
       const id = await this.insert(this.database, { ...base, method: "phone", buyer: buyer.id, tokenHash: null, minutes: phoneMinutes }).catch((error: unknown) => {
-        if (isUniqueViolation(error)) throw new ApiError("BUSINESS_RULE", "affiliatePhonePending");
+        if (isUniqueViolation(error) && violatedConstraint(error) === "transactions_pending_phone_idx") throw new ApiError("BUSINESS_RULE", "affiliatePhonePending");
         throw error;
       });
       await notify(this.database, [
@@ -281,7 +314,7 @@ export class AffiliateTransactionsService {
           payload: { transactionId: id },
         },
       ]);
-      return { transaction: await this.transaction(member, id), qrCode: null };
+      return { id, qrCode: null };
     }
 
     // Cách 2: mã thành viên hợp lệ, chưa dùng; hoàn tất ngay với số điểm nhỏ hơn giữa số khách cho phép và số tối đa dùng được.
@@ -300,7 +333,7 @@ export class AffiliateTransactionsService {
       await this.complete(transaction, created, buyer.id, { points: code.points, voucherCodeId: code.voucherCodeId, capToMax: true });
       return created;
     });
-    return { transaction: await this.transaction(member, id), qrCode: null };
+    return { id, qrCode: null };
   }
 
   private async insert(
@@ -308,7 +341,7 @@ export class AffiliateTransactionsService {
     input: {
       merchantId: string;
       outletId: string;
-      cashier: string;
+      counter: CounterActor;
       bill: string;
       earnPercent: string;
       method: AffiliateTransactionMethod;
@@ -319,9 +352,11 @@ export class AffiliateTransactionsService {
   ): Promise<string> {
     return (
       await executor.execute<{ id: string }>(sql`
-        INSERT INTO affiliate.transactions (merchant_id, outlet_id, cashier_user_id, buyer_user_id, method, token_hash, expires_at, bill_amount, earn_percent)
-        VALUES (${input.merchantId}, ${input.outletId}, ${input.cashier}, ${input.buyer}, ${input.method}, ${input.tokenHash},
-          ${input.minutes > 0 ? sql`now() + make_interval(mins => ${input.minutes})` : sql`NULL`}, ${input.bill}, ${input.earnPercent})
+        INSERT INTO affiliate.transactions (merchant_id, outlet_id, cashier_user_id, buyer_user_id, method, token_hash, expires_at, bill_amount, earn_percent,
+          source, api_key_id, partner_transaction_code)
+        VALUES (${input.merchantId}, ${input.outletId}, ${input.counter.cashierUserId}, ${input.buyer}, ${input.method}, ${input.tokenHash},
+          ${input.minutes > 0 ? sql`now() + make_interval(mins => ${input.minutes})` : sql`NULL`}, ${input.bill}, ${input.earnPercent},
+          ${input.counter.apiKey ? "open_api" : "portal"}, ${input.counter.apiKey?.id ?? null}, ${input.counter.apiKey?.partnerTransactionCode ?? null})
         RETURNING id`)
     ).rows[0]!.id;
   }
@@ -391,24 +426,31 @@ export class AffiliateTransactionsService {
   // Hủy (QUYTAC_NGHIEPVU_400): chủ cửa hàng, tuần chưa chốt; hoàn điểm đã dùng, trừ lại điểm đã tích (thiếu thì cửa hàng vẫn trả phần thiếu).
   async cancel(member: PortalMember, id: string, reason: string): Promise<AffiliateTransactionItem> {
     requireOwner(member);
+    await this.cancelFor(counterOfMember(member), id, reason);
+    return this.transaction(member, id);
+  }
+
+  // Hủy bởi chủ cửa hàng hoặc phần mềm cửa hàng qua Open API (bổ sung QUYTAC_NGHIEPVU_400, CONG_VIEC_67).
+  async cancelFor(counter: CounterActor, id: string, reason: string): Promise<void> {
     await this.database.transaction(async (transaction) => {
       const row = (
         await transaction.execute<{ status: string; settlement_id: string | null; merchant_id: string; buyer_user_id: string; document_no: string; voucher_code_id: string | null }>(sql`
-          SELECT status, settlement_id, merchant_id, buyer_user_id, document_no, voucher_code_id FROM affiliate.transactions WHERE id = ${id} AND merchant_id = ${member.merchantId} FOR UPDATE`)
+          SELECT status, settlement_id, merchant_id, buyer_user_id, document_no, voucher_code_id FROM affiliate.transactions WHERE id = ${id} AND merchant_id = ${counter.merchantId} FOR UPDATE`)
       ).rows[0];
       if (!row) throw new ApiError("NOT_FOUND", "notFound");
       if (row.status !== "completed") throw new ApiError("BUSINESS_RULE", "affiliateTransactionNotCancellable");
       if (row.settlement_id) throw new ApiError("BUSINESS_RULE", "affiliateWeekSettled");
       if (row.voucher_code_id) await releaseVoucherWithin(transaction, row.voucher_code_id);
-      const result = await this.ledger.cancelWithin(transaction, { sourceType: "affiliate_transaction", sourceId: id, companyId: member.companyId, day: await vietnamToday(transaction) });
+      const result = await this.ledger.cancelWithin(transaction, { sourceType: "affiliate_transaction", sourceId: id, companyId: counter.companyId, day: await vietnamToday(transaction) });
       await transaction.execute(sql`
-        UPDATE affiliate.transactions SET status = 'cancelled', cancel_reason = ${reason}, cancelled_by = ${member.userId}, cancelled_at = now(), shortfall_amount = ${result.shortfallAmount}
+        UPDATE affiliate.transactions SET status = 'cancelled', cancel_reason = ${reason}, cancelled_by = ${counter.cashierUserId}, cancelled_api_key_id = ${counter.apiKey?.id ?? null},
+          cancelled_at = now(), shortfall_amount = ${result.shortfallAmount}
         WHERE id = ${id}`);
       await this.accounting.record(transaction, await transactionCancelDraft(transaction, id));
       await notify(transaction, [
         {
           userId: row.buyer_user_id,
-          companyId: member.companyId,
+          companyId: counter.companyId,
           kind: "affiliate.cancelled",
           title: `Giao dịch ${row.document_no} tại cửa hàng liên kết đã bị hủy`,
           payload: { transactionId: id, refundedPoints: result.refundedPoints, reversedPoints: result.reversedPoints },
@@ -416,21 +458,21 @@ export class AffiliateTransactionsService {
       ]);
       await this.audit.record(
         {
-          actorUserId: member.userId,
-          companyId: member.companyId,
+          actorUserId: counter.cashierUserId,
+          companyId: counter.companyId,
           appCode: "affiliate",
           action: "affiliate_transaction.cancel",
           entityType: "affiliate_transaction",
           entityId: id,
-          afterData: { reason, ...result },
-          ip: member.client.ip,
-          userAgent: member.client.userAgent,
-          requestId: member.client.requestId,
+          // Hủy qua Open API: tác nhân là khóa (QUYTAC_NGHIEPVU_493).
+          afterData: { reason, ...result, ...(counter.apiKey ? { apiKeyId: counter.apiKey.id, keyName: counter.apiKey.name, keyPrefix: counter.apiKey.prefix } : {}) },
+          ip: counter.client.ip,
+          userAgent: counter.client.userAgent,
+          requestId: counter.client.requestId,
         },
         transaction,
       );
     });
-    return this.transaction(member, id);
   }
 
   // ---------------------------------------------------------------------------

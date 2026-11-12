@@ -157,6 +157,7 @@ export interface MerchantPortalStore extends AffiliateMerchantTerms {
 // ---------------------------------------------------------------------------
 export const affiliateTransactionMethods = ["merchant_qr", "buyer_qr", "phone"] as const;
 export type AffiliateTransactionMethod = (typeof affiliateTransactionMethods)[number];
+export type AffiliateTransactionSource = "portal" | "open_api";
 export type AffiliateTransactionStatus = "pending" | "completed" | "declined" | "expired" | "cancelled";
 export type AffiliateSkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | "credit_limit" | "overdue";
 
@@ -189,7 +190,11 @@ export interface AffiliateTransactionItem {
   status: AffiliateTransactionStatus;
   outletId: string;
   outletName: string;
-  cashierName: string;
+  // Giao dịch qua Open API (CONG_VIEC_67) không có thu ngân: trống.
+  cashierName: string | null;
+  source: AffiliateTransactionSource;
+  // Mã giao dịch của phần mềm cửa hàng (chỉ giao dịch qua Open API).
+  partnerTransactionCode: string | null;
   // Tên khách đã che (QUYTAC_NGHIEPVU_397); trống khi chưa có khách.
   buyerName: string | null;
   billAmount: string;
@@ -541,4 +546,134 @@ export interface AffiliateCompanyTransaction extends AffiliateTransactionItem {
   merchantId: string;
   merchantName: string;
   buyerPhone: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// CONG_VIEC_67: tích, đổi điểm qua Open API (QUYTAC_NGHIEPVU_495; API_295 đến API_300).
+// ---------------------------------------------------------------------------
+const ipEntry = z
+  .string()
+  .trim()
+  .min(2)
+  .max(49)
+  .regex(/^[0-9A-Fa-f:.]+(\/\d{1,3})?$/);
+const affiliateApiKeySettings = {
+  name: z.string().trim().min(1).max(100),
+  outletIds: z.array(z.string().uuid()).min(1).max(50),
+  rateLimitPerMinute: z.number().int().min(1).max(600).default(60),
+  smsDailyLimit: z.number().int().min(0).max(5000).default(200),
+  expiresOn: isoDate.nullable().default(null),
+  allowedIps: z.array(ipEntry).max(20).default([]),
+};
+export const affiliateApiKeyCreateSchema = z.object(affiliateApiKeySettings).strict();
+export type AffiliateApiKeyCreateRequest = z.input<typeof affiliateApiKeyCreateSchema>;
+export const affiliateApiKeyUpdateSchema = z.object({ ...affiliateApiKeySettings, version: z.number().int().positive() }).strict();
+export type AffiliateApiKeyUpdateRequest = z.input<typeof affiliateApiKeyUpdateSchema>;
+
+export interface AffiliateApiKeyItem {
+  id: string;
+  name: string;
+  keyPrefix: string;
+  outlets: { id: string; name: string }[];
+  rateLimitPerMinute: number;
+  smsDailyLimit: number;
+  expiresOn: string | null;
+  allowedIps: string[];
+  status: "active" | "expired" | "revoked";
+  revokedReason: string | null;
+  lastUsedAt: string | null;
+  callsToday: number;
+  smsToday: number;
+  createdAt: string;
+  version: number;
+}
+export interface AffiliateApiKeySecret {
+  key: AffiliateApiKeyItem;
+  secret: string;
+}
+// Cổng cửa hàng, chủ cửa hàng (MAN_HINH_232): chỉ xem.
+export interface AffiliatePortalConnection {
+  keys: AffiliateApiKeyItem[];
+  callsToday: number;
+  callsWeek: number;
+  transactionsToday: number;
+  transactionsWeek: number;
+  smsToday: number;
+  smsWeek: number;
+  smsFeeWeek: string;
+  weekStart: string;
+}
+
+// Phần mềm cửa hàng (khóa API, gốc /api/v1/open/affiliate).
+export const openAffiliateMethods = ["member_code", "phone"] as const;
+export type OpenAffiliateMethod = (typeof openAffiliateMethods)[number];
+export const openTransactionCodePattern = /^[A-Za-z0-9._-]{1,50}$/;
+export const openAffiliateQuoteSchema = z
+  .object({
+    outletId: z.string().uuid(),
+    billAmount: money,
+    memberCode: z.string().trim().min(1).max(500).optional(),
+    phone: vietnamPhone.optional(),
+  })
+  .strict()
+  .refine((value) => Boolean(value.memberCode) !== Boolean(value.phone), { message: "required", path: ["memberCode"] });
+export interface OpenAffiliateQuote {
+  buyerName: string | null;
+  redeemable: boolean;
+  blockedReason: "no_phase" | "locked" | "inactive" | "insufficient" | null;
+  minPoints: number;
+  maxPoints: number;
+  pointValue: string | null;
+  estimatedEarnPoints: number;
+  vouchers: { id: string; title: string; discount: string; expiresAt: string }[];
+  smartOtpActive: boolean;
+}
+export const openAffiliateTransactionSchema = z
+  .object({
+    partnerTransactionCode: z.string().regex(openTransactionCodePattern),
+    outletId: z.string().uuid(),
+    billAmount: money,
+    method: z.enum(openAffiliateMethods),
+    memberCode: z.string().trim().min(1).max(500).optional(),
+    phone: vietnamPhone.optional(),
+  })
+  .strict()
+  .refine((value) => value.method !== "phone" || value.phone, { message: "required", path: ["phone"] })
+  .refine((value) => value.method !== "member_code" || value.memberCode, { message: "required", path: ["memberCode"] });
+export const openAffiliateListQuerySchema = z
+  .object({
+    status: z.enum(["pending", "completed", "declined", "expired", "cancelled"]).optional(),
+    from: isoDate.optional(),
+    to: isoDate.optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(50),
+  })
+  .strict();
+export const openAffiliateCancelSchema = z.object({ reason }).strict();
+export interface OpenAffiliateOutlet {
+  id: string;
+  name: string;
+  address: string;
+  active: boolean;
+}
+export interface OpenAffiliateTransaction {
+  partnerTransactionCode: string | null;
+  documentNo: string;
+  method: AffiliateTransactionMethod;
+  source: AffiliateTransactionSource;
+  status: AffiliateTransactionStatus;
+  outletId: string;
+  outletName: string;
+  buyerName: string | null;
+  billAmount: string;
+  voucherDiscount: string;
+  redeemedPoints: number;
+  redeemedAmount: string;
+  paidAmount: string | null;
+  earnedPoints: number;
+  skipReason: AffiliateSkipReason | null;
+  createdAt: string;
+  completedAt: string | null;
+  expiresAt: string | null;
+  cancelReason: string | null;
 }

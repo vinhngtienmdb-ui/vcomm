@@ -60,8 +60,9 @@ export interface ApiKeyItem {
   partnerCode: string | null;
   partnerName: string | null;
   scopes: ApiKeyScope[];
-  channelId: string;
-  channelName: string;
+  // Khóa cửa hàng liên kết (chỉ `loyalty.member`, CONG_VIEC_67) không có kênh bán.
+  channelId: string | null;
+  channelName: string | null;
   rateLimitPerMinute: number;
   expiresOn: string | null;
   status: ApiKeyStatus;

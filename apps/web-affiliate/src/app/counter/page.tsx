@@ -113,6 +113,7 @@ function CancelDrawer({ transaction, onClose, onDone }: { transaction: Affiliate
 
 export default function CounterPage() {
   const t = useTranslations("merchantPortal");
+  const affiliate = useTranslations("affiliate");
   const { membership, notify } = usePortal();
   const [outletId, setOutletId] = useState(membership.outlets[0]?.id ?? "");
   const [bill, setBill] = useState("");
@@ -276,7 +277,7 @@ export default function CounterPage() {
                     <tr key={item.id}>
                       <td data-nhan={t("column_documentNo")}>{item.documentNo}</td>
                       <td data-nhan={t("column_time")}>{formatDateTime(item.createdAt)}</td>
-                      <td data-nhan={t("column_cashier")}>{item.cashierName}</td>
+                      <td data-nhan={t("column_cashier")}>{item.cashierName ?? <span className="nhan thong-tin">{affiliate("source_open_api")}</span>}</td>
                       <td data-nhan={t("column_customer")}>{item.buyerName ?? "—"}</td>
                       <td data-nhan={t("column_billAmount")}>{formatNumber(item.billAmount, 0)}</td>
                       <td data-nhan={t("column_redeemed")}>{item.status === "completed" || item.status === "cancelled" ? formatNumber(item.redeemedPoints, 0) : "—"}</td>

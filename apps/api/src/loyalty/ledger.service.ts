@@ -349,6 +349,14 @@ async function multiplierOf(executor: Executor, userId: string): Promise<{ tierI
   return { tierId: row?.tier_id ?? null, multiplier: Number(row?.multiplier ?? 1) };
 }
 
+// Điểm dự kiến tích cho một số tiền theo tỷ lệ tích riêng (cửa hàng liên kết, CONG_VIEC_67): giai đoạn ngày, hệ số hạng, trần mỗi đơn; chưa xét trần tháng, hạn mức.
+export async function estimateEarnPoints(executor: Executor, input: { userId: string; day: string; amount: number; earnPercent: number }): Promise<number> {
+  const phase = await phaseOn(executor, input.day);
+  if (!phase) return 0;
+  const { multiplier } = await multiplierOf(executor, input.userId);
+  return pointsFor(input.amount, { ...phase, earnPercent: input.earnPercent }, multiplier);
+}
+
 async function documentOf(executor: Executor, sourceType: SaleSourceType, sourceId: string): Promise<DocumentRow | null> {
   return (
     (
