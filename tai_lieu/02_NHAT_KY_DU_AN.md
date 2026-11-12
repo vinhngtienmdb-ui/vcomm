@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- Người dùng nghiệm thu CONG_VIEC_66 (Open API phần 2) lát L1, L2, pull request #144 (commit `102dfed`; kiểm thử 699/699): đối tác tạo khách hàng qua Open API, hóa đơn và công nợ theo khách do đối tác tạo, đơn giao thẳng người nhận cuối; database migration 0131; sửa màn hình đối tác, chi tiết đơn bán, phiếu xuất. Cấp THAY_DOI_32, LOI_09.
 - Phát hành 0.8.0 (pull request #141, commit hợp nhất `c34d968`): CONG_VIEC_52 (Văn phòng số phần 1), CONG_VIEC_56 (kế toán ngoại tệ và thuế hải quan). Kiểm thử API 688/688. Không tạo database migration 0145. Thư viện mới: docx 9.15.3 (đã duyệt 2026-11-11). Biến môi trường mới: OFFICE_ORIGIN. Chưa triển khai.
 - Người dùng nghiệm thu CONG_VIEC_56 (kế toán ngoại tệ và thuế hải quan, MODULE_06) lát L0 đến L3, pull request #119 (commit `2522322`, đã hợp nhất main 0.7.0; kiểm thử 648/648): database migration 0106 (quỹ ngoại tệ; finance.payments.kind thêm currency_purchase; view finance.fund_movements; vai trò định khoản cash_foreign, bank_foreign, exchange_difference, financial_income, financial_expense, late_payment_expense), 0107 (đánh giá lại; accounting.journals.source_type thêm fx_revaluation), 0108 (tham số thuế hải quan, tờ khai bổ sung, phiếu nộp và nhận hoàn thuế hải quan; payments.kind thêm customs_tax_payment, customs_tax_refund; journals.source_type thêm import_amendment). Ràng buộc journals_source_type_check của 0107, 0108 gồm mọi giá trị của 0105. Không thêm thư viện.
 - CONG_VIEC_52 hợp nhất main 0.7.0 (commit `c1f5d62`; kiểm thử 673/673).
@@ -41,6 +42,7 @@
 
 ### Quyết định
 
+- CONG_VIEC_66: chống dò hồ sơ (LOI_09) bằng cách chỉ dùng lại hồ sơ theo mã số thuế; trùng số căn cước với hồ sơ ngoài phạm vi trả 409.
 - CONG_VIEC_67: người dùng chọn đối tác Open API là cửa hàng liên kết của CONG_VIEC_55; xác thực khách bằng mã thành viên QR động, xác nhận trên ứng dụng hoặc OTP (Smart OTP, chưa kích hoạt thì SMS); tính phí tin nhắn qua đối soát tuần (THAY_DOI_31). CONG_VIEC_66: người dùng chọn đủ 8 phương án đề xuất, sửa màn hình có sẵn.
 - Người dùng quyết định không làm quản lý sản xuất: hủy CONG_VIEC_64, bỏ khỏi phạm vi MODULE_16 (THAY_DOI_30). Mã dành riêng của CONG_VIEC_64 không dùng, không cấp lại.
 - Người dùng mở phiên cho CONG_VIEC_64 (quản lý sản xuất), CONG_VIEC_66 (Open API phần 2), CONG_VIEC_67 (Cửa hàng liên kết phần 2); các công việc còn lại (62, 63, 65) vẫn tạm dừng. Chưa triển khai các bản 0.4.0 đến 0.8.0.
