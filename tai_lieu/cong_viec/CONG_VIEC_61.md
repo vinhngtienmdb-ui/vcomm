@@ -3,7 +3,7 @@
 - Mô tả: Cổng API cho đối tác (đại lý, nhà bán lại, website và sàn bán hộ, cửa hàng liên kết) và phần mềm khác của chính công ty: cấp khóa API theo công ty và đối tác, phạm vi quyền theo khóa, giới hạn tần suất theo khóa, nhật ký từng lần gọi; API sản phẩm, giá, tồn; API đơn bán; khách hàng do đối tác tạo; tra, tích, đổi điểm tại đối tác.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-12; người dùng xem trước L1 đạt; lát L2 xong, chờ người dùng xem trước.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu, xem trước L1, L2 đạt (2026-11-12); chốt phạm vi ở L1, L2, chờ nghiệm thu. L3, L4 tách sang công việc riêng.
 - Mức: Lớn (module mới, đổi phân quyền, thêm điểm tiếp nhận công khai, sửa cấu trúc dữ liệu bán hàng).
 - Nhánh: `chuc-nang/CONG_VIEC_61-mo-rong-kinh-doanh`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_16), `04` mục 8 dòng 12, `05` mục 3 (MODULE_16), `05` mục 5 (phiên bản 6.x), `24` THAY_DOI_04; quyết định của người dùng ngày 2026-11-12 (mục 17).
@@ -15,7 +15,7 @@
 
 ## 2. Phạm vi
 
-Trong phạm vi: CHUC_NANG_217 đến CHUC_NANG_221 (lát L1 đến L3); lát L4 (điểm thưởng tại đối tác) cần thêm mã, hỏi quy tắc trước khi làm (mục 16).
+Trong phạm vi: CHUC_NANG_217 đến CHUC_NANG_220 (lát L1, L2). Người dùng quyết định ngày 2026-11-12 nghiệm thu ở L1, L2; CHUC_NANG_221 (lát L3: khách hàng do đối tác tạo, giao thẳng người nhận) và lát L4 (điểm thưởng tại đối tác) tách sang công việc riêng, đề nghị phiên điều phối cấp mã (mục 16).
 
 Ngoài phạm vi:
 
@@ -276,6 +276,7 @@ L3, L4: tiêu chí lập khi chốt quy tắc (cần thêm mã).
 | Đơn Open API có hàng hóa (QUYTAC_NGHIEPVU_276) | Theo cài đặt hiện có "Cho phép lập đơn bán tay có hàng hóa"; tắt thì chỉ đặt dịch vụ (2026-11-12) |
 | Người lập đơn Open API | Nhân viên đã cấp khóa; nguồn, tên khóa ghi trên đơn và nhật ký thao tác (2026-11-12) |
 | Xem trước L1 | Đạt, làm L2 (2026-11-12) |
+| Xem trước L2, phạm vi công việc | Đạt; nghiệm thu L1, L2; tách L3, L4 sang công việc riêng (2026-11-12) |
 | Chia lát                     | 4 lát, điểm thưởng làm sau cùng                                                                  |
 
 ## 18. Thành phần không được thay đổi
@@ -294,4 +295,12 @@ L3, L4: tiêu chí lập khi chốt quy tắc (cần thêm mã).
 
 ## 20. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa có.
+| Mục | Kết quả |
+|---|---|
+| Tiêu chí nghiệm thu L1, L2 | TIEUCHI_NGHIEMTHU_444 đến 456 đạt bằng `apps/api/test/c61-open-api.test.ts` (16 kiểm thử); 457 đạt bằng chụp màn hình ứng dụng chạy thật (1360 và 390 điểm ảnh) |
+| Kiểm thử toàn bộ máy chủ | Xem mục kết quả trong tin trình nghiệm thu (`pnpm --filter api test`) |
+| Kiểm tra kiểu | `api`, `web-platform`, `web-sales` đạt |
+| Rà soát bảo mật | Tài liệu `22` mục Open API: sửa `X-Request-Id` có ký tự lạ; rủi ro `trust proxy` ghi cho bước triển khai |
+| Tài liệu | `06`, `07`, `08`, `09`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27` bổ sung; sổ chung `02`, `03`, `24`, `25` gửi phiên điều phối ghi |
+| Thư viện mới | Không |
+| Chưa làm | CHUC_NANG_221, lát L4; tài liệu API riêng cho đối tác (trang hướng dẫn); webhook gọi ra đối tác |

@@ -512,3 +512,22 @@ Dữ liệu mẫu: dữ liệu mẫu của CONG_VIEC_24, CONG_VIEC_25, CONG_VIEC
 | TIEUCHI_NGHIEMTHU_284 | CHUC_NANG_160, CHUC_NANG_161 | Ghi sổ tờ khai khi chưa nhập đủ, kỳ đã khóa bị từ chối; giá vốn bình quân tăng đúng phần tồn, phần đã xuất vào 632, serial cộng giá đích danh; bút toán đúng tài khoản Thông tư 99, Thông tư 133; đã ghi sổ không sửa | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_285 | CHUC_NANG_161 | Phân bổ theo giá trị, số lượng đúng tỷ lệ, tổng bằng đúng khoản; chi phí ngoại tệ quy đổi; công nợ nhà cung cấp dịch vụ gồm thuế, bút toán đúng; tờ khai chưa ghi sổ không chọn được | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_286 | CHUC_NANG_160, CHUC_NANG_161 | Công ty khác không xem, không ghi sổ được; người không có `purchasing.import.manage` không lập, không ghi sổ; Thủ kho không xem tờ khai, chi phí | Gọi API, giao diện | Bắt buộc |
+
+## MODULE_16 Mở rộng kinh doanh (phần 1: Open API cho đối tác, CONG_VIEC_61)
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_444 | CHUC_NANG_217 | Cấp khóa nhận `vck_…` một lần; danh sách chỉ hiện 8 ký tự đầu; cơ sở dữ liệu không có khóa rõ | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_445 | CHUC_NANG_217 | Cấp khóa sai báo lỗi đúng trường (phạm vi, giới hạn, kho, đối tác ngừng giao dịch, IP, hạn dùng, tên trùng) | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_446 | CHUC_NANG_218 | Thiếu, sai, hết hạn, thu hồi khóa, chuỗi cũ sau cấp lại, đối tác ngừng giao dịch đều `401` cùng thông báo | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_447 | CHUC_NANG_218 | IP ngoài danh sách `403 IP_NOT_ALLOWED`; ngoài phạm vi `403 SCOPE_NOT_GRANTED` | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_448 | CHUC_NANG_218 | Lần gọi thứ N+1 trong phút `429`, `Retry-After`; khóa khác không ảnh hưởng | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_449 | CHUC_NANG_218 | Mỗi lần gọi có một dòng nhật ký đúng mã HTTP, mã lỗi, không nội dung; dòng quá 90 ngày bị xóa | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_450 | CHUC_NANG_217, 218, 219 | Không lộ khóa, nhật ký, dữ liệu giữa công ty | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_451 | CHUC_NANG_219 | Giá đúng kênh, nhóm khách; tồn khả dụng chỉ kho của khóa | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_452 | CHUC_NANG_217 | Cấp, sửa, cấp lại, thu hồi ghi nhật ký thao tác, không chứa khóa | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_453 | CHUC_NANG_220 | Đơn hợp lệ thành đơn Nháp nguồn Open API, giá như đơn nhập trên web; nhân viên thấy nhãn nguồn, mã đơn đối tác | Gọi API, xem màn hình | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_454 | CHUC_NANG_220 | Gửi lại cùng mã (kể cả đồng thời) chỉ một đơn; lần sau `200` | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_455 | CHUC_NANG_220 | Kho ngoài khóa, mã hàng, đơn vị, số lượng sai bị từ chối đúng dòng | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_456 | CHUC_NANG_220 | Hủy Nháp được; đã gửi duyệt `409`; đối tác khác không tra được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_457 | CHUC_NANG_217, 218 | MAN_HINH_224 đến 226 đủ trạng thái rỗng, đang tải, lỗi, không quyền; tiếng Việt và tiếng Anh | Xem màn hình | Bắt buộc |

@@ -763,3 +763,20 @@ Người phỏng vấn, người chấm, nhân viên xem phiếu của mình kh�
 
 - Người mua chỉ thấy hồ sơ cộng tác viên, ví mua sắm, đơn, người mình mời của chính mình; bảng tin công khai cho người mua đã đăng nhập.
 - Người bị khóa đăng bài và bình luận vẫn xem được bảng tin.
+
+## 42. Open API cho đối tác (MODULE_16 phần 1, CONG_VIEC_61)
+
+| Quyền | Phạm vi gán | Nhạy cảm | Gán sẵn |
+|---|---|---|---|
+| `platform.api_key.manage` | Công ty | Có | Quản trị tập đoàn, Quản trị công ty |
+| `platform.api_log.view` | Công ty | Không | Quản trị tập đoàn, Quản trị công ty |
+
+| Thao tác | Quyền | Quản trị tập đoàn | Quản trị công ty | Người có `platform.api_log.view` | Đối tác (khóa API) |
+|---|---|---|---|---|---|
+| Cấp, sửa, cấp lại, thu hồi khóa | `platform.api_key.manage` | Mọi công ty | Công ty mình | Không | Không |
+| Xem danh sách, chi tiết khóa (không thấy khóa) | Một trong hai quyền | Có | Có | Có | Không |
+| Xem nhật ký gọi | Một trong hai quyền | Có | Có | Có | Không |
+| Gọi API sản phẩm, giá, tồn | Phạm vi `catalog.read` của khóa | — | — | — | Có |
+| Tạo, tra, hủy đơn Nháp qua API | Phạm vi `sales_order.write` của khóa | — | — | — | Có |
+
+- Đối tác không có tài khoản nhân viên; khóa không mở được API nhân viên. Đơn tạo qua API do nhân viên có quyền đơn bán hiện có xử lý.

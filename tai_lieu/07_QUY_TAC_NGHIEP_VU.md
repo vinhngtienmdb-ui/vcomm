@@ -966,3 +966,26 @@ Nội dung đầy đủ, căn cứ pháp luật, định khoản: [cong_viec/CON
 | QUYTAC_NGHIEPVU_323 | Bút toán (công ty đã khởi tạo kế toán; chưa khởi tạo thì chặn gửi duyệt): khi duyệt, ngày cuối tháng, số `<số bảng lương>`: Nợ chi phí nhân viên theo nhóm phòng ban (phòng ban hiện hành của nhân viên ngày cuối tháng) / Có 334 tổng thu nhập; Nợ chi phí nhân viên / Có 3383, 3384, bảo hiểm thất nghiệp, 3382 phần người sử dụng lao động; Nợ 334 / Có 3383, 3384, bảo hiểm thất nghiệp phần người lao động; Nợ 334 / Có 3335 thuế; Nợ 334 / Có 3388 khoản khấu trừ (đối tượng theo dõi là nhân viên không có). Ghi "Đã trả lương": ngày trả (không trước ngày duyệt), quỹ tiền mặt hoặc ngân hàng của công ty; bút toán số `<số bảng lương>-TT`: Nợ 334 / Có 111 hoặc 112 tổng thực lĩnh. Duyệt xong: tạo phiếu lương từng nhân viên, thông báo chuông cho nhân viên có tài khoản liên kết, gửi email phiếu lương tới email cá nhân (nếu có)                                                | YCAU_NGHIEPVU_76, 77 |
 
 Quyết định của người dùng, quyết định AI tự đưa ra và chỗ chỉnh cho khớp mã: `tai_lieu/cong_viec/CONG_VIEC_48.md` mục 17, 18, 19.
+
+## MODULE_16 Mở rộng kinh doanh (phần 1: Open API cho đối tác, CONG_VIEC_61)
+
+Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_61.md` mục 5.
+
+| Mã | Quy tắc | Nguồn |
+|---|---|---|
+| QUYTAC_NGHIEPVU_480 | Khóa `vck_` + 32 ký tự chữ, số ngẫu nhiên; chỉ lưu SHA-256 và 8 ký tự đầu; khóa đầy đủ chỉ trả một lần khi cấp, cấp lại; không ghi vào nhật ký, log | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_481 | Khóa thuộc một công ty; loại Đối tác gắn đối tác đang giao dịch có hồ sơ khách hàng ở công ty (giá theo nhóm khách của đối tác); loại Nội bộ không gắn đối tác; loại, công ty, đối tác không đổi sau khi cấp | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_482 | Cấu hình: tên 1 đến 100 ký tự duy nhất trong công ty với khóa chưa thu hồi; ít nhất một phạm vi; kênh đang dùng; ít nhất một kho (khi có phạm vi Sản phẩm hoặc Đơn bán); giới hạn 1 đến 600 mỗi phút (mặc định 60); hạn dùng mới từ ngày mai; tối đa 20 IP hoặc dải CIDR; sửa theo `version` | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_483 | Trạng thái Đang dùng, Hết hạn (qua ngày hạn dùng giờ Việt Nam), Đã thu hồi (vĩnh viễn, có lý do); cấp lại tạo chuỗi mới, chuỗi cũ hết dùng ngay | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_484 | Thiếu, sai, hết hạn, thu hồi khóa, đối tác ngừng giao dịch: `401` cùng một thông báo; không xác định được khóa thì đếm theo IP, quá 20 lần một phút trả `429` | AI đề xuất, người dùng duyệt đặc tả 2026-11-12 |
+| QUYTAC_NGHIEPVU_485 | Khóa có danh sách IP: IP ngoài danh sách `403 IP_NOT_ALLOWED` | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_486 | Phạm vi `catalog.read`, `sales_order.write`, `customer.write`, `loyalty.member`; ngoài phạm vi `403 SCOPE_NOT_GRANTED`. `customer.write`, `loyalty.member` chưa cho chọn (công việc sau) | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_487 | Giới hạn theo khóa, cửa sổ một phút; vượt trả `429`, `Retry-After`; mọi kết quả có `X-RateLimit-Limit`, `X-RateLimit-Remaining` | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_488 | Nhật ký mỗi lần gọi đã xác định khóa; không ghi nội dung, header; chỉ giữ tham số truy vấn `page`, `pageSize`, `warehouse`, `updatedSince`, `status`; xóa dòng quá 90 ngày hằng ngày | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_489 | Dữ liệu trả cho khóa chỉ của công ty cấp khóa; sản phẩm đang bán của công ty (không gồm hàng nhà bán); giá theo kênh của khóa và nhóm khách của đối tác như màn hình đơn bán, chưa trừ khuyến mãi; tồn khả dụng (tồn trừ giữ hàng, âm thì 0) theo kho của khóa | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_490 | Đơn qua API vào Nháp; khách là đối tác của khóa (khóa nội bộ: khách chỉ định hoặc để trống); kênh của khóa; kho trong danh sách kho của khóa; mã biến thể, mã đơn vị; giá, khuyến mãi tính lại; cài đặt "Cho phép lập đơn bán tay có hàng hóa" áp dụng như đơn lập tay (QUYTAC_NGHIEPVU_276); người lập là người cấp khóa | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_491 | Mã đơn đối tác bắt buộc, duy nhất theo công ty và đối tác (khóa nội bộ: theo khóa); gửi lại mã đã có trả `200` đơn cũ, không so nội dung | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_492 | Đối tác tra, liệt kê đơn trong phạm vi mình; hủy được khi Nháp, lý do ghi nhật ký thao tác; trạng thái khác `409` | Người dùng 2026-11-12 |
+| QUYTAC_NGHIEPVU_493 | Cấp, sửa, cấp lại, thu hồi khóa ghi nhật ký thao tác không chứa khóa; tạo, hủy đơn qua API ghi tên khóa, không gắn người dùng | AI đề xuất, người dùng duyệt đặc tả 2026-11-12 |
+| QUYTAC_NGHIEPVU_494 | Dự phòng (khách hàng do đối tác tạo; chuyển công việc sau) | — |
+| QUYTAC_NGHIEPVU_495 | Dự phòng (điểm thưởng tại đối tác; chuyển công việc sau) | — |

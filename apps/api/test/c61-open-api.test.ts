@@ -325,6 +325,9 @@ describe("TIEUCHI_NGHIEMTHU_449: nhật ký gọi", () => {
     const [validation, success] = logs.body.data;
     expect(success).toMatchObject({ apiKeyName: "Khóa nhật ký", method: "GET", path: "/api/v1/open/stock?warehouse=OAPI1", statusCode: 200, errorCode: null, ip: "203.113.10.24" });
     expect(success.requestId).toBeTruthy();
+    // Mã yêu cầu có ký tự lạ không được dội lại nguyên văn.
+    const odd = await open("/stock", (await issue({ name: "Khóa mã yêu cầu" })).secret).set("x-request-id", "abc def<script>");
+    expect(odd.headers["x-request-id"]).toMatch(/^[0-9a-f-]{36}$/);
     expect(validation).toMatchObject({ statusCode: 400, errorCode: "VALIDATION_FAILED", path: "/api/v1/open/products?pageSize=1000" });
     expect((await call(admin, "get", `/platform/api-call-logs?apiKeyId=${key.id}&result=client_error`)).body.total).toBe(1);
     expect((await call(admin, "get", `/platform/api-call-logs?apiKeyId=${key.id}&result=success`)).body.total).toBe(1);

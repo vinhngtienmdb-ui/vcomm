@@ -658,3 +658,14 @@
 - Kịch bản kiểm thử chưa có kiểm thử tự động: Không có; trường hợp kiểm kê đang đếm chặn ghi sổ (QUYTAC_NGHIEPVU_291) chưa có kịch bản riêng
 - Kịch bản chưa chạy hoặc kết quả Không đạt: Đạt; kết quả gửi phiên cha ghi tài liệu `25`
 - Mã nguồn không truy được về yêu cầu nào: Không có
+
+## 29. Kiểm tra bao phủ CONG_VIEC_61 – 2026-11-12
+
+- Yêu cầu nghiệp vụ chưa có chức năng: YCAU_NGHIEPVU_168 (CHUC_NANG_221 chưa làm), YCAU_NGHIEPVU_169 (chưa cấp mã chức năng) – người dùng tách sang công việc riêng ngày 2026-11-12. Còn lại: YCAU_NGHIEPVU_162 → CHUC_NANG_217; 163 → CHUC_NANG_217, 218; 164 → CHUC_NANG_217, 218; 165 → CHUC_NANG_218; 166 → CHUC_NANG_219; 167 → CHUC_NANG_220
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: QUYTAC_NGHIEPVU_494, 495 (dự phòng). Còn lại: 480 đến 483, 493 → CHUC_NANG_217; 484 đến 488 → CHUC_NANG_218; 489 → CHUC_NANG_219; 490 đến 492 → CHUC_NANG_220
+- Chức năng chưa có tiêu chí nghiệm thu: CHUC_NANG_221 (chưa làm). CHUC_NANG_217 → TIEUCHI_NGHIEMTHU_444, 445, 450, 452, 457; CHUC_NANG_218 → 446 đến 450, 457; CHUC_NANG_219 → 450, 451; CHUC_NANG_220 → 453 đến 456
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có (MAN_HINH_224 đến MAN_HINH_226; sửa MAN_HINH_42 và chi tiết đơn bán)
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (444 → KICHBAN_KIEMTHU_623; 445 → 624; 446 → 625, 626; 447 → 627, 628; 448 → 629; 449 → 630; 450 → 631; 451 → 632; 452 → 633; 453 → 634; 454 → 635; 455 → 636; 456 → 637; 457 → 638)
+- Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_638 (bán tự động, chụp màn hình bằng Playwright ngoài dự án)
+- Kịch bản chưa chạy hoặc kết quả Không đạt: Đạt (16 kiểm thử API); kết quả gửi phiên cha ghi tài liệu `25`
+- Mã nguồn không truy được về yêu cầu nào: Không có (`apps/api/src/open-api/*`, `apps/api/src/sales/sales-orders.service.ts` phần Open API, `apps/web-platform/src/app/platform/api-keys`, `api-call-logs`, `apps/web-platform/src/components/ApiKeyForms.tsx`, `ApiCallLogTable.tsx`, `apps/web-sales/src/app/orders`)

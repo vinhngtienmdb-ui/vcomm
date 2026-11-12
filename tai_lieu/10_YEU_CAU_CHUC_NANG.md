@@ -2155,3 +2155,15 @@ Yêu cầu phi chức năng: tiền dùng `numeric`, làm tròn theo đơn vị 
 | CHUC_NANG_170 | Bút toán lương khi duyệt; ghi đã trả lương sinh bút toán trả; phiếu lương trong "Hồ sơ của tôi", thông báo chuông và email                                                                                                                                                                                                                                                          | YCAU_NGHIEPVU_76, 77 |
 
 Yêu cầu phi chức năng: tiền tính bằng số nguyên đồng (bigint) và `numeric`, không dùng số thực; tham số pháp luật cấu hình theo ngày hiệu lực; nhật ký thao tác không ghi số tiền lương; email phiếu lương gửi sau khi duyệt, lỗi gửi không làm hỏng duyệt.
+
+## MODULE_16 Mở rộng kinh doanh (phần 1: Open API cho đối tác, CONG_VIEC_61)
+
+| Mã | Chức năng | Yêu cầu | Màn hình | API |
+|---|---|---|---|---|
+| CHUC_NANG_217 | Quản lý khóa API: cấp, xem, sửa cấu hình, cấp lại, thu hồi | YCAU_NGHIEPVU_162, 163, 164 | MAN_HINH_224, MAN_HINH_225 | API_255 đến API_258 |
+| CHUC_NANG_218 | Xác thực khóa, phạm vi, IP, giới hạn tần suất; ghi, xem, dọn nhật ký gọi | YCAU_NGHIEPVU_163, 164, 165 | MAN_HINH_226 | API_259; bộ lọc chung API `open` |
+| CHUC_NANG_219 | API sản phẩm, giá, tồn cho đối tác | YCAU_NGHIEPVU_166 | — | API_260, API_261 |
+| CHUC_NANG_220 | API đơn bán: tạo Nháp, tra, liệt kê, hủy; nhãn nguồn trên màn hình đơn bán | YCAU_NGHIEPVU_167 | Sửa MAN_HINH_42, chi tiết đơn bán | API_262 đến API_264 |
+| CHUC_NANG_221 | API khách hàng do đối tác tạo, giao thẳng người nhận | YCAU_NGHIEPVU_168 | — | Chưa làm; chuyển công việc sau |
+
+Yêu cầu phi chức năng: khóa lưu băm; nhật ký gọi ghi sau khi trả kết quả, lỗi ghi không làm hỏng lần gọi; cập nhật lần dùng gần nhất tối đa một lần mỗi phút; giới hạn tần suất dùng chung Redis giữa các tiến trình.

@@ -65,7 +65,9 @@ export class ApiKeyGuard implements CanActivate {
     const response = context.switchToHttp().getResponse<Response>();
     const startedAt = performance.now();
     // Mã yêu cầu để đối tác báo lỗi; bộ lọc lỗi dùng lại cùng mã.
-    const requestId = request.header("x-request-id")?.slice(0, 100) || randomUUID();
+    // Chỉ nhận mã của bên gọi khi gồm chữ, số, `-`, `_`, `.` (dội lại header, ghi nhật ký); khác thì sinh mã mới.
+    const sentId = request.header("x-request-id");
+    const requestId = sentId && /^[A-Za-z0-9._-]{1,100}$/.test(sentId) ? sentId : randomUUID();
     request.headers["x-request-id"] = requestId;
     response.setHeader("X-Request-Id", requestId);
     const ip = request.ip ? normalizeIp(request.ip) : null;

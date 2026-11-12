@@ -1599,3 +1599,31 @@ MODULE_06 phần 8 (CONG_VIEC_20) không phát sự kiện mới; mini app Tài 
 MODULE_07 phần 2 (CONG_VIEC_21) không phát sự kiện mới; mini app Khách hàng và Đối tác nghe `core.approval.completed` của loại chứng từ `crm.customer_assignment` để áp dụng phiếu giao khách duyệt xong (không áp dụng được thì `rejected` kèm `applyError`), chuyển `rejected`, `withdrawn` khi bị từ chối, rút. Thông báo trong ứng dụng loại `crm.customer_assignment.received`, `crm.customer_assignment.removed` ghi qua `core.notifications`. Đã tắt theo THAY_DOI_18 (CONG_VIEC_43, 2026-11-11).
 
 MODULE_14 phần 1 (CONG_VIEC_53) không phát, không nghe sự kiện outbox. Hóa đơn bán lẻ, phiếu trả hàng, chứng từ quỹ khi đóng ca ghi trong cùng giao dịch qua service của module Bán hàng, Kho, Tài chính – Kế toán; hóa đơn điện tử khởi tạo từ máy tính tiền gửi nền bằng tác vụ `einvoice-send` hiện có.
+
+## 2r. Danh sách endpoint Open API cho đối tác (MODULE_16 phần 1, CONG_VIEC_61)
+
+Mã lỗi mới (mục 1): `403 IP_NOT_ALLOWED` (IP ngoài danh sách của khóa), `403 SCOPE_NOT_GRANTED` (khóa không có phạm vi). Mọi kết quả API `open` có header `X-Request-Id`, `X-RateLimit-Limit`, `X-RateLimit-Remaining`.
+
+Cho nhân viên (`apps/api/src/open-api/api-keys.controller.ts`, đăng nhập, `X-Company-Id`):
+
+| Mã | Phương thức, đường dẫn | Chức năng | Quyền | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_255 | `GET /platform/api-keys`; `GET /platform/api-keys/options` | CHUC_NANG_217 | Danh sách: `platform.api_key.manage` hoặc `platform.api_log.view`; lựa chọn: `platform.api_key.manage` | `q`, `status`, `kind`; `partnerSearch` | `ApiKeyItem[]`; `ApiKeyOptions` |
+| API_256 | `POST /platform/api-keys` | CHUC_NANG_217 | `platform.api_key.manage` | `createApiKeySchema` | `201` `{ key, secret }` (`secret` chỉ lần này) |
+| API_257 | `GET`, `PATCH /platform/api-keys/{id}` | CHUC_NANG_217 | Xem: như API_255; sửa: `platform.api_key.manage` | `updateApiKeySchema` (có `version`) | `ApiKeyDetail` (thống kê 24 giờ, lịch sử) |
+| API_258 | `POST /platform/api-keys/{id}/rotate`; `POST /platform/api-keys/{id}/revoke` | CHUC_NANG_217 | `platform.api_key.manage` | `{ version }`; `{ reason, version }` | `200` `{ key, secret }`; `ApiKeyDetail` |
+| API_259 | `GET /platform/api-call-logs` | CHUC_NANG_218 | `platform.api_log.view` hoặc `platform.api_key.manage` | `apiKeyId`, `result`, `from`, `to` (ISO 8601), `path`, `page`, `pageSize` ≤ 100 | `PageResponse<ApiCallLogItem>` |
+
+Cho đối tác (`apps/api/src/open-api/open-api.controller.ts`, `Authorization: Bearer <khóa>`, không cookie, CSRF, `X-Company-Id`):
+
+| Mã | Phương thức, đường dẫn | Chức năng | Phạm vi | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_260 | `GET /open/products` | CHUC_NANG_219 | `catalog.read` | `page`, `pageSize` ≤ 100, `updatedSince` | `PageResponse<OpenProductItem>`: mã hàng, sản phẩm, thuộc tính, thuế suất, mã vạch, đơn vị kèm giá |
+| API_261 | `GET /open/stock` | CHUC_NANG_219 | `catalog.read` | `warehouse` (mã kho), `sku` (tối đa 100, cách nhau dấu phẩy), `page`, `pageSize` | `PageResponse<OpenStockItem>`: mã hàng, mã kho, khả dụng, đơn vị cơ sở |
+| API_262 | `POST /open/sales-orders` | CHUC_NANG_220 | `sales_order.write` | `openSalesOrderSchema`: `partnerOrderCode`, `warehouseCode`, `orderDate`, `customerCode` (khóa nội bộ), `buyerName`, `deliveryAddress`, `note`, `lines[]` (`sku`, `unitCode`, `quantity`) | `201` đơn mới, `200` mã đã có; `OpenSalesOrder` |
+| API_263 | `GET /open/sales-orders`; `GET /open/sales-orders/{partnerOrderCode}` | CHUC_NANG_220 | `sales_order.write` | `status`, `updatedSince`, `page`, `pageSize` | `PageResponse<OpenSalesOrder>`; `OpenSalesOrder` |
+| API_264 | `POST /open/sales-orders/{partnerOrderCode}/cancel` | CHUC_NANG_220 | `sales_order.write` | `{ reason }` | `200` `OpenSalesOrder`; `409` khi không còn Nháp |
+
+Sửa API_77 (`GET /sales/orders`): thêm lọc `source` (`web`, `open_api`); `search` khớp cả mã đơn đối tác; mỗi đơn thêm `openApi` (`keyName`, `partnerOrderCode`) hoặc `null`.
+
+MODULE_16 phần 1 (CONG_VIEC_61) không phát, không nghe sự kiện outbox.
