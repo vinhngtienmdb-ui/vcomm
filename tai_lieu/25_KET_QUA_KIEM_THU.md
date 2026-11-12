@@ -183,6 +183,22 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_61 (lát L1, L2)
+
+- Phạm vi: Open API cho đối tác (MODULE_16), nhánh `chuc-nang/CONG_VIEC_61-mo-rong-kinh-doanh` (pull request #134, commit `9b19474`, đã hợp nhất main 0.6.0).
+- Kết quả: toàn bộ kiểm thử API 115 tệp, 617/617 đạt; c61-open-api 16/16 đạt (TIEUCHI_NGHIEMTHU_444 đến 456 qua KICHBAN_KIEMTHU_623 đến 637). KICHBAN_KIEMTHU_638 (TIEUCHI_NGHIEMTHU_457, giao diện): chụp màn hình trên ứng dụng chạy thật ở độ rộng 1360 và 390 điểm ảnh, không lỗi console – Đạt. Kiểm tra kiểu api, web-platform, web-sales đạt.
+- Bảo mật: đã sửa tiêu đề X-Request-Id chứa ký tự lạ có thể gây lỗi 500. Lưu ý triển khai: danh sách IP cho phép dựa trên cấu hình trust proxy 1; môi trường thật cần đúng một proxy đặt X-Forwarded-For.
+- Lỗi mới: không có.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_55
+
+- Phạm vi: cửa hàng liên kết phần 1 (MODULE_12) lát L0 đến L4, nhánh `chuc-nang/CONG_VIEC_55-cua-hang-lien-ket` (pull request #120, commit `459f69d`, đã hợp nhất main 0.6.0).
+- Kết quả: toàn bộ kiểm thử API 119 tệp, 617/617 đạt sau hợp nhất; c55-merchants 3, c55-transactions 6, c55-vouchers 2, c55-settlements 3, c55-reports 2 đạt (KICHBAN_KIEMTHU_533 đến 546 tự động). Kiểm tra kiểu api, web-affiliate, web-crm, mobile-vcomm, web-platform và khóa dịch đạt. Lượt chạy trước hợp nhất có 1 ca c55-reports lỗi do tệp kiểm thử bị sửa trong lúc chạy, chạy lại đạt.
+- Chưa kiểm thử: phần thủ công của KICHBAN_KIEMTHU_546 (quét mã QR bằng camera trên Safari iPhone, Chrome Android) chưa thử trên điện thoại thật.
+- Ghi chú môi trường: `.env` phát triển có MFA_SECRET_KEY trống làm lưu cấu hình tích hợp lỗi; môi trường thật phải đặt khóa.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12; phần thủ công của KICHBAN_KIEMTHU_546 kiểm thử sau khi triển khai thử nghiệm.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_53 (lát L0 đến L5)
 
 - Phạm vi: Bán lẻ tại quầy phần 1, nhánh `chuc-nang/CONG_VIEC_53-ban-le-tai-quay` (pull request #100, commit `f500d84`, đã hợp nhất main 0.4.0).
@@ -196,6 +212,13 @@
 - Kết quả: KICHBAN_KIEMTHU_428 đến 433 Đạt (`c45-imports.test.ts` 6/6); hồi quy toàn bộ API 86 tệp, 487/487 đạt. Một lần chạy trước hợp nhất gặp LOI_08 (có sẵn), chạy lại đạt.
 - Kiểm tra bảo mật: không thêm thư viện; CI quét bảo mật (gitleaks, `pnpm audit`) đạt.
 - Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
+## Lần kiểm thử 2026-11-12 – Phát hành 0.6.0
+
+- Phạm vi: nhánh `phat-hanh/v0.6.0` gộp CONG_VIEC_58, 57, 22, 53 (lát L6); THAY_DOI_26, 28 (pull request #129, commit hợp nhất `4d66741`).
+- Gộp: không có ràng buộc kiểm tra bị định nghĩa lại ở hơn một database migration nên không tạo 0120; không trùng số database migration (0109 đến 0111, 0113, 0114, 0116 đến 0119); đánh lại số mục tài liệu trùng ở 08, 14, 16, 17, 27; bổ sung tài liệu 16, 17 cho CONG_VIEC_53 lát L6.
+- Kết quả: kiểm tra kiểu 17/17, lint 4/4, khóa dịch khớp; toàn bộ kiểm thử API 114 tệp, 601/601 đạt (một tiến trình); CI pull request #129 (kiểm tra kiểu, lint, kiểm thử, quét bảo mật) đạt. Phiên cha kiểm lại: đủ đầu nhánh của 4 pull request công việc, có đủ main.
+- Kết luận: Đạt; tag `v0.6.0` gắn tự động sau CI trên `main`.
 
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_58
 

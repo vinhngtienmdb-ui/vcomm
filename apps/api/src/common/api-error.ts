@@ -13,6 +13,8 @@ const statusByCode: Record<ErrorCode, number> = {
   UNAUTHENTICATED: 401,
   MFA_REQUIRED: 401,
   FORBIDDEN: 403,
+  IP_NOT_ALLOWED: 403,
+  SCOPE_NOT_GRANTED: 403,
   NOT_FOUND: 404,
   CONFLICT_VERSION: 409,
   BUSINESS_RULE: 409,
@@ -80,6 +82,8 @@ export class ApiErrorFilter implements ExceptionFilter {
       body = { code, message: text.internal, requestId };
     }
     if (body.retryAfterSeconds !== undefined) response.setHeader("Retry-After", String(body.retryAfterSeconds));
+    // Nhật ký gọi API đối tác đọc mã lỗi tại đây (CONG_VIEC_61; QUYTAC_NGHIEPVU_488).
+    response.locals.errorCode = code;
     response.status(statusByCode[code]).json({ error: body } satisfies ErrorBody);
   }
 }

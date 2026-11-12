@@ -23,6 +23,8 @@ interface OauthState {
   activationToken: string | null;
   verifier: string;
   userId: string | null;
+  // CONG_VIEC_55: đăng nhập, liên kết từ cổng cửa hàng liên kết thì quay về `/merchant`.
+  app?: "merchant";
   expiresAt: number;
 }
 
@@ -47,7 +49,13 @@ export class OauthService {
   }
 
   // API_04: trả đường dẫn nhà cung cấp và cookie trạng thái. Chế độ liên kết cần phiên đã đăng nhập.
-  async start(provider: OauthProvider, mode: "login" | "link" | "activate", accessToken: string | undefined, activationToken?: string): Promise<{ url: string; stateCookie: string }> {
+  async start(
+    provider: OauthProvider,
+    mode: "login" | "link" | "activate",
+    accessToken: string | undefined,
+    activationToken?: string,
+    portalApp?: "merchant",
+  ): Promise<{ url: string; stateCookie: string }> {
     const app = await this.appSettings(provider);
     if (!app) throw new ApiError("BUSINESS_RULE", "oauthNotConfigured");
     if (mode === "activate") {
@@ -69,15 +77,16 @@ export class OauthService {
       verifier,
       userId,
       activationToken: mode === "activate" ? (activationToken ?? null) : null,
+      ...(portalApp && mode !== "activate" ? { app: portalApp } : {}),
       expiresAt: Math.floor(Date.now() / 1000) + 600,
     } satisfies OauthState);
     return { url: this.client.authorizationUrl(provider, app, { redirectUri: oauthCallbackUrl(provider), state, codeChallenge }), stateCookie };
   }
 
   // Chế độ của lần đăng nhập đang dở, để biết lỗi thì quay về trang nào.
-  pending(stateCookie: string | undefined): { mode: OauthState["mode"]; activationToken: string | null } {
+  pending(stateCookie: string | undefined): { mode: OauthState["mode"]; activationToken: string | null; app: "merchant" | null } {
     const saved = stateCookie ? verifyPayload<OauthState>(stateCookie) : null;
-    return { mode: saved?.mode ?? "login", activationToken: saved?.activationToken ?? null };
+    return { mode: saved?.mode ?? "login", activationToken: saved?.activationToken ?? null, app: saved?.app ?? null };
   }
 
   // API_05: đổi mã lấy danh tính rồi đăng nhập hoặc liên kết.

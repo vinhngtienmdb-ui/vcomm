@@ -425,7 +425,7 @@
 - Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_573 đến 584; KICHBAN_KIEMTHU_290, 291 chuyển sang kiểm tra API từ chối ghi mới; hồi quy toàn bộ.
 - Mức quy mô: Lớn; làm trong CONG_VIEC_22.
 - Rủi ro: trung bình (dữ liệu cá nhân khách, phạm vi xem theo nhánh).
-- Trạng thái: Đã phê duyệt 2026-11-12 (người dùng chọn qua câu hỏi trong phiên CONG_VIEC_22).
+- Trạng thái: Đã phê duyệt 2026-11-12 (người dùng chọn qua câu hỏi trong phiên CONG_VIEC_22); đã phát hành v0.6.0 2026-11-12, chờ triển khai.
 
 ### THAY_DOI_27: Kích hoạt lời mời cửa hàng liên kết bằng số điện thoại và mã OTP – 2026-11-12
 - Lý do: đặc tả CONG_VIEC_55 đã duyệt ghi kích hoạt lời mời bằng đường dẫn gửi qua SMS; SMS thương hiệu hiện chỉ gửi được mẫu OTP.
@@ -446,5 +446,16 @@
 - Ảnh hưởng chức năng cũ: hành vi chia sẻ của CONG_VIEC_49 giữ nguyên (đường dẫn vẫn mang mã cộng tác viên); chỉ đổi nút.
 - Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_22 lát L1; hồi quy c49-collaborators.
 - Mức quy mô: Nhỏ; làm trong CONG_VIEC_22.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-12; đã phát hành v0.6.0 2026-11-12, chờ triển khai.
+
+### THAY_DOI_29: Bổ sung danh sách giao dịch và nguồn bút toán riêng cho cửa hàng liên kết – 2026-11-12
+- Lý do: khi xem trước lát L3, L4 của CONG_VIEC_55, người dùng cần xem danh sách giao dịch của cửa hàng và tách bút toán hủy giao dịch, hết hạn voucher khỏi bút toán gốc.
+- Nội dung thay đổi (người dùng chọn 2026-11-12 trong phiên CONG_VIEC_55): thêm API GET /affiliate/transactions (thuộc API_213) và thẻ Giao dịch trên MAN_HINH_180; thêm nguồn bút toán affiliate_transaction_cancel, affiliate_voucher_expire.
+- Thành phần bị ảnh hưởng: CONG_VIEC_55 (đặc tả mục 17, API_213, MAN_HINH_180); ràng buộc accounting.journals.source_type (database migration 0105).
+- Dữ liệu, API, giao diện, quyền: thêm một endpoint đọc, hai giá trị nguồn bút toán; không thêm quyền.
+- Ảnh hưởng chức năng cũ: không (chưa phát hành).
+- Kiểm thử cần thực hiện: c55-transactions, c55-vouchers; hồi quy toàn bộ.
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_55.
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-12.
