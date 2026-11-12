@@ -43,6 +43,7 @@
 
 ### Quyết định
 
+- Người dùng quyết định không cần tra cứu pháp lý cho các công việc (bỏ điều kiện nghiệm thu của CONG_VIEC_59).
 - Người dùng mở phiên CONG_VIEC_62 (Dropship) và CONG_VIEC_65 (đối tác liên minh điểm ngoài tập đoàn; phát hành thật vẫn cần ý kiến luật sư); CONG_VIEC_63 tạm dừng.
 - Người dùng duyệt lát L4 CONG_VIEC_60, lát L1 CONG_VIEC_67; phát hành 0.9.0 gồm CONG_VIEC_59, 66 ngay (CONG_VIEC_60 vào bản sau); dành database migration 0149 cho việc gộp ràng buộc kiểm tra dùng chung của 0.9.0 nếu cần.
 - CONG_VIEC_59 sau rà soát độc lập: cho ký chéo trong tập đoàn (tài khoản ký số cùng nhà cung cấp); thư mời đối tác gửi sau khi ghi, gửi lại tối đa 5 lần mỗi 24 giờ; người đóng chữ ký công ty xem được phiên ký của hợp đồng mật (bổ sung QUYTAC_NGHIEPVU_466). Chấp nhận có điều kiện (tài liệu 22): trình gửi thư mời chỉ ghi nhật ký, phải thay trình gửi thật trước khi triển khai chính thức; bộ giả lập giữ lần ký trong bộ nhớ. Điều kiện nghiệm thu: tra nguyên văn căn cứ pháp lý khi hạn mức tra luật đặt lại, báo lại nếu phải đổi nghiệp vụ.
