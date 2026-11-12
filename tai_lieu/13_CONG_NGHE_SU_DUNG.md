@@ -36,7 +36,7 @@
 | Giám sát | CloudWatch, Sentry | Log, lỗi, cảnh báo |
 | Băm mật khẩu | argon2id | Chuẩn hiện hành |
 | Mã hóa bí mật | AWS KMS | Bí mật xác thực hai lớp |
-| Ký số PDF | `pdf-lib` 1.17.1, `@signpdf/signpdf` 4.0.0, `@signpdf/placeholder-pdf-lib` 4.0.0, `@signpdf/utils` 4.0.0, `node-forge` 1.4.3 (`@types/node-forge` 1.3.14); nhà cung cấp ký số từ xa qua lớp kết nối chung, bộ giả lập tự viết cho môi trường thử | CONG_VIEC_59; người dùng duyệt 2026-11-12 (mục 9) |
+| Ký số PDF | `pdf-lib` 1.17.1, `@signpdf/signpdf` 4.0.0, `@signpdf/placeholder-pdf-lib` 4.0.0, `@signpdf/utils` 4.0.0, `node-forge` 1.4.3 (`@types/node-forge` 1.3.14); nhà cung cấp ký số từ xa qua lớp kết nối chung, bộ giả lập tự viết cho môi trường thử | CONG_VIEC_59; người dùng duyệt 2026-11-12 (mục 10) |
 
 ## 2. Phân tích giải pháp có sẵn – Giai đoạn 05 – 2026-11-09
 
@@ -191,7 +191,7 @@ Quyết định: người dùng đồng ý thêm `jsqr` 1.4.0 ngày 2026-11-11. 
 
 Quyết định: người dùng đồng ý thêm `expo-clipboard` ngày 2026-11-12 (khi nghiệm thu CONG_VIEC_22); dùng chung qua `apps/mobile-vcomm/src/lib/clipboard.ts` cho mọi nút Sao chép của ứng dụng.
 
-## 9. Phân tích giải pháp có sẵn – CONG_VIEC_59 chữ ký số – 2026-11-12
+## 10. Phân tích giải pháp có sẵn – CONG_VIEC_59 chữ ký số – 2026-11-12
 
 - Yêu cầu cần đáp ứng: QUYTAC_NGHIEPVU_457 (chèn chữ ký PAdES bổ sung tăng dần vào PDF với chữ ký lấy từ nhà cung cấp ký số từ xa), QUYTAC_NGHIEPVU_461 (đọc, kiểm tra chữ ký số trong PDF).
 - Nguồn đã tìm: mã nguồn dự án (chưa có mã ký số; `pdfmake` chỉ sinh PDF mới, không sửa PDF có sẵn), trang giới thiệu VNPT SmartCA (cần tài khoản kết nối, chưa có đặc tả API ký tài liệu công khai), kho npm.
