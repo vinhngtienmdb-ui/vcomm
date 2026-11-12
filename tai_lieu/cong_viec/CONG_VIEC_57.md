@@ -3,7 +3,7 @@
 - Mô tả: Đơn đặt trên ứng dụng VComm được khách tự đến nhận tại trạm hoặc được trạm giao tận nơi. Trạm là cửa hàng bán lẻ (CONG_VIEC_53) hoặc điểm giao nhận riêng của công ty vận hành sàn, có kho riêng. Khách chọn trạm còn đủ hàng; trạm soạn hàng, báo sẵn sàng, giao bằng mã nhận hàng, thu tiền trong ca thu ngân; giữ hàng có hạn rồi tự hủy; trả hàng nhận về kho trạm.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-11
-- Trạng thái: Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11; lập trình chờ bản 0.5.0 (CONG_VIEC_53) vào `main`.
+- Trạng thái: Đã nghiệm thu, chờ phát hành. Người dùng duyệt đặc tả và bản mẫu ngày 2026-11-11, duyệt L1 đến L6 và nghiệm thu ngày 2026-11-12 (pull request #118).
 - Mức: Lớn (sửa cấu trúc dữ liệu, API, trạng thái đơn VComm đang dùng; nhiều module: VComm, Bán lẻ, Kho, Tài chính – Kế toán; thêm quyền, vai trò).
 - Nhánh: `chuc-nang/CONG_VIEC_57-tram-giao-hang-ngan-sach`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_14), `05` mục 3, `24` THAY_DOI_04; quyết định của người dùng ngày 2026-11-11 (mục 14).

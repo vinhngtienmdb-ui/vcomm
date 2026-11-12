@@ -781,7 +781,7 @@ Trạng thái đơn của trạm: tài liệu `09` Luồng 53.
 
 ### Quyết định AI tự đưa ra (CONG_VIEC_57)
 
-Ngày 2026-11-12, chưa xác nhận. Điều chỉnh khi lập trình, không đổi nghiệp vụ đã duyệt (đặc tả mục 14).
+Ngày 2026-11-12, người dùng xác nhận khi nghiệm thu. Điều chỉnh khi lập trình, không đổi nghiệp vụ đã duyệt (đặc tả mục 14).
 
 | Vị trí | Nội dung |
 |---|---|
