@@ -3,7 +3,7 @@
 - Mô tả: Kiểu chia chi phí điểm giữa các công ty trong tập đoàn; đối soát công nợ nội bộ phát sinh từ điểm hằng tháng, hai bên xác nhận, bù trừ, thanh toán phần còn lại; nhận biết thiết bị bằng mã cài đặt ứng dụng; bốn quy tắc chống gian lận có ngưỡng và mức xử lý cấu hình được; vụ việc gian lận; báo cáo liên minh và gian lận. Web quản trị (`apps/web-crm`, `apps/web-finance`) và ứng dụng VComm (`apps/mobile-vcomm`).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả và bản mẫu.
+- Trạng thái: Đang thực hiện (người dùng duyệt đặc tả, bản mẫu và đề xuất mục 18 ngày 2026-11-12).
 - Nguồn: tài liệu `01` (MODULE_11: đối soát liên minh, chống gian lận), `05` mục 2.3; CONG_VIEC_51 (sổ cái điểm, nợ nội bộ 1368/3368, QUYTAC_NGHIEPVU_354, 355); CONG_VIEC_53 lát L6 (bán, trả hàng tại quầy gọi service điểm); quyết định của người dùng ngày 2026-11-12 (mục 17).
 - Mức: Lớn (sửa hạch toán điểm đang dùng, thêm bảng, quyền, loại phiếu thu chi, sửa ràng buộc dùng chung, nhiều module: điểm thưởng, tài chính, bán lẻ, ứng dụng).
 - Phụ thuộc: CONG_VIEC_53 lát L6 (pull request #125, bản 0.6.0) cho nguồn bán tại quầy và quy tắc theo nhân viên.

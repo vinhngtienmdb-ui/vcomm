@@ -7245,6 +7245,10 @@ const loyaltyPointValue = z
   .refine((value) => Number(value) > 0, "invalidValue");
 const loyaltyPointCount = z.number().int().min(1).max(1_000_000_000);
 
+// QUYTAC_NGHIEPVU_468 (CONG_VIEC_60): kiểu chia chi phí khi khách tích ở công ty này, dùng ở công ty khác.
+export const loyaltyCostBearers = ["earning_company", "redeeming_company", "operator"] as const;
+export type LoyaltyCostBearer = (typeof loyaltyCostBearers)[number];
+
 // QUYTAC_NGHIEPVU_345: giai đoạn chương trình điểm.
 export const loyaltyPhaseSchema = z
   .object({
@@ -7257,6 +7261,7 @@ export const loyaltyPhaseSchema = z
     validityMonths: z.number().int().min(1).max(60),
     orderCapPoints: loyaltyPointCount.nullable(),
     monthlyCapPoints: loyaltyPointCount.nullable(),
+    costBearer: z.enum(loyaltyCostBearers).default("earning_company"),
   })
   .strict();
 export type LoyaltyPhaseInput = z.infer<typeof loyaltyPhaseSchema>;
@@ -7298,6 +7303,7 @@ export interface LoyaltyPhase {
   validityMonths: number;
   orderCapPoints: number | null;
   monthlyCapPoints: number | null;
+  costBearer: LoyaltyCostBearer;
   status: LoyaltyPhaseStatus;
   version: number;
 }

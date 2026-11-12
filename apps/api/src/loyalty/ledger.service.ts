@@ -1,6 +1,7 @@
 // Sổ cái điểm theo chứng từ nguồn chung (CONG_VIEC_51; CHUC_NANG_179, 180; QUYTAC_NGHIEPVU_344, 346 đến 349, 351).
 // Mọi hàm *Within chạy trong giao dịch của bên gọi (đơn VComm; bán, trả hàng tại quầy của CONG_VIEC_53) và khóa dòng ví điểm trước khi đổi số dư.
 import { Inject, Injectable } from "@nestjs/common";
+import type { LoyaltyCostBearer } from "contracts";
 import { sql } from "drizzle-orm";
 import { ApiError } from "../common/api-error";
 import { notify } from "../common/notifications";
@@ -68,6 +69,8 @@ async function addEntry(
     sourceId: string | null;
     companyId: string | null;
     allocations: Allocation[];
+    // Trừ lại điểm đã tích: chứng từ bán gốc, để hạch toán phần thiếu quy tiền theo kiểu chia chi phí của lô chứng từ bán (QUYTAC_NGHIEPVU_469).
+    saleLink?: { sourceType: SaleSourceType; sourceId: string };
   },
 ): Promise<string> {
   const balance = (
@@ -80,6 +83,9 @@ async function addEntry(
   ).rows[0]!.id;
   for (const allocation of input.allocations) {
     await executor.execute(sql`INSERT INTO loyalty.entry_lots (entry_id, lot_id, points, point_value) VALUES (${entryId}, ${allocation.lotId}, ${allocation.points}, ${allocation.pointValue})`);
+  }
+  if (input.saleLink) {
+    await executor.execute(sql`INSERT INTO loyalty.refund_links (entry_id, sale_source_type, sale_source_id) VALUES (${entryId}, ${input.saleLink.sourceType}, ${input.saleLink.sourceId})`);
   }
   if (entryPoster) await entryPoster(executor, entryId);
   return entryId;
@@ -98,13 +104,14 @@ export async function creditLot(
     pointValue: number;
     day: string;
     validityMonths: number;
+    costBearer?: LoyaltyCostBearer;
   },
 ): Promise<string> {
   const lotId = (
     await executor.execute<{ id: string }>(sql`
-    INSERT INTO loyalty.lots (user_id, source_type, source_id, company_id, points, remaining, point_value, earned_on, expires_on)
+    INSERT INTO loyalty.lots (user_id, source_type, source_id, company_id, points, remaining, point_value, earned_on, expires_on, cost_bearer)
     VALUES (${input.userId}, ${input.sourceType}, ${input.sourceId}, ${input.companyId}, ${input.points}, ${input.points}, ${input.pointValue}, ${input.day}::date,
-      (${input.day}::date + make_interval(months => ${input.validityMonths}))::date) RETURNING id`)
+      (${input.day}::date + make_interval(months => ${input.validityMonths}))::date, ${input.costBearer ?? "earning_company"}) RETURNING id`)
   ).rows[0]!.id;
   return addEntry(executor, { ...input, allocations: [{ lotId, points: input.points, pointValue: input.pointValue }] });
 }
@@ -240,6 +247,7 @@ export async function returnSalePoints(
         await addEntry(executor, {
           userId: document.user_id,
           kind: "earn_reversal",
+          saleLink: { sourceType: input.saleSourceType, sourceId: input.saleSourceId },
           points: -taken,
           amount: Math.round((toReverse - taken) * Number(lot?.point_value ?? 0)),
           ...entrySource,
@@ -456,6 +464,7 @@ export class LoyaltyLedgerService {
         pointValue: phase!.pointValue,
         day: input.day,
         validityMonths: phase!.validityMonths,
+        costBearer: phase!.costBearer,
       });
     }
     await addSpend(executor, input.userId, input.companyId, input.goodsAmount);

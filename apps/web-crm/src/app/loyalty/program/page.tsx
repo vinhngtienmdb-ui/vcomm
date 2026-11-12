@@ -1,7 +1,8 @@
 "use client";
 
 // MAN_HINH_146 Chương trình điểm (CONG_VIEC_51; CHUC_NANG_178; API_176; QUYTAC_NGHIEPVU_345, 351): giai đoạn, bảng hạng.
-import type { LoyaltyPhase, LoyaltyProgramResponse, LoyaltyTier } from "contracts";
+// CONG_VIEC_60 (CHUC_NANG_214; QUYTAC_NGHIEPVU_468): kiểu chia chi phí theo giai đoạn.
+import { loyaltyCostBearers, type LoyaltyCostBearer, type LoyaltyPhase, LoyaltyProgramResponse, LoyaltyTier } from "contracts";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
@@ -23,6 +24,7 @@ type PhaseDraft = {
   validityMonths: string;
   orderCapPoints: string;
   monthlyCapPoints: string;
+  costBearer: LoyaltyCostBearer;
 };
 
 const draftOf = (phase: LoyaltyPhase | null, today: string): PhaseDraft =>
@@ -37,8 +39,20 @@ const draftOf = (phase: LoyaltyPhase | null, today: string): PhaseDraft =>
         validityMonths: String(phase.validityMonths),
         orderCapPoints: phase.orderCapPoints === null ? "" : String(phase.orderCapPoints),
         monthlyCapPoints: phase.monthlyCapPoints === null ? "" : String(phase.monthlyCapPoints),
+        costBearer: phase.costBearer,
       }
-    : { startsOn: today, endsOn: "", earnPercent: "1", pointValue: "1", redeemMaxPercent: "50", redeemMinPoints: "1000", validityMonths: "12", orderCapPoints: "", monthlyCapPoints: "" };
+    : {
+        startsOn: today,
+        endsOn: "",
+        earnPercent: "1",
+        pointValue: "1",
+        redeemMaxPercent: "50",
+        redeemMinPoints: "1000",
+        validityMonths: "12",
+        orderCapPoints: "",
+        monthlyCapPoints: "",
+        costBearer: "earning_company",
+      };
 
 const optionalNumber = (value: string) => (value.trim() === "" ? null : Number(value.replaceAll(".", "")));
 
@@ -59,6 +73,7 @@ function PhaseForm({ phase, today, onDone }: { phase: LoyaltyPhase | null; today
     validityMonths: Number(draft.validityMonths),
     orderCapPoints: optionalNumber(draft.orderCapPoints),
     monthlyCapPoints: optionalNumber(draft.monthlyCapPoints),
+    costBearer: draft.costBearer,
   });
   const save = () =>
     run(async () => {
@@ -93,7 +108,17 @@ function PhaseForm({ phase, today, onDone }: { phase: LoyaltyPhase | null; today
         {input("validityMonths")}
         {input("orderCapPoints")}
         {input("monthlyCapPoints")}
+        <Field id="gd-costBearer" label={t("phase_costBearer")} error={fields.costBearer}>
+          <select id="gd-costBearer" className={inputClass("costBearer")} value={draft.costBearer} disabled={started} onChange={set("costBearer")}>
+            {loyaltyCostBearers.map((bearer) => (
+              <option key={bearer} value={bearer}>
+                {t(`costBearer_${bearer}`)}
+              </option>
+            ))}
+          </select>
+        </Field>
       </div>
+      <div className="khoi-canh-bao thong-tin">{t("costBearerHint")}</div>
       {!started ? <div className="khoi-canh-bao thong-tin">{t("example", { points: formatNumber(example, 0) })}</div> : null}
       <FormError text={formError} />
       <div className="nhom-nut">
@@ -232,7 +257,7 @@ export default function LoyaltyProgramPage() {
                   <table>
                     <thead>
                       <tr>
-                        {["startsOn", "endsOn", "earnPercent", "pointValue", "redeemMaxPercent", "redeemMinPoints", "validityMonths", "orderCapPoints", "monthlyCapPoints"].map((key) => (
+                        {["startsOn", "endsOn", "earnPercent", "pointValue", "redeemMaxPercent", "redeemMinPoints", "validityMonths", "orderCapPoints", "monthlyCapPoints", "costBearer"].map((key) => (
                           <th key={key}>{t(`column_${key}`)}</th>
                         ))}
                         <th>{t("column_status")}</th>
@@ -251,6 +276,7 @@ export default function LoyaltyProgramPage() {
                           <td data-nhan={t("column_validityMonths")}>{t("months", { count: phase.validityMonths })}</td>
                           <td data-nhan={t("column_orderCapPoints")}>{phase.orderCapPoints === null ? "—" : formatNumber(phase.orderCapPoints, 0)}</td>
                           <td data-nhan={t("column_monthlyCapPoints")}>{phase.monthlyCapPoints === null ? "—" : formatNumber(phase.monthlyCapPoints, 0)}</td>
+                          <td data-nhan={t("column_costBearer")}>{t(`costBearer_${phase.costBearer}`)}</td>
                           <td data-nhan={t("column_status")}>
                             <span className={`nhan ${statusTone[phase.status]}`}>{t(`status_${phase.status}`)}</span>
                           </td>

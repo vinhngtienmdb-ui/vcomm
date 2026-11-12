@@ -19,6 +19,17 @@ const linesOf = (side: Side): DraftLine[] =>
     .map((item) => ({ role: item.role, partnerId: item.partnerId ?? null, debit: item.amount > 0 ? item.amount : 0, credit: item.amount < 0 ? -item.amount : 0 }));
 const net = (side: Side) => side.reduce((total, item) => total + item.amount, 0);
 
+// Gộp các dòng cùng vai trò, cùng đối tác.
+const merged = (side: Side): Side => {
+  const byKey = new Map<string, Side[number]>();
+  for (const item of side) {
+    const key = `${item.role}|${item.partnerId ?? ""}`;
+    const current = byKey.get(key);
+    byKey.set(key, current ? { ...current, amount: current.amount + item.amount } : { ...item });
+  }
+  return [...byKey.values()];
+};
+
 async function operatorCompanyId(executor: Executor): Promise<string | null> {
   return (await executor.execute<{ id: string }>(sql`SELECT id FROM core.companies WHERE is_marketplace_operator`)).rows[0]?.id ?? null;
 }
@@ -47,13 +58,13 @@ async function drafts(
         journalNo: input.journalNo,
         date: input.date,
         description: input.description,
-        lines: linesOf([...input.operatorSide, ...input.companySide]),
+        lines: linesOf(merged([...input.operatorSide, ...input.companySide])),
       },
     ];
   }
   const operatorNet = net(input.operatorSide);
   const companyNet = net(input.companySide);
-  return [
+  const both: DraftJournal[] = [
     {
       companyId: input.operator,
       sourceType: input.sourceType,
@@ -73,6 +84,8 @@ async function drafts(
       lines: linesOf([...input.companySide, { role: "loyalty_intercompany_payable", amount: -companyNet, partnerId: await internalPartnerOf(executor, input.operator) }]),
     },
   ];
+  // Kiểu chia chi phí khác nơi tích chịu có thể chỉ phát sinh ở một phía (QUYTAC_NGHIEPVU_469).
+  return both.filter((draft) => draft.lines.length > 0);
 }
 
 const descriptions: Record<string, string> = {
@@ -85,24 +98,12 @@ const descriptions: Record<string, string> = {
   adjust_subtract: "Điều chỉnh trừ điểm thưởng",
 };
 
-// Bút toán của một bút toán điểm. Điểm dùng, hoàn của đơn VComm không ghi ở đây mà gộp khi đơn hoàn tất.
-export async function loyaltyEntryDrafts(executor: Executor, entryId: string): Promise<DraftJournal[]> {
-  const entry = (
-    await executor.execute<{ kind: string; points: number; amount: string; source_type: string | null; company_id: string | null; day: string; value: string; document_no: string | null }>(sql`
-    SELECT e.kind, e.points, e.amount::text, e.source_type, e.company_id, (e.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS day,
-      coalesce((SELECT sum(abs(el.points) * el.point_value) FROM loyalty.entry_lots el WHERE el.entry_id = e.id), 0)::text AS value,
-      CASE WHEN e.source_type = 'marketplace_order' THEN (SELECT so.document_no FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id WHERE m.id = e.source_id)
-        WHEN e.source_type = 'adjustment' THEN (SELECT d.document_no FROM loyalty.adjustments d WHERE d.id = e.source_id) END AS document_no
-    FROM loyalty.entries e WHERE e.id = ${entryId}`)
-  ).rows[0];
-  if (!entry) return [];
-  if (entry.source_type === "marketplace_order" && (entry.kind === "redeem" || entry.kind === "redeem_refund")) return [];
-  const operator = await operatorCompanyId(executor);
-  if (!operator) return [];
-  const company = entry.company_id ?? operator;
-  const value = round(Number(entry.value));
-  const amount = round(Number(entry.amount));
-  const sides: Record<string, { operatorSide: Side; companySide: Side }> = {
+type Bearer = "earning_company" | "redeeming_company" | "operator";
+
+// Hai phía theo kiểu chia chi phí của lô (QUYTAC_NGHIEPVU_355, 469). value: giá trị lúc tích của phần lô; amount: tiền điểm (dùng, hoàn) hoặc phần thiếu quy tiền (trừ lại).
+function sidesOf(kind: string, bearer: Bearer, value: number, amount: number): { operatorSide: Side; companySide: Side } | null {
+  // Kiểu nơi tích chịu: hạch toán của CONG_VIEC_51.
+  const earningCompany: Record<string, { operatorSide: Side; companySide: Side }> = {
     earn: { operatorSide: [{ role: "loyalty_liability", amount: -value }], companySide: [{ role: "loyalty_expense", amount: value }] },
     // Dùng điểm: giảm nghĩa vụ theo giá trị lúc tích; khách được trừ tiền điểm hiện hành; chênh lệch vào chi phí ở công ty vận hành sàn.
     redeem: {
@@ -131,14 +132,112 @@ export async function loyaltyEntryDrafts(executor: Executor, entryId: string): P
     adjust_add: { operatorSide: [{ role: "loyalty_liability", amount: -value }], companySide: [{ role: "loyalty_expense", amount: value }] },
     adjust_subtract: { operatorSide: [{ role: "loyalty_liability", amount: value }], companySide: [{ role: "loyalty_expense", amount: -value }] },
   };
-  const side = sides[entry.kind];
-  if (!side) return [];
+  if (bearer === "earning_company" || kind === "expire" || kind.startsWith("adjust")) return earningCompany[kind] ?? null;
+  // Nơi dùng chịu, công ty vận hành sàn chịu: chi phí tích ghi ở công ty vận hành sàn; phần thiếu quy tiền khi trừ lại giảm chi phí ở công ty vận hành sàn.
+  const atOperator: Record<string, { operatorSide: Side; companySide: Side }> = {
+    earn: {
+      operatorSide: [
+        { role: "loyalty_liability", amount: -value },
+        { role: "loyalty_expense", amount: value },
+      ],
+      companySide: [],
+    },
+    earn_reversal: {
+      operatorSide: [
+        { role: "loyalty_liability", amount: value },
+        { role: "loyalty_expense", amount: -(value + amount) },
+      ],
+      companySide: [{ role: "receivable", amount }],
+    },
+  };
+  if (atOperator[kind]) return atOperator[kind]!;
+  if (bearer === "operator") return earningCompany[kind] ?? null;
+  // Nơi dùng chịu: dùng điểm gỡ chi phí tạm ở công ty vận hành sàn, nơi dùng ghi chi phí bằng tiền điểm; không phát sinh nợ nội bộ.
+  if (kind === "redeem") {
+    return {
+      operatorSide: [
+        { role: "loyalty_liability", amount: value },
+        { role: "loyalty_expense", amount: -value },
+      ],
+      companySide: [
+        { role: "loyalty_expense", amount },
+        { role: "receivable", amount: -amount },
+      ],
+    };
+  }
+  if (kind === "redeem_refund") {
+    return {
+      operatorSide: [
+        { role: "loyalty_liability", amount: -value },
+        { role: "loyalty_expense", amount: value },
+      ],
+      companySide: [
+        { role: "loyalty_expense", amount: -amount },
+        { role: "receivable", amount },
+      ],
+    };
+  }
+  return null;
+}
+
+// Bút toán của một bút toán điểm. Điểm dùng, hoàn của đơn VComm không ghi ở đây mà gộp khi đơn hoàn tất.
+// Bút toán điểm lấy từ nhiều lô khác kiểu chia chi phí: tách theo kiểu, tiền chia theo tỷ lệ điểm (nhóm cuối nhận phần làm tròn).
+export async function loyaltyEntryDrafts(executor: Executor, entryId: string): Promise<DraftJournal[]> {
+  const entry = (
+    await executor.execute<{ kind: string; amount: string; source_type: string | null; company_id: string | null; day: string; document_no: string | null }>(sql`
+    SELECT e.kind, e.amount::text, e.source_type, e.company_id, (e.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS day,
+      CASE WHEN e.source_type = 'marketplace_order' THEN (SELECT so.document_no FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id WHERE m.id = e.source_id)
+        WHEN e.source_type = 'adjustment' THEN (SELECT d.document_no FROM loyalty.adjustments d WHERE d.id = e.source_id) END AS document_no
+    FROM loyalty.entries e WHERE e.id = ${entryId}`)
+  ).rows[0];
+  if (!entry) return [];
+  if (entry.source_type === "marketplace_order" && (entry.kind === "redeem" || entry.kind === "redeem_refund")) return [];
+  const operator = await operatorCompanyId(executor);
+  if (!operator) return [];
+  const groups = (
+    await executor.execute<{ cost_bearer: Bearer; points: number; value: string }>(sql`
+    SELECT l.cost_bearer, sum(abs(el.points))::int AS points, sum(abs(el.points) * el.point_value)::text AS value
+    FROM loyalty.entry_lots el JOIN loyalty.lots l ON l.id = el.lot_id WHERE el.entry_id = ${entryId} GROUP BY l.cost_bearer ORDER BY l.cost_bearer`)
+  ).rows;
+  const amount = round(Number(entry.amount));
+  // Trừ lại: phần thiếu quy tiền theo kiểu của lô chứng từ bán gốc; các bút toán khác: tiền chia theo tỷ lệ điểm.
+  const shortfallBearer =
+    entry.kind === "earn_reversal"
+      ? ((
+          await executor.execute<{ cost_bearer: Bearer }>(sql`
+          SELECT l.cost_bearer FROM loyalty.refund_links r JOIN loyalty.lots l ON l.source_type = r.sale_source_type AND l.source_id = r.sale_source_id WHERE r.entry_id = ${entryId}`)
+        ).rows[0]?.cost_bearer ?? "earning_company")
+      : null;
+  if (shortfallBearer && !groups.some((group) => group.cost_bearer === shortfallBearer)) groups.push({ cost_bearer: shortfallBearer, points: 0, value: "0" });
+  if (groups.length === 0) groups.push({ cost_bearer: "earning_company", points: 0, value: "0" });
+  const company = entry.company_id ?? operator;
+  const totalPoints = groups.reduce((total, group) => total + group.points, 0);
+  const operatorSide: Side = [];
+  const companySide: Side = [];
+  let amountLeft = amount;
+  for (const [index, group] of groups.entries()) {
+    const groupAmount = shortfallBearer
+      ? group.cost_bearer === shortfallBearer
+        ? amount
+        : 0
+      : index === groups.length - 1
+        ? amountLeft
+        : totalPoints > 0
+          ? round((amount * group.points) / totalPoints)
+          : 0;
+    amountLeft -= groupAmount;
+    const side = sidesOf(entry.kind, group.cost_bearer, round(Number(group.value)), groupAmount);
+    if (!side) return [];
+    operatorSide.push(...side.operatorSide);
+    companySide.push(...side.companySide);
+  }
   // Hết hạn, điều chỉnh: chỉ ở công ty vận hành sàn.
   const sideCompany = entry.kind === "expire" || entry.kind.startsWith("adjust") ? operator : company;
   return drafts(executor, {
     operator,
     company: sideCompany,
-    ...side,
+    operatorSide: merged(operatorSide),
+    companySide: merged(companySide),
     sourceType: "loyalty_entry",
     sourceId: entryId,
     journalNo: entry.document_no ? `${entry.document_no}-DT` : `DT-${entryId.slice(0, 8).toUpperCase()}`,
