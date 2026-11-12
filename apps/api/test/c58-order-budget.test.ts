@@ -197,9 +197,9 @@ describe("TIEUCHI_NGHIEMTHU_417: chuyển luồng duyệt khi vượt ngân sác
 
   // Đơn chờ duyệt không giữ chỗ ngân sách (QUYTAC_NGHIEPVU_446); khóa có tác dụng với đơn được duyệt ngay khi gửi (miễn duyệt, chưa có chính sách đơn mua).
   it("KICHBAN_KIEMTHU_592: hai đơn được duyệt ngay gửi đồng thời, mỗi đơn vừa đủ phần còn lại: chỉ một đơn đi luồng thường", async () => {
-    await pool.query("UPDATE purchasing.budget_lines SET adjusted_amount = 1500000 WHERE category_id = $1", [food]);
+    await pool.query("UPDATE purchasing.budget_lines SET adjusted_amount = 1700000 WHERE category_id = $1", [food]);
     await pool.query("UPDATE core.approval_policies SET effective_to = '2026-01-01' WHERE document_type_code = 'purchasing.order'");
-    // Đã dùng: 300.000 (lần duyệt trước của đơn đang duyệt lại) + 800.000 = 1.100.000; còn 1.400.000.
+    // Đã dùng: 300.000 (lần duyệt trước của đơn đang duyệt lại) + 800.000 + 200.000 (đơn miễn duyệt) = 1.300.000; ngân sách 2.700.000, còn 1.400.000.
     const first = await createOrder("2026-11-20", [line("rice", 14, 100000)]);
     const second = await createOrder("2026-11-21", [line("rice", 14, 100000)]);
     const results = await Promise.all([submit(first.id), submit(second.id)]);

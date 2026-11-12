@@ -4952,7 +4952,7 @@ Dữ liệu chung: công ty VCR (đồng tiền đồng Việt Nam) và VCT; ng�
 - Chức năng: CHUC_NANG_209
 - Loại: Đồng thời
 - Vai trò thực hiện: Nhân viên mua hàng VCR
-- Điều kiện ban đầu và dữ liệu: Dữ liệu sau KICHBAN_KIEMTHU_591; ô Thực phẩm tháng 11 có điều chỉnh 1.500.000 (ngân sách 2.500.000, đã dùng 1.100.000, còn 1.400.000); công ty chưa có chính sách duyệt đơn mua (`purchasing.order` hết hiệu lực) nên đơn trong ngân sách được duyệt ngay khi gửi. Đơn chờ duyệt không giữ chỗ ngân sách (QUYTAC_NGHIEPVU_446), nên chỉ đơn được duyệt ngay mới làm thay đổi số còn lại của đơn gửi sau.
+- Điều kiện ban đầu và dữ liệu: Dữ liệu sau KICHBAN_KIEMTHU_591; ô Thực phẩm tháng 11 có điều chỉnh 1.700.000 (ngân sách 2.700.000, đã dùng 1.300.000 gồm đơn miễn duyệt 200.000, còn 1.400.000); công ty chưa có chính sách duyệt đơn mua (`purchasing.order` hết hiệu lực) nên đơn trong ngân sách được duyệt ngay khi gửi. Đơn chờ duyệt không giữ chỗ ngân sách (QUYTAC_NGHIEPVU_446), nên chỉ đơn được duyệt ngay mới làm thay đổi số còn lại của đơn gửi sau.
 - Các bước: (1) Lập hai đơn, mỗi đơn 1.400.000 Thực phẩm. (2) Gửi duyệt hai đơn cùng lúc.
 - Kết quả mong đợi: Hai lời gọi `201`; một đơn Đã duyệt ngay, đơn kia Chờ duyệt loại `purchasing.order_over_budget`; nhật ký `purchase_order.submit` một đơn `overBudget` sai, một đơn đúng.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c58-order-budget.test.ts`
