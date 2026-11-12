@@ -371,7 +371,7 @@
 - Kiểm thử cần thực hiện: kịch bản chặn, bỏ chặn, gửi yêu cầu khi bị chặn; hồi quy c26-*.
 - Mức quy mô: Vừa; làm trong CONG_VIEC_49.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-11.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã phát hành v0.5.0 2026-11-12, chờ triển khai.
 
 ### THAY_DOI_23: Bỏ giới hạn yêu cầu theo IP cho API nộp hồ sơ ứng tuyển công khai – 2026-11-11
 - Lý do: CONG_VIEC_54 (tuyển dụng): người dùng không muốn chặn ứng viên nộp hồ sơ vì giới hạn theo IP (nhiều ứng viên dùng chung mạng).
@@ -382,7 +382,7 @@
 - Kiểm thử cần thực hiện: API_204 nhận nhiều yêu cầu liên tiếp từ cùng IP; API công khai khác vẫn bị giới hạn.
 - Mức quy mô: Nhỏ; làm trong CONG_VIEC_54.
 - Rủi ro (người dùng chấp nhận): hồ sơ rác hàng loạt, đầy kho lưu tệp đính kèm, tốn tài nguyên máy chủ; giảm thiểu đề xuất trong tài liệu 22 (giới hạn kích thước, loại tệp, theo dõi dung lượng).
-- Trạng thái: Đã phê duyệt 2026-11-11.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã phát hành v0.5.0 2026-11-12, chờ triển khai.
 
 ### THAY_DOI_24: Bán lẻ tại quầy dùng lại hóa đơn điện tử, quỹ, đơn bán – 2026-11-11
 - Lý do: CONG_VIEC_53 (bán lẻ tại quầy) cần mở rộng hành vi đã duyệt của các công việc đã phát hành 0.3.0.
@@ -396,7 +396,7 @@
 - Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_53; hồi quy c8-*, c13-*, c16-*.
 - Mức quy mô: Vừa; làm trong CONG_VIEC_53.
 - Rủi ro: chưa đối chiếu nguyên văn quy định hóa đơn khởi tạo từ máy tính tiền (phải tra trước lát hóa đơn).
-- Trạng thái: Đã phê duyệt 2026-11-11.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã phát hành v0.5.0 2026-11-12, chờ triển khai.
 
 ### THAY_DOI_25: Ứng viên tự trả lời đề nghị nhận việc, email mời phỏng vấn kèm lịch – 2026-11-11
 - Lý do: người dùng thay đổi đặc tả CONG_VIEC_54 đã duyệt (bản 0.1) sau khi xem lát L0.
@@ -407,7 +407,7 @@
 - Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_54.
 - Mức quy mô: Nhỏ; làm trong CONG_VIEC_54.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-11.
+- Trạng thái: Đã phê duyệt 2026-11-11; đã phát hành v0.5.0 2026-11-12, chờ triển khai.
 
 ### THAY_DOI_26: CONG_VIEC_22 làm lại thành phần Kinh doanh của ứng dụng VComm – 2026-11-12
 - Lý do: THAY_DOI_14 bỏ ứng dụng nhân viên kinh doanh riêng; người dùng mở lại CONG_VIEC_22 và chọn lại phạm vi ngày 2026-11-12.
@@ -426,3 +426,25 @@
 - Mức quy mô: Lớn; làm trong CONG_VIEC_22.
 - Rủi ro: trung bình (dữ liệu cá nhân khách, phạm vi xem theo nhánh).
 - Trạng thái: Đã phê duyệt 2026-11-12 (người dùng chọn qua câu hỏi trong phiên CONG_VIEC_22).
+
+### THAY_DOI_27: Kích hoạt lời mời cửa hàng liên kết bằng số điện thoại và mã OTP – 2026-11-12
+- Lý do: đặc tả CONG_VIEC_55 đã duyệt ghi kích hoạt lời mời bằng đường dẫn gửi qua SMS; SMS thương hiệu hiện chỉ gửi được mẫu OTP.
+- Nội dung thay đổi (người dùng chấp nhận 2026-11-12): chủ cửa hàng và thu ngân kích hoạt lời mời bằng số điện thoại kèm mã OTP trên cổng cửa hàng; dùng phiên web hiện có, không thêm loại phiên.
+- Thành phần bị ảnh hưởng: CONG_VIEC_55 (đặc tả, MAN_HINH_177, 178, API_206, 207).
+- Dữ liệu, API, giao diện, quyền: không thêm bảng; API kích hoạt nhận số điện thoại và mã OTP thay mã trong đường dẫn.
+- Ảnh hưởng chức năng cũ: không (chưa phát hành).
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_55 (kích hoạt lời mời).
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_55.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-12.
+
+### THAY_DOI_28: Gộp nút chia sẻ sản phẩm trên ứng dụng VComm – 2026-11-12
+- Lý do: CONG_VIEC_22 thêm chia sẻ đường dẫn sản phẩm có mã giới thiệu (THAY_DOI_26), trùng với nút "Chia sẻ nhận hoa hồng" của CONG_VIEC_49 (đã phát hành 0.5.0).
+- Nội dung thay đổi (người dùng chọn 2026-11-12 trong phiên CONG_VIEC_22): một nút "Chia sẻ sản phẩm" cho mọi người mua, đường dẫn gộp mã giới thiệu và mã cộng tác viên; thay nút "Chia sẻ nhận hoa hồng" trên MAN_HINH_91.
+- Thành phần bị ảnh hưởng: CONG_VIEC_22, CONG_VIEC_49 (MAN_HINH_91); tài liệu 09, 10, 14.
+- Dữ liệu, API, giao diện, quyền: không đổi API, dữ liệu, quyền; đổi giao diện MAN_HINH_91.
+- Ảnh hưởng chức năng cũ: hành vi chia sẻ của CONG_VIEC_49 giữ nguyên (đường dẫn vẫn mang mã cộng tác viên); chỉ đổi nút.
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_22 lát L1; hồi quy c49-collaborators.
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_22.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-12.
