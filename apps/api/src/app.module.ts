@@ -52,6 +52,7 @@ import { PartnersService } from "./crm/partners.service";
 import { VisitsService } from "./crm/visits.service";
 import { BuyerController } from "./marketplace/buyer.controller";
 import { BuyerAccountsService } from "./marketplace/buyer-accounts.service";
+import { SalesCareService } from "./marketplace/sales-care.service";
 import { BuyerAdminService } from "./marketplace/buyer-admin.service";
 import { MarketplaceController } from "./marketplace/marketplace.controller";
 import { SalesTeamService } from "./marketplace/sales-team.service";
@@ -245,6 +246,7 @@ import { UsersService } from "./users/users.service";
     PartnersService,
     VisitsService,
     BuyerAccountsService,
+    SalesCareService,
     BuyerAdminService,
     SalesTeamService,
     SalesProposalsService,

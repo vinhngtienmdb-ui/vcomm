@@ -69,7 +69,7 @@ Luồng 54: nhân viên mở Kinh doanh → thấy hẹn hôm nay, doanh số th
 
 - Sửa MAN_HINH_78 Kinh doanh: thêm thẻ "Hẹn hôm nay" (số hẹn hôm nay, quá hạn; mở MAN_HINH_198), thẻ "Doanh số tháng này" (mở MAN_HINH_199); mỗi khách trong danh sách bấm mở MAN_HINH_196. MAN_HINH_84 (khách của cấp dưới) cũng mở MAN_HINH_196.
 - MAN_HINH_196 Chi tiết khách: thông tin, nút Gọi, Ghi chú; số liệu đơn; đơn gần nhất; hoa hồng của tôi từ khách; ghi chú chăm sóc.
-- MAN_HINH_197 Thêm ghi chú chăm sóc: kênh, nội dung, ngày hẹn (tùy chọn).
+- MAN_HINH_197 Thêm ghi chú chăm sóc: kênh, nội dung, hẹn lần sau chọn nhanh (Không hẹn, Ngày mai, 3 ngày nữa, 1 tuần nữa, Chọn ngày nhập ngày/tháng/năm; không thêm thư viện chọn ngày).
 - MAN_HINH_198 Hẹn của tôi: nhóm Quá hạn, Hôm nay, 7 ngày tới; bấm mở khách; nút Đã xong.
 - MAN_HINH_199 Doanh số: chọn tháng; doanh số của tôi; với người quản lý thêm bảng từng người trong nhánh và tổng nhánh, bấm một người mở khách của người đó (MAN_HINH_84).
 - MAN_HINH_200 Thông báo: danh sách, chưa đọc in đậm; số chưa đọc trên biểu tượng đầu mục Trang chủ.
@@ -83,7 +83,7 @@ MAN_HINH_202, 203 để dự phòng.
 - Database migration 0113 `marketplace.customer_care_notes`: `id`, `company_id` (công ty vận hành sàn), `buyer_user_id`, `author_user_id`, `channel` (`call`, `message`, `meeting`, `other`), `content` (1 đến 1.000 ký tự), `follow_up_on` (date, có thể trống), `follow_up_done_at`, `created_at`; kiểm tra `follow_up_done_at` chỉ có khi có `follow_up_on`. Chỉ mục theo khách và thời điểm; chỉ mục một phần theo người ghi và ngày hẹn cho hẹn chờ. Không sửa, không xóa (trừ cột đã xong).
 - Database migration 0114: thêm cột `marketplace.orders.sales_staff_user_id` (người phụ trách khách lúc đặt đơn, có thể trống), ghi khi đặt đơn (sửa dịch vụ đặt hàng của CONG_VIEC_24, không đổi hợp đồng API); điền cho đơn cũ từ dòng hoa hồng phần `staff` của đơn nếu có; chỉ mục theo người phụ trách và `completed_at` cho đơn hoàn tất.
 - API_228 `GET /buyer/sales/customers/:id`: chi tiết khách (QUYTAC_NGHIEPVU_432, 433).
-- API_229 `POST /buyer/sales/customers/:id/notes`: thêm ghi chú (QUYTAC_NGHIEPVU_435). `GET /buyer/sales/customers/:id/notes?cursor=`: ghi chú cũ hơn.
+- API_229 `POST /buyer/sales/customers/:id/notes`: thêm ghi chú (QUYTAC_NGHIEPVU_435; ngày hẹn sai trả 400 ở ô `followUpOn`). `GET /buyer/sales/customers/:id/notes?page=`: 20 ghi chú mỗi trang, mới nhất trước, kèm `hasMore`.
 - API_230 `GET /buyer/sales/follow-ups`: hẹn của tôi (QUYTAC_NGHIEPVU_436); `POST /buyer/sales/follow-ups/:noteId/done`: đánh dấu đã xong (chỉ người ghi).
 - API_231 `GET /buyer/sales/revenue?month=YYYY-MM`: doanh số của tôi và nhánh (QUYTAC_NGHIEPVU_439, 440).
 - API_48 dùng lại cho thông báo trên ứng dụng. API_232 đến 234 để dự phòng.
@@ -123,7 +123,7 @@ Không còn. Câu hỏi 1 (gán đơn khi tính doanh số) người dùng chọ
 - KICHBAN_KIEMTHU_582: thủ công trên bản xem trước web của ứng dụng VComm khổ 390 điểm ảnh.
 - KICHBAN_KIEMTHU_584 dự phòng.
 
-Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt; người dùng đồng ý 2026-11-12). L1 xong (KICHBAN_KIEMTHU_581 đạt trên bản xem trước).
+Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt; người dùng đồng ý 2026-11-12). L1 xong (KICHBAN_KIEMTHU_581 đạt trên bản xem trước; người dùng đồng ý 2026-11-12). L2 xong (migration 0113; API_229, 230; MAN_HINH_197, 198; KICHBAN_KIEMTHU_575, 576 đạt).
 - Sửa KICHBAN_KIEMTHU_290, 291 (ghé thăm): ghi mới bị từ chối; đọc giữ nguyên.
 
 ## 13. Ràng buộc kỹ thuật

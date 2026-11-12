@@ -15,6 +15,7 @@ import { setPassword } from "../auth/password.service";
 import { PhoneOtpService } from "../auth/phone-otp.service";
 import { users } from "../database/schema";
 import { MarketplaceCommissionsService } from "./commissions.service";
+import { SalesCareService } from "./sales-care.service";
 import { SalesTeamService, type SalesTeam } from "./sales-team.service";
 
 type Executor = Pick<Database, "execute">;
@@ -48,6 +49,7 @@ export class BuyerAccountsService {
     private readonly audit: AuditService,
     private readonly salesTeam: SalesTeamService,
     private readonly commissions: MarketplaceCommissionsService,
+    private readonly care: SalesCareService,
   ) {}
 
   // API_116: gửi mã đăng ký. Số đã có tài khoản thì báo để khách chuyển sang đăng nhập (QUYTAC_NGHIEPVU_141).
@@ -275,10 +277,8 @@ export class BuyerAccountsService {
         SELECT u.id, u.full_name, u.phone, b.registered_at, b.referrer_user_id FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id
         WHERE b.user_id = ${customerId}`)
     ).rows[0];
-    const ownerId = customer?.referrer_user_id ?? null;
-    const owner = ownerId ? team.member(ownerId) : undefined;
-    const inScope = owner && (owner.userId === userId || team.branch(userId).some((member) => member.userId === owner.userId));
-    if (!customer || !owner || !inScope) throw new ApiError("NOT_FOUND", "notFound");
+    const owner = customer?.referrer_user_id ? team.member(customer.referrer_user_id) : undefined;
+    if (!customer || !owner || !this.care.canSee(team, userId, owner.userId)) throw new ApiError("NOT_FOUND", "notFound");
     const totals = (
       await this.database.execute<{ completed_count: number; completed_amount: string; open_count: number; open_amount: string }>(sql`
         SELECT count(*) FILTER (WHERE status = 'completed')::int AS completed_count,
@@ -291,6 +291,7 @@ export class BuyerAccountsService {
       SELECT m.id, so.document_no, m.created_at, m.goods_amount::text, m.status FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id
       WHERE m.buyer_user_id = ${customerId} ORDER BY m.created_at DESC, m.id LIMIT 10`);
     const commission = (await this.commissions.totals(this.database, [userId], customerId)).get(userId);
+    const notes = await this.care.notesOf(customerId, 1);
     return {
       id: customer.id,
       fullName: customer.full_name,
@@ -311,6 +312,8 @@ export class BuyerAccountsService {
         status: row.status,
       })),
       myCommission: { credited: commission?.credited ?? "0", pending: commission?.pending ?? "0" },
+      notes: notes.notes,
+      hasMoreNotes: notes.hasMore,
     };
   }
 
