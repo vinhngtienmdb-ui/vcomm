@@ -44,6 +44,8 @@ type HeaderRow = {
   warehouse_name: string;
   customs_rate: string;
   note: string | null;
+  customs_office: string | null;
+  tax_due_date: string | null;
   status: ImportDeclarationStatus;
   customs_value: string;
   customs_value_converted: string;
@@ -191,6 +193,8 @@ export class ImportDeclarationsService {
       warehouseName: row.warehouse_name,
       customsRate: trimDecimal(row.customs_rate),
       note: row.note,
+      customsOffice: row.customs_office,
+      taxDueDate: row.tax_due_date ? day(row.tax_due_date) : null,
       companyCurrency: await companyCurrency(this.database, row.company_id),
       lines: lines.rows.map((line): ImportDeclarationLineResponse => {
         const suggestion = suggestTaxes(
@@ -241,8 +245,9 @@ export class ImportDeclarationsService {
       const lines = await this.prepare(transaction, actor.companyId, input, null);
       const declarationId = (
         await transaction.execute<{ id: string }>(sql`
-        INSERT INTO purchasing.import_declarations (company_id, order_id, declaration_no, registered_on, posting_date, customs_rate, note, created_by)
-        VALUES (${actor.companyId}, ${input.orderId}, ${input.declarationNo}, ${input.registeredOn}::date, ${input.postingDate}::date, ${input.customsRate}::numeric, ${input.note}, ${actor.userId})
+        INSERT INTO purchasing.import_declarations (company_id, order_id, declaration_no, registered_on, posting_date, customs_rate, note, created_by, customs_office, tax_due_date)
+        VALUES (${actor.companyId}, ${input.orderId}, ${input.declarationNo}, ${input.registeredOn}::date, ${input.postingDate}::date, ${input.customsRate}::numeric, ${input.note}, ${actor.userId},
+          ${input.customsOffice}, ${input.taxDueDate ?? null}::date)
         RETURNING id`)
       ).rows[0]!.id;
       await writeLines(transaction, declarationId, lines);
@@ -263,7 +268,8 @@ export class ImportDeclarationsService {
       const lines = await this.prepare(transaction, actor.companyId, input, id);
       await transaction.execute(sql`
         UPDATE purchasing.import_declarations SET declaration_no = ${input.declarationNo}, registered_on = ${input.registeredOn}::date, posting_date = ${input.postingDate}::date,
-          customs_rate = ${input.customsRate}::numeric, note = ${input.note}, updated_at = now(), version = version + 1
+          customs_rate = ${input.customsRate}::numeric, note = ${input.note}, customs_office = ${input.customsOffice}, tax_due_date = ${input.taxDueDate ?? null}::date,
+          updated_at = now(), version = version + 1
         WHERE id = ${id}`);
       await transaction.execute(sql`DELETE FROM purchasing.import_declaration_lines WHERE declaration_id = ${id}`);
       await writeLines(transaction, id, lines);
@@ -493,7 +499,7 @@ export async function minorUnits(executor: Executor, companyId: string): Promise
 
 function select(): SQL {
   return sql`SELECT d.id, d.company_id, d.declaration_no, d.registered_on, d.posting_date, d.order_id, o.document_no AS order_no, s.name AS supplier_name, o.currency,
-    o.warehouse_id, coalesce(w.name, '') AS warehouse_name, d.customs_rate::text, d.note, d.status, d.created_by, d.version,
+    o.warehouse_id, coalesce(w.name, '') AS warehouse_name, d.customs_rate::text, d.note, d.customs_office, d.tax_due_date::text, d.status, d.created_by, d.version,
     coalesce((SELECT sum(l.customs_value) FROM purchasing.import_declaration_lines l WHERE l.declaration_id = d.id), 0)::text AS customs_value,
     coalesce((SELECT sum(l.customs_value_converted) FROM purchasing.import_declaration_lines l WHERE l.declaration_id = d.id), 0)::text AS customs_value_converted,
     coalesce((SELECT sum(l.import_duty + l.excise_tax + l.environmental_tax + l.vat_amount) FROM purchasing.import_declaration_lines l WHERE l.declaration_id = d.id), 0)::text AS total_tax`;

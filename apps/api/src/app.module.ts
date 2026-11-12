@@ -108,6 +108,7 @@ import { AffiliateReportsService } from "./affiliate/reports.service";
 import { BuyerAffiliateController } from "./affiliate/buyer-affiliate.controller";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { PurchasingImportsController } from "./purchasing/imports.controller";
+import { ImportAmendmentsService } from "./purchasing/import-amendments.service";
 import { ImportDeclarationsService } from "./purchasing/import-declarations.service";
 import { LandedCostsService } from "./purchasing/landed-costs.service";
 import { CostAdjustmentsService } from "./inventory/cost-adjustments.service";
@@ -156,7 +157,9 @@ import { RecruitmentController } from "./hr/recruitment.controller";
 import { RecruitmentService } from "./hr/recruitment.service";
 import { WorkEventsService } from "./hr/work-events.service";
 import { DebtsService } from "./finance/debts.service";
+import { CustomsTaxService } from "./finance/customs-tax.service";
 import { FundsService } from "./finance/funds.service";
+import { FxRevaluationsService } from "./finance/fx-revaluations.service";
 import { PaymentsService } from "./finance/payments.service";
 import { LedgerService } from "./accounting/ledger.service";
 import { LedgerController } from "./accounting/ledger.controller";
@@ -270,6 +273,7 @@ import { UsersService } from "./users/users.service";
     PurchaseReceiptsService,
     CostAdjustmentsService,
     ImportDeclarationsService,
+    ImportAmendmentsService,
     LandedCostsService,
     SalesDeliveriesService,
     InternalReceiptsService,
@@ -315,6 +319,8 @@ import { UsersService } from "./users/users.service";
     PromotionsService,
     DebtsService,
     FundsService,
+    FxRevaluationsService,
+    CustomsTaxService,
     RetailStoresService,
     RetailShiftsService,
     RetailStationOrdersService,

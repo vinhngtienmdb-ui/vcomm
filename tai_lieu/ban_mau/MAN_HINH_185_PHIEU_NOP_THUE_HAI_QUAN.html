@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MAN_HINH_185 Phiếu nộp thuế hải quan – VComm</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" />
+    <link rel="stylesheet" href="chung.css" />
+  </head>
+  <body>
+    <header class="thanh-tren"><a class="logo" href="index.html">VComm</a><span class="gian"></span><button>Công ty VCR ▾</button><button>Trần Kế Toán</button></header>
+    <div class="than">
+      <nav class="menu" aria-label="Tài chính – Kế toán">
+        <div class="ten-app">Tài chính – Kế toán</div>
+        <a href="#">Công nợ</a><a href="MAN_HINH_49_PHIEU_CHI_NGOAI_TE.html" class="chon">Phiếu thu chi</a><a href="#">Quỹ</a><a href="#">Bút toán</a
+        ><a href="MAN_HINH_182_DANH_GIA_LAI_NGOAI_TE.html">Đánh giá lại ngoại tệ</a><a href="#">Sổ sách</a><a href="#">Hệ thống tài khoản</a>
+      </nav>
+      <main class="noi-dung">
+        <a href="MAN_HINH_49_PHIEU_CHI_NGOAI_TE.html">← Phiếu thu chi</a>
+        <div class="tieu-de">
+          <h1>Phiếu nộp thuế hải quan</h1>
+          <span class="nhan trung-tinh">Nháp</span><button class="nut phu">Lưu</button><button class="nut chinh">Gửi duyệt</button>
+        </div>
+        <div class="the">
+          <div class="hai-cot" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))">
+            <div class="truong"><label>Ngày nộp</label><input class="o-nhap" type="date" value="2026-11-20" /></div>
+            <div class="truong">
+              <label>Quỹ</label
+              ><select class="o-nhap">
+                <option>NH-VND Vietcombank · 1.122.400.000</option>
+              </select>
+            </div>
+            <div class="truong"><label>Số chứng từ nộp ngân sách</label><input class="o-nhap" value="GNT-00012345" /></div>
+            <div class="truong">
+              <label>Thêm tờ khai</label
+              ><select class="o-nhap">
+                <option>Chọn tờ khai còn phải nộp…</option>
+                <option>107012345670 · còn 70.538.000</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <h2>Dòng nộp</h2>
+        <div class="khung-bang">
+          <table>
+            <thead>
+              <tr>
+                <th>Tờ khai</th>
+                <th>Loại thuế</th>
+                <th>Phải nộp</th>
+                <th>Đã nộp</th>
+                <th>Còn phải nộp</th>
+                <th>Số nộp</th>
+                <th>Hạn nộp</th>
+                <th>Ngày chậm</th>
+                <th>Tiền chậm nộp</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-nhan="Tờ khai">107012345670<br /><span class="chu-thich">Chi cục Hải quan cửa khẩu Cát Lái</span></td>
+                <td data-nhan="Loại thuế">Nhập khẩu</td>
+                <td data-nhan="Phải nộp">29.720.000</td>
+                <td data-nhan="Đã nộp">0</td>
+                <td data-nhan="Còn phải nộp">29.720.000</td>
+                <td data-nhan="Số nộp"><input class="o-nhap" value="29.720.000" style="width: 110px" /></td>
+                <td data-nhan="Hạn nộp">15/11/2026</td>
+                <td data-nhan="Ngày chậm">5</td>
+                <td data-nhan="Tiền chậm nộp"><input class="o-nhap" value="44.580" style="width: 90px" /></td>
+              </tr>
+              <tr>
+                <td data-nhan="Tờ khai">107012345670</td>
+                <td data-nhan="Loại thuế">Giá trị gia tăng</td>
+                <td data-nhan="Phải nộp">40.818.000</td>
+                <td data-nhan="Đã nộp">0</td>
+                <td data-nhan="Còn phải nộp">40.818.000</td>
+                <td data-nhan="Số nộp"><input class="o-nhap" value="40.818.000" style="width: 110px" /></td>
+                <td data-nhan="Hạn nộp">15/11/2026</td>
+                <td data-nhan="Ngày chậm">5</td>
+                <td data-nhan="Tiền chậm nộp">
+                  <input class="o-nhap" value="60.000" style="width: 90px" /> <span class="nhan canh-bao">Đã sửa</span><br /><span class="chu-thich">tính: 61.227</span>
+                </td>
+              </tr>
+              <tr>
+                <td data-nhan="Tờ khai">107019876540</td>
+                <td data-nhan="Loại thuế">Nhập khẩu</td>
+                <td data-nhan="Phải nộp">12.500.000</td>
+                <td data-nhan="Đã nộp">0</td>
+                <td data-nhan="Còn phải nộp">12.500.000</td>
+                <td data-nhan="Số nộp"><input class="o-nhap" value="12.500.000" style="width: 110px" /></td>
+                <td data-nhan="Hạn nộp">28/11/2026</td>
+                <td data-nhan="Ngày chậm">0</td>
+                <td data-nhan="Tiền chậm nộp">0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h2>Bù trừ số nộp thừa</h2>
+        <div class="khung-bang">
+          <table>
+            <thead>
+              <tr>
+                <th>Tờ khai</th>
+                <th>Loại thuế</th>
+                <th>Nộp thừa</th>
+                <th>Số bù trừ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-nhan="Tờ khai">107011111110 (đã khai bổ sung giảm)</td>
+                <td data-nhan="Loại thuế">Nhập khẩu</td>
+                <td data-nhan="Nộp thừa">3.200.000</td>
+                <td data-nhan="Số bù trừ"><input class="o-nhap" value="3.200.000" style="width: 110px" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="the">
+          <dl class="thong-tin-dong">
+            <dt>Tổng nộp</dt>
+            <dd>83.038.000</dd>
+            <dt>Tiền chậm nộp</dt>
+            <dd>104.580</dd>
+            <dt>Bù trừ</dt>
+            <dd>−3.200.000</dd>
+            <dt>Số tiền chi</dt>
+            <dd><strong>79.942.580</strong></dd>
+          </dl>
+          <p class="chu-thich">Bút toán: Nợ 3333 42.220.000, Nợ 33312 40.818.000, Nợ 811 104.580 / Có 3333 3.200.000, Có 1121 79.942.580.</p>
+        </div>
+        <div class="khoi-canh-bao canh-bao">Hạn nộp, mức tiền chậm nộp lấy theo luật quản lý thuế hiện hành (chưa chốt, đặc tả mục 4).</div>
+      </main>
+    </div>
+    <div class="dieu-khien">Bản mẫu CONG_VIEC_56 · dữ liệu giả · <a href="index.html">Mục lục</a></div>
+  </body>
+</html>

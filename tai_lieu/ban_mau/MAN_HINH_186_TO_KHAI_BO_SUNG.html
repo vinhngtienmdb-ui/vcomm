@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MAN_HINH_186 Tờ khai bổ sung – VComm</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" />
+    <link rel="stylesheet" href="chung.css" />
+  </head>
+  <body>
+    <header class="thanh-tren"><a class="logo" href="index.html">VComm</a><span class="gian"></span><button>Công ty VCR ▾</button><button>Trần Kế Toán</button></header>
+    <div class="than">
+      <nav class="menu" aria-label="Mua hàng">
+        <div class="ten-app">Mua hàng</div>
+        <a href="#">Đơn mua</a><a href="#" class="chon">Tờ khai nhập khẩu</a><a href="#">Chi phí nhập khẩu</a><a href="#">Đề nghị mua</a><a href="#">Bảng giá mua</a>
+      </nav>
+      <main class="noi-dung">
+        <a href="#">← Tờ khai 107012345670</a>
+        <div class="tieu-de">
+          <h1>Tờ khai bổ sung 107012345670 lần 1</h1>
+          <span class="nhan trung-tinh">Nháp</span><button class="nut nguy-hiem">Hủy</button><button class="nut phu">Lưu</button><button class="nut chinh">Ghi sổ</button>
+        </div>
+        <div class="the">
+          <div class="hai-cot" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))">
+            <div class="truong"><label>Số tờ khai bổ sung</label><input class="o-nhap" value="107012345670-BS1" /></div>
+            <div class="truong"><label>Ngày đăng ký</label><input class="o-nhap" type="date" value="2026-11-25" /></div>
+            <div class="truong"><label>Ngày ghi sổ</label><input class="o-nhap" type="date" value="2026-11-25" /></div>
+            <div class="truong"><label>Lý do</label><input class="o-nhap" value="Sửa mã số hàng hóa dòng 2, thuế suất nhập khẩu 5% → 8%" /></div>
+          </div>
+        </div>
+        <div class="khung-bang">
+          <table>
+            <thead>
+              <tr>
+                <th>Mặt hàng</th>
+                <th>Loại thuế</th>
+                <th>Trước bổ sung</th>
+                <th>Thuế suất mới</th>
+                <th>Sau bổ sung</th>
+                <th>Chênh lệch</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-nhan="Mặt hàng">TN-01 Tai nghe không dây</td>
+                <td data-nhan="Loại thuế">Nhập khẩu</td>
+                <td data-nhan="Trước bổ sung">21.590.000</td>
+                <td data-nhan="Thuế suất mới">10 %</td>
+                <td data-nhan="Sau bổ sung">21.590.000</td>
+                <td data-nhan="Chênh lệch">0</td>
+              </tr>
+              <tr>
+                <td data-nhan="Mặt hàng">SN-20 Sạc nhanh 20W</td>
+                <td data-nhan="Loại thuế">Nhập khẩu</td>
+                <td data-nhan="Trước bổ sung">8.130.000</td>
+                <td data-nhan="Thuế suất mới"><input class="o-nhap" value="8" style="width: 60px" /> %</td>
+                <td data-nhan="Sau bổ sung"><input class="o-nhap" value="13.004.800" style="width: 110px" /></td>
+                <td data-nhan="Chênh lệch">+4.874.800</td>
+              </tr>
+              <tr>
+                <td data-nhan="Mặt hàng">SN-20 Sạc nhanh 20W</td>
+                <td data-nhan="Loại thuế">Giá trị gia tăng</td>
+                <td data-nhan="Trước bổ sung">17.069.000</td>
+                <td data-nhan="Thuế suất mới">10 %</td>
+                <td data-nhan="Sau bổ sung"><input class="o-nhap" value="17.556.480" style="width: 110px" /></td>
+                <td data-nhan="Chênh lệch">+487.480</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h2>Xem trước phân bổ chênh lệch vào giá vốn</h2>
+        <div class="khung-bang">
+          <table>
+            <thead>
+              <tr>
+                <th>Mặt hàng</th>
+                <th>Chênh lệch thuế vào giá vốn</th>
+                <th>Tồn khi ghi sổ</th>
+                <th>Vào giá trị tồn kho</th>
+                <th>Vào giá vốn hàng bán</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-nhan="Mặt hàng">SN-20 Sạc nhanh 20W</td>
+                <td data-nhan="Chênh lệch thuế vào giá vốn">4.874.800</td>
+                <td data-nhan="Tồn khi ghi sổ">1.500 / 2.000</td>
+                <td data-nhan="Vào giá trị tồn kho">3.656.100</td>
+                <td data-nhan="Vào giá vốn hàng bán">1.218.700</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="khoi-canh-bao thong-tin">
+          Bút toán dự kiến: Nợ 156 3.656.100, Nợ 632 1.218.700 / Có 3333 4.874.800; Nợ 1331 487.480 / Có 33312 487.480. Tờ khai gốc: phải nộp tăng 5.362.280; nộp thêm bằng phiếu nộp thuế hải quan.
+        </div>
+      </main>
+    </div>
+    <div class="dieu-khien">Bản mẫu CONG_VIEC_56 · dữ liệu giả · <a href="index.html">Mục lục</a></div>
+  </body>
+</html>

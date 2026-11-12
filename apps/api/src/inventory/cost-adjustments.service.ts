@@ -59,6 +59,17 @@ export class CostAdjustmentsService {
         await executor.execute<{ stock: string }>(sql`
         SELECT round(${line.amount}::numeric * least(1, ${onHand}::numeric / ${line.baseQuantity}::numeric), ${units})::text AS stock`)
       ).rows[0]!;
+      // Giảm giá trị (tờ khai bổ sung giảm thuế, CONG_VIEC_56; QUYTAC_NGHIEPVU_414): phần tồn không làm giá trị tồn âm, phần thiếu vào giá vốn hàng bán.
+      if (Number(split.stock) < 0) {
+        const available = tracksSerials
+          ? ((await executor.execute<{ value: string }>(sql`SELECT coalesce(sum(unit_cost), 0)::text AS value FROM inventory.serials WHERE id = ANY(${`{${serialIds.join(",")}}`}::uuid[])`)).rows[0]!
+              .value ?? "0")
+          : ((
+              await executor.execute<{ value: string }>(sql`
+              SELECT value::text FROM inventory.costs WHERE warehouse_id = ${warehouseId} AND company_id = ${companyId} AND variant_id = ${line.variantId}`)
+            ).rows[0]?.value ?? "0");
+        if (-Number(split.stock) > Number(available)) split.stock = (-Math.max(0, Number(available))).toFixed(4);
+      }
       const expensed = (await executor.execute<{ value: string }>(sql`SELECT (${line.amount}::numeric - ${split.stock}::numeric)::text AS value`)).rows[0]!.value;
       result.push({ orderLineId: line.orderLineId, onHand, stockValue: split.stock, expensedValue: expensed, serialIds });
     }
@@ -89,7 +100,7 @@ export class CostAdjustmentsService {
         FROM catalog.variants v JOIN catalog.products p ON p.id = v.product_id WHERE v.id = ${line.variantId}
         RETURNING id`)
       ).rows[0]!.id;
-      if (Number(share.stockValue) <= 0) continue;
+      if (Number(share.stockValue) === 0) continue;
       await this.ledger.adjustValue(transaction, {
         warehouseId: input.warehouseId,
         companyId: input.companyId,
