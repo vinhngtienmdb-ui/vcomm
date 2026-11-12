@@ -79,13 +79,16 @@ export class ShipmentsService implements OnModuleInit {
         province_name: string;
         cod_amount: string;
         warehouse_uses_locations: boolean;
+        fulfillment_mode: string;
       }>(sql`
       SELECT m.sales_order_id, m.company_id, m.status, m.version, so.document_no, m.recipient_name, m.recipient_phone, m.street_address, m.ward_name, m.province_name, m.cod_amount::text,
-        w.uses_locations AS warehouse_uses_locations
+        w.uses_locations AS warehouse_uses_locations, m.fulfillment_mode
       FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id JOIN inventory.warehouses w ON w.id = so.warehouse_id WHERE m.id = ${orderId}`)
     ).rows[0];
     if (!order || order.company_id !== actor.operatorCompanyId) throw new ApiError("NOT_FOUND", "notFound");
     if (order.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+    // Đơn của trạm do trạm giao, không qua đơn vị vận chuyển (CONG_VIEC_57; QUYTAC_NGHIEPVU_424).
+    if (order.fulfillment_mode !== "carrier") throw new ApiError("BUSINESS_RULE", "stationOrderNotShippable");
     if (order.status !== "awaiting_shipment") throw new ApiError("BUSINESS_RULE", "orderNotShippable");
     if (order.warehouse_uses_locations) throw new ApiError("BUSINESS_RULE", "warehouseUsesLocations");
     const staff: Actor = { userId: actor.userId, companyId: actor.operatorCompanyId, client: actor.client };

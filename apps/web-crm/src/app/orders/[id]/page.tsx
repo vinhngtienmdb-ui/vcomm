@@ -226,6 +226,12 @@ export default function MarketplaceOrderPage() {
                 </Row>
                 <Row label={t("recipient")}>{`${order.recipientName} · ${order.recipientPhone}`}</Row>
                 <Row label={t("address")}>{order.address}</Row>
+                {order.station && <Row label={t("fulfillment")}>{`${t(`fulfillment_${order.fulfillmentMode}`)} · ${order.station.name} · ${order.station.address} · ${order.station.phone}`}</Row>}
+                {order.stationHold?.readyAt && <Row label={t("stationReadyAt")}>{formatDateTime(order.stationHold.readyAt)}</Row>}
+                {order.stationHold?.holdUntil && <Row label={t("stationHoldUntil")}>{formatDateTime(order.stationHold.holdUntil)}</Row>}
+                {order.stationHold && order.fulfillmentMode === "station_delivery" && (
+                  <Row label={t("stationDelivery")}>{t("stationDeliveryValue", { attempts: order.stationHold.deliveryAttempts, courier: order.stationHold.courierName ?? "—" })}</Row>
+                )}
                 <Row label={t("payment")}>{`${method(order.paymentMethod)} · ${t(`paymentStatus_${order.paymentStatus}`)}`}</Row>
                 <Row label={t("goodsAmount")}>{formatNumber(order.goodsAmount, 0)}</Row>
                 <Row label={t("shippingFee")}>{formatNumber(order.shippingFee, 0)}</Row>
@@ -239,6 +245,7 @@ export default function MarketplaceOrderPage() {
                 {order.cancelReason && <Row label={t("cancelReason")}>{order.cancelReason}</Row>}
               </dl>
             </div>
+            {order.station && <div className="chu-thich">{t("stationReadOnly")}</div>}
             <Actions order={order} onSaved={setSaved} />
             {order.canRecordCod && <RecordCod order={order} onSaved={setSaved} />}
             {order.canConfirmTransfer && <ConfirmTransfer order={order} onSaved={setSaved} />}

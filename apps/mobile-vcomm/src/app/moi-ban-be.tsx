@@ -8,6 +8,7 @@ import { api, appBase } from "@/lib/api";
 import { money, shortDate, translator } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 import { colors, space } from "@/lib/theme";
+import { copyText } from "@/lib/clipboard";
 
 const t = translator("vcommApp");
 const tone: Record<InvitationBonusStatus, "success" | "info" | "neutral"> = { credited: "success", in_progress: "info", not_qualified: "neutral", no_order: "neutral" };
@@ -36,8 +37,7 @@ export default function InviteScreen() {
     await Share.share({ message });
   }
   async function copy() {
-    await globalThis.navigator?.clipboard?.writeText(link).catch(() => undefined);
-    setCopied(true);
+    setCopied(await copyText(link));
   }
 
   const program = data?.program;

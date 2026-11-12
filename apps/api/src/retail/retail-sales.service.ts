@@ -1,17 +1,21 @@
 // Bán hàng tại quầy (CONG_VIEC_53; CHUC_NANG_187; QUYTAC_NGHIEPVU_370 đến 374; API_194 đến API_196).
 // Giá, khuyến mãi, đơn bán, phiếu xuất, giá vốn, bút toán, hóa đơn điện tử đi qua service của module Bán hàng, Kho (móc nối ghi sổ phiếu kho của Tài chính).
 import { Inject, Injectable } from "@nestjs/common";
-import type {
-  createRetailSaleSchema,
-  EinvoiceStatus,
-  RetailItemOption,
-  RetailPricedLine,
-  RetailQuoteResponse,
-  retailQuoteSchema,
-  RetailSaleListResponse,
-  retailSaleListQuerySchema,
-  RetailSaleResponse,
-  RetailPaymentMethod,
+import { randomUUID } from "node:crypto";
+import {
+  normalizePhone,
+  type createRetailSaleSchema,
+  type EinvoiceStatus,
+  type RetailCustomerResponse,
+  type retailCustomerQuerySchema,
+  type RetailItemOption,
+  type RetailPricedLine,
+  type RetailQuoteResponse,
+  type retailQuoteSchema,
+  type RetailSaleListResponse,
+  type retailSaleListQuerySchema,
+  type RetailSaleResponse,
+  type RetailPaymentMethod,
 } from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import type { z } from "zod";
@@ -23,6 +27,9 @@ import { CLOCK, type Clock } from "../common/clock";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Executor } from "../finance/debts.service";
 import { ReservationsService } from "../inventory/reservations.service";
+import { LoyaltyLedgerService, pointsFor } from "../loyalty/ledger.service";
+import { phaseOn } from "../loyalty/program.service";
+import { maskName, maskPhone, SmartOtpService } from "../loyalty/smart-otp.service";
 import { SalesDeliveriesService } from "../inventory/sales-deliveries.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
@@ -62,6 +69,12 @@ type PricedRow = {
 // Thuế suất dạng chữ: "0", "5", "8", "10"; không chịu thuế, không kê khai coi như 0.
 const vatFraction = (rate: string) => (/^\d+(\.\d+)?$/.test(rate) ? Number(rate) / 100 : 0);
 
+// Điểm giao nhận không bán tại quầy (CONG_VIEC_57; QUYTAC_NGHIEPVU_418).
+function counterStore(store: RetailStore): RetailStore {
+  if (store.kind === "pickup_point") throw new ApiError("BUSINESS_RULE", "retailPickupPointNoCounterSale");
+  return store;
+}
+
 @Injectable()
 export class RetailSalesService {
   constructor(
@@ -75,11 +88,13 @@ export class RetailSalesService {
     private readonly salesOrders: SalesOrdersService,
     private readonly deliveries: SalesDeliveriesService,
     private readonly reservations: ReservationsService,
+    private readonly loyalty: LoyaltyLedgerService,
+    private readonly smartOtp: SmartOtpService,
   ) {}
 
   private async counter(executor: Executor, actor: Actor, shiftId: string): Promise<RetailStore> {
     const shift = await this.shifts.requireOwnOpenShift(executor, actor, shiftId);
-    return this.stores.store(executor, actor.companyId, shift.store_id);
+    return counterStore(await this.stores.store(executor, actor.companyId, shift.store_id));
   }
 
   // Tìm, quét hàng (API_194): serial còn trong kho bán, mã vạch, mã hàng, tên; chỉ hàng hóa.
@@ -234,6 +249,16 @@ export class RetailSalesService {
       WHERE sh.id = ${input.shiftId} AND sh.company_id = ${actor.companyId} AND x.client_key = ${input.clientKey} AND x.cashier_id = ${actor.userId}`)
     ).rows[0];
     if (recorded) return this.detail(actor, recorded.id);
+    // Dùng điểm: kiểm mã Smart OTP trong giao dịch riêng trước khi bán (lần sai được ghi kể cả khi bán không thành; QUYTAC_NGHIEPVU_379).
+    const customer = input.customer;
+    if (customer) {
+      await this.shifts.requireOwnOpenShift(this.database, actor, input.shiftId);
+      await this.loyaltyCustomer(this.database, customer.userId);
+      if (customer.points > 0) {
+        if (!customer.smartOtp) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { "customer.smartOtp": "retailSmartOtpRequired" } });
+        await this.smartOtp.verify(customer.userId, customer.smartOtp, actor.companyId);
+      }
+    }
     await ensureSequence(this.database, this.sequences, actor, saleTypeCode, "BL");
     await this.salesOrders.prepareNumbering(actor);
     await this.deliveries.ensureSequences(actor, actor.companyId);
@@ -241,7 +266,7 @@ export class RetailSalesService {
       const shift = await this.shifts.requireOwnOpenShift(transaction, actor, input.shiftId);
       const existing = (await transaction.execute<{ id: string }>(sql`SELECT id FROM retail.sales WHERE register_id = ${shift.register_id} AND client_key = ${input.clientKey}`)).rows[0];
       if (existing) return existing.id;
-      const store = await this.stores.store(transaction, actor.companyId, shift.store_id);
+      const store = counterStore(await this.stores.store(transaction, actor.companyId, shift.store_id));
       await this.validateCart(transaction, actor.companyId, input.lines);
       if (input.payments.some((payment) => payment.method === "bank_transfer") && !store.bank_fund_id) throw new ApiError("BUSINESS_RULE", "retailNoBankFund");
       const today = this.permissionService.today();
@@ -265,30 +290,63 @@ export class RetailSalesService {
       const documentId = await this.deliveries.issueRetailWithin(transaction, actor, { orderId: order.orderId, documentDate: today, serials });
       const payable = (await transaction.execute<{ amount: string }>(sql`SELECT finance.inventory_debt_amount(${documentId})::text AS amount`)).rows[0]!.amount;
       if (Math.abs(Number(payable) - Number(input.expectedTotal)) > 0.00005) throw new ApiError("BUSINESS_RULE", "retailTotalChanged");
-      const nonCash = input.payments.filter((payment) => payment.method !== "cash").reduce((sum, payment) => sum + Number(payment.amount), 0);
-      const tendered = input.payments.reduce((sum, payment) => sum + Number(payment.amount), 0);
+      const saleId = randomUUID();
+      // Dùng điểm trừ tiền: sổ cái điểm kiểm mức dùng, trừ điểm, tự ghi bút toán (Có phải thu không đối tượng phần điểm).
+      const redeemed =
+        customer && customer.points > 0
+          ? await this.loyalty.redeemWithin(transaction, {
+              userId: customer.userId,
+              companyId: actor.companyId,
+              sourceType: "retail_sale",
+              sourceId: saleId,
+              day: today,
+              goodsAmount: Number(payable),
+              points: customer.points,
+            })
+          : null;
+      const pointsAmount = redeemed?.amount ?? 0;
+      const nonCash = input.payments.filter((payment) => payment.method !== "cash").reduce((sum, payment) => sum + Number(payment.amount), 0) + pointsAmount;
+      const tendered = input.payments.reduce((sum, payment) => sum + Number(payment.amount), 0) + pointsAmount;
       if (nonCash > Number(payable) + 0.00005) throw new ApiError("BUSINESS_RULE", "retailNonCashOverTotal");
       if (tendered < Number(payable) - 0.00005) throw new ApiError("BUSINESS_RULE", "retailPaymentShort");
       const rows = await this.orderRows(transaction, order.orderId);
       const amounts = await this.totals(transaction, actor.companyId, rows, payable);
       const documentNo = await this.sequences.next(actor.companyId, saleTypeCode, transaction);
-      const saleId = (
-        await transaction.execute<{ id: string }>(sql`
-        INSERT INTO retail.sales (company_id, store_id, register_id, shift_id, document_no, sold_at, sale_date, cashier_id, buyer_name, sales_order_id, stock_document_id,
-          goods_amount, promotion_amount, manual_discount, tax_amount, total_amount, tendered_amount, change_amount, client_key)
-        VALUES (${actor.companyId}, ${store.id}, ${shift.register_id}, ${shift.id}, ${documentNo}, ${this.clock.now()}, ${today}::date, ${actor.userId}, ${buyer.name}, ${order.orderId},
-          ${documentId}, ${amounts.goodsAmount}::numeric, ${amounts.promotionAmount}::numeric, ${amounts.manualDiscount}::numeric, ${amounts.taxAmount}::numeric, ${payable}::numeric,
-          ${tendered.toFixed(4)}::numeric, ${(tendered - Number(payable)).toFixed(4)}::numeric, ${input.clientKey})
-        RETURNING id`)
-      ).rows[0]!.id;
-      for (const [index, payment] of input.payments.entries()) {
+      await transaction.execute(sql`
+        INSERT INTO retail.sales (id, company_id, store_id, register_id, shift_id, document_no, sold_at, sale_date, cashier_id, buyer_name, sales_order_id, stock_document_id,
+          goods_amount, promotion_amount, manual_discount, tax_amount, total_amount, tendered_amount, change_amount, client_key, loyalty_user_id)
+        VALUES (${saleId}, ${actor.companyId}, ${store.id}, ${shift.register_id}, ${shift.id}, ${documentNo}, ${this.clock.now()}, ${today}::date, ${actor.userId}, ${buyer.name},
+          ${order.orderId}, ${documentId}, ${amounts.goodsAmount}::numeric, ${amounts.promotionAmount}::numeric, ${amounts.manualDiscount}::numeric, ${amounts.taxAmount}::numeric,
+          ${payable}::numeric, ${tendered.toFixed(4)}::numeric, ${(tendered - Number(payable)).toFixed(4)}::numeric, ${input.clientKey}, ${customer?.userId ?? null})`);
+      const payments = [...input.payments];
+      for (const [index, payment] of payments.entries()) {
         await transaction.execute(sql`
           INSERT INTO retail.sale_payments (sale_id, line_no, method, amount, fund_id, bank_reference)
           VALUES (${saleId}, ${index + 1}, ${payment.method}, ${payment.amount}::numeric, ${payment.method === "cash" ? store.cash_fund_id : store.bank_fund_id},
             ${payment.method === "cash" ? null : payment.bankReference})`);
       }
+      if (redeemed && redeemed.points > 0) {
+        await transaction.execute(sql`
+          INSERT INTO retail.sale_payments (sale_id, line_no, method, amount, points) VALUES (${saleId}, ${payments.length + 1}, 'points', ${redeemed.amount}::numeric, ${redeemed.points})`);
+      }
+      // Tích điểm theo tiền hàng gồm thuế; sổ cái tự trừ phần trả bằng điểm, cộng chi tiêu năm để xét hạng (QUYTAC_NGHIEPVU_379).
+      if (customer) {
+        await this.loyalty.earnWithin(transaction, {
+          sourceType: "retail_sale",
+          sourceId: saleId,
+          userId: customer.userId,
+          companyId: actor.companyId,
+          day: today,
+          goodsAmount: Number(payable),
+        });
+      }
       await this.auditService.record(
-        { ...retailAudit(actor, "retail_sale"), action: "retail_sale.create", entityId: saleId, afterData: { documentNo, total: payable, payments: input.payments, buyer } },
+        {
+          ...retailAudit(actor, "retail_sale"),
+          action: "retail_sale.create",
+          entityId: saleId,
+          afterData: { documentNo, total: payable, payments: input.payments, buyer, customer: customer ? { userId: customer.userId, points: redeemed?.points ?? 0 } : null },
+        },
         transaction,
       );
       return saleId;
@@ -365,12 +423,13 @@ export class RetailSalesService {
         sales_order_id: string;
         order_no: string;
         stock_document_id: string;
+        loyalty_user_id: string | null;
         stock_document_no: string;
       }>(sql`
       SELECT s.id, s.document_no, s.sold_at, s.sale_date::text, c.legal_name, c.tax_code, c.address AS company_address, st.id AS store_id, b.name AS store_name, b.address AS store_address,
         b.phone AS store_phone, st.receipt_footer, st.return_days, r.code AS register_code, r.name AS register_name, s.shift_id, u.full_name AS cashier_name, s.buyer_name,
         o.buyer_tax_code, o.buyer_address, o.buyer_identity_no, s.goods_amount::text, s.promotion_amount::text, s.manual_discount::text, s.tax_amount::text, s.total_amount::text,
-        s.tendered_amount::text, s.change_amount::text, s.sales_order_id, o.document_no AS order_no, s.stock_document_id, d.document_no AS stock_document_no
+        s.tendered_amount::text, s.change_amount::text, s.sales_order_id, o.document_no AS order_no, s.stock_document_id, d.document_no AS stock_document_no, s.loyalty_user_id
       FROM retail.sales s JOIN retail.stores st ON st.id = s.store_id JOIN core.branches b ON b.id = st.branch_id JOIN core.companies c ON c.id = s.company_id
         JOIN retail.registers r ON r.id = s.register_id JOIN core.users u ON u.id = s.cashier_id JOIN sales.orders o ON o.id = s.sales_order_id
         JOIN inventory.documents d ON d.id = s.stock_document_id
@@ -410,8 +469,91 @@ export class RetailSalesService {
         await this.database.execute<{ id: string; document_no: string; returned_at: Date; refund_amount: string }>(sql`
         SELECT id, document_no, returned_at, refund_amount::text FROM retail.returns WHERE sale_id = ${id} ORDER BY returned_at`)
       ).rows.map((item) => ({ id: item.id, documentNo: item.document_no, returnedAt: new Date(item.returned_at).toISOString(), refundAmount: trimDecimal(item.refund_amount) })),
+      loyalty: await this.loyaltyOf(id, row.loyalty_user_id),
       einvoice: await this.einvoice(row.stock_document_id),
       currency: await companyCurrency(this.database, actor.companyId),
+    };
+  }
+
+  // Khách VComm hợp lệ: người mua VComm đang hoạt động.
+  private async loyaltyCustomer(executor: Executor, userId: string): Promise<{ id: string; full_name: string; phone: string }> {
+    const row = (
+      await executor.execute<{ id: string; full_name: string; phone: string }>(sql`
+      SELECT u.id, u.full_name, u.phone FROM core.users u JOIN marketplace.buyer_accounts b ON b.user_id = u.id WHERE u.id = ${userId} AND u.status = 'active' AND u.phone IS NOT NULL`)
+    ).rows[0];
+    if (!row) throw new ApiError("BUSINESS_RULE", "retailCustomerChanged");
+    return row;
+  }
+
+  // API_198: tra khách VComm tại quầy (QUYTAC_NGHIEPVU_379): tên che, hạng, điểm khả dụng, mức dùng theo giỏ, Smart OTP, điểm dự kiến tích.
+  async customer(actor: Actor, query: z.output<typeof retailCustomerQuerySchema>): Promise<RetailCustomerResponse> {
+    await this.shifts.requireOwnOpenShift(this.database, actor, query.shiftId);
+    const phone = normalizePhone(query.phone);
+    if (!/^\+84[0-9]{9}$/.test(phone)) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { phone: "invalidValue" } });
+    const empty: RetailCustomerResponse = {
+      found: false,
+      userId: null,
+      maskedName: null,
+      maskedPhone: maskPhone(phone),
+      tierName: null,
+      balance: 0,
+      minPoints: 0,
+      maxPoints: 0,
+      pointValue: null,
+      redeemBlockedReason: null,
+      smartOtpActive: false,
+      smartOtpLockedUntil: null,
+      expectedPoints: 0,
+    };
+    const user = (
+      await this.database.execute<{ id: string; full_name: string }>(sql`
+      SELECT u.id, u.full_name FROM core.users u JOIN marketplace.buyer_accounts b ON b.user_id = u.id WHERE u.phone = ${phone} AND u.status = 'active'`)
+    ).rows[0];
+    if (!user) return empty;
+    const today = this.permissionService.today();
+    const goodsAmount = Number(query.goodsAmount ?? 0);
+    const quote = await this.loyalty.quoteRedemption(this.database, { userId: user.id, sourceType: "retail_sale", day: today, goodsAmount });
+    const otp = await this.smartOtp.state(this.database, user.id);
+    const account = (
+      await this.database.execute<{ name_vi: string | null; multiplier: string | null }>(sql`
+      SELECT t.name_vi, t.multiplier::text FROM loyalty.accounts a LEFT JOIN loyalty.tiers t ON t.id = a.tier_id WHERE a.user_id = ${user.id}`)
+    ).rows[0];
+    const phase = await phaseOn(this.database, today);
+    return {
+      ...empty,
+      found: true,
+      userId: user.id,
+      maskedName: maskName(user.full_name),
+      tierName: account?.name_vi ?? null,
+      balance: quote.balance,
+      minPoints: quote.minPoints,
+      maxPoints: quote.maxPoints,
+      pointValue: quote.pointValue === null ? null : String(quote.pointValue),
+      redeemBlockedReason: quote.blockedReason ?? (!otp.active ? "smart_otp_inactive" : otp.lockedUntil ? "smart_otp_locked" : null),
+      smartOtpActive: otp.active,
+      smartOtpLockedUntil: otp.lockedUntil,
+      expectedPoints: phase ? pointsFor(goodsAmount, phase, Number(account?.multiplier ?? 1)) : 0,
+    };
+  }
+
+  // Điểm của khách VComm trên hóa đơn (lát L6) để in.
+  private async loyaltyOf(saleId: string, userId: string | null): Promise<RetailSaleResponse["loyalty"]> {
+    if (!userId) return null;
+    const row = (
+      await this.database.execute<{ full_name: string; phone: string; redeemed_points: number | null; redeemed_amount: string | null; earned_points: number | null; balance: number | null }>(sql`
+      SELECT u.full_name, u.phone, d.redeemed_points, d.redeemed_amount::text, d.earned_points,
+        coalesce((SELECT e.balance_after FROM loyalty.entries e WHERE e.user_id = u.id AND e.source_id = ${saleId} ORDER BY e.created_at DESC, CASE e.kind WHEN 'earn' THEN 0 ELSE 1 END LIMIT 1),
+          (SELECT a.balance FROM loyalty.accounts a WHERE a.user_id = u.id)) AS balance
+      FROM core.users u LEFT JOIN loyalty.document_points d ON d.source_type = 'retail_sale' AND d.source_id = ${saleId} WHERE u.id = ${userId}`)
+    ).rows[0];
+    if (!row) return null;
+    return {
+      maskedName: maskName(row.full_name),
+      maskedPhone: maskPhone(row.phone),
+      pointsUsed: row.redeemed_points ?? 0,
+      pointsAmount: trimDecimal(row.redeemed_amount ?? "0"),
+      pointsEarned: row.earned_points ?? 0,
+      balanceAfter: row.balance ?? 0,
     };
   }
 

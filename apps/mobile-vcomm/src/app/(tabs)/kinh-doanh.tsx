@@ -1,6 +1,7 @@
 // MAN_HINH_78 Kinh doanh, MAN_HINH_83 Đội của tôi (CHUC_NANG_108, 111, 136; API_118, 122, 135; QUYTAC_NGHIEPVU_145, 149 đến 151, 203):
 // chức danh, đơn vị của tôi; khách tôi phụ trách; người quản lý xem cấp dưới trong nhánh và hoa hồng của từng người.
-import type { BuyerSalesCustomerItem, MySalesTeamResponse } from "contracts";
+// CONG_VIEC_22: thẻ Hẹn chăm sóc (MAN_HINH_198), Doanh số tháng này (MAN_HINH_199); bấm khách mở chi tiết khách MAN_HINH_196.
+import type { BuyerSalesCustomerItem, FollowUpsResponse, MySalesTeamResponse, SalesRevenueResponse } from "contracts";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { Pressable, ScrollView, Text } from "react-native";
@@ -16,6 +17,8 @@ export default function SalesScreen() {
   const [customers, setCustomers] = useState<BuyerSalesCustomerItem[] | null>(null);
   const [team, setTeam] = useState<MySalesTeamResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [followUps, setFollowUps] = useState<FollowUpsResponse | null>(null);
+  const [revenue, setRevenue] = useState<SalesRevenueResponse | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -33,6 +36,13 @@ export default function SalesScreen() {
       api<BuyerSalesCustomerItem[]>("/buyer/sales/customers")
         .then((items) => active && setCustomers(items))
         .catch(fail);
+      // Thẻ hẹn hôm nay, quá hạn (MAN_HINH_198); lỗi không chặn phần còn lại.
+      api<FollowUpsResponse>("/buyer/sales/follow-ups")
+        .then((loaded) => active && setFollowUps(loaded))
+        .catch(() => undefined);
+      api<SalesRevenueResponse>("/buyer/sales/revenue")
+        .then((loaded) => active && setRevenue(loaded))
+        .catch(() => undefined);
       api<MySalesTeamResponse>("/buyer/sales/team")
         .then((loaded) => active && setTeam(loaded))
         .catch(fail);
@@ -52,6 +62,23 @@ export default function SalesScreen() {
             <Title>{t(`title_${team.title}`)}</Title>
             <Muted>{team.unitName}</Muted>
           </Card>
+        ) : null}
+        {followUps ? (
+          <Pressable accessibilityRole="link" onPress={() => router.push("/hen")}>
+            <Card>
+              <Text style={{ fontWeight: "700", color: colors.text }}>{t("followUpsTitle")}</Text>
+              <Muted>{t("followUpSummary", { today: followUps.dueToday.length, overdue: followUps.overdue.length, upcoming: followUps.upcoming.length })}</Muted>
+            </Card>
+          </Pressable>
+        ) : null}
+        {revenue ? (
+          <Pressable accessibilityRole="link" onPress={() => router.push("/doanh-so")}>
+            <Card>
+              <Text style={{ fontWeight: "700", color: colors.text }}>{t("revenueThisMonth")}</Text>
+              <Text style={{ color: colors.primary, fontSize: 20, fontWeight: "700" }}>{money(revenue.me.completedAmount)}</Text>
+              <Muted>{t("revenueCompletedHint", { orders: revenue.me.completedOrderCount, customers: revenue.me.customerCount })}</Muted>
+            </Card>
+          </Pressable>
         ) : null}
         {customers ? (
           <Card>
