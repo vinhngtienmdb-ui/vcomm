@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- Người dùng nghiệm thu CONG_VIEC_55 (cửa hàng liên kết phần 1); phần thủ công của KICHBAN_KIEMTHU_546 (quét mã QR bằng camera trên điện thoại thật) kiểm thử sau khi triển khai thử nghiệm. Người dùng duyệt đặc tả CONG_VIEC_59 (làm hết theo lát), lát L0 CONG_VIEC_60, lát L1 CONG_VIEC_61.
 - CONG_VIEC_55 (cửa hàng liên kết phần 1, MODULE_12) trình nghiệm thu lát L0 đến L4, pull request #120 (commit `459f69d`, đã hợp nhất main 0.6.0; kiểm thử 617/617): database migration 0102 đến 0105 (schema affiliate; 0103, 0104 định nghĩa lại ràng buộc source_type của loyalty.lots, entries, document_points, refund_links; 0105 định nghĩa lại finance.debt_items.source_type thêm affiliate_settlement và accounting.journals.source_type thêm affiliate_transaction, affiliate_transaction_cancel, affiliate_voucher, affiliate_voucher_expire, affiliate_settlement, gồm mọi giá trị trên main); ứng dụng mới apps/web-affiliate (/merchant, cổng 3013); luồng OAuth dùng chung nhận app=merchant (không đổi hành vi cũ).
 - CONG_VIEC_56, 52, 60 hợp nhất main 0.6.0 vào nhánh: kiểm thử API lần lượt 616/616, 641/641, các tệp liên quan 28/28 đạt.
 - CONG_VIEC_59 có đặc tả nháp và bản mẫu MAN_HINH_210 đến 217 (pull request nháp #132); CONG_VIEC_60 xong lát L0 (database migration 0125, pull request #133); CONG_VIEC_61 xong lát L1 Open API (database migration 0128, 0129; pull request #134).
