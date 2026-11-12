@@ -3,7 +3,7 @@
 - Mô tả: Làm lại công việc ứng dụng nhân viên kinh doanh theo mô hình B2C (THAY_DOI_14, THAY_DOI_26). Không còn ứng dụng riêng: mở rộng mục Kinh doanh của ứng dụng VComm với chi tiết khách, chia sẻ sản phẩm kèm mã giới thiệu, ghi chú chăm sóc và lịch hẹn có nhắc trong ứng dụng, doanh số theo tháng. Ẩn chức năng ghé thăm khách.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Đang thực hiện. Người dùng duyệt đặc tả và bản mẫu MAN_HINH_196 đến 201 ngày 2026-11-12.
+- Trạng thái: Đang thực hiện, chuẩn bị trình nghiệm thu. Người dùng duyệt đặc tả và bản mẫu MAN_HINH_196 đến 201 ngày 2026-11-12.
 - Nguồn: THAY_DOI_14, THAY_DOI_16, THAY_DOI_26, THAY_DOI_28; CONG_VIEC_23, 24, 26, 27 (đã phát hành 0.3.0); quyết định của người dùng ngày 2026-11-11 (câu hỏi trong phiên CONG_VIEC_22).
 - Nhánh: `chuc-nang/CONG_VIEC_22-kinh-doanh-vcomm` (mới, tạo từ `main` 453d3ed). Nhánh cũ `chuc-nang/CONG_VIEC_22-ung-dung-kinh-doanh` không dùng lại: L0 đến L4 của nhánh cũ đã có trong `main`, CONG_VIEC_23 đã thay `apps/mobile-sales` bằng `apps/mobile-vcomm`.
 
@@ -144,10 +144,23 @@ Cách tính và người hưởng hoa hồng (CONG_VIEC_26); quy tắc người 
 
 ## 16. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa đối chiếu.
+Ngày 2026-11-12, sau lát L4 và sửa phát hiện rà soát độc lập (commit 71720f4).
+
+- [x] Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: QUYTAC_NGHIEPVU_432 đến 441 có mã và kiểm thử; phạm vi xem theo nhánh kiểm ở KICHBAN_KIEMTHU_573, 575, 576, 579.
+- [x] Đúng giao diện: MAN_HINH_196 đến 201 khớp bản mẫu đã duyệt; người dùng đồng ý xem trước lát L0 đến L3; L4 xem trước bằng ảnh.
+- [x] Đã xử lý lỗi: lỗi ô (`followUpOn`, `month`), `403`, `404`, `409` có thông báo trong tệp dịch.
+- [x] Đã kiểm thử: toàn bộ `pnpm --filter api test` 102 tệp, 556/556 đạt (trước bản sửa rà soát), chạy lại sau bản sửa; kết quả ghi tài liệu `25` qua phiên cha.
+- [x] Không phá vỡ chức năng cũ: hồi quy c22-sales-app (290, 291 sửa theo THAY_DOI_26), c23, c24, c26, c27, c49, c50 đạt.
+- [x] Đạt tiêu chí nghiệm thu bắt buộc: TIEUCHI_NGHIEMTHU_402 đến 410 đạt (408 phần web-crm và 410 kiểm thủ công: đọc mã, kiểm tra kiểu, ảnh xem trước); TIEUCHI_NGHIEMTHU_411 (Mong muốn) chưa đo hiệu năng.
+- [x] Đạt cổng bảo mật: rà soát độc lập không có lỗi Nghiêm trọng, Cao; phát hiện Trung bình, Thấp đã sửa (commit 71720f4); không thêm thư viện; quét khóa bí mật (gitleaks) ở CI đạt; tài liệu `22` có mục kiểm soát.
+- [x] Đã tự rà soát mã và dọn dẹp: tệp tạm, ảnh xem trước chỉ nằm trong thư mục nháp ngoài kho mã.
+- [x] Đã cập nhật tài liệu `27` và tài liệu liên quan: `06`, `07`, `09` (THAY_DOI_28), `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27`.
 
 ## 17. Giới hạn đã biết
 
 - Nhắc hẹn chỉ hiện khi mở ứng dụng; thông báo đẩy làm sau khi đóng gói ứng dụng.
+- Nút Sao chép đường dẫn chỉ có trên bản web; máy thật dùng bảng chia sẻ của máy (thêm `expo-clipboard` cần người dùng duyệt).
+- Người phụ trách của đơn cũ không có hoa hồng phần nhân viên là ước lượng theo người giới thiệu hiện là nhân viên kinh doanh (database migration 0114).
+- TIEUCHI_NGHIEMTHU_411 (hiệu năng, Mong muốn) chưa đo.
 - Sản phẩm chờ mở sau đăng ký chỉ giữ trong lần mở ứng dụng (như lượt bấm cộng tác viên); đóng ứng dụng giữa chừng thì về trang chủ.
 - Tài liệu `09`, `10`, `14` (MAN_HINH_91) đã sửa theo THAY_DOI_28.
