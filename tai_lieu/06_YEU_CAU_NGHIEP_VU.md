@@ -534,8 +534,8 @@ YCAU_NGHIEPVU_47 (ứng dụng nhân viên kinh doanh riêng, CONG_VIEC_22 bản
 | YCAU_NGHIEPVU_165 | Nhật ký từng lần gọi để tra lỗi với đối tác, phát hiện dùng sai | Quản trị công ty | Người dùng 2026-11-12 |
 | YCAU_NGHIEPVU_166 | Đối tác lấy danh mục sản phẩm, giá bán cho chính mình, tồn khả dụng ở các kho được chỉ định | Đối tác | Người dùng 2026-11-12 |
 | YCAU_NGHIEPVU_167 | Đối tác gửi đơn bán vào VComm, không tạo trùng khi gửi lại; xem trạng thái, hủy khi chưa xử lý | Đối tác, Nhân viên bán hàng | Người dùng 2026-11-12 |
-| YCAU_NGHIEPVU_168 | Website, sàn bán hộ gửi đơn kèm khách hàng do đối tác tạo và người nhận để công ty giao thẳng | Đối tác | Người dùng 2026-11-12; tách sang công việc riêng |
-| YCAU_NGHIEPVU_169 | Cửa hàng liên kết tra, tích, đổi điểm VComm cho hội viên (hội viên xác nhận bằng mã OTP) | Cửa hàng liên kết, Hội viên | Người dùng 2026-11-12; tách sang công việc riêng |
+| YCAU_NGHIEPVU_168 | Website, sàn bán hộ gửi đơn kèm khách hàng do đối tác tạo và người nhận để công ty giao thẳng | Đối tác | Người dùng 2026-11-12; làm ở CONG_VIEC_66 |
+| YCAU_NGHIEPVU_169 | Cửa hàng liên kết tra, tích, đổi điểm VComm cho hội viên (hội viên xác nhận bằng mã OTP) | Cửa hàng liên kết, Hội viên | Người dùng 2026-11-12; làm ở CONG_VIEC_67 (MODULE_12) |
 
 | Đối tượng | Thuộc tính chính | Ghi chú |
 |---|---|---|

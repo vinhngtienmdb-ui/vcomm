@@ -3,11 +3,11 @@
 - Mô tả: Cổng API cho đối tác (đại lý, nhà bán lại, website và sàn bán hộ, cửa hàng liên kết) và phần mềm khác của chính công ty: cấp khóa API theo công ty và đối tác, phạm vi quyền theo khóa, giới hạn tần suất theo khóa, nhật ký từng lần gọi; API sản phẩm, giá, tồn; API đơn bán; khách hàng do đối tác tạo; tra, tích, đổi điểm tại đối tác.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu, xem trước L1, L2 đạt (2026-11-12); chốt phạm vi ở L1, L2, chờ nghiệm thu. L3, L4 tách sang công việc riêng.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu, xem trước L1, L2 đạt (2026-11-12); chốt phạm vi ở L1, L2, chờ nghiệm thu; phát hành trong 0.7.0. L3 chuyển CONG_VIEC_66; L4 chuyển CONG_VIEC_67 (MODULE_12).
 - Mức: Lớn (module mới, đổi phân quyền, thêm điểm tiếp nhận công khai, sửa cấu trúc dữ liệu bán hàng).
 - Nhánh: `chuc-nang/CONG_VIEC_61-mo-rong-kinh-doanh`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_16), `04` mục 8 dòng 12, `05` mục 3 (MODULE_16), `05` mục 5 (phiên bản 6.x), `24` THAY_DOI_04; quyết định của người dùng ngày 2026-11-12 (mục 17).
-- Ba phần còn lại của MODULE_16 (Dropship, trợ lý AI, quản lý sản xuất) đề nghị phiên điều phối cấp mã công việc riêng.
+- Ba phần còn lại của MODULE_16: Dropship (CONG_VIEC_62), trợ lý AI (CONG_VIEC_63), quản lý sản xuất (CONG_VIEC_64).
 
 ## 1. Mục tiêu
 
@@ -15,7 +15,7 @@
 
 ## 2. Phạm vi
 
-Trong phạm vi: CHUC_NANG_217 đến CHUC_NANG_220 (lát L1, L2). Người dùng quyết định ngày 2026-11-12 nghiệm thu ở L1, L2; CHUC_NANG_221 (lát L3: khách hàng do đối tác tạo, giao thẳng người nhận) và lát L4 (điểm thưởng tại đối tác) tách sang công việc riêng, đề nghị phiên điều phối cấp mã (mục 16).
+Trong phạm vi: CHUC_NANG_217 đến CHUC_NANG_220 (lát L1, L2). Người dùng quyết định ngày 2026-11-12 nghiệm thu ở L1, L2.
 
 Ngoài phạm vi:
 
@@ -23,7 +23,9 @@ Ngoài phạm vi:
 - Trang tài liệu API tự sinh (Swagger, OpenAPI). Giai đoạn này gửi đối tác tài liệu `17` mục 2-open (bản trích).
 - Đối tác tự đăng ký, tự lấy khóa; môi trường thử riêng cho đối tác (đối tác dùng khóa "thử" trỏ vào kho, kênh thử của công ty).
 - Đối tác đặt giá, giảm giá tay trên đơn; thanh toán qua API.
-- Dropship (nhà cung cấp giao thẳng, đối soát): công việc riêng của MODULE_16.
+- Dropship (nhà cung cấp giao thẳng, đối soát): CONG_VIEC_62 của MODULE_16.
+- Khách hàng do đối tác tạo, đơn giao thẳng người nhận cuối (CHUC_NANG_221, YCAU_NGHIEPVU_168, QUYTAC_NGHIEPVU_494, lát L3 cũ): CONG_VIEC_66 (Open API phần 2, MODULE_16).
+- Tra, tích, đổi điểm VComm tại đối tác (YCAU_NGHIEPVU_169, QUYTAC_NGHIEPVU_495, lát L4 cũ): không thuộc MODULE_16; người dùng gộp vào MODULE_12 thành "Cửa hàng liên kết phần 2" (CONG_VIEC_67). Phạm vi `loyalty.member` của khóa API để dành cho công việc đó.
 
 ## 3. Yêu cầu nghiệp vụ
 
@@ -276,7 +278,7 @@ L3, L4: tiêu chí lập khi chốt quy tắc (cần thêm mã).
 | Đơn Open API có hàng hóa (QUYTAC_NGHIEPVU_276) | Theo cài đặt hiện có "Cho phép lập đơn bán tay có hàng hóa"; tắt thì chỉ đặt dịch vụ (2026-11-12) |
 | Người lập đơn Open API | Nhân viên đã cấp khóa; nguồn, tên khóa ghi trên đơn và nhật ký thao tác (2026-11-12) |
 | Xem trước L1 | Đạt, làm L2 (2026-11-12) |
-| Xem trước L2, phạm vi công việc | Đạt; nghiệm thu L1, L2; tách L3, L4 sang công việc riêng (2026-11-12) |
+| Xem trước L2, phạm vi công việc | Đạt; nghiệm thu L1, L2; L3 sang CONG_VIEC_66; L4 gộp MODULE_12 thành CONG_VIEC_67; phát hành 0.7.0 gồm CONG_VIEC_55, 61 khi nghiệm thu (2026-11-12) |
 | Chia lát                     | 4 lát, điểm thưởng làm sau cùng                                                                  |
 
 ## 18. Thành phần không được thay đổi
@@ -290,8 +292,8 @@ L3, L4: tiêu chí lập khi chốt quy tắc (cần thêm mã).
 | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | L1  | Database migration 0128, 0129; quản lý khóa (API_255 đến 258, MAN_HINH_224, 225); guard khóa, IP, phạm vi, tần suất; nhật ký gọi (API_259, MAN_HINH_226), tác vụ dọn; API_260, API_261 | Ảnh chụp ba màn hình; gọi thử bằng `curl` với khóa thử: thành công, 401, 403, 429; nhật ký hiện các lần gọi |
 | L2  | Database migration 0130; API_262 đến 264; sửa màn hình đơn bán                                                                                                                         | `curl` tạo đơn, gửi lại cùng mã, hủy; ảnh đơn trên màn hình bán hàng                                        |
-| L3  | Khách hàng do đối tác tạo, người nhận giao thẳng (chốt quy tắc, cấp thêm mã trước)                                                                                                     | Theo đặc tả bổ sung                                                                                         |
-| L4  | Điểm thưởng tại đối tác (chốt quy tắc, cấp thêm mã trước)                                                                                                                              | Theo đặc tả bổ sung                                                                                         |
+| L3 | Chuyển CONG_VIEC_66 (Open API phần 2) | — |
+| L4 | Chuyển CONG_VIEC_67 (MODULE_12 Cửa hàng liên kết phần 2) | — |
 
 ## 20. Kết quả đối chiếu định nghĩa hoàn thành
 
@@ -303,4 +305,4 @@ L3, L4: tiêu chí lập khi chốt quy tắc (cần thêm mã).
 | Rà soát bảo mật | Tài liệu `22` mục Open API: sửa `X-Request-Id` có ký tự lạ; rủi ro `trust proxy` ghi cho bước triển khai |
 | Tài liệu | `06`, `07`, `08`, `09`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27` bổ sung; sổ chung `02`, `03`, `24`, `25` gửi phiên điều phối ghi |
 | Thư viện mới | Không |
-| Chưa làm | CHUC_NANG_221, lát L4; tài liệu API riêng cho đối tác (trang hướng dẫn); webhook gọi ra đối tác |
+| Chưa làm | CHUC_NANG_221 (CONG_VIEC_66), điểm thưởng tại đối tác (CONG_VIEC_67, MODULE_12); tài liệu API riêng cho đối tác (trang hướng dẫn); webhook gọi ra đối tác |

@@ -1096,5 +1096,5 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_61.md` mục 5.
 | QUYTAC_NGHIEPVU_491 | Mã đơn đối tác bắt buộc, duy nhất theo công ty và đối tác (khóa nội bộ: theo khóa); gửi lại mã đã có trả `200` đơn cũ, không so nội dung | Người dùng 2026-11-12 |
 | QUYTAC_NGHIEPVU_492 | Đối tác tra, liệt kê đơn trong phạm vi mình; hủy được khi Nháp, lý do ghi nhật ký thao tác; trạng thái khác `409` | Người dùng 2026-11-12 |
 | QUYTAC_NGHIEPVU_493 | Cấp, sửa, cấp lại, thu hồi khóa ghi nhật ký thao tác không chứa khóa; tạo, hủy đơn qua API ghi tên khóa, không gắn người dùng | AI đề xuất, người dùng duyệt đặc tả 2026-11-12 |
-| QUYTAC_NGHIEPVU_494 | Dự phòng (khách hàng do đối tác tạo; chuyển công việc sau) | — |
-| QUYTAC_NGHIEPVU_495 | Dự phòng (điểm thưởng tại đối tác; chuyển công việc sau) | — |
+| QUYTAC_NGHIEPVU_494 | Dự phòng (khách hàng do đối tác tạo; CONG_VIEC_66) | — |
+| QUYTAC_NGHIEPVU_495 | Dự phòng (điểm thưởng tại đối tác; CONG_VIEC_67, MODULE_12) | — |
