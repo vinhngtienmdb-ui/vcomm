@@ -201,7 +201,7 @@
 
 - Phạm vi: thành phần Kinh doanh trên ứng dụng VComm (THAY_DOI_26, 28), lát L0 đến L4, nhánh `chuc-nang/CONG_VIEC_22-kinh-doanh-vcomm` (pull request #122, commit `f90d6c7`).
 - Kết quả: toàn bộ `pnpm --filter api test` 102 tệp, 556/556 đạt (trên commit có bản sửa rà soát `71720f4`); `c22-kinh-doanh-vcomm` 7/7 (KICHBAN_KIEMTHU_573 đến 579; TIEUCHI_NGHIEMTHU_402 đến 407); `c22-sales-app` 5/5 (KICHBAN_KIEMTHU_290, 291 sửa theo THAY_DOI_26; TIEUCHI_NGHIEMTHU_408 phần API); KICHBAN_KIEMTHU_580 kiểm bằng đọc mã và kiểm tra kiểu; KICHBAN_KIEMTHU_581 (đường dẫn chia sẻ) Playwright trên bản xem trước với API giả lập, đạt; KICHBAN_KIEMTHU_582 (ứng dụng khổ 390) xem trước từng lát, người dùng đồng ý. Hồi quy c49 sau THAY_DOI_28 đạt.
-- Hiệu năng (người dùng yêu cầu đo trước khi nghiệm thu): KICHBAN_KIEMTHU_583 (TIEUCHI_NGHIEMTHU_411) đạt, `c22-hieu-nang.test.ts`, dữ liệu 1.000 khách, 20.000 đơn: danh sách khách 7 ms, chi tiết khách 6 ms, doanh số nhánh 19 ms (giới hạn 1.000 ms; commit `53b1d2c`). TIEUCHI_NGHIEMTHU_402 đến 411 đều đạt.
+- Hiệu năng (người dùng yêu cầu đo trước khi nghiệm thu): KICHBAN_KIEMTHU_583 (TIEUCHI_NGHIEMTHU_411) đạt, `c22-hieu-nang.test.ts`, dữ liệu 1.000 khách, 20.000 đơn: danh sách khách 7 ms, chi tiết khách 6 ms, doanh số nhánh 19 ms (giới hạn 1.000 ms; commit `9b2c13a`). TIEUCHI_NGHIEMTHU_402 đến 411 đều đạt.
 - Rà soát độc lập: không có lỗi Nghiêm trọng, Cao; 1 Trung bình, 6 Thấp, đã sửa ở commit `71720f4`.
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_57 (lát L0 đến L6)
 
