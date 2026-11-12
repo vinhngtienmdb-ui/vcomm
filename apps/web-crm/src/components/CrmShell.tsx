@@ -27,6 +27,7 @@ export const crmMenu = [
   { href: "/community", key: "community", permission: "marketplace.community.manage" },
   { href: "/affiliate/merchants", key: "affiliateMerchants", permission: "affiliate.view" },
   { href: "/affiliate/vouchers", key: "affiliateVouchers", permission: "affiliate.view" },
+  { href: "/affiliate/settlements", key: "affiliateSettlements", permission: "affiliate.view" },
 ] as const;
 
 export function CrmShell({ children }: { children: ReactNode }) {

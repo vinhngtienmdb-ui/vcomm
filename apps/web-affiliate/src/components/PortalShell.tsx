@@ -31,6 +31,7 @@ export function usePortal(): PortalContextValue {
 const portalMenu = [
   { href: "/counter", key: "counter", ownerOnly: false },
   { href: "/vouchers", key: "vouchers", ownerOnly: true },
+  { href: "/reports", key: "reports", ownerOnly: true },
   { href: "/store", key: "store", ownerOnly: true },
 ] as const;
 
