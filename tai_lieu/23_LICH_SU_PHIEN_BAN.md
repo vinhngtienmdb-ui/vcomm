@@ -5,6 +5,32 @@
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Đang cập nhật
 
+## Phiên bản 0.7.0 – 2026-11-12 – Chờ phát hành
+
+- Chức năng mới:
+  - Cửa hàng liên kết phần 1 (MODULE_12, ứng dụng mới `apps/web-affiliate`, CONG_VIEC_55, THAY_DOI_27, THAY_DOI_29): hợp đồng cửa hàng liên kết với đối tác ngoài tập đoàn (tỷ lệ tích, phí dịch vụ, hạn mức nợ, trần mỗi giao dịch, hạn thanh toán), điểm bán, chủ cửa hàng và thu ngân kích hoạt lời mời bằng số điện thoại và mã OTP; tích, dùng điểm và voucher tại quầy bằng mã QR động của cửa hàng, mã QR động của khách hoặc số điện thoại kèm xác nhận trên ứng dụng VComm; hủy giao dịch trước khi chốt tuần; voucher ba loại qua duyệt; đối soát tuần có bù trừ, công nợ, chặn tích khi vượt hạn mức hoặc quá hạn; hạch toán ở công ty vận hành sàn; báo cáo cửa hàng, cảnh báo bất thường; danh sách giao dịch và nguồn bút toán riêng (THAY_DOI_29); đăng nhập Zalo cho cổng cửa hàng.
+  - Open API cho đối tác lát L1, L2 (MODULE_16 phần 1, CONG_VIEC_61): khóa API theo công ty và đối tác (bảng `core.api_keys`, chỉ lưu SHA-256), phạm vi quyền, danh sách IP, giới hạn tần suất theo khóa, xác thực khóa API; nhật ký từng lần gọi (xóa sau 90 ngày lúc 2 giờ); API sản phẩm, giá, tồn; đơn bán qua API (mã đơn của đối tác, chống gửi trùng).
+- Ghép giữa các công việc: luồng OAuth dùng chung (Zalo) nhận thêm `app=merchant` để quay về cổng cửa hàng (CONG_VIEC_55); danh mục quyền, `app.module.ts`, `packages/contracts`, khóa dịch, tác vụ nền gộp giữ cả hai phía.
+- Thay đổi dữ liệu, database migration theo thứ tự chạy: `0102` đến `0105` (schema `affiliate`; `0103`, `0104` định nghĩa lại ràng buộc `source_type` của `loyalty.lots`, `loyalty.entries`, `loyalty.document_points`, `loyalty.refund_links`; `0105` định nghĩa lại `finance.debt_items_source_type_check` và `accounting.journals_source_type_check`), `0128` đến `0130` (khóa API, nhật ký gọi API, cột đơn bán qua API trên `sales.orders`). Các ràng buộc dùng chung chỉ bị định nghĩa lại trong CONG_VIEC_55, giá trị là tập rộng hơn bản trên `main` (`0101`, `0069`, `0087`, `0088`), nên không cần database migration đặt lại ràng buộc (số `0144` dành riêng không dùng). `0102` đến `0105` có số nhỏ hơn `0109` đến `0119` đã có trong 0.6.0: cơ chế database migration chạy mọi tệp chưa có trong `public.schema_migrations` theo thứ tự tên, nên cơ sở dữ liệu đã chạy tới `0119` vẫn chạy `0102` đến `0105`; đã thử cả hai cách (cơ sở dữ liệu của 0.6.0 rồi chạy phần mới, và cơ sở dữ liệu mới chạy từ đầu) cho cùng 911 ràng buộc kiểm tra, không thiếu giá trị nào của `main`. Số `0106` đến `0108`, `0112`, `0115`, `0120` đến `0127` không có tệp trong phiên bản này.
+- Thay đổi API: thêm API theo tài liệu `17` của CONG_VIEC_55 (API_206 đến API_213) và CONG_VIEC_61 (API_255 đến API_264, gồm điểm tiếp nhận công khai xác thực bằng khóa API); tương thích ngược.
+- Ứng dụng mới: `apps/web-affiliate` (cổng cửa hàng liên kết, cổng 3013).
+- Thư viện mới: `jsqr` 1.4.0 (đọc mã QR từ camera ở `apps/web-affiliate`, CONG_VIEC_55); `expo-camera` ~58.0.14 thêm vào `apps/mobile-vcomm` (quét mã QR cửa hàng, cùng phiên bản đã dùng ở `apps/mobile-warehouse`).
+- Biến môi trường mới: không có. `MFA_SECRET_KEY` (đã có) nay còn là nguồn dẫn xuất khóa HMAC ký mã QR động của cửa hàng và mã thành viên (CONG_VIEC_55). Khóa API chỉ lưu SHA-256 và 8 ký tự đầu, không cần khóa bí mật.
+- Rủi ro:
+  - `MFA_SECRET_KEY` bắt buộc trên môi trường thật (ít nhất 32 ký tự); thiếu thì không tạo, không kiểm được mã QR động tại quầy cửa hàng liên kết. Đổi giá trị làm mất hiệu lực mã đang hiện (mã sống 30 đến 60 giây).
+  - Lọc IP của Open API dựa vào `trust proxy` 1: môi trường thật cần đúng một proxy tin cậy đặt `X-Forwarded-For`, nếu không đối tác có thể giả IP hoặc danh sách IP không có tác dụng; kiểm khi triển khai.
+  - Quét camera mã QR (cổng cửa hàng và ứng dụng VComm) chưa thử trên điện thoại thật.
+  - Pháp lý điểm thưởng (CONG_VIEC_51) vẫn áp dụng cho điểm tại cửa hàng liên kết: chặn triển khai lên môi trường thật cho đến khi có ý kiến luật sư.
+- Khả năng tương thích: tương thích ngược với 0.6.0; database migration thêm schema, bảng, cột (có mặc định cho dữ liệu cũ) và mở rộng ràng buộc kiểm tra.
+- Công việc gộp trong phiên bản: CONG_VIEC_55 (pull request #120), CONG_VIEC_61 lát L1, L2 (#134); THAY_DOI_27, THAY_DOI_29. Thứ tự hợp nhất: 55, 61. Không gộp CONG_VIEC_52, 56, 59, 60.
+- Đánh lại số mục tài liệu trùng khi gộp: không cần (các mục của CONG_VIEC_55 không đánh số, mã định danh của hai công việc không trùng dải).
+- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 18/18 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 7872 khóa; kiểm thử API toàn bộ: ghi bổ sung khi chạy xong.
+- Tag: `v0.7.0` trên commit hợp nhất nhánh `phat-hanh/v0.7.0` vào `main` (gắn tự động khi CI trên `main` đạt).
+- Phương án quay lui riêng của phiên bản:
+  - Mã nguồn: triển khai lại tag `v0.6.0`; gỡ ứng dụng `apps/web-affiliate` khỏi máy chủ.
+  - Database migration: bản 0.6.0 không đọc schema `affiliate`, bảng `core.api_keys`, nhật ký gọi API, cột đơn bán qua API; giữ nguyên khi quay lui mã. Ràng buộc kiểm tra đã mở rộng (`0103` đến `0105`) chỉ thêm giá trị nên bản 0.6.0 vẫn ghi được. Trước khi quay lui: thu hồi mọi khóa API đang dùng và báo đối tác; chốt và đối soát hết giao dịch cửa hàng liên kết, báo cửa hàng tạm dừng (bản 0.6.0 không có cổng cửa hàng). Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.7.0.
+  - Ứng dụng VComm trên điện thoại: bản phát hành kèm `expo-camera` là bản dựng mới; quay lui bằng bản dựng của 0.6.0 trên kho ứng dụng hoặc cập nhật qua mạng.
+
 ## Phiên bản 0.6.0 – 2026-11-12 – Chờ phát hành
 
 - Chức năng mới:
