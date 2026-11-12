@@ -5,6 +5,36 @@
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Đang cập nhật
 
+## Phiên bản 0.9.0 – 2026-11-12 – Chờ phát hành
+
+- Chức năng mới:
+  - Văn phòng số phần 2 (MODULE_13, CONG_VIEC_59): chữ ký số qua lớp kết nối nhà cung cấp ký số từ xa (giai đoạn này chỉ có bộ giả lập, bị chặn ở môi trường chính thức), tài khoản ký số của người dùng, chữ ký số của công ty, danh sách chứng thư gốc tin cậy; trình ký tài liệu PDF nhiều người ký theo thứ tự (người dùng, chữ ký công ty, đối tác ký qua đường dẫn), ký theo chuẩn PAdES, kiểm tra chữ ký số trong PDF; kho hợp đồng (loại hợp đồng, hợp đồng, phụ lục, duyệt, ký qua phiên ký, nhập hợp đồng đã ký, thanh lý, chấm dứt, nhắc hạn); công văn đi ký số rồi phát hành không cần bản quét; hợp đồng lao động, phụ lục của Nhân sự ký số.
+  - Mở rộng kinh doanh phần 5 (MODULE_16, CONG_VIEC_66, THAY_DOI_32): đối tác có khóa phạm vi `customer.write` tạo, tra cứu khách hàng qua Open API (hồ sơ "Do đối tác tạo"; khách cá nhân nguồn Open API được để trống số căn cước theo ngoại lệ QUYTAC_NGHIEPVU_56); đơn Open API ghi khách của đối tác và người nhận giao thẳng; phiếu xuất giao hàng hiện người nhận; Nền tảng cho chọn phạm vi mới khi cấp khóa; Đối tác, Bán hàng, Kho hiện khách do đối tác tạo, người nhận.
+- Sửa lỗi:
+  - LOI_09 (Trung bình, CONG_VIEC_66): dò hồ sơ qua số căn cước, mã số thuế khi tạo khách qua Open API; sửa: chỉ dùng lại hồ sơ theo mã số thuế (quyết định người dùng).
+  - LOI_10 (Cao, có trong 0.8.0): dịch vụ in tem và in đề xuất đăng ký lại bảng phông pdfmake chỉ có Roboto nên xuất PDF công văn đi theo thể thức có thể lỗi thiếu phông Liberation Serif; sửa: hai dịch vụ dùng `renderPdf` chung.
+  - LOI_11 (Cao, có trong 0.8.0): khóa lưu trữ tệp công văn chứa `outgoing_signed` có dấu gạch dưới nên lưu trữ cục bộ từ chối, phát hành công văn đi lỗi 500; sửa: đổi "_" thành "-" trong khóa lưu trữ.
+- Ghép giữa các công việc: hai công việc không dùng chung bảng, ràng buộc kiểm tra. `app.module.ts`, danh mục quyền, `packages/contracts`, khóa dịch, tác vụ nền, `pnpm-lock.yaml` Git hợp nhất tự động giữ cả hai phía. Xung đột chỉ ở tài liệu `09` (giữ cả hai phần) và `27` (đánh lại số mục).
+- Thay đổi dữ liệu, database migration theo thứ tự chạy: `0121` (ký số, phiên ký; định nghĩa lại `office.files_owner_type_check` gồm mọi giá trị của `main` thêm `signing_request`), `0122` (kho hợp đồng; định nghĩa lại `office.files_owner_type_check` thêm `contract`, `contract_appendix` và `office.signing_requests_source_type_check`), `0123` (liên kết phiên ký với công văn đi, hợp đồng lao động; định nghĩa lại `office.signing_requests_source_type_check`), `0131` (khách hàng do đối tác tạo: cột `crm.partners.created_via_api_key_id`, định nghĩa lại `crm.partners_check1`, bảng `crm.open_api_customers`, cột người nhận của `sales.orders`). Không trùng số. Mỗi ràng buộc dùng chung chỉ bị định nghĩa lại trong một công việc, theo thứ tự tăng dần và bản sau là tập rộng hơn bản trước, không mất giá trị nào của `main`, nên không cần database migration đặt lại ràng buộc (số `0149` dành riêng không dùng). `0121` đến `0123` có số nhỏ hơn `0128` đến `0130` đã có trên `main`: cơ chế database migration chạy mọi tệp chưa có trong `public.schema_migrations` theo thứ tự tên, nên cơ sở dữ liệu đã chạy tới `0130` vẫn chạy phần mới; đã thử cả hai cách (cơ sở dữ liệu của `main` chạy tới `0130` rồi chạy phần mới, và cơ sở dữ liệu mới chạy từ đầu) cho cùng 1054 ràng buộc kiểm tra (`main` có 1014); chỉ `crm.partners_check1`, `office.files_owner_type_check` đổi định nghĩa và đều chỉ nới rộng.
+- Thay đổi API: thêm API theo tài liệu `17` của CONG_VIEC_59 (API_241 đến API_248) và CONG_VIEC_66 (API_289 đến API_292); API_262, API_263 (đơn Open API) nhận và trả thêm khách của đối tác, người nhận; API_71 (danh sách đối tác), chi tiết đối tác, đơn bán, phiếu kho trả thêm trường nguồn Open API, người nhận (tương thích ngược).
+- Thư viện mới ở `apps/api` (CONG_VIEC_59): `@signpdf/signpdf`, `@signpdf/placeholder-pdf-lib`, `@signpdf/utils` 4.0.0, `pdf-lib` 1.17.1, `node-forge` 1.4.3; `@types/node-forge` 1.3.14 (phát triển).
+- Biến môi trường mới (`apps/api`, chỉ dùng cho bộ giả lập ký số, không bắt buộc): `SIGNING_SIMULATOR_DIRECTORY` (thư mục tổ chức chứng thực giả lập, mặc định `.storage/ky-so-gia-lap`), `SIGNING_SIMULATOR_CONFIRM_MILLISECONDS` (thời gian giả lập người ký xác nhận, mặc định 2000).
+- Tác vụ nền mới: `office-signing-poll` (mỗi 5 giây, tra kết quả lần ký), `office-signing-expiry` (mỗi giờ, hết hạn phiên ký và nhắc người ký).
+- Rủi ro:
+  - Trình gửi thư mời ký cho đối tác hiện chỉ ghi nhật ký, không gửi thư thật: phải thay bằng trình gửi thật trước khi triển khai chính thức.
+  - Bộ giả lập ký số giữ lần ký đang chờ trong bộ nhớ (khởi động lại tiến trình thì lần ký đang chờ thất bại); bộ giả lập bị chặn ở môi trường chính thức, phải kết nối nhà cung cấp ký số thật trước khi dùng thật.
+  - Căn cứ pháp lý chữ ký số (Luật Giao dịch điện tử số 20/2023/QH15 và văn bản hướng dẫn) chưa tra nguyên văn.
+  - Bản này sửa LOI_10, LOI_11 có trong 0.8.0 (xuất PDF, phát hành công văn đi); nên phát hành cùng hoặc ngay sau 0.8.0.
+  - Pháp lý điểm thưởng (CONG_VIEC_51) vẫn chặn triển khai lên môi trường thật cho đến khi có ý kiến luật sư (không đổi so với 0.8.0).
+- Khả năng tương thích: tương thích ngược với 0.8.0; database migration thêm bảng, cột (cho phép rỗng hoặc có mặc định) và nới rộng ràng buộc kiểm tra.
+- Công việc gộp trong phiên bản: CONG_VIEC_59 (pull request #132, gồm bản sửa LOI_10, LOI_11), CONG_VIEC_66 (#144, THAY_DOI_32, LOI_09). Thứ tự hợp nhất: 59, 66. Không gộp CONG_VIEC_60, 67.
+- Đánh lại số mục tài liệu trùng khi gộp: tài liệu `27` mục kiểm tra bao phủ CONG_VIEC_66 từ 38 thành 39 (mục 38 là CONG_VIEC_59). Các mục khác (`08` số 56, `13` số 10, `16` số 41, `17` số 2u, 3zi của CONG_VIEC_59; phần CONG_VIEC_66 là tiểu mục không đánh số) không trùng; mã định danh của hai công việc không trùng.
+- Kiểm thử trên nhánh phát hành: KET_QUA_KIEM_THU_CHO_DIEN.
+- Tag: `v0.9.0` trên commit hợp nhất nhánh `phat-hanh/v0.9.0` vào `main` (gắn tự động khi CI trên `main` đạt).
+- Phương án quay lui riêng của phiên bản:
+  - Mã nguồn: triển khai lại tag `v0.8.0`.
+  - Database migration: bản 0.8.0 không đọc các bảng ký số, phiên ký, kho hợp đồng, `crm.open_api_customers` và cột mới; giữ nguyên khi quay lui mã. Ràng buộc `office.files_owner_type_check`, `office.signing_requests_source_type_check` chỉ thêm giá trị nên bản 0.8.0 vẫn ghi được. `crm.partners_check1` nới cho khách cá nhân không có số căn cước do đối tác tạo: bản 0.8.0 không tạo loại khách này nhưng vẫn đọc được; sửa hồ sơ khách đó ở bản 0.8.0 không bị chặn bởi ràng buộc. Trước khi quay lui: báo người dùng Văn phòng số tải về tệp đã ký, hợp đồng cần dùng; phiên ký đang chờ dừng lại (bản 0.8.0 không có tác vụ nền ký số); thu hồi hoặc báo đối tác ngừng dùng phạm vi `customer.write` (bản 0.8.0 không có API khách hàng; đơn Open API đã tạo vẫn còn nhưng không hiện người nhận). Quay lui về 0.8.0 làm mất bản sửa LOI_10, LOI_11. Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.9.0.
+
 ## Phiên bản 0.8.0 – 2026-11-12 – Chờ phát hành
 
 - Chức năng mới:
