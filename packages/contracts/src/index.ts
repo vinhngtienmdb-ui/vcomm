@@ -3271,9 +3271,17 @@ export type RetailFundDocumentKind = (typeof retailFundDocumentKinds)[number];
 // CONG_VIEC_56 (QUYTAC_NGHIEPVU_408): phiếu mua ngoại tệ, không đối tác, lập ở API_214.
 export const treasuryPaymentKinds = ["currency_purchase", "customs_tax_payment", "customs_tax_refund"] as const;
 export type TreasuryPaymentKind = (typeof treasuryPaymentKinds)[number];
-export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind;
+// CONG_VIEC_60 (QUYTAC_NGHIEPVU_473): phiếu thu, phiếu chi nợ nội bộ điểm thưởng, lập từ bảng đối soát điểm nội bộ, không trừ công nợ.
+export const loyaltySettlementPaymentKinds = ["loyalty_intercompany_receipt", "loyalty_intercompany_payment"] as const;
+export type LoyaltySettlementPaymentKind = (typeof loyaltySettlementPaymentKinds)[number];
+export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind | LoyaltySettlementPaymentKind;
 export const paymentKindIsReceipt = (kind: AnyPaymentKind) =>
-  kind === "customer_receipt" || kind === "supplier_refund" || kind === "retail_receipt" || kind === "cash_surplus" || kind === "customs_tax_refund";
+  kind === "customer_receipt" ||
+  kind === "supplier_refund" ||
+  kind === "retail_receipt" ||
+  kind === "cash_surplus" ||
+  kind === "customs_tax_refund" ||
+  kind === "loyalty_intercompany_receipt";
 export const paymentKindSettles = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
 export const paymentListQuerySchema = z
   .object({ kind: z.enum([...paymentKinds, ...treasuryPaymentKinds]).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
@@ -7905,6 +7913,10 @@ const loyaltyPointValue = z
   .refine((value) => Number(value) > 0, "invalidValue");
 const loyaltyPointCount = z.number().int().min(1).max(1_000_000_000);
 
+// QUYTAC_NGHIEPVU_468 (CONG_VIEC_60): kiểu chia chi phí khi khách tích ở công ty này, dùng ở công ty khác.
+export const loyaltyCostBearers = ["earning_company", "redeeming_company", "operator"] as const;
+export type LoyaltyCostBearer = (typeof loyaltyCostBearers)[number];
+
 // QUYTAC_NGHIEPVU_345: giai đoạn chương trình điểm.
 export const loyaltyPhaseSchema = z
   .object({
@@ -7917,6 +7929,7 @@ export const loyaltyPhaseSchema = z
     validityMonths: z.number().int().min(1).max(60),
     orderCapPoints: loyaltyPointCount.nullable(),
     monthlyCapPoints: loyaltyPointCount.nullable(),
+    costBearer: z.enum(loyaltyCostBearers).default("earning_company"),
   })
   .strict();
 export type LoyaltyPhaseInput = z.infer<typeof loyaltyPhaseSchema>;
@@ -7958,6 +7971,7 @@ export interface LoyaltyPhase {
   validityMonths: number;
   orderCapPoints: number | null;
   monthlyCapPoints: number | null;
+  costBearer: LoyaltyCostBearer;
   status: LoyaltyPhaseStatus;
   version: number;
 }
@@ -8035,7 +8049,8 @@ export interface LoyaltyDocumentPoints {
   expectedPoints: number;
   earnedPoints: number | null;
   earnStatus: "pending" | "earned" | "skipped" | "cancelled";
-  skipReason: "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | null;
+  // CONG_VIEC_60: fraud_rule – quy tắc chống gian lận chặn tích (QUYTAC_NGHIEPVU_475).
+  skipReason: "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | "fraud_rule" | null;
   expiresOn: string | null;
   tierName: string | null;
   multiplier: string;
@@ -8102,7 +8117,8 @@ export interface LoyaltyAccountDetail extends LoyaltyTierProgress {
   lockReason: string | null;
   lots: LoyaltyLotItem[];
   tierHistory: { fromTierName: string | null; toTierName: string; reason: "order_completed" | "year_start" | "tiers_changed"; createdAt: string }[];
-  lockHistory: { action: "lock" | "unlock"; reason: string; actorName: string; createdAt: string }[];
+  // CONG_VIEC_60: actorName null khi hệ thống tự khóa theo quy tắc chống gian lận.
+  lockHistory: { action: "lock" | "unlock"; reason: string; actorName: string | null; createdAt: string }[];
   canManage: boolean;
 }
 
@@ -8164,6 +8180,7 @@ export interface LoyaltyAlertResponse {
   items: LoyaltyAlertItem[];
 }
 export * from "./purchasing-budgets";
+export * from "./loyalty-alliance";
 export * from "./office";
 export * from "./office-signing";
 export * from "./office-contracts";

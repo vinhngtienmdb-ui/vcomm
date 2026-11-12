@@ -1,6 +1,6 @@
 "use client";
 
-// Khung mini app Khách hàng và Đối tác: menu MAN_HINH_36 (CONG_VIEC_06), MAN_HINH_64 (CONG_VIEC_21), MAN_HINH_79 (CONG_VIEC_23), MAN_HINH_81, MAN_HINH_82 (CONG_VIEC_27), MAN_HINH_86 đến MAN_HINH_89 (CONG_VIEC_24), MAN_HINH_98 (CONG_VIEC_25), MAN_HINH_102 (CONG_VIEC_26), MAN_HINH_146 đến MAN_HINH_150 (CONG_VIEC_51), MAN_HINH_137, MAN_HINH_138 (CONG_VIEC_49), MAN_HINH_178 (CONG_VIEC_55); mục thêm dần theo module.
+// Khung mini app Khách hàng và Đối tác: menu MAN_HINH_36 (CONG_VIEC_06), MAN_HINH_64 (CONG_VIEC_21), MAN_HINH_79 (CONG_VIEC_23), MAN_HINH_81, MAN_HINH_82 (CONG_VIEC_27), MAN_HINH_86 đến MAN_HINH_89 (CONG_VIEC_24), MAN_HINH_98 (CONG_VIEC_25), MAN_HINH_102 (CONG_VIEC_26), MAN_HINH_146 đến MAN_HINH_150 (CONG_VIEC_51), MAN_HINH_220 đến MAN_HINH_222 (CONG_VIEC_60), MAN_HINH_137, MAN_HINH_138 (CONG_VIEC_49), MAN_HINH_178 (CONG_VIEC_55); mục thêm dần theo module.
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { AppShell } from "ui/components/AppShell";
@@ -21,6 +21,9 @@ export const crmMenu = [
   { href: "/loyalty/adjustments", key: "loyaltyAdjustments", permission: "loyalty.view" },
   { href: "/loyalty/alerts", key: "loyaltyAlerts", permission: "loyalty.view" },
   { href: "/loyalty/liability", key: "loyaltyLiability", permission: "loyalty.view" },
+  { href: "/loyalty/fraud-rules", key: "loyaltyFraudRules", permission: "loyalty.view" },
+  { href: "/loyalty/fraud-cases", key: "loyaltyFraudCases", permission: "loyalty.view" },
+  { href: "/loyalty/reports", key: "loyaltyReports", permission: "loyalty.view" },
   { href: "/collaborators", key: "collaborators", permission: "marketplace.buyer.view" },
   { href: "/group-buys", key: "groupBuys", permission: "marketplace.order.view" },
   { href: "/community", key: "community", permission: "marketplace.community.manage" },

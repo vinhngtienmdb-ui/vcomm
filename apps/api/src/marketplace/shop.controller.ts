@@ -28,11 +28,13 @@ import { UuidPipe } from "../common/uuid.pipe";
 import { clientInfo } from "../auth/auth.controller";
 import { MarketplaceOrdersService } from "./marketplace-orders.service";
 import { ReturnRequestsService } from "./return-requests.service";
+import { LoyaltyFraudService } from "../loyalty/fraud.service";
 import { ShopService } from "./shop.service";
 
 @Controller("buyer")
 export class ShopController {
   constructor(
+    private readonly fraud: LoyaltyFraudService,
     private readonly shop: ShopService,
     private readonly orders: MarketplaceOrdersService,
     private readonly returns: ReturnRequestsService,
@@ -68,7 +70,9 @@ export class ShopController {
   // API_126: đơn của người mua.
   @Post("orders/preview")
   @HttpCode(200)
-  previewOrder(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<BuyerOrderPreview> {
+  async previewOrder(@Req() request: AuthenticatedRequest, @Body() body: unknown): Promise<BuyerOrderPreview> {
+    // CONG_VIEC_60 (QUYTAC_NGHIEPVU_474): ghi thiết bị xem trước đơn.
+    await this.fraud.link(request.auth.userId, clientInfo(request).deviceId);
     return this.orders.preview(request.auth.userId, buyerOrderPreviewSchema.parse(body));
   }
 

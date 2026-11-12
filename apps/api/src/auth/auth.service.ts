@@ -26,6 +26,8 @@ export interface ClientInfo {
   now?: Date;
   // Ngôn ngữ của yêu cầu (CHUC_NANG_22): chọn tên tiếng Việt hay tiếng Anh của danh mục hệ thống.
   locale?: "vi" | "en";
+  // CONG_VIEC_60 (QUYTAC_NGHIEPVU_474): mã cài đặt ứng dụng VComm gửi qua tiêu đề X-Device-Id.
+  deviceId?: string | null;
 }
 
 export interface IssuedSession {
