@@ -716,7 +716,8 @@
     "hrDigitalSigningActive": "Hợp đồng đang có phiên ký số chưa kết thúc.",
     "hrDigitalSigningEmailMissing": "Người lao động chưa có thư điện tử để nhận đường dẫn ký; nhập thư điện tử.",
     "hrDigitalSigningIdentityMissing": "Hồ sơ người lao động chưa có số định danh cá nhân để ký qua đường dẫn.",
-    "signingPersonalCertificateRequired": "Tài khoản ký số cá nhân chỉ dùng chứng thư cá nhân; chứng thư của tổ chức được khai ở chữ ký số công ty."
+    "signingPersonalCertificateRequired": "Tài khoản ký số cá nhân chỉ dùng chứng thư cá nhân; chứng thư của tổ chức được khai ở chữ ký số công ty.",
+    "signingResendLimit": "Mỗi đối tác chỉ gửi lại thư tối đa 5 lần trong 24 giờ."
   },
   "login": {
     "title": "Đăng nhập",

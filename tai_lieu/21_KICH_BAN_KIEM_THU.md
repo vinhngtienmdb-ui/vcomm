@@ -5650,7 +5650,7 @@ Dữ liệu chung: công ty VCR (mã số thuế `0312345678`) và VCT cùng t�
 - Điều kiện ban đầu và dữ liệu: Dữ liệu chung; bộ giả lập cấp chứng thư hết hạn cho mã định danh `079090000111`.
 - Các bước: (1) Gọi API_242 `POST /office/signing-identities/me/certificates` với mã định danh có chứng thư hết hạn. (2) Chọn chứng thư đó. (3) Lấy, chọn chứng thư của mã định danh `079090005678`. (4) Gọi `GET /office/signing-identities/me`.
 - Kết quả mong đợi: Bước 1: `usable` sai. Bước 2: `409`. Bước 3: tài khoản ký số đang dùng, `usable` đúng. Bước 4: chủ thể có `CCCD:079090005678`.
-- Kiểm thử tự động: Tự động API – `apps/api/test/c59-phien-ky.test.ts`. Chứng thư chưa đến hiệu lực chưa có kiểm thử tự động.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c59-phien-ky.test.ts`. Chứng thư chưa đến hiệu lực chưa có kiểm thử tự động. Bổ sung sau rà soát độc lập: tài khoản cá nhân không nhận chứng thư tổ chức (`c59-phien-ky`).
 - Lát: L1
 
 ### KICHBAN_KIEMTHU_599: Ký một chữ ký; đọc lại bằng phần mềm đọc PDF; từ chối, quá giờ
@@ -5672,7 +5672,7 @@ Dữ liệu chung: công ty VCR (mã số thuế `0312345678`) và VCT cùng t�
 - Điều kiện ban đầu và dữ liệu: Dữ liệu chung; công ty có chữ ký số (KICHBAN_KIEMTHU_597); phó phòng có tài khoản ký số, giám đốc chưa khai.
 - Các bước: (1) Lập phiên bốn người ký: phó phòng thứ tự 1, giám đốc thứ tự 2, chữ ký công ty thứ tự 3, đối tác thứ tự 4. (2) Gửi khi giám đốc chưa khai tài khoản ký số. (3) Giám đốc khai; gửi lại. (4) Người không liên quan mở chi tiết; giám đốc mở khi chưa đến lượt. (5) Phó phòng ký, việc nền hỏi kết quả. (6) Giám đốc ký. (7) Văn thư mở thẻ Chờ tôi ký, đóng chữ ký công ty. (8) Đối tác ký qua đường dẫn. (9) Tải tệp, kiểm tra chữ ký. (10) Hai người cùng thứ tự bấm ký cùng lúc. (11) Lập phiên với tệp không phải PDF, hạn quá 60 ngày, người ký trùng.
 - Kết quả mong đợi: Bước 1: `201`, nháp, số `KS…`. Bước 2: lỗi "chưa khai tài khoản ký số", không gửi. Bước 3: đang ký, người 1 đến lượt. Bước 4: `404`; giám đốc chưa có `mySignerId`. Bước 5 đến 8: người ký lần lượt đã ký, người sau đến lượt; văn thư thấy `companySealTurn`; phiên đã ký xong, lịch sử có `completed`, một sự kiện `office.signing.completed`. Bước 9: bốn chữ ký đều Hợp lệ, đúng chủ thể theo thứ tự; ba tệp ký nối tiếp chỉ chữ ký cuối bao trùm toàn bộ tệp. Bước 10: một lần ký đang chờ mỗi phiên; người sau ký trên bản mới, không mất chữ ký. Bước 11: `400`.
-- Kiểm thử tự động: Tự động API một phần – `apps/api/test/c59-phien-ky.test.ts` (bước 1 đến 9, 11), `apps/api/test/c59-ky-so-pdf.test.ts` (ký nối tiếp ba chữ ký). Chưa tự động: bước 10 (hai người cùng thứ tự bấm ký đồng thời; chỉ có chỉ mục duy nhất lần ký đang chờ trong cơ sở dữ liệu); thông báo đến lượt kiểm qua thẻ Chờ tôi ký, chưa kiểm bản ghi thông báo.
+- Kiểm thử tự động: Tự động API một phần – `apps/api/test/c59-phien-ky.test.ts` (bước 1 đến 9, 11), `apps/api/test/c59-ky-so-pdf.test.ts` (ký nối tiếp ba chữ ký). Chưa tự động: bước 10 (hai người cùng thứ tự bấm ký đồng thời; chỉ có chỉ mục duy nhất lần ký đang chờ trong cơ sở dữ liệu); thông báo đến lượt kiểm qua thẻ Chờ tôi ký, chưa kiểm bản ghi thông báo. Bổ sung sau rà soát độc lập (`c59-phien-ky`): người ký ở công ty khác trong tập đoàn ký bằng tài khoản cùng nhà cung cấp, người ngoài nhận `404`, thông báo gắn công ty của người ký; tệp có chữ ký cũ chưa kiểm được vẫn ký bổ sung được; PDF đặt mật khẩu bị chặn khi lập.
 - Lát: L1
 
 ### KICHBAN_KIEMTHU_601: Trạng thái phiên ký: từ chối, nhắc, hủy, hết hạn, sao chép
@@ -5694,7 +5694,7 @@ Dữ liệu chung: công ty VCR (mã số thuế `0312345678`) và VCT cùng t�
 - Điều kiện ban đầu và dữ liệu: Dữ liệu chung; đối tác tổ chức khai mã số thuế `0309876543`, mã định danh tại nhà cung cấp là của tổ chức khác.
 - Các bước: (1) Lập phiên một đối tác, gửi; đối tác mở đường dẫn trong thư (API_244), bấm Ký số; việc nền hỏi kết quả. (2) Người lập gửi lại thư. (3) Mở đường dẫn cũ, đường dẫn mới. (4) Đối tác từ chối qua đường dẫn mới. (5) Mở lại đường dẫn sau khi đối tác đã ký (KICHBAN_KIEMTHU_600) và ký lần nữa. (6) Gửi quá 10 yêu cầu mỗi phút vào một đường dẫn, quá 60 yêu cầu mỗi phút từ một địa chỉ IP. (7) Mở đường dẫn khi đã qua hạn ký.
 - Kết quả mong đợi: Bước 1: chữ ký bị loại, trang ký hiện "Chứng thư không trùng thông tin bên ký đã khai.", đối tác ký lại được. Bước 2: `200`, mã mới khác mã cũ. Bước 3: mã cũ `404`; mã mới mở được. Bước 4: `204`, phiên bị từ chối kèm lý do, trang ký báo đã từ chối. Bước 5: ký lại `404`. Bước 6: `429` kèm `retryAfterSeconds`. Bước 7: `404` "Đường dẫn không dùng được".
-- Kiểm thử tự động: Tự động API một phần – `apps/api/test/c59-phien-ky.test.ts` (bước 1 đến 5). Chưa tự động: bước 6 (giới hạn tần suất), bước 7 (đường dẫn qua hạn ký).
+- Kiểm thử tự động: Tự động API một phần – `apps/api/test/c59-phien-ky.test.ts` (bước 1 đến 5). Chưa tự động: bước 6 (giới hạn tần suất), bước 7 (đường dẫn qua hạn ký). Bổ sung: gửi lại thư tối đa 5 lần trong 24 giờ (`c59-phien-ky`); trang công khai chỉ hiện 4 số cuối số định danh cá nhân (`c59-ky-so-gan`).
 - Lát: L1
 
 ### KICHBAN_KIEMTHU_603: Kiểm tra chữ ký PDF; chứng thư gốc tin cậy; tệp bị sửa
@@ -5705,7 +5705,7 @@ Dữ liệu chung: công ty VCR (mã số thuế `0312345678`) và VCT cùng t�
 - Điều kiện ban đầu và dữ liệu: Tệp đã ký bốn chữ ký của KICHBAN_KIEMTHU_600; chưa có chứng thư gốc tin cậy.
 - Các bước: (1) Gọi API_245 với tệp đã ký. (2) Quản trị công ty thêm chứng thư gốc giả lập. (3) Quản trị tập đoàn thêm. (4) Kiểm tra lại. (5) Sửa một byte của tệp, kiểm tra. (6) Kiểm tra tệp không phải PDF.
 - Kết quả mong đợi: Bước 1: bốn chữ ký Chưa xác định tin cậy, `revocationChecked` sai. Bước 2: `403`. Bước 3: `201`. Bước 4: mọi chữ ký Hợp lệ; chỉ chữ ký cuối bao trùm toàn bộ tệp (ba chữ ký trước báo tệp còn được bổ sung). Bước 5: chữ ký đầu Không hợp lệ. Bước 6: `400`.
-- Kiểm thử tự động: Tự động API – `apps/api/test/c59-phien-ky.test.ts`; `apps/api/test/c59-ky-so-pdf.test.ts` (tệp bị sửa sau khi ký).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c59-phien-ky.test.ts`; `apps/api/test/c59-ky-so-pdf.test.ts` (tệp bị sửa sau khi ký). Bổ sung sau rà soát độc lập (`c59-ky-so-pdf`): chuỗi chứng thư giả do chứng thư người dùng cuối "cấp" kết luận chưa tin cậy; thuật toán chưa hỗ trợ kết luận "chưa kiểm được"; khoảng byte trùng chỉ kiểm một lần.
 - Lát: L1
 
 ### KICHBAN_KIEMTHU_604: Vòng đời hợp đồng: lập, trình, duyệt, lập phiên ký, đã ký, nhãn hiệu lực

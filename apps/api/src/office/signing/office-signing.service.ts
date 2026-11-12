@@ -26,13 +26,13 @@ import { AuditService } from "../../common/audit.service";
 import { CLOCK, type Clock } from "../../common/clock";
 import { FILE_STORAGE, type FileStorage } from "../../common/file-storage";
 import { notify } from "../../common/notifications";
-import { OUTBOUND_MESSAGES, webOrigin, type OutboundMessages } from "../../common/outbound-messages";
+import { OUTBOUND_MESSAGES, webOrigin, type OutboundMessage, type OutboundMessages } from "../../common/outbound-messages";
 import { decryptSecret, encryptSecret } from "../../common/secret-box";
 import { DATABASE, type Database } from "../../database/database.module";
 import { PermissionService } from "../../permissions/permission.service";
 import type { Actor } from "../../permissions/roles.service";
 import { NumberSequencesService, periodKey } from "../../settings/number-sequences.service";
-import { activeGroupUsers, groupRootOf, peopleById } from "../office-access";
+import { activeGroupUsers, groupCompanyIds, groupRootOf, peopleById } from "../office-access";
 import { completeSignature, isEncryptedPdfError, PdfSigningError, prepareSignature } from "./pdf-signing";
 import { summarizeCertificate, verifyPdfSignatures } from "./pdf-verification";
 import { PDFDocument } from "pdf-lib";
@@ -151,6 +151,8 @@ type SettingsRow = {
 @Injectable()
 export class OfficeSigningService {
   private readonly logger = new Logger("OfficeSigning");
+  // Thư chờ gửi theo từng giao dịch: chỉ gửi khi giao dịch đã ghi xong, giao dịch lỗi thì đối tác không nhận đường dẫn không dùng được.
+  private readonly pendingMail = new WeakMap<object, OutboundMessage[]>();
   private readonly providers: Record<"simulator", SigningProvider>;
   readonly outcomeHooks: ((executor: Executor, outcome: SigningOutcome) => Promise<void>)[] = [];
 
@@ -165,6 +167,25 @@ export class OfficeSigningService {
   ) {
     const delay = Number(process.env.SIGNING_SIMULATOR_CONFIRM_MILLISECONDS ?? 2000);
     this.providers = { simulator: new SimulatorSigningProvider(undefined, Number.isFinite(delay) ? delay : 2000) };
+  }
+
+  private async transaction<T>(work: (transaction: Parameters<Parameters<Database["transaction"]>[0]>[0]) => Promise<T>): Promise<T> {
+    const mail: OutboundMessage[] = [];
+    const result = await this.database.transaction(async (transaction) => {
+      this.pendingMail.set(transaction, mail);
+      return work(transaction);
+    });
+    for (const message of mail) {
+      await this.outbound.send(message).catch((error: Error) => this.logger.error(`Không gửi được thư tới ${message.to}: ${error.message}`));
+    }
+    return result;
+  }
+
+  // Thư trong giao dịch của dịch vụ này thì xếp hàng gửi sau khi ghi; ngoài giao dịch thì gửi ngay.
+  private async mail(executor: Executor, message: OutboundMessage): Promise<void> {
+    const queue = this.pendingMail.get(executor);
+    if (queue) queue.push(message);
+    else await this.outbound.send(message);
   }
 
   // Bộ giả lập dùng trong kiểm thử để lấy chứng thư gốc làm gốc tin cậy.
@@ -391,7 +412,7 @@ export class OfficeSigningService {
     // Tài khoản ký số cá nhân chỉ nhận chứng thư cá nhân: chứng thư của tổ chức (chủ thể có mã số thuế) chỉ dùng qua bước chữ ký công ty,
     // người đóng phải có office.signing.company_seal (QUYTAC_NGHIEPVU_455).
     if (option.identities.some((identity) => identity.toUpperCase().startsWith("MST:"))) throw this.businessRule("signingPersonalCertificateRequired");
-    await this.database.transaction(async (transaction) => {
+    await this.transaction(async (transaction) => {
       await transaction.execute(sql`UPDATE office.signing_identities SET status = 'replaced' WHERE company_id = ${actor.companyId} AND user_id = ${actor.userId} AND status = 'active'`);
       await transaction.execute(sql`
         INSERT INTO office.signing_identities (company_id, user_id, provider, identity_code, certificate_chain, serial_number, subject_name, subject_identities, valid_from, valid_to)
@@ -526,17 +547,53 @@ export class OfficeSigningService {
     await this.event(executor, requestId, actorUserId, "cancelled", { reason });
   }
 
-  // Người dùng có tài khoản ký số còn hiệu lực ở công ty (để chọn ký trong hệ thống hay ký qua đường dẫn).
-  async readyUserIds(companyId: string, userIds: string[]): Promise<Set<string>> {
-    if (userIds.length === 0) return new Set();
-    const now = this.clock.now().toISOString();
-    const rows = await this.database.execute<{ user_id: string }>(sql`
-      SELECT user_id FROM office.signing_identities WHERE company_id = ${companyId} AND status = 'active' AND valid_from <= ${now} AND valid_to >= ${now}
-        AND user_id IN (${sql.join(
-          userIds.map((userId) => sql`${userId}::uuid`),
+  // Tài khoản ký số dùng cho phiên của một công ty (người ký trong tập đoàn, QUYTAC_NGHIEPVU_455, 458): ưu tiên tài khoản khai ở chính công ty đó;
+  // không có thì dùng tài khoản khai ở công ty khác trong tập đoàn cùng nhà cung cấp với công ty lập phiên (yêu cầu ký đi qua kết nối của công ty lập phiên).
+  private async usableIdentities(
+    executor: Executor,
+    companyId: string,
+    userIds: string[],
+  ): Promise<Map<string, { user_id: string; identity_code: string; certificate_chain: string[]; valid_from: string; valid_to: string }>> {
+    if (userIds.length === 0) return new Map();
+    const group = await groupCompanyIds(executor, companyId);
+    const rows = await executor.execute<{ user_id: string; identity_code: string; certificate_chain: string[]; valid_from: string; valid_to: string }>(sql`
+      SELECT DISTINCT ON (i.user_id) i.user_id, i.identity_code, i.certificate_chain, i.valid_from, i.valid_to FROM office.signing_identities i
+      WHERE i.status = 'active' AND i.user_id IN (${sql.join(
+        userIds.map((userId) => sql`${userId}::uuid`),
+        sql`, `,
+      )})
+        AND (i.company_id = ${companyId} OR (i.company_id IN (${sql.join(
+          group.map((id) => sql`${id}::uuid`),
           sql`, `,
-        )})`);
-    return new Set(rows.rows.map((row) => row.user_id));
+        )}) AND i.provider = (SELECT provider FROM office.signing_settings WHERE company_id = ${companyId})))
+      ORDER BY i.user_id, (i.company_id = ${companyId}) DESC, i.created_at DESC`);
+    return new Map(rows.rows.map((row) => [row.user_id, row]));
+  }
+
+  // Người dùng có tài khoản ký số còn hiệu lực dùng được cho phiên của công ty (để chọn ký trong hệ thống hay ký qua đường dẫn).
+  async readyUserIds(companyId: string, userIds: string[], executor: Executor = this.database): Promise<Set<string>> {
+    const now = this.clock.now();
+    const identities = await this.usableIdentities(executor, companyId, userIds);
+    return new Set([...identities.values()].filter((item) => new Date(item.valid_from) <= now && now <= new Date(item.valid_to)).map((item) => item.user_id));
+  }
+
+  // Công ty gắn vào thông báo cho người dùng: công ty lập phiên nếu là thành viên, không thì công ty đầu tiên người đó là thành viên trong tập đoàn.
+  private async notificationCompany(executor: Executor, userId: string, companyId: string): Promise<string> {
+    const group = await groupCompanyIds(executor, companyId);
+    const row = (
+      await executor.execute<{ company_id: string }>(sql`
+      SELECT company_id FROM core.user_company_memberships WHERE user_id = ${userId} AND status = 'active' AND company_id IN (${sql.join(
+        group.map((id) => sql`${id}::uuid`),
+        sql`, `,
+      )})
+      ORDER BY (company_id = ${companyId}) DESC, company_id LIMIT 1`)
+    ).rows[0];
+    return row?.company_id ?? companyId;
+  }
+
+  // Phiên của công ty đang chọn, hoặc phiên công ty khác trong tập đoàn mà người xem là người ký.
+  private accessible(actor: Actor): SQL {
+    return sql`(r.company_id = ${actor.companyId} OR EXISTS (SELECT 1 FROM office.signing_signers vs WHERE vs.request_id = r.id AND vs.kind = 'user' AND vs.user_id = ${actor.userId}))`;
   }
 
   // Phiên ký gần nhất của chứng từ nguồn (công văn đi, hợp đồng lao động…) để hiện tiến trình.
@@ -630,7 +687,7 @@ export class OfficeSigningService {
     const pdf = await this.checkSignablePdf(file);
     this.dueRange(input.dueOn);
     const requestId = randomUUID();
-    await this.database.transaction(async (transaction) => {
+    await this.transaction(async (transaction) => {
       await this.checkSigners(transaction, actor.companyId, input);
       // Công ty chưa cấu hình dãy số phiên ký: tạo mặc định trong cùng giao dịch.
       await transaction.execute(sql`
@@ -653,7 +710,7 @@ export class OfficeSigningService {
   async update(actor: Actor, id: string, input: SaveSigningRequestInput, file: Upload): Promise<SigningRequestResponse> {
     const pdf = file ? await this.checkSignablePdf(file) : null;
     this.dueRange(input.dueOn);
-    await this.database.transaction(async (transaction) => {
+    await this.transaction(async (transaction) => {
       const row = await this.lockRequest(transaction, id, actor.companyId);
       if (row.created_by !== actor.userId) throw new ApiError("NOT_FOUND", "notFound");
       if (row.status !== "draft") throw this.businessRule("signingStatusInvalid");
@@ -678,6 +735,15 @@ export class OfficeSigningService {
         WHERE r.id = ${id} ${companyId ? sql`AND r.company_id = ${companyId}` : sql``} FOR UPDATE OF r`)
     ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
+    return row;
+  }
+
+  // Ký, từ chối: phiên của công ty đang chọn, hoặc phiên công ty khác trong tập đoàn mà người thao tác là người ký.
+  private async lockSignable(executor: Executor, actor: Actor, id: string): Promise<RequestRow> {
+    const row = await this.lockRequest(executor, id, null);
+    if (row.company_id === actor.companyId) return row;
+    const signer = await executor.execute(sql`SELECT 1 FROM office.signing_signers WHERE request_id = ${id} AND kind = 'user' AND user_id = ${actor.userId}`);
+    if (signer.rows.length === 0) throw new ApiError("NOT_FOUND", "notFound");
     return row;
   }
 
@@ -707,7 +773,7 @@ export class OfficeSigningService {
     const row = (
       await this.database.execute<RequestRow>(sql`
         SELECT r.*, r.due_on::text AS due_on, c.short_name AS company_name FROM office.signing_requests r JOIN core.companies c ON c.id = r.company_id
-        WHERE r.id = ${id} AND r.company_id = ${actor.companyId}`)
+        WHERE r.id = ${id} AND ${this.accessible(actor)}`)
     ).rows[0];
     if (!row) throw new ApiError("NOT_FOUND", "notFound");
     const signers = await this.signers(this.database, id);
@@ -820,14 +886,16 @@ export class OfficeSigningService {
   async list(actor: Actor, query: z.infer<typeof signingRequestListQuerySchema>): Promise<{ items: SigningRequestListItem[]; total: number; page: number; pageSize: number }> {
     const pageSize = 20;
     const seal = (await this.granted(actor)).has("office.signing.company_seal");
-    const conditions: SQL[] = [sql`r.company_id = ${actor.companyId}`];
+    // Thẻ Chờ tôi ký, Đã ký gồm cả phiên của công ty khác trong tập đoàn mà người xem là người ký; bước chữ ký công ty chỉ của công ty đang chọn.
+    const conditions: SQL[] = [];
     if (query.tab === "to_sign") {
       conditions.push(sql`r.status = 'signing'`);
       conditions.push(sql`EXISTS (SELECT 1 FROM office.signing_signers s WHERE s.request_id = r.id AND s.status = 'current'
-        AND ((s.kind = 'user' AND s.user_id = ${actor.userId}) ${seal ? sql`OR s.kind = 'company'` : sql``}))`);
+        AND ((s.kind = 'user' AND s.user_id = ${actor.userId}) ${seal ? sql`OR (s.kind = 'company' AND r.company_id = ${actor.companyId})` : sql``}))`);
     } else if (query.tab === "sent") {
-      conditions.push(sql`r.created_by = ${actor.userId}`);
+      conditions.push(sql`r.company_id = ${actor.companyId}`, sql`r.created_by = ${actor.userId}`);
     } else {
+      conditions.push(this.accessible(actor));
       conditions.push(sql`EXISTS (SELECT 1 FROM office.signing_signers s WHERE s.request_id = r.id AND s.status = 'signed' AND (s.user_id = ${actor.userId} OR s.signed_by = ${actor.userId}))`);
     }
     if (query.status) conditions.push(sql`r.status = ${query.status}`);
@@ -878,7 +946,7 @@ export class OfficeSigningService {
 
   // Gửi phiên: kiểm cài đặt, tài khoản ký số của người ký nội bộ, chữ ký công ty (QUYTAC_NGHIEPVU_459).
   async send(actor: Actor, id: string, version: number): Promise<SigningRequestResponse> {
-    await this.database.transaction(async (transaction) => {
+    await this.transaction(async (transaction) => {
       const row = await this.lockRequest(transaction, id, actor.companyId);
       if (row.created_by !== actor.userId) throw new ApiError("NOT_FOUND", "notFound");
       if (row.status !== "draft") throw this.businessRule("signingStatusInvalid");
@@ -889,16 +957,7 @@ export class OfficeSigningService {
       const signers = await this.signers(transaction, id);
       if (signers.some((signer) => signer.kind === "company") && !settings.seal_certificate_chain) throw this.businessRule("signingSealMissing");
       const userIds = signers.flatMap((signer) => (signer.kind === "user" ? [signer.user_id!] : []));
-      const now = this.clock.now().toISOString();
-      const ready = userIds.length
-        ? await transaction.execute<{ user_id: string }>(sql`
-            SELECT user_id FROM office.signing_identities WHERE company_id = ${row.company_id} AND status = 'active' AND valid_from <= ${now} AND valid_to >= ${now}
-              AND user_id IN (${sql.join(
-                userIds.map((userId) => sql`${userId}::uuid`),
-                sql`, `,
-              )})`)
-        : { rows: [] };
-      const readySet = new Set(ready.rows.map((item) => item.user_id));
+      const readySet = await this.readyUserIds(row.company_id, userIds, transaction);
       if (userIds.some((userId) => !readySet.has(userId))) throw this.businessRule("signingIdentityMissing");
       await transaction.execute(sql`UPDATE office.signing_requests SET status = 'signing', sent_at = now(), updated_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.event(transaction, id, actor.userId, "sent");
@@ -943,7 +1002,9 @@ export class OfficeSigningService {
   private async notifyTurn(executor: Executor, row: RequestRow, signer: SignerRow): Promise<void> {
     const title = `Mời ký số: ${row.title}`;
     const link = `/office/signing/${row.id}`;
-    if (signer.kind === "user") await notify(executor, [{ userId: signer.user_id!, companyId: row.company_id, kind: "office_signing", title, link }]);
+    if (signer.kind === "user") {
+      await notify(executor, [{ userId: signer.user_id!, companyId: await this.notificationCompany(executor, signer.user_id!, row.company_id), kind: "office_signing", title, link }]);
+    }
     if (signer.kind === "company") {
       const holders = await this.permissionHolders(executor, row.company_id, "office.signing.company_seal");
       await notify(
@@ -959,7 +1020,7 @@ export class OfficeSigningService {
     const token = randomBytes(32).toString("base64url");
     await executor.execute(sql`UPDATE office.signing_signers SET link_token_hash = ${tokenHash(token)}, link_sent_at = now() WHERE id = ${signer.id}`);
     await this.event(executor, row.id, null, "partner_link_sent", { signerId: signer.id, email: signer.partner_email });
-    await this.outbound.send({
+    await this.mail(executor, {
       channel: "email",
       to: signer.partner_email!,
       subject: `${row.company_name} mời ký số: ${oneLine(row.title)}`,
@@ -969,7 +1030,7 @@ export class OfficeSigningService {
 
   private async remindPartner(executor: Executor, row: RequestRow, signer: SignerRow): Promise<void> {
     await this.event(executor, row.id, null, "partner_reminded", { signerId: signer.id, email: signer.partner_email });
-    await this.outbound.send({
+    await this.mail(executor, {
       channel: "email",
       to: signer.partner_email!,
       subject: `${row.company_name} nhắc ký số: ${oneLine(row.title)}`,
@@ -978,7 +1039,7 @@ export class OfficeSigningService {
   }
 
   async remind(actor: Actor, id: string, version: number): Promise<SigningRequestResponse> {
-    await this.database.transaction(async (transaction) => {
+    await this.transaction(async (transaction) => {
       const row = await this.lockRequest(transaction, id, actor.companyId);
       if (row.created_by !== actor.userId) throw new ApiError("NOT_FOUND", "notFound");
       if (row.status !== "signing") throw this.businessRule("signingStatusInvalid");
@@ -996,13 +1057,18 @@ export class OfficeSigningService {
   }
 
   async resend(actor: Actor, id: string, signerId: string, version: number): Promise<SigningRequestResponse> {
-    await this.database.transaction(async (transaction) => {
+    await this.transaction(async (transaction) => {
       const row = await this.lockRequest(transaction, id, actor.companyId);
       if (row.created_by !== actor.userId) throw new ApiError("NOT_FOUND", "notFound");
       if (row.status !== "signing") throw this.businessRule("signingStatusInvalid");
       if (version !== row.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       const signer = (await this.signers(transaction, id)).find((item) => item.id === signerId && item.kind === "partner" && item.status === "current");
       if (!signer) throw this.businessRule("signingStatusInvalid");
+      // Gửi lại tối đa 5 lần trong 24 giờ cho mỗi đối tác (cùng lần gửi đầu là 6 thư), tránh gửi thư dồn dập.
+      const sent = await transaction.execute<{ count: number }>(sql`
+        SELECT count(*)::int AS count FROM office.signing_events
+        WHERE request_id = ${id} AND kind = 'partner_link_sent' AND detail->>'signerId' = ${signer.id} AND created_at > now() - interval '24 hours'`);
+      if ((sent.rows[0]?.count ?? 0) >= 6) throw this.businessRule("signingResendLimit");
       await this.sendPartnerLink(transaction, row, signer);
       await transaction.execute(sql`UPDATE office.signing_requests SET version = version + 1 WHERE id = ${id}`);
     });
@@ -1010,7 +1076,7 @@ export class OfficeSigningService {
   }
 
   async cancel(actor: Actor, id: string, reason: string, version: number): Promise<SigningRequestResponse> {
-    await this.database.transaction(async (transaction) => {
+    await this.transaction(async (transaction) => {
       const row = await this.lockRequest(transaction, id, actor.companyId);
       if (row.created_by !== actor.userId) throw new ApiError("NOT_FOUND", "notFound");
       if (row.status !== "draft" && row.status !== "signing") throw this.businessRule("signingStatusInvalid");
@@ -1032,8 +1098,8 @@ export class OfficeSigningService {
   }
 
   async reject(actor: Actor, id: string, reason: string, version: number): Promise<SigningRequestResponse> {
-    await this.database.transaction(async (transaction) => {
-      const row = await this.lockRequest(transaction, id, actor.companyId);
+    await this.transaction(async (transaction) => {
+      const row = await this.lockSignable(transaction, actor, id);
       if (version !== row.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       const signers = await this.signers(transaction, id);
       const mine = await this.mySigner(actor, row, signers);
@@ -1137,8 +1203,8 @@ export class OfficeSigningService {
   }
 
   async sign(actor: Actor, id: string, signerId: string, version: number): Promise<SigningRequestResponse> {
-    await this.database.transaction(async (transaction) => {
-      const row = await this.lockRequest(transaction, id, actor.companyId);
+    await this.transaction(async (transaction) => {
+      const row = await this.lockSignable(transaction, actor, id);
       if (version !== row.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       const signers = await this.signers(transaction, id);
       const mine = await this.mySigner(actor, row, signers);
@@ -1152,10 +1218,7 @@ export class OfficeSigningService {
         identity = { identityCode: settings.seal_identity_code, chain: settings.seal_certificate_chain };
       } else {
         const now = this.clock.now().toISOString();
-        const found = (
-          await transaction.execute<{ identity_code: string; certificate_chain: string[]; valid_from: string; valid_to: string }>(sql`
-            SELECT identity_code, certificate_chain, valid_from, valid_to FROM office.signing_identities WHERE company_id = ${row.company_id} AND user_id = ${actor.userId} AND status = 'active'`)
-        ).rows[0];
+        const found = (await this.usableIdentities(transaction, row.company_id, [actor.userId])).get(actor.userId);
         if (!found) throw this.businessRule("signingIdentityMissing");
         if (!(new Date(found.valid_from) <= new Date(now) && new Date(now) <= new Date(found.valid_to))) throw this.businessRule("signingCertificateNotUsable");
         identity = { identityCode: found.identity_code, chain: found.certificate_chain };
@@ -1206,7 +1269,7 @@ export class OfficeSigningService {
     }
     const prepared = await this.storage.get(attempt.prepared_storage_key);
     const signed = await completeSignature(prepared, attempt.certificate_chain, result.signatureValue);
-    await this.database.transaction(async (transaction) => {
+    await this.transaction(async (transaction) => {
       const row = await this.lockRequest(transaction, attempt.request_id, null);
       const fresh = (await transaction.execute<{ status: string }>(sql`SELECT status FROM office.signing_attempts WHERE id = ${attempt.id} FOR UPDATE`)).rows[0];
       if (fresh?.status !== "pending") return;
@@ -1257,7 +1320,7 @@ export class OfficeSigningService {
     const today = this.permissionService.today();
     const expiredRows = await this.database.execute<{ id: string }>(sql`SELECT id FROM office.signing_requests WHERE status = 'signing' AND due_on < ${today}::date`);
     for (const { id } of expiredRows.rows) {
-      await this.database.transaction(async (transaction) => {
+      await this.transaction(async (transaction) => {
         const row = await this.lockRequest(transaction, id, null);
         if (row.status !== "signing") return;
         await this.end(transaction, row, "expired", null);
@@ -1270,7 +1333,7 @@ export class OfficeSigningService {
     const dueSoon = await this.database.execute<{ id: string }>(sql`
       SELECT id FROM office.signing_requests WHERE status = 'signing' AND due_on = ${soon.toISOString().slice(0, 10)}::date AND NOT due_soon_notified`);
     for (const { id } of dueSoon.rows) {
-      await this.database.transaction(async (transaction) => {
+      await this.transaction(async (transaction) => {
         const row = await this.lockRequest(transaction, id, null);
         // Phiên vừa kết thúc giữa lúc chọn và lúc khóa thì không nhắc.
         if (row.status !== "signing") return;
@@ -1362,7 +1425,7 @@ export class OfficeSigningService {
   }
 
   async publicSign(token: string, client: ClientInfo): Promise<PublicSigningView> {
-    await this.database.transaction(async (transaction) => {
+    await this.transaction(async (transaction) => {
       const { row, signer } = await this.partnerContext(transaction, token, true);
       await this.startAttempt(transaction, row, signer, { identityCode: signer.partner_identity_code!, chain: await this.partnerChain(row.company_id, signer) }, null, client.ip);
     });
@@ -1378,7 +1441,7 @@ export class OfficeSigningService {
   }
 
   async publicReject(token: string, reason: string): Promise<void> {
-    await this.database.transaction(async (transaction) => {
+    await this.transaction(async (transaction) => {
       const { row, signer } = await this.partnerContext(transaction, token, true);
       await transaction.execute(sql`UPDATE office.signing_signers SET status = 'rejected', reject_reason = ${reason} WHERE id = ${signer.id}`);
       await this.end(transaction, row, "rejected", reason);

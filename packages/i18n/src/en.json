@@ -716,7 +716,8 @@
     "hrDigitalSigningActive": "The contract has a digital signing in progress.",
     "hrDigitalSigningEmailMissing": "The employee has no email to receive the signing link; enter one.",
     "hrDigitalSigningIdentityMissing": "The employee profile has no personal identification number for link signing.",
-    "signingPersonalCertificateRequired": "A personal signing account needs a personal certificate; an organization certificate is set up as the company seal."
+    "signingPersonalCertificateRequired": "A personal signing account needs a personal certificate; an organization certificate is set up as the company seal.",
+    "signingResendLimit": "A partner's link can be resent at most 5 times in 24 hours."
   },
   "login": {
     "title": "Sign in",

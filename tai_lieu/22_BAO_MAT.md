@@ -1121,6 +1121,10 @@ Ranh giới và kiểm soát riêng:
 - Văn phòng số không ghi vào schema `hr`; Nhân sự cập nhật hợp đồng lao động khi nhận sự kiện `office.signing.completed`.
 - Nhật ký thao tác: lưu cài đặt ký số, chọn chữ ký số công ty, chọn tài khoản ký số, thêm, ngừng chứng thư gốc; lập, nhập hợp đồng; thanh lý, chấm dứt; xem, tải tệp hợp đồng mật.
 - Giới hạn chưa làm (đặc tả CONG_VIEC_59 mục 18): chưa kiểm tra trạng thái thu hồi chứng thư (CRL, OCSP), kết quả kiểm tra ghi rõ "Chưa kiểm tra thu hồi"; chưa có dấu thời gian của tổ chức cung cấp dịch vụ dấu thời gian, thời gian ký lấy theo đồng hồ hệ thống, chữ ký có thể không đạt yêu cầu lưu trữ dài hạn; căn cứ pháp lý chưa tra nguyên văn. Đối tác chỉ ký được khi có tài khoản ký số từ xa ở cùng nhà cung cấp mà công ty kết nối.
+- Kiểm tra chữ ký: chứng thư cấp trên phải là chứng thư của tổ chức chứng thực (basicConstraints cA, keyUsage keyCertSign, giới hạn độ dài chuỗi), chứng thư người dùng cuối không cấp được chứng thư khác; thuật toán băm SHA-1, 256, 384, 512 với khóa RSA, thuật toán hoặc khóa khác báo "chưa kiểm được"; tối đa 50 chữ ký mỗi tệp, API_245 tối đa 20 lần mỗi phút mỗi người dùng (sửa theo rà soát độc lập 2026-11-12).
+- Tài khoản ký số cá nhân không nhận chứng thư của tổ chức (chủ thể có mã số thuế); người ký ở công ty khác trong tập đoàn chỉ xem, ký phiên mà mình là người ký.
+- Thư mời đối tác gửi sau khi giao dịch ghi xong; gửi lại thư tối đa 5 lần trong 24 giờ mỗi đối tác; Nhắc không đổi mã đường dẫn.
+- Rủi ro người dùng chấp nhận (2026-11-12): (1) trình gửi thư hiện tại chỉ ghi nhật ký nên mã đường dẫn ký của đối tác nằm trong nhật ký máy chủ – điều kiện: thay trình gửi thư thật, không ghi nội dung thư vào nhật ký, trước khi triển khai chính thức; (2) bộ giả lập giữ lần ký trong bộ nhớ, chỉ đúng khi chạy một tiến trình API – chỉ ảnh hưởng môi trường thử, bộ giả lập bị chặn ở môi trường thật.
 
 ## 5. Quản lý khóa bí mật
 

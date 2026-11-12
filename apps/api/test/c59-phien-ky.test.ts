@@ -313,6 +313,62 @@ describe("CONG_VIEC_59 lát L1: ký số", () => {
     expect(organization.body.error.message).toContain("chứng thư cá nhân");
   });
 
+  it("người ký ở công ty khác trong tập đoàn ký được bằng tài khoản ký số cùng nhà cung cấp; người ngoài không xem được; gửi lại thư tối đa 5 lần một ngày", async () => {
+    const trading = testIds.tradingCompany;
+    const tradingSignerId = await createTestUser(pool, "giam.doc.vct.ky@vcomm.test", "Đỗ Văn Thương", [{ companyId: trading }]);
+    const employeeRole = (await pool.query<{ id: string }>("SELECT id FROM core.roles WHERE code = 'employee' AND company_id IS NULL")).rows[0]!.id;
+    await pool.query("INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, valid_from) VALUES ($1, $2, 'company', $3, '2026-01-01')", [
+      tradingSignerId,
+      employeeRole,
+      trading,
+    ]);
+    const tradingSigner = await signIn(application, "giam.doc.vct.ky@vcomm.test");
+    // Công ty VCT cùng dùng bộ giả lập; người ký khai tài khoản ký số ở công ty mình.
+    await groupAdmin.call("put", "/office/signing-settings", { companyId: trading, body: { provider: "simulator", environment: "test" } });
+    const options = await tradingSigner.call("post", "/office/signing-identities/me/certificates", { companyId: trading, body: { identityCode: "079090004321" } });
+    await tradingSigner.call("put", "/office/signing-identities/me", { companyId: trading, body: { identityCode: "079090004321", serialNumber: options.body[0].serialNumber } });
+    const created = await createRequest(creator, {
+      title: "Biên bản đối chiếu công nợ nội bộ",
+      dueOn: "2026-12-31",
+      signers: [{ kind: "user", userId: tradingSignerId, signOrder: 1, page: "last", corner: "bottom_right" }, partner({ signOrder: 2 })],
+    });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    const sent = await creator.call("post", `/office/signing-requests/${created.body.id}/send`, { companyId: retail, body: { version: created.body.version } });
+    expect(sent.body.status, JSON.stringify(sent.body)).toBe("signing");
+    // Thông báo gắn với công ty người ký là thành viên để mở được.
+    const notice = await pool.query<{ company_id: string }>("SELECT company_id FROM core.notifications WHERE user_id = $1 AND kind = 'office_signing' ORDER BY created_at DESC LIMIT 1", [
+      tradingSignerId,
+    ]);
+    expect(notice.rows[0]?.company_id).toBe(trading);
+    const toSign = await tradingSigner.call("get", "/office/signing-requests?tab=to_sign", { companyId: trading });
+    expect(toSign.body.items.map((item: { id: string }) => item.id)).toContain(created.body.id);
+    const detail = (await tradingSigner.call("get", `/office/signing-requests/${created.body.id}`, { companyId: trading })).body;
+    expect(detail).toMatchObject({ companyName: expect.any(String), mySignerId: expect.any(String) });
+    // Người khác ở VCT (không phải người ký) không thấy phiên.
+    const tradingOther = await createTestUser(pool, "nhan.vien.vct.ky@vcomm.test", "Hồ Văn Khác", [{ companyId: trading }]);
+    await pool.query("INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, valid_from) VALUES ($1, $2, 'company', $3, '2026-01-01')", [
+      tradingOther,
+      employeeRole,
+      trading,
+    ]);
+    const other = await signIn(application, "nhan.vien.vct.ky@vcomm.test");
+    expect((await other.call("get", `/office/signing-requests/${created.body.id}`, { companyId: trading })).status).toBe(404);
+    const signedNow = await tradingSigner.call("post", `/office/signing-requests/${created.body.id}/sign`, { companyId: trading, body: { signerId: detail.mySignerId, version: detail.version } });
+    expect(signedNow.status, JSON.stringify(signedNow.body)).toBe(200);
+    await signing.pollAttempts();
+    let request = (await creator.call("get", `/office/signing-requests/${created.body.id}`, { companyId: retail })).body;
+    expect(request.signers.map((signer: { status: string }) => signer.status)).toEqual(["signed", "current"]);
+    // Gửi lại thư cho đối tác: 5 lần trong 24 giờ, lần thứ 6 bị chặn.
+    const partnerId = request.signers[1].id;
+    for (let count = 0; count < 5; count += 1) {
+      request = (await creator.call("post", `/office/signing-requests/${created.body.id}/resend`, { companyId: retail, body: { signerId: partnerId, version: request.version } })).body;
+      expect(request.status).toBe("signing");
+    }
+    const limited = await creator.call("post", `/office/signing-requests/${created.body.id}/resend`, { companyId: retail, body: { signerId: partnerId, version: request.version } });
+    expect(limited.status).toBe(409);
+    expect(limited.body.error.message).toContain("5 lần");
+  });
+
   it("lập phiên kiểm tra dữ liệu: tệp không phải PDF, hạn quá 60 ngày, người ký trùng", async () => {
     const notPdf = await creator
       .call("post", "/office/signing-requests", { companyId: retail })
