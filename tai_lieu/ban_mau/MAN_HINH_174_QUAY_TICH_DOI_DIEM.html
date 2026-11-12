@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_174 Quầy tích đổi điểm – VComm Liên kết</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="cua_hang_lien_ket.css">
+</head>
+<body data-man-hinh="174" data-khu="cong">
+<div id="thanh-tren"></div>
+<div class="than">
+  <div id="menu"></div>
+  <main class="noi-dung">
+    <div class="tieu-de"><h1>Quầy tích đổi điểm</h1>
+      <label class="an-nhan" for="diem-ban">Điểm bán</label><select id="diem-ban" class="o-nhap" style="width:auto"><option>Điểm bán Lê Lợi</option><option>Điểm bán Nguyễn Huệ</option></select></div>
+    <div class="khoi-canh-bao canh-bao">Dư nợ 41.200.000 đ / hạn mức 50.000.000 đ (82 %). Khi vượt hạn mức, khách vẫn dùng điểm, voucher nhưng không tích điểm.</div>
+
+    <div class="quay">
+      <section class="the" aria-labelledby="buoc-1">
+        <h2 id="buoc-1">1. Tiền hóa đơn</h2>
+        <div class="truong"><label for="tien">Tiền hóa đơn (đ)</label><input id="tien" class="o-nhap o-tien" inputmode="numeric" value="450.000"><span class="chu-thich">Trần mỗi giao dịch: 5.000.000 đ</span></div>
+        <h2>2. Định danh khách</h2>
+        <div class="cac-the" role="tablist">
+          <button type="button" data-the="qr-cua-hang" class="chon">Hiện mã QR</button>
+          <button type="button" data-the="quet">Quét mã khách</button>
+          <button type="button" data-the="so-dien-thoai">Số điện thoại</button>
+        </div>
+        <div data-noi-dung-the="qr-cua-hang">
+          <p class="chu-thich">Khách mở ứng dụng VComm, quét mã, chọn voucher, số điểm rồi xác nhận. Mã dùng một lần, hết hạn sau 3 phút.</p>
+          <div class="ma-qr" role="img" aria-label="Mã QR giao dịch LK-2611-000318"></div>
+          <p style="text-align:center"><span class="nhan thong-tin">Chờ khách xác nhận · còn 02:41</span></p>
+          <div class="nhom-nut"><button type="button" class="nut phu" data-thong-bao="Đã hủy mã, nhập lại tiền hóa đơn.">Hủy mã</button><button type="button" class="nut phu" data-thong-bao="Đã tạo mã mới.">Tạo mã mới</button></div>
+        </div>
+        <div data-noi-dung-the="quet" hidden>
+          <p class="chu-thich">Khách mở "Mã thành viên" trên ứng dụng VComm (nhập trước số điểm cho phép dùng, chọn voucher). Đưa mã vào khung hoặc quét bằng máy quét cầm tay. Mã hết hạn sau 60 giây.</p>
+          <div class="khung-camera"><span>Đưa mã QR vào khung</span></div>
+          <div class="truong"><label for="ma-may-quet">Hoặc máy quét cầm tay</label><input id="ma-may-quet" class="o-nhap" placeholder="Ô nhận mã từ máy quét"></div>
+          <button type="button" class="nut chinh" data-thong-bao="Giao dịch LK-2611-000319 hoàn tất.">Ghi nhận</button>
+        </div>
+        <div data-noi-dung-the="so-dien-thoai" hidden>
+          <div class="truong"><label for="sdt">Số điện thoại của khách</label><input id="sdt" class="o-nhap" inputmode="tel" value="0903 456 789"></div>
+          <p class="chu-thich">Khách nhận yêu cầu trên ứng dụng VComm và bấm xác nhận. Hết hạn sau 5 phút.</p>
+          <button type="button" class="nut chinh" data-thong-bao="Đã gửi yêu cầu tới Ng*** H***.">Gửi yêu cầu xác nhận</button>
+          <div class="khoi-canh-bao loi">Số điện thoại chưa có tài khoản VComm.</div>
+        </div>
+      </section>
+
+      <section class="the" aria-labelledby="ket-qua">
+        <h2 id="ket-qua">Kết quả giao dịch LK-2611-000317 <span class="nhan thanh-cong">Hoàn tất</span></h2>
+        <p class="chu-thich">Khách Ng*** H*** · Hạng Vàng · Cách: mã QR cửa hàng · 10:42</p>
+        <div class="dong-tien"><span>Tiền hóa đơn</span><span>450.000 đ</span></div>
+        <div class="dong-tien"><span>Voucher VL-000012 (giảm 10 %, tối đa 30.000 đ)</span><span>− 30.000 đ</span></div>
+        <div class="dong-tien"><span>Dùng 50 điểm</span><span>− 50.000 đ</span></div>
+        <div class="dong-tien tong"><span>Khách trả cửa hàng</span><span>370.000 đ</span></div>
+        <div class="dong-tien"><span>Điểm khách được tích (2 % × hệ số 1,5)</span><span>11 điểm</span></div>
+        <div class="khoi-canh-bao thong-tin">Thu đủ 370.000 đ của khách. VComm trả cửa hàng 50.000 đ tiền điểm theo đối soát tuần (voucher này cửa hàng tặng miễn phí, không thanh toán).</div>
+        <div class="khoi-canh-bao canh-bao">Ví dụ không tích: "Không tích điểm vì cửa hàng vượt hạn mức nợ." / "… có bảng đối soát quá hạn thanh toán."</div>
+        <button type="button" class="nut chinh" data-thong-bao="Sẵn sàng giao dịch mới.">Giao dịch mới</button>
+      </section>
+    </div>
+
+    <h2>Giao dịch hôm nay</h2>
+    <div class="khung-bang"><table><thead><tr><th>Số</th><th>Giờ</th><th>Thu ngân</th><th>Khách</th><th class="so">Hóa đơn</th><th class="so">Điểm dùng</th><th class="so">Điểm tích</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+      <tr><td data-nhan="Số"><a href="#">LK-2611-000317</a></td><td data-nhan="Giờ">10:42</td><td data-nhan="Thu ngân">Lê Thu Hà</td><td data-nhan="Khách">Ng*** H***</td><td data-nhan="Hóa đơn" class="so">450.000</td><td data-nhan="Điểm dùng" class="so">50</td><td data-nhan="Điểm tích" class="so">11</td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Hoàn tất</span></td><td data-nhan=""><button type="button" class="nut nguy-hiem" data-thong-bao="Đã hủy LK-2611-000317: hoàn 50 điểm, trừ lại 11 điểm, trả voucher.">Hủy</button></td></tr>
+      <tr><td data-nhan="Số"><a href="#">LK-2611-000316</a></td><td data-nhan="Giờ">10:20</td><td data-nhan="Thu ngân">Lê Thu Hà</td><td data-nhan="Khách">Tr*** A***</td><td data-nhan="Hóa đơn" class="so">120.000</td><td data-nhan="Điểm dùng" class="so">0</td><td data-nhan="Điểm tích" class="so">2</td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Hoàn tất</span></td><td data-nhan=""></td></tr>
+      <tr><td data-nhan="Số"><a href="#">LK-2611-000315</a></td><td data-nhan="Giờ">09:58</td><td data-nhan="Thu ngân">Phạm Văn Tú</td><td data-nhan="Khách">Lê*** M***</td><td data-nhan="Hóa đơn" class="so">80.000</td><td data-nhan="Điểm dùng" class="so">—</td><td data-nhan="Điểm tích" class="so">—</td><td data-nhan="Trạng thái"><span class="nhan trung-tinh">Hết hạn</span></td><td data-nhan=""></td></tr>
+      <tr><td data-nhan="Số"><a href="#">LK-2611-000314</a></td><td data-nhan="Giờ">09:31</td><td data-nhan="Thu ngân">Lê Thu Hà</td><td data-nhan="Khách">Đỗ*** K***</td><td data-nhan="Hóa đơn" class="so">95.000</td><td data-nhan="Điểm dùng" class="so">—</td><td data-nhan="Điểm tích" class="so">—</td><td data-nhan="Trạng thái"><span class="nhan loi">Khách từ chối</span></td><td data-nhan=""></td></tr>
+    </tbody></table></div>
+  </main>
+</div>
+<script src="cua_hang_lien_ket.js"></script>
+</body>
+</html>

@@ -57,6 +57,8 @@ export interface SalesInternalHooks {
 type SalesException = { kind: SalesExceptionKind; lineNo: number | null; detail: string };
 type OrderRow = {
   id: string;
+  open_api_key_name: string | null;
+  partner_order_code: string | null;
   company_id: string;
   document_no: string | null;
   customer_id: string | null;
@@ -201,9 +203,11 @@ export class SalesOrdersService implements OnModuleInit {
     const conditions: SQL[] = [sql`o.company_id = ${actor.companyId}`];
     if (query.status) conditions.push(sql`o.status = ${query.status}`);
     if (query.customerId) conditions.push(sql`o.customer_id = ${query.customerId}`);
+    if (query.source === "open_api") conditions.push(sql`o.open_api_key_id IS NOT NULL`);
+    if (query.source === "web") conditions.push(sql`o.open_api_key_id IS NULL`);
     if (query.search) {
       const pattern = `%${query.search.replace(/[%_\\]/g, (character) => `\\${character}`)}%`;
-      conditions.push(sql`(o.document_no = ${query.search.toUpperCase()} OR c.name ILIKE ${pattern} OR o.buyer_name ILIKE ${pattern})`);
+      conditions.push(sql`(o.document_no = ${query.search.toUpperCase()} OR c.name ILIKE ${pattern} OR o.buyer_name ILIKE ${pattern} OR o.partner_order_code = ${query.search})`);
     }
     const where = sql.join(conditions, sql` AND `);
     const total = (await this.database.execute<{ total: number }>(sql`SELECT count(*)::int AS total ${this.from()} WHERE ${where}`)).rows[0]!.total;
@@ -339,6 +343,66 @@ export class SalesOrdersService implements OnModuleInit {
       return orderId;
     });
     return this.detail(actor, id);
+  }
+
+  // Đơn bán từ Open API (CONG_VIEC_61; QUYTAC_NGHIEPVU_490, 491): Nháp, người lập là người cấp khóa; giá, khuyến mãi, cài đặt hàng hóa như đơn lập tay.
+  // Nhật ký thao tác không gắn người dùng, ghi tên khóa. Trùng mã đơn đối tác thì cơ sở dữ liệu báo trùng, bên gọi trả đơn cũ.
+  async createFromOpenApi(
+    companyId: string,
+    createdBy: string,
+    input: Input,
+    source: { apiKeyId: string; scopeId: string; partnerOrderCode: string; keyName: string; keyPrefix: string; ip: string | null; requestId: string | null },
+  ): Promise<string> {
+    return this.database.transaction(async (transaction): Promise<string> => {
+      const { lines, groupId, giftShortages } = await this.prepare(transaction, companyId, input, null);
+      const orderId = (
+        await transaction.execute<{ id: string }>(sql`
+        INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, customer_group_id, warehouse_id, order_date, delivery_address, note, currency, gift_shortages, created_by,
+          open_api_key_id, open_api_scope_id, partner_order_code)
+        VALUES (${companyId}, ${input.customerId ?? null}, ${input.buyerName}, ${input.channelId}, ${groupId}, ${input.warehouseId}, ${input.orderDate}::date, ${input.deliveryAddress},
+          ${input.note}, ${await companyCurrency(transaction, companyId)}, ${JSON.stringify(giftShortages)}::jsonb, ${createdBy},
+          ${source.apiKeyId}, ${source.scopeId}, ${source.partnerOrderCode}) RETURNING id`)
+      ).rows[0]!.id;
+      await this.writeLines(transaction, orderId, lines);
+      await this.auditService.record(
+        {
+          actorUserId: null,
+          companyId,
+          appCode: "sales",
+          action: "sales_order.create",
+          entityType: "sales_order",
+          entityId: orderId,
+          afterData: { ...input, openApi: { keyName: source.keyName, keyPrefix: source.keyPrefix, partnerOrderCode: source.partnerOrderCode } },
+          ip: source.ip,
+          requestId: source.requestId,
+        },
+        transaction,
+      );
+      return orderId;
+    });
+  }
+
+  // Đối tác hủy đơn Open API còn Nháp (QUYTAC_NGHIEPVU_492); lý do ghi nhật ký thao tác.
+  async cancelFromOpenApi(companyId: string, orderId: string, reason: string, source: { keyName: string; keyPrefix: string; ip: string | null; requestId: string | null }): Promise<void> {
+    await this.database.transaction(async (transaction) => {
+      const locked = await transaction.execute<{ status: SalesOrderStatus }>(sql`SELECT status FROM sales.orders WHERE id = ${orderId} AND company_id = ${companyId} FOR UPDATE`);
+      if (locked.rows[0]?.status !== "draft") throw new ApiError("BUSINESS_RULE", "openApiOrderNotCancellable");
+      await transaction.execute(sql`UPDATE sales.orders SET status = 'cancelled', updated_at = now(), version = version + 1 WHERE id = ${orderId}`);
+      await this.auditService.record(
+        {
+          actorUserId: null,
+          companyId,
+          appCode: "sales",
+          action: "sales_order.cancel",
+          entityType: "sales_order",
+          entityId: orderId,
+          afterData: { reason, openApi: { keyName: source.keyName, keyPrefix: source.keyPrefix } },
+          ip: source.ip,
+          requestId: source.requestId,
+        },
+        transaction,
+      );
+    });
   }
 
   // Sửa khi nháp, bị từ chối, đã rút; sửa xong về nháp, gửi lại tính lại ngoại lệ, giữ hàng.
@@ -1032,12 +1096,14 @@ export class SalesOrdersService implements OnModuleInit {
   private select(): SQL {
     return sql`SELECT o.id, o.company_id, o.document_no, o.customer_id, c.name AS customer_name, o.buyer_name, o.channel_id, ch.name AS channel_name, o.customer_group_id, o.warehouse_id,
       coalesce(w.name, '') AS warehouse_name, o.order_date, o.delivery_address, c.company_id AS customer_company_id, o.counterpart_order_id, o.is_counterpart, o.counterpart_rejected_reason, o.gift_shortages, o.note, o.currency, o.status, o.exceptions, o.approval_request_id, o.net_amount::text, o.tax_amount::text,
-      o.total_amount::text, o.closed_reason, o.created_by, cu.full_name AS created_by_name, o.version`;
+      o.total_amount::text, o.closed_reason, o.created_by, cu.full_name AS created_by_name, o.version,
+      ak.name AS open_api_key_name, o.partner_order_code`;
   }
 
   private from(): SQL {
     return sql`FROM sales.orders o LEFT JOIN crm.partners c ON c.id = o.customer_id JOIN catalog.sales_channels ch ON ch.id = o.channel_id
-      LEFT JOIN inventory.warehouses w ON w.id = o.warehouse_id JOIN core.users cu ON cu.id = o.created_by`;
+      LEFT JOIN inventory.warehouses w ON w.id = o.warehouse_id JOIN core.users cu ON cu.id = o.created_by
+      LEFT JOIN core.api_keys ak ON ak.id = o.open_api_key_id`;
   }
 }
 
@@ -1065,5 +1131,7 @@ function toItem(row: OrderRow): SalesOrderListItem {
     totalAmount: trimDecimal(row.total_amount),
     status: row.status,
     createdByName: row.created_by_name,
+    // CONG_VIEC_61: đơn tạo qua Open API (QUYTAC_NGHIEPVU_490).
+    openApi: row.partner_order_code ? { keyName: row.open_api_key_name ?? "", partnerOrderCode: row.partner_order_code } : null,
   };
 }

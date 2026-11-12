@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_175 Voucher của cửa hàng – VComm Liên kết</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="cua_hang_lien_ket.css">
+</head>
+<body data-man-hinh="175" data-khu="cong">
+<div id="thanh-tren"></div>
+<div class="than">
+  <div id="menu"></div>
+  <main class="noi-dung">
+    <div class="tieu-de"><h1>Voucher của cửa hàng</h1><button type="button" class="nut chinh" onclick="document.getElementById('tao').hidden=false">Tạo voucher</button></div>
+    <div class="bo-loc"><label class="an-nhan" for="tt">Trạng thái</label><select id="tt" class="o-nhap"><option>Trạng thái: tất cả</option><option>Nháp</option><option>Chờ duyệt</option><option>Đang phát</option><option>Tạm dừng</option><option>Đã kết thúc</option><option>Bị từ chối</option></select>
+      <label class="an-nhan" for="loai">Loại</label><select id="loai" class="o-nhap"><option>Loại: tất cả</option><option>Đổi bằng điểm</option><option>Tặng miễn phí</option></select></div>
+    <div class="khung-bang"><table><thead><tr><th>Mã</th><th>Tên</th><th>Loại</th><th>Giảm</th><th>Thời gian nhận</th><th class="so">Đã nhận / tổng</th><th class="so">Đã dùng</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+      <tr><td data-nhan="Mã"><a href="#">VL-000012</a></td><td data-nhan="Tên">Giảm 10 % đồ uống</td><td data-nhan="Loại">Tặng miễn phí</td><td data-nhan="Giảm">10 %, tối đa 30.000 đ, hóa đơn từ 100.000 đ</td><td data-nhan="Thời gian nhận">01/11 – 30/11/2026</td><td data-nhan="Đã nhận / tổng" class="so">312 / 500</td><td data-nhan="Đã dùng" class="so">147</td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Đang phát</span></td><td data-nhan=""><button type="button" class="nut phu" data-thong-bao="Đã tạm dừng VL-000012.">Tạm dừng</button></td></tr>
+      <tr><td data-nhan="Mã"><a href="#">VL-000015</a></td><td data-nhan="Tên">Bánh ngọt 50.000 đ</td><td data-nhan="Loại">Đổi bằng điểm (40 điểm)</td><td data-nhan="Giảm">50.000 đ, hóa đơn từ 80.000 đ</td><td data-nhan="Thời gian nhận">15/11 – 31/12/2026</td><td data-nhan="Đã nhận / tổng" class="so">0 / 200</td><td data-nhan="Đã dùng" class="so">0</td><td data-nhan="Trạng thái"><span class="nhan thong-tin">Chờ duyệt</span></td><td data-nhan=""><button type="button" class="nut phu" data-thong-bao="Đã rút VL-000015 về nháp.">Rút</button></td></tr>
+      <tr><td data-nhan="Mã"><a href="#">VL-000016</a></td><td data-nhan="Tên">Mua 2 tặng 1 (nháp)</td><td data-nhan="Loại">Tặng miễn phí</td><td data-nhan="Giảm">35.000 đ</td><td data-nhan="Thời gian nhận">—</td><td data-nhan="Đã nhận / tổng" class="so">0 / 100</td><td data-nhan="Đã dùng" class="so">0</td><td data-nhan="Trạng thái"><span class="nhan trung-tinh">Nháp</span></td><td data-nhan=""><button type="button" class="nut chinh" data-thong-bao="Đã gửi duyệt VL-000016.">Gửi duyệt</button></td></tr>
+      <tr><td data-nhan="Mã"><a href="#">VL-000009</a></td><td data-nhan="Tên">Giảm 100 % ly thứ hai</td><td data-nhan="Loại">Tặng miễn phí</td><td data-nhan="Giảm">100 %, tối đa 45.000 đ</td><td data-nhan="Thời gian nhận">—</td><td data-nhan="Đã nhận / tổng" class="so">0 / 1.000</td><td data-nhan="Đã dùng" class="so">0</td><td data-nhan="Trạng thái"><span class="nhan loi">Bị từ chối</span><div class="chu-thich">Số lượng quá lớn so với quy mô cửa hàng.</div></td><td data-nhan=""></td></tr>
+    </tbody></table></div>
+
+    <aside class="man-che" id="tao" hidden><div class="ngan-keo" role="dialog" aria-labelledby="tieu-de-tao">
+      <h2 id="tieu-de-tao">Tạo voucher</h2>
+      <div class="truong"><label for="v-loai">Loại</label><select id="v-loai" class="o-nhap"><option>Đổi bằng điểm (VComm trả cửa hàng giá trị điểm khi khách dùng)</option><option>Tặng miễn phí (cửa hàng chịu tiền giảm)</option></select></div>
+      <div class="truong"><label for="v-ten">Tên (tiếng Việt)</label><input id="v-ten" class="o-nhap" value="Bánh ngọt 50.000 đ"></div>
+      <div class="truong"><label for="v-ten-en">Tên (tiếng Anh)</label><input id="v-ten-en" class="o-nhap" value="Pastry 50,000 VND"></div>
+      <div class="hai-cot-deu"><div class="truong"><label for="v-cach">Cách giảm</label><select id="v-cach" class="o-nhap"><option>Số tiền</option><option>Phần trăm</option></select></div>
+        <div class="truong"><label for="v-gia-tri">Mức giảm</label><input id="v-gia-tri" class="o-nhap" value="50.000"></div></div>
+      <div class="hai-cot-deu"><div class="truong"><label for="v-toi-da">Giảm tối đa (đ)</label><input id="v-toi-da" class="o-nhap" value="50.000"></div>
+        <div class="truong"><label for="v-toi-thieu">Hóa đơn tối thiểu (đ)</label><input id="v-toi-thieu" class="o-nhap" value="80.000"></div></div>
+      <div class="hai-cot-deu"><div class="truong"><label for="v-sl">Tổng số lượng</label><input id="v-sl" class="o-nhap" value="200"></div>
+        <div class="truong"><label for="v-moi-khach">Mỗi khách nhận tối đa</label><input id="v-moi-khach" class="o-nhap" value="1"></div></div>
+      <div class="truong"><label for="v-diem">Giá điểm</label><input id="v-diem" class="o-nhap" value="40"><span class="chu-thich">Giá trị một điểm hiện hành 1.000 đ: VComm trả cửa hàng 40.000 đ khi khách dùng voucher.</span></div>
+      <div class="hai-cot-deu"><div class="truong"><label for="v-tu">Nhận từ ngày</label><input id="v-tu" class="o-nhap" value="15/11/2026"></div>
+        <div class="truong"><label for="v-den">Nhận đến ngày</label><input id="v-den" class="o-nhap" value="31/12/2026"></div></div>
+      <div class="truong"><label for="v-han">Hạn dùng sau khi nhận (ngày)</label><input id="v-han" class="o-nhap" value="30"></div>
+      <div class="khoi-canh-bao thong-tin">Voucher dùng tại mọi điểm bán của cửa hàng. Sau khi gửi, VComm duyệt trước khi khách thấy.</div>
+      <div class="nhom-nut"><button type="button" class="nut phu" onclick="document.getElementById('tao').hidden=true" data-thong-bao="Đã lưu nháp.">Lưu nháp</button><button type="button" class="nut chinh" onclick="document.getElementById('tao').hidden=true" data-thong-bao="Đã gửi duyệt.">Lưu và gửi duyệt</button></div>
+    </div></aside>
+  </main>
+</div>
+<script src="cua_hang_lien_ket.js"></script>
+</body>
+</html>

@@ -49,6 +49,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "platform.integration.manage", appCode: "platform", nameVi: "Cài đặt tích hợp", nameEn: "Manage integrations", isSensitive: true },
   { code: "platform.proposal_template.manage", appCode: "platform", nameVi: "Quản lý mẫu đề xuất", nameEn: "Manage proposal templates", isSensitive: false },
   { code: "platform.proposal.create", appCode: "platform", nameVi: "Lập đề xuất", nameEn: "Create proposals", isSensitive: false },
+  // CONG_VIEC_61: Open API cho đối tác (MODULE_16).
+  { code: "platform.api_key.manage", appCode: "platform", nameVi: "Cấp, sửa, thu hồi khóa API đối tác", nameEn: "Manage partner API keys", isSensitive: true },
+  { code: "platform.api_log.view", appCode: "platform", nameVi: "Xem nhật ký gọi API đối tác", nameEn: "View partner API call log", isSensitive: false },
   // CONG_VIEC_04: mini app Sản phẩm (MODULE_02).
   { code: "catalog.category.manage", appCode: "catalog", nameVi: "Quản lý ngành hàng, đơn vị tính (toàn tập đoàn)", nameEn: "Manage categories and units (group)", isSensitive: false },
   { code: "catalog.product.view", appCode: "catalog", nameVi: "Xem sản phẩm", nameEn: "View products", isSensitive: false },
@@ -91,6 +94,15 @@ export const permissionCatalog: PermissionDefinition[] = [
     appCode: "crm",
     nameVi: "Cài chương trình điểm, khóa ví điểm, lập phiếu điều chỉnh điểm",
     nameEn: "Manage loyalty program, lock point accounts, adjust points",
+    isSensitive: true,
+  },
+  // CONG_VIEC_55: cửa hàng liên kết (xét tại công ty vận hành sàn).
+  { code: "affiliate.view", appCode: "crm", nameVi: "Xem cửa hàng liên kết, giao dịch, voucher, đối soát", nameEn: "View affiliate stores, transactions, vouchers, settlements", isSensitive: false },
+  {
+    code: "affiliate.manage",
+    appCode: "crm",
+    nameVi: "Quản lý hợp đồng cửa hàng liên kết, voucher VComm, trả lời khiếu nại đối soát",
+    nameEn: "Manage affiliate contracts, VComm vouchers and settlement disputes",
     isSensitive: true,
   },
   // CONG_VIEC_49: kiểm duyệt bảng tin cộng đồng, đăng bài VComm (QUYTAC_NGHIEPVU_335).
@@ -193,6 +205,8 @@ const companyAdminPermissions = [
   "platform.number_sequence.manage",
   "platform.audit.view",
   "platform.proposal_template.manage",
+  "platform.api_key.manage",
+  "platform.api_log.view",
   ...analyticsPermissions.filter((code) => code !== "analytics.access"),
   "catalog.product.view",
   "catalog.product.manage",
@@ -211,6 +225,8 @@ const companyAdminPermissions = [
   "marketplace.payment.manage",
   "loyalty.view",
   "loyalty.manage",
+  "affiliate.view",
+  "affiliate.manage",
   "marketplace.community.manage",
   "purchasing.price.manage",
   "purchasing.requisition.create",
@@ -478,6 +494,8 @@ export const documentTypeCatalog = [
   { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },
   // CONG_VIEC_51: phiếu điều chỉnh điểm thưởng (QUYTAC_NGHIEPVU_353).
   { code: "loyalty.adjustment", appCode: "crm", nameVi: "Phiếu điều chỉnh điểm thưởng", nameEn: "Loyalty points adjustment", requiresApproval: true },
+  // CONG_VIEC_55: voucher liên kết (QUYTAC_NGHIEPVU_401).
+  { code: "affiliate.voucher", appCode: "crm", nameVi: "Voucher cửa hàng liên kết", nameEn: "Affiliate voucher", requiresApproval: true },
   { code: "retail.sale", appCode: "retail", nameVi: "Hóa đơn bán lẻ", nameEn: "Retail sale", requiresApproval: false },
   { code: "retail.return", appCode: "retail", nameVi: "Phiếu trả hàng bán lẻ", nameEn: "Retail return", requiresApproval: false },
   // CONG_VIEC_46: mã nhân viên chỉ dùng dãy số; hợp đồng, phụ lục qua luồng duyệt.

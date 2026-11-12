@@ -22,7 +22,10 @@ export type MarketplacePermission =
   | "loyalty.view"
   | "loyalty.manage"
   // CONG_VIEC_49: kiểm duyệt bảng tin (QUYTAC_NGHIEPVU_335).
-  | "marketplace.community.manage";
+  | "marketplace.community.manage"
+  // CONG_VIEC_55: cửa hàng liên kết.
+  | "affiliate.view"
+  | "affiliate.manage";
 
 export interface BuyerAdminActor {
   userId: string;

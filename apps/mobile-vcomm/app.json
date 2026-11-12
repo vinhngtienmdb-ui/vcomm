@@ -22,6 +22,14 @@
       "expo-secure-store",
       "expo-status-bar",
       [
+        "expo-camera",
+        {
+          "cameraPermission": "VComm cần dùng máy ảnh để quét mã QR tại cửa hàng liên kết.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
         "expo-image-picker",
         {
           "photosPermission": "VComm cần truy cập ảnh để bạn đính kèm ảnh khi yêu cầu trả hàng.",
