@@ -31,6 +31,7 @@
 - Cập nhật CONG_VIEC_50 (2026-11-11): thêm MODULE_15 Báo cáo quản trị phần 1, mini app `web-analytics`, MAN_HINH_140 đến MAN_HINH_144 (mục 69 đến mục 71); MAN_HINH_145 giữ chưa dùng; trang chủ mini app thêm ô "Báo cáo quản trị"
 - Cập nhật CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm MAN_HINH_132 đến MAN_HINH_139 của MODULE_10 (mục 72, mục 73); sửa MAN_HINH_76 (nút Ví mua sắm, Mời bạn bè, Cộng tác viên), MAN_HINH_80 (chặn ví), MAN_HINH_88 (Chờ chốt nhóm, phần cộng tác viên), MAN_HINH_91 (chia sẻ nhận hoa hồng, điểm đánh giá, mua chung), MAN_HINH_93 (đơn mua chung, dùng ví mua sắm), MAN_HINH_96 (nhóm mua chung, phần ví, viết đánh giá), MAN_HINH_101 (mức cộng tác viên), MAN_HINH_102, MAN_HINH_103 (ví hoa hồng bị chặn); menu web-crm "Cộng tác viên", "Mua chung", "Kiểm duyệt cộng đồng"; thẻ "Bảng tin" trên ứng dụng
 - Cập nhật CONG_VIEC_53 (2026-11-11): thêm MAN_HINH_161 đến MAN_HINH_167 của MODULE_14 (mini app Bán lẻ, bán lẻ tại quầy phần 1; bản mẫu MAN_HINH_161, 162, 164, 167); sửa MAN_HINH_46, MAN_HINH_49, MAN_HINH_54, MAN_HINH_55 (mục 65, 66)
+- Cập nhật CONG_VIEC_55 (2026-11-11): thêm MAN_HINH_174 đến MAN_HINH_181 của MODULE_12 Cửa hàng liên kết phần 1 (cổng cửa hàng `web-affiliate`, `web-crm`, ứng dụng VComm)
 - Cập nhật CONG_VIEC_58 (2026-11-12): thêm MAN_HINH_204 đến MAN_HINH_209 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách, đặt trong mini app Mua hàng `web-purchasing`; mục 75 đến mục 77); MAN_HINH_209 là khối "Ngân sách mua" trong MAN_HINH_40, MAN_HINH_41 (đơn mua); menu Mua hàng thêm "Kế hoạch ngân sách", "Số còn được mua", "Điều chỉnh ngân sách"
 - Cập nhật CONG_VIEC_57 (2026-11-12): thêm MAN_HINH_188 đến MAN_HINH_195 của MODULE_14 (trạm giao hàng O2O phần 2; bản mẫu MAN_HINH_188 đến 194; mục 78, mục 79); menu Bán lẻ thêm Đơn trực tuyến, Giao cho khách, Đơn tôi đang giao, Nhận hàng trả; sửa MAN_HINH_166 (loại trạm, Cài đặt trạm), MAN_HINH_161, MAN_HINH_162, MAN_HINH_165 (ca của nhân viên giao), MAN_HINH_93, MAN_HINH_96 (ứng dụng VComm), MAN_HINH_88, MAN_HINH_89 (web-crm)
 - Cập nhật CONG_VIEC_22 (2026-11-12), THAY_DOI_26, THAY_DOI_28: thêm MAN_HINH_196 đến MAN_HINH_201 (mục 80, Kinh doanh trên ứng dụng VComm); sửa MAN_HINH_78, MAN_HINH_84, MAN_HINH_91; bỏ MAN_HINH_72 và thẻ ghé thăm trên MAN_HINH_37
@@ -2578,6 +2579,23 @@ Bản mẫu đã duyệt 2026-11-11: `ban_mau/MAN_HINH_146_CHUONG_TRINH_DIEM.htm
 
 Sửa: MAN_HINH_76 (thẻ điểm thưởng), MAN_HINH_88 (thẻ Điểm thưởng của đơn), MAN_HINH_93 (khối Dùng điểm, mặc định tắt; dòng trừ điểm; điểm dự kiến), MAN_HINH_96 (dòng trừ điểm, thẻ Điểm thưởng). Menu web-crm thêm: Chương trình điểm, Ví điểm, Điều chỉnh điểm, Cảnh báo điểm, Nghĩa vụ điểm.
 
+## MODULE_12 Cửa hàng liên kết: màn hình (CONG_VIEC_55)
+
+Bản mẫu đã duyệt 2026-11-11: `ban_mau/MAN_HINH_174_QUAY_TICH_DOI_DIEM.html` đến `ban_mau/MAN_HINH_181_CUA_HANG_LIEN_KET_UNG_DUNG.html`.
+
+| Mã | Màn hình | Đường dẫn | Vai trò |
+|---|---|---|---|
+| MAN_HINH_174 | Quầy tích đổi điểm (điểm bán, tiền hóa đơn, ba cách định danh, kết quả, giao dịch hôm nay, hủy) | Cổng cửa hàng `/counter` | Thu ngân (điểm bán được gán), chủ cửa hàng; hủy: chủ cửa hàng |
+| MAN_HINH_175 | Voucher của cửa hàng | Cổng cửa hàng `/vouchers` | Chủ cửa hàng |
+| MAN_HINH_176 | Báo cáo và đối soát (thẻ Báo cáo, Đối soát, Giao dịch) | Cổng cửa hàng `/reports` | Chủ cửa hàng |
+| MAN_HINH_177 | Cửa hàng của tôi (hợp đồng chỉ xem, điểm bán, nhân viên) | Cổng cửa hàng `/store` | Chủ cửa hàng |
+| MAN_HINH_178 | Cửa hàng liên kết (danh sách, tạo, chi tiết) | `/crm/affiliate/merchants`, `/crm/affiliate/merchants/<id>` | `affiliate.view`, sửa: `affiliate.manage` |
+| MAN_HINH_179 | Voucher liên kết | `/crm/affiliate/vouchers` | `affiliate.view`, tạo voucher công ty: `affiliate.manage` |
+| MAN_HINH_180 | Đối soát và giao dịch liên kết (thẻ Đối soát, Giao dịch, Báo cáo, Cảnh báo bất thường) | `/crm/affiliate/settlements` | `affiliate.view`, trả lời khiếu nại: `affiliate.manage` |
+| MAN_HINH_181 | Cửa hàng liên kết (ứng dụng: quét mã cửa hàng, xác nhận, mã thành viên, yêu cầu chờ, ưu đãi, voucher của tôi, lịch sử) | `/cua-hang-lien-ket` | Người mua |
+
+Sửa: trang chủ ứng dụng (thẻ yêu cầu chờ xác nhận khi có); MAN_HINH_151 (bút toán nguồn cửa hàng liên kết hiện tên cửa hàng). Menu `web-crm` thêm nhóm "Cửa hàng liên kết". Cổng cửa hàng: đăng nhập như MAN_HINH_01 (số điện thoại và OTP, Zalo); thu ngân chỉ thấy MAN_HINH_174.
+
 ## MODULE_10 Cộng đồng (phần 1: Cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, CONG_VIEC_49)
 
 ## 72. Danh sách màn hình và điều hướng (MODULE_10 phần 1)
@@ -2857,3 +2875,23 @@ flowchart LR
     T[Thanh tiêu đề: Thông báo] --> N[MAN_HINH_200 Thông báo] -->|Nhắc hẹn| H
     P[MAN_HINH_91 Chi tiết sản phẩm] -->|Chia sẻ sản phẩm| S[MAN_HINH_201]
 ```
+
+## MODULE_16 Mở rộng kinh doanh (phần 1: Open API cho đối tác, CONG_VIEC_61)
+
+### Danh sách màn hình
+
+| Mã | Tên | Chức năng | Vai trò | Vào từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_224 | Khóa API đối tác | CHUC_NANG_217 | Quản trị tập đoàn, quản trị công ty, người có `platform.api_log.view` (chỉ xem) | Menu Quản trị hệ thống | `ban_mau/MAN_HINH_224_KHOA_API.html` |
+| MAN_HINH_225 | Chi tiết khóa API | CHUC_NANG_217, 218 | Như trên | Bấm tên khóa ở MAN_HINH_224 | `ban_mau/MAN_HINH_225_CHI_TIET_KHOA_API.html` |
+| MAN_HINH_226 | Nhật ký gọi API | CHUC_NANG_218 | Người có `platform.api_log.view` hoặc `platform.api_key.manage` | Menu Quản trị hệ thống; thẻ Nhật ký gọi ở MAN_HINH_225 | `ban_mau/MAN_HINH_226_NHAT_KY_GOI_API.html` |
+| Sửa MAN_HINH_42, chi tiết đơn bán | Đơn bán | CHUC_NANG_220 | Như hiện có | Như hiện có | `ban_mau/SUA_DON_BAN_OPEN_API.html` |
+
+### Đặc tả
+
+- MAN_HINH_224: bảng tên khóa, đối tác (hoặc "Nội bộ"), đầu khóa `vck_xxxxxxxx…`, phạm vi, giới hạn mỗi phút, hạn dùng, lần gọi gần nhất, trạng thái; lọc từ khóa, trạng thái, loại. Nút "Cấp khóa mới" (chỉ người có `platform.api_key.manage`) mở ngăn kéo: loại, đối tác (tìm theo tên, mã; hiện nhóm khách quyết định giá), tên, kênh, hạn dùng, giới hạn, phạm vi (Khách hàng, Điểm thưởng hiện mờ "làm ở lát sau"), kho, IP. Cấp xong hiện hộp khóa một lần: cảnh báo, ô khóa, "Sao chép khóa", "Tôi đã lưu khóa, đóng".
+- MAN_HINH_225: ba ô số (gọi 24 giờ kèm lỗi, bị giới hạn; cao nhất một phút / giới hạn; lần gọi gần nhất kèm IP); thẻ Cấu hình (thông tin, "Sửa cấu hình", "Cấp lại khóa" có hộp xác nhận, "Thu hồi khóa" cần lý do và hộp xác nhận), Nhật ký gọi (bảng MAN_HINH_226 lọc sẵn khóa), Lịch sử thay đổi. Khóa đã thu hồi: hộp thông báo lý do, ẩn các nút sửa.
+- MAN_HINH_226: lọc khóa, kết quả (thành công, lỗi đối tác, bị giới hạn, lỗi máy chủ), từ, đến (ngày giờ), đường dẫn; bảng thời điểm, khóa, phương thức, đường dẫn, kết quả (nhãn màu), mã lỗi, thời gian xử lý, IP, mã yêu cầu; phân trang 50 dòng; ghi chú giữ 90 ngày, không ghi nội dung.
+- Đơn bán: thêm bộ lọc "Nguồn" (Nhập trên web, Open API); cột Khách hàng có nhãn "Open API" kèm mã đơn đối tác; tìm theo mã đơn đối tác; chi tiết đơn có hộp thông tin khóa đã tạo, mã đơn đối tác.
+- Trạng thái: dùng `Loaded`, `MessageView` dùng chung (đang tải, lỗi, không quyền, rỗng). Responsive: bảng chuyển thành thẻ ở màn hình hẹp.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12; xem trước L1, L2 đạt.

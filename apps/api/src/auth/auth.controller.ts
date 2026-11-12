@@ -46,7 +46,7 @@ export function clientInfo(request: Request): ClientInfo {
   return { ip: request.ip ?? null, userAgent: request.header("user-agent") ?? null, requestId: request.header("x-request-id") ?? null, locale: localeOf(request) };
 }
 
-function setSessionCookies(response: Response, session: IssuedSession): void {
+export function setSessionCookies(response: Response, session: IssuedSession): void {
   const base = { httpOnly: true, secure: secureCookies(), sameSite: "lax" as const };
   response.cookie(accessCookieName, session.accessToken, { ...base, path: "/", expires: session.accessExpiresAt });
   response.cookie(refreshCookieName, session.refreshToken, { ...base, path: "/api/v1/auth", expires: session.refreshExpiresAt });
@@ -113,16 +113,18 @@ export class AuthController {
     @Param("provider") provider: string,
     @Query("mode") mode: string | undefined,
     @Query("token") token: string | undefined,
+    @Query("app") app: string | undefined,
     @Req() request: Request,
     @Res() response: Response,
   ): Promise<void> {
     const chosen = mode === "link" || mode === "activate" ? mode : "login";
+    const portal = app === "merchant" && chosen !== "activate" ? "merchant" : undefined;
     try {
-      const started = await this.oauth.start(oauthProvider(provider), chosen, request.cookies?.[accessCookieName] as string | undefined, token);
+      const started = await this.oauth.start(oauthProvider(provider), chosen, request.cookies?.[accessCookieName] as string | undefined, token, portal);
       response.cookie(oauthStateCookieName, started.stateCookie, { httpOnly: true, secure: secureCookies(), sameSite: "lax", path: "/api/v1/auth/oauth", maxAge: 600_000 });
       response.redirect(302, started.url);
     } catch (error) {
-      response.redirect(302, errorRedirect(chosen, error, token));
+      response.redirect(302, errorRedirect(chosen, error, token, portal ?? null));
     }
   }
 
@@ -142,12 +144,14 @@ export class AuthController {
     const pending = this.oauth.pending(stateCookie);
     try {
       const outcome = await this.oauth.callback(oauthProvider(provider), { code, state, stateCookie }, clientInfo(request));
-      if (outcome.kind === "linked") return response.redirect(302, `${webOrigin()}/ho-so?lienKet=${outcome.provider}`);
+      // Cổng cửa hàng liên kết (CONG_VIEC_55): liên kết xong về quầy, đăng nhập xong về quầy.
+      if (outcome.kind === "linked")
+        return response.redirect(302, pending.app === "merchant" ? `${webOrigin()}/merchant/counter?lienKet=${outcome.provider}` : `${webOrigin()}/ho-so?lienKet=${outcome.provider}`);
       if (outcome.kind === "activated") return response.redirect(302, `${webOrigin()}/dang-nhap?kichHoat=${outcome.provider}`);
       setSessionCookies(response, outcome.session);
-      response.redirect(302, `${webOrigin()}${outcome.mfaRequired ? "/xac-thuc" : "/"}`);
+      response.redirect(302, `${webOrigin()}${outcome.mfaRequired ? "/xac-thuc" : pending.app === "merchant" ? "/merchant" : "/"}`);
     } catch (error) {
-      response.redirect(302, errorRedirect(pending.mode, error, pending.activationToken ?? undefined));
+      response.redirect(302, errorRedirect(pending.mode, error, pending.activationToken ?? undefined, pending.app));
     }
   }
 
@@ -287,8 +291,9 @@ function oauthProvider(value: string): OauthProvider {
 }
 
 // Mã lỗi đưa qua tham số "loi" để giao diện hiện thông báo theo ngôn ngữ đang chọn.
-function errorRedirect(mode: "login" | "link" | "activate", error: unknown, activationToken?: string): string {
+function errorRedirect(mode: "login" | "link" | "activate", error: unknown, activationToken?: string, app: "merchant" | null = null): string {
   const key = encodeURIComponent(error instanceof ApiError ? error.messageKey : "oauthFailed");
+  if (app === "merchant") return mode === "link" ? `${webOrigin()}/merchant/counter?loi=${key}` : `${webOrigin()}/merchant/dang-nhap?loi=${key}`;
   if (mode === "link") return `${webOrigin()}/ho-so?loi=${key}`;
   if (mode === "activate" && activationToken) return `${webOrigin()}/kich-hoat?token=${encodeURIComponent(activationToken)}&loi=${key}`;
   return `${webOrigin()}/dang-nhap?loi=${key}`;

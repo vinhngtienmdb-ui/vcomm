@@ -6,6 +6,7 @@
 // áp dụng quyết định công tác lúc 0 giờ 5 phút (CHUC_NANG_162), nhắc hết hạn hợp đồng lúc 7 giờ (CHUC_NANG_164),
 // tính lại công ngày hôm trước lúc 1 giờ (CHUC_NANG_165), cộng phép năm, hết hạn phép tồn lúc 0 giờ 15 phút (CHUC_NANG_166),
 // tự xác nhận bảng công hết hạn lúc 0 giờ 30 phút (CHUC_NANG_167), chốt nhóm mua chung mỗi phút (CHUC_NANG_172),
+// hết hạn, nhắc hạn voucher cửa hàng liên kết lúc 0 giờ 20 phút (CHUC_NANG_195), lập bảng đối soát cửa hàng liên kết 1 giờ thứ Hai (CHUC_NANG_196),
 // nhắc hẹn chăm sóc khách lúc 7 giờ (CHUC_NANG_205).
 // Chỉ chạy trong tiến trình API; kiểm thử gọi thẳng dịch vụ nên không cần Redis.
 import { Logger, type INestApplication } from "@nestjs/common";
@@ -16,6 +17,9 @@ import { OutboxService } from "../common/outbox.service";
 import { EinvoicesService } from "../einvoice/einvoices.service";
 import { LoyaltyJobsService } from "../loyalty/jobs.service";
 import { LoyaltySettlementsService } from "../loyalty/settlements.service";
+import { AffiliateReportsService } from "../affiliate/reports.service";
+import { AffiliateSettlementsService } from "../affiliate/settlements.service";
+import { AffiliateVouchersService } from "../affiliate/vouchers.service";
 import { GroupBuysService } from "../marketplace/group-buys.service";
 import { MarketplaceOrdersService } from "../marketplace/marketplace-orders.service";
 import { RetailStationOrdersService } from "../retail/retail-station-orders.service";
@@ -32,6 +36,7 @@ import { LeaveService } from "../hr/leave.service";
 import { TimesheetsService } from "../hr/timesheets.service";
 import { RecruitmentService } from "../hr/recruitment.service";
 import { JobOffersService } from "../hr/job-offers.service";
+import { ApiCallLogsService } from "../open-api/api-call-logs.service";
 import { CandidatesService } from "../hr/candidates.service";
 import { ReviewsService } from "../hr/reviews.service";
 
@@ -61,6 +66,9 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const loyalty = application.get(LoyaltyJobsService);
   const loyaltySettlements = application.get(LoyaltySettlementsService);
   const groupBuys = application.get(GroupBuysService);
+  const affiliateVouchers = application.get(AffiliateVouchersService);
+  const affiliateSettlements = application.get(AffiliateSettlementsService);
+  const affiliateReports = application.get(AffiliateReportsService);
   const workEvents = application.get(WorkEventsService);
   const contractReminders = application.get(ContractRemindersService);
   const attendanceDays = application.get(AttendanceDaysService);
@@ -70,6 +78,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const jobOffers = application.get(JobOffersService);
   const candidates = application.get(CandidatesService);
   const reviews = application.get(ReviewsService);
+  const apiCallLogs = application.get(ApiCallLogsService);
   const queue = new Queue(queueName, { connection });
   await queue.upsertJobScheduler("approval-overdue", { every: 15 * 60_000 }, { name: "approval-overdue" });
   await queue.upsertJobScheduler("outbox-dispatch", { every: 10_000 }, { name: "outbox-dispatch" });
@@ -97,6 +106,13 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   // Lập bảng đối soát điểm nội bộ tháng trước lúc 2 giờ ngày 1; nhắc bảng chờ xác nhận quá 5 ngày hằng ngày (CONG_VIEC_60; QUYTAC_NGHIEPVU_470, 471).
   await queue.upsertJobScheduler("loyalty-settlement-monthly", { pattern: "0 2 1 * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-settlement-monthly" });
   await queue.upsertJobScheduler("loyalty-settlement-reminders", { pattern: "0 8 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-settlement-reminders" });
+  // Voucher hết hạn, nhắc hạn; báo dư nợ từ 80 % hạn mức cho chủ cửa hàng (CONG_VIEC_55; QUYTAC_NGHIEPVU_402, 405).
+  await queue.upsertJobScheduler("affiliate-voucher-daily", { pattern: "20 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "affiliate-voucher-daily" });
+  // Đối soát cửa hàng liên kết (CONG_VIEC_55; QUYTAC_NGHIEPVU_403): lập bảng tuần trước 1 giờ sáng thứ Hai; tự xác nhận bảng quá hạn mỗi giờ.
+  await queue.upsertJobScheduler("affiliate-settlement-weekly", { pattern: "0 1 * * 1", tz: "Asia/Ho_Chi_Minh" }, { name: "affiliate-settlement-weekly" });
+  await queue.upsertJobScheduler("affiliate-settlement-confirm", { every: 60 * 60_000 }, { name: "affiliate-settlement-confirm" });
+  // Xóa nhật ký gọi API đối tác quá 90 ngày lúc 2 giờ (CONG_VIEC_61; QUYTAC_NGHIEPVU_488).
+  await queue.upsertJobScheduler("open-api-log-purge", { pattern: "0 2 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "open-api-log-purge" });
   // Chốt nhóm mua chung hết hạn (CONG_VIEC_49; QUYTAC_NGHIEPVU_331).
   await queue.upsertJobScheduler("marketplace-group-buy-close", { every: 60_000 }, { name: "marketplace-group-buy-close" });
   // Nhắc, hủy đơn quá hạn giữ tại trạm giao hàng O2O (CONG_VIEC_57; QUYTAC_NGHIEPVU_428).
@@ -139,7 +155,11 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "loyalty-daily") return loyalty.runDaily();
       if (job.name === "loyalty-settlement-monthly") return loyaltySettlements.buildMonthly();
       if (job.name === "loyalty-settlement-reminders") return loyaltySettlements.remindPending();
+      if (job.name === "affiliate-voucher-daily") return { vouchers: await affiliateVouchers.expireAndRemind(), creditUsage: await affiliateReports.notifyCreditUsage() };
+      if (job.name === "affiliate-settlement-weekly") return affiliateSettlements.generateWeekly();
+      if (job.name === "affiliate-settlement-confirm") return affiliateSettlements.autoConfirmDue();
       if (job.name === "marketplace-group-buy-close") return groupBuys.closeDue();
+      if (job.name === "open-api-log-purge") return apiCallLogs.purgeExpired(new Date());
       return null;
     },
     { connection, concurrency: 1 },

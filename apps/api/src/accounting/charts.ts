@@ -375,6 +375,11 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     excise_tax: "3332",
     environmental_tax: "33381",
     import_vat: "33312",
+    affiliate_receivable: "131",
+    affiliate_payable: "331",
+    affiliate_fee_revenue: "511",
+    affiliate_fee_tax: "33311",
+    affiliate_voucher_deferred: "3387",
   },
   TT133: {
     receivable: "131",
@@ -420,6 +425,11 @@ export const defaultPostingRules: Record<AccountingRegime, Record<PostingRole, s
     excise_tax: "3332",
     environmental_tax: "3338",
     import_vat: "33312",
+    affiliate_receivable: "131",
+    affiliate_payable: "331",
+    affiliate_fee_revenue: "5113",
+    affiliate_fee_tax: "33311",
+    affiliate_voucher_deferred: "3387",
   },
 };
 
@@ -467,4 +477,9 @@ export const roleDescriptions: Record<PostingRole, string> = {
   excise_tax: "Thuế tiêu thụ đặc biệt hàng nhập khẩu",
   environmental_tax: "Thuế bảo vệ môi trường hàng nhập khẩu",
   import_vat: "Thuế giá trị gia tăng hàng nhập khẩu",
+  affiliate_receivable: "Phải thu cửa hàng liên kết (tiền điểm tích)",
+  affiliate_payable: "Phải trả cửa hàng liên kết (tiền điểm, voucher khách dùng)",
+  affiliate_fee_revenue: "Doanh thu phí dịch vụ cửa hàng liên kết",
+  affiliate_fee_tax: "Thuế giá trị gia tăng đầu ra của phí dịch vụ cửa hàng liên kết",
+  affiliate_voucher_deferred: "Doanh thu chưa thực hiện của voucher đổi bằng điểm",
 };
