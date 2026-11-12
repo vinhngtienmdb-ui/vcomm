@@ -3,7 +3,7 @@
 - Mô tả: Làm lại công việc ứng dụng nhân viên kinh doanh theo mô hình B2C (THAY_DOI_14, THAY_DOI_26). Không còn ứng dụng riêng: mở rộng mục Kinh doanh của ứng dụng VComm với chi tiết khách, chia sẻ sản phẩm kèm mã giới thiệu, ghi chú chăm sóc và lịch hẹn có nhắc trong ứng dụng, doanh số theo tháng. Ẩn chức năng ghé thăm khách.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Đang thực hiện, chuẩn bị trình nghiệm thu. Người dùng duyệt đặc tả và bản mẫu MAN_HINH_196 đến 201 ngày 2026-11-12.
+- Trạng thái: Đã nghiệm thu, chờ phát hành. Người dùng nghiệm thu ngày 2026-11-12 (bản cuối commit ca93608: toàn bộ kiểm thử API 103 tệp, 557/557 đạt). Người dùng duyệt đặc tả và bản mẫu MAN_HINH_196 đến 201 ngày 2026-11-12.
 - Nguồn: THAY_DOI_14, THAY_DOI_16, THAY_DOI_26, THAY_DOI_28; CONG_VIEC_23, 24, 26, 27 (đã phát hành 0.3.0); quyết định của người dùng ngày 2026-11-11 (câu hỏi trong phiên CONG_VIEC_22).
 - Nhánh: `chuc-nang/CONG_VIEC_22-kinh-doanh-vcomm` (mới, tạo từ `main` 453d3ed). Nhánh cũ `chuc-nang/CONG_VIEC_22-ung-dung-kinh-doanh` không dùng lại: L0 đến L4 của nhánh cũ đã có trong `main`, CONG_VIEC_23 đã thay `apps/mobile-sales` bằng `apps/mobile-vcomm`.
 
@@ -149,7 +149,7 @@ Ngày 2026-11-12, sau lát L4 và sửa phát hiện rà soát độc lập (com
 - [x] Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: QUYTAC_NGHIEPVU_432 đến 441 có mã và kiểm thử; phạm vi xem theo nhánh kiểm ở KICHBAN_KIEMTHU_573, 575, 576, 579.
 - [x] Đúng giao diện: MAN_HINH_196 đến 201 khớp bản mẫu đã duyệt; người dùng đồng ý xem trước lát L0 đến L3; L4 xem trước bằng ảnh.
 - [x] Đã xử lý lỗi: lỗi ô (`followUpOn`, `month`), `403`, `404`, `409` có thông báo trong tệp dịch.
-- [x] Đã kiểm thử: toàn bộ `pnpm --filter api test` 102 tệp, 556/556 đạt (trước bản sửa rà soát), chạy lại sau bản sửa; kết quả ghi tài liệu `25` qua phiên cha.
+- [x] Đã kiểm thử: toàn bộ `pnpm --filter api test` trên bản cuối (commit ca93608) 103 tệp, 557/557 đạt (gồm KICHBAN_KIEMTHU_583 hiệu năng); kết quả ghi tài liệu `25` qua phiên cha.
 - [x] Không phá vỡ chức năng cũ: hồi quy c22-sales-app (290, 291 sửa theo THAY_DOI_26), c23, c24, c26, c27, c49, c50 đạt.
 - [x] Đạt tiêu chí nghiệm thu bắt buộc: TIEUCHI_NGHIEMTHU_402 đến 410 đạt (408 phần web-crm và 410 kiểm thủ công: đọc mã, kiểm tra kiểu, ảnh xem trước); TIEUCHI_NGHIEMTHU_411 (Mong muốn) đạt: 1.000 khách, 20.000 đơn, danh sách khách 7 ms, chi tiết khách 6 ms, doanh số nhánh 19 ms (KICHBAN_KIEMTHU_583, `apps/api/test/c22-hieu-nang.test.ts`).
 - [x] Đạt cổng bảo mật: rà soát độc lập không có lỗi Nghiêm trọng, Cao; phát hiện Trung bình, Thấp đã sửa (commit 71720f4); thêm một thư viện `expo-clipboard` do người dùng duyệt (giấy phép MIT, của Expo); quét khóa bí mật (gitleaks) ở CI đạt; tài liệu `22` có mục kiểm soát.
