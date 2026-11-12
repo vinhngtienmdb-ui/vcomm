@@ -1165,6 +1165,15 @@ Trạng thái bài đăng, bình luận:
 | Đơn Open API Nháp | Đối tác hủy | Đã hủy |
 | Đơn Open API Nháp | Nhân viên gửi duyệt | Chờ duyệt hoặc Đã xác nhận (như đơn thường) |
 
+### Luồng 62. Khách hàng do đối tác tạo, giao thẳng người nhận (CONG_VIEC_66)
+
+- Bắt đầu: đối tác có khóa phạm vi `customer.write` gửi khách (API_289).
+- Mã số thuế chưa có (căn cước trùng hồ sơ ngoài phạm vi: `409`): tạo hồ sơ "Do đối tác tạo" và hồ sơ khách ở công ty (nhóm của đối tác, hạn thanh toán 0 ngày). Đã có và dùng được: gắn vào phạm vi, chỉ trả mã. Đã ngừng, là công ty trong tập đoàn hoặc chỉ là nhà cung cấp: `409`, nhân viên xử lý.
+- Đối tác gửi đơn (API_262) kèm `customerCode`, `recipient`: đơn bán Nháp ghi khách đó và người nhận; nhân viên kiểm, gửi duyệt như đơn thường.
+- Phiếu xuất giao hàng hiện người nhận; ghi sổ phiếu xuất lập hóa đơn điện tử và công nợ theo khách trên đơn (luồng hiện có).
+- Ngoại lệ: khách bị nhân viên ngừng dùng thì đơn mới với khách đó bị từ chối; đơn đã tạo giữ nguyên.
+- Sơ đồ: `tai_lieu/cong_viec/CONG_VIEC_66.md` mục 7.
+
 ## MODULE_13 Văn phòng số (phần 2: chữ ký số, kho hợp đồng, CONG_VIEC_59)
 
 ### Luồng 56. Chữ ký số, trình ký, kho hợp đồng

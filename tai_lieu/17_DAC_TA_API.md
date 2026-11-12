@@ -1888,3 +1888,16 @@ Cho đối tác (`apps/api/src/open-api/open-api.controller.ts`, `Authorization:
 Sửa API_77 (`GET /sales/orders`): thêm lọc `source` (`web`, `open_api`); `search` khớp cả mã đơn đối tác; mỗi đơn thêm `openApi` (`keyName`, `partnerOrderCode`) hoặc `null`.
 
 MODULE_16 phần 1 (CONG_VIEC_61) không phát, không nghe sự kiện outbox.
+
+### Khách hàng do đối tác tạo, người nhận giao thẳng (CONG_VIEC_66)
+
+| Mã | Phương thức, đường dẫn | Chức năng | Phạm vi | Dữ liệu gửi lên | Kết quả |
+|---|---|---|---|---|---|
+| API_289 | `POST /open/customers` | CHUC_NANG_221 | `customer.write` | `openCustomerSchema`: `kind`, `name`, `taxCode`, `citizenId`, `address`, `phone`, `email`, `personalDataConsent` | `201` `OpenCustomer` khi tạo mới; `200` khi trùng mã số thuế (hồ sơ gắn chỉ có `code`, `kind`, `managedByPartner: false`); `400`; `409 BUSINESS_RULE` (hồ sơ không dùng được, căn cước trùng hồ sơ ngoài phạm vi) |
+| API_290 | `GET /open/customers` | CHUC_NANG_221 | `customer.write` | `updatedSince`, `page`, `pageSize` ≤ 100 | `PageResponse<OpenCustomer>` trong phạm vi |
+| API_291 | `GET /open/customers/{code}` | CHUC_NANG_221 | `customer.write` | — | `OpenCustomer`; `404` ngoài phạm vi |
+| API_292 | `PATCH /open/customers/{code}` | CHUC_NANG_221 | `customer.write` | `openCustomerUpdateSchema`: `name`, `address`, `phone`, `email` (`null` để xóa trường tùy chọn), `version` | `OpenCustomer`; `409` khi không do phạm vi tạo hoặc sai `version` |
+
+`OpenCustomer`: `code`, `kind`, `managedByPartner`; khi `managedByPartner` thêm `name`, `taxCode`, `address`, `phone`, `email`, `personalDataConsentAt`, `version`, `createdAt`, `updatedAt`. Không trả số căn cước.
+
+Sửa API hiện có (chỉ thêm trường): API_262 nhận `customerCode` từ khóa đối tác (khách trong phạm vi) và `recipient` (`name`, `phone`, `address`; không gửi cùng `deliveryAddress`); API_263 trả `recipient`; API_71 (`GET /crm/partners`) lọc `source` (`web`, `open_api`), mỗi dòng có `createdViaOpenApi`; chi tiết đối tác có `openApi[]`; chi tiết đơn bán có `recipient`, `customerCreatedViaOpenApi`; chi tiết phiếu kho có `recipient`. Mã lỗi dùng mã có sẵn. API_293, API_294 không dùng.

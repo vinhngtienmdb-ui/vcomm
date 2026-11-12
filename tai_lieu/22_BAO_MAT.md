@@ -1256,3 +1256,21 @@ Ranh giới và kiểm soát riêng:
 - Redis lỗi thì giới hạn tần suất cho qua (như hiện có), ghi log lỗi.
 
 Kết quả rà soát bảo mật CONG_VIEC_61 (2026-11-12): không phát hiện lỗi mức Cao; ghi nhận rủi ro `trust proxy` ở trên cho bước triển khai.
+
+### Khách hàng do đối tác tạo MODULE_16 phần 5 (CONG_VIEC_66)
+
+| Dữ liệu | Phân loại | Lưu ở đâu, bảo vệ thế nào | Ai xem |
+|---|---|---|---|
+| Khách cá nhân do đối tác gửi (tên, điện thoại, địa chỉ, email, căn cước nếu có) | Dữ liệu cá nhân | `crm.partners` như khách nhập trên web; căn cước không trả qua API đối tác, che trong nhật ký thao tác; đồng ý xử lý do đối tác thu theo hợp đồng, hệ thống lưu thời điểm xác nhận (`crm.open_api_customers.personal_data_consent_at`) | Đối tác: khách do phạm vi tạo; nhân viên: theo quyền đối tác hiện có |
+| Người nhận (tên, điện thoại, địa chỉ) | Dữ liệu cá nhân | `sales.orders` | Đối tác: đơn trong phạm vi; nhân viên: quyền đơn bán, kho hiện có |
+
+| Điểm tiếp nhận | Loại | Kiểm tra đầu vào | Cần xác thực |
+|---|---|---|---|
+| API_289 đến API_292 (`/api/v1/open/customers`) | API công khai cho đối tác | Lược đồ zod `openCustomerSchema`, `openCustomerUpdateSchema`, `openCustomerListQuerySchema` (trường thừa bị từ chối); mã khách trên đường dẫn chỉ nhận chữ, số | Khóa API phạm vi `customer.write` |
+
+Ranh giới và kiểm soát riêng:
+- Mọi truy vấn khách lọc `company_id` và phạm vi (đối tác hoặc khóa nội bộ) trong câu truy vấn; đơn chỉ dùng khách trong phạm vi.
+- Hồ sơ gắn do trùng chỉ trả mã, loại; đối tác không đọc, không sửa hồ sơ không do mình tạo.
+- LOI_09 – dò hồ sơ (mức Trung bình, đã sửa 2026-11-12 ở commit `102dfed` theo quyết định người dùng): chỉ dùng lại hồ sơ theo mã số thuế (thông tin công khai của doanh nghiệp); số căn cước trùng hồ sơ ngoài phạm vi trả `409`, không trả mã khách. Đơn ghi khách gắn do trùng mã số thuế chỉ ở Nháp, nhân viên kiểm trước khi gửi duyệt.
+
+Kết quả rà soát bảo mật CONG_VIEC_66 (2026-11-12): không phát hiện lỗi mức Cao; LOI_09 ở trên đã sửa. Ngoại lệ QUYTAC_NGHIEPVU_56 và mở phạm vi `customer.write` theo THAY_DOI_32.

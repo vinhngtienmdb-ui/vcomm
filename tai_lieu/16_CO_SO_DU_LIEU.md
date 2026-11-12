@@ -3476,6 +3476,20 @@ Bảng `crm.visits` (database migration 0022) giữ nguyên, không ghi mới (Q
 | `sales.orders` (0130) | Đơn qua Open API (QUYTAC_NGHIEPVU_490, 491) | `open_api_key_id`, `open_api_scope_id`, `partner_order_code` | Ba cột cùng có hoặc cùng trống; duy nhất (`company_id`, `open_api_scope_id`, `partner_order_code`) khi có khóa |
 
 - Khóa API không xóa (thu hồi). Nhật ký gọi xóa dòng quá 90 ngày bằng tác vụ nền `open-api-log-purge` lúc 2 giờ. Database migration 0131 để dành công việc sau.
+
+### Database migration 0131 – CONG_VIEC_66 (khách hàng do đối tác tạo, người nhận)
+
+Tệp `database/migrations/0131_open_api_customers.sql`.
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `crm.partners` (0131) | Hồ sơ do đối tác tạo (QUYTAC_NGHIEPVU_494) | Thêm `created_via_api_key_id` (khóa ngoại `core.api_keys`) | Định nghĩa lại `partners_check1`: `kind <> 'individual' OR citizen_id IS NOT NULL OR created_via_api_key_id IS NOT NULL` |
+| `crm.open_api_customers` (0131) | Khách trong phạm vi đối tác hoặc khóa nội bộ | `company_id`, `scope_id`, `partner_id`, `api_key_id`, `is_owner`, `personal_data_consent_at`, `created_at` | Khóa chính (`company_id`, `scope_id`, `partner_id`); chỉ mục (`company_id`, `partner_id`) |
+| `sales.orders` (0131) | Người nhận giao thẳng | `recipient_name` (1 đến 100 ký tự), `recipient_phone` (`+84` và 9 số) | `orders_recipient_check`: hai cột cùng có hoặc cùng trống; có người nhận thì `delivery_address` bắt buộc |
+
+Không xóa dữ liệu; không định nghĩa lại ràng buộc danh sách giá trị dùng chung.
+
+
 ## Database migration 0090 đến 0093 – CONG_VIEC_52 (MODULE_13 Văn phòng số phần 1)
 
 Schema `office`, chỉ mini app Văn phòng số ghi (tài liệu `12` mục 2). Tệp `database/migrations/0090_office_tasks.sql` (lát L0), `0091_office_workflows.sql` (lát L1), `0092_office_documents.sql` (lát L2), `0093_office_bulletin.sql` (lát L3).
