@@ -14,6 +14,7 @@ import { apiFetch } from "ui/lib/api";
 import { formatDate, formatDateTime, formatMoney } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 import { CurrencyPurchaseEditor } from "@/components/CurrencyPurchaseEditor";
+import { CustomsTaxPaymentEditor } from "@/components/CustomsTaxPaymentEditor";
 import { PaymentEditor } from "@/components/PaymentEditor";
 import { PaymentStatusBadge } from "@/components/PaymentStatusBadge";
 
@@ -60,6 +61,10 @@ export default function PaymentPage() {
             void reload();
           };
           if (editing && payment.kind === "currency_purchase") return <CurrencyPurchaseEditor payment={payment} onSaved={onSaved} onCancel={() => setEditing(false)} />;
+          if (editing && (payment.kind === "customs_tax_payment" || payment.kind === "customs_tax_refund")) {
+            return <CustomsTaxPaymentEditor payment={payment} kind={payment.kind} initialDeclarationId={null} onSaved={onSaved} onCancel={() => setEditing(false)} />;
+          }
+          const customsHeadings = [t("declaration"), t("taxType"), t("customsLines"), t("amount")];
           return editing ? (
             <PaymentEditor
               payment={payment}
@@ -101,8 +106,8 @@ export default function PaymentPage() {
                     <Link href={`/debts/${payment.partner.id}?side=${payment.kind.startsWith("customer") ? "receivable" : "payable"}`}>
                       {payment.partner.code} · {payment.partner.name}
                     </Link>
-                  ) : payment.kind === "currency_purchase" ? (
-                    t("kind_currency_purchase")
+                  ) : payment.kind === "currency_purchase" || payment.kind === "customs_tax_payment" || payment.kind === "customs_tax_refund" ? (
+                    t(`kind_${payment.kind}`)
                   ) : (
                     t("withoutPartner")
                   )}
@@ -152,8 +157,58 @@ export default function PaymentPage() {
                   {t("amount")}: {money(payment.amount)}
                   {Number(payment.unallocated) > 0 && ` · ${t("remainderAdvance")}: ${money(payment.unallocated)}`}
                 </strong>
+                {payment.referenceNo && (
+                  <div>
+                    {payment.kind === "customs_tax_refund" ? t("refundReferenceNo") : t("referenceNo")}: {payment.referenceNo}
+                  </div>
+                )}
                 {payment.note && <div>{payment.note}</div>}
               </section>
+              {payment.customsLines.length > 0 && (
+                <div className="khung-bang">
+                  <table>
+                    <thead>
+                      <tr>
+                        {customsHeadings.map((heading) => (
+                          <th key={heading} scope="col">
+                            {heading}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payment.customsLines.map((line, index) => (
+                        <tr key={index}>
+                          <td data-nhan={customsHeadings[0]}>
+                            <span>{line.declarationNo}</span>
+                          </td>
+                          <td data-nhan={customsHeadings[1]}>
+                            <span>{t(`taxType_${line.taxType}`)}</span>
+                          </td>
+                          <td data-nhan={customsHeadings[2]}>
+                            <span>
+                              {t(`lineKind_${line.lineKind}`)}
+                              {line.overdueDays !== null && ` · ${line.overdueDays} ${t("overdueDaysShort").toLowerCase()}`}
+                            </span>
+                          </td>
+                          <td data-nhan={customsHeadings[3]}>
+                            <span>
+                              {line.lineKind === "offset" ? "−" : ""}
+                              {money(line.amount)}
+                              {line.edited && line.computedAmount !== null && (
+                                <>
+                                  {" "}
+                                  <span className="nhan canh-bao">{t("edited")}</span> <span className="chu-thich">{t("computed", { amount: money(line.computedAmount) })}</span>
+                                </>
+                              )}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
               {payment.lines.length > 0 && (
                 <>
                   <h2>{payment.status === "posted" ? t("settled") : t("plannedLines")}</h2>

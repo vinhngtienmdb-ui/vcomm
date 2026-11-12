@@ -30,6 +30,9 @@ export default function PaymentsPage() {
             <Link className="nut phu" href="/currency-purchases/new">
               {t("buyCurrency")}
             </Link>
+            <Link className="nut phu" href="/customs-tax-payments/new">
+              {t("payCustomsTax")}
+            </Link>
             <Link className="nut chinh" href="/payments/new">
               {t("create")}
             </Link>

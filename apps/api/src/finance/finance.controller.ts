@@ -12,6 +12,13 @@ import {
   savePaymentSchema,
   saveCurrencyPurchaseSchema,
   createFxRevaluationSchema,
+  customsLateFeeQuerySchema,
+  customsTaxQuerySchema,
+  saveCustomsTaxParameterSchema,
+  saveCustomsTaxPaymentSchema,
+  type CustomsDeclarationTaxes,
+  type CustomsLateFeeResponse,
+  type CustomsTaxParameterResponse,
   updateFxRevaluationSchema,
   versionSchema,
   type FxRevaluationListItem,
@@ -33,6 +40,7 @@ import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { DebtsService } from "./debts.service";
+import { CustomsTaxService } from "./customs-tax.service";
 import { FundsService } from "./funds.service";
 import { FxRevaluationsService } from "./fx-revaluations.service";
 import { PaymentsService } from "./payments.service";
@@ -45,6 +53,7 @@ export class FinanceController {
     private readonly funds: FundsService,
     private readonly payments: PaymentsService,
     private readonly revaluations: FxRevaluationsService,
+    private readonly customsTax: CustomsTaxService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -136,6 +145,38 @@ export class FinanceController {
   @Patch("currency-purchases/:id")
   async currencyPurchaseUpdate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
     return this.payments.saveCurrencyPurchase(await this.actor(request, companyId), id, saveCurrencyPurchaseSchema.parse(body));
+  }
+
+  // API_218 (CONG_VIEC_56): thuế hải quan theo tờ khai, tiền chậm nộp gợi ý, phiếu nộp, nhận hoàn thuế hải quan, tham số tiền chậm nộp.
+  @Get("customs-taxes")
+  async customsTaxes(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<CustomsDeclarationTaxes[]> {
+    return this.customsTax.balances(await this.actor(request, companyId), customsTaxQuerySchema.parse(query));
+  }
+
+  @Get("customs-taxes/late-fee")
+  async customsLateFee(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<CustomsLateFeeResponse> {
+    const parsed = customsLateFeeQuerySchema.parse(query);
+    return this.customsTax.lateFee(await this.actor(request, companyId), parsed.declarationId, parsed.amount, parsed.paymentDate);
+  }
+
+  @Post("customs-tax-payments")
+  async customsTaxPaymentCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.customsTax.save(await this.actor(request, companyId), null, saveCustomsTaxPaymentSchema.parse(body));
+  }
+
+  @Patch("customs-tax-payments/:id")
+  async customsTaxPaymentUpdate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.customsTax.save(await this.actor(request, companyId), id, saveCustomsTaxPaymentSchema.parse(body));
+  }
+
+  @Get("customs-tax-parameters")
+  async customsTaxParameters(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<CustomsTaxParameterResponse[]> {
+    return this.customsTax.parameters(await this.actor(request, companyId));
+  }
+
+  @Post("customs-tax-parameters")
+  async customsTaxParameterCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<CustomsTaxParameterResponse[]> {
+    return this.customsTax.addParameter(await this.actor(request, companyId), saveCustomsTaxParameterSchema.parse(body));
   }
 
   // API_216, API_217 (CONG_VIEC_56): đánh giá lại ngoại tệ.

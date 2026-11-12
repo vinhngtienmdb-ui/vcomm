@@ -33,6 +33,7 @@ import { companyCurrency, ensureSequence } from "../purchasing/requisitions.serv
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { daysBetween, DebtsService, type Executor } from "./debts.service";
 import { financeAudit, financePermissions, requireFinancePermission } from "./finance-context";
+import { checkCustomsOnPost } from "./customs-tax";
 import { averageRate, fundBalance, fundForeignBalance } from "./funds.service";
 
 type Input = z.output<typeof savePaymentSchema>;
@@ -91,6 +92,7 @@ type PaymentRow = {
   counter_fund_id: string | null;
   counter_fund_code: string | null;
   counter_fund_name: string | null;
+  reference_no: string | null;
 };
 
 @Injectable()
@@ -154,7 +156,8 @@ export class PaymentsService implements OnModuleInit {
     return sql`
       SELECT p.id, p.company_id, p.document_no, p.kind, p.partner_id, pr.code AS partner_code, pr.name AS partner_name, p.fund_id, f.code AS fund_code, f.name AS fund_name,
         p.payment_date::text, p.amount::text, p.note, p.status, p.approval_request_id, p.post_error, p.posted_at::text, p.created_by, u.full_name AS created_by_name, p.version,
-        p.currency, p.foreign_amount::text, p.exchange_rate::text, p.exchange_difference::text, p.counter_fund_id, cf.code AS counter_fund_code, cf.name AS counter_fund_name
+        p.currency, p.foreign_amount::text, p.exchange_rate::text, p.exchange_difference::text, p.counter_fund_id, cf.code AS counter_fund_code, cf.name AS counter_fund_name,
+        p.reference_no
       FROM finance.payments p LEFT JOIN crm.partners pr ON pr.id = p.partner_id JOIN finance.funds f ON f.id = p.fund_id JOIN core.users u ON u.id = p.created_by
         LEFT JOIN finance.funds cf ON cf.id = p.counter_fund_id`;
   }
@@ -225,6 +228,19 @@ export class PaymentsService implements OnModuleInit {
             "0")
           : Math.max(0, Number(row.amount) - allocatedTotal).toFixed(4)
         : "0";
+    // Dòng thuế của phiếu nộp, nhận hoàn thuế hải quan (CONG_VIEC_56; QUYTAC_NGHIEPVU_416, 417).
+    const customsLines = await this.database.execute<{
+      line_kind: "payment" | "offset" | "refund" | "late_payment";
+      declaration_id: string;
+      declaration_no: string | null;
+      tax_type: "import_duty" | "excise_tax" | "environmental_tax" | "import_vat";
+      amount: string;
+      overdue_days: number | null;
+      computed_amount: string | null;
+    }>(sql`
+      SELECT c.line_kind, c.declaration_id, d.declaration_no, c.tax_type, c.amount::text, c.overdue_days, c.computed_amount::text
+      FROM finance.customs_tax_lines c LEFT JOIN purchasing.import_declarations d ON d.id = c.declaration_id
+      WHERE c.payment_id = ${id} ORDER BY c.line_no`);
     const manage = granted.has(financePermissions.managePayments);
     const editable = ["draft", "rejected", "withdrawn"].includes(row.status);
     let canWithdraw = false;
@@ -270,6 +286,17 @@ export class PaymentsService implements OnModuleInit {
             counterFund: row.counter_fund_id ? { id: row.counter_fund_id, code: row.counter_fund_code!, name: row.counter_fund_name! } : null,
           }
         : null,
+      referenceNo: row.reference_no,
+      customsLines: customsLines.rows.map((line) => ({
+        lineKind: line.line_kind,
+        declarationId: line.declaration_id,
+        declarationNo: line.declaration_no ?? "",
+        taxType: line.tax_type,
+        amount: trimDecimal(line.amount),
+        overdueDays: line.overdue_days,
+        computedAmount: line.computed_amount === null ? null : trimDecimal(line.computed_amount),
+        edited: line.computed_amount !== null && Number(line.computed_amount) !== Number(line.amount),
+      })),
       createdByName: row.created_by_name,
       postedAt: row.posted_at,
       version: row.version,
@@ -472,7 +499,9 @@ export class PaymentsService implements OnModuleInit {
     await requireFinancePermission(this.permissionService, actor, financePermissions.managePayments);
     await this.database.transaction(async (transaction) => {
       const before = await this.lockEditable(transaction, actor.companyId, id, input.version);
-      if (before.kind === "currency_purchase") throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { kind: "invalidValue" } });
+      if (before.kind === "currency_purchase" || before.kind === "customs_tax_payment" || before.kind === "customs_tax_refund") {
+        throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { kind: "invalidValue" } });
+      }
       // Đã cấp số thì không đổi giữa phiếu thu và phiếu chi (hai dãy số khác nhau).
       if (before.document_no && documentTypeOf(before.kind) !== documentTypeOf(input.kind)) {
         throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { kind: "invalidValue" } });
@@ -622,7 +651,7 @@ export class PaymentsService implements OnModuleInit {
     const payment = (
       await transaction.execute<{
         company_id: string;
-        kind: PaymentKind | "currency_purchase";
+        kind: PaymentKind | "currency_purchase" | "customs_tax_payment" | "customs_tax_refund";
         partner_id: string;
         fund_id: string;
         counter_fund_id: string | null;
@@ -638,6 +667,13 @@ export class PaymentsService implements OnModuleInit {
     ).rows[0];
     if (!payment) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     if (payment.kind === "currency_purchase") return this.postCurrencyPurchase(transaction, id, payment.fund_id, payment.counter_fund_id!, payment.amount);
+    // Phiếu nộp, nhận hoàn thuế hải quan: kiểm lại số dư thuế, quỹ rồi ghi sổ; không có công nợ (QUYTAC_NGHIEPVU_416).
+    if (payment.kind === "customs_tax_payment" || payment.kind === "customs_tax_refund") {
+      await checkCustomsOnPost(transaction, id);
+      await transaction.execute(sql`UPDATE finance.payments SET status = 'posted', posted_at = now(), post_error = NULL, updated_at = now() WHERE id = ${id}`);
+      for (const hook of this.postedHooks) await hook(transaction, id);
+      return;
+    }
     if (payment.currency) return this.postForeignPayment(transaction, id, { ...payment, kind: payment.kind });
     const side = paymentKindSide[payment.kind];
     await this.debts.lockPartner(transaction, payment.company_id, side, payment.partner_id);

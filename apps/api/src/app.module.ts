@@ -134,6 +134,7 @@ import { RecruitmentController } from "./hr/recruitment.controller";
 import { RecruitmentService } from "./hr/recruitment.service";
 import { WorkEventsService } from "./hr/work-events.service";
 import { DebtsService } from "./finance/debts.service";
+import { CustomsTaxService } from "./finance/customs-tax.service";
 import { FundsService } from "./finance/funds.service";
 import { FxRevaluationsService } from "./finance/fx-revaluations.service";
 import { PaymentsService } from "./finance/payments.service";
@@ -277,6 +278,7 @@ import { UsersService } from "./users/users.service";
     DebtsService,
     FundsService,
     FxRevaluationsService,
+    CustomsTaxService,
     RetailStoresService,
     RetailShiftsService,
     RetailSalesService,

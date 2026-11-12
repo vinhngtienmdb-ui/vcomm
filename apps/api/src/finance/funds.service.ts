@@ -35,7 +35,7 @@ type FundRow = {
 };
 
 // Phiếu thu cộng, phiếu chi trừ vào quỹ (chỉ phiếu đã ghi sổ).
-export const signedPaymentAmount = sql`CASE WHEN p.kind IN ('customer_receipt', 'supplier_refund', 'retail_receipt', 'cash_surplus') THEN p.amount ELSE -p.amount END`;
+export const signedPaymentAmount = sql`CASE WHEN p.kind IN ('customer_receipt', 'supplier_refund', 'retail_receipt', 'cash_surplus', 'customs_tax_refund') THEN p.amount ELSE -p.amount END`;
 // Số dư theo tiền tệ công ty gồm phần nhận vào quỹ ngoại tệ của phiếu mua ngoại tệ (biến động quỹ, CONG_VIEC_56); quỹ ngoại tệ: giá trị ghi sổ.
 export const fundBalance = (fundId: SQL | string) => sql`
   (SELECT balance_fund.opening_balance + coalesce((SELECT sum(m.amount) FROM finance.fund_movements m WHERE m.fund_id = balance_fund.id AND m.status = 'posted'), 0)

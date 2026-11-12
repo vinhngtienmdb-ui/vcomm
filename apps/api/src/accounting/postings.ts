@@ -442,7 +442,24 @@ export async function paymentDraft(executor: Executor, paymentId: string): Promi
     // Phiếu mua ngoại tệ (QUYTAC_NGHIEPVU_408): Nợ quỹ ngoại tệ nhận / Có quỹ tiền tệ công ty chi.
     currency_purchase: payment.counter_fund_kind ? [debit(fundRole(payment.counter_fund_kind, true), amount), credit(fund, amount)] : [],
   };
+  // Phiếu nộp thuế hải quan: Nợ các tài khoản thuế (dòng nộp), Nợ tiền chậm nộp / Có tài khoản thuế (bù trừ nộp thừa), Có quỹ; nhận hoàn: Nợ quỹ / Có thuế
+  // (CONG_VIEC_56; QUYTAC_NGHIEPVU_416, 417).
+  if (payment.kind === "customs_tax_payment" || payment.kind === "customs_tax_refund") {
+    const taxLines = await executor.execute<{ line_kind: string; tax_type: PostingRole; amount: string }>(sql`
+      SELECT line_kind, tax_type, amount::text FROM finance.customs_tax_lines WHERE payment_id = ${paymentId} ORDER BY line_no`);
+    const draft: DraftLine[] = [];
+    for (const line of taxLines.rows) {
+      const value = round(Number(line.amount));
+      if (line.line_kind === "payment") draft.push(debit(line.tax_type, value));
+      else if (line.line_kind === "late_payment") draft.push(debit("late_payment_expense", value));
+      else draft.push(credit(line.tax_type, value));
+    }
+    lines.customs_tax_payment = [...draft.filter((line) => line.debit > 0), ...draft.filter((line) => line.credit > 0), credit(fund, amount)];
+    lines.customs_tax_refund = [debit(fund, amount), ...draft];
+  }
   const descriptions: Record<string, string> = {
+    customs_tax_payment: "Nộp thuế hải quan",
+    customs_tax_refund: "Nhận hoàn thuế hải quan",
     customer_receipt: "Thu tiền khách hàng",
     customer_refund: "Hoàn tiền cho khách hàng",
     supplier_payment: "Trả tiền nhà cung cấp",

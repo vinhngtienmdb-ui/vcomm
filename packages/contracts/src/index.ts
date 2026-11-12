@@ -2387,6 +2387,9 @@ export const saveImportDeclarationSchema = z
     postingDate: isoDate,
     customsRate: rateValue.refine((value) => Number(value) > 0, "invalidValue"),
     note: blankToNull(1000),
+    // CONG_VIEC_56: chi cục hải quan; hạn nộp thuế (trống thì theo tham số).
+    customsOffice: blankToNull(200),
+    taxDueDate: isoDate.nullable().optional(),
     lines: z
       .array(
         z
@@ -2463,6 +2466,8 @@ export interface ImportDeclarationResponse extends ImportDeclarationListItem {
   warehouseName: string;
   customsRate: string;
   note: string | null;
+  customsOffice: string | null;
+  taxDueDate: string | null;
   companyCurrency: string;
   lines: ImportDeclarationLineResponse[];
   version: number;
@@ -3161,10 +3166,11 @@ export const paymentKindSide: Record<PaymentKind, DebtSide> = {
 export const retailFundDocumentKinds = ["retail_receipt", "retail_refund", "cash_shortage", "cash_surplus"] as const;
 export type RetailFundDocumentKind = (typeof retailFundDocumentKinds)[number];
 // CONG_VIEC_56 (QUYTAC_NGHIEPVU_408): phiếu mua ngoại tệ, không đối tác, lập ở API_214.
-export const treasuryPaymentKinds = ["currency_purchase"] as const;
+export const treasuryPaymentKinds = ["currency_purchase", "customs_tax_payment", "customs_tax_refund"] as const;
 export type TreasuryPaymentKind = (typeof treasuryPaymentKinds)[number];
 export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind;
-export const paymentKindIsReceipt = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_refund" || kind === "retail_receipt" || kind === "cash_surplus";
+export const paymentKindIsReceipt = (kind: AnyPaymentKind) =>
+  kind === "customer_receipt" || kind === "supplier_refund" || kind === "retail_receipt" || kind === "cash_surplus" || kind === "customs_tax_refund";
 export const paymentKindSettles = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
 export const paymentListQuerySchema = z
   .object({ kind: z.enum([...paymentKinds, ...treasuryPaymentKinds]).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
@@ -3257,6 +3263,91 @@ export interface FxRevaluationResponse {
   version: number;
   canManage: boolean;
 }
+// Thuế hải quan (CONG_VIEC_56; QUYTAC_NGHIEPVU_415 đến 417; API_218): loại thuế, số phải nộp, đã nộp, còn phải nộp theo tờ khai.
+export const customsTaxTypes = ["import_duty", "excise_tax", "environmental_tax", "import_vat"] as const;
+export type CustomsTaxType = (typeof customsTaxTypes)[number];
+export const customsTaxLineKinds = ["payment", "offset", "refund"] as const;
+export type CustomsTaxLineKind = (typeof customsTaxLineKinds)[number];
+export interface CustomsTaxBalance {
+  taxType: CustomsTaxType;
+  payable: string;
+  paid: string;
+  pending: string;
+  // Âm là nộp thừa.
+  remaining: string;
+}
+export interface CustomsDeclarationTaxes {
+  declarationId: string;
+  declarationNo: string;
+  registeredOn: string;
+  customsOffice: string | null;
+  dueDate: string;
+  taxes: CustomsTaxBalance[];
+}
+export const customsTaxQuerySchema = z
+  .object({ search: z.string().trim().max(100).optional(), declarationId: z.uuid().optional(), openOnly: z.enum(["true", "false"]).optional() })
+  .strict();
+// Tiền chậm nộp gợi ý cho một dòng nộp (QUYTAC_NGHIEPVU_417).
+export const customsLateFeeQuerySchema = z.object({ declarationId: z.uuid(), amount: positiveQuantity, paymentDate: isoDate }).strict();
+export interface CustomsLateFeeResponse {
+  dueDate: string;
+  overdueDays: number;
+  rate: string;
+  amount: string;
+}
+// Phiếu nộp thuế hải quan (phiếu chi) hoặc nhận hoàn thuế hải quan (phiếu thu); không đối tác (QUYTAC_NGHIEPVU_416).
+// lateAmount trống: hệ thống tính; nhập số khác thì đánh dấu đã sửa.
+export const saveCustomsTaxPaymentSchema = z
+  .object({
+    kind: z.enum(["customs_tax_payment", "customs_tax_refund"]),
+    fundId: z.uuid(),
+    paymentDate: isoDate,
+    referenceNo: blankToNull(100),
+    note: blankToNull(500),
+    lines: z
+      .array(
+        z
+          .object({
+            lineKind: z.enum(customsTaxLineKinds),
+            declarationId: z.uuid(),
+            taxType: z.enum(customsTaxTypes),
+            amount: positiveQuantity,
+            lateAmount: z.union([z.number(), z.string(), z.null()]).optional().transform((value) => (value === null || value === undefined || value === "" ? null : String(value).trim().replace(",", "."))),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveCustomsTaxPaymentRequest = z.input<typeof saveCustomsTaxPaymentSchema>;
+export interface CustomsTaxPaymentLine {
+  lineKind: CustomsTaxLineKind | "late_payment";
+  declarationId: string;
+  declarationNo: string;
+  taxType: CustomsTaxType;
+  amount: string;
+  overdueDays: number | null;
+  computedAmount: string | null;
+  edited: boolean;
+}
+// Tham số tiền chậm nộp, hạn nộp theo ngày hiệu lực (CONG_VIEC_56; quyết định người dùng 2026-11-12).
+export interface CustomsTaxParameterResponse {
+  id: string;
+  effectiveFrom: string;
+  lateRate: string;
+  paymentTermDays: number;
+  legalBasis: string;
+}
+export const saveCustomsTaxParameterSchema = z
+  .object({
+    effectiveFrom: isoDate,
+    lateRate: z.string().trim().regex(/^0(\.\d{1,6})?$/),
+    paymentTermDays: z.number().int().min(0).max(365),
+    legalBasis: z.string().trim().min(1).max(1000),
+  })
+  .strict();
 // Xem trước phiếu chi trả nợ ngoại tệ (API_215): giảm nợ theo tỷ giá đích danh, giá trị ra khỏi quỹ, chênh lệch tỷ giá.
 export interface PaymentFxPreviewResponse {
   currency: string;
@@ -3313,6 +3404,9 @@ export interface PaymentResponse {
     exchangeDifference: string | null;
     counterFund: { id: string; code: string; name: string } | null;
   } | null;
+  // Phiếu nộp, nhận hoàn thuế hải quan (CONG_VIEC_56).
+  referenceNo: string | null;
+  customsLines: CustomsTaxPaymentLine[];
   createdByName: string;
   postedAt: string | null;
   version: number;
