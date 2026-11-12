@@ -3,7 +3,7 @@
 - Mô tả: Cổng API cho đối tác (đại lý, nhà bán lại, website và sàn bán hộ, cửa hàng liên kết) và phần mềm khác của chính công ty: cấp khóa API theo công ty và đối tác, phạm vi quyền theo khóa, giới hạn tần suất theo khóa, nhật ký từng lần gọi; API sản phẩm, giá, tồn; API đơn bán; khách hàng do đối tác tạo; tra, tích, đổi điểm tại đối tác.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu, xem trước L1, L2 đạt (2026-11-12); chốt phạm vi ở L1, L2, chờ nghiệm thu; phát hành trong 0.7.0. L3 chuyển CONG_VIEC_66; L4 chuyển CONG_VIEC_67 (MODULE_12).
+- Trạng thái: Đã nghiệm thu lát L1, L2 (người dùng, 2026-11-12); chờ phát hành 0.7.0. L3 chuyển CONG_VIEC_66 (nhận YCAU_NGHIEPVU_168, QUYTAC_NGHIEPVU_494, CHUC_NANG_221, MAN_HINH_227 đến 230, database migration 0131); L4 chuyển CONG_VIEC_67 (MODULE_12, nhận YCAU_NGHIEPVU_169, QUYTAC_NGHIEPVU_495, MAN_HINH_231 đến 233).
 - Mức: Lớn (module mới, đổi phân quyền, thêm điểm tiếp nhận công khai, sửa cấu trúc dữ liệu bán hàng).
 - Nhánh: `chuc-nang/CONG_VIEC_61-mo-rong-kinh-doanh`.
 - Nguồn: tài liệu `01` mục 4 (MODULE_16), `04` mục 8 dòng 12, `05` mục 3 (MODULE_16), `05` mục 5 (phiên bản 6.x), `24` THAY_DOI_04; quyết định của người dùng ngày 2026-11-12 (mục 17).
@@ -121,7 +121,7 @@ Ngoại lệ: khóa bị thu hồi trong lúc đối tác đang gọi thì lần
 | MAN_HINH_226         | Nhật ký gọi API             | Nền tảng                      | Lọc theo khóa, kết quả, khoảng thời gian, đường dẫn; bảng phân trang                                                                         | `ban_mau/MAN_HINH_226_NHAT_KY_GOI_API.html`   |
 | Sửa màn hình đơn bán | Danh sách, chi tiết đơn bán | Bán hàng                      | Nhãn nguồn "Open API" và mã đơn đối tác; lọc theo nguồn; hộp thông tin khóa đã tạo đơn                                                       | `ban_mau/SUA_DON_BAN_OPEN_API.html`           |
 
-MAN_HINH_227 đến MAN_HINH_233 để dành cho L3, L4 nếu cần.
+MAN_HINH_227 đến MAN_HINH_230 chuyển CONG_VIEC_66; MAN_HINH_231 đến MAN_HINH_233 chuyển CONG_VIEC_67.
 
 ## 9. Dữ liệu
 
@@ -132,7 +132,7 @@ MAN_HINH_227 đến MAN_HINH_233 để dành cho L3, L4 nếu cần.
 | 0128 (L1)          | `core.permissions`                                                                               | `platform.api_key.manage` (nhạy cảm), `platform.api_log.view`; gán Quản trị tập đoàn, Quản trị công ty                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | 0129 (L1)          | `core.api_call_logs`                                                                             | `id` (`bigserial`), `api_key_id`, `company_id`, `called_at`, `method`, `path` (≤ 300 ký tự), `status_code`, `error_code`, `duration_ms`, `ip` (`inet`), `request_id`. Chỉ mục (`company_id`, `called_at`), (`api_key_id`, `called_at`). Xóa dòng quá 90 ngày (QUYTAC_NGHIEPVU_488)                                                                                                                                                                                                                                                                                                                                                 |
 | 0130 (L2) | `sales.orders` | Thêm `open_api_key_id` (khóa ngoại `core.api_keys`), `open_api_scope_id` (đối tác của khóa, hoặc chính khóa nội bộ), `partner_order_code` (1 đến 50 ký tự chữ, số, `.`, `_`, `-`). Ba cột cùng có hoặc cùng trống. Chỉ mục duy nhất (`company_id`, `open_api_scope_id`, `partner_order_code`) khi có khóa; người lập (`created_by`) là người cấp khóa |
-| 0131               | Để dành L3 (khách do đối tác tạo: `crm.partners.created_by_api_key_id`, người nhận trên đơn), L4 | Chốt trước khi làm                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 0131 | Chuyển CONG_VIEC_66 | — |
 
 Khóa API, nhật ký thao tác không xóa; nhật ký gọi giữ 90 ngày.
 
@@ -244,7 +244,7 @@ L3, L4: tiêu chí lập khi chốt quy tắc (cần thêm mã).
 - Cập nhật `last_used_at` tối đa một lần mỗi phút mỗi khóa để không ghi cơ sở dữ liệu mỗi lần gọi.
 - Ghi nhật ký gọi không chặn kết quả trả về; lỗi ghi chỉ ghi log máy chủ.
 - Chống tạo trùng đơn dựa trên chỉ mục duy nhất trong cơ sở dữ liệu, bắt lỗi trùng rồi trả đơn cũ.
-- Database migration 0128 đến 0131; ràng buộc kiểm tra dùng chung định nghĩa lại phải gồm mọi giá trị trên `main` mới nhất.
+- Database migration 0128 đến 0130 (0131 chuyển CONG_VIEC_66); ràng buộc kiểm tra dùng chung định nghĩa lại phải gồm mọi giá trị trên `main` mới nhất.
 
 ## 16. Điều kiện đặc biệt, điểm chưa xác minh
 
