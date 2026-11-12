@@ -27,6 +27,7 @@ import {
   type OutgoingResponse,
   type PageResponse,
   type RegisterItem,
+  outgoingDigitalSigningSchema,
 } from "contracts";
 import type { Response } from "express";
 import { z } from "zod";
@@ -42,7 +43,7 @@ import { OfficeFileUpload, OfficeFilesUpload } from "./office-upload";
 type Upload = { buffer: Buffer; size: number; originalname: string };
 
 // Biểu mẫu multipart gửi trường dạng chuỗi: phần dữ liệu đi trong trường "data" (JSON).
-const jsonField = (value: unknown): unknown => {
+export const jsonField = (value: unknown): unknown => {
   if (typeof value !== "string") return value;
   try {
     return JSON.parse(value);
@@ -280,5 +281,19 @@ export class OfficeDocumentsController {
     @Headers("x-company-id") companyId?: string,
   ): Promise<OutgoingResponse> {
     return this.documents.issueOutgoing(await this.actor(request, companyId, "office.document.clerk"), id, file, z.coerce.number().int().min(1).parse(version));
+  }
+
+  // API_248 Ký số công văn đi (CONG_VIEC_59, CHUC_NANG_213): multipart gồm "data" (JSON hạn ký, ghi chú, phiên bản) và tệp "file" (bản PDF đã cấp số, bắt buộc khi công văn soạn bằng tệp).
+  @Post("outgoing/:id/digital-signing")
+  @HttpCode(200)
+  @UseInterceptors(OfficeFileUpload())
+  async digitalSigning(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @UploadedFile() file: Upload | undefined,
+    @Body("data") data: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<OutgoingResponse> {
+    return this.documents.startOutgoingSigning(await this.actor(request, companyId, "office.document.clerk"), id, outgoingDigitalSigningSchema.parse(jsonField(data)), file);
   }
 }

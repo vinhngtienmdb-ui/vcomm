@@ -4,7 +4,7 @@
 - Phiên bản: 1.21
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm luồng 40 (đơn bán dịch vụ lập tay), luồng 41 (giao dịch nội bộ dịch vụ); Luồng 9, 10, 12, 13, 14 bổ sung; đánh dấu Luồng 29 (CONG_VIEC_17) đã bỏ, Luồng 33 (CONG_VIEC_21) đã tắt; CONG_VIEC_50 (2026-11-11): thêm Luồng 49 xem và xuất báo cáo quản trị của MODULE_15; CONG_VIEC_53 (2026-11-11), THAY_DOI_24: thêm luồng 43 (bán, trả hàng, đóng ca tại quầy của MODULE_14 phần 1), trạng thái ca thu ngân; phần điểm tại quầy chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm luồng 44 (cộng đồng: cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, khóa và chặn ví, bảng tin và kiểm duyệt; luồng con 44.1 đến 44.5), trạng thái hồ sơ cộng tác viên, nhóm mua chung, đơn mua chung, bài đăng và bình luận; CONG_VIEC_58 (2026-11-12): thêm Luồng 55 kế hoạch mua theo ngân sách của MODULE_14 phần 3 (lập, duyệt kế hoạch; kiểm tra ngân sách khi lập, gửi duyệt đơn mua; phiếu điều chỉnh), trạng thái kế hoạch ngân sách mua, phiếu điều chỉnh ngân sách; CONG_VIEC_57 (2026-11-12): thêm luồng 53 (đơn VComm nhận tại trạm hoặc trạm giao: đặt đơn có trạm, soạn, sẵn sàng, giao tại trạm, trạm giao, hết hạn giữ, đóng ca, trả hàng tại trạm của MODULE_14 phần 2), trạng thái đơn của trạm (thêm Sẵn sàng nhận); CONG_VIEC_55 (2026-11-11): thêm Luồng 51 cửa hàng liên kết của MODULE_12 phần 1, trạng thái giao dịch liên kết, voucher liên kết, bảng đối soát tuần
+- Thay đổi theo: CONG_VIEC_08 (2026-11-10): thêm luồng của MODULE_05 Bán hàng phần 1 (Luồng 9 đến Luồng 11); CONG_VIEC_09 (2026-11-10): thêm luồng giao dịch nội bộ của MODULE_05 phần 2 (Luồng 12 đến Luồng 15), trạng thái đơn bán, đơn mua đối ứng; CONG_VIEC_12 (2026-11-10): thêm luồng khuyến mãi của MODULE_05 phần 3 (Luồng 16, Luồng 17), trạng thái chương trình khuyến mãi; CONG_VIEC_13 (2026-11-10): thêm luồng công nợ của MODULE_06 phần 1 (Luồng 18 đến Luồng 21), trạng thái phiếu thu, phiếu chi; Luồng 9 bước 4 kiểm hạn mức theo dư nợ thật (QUYTAC_NGHIEPVU_92, THAY_DOI_09); Luồng 15 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm luồng kế toán tổng hợp của MODULE_06 phần 2 (Luồng 22 đến Luồng 25), trạng thái phiếu kế toán, trạng thái kỳ kế toán; CONG_VIEC_15 (2026-11-10): thêm luồng báo cáo tài chính của MODULE_06 phần 3 (Luồng 26); CONG_VIEC_16 (2026-11-10): thêm luồng hóa đơn điện tử của MODULE_06 phần 4 (Luồng 27, Luồng 28), trạng thái hóa đơn điện tử, trạng thái việc chờ xử lý hóa đơn trả hàng; CONG_VIEC_17 (2026-11-10): thêm luồng hoa hồng đội kinh doanh của MODULE_06 phần 5 (Luồng 29), trạng thái bảng hoa hồng; CONG_VIEC_18 (2026-11-10): thêm luồng đối soát ngân hàng của MODULE_06 phần 6 (Luồng 30), trạng thái giao dịch ngân hàng; CONG_VIEC_19 (2026-11-10): thêm luồng đối soát thu hộ của MODULE_06 phần 7 (Luồng 31), trạng thái bảng đối soát thu hộ; CONG_VIEC_20 (2026-11-10): thêm luồng báo cáo tài chính hợp nhất của MODULE_06 phần 8 (Luồng 32), trạng thái bảng hợp nhất; sửa sau rà soát: gửi tính lại và lưu số, đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm luồng giao, chuyển khách hàng cho nhân viên kinh doanh của MODULE_07 phần 2 (Luồng 33), trạng thái phiếu giao khách; CONG_VIEC_23 (2026-11-10): thêm luồng 35 (đăng ký người mua qua giới thiệu, đánh dấu nhân viên kinh doanh); CONG_VIEC_27 (2026-11-10): thêm luồng 36 (xây dựng đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm luồng 37 (đặt hàng trên VComm, giao qua đơn vị vận chuyển, trả hàng, hoàn tất), trạng thái đơn VComm, trạng thái yêu cầu trả hàng; CONG_VIEC_25 (2026-11-11): thêm luồng 38 (thanh toán đơn người mua, hoàn tiền), trạng thái Chờ thanh toán của đơn VComm, trạng thái lần thanh toán, việc hoàn tiền; CONG_VIEC_26 (2026-11-11): thêm luồng 39 (hoa hồng theo đơn, ví hoa hồng, rút tiền), trạng thái hoa hồng của đơn, yêu cầu rút tiền; CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm luồng 40 (đơn bán dịch vụ lập tay), luồng 41 (giao dịch nội bộ dịch vụ); Luồng 9, 10, 12, 13, 14 bổ sung; đánh dấu Luồng 29 (CONG_VIEC_17) đã bỏ, Luồng 33 (CONG_VIEC_21) đã tắt; CONG_VIEC_50 (2026-11-11): thêm Luồng 49 xem và xuất báo cáo quản trị của MODULE_15; CONG_VIEC_53 (2026-11-11), THAY_DOI_24: thêm luồng 43 (bán, trả hàng, đóng ca tại quầy của MODULE_14 phần 1), trạng thái ca thu ngân; phần điểm tại quầy chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm luồng 44 (cộng đồng: cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, khóa và chặn ví, bảng tin và kiểm duyệt; luồng con 44.1 đến 44.5), trạng thái hồ sơ cộng tác viên, nhóm mua chung, đơn mua chung, bài đăng và bình luận; CONG_VIEC_58 (2026-11-12): thêm Luồng 55 kế hoạch mua theo ngân sách của MODULE_14 phần 3 (lập, duyệt kế hoạch; kiểm tra ngân sách khi lập, gửi duyệt đơn mua; phiếu điều chỉnh), trạng thái kế hoạch ngân sách mua, phiếu điều chỉnh ngân sách; CONG_VIEC_57 (2026-11-12): thêm luồng 53 (đơn VComm nhận tại trạm hoặc trạm giao: đặt đơn có trạm, soạn, sẵn sàng, giao tại trạm, trạm giao, hết hạn giữ, đóng ca, trả hàng tại trạm của MODULE_14 phần 2), trạng thái đơn của trạm (thêm Sẵn sàng nhận); CONG_VIEC_55 (2026-11-11): thêm Luồng 51 cửa hàng liên kết của MODULE_12 phần 1, trạng thái giao dịch liên kết, voucher liên kết, bảng đối soát tuần; CONG_VIEC_59 (2026-11-12): thêm Luồng 56 chữ ký số, kho hợp đồng của MODULE_13 phần 2 (luồng con 56a đến 56e: cài đặt, trình ký tài liệu, hợp đồng mua, công văn đi ký số, hợp đồng lao động ký số), trạng thái phiên ký, người ký, hợp đồng, phụ lục hợp đồng
 
 ## MODULE_01 Nền tảng
 
@@ -1164,3 +1164,101 @@ Trạng thái bài đăng, bình luận:
 | Khóa Đang dùng, Hết hạn | Thu hồi | Đã thu hồi |
 | Đơn Open API Nháp | Đối tác hủy | Đã hủy |
 | Đơn Open API Nháp | Nhân viên gửi duyệt | Chờ duyệt hoặc Đã xác nhận (như đơn thường) |
+
+### Luồng 62. Khách hàng do đối tác tạo, giao thẳng người nhận (CONG_VIEC_66)
+
+- Bắt đầu: đối tác có khóa phạm vi `customer.write` gửi khách (API_289).
+- Mã số thuế chưa có (căn cước trùng hồ sơ ngoài phạm vi: `409`): tạo hồ sơ "Do đối tác tạo" và hồ sơ khách ở công ty (nhóm của đối tác, hạn thanh toán 0 ngày). Đã có và dùng được: gắn vào phạm vi, chỉ trả mã. Đã ngừng, là công ty trong tập đoàn hoặc chỉ là nhà cung cấp: `409`, nhân viên xử lý.
+- Đối tác gửi đơn (API_262) kèm `customerCode`, `recipient`: đơn bán Nháp ghi khách đó và người nhận; nhân viên kiểm, gửi duyệt như đơn thường.
+- Phiếu xuất giao hàng hiện người nhận; ghi sổ phiếu xuất lập hóa đơn điện tử và công nợ theo khách trên đơn (luồng hiện có).
+- Ngoại lệ: khách bị nhân viên ngừng dùng thì đơn mới với khách đó bị từ chối; đơn đã tạo giữ nguyên.
+- Sơ đồ: `tai_lieu/cong_viec/CONG_VIEC_66.md` mục 7.
+
+## MODULE_13 Văn phòng số (phần 2: chữ ký số, kho hợp đồng, CONG_VIEC_59)
+
+### Luồng 56. Chữ ký số, trình ký, kho hợp đồng
+
+Nguồn: `tai_lieu/cong_viec/CONG_VIEC_59.md` mục 5, 7, 10.
+
+#### Luồng 56a. Cài đặt
+
+- Bắt đầu: quản trị công ty (`office.signing.manage`) mở "Cài đặt ký số và hợp đồng" (MAN_HINH_217).
+- Các bước:
+  1. Chọn nhà cung cấp ký số (giai đoạn này: Bộ giả lập, chỉ ở môi trường thử), môi trường, nhập thông tin kết nối; kiểm tra kết nối rồi lưu (QUYTAC_NGHIEPVU_454).
+  2. Khai chữ ký số công ty: nhập mã định danh của tổ chức tại nhà cung cấp, hệ thống lấy danh sách chứng thư, chọn một chứng thư có mã số thuế trùng mã số thuế công ty (QUYTAC_NGHIEPVU_456).
+  3. Quản trị tập đoàn thêm chứng thư gốc tin cậy (tải tệp chứng thư) dùng khi kiểm tra chữ ký (QUYTAC_NGHIEPVU_461).
+  4. Mỗi người ký khai tài khoản ký số của mình ở MAN_HINH_210: mã định danh, chọn chứng thư còn hiệu lực (QUYTAC_NGHIEPVU_455).
+- Ngoại lệ: bộ giả lập ở môi trường chính thức bị từ chối; chủ thể chứng thư công ty không trùng mã số thuế thì không lưu; chứng thư hết hạn hoặc chưa đến hiệu lực không chọn được.
+- Kết thúc: công ty có nhà cung cấp, chữ ký số công ty; người ký có tài khoản ký số.
+
+#### Luồng 56b. Trình ký tài liệu
+
+- Bắt đầu: nhân viên (`office.signing.use`) bấm "Trình ký tài liệu" ở MAN_HINH_210.
+- Các bước:
+  1. Tải PDF, nhập tiêu đề, ghi chú, hạn ký; thêm người ký (ví dụ Trưởng phòng thứ tự 1, Giám đốc thứ tự 2, chữ ký công ty thứ tự 3), chọn trang, góc (MAN_HINH_211); lưu nháp (QUYTAC_NGHIEPVU_458).
+  2. Gửi: hệ thống kiểm người ký nội bộ có tài khoản ký số còn hiệu lực, công ty có chữ ký số; phiên sang đang ký; người thứ tự 1 nhận thông báo (QUYTAC_NGHIEPVU_459).
+  3. Trưởng phòng mở MAN_HINH_212, bấm Ký số, xác nhận trên điện thoại; hệ thống hỏi kết quả mỗi 5 giây, nhận chữ ký, chèn vào tệp, lưu bản mới (QUYTAC_NGHIEPVU_457).
+  4. Giám đốc ký tương tự; văn thư (`office.signing.company_seal`) đóng chữ ký công ty.
+  5. Phiên đã ký xong; người lập tải tệp đã ký; phát sự kiện `office.signing.completed`.
+- Ngoại lệ: người ký từ chối trên ứng dụng hoặc quá 5 phút thì lần ký thất bại, ký lại được; người ký bấm Từ chối (lý do) thì phiên bị từ chối; người lập hủy (lý do); qua hạn ký thì hết hạn; phiên bị từ chối, hủy, hết hạn thì sao chép thành phiên mới. Người lập nhắc người đang đến lượt tối đa một lần mỗi ngày; còn 2 ngày đến hạn ký thì hệ thống nhắc.
+- Kết thúc: phiên đã ký xong, bị từ chối, đã hủy hoặc hết hạn.
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| Phiên Nháp | Sửa tệp, người ký | Nháp |
+| Phiên Nháp | Gửi (người ký nội bộ có tài khoản ký số, công ty có chữ ký số khi cần) | Đang ký |
+| Phiên Nháp, Đang ký | Người lập hủy (lý do) | Đã hủy |
+| Phiên Đang ký | Người ký cuối cùng ký xong | Đã ký xong |
+| Phiên Đang ký | Một người ký từ chối (lý do) | Bị từ chối |
+| Phiên Đang ký | Qua hạn ký | Hết hạn |
+| Người ký Chờ | Mọi người thứ tự nhỏ hơn đã ký | Đến lượt |
+| Người ký Đến lượt | Chữ ký nhận về hợp lệ, chèn vào tệp | Đã ký |
+| Người ký Đến lượt | Từ chối ký | Từ chối |
+| Lần ký Đang chờ xác nhận | Nhận chữ ký / người ký từ chối trên ứng dụng / quá 5 phút / lỗi | Đã ký / Từ chối / Quá giờ / Thất bại |
+
+#### Luồng 56c. Hợp đồng mua
+
+- Bắt đầu: nhân viên mua hàng (`office.contract.create`) bấm "Lập hợp đồng" ở MAN_HINH_215.
+- Các bước:
+  1. Lập hợp đồng với nhà cung cấp (từ `crm.partners`), tải tệp nội dung PDF, trình duyệt (QUYTAC_NGHIEPVU_463, 464).
+  2. Duyệt qua luồng duyệt chung loại chứng từ `office.contract`; công ty chưa có chính sách thì trưởng phòng của người phụ trách duyệt một cấp.
+  3. Duyệt xong hợp đồng sang chờ ký; người phụ trách lập phiên ký từ tệp nội dung (chữ ký công ty, đại diện nhà cung cấp).
+  4. Văn thư đóng chữ ký công ty; nhà cung cấp nhận thư, mở đường dẫn (MAN_HINH_213), ký số (QUYTAC_NGHIEPVU_460).
+  5. Phiên ký xong: hợp đồng đã ký, ngày ký là ngày chữ ký cuối, tệp đã ký lưu vào hợp đồng; nhãn Đang hiệu lực theo ngày.
+  6. Còn 30, 7 ngày đến hạn: người phụ trách, người có `office.contract.manage` nhận nhắc (QUYTAC_NGHIEPVU_467).
+  7. Lập phụ lục gia hạn (duyệt, ký hoặc nhập bản đã ký; ngày hết hạn, giá trị của hợp đồng cập nhật) hoặc để hết hạn, thanh lý (ngày, lý do, tệp biên bản) (QUYTAC_NGHIEPVU_465).
+- Ngoại lệ: bị từ chối hoặc người lập rút thì sửa, trình lại; phiên ký bị từ chối, hết hạn thì hợp đồng về chờ ký, lập phiên mới; hủy hợp đồng chờ ký thì hủy cả phiên ký. Hợp đồng ký ngoài hệ thống: "Nhập hợp đồng đã ký" (tệp đã ký, ngày ký) → đã ký ngay, không qua duyệt; tệp có chữ ký số thì lưu kết quả kiểm tra.
+- Kết thúc: hợp đồng đã ký, đã thanh lý, đã chấm dứt hoặc đã hủy.
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| Hợp đồng Nháp, Bị từ chối, Đã rút | Trình (có tệp nội dung) | Chờ duyệt |
+| Hợp đồng Chờ duyệt | Duyệt hết các cấp | Chờ ký |
+| Hợp đồng Chờ duyệt | Từ chối | Bị từ chối |
+| Hợp đồng Chờ duyệt | Người lập rút | Đã rút |
+| Hợp đồng Chờ ký | Phiên ký xong | Đã ký |
+| Hợp đồng Nháp, Bị từ chối, Đã rút, Chờ ký | Hủy (lý do; chờ ký thì hủy cả phiên ký) | Đã hủy |
+| (mới) | Nhập hợp đồng đã ký | Đã ký |
+| Hợp đồng Đã ký | Thanh lý / chấm dứt (ngày, lý do, tệp biên bản) | Đã thanh lý / Đã chấm dứt |
+| Phụ lục Nháp, Bị từ chối, Đã rút | Trình | Chờ duyệt → Chờ ký → Đã ký (như hợp đồng, loại chứng từ `office.contract_appendix`) |
+
+#### Luồng 56d. Công văn đi ký số
+
+- Bắt đầu: công văn đi đã duyệt, văn thư (`office.document.clerk`) đã cấp số (Luồng của CONG_VIEC_52).
+- Các bước:
+  1. Văn thư chọn "Ký số" ở MAN_HINH_158 thay cho phát hành bằng bản quét; hệ thống lập phiên ký từ bản PDF đã cấp số (công văn soạn bằng tệp thì văn thư tải bản PDF đã cấp số): người ký của công văn thứ tự 1, chữ ký công ty thứ tự 2.
+  2. Người ký ký số; văn thư đóng chữ ký công ty.
+  3. Phiên xong: văn thư bấm Phát hành, không cần tải bản quét; bản đã ký là tệp của phiên.
+- Ngoại lệ: phiên đang ký thì chưa phát hành; phiên bị từ chối, hủy, hết hạn thì văn thư chọn lại Ký số hoặc phát hành bằng bản quét như cũ; văn thư nhận thông báo khi phiên kết thúc.
+- Kết thúc: công văn đã phát hành.
+
+#### Luồng 56e. Hợp đồng lao động ký số
+
+- Bắt đầu: hợp đồng lao động hoặc phụ lục đã duyệt (CONG_VIEC_46), người có `hr.contract.manage` chọn "Ký số" ở màn hình hợp đồng lao động của Nhân sự (MAN_HINH_118).
+- Các bước:
+  1. Tải tệp hợp đồng PDF, chọn người ký phía công ty (giám đốc), hạn ký.
+  2. Hệ thống lập phiên ký: giám đốc, rồi người lao động (người dùng trong tập đoàn nếu có tài khoản và tài khoản ký số còn hiệu lực; ngược lại là đối tác bên ngoài với thư điện tử, số định danh cá nhân lấy từ hồ sơ).
+  3. Giám đốc ký; người lao động ký trong hệ thống hoặc qua đường dẫn.
+  4. Phiên xong: Nhân sự nhận sự kiện `office.signing.completed`, lưu tệp đã ký, chuyển hợp đồng sang đã ký như thao tác Ký hiện có (Văn phòng số không ghi vào schema `hr`).
+- Ngoại lệ: đang ký số thì không xác nhận ký thủ công; hủy hợp đồng, phụ lục thì hủy phiên ký; Nhân sự không chuyển được thì báo người lập phiên.
+- Kết thúc: hợp đồng lao động đã ký với tệp đã ký.

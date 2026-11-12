@@ -22,6 +22,8 @@ import { AffiliateVouchersService } from "../affiliate/vouchers.service";
 import { GroupBuysService } from "../marketplace/group-buys.service";
 import { OfficeTasksService } from "../office/office-tasks.service";
 import { OfficePostsService } from "../office/office-posts.service";
+import { OfficeSigningService } from "../office/signing/office-signing.service";
+import { OfficeContractsService } from "../office/contracts/office-contracts.service";
 import { MarketplaceOrdersService } from "../marketplace/marketplace-orders.service";
 import { RetailStationOrdersService } from "../retail/retail-station-orders.service";
 import { SalesCareService } from "../marketplace/sales-care.service";
@@ -81,6 +83,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const apiCallLogs = application.get(ApiCallLogsService);
   const officeTasks = application.get(OfficeTasksService);
   const officePosts = application.get(OfficePostsService);
+  const officeSigning = application.get(OfficeSigningService);
+  const officeContracts = application.get(OfficeContractsService);
   const queue = new Queue(queueName, { connection });
   await queue.upsertJobScheduler("approval-overdue", { every: 15 * 60_000 }, { name: "approval-overdue" });
   await queue.upsertJobScheduler("outbox-dispatch", { every: 10_000 }, { name: "outbox-dispatch" });
@@ -120,6 +124,11 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("office-task-reminders", { every: 15 * 60_000 }, { name: "office-task-reminders" });
   // Tin bảng tin hẹn giờ cần xác nhận đọc: đến giờ thì thông báo (CONG_VIEC_52; QUYTAC_NGHIEPVU_367).
   await queue.upsertJobScheduler("office-post-publish", { every: 60_000 }, { name: "office-post-publish" });
+  // CONG_VIEC_59: lấy kết quả lần ký đang chờ mỗi 5 giây; phiên quá hạn ký, nhắc trước hạn mỗi giờ.
+  await queue.upsertJobScheduler("office-signing-poll", { every: 5_000 }, { name: "office-signing-poll" });
+  await queue.upsertJobScheduler("office-signing-expiry", { every: 60 * 60_000 }, { name: "office-signing-expiry" });
+  // CONG_VIEC_59: nhắc hạn hợp đồng lúc 7 giờ (QUYTAC_NGHIEPVU_467).
+  await queue.upsertJobScheduler("office-contract-reminders", { pattern: "0 7 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "office-contract-reminders" });
   // Hóa đơn điện tử chạy hàng đợi riêng: gọi nhà cung cấp chậm không làm chậm các tác vụ khác.
   const einvoiceQueue = new Queue(einvoiceQueueName, { connection });
   await einvoiceQueue.upsertJobScheduler("einvoice-send", { every: 30_000 }, { name: "einvoice-send" });
@@ -163,6 +172,9 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "open-api-log-purge") return apiCallLogs.purgeExpired(new Date());
       if (job.name === "office-task-reminders") return officeTasks.remindDue();
       if (job.name === "office-post-publish") return officePosts.publishDue();
+      if (job.name === "office-signing-poll") return officeSigning.pollAttempts();
+      if (job.name === "office-signing-expiry") return officeSigning.expireAndRemind();
+      if (job.name === "office-contract-reminders") return officeContracts.remindExpiring();
       return null;
     },
     { connection, concurrency: 1 },
