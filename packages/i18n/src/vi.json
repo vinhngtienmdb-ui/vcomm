@@ -4043,6 +4043,7 @@
     "productShareMessage": "Mời bạn xem {name} trên VComm: {link}",
     "shareProductHint": "Người nhận chưa có tài khoản sẽ đăng ký với mã giới thiệu {code} rồi mở sản phẩm này. Người đã có tài khoản mở thẳng sản phẩm, người giới thiệu của họ không đổi.",
     "shareProductCollaboratorHint": "Đường dẫn có mã cộng tác viên của bạn.",
+    "shareSocialHint": "Dán lên Facebook, Zalo sẽ hiện ảnh, tên, giá sản phẩm.",
     "copyLink": "Sao chép",
     "shareNow": "Chia sẻ",
     "productUnavailable": "Sản phẩm không còn bán.",
@@ -9509,5 +9510,17 @@
     "editType": "Sửa loại hợp đồng",
     "typeSaved": "Đã lưu loại hợp đồng.",
     "partnerEmailRequired": "Cần thư điện tử để gửi đường dẫn ký cho đối tác."
+  },
+  "sharePage": {
+    "priceFrom": "Từ {price}",
+    "outOfStock": "Hết hàng",
+    "store": "Cửa hàng: {name}",
+    "openApp": "Mở ứng dụng VComm",
+    "openWeb": "Xem trên web",
+    "appStore": "Tải trên App Store",
+    "googlePlay": "Tải trên Google Play",
+    "referralHint": "Đăng ký từ đường dẫn này sẽ ghi người giới thiệu {code}.",
+    "unavailable": "Sản phẩm không còn bán.",
+    "viewStore": "Xem cửa hàng VComm"
   }
 }

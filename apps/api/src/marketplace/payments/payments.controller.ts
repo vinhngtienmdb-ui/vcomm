@@ -4,6 +4,7 @@ import { type BuyerPaymentStart, confirmBankTransferSchema, type MarketplaceOrde
 import type { Request, Response } from "express";
 import { clientInfo } from "../../auth/auth.controller";
 import { OwnRateLimit, Public, type AuthenticatedRequest } from "../../auth/auth.guard";
+import { escapeHtml } from "../../common/html";
 import { UuidPipe } from "../../common/uuid.pipe";
 import { BuyerAdminService } from "../buyer-admin.service";
 import { MarketplaceOrdersService } from "../marketplace-orders.service";
@@ -11,7 +12,6 @@ import { BankTransferService } from "./bank-transfer.service";
 import type { GatewayRequest } from "./payment-gateway";
 import { MarketplacePaymentsService } from "./payments.service";
 
-const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (character) => `&#${character.charCodeAt(0)};`);
 const messages = {
   succeeded: "Thanh toán thành công. Đơn hàng đang chờ giao.",
   failed: "Thanh toán không thành công. Bạn có thể thanh toán lại trong thời hạn của đơn.",

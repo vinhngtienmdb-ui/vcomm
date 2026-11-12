@@ -165,6 +165,7 @@ export default function ProductScreen() {
                 <Text style={{ fontWeight: "700", color: colors.text }}>{t("shareProduct")}</Text>
                 <Muted>{t("shareContent")}</Muted>
                 <Notice tone="info" text={shareMessage} />
+                <Muted>{t("shareSocialHint")}</Muted>
                 <Muted>{me?.referralCode ? t("shareProductHint", { code: me.referralCode }) : t("shareProductCollaboratorHint")}</Muted>
                 <View style={{ flexDirection: "row", gap: space[2] }}>
                   <View style={{ flex: 1 }}>

@@ -4043,6 +4043,7 @@
     "productShareMessage": "Check out {name} on VComm: {link}",
     "shareProductHint": "Recipients without an account sign up with referral code {code} and then see this product. Existing customers open the product directly; their referrer does not change.",
     "shareProductCollaboratorHint": "The link carries your collaborator code.",
+    "shareSocialHint": "Paste it on Facebook or Zalo to show the product photo, name and price.",
     "copyLink": "Copy",
     "shareNow": "Share",
     "productUnavailable": "This product is no longer for sale.",
@@ -9509,5 +9510,17 @@
     "editType": "Edit contract type",
     "typeSaved": "Contract type saved.",
     "partnerEmailRequired": "An email is needed to send the signing link to the partner."
+  },
+  "sharePage": {
+    "priceFrom": "From {price}",
+    "outOfStock": "Out of stock",
+    "store": "Store: {name}",
+    "openApp": "Open the VComm app",
+    "openWeb": "View on the web",
+    "appStore": "Download on the App Store",
+    "googlePlay": "Get it on Google Play",
+    "referralHint": "Signing up from this link records {code} as your referrer.",
+    "unavailable": "This product is no longer for sale.",
+    "viewStore": "Visit the VComm store"
   }
 }

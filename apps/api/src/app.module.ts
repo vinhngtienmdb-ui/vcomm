@@ -67,6 +67,8 @@ import { MarketplaceController } from "./marketplace/marketplace.controller";
 import { SalesTeamService } from "./marketplace/sales-team.service";
 import { SalesProposalsService } from "./marketplace/sales-proposals.service";
 import { StoreService } from "./marketplace/store.service";
+import { ShareController } from "./marketplace/share.controller";
+import { ShareService } from "./marketplace/share.service";
 import { ShopController } from "./marketplace/shop.controller";
 import { ShopService } from "./marketplace/shop.service";
 import { MarketplaceOrdersService } from "./marketplace/marketplace-orders.service";
@@ -229,7 +231,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, MerchantPortalController, BuyerAffiliateController, ApiKeysController, OpenApiController, OfficeController, OfficeDocumentsController, OfficePostsController, OfficeSigningController, PublicSigningController, OfficeContractsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, ShareController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, MerchantPortalController, BuyerAffiliateController, ApiKeysController, OpenApiController, OfficeController, OfficeDocumentsController, OfficePostsController, OfficeSigningController, PublicSigningController, OfficeContractsController],
   providers: [
     AuthService,
     ActivationService,
@@ -292,6 +294,7 @@ import { UsersService } from "./users/users.service";
     SalesProposalsService,
     StoreService,
     ShopService,
+    ShareService,
     MarketplaceOrdersService,
     ShipmentsService,
     MarketplacePaymentsService,

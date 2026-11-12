@@ -33,7 +33,8 @@ function Gate() {
       </Screen>
     );
   const onPublic = publicPaths.includes(path);
-  const onReferral = path.startsWith("/r/") || path.startsWith("/p/");
+  // /s/: đường dẫn chia sẻ sản phẩm mở thẳng ứng dụng (CONG_VIEC_68), chuyển tiếp sang /r/, /p/.
+  const onReferral = path.startsWith("/r/") || path.startsWith("/p/") || path.startsWith("/s/");
   if (stage !== "ready" && !onPublic && !onReferral) return <Redirect href="/dang-nhap" />;
   // Mở từ đường dẫn chia sẻ sản phẩm: đăng ký, đăng nhập xong thì mở sản phẩm đó (QUYTAC_NGHIEPVU_434); thay tuyến trong effect vì Redirect ở cổng rơi về trang chủ.
   if (stage === "ready" && onPublic && !heldProduct) return <Redirect href="/trang-chu" />;
