@@ -210,7 +210,7 @@
 - Kết quả: `pnpm --filter api test` 573 đạt / 0 không đạt / 573 (107 tệp); `c57-stations` 4/4 (KICHBAN_KIEMTHU_559 đến 562), `c57-station-orders` 5/5 (563), `c57-station-handover` 5/5 (564 đến 566), `c57-station-delivery` 4/4 (567, 568), `c57-station-hold` 3/3 (569 đến 571), `c57-station-returns` 3/3 (572); giao diện web-retail, web-crm, ứng dụng VComm kiểm bằng ảnh xem trước, người dùng duyệt L1 đến L6; kiểm tra kiểu api, web-crm, web-retail, mobile-vcomm, web-platform đạt; khóa dịch khớp.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_390 đến 401 – Đạt.
 - Kiểm tra bảo mật: không thêm thư viện; mã nhận hàng chỉ người mua thấy, không ghi nhật ký, không gửi Zalo ZNS, không trả cho vận hành sàn (có kiểm thử); sai 5 lần khóa 15 phút; phạm vi chi nhánh, ngoài phạm vi trả 404; CI quét bảo mật đạt.
-- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+- Kết luận cổng kiểm thử: Đạt; người dùng yêu cầu sửa hai giới hạn (thư viện sao chép, bỏ ước lượng đơn cũ, commit `ca93608`), chờ kiểm thử lại và nghiệm thu lại.
 
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_53 (lát L6)
 
