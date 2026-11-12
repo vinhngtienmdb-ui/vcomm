@@ -12,6 +12,13 @@ import {
   type AppLoginResponse,
   type BuyerMeResponse,
   type BuyerReferralItem,
+  type BuyerSalesCustomerDetail,
+  type CareNoteItem,
+  careNoteListQuerySchema,
+  createCareNoteSchema,
+  type FollowUpsResponse,
+  salesRevenueQuerySchema,
+  type SalesRevenueResponse,
   type BuyerSalesCustomerItem,
   type MySalesTeamResponse,
   type BuyerWalletResponse,
@@ -25,6 +32,8 @@ import { clientInfo } from "../auth/auth.controller";
 import { Public, RateLimitGroup, type AuthenticatedRequest } from "../auth/auth.guard";
 import { DATABASE, type Database } from "../database/database.module";
 import { BuyerAccountsService } from "./buyer-accounts.service";
+import { SalesCareService } from "./sales-care.service";
+import { SalesRevenueService } from "./sales-revenue.service";
 import { MarketplaceCommissionsService } from "./commissions.service";
 import { SalesProposalsService } from "./sales-proposals.service";
 import { WithdrawalsService } from "./withdrawals.service";
@@ -33,6 +42,8 @@ import { WithdrawalsService } from "./withdrawals.service";
 export class BuyerController {
   constructor(
     private readonly buyers: BuyerAccountsService,
+    private readonly care: SalesCareService,
+    private readonly revenue: SalesRevenueService,
     private readonly proposals: SalesProposalsService,
     private readonly commissions: MarketplaceCommissionsService,
     private readonly withdrawals: WithdrawalsService,
@@ -114,6 +125,41 @@ export class BuyerController {
   @Get("sales/customers")
   async salesCustomers(@Req() request: AuthenticatedRequest): Promise<BuyerSalesCustomerItem[]> {
     return this.buyers.salesCustomers(request.auth.userId);
+  }
+
+  // API_228: chi tiết khách (CONG_VIEC_22).
+  @Get("sales/customers/:id")
+  async salesCustomerDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<BuyerSalesCustomerDetail> {
+    return this.buyers.salesCustomerDetail(request.auth.userId, id);
+  }
+
+  // API_229: ghi chú chăm sóc của khách (CONG_VIEC_22).
+  @Get("sales/customers/:id/notes")
+  async careNotes(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Query() query: unknown): Promise<{ notes: CareNoteItem[]; hasMore: boolean }> {
+    return this.care.list(request.auth.userId, id, careNoteListQuerySchema.parse(query).page);
+  }
+
+  @Post("sales/customers/:id/notes")
+  async createCareNote(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<CareNoteItem> {
+    return this.care.create(request.auth.userId, id, createCareNoteSchema.parse(body), clientInfo(request));
+  }
+
+  // API_230: hẹn của tôi, đánh dấu đã xong.
+  @Get("sales/follow-ups")
+  async followUps(@Req() request: AuthenticatedRequest): Promise<FollowUpsResponse> {
+    return this.care.followUps(request.auth.userId);
+  }
+
+  @Post("sales/follow-ups/:id/done")
+  @HttpCode(200)
+  async followUpDone(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<CareNoteItem> {
+    return this.care.markDone(request.auth.userId, id, clientInfo(request));
+  }
+
+  // API_231: doanh số tháng của tôi và của nhánh (CONG_VIEC_22).
+  @Get("sales/revenue")
+  async salesRevenue(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<SalesRevenueResponse> {
+    return this.revenue.revenue(request.auth.userId, salesRevenueQuerySchema.parse(query).month);
   }
 
   // API_135: ví hoa hồng của chính người gọi (CONG_VIEC_26).

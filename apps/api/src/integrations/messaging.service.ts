@@ -8,7 +8,8 @@ import { DATABASE, type Database } from "../database/database.module";
 import { type EsmsCredentials, MESSAGE_GATEWAY, type MessageGateway } from "./esms-gateway";
 import { IntegrationSettingsService } from "./integration-settings.service";
 
-export type ZnsEvent = "approval_assigned" | "approval_reminder" | "approval_completed";
+// CONG_VIEC_57: tin của đơn trạm giao hàng O2O (QUYTAC_NGHIEPVU_429).
+export type ZnsEvent = "approval_assigned" | "approval_reminder" | "approval_completed" | "station_order_ready" | "station_hold_reminder" | "station_order_shipping" | "station_order_cancelled";
 
 const maskPhone = (phone: string) => (phone.length > 7 ? `${phone.slice(0, 5)}***${phone.slice(-4)}` : "***");
 
@@ -70,7 +71,7 @@ export class MessagingService {
       const result = await this.gateway.sendZns(credentials, { phone, oaId: values["esms.oa_id"], templateId, data, requestId: randomUUID() });
       await this.record({
         channel: "zns",
-        purpose: `approval.${event.replace("approval_", "")}`,
+        purpose: event.startsWith("approval_") ? `approval.${event.replace("approval_", "")}` : event,
         userId,
         phone,
         templateId,
