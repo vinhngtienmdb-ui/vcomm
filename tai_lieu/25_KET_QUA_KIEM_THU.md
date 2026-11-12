@@ -197,6 +197,19 @@
 - Kiểm tra bảo mật: không thêm thư viện; CI quét bảo mật (gitleaks, `pnpm audit`) đạt.
 - Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_58
+
+- Phạm vi: kế hoạch mua theo ngân sách (MODULE_14 phần 3), nhánh `chuc-nang/CONG_VIEC_58-mua-theo-ngan-sach` (pull request #123, head `1851557`, đã hợp nhất main 0.5.0).
+- Kết quả: toàn bộ kiểm thử API 105 tệp, 561/561 đạt; `c58-budget-plans` 4/4, `c58-open-to-buy` 2/2, `c58-order-budget` 4/4, `c58-budget-adjustments` 2/2 (KICHBAN_KIEMTHU_585 đến 595 đạt; 596 giao diện xem trước từng lát L0 đến L3 đạt); hồi quy c7 7/7, c9 7/7, c43 6/6, c45 6/6; CI (kiểm tra kiểu, lint, kiểm thử, quét bảo mật) đạt.
+- Lỗi mới: không có. Tự rà soát mã và dọn dẹp: đạt.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_22
+
+- Phạm vi: thành phần Kinh doanh trên ứng dụng VComm (THAY_DOI_26, 28), lát L0 đến L4, nhánh `chuc-nang/CONG_VIEC_22-kinh-doanh-vcomm` (pull request #122, commit `f90d6c7`).
+- Kết quả: toàn bộ `pnpm --filter api test` 102 tệp, 556/556 đạt (trên commit có bản sửa rà soát `71720f4`); `c22-kinh-doanh-vcomm` 7/7 (KICHBAN_KIEMTHU_573 đến 579; TIEUCHI_NGHIEMTHU_402 đến 407); `c22-sales-app` 5/5 (KICHBAN_KIEMTHU_290, 291 sửa theo THAY_DOI_26; TIEUCHI_NGHIEMTHU_408 phần API); KICHBAN_KIEMTHU_580 kiểm bằng đọc mã và kiểm tra kiểu; KICHBAN_KIEMTHU_581 (đường dẫn chia sẻ) Playwright trên bản xem trước với API giả lập, đạt; KICHBAN_KIEMTHU_582 (ứng dụng khổ 390) xem trước từng lát, người dùng đồng ý. Hồi quy c49 sau THAY_DOI_28 đạt.
+- Hiệu năng (người dùng yêu cầu đo trước khi nghiệm thu): KICHBAN_KIEMTHU_583 (TIEUCHI_NGHIEMTHU_411) đạt, `c22-hieu-nang.test.ts`, dữ liệu 1.000 khách, 20.000 đơn: danh sách khách 7 ms, chi tiết khách 6 ms, doanh số nhánh 19 ms (giới hạn 1.000 ms; commit `9b2c13a`). TIEUCHI_NGHIEMTHU_402 đến 411 đều đạt.
+- Rà soát độc lập: không có lỗi Nghiêm trọng, Cao; 1 Trung bình, 6 Thấp, đã sửa ở commit `71720f4`.
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_57 (lát L0 đến L6)
 
 - Phạm vi: Trạm giao hàng O2O (MODULE_14 phần 2), nhánh `chuc-nang/CONG_VIEC_57-tram-giao-hang-ngan-sach` (pull request #118, head `9393644`); database migration 0109 đến 0111, API_220 đến 227, MAN_HINH_188 đến 195.
@@ -204,7 +217,8 @@
 - Kết quả: `pnpm --filter api test` 573 đạt / 0 không đạt / 573 (107 tệp); `c57-stations` 4/4 (KICHBAN_KIEMTHU_559 đến 562), `c57-station-orders` 5/5 (563), `c57-station-handover` 5/5 (564 đến 566), `c57-station-delivery` 4/4 (567, 568), `c57-station-hold` 3/3 (569 đến 571), `c57-station-returns` 3/3 (572); giao diện web-retail, web-crm, ứng dụng VComm kiểm bằng ảnh xem trước, người dùng duyệt L1 đến L6; kiểm tra kiểu api, web-crm, web-retail, mobile-vcomm, web-platform đạt; khóa dịch khớp.
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_390 đến 401 – Đạt.
 - Kiểm tra bảo mật: không thêm thư viện; mã nhận hàng chỉ người mua thấy, không ghi nhật ký, không gửi Zalo ZNS, không trả cho vận hành sàn (có kiểm thử); sai 5 lần khóa 15 phút; phạm vi chi nhánh, ngoài phạm vi trả 404; CI quét bảo mật đạt.
-- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+- Sau bản sửa hai giới hạn (thư viện sao chép, bỏ ước lượng đơn cũ, commit `ca93608`): toàn bộ kiểm thử API 103 tệp, 557/557 đạt (gồm KICHBAN_KIEMTHU_583).
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu bản cuối 2026-11-12.
 
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_53 (lát L6)
 
