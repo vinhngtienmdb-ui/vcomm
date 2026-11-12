@@ -100,6 +100,19 @@ async function approvedContract(employeeId: string) {
   return created.body.id as string;
 }
 
+// Nhân sự nhận sự kiện office.signing.completed qua outbox. Các tệp kiểm thử khác chạy song song cũng đẩy outbox (khóa SKIP LOCKED),
+// nên đẩy lại vài lần tới khi hợp đồng chuyển trạng thái.
+async function settledStatus(contractId: string, expected: string): Promise<string> {
+  let status = "";
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    await outbox.dispatchPending();
+    status = (await hrStaff.call("get", `/hr/contracts/${contractId}`, { companyId: retail })).body.status;
+    if (status === expected) break;
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  return status;
+}
+
 const startHrSigning = (contractId: string, data: Record<string, unknown>) =>
   hrStaff
     .call("post", `/hr/contracts/${contractId}/digital-signing`, { companyId: retail })
@@ -257,7 +270,7 @@ describe("CONG_VIEC_59 lát L3: gắn ký số", () => {
     ]);
     await signMyTurn(director, requestId);
     await signMyTurn(worker, requestId);
-    await outbox.dispatchPending();
+    expect(await settledStatus(contractId, "signed")).toBe("signed");
     const contract = (await hrStaff.call("get", `/hr/contracts/${contractId}`, { companyId: retail })).body;
     expect(contract).toMatchObject({ status: "signed", hasSignedFile: true, signDate: expect.any(String) });
     const audit = await pool.query("SELECT 1 FROM core.audit_events WHERE action = 'contract.digital_signed' AND entity_id = $1", [contractId]);
@@ -276,10 +289,14 @@ describe("CONG_VIEC_59 lát L3: gắn ký số", () => {
     expect(request.signers[1]).toMatchObject({ kind: "partner", partner: { name: "Võ Thị Lan", email: "lan.vo@canhan.test", kind: "individual" } });
     await signMyTurn(director, requestId);
     const link = /\/office\/sign\/([A-Za-z0-9_-]+)/.exec([...sentMessages].reverse().find((item) => item.to === "lan.vo@canhan.test")!.body)![1]!;
+    // Trang ký công khai không đăng nhập: số định danh cá nhân chỉ hiện 4 số cuối.
+    const view = await signing.publicView(link);
+    expect(view).toMatchObject({ partnerName: "Võ Thị Lan", partnerIdentity: "•••• 0555", identityCode: "•••• 0555" });
+    expect(JSON.stringify(view)).not.toContain("079096000555");
     await signing.publicSign(link, { ip: null });
     await signing.pollAttempts();
-    await outbox.dispatchPending();
-    expect((await hrStaff.call("get", `/hr/contracts/${contractId}`, { companyId: retail })).body.status).toBe("signed");
+    expect(await settledStatus(contractId, "signed")).toBe("signed");
+    expect(JSON.stringify(await signing.publicStatus(link))).not.toContain("079096000555");
 
     // Hợp đồng khác của người khác: hủy khi đang ký số thì phiên ký bị hủy theo.
     const otherEmployee = await employee("Đặng Văn Minh", "079096000666", { personalEmail: "minh.dang@canhan.test" });

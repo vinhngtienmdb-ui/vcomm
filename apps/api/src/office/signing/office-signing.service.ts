@@ -39,6 +39,9 @@ import type { SigningProvider, SigningProviderConfig } from "./providers/signing
 import { SigningProviderError, SimulatorSigningProvider } from "./providers/simulator-provider";
 
 type Executor = Pick<Database, "execute">;
+
+// Trang ký công khai (không đăng nhập): số định danh cá nhân chỉ hiện 4 số cuối; mã số thuế doanh nghiệp là thông tin công khai nên giữ nguyên.
+const publicIdentity = (kind: "organization" | "individual" | null, value: string) => (kind === "individual" ? `•••• ${value.slice(-4)}` : value);
 export type SigningSource = "document" | "contract" | "contract_appendix" | "outgoing" | "hr_contract" | "hr_contract_appendix";
 // Phiên ký của chứng từ khác (hợp đồng, phụ lục): chứng từ nguồn nhận kết quả trong cùng giao dịch.
 export interface SigningOutcome {
@@ -1266,8 +1269,8 @@ export class OfficeSigningService {
       note: row.note,
       dueOn: row.due_on,
       partnerName: signer.partner_name!,
-      partnerIdentity: signer.partner_identity!,
-      identityCode: signer.partner_identity_code!,
+      partnerIdentity: publicIdentity(signer.partner_kind, signer.partner_identity!),
+      identityCode: publicIdentity(signer.partner_kind, signer.partner_identity_code!),
       state: attempt?.status === "pending" ? "awaiting_confirmation" : "ready",
       attemptExpiresAt: attempt?.status === "pending" ? new Date(new Date(attempt.started_at).getTime() + signingAttemptTimeoutMilliseconds).toISOString() : null,
       lastFailure: attempt && attempt.status !== "pending" && attempt.status !== "signed" ? attempt.message : null,
@@ -1285,10 +1288,11 @@ export class OfficeSigningService {
         company_name: string;
         due_on: string;
         partner_name: string;
+        partner_kind: SignerRow["partner_kind"];
         partner_identity: string;
         partner_identity_code: string;
       }>(sql`
-        SELECT s.status, r.status AS request_status, r.title, c.short_name AS company_name, r.due_on::text AS due_on, s.partner_name, s.partner_identity, s.partner_identity_code
+        SELECT s.status, r.status AS request_status, r.title, c.short_name AS company_name, r.due_on::text AS due_on, s.partner_name, s.partner_kind, s.partner_identity, s.partner_identity_code
         FROM office.signing_signers s JOIN office.signing_requests r ON r.id = s.request_id JOIN core.companies c ON c.id = r.company_id
         WHERE s.link_token_hash = ${tokenHash(token)}`)
     ).rows[0];
@@ -1301,8 +1305,8 @@ export class OfficeSigningService {
       note: null,
       dueOn: found.due_on,
       partnerName: found.partner_name,
-      partnerIdentity: found.partner_identity,
-      identityCode: found.partner_identity_code,
+      partnerIdentity: publicIdentity(found.partner_kind, found.partner_identity),
+      identityCode: publicIdentity(found.partner_kind, found.partner_identity_code),
       state: found.status,
       attemptExpiresAt: null,
       lastFailure: null,
