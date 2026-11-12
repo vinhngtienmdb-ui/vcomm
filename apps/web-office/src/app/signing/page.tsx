@@ -9,7 +9,7 @@ import { useState } from "react";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { formatDate } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
-import { MyIdentityCard, SigningStatusBadge } from "@/components/SigningParts";
+import { MyIdentityCard, SigningSource, SigningStatusBadge } from "@/components/SigningParts";
 
 export default function SigningPage() {
   const t = useTranslations("officeSigning");
@@ -78,7 +78,14 @@ export default function SigningPage() {
                         <Link href={`/signing/${item.id}`}>{item.requestNo}</Link>
                       </td>
                       <td data-nhan={headings[1]}>
-                        <Link href={`/signing/${item.id}`}>{item.title}</Link>
+                        <span>
+                          <Link href={`/signing/${item.id}`} style={{ whiteSpace: "normal" }}>
+                            {item.title}
+                          </Link>
+                          <span className="chu-thich" style={{ display: "block" }}>
+                            <SigningSource sourceType={item.sourceType} sourceId={item.sourceId} />
+                          </span>
+                        </span>
                       </td>
                       <td data-nhan={headings[2]}>
                         <span>{item.createdBy.fullName}</span>

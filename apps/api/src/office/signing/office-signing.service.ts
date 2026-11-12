@@ -39,7 +39,7 @@ import type { SigningProvider, SigningProviderConfig } from "./providers/signing
 import { SigningProviderError, SimulatorSigningProvider } from "./providers/simulator-provider";
 
 type Executor = Pick<Database, "execute">;
-export type SigningSource = "document" | "contract" | "contract_appendix";
+export type SigningSource = "document" | "contract" | "contract_appendix" | "outgoing" | "hr_contract" | "hr_contract_appendix";
 // Phiên ký của chứng từ khác (hợp đồng, phụ lục): chứng từ nguồn nhận kết quả trong cùng giao dịch.
 export interface SigningOutcome {
   requestId: string;
@@ -503,6 +503,48 @@ export class OfficeSigningService {
     if (row.status !== "draft" && row.status !== "signing") return;
     await this.end(executor, row, "cancelled", reason);
     await this.event(executor, requestId, actorUserId, "cancelled", { reason });
+  }
+
+  // Người dùng có tài khoản ký số còn hiệu lực ở công ty (để chọn ký trong hệ thống hay ký qua đường dẫn).
+  async readyUserIds(companyId: string, userIds: string[]): Promise<Set<string>> {
+    if (userIds.length === 0) return new Set();
+    const now = this.clock.now().toISOString();
+    const rows = await this.database.execute<{ user_id: string }>(sql`
+      SELECT user_id FROM office.signing_identities WHERE company_id = ${companyId} AND status = 'active' AND valid_from <= ${now} AND valid_to >= ${now}
+        AND user_id IN (${sql.join(
+          userIds.map((userId) => sql`${userId}::uuid`),
+          sql`, `,
+        )})`);
+    return new Set(rows.rows.map((row) => row.user_id));
+  }
+
+  // Phiên ký gần nhất của chứng từ nguồn (công văn đi, hợp đồng lao động…) để hiện tiến trình.
+  async latestForSource(
+    executor: Executor,
+    companyId: string,
+    sourceType: SigningSource,
+    sourceId: string,
+  ): Promise<{ id: string; requestNo: string; status: SigningRequestStatus; endReason: string | null } | null> {
+    const row = (
+      await executor.execute<{ id: string; request_no: string; status: SigningRequestStatus; end_reason: string | null }>(sql`
+      SELECT id, request_no, status, end_reason FROM office.signing_requests WHERE company_id = ${companyId} AND source_type = ${sourceType} AND source_id = ${sourceId}
+      ORDER BY created_at DESC LIMIT 1`)
+    ).rows[0];
+    return row ? { id: row.id, requestNo: row.request_no, status: row.status, endReason: row.end_reason } : null;
+  }
+
+  // Bản đã ký của phiên đã xong (chứng từ nguồn lưu lại hoặc phát hành); ngày ký là ngày xong theo giờ Việt Nam.
+  async completedResult(
+    requestId: string,
+  ): Promise<{ companyId: string; sourceType: SigningSource; sourceId: string | null; createdBy: string; signedOn: string; fileName: string; content: Buffer } | null> {
+    const row = (
+      await this.database.execute<{ company_id: string; source_type: SigningSource; source_id: string | null; created_by: string; signed_on: string; current_file_id: string | null }>(sql`
+      SELECT company_id, source_type, source_id, created_by, (completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS signed_on, current_file_id
+      FROM office.signing_requests WHERE id = ${requestId} AND status = 'completed'`)
+    ).rows[0];
+    if (!row?.current_file_id) return null;
+    const file = await this.readFile(row.current_file_id);
+    return { companyId: row.company_id, sourceType: row.source_type, sourceId: row.source_id, createdBy: row.created_by, signedOn: row.signed_on, ...file };
   }
 
   // ---------- Phiên ký (API_243; QUYTAC_NGHIEPVU_458, 459) ----------

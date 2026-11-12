@@ -1,7 +1,8 @@
 "use client";
 
 // Phần dùng chung của ký số (CONG_VIEC_59): nhãn trạng thái, xem PDF, tài khoản ký số của tôi.
-import type { MySigningIdentity, SigningCertificateOption, SigningRequestStatus, SigningSignerStatus } from "contracts";
+import type { MySigningIdentity, SigningCertificateOption, SigningRequestStatus, SigningSignerStatus, SigningSourceType } from "contracts";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
@@ -207,4 +208,15 @@ export function CertificateDrawer({
       </div>
     </Drawer>
   );
+}
+
+// Nguồn của phiên ký (MAN_HINH_210, 212): tài liệu tải lên, hợp đồng trong kho, công văn đi, hợp đồng lao động; mở chứng từ nguồn khi có trang.
+export function SigningSource({ sourceType, sourceId, link = false }: { sourceType: SigningSourceType; sourceId: string | null; link?: boolean }) {
+  const t = useTranslations("officeSigning");
+  const label = t(`source_${sourceType}`);
+  if (!link || !sourceId) return <>{label}</>;
+  if (sourceType === "contract") return <Link href={`/contracts/${sourceId}`}>{label}</Link>;
+  if (sourceType === "outgoing") return <Link href={`/outgoing/${sourceId}`}>{label}</Link>;
+  if (sourceType === "hr_contract") return <a href={`/hr/contracts/${sourceId}`}>{label}</a>;
+  return <>{label}</>;
 }

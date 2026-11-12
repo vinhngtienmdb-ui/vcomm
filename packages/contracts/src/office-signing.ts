@@ -78,7 +78,7 @@ export interface SigningRequestListItem {
   id: string;
   requestNo: string;
   title: string;
-  sourceType: "document" | "contract" | "contract_appendix";
+  sourceType: SigningSourceType;
   sourceId: string | null;
   status: SigningRequestStatus;
   dueOn: string;
@@ -237,3 +237,46 @@ export interface PublicSigningView {
   lastFailure: string | null;
 }
 export const publicSigningRejectSchema = z.object({ reason: z.string().trim().min(1).max(1000) }).strict();
+
+// ---------- CONG_VIEC_59 lát L3 (CHUC_NANG_213; API_248): ký số công văn đi, hợp đồng lao động ----------
+
+export const signingSourceTypes = ["document", "contract", "contract_appendix", "outgoing", "hr_contract", "hr_contract_appendix"] as const;
+export type SigningSourceType = (typeof signingSourceTypes)[number];
+
+// Công văn đi: văn thư lập phiên ký từ bản đã cấp số (công văn soạn bằng tệp thì tải bản PDF đã cấp số).
+export const outgoingDigitalSigningSchema = z
+  .object({
+    dueOn: isoDate,
+    note: z.string().trim().max(2000).nullish(),
+    version: z.number().int().min(1),
+  })
+  .strict();
+export type OutgoingDigitalSigningInput = z.infer<typeof outgoingDigitalSigningSchema>;
+
+// Hợp đồng lao động, phụ lục: người ký phía công ty, người lao động (trong hệ thống hoặc qua đường dẫn).
+export const hrDigitalSigningSchema = z
+  .object({
+    companySignerUserId: z.uuid(),
+    dueOn: isoDate,
+    note: z.string().trim().max(2000).nullish(),
+    employeeEmail: z.email().max(254).nullish(),
+  })
+  .strict();
+export type HrDigitalSigningInput = z.infer<typeof hrDigitalSigningSchema>;
+
+export interface DigitalSigningProgress {
+  id: string;
+  requestNo: string;
+  status: SigningRequestStatus;
+  endReason: string | null;
+}
+
+export interface HrDigitalSigningInfo {
+  // Người lao động ký trong hệ thống khi có tài khoản và tài khoản ký số còn hiệu lực, ngược lại ký qua đường dẫn gửi thư điện tử.
+  employeeSignsAs: "user" | "partner";
+  employeeName: string;
+  employeeEmail: string | null;
+  identityLast4: string | null;
+  signing: DigitalSigningProgress | null;
+  canStart: boolean;
+}

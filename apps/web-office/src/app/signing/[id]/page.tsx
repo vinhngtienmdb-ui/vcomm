@@ -13,7 +13,7 @@ import { Loaded } from "ui/components/StatusViews";
 import { apiDownload, apiFetch } from "ui/lib/api";
 import { formatDate, formatDateTime } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
-import { PdfFrame, SignerStatusBadge, SigningStatusBadge } from "@/components/SigningParts";
+import { PdfFrame, SignerStatusBadge, SigningSource, SigningStatusBadge } from "@/components/SigningParts";
 import { personLabel } from "@/components/PersonPicker";
 
 export default function SigningDetailPage() {
@@ -130,6 +130,10 @@ function SigningDetail({ request, onChanged }: { request: SigningRequestResponse
       {request.status === "expired" && <div className="khoi-canh-bao canh-bao">{t("expiredNote")}</div>}
       <div className="the">
         <dl className="thong-tin-dong">
+          <dt>{t("source")}</dt>
+          <dd>
+            <SigningSource sourceType={request.sourceType} sourceId={request.sourceId} link />
+          </dd>
           <dt>{t("createdBy")}</dt>
           <dd>
             {personLabel(request.createdBy)} · {formatDateTime(request.createdAt)}

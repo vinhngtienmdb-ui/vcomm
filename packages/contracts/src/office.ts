@@ -570,7 +570,9 @@ export interface OutgoingResponse extends OutgoingListItem {
   signedFiles: OfficeFileItem[];
   // Ký hiệu dự kiến nếu cấp số bây giờ (văn thư).
   expectedSymbol: string | null;
-  allowedActions: ("edit" | "submit" | "withdraw" | "cancel" | "decide" | "number" | "issue" | "upload_draft")[];
+  // Ký số (CONG_VIEC_59, CHUC_NANG_213): phiên ký gần nhất lập từ bản đã cấp số.
+  signing: { id: string; requestNo: string; status: "draft" | "signing" | "completed" | "rejected" | "cancelled" | "expired"; endReason: string | null } | null;
+  allowedActions: ("edit" | "submit" | "withdraw" | "cancel" | "decide" | "number" | "issue" | "upload_draft" | "digital_sign")[];
   version: number;
 }
 
