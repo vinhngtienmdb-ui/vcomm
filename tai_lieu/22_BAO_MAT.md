@@ -853,7 +853,7 @@ Ranh giới và kiểm soát riêng:
 
 ### Ma trận phân quyền trạm giao hàng O2O MODULE_14 phần 2 (CONG_VIEC_57)
 
-Quyền mới: `retail.o2o`, `retail.o2o.deliver` (không nhạy cảm); vai trò mới Nhân viên giao hàng trạm (`station_courier`); Thu ngân thêm `retail.o2o`, Cửa hàng trưởng, Quản trị công ty thêm hai quyền (tài liệu `08` mục 50, 51).
+Quyền mới: `retail.o2o`, `retail.o2o.deliver` (không nhạy cảm); vai trò mới Nhân viên giao hàng trạm (`station_courier`); Thu ngân thêm `retail.o2o`, Cửa hàng trưởng, Quản trị công ty thêm hai quyền (tài liệu `08` mục 52, 53).
 
 | Chức năng | Quản trị tập đoàn, Quản trị công ty | Cửa hàng trưởng | Thu ngân | Nhân viên giao hàng trạm | Nhân viên vận hành sàn | Chỉ dữ liệu của chính mình |
 |---|---|---|---|---|---|---|
