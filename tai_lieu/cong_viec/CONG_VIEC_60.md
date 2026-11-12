@@ -23,7 +23,7 @@ Trong phạm vi:
 - Báo cáo liên minh (chi phí, công nợ theo công ty) và báo cáo gian lận.
 
 Ngoài phạm vi:
-- Đối tác liên minh ngoài tập đoàn (đổi điểm hai chiều qua API đối tác, đối tác mua điểm tặng khách): người dùng tách thành công việc riêng ngày 2026-11-12, đã đề nghị phiên cha ghi sổ.
+- Đối tác liên minh ngoài tập đoàn (đổi điểm hai chiều qua API đối tác, đối tác mua điểm tặng khách): người dùng tách thành CONG_VIEC_65 ngày 2026-11-12.
 - Cửa hàng liên kết ngoài tập đoàn (CONG_VIEC_55, đối soát tuần riêng).
 - Mỗi công ty con phát hành loại điểm riêng, tỷ giá điểm giữa công ty (người dùng chọn giữ một điểm chung).
 - Kiểu chia chi phí theo từng công ty hoặc từng cặp công ty.
@@ -190,7 +190,7 @@ Cảnh báo bất thường cơ bản (QUYTAC_NGHIEPVU_354), hạch toán kiểu
 1. Giữ một loại điểm chung toàn tập đoàn do công ty vận hành sàn phát hành; không có tỷ giá điểm giữa công ty.
 2. Chi phí khi tích ở A, dùng ở B: cài đặt một trong ba kiểu cho cả tập đoàn (nơi tích chịu, nơi dùng chịu, công ty vận hành sàn chịu).
 3. Đối soát nội bộ hằng tháng, hai bên xác nhận, bù trừ 1368/3368, phần còn lại thanh toán bằng phiếu thu, phiếu chi.
-4. Đối tác liên minh ngoài tập đoàn (đổi điểm hai chiều qua API đối tác; đối tác mua điểm tặng khách, trả trước hoặc trả sau theo hợp đồng): tách thành công việc riêng.
+4. Đối tác liên minh ngoài tập đoàn (đổi điểm hai chiều qua API đối tác; đối tác mua điểm tặng khách, trả trước hoặc trả sau theo hợp đồng): tách thành CONG_VIEC_65.
 5. Nhận biết thiết bị bằng mã cài đặt ứng dụng, không thêm thư viện.
 6. Chống gian lận nâng cao bốn quy tắc: số tài khoản trên thiết bị, đổi điểm dồn dập, tích rồi trả hàng lặp lại, bất thường theo nhân viên; mức xử lý cấu hình được từng quy tắc (cảnh báo, chặn giao dịch, chặn và khóa ví).
 
