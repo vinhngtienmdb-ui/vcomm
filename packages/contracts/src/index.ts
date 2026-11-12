@@ -2354,6 +2354,9 @@ export interface PurchaseOrderResponse extends PurchaseOrderListItem {
   convertedTotal: string | null;
   // Đã có phiếu nhập: không đổi tiền tệ, không bỏ đánh dấu nhập khẩu.
   currencyLocked: boolean;
+  // CONG_VIEC_58 (QUYTAC_NGHIEPVU_451, 452): kiểm tra ngân sách theo dòng hiện tại; ảnh chụp ô vượt lúc gửi duyệt.
+  budgetCheck: import("./purchasing-budgets").BudgetCheckResponse | null;
+  budgetSnapshot: import("./purchasing-budgets").BudgetCheckCell[] | null;
   lines: PurchaseOrderLineResponse[];
   receipts: { id: string; documentNo: string | null; type: "purchase_receipt" | "purchase_return"; status: string; documentDate: string }[];
   version: number;
@@ -7484,3 +7487,4 @@ export interface LoyaltyAlertResponse {
   kind: LoyaltyAlertKind;
   items: LoyaltyAlertItem[];
 }
+export * from "./purchasing-budgets";

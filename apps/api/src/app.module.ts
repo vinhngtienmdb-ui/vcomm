@@ -92,6 +92,7 @@ import { PurchasingImportsController } from "./purchasing/imports.controller";
 import { ImportDeclarationsService } from "./purchasing/import-declarations.service";
 import { LandedCostsService } from "./purchasing/landed-costs.service";
 import { CostAdjustmentsService } from "./inventory/cost-adjustments.service";
+import { PurchasingBudgetsController } from "./purchasing/budgets.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
 import { InternalTradeService } from "./sales/internal-trade.service";
@@ -161,6 +162,8 @@ import { EinvoicesService } from "./einvoice/einvoices.service";
 import { SupplierPricesService } from "./purchasing/supplier-prices.service";
 import { RequisitionsService } from "./purchasing/requisitions.service";
 import { PurchaseOrdersService } from "./purchasing/orders.service";
+import { BudgetPlansService } from "./purchasing/budgets.service";
+import { BudgetAdjustmentsService } from "./purchasing/budget-adjustments.service";
 import { ReservationsService } from "./inventory/reservations.service";
 import { StockDocumentsService } from "./inventory/stock-documents.service";
 import { StockLedgerService } from "./inventory/stock-ledger.service";
@@ -190,7 +193,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController],
   providers: [
     AuthService,
     ActivationService,
@@ -298,6 +301,8 @@ import { UsersService } from "./users/users.service";
     OverviewService,
     RequisitionsService,
     PurchaseOrdersService,
+    BudgetPlansService,
+    BudgetAdjustmentsService,
     StockLedgerService,
     ReservationsService,
     StockService,

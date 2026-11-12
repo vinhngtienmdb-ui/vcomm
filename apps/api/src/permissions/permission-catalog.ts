@@ -104,6 +104,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   // CONG_VIEC_45: tờ khai, chi phí nhập khẩu.
   { code: "purchasing.import.view", appCode: "purchasing", nameVi: "Xem tờ khai, chi phí nhập khẩu", nameEn: "View import declarations and landed costs", isSensitive: false },
   { code: "purchasing.import.manage", appCode: "purchasing", nameVi: "Lập, ghi sổ tờ khai, chi phí nhập khẩu", nameEn: "Manage import declarations and landed costs", isSensitive: false },
+  // CONG_VIEC_58 (QUYTAC_NGHIEPVU_453).
+  { code: "purchasing.budget.view", appCode: "purchasing", nameVi: "Xem ngân sách mua", nameEn: "View purchase budgets", isSensitive: false },
+  { code: "purchasing.budget.manage", appCode: "purchasing", nameVi: "Lập, điều chỉnh ngân sách mua", nameEn: "Manage purchase budgets", isSensitive: false },
   // CONG_VIEC_08: Bán hàng (MODULE_05, phần 1).
   { code: "sales.order.view", appCode: "sales", nameVi: "Xem đơn bán", nameEn: "View sales orders", isSensitive: false },
   { code: "sales.order.manage", appCode: "sales", nameVi: "Lập, sửa, gửi, hủy, đóng đơn bán", nameEn: "Manage sales orders", isSensitive: false },
@@ -213,6 +216,8 @@ const companyAdminPermissions = [
   "purchasing.settings.manage",
   "purchasing.import.view",
   "purchasing.import.manage",
+  "purchasing.budget.view",
+  "purchasing.budget.manage",
   "sales.order.view",
   "sales.order.manage",
   "sales.settings.manage",
@@ -296,6 +301,7 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
       "purchasing.order.manage",
       "purchasing.import.view",
       "purchasing.import.manage",
+      "purchasing.budget.view",
       "crm.access",
       "crm.partner.view",
       "crm.partner.manage",
@@ -445,6 +451,10 @@ export const documentTypeCatalog = [
   { code: "purchasing.order", appCode: "purchasing", nameVi: "Đơn mua", nameEn: "Purchase order", requiresApproval: true },
   // CONG_VIEC_45: chứng từ chi phí nhập khẩu có hóa đơn gốc, không đi luồng duyệt; chỉ dùng dãy số.
   { code: "purchasing.landed_cost", appCode: "purchasing", nameVi: "Chứng từ chi phí nhập khẩu", nameEn: "Landed cost", requiresApproval: false },
+  // CONG_VIEC_58 (QUYTAC_NGHIEPVU_445, 448, 452).
+  { code: "purchasing.budget_plan", appCode: "purchasing", nameVi: "Kế hoạch ngân sách mua", nameEn: "Purchase budget plan", requiresApproval: true },
+  { code: "purchasing.budget_adjustment", appCode: "purchasing", nameVi: "Điều chỉnh ngân sách mua", nameEn: "Purchase budget adjustment", requiresApproval: true },
+  { code: "purchasing.order_over_budget", appCode: "purchasing", nameVi: "Đơn mua vượt ngân sách", nameEn: "Over-budget purchase order", requiresApproval: true },
   { code: "sales.order", appCode: "sales", nameVi: "Đơn bán", nameEn: "Sales order", requiresApproval: true },
   { code: "sales.promotion", appCode: "sales", nameVi: "Chương trình khuyến mãi", nameEn: "Promotion", requiresApproval: true },
   { code: "inventory.sales_issue", appCode: "inventory", nameVi: "Phiếu xuất giao hàng", nameEn: "Sales delivery", requiresApproval: false },

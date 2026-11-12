@@ -1,10 +1,10 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
-- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng), phần 7 (Đối soát thu hộ), phần 8 (Báo cáo tài chính hợp nhất), MODULE_07 phần 2 (Gán khách hàng cho nhân viên kinh doanh), MODULE_15 phần 1 (Báo cáo quản trị), MODULE_10 phần 1 (Cộng đồng): đúng, sai, giá trị biên, từng vai trò.
-- Phiên bản: 1.8
-- Ngày cập nhật: 2026-11-11
+- Mô tả: Kịch bản kiểm thử cho từng tiêu chí nghiệm thu của MODULE_01 Nền tảng, MODULE_02 phần Sản phẩm, MODULE_03 Kho phần web, MODULE_07 Khách hàng và Đối tác phần tối thiểu, MODULE_04 Mua hàng phần 1, MODULE_05 Bán hàng phần 1, phần 2 (Giao dịch nội bộ), phần 3 (Khuyến mãi), MODULE_06 Tài chính – Kế toán phần 1 (Công nợ), phần 2 (Kế toán tổng hợp), phần 3 (Báo cáo tài chính), phần 4 (Hóa đơn điện tử), phần 5 (Hoa hồng đội kinh doanh), phần 6 (Đối soát ngân hàng), phần 7 (Đối soát thu hộ), phần 8 (Báo cáo tài chính hợp nhất), MODULE_07 phần 2 (Gán khách hàng cho nhân viên kinh doanh), MODULE_15 phần 1 (Báo cáo quản trị), MODULE_10 phần 1 (Cộng đồng), MODULE_14 phần 3 (Kế hoạch mua theo ngân sách): đúng, sai, giá trị biên, từng vai trò.
+- Phiên bản: 1.9
+- Ngày cập nhật: 2026-11-12
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt; CONG_VIEC_50 (2026-11-11): thêm KICHBAN_KIEMTHU_476 đến KICHBAN_KIEMTHU_485 của MODULE_15 (báo cáo quản trị; 476 đến 483 tự động; 484, 485 tự động một phần: cắt 500 dòng, xuất Excel tồn kho, công nợ, đo thời gian phản hồi chưa có kiểm thử tự động); CONG_VIEC_53 (2026-11-11): thêm KICHBAN_KIEMTHU_510 đến KICHBAN_KIEMTHU_521 của MODULE_14 (bán lẻ tại quầy phần 1); KICHBAN_KIEMTHU_519 chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm KICHBAN_KIEMTHU_464 đến KICHBAN_KIEMTHU_475 (cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, kiểm duyệt; tự động), KICHBAN_KIEMTHU_532 (chặn ví hoa hồng; tự động)
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt; CONG_VIEC_50 (2026-11-11): thêm KICHBAN_KIEMTHU_476 đến KICHBAN_KIEMTHU_485 của MODULE_15 (báo cáo quản trị; 476 đến 483 tự động; 484, 485 tự động một phần: cắt 500 dòng, xuất Excel tồn kho, công nợ, đo thời gian phản hồi chưa có kiểm thử tự động); CONG_VIEC_53 (2026-11-11): thêm KICHBAN_KIEMTHU_510 đến KICHBAN_KIEMTHU_521 của MODULE_14 (bán lẻ tại quầy phần 1); KICHBAN_KIEMTHU_519 chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm KICHBAN_KIEMTHU_464 đến KICHBAN_KIEMTHU_475 (cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, kiểm duyệt; tự động), KICHBAN_KIEMTHU_532 (chặn ví hoa hồng; tự động); CONG_VIEC_58 (2026-11-12): thêm KICHBAN_KIEMTHU_585 đến KICHBAN_KIEMTHU_596 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách; KICHBAN_KIEMTHU_585 đến 594 tự động, 595 chạy lại kiểm thử có sẵn, 596 giao diện thủ công); KICHBAN_KIEMTHU_592 theo quy tắc đơn chờ duyệt không giữ chỗ ngân sách
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -4865,3 +4865,139 @@ Dữ liệu chung: công ty VCR đã khởi tạo kế toán Thông tư 99; tỷ
 - Kết quả mong đợi: `404` theo công ty mình, `403` khi chọn công ty không thuộc; danh sách rỗng; Thủ kho `403`.
 - Kiểm thử tự động: Tự động API (KICHBAN_KIEMTHU_429, 432 kiểm thêm Thủ kho)
 - Lát: L1, L2
+
+## CHUC_NANG_207 đến CHUC_NANG_209: Kế hoạch mua theo ngân sách (MODULE_14 phần 3, CONG_VIEC_58)
+
+Dữ liệu chung: công ty VCR (đồng tiền đồng Việt Nam) và VCT; ngành hàng tạo trong từng tệp kiểm thử (cấp 1, cấp 2, cấp 3), kho của VCR và VCT; trưởng phòng mua hàng là người dùng có vai trò tự tạo gồm `purchasing.access`, `purchasing.budget.view`, `purchasing.budget.manage`; người duyệt `phuc.le@vcomm.test`. Kế hoạch đã duyệt ở KICHBAN_KIEMTHU_588 đến 593 ghi thẳng vào cơ sở dữ liệu (luồng duyệt kế hoạch đã thử ở KICHBAN_KIEMTHU_586). Mỗi tệp kiểm thử chạy với PostgreSQL thật.
+
+### KICHBAN_KIEMTHU_585: Lập, sửa kế hoạch; kỳ, số âm, ngành hàng cấp 2, kho công ty khác bị từ chối đúng ô
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_412
+- Chức năng: CHUC_NANG_207
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Trưởng phòng mua hàng VCR
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; ngành hàng cấp 1 Thực phẩm, Đồ uống, ngành hàng cấp 2 thuộc Thực phẩm; kho A, B của VCR, kho C của VCT.
+- Các bước: (1) Gọi API_235 lập kế hoạch 10/2026 đến 12/2026, 2 ngành hàng × 2 kho × 3 tháng, mỗi ô 100.000.000. (2) Sửa còn một ô 250.000.000,5. (3) Sửa lại với `version` cũ. (4) Lập kỳ 01/2026 đến 01/2027; kỳ 05/2026 đến 04/2026. (5) Lập với ô số âm. (6) Lập với ô ngành hàng cấp 2, ô kho của VCT, ô tháng ngoài kỳ, hai ô trùng.
+- Kết quả mong đợi: Bước 1: `201`, Nháp, chưa có số, 12 ô, tổng 1.200.000.000, `canSubmit` đúng. Bước 2: `200`, tổng 250.000.000,5, điều chỉnh 0. Bước 3: `409`. Bước 4: `400` tại `toMonth` "Đến tháng phải từ từ tháng trở đi; kỳ kế hoạch tối đa 12 tháng.". Bước 5: `400`. Bước 6: `400` tại đúng từng ô: ngành hàng cấp 2 "Chỉ lập ngân sách cho ngành hàng cấp 1 đang dùng.", kho VCT "Giá trị không hợp lệ.", tháng ngoài kỳ "Tháng nằm ngoài kỳ kế hoạch.", ô trùng "Ô ngân sách bị trùng (cùng ngành hàng, kho, tháng).".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c58-budget-plans.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_586: Gửi duyệt kế hoạch: chưa có chính sách, chờ duyệt, từ chối, rút, duyệt
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_413
+- Chức năng: CHUC_NANG_207
+- Loại: Đúng, sai, luồng duyệt
+- Vai trò thực hiện: Trưởng phòng mua hàng VCR; người duyệt `phuc.le@vcomm.test`; quản trị công ty VCR (lập chính sách)
+- Điều kiện ban đầu và dữ liệu: Kế hoạch 01/2027 đến 03/2027 một ô 500.000.000; kế hoạch rỗng; chưa có chính sách duyệt `purchasing.budget_plan`.
+- Các bước: (1) Gửi duyệt kế hoạch rỗng. (2) Gửi kế hoạch có ô khi chưa có chính sách. (3) Quản trị lập chính sách một cấp; gửi lại. (4) Rút. (5) Gửi lại, người duyệt từ chối. (6) Gửi lại, người duyệt duyệt. (7) Sửa kế hoạch đã duyệt.
+- Kết quả mong đợi: Bước 1: "Kế hoạch chưa có ô ngân sách nào.". Bước 2: `409` "Chưa có chính sách duyệt kế hoạch ngân sách mua. Nhờ quản trị công ty cấu hình ở Nền tảng › Chính sách duyệt.", kế hoạch vẫn Nháp, chưa có số. Bước 3: `201`, Chờ duyệt, số `NSM-VCR-<năm>-000001`, yêu cầu duyệt loại `purchasing.budget_plan` số tiền 500.000.000. Bước 4: Đã rút, sửa được. Bước 5: Bị từ chối, giữ số, sửa được. Bước 6: Đã duyệt, không sửa, không hủy, `canAdjust` đúng. Bước 7: `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c58-budget-plans.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_587: Kế hoạch trùng tháng bị từ chối khi gửi; hủy kế hoạch nháp
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_413
+- Chức năng: CHUC_NANG_207
+- Loại: Sai, trạng thái
+- Vai trò thực hiện: Trưởng phòng mua hàng VCR
+- Điều kiện ban đầu và dữ liệu: Kế hoạch đã duyệt 01/2027 đến 03/2027 (KICHBAN_KIEMTHU_586).
+- Các bước: (1) Lập kế hoạch 03/2027 đến 05/2027, gửi duyệt. (2) Hủy kế hoạch đó. (3) Hủy kế hoạch đã duyệt. (4) Gọi danh sách lọc năm 2027, lọc trạng thái Đã duyệt.
+- Kết quả mong đợi: Bước 1: `409` "Kỳ kế hoạch trùng tháng với kế hoạch khác đang chờ duyệt hoặc đã duyệt.". Bước 2: Đã hủy, không sửa, không gửi được. Bước 3: `409`. Bước 4: năm 2027 có Đã duyệt, Đã hủy, Nháp; lọc Đã duyệt đúng 1 kế hoạch.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c58-budget-plans.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_588: Số đã dùng từng ô theo trạng thái đơn, ngoại tệ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_414
+- Chức năng: CHUC_NANG_209
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Trưởng phòng mua hàng VCR
+- Điều kiện ban đầu và dữ liệu: Kế hoạch đã duyệt 10/2026 đến 11/2026: Thực phẩm kho A tháng 10 là 10.000.000, tháng 11 là 8.000.000 cộng điều chỉnh 1.000.000; Đồ uống kho A tháng 10 là 2.000.000. Sản phẩm thuộc ngành hàng cấp 3 của Thực phẩm. Tỷ giá hạch toán USD 25.000. Đơn tháng 10 kho A: đã duyệt 1.000.000; nhận đủ 1.000.000 thực phẩm và 300.000 đồ uống; đóng sớm đơn 1.000.000 đã nhận đạt 30/100 (phiếu nhập 40 có 10 không đạt; phiếu khác chưa ghi sổ); chờ duyệt lần đầu, nháp, bị từ chối lần đầu mỗi đơn 9.000.000; đơn duyệt lại giá trị 600.000, lần duyệt trước 400.000; đơn 20 USD đã duyệt. Đơn đồ uống kho B 500.000. Tháng 11: đơn đã duyệt 9.500.000.
+- Các bước: (1) Gọi API_235 danh sách kế hoạch đã duyệt năm 2026. (2) Gọi chi tiết kế hoạch. (3) Gọi danh sách kế hoạch nháp.
+- Kết quả mong đợi: Bước 1: đã dùng của kế hoạch 13.500.000. Bước 2: Thực phẩm kho A tháng 10 là 3.200.000 (1.000.000 + 1.000.000 + 300.000 + 400.000 + 500.000), tháng 11 là 9.500.000; Đồ uống kho A tháng 10 là 300.000; đơn chờ duyệt lần đầu, nháp, bị từ chối lần đầu không tính. Bước 3: đã dùng trống.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c58-open-to-buy.test.ts` (gồm đơn nhận đủ có phiếu trả hàng nhà cung cấp, không giảm số đã dùng)
+- Lát: L1
+
+### KICHBAN_KIEMTHU_589: Số còn được mua theo tháng, quý, năm; lọc; đơn của một ô
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_415
+- Chức năng: CHUC_NANG_209
+- Loại: Đúng, phân quyền
+- Vai trò thực hiện: Trưởng phòng mua hàng VCR; Thủ kho
+- Điều kiện ban đầu và dữ liệu: Dữ liệu của KICHBAN_KIEMTHU_588; kế hoạch nháp tháng 12/2026 và đơn đã duyệt tháng 12 (tháng chưa áp dụng).
+- Các bước: (1) Gọi API_239 năm 2026 theo tháng. (2) Theo quý. (3) Theo năm, lọc Đồ uống. (4) Lọc kho B. (5) Năm 2025. (6) Gọi đơn của ô Thực phẩm kho A tháng 10. (7) Thủ kho gọi API_239. (8) Thiếu `year`.
+- Kết quả mong đợi: Bước 1: Thực phẩm kho A tháng 10: ngân sách 10.000.000, đã dùng 3.200.000, còn 6.800.000; tháng 11: ngân sách 8.000.000, điều chỉnh 1.000.000, đã dùng 9.500.000, còn −500.000; Đồ uống kho B tháng 10: ngân sách 0, đã dùng 500.000, còn −500.000, chưa có ngân sách; tháng 12 không có dòng; tổng 20.000.000, 1.000.000, 13.500.000, 7.500.000. Bước 2: Thực phẩm kho A quý 4: 18.000.000, 1.000.000, 12.700.000, 6.300.000. Bước 3: hai dòng (kho A, kho B). Bước 4: một dòng. Bước 5: rỗng. Bước 6: 5 đơn 1.000.000, 1.000.000, 300.000, 400.000, 500.000 (đã duyệt, nhận đủ, đã đóng, chờ duyệt lại, đã duyệt). Bước 7: `403`. Bước 8: `400`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c58-open-to-buy.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_590: Kiểm tra ngân sách đơn đang lập, sửa (API_240)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_416
+- Chức năng: CHUC_NANG_209
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Nhân viên mua hàng VCR (không có `purchasing.budget.manage`)
+- Điều kiện ban đầu và dữ liệu: Kế hoạch đã duyệt tháng 11/2026: Thực phẩm, kho đơn ngân sách, 1.000.000; chưa có ô Đồ uống; chính sách duyệt `purchasing.order`.
+- Các bước: (1) Kiểm tra đơn ngày 10/11/2026 bốn đơn vị gạo 100.000. (2) Đơn 11 gạo và 1 nước 5.000. (3) Đơn ngày 01/03/2027. (4) Lập, gửi, duyệt đơn 600.000; kiểm tra khi sửa chính đơn đó lên 900.000. (5) Kiểm tra đơn mới 500.000. (6) `orderId` không tồn tại.
+- Kết quả mong đợi: Bước 1: `201`, `applies` đúng, không vượt; ô Thực phẩm ngân sách 1.000.000, đã dùng 0, đơn 400.000, còn 600.000, trong ngân sách. Bước 2: vượt; Đồ uống chưa có ngân sách (`null`), Thực phẩm vượt, còn −100.000. Bước 3: `applies` sai, không có ô. Bước 4: đã dùng 0 (không tính chính đơn), đơn 900.000, trong ngân sách. Bước 5: đã dùng 600.000, còn −100.000, vượt. Bước 6: `404`. Lưu đơn vượt không bị chặn.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c58-order-budget.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_591: Chuyển luồng duyệt khi gửi duyệt đơn mua
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_417
+- Chức năng: CHUC_NANG_209
+- Loại: Đúng, sai, luồng duyệt
+- Vai trò thực hiện: Nhân viên mua hàng VCR; người duyệt; quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Dữ liệu của KICHBAN_KIEMTHU_590; chưa có chính sách `purchasing.order_over_budget`.
+- Các bước: (1) Gửi đơn 300.000 trong ngân sách; duyệt. (2) Gửi đơn 800.000 (vượt). (3) Lập chính sách `purchasing.order_over_budget`; gửi lại; duyệt. (4) Gửi đơn ngày 01/03/2027 (tháng chưa áp dụng). (5) Sửa đơn ở bước 1 tăng lên 400.000 (duyệt lại).
+- Kết quả mong đợi: Bước 1: Chờ duyệt loại `purchasing.order`, không có ảnh chụp. Bước 2: `409` "Đơn vượt hoặc chưa có ngân sách nhưng chưa có chính sách duyệt "Đơn mua vượt ngân sách". Nhờ quản trị công ty cấu hình ở Nền tảng › Chính sách duyệt.", đơn vẫn Nháp, chưa có số. Bước 3: Chờ duyệt loại `purchasing.order_over_budget`, ảnh chụp ô Thực phẩm (đã dùng 300.000, đơn 800.000, còn −100.000, vượt); duyệt xong đơn Đã duyệt; số còn được mua của ô −100.000. Bước 4: loại `purchasing.order`. Bước 5: Chờ duyệt lại loại `purchasing.order_over_budget`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c58-order-budget.test.ts` (gồm đơn miễn duyệt lấy từ đề nghị mua đã duyệt vượt ngân sách)
+- Lát: L2
+
+### KICHBAN_KIEMTHU_592: Hai đơn được duyệt ngay khi gửi, gửi đồng thời, mỗi đơn vừa đủ phần còn lại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_417
+- Chức năng: CHUC_NANG_209
+- Loại: Đồng thời
+- Vai trò thực hiện: Nhân viên mua hàng VCR
+- Điều kiện ban đầu và dữ liệu: Dữ liệu sau KICHBAN_KIEMTHU_591; ô Thực phẩm tháng 11 có điều chỉnh 1.700.000 (ngân sách 2.700.000, đã dùng 1.300.000 gồm đơn miễn duyệt 200.000, còn 1.400.000); công ty chưa có chính sách duyệt đơn mua (`purchasing.order` hết hiệu lực) nên đơn trong ngân sách được duyệt ngay khi gửi. Đơn chờ duyệt không giữ chỗ ngân sách (QUYTAC_NGHIEPVU_446), nên chỉ đơn được duyệt ngay mới làm thay đổi số còn lại của đơn gửi sau.
+- Các bước: (1) Lập hai đơn, mỗi đơn 1.400.000 Thực phẩm. (2) Gửi duyệt hai đơn cùng lúc.
+- Kết quả mong đợi: Hai lời gọi `201`; một đơn Đã duyệt ngay, đơn kia Chờ duyệt loại `purchasing.order_over_budget`; nhật ký `purchase_order.submit` một đơn `overBudget` sai, một đơn đúng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c58-order-budget.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_593: Phiếu điều chỉnh tăng, giảm, chuyển khác tháng; giảm dưới đã dùng bị từ chối
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_418
+- Chức năng: CHUC_NANG_208
+- Loại: Đúng, sai, luồng duyệt
+- Vai trò thực hiện: Trưởng phòng mua hàng VCR; người duyệt; quản trị công ty VCR
+- Điều kiện ban đầu và dữ liệu: Kế hoạch đã duyệt 10/2026 đến 12/2026: Thực phẩm tháng 11 là 1.000.000; đơn đã duyệt dùng 700.000; kế hoạch nháp 01/2027.
+- Các bước: (1) Lập phiếu cho kế hoạch nháp; dòng tháng ngoài kỳ; dòng số 0. (2) Lập phiếu chuyển 400.000 từ Thực phẩm tháng 11 sang Đồ uống tháng 12; gửi. (3) Sửa thành 300.000; gửi khi chưa có chính sách. (4) Lập chính sách; gửi; duyệt. (5) Xem phiếu, API_239. (6) Phiếu tăng 500.000: gửi, từ chối, gửi lại, rút, hủy. (7) Danh sách theo kế hoạch.
+- Kết quả mong đợi: Bước 1: `400` tại `planId` "Chỉ điều chỉnh kế hoạch ngân sách đã duyệt."; tại tháng "Tháng nằm ngoài kỳ kế hoạch."; số 0 `400`. Bước 2: lập được (tổng tăng, giảm 400.000; ngân sách hiện tại 1.000.000, đã dùng 700.000, sau 600.000); gửi `400` tại dòng 1 "Ngân sách sau điều chỉnh nhỏ hơn số đã dùng của ô.". Bước 3: `409` "Chưa có chính sách duyệt cho loại chứng từ này.". Bước 4: số `DCNS-VCR-<năm>-000001`, yêu cầu duyệt 300.000; trước duyệt ô không đổi; duyệt xong Thực phẩm tháng 11 điều chỉnh −300.000, Đồ uống tháng 12 tạo ô gốc 0 điều chỉnh 300.000; nhật ký `budget_adjustment.apply`. Bước 5: ngân sách hiện tại 1.000.000, sau 700.000; Thực phẩm còn 0. Bước 6: từ chối thì ô không đổi; rút, hủy đúng trạng thái. Bước 7: Đã hủy, Đã duyệt.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c58-budget-adjustments.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_594: Phân quyền, công ty khác, nhật ký thao tác
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_419
+- Chức năng: CHUC_NANG_207 đến CHUC_NANG_209
+- Loại: Phân quyền, bảo mật
+- Vai trò thực hiện: Nhân viên mua hàng (chỉ `purchasing.budget.view`); Thủ kho; quản trị tập đoàn chọn VCT; trưởng phòng mua hàng
+- Điều kiện ban đầu và dữ liệu: Kế hoạch, phiếu của VCR từ các kịch bản trước.
+- Các bước: (1) Nhân viên mua hàng xem chi tiết kế hoạch, phiếu; lập kế hoạch, phiếu. (2) Thủ kho gọi API_235 (danh sách kế hoạch, danh sách chọn), API_237, API_239. (3) Quản trị tập đoàn chọn VCT mở kế hoạch, phiếu của VCR. (4) Nhân viên mua hàng gọi danh sách chọn. (5) Đọc nhật ký thao tác.
+- Kết quả mong đợi: Bước 1: xem `200`, mọi cờ thao tác sai; lập `403`. Bước 2: `403`. Bước 3: `404`. Bước 4: chỉ ngành hàng cấp 1, chỉ kho của VCR, đồng tiền VND. Bước 5: có `budget_plan.create`, `.update`, `.submit`, `.withdraw`, `.cancel`; `budget_adjustment.apply`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c58-budget-plans.test.ts`, `apps/api/test/c58-budget-adjustments.test.ts`, `apps/api/test/c58-open-to-buy.test.ts` (Thủ kho gọi API_239)
+- Lát: L0, L1, L3
+
+### KICHBAN_KIEMTHU_595: Đơn mua, giao dịch nội bộ không đổi khi công ty chưa có ngân sách
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_420
+- Chức năng: CHUC_NANG_209
+- Loại: Hồi quy
+- Vai trò thực hiện: Như các kịch bản của CONG_VIEC_07, CONG_VIEC_09
+- Điều kiện ban đầu và dữ liệu: Công ty không có kế hoạch ngân sách đã duyệt.
+- Các bước: (1) Chạy lại kiểm thử tự động đơn mua, giao dịch nội bộ hiện có.
+- Kết quả mong đợi: Mọi kiểm thử đạt; luồng duyệt, miễn duyệt, đơn đối ứng như trước.
+- Kiểm thử tự động: Tự động API (chạy lại) – `apps/api/test/c7-purchasing.test.ts`, `apps/api/test/c9-internal-trade.test.ts`, `apps/api/test/c43-internal-services.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_596: Giao diện MAN_HINH_204 đến MAN_HINH_209
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_421
+- Chức năng: CHUC_NANG_207 đến CHUC_NANG_209
+- Loại: Giao diện
+- Vai trò thực hiện: Tài khoản thử `phuc.le@vcomm.test` (trưởng phòng mua hàng), Nhân viên mua hàng, Thủ kho
+- Điều kiện ban đầu và dữ liệu: Dữ liệu thử có kế hoạch, phiếu, đơn mua vượt ngân sách.
+- Các bước: (1) Mở từng màn hình trên máy tính và điện thoại. (2) So với bản mẫu. (3) Chạy danh sách rà soát giao diện (tài liệu `15`).
+- Kết quả mong đợi: Bố cục, chữ, nhãn trạng thái, thông báo đúng bản mẫu (trừ menu phẳng đã được chấp nhận); không cuộn ngang trang; người không có quyền không thấy mục menu.
+- Kiểm thử tự động: Thủ công (xem trước từng lát)
+- Lát: L0 đến L3

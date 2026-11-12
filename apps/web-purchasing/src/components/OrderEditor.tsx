@@ -2,6 +2,7 @@
 
 // Soạn đơn mua (CHUC_NANG_51): nhà cung cấp, kho nhận, ngày, dòng hàng; giá gợi ý theo bảng giá mua; lấy dòng từ đề nghị mua đã duyệt.
 import {
+  type BudgetCheckResponse,
   vatRates,
   type CurrencyResponse,
   type PurchaseOrderResponse,
@@ -18,6 +19,7 @@ import { Field, FormError, useSubmit } from "ui/components/Form";
 import { apiFetch } from "ui/lib/api";
 import { formatMoney, vietnamToday } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
+import { BudgetPanel } from "@/components/BudgetPanel";
 import { ItemPicker, itemLabel } from "@/components/ItemPicker";
 
 type Line = {
@@ -112,6 +114,25 @@ export function OrderEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supplierId, orderDate]);
 
+  // MAN_HINH_209 (API_240): kiểm tra ngân sách theo dòng đang nhập, chờ người dùng ngừng gõ.
+  const [budgetCheck, setBudgetCheck] = useState<BudgetCheckResponse | null>(null);
+  const budgetBody = JSON.stringify({
+    orderId: order?.id ?? null,
+    warehouseId: warehouseId || null,
+    orderDate,
+    currency: currency || undefined,
+    lines: lines
+      .filter((line) => Number(line.quantity) > 0 && Number(plainPrice(line.unitPrice)) >= 0 && plainPrice(line.unitPrice) !== "")
+      .map((line) => ({ variantId: line.item.variantId, quantity: line.quantity, unitPrice: plainPrice(line.unitPrice) })),
+  });
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void apiFetch<BudgetCheckResponse>("/purchasing/orders/budget-check", { method: "POST", body: budgetBody })
+        .then(setBudgetCheck)
+        .catch(() => setBudgetCheck(null));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [budgetBody]);
   const total = lines.reduce((sum, line) => sum + Number(line.quantity || 0) * Number(plainPrice(line.unitPrice) || 0), 0);
 
   function submit(event: FormEvent) {
@@ -285,6 +306,7 @@ export function OrderEditor({
       <strong>
         {t("total")}: {formatMoney(String(total), orderCurrency)}
       </strong>
+      <BudgetPanel check={budgetCheck} currency={orderCurrency} />
       <FormError text={formError} />
       <div className="nhom-nut">
         <button type="submit" className="nut chinh" disabled={submitting}>

@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.15
-- Ngày cập nhật: 2026-11-11
+- Phiên bản: 2.16
+- Ngày cập nhật: 2026-11-12
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
 - Cập nhật CONG_VIEC_03 (2026-11-09): thêm MAN_HINH_19, MAN_HINH_20, MAN_HINH_21; mở rộng MAN_HINH_01, MAN_HINH_06, MAN_HINH_08 (THAY_DOI_04, THAY_DOI_08)
@@ -31,6 +31,7 @@
 - Cập nhật CONG_VIEC_50 (2026-11-11): thêm MODULE_15 Báo cáo quản trị phần 1, mini app `web-analytics`, MAN_HINH_140 đến MAN_HINH_144 (mục 69 đến mục 71); MAN_HINH_145 giữ chưa dùng; trang chủ mini app thêm ô "Báo cáo quản trị"
 - Cập nhật CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm MAN_HINH_132 đến MAN_HINH_139 của MODULE_10 (mục 72, mục 73); sửa MAN_HINH_76 (nút Ví mua sắm, Mời bạn bè, Cộng tác viên), MAN_HINH_80 (chặn ví), MAN_HINH_88 (Chờ chốt nhóm, phần cộng tác viên), MAN_HINH_91 (chia sẻ nhận hoa hồng, điểm đánh giá, mua chung), MAN_HINH_93 (đơn mua chung, dùng ví mua sắm), MAN_HINH_96 (nhóm mua chung, phần ví, viết đánh giá), MAN_HINH_101 (mức cộng tác viên), MAN_HINH_102, MAN_HINH_103 (ví hoa hồng bị chặn); menu web-crm "Cộng tác viên", "Mua chung", "Kiểm duyệt cộng đồng"; thẻ "Bảng tin" trên ứng dụng
 - Cập nhật CONG_VIEC_53 (2026-11-11): thêm MAN_HINH_161 đến MAN_HINH_167 của MODULE_14 (mini app Bán lẻ, bán lẻ tại quầy phần 1; bản mẫu MAN_HINH_161, 162, 164, 167); sửa MAN_HINH_46, MAN_HINH_49, MAN_HINH_54, MAN_HINH_55 (mục 65, 66)
+- Cập nhật CONG_VIEC_58 (2026-11-12): thêm MAN_HINH_204 đến MAN_HINH_209 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách, đặt trong mini app Mua hàng `web-purchasing`; mục 75 đến mục 77); MAN_HINH_209 là khối "Ngân sách mua" trong MAN_HINH_40, MAN_HINH_41 (đơn mua); menu Mua hàng thêm "Kế hoạch ngân sách", "Số còn được mua", "Điều chỉnh ngân sách"
 
 ## MODULE_01 Nền tảng
 
@@ -2593,3 +2594,166 @@ Bản mẫu: `ban_mau/MAN_HINH_110_TO_KHAI_NHAP_KHAU.html` đến `MAN_HINH_113_
 - Quyền hiển thị: nút lập, sửa, ghi sổ, hủy theo `purchasing.import.manage` và `canEdit`, `canPost` của API.
 - Responsive: bảng chuyển thành thẻ; dòng tờ khai, khoản chi phí xếp lưới tự co.
 - Trạng thái phê duyệt: bản mẫu đã duyệt; màn hình xem trước từng lát.
+
+## MODULE_14 Bán lẻ tại quầy và trạm giao hàng (phần 3: Kế hoạch mua theo ngân sách, CONG_VIEC_58)
+
+Đặt trong mini app Mua hàng (`apps/web-purchasing`, đường dẫn gốc `/purchasing`), dùng khung trang, thành phần `packages/ui`, chuỗi `packages/i18n` như các màn hình Mua hàng khác. Bản mẫu: `ban_mau/MAN_HINH_204_KE_HOACH_NGAN_SACH.html` đến `ban_mau/MAN_HINH_209_CANH_BAO_NGAN_SACH_DON_MUA.html`, người dùng duyệt 2026-11-12.
+
+## 75. Danh sách màn hình và điều hướng (MODULE_14 phần 3)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_204 | Danh sách kế hoạch ngân sách mua: lọc trạng thái, năm; cột số, kỳ, tổng ngân sách, đã dùng, còn được mua, trạng thái; nút lập | CHUC_NANG_207 | Người có `purchasing.budget.view` (Quản trị tập đoàn, Quản trị công ty, Nhân viên mua hàng, Trưởng phòng mua hàng); lập: `purchasing.budget.manage` | Menu Mua hàng "Kế hoạch ngân sách" | [ban_mau/MAN_HINH_204_KE_HOACH_NGAN_SACH.html](ban_mau/MAN_HINH_204_KE_HOACH_NGAN_SACH.html) |
+| MAN_HINH_205 | Chi tiết, sửa kế hoạch ngân sách mua: kỳ, ghi chú; bảng ngành hàng × kho theo tháng; gửi duyệt, rút, hủy; khi đã duyệt hiện ngân sách sau điều chỉnh, đã dùng, còn lại từng ô; danh sách phiếu điều chỉnh | CHUC_NANG_207, CHUC_NANG_208 | Như MAN_HINH_204; sửa, gửi, hủy: `purchasing.budget.manage` | MAN_HINH_204 | [ban_mau/MAN_HINH_205_CHI_TIET_KE_HOACH_NGAN_SACH.html](ban_mau/MAN_HINH_205_CHI_TIET_KE_HOACH_NGAN_SACH.html) |
+| MAN_HINH_206 | Số còn được mua: lọc năm, kỳ (tháng, quý, năm), ngành hàng, kho; bảng ngân sách, điều chỉnh, đã dùng, còn được mua, tỷ lệ đã dùng; ô âm tô màu; nhấn ô xem các đơn đã tính | CHUC_NANG_209 | Như MAN_HINH_204 | Menu Mua hàng "Số còn được mua" | [ban_mau/MAN_HINH_206_SO_CON_DUOC_MUA.html](ban_mau/MAN_HINH_206_SO_CON_DUOC_MUA.html) |
+| MAN_HINH_207 | Danh sách phiếu điều chỉnh ngân sách: lọc trạng thái, kế hoạch; cột số, kế hoạch, tổng tăng, tổng giảm, lý do, trạng thái | CHUC_NANG_208 | Như MAN_HINH_204 | Menu Mua hàng "Điều chỉnh ngân sách" | [ban_mau/MAN_HINH_207_PHIEU_DIEU_CHINH_NGAN_SACH.html](ban_mau/MAN_HINH_207_PHIEU_DIEU_CHINH_NGAN_SACH.html) |
+| MAN_HINH_208 | Chi tiết, sửa phiếu điều chỉnh ngân sách: kế hoạch, lý do; dòng ô, số tăng hoặc giảm, ngân sách hiện tại, đã dùng, sau điều chỉnh; gửi duyệt, rút, hủy | CHUC_NANG_208 | Như MAN_HINH_204; lập, sửa, gửi, hủy: `purchasing.budget.manage` | MAN_HINH_207; nút "Lập phiếu điều chỉnh" ở MAN_HINH_205 | [ban_mau/MAN_HINH_208_CHI_TIET_PHIEU_DIEU_CHINH.html](ban_mau/MAN_HINH_208_CHI_TIET_PHIEU_DIEU_CHINH.html) |
+| MAN_HINH_209 | Khối "Ngân sách mua" trong đơn mua: bảng các ô đơn chạm tới, nhãn "Vượt ngân sách", "Chưa có ngân sách"; thông báo đơn sẽ đi luồng duyệt vượt ngân sách; ảnh chụp ô vượt lúc gửi duyệt | CHUC_NANG_209 | Người lập, sửa, xem đơn mua (`purchasing.order.manage`, `purchasing.order.view`) | Nằm trong MAN_HINH_40 (lập đơn), MAN_HINH_41 (chi tiết, sửa đơn) | [ban_mau/MAN_HINH_209_CANH_BAO_NGAN_SACH_DON_MUA.html](ban_mau/MAN_HINH_209_CANH_BAO_NGAN_SACH_DON_MUA.html) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Mua hàng}} --> P[MAN_HINH_204 Kế hoạch ngân sách]
+    M --> O[MAN_HINH_206 Số còn được mua]
+    M --> A[MAN_HINH_207 Điều chỉnh ngân sách]
+    M --> D[MAN_HINH_40 Đơn mua]
+    P -->|Lập kế hoạch, mở kế hoạch| PD[MAN_HINH_205 Chi tiết kế hoạch]
+    PD -->|Lập phiếu điều chỉnh| AD[MAN_HINH_208 Chi tiết phiếu điều chỉnh]
+    PD -->|Mở phiếu của kế hoạch| AD
+    A -->|Lập phiếu, mở phiếu| AD
+    O -->|Nhấn ô kỳ tháng| N[Ngăn kéo các đơn đã tính]
+    D --> DD[MAN_HINH_41 Chi tiết đơn mua]
+    D -.->|khối| B[MAN_HINH_209 Ngân sách mua]
+    DD -.->|khối| B
+    PD -->|Gửi duyệt| H[MAN_HINH_08 Chi tiết yêu cầu duyệt]
+    AD -->|Gửi duyệt| H
+```
+
+- Menu Mua hàng phẳng, không có tiêu đề nhóm (người dùng chấp nhận khác bản mẫu): sau "Bảng giá mua" thêm "Kế hoạch ngân sách", "Số còn được mua", "Điều chỉnh ngân sách"; ba mục hiện với `purchasing.budget.view`.
+- Đơn vị tiền mọi màn hình là đồng tiền hạch toán của công ty; số định dạng theo tiếng Việt; tháng hiện dạng `MM/YYYY`.
+- Không có quyền ngân sách mà mở thẳng đường dẫn: "Bạn không có quyền xem trang này".
+
+## 76. Bảng vai trò – màn hình (MODULE_14 phần 3)
+
+| Màn hình | Quản trị tập đoàn | Quản trị công ty | Trưởng phòng mua hàng (vai trò tự tạo có `purchasing.budget.manage`) | Nhân viên mua hàng | Thủ kho, vai trò khác |
+|---|---|---|---|---|---|
+| MAN_HINH_204 Kế hoạch ngân sách mua | Xem, Lập | Xem, Lập (công ty mình) | Xem, Lập | Xem | Không |
+| MAN_HINH_205 Chi tiết kế hoạch | Xem, Sửa, Gửi, Rút (của mình), Hủy | Xem, Sửa, Gửi, Rút (của mình), Hủy (công ty mình) | Xem, Sửa, Gửi, Rút (của mình), Hủy | Xem | Không |
+| MAN_HINH_206 Số còn được mua | Xem | Xem (công ty mình) | Xem | Xem | Không |
+| MAN_HINH_207 Điều chỉnh ngân sách | Xem, Lập | Xem, Lập (công ty mình) | Xem, Lập | Xem | Không |
+| MAN_HINH_208 Chi tiết phiếu điều chỉnh | Xem, Sửa, Gửi, Rút (của mình), Hủy | Xem, Sửa, Gửi, Rút (của mình), Hủy (công ty mình) | Xem, Sửa, Gửi, Rút (của mình), Hủy | Xem | Không |
+| MAN_HINH_209 Khối ngân sách mua trong đơn mua | Xem | Xem (công ty mình) | Xem (khi có quyền đơn mua) | Xem | Xem ở chi tiết đơn (Thủ kho có `purchasing.order.view`) |
+
+## 77. Đặc tả từng màn hình (MODULE_14 phần 3)
+
+### MAN_HINH_204: Kế hoạch ngân sách mua
+- Mục đích: Xem các kế hoạch ngân sách mua của công ty, số đã dùng, còn được mua; mở hoặc lập kế hoạch.
+- Chức năng thực hiện: CHUC_NANG_207
+- Đường dẫn: `/purchasing/budget-plans`.
+- Bố cục: tiêu đề "Kế hoạch ngân sách mua", nút "Lập kế hoạch".
+  - Bộ lọc: "Trạng thái" (mặc định tất cả; Nháp, Chờ duyệt, Đã duyệt, Bị từ chối, Đã rút, Đã hủy), "Năm".
+  - Chú thích "Đơn vị: <đồng tiền> (đồng tiền hạch toán của công ty). Đã dùng = giá trị chưa thuế của đơn mua đã duyệt; đơn đóng sớm chỉ tính phần đã nhận.".
+  - Bảng: "Số kế hoạch" (liên kết; chưa gửi hiện "Kế hoạch nháp"), "Kỳ", "Tổng ngân sách", "Đã dùng", "Còn được mua", "Người lập", "Trạng thái"; phân trang 20 dòng.
+- Dữ liệu hiển thị: kỳ dạng "<từ tháng> – <đến tháng>"; đã dùng, còn được mua chỉ có ở kế hoạch đã duyệt (khác hiện "—"); trạng thái là nhãn màu.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_235.
+- Thao tác: đổi bộ lọc tải lại bảng; bấm số kế hoạch mở MAN_HINH_205; "Lập kế hoạch" mở MAN_HINH_205 trống.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có kế hoạch ngân sách mua. Khi chưa có kế hoạch đã duyệt cho tháng của đơn, đơn mua không kiểm tra ngân sách.".
+- Thông báo: không có.
+- Quyền hiển thị: trang với `purchasing.budget.view` hoặc `purchasing.budget.manage`; nút "Lập kế hoạch" với `purchasing.budget.manage`.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
+
+### MAN_HINH_205: Chi tiết, sửa kế hoạch ngân sách mua
+- Mục đích: Lập, sửa bảng ngân sách theo ngành hàng × kho × tháng; gửi duyệt, rút, hủy; theo dõi ô của kế hoạch đã duyệt và các phiếu điều chỉnh.
+- Chức năng thực hiện: CHUC_NANG_207, CHUC_NANG_208
+- Đường dẫn: `/purchasing/budget-plans/new`, `/purchasing/budget-plans/[id]`.
+- Bố cục: liên kết quay lại "Kế hoạch ngân sách mua"; tiêu đề là số kế hoạch (chưa gửi: "Kế hoạch nháp") kèm nhãn trạng thái, người lập.
+  - Ô "Từ tháng", "Đến tháng", "Ghi chú"; chú thích "Kỳ tối đa 12 tháng. Mỗi ô là ngành hàng cấp 1 × kho × tháng. Chỉ kế hoạch đã duyệt mới có hiệu lực; đã duyệt thì thay đổi bằng phiếu điều chỉnh.".
+  - Bảng ngân sách: hàng = ngành hàng × kho ("Ngành hàng", "Kho"), cột = từng tháng của kỳ, ô nhập số tiền (nhãn đọc màn hình "Ngân sách <ngành hàng> · <kho> · <tháng>"), cột "Cộng" theo hàng, dòng "Cộng" theo cột; nút "Bỏ dòng" ở mỗi hàng.
+  - Thêm hàng: chọn "Chọn ngành hàng" (ngành hàng cấp 1 đang dùng), "Chọn kho" (kho của công ty), nút "Thêm dòng ngành hàng × kho".
+  - Nhóm nút: "Lưu nháp", "Gửi duyệt", "Hủy kế hoạch" (khi sửa được); "Rút lại" (người lập, đang chờ duyệt, cấp 1 chưa quyết định); "Lập phiếu điều chỉnh" (kế hoạch đã duyệt).
+  - Kế hoạch đã duyệt: bảng chỉ đọc, mỗi ô hiện ngân sách sau điều chỉnh và dòng "Đã dùng <số> · Còn <số>" (còn âm tô màu lỗi); khối "Phiếu điều chỉnh" liệt kê phiếu của kế hoạch ("Số phiếu", "Lý do", "Tổng tăng", "Tổng giảm", "Trạng thái").
+- Dữ liệu hiển thị: tháng `MM/YYYY`; số tiền theo đồng tiền hạch toán; ô để trống tính là 0 khi cộng.
+- Thành phần: ThanhTrenCung, MenuMiniApp, ONhap, OChon, BangDuLieu, NhanTrangThai, Nut, KhoiCanhBao, HopThoaiXacNhan, ThongBaoNoi, TrangThaiRong (tài liệu `15`).
+- API: API_235, API_236, API_237 (danh sách phiếu theo kế hoạch).
+- Thao tác: đổi kỳ thì bảng thêm, bớt cột tháng; "Lưu nháp" lập hoặc sửa; "Gửi duyệt" lưu rồi gửi; "Hủy kế hoạch" hỏi "Hủy kế hoạch này? Kế hoạch đã hủy không sửa, gửi duyệt được nữa." rồi hủy; "Rút lại" rút yêu cầu duyệt; "Lập phiếu điều chỉnh" mở MAN_HINH_208 chọn sẵn kế hoạch.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; kế hoạch của công ty khác hoặc không tồn tại: "Không tìm thấy dữ liệu hoặc bạn không có quyền xem."; không có phiếu điều chỉnh: "Chưa có phiếu điều chỉnh ngân sách.".
+- Thông báo: "Đã lưu.", "Đã gửi duyệt."; thêm hàng trùng: "Dòng ngành hàng × kho này đã có."; lỗi kiểm tra hiện khối "Có ô ngân sách chưa hợp lệ:" kèm từng ô lỗi và đánh dấu đúng ô; lỗi gửi (chưa có chính sách duyệt, trùng kỳ, kế hoạch chưa có ô) hiện ở thông báo nổi.
+- Quyền hiển thị: ô nhập, nút theo `canEdit`, `canSubmit`, `canWithdraw`, `canCancel`, `canAdjust` của API_235; người chỉ có `purchasing.budget.view` xem chỉ đọc.
+- Responsive: bảng ngân sách cuộn ngang trong khung bảng; nút xuống dòng; trang không cuộn ngang.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
+
+### MAN_HINH_206: Số còn được mua
+- Mục đích: Theo dõi ngân sách, điều chỉnh, đã dùng, còn được mua theo ngành hàng, kho và kỳ; xem các đơn đã tính vào một ô.
+- Chức năng thực hiện: CHUC_NANG_209
+- Đường dẫn: `/purchasing/open-to-buy`.
+- Bố cục: tiêu đề "Số còn được mua".
+  - Bộ lọc: "Năm" (mặc định năm nay), "Ngành hàng" (mặc định "Ngành hàng: tất cả"), "Kho" (mặc định "Kho: tất cả"); chú thích "Còn được mua = ngân sách + điều chỉnh đã duyệt − đã dùng. Số âm: đơn được duyệt qua luồng vượt ngân sách. Chỉ tính các tháng có kế hoạch đã duyệt.".
+  - Các thẻ kỳ: "Tháng" (mặc định), "Quý", "Năm".
+  - Bảng: "Ngành hàng", "Kho", "Kỳ", "Ngân sách", "Điều chỉnh", "Đã dùng", "Còn được mua", "Tỷ lệ đã dùng"; dòng "Cộng".
+  - Ngăn kéo "Đơn đã tính · <ngành hàng> · <kho> · <tháng>": bảng "Số đơn" (số đơn kèm nhãn trạng thái, nhà cung cấp, ngày đơn) và "Đã dùng" (giá trị đã tính vào ô).
+- Dữ liệu hiển thị: ô có đơn nhưng chưa có ngân sách hiện nhãn "Chưa có ngân sách" ở cột ngân sách; còn được mua âm tô màu lỗi, chữ đậm; kỳ quý hiện "Quý <số>/<năm>"; tỷ lệ đã dùng = đã dùng ÷ (ngân sách + điều chỉnh), làm tròn phần trăm, hiện "—" khi mẫu số không lớn hơn 0.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, CacThe, BangDuLieu, NhanTrangThai, NganKeo, TrangThaiRong (tài liệu `15`).
+- API: API_235 (danh sách chọn ngành hàng, kho), API_239.
+- Thao tác: đổi năm, ngành hàng, kho, kỳ tải lại bảng; ở kỳ tháng, nhấn tháng của dòng (nhãn đọc màn hình "Xem các đơn đã tính vào ô <ngành hàng> · <kho> · <tháng>") mở ngăn kéo; bấm số đơn mở MAN_HINH_41.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Không có ngân sách hoặc đơn mua trong năm đã chọn."; ngăn kéo rỗng "Chưa có đơn nào tính vào ô này.".
+- Thông báo: không có.
+- Quyền hiển thị: trang với `purchasing.budget.view` hoặc `purchasing.budget.manage`.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; không cuộn ngang.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
+
+### MAN_HINH_207: Danh sách phiếu điều chỉnh ngân sách
+- Mục đích: Xem các phiếu điều chỉnh ngân sách của công ty; mở hoặc lập phiếu.
+- Chức năng thực hiện: CHUC_NANG_208
+- Đường dẫn: `/purchasing/budget-adjustments`.
+- Bố cục: tiêu đề "Điều chỉnh ngân sách", nút "Lập phiếu điều chỉnh".
+  - Bộ lọc: "Trạng thái" (mặc định tất cả), "Kế hoạch" (mặc định "Kế hoạch: tất cả").
+  - Bảng: "Số phiếu" (liên kết; chưa gửi hiện "Phiếu nháp"), "Kế hoạch", "Lý do", "Tổng tăng", "Tổng giảm", "Người lập", "Trạng thái"; phân trang 20 dòng.
+- Dữ liệu hiển thị: số tiền theo đồng tiền hạch toán; trạng thái là nhãn màu.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_237.
+- Thao tác: đổi bộ lọc tải lại bảng; bấm số phiếu mở MAN_HINH_208; "Lập phiếu điều chỉnh" mở MAN_HINH_208 trống.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có phiếu điều chỉnh ngân sách.".
+- Thông báo: không có.
+- Quyền hiển thị: trang với `purchasing.budget.view` hoặc `purchasing.budget.manage`; nút "Lập phiếu điều chỉnh" với `purchasing.budget.manage`.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; không cuộn ngang.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
+
+### MAN_HINH_208: Chi tiết, sửa phiếu điều chỉnh ngân sách
+- Mục đích: Lập, sửa phiếu tăng, giảm, chuyển ngân sách của kế hoạch đã duyệt; gửi duyệt, rút, hủy.
+- Chức năng thực hiện: CHUC_NANG_208
+- Đường dẫn: `/purchasing/budget-adjustments/new` (`?planId=` chọn sẵn kế hoạch), `/purchasing/budget-adjustments/[id]`.
+- Bố cục: liên kết quay lại "Điều chỉnh ngân sách"; tiêu đề là số phiếu (chưa gửi: "Phiếu nháp") kèm nhãn trạng thái.
+  - Ô "Kế hoạch" (chọn kế hoạch đã duyệt), "Lý do (bắt buộc)"; chú thích "Chuyển ngân sách = một dòng giảm, một dòng tăng (có thể khác tháng). Không giảm dưới số đã dùng. Duyệt xong mới áp vào ngân sách.".
+  - Bảng dòng: "Ngành hàng", "Kho", "Tháng" (trong kỳ kế hoạch), "Tăng/giảm" ("Tăng", "Giảm"), "Số tiền", "Ngân sách hiện tại", "Đã dùng", "Sau điều chỉnh"; nút "Bỏ dòng" mỗi dòng, "Thêm dòng" dưới bảng.
+  - Nhóm nút: "Lưu nháp", "Gửi duyệt", "Hủy phiếu" (khi sửa được); "Rút lại" (người lập, đang chờ duyệt, cấp 1 chưa quyết định).
+- Dữ liệu hiển thị: "Ngân sách hiện tại", "Đã dùng", "Sau điều chỉnh" có khi dòng đã lưu (chưa lưu hiện "—"); "Sau điều chỉnh" nhỏ hơn "Đã dùng" tô màu lỗi, chữ đậm; phiếu đã duyệt hiện ngân sách trước khi áp phiếu.
+- Thành phần: ThanhTrenCung, MenuMiniApp, ONhap, OChon, BangDuLieu, NhanTrangThai, Nut, KhoiCanhBao, HopThoaiXacNhan, ThongBaoNoi, TrangThaiRong (tài liệu `15`).
+- API: API_235 (kế hoạch đã duyệt, danh sách chọn), API_237, API_238.
+- Thao tác: chọn kế hoạch nạp kỳ và ngân sách hiện tại của ô; "Lưu nháp" lập hoặc sửa; "Gửi duyệt" lưu rồi gửi; "Hủy phiếu" hỏi "Hủy phiếu điều chỉnh này?" rồi hủy; "Rút lại" rút yêu cầu duyệt.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; chưa có kế hoạch đã duyệt: "Chưa có kế hoạch ngân sách đã duyệt để điều chỉnh.".
+- Thông báo: "Đã lưu.", "Đã gửi duyệt."; lỗi kiểm tra hiện khối "Có dòng chưa hợp lệ:" và đánh dấu đúng dòng ("Ngân sách sau điều chỉnh nhỏ hơn số đã dùng của ô.", "Tháng nằm ngoài kỳ kế hoạch."); lỗi gửi (chưa có chính sách duyệt) ở thông báo nổi.
+- Quyền hiển thị: ô nhập, nút theo `canEdit`, `canSubmit`, `canWithdraw`, `canCancel` của API_237; người chỉ có `purchasing.budget.view` xem chỉ đọc.
+- Responsive: dòng phiếu chuyển thành thẻ xếp lưới tự co; nút xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
+
+### MAN_HINH_209: Khối ngân sách mua trong đơn mua
+- Mục đích: Cho người lập, sửa đơn mua biết đơn có vượt ngân sách không trước khi gửi duyệt; cho người xem đơn biết các ô vượt lúc gửi duyệt.
+- Chức năng thực hiện: CHUC_NANG_209
+- Đường dẫn: khối trong MAN_HINH_40 (`/purchasing/orders/new`), MAN_HINH_41 (`/purchasing/orders/[id]`), đặt dưới bảng dòng hàng của đơn.
+- Bố cục: tiêu đề "Ngân sách mua".
+  - Khi có ô vượt hoặc chưa có ngân sách: khối cảnh báo "Đơn vượt hoặc chưa có ngân sách ở <số> ô. Khi gửi duyệt, đơn sẽ đi luồng duyệt "Đơn mua vượt ngân sách"."; khi mọi ô trong ngân sách: khối thông tin "Đơn nằm trong ngân sách.".
+  - Bảng ô: "Ngành hàng", "Kho", "Tháng", "Ngân sách", "Đã dùng (không gồm đơn này)", "Đơn này", "Còn lại sau đơn", nhãn trạng thái "Trong ngân sách", "Vượt ngân sách", "Chưa có ngân sách".
+  - Đơn đã gửi duyệt theo luồng vượt ngân sách: thêm bảng "Các ô vượt lúc gửi duyệt" (ảnh chụp lúc gửi).
+  - Chú thích "Giá trị chưa thuế, quy đổi theo tỷ giá hạch toán ngày đơn. Chỉ cảnh báo, không chặn lưu.".
+- Dữ liệu hiển thị: ô chưa có ngân sách hiện "—" ở ngân sách, còn lại sau đơn; còn lại âm tô màu lỗi, chữ đậm.
+- Thành phần: The, KhoiCanhBao, BangDuLieu, NhanTrangThai (tài liệu `15`).
+- API: API_240 (khi lập, sửa đơn), API_75 (`budgetCheck`, `budgetSnapshot` của chi tiết đơn).
+- Thao tác: đổi kho, ngày đơn, đồng tiền, dòng hàng thì kiểm tra lại; không có nút riêng.
+- Trạng thái: khối ẩn khi tháng của ngày đơn chưa áp dụng ngân sách (QUYTAC_NGHIEPVU_450) và đơn không có ảnh chụp; thiếu tỷ giá hạch toán ngày đơn thì khối ẩn.
+- Thông báo: gửi duyệt khi chưa có chính sách duyệt vượt ngân sách hiện ở thông báo nổi: "Đơn vượt hoặc chưa có ngân sách nhưng chưa có chính sách duyệt "Đơn mua vượt ngân sách". Nhờ quản trị công ty cấu hình ở Nền tảng › Chính sách duyệt.".
+- Quyền hiển thị: người có quyền lập, sửa hoặc xem đơn mua; không cần `purchasing.budget.view`.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; không cuộn ngang.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
