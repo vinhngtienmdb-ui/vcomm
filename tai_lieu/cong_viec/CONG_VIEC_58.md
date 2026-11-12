@@ -67,7 +67,7 @@ Ngoài phạm vi:
 | `purchasing.budget.view` | Xem ngân sách mua | Không |
 | `purchasing.budget.manage` | Lập, điều chỉnh ngân sách mua | Không |
 
-Vai trò hệ thống thêm quyền (không bớt quyền cũ): Nhân viên mua hàng thêm `purchasing.budget.view`. Quản trị công ty có quyền qua THAY_DOI_06 (mọi quyền mini app). `purchasing.budget.manage` không gán sẵn; quản trị gán cho trưởng phòng mua hàng bằng vai trò tự tạo. Tài khoản thử `phuc.le@vcomm.test` được gán thêm trong dữ liệu thử.
+Vai trò hệ thống thêm quyền (không bớt quyền cũ): Nhân viên mua hàng thêm `purchasing.budget.view`. Quản trị công ty, Quản trị tập đoàn có cả hai quyền `purchasing.budget.view`, `purchasing.budget.manage`. `purchasing.budget.manage` không gán sẵn cho vai trò nghiệp vụ; quản trị gán cho trưởng phòng mua hàng bằng vai trò tự tạo. Tài khoản thử `phuc.le@vcomm.test` được gán thêm trong dữ liệu thử.
 
 Loại chứng từ duyệt mới (`core.document_types`, mini app `purchasing`): `purchasing.budget_plan` (Kế hoạch ngân sách mua), `purchasing.budget_adjustment` (Điều chỉnh ngân sách mua), `purchasing.order_over_budget` (Đơn mua vượt ngân sách). Chính sách duyệt cấu hình ở MAN_HINH_15 như các loại khác.
 
@@ -122,7 +122,7 @@ Mini app Mua hàng nghe `core.approval.completed` của `purchasing.budget_plan`
 | TIEUCHI_NGHIEMTHU_414 | Đã dùng tính đúng theo trạng thái đơn (đã duyệt, nhận đủ, đóng sớm tính phần đã nhận, đơn chờ duyệt không tính), chưa thuế, quy đổi tỷ giá | Bắt buộc | KICHBAN_KIEMTHU_588 |
 | TIEUCHI_NGHIEMTHU_415 | Số còn được mua theo tháng, quý, năm, ngành hàng, kho đúng; xem các đơn đã tính của một ô | Bắt buộc | KICHBAN_KIEMTHU_589 |
 | TIEUCHI_NGHIEMTHU_416 | Đơn mua hiện cảnh báo ô vượt, ô chưa có ngân sách; không chặn lưu | Bắt buộc | KICHBAN_KIEMTHU_590 |
-| TIEUCHI_NGHIEMTHU_417 | Gửi duyệt đơn vượt (kể cả đơn miễn duyệt, duyệt lại) đi luồng `purchasing.order_over_budget`; trong ngân sách hoặc tháng chưa áp dụng đi luồng cũ; chưa có chính sách vượt thì báo lỗi; hai đơn gửi đồng thời không cùng lọt | Bắt buộc | KICHBAN_KIEMTHU_591, 592 |
+| TIEUCHI_NGHIEMTHU_417 | Gửi duyệt đơn vượt (kể cả đơn miễn duyệt, duyệt lại) đi luồng `purchasing.order_over_budget`; trong ngân sách hoặc tháng chưa áp dụng đi luồng cũ; chưa có chính sách vượt thì báo lỗi; hai đơn được duyệt ngay khi gửi (công ty chưa có chính sách duyệt đơn mua) gửi đồng thời, mỗi đơn vừa đủ phần còn lại: một đơn duyệt ngay, đơn kia đi luồng vượt ngân sách (đơn chờ duyệt không giữ chỗ ngân sách, QUYTAC_NGHIEPVU_446) | Bắt buộc | KICHBAN_KIEMTHU_591, 592 |
 | TIEUCHI_NGHIEMTHU_418 | Phiếu điều chỉnh tăng, giảm, chuyển; duyệt xong áp đúng vào ô; giảm dưới số đã dùng bị từ chối khi gửi | Bắt buộc | KICHBAN_KIEMTHU_593 |
 | TIEUCHI_NGHIEMTHU_419 | Phân quyền: không có quyền bị 403; dữ liệu công ty khác 404; nhật ký thao tác đủ | Bắt buộc | KICHBAN_KIEMTHU_594 |
 | TIEUCHI_NGHIEMTHU_420 | Chức năng đơn mua cũ không đổi khi công ty chưa có ngân sách (kiểm thử CONG_VIEC_07, 09 đạt) | Bắt buộc | KICHBAN_KIEMTHU_595 |
@@ -139,7 +139,7 @@ Mini app Mua hàng nghe `core.approval.completed` của `purchasing.budget_plan`
 | KICHBAN_KIEMTHU_589 | API_239 theo tháng, quý, năm; lọc ngành hàng, kho; danh sách đơn của ô | TIEUCHI_NGHIEMTHU_415 |
 | KICHBAN_KIEMTHU_590 | API_240 với đơn trong ngân sách, vượt một ô, ô chưa có, tháng chưa áp dụng; khi sửa đơn không tính chính đơn | TIEUCHI_NGHIEMTHU_416 |
 | KICHBAN_KIEMTHU_591 | Gửi duyệt đơn trong ngân sách (luồng cũ), vượt (luồng vượt), đơn miễn duyệt vượt, duyệt lại sau sửa tăng giá trị vượt; chưa có chính sách vượt: lỗi | TIEUCHI_NGHIEMTHU_417 |
-| KICHBAN_KIEMTHU_592 | Hai đơn cùng gửi đồng thời, mỗi đơn vừa đủ ngân sách: một đơn đi luồng vượt | TIEUCHI_NGHIEMTHU_417 |
+| KICHBAN_KIEMTHU_592 | Công ty chưa có chính sách duyệt đơn mua: hai đơn được duyệt ngay khi gửi, gửi đồng thời, mỗi đơn vừa đủ phần còn lại của ô: một đơn duyệt ngay, đơn kia đi luồng `purchasing.order_over_budget` (đơn chờ duyệt không giữ chỗ ngân sách, QUYTAC_NGHIEPVU_446) | TIEUCHI_NGHIEMTHU_417 |
 | KICHBAN_KIEMTHU_593 | Phiếu tăng, giảm, chuyển khác tháng; duyệt xong số ô đúng; giảm dưới đã dùng bị từ chối | TIEUCHI_NGHIEMTHU_418 |
 | KICHBAN_KIEMTHU_594 | Người không có `purchasing.budget.view`, `.manage` gọi API_235 đến 239: 403; mã công ty khác: 404; nhật ký thao tác | TIEUCHI_NGHIEMTHU_419 |
 | KICHBAN_KIEMTHU_595 | Chạy lại kiểm thử đơn mua, giao dịch nội bộ hiện có với công ty không có ngân sách | TIEUCHI_NGHIEMTHU_420 |
@@ -174,6 +174,7 @@ Chưa thực hiện.
 - 2026-11-12: ô ngân sách = ngành hàng × kho × tháng; số còn được mua = ngân sách − đơn đã duyệt (không trừ tồn kế hoạch); vượt ngân sách thì cảnh báo khi lập và chuyển luồng duyệt riêng cấp cao; ô chưa có ngân sách coi như 0, công ty chưa lập ngân sách tháng đó thì không kiểm tra; quyền riêng lập, kế hoạch đi luồng duyệt dùng chung; điều chỉnh giữa kỳ bằng phiếu có duyệt; đặt trong mini app Mua hàng; giá trị chưa thuế, quy đổi đồng tiền hạch toán.
 - 2026-11-12: duyệt đặc tả; đơn đóng sớm tính phần đã nhận, hàng trả nhà cung cấp không hoàn ngân sách; đơn vượt khi chưa có chính sách duyệt vượt ngân sách thì báo lỗi; chọn phương án 1 của phân tích giải pháp có sẵn.
 - 2026-11-12: duyệt bản mẫu MAN_HINH_204 đến 209.
+- 2026-11-12: duyệt L0, L1, L2 (giữ quy tắc đơn chờ duyệt không giữ chỗ ngân sách; menu phẳng).
 
 ## Phân tích giải pháp có sẵn – CONG_VIEC_58 – 2026-11-12
 
