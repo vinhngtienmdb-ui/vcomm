@@ -167,7 +167,24 @@ Hành vi đơn mua, đề nghị mua, giao dịch nội bộ, nhập mua khi cô
 
 ## 15. Kết quả đối chiếu định nghĩa hoàn thành
 
-Chưa thực hiện.
+Ngày 2026-11-12, trình người dùng nghiệm thu.
+
+| Mục | Kết quả |
+|---|---|
+| Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Đạt: QUYTAC_NGHIEPVU_442 đến 453 có kiểm thử tự động; quyền kiểm ở máy chủ; dữ liệu lọc theo công ty |
+| Đúng giao diện | Đạt: MAN_HINH_204 đến 209 theo bản mẫu đã duyệt; khác bản mẫu: menu phẳng không có tiêu đề nhóm (người dùng chấp nhận khi duyệt L0) |
+| Đã xử lý lỗi | Đạt: lỗi theo ô, thiếu chính sách duyệt, thiếu tỷ giá, xung đột phiên bản |
+| Đã kiểm thử | Đạt: toàn bộ kiểm thử api 561/561 (105 tệp); c58 12/12; kết quả gửi phiên cha ghi tài liệu `25` |
+| Không phá vỡ chức năng cũ | Đạt: c7, c9, c43, c45 đạt; công ty chưa có kế hoạch ngân sách gửi duyệt đơn mua như cũ |
+| Tiêu chí nghiệm thu bắt buộc | TIEUCHI_NGHIEMTHU_412 đến 420 đạt bằng kiểm thử tự động; TIEUCHI_NGHIEMTHU_421 (giao diện) xem trước từng lát L0 đến L3 |
+| Cổng bảo mật | Đạt: truy vấn có tham số, điều kiện công ty trong truy vấn; không thêm thư viện; quét khóa bí mật, thư viện phụ thuộc chạy ở CI đạt |
+| Tự rà soát mã, dọn dẹp | Đạt: 15 mục danh sách tự rà soát; ảnh chụp, log trong `tam_thoi/` giữ đến khi nghiệm thu |
+| Tài liệu | Đạt: tài liệu 06, 07, 08, 09, 10, 11, 14, 16, 17, 21, 22, 27 và đặc tả; sổ dùng chung 02, 03, 25 gửi phiên cha |
+
+Tồn đọng, cần người dùng biết:
+- Đơn chờ duyệt không giữ chỗ ngân sách (QUYTAC_NGHIEPVU_446): hai đơn chờ duyệt gửi cùng lúc có thể cùng đi luồng thường rồi làm ô âm; ô âm hiện màu đỏ ở MAN_HINH_206. Người dùng giữ quy tắc này khi duyệt L2.
+- Menu ngân sách chỉ hiện với `purchasing.budget.view`; người chỉ có `purchasing.budget.manage` không thấy menu (API vẫn cho thao tác).
+- Giao diện chưa có kiểm thử tự động (Playwright), như các mini app khác.
 
 ## 16. Quyết định của người dùng
 
