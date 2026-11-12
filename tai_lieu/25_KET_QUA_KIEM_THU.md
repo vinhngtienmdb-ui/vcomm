@@ -203,6 +203,13 @@
 - Kết quả: toàn bộ `pnpm --filter api test` 102 tệp, 556/556 đạt (trên commit có bản sửa rà soát `71720f4`); `c22-kinh-doanh-vcomm` 7/7 (KICHBAN_KIEMTHU_573 đến 579; TIEUCHI_NGHIEMTHU_402 đến 407); `c22-sales-app` 5/5 (KICHBAN_KIEMTHU_290, 291 sửa theo THAY_DOI_26; TIEUCHI_NGHIEMTHU_408 phần API); KICHBAN_KIEMTHU_580 kiểm bằng đọc mã và kiểm tra kiểu; KICHBAN_KIEMTHU_581 (đường dẫn chia sẻ) Playwright trên bản xem trước với API giả lập, đạt; KICHBAN_KIEMTHU_582 (ứng dụng khổ 390) xem trước từng lát, người dùng đồng ý. Hồi quy c49 sau THAY_DOI_28 đạt.
 - Tiêu chí Mong muốn: KICHBAN_KIEMTHU_583 (hiệu năng, TIEUCHI_NGHIEMTHU_411) chưa chạy.
 - Rà soát độc lập: không có lỗi Nghiêm trọng, Cao; 1 Trung bình, 6 Thấp, đã sửa ở commit `71720f4`.
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_57 (lát L0 đến L6)
+
+- Phạm vi: Trạm giao hàng O2O (MODULE_14 phần 2), nhánh `chuc-nang/CONG_VIEC_57-tram-giao-hang-ngan-sach` (pull request #118, head `9393644`); database migration 0109 đến 0111, API_220 đến 227, MAN_HINH_188 đến 195.
+- Môi trường: container phát triển; PostgreSQL, `vcomm_test` xóa sạch mỗi lần chạy; Redis; Node.js 22; CI GitHub Actions.
+- Kết quả: `pnpm --filter api test` 573 đạt / 0 không đạt / 573 (107 tệp); `c57-stations` 4/4 (KICHBAN_KIEMTHU_559 đến 562), `c57-station-orders` 5/5 (563), `c57-station-handover` 5/5 (564 đến 566), `c57-station-delivery` 4/4 (567, 568), `c57-station-hold` 3/3 (569 đến 571), `c57-station-returns` 3/3 (572); giao diện web-retail, web-crm, ứng dụng VComm kiểm bằng ảnh xem trước, người dùng duyệt L1 đến L6; kiểm tra kiểu api, web-crm, web-retail, mobile-vcomm, web-platform đạt; khóa dịch khớp.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_390 đến 401 – Đạt.
+- Kiểm tra bảo mật: không thêm thư viện; mã nhận hàng chỉ người mua thấy, không ghi nhật ký, không gửi Zalo ZNS, không trả cho vận hành sàn (có kiểm thử); sai 5 lần khóa 15 phút; phạm vi chi nhánh, ngoài phạm vi trả 404; CI quét bảo mật đạt.
 - Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
 
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_53 (lát L6)
