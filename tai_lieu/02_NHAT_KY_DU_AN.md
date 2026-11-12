@@ -9,6 +9,9 @@
 
 ### Công việc đã thực hiện
 
+- Người dùng nghiệm thu CONG_VIEC_59 (chữ ký số, kho hợp đồng; MODULE_13 phần 2), pull request #132 (commit `73465083`; kiểm thử 715/715): ký số qua lớp kết nối nhà cung cấp ký số từ xa và bộ giả lập; ký công văn đi, hợp đồng trong kho, hợp đồng lao động, mọi tệp PDF; kho hợp đồng; đối tác ký qua đường dẫn; nhắc hạn. Database migration 0121 đến 0123. Sửa LOI_10, LOI_11. Thư viện @signpdf 4.0.0, pdf-lib 1.17.1, node-forge 1.4.3.
+- Người dùng nghiệm thu CONG_VIEC_66 (Open API phần 2) lát L1, L2, pull request #144 (commit `102dfed`; kiểm thử 699/699): đối tác tạo khách hàng qua Open API, hóa đơn và công nợ theo khách do đối tác tạo, đơn giao thẳng người nhận cuối; database migration 0131; sửa màn hình đối tác, chi tiết đơn bán, phiếu xuất. Cấp THAY_DOI_32, LOI_09.
+- Phát hành 0.8.0 (pull request #141, commit hợp nhất `c34d968`): CONG_VIEC_52 (Văn phòng số phần 1), CONG_VIEC_56 (kế toán ngoại tệ và thuế hải quan). Kiểm thử API 688/688. Không tạo database migration 0145. Thư viện mới: docx 9.15.3 (đã duyệt 2026-11-11). Biến môi trường mới: OFFICE_ORIGIN. Chưa triển khai.
 - Người dùng nghiệm thu CONG_VIEC_56 (kế toán ngoại tệ và thuế hải quan, MODULE_06) lát L0 đến L3, pull request #119 (commit `2522322`, đã hợp nhất main 0.7.0; kiểm thử 648/648): database migration 0106 (quỹ ngoại tệ; finance.payments.kind thêm currency_purchase; view finance.fund_movements; vai trò định khoản cash_foreign, bank_foreign, exchange_difference, financial_income, financial_expense, late_payment_expense), 0107 (đánh giá lại; accounting.journals.source_type thêm fx_revaluation), 0108 (tham số thuế hải quan, tờ khai bổ sung, phiếu nộp và nhận hoàn thuế hải quan; payments.kind thêm customs_tax_payment, customs_tax_refund; journals.source_type thêm import_amendment). Ràng buộc journals_source_type_check của 0107, 0108 gồm mọi giá trị của 0105. Không thêm thư viện.
 - CONG_VIEC_52 hợp nhất main 0.7.0 (commit `c1f5d62`; kiểm thử 673/673).
 - Phát hành 0.7.0 (pull request #137, commit hợp nhất `bab8d3b`): CONG_VIEC_55, CONG_VIEC_61 (lát L1, L2); THAY_DOI_27, 29. Kiểm thử API 633/633. Không tạo database migration 0144 (ràng buộc dùng chung chỉ CONG_VIEC_55 định nghĩa lại). Thư viện mới: jsqr 1.4.0, expo-camera ~58.0.14 (mobile-vcomm). Môi trường thật bắt buộc đặt MFA_SECRET_KEY. Chưa triển khai.
@@ -40,6 +43,13 @@
 
 ### Quyết định
 
+- Người dùng quyết định không cần tra cứu pháp lý cho các công việc (bỏ điều kiện nghiệm thu của CONG_VIEC_59).
+- Người dùng mở phiên CONG_VIEC_62 (Dropship) và CONG_VIEC_65 (đối tác liên minh điểm ngoài tập đoàn; phát hành thật vẫn cần ý kiến luật sư); CONG_VIEC_63 tạm dừng.
+- Người dùng duyệt lát L4 CONG_VIEC_60, lát L1 CONG_VIEC_67; phát hành 0.9.0 gồm CONG_VIEC_59, 66 ngay (CONG_VIEC_60 vào bản sau); dành database migration 0149 cho việc gộp ràng buộc kiểm tra dùng chung của 0.9.0 nếu cần.
+- CONG_VIEC_59 sau rà soát độc lập: cho ký chéo trong tập đoàn (tài khoản ký số cùng nhà cung cấp); thư mời đối tác gửi sau khi ghi, gửi lại tối đa 5 lần mỗi 24 giờ; người đóng chữ ký công ty xem được phiên ký của hợp đồng mật (bổ sung QUYTAC_NGHIEPVU_466). Chấp nhận có điều kiện (tài liệu 22): trình gửi thư mời chỉ ghi nhật ký, phải thay trình gửi thật trước khi triển khai chính thức; bộ giả lập giữ lần ký trong bộ nhớ. Điều kiện nghiệm thu: tra nguyên văn căn cứ pháp lý khi hạn mức tra luật đặt lại, báo lại nếu phải đổi nghiệp vụ.
+- CONG_VIEC_66: chống dò hồ sơ (LOI_09) bằng cách chỉ dùng lại hồ sơ theo mã số thuế; trùng số căn cước với hồ sơ ngoài phạm vi trả 409.
+- CONG_VIEC_67: người dùng chọn đối tác Open API là cửa hàng liên kết của CONG_VIEC_55; xác thực khách bằng mã thành viên QR động, xác nhận trên ứng dụng hoặc OTP (Smart OTP, chưa kích hoạt thì SMS); tính phí tin nhắn qua đối soát tuần (THAY_DOI_31). CONG_VIEC_66: người dùng chọn đủ 8 phương án đề xuất, sửa màn hình có sẵn.
+- Người dùng quyết định không làm quản lý sản xuất: hủy CONG_VIEC_64, bỏ khỏi phạm vi MODULE_16 (THAY_DOI_30). Mã dành riêng của CONG_VIEC_64 không dùng, không cấp lại.
 - Người dùng mở phiên cho CONG_VIEC_64 (quản lý sản xuất), CONG_VIEC_66 (Open API phần 2), CONG_VIEC_67 (Cửa hàng liên kết phần 2); các công việc còn lại (62, 63, 65) vẫn tạm dừng. Chưa triển khai các bản 0.4.0 đến 0.8.0.
 - Người dùng quyết định CONG_VIEC_52, CONG_VIEC_56 không chờ đối chiếu nguyên văn văn bản luật. Rủi ro còn mở của CONG_VIEC_56: chưa đối chiếu nguyên văn Phụ lục II Thông tư 99/2025 (tài khoản 413, 515, 635), hạn nộp thuế nhập khẩu, mức tiền chậm nộp 0,03% mỗi ngày, thời hạn khai bổ sung; kế toán trưởng chưa xác nhận tài khoản quỹ ngoại tệ. Các tham số đều cài được; nếu khác quy định thì thêm bộ tham số mới hoặc lập yêu cầu thay đổi.
 - Phát hành 0.8.0 gồm CONG_VIEC_52, 56 ngay; dành database migration 0145 cho việc gộp ràng buộc kiểm tra dùng chung nếu cần.
@@ -80,6 +90,7 @@
 
 ### Vấn đề tồn đọng
 
+- LOI_10, LOI_11 (mức Cao, có trong bản 0.8.0 chưa triển khai): xuất PDF công văn đi và phát hành công văn đi với lưu trữ cục bộ bị lỗi; đã sửa trên nhánh CONG_VIEC_59, sẽ vào bản phát hành có CONG_VIEC_59. Không triển khai 0.8.0 khi chưa có bản sửa.
 - Tài liệu 16 còn mô tả cột cũ `retail.sales.buyer_user_id` là dành cho CONG_VIEC_53 lát L6, trong khi L6 dùng `loyalty_user_id`; sửa ở lần cập nhật tài liệu sau.
 - CONG_VIEC_57 (không chặn): việc nền xử lý tối đa 500 đơn mỗi lần; phương thức Thanh toán khi nhận tại trạm cài sẵn ở trạng thái tắt; trạm nhận thông báo cả đơn trả trước còn chờ thanh toán. Khi gộp phát hành: 0110 định nghĩa lại ràng buộc thu hộ của đơn VComm, 0111 định nghĩa lại ràng buộc trạng thái (thêm `ready_for_pickup`).
 - CONG_VIEC_53 L6: tin nhắn kích hoạt Smart OTP dùng mẫu mã xác thực đăng nhập hiện có (chưa có mẫu riêng); bản web của ứng dụng giữ khóa trong phiên trình duyệt.

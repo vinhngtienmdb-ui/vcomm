@@ -36,6 +36,7 @@
 | Giám sát | CloudWatch, Sentry | Log, lỗi, cảnh báo |
 | Băm mật khẩu | argon2id | Chuẩn hiện hành |
 | Mã hóa bí mật | AWS KMS | Bí mật xác thực hai lớp |
+| Ký số PDF | `pdf-lib` 1.17.1, `@signpdf/signpdf` 4.0.0, `@signpdf/placeholder-pdf-lib` 4.0.0, `@signpdf/utils` 4.0.0, `node-forge` 1.4.3 (`@types/node-forge` 1.3.14); nhà cung cấp ký số từ xa qua lớp kết nối chung, bộ giả lập tự viết cho môi trường thử | CONG_VIEC_59; người dùng duyệt 2026-11-12 (mục 10) |
 
 ## 2. Phân tích giải pháp có sẵn – Giai đoạn 05 – 2026-11-09
 
@@ -195,3 +196,17 @@ Quyết định: người dùng đồng ý thêm `expo-clipboard` ngày 2026-11-
 - PDF: dùng `pdfmake` 0.3.12 đang có; phông Liberation Serif (SIL OFL 1.1, kích thước chữ tương đương Times New Roman, có đủ chữ tiếng Việt) đóng gói trong `apps/api/assets/fonts` kèm tệp giấy phép. Times New Roman có bản quyền, không đóng gói được.
 - Word: thêm `docx` 9.15.3 (giấy phép MIT, cập nhật 2026-11-06; phụ thuộc `fflate`, `nanoid` giấy phép MIT), tạo tệp `.docx` ghi phông Times New Roman.
 - Quyết định của người dùng: xuất cả PDF và Word, thêm thư viện `docx` – 2026-11-11; duyệt thêm `docx` 9.15.3 và phông Liberation Serif đóng gói trong mã khi xem trước lát L2 – 2026-11-11.
+
+## 10. Phân tích giải pháp có sẵn – CONG_VIEC_59 chữ ký số – 2026-11-12
+
+- Yêu cầu cần đáp ứng: QUYTAC_NGHIEPVU_457 (chèn chữ ký PAdES bổ sung tăng dần vào PDF với chữ ký lấy từ nhà cung cấp ký số từ xa), QUYTAC_NGHIEPVU_461 (đọc, kiểm tra chữ ký số trong PDF).
+- Nguồn đã tìm: mã nguồn dự án (chưa có mã ký số; `pdfmake` chỉ sinh PDF mới, không sửa PDF có sẵn), trang giới thiệu VNPT SmartCA (cần tài khoản kết nối, chưa có đặc tả API ký tài liệu công khai), kho npm.
+
+| Ứng viên | Dùng cho | Giấy phép | Phiên bản | Tương thích công nghệ | Công sức điều chỉnh |
+|---|---|---|---|---|---|
+| `@signpdf/signpdf`, `@signpdf/placeholder-pdf-lib`, `@signpdf/utils` | Tạo chỗ ký (`ETSI.CAdES.detached`), chèn chữ ký vào chỗ ký; bộ ký thay được nên dùng chữ ký từ nhà cung cấp | MIT | 4.0.0 (2026-10-19) | Node.js, TypeScript | Thấp |
+| `pdf-lib` | Đọc, sửa PDF có sẵn: thêm ô chữ ký hiển thị | MIT | 1.17.1 (bản cuối 2021, không còn phát triển tích cực) | Node.js, TypeScript | Thấp |
+| `node-forge` | Lập, đọc cấu trúc CMS, chứng thư X.509 khi ký và kiểm tra | BSD-3-Clause hoặc GPL-2.0 (chọn BSD-3-Clause) | 1.4.3 (2026-11-04; bản 1.4.2 có 3 lỗ hổng Trung bình, 1 Thấp đã vá ở 1.4.3) | Node.js | Trung bình |
+| Chỉ dùng `node:crypto` | Tự viết xử lý cấu trúc PDF và CMS | Không áp dụng | Không áp dụng | Node.js | Cao, dễ sai |
+
+Quyết định: người dùng duyệt bộ `@signpdf`, `pdf-lib`, `node-forge` ngày 2026-11-12; đồng ý dùng `node-forge` 1.4.3 thay 1.4.2 (bản vá lỗ hổng) cùng ngày.

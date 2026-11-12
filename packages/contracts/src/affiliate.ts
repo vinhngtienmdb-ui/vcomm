@@ -4,7 +4,7 @@ import { z } from "zod";
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 // Số điện thoại Việt Nam dạng E.164 (cùng quy tắc `normalizePhone` của index.ts; không nhập từ index để tránh vòng phụ thuộc).
-const vietnamPhone = z
+export const vietnamPhone = z
   .string()
   .trim()
   .transform((value) => {

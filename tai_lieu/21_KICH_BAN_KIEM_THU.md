@@ -4,7 +4,7 @@
 - Phiên bản: 1.9
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt; CONG_VIEC_50 (2026-11-11): thêm KICHBAN_KIEMTHU_476 đến KICHBAN_KIEMTHU_485 của MODULE_15 (báo cáo quản trị; 476 đến 483 tự động; 484, 485 tự động một phần: cắt 500 dòng, xuất Excel tồn kho, công nợ, đo thời gian phản hồi chưa có kiểm thử tự động); CONG_VIEC_53 (2026-11-11): thêm KICHBAN_KIEMTHU_510 đến KICHBAN_KIEMTHU_521 của MODULE_14 (bán lẻ tại quầy phần 1); KICHBAN_KIEMTHU_519 chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm KICHBAN_KIEMTHU_464 đến KICHBAN_KIEMTHU_475 (cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, kiểm duyệt; tự động), KICHBAN_KIEMTHU_532 (chặn ví hoa hồng; tự động); CONG_VIEC_58 (2026-11-12): thêm KICHBAN_KIEMTHU_585 đến KICHBAN_KIEMTHU_596 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách; KICHBAN_KIEMTHU_585 đến 594 tự động, 595 chạy lại kiểm thử có sẵn, 596 giao diện thủ công); KICHBAN_KIEMTHU_592 theo quy tắc đơn chờ duyệt không giữ chỗ ngân sách; CONG_VIEC_22 (2026-11-12), THAY_DOI_26: thêm KICHBAN_KIEMTHU_573 đến KICHBAN_KIEMTHU_583; sửa KICHBAN_KIEMTHU_290, 291; CONG_VIEC_55 (2026-11-11): thêm KICHBAN_KIEMTHU_533 đến KICHBAN_KIEMTHU_546 của MODULE_12 Cửa hàng liên kết phần 1
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt; CONG_VIEC_50 (2026-11-11): thêm KICHBAN_KIEMTHU_476 đến KICHBAN_KIEMTHU_485 của MODULE_15 (báo cáo quản trị; 476 đến 483 tự động; 484, 485 tự động một phần: cắt 500 dòng, xuất Excel tồn kho, công nợ, đo thời gian phản hồi chưa có kiểm thử tự động); CONG_VIEC_53 (2026-11-11): thêm KICHBAN_KIEMTHU_510 đến KICHBAN_KIEMTHU_521 của MODULE_14 (bán lẻ tại quầy phần 1); KICHBAN_KIEMTHU_519 chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm KICHBAN_KIEMTHU_464 đến KICHBAN_KIEMTHU_475 (cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, kiểm duyệt; tự động), KICHBAN_KIEMTHU_532 (chặn ví hoa hồng; tự động); CONG_VIEC_58 (2026-11-12): thêm KICHBAN_KIEMTHU_585 đến KICHBAN_KIEMTHU_596 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách; KICHBAN_KIEMTHU_585 đến 594 tự động, 595 chạy lại kiểm thử có sẵn, 596 giao diện thủ công); KICHBAN_KIEMTHU_592 theo quy tắc đơn chờ duyệt không giữ chỗ ngân sách; CONG_VIEC_22 (2026-11-12), THAY_DOI_26: thêm KICHBAN_KIEMTHU_573 đến KICHBAN_KIEMTHU_583; sửa KICHBAN_KIEMTHU_290, 291; CONG_VIEC_55 (2026-11-11): thêm KICHBAN_KIEMTHU_533 đến KICHBAN_KIEMTHU_546 của MODULE_12 Cửa hàng liên kết phần 1; CONG_VIEC_59 (2026-11-12): thêm KICHBAN_KIEMTHU_597 đến KICHBAN_KIEMTHU_610 của MODULE_13 phần 2 (chữ ký số, kho hợp đồng; 597 đến 609 tự động, trong đó 597, 599, 600, 601, 602, 604, 605, 606 tự động một phần; 610 giao diện thủ công)
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -5491,6 +5491,96 @@ Dữ liệu chung: `apps/api/test/c61-open-api.test.ts` – công ty VCR có s�
 - Các bước và kết quả mong đợi: trên ứng dụng chạy thật, cấp khóa ở MAN_HINH_224 (hộp khóa một lần, sao chép), xem MAN_HINH_225 (thống kê, ba thẻ), lọc MAN_HINH_226; màn hình 390 điểm ảnh chuyển bảng thành thẻ; không lỗi console. Trạng thái rỗng, đang tải, lỗi, không quyền dùng `Loaded`, `MessageView` dùng chung.
 - Kiểm thử tự động: Bán tự động – Playwright chụp màn hình (kịch bản trong thư mục nháp của phiên, chưa đưa vào dự án)
 - Lát: L1, L2
+
+## CHUC_NANG_221: khách hàng do đối tác tạo, người nhận giao thẳng (CONG_VIEC_66)
+
+Dữ liệu chung: `apps/api/test/c66-open-api-customers.test.ts` – công ty VCR có sản phẩm bán theo cái, kho OC661, kênh Bán sỉ, bảng giá chung 11.000 và nhóm Đại lý cấp 1 9.900; hai khóa của đối tác Minh Long, một khóa đối tác khác, một khóa nội bộ, một khóa công ty VCT.
+
+### KICHBAN_KIEMTHU_681
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_494
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng
+- Các bước và kết quả mong đợi: Tạo khách tổ chức bằng khóa đối tác nhóm Đại lý cấp 1: `201`, hồ sơ có `created_via_api_key_id`, hồ sơ khách công ty nhóm Đại lý cấp 1, hạn 0 ngày, hạn mức trống, phạm vi là đối tác.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_682
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_494
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng
+- Các bước và kết quả mong đợi: Tạo khách cá nhân bằng khóa nội bộ: không nhóm, phạm vi là khóa, không có căn cước, có thời điểm xác nhận đồng ý; nhân viên sửa hồ sơ không căn cước được.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_683
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_495
+- Chức năng: CHUC_NANG_221
+- Loại: Sai, giá trị biên
+- Các bước và kết quả mong đợi: Sáu trường hợp: tổ chức thiếu mã số thuế, thiếu địa chỉ; cá nhân thiếu điện thoại, `personalDataConsent` sai; mã số thuế sai định dạng; email sai: `400` đúng trường, đúng thông báo.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_684
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_496
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng, sai, đồng thời
+- Các bước và kết quả mong đợi: Trùng mã số thuế hồ sơ nhân viên tạo: `200` chỉ mã, hồ sơ không đổi, công ty có hồ sơ khách; hồ sơ ngừng dùng, chỉ nhà cung cấp: `409`; hai khóa cùng đối tác gửi cùng lúc: một `201`, một `200`, một hồ sơ; gửi lại: `200` đủ thông tin.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_685
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_497
+- Chức năng: CHUC_NANG_221
+- Loại: Phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Khóa thứ hai cùng đối tác thấy khách; đối tác khác, khóa nội bộ, khóa công ty B nhận `404`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_686
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_497
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Sửa khách mình tạo đúng `version`; sai `version` `409`; gửi `taxCode` `400`; xóa địa chỉ tổ chức `400`; sửa khách gắn do trùng `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_687
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_498
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Đơn với khách do đối tác tạo: khách đúng, tổng tiền theo giá nhóm (99.000); khách của đối tác khác, khách ngừng dùng bị từ chối ở `customerCode`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_688
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_499
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Đơn có người nhận lưu, trả về (cả khóa thứ hai); thiếu tên, điện thoại sai, có cả `deliveryAddress` `400` đúng trường; nhân viên xóa địa chỉ giao `400`, sửa đơn giữ người nhận.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_689
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_500
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng
+- Các bước và kết quả mong đợi: Gửi duyệt, xác nhận, ghi sổ phiếu xuất: phiếu kho có người nhận; hóa đơn "Chờ gửi" mang tên, mã số thuế khách; bút toán 131 theo khách.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_690
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_501
+- Chức năng: CHUC_NANG_221
+- Loại: Bảo mật
+- Các bước và kết quả mong đợi: Nhật ký thao tác tạo, sửa khách có tên khóa, không có số căn cước, không gắn người dùng; nhật ký gọi không có chuỗi truy vấn ngoài danh sách, không có điện thoại; đối tác khác gửi số căn cước đã có nhận `409`, không có mã khách.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_691
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_502
+- Chức năng: CHUC_NANG_221
+- Loại: Giao diện, phân quyền
+- Các bước và kết quả mong đợi: API nhân viên lọc nguồn, `openApi` chỉ ở công ty cấp khóa; chụp màn hình danh sách lọc Open API, chi tiết có hộp Open API, ngăn kéo sửa cá nhân không căn cước; tiếng Việt, tiếng Anh; 1360 và 390 điểm ảnh.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`; chụp màn hình bằng Playwright ngoài dự án
+
+### KICHBAN_KIEMTHU_692
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_503
+- Chức năng: CHUC_NANG_221
+- Loại: Giao diện
+- Các bước và kết quả mong đợi: Chi tiết đơn bán có nhãn khách, khối Người nhận; phiếu xuất có Người nhận; chụp màn hình 1360 và 390 điểm ảnh, tiếng Việt, tiếng Anh.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`; chụp màn hình bằng Playwright ngoài dự án
+
+
 ## MODULE_13 Văn phòng số phần 1 (CONG_VIEC_52)
 
 Dữ liệu chung: công ty VCR và VCT cùng tập đoàn; phòng ban, chi nhánh của VCR; tài khoản Nhân viên, Văn thư (`office_clerk`), lãnh đạo có `office.document.direct`, người thiết kế quy trình, người đăng tin ở phạm vi công ty và tập đoàn, người không có quyền.
@@ -5626,3 +5716,161 @@ Dữ liệu chung: công ty VCR và VCT cùng tập đoàn; phòng ban, chi nhá
 - Kết quả mong đợi: Không cuộn ngang (độ rộng trang bằng khổ màn hình), bảng chuyển dạng thẻ, ngăn kéo dùng được.
 - Kiểm thử tự động: Thủ công – xem trước từng lát
 - Lát: L0 đến L3
+
+## MODULE_13 Văn phòng số phần 2: chữ ký số, kho hợp đồng (CONG_VIEC_59)
+
+Dữ liệu chung: công ty VCR (mã số thuế `0312345678`) và VCT cùng tập đoàn; nhà cung cấp ký số Bộ giả lập ở môi trường thử, tổ chức chứng thực giả lập sinh trong thư mục tạm của kiểm thử; mã định danh đặc biệt của bộ giả lập: `079090000000` (người ký từ chối trên ứng dụng), `079090000999` (chờ mãi), `079090000111` (chứng thư hết hạn); đối tác trong `crm.partners`; tài khoản người lập, phó phòng, giám đốc, văn thư, quản lý hợp đồng, quản trị công ty, quản trị tập đoàn, người không liên quan, nhân viên VCT. Việc nền hỏi kết quả ký (`pollAttempts`), hết hạn phiên ký, nhắc hạn hợp đồng gọi trực tiếp trong kiểm thử; đồng hồ giả lập. Thư điện tử gửi đối tác lấy từ bộ gửi thư giả. Mỗi tệp kiểm thử chạy với PostgreSQL thật.
+
+### KICHBAN_KIEMTHU_597: Cài đặt nhà cung cấp ký số, chữ ký số công ty
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_422
+- Chức năng: CHUC_NANG_210
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Quản trị công ty VCR; nhân viên VCR
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; VCR chưa cài nhà cung cấp.
+- Các bước: (1) Nhân viên gọi API_241 `PUT /office/signing-settings`. (2) Quản trị lưu Bộ giả lập với môi trường `production`. (3) Lưu Bộ giả lập môi trường `test` kèm thông tin kết nối. (4) Bấm kiểm tra kết nối (`POST /office/signing-settings/test`). (5) Lấy chứng thư của mã định danh tổ chức có mã số thuế khác VCR, chọn làm chữ ký công ty. (6) Lấy chứng thư của mã định danh có mã số thuế của VCR, chọn.
+- Kết quả mong đợi: Bước 1: `403`. Bước 2: lỗi "Bộ giả lập ký số chỉ dùng ở môi trường thử.". Bước 3: `200`, `configured`, `hasCredentials` đúng, phản hồi không chứa thông tin kết nối. Bước 4: `204`. Bước 5: lỗi không trùng mã số thuế, không lưu. Bước 6: `seal` có mã định danh của VCR.
+- Kiểm thử tự động: Tự động API một phần – `apps/api/test/c59-phien-ky.test.ts` (bước 1, 2, 3, 5, 6); `apps/api/test/c59-ky-so-pdf.test.ts` (lớp kết nối bộ giả lập từ chối môi trường chính thức, mã định danh sai định dạng). Chưa tự động: bước 4 (kiểm tra kết nối) và chặn bộ giả lập khi máy chủ chạy `NODE_ENV=production`.
+- Lát: L1
+
+### KICHBAN_KIEMTHU_598: Tài khoản ký số của người dùng; chứng thư hết hạn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_423
+- Chức năng: CHUC_NANG_210
+- Loại: Đúng, sai
+- Vai trò thực hiện: Nhân viên VCR (người ký)
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; bộ giả lập cấp chứng thư hết hạn cho mã định danh `079090000111`.
+- Các bước: (1) Gọi API_242 `POST /office/signing-identities/me/certificates` với mã định danh có chứng thư hết hạn. (2) Chọn chứng thư đó. (3) Lấy, chọn chứng thư của mã định danh `079090005678`. (4) Gọi `GET /office/signing-identities/me`.
+- Kết quả mong đợi: Bước 1: `usable` sai. Bước 2: `409`. Bước 3: tài khoản ký số đang dùng, `usable` đúng. Bước 4: chủ thể có `CCCD:079090005678`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c59-phien-ky.test.ts`. Chứng thư chưa đến hiệu lực chưa có kiểm thử tự động. Bổ sung sau rà soát độc lập: tài khoản cá nhân không nhận chứng thư tổ chức (`c59-phien-ky`).
+- Lát: L1
+
+### KICHBAN_KIEMTHU_599: Ký một chữ ký; đọc lại bằng phần mềm đọc PDF; từ chối, quá giờ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_424
+- Chức năng: CHUC_NANG_210
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Người ký có tài khoản ký số
+- Điều kiện ban đầu và dữ liệu: Tệp PDF hai trang; tổ chức chứng thực giả lập; mã định danh `079090000000` (bộ giả lập trả từ chối), `079090000999` (chờ mãi).
+- Các bước: (1) Ký một chữ ký ở trang cuối, góc dưới phải. (2) Kiểm tra chữ ký với và không với chứng thư gốc giả lập. (3) Ký tệp PDF dùng luồng tham chiếu chéo (PDF 1.5). (4) Ký bằng chứng thư hết hạn tại thời điểm ký. (5) Gửi yêu cầu ký với mã định danh từ chối, chờ mãi. (6) Chuẩn bị ký tệp không phải PDF. (7) Mở tệp kết quả bằng phần mềm đọc PDF.
+- Kết quả mong đợi: Bước 1: phần đầu tệp giữ nguyên bản gốc; trang cuối có một ô chữ ký với "Ký bởi: …", "Thời gian ký: dd/mm/yyyy hh:mm". Bước 2: có gốc: Hợp lệ, bao trùm toàn bộ tệp, chủ thể có số định danh; không có gốc: Chưa xác định tin cậy. Bước 3: Hợp lệ, vẫn đọc được hai trang. Bước 4: Không hợp lệ (không còn hiệu lực tại thời gian ký). Bước 5: từ chối trả `rejected`; chờ mãi vẫn `pending`; người ký từ chối trên ứng dụng thì ký lại được (KICHBAN_KIEMTHU_601). Bước 6: lỗi tệp PDF rõ ràng. Bước 7: phần mềm đọc PDF hiện chữ ký, báo chứng thư giả lập không tin cậy.
+- Kiểm thử tự động: Tự động một phần – `apps/api/test/c59-ky-so-pdf.test.ts` (bước 1 đến 6), `apps/api/test/c59-phien-ky.test.ts` (ký lại sau khi từ chối trên ứng dụng). Chưa tự động: lần ký quá 5 phút chuyển `timeout`. Thủ công: bước 7 (mở tệp kết quả ở điểm xem trước L1).
+- Lát: L1
+
+### KICHBAN_KIEMTHU_600: Phiên ký nhiều người theo thứ tự; cùng thứ tự song song; ký đồng thời
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_425
+- Chức năng: CHUC_NANG_211
+- Loại: Đúng, sai, đồng thời
+- Vai trò thực hiện: Nhân viên VCR (người lập); phó phòng, giám đốc (người ký); văn thư (chữ ký công ty); đối tác
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; công ty có chữ ký số (KICHBAN_KIEMTHU_597); phó phòng có tài khoản ký số, giám đốc chưa khai.
+- Các bước: (1) Lập phiên bốn người ký: phó phòng thứ tự 1, giám đốc thứ tự 2, chữ ký công ty thứ tự 3, đối tác thứ tự 4. (2) Gửi khi giám đốc chưa khai tài khoản ký số. (3) Giám đốc khai; gửi lại. (4) Người không liên quan mở chi tiết; giám đốc mở khi chưa đến lượt. (5) Phó phòng ký, việc nền hỏi kết quả. (6) Giám đốc ký. (7) Văn thư mở thẻ Chờ tôi ký, đóng chữ ký công ty. (8) Đối tác ký qua đường dẫn. (9) Tải tệp, kiểm tra chữ ký. (10) Hai người cùng thứ tự bấm ký cùng lúc. (11) Lập phiên với tệp không phải PDF, hạn quá 60 ngày, người ký trùng.
+- Kết quả mong đợi: Bước 1: `201`, nháp, số `KS…`. Bước 2: lỗi "chưa khai tài khoản ký số", không gửi. Bước 3: đang ký, người 1 đến lượt. Bước 4: `404`; giám đốc chưa có `mySignerId`. Bước 5 đến 8: người ký lần lượt đã ký, người sau đến lượt; văn thư thấy `companySealTurn`; phiên đã ký xong, lịch sử có `completed`, một sự kiện `office.signing.completed`. Bước 9: bốn chữ ký đều Hợp lệ, đúng chủ thể theo thứ tự; ba tệp ký nối tiếp chỉ chữ ký cuối bao trùm toàn bộ tệp. Bước 10: một lần ký đang chờ mỗi phiên; người sau ký trên bản mới, không mất chữ ký. Bước 11: `400`.
+- Kiểm thử tự động: Tự động API một phần – `apps/api/test/c59-phien-ky.test.ts` (bước 1 đến 9, 11), `apps/api/test/c59-ky-so-pdf.test.ts` (ký nối tiếp ba chữ ký). Chưa tự động: bước 10 (hai người cùng thứ tự bấm ký đồng thời; chỉ có chỉ mục duy nhất lần ký đang chờ trong cơ sở dữ liệu); thông báo đến lượt kiểm qua thẻ Chờ tôi ký, chưa kiểm bản ghi thông báo. Bổ sung sau rà soát độc lập (`c59-phien-ky`): người ký ở công ty khác trong tập đoàn ký bằng tài khoản cùng nhà cung cấp, người ngoài nhận `404`, thông báo gắn công ty của người ký; tệp có chữ ký cũ chưa kiểm được vẫn ký bổ sung được; PDF đặt mật khẩu bị chặn khi lập.
+- Lát: L1
+
+### KICHBAN_KIEMTHU_601: Trạng thái phiên ký: từ chối, nhắc, hủy, hết hạn, sao chép
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_426
+- Chức năng: CHUC_NANG_211
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Người lập; người ký
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; người ký có mã định danh `079090000000` (bộ giả lập từ chối); đồng hồ giả lập.
+- Các bước: (1) Lập phiên hai người cùng thứ tự 1, gửi. (2) Người lập nhắc hai lần liên tiếp. (3) Người ký có mã định danh từ chối bấm Ký số, việc nền hỏi kết quả. (4) Người ký đó bấm Từ chối kèm lý do. (5) Lập phiên khác, hủy kèm lý do. (6) Lập phiên hạn 2026-12-20, gửi; đặt đồng hồ 2026-12-18, chạy việc nền hết hạn; đặt 2026-12-21, chạy lại. (7) Phiên bị từ chối: sao chép thành phiên mới. (8) Sửa phiên không còn nháp.
+- Kết quả mong đợi: Bước 1: hai người cùng đến lượt. Bước 2: lần hai `409` "Mỗi ngày chỉ nhắc được một lần.". Bước 3: lần ký `rejected`, người ký vẫn đến lượt, ký lại được. Bước 4: phiên bị từ chối, lý do lưu. Bước 5: đã hủy. Bước 6: còn 2 ngày thì nhắc người đến lượt; qua hạn thì phiên hết hạn. Bước 7: phiên nháp mới, `copiedFromId` là phiên cũ. Bước 8: bị từ chối.
+- Kiểm thử tự động: Tự động API một phần – `apps/api/test/c59-phien-ky.test.ts` (bước 1 đến 6; bước 7 trong kịch bản KICHBAN_KIEMTHU_602). Chưa tự động: bước 8 (chỉ sửa khi nháp).
+- Lát: L1
+
+### KICHBAN_KIEMTHU_602: Đối tác ký qua đường dẫn: sai chủ thể, hết dùng, gửi lại thư, giới hạn tần suất
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_427
+- Chức năng: CHUC_NANG_211
+- Loại: Đúng, sai, bảo mật
+- Vai trò thực hiện: Người lập; đối tác (không đăng nhập)
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; đối tác tổ chức khai mã số thuế `0309876543`, mã định danh tại nhà cung cấp là của tổ chức khác.
+- Các bước: (1) Lập phiên một đối tác, gửi; đối tác mở đường dẫn trong thư (API_244), bấm Ký số; việc nền hỏi kết quả. (2) Người lập gửi lại thư. (3) Mở đường dẫn cũ, đường dẫn mới. (4) Đối tác từ chối qua đường dẫn mới. (5) Mở lại đường dẫn sau khi đối tác đã ký (KICHBAN_KIEMTHU_600) và ký lần nữa. (6) Gửi quá 10 yêu cầu mỗi phút vào một đường dẫn, quá 60 yêu cầu mỗi phút từ một địa chỉ IP. (7) Mở đường dẫn khi đã qua hạn ký.
+- Kết quả mong đợi: Bước 1: chữ ký bị loại, trang ký hiện "Chứng thư không trùng thông tin bên ký đã khai.", đối tác ký lại được. Bước 2: `200`, mã mới khác mã cũ. Bước 3: mã cũ `404`; mã mới mở được. Bước 4: `204`, phiên bị từ chối kèm lý do, trang ký báo đã từ chối. Bước 5: ký lại `404`. Bước 6: `429` kèm `retryAfterSeconds`. Bước 7: `404` "Đường dẫn không dùng được".
+- Kiểm thử tự động: Tự động API một phần – `apps/api/test/c59-phien-ky.test.ts` (bước 1 đến 5). Chưa tự động: bước 6 (giới hạn tần suất), bước 7 (đường dẫn qua hạn ký). Bổ sung: gửi lại thư tối đa 5 lần trong 24 giờ (`c59-phien-ky`); trang công khai chỉ hiện 4 số cuối số định danh cá nhân (`c59-ky-so-gan`).
+- Lát: L1
+
+### KICHBAN_KIEMTHU_603: Kiểm tra chữ ký PDF; chứng thư gốc tin cậy; tệp bị sửa
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_428
+- Chức năng: CHUC_NANG_210
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Nhân viên (`office.signing.use`); quản trị công ty; quản trị tập đoàn
+- Điều kiện ban đầu và dữ liệu: Tệp đã ký bốn chữ ký của KICHBAN_KIEMTHU_600; chưa có chứng thư gốc tin cậy.
+- Các bước: (1) Gọi API_245 với tệp đã ký. (2) Quản trị công ty thêm chứng thư gốc giả lập. (3) Quản trị tập đoàn thêm. (4) Kiểm tra lại. (5) Sửa một byte của tệp, kiểm tra. (6) Kiểm tra tệp không phải PDF.
+- Kết quả mong đợi: Bước 1: bốn chữ ký Chưa xác định tin cậy, `revocationChecked` sai. Bước 2: `403`. Bước 3: `201`. Bước 4: mọi chữ ký Hợp lệ; chỉ chữ ký cuối bao trùm toàn bộ tệp (ba chữ ký trước báo tệp còn được bổ sung). Bước 5: chữ ký đầu Không hợp lệ. Bước 6: `400`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c59-phien-ky.test.ts`; `apps/api/test/c59-ky-so-pdf.test.ts` (tệp bị sửa sau khi ký). Bổ sung sau rà soát độc lập (`c59-ky-so-pdf`): chuỗi chứng thư giả do chứng thư người dùng cuối "cấp" kết luận chưa tin cậy; thuật toán chưa hỗ trợ kết luận "chưa kiểm được"; khoảng byte trùng chỉ kiểm một lần.
+- Lát: L1
+
+### KICHBAN_KIEMTHU_604: Vòng đời hợp đồng: lập, trình, duyệt, lập phiên ký, đã ký, nhãn hiệu lực
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_429
+- Chức năng: CHUC_NANG_212
+- Loại: Đúng, sai, luồng duyệt
+- Vai trò thực hiện: Người phụ trách (`office.contract.create`); trưởng phòng (người duyệt); văn thư kiêm quản lý hợp đồng (chữ ký công ty); đối tác
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; loại hợp đồng Mua hàng và một loại không có giá trị; đối tác trong `crm.partners`; công ty chưa có chính sách duyệt `office.contract`.
+- Các bước: (1) Người không có quyền lập hợp đồng. (2) Lập với loại không có giá trị mà nhập giá trị; ngày hết hạn trước ngày hiệu lực. (3) Lập không có tệp nội dung, trình. (4) Lập có tệp nội dung với số hợp đồng trùng, trình. (5) Trưởng phòng quyết định duyệt. (6) Lập phiên ký (chữ ký công ty, đối tác); văn thư đóng chữ ký công ty; đối tác ký qua đường dẫn. (7) Đặt đồng hồ trước ngày hiệu lực, trong hạn, trong mốc nhắc đầu tiên, sau ngày hết hạn; xem chi tiết.
+- Kết quả mong đợi: Bước 1: `403`. Bước 2: `400` tại `value`, `expiresOn`. Bước 3: lập `201` nháp, mã `HD…`; trình lỗi thiếu tệp nội dung. Bước 4: `duplicateNo` đúng (cảnh báo, không chặn); chờ duyệt `approvalMode` `manager`, người duyệt là trưởng phòng. Bước 5: chờ ký, có thao tác `signing`. Bước 6: phiên nguồn `contract`; hợp đồng đã ký, có ngày ký, tệp đã ký, hai kết quả kiểm tra chữ ký; lịch sử `created`, `submitted`, `approved`, `signing_started`, `signed`; không còn thao tác sửa nội dung. Bước 7: nhãn Chưa hiệu lực, Đang hiệu lực, Sắp hết hạn, Hết hạn.
+- Kiểm thử tự động: Tự động API một phần – `apps/api/test/c59-kho-hop-dong.test.ts`. Chưa tự động: duyệt qua chính sách duyệt chung `office.contract` (giá trị quy đổi VND theo tỷ giá ngày trình); phiên ký bị từ chối, hết hạn đưa hợp đồng về chờ ký. Phần hủy hợp đồng chờ ký hủy phiên ký có ở kiểm thử "hủy hợp đồng chờ ký hủy luôn phiên ký" cùng tệp.
+- Lát: L2
+
+### KICHBAN_KIEMTHU_605: Nhập hợp đồng đã ký; thanh lý, chấm dứt; đã ký không sửa nội dung
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_429
+- Chức năng: CHUC_NANG_212
+- Loại: Đúng, sai
+- Vai trò thực hiện: Người có `office.contract.create`; người phụ trách
+- Điều kiện ban đầu và dữ liệu: Dữ liệu chung; tệp PDF đã có hai chữ ký số.
+- Các bước: (1) Nhập hợp đồng đã ký kèm tệp có chữ ký số, ngày ký. (2) Sửa nội dung hợp đồng đã ký. (3) Thanh lý không kèm tệp biên bản. (4) Thanh lý kèm tệp biên bản. (5) Chấm dứt một hợp đồng đã ký khác.
+- Kết quả mong đợi: Bước 1: đã ký ngay, `imported` đúng, lưu hai kết quả kiểm tra chữ ký. Bước 2: `409`. Bước 3: `400`. Bước 4: đã thanh lý, ngày, không còn nhãn hiệu lực, có tệp vai trò `end`. Bước 5: đã chấm dứt.
+- Kiểm thử tự động: Tự động API một phần – `apps/api/test/c59-kho-hop-dong.test.ts` (bước 1 đến 4). Chưa tự động: bước 5 (chấm dứt, cùng đường xử lý với thanh lý).
+- Lát: L2
+
+### KICHBAN_KIEMTHU_606: Phụ lục: trình, duyệt, ký hoặc nhập đã ký; cập nhật ngày hết hạn, giá trị
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_430
+- Chức năng: CHUC_NANG_212
+- Loại: Đúng, sai
+- Vai trò thực hiện: Người phụ trách; trưởng phòng
+- Điều kiện ban đầu và dữ liệu: Hợp đồng đã ký của KICHBAN_KIEMTHU_604, hết hạn 2027-12-31.
+- Các bước: (1) Lập phụ lục 01 gia hạn, trình; trưởng phòng từ chối kèm ghi chú. (2) Nhập phụ lục 02 đã ký: ngày hết hạn mới 2028-06-30, giá trị mới. (3) Lập phụ lục trùng số. (4) Phụ lục đã duyệt lập phiên ký đến khi đã ký.
+- Kết quả mong đợi: Bước 1: phụ lục bị từ chối, lưu ghi chú. Bước 2: phụ lục đã ký, `imported`; hợp đồng ngày hết hạn 2028-06-30, giá trị 4.800.000.000; phụ lục giữ `previousExpiresOn` 2027-12-31. Bước 3: `400`. Bước 4: phụ lục đã ký, hợp đồng cập nhật như bước 2.
+- Kiểm thử tự động: Tự động API một phần – `apps/api/test/c59-kho-hop-dong.test.ts` (bước 1 đến 3). Chưa tự động: bước 4 (phụ lục duyệt rồi ký qua phiên ký).
+- Lát: L2
+
+### KICHBAN_KIEMTHU_607: Quyền xem hợp đồng theo vai trò
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_431
+- Chức năng: CHUC_NANG_212
+- Loại: Phân quyền, bảo mật
+- Vai trò thực hiện: Đồng nghiệp không liên quan; người có `office.contract.view_all`; người phụ trách; nhân viên VCT; quản trị có `hr.contract.manage`
+- Điều kiện ban đầu và dữ liệu: Hợp đồng không mật của KICHBAN_KIEMTHU_604; một hợp đồng mật; hợp đồng lao động của VCR.
+- Các bước: (1) Đồng nghiệp không liên quan mở chi tiết. (2) Người có `office.contract.view_all` mở. (3) Nhân viên VCT mở với công ty VCT. (4) Người phụ trách chia sẻ cho đồng nghiệp; đồng nghiệp mở, xem danh sách. (5) Người có `office.contract.view_all` mở, tìm hợp đồng mật. (6) Người liên quan mở hợp đồng mật. (7) Người không có `hr.contract.manage` và quản trị xem danh sách kho. (8) Người không liên quan xem danh sách.
+- Kết quả mong đợi: Bước 1: `404`. Bước 2: xem được, lý do `view_all`. Bước 3: `404`. Bước 4: xem được, lý do `shared`, không có thao tác chia sẻ; danh sách chỉ có hợp đồng được chia sẻ. Bước 5: `404`, không có trong danh sách. Bước 6: xem được, ghi nhật ký thao tác. Bước 7: `laborContracts` rỗng (`null`) với người không có quyền; quản trị thấy danh sách hợp đồng lao động không có lương. Bước 8: danh sách rỗng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c59-kho-hop-dong.test.ts`.
+- Lát: L2
+
+### KICHBAN_KIEMTHU_608: Nhắc hạn hợp đồng; nhắc người ký trước hạn ký
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_432
+- Chức năng: CHUC_NANG_212
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Việc nền `office-contract-reminders`, `office-signing-expiry`
+- Điều kiện ban đầu và dữ liệu: Hợp đồng đã gia hạn bằng phụ lục (KICHBAN_KIEMTHU_606), hết hạn 2028-06-30, mốc nhắc 30, 7; một hợp đồng mật; đồng hồ giả lập.
+- Các bước: (1) Đặt đồng hồ còn 25 ngày, chạy việc nền hai lần. (2) Còn 5 ngày, chạy. (3) Sau hạn 1 ngày, chạy. (4) Xem người nhận của hợp đồng thường, hợp đồng mật. (5) Phiên ký còn 2 ngày đến hạn ký, chạy `office-signing-expiry`.
+- Kết quả mong đợi: Bước 1: lần đầu gửi mốc `before_30`, lần hai không gửi. Bước 2: mốc `before_7`. Bước 3: mốc `after_1`, tiêu đề "đã hết hạn 1 ngày". Bước 4: hợp đồng thường: người phụ trách và người có `office.contract.manage`; hợp đồng mật: chỉ người phụ trách. Mốc tính theo ngày hết hạn sau phụ lục (không nhắc theo ngày hết hạn cũ). Bước 5: người đang đến lượt nhận nhắc một lần.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c59-kho-hop-dong.test.ts` (bước 1 đến 4); `apps/api/test/c59-phien-ky.test.ts` (bước 5, trong KICHBAN_KIEMTHU_601).
+- Lát: L2
+
+### KICHBAN_KIEMTHU_609: Công văn đi ký số; hợp đồng lao động ký số
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_433
+- Chức năng: CHUC_NANG_213
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Văn thư; người soạn; người ký của công văn; người có `hr.contract.manage`; giám đốc; người lao động
+- Điều kiện ban đầu và dữ liệu: Công văn đi đã duyệt; hợp đồng lao động đã duyệt của người lao động có tài khoản ký số và của người lao động chưa có tài khoản (có thư điện tử, số định danh trong hồ sơ).
+- Các bước: (1) Văn thư bấm Ký số khi công văn chưa cấp số. (2) Cấp số; người soạn gọi API_248. (3) Văn thư gọi API_248. (4) Phát hành khi phiên đang ký. (5) Người ký của công văn ký, văn thư đóng chữ ký công ty. (6) Phát hành không kèm tệp. (7) Nhân sự xem thông tin ký số của hợp đồng lao động (người không có quyền và người có quyền); lập phiên. (8) Xác nhận ký thủ công, lập phiên thứ hai khi đang ký số. (9) Giám đốc, người lao động ký; Nhân sự nhận sự kiện. (10) Hợp đồng lao động của người chưa có tài khoản ký số: lập phiên; hủy hợp đồng.
+- Kết quả mong đợi: Bước 1: `409`. Bước 2: `403`. Bước 3: `200`, `signing` đang ký, số `KS…`; phiên nguồn `outgoing`, người ký công văn thứ tự 1, chữ ký công ty thứ tự 2. Bước 4: `409` "Công văn đang có phiên ký số chưa kết thúc hoặc đã ký số xong; xem tiến trình ký.". Bước 5: phiên đã ký xong, có thao tác phát hành. Bước 6: đã phát hành, một tệp đã ký có hai chữ ký. Bước 7: không có quyền `403`; `employeeSignsAs` `user`; lập phiên `201`. Bước 8: bị chặn "Hợp đồng đang có phiên ký số chưa kết thúc.". Bước 9: hợp đồng lao động đã ký, có tệp đã ký, ngày ký; ghi nhật ký thao tác. Bước 10: `employeeSignsAs` `partner`, thư điện tử từ hồ sơ, bốn số cuối số định danh; hủy hợp đồng thì phiên ký đã hủy.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c59-ky-so-gan.test.ts` (bước phát hành ghi tệp qua lưu trữ cục bộ thật để tái hiện LOI_11; trang ký công khai chỉ hiện 4 số cuối số định danh của người lao động); `apps/api/test/c59-loi-10-phong-pdf.test.ts` tái hiện LOI_10 (xuất PDF công văn đi sau khi nạp dịch vụ in tem, in đề xuất).
+- Lát: L3
+
+### KICHBAN_KIEMTHU_610: Rà soát giao diện trên máy tính, điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_433
+- Chức năng: CHUC_NANG_210 đến CHUC_NANG_213
+- Loại: Đúng
+- Vai trò thực hiện: Nhân viên, văn thư, quản lý hợp đồng, quản trị, đối tác
+- Điều kiện ban đầu và dữ liệu: Dữ liệu mẫu phát triển; bộ giả lập ở môi trường thử.
+- Các bước: Mở MAN_HINH_210 đến MAN_HINH_217, MAN_HINH_158 (nút Ký số, khối tiến trình), MAN_HINH_118 (nút Ký số) ở khổ 1366 px và 390 px; làm Luồng 56a đến 56e.
+- Kết quả mong đợi: Không lỗi trình duyệt, không cuộn ngang; bảng chuyển dạng thẻ trên điện thoại; lỗi hiện đúng ô; chuỗi đúng ngôn ngữ; nút theo quyền; đúng bản mẫu đã duyệt.
+- Kiểm thử tự động: Thủ công – ảnh chụp ở điểm xem trước L1, L2, L3
+- Lát: L1 đến L3

@@ -17,6 +17,7 @@ import { formatDate } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 import { AllowanceEditor, allowancePayload, AllowanceText, CancelDrawer, ContractStatusBadges, money, SignDrawer, TerminateDrawer } from "@/components/ContractParts";
 import { ContractForm } from "@/components/ContractForm";
+import { DigitalSigningDrawer, DigitalSigningStatus } from "@/components/DigitalSigning";
 
 type Panel =
   | { kind: "edit" }
@@ -24,7 +25,8 @@ type Panel =
   | { kind: "cancel" }
   | { kind: "terminate" }
   | { kind: "appendix"; appendix: AppendixResponse | null }
-  | { kind: "signAppendix" | "cancelAppendix"; appendix: AppendixResponse };
+  | { kind: "signAppendix" | "cancelAppendix" | "digitalAppendix"; appendix: AppendixResponse }
+  | { kind: "digital" };
 
 export default function ContractDetailPage() {
   const t = useTranslations("contracts");
@@ -33,9 +35,12 @@ export default function ContractDetailPage() {
   const { state, reload } = useApi<ContractResponse>(`/hr/contracts/${id}`);
   const [panel, setPanel] = useState<Panel | null>(null);
   const [busy, setBusy] = useState(false);
+  // Tăng sau mỗi thao tác để dòng tiến trình ký số tải lại.
+  const [refreshKey, setRefreshKey] = useState(0);
   const done = (text: string) => {
     setPanel(null);
     notify(text);
+    setRefreshKey((value) => value + 1);
     void reload();
   };
   const action = (path: string, text: string) => {
@@ -81,9 +86,14 @@ export default function ContractDetailPage() {
                 </button>
               )}
               {contract.canManage && contract.status === "approved" && (
-                <button type="button" className="nut chinh" onClick={() => setPanel({ kind: "sign" })}>
-                  {t("sign")}
-                </button>
+                <>
+                  <button type="button" className="nut chinh" onClick={() => setPanel({ kind: "digital" })}>
+                    {t("digitalSign")}
+                  </button>
+                  <button type="button" className="nut phu" onClick={() => setPanel({ kind: "sign" })}>
+                    {t("sign")}
+                  </button>
+                </>
               )}
               {contract.canManage && contract.status === "signed" && contract.validity !== "expired" && (
                 <button type="button" className="nut phu" onClick={() => setPanel({ kind: "appendix", appendix: null })}>
@@ -104,6 +114,7 @@ export default function ContractDetailPage() {
             </div>
             <ContractStatusBadges item={contract} />
             {contract.status === "approved" && <div className="khoi-canh-bao thong-tin">{t("signHint")}</div>}
+            {contract.canManage && contract.status === "approved" && <DigitalSigningStatus path={`${base}/digital-signing`} refreshKey={refreshKey} />}
             {contract.legalExceptionReason && (
               <div className="khoi-canh-bao canh-bao">
                 {t("legalException")}: {contract.legalExceptionReason}
@@ -181,6 +192,17 @@ export default function ContractDetailPage() {
               {contract.appendices.length === 0 ? <MessageView text={t("noAppendices")} /> : <AppendixTable contract={contract} onAction={(next) => setPanel(next)} onDone={done} />}
             </div>
             {panel?.kind === "sign" && <SignDrawer<ContractResponse> path={`${base}/sign`} onClose={() => setPanel(null)} onDone={() => done(t("signedDone"))} />}
+            {panel?.kind === "digital" && (
+              <DigitalSigningDrawer path={`${base}/digital-signing`} title={t("digitalSign")} onClose={() => setPanel(null)} onDone={() => done(t("digitalSigningSent"))} />
+            )}
+            {panel?.kind === "digitalAppendix" && (
+              <DigitalSigningDrawer
+                path={`/hr/contract-appendices/${panel.appendix.id}/digital-signing`}
+                title={t("digitalSign")}
+                onClose={() => setPanel(null)}
+                onDone={() => done(t("digitalSigningSent"))}
+              />
+            )}
             {panel?.kind === "cancel" && <CancelDrawer<ContractResponse> path={`${base}/cancel`} onClose={() => setPanel(null)} onDone={() => done(t("cancelled"))} />}
             {panel?.kind === "terminate" && (
               <TerminateDrawer<ContractResponse> path={`${base}/terminate`} title={t("terminateTitle")} label={t("terminate")} onClose={() => setPanel(null)} onDone={() => done(t("terminated"))} />
@@ -295,9 +317,14 @@ function AppendixTable({ contract, onAction, onDone }: { contract: ContractRespo
                       </button>
                     )}
                     {contract.canManage && appendix.status === "approved" && (
-                      <button type="button" className="nut chinh" onClick={() => onAction({ kind: "signAppendix", appendix })}>
-                        {t("sign")}
-                      </button>
+                      <>
+                        <button type="button" className="nut chinh" onClick={() => onAction({ kind: "digitalAppendix", appendix })}>
+                          {t("digitalSign")}
+                        </button>
+                        <button type="button" className="nut phu" onClick={() => onAction({ kind: "signAppendix", appendix })}>
+                          {t("sign")}
+                        </button>
+                      </>
                     )}
                     {(editable || (contract.canManage && appendix.status === "approved")) && (
                       <button type="button" className="nut nguy-hiem" onClick={() => onAction({ kind: "cancelAppendix", appendix })}>

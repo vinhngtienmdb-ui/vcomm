@@ -9,18 +9,11 @@ import { CLOCK, type Clock, vietnamDate } from "../common/clock";
 import { isUniqueViolation } from "../common/database-errors";
 import { DATABASE, type Database } from "../database/database.module";
 import { deliveredOnOrderLine, SalesOrdersService } from "../sales/sales-orders.service";
-import type { OpenApiCaller } from "./api-key.guard";
+import { orderScopeOf, type CallerContext, type OpenApiCaller } from "./api-key.guard";
+import { OpenCustomersService } from "./open-customers.service";
 
 const trimDecimal = (value: string): string => (value.includes(".") ? value.replace(/0+$/, "").replace(/\.$/, "") : value);
 const day = (value: Date | string): string => (typeof value === "string" ? value.slice(0, 10) : vietnamDate(value));
-
-// Phạm vi mã đơn đối tác: đối tác của khóa, hoặc chính khóa nội bộ (QUYTAC_NGHIEPVU_491).
-export const orderScopeOf = (caller: OpenApiCaller): string => caller.partnerId ?? caller.keyId;
-
-export interface CallerContext {
-  ip: string | null;
-  requestId: string | null;
-}
 
 type OrderRow = {
   id: string;
@@ -32,6 +25,8 @@ type OrderRow = {
   customer_code: string | null;
   buyer_name: string | null;
   delivery_address: string | null;
+  recipient_name: string | null;
+  recipient_phone: string | null;
   note: string | null;
   currency: string;
   net_amount: string;
@@ -47,6 +42,7 @@ export class OpenSalesOrdersService {
     @Inject(DATABASE) private readonly database: Database,
     @Inject(CLOCK) private readonly clock: Clock,
     private readonly salesOrders: SalesOrdersService,
+    private readonly customers: OpenCustomersService,
   ) {}
 
   // Trả { created: false } khi mã đơn đối tác đã có: không tạo, không sửa, không so nội dung.
@@ -63,9 +59,12 @@ export class OpenSalesOrdersService {
     ).rows[0];
     if (!warehouse) fields.warehouseCode = "openApiWarehouseNotAllowed";
 
-    // Khách: khóa đối tác là chính đối tác; khóa nội bộ chỉ định khách của công ty hoặc để trống (QUYTAC_NGHIEPVU_490).
+    // Khách: khóa đối tác là chính đối tác hoặc khách trong phạm vi (QUYTAC_NGHIEPVU_494 khoản 6); khóa nội bộ chỉ định khách của công ty hoặc để trống (QUYTAC_NGHIEPVU_490).
     let customerId: string | null = caller.partnerId;
-    if (caller.kind === "partner" && input.customerCode) fields.customerCode = "invalidValue";
+    if (caller.kind === "partner" && input.customerCode) {
+      customerId = await this.customers.usableCustomerId(caller, input.customerCode);
+      if (!customerId) fields.customerCode = "customerNotActive";
+    }
     if (caller.kind === "internal" && input.customerCode) {
       const customer = (
         await this.database.execute<{ id: string }>(sql`
@@ -105,11 +104,19 @@ export class OpenSalesOrdersService {
           channelId: caller.channelId!,
           warehouseId: warehouse!.id,
           orderDate: input.orderDate ?? vietnamDate(this.clock.now()),
-          deliveryAddress: input.deliveryAddress ?? null,
+          deliveryAddress: input.recipient?.address ?? input.deliveryAddress ?? null,
           note: input.note ?? null,
           lines,
         },
-        { apiKeyId: caller.keyId, scopeId, partnerOrderCode: input.partnerOrderCode, keyName: caller.keyName, keyPrefix: caller.keyPrefix, ...context },
+        {
+          apiKeyId: caller.keyId,
+          scopeId,
+          partnerOrderCode: input.partnerOrderCode,
+          keyName: caller.keyName,
+          keyPrefix: caller.keyPrefix,
+          recipient: input.recipient ? { name: input.recipient.name, phone: input.recipient.phone } : null,
+          ...context,
+        },
       );
       return { created: true, order: await this.detailById(id) };
     } catch (error) {
@@ -160,7 +167,7 @@ export class OpenSalesOrdersService {
   private async detailById(id: string): Promise<OpenSalesOrder> {
     const row = (
       await this.database.execute<OrderRow>(sql`
-      SELECT o.id, o.partner_order_code, o.document_no, o.status, o.order_date, w.code AS warehouse_code, c.code AS customer_code, o.buyer_name, o.delivery_address, o.note, o.currency,
+      SELECT o.id, o.partner_order_code, o.document_no, o.status, o.order_date, w.code AS warehouse_code, c.code AS customer_code, o.buyer_name, o.delivery_address, o.recipient_name, o.recipient_phone, o.note, o.currency,
         o.net_amount::text, o.tax_amount::text, o.total_amount::text, o.created_at, o.updated_at
       FROM sales.orders o LEFT JOIN inventory.warehouses w ON w.id = o.warehouse_id LEFT JOIN crm.partners c ON c.id = o.customer_id
       WHERE o.id = ${id}`)
@@ -192,6 +199,7 @@ export class OpenSalesOrdersService {
       customerCode: row.customer_code,
       buyerName: row.buyer_name,
       deliveryAddress: row.delivery_address,
+      recipient: row.recipient_name ? { name: row.recipient_name, phone: row.recipient_phone!, address: row.delivery_address! } : null,
       note: row.note,
       currency: row.currency,
       netAmount: trimDecimal(row.net_amount),
