@@ -183,7 +183,7 @@ describe("TIEUCHI_NGHIEMTHU_413: gửi duyệt, rút, hủy kế hoạch", () =>
 
     const noPolicy = await manager.call("post", `/purchasing/budget-plans/${planId}/submit`, { companyId: retail, body: { version: created.body.version } });
     expect(noPolicy.status).toBe(409);
-    expect(noPolicy.body.error.message).toBe("Chưa có chính sách duyệt cho loại chứng từ này.");
+    expect(noPolicy.body.error.message).toBe("Chưa có chính sách duyệt kế hoạch ngân sách mua. Nhờ quản trị công ty cấu hình ở Nền tảng › Chính sách duyệt.");
     expect((await manager.call("get", `/purchasing/budget-plans/${planId}`, { companyId: retail })).body).toMatchObject({ status: "draft", documentNo: null });
 
     await policy(retailAdmin, retail, "purchasing.budget_plan");

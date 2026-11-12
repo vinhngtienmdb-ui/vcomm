@@ -74,10 +74,11 @@ async function receipt(orderId: string, orderLineId: string, key: string, quanti
      VALUES ($1, $2, 'purchase_receipt', '2026-10-20', 'purchase', 'Nhập mua', $3, $4, 'purchasing.order', $5, $6) RETURNING id`,
     [retail, warehouseA, status, testIds.retailAdmin, orderId, supplierId],
   );
-  await pool.query(
-    `INSERT INTO inventory.document_lines (document_id, line_no, variant_id, unit_id, quantity, base_quantity, source_line_id, rejected_base_quantity) VALUES ($1, 1, $2, $3, $4, $4, $5, $6)`,
+  const line = await pool.query<{ id: string }>(
+    `INSERT INTO inventory.document_lines (document_id, line_no, variant_id, unit_id, quantity, base_quantity, source_line_id, rejected_base_quantity) VALUES ($1, 1, $2, $3, $4, $4, $5, $6) RETURNING id`,
     [document.rows[0]!.id, variants[key], unitId, quantity, orderLineId, rejected],
   );
+  return { documentId: document.rows[0]!.id, lineId: line.rows[0]!.id };
 }
 
 beforeAll(async () => {
@@ -138,10 +139,23 @@ beforeAll(async () => {
 
   // Tháng 10, Thực phẩm (cấp 1 qua ngành hàng cấp 3), kho A.
   await order("approved", "2026-10-03", warehouseA, [["rice", 10, 100000]]); // 1.000.000
-  await order("received", "2026-10-05", warehouseA, [
+  const received = await order("received", "2026-10-05", warehouseA, [
     ["noodle", 20, 50000],
     ["water", 10, 30000],
   ]); // 1.000.000 thực phẩm, 300.000 đồ uống
+  // Trả nhà cung cấp 5 gói từ phiếu nhập của đơn nhận đủ: không giảm số đã dùng (quyết định người dùng 2026-11-12).
+  const receiptLine = await receipt(received.id, received.lineIds[0]!, "noodle", 20);
+  const returned = await pool.query<{ id: string }>(
+    `INSERT INTO inventory.documents (company_id, warehouse_id, type, document_date, reason_code, reason, status, created_by, source_type, source_id, partner_id)
+     VALUES ($1, $2, 'purchase_return', '2026-10-25', 'purchase_return', 'Trả hàng', 'posted', $3, 'inventory.purchase_receipt', $4, $5) RETURNING id`,
+    [retail, warehouseA, testIds.retailAdmin, receiptLine.documentId, supplierId],
+  );
+  await pool.query("INSERT INTO inventory.document_lines (document_id, line_no, variant_id, unit_id, quantity, base_quantity, source_line_id) VALUES ($1, 1, $2, $3, 5, 5, $4)", [
+    returned.rows[0]!.id,
+    variants.noodle,
+    unitId,
+    receiptLine.lineId,
+  ]);
   const closed = await order("closed", "2026-10-07", warehouseA, [["rice", 100, 10000]]); // nhận đạt 30 (40 nhập, 10 không đạt) → 300.000
   await receipt(closed.id, closed.lineIds[0]!, "rice", 40, "posted", 10);
   await receipt(closed.id, closed.lineIds[0]!, "rice", 50, "quality_check");

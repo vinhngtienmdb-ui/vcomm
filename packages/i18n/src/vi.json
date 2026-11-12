@@ -567,7 +567,8 @@
     "budgetPlanEmpty": "Kế hoạch chưa có ô ngân sách nào.",
     "overBudgetPolicyMissing": "Đơn vượt hoặc chưa có ngân sách nhưng chưa có chính sách duyệt \"Đơn mua vượt ngân sách\". Nhờ quản trị công ty cấu hình ở Nền tảng › Chính sách duyệt.",
     "budgetPlanNotApproved": "Chỉ điều chỉnh kế hoạch ngân sách đã duyệt.",
-    "budgetBelowUsed": "Ngân sách sau điều chỉnh nhỏ hơn số đã dùng của ô."
+    "budgetBelowUsed": "Ngân sách sau điều chỉnh nhỏ hơn số đã dùng của ô.",
+    "budgetPlanPolicyMissing": "Chưa có chính sách duyệt kế hoạch ngân sách mua. Nhờ quản trị công ty cấu hình ở Nền tảng › Chính sách duyệt."
   },
   "login": {
     "title": "Đăng nhập",

@@ -212,14 +212,20 @@ export class BudgetPlansService implements OnModuleInit {
           AND from_month <= ${firstDay(row.to_month)}::date AND to_month >= ${firstDay(row.from_month)}::date LIMIT 1`);
       if (overlap.rows.length > 0) throw new ApiError("BUSINESS_RULE", "budgetPeriodOverlap");
       const documentNo = row.document_no ?? (await this.sequences.next(actor.companyId, budgetPlanDocumentType, transaction));
-      const requestId = await this.approvals.submitWithin(transaction, actor.companyId, actor.userId, {
-        documentTypeCode: budgetPlanDocumentType,
-        documentId: id,
-        documentNo,
-        amount: row.total_amount,
-        currency: row.currency,
-        documentDate: this.permissionService.today(),
-      });
+      const requestId = await this.approvals
+        .submitWithin(transaction, actor.companyId, actor.userId, {
+          documentTypeCode: budgetPlanDocumentType,
+          documentId: id,
+          documentNo,
+          amount: row.total_amount,
+          currency: row.currency,
+          documentDate: this.permissionService.today(),
+        })
+        .catch((error: unknown) => {
+          // QUYTAC_NGHIEPVU_445: ngân sách không tự duyệt khi chưa có chính sách.
+          if (error instanceof ApiError && error.messageKey === "policyNotFound") throw new ApiError("BUSINESS_RULE", "budgetPlanPolicyMissing");
+          throw error;
+        });
       await transaction.execute(sql`
         UPDATE purchasing.budget_plans SET status = 'pending', document_no = ${documentNo}, approval_request_id = ${requestId}, submitted_at = now(), updated_at = now(), version = version + 1
         WHERE id = ${id}`);

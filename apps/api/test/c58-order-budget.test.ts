@@ -179,6 +179,22 @@ describe("TIEUCHI_NGHIEMTHU_417: chuyển luồng duyệt khi vượt ngân sác
     expect(await requestType(increased.body.approvalRequestId)).toBe("purchasing.order_over_budget");
   });
 
+  it("KICHBAN_KIEMTHU_591 (miễn duyệt): đơn lấy từ đề nghị mua đã duyệt, không vượt giá ước tính nhưng vượt ngân sách vẫn đi luồng vượt", async () => {
+    // Công ty chưa có chính sách duyệt đề nghị mua: đề nghị duyệt ngay (QUYTAC_NGHIEPVU_62).
+    const requisition = await purchaser.call("post", "/purchasing/requisitions", {
+      companyId: retail,
+      body: { warehouseId, neededBy: "2026-11-25", reason: "Bổ sung hàng", lines: [{ variantId: variants.rice, unitId, quantity: "2", estimatedUnitPrice: "100000" }] },
+    });
+    expect(requisition.status, JSON.stringify(requisition.body)).toBe(201);
+    const approvedRequisition = await purchaser.call("post", `/purchasing/requisitions/${requisition.body.id}/submit`, { companyId: retail });
+    expect(approvedRequisition.body.status).toBe("approved");
+    const exempt = await createOrder("2026-11-15", [line("rice", 2, 100000, { requisitionLineId: approvedRequisition.body.lines[0].id })]);
+    const submitted = await submit(exempt.id);
+    expect(submitted.body.status, JSON.stringify(submitted.body)).toBe("pending");
+    expect(await requestType(submitted.body.approvalRequestId)).toBe("purchasing.order_over_budget");
+    await decide(submitted.body.approvalRequestId, "approved");
+  });
+
   // Đơn chờ duyệt không giữ chỗ ngân sách (QUYTAC_NGHIEPVU_446); khóa có tác dụng với đơn được duyệt ngay khi gửi (miễn duyệt, chưa có chính sách đơn mua).
   it("KICHBAN_KIEMTHU_592: hai đơn được duyệt ngay gửi đồng thời, mỗi đơn vừa đủ phần còn lại: chỉ một đơn đi luồng thường", async () => {
     await pool.query("UPDATE purchasing.budget_lines SET adjusted_amount = 1500000 WHERE category_id = $1", [food]);

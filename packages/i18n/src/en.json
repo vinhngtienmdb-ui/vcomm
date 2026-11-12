@@ -567,7 +567,8 @@
     "budgetPlanEmpty": "The plan has no budget cells.",
     "overBudgetPolicyMissing": "The order exceeds or has no budget, but there is no approval policy for \"Over-budget purchase order\". Ask the company administrator to set one up.",
     "budgetPlanNotApproved": "Only approved budget plans can be adjusted.",
-    "budgetBelowUsed": "The adjusted budget is below the amount already used in this cell."
+    "budgetBelowUsed": "The adjusted budget is below the amount already used in this cell.",
+    "budgetPlanPolicyMissing": "There is no approval policy for purchase budget plans. Ask the company administrator to set one up."
   },
   "login": {
     "title": "Sign in",
