@@ -11,7 +11,11 @@ import {
   paymentListQuerySchema,
   savePaymentSchema,
   saveCurrencyPurchaseSchema,
+  createFxRevaluationSchema,
+  updateFxRevaluationSchema,
   versionSchema,
+  type FxRevaluationListItem,
+  type FxRevaluationResponse,
   type PaymentFxPreviewResponse,
   type PaymentListItem,
   type PaymentOptionsResponse,
@@ -30,6 +34,7 @@ import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { DebtsService } from "./debts.service";
 import { FundsService } from "./funds.service";
+import { FxRevaluationsService } from "./fx-revaluations.service";
 import { PaymentsService } from "./payments.service";
 
 @Controller("finance")
@@ -39,6 +44,7 @@ export class FinanceController {
     private readonly debts: DebtsService,
     private readonly funds: FundsService,
     private readonly payments: PaymentsService,
+    private readonly revaluations: FxRevaluationsService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -130,6 +136,47 @@ export class FinanceController {
   @Patch("currency-purchases/:id")
   async currencyPurchaseUpdate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
     return this.payments.saveCurrencyPurchase(await this.actor(request, companyId), id, saveCurrencyPurchaseSchema.parse(body));
+  }
+
+  // API_216, API_217 (CONG_VIEC_56): đánh giá lại ngoại tệ.
+  @Get("revaluations")
+  async revaluationList(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<FxRevaluationListItem[]> {
+    return this.revaluations.list(await this.actor(request, companyId));
+  }
+
+  @Get("revaluations/:id")
+  async revaluationDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<FxRevaluationResponse> {
+    return this.revaluations.detail(await this.actor(request, companyId), id);
+  }
+
+  @Post("revaluations")
+  async revaluationCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<FxRevaluationResponse> {
+    return this.revaluations.create(await this.actor(request, companyId), createFxRevaluationSchema.parse(body));
+  }
+
+  @Patch("revaluations/:id")
+  async revaluationUpdate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<FxRevaluationResponse> {
+    return this.revaluations.update(await this.actor(request, companyId), id, updateFxRevaluationSchema.parse(body));
+  }
+
+  @Post("revaluations/:id/refresh")
+  async revaluationRefresh(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<FxRevaluationResponse> {
+    return this.revaluations.refresh(await this.actor(request, companyId), id, versionSchema.parse(body).version);
+  }
+
+  @Post("revaluations/:id/cancel")
+  async revaluationCancel(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<FxRevaluationResponse> {
+    return this.revaluations.cancel(await this.actor(request, companyId), id, versionSchema.parse(body).version);
+  }
+
+  @Post("revaluations/:id/post")
+  async revaluationPost(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<FxRevaluationResponse> {
+    return this.revaluations.post(await this.actor(request, companyId), id, versionSchema.parse(body).version);
   }
 
   @Get("payments")

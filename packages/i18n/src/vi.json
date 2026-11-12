@@ -560,7 +560,15 @@
     "retailReturnsDisabled": "Cửa hàng không nhận trả hàng.",
     "retailCashInsufficient": "Tiền mặt trong két không đủ để hoàn. Chọn hoàn chuyển khoản.",
     "fundCurrencyMismatch": "Tiền tệ của quỹ không phù hợp với phiếu.",
-    "foreignDebtRequiresForeignPayment": "Khoản nợ ngoại tệ chỉ trả bằng phiếu chi cùng tiền tệ."
+    "foreignDebtRequiresForeignPayment": "Khoản nợ ngoại tệ chỉ trả bằng phiếu chi cùng tiền tệ.",
+    "revaluationBeforeLast": "Ngày đánh giá phải sau ngày của chứng từ đánh giá lại đã ghi sổ gần nhất.",
+    "revaluationNotMonthEnd": "Ngày đánh giá phải là ngày cuối tháng.",
+    "revaluationHasLaterDocuments": "Đã có chứng từ ngoại tệ ghi sổ sau ngày đánh giá. Đánh giá lại trước khi ghi sổ nghiệp vụ ngoại tệ tháng sau.",
+    "revaluationHasPendingDocuments": "Còn phiếu ngoại tệ đang chờ duyệt có ngày không sau ngày đánh giá.",
+    "revaluationRateMissing": "Chưa có tỷ giá đánh giá lại cho một tiền tệ.",
+    "revaluationEmpty": "Không có số dư ngoại tệ để đánh giá lại.",
+    "revaluationMissing": "Tháng cuối năm tài chính còn số dư ngoại tệ chưa đánh giá lại. Xác nhận để vẫn khóa sổ.",
+    "paymentBeforeRevaluation": "Ngày phiếu không sau ngày đánh giá lại ngoại tệ đã ghi sổ."
   },
   "login": {
     "title": "Đăng nhập",
@@ -2529,7 +2537,8 @@
     "collections": "Đối soát thu hộ",
     "consolidation": "Báo cáo hợp nhất",
     "commissions": "Hoa hồng",
-    "commissionSettings": "Cài đặt hoa hồng"
+    "commissionSettings": "Cài đặt hoa hồng",
+    "revaluations": "Đánh giá lại ngoại tệ"
   },
   "debts": {
     "title": "Công nợ",
@@ -2629,7 +2638,8 @@
     "bookRate": "Tỷ giá bình quân",
     "foreignReceipt": "Thu ngoại tệ",
     "foreignPayment": "Chi ngoại tệ",
-    "foreignRunning": "Số dư ngoại tệ"
+    "foreignRunning": "Số dư ngoại tệ",
+    "revaluation": "Đánh giá lại ngoại tệ"
   },
   "payments": {
     "title": "Phiếu thu chi",
@@ -2847,7 +2857,9 @@
     "source_payroll": "Lương tháng",
     "source_payroll_payment": "Trả lương",
     "source_import_declaration": "Tờ khai nhập khẩu",
-    "source_landed_cost": "Chi phí nhập khẩu"
+    "source_landed_cost": "Chi phí nhập khẩu",
+    "revaluationMissing": "Tháng cuối năm tài chính còn số dư ngoại tệ chưa đánh giá lại. Khóa sổ nghĩa là xác nhận vẫn khóa khi chưa đánh giá lại.",
+    "openRevaluations": "Mở đánh giá lại ngoại tệ"
   },
   "statements": {
     "title": "Báo cáo tài chính",
@@ -7090,5 +7102,56 @@
     "slipTitle": "PHIẾU TRẢ HÀNG",
     "slipSale": "Theo hóa đơn {number}",
     "serials": "Serial trả"
+  },
+  "revaluations": {
+    "title": "Đánh giá lại ngoại tệ",
+    "back": "Danh sách đánh giá lại",
+    "create": "Lập chứng từ đánh giá lại",
+    "documentNo": "Số",
+    "draftNo": "(nháp)",
+    "revaluationDate": "Ngày đánh giá",
+    "revaluationDateHint": "Ngày cuối một tháng chưa khóa sổ.",
+    "lineCount": "Số dòng",
+    "gain": "Lãi",
+    "loss": "Lỗ",
+    "net": "Chênh lệch thuần",
+    "netGain": "Thuần lãi {amount} (515)",
+    "netLoss": "Thuần lỗ {amount} (635)",
+    "status": "Trạng thái",
+    "status_draft": "Nháp",
+    "status_posted": "Đã ghi sổ",
+    "status_cancelled": "Đã hủy",
+    "none": "Chưa có chứng từ đánh giá lại.",
+    "note": "Nội dung",
+    "rates": "Tỷ giá đánh giá lại",
+    "rateOf": "Tỷ giá {currency} → {base}",
+    "sourceRate": "Bảng tỷ giá (chuyển khoản trung bình): {rate}",
+    "noSourceRate": "Chưa có tỷ giá chuyển khoản trung bình ngày này; nhập tay.",
+    "edited": "Đã sửa",
+    "group": "Nhóm",
+    "group_fund": "Quỹ",
+    "group_payable": "Nợ phải trả",
+    "item": "Quỹ hoặc khoản nợ",
+    "foreignAmount": "Ngoại tệ",
+    "bookValue": "Giá trị ghi sổ",
+    "bookRate": "tỷ giá {rate}",
+    "newValue": "Giá trị mới",
+    "difference": "Chênh lệch",
+    "payableUp": "nợ tăng",
+    "payableDown": "nợ giảm",
+    "taxHint": "Chênh lệch nhóm \"Quỹ\" không tính vào thu nhập chịu thuế, lỗ không được trừ (Nghị định 320/2025/NĐ-CP); nhóm \"Nợ phải trả\" được tính.",
+    "journalHint": "Bút toán: từng dòng qua 413, kết chuyển số thuần sang 515 (lãi) hoặc 635 (lỗ); 413 không còn số dư.",
+    "save": "Lưu",
+    "refresh": "Lấy lại số dư",
+    "post": "Ghi sổ",
+    "cancel": "Hủy chứng từ",
+    "close": "Đóng",
+    "saved": "Đã lưu chứng từ.",
+    "posted": "Đã ghi sổ đánh giá lại.",
+    "cancelled": "Đã hủy chứng từ.",
+    "refreshed": "Đã lấy lại số dư.",
+    "postConfirm": "Ghi sổ sẽ đổi giá trị ghi sổ quỹ ngoại tệ, tỷ giá ghi sổ của các khoản nợ và sinh bút toán. Chứng từ đã ghi sổ không sửa được.",
+    "createdBy": "Người lập",
+    "postedAt": "Ghi sổ lúc"
   }
 }

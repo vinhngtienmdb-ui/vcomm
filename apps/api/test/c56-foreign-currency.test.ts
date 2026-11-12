@@ -1,4 +1,5 @@
 // CONG_VIEC_56 lát L0: quỹ ngoại tệ, phiếu mua ngoại tệ, phiếu chi trả nợ ngoại tệ (TIEUCHI_NGHIEMTHU_380 đến 382; KICHBAN_KIEMTHU_547 đến 550).
+// Lát L1: đánh giá lại ngoại tệ (TIEUCHI_NGHIEMTHU_383, 384; KICHBAN_KIEMTHU_551, 552), chạy tiếp trên số dư sau lát L0.
 // Nợ nhà cung cấp nước ngoài: phiếu nhập hôm qua 850 USD theo tỷ giá 25.400 (21.590.000), phiếu nhập hôm nay 425 USD theo tỷ giá 26.000 (11.050.000).
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { Pool } from "pg";
@@ -8,7 +9,7 @@ import { OutboxService } from "../src/common/outbox.service";
 import { testIds } from "../src/database/seed";
 import { PermissionService } from "../src/permissions/permission.service";
 import { createTestUser, signIn, type Session } from "./helpers";
-import { startTestApplication } from "./setup-database";
+import { startTestApplication, testClock } from "./setup-database";
 
 let application: NestExpressApplication;
 let pool: Pool;
@@ -336,5 +337,122 @@ describe("TIEUCHI_NGHIEMTHU_382: trả nợ ngoại tệ từ quỹ tiền Việ
     const open = await accountant.call("get", `/finance/debts/open?side=payable&partnerId=${supplierId}`, { companyId: retail });
     expect(open.body.advance).toBe("1000000");
     expect(open.body.items.find((item: { id: string }) => item.id === thirdDebtId)).toMatchObject({ foreign: { currency: "USD", amount: "85", openAmount: "85", bookRate: "26000" } });
+  });
+});
+
+describe("TIEUCHI_NGHIEMTHU_383, 384: đánh giá lại ngoại tệ", () => {
+  it("KICHBAN_KIEMTHU_552: ngày giữa tháng, thiếu tỷ giá, phiếu chờ, chứng từ sau ngày đánh giá; cảnh báo khóa sổ tháng cuối năm tài chính", async () => {
+    const monthEnd = new Date(Date.UTC(Number(today.slice(0, 4)), Number(today.slice(5, 7)), 0)).toISOString().slice(0, 10);
+    // Năm tài chính bắt đầu tháng sau: tháng này là tháng cuối năm tài chính.
+    await pool.query("UPDATE core.companies SET fiscal_year_start = $1 WHERE id = $2", [(Number(today.slice(5, 7)) % 12) + 1, retail]);
+    expect((await accountant.call("get", "/finance/ledger/periods", { companyId: retail })).body.revaluationMissing).toBe(true);
+    testClock.fixed = new Date(`${monthEnd}T12:00:00+07:00`);
+    testClock.fixed.setUTCDate(testClock.fixed.getUTCDate() + 3);
+    const close = await accountant.call("post", "/finance/ledger/periods/close", { companyId: retail, body: { month: today.slice(0, 7) } });
+    testClock.fixed = null;
+    expect(close.body.error.message).toBe(messages.vi.errors.revaluationMissing);
+
+    const middle = await accountant.call("post", "/finance/revaluations", { companyId: retail, body: { revaluationDate: today.slice(0, 8) + "15" } });
+    if (today.slice(8) !== "15") expect(middle.body.error.fields).toEqual(fieldsOf({ revaluationDate: "revaluationNotMonthEnd" }));
+    // Tháng trước: đã có chứng từ ngoại tệ ghi sổ sau ngày đó.
+    const previousEnd = new Date(Date.UTC(Number(today.slice(0, 4)), Number(today.slice(5, 7)) - 1, 0)).toISOString().slice(0, 10);
+    const earlier = await accountant.call("post", "/finance/revaluations", { companyId: retail, body: { revaluationDate: previousEnd } });
+    expect(earlier.body.error.message).toBe(messages.vi.errors.revaluationHasLaterDocuments);
+
+    // Tỷ giá chuyển khoản trung bình USD có trong bảng tỷ giá, CNY chưa có.
+    await pool.query("INSERT INTO core.exchange_rates (rate_date, from_currency, to_currency, rate_type, rate, source) VALUES ($1, 'USD', 'VND', 'transfer', 26500, 'manual')", [monthEnd]);
+    const created = await accountant.call("post", "/finance/revaluations", { companyId: retail, body: { revaluationDate: monthEnd, note: "Đánh giá lại cuối tháng" } });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    expect(created.body.rates).toEqual([
+      { currency: "CNY", rate: null, sourceRate: null },
+      { currency: "USD", rate: "26500", sourceRate: "26500" },
+    ]);
+    // Quỹ USD hết số dư không vào; quỹ CNY 1.000 CNY; khoản nợ thứ ba còn 85 USD theo tỷ giá 26.000.
+    expect(created.body.lines).toMatchObject([
+      { kind: "fund", currency: "CNY", foreignAmount: "1000", bookValue: "3500000", newValue: null, difference: null },
+      { kind: "payable", currency: "USD", foreignAmount: "85", bookValue: "2210000", newValue: "2252500", difference: "42500" },
+    ]);
+    const missing = await accountant.call("post", `/finance/revaluations/${created.body.id}/post`, { companyId: retail, body: { version: created.body.version } });
+    expect(missing.body.error.message).toBe(messages.vi.errors.revaluationRateMissing);
+
+    // Phiếu chi ngoại tệ đang chờ duyệt có ngày trong tháng chặn ghi sổ đánh giá lại.
+    const thirdDebtId = (await pool.query<{ id: string }>("SELECT id FROM finance.debt_items WHERE currency = 'USD' AND direction = 'debit' AND open_foreign_amount > 0")).rows[0]!.id;
+    const waiting = await accountant.call("post", "/finance/payments", {
+      companyId: retail,
+      body: {
+        kind: "supplier_payment",
+        partnerId: supplierId,
+        fundId: vndFundId,
+        paymentDate: today,
+        currency: "USD",
+        exchangeRate: "26600",
+        lines: [{ debitItemId: thirdDebtId, foreignAmount: "85" }],
+      },
+    });
+    const submitted = await accountant.call("post", `/finance/payments/${waiting.body.id}/submit`, { companyId: retail, body: { version: waiting.body.version } });
+    expect(submitted.body.status).toBe("pending");
+    const rated = await accountant.call("patch", `/finance/revaluations/${created.body.id}`, {
+      companyId: retail,
+      body: { note: "Đánh giá lại cuối tháng", rates: [{ currency: "CNY", rate: "3600" }], version: created.body.version },
+    });
+    expect(rated.status, JSON.stringify(rated.body)).toBe(200);
+    expect(rated.body).toMatchObject({ gain: "100000", loss: "42500", net: "57500" });
+    const blocked = await accountant.call("post", `/finance/revaluations/${created.body.id}/post`, { companyId: retail, body: { version: rated.body.version } });
+    expect(blocked.body.error.message).toBe(messages.vi.errors.revaluationHasPendingDocuments);
+    const withdrawn = await accountant.call("post", `/finance/payments/${waiting.body.id}/withdraw`, { companyId: retail });
+    expect(withdrawn.body.status).toBe("withdrawn");
+
+    // Ghi sổ: quỹ CNY tăng 100.000 (lãi), nợ tăng 42.500 (lỗ), thuần lãi 57.500 kết chuyển 515; 413 không còn số dư.
+    const posted = await accountant.call("post", `/finance/revaluations/${created.body.id}/post`, { companyId: retail, body: { version: rated.body.version } });
+    expect(posted.status, JSON.stringify(posted.body)).toBe(201);
+    expect(posted.body).toMatchObject({ status: "posted", net: "57500", canManage: false });
+    expect(posted.body.documentNo).toMatch(/^DGL/);
+    expect(await entries(created.body.id)).toEqual([
+      ["111", "100000", "0"],
+      ["413", "0", "100000"],
+      ["413", "42500", "0"],
+      ["331", "0", "42500"],
+      ["413", "57500", "0"],
+      ["515", "0", "57500"],
+    ]);
+    const balance413 = await pool.query<{ value: string }>(
+      `SELECT coalesce(sum(l.debit - l.credit), 0)::text AS value FROM accounting.journal_lines l JOIN accounting.accounts a ON a.id = l.account_id JOIN accounting.journals j ON j.id = l.journal_id
+       WHERE j.company_id = $1 AND a.code = '413'`,
+      [retail],
+    );
+    expect(Number(balance413.rows[0]!.value)).toBe(0);
+    expect((await accountant.call("get", "/finance/ledger/periods", { companyId: retail })).body.revaluationMissing).toBe(false);
+    await pool.query("UPDATE core.companies SET fiscal_year_start = 1 WHERE id = $1", [retail]);
+  });
+
+  it("KICHBAN_KIEMTHU_551: sau đánh giá lại, giá trị ghi sổ quỹ, tỷ giá đích danh của khoản nợ đổi; phiếu có ngày không sau ngày đánh giá không ghi sổ được", async () => {
+    const cny = (await accountant.call("get", "/finance/funds", { companyId: retail })).body.find((item: { code: string }) => item.code === "TM-CNY");
+    expect(cny).toMatchObject({ balance: "3600000", foreign: { balance: "1000", bookRate: "3600" } });
+    const thirdDebtId = (await pool.query<{ id: string }>("SELECT id FROM finance.debt_items WHERE currency = 'USD' AND direction = 'debit' AND open_foreign_amount > 0")).rows[0]!.id;
+    expect(await debt(thirdDebtId)).toMatchObject({ open_amount: "2252500.0000", open_foreign_amount: "85.0000", book_rate: "26500.00000000" });
+    // Phiếu trả nợ có ngày trong tháng đã đánh giá lại: duyệt xong không ghi sổ được.
+    const late = await accountant.call("post", "/finance/payments", {
+      companyId: retail,
+      body: {
+        kind: "supplier_payment",
+        partnerId: supplierId,
+        fundId: vndFundId,
+        paymentDate: today,
+        currency: "USD",
+        exchangeRate: "26600",
+        lines: [{ debitItemId: thirdDebtId, foreignAmount: "85" }],
+      },
+    });
+    expect(late.status, JSON.stringify(late.body)).toBe(201);
+    const rejected = await submitAndApprove(late.body.id, late.body.version);
+    expect(rejected).toMatchObject({ status: "rejected", postError: "paymentBeforeRevaluation" });
+    // Lấy lại số dư, hủy chứng từ nháp: chứng từ đã ghi sổ không đổi được.
+    const list = await accountant.call("get", "/finance/revaluations", { companyId: retail });
+    expect(list.body).toMatchObject([{ status: "posted", gain: "100000", loss: "42500", net: "57500", lineCount: 2 }]);
+    const again = await accountant.call("post", `/finance/revaluations/${list.body[0].id}/cancel`, { companyId: retail, body: { version: 99 } });
+    expect(again.body.error.message).toBe(messages.vi.errors.documentNotDraft);
+    // Sổ quỹ CNY có dòng đánh giá lại.
+    const ledger = await accountant.call("get", `/finance/funds/${cny.id}/ledger?from=${today.slice(0, 8)}01&to=${list.body[0].revaluationDate}`, { companyId: retail });
+    expect(ledger.body.entries).toMatchObject([{ kind: "fx_revaluation", receipt: "100000", foreign: { receipt: "0", payment: "0", balance: "1000" } }]);
   });
 });

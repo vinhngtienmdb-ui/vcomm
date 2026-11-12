@@ -131,7 +131,8 @@ export interface DraftJournal {
     | "payroll"
     | "payroll_payment"
     | "import_declaration"
-    | "landed_cost";
+    | "landed_cost"
+    | "fx_revaluation";
   sourceId: string;
   journalNo: string;
   date: string;
@@ -596,5 +597,44 @@ export async function payrollPaymentDraft(executor: Executor, payrollId: string)
     date: row.payment_date,
     description: `Trả lương tháng ${row.month.slice(5, 7)}/${row.month.slice(0, 4)}`,
     lines: [debit("salary_payable", amount), credit(row.fund_kind === "cash" ? "cash" : "bank", amount)],
+  };
+}
+
+// Đánh giá lại ngoại tệ (CONG_VIEC_56; QUYTAC_NGHIEPVU_413): từng dòng qua 413 (quỹ tăng: Nợ quỹ / Có 413; nợ phải trả tăng: Nợ 413 / Có phải trả),
+// rồi kết chuyển số thuần của 413 sang 515 (lãi) hoặc 635 (lỗ) để 413 không còn số dư.
+export async function fxRevaluationDraft(executor: Executor, revaluationId: string): Promise<DraftJournal | null> {
+  const header = (
+    await executor.execute<{ company_id: string; document_no: string; revaluation_date: string }>(sql`
+    SELECT company_id, document_no, revaluation_date::text FROM finance.fx_revaluations WHERE id = ${revaluationId} AND status = 'posted'`)
+  ).rows[0];
+  if (!header) return null;
+  const round = await rounder(executor, header.company_id);
+  const rows = await executor.execute<{ kind: "fund" | "payable"; fund_kind: "cash" | "bank" | null; partner_id: string | null; difference: string }>(sql`
+    SELECT l.kind, f.kind AS fund_kind, l.partner_id, l.difference::text FROM finance.fx_revaluation_lines l LEFT JOIN finance.funds f ON f.id = l.fund_id
+    WHERE l.revaluation_id = ${revaluationId} AND l.difference <> 0 ORDER BY l.line_no`);
+  const lines: DraftLine[] = [];
+  let net = 0;
+  for (const row of rows.rows) {
+    const value = round(Number(row.difference));
+    if (row.kind === "fund") {
+      const fund: PostingRole = row.fund_kind === "cash" ? "cash_foreign" : "bank_foreign";
+      lines.push(...(value > 0 ? [debit(fund, value), credit("exchange_difference", value)] : [debit("exchange_difference", -value), credit(fund, -value)]));
+      net += value;
+    } else {
+      lines.push(...(value > 0 ? [debit("exchange_difference", value), credit("payable", value, row.partner_id)] : [debit("payable", -value, row.partner_id), credit("exchange_difference", -value)]));
+      net -= value;
+    }
+  }
+  net = round(net);
+  if (net > 0) lines.push(debit("exchange_difference", net), credit("financial_income", net));
+  if (net < 0) lines.push(debit("financial_expense", -net), credit("exchange_difference", -net));
+  return {
+    companyId: header.company_id,
+    sourceType: "fx_revaluation",
+    sourceId: revaluationId,
+    journalNo: header.document_no,
+    date: header.revaluation_date,
+    description: `Đánh giá lại số dư ngoại tệ ngày ${header.revaluation_date.split("-").reverse().join("/")}`,
+    lines,
   };
 }

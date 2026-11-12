@@ -681,8 +681,17 @@ export class PaymentsService implements OnModuleInit {
     for (const hook of this.postedHooks) await hook(transaction, id);
   }
 
+  // Phiếu ngoại tệ có ngày không sau ngày đánh giá lại đã ghi sổ thì không ghi sổ được (QUYTAC_NGHIEPVU_411).
+  private async requireAfterRevaluation(transaction: Executor, id: string): Promise<void> {
+    const before = await transaction.execute(sql`
+      SELECT 1 FROM finance.payments p JOIN finance.fx_revaluations r ON r.company_id = p.company_id AND r.status = 'posted' AND r.revaluation_date >= p.payment_date
+      WHERE p.id = ${id} LIMIT 1`);
+    if (before.rows.length > 0) throw new ApiError("BUSINESS_RULE", "paymentBeforeRevaluation");
+  }
+
   // Ghi sổ phiếu mua ngoại tệ (QUYTAC_NGHIEPVU_408): khóa hai quỹ theo thứ tự mã để tránh khóa chéo; quỹ chi đủ số dư; quỹ nhận đang dùng.
   private async postCurrencyPurchase(transaction: Executor, id: string, fundId: string, counterFundId: string, amount: string): Promise<void> {
+    await this.requireAfterRevaluation(transaction, id);
     const funds = await transaction.execute<{ id: string; status: string }>(sql`SELECT id, status FROM finance.funds WHERE id IN (${fundId}, ${counterFundId}) ORDER BY id FOR UPDATE`);
     if (funds.rows.some((fund) => fund.status !== "active")) throw new ApiError("BUSINESS_RULE", "fundInactive");
     const balance = (await transaction.execute<{ balance: string }>(sql`SELECT ${fundBalance(fundId)}::text AS balance`)).rows[0]!.balance;
@@ -709,6 +718,7 @@ export class PaymentsService implements OnModuleInit {
       exchange_rate: string | null;
     },
   ): Promise<void> {
+    await this.requireAfterRevaluation(transaction, id);
     await this.debts.lockPartner(transaction, payment.company_id, "payable", payment.partner_id);
     await transaction.execute(sql`SELECT 1 FROM finance.funds WHERE id = ${payment.fund_id} FOR UPDATE`);
     const lines = await transaction.execute<{ debit_item_id: string; foreign_amount: string }>(sql`

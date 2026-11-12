@@ -182,7 +182,10 @@ function Periods() {
     setBusy(true);
     setError(null);
     try {
-      await apiFetch(`/finance/ledger/periods/${action}`, { method: "POST", body: action === "close" ? JSON.stringify({ month: data.nextMonth }) : undefined });
+      await apiFetch(`/finance/ledger/periods/${action}`, {
+        method: "POST",
+        body: action === "close" ? JSON.stringify({ month: data.nextMonth, confirmRevaluation: data.revaluationMissing }) : undefined,
+      });
       notify(action === "close" ? t("closed") : t("reopened"));
       setConfirm(null);
       await reload();
@@ -203,6 +206,12 @@ function Periods() {
             {t("nextMonth")}: <strong>{monthText(data.nextMonth)}</strong>
           </span>
           <p className="chu-thich">{t("closeHint")}</p>
+          {/* CONG_VIEC_56 (QUYTAC_NGHIEPVU_413): tháng cuối năm tài chính chưa đánh giá lại ngoại tệ; khóa sổ là xác nhận vẫn khóa. */}
+          {data.revaluationMissing && (
+            <div className="khoi-canh-bao canh-bao">
+              {t("revaluationMissing")} <Link href="/revaluations">{t("openRevaluations")}</Link>
+            </div>
+          )}
           <div className="nhom-nut">
             {data.canClose && (
               <button type="button" className="nut chinh" onClick={() => setConfirm("close")}>

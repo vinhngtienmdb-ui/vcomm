@@ -214,10 +214,11 @@ export class FundsService {
       amount: string;
       foreign_amount: string | null;
     }>(sql`
-      SELECT p.id, m.payment_date::text, p.document_no, p.kind, pr.name AS partner_name, m.amount::text, m.foreign_amount::text
-      FROM finance.fund_movements m JOIN finance.payments p ON p.id = m.payment_id LEFT JOIN crm.partners pr ON pr.id = p.partner_id
+      SELECT m.payment_id AS id, m.payment_date::text, coalesce(p.document_no, r.document_no) AS document_no, m.kind, pr.name AS partner_name, m.amount::text, m.foreign_amount::text
+      FROM finance.fund_movements m LEFT JOIN finance.payments p ON p.id = m.payment_id LEFT JOIN crm.partners pr ON pr.id = p.partner_id
+        LEFT JOIN finance.fx_revaluations r ON r.id = m.payment_id
       WHERE m.fund_id = ${id} AND m.status = 'posted' AND m.payment_date BETWEEN ${from}::date AND ${to}::date
-      ORDER BY m.payment_date, m.posted_at, p.id
+      ORDER BY m.payment_date, m.posted_at, m.payment_id
       LIMIT 5000`);
     let balance = Number(opening.value);
     let foreignBalance = Number(opening.foreign ?? 0);

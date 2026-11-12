@@ -560,7 +560,15 @@
     "retailReturnsDisabled": "This store does not accept returns.",
     "retailCashInsufficient": "Not enough cash in the drawer. Refund by bank transfer.",
     "fundCurrencyMismatch": "The fund currency does not match the document.",
-    "foreignDebtRequiresForeignPayment": "A foreign-currency debt can only be paid by a payment in the same currency."
+    "foreignDebtRequiresForeignPayment": "A foreign-currency debt can only be paid by a payment in the same currency.",
+    "revaluationBeforeLast": "The revaluation date must be after the latest posted revaluation.",
+    "revaluationNotMonthEnd": "The revaluation date must be the last day of a month.",
+    "revaluationHasLaterDocuments": "Foreign-currency documents are already posted after the revaluation date. Revalue before posting the next month foreign-currency transactions.",
+    "revaluationHasPendingDocuments": "Foreign-currency payments dated on or before the revaluation date are still pending approval.",
+    "revaluationRateMissing": "A currency has no revaluation rate.",
+    "revaluationEmpty": "There are no foreign-currency balances to revalue.",
+    "revaluationMissing": "Foreign-currency balances at fiscal year end have not been revalued. Confirm to close anyway.",
+    "paymentBeforeRevaluation": "The document date is not after the latest posted foreign-currency revaluation."
   },
   "login": {
     "title": "Sign in",
@@ -2529,7 +2537,8 @@
     "collections": "Collections",
     "consolidation": "Consolidation",
     "commissions": "Commissions",
-    "commissionSettings": "Commission settings"
+    "commissionSettings": "Commission settings",
+    "revaluations": "Currency revaluation"
   },
   "debts": {
     "title": "Debts",
@@ -2629,7 +2638,8 @@
     "bookRate": "Average rate",
     "foreignReceipt": "Foreign in",
     "foreignPayment": "Foreign out",
-    "foreignRunning": "Foreign balance"
+    "foreignRunning": "Foreign balance",
+    "revaluation": "Currency revaluation"
   },
   "payments": {
     "title": "Receipts and payments",
@@ -2847,7 +2857,9 @@
     "source_payroll": "Monthly payroll",
     "source_payroll_payment": "Salary payment",
     "source_import_declaration": "Import declaration",
-    "source_landed_cost": "Landed cost"
+    "source_landed_cost": "Landed cost",
+    "revaluationMissing": "Foreign-currency balances at fiscal year end have not been revalued. Closing confirms closing without revaluation.",
+    "openRevaluations": "Open foreign-currency revaluation"
   },
   "statements": {
     "title": "Financial statements",
@@ -7090,5 +7102,56 @@
     "slipTitle": "RETURN SLIP",
     "slipSale": "For receipt {number}",
     "serials": "Serials returned"
+  },
+  "revaluations": {
+    "title": "Currency revaluation",
+    "back": "Revaluation list",
+    "create": "New revaluation",
+    "documentNo": "No.",
+    "draftNo": "(draft)",
+    "revaluationDate": "Revaluation date",
+    "revaluationDateHint": "Last day of an open month.",
+    "lineCount": "Lines",
+    "gain": "Gain",
+    "loss": "Loss",
+    "net": "Net difference",
+    "netGain": "Net gain {amount} (515)",
+    "netLoss": "Net loss {amount} (635)",
+    "status": "Status",
+    "status_draft": "Draft",
+    "status_posted": "Posted",
+    "status_cancelled": "Cancelled",
+    "none": "No revaluations yet.",
+    "note": "Description",
+    "rates": "Revaluation rates",
+    "rateOf": "Rate {currency} to {base}",
+    "sourceRate": "Rate table (average transfer rate): {rate}",
+    "noSourceRate": "No average transfer rate for this date; enter it manually.",
+    "edited": "Edited",
+    "group": "Group",
+    "group_fund": "Fund",
+    "group_payable": "Payable",
+    "item": "Fund or debt",
+    "foreignAmount": "Foreign amount",
+    "bookValue": "Book value",
+    "bookRate": "rate {rate}",
+    "newValue": "New value",
+    "difference": "Difference",
+    "payableUp": "debt up",
+    "payableDown": "debt down",
+    "taxHint": "Differences on funds are not taxable and losses are not deductible (Decree 320/2025/ND-CP); payables are.",
+    "journalHint": "Journal: each line through 413, net closed to 515 (gain) or 635 (loss); 413 has no balance.",
+    "save": "Save",
+    "refresh": "Reload balances",
+    "post": "Post",
+    "cancel": "Cancel document",
+    "close": "Close",
+    "saved": "Saved.",
+    "posted": "Revaluation posted.",
+    "cancelled": "Document cancelled.",
+    "refreshed": "Balances reloaded.",
+    "postConfirm": "Posting changes fund book values and debt book rates and creates the journal. Posted documents cannot be edited.",
+    "createdBy": "Created by",
+    "postedAt": "Posted at"
   }
 }

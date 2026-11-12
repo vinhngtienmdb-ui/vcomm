@@ -3036,10 +3036,11 @@ export interface FundResponse {
 }
 export const fundLedgerQuerySchema = z.object({ from: isoDate, to: isoDate }).strict();
 export interface FundLedgerEntry {
+  // Phiếu thu chi, hoặc chứng từ đánh giá lại khi kind là fx_revaluation (CONG_VIEC_56).
   paymentId: string;
   date: string;
   documentNo: string;
-  kind: AnyPaymentKind;
+  kind: AnyPaymentKind | "fx_revaluation";
   partnerName: string | null;
   receipt: string;
   payment: string;
@@ -3203,6 +3204,59 @@ export const saveCurrencyPurchaseSchema = z
   })
   .strict();
 export type SaveCurrencyPurchaseRequest = z.input<typeof saveCurrencyPurchaseSchema>;
+// Đánh giá lại ngoại tệ (CONG_VIEC_56; QUYTAC_NGHIEPVU_412, 413; API_216, API_217).
+export const fxRevaluationStatuses = ["draft", "posted", "cancelled"] as const;
+export type FxRevaluationStatus = (typeof fxRevaluationStatuses)[number];
+export const createFxRevaluationSchema = z.object({ revaluationDate: isoDate, note: blankToNull(500) }).strict();
+export const updateFxRevaluationSchema = z
+  .object({
+    note: blankToNull(500),
+    rates: z
+      .array(z.object({ currency: currencyCode, rate: z.union([rateValue, z.literal(""), z.null()]).transform((value) => (value === "" ? null : value)) }).strict())
+      .max(50),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export type UpdateFxRevaluationRequest = z.input<typeof updateFxRevaluationSchema>;
+export interface FxRevaluationListItem {
+  id: string;
+  documentNo: string | null;
+  revaluationDate: string;
+  lineCount: number;
+  gain: string;
+  loss: string;
+  net: string;
+  status: FxRevaluationStatus;
+}
+export interface FxRevaluationLine {
+  id: string;
+  kind: "fund" | "payable";
+  fund: { id: string; code: string; name: string } | null;
+  debt: { id: string; documentNo: string; partnerName: string } | null;
+  currency: string;
+  foreignAmount: string;
+  bookValue: string;
+  bookRate: string | null;
+  newValue: string | null;
+  difference: string | null;
+}
+export interface FxRevaluationResponse {
+  id: string;
+  documentNo: string | null;
+  revaluationDate: string;
+  status: FxRevaluationStatus;
+  note: string | null;
+  currency: string;
+  rates: { currency: string; rate: string | null; sourceRate: string | null }[];
+  lines: FxRevaluationLine[];
+  gain: string;
+  loss: string;
+  net: string;
+  createdByName: string;
+  postedAt: string | null;
+  version: number;
+  canManage: boolean;
+}
 // Xem trước phiếu chi trả nợ ngoại tệ (API_215): giảm nợ theo tỷ giá đích danh, giá trị ra khỏi quỹ, chênh lệch tỷ giá.
 export interface PaymentFxPreviewResponse {
   currency: string;
@@ -3384,8 +3438,10 @@ export interface LedgerPeriodsResponse {
   canClose: boolean;
   canReopen: boolean;
   lastClosedMonth: string | null;
+  // CONG_VIEC_56 (QUYTAC_NGHIEPVU_413): tháng cần khóa là tháng cuối năm tài chính, còn số dư ngoại tệ mà chưa đánh giá lại tại ngày cuối tháng.
+  revaluationMissing: boolean;
 }
-export const closePeriodSchema = z.object({ month: z.string().regex(/^\d{4}-\d{2}$/) }).strict();
+export const closePeriodSchema = z.object({ month: z.string().regex(/^\d{4}-\d{2}$/), confirmRevaluation: z.boolean().optional() }).strict();
 export const ledgerRangeQuerySchema = z.object({ from: isoDate, to: isoDate }).strict();
 export interface TrialBalanceRow {
   accountId: string;

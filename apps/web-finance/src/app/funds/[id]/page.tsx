@@ -121,10 +121,13 @@ export default function FundPage() {
                             <span>{formatDate(entry.date)}</span>
                           </td>
                           <td data-nhan={headings[1]}>
-                            <Link href={`/payments/${entry.paymentId}`}>{entry.documentNo}</Link>
+                            <Link href={entry.kind === "fx_revaluation" ? `/revaluations/${entry.paymentId}` : `/payments/${entry.paymentId}`}>{entry.documentNo}</Link>
                           </td>
                           <td data-nhan={headings[2]}>
-                            <span>{entry.partnerName ?? (entry.kind === "currency_purchase" ? payments("kind_currency_purchase") : payments("withoutPartner"))}</span>
+                            <span>
+                              {entry.partnerName ??
+                                (entry.kind === "currency_purchase" ? payments("kind_currency_purchase") : entry.kind === "fx_revaluation" ? t("revaluation") : payments("withoutPartner"))}
+                            </span>
                           </td>
                           {entry.foreign && (
                             <>
