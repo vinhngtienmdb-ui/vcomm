@@ -28,6 +28,10 @@ const groups: { name: "google" | "microsoft" | "zalo" | "esms"; keys: Integratio
       "esms.template.approval_assigned",
       "esms.template.approval_reminder",
       "esms.template.approval_completed",
+      "esms.template.station_order_ready",
+      "esms.template.station_hold_reminder",
+      "esms.template.station_order_shipping",
+      "esms.template.station_order_cancelled",
     ],
   },
 ];

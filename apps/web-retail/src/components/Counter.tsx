@@ -1,8 +1,8 @@
 "use client";
 
 // MAN_HINH_161 Bán hàng tại quầy (CHUC_NANG_187; QUYTAC_NGHIEPVU_370 đến 373): ô quét luôn nhận bàn phím; giá, khuyến mãi, tổng tiền do máy chủ tính (API_195).
-// Phím tắt: F2 người mua lấy hóa đơn, F4 giảm tay dòng đang chọn, F9 thanh toán, Delete xóa dòng, Esc đóng hộp thoại.
-import type { RetailItemOption, RetailQuoteResponse, RetailSaleResponse, RetailShiftResponse } from "contracts";
+// Phím tắt: F2 người mua lấy hóa đơn, F3 khách VComm (lát L6), F4 giảm tay dòng đang chọn, F9 thanh toán, Delete xóa dòng, Esc đóng hộp thoại.
+import type { RetailCustomerResponse, RetailItemOption, RetailQuoteResponse, RetailSaleResponse, RetailShiftResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { type FormEvent, type KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
@@ -11,6 +11,7 @@ import { failureOf } from "ui/lib/use-api";
 import { apiFetch } from "ui/lib/api";
 import { formatDateTime, formatMoney } from "ui/lib/format";
 import { BuyerDialog, type Buyer } from "./BuyerDialog";
+import { CustomerBox, lookupCustomer } from "./CustomerBox";
 import { PaymentDialog } from "./PaymentDialog";
 import { Receipt } from "./Receipt";
 
@@ -40,6 +41,8 @@ export function Counter({ shift, onShiftChanged }: { shift: RetailShiftResponse;
   const [quoteErrors, setQuoteErrors] = useState<Record<string, string>>({});
   const [quoting, setQuoting] = useState(false);
   const [buyer, setBuyer] = useState<Buyer>(emptyBuyer);
+  const [customer, setCustomer] = useState<{ phone: string; data: RetailCustomerResponse } | null>(null);
+  const customerRef = useRef<HTMLInputElement | null>(null);
   const [dialog, setDialog] = useState<"buyer" | "payment" | null>(null);
   const [done, setDone] = useState<RetailSaleResponse | null>(null);
   const [online, setOnline] = useState(true);
@@ -157,6 +160,9 @@ export function Counter({ shift, onShiftChanged }: { shift: RetailShiftResponse;
     } else if (event.key === "F2") {
       event.preventDefault();
       setDialog("buyer");
+    } else if (event.key === "F3") {
+      event.preventDefault();
+      customerRef.current?.focus();
     } else if (event.key === "F4") {
       event.preventDefault();
       discountRefs.current[selected]?.select();
@@ -172,11 +178,26 @@ export function Counter({ shift, onShiftChanged }: { shift: RetailShiftResponse;
   function newSale() {
     setCart([]);
     setBuyer(emptyBuyer);
+    setCustomer(null);
     setDone(null);
     setQuote(null);
     onShiftChanged();
     focusScan();
   }
+
+  // Mức điểm dùng được tính theo tổng phải trả: tra lại khách khi tổng đổi.
+  const total = quote?.totalAmount ?? null;
+  const customerPhone = customer?.data.found ? customer.phone : null;
+  useEffect(() => {
+    if (!customerPhone) return;
+    let active = true;
+    lookupCustomer(shift.id, customerPhone, total)
+      .then((data) => active && setCustomer({ phone: customerPhone, data }))
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [shift.id, customerPhone, total]);
 
   const lineError = (index: number) => quoteErrors[`lines.${index}.discountPercent`] ?? quoteErrors[`lines.${index}.variantId`] ?? quoteErrors[`lines.${index}.unitId`];
   const generalError = Object.keys(quoteErrors).some((key) => !key.startsWith("lines.")) ? Object.entries(quoteErrors).find(([key]) => !key.startsWith("lines."))?.[1] : null;
@@ -388,6 +409,17 @@ export function Counter({ shift, onShiftChanged }: { shift: RetailShiftResponse;
             <button type="button" className="nut chu" style={{ justifySelf: "start" }} onClick={() => setDialog("buyer")}>
               {t("invoiceBuyer")} <span className="phim">F2</span>
             </button>
+            <hr style={{ border: 0, borderTop: "1px solid var(--mau-vien)", width: "100%" }} />
+            <CustomerBox
+              shiftId={shift.id}
+              goodsAmount={quote?.totalAmount ?? null}
+              customer={customer}
+              inputRef={customerRef}
+              onChange={(value) => {
+                setCustomer(value);
+                focusScan();
+              }}
+            />
           </div>
           <div className="the" style={{ display: "grid", gap: "var(--khoang-2)" }} aria-live="polite">
             <div className="dong-tien">
@@ -446,6 +478,7 @@ export function Counter({ shift, onShiftChanged }: { shift: RetailShiftResponse;
           shift={shift}
           cart={cart}
           buyer={buyer}
+          customer={customer?.data.found ? customer.data : null}
           quote={quote}
           onQuoteChanged={() => void refreshQuote(cart)}
           onPaid={(sale) => {
