@@ -3,7 +3,7 @@
 - Mô tả: Đường dẫn chia sẻ sản phẩm hiện thẻ xem trước có ảnh, tên, giá trên Facebook, Zalo, Messenger, giữ mã giới thiệu và mã cộng tác viên, mở ứng dụng VComm hoặc bản web; tệp danh mục sản phẩm theo chuẩn Facebook Commerce Manager tự cập nhật giá, tồn.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả và bản mẫu
+- Trạng thái: Đang thực hiện (đặc tả, bản mẫu đã duyệt 2026-11-12)
 - Mức: Vừa (chức năng mới trong MODULE_09; thêm cột vào bảng có sẵn, thêm endpoint; không đổi kiến trúc, không đổi API đang dùng).
 - Nhánh: `chuc-nang/CONG_VIEC_68-chia-se-mang-xa-hoi`.
 - Nguồn: yêu cầu của người dùng ngày 2026-11-12; quyết định của người dùng (mục 17).
@@ -147,7 +147,7 @@ Không xóa dữ liệu. Không định nghĩa lại ràng buộc kiểm tra dù
   3. Tham khảo cách làm, tự viết: không cần.
   4. Tự viết mới hoàn toàn: không cần.
 - Đề xuất: phương án 2, không thêm thư viện (người dùng chọn API trả HTML).
-- Quyết định của người dùng: (chờ duyệt cùng đặc tả).
+- Quyết định của người dùng: phương án 2 (duyệt cùng đặc tả) – 2026-11-12.
 
 ## 13. Tiêu chí nghiệm thu
 
@@ -191,7 +191,7 @@ Không xóa dữ liệu. Không định nghĩa lại ràng buộc kiểm tra dù
 - Mở thẳng ứng dụng không qua trang: khi phát hành ứng dụng, khai `associatedDomains` (iOS) và `intentFilters` (Android) cho tên miền chia sẻ trong cấu hình ứng dụng, đặt `APPLE_TEAM_ID`, `ANDROID_SHA256_CERT_FINGERPRINTS`. Chưa kiểm được trên máy thật trong công việc này.
 - Facebook, Zalo giữ thẻ đã đọc một thời gian; đổi giá xong muốn thẻ mới thì dùng Công cụ gỡ lỗi chia sẻ của Facebook (Sharing Debugger) để đọc lại.
 - Commerce Manager: người dùng cần Trang Facebook doanh nghiệp, tài khoản Commerce Manager; thêm danh mục → Nguồn dữ liệu → Lịch dữ liệu → dán đường dẫn, chọn Hằng giờ, đơn vị tiền VND. Facebook khuyến nghị ảnh tối thiểu 500 × 500 điểm ảnh; ảnh nhỏ hơn có thể bị từ chối trên Facebook (không chặn ở VComm).
-- Sản phẩm chưa có ảnh không vào tệp danh mục (khác chọn "mọi sản phẩm đang bán" vì Facebook bắt buộc ảnh) – cần người dùng xác nhận.
+- Sản phẩm chưa có ảnh không vào tệp danh mục (Facebook bắt buộc ảnh; người dùng xác nhận 2026-11-12).
 
 ## 17. Quyết định của người dùng (2026-11-12)
 
@@ -206,6 +206,8 @@ Không xóa dữ liệu. Không định nghĩa lại ràng buộc kiểm tra dù
 | Bảo vệ tệp               | Mã bí mật, quản trị bật, tắt, sao chép, tạo lại mã ở Cài đặt bán hàng (web-crm)                         |
 | Tần suất                 | Tạo khi được gọi, giữ tạm 5 phút; Commerce Manager lấy hằng giờ                                        |
 | Tra cứu pháp lý          | Không cần (người dùng quyết định)                                                                       |
+| Sản phẩm chưa có ảnh     | Không đưa vào tệp danh mục; thẻ ghi số sản phẩm bị bỏ                                                   |
+| Duyệt đặc tả, bản mẫu    | Duyệt, làm L1                                                                                            |
 
 ## 18. Thành phần không được thay đổi
 

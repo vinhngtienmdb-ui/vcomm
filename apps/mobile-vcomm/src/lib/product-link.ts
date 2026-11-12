@@ -1,15 +1,16 @@
-// Đường dẫn chia sẻ sản phẩm kèm mã giới thiệu (CONG_VIEC_22; QUYTAC_NGHIEPVU_434): /r/<mã giới thiệu>?sp=<mã sản phẩm>[&ctv=<mã cộng tác viên>].
-// Một nút chia sẻ cho mọi người mua; cộng tác viên đã duyệt có thêm mã cộng tác viên để ghi lượt bấm như CONG_VIEC_49 (quyết định của người dùng 2026-11-12).
-import { appBase } from "@/lib/api";
+// Đường dẫn chia sẻ sản phẩm (CONG_VIEC_68; QUYTAC_NGHIEPVU_552): <địa chỉ chia sẻ>/s/<mã sản phẩm>?ref=<mã giới thiệu>&ctv=<mã cộng tác viên>.
+// Trang chia sẻ do API trả có thẻ Open Graph (ảnh, tên, giá) để Facebook, Zalo hiện thẻ xem trước; nút trên trang mở ứng dụng theo
+// đường dẫn cũ /r/<mã>?sp=, /p/<mã sản phẩm>?ctv= của CONG_VIEC_22, 49 (QUYTAC_NGHIEPVU_434, 325). Không có mã nào thì không có nút chia sẻ (như trước).
+import { apiBase } from "@/lib/api";
+
+export const shareBase = (process.env.EXPO_PUBLIC_SHARE_URL ?? apiBase.replace(/\/api\/v1\/?$/, "")).replace(/\/+$/, "");
 
 export function productShareLink(productId: string, referralCode: string | null, collaboratorCode: string | null): string | null {
-  if (referralCode) {
-    const query = new URLSearchParams({ sp: productId });
-    if (collaboratorCode) query.set("ctv", collaboratorCode);
-    return `${appBase}/r/${encodeURIComponent(referralCode)}?${query.toString()}`;
-  }
-  // Không có mã giới thiệu: chỉ còn đường dẫn cộng tác viên (QUYTAC_NGHIEPVU_325).
-  return collaboratorCode ? `${appBase}/p/${productId}?ctv=${encodeURIComponent(collaboratorCode)}` : null;
+  if (!referralCode && !collaboratorCode) return null;
+  const query = new URLSearchParams();
+  if (referralCode) query.set("ref", referralCode);
+  if (collaboratorCode) query.set("ctv", collaboratorCode);
+  return `${shareBase}/s/${productId}?${query.toString()}`;
 }
 
 // Sản phẩm cần mở sau khi người nhận đăng ký, đăng nhập xong trong cùng lần mở ứng dụng.
