@@ -142,11 +142,12 @@ function Detail({ order, reload }: { order: SalesOrderResponse; reload: () => Pr
       <section className="the">
         <div>
           <strong>{order.customerName ?? order.buyerName ?? t("walkIn")}</strong>
+          {order.customerCreatedViaOpenApi && <span className="nhan thong-tin"> {t("customerCreatedViaOpenApi")}</span>}
         </div>
         <div className="chu-thich">
           {t("channel")}: {order.channelName} · {t("warehouse")}: {order.warehouseName} · {t("orderDate")}: {formatDate(order.orderDate)} · {t("createdBy")}: {order.createdByName}
         </div>
-        {order.deliveryAddress && <div>{order.deliveryAddress}</div>}
+        {order.deliveryAddress && !order.recipient && <div>{order.deliveryAddress}</div>}
         {order.note && <div>{order.note}</div>}
         {order.closedReason && (
           <div className="khoi-canh-bao thong-tin">
@@ -157,6 +158,20 @@ function Detail({ order, reload }: { order: SalesOrderResponse; reload: () => Pr
           {t("net")}: {formatMoney(order.netAmount, order.currency)} · {t("tax")}: {formatMoney(order.taxAmount, order.currency)} · {t("total")}: {formatMoney(order.totalAmount, order.currency)}
         </strong>
       </section>
+      {order.recipient && (
+        <section className="the">
+          <h2 style={{ margin: 0 }}>{t("recipient")}</h2>
+          <dl className="thong-tin-dong">
+            <dt>{t("recipientName")}</dt>
+            <dd>{order.recipient.name}</dd>
+            <dt>{t("recipientPhone")}</dt>
+            <dd>{order.recipient.phone}</dd>
+            <dt>{t("recipientAddress")}</dt>
+            <dd>{order.deliveryAddress}</dd>
+          </dl>
+          <div className="chu-thich">{t("recipientHint")}</div>
+        </section>
+      )}
       <div className="khung-bang">
         <table>
           <thead>

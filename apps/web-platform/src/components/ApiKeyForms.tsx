@@ -9,8 +9,8 @@ import { Field, FormError, useSubmit } from "ui/components/Form";
 import { apiFetch } from "ui/lib/api";
 import { useApi } from "ui/lib/use-api";
 
-// Phạm vi khách hàng, điểm thưởng làm ở lát L3, L4: chưa cho chọn.
-export const availableScopes: ApiKeyScope[] = ["catalog.read", "sales_order.write"];
+// Phạm vi khách hàng do đối tác tạo mở ở CONG_VIEC_66; điểm thưởng làm ở CONG_VIEC_67: chưa cho chọn.
+export const availableScopes: ApiKeyScope[] = ["catalog.read", "sales_order.write", "customer.write"];
 const scopeKey = (scope: ApiKeyScope) => scope.replace(".", "_") as "catalog_read" | "sales_order_write" | "customer_write" | "loyalty_member";
 
 export function ScopeList({ scopes }: { scopes: ApiKeyScope[] }) {

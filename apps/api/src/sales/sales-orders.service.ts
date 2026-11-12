@@ -59,6 +59,9 @@ type OrderRow = {
   id: string;
   open_api_key_name: string | null;
   partner_order_code: string | null;
+  recipient_name: string | null;
+  recipient_phone: string | null;
+  customer_via_open_api: boolean | null;
   company_id: string;
   document_no: string | null;
   customer_id: string | null;
@@ -279,6 +282,9 @@ export class SalesOrdersService implements OnModuleInit {
       channelId: row.channel_id,
       warehouseId: row.warehouse_id,
       deliveryAddress: row.delivery_address,
+      // CONG_VIEC_66: người nhận giao thẳng của đơn Open API (QUYTAC_NGHIEPVU_494 khoản 7).
+      recipient: row.recipient_name ? { name: row.recipient_name, phone: row.recipient_phone ?? "" } : null,
+      customerCreatedViaOpenApi: row.customer_via_open_api === true,
       note: row.note,
       approvalRequestId: row.approval_request_id,
       exceptions: row.exceptions.map((exception) => ({ ...exception, detail: this.visibleDetail(exception, granted) })),
@@ -351,17 +357,26 @@ export class SalesOrdersService implements OnModuleInit {
     companyId: string,
     createdBy: string,
     input: Input,
-    source: { apiKeyId: string; scopeId: string; partnerOrderCode: string; keyName: string; keyPrefix: string; ip: string | null; requestId: string | null },
+    source: {
+      apiKeyId: string;
+      scopeId: string;
+      partnerOrderCode: string;
+      keyName: string;
+      keyPrefix: string;
+      recipient: { name: string; phone: string } | null;
+      ip: string | null;
+      requestId: string | null;
+    },
   ): Promise<string> {
     return this.database.transaction(async (transaction): Promise<string> => {
       const { lines, groupId, giftShortages } = await this.prepare(transaction, companyId, input, null);
       const orderId = (
         await transaction.execute<{ id: string }>(sql`
         INSERT INTO sales.orders (company_id, customer_id, buyer_name, channel_id, customer_group_id, warehouse_id, order_date, delivery_address, note, currency, gift_shortages, created_by,
-          open_api_key_id, open_api_scope_id, partner_order_code)
+          open_api_key_id, open_api_scope_id, partner_order_code, recipient_name, recipient_phone)
         VALUES (${companyId}, ${input.customerId ?? null}, ${input.buyerName}, ${input.channelId}, ${groupId}, ${input.warehouseId}, ${input.orderDate}::date, ${input.deliveryAddress},
           ${input.note}, ${await companyCurrency(transaction, companyId)}, ${JSON.stringify(giftShortages)}::jsonb, ${createdBy},
-          ${source.apiKeyId}, ${source.scopeId}, ${source.partnerOrderCode}) RETURNING id`)
+          ${source.apiKeyId}, ${source.scopeId}, ${source.partnerOrderCode}, ${source.recipient?.name ?? null}, ${source.recipient?.phone ?? null}) RETURNING id`)
       ).rows[0]!.id;
       await this.writeLines(transaction, orderId, lines);
       await this.auditService.record(
@@ -372,7 +387,7 @@ export class SalesOrdersService implements OnModuleInit {
           action: "sales_order.create",
           entityType: "sales_order",
           entityId: orderId,
-          afterData: { ...input, openApi: { keyName: source.keyName, keyPrefix: source.keyPrefix, partnerOrderCode: source.partnerOrderCode } },
+          afterData: { ...input, recipient: source.recipient, openApi: { keyName: source.keyName, keyPrefix: source.keyPrefix, partnerOrderCode: source.partnerOrderCode } },
           ip: source.ip,
           requestId: source.requestId,
         },
@@ -411,6 +426,8 @@ export class SalesOrdersService implements OnModuleInit {
     await requireSalesPermission(this.permissionService, actor, salesPermissions.manageOrders);
     const before = await this.detail(actor, id);
     if (!before.canEdit) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
+    // Đơn có người nhận giao thẳng giữ người nhận khi sửa; địa chỉ giao không được để trống (QUYTAC_NGHIEPVU_494 khoản 7).
+    if (before.recipient && !input.deliveryAddress) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { deliveryAddress: "required" } });
     await this.database.transaction(async (transaction) => {
       const { lines, groupId, giftShortages } = await this.prepare(transaction, actor.companyId, input, id);
       const updated = await transaction.execute(sql`
@@ -1099,7 +1116,7 @@ export class SalesOrdersService implements OnModuleInit {
     return sql`SELECT o.id, o.company_id, o.document_no, o.customer_id, c.name AS customer_name, o.buyer_name, o.channel_id, ch.name AS channel_name, o.customer_group_id, o.warehouse_id,
       coalesce(w.name, '') AS warehouse_name, o.order_date, o.delivery_address, c.company_id AS customer_company_id, o.counterpart_order_id, o.is_counterpart, o.counterpart_rejected_reason, o.gift_shortages, o.note, o.currency, o.status, o.exceptions, o.approval_request_id, o.net_amount::text, o.tax_amount::text,
       o.total_amount::text, o.closed_reason, o.created_by, cu.full_name AS created_by_name, o.version,
-      ak.name AS open_api_key_name, o.partner_order_code`;
+      ak.name AS open_api_key_name, o.partner_order_code, o.recipient_name, o.recipient_phone, c.created_via_api_key_id IS NOT NULL AS customer_via_open_api`;
   }
 
   private from(): SQL {

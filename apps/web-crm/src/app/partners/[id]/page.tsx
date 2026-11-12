@@ -12,7 +12,7 @@ import { Field, FormError, useSubmit } from "ui/components/Form";
 import { HistoryLink } from "ui/components/HistoryLink";
 import { Loaded } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
-import { formatMoney } from "ui/lib/format";
+import { formatDateTime, formatMoney } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 import { PartnerDrawer } from "@/components/PartnerDrawer";
 
@@ -99,6 +99,12 @@ function PartnerDetail({ partner, reload }: { partner: PartnerResponse; reload: 
         )}
       </div>
       {partner.internalCompanyId && <div className="khoi-canh-bao thong-tin">{t("internalHint")}</div>}
+      {partner.openApi.map((source, index) => (
+        <div key={index} className="khoi-canh-bao thong-tin">
+          {t(source.isOwner ? "openApiCreated" : "openApiLinked", { partner: source.partnerName ?? t("openApiInternal"), key: source.keyName, at: formatDateTime(source.createdAt) })}
+          {source.personalDataConsentAt && <> {t("openApiConsent", { at: formatDateTime(source.personalDataConsentAt) })}</>}
+        </div>
+      ))}
 
       <section className="the">
         <h2 style={{ margin: 0 }}>{t("general")}</h2>

@@ -1,6 +1,9 @@
 // Hợp đồng lao động, phụ lục, nghỉ việc (CONG_VIEC_46; CHUC_NANG_163; QUYTAC_NGHIEPVU_294, 297 đến 301; API_144, API_147, API_148, API_149).
 import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
 import type {
+  HrDigitalSigningInfo,
+  HrDigitalSigningInput,
+  SigningSignerInput,
   AppendixResponse,
   ContractAllowance,
   ContractKind,
@@ -35,6 +38,8 @@ import { NumberSequencesService } from "../settings/number-sequences.service";
 import { EmployeesService, type UploadedFile } from "./employees.service";
 import { ageAt, hrAudit, hrPermission, positionAt, requireHrPermission } from "./hr-context";
 import { WorkEventsService } from "./work-events.service";
+import { OfficeSigningService } from "../office/signing/office-signing.service";
+import { decryptSecret } from "../common/secret-box";
 
 type Executor = Pick<Database, "execute">;
 // Giao dịch cần cả ghi nhật ký thao tác (AuditService dùng insert).
@@ -147,10 +152,16 @@ export class ContractsService implements OnModuleInit {
     private readonly outbox: OutboxService,
     private readonly employees: EmployeesService,
     private readonly workEvents: WorkEventsService,
+    private readonly signing: OfficeSigningService,
   ) {}
 
   // Duyệt xong thì chờ ký; từ chối, rút thì về trạng thái tương ứng để sửa, gửi lại (QUYTAC_NGHIEPVU_299).
   onModuleInit(): void {
+    // Ký số hợp đồng lao động (CONG_VIEC_59): Văn phòng số báo phiên ký xong, Nhân sự tự ghi hợp đồng của mình.
+    this.outbox.subscribe("office.signing.completed", async (event) => {
+      const sourceType = String(event.payload.sourceType);
+      if (sourceType === "hr_contract" || sourceType === "hr_contract_appendix") await this.signingCompleted(String(event.payload.requestId));
+    });
     this.outbox.subscribe("core.approval.completed", async (event) => {
       const type = String(event.payload.documentTypeCode);
       if (type !== contractDocumentType && type !== appendixDocumentType) return;
@@ -568,30 +579,47 @@ export class ContractsService implements OnModuleInit {
     if (signDate > this.permissionService.today()) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { signDate: "invalidValue" } });
     const current = await this.requireVisible(this.database, actor, id, granted);
     if (current.status !== "approved") throw new ApiError("BUSINESS_RULE", "contractNotApproved");
+    await this.requireNoDigitalSigning(actor.companyId, "hr_contract", id);
     const stored = await this.employees.storeFile(`hr/${actor.companyId}/contracts/${id}`, file);
     try {
-      await this.database.transaction(async (transaction) => {
-        const row = await this.requireVisible(transaction, actor, id, granted, true);
-        if (row.status !== "approved") throw new ApiError("BUSINESS_RULE", "contractNotApproved");
-        await transaction.execute(sql`SELECT 1 FROM hr.employees WHERE id = ${row.employee_id} FOR UPDATE`);
-        await this.validate(transaction, actor, this.inputOf(row, await this.allowances(id, null)), id, false);
-        const employee = (await transaction.execute<{ birth_date: string }>(sql`SELECT birth_date::text FROM hr.employees WHERE id = ${row.employee_id}`)).rows[0]!;
-        if (ageAt(employee.birth_date, row.effective_date) < 18) {
-          const consent = await transaction.execute(sql`SELECT 1 FROM hr.employee_documents WHERE employee_id = ${row.employee_id} AND kind = 'guardian_consent'`);
-          if (consent.rows.length === 0) throw new ApiError("BUSINESS_RULE", "guardianConsentMissing");
-        }
-        await transaction.execute(sql`
-          UPDATE hr.contracts SET status = 'signed', sign_date = ${signDate}::date, signed_file_name = ${stored.fileName}, signed_content_type = ${stored.contentType},
-            signed_size_bytes = ${stored.size}, signed_storage_key = ${stored.storageKey}, updated_at = now(), version = version + 1
-          WHERE id = ${id}`);
-        await this.placementEvent(transaction, actor, row.employee_id, row.effective_date, { jobTitle: row.job_title, departmentId: row.department_id, branchId: row.branch_id }, "contract", id);
-        await this.auditService.record({ ...hrAudit(actor, "contract"), action: "contract.sign", entityId: id, afterData: { signDate, fileName: stored.fileName } }, transaction);
-      });
+      await this.database.transaction((transaction) => this.applySign(transaction, actor, id, granted, signDate, stored, "contract.sign"));
     } catch (error) {
       await this.storage.remove(stored.storageKey).catch(() => undefined);
       throw error;
     }
     return this.detail(actor, id);
+  }
+
+  // Điều kiện ký hợp đồng (kiểm lại hợp lệ, người chưa thành niên cần văn bản đồng ý của người đại diện).
+  private async checkSignable(executor: Executor, actor: Actor, row: ContractRow): Promise<void> {
+    await this.validate(executor, actor, this.inputOf(row, await this.allowances(row.id, null)), row.id, false);
+    const employee = (await executor.execute<{ birth_date: string }>(sql`SELECT birth_date::text FROM hr.employees WHERE id = ${row.employee_id}`)).rows[0]!;
+    if (ageAt(employee.birth_date, row.effective_date) < 18) {
+      const consent = await executor.execute(sql`SELECT 1 FROM hr.employee_documents WHERE employee_id = ${row.employee_id} AND kind = 'guardian_consent'`);
+      if (consent.rows.length === 0) throw new ApiError("BUSINESS_RULE", "guardianConsentMissing");
+    }
+  }
+
+  // Chuyển hợp đồng đã duyệt sang đã ký với bản đã ký (ký thủ công, hoặc phiên ký số xong).
+  private async applySign(
+    transaction: Pick<Database, "execute" | "insert">,
+    actor: Actor,
+    id: string,
+    granted: Set<string>,
+    signDate: string,
+    stored: { fileName: string; contentType: string; size: number; storageKey: string },
+    action: string,
+  ): Promise<void> {
+    const row = await this.requireVisible(transaction, actor, id, granted, true);
+    if (row.status !== "approved") throw new ApiError("BUSINESS_RULE", "contractNotApproved");
+    await transaction.execute(sql`SELECT 1 FROM hr.employees WHERE id = ${row.employee_id} FOR UPDATE`);
+    await this.checkSignable(transaction, actor, row);
+    await transaction.execute(sql`
+      UPDATE hr.contracts SET status = 'signed', sign_date = ${signDate}::date, signed_file_name = ${stored.fileName}, signed_content_type = ${stored.contentType},
+        signed_size_bytes = ${stored.size}, signed_storage_key = ${stored.storageKey}, updated_at = now(), version = version + 1
+      WHERE id = ${id}`);
+    await this.placementEvent(transaction, actor, row.employee_id, row.effective_date, { jobTitle: row.job_title, departmentId: row.department_id, branchId: row.branch_id }, "contract", id);
+    await this.auditService.record({ ...hrAudit(actor, "contract"), action, entityId: id, afterData: { signDate, fileName: stored.fileName } }, transaction);
   }
 
   // Hợp đồng, phụ lục ký có vị trí khác vị trí tại ngày hiệu lực thì tạo quyết định "Theo hợp đồng" (QUYTAC_NGHIEPVU_299, 300).
@@ -636,6 +664,9 @@ export class ContractsService implements OnModuleInit {
       const row = await this.requireVisible(transaction, actor, id, granted, true);
       if (![...editableStatuses, "approved"].includes(row.status)) throw new ApiError("BUSINESS_RULE", "contractNotCancellable");
       await transaction.execute(sql`UPDATE hr.contracts SET status = 'cancelled', cancel_reason = ${reason}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
+      // Hủy hợp đồng đang ký số thì hủy cả phiên ký.
+      const signing = await this.signing.latestForSource(transaction, actor.companyId, "hr_contract", id);
+      if (signing) await this.signing.cancelForSource(transaction, signing.id, actor.userId, reason);
       await this.auditService.record({ ...hrAudit(actor, "contract"), action: "contract.cancel", entityId: id, afterData: { reason } }, transaction);
     });
     return this.detail(actor, id);
@@ -852,36 +883,201 @@ export class ContractsService implements OnModuleInit {
     if (signDate > this.permissionService.today()) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { signDate: "invalidValue" } });
     await this.requireVisible(this.database, actor, contractId, granted);
     if ((await this.appendix(this.database, contractId, appendixId)).status !== "approved") throw new ApiError("BUSINESS_RULE", "contractNotApproved");
+    await this.requireNoDigitalSigning(actor.companyId, "hr_contract_appendix", appendixId);
     const stored = await this.employees.storeFile(`hr/${actor.companyId}/contracts/${contractId}`, file);
     try {
-      await this.database.transaction(async (transaction) => {
-        const contract = await this.requireVisible(transaction, actor, contractId, granted, true);
-        if (contract.status !== "signed") throw new ApiError("BUSINESS_RULE", "contractNotSigned");
-        const row = await this.appendix(transaction, contractId, appendixId, true);
-        if (row.status !== "approved") throw new ApiError("BUSINESS_RULE", "contractNotApproved");
-        await transaction.execute(sql`
-          UPDATE hr.contract_appendices SET status = 'signed', sign_date = ${signDate}::date, signed_file_name = ${stored.fileName}, signed_content_type = ${stored.contentType},
-            signed_size_bytes = ${stored.size}, signed_storage_key = ${stored.storageKey}, updated_at = now(), version = version + 1
-          WHERE id = ${appendixId}`);
-        await this.placementEvent(
-          transaction,
-          actor,
-          contract.employee_id,
-          row.effective_date,
-          { jobTitle: row.job_title, departmentId: row.department_id, branchId: row.branch_id },
-          "appendix",
-          appendixId,
-        );
-        await this.auditService.record(
-          { ...hrAudit(actor, "contract"), action: "contract.appendix.sign", entityId: contractId, afterData: { appendixId, signDate, fileName: stored.fileName } },
-          transaction,
-        );
-      });
+      await this.database.transaction((transaction) => this.applyAppendixSign(transaction, actor, contractId, appendixId, granted, signDate, stored, "contract.appendix.sign"));
     } catch (error) {
       await this.storage.remove(stored.storageKey).catch(() => undefined);
       throw error;
     }
     return this.detail(actor, contractId);
+  }
+
+  private async applyAppendixSign(
+    transaction: Pick<Database, "execute" | "insert">,
+    actor: Actor,
+    contractId: string,
+    appendixId: string,
+    granted: Set<string>,
+    signDate: string,
+    stored: { fileName: string; contentType: string; size: number; storageKey: string },
+    action: string,
+  ): Promise<void> {
+    const contract = await this.requireVisible(transaction, actor, contractId, granted, true);
+    if (contract.status !== "signed") throw new ApiError("BUSINESS_RULE", "contractNotSigned");
+    const row = await this.appendix(transaction, contractId, appendixId, true);
+    if (row.status !== "approved") throw new ApiError("BUSINESS_RULE", "contractNotApproved");
+    await transaction.execute(sql`
+      UPDATE hr.contract_appendices SET status = 'signed', sign_date = ${signDate}::date, signed_file_name = ${stored.fileName}, signed_content_type = ${stored.contentType},
+        signed_size_bytes = ${stored.size}, signed_storage_key = ${stored.storageKey}, updated_at = now(), version = version + 1
+      WHERE id = ${appendixId}`);
+    await this.placementEvent(
+      transaction,
+      actor,
+      contract.employee_id,
+      row.effective_date,
+      { jobTitle: row.job_title, departmentId: row.department_id, branchId: row.branch_id },
+      "appendix",
+      appendixId,
+    );
+    await this.auditService.record({ ...hrAudit(actor, "contract"), action, entityId: contractId, afterData: { appendixId, signDate, fileName: stored.fileName } }, transaction);
+  }
+
+  // ---------- Ký số hợp đồng lao động, phụ lục (CONG_VIEC_59, CHUC_NANG_213; API_248) ----------
+
+  private async requireNoDigitalSigning(companyId: string, sourceType: "hr_contract" | "hr_contract_appendix", sourceId: string): Promise<void> {
+    const latest = await this.signing.latestForSource(this.database, companyId, sourceType, sourceId);
+    if (latest && (latest.status === "draft" || latest.status === "signing")) throw new ApiError("BUSINESS_RULE", "hrDigitalSigningActive");
+  }
+
+  private async signingTarget(actor: Actor, contractId: string, appendixId: string | null) {
+    const granted = await requireHrPermission(this.permissionService, actor, hrPermission.contract);
+    const contract = await this.requireVisible(this.database, actor, contractId, granted);
+    const appendix = appendixId ? await this.appendix(this.database, contractId, appendixId) : null;
+    const sourceType = appendix ? ("hr_contract_appendix" as const) : ("hr_contract" as const);
+    const sourceId = appendix?.id ?? contract.id;
+    const signing = await this.signing.latestForSource(this.database, actor.companyId, sourceType, sourceId);
+    const active = signing !== null && (signing.status === "draft" || signing.status === "signing");
+    const ready = appendix ? appendix.status === "approved" && contract.status === "signed" : contract.status === "approved";
+    const employee = (
+      await this.database.execute<{
+        user_id: string | null;
+        full_name: string;
+        personal_email: string | null;
+        user_email: string | null;
+        identity_encrypted: Buffer | null;
+        identity_last4: string | null;
+      }>(sql`
+      SELECT e.user_id, e.full_name, e.personal_email, u.email AS user_email, e.identity_encrypted, e.identity_last4
+      FROM hr.employees e LEFT JOIN core.users u ON u.id = e.user_id WHERE e.id = ${contract.employee_id}`)
+    ).rows[0]!;
+    const readyUsers = employee.user_id ? await this.signing.readyUserIds(actor.companyId, [employee.user_id]) : new Set<string>();
+    return { granted, contract, appendix, sourceType, sourceId, signing, active, ready, employee, employeeIsUser: employee.user_id !== null && readyUsers.has(employee.user_id) };
+  }
+
+  // Đường dẫn API_248 của phụ lục chỉ có mã phụ lục: tìm hợp đồng trong công ty đang chọn.
+  async contractOfAppendix(actor: Actor, appendixId: string): Promise<string> {
+    const row = (
+      await this.database.execute<{ contract_id: string }>(sql`
+      SELECT a.contract_id FROM hr.contract_appendices a JOIN hr.contracts c ON c.id = a.contract_id WHERE a.id = ${appendixId} AND c.company_id = ${actor.companyId}`)
+    ).rows[0];
+    if (!row) throw new ApiError("NOT_FOUND", "notFound");
+    return row.contract_id;
+  }
+
+  async digitalSigningInfo(actor: Actor, contractId: string, appendixId: string | null): Promise<HrDigitalSigningInfo> {
+    const target = await this.signingTarget(actor, contractId, appendixId);
+    return {
+      employeeSignsAs: target.employeeIsUser ? "user" : "partner",
+      employeeName: target.employee.full_name,
+      employeeEmail: target.employee.user_email ?? target.employee.personal_email,
+      identityLast4: target.employee.identity_last4,
+      signing: target.signing,
+      canStart: target.ready && !target.active,
+    };
+  }
+
+  // Lập phiên ký từ tệp PDF hợp đồng: người ký phía công ty trước, người lao động sau (trong hệ thống hoặc qua đường dẫn, số định danh lấy từ hồ sơ).
+  async startDigitalSigning(actor: Actor, contractId: string, appendixId: string | null, input: HrDigitalSigningInput, file: UploadedFile | undefined): Promise<HrDigitalSigningInfo> {
+    const target = await this.signingTarget(actor, contractId, appendixId);
+    if (!target.ready) throw new ApiError("BUSINESS_RULE", target.appendix && target.contract.status !== "signed" ? "contractNotSigned" : "contractNotApproved");
+    if (target.active) throw new ApiError("BUSINESS_RULE", "hrDigitalSigningActive");
+    if (!target.appendix) await this.checkSignable(this.database, actor, target.contract);
+    const signers: SigningSignerInput[] = [{ kind: "user", userId: input.companySignerUserId, signOrder: 1, page: "last", corner: "bottom_right" }];
+    if (target.employeeIsUser) {
+      signers.push({ kind: "user", userId: target.employee.user_id!, signOrder: 2, page: "last", corner: "bottom_left" });
+    } else {
+      const email = input.employeeEmail ?? target.employee.user_email ?? target.employee.personal_email;
+      if (!email) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { employeeEmail: "hrDigitalSigningEmailMissing" } });
+      if (!target.employee.identity_encrypted) throw new ApiError("BUSINESS_RULE", "hrDigitalSigningIdentityMissing");
+      const identity = decryptSecret(target.employee.identity_encrypted);
+      signers.push({
+        kind: "partner",
+        partnerKind: "individual",
+        name: target.employee.full_name,
+        email,
+        identity,
+        identityCode: identity,
+        signOrder: 2,
+        page: "last",
+        corner: "bottom_left",
+      });
+    }
+    const documentNo = target.appendix ? (target.appendix.document_no ?? `phụ lục ${target.appendix.sequence_no ?? ""}`.trim()) : (target.contract.document_no ?? "");
+    const title = `${target.appendix ? "Phụ lục hợp đồng lao động" : "Hợp đồng lao động"} ${documentNo} – ${target.employee.full_name}`.replace(/\s+/g, " ").slice(0, 200);
+    const created = await this.signing.create(actor, { title, note: input.note ?? null, dueOn: input.dueOn, signers }, file, { type: target.sourceType, id: target.sourceId });
+    // Hai lần bấm gần nhau: khóa hợp đồng rồi kiểm lại, phiên lập sau hủy trước khi gửi để người ký không nhận thư hai lần.
+    const conflict = await this.database.transaction(async (transaction) => {
+      await transaction.execute(sql`SELECT 1 FROM hr.contracts WHERE id = ${contractId} FOR UPDATE`);
+      const other = await transaction.execute(sql`
+        SELECT 1 FROM office.signing_requests WHERE company_id = ${actor.companyId} AND source_type = ${target.sourceType} AND source_id = ${target.sourceId}
+          AND id <> ${created.id} AND status IN ('draft', 'signing')`);
+      if (other.rows.length > 0) {
+        await this.signing.cancelForSource(transaction, created.id, actor.userId, "Hợp đồng đã có phiên ký số khác.");
+        return true;
+      }
+      return false;
+    });
+    // Hủy phiên vừa lập phải được ghi lại: ném lỗi sau khi giao dịch hủy đã xong.
+    if (conflict) throw new ApiError("BUSINESS_RULE", "hrDigitalSigningActive");
+    try {
+      await this.signing.send(actor, created.id, created.version);
+    } catch (error) {
+      await this.database.transaction((transaction) => this.signing.cancelForSource(transaction, created.id, actor.userId, "Gửi phiên ký không thành công."));
+      throw error;
+    }
+    await this.auditService.record({
+      ...hrAudit(actor, "contract"),
+      action: target.appendix ? "contract.appendix.digital_signing" : "contract.digital_signing",
+      entityId: contractId,
+      afterData: { appendixId, signingRequestId: created.id },
+    });
+    return this.digitalSigningInfo(actor, contractId, appendixId);
+  }
+
+  // Phiên ký số xong (sự kiện office.signing.completed): lưu bản đã ký, chuyển đã ký như thao tác Ký; ngày ký là ngày phiên xong.
+  private async signingCompleted(requestId: string): Promise<void> {
+    const result = await this.signing.completedResult(requestId);
+    if (!result?.sourceId || (result.sourceType !== "hr_contract" && result.sourceType !== "hr_contract_appendix")) return;
+    const appendixId = result.sourceType === "hr_contract_appendix" ? result.sourceId : null;
+    const contractId = appendixId
+      ? (await this.database.execute<{ contract_id: string }>(sql`SELECT contract_id FROM hr.contract_appendices WHERE id = ${appendixId}`)).rows[0]?.contract_id
+      : result.sourceId;
+    if (!contractId) return;
+    // Sự kiện giao lại sau lần xử lý thành công: hợp đồng, phụ lục đã ký thì bỏ qua.
+    const current = appendixId
+      ? (await this.database.execute<{ status: string }>(sql`SELECT status FROM hr.contract_appendices WHERE id = ${appendixId}`)).rows[0]
+      : (await this.database.execute<{ status: string }>(sql`SELECT status FROM hr.contracts WHERE id = ${contractId}`)).rows[0];
+    if (!current || current.status === "signed") return;
+    const actor: Actor = { userId: result.createdBy, companyId: result.companyId, client: { ip: null, userAgent: null, requestId: null } };
+    const granted = new Set<string>([hrPermission.contract]);
+    const stored = await this.employees.storeFile(`hr/${result.companyId}/contracts/${contractId}`, {
+      buffer: result.content,
+      size: result.content.length,
+      originalname: Buffer.from(result.fileName, "utf8").toString("latin1"),
+    });
+    try {
+      await this.database.transaction((transaction) =>
+        appendixId
+          ? this.applyAppendixSign(transaction, actor, contractId, appendixId, granted, result.signedOn, stored, "contract.appendix.digital_signed")
+          : this.applySign(transaction, actor, contractId, granted, result.signedOn, stored, "contract.digital_signed"),
+      );
+    } catch (error) {
+      await this.storage.remove(stored.storageKey).catch(() => undefined);
+      if (!(error instanceof ApiError)) throw error;
+      // Hợp đồng không còn ở trạng thái ký được (đã hủy, điều kiện ký không đạt): báo người lập phiên xử lý thủ công, không thử lại.
+      await notify(this.database, [
+        {
+          userId: result.createdBy,
+          companyId: result.companyId,
+          kind: "hr_contract_signing",
+          title: "Phiên ký số hợp đồng lao động đã xong nhưng chưa chuyển được sang đã ký; mở hợp đồng để xử lý.",
+          link: `/hr/contracts/${contractId}`,
+          payload: { contractId, appendixId, signingRequestId: requestId },
+        },
+      ]);
+    }
   }
 
   async cancelAppendix(actor: Actor, contractId: string, appendixId: string, reason: string): Promise<ContractResponse> {
@@ -891,6 +1087,8 @@ export class ContractsService implements OnModuleInit {
       const row = await this.appendix(transaction, contractId, appendixId, true);
       if (![...editableStatuses, "approved"].includes(row.status)) throw new ApiError("BUSINESS_RULE", "contractNotCancellable");
       await transaction.execute(sql`UPDATE hr.contract_appendices SET status = 'cancelled', cancel_reason = ${reason}, updated_at = now(), version = version + 1 WHERE id = ${appendixId}`);
+      const signing = await this.signing.latestForSource(transaction, actor.companyId, "hr_contract_appendix", appendixId);
+      if (signing) await this.signing.cancelForSource(transaction, signing.id, actor.userId, reason);
       await this.auditService.record({ ...hrAudit(actor, "contract"), action: "contract.appendix.cancel", entityId: contractId, afterData: { appendixId, reason } }, transaction);
     });
     return this.detail(actor, contractId);

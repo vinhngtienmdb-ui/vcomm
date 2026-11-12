@@ -1,34 +1,14 @@
 // In tem PDF khổ tem nhiệt 50 × 30 mm (CHUC_NANG_45; API_70; TIEUCHI_NGHIEMTHU_73): tem sản phẩm (mã vạch của đơn vị cơ sở, không có thì mã hàng), tem vị trí.
 import { Inject, Injectable } from "@nestjs/common";
 import { sql } from "drizzle-orm";
-import { dirname, join } from "node:path";
 import { ApiError } from "../common/api-error";
+import { renderPdf } from "../common/pdf";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Actor } from "../permissions/roles.service";
 import { code128Widths } from "./code128";
 import { inventoryPermissions } from "./inventory-context";
 import { pgArray } from "./stock-ledger.service";
 import { WarehousesService } from "./warehouses.service";
-
-// pdfmake 0.3 không kèm khai báo kiểu; phông đã đăng ký ở dịch vụ in đề xuất, đăng ký lại ở đây để dùng độc lập.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfmake = require("pdfmake") as {
-  setFonts(fonts: Record<string, Record<string, string>>): void;
-  setUrlAccessPolicy(callback: (url: string) => boolean): void;
-  setLocalAccessPolicy(callback: (path: string) => boolean): void;
-  createPdf(definition: Record<string, unknown>): { getBuffer(): Promise<Buffer> };
-};
-const fontDirectory = join(dirname(require.resolve("pdfmake/package.json")), "fonts", "Roboto");
-pdfmake.setFonts({
-  Roboto: {
-    normal: join(fontDirectory, "Roboto-Regular.ttf"),
-    bold: join(fontDirectory, "Roboto-Medium.ttf"),
-    italics: join(fontDirectory, "Roboto-Italic.ttf"),
-    bolditalics: join(fontDirectory, "Roboto-MediumItalic.ttf"),
-  },
-});
-pdfmake.setUrlAccessPolicy(() => false);
-pdfmake.setLocalAccessPolicy((path) => path.startsWith(fontDirectory));
 
 const millimetre = 72 / 25.4;
 export const labelSize = { width: 50 * millimetre, height: 30 * millimetre };
@@ -87,7 +67,8 @@ export class LabelsService {
         { text: label.code, fontSize: 7, alignment: "center", margin: [0, 1, 0, 0] },
       ];
     });
-    return pdfmake.createPdf({ pageSize: { width: labelSize.width, height: labelSize.height }, pageMargins: [margin, margin, margin, margin], content, defaultStyle: { font: "Roboto" } }).getBuffer();
+    // Dùng bảng phông chung (common/pdf): đăng ký lại phông ở đây sẽ ghi đè phông của nơi khác (văn bản hành chính) tùy thứ tự nạp module.
+    return renderPdf({ pageSize: { width: labelSize.width, height: labelSize.height }, pageMargins: [margin, margin, margin, margin], content, defaultStyle: { font: "Roboto" } });
   }
 }
 

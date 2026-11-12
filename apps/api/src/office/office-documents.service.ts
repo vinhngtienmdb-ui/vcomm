@@ -1,6 +1,7 @@
 // Công văn đến, đi theo Nghị định 30/2020/NĐ-CP (CHUC_NANG_184; QUYTAC_NGHIEPVU_363 đến 366; API_188 đến API_190).
 import { Inject, Injectable, Logger, type OnModuleInit } from "@nestjs/common";
 import type {
+  OutgoingDigitalSigningInput,
   DocumentOptions,
   DocumentParagraph,
   DocumentSettings,
@@ -39,6 +40,7 @@ import type { Actor } from "../permissions/roles.service";
 import { renderDocumentPdf, renderDocumentWord, type FormattedDocument } from "./document-format";
 import { activeGroupUsers, groupCompanyIds, peopleById } from "./office-access";
 import { checkOfficeFile, OfficeTasksService } from "./office-tasks.service";
+import { OfficeSigningService } from "./signing/office-signing.service";
 
 type Executor = Pick<Database, "execute">;
 type Upload = { buffer: Buffer; size: number; originalname: string } | undefined;
@@ -112,6 +114,7 @@ type IncomingRow = {
 
 type OutgoingRow = {
   id: string;
+  signing_request_id: string | null;
   company_id: string;
   register_id: string;
   register_name: string;
@@ -162,7 +165,7 @@ const outgoingSelect = sql`
   SELECT o.id, o.company_id, o.register_id, r.name AS register_name, o.document_type_id, dt.name AS type_name, dt.abbreviation AS type_abbreviation, dt.is_official_letter,
     o.department_id, d.name AS department_name, d.code AS department_code, o.summary, o.urgency, o.compose_mode, o.body, o.recipient_line, o.signer_user_id, o.signer_authority,
     o.signer_authority_of, o.signer_title, o.external_recipients, o.copies, o.drafter_code, o.reply_to_incoming_id, o.status, o.approval_mode, o.approval_request_id, o.decision_note,
-    o.year, o.outgoing_no, o.symbol, to_char(o.issued_on, 'YYYY-MM-DD') AS issued_on, o.cancel_reason, o.created_by, o.version
+    o.year, o.outgoing_no, o.symbol, to_char(o.issued_on, 'YYYY-MM-DD') AS issued_on, o.cancel_reason, o.created_by, o.signing_request_id, o.version
   FROM office.outgoing_documents o
   JOIN office.registers r ON r.id = o.register_id
   JOIN office.document_types dt ON dt.id = o.document_type_id
@@ -181,9 +184,21 @@ export class OfficeDocumentsService implements OnModuleInit {
     private readonly tasks: OfficeTasksService,
     private readonly outbox: OutboxService,
     private readonly auditService: AuditService,
+    private readonly signing: OfficeSigningService,
   ) {}
 
   onModuleInit(): void {
+    // Phiên ký số của công văn đi kết thúc (CHUC_NANG_213): báo văn thư phát hành hoặc chọn lại cách ký.
+    this.signing.outcomeHooks.push(async (executor, outcome) => {
+      if (outcome.sourceType !== "outgoing" || !outcome.sourceId) return;
+      const row = (
+        await executor.execute<{ id: string; company_id: string; symbol: string | null; summary: string; signing_request_id: string | null }>(sql`
+        SELECT id, company_id, symbol, summary, signing_request_id FROM office.outgoing_documents WHERE id = ${outcome.sourceId}`)
+      ).rows[0];
+      if (!row || row.signing_request_id !== outcome.requestId) return;
+      const title = outcome.status === "completed" ? `Công văn đã ký số, chờ phát hành: ${row.symbol ?? row.summary}` : `Phiên ký số công văn ${row.symbol ?? row.summary} không hoàn tất`;
+      await this.notifyClerks(executor, row.company_id, row.id, title);
+    });
     // Luồng duyệt chung xong thì chuyển công văn đi: duyệt → chờ cấp số; từ chối, rút về sửa được (QUYTAC_NGHIEPVU_365).
     this.outbox.subscribe("core.approval.completed", async (event) => {
       if (event.payload.documentTypeCode !== "office.outgoing_document") return;
@@ -462,7 +477,8 @@ export class OfficeDocumentsService implements OnModuleInit {
     if (onlyScan && !["application/pdf", "image/jpeg", "image/png"].includes(checked.contentType)) {
       throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "officeScanTypeInvalid" } });
     }
-    const storageKey = `office/${companyId}/${ownerType}/${ownerId}/${randomUUID()}`;
+    // Khóa lưu trữ chỉ gồm chữ thường, số, "/", "-" (FileStorage): đổi "_" của loại chủ sở hữu (outgoing_signed…) thành "-".
+    const storageKey = `office/${companyId}/${ownerType.replaceAll("_", "-")}/${ownerId}/${randomUUID()}`;
     await this.storage.put(storageKey, file!.buffer, checked.contentType);
     staged.push(storageKey);
     await executor.execute(sql`
@@ -892,7 +908,13 @@ export class OfficeDocumentsService implements OnModuleInit {
     if (creator && row.status === "pending") actions.push("withdraw");
     if (row.status === "pending" && row.approval_mode === "signer" && row.signer_user_id === actor.userId) actions.push("decide");
     if (clerk && row.status === "awaiting_number") actions.push("number", "cancel");
-    if (clerk && row.status === "numbered") actions.push("issue");
+    const signing = row.signing_request_id ? await this.signing.latestForSource(this.database, row.company_id, "outgoing", id) : null;
+    if (clerk && row.status === "numbered") {
+      // Phiên ký đang chạy thì chờ ký xong; phiên kết thúc không xong thì chọn lại Ký số hoặc phát hành bằng bản quét.
+      const active = signing && (signing.status === "draft" || signing.status === "signing");
+      if (!active) actions.push("issue");
+      if (!active && signing?.status !== "completed") actions.push("digital_sign");
+    }
     return {
       ...this.outgoingItem(
         row,
@@ -922,6 +944,7 @@ export class OfficeDocumentsService implements OnModuleInit {
       draftFiles: await this.files("outgoing_draft", id, actor, creator && ["draft", "rejected", "withdrawn"].includes(row.status)),
       signedFiles: await this.files("outgoing_signed", id, actor, false),
       expectedSymbol: row.outgoing_no === null ? this.symbolSuffix(row, settings.companyAbbreviation) : null,
+      signing,
       allowedActions: actions,
       version: row.version,
     };
@@ -1145,15 +1168,28 @@ export class OfficeDocumentsService implements OnModuleInit {
     return this.outgoing(actor, id);
   }
 
-  // Phát hành: tải bản đã ký, đóng dấu; báo người nhận nội bộ; công ty khác trong tập đoàn nhận công văn đến chờ vào sổ.
-  async issueOutgoing(actor: Actor, id: string, file: Upload, version: number): Promise<OutgoingResponse> {
+  // Phát hành: tải bản đã ký, đóng dấu (hoặc bản ký số của phiên đã xong); báo người nhận nội bộ; công ty khác trong tập đoàn nhận công văn đến chờ vào sổ.
+  async issueOutgoing(actor: Actor, id: string, upload: Upload, version: number): Promise<OutgoingResponse> {
     await this.requireClerk(actor);
+    const current = await this.loadOutgoing(this.database, actor, id);
+    const signing = current.signing_request_id ? await this.signing.latestForSource(this.database, current.company_id, "outgoing", id) : null;
+    if (signing && (signing.status === "draft" || signing.status === "signing")) throw new ApiError("BUSINESS_RULE", "officeOutgoingSigning");
+    let file = upload;
+    if (signing?.status === "completed") {
+      // Bản ký số là bản phát hành: không nhận bản quét khác.
+      const result = await this.signing.completedResult(signing.id);
+      if (!result) throw new ApiError("BUSINESS_RULE", "officeOutgoingSigning");
+      file = { buffer: result.content, size: result.content.length, originalname: Buffer.from(result.fileName, "utf8").toString("latin1") };
+    } else if (!file) {
+      throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "required" } });
+    }
     const copies: { companyId: string; incomingId: string }[] = [];
     await this.withStagedFiles((staged) =>
       this.database.transaction(async (transaction) => {
         const row = await this.loadOutgoing(transaction, actor, id, true);
         if (row.status !== "numbered") throw new ApiError("BUSINESS_RULE", "officeOutgoingLocked");
         if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+        if (row.signing_request_id !== current.signing_request_id) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
         await this.storeFile(transaction, staged, row.company_id, "outgoing_signed", id, actor.userId, file, true);
         await transaction.execute(sql`UPDATE office.outgoing_documents SET status = 'issued', issued_at = now(), updated_at = now(), version = version + 1 WHERE id = ${id}`);
         const recipients = await transaction.execute<{ kind: "user" | "department" | "company"; target_id: string }>(
@@ -1196,6 +1232,57 @@ export class OfficeDocumentsService implements OnModuleInit {
         await this.auditService.record({ ...this.audit(actor, "office_outgoing"), action: "office.outgoing.issue", entityId: id }, transaction);
       }),
     );
+    return this.outgoing(actor, id);
+  }
+
+  // Ký số công văn đi (CHUC_NANG_213; API_248): phiên ký từ bản PDF đã cấp số; người ký của công văn ký trước, văn thư đóng chữ ký công ty sau.
+  async startOutgoingSigning(actor: Actor, id: string, input: OutgoingDigitalSigningInput, upload: Upload): Promise<OutgoingResponse> {
+    await this.requireClerk(actor);
+    const row = await this.loadOutgoing(this.database, actor, id);
+    if (row.status !== "numbered") throw new ApiError("BUSINESS_RULE", "officeOutgoingLocked");
+    if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+    const previous = row.signing_request_id ? await this.signing.latestForSource(this.database, row.company_id, "outgoing", id) : null;
+    if (previous && ["draft", "signing", "completed"].includes(previous.status)) throw new ApiError("BUSINESS_RULE", "officeOutgoingSigning");
+    // Công văn soạn trên hệ thống: dựng bản PDF đã cấp số theo thể thức; công văn soạn bằng tệp: văn thư tải bản PDF đã cấp số.
+    let file = upload;
+    if (!file) {
+      if (row.compose_mode === "upload") throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "officeOutgoingPdfRequired" } });
+      const rendered = await this.renderOutgoing(actor, id, "pdf");
+      file = { buffer: rendered.content, size: rendered.content.length, originalname: rendered.fileName };
+    }
+    const created = await this.signing.create(
+      actor,
+      {
+        title: `Công văn ${row.symbol}: ${row.summary}`.slice(0, 200),
+        note: input.note ?? null,
+        dueOn: input.dueOn,
+        signers: [
+          { kind: "user", userId: row.signer_user_id, signOrder: 1, page: "last", corner: "bottom_right" },
+          { kind: "company", signOrder: 2, page: "last", corner: "bottom_right" },
+        ],
+      },
+      file,
+      { type: "outgoing", id },
+    );
+    try {
+      await this.signing.send(actor, created.id, created.version);
+    } catch (error) {
+      // Gửi không được (người ký chưa khai tài khoản ký số, công ty chưa khai chữ ký số…): hủy phiên nháp.
+      await this.database.transaction((transaction) => this.signing.cancelForSource(transaction, created.id, actor.userId, "Gửi phiên ký không thành công."));
+      throw error;
+    }
+    const conflict = await this.database.transaction(async (transaction) => {
+      const locked = await this.loadOutgoing(transaction, actor, id, true);
+      if (locked.status !== "numbered" || locked.signing_request_id !== row.signing_request_id) {
+        await this.signing.cancelForSource(transaction, created.id, actor.userId, "Công văn đã có phiên ký khác.");
+        return true;
+      }
+      await transaction.execute(sql`UPDATE office.outgoing_documents SET signing_request_id = ${created.id}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
+      await this.auditService.record({ ...this.audit(actor, "office_outgoing"), action: "office.outgoing.digital_signing", entityId: id, afterData: { signingRequestId: created.id } }, transaction);
+      return false;
+    });
+    // Hủy phiên vừa lập phải được ghi lại: ném lỗi sau khi giao dịch hủy đã xong.
+    if (conflict) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     return this.outgoing(actor, id);
   }
 
