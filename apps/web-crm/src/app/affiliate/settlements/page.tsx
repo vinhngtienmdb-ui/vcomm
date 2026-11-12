@@ -3,6 +3,7 @@
 // MAN_HINH_180 Đối soát và giao dịch liên kết (CONG_VIEC_55; CHUC_NANG_196; API_212): thẻ Đối soát – bảng tuần mọi cửa hàng, lọc trạng thái, quá hạn;
 // chi tiết; trả lời khiếu nại kèm điều chỉnh tiền và chốt lại. Thẻ Giao dịch (mọi cửa hàng, số điện thoại khách đã che), thẻ Báo cáo (theo cửa hàng, dư nợ), thẻ Cảnh báo bất thường (lát L4; API_213).
 import type { AffiliateAlert, AffiliateCompanyReport, AffiliateCompanyTransaction, AffiliateMerchantListItem, AffiliateSettlementDetail, AffiliateSettlementItem, PageResponse } from "contracts";
+import { affiliateAllTransactionMethods } from "contracts";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { SettlementBreakdown, SettlementNet, SettlementStatus } from "ui/components/AffiliateSettlement";
@@ -416,7 +417,7 @@ function TransactionsTab() {
         </label>
         <select id="gd-cach" className="o-nhap" value={filter.method} onChange={(event) => set("method", event.target.value)}>
           <option value="">{t("allMethods")}</option>
-          {(["merchant_qr", "buyer_qr", "phone"] as const).map((value) => (
+          {affiliateAllTransactionMethods.map((value) => (
             <option key={value} value={value}>
               {portal(`method_${value}`)}
             </option>

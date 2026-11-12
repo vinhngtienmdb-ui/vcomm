@@ -686,7 +686,10 @@
     "officePostRevoked": "The post has been revoked.",
     "officePostNotAcknowledgeable": "This post does not need acknowledgement or you are not a recipient.",
     "officePostCommentsClosed": "This post does not accept comments.",
-    "officeTooManyFiles": "Upload at most 5 files at a time."
+    "officeTooManyFiles": "Upload at most 5 files at a time.",
+    "affiliateSmartOtpActive": "The customer has Smart OTP; use the code in the VComm app.",
+    "affiliateOtpInvalid": "The OTP is wrong or has expired.",
+    "affiliateSmsLimit": "The API key has used up its OTP SMS for today."
   },
   "login": {
     "title": "Sign in",
@@ -7978,7 +7981,9 @@
     "portalKeys": "Store API keys",
     "source_open_api": "Store software",
     "partnerTransactionCode": "Software code: {code}",
-    "portalSmsFee": "{count} messages · {amount} VND"
+    "portalSmsFee": "{count} messages · {amount} VND",
+    "term_smsFee": "Fee per OTP SMS (VND)",
+    "smsFeeHint": "0 to 10,000; added to the weekly settlement when the store software sends an SMS code."
   },
   "merchantPortal": {
     "brand": "VComm Partners",
@@ -8104,7 +8109,9 @@
     "zaloHint": "Available after choosing Link Zalo in the store portal's top bar.",
     "zaloLink": "Link Zalo",
     "zaloLinked": "Zalo linked. You can sign in with Zalo next time.",
-    "menu_connection": "Software connection"
+    "menu_connection": "Software connection",
+    "smsFee": "Fee per OTP SMS",
+    "method_otp": "OTP"
   },
   "affiliateVoucher": {
     "merchantTitle": "Store vouchers",
@@ -8205,9 +8212,9 @@
     "lineB": "(B) Points redeemed value, incl. point vouchers",
     "lineC": "(C) Company-issued vouchers",
     "lineD": "(D) Service fee {percent}% × B",
-    "lineE": "(E) VAT {percent}% × D",
+    "lineE": "(E) VAT {percent}% × (D + F)",
     "lineAdjustment": "Adjustment on dispute resolution",
-    "lineNet": "Balance = A + D + E − B − C",
+    "lineNet": "Balance = A + D + F + E − B − C",
     "debt": "Outstanding {amount} VND, due {date}",
     "confirmedAt": "Confirmed at {date} ({name})",
     "autoConfirmedAt": "Auto-confirmed at {date}",
@@ -8247,7 +8254,8 @@
     "field_note": "Reply to the store",
     "resolve": "Answer and close",
     "paymentHint": "Record a receipt or payment with the store under Finance payments; once fully paid the settlement becomes paid.",
-    "lineNetAdjusted": "Balance = A + D + E − B − C + adjustment"
+    "lineNetAdjusted": "Balance = A + D + F + E − B − C + adjustment",
+    "lineF": "(F) OTP SMS fee ({count} messages)"
   },
   "affiliateReport": {
     "tab_report": "Report",

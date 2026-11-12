@@ -27,6 +27,7 @@ const formOf = (merchant: AffiliateMerchantDetail): TermsForm => ({
   transactionCap: merchant.transactionCap,
   paymentTermDays: String(merchant.paymentTermDays),
   autoConfirmDays: String(merchant.autoConfirmDays),
+  smsFee: merchant.smsFee,
 });
 
 function OutletDrawer({ merchantId, outlet, onClose, onSaved }: { merchantId: string; outlet: AffiliateOutlet | null; onClose: () => void; onSaved: () => void }) {

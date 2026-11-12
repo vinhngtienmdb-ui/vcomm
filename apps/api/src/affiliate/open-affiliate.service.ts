@@ -11,11 +11,13 @@ import type {
   OpenAffiliateTransaction,
   PageResponse,
   openAffiliateListQuerySchema,
+  openAffiliateOtpSchema,
   openAffiliateQuoteSchema,
   openAffiliateTransactionSchema,
 } from "contracts";
 import { sql } from "drizzle-orm";
 import type { z } from "zod";
+import { PhoneOtpService } from "../auth/phone-otp.service";
 import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError } from "../common/api-error";
 import { isUniqueViolation, violatedConstraint } from "../common/database-errors";
@@ -33,7 +35,17 @@ export interface OpenCallContext {
   requestId: string | null;
 }
 
-type KeyMerchant = { merchant_id: string; company_id: string; status: string; in_contract: boolean; earn_percent: string; transaction_cap: string; outlet_ids: string[] };
+type KeyMerchant = {
+  merchant_id: string;
+  company_id: string;
+  status: string;
+  in_contract: boolean;
+  earn_percent: string;
+  transaction_cap: string;
+  sms_fee: string;
+  sms_daily_limit: number;
+  outlet_ids: string[];
+};
 
 type Row = {
   partner_transaction_code: string | null;
@@ -94,13 +106,14 @@ export class OpenAffiliateService {
     private readonly transactions: AffiliateTransactionsService,
     private readonly ledger: LoyaltyLedgerService,
     private readonly smartOtp: SmartOtpService,
+    private readonly phoneOtp: PhoneOtpService,
   ) {}
 
   // Cửa hàng, điểm bán của khóa. Khóa `loyalty.member` luôn gắn cửa hàng (cấp ở màn hình Cửa hàng liên kết).
   private async keyMerchant(caller: OpenApiCaller): Promise<KeyMerchant> {
     const row = (
       await this.database.execute<KeyMerchant>(sql`
-      SELECT m.id AS merchant_id, m.company_id, m.status, m.earn_percent::text, m.transaction_cap::text,
+      SELECT m.id AS merchant_id, m.company_id, m.status, m.earn_percent::text, m.transaction_cap::text, m.sms_fee::text, ak.sms_daily_limit,
         (m.starts_on <= (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date AND (m.ends_on IS NULL OR m.ends_on >= (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date)) AS in_contract,
         ARRAY(SELECT outlet_id::text FROM affiliate.api_key_outlets WHERE api_key_id = ak.api_key_id) AS outlet_ids
       FROM affiliate.api_keys ak JOIN affiliate.merchants m ON m.id = ak.merchant_id
@@ -170,6 +183,40 @@ export class OpenAffiliateService {
     };
   }
 
+  // API_297: gửi mã OTP SMS cho khách chưa kích hoạt Smart OTP; tin gửi được tính phí theo hợp đồng (THAY_DOI_31).
+  async sendOtp(caller: OpenApiCaller, input: z.output<typeof openAffiliateOtpSchema>): Promise<void> {
+    const merchant = await this.usable(caller, input.outletId, "0");
+    const buyer = await this.buyerByPhone(this.database, input.phone);
+    if ((await this.smartOtp.state(this.database, buyer.id)).active) throw new ApiError("BUSINESS_RULE", "affiliateSmartOtpActive");
+    const sentToday = (
+      await this.database.execute<{ total: number }>(sql`
+      SELECT count(*)::int AS total FROM affiliate.sms_charges
+      WHERE api_key_id = ${caller.keyId} AND sent_at >= (date_trunc('day', now() AT TIME ZONE 'Asia/Ho_Chi_Minh') AT TIME ZONE 'Asia/Ho_Chi_Minh')`)
+    ).rows[0]!.total;
+    if (sentToday >= merchant.sms_daily_limit) throw new ApiError("RATE_LIMITED", "affiliateSmsLimit");
+    // Giới hạn 5 mã mỗi giờ mỗi số (tính chung mọi mục đích) nằm trong PhoneOtpService.
+    if (await this.phoneOtp.send(input.phone, "affiliate_redeem")) {
+      await this.database.execute(sql`
+        INSERT INTO affiliate.sms_charges (merchant_id, api_key_id, buyer_user_id, unit_price) VALUES (${merchant.merchant_id}, ${caller.keyId}, ${buyer.id}, ${merchant.sms_fee})`);
+    }
+  }
+
+  // Cách OTP: Smart OTP khi khách đã kích hoạt, ngược lại mã SMS; mã sai không lập giao dịch.
+  private async verifyOtp(merchant: KeyMerchant, phone: string, code: string): Promise<string> {
+    const buyer = await this.buyerByPhone(this.database, phone);
+    if ((await this.smartOtp.state(this.database, buyer.id)).active) {
+      try {
+        await this.smartOtp.verify(buyer.id, code, merchant.company_id);
+      } catch (error) {
+        if (error instanceof ApiError && error.message === "retailSmartOtpInvalid") throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { otp: "retailSmartOtpInvalid" } });
+        throw error;
+      }
+    } else if (!(await this.phoneOtp.consume(phone, code, "affiliate_redeem"))) {
+      throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { otp: "affiliateOtpInvalid" } });
+    }
+    return buyer.id;
+  }
+
   private async byCode(merchantId: string, code: string): Promise<OpenAffiliateTransaction | null> {
     const row = (await this.database.execute<Row>(sql`${select} WHERE t.merchant_id = ${merchantId} AND t.source = 'open_api' AND t.partner_transaction_code = ${code}`)).rows[0];
     return row ? itemOf(row) : null;
@@ -181,6 +228,7 @@ export class OpenAffiliateService {
     const existing = await this.byCode(merchant.merchant_id, input.partnerTransactionCode);
     if (existing) return { created: false, transaction: existing };
     await this.usable(caller, input.outletId, input.billAmount);
+    const verified = input.method === "otp" ? { buyerId: await this.verifyOtp(merchant, input.phone!, input.otp!), points: input.points, voucherCodeId: input.voucherCodeId } : undefined;
     const counter: CounterActor = {
       merchantId: merchant.merchant_id,
       companyId: merchant.company_id,
@@ -192,9 +240,10 @@ export class OpenAffiliateService {
       await this.transactions.createFor(counter, {
         outletId: input.outletId,
         billAmount: input.billAmount,
-        method: input.method === "member_code" ? "buyer_qr" : "phone",
+        method: input.method === "member_code" ? "buyer_qr" : input.method,
         memberCode: input.memberCode,
         phone: input.phone,
+        ...(verified ? { verified } : {}),
       });
     } catch (error) {
       // Hai lần gửi cùng mã cùng lúc: lần sau trả giao dịch của lần trước.

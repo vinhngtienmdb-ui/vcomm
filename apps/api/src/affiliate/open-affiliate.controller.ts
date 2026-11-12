@@ -4,6 +4,7 @@ import { Body, Controller, Get, HttpCode, Param, Post, Query, Req, Res, UseGuard
 import {
   openAffiliateCancelSchema,
   openAffiliateListQuerySchema,
+  openAffiliateOtpSchema,
   openAffiliateQuoteSchema,
   openAffiliateTransactionSchema,
   openTransactionCodePattern,
@@ -42,6 +43,13 @@ export class OpenAffiliateController {
   @HttpCode(200)
   quote(@Req() request: OpenApiRequest, @Body() body: unknown): Promise<OpenAffiliateQuote> {
     return this.service.quote(request.openApi, openAffiliateQuoteSchema.parse(body));
+  }
+
+  // API_297: gửi mã OTP SMS (THAY_DOI_31).
+  @Post("otp")
+  @HttpCode(204)
+  async otp(@Req() request: OpenApiRequest, @Body() body: unknown): Promise<void> {
+    await this.service.sendOtp(request.openApi, openAffiliateOtpSchema.parse(body));
   }
 
   // Mã giao dịch đối tác đã có thì trả 200 với giao dịch cũ; tạo mới trả 201.

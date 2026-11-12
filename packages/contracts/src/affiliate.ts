@@ -21,6 +21,8 @@ const decimal = (maximumIntegerDigits: number) =>
     .pipe(z.string().regex(new RegExp(`^\\d{1,${maximumIntegerDigits}}(\\.\\d{1,4})?$`), "invalidValue"));
 const percent = (minimum: number, maximum: number) => decimal(2).refine((value) => Number(value) >= minimum && Number(value) <= maximum, "invalidValue");
 const money = decimal(14).refine((value) => Number(value) > 0, "invalidValue");
+// Phí mỗi tin OTP SMS (đồng, 0 đến 10.000; THAY_DOI_31).
+const smsFee = decimal(5).refine((value) => Number(value) <= 10000, "invalidValue");
 const reason = z.string().trim().min(1).max(500);
 const fullName = z.string().trim().min(1).max(100);
 
@@ -40,6 +42,7 @@ const merchantTerms = {
   transactionCap: money,
   paymentTermDays: z.number().int().min(1).max(30),
   autoConfirmDays: z.number().int().min(1).max(7),
+  smsFee: smsFee.default("0"),
 };
 const endsAfterStart = (value: { startsOn: string; endsOn: string | null }) => value.endsOn === null || value.endsOn >= value.startsOn;
 export const affiliateMerchantCreateSchema = z
@@ -102,6 +105,7 @@ export interface AffiliateMerchantTerms {
   transactionCap: string;
   paymentTermDays: number;
   autoConfirmDays: number;
+  smsFee: string;
 }
 export interface AffiliateMerchantListItem {
   id: string;
@@ -156,7 +160,9 @@ export interface MerchantPortalStore extends AffiliateMerchantTerms {
 // Lát L1: giao dịch tại quầy (QUYTAC_NGHIEPVU_394 đến 400; API_208, API_209).
 // ---------------------------------------------------------------------------
 export const affiliateTransactionMethods = ["merchant_qr", "buyer_qr", "phone"] as const;
-export type AffiliateTransactionMethod = (typeof affiliateTransactionMethods)[number];
+// Cách `otp` chỉ có qua Open API (CONG_VIEC_67).
+export const affiliateAllTransactionMethods = [...affiliateTransactionMethods, "otp"] as const;
+export type AffiliateTransactionMethod = (typeof affiliateAllTransactionMethods)[number];
 export type AffiliateTransactionSource = "portal" | "open_api";
 export type AffiliateTransactionStatus = "pending" | "completed" | "declined" | "expired" | "cancelled";
 export type AffiliateSkipReason = "test_buyer" | "locked" | "inactive" | "no_phase" | "zero" | "credit_limit" | "overdue";
@@ -429,6 +435,9 @@ export interface AffiliateSettlementItem {
   shortfallAmount: string;
   feePercent: string;
   feeAmount: string;
+  // Phí tin nhắn OTP SMS (F, THAY_DOI_31) và số tin.
+  smsCount: number;
+  smsFeeAmount: string;
   feeTaxRate: string;
   feeTaxAmount: string;
   adjustmentAmount: string;
@@ -534,7 +543,7 @@ export interface AffiliateAlert {
 // Web quản trị (MAN_HINH_180 thẻ Giao dịch): giao dịch mọi cửa hàng; số điện thoại khách đã che (người dùng duyệt khi xem trước lát L4).
 export const affiliateCompanyTransactionQuerySchema = z.object({
   merchantId: z.string().uuid().optional(),
-  method: z.enum(affiliateTransactionMethods).optional(),
+  method: z.enum(affiliateAllTransactionMethods).optional(),
   status: z.enum(["pending", "completed", "declined", "expired", "cancelled"]).optional(),
   from: isoDate.optional(),
   to: isoDate.optional(),
@@ -605,7 +614,7 @@ export interface AffiliatePortalConnection {
 }
 
 // Phần mềm cửa hàng (khóa API, gốc /api/v1/open/affiliate).
-export const openAffiliateMethods = ["member_code", "phone"] as const;
+export const openAffiliateMethods = ["member_code", "phone", "otp"] as const;
 export type OpenAffiliateMethod = (typeof openAffiliateMethods)[number];
 export const openTransactionCodePattern = /^[A-Za-z0-9._-]{1,50}$/;
 export const openAffiliateQuoteSchema = z
@@ -636,9 +645,17 @@ export const openAffiliateTransactionSchema = z
     method: z.enum(openAffiliateMethods),
     memberCode: z.string().trim().min(1).max(500).optional(),
     phone: vietnamPhone.optional(),
+    // Cách `otp`: mã Smart OTP hoặc mã SMS khách đọc, số điểm muốn dùng, voucher lấy từ kết quả tra điểm.
+    otp: z
+      .string()
+      .regex(/^\d{6}$/, "invalidValue")
+      .optional(),
+    points: z.number().int().min(0).max(1_000_000_000).default(0),
+    voucherCodeId: z.string().uuid().nullable().default(null),
   })
   .strict()
-  .refine((value) => value.method !== "phone" || value.phone, { message: "required", path: ["phone"] })
+  .refine((value) => value.method === "member_code" || value.phone, { message: "required", path: ["phone"] })
+  .refine((value) => value.method !== "otp" || value.otp, { message: "required", path: ["otp"] })
   .refine((value) => value.method !== "member_code" || value.memberCode, { message: "required", path: ["memberCode"] });
 export const openAffiliateListQuerySchema = z
   .object({
@@ -649,6 +666,7 @@ export const openAffiliateListQuerySchema = z
     pageSize: z.coerce.number().int().min(1).max(100).default(50),
   })
   .strict();
+export const openAffiliateOtpSchema = z.object({ outletId: z.string().uuid(), phone: vietnamPhone }).strict();
 export const openAffiliateCancelSchema = z.object({ reason }).strict();
 export interface OpenAffiliateOutlet {
   id: string;

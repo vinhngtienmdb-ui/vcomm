@@ -269,7 +269,15 @@ export class AffiliateTransactionsService {
   // Lập giao dịch cho thu ngân hoặc phần mềm cửa hàng; điểm bán đã kiểm thuộc phạm vi của bên lập.
   async createFor(
     counter: CounterActor,
-    input: { outletId: string; billAmount: string; method: AffiliateTransactionMethod; phone?: string | undefined; memberCode?: string | undefined },
+    input: {
+      outletId: string;
+      billAmount: string;
+      method: AffiliateTransactionMethod;
+      phone?: string | undefined;
+      memberCode?: string | undefined;
+      // Cách `otp` (Open API, CONG_VIEC_67): khách đã xác thực bằng mã OTP trước khi gọi.
+      verified?: { buyerId: string; points: number; voucherCodeId: string | null };
+    },
   ): Promise<{ id: string; qrCode: string | null }> {
     const merchant = await merchantTerms(this.database, counter.merchantId);
     if (merchant.status !== "active" || !merchant.in_contract) throw new ApiError("BUSINESS_RULE", "affiliateMerchantInactive");
@@ -314,6 +322,17 @@ export class AffiliateTransactionsService {
           payload: { transactionId: id },
         },
       ]);
+      return { id, qrCode: null };
+    }
+
+    // Cách OTP: hoàn tất ngay với số điểm nhỏ hơn giữa số yêu cầu và số tối đa dùng được.
+    if (input.method === "otp") {
+      const verified = input.verified!;
+      const id = await this.database.transaction(async (transaction) => {
+        const created = await this.insert(transaction, { ...base, method: "otp", buyer: verified.buyerId, tokenHash: null, minutes: 0 });
+        await this.complete(transaction, created, verified.buyerId, { points: verified.points, voucherCodeId: verified.voucherCodeId, capToMax: true });
+        return created;
+      });
       return { id, qrCode: null };
     }
 

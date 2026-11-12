@@ -4,6 +4,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import type { AffiliateApiKeyItem, AffiliateApiKeySecret, AffiliatePortalConnection, affiliateApiKeyCreateSchema, affiliateApiKeyUpdateSchema } from "contracts";
 import { sql } from "drizzle-orm";
 import type { z } from "zod";
+import { trimDecimal } from "../catalog/catalog-context";
 import { ApiError, type ErrorMessageKey } from "../common/api-error";
 import { CLOCK, type Clock, vietnamDate } from "../common/clock";
 import { isUniqueViolation } from "../common/database-errors";
@@ -31,6 +32,7 @@ type KeyRow = {
   revoked_reason: string | null;
   last_used_at: Date | null;
   calls_today: number;
+  sms_today: number;
   created_at: Date;
   version: number;
 };
@@ -43,7 +45,8 @@ const selectKeys = sql`
     k.revoked_reason, k.last_used_at, k.created_at, k.version,
     coalesce((SELECT json_agg(json_build_object('id', o.id, 'name', o.name) ORDER BY o.name) FROM affiliate.api_key_outlets ko JOIN affiliate.outlets o ON o.id = ko.outlet_id
       WHERE ko.api_key_id = k.id), '[]'::json) AS outlets,
-    (SELECT count(*)::int FROM core.api_call_logs l WHERE l.api_key_id = k.id AND l.called_at >= ${startOfVietnamDay}) AS calls_today
+    (SELECT count(*)::int FROM core.api_call_logs l WHERE l.api_key_id = k.id AND l.called_at >= ${startOfVietnamDay}) AS calls_today,
+    (SELECT count(*)::int FROM affiliate.sms_charges c WHERE c.api_key_id = k.id AND c.sent_at >= ${startOfVietnamDay}) AS sms_today
   FROM affiliate.api_keys ak JOIN core.api_keys k ON k.id = ak.api_key_id`;
 
 @Injectable()
@@ -73,8 +76,7 @@ export class AffiliateApiKeysService {
       revokedReason: row.revoked_reason,
       lastUsedAt: row.last_used_at ? new Date(row.last_used_at).toISOString() : null,
       callsToday: row.calls_today,
-      // Tin OTP SMS: lát L2.
-      smsToday: 0,
+      smsToday: row.sms_today,
       createdAt: new Date(row.created_at).toISOString(),
       version: row.version,
     };
@@ -197,12 +199,24 @@ export class AffiliateApiKeysService {
     requireOwner(member);
     const weekStart = sql`(date_trunc('week', now() AT TIME ZONE 'Asia/Ho_Chi_Minh') AT TIME ZONE 'Asia/Ho_Chi_Minh')`;
     const counts = (
-      await this.database.execute<{ calls_today: number; calls_week: number; transactions_today: number; transactions_week: number; week_start: string }>(sql`
+      await this.database.execute<{
+        calls_today: number;
+        calls_week: number;
+        transactions_today: number;
+        transactions_week: number;
+        sms_today: number;
+        sms_week: number;
+        sms_fee_week: string;
+        week_start: string;
+      }>(sql`
       SELECT
         (SELECT count(*)::int FROM core.api_call_logs l JOIN affiliate.api_keys ak ON ak.api_key_id = l.api_key_id WHERE ak.merchant_id = ${member.merchantId} AND l.called_at >= ${startOfVietnamDay}) AS calls_today,
         (SELECT count(*)::int FROM core.api_call_logs l JOIN affiliate.api_keys ak ON ak.api_key_id = l.api_key_id WHERE ak.merchant_id = ${member.merchantId} AND l.called_at >= ${weekStart}) AS calls_week,
         (SELECT count(*)::int FROM affiliate.transactions WHERE merchant_id = ${member.merchantId} AND source = 'open_api' AND created_at >= ${startOfVietnamDay}) AS transactions_today,
         (SELECT count(*)::int FROM affiliate.transactions WHERE merchant_id = ${member.merchantId} AND source = 'open_api' AND created_at >= ${weekStart}) AS transactions_week,
+        (SELECT count(*)::int FROM affiliate.sms_charges WHERE merchant_id = ${member.merchantId} AND sent_at >= ${startOfVietnamDay}) AS sms_today,
+        (SELECT count(*)::int FROM affiliate.sms_charges WHERE merchant_id = ${member.merchantId} AND sent_at >= ${weekStart}) AS sms_week,
+        (SELECT coalesce(sum(unit_price), 0)::text FROM affiliate.sms_charges WHERE merchant_id = ${member.merchantId} AND sent_at >= ${weekStart}) AS sms_fee_week,
         (date_trunc('week', now() AT TIME ZONE 'Asia/Ho_Chi_Minh'))::date::text AS week_start`)
     ).rows[0]!;
     return {
@@ -211,10 +225,9 @@ export class AffiliateApiKeysService {
       callsWeek: counts.calls_week,
       transactionsToday: counts.transactions_today,
       transactionsWeek: counts.transactions_week,
-      // Tin OTP SMS, phí tin nhắn: lát L2.
-      smsToday: 0,
-      smsWeek: 0,
-      smsFeeWeek: "0",
+      smsToday: counts.sms_today,
+      smsWeek: counts.sms_week,
+      smsFeeWeek: trimDecimal(counts.sms_fee_week),
       weekStart: counts.week_start,
     };
   }

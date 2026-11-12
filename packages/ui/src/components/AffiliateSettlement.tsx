@@ -60,6 +60,7 @@ export function SettlementBreakdown({ settlement }: { settlement: AffiliateSettl
         {line(t("lineB"), settlement.redeemedAmount, "−")}
         {line(t("lineC"), settlement.companyVoucherAmount, "−")}
         {line(t("lineD", { percent: formatNumber(settlement.feePercent, 2) }), settlement.feeAmount)}
+        {settlement.smsCount > 0 && line(t("lineF", { count: settlement.smsCount }), settlement.smsFeeAmount)}
         {line(t("lineE", { percent: formatNumber(settlement.feeTaxRate, 2) }), settlement.feeTaxAmount)}
         {adjustment !== 0 && line(t("lineAdjustment"), String(Math.abs(adjustment)), adjustment < 0 ? "−" : "")}
         <div className="dong-tien" style={{ fontWeight: 800, borderTop: "1px solid var(--mau-vien)", paddingTop: "var(--khoang-1)" }}>

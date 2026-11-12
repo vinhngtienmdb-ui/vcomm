@@ -3,7 +3,7 @@
 - Mô tả: Cửa hàng liên kết của CONG_VIEC_55 nối phần mềm bán hàng của mình với VComm qua Open API (CONG_VIEC_61) để tra điểm dùng được, tích, đổi điểm, dùng voucher, hủy giao dịch thay cho thao tác trên cổng `/merchant`. Khách xác thực bằng mã thành viên, xác nhận trên ứng dụng VComm, hoặc mã OTP (Smart OTP; chưa kích hoạt thì SMS, phí tin nhắn tính vào đối soát). Giao dịch qua API vào chung hạn mức, đối soát tuần, hạch toán, báo cáo, cảnh báo của CONG_VIEC_55.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Bản nháp, chờ người dùng duyệt đặc tả và bản mẫu.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu (2026-11-12); lát L1 đã xem trước, đạt (2026-11-12); lát L2 chờ xem trước.
 - Nhánh: `chuc-nang/CONG_VIEC_67-cua-hang-lien-ket-2`.
 - Nguồn: CONG_VIEC_61 (YCAU_NGHIEPVU_169, QUYTAC_NGHIEPVU_495 dự phòng, mục 16 điểm cần chốt cho L4), CONG_VIEC_55 (giao dịch, voucher, đối soát, hạch toán), CONG_VIEC_53 lát L6 (Smart OTP), CONG_VIEC_51 (sổ cái điểm); quyết định của người dùng ngày 2026-11-12 (mục 17).
 - Mức: Lớn (sửa cấu trúc dữ liệu, API, bảng đối soát đã duyệt; nhiều module: MODULE_12, MODULE_16, MODULE_11).

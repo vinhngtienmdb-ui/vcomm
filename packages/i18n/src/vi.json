@@ -686,7 +686,10 @@
     "officePostRevoked": "Tin đã thu hồi.",
     "officePostNotAcknowledgeable": "Tin không cần xác nhận đã đọc hoặc bạn không thuộc đối tượng nhận tin.",
     "officePostCommentsClosed": "Tin không nhận bình luận.",
-    "officeTooManyFiles": "Mỗi lần tải tối đa 5 tệp."
+    "officeTooManyFiles": "Mỗi lần tải tối đa 5 tệp.",
+    "affiliateSmartOtpActive": "Khách đã có Smart OTP, dùng mã trên ứng dụng VComm.",
+    "affiliateOtpInvalid": "Mã OTP không đúng hoặc đã hết hạn.",
+    "affiliateSmsLimit": "Đã hết số tin nhắn OTP trong ngày của khóa API."
   },
   "login": {
     "title": "Đăng nhập",
@@ -7978,7 +7981,9 @@
     "portalKeys": "Khóa API của cửa hàng",
     "source_open_api": "Phần mềm cửa hàng",
     "partnerTransactionCode": "Mã phần mềm: {code}",
-    "portalSmsFee": "{count} tin · {amount} đ"
+    "portalSmsFee": "{count} tin · {amount} đ",
+    "term_smsFee": "Phí mỗi tin OTP SMS (đồng)",
+    "smsFeeHint": "0 đến 10.000; tính vào đối soát tuần khi phần mềm cửa hàng gửi mã SMS."
   },
   "merchantPortal": {
     "brand": "VComm Liên kết",
@@ -8104,7 +8109,9 @@
     "zaloHint": "Dùng được sau khi bấm Liên kết Zalo trên thanh trên của cổng cửa hàng.",
     "zaloLink": "Liên kết Zalo",
     "zaloLinked": "Đã liên kết Zalo. Lần sau có thể đăng nhập bằng Zalo.",
-    "menu_connection": "Kết nối phần mềm"
+    "menu_connection": "Kết nối phần mềm",
+    "smsFee": "Phí mỗi tin OTP SMS",
+    "method_otp": "mã OTP"
   },
   "affiliateVoucher": {
     "merchantTitle": "Voucher của cửa hàng",
@@ -8205,9 +8212,9 @@
     "lineB": "(B) Tiền điểm khách dùng, gồm voucher đổi bằng điểm",
     "lineC": "(C) Voucher công ty phát hành",
     "lineD": "(D) Phí dịch vụ {percent} % × B",
-    "lineE": "(E) Thuế giá trị gia tăng {percent} % × D",
+    "lineE": "(E) Thuế giá trị gia tăng {percent} % × (D + F)",
     "lineAdjustment": "Điều chỉnh khi trả lời khiếu nại",
-    "lineNet": "Số còn lại = A + D + E − B − C",
+    "lineNet": "Số còn lại = A + D + F + E − B − C",
     "debt": "Công nợ còn lại {amount} đ, hạn thanh toán {date}",
     "confirmedAt": "Xác nhận lúc {date} ({name})",
     "autoConfirmedAt": "Hệ thống tự xác nhận lúc {date}",
@@ -8247,7 +8254,8 @@
     "field_note": "Trả lời cửa hàng",
     "resolve": "Trả lời và chốt lại",
     "paymentHint": "Lập phiếu thu hoặc phiếu chi với cửa hàng ở mục Phiếu thu chi của Tài chính; trả hết thì bảng chuyển đã thanh toán.",
-    "lineNetAdjusted": "Số còn lại = A + D + E − B − C + điều chỉnh"
+    "lineNetAdjusted": "Số còn lại = A + D + F + E − B − C + điều chỉnh",
+    "lineF": "(F) Phí tin nhắn OTP ({count} tin)"
   },
   "affiliateReport": {
     "tab_report": "Báo cáo",
