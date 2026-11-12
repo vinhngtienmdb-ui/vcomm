@@ -183,6 +183,14 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_61 (lát L1, L2)
+
+- Phạm vi: Open API cho đối tác (MODULE_16), nhánh `chuc-nang/CONG_VIEC_61-mo-rong-kinh-doanh` (pull request #134, commit `9b19474`, đã hợp nhất main 0.6.0).
+- Kết quả: toàn bộ kiểm thử API 115 tệp, 617/617 đạt; c61-open-api 16/16 đạt (TIEUCHI_NGHIEMTHU_444 đến 456 qua KICHBAN_KIEMTHU_623 đến 637). KICHBAN_KIEMTHU_638 (TIEUCHI_NGHIEMTHU_457, giao diện): chụp màn hình trên ứng dụng chạy thật ở độ rộng 1360 và 390 điểm ảnh, không lỗi console – Đạt. Kiểm tra kiểu api, web-platform, web-sales đạt.
+- Bảo mật: đã sửa tiêu đề X-Request-Id chứa ký tự lạ có thể gây lỗi 500. Lưu ý triển khai: danh sách IP cho phép dựa trên cấu hình trust proxy 1; môi trường thật cần đúng một proxy đặt X-Forwarded-For.
+- Lỗi mới: không có.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_55
 
 - Phạm vi: cửa hàng liên kết phần 1 (MODULE_12) lát L0 đến L4, nhánh `chuc-nang/CONG_VIEC_55-cua-hang-lien-ket` (pull request #120, commit `459f69d`, đã hợp nhất main 0.6.0).
