@@ -197,6 +197,14 @@
 - Kiểm tra bảo mật: không thêm thư viện; CI quét bảo mật (gitleaks, `pnpm audit`) đạt.
 - Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_22
+
+- Phạm vi: thành phần Kinh doanh trên ứng dụng VComm (THAY_DOI_26, 28), lát L0 đến L4, nhánh `chuc-nang/CONG_VIEC_22-kinh-doanh-vcomm` (pull request #122, commit `f90d6c7`).
+- Kết quả: toàn bộ `pnpm --filter api test` 102 tệp, 556/556 đạt (trên commit có bản sửa rà soát `71720f4`); `c22-kinh-doanh-vcomm` 7/7 (KICHBAN_KIEMTHU_573 đến 579; TIEUCHI_NGHIEMTHU_402 đến 407); `c22-sales-app` 5/5 (KICHBAN_KIEMTHU_290, 291 sửa theo THAY_DOI_26; TIEUCHI_NGHIEMTHU_408 phần API); KICHBAN_KIEMTHU_580 kiểm bằng đọc mã và kiểm tra kiểu; KICHBAN_KIEMTHU_581 (đường dẫn chia sẻ) Playwright trên bản xem trước với API giả lập, đạt; KICHBAN_KIEMTHU_582 (ứng dụng khổ 390) xem trước từng lát, người dùng đồng ý. Hồi quy c49 sau THAY_DOI_28 đạt.
+- Tiêu chí Mong muốn: KICHBAN_KIEMTHU_583 (hiệu năng, TIEUCHI_NGHIEMTHU_411) chưa chạy.
+- Rà soát độc lập: không có lỗi Nghiêm trọng, Cao; 1 Trung bình, 6 Thấp, đã sửa ở commit `71720f4`.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_53 (lát L6)
 
 - Phạm vi: điểm tại quầy với Smart OTP, nhánh `chuc-nang/CONG_VIEC_53-ban-le-tai-quay` (pull request #125, commit `604a263`).
