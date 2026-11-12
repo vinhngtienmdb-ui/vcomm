@@ -5,6 +5,32 @@
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Đang cập nhật
 
+## Phiên bản 0.8.0 – 2026-11-12 – Chờ phát hành
+
+- Chức năng mới:
+  - Văn phòng số phần 1 (MODULE_13, ứng dụng mới `apps/web-office`, CONG_VIEC_52): quản lý công việc (giao việc, chủ trì, phối hợp, theo dõi, việc con một cấp, hạn, ưu tiên, tiến độ, bình luận, tệp, lịch sử, việc liên công ty trong tập đoàn, nhắc hạn); quy trình công việc theo mẫu có phiên bản, rẽ nhánh, song song, gộp, lặp có giới hạn; công văn đến (vào sổ, số đến, trình, giao xử lý) và công văn đi (soạn theo thể thức Nghị định 30/2020/NĐ-CP, trình ký qua luồng duyệt chung, văn thư cấp số, phát hành, gửi sang công ty khác trong tập đoàn thành công văn đến), xuất PDF và Word, xuất sổ; bảng tin nội bộ (đối tượng, hẹn giờ đăng, ghim, xác nhận đã đọc, thu hồi, bình luận).
+  - Kế toán ngoại tệ và thuế hải quan (MODULE_06, CONG_VIEC_56): quỹ ngoại tệ, phiếu mua ngoại tệ, phiếu chi trả nợ nhà cung cấp nước ngoài bằng ngoại tệ có xem trước chênh lệch tỷ giá; chứng từ đánh giá lại số dư ngoại tệ (quỹ, nợ phải trả) và cảnh báo khi khóa sổ; phiếu nộp thuế hải quan theo tờ khai, tiền chậm nộp gợi ý theo tham số có ngày hiệu lực, số nộp thừa, phiếu nhận hoàn thuế; tờ khai bổ sung điều chỉnh thuế từng dòng và giá vốn.
+- Ghép giữa các công việc: hai công việc không dùng chung bảng, ràng buộc kiểm tra. Danh mục quyền, `app.module.ts`, `packages/contracts`, khóa dịch, tác vụ nền gộp giữ cả hai phía (Git hợp nhất tự động, không có xung đột).
+- Thay đổi dữ liệu, database migration theo thứ tự chạy: `0090` đến `0093` (schema `office`; `0092`, `0093` định nghĩa lại `office.files_owner_type_check`, ràng buộc riêng của module do `0090` tạo), `0106` đến `0108` (`0106` quỹ ngoại tệ, cột ngoại tệ trên `finance.payments`, `finance.debt_items`, định nghĩa lại `finance.payments_kind_check`, `payments_partner_kind_check`; `0107` đánh giá lại ngoại tệ, định nghĩa lại `accounting.journals_source_type_check`; `0108` thuế hải quan, tờ khai bổ sung, định nghĩa lại `payments_kind_check`, `payments_partner_kind_check`, `journals_source_type_check`). Các ràng buộc dùng chung chỉ bị định nghĩa lại trong CONG_VIEC_56; bản cuối (`0108`) là tập rộng hơn bản trên `main` (`0101`, `0105`), không mất giá trị nào, nên không cần database migration đặt lại ràng buộc (số `0145` dành riêng không dùng). `0090` đến `0093`, `0106` đến `0108` có số nhỏ hơn `0109` đến `0130` đã có trên `main`: cơ chế database migration chạy mọi tệp chưa có trong `public.schema_migrations` theo thứ tự tên, nên cơ sở dữ liệu đã chạy tới `0130` vẫn chạy phần mới; đã thử cả hai cách (cơ sở dữ liệu của 0.7.0 rồi chạy phần mới, và cơ sở dữ liệu mới chạy từ đầu) cho cùng 1014 ràng buộc kiểm tra, không thiếu giá trị nào của `main`. Số `0120` đến `0127` không có tệp trong phiên bản này.
+- Thay đổi API: thêm API theo tài liệu `17` của CONG_VIEC_52 (API_184 đến API_191) và CONG_VIEC_56 (API_214 đến API_219); API_84 (quỹ), API_86 (phiếu thu chi) nhận và trả thêm trường ngoại tệ (tương thích ngược).
+- Ứng dụng mới: `apps/web-office` (Văn phòng số, cổng 3011), Nền tảng chuyển tiếp `/office` theo biến `OFFICE_ORIGIN`.
+- Thư viện mới: `docx` 9.15.3 ở `apps/api` (xuất công văn Word, CONG_VIEC_52, người dùng duyệt 2026-11-11); phông Liberation Serif 2.x (SIL OFL 1.1) đóng gói trong `apps/api/assets/fonts/` cho PDF.
+- Biến môi trường mới: `OFFICE_ORIGIN` ở `apps/web-platform` (địa chỉ mini app Văn phòng số, mặc định `http://localhost:3011`; môi trường thật phải đặt).
+- Tác vụ nền mới: `office-task-reminders` (mỗi 15 phút), `office-post-publish` (mỗi phút).
+- Rủi ro:
+  - Thể thức công văn chưa đối chiếu nguyên văn Nghị định 30/2020/NĐ-CP: người dùng quyết định bỏ việc đối chiếu (2026-11-12); thể thức giữ như đã nghiệm thu.
+  - Kế toán ngoại tệ và thuế hải quan chưa đối chiếu nguyên văn Thông tư 99/2025/TT-BTC (Phụ lục II, tài khoản 413, 515, 635), hạn nộp thuế nhập khẩu, mức tiền chậm nộp 0,03% mỗi ngày, thời hạn khai bổ sung: người dùng nghiệm thu không chờ đối chiếu (2026-11-12). Mức tiền chậm nộp và hạn nộp là tham số có ngày hiệu lực, sửa được khi tra xong.
+  - Trước khi dùng thật, kế toán trưởng cần kiểm tham số thuế hải quan (mức tiền chậm nộp, hạn nộp mặc định) và tài khoản của quỹ ngoại tệ (danh mục Thông tư 99 chưa có tài khoản cấp 2 1112, 1122; thêm tài khoản chi tiết rồi đổi vai trò nếu cần).
+  - Pháp lý điểm thưởng (CONG_VIEC_51) vẫn chặn triển khai lên môi trường thật cho đến khi có ý kiến luật sư (không đổi so với 0.7.0).
+- Khả năng tương thích: tương thích ngược với 0.7.0; database migration thêm schema, bảng, cột (có mặc định hoặc cho phép rỗng với dữ liệu cũ) và mở rộng ràng buộc kiểm tra.
+- Công việc gộp trong phiên bản: CONG_VIEC_52 (pull request #104), CONG_VIEC_56 (#119). Thứ tự hợp nhất: 52, 56. Không gộp CONG_VIEC_59, 60.
+- Đánh lại số mục tài liệu trùng khi gộp: không cần (mục `08` số 55, `17` số 3zh của CONG_VIEC_52 không trùng; mã định danh của hai công việc không trùng).
+- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 8678 khóa; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`) 128 tệp, 688 kiểm thử đạt.
+- Tag: `v0.8.0` trên commit hợp nhất nhánh `phat-hanh/v0.8.0` vào `main` (gắn tự động khi CI trên `main` đạt).
+- Phương án quay lui riêng của phiên bản:
+  - Mã nguồn: triển khai lại tag `v0.7.0`; gỡ ứng dụng `apps/web-office` khỏi máy chủ, bỏ chuyển tiếp `/office`.
+  - Database migration: bản 0.7.0 không đọc schema `office`, các bảng ngoại tệ, đánh giá lại, thuế hải quan, tờ khai bổ sung và cột ngoại tệ mới; giữ nguyên khi quay lui mã. Ràng buộc kiểm tra đã mở rộng (`0106` đến `0108`) chỉ thêm giá trị nên bản 0.7.0 vẫn ghi được. Trước khi quay lui: báo kế toán dừng lập phiếu ngoại tệ, phiếu nộp thuế hải quan, đánh giá lại (bản 0.7.0 không có chức năng cho các phiếu loại `currency_purchase`, `customs_tax_payment`, `customs_tax_refund`; bút toán đã ghi sổ vẫn nằm trong sổ cái); báo người dùng Văn phòng số tải về công văn, tệp cần dùng. Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.8.0.
+
 ## Phiên bản 0.7.0 – 2026-11-12 – Chờ phát hành
 
 - Chức năng mới:
