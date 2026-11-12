@@ -23,7 +23,7 @@
 - Rủi ro:
   - Trình gửi thư mời ký cho đối tác hiện chỉ ghi nhật ký, không gửi thư thật: phải thay bằng trình gửi thật trước khi triển khai chính thức.
   - Bộ giả lập ký số giữ lần ký đang chờ trong bộ nhớ (khởi động lại tiến trình thì lần ký đang chờ thất bại); bộ giả lập bị chặn ở môi trường chính thức, phải kết nối nhà cung cấp ký số thật trước khi dùng thật.
-  - Căn cứ pháp lý chữ ký số (Luật Giao dịch điện tử số 20/2023/QH15 và văn bản hướng dẫn) chưa tra nguyên văn.
+  - Căn cứ pháp lý chữ ký số (Luật Giao dịch điện tử số 20/2023/QH15 và văn bản hướng dẫn): người dùng quyết định không tra cứu nguyên văn (2026-11-12).
   - Bản này sửa LOI_10, LOI_11 có trong 0.8.0 (xuất PDF, phát hành công văn đi); nên phát hành cùng hoặc ngay sau 0.8.0.
   - Pháp lý điểm thưởng (CONG_VIEC_51) vẫn chặn triển khai lên môi trường thật cho đến khi có ý kiến luật sư (không đổi so với 0.8.0).
 - Khả năng tương thích: tương thích ngược với 0.8.0; database migration thêm bảng, cột (cho phép rỗng hoặc có mặc định) và nới rộng ràng buộc kiểm tra.
