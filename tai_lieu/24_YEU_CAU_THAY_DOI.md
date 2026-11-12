@@ -491,4 +491,4 @@
 - Kiểm thử cần thực hiện: c66 (11 ca), c61, hồi quy toàn bộ.
 - Mức quy mô: Vừa; làm trong CONG_VIEC_66.
 - Rủi ro: trung bình (dữ liệu cá nhân, dò hồ sơ – đã giảm theo LOI_09).
-- Trạng thái: Đã phê duyệt 2026-11-12.
+- Trạng thái: Đã phê duyệt 2026-11-12; đã phát hành v0.9.0 2026-11-12, chờ triển khai.
