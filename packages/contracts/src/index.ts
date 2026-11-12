@@ -7871,3 +7871,4 @@ export interface LoyaltyAlertResponse {
   items: LoyaltyAlertItem[];
 }
 export * from "./purchasing-budgets";
+export * from "./loyalty-alliance";

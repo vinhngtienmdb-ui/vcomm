@@ -15,6 +15,7 @@ import { vietnamDate } from "../common/clock";
 import { OutboxService } from "../common/outbox.service";
 import { EinvoicesService } from "../einvoice/einvoices.service";
 import { LoyaltyJobsService } from "../loyalty/jobs.service";
+import { LoyaltySettlementsService } from "../loyalty/settlements.service";
 import { GroupBuysService } from "../marketplace/group-buys.service";
 import { MarketplaceOrdersService } from "../marketplace/marketplace-orders.service";
 import { RetailStationOrdersService } from "../retail/retail-station-orders.service";
@@ -58,6 +59,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const salesCare = application.get(SalesCareService);
   const payments = application.get(MarketplacePaymentsService);
   const loyalty = application.get(LoyaltyJobsService);
+  const loyaltySettlements = application.get(LoyaltySettlementsService);
   const groupBuys = application.get(GroupBuysService);
   const workEvents = application.get(WorkEventsService);
   const contractReminders = application.get(ContractRemindersService);
@@ -92,6 +94,9 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("marketplace-payment-expiry", { every: 60_000 }, { name: "marketplace-payment-expiry" });
   // Hết hạn, nhắc hạn điểm thưởng, chuyển năm chi tiêu và xét hạng (CONG_VIEC_51; QUYTAC_NGHIEPVU_350, 351).
   await queue.upsertJobScheduler("loyalty-daily", { pattern: "10 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-daily" });
+  // Lập bảng đối soát điểm nội bộ tháng trước lúc 2 giờ ngày 1; nhắc bảng chờ xác nhận quá 5 ngày hằng ngày (CONG_VIEC_60; QUYTAC_NGHIEPVU_470, 471).
+  await queue.upsertJobScheduler("loyalty-settlement-monthly", { pattern: "0 2 1 * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-settlement-monthly" });
+  await queue.upsertJobScheduler("loyalty-settlement-reminders", { pattern: "0 8 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-settlement-reminders" });
   // Chốt nhóm mua chung hết hạn (CONG_VIEC_49; QUYTAC_NGHIEPVU_331).
   await queue.upsertJobScheduler("marketplace-group-buy-close", { every: 60_000 }, { name: "marketplace-group-buy-close" });
   // Nhắc, hủy đơn quá hạn giữ tại trạm giao hàng O2O (CONG_VIEC_57; QUYTAC_NGHIEPVU_428).
@@ -132,6 +137,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "marketplace-sales-follow-ups") return salesCare.remindDue();
       if (job.name === "marketplace-payment-expiry") return payments.expireDue();
       if (job.name === "loyalty-daily") return loyalty.runDaily();
+      if (job.name === "loyalty-settlement-monthly") return loyaltySettlements.buildMonthly();
+      if (job.name === "loyalty-settlement-reminders") return loyaltySettlements.remindPending();
       if (job.name === "marketplace-group-buy-close") return groupBuys.closeDue();
       return null;
     },

@@ -147,9 +147,9 @@
             ["Bán lẻ Miền Nam", nhan("Đã xác nhận", "thanh-cong"), "Lê Thu Hà", "03/11/2026 09:12"],
           ],
         )}
-          <div class="nhom-nut">${nut("Xác nhận phía VComm Thương mại", "chinh", "Đã xác nhận. Đã ghi bút toán bù trừ 31.750.000 ở hai công ty")}${nut("Khiếu nại", "phu")}${nut("Lập lại bảng", "phu", "Đã lập lại bảng")}</div>
+          <div class="nhom-nut">${nut("Xác nhận phía VComm Thương mại", "chinh", "Đã xác nhận")}${nut("Khiếu nại", "phu")}${nut("Lập lại bảng", "phu", "Đã lập lại bảng")}</div>
           ${truong("Lý do khiếu nại (1 đến 1.000 ký tự)", "", "", "nhieu-dong")}
-          ${hop("Đủ hai bên xác nhận thì hệ thống ghi bút toán bù trừ Nợ 3368 / Có 1368 ở cả hai công ty, ngày 31/10/2026.", "thong-tin")}</div>
+          ${hop("Đủ hai bên xác nhận: bảng là biên bản đối chiếu công nợ nội bộ điểm; không sinh bút toán bù trừ (sổ đã ghi thuần).", "thong-tin")}</div>
         <div class="the-web"><h2>Phiếu thu chi nội bộ (sau khi bù trừ)</h2>${bang(
           ["Số", "Công ty", "Loại", "Số tiền", "Trạng thái"],
           [["—", "—", "—", "—", "Chưa có phiếu"]],

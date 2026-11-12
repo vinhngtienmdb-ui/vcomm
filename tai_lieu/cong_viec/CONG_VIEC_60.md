@@ -16,7 +16,7 @@ Tập đoàn dùng chung một loại điểm ở mọi công ty con mà vẫn p
 
 Trong phạm vi:
 - Kiểu chia chi phí điểm (một kiểu cho cả tập đoàn, theo giai đoạn chương trình): nơi tích chịu, nơi dùng chịu, công ty vận hành sàn chịu; hạch toán theo kiểu.
-- Bảng đối soát nội bộ hằng tháng giữa công ty vận hành sàn và từng công ty con có phát sinh; đối chiếu sổ hai bên; hai bên xác nhận hoặc khiếu nại; bù trừ 1368/3368; phiếu thu, phiếu chi nội bộ cho phần còn lại.
+- Bảng đối soát nội bộ hằng tháng giữa công ty vận hành sàn và từng công ty con có phát sinh; đối chiếu sổ hai bên; hai bên xác nhận (biên bản đối chiếu) hoặc khiếu nại; phiếu thu, phiếu chi nội bộ cho số thuần còn lại.
 - Mã cài đặt ứng dụng VComm; liên kết thiết bị với tài khoản.
 - Bốn quy tắc chống gian lận nâng cao: số tài khoản trên một thiết bị, đổi điểm dồn dập, tích rồi trả hàng lặp lại, giao dịch bất thường theo nhân viên; ngưỡng, mức xử lý (cảnh báo, chặn giao dịch, chặn và khóa ví).
 - Vụ việc gian lận: ghi, xem xét, kết luận.
@@ -61,10 +61,10 @@ Ngoài phạm vi:
   - Nơi dùng chịu: tích: O Nợ 641 / Có 3388 (chi phí tạm ở O), A không ghi. Dùng ở B: O Nợ 3388 / Có 641 theo giá trị lô (gỡ chi phí tạm); B Nợ 641 / Có 131 tiền điểm (B chịu, không có nợ nội bộ). Hết hạn: O Nợ 3388 / Có 641.
   - Công ty vận hành sàn chịu: tích: O Nợ 641 / Có 3388, A không ghi. Dùng ở B: O Nợ 3388 giá trị lô, Nợ hoặc Có 641 chênh lệch / Có 3368 tiền điểm (đối tác nội bộ B); B Nợ 1368 / Có 131.
   - Hoàn điểm, trừ lại ghi ngược bút toán gốc theo kiểu của lô. Phần điểm thiếu quy tiền (QUYTAC_NGHIEPVU_349) theo kiểu của lô của chứng từ bán.
-- QUYTAC_NGHIEPVU_470 Bảng đối soát nội bộ (số `DN…`, loại chứng từ `loyalty.settlement`): việc nền 2 giờ ngày 1 hằng tháng (giờ Việt Nam) lập bảng tháng trước cho mỗi công ty con có bút toán vai trò `loyalty_intercompany_receivable` hoặc `loyalty_intercompany_payable` trong tháng, hoặc còn số chưa tất toán. Số liệu theo sổ của O với đối tác nội bộ của công ty con (C): số dư đầu kỳ phải thu (1368), phải trả (3368); phát sinh trong tháng theo loại (tích, dùng, hoàn điểm, trừ lại, phần thiếu quy tiền); số dư cuối kỳ; số bù trừ = nhỏ hơn giữa số dư cuối phải thu và phải trả; số còn lại = phải thu − phải trả (dương: C phải trả O; âm: O phải trả C). Chi tiết theo từng bút toán điểm (ngày, chứng từ nguồn, khách che tên, số điểm, tiền). Đối chiếu sổ C (3368, 1368 với đối tác nội bộ là O, vai trò điểm): lệch thì bảng ở trạng thái Không khớp kèm danh sách bút toán lệch, không xác nhận được. Lập lại được bằng tay (người có `loyalty.settlement.manage` tại O) khi chưa xác nhận đủ.
-- QUYTAC_NGHIEPVU_471 Xác nhận: người có `loyalty.settlement.manage` tại O xác nhận phía O; người có quyền này tại C xác nhận phía C; thứ tự tùy ý. Một bên khiếu nại (lý do 1 đến 1.000 ký tự) thì bảng sang Khiếu nại, phía đã xác nhận bị bỏ; O xử lý (phiếu điều chỉnh điểm, bút toán thủ công có sẵn) rồi lập lại bảng. Trạng thái: chờ xác nhận, O đã xác nhận, C đã xác nhận, khiếu nại, không khớp, đã bù trừ, đã thanh toán một phần, đã tất toán. Bảng chờ quá 5 ngày: thông báo trong ứng dụng cho người có quyền của bên chưa xác nhận, một lần.
-- QUYTAC_NGHIEPVU_472 Bù trừ: khi đủ hai bên xác nhận, trong cùng giao dịch ghi bút toán bù trừ ở mỗi công ty theo số bù trừ (bút toán tự sinh, nguồn `loyalty_settlement`): O Nợ 3368 / Có 1368 (đối tác nội bộ C); C Nợ 3368 / Có 1368 (đối tác nội bộ O). Ngày ghi sổ: ngày cuối tháng đối soát; kỳ đó đã khóa sổ thì ngày xác nhận. Số bù trừ bằng 0 thì không ghi.
-- QUYTAC_NGHIEPVU_473 Thanh toán phần còn lại: loại phiếu thu, phiếu chi mới gắn bảng đối soát đã bù trừ: thu nợ nội bộ điểm (`loyalty_intercompany_receipt`: Nợ 111/112 / Có 1368) ở bên được trả, chi trả nợ nội bộ điểm (`loyalty_intercompany_payment`: Nợ 3368 / Có 111/112) ở bên phải trả; đối tượng là đối tác nội bộ của bên kia; tổng các phiếu đã ghi sổ không vượt số còn lại; theo luồng duyệt phiếu thu chi hiện có. Hai bên ghi đủ thì bảng Đã tất toán; một phần thì Đã thanh toán một phần.
+- QUYTAC_NGHIEPVU_470 Bảng đối soát nội bộ (số `DN…`, loại chứng từ `loyalty.settlement`, dãy số của O): việc nền 2 giờ ngày 1 hằng tháng (giờ Việt Nam) lập bảng tháng trước cho mỗi công ty con có bút toán điểm vai trò `loyalty_intercompany_receivable` hoặc `loyalty_intercompany_payable` trong tháng, hoặc còn số thuần khác 0. Bút toán điểm (QUYTAC_NGHIEPVU_355, 469) ghi nợ nội bộ thuần trên một tài khoản mỗi bên (O: 1368, C: 3368), nên số liệu là số thuần theo sổ O với đối tác nội bộ của C (dương: C phải trả O; âm: O phải trả C): số đầu kỳ; phát sinh theo loại (tích, trừ lại gồm phần thiếu quy tiền, dùng, hoàn điểm đã dùng, thanh toán); phát sinh phải thu (tích, trừ lại), phát sinh phải trả (dùng, hoàn điểm); số bù trừ trong kỳ = nhỏ hơn giữa hai phát sinh (chỉ để xem); số còn phải thanh toán = số thuần cuối kỳ. Chi tiết theo từng bút toán điểm (ngày, số bút toán, loại, khách che tên, số điểm, tiền). Đối chiếu sổ C (cùng hai vai trò, đối tác nội bộ là O) theo từng bút toán điểm và số thuần cuối kỳ: lệch thì bảng ở trạng thái Không khớp kèm danh sách bút toán lệch, không xác nhận được. Người có `loyalty.settlement.manage` tại O lập lại được khi bảng chưa đủ hai bên xác nhận. Bảng kỳ trước đã xác nhận còn phải thanh toán khi lập bảng kỳ sau thì chuyển trạng thái Đã chuyển kỳ sau (số còn lại nằm trong số đầu kỳ của bảng mới).
+- QUYTAC_NGHIEPVU_471 Xác nhận: người có `loyalty.settlement.manage` tại O xác nhận phía O; người có quyền này tại C xác nhận phía C; thứ tự tùy ý. Lúc xác nhận hệ thống tính lại: sổ đã đổi từ lúc lập thì tự lập lại, bỏ xác nhận đã có, báo "Số liệu sổ đã thay đổi từ lúc lập bảng; hệ thống đã lập lại, vui lòng xem và xác nhận lại." Còn bảng kỳ trước của cùng công ty chưa đủ hai bên xác nhận thì không xác nhận được. Một bên khiếu nại (lý do 1 đến 1.000 ký tự) thì bảng sang Khiếu nại, xác nhận đã có bị bỏ; O xử lý (phiếu điều chỉnh điểm, bút toán thủ công có sẵn) rồi lập lại. Đủ hai bên xác nhận: bảng là biên bản đối chiếu công nợ nội bộ điểm, trạng thái Đã xác nhận (số còn lại bằng 0: Đã tất toán), không sinh bút toán; bảng kỳ sau còn mở được lập lại. Trạng thái: chờ xác nhận, O đã xác nhận, C đã xác nhận, khiếu nại, không khớp, đã xác nhận, đã thanh toán một phần, đã tất toán, đã chuyển kỳ sau. Bảng chờ quá 5 ngày: việc nền 8 giờ hằng ngày thông báo trong ứng dụng cho người có quyền của bên chưa xác nhận, một lần.
+- QUYTAC_NGHIEPVU_472 Không sinh bút toán bù trừ (người dùng chọn giữ ghi thuần ngày 2026-11-12, xem mục 17): sổ hai bên đã ghi thuần nên phần bù trừ đã nằm trong số còn phải thanh toán. Mã quy tắc giữ để truy vết quyết định.
+- QUYTAC_NGHIEPVU_473 Thanh toán phần còn lại: loại phiếu thu, phiếu chi mới gắn bảng đối soát đã xác nhận (bảng mới nhất của công ty con): thu nợ nội bộ điểm (`loyalty_intercompany_receipt`) ở bên được trả, chi trả nợ nội bộ điểm (`loyalty_intercompany_payment`) ở bên phải trả; hạch toán vào đúng tài khoản nợ nội bộ thuần của bên đó (O: 1368; C: 3368) với đối tác nội bộ của bên kia, đối ứng 111/112; tổng các phiếu đã ghi sổ không vượt số còn lại; theo luồng duyệt phiếu thu chi hiện có. Hai bên ghi đủ thì bảng Đã tất toán; một phần thì Đã thanh toán một phần.
 - QUYTAC_NGHIEPVU_474 Mã cài đặt ứng dụng: ứng dụng VComm sinh 128 bit ngẫu nhiên lần mở đầu, lưu `expo-secure-store` (có sẵn), gửi tiêu đề `X-Device-Id` trên mọi yêu cầu của người mua. Máy chủ chỉ lưu băm HMAC-SHA256 (khóa dẫn xuất từ `MFA_SECRET_KEY`), không lưu mã gốc. Ghi liên kết thiết bị – tài khoản (lần đầu, lần cuối, số lần) khi đăng nhập, xem trước và đặt đơn. Yêu cầu không có tiêu đề hoặc sai định dạng: không ghi, không áp quy tắc thiết bị. Quản trị chỉ thấy 8 ký tự đầu của băm. Dữ liệu thiết bị giữ 12 tháng kể từ lần cuối, việc nền xóa sau đó.
 - QUYTAC_NGHIEPVU_475 Quy tắc chống gian lận: bốn quy tắc (QUYTAC_NGHIEPVU_476), mỗi quy tắc: bật hoặc tắt, các ngưỡng, mức xử lý: cảnh báo (`alert`), chặn giao dịch (`block`), chặn và khóa ví (`block_and_lock`). Mặc định: bật, mức cảnh báo. Người có `loyalty.fraud.manage` sửa; lưu lịch sử sửa. Chặn khi dùng điểm: từ chối với thông báo "Giao dịch điểm tạm bị chặn để kiểm tra. Vui lòng liên hệ chăm sóc khách hàng."; chặn khi tích: không tích, lý do `fraud_rule`, không tích lại sau. Khóa ví: như QUYTAC_NGHIEPVU_352, lý do "Tự khóa theo quy tắc <tên quy tắc>", người làm là hệ thống. Quy tắc chỉ đánh giá khi phát sinh giao dịch, không quét lại quá khứ.
 - QUYTAC_NGHIEPVU_476 Bốn quy tắc:
@@ -88,7 +88,7 @@ Luồng 57 (liên minh điểm trong tập đoàn, chống gian lận):
 1. Quản trị chọn kiểu chia chi phí cho giai đoạn; cài quy tắc chống gian lận.
 2. Khách tích, dùng điểm ở các công ty; mỗi lần dùng, tích, trả hàng: đánh giá quy tắc → cảnh báo, chặn hoặc khóa → vụ việc.
 3. Hạch toán theo kiểu của lô; phát sinh 1368/3368 khi khác công ty.
-4. Ngày 1 hằng tháng: lập bảng đối soát tháng trước cho từng công ty con → đối chiếu sổ (lệch: Không khớp) → O, C xác nhận (hoặc khiếu nại → O xử lý → lập lại) → bù trừ → phiếu thu, phiếu chi nội bộ → tất toán.
+4. Ngày 1 hằng tháng: lập bảng đối soát tháng trước cho từng công ty con → đối chiếu sổ (lệch: Không khớp) → O, C xác nhận (hoặc khiếu nại → O xử lý → lập lại) → Đã xác nhận → phiếu thu, phiếu chi nội bộ → tất toán (chưa trả hết khi lập bảng kỳ sau: chuyển kỳ sau).
 5. Quản trị xem xét vụ việc, kết luận; mở khóa ví nếu không vi phạm.
 6. Báo cáo liên minh, gian lận theo tháng.
 
@@ -111,10 +111,9 @@ Web (`apps/web-crm`, nhóm menu "Điểm thưởng"):
 
 Database migration 0125 (`0125_loyalty_alliance.sql`):
 - `loyalty.program_phases.cost_bearer` (`earning_company` mặc định, `redeeming_company`, `operator`); `loyalty.lots.cost_bearer` (giai đoạn cũ: `earning_company`).
-- `loyalty.settlements`: `id`, `document_no`, `operator_company_id`, `company_id`, `period` (tháng đầu kỳ), số dư đầu, phát sinh theo loại, số dư cuối phải thu, phải trả, `offset_amount`, `remaining_amount`, `status`, `operator_confirmed_by`, `operator_confirmed_at`, `company_confirmed_by`, `company_confirmed_at`, `mismatch` (jsonb), `version`; duy nhất (`company_id`, `period`).
+- `loyalty.settlements`: `id`, `document_no`, `operator_company_id`, `company_id`, `period` (ngày đầu tháng), `net_opening`, `receivable_movement`, `payable_movement`, `payment_movement`, `movements` (jsonb theo loại), `offset_amount`, `net_closing`, `company_net_closing`, `mismatches` (jsonb), `status`, người, thời điểm xác nhận hai phía, `dispute_reason`, `reminded_at`, `built_at`, `version`; duy nhất (`company_id`, `period`).
 - `loyalty.settlement_events` (lịch sử: lập, lập lại, xác nhận, khiếu nại, bù trừ, thanh toán; người, lý do, thời điểm).
 - `finance.payments.loyalty_settlement_id`; loại phiếu `loyalty_intercompany_receipt`, `loyalty_intercompany_payment` (định nghĩa lại `payments_kind_check` gồm mọi giá trị trên `main`).
-- Nguồn bút toán `loyalty_settlement` (định nghĩa lại `journals_source_type_check` gồm mọi giá trị trên `main`).
 - Quyền `loyalty.settlement.view`, `loyalty.settlement.manage`, `loyalty.fraud.manage`; loại chứng từ `loyalty.settlement` (đánh số, không duyệt).
 
 Database migration 0126 (`0126_loyalty_fraud.sql`):
@@ -151,7 +150,7 @@ Việc nền: lập bảng đối soát 2 giờ ngày 1; nhắc bảng chờ qu�
 | TIEUCHI_NGHIEMTHU_434 | Kiểu chia chi phí theo giai đoạn; giai đoạn đã bắt đầu không đổi được; lô lưu kiểu | Bắt buộc | KICHBAN_KIEMTHU_611 |
 | TIEUCHI_NGHIEMTHU_435 | Hạch toán đúng ba kiểu cho tích, dùng, hoàn, trừ lại, hết hạn, thiếu quy tiền; cùng công ty cho kết quả như cũ | Bắt buộc | KICHBAN_KIEMTHU_612, KICHBAN_KIEMTHU_613 |
 | TIEUCHI_NGHIEMTHU_436 | Bảng đối soát tháng: số liệu khớp sổ cái; lệch sổ thì Không khớp, không xác nhận được | Bắt buộc | KICHBAN_KIEMTHU_614 |
-| TIEUCHI_NGHIEMTHU_437 | Hai bên xác nhận mới bù trừ; khiếu nại bỏ xác nhận; bút toán bù trừ hai công ty đúng số, đúng ngày; phân quyền theo công ty | Bắt buộc | KICHBAN_KIEMTHU_615 |
+| TIEUCHI_NGHIEMTHU_437 | Hai bên xác nhận mới Đã xác nhận, không sinh bút toán; khiếu nại bỏ xác nhận; sổ đổi thì tự lập lại; kỳ sau nhận số còn lại; phân quyền theo công ty | Bắt buộc | KICHBAN_KIEMTHU_615 |
 | TIEUCHI_NGHIEMTHU_438 | Phiếu thu chi nội bộ không vượt số còn lại; trạng thái thanh toán một phần, tất toán | Bắt buộc | KICHBAN_KIEMTHU_616 |
 | TIEUCHI_NGHIEMTHU_439 | Mã cài đặt: chỉ lưu băm; không có tiêu đề thì không áp quy tắc thiết bị; xóa sau 12 tháng | Bắt buộc | KICHBAN_KIEMTHU_617 |
 | TIEUCHI_NGHIEMTHU_440 | Bốn quy tắc bắt đúng ngưỡng (đúng, sai, biên); ba mức xử lý đúng (cảnh báo, chặn, chặn và khóa) | Bắt buộc | KICHBAN_KIEMTHU_618, KICHBAN_KIEMTHU_619 |
@@ -175,7 +174,7 @@ Cảnh báo bất thường cơ bản (QUYTAC_NGHIEPVU_354), hạch toán kiểu
 ## 15. Các lát và điểm xem trước
 
 - L0: database migration 0125 phần kiểu chia chi phí; hạch toán ba kiểu (sửa API_176, MAN_HINH_146). Xem trước: đổi kiểu cho giai đoạn sắp tới, xem bút toán thử ba kiểu.
-- L1: phần còn lại của 0125; bảng đối soát, đối chiếu, xác nhận, khiếu nại, bù trừ (API_249, 250; MAN_HINH_218, 219). Xem trước: lập bảng tháng thử, hai bên xác nhận.
+- L1: phần còn lại của 0125; bảng đối soát, đối chiếu, xác nhận, khiếu nại (API_249, 250; MAN_HINH_218, 219). Xem trước: lập bảng tháng thử, hai bên xác nhận.
 - L2: phiếu thu chi nội bộ, tất toán. Xem trước: lập phiếu, bảng tất toán.
 - L3: database migration 0126; mã cài đặt ứng dụng, quy tắc, vụ việc (API_251, 252, 254; MAN_HINH_220, 221, 223). Xem trước: đặt đơn dùng điểm từ nhiều tài khoản trên một thiết bị, xem vụ việc, chặn.
 - L4: báo cáo liên minh và gian lận (API_253; MAN_HINH_222). Xem trước: báo cáo tháng, xuất Excel.
@@ -189,7 +188,8 @@ Cảnh báo bất thường cơ bản (QUYTAC_NGHIEPVU_354), hạch toán kiểu
 
 1. Giữ một loại điểm chung toàn tập đoàn do công ty vận hành sàn phát hành; không có tỷ giá điểm giữa công ty.
 2. Chi phí khi tích ở A, dùng ở B: cài đặt một trong ba kiểu cho cả tập đoàn (nơi tích chịu, nơi dùng chịu, công ty vận hành sàn chịu).
-3. Đối soát nội bộ hằng tháng, hai bên xác nhận, bù trừ 1368/3368, phần còn lại thanh toán bằng phiếu thu, phiếu chi.
+3. Đối soát nội bộ hằng tháng, hai bên xác nhận, phần còn lại thanh toán bằng phiếu thu, phiếu chi.
+7. Khi lập trình lát L1 phát hiện bút toán điểm của CONG_VIEC_51 ghi nợ nội bộ thuần trên một tài khoản mỗi bên: giữ ghi thuần, không sinh bút toán bù trừ; bảng đối soát là biên bản đối chiếu, số bù trừ chỉ để xem.
 4. Đối tác liên minh ngoài tập đoàn (đổi điểm hai chiều qua API đối tác; đối tác mua điểm tặng khách, trả trước hoặc trả sau theo hợp đồng): tách thành CONG_VIEC_65.
 5. Nhận biết thiết bị bằng mã cài đặt ứng dụng, không thêm thư viện.
 6. Chống gian lận nâng cao bốn quy tắc: số tài khoản trên thiết bị, đổi điểm dồn dập, tích rồi trả hàng lặp lại, bất thường theo nhân viên; mức xử lý cấu hình được từng quy tắc (cảnh báo, chặn giao dịch, chặn và khóa ví).
@@ -202,3 +202,11 @@ Cảnh báo bất thường cơ bản (QUYTAC_NGHIEPVU_354), hạch toán kiểu
 4. Ba quyền mới (`loyalty.settlement.view`, `loyalty.settlement.manage`, `loyalty.fraud.manage`); màn hình đối soát ở mini app Tài chính.
 5. Mặc định mọi quy tắc ở mức cảnh báo; ngưỡng mặc định như QUYTAC_NGHIEPVU_476.
 6. Dữ liệu thiết bị giữ 12 tháng.
+
+## 19. Quyết định AI tự đưa ra trong phạm vi đặc tả (người dùng xác nhận khi nghiệm thu)
+
+1. Lúc xác nhận tính lại số liệu; sổ đổi thì tự lập lại và bỏ xác nhận đã có.
+2. Không xác nhận được bảng khi còn bảng kỳ trước của cùng công ty chưa đủ hai bên xác nhận.
+3. Bảng đã xác nhận còn phải thanh toán chuyển Đã chuyển kỳ sau khi lập bảng kỳ sau; phiếu thu chi nội bộ gắn bảng mới nhất.
+4. Dãy số bảng đối soát (tiền tố DN, đặt lại theo năm) tự tạo ở công ty vận hành sàn khi chưa cấu hình.
+5. Màn hình đối soát trong mini app Tài chính, công ty đang chọn quyết định phía xem (công ty vận hành sàn hoặc công ty con).
