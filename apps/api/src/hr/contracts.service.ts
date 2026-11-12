@@ -1007,6 +1007,20 @@ export class ContractsService implements OnModuleInit {
     const documentNo = target.appendix ? (target.appendix.document_no ?? `phụ lục ${target.appendix.sequence_no ?? ""}`.trim()) : (target.contract.document_no ?? "");
     const title = `${target.appendix ? "Phụ lục hợp đồng lao động" : "Hợp đồng lao động"} ${documentNo} – ${target.employee.full_name}`.replace(/\s+/g, " ").slice(0, 200);
     const created = await this.signing.create(actor, { title, note: input.note ?? null, dueOn: input.dueOn, signers }, file, { type: target.sourceType, id: target.sourceId });
+    // Hai lần bấm gần nhau: khóa hợp đồng rồi kiểm lại, phiên lập sau hủy trước khi gửi để người ký không nhận thư hai lần.
+    const conflict = await this.database.transaction(async (transaction) => {
+      await transaction.execute(sql`SELECT 1 FROM hr.contracts WHERE id = ${contractId} FOR UPDATE`);
+      const other = await transaction.execute(sql`
+        SELECT 1 FROM office.signing_requests WHERE company_id = ${actor.companyId} AND source_type = ${target.sourceType} AND source_id = ${target.sourceId}
+          AND id <> ${created.id} AND status IN ('draft', 'signing')`);
+      if (other.rows.length > 0) {
+        await this.signing.cancelForSource(transaction, created.id, actor.userId, "Hợp đồng đã có phiên ký số khác.");
+        return true;
+      }
+      return false;
+    });
+    // Hủy phiên vừa lập phải được ghi lại: ném lỗi sau khi giao dịch hủy đã xong.
+    if (conflict) throw new ApiError("BUSINESS_RULE", "hrDigitalSigningActive");
     try {
       await this.signing.send(actor, created.id, created.version);
     } catch (error) {
@@ -1031,6 +1045,11 @@ export class ContractsService implements OnModuleInit {
       ? (await this.database.execute<{ contract_id: string }>(sql`SELECT contract_id FROM hr.contract_appendices WHERE id = ${appendixId}`)).rows[0]?.contract_id
       : result.sourceId;
     if (!contractId) return;
+    // Sự kiện giao lại sau lần xử lý thành công: hợp đồng, phụ lục đã ký thì bỏ qua.
+    const current = appendixId
+      ? (await this.database.execute<{ status: string }>(sql`SELECT status FROM hr.contract_appendices WHERE id = ${appendixId}`)).rows[0]
+      : (await this.database.execute<{ status: string }>(sql`SELECT status FROM hr.contracts WHERE id = ${contractId}`)).rows[0];
+    if (!current || current.status === "signed") return;
     const actor: Actor = { userId: result.createdBy, companyId: result.companyId, client: { ip: null, userAgent: null, requestId: null } };
     const granted = new Set<string>([hrPermission.contract]);
     const stored = await this.employees.storeFile(`hr/${result.companyId}/contracts/${contractId}`, {

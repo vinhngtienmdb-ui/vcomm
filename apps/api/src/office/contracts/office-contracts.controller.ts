@@ -31,18 +31,9 @@ import type { Actor } from "../../permissions/roles.service";
 import { officeContentDisposition } from "../office.controller";
 import { OfficeFileUpload } from "../office-upload";
 import { OfficeContractsService } from "./office-contracts.service";
+import { jsonField } from "../office-documents.controller";
 
 type Upload = { buffer: Buffer; size: number; originalname: string };
-
-// Biểu mẫu multipart: phần dữ liệu đi trong trường "data" (JSON).
-const jsonField = (value: unknown): unknown => {
-  if (typeof value !== "string") return value;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return {};
-  }
-};
 
 @Controller("office")
 export class OfficeContractsController {

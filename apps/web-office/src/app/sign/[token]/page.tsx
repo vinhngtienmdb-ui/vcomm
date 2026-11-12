@@ -19,7 +19,8 @@ export default function PartnerSigningPage() {
   const waiting = state.kind === "ready" && state.data.state === "awaiting_confirmation";
   useEffect(() => {
     if (!waiting) return;
-    const timer = setInterval(() => void reload(), 3000);
+    // 12 giây một lần: cùng lần tải trang, tệp, bấm ký vẫn dưới ngưỡng 10 yêu cầu mỗi phút của đường dẫn (QUYTAC_NGHIEPVU_460).
+    const timer = setInterval(() => void reload(), 12000);
     return () => clearInterval(timer);
   }, [waiting, reload]);
   return (

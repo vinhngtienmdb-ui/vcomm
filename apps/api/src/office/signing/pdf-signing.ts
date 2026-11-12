@@ -154,12 +154,17 @@ export interface PreparedSignature {
   digest: Buffer;
 }
 
+// Lỗi tệp mã hóa của pdf-lib: lớp lỗi biên dịch kiểu cũ nên instanceof không luôn đúng, nhận thêm theo thông báo.
+export function isEncryptedPdfError(error: unknown): boolean {
+  return error instanceof EncryptedPDFError || (error instanceof Error && /is encrypted/i.test(error.message));
+}
+
 export async function prepareSignature(input: PrepareSignatureInput): Promise<PreparedSignature> {
   let document: PDFDocument;
   try {
     document = await PDFDocument.load(input.pdf, { updateMetadata: false });
   } catch (error) {
-    if (error instanceof EncryptedPDFError) throw new PdfSigningError("encrypted", "Tệp PDF đặt mật khẩu, không ký được.");
+    if (isEncryptedPdfError(error)) throw new PdfSigningError("encrypted", "Tệp PDF đặt mật khẩu, không ký được.");
     throw new PdfSigningError("unreadable", "Không đọc được tệp PDF.");
   }
   const fieldNumber = signatureFieldCount(document) + 1;

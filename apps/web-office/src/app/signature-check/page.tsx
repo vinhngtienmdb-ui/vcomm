@@ -9,7 +9,7 @@ import { MessageView } from "ui/components/StatusViews";
 import { apiUpload } from "ui/lib/api";
 import { formatDateTime } from "ui/lib/format";
 
-const tone = { valid: "thanh-cong", untrusted: "canh-bao", invalid: "loi" } as const;
+const tone = { valid: "thanh-cong", untrusted: "canh-bao", invalid: "loi", unsupported: "trung-tinh" } as const;
 
 export default function SignatureCheckPage() {
   const t = useTranslations("officeSigning");

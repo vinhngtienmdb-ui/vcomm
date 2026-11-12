@@ -715,7 +715,8 @@
     "officeOutgoingPdfRequired": "Upload the numbered PDF to sign digitally.",
     "hrDigitalSigningActive": "The contract has a digital signing in progress.",
     "hrDigitalSigningEmailMissing": "The employee has no email to receive the signing link; enter one.",
-    "hrDigitalSigningIdentityMissing": "The employee profile has no personal identification number for link signing."
+    "hrDigitalSigningIdentityMissing": "The employee profile has no personal identification number for link signing.",
+    "signingPersonalCertificateRequired": "A personal signing account needs a personal certificate; an organization certificate is set up as the company seal."
   },
   "login": {
     "title": "Sign in",
@@ -9258,7 +9259,9 @@
     "source_contract_appendix": "Contract appendix",
     "source_outgoing": "Outgoing document",
     "source_hr_contract": "Labor contract",
-    "source_hr_contract_appendix": "Labor contract appendix"
+    "source_hr_contract_appendix": "Labor contract appendix",
+    "conclusion_unsupported": "Cannot check (unsupported algorithm)",
+    "event_partner_reminded": "Reminder sent to the partner"
   },
   "officeContracts": {
     "title": "Contract store",
@@ -9421,7 +9424,7 @@
     "fileRole_attachment": "Attachment",
     "attach": "Attach file",
     "fileAdded": "File attached.",
-    "signatureSummary": "The signed copy has {count} signatures: {valid} valid, {untrusted} untrusted, {invalid} invalid.",
+    "signatureSummary": "The signed copy has {count} signatures: {valid} valid, {untrusted} untrusted, {invalid} invalid, {unsupported} not checkable.",
     "openCheck": "Check signatures",
     "approvalMode": "Approval mode",
     "approvalMode_policy": "By approval policy",

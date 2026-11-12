@@ -32,17 +32,9 @@ import type { Actor } from "../../permissions/roles.service";
 import { officeContentDisposition } from "../office.controller";
 import { OfficeFileUpload } from "../office-upload";
 import { OfficeSigningService } from "./office-signing.service";
+import { jsonField } from "../office-documents.controller";
 
 type Upload = { buffer: Buffer; size: number; originalname: string };
-
-const jsonField = (value: unknown): unknown => {
-  if (typeof value !== "string") return value;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return {};
-  }
-};
 
 function sendFile(response: Response, file: { fileName: string; contentType: string; content: Buffer }, kind: "inline" | "attachment") {
   response.setHeader("content-type", file.contentType);
@@ -57,6 +49,7 @@ export class OfficeSigningController {
   constructor(
     private readonly permissionService: PermissionService,
     private readonly signing: OfficeSigningService,
+    private readonly rateLimiter: RateLimiter,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined, permission = "office.access"): Promise<Actor> {
@@ -132,7 +125,11 @@ export class OfficeSigningController {
   @HttpCode(200)
   @UseInterceptors(OfficeFileUpload())
   async verify(@Req() request: AuthenticatedRequest, @UploadedFile() file: Upload | undefined, @Headers("x-company-id") companyId?: string): Promise<SignatureVerificationResponse> {
-    return this.signing.verify(await this.actor(request, companyId, "office.signing.use"), file);
+    const actor = await this.actor(request, companyId, "office.signing.use");
+    // Kiểm tra tốn tính toán (băm tệp tới 20 MB): tối đa 20 lần mỗi phút mỗi người dùng.
+    const limited = await this.rateLimiter.consume(`kiem-tra-chu-ky:${actor.userId}`, 20);
+    if (limited.retryAfterSeconds !== null) throw new ApiError("RATE_LIMITED", "rateLimited", { retryAfterSeconds: limited.retryAfterSeconds });
+    return this.signing.verify(actor, file);
   }
 
   // API_243

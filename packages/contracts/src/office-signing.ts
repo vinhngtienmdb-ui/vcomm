@@ -2,7 +2,14 @@
 import { z } from "zod";
 import type { OfficePerson } from "./office";
 
-const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+// Ngày dạng YYYY-MM-DD có thật trên lịch (2026-02-30 bị từ chối ở đây, không để cơ sở dữ liệu báo lỗi).
+const isoDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine((value) => {
+    const date = new Date(`${value}T00:00:00Z`);
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+  });
 const version = z.number().int().min(1);
 // Mã định danh tại nhà cung cấp ký số: chữ, số, gạch ngang, gạch dưới.
 export const signingIdentityCodePattern = /^[0-9A-Za-z_-]{6,40}$/;
@@ -215,7 +222,7 @@ export interface SignatureCheckItem {
   validAtSigningTime: boolean;
   trusted: boolean;
   coversWholeFile: boolean;
-  conclusion: "valid" | "untrusted" | "invalid";
+  conclusion: "valid" | "untrusted" | "invalid" | "unsupported";
 }
 export interface SignatureVerificationResponse {
   fileName: string;

@@ -361,6 +361,7 @@ export class OfficeContractsService implements OnModuleInit {
     const granted = await this.granted(actor);
     let laborContracts: OfficeLaborContractListItem[] | null = null;
     if (granted.has("hr.contract.manage") && query.includeLabor !== "false" && !query.typeId) {
+      const laborPattern = query.search ? `%${query.search.replace(/[\\%_]/g, (character) => `\\${character}`)}%` : null;
       const labor = await this.database.execute<{
         id: string;
         document_no: string;
@@ -373,7 +374,7 @@ export class OfficeContractsService implements OnModuleInit {
         SELECT hc.id, hc.document_no, e.full_name, hc.kind, hc.effective_date::text AS effective_date, hc.end_date::text AS end_date, hc.status
         FROM hr.contracts hc JOIN hr.employees e ON e.id = hc.employee_id
         WHERE hc.company_id = ${actor.companyId} AND hc.status IN ('signed', 'terminated')
-          ${query.search ? sql`AND (hc.document_no ILIKE ${`%${query.search}%`} OR e.full_name ILIKE ${`%${query.search}%`})` : sql``}
+          ${laborPattern ? sql`AND (hc.document_no ILIKE ${laborPattern} OR e.full_name ILIKE ${laborPattern})` : sql``}
         ORDER BY hc.end_date NULLS LAST LIMIT 50`);
       laborContracts = labor.rows.map((row) => ({
         id: row.id,
@@ -497,7 +498,9 @@ export class OfficeContractsService implements OnModuleInit {
       if (responsible && ["draft", "rejected", "withdrawn"].includes(row.status)) allowed.push("edit", "submit", "cancel");
       if ((contract.owner_user_id === actor.userId || row.created_by === actor.userId) && row.status === "pending") allowed.push("withdraw");
       if (row.status === "pending" && row.approval_mode === "manager" && row.approver_user_ids.includes(actor.userId)) allowed.push("decide");
-      if (responsible && row.status === "awaiting_signature" && !row.signing_request_id) allowed.push("signing", "cancel");
+      if (responsible && row.status === "awaiting_signature" && !row.signing_request_id) allowed.push("signing");
+      // Phụ lục chờ ký hủy được cả khi đang có phiên ký (hủy theo phiên ký), như hợp đồng.
+      if (responsible && row.status === "awaiting_signature") allowed.push("cancel");
     }
     return {
       id: row.id,
@@ -886,15 +889,18 @@ export class OfficeContractsService implements OnModuleInit {
     if (row.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     if (!row.content_file_id) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "contractContentRequired" } });
     const requestId = await this.startSigning(actor, row.company_id, row.content_file_id, `Hợp đồng ${row.contract_code}: ${row.name}`, input, { type: "contract", id });
-    await this.database.transaction(async (transaction) => {
+    const conflict = await this.database.transaction(async (transaction) => {
       const locked = await this.load(transaction, actor, id, true);
       if (locked.signing_request_id || locked.status !== "awaiting_signature") {
         await this.signing.cancelForSource(transaction, requestId, actor.userId, "Hợp đồng đã có phiên ký khác.");
-        throw this.businessRule("contractStatusInvalid");
+        return true;
       }
       await transaction.execute(sql`UPDATE office.contracts SET signing_request_id = ${requestId}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.event(transaction, id, actor.userId, "signing_started", { signingRequestId: requestId });
+      return false;
     });
+    // Hủy phiên vừa lập phải được ghi lại: ném lỗi sau khi giao dịch hủy đã xong.
+    if (conflict) throw this.businessRule("contractStatusInvalid");
     return this.get(actor, id);
   }
 
@@ -942,13 +948,14 @@ export class OfficeContractsService implements OnModuleInit {
   // Phụ lục đã ký: cập nhật ngày hết hạn, giá trị của hợp đồng, giữ giá trị cũ để xem lịch sử (QUYTAC_NGHIEPVU_465).
   private async applyAppendix(executor: Executor, appendix: AppendixRow, signedOn: string, signedFileId: string, actorUserId: string | null): Promise<void> {
     const contract = (
-      await executor.execute<{ expires_on: string | null; value: string | null; owner_user_id: string; company_id: string; name: string }>(sql`
-      SELECT expires_on::text AS expires_on, value::text AS value, owner_user_id, company_id, name FROM office.contracts WHERE id = ${appendix.contract_id} FOR UPDATE`)
+      await executor.execute<{ expires_on: string | null; value: string | null; owner_user_id: string; company_id: string; name: string; status: string }>(sql`
+      SELECT expires_on::text AS expires_on, value::text AS value, owner_user_id, company_id, name, status FROM office.contracts WHERE id = ${appendix.contract_id} FOR UPDATE`)
     ).rows[0]!;
     await executor.execute(sql`
       UPDATE office.contract_appendices SET status = 'signed', signed_on = ${signedOn}, signed_file_id = ${signedFileId},
         previous_expires_on = ${contract.expires_on}, previous_value = ${contract.value}, version = version + 1 WHERE id = ${appendix.id}`);
-    if (appendix.new_expires_on || appendix.new_value) {
+    // Hợp đồng đã kết thúc (thanh lý, chấm dứt) thì không đổi ngày hết hạn, giá trị nữa.
+    if ((appendix.new_expires_on || appendix.new_value) && contract.status === "signed") {
       await executor.execute(sql`
         UPDATE office.contracts SET expires_on = COALESCE(${appendix.new_expires_on}::date, expires_on), value = COALESCE(${appendix.new_value}::numeric, value), updated_at = now(), version = version + 1
         WHERE id = ${appendix.contract_id}`);
@@ -1000,6 +1007,15 @@ export class OfficeContractsService implements OnModuleInit {
       await transaction.execute(sql`
         UPDATE office.contracts SET status = ${input.kind}, ended_on = ${input.endedOn}, end_reason = ${input.reason}, end_file_id = ${fileId}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.event(transaction, id, actor.userId, input.kind, { endedOn: input.endedOn, reason: input.reason });
+      // Hợp đồng kết thúc thì phụ lục chưa ký (nháp, bị từ chối, đã rút, chờ ký) hủy theo, kèm phiên ký đang chạy (như hợp đồng lao động).
+      const open = await transaction.execute<{ id: string; signing_request_id: string | null }>(sql`
+        SELECT id, signing_request_id FROM office.contract_appendices
+        WHERE contract_id = ${id} AND status IN ('draft', 'rejected', 'withdrawn', 'awaiting_signature') FOR UPDATE`);
+      for (const appendix of open.rows) {
+        await transaction.execute(sql`UPDATE office.contract_appendices SET status = 'cancelled', signing_request_id = NULL, version = version + 1 WHERE id = ${appendix.id}`);
+        if (appendix.signing_request_id) await this.signing.cancelForSource(transaction, appendix.signing_request_id, actor.userId, "Hợp đồng đã kết thúc.");
+        await this.event(transaction, id, actor.userId, "appendix_cancelled", { appendixId: appendix.id, reason: "Hợp đồng đã kết thúc." });
+      }
       await this.auditService.record({ ...this.audit(actor, "office_contract"), action: `office.contract.${input.kind}`, entityId: id }, transaction);
     });
     return this.get(actor, id);
@@ -1173,15 +1189,18 @@ export class OfficeContractsService implements OnModuleInit {
       type: "contract_appendix",
       id: appendixId,
     });
-    await this.database.transaction(async (transaction) => {
+    const conflict = await this.database.transaction(async (transaction) => {
       const locked = await this.loadAppendix(transaction, contractId, appendixId);
       if (locked.signing_request_id || locked.status !== "awaiting_signature") {
         await this.signing.cancelForSource(transaction, requestId, actor.userId, "Phụ lục đã có phiên ký khác.");
-        throw this.businessRule("contractStatusInvalid");
+        return true;
       }
       await transaction.execute(sql`UPDATE office.contract_appendices SET signing_request_id = ${requestId}, version = version + 1 WHERE id = ${appendixId}`);
       await this.event(transaction, contractId, actor.userId, "appendix_signing_started", { appendixId, signingRequestId: requestId });
+      return false;
     });
+    // Hủy phiên vừa lập phải được ghi lại: ném lỗi sau khi giao dịch hủy đã xong.
+    if (conflict) throw this.businessRule("contractStatusInvalid");
     return this.get(actor, contractId);
   }
 

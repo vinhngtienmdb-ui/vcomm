@@ -43,7 +43,7 @@ import { OfficeFileUpload, OfficeFilesUpload } from "./office-upload";
 type Upload = { buffer: Buffer; size: number; originalname: string };
 
 // Biểu mẫu multipart gửi trường dạng chuỗi: phần dữ liệu đi trong trường "data" (JSON).
-const jsonField = (value: unknown): unknown => {
+export const jsonField = (value: unknown): unknown => {
   if (typeof value !== "string") return value;
   try {
     return JSON.parse(value);
@@ -294,12 +294,6 @@ export class OfficeDocumentsController {
     @Body("data") data: unknown,
     @Headers("x-company-id") companyId?: string,
   ): Promise<OutgoingResponse> {
-    let input: unknown = data;
-    try {
-      if (typeof data === "string") input = JSON.parse(data);
-    } catch {
-      input = {};
-    }
-    return this.documents.startOutgoingSigning(await this.actor(request, companyId, "office.document.clerk"), id, outgoingDigitalSigningSchema.parse(input), file);
+    return this.documents.startOutgoingSigning(await this.actor(request, companyId, "office.document.clerk"), id, outgoingDigitalSigningSchema.parse(jsonField(data)), file);
   }
 }

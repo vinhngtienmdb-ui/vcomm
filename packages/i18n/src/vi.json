@@ -715,7 +715,8 @@
     "officeOutgoingPdfRequired": "Tải bản PDF đã cấp số để ký số.",
     "hrDigitalSigningActive": "Hợp đồng đang có phiên ký số chưa kết thúc.",
     "hrDigitalSigningEmailMissing": "Người lao động chưa có thư điện tử để nhận đường dẫn ký; nhập thư điện tử.",
-    "hrDigitalSigningIdentityMissing": "Hồ sơ người lao động chưa có số định danh cá nhân để ký qua đường dẫn."
+    "hrDigitalSigningIdentityMissing": "Hồ sơ người lao động chưa có số định danh cá nhân để ký qua đường dẫn.",
+    "signingPersonalCertificateRequired": "Tài khoản ký số cá nhân chỉ dùng chứng thư cá nhân; chứng thư của tổ chức được khai ở chữ ký số công ty."
   },
   "login": {
     "title": "Đăng nhập",
@@ -9258,7 +9259,9 @@
     "source_contract_appendix": "Phụ lục hợp đồng",
     "source_outgoing": "Công văn đi",
     "source_hr_contract": "Hợp đồng lao động",
-    "source_hr_contract_appendix": "Phụ lục hợp đồng lao động"
+    "source_hr_contract_appendix": "Phụ lục hợp đồng lao động",
+    "conclusion_unsupported": "Chưa kiểm được (thuật toán chưa hỗ trợ)",
+    "event_partner_reminded": "Gửi thư nhắc đối tác ký"
   },
   "officeContracts": {
     "title": "Kho hợp đồng",
@@ -9421,7 +9424,7 @@
     "fileRole_attachment": "Đính kèm",
     "attach": "Đính kèm tệp",
     "fileAdded": "Đã đính kèm tệp.",
-    "signatureSummary": "Bản đã ký có {count} chữ ký: {valid} hợp lệ, {untrusted} chưa tin cậy, {invalid} không hợp lệ.",
+    "signatureSummary": "Bản đã ký có {count} chữ ký: {valid} hợp lệ, {untrusted} chưa tin cậy, {invalid} không hợp lệ, {unsupported} chưa kiểm được.",
     "openCheck": "Kiểm tra chữ ký",
     "approvalMode": "Cách duyệt",
     "approvalMode_policy": "Theo chính sách phê duyệt",

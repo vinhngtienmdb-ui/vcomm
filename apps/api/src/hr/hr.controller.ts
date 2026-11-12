@@ -39,6 +39,7 @@ import type { Actor } from "../permissions/roles.service";
 import { documentMaximumBytes, EmployeesService, type UploadedFile as UploadedDocument } from "./employees.service";
 import { ContractsService } from "./contracts.service";
 import { WorkEventsService } from "./work-events.service";
+import { jsonField } from "../office/office-documents.controller";
 
 // Tên tệp trong header: chữ không dấu cho trình duyệt cũ, bản UTF-8 đầy đủ theo RFC 5987.
 export const contentDisposition = (fileName: string) =>
@@ -49,16 +50,6 @@ export const contentDisposition = (fileName: string) =>
 
 // Tệp PDF đem ký số tối đa 20 MB (QUYTAC_NGHIEPVU_458).
 const signingPdfMaximumBytes = 20 * 1024 * 1024;
-// Biểu mẫu multipart: phần dữ liệu đi trong trường "data" (JSON).
-const jsonField = (value: unknown): unknown => {
-  if (typeof value !== "string") return value;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return {};
-  }
-};
-
 @Controller("hr")
 export class HrController {
   constructor(

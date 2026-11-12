@@ -10,3 +10,6 @@ ALTER TABLE office.signing_requests DROP CONSTRAINT signing_requests_source_type
 ALTER TABLE office.signing_requests ADD CONSTRAINT signing_requests_source_type_check
     CHECK (source_type IN ('document', 'contract', 'contract_appendix', 'outgoing', 'hr_contract', 'hr_contract_appendix'));
 CREATE INDEX signing_requests_source_idx ON office.signing_requests (source_type, source_id, created_at DESC) WHERE source_id IS NOT NULL;
+
+-- Thẻ "Đã ký" của MAN_HINH_210 lọc theo người đã ký.
+CREATE INDEX signing_signers_signed_by_idx ON office.signing_signers (signed_by) WHERE signed_by IS NOT NULL;

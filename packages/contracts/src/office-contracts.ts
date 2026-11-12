@@ -3,7 +3,14 @@ import { z } from "zod";
 import type { OfficePerson } from "./office";
 import { signingSignerInputSchema, type SignatureCheckItem } from "./office-signing";
 
-const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+// Ngày dạng YYYY-MM-DD có thật trên lịch (2026-02-30 bị từ chối ở đây, không để cơ sở dữ liệu báo lỗi).
+const isoDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine((value) => {
+    const date = new Date(`${value}T00:00:00Z`);
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+  });
 const version = z.number().int().min(1);
 const money = z.string().regex(/^\d{1,18}(\.\d{1,2})?$/);
 

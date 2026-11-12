@@ -278,6 +278,41 @@ describe("CONG_VIEC_59 lát L1: ký số", () => {
     expect((await creator.call("get", `/office/signing-requests/${third.body.id}`, { companyId: retail })).body.status).toBe("expired");
   });
 
+  it("rà soát độc lập: chữ ký cũ chưa kiểm được không làm kẹt phiên; PDF đặt mật khẩu bị chặn khi lập; tài khoản cá nhân không nhận chứng thư tổ chức", async () => {
+    // Bản đã ký ở KICHBAN_KIEMTHU_600, đổi thuật toán băm khai trong chữ ký sang SHA-224 (chưa hỗ trợ kiểm tra): chữ ký cũ "chưa kiểm được".
+    const signedFile = (await creator.call("get", `/office/signing-requests/${ids.request}/file`, { companyId: retail }).buffer(true)).body as Buffer;
+    const latin = signedFile.toString("latin1").replace(/0609608648016503040201/gi, "0609608648016503040204");
+    const oldSignatures = Buffer.from(latin, "latin1");
+    expect(verifyPdfSignatures(oldSignatures, []).map((check) => check.conclusion)).toEqual(["unsupported", "unsupported", "unsupported", "unsupported"]);
+    const created = await creator
+      .call("post", "/office/signing-requests", { companyId: retail })
+      .field("data", JSON.stringify({ title: "Ký bổ sung tệp đã có chữ ký", dueOn: "2026-12-31", signers: [{ kind: "user", userId: ids.deputy, signOrder: 1, page: "first", corner: "top_left" }] }))
+      .attach("file", oldSignatures, "da-co-chu-ky.pdf");
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    const sent = await creator.call("post", `/office/signing-requests/${created.body.id}/send`, { companyId: retail, body: { version: created.body.version } });
+    const detail = (await deputy.call("get", `/office/signing-requests/${created.body.id}`, { companyId: retail })).body;
+    await deputy.call("post", `/office/signing-requests/${created.body.id}/sign`, { companyId: retail, body: { signerId: detail.mySignerId, version: detail.version } });
+    expect(sent.body.status).toBe("signing");
+    await signing.pollAttempts();
+    const done = (await creator.call("get", `/office/signing-requests/${created.body.id}`, { companyId: retail })).body;
+    expect(done.status, JSON.stringify(done.signers[0].lastAttempt)).toBe("completed");
+
+    // Tệp khai mã hóa (trailer có /Encrypt): báo lỗi ngay khi lập phiên.
+    const encrypted = Buffer.from(pdf.toString("latin1").replace(/trailer\s*<</, "trailer\n<<\n/Encrypt 1 0 R"), "latin1");
+    const blocked = await creator
+      .call("post", "/office/signing-requests", { companyId: retail })
+      .field("data", JSON.stringify({ title: "Tệp có mật khẩu", dueOn: "2026-12-31", signers: [{ kind: "company", signOrder: 1, page: "last", corner: "bottom_right" }] }))
+      .attach("file", encrypted, "mat-khau.pdf");
+    expect(blocked.status).toBe(400);
+    expect(blocked.body.error.fields.file).toBe("Tệp PDF đặt mật khẩu, không ký được.");
+
+    // Nhân viên khai mã số thuế công ty làm tài khoản cá nhân: bị từ chối (chỉ dùng qua bước chữ ký công ty).
+    const options = await outsider.call("post", "/office/signing-identities/me/certificates", { companyId: retail, body: { identityCode: "0312345678" } });
+    const organization = await outsider.call("put", "/office/signing-identities/me", { companyId: retail, body: { identityCode: "0312345678", serialNumber: options.body[0].serialNumber } });
+    expect(organization.status).toBe(409);
+    expect(organization.body.error.message).toContain("chứng thư cá nhân");
+  });
+
   it("lập phiên kiểm tra dữ liệu: tệp không phải PDF, hạn quá 60 ngày, người ký trùng", async () => {
     const notPdf = await creator
       .call("post", "/office/signing-requests", { companyId: retail })

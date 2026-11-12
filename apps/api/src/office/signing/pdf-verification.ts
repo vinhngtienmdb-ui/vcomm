@@ -2,7 +2,8 @@
 import forge from "node-forge";
 import { certificateToDer, parseSignedData } from "./cms";
 
-export type SignatureConclusion = "valid" | "untrusted" | "invalid";
+// unsupported: thuật toán băm hoặc khóa của chữ ký chưa hỗ trợ kiểm tra (ví dụ ECDSA), không kết luận đúng sai.
+export type SignatureConclusion = "valid" | "untrusted" | "invalid" | "unsupported";
 export interface CertificateSummary {
   commonName: string | null;
   // Mã định danh trong chủ thể (thuộc tính UID, ví dụ "MST:0312345678", "CCCD:079090001234").
@@ -24,6 +25,7 @@ export interface SignatureCheck {
 }
 
 const UID = "0.9.2342.19200300.100.1.1";
+const maximumSignatures = 50;
 
 function attributeText(attribute: { value: unknown; valueTagClass?: number }): string {
   const value = String(attribute.value);
@@ -56,15 +58,26 @@ function validAt(certificate: forge.pki.Certificate, time: Date): boolean {
   return certificate.validity.notBefore <= time && time <= certificate.validity.notAfter;
 }
 
+// Chứng thư dùng làm cấp trên phải là chứng thư của tổ chức chứng thực: basicConstraints cA, keyUsage có keyCertSign (khi khai),
+// và giới hạn độ dài chuỗi (pathLenConstraint) cho phép số chứng thư trung gian bên dưới. Chứng thư người dùng cuối không cấp được chứng thư khác.
+function canIssue(candidate: forge.pki.Certificate, intermediatesBelow: number): boolean {
+  const constraints = candidate.getExtension("basicConstraints") as { cA?: boolean; pathLenConstraint?: number } | null;
+  if (!constraints?.cA) return false;
+  if (typeof constraints.pathLenConstraint === "number" && intermediatesBelow > constraints.pathLenConstraint) return false;
+  const usage = candidate.getExtension("keyUsage") as { keyCertSign?: boolean } | null;
+  return !usage || usage.keyCertSign === true;
+}
+
 // Dựng chuỗi từ chứng thư người ký: mỗi bước tìm chứng thư cấp trong chứng thư kèm chữ ký và danh sách gốc tin cậy, kiểm chữ ký của chứng thư cấp.
 function buildChain(signer: forge.pki.Certificate, pool: forge.pki.Certificate[]): forge.pki.Certificate[] {
   const chain = [signer];
   let current = signer;
   for (let depth = 0; depth < 8; depth += 1) {
     if (current.isIssuer(current)) break;
+    const intermediatesBelow = chain.length - 1;
     const issuer = pool.find((candidate) => {
       try {
-        return candidate.issued(current) && candidate.verify(current);
+        return canIssue(candidate, intermediatesBelow) && candidate.issued(current) && candidate.verify(current);
       } catch {
         return false;
       }
@@ -82,8 +95,13 @@ export function verifyPdfSignatures(pdf: Buffer, trustedRootsPem: string[], now:
   const text = pdf.toString("latin1");
   const results: SignatureCheck[] = [];
   const pattern = /\/ByteRange\s*\[\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*\]/g;
+  // Chống làm nghẽn: tối đa 50 chữ ký (như khi ký), bỏ qua khoảng byte trùng lặp.
+  const seen = new Set<string>();
   let match: RegExpExecArray | null;
-  while ((match = pattern.exec(text))) {
+  while ((match = pattern.exec(text)) && results.length < maximumSignatures) {
+    const key = match.slice(1, 5).join(" ");
+    if (seen.has(key)) continue;
+    seen.add(key);
     const [start = -1, firstLength = 0, secondStart = 0, secondLength = 0] = match.slice(1, 5).map(Number);
     const index = results.length + 1;
     const invalid = (signingTime: Date | null): SignatureCheck => ({
@@ -112,6 +130,10 @@ export function verifyPdfSignatures(pdf: Buffer, trustedRootsPem: string[], now:
       parsed = parseSignedData(Buffer.from(contentsHex.length % 2 ? `${contentsHex}0` : contentsHex, "hex"), content);
     } catch {
       results.push(invalid(signingTime));
+      continue;
+    }
+    if (parsed.unsupported) {
+      results.push({ ...invalid(signingTime), signer: parsed.signer ? summarizeCertificate(parsed.signer) : null, conclusion: "unsupported" });
       continue;
     }
     const time = signingTime ?? parsed.signingTime ?? now;

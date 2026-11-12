@@ -1,6 +1,6 @@
 // Cấu trúc chữ ký CMS tách rời cho PDF theo PAdES (CONG_VIEC_59; QUYTAC_NGHIEPVU_457, 461).
 // Ký hai bước: hệ thống tính mã băm thuộc tính ký, gửi nhà cung cấp ký số từ xa; nhận giá trị chữ ký về thì ghép thành CMS.
-// Chỉ dùng RSA với SHA-256 (chứng thư đọc được bằng node-forge).
+// Ký: RSA với SHA-256. Kiểm tra: RSA với SHA-1, SHA-256, SHA-384, SHA-512; khóa khác RSA (ECDSA…) báo chưa hỗ trợ, không kết luận không hợp lệ.
 import { createHash } from "node:crypto";
 import forge from "node-forge";
 
@@ -26,6 +26,13 @@ const integer = (value: number): Asn1 => asn1.create(asn1.Class.UNIVERSAL, asn1.
 const nullValue = (): Asn1 => asn1.create(asn1.Class.UNIVERSAL, asn1.Type.NULL, false, "");
 const toDer = (value: Asn1): Buffer => Buffer.from(asn1.toDer(value).getBytes(), "binary");
 const sha256 = (value: Buffer): Buffer => createHash("sha256").update(value).digest();
+// Thuật toán băm đọc được khi kiểm tra chữ ký của bên khác (tên trong node:crypto và node-forge trùng nhau).
+const digestNames: Record<string, "sha1" | "sha256" | "sha384" | "sha512"> = {
+  "1.3.14.3.2.26": "sha1",
+  "2.16.840.1.101.3.4.2.1": "sha256",
+  "2.16.840.1.101.3.4.2.2": "sha384",
+  "2.16.840.1.101.3.4.2.3": "sha512",
+};
 // Lấy phần tử thứ index của nút ASN.1 có cấu trúc; thiếu thì cấu trúc sai.
 function child(node: Asn1 | undefined, index: number): Asn1 {
   const value = node && Array.isArray(node.value) ? node.value[index] : undefined;
@@ -96,6 +103,8 @@ export interface ParsedSignedData {
   contentDigestMatches: boolean;
   signatureValid: boolean;
   signingTime: Date | null;
+  // Thuật toán băm hoặc khóa của chữ ký chưa hỗ trợ kiểm tra: không kết luận được, khác với chữ ký sai.
+  unsupported: boolean;
 }
 
 // Đọc CMS trong /Contents và kiểm tra: mã băm nội dung khớp phần tài liệu được ký, chữ ký đúng với khóa công khai của chứng thư người ký.
@@ -104,20 +113,31 @@ export function parseSignedData(cms: Buffer, content: Buffer): ParsedSignedData 
   const signedData = child(child(root, 1), 0).value as Asn1[];
   const certificates: forge.pki.Certificate[] = [];
   let signerInfo: Asn1[] | null = null;
+  let unreadableCertificate = false;
   for (const part of signedData.slice(3)) {
     if (part.tagClass === asn1.Class.CONTEXT_SPECIFIC && part.type === 0) {
-      for (const certificate of part.value as Asn1[]) certificates.push(pki.certificateFromAsn1(certificate));
+      for (const certificate of part.value as Asn1[]) {
+        // node-forge chỉ đọc được chứng thư khóa RSA.
+        try {
+          certificates.push(pki.certificateFromAsn1(certificate));
+        } catch {
+          unreadableCertificate = true;
+        }
+      }
     } else if (part.tagClass === asn1.Class.UNIVERSAL && part.type === asn1.Type.SET) {
       signerInfo = ((part.value as Asn1[])[0]?.value as Asn1[]) ?? null;
     }
   }
-  const empty: ParsedSignedData = { certificates, signer: null, contentDigestMatches: false, signatureValid: false, signingTime: null };
+  const empty: ParsedSignedData = { certificates, signer: null, contentDigestMatches: false, signatureValid: false, signingTime: null, unsupported: false };
   if (!signerInfo) return empty;
   const info: Asn1 = sequence(signerInfo);
   const serial = forge.util.bytesToHex(child(child(info, 1), 1).value as string).replace(/^0+/, "");
   const signer = certificates.find((certificate) => certificate.serialNumber.replace(/^0+/, "") === serial) ?? null;
   const attributesTagged = signerInfo.find((part) => part.tagClass === asn1.Class.CONTEXT_SPECIFIC && part.type === 0);
   const signatureValue = child(info, signerInfo.length - 1).value as string;
+  const digestName = digestNames[asn1.derToOid(child(child(info, 2), 0).value as string)];
+  if (!signer && unreadableCertificate) return { ...empty, unsupported: true };
+  if (!digestName) return { ...empty, signer, unsupported: true };
   if (!signer || !attributesTagged) return { ...empty, signer };
   let contentDigest: string | null = null;
   let signingTime: Date | null = null;
@@ -127,16 +147,16 @@ export function parseSignedData(cms: Buffer, content: Buffer): ParsedSignedData 
     if (name === OID.messageDigest) contentDigest = first.value as string;
     if (name === OID.signingTime) signingTime = first.type === asn1.Type.UTCTIME ? asn1.utcTimeToDate(first.value as string) : asn1.generalizedTimeToDate(first.value as string);
   }
-  const contentDigestMatches = contentDigest !== null && Buffer.from(contentDigest, "binary").equals(sha256(content));
+  const contentDigestMatches = contentDigest !== null && Buffer.from(contentDigest, "binary").equals(createHash(digestName).update(content).digest());
   // Mã hóa lại thuộc tính ký với thẻ SET thay cho thẻ [0] trước khi kiểm chữ ký.
   const attributesDer = toDer(set(attributesTagged.value as Asn1[]));
   let signatureValid = false;
   try {
-    const messageDigest = forge.md.sha256.create();
+    const messageDigest = forge.md[digestName].create();
     messageDigest.update(attributesDer.toString("binary"));
     signatureValid = (signer.publicKey as forge.pki.rsa.PublicKey).verify(messageDigest.digest().getBytes(), signatureValue);
   } catch {
     signatureValid = false;
   }
-  return { certificates, signer, contentDigestMatches, signatureValid, signingTime };
+  return { certificates, signer, contentDigestMatches, signatureValid, signingTime, unsupported: false };
 }

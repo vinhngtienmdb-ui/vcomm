@@ -33,12 +33,16 @@ import { PermissionService } from "../../permissions/permission.service";
 import type { Actor } from "../../permissions/roles.service";
 import { NumberSequencesService, periodKey } from "../../settings/number-sequences.service";
 import { activeGroupUsers, groupRootOf, peopleById } from "../office-access";
-import { completeSignature, PdfSigningError, prepareSignature } from "./pdf-signing";
+import { completeSignature, isEncryptedPdfError, PdfSigningError, prepareSignature } from "./pdf-signing";
 import { summarizeCertificate, verifyPdfSignatures } from "./pdf-verification";
+import { PDFDocument } from "pdf-lib";
 import type { SigningProvider, SigningProviderConfig } from "./providers/signing-provider";
 import { SigningProviderError, SimulatorSigningProvider } from "./providers/simulator-provider";
 
 type Executor = Pick<Database, "execute">;
+
+// Tiêu đề thư một dòng: bỏ ký tự xuống dòng để không chèn được trường đầu thư.
+const oneLine = (value: string) => value.replace(/[\r\n]+/g, " ");
 
 // Trang ký công khai (không đăng nhập): số định danh cá nhân chỉ hiện 4 số cuối; mã số thuế doanh nghiệp là thông tin công khai nên giữ nguyên.
 const publicIdentity = (kind: "organization" | "individual" | null, value: string) => (kind === "individual" ? `•••• ${value.slice(-4)}` : value);
@@ -384,6 +388,9 @@ export class OfficeSigningService {
     const option = (await this.certificates(actor.companyId, identityCode)).find((item) => item.serialNumber === serialNumber);
     if (!option || !settings) throw this.businessRule("signingCertificateNotFound");
     if (!option.usable) throw this.businessRule("signingCertificateNotUsable");
+    // Tài khoản ký số cá nhân chỉ nhận chứng thư cá nhân: chứng thư của tổ chức (chủ thể có mã số thuế) chỉ dùng qua bước chữ ký công ty,
+    // người đóng phải có office.signing.company_seal (QUYTAC_NGHIEPVU_455).
+    if (option.identities.some((identity) => identity.toUpperCase().startsWith("MST:"))) throw this.businessRule("signingPersonalCertificateRequired");
     await this.database.transaction(async (transaction) => {
       await transaction.execute(sql`UPDATE office.signing_identities SET status = 'replaced' WHERE company_id = ${actor.companyId} AND user_id = ${actor.userId} AND status = 'active'`);
       await transaction.execute(sql`
@@ -465,6 +472,17 @@ export class OfficeSigningService {
     if (file.size > maximumPdfBytes) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "officeFileTooLarge" } });
     if (file.buffer.subarray(0, 4).toString("latin1") !== "%PDF") throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: "signingPdfInvalid" } });
     return file.buffer;
+  }
+
+  // Tệp đem ký: đọc được, không đặt mật khẩu (QUYTAC_NGHIEPVU_458); kiểm ngay khi lập, sửa phiên để không gửi phiên không ai ký được.
+  private async checkSignablePdf(file: Upload): Promise<Buffer> {
+    const pdf = this.checkPdf(file);
+    try {
+      await PDFDocument.load(pdf, { updateMetadata: false });
+    } catch (error) {
+      throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { file: isEncryptedPdfError(error) ? "signingPdfEncrypted" : "signingPdfInvalid" } });
+    }
+    return pdf;
   }
 
   private fileName(file: { originalname: string }): string {
@@ -609,7 +627,7 @@ export class OfficeSigningService {
 
   async create(actor: Actor, input: SaveSigningRequestInput, file: Upload, source: { type: SigningSource; id: string } | null = null): Promise<SigningRequestResponse> {
     if (!source) await this.require(actor, "office.signing.use");
-    const pdf = this.checkPdf(file);
+    const pdf = await this.checkSignablePdf(file);
     this.dueRange(input.dueOn);
     const requestId = randomUUID();
     await this.database.transaction(async (transaction) => {
@@ -633,7 +651,7 @@ export class OfficeSigningService {
   }
 
   async update(actor: Actor, id: string, input: SaveSigningRequestInput, file: Upload): Promise<SigningRequestResponse> {
-    const pdf = file ? this.checkPdf(file) : null;
+    const pdf = file ? await this.checkSignablePdf(file) : null;
     this.dueRange(input.dueOn);
     await this.database.transaction(async (transaction) => {
       const row = await this.lockRequest(transaction, id, actor.companyId);
@@ -944,8 +962,18 @@ export class OfficeSigningService {
     await this.outbound.send({
       channel: "email",
       to: signer.partner_email!,
-      subject: `${row.company_name} mời ký số: ${row.title}`,
+      subject: `${row.company_name} mời ký số: ${oneLine(row.title)}`,
       body: `Kính gửi ${signer.partner_name}, ${row.company_name} mời quý vị ký số tài liệu "${row.title}" trước ngày ${row.due_on}. Mở đường dẫn: ${webOrigin()}/office/sign/${token}`,
+    });
+  }
+
+  private async remindPartner(executor: Executor, row: RequestRow, signer: SignerRow): Promise<void> {
+    await this.event(executor, row.id, null, "partner_reminded", { signerId: signer.id, email: signer.partner_email });
+    await this.outbound.send({
+      channel: "email",
+      to: signer.partner_email!,
+      subject: `${row.company_name} nhắc ký số: ${oneLine(row.title)}`,
+      body: `Kính gửi ${signer.partner_name}, ${row.company_name} nhắc quý vị ký số tài liệu "${row.title}" trước ngày ${row.due_on}. Mở đường dẫn trong thư mời đã nhận; cần gửi lại đường dẫn thì liên hệ người gửi.`,
     });
   }
 
@@ -956,7 +984,11 @@ export class OfficeSigningService {
       if (row.status !== "signing") throw this.businessRule("signingStatusInvalid");
       if (version !== row.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       if (row.last_reminded_at && this.clock.now().getTime() - new Date(row.last_reminded_at).getTime() < 24 * 3_600_000) throw this.businessRule("signingRemindTooSoon");
-      for (const signer of (await this.signers(transaction, id)).filter((item) => item.status === "current")) await this.notifyTurn(transaction, row, signer);
+      for (const signer of (await this.signers(transaction, id)).filter((item) => item.status === "current")) {
+        // Đối tác: thư nhắc không kèm mã mới để đường dẫn đang dùng vẫn còn hiệu lực; chỉ "Gửi lại thư" mới đổi mã (QUYTAC_NGHIEPVU_460).
+        if (signer.kind === "partner") await this.remindPartner(transaction, row, signer);
+        else await this.notifyTurn(transaction, row, signer);
+      }
       await transaction.execute(sql`UPDATE office.signing_requests SET last_reminded_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.event(transaction, id, actor.userId, "reminded");
     });
@@ -1061,6 +1093,8 @@ export class OfficeSigningService {
     initiatedBy: string | null,
     ip: string | null,
   ): Promise<void> {
+    // Quá hạn ký thì không ký nữa, kể cả trước khi tác vụ hết hạn chạy (QUYTAC_NGHIEPVU_459).
+    if (row.due_on < this.permissionService.today()) throw this.businessRule("signingStatusInvalid");
     const pending = await executor.execute(sql`SELECT 1 FROM office.signing_attempts WHERE request_id = ${row.id} AND status = 'pending'`);
     if (pending.rows.length > 0) throw this.businessRule("signingAttemptPending");
     const { provider, config } = await this.requireSettings(executor, row.company_id);
@@ -1148,8 +1182,11 @@ export class OfficeSigningService {
   }
 
   private async finishAttempt(executor: Executor, attempt: AttemptRow, status: AttemptRow["status"], message: string | null, label: string | null): Promise<void> {
-    await executor.execute(sql`UPDATE office.signing_attempts SET status = ${status}, message = ${message}, finished_at = now() WHERE id = ${attempt.id} AND status = 'pending'`);
-    await this.event(executor, attempt.request_id, null, `sign_${status}`, { signerId: attempt.signer_id, message }, label);
+    const updated = await executor.execute(
+      sql`UPDATE office.signing_attempts SET status = ${status}, message = ${message}, finished_at = now() WHERE id = ${attempt.id} AND status = 'pending' RETURNING id`,
+    );
+    // Lần ký đã kết thúc ở nơi khác (phiên bị hủy, hết hạn cùng lúc): không ghi lịch sử trùng.
+    if (updated.rows.length > 0) await this.event(executor, attempt.request_id, null, `sign_${status}`, { signerId: attempt.signer_id, message }, label);
     await this.storage.remove(attempt.prepared_storage_key).catch(() => undefined);
   }
 
@@ -1182,10 +1219,13 @@ export class OfficeSigningService {
         await this.finishAttempt(transaction, attempt, "failed", "Không còn đến lượt ký.", null);
         return;
       }
-      // Tệp sau khi chèn phải giữ nguyên mọi chữ ký trước và chữ ký mới phải toàn vẹn.
+      // Chữ ký mới phải toàn vẹn; chữ ký có sẵn trước đó không được xấu đi so với bản trước khi ký
+      // (chữ ký cũ không kiểm được, ví dụ ECDSA, hoặc đã hỏng từ trước thì không làm kẹt phiên).
       const checks = verifyPdfSignatures(signed, [], this.clock.now());
+      const before = verifyPdfSignatures((await this.readFile(row.current_file_id!)).content, [], this.clock.now());
       const last = checks[checks.length - 1];
-      if (!last || checks.some((check) => !check.integrity)) {
+      const degraded = before.some((check, index) => check.integrity && !checks[index]?.integrity);
+      if (!last || checks.length !== before.length + 1 || !last.integrity || degraded) {
         await this.finishAttempt(transaction, attempt, "failed", "Chữ ký nhận về không hợp lệ.", null);
         return;
       }
@@ -1232,6 +1272,8 @@ export class OfficeSigningService {
     for (const { id } of dueSoon.rows) {
       await this.database.transaction(async (transaction) => {
         const row = await this.lockRequest(transaction, id, null);
+        // Phiên vừa kết thúc giữa lúc chọn và lúc khóa thì không nhắc.
+        if (row.status !== "signing") return;
         const current = (await this.signers(transaction, id)).filter((signer) => signer.status === "current" && signer.kind !== "partner");
         for (const signer of current) await this.notifyTurn(transaction, row, signer);
         await transaction.execute(sql`UPDATE office.signing_requests SET due_soon_notified = true WHERE id = ${id}`);

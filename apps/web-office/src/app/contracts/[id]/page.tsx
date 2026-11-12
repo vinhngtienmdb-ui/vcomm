@@ -205,6 +205,7 @@ function ContractDetail({ contract, options, onChanged }: { contract: OfficeCont
                 valid: contract.signatureChecks.filter((check) => check.conclusion === "valid").length,
                 untrusted: contract.signatureChecks.filter((check) => check.conclusion === "untrusted").length,
                 invalid: contract.signatureChecks.filter((check) => check.conclusion === "invalid").length,
+                unsupported: contract.signatureChecks.filter((check) => check.conclusion === "unsupported").length,
               })}{" "}
               <Link href="/signature-check">{t("openCheck")}</Link>
             </div>

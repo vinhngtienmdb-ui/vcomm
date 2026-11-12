@@ -1271,15 +1271,18 @@ export class OfficeDocumentsService implements OnModuleInit {
       await this.database.transaction((transaction) => this.signing.cancelForSource(transaction, created.id, actor.userId, "Gửi phiên ký không thành công."));
       throw error;
     }
-    await this.database.transaction(async (transaction) => {
+    const conflict = await this.database.transaction(async (transaction) => {
       const locked = await this.loadOutgoing(transaction, actor, id, true);
       if (locked.status !== "numbered" || locked.signing_request_id !== row.signing_request_id) {
         await this.signing.cancelForSource(transaction, created.id, actor.userId, "Công văn đã có phiên ký khác.");
-        throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+        return true;
       }
       await transaction.execute(sql`UPDATE office.outgoing_documents SET signing_request_id = ${created.id}, updated_at = now(), version = version + 1 WHERE id = ${id}`);
       await this.auditService.record({ ...this.audit(actor, "office_outgoing"), action: "office.outgoing.digital_signing", entityId: id, afterData: { signingRequestId: created.id } }, transaction);
+      return false;
     });
+    // Hủy phiên vừa lập phải được ghi lại: ném lỗi sau khi giao dịch hủy đã xong.
+    if (conflict) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
     return this.outgoing(actor, id);
   }
 
