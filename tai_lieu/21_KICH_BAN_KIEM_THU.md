@@ -5491,3 +5491,138 @@ Dữ liệu chung: `apps/api/test/c61-open-api.test.ts` – công ty VCR có s�
 - Các bước và kết quả mong đợi: trên ứng dụng chạy thật, cấp khóa ở MAN_HINH_224 (hộp khóa một lần, sao chép), xem MAN_HINH_225 (thống kê, ba thẻ), lọc MAN_HINH_226; màn hình 390 điểm ảnh chuyển bảng thành thẻ; không lỗi console. Trạng thái rỗng, đang tải, lỗi, không quyền dùng `Loaded`, `MessageView` dùng chung.
 - Kiểm thử tự động: Bán tự động – Playwright chụp màn hình (kịch bản trong thư mục nháp của phiên, chưa đưa vào dự án)
 - Lát: L1, L2
+## MODULE_13 Văn phòng số phần 1 (CONG_VIEC_52)
+
+Dữ liệu chung: công ty VCR và VCT cùng tập đoàn; phòng ban, chi nhánh của VCR; tài khoản Nhân viên, Văn thư (`office_clerk`), lãnh đạo có `office.document.direct`, người thiết kế quy trình, người đăng tin ở phạm vi công ty và tập đoàn, người không có quyền.
+
+### KICHBAN_KIEMTHU_498: Lập việc, chuyển trạng thái, việc con
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_339
+- Chức năng: CHUC_NANG_182
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Vai trò thực hiện: Người giao, người chủ trì, người phối hợp
+- Điều kiện ban đầu và dữ liệu: Nhân viên VCR; người ở VCT cùng tập đoàn
+- Các bước: (1) Lập việc thiếu tiêu đề, hạn trước ngày bắt đầu, trùng người tham gia. (2) Chủ trì bắt đầu, báo xong; người giao trả lại có lý do, xác nhận. (3) Lập việc con, việc con có việc con, hạn sau việc cha; hủy việc cha. (4) Người giao là chủ trì báo xong. (5) Sửa với phiên bản cũ; người không phải người giao sửa.
+- Kết quả mong đợi: (1) `400` đúng ô. (2) Mới → đang làm → chờ xác nhận (tiến độ 100) → đang làm → hoàn thành. (3) `400` `officeSubtaskDepth`, `officeSubtaskDueAfterParent`; hủy việc cha hủy việc con chưa xong. (4) Hoàn thành ngay. (5) `409 CONFLICT_VERSION`; `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c52-tasks.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_499: Quyền xem việc, việc liên công ty, cách ly
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_340
+- Chức năng: CHUC_NANG_182
+- Loại: Đúng, sai, từng vai trò
+- Vai trò thực hiện: Người tham gia ở VCR, VCT; người không tham gia; người có `office.task.view_all`; người không có `office.access`
+- Điều kiện ban đầu và dữ liệu: Việc do VCR lập giao cho người VCT
+- Các bước: (1) Người VCT xem việc mình tham gia và việc khác của VCR. (2) Người không tham gia mở việc; xem thẻ Của công ty có, không có quyền. (3) Giao cho người ngoài tập đoàn; tìm người. (4) Người không có quyền vào mini app gọi API.
+- Kết quả mong đợi: (1) Thấy đúng việc mình tham gia, việc khác `404`. (2) `404`; thẻ Của công ty `403` khi thiếu quyền. (3) `400` `officeParticipantOutsideGroup`; kết quả tìm chỉ có họ tên, công ty, phòng ban. (4) `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c52-tasks.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_500: Bình luận, tệp, lịch sử, nhắc hạn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_341
+- Chức năng: CHUC_NANG_182
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Người tham gia; việc nền
+- Điều kiện ban đầu và dữ liệu: Việc có hạn trong 24 giờ và việc quá hạn
+- Các bước: (1) Bình luận, sửa, xóa bình luận của mình, của người khác. (2) Tải tệp sai loại, sai chữ ký, quá 20 MB; tải xuống; xóa tệp người khác. (3) Chạy nhắc hạn hai lần.
+- Kết quả mong đợi: (1) Người tham gia nhận thông báo; xóa mềm; sửa của người khác `403`. (2) `400` `officeFileTypeInvalid`, `officeFileTooLarge`; tải được; `403`. (3) Mỗi mốc (còn 24 giờ, quá hạn) thông báo một lần.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c52-tasks.test.ts`
+- Lát: L0
+
+### KICHBAN_KIEMTHU_501: Kiểm tra hợp lệ, phiên bản mẫu quy trình
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_342
+- Chức năng: CHUC_NANG_183
+- Loại: Đúng, sai, từng vai trò
+- Vai trò thực hiện: Người thiết kế quy trình; nhân viên
+- Điều kiện ban đầu và dữ liệu: Vai trò Giám đốc, phòng ban
+- Các bước: (1) Nhân viên lập mẫu. (2) Kích hoạt mẫu có bước không đến được, không tới Kết thúc, thiếu chuyển tiếp; sửa rồi kích hoạt. (3) Đổi phiên bản khi có phiên đang chạy. (4) Khởi tạo thiếu trường bắt buộc; phòng ban không được khởi tạo.
+- Kết quả mong đợi: (1) `403`. (2) `409 workflowInvalid` kèm danh sách lỗi; sửa xong kích hoạt được. (3) Phiên cũ chạy theo phiên bản cũ. (4) `400` tại `values.<khóa>`; mẫu không có trong danh sách khởi tạo.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c52-workflows.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_502: Chạy quy trình: rẽ nhánh, song song, gộp, lặp, bị chặn, giới hạn
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_343
+- Chức năng: CHUC_NANG_183
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Người khởi tạo; người làm bước; người giữ vai trò; người thiết kế
+- Điều kiện ban đầu và dữ liệu: Mẫu mua văn phòng phẩm có điều kiện số tiền
+- Các bước: (1) Số tiền nhỏ: hai nhánh song song, gộp. (2) Số tiền lớn: giám đốc theo vai trò nhận việc, chọn Xem lại, Không đồng ý. (3) Bước không xác định được người làm; chỉ định; hủy phiên. (4) Vòng lặp quá 100 lượt.
+- Kết quả mong đợi: (1) Bước gộp mở một lần khi cả hai nhánh xong. (2) Quay về trưởng phòng; kết thúc. (3) Phiên bị chặn, thông báo; chỉ định thì chạy tiếp; hủy thì hủy việc đang mở. (4) Phiên bị chặn `stepLimit`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c52-workflows.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_503: Công văn đến: vào sổ, số đến, trình, giao xử lý
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_344
+- Chức năng: CHUC_NANG_184
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Vai trò thực hiện: Văn thư; lãnh đạo; người xử lý; người không liên quan
+- Điều kiện ban đầu và dữ liệu: Sổ, loại văn bản mặc định
+- Các bước: (1) Mở lần đầu. (2) Vào sổ không có bản quét; vào sổ đồng thời nhiều công văn. (3) Trình lãnh đạo; lãnh đạo giao xử lý; xong việc; hủy việc. (4) Chuyển lãnh đạo khác, lưu; người không được trình cho ý kiến.
+- Kết quả mong đợi: (1) Có sổ đến, sổ đi, 29 loại văn bản, thể thức. (2) `400` tại `file`; số đến liên tiếp từ 1, không trùng. (3) Tạo công việc gắn công văn; xong việc → đã xử lý; hủy việc → chờ ý kiến. (4) Đúng trạng thái; `403` hoặc `404`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c52-documents.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_504: Công văn đi: luồng duyệt, cấp số, phát hành, liên công ty
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_345
+- Chức năng: CHUC_NANG_184
+- Loại: Đúng, sai, từng vai trò
+- Vai trò thực hiện: Người soạn; người ký; người duyệt; văn thư VCR, VCT
+- Điều kiện ban đầu và dữ liệu: Có và không có chính sách duyệt `office.outgoing_document`
+- Các bước: (1) Không có chính sách: trình, người ký duyệt, cấp số, phát hành không có bản đã ký, có bản đã ký. (2) Có chính sách: duyệt qua hộp duyệt; văn bản có tên loại; nơi nhận là VCT. (3) Rút, hủy nháp; văn thư hủy khi chờ cấp số.
+- Kết quả mong đợi: (1) Chờ cấp số; ký hiệu `01/VCR-<đơn vị>`; `400` khi thiếu bản đã ký; đã phát hành, nơi nhận được thông báo. (2) Ký hiệu `<số>/<loại>-VCR`; VCT có công văn đến chờ vào sổ kèm tệp. (3) Đúng trạng thái.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c52-documents.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_505: Thể thức PDF, Word; xuất sổ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_346
+- Chức năng: CHUC_NANG_184
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Người soạn; văn thư
+- Điều kiện ban đầu và dữ liệu: Công văn đã cấp số, dự thảo dài
+- Các bước: (1) Xuất PDF, Word. (2) Đổi phương án cỡ 14, lề phải 15 mm, lề trái 40 mm; dự thảo dài. (3) Ngày 9 và 10, tháng 01, 02, 3, 10, 12. (4) Xuất sổ đến, sổ đi.
+- Kết quả mong đợi: (1) A4, phông Liberation Serif (PDF), Times New Roman (Word), lề, cỡ chữ đúng; có quốc hiệu, tiêu ngữ, số ký hiệu, địa danh ngày tháng, V/v, Kính gửi, nơi nhận, Lưu. (2) Cỡ 14, lề 15 mm; `400` lề 40; DỰ THẢO, số để trống, số trang từ trang 2. (3) Ngày dưới 10 và tháng 1, 2 có số 0. (4) Excel đủ cột.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c52-documents.test.ts`, `apps/api/test/c52-document-format.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_506: Bảng tin: đối tượng, hẹn giờ, đã đọc, ghim, thu hồi, bình luận
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_347
+- Chức năng: CHUC_NANG_185
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Vai trò thực hiện: Người đăng (công ty, tập đoàn); người nhận phòng ban, chi nhánh; người VCT; người không có quyền đăng
+- Điều kiện ban đầu và dữ liệu: Phòng Kinh doanh, Kế toán; kho Bình Dương
+- Các bước: (1) Đăng toàn công ty, phòng ban, chi nhánh, toàn tập đoàn; đăng với đường dẫn `javascript:`. (2) Hẹn giờ cần xác nhận; đến giờ chạy việc nền hai lần. (3) Người nhận mở, xác nhận; người đăng xem ai đã đọc. (4) Ghim tin thứ 6; tin ghim hết hạn. (5) Sửa, thu hồi; bình luận; tệp.
+- Kết quả mong đợi: (1) Đúng người thấy; người khác `404`; không có quyền tập đoàn `400` tại `audienceType`; `400`. (2) Chưa đến giờ không hiện; thông báo người nhận một lần, không gửi người ngoài. (3) Đã đọc, đã xác nhận; danh sách chưa đọc trước, không có người đăng; người nhận `403`. (4) `409 officePostPinLimit`; hết hạn thì ẩn, không tính ghim. (5) “đã sửa”; người khác sửa `403`; thu hồi thì người nhận `404`; người đăng xóa bình luận bất kỳ.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c52-bulletin.test.ts`
+- Lát: L3
+
+### KICHBAN_KIEMTHU_507: Phân quyền mọi API Văn phòng số
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_340, TIEUCHI_NGHIEMTHU_344, TIEUCHI_NGHIEMTHU_345, TIEUCHI_NGHIEMTHU_347
+- Chức năng: CHUC_NANG_182 đến CHUC_NANG_185
+- Loại: Sai, từng vai trò
+- Vai trò thực hiện: Người không có `office.access`; nhân viên; văn thư; người công ty khác
+- Điều kiện ban đầu và dữ liệu: Như các kịch bản trên
+- Các bước: Gọi API công việc, quy trình, công văn, bảng tin bằng vai trò không đủ quyền hoặc không liên quan.
+- Kết quả mong đợi: Thiếu quyền chức năng `403`; không có quyền xem bản ghi `404`; không lộ dữ liệu công ty khác.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c52-tasks.test.ts`, `c52-workflows.test.ts`, `c52-documents.test.ts`, `c52-bulletin.test.ts` (phần quyền)
+- Lát: L0 đến L3
+
+### KICHBAN_KIEMTHU_508: Giao diện trên máy tính
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_348
+- Chức năng: CHUC_NANG_182 đến CHUC_NANG_185
+- Loại: Đúng
+- Vai trò thực hiện: Nhân viên, văn thư, lãnh đạo, người thiết kế quy trình
+- Điều kiện ban đầu và dữ liệu: Dữ liệu mẫu phát triển
+- Các bước: Mở MAN_HINH_153 đến MAN_HINH_160 ở khổ 1366 px; làm các luồng 1 đến 5 của đặc tả.
+- Kết quả mong đợi: Không lỗi trình duyệt, không cuộn ngang; lỗi hiện đúng ô; chuỗi đúng ngôn ngữ; nút theo quyền.
+- Kiểm thử tự động: Thủ công – xem trước từng lát (ảnh `tam_thoi/l0_*`, `l1_*`, `l2_*`, `l3_*`)
+- Lát: L0 đến L3
+
+### KICHBAN_KIEMTHU_509: Giao diện trên điện thoại
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_348
+- Chức năng: CHUC_NANG_182 đến CHUC_NANG_185
+- Loại: Đúng
+- Vai trò thực hiện: Như KICHBAN_KIEMTHU_508
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_508
+- Các bước: Mở danh sách, chi tiết công việc, phiên quy trình, công văn, soạn công văn, bảng tin ở khổ 390 px.
+- Kết quả mong đợi: Không cuộn ngang (độ rộng trang bằng khổ màn hình), bảng chuyển dạng thẻ, ngăn kéo dùng được.
+- Kiểm thử tự động: Thủ công – xem trước từng lát
+- Lát: L0 đến L3

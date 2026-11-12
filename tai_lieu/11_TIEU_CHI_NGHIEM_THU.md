@@ -490,6 +490,23 @@ Dữ liệu mẫu: công ty VCR (và công ty khác để kiểm cách ly), phò
 | TIEUCHI_NGHIEMTHU_365 | CHUC_NANG_192 | Đánh giá hiệu suất: trọng số tổng 100; mở kỳ tạo phiếu đúng đối tượng, người chấm; điểm, xếp loại đúng công thức và ngưỡng; hạn tự đánh giá khóa đúng; hiệu chỉnh cần lý do; chốt chỉ khi đủ phiếu; nhân viên chỉ thấy kết quả sau công bố; người chấm chỉ phiếu được giao; nhắc quá hạn mỗi hạn một lần | Gọi API, việc nền | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_366 | CHUC_NANG_190 đến CHUC_NANG_192 | MAN_HINH_168 đến MAN_HINH_173 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |
 
+## MODULE_13 Văn phòng số (phần 1, CONG_VIEC_52)
+
+Dữ liệu mẫu: công ty VCR và VCT cùng tập đoàn; phòng ban, chi nhánh của VCR; tài khoản Nhân viên, Văn thư (`office_clerk`), lãnh đạo có `office.document.direct`, người thiết kế quy trình, người đăng tin (công ty và tập đoàn), người không có quyền.
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_339 | CHUC_NANG_182 | Công việc: lập, sửa, chuyển trạng thái đúng QUYTAC_NGHIEPVU_356; việc con đúng QUYTAC_NGHIEPVU_358; trả lại, hủy cần lý do | Tự động API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_340 | CHUC_NANG_182 | Quyền xem việc: người tham gia, người có quyền xem toàn công ty thấy; người khác nhận `404`; giao cho người công ty khác trong tập đoàn được, người ngoài tập đoàn bị chặn; người công ty khác không xem được việc khác của công ty giao | Tự động API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_341 | CHUC_NANG_182 | Bình luận, tệp, lịch sử, thông báo giao việc, nhắc sắp đến hạn và quá hạn mỗi mốc một lần | Tự động API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_342 | CHUC_NANG_183 | Mẫu quy trình: kiểm tra hợp lệ chặn mẫu sai (bước không đến được, không tới Kết thúc, thiếu "Trường hợp còn lại", so sánh sai kiểu); phiên bản mới không ảnh hưởng phiên đang chạy | Tự động API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_343 | CHUC_NANG_183 | Chạy quy trình: rẽ nhánh theo kết quả và trường biểu mẫu, song song, gộp mở một lần, lặp lại, giới hạn 100 bước, bị chặn và chỉ định người thực hiện, nhận việc theo vai trò, hủy phiên | Tự động API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_344 | CHUC_NANG_184 | Công văn đến: số đến theo sổ, theo năm, bắt đầu từ 01, không trùng khi đồng thời; trình, cho ý kiến tạo việc; trạng thái theo việc; quyền xem đúng | Tự động API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_345 | CHUC_NANG_184 | Công văn đi: trình ký qua luồng duyệt; chỉ cấp số sau khi duyệt; số, ký hiệu đúng QUYTAC_NGHIEPVU_363; phát hành cần bản đã ký; người nhận nội bộ được thông báo; công ty khác trong tập đoàn có công văn đến chờ vào sổ; đã cấp số không sửa | Tự động API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_346 | CHUC_NANG_184 | Tệp PDF, Word xuất đúng thể thức QUYTAC_NGHIEPVU_366 (khổ, lề, phông, cỡ, kiểu chữ, bố cục); xuất sổ Excel đủ cột | Tự động API, đọc lại tệp PDF, Word, Excel | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_347 | CHUC_NANG_185 | Bảng tin: đúng đối tượng (công ty, chi nhánh, phòng ban, toàn tập đoàn), hẹn giờ, hết hạn, ghim tối đa 5, xác nhận đã đọc và danh sách chưa đọc, bình luận, thu hồi | Tự động API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_348 | CHUC_NANG_182 đến CHUC_NANG_185 | MAN_HINH_153 đến MAN_HINH_160 đạt danh sách rà soát giao diện trên máy tính và điện thoại | Trình duyệt | Bắt buộc |
+
 ## MODULE_11 Điểm thưởng (phần 1, CONG_VIEC_51)
 
 Dữ liệu mẫu: dữ liệu mẫu của CONG_VIEC_24 (`apps/api/test/marketplace-fixture.ts`); giai đoạn tích 2%, 1 điểm = 1 đồng; lô điểm cộng qua service.

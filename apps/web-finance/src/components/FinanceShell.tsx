@@ -14,6 +14,7 @@ export const financeMenu = [
   { href: "/collection-statements", key: "collections", permission: "finance.collection.view" },
   { href: "/loyalty-settlements", key: "loyaltySettlements", permission: "loyalty.settlement.view" },
   { href: "/journals", key: "journals", permission: "finance.ledger.view" },
+  { href: "/revaluations", key: "revaluations", permission: "finance.ledger.view" },
   { href: "/books", key: "books", permission: "finance.ledger.view" },
   { href: "/statements", key: "statements", permission: "finance.ledger.view" },
   { href: "/consolidation", key: "consolidation", permission: "finance.consolidation.view" },

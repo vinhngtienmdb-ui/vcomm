@@ -10,7 +10,20 @@ import {
   saveOpeningDebtSchema,
   paymentListQuerySchema,
   savePaymentSchema,
+  saveCurrencyPurchaseSchema,
+  createFxRevaluationSchema,
+  customsLateFeeQuerySchema,
+  customsTaxQuerySchema,
+  saveCustomsTaxParameterSchema,
+  saveCustomsTaxPaymentSchema,
+  type CustomsDeclarationTaxes,
+  type CustomsLateFeeResponse,
+  type CustomsTaxParameterResponse,
+  updateFxRevaluationSchema,
   versionSchema,
+  type FxRevaluationListItem,
+  type FxRevaluationResponse,
+  type PaymentFxPreviewResponse,
   type PaymentListItem,
   type PaymentOptionsResponse,
   type PaymentResponse,
@@ -27,7 +40,9 @@ import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { DebtsService } from "./debts.service";
+import { CustomsTaxService } from "./customs-tax.service";
 import { FundsService } from "./funds.service";
+import { FxRevaluationsService } from "./fx-revaluations.service";
 import { PaymentsService } from "./payments.service";
 
 @Controller("finance")
@@ -37,6 +52,8 @@ export class FinanceController {
     private readonly debts: DebtsService,
     private readonly funds: FundsService,
     private readonly payments: PaymentsService,
+    private readonly revaluations: FxRevaluationsService,
+    private readonly customsTax: CustomsTaxService,
   ) {}
 
   private async actor(request: AuthenticatedRequest, requestedCompanyId: string | undefined): Promise<Actor> {
@@ -111,6 +128,96 @@ export class FinanceController {
   @Get("payments/options")
   async paymentOptions(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<PaymentOptionsResponse> {
     return this.payments.options(await this.actor(request, companyId));
+  }
+
+  // API_215 (CONG_VIEC_56): xem trước phiếu chi trả nợ ngoại tệ.
+  @Post("payments/fx-preview")
+  async paymentFxPreview(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentFxPreviewResponse> {
+    return this.payments.fxPreview(await this.actor(request, companyId), savePaymentSchema.parse(body));
+  }
+
+  // API_214 (CONG_VIEC_56): phiếu mua ngoại tệ; gửi, rút, đọc dùng đường dẫn phiếu thu chi.
+  @Post("currency-purchases")
+  async currencyPurchaseCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.payments.saveCurrencyPurchase(await this.actor(request, companyId), null, saveCurrencyPurchaseSchema.parse(body));
+  }
+
+  @Patch("currency-purchases/:id")
+  async currencyPurchaseUpdate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.payments.saveCurrencyPurchase(await this.actor(request, companyId), id, saveCurrencyPurchaseSchema.parse(body));
+  }
+
+  // API_218 (CONG_VIEC_56): thuế hải quan theo tờ khai, tiền chậm nộp gợi ý, phiếu nộp, nhận hoàn thuế hải quan, tham số tiền chậm nộp.
+  @Get("customs-taxes")
+  async customsTaxes(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<CustomsDeclarationTaxes[]> {
+    return this.customsTax.balances(await this.actor(request, companyId), customsTaxQuerySchema.parse(query));
+  }
+
+  @Get("customs-taxes/late-fee")
+  async customsLateFee(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<CustomsLateFeeResponse> {
+    const parsed = customsLateFeeQuerySchema.parse(query);
+    return this.customsTax.lateFee(await this.actor(request, companyId), parsed.declarationId, parsed.amount, parsed.paymentDate);
+  }
+
+  @Post("customs-tax-payments")
+  async customsTaxPaymentCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.customsTax.save(await this.actor(request, companyId), null, saveCustomsTaxPaymentSchema.parse(body));
+  }
+
+  @Patch("customs-tax-payments/:id")
+  async customsTaxPaymentUpdate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<PaymentResponse> {
+    return this.customsTax.save(await this.actor(request, companyId), id, saveCustomsTaxPaymentSchema.parse(body));
+  }
+
+  @Get("customs-tax-parameters")
+  async customsTaxParameters(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<CustomsTaxParameterResponse[]> {
+    return this.customsTax.parameters(await this.actor(request, companyId));
+  }
+
+  @Post("customs-tax-parameters")
+  async customsTaxParameterCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<CustomsTaxParameterResponse[]> {
+    return this.customsTax.addParameter(await this.actor(request, companyId), saveCustomsTaxParameterSchema.parse(body));
+  }
+
+  // API_216, API_217 (CONG_VIEC_56): đánh giá lại ngoại tệ.
+  @Get("revaluations")
+  async revaluationList(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<FxRevaluationListItem[]> {
+    return this.revaluations.list(await this.actor(request, companyId));
+  }
+
+  @Get("revaluations/:id")
+  async revaluationDetail(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<FxRevaluationResponse> {
+    return this.revaluations.detail(await this.actor(request, companyId), id);
+  }
+
+  @Post("revaluations")
+  async revaluationCreate(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<FxRevaluationResponse> {
+    return this.revaluations.create(await this.actor(request, companyId), createFxRevaluationSchema.parse(body));
+  }
+
+  @Patch("revaluations/:id")
+  async revaluationUpdate(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<FxRevaluationResponse> {
+    return this.revaluations.update(await this.actor(request, companyId), id, updateFxRevaluationSchema.parse(body));
+  }
+
+  @Post("revaluations/:id/refresh")
+  async revaluationRefresh(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @Body() body: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<FxRevaluationResponse> {
+    return this.revaluations.refresh(await this.actor(request, companyId), id, versionSchema.parse(body).version);
+  }
+
+  @Post("revaluations/:id/cancel")
+  async revaluationCancel(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<FxRevaluationResponse> {
+    return this.revaluations.cancel(await this.actor(request, companyId), id, versionSchema.parse(body).version);
+  }
+
+  @Post("revaluations/:id/post")
+  async revaluationPost(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<FxRevaluationResponse> {
+    return this.revaluations.post(await this.actor(request, companyId), id, versionSchema.parse(body).version);
   }
 
   @Get("payments")

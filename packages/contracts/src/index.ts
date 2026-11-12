@@ -2397,6 +2397,9 @@ export const saveImportDeclarationSchema = z
     postingDate: isoDate,
     customsRate: rateValue.refine((value) => Number(value) > 0, "invalidValue"),
     note: blankToNull(1000),
+    // CONG_VIEC_56: chi cục hải quan; hạn nộp thuế (trống thì theo tham số).
+    customsOffice: blankToNull(200),
+    taxDueDate: isoDate.nullable().optional(),
     lines: z
       .array(
         z
@@ -2473,6 +2476,8 @@ export interface ImportDeclarationResponse extends ImportDeclarationListItem {
   warehouseName: string;
   customsRate: string;
   note: string | null;
+  customsOffice: string | null;
+  taxDueDate: string | null;
   companyCurrency: string;
   lines: ImportDeclarationLineResponse[];
   version: number;
@@ -2589,6 +2594,86 @@ export interface LandedCostResponse extends LandedCostListItem {
   version: number;
   canEdit: boolean;
   canPost: boolean;
+}
+// Tờ khai bổ sung (CONG_VIEC_56; QUYTAC_NGHIEPVU_414; API_219): số thuế sau bổ sung từng dòng của tờ khai gốc; chỉ sửa số thuế, không đổi số lượng.
+// Trống importDuty, vatAmount: hệ thống gợi ý theo thuế suất mới (QUYTAC_NGHIEPVU_287).
+export const saveImportAmendmentSchema = z
+  .object({
+    declarationId: z.uuid(),
+    amendmentNo: z.string().trim().min(1).max(50),
+    registeredOn: isoDate,
+    postingDate: isoDate,
+    reason: blankToNull(500),
+    lines: z
+      .array(
+        z
+          .object({
+            declarationLineId: z.uuid(),
+            importDutyRate: taxPercent.nullable().optional(),
+            importDuty: requiredMoney.nullable().optional(),
+            exciseTax: requiredMoney.nullable().optional(),
+            environmentalTax: requiredMoney.nullable().optional(),
+            vatRate: taxPercent.nullable().optional(),
+            vatAmount: requiredMoney.nullable().optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveImportAmendmentRequest = z.input<typeof saveImportAmendmentSchema>;
+export interface ImportAmendmentTaxes {
+  importDuty: string;
+  exciseTax: string;
+  environmentalTax: string;
+  vatAmount: string;
+}
+export interface ImportAmendmentLine {
+  declarationLineId: string;
+  sku: string;
+  productName: string;
+  customsValueConverted: string;
+  importDutyRate: string;
+  vatRate: string;
+  before: ImportAmendmentTaxes;
+  after: ImportAmendmentTaxes;
+  difference: ImportAmendmentTaxes;
+  stockValue: string | null;
+  expensedValue: string | null;
+}
+// Số thuế hiện hành từng dòng của tờ khai gốc (gốc cộng các tờ khai bổ sung đã ghi sổ) để lập tờ khai bổ sung.
+export interface ImportAmendmentBase {
+  declarationId: string;
+  declarationNo: string;
+  status: string;
+  companyCurrency: string;
+  lines: ImportAmendmentLine[];
+}
+export interface ImportAmendmentResponse {
+  id: string;
+  declarationId: string;
+  declarationNo: string;
+  amendmentNo: string;
+  registeredOn: string;
+  postingDate: string;
+  reason: string | null;
+  status: "draft" | "posted" | "cancelled";
+  companyCurrency: string;
+  lines: ImportAmendmentLine[];
+  totalDifference: ImportAmendmentTaxes;
+  createdByName: string;
+  postedAt: string | null;
+  version: number;
+  canEdit: boolean;
+}
+export interface ImportAmendmentListItem {
+  id: string;
+  amendmentNo: string;
+  registeredOn: string;
+  status: "draft" | "posted" | "cancelled";
+  totalDifference: string;
 }
 export interface ImportAllocationPreview {
   lines: { orderLineId: string; sku: string; productName: string; amount: string; onHand: string; baseQuantity: string; stockValue: string; expensedValue: string }[];
@@ -3022,6 +3107,10 @@ export const saveFundSchema = z
     accountHolder: blankToNull(200),
     openingBalance: decimalText(4).default("0"),
     status: z.enum(["active", "inactive"]).default("active"),
+    // CONG_VIEC_56 (QUYTAC_NGHIEPVU_406): quỹ ngoại tệ; trống là tiền tệ công ty. Quỹ ngoại tệ nhập số dư đầu ngoại tệ và tỷ giá, giá trị đầu do hệ thống tính.
+    currency: currencyCode.nullable().optional(),
+    openingForeignBalance: optionalDecimal(4),
+    openingExchangeRate: z.union([rateValue, z.literal(""), z.null()]).optional().transform((value) => (value === "" || value === undefined ? null : value)),
     version: z.number().int().positive().optional(),
   })
   .strict();
@@ -3039,19 +3128,24 @@ export interface FundResponse {
   status: "active" | "inactive";
   hasPostings: boolean;
   currency: string;
+  // Quỹ ngoại tệ (CONG_VIEC_56): balance, openingBalance là giá trị ghi sổ theo tiền tệ công ty (currency).
+  foreign: { currency: string; openingBalance: string; openingExchangeRate: string; balance: string; bookRate: string | null } | null;
   version: number;
   canManage: boolean;
 }
 export const fundLedgerQuerySchema = z.object({ from: isoDate, to: isoDate }).strict();
 export interface FundLedgerEntry {
+  // Phiếu thu chi, hoặc chứng từ đánh giá lại khi kind là fx_revaluation (CONG_VIEC_56).
   paymentId: string;
   date: string;
   documentNo: string;
-  kind: AnyPaymentKind;
+  kind: AnyPaymentKind | "fx_revaluation";
   partnerName: string | null;
   receipt: string;
   payment: string;
   balance: string;
+  // Quỹ ngoại tệ: số ngoại tệ thu, chi, số dư ngoại tệ lũy kế.
+  foreign: { receipt: string; payment: string; balance: string } | null;
 }
 export interface FundLedgerResponse {
   fund: FundResponse;
@@ -3060,6 +3154,7 @@ export interface FundLedgerResponse {
   openingBalance: string;
   entries: FundLedgerEntry[];
   closingBalance: string;
+  foreign: { currency: string; openingBalance: string; closingBalance: string } | null;
 }
 
 export const debtSides = ["receivable", "payable"] as const;
@@ -3164,15 +3259,23 @@ export const paymentKindSide: Record<PaymentKind, DebtSide> = {
 // THAY_DOI_24 (CONG_VIEC_53): chứng từ quỹ bán lẻ do hệ thống lập khi đóng ca, không đối tượng, không trừ nợ; không lập tay.
 export const retailFundDocumentKinds = ["retail_receipt", "retail_refund", "cash_shortage", "cash_surplus"] as const;
 export type RetailFundDocumentKind = (typeof retailFundDocumentKinds)[number];
+// CONG_VIEC_56 (QUYTAC_NGHIEPVU_408): phiếu mua ngoại tệ, không đối tác, lập ở API_214.
+export const treasuryPaymentKinds = ["currency_purchase", "customs_tax_payment", "customs_tax_refund"] as const;
+export type TreasuryPaymentKind = (typeof treasuryPaymentKinds)[number];
 // CONG_VIEC_60 (QUYTAC_NGHIEPVU_473): phiếu thu, phiếu chi nợ nội bộ điểm thưởng, lập từ bảng đối soát điểm nội bộ, không trừ công nợ.
 export const loyaltySettlementPaymentKinds = ["loyalty_intercompany_receipt", "loyalty_intercompany_payment"] as const;
 export type LoyaltySettlementPaymentKind = (typeof loyaltySettlementPaymentKinds)[number];
-export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | LoyaltySettlementPaymentKind;
+export type AnyPaymentKind = PaymentKind | RetailFundDocumentKind | TreasuryPaymentKind | LoyaltySettlementPaymentKind;
 export const paymentKindIsReceipt = (kind: AnyPaymentKind) =>
-  kind === "customer_receipt" || kind === "supplier_refund" || kind === "retail_receipt" || kind === "cash_surplus" || kind === "loyalty_intercompany_receipt";
+  kind === "customer_receipt" ||
+  kind === "supplier_refund" ||
+  kind === "retail_receipt" ||
+  kind === "cash_surplus" ||
+  kind === "customs_tax_refund" ||
+  kind === "loyalty_intercompany_receipt";
 export const paymentKindSettles = (kind: AnyPaymentKind) => kind === "customer_receipt" || kind === "supplier_payment";
 export const paymentListQuerySchema = z
-  .object({ kind: z.enum(paymentKinds).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
+  .object({ kind: z.enum([...paymentKinds, ...treasuryPaymentKinds]).optional(), status: z.enum(paymentStatuses).optional(), partnerId: z.uuid().optional() })
   .strict();
 export const savePaymentSchema = z
   .object({
@@ -3180,16 +3283,183 @@ export const savePaymentSchema = z
     partnerId: z.uuid(),
     fundId: z.uuid(),
     paymentDate: isoDate,
-    amount: positiveQuantity,
+    amount: positiveQuantity.optional(),
     note: blankToNull(500),
+    // CONG_VIEC_56 (QUYTAC_NGHIEPVU_410): phiếu chi trả nợ ngoại tệ có currency; dòng nhập foreignAmount, amount do hệ thống tính theo tỷ giá đích danh.
+    // Chi từ quỹ tiền tệ công ty: exchangeRate là tỷ giá ngân hàng bán, amount là số tiền chi (trống thì tính bằng ngoại tệ nhân tỷ giá).
+    currency: currencyCode.nullable().optional(),
+    exchangeRate: z.union([rateValue, z.literal(""), z.null()]).optional().transform((value) => (value === "" || value === undefined ? null : value)),
     lines: z
-      .array(z.object({ debitItemId: z.uuid(), amount: positiveQuantity }).strict())
+      .array(z.object({ debitItemId: z.uuid(), amount: positiveQuantity.optional(), foreignAmount: positiveQuantity.optional() }).strict())
       .max(500)
       .default([]),
     version: z.number().int().positive().optional(),
   })
   .strict();
 export type SavePaymentRequest = z.input<typeof savePaymentSchema>;
+// Phiếu mua ngoại tệ (CONG_VIEC_56; QUYTAC_NGHIEPVU_408; API_214): chi từ quỹ tiền tệ công ty (fundId), nhận vào quỹ ngoại tệ (counterFundId).
+// amount là số tiền chi, trống thì bằng foreignAmount nhân exchangeRate làm tròn.
+export const saveCurrencyPurchaseSchema = z
+  .object({
+    fundId: z.uuid(),
+    counterFundId: z.uuid(),
+    paymentDate: isoDate,
+    foreignAmount: positiveQuantity,
+    exchangeRate: rateValue,
+    amount: positiveQuantity.optional(),
+    note: blankToNull(500),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveCurrencyPurchaseRequest = z.input<typeof saveCurrencyPurchaseSchema>;
+// Đánh giá lại ngoại tệ (CONG_VIEC_56; QUYTAC_NGHIEPVU_412, 413; API_216, API_217).
+export const fxRevaluationStatuses = ["draft", "posted", "cancelled"] as const;
+export type FxRevaluationStatus = (typeof fxRevaluationStatuses)[number];
+export const createFxRevaluationSchema = z.object({ revaluationDate: isoDate, note: blankToNull(500) }).strict();
+export const updateFxRevaluationSchema = z
+  .object({
+    note: blankToNull(500),
+    rates: z
+      .array(z.object({ currency: currencyCode, rate: z.union([rateValue, z.literal(""), z.null()]).transform((value) => (value === "" ? null : value)) }).strict())
+      .max(50),
+    version: z.number().int().positive(),
+  })
+  .strict();
+export type UpdateFxRevaluationRequest = z.input<typeof updateFxRevaluationSchema>;
+export interface FxRevaluationListItem {
+  id: string;
+  documentNo: string | null;
+  revaluationDate: string;
+  lineCount: number;
+  gain: string;
+  loss: string;
+  net: string;
+  status: FxRevaluationStatus;
+}
+export interface FxRevaluationLine {
+  id: string;
+  kind: "fund" | "payable";
+  fund: { id: string; code: string; name: string } | null;
+  debt: { id: string; documentNo: string; partnerName: string } | null;
+  currency: string;
+  foreignAmount: string;
+  bookValue: string;
+  bookRate: string | null;
+  newValue: string | null;
+  difference: string | null;
+}
+export interface FxRevaluationResponse {
+  id: string;
+  documentNo: string | null;
+  revaluationDate: string;
+  status: FxRevaluationStatus;
+  note: string | null;
+  currency: string;
+  rates: { currency: string; rate: string | null; sourceRate: string | null }[];
+  lines: FxRevaluationLine[];
+  gain: string;
+  loss: string;
+  net: string;
+  createdByName: string;
+  postedAt: string | null;
+  version: number;
+  canManage: boolean;
+}
+// Thuế hải quan (CONG_VIEC_56; QUYTAC_NGHIEPVU_415 đến 417; API_218): loại thuế, số phải nộp, đã nộp, còn phải nộp theo tờ khai.
+export const customsTaxTypes = ["import_duty", "excise_tax", "environmental_tax", "import_vat"] as const;
+export type CustomsTaxType = (typeof customsTaxTypes)[number];
+export const customsTaxLineKinds = ["payment", "offset", "refund"] as const;
+export type CustomsTaxLineKind = (typeof customsTaxLineKinds)[number];
+export interface CustomsTaxBalance {
+  taxType: CustomsTaxType;
+  payable: string;
+  paid: string;
+  pending: string;
+  // Âm là nộp thừa.
+  remaining: string;
+}
+export interface CustomsDeclarationTaxes {
+  declarationId: string;
+  declarationNo: string;
+  registeredOn: string;
+  customsOffice: string | null;
+  dueDate: string;
+  taxes: CustomsTaxBalance[];
+}
+export const customsTaxQuerySchema = z
+  .object({ search: z.string().trim().max(100).optional(), declarationId: z.uuid().optional(), openOnly: z.enum(["true", "false"]).optional() })
+  .strict();
+// Tiền chậm nộp gợi ý cho một dòng nộp (QUYTAC_NGHIEPVU_417).
+export const customsLateFeeQuerySchema = z.object({ declarationId: z.uuid(), amount: positiveQuantity, paymentDate: isoDate }).strict();
+export interface CustomsLateFeeResponse {
+  dueDate: string;
+  overdueDays: number;
+  rate: string;
+  amount: string;
+}
+// Phiếu nộp thuế hải quan (phiếu chi) hoặc nhận hoàn thuế hải quan (phiếu thu); không đối tác (QUYTAC_NGHIEPVU_416).
+// lateAmount trống: hệ thống tính; nhập số khác thì đánh dấu đã sửa.
+export const saveCustomsTaxPaymentSchema = z
+  .object({
+    kind: z.enum(["customs_tax_payment", "customs_tax_refund"]),
+    fundId: z.uuid(),
+    paymentDate: isoDate,
+    referenceNo: blankToNull(100),
+    note: blankToNull(500),
+    lines: z
+      .array(
+        z
+          .object({
+            lineKind: z.enum(customsTaxLineKinds),
+            declarationId: z.uuid(),
+            taxType: z.enum(customsTaxTypes),
+            amount: positiveQuantity,
+            lateAmount: z.union([z.number(), z.string(), z.null()]).optional().transform((value) => (value === null || value === undefined || value === "" ? null : String(value).trim().replace(",", "."))),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveCustomsTaxPaymentRequest = z.input<typeof saveCustomsTaxPaymentSchema>;
+export interface CustomsTaxPaymentLine {
+  lineKind: CustomsTaxLineKind | "late_payment";
+  declarationId: string;
+  declarationNo: string;
+  taxType: CustomsTaxType;
+  amount: string;
+  overdueDays: number | null;
+  computedAmount: string | null;
+  edited: boolean;
+}
+// Tham số tiền chậm nộp, hạn nộp theo ngày hiệu lực (CONG_VIEC_56; quyết định người dùng 2026-11-12).
+export interface CustomsTaxParameterResponse {
+  id: string;
+  effectiveFrom: string;
+  lateRate: string;
+  paymentTermDays: number;
+  legalBasis: string;
+}
+export const saveCustomsTaxParameterSchema = z
+  .object({
+    effectiveFrom: isoDate,
+    lateRate: z.string().trim().regex(/^0(\.\d{1,6})?$/),
+    paymentTermDays: z.number().int().min(0).max(365),
+    legalBasis: z.string().trim().min(1).max(1000),
+  })
+  .strict();
+// Xem trước phiếu chi trả nợ ngoại tệ (API_215): giảm nợ theo tỷ giá đích danh, giá trị ra khỏi quỹ, chênh lệch tỷ giá.
+export interface PaymentFxPreviewResponse {
+  currency: string;
+  foreignTotal: string;
+  lines: { debitItemId: string; foreignAmount: string; bookRate: string; bookAmount: string }[];
+  bookTotal: string;
+  fundValue: string;
+  fundRate: string | null;
+  exchangeDifference: string;
+}
 export interface PaymentListItem {
   id: string;
   documentNo: string | null;
@@ -3209,6 +3479,8 @@ export interface OpenDebtResponse {
   amount: string;
   openAmount: string;
   overdueDays: number;
+  // Khoản nợ có ngoại tệ (CONG_VIEC_56; QUYTAC_NGHIEPVU_409).
+  foreign?: { currency: string; amount: string; openAmount: string; bookRate: string } | null;
 }
 export interface PaymentResponse {
   id: string;
@@ -3224,8 +3496,19 @@ export interface PaymentResponse {
   approvalRequestId: string | null;
   // Khóa thông báo lỗi (nhóm errors) khi duyệt xong mà không ghi sổ được.
   postError: string | null;
-  lines: (OpenDebtResponse & { allocated: string })[];
+  lines: (OpenDebtResponse & { allocated: string; allocatedForeign: string | null })[];
   unallocated: string;
+  // Phiếu chi trả nợ ngoại tệ, phiếu mua ngoại tệ (CONG_VIEC_56).
+  foreign: {
+    currency: string;
+    amount: string;
+    exchangeRate: string | null;
+    exchangeDifference: string | null;
+    counterFund: { id: string; code: string; name: string } | null;
+  } | null;
+  // Phiếu nộp, nhận hoàn thuế hải quan (CONG_VIEC_56).
+  referenceNo: string | null;
+  customsLines: CustomsTaxPaymentLine[];
   createdByName: string;
   postedAt: string | null;
   version: number;
@@ -3235,7 +3518,8 @@ export interface PaymentResponse {
 }
 export const openDebtQuerySchema = z.object({ side: z.enum(debtSides), partnerId: z.uuid(), paymentId: z.uuid().optional() }).strict();
 export interface PaymentOptionsResponse {
-  funds: { id: string; code: string; name: string; kind: FundKind; balance: string }[];
+  // fundCurrency trống là tiền tệ công ty; foreignBalance là số dư ngoại tệ của quỹ ngoại tệ.
+  funds: { id: string; code: string; name: string; kind: FundKind; balance: string; fundCurrency: string | null; foreignBalance: string | null }[];
   currency: string;
 }
 export interface OpenDebtsResponse {
@@ -3283,7 +3567,7 @@ export interface PostingRuleResponse {
   canEdit: boolean;
 }
 export const updatePostingRuleSchema = z.object({ accountId: z.uuid() }).strict();
-export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal", "payroll", "payroll_payment", "import_declaration", "landed_cost"] as const;
+export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal", "payroll", "payroll_payment", "import_declaration", "landed_cost", "fx_revaluation", "import_amendment"] as const;
 export type JournalSourceType = (typeof journalSourceTypes)[number];
 export const journalStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
 export type JournalStatus = (typeof journalStatuses)[number];
@@ -3350,8 +3634,10 @@ export interface LedgerPeriodsResponse {
   canClose: boolean;
   canReopen: boolean;
   lastClosedMonth: string | null;
+  // CONG_VIEC_56 (QUYTAC_NGHIEPVU_413): tháng cần khóa là tháng cuối năm tài chính, còn số dư ngoại tệ mà chưa đánh giá lại tại ngày cuối tháng.
+  revaluationMissing: boolean;
 }
-export const closePeriodSchema = z.object({ month: z.string().regex(/^\d{4}-\d{2}$/) }).strict();
+export const closePeriodSchema = z.object({ month: z.string().regex(/^\d{4}-\d{2}$/), confirmRevaluation: z.boolean().optional() }).strict();
 export const ledgerRangeQuerySchema = z.object({ from: isoDate, to: isoDate }).strict();
 export interface TrialBalanceRow {
   accountId: string;
@@ -7886,3 +8172,4 @@ export interface LoyaltyAlertResponse {
 }
 export * from "./purchasing-budgets";
 export * from "./loyalty-alliance";
+export * from "./office";

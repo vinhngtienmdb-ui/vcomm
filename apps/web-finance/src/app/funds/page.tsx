@@ -72,7 +72,10 @@ export default function FundsPage() {
                         <span>{t(`kind_${fund.kind}`)}</span>
                       </td>
                       <td data-nhan={headings[3]}>
-                        <span>{formatMoney(fund.balance, fund.currency)}</span>
+                        <span>
+                          {fund.foreign ? `${formatMoney(fund.foreign.balance, fund.foreign.currency)} · ${t("bookValue")} ` : ""}
+                          {formatMoney(fund.balance, fund.currency)}
+                        </span>
                       </td>
                       <td data-nhan={headings[4]}>
                         <span className={`nhan ${fund.status === "active" ? "thanh-cong" : "trung-tinh"}`}>{t(`status_${fund.status}`)}</span>

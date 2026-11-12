@@ -22,6 +22,8 @@ import { AffiliateReportsService } from "../affiliate/reports.service";
 import { AffiliateSettlementsService } from "../affiliate/settlements.service";
 import { AffiliateVouchersService } from "../affiliate/vouchers.service";
 import { GroupBuysService } from "../marketplace/group-buys.service";
+import { OfficeTasksService } from "../office/office-tasks.service";
+import { OfficePostsService } from "../office/office-posts.service";
 import { MarketplaceOrdersService } from "../marketplace/marketplace-orders.service";
 import { RetailStationOrdersService } from "../retail/retail-station-orders.service";
 import { SalesCareService } from "../marketplace/sales-care.service";
@@ -81,6 +83,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const candidates = application.get(CandidatesService);
   const reviews = application.get(ReviewsService);
   const apiCallLogs = application.get(ApiCallLogsService);
+  const officeTasks = application.get(OfficeTasksService);
+  const officePosts = application.get(OfficePostsService);
   const queue = new Queue(queueName, { connection });
   await queue.upsertJobScheduler("approval-overdue", { every: 15 * 60_000 }, { name: "approval-overdue" });
   await queue.upsertJobScheduler("outbox-dispatch", { every: 10_000 }, { name: "outbox-dispatch" });
@@ -119,6 +123,10 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("marketplace-group-buy-close", { every: 60_000 }, { name: "marketplace-group-buy-close" });
   // Nhắc, hủy đơn quá hạn giữ tại trạm giao hàng O2O (CONG_VIEC_57; QUYTAC_NGHIEPVU_428).
   await queue.upsertJobScheduler("station-order-hold", { every: 60 * 60_000 }, { name: "station-order-hold" });
+  // Nhắc công việc sắp đến hạn, quá hạn (CONG_VIEC_52; QUYTAC_NGHIEPVU_358).
+  await queue.upsertJobScheduler("office-task-reminders", { every: 15 * 60_000 }, { name: "office-task-reminders" });
+  // Tin bảng tin hẹn giờ cần xác nhận đọc: đến giờ thì thông báo (CONG_VIEC_52; QUYTAC_NGHIEPVU_367).
+  await queue.upsertJobScheduler("office-post-publish", { every: 60_000 }, { name: "office-post-publish" });
   // Hóa đơn điện tử chạy hàng đợi riêng: gọi nhà cung cấp chậm không làm chậm các tác vụ khác.
   const einvoiceQueue = new Queue(einvoiceQueueName, { connection });
   await einvoiceQueue.upsertJobScheduler("einvoice-send", { every: 30_000 }, { name: "einvoice-send" });
@@ -163,6 +171,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "affiliate-settlement-confirm") return affiliateSettlements.autoConfirmDue();
       if (job.name === "marketplace-group-buy-close") return groupBuys.closeDue();
       if (job.name === "open-api-log-purge") return apiCallLogs.purgeExpired(new Date());
+      if (job.name === "office-task-reminders") return officeTasks.remindDue();
+      if (job.name === "office-post-publish") return officePosts.publishDue();
       return null;
     },
     { connection, concurrency: 1 },

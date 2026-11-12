@@ -2895,3 +2895,21 @@ flowchart LR
 - Đơn bán: thêm bộ lọc "Nguồn" (Nhập trên web, Open API); cột Khách hàng có nhãn "Open API" kèm mã đơn đối tác; tìm theo mã đơn đối tác; chi tiết đơn có hộp thông tin khóa đã tạo, mã đơn đối tác.
 - Trạng thái: dùng `Loaded`, `MessageView` dùng chung (đang tải, lỗi, không quyền, rỗng). Responsive: bảng chuyển thành thẻ ở màn hình hẹp.
 - Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12; xem trước L1, L2 đạt.
+## MODULE_13 Văn phòng số phần 1 (CONG_VIEC_52)
+
+Mini app Văn phòng số `apps/web-office`, đường dẫn `/office`. Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_153` đến `MAN_HINH_160` (tệp `van_phong.js`). Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_52.md` mục 8.
+
+| Mã | Tên màn hình | Đường dẫn | Chức năng (10) | Vai trò, quyền được truy cập |
+|---|---|---|---|---|
+| MAN_HINH_153 | Danh sách công việc | `/office/tasks` | CHUC_NANG_182 | `office.access`; thẻ "Của công ty" cần `office.task.view_all` |
+| MAN_HINH_154 | Chi tiết công việc | `/office/tasks/[id]` | CHUC_NANG_182, CHUC_NANG_183 | Người tham gia việc (kể cả công ty khác trong tập đoàn), `office.task.view_all` |
+| MAN_HINH_155 | Mẫu quy trình | `/office/workflow-templates`, `/office/workflow-templates/[id]` | CHUC_NANG_183 | `office.workflow.manage` |
+| MAN_HINH_156 | Phiên quy trình | `/office/workflow-runs`, `/office/workflow-runs/[id]` | CHUC_NANG_183 | `office.access`; hủy, chỉ định người thực hiện cần `office.workflow.manage` hoặc là người khởi tạo |
+| MAN_HINH_157 | Công văn đến | `/office/incoming`, `/office/incoming/[id]` | CHUC_NANG_184 | `office.document.clerk`, `office.document.direct`, `office.document.view_all`, người tham gia việc gắn công văn |
+| MAN_HINH_158 | Công văn đi | `/office/outgoing`, `/office/outgoing/new`, `/office/outgoing/[id]` | CHUC_NANG_184 | `office.document.draft`; cấp số, phát hành cần `office.document.clerk` |
+| MAN_HINH_159 | Bảng tin | `/office/bulletin`, `/office/bulletin/[id]` | CHUC_NANG_185 | `office.access`; đăng, thống kê đã đọc cần `office.bulletin.post` |
+| MAN_HINH_160 | Cài đặt văn thư | `/office/settings` | CHUC_NANG_184 | `office.document.clerk` |
+
+Điều hướng: trang chủ → Văn phòng số → menu Công việc (153 → 154), Quy trình (156), Mẫu quy trình (155), Công văn đến (157), Công văn đi (158), Bảng tin (159), Cài đặt văn thư (160). Thông báo công việc mở 154, công văn mở 157 hoặc 158, tin mở 159. Không dùng giá trị mới ngoài tài liệu `15`; xem trước công văn đi hiện chính tệp PDF do máy chủ tạo (phông, cỡ chữ của tệp theo Nghị định 30, không phải giá trị giao diện).
+
+- Trạng thái phê duyệt: bản mẫu đã duyệt ngày 2026-11-11; lát L0 đến L3 đã duyệt; người dùng nghiệm thu 2026-11-12.

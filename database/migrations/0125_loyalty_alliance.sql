@@ -54,11 +54,11 @@ CREATE TABLE loyalty.settlement_events (
 );
 CREATE INDEX loyalty_settlement_events_idx ON loyalty.settlement_events (settlement_id, created_at);
 
--- QUYTAC_NGHIEPVU_473: phiếu thu, phiếu chi nợ nội bộ điểm gắn bảng đối soát. Ràng buộc gồm mọi giá trị trên main (0096).
+-- QUYTAC_NGHIEPVU_473: phiếu thu, phiếu chi nợ nội bộ điểm gắn bảng đối soát. Ràng buộc gồm mọi giá trị trên main (0096, 0106, 0108).
 ALTER TABLE finance.payments DROP CONSTRAINT payments_kind_check;
 ALTER TABLE finance.payments ADD CONSTRAINT payments_kind_check
-    CHECK (kind IN ('customer_receipt', 'supplier_payment', 'customer_refund', 'supplier_refund', 'retail_receipt', 'retail_refund', 'cash_shortage', 'cash_surplus',
-        'loyalty_intercompany_receipt', 'loyalty_intercompany_payment'));
+    CHECK (kind IN ('customer_receipt', 'supplier_payment', 'customer_refund', 'supplier_refund', 'retail_receipt', 'retail_refund', 'cash_shortage', 'cash_surplus', 'currency_purchase',
+        'customs_tax_payment', 'customs_tax_refund', 'loyalty_intercompany_receipt', 'loyalty_intercompany_payment'));
 ALTER TABLE finance.payments ADD COLUMN loyalty_settlement_id uuid REFERENCES loyalty.settlements(id);
 ALTER TABLE finance.payments ADD CONSTRAINT payments_loyalty_settlement_check
     CHECK ((kind IN ('loyalty_intercompany_receipt', 'loyalty_intercompany_payment')) = (loyalty_settlement_id IS NOT NULL));

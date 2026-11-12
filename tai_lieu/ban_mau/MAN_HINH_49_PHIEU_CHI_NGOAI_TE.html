@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MAN_HINH_49 Phiếu chi trả nợ ngoại tệ (phần sửa) – VComm</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" />
+    <link rel="stylesheet" href="chung.css" />
+  </head>
+  <body>
+    <header class="thanh-tren"><a class="logo" href="index.html">VComm</a><span class="gian"></span><button>Công ty VCR ▾</button><button>Trần Kế Toán</button></header>
+    <div class="than">
+      <nav class="menu" aria-label="Tài chính – Kế toán">
+        <div class="ten-app">Tài chính – Kế toán</div>
+        <a href="#">Công nợ</a><a href="MAN_HINH_49_PHIEU_CHI_NGOAI_TE.html" class="chon">Phiếu thu chi</a><a href="#">Quỹ</a><a href="#">Bút toán</a
+        ><a href="MAN_HINH_182_DANH_GIA_LAI_NGOAI_TE.html">Đánh giá lại ngoại tệ</a><a href="#">Sổ sách</a><a href="#">Hệ thống tài khoản</a>
+      </nav>
+      <main class="noi-dung">
+        <a href="#">← Phiếu thu chi</a>
+        <div class="tieu-de">
+          <h1>Lập phiếu chi</h1>
+          <span class="nhan trung-tinh">Nháp</span><a class="nut phu" href="MAN_HINH_184_PHIEU_MUA_NGOAI_TE.html">Mua ngoại tệ</a><button class="nut phu">Lưu</button
+          ><button class="nut chinh">Gửi duyệt</button>
+        </div>
+        <div class="the">
+          <div class="hai-cot" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))">
+            <div class="truong">
+              <label>Loại phiếu</label
+              ><select class="o-nhap">
+                <option>Trả tiền nhà cung cấp</option>
+                <option>Nộp thuế hải quan</option>
+                <option>Nhận hoàn thuế hải quan</option></select
+              ><span class="chu-thich"><a href="MAN_HINH_185_PHIEU_NOP_THUE_HAI_QUAN.html">Nộp thuế hải quan</a> · <a href="MAN_HINH_187_NHAN_HOAN_THUE_HAI_QUAN.html">Nhận hoàn thuế</a></span>
+            </div>
+            <div class="truong">
+              <label>Nhà cung cấp</label
+              ><select class="o-nhap">
+                <option>Công ty Thương mại Mẫu Thâm Quyến</option>
+              </select>
+            </div>
+            <div class="truong">
+              <label>Tiền tệ</label
+              ><select class="o-nhap">
+                <option>USD</option>
+                <option>VND</option></select
+              ><span class="chu-thich">Chỉ hiện khoản nợ cùng tiền tệ.</span>
+            </div>
+            <div class="truong"><label>Ngày</label><input class="o-nhap" type="date" value="2026-11-15" /></div>
+            <div class="truong">
+              <label>Quỹ</label
+              ><select class="o-nhap">
+                <option>NH-USD Vietcombank USD · 8.200,00 USD</option>
+                <option>NH-VND Vietcombank · 1.122.400.000</option>
+              </select>
+            </div>
+            <div class="truong"><label>Tỷ giá ngân hàng bán</label><input class="o-nhap" value="" placeholder="Chỉ khi chọn quỹ tiền Việt" disabled /></div>
+          </div>
+        </div>
+        <div class="khung-bang">
+          <table>
+            <thead>
+              <tr>
+                <th>Khoản nợ</th>
+                <th>Ngày</th>
+                <th>Ngoại tệ còn nợ</th>
+                <th>Tỷ giá ghi sổ</th>
+                <th>Còn nợ (VND)</th>
+                <th>Số ngoại tệ trả</th>
+                <th>Giảm nợ (VND)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-nhan="Khoản nợ">NK-2026-0031</td>
+                <td data-nhan="Ngày">20/10/2026</td>
+                <td data-nhan="Ngoại tệ còn nợ">12.000,00 USD</td>
+                <td data-nhan="Tỷ giá ghi sổ">25.400</td>
+                <td data-nhan="Còn nợ (VND)">304.800.000</td>
+                <td data-nhan="Số ngoại tệ trả"><input class="o-nhap" value="5.000,00" style="width: 110px" /></td>
+                <td data-nhan="Giảm nợ (VND)">127.000.000</td>
+              </tr>
+              <tr>
+                <td data-nhan="Khoản nợ">NK-2026-0035</td>
+                <td data-nhan="Ngày">02/11/2026</td>
+                <td data-nhan="Ngoại tệ còn nợ">6.500,00 USD</td>
+                <td data-nhan="Tỷ giá ghi sổ">26.350</td>
+                <td data-nhan="Còn nợ (VND)">171.275.000</td>
+                <td data-nhan="Số ngoại tệ trả"><input class="o-nhap" value="3.000,00" style="width: 110px" /></td>
+                <td data-nhan="Giảm nợ (VND)">79.050.000</td>
+              </tr>
+              <tr>
+                <td data-nhan="Khoản nợ"><strong>Tổng</strong></td>
+                <td data-nhan="Ngày"></td>
+                <td data-nhan="Ngoại tệ còn nợ"></td>
+                <td data-nhan="Tỷ giá ghi sổ"></td>
+                <td data-nhan="Còn nợ (VND)"></td>
+                <td data-nhan="Số ngoại tệ trả"><strong>8.000,00 USD</strong></td>
+                <td data-nhan="Giảm nợ (VND)"><strong>206.050.000</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="the">
+          <h3>Chênh lệch tỷ giá dự kiến</h3>
+          <dl class="thong-tin-dong">
+            <dt>Giá trị ra khỏi quỹ</dt>
+            <dd>8.000,00 USD × 25.434,15 (bình quân 208.560.000 / 8.200,00) = 203.473.171</dd>
+            <dt>Giảm nợ (đích danh)</dt>
+            <dd>206.050.000</dd>
+            <dt>Chênh lệch</dt>
+            <dd><strong>Lãi 2.576.829 → 515</strong></dd>
+          </dl>
+          <p class="chu-thich">Số chính xác tính lại khi ghi sổ (sau duyệt) theo số dư quỹ lúc đó. Giá trị duyệt: 203.473.171.</p>
+        </div>
+        <div class="khoi-canh-bao canh-bao">Khoản nợ ngoại tệ chỉ trả được bằng phiếu chi cùng tiền tệ; không trừ bằng phiếu chi tiền Việt.</div>
+      </main>
+    </div>
+    <div class="dieu-khien">Bản mẫu CONG_VIEC_56 · dữ liệu giả · <a href="index.html">Mục lục</a></div>
+  </body>
+</html>
