@@ -481,3 +481,14 @@
 - Mức quy mô: Lớn (sửa cấu trúc dữ liệu, API đã duyệt); làm trong CONG_VIEC_67 lát L2.
 - Rủi ro: trung bình (đổi công thức số còn lại của bảng đối soát; giảm bằng ràng buộc net_amount trong cơ sở dữ liệu và kiểm thử hồi quy CONG_VIEC_55).
 - Trạng thái: Đã phê duyệt 2026-11-12 (người dùng chọn trong phiên CONG_VIEC_67).
+
+### THAY_DOI_32: Khách hàng do đối tác tạo qua Open API – 2026-11-12
+- Lý do: CONG_VIEC_66 cho đối tác tạo khách hàng qua Open API; quy tắc đã duyệt bắt buộc số căn cước cho khách cá nhân và chưa có phạm vi khóa API ghi khách hàng.
+- Nội dung thay đổi (người dùng chọn 2026-11-12 trong phiên CONG_VIEC_66): ngoại lệ QUYTAC_NGHIEPVU_56 – khách cá nhân có nguồn Open API không bắt buộc số căn cước; QUYTAC_NGHIEPVU_486 mở phạm vi khóa API `customer.write` (tạo, xem, sửa liên hệ khách do đối tác tạo); trùng mã số thuế thì dùng lại hồ sơ và chỉ trả mã khách; trùng số căn cước với hồ sơ ngoài phạm vi trả lỗi 409, không trả mã khách (chống dò, LOI_09).
+- Thành phần bị ảnh hưởng: CONG_VIEC_06 (danh mục đối tác), CONG_VIEC_61 (Open API); màn hình đối tác, chi tiết đơn bán, phiếu xuất.
+- Dữ liệu, API, giao diện, quyền: database migration 0131; API_289 đến 292, sửa API_262, 263; phạm vi khóa mới `customer.write`.
+- Ảnh hưởng chức năng cũ: khách tạo bằng tay vẫn bắt buộc số căn cước như cũ.
+- Kiểm thử cần thực hiện: c66 (11 ca), c61, hồi quy toàn bộ.
+- Mức quy mô: Vừa; làm trong CONG_VIEC_66.
+- Rủi ro: trung bình (dữ liệu cá nhân, dò hồ sơ – đã giảm theo LOI_09).
+- Trạng thái: Đã phê duyệt 2026-11-12.
