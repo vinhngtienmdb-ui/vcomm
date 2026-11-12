@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_176 Báo cáo và đối soát – VComm Liên kết</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="cua_hang_lien_ket.css">
+</head>
+<body data-man-hinh="176" data-khu="cong">
+<div id="thanh-tren"></div>
+<div class="than">
+  <div id="menu"></div>
+  <main class="noi-dung">
+    <h1>Báo cáo và đối soát</h1>
+    <div>
+      <div class="cac-the" role="tablist">
+        <button type="button" data-the="bao-cao" class="chon">Báo cáo</button>
+        <button type="button" data-the="doi-soat">Đối soát <span class="huy-hieu">1</span></button>
+        <button type="button" data-the="giao-dich">Giao dịch</button>
+      </div>
+
+      <section data-noi-dung-the="bao-cao" class="vung-the">
+        <div class="bo-loc"><label class="an-nhan" for="ky">Kỳ</label><select id="ky" class="o-nhap"><option>Tháng 11/2026</option><option>Tuần này</option><option>Hôm nay</option><option>Tùy chọn…</option></select>
+          <label class="an-nhan" for="db">Điểm bán</label><select id="db" class="o-nhap"><option>Mọi điểm bán</option><option>Lê Lợi</option><option>Nguyễn Huệ</option></select>
+          <label class="an-nhan" for="nhom">Nhóm theo</label><select id="nhom" class="o-nhap"><option>Theo ngày</option><option>Theo tuần</option><option>Theo tháng</option></select></div>
+        <div class="luoi-so">
+          <div class="o-so"><span class="nhan-so">Giao dịch</span><span class="gia-tri">1.284</span></div>
+          <div class="o-so"><span class="nhan-so">Tiền hóa đơn</span><span class="gia-tri">231,4 tr</span></div>
+          <div class="o-so"><span class="nhan-so">Khách / khách mới</span><span class="gia-tri">612 / 148</span></div>
+          <div class="o-so"><span class="nhan-so">Điểm tích (tiền)</span><span class="gia-tri">6.920 (6,92 tr)</span></div>
+          <div class="o-so"><span class="nhan-so">Điểm dùng (tiền)</span><span class="gia-tri">3.150 (3,15 tr)</span></div>
+          <div class="o-so"><span class="nhan-so">Voucher dùng</span><span class="gia-tri">147</span></div>
+        </div>
+        <div class="the"><h3>Dư nợ với VComm</h3><div class="thanh-han-muc"><span style="width:82%"></span></div>
+          <p>41.200.000 đ / hạn mức 50.000.000 đ · còn 8.800.000 đ · gồm 30.500.000 đ bảng DS-000041 (hạn 25/11) và 10.700.000 đ tạm tính tuần này.</p></div>
+        <div class="khung-bang"><table><thead><tr><th>Ngày</th><th class="so">Giao dịch</th><th class="so">Hóa đơn</th><th class="so">Điểm tích</th><th class="so">Điểm dùng</th><th class="so">Voucher</th><th class="so">Khách mới</th></tr></thead><tbody>
+          <tr><td data-nhan="Ngày">11/11/2026</td><td data-nhan="Giao dịch" class="so">58</td><td data-nhan="Hóa đơn" class="so">10.420.000</td><td data-nhan="Điểm tích" class="so">312</td><td data-nhan="Điểm dùng" class="so">150</td><td data-nhan="Voucher" class="so">7</td><td data-nhan="Khách mới" class="so">6</td></tr>
+          <tr><td data-nhan="Ngày">10/11/2026</td><td data-nhan="Giao dịch" class="so">64</td><td data-nhan="Hóa đơn" class="so">11.870.000</td><td data-nhan="Điểm tích" class="so">351</td><td data-nhan="Điểm dùng" class="so">205</td><td data-nhan="Voucher" class="so">9</td><td data-nhan="Khách mới" class="so">8</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section data-noi-dung-the="doi-soat" hidden class="vung-the">
+        <div class="khung-bang"><table><thead><tr><th>Số</th><th>Tuần</th><th class="so">Số còn lại</th><th>Trạng thái</th><th>Hạn</th></tr></thead><tbody>
+          <tr><td data-nhan="Số"><a href="#">DS-000047</a></td><td data-nhan="Tuần">03/11 – 09/11/2026</td><td data-nhan="Số còn lại" class="so">Cửa hàng trả 1.742.400</td><td data-nhan="Trạng thái"><span class="nhan thong-tin">Chờ xác nhận</span></td><td data-nhan="Hạn">Tự xác nhận 13/11</td></tr>
+          <tr><td data-nhan="Số"><a href="#">DS-000041</a></td><td data-nhan="Tuần">27/10 – 02/11/2026</td><td data-nhan="Số còn lại" class="so">Cửa hàng trả 30.500.000</td><td data-nhan="Trạng thái"><span class="nhan canh-bao">Đã xác nhận, chưa trả</span></td><td data-nhan="Hạn">Thanh toán 11/11</td></tr>
+          <tr><td data-nhan="Số"><a href="#">DS-000035</a></td><td data-nhan="Tuần">20/10 – 26/10/2026</td><td data-nhan="Số còn lại" class="so">VComm trả 820.000</td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Đã thanh toán</span></td><td data-nhan="Hạn">—</td></tr>
+        </tbody></table></div>
+        <div class="the"><h3>DS-000047 · tuần 03/11 – 09/11/2026</h3>
+          <div class="dong-tien"><span>(A) Tiền điểm tích (6.420 điểm)</span><span>6.420.000</span></div>
+          <div class="dong-tien"><span>(B) Tiền điểm khách dùng, gồm voucher đổi bằng điểm</span><span>− 4.800.000</span></div>
+          <div class="dong-tien"><span>(C) Voucher VComm phát hành</span><span>− 300.000</span></div>
+          <div class="dong-tien"><span>(D) Phí dịch vụ 8 % × B</span><span>384.000</span></div>
+          <div class="dong-tien"><span>(E) Thuế giá trị gia tăng 10 % × D</span><span>38.400</span></div>
+          <div class="dong-tien tong"><span>Cửa hàng trả VComm = A + D + E − B − C</span><span>1.742.400</span></div>
+          <p class="chu-thich">Chi tiết 412 giao dịch, 18 voucher dùng: tải tệp Excel.</p>
+          <div class="nhom-nut"><button type="button" class="nut chinh" data-thong-bao="Đã xác nhận DS-000047. Hạn thanh toán 20/11/2026.">Xác nhận</button><button type="button" class="nut phu" data-thong-bao="Đã gửi khiếu nại.">Khiếu nại</button><button type="button" class="nut chu">Tải Excel</button></div>
+          <div class="truong"><label for="kn">Lý do khiếu nại</label><textarea id="kn" class="o-nhap" rows="3" placeholder="Ví dụ: giao dịch LK-2611-000201 khách đã trả hàng"></textarea></div>
+        </div>
+      </section>
+
+      <section data-noi-dung-the="giao-dich" hidden class="vung-the">
+        <div class="bo-loc"><label class="an-nhan" for="tim">Tìm</label><input id="tim" class="o-nhap" placeholder="Số giao dịch"><select class="o-nhap" aria-label="Trạng thái"><option>Trạng thái: tất cả</option></select><select class="o-nhap" aria-label="Thu ngân"><option>Thu ngân: tất cả</option></select></div>
+        <p class="chu-thich">Bảng như MAN_HINH_174 phần Giao dịch hôm nay, thêm cột Điểm bán, Cách định danh, Bảng đối soát.</p>
+      </section>
+    </div>
+  </main>
+</div>
+<script src="cua_hang_lien_ket.js"></script>
+</body>
+</html>

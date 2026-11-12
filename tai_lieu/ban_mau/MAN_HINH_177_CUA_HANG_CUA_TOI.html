@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAN_HINH_177 Cửa hàng của tôi – VComm Liên kết</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="cua_hang_lien_ket.css">
+</head>
+<body data-man-hinh="177" data-khu="cong">
+<div id="thanh-tren"></div>
+<div class="than">
+  <div id="menu"></div>
+  <main class="noi-dung">
+    <h1>Cửa hàng của tôi</h1>
+    <div class="hai-cot-deu">
+      <section class="the"><h2>Hợp đồng liên kết <span class="nhan thanh-cong">Đang hoạt động</span></h2>
+        <dl class="thong-tin-dong">
+          <dt>Cửa hàng</dt><dd>CH-000007 · Công ty TNHH Cà phê Hạt Nâu</dd>
+          <dt>Số hợp đồng</dt><dd>HDLK-2026/007 · 01/11/2026 – 31/10/2027</dd>
+          <dt>Tỷ lệ tích</dt><dd>2 % tiền khách trả (nhân hệ số hạng)</dd>
+          <dt>Phí dịch vụ</dt><dd>8 % tiền điểm khách dùng</dd>
+          <dt>Hạn mức nợ</dt><dd>50.000.000 đ</dd>
+          <dt>Trần mỗi giao dịch</dt><dd>5.000.000 đ</dd>
+          <dt>Đối soát</dt><dd>Hằng tuần; tự xác nhận sau 3 ngày; thanh toán trong 7 ngày</dd>
+        </dl>
+        <p class="chu-thich">Đổi điều khoản: liên hệ VComm. Điểm bán do VComm thêm.</p>
+      </section>
+      <section class="the"><h2>Điểm bán</h2>
+        <div class="khung-bang"><table><thead><tr><th>Tên</th><th>Địa chỉ</th><th>Trạng thái</th></tr></thead><tbody>
+          <tr><td data-nhan="Tên">Lê Lợi</td><td data-nhan="Địa chỉ">12 Lê Lợi, phường Bến Thành, TP Hồ Chí Minh</td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Hoạt động</span></td></tr>
+          <tr><td data-nhan="Tên">Nguyễn Huệ</td><td data-nhan="Địa chỉ">88 Nguyễn Huệ, phường Sài Gòn, TP Hồ Chí Minh</td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Hoạt động</span></td></tr>
+        </tbody></table></div>
+      </section>
+    </div>
+    <div class="tieu-de"><h2>Nhân viên</h2><button type="button" class="nut chinh" onclick="document.getElementById('moi').hidden=false">Mời thu ngân</button></div>
+    <div class="khung-bang"><table><thead><tr><th>Họ tên</th><th>Số điện thoại</th><th>Vai trò</th><th>Điểm bán</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+      <tr><td data-nhan="Họ tên">Trần Minh Khoa</td><td data-nhan="Số điện thoại">0909 111 222</td><td data-nhan="Vai trò">Chủ cửa hàng</td><td data-nhan="Điểm bán">Tất cả</td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Hoạt động</span></td><td data-nhan=""></td></tr>
+      <tr><td data-nhan="Họ tên">Lê Thu Hà</td><td data-nhan="Số điện thoại">0912 333 444</td><td data-nhan="Vai trò">Thu ngân</td><td data-nhan="Điểm bán">Lê Lợi</td><td data-nhan="Trạng thái"><span class="nhan thanh-cong">Hoạt động</span></td><td data-nhan=""><button type="button" class="nut phu">Sửa điểm bán</button> <button type="button" class="nut nguy-hiem" data-thong-bao="Đã khóa Lê Thu Hà.">Khóa</button></td></tr>
+      <tr><td data-nhan="Họ tên">Phạm Văn Tú</td><td data-nhan="Số điện thoại">0933 555 666</td><td data-nhan="Vai trò">Thu ngân</td><td data-nhan="Điểm bán">Lê Lợi, Nguyễn Huệ</td><td data-nhan="Trạng thái"><span class="nhan canh-bao">Chờ kích hoạt</span><div class="chu-thich">Lời mời hết hạn 13/11 10:15</div></td><td data-nhan=""><button type="button" class="nut phu" data-thong-bao="Đã gửi lại lời mời.">Gửi lại lời mời</button></td></tr>
+    </tbody></table></div>
+    <aside class="man-che giua" id="moi" hidden><div class="hop-thoai" role="dialog" aria-labelledby="tieu-de-moi">
+      <h2 id="tieu-de-moi">Mời thu ngân</h2>
+      <div class="truong"><label for="m-ten">Họ tên</label><input id="m-ten" class="o-nhap"></div>
+      <div class="truong"><label for="m-sdt">Số điện thoại</label><input id="m-sdt" class="o-nhap" inputmode="tel"></div>
+      <fieldset class="truong" style="border:0;padding:0;margin:0"><legend style="font-weight:700;font-size:13px">Điểm bán</legend>
+        <label><input type="checkbox" checked> Lê Lợi</label><label><input type="checkbox"> Nguyễn Huệ</label></fieldset>
+      <p class="chu-thich">Gửi SMS có đường dẫn kích hoạt, hiệu lực 72 giờ. Thu ngân đăng nhập bằng số điện thoại và OTP, hoặc Zalo sau khi liên kết.</p>
+      <div class="nhom-nut"><button type="button" class="nut phu" onclick="document.getElementById('moi').hidden=true">Hủy</button><button type="button" class="nut chinh" onclick="document.getElementById('moi').hidden=true" data-thong-bao="Đã gửi lời mời.">Gửi lời mời</button></div>
+    </div></aside>
+  </main>
+</div>
+<script src="cua_hang_lien_ket.js"></script>
+</body>
+</html>

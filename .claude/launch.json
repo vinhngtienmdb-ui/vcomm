@@ -14,6 +14,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "web-retail", "dev"],
       "port": 3012
+    },
+    {
+      "name": "web-affiliate",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "web-affiliate", "dev"],
+      "port": 3013
     }
   ]
 }

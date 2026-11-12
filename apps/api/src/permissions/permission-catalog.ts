@@ -93,6 +93,15 @@ export const permissionCatalog: PermissionDefinition[] = [
     nameEn: "Manage loyalty program, lock point accounts, adjust points",
     isSensitive: true,
   },
+  // CONG_VIEC_55: cửa hàng liên kết (xét tại công ty vận hành sàn).
+  { code: "affiliate.view", appCode: "crm", nameVi: "Xem cửa hàng liên kết, giao dịch, voucher, đối soát", nameEn: "View affiliate stores, transactions, vouchers, settlements", isSensitive: false },
+  {
+    code: "affiliate.manage",
+    appCode: "crm",
+    nameVi: "Quản lý hợp đồng cửa hàng liên kết, voucher VComm, trả lời khiếu nại đối soát",
+    nameEn: "Manage affiliate contracts, VComm vouchers and settlement disputes",
+    isSensitive: true,
+  },
   // CONG_VIEC_49: kiểm duyệt bảng tin cộng đồng, đăng bài VComm (QUYTAC_NGHIEPVU_335).
   { code: "marketplace.community.manage", appCode: "crm", nameVi: "Kiểm duyệt bảng tin cộng đồng, đăng bài VComm", nameEn: "Moderate the community feed, post as VComm", isSensitive: true },
   // CONG_VIEC_07: Mua hàng trong nước (MODULE_04, phần 1).
@@ -211,6 +220,8 @@ const companyAdminPermissions = [
   "marketplace.payment.manage",
   "loyalty.view",
   "loyalty.manage",
+  "affiliate.view",
+  "affiliate.manage",
   "marketplace.community.manage",
   "purchasing.price.manage",
   "purchasing.requisition.create",
@@ -478,6 +489,8 @@ export const documentTypeCatalog = [
   { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },
   // CONG_VIEC_51: phiếu điều chỉnh điểm thưởng (QUYTAC_NGHIEPVU_353).
   { code: "loyalty.adjustment", appCode: "crm", nameVi: "Phiếu điều chỉnh điểm thưởng", nameEn: "Loyalty points adjustment", requiresApproval: true },
+  // CONG_VIEC_55: voucher liên kết (QUYTAC_NGHIEPVU_401).
+  { code: "affiliate.voucher", appCode: "crm", nameVi: "Voucher cửa hàng liên kết", nameEn: "Affiliate voucher", requiresApproval: true },
   { code: "retail.sale", appCode: "retail", nameVi: "Hóa đơn bán lẻ", nameEn: "Retail sale", requiresApproval: false },
   { code: "retail.return", appCode: "retail", nameVi: "Phiếu trả hàng bán lẻ", nameEn: "Retail return", requiresApproval: false },
   // CONG_VIEC_46: mã nhân viên chỉ dùng dãy số; hợp đồng, phụ lục qua luồng duyệt.
