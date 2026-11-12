@@ -451,6 +451,8 @@ export const documentTypeCatalog = [
   { code: "inventory.sales_return", appCode: "inventory", nameVi: "Phiếu nhận hàng trả lại", nameEn: "Sales return", requiresApproval: false },
   { code: "finance.receipt", appCode: "finance", nameVi: "Phiếu thu", nameEn: "Cash receipt", requiresApproval: false },
   { code: "finance.payment", appCode: "finance", nameVi: "Phiếu chi", nameEn: "Cash payment", requiresApproval: true },
+  // CONG_VIEC_56: dãy số phiếu mua ngoại tệ (tiền tố MNT); duyệt theo chính sách phiếu chi.
+  { code: "finance.currency_purchase", appCode: "finance", nameVi: "Phiếu mua ngoại tệ", nameEn: "Currency purchase", requiresApproval: false },
   { code: "accounting.journal", appCode: "finance", nameVi: "Phiếu kế toán", nameEn: "Manual journal", requiresApproval: true },
   { code: "finance.collection_statement", appCode: "finance", nameVi: "Bảng đối soát thu hộ", nameEn: "Collection statement", requiresApproval: true },
   { code: "finance.consolidation", appCode: "finance", nameVi: "Bảng hợp nhất", nameEn: "Consolidation", requiresApproval: true },

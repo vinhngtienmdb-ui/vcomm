@@ -144,7 +144,7 @@ Danh mục Thông tư 99 trong hệ thống không có tài khoản cấp 2 1112
 
 Ví dụ: nợ 10.000 USD ghi nhận theo tỷ giá 25.400 (254.000.000). Trả 10.000 USD từ quỹ USD có tỷ giá bình quân 25.600: Nợ 331 254.000.000, Nợ 635 2.000.000 / Có 1122 256.000.000. Trả từ quỹ tiền Việt với tỷ giá bán 25.350: Nợ 331 254.000.000 / Có 1121 253.500.000, Có 515 500.000.
 
-Số chứng từ: phiếu mua ngoại tệ là một loại phiếu chi (lưu ở `finance.payments`, loại `currency_purchase`), dùng dãy phiếu chi có sẵn; phiếu nộp thuế hải quan, phiếu nhận hoàn thuế dùng dãy phiếu chi, phiếu thu có sẵn; chứng từ đánh giá lại dùng dãy mới `accounting.revaluation` (tiền tố `DGL`); tờ khai bổ sung dùng số tờ khai bổ sung của hải quan.
+Số chứng từ: phiếu mua ngoại tệ lưu ở `finance.payments` (loại `currency_purchase`), đi luồng duyệt phiếu chi, dùng dãy số riêng `finance.currency_purchase` (tiền tố `MNT`; người dùng xác nhận ngày 2026-11-12); phiếu nộp thuế hải quan, phiếu nhận hoàn thuế dùng dãy phiếu chi, phiếu thu có sẵn; chứng từ đánh giá lại dùng dãy mới `accounting.revaluation` (tiền tố `DGL`); tờ khai bổ sung dùng số tờ khai bổ sung của hải quan.
 
 ## 10. Màn hình
 

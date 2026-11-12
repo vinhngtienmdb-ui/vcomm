@@ -198,7 +198,7 @@ describe("TIEUCHI_NGHIEMTHU_380: quỹ ngoại tệ, phiếu mua ngoại tệ", 
     });
     const posted = await submitAndApprove(purchase.body.id, purchase.body.version);
     expect(posted.status, JSON.stringify(posted)).toBe("posted");
-    expect(posted.documentNo).toMatch(/^PC/);
+    expect(posted.documentNo).toMatch(/^MNT/);
     expect(await entries(purchase.body.id)).toEqual([
       ["112", "4462500", "0"],
       ["112", "0", "4462500"],

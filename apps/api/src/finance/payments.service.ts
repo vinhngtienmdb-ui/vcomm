@@ -59,6 +59,10 @@ type FieldErrors = Record<string, keyof Messages["errors"]>;
 const receiptType = "finance.receipt";
 const paymentType = "finance.payment";
 const documentTypeOf = (kind: AnyPaymentKind) => (paymentKindIsReceipt(kind) ? receiptType : paymentType);
+// Dãy số: phiếu mua ngoại tệ có dãy riêng tiền tố MNT, vẫn đi luồng duyệt phiếu chi (CONG_VIEC_56; quyết định người dùng 2026-11-12).
+const currencyPurchaseType = "finance.currency_purchase";
+const sequenceOf = (kind: AnyPaymentKind) =>
+  kind === "currency_purchase" ? { type: currencyPurchaseType, prefix: "MNT" } : paymentKindIsReceipt(kind) ? { type: receiptType, prefix: "PT" } : { type: paymentType, prefix: "PC" };
 type PaymentRow = {
   id: string;
   company_id: string;
@@ -545,12 +549,13 @@ export class PaymentsService implements OnModuleInit {
     const current = await this.single(this.database, actor.companyId, id);
     if (!["draft", "rejected", "withdrawn"].includes(current.status)) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
     const typeCode = documentTypeOf(current.kind);
-    await ensureSequence(this.database, this.sequences, actor, typeCode, typeCode === receiptType ? "PT" : "PC");
+    const sequence = sequenceOf(current.kind);
+    await ensureSequence(this.database, this.sequences, actor, sequence.type, sequence.prefix);
     await this.database.transaction(async (transaction) => {
       const locked = await transaction.execute(sql`
         SELECT 1 FROM finance.payments WHERE id = ${id} AND status IN ('draft', 'rejected', 'withdrawn') AND version = ${version} FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
-      const documentNo = current.document_no ?? (await this.sequences.next(actor.companyId, typeCode, transaction));
+      const documentNo = current.document_no ?? (await this.sequences.next(actor.companyId, sequence.type, transaction));
       let requestId: string | null = null;
       if (typeCode === paymentType) {
         try {
