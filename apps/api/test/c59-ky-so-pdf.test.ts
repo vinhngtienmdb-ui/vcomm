@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import forge from "node-forge";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, StandardFonts } from "pdf-lib";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { renderPdf } from "../src/common/pdf";
 import { completeSignature, PdfSigningError, prepareSignature, type SignaturePlacement } from "../src/office/signing/pdf-signing";
@@ -16,6 +16,8 @@ let directory: string;
 let provider: SimulatorSigningProvider;
 let rootPem: string;
 let original: Buffer;
+// Lý do ký cho chữ ký kết thúc bằng 0x00 với dữ liệu cố định của kiểm thử hồi quy LOI_12.
+const REASONS_ENDING_IN_ZERO = ["Thử 285", "Thử 308"];
 
 // Một lần ký trọn vẹn: chọn chứng thư, chuẩn bị, gửi mã băm, nhận chữ ký, chèn.
 async function signOnce(pdf: Buffer, identityCode: string, placement: SignaturePlacement, lines: string[]): Promise<Buffer> {
@@ -188,28 +190,48 @@ describe("CONG_VIEC_59 ký số PDF", () => {
     expect(verifyPdfSignatures(duplicated, [rootPem])).toHaveLength(1);
   });
 
-  it("hồi quy: chữ ký có byte cuối 0x00 vẫn hợp lệ (không cắt phần đệm 00 của chữ ký thật)", async () => {
-    // Chữ ký RSA tất định theo mã băm: đổi lý do ký mỗi lần đến khi được chữ ký kết thúc bằng 0x00 (khoảng 1/256).
-    const identityCode = "079090001234";
-    const certificate = (await provider.listCertificates(config, identityCode))[0]!;
-    let found = 0;
-    for (let attempt = 0; attempt < 5000 && found < 2; attempt += 1) {
+  it("hồi quy LOI_12: chữ ký có byte cuối 0x00 vẫn hợp lệ (không cắt phần đệm 00 của chữ ký thật)", async () => {
+    // Tất định (LOI_13): khóa thử sinh từ hạt giống cố định, chứng thư, tệp PDF, thời điểm ký đều cố định; các lý do ký dưới đây
+    // đã được tìm trước để chữ ký RSA (PKCS#1 v1.5, tất định theo mã băm) kết thúc bằng byte 0x00.
+    const prng = forge.random.createInstance();
+    prng.seedFileSync = (needed: number) => forge.util.fillString("Z", needed);
+    const { privateKey, publicKey } = forge.pki.rsa.generateKeyPair({ bits: 2048, e: 0x10001, prng, algorithm: "PRIMEINC" });
+    const fixedDate = new Date("2026-01-01T00:00:00Z");
+    const certificate = forge.pki.createCertificate();
+    certificate.publicKey = publicKey;
+    certificate.serialNumber = "0c";
+    certificate.validity.notBefore = fixedDate;
+    certificate.validity.notAfter = new Date("2036-01-01T00:00:00Z");
+    certificate.setSubject([{ name: "commonName", value: "Ky Thu Co Dinh" }]);
+    certificate.setIssuer([{ name: "commonName", value: "Ky Thu Co Dinh" }]);
+    certificate.setExtensions([
+      { name: "basicConstraints", cA: true },
+      { name: "keyUsage", keyCertSign: true, digitalSignature: true },
+    ]);
+    certificate.sign(privateKey, forge.md.sha256.create());
+    const chainPem = [forge.pki.certificateToPem(certificate)];
+    const document = await PDFDocument.create();
+    document.setCreationDate(fixedDate);
+    document.setModificationDate(fixedDate);
+    document.addPage([595, 842]).drawText("HOP DONG", { x: 50, y: 780, font: await document.embedFont(StandardFonts.Helvetica) });
+    const pdf = Buffer.from(await document.save());
+    const signingTime = new Date("2026-11-12T07:00:00Z");
+    for (const reason of REASONS_ENDING_IN_ZERO) {
       const prepared = await prepareSignature({
-        pdf: original,
+        pdf,
         placement: { page: "last", corner: "bottom_right", slot: 0 },
-        appearanceLines: ["Ký bởi: Nguyễn Văn An"],
-        signerName: "Nguyễn Văn An",
-        reason: `Thử ${attempt}`,
-        signingTime: new Date(),
-        certificateChainPem: certificate.certificateChainPem,
+        appearanceLines: ["Ký bởi: thử"],
+        signerName: "thử",
+        reason,
+        signingTime,
+        certificateChainPem: chainPem,
       });
-      const { transactionId } = await provider.requestSignature(config, { identityCode, serialNumber: certificate.serialNumber, digest: prepared.digest, documentTitle: "Hợp đồng" });
-      const result = await provider.getSignatureResult(config, transactionId);
-      if (result.status !== "signed" || result.signatureValue[result.signatureValue.length - 1] !== 0) continue;
-      found += 1;
-      const signed = await completeSignature(prepared.preparedPdf, certificate.certificateChainPem, result.signatureValue);
-      expect(verifyPdfSignatures(signed, [rootPem]).map((check) => check.conclusion)).toEqual(["valid"]);
+      const digest = { algorithm: "sha256", digest: () => forge.util.createBuffer(prepared.digest.toString("binary")) } as unknown as forge.md.MessageDigest;
+      const signatureValue = Buffer.from(privateKey.sign(digest), "binary");
+      // Nếu cách dựng PDF hoặc CMS thay đổi, chữ ký sẽ khác: tìm lại lý do ký (đổi số trong "Thử n") cho chữ ký kết thúc bằng 0x00.
+      expect(signatureValue[signatureValue.length - 1], `Chữ ký với lý do "${reason}" không còn kết thúc bằng 0x00, cần tìm lại dữ liệu cố định.`).toBe(0);
+      const signed = await completeSignature(prepared.preparedPdf, chainPem, signatureValue);
+      expect(verifyPdfSignatures(signed, chainPem, signingTime).map((check) => check.conclusion)).toEqual(["valid"]);
     }
-    expect(found).toBe(2);
   });
 });
