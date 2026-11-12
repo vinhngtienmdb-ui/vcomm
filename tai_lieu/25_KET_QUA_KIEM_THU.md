@@ -197,6 +197,13 @@
 - Kiểm tra bảo mật: không thêm thư viện; CI quét bảo mật (gitleaks, `pnpm audit`) đạt.
 - Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
 
+## Lần kiểm thử 2026-11-12 – Phát hành 0.6.0
+
+- Phạm vi: nhánh `phat-hanh/v0.6.0` gộp CONG_VIEC_58, 57, 22, 53 (lát L6); THAY_DOI_26, 28 (pull request #129, commit hợp nhất `4d66741`).
+- Gộp: không có ràng buộc kiểm tra bị định nghĩa lại ở hơn một database migration nên không tạo 0120; không trùng số database migration (0109 đến 0111, 0113, 0114, 0116 đến 0119); đánh lại số mục tài liệu trùng ở 08, 14, 16, 17, 27; bổ sung tài liệu 16, 17 cho CONG_VIEC_53 lát L6.
+- Kết quả: kiểm tra kiểu 17/17, lint 4/4, khóa dịch khớp; toàn bộ kiểm thử API 114 tệp, 601/601 đạt (một tiến trình); CI pull request #129 (kiểm tra kiểu, lint, kiểm thử, quét bảo mật) đạt. Phiên cha kiểm lại: đủ đầu nhánh của 4 pull request công việc, có đủ main.
+- Kết luận: Đạt; tag `v0.6.0` gắn tự động sau CI trên `main`.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_58
 
 - Phạm vi: kế hoạch mua theo ngân sách (MODULE_14 phần 3), nhánh `chuc-nang/CONG_VIEC_58-mua-theo-ngan-sach` (pull request #123, head `1851557`, đã hợp nhất main 0.5.0).

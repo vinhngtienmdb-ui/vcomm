@@ -425,7 +425,7 @@
 - Kiểm thử cần thực hiện: KICHBAN_KIEMTHU_573 đến 584; KICHBAN_KIEMTHU_290, 291 chuyển sang kiểm tra API từ chối ghi mới; hồi quy toàn bộ.
 - Mức quy mô: Lớn; làm trong CONG_VIEC_22.
 - Rủi ro: trung bình (dữ liệu cá nhân khách, phạm vi xem theo nhánh).
-- Trạng thái: Đã phê duyệt 2026-11-12 (người dùng chọn qua câu hỏi trong phiên CONG_VIEC_22).
+- Trạng thái: Đã phê duyệt 2026-11-12 (người dùng chọn qua câu hỏi trong phiên CONG_VIEC_22); đã phát hành v0.6.0 2026-11-12, chờ triển khai.
 
 ### THAY_DOI_27: Kích hoạt lời mời cửa hàng liên kết bằng số điện thoại và mã OTP – 2026-11-12
 - Lý do: đặc tả CONG_VIEC_55 đã duyệt ghi kích hoạt lời mời bằng đường dẫn gửi qua SMS; SMS thương hiệu hiện chỉ gửi được mẫu OTP.
@@ -447,4 +447,4 @@
 - Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_22 lát L1; hồi quy c49-collaborators.
 - Mức quy mô: Nhỏ; làm trong CONG_VIEC_22.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-12.
+- Trạng thái: Đã phê duyệt 2026-11-12; đã phát hành v0.6.0 2026-11-12, chờ triển khai.
