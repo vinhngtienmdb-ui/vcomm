@@ -1067,3 +1067,14 @@ Ranh giới và kiểm soát riêng:
 - Nhật ký thao tác không ghi số tiền lương, lương đóng bảo hiểm (chỉ tháng, loại khoản, nội dung).
 - Email phiếu lương chỉ gửi tới email cá nhân trong hồ sơ, sau khi giao dịch duyệt xong. Trình gửi `EMAIL_DRIVER=log` khi phát triển ghi nội dung email (có số tiền) ra log: chỉ dùng trên máy phát triển; môi trường thật dùng nhà cung cấp thật, không ghi nội dung.
 - Bút toán lương ghi qua module Kế toán, kiểm kỳ đã khóa; kỳ cuối tháng đã khóa sau khi gửi duyệt thì bút toán ghi ngày duyệt.
+
+## Kiểm soát Kinh doanh trên ứng dụng VComm (CONG_VIEC_22, THAY_DOI_26)
+
+| Mục | Kiểm soát |
+|---|---|
+| Dữ liệu cá nhân của khách | Chi tiết khách chỉ cho nhân viên phụ trách và cấp trên trong nhánh (QUYTAC_NGHIEPVU_432); không trả địa chỉ giao hàng, người nhận, chi tiết thanh toán; khách ngoài phạm vi trả `404` để không lộ khách có tồn tại |
+| Ghi chú chăm sóc | Có thể chứa dữ liệu cá nhân: chỉ người đang xem được khách đọc, ghi; không sửa, không xóa; nhật ký thao tác chỉ ghi mã ghi chú, khách, kênh, ngày hẹn, không ghi nội dung |
+| Hẹn, thông báo | Đánh dấu xong chỉ người ghi; thông báo chỉ của chính mình (API_48 lọc theo người đăng nhập); nhắc hẹn không gửi ra ngoài (không Zalo ZNS, tin nhắn, thư) |
+| Doanh số | Chỉ của mình và người trong nhánh; tính theo người phụ trách lúc đặt đơn |
+| Đường dẫn chia sẻ | Chỉ chứa mã giới thiệu (số điện thoại của người chia sẻ, đã công khai theo QUYTAC_NGHIEPVU_142), mã sản phẩm, mã cộng tác viên; mở đường dẫn không đổi người giới thiệu của người đã có tài khoản; ứng dụng chỉ mở liên kết thông báo thuộc danh sách màn hình của ứng dụng |
+| Ghé thăm khách | Ghi mới bị từ chối ở máy chủ (`409`); vị trí, ảnh không còn thu thêm |

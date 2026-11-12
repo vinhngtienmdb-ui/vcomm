@@ -2155,3 +2155,25 @@ Yêu cầu phi chức năng: tiền dùng `numeric`, làm tròn theo đơn vị 
 | CHUC_NANG_170 | Bút toán lương khi duyệt; ghi đã trả lương sinh bút toán trả; phiếu lương trong "Hồ sơ của tôi", thông báo chuông và email                                                                                                                                                                                                                                                          | YCAU_NGHIEPVU_76, 77 |
 
 Yêu cầu phi chức năng: tiền tính bằng số nguyên đồng (bigint) và `numeric`, không dùng số thực; tham số pháp luật cấu hình theo ngày hiệu lực; nhật ký thao tác không ghi số tiền lương; email phiếu lương gửi sau khi duyệt, lỗi gửi không làm hỏng duyệt.
+
+## MODULE_07 Khách hàng và Đối tác (MODULE_07 phần 3: Kinh doanh trên ứng dụng VComm, CONG_VIEC_22, THAY_DOI_26)
+
+### CHUC_NANG_204: Chi tiết khách và chia sẻ sản phẩm
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_138, YCAU_NGHIEPVU_139; Quy tắc: QUYTAC_NGHIEPVU_432, QUYTAC_NGHIEPVU_433, QUYTAC_NGHIEPVU_434
+- Vai trò: tài khoản người mua được đánh dấu nhân viên kinh doanh (chi tiết khách); mọi người mua (chia sẻ sản phẩm)
+- Màn hình: MAN_HINH_196, MAN_HINH_201; sửa MAN_HINH_78, MAN_HINH_84, MAN_HINH_91 (THAY_DOI_28); API: API_228; dùng lại API_116 (đăng ký có mã giới thiệu), API_162 (lượt bấm cộng tác viên)
+- Đầu ra: chi tiết khách không có địa chỉ, người nhận; đường dẫn `/r/<mã giới thiệu>?sp=<sản phẩm>[&ctv=<mã cộng tác viên>]`
+
+### CHUC_NANG_205: Ghi chú chăm sóc, lịch hẹn, nhắc hẹn trong ứng dụng
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_138; Quy tắc: QUYTAC_NGHIEPVU_435 đến QUYTAC_NGHIEPVU_438
+- Vai trò: tài khoản được đánh dấu nhân viên kinh doanh; người dùng đăng nhập (thông báo của chính mình)
+- Màn hình: MAN_HINH_197, MAN_HINH_198, MAN_HINH_200; API: API_229, API_230; dùng lại API_48; việc nền `marketplace-sales-follow-ups` 07:00
+- Dữ liệu: `marketplace.customer_care_notes` (database migration 0113); thông báo loại `sales.follow_up_due`
+
+### CHUC_NANG_206: Doanh số của tôi, doanh số nhánh
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_140; Quy tắc: QUYTAC_NGHIEPVU_439, QUYTAC_NGHIEPVU_440
+- Vai trò: tài khoản được đánh dấu nhân viên kinh doanh; người quản lý xem thêm nhánh
+- Màn hình: MAN_HINH_199; sửa MAN_HINH_78; API: API_231
+- Dữ liệu: `marketplace.orders.sales_staff_user_id` (database migration 0114), ghi lúc đặt đơn
+
+CHUC_NANG_103 (ghé thăm khách): ghi mới đã tắt theo QUYTAC_NGHIEPVU_441 (THAY_DOI_26). CHUC_NANG_99 (đăng nhập ứng dụng bằng token) vẫn dùng cho ứng dụng VComm, ứng dụng kho; CHUC_NANG_100 đến CHUC_NANG_102 thay bằng CHUC_NANG_204 đến CHUC_NANG_206 và các chức năng của CONG_VIEC_23, CONG_VIEC_26, CONG_VIEC_27.
