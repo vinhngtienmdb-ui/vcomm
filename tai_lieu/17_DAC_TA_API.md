@@ -1851,7 +1851,7 @@ MODULE_16 phần 1 (CONG_VIEC_61) không phát, không nghe sự kiện outbox.
 
 | Mã | Phương thức, đường dẫn | Chức năng | Phạm vi | Dữ liệu gửi lên | Kết quả |
 |---|---|---|---|---|---|
-| API_289 | `POST /open/customers` | CHUC_NANG_221 | `customer.write` | `openCustomerSchema`: `kind`, `name`, `taxCode`, `citizenId`, `address`, `phone`, `email`, `personalDataConsent` | `201` `OpenCustomer` khi tạo mới; `200` khi trùng (hồ sơ gắn chỉ có `code`, `kind`, `managedByPartner: false`); `400`; `409 BUSINESS_RULE` |
+| API_289 | `POST /open/customers` | CHUC_NANG_221 | `customer.write` | `openCustomerSchema`: `kind`, `name`, `taxCode`, `citizenId`, `address`, `phone`, `email`, `personalDataConsent` | `201` `OpenCustomer` khi tạo mới; `200` khi trùng mã số thuế (hồ sơ gắn chỉ có `code`, `kind`, `managedByPartner: false`); `400`; `409 BUSINESS_RULE` (hồ sơ không dùng được, căn cước trùng hồ sơ ngoài phạm vi) |
 | API_290 | `GET /open/customers` | CHUC_NANG_221 | `customer.write` | `updatedSince`, `page`, `pageSize` ≤ 100 | `PageResponse<OpenCustomer>` trong phạm vi |
 | API_291 | `GET /open/customers/{code}` | CHUC_NANG_221 | `customer.write` | — | `OpenCustomer`; `404` ngoài phạm vi |
 | API_292 | `PATCH /open/customers/{code}` | CHUC_NANG_221 | `customer.write` | `openCustomerUpdateSchema`: `name`, `address`, `phone`, `email` (`null` để xóa trường tùy chọn), `version` | `OpenCustomer`; `409` khi không do phạm vi tạo hoặc sai `version` |

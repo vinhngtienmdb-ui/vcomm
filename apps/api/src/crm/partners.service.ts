@@ -586,16 +586,25 @@ export class PartnersService implements OnApplicationBootstrap {
   }
 
   // Tổ chức, hộ kinh doanh bắt buộc mã số thuế; cá nhân bắt buộc số Căn cước công dân; không trùng trong tập đoàn (QUYTAC_NGHIEPVU_56).
-  // Khách do đối tác tạo qua Open API (QUYTAC_NGHIEPVU_494 khoản 3, 4): mã số thuế, căn cước đã có thì gắn hồ sơ cũ vào phạm vi, không sửa hồ sơ đó.
+  // Khách do đối tác tạo qua Open API (QUYTAC_NGHIEPVU_494 khoản 3, 4): mã số thuế đã có thì gắn hồ sơ cũ vào phạm vi, không sửa hồ sơ đó.
   // Trả created: false khi gắn hồ sơ có sẵn hoặc phạm vi đã có khách này. Hai lần gửi đồng thời: lần sau gặp chỉ mục duy nhất, chạy lại nhánh gắn.
   async createFromOpenApi(source: OpenApiCustomerSource, input: z.output<typeof openCustomerSchema>): Promise<{ partnerId: string; created: boolean }> {
     const consentAt = input.kind === "individual" && input.personalDataConsent === true ? sql`now()` : sql`NULL`;
     const attempt = () =>
       this.database.transaction(async (transaction): Promise<{ partnerId: string; created: boolean }> => {
-        const existing = (
-          await transaction.execute<{ id: string; status: string }>(sql`
-          SELECT id, status FROM crm.partners WHERE (tax_code = ${input.taxCode ?? null} OR citizen_id = ${input.citizenId ?? null}) ORDER BY tax_code IS NULL LIMIT 1 FOR UPDATE`)
-        ).rows[0];
+        // Số căn cước trùng: chỉ nhận lại khách do chính phạm vi đã có, không gắn hồ sơ khác để đối tác không dò được người đã có hồ sơ (người dùng chọn 2026-11-12, tài liệu 22).
+        if (input.citizenId) {
+          const sameCitizen = (
+            await transaction.execute<{ id: string; linked: boolean }>(sql`
+            SELECT p.id, EXISTS (SELECT 1 FROM crm.open_api_customers l WHERE l.company_id = ${source.companyId} AND l.scope_id = ${source.scopeId} AND l.partner_id = p.id) AS linked
+            FROM crm.partners p WHERE p.citizen_id = ${input.citizenId}`)
+          ).rows[0];
+          if (sameCitizen?.linked) return { partnerId: sameCitizen.id, created: false };
+          if (sameCitizen) throw new ApiError("BUSINESS_RULE", "openApiCitizenIdExists");
+        }
+        const existing = input.taxCode
+          ? (await transaction.execute<{ id: string; status: string }>(sql`SELECT id, status FROM crm.partners WHERE tax_code = ${input.taxCode} FOR UPDATE`)).rows[0]
+          : undefined;
         if (existing) {
           const linked = await transaction.execute(sql`
             SELECT 1 FROM crm.open_api_customers WHERE company_id = ${source.companyId} AND scope_id = ${source.scopeId} AND partner_id = ${existing.id}`);

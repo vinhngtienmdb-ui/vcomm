@@ -358,7 +358,11 @@ describe("TIEUCHI_NGHIEMTHU_501: nhật ký thao tác, nhật ký gọi", () => 
     const created = (await send("post", "/customers", dealerKey, individual({ phone: "0911000090", citizenId: "001090000666" }))).body;
     const partnerId = (await pool.query<{ id: string }>("SELECT id FROM crm.partners WHERE code = $1", [created.code])).rows[0]!.id;
     await send("patch", `/customers/${created.code}`, dealerKey, { address: "Số 9 Hai Bà Trưng", version: 1 });
-    await send("post", "/customers", siblingKey, individual({ phone: "0911000091", citizenId: "001090000666" }));
+    expect((await send("post", "/customers", siblingKey, individual({ phone: "0911000091", citizenId: "001090000666" }))).status).toBe(200);
+    // Số căn cước trùng hồ sơ ngoài phạm vi: 409, không trả mã khách (chống dò, tài liệu 22).
+    const probed = await send("post", "/customers", otherDealerKey, individual({ phone: "0911000092", citizenId: "001090000666" }));
+    expect(probed.status).toBe(409);
+    expect(JSON.stringify(probed.body)).not.toContain(created.code);
     const audit = await pool.query("SELECT action, actor_user_id, after_data::text AS data FROM core.audit_events WHERE entity_type = 'partner' AND entity_id = $1 ORDER BY occurred_at", [partnerId]);
     expect(audit.rows.map((row) => row.action)).toEqual(["partner.create", "partner.update"]);
     expect(audit.rows.every((row) => row.actor_user_id === null)).toBe(true);

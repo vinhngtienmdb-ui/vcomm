@@ -631,7 +631,7 @@ TIEUCHI_NGHIEMTHU_159 (ghé thăm khách, CONG_VIEC_22 bản cũ) thay bằng TI
 |---|---|---|---|---|
 | TIEUCHI_NGHIEMTHU_494 | CHUC_NANG_221 | Đối tác tạo khách tổ chức, cá nhân hợp lệ nhận `201` kèm mã; hồ sơ "Do đối tác tạo", hồ sơ khách công ty nhóm của đối tác, hạn 0 ngày; khóa nội bộ không nhóm | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_495 | CHUC_NANG_221 | Thiếu trường bắt buộc theo loại khách, sai định dạng báo `400` đúng trường; cá nhân không có căn cước tạo được | Gọi API | Bắt buộc |
-| TIEUCHI_NGHIEMTHU_496 | CHUC_NANG_221 | Trùng mã số thuế, căn cước: `200` chỉ mã, loại, hồ sơ cũ không đổi; hồ sơ ngừng dùng hoặc chỉ nhà cung cấp `409` | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_496 | CHUC_NANG_221 | Trùng mã số thuế: `200` chỉ mã, loại, hồ sơ cũ không đổi; hồ sơ ngừng dùng hoặc chỉ nhà cung cấp `409`; trùng căn cước ngoài phạm vi `409`, không trả mã | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_497 | CHUC_NANG_221 | Chỉ liệt kê, xem, sửa khách trong phạm vi; đối tác, công ty khác `404`; sửa khách gắn do trùng, sai `version` `409`; không sửa loại, mã số thuế | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_498 | CHUC_NANG_221 | Đơn có `customerCode` trong phạm vi ghi khách đó, giá theo nhóm; ngoài phạm vi, ngừng dùng bị từ chối ở `customerCode` | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_499 | CHUC_NANG_221 | Người nhận đủ ba trường lưu, trả về; thiếu, sai, gửi cùng `deliveryAddress` `400` đúng trường; nhân viên sửa đơn Nháp không mất người nhận | Gọi API | Bắt buộc |

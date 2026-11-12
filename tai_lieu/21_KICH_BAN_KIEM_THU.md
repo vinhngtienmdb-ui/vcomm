@@ -5563,7 +5563,7 @@ Dữ liệu chung: `apps/api/test/c66-open-api-customers.test.ts` – công ty V
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_501
 - Chức năng: CHUC_NANG_221
 - Loại: Bảo mật
-- Các bước và kết quả mong đợi: Nhật ký thao tác tạo, sửa khách có tên khóa, không có số căn cước, không gắn người dùng; nhật ký gọi không có chuỗi truy vấn ngoài danh sách, không có điện thoại.
+- Các bước và kết quả mong đợi: Nhật ký thao tác tạo, sửa khách có tên khóa, không có số căn cước, không gắn người dùng; nhật ký gọi không có chuỗi truy vấn ngoài danh sách, không có điện thoại; đối tác khác gửi số căn cước đã có nhận `409`, không có mã khách.
 - Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
 
 ### KICHBAN_KIEMTHU_691
