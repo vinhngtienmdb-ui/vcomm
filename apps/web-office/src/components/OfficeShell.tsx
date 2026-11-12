@@ -13,6 +13,7 @@ export const officeMenu = [
   { href: "/outgoing", key: "outgoing", permission: "office.access" },
   { href: "/bulletin", key: "bulletin", permission: "office.access" },
   { href: "/signing", key: "signing", permission: "office.access" },
+  { href: "/contracts", key: "contracts", permission: "office.access" },
   { href: "/signature-check", key: "signatureCheck", permission: "office.signing.use" },
   { href: "/workflow-templates", key: "workflowTemplates", permission: "office.workflow.manage" },
   { href: "/settings", key: "documentSettings", permission: "office.document.clerk" },

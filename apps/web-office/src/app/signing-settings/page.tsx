@@ -1,10 +1,11 @@
 "use client";
 
 // MAN_HINH_217 Cài đặt ký số (CHUC_NANG_210; API_241; QUYTAC_NGHIEPVU_454, 456, 461): nhà cung cấp, chữ ký số công ty, chứng thư gốc tin cậy.
-import type { SigningSettingsResponse, TrustedRootItem } from "contracts";
+import type { OfficeContractDirection, OfficeContractOptions, OfficeContractTypeItem, SigningSettingsResponse, TrustedRootItem } from "contracts";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAdmin } from "ui/components/AppShell";
+import { Drawer } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { apiFetch, apiUpload } from "ui/lib/api";
@@ -15,28 +16,36 @@ import { CertificateDrawer } from "@/components/SigningParts";
 export default function SigningSettingsPage() {
   const t = useTranslations("officeSigning");
   const { state, reload } = useApi<SigningSettingsResponse>("/office/signing-settings");
-  const [tab, setTab] = useState<"provider" | "seal" | "roots">("provider");
+  const [tab, setTab] = useState<"provider" | "seal" | "roots" | "types">("provider");
+  // Kho hợp đồng dẫn tới thẳng thẻ Loại hợp đồng bằng ?tab=types.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("tab") === "types") setTab("types");
+  }, []);
   return (
     <>
       <div className="tieu-de">
         <h1>{t("settingsTitle")}</h1>
       </div>
       <div className="cac-the" role="tablist">
-        {(["provider", "seal", "roots"] as const).map((item) => (
+        {(["provider", "seal", "roots", "types"] as const).map((item) => (
           <button key={item} type="button" role="tab" aria-selected={tab === item} className={tab === item ? "chon" : ""} onClick={() => setTab(item)}>
             {t(`settingsTab_${item}`)}
           </button>
         ))}
       </div>
-      <Loaded state={state} onRetry={() => void reload()}>
-        {(settings) => (
-          <>
-            {tab === "provider" && <ProviderForm settings={settings} onSaved={() => void reload()} key={settings.version ?? 0} />}
-            {tab === "seal" && <SealPanel settings={settings} onSaved={() => void reload()} />}
-            {tab === "roots" && <TrustedRoots canManage={settings.canManageRoots} />}
-          </>
-        )}
-      </Loaded>
+      {tab === "types" ? (
+        <ContractTypes />
+      ) : (
+        <Loaded state={state} onRetry={() => void reload()}>
+          {(settings) => (
+            <>
+              {tab === "provider" && <ProviderForm settings={settings} onSaved={() => void reload()} key={settings.version ?? 0} />}
+              {tab === "seal" && <SealPanel settings={settings} onSaved={() => void reload()} />}
+              {tab === "roots" && <TrustedRoots canManage={settings.canManageRoots} />}
+            </>
+          )}
+        </Loaded>
+      )}
     </>
   );
 }
@@ -251,5 +260,134 @@ function TrustedRoots({ canManage }: { canManage: boolean }) {
         }
       </Loaded>
     </div>
+  );
+}
+
+// Thẻ Loại hợp đồng (CHUC_NANG_212; API_247): người có quyền office.contract.manage thêm, sửa, ngừng dùng.
+function ContractTypes() {
+  const t = useTranslations("officeContracts");
+  const { notify } = useAdmin();
+  const options = useApi<OfficeContractOptions>("/office/contract-options");
+  const { state, reload } = useApi<OfficeContractTypeItem[]>("/office/contract-types");
+  const [editing, setEditing] = useState<OfficeContractTypeItem | "new" | null>(null);
+  const headings = [t("typeName"), t("typeDirection"), t("statusLabel"), ""];
+  return (
+    <Loaded state={options.state} onRetry={() => void options.reload()}>
+      {(data) => (
+        <Loaded state={state} onRetry={() => void reload()}>
+          {(types) => (
+            <div className="the">
+              <p className="chu-thich">{t("typesHint")}</p>
+              {types.length === 0 ? (
+                <MessageView text={t("typesEmpty")} />
+              ) : (
+                <div className="khung-bang">
+                  <table>
+                    <thead>
+                      <tr>
+                        {headings.map((heading) => (
+                          <th key={heading} scope="col">
+                            {heading}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {types.map((type) => (
+                        <tr key={type.id}>
+                          <td data-nhan={headings[0]}>
+                            <span>{type.name}</span>
+                          </td>
+                          <td data-nhan={headings[1]}>
+                            <span>{t(`direction_${type.direction}`)}</span>
+                          </td>
+                          <td data-nhan={headings[2]}>
+                            <span className={`nhan ${type.status === "active" ? "thanh-cong" : "trung-tinh"}`}>{t(`typeStatus_${type.status}`)}</span>
+                          </td>
+                          <td data-nhan={headings[3]}>
+                            {data.canManage && (
+                              <button type="button" className="nut phu" onClick={() => setEditing(type)}>
+                                {t("edit")}
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {data.canManage && (
+                <div className="nhom-nut">
+                  <button type="button" className="nut chinh" onClick={() => setEditing("new")}>
+                    {t("addType")}
+                  </button>
+                </div>
+              )}
+              {editing && (
+                <TypeDrawer
+                  type={editing === "new" ? null : editing}
+                  onClose={() => setEditing(null)}
+                  onSaved={() => {
+                    notify(t("typeSaved"));
+                    setEditing(null);
+                    void reload();
+                  }}
+                />
+              )}
+            </div>
+          )}
+        </Loaded>
+      )}
+    </Loaded>
+  );
+}
+
+function TypeDrawer({ type, onClose, onSaved }: { type: OfficeContractTypeItem | null; onClose: () => void; onSaved: () => void }) {
+  const t = useTranslations("officeContracts");
+  const [name, setName] = useState(type?.name ?? "");
+  const [direction, setDirection] = useState<OfficeContractDirection>(type?.direction ?? "none");
+  const [status, setStatus] = useState<"active" | "inactive">(type?.status ?? "active");
+  const { submitting, fields, formError, run, inputClass } = useSubmit();
+  return (
+    <Drawer title={type ? t("editType") : t("addType")} onClose={onClose}>
+      <Field id="ten-loai-hd" label={t("typeName")} error={fields.name}>
+        <input id="ten-loai-hd" className={inputClass("name")} maxLength={100} value={name} onChange={(event) => setName(event.target.value)} />
+      </Field>
+      <Field id="chieu-loai-hd" label={t("typeDirection")} hint={t("typeDirectionHint")}>
+        <select id="chieu-loai-hd" className="o-nhap" value={direction} onChange={(event) => setDirection(event.target.value as OfficeContractDirection)}>
+          {(["purchase", "sale", "none"] as const).map((item) => (
+            <option key={item} value={item}>
+              {t(`direction_${item}`)}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field id="trang-thai-loai-hd" label={t("statusLabel")}>
+        <select id="trang-thai-loai-hd" className="o-nhap" value={status} onChange={(event) => setStatus(event.target.value as "active" | "inactive")}>
+          <option value="active">{t("typeStatus_active")}</option>
+          <option value="inactive">{t("typeStatus_inactive")}</option>
+        </select>
+      </Field>
+      <FormError text={formError} />
+      <div className="nhom-nut" style={{ justifyContent: "flex-end" }}>
+        <button type="button" className="nut phu" onClick={onClose}>
+          {t("close")}
+        </button>
+        <button
+          type="button"
+          className={`nut chinh${submitting ? " dang-xu-ly" : ""}`}
+          disabled={submitting}
+          onClick={() =>
+            void run(async () => {
+              await apiFetch(type ? `/office/contract-types/${type.id}` : "/office/contract-types", { method: type ? "PUT" : "POST", body: JSON.stringify({ name, direction, status }) });
+              onSaved();
+            })
+          }
+        >
+          {t("save")}
+        </button>
+      </div>
+    </Drawer>
   );
 }
