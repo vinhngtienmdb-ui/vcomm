@@ -6,12 +6,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { LocalFileStorage } from "../src/common/file-storage";
 import { OutboxService } from "../src/common/outbox.service";
 import { renderPdf } from "../src/common/pdf";
 import { testIds } from "../src/database/seed";
 import { OfficeSigningService } from "../src/office/signing/office-signing.service";
 import { createTestUser, signIn, type Session } from "./helpers";
-import { sentMessages, startTestApplication } from "./setup-database";
+import { sentMessages, startTestApplication, testStorage } from "./setup-database";
 
 let application: NestExpressApplication;
 let pool: Pool;
@@ -204,7 +205,24 @@ describe("CONG_VIEC_59 lát L3: gắn ký số", () => {
     expect(detail.allowedActions).toContain("issue");
     expect(detail.allowedActions).not.toContain("digital_sign");
     // Phát hành không cần tệp: bản ký số là bản phát hành.
-    const issued = await clerk.call("post", `/office/outgoing/${id}/issue`, { companyId: retail }).field("version", String(detail.version));
+    // LOI_10, LOI_11 (sửa trong CONG_VIEC_59): phát hành ghi tệp qua đúng quy tắc khóa của lưu trữ cục bộ (chỉ chữ thường, số, "/", "-").
+    const storageDirectory = mkdtempSync(join(tmpdir(), "luu-tru-cuc-bo-"));
+    const previousDirectory = process.env.STORAGE_DIRECTORY;
+    process.env.STORAGE_DIRECTORY = storageDirectory;
+    const local = new LocalFileStorage();
+    const memoryPut = testStorage.put;
+    testStorage.put = async function (key: string, content: Buffer) {
+      await local.put(key, content);
+      return memoryPut.call(this, key, content);
+    };
+    let issued;
+    try {
+      issued = await clerk.call("post", `/office/outgoing/${id}/issue`, { companyId: retail }).field("version", String(detail.version));
+    } finally {
+      testStorage.put = memoryPut;
+      process.env.STORAGE_DIRECTORY = previousDirectory;
+      rmSync(storageDirectory, { recursive: true, force: true });
+    }
     expect(issued.status, JSON.stringify(issued.body)).toBe(200);
     expect(issued.body.status).toBe("issued");
     expect(issued.body.signedFiles).toHaveLength(1);
