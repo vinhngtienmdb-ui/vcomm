@@ -1226,6 +1226,6 @@ Kết quả rà soát bảo mật CONG_VIEC_61 (2026-11-12): không phát hiện
 Ranh giới và kiểm soát riêng:
 - Mọi truy vấn khách lọc `company_id` và phạm vi (đối tác hoặc khóa nội bộ) trong câu truy vấn; đơn chỉ dùng khách trong phạm vi.
 - Hồ sơ gắn do trùng chỉ trả mã, loại; đối tác không đọc, không sửa hồ sơ không do mình tạo.
-- Rủi ro dò hồ sơ (mức Trung bình, đã sửa 2026-11-12 theo quyết định người dùng): chỉ dùng lại hồ sơ theo mã số thuế (thông tin công khai của doanh nghiệp); số căn cước trùng hồ sơ ngoài phạm vi trả `409`, không trả mã khách. Đơn ghi khách gắn do trùng mã số thuế chỉ ở Nháp, nhân viên kiểm trước khi gửi duyệt.
+- LOI_09 – dò hồ sơ (mức Trung bình, đã sửa 2026-11-12 ở commit `102dfed` theo quyết định người dùng): chỉ dùng lại hồ sơ theo mã số thuế (thông tin công khai của doanh nghiệp); số căn cước trùng hồ sơ ngoài phạm vi trả `409`, không trả mã khách. Đơn ghi khách gắn do trùng mã số thuế chỉ ở Nháp, nhân viên kiểm trước khi gửi duyệt.
 
-Kết quả rà soát bảo mật CONG_VIEC_66 (2026-11-12): không phát hiện lỗi mức Cao; rủi ro dò hồ sơ ở trên đã sửa.
+Kết quả rà soát bảo mật CONG_VIEC_66 (2026-11-12): không phát hiện lỗi mức Cao; LOI_09 ở trên đã sửa. Ngoại lệ QUYTAC_NGHIEPVU_56 và mở phạm vi `customer.write` theo THAY_DOI_32.

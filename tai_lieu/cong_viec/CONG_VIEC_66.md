@@ -8,6 +8,7 @@
 - Nhánh: `chuc-nang/CONG_VIEC_66-open-api-khach-hang`.
 - Nguồn: `CONG_VIEC_61.md` (mục 2, 3, 5, 16, 17); quyết định của người dùng ngày 2026-11-12 (mục 17).
 - Phụ thuộc: CONG_VIEC_61 (đã phát hành 0.7.0).
+- Phiếu thay đổi: THAY_DOI_32 (ngoại lệ QUYTAC_NGHIEPVU_56 cho khách cá nhân nguồn Open API; mở phạm vi `customer.write` của QUYTAC_NGHIEPVU_486). Lỗi: LOI_09 (dò hồ sơ qua số căn cước, mã số thuế; Trung bình; đã sửa ở commit `102dfed`).
 
 ## 1. Mục tiêu
 
@@ -239,7 +240,7 @@ API_293, API_294 không dùng, trả phiên điều phối. Mã lỗi dùng mã 
 | Kiểm thử toàn bộ máy chủ | 129 tệp, 699/699 kiểm thử đạt (`pnpm --filter api test`, 2026-11-12)                                                                                                                                                   |
 | Kiểm tra kiểu            | `api`, `web-platform`, `web-crm`, `web-sales`, `web-inventory` đạt; tệp dịch khớp                                                                                                                                      |
 | Rà soát mã               | Sửa: đối tác không được xóa địa chỉ tổ chức, điện thoại cá nhân khi sửa; mở phạm vi `customer.write` ở MAN_HINH_224 (trước đó bị khóa)                                                                                 |
-| Rà soát bảo mật          | Tài liệu `22` mục CONG_VIEC_66: không lỗi mức Cao; rủi ro dò mã số thuế, căn cước (Trung bình) đã sửa theo quyết định người dùng: chỉ dùng lại theo mã số thuế; không thêm thư viện; không có khóa bí mật trong commit |
+| Rà soát bảo mật          | Tài liệu `22` mục CONG_VIEC_66: không lỗi mức Cao; LOI_09 dò mã số thuế, căn cước (Trung bình) đã sửa theo quyết định người dùng: chỉ dùng lại theo mã số thuế; không thêm thư viện; không có khóa bí mật trong commit |
 | Tài liệu                 | `06`, `07`, `09`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27` bổ sung; sổ chung `02`, `03`, `24`, `25` gửi phiên điều phối ghi                                                                                      |
 | Thư viện mới             | Không                                                                                                                                                                                                                  |
 | Mã trả lại               | MAN_HINH_227 đến 230, API_293, API_294                                                                                                                                                                                 |

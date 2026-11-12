@@ -748,7 +748,7 @@
 
 ## 38. Kiểm tra bao phủ CONG_VIEC_66 – 2026-11-12
 
-- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_168 → CHUC_NANG_221).
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_168 → CHUC_NANG_221). Phiếu thay đổi THAY_DOI_32 (QUYTAC_NGHIEPVU_56, 486 → CHUC_NANG_221; kiểm bằng KICHBAN_KIEMTHU_682, 691). Lỗi LOI_09 → KICHBAN_KIEMTHU_690 (đã sửa, đạt).
 - Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_494 → CHUC_NANG_221).
 - Chức năng chưa có tiêu chí nghiệm thu: Không có (CHUC_NANG_221 → TIEUCHI_NGHIEMTHU_494 đến 503).
 - Chức năng cần giao diện nhưng chưa có màn hình: Không có (sửa danh sách, chi tiết đối tác; chi tiết đơn bán; chi tiết phiếu kho; MAN_HINH_224 mở phạm vi `customer.write`).
