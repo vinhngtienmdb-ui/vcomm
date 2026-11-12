@@ -11,6 +11,7 @@ import { api, appBase } from "@/lib/api";
 import { translator } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 import { colors, radius, space } from "@/lib/theme";
+import { copyText } from "@/lib/clipboard";
 
 export default function AccountScreen() {
   const t = translator("vcommApp");
@@ -41,8 +42,7 @@ export default function AccountScreen() {
     await Share.share({ message });
   }
   async function copy() {
-    await globalThis.navigator?.clipboard?.writeText(link).catch(() => undefined);
-    setCopied(true);
+    setCopied(await copyText(link));
   }
 
   return (

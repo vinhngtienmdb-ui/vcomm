@@ -128,7 +128,7 @@ Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt; người dùng
 
 ## 13. Ràng buộc kỹ thuật
 
-Không thêm thư viện. Dùng `Share`, `Linking` của React Native có sẵn. Thông báo trong ứng dụng dùng `core.notifications`, API_48. Việc nền dùng bộ lập lịch BullMQ có sẵn (`apps/api/src/jobs/background-jobs.ts`). Mã đặt trong `apps/api/src/marketplace` (phần đội kinh doanh), ghi vào schema `marketplace` và `core.notifications` như các việc nền có sẵn.
+Thêm một thư viện `expo-clipboard` 58.0.4 (người dùng duyệt 2026-11-12 khi nghiệm thu, tài liệu `13` mục 8) cho nút Sao chép trên máy thật; dùng chung cho các nút Sao chép có sẵn ở Tài khoản, Mời bạn bè, Mua chung. Dùng `Share`, `Linking` của React Native có sẵn. Thông báo trong ứng dụng dùng `core.notifications`, API_48. Việc nền dùng bộ lập lịch BullMQ có sẵn (`apps/api/src/jobs/background-jobs.ts`). Mã đặt trong `apps/api/src/marketplace` (phần đội kinh doanh), ghi vào schema `marketplace` và `core.notifications` như các việc nền có sẵn.
 
 ## 14. Thành phần không được thay đổi
 
@@ -152,14 +152,13 @@ Ngày 2026-11-12, sau lát L4 và sửa phát hiện rà soát độc lập (com
 - [x] Đã kiểm thử: toàn bộ `pnpm --filter api test` 102 tệp, 556/556 đạt (trước bản sửa rà soát), chạy lại sau bản sửa; kết quả ghi tài liệu `25` qua phiên cha.
 - [x] Không phá vỡ chức năng cũ: hồi quy c22-sales-app (290, 291 sửa theo THAY_DOI_26), c23, c24, c26, c27, c49, c50 đạt.
 - [x] Đạt tiêu chí nghiệm thu bắt buộc: TIEUCHI_NGHIEMTHU_402 đến 410 đạt (408 phần web-crm và 410 kiểm thủ công: đọc mã, kiểm tra kiểu, ảnh xem trước); TIEUCHI_NGHIEMTHU_411 (Mong muốn) đạt: 1.000 khách, 20.000 đơn, danh sách khách 7 ms, chi tiết khách 6 ms, doanh số nhánh 19 ms (KICHBAN_KIEMTHU_583, `apps/api/test/c22-hieu-nang.test.ts`).
-- [x] Đạt cổng bảo mật: rà soát độc lập không có lỗi Nghiêm trọng, Cao; phát hiện Trung bình, Thấp đã sửa (commit 71720f4); không thêm thư viện; quét khóa bí mật (gitleaks) ở CI đạt; tài liệu `22` có mục kiểm soát.
+- [x] Đạt cổng bảo mật: rà soát độc lập không có lỗi Nghiêm trọng, Cao; phát hiện Trung bình, Thấp đã sửa (commit 71720f4); thêm một thư viện `expo-clipboard` do người dùng duyệt (giấy phép MIT, của Expo); quét khóa bí mật (gitleaks) ở CI đạt; tài liệu `22` có mục kiểm soát.
 - [x] Đã tự rà soát mã và dọn dẹp: tệp tạm, ảnh xem trước chỉ nằm trong thư mục nháp ngoài kho mã.
 - [x] Đã cập nhật tài liệu `27` và tài liệu liên quan: `06`, `07`, `09` (THAY_DOI_28), `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27`.
 
 ## 17. Giới hạn đã biết
 
 - Nhắc hẹn chỉ hiện khi mở ứng dụng; thông báo đẩy làm sau khi đóng gói ứng dụng.
-- Nút Sao chép đường dẫn chỉ có trên bản web; máy thật dùng bảng chia sẻ của máy (thêm `expo-clipboard` cần người dùng duyệt).
-- Người phụ trách của đơn cũ không có hoa hồng phần nhân viên là ước lượng theo người giới thiệu hiện là nhân viên kinh doanh (database migration 0114).
+- Đơn cũ (đặt trước database migration 0114) không có dòng hoa hồng phần nhân viên thì không có người phụ trách, không tính vào doanh số ai (quyết định của người dùng 2026-11-12).
 - Sản phẩm chờ mở sau đăng ký chỉ giữ trong lần mở ứng dụng (như lượt bấm cộng tác viên); đóng ứng dụng giữa chừng thì về trang chủ.
 - Tài liệu `09`, `10`, `14` (MAN_HINH_91) đã sửa theo THAY_DOI_28.

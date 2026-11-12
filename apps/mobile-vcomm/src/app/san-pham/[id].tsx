@@ -12,6 +12,7 @@ import { money, translator } from "@/lib/i18n";
 import { clearHeldProduct, productShareLink } from "@/lib/product-link";
 import { useSession } from "@/lib/session";
 import { colors, space } from "@/lib/theme";
+import { copyText } from "@/lib/clipboard";
 
 const t = translator("vcommApp");
 
@@ -56,16 +57,10 @@ export default function ProductScreen() {
   const shareLink = product ? productShareLink(product.id, me?.referralCode ?? null, collaboratorCode) : null;
   const shareMessage = product && shareLink ? t("productShareMessage", { name: product.name, link: shareLink }) : "";
 
-  // Sao chép chỉ có trên bản web (máy thật dùng bảng chia sẻ của máy, không thêm thư viện bộ nhớ tạm); chỉ báo đã sao chép khi ghi được.
-  const canCopy = Platform.OS === "web" && !!(globalThis.navigator as Navigator | undefined)?.clipboard;
+  // Sao chép trên máy thật và bản web (expo-clipboard); chỉ báo đã sao chép khi ghi được.
   async function copyLink() {
-    const clipboard = (globalThis.navigator as Navigator | undefined)?.clipboard;
-    if (!shareLink || !clipboard) return;
-    const copied = await clipboard.writeText(shareLink).then(
-      () => true,
-      () => false,
-    );
-    setLinkCopied(copied);
+    if (!shareLink) return;
+    setLinkCopied(await copyText(shareLink));
   }
 
   async function shareNow() {
@@ -172,11 +167,9 @@ export default function ProductScreen() {
                 <Notice tone="info" text={shareMessage} />
                 <Muted>{me?.referralCode ? t("shareProductHint", { code: me.referralCode }) : t("shareProductCollaboratorHint")}</Muted>
                 <View style={{ flexDirection: "row", gap: space[2] }}>
-                  {canCopy ? (
-                    <View style={{ flex: 1 }}>
-                      <Button label={t("copyLink")} kind="secondary" onPress={() => void copyLink()} />
-                    </View>
-                  ) : null}
+                  <View style={{ flex: 1 }}>
+                    <Button label={t("copyLink")} kind="secondary" onPress={() => void copyLink()} />
+                  </View>
                   <View style={{ flex: 1 }}>
                     <Button label={t("shareNow")} onPress={() => void shareNow()} />
                   </View>
