@@ -447,4 +447,4 @@
 - Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_22 lát L1; hồi quy c49-collaborators.
 - Mức quy mô: Nhỏ; làm trong CONG_VIEC_22.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-12.
+- Trạng thái: Đã phê duyệt 2026-11-12; đã phát hành v0.6.0 2026-11-12, chờ triển khai.

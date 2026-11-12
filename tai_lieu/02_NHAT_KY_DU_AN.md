@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- Phát hành 0.6.0 (pull request #129): CONG_VIEC_22, 53 (lát L6), 57, 58; THAY_DOI_26, 28. Kiểm thử API 601/601. Chưa triển khai.
 - Người dùng nghiệm thu CONG_VIEC_58 (kế hoạch mua theo ngân sách) lát L0 đến L3, pull request #123 (kiểm thử 561/561): kế hoạch ngân sách theo ngành hàng cấp 1, kho, tháng; số còn được mua; kiểm tra ngân sách đơn mua và luồng duyệt vượt ngân sách; phiếu điều chỉnh; menu phẳng trong mini app Mua hàng.
 - Trình nghiệm thu CONG_VIEC_22 (thành phần Kinh doanh trên ứng dụng VComm, THAY_DOI_26, 28) lát L0 đến L4, pull request #122 (kiểm thử 556/556); người dùng yêu cầu đo hiệu năng (đạt) và sửa hai giới hạn, sau đó nghiệm thu bản cuối (kiểm thử 557/557). Rà soát độc lập sửa 1 lỗi Trung bình (ước lượng người phụ trách cho đơn cũ trong database migration 0114), 6 lỗi Thấp; không cấp mã LOI.
 - CONG_VIEC_56 xong lát L2 (nộp thuế hải quan, tiền chậm nộp, nhận hoàn thuế); CONG_VIEC_55 xong lát L2 (voucher liên kết).
@@ -56,6 +57,7 @@
 
 ### Vấn đề tồn đọng
 
+- Tài liệu 16 còn mô tả cột cũ `retail.sales.buyer_user_id` là dành cho CONG_VIEC_53 lát L6, trong khi L6 dùng `loyalty_user_id`; sửa ở lần cập nhật tài liệu sau.
 - CONG_VIEC_57 (không chặn): việc nền xử lý tối đa 500 đơn mỗi lần; phương thức Thanh toán khi nhận tại trạm cài sẵn ở trạng thái tắt; trạm nhận thông báo cả đơn trả trước còn chờ thanh toán. Khi gộp phát hành: 0110 định nghĩa lại ràng buộc thu hộ của đơn VComm, 0111 định nghĩa lại ràng buộc trạng thái (thêm `ready_for_pickup`).
 - CONG_VIEC_53 L6: tin nhắn kích hoạt Smart OTP dùng mẫu mã xác thực đăng nhập hiện có (chưa có mẫu riêng); bản web của ứng dụng giữ khóa trong phiên trình duyệt.
 - Khi gộp phát hành: CONG_VIEC_55 (database migration 0103) và CONG_VIEC_53 L6 cùng sửa ràng buộc nguồn của sổ điểm; CONG_VIEC_57 (0110, 0111) định nghĩa lại ràng buộc trạng thái và thu hộ của đơn VComm; phải gộp đủ giá trị.
