@@ -436,7 +436,7 @@
 - Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_55 (kích hoạt lời mời).
 - Mức quy mô: Nhỏ; làm trong CONG_VIEC_55.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-12.
+- Trạng thái: Đã phê duyệt 2026-11-12; đã phát hành v0.7.0 2026-11-12, chờ triển khai.
 
 ### THAY_DOI_28: Gộp nút chia sẻ sản phẩm trên ứng dụng VComm – 2026-11-12
 - Lý do: CONG_VIEC_22 thêm chia sẻ đường dẫn sản phẩm có mã giới thiệu (THAY_DOI_26), trùng với nút "Chia sẻ nhận hoa hồng" của CONG_VIEC_49 (đã phát hành 0.5.0).
@@ -458,4 +458,4 @@
 - Kiểm thử cần thực hiện: c55-transactions, c55-vouchers; hồi quy toàn bộ.
 - Mức quy mô: Nhỏ; làm trong CONG_VIEC_55.
 - Rủi ro: thấp.
-- Trạng thái: Đã phê duyệt 2026-11-12.
+- Trạng thái: Đã phê duyệt 2026-11-12; đã phát hành v0.7.0 2026-11-12, chờ triển khai.
