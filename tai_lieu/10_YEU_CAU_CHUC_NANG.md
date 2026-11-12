@@ -1,10 +1,10 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Đặc tả yêu cầu chức năng và yêu cầu phi chức năng, có mã định danh.
-- Phiên bản: 2.17
-- Ngày cập nhật: 2026-11-11
+- Phiên bản: 2.18
+- Ngày cập nhật: 2026-11-12
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: trả trước nội bộ, số dư ngược chiều, chốt số khi gửi, công ty và đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm CHUC_NANG_96 đến CHUC_NANG_98 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh); phạm vi xem đối tác (CHUC_NANG_46, CHUC_NANG_48) và đơn bán theo nhân viên phụ trách; CONG_VIEC_23 (2026-11-10): thêm CHUC_NANG_104 đến CHUC_NANG_108 của MODULE_09 (tài khoản người mua); CONG_VIEC_27 (2026-11-10): thêm CHUC_NANG_109 đến CHUC_NANG_112 (đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm CHUC_NANG_113 đến CHUC_NANG_119 của MODULE_09 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm CHUC_NANG_120 đến CHUC_NANG_124 của MODULE_09 (thanh toán đơn người mua); CHUC_NANG_116 thêm chọn phương thức thanh toán; CONG_VIEC_26 (2026-11-11): thêm CHUC_NANG_134 đến CHUC_NANG_138 của MODULE_09 (hoa hồng theo đơn và ví hoa hồng; phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm CHUC_NANG_157, CHUC_NANG_158 (sửa theo mô hình B2C); đánh dấu CHUC_NANG_80 đến CHUC_NANG_83 (CONG_VIEC_17) đã bỏ, CHUC_NANG_96 đến CHUC_NANG_98 (CONG_VIEC_21) đã tắt; CHUC_NANG_31, 54, 55, 56, 58, 59, 60 bổ sung; CONG_VIEC_45 (2026-11-11): thêm CHUC_NANG_160, CHUC_NANG_161 (nhập khẩu); CONG_VIEC_50 (2026-11-11): thêm CHUC_NANG_175 đến CHUC_NANG_177 của MODULE_15 (báo cáo quản trị), yêu cầu phi chức năng; CONG_VIEC_53 (2026-11-11), THAY_DOI_24: thêm CHUC_NANG_186 đến CHUC_NANG_189 của MODULE_14 (bán lẻ tại quầy phần 1); phần điểm của CHUC_NANG_187 đến CHUC_NANG_189 chưa làm, chờ CONG_VIEC_51; CONG_VIEC_50 (2026-11-11): thêm CHUC_NANG_175 đến CHUC_NANG_177 của MODULE_15 (báo cáo quản trị), yêu cầu phi chức năng; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm CHUC_NANG_171 đến CHUC_NANG_174 của MODULE_10 (cộng tác viên và thưởng giới thiệu, mua chung, ví mua sắm gồm khóa và chặn ví, bảng tin và kiểm duyệt), yêu cầu phi chức năng của MODULE_10 phần 1
+- Thay đổi theo: THAY_DOI_01 (2026-11-09); THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm CHUC_NANG_30 đến CHUC_NANG_37 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm CHUC_NANG_38 đến CHUC_NANG_45 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm CHUC_NANG_46 đến CHUC_NANG_48 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm CHUC_NANG_49 đến CHUC_NANG_53 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm CHUC_NANG_54 đến CHUC_NANG_57 của MODULE_05; CONG_VIEC_09 (2026-11-10): thêm CHUC_NANG_58 đến CHUC_NANG_61 của MODULE_05 (giao dịch nội bộ); CONG_VIEC_12 (2026-11-10): thêm CHUC_NANG_62 đến CHUC_NANG_64 của MODULE_05 (khuyến mãi); CHUC_NANG_54 thêm khuyến mãi trên dòng đơn bán; CONG_VIEC_13 (2026-11-10): thêm CHUC_NANG_65 đến CHUC_NANG_68 của MODULE_06 (công nợ); CHUC_NANG_54 kiểm hạn mức công nợ theo dư nợ thật (THAY_DOI_09); CHUC_NANG_61 ghi tổn thất giảm phải thu; CONG_VIEC_14 (2026-11-10): thêm CHUC_NANG_69 đến CHUC_NANG_73 của MODULE_06 (kế toán tổng hợp); CHUC_NANG_01 từ chối đổi chế độ kế toán khi công ty đã có bút toán; CONG_VIEC_15 (2026-11-10): thêm CHUC_NANG_74, CHUC_NANG_75 của MODULE_06 (báo cáo tài chính); CHUC_NANG_69 thêm đánh dấu tài khoản chi tiết dài hạn; CONG_VIEC_16 (2026-11-10): thêm CHUC_NANG_76 đến CHUC_NANG_79 của MODULE_06 (hóa đơn điện tử); CONG_VIEC_17 (2026-11-10): thêm CHUC_NANG_80 đến CHUC_NANG_83 của MODULE_06 (hoa hồng đội kinh doanh); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_18 (2026-11-10): thêm CHUC_NANG_84 đến CHUC_NANG_87 của MODULE_06 (đối soát ngân hàng); CONG_VIEC_19 (2026-11-10): thêm CHUC_NANG_88 đến CHUC_NANG_91 của MODULE_06 (đối soát thu hộ); CHUC_NANG_70 thêm hai vai trò định khoản; CONG_VIEC_20 (2026-11-10): thêm CHUC_NANG_92 đến CHUC_NANG_95 của MODULE_06 (báo cáo tài chính hợp nhất); sửa sau rà soát: trả trước nội bộ, số dư ngược chiều, chốt số khi gửi, công ty và đối tác của điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm CHUC_NANG_96 đến CHUC_NANG_98 của MODULE_07 (gán khách hàng cho nhân viên kinh doanh); phạm vi xem đối tác (CHUC_NANG_46, CHUC_NANG_48) và đơn bán theo nhân viên phụ trách; CONG_VIEC_23 (2026-11-10): thêm CHUC_NANG_104 đến CHUC_NANG_108 của MODULE_09 (tài khoản người mua); CONG_VIEC_27 (2026-11-10): thêm CHUC_NANG_109 đến CHUC_NANG_112 (đội kinh doanh nhiều cấp); CONG_VIEC_24 (2026-11-11): thêm CHUC_NANG_113 đến CHUC_NANG_119 của MODULE_09 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm CHUC_NANG_120 đến CHUC_NANG_124 của MODULE_09 (thanh toán đơn người mua); CHUC_NANG_116 thêm chọn phương thức thanh toán; CONG_VIEC_26 (2026-11-11): thêm CHUC_NANG_134 đến CHUC_NANG_138 của MODULE_09 (hoa hồng theo đơn và ví hoa hồng; phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm CHUC_NANG_157, CHUC_NANG_158 (sửa theo mô hình B2C); đánh dấu CHUC_NANG_80 đến CHUC_NANG_83 (CONG_VIEC_17) đã bỏ, CHUC_NANG_96 đến CHUC_NANG_98 (CONG_VIEC_21) đã tắt; CHUC_NANG_31, 54, 55, 56, 58, 59, 60 bổ sung; CONG_VIEC_45 (2026-11-11): thêm CHUC_NANG_160, CHUC_NANG_161 (nhập khẩu); CONG_VIEC_50 (2026-11-11): thêm CHUC_NANG_175 đến CHUC_NANG_177 của MODULE_15 (báo cáo quản trị), yêu cầu phi chức năng; CONG_VIEC_53 (2026-11-11), THAY_DOI_24: thêm CHUC_NANG_186 đến CHUC_NANG_189 của MODULE_14 (bán lẻ tại quầy phần 1); phần điểm của CHUC_NANG_187 đến CHUC_NANG_189 chưa làm, chờ CONG_VIEC_51; CONG_VIEC_50 (2026-11-11): thêm CHUC_NANG_175 đến CHUC_NANG_177 của MODULE_15 (báo cáo quản trị), yêu cầu phi chức năng; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm CHUC_NANG_171 đến CHUC_NANG_174 của MODULE_10 (cộng tác viên và thưởng giới thiệu, mua chung, ví mua sắm gồm khóa và chặn ví, bảng tin và kiểm duyệt), yêu cầu phi chức năng của MODULE_10 phần 1; CONG_VIEC_58 (2026-11-12): thêm CHUC_NANG_207 đến CHUC_NANG_209 của MODULE_14 (phần 3: kế hoạch mua theo ngân sách), yêu cầu phi chức năng; CHUC_NANG_51 (đơn mua) kiểm tra ngân sách khi lập, gửi duyệt; CONG_VIEC_57 (2026-11-12): thêm CHUC_NANG_200 đến CHUC_NANG_203 của MODULE_14 (trạm giao hàng O2O phần 2), yêu cầu phi chức năng của MODULE_14 phần 2
 
 ## MODULE_01 Nền tảng
 
@@ -1947,6 +1947,54 @@ Quy ước chung cho mọi chức năng của MODULE_06 phần 8:
 - Luôn có mạng: mất mạng thì màn hình báo, chặn thanh toán (không bán ngoại tuyến).
 - In: hộp thoại in của trình duyệt, khổ giấy 80 mm, đọc đủ tiếng Việt.
 - Không thêm thư viện: chuỗi VietQR tự tạo theo chuẩn EMVCo của NAPAS (CRC16-CCITT), mã QR vẽ bằng `qrcode-generator` đã có.
+
+## MODULE_14 Bán lẻ tại quầy và trạm giao hàng (phần 2: Trạm giao hàng O2O, CONG_VIEC_57)
+
+### CHUC_NANG_200: Cài đặt trạm
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_131; Quy tắc: QUYTAC_NGHIEPVU_418, QUYTAC_NGHIEPVU_419, QUYTAC_NGHIEPVU_420
+- Vai trò: Quản trị công ty, Quản trị tập đoàn (`retail.setup` phạm vi công ty, tập đoàn; công ty vận hành sàn)
+- Đầu vào: loại trạm (Cửa hàng, Điểm giao nhận; điểm giao nhận gắn chi nhánh loại Cửa hàng hoặc Khác); bật nhận tại trạm, bật trạm giao; tên hiển thị, tỉnh, xã, địa chỉ chi tiết, số điện thoại, giờ mở cửa; số ngày giữ hàng (1 đến 14, mặc định 3); xã được giao (1 đến 200), phí giao mỗi đơn, mức tiền hàng được miễn phí giao; phiên bản
+- Xử lý: kiểm công ty vận hành sàn, đủ thông tin hiện cho khách khi bật, trạm giao có xã, xã thuộc tỉnh; lưu theo phiên bản, ghi nhật ký `retail_store.station`; tắt khi còn đơn chưa kết thúc chỉ chặn đơn mới; điểm giao nhận không bán tại quầy (có quầy, ca để thu tiền, giao đơn)
+- Đầu ra: cửa hàng kèm cài đặt trạm (loại, công ty vận hành sàn, thông tin trạm, xã được giao, phiên bản)
+- Màn hình: MAN_HINH_191 (trong MAN_HINH_166); API: API_220, API_192 (bổ sung loại trạm)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_390, TIEUCHI_NGHIEMTHU_401
+
+### CHUC_NANG_201: Đặt hàng có trạm trên ứng dụng VComm
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_132, YCAU_NGHIEPVU_135; Quy tắc: QUYTAC_NGHIEPVU_421, QUYTAC_NGHIEPVU_422, QUYTAC_NGHIEPVU_423, QUYTAC_NGHIEPVU_424
+- Vai trò: Người mua (đăng nhập, đặt được hàng)
+- Đầu vào: giỏ hàng, địa chỉ trong sổ địa chỉ, cách nhận (`carrier` mặc định, `station_pickup`, `station_delivery`), trạm, phương thức thanh toán (trực tuyến đang bật hoặc `pay_at_station`)
+- Xử lý: xem trước đơn trả danh sách trạm đủ hàng (trạm giao chỉ khi có xã của địa chỉ; cùng xã, cùng tỉnh trước), giá, khuyến mãi, phí giao theo cách nhận và trạm; đặt đơn kiểm lại trạm, tồn kho trạm, phương thức; ghi cách nhận, trạm, kho xuất; giữ hàng tại kho trạm; báo nhân viên trạm; đơn mua chung chỉ giao qua đơn vị vận chuyển; thiếu trường mới thì như đơn cũ (tương thích ngược)
+- Đầu ra: đơn VComm có cách nhận, trạm; chi tiết đơn có trạm (tên, địa chỉ, giờ mở cửa, số điện thoại), trạng thái, hạn giữ, mã nhận hàng 6 số và nội dung mã QR khi Sẵn sàng nhận hoặc Đang giao
+- Màn hình: MAN_HINH_192, MAN_HINH_193; API: API_221, API_222
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_391, TIEUCHI_NGHIEMTHU_392, TIEUCHI_NGHIEMTHU_393, TIEUCHI_NGHIEMTHU_401
+
+### CHUC_NANG_202: Xử lý đơn tại trạm
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_133, YCAU_NGHIEPVU_134, YCAU_NGHIEPVU_135, YCAU_NGHIEPVU_137; Quy tắc: QUYTAC_NGHIEPVU_424 đến QUYTAC_NGHIEPVU_429, QUYTAC_NGHIEPVU_431
+- Vai trò: Thu ngân, Cửa hàng trưởng, quản trị (`retail.o2o` tại chi nhánh của trạm); Nhân viên giao hàng trạm, Cửa hàng trưởng, quản trị (`retail.o2o.deliver`); Hệ thống (việc nền, thông báo)
+- Đầu vào: lọc trạm, trạng thái, cách nhận, thanh toán, sắp hết hạn giữ, tìm số đơn, số điện thoại; mã nhận hàng 6 số hoặc nội dung mã QR; dòng thu tiền (tiền mặt, chuyển khoản, mã giao dịch), ca; nhân viên giao; lý do không giao được, ghi chú; lý do hủy; phiên bản
+- Xử lý: danh sách, chi tiết đơn của trạm trong phạm vi chi nhánh; in phiếu soạn hàng; "Đã soạn xong" cấp mã không trùng, hạn giữ; tìm đơn theo mã, sai 5 lần khóa 15 phút; giao tại trạm, thu tiền trong ca của chính người giao, trong một giao dịch lập và ghi sổ phiếu xuất tại kho trạm, bút toán, đã thu của đơn, khoản thu gắn ca, Đã giao; in phiếu giao hàng khổ 80 mm; hủy (nhả giữ hàng, hoàn phần đã thu); trạm giao: giao cho nhân viên, nhận đi giao, giao thành công, không giao được (về Sẵn sàng nhận, từ chối hoặc lần thứ 3 thì hủy); việc nền mỗi giờ nhắc, hủy khi hết hạn giữ; thông báo trong ứng dụng và Zalo ZNS (không gửi mã); đóng ca cộng khoản thu đơn trực tuyến vào tiền hệ thống tính, phiếu thu theo quỹ
+- Đầu ra: danh sách đơn (20 dòng một trang), chi tiết đơn (khách, dòng hàng, thanh toán, hạn giữ, số lần giao, nhân viên giao, lịch sử, thao tác được phép); danh sách đơn của tôi (ca hiện tại, quầy của trạm, đơn chờ giao, đơn đang giao); phiếu soạn hàng, phiếu giao hàng; ca có tiền thu đơn trực tuyến
+- Màn hình: MAN_HINH_188, MAN_HINH_189, MAN_HINH_190, MAN_HINH_193, MAN_HINH_162, MAN_HINH_167 (bổ sung); API: API_223, API_224, API_225, API_227, API_193 (bổ sung)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_394 đến TIEUCHI_NGHIEMTHU_399, TIEUCHI_NGHIEMTHU_401
+
+### CHUC_NANG_203: Nhận hàng trả tại trạm; lọc đơn của trạm ở màn hình vận hành
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_136, YCAU_NGHIEPVU_137; Quy tắc: QUYTAC_NGHIEPVU_430, QUYTAC_NGHIEPVU_431
+- Vai trò: Thu ngân, Cửa hàng trưởng, quản trị (`retail.o2o` tại chi nhánh của trạm); nhân viên vận hành sàn (`marketplace.order.view`, `marketplace.order.manage` hiện có)
+- Đầu vào: lọc trạng thái (đã duyệt, đã nhận), trạm, tìm; xác nhận đã nhận kèm phiên bản; ở màn hình vận hành: lọc cách nhận, trạm
+- Xử lý: danh sách yêu cầu trả hàng đã duyệt của đơn thuộc trạm trong phạm vi; "Đã nhận hàng trả" trong một giao dịch ghi sổ phiếu nhận hàng trả lại vào kho trạm theo giá vốn lúc xuất, lập việc chờ hoàn tiền, yêu cầu Đã nhận hàng trả, báo người mua; thông báo duyệt ghi trạm nhận hàng trả; màn hình vận hành lọc, hiện cách nhận, trạm, hạn giữ, lần giao, không lộ mã nhận hàng; vận hành không giao cho đơn vị vận chuyển, không hủy, không nhận hàng trả thay trạm; vẫn kết thúc yêu cầu bằng "Không nhận được hàng"
+- Đầu ra: yêu cầu trả hàng (số đơn, trạm, khách, lý do, dòng, thời điểm duyệt, nhận, người nhận, phiếu kho); danh sách trạm để lọc đơn; đơn VComm có cột cách nhận, trạm
+- Màn hình: MAN_HINH_194, MAN_HINH_195, MAN_HINH_89 (bổ sung), MAN_HINH_193; API: API_226, API_127, API_129 (bổ sung)
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_400, TIEUCHI_NGHIEMTHU_401
+
+## Yêu cầu phi chức năng của MODULE_14 (phần 2)
+
+- Toàn vẹn: giao, thu tiền, ghi sổ phiếu xuất, nhận hàng trả mỗi thao tác là một giao dịch cơ sở dữ liệu, khóa đơn `FOR UPDATE`, kiểm phiên bản; lần nhập sai mã ghi trong giao dịch riêng để đếm đúng; mã không trùng trong trạm bằng chỉ mục duy nhất.
+- Tương thích ngược: đơn cũ và đơn giao qua đơn vị vận chuyển giữ hành vi; trường mới của API đặt hàng không bắt buộc.
+- Bảo mật: mã nhận hàng chỉ người mua thấy, không ghi log, nhật ký, Zalo ZNS (tài liệu `22`).
+- Màn hình Đơn tôi đang giao tối ưu điện thoại; Giao cho khách thao tác đủ bằng bàn phím và máy quét (ô mã luôn nhận bàn phím, F9).
+- Ranh giới module: đơn VComm, giữ hàng, hoàn tiền, trả hàng ghi qua service của module VComm; phiếu kho, chứng từ quỹ qua module Kho, Tài chính – Kế toán.
+- Không thêm thư viện: mã QR vẽ bằng `qrcode-generator` đã có; in khổ 80 mm như CONG_VIEC_53.
+
 ## MODULE_08 Nhân sự (phần 1, CONG_VIEC_46)
 
 | Mã | Chức năng | Yêu cầu |
@@ -2085,7 +2133,7 @@ Yêu cầu phi chức năng:
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_78, YCAU_NGHIEPVU_79, YCAU_NGHIEPVU_80; Quy tắc: QUYTAC_NGHIEPVU_324, QUYTAC_NGHIEPVU_325, QUYTAC_NGHIEPVU_326, QUYTAC_NGHIEPVU_327
 - Vai trò: Người mua (đăng ký, chia sẻ, Mời bạn bè); quản trị `marketplace.buyer.view`, `marketplace.buyer.manage` (cộng tác viên), `marketplace.order.view`, `marketplace.order.manage` (thưởng giới thiệu, mức hoa hồng cộng tác viên); hệ thống (chụp phần cộng tác viên khi đặt, cộng ví khi hoàn tất)
 - Xử lý: người mua gửi, gửi lại đăng ký (điều khoản, kênh chia sẻ); quản trị duyệt (cấp mã 8 ký tự lần đầu), từ chối, tạm ngừng, khôi phục, gắn nhãn KOL, KOC, theo phiên bản, ghi lịch sử, thông báo người mua; đường dẫn sản phẩm có mã cộng tác viên, ghi lượt bấm (giữ mã khi chưa đăng nhập; tối đa 200 lượt mỗi ngày); thiết lập hoa hồng sản phẩm thêm mức cộng tác viên (tổng sáu mức); khi đặt đơn chụp phần cộng tác viên theo người mở nhóm mua chung hoặc lượt bấm gần nhất trong 168 giờ; thống kê 30 ngày (lượt bấm, đơn, đang chờ, đã cộng), đơn ghi nhận gần đây; cài đặt thưởng giới thiệu (bật, mức thưởng, giá trị tối thiểu); đơn chụp người giới thiệu; đơn hoàn tất đạt điều kiện cộng thưởng một lần vào ví hoa hồng, bút toán `<số đơn>-TG`; Mời bạn bè (mức thưởng, người đã mời, số che, trạng thái thưởng)
-- Màn hình: MAN_HINH_132, MAN_HINH_133, MAN_HINH_137; sửa MAN_HINH_91 (nút "Chia sẻ nhận hoa hồng", mức hoa hồng cộng tác viên), MAN_HINH_101 (mức Cộng tác viên), MAN_HINH_76 (nút Cộng tác viên, Mời bạn bè); API: API_162, API_163; sửa API_134, API_123 (`collaborator`), API_127 (phần `collaborator`), API_135 (loại giao dịch `referral_bonus`)
+- Màn hình: MAN_HINH_132, MAN_HINH_133, MAN_HINH_137; sửa MAN_HINH_91 (nút "Chia sẻ sản phẩm" chung cho mọi người mua theo THAY_DOI_28, CONG_VIEC_22; mức hoa hồng cộng tác viên), MAN_HINH_101 (mức Cộng tác viên), MAN_HINH_76 (nút Cộng tác viên, Mời bạn bè); API: API_162, API_163; sửa API_134, API_123 (`collaborator`), API_127 (phần `collaborator`), API_135 (loại giao dịch `referral_bonus`)
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_311, TIEUCHI_NGHIEMTHU_312, TIEUCHI_NGHIEMTHU_313, TIEUCHI_NGHIEMTHU_320
 
 ### CHUC_NANG_172: Mua chung
@@ -2134,6 +2182,65 @@ Yêu cầu phi chức năng:
 
 Yêu cầu phi chức năng: tiền dùng `numeric`, làm tròn theo đơn vị nhỏ nhất của tiền tệ công ty; ghi sổ (phân bổ, thẻ kho, công nợ, bút toán) trong một giao dịch, khóa đơn mua, chứng từ; không thêm thư viện.
 
+## MODULE_14 Bán lẻ tại quầy và trạm giao hàng (phần 3: Kế hoạch mua theo ngân sách, CONG_VIEC_58)
+
+### CHUC_NANG_207: Kế hoạch ngân sách mua
+- Mục đích: Lập ngân sách mua theo ngành hàng cấp 1 × kho × tháng cho công ty đang làm việc và đưa qua luồng duyệt dùng chung để ngân sách có hiệu lực.
+- Người sử dụng: Trưởng phòng mua hàng (vai trò tự tạo có `purchasing.budget.manage`), quản trị tập đoàn, quản trị công ty (lập, gửi); Nhân viên mua hàng, ban điều hành có `purchasing.budget.view` (xem).
+- Điều kiện thực hiện: `purchasing.access`, `purchasing.order.view` hoặc `purchasing.requisition.create` ở công ty đang chọn (vào mini app); xem cần `purchasing.budget.view` hoặc `purchasing.budget.manage`; lập, sửa, gửi, rút, hủy cần `purchasing.budget.manage`; rút chỉ người lập khi cấp 1 chưa quyết định.
+- Dữ liệu đầu vào: Từ tháng, đến tháng (`YYYY-MM`), ghi chú (tối đa 500 ký tự), danh sách ô (tối đa 3.000: ngành hàng, kho, tháng, số tiền không âm, tối đa 4 chữ số lẻ), `version` khi sửa, gửi, hủy. Danh sách: lọc trạng thái, năm, trang.
+- Quy trình xử lý: Danh sách chọn trả ngành hàng cấp 1 đang dùng, kho đang dùng của công ty, đồng tiền hạch toán. Lập, sửa: kiểm tra kỳ tối đa 12 tháng, ngành hàng cấp 1, kho của công ty, tháng trong kỳ, ô không trùng; sửa kế hoạch bị từ chối, đã rút đưa về Nháp. Gửi duyệt: kế hoạch phải có ô; khóa theo công ty, kiểm tra kỳ không trùng kế hoạch chờ duyệt, đã duyệt khác; cấp số `NSM` lần đầu; gửi luồng duyệt dùng chung loại `purchasing.budget_plan`, số tiền = tổng các ô (gồm điều chỉnh đã duyệt). Nghe `core.approval.completed` để chuyển Đã duyệt, Bị từ chối, Đã rút. Hủy từ Nháp, Bị từ chối, Đã rút. Kế hoạch đã duyệt hiện thêm đã dùng từng ô.
+- Kết quả đầu ra: Danh sách kế hoạch (số, kỳ, đồng tiền, tổng ngân sách, đã dùng khi đã duyệt, trạng thái, người lập); chi tiết kế hoạch kèm ô (số tiền gốc, điều chỉnh đã duyệt, đã dùng), cờ `canEdit`, `canSubmit`, `canWithdraw`, `canCancel`, `canAdjust`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_143, YCAU_NGHIEPVU_144
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_442 đến QUYTAC_NGHIEPVU_445, QUYTAC_NGHIEPVU_453
+- Trường hợp ngoại lệ: Chưa có chính sách duyệt hiệu lực: không gửi được, kế hoạch giữ Nháp, chưa cấp số. Kế hoạch đã duyệt không sửa, không hủy (chỉ điều chỉnh bằng phiếu, CHUC_NANG_208). Hai kế hoạch trùng tháng gửi cùng lúc: chỉ một kế hoạch được gửi.
+- Phân quyền: Không có quyền ngân sách nhận 403; kế hoạch của công ty khác nhận 404; nút lập, sửa, gửi, hủy hiện theo `canEdit`, `canSubmit`, `canCancel`; rút theo `canWithdraw`.
+- Thông báo lỗi: "Đến tháng phải từ từ tháng trở đi; kỳ kế hoạch tối đa 12 tháng." · "Chỉ lập ngân sách cho ngành hàng cấp 1 đang dùng." · "Tháng nằm ngoài kỳ kế hoạch." · "Ô ngân sách bị trùng (cùng ngành hàng, kho, tháng)." · "Kế hoạch chưa có ô ngân sách nào." · "Kỳ kế hoạch trùng tháng với kế hoạch khác đang chờ duyệt hoặc đã duyệt." · "Chưa có chính sách duyệt kế hoạch ngân sách mua. Nhờ quản trị công ty cấu hình ở Nền tảng › Chính sách duyệt." · "Dữ liệu đã được người khác sửa. Tải lại để xem bản mới nhất." · "Bạn không có quyền thực hiện thao tác này."
+- Màn hình, API: MAN_HINH_204, MAN_HINH_205; API_235, API_236.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_412, TIEUCHI_NGHIEMTHU_413, TIEUCHI_NGHIEMTHU_419, TIEUCHI_NGHIEMTHU_421
+
+### CHUC_NANG_208: Phiếu điều chỉnh ngân sách
+- Mục đích: Tăng, giảm, chuyển ngân sách giữa các ô của kế hoạch đã duyệt bằng phiếu có duyệt, giữ lịch sử điều chỉnh.
+- Người sử dụng: Trưởng phòng mua hàng, quản trị tập đoàn, quản trị công ty (lập, gửi); người có `purchasing.budget.view` (xem); giám đốc (duyệt khi được chỉ định).
+- Điều kiện thực hiện: Như CHUC_NANG_207; kế hoạch được chọn phải Đã duyệt.
+- Dữ liệu đầu vào: Kế hoạch, lý do (bắt buộc, tối đa 500 ký tự), dòng (1 đến 200: ngành hàng, kho, tháng, số tăng dương hoặc số giảm âm, khác 0), `version` khi sửa, gửi, hủy. Danh sách: lọc trạng thái, kế hoạch, năm, trang.
+- Quy trình xử lý: Lập, sửa: kiểm tra kế hoạch đã duyệt của công ty, ngành hàng cấp 1, kho của công ty, tháng trong kỳ kế hoạch, mỗi ô một dòng. Gửi duyệt: dòng giảm làm ngân sách hiện tại (gốc + điều chỉnh đã duyệt) nhỏ hơn số đã dùng thì từ chối tại dòng đó; cấp số `DCNS` lần đầu; gửi luồng duyệt dùng chung loại `purchasing.budget_adjustment`, số tiền = tổng số tăng. Nghe `core.approval.completed`: Đã duyệt thì cộng số điều chỉnh vào ô (ô chưa có thì tạo với ngân sách gốc 0), ghi thời điểm áp và nhật ký (kèm các dòng làm ô nhỏ hơn số đã dùng nếu có); Bị từ chối, Đã rút không đổi ngân sách.
+- Kết quả đầu ra: Danh sách phiếu (số, kế hoạch, lý do, tổng tăng, tổng giảm, trạng thái, người lập); chi tiết phiếu kèm dòng (số điều chỉnh, ngân sách hiện tại, đã dùng, sau điều chỉnh), kỳ kế hoạch, cờ thao tác.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_148
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_447 đến QUYTAC_NGHIEPVU_449, QUYTAC_NGHIEPVU_453
+- Trường hợp ngoại lệ: Đơn mới được duyệt trong lúc phiếu chờ duyệt làm dòng giảm xuống dưới số đã dùng: vẫn áp khi duyệt, số còn được mua có thể âm, ghi nhật ký. Phiếu chỉ giảm có số tiền duyệt bằng 0.
+- Phân quyền: Như CHUC_NANG_207.
+- Thông báo lỗi: "Chỉ điều chỉnh kế hoạch ngân sách đã duyệt." · "Tháng nằm ngoài kỳ kế hoạch." · "Chỉ lập ngân sách cho ngành hàng cấp 1 đang dùng." · "Ô ngân sách bị trùng (cùng ngành hàng, kho, tháng)." · "Ngân sách sau điều chỉnh nhỏ hơn số đã dùng của ô." · "Chưa có chính sách duyệt cho loại chứng từ này." · "Bạn không có quyền thực hiện thao tác này."
+- Màn hình, API: MAN_HINH_205 (danh sách phiếu của kế hoạch), MAN_HINH_207, MAN_HINH_208; API_237, API_238.
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_418, TIEUCHI_NGHIEMTHU_419, TIEUCHI_NGHIEMTHU_421
+
+### CHUC_NANG_209: Số còn được mua; kiểm tra ngân sách khi lập, gửi duyệt đơn mua
+- Mục đích: Cho thấy ngân sách, đã dùng, còn được mua theo ô và kỳ; báo trước khi lập đơn vượt ngân sách; đưa đơn vượt ngân sách sang luồng duyệt riêng cấp cao hơn.
+- Người sử dụng: Trưởng phòng mua hàng, ban điều hành (theo dõi); Nhân viên mua hàng (lập đơn); người duyệt luồng "Đơn mua vượt ngân sách".
+- Điều kiện thực hiện: Số còn được mua, đơn của một ô: `purchasing.budget.view` hoặc `purchasing.budget.manage`. Kiểm tra ngân sách đơn đang lập: `purchasing.order.manage`, `purchasing.budget.view` hoặc `purchasing.budget.manage`. Gửi duyệt đơn mua: như CHUC_NANG_51.
+- Dữ liệu đầu vào: Số còn được mua: năm (bắt buộc), kỳ (tháng mặc định, quý, năm), ngành hàng, kho (không bắt buộc). Đơn của một ô: ngành hàng, kho, tháng. Kiểm tra đơn: mã đơn khi sửa, kho nhận, ngày đơn, đồng tiền, dòng (biến thể, số lượng, đơn giá; tối đa 200).
+- Quy trình xử lý: Đã dùng theo ô tính trong một truy vấn có tham số (QUYTAC_NGHIEPVU_446): ngành hàng cấp 1 của sản phẩm, kho nhận, tháng của ngày đơn; giá trị chưa thuế quy đổi theo tỷ giá hạch toán ngày đơn. Số còn được mua (QUYTAC_NGHIEPVU_447): chỉ các tháng thuộc kế hoạch đã duyệt; ô có đơn mà chưa có ngân sách hiện ngân sách 0, đánh dấu chưa có ngân sách; gộp theo quý, năm. Kiểm tra đơn (QUYTAC_NGHIEPVU_450, 451): tháng chưa áp dụng thì trả `applies` sai; ngược lại tính giá trị đơn theo ngành hàng cấp 1 trong kho nhận, so với ngân sách và đã dùng không gồm chính đơn; trạng thái ô trong ngân sách, vượt, chưa có. Gửi duyệt đơn (QUYTAC_NGHIEPVU_452): trong giao dịch gửi, giữ khóa theo công ty, kiểm tra lại; có ô vượt hoặc chưa có thì gửi loại `purchasing.order_over_budget` (kể cả đơn miễn duyệt, duyệt lại), lưu ảnh chụp các ô đó vào đơn; ngược lại đi luồng cũ. Mini app Mua hàng nghe `core.approval.completed` của `purchasing.order_over_budget` và xử lý như `purchasing.order`.
+- Kết quả đầu ra: Số còn được mua: đồng tiền, dòng (ngành hàng, kho, kỳ, ngân sách, điều chỉnh, đã dùng, còn được mua, có ngân sách hay không), dòng tổng. Đơn của một ô: số đơn, nhà cung cấp, ngày, trạng thái, đồng tiền, giá trị đã tính. Kiểm tra đơn: `applies`, `overBudget`, đồng tiền, các ô. Chi tiết đơn mua (API_75) thêm `budgetCheck`, `budgetSnapshot`.
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_145, YCAU_NGHIEPVU_146, YCAU_NGHIEPVU_147
+- Quy tắc nghiệp vụ: QUYTAC_NGHIEPVU_446, QUYTAC_NGHIEPVU_447, QUYTAC_NGHIEPVU_450 đến QUYTAC_NGHIEPVU_453
+- Trường hợp ngoại lệ: Công ty chưa có kế hoạch đã duyệt cho tháng của đơn: không kiểm tra, luồng duyệt đơn mua như hiện nay. Đơn chờ duyệt không giữ chỗ ngân sách. Thiếu tỷ giá hạch toán ngày đơn: kiểm tra báo lỗi; chi tiết đơn không có `budgetCheck`. Chưa có chính sách duyệt vượt ngân sách: không gửi được, đơn giữ trạng thái cũ, không duyệt ngay.
+- Phân quyền: Không có quyền nhận 403; đơn, kho, biến thể của công ty khác: 404 (đơn) hoặc 400 tại ô (kho, dòng).
+- Thông báo lỗi: "Đơn vượt hoặc chưa có ngân sách nhưng chưa có chính sách duyệt "Đơn mua vượt ngân sách". Nhờ quản trị công ty cấu hình ở Nền tảng › Chính sách duyệt." · "Chưa có tỷ giá hạch toán ngày lập chứng từ." · "Giá trị không hợp lệ." · "Bạn không có quyền thực hiện thao tác này."
+- Màn hình, API: MAN_HINH_206, MAN_HINH_209 (khối trong MAN_HINH_40, MAN_HINH_41); API_239, API_240, API_75 (bổ sung).
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_414 đến TIEUCHI_NGHIEMTHU_417, TIEUCHI_NGHIEMTHU_419 đến TIEUCHI_NGHIEMTHU_421
+
+## Yêu cầu phi chức năng của MODULE_14 (phần 3)
+
+| Nhóm | Yêu cầu |
+|---|---|
+| Bảo mật | Quyền riêng xem, lập ngân sách; điều kiện công ty nằm trong mọi truy vấn; mọi thao tác ghi kế hoạch, phiếu, gửi duyệt đơn ghi nhật ký thao tác (tài liệu `22`) |
+| Toàn vẹn | Gửi duyệt đơn mua kiểm tra ngân sách trong cùng giao dịch, giữ khóa theo công ty; gửi kế hoạch giữ khóa theo công ty để không trùng kỳ; khóa lạc quan bằng `version`; số tiền `numeric(20,4)` |
+| Tương thích | Không đổi kết quả luồng duyệt đơn mua, đề nghị mua, giao dịch nội bộ, nhập mua của công ty chưa có kế hoạch đã duyệt; API đơn mua chỉ thêm trường |
+| Ranh giới module | Backend trong `apps/api/src/purchasing` (`budgets.service.ts`, `budget-adjustments.service.ts`, `open-to-buy.ts`, `budgets.controller.ts`); `orders.service.ts` chỉ thêm bước kiểm tra trong `sendForApproval` và trường `budgetCheck`, `budgetSnapshot`; dùng lại `ApprovalRequestsService.submitWithin`, dãy số chứng từ, nhật ký thao tác |
+| Hiệu năng | Đã dùng tính trong một truy vấn có tham số; chỉ mục đơn mua theo công ty, ngày đơn (database migration 0118) |
+| Thư viện | Không thêm thư viện |
+| Giao diện | Mini app `web-purchasing`; thành phần `packages/ui`, chuỗi `packages/i18n`; dùng được trên điện thoại |
+
 ## Nội dung do AI đề xuất, người dùng đã xác nhận ngày 2026-11-09
 
 | Vị trí | Nội dung |
@@ -2155,3 +2262,25 @@ Yêu cầu phi chức năng: tiền dùng `numeric`, làm tròn theo đơn vị 
 | CHUC_NANG_170 | Bút toán lương khi duyệt; ghi đã trả lương sinh bút toán trả; phiếu lương trong "Hồ sơ của tôi", thông báo chuông và email                                                                                                                                                                                                                                                          | YCAU_NGHIEPVU_76, 77 |
 
 Yêu cầu phi chức năng: tiền tính bằng số nguyên đồng (bigint) và `numeric`, không dùng số thực; tham số pháp luật cấu hình theo ngày hiệu lực; nhật ký thao tác không ghi số tiền lương; email phiếu lương gửi sau khi duyệt, lỗi gửi không làm hỏng duyệt.
+
+## MODULE_07 Khách hàng và Đối tác (MODULE_07 phần 3: Kinh doanh trên ứng dụng VComm, CONG_VIEC_22, THAY_DOI_26)
+
+### CHUC_NANG_204: Chi tiết khách và chia sẻ sản phẩm
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_138, YCAU_NGHIEPVU_139; Quy tắc: QUYTAC_NGHIEPVU_432, QUYTAC_NGHIEPVU_433, QUYTAC_NGHIEPVU_434
+- Vai trò: tài khoản người mua được đánh dấu nhân viên kinh doanh (chi tiết khách); mọi người mua (chia sẻ sản phẩm)
+- Màn hình: MAN_HINH_196, MAN_HINH_201; sửa MAN_HINH_78, MAN_HINH_84, MAN_HINH_91 (THAY_DOI_28); API: API_228; dùng lại API_116 (đăng ký có mã giới thiệu), API_162 (lượt bấm cộng tác viên)
+- Đầu ra: chi tiết khách không có địa chỉ, người nhận; đường dẫn `/r/<mã giới thiệu>?sp=<sản phẩm>[&ctv=<mã cộng tác viên>]`
+
+### CHUC_NANG_205: Ghi chú chăm sóc, lịch hẹn, nhắc hẹn trong ứng dụng
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_138; Quy tắc: QUYTAC_NGHIEPVU_435 đến QUYTAC_NGHIEPVU_438
+- Vai trò: tài khoản được đánh dấu nhân viên kinh doanh; người dùng đăng nhập (thông báo của chính mình)
+- Màn hình: MAN_HINH_197, MAN_HINH_198, MAN_HINH_200; API: API_229, API_230; dùng lại API_48; việc nền `marketplace-sales-follow-ups` 07:00
+- Dữ liệu: `marketplace.customer_care_notes` (database migration 0113); thông báo loại `sales.follow_up_due`
+
+### CHUC_NANG_206: Doanh số của tôi, doanh số nhánh
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_140; Quy tắc: QUYTAC_NGHIEPVU_439, QUYTAC_NGHIEPVU_440
+- Vai trò: tài khoản được đánh dấu nhân viên kinh doanh; người quản lý xem thêm nhánh
+- Màn hình: MAN_HINH_199; sửa MAN_HINH_78; API: API_231
+- Dữ liệu: `marketplace.orders.sales_staff_user_id` (database migration 0114), ghi lúc đặt đơn
+
+CHUC_NANG_103 (ghé thăm khách): ghi mới đã tắt theo QUYTAC_NGHIEPVU_441 (THAY_DOI_26). CHUC_NANG_99 (đăng nhập ứng dụng bằng token) vẫn dùng cho ứng dụng VComm, ứng dụng kho; CHUC_NANG_100 đến CHUC_NANG_102 thay bằng CHUC_NANG_204 đến CHUC_NANG_206 và các chức năng của CONG_VIEC_23, CONG_VIEC_26, CONG_VIEC_27.

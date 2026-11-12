@@ -83,7 +83,10 @@ function ReceiptContent({ sale, className }: { sale: RetailSaleResponse; classNa
       </div>
       {sale.payments.map((payment, index) => (
         <div key={index} className="dong-tien">
-          <span>{methods(`method_${payment.method}`)}</span>
+          <span>
+            {methods(`method_${payment.method}`)}
+            {payment.points ? ` (${t("pointsCount", { points: Number(payment.points).toLocaleString("vi-VN") })})` : ""}
+          </span>
           <span>{money(payment.amount)}</span>
         </div>
       ))}
@@ -92,6 +95,19 @@ function ReceiptContent({ sale, className }: { sale: RetailSaleResponse; classNa
           <span>{t("change")}</span>
           <span>{money(sale.changeAmount)}</span>
         </div>
+      )}
+      {sale.loyalty ? (
+        <>
+          <hr />
+          <div>{t("loyaltyCustomer", { name: sale.loyalty.maskedName, phone: sale.loyalty.maskedPhone })}</div>
+          <div>{t("loyaltyPoints", { used: sale.loyalty.pointsUsed.toLocaleString("vi-VN"), earned: sale.loyalty.pointsEarned.toLocaleString("vi-VN") })}</div>
+          <div>{t("loyaltyBalance", { points: sale.loyalty.balanceAfter.toLocaleString("vi-VN") })}</div>
+        </>
+      ) : (
+        <>
+          <hr />
+          <div className="giua">{t("inviteApp")}</div>
+        </>
       )}
       {(sale.buyer.name || sale.buyer.taxCode) && (
         <>

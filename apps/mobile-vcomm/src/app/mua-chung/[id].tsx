@@ -9,6 +9,7 @@ import { Button, Card, Loading, Muted, Notice, QuantityStepper, Screen, StatusBa
 import { api, ApiFailure, appBase, assetUrl } from "@/lib/api";
 import { money, translator } from "@/lib/i18n";
 import { colors, space } from "@/lib/theme";
+import { copyText } from "@/lib/clipboard";
 
 const t = translator("vcommApp");
 const statusTone = { open: "warning", succeeded: "success", failed: "error", cancelled: "neutral" } as const;
@@ -36,8 +37,7 @@ export default function GroupBuyScreen() {
     if (Platform.OS === "web") {
       const browser = globalThis.navigator as Navigator | undefined;
       if (browser?.share) return void browser.share({ text: message }).catch(() => undefined);
-      await browser?.clipboard?.writeText(link).catch(() => undefined);
-      return setCopied(true);
+      return setCopied(await copyText(link));
     }
     await Share.share({ message });
   }

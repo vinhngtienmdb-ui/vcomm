@@ -2,8 +2,35 @@
 
 - Mô tả: Các phiên bản đã phát hành, nội dung và phương án quay lui riêng của từng phiên bản.
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-11-11
+- Ngày cập nhật: 2026-11-12
 - Trạng thái: Đang cập nhật
+
+## Phiên bản 0.6.0 – 2026-11-12 – Chờ phát hành
+
+- Chức năng mới:
+  - Kế hoạch mua theo ngân sách (MODULE_14 phần 3, mini app `apps/web-purchasing`, CONG_VIEC_58): kế hoạch ngân sách theo ngành hàng cấp 1, kho, tháng qua luồng duyệt; số đã dùng, số còn được mua theo tháng, quý, năm; cảnh báo ngân sách trong đơn mua, đơn vượt hoặc chưa có ngân sách phải duyệt; phiếu điều chỉnh tăng, giảm, chuyển ngân sách có duyệt.
+  - Trạm giao hàng O2O (MODULE_14 phần 2, CONG_VIEC_57): cửa hàng bán lẻ hoặc điểm giao nhận làm trạm; đơn VComm nhận tại trạm hoặc trạm giao tận nơi, chọn trạm đủ hàng, giữ hàng ở kho trạm; mã nhận hàng 6 số và QR, thu tiền trong ca; nhân viên giao hàng trạm; nhắc và tự hủy khi quá hạn giữ; trạm nhận hàng trả về.
+  - Kinh doanh trên ứng dụng VComm (MODULE_07 phần 3, CONG_VIEC_22, THAY_DOI_26, THAY_DOI_28): ẩn ghé thăm khách; chi tiết khách; chia sẻ sản phẩm kèm mã giới thiệu; ghi chú chăm sóc, hẹn, nhắc hẹn lúc 7 giờ, mục Thông báo; doanh số của tôi và của nhánh theo người phụ trách lúc đặt đơn.
+  - Bán lẻ tại quầy lát L6 (MODULE_14, CONG_VIEC_53): tích điểm tại quầy bằng số điện thoại, dùng điểm tại quầy bằng mã Smart OTP (mã 30 giây gắn một thiết bị trong ứng dụng VComm), hoàn điểm khi trả hàng, theo sổ cái điểm của CONG_VIEC_51.
+- Ghép giữa các công việc: đơn VComm có cách nhận (`fulfillment_mode`), trạm (`station_id`), phương thức Thanh toán khi nhận tại trạm (CONG_VIEC_57) và nhân viên phụ trách lúc đặt đơn (`sales_staff_user_id`, CONG_VIEC_22) cùng ghi trong `snapshot()` của `commissions.service.ts`; đơn mua chung chỉ giao qua đơn vị vận chuyển.
+- Thay đổi dữ liệu, database migration theo thứ tự chạy: `0109` đến `0111` (trạm giao hàng O2O; `0110` định nghĩa lại `marketplace.orders_cod_amount_method_check`, `0111` định nghĩa lại `marketplace.orders_status_check` thêm `ready_for_pickup`), `0113`, `0114` (ghi chú chăm sóc, cột `marketplace.orders.sales_staff_user_id`, chỉ thêm cột, chỉ mục), `0116` đến `0118` (ngân sách mua), `0119` (điểm tại quầy, Smart OTP; định nghĩa lại `core.otp_codes_purpose_check` thêm `smart_otp`). Mỗi ràng buộc kiểm tra chỉ bị định nghĩa lại một lần trong bản gộp, giá trị là tập rộng hơn bản trước, nên không cần database migration đặt lại ràng buộc (số `0120` dành riêng không dùng). Số `0102` đến `0108`, `0112`, `0115` không có tệp trong phiên bản này.
+- Thay đổi API: thêm API theo tài liệu `17` của CONG_VIEC_58 (API_235 đến API_240), CONG_VIEC_57 (API_220 đến API_227), CONG_VIEC_22 (API_228 đến API_231), CONG_VIEC_53 lát L6 (API_198, API_199); `POST /buyer/orders/preview`, `POST /buyer/orders` nhận thêm `fulfillmentMode` (mặc định `carrier`), `stationId` (tương thích ngược); API_114 (ghé thăm khách) từ chối ghi mới; API_75 (đơn mua) trả thêm `budgetCheck`, `budgetSnapshot`.
+- Thư viện mới: `expo-clipboard` ~58.0.4 (sao chép trên ứng dụng VComm, CONG_VIEC_22), `otpauth` 9.6.0 (tạo mã Smart OTP trên ứng dụng VComm, CONG_VIEC_53); đều ở `apps/mobile-vcomm`.
+- Biến môi trường mới: không có.
+- Rủi ro:
+  - Phương thức "Thanh toán khi nhận tại trạm" (`pay_at_station`) được `0110` cài sẵn ở trạng thái tắt; quản trị sàn phải bật trong danh sách phương thức thanh toán sau khi cài đặt trạm, nếu không người mua chỉ trả trực tuyến khi nhận tại trạm.
+  - Smart OTP: mã SMS kích hoạt dùng mẫu tin nhắn OTP dùng chung (mục đích `smart_otp`), chưa có mẫu riêng đăng ký với nhà mạng; cần kiểm tra mẫu tin với nhà cung cấp SMS trước khi dùng thật.
+  - Pháp lý điểm thưởng (CONG_VIEC_51) vẫn áp dụng cho điểm tại quầy: chặn triển khai lên môi trường thật cho đến khi có ý kiến luật sư.
+  - Ngân sách mua: đơn chờ duyệt không giữ chỗ ngân sách (quy tắc người dùng chọn).
+- Khả năng tương thích: tương thích ngược với 0.5.0; database migration thêm bảng, cột (đều có mặc định cho dữ liệu cũ) và mở rộng ràng buộc kiểm tra.
+- Công việc gộp trong phiên bản: CONG_VIEC_58 (pull request #123), CONG_VIEC_57 (#118), CONG_VIEC_22 (#122), CONG_VIEC_53 lát L6 (#125); THAY_DOI_26, THAY_DOI_28. Thứ tự hợp nhất: 58, 57, 22, 53. Không gộp CONG_VIEC_52, 55, 56.
+- Đánh lại số mục tài liệu trùng khi gộp (chỉ đổi số): tài liệu `08` mục 52, 53 (trạm giao hàng, trước là 50, 51); tài liệu `14` mục 78, 79 (trạm giao hàng, trước là 75, 76), mục 80 (Kinh doanh trên ứng dụng VComm, trước là 75); tài liệu `16` mục 39 (database migration 0113, 0114, trước là 38); tài liệu `17` mục 3zg (Kinh doanh trên ứng dụng VComm, trước là 3zf); tài liệu `27` mục 36 (bao phủ CONG_VIEC_22, trước là 35).
+- Kiểm thử trên nhánh phát hành: xem tài liệu `25`.
+- Tag: `v0.6.0` trên commit hợp nhất nhánh `phat-hanh/v0.6.0` vào `main` (gắn tự động khi CI trên `main` đạt).
+- Phương án quay lui riêng của phiên bản:
+  - Mã nguồn: triển khai lại tag `v0.5.0`.
+  - Database migration: bản 0.5.0 không đọc bảng, cột mới (trạm, ghi chú chăm sóc, ngân sách mua, `loyalty.smart_otp_devices`, `retail.sales.loyalty_user_id`, `marketplace.orders.fulfillment_mode`, `station_id`, `sales_staff_user_id`); giữ nguyên khi quay lui mã. Ràng buộc kiểm tra đã mở rộng (`0110`, `0111`, `0119`) chỉ thêm giá trị nên bản 0.5.0 vẫn ghi được. Trước khi quay lui: tắt phương thức `pay_at_station`, xử lý hết đơn của trạm đang ở trạng thái `ready_for_pickup` (bản 0.5.0 không hiển thị, không chuyển được trạng thái này). Khi cần gỡ hẳn: khôi phục bản sao lưu cơ sở dữ liệu chụp ngay trước khi chạy database migration của 0.6.0.
+  - Ứng dụng VComm trên điện thoại: bản phát hành kèm `expo-clipboard`, `otpauth` là bản dựng mới; quay lui bằng bản dựng của 0.5.0 trên kho ứng dụng hoặc cập nhật qua mạng.
 
 ## Phiên bản 0.5.0 – 2026-11-11 – Chờ phát hành
 
