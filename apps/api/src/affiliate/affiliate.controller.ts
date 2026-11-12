@@ -12,6 +12,8 @@ import {
   affiliateVoucherListQuerySchema,
   affiliateSettlementListQuerySchema,
   affiliateAlertQuerySchema,
+  affiliateCompanyTransactionQuerySchema,
+  type AffiliateCompanyTransaction,
   affiliateReportQuerySchema,
   type AffiliateAlert,
   type AffiliateCompanyReport,
@@ -35,6 +37,7 @@ import { BuyerAdminService } from "../marketplace/buyer-admin.service";
 import { voucherAction } from "./merchant-portal.controller";
 import { AffiliateMerchantsService } from "./merchants.service";
 import { AffiliateReportsService } from "./reports.service";
+import { AffiliateTransactionsService } from "./transactions.service";
 import { AffiliateSettlementsService, type SettlementActor } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
 
@@ -46,6 +49,7 @@ export class AffiliateController {
     private readonly vouchers: AffiliateVouchersService,
     private readonly settlements: AffiliateSettlementsService,
     private readonly reports: AffiliateReportsService,
+    private readonly transactions: AffiliateTransactionsService,
   ) {}
 
   private async voucherActor(request: AuthenticatedRequest, permission: "affiliate.view" | "affiliate.manage"): Promise<VoucherActor> {
@@ -158,6 +162,13 @@ export class AffiliateController {
   async report(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<AffiliateCompanyReport> {
     const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");
     return this.reports.companyReport(actor.operatorCompanyId, affiliateReportQuerySchema.parse(query));
+  }
+
+  // Giao dịch mọi cửa hàng (MAN_HINH_180 thẻ Giao dịch).
+  @Get("transactions")
+  async listTransactions(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<AffiliateCompanyTransaction>> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "affiliate.view");
+    return this.transactions.companyList(actor.operatorCompanyId, affiliateCompanyTransactionQuerySchema.parse(query));
   }
 
   @Get("alerts")

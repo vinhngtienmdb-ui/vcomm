@@ -96,6 +96,13 @@ describe("TIEUCHI_NGHIEMTHU_378: báo cáo và cảnh báo", () => {
     expect(alerts.find((alert) => alert.kind === "credit_usage")).toMatchObject({ amount: "90000", limit: "100000", percent: "90.0" });
     expect((await fixture.call("get", "/affiliate/alerts?kind=cancel_rate")).body).toHaveLength(1);
 
+    // Giao dịch mọi cửa hàng trên web quản trị: lọc trạng thái, cách định danh; số điện thoại khách đã che; chủ cửa hàng không xem được.
+    const cancelledList = await fixture.call("get", "/affiliate/transactions?status=cancelled");
+    expect(cancelledList.body.total).toBe(2);
+    expect(cancelledList.body.data[0]).toMatchObject({ merchantId: fixture.merchantId, status: "cancelled", buyerPhone: "0938 *** 002", canCancel: false });
+    expect((await fixture.call("get", "/affiliate/transactions?method=phone")).body.total).toBe(10);
+    expect((await fixture.owner.call("get", "/affiliate/transactions")).status).toBe(403);
+
     // Báo trong ứng dụng cho chủ cửa hàng một lần mỗi ngày.
     const service = application.get(AffiliateReportsService);
     expect(await service.notifyCreditUsage()).toBe(1);

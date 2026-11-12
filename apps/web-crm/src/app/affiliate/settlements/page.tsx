@@ -1,8 +1,8 @@
 "use client";
 
 // MAN_HINH_180 Đối soát và giao dịch liên kết (CONG_VIEC_55; CHUC_NANG_196; API_212): thẻ Đối soát – bảng tuần mọi cửa hàng, lọc trạng thái, quá hạn;
-// chi tiết; trả lời khiếu nại kèm điều chỉnh tiền và chốt lại. Thẻ Báo cáo (theo cửa hàng, dư nợ), thẻ Cảnh báo bất thường (lát L4; API_213).
-import type { AffiliateAlert, AffiliateCompanyReport, AffiliateMerchantListItem, AffiliateSettlementDetail, AffiliateSettlementItem, PageResponse } from "contracts";
+// chi tiết; trả lời khiếu nại kèm điều chỉnh tiền và chốt lại. Thẻ Giao dịch (mọi cửa hàng, số điện thoại khách đã che), thẻ Báo cáo (theo cửa hàng, dư nợ), thẻ Cảnh báo bất thường (lát L4; API_213).
+import type { AffiliateAlert, AffiliateCompanyReport, AffiliateCompanyTransaction, AffiliateMerchantListItem, AffiliateSettlementDetail, AffiliateSettlementItem, PageResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { SettlementBreakdown, SettlementNet, SettlementStatus } from "ui/components/AffiliateSettlement";
@@ -11,7 +11,7 @@ import { Drawer } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { apiFetch } from "ui/lib/api";
-import { formatDate, formatNumber, vietnamToday } from "ui/lib/format";
+import { formatDate, formatDateTime, formatNumber, vietnamToday } from "ui/lib/format";
 import { useApi } from "ui/lib/use-api";
 
 function ResolveForm({ settlement, onDone }: { settlement: AffiliateSettlementDetail; onDone: (message: string) => void }) {
@@ -366,7 +366,139 @@ function AlertsTab() {
   );
 }
 
-const tabs = ["settlements", "report", "alerts"] as const;
+function TransactionsTab() {
+  const t = useTranslations("affiliateReport");
+  const portal = useTranslations("merchantPortal");
+  const common = useTranslations("common");
+  const today = vietnamToday();
+  const [filter, setFilter] = useState({ from: `${today.slice(0, 8)}01`, to: today, merchantId: "", method: "", status: "", search: "" });
+  const [page, setPage] = useState(1);
+  const merchants = useApi<PageResponse<AffiliateMerchantListItem>>("/affiliate/merchants?pageSize=100");
+  const params = new URLSearchParams({
+    page: String(page),
+    pageSize: "50",
+    from: filter.from,
+    to: filter.to,
+    ...Object.fromEntries(Object.entries({ merchantId: filter.merchantId, method: filter.method, status: filter.status, search: filter.search.trim() }).filter(([, value]) => value)),
+  });
+  const { state, reload } = useApi<PageResponse<AffiliateCompanyTransaction>>(`/affiliate/transactions?${params}`);
+  const set = (key: keyof typeof filter, value: string) => (setFilter({ ...filter, [key]: value }), setPage(1));
+  return (
+    <>
+      <div className="bo-loc">
+        <label htmlFor="gd-tim" className="an-nhan">
+          {t("search")}
+        </label>
+        <input id="gd-tim" className="o-nhap" placeholder={t("searchPlaceholder")} value={filter.search} onChange={(event) => set("search", event.target.value)} />
+        <label htmlFor="gd-tu" className="an-nhan">
+          {t("from")}
+        </label>
+        <input id="gd-tu" type="date" className="o-nhap" value={filter.from} onChange={(event) => set("from", event.target.value)} />
+        <label htmlFor="gd-den" className="an-nhan">
+          {t("to")}
+        </label>
+        <input id="gd-den" type="date" className="o-nhap" value={filter.to} onChange={(event) => set("to", event.target.value)} />
+        <label htmlFor="gd-cua-hang" className="an-nhan">
+          {t("merchant")}
+        </label>
+        <select id="gd-cua-hang" className="o-nhap" value={filter.merchantId} onChange={(event) => set("merchantId", event.target.value)}>
+          <option value="">{t("allMerchants")}</option>
+          {merchants.state.kind === "ready" &&
+            merchants.state.data.data.map((merchant) => (
+              <option key={merchant.id} value={merchant.id}>
+                {merchant.name}
+              </option>
+            ))}
+        </select>
+        <label htmlFor="gd-cach" className="an-nhan">
+          {t("column_method")}
+        </label>
+        <select id="gd-cach" className="o-nhap" value={filter.method} onChange={(event) => set("method", event.target.value)}>
+          <option value="">{t("allMethods")}</option>
+          {(["merchant_qr", "buyer_qr", "phone"] as const).map((value) => (
+            <option key={value} value={value}>
+              {portal(`method_${value}`)}
+            </option>
+          ))}
+        </select>
+        <label htmlFor="gd-trang-thai" className="an-nhan">
+          {t("status")}
+        </label>
+        <select id="gd-trang-thai" className="o-nhap" value={filter.status} onChange={(event) => set("status", event.target.value)}>
+          <option value="">{t("allStatuses")}</option>
+          {(["completed", "cancelled", "pending", "declined", "expired"] as const).map((value) => (
+            <option key={value} value={value}>
+              {portal(`status_${value}`)}
+            </option>
+          ))}
+        </select>
+      </div>
+      <Loaded state={state} onRetry={() => void reload()}>
+        {(result) =>
+          result.data.length === 0 ? (
+            <MessageView text={t("noTransactions")} />
+          ) : (
+            <>
+              <div className="khung-bang">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>{t("column_document")}</th>
+                      <th>{t("column_time")}</th>
+                      <th>{t("column_merchantOutlet")}</th>
+                      <th>{t("column_buyer")}</th>
+                      <th>{t("column_method")}</th>
+                      <th className="so">{t("billAmount")}</th>
+                      <th className="so">{t("redeemedPoints")}</th>
+                      <th className="so">{t("earnedPoints")}</th>
+                      <th>{t("status")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.data.map((item) => (
+                      <tr key={item.id}>
+                        <td data-nhan={t("column_document")}>{item.documentNo}</td>
+                        <td data-nhan={t("column_time")}>{formatDateTime(item.createdAt)}</td>
+                        <td data-nhan={t("column_merchantOutlet")}>
+                          {item.merchantName} · {item.outletName}
+                        </td>
+                        <td data-nhan={t("column_buyer")}>{item.buyerPhone ?? "—"}</td>
+                        <td data-nhan={t("column_method")}>{portal(`method_${item.method}`)}</td>
+                        <td data-nhan={t("billAmount")} className="so">
+                          {amount(item.billAmount)}
+                        </td>
+                        <td data-nhan={t("redeemedPoints")} className="so">
+                          {formatNumber(item.redeemedPoints, 0)}
+                        </td>
+                        <td data-nhan={t("earnedPoints")} className="so">
+                          {formatNumber(item.earnedPoints, 0)}
+                        </td>
+                        <td data-nhan={t("status")}>{portal(`status_${item.status}`)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="phan-trang">
+                <span>{common("total", { count: result.total })}</span>
+                <span className="nhom-nut">
+                  <button type="button" className="nut phu" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+                    ‹ {common("previous")}
+                  </button>
+                  <button type="button" className="nut phu" disabled={page * result.pageSize >= result.total} onClick={() => setPage(page + 1)}>
+                    {common("next")} ›
+                  </button>
+                </span>
+              </div>
+            </>
+          )
+        }
+      </Loaded>
+    </>
+  );
+}
+
+const tabs = ["settlements", "transactions", "report", "alerts"] as const;
 
 export default function AffiliateSettlementsPage() {
   const t = useTranslations("affiliateReport");
@@ -391,6 +523,7 @@ export default function AffiliateSettlementsPage() {
         ))}
       </div>
       {tab === "settlements" && <SettlementsTab />}
+      {tab === "transactions" && <TransactionsTab />}
       {tab === "report" && <ReportTab />}
       {tab === "alerts" && <AlertsTab />}
     </>

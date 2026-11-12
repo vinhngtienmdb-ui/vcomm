@@ -3,6 +3,8 @@
 // Điểm ghi vào sổ cái của CONG_VIEC_51 (nguồn `affiliate_transaction`) trong cùng giao dịch cơ sở dữ liệu; nghĩa vụ điểm ở công ty vận hành sàn.
 import { Inject, Injectable } from "@nestjs/common";
 import type {
+  AffiliateCompanyTransaction,
+  affiliateCompanyTransactionQuerySchema,
   AffiliateSkipReason,
   AffiliateTransactionCreated,
   AffiliateTransactionItem,
@@ -113,7 +115,7 @@ const transactionColumns = sql`
 const transactionFrom = sql`
   affiliate.transactions t JOIN affiliate.outlets o ON o.id = t.outlet_id JOIN core.users c ON c.id = t.cashier_user_id LEFT JOIN core.users b ON b.id = t.buyer_user_id`;
 
-function itemOf(row: TransactionRow, member: PortalMember): AffiliateTransactionItem {
+function itemOf(row: TransactionRow, member: PortalMember | null): AffiliateTransactionItem {
   return {
     id: row.id,
     documentNo: row.document_no,
@@ -135,7 +137,7 @@ function itemOf(row: TransactionRow, member: PortalMember): AffiliateTransaction
     completedAt: iso(row.completed_at),
     expiresAt: row.status === "pending" ? iso(row.expires_at) : null,
     cancelReason: row.cancel_reason,
-    canCancel: member.role === "owner" && row.status === "completed" && row.settlement_id === null,
+    canCancel: member?.role === "owner" && row.status === "completed" && row.settlement_id === null,
   };
 }
 
@@ -188,6 +190,35 @@ export class AffiliateTransactionsService {
 
   async transaction(member: PortalMember, id: string): Promise<AffiliateTransactionItem> {
     return itemOf(await this.row(this.database, id, this.scopeOf(member)), member);
+  }
+
+  // Web quản trị (MAN_HINH_180 thẻ Giao dịch): mọi cửa hàng của công ty vận hành sàn; số điện thoại khách đã che.
+  async companyList(companyId: string, query: z.infer<typeof affiliateCompanyTransactionQuerySchema>): Promise<PageResponse<AffiliateCompanyTransaction>> {
+    const day = sql`(t.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date`;
+    const status = sql`CASE WHEN t.status = 'pending' AND t.expires_at < now() THEN 'expired' ELSE t.status END`;
+    const where = sql`t.merchant_id IN (SELECT id FROM affiliate.merchants WHERE company_id = ${companyId})
+      ${query.merchantId ? sql`AND t.merchant_id = ${query.merchantId}` : sql``}
+      ${query.method ? sql`AND t.method = ${query.method}` : sql``}
+      ${query.from ? sql`AND ${day} >= ${query.from}::date` : sql``}
+      ${query.to ? sql`AND ${day} <= ${query.to}::date` : sql``}
+      ${query.status ? sql`AND ${status} = ${query.status}` : sql``}
+      ${query.search ? sql`AND t.document_no ILIKE ${`%${query.search}%`}` : sql``}`;
+    const total = (await this.database.execute<{ total: number }>(sql`SELECT count(*)::int AS total FROM ${transactionFrom} WHERE ${where}`)).rows[0]!.total;
+    const rows = await this.database.execute<TransactionRow & { merchant_id: string; merchant_name: string; buyer_phone: string | null }>(sql`
+      SELECT ${transactionColumns}, t.merchant_id, p.name AS merchant_name, b.phone AS buyer_phone
+      FROM ${transactionFrom} JOIN affiliate.merchants m ON m.id = t.merchant_id JOIN crm.partners p ON p.id = m.partner_id
+      WHERE ${where} ORDER BY t.created_at DESC LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`);
+    return {
+      data: rows.rows.map((row) => ({
+        ...itemOf(row, null),
+        merchantId: row.merchant_id,
+        merchantName: row.merchant_name,
+        buyerPhone: row.buyer_phone ? `0${row.buyer_phone.slice(3, 6)} *** ${row.buyer_phone.slice(-3)}` : null,
+      })),
+      page: query.page,
+      pageSize: query.pageSize,
+      total,
+    };
   }
 
   async list(member: PortalMember, query: z.infer<typeof affiliateTransactionListQuerySchema>): Promise<PageResponse<AffiliateTransactionItem>> {

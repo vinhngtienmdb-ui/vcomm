@@ -7407,7 +7407,7 @@
   },
   "affiliateSettlement": {
     "tab": "Settlements",
-    "companyTitle": "Affiliate settlements and reports",
+    "companyTitle": "Affiliate settlements and transactions",
     "detailTitle": "Weekly settlement",
     "empty": "No settlements yet.",
     "merchant": "Store",
@@ -7532,6 +7532,10 @@
     "detail_near_cap": "{percent}% of transactions ({count}/{total}) at 80% or more of the {cap} VND cap",
     "detail_cancel_rate": "{count}/{total} transactions cancelled ({percent}%)",
     "detail_phone_declines": "Cashier {name}: {count} phone requests declined or expired on {day}",
-    "detail_credit_usage": "{amount} VND / limit {limit} VND ({percent}%)"
+    "detail_credit_usage": "{amount} VND / limit {limit} VND ({percent}%)",
+    "allMerchants": "All stores",
+    "allMethods": "All identification methods",
+    "column_merchantOutlet": "Store · outlet",
+    "column_buyer": "Customer"
   }
 }

@@ -7407,7 +7407,7 @@
   },
   "affiliateSettlement": {
     "tab": "Đối soát",
-    "companyTitle": "Đối soát và báo cáo liên kết",
+    "companyTitle": "Đối soát và giao dịch liên kết",
     "detailTitle": "Bảng đối soát tuần",
     "empty": "Chưa có bảng đối soát.",
     "merchant": "Cửa hàng",
@@ -7532,6 +7532,10 @@
     "detail_near_cap": "{percent} % giao dịch ({count}/{total}) có hóa đơn từ 80 % trần {cap} đ",
     "detail_cancel_rate": "Hủy {count}/{total} giao dịch ({percent} %)",
     "detail_phone_declines": "Thu ngân {name}: {count} yêu cầu theo số điện thoại bị từ chối hoặc hết hạn ngày {day}",
-    "detail_credit_usage": "{amount} đ / hạn mức {limit} đ ({percent} %)"
+    "detail_credit_usage": "{amount} đ / hạn mức {limit} đ ({percent} %)",
+    "allMerchants": "Mọi cửa hàng",
+    "allMethods": "Mọi cách định danh",
+    "column_merchantOutlet": "Cửa hàng · điểm bán",
+    "column_buyer": "Khách"
   }
 }

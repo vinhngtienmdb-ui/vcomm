@@ -525,3 +525,20 @@ export interface AffiliateAlert {
   amount: string | null;
   limit: string | null;
 }
+
+// Web quản trị (MAN_HINH_180 thẻ Giao dịch): giao dịch mọi cửa hàng; số điện thoại khách đã che (người dùng duyệt khi xem trước lát L4).
+export const affiliateCompanyTransactionQuerySchema = z.object({
+  merchantId: z.string().uuid().optional(),
+  method: z.enum(affiliateTransactionMethods).optional(),
+  status: z.enum(["pending", "completed", "declined", "expired", "cancelled"]).optional(),
+  from: isoDate.optional(),
+  to: isoDate.optional(),
+  search: z.string().trim().max(30).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(50),
+});
+export interface AffiliateCompanyTransaction extends AffiliateTransactionItem {
+  merchantId: string;
+  merchantName: string;
+  buyerPhone: string | null;
+}

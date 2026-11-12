@@ -211,6 +211,11 @@ Quyết định khi lập trình lát L3 (2026-11-12):
 18. Dư nợ xét hạn mức gồm cả số còn lại của bảng đối soát đã lập chưa xác nhận (chờ xác nhận, khiếu nại).
 19. Bút toán hủy giao dịch, voucher đổi bằng điểm hết hạn dùng nguồn chứng từ riêng `affiliate_transaction_cancel`, `affiliate_voucher_expire` (mỗi nguồn chứng từ một bút toán).
 
+Quyết định khi xem trước lát L4 (2026-11-12):
+
+20. Thêm thẻ Giao dịch trên web quản trị (MAN_HINH_180) với API `GET /affiliate/transactions` (thuộc API_213; lọc cửa hàng, cách định danh, trạng thái, ngày, số giao dịch; số điện thoại khách đã che).
+21. Đăng nhập Zalo cho cổng cửa hàng: thành viên bấm Liên kết Zalo trên thanh trên của cổng cửa hàng rồi đăng nhập bằng Zalo; luồng OAuth dùng chung nhận thêm `app=merchant` để quay về `/merchant`.
+
 ## 18. Quyết định AI đề xuất (người dùng xác nhận ngày 2026-11-11)
 
 1. Chi tiêu tại cửa hàng liên kết không tính vào chi tiêu xét hạng (doanh thu không thuộc tập đoàn).
