@@ -3762,7 +3762,11 @@
     "followUpToday": "Today",
     "followUpUpcoming": "Next 7 days",
     "followUpOn": "due {date}",
-    "followUpDone": "Done"
+    "followUpDone": "Done",
+    "notificationsTitle": "Notifications",
+    "notificationsUnread": "{count} unread",
+    "noNotifications": "No notifications yet.",
+    "notificationNew": "New"
   },
   "buyers": {
     "title": "Buyer accounts",

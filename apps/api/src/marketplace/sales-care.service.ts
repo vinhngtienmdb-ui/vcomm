@@ -5,7 +5,8 @@ import { sql } from "drizzle-orm";
 import type { z } from "zod";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
-import { CLOCK, type Clock } from "../common/clock";
+import { CLOCK, type Clock, vietnamDate } from "../common/clock";
+import { notify } from "../common/notifications";
 import { DATABASE, type Database } from "../database/database.module";
 import type { ClientInfo } from "../auth/auth.service";
 import { localPhone } from "./local-phone";
@@ -26,8 +27,6 @@ type NoteRow = {
   created_at: Date;
 };
 
-// Ngày theo giờ Việt Nam (QUYTAC_NGHIEPVU_435, 436).
-export const vietnamDate = (at: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).format(at);
 const addDays = (date: string, days: number) => new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
 
 const noteItem = (row: NoteRow): CareNoteItem => ({
@@ -202,5 +201,54 @@ export class SalesCareService {
       ).rows[0]!;
       return noteItem(row);
     });
+  }
+
+  // Nhắc hẹn lúc 07:00 (QUYTAC_NGHIEPVU_437): mỗi người có hẹn chờ đến hạn hoặc quá hạn, còn được đánh dấu, còn xem được khách
+  // nhận tối đa một thông báo trong ứng dụng mỗi ngày; chạy lại trong ngày không tạo trùng. Không gửi thư, tin nhắn, thông báo đẩy.
+  async remindDue(): Promise<{ notified: number }> {
+    const today = vietnamDate(this.clock.now());
+    const rows = await this.database.execute<{ author_user_id: string; sales_company_id: string; referrer_user_id: string | null; follow_up_on: string }>(sql`
+      SELECT n.author_user_id, a.sales_company_id, b.referrer_user_id, n.follow_up_on::text
+      FROM marketplace.customer_care_notes n
+        JOIN marketplace.buyer_accounts b ON b.user_id = n.buyer_user_id
+        JOIN marketplace.buyer_accounts a ON a.user_id = n.author_user_id AND a.is_sales_staff
+      WHERE n.follow_up_on IS NOT NULL AND n.follow_up_done_at IS NULL AND n.follow_up_on <= ${today}::date`);
+    const teams = new Map<string, SalesTeam>();
+    const counts = new Map<string, { companyId: string; dueToday: number; overdue: number }>();
+    for (const row of rows.rows) {
+      let team = teams.get(row.sales_company_id);
+      if (!team) {
+        team = await this.salesTeam.load(this.database, row.sales_company_id);
+        teams.set(row.sales_company_id, team);
+      }
+      if (!this.canSee(team, row.author_user_id, row.referrer_user_id)) continue;
+      const entry = counts.get(row.author_user_id) ?? { companyId: row.sales_company_id, dueToday: 0, overdue: 0 };
+      if (row.follow_up_on === today) entry.dueToday += 1;
+      else entry.overdue += 1;
+      counts.set(row.author_user_id, entry);
+    }
+    let notified = 0;
+    for (const [userId, entry] of counts) {
+      const created = await this.database.transaction(async (transaction) => {
+        // Khóa theo người và ngày để hai lần chạy cùng lúc không tạo trùng.
+        await transaction.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`sales-follow-up:${userId}:${today}`}))`);
+        const exists = await transaction.execute(sql`
+          SELECT 1 FROM core.notifications WHERE user_id = ${userId} AND kind = 'sales.follow_up_due' AND payload->>'date' = ${today}`);
+        if (exists.rows.length > 0) return false;
+        await notify(transaction, [
+          {
+            userId,
+            companyId: entry.companyId,
+            kind: "sales.follow_up_due",
+            title: `Bạn có ${entry.dueToday} hẹn chăm sóc hôm nay, ${entry.overdue} hẹn quá hạn`,
+            link: "/hen",
+            payload: { date: today, dueToday: entry.dueToday, overdue: entry.overdue },
+          },
+        ]);
+        return true;
+      });
+      if (created) notified += 1;
+    }
+    return { notified };
   }
 }

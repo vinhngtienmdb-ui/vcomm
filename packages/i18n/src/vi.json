@@ -3762,7 +3762,11 @@
     "followUpToday": "Hôm nay",
     "followUpUpcoming": "7 ngày tới",
     "followUpOn": "hẹn {date}",
-    "followUpDone": "Đã xong"
+    "followUpDone": "Đã xong",
+    "notificationsTitle": "Thông báo",
+    "notificationsUnread": "{count} chưa đọc",
+    "noNotifications": "Chưa có thông báo.",
+    "notificationNew": "Mới"
   },
   "buyers": {
     "title": "Tài khoản người mua",

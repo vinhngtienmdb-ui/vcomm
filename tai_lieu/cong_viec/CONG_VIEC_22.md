@@ -72,7 +72,7 @@ Luồng 54: nhân viên mở Kinh doanh → thấy hẹn hôm nay, doanh số th
 - MAN_HINH_197 Thêm ghi chú chăm sóc: kênh, nội dung, hẹn lần sau chọn nhanh (Không hẹn, Ngày mai, 3 ngày nữa, 1 tuần nữa, Chọn ngày nhập ngày/tháng/năm; không thêm thư viện chọn ngày).
 - MAN_HINH_198 Hẹn của tôi: nhóm Quá hạn, Hôm nay, 7 ngày tới; bấm mở khách; nút Đã xong.
 - MAN_HINH_199 Doanh số: chọn tháng; doanh số của tôi; với người quản lý thêm bảng từng người trong nhánh và tổng nhánh, bấm một người mở khách của người đó (MAN_HINH_84).
-- MAN_HINH_200 Thông báo: danh sách, chưa đọc in đậm; số chưa đọc trên biểu tượng đầu mục Trang chủ.
+- MAN_HINH_200 Thông báo: danh sách, chưa đọc in đậm; lối vào "Thông báo" kèm số chưa đọc ở thanh tiêu đề mọi thẻ của thanh điều hướng dưới. Bấm thông báo có liên kết thuộc ứng dụng (`/hen`, `/khach/`, `/don-hang/`, `/vi-hoa-hong`, `/de-xuat`, `/rut-tien`) thì mở màn hình đó; liên kết khác chỉ đánh dấu đã đọc.
 - MAN_HINH_201 Chia sẻ sản phẩm: nút Chia sẻ trên trang sản phẩm, bảng xem trước nội dung, sao chép, chia sẻ.
 - Sửa web-crm: bỏ menu Ghé thăm, thẻ ghé thăm trên MAN_HINH_37 (MAN_HINH_72 ẩn).
 
@@ -123,7 +123,7 @@ Không còn. Câu hỏi 1 (gán đơn khi tính doanh số) người dùng chọ
 - KICHBAN_KIEMTHU_582: thủ công trên bản xem trước web của ứng dụng VComm khổ 390 điểm ảnh.
 - KICHBAN_KIEMTHU_584 dự phòng.
 
-Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt; người dùng đồng ý 2026-11-12). L1 xong (KICHBAN_KIEMTHU_581 đạt trên bản xem trước; người dùng đồng ý 2026-11-12). L2 xong (migration 0113; API_229, 230; MAN_HINH_197, 198; KICHBAN_KIEMTHU_575, 576 đạt).
+Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt; người dùng đồng ý 2026-11-12). L1 xong (KICHBAN_KIEMTHU_581 đạt trên bản xem trước; người dùng đồng ý 2026-11-12). L2 xong (migration 0113; API_229, 230; MAN_HINH_197, 198; KICHBAN_KIEMTHU_575, 576 đạt; người dùng đồng ý 2026-11-12). L3 xong (việc nền `marketplace-sales-follow-ups` 07:00, MAN_HINH_200; KICHBAN_KIEMTHU_577 đạt).
 - Sửa KICHBAN_KIEMTHU_290, 291 (ghé thăm): ghi mới bị từ chối; đọc giữ nguyên.
 
 ## 13. Ràng buộc kỹ thuật

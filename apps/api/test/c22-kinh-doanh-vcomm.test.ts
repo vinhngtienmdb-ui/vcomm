@@ -4,6 +4,7 @@ import type { Pool } from "pg";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { MarketplaceOrdersService } from "../src/marketplace/marketplace-orders.service";
+import { SalesCareService } from "../src/marketplace/sales-care.service";
 import { prepareMarketplace, retail, startGhnMock, type BuyerCall, type GhnMock, type MarketplaceFixture } from "./marketplace-fixture";
 import { startTestApplication } from "./setup-database";
 
@@ -217,5 +218,52 @@ describe("CONG_VIEC_22 ghi chú chăm sóc, hẹn", () => {
     expect((await sessions.other("get", "/buyer/sales/follow-ups")).body).toMatchObject({ overdue: [], dueToday: [], upcoming: [] });
     expect((await sessions.other("post", `/buyer/sales/follow-ups/${soon}/done`)).status).toBe(404);
     await pool.query("UPDATE marketplace.buyer_accounts SET referrer_user_id = $1 WHERE user_id = $2", [people.other, customers.ofOther]);
+  });
+
+  it("KICHBAN_KIEMTHU_577: nhắc hẹn tạo đúng một thông báo trong ứng dụng mỗi người mỗi ngày, đúng số hôm nay, quá hạn; chạy lại không trùng; không nhắc hẹn đã xong, người hết phạm vi, người bị bỏ đánh dấu", async () => {
+    const today = vietnamToday();
+    await pool.query("DELETE FROM core.notifications WHERE kind = 'sales.follow_up_due'");
+    // Hẹn còn chờ từ kịch bản trước coi như đã xong để đếm đúng.
+    await pool.query("UPDATE marketplace.customer_care_notes SET follow_up_done_at = now() WHERE follow_up_on IS NOT NULL AND follow_up_done_at IS NULL");
+    // Trưởng phòng: 1 hẹn hôm nay, 2 quá hạn (khách của cấp dưới và của mình), 1 hẹn đã xong, 1 hẹn ngày mai.
+    const add = async (session: BuyerCall, customerId: string, followUpOn: string) =>
+      (await session("post", notesPath(customerId), { channel: "call", content: "Nhắc", followUpOn })).body.id as string;
+    await add(sessions.head, customers.ofStaff, today);
+    const late = await add(sessions.head, customers.ofHead, today);
+    const later = await add(sessions.head, customers.ofStaff, today);
+    await pool.query("UPDATE marketplace.customer_care_notes SET follow_up_on = $1 WHERE id = ANY($2)", [shift(today, -2), [late, later]]);
+    const finished = await add(sessions.head, customers.ofHead, today);
+    expect((await sessions.head("post", `/buyer/sales/follow-ups/${finished}/done`)).status).toBe(200);
+    await add(sessions.head, customers.ofHead, shift(today, 1));
+    const service = application.get(SalesCareService);
+    await service.remindDue();
+    const mine = await pool.query("SELECT user_id, title, link, payload FROM core.notifications WHERE kind = 'sales.follow_up_due' AND user_id = $1", [people.head]);
+    expect(mine.rows).toHaveLength(1);
+    expect(mine.rows[0]).toMatchObject({ link: "/hen", payload: { date: today, dueToday: 1, overdue: 2 } });
+    expect(mine.rows[0].title).toBe("Bạn có 1 hẹn chăm sóc hôm nay, 2 hẹn quá hạn");
+    // Chạy lại trong ngày: không trùng.
+    await service.remindDue();
+    expect((await pool.query("SELECT count(*)::int AS total FROM core.notifications WHERE kind = 'sales.follow_up_due' AND user_id = $1", [people.head])).rows[0].total).toBe(1);
+    // Nhân viên Hai: khách đã chuyển sang người thường thì không nhắc.
+    const other = await add(sessions.other, customers.ofOther, today);
+    await pool.query("UPDATE marketplace.buyer_accounts SET referrer_user_id = $1 WHERE user_id = $2", [people.plain, customers.ofOther]);
+    await service.remindDue();
+    expect((await pool.query("SELECT count(*)::int AS total FROM core.notifications WHERE kind = 'sales.follow_up_due' AND user_id = $1", [people.other])).rows[0].total).toBe(0);
+    await pool.query("UPDATE marketplace.buyer_accounts SET referrer_user_id = $1 WHERE user_id = $2", [people.other, customers.ofOther]);
+    // Bỏ đánh dấu nhân viên kinh doanh: không nhắc.
+    await pool.query("UPDATE marketplace.buyer_accounts SET is_sales_staff = false, sales_company_id = NULL, sales_department_id = NULL WHERE user_id = $1", [people.other]);
+    await service.remindDue();
+    expect((await pool.query("SELECT count(*)::int AS total FROM core.notifications WHERE kind = 'sales.follow_up_due' AND user_id = $1", [people.other])).rows[0].total).toBe(0);
+    expect(other).toEqual(expect.any(String));
+    // QUYTAC_NGHIEPVU_438: ứng dụng đọc thông báo của chính mình qua API_48, đánh dấu đã đọc.
+    const list = await sessions.head("get", "/notifications");
+    expect(list.status, JSON.stringify(list.body)).toBe(200);
+    const reminder = list.body.data.find((item: { kind: string }) => item.kind === "sales.follow_up_due");
+    expect(reminder).toMatchObject({ title: "Bạn có 1 hẹn chăm sóc hôm nay, 2 hẹn quá hạn", link: "/hen", readAt: null });
+    const unread = list.body.unreadCount as number;
+    expect((await sessions.head("post", `/notifications/${reminder.id}/read`)).status).toBe(204);
+    expect((await sessions.head("get", "/notifications")).body.unreadCount).toBe(unread - 1);
+    // Không đọc được thông báo của người khác.
+    expect((await sessions.staff("post", `/notifications/${reminder.id}/read`)).status).toBe(404);
   });
 });
