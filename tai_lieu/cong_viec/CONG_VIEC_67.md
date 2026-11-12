@@ -8,7 +8,7 @@
 - Nguồn: CONG_VIEC_61 (YCAU_NGHIEPVU_169, QUYTAC_NGHIEPVU_495 dự phòng, mục 16 điểm cần chốt cho L4), CONG_VIEC_55 (giao dịch, voucher, đối soát, hạch toán), CONG_VIEC_53 lát L6 (Smart OTP), CONG_VIEC_51 (sổ cái điểm); quyết định của người dùng ngày 2026-11-12 (mục 17).
 - Mức: Lớn (sửa cấu trúc dữ liệu, API, bảng đối soát đã duyệt; nhiều module: MODULE_12, MODULE_16, MODULE_11).
 - Phụ thuộc: CONG_VIEC_55, CONG_VIEC_61 (đã có trong `main`, bản 0.7.0). Không phụ thuộc mã chưa phát hành của CONG_VIEC_60.
-- Thay đổi đã duyệt: thêm phí tin nhắn vào hợp đồng và bảng đối soát của CONG_VIEC_55 cần phiếu THAY_DOI (tài liệu `24`); đã đề nghị phiên điều phối cấp số.
+- Thay đổi đã duyệt: THAY_DOI_31 (phí tin nhắn OTP vào hợp đồng và bảng đối soát của CONG_VIEC_55; người dùng chọn 2026-11-12).
 
 ## 1. Mục tiêu
 
@@ -73,7 +73,7 @@ Ngoài phạm vi:
 
 - Tra điểm (YCAU_NGHIEPVU_169): đầu vào điểm bán, tiền hóa đơn, mã thành viên hoặc số điện thoại. Kết quả: tên khách đã che, dùng điểm được hay không và lý do, điểm tối thiểu, tối đa dùng được, giá trị một điểm, điểm dự kiến tích (chưa xét hạn mức), voucher dùng được, khách có Smart OTP. Không trả số dư, tên đầy đủ, số điện thoại. Tra điểm không giữ điểm, không lập giao dịch.
 
-- Bổ sung QUYTAC_NGHIEPVU_392, 403, 404 (phí tin nhắn):
+- Bổ sung QUYTAC_NGHIEPVU_392, 403, 404 (phí tin nhắn, THAY_DOI_31):
   1. Hợp đồng thêm "Phí mỗi tin OTP" (đồng, 0 đến 10.000, mặc định 0); sửa áp cho tin gửi sau khi sửa.
   2. Mỗi tin SMS gửi thành công qua API ghi một dòng phí (cửa hàng, khóa, thời điểm, đơn giá lúc gửi). Gửi lỗi không tính. Máy phát triển ghi log vẫn tính để kiểm thử.
   3. Bảng đối soát tuần thêm phí tin nhắn (F) = tổng đơn giá các tin trong tuần; thuế của phí (E) = làm tròn ((D + F) × thuế suất); số còn lại = A + D + F + E − B − C (cộng phần thiếu, điều chỉnh như cũ). Cửa hàng có tin nhắn nhưng không có giao dịch trong tuần vẫn lập bảng.
@@ -249,6 +249,5 @@ Kiểm thử tự động: `apps/api/test/c67-*.test.ts`.
 
 ## 19. Điểm chưa xác định
 
-- Số phiếu THAY_DOI cho phần phí tin nhắn (chờ phiên điều phối cấp).
 - Tài liệu hướng dẫn tích hợp cho cửa hàng: gửi bản trích tài liệu `17` như CONG_VIEC_61.
 - Ý kiến luật sư về điểm thưởng (như CONG_VIEC_51, 55): chặn phát hành thật, không chặn xây dựng.
