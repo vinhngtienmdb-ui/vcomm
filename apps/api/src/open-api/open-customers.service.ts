@@ -69,6 +69,9 @@ export class OpenCustomersService {
   async update(caller: OpenApiCaller, code: string, input: z.output<typeof openCustomerUpdateSchema>, context: CallerContext): Promise<OpenCustomer> {
     const row = await this.find(caller, code);
     if (!row.is_owner) throw new ApiError("BUSINESS_RULE", "openApiCustomerNotManaged");
+    // Không xóa trường bắt buộc theo loại khách (khoản 2).
+    if (row.kind !== "individual" && input.address === null) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { address: "required" } });
+    if (row.kind === "individual" && input.phone === null) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { phone: "required" } });
     await this.partners.updateFromOpenApi(this.sourceOf(caller, context), row.partner_id, input);
     return this.detail(caller, code);
   }

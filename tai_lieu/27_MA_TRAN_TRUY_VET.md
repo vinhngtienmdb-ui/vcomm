@@ -737,7 +737,7 @@
 
 ## 37. Kiểm tra bao phủ CONG_VIEC_61 – 2026-11-12
 
-- Yêu cầu nghiệp vụ chưa có chức năng: YCAU_NGHIEPVU_168 (CHUC_NANG_221 chưa làm), YCAU_NGHIEPVU_169 (chưa cấp mã chức năng) – người dùng tách sang công việc riêng ngày 2026-11-12. Còn lại: YCAU_NGHIEPVU_162 → CHUC_NANG_217; 163 → CHUC_NANG_217, 218; 164 → CHUC_NANG_217, 218; 165 → CHUC_NANG_218; 166 → CHUC_NANG_219; 167 → CHUC_NANG_220
+- Yêu cầu nghiệp vụ chưa có chức năng: YCAU_NGHIEPVU_168 (làm ở CONG_VIEC_66, xem mục 38), YCAU_NGHIEPVU_169 (chưa cấp mã chức năng) – người dùng tách sang công việc riêng ngày 2026-11-12. Còn lại: YCAU_NGHIEPVU_162 → CHUC_NANG_217; 163 → CHUC_NANG_217, 218; 164 → CHUC_NANG_217, 218; 165 → CHUC_NANG_218; 166 → CHUC_NANG_219; 167 → CHUC_NANG_220
 - Quy tắc nghiệp vụ chưa có chức năng áp dụng: QUYTAC_NGHIEPVU_494, 495 (dự phòng). Còn lại: 480 đến 483, 493 → CHUC_NANG_217; 484 đến 488 → CHUC_NANG_218; 489 → CHUC_NANG_219; 490 đến 492 → CHUC_NANG_220
 - Chức năng chưa có tiêu chí nghiệm thu: CHUC_NANG_221 (chưa làm). CHUC_NANG_217 → TIEUCHI_NGHIEMTHU_444, 445, 450, 452, 457; CHUC_NANG_218 → 446 đến 450, 457; CHUC_NANG_219 → 450, 451; CHUC_NANG_220 → 453 đến 456
 - Chức năng cần giao diện nhưng chưa có màn hình: Không có (MAN_HINH_224 đến MAN_HINH_226; sửa MAN_HINH_42 và chi tiết đơn bán)
@@ -745,3 +745,15 @@
 - Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_638 (bán tự động, chụp màn hình bằng Playwright ngoài dự án)
 - Kịch bản chưa chạy hoặc kết quả Không đạt: Đạt (16 kiểm thử API); kết quả gửi phiên cha ghi tài liệu `25`
 - Mã nguồn không truy được về yêu cầu nào: Không có (`apps/api/src/open-api/*`, `apps/api/src/sales/sales-orders.service.ts` phần Open API, `apps/web-platform/src/app/platform/api-keys`, `api-call-logs`, `apps/web-platform/src/components/ApiKeyForms.tsx`, `ApiCallLogTable.tsx`, `apps/web-sales/src/app/orders`)
+
+## 38. Kiểm tra bao phủ CONG_VIEC_66 – 2026-11-12
+
+- Yêu cầu nghiệp vụ chưa có chức năng: Không có (YCAU_NGHIEPVU_168 → CHUC_NANG_221).
+- Quy tắc nghiệp vụ chưa có chức năng áp dụng: Không có (QUYTAC_NGHIEPVU_494 → CHUC_NANG_221).
+- Chức năng chưa có tiêu chí nghiệm thu: Không có (CHUC_NANG_221 → TIEUCHI_NGHIEMTHU_494 đến 503).
+- Chức năng cần giao diện nhưng chưa có màn hình: Không có (sửa danh sách, chi tiết đối tác; chi tiết đơn bán; chi tiết phiếu kho; MAN_HINH_224 mở phạm vi `customer.write`).
+- Tiêu chí nghiệm thu chưa có kịch bản kiểm thử: Không có (494 → KICHBAN_KIEMTHU_681, 682; 495 → 683; 496 → 684; 497 → 685, 686; 498 → 687; 499 → 688; 500 → 689; 501 → 690; 502 → 691; 503 → 692).
+- Kịch bản kiểm thử và tệp kiểm thử tự động: KICHBAN_KIEMTHU_681 đến 692 → `apps/api/test/c66-open-api-customers.test.ts` (phần API của 691, 692).
+- Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_691, 692 phần giao diện (chụp màn hình bằng Playwright ngoài dự án).
+- Kịch bản chưa chạy hoặc kết quả Không đạt: Đạt (11 kiểm thử API); kết quả gửi phiên cha ghi tài liệu `25`.
+- Mã nguồn không truy được về yêu cầu nào: Không có (`apps/api/src/open-api/open-customers.service.ts`, phần Open API của `crm/partners.service.ts`, `sales/sales-orders.service.ts`, `inventory/stock-documents.service.ts`; màn hình đối tác, đơn bán, phiếu kho).

@@ -2895,6 +2895,22 @@ flowchart LR
 - Đơn bán: thêm bộ lọc "Nguồn" (Nhập trên web, Open API); cột Khách hàng có nhãn "Open API" kèm mã đơn đối tác; tìm theo mã đơn đối tác; chi tiết đơn có hộp thông tin khóa đã tạo, mã đơn đối tác.
 - Trạng thái: dùng `Loaded`, `MessageView` dùng chung (đang tải, lỗi, không quyền, rỗng). Responsive: bảng chuyển thành thẻ ở màn hình hẹp.
 - Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12; xem trước L1, L2 đạt.
+
+### Sửa màn hình cho khách hàng do đối tác tạo, người nhận (CONG_VIEC_66)
+
+Không màn hình mới (người dùng chọn 2026-11-12; MAN_HINH_227 đến 230 không dùng). Bản mẫu: `ban_mau/SUA_KHACH_HANG_OPEN_API.html`, `ban_mau/SUA_DON_BAN_NGUOI_NHAN.html` (tệp `open_api_khach_hang.js`), duyệt 2026-11-12.
+
+| Màn hình | Thay đổi | Chức năng |
+|---|---|---|
+| Danh sách đối tác (Khách hàng và đối tác) | Bộ lọc Nguồn (Nhập trên web, Open API); nhãn "Do đối tác tạo" cạnh tên | CHUC_NANG_221 |
+| Chi tiết đối tác | Hộp thông tin: đối tác, khóa, thời điểm tạo hoặc gắn, thời điểm xác nhận đồng ý; ngăn kéo sửa: căn cước không bắt buộc với khách do đối tác tạo | CHUC_NANG_221 |
+| Chi tiết đơn bán | Nhãn "Do đối tác tạo" cạnh khách; khối Người nhận (tên, điện thoại, địa chỉ giao) | CHUC_NANG_221 |
+| Chi tiết phiếu kho (phiếu xuất giao hàng) | Dòng Người nhận | CHUC_NANG_221 |
+| MAN_HINH_224 (cấp, sửa khóa) | Phạm vi "Khách hàng do đối tác tạo" cho chọn | CHUC_NANG_221 |
+
+Trạng thái đang tải, lỗi, không quyền, rỗng dùng như màn hình hiện có. Xem trước L2 đạt (2026-11-12).
+
+
 ## MODULE_13 Văn phòng số phần 1 (CONG_VIEC_52)
 
 Mini app Văn phòng số `apps/web-office`, đường dẫn `/office`. Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_153` đến `MAN_HINH_160` (tệp `van_phong.js`). Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_52.md` mục 8.

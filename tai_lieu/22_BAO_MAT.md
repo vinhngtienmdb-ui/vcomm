@@ -1211,3 +1211,21 @@ Ranh giới và kiểm soát riêng:
 - Redis lỗi thì giới hạn tần suất cho qua (như hiện có), ghi log lỗi.
 
 Kết quả rà soát bảo mật CONG_VIEC_61 (2026-11-12): không phát hiện lỗi mức Cao; ghi nhận rủi ro `trust proxy` ở trên cho bước triển khai.
+
+### Khách hàng do đối tác tạo MODULE_16 phần 5 (CONG_VIEC_66)
+
+| Dữ liệu | Phân loại | Lưu ở đâu, bảo vệ thế nào | Ai xem |
+|---|---|---|---|
+| Khách cá nhân do đối tác gửi (tên, điện thoại, địa chỉ, email, căn cước nếu có) | Dữ liệu cá nhân | `crm.partners` như khách nhập trên web; căn cước không trả qua API đối tác, che trong nhật ký thao tác; đồng ý xử lý do đối tác thu theo hợp đồng, hệ thống lưu thời điểm xác nhận (`crm.open_api_customers.personal_data_consent_at`) | Đối tác: khách do phạm vi tạo; nhân viên: theo quyền đối tác hiện có |
+| Người nhận (tên, điện thoại, địa chỉ) | Dữ liệu cá nhân | `sales.orders` | Đối tác: đơn trong phạm vi; nhân viên: quyền đơn bán, kho hiện có |
+
+| Điểm tiếp nhận | Loại | Kiểm tra đầu vào | Cần xác thực |
+|---|---|---|---|
+| API_289 đến API_292 (`/api/v1/open/customers`) | API công khai cho đối tác | Lược đồ zod `openCustomerSchema`, `openCustomerUpdateSchema`, `openCustomerListQuerySchema` (trường thừa bị từ chối); mã khách trên đường dẫn chỉ nhận chữ, số | Khóa API phạm vi `customer.write` |
+
+Ranh giới và kiểm soát riêng:
+- Mọi truy vấn khách lọc `company_id` và phạm vi (đối tác hoặc khóa nội bộ) trong câu truy vấn; đơn chỉ dùng khách trong phạm vi.
+- Hồ sơ gắn do trùng chỉ trả mã, loại; đối tác không đọc, không sửa hồ sơ không do mình tạo.
+- Rủi ro (mức Trung bình, chờ người dùng quyết định): đối tác gửi mã số thuế hoặc số căn cước bất kỳ biết được người đó đã có hồ sơ trong tập đoàn (nhận mã khách) và gửi được đơn Nháp ghi khách đó. Giảm thiểu hiện có: đơn chỉ ở Nháp, nhân viên kiểm trước khi gửi duyệt; nhật ký thao tác ghi khóa đã gắn. Phương án thêm: chỉ dùng lại theo mã số thuế (căn cước trùng thì trả `409`).
+
+Kết quả rà soát bảo mật CONG_VIEC_66 (2026-11-12): không phát hiện lỗi mức Cao; rủi ro dò mã số thuế, căn cước ở trên chờ người dùng quyết định.

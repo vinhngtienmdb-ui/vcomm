@@ -624,3 +624,18 @@ TIEUCHI_NGHIEMTHU_159 (ghé thăm khách, CONG_VIEC_22 bản cũ) thay bằng TI
 | TIEUCHI_NGHIEMTHU_455 | CHUC_NANG_220 | Kho ngoài khóa, mã hàng, đơn vị, số lượng sai bị từ chối đúng dòng | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_456 | CHUC_NANG_220 | Hủy Nháp được; đã gửi duyệt `409`; đối tác khác không tra được | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_457 | CHUC_NANG_217, 218 | MAN_HINH_224 đến 226 đủ trạng thái rỗng, đang tải, lỗi, không quyền; tiếng Việt và tiếng Anh | Xem màn hình | Bắt buộc |
+
+### Khách hàng do đối tác tạo, người nhận giao thẳng (CONG_VIEC_66)
+
+| Mã | Chức năng | Nội dung tiêu chí | Cách kiểm tra | Loại |
+|---|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_494 | CHUC_NANG_221 | Đối tác tạo khách tổ chức, cá nhân hợp lệ nhận `201` kèm mã; hồ sơ "Do đối tác tạo", hồ sơ khách công ty nhóm của đối tác, hạn 0 ngày; khóa nội bộ không nhóm | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_495 | CHUC_NANG_221 | Thiếu trường bắt buộc theo loại khách, sai định dạng báo `400` đúng trường; cá nhân không có căn cước tạo được | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_496 | CHUC_NANG_221 | Trùng mã số thuế, căn cước: `200` chỉ mã, loại, hồ sơ cũ không đổi; hồ sơ ngừng dùng hoặc chỉ nhà cung cấp `409` | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_497 | CHUC_NANG_221 | Chỉ liệt kê, xem, sửa khách trong phạm vi; đối tác, công ty khác `404`; sửa khách gắn do trùng, sai `version` `409`; không sửa loại, mã số thuế | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_498 | CHUC_NANG_221 | Đơn có `customerCode` trong phạm vi ghi khách đó, giá theo nhóm; ngoài phạm vi, ngừng dùng bị từ chối ở `customerCode` | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_499 | CHUC_NANG_221 | Người nhận đủ ba trường lưu, trả về; thiếu, sai, gửi cùng `deliveryAddress` `400` đúng trường; nhân viên sửa đơn Nháp không mất người nhận | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_500 | CHUC_NANG_221 | Phiếu xuất của đơn ghi khách do đối tác tạo sinh hóa đơn điện tử và công nợ theo khách đó | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_501 | CHUC_NANG_221 | Nhật ký thao tác tác nhân là khóa, không có số căn cước; nhật ký gọi không có dữ liệu cá nhân | Gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_502 | CHUC_NANG_221 | Danh sách đối tác nhãn "Do đối tác tạo", lọc nguồn; chi tiết có hộp thông tin Open API; sửa khách cá nhân không căn cước được | Giao diện, gọi API | Bắt buộc |
+| TIEUCHI_NGHIEMTHU_503 | CHUC_NANG_221 | Chi tiết đơn bán, phiếu xuất hiện người nhận; đủ trạng thái; tiếng Việt, tiếng Anh | Giao diện | Bắt buộc |

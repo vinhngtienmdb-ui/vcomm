@@ -3,7 +3,7 @@
 - Mô tả: Đối tác (website, sàn bán hộ, đại lý) và phần mềm của chính công ty tạo khách hàng (người mua lấy hóa đơn) qua Open API, gửi đơn bán ghi khách đó và người nhận để công ty giao thẳng. Tách từ CONG_VIEC_61 lát L3.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Đã duyệt đặc tả, bản mẫu (người dùng, 2026-11-12); đang làm lát L2
+- Trạng thái: Xem trước L1, L2 đạt (người dùng, 2026-11-12); chờ nghiệm thu
 - Mức: Lớn (sửa cấu trúc dữ liệu đối tác và đơn bán, sửa API đang dùng, thêm dữ liệu cá nhân nhận qua điểm tiếp nhận công khai).
 - Nhánh: `chuc-nang/CONG_VIEC_66-open-api-khach-hang`.
 - Nguồn: `CONG_VIEC_61.md` (mục 2, 3, 5, 16, 17); quyết định của người dùng ngày 2026-11-12 (mục 17).
@@ -230,3 +230,16 @@ API_293, API_294 không dùng, trả phiên điều phối. Mã lỗi dùng mã 
 | --- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | L1  | Database migration 0131; API_289 đến 292; sửa API_262, 263; kiểm thử tích hợp TIEUCHI_NGHIEMTHU_494 đến 501 | `curl`: tạo khách tổ chức, cá nhân, trùng mã số thuế, sửa; tạo đơn có khách và người nhận; kết quả kiểm thử |
 | L2  | Sửa màn hình đối tác, chi tiết đơn bán, chi tiết phiếu kho; API nhân viên trả nguồn khách, người nhận       | Ảnh chụp các màn hình đã sửa (1360 và 390 điểm ảnh, tiếng Việt, tiếng Anh)                                  |
+
+## 20. Kết quả đối chiếu định nghĩa hoàn thành
+
+| Mục                      | Kết quả                                                                                                                                                                                                 |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tiêu chí nghiệm thu      | TIEUCHI_NGHIEMTHU_494 đến 501 đạt bằng `apps/api/test/c66-open-api-customers.test.ts`; 502, 503 đạt bằng kiểm thử API và chụp màn hình ứng dụng chạy thật (1360 và 390 điểm ảnh, tiếng Việt, tiếng Anh) |
+| Kiểm thử toàn bộ máy chủ | 129 tệp, 699/699 kiểm thử đạt (`pnpm --filter api test`, 2026-11-12)                                                                                                                                    |
+| Kiểm tra kiểu            | `api`, `web-platform`, `web-crm`, `web-sales`, `web-inventory` đạt; tệp dịch khớp                                                                                                                       |
+| Rà soát mã               | Sửa: đối tác không được xóa địa chỉ tổ chức, điện thoại cá nhân khi sửa; mở phạm vi `customer.write` ở MAN_HINH_224 (trước đó bị khóa)                                                                  |
+| Rà soát bảo mật          | Tài liệu `22` mục CONG_VIEC_66: không lỗi mức Cao; rủi ro dò mã số thuế, căn cước (Trung bình) chờ người dùng quyết định; không thêm thư viện; không có khóa bí mật trong commit                        |
+| Tài liệu                 | `06`, `07`, `09`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27` bổ sung; sổ chung `02`, `03`, `24`, `25` gửi phiên điều phối ghi                                                                       |
+| Thư viện mới             | Không                                                                                                                                                                                                   |
+| Mã trả lại               | MAN_HINH_227 đến 230, API_293, API_294                                                                                                                                                                  |

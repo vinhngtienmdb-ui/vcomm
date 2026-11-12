@@ -5491,6 +5491,96 @@ Dữ liệu chung: `apps/api/test/c61-open-api.test.ts` – công ty VCR có s�
 - Các bước và kết quả mong đợi: trên ứng dụng chạy thật, cấp khóa ở MAN_HINH_224 (hộp khóa một lần, sao chép), xem MAN_HINH_225 (thống kê, ba thẻ), lọc MAN_HINH_226; màn hình 390 điểm ảnh chuyển bảng thành thẻ; không lỗi console. Trạng thái rỗng, đang tải, lỗi, không quyền dùng `Loaded`, `MessageView` dùng chung.
 - Kiểm thử tự động: Bán tự động – Playwright chụp màn hình (kịch bản trong thư mục nháp của phiên, chưa đưa vào dự án)
 - Lát: L1, L2
+
+## CHUC_NANG_221: khách hàng do đối tác tạo, người nhận giao thẳng (CONG_VIEC_66)
+
+Dữ liệu chung: `apps/api/test/c66-open-api-customers.test.ts` – công ty VCR có sản phẩm bán theo cái, kho OC661, kênh Bán sỉ, bảng giá chung 11.000 và nhóm Đại lý cấp 1 9.900; hai khóa của đối tác Minh Long, một khóa đối tác khác, một khóa nội bộ, một khóa công ty VCT.
+
+### KICHBAN_KIEMTHU_681
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_494
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng
+- Các bước và kết quả mong đợi: Tạo khách tổ chức bằng khóa đối tác nhóm Đại lý cấp 1: `201`, hồ sơ có `created_via_api_key_id`, hồ sơ khách công ty nhóm Đại lý cấp 1, hạn 0 ngày, hạn mức trống, phạm vi là đối tác.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_682
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_494
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng
+- Các bước và kết quả mong đợi: Tạo khách cá nhân bằng khóa nội bộ: không nhóm, phạm vi là khóa, không có căn cước, có thời điểm xác nhận đồng ý; nhân viên sửa hồ sơ không căn cước được.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_683
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_495
+- Chức năng: CHUC_NANG_221
+- Loại: Sai, giá trị biên
+- Các bước và kết quả mong đợi: Sáu trường hợp: tổ chức thiếu mã số thuế, thiếu địa chỉ; cá nhân thiếu điện thoại, `personalDataConsent` sai; mã số thuế sai định dạng; email sai: `400` đúng trường, đúng thông báo.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_684
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_496
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng, sai, đồng thời
+- Các bước và kết quả mong đợi: Trùng mã số thuế hồ sơ nhân viên tạo: `200` chỉ mã, hồ sơ không đổi, công ty có hồ sơ khách; hồ sơ ngừng dùng, chỉ nhà cung cấp: `409`; hai khóa cùng đối tác gửi cùng lúc: một `201`, một `200`, một hồ sơ; gửi lại: `200` đủ thông tin.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_685
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_497
+- Chức năng: CHUC_NANG_221
+- Loại: Phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Khóa thứ hai cùng đối tác thấy khách; đối tác khác, khóa nội bộ, khóa công ty B nhận `404`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_686
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_497
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Sửa khách mình tạo đúng `version`; sai `version` `409`; gửi `taxCode` `400`; xóa địa chỉ tổ chức `400`; sửa khách gắn do trùng `409`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_687
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_498
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Đơn với khách do đối tác tạo: khách đúng, tổng tiền theo giá nhóm (99.000); khách của đối tác khác, khách ngừng dùng bị từ chối ở `customerCode`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_688
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_499
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng, sai
+- Các bước và kết quả mong đợi: Đơn có người nhận lưu, trả về (cả khóa thứ hai); thiếu tên, điện thoại sai, có cả `deliveryAddress` `400` đúng trường; nhân viên xóa địa chỉ giao `400`, sửa đơn giữ người nhận.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_689
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_500
+- Chức năng: CHUC_NANG_221
+- Loại: Đúng
+- Các bước và kết quả mong đợi: Gửi duyệt, xác nhận, ghi sổ phiếu xuất: phiếu kho có người nhận; hóa đơn "Chờ gửi" mang tên, mã số thuế khách; bút toán 131 theo khách.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_690
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_501
+- Chức năng: CHUC_NANG_221
+- Loại: Bảo mật
+- Các bước và kết quả mong đợi: Nhật ký thao tác tạo, sửa khách có tên khóa, không có số căn cước, không gắn người dùng; nhật ký gọi không có chuỗi truy vấn ngoài danh sách, không có điện thoại.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`
+
+### KICHBAN_KIEMTHU_691
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_502
+- Chức năng: CHUC_NANG_221
+- Loại: Giao diện, phân quyền
+- Các bước và kết quả mong đợi: API nhân viên lọc nguồn, `openApi` chỉ ở công ty cấp khóa; chụp màn hình danh sách lọc Open API, chi tiết có hộp Open API, ngăn kéo sửa cá nhân không căn cước; tiếng Việt, tiếng Anh; 1360 và 390 điểm ảnh.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`; chụp màn hình bằng Playwright ngoài dự án
+
+### KICHBAN_KIEMTHU_692
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_503
+- Chức năng: CHUC_NANG_221
+- Loại: Giao diện
+- Các bước và kết quả mong đợi: Chi tiết đơn bán có nhãn khách, khối Người nhận; phiếu xuất có Người nhận; chụp màn hình 1360 và 390 điểm ảnh, tiếng Việt, tiếng Anh.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c66-open-api-customers.test.ts`; chụp màn hình bằng Playwright ngoài dự án
+
+
 ## MODULE_13 Văn phòng số phần 1 (CONG_VIEC_52)
 
 Dữ liệu chung: công ty VCR và VCT cùng tập đoàn; phòng ban, chi nhánh của VCR; tài khoản Nhân viên, Văn thư (`office_clerk`), lãnh đạo có `office.document.direct`, người thiết kế quy trình, người đăng tin ở phạm vi công ty và tập đoàn, người không có quyền.

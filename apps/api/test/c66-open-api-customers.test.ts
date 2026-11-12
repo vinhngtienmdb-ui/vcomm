@@ -248,6 +248,7 @@ describe("TIEUCHI_NGHIEMTHU_497: phạm vi xem, sửa", () => {
     expect(updated.body).toMatchObject({ name: "Công ty đã đổi tên", phone: "+84901234567", email: null, address: "Số 1 Lê Lợi, Đà Nẵng", version: 2 });
     expect((await send("patch", `/customers/${created.code}`, dealerKey, { name: "Cũ", version: 1 })).status).toBe(409);
     expect((await send("patch", `/customers/${created.code}`, dealerKey, { taxCode: "0320066699", version: 2 })).status).toBe(400);
+    expect((await send("patch", `/customers/${created.code}`, dealerKey, { address: null, version: 2 })).body.error.fields).toEqual({ address: "Vui lòng nhập thông tin này." });
     const staff = (await call(admin, "post", "/crm/partners", { kind: "organization", name: "Hồ sơ nhân viên", taxCode: "0320066602" })).body;
     await send("post", "/customers", dealerKey, organization("0320066602"));
     const blocked = await send("patch", `/customers/${staff.code}`, dealerKey, { name: "Đổi", version: 1 });
