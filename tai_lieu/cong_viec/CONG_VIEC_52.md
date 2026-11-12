@@ -3,7 +3,7 @@
 - Mô tả: Mini app Văn phòng số `apps/web-office`: quản lý công việc (giao việc, hạn, người theo dõi, bình luận, đính kèm, việc liên công ty trong tập đoàn); quy trình công việc theo mẫu có nhánh rẽ, song song; công văn đến, đi theo Nghị định 30/2020/NĐ-CP (sổ, số đến, số đi, ký hiệu, độ khẩn, soạn đúng thể thức, xuất PDF và Word, trình ký qua luồng duyệt chung); bảng tin nội bộ.
 - Phiên bản: 0.2
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-12; trước phát hành đối chiếu nguyên văn Phụ lục I, III Nghị định 30/2020/NĐ-CP). Đặc tả đã duyệt ngày 2026-11-11 (gồm quyết định AI tự đưa ra ở mục 16). Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ.
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-12; người dùng quyết định bỏ việc đối chiếu nguyên văn Nghị định 30/2020/NĐ-CP trước phát hành, 2026-11-12). Đặc tả đã duyệt ngày 2026-11-11 (gồm quyết định AI tự đưa ra ở mục 16). Người dùng cho AI tự làm theo kế hoạch, chỉ hỏi điểm nghiệp vụ chưa rõ.
 - Mức: Lớn (module mới, mini app mới, thêm thư viện `docx`, dữ liệu liên công ty).
 - Nguồn: tài liệu `01` mục 4 (MODULE_13), tài liệu `05` (Văn phòng số: công việc, quy trình, công văn, bảng tin nội bộ); quyết định của người dùng ngày 2026-11-11 (mục 17).
 
@@ -193,7 +193,7 @@ Luồng duyệt chung, dãy số chứng từ, mẫu đề xuất, tệp đính 
 
 ## 18. Rủi ro
 
-- Nội dung Nghị định 30 chưa đối chiếu bản gốc trong phiên (mục 3); phải đối chiếu điều 8, 15, 16, 20 đến 24, Phụ lục I, III, IV trước khi phát hành (người dùng chọn nghiệm thu trước, đối chiếu trước phát hành, 2026-11-12).
+- Nội dung Nghị định 30 chưa đối chiếu bản gốc trong phiên (mục 3); phải đối chiếu điều 8, 15, 16, 20 đến 24, Phụ lục I, III, IV trước khi phát hành (người dùng chọn nghiệm thu trước, đối chiếu trước phát hành, 2026-11-12). Cập nhật 2026-11-12: người dùng quyết định không đợi đối chiếu, bỏ việc đối chiếu luật; thể thức giữ như đã nghiệm thu (theo bộ quy tắc thể thức Nghị định 30 dùng trong phiên và quy tắc ngày tháng phiên cha xác nhận).
 - Thư viện `docx` 9.15.3 và phông Liberation Serif: người dùng đã duyệt 2026-11-11 (tài liệu `13`).
 - Ba rủi ro mức Thấp tìm khi tự rà soát, người dùng chọn sửa cả ba (2026-11-12), đã sửa:
   - Tệp mồ côi: tệp lưu lên kho trong lúc ghi được gom lại, giao dịch lỗi ở bất kỳ bước nào thì xóa hết.
@@ -213,4 +213,4 @@ Luồng duyệt chung, dãy số chứng từ, mẫu đề xuất, tệp đính 
 - [x] Đạt cổng bảo mật: rà soát độc lập không thấy SQL injection, XSS, đi đường dẫn; ba lỗi phân quyền mức Trung bình, bốn lỗi đồng thời mức Thấp đã sửa (commit bed83a7); ba rủi ro mức Thấp còn lại người dùng chọn sửa, đã sửa (mục 18).
 - [x] Đã tự rà soát mã và dọn dẹp: không còn mã gỡ lỗi; ảnh, kịch bản xem trước ở `tam_thoi/` (không commit).
 - [x] Đã cập nhật tài liệu `27` và tài liệu liên quan: 06, 07, 08, 10, 11, 13, 14, 16, 17, 21, 22, 27. Tài liệu `02`, `03`, `25` do phiên cha ghi.
-- Rủi ro chưa đóng: nội dung Nghị định 30/2020/NĐ-CP chưa đối chiếu nguyên văn (mục 18).
+- Rủi ro: nội dung Nghị định 30/2020/NĐ-CP chưa đối chiếu nguyên văn (mục 18); người dùng quyết định bỏ việc đối chiếu (2026-11-12).
