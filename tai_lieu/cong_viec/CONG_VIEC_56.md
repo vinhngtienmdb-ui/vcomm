@@ -40,6 +40,7 @@ Ngoài phạm vi:
 10. Phiếu mua ngoại tệ giữ dãy số riêng tiền tố MNT (2026-11-12).
 11. Đánh giá lại chặn theo thứ tự: chỉ ghi sổ khi chưa có chứng từ ngoại tệ đã ghi sổ có ngày sau ngày đánh giá; kế toán đánh giá lại trước khi ghi sổ nghiệp vụ ngoại tệ tháng sau (2026-11-12).
 12. Lát L2 làm trước khi đối chiếu nguyên văn luật: mức tiền chậm nộp (hiện 0,03% mỗi ngày theo Luật Quản lý thuế 38/2019/QH14 Điều 59) và hạn nộp mặc định là tham số có ngày hiệu lực, cách làm như tham số lương CONG_VIEC_48; đối chiếu nguyên văn trước khi trình nghiệm thu (rủi ro, 2026-11-12).
+13. Không chờ đối chiếu nguyên văn luật để nghiệm thu (2026-11-12). Các mục **CHƯA XÁC ĐỊNH** ở mục 4 chuyển thành rủi ro, theo dõi ở mục 17; mức tiền chậm nộp, hạn nộp là tham số có ngày hiệu lực, sửa được khi tra xong.
 
 ## 4. Căn cứ pháp luật
 
@@ -246,6 +247,6 @@ Tình trạng (2026-11-12): L0 (commit 778e181, 7d84f65), L1 (14e9eb6), L2 (817d
 
 ## 17. Việc còn mở
 
-1. Tra nguyên văn các mục **CHƯA XÁC ĐỊNH** ở mục 4, chốt QUYTAC_NGHIEPVU_417 và thời hạn khai bổ sung ở QUYTAC_NGHIEPVU_414; hỏi người dùng nếu luật cho nhiều cách hiểu.
+1. Rủi ro (người dùng chấp nhận nghiệm thu không chờ, mục 3 quyết định 13): chưa tra nguyên văn các mục **CHƯA XÁC ĐỊNH** ở mục 4 (Phụ lục II Thông tư 99/2025 tài khoản 413, 515, 635; hạn nộp thuế nhập khẩu; mức tiền chậm nộp 0,03% mỗi ngày; thời hạn khai bổ sung). Tra sau khi nghiệm thu; nếu khác thì thêm bộ tham số mới hoặc lập yêu cầu thay đổi.
 2. Kế toán trưởng xác nhận định khoản mục 9 và tài khoản 413 theo Phụ lục II Thông tư 99/2025; xác nhận tài khoản quỹ ngoại tệ theo Thông tư 99 (đang ghi 111, 112) và Thông tư 133 (1112, 1122).
 3. Thời hạn khai bổ sung (QUYTAC_NGHIEPVU_414) chưa kiểm khi lập tờ khai bổ sung; bổ sung kiểm sau khi tra nguyên văn luật.
