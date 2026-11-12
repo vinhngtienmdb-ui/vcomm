@@ -1,11 +1,13 @@
 "use client";
 
 // Thêm, sửa quỹ (MAN_HINH_46; QUYTAC_NGHIEPVU_85): loại tiền mặt, ngân hàng; số dư đầu khóa khi quỹ đã có phiếu.
-import type { FundKind, FundResponse, SaveFundRequest } from "contracts";
+// CONG_VIEC_56 (QUYTAC_NGHIEPVU_406): quỹ ngoại tệ chọn tiền tệ, nhập số dư đầu ngoại tệ và tỷ giá; tiền tệ khóa khi quỹ đã có phiếu.
+import type { CurrencyResponse, FundKind, FundResponse, SaveFundRequest } from "contracts";
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { apiFetch } from "ui/lib/api";
+import { useApi } from "ui/lib/use-api";
 
 export function FundEditor({ fund, onSaved, onCancel }: { fund: FundResponse | null; onSaved: (saved: FundResponse) => void; onCancel: () => void }) {
   const t = useTranslations("funds");
@@ -17,11 +19,30 @@ export function FundEditor({ fund, onSaved, onCancel }: { fund: FundResponse | n
   const [accountHolder, setAccountHolder] = useState(fund?.accountHolder ?? "");
   const [openingBalance, setOpeningBalance] = useState(fund?.openingBalance ?? "0");
   const [active, setActive] = useState(fund ? fund.status === "active" : true);
+  const [currency, setCurrency] = useState(fund?.foreign?.currency ?? "");
+  const [openingForeignBalance, setOpeningForeignBalance] = useState(fund?.foreign?.openingBalance ?? "0");
+  const [openingExchangeRate, setOpeningExchangeRate] = useState(fund?.foreign?.openingExchangeRate ?? "");
+  const currencies = useApi<CurrencyResponse[]>("/currencies");
+  const baseCurrency = fund?.currency ?? "VND";
+  const locked = Boolean(fund?.hasPostings);
   const { submitting, fields, formError, run, inputClass } = useSubmit();
   function submit(event: FormEvent) {
     event.preventDefault();
     void run(async () => {
-      const body: SaveFundRequest = { code, name, kind, bankName, accountNo, accountHolder, openingBalance, status: active ? "active" : "inactive", ...(fund ? { version: fund.version } : {}) };
+      const body: SaveFundRequest = {
+        code,
+        name,
+        kind,
+        bankName,
+        accountNo,
+        accountHolder,
+        openingBalance,
+        status: active ? "active" : "inactive",
+        currency: currency || null,
+        openingForeignBalance: currency ? openingForeignBalance : null,
+        openingExchangeRate: currency ? openingExchangeRate : null,
+        ...(fund ? { version: fund.version } : {}),
+      };
       onSaved(await apiFetch<FundResponse>(fund ? `/finance/funds/${fund.id}` : "/finance/funds", { method: fund ? "PATCH" : "POST", body: JSON.stringify(body) }));
     });
   }
@@ -41,8 +62,28 @@ export function FundEditor({ fund, onSaved, onCancel }: { fund: FundResponse | n
             <option value="bank">{t("kind_bank")}</option>
           </select>
         </Field>
-        {text("so-du-dau", t("openingBalance"), openingBalance, setOpeningBalance, "openingBalance", true, Boolean(fund?.hasPostings))}
+        <Field id="tien-te-quy" label={t("currency")} error={fields.currency}>
+          <select id="tien-te-quy" className={inputClass("currency")} value={currency} disabled={locked} onChange={(event) => setCurrency(event.target.value)}>
+            <option value="">{t("companyCurrency", { currency: baseCurrency })}</option>
+            {(currencies.state.kind === "ready" ? currencies.state.data : [])
+              .filter((item) => item.code !== baseCurrency)
+              .map((item) => (
+                <option key={item.code} value={item.code}>
+                  {item.code} · {item.nameVi}
+                </option>
+              ))}
+          </select>
+        </Field>
+        {currency ? (
+          <>
+            {text("so-du-dau-ngoai-te", `${t("openingForeignBalance")} (${currency})`, openingForeignBalance, setOpeningForeignBalance, "openingForeignBalance", true, locked)}
+            {text("ty-gia-dau", `${t("openingExchangeRate")} *`, openingExchangeRate, setOpeningExchangeRate, "openingExchangeRate", true, locked)}
+          </>
+        ) : (
+          text("so-du-dau", t("openingBalance"), openingBalance, setOpeningBalance, "openingBalance", true, locked)
+        )}
       </div>
+      {currency && <span className="chu-thich">{t("openingValueHint")}</span>}
       {kind === "bank" && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "var(--khoang-3)" }}>
           {text("ten-ngan-hang", `${t("bankName")} *`, bankName, setBankName, "bankName")}

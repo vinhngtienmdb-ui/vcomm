@@ -9,6 +9,8 @@
 
 ### Công việc đã thực hiện
 
+- Người dùng nghiệm thu CONG_VIEC_56 (kế toán ngoại tệ và thuế hải quan, MODULE_06) lát L0 đến L3, pull request #119 (commit `2522322`, đã hợp nhất main 0.7.0; kiểm thử 648/648): database migration 0106 (quỹ ngoại tệ; finance.payments.kind thêm currency_purchase; view finance.fund_movements; vai trò định khoản cash_foreign, bank_foreign, exchange_difference, financial_income, financial_expense, late_payment_expense), 0107 (đánh giá lại; accounting.journals.source_type thêm fx_revaluation), 0108 (tham số thuế hải quan, tờ khai bổ sung, phiếu nộp và nhận hoàn thuế hải quan; payments.kind thêm customs_tax_payment, customs_tax_refund; journals.source_type thêm import_amendment). Ràng buộc journals_source_type_check của 0107, 0108 gồm mọi giá trị của 0105. Không thêm thư viện.
+- CONG_VIEC_52 hợp nhất main 0.7.0 (commit `c1f5d62`; kiểm thử 673/673).
 - Phát hành 0.7.0 (pull request #137, commit hợp nhất `bab8d3b`): CONG_VIEC_55, CONG_VIEC_61 (lát L1, L2); THAY_DOI_27, 29. Kiểm thử API 633/633. Không tạo database migration 0144 (ràng buộc dùng chung chỉ CONG_VIEC_55 định nghĩa lại). Thư viện mới: jsqr 1.4.0, expo-camera ~58.0.14 (mobile-vcomm). Môi trường thật bắt buộc đặt MFA_SECRET_KEY. Chưa triển khai.
 - Người dùng nghiệm thu CONG_VIEC_61 (Open API cho đối tác, MODULE_16) lát L1, L2, pull request #134 (commit `9b19474`, đã hợp nhất main 0.6.0; kiểm thử 617/617): khóa API theo công ty và đối tác (có khóa nội bộ), phạm vi quyền, hạn và IP tùy chọn, 60 yêu cầu mỗi phút chỉnh theo khóa, nhật ký gọi không ghi nội dung giữ 90 ngày, API sản phẩm, giá, tồn; đơn bán Nháp qua API, bắt buộc mã đơn đối tác (gửi lại trả đơn cũ), tra, hủy đơn Nháp. Database migration 0128 đến 0130. Không thêm thư viện.
 - Người dùng nghiệm thu CONG_VIEC_55 (cửa hàng liên kết phần 1); phần thủ công của KICHBAN_KIEMTHU_546 (quét mã QR bằng camera trên điện thoại thật) kiểm thử sau khi triển khai thử nghiệm. Người dùng duyệt đặc tả CONG_VIEC_59 (làm hết theo lát), lát L0 CONG_VIEC_60, lát L1 CONG_VIEC_61.
@@ -38,6 +40,10 @@
 
 ### Quyết định
 
+- Người dùng mở phiên cho CONG_VIEC_64 (quản lý sản xuất), CONG_VIEC_66 (Open API phần 2), CONG_VIEC_67 (Cửa hàng liên kết phần 2); các công việc còn lại (62, 63, 65) vẫn tạm dừng. Chưa triển khai các bản 0.4.0 đến 0.8.0.
+- Người dùng quyết định CONG_VIEC_52, CONG_VIEC_56 không chờ đối chiếu nguyên văn văn bản luật. Rủi ro còn mở của CONG_VIEC_56: chưa đối chiếu nguyên văn Phụ lục II Thông tư 99/2025 (tài khoản 413, 515, 635), hạn nộp thuế nhập khẩu, mức tiền chậm nộp 0,03% mỗi ngày, thời hạn khai bổ sung; kế toán trưởng chưa xác nhận tài khoản quỹ ngoại tệ. Các tham số đều cài được; nếu khác quy định thì thêm bộ tham số mới hoặc lập yêu cầu thay đổi.
+- Phát hành 0.8.0 gồm CONG_VIEC_52, 56 ngay; dành database migration 0145 cho việc gộp ràng buộc kiểm tra dùng chung nếu cần.
+- Người dùng xác nhận lại thư viện expo-camera ~58.0.14 (giấy phép MIT) trong mobile-vcomm, dùng quét mã QR cửa hàng liên kết ở bản 0.7.0; thư viện đã được duyệt từ 2026-11-11 (tài liệu 13).
 - Phát hành 0.7.0 gồm CONG_VIEC_55 và 61 khi CONG_VIEC_61 được nghiệm thu (dành database migration 0144 cho việc gộp ràng buộc kiểm tra dùng chung nếu cần); CONG_VIEC_52, 56 vào bản sau khi đối chiếu luật ngày 13/11.
 - CONG_VIEC_61: chốt phạm vi ở L1, L2; tách L3 (khách hàng do đối tác tạo, giao thẳng người nhận cuối) thành CONG_VIEC_66 (MODULE_16), L4 (điểm thưởng tại đối tác) thành CONG_VIEC_67 và gộp vào MODULE_12 (Cửa hàng liên kết phần 2). Đơn Open API theo cài đặt "Cho phép lập đơn bán tay có hàng hóa" (QUYTAC_NGHIEPVU_276, không đổi quy tắc); người lập đơn Open API là người cấp khóa.
 - Tạm dừng mở phiên cho CONG_VIEC_62 đến 67 đến khi các phiên đang chạy hoàn tất.

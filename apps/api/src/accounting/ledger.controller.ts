@@ -120,7 +120,8 @@ export class LedgerController {
 
   @Post("ledger/periods/close")
   async closePeriod(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<LedgerPeriodsResponse> {
-    return this.journals.close(await this.actor(request, companyId), closePeriodSchema.parse(body).month);
+    const parsed = closePeriodSchema.parse(body);
+    return this.journals.close(await this.actor(request, companyId), parsed.month, parsed.confirmRevaluation);
   }
 
   @Post("ledger/periods/reopen")

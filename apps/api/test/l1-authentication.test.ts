@@ -80,12 +80,14 @@ describe("TIEUCHI_NGHIEMTHU_27: trang chủ chỉ hiện mini app có quyền", 
 
   it("trưởng phòng mua hàng tại VCR thấy mua hàng, kho, danh mục", async () => {
     const result = await homeApps("phuc.le@vcomm.test", testIds.retailCompany);
-    expect(result.codes).toEqual(["catalog", "inventory", "platform", "purchasing"]);
+    // CONG_VIEC_52 (đặc tả mục 6, người dùng duyệt 2026-11-11): vai trò Nhân viên có office.access nên thấy thêm Văn phòng số.
+    expect(result.codes).toEqual(["catalog", "inventory", "office", "platform", "purchasing"]);
   });
 
-  it("cùng người dùng chuyển sang VCT chỉ thấy nền tảng", async () => {
+  it("cùng người dùng chuyển sang VCT chỉ thấy nền tảng, Văn phòng số", async () => {
     const result = await homeApps("phuc.le@vcomm.test", testIds.tradingCompany);
-    expect(result.codes).toEqual(["platform"]);
+    // Vai trò Nhân viên ở VCT có office.access (CONG_VIEC_52), không có quyền mini app nghiệp vụ nào khác.
+    expect(result.codes).toEqual(["office", "platform"]);
   });
 
   it("chọn công ty không phải thành viên bị từ chối", async () => {
