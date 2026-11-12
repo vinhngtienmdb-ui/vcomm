@@ -10,7 +10,7 @@ import { LoyaltyLedgerService } from "../src/loyalty/ledger.service";
 import { LedgerService } from "../src/accounting/ledger.service";
 import { paymentDraft } from "../src/accounting/postings";
 import { LoyaltySettlementsService, settlementFigures } from "../src/loyalty/settlements.service";
-import { signIn, type Session } from "./helpers";
+import { createTestUser, signIn, type Session } from "./helpers";
 import { prepareMarketplace, retail, type MarketplaceFixture } from "./marketplace-fixture";
 import { startTestApplication } from "./setup-database";
 
@@ -95,6 +95,21 @@ describe("CONG_VIEC_60 phiếu thu chi nợ nội bộ điểm", () => {
     detail = (await companyCall("post", `/loyalty/settlements/${settlementId}/confirm`, { version: detail.version })).body;
     detail = (await operatorCall("post", `/loyalty/settlements/${settlementId}/confirm`, { version: detail.version })).body;
     expect(detail).toMatchObject({ status: "confirmed", netClosing: "15000", paymentKind: "loyalty_intercompany_receipt", paymentRemaining: "15000" });
+    // Người chỉ có quyền đối soát (không có quyền lập phiếu thu chi): bị từ chối, không để lại phiếu nháp.
+    const settlementOnly = await createTestUser(pool, "doisoat.vct@vcomm.test", "Người đối soát", [{ companyId: trading }]);
+    const role = await pool.query<{ id: string }>(
+      "INSERT INTO core.roles (company_id, code, name_vi, name_en, is_system, status) VALUES ($1, 'doi_soat_diem', 'Đối soát điểm', 'Points reconciliation', false, 'active') RETURNING id",
+      [trading],
+    );
+    await pool.query("INSERT INTO core.role_permissions (role_id, permission_code) VALUES ($1, 'finance.access'), ($1, 'loyalty.settlement.manage')", [role.rows[0]!.id]);
+    await pool.query("INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, valid_from) VALUES ($1, $2, 'company', $3, '2026-01-01')", [
+      settlementOnly,
+      role.rows[0]!.id,
+      trading,
+    ]);
+    const reconciler = await signIn(application, "doisoat.vct@vcomm.test");
+    expect((await reconciler.call("post", `/loyalty/settlements/${settlementId}/payments`, { companyId: trading, body: payment })).status).toBe(403);
+    expect((await pool.query("SELECT count(*)::int AS total FROM finance.payments WHERE loyalty_settlement_id = $1", [settlementId])).rows[0].total).toBe(0);
     // Công ty con (bên trả) lập phiếu chi; vượt số còn lại bị từ chối.
     const over = await companyCall("post", `/loyalty/settlements/${settlementId}/payments`, { ...payment, amount: "15001" });
     expect(over.status).toBe(409);

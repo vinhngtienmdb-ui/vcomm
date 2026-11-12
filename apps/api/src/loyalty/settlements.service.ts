@@ -26,6 +26,7 @@ import { vietnamToday } from "../marketplace/shop.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { NumberSequencesService, periodKey } from "../settings/number-sequences.service";
+import { financePermissions, requireFinancePermission } from "../finance/finance-context";
 import { PaymentsService } from "../finance/payments.service";
 import { assertSettlementPayment, settlementPaymentState } from "./settlement-payments";
 import { maskName } from "./smart-otp.service";
@@ -357,6 +358,8 @@ export class LoyaltySettlementsService {
   // (phiếu thu ghi sổ ngay; phiếu chi qua duyệt nếu công ty có chính sách duyệt).
   async createPayment(actor: Actor, id: string, input: LoyaltySettlementPaymentInput): Promise<LoyaltySettlementResponse> {
     await this.granted(actor);
+    // Kiểm quyền lập phiếu trước khi ghi phiếu nháp (gửi phiếu cũng kiểm lại), để không để lại phiếu nháp khi thiếu quyền.
+    await requireFinancePermission(this.permissionService, actor, financePermissions.managePayments);
     const { row } = await this.visible(actor, id);
     const state = (await settlementPaymentState(this.database, id))!;
     const kind = actor.companyId === state.payerCompanyId ? "loyalty_intercompany_payment" : "loyalty_intercompany_receipt";
