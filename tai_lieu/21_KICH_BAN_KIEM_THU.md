@@ -5359,3 +5359,135 @@ Tệp kiểm thử tự động: `apps/api/test/c22-kinh-doanh-vcomm.test.ts` (K
 - Kết quả mong đợi: Dưới 1 giây mỗi yêu cầu.
 - Kiểm thử tự động: Tự động API, `apps/api/test/c22-hieu-nang.test.ts` (dữ liệu sinh bằng SQL từ một đơn thật; thời gian lâu nhất của 3 lần gọi sau một lần làm nóng). Kết quả 2026-11-12: 7 ms, 6 ms, 19 ms
 - Lát: L4
+
+## CHUC_NANG_217 đến CHUC_NANG_220: Open API cho đối tác phần 1 (CONG_VIEC_61)
+
+Dữ liệu chung: `apps/api/test/c61-open-api.test.ts` – công ty VCR có sản phẩm bán theo cái và hộp (10 cái), hai kho (120 và 7 cái, giữ 20 cái ở kho thứ nhất), kênh Bán sỉ, bảng giá chung 11.000 một cái, bảng giá nhóm Đại lý cấp 1 9.900 một cái, 95.000 một hộp; đối tác Minh Long thuộc nhóm Đại lý cấp 1; đối tác đã ngừng giao dịch.
+
+### KICHBAN_KIEMTHU_623
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_444
+- Chức năng: CHUC_NANG_217
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Cấp khóa, kiểm kết quả có `secret`, bảng chỉ có băm, danh sách và chi tiết không có `secret`; nhân viên không quyền `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_624
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_445
+- Chức năng: CHUC_NANG_217
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Bảy trường hợp cấp sai (phạm vi rỗng, giới hạn 0 và 601, đối tác ngừng giao dịch, IP sai, hạn dùng hôm nay, thiếu kho) và tên trùng; khóa nội bộ không nhận đối tác.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_625
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_446
+- Chức năng: CHUC_NANG_218
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Thiếu khóa, sai khóa, sai định dạng, hết hạn (đồng hồ giả lập), thu hồi, chuỗi cũ sau cấp lại, đối tác ngừng giao dịch: `401` cùng thông báo; khóa đã thu hồi không cấp lại được (`409`).
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_626
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_446
+- Chức năng: CHUC_NANG_218
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Sai khóa 21 lần một phút từ một IP (giới hạn 20): lần 21 `429` có `Retry-After`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_627
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_447
+- Chức năng: CHUC_NANG_218
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Danh sách IP gồm địa chỉ, dải CIDR, IPv6: trong danh sách `200`, ngoài `403 IP_NOT_ALLOWED`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_628
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_447
+- Chức năng: CHUC_NANG_218
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Khóa chỉ có `sales_order.write` gọi tồn kho: `403 SCOPE_NOT_GRANTED`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_629
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_448
+- Chức năng: CHUC_NANG_218
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Giới hạn 3: còn lại 2, 1, 0; lần 4 `429`; khóa khác vẫn `200`; sửa giới hạn có hiệu lực ngay.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_630
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_449
+- Chức năng: CHUC_NANG_218
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Gọi thành công, lỗi 400 có hai dòng nhật ký đúng mã; tham số ngoài danh sách bị bỏ; lọc kết quả; thống kê 24 giờ; dọn dòng 91 ngày, giữ dòng 89 ngày.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_631
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_450
+- Chức năng: CHUC_NANG_217, 218
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Quản trị công ty VCT xem, cấp lại khóa của VCR `404`; danh sách rỗng; nhật ký 0 dòng; quản trị VCR chọn công ty VCT `403`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_632
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_451
+- Chức năng: CHUC_NANG_219
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Khóa đối tác thấy giá nhóm Đại lý (cái, hộp); khóa nội bộ thấy giá chung, hộp quy đổi; tồn trừ giữ hàng; lọc kho, mã hàng chữ thường.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_633
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_452
+- Chức năng: CHUC_NANG_217
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Cấp, sửa, sửa với phiên bản cũ (`409`), cấp lại, thu hồi; nhật ký thao tác bốn dòng không chứa khóa; lịch sử ở chi tiết.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L1
+
+### KICHBAN_KIEMTHU_634
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_453
+- Chức năng: CHUC_NANG_220
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Cài đặt hàng hóa tắt: `409`; bật: đơn Nháp `201`, tổng bằng đơn cùng hàng nhập trên web; nhân viên lọc nguồn, thấy mã đơn đối tác, người lập là người cấp khóa; nhật ký thao tác không có người dùng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_635
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_454
+- Chức năng: CHUC_NANG_220
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Hai yêu cầu đồng thời cùng mã: một `201`, một `200`; gửi lại khác nội dung `200` đơn cũ; khóa khác cùng đối tác dùng chung mã; chỉ một đơn.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_636
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_455
+- Chức năng: CHUC_NANG_220
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Kho ngoài khóa, mã hàng sai, đơn vị sai ở dòng 2, mã khách với khóa đối tác, số lượng 0, mã đơn có dấu cách: `400` đúng trường; không đơn nào được tạo.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_637
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_456
+- Chức năng: CHUC_NANG_220
+- Loại: Đúng, sai, phân quyền, bảo mật
+- Các bước và kết quả mong đợi: Hủy Nháp `200`, lý do vào nhật ký; nhân viên gửi duyệt rồi đối tác hủy `409`; đối tác khác, khóa nội bộ tra `404`; khóa nội bộ đặt cho khách theo mã đối tác.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c61-open-api.test.ts`
+- Lát: L2
+
+### KICHBAN_KIEMTHU_638
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_457
+- Chức năng: CHUC_NANG_217, CHUC_NANG_218
+- Loại: Giao diện
+- Các bước và kết quả mong đợi: trên ứng dụng chạy thật, cấp khóa ở MAN_HINH_224 (hộp khóa một lần, sao chép), xem MAN_HINH_225 (thống kê, ba thẻ), lọc MAN_HINH_226; màn hình 390 điểm ảnh chuyển bảng thành thẻ; không lỗi console. Trạng thái rỗng, đang tải, lỗi, không quyền dùng `Loaded`, `MessageView` dùng chung.
+- Kiểm thử tự động: Bán tự động – Playwright chụp màn hình (kịch bản trong thư mục nháp của phiên, chưa đưa vào dự án)
+- Lát: L1, L2

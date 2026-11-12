@@ -1142,3 +1142,25 @@ Trạng thái bài đăng, bình luận:
 | Kế hoạch, phiếu điều chỉnh Chờ duyệt | Người lập rút khi cấp 1 chưa quyết định | Đã rút |
 | Kế hoạch, phiếu điều chỉnh Nháp, Bị từ chối, Đã rút | Hủy | Đã hủy |
 | Đơn mua Nháp, Bị từ chối, Đã rút (hoặc đơn đã duyệt sửa tăng giá trị) | Gửi duyệt khi có ô vượt hoặc chưa có ngân sách trong tháng đã áp dụng | Chờ duyệt theo luồng `purchasing.order_over_budget`; kết quả duyệt như đơn mua thường |
+
+## MODULE_16 Mở rộng kinh doanh (phần 1: Open API cho đối tác, CONG_VIEC_61)
+
+### Luồng 58. Open API cho đối tác
+
+- Bắt đầu: quản trị công ty (`platform.api_key.manage`) cấp khóa ở MAN_HINH_224 cho đối tác hoặc phần mềm nội bộ; khóa hiện một lần, gửi đối tác.
+- Các bước:
+  1. Đối tác gọi `/api/v1/open/...` kèm `Authorization: Bearer <khóa>`.
+  2. Máy chủ kiểm khóa, hạn dùng, đối tác còn giao dịch, IP, giới hạn mỗi phút, phạm vi; sai thì `401`, `403`, `429`; mọi lần gọi xác định được khóa ghi nhật ký gọi.
+  3. Sản phẩm, giá, tồn: trả dữ liệu công ty, giá theo kênh và nhóm khách, tồn theo kho của khóa.
+  4. Tạo đơn: mã đơn đối tác đã có thì trả đơn cũ; chưa có thì tạo đơn bán Nháp nguồn Open API.
+  5. Nhân viên bán hàng kiểm tra đơn, gửi duyệt; đơn chạy luồng bán hàng hiện có.
+  6. Đối tác tra trạng thái theo mã đơn; hủy khi đơn còn Nháp.
+- Ngoại lệ: thu hồi khóa thì lần gọi kế tiếp `401`, đơn đã tạo giữ nguyên; công ty tắt cài đặt hàng hóa thì đơn có hàng hóa bị từ chối `409`.
+
+| Từ | Sự kiện | Sang |
+|---|---|---|
+| Khóa Đang dùng | Qua ngày hạn dùng | Hết hạn |
+| Khóa Hết hạn | Sửa hạn dùng | Đang dùng |
+| Khóa Đang dùng, Hết hạn | Thu hồi | Đã thu hồi |
+| Đơn Open API Nháp | Đối tác hủy | Đã hủy |
+| Đơn Open API Nháp | Nhân viên gửi duyệt | Chờ duyệt hoặc Đã xác nhận (như đơn thường) |

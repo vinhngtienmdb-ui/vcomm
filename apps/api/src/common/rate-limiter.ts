@@ -29,19 +29,24 @@ export class RateLimiter implements OnModuleDestroy {
 
   // Trả số giây phải chờ khi vượt giới hạn, null khi còn được gọi.
   async hit(route: string, ip: string): Promise<number | null> {
+    return (await this.consume(`${route}:${ip}`, this.settings.perMinute)).retryAfterSeconds;
+  }
+
+  // Đếm một lần gọi theo khóa đếm với giới hạn riêng (khóa API đối tác, CONG_VIEC_61; QUYTAC_NGHIEPVU_487).
+  async consume(subject: string, perMinute: number): Promise<{ retryAfterSeconds: number | null; remaining: number }> {
     const now = this.clock.now().getTime();
     const window = Math.floor(now / 60_000);
-    const key = `gioi-han:${route}:${ip}:${window}`;
+    const key = `gioi-han:${subject}:${window}`;
     let count: number;
     try {
       count = this.redis ? await this.countInRedis(key) : this.countInMemory(key, window);
     } catch (error) {
       // Redis lỗi thì cho qua để không chặn đăng nhập; khóa tài khoản sau 5 lần sai vẫn còn hiệu lực.
       this.logger.error(`Không đếm được số yêu cầu: ${(error as Error).message}`);
-      return null;
+      return { retryAfterSeconds: null, remaining: perMinute };
     }
-    if (count <= this.settings.perMinute) return null;
-    return Math.ceil(((window + 1) * 60_000 - now) / 1000);
+    if (count <= perMinute) return { retryAfterSeconds: null, remaining: perMinute - count };
+    return { retryAfterSeconds: Math.ceil(((window + 1) * 60_000 - now) / 1000), remaining: 0 };
   }
 
   private async countInRedis(key: string): Promise<number> {

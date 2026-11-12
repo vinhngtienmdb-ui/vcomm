@@ -49,6 +49,9 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "platform.integration.manage", appCode: "platform", nameVi: "Cài đặt tích hợp", nameEn: "Manage integrations", isSensitive: true },
   { code: "platform.proposal_template.manage", appCode: "platform", nameVi: "Quản lý mẫu đề xuất", nameEn: "Manage proposal templates", isSensitive: false },
   { code: "platform.proposal.create", appCode: "platform", nameVi: "Lập đề xuất", nameEn: "Create proposals", isSensitive: false },
+  // CONG_VIEC_61: Open API cho đối tác (MODULE_16).
+  { code: "platform.api_key.manage", appCode: "platform", nameVi: "Cấp, sửa, thu hồi khóa API đối tác", nameEn: "Manage partner API keys", isSensitive: true },
+  { code: "platform.api_log.view", appCode: "platform", nameVi: "Xem nhật ký gọi API đối tác", nameEn: "View partner API call log", isSensitive: false },
   // CONG_VIEC_04: mini app Sản phẩm (MODULE_02).
   { code: "catalog.category.manage", appCode: "catalog", nameVi: "Quản lý ngành hàng, đơn vị tính (toàn tập đoàn)", nameEn: "Manage categories and units (group)", isSensitive: false },
   { code: "catalog.product.view", appCode: "catalog", nameVi: "Xem sản phẩm", nameEn: "View products", isSensitive: false },
@@ -202,6 +205,8 @@ const companyAdminPermissions = [
   "platform.number_sequence.manage",
   "platform.audit.view",
   "platform.proposal_template.manage",
+  "platform.api_key.manage",
+  "platform.api_log.view",
   ...analyticsPermissions.filter((code) => code !== "analytics.access"),
   "catalog.product.view",
   "catalog.product.manage",

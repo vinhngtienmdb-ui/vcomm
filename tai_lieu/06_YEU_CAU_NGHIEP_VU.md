@@ -544,3 +544,22 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_48.md`.
 | YCAU_NGHIEPVU_141, YCAU_NGHIEPVU_142 | Không dùng (mã đã cấp, để trống) | CONG_VIEC_22 |
 
 YCAU_NGHIEPVU_47 (ứng dụng nhân viên kinh doanh riêng, CONG_VIEC_22 bản cũ) thay bằng YCAU_NGHIEPVU_138 đến YCAU_NGHIEPVU_140 theo THAY_DOI_14, THAY_DOI_26.
+
+## MODULE_16 Mở rộng kinh doanh (phần 1: Open API cho đối tác, CONG_VIEC_61)
+
+| Mã | Yêu cầu | Người cần | Nguồn |
+|---|---|---|---|
+| YCAU_NGHIEPVU_162 | Công ty cấp khóa API cho một đối tác trong danh mục đối tác của công ty, hoặc khóa nội bộ cho phần mềm của chính công ty; sửa cấu hình, cấp lại, thu hồi khóa | Quản trị công ty | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_163 | Mỗi khóa chỉ dùng được các nhóm API (phạm vi) đã cấp, trong thời hạn, từ địa chỉ IP được phép, chỉ thấy dữ liệu công ty cấp khóa | Quản trị công ty, Đối tác | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_164 | Giới hạn số lần gọi mỗi phút theo từng khóa | Quản trị công ty | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_165 | Nhật ký từng lần gọi để tra lỗi với đối tác, phát hiện dùng sai | Quản trị công ty | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_166 | Đối tác lấy danh mục sản phẩm, giá bán cho chính mình, tồn khả dụng ở các kho được chỉ định | Đối tác | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_167 | Đối tác gửi đơn bán vào VComm, không tạo trùng khi gửi lại; xem trạng thái, hủy khi chưa xử lý | Đối tác, Nhân viên bán hàng | Người dùng 2026-11-12 |
+| YCAU_NGHIEPVU_168 | Website, sàn bán hộ gửi đơn kèm khách hàng do đối tác tạo và người nhận để công ty giao thẳng | Đối tác | Người dùng 2026-11-12; làm ở CONG_VIEC_66 |
+| YCAU_NGHIEPVU_169 | Cửa hàng liên kết tra, tích, đổi điểm VComm cho hội viên (hội viên xác nhận bằng mã OTP) | Cửa hàng liên kết, Hội viên | Người dùng 2026-11-12; làm ở CONG_VIEC_67 (MODULE_12) |
+
+| Đối tượng | Thuộc tính chính | Ghi chú |
+|---|---|---|
+| Khóa API | Công ty, loại (đối tác, nội bộ), đối tác, tên, đầu khóa, bản băm, phạm vi, kênh bán, kho, giới hạn mỗi phút, hạn dùng, danh sách IP, trạng thái (đang dùng, hết hạn, đã thu hồi), lý do thu hồi, lần dùng gần nhất | Khóa rõ chỉ hiện một lần (CONG_VIEC_61) |
+| Nhật ký gọi API | Khóa, công ty, thời điểm, phương thức, đường dẫn, mã HTTP, mã lỗi, thời gian xử lý, IP, mã yêu cầu | Không ghi nội dung; giữ 90 ngày (CONG_VIEC_61) |
+| Đơn bán (bổ sung) | Khóa API đã tạo, phạm vi mã đơn đối tác, mã đơn đối tác | CONG_VIEC_61 |

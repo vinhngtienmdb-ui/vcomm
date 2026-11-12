@@ -35,6 +35,7 @@ import { LeaveService } from "../hr/leave.service";
 import { TimesheetsService } from "../hr/timesheets.service";
 import { RecruitmentService } from "../hr/recruitment.service";
 import { JobOffersService } from "../hr/job-offers.service";
+import { ApiCallLogsService } from "../open-api/api-call-logs.service";
 import { CandidatesService } from "../hr/candidates.service";
 import { ReviewsService } from "../hr/reviews.service";
 
@@ -75,6 +76,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const jobOffers = application.get(JobOffersService);
   const candidates = application.get(CandidatesService);
   const reviews = application.get(ReviewsService);
+  const apiCallLogs = application.get(ApiCallLogsService);
   const queue = new Queue(queueName, { connection });
   await queue.upsertJobScheduler("approval-overdue", { every: 15 * 60_000 }, { name: "approval-overdue" });
   await queue.upsertJobScheduler("outbox-dispatch", { every: 10_000 }, { name: "outbox-dispatch" });
@@ -104,6 +106,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   // Đối soát cửa hàng liên kết (CONG_VIEC_55; QUYTAC_NGHIEPVU_403): lập bảng tuần trước 1 giờ sáng thứ Hai; tự xác nhận bảng quá hạn mỗi giờ.
   await queue.upsertJobScheduler("affiliate-settlement-weekly", { pattern: "0 1 * * 1", tz: "Asia/Ho_Chi_Minh" }, { name: "affiliate-settlement-weekly" });
   await queue.upsertJobScheduler("affiliate-settlement-confirm", { every: 60 * 60_000 }, { name: "affiliate-settlement-confirm" });
+  // Xóa nhật ký gọi API đối tác quá 90 ngày lúc 2 giờ (CONG_VIEC_61; QUYTAC_NGHIEPVU_488).
+  await queue.upsertJobScheduler("open-api-log-purge", { pattern: "0 2 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "open-api-log-purge" });
   // Chốt nhóm mua chung hết hạn (CONG_VIEC_49; QUYTAC_NGHIEPVU_331).
   await queue.upsertJobScheduler("marketplace-group-buy-close", { every: 60_000 }, { name: "marketplace-group-buy-close" });
   // Nhắc, hủy đơn quá hạn giữ tại trạm giao hàng O2O (CONG_VIEC_57; QUYTAC_NGHIEPVU_428).
@@ -148,6 +152,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "affiliate-settlement-weekly") return affiliateSettlements.generateWeekly();
       if (job.name === "affiliate-settlement-confirm") return affiliateSettlements.autoConfirmDue();
       if (job.name === "marketplace-group-buy-close") return groupBuys.closeDue();
+      if (job.name === "open-api-log-purge") return apiCallLogs.purgeExpired(new Date());
       return null;
     },
     { connection, concurrency: 1 },

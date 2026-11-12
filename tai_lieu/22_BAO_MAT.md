@@ -1165,3 +1165,24 @@ Ranh giới và kiểm soát riêng:
 | Doanh số | Chỉ của mình và người trong nhánh; tính theo người phụ trách lúc đặt đơn |
 | Đường dẫn chia sẻ | Chỉ chứa mã giới thiệu (số điện thoại của người chia sẻ, đã công khai theo QUYTAC_NGHIEPVU_142), mã sản phẩm, mã cộng tác viên; mở đường dẫn không đổi người giới thiệu của người đã có tài khoản; ứng dụng chỉ mở liên kết thông báo thuộc danh sách màn hình của ứng dụng |
 | Ghé thăm khách | Ghi mới bị từ chối ở máy chủ (`409`); vị trí, ảnh không còn thu thêm |
+
+### Open API cho đối tác MODULE_16 phần 1 (CONG_VIEC_61)
+
+| Dữ liệu | Phân loại | Lưu ở đâu, bảo vệ thế nào | Ai xem |
+|---|---|---|---|
+| Khóa API đối tác | Khóa bí mật | Chỉ lưu SHA-256 (`core.api_keys.key_hash`) và 8 ký tự đầu; khóa đủ trả một lần trong kết quả cấp, cấp lại; không ghi nhật ký thao tác, nhật ký gọi, log máy chủ (không ghi header) | Người cấp thấy một lần; không ai xem lại được |
+| Nhật ký gọi API | Kỹ thuật (có IP của đối tác) | `core.api_call_logs`, không ghi nội dung, header, tham số truy vấn ngoài danh sách cho phép; xóa sau 90 ngày | `platform.api_log.view`, `platform.api_key.manage` của công ty |
+
+| Điểm tiếp nhận | Loại | Kiểm tra đầu vào | Cần xác thực |
+|---|---|---|---|
+| API_255 đến API_259 | API nhân viên | Lược đồ zod `createApiKeySchema`, `updateApiKeySchema`, `rotateApiKeySchema`, `revokeApiKeySchema`, `apiKeyListQuerySchema`, `apiCallLogQuerySchema`, trường thừa bị từ chối; IP kiểm bằng `node:net`; đối tác, kênh, kho kiểm thuộc công ty | Có, quyền mục 54 tài liệu `08` |
+| API_260 đến API_264 (`/api/v1/open/*`) | API công khai cho đối tác | Khóa định dạng `vck_` + 32 ký tự mới tra băm; lược đồ zod `openProductQuerySchema`, `openStockQuerySchema`, `openSalesOrderSchema`, `openSalesOrderListQuerySchema`, `openCancelSalesOrderSchema`; mã đơn đối tác theo mẫu chữ, số, `.`, `_`, `-`; tối đa 200 dòng | Khóa API: hạn dùng, đối tác còn giao dịch, IP, giới hạn theo khóa, phạm vi; sai khóa đếm theo IP (20 lần một phút) |
+
+Ranh giới và kiểm soát riêng:
+- Mọi truy vấn của API `open` lọc `company_id` của khóa ngay trong câu truy vấn; đơn lọc thêm phạm vi đối tác hoặc khóa nội bộ.
+- Lỗi xác thực trả cùng một thông báo cho mọi lý do (không giúp dò khóa còn hiệu lực).
+- Khóa không mở được API nhân viên (guard đăng nhập không nhận khóa `vck_`); API `open` không nhận cookie phiên nên không cần CSRF.
+- Danh sách IP dựa vào `trust proxy` 1: môi trường thật phải có đúng một proxy tin cậy đặt `X-Forwarded-For`, nếu không đối tác có thể giả IP (kiểm khi triển khai).
+- Redis lỗi thì giới hạn tần suất cho qua (như hiện có), ghi log lỗi.
+
+Kết quả rà soát bảo mật CONG_VIEC_61 (2026-11-12): không phát hiện lỗi mức Cao; ghi nhận rủi ro `trust proxy` ở trên cho bước triển khai.

@@ -3464,3 +3464,15 @@ Tệp `database/migrations/0113_marketplace_customer_care_notes.sql` (lát L2), 
 | `marketplace.orders` (0114) | Nhân viên kinh doanh phụ trách khách lúc đặt đơn, căn cứ doanh số (QUYTAC_NGHIEPVU_439) | Thêm `sales_staff_user_id` (khóa ngoại `core.users`, có thể trống); đơn cũ điền từ người hưởng phần `staff` trong `marketplace.order_commissions` | Chỉ mục một phần `(sales_staff_user_id, completed_at)` cho đơn hoàn tất, `(sales_staff_user_id)` cho đơn chưa hoàn tất, chưa hủy. Không định nghĩa lại ràng buộc kiểm tra của bảng |
 
 Bảng `crm.visits` (database migration 0022) giữ nguyên, không ghi mới (QUYTAC_NGHIEPVU_441). Thông báo nhắc hẹn ghi vào `core.notifications` loại `sales.follow_up_due`, `payload` có `date`, `dueToday`, `overdue`. Nhật ký thao tác: `sales.care_note.create`, `sales.follow_up.done` (không chứa nội dung ghi chú).
+
+## 40. Database migration 0128 đến 0130 – CONG_VIEC_61 (Open API cho đối tác)
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `core.api_keys` (0128) | Khóa API (QUYTAC_NGHIEPVU_480 đến 483) | `company_id`, `kind` (`partner`, `internal`), `partner_id`, `name`, `key_prefix`, `key_hash` (SHA-256, duy nhất), `scopes` (`text[]`), `channel_id`, `rate_limit_per_minute` (1 đến 600), `expires_on`, `allowed_ips` (`inet[]`, tối đa 20), `status` (`active`, `revoked`), `revoked_reason`, `revoked_by`, `revoked_at`, `last_used_at`, `created_by`, `updated_by`, `version` | Có đối tác khi và chỉ khi loại `partner`; thu hồi khi và chỉ khi có lý do, thời điểm; tên duy nhất (không phân biệt hoa thường) trong công ty với khóa đang dùng |
+| `core.api_key_warehouses` (0128) | Kho của khóa | `api_key_id`, `warehouse_id` | Khóa chính hai cột |
+| `core.permissions` (0128) | Quyền mới | `platform.api_key.manage` (nhạy cảm), `platform.api_log.view` | Gán qua danh mục quyền |
+| `core.api_call_logs` (0129) | Nhật ký gọi (QUYTAC_NGHIEPVU_488) | `id` (`bigserial`), `api_key_id`, `company_id`, `called_at`, `method`, `path` (≤ 300), `status_code`, `error_code`, `duration_ms`, `ip` (`inet`), `request_id` | Chỉ mục (`company_id`, `called_at`), (`api_key_id`, `called_at`), `called_at` |
+| `sales.orders` (0130) | Đơn qua Open API (QUYTAC_NGHIEPVU_490, 491) | `open_api_key_id`, `open_api_scope_id`, `partner_order_code` | Ba cột cùng có hoặc cùng trống; duy nhất (`company_id`, `open_api_scope_id`, `partner_order_code`) khi có khóa |
+
+- Khóa API không xóa (thu hồi). Nhật ký gọi xóa dòng quá 90 ngày bằng tác vụ nền `open-api-log-purge` lúc 2 giờ. Database migration 0131 để dành công việc sau.

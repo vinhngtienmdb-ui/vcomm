@@ -2875,3 +2875,23 @@ flowchart LR
     T[Thanh tiêu đề: Thông báo] --> N[MAN_HINH_200 Thông báo] -->|Nhắc hẹn| H
     P[MAN_HINH_91 Chi tiết sản phẩm] -->|Chia sẻ sản phẩm| S[MAN_HINH_201]
 ```
+
+## MODULE_16 Mở rộng kinh doanh (phần 1: Open API cho đối tác, CONG_VIEC_61)
+
+### Danh sách màn hình
+
+| Mã | Tên | Chức năng | Vai trò | Vào từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_224 | Khóa API đối tác | CHUC_NANG_217 | Quản trị tập đoàn, quản trị công ty, người có `platform.api_log.view` (chỉ xem) | Menu Quản trị hệ thống | `ban_mau/MAN_HINH_224_KHOA_API.html` |
+| MAN_HINH_225 | Chi tiết khóa API | CHUC_NANG_217, 218 | Như trên | Bấm tên khóa ở MAN_HINH_224 | `ban_mau/MAN_HINH_225_CHI_TIET_KHOA_API.html` |
+| MAN_HINH_226 | Nhật ký gọi API | CHUC_NANG_218 | Người có `platform.api_log.view` hoặc `platform.api_key.manage` | Menu Quản trị hệ thống; thẻ Nhật ký gọi ở MAN_HINH_225 | `ban_mau/MAN_HINH_226_NHAT_KY_GOI_API.html` |
+| Sửa MAN_HINH_42, chi tiết đơn bán | Đơn bán | CHUC_NANG_220 | Như hiện có | Như hiện có | `ban_mau/SUA_DON_BAN_OPEN_API.html` |
+
+### Đặc tả
+
+- MAN_HINH_224: bảng tên khóa, đối tác (hoặc "Nội bộ"), đầu khóa `vck_xxxxxxxx…`, phạm vi, giới hạn mỗi phút, hạn dùng, lần gọi gần nhất, trạng thái; lọc từ khóa, trạng thái, loại. Nút "Cấp khóa mới" (chỉ người có `platform.api_key.manage`) mở ngăn kéo: loại, đối tác (tìm theo tên, mã; hiện nhóm khách quyết định giá), tên, kênh, hạn dùng, giới hạn, phạm vi (Khách hàng, Điểm thưởng hiện mờ "làm ở lát sau"), kho, IP. Cấp xong hiện hộp khóa một lần: cảnh báo, ô khóa, "Sao chép khóa", "Tôi đã lưu khóa, đóng".
+- MAN_HINH_225: ba ô số (gọi 24 giờ kèm lỗi, bị giới hạn; cao nhất một phút / giới hạn; lần gọi gần nhất kèm IP); thẻ Cấu hình (thông tin, "Sửa cấu hình", "Cấp lại khóa" có hộp xác nhận, "Thu hồi khóa" cần lý do và hộp xác nhận), Nhật ký gọi (bảng MAN_HINH_226 lọc sẵn khóa), Lịch sử thay đổi. Khóa đã thu hồi: hộp thông báo lý do, ẩn các nút sửa.
+- MAN_HINH_226: lọc khóa, kết quả (thành công, lỗi đối tác, bị giới hạn, lỗi máy chủ), từ, đến (ngày giờ), đường dẫn; bảng thời điểm, khóa, phương thức, đường dẫn, kết quả (nhãn màu), mã lỗi, thời gian xử lý, IP, mã yêu cầu; phân trang 50 dòng; ghi chú giữ 90 ngày, không ghi nội dung.
+- Đơn bán: thêm bộ lọc "Nguồn" (Nhập trên web, Open API); cột Khách hàng có nhãn "Open API" kèm mã đơn đối tác; tìm theo mã đơn đối tác; chi tiết đơn có hộp thông tin khóa đã tạo, mã đơn đối tác.
+- Trạng thái: dùng `Loaded`, `MessageView` dùng chung (đang tải, lỗi, không quyền, rỗng). Responsive: bảng chuyển thành thẻ ở màn hình hẹp.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12; xem trước L1, L2 đạt.

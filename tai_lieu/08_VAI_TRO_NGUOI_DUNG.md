@@ -841,3 +841,20 @@ Không thêm vai trò hệ thống. Hai quyền mới của mini app Mua hàng (
 
 - Người lập không tự duyệt chứng từ của mình (QUYTAC_NGHIEPVU_20).
 - Mục menu "Kế hoạch ngân sách", "Số còn được mua", "Điều chỉnh ngân sách" của mini app Mua hàng hiện với người có `purchasing.budget.view`.
+
+## 54. Open API cho đối tác (MODULE_16 phần 1, CONG_VIEC_61)
+
+| Quyền | Phạm vi gán | Nhạy cảm | Gán sẵn |
+|---|---|---|---|
+| `platform.api_key.manage` | Công ty | Có | Quản trị tập đoàn, Quản trị công ty |
+| `platform.api_log.view` | Công ty | Không | Quản trị tập đoàn, Quản trị công ty |
+
+| Thao tác | Quyền | Quản trị tập đoàn | Quản trị công ty | Người có `platform.api_log.view` | Đối tác (khóa API) |
+|---|---|---|---|---|---|
+| Cấp, sửa, cấp lại, thu hồi khóa | `platform.api_key.manage` | Mọi công ty | Công ty mình | Không | Không |
+| Xem danh sách, chi tiết khóa (không thấy khóa) | Một trong hai quyền | Có | Có | Có | Không |
+| Xem nhật ký gọi | Một trong hai quyền | Có | Có | Có | Không |
+| Gọi API sản phẩm, giá, tồn | Phạm vi `catalog.read` của khóa | — | — | — | Có |
+| Tạo, tra, hủy đơn Nháp qua API | Phạm vi `sales_order.write` của khóa | — | — | — | Có |
+
+- Đối tác không có tài khoản nhân viên; khóa không mở được API nhân viên. Đơn tạo qua API do nhân viên có quyền đơn bán hiện có xử lý.
