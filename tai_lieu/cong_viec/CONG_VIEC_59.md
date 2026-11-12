@@ -3,7 +3,7 @@
 - Mô tả: Ký số tài liệu PDF trên hệ thống qua nhà cung cấp ký số từ xa (lớp kết nối chung, bộ giả lập để thử); trình ký tài liệu PDF bất kỳ cho nhiều người ký theo thứ tự (người trong công ty, chữ ký số của công ty, đối tác bên ngoài qua đường dẫn); kiểm tra chữ ký số trong tệp PDF; kho hợp đồng (mua, bán, dịch vụ, thuê, khác) có duyệt, ký số, phụ lục, nhắc hạn, phân quyền xem; gắn ký số vào công văn đi (CONG_VIEC_52) và hợp đồng lao động (CONG_VIEC_46).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Bản nháp, chờ người dùng duyệt.
+- Trạng thái: Đã duyệt đặc tả, bản mẫu (người dùng 2026-11-12, qua phiên điều phối); làm hết theo lát, dừng ở điểm xem trước sau mỗi lát. Đang làm phần lõi không phụ thuộc CONG_VIEC_52.
 - Mức: Lớn (nghiệp vụ mới, tích hợp dịch vụ ngoài, thêm thư viện, chạm ba module: Văn phòng số, Nhân sự, Quan hệ khách hàng).
 - Nguồn: tài liệu `01` mục 4 (MODULE_13: chữ ký số, kho hợp đồng); CONG_VIEC_52 mục 2 (ngoài phạm vi phần 1); CONG_VIEC_46 (ký số hợp đồng lao động để công việc sau); quyết định của người dùng ngày 2026-11-12 (mục 17).
 
@@ -172,7 +172,7 @@ Mọi lát cần mã của CONG_VIEC_52 (schema `office`, mini app `web-office`)
 - Vị trí chữ ký chọn theo trang và góc, không kéo thả trên trang (không cần thêm thư viện hiển thị PDF); xem PDF bằng trình xem có sẵn của trình duyệt.
 - Không dùng OTP cho đối tác: nhà cung cấp ký số từ xa đã xác thực người ký trên ứng dụng của họ; hệ thống đối chiếu chủ thể chứng thư với thông tin đối tác.
 - Nhập hợp đồng đã ký không qua duyệt.
-- Phiên bản thư viện: `@signpdf/signpdf` 4.0.0, `@signpdf/placeholder-pdf-lib` 4.0.0, `@signpdf/utils` 4.0.0 (MIT, phát hành 2026-10-19), `pdf-lib` 1.17.1 (MIT), `node-forge` 1.4.2 (chọn giấy phép BSD-3-Clause; bản 1.4.3 phát hành 2026-11-04 chưa đủ hai tuần), `@types/node-forge` 1.3.14 (MIT).
+- Phiên bản thư viện: `@signpdf/signpdf` 4.0.0, `@signpdf/placeholder-pdf-lib` 4.0.0, `@signpdf/utils` 4.0.0 (MIT, phát hành 2026-10-19), `pdf-lib` 1.17.1 (MIT), `node-forge` 1.4.3 (chọn giấy phép BSD-3-Clause; bản 1.4.2 dự kiến ban đầu có 3 lỗ hổng Trung bình, 1 Thấp ở phần TLS, http, Ed25519 không dùng tới, đã vá ở 1.4.3, nên dùng 1.4.3 dù phát hành 2026-11-04 chưa đủ hai tuần), `@types/node-forge` 1.3.14 (MIT).
 
 ## 17. Quyết định của người dùng (2026-11-12)
 
