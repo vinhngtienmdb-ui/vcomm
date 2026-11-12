@@ -30,7 +30,7 @@
 - Khả năng tương thích: tương thích ngược với 0.8.0; database migration thêm bảng, cột (cho phép rỗng hoặc có mặc định) và nới rộng ràng buộc kiểm tra.
 - Công việc gộp trong phiên bản: CONG_VIEC_59 (pull request #132, gồm bản sửa LOI_10, LOI_11; đầu nhánh `da9255b6`), CONG_VIEC_66 (#144, THAY_DOI_32, LOI_09); LOI_12 sửa trên nhánh phát hành. Thứ tự hợp nhất: 59, 66. Không gộp CONG_VIEC_60, 67.
 - Đánh lại số mục tài liệu trùng khi gộp: tài liệu `27` mục kiểm tra bao phủ CONG_VIEC_66 từ 38 thành 39 (mục 38 là CONG_VIEC_59). Các mục khác (`08` số 56, `13` số 10, `16` số 41, `17` số 2u, 3zi của CONG_VIEC_59; phần CONG_VIEC_66 là tiểu mục không đánh số) không trùng; mã định danh của hai công việc không trùng.
-- Kiểm thử trên nhánh phát hành: KET_QUA_KIEM_THU_CHO_DIEN.
+- Kiểm thử trên nhánh phát hành: `pnpm typecheck` 19/19 đạt, `pnpm lint` 4/4 đạt, khóa dịch khớp 9223 khóa; kiểm thử API toàn bộ một tiến trình (`--no-file-parallelism`) 134 tệp, 727 kiểm thử đạt (sau khi sửa LOI_12; lần chạy trước sửa: 723/726, 3 lỗi ở `c59-phien-ky` do LOI_12).
 - Tag: `v0.9.0` trên commit hợp nhất nhánh `phat-hanh/v0.9.0` vào `main` (gắn tự động khi CI trên `main` đạt).
 - Phương án quay lui riêng của phiên bản:
   - Mã nguồn: triển khai lại tag `v0.8.0`.
