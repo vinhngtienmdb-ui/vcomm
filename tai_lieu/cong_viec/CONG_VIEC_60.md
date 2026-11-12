@@ -139,7 +139,7 @@ Việc nền: lập bảng đối soát 2 giờ ngày 1; nhắc bảng chờ qu�
 
 ## 10. Điều kiện đặc biệt
 
-- Ý kiến luật sư về điểm thưởng (CONG_VIEC_51) vẫn chặn phát hành thật.
+- Ý kiến luật sư về điểm thưởng (CONG_VIEC_51): người dùng bỏ yêu cầu tra cứu pháp lý (2026-11-12), không chờ trước khi phát hành.
 - Mã cài đặt là dữ liệu kỹ thuật gắn tài khoản; ghi vào tài liệu `22` (dữ liệu cá nhân, thời hạn lưu 12 tháng); chính sách quyền riêng tư của ứng dụng phải nêu mục đích chống gian lận.
 - Đổi kiểu chia chi phí giữa các giai đoạn: lô cũ giữ kiểu cũ, nên một tháng có thể có bút toán theo nhiều kiểu.
 
@@ -181,7 +181,7 @@ Cảnh báo bất thường cơ bản (QUYTAC_NGHIEPVU_354), hạch toán kiểu
 
 ## 16. Điểm chưa xác định
 
-- Ý kiến luật sư (CONG_VIEC_51) chặn phát hành thật.
+- Ý kiến luật sư (CONG_VIEC_51): người dùng bỏ yêu cầu này (2026-11-12), không chặn phát hành.
 - Quy tắc 4 và nguồn bán tại quầy cần CONG_VIEC_53 lát L6 trên `main`.
 
 ## 17. Quyết định của người dùng (2026-11-12)
