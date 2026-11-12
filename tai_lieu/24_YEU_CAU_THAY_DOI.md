@@ -448,3 +448,14 @@
 - Mức quy mô: Nhỏ; làm trong CONG_VIEC_22.
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-12; đã phát hành v0.6.0 2026-11-12, chờ triển khai.
+
+### THAY_DOI_29: Bổ sung danh sách giao dịch và nguồn bút toán riêng cho cửa hàng liên kết – 2026-11-12
+- Lý do: khi xem trước lát L3, L4 của CONG_VIEC_55, người dùng cần xem danh sách giao dịch của cửa hàng và tách bút toán hủy giao dịch, hết hạn voucher khỏi bút toán gốc.
+- Nội dung thay đổi (người dùng chọn 2026-11-12 trong phiên CONG_VIEC_55): thêm API GET /affiliate/transactions (thuộc API_213) và thẻ Giao dịch trên MAN_HINH_180; thêm nguồn bút toán affiliate_transaction_cancel, affiliate_voucher_expire.
+- Thành phần bị ảnh hưởng: CONG_VIEC_55 (đặc tả mục 17, API_213, MAN_HINH_180); ràng buộc accounting.journals.source_type (database migration 0105).
+- Dữ liệu, API, giao diện, quyền: thêm một endpoint đọc, hai giá trị nguồn bút toán; không thêm quyền.
+- Ảnh hưởng chức năng cũ: không (chưa phát hành).
+- Kiểm thử cần thực hiện: c55-transactions, c55-vouchers; hồi quy toàn bộ.
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_55.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-12.
