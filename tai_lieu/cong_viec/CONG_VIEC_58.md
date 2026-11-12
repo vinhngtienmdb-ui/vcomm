@@ -3,7 +3,7 @@
 - Mô tả: Lập kế hoạch ngân sách mua theo ngành hàng, kho, tháng; theo dõi số còn được mua; đơn mua vượt ngân sách đi luồng duyệt riêng; phiếu điều chỉnh ngân sách có duyệt. Đặt trong mini app Mua hàng (`web-purchasing`).
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Đặc tả, bản mẫu đã duyệt 2026-11-12; đang lập trình L0.
+- Trạng thái: Đã nghiệm thu, chờ phát hành (người dùng nghiệm thu 2026-11-12).
 - Mức: Lớn (nghiệp vụ mới, bảng mới, quyền mới, loại chứng từ duyệt mới, đổi hành vi gửi duyệt đơn mua đang dùng).
 - Nhánh: `chuc-nang/CONG_VIEC_58-mua-theo-ngan-sach` tách từ `origin/main`.
 - Nguồn: tài liệu `24` THAY_DOI_04 (MODULE_14: kế hoạch mua theo ngân sách); tài liệu `01`, `05` (MODULE_14); CONG_VIEC_07 (đơn mua, luồng duyệt); quyết định của người dùng ngày 2026-11-12 (mục 16).
@@ -192,6 +192,7 @@ Tồn đọng, cần người dùng biết:
 - 2026-11-12: duyệt đặc tả; đơn đóng sớm tính phần đã nhận, hàng trả nhà cung cấp không hoàn ngân sách; đơn vượt khi chưa có chính sách duyệt vượt ngân sách thì báo lỗi; chọn phương án 1 của phân tích giải pháp có sẵn.
 - 2026-11-12: duyệt bản mẫu MAN_HINH_204 đến 209.
 - 2026-11-12: duyệt L0, L1, L2 (giữ quy tắc đơn chờ duyệt không giữ chỗ ngân sách; menu phẳng).
+- 2026-11-12: người dùng nghiệm thu Đạt, chờ phát hành; chấp nhận các tồn đọng ở mục 15.
 
 ## Phân tích giải pháp có sẵn – CONG_VIEC_58 – 2026-11-12
 
