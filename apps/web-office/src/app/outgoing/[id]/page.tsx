@@ -11,7 +11,7 @@ import { Drawer } from "ui/components/Dialogs";
 import { Field, FormError, useSubmit } from "ui/components/Form";
 import { Loaded } from "ui/components/StatusViews";
 import { apiDownload, apiFetch, apiUpload, selectedCompanyId } from "ui/lib/api";
-import { formatDate } from "ui/lib/format";
+import { formatDate, vietnamToday } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 import { OutgoingStatusBadge, UrgencyBadge } from "@/components/DocumentBadges";
 import { FileList } from "@/components/FileList";
@@ -56,7 +56,7 @@ function PdfPreview({ outgoingId, version }: { outgoingId: string; version: numb
 function OutgoingDetail({ outgoing, onChanged }: { outgoing: OutgoingResponse; onChanged: () => void }) {
   const t = useTranslations("officeDocuments");
   const { notify } = useAdmin();
-  const [dialog, setDialog] = useState<"decide" | "cancel" | "issue" | null>(null);
+  const [dialog, setDialog] = useState<"decide" | "cancel" | "issue" | "digital_sign" | null>(null);
   const [busy, setBusy] = useState(false);
   const allowed = new Set(outgoing.allowedActions);
   const post = async (action: "submit" | "withdraw" | "number", message: string) => {
@@ -106,9 +106,14 @@ function OutgoingDetail({ outgoing, onChanged }: { outgoing: OutgoingResponse; o
               {t("outgoingAction_number")}
             </button>
           )}
+          {allowed.has("digital_sign") && (
+            <button type="button" className="nut chinh" onClick={() => setDialog("digital_sign")}>
+              {t("outgoingAction_digital_sign")}
+            </button>
+          )}
           {allowed.has("issue") && (
-            <button type="button" className="nut chinh" onClick={() => setDialog("issue")}>
-              {t("outgoingAction_issue")}
+            <button type="button" className={outgoing.signing?.status === "completed" || !allowed.has("digital_sign") ? "nut chinh" : "nut phu"} onClick={() => setDialog("issue")}>
+              {outgoing.signing?.status === "completed" ? t("issueSigned") : allowed.has("digital_sign") ? t("issueScan") : t("outgoingAction_issue")}
             </button>
           )}
           {allowed.has("edit") && (
@@ -138,6 +143,7 @@ function OutgoingDetail({ outgoing, onChanged }: { outgoing: OutgoingResponse; o
           )}
         </div>
       </div>
+      {outgoing.signing && outgoing.status === "numbered" && <SigningProgress signing={outgoing.signing} />}
       {outgoing.status === "rejected" && outgoing.decisionNote && <div className="khoi-canh-bao loi">{t("rejectedNote", { note: outgoing.decisionNote })}</div>}
       {outgoing.status === "cancelled" && outgoing.cancelReason && <div className="khoi-canh-bao canh-bao">{t("cancelledReason", { reason: outgoing.cancelReason })}</div>}
       {outgoing.status === "awaiting_number" && outgoing.expectedSymbol && <div className="khoi-canh-bao thong-tin">{t("expectedSymbol", { symbol: outgoing.expectedSymbol })}</div>}
@@ -213,6 +219,7 @@ function OutgoingDetail({ outgoing, onChanged }: { outgoing: OutgoingResponse; o
       {dialog === "decide" && <DecideDrawer outgoing={outgoing} onClose={() => setDialog(null)} onDone={(decision) => done(t(`decided_${decision}`))} />}
       {dialog === "cancel" && <CancelDrawer outgoing={outgoing} onClose={() => setDialog(null)} onDone={() => done(t("outgoingCancelled"))} />}
       {dialog === "issue" && <IssueDrawer outgoing={outgoing} onClose={() => setDialog(null)} onDone={() => done(t("issued"))} />}
+      {dialog === "digital_sign" && <DigitalSignDrawer outgoing={outgoing} onClose={() => setDialog(null)} onDone={() => done(t("digitalSignStarted"))} />}
     </>
   );
 }
@@ -281,10 +288,12 @@ function IssueDrawer({ outgoing, onClose, onDone }: { outgoing: OutgoingResponse
   const common = useTranslations("common");
   const { submitting, fields, formError, run, inputClass } = useSubmit();
   const [file, setFile] = useState<File | null>(null);
+  // Phiên ký số đã xong: bản đã ký số là bản phát hành, không tải bản quét (CONG_VIEC_59).
+  const digitallySigned = outgoing.signing?.status === "completed";
   const save = () =>
     run(async () => {
       const form = new FormData();
-      if (file) form.append("file", file);
+      if (file && !digitallySigned) form.append("file", file);
       form.append("version", String(outgoing.version));
       await apiUpload(`/office/outgoing/${outgoing.id}/issue`, form);
       onDone();
@@ -292,16 +301,83 @@ function IssueDrawer({ outgoing, onClose, onDone }: { outgoing: OutgoingResponse
   return (
     <Drawer title={t("outgoingAction_issue")} onClose={onClose}>
       <FormError text={formError} />
-      <p className="chu-thich">{t("issueHint")}</p>
-      <Field id="issue-file" label={t("signedFile")} error={fields.file}>
-        <input id="issue-file" type="file" className={inputClass("file")} accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+      {digitallySigned ? (
+        <p className="chu-thich">{t("issueSignedHint")}</p>
+      ) : (
+        <>
+          <p className="chu-thich">{t("issueHint")}</p>
+          <Field id="issue-file" label={t("signedFile")} error={fields.file}>
+            <input id="issue-file" type="file" className={inputClass("file")} accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+          </Field>
+        </>
+      )}
+      <div className="nhom-nut">
+        <button type="button" className="nut phu" onClick={onClose}>
+          {common("cancel")}
+        </button>
+        <button type="button" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting || (!file && !digitallySigned)} onClick={() => void save()}>
+          {t("outgoingAction_issue")}
+        </button>
+      </div>
+    </Drawer>
+  );
+}
+
+// Tiến trình ký số của công văn đã cấp số (CONG_VIEC_59, CHUC_NANG_213).
+function SigningProgress({ signing }: { signing: NonNullable<OutgoingResponse["signing"]> }) {
+  const t = useTranslations("officeDocuments");
+  const tone = signing.status === "completed" || signing.status === "signing" || signing.status === "draft" ? "thong-tin" : "canh-bao";
+  return (
+    <div className={`khoi-canh-bao ${tone}`}>
+      {t(`digitalSignStatus_${signing.status}`, { no: signing.requestNo, reason: signing.endReason ?? "" })} <Link href={`/signing/${signing.id}`}>{t("openSigning")}</Link>
+    </div>
+  );
+}
+
+// Ký số: hệ thống lập phiên ký từ bản đã cấp số; người ký của công văn ký trước, văn thư đóng chữ ký công ty sau.
+function DigitalSignDrawer({ outgoing, onClose, onDone }: { outgoing: OutgoingResponse; onClose: () => void; onDone: () => void }) {
+  const t = useTranslations("officeDocuments");
+  const common = useTranslations("common");
+  const { submitting, fields, formError, run, inputClass } = useSubmit();
+  const [dueOn, setDueOn] = useState(() => {
+    const date = new Date(`${vietnamToday()}T00:00:00Z`);
+    date.setUTCDate(date.getUTCDate() + 3);
+    return date.toISOString().slice(0, 10);
+  });
+  const [note, setNote] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const needsFile = outgoing.composeMode === "upload";
+  const save = () =>
+    run(async () => {
+      const form = new FormData();
+      form.append("data", JSON.stringify({ dueOn, note: note.trim() || null, version: outgoing.version }));
+      if (file) form.append("file", file);
+      await apiUpload(`/office/outgoing/${outgoing.id}/digital-signing`, form);
+      onDone();
+    });
+  return (
+    <Drawer title={t("outgoingAction_digital_sign")} onClose={onClose}>
+      <p className="chu-thich">{t("digitalSignHint", { signer: personLabel(outgoing.signer) })}</p>
+      <FormError text={formError} />
+      {needsFile ? (
+        <Field id="ky-so-tep" label={t("digitalSignFile")} error={fields.file} hint={t("digitalSignFileHint")}>
+          <input id="ky-so-tep" type="file" className={inputClass("file")} accept=".pdf,application/pdf" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+        </Field>
+      ) : (
+        <p className="chu-thich">{t("digitalSignRendered")}</p>
+      )}
+      <Field id="ky-so-han" label={t("digitalSignDue")} error={fields.dueOn}>
+        <input id="ky-so-han" type="date" className={inputClass("dueOn")} value={dueOn} onChange={(event) => setDueOn(event.target.value)} />
+      </Field>
+      <Field id="ky-so-ghi-chu" label={t("digitalSignNote")}>
+        <textarea id="ky-so-ghi-chu" className="o-nhap" rows={2} maxLength={2000} value={note} onChange={(event) => setNote(event.target.value)} />
       </Field>
       <div className="nhom-nut">
         <button type="button" className="nut phu" onClick={onClose}>
           {common("cancel")}
         </button>
-        <button type="button" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting || !file} onClick={() => void save()}>
-          {t("outgoingAction_issue")}
+        <button type="button" className={`nut chinh${submitting ? " dang-xu-ly" : ""}`} disabled={submitting || (needsFile && !file)} onClick={() => void save()}>
+          {t("digitalSignSend")}
         </button>
       </div>
     </Drawer>

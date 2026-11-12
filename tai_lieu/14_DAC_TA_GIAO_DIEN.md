@@ -35,6 +35,7 @@
 - Cập nhật CONG_VIEC_58 (2026-11-12): thêm MAN_HINH_204 đến MAN_HINH_209 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách, đặt trong mini app Mua hàng `web-purchasing`; mục 75 đến mục 77); MAN_HINH_209 là khối "Ngân sách mua" trong MAN_HINH_40, MAN_HINH_41 (đơn mua); menu Mua hàng thêm "Kế hoạch ngân sách", "Số còn được mua", "Điều chỉnh ngân sách"
 - Cập nhật CONG_VIEC_57 (2026-11-12): thêm MAN_HINH_188 đến MAN_HINH_195 của MODULE_14 (trạm giao hàng O2O phần 2; bản mẫu MAN_HINH_188 đến 194; mục 78, mục 79); menu Bán lẻ thêm Đơn trực tuyến, Giao cho khách, Đơn tôi đang giao, Nhận hàng trả; sửa MAN_HINH_166 (loại trạm, Cài đặt trạm), MAN_HINH_161, MAN_HINH_162, MAN_HINH_165 (ca của nhân viên giao), MAN_HINH_93, MAN_HINH_96 (ứng dụng VComm), MAN_HINH_88, MAN_HINH_89 (web-crm)
 - Cập nhật CONG_VIEC_22 (2026-11-12), THAY_DOI_26, THAY_DOI_28: thêm MAN_HINH_196 đến MAN_HINH_201 (mục 80, Kinh doanh trên ứng dụng VComm); sửa MAN_HINH_78, MAN_HINH_84, MAN_HINH_91; bỏ MAN_HINH_72 và thẻ ghé thăm trên MAN_HINH_37
+- Cập nhật CONG_VIEC_59 (2026-11-12): thêm MAN_HINH_210 đến MAN_HINH_217 của MODULE_13 Văn phòng số phần 2 (chữ ký số, trình ký, kho hợp đồng; mini app `web-office`; bản mẫu `ban_mau/MAN_HINH_210` đến `MAN_HINH_217`, đã duyệt 2026-11-12); sửa MAN_HINH_158 (công văn đi: nút Ký số, khối tiến trình phiên ký), MAN_HINH_118 (hợp đồng lao động của Nhân sự: nút Ký số); menu Văn phòng số thêm Trình ký, Hợp đồng, Kiểm tra chữ ký, Cài đặt ký số và hợp đồng
 
 ## MODULE_01 Nền tảng
 
@@ -2913,3 +2914,56 @@ Mini app Văn phòng số `apps/web-office`, đường dẫn `/office`. Bản m�
 Điều hướng: trang chủ → Văn phòng số → menu Công việc (153 → 154), Quy trình (156), Mẫu quy trình (155), Công văn đến (157), Công văn đi (158), Bảng tin (159), Cài đặt văn thư (160). Thông báo công việc mở 154, công văn mở 157 hoặc 158, tin mở 159. Không dùng giá trị mới ngoài tài liệu `15`; xem trước công văn đi hiện chính tệp PDF do máy chủ tạo (phông, cỡ chữ của tệp theo Nghị định 30, không phải giá trị giao diện).
 
 - Trạng thái phê duyệt: bản mẫu đã duyệt ngày 2026-11-11; lát L0 đến L3 đã duyệt; người dùng nghiệm thu 2026-11-12.
+
+## MODULE_13 Văn phòng số phần 2: chữ ký số, kho hợp đồng (CONG_VIEC_59)
+
+Mini app Văn phòng số `apps/web-office`, đường dẫn `/office`. Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_210_TRINH_KY.html`, `MAN_HINH_211_LAP_PHIEN_KY.html`, `MAN_HINH_212_CHI_TIET_PHIEN_KY.html`, `MAN_HINH_213_TRANG_KY_DOI_TAC.html`, `MAN_HINH_214_KIEM_TRA_CHU_KY.html`, `MAN_HINH_215_KHO_HOP_DONG.html`, `MAN_HINH_216_CHI_TIET_HOP_DONG.html`, `MAN_HINH_217_CAI_DAT_KY_SO.html`. Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_59.md` mục 8.
+
+| Mã | Tên màn hình | Nội dung | Đường dẫn | Chức năng (10) | API (17) | Vai trò, quyền được truy cập |
+|---|---|---|---|---|---|---|
+| MAN_HINH_210 | Trình ký | Thẻ Chờ tôi ký (gồm bước chữ ký công ty khi có quyền), Tôi gửi, Đã ký; cột mã, tiêu đề, nguồn (tài liệu, hợp đồng, công văn đi, hợp đồng lao động), người đang đến lượt, hạn ký, trạng thái; nút "Trình ký tài liệu"; ô "Tài khoản ký số của tôi" (chứng thư đang dùng, hạn, nút khai, đổi) | `/office/signing` | CHUC_NANG_210, CHUC_NANG_211 | API_242, API_243 | `office.access` |
+| MAN_HINH_211 | Lập phiên ký | Tải PDF, tiêu đề, ghi chú, hạn ký; danh sách người ký (loại, người, thứ tự, trang, góc), xem trước vị trí ô chữ ký trên hình thu nhỏ trang; Lưu nháp, Gửi | `/office/signing/new`, `/office/signing/[id]/edit` | CHUC_NANG_211 | API_243 | `office.signing.use` (sửa: người lập, phiên nháp) |
+| MAN_HINH_212 | Chi tiết phiên ký | Xem PDF hiện hành, tiến trình người ký (đã ký lúc, đang chờ xác nhận trên điện thoại, từ chối kèm lý do), nút Ký số, Từ chối, Nhắc, Gửi lại thư đối tác, Hủy, Sao chép thành phiên mới, Tải bản đã ký; nguồn (mở chứng từ nguồn); lịch sử | `/office/signing/[id]` | CHUC_NANG_211, CHUC_NANG_213 | API_243 | Người lập, người ký, người xem được nguồn; người khác nhận "không tìm thấy" |
+| MAN_HINH_213 | Trang ký của đối tác | Trang công khai: tên công ty gửi, tiêu đề, ghi chú, xem, tải PDF, Ký số (chờ xác nhận trên ứng dụng của nhà cung cấp), Từ chối; báo đường dẫn hết hạn, đã dùng | `/office/sign/[token]` | CHUC_NANG_211 | API_244 | Đối tác (không đăng nhập) |
+| MAN_HINH_214 | Kiểm tra chữ ký PDF | Tải tệp, bảng kết quả từng chữ ký (người ký, tổ chức cấp, thời gian, toàn vẹn, hiệu lực, tin cậy, kết luận); ghi rõ "Chưa kiểm tra thu hồi" | `/office/signature-check` | CHUC_NANG_210 | API_245 | `office.signing.use` |
+| MAN_HINH_215 | Kho hợp đồng | Danh sách hợp đồng (và hợp đồng lao động khi có quyền), tìm, lọc, nhãn hiệu lực, ô tóm tắt (đang hiệu lực, sắp hết hạn, hết hạn); nút Lập hợp đồng, Nhập hợp đồng đã ký, Loại hợp đồng (khi có `office.contract.manage`) | `/office/contracts` | CHUC_NANG_212 | API_246, API_247 | `office.contract.create`, `office.contract.view_all`, người liên quan |
+| MAN_HINH_216 | Chi tiết, lập hợp đồng | Biểu mẫu trường; chi tiết: thông tin, đối tác, tệp nội dung, tệp đã ký và kết quả kiểm tra chữ ký, phụ lục, tiến trình duyệt, phiên ký, chia sẻ, lịch sử; nút theo trạng thái (Trình, Rút, Hủy, Lập phiên ký, Lập phụ lục, Thanh lý, Chấm dứt) | `/office/contracts/new`, `/office/contracts/import`, `/office/contracts/[id]`, `/office/contracts/[id]/edit` | CHUC_NANG_212 | API_246, API_247 | Người xem được hợp đồng (QUYTAC_NGHIEPVU_466); người khác nhận "không tìm thấy" |
+| MAN_HINH_217 | Cài đặt ký số và hợp đồng | Thẻ Nhà cung cấp ký số (loại, môi trường, thông tin kết nối, kiểm tra), Chữ ký số công ty, Chứng thư gốc tin cậy (phạm vi tập đoàn), Loại hợp đồng | `/office/signing-settings` (thẻ Loại hợp đồng: `?tab=types`) | CHUC_NANG_210, CHUC_NANG_212 | API_241, API_247 | `office.signing.manage`, `office.contract.manage` |
+
+Điều hướng: menu Văn phòng số thêm Trình ký (210 → 211, 212), Hợp đồng (215 → 216), Kiểm tra chữ ký (214, với `office.signing.use`), Cài đặt ký số và hợp đồng (217, với `office.signing.manage`); người chỉ có `office.contract.manage` mở thẻ Loại hợp đồng của 217 bằng nút "Loại hợp đồng" trên 215. Thông báo phiên ký mở 212, nhắc hạn hợp đồng và hợp đồng chờ duyệt mở 216. Đối tác mở 213 từ đường dẫn trong thư điện tử.
+
+```mermaid
+flowchart TD
+    M{{Menu Văn phòng số}} --> S[MAN_HINH_210 Trình ký]
+    M --> C[MAN_HINH_215 Kho hợp đồng]
+    M --> V[MAN_HINH_214 Kiểm tra chữ ký]
+    M --> T[MAN_HINH_217 Cài đặt ký số và hợp đồng]
+    S -->|Trình ký tài liệu, sửa nháp| SN[MAN_HINH_211 Lập phiên ký]
+    S -->|Mở phiên| SD[MAN_HINH_212 Chi tiết phiên ký]
+    SN -->|Lưu, gửi| SD
+    C -->|Lập, nhập, mở hợp đồng| CD[MAN_HINH_216 Chi tiết hợp đồng]
+    C -->|Loại hợp đồng| T
+    CD -->|Mở phiên ký| SD
+    O[MAN_HINH_158 Công văn đi] -->|Ký số, mở phiên ký| SD
+    H[MAN_HINH_118 Hợp đồng lao động] -->|Ký số, mở phiên ký| SD
+    E((Thư điện tử)) --> P[MAN_HINH_213 Trang ký của đối tác]
+```
+
+Sửa màn hình đã có (CHUC_NANG_213):
+- MAN_HINH_158 Công văn đi: công văn đã cấp số, văn thư (`office.document.clerk`) thấy nút "Ký số" (mở ngăn kéo: hạn ký, ghi chú; công văn soạn bằng tệp thì tải bản PDF đã cấp số); khối tiến trình phiên ký (số phiên, trạng thái, lý do kết thúc, liên kết "Mở phiên ký" sang MAN_HINH_212). Phiên xong thì Phát hành không cần tải bản quét; phiên bị từ chối, hủy, hết hạn thì Ký số lại hoặc phát hành bằng bản quét.
+- MAN_HINH_118 Chi tiết hợp đồng lao động, phụ lục (mini app Nhân sự `/hr/contracts/[id]`): hợp đồng, phụ lục đã duyệt, người có `hr.contract.manage` thấy nút "Ký số" (tải tệp PDF, chọn người ký phía công ty, hạn ký, ghi chú, thư điện tử người lao động khi ký qua đường dẫn; hiện người lao động ký trong hệ thống hay qua đường dẫn, bốn số cuối số định danh) và tiến trình phiên ký.
+
+| Màn hình | Quản trị | Văn thư | Quản lý hợp đồng | Nhân viên | Đối tác |
+|---|---|---|---|---|---|
+| MAN_HINH_210 Trình ký | Có | Có (thấy bước chữ ký công ty) | Có | Có | Không |
+| MAN_HINH_211 Lập phiên ký | Có | Có | Có | Có | Không |
+| MAN_HINH_212 Chi tiết phiên ký | Phiên liên quan | Phiên liên quan, bước chữ ký công ty | Phiên liên quan | Phiên liên quan | Không |
+| MAN_HINH_213 Trang ký của đối tác | Không | Không | Không | Không | Qua đường dẫn |
+| MAN_HINH_214 Kiểm tra chữ ký PDF | Có | Có | Có | Có | Không |
+| MAN_HINH_215 Kho hợp đồng | Có | Hợp đồng liên quan | Có | Hợp đồng liên quan | Không |
+| MAN_HINH_216 Chi tiết, lập hợp đồng | Có | Xem khi liên quan | Lập, nhập, xem | Xem khi liên quan | Không |
+| MAN_HINH_217 Cài đặt ký số và hợp đồng | Có (chứng thư gốc: Quản trị tập đoàn) | Không | Thẻ Loại hợp đồng | Không | Không |
+
+- Responsive: bảng chuyển thành thẻ trên điện thoại, nhãn cột hiện đủ; không cuộn ngang; trang ký của đối tác dùng được trên điện thoại.
+- Không dùng giá trị giao diện mới ngoài tài liệu `15`; chuỗi hiển thị ở `packages/i18n`.
+- Trạng thái phê duyệt: bản mẫu MAN_HINH_210 đến MAN_HINH_217 đã duyệt 2026-11-12 (dòng Trạng thái của đặc tả CONG_VIEC_59); lát L1, L2, L3 có ảnh chụp ở điểm xem trước; chờ người dùng nghiệm thu.
