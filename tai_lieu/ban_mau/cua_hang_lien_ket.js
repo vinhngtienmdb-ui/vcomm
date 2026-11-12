@@ -12,6 +12,8 @@
     179: "VOUCHER_LIEN_KET",
     180: "DOI_SOAT_LIEN_KET",
     181: "CUA_HANG_LIEN_KET_UNG_DUNG",
+    231: "KET_NOI_PHAN_MEM",
+    232: "KET_NOI_PHAN_MEM_CUA_HANG",
   };
   const duongDan = (m) => `MAN_HINH_${m}_${TEP[m]}.html`;
   const doc = (khoa, macDinh) => {
@@ -36,6 +38,7 @@
       ["175", "Voucher"],
       ["176", "Báo cáo và đối soát"],
       ["177", "Cửa hàng của tôi"],
+      ["232", "Kết nối phần mềm"],
     ].filter(([m]) => vaiTro === "chu" || m === "174");
     document.getElementById("thanh-tren").outerHTML = `<header class="thanh-tren"><span class="logo">VComm Liên kết</span>
       <span>Cà phê Hạt Nâu · Điểm bán Lê Lợi</span><span class="gian"></span>
@@ -57,7 +60,7 @@
       <button type="button">VComm Sàn ▾</button><a href="#">Hộp duyệt <span class="huy-hieu">2</span></a><button type="button">Thông báo</button><span>Nguyễn Thị Hồng Nhung ▾</span></header>`;
     document.getElementById("menu").outerHTML = `<nav class="menu" aria-label="Khách hàng và đối tác"><div class="ten-app">Khách hàng và đối tác</div>
       <a href="#">Đối tác</a><a href="#">Điểm thưởng</a><div class="ten-app" style="margin-top:var(--khoang-3)">Cửa hàng liên kết</div>${menu
-        .map(([m, t]) => `<a href="${duongDan(m)}" class="${m === ma ? "chon" : ""}">${t}</a>`)
+        .map(([m, t]) => `<a href="${duongDan(m)}" class="${m === ma || (m === "178" && ma === "231") ? "chon" : ""}">${t}</a>`)
         .join("")}</nav>`;
   }
 
@@ -88,6 +91,25 @@
     vung.appendChild(o);
     setTimeout(() => o.remove(), 3500);
   });
+
+  // Bảng điều khiển trạng thái màn hình cho MAN_HINH_231, 232 (CONG_VIEC_67): phần tử có id trùng tên trạng thái.
+  const trangThaiMot = ["co-du-lieu", "rong", "dang-tai", "loi", "khong-quyen"].filter((id) => document.getElementById(id));
+  if (trangThaiMot.length > 1) {
+    const ten = { "co-du-lieu": "Có dữ liệu", rong: "Rỗng", "dang-tai": "Đang tải", loi: "Lỗi", "khong-quyen": "Chỉ xem" };
+    const hien = (chon) => trangThaiMot.forEach((id) => (document.getElementById(id).hidden = id !== chon));
+    const dk = document.createElement("div");
+    dk.className = "dieu-khien";
+    dk.style.bottom = khu === "cong" ? "56px" : "";
+    dk.innerHTML = `<label for="dk-trang-thai">Trạng thái</label><select id="dk-trang-thai">${trangThaiMot.map((id) => `<option value="${id}">${ten[id]}</option>`).join("")}</select>`;
+    body.appendChild(dk);
+    const chon = dk.querySelector("select");
+    chon.value = doc("ban-mau-c67-trang-thai", "co-du-lieu");
+    hien(chon.value);
+    chon.addEventListener("change", () => {
+      ghi("ban-mau-c67-trang-thai", chon.value);
+      hien(chon.value);
+    });
+  }
 
   // Bảng điều khiển bản mẫu: vai trò cổng cửa hàng.
   if (khu === "cong") {
