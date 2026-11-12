@@ -21,6 +21,7 @@ export default function PartnersPage() {
   const [search, setSearch] = useState("");
   const [kind, setKind] = useState("");
   const [role, setRole] = useState("");
+  const [source, setSource] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
   const [adding, setAdding] = useState(false);
@@ -41,6 +42,7 @@ export default function PartnersPage() {
   if (search) parameters.set("search", search);
   if (kind) parameters.set("kind", kind);
   if (role) parameters.set("role", role);
+  if (source) parameters.set("source", source);
   if (status) parameters.set("status", status);
   const { state, reload } = useApi<PageResponse<PartnerListItem>>(`/crm/partners?${parameters}`);
   const headings = [t("code"), t("name"), t("kind"), t("identity"), t("phone"), t("role"), t("owner"), t("status")];
@@ -106,6 +108,16 @@ export default function PartnersPage() {
             label: t(`role_${item}`),
           })),
         )}
+        {filter(
+          "loc-nguon",
+          t("source"),
+          source,
+          setSource,
+          (["web", "open_api"] as const).map((item) => ({
+            value: item,
+            label: t(`source_${item}`),
+          })),
+        )}
         {filter("loc-trang-thai", t("status"), status, setStatus, [
           { value: "active", label: t("active") },
           { value: "inactive", label: t("inactive") },
@@ -114,7 +126,7 @@ export default function PartnersPage() {
       <Loaded state={state} onRetry={() => void reload()}>
         {(result) =>
           result.data.length === 0 ? (
-            <MessageView text={search || kind || role || status ? common("noResult") : t("none")} />
+            <MessageView text={search || kind || role || source || status ? common("noResult") : t("none")} />
           ) : (
             <div className="khung-bang">
               <table>
@@ -137,6 +149,7 @@ export default function PartnersPage() {
                         <span>
                           {item.name}
                           {item.shortName && <span className="chu-thich"> · {item.shortName}</span>}
+                          {item.createdViaOpenApi && <span className="nhan thong-tin"> {t("createdViaOpenApi")}</span>}
                         </span>
                       </td>
                       <td data-nhan={headings[2]}>

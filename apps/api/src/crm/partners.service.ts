@@ -46,6 +46,7 @@ type PartnerRow = {
   phone: string | null;
   email: string | null;
   company_id: string | null;
+  created_via_api_key_id: string | null;
   status: "active" | "inactive";
   version: number;
   is_customer: boolean | null;
@@ -219,6 +220,8 @@ export class PartnersService implements OnApplicationBootstrap {
     if (query.role === "customer") conditions.push(sql`pr.is_customer`);
     if (query.role === "supplier") conditions.push(sql`pr.is_supplier`);
     if (query.role === "internal") conditions.push(sql`p.company_id IS NOT NULL`);
+    if (query.source === "open_api") conditions.push(sql`p.created_via_api_key_id IS NOT NULL`);
+    if (query.source === "web") conditions.push(sql`p.created_via_api_key_id IS NULL`);
     const where = sql.join(conditions, sql` AND `);
     const from = sql`FROM crm.partners p LEFT JOIN crm.partner_profiles pr ON pr.partner_id = p.id AND pr.company_id = ${actor.companyId}
       LEFT JOIN core.users owner ON owner.id = pr.owner_user_id`;
@@ -282,6 +285,7 @@ export class PartnersService implements OnApplicationBootstrap {
       canManage: granted.has(crmPermissions.manage) && row.company_id === null,
       canViewIdentity: granted.has(crmPermissions.viewIdentity) && row.citizen_id !== null,
       canManageProfile: granted.has(crmPermissions.manageProfile),
+      openApi: await this.openApiSources(actor.companyId, id),
     };
   }
 
@@ -524,6 +528,21 @@ export class PartnersService implements OnApplicationBootstrap {
     return this.detail(actor, id);
   }
 
+  // Khách do đối tác tạo hoặc gắn qua Open API tại công ty (CONG_VIEC_66; QUYTAC_NGHIEPVU_494).
+  private async openApiSources(companyId: string, partnerId: string): Promise<PartnerResponse["openApi"]> {
+    const rows = await this.database.execute<{ partner_name: string | null; key_name: string; is_owner: boolean; created_at: Date; personal_data_consent_at: Date | null }>(sql`
+      SELECT op.name AS partner_name, k.name AS key_name, l.is_owner, l.created_at, l.personal_data_consent_at
+      FROM crm.open_api_customers l JOIN core.api_keys k ON k.id = l.api_key_id LEFT JOIN crm.partners op ON op.id = k.partner_id
+      WHERE l.company_id = ${companyId} AND l.partner_id = ${partnerId} ORDER BY l.created_at`);
+    return rows.rows.map((row) => ({
+      partnerName: row.partner_name,
+      keyName: row.key_name,
+      isOwner: row.is_owner,
+      createdAt: new Date(row.created_at).toISOString(),
+      personalDataConsentAt: row.personal_data_consent_at ? new Date(row.personal_data_consent_at).toISOString() : null,
+    }));
+  }
+
   // Hạn mức công nợ là thông tin nhạy cảm: chỉ người có quyền quản lý hồ sơ đối tác thấy (tài liệu 22).
   private async profile(companyId: string, partnerId: string, showCreditLimit: boolean): Promise<PartnerProfileResponse | null> {
     const row = (
@@ -735,6 +754,7 @@ export class PartnersService implements OnApplicationBootstrap {
       isSupplier: row.is_supplier ?? false,
       ownerUserName: row.owner_user_name,
       status: row.status,
+      createdViaOpenApi: row.created_via_api_key_id !== null,
     };
   }
 }

@@ -338,6 +338,8 @@ describe("TIEUCHI_NGHIEMTHU_500: hóa đơn, công nợ theo khách do đối t�
     expect(issued.status, JSON.stringify(issued.body)).toBe(201);
     const posted = await call(admin, "post", `/inventory/documents/${issued.body.id}/submit`);
     expect(posted.body.status, JSON.stringify(posted.body)).toBe("posted");
+    const stockDocument = (await call(admin, "get", `/inventory/documents/${issued.body.id}`)).body;
+    expect(stockDocument.recipient).toEqual({ name: "Trần Văn Bình", phone: "+84987654321", address: recipient.address });
     const invoiceId = (await pool.query<{ id: string }>("SELECT id FROM finance.einvoices WHERE source_document_id = $1 AND kind = 'original'", [issued.body.id])).rows[0]!.id;
     const invoice = (await call(accountant, "get", `/finance/einvoices/${invoiceId}`)).body;
     expect(invoice.buyer).toMatchObject({ name: "Công ty Nội thất An Phú", taxCode: "0320066901" });
@@ -368,5 +370,28 @@ describe("TIEUCHI_NGHIEMTHU_501: nhật ký thao tác, nhật ký gọi", () => 
     expect(paths).toContain("/api/v1/open/customers?pageSize=5");
     expect(paths).not.toContain("Nguyen");
     expect(paths).not.toContain("0911000090");
+  });
+});
+
+// ---------- Lát L2: màn hình nhân viên (TIEUCHI_NGHIEMTHU_502, 503) ----------
+
+describe("TIEUCHI_NGHIEMTHU_502, 503: nhân viên thấy nguồn khách, người nhận", () => {
+  it("KICHBAN_KIEMTHU_691, 692: lọc nguồn Open API, hộp thông tin Open API, đơn hiện người nhận và nhãn khách", async () => {
+    const created = (await send("post", "/customers", dealerKey, organization("0320066911", { name: "Công ty Lọc Nguồn" }))).body;
+    const partnerId = (await pool.query<{ id: string }>("SELECT id FROM crm.partners WHERE code = $1", [created.code])).rows[0]!.id;
+    const fromApi = await call(admin, "get", "/crm/partners?source=open_api&pageSize=100");
+    expect(fromApi.status, JSON.stringify(fromApi.body)).toBe(200);
+    expect(fromApi.body.data.every((item: { createdViaOpenApi: boolean }) => item.createdViaOpenApi)).toBe(true);
+    expect(fromApi.body.data.map((item: { id: string }) => item.id)).toContain(partnerId);
+    expect((await call(admin, "get", "/crm/partners?source=web&pageSize=100")).body.data.map((item: { id: string }) => item.id)).not.toContain(partnerId);
+    const detail = (await call(admin, "get", `/crm/partners/${partnerId}`)).body;
+    expect(detail.openApi).toHaveLength(1);
+    expect(detail.openApi[0]).toMatchObject({ partnerName: "Công ty TNHH Phân phối Minh Long", isOwner: true, personalDataConsentAt: null });
+    // Hồ sơ gắn do trùng ở công ty khác không hiện ở công ty đang làm việc.
+    expect((await call(groupAdmin, "get", `/crm/partners/${partnerId}`, undefined, trading)).body.openApi).toEqual([]);
+    expect((await send("post", "/sales-orders", dealerKey, orderBody("WEB-6921", { customerCode: created.code, recipient }))).status).toBe(201);
+    const orderId = (await pool.query<{ id: string }>("SELECT id FROM sales.orders WHERE partner_order_code = 'WEB-6921'")).rows[0]!.id;
+    const order = (await call(admin, "get", `/sales/orders/${orderId}`)).body;
+    expect(order).toMatchObject({ customerCreatedViaOpenApi: true, recipient: { name: "Trần Văn Bình", phone: "+84987654321" }, deliveryAddress: recipient.address });
   });
 });

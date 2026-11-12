@@ -664,6 +664,16 @@ function DocumentView({ document, onChanged }: { document: StockDocumentResponse
               <dd>{document.partnerName}</dd>
             </>
           )}
+          {document.recipient && (
+            <>
+              <dt>{t("recipient")}</dt>
+              <dd>
+                {document.recipient.name} · {document.recipient.phone}
+                <br />
+                {document.recipient.address}
+              </dd>
+            </>
+          )}
           {document.internalReceipt && (
             <>
               <dt>{t("internalIssue")}</dt>

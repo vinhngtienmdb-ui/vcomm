@@ -1947,6 +1947,7 @@
     "balance": "Balance"
   },
   "documents": {
+    "recipient": "Recipient",
     "title": "Stock documents",
     "none": "No stock documents yet.",
     "documentNo": "Document no.",
@@ -2259,6 +2260,15 @@
     "role_internal": "Internal",
     "internal": "Internal",
     "internalHint": "Internal partners take their details from the subsidiary; edit them on the Companies screen.",
+    "source": "Source",
+    "source_web": "Entered on web",
+    "source_open_api": "Open API",
+    "createdViaOpenApi": "Created by partner",
+    "citizenIdOpenApiHint": "Optional for customers created by a partner through Open API.",
+    "openApiCreated": "Created by partner {partner} through Open API with key {key} at {at}. The partner can change the name, address, phone and email.",
+    "openApiLinked": "Existing record linked to partner {partner} through Open API with key {key} at {at} (same tax code or citizen ID). The partner cannot change this record.",
+    "openApiInternal": "internal software",
+    "openApiConsent": "The partner confirmed the customer's consent to personal data processing at {at}.",
     "status": "Status",
     "active": "Trading",
     "inactive": "Stopped trading",
@@ -2478,6 +2488,12 @@
     "convertedMissing": "No accounting exchange rate for today to convert."
   },
   "salesOrders": {
+    "customerCreatedViaOpenApi": "Created by partner",
+    "recipient": "Recipient",
+    "recipientName": "Recipient name",
+    "recipientPhone": "Phone",
+    "recipientAddress": "Delivery address",
+    "recipientHint": "The partner collects payment from the buyer; no delivery fee or cash on delivery on this order.",
     "title": "Sales orders",
     "add": "Create sales order",
     "edit": "Edit sales order",

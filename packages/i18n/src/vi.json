@@ -1947,6 +1947,7 @@
     "balance": "Tồn sau"
   },
   "documents": {
+    "recipient": "Người nhận",
     "title": "Phiếu kho",
     "none": "Chưa có phiếu kho.",
     "documentNo": "Số phiếu",
@@ -2259,6 +2260,15 @@
     "role_internal": "Nội bộ",
     "internal": "Nội bộ",
     "internalHint": "Đối tác nội bộ lấy thông tin từ công ty con; sửa ở màn hình Công ty.",
+    "source": "Nguồn",
+    "source_web": "Nhập trên web",
+    "source_open_api": "Open API",
+    "createdViaOpenApi": "Do đối tác tạo",
+    "citizenIdOpenApiHint": "Không bắt buộc với khách do đối tác tạo qua Open API.",
+    "openApiCreated": "Khách do đối tác {partner} tạo qua Open API bằng khóa {key} lúc {at}. Đối tác sửa được tên, địa chỉ, điện thoại, email.",
+    "openApiLinked": "Hồ sơ có sẵn được gắn cho đối tác {partner} qua Open API bằng khóa {key} lúc {at} (trùng mã số thuế hoặc căn cước). Đối tác không sửa được hồ sơ này.",
+    "openApiInternal": "phần mềm nội bộ",
+    "openApiConsent": "Đối tác xác nhận đã có đồng ý xử lý dữ liệu cá nhân của khách lúc {at}.",
     "status": "Trạng thái",
     "active": "Đang giao dịch",
     "inactive": "Ngừng giao dịch",
@@ -2478,6 +2488,12 @@
     "convertedMissing": "Chưa có tỷ giá hạch toán hôm nay để quy đổi."
   },
   "salesOrders": {
+    "customerCreatedViaOpenApi": "Do đối tác tạo",
+    "recipient": "Người nhận",
+    "recipientName": "Tên người nhận",
+    "recipientPhone": "Điện thoại",
+    "recipientAddress": "Địa chỉ giao",
+    "recipientHint": "Đối tác tự thu tiền người mua; đơn không có phí giao, không thu hộ.",
     "title": "Đơn bán",
     "add": "Lập đơn bán",
     "edit": "Sửa đơn bán",

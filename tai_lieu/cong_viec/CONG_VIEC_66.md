@@ -3,7 +3,7 @@
 - Mô tả: Đối tác (website, sàn bán hộ, đại lý) và phần mềm của chính công ty tạo khách hàng (người mua lấy hóa đơn) qua Open API, gửi đơn bán ghi khách đó và người nhận để công ty giao thẳng. Tách từ CONG_VIEC_61 lát L3.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Đã duyệt đặc tả, bản mẫu (người dùng, 2026-11-12); đang làm lát L1
+- Trạng thái: Đã duyệt đặc tả, bản mẫu (người dùng, 2026-11-12); đang làm lát L2
 - Mức: Lớn (sửa cấu trúc dữ liệu đối tác và đơn bán, sửa API đang dùng, thêm dữ liệu cá nhân nhận qua điểm tiếp nhận công khai).
 - Nhánh: `chuc-nang/CONG_VIEC_66-open-api-khach-hang`.
 - Nguồn: `CONG_VIEC_61.md` (mục 2, 3, 5, 16, 17); quyết định của người dùng ngày 2026-11-12 (mục 17).
