@@ -651,6 +651,8 @@
     "openApiWarehouseNotAllowed": "The warehouse is not in the API key's warehouse list.",
     "openApiSkuNotFound": "No active item with this SKU.",
     "openApiUnitNotFound": "This unit cannot be used for the item.",
+    "openApiCustomerNotUsable": "The existing customer is inactive, a group company, or only a supplier in the company; contact the company.",
+    "openApiCustomerNotManaged": "This customer was not created by the partner and cannot be changed by the partner.",
     "officeFileTooLarge": "The file is larger than 20 MB.",
     "officeFileTypeInvalid": "Only PDF, Word, Excel, PowerPoint, JPG, PNG, TXT and ZIP files are accepted.",
     "officeParticipantDuplicate": "Each person can hold only one role on a task.",

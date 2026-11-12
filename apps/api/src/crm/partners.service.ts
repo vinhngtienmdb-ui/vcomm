@@ -9,6 +9,8 @@ import type {
   PartnerProfileResponse,
   PartnerResponse,
   PartnerSummaryResponse,
+  openCustomerSchema,
+  openCustomerUpdateSchema,
   savePartnerProfileSchema,
   savePartnerSchema,
 } from "contracts";
@@ -60,6 +62,27 @@ const crmAudit = (actor: Actor) => ({
   userAgent: actor.client.userAgent,
   requestId: actor.client.requestId,
 });
+// Khóa API gửi khách (CONG_VIEC_66): phạm vi là đối tác của khóa hoặc chính khóa nội bộ; nhóm khách của đối tác (khóa nội bộ: không nhóm).
+export interface OpenApiCustomerSource {
+  apiKeyId: string;
+  scopeId: string;
+  companyId: string;
+  customerGroupId: string | null;
+  keyName: string;
+  keyPrefix: string;
+  ip: string | null;
+  requestId: string | null;
+}
+const openApiAudit = (source: OpenApiCustomerSource) => ({
+  actorUserId: null,
+  companyId: source.companyId,
+  appCode: "crm",
+  entityType: "partner",
+  ip: source.ip,
+  requestId: source.requestId,
+});
+type Executor = Pick<Database, "execute">;
+
 // Không đưa số Căn cước công dân vào nhật ký thao tác (QUYTAC_NGHIEPVU_59).
 const withoutIdentity = (input: PartnerInput) => ({
   ...input,
@@ -544,10 +567,118 @@ export class PartnersService implements OnApplicationBootstrap {
   }
 
   // Tổ chức, hộ kinh doanh bắt buộc mã số thuế; cá nhân bắt buộc số Căn cước công dân; không trùng trong tập đoàn (QUYTAC_NGHIEPVU_56).
+  // Khách do đối tác tạo qua Open API (QUYTAC_NGHIEPVU_494 khoản 3, 4): mã số thuế, căn cước đã có thì gắn hồ sơ cũ vào phạm vi, không sửa hồ sơ đó.
+  // Trả created: false khi gắn hồ sơ có sẵn hoặc phạm vi đã có khách này. Hai lần gửi đồng thời: lần sau gặp chỉ mục duy nhất, chạy lại nhánh gắn.
+  async createFromOpenApi(source: OpenApiCustomerSource, input: z.output<typeof openCustomerSchema>): Promise<{ partnerId: string; created: boolean }> {
+    const consentAt = input.kind === "individual" && input.personalDataConsent === true ? sql`now()` : sql`NULL`;
+    const attempt = () =>
+      this.database.transaction(async (transaction): Promise<{ partnerId: string; created: boolean }> => {
+        const existing = (
+          await transaction.execute<{ id: string; status: string }>(sql`
+          SELECT id, status FROM crm.partners WHERE (tax_code = ${input.taxCode ?? null} OR citizen_id = ${input.citizenId ?? null}) ORDER BY tax_code IS NULL LIMIT 1 FOR UPDATE`)
+        ).rows[0];
+        if (existing) {
+          const linked = await transaction.execute(sql`
+            SELECT 1 FROM crm.open_api_customers WHERE company_id = ${source.companyId} AND scope_id = ${source.scopeId} AND partner_id = ${existing.id}`);
+          if (linked.rows.length > 0) return { partnerId: existing.id, created: false };
+          if (existing.status !== "active") throw new ApiError("BUSINESS_RULE", "openApiCustomerNotUsable");
+          await this.ensureCustomerProfile(transaction, source, existing.id);
+          await transaction.execute(sql`
+            INSERT INTO crm.open_api_customers (company_id, scope_id, partner_id, api_key_id, is_owner, personal_data_consent_at)
+            VALUES (${source.companyId}, ${source.scopeId}, ${existing.id}, ${source.apiKeyId}, false, ${consentAt})`);
+          await this.auditService.record(
+            { ...openApiAudit(source), action: "partner.open_api_link", entityId: existing.id, afterData: { openApi: { keyName: source.keyName, keyPrefix: source.keyPrefix } } },
+            transaction,
+          );
+          return { partnerId: existing.id, created: false };
+        }
+        const searchValue = searchText(input.name, null, input.taxCode ?? null, input.phone ?? null);
+        const partnerId = (
+          await transaction.execute<{ id: string }>(sql`
+          INSERT INTO crm.partners (kind, name, tax_code, citizen_id, address, phone, email, search_text, created_via_api_key_id)
+          VALUES (${input.kind}, ${input.name}, ${input.taxCode ?? null}, ${input.citizenId ?? null}, ${input.address ?? null}, ${input.phone ?? null}, ${input.email ?? null},
+            ${searchValue}, ${source.apiKeyId}) RETURNING id`)
+        ).rows[0]!.id;
+        await this.ensureCustomerProfile(transaction, source, partnerId);
+        await transaction.execute(sql`
+          INSERT INTO crm.open_api_customers (company_id, scope_id, partner_id, api_key_id, is_owner, personal_data_consent_at)
+          VALUES (${source.companyId}, ${source.scopeId}, ${partnerId}, ${source.apiKeyId}, true, ${consentAt})`);
+        const { personalDataConsent: _consent, citizenId, ...logged } = input;
+        await this.auditService.record(
+          {
+            ...openApiAudit(source),
+            action: "partner.create",
+            entityId: partnerId,
+            afterData: { ...logged, citizenId: citizenId ? `***${citizenId.slice(-3)}` : null, openApi: { keyName: source.keyName, keyPrefix: source.keyPrefix } },
+          },
+          transaction,
+        );
+        return { partnerId, created: true };
+      });
+    try {
+      return await attempt();
+    } catch (error) {
+      if (!isUniqueViolation(error)) throw error;
+      return attempt();
+    }
+  }
+
+  // Đối tác chỉ sửa tên, địa chỉ, điện thoại, email của khách do mình tạo (khoản 5); kiểm phạm vi ở OpenCustomersService.
+  async updateFromOpenApi(source: OpenApiCustomerSource, partnerId: string, input: z.output<typeof openCustomerUpdateSchema>): Promise<void> {
+    await this.database.transaction(async (transaction) => {
+      const before = (
+        await transaction.execute<{ name: string; short_name: string | null; tax_code: string | null; address: string | null; phone: string | null; email: string | null; version: number }>(sql`
+        SELECT name, short_name, tax_code, address, phone, email, version FROM crm.partners WHERE id = ${partnerId} FOR UPDATE`)
+      ).rows[0]!;
+      if (before.version !== input.version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+      const after = {
+        name: input.name ?? before.name,
+        address: input.address === undefined ? before.address : input.address,
+        phone: input.phone === undefined ? before.phone : input.phone,
+        email: input.email === undefined ? before.email : input.email,
+      };
+      await transaction.execute(sql`
+        UPDATE crm.partners SET name = ${after.name}, address = ${after.address}, phone = ${after.phone}, email = ${after.email},
+          search_text = ${searchText(after.name, before.short_name, before.tax_code, after.phone)}, version = version + 1, updated_at = now(), updated_by = NULL
+        WHERE id = ${partnerId}`);
+      await this.auditService.record(
+        {
+          ...openApiAudit(source),
+          action: "partner.update",
+          entityId: partnerId,
+          beforeData: { name: before.name, address: before.address, phone: before.phone, email: before.email },
+          afterData: { ...after, openApi: { keyName: source.keyName, keyPrefix: source.keyPrefix } },
+        },
+        transaction,
+      );
+    });
+  }
+
+  // Hồ sơ khách ở công ty của khóa: chưa có thì tạo (nhóm của đối tác, hạn 0 ngày, hạn mức trống); có mà ngừng hoặc chỉ là nhà cung cấp thì từ chối (khoản 3, 4).
+  private async ensureCustomerProfile(transaction: Executor, source: OpenApiCustomerSource, partnerId: string): Promise<void> {
+    const profile = (
+      await transaction.execute<{ status: string; is_customer: boolean }>(sql`
+      SELECT status, is_customer FROM crm.partner_profiles WHERE company_id = ${source.companyId} AND partner_id = ${partnerId}`)
+    ).rows[0];
+    if (profile) {
+      if (profile.status !== "active" || !profile.is_customer) throw new ApiError("BUSINESS_RULE", "openApiCustomerNotUsable");
+      return;
+    }
+    const internal = (await transaction.execute<{ company_id: string | null }>(sql`SELECT company_id FROM crm.partners WHERE id = ${partnerId}`)).rows[0]?.company_id ?? null;
+    if (internal !== null) throw new ApiError("BUSINESS_RULE", "openApiCustomerNotUsable");
+    await transaction.execute(sql`
+      INSERT INTO crm.partner_profiles (company_id, partner_id, is_customer, is_supplier, payment_term_days, customer_group_id)
+      VALUES (${source.companyId}, ${partnerId}, true, false, 0, ${source.customerGroupId})`);
+  }
+
   private async validate(input: PartnerInput, exceptId: string | null): Promise<void> {
     const fields: Record<string, keyof Messages["errors"]> = {};
     if (input.kind !== "individual" && !input.taxCode) fields.taxCode = "required";
-    if (input.kind === "individual" && !input.citizenId) fields.citizenId = "required";
+    // Khách cá nhân do đối tác tạo qua Open API được để trống căn cước, kể cả khi nhân viên sửa (QUYTAC_NGHIEPVU_494 khoản 2).
+    if (input.kind === "individual" && !input.citizenId) {
+      const viaOpenApi = exceptId !== null && (await this.database.execute(sql`SELECT 1 FROM crm.partners WHERE id = ${exceptId} AND created_via_api_key_id IS NOT NULL`)).rows.length > 0;
+      if (!viaOpenApi) fields.citizenId = "required";
+    }
     if (input.kind !== "individual" && input.citizenId) fields.citizenId = "invalidValue";
     if (input.taxCode && (await this.database.execute(sql`SELECT 1 FROM crm.partners WHERE tax_code = ${input.taxCode} AND id IS DISTINCT FROM ${exceptId}`)).rows.length > 0) {
       fields.taxCode = "partnerTaxCodeExists";

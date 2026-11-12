@@ -32,6 +32,14 @@ export interface OpenApiCaller {
 
 export type OpenApiRequest = Request & { openApi: OpenApiCaller };
 
+// Phạm vi của bên gọi: đối tác của khóa, hoặc chính khóa nội bộ; dùng cho mã đơn đối tác (QUYTAC_NGHIEPVU_491) và khách do đối tác tạo (QUYTAC_NGHIEPVU_494).
+export const orderScopeOf = (caller: OpenApiCaller): string => caller.partnerId ?? caller.keyId;
+
+export interface CallerContext {
+  ip: string | null;
+  requestId: string | null;
+}
+
 type KeyRow = {
   id: string;
   name: string;

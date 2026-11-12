@@ -2852,6 +2852,7 @@ export interface SalesOrderResponse extends SalesOrderListItem {
   counterpartRejectedReason: string | null;
   canConfirmCounterpart: boolean;
   deliveryAddress: string | null;
+  recipient: { name: string; phone: string } | null;
   note: string | null;
   approvalRequestId: string | null;
   exceptions: { kind: SalesExceptionKind; lineNo: number | null; detail: string }[];

@@ -3,7 +3,7 @@
 - Mô tả: Đối tác (website, sàn bán hộ, đại lý) và phần mềm của chính công ty tạo khách hàng (người mua lấy hóa đơn) qua Open API, gửi đơn bán ghi khách đó và người nhận để công ty giao thẳng. Tách từ CONG_VIEC_61 lát L3.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Chờ người dùng duyệt đặc tả, bản mẫu
+- Trạng thái: Đã duyệt đặc tả, bản mẫu (người dùng, 2026-11-12); đang làm lát L1
 - Mức: Lớn (sửa cấu trúc dữ liệu đối tác và đơn bán, sửa API đang dùng, thêm dữ liệu cá nhân nhận qua điểm tiếp nhận công khai).
 - Nhánh: `chuc-nang/CONG_VIEC_66-open-api-khach-hang`.
 - Nguồn: `CONG_VIEC_61.md` (mục 2, 3, 5, 16, 17); quyết định của người dùng ngày 2026-11-12 (mục 17).
@@ -126,7 +126,7 @@ Sửa API hiện có (tương thích ngược, chỉ thêm trường):
 | `GET /crm/partners/{id}`                           | Thêm `openApi` (tên đối tác, tên khóa, thời điểm tạo, thời điểm xác nhận đồng ý) của công ty đang làm việc |
 | Chi tiết đơn bán, chi tiết phiếu kho (API hiện có) | Thêm `recipient`                                                                                           |
 
-API_293, API_294 không dùng, trả phiên điều phối. Mã lỗi dùng mã có sẵn (`VALIDATION_FAILED`, `NOT_FOUND`, `BUSINESS_RULE`, `VERSION_CONFLICT`).
+API_293, API_294 không dùng, trả phiên điều phối. Mã lỗi dùng mã có sẵn (`VALIDATION_FAILED`, `NOT_FOUND`, `BUSINESS_RULE`, `CONFLICT_VERSION`).
 
 ## 11. Dùng lại mã đã có
 
@@ -156,18 +156,18 @@ API_293, API_294 không dùng, trả phiên điều phối. Mã lỗi dùng mã 
   3. Tham khảo cách làm, tự viết: không cần.
   4. Tự viết mới hoàn toàn: không cần.
 - Đề xuất: phương án 2, không thêm thư viện.
-- Quyết định của người dùng: chờ duyệt cùng đặc tả.
+- Quyết định của người dùng: phương án 2 (duyệt cùng đặc tả) – 2026-11-12.
 
 ## 13. Tiêu chí nghiệm thu
 
 | Mã                    | Tiêu chí                                                                                                                                                                                   | Mức      | Lát |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | --- |
 | TIEUCHI_NGHIEMTHU_494 | Đối tác tạo khách tổ chức, cá nhân hợp lệ thì nhận `201` kèm mã; có hồ sơ "Do đối tác tạo" và hồ sơ khách công ty nhóm của đối tác, hạn thanh toán 0 ngày; khóa nội bộ: không nhóm         | Bắt buộc | L1  |
-| TIEUCHI_NGHIEMTHU_495 | Thiếu mã số thuế, địa chỉ (tổ chức), thiếu điện thoại hoặc `personalDataConsent` (cá nhân), sai định dạng thì `422` đúng trường; cá nhân không có căn cước tạo được                        | Bắt buộc | L1  |
+| TIEUCHI_NGHIEMTHU_495 | Thiếu mã số thuế, địa chỉ (tổ chức), thiếu điện thoại hoặc `personalDataConsent` (cá nhân), sai định dạng thì `400` đúng trường; cá nhân không có căn cước tạo được                        | Bắt buộc | L1  |
 | TIEUCHI_NGHIEMTHU_496 | Mã số thuế, căn cước đã có: `200` chỉ có mã, loại, hồ sơ cũ không đổi; hồ sơ ngừng dùng hoặc chỉ là nhà cung cấp: `409`                                                                    | Bắt buộc | L1  |
 | TIEUCHI_NGHIEMTHU_497 | Đối tác chỉ liệt kê, xem, sửa khách trong phạm vi; đối tác khác, công ty khác nhận `404`; sửa khách gắn do trùng nhận `409`; sửa sai `version` nhận `409`; không sửa được loại, mã số thuế | Bắt buộc | L1  |
 | TIEUCHI_NGHIEMTHU_498 | Đơn có `customerCode` trong phạm vi thì đơn ghi khách đó, giá theo nhóm khách; mã ngoài phạm vi, khách ngừng dùng bị từ chối ở trường `customerCode`                                       | Bắt buộc | L1  |
-| TIEUCHI_NGHIEMTHU_499 | Đơn có `recipient` đủ ba trường thì lưu, trả trong API_263; thiếu trường, sai điện thoại, gửi cùng `deliveryAddress` thì `422` đúng trường; nhân viên sửa đơn Nháp không mất người nhận    | Bắt buộc | L1  |
+| TIEUCHI_NGHIEMTHU_499 | Đơn có `recipient` đủ ba trường thì lưu, trả trong API_263; thiếu trường, sai điện thoại, gửi cùng `deliveryAddress` thì `400` đúng trường; nhân viên sửa đơn Nháp không mất người nhận    | Bắt buộc | L1  |
 | TIEUCHI_NGHIEMTHU_500 | Phiếu xuất giao hàng của đơn ghi khách do đối tác tạo sinh hóa đơn điện tử và công nợ theo khách đó                                                                                        | Bắt buộc | L1  |
 | TIEUCHI_NGHIEMTHU_501 | Tạo, gắn, sửa khách qua API có nhật ký thao tác tác nhân là khóa, không chứa số căn cước; nhật ký gọi không có dữ liệu cá nhân                                                             | Bắt buộc | L1  |
 | TIEUCHI_NGHIEMTHU_502 | Danh sách đối tác có nhãn "Do đối tác tạo", lọc nguồn; chi tiết có hộp thông tin Open API; nhân viên sửa khách cá nhân không căn cước được                                                 | Bắt buộc | L2  |
@@ -182,9 +182,9 @@ API_293, API_294 không dùng, trả phiên điều phối. Mã lỗi dùng mã 
 | KICHBAN_KIEMTHU_683 | 495      | Sáu trường hợp sai: tổ chức thiếu mã số thuế, thiếu địa chỉ; cá nhân thiếu điện thoại, `personalDataConsent` sai; mã số thuế sai định dạng; email sai                                                | Tích hợp  |
 | KICHBAN_KIEMTHU_684 | 496      | Trùng mã số thuế khách nhân viên tạo: `200` chỉ mã, hồ sơ không đổi, công ty có hồ sơ khách; trùng hồ sơ ngừng dùng, hồ sơ chỉ nhà cung cấp: `409`; gửi lại khách chính mình tạo: `200` đủ thông tin | Tích hợp  |
 | KICHBAN_KIEMTHU_685 | 497      | Khóa thứ hai cùng đối tác thấy khách; đối tác khác, khóa công ty B nhận `404`                                                                                                                        | Tích hợp  |
-| KICHBAN_KIEMTHU_686 | 497      | Sửa khách mình tạo đúng `version`; sai `version` `409`; sửa khách gắn do trùng `409`; gửi `taxCode` khi sửa `422`                                                                                    | Tích hợp  |
+| KICHBAN_KIEMTHU_686 | 497      | Sửa khách mình tạo đúng `version`; sai `version` `409`; sửa khách gắn do trùng `409`; gửi `taxCode` khi sửa `400`                                                                                    | Tích hợp  |
 | KICHBAN_KIEMTHU_687 | 498      | Đơn với khách do đối tác tạo: khách đúng, tổng tiền bằng giá nhóm; mã khách đối tác khác, khách ngừng dùng bị từ chối                                                                                | Tích hợp  |
-| KICHBAN_KIEMTHU_688 | 499      | Đơn có người nhận: lưu, trả về; thiếu tên, điện thoại sai, có cả `deliveryAddress` bị `422`; nhân viên sửa đơn Nháp giữ người nhận                                                                   | Tích hợp  |
+| KICHBAN_KIEMTHU_688 | 499      | Đơn có người nhận: lưu, trả về; thiếu tên, điện thoại sai, có cả `deliveryAddress` bị `400`; nhân viên sửa đơn Nháp giữ người nhận                                                                   | Tích hợp  |
 | KICHBAN_KIEMTHU_689 | 500      | Gửi duyệt, xác nhận, ghi sổ phiếu xuất: hóa đơn "Chờ gửi" mang tên, mã số thuế khách; bút toán công nợ theo khách                                                                                    | Tích hợp  |
 | KICHBAN_KIEMTHU_690 | 501      | Nhật ký thao tác tạo, sửa khách có tên khóa, không có số căn cước; nhật ký gọi đường dẫn không có chuỗi truy vấn ngoài danh sách                                                                     | Tích hợp  |
 | KICHBAN_KIEMTHU_691 | 502      | Chụp màn hình danh sách lọc nguồn Open API, chi tiết khách có hộp Open API, ngăn kéo sửa cá nhân không căn cước; tiếng Việt, tiếng Anh; 1360 và 390 điểm ảnh                                         | Giao diện |
@@ -215,6 +215,7 @@ API_293, API_294 không dùng, trả phiên điều phối. Mã lỗi dùng mã 
 | Nhóm khách, hạn thanh toán                   | Nhóm khách của đối tác (khóa nội bộ: không nhóm), hạn 0 ngày, hạn mức trống                                                                       |
 | Dữ liệu cá nhân                              | Hợp đồng và trường xác nhận đồng ý trong API                                                                                                      |
 | Màn hình                                     | Sửa màn hình có sẵn, không màn hình mới                                                                                                           |
+| Duyệt đặc tả, bản mẫu                        | Duyệt, làm L1 (2026-11-12)                                                                                                                        |
 
 ## 18. Thành phần không được thay đổi
 

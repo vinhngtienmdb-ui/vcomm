@@ -651,6 +651,8 @@
     "openApiWarehouseNotAllowed": "Kho không có trong danh sách kho của khóa API.",
     "openApiSkuNotFound": "Không có mã hàng đang bán này.",
     "openApiUnitNotFound": "Đơn vị không dùng được cho mặt hàng này.",
+    "openApiCustomerNotUsable": "Khách có sẵn đã ngừng giao dịch, là công ty trong tập đoàn hoặc chỉ là nhà cung cấp ở công ty; liên hệ công ty để xử lý.",
+    "openApiCustomerNotManaged": "Khách này không do đối tác tạo, đối tác không sửa được.",
     "officeFileTooLarge": "Tệp vượt quá 20 MB.",
     "officeFileTypeInvalid": "Chỉ nhận tệp PDF, Word, Excel, PowerPoint, JPG, PNG, TXT, ZIP.",
     "officeParticipantDuplicate": "Mỗi người chỉ giữ một vai trò trên một việc.",
