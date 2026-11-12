@@ -1,5 +1,6 @@
 // Open API cho đối tác (CONG_VIEC_61, MODULE_16): khóa API, nhật ký gọi, API sản phẩm, tồn cho đối tác.
 import { z } from "zod";
+import { vietnamPhone } from "./affiliate";
 
 export const apiKeyScopes = ["catalog.read", "sales_order.write", "customer.write", "loyalty.member"] as const;
 export type ApiKeyScope = (typeof apiKeyScopes)[number];
@@ -203,6 +204,11 @@ export const openSalesOrderSchema = z
     customerCode: z.string().trim().min(1).max(50).optional(),
     buyerName: z.string().trim().min(1).max(200).optional(),
     deliveryAddress: z.string().trim().min(1).max(500).optional(),
+    // Người nhận giao thẳng (CONG_VIEC_66; QUYTAC_NGHIEPVU_494 khoản 7): có người nhận thì địa chỉ giao lấy từ người nhận.
+    recipient: z
+      .object({ name: z.string().trim().min(1).max(100), phone: vietnamPhone, address: z.string().trim().min(1).max(500) })
+      .strict()
+      .optional(),
     note: z.string().trim().min(1).max(1000).optional(),
     lines: z
       .array(
@@ -217,7 +223,8 @@ export const openSalesOrderSchema = z
       .min(1)
       .max(200),
   })
-  .strict();
+  .strict()
+  .refine((value) => !(value.recipient && value.deliveryAddress), { path: ["deliveryAddress"], message: "invalidValue" });
 export type OpenSalesOrderRequest = z.input<typeof openSalesOrderSchema>;
 
 export const openSalesOrderListQuerySchema = z
@@ -255,6 +262,7 @@ export interface OpenSalesOrder {
   customerCode: string | null;
   buyerName: string | null;
   deliveryAddress: string | null;
+  recipient: OpenRecipient | null;
   note: string | null;
   currency: string;
   netAmount: string;
@@ -263,4 +271,75 @@ export interface OpenSalesOrder {
   lines: OpenSalesOrderLine[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface OpenRecipient {
+  name: string;
+  phone: string;
+  address: string;
+}
+
+// ---------- Khách hàng do đối tác tạo (CONG_VIEC_66; API_289 đến API_292; QUYTAC_NGHIEPVU_494) ----------
+
+export const openCustomerKinds = ["organization", "household", "individual"] as const;
+const optionalText = (maximum: number) => z.string().trim().min(1).max(maximum).optional();
+const taxCode = z
+  .string()
+  .trim()
+  .regex(/^[0-9]{10}(-[0-9]{3})?$/, "invalidValue");
+const email = z.string().trim().max(200).pipe(z.email("invalidValue"));
+
+// Tổ chức, hộ kinh doanh: tên, mã số thuế, địa chỉ hóa đơn; cá nhân: tên, điện thoại, xác nhận đồng ý xử lý dữ liệu cá nhân (QUYTAC_NGHIEPVU_494 khoản 2).
+export const openCustomerSchema = z
+  .object({
+    kind: z.enum(openCustomerKinds),
+    name: z.string().trim().min(1).max(300),
+    taxCode: taxCode.optional(),
+    citizenId: z
+      .string()
+      .trim()
+      .regex(/^[0-9]{12}$/, "invalidValue")
+      .optional(),
+    address: optionalText(500),
+    phone: vietnamPhone.optional(),
+    email: email.optional(),
+    personalDataConsent: z.boolean().optional(),
+  })
+  .strict();
+// Trường bắt buộc theo loại khách máy chủ kiểm (OpenCustomersService) để báo đúng "Vui lòng nhập".
+export type OpenCustomerRequest = z.input<typeof openCustomerSchema>;
+
+// Đối tác chỉ sửa tên, địa chỉ, điện thoại, email; gửi null để xóa trường tùy chọn (khoản 5).
+export const openCustomerUpdateSchema = z
+  .object({
+    name: z.string().trim().min(1).max(300).optional(),
+    address: z.string().trim().min(1).max(500).nullable().optional(),
+    phone: vietnamPhone.nullable().optional(),
+    email: email.nullable().optional(),
+    version: z.number().int().positive(),
+  })
+  .strict();
+
+export const openCustomerListQuerySchema = z
+  .object({
+    updatedSince: z.iso.datetime({ offset: true }).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(50),
+  })
+  .strict();
+
+export interface OpenCustomer {
+  code: string;
+  kind: (typeof openCustomerKinds)[number];
+  // false: hồ sơ có sẵn gắn vào phạm vi do trùng mã số thuế, căn cước; chỉ trả mã, loại (khoản 4, 5).
+  managedByPartner: boolean;
+  name?: string;
+  taxCode?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  personalDataConsentAt?: string | null;
+  version?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }

@@ -1605,6 +1605,8 @@ export interface StockDocumentResponse extends StockDocumentListItem {
   // Phiếu nhập mua, trả hàng: nhà cung cấp, chứng từ gốc (đơn mua hoặc phiếu nhập mua).
   partnerId: string | null;
   partnerName: string | null;
+  // CONG_VIEC_66: người nhận giao thẳng của đơn bán (phiếu xuất giao hàng).
+  recipient: { name: string; phone: string; address: string } | null;
   sourceId: string | null;
   sourceNo: string | null;
   canQualityCheck: boolean;
@@ -2024,6 +2026,7 @@ export const partnerListQuerySchema = z
     search: z.string().trim().max(100).optional(),
     kind: z.enum(partnerKinds).optional(),
     role: z.enum(["customer", "supplier", "internal"]).optional(),
+    source: z.enum(["web", "open_api"]).optional(),
     status: z.enum(["active", "inactive"]).optional(),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
@@ -2045,6 +2048,8 @@ export interface PartnerListItem {
   // CONG_VIEC_21: nhân viên phụ trách tại công ty đang chọn.
   ownerUserName: string | null;
   status: "active" | "inactive";
+  // CONG_VIEC_66: hồ sơ do đối tác tạo qua Open API (QUYTAC_NGHIEPVU_494).
+  createdViaOpenApi: boolean;
 }
 export interface PartnerProfileResponse {
   companyId: string;
@@ -2074,6 +2079,8 @@ export interface PartnerResponse extends PartnerListItem {
   canManage: boolean;
   canViewIdentity: boolean;
   canManageProfile: boolean;
+  // Khách do đối tác tạo hoặc gắn qua Open API tại công ty đang làm việc; trống khi không có.
+  openApi: { partnerName: string | null; keyName: string; isOwner: boolean; createdAt: string; personalDataConsentAt: string | null }[];
 }
 export const partnerLookupQuerySchema = z.object({ taxCode: z.string().trim().optional(), citizenId: z.string().trim().optional() }).strict();
 export interface PartnerLookupResponse {
@@ -2852,6 +2859,8 @@ export interface SalesOrderResponse extends SalesOrderListItem {
   counterpartRejectedReason: string | null;
   canConfirmCounterpart: boolean;
   deliveryAddress: string | null;
+  recipient: { name: string; phone: string } | null;
+  customerCreatedViaOpenApi: boolean;
   note: string | null;
   approvalRequestId: string | null;
   exceptions: { kind: SalesExceptionKind; lineNo: number | null; detail: string }[];
@@ -8173,3 +8182,5 @@ export interface LoyaltyAlertResponse {
 export * from "./purchasing-budgets";
 export * from "./loyalty-alliance";
 export * from "./office";
+export * from "./office-signing";
+export * from "./office-contracts";

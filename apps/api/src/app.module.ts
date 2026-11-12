@@ -26,6 +26,7 @@ import { ApiKeysService } from "./open-api/api-keys.service";
 import { OpenApiController } from "./open-api/open-api.controller";
 import { OpenCatalogService } from "./open-api/open-catalog.service";
 import { OpenSalesOrdersService } from "./open-api/open-sales-orders.service";
+import { OpenCustomersService } from "./open-api/open-customers.service";
 import { HomeController } from "./home/home.controller";
 import { MeController } from "./me/me.controller";
 import { BranchesService } from "./organization/branches.service";
@@ -221,6 +222,10 @@ import { OfficeDocumentsController } from "./office/office-documents.controller"
 import { OfficePostsController } from "./office/office-posts.controller";
 import { OfficePostsService } from "./office/office-posts.service";
 import { OfficeDocumentsService } from "./office/office-documents.service";
+import { OfficeSigningController, PublicSigningController } from "./office/signing/office-signing.controller";
+import { OfficeSigningService } from "./office/signing/office-signing.service";
+import { OfficeContractsController } from "./office/contracts/office-contracts.controller";
+import { OfficeContractsService } from "./office/contracts/office-contracts.service";
 import { EXCHANGE_RATE_FEED, VietcombankFeed } from "./settings/vietcombank-rates";
 import { DeactivationService } from "./users/deactivation.service";
 import { UsersController } from "./users/users.controller";
@@ -230,7 +235,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, LoyaltySettlementsController, LoyaltyFraudController, LoyaltyReportsController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, MerchantPortalController, BuyerAffiliateController, ApiKeysController, OpenApiController, OfficeController, OfficeDocumentsController, OfficePostsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, LoyaltySettlementsController, LoyaltyFraudController, LoyaltyReportsController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, AffiliateController, MerchantPortalController, BuyerAffiliateController, ApiKeysController, OpenApiController, OfficeController, OfficeDocumentsController, OfficePostsController, OfficeSigningController, PublicSigningController, OfficeContractsController],
   providers: [
     AuthService,
     ActivationService,
@@ -369,6 +374,8 @@ import { UsersService } from "./users/users.service";
     OfficeTasksService,
     OfficeWorkflowsService,
     OfficeDocumentsService, OfficePostsService,
+    OfficeSigningService,
+    OfficeContractsService,
     ProposalPdfService,
     PhoneOtpService,
     OauthService,
@@ -392,6 +399,7 @@ import { UsersService } from "./users/users.service";
     ApiKeyGuard,
     OpenCatalogService,
     OpenSalesOrdersService,
+    OpenCustomersService,
     { provide: CLOCK, useValue: systemClock },
     { provide: RATE_LIMIT, useValue: defaultRateLimit },
     RateLimiter,

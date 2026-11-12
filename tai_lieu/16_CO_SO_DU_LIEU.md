@@ -4,9 +4,9 @@
 - Phiên bản: 2.17
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Đã phê duyệt
-- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14); CONG_VIEC_15 (2026-11-10): thêm cột `accounting.accounts.is_long_term` (mục 15); CONG_VIEC_16 (2026-11-10): thêm bảng hóa đơn điện tử `finance.einvoice_settings`, `finance.einvoice_series`, `finance.einvoices`, `finance.einvoice_lines`, `finance.einvoice_attempts` (database migration 0013), `finance.einvoice_return_tasks` (database migration 0014) (mục 16); CONG_VIEC_17 (2026-11-10): thêm cột `sales.orders.commission_user_id`, bảng hoa hồng `finance.commission_settings`, `finance.commission_rates`, `finance.commission_channel_factors`, `finance.commission_targets`, `finance.commission_statements`, `finance.commission_statement_lines`, `finance.commission_events` (database migration 0015), nguồn bút toán `commission`, vai trò định khoản `commission_expense`, `staff_payable` (database migration 0016), cột `finance.commission_events.gross_amount` (database migration 0017) (mục 17); CONG_VIEC_18 (2026-11-10): thêm bảng `finance.bank_connections`, `finance.bank_transactions` (database migration 0018) (mục 18); CONG_VIEC_19 (2026-11-10): thêm bảng `finance.collectors`, `finance.collection_statements`, `finance.collection_statement_lines`, nguồn công nợ, nguồn bút toán `collection_statement`, vai trò định khoản `collector_receivable`, `collection_fee` (database migration 0019) (mục 19); CONG_VIEC_20 (2026-11-10): thêm bảng `finance.consolidations`, `finance.consolidation_entries`, `finance.consolidation_profit_lines` (database migration 0020) (mục 20); sửa sau rà soát: chỉ mục `inventory.movements_company_variant_idx`, `report` lưu lúc gửi, đối tác của dòng điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm bảng `crm.customer_assignments`, `crm.customer_assignment_lines`, `crm.partner_owner_history`, chỉ mục `crm.partner_profiles_owner_idx`, quyền `crm.customer.view_all`, `crm.customer.assign` (database migration 0021) (mục 21); CONG_VIEC_23 (2026-11-10): thêm database migration 0023 (schema `marketplace`: tài khoản người mua, lịch sử người giới thiệu, lịch sử đánh dấu nhân viên kinh doanh; cột công ty vận hành sàn; phiên `vcomm_app`; mục đích mã OTP); CONG_VIEC_27 (2026-11-10): thêm database migration 0024 (loại đơn vị kinh doanh, đề xuất thay đổi đội, lịch sử đội kinh doanh); CONG_VIEC_24 (2026-11-11): thêm database migration 0025 (danh mục tỉnh xã, cài đặt bán hàng, đăng bán, sổ địa chỉ, giỏ hàng, đơn VComm, vận chuyển, trả hàng; mục 24); CONG_VIEC_25 (2026-11-11): thêm database migration 0027 đến 0031 (phương thức thanh toán, mở đặt hàng, đơn chờ thanh toán, lần thanh toán, kết quả cổng gửi về, việc hoàn tiền, tài khoản nhận hoàn tiền, nguồn bút toán, vai trò định khoản doanh thu cung cấp dịch vụ, phiếu xuất mang phí giao hàng; mục 25); CONG_VIEC_26 (2026-11-11): thêm database migration 0044 đến 0048 (thiết lập hoa hồng sản phẩm, cài đặt hoa hồng chung, hoa hồng của đơn, ví, giao dịch ví, yêu cầu rút tiền, nguồn bút toán, vai trò định khoản phải trả hoa hồng, thuế thu nhập cá nhân, thu nhập khác; phí rút tiền theo THAY_DOI_17; mục 26); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm database migration 0061 đến 0063 (xóa bảng hoa hồng đội kinh doanh cũ, cột `sales.orders.commission_user_id`, vai trò định khoản `staff_payable`; xóa quyền, loại chứng từ giao khách, giữ bảng; cột `catalog.products.kind`, `sales.settings.allow_manual_goods_orders`, `inventory.documents.is_service`; vai trò định khoản `service_expense`; mục 27); mục 17 (CONG_VIEC_17) đã bỏ, mục 21 (CONG_VIEC_21) đã tắt; CONG_VIEC_50 (2026-11-11): database migration 0083 (dòng `core.apps` của mini app `analytics`, ba chỉ mục phục vụ báo cáo), không thêm bảng nghiệp vụ (mục 33); CONG_VIEC_49 (2026-11-11), THAY_DOI_22: database migration 0079 đến 0082 (cộng tác viên, lượt bấm, thưởng giới thiệu; ví mua sắm, khóa và chặn ví; mua chung; bảng tin, báo cáo, khóa tài khoản, cài đặt cộng đồng; quyền `marketplace.community.manage`; mục 35); CONG_VIEC_53 (2026-11-11), THAY_DOI_24: thêm database migration 0094 đến 0097 (schema `retail`: `stores`, `registers`, `shifts`, `sales`, `sale_payments`, `returns`, `return_lines`, `return_refunds`; mini app `retail`, loại chứng từ `retail.sale`, `retail.return`; cột bán lẻ của `sales.orders`; bốn loại chứng từ quỹ không đối tượng, cột nguồn, nhân viên của `finance.payments`; vai trò định khoản `staff_receivable`; loại ký hiệu, số đã cấp của `finance.einvoice_series`; nguồn, mã tra cứu của `finance.einvoices`; mục 28); CONG_VIEC_58 (2026-11-12): thêm database migration 0116 đến 0118 (`purchasing.budget_plans`, `purchasing.budget_lines`, `purchasing.budget_adjustments`, `purchasing.budget_adjustment_lines`; cột `budget_snapshot`, chỉ mục `orders_budget_idx` của `purchasing.orders`; mục 38); CONG_VIEC_22 (2026-11-12), THAY_DOI_26: database migration 0113 (`marketplace.customer_care_notes`), 0114 (`marketplace.orders.sales_staff_user_id`), mục 39; CONG_VIEC_53 lát L6 (2026-11-12): database migration 0119 (`retail.sales.loyalty_user_id`, `loyalty.smart_otp_devices`, `core.otp_codes` thêm mục đích `smart_otp`), mục 28; CONG_VIEC_55 (2026-11-11): thêm schema `affiliate` (database migration 0102 đến 0105) của MODULE_12 Cửa hàng liên kết phần 1; định nghĩa lại ràng buộc dùng chung `core.sessions.client_type`, `loyalty` source_type, `finance.debt_items.source_type`, `accounting.journals.source_type`; CONG_VIEC_60 (2026-11-12): database migration 0125 (`loyalty.program_phases.cost_bearer`, `loyalty.lots.cost_bearer`, `loyalty.settlements`, `loyalty.settlement_events`, `finance.payments.loyalty_settlement_id`), 0126 (`loyalty.device_links`, `loyalty.fraud_rules`, `loyalty.fraud_rule_history`, `loyalty.fraud_cases`, `loyalty.fraud_case_documents`, dãy `loyalty.fraud_case_seq`, `loyalty.document_points.device_hash`) của MODULE_11 Điểm thưởng phần 2; định nghĩa lại ràng buộc dùng chung `finance.payments.payments_kind_check`, view `finance.fund_movements`, `loyalty.document_points.document_points_skip_reason_check`, `affiliate.transactions.transactions_skip_reason_check`; `loyalty.lock_history.actor_user_id` cho phép trống; 0127 không dùng
+- Thay đổi theo: THAY_DOI_03 (2026-11-09); THAY_DOI_04, THAY_DOI_08 qua CONG_VIEC_03 (2026-11-09); CONG_VIEC_04 (2026-11-09): thêm schema `catalog` (mục 6); CONG_VIEC_05 (2026-11-10): thêm schema `inventory` (mục 7); CONG_VIEC_06 (2026-11-10): thêm schema `crm` (mục 8); CONG_VIEC_07 (2026-11-10): thêm schema `purchasing`, cột mới của `inventory.documents`, `inventory.document_lines`, `catalog.categories` (mục 9); CONG_VIEC_08 (2026-11-10): thêm schema `sales`, loại phiếu, lý do mới của `inventory.documents` (mục 10); CONG_VIEC_09 (2026-11-10): cột giao dịch nội bộ của `sales.orders`, `purchasing.orders`, `inventory.documents`, `inventory.document_lines`, bảng `inventory.internal_discrepancies` (mục 11); CONG_VIEC_12 (2026-11-10): bảng khuyến mãi `sales.promotions`, `sales.promotion_items`, `sales.promotion_channels`, `sales.promotion_customer_groups`, cột khuyến mãi của `sales.order_lines`, `sales.orders.gift_shortages` (mục 12); CONG_VIEC_13 (2026-11-10): thêm schema `finance` (`funds`, `debt_items`, `debt_allocations`, `payments`, `payment_lines`), hàm `finance.inventory_debt_amount`, tính lại công nợ phiếu kho cũ (mục 13); CONG_VIEC_14 (2026-11-10): thêm schema `accounting` (`settings`, `accounts`, `posting_rules`, `journals`, `journal_lines`), hàm làm tròn `finance.company_minor_units`, `finance.line_share`, `finance.inventory_amounts`; `finance.inventory_debt_amount` làm tròn theo đơn vị tiền tệ (THAY_DOI_10) (mục 14); CONG_VIEC_15 (2026-11-10): thêm cột `accounting.accounts.is_long_term` (mục 15); CONG_VIEC_16 (2026-11-10): thêm bảng hóa đơn điện tử `finance.einvoice_settings`, `finance.einvoice_series`, `finance.einvoices`, `finance.einvoice_lines`, `finance.einvoice_attempts` (database migration 0013), `finance.einvoice_return_tasks` (database migration 0014) (mục 16); CONG_VIEC_17 (2026-11-10): thêm cột `sales.orders.commission_user_id`, bảng hoa hồng `finance.commission_settings`, `finance.commission_rates`, `finance.commission_channel_factors`, `finance.commission_targets`, `finance.commission_statements`, `finance.commission_statement_lines`, `finance.commission_events` (database migration 0015), nguồn bút toán `commission`, vai trò định khoản `commission_expense`, `staff_payable` (database migration 0016), cột `finance.commission_events.gross_amount` (database migration 0017) (mục 17); CONG_VIEC_18 (2026-11-10): thêm bảng `finance.bank_connections`, `finance.bank_transactions` (database migration 0018) (mục 18); CONG_VIEC_19 (2026-11-10): thêm bảng `finance.collectors`, `finance.collection_statements`, `finance.collection_statement_lines`, nguồn công nợ, nguồn bút toán `collection_statement`, vai trò định khoản `collector_receivable`, `collection_fee` (database migration 0019) (mục 19); CONG_VIEC_20 (2026-11-10): thêm bảng `finance.consolidations`, `finance.consolidation_entries`, `finance.consolidation_profit_lines` (database migration 0020) (mục 20); sửa sau rà soát: chỉ mục `inventory.movements_company_variant_idx`, `report` lưu lúc gửi, đối tác của dòng điều chỉnh tay; CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm bảng `crm.customer_assignments`, `crm.customer_assignment_lines`, `crm.partner_owner_history`, chỉ mục `crm.partner_profiles_owner_idx`, quyền `crm.customer.view_all`, `crm.customer.assign` (database migration 0021) (mục 21); CONG_VIEC_23 (2026-11-10): thêm database migration 0023 (schema `marketplace`: tài khoản người mua, lịch sử người giới thiệu, lịch sử đánh dấu nhân viên kinh doanh; cột công ty vận hành sàn; phiên `vcomm_app`; mục đích mã OTP); CONG_VIEC_27 (2026-11-10): thêm database migration 0024 (loại đơn vị kinh doanh, đề xuất thay đổi đội, lịch sử đội kinh doanh); CONG_VIEC_24 (2026-11-11): thêm database migration 0025 (danh mục tỉnh xã, cài đặt bán hàng, đăng bán, sổ địa chỉ, giỏ hàng, đơn VComm, vận chuyển, trả hàng; mục 24); CONG_VIEC_25 (2026-11-11): thêm database migration 0027 đến 0031 (phương thức thanh toán, mở đặt hàng, đơn chờ thanh toán, lần thanh toán, kết quả cổng gửi về, việc hoàn tiền, tài khoản nhận hoàn tiền, nguồn bút toán, vai trò định khoản doanh thu cung cấp dịch vụ, phiếu xuất mang phí giao hàng; mục 25); CONG_VIEC_26 (2026-11-11): thêm database migration 0044 đến 0048 (thiết lập hoa hồng sản phẩm, cài đặt hoa hồng chung, hoa hồng của đơn, ví, giao dịch ví, yêu cầu rút tiền, nguồn bút toán, vai trò định khoản phải trả hoa hồng, thuế thu nhập cá nhân, thu nhập khác; phí rút tiền theo THAY_DOI_17; mục 26); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm database migration 0061 đến 0063 (xóa bảng hoa hồng đội kinh doanh cũ, cột `sales.orders.commission_user_id`, vai trò định khoản `staff_payable`; xóa quyền, loại chứng từ giao khách, giữ bảng; cột `catalog.products.kind`, `sales.settings.allow_manual_goods_orders`, `inventory.documents.is_service`; vai trò định khoản `service_expense`; mục 27); mục 17 (CONG_VIEC_17) đã bỏ, mục 21 (CONG_VIEC_21) đã tắt; CONG_VIEC_50 (2026-11-11): database migration 0083 (dòng `core.apps` của mini app `analytics`, ba chỉ mục phục vụ báo cáo), không thêm bảng nghiệp vụ (mục 33); CONG_VIEC_49 (2026-11-11), THAY_DOI_22: database migration 0079 đến 0082 (cộng tác viên, lượt bấm, thưởng giới thiệu; ví mua sắm, khóa và chặn ví; mua chung; bảng tin, báo cáo, khóa tài khoản, cài đặt cộng đồng; quyền `marketplace.community.manage`; mục 35); CONG_VIEC_53 (2026-11-11), THAY_DOI_24: thêm database migration 0094 đến 0097 (schema `retail`: `stores`, `registers`, `shifts`, `sales`, `sale_payments`, `returns`, `return_lines`, `return_refunds`; mini app `retail`, loại chứng từ `retail.sale`, `retail.return`; cột bán lẻ của `sales.orders`; bốn loại chứng từ quỹ không đối tượng, cột nguồn, nhân viên của `finance.payments`; vai trò định khoản `staff_receivable`; loại ký hiệu, số đã cấp của `finance.einvoice_series`; nguồn, mã tra cứu của `finance.einvoices`; mục 28); CONG_VIEC_58 (2026-11-12): thêm database migration 0116 đến 0118 (`purchasing.budget_plans`, `purchasing.budget_lines`, `purchasing.budget_adjustments`, `purchasing.budget_adjustment_lines`; cột `budget_snapshot`, chỉ mục `orders_budget_idx` của `purchasing.orders`; mục 38); CONG_VIEC_22 (2026-11-12), THAY_DOI_26: database migration 0113 (`marketplace.customer_care_notes`), 0114 (`marketplace.orders.sales_staff_user_id`), mục 39; CONG_VIEC_53 lát L6 (2026-11-12): database migration 0119 (`retail.sales.loyalty_user_id`, `loyalty.smart_otp_devices`, `core.otp_codes` thêm mục đích `smart_otp`), mục 28; CONG_VIEC_55 (2026-11-11): thêm schema `affiliate` (database migration 0102 đến 0105) của MODULE_12 Cửa hàng liên kết phần 1; định nghĩa lại ràng buộc dùng chung `core.sessions.client_type`, `loyalty` source_type, `finance.debt_items.source_type`, `accounting.journals.source_type`; CONG_VIEC_59 (2026-11-12): database migration 0121 đến 0123 của MODULE_13 Văn phòng số phần 2 (ký số, phiên ký, kho hợp đồng, liên kết phiên ký với công văn đi; bảng mới trong schema `office`); định nghĩa lại ràng buộc dùng chung `office.files.owner_type`, `office.signing_requests.source_type` gồm mọi giá trị cũ; thêm cột `office.files.sha256`, `office.outgoing_documents.signing_request_id`, mục 41; CONG_VIEC_60 (2026-11-12): database migration 0125 (`loyalty.program_phases.cost_bearer`, `loyalty.lots.cost_bearer`, `loyalty.settlements`, `loyalty.settlement_events`, `finance.payments.loyalty_settlement_id`), 0126 (`loyalty.device_links`, `loyalty.fraud_rules`, `loyalty.fraud_rule_history`, `loyalty.fraud_cases`, `loyalty.fraud_case_documents`, dãy `loyalty.fraud_case_seq`, `loyalty.document_points.device_hash`) của MODULE_11 Điểm thưởng phần 2; định nghĩa lại ràng buộc dùng chung `finance.payments.payments_kind_check`, view `finance.fund_movements`, `loyalty.document_points.document_points_skip_reason_check`, `affiliate.transactions.transactions_skip_reason_check`; `loyalty.lock_history.actor_user_id` cho phép trống; 0127 không dùng
 
-Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14); cột tài khoản dài hạn của MODULE_06 phần 3 (CONG_VIEC_15, mục 15); bảng hóa đơn điện tử của MODULE_06 phần 4 trong schema `finance` (CONG_VIEC_16, mục 16); bảng hoa hồng đội kinh doanh của MODULE_06 phần 5 trong schema `finance` (CONG_VIEC_17, mục 17); bảng đối soát ngân hàng của MODULE_06 phần 6 trong schema `finance` (CONG_VIEC_18, mục 18); bảng đối soát thu hộ của MODULE_06 phần 7 trong schema `finance` (CONG_VIEC_19, mục 19); bảng hợp nhất của MODULE_06 phần 8 trong schema `finance` (CONG_VIEC_20, mục 20); phiếu giao khách, lịch sử phụ trách của MODULE_07 phần 2 trong schema `crm` (CONG_VIEC_21, mục 21). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07. Từ CONG_VIEC_43 (THAY_DOI_18): bảng hoa hồng đội kinh doanh của CONG_VIEC_17 đã xóa; bảng giao khách của CONG_VIEC_21 giữ nhưng không còn dùng (mục 27). Báo cáo quản trị (CONG_VIEC_50) không thêm bảng nghiệp vụ, chỉ thêm dòng `core.apps` và chỉ mục (mục 28). Schema `retail` của MODULE_14 phần 1 (CONG_VIEC_53, mục 28 "Database migration 0094 đến 0097"). Kế hoạch mua theo ngân sách của MODULE_14 phần 3 (CONG_VIEC_58) thêm bảng vào schema `purchasing` (mục 38).
+Hiện có schema `core` của MODULE_01 Nền tảng, schema `catalog` của MODULE_02 phần Sản phẩm (CONG_VIEC_04, mục 6) schema `inventory` của MODULE_03 Kho (CONG_VIEC_05, mục 7) schema `crm` của MODULE_07 phần tối thiểu (CONG_VIEC_06, mục 8) schema `purchasing` của MODULE_04 phần 1 (CONG_VIEC_07, mục 9) và schema `sales` của MODULE_05 phần 1 (CONG_VIEC_08, mục 10); giao dịch nội bộ MODULE_05 phần 2 (CONG_VIEC_09, mục 11); khuyến mãi MODULE_05 phần 3 (CONG_VIEC_12, mục 12); schema `finance` của MODULE_06 phần 1 (CONG_VIEC_13, mục 13); schema `accounting` của MODULE_06 phần 2 (CONG_VIEC_14, mục 14); cột tài khoản dài hạn của MODULE_06 phần 3 (CONG_VIEC_15, mục 15); bảng hóa đơn điện tử của MODULE_06 phần 4 trong schema `finance` (CONG_VIEC_16, mục 16); bảng hoa hồng đội kinh doanh của MODULE_06 phần 5 trong schema `finance` (CONG_VIEC_17, mục 17); bảng đối soát ngân hàng của MODULE_06 phần 6 trong schema `finance` (CONG_VIEC_18, mục 18); bảng đối soát thu hộ của MODULE_06 phần 7 trong schema `finance` (CONG_VIEC_19, mục 19); bảng hợp nhất của MODULE_06 phần 8 trong schema `finance` (CONG_VIEC_20, mục 20); phiếu giao khách, lịch sử phụ trách của MODULE_07 phần 2 trong schema `crm` (CONG_VIEC_21, mục 21). Đã thêm giá trị `zalo` theo THAY_DOI_01. Đã rà soát theo tài liệu `10` ở giai đoạn 07 ngày 2026-11-09. Bản nháp được lập trước giai đoạn 03, 04; phải rà soát lại theo tài liệu `10` của MODULE_01 trước khi trình phê duyệt giai đoạn 07. Từ CONG_VIEC_43 (THAY_DOI_18): bảng hoa hồng đội kinh doanh của CONG_VIEC_17 đã xóa; bảng giao khách của CONG_VIEC_21 giữ nhưng không còn dùng (mục 27). Báo cáo quản trị (CONG_VIEC_50) không thêm bảng nghiệp vụ, chỉ thêm dòng `core.apps` và chỉ mục (mục 28). Schema `retail` của MODULE_14 phần 1 (CONG_VIEC_53, mục 28 "Database migration 0094 đến 0097"). Kế hoạch mua theo ngân sách của MODULE_14 phần 3 (CONG_VIEC_58) thêm bảng vào schema `purchasing` (mục 38). Chữ ký số, kho hợp đồng của MODULE_13 phần 2 (CONG_VIEC_59) thêm bảng vào schema `office` (mục 41).
 
 ## 1. Quy ước chung
 
@@ -3504,6 +3504,20 @@ Bảng `crm.visits` (database migration 0022) giữ nguyên, không ghi mới (Q
 | `sales.orders` (0130) | Đơn qua Open API (QUYTAC_NGHIEPVU_490, 491) | `open_api_key_id`, `open_api_scope_id`, `partner_order_code` | Ba cột cùng có hoặc cùng trống; duy nhất (`company_id`, `open_api_scope_id`, `partner_order_code`) khi có khóa |
 
 - Khóa API không xóa (thu hồi). Nhật ký gọi xóa dòng quá 90 ngày bằng tác vụ nền `open-api-log-purge` lúc 2 giờ. Database migration 0131 để dành công việc sau.
+
+### Database migration 0131 – CONG_VIEC_66 (khách hàng do đối tác tạo, người nhận)
+
+Tệp `database/migrations/0131_open_api_customers.sql`.
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `crm.partners` (0131) | Hồ sơ do đối tác tạo (QUYTAC_NGHIEPVU_494) | Thêm `created_via_api_key_id` (khóa ngoại `core.api_keys`) | Định nghĩa lại `partners_check1`: `kind <> 'individual' OR citizen_id IS NOT NULL OR created_via_api_key_id IS NOT NULL` |
+| `crm.open_api_customers` (0131) | Khách trong phạm vi đối tác hoặc khóa nội bộ | `company_id`, `scope_id`, `partner_id`, `api_key_id`, `is_owner`, `personal_data_consent_at`, `created_at` | Khóa chính (`company_id`, `scope_id`, `partner_id`); chỉ mục (`company_id`, `partner_id`) |
+| `sales.orders` (0131) | Người nhận giao thẳng | `recipient_name` (1 đến 100 ký tự), `recipient_phone` (`+84` và 9 số) | `orders_recipient_check`: hai cột cùng có hoặc cùng trống; có người nhận thì `delivery_address` bắt buộc |
+
+Không xóa dữ liệu; không định nghĩa lại ràng buộc danh sách giá trị dùng chung.
+
+
 ## Database migration 0090 đến 0093 – CONG_VIEC_52 (MODULE_13 Văn phòng số phần 1)
 
 Schema `office`, chỉ mini app Văn phòng số ghi (tài liệu `12` mục 2). Tệp `database/migrations/0090_office_tasks.sql` (lát L0), `0091_office_workflows.sql` (lát L1), `0092_office_documents.sql` (lát L2), `0093_office_bulletin.sql` (lát L3).
@@ -3536,3 +3550,333 @@ Schema `office`, chỉ mini app Văn phòng số ghi (tài liệu `12` mục 2).
 | `office.files` (0090) | Tệp của Văn phòng số, nội dung ở kho tệp chung (S3 hoặc thư mục cục bộ) | `company_id`, `owner_type` (`task`; 0092 thêm `incoming`, `outgoing_draft`, `outgoing_signed`; 0093 thêm `post`), `owner_id`, `file_name`, `content_type`, `size_bytes`, `storage_key` (duy nhất), `uploaded_by`, `created_at`, `deleted_at`, `deleted_by` | Xóa mềm; chỉ mục (`owner_type`, `owner_id`) |
 
 Quy tắc xóa và lưu giữ: không xóa cứng việc, bình luận, tệp, lịch sử; việc hủy giữ nguyên dữ liệu.
+
+## 41. Database migration 0121 đến 0123 – CONG_VIEC_59 (MODULE_13 Văn phòng số phần 2: chữ ký số, kho hợp đồng)
+
+Schema `office` (CONG_VIEC_52), chỉ mini app Văn phòng số ghi. Tệp `database/migrations/0121_office_signing.sql` (lát L1: ký số, phiên ký), `0122_office_contracts.sql` (lát L2: kho hợp đồng), `0123_office_signing_links.sql` (lát L3: gắn ký số vào công văn đi, hợp đồng lao động). Số 0124 dự phòng, không dùng.
+
+| Bảng | Mục đích | Cột chính | Ràng buộc, chỉ mục |
+|---|---|---|---|
+| `office.signing_settings` (0121) | Nhà cung cấp ký số và chữ ký số của công ty (QUYTAC_NGHIEPVU_454, 456) | `company_id` (khóa chính), `provider` (`simulator`), `environment` (`test`, `production`), `credentials_encrypted` (`bytea`, thông tin kết nối mã hóa bằng `common/secret-box.ts`), `seal_identity_code` (mã định danh của tổ chức tại nhà cung cấp), `seal_certificate_chain` (`jsonb`), `seal_serial_number`, `seal_subject_name`, `seal_valid_from`, `seal_valid_to`, `updated_at`, `updated_by`, `version` | `provider IN ('simulator')`; `environment IN ('test', 'production')`; `seal_identity_code` và `seal_certificate_chain` cùng có hoặc cùng trống |
+| `office.signing_identities` (0121) | Tài khoản ký số của người dùng theo công ty (QUYTAC_NGHIEPVU_455); không lưu khóa bí mật | `company_id`, `user_id`, `provider`, `identity_code` (mã định danh tại nhà cung cấp), `certificate_chain` (`jsonb`), `serial_number`, `subject_name`, `subject_identities` (`text[]`, ví dụ mã số thuế, số định danh trong chủ thể chứng thư), `valid_from`, `valid_to`, `status` (`active`, `replaced`), `created_at` | Chỉ mục duy nhất `signing_identities_active_idx` (`company_id`, `user_id`) `WHERE status = 'active'`: mỗi người một chứng thư đang dùng cho mỗi công ty |
+| `office.trusted_roots` (0121) | Chứng thư gốc tin cậy theo tập đoàn (QUYTAC_NGHIEPVU_461) | `group_company_id` (công ty gốc của tập đoàn), `certificate_pem`, `fingerprint` (SHA-256), `subject_name`, `valid_from`, `valid_to`, `status` (`active`, `inactive`), `created_by`, `created_at` | `UNIQUE (group_company_id, fingerprint)` |
+| `office.signing_requests` (0121) | Phiên ký (QUYTAC_NGHIEPVU_458, 459) | `company_id`, `request_no` (dãy số `office.signing_request`, tiền tố `KS`), `source_type`, `source_id`, `title` (1 đến 200 ký tự), `note` (tối đa 2.000), `due_on`, `status` (`draft`, `signing`, `completed`, `rejected`, `cancelled`, `expired`), `original_file_id`, `current_file_id`, `copied_from_id`, `end_reason`, `sent_at`, `completed_at`, `last_reminded_at` (nhắc tối đa một lần mỗi ngày), `due_soon_notified` (đã nhắc còn 2 ngày), `created_by`, `created_at`, `updated_at`, `version` | `UNIQUE (company_id, request_no)`; `source_type` xem dưới bảng; chỉ mục (`company_id`, `created_by`, `created_at DESC`), (`due_on`) `WHERE status = 'signing'` |
+| `office.signing_signers` (0121) | Người ký (QUYTAC_NGHIEPVU_458, 460) | `request_id`, `position` (1 đến 10), `sign_order` (1 đến 10), `kind` (`user`, `company`, `partner`), `user_id`, `partner_id` (`crm.partners`), `partner_kind` (`organization`, `individual`), `partner_name`, `partner_email`, `partner_identity` (mã số thuế hoặc số định danh cá nhân), `partner_identity_code` (mã định danh tại nhà cung cấp), `page` (`first`, `last` hoặc số trang), `corner` (`bottom_right`, `bottom_left`, `top_right`, `top_left`), `status` (`waiting`, `current`, `signed`, `rejected`), `signed_at`, `signed_by`, `signer_subject`, `reject_reason`, `link_token_hash` (`bytea`, SHA-256 của mã đường dẫn), `link_sent_at` | `UNIQUE (request_id, position)`; `page` khớp biểu thức chính quy: `first`, `last` hoặc số trang 1 đến 9999; `kind = 'user'` khi và chỉ khi có `user_id`; người ký `partner` bắt buộc tên, thư điện tử, mã số thuế hoặc số định danh, mã định danh, loại đối tác; chỉ mục duy nhất `link_token_hash` khi có; chỉ mục (`user_id`, `status`); xóa theo phiên ký |
+| `office.signing_attempts` (0121) | Mỗi lần gửi nhà cung cấp (QUYTAC_NGHIEPVU_457); bản đã chuẩn bị lưu ở kho tệp, chờ chữ ký tối đa 5 phút | `request_id`, `signer_id`, `base_file_id` (bản hiện hành lúc gửi), `prepared_storage_key`, `certificate_chain`, `identity_code`, `transaction_id` (mã giao dịch tại nhà cung cấp), `status` (`pending`, `signed`, `rejected`, `failed`, `timeout`), `message`, `initiated_by`, `initiated_ip`, `started_at`, `finished_at` | Chỉ mục duy nhất `signing_attempts_pending_idx` (`request_id`) `WHERE status = 'pending'`: mỗi phiên chỉ một lần ký đang chờ (CONG_VIEC_59 mục 10); xóa theo phiên ký, người ký |
+| `office.signing_events` (0121) | Lịch sử phiên ký | `request_id`, `actor_user_id`, `actor_label` (đối tác không có tài khoản), `kind`, `detail` (`jsonb`), `created_at` | Chỉ mục (`request_id`, `created_at`); chỉ thêm |
+| `office.files` (0121) | Tệp của phiên ký (bản gốc và mỗi bản sau một chữ ký) | Thêm `sha256` (mã băm SHA-256 của tệp dùng trong ký số) | `owner_type` xem dưới bảng |
+| `office.contract_types` (0122) | Loại hợp đồng theo công ty (QUYTAC_NGHIEPVU_462) | `company_id`, `name` (1 đến 100 ký tự), `direction` (`purchase` công ty trả tiền, `sale` công ty thu tiền, `none` không có giá trị), `status` (`active`, `inactive`), `sort_order`, `created_at` | Chỉ mục duy nhất `contract_types_name_idx` (`company_id`, `lower(name)`) |
+| `office.contracts` (0122) | Hợp đồng (QUYTAC_NGHIEPVU_463, 464) | `company_id`, `contract_code` (mã nội bộ, dãy số `office.contract`), `contract_no` (tối đa 100 ký tự), `name` (1 đến 300), `type_id`, `value` (`numeric(20,2)`, không âm), `currency` (`char(3)`, mặc định `VND`), `signed_on`, `effective_from`, `expires_on`, `owner_user_id`, `department_id`, `confidential`, `description` (tối đa 5.000), `reminder_days` (`integer[]`, mặc định `{30,7}`), `content_file_id`, `signed_file_id`, `signature_checks` (`jsonb`, kết quả kiểm tra chữ ký của tệp đã ký), `status` (`draft`, `pending`, `rejected`, `withdrawn`, `awaiting_signature`, `signed`, `liquidated`, `terminated`, `cancelled`), `imported` (nhập hợp đồng đã ký), `approval_mode` (`policy` luồng duyệt chung, `manager` trưởng phòng duyệt khi chưa có chính sách), `approval_request_id`, `approver_user_ids` (`uuid[]`), `decision_note`, `signing_request_id`, `ended_on`, `end_reason`, `end_file_id` (biên bản thanh lý, chấm dứt), `cancel_reason`, `created_by`, `created_at`, `updated_at`, `version` | `UNIQUE (company_id, contract_code)`; `expires_on` không trước `effective_from`; 1 đến 3 mốc nhắc; trạng thái `signed`, `liquidated`, `terminated` phải có `signed_file_id` và `signed_on`; chỉ mục (`company_id`, `status`, `expires_on`), (`owner_user_id`) |
+| `office.contract_partners` (0122) | Đối tác của hợp đồng (một hoặc nhiều, từ `crm.partners`) | `contract_id`, `partner_id`, `position` | Khóa chính (`contract_id`, `partner_id`); xóa theo hợp đồng |
+| `office.contract_appendices` (0122) | Phụ lục (QUYTAC_NGHIEPVU_465) | `contract_id`, `appendix_no` (1 đến 50 ký tự), `summary` (1 đến 2.000), `effective_from`, `new_expires_on`, `new_value`, `content_file_id`, `signed_file_id`, `signed_on`, `previous_expires_on`, `previous_value` (giữ giá trị cũ của hợp đồng), `status` (`draft`, `pending`, `rejected`, `withdrawn`, `awaiting_signature`, `signed`, `cancelled`), `imported`, `approval_mode`, `approval_request_id`, `approver_user_ids`, `decision_note`, `signing_request_id`, `created_by`, `created_at`, `version` | `UNIQUE (contract_id, appendix_no)`; `new_value` không âm; `signed` phải có `signed_file_id` và `signed_on` |
+| `office.contract_shares` (0122) | Chia sẻ quyền xem (QUYTAC_NGHIEPVU_466) | `contract_id`, `user_id`, `shared_by`, `created_at` | Khóa chính (`contract_id`, `user_id`); xóa theo hợp đồng |
+| `office.contract_events` (0122) | Lịch sử hợp đồng | `contract_id`, `actor_user_id`, `kind`, `detail` (`jsonb`), `created_at` | Chỉ mục (`contract_id`, `created_at`); chỉ thêm |
+| `office.contract_reminders` (0122) | Mốc nhắc hạn đã gửi (QUYTAC_NGHIEPVU_467) | `contract_id`, `expires_on`, `milestone` (`before_<số ngày>`, `after_<số ngày>`), `sent_at` | Khóa chính (`contract_id`, `expires_on`, `milestone`): mỗi mốc một lần cho mỗi ngày hết hạn; phụ lục gia hạn đổi ngày hết hạn thì mốc tính lại |
+| `office.outgoing_documents` (0123) | Công văn đi ký số (QUYTAC_NGHIEPVU_365 bổ sung) | Thêm `signing_request_id` (phiên ký gần nhất lập từ bản đã cấp số) | Khóa ngoại tới `office.signing_requests`; chỉ mục `outgoing_documents_signing_idx` `WHERE signing_request_id IS NOT NULL` |
+| `office.signing_requests` (0123) | Nhân sự tìm phiên ký của hợp đồng lao động theo nguồn | | Chỉ mục `signing_requests_source_idx` (`source_type`, `source_id`, `created_at DESC`) `WHERE source_id IS NOT NULL` |
+
+Ràng buộc dùng chung được định nghĩa lại (xóa rồi tạo lại, giữ mọi giá trị cũ):
+
+| Ràng buộc | Database migration | Giá trị sau khi định nghĩa lại |
+|---|---|---|
+| `office.files.files_owner_type_check` | 0121 | `task`, `incoming`, `outgoing_draft`, `outgoing_signed`, `post` (đã có từ CONG_VIEC_52), `signing_request` (mới) |
+| `office.files.files_owner_type_check` | 0122 | Như trên, thêm `contract`, `contract_appendix` |
+| `office.signing_requests.signing_requests_source_type_check` | 0121 (tạo) | `document` |
+| `office.signing_requests.signing_requests_source_type_check` | 0122 | `document`, `contract`, `contract_appendix` |
+| `office.signing_requests.signing_requests_source_type_check` | 0123 | `document`, `contract`, `contract_appendix`, `outgoing`, `hr_contract`, `hr_contract_appendix` |
+
+- Văn phòng số không ghi vào schema `hr`: hợp đồng lao động, phụ lục là nguồn `hr_contract`, `hr_contract_appendix` của phiên ký; Nhân sự nghe sự kiện outbox `office.signing.completed` (`core.outbox_events`, payload `requestId`, `sourceType`) để lưu bản đã ký, chuyển hợp đồng sang đã ký.
+- Quyền `office.signing.use`, `office.signing.company_seal`, `office.signing.manage`, `office.contract.create`, `office.contract.view_all`, `office.contract.manage`, vai trò `office_contract_admin`, quyền thêm cho `employee`, `office_clerk`, loại chứng từ `office.signing_request`, `office.contract`, `office.contract_appendix` khai báo trong `apps/api/src/permissions/permission-catalog.ts` (đồng bộ vào `core` khi khởi động), không nằm trong tệp database migration (đặc tả CONG_VIEC_59 mục 9 dự kiến đặt ở 0123). Dãy số chứng từ tạo khi dùng lần đầu nếu công ty chưa cấu hình: tiền tố `KS` (phiên ký), `HD` (hợp đồng).
+- Quy tắc xóa và lưu giữ: không xóa cứng phiên ký, hợp đồng, phụ lục, tệp, lịch sử; phiên ký, hợp đồng hủy giữ nguyên dữ liệu. Mã đường dẫn ký của đối tác chỉ lưu mã băm; không lưu khóa bí mật của chứng thư.
+
+Lược đồ (chép từ tệp `database/migrations/0121_office_signing.sql`, `0122_office_contracts.sql`, `0123_office_signing_links.sql`):
+
+```sql
+-- CONG_VIEC_59 lát L1: ký số tài liệu PDF qua nhà cung cấp ký số từ xa (CHUC_NANG_210, 211; QUYTAC_NGHIEPVU_454 đến 461).
+
+-- Nhà cung cấp ký số và chữ ký số của công ty (QUYTAC_NGHIEPVU_454, 456). Thông tin kết nối mã hóa bằng common/secret-box.ts.
+CREATE TABLE office.signing_settings (
+    company_id              uuid        PRIMARY KEY REFERENCES core.companies(id),
+    provider                text        NOT NULL CHECK (provider IN ('simulator')),
+    environment             text        NOT NULL CHECK (environment IN ('test', 'production')),
+    credentials_encrypted   bytea,
+    seal_identity_code      text,
+    seal_certificate_chain  jsonb,
+    seal_serial_number      text,
+    seal_subject_name       text,
+    seal_valid_from         timestamptz,
+    seal_valid_to           timestamptz,
+    updated_at              timestamptz NOT NULL DEFAULT now(),
+    updated_by              uuid        NOT NULL REFERENCES core.users(id),
+    version                 integer     NOT NULL DEFAULT 1,
+    CHECK ((seal_identity_code IS NULL) = (seal_certificate_chain IS NULL))
+);
+
+-- Tài khoản ký số của người dùng theo công ty (QUYTAC_NGHIEPVU_455); không lưu khóa bí mật.
+CREATE TABLE office.signing_identities (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    user_id             uuid        NOT NULL REFERENCES core.users(id),
+    provider            text        NOT NULL,
+    identity_code       text        NOT NULL,
+    certificate_chain   jsonb       NOT NULL,
+    serial_number       text        NOT NULL,
+    subject_name        text        NOT NULL,
+    subject_identities  text[]      NOT NULL DEFAULT '{}',
+    valid_from          timestamptz NOT NULL,
+    valid_to            timestamptz NOT NULL,
+    status              text        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'replaced')),
+    created_at          timestamptz NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX signing_identities_active_idx ON office.signing_identities (company_id, user_id) WHERE status = 'active';
+
+-- Chứng thư gốc tin cậy theo tập đoàn (QUYTAC_NGHIEPVU_461).
+CREATE TABLE office.trusted_roots (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_company_id    uuid        NOT NULL REFERENCES core.companies(id),
+    certificate_pem     text        NOT NULL,
+    fingerprint         text        NOT NULL,
+    subject_name        text        NOT NULL,
+    valid_from          timestamptz NOT NULL,
+    valid_to            timestamptz NOT NULL,
+    status              text        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+    created_by          uuid        NOT NULL REFERENCES core.users(id),
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (group_company_id, fingerprint)
+);
+
+-- Phiên ký (QUYTAC_NGHIEPVU_458, 459).
+CREATE TABLE office.signing_requests (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    request_no          text        NOT NULL,
+    source_type         text        NOT NULL DEFAULT 'document' CHECK (source_type IN ('document')),
+    source_id           uuid,
+    title               text        NOT NULL CHECK (char_length(title) BETWEEN 1 AND 200),
+    note                text        CHECK (char_length(note) <= 2000),
+    due_on              date        NOT NULL,
+    status              text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'signing', 'completed', 'rejected', 'cancelled', 'expired')),
+    original_file_id    uuid,
+    current_file_id     uuid,
+    copied_from_id      uuid        REFERENCES office.signing_requests(id),
+    end_reason          text,
+    sent_at             timestamptz,
+    completed_at        timestamptz,
+    last_reminded_at    timestamptz,
+    due_soon_notified   boolean     NOT NULL DEFAULT false,
+    created_by          uuid        NOT NULL REFERENCES core.users(id),
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    updated_at          timestamptz NOT NULL DEFAULT now(),
+    version             integer     NOT NULL DEFAULT 1,
+    UNIQUE (company_id, request_no)
+);
+CREATE INDEX signing_requests_creator_idx ON office.signing_requests (company_id, created_by, created_at DESC);
+CREATE INDEX signing_requests_open_idx ON office.signing_requests (due_on) WHERE status = 'signing';
+
+-- Người ký (QUYTAC_NGHIEPVU_458, 460). Đối tác: chỉ lưu mã băm của mã đường dẫn.
+CREATE TABLE office.signing_signers (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    request_id          uuid        NOT NULL REFERENCES office.signing_requests(id) ON DELETE CASCADE,
+    position            smallint    NOT NULL CHECK (position BETWEEN 1 AND 10),
+    sign_order          smallint    NOT NULL CHECK (sign_order BETWEEN 1 AND 10),
+    kind                text        NOT NULL CHECK (kind IN ('user', 'company', 'partner')),
+    user_id             uuid        REFERENCES core.users(id),
+    partner_id          uuid        REFERENCES crm.partners(id),
+    partner_kind        text        CHECK (partner_kind IN ('organization', 'individual')),
+    partner_name        text,
+    partner_email       text,
+    partner_identity    text,
+    partner_identity_code text,
+    page                text        NOT NULL CHECK (page ~ '^(first|last|[1-9][0-9]{0,3})$'),
+    corner              text        NOT NULL CHECK (corner IN ('bottom_right', 'bottom_left', 'top_right', 'top_left')),
+    status              text        NOT NULL DEFAULT 'waiting' CHECK (status IN ('waiting', 'current', 'signed', 'rejected')),
+    signed_at           timestamptz,
+    signed_by           uuid        REFERENCES core.users(id),
+    signer_subject      text,
+    reject_reason       text,
+    link_token_hash     bytea,
+    link_sent_at        timestamptz,
+    UNIQUE (request_id, position),
+    CHECK ((kind = 'user') = (user_id IS NOT NULL)),
+    CHECK (kind <> 'partner' OR (partner_name IS NOT NULL AND partner_email IS NOT NULL AND partner_identity IS NOT NULL AND partner_identity_code IS NOT NULL AND partner_kind IS NOT NULL))
+);
+CREATE UNIQUE INDEX signing_signers_link_idx ON office.signing_signers (link_token_hash) WHERE link_token_hash IS NOT NULL;
+CREATE INDEX signing_signers_user_idx ON office.signing_signers (user_id, status);
+
+-- Mỗi lần gửi nhà cung cấp (QUYTAC_NGHIEPVU_457): bản đã chuẩn bị lưu ở kho tệp, chờ chữ ký tối đa 5 phút.
+CREATE TABLE office.signing_attempts (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    request_id          uuid        NOT NULL REFERENCES office.signing_requests(id) ON DELETE CASCADE,
+    signer_id           uuid        NOT NULL REFERENCES office.signing_signers(id) ON DELETE CASCADE,
+    base_file_id        uuid        NOT NULL,
+    prepared_storage_key text       NOT NULL,
+    certificate_chain   jsonb       NOT NULL,
+    identity_code       text        NOT NULL,
+    transaction_id      text,
+    status              text        NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'signed', 'rejected', 'failed', 'timeout')),
+    message             text,
+    initiated_by        uuid        REFERENCES core.users(id),
+    initiated_ip        text,
+    started_at          timestamptz NOT NULL DEFAULT now(),
+    finished_at         timestamptz
+);
+-- Mỗi phiên chỉ một lần ký đang chờ: chữ ký sau tạo chỗ ký trên bản mới (CONG_VIEC_59 mục 10).
+CREATE UNIQUE INDEX signing_attempts_pending_idx ON office.signing_attempts (request_id) WHERE status = 'pending';
+
+CREATE TABLE office.signing_events (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    request_id          uuid        NOT NULL REFERENCES office.signing_requests(id) ON DELETE CASCADE,
+    actor_user_id       uuid        REFERENCES core.users(id),
+    actor_label         text,
+    kind                text        NOT NULL,
+    detail              jsonb       NOT NULL DEFAULT '{}',
+    created_at          timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX signing_events_request_idx ON office.signing_events (request_id, created_at);
+
+-- Tệp của phiên ký (bản gốc và mỗi bản sau một chữ ký) lưu ở bảng tệp Văn phòng số; gồm mọi giá trị đã có.
+ALTER TABLE office.files DROP CONSTRAINT files_owner_type_check;
+ALTER TABLE office.files ADD CONSTRAINT files_owner_type_check CHECK (owner_type IN ('task', 'incoming', 'outgoing_draft', 'outgoing_signed', 'post', 'signing_request'));
+ALTER TABLE office.files ADD COLUMN sha256 text;
+
+-- CONG_VIEC_59 lát L2: kho hợp đồng (CHUC_NANG_212; QUYTAC_NGHIEPVU_462 đến 467).
+
+-- Loại hợp đồng theo công ty (QUYTAC_NGHIEPVU_462): chiều mua (công ty trả tiền), bán (công ty thu tiền), không có giá trị.
+CREATE TABLE office.contract_types (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id      uuid        NOT NULL REFERENCES core.companies(id),
+    name            text        NOT NULL CHECK (char_length(name) BETWEEN 1 AND 100),
+    direction       text        NOT NULL CHECK (direction IN ('purchase', 'sale', 'none')),
+    status          text        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+    sort_order      smallint    NOT NULL DEFAULT 100,
+    created_at      timestamptz NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX contract_types_name_idx ON office.contract_types (company_id, lower(name));
+
+-- Hợp đồng (QUYTAC_NGHIEPVU_463, 464). Tệp nằm ở office.files; tệp đã ký có thể là tệp của phiên ký.
+CREATE TABLE office.contracts (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id          uuid        NOT NULL REFERENCES core.companies(id),
+    contract_code       text        NOT NULL,
+    contract_no         text        CHECK (char_length(contract_no) <= 100),
+    name                text        NOT NULL CHECK (char_length(name) BETWEEN 1 AND 300),
+    type_id             uuid        NOT NULL REFERENCES office.contract_types(id),
+    value               numeric(20, 2) CHECK (value >= 0),
+    currency            char(3)     NOT NULL DEFAULT 'VND',
+    signed_on           date,
+    effective_from      date        NOT NULL,
+    expires_on          date,
+    owner_user_id       uuid        NOT NULL REFERENCES core.users(id),
+    department_id       uuid        REFERENCES core.departments(id),
+    confidential        boolean     NOT NULL DEFAULT false,
+    description         text        CHECK (char_length(description) <= 5000),
+    reminder_days       integer[]   NOT NULL DEFAULT '{30,7}',
+    content_file_id     uuid,
+    signed_file_id      uuid,
+    signature_checks    jsonb,
+    status              text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'rejected', 'withdrawn', 'awaiting_signature', 'signed', 'liquidated', 'terminated', 'cancelled')),
+    imported            boolean     NOT NULL DEFAULT false,
+    approval_mode       text        CHECK (approval_mode IN ('policy', 'manager')),
+    approval_request_id uuid        REFERENCES core.approval_requests(id),
+    approver_user_ids   uuid[]      NOT NULL DEFAULT '{}',
+    decision_note       text,
+    signing_request_id  uuid        REFERENCES office.signing_requests(id),
+    ended_on            date,
+    end_reason          text,
+    end_file_id         uuid,
+    cancel_reason       text,
+    created_by          uuid        NOT NULL REFERENCES core.users(id),
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    updated_at          timestamptz NOT NULL DEFAULT now(),
+    version             integer     NOT NULL DEFAULT 1,
+    UNIQUE (company_id, contract_code),
+    CHECK (expires_on IS NULL OR expires_on >= effective_from),
+    CHECK (cardinality(reminder_days) BETWEEN 1 AND 3),
+    CHECK (status NOT IN ('signed', 'liquidated', 'terminated') OR (signed_file_id IS NOT NULL AND signed_on IS NOT NULL))
+);
+CREATE INDEX contracts_company_idx ON office.contracts (company_id, status, expires_on);
+CREATE INDEX contracts_owner_idx ON office.contracts (owner_user_id);
+
+-- Đối tác của hợp đồng (một hoặc nhiều, từ crm.partners).
+CREATE TABLE office.contract_partners (
+    contract_id     uuid        NOT NULL REFERENCES office.contracts(id) ON DELETE CASCADE,
+    partner_id      uuid        NOT NULL REFERENCES crm.partners(id),
+    position        smallint    NOT NULL,
+    PRIMARY KEY (contract_id, partner_id)
+);
+
+-- Phụ lục (QUYTAC_NGHIEPVU_465): thay đổi ngày hết hạn, giá trị khi đã ký.
+CREATE TABLE office.contract_appendices (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    contract_id         uuid        NOT NULL REFERENCES office.contracts(id),
+    appendix_no         text        NOT NULL CHECK (char_length(appendix_no) BETWEEN 1 AND 50),
+    summary             text        NOT NULL CHECK (char_length(summary) BETWEEN 1 AND 2000),
+    effective_from      date        NOT NULL,
+    new_expires_on      date,
+    new_value           numeric(20, 2) CHECK (new_value >= 0),
+    content_file_id     uuid,
+    signed_file_id      uuid,
+    signed_on           date,
+    previous_expires_on date,
+    previous_value      numeric(20, 2),
+    status              text        NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'rejected', 'withdrawn', 'awaiting_signature', 'signed', 'cancelled')),
+    imported            boolean     NOT NULL DEFAULT false,
+    approval_mode       text        CHECK (approval_mode IN ('policy', 'manager')),
+    approval_request_id uuid        REFERENCES core.approval_requests(id),
+    approver_user_ids   uuid[]      NOT NULL DEFAULT '{}',
+    decision_note       text,
+    signing_request_id  uuid        REFERENCES office.signing_requests(id),
+    created_by          uuid        NOT NULL REFERENCES core.users(id),
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    version             integer     NOT NULL DEFAULT 1,
+    UNIQUE (contract_id, appendix_no),
+    CHECK (status <> 'signed' OR (signed_file_id IS NOT NULL AND signed_on IS NOT NULL))
+);
+
+-- Chia sẻ quyền xem (QUYTAC_NGHIEPVU_466).
+CREATE TABLE office.contract_shares (
+    contract_id     uuid        NOT NULL REFERENCES office.contracts(id) ON DELETE CASCADE,
+    user_id         uuid        NOT NULL REFERENCES core.users(id),
+    shared_by       uuid        NOT NULL REFERENCES core.users(id),
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (contract_id, user_id)
+);
+
+CREATE TABLE office.contract_events (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    contract_id     uuid        NOT NULL REFERENCES office.contracts(id) ON DELETE CASCADE,
+    actor_user_id   uuid        REFERENCES core.users(id),
+    kind            text        NOT NULL,
+    detail          jsonb       NOT NULL DEFAULT '{}',
+    created_at      timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX contract_events_contract_idx ON office.contract_events (contract_id, created_at);
+
+-- Mốc nhắc hạn đã gửi (QUYTAC_NGHIEPVU_467): mỗi mốc một lần cho mỗi ngày hết hạn (gia hạn thì mốc tính lại).
+CREATE TABLE office.contract_reminders (
+    contract_id     uuid        NOT NULL REFERENCES office.contracts(id) ON DELETE CASCADE,
+    expires_on      date        NOT NULL,
+    milestone       text        NOT NULL,
+    sent_at         timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (contract_id, expires_on, milestone)
+);
+
+-- Tệp hợp đồng, phụ lục, biên bản thanh lý; phiên ký nguồn hợp đồng, phụ lục. Gồm mọi giá trị đã có.
+ALTER TABLE office.files DROP CONSTRAINT files_owner_type_check;
+ALTER TABLE office.files ADD CONSTRAINT files_owner_type_check CHECK (owner_type IN ('task', 'incoming', 'outgoing_draft', 'outgoing_signed', 'post', 'signing_request', 'contract', 'contract_appendix'));
+ALTER TABLE office.signing_requests DROP CONSTRAINT signing_requests_source_type_check;
+ALTER TABLE office.signing_requests ADD CONSTRAINT signing_requests_source_type_check CHECK (source_type IN ('document', 'contract', 'contract_appendix'));
+
+-- CONG_VIEC_59 lát L3 (CHUC_NANG_213): gắn ký số vào công văn đi (CONG_VIEC_52) và hợp đồng lao động, phụ lục (CONG_VIEC_46).
+
+-- Công văn đi: phiên ký gần nhất lập từ bản đã cấp số (QUYTAC_NGHIEPVU_365 bổ sung). Phiên xong thì phát hành không cần bản quét.
+ALTER TABLE office.outgoing_documents ADD COLUMN signing_request_id uuid REFERENCES office.signing_requests (id);
+CREATE INDEX outgoing_documents_signing_idx ON office.outgoing_documents (signing_request_id) WHERE signing_request_id IS NOT NULL;
+
+-- Loại nguồn của phiên ký: thêm công văn đi, hợp đồng lao động, phụ lục hợp đồng lao động. Gồm mọi giá trị đã có.
+-- Nhân sự tìm phiên ký của hợp đồng lao động theo (source_type, source_id); Văn phòng số không ghi vào schema hr.
+ALTER TABLE office.signing_requests DROP CONSTRAINT signing_requests_source_type_check;
+ALTER TABLE office.signing_requests ADD CONSTRAINT signing_requests_source_type_check
+    CHECK (source_type IN ('document', 'contract', 'contract_appendix', 'outgoing', 'hr_contract', 'hr_contract_appendix'));
+CREATE INDEX signing_requests_source_idx ON office.signing_requests (source_type, source_id, created_at DESC) WHERE source_id IS NOT NULL;
+```

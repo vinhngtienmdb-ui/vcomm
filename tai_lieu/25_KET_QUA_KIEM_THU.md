@@ -183,6 +183,29 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_59
+
+- Phạm vi: chữ ký số, kho hợp đồng, ký số công văn đi và hợp đồng lao động (MODULE_13 phần 2), nhánh `chuc-nang/CONG_VIEC_59-chu-ky-so-kho-hop-dong` (pull request #132, commit `73465083`); database migration 0121 đến 0123, API_241 đến 248, MAN_HINH_210 đến 217.
+- Kết quả: toàn bộ kiểm thử API 133 tệp, 715/715 đạt; c59-ky-so-pdf 8/8, c59-phien-ky 9/9, c59-kho-hop-dong 6/6, c59-ky-so-gan 3/3, c59-loi-10-phong-pdf 1/1 (KICHBAN_KIEMTHU_597 đến 609); KICHBAN_KIEMTHU_610 giao diện kiểm thủ công ở điểm xem trước L1, L2, L3 trên máy tính, điện thoại.
+- Lỗi: LOI_10, LOI_11 (Cao, có từ 0.8.0) đã sửa; kiểm thử tái hiện thất bại trước khi sửa, đạt sau khi sửa.
+- Rà soát độc lập: 3 Cao, 9 Trung bình, 10 Thấp; đã sửa toàn bộ trừ 2 rủi ro người dùng chấp nhận có điều kiện (tài liệu 22).
+- Bảo mật B: đạt. C1 pnpm audit: không có Cao, Nghiêm trọng mới (Trung bình, Thấp trong expo của mobile-vcomm có từ trước). C2 gitleaks trong CI. C3 phân quyền, C4 dữ liệu độc hại, C5 giới hạn tần suất trang ký công khai: đạt.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
+## Lần kiểm thử 2026-11-12 – CONG_VIEC_66
+
+- Phạm vi: Open API phần 2 (khách hàng do đối tác tạo, đơn giao thẳng người nhận cuối) lát L1, L2, nhánh `chuc-nang/CONG_VIEC_66-open-api-khach-hang` (pull request #144, commit `102dfed`).
+- Kết quả: c66 11/11 (TIEUCHI_NGHIEMTHU_494 đến 503); toàn bộ kiểm thử máy chủ 129 tệp, 699/699 đạt; kiểm tra kiểu api, web-platform, web-crm, web-sales, web-inventory đạt; tệp dịch khớp 8697 khóa; không thêm thư viện; quét khóa bí mật không có phát hiện.
+- Bảo mật phần B, C: không có lỗi Cao; LOI_09 (Trung bình) phát hiện và sửa trong công việc.
+- Kết luận cổng kiểm thử: Đạt. Người dùng nghiệm thu 2026-11-12.
+
+## Lần kiểm thử 2026-11-12 – Phát hành 0.8.0
+
+- Phạm vi: nhánh `phat-hanh/v0.8.0` gộp CONG_VIEC_52 (`c1f5d62`), CONG_VIEC_56 (`2522322`) (pull request #141, commit hợp nhất `c34d968`).
+- Gộp: không có xung đột; database migration 0090 đến 0093, 0106 đến 0108 không trùng số; chạy thử trên cơ sở dữ liệu đã tới 0130 và cơ sở dữ liệu mới từ đầu: cùng 1014 ràng buộc kiểm tra, không mất giá trị của main; không tạo 0145.
+- Kết quả: kiểm tra kiểu 19/19, lint 4/4, khóa dịch khớp 8678 khóa; toàn bộ kiểm thử API 128 tệp, 688/688 đạt (một tiến trình); CI pull request #141 và CI trên main đạt.
+- Kết luận: Đạt; tag `v0.8.0` đã gắn tự động.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_56
 
 - Phạm vi: lát L0 đến L3, nhánh `chuc-nang/CONG_VIEC_56-ngoai-te-thue-hai-quan` (pull request #119, mã nguồn `1e9c4b7`, tài liệu `2522322`; đã hợp nhất main 0.7.0).
@@ -659,3 +682,7 @@
 | LOI_06 | Dòng thời gian đơn VComm: hai sự kiện ghi trong cùng giao dịch cơ sở dữ liệu (ví dụ Đã giao và Đã thanh toán khi ghi đã thu COD) có cùng thời điểm (`now()` là thời điểm bắt đầu giao dịch), sắp xếp phụ theo uuid ngẫu nhiên nên hiển thị đảo thứ tự; phát hiện khi CI pull request #82 thất bại không đều ở KICHBAN_KIEMTHU_345. Có từ phát hành 0.3.0 | Thấp | KICHBAN_KIEMTHU_345 | Sửa: ghi `created_at = clock_timestamp()` khi thêm sự kiện (commit `1c9a57b` trên nhánh `gop/giao-van`, pull request #82); phát hành cùng đơn vị vận chuyển | Đã sửa, đã phát hành v0.4.0 |
 | LOI_07 | Ghi đã trả lương (CONG_VIEC_48): ngày duyệt bảng lương ghi theo đồng hồ cơ sở dữ liệu (`now()`), còn ngày hôm nay so sánh theo đồng hồ ứng dụng; khi hai đồng hồ khác ngày (kiểm thử cố định đồng hồ, chạy sau nửa đêm giờ Việt Nam) thì ngày trả hợp lệ bị báo sai. Phát hiện khi chạy toàn bộ kiểm thử nhánh phát hành 0.4.0 ở KICHBAN_KIEMTHU_461. Chưa phát hành | Thấp | KICHBAN_KIEMTHU_461 | Sửa: ghi `approved_at` theo đồng hồ ứng dụng trên nhánh `phat-hanh/v0.4.0` | Đã sửa, đã phát hành v0.4.0 |
 | LOI_08 | KICHBAN_KIEMTHU_167 (`c7-purchasing.test.ts`) lỗi không đều: nhật ký thao tác sắp theo `occurred_at`, hai thao tác `purchase_order.update` và `purchase_order.submit` ghi trong cùng giao dịch có cùng `now()` nên thứ tự đôi khi đảo. Phát hiện khi CONG_VIEC_45 chạy toàn bộ kiểm thử (339/340, chạy lại đạt). Có sẵn trên main, không do nhánh mới | Thấp | KICHBAN_KIEMTHU_167 | Sửa: AuditService ghi thời điểm bằng `clock_timestamp()` (nhánh `phat-hanh/v0.5.0`) | Đã sửa, đã phát hành v0.5.0 |
+| LOI_09 | CONG_VIEC_66: đối tác dùng Open API có thể dò số căn cước hoặc mã số thuế để biết khách đã có hồ sơ (API trả mã khách khi trùng) rồi gửi đơn Nháp ghi khách đó | Trung bình | KICHBAN_KIEMTHU_681 đến 692 | Người dùng chọn 2026-11-12: chỉ dùng lại hồ sơ theo mã số thuế; trùng số căn cước với hồ sơ ngoài phạm vi trả 409, không trả mã khách | Đã sửa (commit `102dfed`, chưa phát hành) |
+| LOI_10 | Xuất PDF công văn đi (CONG_VIEC_52, phông Liberation Serif) lỗi tùy thứ tự nạp module: `inventory/labels.service.ts` (CONG_VIEC_05) và `proposals/proposal-pdf.service.ts` (CONG_VIEC_03) đăng ký lại bảng phông pdfmake chỉ có Roboto. Có từ bản 0.8.0 (chưa triển khai); phát hiện khi CONG_VIEC_59 làm lát L3 | Cao | Kiểm thử của CONG_VIEC_59 lát L3 | Sửa trong CONG_VIEC_59: hai nơi chuyển sang `renderPdf` dùng chung của `common/pdf` | Đã sửa trên nhánh CONG_VIEC_59 (commit `cabcc8c1`, `277efbc1`; kiểm thử tái hiện `c59-loi-10-phong-pdf`), chưa phát hành |
+| LOI_11 | Phát hành công văn đi lỗi 500 khi dùng lưu trữ tệp cục bộ: khóa lưu trữ chứa "outgoing_signed" có dấu gạch dưới, `LocalFileStorage` từ chối (CONG_VIEC_52, có từ bản 0.8.0, chưa triển khai). Kiểm thử dùng kho bộ nhớ nên không phát hiện | Cao | Kiểm thử của CONG_VIEC_59 lát L3 | Sửa trong CONG_VIEC_59: đổi dấu gạch dưới thành gạch ngang trong khóa lưu trữ | Đã sửa trên nhánh CONG_VIEC_59, chưa phát hành |
+| LOI_12 | CONG_VIEC_59: `office/signing/pdf-verification.ts` cắt mọi cặp "00" cuối chuỗi hex /Contents trước khi đọc CMS; chữ ký RSA kết thúc bằng byte 0x00 (khoảng 1/256 chữ ký) bị mất byte nên kiểm tra chữ ký báo sai và lần ký bị đánh thất bại, người dùng phải ký lại. Phát hiện khi dựng phát hành 0.9.0 (3 ca c59-phien-ky lỗi khi chạy toàn bộ) | Trung bình | KICHBAN_KIEMTHU_598, 599, 603 | Sửa trên nhánh phát hành 0.9.0: bỏ việc cắt, bộ đọc DER đã bỏ qua phần đệm; thêm kiểm thử hồi quy | Đang sửa |

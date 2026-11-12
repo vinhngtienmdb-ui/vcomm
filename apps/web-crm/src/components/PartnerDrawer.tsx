@@ -76,8 +76,8 @@ export function PartnerDrawer({ partner, onClose, onSaved }: { partner: PartnerR
         {kind === "individual" ? (
           <Field
             id="so-can-cuoc"
-            label={`${t("citizenId")}${partner?.citizenIdMasked ? "" : " *"}`}
-            hint={partner?.citizenIdMasked ? partner.citizenIdMasked : t("citizenIdHint")}
+            label={`${t("citizenId")}${partner?.citizenIdMasked || partner?.createdViaOpenApi ? "" : " *"}`}
+            hint={partner?.citizenIdMasked ? partner.citizenIdMasked : partner?.createdViaOpenApi ? t("citizenIdOpenApiHint") : t("citizenIdHint")}
             error={fields.citizenId}
           >
             <input
