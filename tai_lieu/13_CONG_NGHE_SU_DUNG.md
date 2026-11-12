@@ -189,4 +189,4 @@ Quyết định: người dùng đồng ý thêm `expo-clipboard` ngày 2026-11-
 | `node-forge` | Lập, đọc cấu trúc CMS, chứng thư X.509 khi ký và kiểm tra | BSD-3-Clause hoặc GPL-2.0 (chọn BSD-3-Clause) | 1.4.3 (2026-11-04; bản 1.4.2 có 3 lỗ hổng Trung bình, 1 Thấp đã vá ở 1.4.3) | Node.js | Trung bình |
 | Chỉ dùng `node:crypto` | Tự viết xử lý cấu trúc PDF và CMS | Không áp dụng | Không áp dụng | Node.js | Cao, dễ sai |
 
-Quyết định: người dùng duyệt bộ `@signpdf`, `pdf-lib`, `node-forge` ngày 2026-11-12.
+Quyết định: người dùng duyệt bộ `@signpdf`, `pdf-lib`, `node-forge` ngày 2026-11-12; đồng ý dùng `node-forge` 1.4.3 thay 1.4.2 (bản vá lỗ hổng) cùng ngày.
