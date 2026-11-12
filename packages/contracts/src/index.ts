@@ -4036,6 +4036,87 @@ export interface BuyerSalesCustomerItem {
   registeredAt: string;
 }
 
+// API_228: chi tiết khách trên ứng dụng VComm (CONG_VIEC_22; QUYTAC_NGHIEPVU_432, 433). Không có địa chỉ giao hàng, người nhận.
+export interface BuyerSalesCustomerDetail extends BuyerSalesCustomerItem {
+  ownerUserId: string;
+  ownerName: string;
+  ownerTitle: SalesTitle;
+  completedOrderCount: number;
+  completedAmount: string;
+  openOrderCount: number;
+  openAmount: string;
+  recentOrders: Array<{ id: string; documentNo: string; orderedAt: string; goodsAmount: string; status: MarketplaceOrderStatus }>;
+  // Hoa hồng của chính người xem từ đơn của khách này.
+  myCommission: { credited: string; pending: string };
+  // 20 ghi chú chăm sóc gần nhất; còn nữa thì tải tiếp qua API_229.
+  notes: CareNoteItem[];
+  hasMoreNotes: boolean;
+}
+
+// API_229, API_230: ghi chú chăm sóc, hẹn (CONG_VIEC_22; QUYTAC_NGHIEPVU_435, 436).
+export const careNoteChannels = ["call", "message", "meeting", "other"] as const;
+export type CareNoteChannel = (typeof careNoteChannels)[number];
+export const createCareNoteSchema = z
+  .object({
+    channel: z.enum(careNoteChannels),
+    content: z.string().trim().min(1).max(1000),
+    followUpOn: z.iso.date().nullable().optional(),
+  })
+  .strict();
+export const careNoteListQuerySchema = z.object({ page: z.coerce.number().int().min(1).default(1) }).strict();
+
+export interface CareNoteItem {
+  id: string;
+  channel: CareNoteChannel;
+  content: string;
+  followUpOn: string | null;
+  followUpDoneAt: string | null;
+  authorUserId: string;
+  authorName: string;
+  createdAt: string;
+}
+
+export interface FollowUpItem {
+  noteId: string;
+  customerId: string;
+  customerName: string;
+  customerPhone: string;
+  channel: CareNoteChannel;
+  content: string;
+  followUpOn: string;
+}
+
+export interface FollowUpsResponse {
+  today: string;
+  overdue: FollowUpItem[];
+  dueToday: FollowUpItem[];
+  upcoming: FollowUpItem[];
+}
+
+// API_231: doanh số tháng của tôi và của nhánh (CONG_VIEC_22; QUYTAC_NGHIEPVU_439, 440).
+export const salesRevenueQuerySchema = z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/).optional() }).strict();
+
+export interface SalesRevenueRow {
+  userId: string;
+  fullName: string;
+  title: SalesTitle;
+  completedOrderCount: number;
+  customerCount: number;
+  completedAmount: string;
+  openOrderCount: number;
+  openAmount: string;
+}
+
+export interface SalesRevenueResponse {
+  month: string;
+  // Các tháng chọn được, mới nhất trước.
+  months: string[];
+  me: SalesRevenueRow;
+  // Người trong nhánh (người quản lý); nhân viên không có cấp dưới thì rỗng.
+  members: SalesRevenueRow[];
+  branchTotal: { completedOrderCount: number; completedAmount: string; openOrderCount: number; openAmount: string };
+}
+
 export interface BuyerAccountListItem {
   id: string;
   fullName: string;

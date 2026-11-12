@@ -1,12 +1,13 @@
 // Tài khoản người mua VComm: đăng ký bằng số điện thoại và OTP, đăng nhập, quên mật khẩu, giới thiệu
 // (CONG_VIEC_23; CHUC_NANG_104 đến 106; QUYTAC_NGHIEPVU_141 đến 147; API_116 đến 118).
 import { Inject, Injectable } from "@nestjs/common";
-import type { AppLoginResponse, BuyerMeResponse, BuyerReferralItem, BuyerSalesCustomerItem, MySalesTeamResponse } from "contracts";
+import type { AppLoginResponse, BuyerMeResponse, BuyerReferralItem, BuyerSalesCustomerDetail, BuyerSalesCustomerItem, MarketplaceOrderStatus, MySalesTeamResponse } from "contracts";
 import { sql } from "drizzle-orm";
 import { ApiError, type ErrorMessageKey } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { CLOCK, type Clock } from "../common/clock";
 import { isUniqueViolation } from "../common/database-errors";
+import { trimDecimal } from "../catalog/catalog-context";
 import { DATABASE, type Database } from "../database/database.module";
 import { minimumPasswordLength } from "../auth/activation.service";
 import { AuthService, type ClientInfo, type IssuedSession } from "../auth/auth.service";
@@ -14,6 +15,7 @@ import { setPassword } from "../auth/password.service";
 import { PhoneOtpService } from "../auth/phone-otp.service";
 import { users } from "../database/schema";
 import { MarketplaceCommissionsService } from "./commissions.service";
+import { SalesCareService } from "./sales-care.service";
 import { SalesTeamService, type SalesTeam } from "./sales-team.service";
 
 type Executor = Pick<Database, "execute">;
@@ -47,6 +49,7 @@ export class BuyerAccountsService {
     private readonly audit: AuditService,
     private readonly salesTeam: SalesTeamService,
     private readonly commissions: MarketplaceCommissionsService,
+    private readonly care: SalesCareService,
   ) {}
 
   // API_116: gửi mã đăng ký. Số đã có tài khoản thì báo để khách chuyển sang đăng nhập (QUYTAC_NGHIEPVU_141).
@@ -264,6 +267,54 @@ export class BuyerAccountsService {
     const team = await this.myTeam(userId);
     if (!team.branch(userId).some((member) => member.userId === memberId)) throw new ApiError("NOT_FOUND", "notFound");
     return this.customersOf(memberId);
+  }
+
+  // API_228: chi tiết một khách (QUYTAC_NGHIEPVU_432, 433). Khách của mình hoặc của người trong nhánh; ngoài phạm vi trả 404.
+  async salesCustomerDetail(userId: string, customerId: string): Promise<BuyerSalesCustomerDetail> {
+    const team = await this.myTeam(userId);
+    const customer = (
+      await this.database.execute<{ id: string; full_name: string; phone: string | null; registered_at: Date; referrer_user_id: string | null }>(sql`
+        SELECT u.id, u.full_name, u.phone, b.registered_at, b.referrer_user_id FROM marketplace.buyer_accounts b JOIN core.users u ON u.id = b.user_id
+        WHERE b.user_id = ${customerId}`)
+    ).rows[0];
+    const owner = customer?.referrer_user_id ? team.member(customer.referrer_user_id) : undefined;
+    if (!customer || !owner || !this.care.canSee(team, userId, owner.userId)) throw new ApiError("NOT_FOUND", "notFound");
+    const totals = (
+      await this.database.execute<{ completed_count: number; completed_amount: string; open_count: number; open_amount: string }>(sql`
+        SELECT count(*) FILTER (WHERE status = 'completed')::int AS completed_count,
+          coalesce(sum(completed_amount) FILTER (WHERE status = 'completed'), 0)::text AS completed_amount,
+          count(*) FILTER (WHERE status NOT IN ('completed', 'cancelled'))::int AS open_count,
+          coalesce(sum(goods_amount) FILTER (WHERE status NOT IN ('completed', 'cancelled')), 0)::text AS open_amount
+        FROM marketplace.orders WHERE buyer_user_id = ${customerId}`)
+    ).rows[0]!;
+    const orders = await this.database.execute<{ id: string; document_no: string; created_at: Date; goods_amount: string; status: MarketplaceOrderStatus }>(sql`
+      SELECT m.id, so.document_no, m.created_at, m.goods_amount::text, m.status FROM marketplace.orders m JOIN sales.orders so ON so.id = m.sales_order_id
+      WHERE m.buyer_user_id = ${customerId} ORDER BY m.created_at DESC, m.id LIMIT 10`);
+    const commission = (await this.commissions.totals(this.database, [userId], customerId)).get(userId);
+    const notes = await this.care.notesOf(customerId, 1);
+    return {
+      id: customer.id,
+      fullName: customer.full_name,
+      phone: localPhone(customer.phone ?? ""),
+      registeredAt: new Date(customer.registered_at).toISOString(),
+      ownerUserId: owner.userId,
+      ownerName: owner.fullName,
+      ownerTitle: team.titleOf(owner.userId)!,
+      completedOrderCount: totals.completed_count,
+      completedAmount: trimDecimal(totals.completed_amount),
+      openOrderCount: totals.open_count,
+      openAmount: trimDecimal(totals.open_amount),
+      recentOrders: orders.rows.map((row) => ({
+        id: row.id,
+        documentNo: row.document_no,
+        orderedAt: new Date(row.created_at).toISOString(),
+        goodsAmount: trimDecimal(row.goods_amount),
+        status: row.status,
+      })),
+      myCommission: { credited: commission?.credited ?? "0", pending: commission?.pending ?? "0" },
+      notes: notes.notes,
+      hasMoreNotes: notes.hasMore,
+    };
   }
 
   private async customersOf(userId: string): Promise<BuyerSalesCustomerItem[]> {

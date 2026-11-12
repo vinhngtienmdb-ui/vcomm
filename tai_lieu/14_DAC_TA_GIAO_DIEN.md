@@ -33,6 +33,7 @@
 - Cập nhật CONG_VIEC_53 (2026-11-11): thêm MAN_HINH_161 đến MAN_HINH_167 của MODULE_14 (mini app Bán lẻ, bán lẻ tại quầy phần 1; bản mẫu MAN_HINH_161, 162, 164, 167); sửa MAN_HINH_46, MAN_HINH_49, MAN_HINH_54, MAN_HINH_55 (mục 65, 66)
 - Cập nhật CONG_VIEC_58 (2026-11-12): thêm MAN_HINH_204 đến MAN_HINH_209 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách, đặt trong mini app Mua hàng `web-purchasing`; mục 75 đến mục 77); MAN_HINH_209 là khối "Ngân sách mua" trong MAN_HINH_40, MAN_HINH_41 (đơn mua); menu Mua hàng thêm "Kế hoạch ngân sách", "Số còn được mua", "Điều chỉnh ngân sách"
 - Cập nhật CONG_VIEC_57 (2026-11-12): thêm MAN_HINH_188 đến MAN_HINH_195 của MODULE_14 (trạm giao hàng O2O phần 2; bản mẫu MAN_HINH_188 đến 194; mục 75, mục 76); menu Bán lẻ thêm Đơn trực tuyến, Giao cho khách, Đơn tôi đang giao, Nhận hàng trả; sửa MAN_HINH_166 (loại trạm, Cài đặt trạm), MAN_HINH_161, MAN_HINH_162, MAN_HINH_165 (ca của nhân viên giao), MAN_HINH_93, MAN_HINH_96 (ứng dụng VComm), MAN_HINH_88, MAN_HINH_89 (web-crm)
+- Cập nhật CONG_VIEC_22 (2026-11-12), THAY_DOI_26, THAY_DOI_28: thêm MAN_HINH_196 đến MAN_HINH_201 (mục 75, Kinh doanh trên ứng dụng VComm); sửa MAN_HINH_78, MAN_HINH_84, MAN_HINH_91; bỏ MAN_HINH_72 và thẻ ghé thăm trên MAN_HINH_37
 
 ## MODULE_01 Nền tảng
 
@@ -2594,7 +2595,7 @@ Sửa: MAN_HINH_76 (thẻ điểm thưởng), MAN_HINH_88 (thẻ Điểm thưở
 
 Sửa:
 - MAN_HINH_76: thêm nút "Ví mua sắm", "Mời bạn bè", "Cộng tác viên".
-- MAN_HINH_91: cộng tác viên Đã duyệt thấy mức hoa hồng cộng tác viên và nút "Chia sẻ nhận hoa hồng"; dòng điểm đánh giá "<điểm> · <số> đánh giá đã mua · Xem bảng tin" hoặc "Chưa có đánh giá · Xem bảng tin" (mở MAN_HINH_136 lọc theo sản phẩm); nút "Mua chung sản phẩm này" (mở MAN_HINH_134 lọc theo sản phẩm).
+- MAN_HINH_91: cộng tác viên Đã duyệt thấy mức hoa hồng cộng tác viên; nút "Chia sẻ sản phẩm" cho mọi người mua (THAY_DOI_28, CONG_VIEC_22 MAN_HINH_201): đường dẫn kèm mã giới thiệu, thêm mã cộng tác viên nếu đã duyệt; dòng điểm đánh giá "<điểm> · <số> đánh giá đã mua · Xem bảng tin" hoặc "Chưa có đánh giá · Xem bảng tin" (mở MAN_HINH_136 lọc theo sản phẩm); nút "Mua chung sản phẩm này" (mở MAN_HINH_134 lọc theo sản phẩm).
 - MAN_HINH_93: đơn mua chung (giá bậc đầu, chỉ phương thức trực tuyến, gợi ý mua chung); mọi đơn có ô "Dùng ví mua sắm (số dư …)" khi số dư lớn hơn 0, khóa khi ví đang tạm khóa hoặc bị chặn; hiện phần trả bằng ví, số còn phải trả.
 - MAN_HINH_96: trạng thái Chờ chốt nhóm; khối Nhóm mua chung (trạng thái, kết thúc, giá chốt, Xem nhóm); phần trả bằng ví, đã hoàn về ví; đơn Đã giao, Hoàn tất có danh sách dòng chưa đánh giá với nút "Viết đánh giá".
 - MAN_HINH_101: thêm ô mức "Cộng tác viên" (sáu mức).
@@ -2619,7 +2620,7 @@ flowchart TD
     T -->|Mời bạn bè| I[MAN_HINH_133 Mời bạn bè]
     T -->|Ví mua sắm| W[MAN_HINH_135 Ví mua sắm]
     H[Trang chủ] -->|Xem nhóm đang mở| G[MAN_HINH_134 Mua chung]
-    P[MAN_HINH_91 Chi tiết sản phẩm] -->|Chia sẻ nhận hoa hồng| S((Chia sẻ đường dẫn))
+    P[MAN_HINH_91 Chi tiết sản phẩm] -->|Chia sẻ sản phẩm| S((Chia sẻ đường dẫn))
     P -->|Mua chung sản phẩm này| G
     P -->|Xem bảng tin| F[MAN_HINH_136 Bảng tin]
     G -->|Tham gia nhóm| O[MAN_HINH_93 Đặt hàng]
@@ -2824,3 +2825,35 @@ flowchart TD
 - Quyền hiển thị: người có quyền lập, sửa hoặc xem đơn mua; không cần `purchasing.budget.view`.
 - Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; không cuộn ngang.
 - Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
+## MODULE_07 Khách hàng và Đối tác (MODULE_07 phần 3: Kinh doanh trên ứng dụng VComm, CONG_VIEC_22, THAY_DOI_26)
+
+## 75. Danh sách màn hình và điều hướng (Kinh doanh trên ứng dụng VComm)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_196 | Ứng dụng: Chi tiết khách (`/khach/[id]`: họ tên, số điện thoại, ngày đăng ký, nhân viên phụ trách; Gọi, Ghi chú chăm sóc; đơn hoàn tất, đang xử lý; hoa hồng của tôi từ khách; 10 đơn gần nhất; ghi chú chăm sóc, Xem ghi chú cũ hơn) | CHUC_NANG_204 | Tài khoản được đánh dấu nhân viên kinh doanh (khách của mình, của người trong nhánh) | MAN_HINH_78, MAN_HINH_84, MAN_HINH_198 | `ban_mau/MAN_HINH_196_CHI_TIET_KHACH.html` |
+| MAN_HINH_197 | Ứng dụng: Thêm ghi chú chăm sóc (`/ghi-chu/[id]`: kênh, nội dung 1 đến 1.000 ký tự, hẹn lần sau chọn nhanh hoặc nhập ngày/tháng/năm) | CHUC_NANG_205 | Như MAN_HINH_196 | MAN_HINH_196, nút "Ghi chú chăm sóc" | `ban_mau/MAN_HINH_197_THEM_GHI_CHU_CHAM_SOC.html` |
+| MAN_HINH_198 | Ứng dụng: Hẹn chăm sóc (`/hen`: Quá hạn, Hôm nay, 7 ngày tới; bấm khách mở MAN_HINH_196; Đã xong) | CHUC_NANG_205 | Tài khoản được đánh dấu nhân viên kinh doanh (hẹn của mình) | MAN_HINH_78 thẻ "Hẹn chăm sóc", thông báo nhắc hẹn | `ban_mau/MAN_HINH_198_HEN_CUA_TOI.html` |
+| MAN_HINH_199 | Ứng dụng: Doanh số (`/doanh-so`: chọn tháng; của tôi; người quản lý: nhánh, tổng, từng người, bấm mở MAN_HINH_84) | CHUC_NANG_206 | Tài khoản được đánh dấu nhân viên kinh doanh | MAN_HINH_78 thẻ "Doanh số tháng này" | `ban_mau/MAN_HINH_199_DOANH_SO.html` |
+| MAN_HINH_200 | Ứng dụng: Thông báo (`/thong-bao`: 30 thông báo mới nhất, chưa đọc in đậm, nhãn Mới; bấm đánh dấu đã đọc, mở màn hình của ứng dụng nếu có) | CHUC_NANG_205 | Người dùng đăng nhập ứng dụng VComm | Lối vào "Thông báo" kèm số chưa đọc trên thanh tiêu đề mọi thẻ | `ban_mau/MAN_HINH_200_THONG_BAO.html` |
+| MAN_HINH_201 | Ứng dụng: Chia sẻ sản phẩm (thẻ trên MAN_HINH_91: nội dung gửi đi, giải thích mã giới thiệu, Sao chép, Chia sẻ) | CHUC_NANG_204 | Mọi người mua | MAN_HINH_91 nút "Chia sẻ sản phẩm" (THAY_DOI_28) | `ban_mau/MAN_HINH_201_CHIA_SE_SAN_PHAM.html` |
+
+MAN_HINH_202, MAN_HINH_203: dự phòng, chưa dùng.
+
+Sửa màn hình đã có:
+- MAN_HINH_78 Kinh doanh: thêm thẻ "Hẹn chăm sóc" (số hôm nay, quá hạn, 7 ngày tới), thẻ "Doanh số tháng này"; tên khách bấm mở MAN_HINH_196.
+- MAN_HINH_84 Khách của cấp dưới: tên khách bấm mở MAN_HINH_196.
+- MAN_HINH_91 Chi tiết sản phẩm: nút "Chia sẻ sản phẩm" cho mọi người mua (THAY_DOI_28), báo "Sản phẩm không còn bán." kèm "Về trang chủ" khi sản phẩm ngừng bán.
+- Web-crm: bỏ menu Ghé thăm, MAN_HINH_72, thẻ "Ghé thăm gần đây" trên MAN_HINH_37 (QUYTAC_NGHIEPVU_441).
+
+```mermaid
+flowchart LR
+    K[MAN_HINH_78 Kinh doanh] -->|Tên khách| C[MAN_HINH_196 Chi tiết khách]
+    K -->|Hẹn chăm sóc| H[MAN_HINH_198 Hẹn]
+    K -->|Doanh số tháng này| D[MAN_HINH_199 Doanh số]
+    C -->|Ghi chú chăm sóc| G[MAN_HINH_197 Thêm ghi chú]
+    H -->|Tên khách| C
+    D -->|Tên người| M[MAN_HINH_84 Khách của cấp dưới] --> C
+    T[Thanh tiêu đề: Thông báo] --> N[MAN_HINH_200 Thông báo] -->|Nhắc hẹn| H
+    P[MAN_HINH_91 Chi tiết sản phẩm] -->|Chia sẻ sản phẩm| S[MAN_HINH_201]
+```

@@ -2133,7 +2133,7 @@ Yêu cầu phi chức năng:
 - Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_78, YCAU_NGHIEPVU_79, YCAU_NGHIEPVU_80; Quy tắc: QUYTAC_NGHIEPVU_324, QUYTAC_NGHIEPVU_325, QUYTAC_NGHIEPVU_326, QUYTAC_NGHIEPVU_327
 - Vai trò: Người mua (đăng ký, chia sẻ, Mời bạn bè); quản trị `marketplace.buyer.view`, `marketplace.buyer.manage` (cộng tác viên), `marketplace.order.view`, `marketplace.order.manage` (thưởng giới thiệu, mức hoa hồng cộng tác viên); hệ thống (chụp phần cộng tác viên khi đặt, cộng ví khi hoàn tất)
 - Xử lý: người mua gửi, gửi lại đăng ký (điều khoản, kênh chia sẻ); quản trị duyệt (cấp mã 8 ký tự lần đầu), từ chối, tạm ngừng, khôi phục, gắn nhãn KOL, KOC, theo phiên bản, ghi lịch sử, thông báo người mua; đường dẫn sản phẩm có mã cộng tác viên, ghi lượt bấm (giữ mã khi chưa đăng nhập; tối đa 200 lượt mỗi ngày); thiết lập hoa hồng sản phẩm thêm mức cộng tác viên (tổng sáu mức); khi đặt đơn chụp phần cộng tác viên theo người mở nhóm mua chung hoặc lượt bấm gần nhất trong 168 giờ; thống kê 30 ngày (lượt bấm, đơn, đang chờ, đã cộng), đơn ghi nhận gần đây; cài đặt thưởng giới thiệu (bật, mức thưởng, giá trị tối thiểu); đơn chụp người giới thiệu; đơn hoàn tất đạt điều kiện cộng thưởng một lần vào ví hoa hồng, bút toán `<số đơn>-TG`; Mời bạn bè (mức thưởng, người đã mời, số che, trạng thái thưởng)
-- Màn hình: MAN_HINH_132, MAN_HINH_133, MAN_HINH_137; sửa MAN_HINH_91 (nút "Chia sẻ nhận hoa hồng", mức hoa hồng cộng tác viên), MAN_HINH_101 (mức Cộng tác viên), MAN_HINH_76 (nút Cộng tác viên, Mời bạn bè); API: API_162, API_163; sửa API_134, API_123 (`collaborator`), API_127 (phần `collaborator`), API_135 (loại giao dịch `referral_bonus`)
+- Màn hình: MAN_HINH_132, MAN_HINH_133, MAN_HINH_137; sửa MAN_HINH_91 (nút "Chia sẻ sản phẩm" chung cho mọi người mua theo THAY_DOI_28, CONG_VIEC_22; mức hoa hồng cộng tác viên), MAN_HINH_101 (mức Cộng tác viên), MAN_HINH_76 (nút Cộng tác viên, Mời bạn bè); API: API_162, API_163; sửa API_134, API_123 (`collaborator`), API_127 (phần `collaborator`), API_135 (loại giao dịch `referral_bonus`)
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_311, TIEUCHI_NGHIEMTHU_312, TIEUCHI_NGHIEMTHU_313, TIEUCHI_NGHIEMTHU_320
 
 ### CHUC_NANG_172: Mua chung
@@ -2262,3 +2262,25 @@ Yêu cầu phi chức năng: tiền dùng `numeric`, làm tròn theo đơn vị 
 | CHUC_NANG_170 | Bút toán lương khi duyệt; ghi đã trả lương sinh bút toán trả; phiếu lương trong "Hồ sơ của tôi", thông báo chuông và email                                                                                                                                                                                                                                                          | YCAU_NGHIEPVU_76, 77 |
 
 Yêu cầu phi chức năng: tiền tính bằng số nguyên đồng (bigint) và `numeric`, không dùng số thực; tham số pháp luật cấu hình theo ngày hiệu lực; nhật ký thao tác không ghi số tiền lương; email phiếu lương gửi sau khi duyệt, lỗi gửi không làm hỏng duyệt.
+
+## MODULE_07 Khách hàng và Đối tác (MODULE_07 phần 3: Kinh doanh trên ứng dụng VComm, CONG_VIEC_22, THAY_DOI_26)
+
+### CHUC_NANG_204: Chi tiết khách và chia sẻ sản phẩm
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_138, YCAU_NGHIEPVU_139; Quy tắc: QUYTAC_NGHIEPVU_432, QUYTAC_NGHIEPVU_433, QUYTAC_NGHIEPVU_434
+- Vai trò: tài khoản người mua được đánh dấu nhân viên kinh doanh (chi tiết khách); mọi người mua (chia sẻ sản phẩm)
+- Màn hình: MAN_HINH_196, MAN_HINH_201; sửa MAN_HINH_78, MAN_HINH_84, MAN_HINH_91 (THAY_DOI_28); API: API_228; dùng lại API_116 (đăng ký có mã giới thiệu), API_162 (lượt bấm cộng tác viên)
+- Đầu ra: chi tiết khách không có địa chỉ, người nhận; đường dẫn `/r/<mã giới thiệu>?sp=<sản phẩm>[&ctv=<mã cộng tác viên>]`
+
+### CHUC_NANG_205: Ghi chú chăm sóc, lịch hẹn, nhắc hẹn trong ứng dụng
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_138; Quy tắc: QUYTAC_NGHIEPVU_435 đến QUYTAC_NGHIEPVU_438
+- Vai trò: tài khoản được đánh dấu nhân viên kinh doanh; người dùng đăng nhập (thông báo của chính mình)
+- Màn hình: MAN_HINH_197, MAN_HINH_198, MAN_HINH_200; API: API_229, API_230; dùng lại API_48; việc nền `marketplace-sales-follow-ups` 07:00
+- Dữ liệu: `marketplace.customer_care_notes` (database migration 0113); thông báo loại `sales.follow_up_due`
+
+### CHUC_NANG_206: Doanh số của tôi, doanh số nhánh
+- Yêu cầu nghiệp vụ: YCAU_NGHIEPVU_140; Quy tắc: QUYTAC_NGHIEPVU_439, QUYTAC_NGHIEPVU_440
+- Vai trò: tài khoản được đánh dấu nhân viên kinh doanh; người quản lý xem thêm nhánh
+- Màn hình: MAN_HINH_199; sửa MAN_HINH_78; API: API_231
+- Dữ liệu: `marketplace.orders.sales_staff_user_id` (database migration 0114), ghi lúc đặt đơn
+
+CHUC_NANG_103 (ghé thăm khách): ghi mới đã tắt theo QUYTAC_NGHIEPVU_441 (THAY_DOI_26). CHUC_NANG_99 (đăng nhập ứng dụng bằng token) vẫn dùng cho ứng dụng VComm, ứng dụng kho; CHUC_NANG_100 đến CHUC_NANG_102 thay bằng CHUC_NANG_204 đến CHUC_NANG_206 và các chức năng của CONG_VIEC_23, CONG_VIEC_26, CONG_VIEC_27.

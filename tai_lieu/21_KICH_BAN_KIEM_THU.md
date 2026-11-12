@@ -4,7 +4,7 @@
 - Phiên bản: 1.9
 - Ngày cập nhật: 2026-11-12
 - Trạng thái: Chờ phê duyệt
-- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt; CONG_VIEC_50 (2026-11-11): thêm KICHBAN_KIEMTHU_476 đến KICHBAN_KIEMTHU_485 của MODULE_15 (báo cáo quản trị; 476 đến 483 tự động; 484, 485 tự động một phần: cắt 500 dòng, xuất Excel tồn kho, công nợ, đo thời gian phản hồi chưa có kiểm thử tự động); CONG_VIEC_53 (2026-11-11): thêm KICHBAN_KIEMTHU_510 đến KICHBAN_KIEMTHU_521 của MODULE_14 (bán lẻ tại quầy phần 1); KICHBAN_KIEMTHU_519 chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm KICHBAN_KIEMTHU_464 đến KICHBAN_KIEMTHU_475 (cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, kiểm duyệt; tự động), KICHBAN_KIEMTHU_532 (chặn ví hoa hồng; tự động); CONG_VIEC_58 (2026-11-12): thêm KICHBAN_KIEMTHU_585 đến KICHBAN_KIEMTHU_596 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách; KICHBAN_KIEMTHU_585 đến 594 tự động, 595 chạy lại kiểm thử có sẵn, 596 giao diện thủ công); KICHBAN_KIEMTHU_592 theo quy tắc đơn chờ duyệt không giữ chỗ ngân sách
+- Thay đổi theo: CONG_VIEC_03 (2026-11-09): thêm KICHBAN_KIEMTHU_121 đến KICHBAN_KIEMTHU_132; CONG_VIEC_04 (2026-11-09): thêm KICHBAN_KIEMTHU_133 đến KICHBAN_KIEMTHU_146 của MODULE_02; CONG_VIEC_05 (2026-11-10): thêm KICHBAN_KIEMTHU_147 đến KICHBAN_KIEMTHU_159 của MODULE_03; CONG_VIEC_06 (2026-11-10): thêm KICHBAN_KIEMTHU_160 đến KICHBAN_KIEMTHU_164 của MODULE_07; CONG_VIEC_07 (2026-11-10): thêm KICHBAN_KIEMTHU_165 đến KICHBAN_KIEMTHU_171 của MODULE_04; CONG_VIEC_08 (2026-11-10): thêm KICHBAN_KIEMTHU_172 đến KICHBAN_KIEMTHU_184 của MODULE_05 (172 đến 175, 183, 184 tự động; 176 đến 182 thủ công); CONG_VIEC_09 (2026-11-10): thêm KICHBAN_KIEMTHU_185 đến KICHBAN_KIEMTHU_192 của giao dịch nội bộ (185 đến 190 tự động; 191, 192 thủ công); CONG_VIEC_12 (2026-11-10): thêm KICHBAN_KIEMTHU_193 đến KICHBAN_KIEMTHU_200 của khuyến mãi (193 đến 198 tự động; 199, 200 thủ công); CONG_VIEC_13 (2026-11-10): thêm KICHBAN_KIEMTHU_201 đến KICHBAN_KIEMTHU_209 của công nợ (201 đến 206, 209 tự động; 207, 208 thủ công); ghi chú dư nợ theo THAY_DOI_09 ở KICHBAN_KIEMTHU_183, KICHBAN_KIEMTHU_184; CONG_VIEC_14 (2026-11-10): thêm KICHBAN_KIEMTHU_210 đến KICHBAN_KIEMTHU_217 của kế toán tổng hợp (210 đến 214, 217 tự động; 215, 216 thủ công); CONG_VIEC_15 (2026-11-10): thêm KICHBAN_KIEMTHU_218 đến KICHBAN_KIEMTHU_223 của báo cáo tài chính (218 đến 221 tự động; 222, 223 thủ công); CONG_VIEC_16 (2026-11-10): thêm KICHBAN_KIEMTHU_224 đến KICHBAN_KIEMTHU_233 của hóa đơn điện tử (224 đến 231 tự động; 232, 233 thủ công); CONG_VIEC_17 (2026-11-10): thêm KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_244 của hoa hồng đội kinh doanh (234 đến 242 tự động; 243, 244 thủ công); CONG_VIEC_18 (2026-11-10): thêm KICHBAN_KIEMTHU_246 đến KICHBAN_KIEMTHU_260 của đối soát ngân hàng (246 đến 255, 257 đến 260 tự động; 256 thủ công); CONG_VIEC_19 (2026-11-10): thêm KICHBAN_KIEMTHU_261 đến KICHBAN_KIEMTHU_269 của đối soát thu hộ (261 đến 267, 269 tự động; 268 thủ công); CONG_VIEC_20 (2026-11-10): thêm KICHBAN_KIEMTHU_270 đến KICHBAN_KIEMTHU_277 của báo cáo tài chính hợp nhất (270 đến 275, 277 tự động; 276 thủ công); CONG_VIEC_21 (2026-11-10), THAY_DOI_12: thêm KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 của gán khách hàng cho nhân viên kinh doanh (278 đến 284, 286 tự động; 285 thủ công); kiểm thử tự động đã duyệt của CONG_VIEC_08, CONG_VIEC_12 đến CONG_VIEC_17, CONG_VIEC_19 thêm bước chuẩn bị `salespersonSeesAllCustomers` (người dùng cho phép ngày 2026-11-10), kịch bản không đổi; CONG_VIEC_23 (2026-11-10): thêm KICHBAN_KIEMTHU_295 đến KICHBAN_KIEMTHU_301 của tài khoản người mua (295 đến 299 tự động; 300, 301 thủ công); CONG_VIEC_27 (2026-11-10): thêm KICHBAN_KIEMTHU_302 đến KICHBAN_KIEMTHU_309 (302 đến 307 tự động; 308, 309 thủ công); CONG_VIEC_24 (2026-11-11): thêm KICHBAN_KIEMTHU_310 đến KICHBAN_KIEMTHU_320 (đặt hàng trên VComm); CONG_VIEC_25 (2026-11-11): thêm KICHBAN_KIEMTHU_321 đến KICHBAN_KIEMTHU_327 (thanh toán đơn người mua; 321 đến 325, 327 tự động; 326 thủ công); CONG_VIEC_26 (2026-11-11): thêm KICHBAN_KIEMTHU_356 đến KICHBAN_KIEMTHU_362 (hoa hồng theo đơn và ví hoa hồng; 356 đến 360, 362 tự động; 361 thủ công; 362 phí rút tiền theo THAY_DOI_17); CONG_VIEC_43 (2026-11-11), THAY_DOI_18: thêm KICHBAN_KIEMTHU_419 đến KICHBAN_KIEMTHU_422 (sửa theo mô hình B2C; tự động); đánh dấu KICHBAN_KIEMTHU_234 đến KICHBAN_KIEMTHU_245 (CONG_VIEC_17) đã bỏ, KICHBAN_KIEMTHU_278 đến KICHBAN_KIEMTHU_286 (CONG_VIEC_21) đã tắt; KICHBAN_KIEMTHU_264 bỏ phần hoa hồng; kiểm thử lập đơn bán hàng hóa bằng tay thêm bước bật cài đặt; CONG_VIEC_50 (2026-11-11): thêm KICHBAN_KIEMTHU_476 đến KICHBAN_KIEMTHU_485 của MODULE_15 (báo cáo quản trị; 476 đến 483 tự động; 484, 485 tự động một phần: cắt 500 dòng, xuất Excel tồn kho, công nợ, đo thời gian phản hồi chưa có kiểm thử tự động); CONG_VIEC_53 (2026-11-11): thêm KICHBAN_KIEMTHU_510 đến KICHBAN_KIEMTHU_521 của MODULE_14 (bán lẻ tại quầy phần 1); KICHBAN_KIEMTHU_519 chưa làm, chờ CONG_VIEC_51; CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm KICHBAN_KIEMTHU_464 đến KICHBAN_KIEMTHU_475 (cộng tác viên, thưởng giới thiệu, mua chung, ví mua sắm, bảng tin, kiểm duyệt; tự động), KICHBAN_KIEMTHU_532 (chặn ví hoa hồng; tự động); CONG_VIEC_58 (2026-11-12): thêm KICHBAN_KIEMTHU_585 đến KICHBAN_KIEMTHU_596 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách; KICHBAN_KIEMTHU_585 đến 594 tự động, 595 chạy lại kiểm thử có sẵn, 596 giao diện thủ công); KICHBAN_KIEMTHU_592 theo quy tắc đơn chờ duyệt không giữ chỗ ngân sách; CONG_VIEC_22 (2026-11-12), THAY_DOI_26: thêm KICHBAN_KIEMTHU_573 đến KICHBAN_KIEMTHU_583; sửa KICHBAN_KIEMTHU_290, 291
 
 Dữ liệu giả, tài khoản thử, chính sách duyệt thử, tỷ giá thử và đồng hồ giả lập: tài liệu `20` mục 3. Mật khẩu chung của tài khoản thử: `MatKhauThu@2026`. Công ty đang làm việc chọn bằng header `X-Company-Id`. Mỗi kịch bản có thao tác ghi đều kiểm tra thêm dòng nhật ký thao tác (KICHBAN_KIEMTHU_108).
 
@@ -5155,3 +5155,105 @@ Dữ liệu chung: công ty VCR (đồng tiền đồng Việt Nam) và VCT; ng�
 - Kết quả mong đợi: Bố cục, chữ, nhãn trạng thái, thông báo đúng bản mẫu (trừ menu phẳng đã được chấp nhận); không cuộn ngang trang; người không có quyền không thấy mục menu.
 - Kiểm thử tự động: Thủ công (xem trước từng lát)
 - Lát: L0 đến L3
+## MODULE_07 Khách hàng và Đối tác (MODULE_07 phần 3: Kinh doanh trên ứng dụng VComm, CONG_VIEC_22, THAY_DOI_26)
+
+Tệp kiểm thử tự động: `apps/api/test/c22-kinh-doanh-vcomm.test.ts` (KICHBAN_KIEMTHU_573 đến 579); KICHBAN_KIEMTHU_290, 291 (`apps/api/test/c22-sales-app.test.ts`) sửa theo THAY_DOI_26: ghi ghé thăm bị từ chối `409`, lượt đã có vẫn đọc được. KICHBAN_KIEMTHU_584 dự phòng.
+
+### KICHBAN_KIEMTHU_573: Chi tiết khách đúng phạm vi
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_402
+- Chức năng: CHUC_NANG_204
+- Loại: Từng vai trò, sai
+- Các bước: (1) Nhân viên Một mở khách của mình. (2) Trưởng phòng mở khách của Nhân viên Một và của mình. (3) Trưởng phòng mở khách phòng khác, khách của người giới thiệu thường; Nhân viên mở khách của Trưởng phòng; mã không có, mã sai dạng. (4) Người mua thường, người giới thiệu thường gọi.
+- Kết quả mong đợi: (1), (2) `200`, đúng người phụ trách, chức danh. (3) `404`. (4) `403`.
+- Kiểm thử tự động: Tự động API
+- Lát: L0
+
+### KICHBAN_KIEMTHU_574: Số liệu chi tiết khách
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_403
+- Chức năng: CHUC_NANG_204
+- Loại: Đúng, giá trị biên
+- Các bước: Khách có 3 đơn: một hoàn tất (qua giao hàng và hoàn tất sau 7 ngày), một đang chờ giao, một đã hủy. Mở chi tiết bằng Nhân viên Một và Trưởng phòng.
+- Kết quả mong đợi: Đơn hoàn tất 1 với tiền hoàn tất; đang xử lý 1 với tiền hàng; 3 đơn gần nhất mới nhất trước (có đơn hủy); không có trường địa chỉ, người nhận; hoa hồng đã cộng của người xem khớp phần của người đó, Trưởng phòng nhỏ hơn Nhân viên.
+- Kiểm thử tự động: Tự động API
+- Lát: L0
+
+### KICHBAN_KIEMTHU_575: Ghi chú chăm sóc
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_404
+- Chức năng: CHUC_NANG_205
+- Loại: Đúng, sai, giá trị biên, từng vai trò
+- Các bước: (1) Ghi chú có khoảng trắng hai đầu, hẹn 2 ngày. (2) Sai kênh, nội dung rỗng, 1.001 ký tự, hẹn hôm qua, hẹn 366 ngày, trường lạ. (3) Hẹn hôm nay, 365 ngày, không hẹn; Trưởng phòng ghi cho khách cấp dưới. (4) Ngoài phạm vi, người không được đánh dấu. (5) Gọi sửa, xóa. (6) Xem danh sách, chi tiết khách, trang 2 sau 22 ghi chú. (7) Đọc nhật ký thao tác.
+- Kết quả mong đợi: (1) `201`, nội dung đã cắt. (2) `400`, thông báo ô ngày hẹn. (3) `201`. (4) `404`, `403`. (5) `404`. (6) mới nhất trước, 20 mỗi trang, `hasMore`. (7) một dòng, không có nội dung ghi chú.
+- Kiểm thử tự động: Tự động API
+- Lát: L2
+
+### KICHBAN_KIEMTHU_576: Hẹn của tôi
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_405
+- Chức năng: CHUC_NANG_205
+- Loại: Đúng, giá trị biên, từng vai trò
+- Các bước: Nhân viên Hai có hẹn quá hạn 3 ngày, hôm nay, sau 7 ngày, sau 8 ngày, ghi chú không hẹn. Xem hẹn; Trưởng phòng đánh dấu hẹn của Nhân viên Hai; Nhân viên Hai đánh dấu hai lần; đánh dấu ghi chú không hẹn; khách chuyển sang người thường.
+- Kết quả mong đợi: Quá hạn, hôm nay, 7 ngày tới đúng (không có hẹn sau 8 ngày); Trưởng phòng `404`; lần đầu `200`, lần hai `409`; không hẹn `404`; hết phạm vi thì danh sách rỗng, đánh dấu `404`.
+- Kiểm thử tự động: Tự động API
+- Lát: L2
+
+### KICHBAN_KIEMTHU_577: Nhắc hẹn, thông báo trong ứng dụng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_406
+- Chức năng: CHUC_NANG_205
+- Loại: Đúng, từng vai trò
+- Các bước: Trưởng phòng có 1 hẹn hôm nay, 2 quá hạn, 1 đã xong, 1 ngày mai. Chạy nhắc hẹn hai lần; Nhân viên Hai có hẹn của khách đã chuyển người thường; bỏ đánh dấu Nhân viên Hai. Đọc thông báo bằng phiên ứng dụng, đánh dấu đã đọc; người khác đánh dấu.
+- Kết quả mong đợi: Một thông báo "Bạn có 1 hẹn chăm sóc hôm nay, 2 hẹn quá hạn", liên kết `/hen`; chạy lại không trùng; Nhân viên Hai không có thông báo; API_48 trả thông báo, số chưa đọc giảm 1; người khác `404`.
+- Kiểm thử tự động: Tự động API
+- Lát: L3
+
+### KICHBAN_KIEMTHU_578: Doanh số của tôi
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_407
+- Chức năng: CHUC_NANG_206
+- Loại: Đúng, sai, giá trị biên
+- Các bước: (1) Xem doanh số tháng hiện tại của Nhân viên Một. (2) Đặt giờ hoàn tất 23:59:59 ngày cuối tháng trước, 00:00:00 ngày đầu tháng (giờ Việt Nam). (3) Khách chuyển sang Trưởng phòng, đặt đơn mới. (4) Khách của người giới thiệu thường đặt đơn. (5) Tháng 2099-01, 2026-13; người giới thiệu thường gọi.
+- Kết quả mong đợi: (1) 1 đơn, 1 khách, tiền hoàn tất; đang xử lý đúng. (2) 0 rồi 1. (3) đơn mới của Trưởng phòng, đơn cũ vẫn của Nhân viên Một. (4) không có người phụ trách. (5) `400` thông báo ô tháng; `403`.
+- Kiểm thử tự động: Tự động API
+- Lát: L4
+
+### KICHBAN_KIEMTHU_579: Doanh số nhánh
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_407
+- Chức năng: CHUC_NANG_206
+- Loại: Từng vai trò
+- Các bước: Trưởng phòng, Nhân viên Hai xem doanh số.
+- Kết quả mong đợi: Trưởng phòng thấy Nhân viên Một trong nhánh, tổng nhánh bằng tổng các dòng; Nhân viên Hai không thấy ai trong nhánh.
+- Kiểm thử tự động: Tự động API
+- Lát: L4
+
+### KICHBAN_KIEMTHU_580: Web-crm không còn ghé thăm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_408
+- Chức năng: CHUC_NANG_103
+- Loại: Thủ công
+- Các bước: Mở web-crm bằng Quản trị công ty: menu, đường dẫn `/visits`, chi tiết đối tác là khách hàng.
+- Kết quả mong đợi: Không có menu Ghé thăm; `/visits` trang không tìm thấy; không có thẻ "Ghé thăm gần đây". Ghi mới qua API kiểm ở KICHBAN_KIEMTHU_290.
+- Kiểm thử tự động: Thủ công
+- Lát: L0
+
+### KICHBAN_KIEMTHU_581: Đường dẫn chia sẻ sản phẩm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_409
+- Chức năng: CHUC_NANG_204
+- Loại: Đúng, sai
+- Các bước: Bản xem trước web, API giả lập: (1) đã đăng nhập mở `/r/<mã>?sp=<sản phẩm>`. (2) chưa đăng nhập mở đường dẫn, sang đăng nhập, đăng nhập. (3) mở sản phẩm ngừng bán.
+- Kết quả mong đợi: (1) mở thẳng sản phẩm. (2) đăng ký có mã điền sẵn; đăng nhập xong mở đúng sản phẩm. (3) "Sản phẩm không còn bán." kèm Về trang chủ.
+- Kiểm thử tự động: Playwright trên bản xem trước (kịch bản trong phiên, không lưu vào kho mã)
+- Lát: L1
+
+### KICHBAN_KIEMTHU_582: Ứng dụng trên bản xem trước web
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_410
+- Chức năng: CHUC_NANG_204, CHUC_NANG_205, CHUC_NANG_206
+- Loại: Thủ công
+- Các bước: Khổ 390 điểm ảnh: Kinh doanh, chi tiết khách, thêm ghi chú, hẹn, doanh số, thông báo, chia sẻ.
+- Kết quả mong đợi: Hiển thị đúng bản mẫu MAN_HINH_196 đến 201; thao tác gọi đúng API.
+- Kiểm thử tự động: Thủ công (ảnh xem trước từng lát)
+- Lát: L0 đến L4
+
+### KICHBAN_KIEMTHU_583: Hiệu năng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_411
+- Chức năng: CHUC_NANG_204, CHUC_NANG_206
+- Loại: Hiệu năng
+- Các bước: 1.000 khách, 20.000 đơn: danh sách khách, chi tiết khách, doanh số nhánh.
+- Kết quả mong đợi: Dưới 1 giây mỗi yêu cầu.
+- Kiểm thử tự động: Tự động API, `apps/api/test/c22-hieu-nang.test.ts` (dữ liệu sinh bằng SQL từ một đơn thật; thời gian lâu nhất của 3 lần gọi sau một lần làm nóng). Kết quả 2026-11-12: 7 ms, 6 ms, 19 ms
+- Lát: L4

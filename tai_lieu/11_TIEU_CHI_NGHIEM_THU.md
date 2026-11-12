@@ -551,3 +551,21 @@ Dữ liệu mẫu: công ty VCR (đồng tiền đồng Việt Nam) và VCT (ki�
 | TIEUCHI_NGHIEMTHU_419 | CHUC_NANG_207 đến CHUC_NANG_209 | Phân quyền: không có quyền bị 403; dữ liệu công ty khác 404; nhật ký thao tác đủ | Gọi API | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_420 | CHUC_NANG_209 | Chức năng đơn mua cũ không đổi khi công ty chưa có ngân sách (kiểm thử CONG_VIEC_07, 09 đạt) | Chạy lại kiểm thử tự động | Bắt buộc |
 | TIEUCHI_NGHIEMTHU_421 | CHUC_NANG_207 đến CHUC_NANG_209 | Giao diện MAN_HINH_204 đến MAN_HINH_209 đúng bản mẫu, đạt danh sách rà soát giao diện | Giao diện | Bắt buộc |
+## MODULE_07 Khách hàng và Đối tác (MODULE_07 phần 3: Kinh doanh trên ứng dụng VComm, CONG_VIEC_22, THAY_DOI_26)
+
+Dữ liệu mẫu: `apps/api/test/marketplace-fixture.ts` và `apps/api/test/c22-kinh-doanh-vcomm.test.ts` (Khối Kinh doanh; Phòng 1 có Trưởng phòng, Nhân viên Một; Phòng 2 có Nhân viên Hai; người giới thiệu thường; khách của từng người).
+
+| Mã | Tiêu chí | Mức | Kịch bản |
+|---|---|---|---|
+| TIEUCHI_NGHIEMTHU_402 | Chi tiết khách đúng phạm vi: khách của mình, của người trong nhánh xem được; ngoài phạm vi, không được đánh dấu nhận 404, 403 | Bắt buộc | KICHBAN_KIEMTHU_573 |
+| TIEUCHI_NGHIEMTHU_403 | Chi tiết khách đúng số liệu (đơn hoàn tất, đang xử lý, 10 đơn gần nhất, hoa hồng của người xem) và không có địa chỉ, người nhận | Bắt buộc | KICHBAN_KIEMTHU_574 |
+| TIEUCHI_NGHIEMTHU_404 | Ghi chú: kiểm kênh, độ dài, ngày hẹn; không sửa, xóa; người trong phạm vi xem được; nhật ký thao tác không chứa nội dung | Bắt buộc | KICHBAN_KIEMTHU_575 |
+| TIEUCHI_NGHIEMTHU_405 | Hẹn của tôi đúng nhóm quá hạn, hôm nay, 7 ngày tới theo giờ Việt Nam; chỉ người ghi đánh dấu đã xong; mất phạm vi thì không hiện | Bắt buộc | KICHBAN_KIEMTHU_576 |
+| TIEUCHI_NGHIEMTHU_406 | Nhắc hẹn tạo đúng một thông báo mỗi người mỗi ngày, đúng số; chạy lại không trùng; không nhắc người hết phạm vi | Bắt buộc | KICHBAN_KIEMTHU_577 |
+| TIEUCHI_NGHIEMTHU_407 | Doanh số tháng đúng định nghĩa, đúng ranh giới tháng giờ Việt Nam, trừ trả hàng; nhánh đúng người, tổng khớp | Bắt buộc | KICHBAN_KIEMTHU_578, 579 |
+| TIEUCHI_NGHIEMTHU_408 | Ghé thăm: ghi mới trả 409 `BUSINESS_RULE`; lượt đã có vẫn đọc được; web-crm không còn menu, trang, thẻ ghé thăm | Bắt buộc | KICHBAN_KIEMTHU_290, 291, 580 |
+| TIEUCHI_NGHIEMTHU_409 | Đường dẫn chia sẻ: chưa đăng nhập đăng ký xong mở đúng sản phẩm; đã đăng nhập mở sản phẩm, không đổi người giới thiệu | Bắt buộc | KICHBAN_KIEMTHU_581 |
+| TIEUCHI_NGHIEMTHU_410 | Ứng dụng: Kinh doanh, chi tiết khách, ghi chú, hẹn, doanh số, thông báo, chia sẻ chạy được trên bản xem trước web khổ 390 điểm ảnh | Bắt buộc | KICHBAN_KIEMTHU_582 |
+| TIEUCHI_NGHIEMTHU_411 | Danh sách khách, chi tiết khách, doanh số nhánh trả lời dưới 1 giây với 1.000 khách, 20.000 đơn | Mong muốn | KICHBAN_KIEMTHU_583 |
+
+TIEUCHI_NGHIEMTHU_159 (ghé thăm khách, CONG_VIEC_22 bản cũ) thay bằng TIEUCHI_NGHIEMTHU_408.

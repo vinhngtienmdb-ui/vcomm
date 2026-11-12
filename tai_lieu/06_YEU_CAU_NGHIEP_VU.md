@@ -512,3 +512,14 @@ Chi tiết: `tai_lieu/cong_viec/CONG_VIEC_48.md`.
 | Báo cáo vi phạm | Bài đăng hoặc bình luận, người báo cáo, lý do, mô tả, trạng thái (chờ xử lý, đã xử lý, bỏ qua), người và thời điểm xử lý | Mỗi người một lần mỗi nội dung (CONG_VIEC_49) |
 | Khóa tài khoản cộng đồng | Người mua, đến lúc (trống là vĩnh viễn), lý do, người khóa, người và thời điểm mở khóa | Khóa mới thay khóa đang hiệu lực (CONG_VIEC_49) |
 | Cài đặt cộng đồng | Cho đăng bài, cho bình luận, từ cấm (tối đa 500 cụm từ), người sửa, phiên bản | Một bản ghi cho công ty vận hành sàn (CONG_VIEC_49) |
+
+## MODULE_07 Khách hàng và Đối tác (MODULE_07 phần 3: Kinh doanh trên ứng dụng VComm, CONG_VIEC_22, THAY_DOI_26)
+
+| Mã | Yêu cầu | Nguồn |
+|---|---|---|
+| YCAU_NGHIEPVU_138 | Nhân viên kinh doanh, người quản lý chăm sóc khách người mua mình phụ trách hoặc trong nhánh trên ứng dụng VComm: xem chi tiết khách, ghi chú chăm sóc, hẹn và được nhắc | Người dùng 2026-11-11 (THAY_DOI_26) |
+| YCAU_NGHIEPVU_139 | Nhân viên kinh doanh gửi sản phẩm cho khách bằng đường dẫn có mã giới thiệu; khách tự đặt hàng | Người dùng 2026-11-11 (THAY_DOI_26), 2026-11-12 (THAY_DOI_28) |
+| YCAU_NGHIEPVU_140 | Nhân viên kinh doanh, người quản lý theo dõi doanh số tháng của mình và của từng người trong nhánh | Người dùng 2026-11-11 (THAY_DOI_26) |
+| YCAU_NGHIEPVU_141, YCAU_NGHIEPVU_142 | Không dùng (mã đã cấp, để trống) | CONG_VIEC_22 |
+
+YCAU_NGHIEPVU_47 (ứng dụng nhân viên kinh doanh riêng, CONG_VIEC_22 bản cũ) thay bằng YCAU_NGHIEPVU_138 đến YCAU_NGHIEPVU_140 theo THAY_DOI_14, THAY_DOI_26.
