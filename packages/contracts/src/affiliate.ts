@@ -377,3 +377,90 @@ export interface BuyerVoucherCode {
   expiresAt: string;
   status: "unused" | "used" | "expired";
 }
+
+// ---------------------------------------------------------------------------
+// Lát L3: đối soát tuần (QUYTAC_NGHIEPVU_403; API_212).
+// ---------------------------------------------------------------------------
+export const affiliateSettlementStatuses = ["awaiting_confirmation", "confirmed", "disputed", "paid"] as const;
+export type AffiliateSettlementStatus = (typeof affiliateSettlementStatuses)[number];
+export const affiliateSettlementListQuerySchema = z.object({
+  merchantId: z.string().uuid().optional(),
+  status: z.enum(affiliateSettlementStatuses).optional(),
+  overdue: z
+    .enum(["true", "false"])
+    .transform((value) => value === "true")
+    .optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+});
+export const affiliateSettlementConfirmSchema = z.object({ version: z.number().int().min(1) }).strict();
+export const affiliateSettlementDisputeSchema = z.object({ reason: z.string().trim().min(1).max(1000), version: z.number().int().min(1) }).strict();
+// Trả lời khiếu nại và chốt lại; điều chỉnh tiền dương: tăng số cửa hàng phải trả, âm: giảm.
+export const affiliateSettlementResolveSchema = z
+  .object({
+    note: z.string().trim().min(1).max(1000),
+    adjustmentAmount: z
+      .union([z.string(), z.number()])
+      .transform((value) => String(value).trim().replace(",", "."))
+      .pipe(z.string().regex(/^-?\d{1,14}(\.\d{1,4})?$/, "invalidValue")),
+    adjustmentReason: z.string().trim().min(1).max(500).nullable().optional(),
+    version: z.number().int().min(1),
+  })
+  .strict()
+  .refine((value) => Number(value.adjustmentAmount) === 0 || Boolean(value.adjustmentReason), { message: "required", path: ["adjustmentReason"] });
+
+export interface AffiliateSettlementItem {
+  id: string;
+  documentNo: string;
+  merchantId: string;
+  merchantCode: string;
+  merchantName: string;
+  weekStart: string;
+  weekEnd: string;
+  transactionCount: number;
+  earnedAmount: string;
+  redeemedAmount: string;
+  companyVoucherAmount: string;
+  shortfallAmount: string;
+  feePercent: string;
+  feeAmount: string;
+  feeTaxRate: string;
+  feeTaxAmount: string;
+  adjustmentAmount: string;
+  netAmount: string;
+  status: AffiliateSettlementStatus;
+  confirmDueAt: string;
+  confirmedAt: string | null;
+  autoConfirmed: boolean;
+  dueDate: string | null;
+  // Công nợ còn lại của bảng (phải thu khi số còn lại dương, phải trả khi âm); quá hạn khi còn phải thu sau hạn thanh toán.
+  openAmount: string | null;
+  overdue: boolean;
+  version: number;
+}
+export interface AffiliateSettlementTransaction {
+  id: string;
+  documentNo: string;
+  completedAt: string;
+  outletName: string;
+  status: AffiliateTransactionStatus;
+  billAmount: string;
+  voucherDiscount: string;
+  voucherPayable: string;
+  voucherIssuer: AffiliateVoucherIssuer | null;
+  redeemedAmount: string;
+  earnedAmount: string;
+  shortfallAmount: string;
+}
+export interface AffiliateSettlementDetail extends AffiliateSettlementItem {
+  disputeReason: string | null;
+  disputedAt: string | null;
+  disputedByName: string | null;
+  resolutionNote: string | null;
+  adjustmentReason: string | null;
+  resolvedAt: string | null;
+  resolvedByName: string | null;
+  confirmedByName: string | null;
+  paidAt: string | null;
+  transactions: AffiliateSettlementTransaction[];
+}

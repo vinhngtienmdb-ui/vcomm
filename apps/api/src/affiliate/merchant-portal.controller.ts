@@ -9,6 +9,11 @@ import {
   affiliateMemberVersionSchema,
   affiliateTransactionCancelSchema,
   affiliateVoucherListQuerySchema,
+  affiliateSettlementConfirmSchema,
+  affiliateSettlementDisputeSchema,
+  affiliateSettlementListQuerySchema,
+  type AffiliateSettlementDetail,
+  type AffiliateSettlementItem,
   affiliateVoucherQuantitySchema,
   affiliateVoucherVersionSchema,
   merchantVoucherSchema,
@@ -31,6 +36,7 @@ import { ApiError } from "../common/api-error";
 import { UuidPipe } from "../common/uuid.pipe";
 import { MerchantPortalService, requireOwner, type PortalMember } from "./portal.service";
 import { AffiliateTransactionsService } from "./transactions.service";
+import { AffiliateSettlementsService } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
 
 export function selectedMerchant(request: Request): string | undefined {
@@ -44,6 +50,7 @@ export class MerchantPortalController {
     private readonly portal: MerchantPortalService,
     private readonly transactions: AffiliateTransactionsService,
     private readonly vouchers: AffiliateVouchersService,
+    private readonly settlements: AffiliateSettlementsService,
   ) {}
 
   // Voucher của cửa hàng: chỉ chủ cửa hàng (QUYTAC_NGHIEPVU_401).
@@ -152,6 +159,34 @@ export class MerchantPortalController {
   @Post("vouchers/:id/:action")
   async voucherAction(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Param("action") action: string, @Body() body: unknown): Promise<AffiliateVoucherItem> {
     return voucherAction(this.vouchers, await this.voucherActor(request), id, action, body);
+  }
+
+  // API_212: đối soát tuần của cửa hàng (chủ cửa hàng).
+  @Get("settlements")
+  async listSettlements(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<AffiliateSettlementItem>> {
+    const member = await this.member(request);
+    requireOwner(member);
+    return this.settlements.list(this.settlements.memberActor(member), { ...affiliateSettlementListQuerySchema.parse(query), merchantId: undefined });
+  }
+
+  @Get("settlements/:id")
+  async settlement(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateSettlementDetail> {
+    const member = await this.member(request);
+    requireOwner(member);
+    return this.settlements.detail(this.settlements.memberActor(member), id);
+  }
+
+  @Post("settlements/:id/confirm")
+  @HttpCode(200)
+  async confirmSettlement(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateSettlementDetail> {
+    return this.settlements.confirm(await this.member(request), id, affiliateSettlementConfirmSchema.parse(body).version);
+  }
+
+  @Post("settlements/:id/dispute")
+  @HttpCode(200)
+  async disputeSettlement(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateSettlementDetail> {
+    const input = affiliateSettlementDisputeSchema.parse(body);
+    return this.settlements.dispute(await this.member(request), id, input.reason, input.version);
   }
 }
 

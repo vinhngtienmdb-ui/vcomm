@@ -13,6 +13,7 @@ import type {
 } from "contracts";
 import { sql } from "drizzle-orm";
 import type { z } from "zod";
+import { LedgerService } from "../accounting/ledger.service";
 import { ApprovalRequestsService } from "../approvals/approval-requests.service";
 import type { ClientInfo } from "../auth/auth.service";
 import { trimDecimal } from "../catalog/catalog-context";
@@ -24,6 +25,7 @@ import { DATABASE, type Database } from "../database/database.module";
 import { pgArray } from "../inventory/stock-ledger.service";
 import { spendPointsWithin } from "../loyalty/ledger.service";
 import { vietnamToday } from "../marketplace/shop.service";
+import { voucherClaimDraft, voucherExpireDraft } from "./postings";
 
 type Executor = Pick<Database, "execute">;
 const voucherType = "affiliate.voucher";
@@ -218,6 +220,7 @@ export class AffiliateVouchersService implements OnModuleInit {
     private readonly approvals: ApprovalRequestsService,
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
+    private readonly accounting: LedgerService,
   ) {}
 
   // Kết quả duyệt (sự kiện core.approval.completed): đã duyệt thì voucher được phát theo thời gian nhận.
@@ -462,6 +465,7 @@ export class AffiliateVouchersService implements OnModuleInit {
           points: voucher.points_price!,
         });
         await transaction.execute(sql`UPDATE affiliate.voucher_codes SET points_paid = ${voucher.points_price}, point_value = ${spent.pointValue} WHERE id = ${id}`);
+        await this.accounting.record(transaction, await voucherClaimDraft(transaction, id));
       }
       await transaction.execute(sql`UPDATE affiliate.vouchers SET claimed_count = claimed_count + 1 WHERE id = ${voucherId}`);
       return id;
@@ -477,7 +481,12 @@ export class AffiliateVouchersService implements OnModuleInit {
 
   // Việc nền hằng ngày: chuyển voucher quá hạn sang hết hạn; nhắc một lần trước 3 ngày (QUYTAC_NGHIEPVU_402, đặc tả mục 18).
   async expireAndRemind(): Promise<void> {
-    await this.database.execute(sql`UPDATE affiliate.voucher_codes SET status = 'expired' WHERE status = 'unused' AND expires_at <= now()`);
+    // Voucher đổi bằng điểm hết hạn: bút toán chuyển doanh thu chưa thực hiện sang giảm chi phí, cùng giao dịch với đổi trạng thái.
+    await this.database.transaction(async (transaction) => {
+      const expired = await transaction.execute<{ id: string; points_paid: number }>(sql`
+        UPDATE affiliate.voucher_codes SET status = 'expired' WHERE status = 'unused' AND expires_at <= now() RETURNING id, points_paid`);
+      for (const row of expired.rows) if (row.points_paid > 0) await this.accounting.record(transaction, await voucherExpireDraft(transaction, row.id));
+    });
     const due = await this.database.execute<{ id: string; buyer_user_id: string; title_vi: string; company_id: string }>(sql`
       SELECT c.id, c.buyer_user_id, v.title_vi, v.company_id FROM affiliate.voucher_codes c JOIN affiliate.vouchers v ON v.id = c.voucher_id
       WHERE c.status = 'unused' AND c.expiry_notified_at IS NULL AND c.expires_at <= now() + interval '3 days' LIMIT 1000`);

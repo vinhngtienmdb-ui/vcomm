@@ -47,7 +47,13 @@ export type PostingRole =
   | "import_duty"
   | "excise_tax"
   | "environmental_tax"
-  | "import_vat";
+  | "import_vat"
+  // CONG_VIEC_55: cửa hàng liên kết.
+  | "affiliate_receivable"
+  | "affiliate_payable"
+  | "affiliate_fee_revenue"
+  | "affiliate_fee_tax"
+  | "affiliate_voucher_deferred";
 export const postingRoles: PostingRole[] = [
   "receivable",
   "payable",
@@ -92,6 +98,11 @@ export const postingRoles: PostingRole[] = [
   "excise_tax",
   "environmental_tax",
   "import_vat",
+  "affiliate_receivable",
+  "affiliate_payable",
+  "affiliate_fee_revenue",
+  "affiliate_fee_tax",
+  "affiliate_voucher_deferred",
 ];
 
 export interface DraftLine {
@@ -118,7 +129,12 @@ export interface DraftJournal {
     | "payroll"
     | "payroll_payment"
     | "import_declaration"
-    | "landed_cost";
+    | "landed_cost"
+    | "affiliate_transaction"
+    | "affiliate_transaction_cancel"
+    | "affiliate_voucher"
+    | "affiliate_voucher_expire"
+    | "affiliate_settlement";
   sourceId: string;
   journalNo: string;
   date: string;

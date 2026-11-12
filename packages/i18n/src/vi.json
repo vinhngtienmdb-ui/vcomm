@@ -581,7 +581,9 @@
     "affiliateVoucherNotEditable": "Chỉ sửa, gửi duyệt được voucher nháp, bị từ chối hoặc đã rút.",
     "affiliateVoucherNotPending": "Voucher không ở trạng thái chờ duyệt.",
     "affiliateVoucherStatusInvalid": "Không đổi được trạng thái voucher từ trạng thái hiện tại.",
-    "affiliateVoucherQuantityInvalid": "Chỉ giảm được tổng số lượng, không dưới số đã nhận."
+    "affiliateVoucherQuantityInvalid": "Chỉ giảm được tổng số lượng, không dưới số đã nhận.",
+    "affiliateSettlementNotAwaiting": "Bảng đối soát không ở trạng thái chờ cửa hàng xác nhận.",
+    "affiliateSettlementNotDisputed": "Bảng đối soát không ở trạng thái khiếu nại."
   },
   "login": {
     "title": "Đăng nhập",

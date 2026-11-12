@@ -20,6 +20,17 @@ let other: { id: string; call: BuyerCall; phone: string };
 let otherMerchant: string;
 const balanceOf = async (userId: string) => Number((await pool.query("SELECT balance FROM loyalty.accounts WHERE user_id = $1", [userId])).rows[0]?.balance ?? 0);
 
+// Dòng bút toán theo vai trò định khoản (KICHBAN_KIEMTHU_545): [vai trò, Nợ, Có].
+async function journal(sourceType: string, sourceId: string): Promise<[string, number, number][]> {
+  const rows = await pool.query<{ role: string; debit: number; credit: number }>(
+    `SELECT r.role, l.debit::float AS debit, l.credit::float AS credit FROM accounting.journals j JOIN accounting.journal_lines l ON l.journal_id = j.id
+     JOIN accounting.posting_rules r ON r.company_id = j.company_id AND r.account_id = l.account_id AND r.role IN
+       ('affiliate_receivable', 'affiliate_payable', 'affiliate_voucher_deferred', 'loyalty_liability', 'loyalty_expense')
+     WHERE j.source_type = $1 AND j.source_id = $2 ORDER BY l.line_no`,
+    [sourceType, sourceId],
+  );
+  return rows.rows.map((row) => [row.role, row.debit, row.credit]);
+}
 async function decide(requestId: string, decision: "approved" | "rejected") {
   const decided = await approver.call("post", `/approval-requests/${requestId}/decisions`, { body: { decision, comment: "Ý kiến" } });
   expect(decided.status, JSON.stringify(decided.body)).toBe(200);
@@ -43,6 +54,7 @@ const voucher = (overrides: object = {}) => ({
 beforeAll(async () => {
   ({ application, pool } = await startTestApplication());
   fixture = await prepareAffiliate(application, pool);
+  expect((await fixture.call("post", "/finance/ledger/setup")).status).toBe(201);
   const policy = await fixture.call("post", "/approval-policies", {
     documentTypeCode: "affiliate.voucher",
     currency: "VND",
@@ -125,6 +137,11 @@ describe("CONG_VIEC_55 voucher liên kết", () => {
     // Đổi bằng điểm: trừ 40 điểm.
     const claimedPoints = await buyer.call("post", `/buyer/affiliate/vouchers/${pointsId}/claim`, {});
     expect(claimedPoints.body).toMatchObject({ pointsPaid: 40 });
+    // Nhận voucher bằng điểm: Nợ nghĩa vụ điểm 40.000 / Có doanh thu chưa thực hiện 40.000.
+    expect(await journal("affiliate_voucher", claimedPoints.body.id)).toEqual([
+      ["loyalty_liability", 40000, 0],
+      ["affiliate_voucher_deferred", 0, 40000],
+    ]);
     expect(await balanceOf(buyer.id)).toBe(260);
     // Khách không có điểm không đổi được.
     expect((await other.call("post", `/buyer/affiliate/vouchers/${pointsId}/claim`, {})).status).toBe(409);
@@ -173,6 +190,11 @@ describe("CONG_VIEC_55 voucher liên kết", () => {
     const withPoints = await cashier.call("post", "/merchant-portal/transactions", { body: { outletId: outletA, billAmount: "90000", method: "buyer_qr", memberCode: member } });
     expect(withPoints.body.transaction).toMatchObject({ voucherDiscount: "50000", paidAmount: "40000" });
     expect((await pool.query("SELECT voucher_payable::int AS payable FROM affiliate.transactions WHERE id = $1", [withPoints.body.transaction.id])).rows[0].payable).toBe(40000);
+    // Dùng voucher đổi bằng điểm: Nợ doanh thu chưa thực hiện / Có phải trả cửa hàng.
+    expect(await journal("affiliate_transaction", withPoints.body.transaction.id)).toEqual([
+      ["affiliate_payable", 0, 40000],
+      ["affiliate_voucher_deferred", 40000, 0],
+    ]);
 
     // Voucher công ty chỉ dùng tại cửa hàng được chọn; hóa đơn dưới mức tối thiểu không dùng được.
     const low = await cashier.call("post", "/merchant-portal/transactions", { body: { outletId: outletA, billAmount: "50000", method: "merchant_qr" } });
@@ -183,11 +205,24 @@ describe("CONG_VIEC_55 voucher liên kết", () => {
     const usedCompany = await buyer.call("post", `/buyer/affiliate/transactions/${companyUse.body.transaction.id}/confirm`, { points: 0, code: companyUse.body.qrCode, voucherCodeId: companyCode });
     expect(usedCompany.body).toMatchObject({ voucherDiscount: "20000", paidAmount: "130000" });
     expect((await pool.query("SELECT voucher_payable::int AS payable FROM affiliate.transactions WHERE id = $1", [companyUse.body.transaction.id])).rows[0].payable).toBe(20000);
+    // Voucher công ty: Nợ chi phí / Có phải trả cửa hàng; tích 2 điểm: Nợ phải thu / Có nghĩa vụ.
+    expect(await journal("affiliate_transaction", companyUse.body.transaction.id)).toEqual([
+      ["affiliate_receivable", 2000, 0],
+      ["loyalty_liability", 0, 2000],
+      ["affiliate_payable", 0, 20000],
+      ["loyalty_expense", 20000, 0],
+    ]);
 
     // Hủy giao dịch trả voucher còn hạn cho khách.
     expect((await owner.call("post", `/merchant-portal/transactions/${companyUse.body.transaction.id}/cancel`, { body: { reason: "Khách trả hàng" } })).status).toBe(201);
     const restored = (await buyer.call("get", "/buyer/affiliate/my-vouchers")).body.find((code: { id: string }) => code.id === companyCode);
     expect(restored.status).toBe("unused");
+    expect(await journal("affiliate_transaction_cancel", companyUse.body.transaction.id)).toEqual([
+      ["affiliate_payable", 20000, 0],
+      ["loyalty_liability", 2000, 0],
+      ["affiliate_receivable", 0, 2000],
+      ["loyalty_expense", 0, 20000],
+    ]);
 
     // Hết hạn: chuyển hết hạn, không dùng được; nhắc trước 3 ngày một lần.
     await pool.query("UPDATE affiliate.voucher_codes SET expires_at = now() + interval '2 days' WHERE id = $1", [companyCode]);

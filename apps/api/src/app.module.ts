@@ -93,6 +93,7 @@ import { AffiliateMerchantsService } from "./affiliate/merchants.service";
 import { MerchantPortalService } from "./affiliate/portal.service";
 import { AffiliateTransactionsService } from "./affiliate/transactions.service";
 import { AffiliateVouchersService } from "./affiliate/vouchers.service";
+import { AffiliateSettlementsService } from "./affiliate/settlements.service";
 import { BuyerAffiliateController } from "./affiliate/buyer-affiliate.controller";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { PurchasingImportsController } from "./purchasing/imports.controller";
@@ -278,6 +279,7 @@ import { UsersService } from "./users/users.service";
     MerchantPortalService,
     AffiliateTransactionsService,
     AffiliateVouchersService,
+    AffiliateSettlementsService,
     ReturnRequestsService,
     SupplierPricesService,
     SalesOrdersService,

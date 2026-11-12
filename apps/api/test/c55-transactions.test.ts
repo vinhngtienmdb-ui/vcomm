@@ -242,7 +242,12 @@ describe("CONG_VIEC_55 giao dịch tại quầy", () => {
     expect(await balanceOf(buyers.third.id)).toBe(0);
     // Tuần đã chốt không hủy được.
     const settled = (await owner.call("get", "/merchant-portal/transactions?status=completed")).body.data[0];
-    await pool.query("UPDATE affiliate.transactions SET settlement_id = gen_random_uuid() WHERE id = $1", [settled.id]);
+    const settlement = await pool.query<{ id: string }>(
+      `INSERT INTO affiliate.settlements (company_id, merchant_id, week_start, fee_percent, fee_tax_rate, confirm_due_at)
+       SELECT company_id, id, date_trunc('week', now())::date, fee_percent, 10, now() + interval '3 days' FROM affiliate.merchants WHERE id = $1 RETURNING id`,
+      [merchantId],
+    );
+    await pool.query("UPDATE affiliate.transactions SET settlement_id = $1 WHERE id = $2", [settlement.rows[0]!.id, settled.id]);
     expect((await owner.call("post", `/merchant-portal/transactions/${settled.id}/cancel`, { body: { reason: "Muộn" } })).body.error.message).toBe(
       "Tuần của giao dịch đã chốt đối soát, không hủy được.",
     );

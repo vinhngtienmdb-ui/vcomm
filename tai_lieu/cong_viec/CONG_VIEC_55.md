@@ -203,6 +203,14 @@ Sổ cái điểm, công thức tích, đổi của đơn VComm, bán tại qu�
 13. Chỉ khách có tài khoản VComm mới tích, đổi.
 14. Hạch toán theo phương án 131 / 3388, 3388 / 331, 641 / 331, 331 / 511, 3331, bù trừ 331 / 131.
 
+Quyết định khi lập trình lát L3 (2026-11-12):
+
+15. Công ty trả lời khiếu nại đối soát (kèm điều chỉnh tiền nếu có) thì bảng được chốt luôn (đã xác nhận, ghi công nợ); cửa hàng không xác nhận lại.
+16. Thuế suất thuế giá trị gia tăng của phí dịch vụ cố định 10 %, ghi vào từng bảng đối soát.
+17. Khi xác nhận bảng đối soát, hệ thống tự đánh dấu đối tác là khách hàng và nhà cung cấp của công ty vận hành sàn để kế toán lập phiếu thu, phiếu chi.
+18. Dư nợ xét hạn mức gồm cả số còn lại của bảng đối soát đã lập chưa xác nhận (chờ xác nhận, khiếu nại).
+19. Bút toán hủy giao dịch, voucher đổi bằng điểm hết hạn dùng nguồn chứng từ riêng `affiliate_transaction_cancel`, `affiliate_voucher_expire` (mỗi nguồn chứng từ một bút toán).
+
 ## 18. Quyết định AI đề xuất (người dùng xác nhận ngày 2026-11-11)
 
 1. Chi tiêu tại cửa hàng liên kết không tính vào chi tiêu xét hạng (doanh thu không thuộc tập đoàn).

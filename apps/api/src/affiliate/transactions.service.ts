@@ -26,9 +26,12 @@ import { purposeKey } from "../common/secret-box";
 import { isUniqueViolation } from "../common/database-errors";
 import { DATABASE, type Database } from "../database/database.module";
 import { pgArray } from "../inventory/stock-ledger.service";
+import { LedgerService } from "../accounting/ledger.service";
 import { LoyaltyLedgerService } from "../loyalty/ledger.service";
 import { vietnamToday } from "../marketplace/shop.service";
 import { requireOwner, type PortalMember } from "./portal.service";
+import { transactionCancelDraft, transactionDraft } from "./postings";
+import { merchantOverdue } from "./settlements.service";
 import { releaseVoucherWithin, usableCodes, useVoucherWithin } from "./vouchers.service";
 
 type Executor = Pick<Database, "execute">;
@@ -147,12 +150,18 @@ async function merchantTerms(executor: Executor, merchantId: string, lock = fals
   ).rows[0]!;
 }
 
-// Dư nợ của cửa hàng (QUYTAC_NGHIEPVU_398): phải thu còn mở của bảng đối soát (lát L3) + (tiền điểm tích − tiền công ty phải trả) của giao dịch chưa chốt, không âm.
+// Dư nợ của cửa hàng (QUYTAC_NGHIEPVU_398): phải thu còn mở của bảng đối soát (bảng chưa xác nhận: số còn lại; đã xác nhận: công nợ phải thu còn mở)
+// + (tiền điểm tích − tiền công ty phải trả) của giao dịch chưa chốt, không âm.
 export async function merchantExposure(executor: Executor, merchantId: string): Promise<number> {
   const row = (
     await executor.execute<{ total: string }>(sql`
-      SELECT coalesce(sum(CASE WHEN status = 'completed' THEN earned_amount - redeemed_amount ELSE shortfall_amount END), 0)::text AS total
-      FROM affiliate.transactions WHERE merchant_id = ${merchantId} AND settlement_id IS NULL AND status IN ('completed', 'cancelled')`)
+      SELECT (
+        coalesce((SELECT sum(CASE WHEN status = 'completed' THEN earned_amount - redeemed_amount - voucher_payable ELSE shortfall_amount END)
+          FROM affiliate.transactions WHERE merchant_id = ${merchantId} AND settlement_id IS NULL AND status IN ('completed', 'cancelled')), 0)
+        + coalesce((SELECT sum(net_amount) FROM affiliate.settlements WHERE merchant_id = ${merchantId} AND status IN ('awaiting_confirmation', 'disputed')), 0)
+        + coalesce((SELECT sum(d.open_amount) FROM affiliate.settlements s JOIN finance.debt_items d ON d.id = s.debt_item_id
+          WHERE s.merchant_id = ${merchantId} AND s.status = 'confirmed' AND d.side = 'receivable'), 0)
+      )::text AS total`)
   ).rows[0]!;
   return Math.max(Number(row.total), 0);
 }
@@ -163,6 +172,7 @@ export class AffiliateTransactionsService {
     @Inject(DATABASE) private readonly database: Database,
     private readonly ledger: LoyaltyLedgerService,
     private readonly audit: AuditService,
+    private readonly accounting: LedgerService,
   ) {}
 
   private async row(executor: Executor, id: string, scope: ReturnType<typeof sql>): Promise<TransactionRow> {
@@ -286,7 +296,7 @@ export class AffiliateTransactionsService {
   }
 
   // Hoàn tất (QUYTAC_NGHIEPVU_394, 398, 399): dùng điểm trên tiền sau voucher; tích trên tiền khách trả theo tỷ lệ của cửa hàng;
-  // vượt hạn mức nợ thì không tích (vẫn dùng điểm). Chi tiêu tại cửa hàng liên kết không cộng vào xét hạng.
+  // vượt hạn mức nợ hoặc có bảng đối soát quá hạn thanh toán thì không tích (vẫn dùng điểm). Chi tiêu tại cửa hàng liên kết không cộng vào xét hạng.
   // capToMax: số điểm khách cho phép là mức trần (mã thành viên, hoặc có voucher làm giảm tiền tính giới hạn); không đủ mức tối thiểu thì không dùng điểm.
   private async complete(executor: Executor, id: string, buyerId: string, input: { points: number; voucherCodeId: string | null; capToMax: boolean }): Promise<void> {
     const row = (
@@ -324,7 +334,9 @@ export class AffiliateTransactionsService {
         WHERE d.source_type = 'affiliate_transaction' AND d.source_id = ${id}`)
     ).rows[0]!;
     const estimate = Math.round((paid * Number(row.earn_percent) * Number(snapshot.multiplier)) / 100);
-    const overLimit = (await merchantExposure(executor, row.merchant_id)) - redeemed.amount + estimate > Number(merchant.credit_limit);
+    // Giao dịch này cũng làm giảm dư nợ bằng tiền công ty phải trả (điểm khách dùng, voucher).
+    const overdue = await merchantOverdue(executor, row.merchant_id);
+    const overLimit = (await merchantExposure(executor, row.merchant_id)) - redeemed.amount - voucher.payable + estimate > Number(merchant.credit_limit);
     const earned = await this.ledger.earnWithin(executor, {
       sourceType: "affiliate_transaction",
       sourceId: id,
@@ -332,16 +344,17 @@ export class AffiliateTransactionsService {
       companyId: merchant.company_id,
       day,
       goodsAmount: afterVoucher,
-      earnPercent: overLimit ? 0 : Number(row.earn_percent),
+      earnPercent: overdue || overLimit ? 0 : Number(row.earn_percent),
       countSpend: false,
     });
-    const skipReason: AffiliateSkipReason | null = overLimit ? "credit_limit" : earned.skipReason;
+    const skipReason: AffiliateSkipReason | null = overdue ? "overdue" : overLimit ? "credit_limit" : earned.skipReason;
     const pointValue = snapshot.point_value === null ? null : Number(snapshot.point_value);
     await executor.execute(sql`
       UPDATE affiliate.transactions SET status = 'completed', buyer_user_id = ${buyerId}, redeemed_points = ${redeemed.points}, redeemed_amount = ${redeemed.amount},
         paid_amount = ${paid}, earned_points = ${earned.points}, earned_amount = ${pointValue === null ? 0 : Math.round(earned.points * pointValue)}, skip_reason = ${skipReason},
         point_value = ${pointValue}, voucher_code_id = ${input.voucherCodeId}, voucher_discount = ${voucher.discount}, voucher_payable = ${voucher.payable}, completed_at = now()
       WHERE id = ${id}`);
+    await this.accounting.record(executor, await transactionDraft(executor, id));
   }
 
   // Hủy (QUYTAC_NGHIEPVU_400): chủ cửa hàng, tuần chưa chốt; hoàn điểm đã dùng, trừ lại điểm đã tích (thiếu thì cửa hàng vẫn trả phần thiếu).
@@ -360,6 +373,7 @@ export class AffiliateTransactionsService {
       await transaction.execute(sql`
         UPDATE affiliate.transactions SET status = 'cancelled', cancel_reason = ${reason}, cancelled_by = ${member.userId}, cancelled_at = now(), shortfall_amount = ${result.shortfallAmount}
         WHERE id = ${id}`);
+      await this.accounting.record(transaction, await transactionCancelDraft(transaction, id));
       await notify(transaction, [
         {
           userId: row.buyer_user_id,

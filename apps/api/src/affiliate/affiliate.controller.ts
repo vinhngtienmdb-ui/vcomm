@@ -1,5 +1,5 @@
 // API_206: cửa hàng liên kết trên web quản trị (CONG_VIEC_55). Quyền xét tại công ty vận hành sàn.
-import { Body, Controller, Get, Param, Post, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req } from "@nestjs/common";
 import {
   affiliateMemberVersionSchema,
   affiliateMerchantCreateSchema,
@@ -10,6 +10,10 @@ import {
   affiliateOutletUpdateSchema,
   affiliateOwnerInviteSchema,
   affiliateVoucherListQuerySchema,
+  affiliateSettlementListQuerySchema,
+  affiliateSettlementResolveSchema,
+  type AffiliateSettlementDetail,
+  type AffiliateSettlementItem,
   companyVoucherSchema,
   companyVoucherUpdateSchema,
   type AffiliateVoucherItem,
@@ -26,6 +30,7 @@ import { UuidPipe } from "../common/uuid.pipe";
 import { BuyerAdminService } from "../marketplace/buyer-admin.service";
 import { voucherAction } from "./merchant-portal.controller";
 import { AffiliateMerchantsService } from "./merchants.service";
+import { AffiliateSettlementsService, type SettlementActor } from "./settlements.service";
 import { AffiliateVouchersService, type VoucherActor } from "./vouchers.service";
 
 @Controller("affiliate")
@@ -34,6 +39,7 @@ export class AffiliateController {
     private readonly admin: BuyerAdminService,
     private readonly merchants: AffiliateMerchantsService,
     private readonly vouchers: AffiliateVouchersService,
+    private readonly settlements: AffiliateSettlementsService,
   ) {}
 
   private async voucherActor(request: AuthenticatedRequest, permission: "affiliate.view" | "affiliate.manage"): Promise<VoucherActor> {
@@ -139,6 +145,28 @@ export class AffiliateController {
     const actor = await this.voucherActor(request, "affiliate.manage");
     if (action !== "pause" && action !== "resume") await this.companyIssued(actor, id);
     return voucherAction(this.vouchers, actor, id, action, body);
+  }
+
+  // API_212: đối soát tuần mọi cửa hàng; trả lời khiếu nại và chốt lại.
+  private async settlementActor(request: AuthenticatedRequest, permission: "affiliate.view" | "affiliate.manage"): Promise<SettlementActor> {
+    const actor = await this.admin.actor(request.auth.userId, clientInfo(request), permission);
+    return { userId: actor.userId, companyId: actor.operatorCompanyId, merchantId: null, client: actor.client };
+  }
+
+  @Get("settlements")
+  async listSettlements(@Req() request: AuthenticatedRequest, @Query() query: unknown): Promise<PageResponse<AffiliateSettlementItem>> {
+    return this.settlements.list(await this.settlementActor(request, "affiliate.view"), affiliateSettlementListQuerySchema.parse(query));
+  }
+
+  @Get("settlements/:id")
+  async settlement(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<AffiliateSettlementDetail> {
+    return this.settlements.detail(await this.settlementActor(request, "affiliate.view"), id);
+  }
+
+  @Post("settlements/:id/resolve")
+  @HttpCode(200)
+  async resolveSettlement(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown): Promise<AffiliateSettlementDetail> {
+    return this.settlements.resolve(await this.settlementActor(request, "affiliate.manage"), id, affiliateSettlementResolveSchema.parse(body));
   }
 
   private async companyIssued(actor: VoucherActor, id: string): Promise<void> {

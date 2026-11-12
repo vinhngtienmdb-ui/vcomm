@@ -581,7 +581,9 @@
     "affiliateVoucherNotEditable": "Only draft, rejected or withdrawn vouchers can be edited or submitted.",
     "affiliateVoucherNotPending": "The voucher is not awaiting approval.",
     "affiliateVoucherStatusInvalid": "The voucher status cannot be changed from its current status.",
-    "affiliateVoucherQuantityInvalid": "The total can only be reduced, not below the number claimed."
+    "affiliateVoucherQuantityInvalid": "The total can only be reduced, not below the number claimed.",
+    "affiliateSettlementNotAwaiting": "The settlement is not awaiting the store's confirmation.",
+    "affiliateSettlementNotDisputed": "The settlement is not disputed."
   },
   "login": {
     "title": "Sign in",
