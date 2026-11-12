@@ -558,7 +558,18 @@
     "retailReturnExpired": "Hóa đơn đã quá hạn trả hàng của cửa hàng.",
     "retailReturnOtherStore": "Hóa đơn bán ở cửa hàng khác. Trả hàng tại cửa hàng đã bán.",
     "retailReturnsDisabled": "Cửa hàng không nhận trả hàng.",
-    "retailCashInsufficient": "Tiền mặt trong két không đủ để hoàn. Chọn hoàn chuyển khoản."
+    "retailCashInsufficient": "Tiền mặt trong két không đủ để hoàn. Chọn hoàn chuyển khoản.",
+    "openApiUnauthenticated": "Khóa API không hợp lệ, đã hết hạn hoặc đã bị thu hồi.",
+    "ipNotAllowed": "Địa chỉ IP gọi API không nằm trong danh sách được phép của khóa.",
+    "scopeNotGranted": "Khóa API không được cấp quyền dùng API này.",
+    "apiKeyNameTaken": "Tên khóa đã có trong công ty.",
+    "apiKeyPartnerInvalid": "Đối tác phải là khách hàng đang giao dịch của công ty.",
+    "apiKeyChannelInvalid": "Kênh bán không thuộc công ty hoặc đã ngừng.",
+    "apiKeyWarehouseInvalid": "Kho không thuộc công ty hoặc đã ngừng.",
+    "apiKeyWarehouseRequired": "Chọn ít nhất một kho cho phạm vi Sản phẩm hoặc Đơn bán.",
+    "apiKeyExpiryInvalid": "Hạn dùng phải từ ngày mai trở đi.",
+    "apiKeyIpInvalid": "Địa chỉ IP hoặc dải CIDR không hợp lệ.",
+    "apiKeyRevoked": "Khóa đã bị thu hồi, không sửa được."
   },
   "login": {
     "title": "Đăng nhập",

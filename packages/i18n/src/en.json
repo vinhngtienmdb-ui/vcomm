@@ -558,7 +558,18 @@
     "retailReturnExpired": "The receipt is past the store's return window.",
     "retailReturnOtherStore": "The sale belongs to another store. Return it at the selling store.",
     "retailReturnsDisabled": "This store does not accept returns.",
-    "retailCashInsufficient": "Not enough cash in the drawer. Refund by bank transfer."
+    "retailCashInsufficient": "Not enough cash in the drawer. Refund by bank transfer.",
+    "openApiUnauthenticated": "The API key is invalid, expired or revoked.",
+    "ipNotAllowed": "The calling IP address is not in the key's allow list.",
+    "scopeNotGranted": "The API key is not granted access to this API.",
+    "apiKeyNameTaken": "A key with this name already exists in the company.",
+    "apiKeyPartnerInvalid": "The partner must be an active customer of the company.",
+    "apiKeyChannelInvalid": "The sales channel does not belong to the company or is inactive.",
+    "apiKeyWarehouseInvalid": "The warehouse does not belong to the company or is inactive.",
+    "apiKeyWarehouseRequired": "Select at least one warehouse for the Products or Sales orders scope.",
+    "apiKeyExpiryInvalid": "The expiry date must be tomorrow or later.",
+    "apiKeyIpInvalid": "Invalid IP address or CIDR range.",
+    "apiKeyRevoked": "The key has been revoked and cannot be changed."
   },
   "login": {
     "title": "Sign in",

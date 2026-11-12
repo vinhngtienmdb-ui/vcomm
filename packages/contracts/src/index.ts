@@ -6,6 +6,8 @@ export const errorCodes = [
   "UNAUTHENTICATED",
   "MFA_REQUIRED",
   "FORBIDDEN",
+  "IP_NOT_ALLOWED",
+  "SCOPE_NOT_GRANTED",
   "NOT_FOUND",
   "CONFLICT_VERSION",
   "BUSINESS_RULE",
@@ -7229,6 +7231,7 @@ export interface AnalyticsOverviewResponse {
 }
 export * from "./recruitment";
 export * from "./reviews";
+export * from "./open-api";
 
 // ---------------------------------------------------------------------------
 // CONG_VIEC_51: Điểm thưởng (MODULE_11). Điểm là số nguyên; tiền, phần trăm là chuỗi số thập phân.

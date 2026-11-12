@@ -28,6 +28,7 @@ import { LeaveService } from "../hr/leave.service";
 import { TimesheetsService } from "../hr/timesheets.service";
 import { RecruitmentService } from "../hr/recruitment.service";
 import { JobOffersService } from "../hr/job-offers.service";
+import { ApiCallLogsService } from "../open-api/api-call-logs.service";
 import { CandidatesService } from "../hr/candidates.service";
 import { ReviewsService } from "../hr/reviews.service";
 
@@ -63,6 +64,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const jobOffers = application.get(JobOffersService);
   const candidates = application.get(CandidatesService);
   const reviews = application.get(ReviewsService);
+  const apiCallLogs = application.get(ApiCallLogsService);
   const queue = new Queue(queueName, { connection });
   await queue.upsertJobScheduler("approval-overdue", { every: 15 * 60_000 }, { name: "approval-overdue" });
   await queue.upsertJobScheduler("outbox-dispatch", { every: 10_000 }, { name: "outbox-dispatch" });
@@ -86,6 +88,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("marketplace-payment-expiry", { every: 60_000 }, { name: "marketplace-payment-expiry" });
   // Hết hạn, nhắc hạn điểm thưởng, chuyển năm chi tiêu và xét hạng (CONG_VIEC_51; QUYTAC_NGHIEPVU_350, 351).
   await queue.upsertJobScheduler("loyalty-daily", { pattern: "10 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-daily" });
+  // Xóa nhật ký gọi API đối tác quá 90 ngày lúc 2 giờ (CONG_VIEC_61; QUYTAC_NGHIEPVU_488).
+  await queue.upsertJobScheduler("open-api-log-purge", { pattern: "0 2 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "open-api-log-purge" });
   // Chốt nhóm mua chung hết hạn (CONG_VIEC_49; QUYTAC_NGHIEPVU_331).
   await queue.upsertJobScheduler("marketplace-group-buy-close", { every: 60_000 }, { name: "marketplace-group-buy-close" });
   // Hóa đơn điện tử chạy hàng đợi riêng: gọi nhà cung cấp chậm không làm chậm các tác vụ khác.
@@ -123,6 +127,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "marketplace-payment-expiry") return payments.expireDue();
       if (job.name === "loyalty-daily") return loyalty.runDaily();
       if (job.name === "marketplace-group-buy-close") return groupBuys.closeDue();
+      if (job.name === "open-api-log-purge") return apiCallLogs.purgeExpired(new Date());
       return null;
     },
     { connection, concurrency: 1 },
