@@ -1,6 +1,7 @@
 // MAN_HINH_181 Cửa hàng liên kết trên ứng dụng VComm (CONG_VIEC_55; CHUC_NANG_194; API_209; QUYTAC_NGHIEPVU_395 đến 397):
 // quét mã QR của cửa hàng rồi xác nhận, yêu cầu chờ xác nhận theo số điện thoại, mã thành viên cho thu ngân quét, lịch sử giao dịch.
-import type { BuyerAffiliateRequest, BuyerAffiliateTransaction, BuyerMemberCode } from "contracts";
+// Lát L2 (CHUC_NANG_195; API_211; QUYTAC_NGHIEPVU_401, 402): nhận voucher (đổi bằng điểm, miễn phí), voucher của tôi, chọn voucher khi xác nhận hoặc tạo mã thành viên.
+import type { BuyerAffiliateRequest, BuyerAffiliateTransaction, BuyerMemberCode, BuyerVoucherCode, BuyerVoucherOffer } from "contracts";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -13,6 +14,49 @@ import { colors, radius, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
 const points = (value: number) => value.toLocaleString("vi-VN");
+
+// Mô tả mức giảm của voucher: số tiền hoặc phần trăm (có mức tối đa), hóa đơn tối thiểu.
+function voucherDiscount(voucher: Pick<BuyerVoucherCode, "discountKind" | "discountValue" | "maxDiscount" | "minBill">): string {
+  const main =
+    voucher.discountKind === "amount"
+      ? t("affiliateVoucherAmount", { amount: money(voucher.discountValue) })
+      : t("affiliateVoucherPercent", { percent: voucher.discountValue.replace(".", ","), max: money(voucher.maxDiscount) });
+  return Number(voucher.minBill) > 0 ? `${main} · ${t("affiliateVoucherMinBill", { amount: money(voucher.minBill) })}` : main;
+}
+
+// Chọn một voucher (hoặc không dùng) trong danh sách.
+function VoucherPicker({
+  vouchers,
+  value,
+  onChange,
+  note,
+}: {
+  vouchers: (BuyerVoucherCode & { discount?: string })[];
+  value: string | null;
+  onChange: (id: string | null) => void;
+  note?: (voucher: BuyerVoucherCode & { discount?: string }) => string;
+}) {
+  if (vouchers.length === 0) return null;
+  const option = (id: string | null, title: string, detail: string) => (
+    <Text
+      key={id ?? "none"}
+      accessibilityRole="radio"
+      accessibilityState={{ checked: value === id }}
+      onPress={() => onChange(id)}
+      style={{ borderWidth: 1, borderColor: value === id ? colors.primary : colors.border, borderRadius: radius.medium, padding: space[2] }}
+    >
+      <Text style={{ fontWeight: "700" }}>{`${value === id ? "● " : "○ "}${title}`}</Text>
+      {detail ? `\n${detail}` : ""}
+    </Text>
+  );
+  return (
+    <View style={{ gap: space[2] }}>
+      <Text style={{ fontWeight: "700" }}>{t("affiliateVoucherChoose")}</Text>
+      {option(null, t("affiliateVoucherNone"), "")}
+      {vouchers.map((voucher) => option(voucher.id, `${voucher.titleVi}${voucher.merchantName ? ` · ${voucher.merchantName}` : ""}`, note ? note(voucher) : voucherDiscount(voucher)))}
+    </View>
+  );
+}
 
 function ScanModal({ onCode, onClose }: { onCode: (code: string) => void; onClose: () => void }) {
   const [permission, requestPermission] = useCameraPermissions();
@@ -49,15 +93,18 @@ function ScanModal({ onCode, onClose }: { onCode: (code: string) => void; onClos
 // Xác nhận giao dịch: chọn số điểm dùng (0 đến tối đa), xem tiền phải trả.
 function ConfirmCard({ request, code, onDone, onError }: { request: BuyerAffiliateRequest; code: string | null; onDone: (message: string) => void; onError: (failure: unknown) => void }) {
   const [value, setValue] = useState("0");
+  const [voucherCodeId, setVoucherCodeId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const used = Math.min(Math.max(Number(value.replace(/\D/g, "")) || 0, 0), request.maxPoints);
-  const amount = request.pointValue ? Math.floor(used * Number(request.pointValue)) : 0;
+  const discount = Number(request.vouchers.find((voucher) => voucher.id === voucherCodeId)?.discount ?? 0);
+  // Có voucher: điểm tính trên tiền còn lại sau giảm; hệ thống giới hạn lại số điểm khi xác nhận.
+  const amount = Math.min(request.pointValue ? Math.floor(used * Number(request.pointValue)) : 0, Number(request.billAmount) - discount);
   async function send(action: "confirm" | "decline") {
     setBusy(true);
     try {
       await api(`/buyer/affiliate/transactions/${request.transactionId}/${action}`, {
         method: "POST",
-        body: JSON.stringify(action === "confirm" ? { points: used, ...(code ? { code } : {}) } : code ? { code } : {}),
+        body: JSON.stringify(action === "confirm" ? { points: used, voucherCodeId, ...(code ? { code } : {}) } : code ? { code } : {}),
       });
       onDone(action === "confirm" ? t("affiliateConfirmed") : t("affiliateDeclined"));
     } catch (failure) {
@@ -71,6 +118,8 @@ function ConfirmCard({ request, code, onDone, onError }: { request: BuyerAffilia
       <Text style={{ fontWeight: "700", fontSize: 16 }}>{request.merchantName}</Text>
       <Muted>{t("affiliateOutlet", { outlet: request.outletName, document: request.documentNo })}</Muted>
       <Text style={{ fontSize: 22, fontWeight: "800" }}>{money(request.billAmount)}</Text>
+      <VoucherPicker vouchers={request.vouchers} value={voucherCodeId} onChange={setVoucherCodeId} note={(voucher) => t("affiliateVoucherSave", { amount: money(voucher.discount ?? "0") })} />
+      {discount > 0 ? <Text>{t("affiliateVoucherDiscount", { amount: money(discount) })}</Text> : null}
       {request.redeemable ? (
         <>
           <Muted>{t("affiliateRedeemHint", { balance: points(request.balance), max: points(request.maxPoints), min: points(request.minPoints) })}</Muted>
@@ -85,7 +134,7 @@ function ConfirmCard({ request, code, onDone, onError }: { request: BuyerAffilia
         <Muted>{t(`affiliateNoRedeem_${request.blockedReason ?? "insufficient"}`)}</Muted>
       )}
       <Text>{t("affiliatePointsAmount", { amount: money(amount) })}</Text>
-      <Text style={{ fontWeight: "800" }}>{t("affiliateYouPay", { amount: money(Number(request.billAmount) - amount) })}</Text>
+      <Text style={{ fontWeight: "800" }}>{t("affiliateYouPay", { amount: money(Math.max(Number(request.billAmount) - discount - amount, 0)) })}</Text>
       <Muted>{t("affiliateEarnRate", { percent: request.earnPercent.replace(".", ",") })}</Muted>
       <View style={{ flexDirection: "row", gap: space[2] }}>
         <View style={{ flex: 1 }}>
@@ -99,16 +148,17 @@ function ConfirmCard({ request, code, onDone, onError }: { request: BuyerAffilia
   );
 }
 
-function MemberCode({ onError }: { onError: (failure: unknown) => void }) {
+function MemberCode({ vouchers, onError }: { vouchers: BuyerVoucherCode[]; onError: (failure: unknown) => void }) {
   const [value, setValue] = useState("0");
+  const [voucherCodeId, setVoucherCodeId] = useState<string | null>(null);
   const [code, setCode] = useState<BuyerMemberCode | null>(null);
   const create = useCallback(async () => {
     try {
-      setCode(await api<BuyerMemberCode>("/buyer/affiliate/member-code", { method: "POST", body: JSON.stringify({ points: Number(value.replace(/\D/g, "")) || 0 }) }));
+      setCode(await api<BuyerMemberCode>("/buyer/affiliate/member-code", { method: "POST", body: JSON.stringify({ points: Number(value.replace(/\D/g, "")) || 0, voucherCodeId }) }));
     } catch (failure) {
       onError(failure);
     }
-  }, [onError, value]);
+  }, [onError, value, voucherCodeId]);
   // Mã hết hạn sau 60 giây: tự tạo mã mới trước khi hết hạn khi đang mở.
   useEffect(() => {
     if (!code) return;
@@ -120,6 +170,7 @@ function MemberCode({ onError }: { onError: (failure: unknown) => void }) {
       <Text style={{ fontWeight: "700", fontSize: 16 }}>{t("affiliateMemberCode")}</Text>
       <Muted>{t("affiliateMemberCodeHint")}</Muted>
       <Field label={t("affiliateAllowPoints")} keyboardType="number-pad" value={value} onChangeText={(text) => (setValue(text), setCode(null))} />
+      <VoucherPicker vouchers={vouchers} value={voucherCodeId} onChange={(id) => (setVoucherCodeId(id), setCode(null))} />
       {code ? (
         <View style={{ alignItems: "center", gap: space[2], paddingVertical: space[2] }}>
           <QRCode value={code.code} size={220} />
@@ -132,18 +183,79 @@ function MemberCode({ onError }: { onError: (failure: unknown) => void }) {
   );
 }
 
+// Voucher đang mở để nhận và voucher của tôi.
+function Vouchers({ offers, mine, onClaimed, onError }: { offers: BuyerVoucherOffer[]; mine: BuyerVoucherCode[]; onClaimed: (message: string) => void; onError: (failure: unknown) => void }) {
+  const [busy, setBusy] = useState<string | null>(null);
+  async function claim(offer: BuyerVoucherOffer) {
+    setBusy(offer.id);
+    try {
+      await api(`/buyer/affiliate/vouchers/${offer.id}/claim`, { method: "POST", body: "{}" });
+      onClaimed(offer.pointsPrice ? t("affiliateVoucherClaimedPoints", { points: points(offer.pointsPrice) }) : t("affiliateVoucherClaimed"));
+    } catch (failure) {
+      onError(failure);
+    } finally {
+      setBusy(null);
+    }
+  }
+  return (
+    <>
+      <Card>
+        <Text style={{ fontWeight: "700", fontSize: 16 }}>{t("affiliateVoucherOffers")}</Text>
+        {offers.length === 0 ? <Muted>{t("affiliateVoucherNoOffers")}</Muted> : null}
+        {offers.map((offer) => (
+          <View key={offer.id} style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: space[2], gap: space[1] }}>
+            <Text style={{ fontWeight: "700" }}>{offer.titleVi}</Text>
+            <Muted>{`${offer.merchantName ?? t("affiliateVoucherAllStores")} · ${voucherDiscount(offer)}`}</Muted>
+            <Muted>{t("affiliateVoucherOfferInfo", { days: offer.validDays, date: shortDate(offer.claimTo), remaining: points(offer.remaining) })}</Muted>
+            <Button
+              label={offer.pointsPrice ? t("affiliateVoucherRedeem", { points: points(offer.pointsPrice) }) : t("affiliateVoucherClaim")}
+              kind="secondary"
+              busy={busy === offer.id}
+              disabled={offer.remaining <= 0 || offer.claimedByMe >= offer.perBuyerLimit}
+              onPress={() => void claim(offer)}
+            />
+          </View>
+        ))}
+      </Card>
+      <Card>
+        <Text style={{ fontWeight: "700", fontSize: 16 }}>{t("affiliateVoucherMine")}</Text>
+        {mine.length === 0 ? <Muted>{t("affiliateVoucherNoMine")}</Muted> : null}
+        {mine.map((code) => (
+          <View key={code.id} style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: space[2], gap: space[1] }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", gap: space[2] }}>
+              <Text style={{ fontWeight: "700", flex: 1 }}>{code.titleVi}</Text>
+              <StatusBadge text={t(`affiliateVoucherStatus_${code.status}`)} tone={code.status === "unused" ? "success" : "warning"} />
+            </View>
+            <Muted>{`${code.merchantName ?? t("affiliateVoucherAllStores")} · ${voucherDiscount(code)}`}</Muted>
+            <Muted>{t("affiliateVoucherExpires", { date: shortDate(code.expiresAt) })}</Muted>
+          </View>
+        ))}
+      </Card>
+    </>
+  );
+}
+
 export default function AffiliateScreen() {
   const [pending, setPending] = useState<BuyerAffiliateRequest[]>([]);
   const [scanned, setScanned] = useState<{ request: BuyerAffiliateRequest; code: string } | null>(null);
   const [history, setHistory] = useState<BuyerAffiliateTransaction[]>([]);
+  const [offers, setOffers] = useState<BuyerVoucherOffer[]>([]);
+  const [mine, setMine] = useState<BuyerVoucherCode[]>([]);
   const [scanning, setScanning] = useState(false);
   const [message, setMessage] = useState<{ text: string; tone: "error" | "success" } | null>(null);
   const fail = useCallback((failure: unknown) => setMessage({ text: failure instanceof ApiFailure ? failure.message : t("unknownError"), tone: "error" }), []);
   const reload = useCallback(() => {
-    Promise.all([api<BuyerAffiliateRequest[]>("/buyer/affiliate/pending"), api<BuyerAffiliateTransaction[]>("/buyer/affiliate/transactions")])
-      .then(([requests, transactions]) => {
+    Promise.all([
+      api<BuyerAffiliateRequest[]>("/buyer/affiliate/pending"),
+      api<BuyerAffiliateTransaction[]>("/buyer/affiliate/transactions"),
+      api<BuyerVoucherOffer[]>("/buyer/affiliate/vouchers"),
+      api<BuyerVoucherCode[]>("/buyer/affiliate/my-vouchers"),
+    ])
+      .then(([requests, transactions, voucherOffers, myVouchers]) => {
         setPending(requests);
         setHistory(transactions);
+        setOffers(voucherOffers);
+        setMine(myVouchers);
       })
       .catch(fail);
   }, [fail]);
@@ -170,7 +282,8 @@ export default function AffiliateScreen() {
           <ConfirmCard key={request.transactionId} request={request} code={null} onDone={done} onError={fail} />
         ))}
         <Button label={t("affiliateScanStore")} onPress={() => (setMessage(null), setScanning(true))} />
-        <MemberCode onError={fail} />
+        <MemberCode vouchers={mine.filter((code) => code.status === "unused")} onError={fail} />
+        <Vouchers offers={offers} mine={mine} onClaimed={(text) => (setMessage({ text, tone: "success" }), reload())} onError={fail} />
         <Card>
           <Text style={{ fontWeight: "700", fontSize: 16 }}>{t("affiliateHistory")}</Text>
           {history.length === 0 ? <Muted>{t("affiliateNoHistory")}</Muted> : null}

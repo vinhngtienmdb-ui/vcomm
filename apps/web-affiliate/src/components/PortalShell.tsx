@@ -30,6 +30,7 @@ export function usePortal(): PortalContextValue {
 // Menu MAN_HINH_174 đến MAN_HINH_177; thu ngân chỉ thấy quầy. Mục thêm dần theo lát.
 const portalMenu = [
   { href: "/counter", key: "counter", ownerOnly: false },
+  { href: "/vouchers", key: "vouchers", ownerOnly: true },
   { href: "/store", key: "store", ownerOnly: true },
 ] as const;
 
