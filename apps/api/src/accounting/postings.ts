@@ -132,7 +132,8 @@ export interface DraftJournal {
     | "payroll_payment"
     | "import_declaration"
     | "landed_cost"
-    | "fx_revaluation";
+    | "fx_revaluation"
+    | "import_amendment";
   sourceId: string;
   journalNo: string;
   date: string;

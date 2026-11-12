@@ -89,6 +89,7 @@ import { LoyaltyJobsService } from "./loyalty/jobs.service";
 import { LoyaltyAdminService } from "./loyalty/admin.service";
 import { PurchasingController } from "./purchasing/purchasing.controller";
 import { PurchasingImportsController } from "./purchasing/imports.controller";
+import { ImportAmendmentsService } from "./purchasing/import-amendments.service";
 import { ImportDeclarationsService } from "./purchasing/import-declarations.service";
 import { LandedCostsService } from "./purchasing/landed-costs.service";
 import { CostAdjustmentsService } from "./inventory/cost-adjustments.service";
@@ -241,6 +242,7 @@ import { UsersService } from "./users/users.service";
     PurchaseReceiptsService,
     CostAdjustmentsService,
     ImportDeclarationsService,
+    ImportAmendmentsService,
     LandedCostsService,
     SalesDeliveriesService,
     InternalReceiptsService,

@@ -2585,6 +2585,86 @@ export interface LandedCostResponse extends LandedCostListItem {
   canEdit: boolean;
   canPost: boolean;
 }
+// Tờ khai bổ sung (CONG_VIEC_56; QUYTAC_NGHIEPVU_414; API_219): số thuế sau bổ sung từng dòng của tờ khai gốc; chỉ sửa số thuế, không đổi số lượng.
+// Trống importDuty, vatAmount: hệ thống gợi ý theo thuế suất mới (QUYTAC_NGHIEPVU_287).
+export const saveImportAmendmentSchema = z
+  .object({
+    declarationId: z.uuid(),
+    amendmentNo: z.string().trim().min(1).max(50),
+    registeredOn: isoDate,
+    postingDate: isoDate,
+    reason: blankToNull(500),
+    lines: z
+      .array(
+        z
+          .object({
+            declarationLineId: z.uuid(),
+            importDutyRate: taxPercent.nullable().optional(),
+            importDuty: requiredMoney.nullable().optional(),
+            exciseTax: requiredMoney.nullable().optional(),
+            environmentalTax: requiredMoney.nullable().optional(),
+            vatRate: taxPercent.nullable().optional(),
+            vatAmount: requiredMoney.nullable().optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200),
+    version: z.number().int().positive().optional(),
+  })
+  .strict();
+export type SaveImportAmendmentRequest = z.input<typeof saveImportAmendmentSchema>;
+export interface ImportAmendmentTaxes {
+  importDuty: string;
+  exciseTax: string;
+  environmentalTax: string;
+  vatAmount: string;
+}
+export interface ImportAmendmentLine {
+  declarationLineId: string;
+  sku: string;
+  productName: string;
+  customsValueConverted: string;
+  importDutyRate: string;
+  vatRate: string;
+  before: ImportAmendmentTaxes;
+  after: ImportAmendmentTaxes;
+  difference: ImportAmendmentTaxes;
+  stockValue: string | null;
+  expensedValue: string | null;
+}
+// Số thuế hiện hành từng dòng của tờ khai gốc (gốc cộng các tờ khai bổ sung đã ghi sổ) để lập tờ khai bổ sung.
+export interface ImportAmendmentBase {
+  declarationId: string;
+  declarationNo: string;
+  status: string;
+  companyCurrency: string;
+  lines: ImportAmendmentLine[];
+}
+export interface ImportAmendmentResponse {
+  id: string;
+  declarationId: string;
+  declarationNo: string;
+  amendmentNo: string;
+  registeredOn: string;
+  postingDate: string;
+  reason: string | null;
+  status: "draft" | "posted" | "cancelled";
+  companyCurrency: string;
+  lines: ImportAmendmentLine[];
+  totalDifference: ImportAmendmentTaxes;
+  createdByName: string;
+  postedAt: string | null;
+  version: number;
+  canEdit: boolean;
+}
+export interface ImportAmendmentListItem {
+  id: string;
+  amendmentNo: string;
+  registeredOn: string;
+  status: "draft" | "posted" | "cancelled";
+  totalDifference: string;
+}
 export interface ImportAllocationPreview {
   lines: { orderLineId: string; sku: string; productName: string; amount: string; onHand: string; baseQuantity: string; stockValue: string; expensedValue: string }[];
 }
@@ -3465,7 +3545,7 @@ export interface PostingRuleResponse {
   canEdit: boolean;
 }
 export const updatePostingRuleSchema = z.object({ accountId: z.uuid() }).strict();
-export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal", "payroll", "payroll_payment", "import_declaration", "landed_cost"] as const;
+export const journalSourceTypes = ["manual", "inventory_document", "payment", "internal_write_off", "closing", "commission", "collection_statement", "marketplace_payment", "marketplace_refund", "marketplace_commission", "marketplace_withdrawal", "payroll", "payroll_payment", "import_declaration", "landed_cost", "fx_revaluation", "import_amendment"] as const;
 export type JournalSourceType = (typeof journalSourceTypes)[number];
 export const journalStatuses = ["draft", "pending", "posted", "rejected", "withdrawn"] as const;
 export type JournalStatus = (typeof journalStatuses)[number];
