@@ -78,7 +78,8 @@ export interface SigningRequestListItem {
   id: string;
   requestNo: string;
   title: string;
-  sourceType: "document";
+  sourceType: "document" | "contract" | "contract_appendix";
+  sourceId: string | null;
   status: SigningRequestStatus;
   dueOn: string;
   createdBy: OfficePerson;

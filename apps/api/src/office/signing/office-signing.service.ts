@@ -39,6 +39,17 @@ import type { SigningProvider, SigningProviderConfig } from "./providers/signing
 import { SigningProviderError, SimulatorSigningProvider } from "./providers/simulator-provider";
 
 type Executor = Pick<Database, "execute">;
+export type SigningSource = "document" | "contract" | "contract_appendix";
+// Phiên ký của chứng từ khác (hợp đồng, phụ lục): chứng từ nguồn nhận kết quả trong cùng giao dịch.
+export interface SigningOutcome {
+  requestId: string;
+  companyId: string;
+  sourceType: SigningSource;
+  sourceId: string | null;
+  status: "completed" | "rejected" | "cancelled" | "expired";
+  currentFileId: string | null;
+  reason: string | null;
+}
 type Upload = { buffer: Buffer; size: number; originalname: string } | undefined;
 export interface ClientInfo {
   ip: string | null;
@@ -61,7 +72,8 @@ type RequestRow = {
   company_id: string;
   company_name: string;
   request_no: string;
-  source_type: "document";
+  source_type: SigningSource;
+  source_id: string | null;
   title: string;
   note: string | null;
   due_on: string;
@@ -133,6 +145,7 @@ type SettingsRow = {
 export class OfficeSigningService {
   private readonly logger = new Logger("OfficeSigning");
   private readonly providers: Record<"simulator", SigningProvider>;
+  readonly outcomeHooks: ((executor: Executor, outcome: SigningOutcome) => Promise<void>)[] = [];
 
   constructor(
     @Inject(DATABASE) private readonly database: Database,
@@ -463,23 +476,33 @@ export class OfficeSigningService {
 
   async verify(actor: Actor, file: Upload): Promise<SignatureVerificationResponse> {
     const pdf = this.checkPdf(file);
-    const roots = await this.trustedRootsPem(actor.companyId);
-    return {
-      fileName: this.fileName(file!),
-      signatures: verifyPdfSignatures(pdf, roots, this.clock.now()).map((check) => ({
-        index: check.index,
-        signerName: check.signer?.commonName ?? null,
-        signerIdentities: check.signer?.identities ?? [],
-        issuerName: check.issuerName,
-        signingTime: check.signingTime?.toISOString() ?? null,
-        integrity: check.integrity,
-        validAtSigningTime: check.validAtSigningTime,
-        trusted: check.trusted,
-        coversWholeFile: check.coversWholeFile,
-        conclusion: check.conclusion,
-      })),
-      revocationChecked: false,
-    };
+    return { fileName: this.fileName(file!), signatures: await this.checkSignatures(actor.companyId, pdf), revocationChecked: false };
+  }
+
+  // Kiểm tra một tệp PDF theo gốc tin cậy của tập đoàn (dùng khi lưu tệp hợp đồng đã ký).
+  async checkSignatures(companyId: string, pdf: Buffer): Promise<SignatureVerificationResponse["signatures"]> {
+    if (pdf.subarray(0, 4).toString("latin1") !== "%PDF") return [];
+    const roots = await this.trustedRootsPem(companyId);
+    return verifyPdfSignatures(pdf, roots, this.clock.now()).map((check) => ({
+      index: check.index,
+      signerName: check.signer?.commonName ?? null,
+      signerIdentities: check.signer?.identities ?? [],
+      issuerName: check.issuerName,
+      signingTime: check.signingTime?.toISOString() ?? null,
+      integrity: check.integrity,
+      validAtSigningTime: check.validAtSigningTime,
+      trusted: check.trusted,
+      coversWholeFile: check.coversWholeFile,
+      conclusion: check.conclusion,
+    }));
+  }
+
+  // Hủy phiên ký của chứng từ nguồn khi chứng từ bị hủy (không kiểm người lập phiên).
+  async cancelForSource(executor: Executor, requestId: string, actorUserId: string, reason: string): Promise<void> {
+    const row = await this.lockRequest(executor, requestId, null);
+    if (row.status !== "draft" && row.status !== "signing") return;
+    await this.end(executor, row, "cancelled", reason);
+    await this.event(executor, requestId, actorUserId, "cancelled", { reason });
   }
 
   // ---------- Phiên ký (API_243; QUYTAC_NGHIEPVU_458, 459) ----------
@@ -539,8 +562,8 @@ export class OfficeSigningService {
     }
   }
 
-  async create(actor: Actor, input: SaveSigningRequestInput, file: Upload): Promise<SigningRequestResponse> {
-    await this.require(actor, "office.signing.use");
+  async create(actor: Actor, input: SaveSigningRequestInput, file: Upload, source: { type: SigningSource; id: string } | null = null): Promise<SigningRequestResponse> {
+    if (!source) await this.require(actor, "office.signing.use");
     const pdf = this.checkPdf(file);
     this.dueRange(input.dueOn);
     const requestId = randomUUID();
@@ -554,8 +577,8 @@ export class OfficeSigningService {
         ON CONFLICT DO NOTHING`);
       const requestNo = await this.sequences.next(actor.companyId, "office.signing_request", transaction);
       await transaction.execute(sql`
-        INSERT INTO office.signing_requests (id, company_id, request_no, title, note, due_on, created_by)
-        VALUES (${requestId}, ${actor.companyId}, ${requestNo}, ${input.title}, ${input.note ?? null}, ${input.dueOn}, ${actor.userId})`);
+        INSERT INTO office.signing_requests (id, company_id, request_no, title, note, due_on, created_by, source_type, source_id)
+        VALUES (${requestId}, ${actor.companyId}, ${requestNo}, ${input.title}, ${input.note ?? null}, ${input.dueOn}, ${actor.userId}, ${source?.type ?? "document"}, ${source?.id ?? null})`);
       const fileId = await this.storePdf(transaction, actor.companyId, requestId, this.fileName(file!), pdf, actor.userId);
       await transaction.execute(sql`UPDATE office.signing_requests SET original_file_id = ${fileId}, current_file_id = ${fileId} WHERE id = ${requestId}`);
       await this.insertSigners(transaction, requestId, input);
@@ -652,7 +675,7 @@ export class OfficeSigningService {
       if (signers.some((signer) => signer.kind === "partner" && signer.status === "current")) allowed.push("resend");
     }
     if (creator && (row.status === "draft" || row.status === "signing")) allowed.push("cancel");
-    if (creator && ["rejected", "cancelled", "expired"].includes(row.status)) allowed.push("copy");
+    if (creator && row.source_type === "document" && ["rejected", "cancelled", "expired"].includes(row.status)) allowed.push("copy");
     const person = (userId: string | null) => (userId ? (people.get(userId) ?? null) : null);
     return {
       ...this.listItem(row, signers, people, false),
@@ -721,6 +744,7 @@ export class OfficeSigningService {
       requestNo: row.request_no,
       title: row.title,
       sourceType: row.source_type,
+      sourceId: row.source_id,
       status: row.status,
       dueOn: typeof row.due_on === "string" ? row.due_on : new Date(row.due_on).toISOString().slice(0, 10),
       createdBy: people.get(row.created_by) ?? { id: row.created_by, fullName: "", companyId: null, companyName: null, departmentName: null },
@@ -827,6 +851,18 @@ export class OfficeSigningService {
     if (pending.length === 0) {
       await executor.execute(sql`UPDATE office.signing_requests SET status = 'completed', completed_at = now(), updated_at = now(), version = version + 1 WHERE id = ${row.id}`);
       await this.event(executor, row.id, null, "completed");
+      const fileRow = (await executor.execute<{ current_file_id: string | null }>(sql`SELECT current_file_id FROM office.signing_requests WHERE id = ${row.id}`)).rows[0];
+      for (const hook of this.outcomeHooks) {
+        await hook(executor, {
+          requestId: row.id,
+          companyId: row.company_id,
+          sourceType: row.source_type,
+          sourceId: row.source_id,
+          status: "completed",
+          currentFileId: fileRow?.current_file_id ?? null,
+          reason: null,
+        });
+      }
       await notify(executor, [{ userId: row.created_by, companyId: row.company_id, kind: "office_signing", title: `Đã ký xong: ${row.title}`, link: `/office/signing/${row.id}` }]);
       await executor.execute(sql`
         INSERT INTO core.outbox_events (event_type, aggregate_type, aggregate_id, company_id, payload)
@@ -913,6 +949,9 @@ export class OfficeSigningService {
     await executor.execute(sql`UPDATE office.signing_requests SET status = ${status}, end_reason = ${reason}, updated_at = now(), version = version + 1 WHERE id = ${row.id}`);
     await executor.execute(sql`UPDATE office.signing_attempts SET status = 'failed', message = 'Phiên ký đã kết thúc.', finished_at = now() WHERE request_id = ${row.id} AND status = 'pending'`);
     await executor.execute(sql`UPDATE office.signing_signers SET link_token_hash = NULL WHERE request_id = ${row.id} AND status NOT IN ('signed', 'rejected')`);
+    for (const hook of this.outcomeHooks) {
+      await hook(executor, { requestId: row.id, companyId: row.company_id, sourceType: row.source_type, sourceId: row.source_id, status, currentFileId: row.current_file_id, reason });
+    }
   }
 
   async reject(actor: Actor, id: string, reason: string, version: number): Promise<SigningRequestResponse> {
@@ -933,6 +972,8 @@ export class OfficeSigningService {
   async copy(actor: Actor, id: string): Promise<SigningRequestResponse> {
     const source = await this.get(actor, id);
     if (!source.allowed.includes("copy")) throw this.businessRule("signingStatusInvalid");
+    // Phiên của hợp đồng, phụ lục lập lại từ hợp đồng, không sao chép.
+    if (source.sourceType !== "document") throw this.businessRule("signingStatusInvalid");
     const sourceRow = (await this.database.execute<{ original_file_id: string }>(sql`SELECT original_file_id FROM office.signing_requests WHERE id = ${id}`)).rows[0]!;
     const original = await this.readFile(sourceRow.original_file_id);
     const signers = await this.signers(this.database, id);

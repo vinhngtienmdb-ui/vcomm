@@ -701,7 +701,16 @@
     "signingDueInvalid": "Hạn ký phải từ hôm nay đến tối đa 60 ngày.",
     "signingSignerDuplicate": "Một người, hoặc chữ ký công ty, chỉ được thêm một lần.",
     "signingPartnerIdentityInvalid": "Tổ chức cần mã số thuế 10 hoặc 13 chữ số; cá nhân cần số định danh 12 chữ số.",
-    "signingTrustedRootInvalid": "Tệp không phải chứng thư gốc (tự ký) hợp lệ."
+    "signingTrustedRootInvalid": "Tệp không phải chứng thư gốc (tự ký) hợp lệ.",
+    "contractTypeDuplicate": "Tên loại hợp đồng đã có.",
+    "contractValueNotAllowed": "Loại hợp đồng này không có giá trị.",
+    "contractStatusInvalid": "Không làm được thao tác này ở trạng thái hiện tại của hợp đồng.",
+    "contractContentRequired": "Cần tải tệp nội dung hợp đồng (PDF) trước khi trình.",
+    "contractNoApprover": "Không có người duyệt: phòng ban chưa có trưởng phòng và chưa ai có quyền quản lý hợp đồng.",
+    "contractSignedOnFuture": "Ngày ký không được sau hôm nay.",
+    "contractEndBeforeSigned": "Ngày thanh lý, chấm dứt không được trước ngày ký.",
+    "contractAppendixDuplicate": "Số phụ lục đã có trong hợp đồng này.",
+    "contractExpiryBeforeEffective": "Ngày hết hạn không được trước ngày hiệu lực."
   },
   "login": {
     "title": "Đăng nhập",

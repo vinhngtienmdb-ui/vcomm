@@ -191,6 +191,15 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "office.signing.use", appCode: "office", nameVi: "Trình ký tài liệu, kiểm tra chữ ký số", nameEn: "Request signatures and verify signed files", isSensitive: false },
   { code: "office.signing.company_seal", appCode: "office", nameVi: "Đóng chữ ký số của công ty", nameEn: "Apply the company digital seal", isSensitive: true },
   { code: "office.signing.manage", appCode: "office", nameVi: "Cài đặt nhà cung cấp ký số, chữ ký số công ty, chứng thư gốc tin cậy", nameEn: "Manage digital signing settings", isSensitive: true },
+  { code: "office.contract.create", appCode: "office", nameVi: "Lập, nhập hợp đồng, phụ lục", nameEn: "Create and import contracts", isSensitive: false },
+  { code: "office.contract.view_all", appCode: "office", nameVi: "Xem mọi hợp đồng không mật của công ty", nameEn: "View all non-confidential contracts", isSensitive: true },
+  {
+    code: "office.contract.manage",
+    appCode: "office",
+    nameVi: "Quản lý kho hợp đồng: loại hợp đồng, người phụ trách, thanh lý, chấm dứt",
+    nameEn: "Manage the contract repository",
+    isSensitive: true,
+  },
 ];
 
 const attendancePermissions = ["hr.attendance.view", "hr.attendance.manage", "hr.leave.manage", "hr.timesheet.manage"];
@@ -301,6 +310,12 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
   { code: "company_admin", nameVi: "Quản trị công ty", nameEn: "Company administrator", permissionCodes: [...new Set([...companyAdminPermissions, ...officePermissions])] },
   { code: "exchange_rate_manager", nameVi: "Quản lý tỷ giá", nameEn: "Exchange rate manager", permissionCodes: ["platform.access", "platform.exchange_rate.manage"] },
   { code: "employee", nameVi: "Nhân viên", nameEn: "Employee", permissionCodes: [...employeePermissions, ...officeEmployeePermissions] },
+  {
+    code: "office_contract_admin",
+    nameVi: "Quản lý hợp đồng",
+    nameEn: "Contract administrator",
+    permissionCodes: [...employeePermissions, "office.access", "office.signing.use", "office.contract.create", "office.contract.view_all", "office.contract.manage"],
+  },
   {
     code: "office_clerk",
     nameVi: "Văn thư",
@@ -549,6 +564,8 @@ export const documentTypeCatalog = [
   { code: "office.outgoing_document", appCode: "office", nameVi: "Công văn đi", nameEn: "Outgoing document", requiresApproval: true },
   { code: "office.workflow_run", appCode: "office", nameVi: "Phiên quy trình", nameEn: "Workflow run", requiresApproval: false },
   { code: "office.signing_request", appCode: "office", nameVi: "Phiên ký", nameEn: "Signing request", requiresApproval: false },
+  { code: "office.contract", appCode: "office", nameVi: "Hợp đồng", nameEn: "Contract", requiresApproval: true },
+  { code: "office.contract_appendix", appCode: "office", nameVi: "Phụ lục hợp đồng", nameEn: "Contract appendix", requiresApproval: true },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.

@@ -701,7 +701,16 @@
     "signingDueInvalid": "The signing deadline must be between today and 60 days ahead.",
     "signingSignerDuplicate": "Each person, and the company seal, can be added only once.",
     "signingPartnerIdentityInvalid": "Organizations need a 10 or 13 digit tax code; individuals need a 12 digit personal identification number.",
-    "signingTrustedRootInvalid": "The file is not a valid self-signed root certificate."
+    "signingTrustedRootInvalid": "The file is not a valid self-signed root certificate.",
+    "contractTypeDuplicate": "This contract type name already exists.",
+    "contractValueNotAllowed": "This contract type has no value.",
+    "contractStatusInvalid": "This action is not available in the current contract status.",
+    "contractContentRequired": "Upload the contract content file (PDF) before submitting.",
+    "contractNoApprover": "No approver: the department has no head and nobody can manage contracts.",
+    "contractSignedOnFuture": "The signing date cannot be after today.",
+    "contractEndBeforeSigned": "The end date cannot be before the signing date.",
+    "contractAppendixDuplicate": "This appendix number already exists in the contract.",
+    "contractExpiryBeforeEffective": "The expiry date cannot be before the effective date."
   },
   "login": {
     "title": "Sign in",
