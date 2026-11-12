@@ -250,3 +250,39 @@ describe("TIEUCHI_NGHIEMTHU_385, 386: phiếu nộp thuế hải quan, tiền ch
     expect(denied.status).toBe(403);
   });
 });
+
+describe("TIEUCHI_NGHIEMTHU_385: định khoản theo chế độ kế toán", () => {
+  it("KICHBAN_KIEMTHU_553: Thông tư 133 và Thông tư 99 ánh xạ đúng tài khoản cho quỹ ngoại tệ, chênh lệch tỷ giá, tiền chậm nộp, thuế hải quan", async () => {
+    const trading = testIds.tradingCompany;
+    await pool.query("UPDATE core.companies SET accounting_regime = 'TT133' WHERE id = $1", [trading]);
+    const userId = await createTestUser(pool, "ketoan.vct.thuehq@vcomm.test", "Kế Toán VCT", [{ companyId: trading }]);
+    const roleId = (await pool.query<{ id: string }>("SELECT id FROM core.roles WHERE code = 'chief_accountant' AND company_id IS NULL")).rows[0]!.id;
+    await pool.query("INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, valid_from) VALUES ($1, $2, 'company', $3, '2026-01-01')", [userId, roleId, trading]);
+    const tradingAccountant = await signIn(application, "ketoan.vct.thuehq@vcomm.test");
+    expect((await tradingAccountant.call("post", "/finance/ledger/setup", { companyId: trading })).status).toBe(201);
+    const roles = [
+      "cash_foreign",
+      "bank_foreign",
+      "exchange_difference",
+      "financial_income",
+      "financial_expense",
+      "late_payment_expense",
+      "import_duty",
+      "excise_tax",
+      "environmental_tax",
+      "import_vat",
+    ];
+    const rules = async (companyId: string) =>
+      Object.fromEntries(
+        (
+          await pool.query<{ role: string; code: string }>(
+            "SELECT r.role, a.code FROM accounting.posting_rules r JOIN accounting.accounts a ON a.id = r.account_id WHERE r.company_id = $1 AND r.role = ANY($2)",
+            [companyId, roles],
+          )
+        ).rows.map((row) => [row.role, row.code]),
+      );
+    const shared = { exchange_difference: "413", financial_income: "515", financial_expense: "635", late_payment_expense: "811", import_duty: "3333", excise_tax: "3332", import_vat: "33312" };
+    expect(await rules(trading)).toEqual({ ...shared, cash_foreign: "1112", bank_foreign: "1122", environmental_tax: "3338" });
+    expect(await rules(retail)).toEqual({ ...shared, cash_foreign: "111", bank_foreign: "112", environmental_tax: "33381" });
+  });
+});

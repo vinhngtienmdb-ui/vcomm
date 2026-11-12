@@ -241,7 +241,11 @@ API, dữ liệu, giao diện của quỹ tiền tệ công ty, phiếu thu chi 
 
 Sau mỗi lát: chạy ứng dụng, chụp màn hình, gửi báo cáo ngắn cho phiên cha.
 
+Tình trạng (2026-11-12): L0 (commit 778e181, 7d84f65), L1 (14e9eb6), L2 (817d286), L3 (24b60e1) đã lập trình, kiểm thử, chụp màn hình. Kiểm thử tự động: `apps/api/test/c56-foreign-currency.test.ts`,
+`c56-customs-tax.test.ts` (gồm ánh xạ tài khoản Thông tư 133, Thông tư 99), `c56-import-amendments.test.ts`.
+
 ## 17. Việc còn mở
 
 1. Tra nguyên văn các mục **CHƯA XÁC ĐỊNH** ở mục 4, chốt QUYTAC_NGHIEPVU_417 và thời hạn khai bổ sung ở QUYTAC_NGHIEPVU_414; hỏi người dùng nếu luật cho nhiều cách hiểu.
-2. Kế toán trưởng xác nhận định khoản mục 9 và tài khoản 413 theo Phụ lục II Thông tư 99/2025.
+2. Kế toán trưởng xác nhận định khoản mục 9 và tài khoản 413 theo Phụ lục II Thông tư 99/2025; xác nhận tài khoản quỹ ngoại tệ theo Thông tư 99 (đang ghi 111, 112) và Thông tư 133 (1112, 1122).
+3. Thời hạn khai bổ sung (QUYTAC_NGHIEPVU_414) chưa kiểm khi lập tờ khai bổ sung; bổ sung kiểm sau khi tra nguyên văn luật.
