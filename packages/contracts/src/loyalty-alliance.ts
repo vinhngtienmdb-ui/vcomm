@@ -210,3 +210,63 @@ export interface LoyaltyDeviceItem {
   seenCount: number;
   otherAccounts: string[];
 }
+
+// API_253: báo cáo liên minh điểm và báo cáo gian lận theo năm, chia theo tháng (QUYTAC_NGHIEPVU_478). `format=xlsx` xuất tệp Excel.
+export const loyaltyReportQuerySchema = z
+  .object({
+    year: z.coerce.number().int().min(2000).max(2100),
+    format: z.enum(["xlsx"]).optional(),
+  })
+  .strict();
+export interface LoyaltyAllianceReportRow {
+  // Tháng dạng YYYY-MM (giờ Việt Nam).
+  month: string;
+  companyId: string;
+  companyName: string;
+  isOperator: boolean;
+  earnedPoints: number;
+  lotValue: string;
+  // Chi phí điểm công ty ghi nhận trên sổ cái (vai trò chi phí điểm) theo kiểu chia chi phí của lô.
+  costAmount: string;
+  redeemedPoints: number;
+  redeemedAmount: string;
+  // Theo bảng đối soát tháng của công ty con; công ty vận hành sàn và tháng chưa lập bảng: trống.
+  settlementId: string | null;
+  settlementNo: string | null;
+  settlementStatus: LoyaltySettlementStatus | null;
+  receivable: string | null;
+  payable: string | null;
+  offset: string | null;
+  paid: string | null;
+  remaining: string | null;
+}
+export interface LoyaltyAllianceReport {
+  year: number;
+  isOperator: boolean;
+  rows: LoyaltyAllianceReportRow[];
+}
+export interface LoyaltyFraudReportRuleRow {
+  month: string;
+  ruleCode: LoyaltyFraudRuleCode;
+  cases: number;
+  alert: number;
+  block: number;
+  blockAndLock: number;
+  violation: number;
+  noViolation: number;
+  blockedTransactions: number;
+  skippedEarns: number;
+  skippedPoints: number;
+  lockedWallets: number;
+}
+export interface LoyaltyFraudReportTopItem {
+  month: string;
+  kind: "user" | "device" | "staff";
+  label: string;
+  cases: number;
+}
+export interface LoyaltyFraudReport {
+  year: number;
+  rules: LoyaltyFraudReportRuleRow[];
+  top: LoyaltyFraudReportTopItem[];
+}
