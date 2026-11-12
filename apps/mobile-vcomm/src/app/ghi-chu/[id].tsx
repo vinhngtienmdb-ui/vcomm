@@ -61,7 +61,9 @@ export default function CareNoteScreen() {
             options={(["none", "tomorrow", "threeDays", "week", "other"] as const).map((value) => ({ value, label: t(`carePlan_${value}`) }))}
             onChange={setPlan}
           />
-          {plan === "other" ? <Field label={t("careFollowUpDate")} value={customDate} onChangeText={setCustomDate} placeholder="dd/mm/yyyy" keyboardType="numbers-and-punctuation" /> : null}
+          {plan === "other" ? (
+            <Field label={t("careFollowUpDate")} value={customDate} onChangeText={setCustomDate} placeholder={t("careFollowUpPlaceholder")} keyboardType="numbers-and-punctuation" />
+          ) : null}
           {fields.followUpOn ? <Notice text={fields.followUpOn} /> : null}
         </Card>
         {error ? <Notice text={error} /> : null}

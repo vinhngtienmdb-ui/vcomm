@@ -6,7 +6,9 @@ import type { z } from "zod";
 import { ApiError } from "../common/api-error";
 import { AuditService } from "../common/audit.service";
 import { CLOCK, type Clock, vietnamDate } from "../common/clock";
+import { messages } from "i18n";
 import { notify } from "../common/notifications";
+import { fillTemplate } from "../hr/recruitment-emails";
 import { DATABASE, type Database } from "../database/database.module";
 import type { ClientInfo } from "../auth/auth.service";
 import { localPhone } from "./local-phone";
@@ -240,7 +242,7 @@ export class SalesCareService {
             userId,
             companyId: entry.companyId,
             kind: "sales.follow_up_due",
-            title: `Bạn có ${entry.dueToday} hẹn chăm sóc hôm nay, ${entry.overdue} hẹn quá hạn`,
+            title: fillTemplate(messages.vi.salesNotifications.followUpDue, { today: String(entry.dueToday), overdue: String(entry.overdue) }),
             link: "/hen",
             payload: { date: today, dueToday: entry.dueToday, overdue: entry.overdue },
           },

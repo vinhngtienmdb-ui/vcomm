@@ -1,11 +1,8 @@
 // API_71, API_72: đối tác dùng chung tập đoàn, hồ sơ đối tác của công ty (CONG_VIEC_06).
-import { Body, Controller, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res, UploadedFiles, UseInterceptors } from "@nestjs/common";
-import { FilesInterceptor } from "@nestjs/platform-express";
+import { Body, Controller, Get, Headers, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from "@nestjs/common";
 import type { Response } from "express";
 import {
   visitListQuerySchema,
-  visitPhotoMaximumBytes,
-  visitPhotoMaximumCount,
   type VisitItem,
   type VisitStaffOptionsResponse,
   type PartnerSummaryResponse,
@@ -27,7 +24,7 @@ import { UuidPipe } from "../common/uuid.pipe";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { PartnersService } from "./partners.service";
-import { type UploadedPhoto, VisitsService } from "./visits.service";
+import { VisitsService } from "./visits.service";
 
 const statusOf = (request: AuthenticatedRequest) => (request.path.endsWith("/deactivate") ? "inactive" : "active");
 
@@ -39,11 +36,10 @@ export class CrmController {
     private readonly visits: VisitsService,
   ) {}
 
-  // API_114: ghé thăm khách (CONG_VIEC_22). Ghi mới đã tắt theo THAY_DOI_26 (QUYTAC_NGHIEPVU_441): vẫn nhận tệp để đọc hết thân yêu cầu rồi từ chối;
-  // giữ VisitsService.create và bảng crm.visits để bật lại bằng phiếu thay đổi.
+  // API_114: ghé thăm khách (CONG_VIEC_22). Ghi mới đã tắt theo THAY_DOI_26 (QUYTAC_NGHIEPVU_441): không nhận tệp vào bộ nhớ, từ chối ngay;
+  // giữ VisitsService.create và bảng crm.visits để bật lại bằng phiếu thay đổi (khi bật lại thêm lại FilesInterceptor).
   @Post("visits")
-  @UseInterceptors(FilesInterceptor("photos", visitPhotoMaximumCount + 1, { limits: { fileSize: visitPhotoMaximumBytes * 2 } }))
-  async createVisit(@Req() request: AuthenticatedRequest, @UploadedFiles() _photos: UploadedPhoto[] | undefined, @Headers("x-company-id") companyId?: string): Promise<VisitItem> {
+  async createVisit(@Req() request: AuthenticatedRequest, @Headers("x-company-id") companyId?: string): Promise<VisitItem> {
     await this.actor(request, companyId);
     throw new ApiError("BUSINESS_RULE", "visitDisabled");
   }

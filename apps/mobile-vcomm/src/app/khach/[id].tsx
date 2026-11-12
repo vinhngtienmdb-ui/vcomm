@@ -56,7 +56,11 @@ export default function CustomerDetailScreen() {
     const next = notesPage + 1;
     const loaded = await api<{ notes: CareNoteItem[]; hasMore: boolean }>(`/buyer/sales/customers/${encodeURIComponent(String(id))}/notes?page=${next}`).catch(() => null);
     if (!loaded) return;
-    setOlderNotes((current) => [...current, ...loaded.notes]);
+    // Có ghi chú mới chen vào giữa hai lần tải thì trang sau lệch một dòng: bỏ ghi chú đã hiện.
+    setOlderNotes((current) => {
+      const shown = new Set([...(customer?.notes ?? []), ...current].map((note) => note.id));
+      return [...current, ...loaded.notes.filter((note) => !shown.has(note.id))];
+    });
     setNotesPage(next);
     setHasMoreNotes(loaded.hasMore);
   }

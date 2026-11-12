@@ -19,7 +19,6 @@ function nextMonth(month: string): string {
   const [year, value] = month.split("-").map(Number) as [number, number];
   return value === 12 ? `${year + 1}-01` : `${year}-${String(value + 1).padStart(2, "0")}`;
 }
-const addAmount = (left: string, right: string) => trimDecimal((Number(left) + Number(right)).toFixed(4));
 
 @Injectable()
 export class SalesRevenueService {
@@ -46,7 +45,7 @@ export class SalesRevenueService {
     const people = [team.member(userId)!, ...team.branch(userId)];
     const ids = people.map((person) => sql`${person.userId}::uuid`);
     const rows = await this.database.execute<{
-      user_id: string;
+      user_id: string | null;
       completed_count: number;
       customer_count: number;
       completed_amount: string;
@@ -64,8 +63,10 @@ export class SalesRevenueService {
         coalesce(sum(m.goods_amount) FILTER (WHERE m.status NOT IN ('completed', 'cancelled')), 0)::text AS open_amount
       FROM unnest(ARRAY[${sql.join(ids, sql`, `)}]) AS p(user_id)
         LEFT JOIN marketplace.orders m ON m.sales_staff_user_id = p.user_id
-      GROUP BY p.user_id`);
-    const byUser = new Map(rows.rows.map((row) => [row.user_id, row]));
+      GROUP BY GROUPING SETS ((p.user_id), ())`);
+    // Dòng tổng (user_id trống) tính trong SQL theo numeric, không cộng tiền bằng số thực (tài liệu 19 mục 3).
+    const total = rows.rows.find((row) => row.user_id === null)!;
+    const byUser = new Map(rows.rows.filter((row) => row.user_id !== null).map((row) => [row.user_id, row]));
     const toRow = (person: { userId: string; fullName: string }): SalesRevenueRow => {
       const row = byUser.get(person.userId);
       return {
@@ -81,15 +82,12 @@ export class SalesRevenueService {
     };
     const me = toRow(people[0]!);
     const members = people.slice(1).map(toRow);
-    const branchTotal = [me, ...members].reduce(
-      (total, row) => ({
-        completedOrderCount: total.completedOrderCount + row.completedOrderCount,
-        completedAmount: addAmount(total.completedAmount, row.completedAmount),
-        openOrderCount: total.openOrderCount + row.openOrderCount,
-        openAmount: addAmount(total.openAmount, row.openAmount),
-      }),
-      { completedOrderCount: 0, completedAmount: "0", openOrderCount: 0, openAmount: "0" },
-    );
+    const branchTotal = {
+      completedOrderCount: total.completed_count,
+      completedAmount: trimDecimal(total.completed_amount),
+      openOrderCount: total.open_count,
+      openAmount: trimDecimal(total.open_amount),
+    };
     return { month, months, me, members, branchTotal };
   }
 }

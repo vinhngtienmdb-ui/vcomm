@@ -6,6 +6,11 @@ ALTER TABLE marketplace.orders ADD COLUMN sales_staff_user_id uuid REFERENCES co
 UPDATE marketplace.orders m SET sales_staff_user_id = c.beneficiary_user_id
 FROM (SELECT DISTINCT ON (order_id) order_id, beneficiary_user_id FROM marketplace.order_commissions WHERE share = 'staff' ORDER BY order_id, created_at) c
 WHERE c.order_id = m.id AND m.sales_staff_user_id IS NULL;
+-- Đơn cũ không có dòng hoa hồng phần nhân viên (sản phẩm chưa thiết lập hoặc mức bằng 0): ước lượng bằng người giới thiệu lúc đặt
+-- nếu người đó hiện là nhân viên kinh doanh (không có lịch sử đánh dấu lúc đặt).
+UPDATE marketplace.orders m SET sales_staff_user_id = m.referrer_user_id
+FROM marketplace.buyer_accounts r
+WHERE r.user_id = m.referrer_user_id AND r.is_sales_staff AND m.sales_staff_user_id IS NULL;
 
 CREATE INDEX marketplace_orders_sales_staff_completed_idx ON marketplace.orders (sales_staff_user_id, completed_at) WHERE status = 'completed';
 CREATE INDEX marketplace_orders_sales_staff_open_idx ON marketplace.orders (sales_staff_user_id) WHERE status NOT IN ('completed', 'cancelled');

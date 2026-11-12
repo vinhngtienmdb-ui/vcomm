@@ -3776,7 +3776,8 @@
     "revenueOpen": "In progress (now)",
     "revenueBranch": "My branch · total {amount}",
     "revenueBranchOpen": "In progress across the branch: {count} orders · {amount}",
-    "revenueMemberHint": "{title} · {orders} orders · {customers} customers"
+    "revenueMemberHint": "{title} · {orders} orders · {customers} customers",
+    "careFollowUpPlaceholder": "dd/mm/yyyy"
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -7104,5 +7105,8 @@
     "slipTitle": "RETURN SLIP",
     "slipSale": "For receipt {number}",
     "serials": "Serials returned"
+  },
+  "salesNotifications": {
+    "followUpDue": "You have {today} follow-ups today, {overdue} overdue"
   }
 }

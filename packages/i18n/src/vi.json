@@ -3776,7 +3776,8 @@
     "revenueOpen": "Đang xử lý (hiện tại)",
     "revenueBranch": "Nhánh của tôi · tổng {amount}",
     "revenueBranchOpen": "Đang xử lý cả nhánh: {count} đơn · {amount}",
-    "revenueMemberHint": "{title} · {orders} đơn · {customers} khách"
+    "revenueMemberHint": "{title} · {orders} đơn · {customers} khách",
+    "careFollowUpPlaceholder": "ngày/tháng/năm"
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -7104,5 +7105,8 @@
     "slipTitle": "PHIẾU TRẢ HÀNG",
     "slipSale": "Theo hóa đơn {number}",
     "serials": "Serial trả"
+  },
+  "salesNotifications": {
+    "followUpDue": "Bạn có {today} hẹn chăm sóc hôm nay, {overdue} hẹn quá hạn"
   }
 }

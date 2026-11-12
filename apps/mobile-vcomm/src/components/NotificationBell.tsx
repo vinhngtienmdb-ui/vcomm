@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { api } from "@/lib/api";
 import { translator } from "@/lib/i18n";
-import { colors, space } from "@/lib/theme";
+import { colors, radius, space } from "@/lib/theme";
 
 const t = translator("vcommApp");
 
@@ -30,7 +30,7 @@ export function NotificationBell() {
     >
       <Text style={{ color: colors.surface, fontWeight: "600" }}>{t("notificationsTitle")}</Text>
       {unread > 0 ? (
-        <View style={{ minWidth: 20, paddingHorizontal: 6, borderRadius: 10, backgroundColor: colors.error, alignItems: "center" }}>
+        <View style={{ minWidth: space[5], paddingHorizontal: space[1], borderRadius: radius.round, backgroundColor: colors.error, alignItems: "center" }}>
           <Text style={{ color: colors.surface, fontSize: 12, fontWeight: "700" }}>{unread > 99 ? "99+" : unread}</Text>
         </View>
       ) : null}

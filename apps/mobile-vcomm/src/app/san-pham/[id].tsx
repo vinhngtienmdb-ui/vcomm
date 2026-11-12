@@ -56,10 +56,16 @@ export default function ProductScreen() {
   const shareLink = product ? productShareLink(product.id, me?.referralCode ?? null, collaboratorCode) : null;
   const shareMessage = product && shareLink ? t("productShareMessage", { name: product.name, link: shareLink }) : "";
 
+  // Sao chép chỉ có trên bản web (máy thật dùng bảng chia sẻ của máy, không thêm thư viện bộ nhớ tạm); chỉ báo đã sao chép khi ghi được.
+  const canCopy = Platform.OS === "web" && !!(globalThis.navigator as Navigator | undefined)?.clipboard;
   async function copyLink() {
-    if (!shareLink) return;
-    await (globalThis.navigator as Navigator | undefined)?.clipboard?.writeText(shareLink).catch(() => undefined);
-    setLinkCopied(true);
+    const clipboard = (globalThis.navigator as Navigator | undefined)?.clipboard;
+    if (!shareLink || !clipboard) return;
+    const copied = await clipboard.writeText(shareLink).then(
+      () => true,
+      () => false,
+    );
+    setLinkCopied(copied);
   }
 
   async function shareNow() {
@@ -166,9 +172,11 @@ export default function ProductScreen() {
                 <Notice tone="info" text={shareMessage} />
                 <Muted>{me?.referralCode ? t("shareProductHint", { code: me.referralCode }) : t("shareProductCollaboratorHint")}</Muted>
                 <View style={{ flexDirection: "row", gap: space[2] }}>
-                  <View style={{ flex: 1 }}>
-                    <Button label={t("copyLink")} kind="secondary" onPress={() => void copyLink()} />
-                  </View>
+                  {canCopy ? (
+                    <View style={{ flex: 1 }}>
+                      <Button label={t("copyLink")} kind="secondary" onPress={() => void copyLink()} />
+                    </View>
+                  ) : null}
                   <View style={{ flex: 1 }}>
                     <Button label={t("shareNow")} onPress={() => void shareNow()} />
                   </View>
