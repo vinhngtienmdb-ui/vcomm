@@ -9,6 +9,7 @@
 
 ### Công việc đã thực hiện
 
+- Phát hành 0.9.0 (pull request #151, commit hợp nhất `e6d26a9`): CONG_VIEC_59 (chữ ký số, kho hợp đồng), CONG_VIEC_66 (Open API phần 2); THAY_DOI_32; sửa LOI_09, LOI_10, LOI_11, LOI_12. Kiểm thử API 727/727. Không tạo database migration 0149. Chưa triển khai.
 - Người dùng nghiệm thu CONG_VIEC_59 (chữ ký số, kho hợp đồng; MODULE_13 phần 2), pull request #132 (commit `73465083`; kiểm thử 715/715): ký số qua lớp kết nối nhà cung cấp ký số từ xa và bộ giả lập; ký công văn đi, hợp đồng trong kho, hợp đồng lao động, mọi tệp PDF; kho hợp đồng; đối tác ký qua đường dẫn; nhắc hạn. Database migration 0121 đến 0123. Sửa LOI_10, LOI_11. Thư viện @signpdf 4.0.0, pdf-lib 1.17.1, node-forge 1.4.3.
 - Người dùng nghiệm thu CONG_VIEC_66 (Open API phần 2) lát L1, L2, pull request #144 (commit `102dfed`; kiểm thử 699/699): đối tác tạo khách hàng qua Open API, hóa đơn và công nợ theo khách do đối tác tạo, đơn giao thẳng người nhận cuối; database migration 0131; sửa màn hình đối tác, chi tiết đơn bán, phiếu xuất. Cấp THAY_DOI_32, LOI_09.
 - Phát hành 0.8.0 (pull request #141, commit hợp nhất `c34d968`): CONG_VIEC_52 (Văn phòng số phần 1), CONG_VIEC_56 (kế toán ngoại tệ và thuế hải quan). Kiểm thử API 688/688. Không tạo database migration 0145. Thư viện mới: docx 9.15.3 (đã duyệt 2026-11-11). Biến môi trường mới: OFFICE_ORIGIN. Chưa triển khai.
