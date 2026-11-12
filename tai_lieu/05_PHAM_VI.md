@@ -61,7 +61,7 @@ VComm gồm ba khối, ra mắt lần lượt:
 | MODULE_13 Văn phòng số | Công việc, quy trình, công văn, chữ ký số, kho hợp đồng, bảng tin nội bộ |
 | MODULE_14 Bán lẻ tại quầy và trạm giao hàng | Bán hàng tại quầy cho cửa hàng tập đoàn tự vận hành; trạm giao hàng O2O; kế hoạch mua theo ngân sách |
 | MODULE_15 Phân tích dữ liệu | Báo cáo quản trị toàn tập đoàn |
-| MODULE_16 Mở rộng kinh doanh | Dropship; Open API cho đối tác; trợ lý AI; quản lý sản xuất |
+| MODULE_16 Mở rộng kinh doanh | Dropship; Open API cho đối tác; trợ lý AI (quản lý sản xuất bỏ theo THAY_DOI_30) |
 
 ## 3. Phạm vi ngoài
 

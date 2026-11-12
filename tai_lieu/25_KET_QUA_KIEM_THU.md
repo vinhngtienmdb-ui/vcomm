@@ -183,6 +183,13 @@
 - Kết luận cổng kiểm thử: Đạt (không có lỗi Nghiêm trọng, Cao chưa xử lý; mọi tiêu chí bắt buộc trong phạm vi đạt).
 - Kết luận: Người dùng nghiệm thu 2026-11-10; chờ người dùng hợp nhất pull request số 47 (sau số 44).
 
+## Lần kiểm thử 2026-11-12 – Phát hành 0.8.0
+
+- Phạm vi: nhánh `phat-hanh/v0.8.0` gộp CONG_VIEC_52 (`c1f5d62`), CONG_VIEC_56 (`2522322`) (pull request #141, commit hợp nhất `c34d968`).
+- Gộp: không có xung đột; database migration 0090 đến 0093, 0106 đến 0108 không trùng số; chạy thử trên cơ sở dữ liệu đã tới 0130 và cơ sở dữ liệu mới từ đầu: cùng 1014 ràng buộc kiểm tra, không mất giá trị của main; không tạo 0145.
+- Kết quả: kiểm tra kiểu 19/19, lint 4/4, khóa dịch khớp 8678 khóa; toàn bộ kiểm thử API 128 tệp, 688/688 đạt (một tiến trình); CI pull request #141 và CI trên main đạt.
+- Kết luận: Đạt; tag `v0.8.0` đã gắn tự động.
+
 ## Lần kiểm thử 2026-11-12 – CONG_VIEC_56
 
 - Phạm vi: lát L0 đến L3, nhánh `chuc-nang/CONG_VIEC_56-ngoai-te-thue-hai-quan` (pull request #119, mã nguồn `1e9c4b7`, tài liệu `2522322`; đã hợp nhất main 0.7.0).

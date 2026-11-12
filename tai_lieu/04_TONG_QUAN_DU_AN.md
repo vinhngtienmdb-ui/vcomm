@@ -65,7 +65,7 @@ VComm là hệ sinh thái gồm hệ thống quản trị doanh nghiệp (ERP) t
 9. Ứng dụng di động riêng cho kho và cho nhân viên kinh doanh; ứng dụng người mua trên iOS, Android, web.
 10. Mọi nhóm người dùng đăng nhập được bằng Zalo (THAY_DOI_01).
 11. Nhà bán cá nhân, hộ kinh doanh và doanh nghiệp bắt buộc xác thực danh tính qua VNeID trước khi mở bán, kết nối qua tổ chức cung cấp dịch vụ xác thực điện tử (THAY_DOI_02).
-12. Phạm vi mở rộng theo đối chiếu nguồn mã V-com-ERP (THAY_DOI_04): văn phòng số, bán lẻ tại quầy và trạm giao hàng, phân tích dữ liệu, dropship, Open API, trợ lý AI, sản xuất; kế toán đầy đủ (tài sản cố định, khóa sổ, kê khai thuế, đối chiếu ngân hàng); chăm sóc khách hàng; nghĩa vụ thuế và giữ tiền đảm bảo của sàn.
+12. Phạm vi mở rộng theo đối chiếu nguồn mã V-com-ERP (THAY_DOI_04): văn phòng số, bán lẻ tại quầy và trạm giao hàng, phân tích dữ liệu, dropship, Open API, trợ lý AI (sản xuất bỏ theo THAY_DOI_30); kế toán đầy đủ (tài sản cố định, khóa sổ, kê khai thuế, đối chiếu ngân hàng); chăm sóc khách hàng; nghĩa vụ thuế và giữ tiền đảm bảo của sàn.
 
 ## 9. Giới hạn ban đầu
 
