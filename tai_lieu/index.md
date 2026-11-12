@@ -66,5 +66,7 @@
 | CONG_VIEC_53 | [cong_viec/CONG_VIEC_53.md](cong_viec/CONG_VIEC_53.md) | Lát L0 đến L5 đã nghiệm thu, chờ phát hành; L6 chưa làm |
 | CONG_VIEC_55 | [cong_viec/CONG_VIEC_55.md](cong_viec/CONG_VIEC_55.md) | Đã nghiệm thu, chờ phát hành |
 | CONG_VIEC_61 | [cong_viec/CONG_VIEC_61.md](cong_viec/CONG_VIEC_61.md) | Đã nghiệm thu, chờ phát hành |
+| CONG_VIEC_59 | [cong_viec/CONG_VIEC_59.md](cong_viec/CONG_VIEC_59.md) | Đã nghiệm thu, gộp vào bản phát hành 0.9.0 |
+| CONG_VIEC_66 | [cong_viec/CONG_VIEC_66.md](cong_viec/CONG_VIEC_66.md) | Đã nghiệm thu, gộp vào bản phát hành 0.9.0 |
 
 Tài liệu `26` chưa lập; tạo khi triển khai.

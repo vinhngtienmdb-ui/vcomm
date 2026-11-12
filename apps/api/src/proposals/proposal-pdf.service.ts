@@ -3,32 +3,13 @@
 import { Inject, Injectable } from "@nestjs/common";
 import type { ProposalField } from "contracts";
 import { sql } from "drizzle-orm";
-import { dirname, join } from "node:path";
 import { ApprovalRequestsService } from "../approvals/approval-requests.service";
+import { renderPdf } from "../common/pdf";
 import { DATABASE, type Database } from "../database/database.module";
 import type { Actor } from "../permissions/roles.service";
 import { ProposalsService } from "./proposals.service";
 
-// pdfmake 0.3 không kèm khai báo kiểu.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfmake = require("pdfmake") as {
-  setFonts(fonts: Record<string, Record<string, string>>): void;
-  setUrlAccessPolicy(callback: (url: string) => boolean): void;
-  setLocalAccessPolicy(callback: (path: string) => boolean): void;
-  createPdf(definition: Record<string, unknown>): { getBuffer(): Promise<Buffer> };
-};
-
-const fontDirectory = join(dirname(require.resolve("pdfmake/package.json")), "fonts", "Roboto");
-pdfmake.setFonts({
-  Roboto: {
-    normal: join(fontDirectory, "Roboto-Regular.ttf"),
-    bold: join(fontDirectory, "Roboto-Medium.ttf"),
-    italics: join(fontDirectory, "Roboto-Italic.ttf"),
-    bolditalics: join(fontDirectory, "Roboto-MediumItalic.ttf"),
-  },
-});
-pdfmake.setUrlAccessPolicy(() => false);
-pdfmake.setLocalAccessPolicy((path) => path.startsWith(fontDirectory));
+// Bảng phông chung (common/pdf): đăng ký lại phông ở đây sẽ ghi đè phông của nơi khác (văn bản hành chính) tùy thứ tự nạp module.
 
 const statusText: Record<string, string> = { draft: "Nháp", pending: "Chờ duyệt", approved: "Đã duyệt", rejected: "Bị từ chối", withdrawn: "Đã rút" };
 const money = (value: string, currency: string) => `${new Intl.NumberFormat("vi-VN", { maximumFractionDigits: currency === "VND" ? 0 : 2 }).format(Number(value))} ${currency}`;
@@ -136,7 +117,7 @@ export class ProposalPdfService {
             },
       ],
     };
-    const content = await pdfmake.createPdf(definition).getBuffer();
+    const content = await renderPdf(definition);
     return { fileName: `${(proposal.proposalNo ?? "de-xuat").replace(/[^A-Za-z0-9-]/g, "_")}.pdf`, content: Buffer.from(content) };
   }
 

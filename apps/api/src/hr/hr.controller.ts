@@ -26,6 +26,8 @@ import {
   type MyEmployeeResponse,
   type RevealResponse,
   type WorkEventItem,
+  hrDigitalSigningSchema,
+  type HrDigitalSigningInfo,
 } from "contracts";
 import type { Response } from "express";
 import { clientInfo } from "../auth/auth.controller";
@@ -37,6 +39,7 @@ import type { Actor } from "../permissions/roles.service";
 import { documentMaximumBytes, EmployeesService, type UploadedFile as UploadedDocument } from "./employees.service";
 import { ContractsService } from "./contracts.service";
 import { WorkEventsService } from "./work-events.service";
+import { jsonField } from "../office/office-documents.controller";
 
 // Tên tệp trong header: chữ không dấu cho trình duyệt cũ, bản UTF-8 đầy đủ theo RFC 5987.
 export const contentDisposition = (fileName: string) =>
@@ -45,6 +48,8 @@ export const contentDisposition = (fileName: string) =>
     .replace(/[^\x20-\x7e]/g, "")
     .replace(/"/g, "")}"; filename*=UTF-8''${encodeURIComponent(fileName)}`;
 
+// Tệp PDF đem ký số tối đa 20 MB (QUYTAC_NGHIEPVU_458).
+const signingPdfMaximumBytes = 20 * 1024 * 1024;
 @Controller("hr")
 export class HrController {
   constructor(
@@ -227,6 +232,43 @@ export class HrController {
     @Headers("x-company-id") companyId?: string,
   ): Promise<ContractResponse> {
     return this.contracts.sign(await this.actor(request, companyId), id, signContractSchema.parse(body).signDate, file);
+  }
+
+  // API_248 Ký số hợp đồng lao động, phụ lục (CONG_VIEC_59, CHUC_NANG_213): multipart gồm "data" (JSON người ký phía công ty, hạn ký, ghi chú, thư điện tử người lao động) và tệp PDF "file".
+  @Get("contracts/:id/digital-signing")
+  async contractSigningInfo(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<HrDigitalSigningInfo> {
+    return this.contracts.digitalSigningInfo(await this.actor(request, companyId), id, null);
+  }
+
+  @Post("contracts/:id/digital-signing")
+  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: signingPdfMaximumBytes + 1, files: 1 } }))
+  async contractDigitalSigning(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @UploadedFile() file: UploadedDocument | undefined,
+    @Body("data") data: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<HrDigitalSigningInfo> {
+    return this.contracts.startDigitalSigning(await this.actor(request, companyId), id, null, hrDigitalSigningSchema.parse(jsonField(data)), file);
+  }
+
+  @Get("contract-appendices/:id/digital-signing")
+  async appendixSigningInfo(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Headers("x-company-id") companyId?: string): Promise<HrDigitalSigningInfo> {
+    const actor = await this.actor(request, companyId);
+    return this.contracts.digitalSigningInfo(actor, await this.contracts.contractOfAppendix(actor, id), id);
+  }
+
+  @Post("contract-appendices/:id/digital-signing")
+  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: signingPdfMaximumBytes + 1, files: 1 } }))
+  async appendixDigitalSigning(
+    @Req() request: AuthenticatedRequest,
+    @Param("id", UuidPipe) id: string,
+    @UploadedFile() file: UploadedDocument | undefined,
+    @Body("data") data: unknown,
+    @Headers("x-company-id") companyId?: string,
+  ): Promise<HrDigitalSigningInfo> {
+    const actor = await this.actor(request, companyId);
+    return this.contracts.startDigitalSigning(actor, await this.contracts.contractOfAppendix(actor, id), id, hrDigitalSigningSchema.parse(jsonField(data)), file);
   }
 
   @Post("contracts/:id/cancel")

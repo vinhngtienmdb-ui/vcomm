@@ -300,6 +300,14 @@ export class StockDocumentsService implements OnModuleInit {
               : [],
         }
       : null;
+    // CONG_VIEC_66: phiếu xuất giao hàng của đơn có người nhận giao thẳng (QUYTAC_NGHIEPVU_494 khoản 7).
+    const recipient =
+      row.type === "sales_issue" && row.source_id
+        ? ((
+            await this.database.execute<{ name: string; phone: string; address: string }>(sql`
+            SELECT recipient_name AS name, recipient_phone AS phone, delivery_address AS address FROM sales.orders WHERE id = ${row.source_id} AND recipient_name IS NOT NULL`)
+          ).rows[0] ?? null)
+        : null;
     return {
       ...this.toItem(row, costVisible),
       internalReceipt,
@@ -360,6 +368,7 @@ export class StockDocumentsService implements OnModuleInit {
       canReceive: row.type === "transfer" && row.status === "in_transit" && (await canManageAt(destinationWarehouse)),
       partnerId: row.partner_id,
       partnerName: row.partner_name,
+      recipient,
       sourceId: row.source_id,
       sourceNo: row.source_no,
       currency: row.currency,
