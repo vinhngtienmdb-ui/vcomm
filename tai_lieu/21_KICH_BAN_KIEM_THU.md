@@ -5874,3 +5874,20 @@ Dữ liệu chung: công ty VCR (mã số thuế `0312345678`) và VCT cùng t�
 - Kết quả mong đợi: Không lỗi trình duyệt, không cuộn ngang; bảng chuyển dạng thẻ trên điện thoại; lỗi hiện đúng ô; chuỗi đúng ngôn ngữ; nút theo quyền; đúng bản mẫu đã duyệt.
 - Kiểm thử tự động: Thủ công – ảnh chụp ở điểm xem trước L1, L2, L3
 - Lát: L1 đến L3
+
+## CHUC_NANG_234, CHUC_NANG_235: Cửa hàng liên kết phần 2 – Open API (CONG_VIEC_67)
+
+| Mã | Tiêu chí | Kịch bản | Loại | Tệp |
+|---|---|---|---|---|
+| KICHBAN_KIEMTHU_693 | 504 | Cấp khóa đúng; điểm bán cửa hàng khác; cửa hàng chấm dứt; người không quyền; màn hình Nền tảng không cấp, không sửa khóa cửa hàng; chủ xem, thu ngân `403` | Tích hợp | `apps/api/test/c67-open-affiliate.test.ts` |
+| KICHBAN_KIEMTHU_694 | 505 | Phạm vi sai hai chiều; cửa hàng tạm ngưng; điểm bán ngoài khóa | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_695 | 506 | Tra điểm theo mã thành viên, số điện thoại; không có số dư, số điện thoại, tên đầy đủ | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_696 | 507 | Mã thành viên qua API so với cổng; mã dùng lại | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_697 | 507 | Vượt hạn mức không tích | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_698 | 508 | Số điện thoại: xác nhận, từ chối; lần từ chối thứ 11 trong giờ theo khóa; thu ngân không bị ảnh hưởng | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_699 | 509 | Hai yêu cầu cùng mã song song; hủy qua API, nhật ký thao tác ghi khóa; tuần đã chốt | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_700 | 510 | Smart OTP đúng, sai 5 lần khóa; SMS đúng, sai, dùng lại; khách có Smart OTP không gửi SMS; giới hạn khóa, số | Tích hợp | `apps/api/test/c67-otp-sms.test.ts` |
+| KICHBAN_KIEMTHU_701 | 511 | Đơn giá đổi giữa tuần; bảng F, E, số còn lại; bút toán 511, 3331 | Tích hợp | như trên |
+| KICHBAN_KIEMTHU_702 | 512 | Danh sách công ty, cổng có nguồn API; nhật ký gọi không có số điện thoại, mã thành viên | Tích hợp | `apps/api/test/c67-open-affiliate.test.ts` |
+| KICHBAN_KIEMTHU_703 | 513 | MAN_HINH_231: cấp, sao chép, cấp lại, thu hồi; trạng thái; ngôn ngữ | Giao diện (ảnh chụp) | Ảnh xem trước lát L1 |
+| KICHBAN_KIEMTHU_704 | 513 | MAN_HINH_232, bảng đối soát có F, danh sách giao dịch nguồn API; máy tính, điện thoại | Giao diện (ảnh chụp) | Ảnh xem trước lát L1, L2 |

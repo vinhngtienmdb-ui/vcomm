@@ -2379,3 +2379,12 @@ CHUC_NANG_103 (ghé thăm khách): ghi mới đã tắt theo QUYTAC_NGHIEPVU_441
 | CHUC_NANG_221 | API khách hàng do đối tác tạo (tạo, liệt kê, xem, sửa liên hệ); đơn Open API ghi khách đó và người nhận giao thẳng; nhân viên thấy nguồn khách, người nhận (CONG_VIEC_66) | YCAU_NGHIEPVU_168 | Sửa danh sách, chi tiết đối tác; sửa chi tiết đơn bán, chi tiết phiếu kho; mở phạm vi `customer.write` ở MAN_HINH_224 | API_289 đến API_292; sửa API_262, API_263, API_71, API_77 (chi tiết), chi tiết phiếu kho |
 
 Yêu cầu phi chức năng: khóa lưu băm; nhật ký gọi ghi sau khi trả kết quả, lỗi ghi không làm hỏng lần gọi; cập nhật lần dùng gần nhất tối đa một lần mỗi phút; giới hạn tần suất dùng chung Redis giữa các tiến trình.
+
+## MODULE_12 Cửa hàng liên kết (phần 2: Open API, CONG_VIEC_67)
+
+| Mã | Chức năng | Yêu cầu | Màn hình | API |
+|---|---|---|---|---|
+| CHUC_NANG_234 | Quản lý khóa API của cửa hàng liên kết (web quản trị) và xem kết nối phần mềm (cổng cửa hàng) | YCAU_NGHIEPVU_169 | MAN_HINH_231, MAN_HINH_232 | API_295 |
+| CHUC_NANG_235 | API điểm thưởng cho phần mềm cửa hàng: điểm bán, tra điểm, gửi OTP SMS, tạo (mã thành viên, số điện thoại, OTP), tra, liệt kê, hủy giao dịch; phí tin nhắn vào đối soát | YCAU_NGHIEPVU_169 | Sửa MAN_HINH_174, 176, 178, 180 | API_296 đến API_300 |
+
+Yêu cầu phi chức năng: mã OTP, số điện thoại, mã thành viên không ghi vào nhật ký gọi, log, nhật ký thao tác; chống tạo trùng bằng chỉ mục duy nhất.

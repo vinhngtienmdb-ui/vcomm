@@ -925,3 +925,14 @@ Thêm sáu quyền của mini app Văn phòng số (`office`), gán ở phạm v
 | Xem hợp đồng lao động trong kho (chỉ đọc, không có lương) | `hr.contract.manage` bao trùm công ty | Có | Không | Không | Không | Không |
 | Ký số công văn đi | `office.document.clerk` | Có | Có | Không | Không | Không |
 | Ký số hợp đồng lao động, phụ lục | `hr.contract.manage` | Có | Không | Không | Không | Không |
+
+## 57. Cửa hàng liên kết phần 2 – Open API (MODULE_12, CONG_VIEC_67)
+
+Không thêm quyền.
+
+| Thao tác | `affiliate.manage` | `affiliate.view` | `platform.api_key.manage` | Chủ cửa hàng | Thu ngân | Khóa API `loyalty.member` |
+|---|---|---|---|---|---|---|
+| Cấp, sửa khóa cửa hàng | Có | Không | Không | Không | Không | Không |
+| Cấp lại, thu hồi khóa cửa hàng | Có | Không | Có (MAN_HINH_225) | Không | Không | Không |
+| Xem khóa cửa hàng | Có | Có | Có | Khóa cửa hàng mình (MAN_HINH_232) | Không | Không |
+| Tra điểm, tích, đổi, hủy qua API | — | — | — | — | — | Cửa hàng, điểm bán của khóa |

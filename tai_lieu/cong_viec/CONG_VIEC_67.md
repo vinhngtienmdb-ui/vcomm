@@ -3,7 +3,7 @@
 - Mô tả: Cửa hàng liên kết của CONG_VIEC_55 nối phần mềm bán hàng của mình với VComm qua Open API (CONG_VIEC_61) để tra điểm dùng được, tích, đổi điểm, dùng voucher, hủy giao dịch thay cho thao tác trên cổng `/merchant`. Khách xác thực bằng mã thành viên, xác nhận trên ứng dụng VComm, hoặc mã OTP (Smart OTP; chưa kích hoạt thì SMS, phí tin nhắn tính vào đối soát). Giao dịch qua API vào chung hạn mức, đối soát tuần, hạch toán, báo cáo, cảnh báo của CONG_VIEC_55.
 - Phiên bản: 0.1
 - Ngày cập nhật: 2026-11-12
-- Trạng thái: Người dùng duyệt đặc tả, bản mẫu (2026-11-12); lát L1 đã xem trước, đạt (2026-11-12); lát L2 chờ xem trước.
+- Trạng thái: Người dùng duyệt đặc tả, bản mẫu, lát L1, lát L2 (2026-11-12); trình nghiệm thu.
 - Nhánh: `chuc-nang/CONG_VIEC_67-cua-hang-lien-ket-2`.
 - Nguồn: CONG_VIEC_61 (YCAU_NGHIEPVU_169, QUYTAC_NGHIEPVU_495 dự phòng, mục 16 điểm cần chốt cho L4), CONG_VIEC_55 (giao dịch, voucher, đối soát, hạch toán), CONG_VIEC_53 lát L6 (Smart OTP), CONG_VIEC_51 (sổ cái điểm); quyết định của người dùng ngày 2026-11-12 (mục 17).
 - Mức: Lớn (sửa cấu trúc dữ liệu, API, bảng đối soát đã duyệt; nhiều module: MODULE_12, MODULE_16, MODULE_11).
@@ -251,3 +251,16 @@ Kiểm thử tự động: `apps/api/test/c67-*.test.ts`.
 
 - Tài liệu hướng dẫn tích hợp cho cửa hàng: gửi bản trích tài liệu `17` như CONG_VIEC_61.
 - Ý kiến luật sư về điểm thưởng (như CONG_VIEC_51, 55): người dùng bỏ yêu cầu tra cứu pháp lý cho các công việc (2026-11-12), không chờ.
+
+## 20. Kết quả đối chiếu định nghĩa hoàn thành
+
+| Mục | Kết quả |
+|---|---|
+| Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu | Theo mục 4 đến 10 và quyết định mục 17; điều chỉnh khi lập trình ghi ở QUYTAC_NGHIEPVU_495 (mã lỗi 400, hủy qua API chỉ giao dịch tạo qua API, màn hình Nền tảng chỉ cấp lại, thu hồi khóa cửa hàng) |
+| Giao diện | MAN_HINH_231 (khối trong chi tiết cửa hàng), MAN_HINH_232, phần sửa danh sách giao dịch, hợp đồng, bảng đối soát; ảnh chụp máy tính 1360 và điện thoại 390 điểm ảnh ở hai điểm xem trước; chuỗi trong `packages/i18n` (vi, en); chỉ dùng lớp của tài liệu `15` |
+| Tiêu chí nghiệm thu | TIEUCHI_NGHIEMTHU_504 đến 512 đạt bằng `apps/api/test/c67-open-affiliate.test.ts` (8 kiểm thử), `c67-otp-sms.test.ts` (2 kiểm thử); 513 đạt bằng ảnh chụp ứng dụng chạy thật (người dùng duyệt lát L1, L2) |
+| Kiểm thử hồi quy | Toàn bộ kiểm thử `apps/api` sau khi hợp nhất `main` (0.9.0, bản sửa LOI_13): kết quả ghi trong tin trình nghiệm thu; kiểm tra kiểu `api`, `web-crm`, `web-affiliate`, `web-platform` đạt |
+| Bảo mật | Tài liệu `22` mục cửa hàng liên kết qua Open API: không lỗ hổng Nghiêm trọng, Cao; không khóa bí mật trong commit; không thêm thư viện; CI "Quét bảo mật" đạt |
+| Tài liệu | `06`, `07`, `08`, `09`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27` bổ sung; sổ chung `02`, `03`, `24`, `25` gửi phiên điều phối ghi |
+| Chưa làm, ghi nhận | Phí tin nhắn chưa chốt chưa cộng vào dư nợ xét hạn mức (đặc tả không yêu cầu); liên kết Nhật ký gọi mở màn hình chung, chưa lọc sẵn theo khóa |
+

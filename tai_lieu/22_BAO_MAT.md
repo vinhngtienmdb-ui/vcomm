@@ -1274,3 +1274,17 @@ Ranh giới và kiểm soát riêng:
 - LOI_09 – dò hồ sơ (mức Trung bình, đã sửa 2026-11-12 ở commit `102dfed` theo quyết định người dùng): chỉ dùng lại hồ sơ theo mã số thuế (thông tin công khai của doanh nghiệp); số căn cước trùng hồ sơ ngoài phạm vi trả `409`, không trả mã khách. Đơn ghi khách gắn do trùng mã số thuế chỉ ở Nháp, nhân viên kiểm trước khi gửi duyệt.
 
 Kết quả rà soát bảo mật CONG_VIEC_66 (2026-11-12): không phát hiện lỗi mức Cao; LOI_09 ở trên đã sửa. Ngoại lệ QUYTAC_NGHIEPVU_56 và mở phạm vi `customer.write` theo THAY_DOI_32.
+
+### Cửa hàng liên kết qua Open API (MODULE_12 phần 2, CONG_VIEC_67)
+
+| Điểm tiếp nhận | Xác thực | Kiểm soát |
+|---|---|---|
+| `/api/v1/open/affiliate/*` | Khóa API phạm vi `loyalty.member` (ApiKeyGuard, CONG_VIEC_61) | Mọi truy vấn lọc theo cửa hàng của khóa và điểm bán của khóa; tần suất, IP, nhật ký gọi như CONG_VIEC_61 |
+| `/api/v1/affiliate/merchants/{id}/api-keys`, `/affiliate/api-keys/*` | Phiên nhân viên, `affiliate.view` / `affiliate.manage` ở công ty vận hành sàn | Khóa thuộc cửa hàng của công ty vận hành sàn |
+| `/api/v1/merchant-portal/api-keys` | Phiên cổng cửa hàng, chủ cửa hàng | Chỉ cửa hàng của thành viên; không trả khóa |
+
+- Dữ liệu cá nhân: tra điểm không trả số dư, số điện thoại, tên đầy đủ (tên che). Nhật ký gọi không ghi nội dung yêu cầu (mã OTP, số điện thoại, mã thành viên nằm trong nội dung, không trên đường dẫn).
+- Mã OTP SMS: băm SHA-256, 5 phút, 5 lần sai; 5 mã mỗi giờ mỗi số tính chung mọi mục đích; số tin mỗi ngày theo khóa chặn bơm SMS tốn tiền. Smart OTP: khóa 15 phút sau 5 lần sai.
+- Rủi ro chấp nhận: phần mềm cửa hàng có khóa dò được số điện thoại nào có tài khoản VComm (như cách 3 của CONG_VIEC_55), giới hạn bởi tần suất của khóa và nhật ký gọi.
+
+Kết quả rà soát bảo mật CONG_VIEC_67 (2026-11-12): không phát hiện lỗi mức Nghiêm trọng, Cao; không thêm thư viện.

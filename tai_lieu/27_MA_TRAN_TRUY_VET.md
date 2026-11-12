@@ -751,7 +751,7 @@
 
 ## 37. Kiểm tra bao phủ CONG_VIEC_61 – 2026-11-12
 
-- Yêu cầu nghiệp vụ chưa có chức năng: YCAU_NGHIEPVU_168 (làm ở CONG_VIEC_66, xem mục 38), YCAU_NGHIEPVU_169 (chưa cấp mã chức năng) – người dùng tách sang công việc riêng ngày 2026-11-12. Còn lại: YCAU_NGHIEPVU_162 → CHUC_NANG_217; 163 → CHUC_NANG_217, 218; 164 → CHUC_NANG_217, 218; 165 → CHUC_NANG_218; 166 → CHUC_NANG_219; 167 → CHUC_NANG_220
+- Yêu cầu nghiệp vụ chưa có chức năng: YCAU_NGHIEPVU_168 (làm ở CONG_VIEC_66, xem mục 38), YCAU_NGHIEPVU_169 (CHUC_NANG_234, 235 ở CONG_VIEC_67, xem mục 40) – người dùng tách sang công việc riêng ngày 2026-11-12. Còn lại: YCAU_NGHIEPVU_162 → CHUC_NANG_217; 163 → CHUC_NANG_217, 218; 164 → CHUC_NANG_217, 218; 165 → CHUC_NANG_218; 166 → CHUC_NANG_219; 167 → CHUC_NANG_220
 - Quy tắc nghiệp vụ chưa có chức năng áp dụng: QUYTAC_NGHIEPVU_494, 495 (dự phòng). Còn lại: 480 đến 483, 493 → CHUC_NANG_217; 484 đến 488 → CHUC_NANG_218; 489 → CHUC_NANG_219; 490 đến 492 → CHUC_NANG_220
 - Chức năng chưa có tiêu chí nghiệm thu: CHUC_NANG_221 (chưa làm). CHUC_NANG_217 → TIEUCHI_NGHIEMTHU_444, 445, 450, 452, 457; CHUC_NANG_218 → 446 đến 450, 457; CHUC_NANG_219 → 450, 451; CHUC_NANG_220 → 453 đến 456
 - Chức năng cần giao diện nhưng chưa có màn hình: Không có (MAN_HINH_224 đến MAN_HINH_226; sửa MAN_HINH_42 và chi tiết đơn bán)
@@ -784,3 +784,12 @@
 - Kịch bản kiểm thử chưa có kiểm thử tự động: KICHBAN_KIEMTHU_691, 692 phần giao diện (chụp màn hình bằng Playwright ngoài dự án).
 - Kịch bản chưa chạy hoặc kết quả Không đạt: Đạt (11 kiểm thử API); kết quả gửi phiên cha ghi tài liệu `25`.
 - Mã nguồn không truy được về yêu cầu nào: Không có (`apps/api/src/open-api/open-customers.service.ts`, phần Open API của `crm/partners.service.ts`, `sales/sales-orders.service.ts`, `inventory/stock-documents.service.ts`; màn hình đối tác, đơn bán, phiếu kho).
+
+## 40. Kiểm tra bao phủ CONG_VIEC_67 – 2026-11-12
+
+| Yêu cầu | Chức năng | Tiêu chí | Kịch bản | Mã nguồn |
+|---|---|---|---|---|
+| YCAU_NGHIEPVU_169 | CHUC_NANG_234 | TIEUCHI_NGHIEMTHU_504, 513 | KICHBAN_KIEMTHU_693, 703, 704 | `apps/api/src/affiliate/api-keys.service.ts`, `affiliate.controller.ts`, `merchant-portal.controller.ts`, `open-api/api-keys.service.ts`; `apps/web-crm/src/components/AffiliateApiKeys.tsx`; `apps/web-affiliate/src/app/connection/page.tsx` |
+| YCAU_NGHIEPVU_169 | CHUC_NANG_235 | TIEUCHI_NGHIEMTHU_505 đến 512 | KICHBAN_KIEMTHU_694 đến 702 | `apps/api/src/affiliate/open-affiliate.service.ts`, `open-affiliate.controller.ts`, `transactions.service.ts`, `settlements.service.ts`, `open-api/api-key.guard.ts`, `auth/phone-otp.service.ts`; database migration 0146 đến 0148 |
+
+Quy tắc: QUYTAC_NGHIEPVU_495; bổ sung QUYTAC_NGHIEPVU_392, 394, 396, 397, 400, 402, 403, 404 (THAY_DOI_31). Luồng 63. Màn hình MAN_HINH_231, 232 (233 dự phòng).

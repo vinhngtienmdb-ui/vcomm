@@ -1262,3 +1262,9 @@ Nguồn: `tai_lieu/cong_viec/CONG_VIEC_59.md` mục 5, 7, 10.
   4. Phiên xong: Nhân sự nhận sự kiện `office.signing.completed`, lưu tệp đã ký, chuyển hợp đồng sang đã ký như thao tác Ký hiện có (Văn phòng số không ghi vào schema `hr`).
 - Ngoại lệ: đang ký số thì không xác nhận ký thủ công; hủy hợp đồng, phụ lục thì hủy phiên ký; Nhân sự không chuyển được thì báo người lập phiên.
 - Kết thúc: hợp đồng lao động đã ký với tệp đã ký.
+
+## MODULE_12 Cửa hàng liên kết (phần 2: tích, đổi điểm qua Open API, CONG_VIEC_67)
+
+Luồng 63: người có `affiliate.manage` cấp khóa (MAN_HINH_231) → phần mềm cửa hàng gọi API kèm khóa → kiểm khóa, IP, phạm vi, tần suất, cửa hàng hoạt động, điểm bán → tra điểm (mã thành viên hoặc số điện thoại) → chọn cách: mã thành viên (hoàn tất ngay); số điện thoại (chờ khách xác nhận trên ứng dụng, phần mềm hỏi lại trạng thái); mã OTP (khách có Smart OTP đọc mã; chưa có thì phần mềm yêu cầu gửi SMS, ghi phí tin) → hoàn tất: voucher, trừ điểm, tích điểm (trong hạn mức), bút toán → hủy trước khi chốt tuần qua API hoặc cổng → thứ Hai lập bảng đối soát tuần gồm phí tin nhắn F.
+
+Ngoại lệ: mã giao dịch đối tác đã có trả giao dịch cũ; mã OTP sai không lập giao dịch; Smart OTP sai 5 lần khóa 15 phút; vượt số tin mỗi ngày của khóa `429`.

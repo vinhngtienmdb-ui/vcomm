@@ -1901,3 +1901,23 @@ MODULE_16 phần 1 (CONG_VIEC_61) không phát, không nghe sự kiện outbox.
 `OpenCustomer`: `code`, `kind`, `managedByPartner`; khi `managedByPartner` thêm `name`, `taxCode`, `address`, `phone`, `email`, `personalDataConsentAt`, `version`, `createdAt`, `updatedAt`. Không trả số căn cước.
 
 Sửa API hiện có (chỉ thêm trường): API_262 nhận `customerCode` từ khóa đối tác (khách trong phạm vi) và `recipient` (`name`, `phone`, `address`; không gửi cùng `deliveryAddress`); API_263 trả `recipient`; API_71 (`GET /crm/partners`) lọc `source` (`web`, `open_api`), mỗi dòng có `createdViaOpenApi`; chi tiết đối tác có `openApi[]`; chi tiết đơn bán có `recipient`, `customerCreatedViaOpenApi`; chi tiết phiếu kho có `recipient`. Mã lỗi dùng mã có sẵn. API_293, API_294 không dùng.
+
+## 2v. Endpoint cửa hàng liên kết qua Open API (MODULE_12 phần 2, CONG_VIEC_67)
+
+Nhân viên, cổng cửa hàng (gốc `/api/v1`):
+
+| Mã | Phương thức, đường dẫn | Quyền | Mô tả |
+|---|---|---|---|
+| API_295 | `GET`, `POST /affiliate/merchants/{id}/api-keys`; `PUT /affiliate/api-keys/{id}`; `POST /affiliate/api-keys/{id}/rotate`, `/revoke`; `GET /merchant-portal/api-keys` | xem `affiliate.view`; sửa `affiliate.manage`; cổng: chủ cửa hàng | Khóa của cửa hàng; cấp, cấp lại trả `secret` một lần; cổng cửa hàng chỉ xem kèm số lần gọi, giao dịch, tin SMS, phí tạm tính |
+
+Phần mềm cửa hàng (khóa phạm vi `loyalty.member`, gốc `/api/v1/open/affiliate`):
+
+| Mã | Phương thức, đường dẫn | Mô tả |
+|---|---|---|
+| API_296 | `GET /outlets`; `POST /quote` | Điểm bán của khóa; tra điểm (`outletId`, `billAmount`, `memberCode` hoặc `phone`): tên đã che, điểm tối thiểu, tối đa, giá trị một điểm, điểm dự kiến, voucher dùng được, `smartOtpActive` |
+| API_297 | `POST /otp` | Gửi mã OTP SMS (`outletId`, `phone`); `204`; khách có Smart OTP `409`; vượt số tin mỗi ngày của khóa hoặc 5 mã mỗi giờ mỗi số `429` |
+| API_298 | `POST /transactions` | `partnerTransactionCode`, `outletId`, `billAmount`, `method` (`member_code`, `phone`, `otp`), `memberCode`, `phone`, `otp`, `points`, `voucherCodeId`; `201` tạo mới, `200` mã đã có |
+| API_299 | `GET /transactions`, `GET /transactions/{partnerTransactionCode}` | Liệt kê (`status`, `from`, `to`, `page`, `pageSize` ≤ 100), tra giao dịch tạo qua API của cửa hàng |
+| API_300 | `POST /transactions/{partnerTransactionCode}/cancel` | Hủy (`reason`) |
+
+Sửa API đã có: API_206 hợp đồng nhận, trả `smsFee`; API_212 bảng đối soát trả `smsCount`, `smsFeeAmount`; API_208, 213 giao dịch trả `source`, `partnerTransactionCode`, `cashierName` trống khi qua API; API_255 khóa trả `channelId`, `channelName` trống với khóa cửa hàng; API_256, 257 từ chối phạm vi `loyalty.member`, sửa khóa cửa hàng `409`. Nhật ký gọi giữ thêm tham số `from`, `to`.
