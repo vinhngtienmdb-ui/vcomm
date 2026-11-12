@@ -592,7 +592,13 @@
     "visitDisabled": "Chức năng ghé thăm khách đã tắt, không ghi được lượt mới.",
     "followUpDateRange": "Ngày hẹn phải từ hôm nay đến 365 ngày sau.",
     "followUpAlreadyDone": "Hẹn này đã được đánh dấu xong.",
-    "revenueMonthRange": "Chọn tháng từ khi được đánh dấu nhân viên kinh doanh đến tháng hiện tại, tối đa 24 tháng."
+    "revenueMonthRange": "Chọn tháng từ khi được đánh dấu nhân viên kinh doanh đến tháng hiện tại, tối đa 24 tháng.",
+    "retailSmartOtpInactive": "Khách chưa kích hoạt Smart OTP. Mời khách mở ứng dụng VComm → Điểm thưởng → Kích hoạt Smart OTP.",
+    "retailSmartOtpLocked": "Dùng điểm tại quầy đang tạm khóa 15 phút do nhập sai mã Smart OTP nhiều lần.",
+    "retailSmartOtpInvalid": "Mã Smart OTP không đúng hoặc đã dùng. Nhờ khách đọc mã mới trong ứng dụng.",
+    "retailSmartOtpRequired": "Nhập mã Smart OTP của khách để dùng điểm.",
+    "retailCustomerNotFound": "Không tìm thấy khách VComm theo số điện thoại này.",
+    "retailCustomerChanged": "Khách đã đổi hoặc tạm khóa dùng điểm. Tra lại khách rồi thanh toán."
   },
   "login": {
     "title": "Đăng nhập",
@@ -3848,7 +3854,19 @@
     "revenueBranch": "Nhánh của tôi · tổng {amount}",
     "revenueBranchOpen": "Đang xử lý cả nhánh: {count} đơn · {amount}",
     "revenueMemberHint": "{title} · {orders} đơn · {customers} khách",
-    "careFollowUpPlaceholder": "ngày/tháng/năm"
+    "careFollowUpPlaceholder": "ngày/tháng/năm",
+    "smartOtpTitle": "Smart OTP dùng điểm tại quầy",
+    "smartOtpIntro": "Dùng điểm tại cửa hàng cần mã Smart OTP trên điện thoại này. Mã đổi mỗi 30 giây, dùng được khi không có mạng.",
+    "smartOtpActivate": "Kích hoạt Smart OTP",
+    "smartOtpActivateHere": "Kích hoạt trên máy này",
+    "smartOtpSent": "Mã 6 số đã gửi qua tin nhắn tới {phone}.",
+    "smartOtpSmsCode": "Mã xác nhận",
+    "smartOtpOtherDevice": "Smart OTP đang dùng trên máy khác ({device}). Kích hoạt trên máy này thì máy kia hết hiệu lực.",
+    "smartOtpUse": "Đọc mã này cho thu ngân khi dùng điểm. Không đưa mã cho người khác. Còn {seconds} giây.",
+    "smartOtpDevice": "Máy: {device} · kích hoạt {date}",
+    "smartOtpRevoke": "Hủy Smart OTP",
+    "smartOtpLocked": "Dùng điểm tại quầy đang tạm khóa đến {time} do nhập sai mã nhiều lần.",
+    "smartOtpCodeLabel": "Mã Smart OTP {code}"
   },
   "buyers": {
     "title": "Tài khoản người mua",
@@ -7095,7 +7113,7 @@
     "gift": "Hàng tặng",
     "serials": "Serial: {serials}",
     "emptyCart": "Chưa có hàng. Quét mã vạch hoặc tìm hàng để bắt đầu.",
-    "keys": "F2 người mua lấy hóa đơn · F4 giảm tay dòng đang chọn · F9 thanh toán · Delete xóa dòng",
+    "keys": "F2 người mua lấy hóa đơn · F3 khách VComm · F4 giảm tay dòng đang chọn · F9 thanh toán · Delete xóa dòng",
     "customer": "Khách",
     "walkIn": "Khách lẻ",
     "invoiceBuyer": "Thông tin người mua lấy hóa đơn",
@@ -7136,7 +7154,21 @@
     "transferReceived": "Đã nhận chuyển khoản {amount}",
     "transferContent": "Nội dung: {content}",
     "qrLabel": "Mã VietQR chuyển khoản",
-    "transferOverTotal": "Tiền chuyển khoản không được vượt số phải trả."
+    "transferOverTotal": "Tiền chuyển khoản không được vượt số phải trả.",
+    "customerPhone": "Số điện thoại khách VComm",
+    "findCustomer": "Tìm",
+    "removeCustomer": "Bỏ",
+    "customerInfo": "Hạng {tier} · {points} điểm khả dụng",
+    "smartOtpOn": "Smart OTP đã kích hoạt",
+    "expectedPoints": "Hóa đơn này dự kiến được tích khoảng {points} điểm.",
+    "smartOtpInactive": "Khách chưa kích hoạt Smart OTP: vẫn tích điểm được; muốn dùng điểm, mời khách mở ứng dụng VComm → Điểm thưởng → Kích hoạt Smart OTP.",
+    "smartOtpLocked": "Dùng điểm tại quầy đang tạm khóa đến {time} do nhập sai mã nhiều lần; vẫn tích điểm được.",
+    "customerNotFound": "Số {phone} chưa có tài khoản VComm. Hóa đơn không tích điểm; hóa đơn in dòng mời cài ứng dụng VComm.",
+    "usePoints": "Dùng điểm (khả dụng {points} điểm)",
+    "pointsToUse": "Số điểm dùng",
+    "pointsRange": "= {amount} · tối thiểu {min}, tối đa {max} điểm",
+    "smartOtp": "Mã Smart OTP của khách",
+    "smartOtpHint": "Khách đọc mã 6 số trong ứng dụng VComm (đổi mỗi 30 giây)"
   },
   "retailSales": {
     "title": "Hóa đơn bán lẻ",
@@ -7185,7 +7217,12 @@
     "einvoiceLookup": "Mã tra cứu: {code}",
     "einvoiceTaxAuthorityCode": "Mã CQT: {code}",
     "footer": "Cảm ơn quý khách!",
-    "returnPolicy": "Đổi trả trong {days} ngày kèm hóa đơn này."
+    "returnPolicy": "Đổi trả trong {days} ngày kèm hóa đơn này.",
+    "pointsCount": "{points} điểm",
+    "loyaltyCustomer": "Khách VComm: {name} · {phone}",
+    "loyaltyPoints": "Điểm đã dùng: {used} · Điểm được tích: {earned}",
+    "loyaltyBalance": "Số dư sau giao dịch: {points} điểm",
+    "inviteApp": "Chưa có tài khoản? Cài ứng dụng VComm để tích điểm cho lần mua sau."
   },
   "retailReturns": {
     "title": "Trả hàng",
@@ -7222,7 +7259,8 @@
     "noReturnPermission": "Bạn không có quyền trả hàng.",
     "slipTitle": "PHIẾU TRẢ HÀNG",
     "slipSale": "Theo hóa đơn {number}",
-    "serials": "Serial trả"
+    "serials": "Serial trả",
+    "pointsEffect": "Giá trị hàng trả {goods}; hoàn lại {refunded} điểm đã dùng, thu hồi {reversed} điểm đã tích; tiền thiếu quy đổi {shortfall} trừ vào tiền hoàn."
   },
   "budgets": {
     "title": "Kế hoạch ngân sách mua",

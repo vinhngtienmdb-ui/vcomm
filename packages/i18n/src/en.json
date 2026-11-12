@@ -592,7 +592,13 @@
     "visitDisabled": "Customer visits are turned off; new visits cannot be recorded.",
     "followUpDateRange": "The follow-up date must be between today and 365 days from now.",
     "followUpAlreadyDone": "This follow-up is already marked as done.",
-    "revenueMonthRange": "Pick a month between when you joined the sales team and the current month, up to 24 months."
+    "revenueMonthRange": "Pick a month between when you joined the sales team and the current month, up to 24 months.",
+    "retailSmartOtpInactive": "The customer has not activated Smart OTP. Ask them to open the VComm app → Rewards → Activate Smart OTP.",
+    "retailSmartOtpLocked": "Using points at the counter is locked for 15 minutes after too many wrong Smart OTP codes.",
+    "retailSmartOtpInvalid": "The Smart OTP code is wrong or already used. Ask the customer for a new code.",
+    "retailSmartOtpRequired": "Enter the customer's Smart OTP code to use points.",
+    "retailCustomerNotFound": "No VComm customer found for this phone number.",
+    "retailCustomerChanged": "The customer changed or points are locked. Look up the customer again and retry."
   },
   "login": {
     "title": "Sign in",
@@ -3848,7 +3854,19 @@
     "revenueBranch": "My branch · total {amount}",
     "revenueBranchOpen": "In progress across the branch: {count} orders · {amount}",
     "revenueMemberHint": "{title} · {orders} orders · {customers} customers",
-    "careFollowUpPlaceholder": "dd/mm/yyyy"
+    "careFollowUpPlaceholder": "dd/mm/yyyy",
+    "smartOtpTitle": "Smart OTP for using points in store",
+    "smartOtpIntro": "Using points in store needs a Smart OTP code on this phone. The code changes every 30 seconds and works offline.",
+    "smartOtpActivate": "Activate Smart OTP",
+    "smartOtpActivateHere": "Activate on this phone",
+    "smartOtpSent": "A 6-digit code was sent by SMS to {phone}.",
+    "smartOtpSmsCode": "Confirmation code",
+    "smartOtpOtherDevice": "Smart OTP is active on another phone ({device}). Activating here deactivates the other phone.",
+    "smartOtpUse": "Read this code to the cashier when using points. Never share it. {seconds} seconds left.",
+    "smartOtpDevice": "Phone: {device} · activated {date}",
+    "smartOtpRevoke": "Turn off Smart OTP",
+    "smartOtpLocked": "Using points in store is locked until {time} after too many wrong codes.",
+    "smartOtpCodeLabel": "Smart OTP code {code}"
   },
   "buyers": {
     "title": "Buyer accounts",
@@ -7095,7 +7113,7 @@
     "gift": "Gift",
     "serials": "Serials: {serials}",
     "emptyCart": "The cart is empty. Scan or search to start.",
-    "keys": "F2 invoice buyer · F4 discount selected line · F9 pay · Delete remove line",
+    "keys": "F2 invoice buyer · F3 VComm customer · F4 discount selected line · F9 pay · Delete remove line",
     "customer": "Customer",
     "walkIn": "Walk-in customer",
     "invoiceBuyer": "Invoice buyer details",
@@ -7136,7 +7154,21 @@
     "transferReceived": "Transfer of {amount} received",
     "transferContent": "Content: {content}",
     "qrLabel": "VietQR transfer code",
-    "transferOverTotal": "The transfer cannot exceed the amount due."
+    "transferOverTotal": "The transfer cannot exceed the amount due.",
+    "customerPhone": "VComm customer phone",
+    "findCustomer": "Find",
+    "removeCustomer": "Remove",
+    "customerInfo": "Tier {tier} · {points} points available",
+    "smartOtpOn": "Smart OTP active",
+    "expectedPoints": "This sale should earn about {points} points.",
+    "smartOtpInactive": "Smart OTP not activated: points can still be earned; to use points, ask the customer to open the VComm app → Rewards → Activate Smart OTP.",
+    "smartOtpLocked": "Using points is locked until {time} after too many wrong codes; points can still be earned.",
+    "customerNotFound": "{phone} has no VComm account. This sale earns no points; the receipt invites the customer to install the VComm app.",
+    "usePoints": "Use points ({points} available)",
+    "pointsToUse": "Points to use",
+    "pointsRange": "= {amount} · min {min}, max {max} points",
+    "smartOtp": "Customer's Smart OTP code",
+    "smartOtpHint": "The customer reads the 6-digit code in the VComm app (changes every 30 seconds)"
   },
   "retailSales": {
     "title": "Retail sales",
@@ -7185,7 +7217,12 @@
     "einvoiceLookup": "Lookup code: {code}",
     "einvoiceTaxAuthorityCode": "Tax authority code: {code}",
     "footer": "Thank you!",
-    "returnPolicy": "Returns within {days} days with this receipt."
+    "returnPolicy": "Returns within {days} days with this receipt.",
+    "pointsCount": "{points} points",
+    "loyaltyCustomer": "VComm customer: {name} · {phone}",
+    "loyaltyPoints": "Points used: {used} · Points earned: {earned}",
+    "loyaltyBalance": "Balance after: {points} points",
+    "inviteApp": "No account yet? Install the VComm app to earn points next time."
   },
   "retailReturns": {
     "title": "Returns",
@@ -7222,7 +7259,8 @@
     "noReturnPermission": "You cannot process returns.",
     "slipTitle": "RETURN SLIP",
     "slipSale": "For receipt {number}",
-    "serials": "Serials returned"
+    "serials": "Serials returned",
+    "pointsEffect": "Returned goods {goods}; {refunded} used points refunded, {reversed} earned points reversed; shortfall {shortfall} deducted from the refund."
   },
   "budgets": {
     "title": "Purchase budget plans",

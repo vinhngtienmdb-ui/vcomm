@@ -1,8 +1,8 @@
 "use client";
 
 // Hộp thoại thanh toán (MAN_HINH_161; QUYTAC_NGHIEPVU_373): chuyển khoản qua mã VietQR (thu ngân xác nhận đã nhận), tiền mặt có gợi ý mệnh giá, tiền thừa;
-// khóa yêu cầu tạo một lần cho mỗi lần mở hộp thoại để gửi lại không ghi trùng.
-import type { CreateRetailSaleRequest, RetailQuoteResponse, RetailSaleResponse, RetailShiftResponse } from "contracts";
+// điểm của khách VComm kèm mã Smart OTP (lát L6; QUYTAC_NGHIEPVU_379); khóa yêu cầu tạo một lần cho mỗi lần mở hộp thoại để gửi lại không ghi trùng.
+import type { CreateRetailSaleRequest, RetailCustomerResponse, RetailQuoteResponse, RetailSaleResponse, RetailShiftResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import qrcode from "qrcode-generator";
 import { type FormEvent, useState } from "react";
@@ -31,6 +31,7 @@ export function PaymentDialog({
   shift,
   cart,
   buyer,
+  customer,
   quote,
   onQuoteChanged,
   onPaid,
@@ -39,6 +40,7 @@ export function PaymentDialog({
   shift: RetailShiftResponse;
   cart: CartItem[];
   buyer: Buyer;
+  customer: RetailCustomerResponse | null;
   quote: RetailQuoteResponse;
   onQuoteChanged: () => void;
   onPaid: (sale: RetailSaleResponse) => void;
@@ -56,23 +58,43 @@ export function PaymentDialog({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const money = (amount: number | string) => formatMoney(String(amount), shift.currency);
+  // Điểm: chỉ khi khách dùng được điểm (đủ điều kiện, Smart OTP đã kích hoạt, không tạm khóa).
+  const canRedeem = Boolean(customer && customer.redeemBlockedReason === null && customer.maxPoints > 0 && customer.pointValue);
+  const [pointsOn, setPointsOn] = useState(false);
+  const [points, setPoints] = useState("");
+  const [smartOtp, setSmartOtp] = useState("");
+  const pointsUsed = pointsOn ? Math.trunc(Number(points) || 0) : 0;
+  const pointsAmount = pointsOn && customer?.pointValue ? Math.floor(pointsUsed * Number(customer.pointValue)) : 0;
+  const pointsValid = !pointsOn || (pointsUsed >= (customer?.minPoints ?? 0) && pointsUsed <= (customer?.maxPoints ?? 0) && /^[0-9]{6}$/.test(smartOtp));
   const transferAmount = transferOn ? Number(transfer) || 0 : 0;
   const cashAmount = Number(cash) || 0;
-  const remaining = Math.max(0, payable - transferAmount);
-  const tendered = transferAmount + cashAmount;
+  const remaining = Math.max(0, payable - transferAmount - pointsAmount);
+  const tendered = transferAmount + cashAmount + pointsAmount;
   const content = vietQrContent(`${shift.register.code} ${clientKey.slice(0, 8)}`);
-  const ready = tendered >= payable && transferAmount <= payable && (!transferOn || (received && transferAmount > 0));
+  const ready = tendered >= payable && transferAmount + pointsAmount <= payable && pointsValid && (!transferOn || (received && transferAmount > 0));
 
+  function togglePoints(on: boolean) {
+    setPointsOn(on);
+    const suggested = on && customer ? Math.min(customer.maxPoints, Math.floor(payable / Number(customer.pointValue))) : 0;
+    setPoints(on ? String(suggested) : "");
+    setSmartOtp("");
+    setCash(String(Math.max(0, payable - transferAmount - (on && customer ? Math.floor(suggested * Number(customer.pointValue)) : 0))));
+  }
+  function changePoints(value: string) {
+    setPoints(value);
+    const used = Math.trunc(Number(value) || 0);
+    setCash(String(Math.max(0, payable - transferAmount - (customer ? Math.floor(used * Number(customer.pointValue)) : 0))));
+  }
   function toggleTransfer(on: boolean) {
     setTransferOn(on);
     setReceived(false);
-    setTransfer(String(payable));
-    setCash(on ? "0" : String(payable));
+    setTransfer(String(Math.max(0, payable - pointsAmount)));
+    setCash(on ? "0" : String(Math.max(0, payable - pointsAmount)));
   }
   function changeTransfer(value: string) {
     setTransfer(value);
     setReceived(false);
-    setCash(String(Math.max(0, payable - (Number(value) || 0))));
+    setCash(String(Math.max(0, payable - pointsAmount - (Number(value) || 0))));
   }
 
   async function submit(event: FormEvent) {
@@ -89,6 +111,7 @@ export function PaymentDialog({
         clientKey,
         lines: cart.map(({ variantId, unitId, quantity, discountPercent, serials }) => ({ variantId, unitId, quantity, discountPercent, serials })),
         buyer: { name: buyer.name, taxCode: buyer.taxCode, address: buyer.address, identityNo: buyer.identityNo },
+        ...(customer?.userId ? { customer: { userId: customer.userId, points: pointsUsed, ...(pointsUsed > 0 ? { smartOtp } : {}) } } : {}),
         payments,
         expectedTotal: quote.totalAmount,
       };
@@ -106,6 +129,34 @@ export function PaymentDialog({
     <div className="man-che giua" onKeyDown={(event) => event.key === "Escape" && onClose()}>
       <form className="hop-thoai rong" role="dialog" aria-modal="true" aria-label={t("paymentTitle", { amount: money(payable) })} onSubmit={submit}>
         <h2>{t("paymentTitle", { amount: money(payable) })}</h2>
+        {canRedeem && customer && (
+          <label>
+            <input type="checkbox" checked={pointsOn} onChange={(event) => togglePoints(event.target.checked)} /> {t("usePoints", { points: customer.balance.toLocaleString("vi-VN") })}
+          </label>
+        )}
+        {canRedeem && customer && pointsOn && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--khoang-4)", alignItems: "flex-start" }}>
+            <Field
+              id="diem-dung"
+              label={t("pointsToUse")}
+              hint={t("pointsRange", { amount: money(pointsAmount), min: customer.minPoints.toLocaleString("vi-VN"), max: customer.maxPoints.toLocaleString("vi-VN") })}
+            >
+              <input id="diem-dung" className="o-nhap" inputMode="numeric" value={points} onChange={(event) => changePoints(event.target.value)} />
+            </Field>
+            <Field id="ma-smart-otp" label={t("smartOtp")} hint={t("smartOtpHint")}>
+              <input
+                id="ma-smart-otp"
+                className="o-nhap"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                value={smartOtp}
+                onChange={(event) => setSmartOtp(event.target.value.replace(/[^0-9]/g, ""))}
+                style={{ letterSpacing: "6px", fontWeight: 800, maxWidth: "12rem" }}
+              />
+            </Field>
+          </div>
+        )}
         {bank && (
           <label>
             <input type="checkbox" checked={transferOn} onChange={(event) => toggleTransfer(event.target.checked)} /> {t("transfer")}

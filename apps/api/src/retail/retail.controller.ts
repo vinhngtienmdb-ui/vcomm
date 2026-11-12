@@ -1,6 +1,8 @@
 // API_192, API_193: cửa hàng, quầy, ca thu ngân (CONG_VIEC_53). Quyền chi tiết kiểm trong service.
 import { Body, Controller, Get, Headers, HttpCode, Param, Patch, Post, Query, Req } from "@nestjs/common";
 import {
+  retailCustomerQuerySchema,
+  type RetailCustomerResponse,
   closeRetailShiftSchema,
   createRetailReturnSchema,
   createRetailSaleSchema,
@@ -226,6 +228,12 @@ export class RetailController {
   @Post("shifts/:id/close")
   async shiftClose(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<RetailShiftResponse> {
     return this.shifts.close(await this.actor(request, companyId), id, closeRetailShiftSchema.parse(body));
+  }
+
+  // API_198: tra khách VComm tại quầy (lát L6).
+  @Get("customers")
+  async customer(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<RetailCustomerResponse> {
+    return this.sales.customer(await this.actor(request, companyId), retailCustomerQuerySchema.parse(query));
   }
 
   @Get("items")
