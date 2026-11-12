@@ -41,6 +41,7 @@
 
 ### Quyết định
 
+- Người dùng quyết định không làm quản lý sản xuất: hủy CONG_VIEC_64, bỏ khỏi phạm vi MODULE_16 (THAY_DOI_30). Mã dành riêng của CONG_VIEC_64 không dùng, không cấp lại.
 - Người dùng mở phiên cho CONG_VIEC_64 (quản lý sản xuất), CONG_VIEC_66 (Open API phần 2), CONG_VIEC_67 (Cửa hàng liên kết phần 2); các công việc còn lại (62, 63, 65) vẫn tạm dừng. Chưa triển khai các bản 0.4.0 đến 0.8.0.
 - Người dùng quyết định CONG_VIEC_52, CONG_VIEC_56 không chờ đối chiếu nguyên văn văn bản luật. Rủi ro còn mở của CONG_VIEC_56: chưa đối chiếu nguyên văn Phụ lục II Thông tư 99/2025 (tài khoản 413, 515, 635), hạn nộp thuế nhập khẩu, mức tiền chậm nộp 0,03% mỗi ngày, thời hạn khai bổ sung; kế toán trưởng chưa xác nhận tài khoản quỹ ngoại tệ. Các tham số đều cài được; nếu khác quy định thì thêm bộ tham số mới hoặc lập yêu cầu thay đổi.
 - Phát hành 0.8.0 gồm CONG_VIEC_52, 56 ngay; dành database migration 0145 cho việc gộp ràng buộc kiểm tra dùng chung nếu cần.

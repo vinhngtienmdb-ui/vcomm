@@ -459,3 +459,14 @@
 - Mức quy mô: Nhỏ; làm trong CONG_VIEC_55.
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-12; đã phát hành v0.7.0 2026-11-12, chờ triển khai.
+
+### THAY_DOI_30: Bỏ quản lý sản xuất khỏi phạm vi MODULE_16 – 2026-11-12
+- Lý do: người dùng xác nhận doanh nghiệp không có hoạt động sản xuất.
+- Nội dung thay đổi (người dùng quyết định 2026-11-12 trong phiên CONG_VIEC_64): bỏ "quản lý sản xuất" khỏi phạm vi MODULE_16 đã duyệt theo THAY_DOI_04; hủy CONG_VIEC_64.
+- Thành phần bị ảnh hưởng: tài liệu 01, 04, 05 (phạm vi MODULE_16); CONG_VIEC_64.
+- Dữ liệu, API, giao diện, quyền: không (chưa làm).
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: không.
+- Mức quy mô: Nhỏ (chỉ tài liệu).
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-12.

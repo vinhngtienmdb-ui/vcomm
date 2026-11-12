@@ -52,7 +52,7 @@ Giai đoạn 03, 04 làm lần lượt cho từng module theo thứ tự xây d�
 | MODULE_13 | Văn phòng số | Công việc, quy trình, công văn, chữ ký số, kho hợp đồng, bảng tin nội bộ | 10 | Chưa bắt đầu |
 | MODULE_14 | Bán lẻ tại quầy và trạm giao hàng | Bán hàng tại quầy, trạm giao hàng O2O, kế hoạch mua theo ngân sách | 11 | Chưa bắt đầu |
 | MODULE_15 | Phân tích dữ liệu | Báo cáo quản trị toàn tập đoàn | 12 | Chưa bắt đầu |
-| MODULE_16 | Mở rộng kinh doanh | Dropship, Open API, trợ lý AI, quản lý sản xuất | 12 | Chưa bắt đầu |
+| MODULE_16 | Mở rộng kinh doanh | Dropship, Open API, trợ lý AI (quản lý sản xuất bỏ theo THAY_DOI_30) | 12 | Chưa bắt đầu |
 
 ## 5. Mốc phát hành
 
