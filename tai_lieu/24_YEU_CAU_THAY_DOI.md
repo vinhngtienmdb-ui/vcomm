@@ -470,3 +470,14 @@
 - Mức quy mô: Nhỏ (chỉ tài liệu).
 - Rủi ro: thấp.
 - Trạng thái: Đã phê duyệt 2026-11-12.
+
+### THAY_DOI_31: Phí tin nhắn OTP của cửa hàng liên kết tính vào đối soát tuần – 2026-11-12
+- Lý do: CONG_VIEC_67 cho phần mềm cửa hàng liên kết tích, đổi điểm qua Open API, khách xác thực bằng mã OTP; khách chưa kích hoạt Smart OTP thì VComm gửi SMS. Người dùng chọn tính phí tin nhắn cho cửa hàng qua đối soát tuần. Hợp đồng, bảng đối soát, hạch toán của CONG_VIEC_55 đã duyệt chưa có khoản này.
+- Nội dung thay đổi (người dùng chọn 2026-11-12 trong phiên CONG_VIEC_67): hợp đồng cửa hàng liên kết thêm "Phí mỗi tin OTP" (đồng, 0 đến 10.000, mặc định 0; sửa áp cho tin gửi sau khi sửa). Mỗi tin SMS gửi thành công qua Open API ghi một dòng phí theo đơn giá lúc gửi; gửi lỗi không tính. Bảng đối soát tuần thêm phí tin nhắn F = tổng phí tin trong tuần, số tin; thuế E = làm tròn ((D + F) × thuế suất); số còn lại = A + D + F + E − B − C (cộng phần thiếu, điều chỉnh như cũ); cửa hàng chỉ có tin nhắn trong tuần vẫn lập bảng. Hạch toán khi xác nhận bảng: F như phí dịch vụ, Có 511 vai trò affiliate_fee_revenue, thuế Có 3331. Chống lạm dụng: mỗi số tối đa 5 mã mỗi giờ (tính chung mọi mục đích, quy tắc hiện có); mỗi khóa API tối đa số tin mỗi ngày theo cấu hình khóa (0 đến 5.000, mặc định 200); không gửi SMS cho khách đã kích hoạt Smart OTP.
+- Thành phần bị ảnh hưởng: CONG_VIEC_55 (QUYTAC_NGHIEPVU_392, 403, 404; MAN_HINH_176, 178, 180; API_206, 212; affiliate/settlements.service.ts, postings.ts, việc nền lập bảng đối soát); CONG_VIEC_02, 23 (PhoneOtpService thêm mục đích affiliate_redeem).
+- Dữ liệu, API, giao diện, quyền: database migration 0148: affiliate.merchants.sms_fee; bảng mới affiliate.sms_charges; affiliate.settlements thêm sms_count, sms_fee_amount, ràng buộc net_amount định nghĩa lại gồm F; core.otp_codes ràng buộc purpose định nghĩa lại gồm mọi giá trị trên main và affiliate_redeem. API_206 (hợp đồng nhận smsFee), API_212 (bảng đối soát trả smsCount, smsFeeAmount). Giao diện: trường phí mỗi tin trong hợp đồng (MAN_HINH_178), dòng F trong bảng đối soát (MAN_HINH_176, 180). Không thêm quyền.
+- Ảnh hưởng chức năng cũ: bảng đối soát, hạch toán của cửa hàng không dùng SMS giữ nguyên số liệu (F = 0, E như cũ); bảng đã lập trước khi chạy database migration giữ F = 0.
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_55 về đối soát, hạch toán (c55-*.test.ts, KICHBAN_KIEMTHU_544, 545) chạy lại; kiểm thử mới KICHBAN_KIEMTHU_700, 701 của CONG_VIEC_67; kiểm thử đăng nhập OTP hiện có (giới hạn 5 mã mỗi giờ).
+- Mức quy mô: Lớn (sửa cấu trúc dữ liệu, API đã duyệt); làm trong CONG_VIEC_67 lát L2.
+- Rủi ro: trung bình (đổi công thức số còn lại của bảng đối soát; giảm bằng ràng buộc net_amount trong cơ sở dữ liệu và kiểm thử hồi quy CONG_VIEC_55).
+- Trạng thái: Đã phê duyệt 2026-11-12 (người dùng chọn trong phiên CONG_VIEC_67).
