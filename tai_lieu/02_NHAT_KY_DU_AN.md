@@ -38,6 +38,7 @@
 
 ### Quyết định
 
+- Người dùng xác nhận lại thư viện expo-camera ~58.0.14 (giấy phép MIT) trong mobile-vcomm, dùng quét mã QR cửa hàng liên kết ở bản 0.7.0; thư viện đã được duyệt từ 2026-11-11 (tài liệu 13).
 - Phát hành 0.7.0 gồm CONG_VIEC_55 và 61 khi CONG_VIEC_61 được nghiệm thu (dành database migration 0144 cho việc gộp ràng buộc kiểm tra dùng chung nếu cần); CONG_VIEC_52, 56 vào bản sau khi đối chiếu luật ngày 13/11.
 - CONG_VIEC_61: chốt phạm vi ở L1, L2; tách L3 (khách hàng do đối tác tạo, giao thẳng người nhận cuối) thành CONG_VIEC_66 (MODULE_16), L4 (điểm thưởng tại đối tác) thành CONG_VIEC_67 và gộp vào MODULE_12 (Cửa hàng liên kết phần 2). Đơn Open API theo cài đặt "Cho phép lập đơn bán tay có hàng hóa" (QUYTAC_NGHIEPVU_276, không đổi quy tắc); người lập đơn Open API là người cấp khóa.
 - Tạm dừng mở phiên cho CONG_VIEC_62 đến 67 đến khi các phiên đang chạy hoàn tất.
