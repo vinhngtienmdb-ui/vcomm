@@ -15,7 +15,7 @@ const environment = { SHARE_PUBLIC_URL: "https://vcomm.vn/", VCOMM_WEB_URL: "htt
 const http = () => request(application.getHttpServer());
 const page = (path: string, language = "vi") => http().get(path).set("accept-language", language);
 const metaOf = (html: string, property: string) => new RegExp(`<meta property="${property}" content="([^"]*)">`).exec(html)?.[1] ?? null;
-const hrefs = (html: string) => [...html.matchAll(/<a class="nut [^"]+" href="([^"]+)">([^<]+)<\/a>/g)].map((match) => [match[2], match[1].replace(/&#38;/g, "&")]);
+const hrefs = (html: string) => [...html.matchAll(/<a class="nut [^"]+" href="([^"]+)">([^<]+)<\/a>/g)].map((match) => [match[2]!, match[1]!.replace(/&#38;/g, "&")]);
 
 beforeAll(async () => {
   Object.assign(process.env, environment);
