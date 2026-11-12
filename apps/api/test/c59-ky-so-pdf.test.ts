@@ -187,4 +187,29 @@ describe("CONG_VIEC_59 ký số PDF", () => {
     const duplicated = Buffer.concat([signed, Buffer.from(`\n% ${/\/ByteRange\s*\[[^\]]*\]/.exec(signed.toString("latin1"))![0]}\n`, "latin1")]);
     expect(verifyPdfSignatures(duplicated, [rootPem])).toHaveLength(1);
   });
+
+  it("hồi quy: chữ ký có byte cuối 0x00 vẫn hợp lệ (không cắt phần đệm 00 của chữ ký thật)", async () => {
+    // Chữ ký RSA tất định theo mã băm: đổi lý do ký mỗi lần đến khi được chữ ký kết thúc bằng 0x00 (khoảng 1/256).
+    const identityCode = "079090001234";
+    const certificate = (await provider.listCertificates(config, identityCode))[0]!;
+    let found = 0;
+    for (let attempt = 0; attempt < 5000 && found < 2; attempt += 1) {
+      const prepared = await prepareSignature({
+        pdf: original,
+        placement: { page: "last", corner: "bottom_right", slot: 0 },
+        appearanceLines: ["Ký bởi: Nguyễn Văn An"],
+        signerName: "Nguyễn Văn An",
+        reason: `Thử ${attempt}`,
+        signingTime: new Date(),
+        certificateChainPem: certificate.certificateChainPem,
+      });
+      const { transactionId } = await provider.requestSignature(config, { identityCode, serialNumber: certificate.serialNumber, digest: prepared.digest, documentTitle: "Hợp đồng" });
+      const result = await provider.getSignatureResult(config, transactionId);
+      if (result.status !== "signed" || result.signatureValue[result.signatureValue.length - 1] !== 0) continue;
+      found += 1;
+      const signed = await completeSignature(prepared.preparedPdf, certificate.certificateChainPem, result.signatureValue);
+      expect(verifyPdfSignatures(signed, [rootPem]).map((check) => check.conclusion)).toEqual(["valid"]);
+    }
+    expect(found).toBe(2);
+  });
 });

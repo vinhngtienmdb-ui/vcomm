@@ -123,7 +123,9 @@ export function verifyPdfSignatures(pdf: Buffer, trustedRootsPem: string[], now:
       results.push(invalid(signingTime));
       continue;
     }
-    const contentsHex = text.slice(firstLength + 1, secondStart - 1).replace(/(00)+$/, "");
+    // Giữ nguyên phần đệm 00 sau cấu trúc CMS: bộ đọc DER chỉ đọc đúng độ dài khai báo. Không cắt "00" ở cuối vì chữ ký thật
+    // có thể kết thúc bằng byte 0x00 (khoảng 1/256 chữ ký), cắt đi làm hỏng cấu trúc và báo sai là không hợp lệ.
+    const contentsHex = text.slice(firstLength + 1, secondStart - 1);
     const content = Buffer.concat([pdf.subarray(0, firstLength), pdf.subarray(secondStart, secondStart + secondLength)]);
     let parsed;
     try {
