@@ -250,4 +250,4 @@ Kiểm thử tự động: `apps/api/test/c67-*.test.ts`.
 ## 19. Điểm chưa xác định
 
 - Tài liệu hướng dẫn tích hợp cho cửa hàng: gửi bản trích tài liệu `17` như CONG_VIEC_61.
-- Ý kiến luật sư về điểm thưởng (như CONG_VIEC_51, 55): chặn phát hành thật, không chặn xây dựng.
+- Ý kiến luật sư về điểm thưởng (như CONG_VIEC_51, 55): người dùng bỏ yêu cầu tra cứu pháp lý cho các công việc (2026-11-12), không chờ.
