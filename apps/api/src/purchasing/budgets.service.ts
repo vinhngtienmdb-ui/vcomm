@@ -6,6 +6,8 @@ import type {
   BudgetPlanListItem,
   BudgetPlanResponse,
   budgetListQuerySchema,
+  BudgetCheckResponse,
+  budgetCheckSchema,
   CellOrderItem,
   cellOrdersQuerySchema,
   OpenToBuyResponse,
@@ -27,7 +29,7 @@ import type { Actor } from "../permissions/roles.service";
 import { NumberSequencesService } from "../settings/number-sequences.service";
 import { purchasingAudit, purchasingPermissions, requirePermission, type Executor, type FieldErrors } from "./purchasing-context";
 import { companyCurrency, ensureSequence } from "./requisitions.service";
-import { ordersOfCell, usedByCell } from "./open-to-buy";
+import { checkBudget, ordersOfCell, usedByCell } from "./open-to-buy";
 
 export const budgetPlanDocumentType = "purchasing.budget_plan";
 type Input = z.output<typeof saveBudgetPlanSchema>;
@@ -333,6 +335,40 @@ export class BudgetPlansService implements OnModuleInit {
       currency: row.currency,
       amount: trimDecimal(row.amount),
     }));
+  }
+
+  // API_240 (QUYTAC_NGHIEPVU_451): người lập, sửa đơn mua xem ngân sách của đơn mình mà không cần quyền xem ngân sách.
+  async checkOrder(actor: Actor, input: z.output<typeof budgetCheckSchema>): Promise<BudgetCheckResponse> {
+    await requirePermission(this.permissionService, actor, purchasingPermissions.manageOrders, purchasingPermissions.viewBudgets, purchasingPermissions.manageBudgets);
+    if (input.orderId) {
+      const own = await this.database.execute(sql`SELECT 1 FROM purchasing.orders WHERE id = ${input.orderId} AND company_id = ${actor.companyId}`);
+      if (own.rows.length === 0) throw new ApiError("NOT_FOUND", "notFound");
+    }
+    if (input.warehouseId) {
+      const warehouse = await this.database.execute(sql`SELECT 1 FROM inventory.warehouse_owners WHERE warehouse_id = ${input.warehouseId} AND company_id = ${actor.companyId}`);
+      if (warehouse.rows.length === 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { warehouseId: "invalidValue" } });
+    }
+    const variants = [...new Set(input.lines.map((line) => line.variantId))];
+    if (variants.length > 0) {
+      const owned = await this.database.execute<{ count: number }>(
+        sql`SELECT count(*)::int AS count FROM catalog.variants WHERE company_id = ${actor.companyId} AND id IN (${sql.join(
+          variants.map((id) => sql`${id}`),
+          sql`, `,
+        )})`,
+      );
+      if (owned.rows[0]!.count !== variants.length) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { lines: "invalidValue" } });
+    }
+    return checkBudget(
+      this.database,
+      actor.companyId,
+      {
+        warehouseId: input.warehouseId,
+        orderDate: input.orderDate,
+        currency: input.currency ?? (await companyCurrency(this.database, actor.companyId)),
+        lines: input.lines.map((line) => ({ variantId: line.variantId, amount: (Number(line.quantity) * Number(line.unitPrice)).toFixed(4) })),
+      },
+      input.orderId ?? null,
+    );
   }
 
   private async names(categoryIds: string[], warehouseIds: string[]) {

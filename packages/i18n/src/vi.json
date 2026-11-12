@@ -564,7 +564,8 @@
     "budgetCategoryNotTopLevel": "Chỉ lập ngân sách cho ngành hàng cấp 1 đang dùng.",
     "budgetCellDuplicate": "Ô ngân sách bị trùng (cùng ngành hàng, kho, tháng).",
     "budgetPeriodOverlap": "Kỳ kế hoạch trùng tháng với kế hoạch khác đang chờ duyệt hoặc đã duyệt.",
-    "budgetPlanEmpty": "Kế hoạch chưa có ô ngân sách nào."
+    "budgetPlanEmpty": "Kế hoạch chưa có ô ngân sách nào.",
+    "overBudgetPolicyMissing": "Đơn vượt hoặc chưa có ngân sách nhưng chưa có chính sách duyệt \"Đơn mua vượt ngân sách\". Nhờ quản trị công ty cấu hình ở Nền tảng › Chính sách duyệt."
   },
   "login": {
     "title": "Đăng nhập",
@@ -7131,5 +7132,22 @@
     "orderNo": "Số đơn",
     "viewOrders": "Xem các đơn đã tính vào ô {category} · {warehouse} · {month}",
     "noOrders": "Chưa có đơn nào tính vào ô này."
+  },
+  "orderBudget": {
+    "title": "Ngân sách mua",
+    "overWarning": "Đơn vượt hoặc chưa có ngân sách ở {count} ô. Khi gửi duyệt, đơn sẽ đi luồng duyệt \"Đơn mua vượt ngân sách\".",
+    "within": "Đơn nằm trong ngân sách.",
+    "snapshotTitle": "Các ô vượt lúc gửi duyệt",
+    "hint": "Giá trị chưa thuế, quy đổi theo tỷ giá hạch toán ngày đơn. Chỉ cảnh báo, không chặn lưu.",
+    "category": "Ngành hàng",
+    "warehouse": "Kho",
+    "month": "Tháng",
+    "budget": "Ngân sách",
+    "used": "Đã dùng (không gồm đơn này)",
+    "order": "Đơn này",
+    "remainingAfter": "Còn lại sau đơn",
+    "status_within": "Trong ngân sách",
+    "status_over": "Vượt ngân sách",
+    "status_missing": "Chưa có ngân sách"
   }
 }

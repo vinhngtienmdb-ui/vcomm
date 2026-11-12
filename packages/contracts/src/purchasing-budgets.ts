@@ -127,3 +127,36 @@ export interface CellOrderItem {
   currency: string;
   amount: string;
 }
+
+// API_240: kiểm tra ngân sách cho đơn mua đang lập, sửa (QUYTAC_NGHIEPVU_451).
+export const budgetCheckSchema = z
+  .object({
+    orderId: z.uuid().nullable().optional(),
+    warehouseId: z.uuid().nullable(),
+    orderDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    currency: z.string().length(3).optional(),
+    lines: z.array(z.object({ variantId: z.uuid(), quantity: budgetAmount, unitPrice: budgetAmount }).strip()).max(200),
+  })
+  .strict();
+export interface BudgetCheckCell {
+  categoryId: string;
+  categoryCode: string;
+  categoryName: string;
+  warehouseId: string;
+  warehouseName: string;
+  month: string;
+  // Trống khi ô chưa có ngân sách.
+  budget: string | null;
+  // Đã dùng không gồm chính đơn này.
+  used: string;
+  order: string;
+  remainingAfter: string | null;
+  status: "within" | "over" | "missing";
+}
+export interface BudgetCheckResponse {
+  // Tháng của ngày đơn thuộc kế hoạch đã duyệt (QUYTAC_NGHIEPVU_450).
+  applies: boolean;
+  overBudget: boolean;
+  currency: string;
+  cells: BudgetCheckCell[];
+}

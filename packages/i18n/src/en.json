@@ -564,7 +564,8 @@
     "budgetCategoryNotTopLevel": "Budgets are set only for active top-level categories.",
     "budgetCellDuplicate": "Duplicate budget cell (same category, warehouse, month).",
     "budgetPeriodOverlap": "The plan period overlaps another pending or approved plan.",
-    "budgetPlanEmpty": "The plan has no budget cells."
+    "budgetPlanEmpty": "The plan has no budget cells.",
+    "overBudgetPolicyMissing": "The order exceeds or has no budget, but there is no approval policy for \"Over-budget purchase order\". Ask the company administrator to set one up."
   },
   "login": {
     "title": "Sign in",
@@ -7131,5 +7132,22 @@
     "orderNo": "Order no.",
     "viewOrders": "View orders counted in {category} · {warehouse} · {month}",
     "noOrders": "No orders counted in this cell."
+  },
+  "orderBudget": {
+    "title": "Purchase budget",
+    "overWarning": "The order exceeds or has no budget in {count} cells. On submit it goes through the \"Over-budget purchase order\" approval flow.",
+    "within": "The order is within budget.",
+    "snapshotTitle": "Cells over budget at submission",
+    "hint": "Net amounts converted at the accounting rate of the order date. Warning only; saving is not blocked.",
+    "category": "Category",
+    "warehouse": "Warehouse",
+    "month": "Month",
+    "budget": "Budget",
+    "used": "Used (excluding this order)",
+    "order": "This order",
+    "remainingAfter": "Left after order",
+    "status_within": "Within budget",
+    "status_over": "Over budget",
+    "status_missing": "No budget"
   }
 }

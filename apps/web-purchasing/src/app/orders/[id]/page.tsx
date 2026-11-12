@@ -16,6 +16,7 @@ import { formatDate, formatMoney, formatNumber } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 import { itemLabel } from "@/components/ItemPicker";
 import { CounterpartPanel } from "@/components/CounterpartPanel";
+import { BudgetPanel } from "@/components/BudgetPanel";
 import { OrderEditor } from "@/components/OrderEditor";
 import { PurchaseStatus } from "@/components/PurchaseStatus";
 
@@ -178,6 +179,7 @@ function Detail({ order, reload }: { order: PurchaseOrderResponse; reload: () =>
         </table>
       </div>
       <div className="chu-thich">{t("baseUnitHint")}</div>
+      <BudgetPanel check={order.budgetCheck} snapshot={order.budgetSnapshot} currency={order.companyCurrency} />
       <section className="the">
         <h2 style={{ margin: 0 }}>{t("receipts")}</h2>
         {order.receipts.length === 0 ? (

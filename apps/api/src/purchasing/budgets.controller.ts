@@ -1,11 +1,13 @@
 // API_235 đến API_240: ngân sách mua (CONG_VIEC_58). Quyền chi tiết kiểm trong service.
 import { Body, Controller, Get, Headers, Param, Patch, Post, Query, Req } from "@nestjs/common";
 import {
+  budgetCheckSchema,
   budgetListQuerySchema,
   cellOrdersQuerySchema,
   openToBuyQuerySchema,
   saveBudgetPlanSchema,
   versionSchema,
+  type BudgetCheckResponse,
   type BudgetOptionsResponse,
   type BudgetPlanListItem,
   type BudgetPlanResponse,
@@ -80,5 +82,10 @@ export class PurchasingBudgetsController {
   @Get("open-to-buy/orders")
   async cellOrders(@Req() request: AuthenticatedRequest, @Query() query: unknown, @Headers("x-company-id") companyId?: string): Promise<CellOrderItem[]> {
     return this.plans.cellOrders(await this.actor(request, companyId), cellOrdersQuerySchema.parse(query));
+  }
+
+  @Post("orders/budget-check")
+  async checkOrder(@Req() request: AuthenticatedRequest, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<BudgetCheckResponse> {
+    return this.plans.checkOrder(await this.actor(request, companyId), budgetCheckSchema.parse(body));
   }
 }
