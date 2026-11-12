@@ -358,16 +358,38 @@ export class SalesDeliveriesService {
 
   // Bán lẻ tại quầy (CONG_VIEC_53; QUYTAC_NGHIEPVU_370, 374): lập và ghi sổ phiếu xuất cho toàn bộ đơn bán lẻ trong giao dịch của bên gọi, không xét quyền kho.
   // Hàng theo lô: xuất lô hết hạn trước, bỏ lô đã hết hạn; hàng theo serial: dùng lần lượt serial thu ngân quét theo mặt hàng. Dãy số đã tạo trước giao dịch.
-  async issueRetailWithin(transaction: Executor, actor: Actor, input: { orderId: string; documentDate: string; serials: Map<string, string[]> }): Promise<string> {
+  // CONG_VIEC_57: đơn VComm giao tại trạm dùng chung, ghi lý do riêng.
+  async issueRetailWithin(transaction: Executor, actor: Actor, input: { orderId: string; documentDate: string; serials: Map<string, string[]>; reason?: string }): Promise<string> {
     const order = await this.order(transaction, input.orderId, true);
-    const orderLines = await transaction.execute<{ id: string; variant_id: string; unit_id: string; quantity: string; base_quantity: string; base_unit_id: string; tracks_lots: boolean; tracks_serials: boolean }>(sql`
+    const orderLines = await transaction.execute<{
+      id: string;
+      variant_id: string;
+      unit_id: string;
+      quantity: string;
+      base_quantity: string;
+      base_unit_id: string;
+      tracks_lots: boolean;
+      tracks_serials: boolean;
+    }>(sql`
       SELECT l.id, l.variant_id, l.unit_id, l.quantity::text, l.base_quantity::text, p.base_unit_id, p.tracks_lots, p.tracks_serials
       FROM sales.order_lines l JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id
       WHERE l.order_id = ${order.id} ORDER BY l.line_no`);
     const remainingSerials = new Map([...input.serials].map(([variantId, serials]) => [variantId, [...serials]]));
     const lines: DocumentInput["lines"] = [];
     const sourceLines: string[] = [];
-    const blank = { unitCost: null, lotId: null, lotNo: null, manufacturedOn: null, expiresOn: null, lotOverrideReason: null, locationId: null, destinationLocationId: null, serials: [] as string[], responsibleUserId: null, compensationAmount: null };
+    const blank = {
+      unitCost: null,
+      lotId: null,
+      lotNo: null,
+      manufacturedOn: null,
+      expiresOn: null,
+      lotOverrideReason: null,
+      locationId: null,
+      destinationLocationId: null,
+      serials: [] as string[],
+      responsibleUserId: null,
+      compensationAmount: null,
+    };
     for (const line of orderLines.rows) {
       if (line.tracks_lots) {
         let needed = Number(line.base_quantity);
@@ -395,7 +417,7 @@ export class SalesDeliveriesService {
       companyId: order.company_id,
       documentDate: input.documentDate,
       reasonCode: "sale",
-      reason: `Bán lẻ theo đơn ${order.document_no}`,
+      reason: input.reason ?? `Bán lẻ theo đơn ${order.document_no}`,
       note: null,
       lines,
     } as DocumentInput;

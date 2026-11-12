@@ -163,3 +163,15 @@
 | Không thêm thư viện | Máy quét cầm tay Android chế độ bàn phím: ô nhập nhận chuỗi kèm Enter | Không áp dụng | Không áp dụng | React Native | Thấp |
 
 Quyết định: người dùng đồng ý thêm `expo-camera` ngày 2026-11-11. Kiểm thử đơn vị của ứng dụng dùng `vitest` (đã có trong dự án). Không thêm thư viện âm thanh: báo lỗi quét bằng rung (`Vibration` của React Native).
+
+## 8. Phân tích giải pháp có sẵn – CONG_VIEC_22 sao chép trên ứng dụng VComm – 2026-11-12
+
+- Yêu cầu cần đáp ứng: QUYTAC_NGHIEPVU_434 (nút Sao chép đường dẫn chia sẻ sản phẩm); các nút Sao chép đã có ở Tài khoản, Mời bạn bè, Mua chung dùng `navigator.clipboard` nên không chạy trên máy thật.
+- Nguồn đã tìm: mã nguồn dự án (`apps/mobile-vcomm`: Expo SDK 58), React Native (bộ nhớ tạm đã bỏ khỏi lõi), kho npm.
+
+| Ứng viên | Dùng cho | Giấy phép | Phiên bản | Tương thích công nghệ | Công sức điều chỉnh |
+|---|---|---|---|---|---|
+| `expo-clipboard` | Ghi chữ vào bộ nhớ tạm trên iOS, Android, web | MIT | 58.0.4 (Expo SDK 58) | Expo SDK 58 đang dùng | Thấp |
+| Không thêm thư viện | Chỉ giữ nút Chia sẻ (bảng chia sẻ của máy có mục sao chép) | Không áp dụng | Không áp dụng | React Native | Thấp |
+
+Quyết định: người dùng đồng ý thêm `expo-clipboard` ngày 2026-11-12 (khi nghiệm thu CONG_VIEC_22); dùng chung qua `apps/mobile-vcomm/src/lib/clipboard.ts` cho mọi nút Sao chép của ứng dụng.

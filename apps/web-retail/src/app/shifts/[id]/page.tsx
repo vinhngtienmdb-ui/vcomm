@@ -147,6 +147,12 @@ export default function ShiftDetailPage() {
               )}
               <dt>{t("saleCount")}</dt>
               <dd>{shift.saleCount}</dd>
+              {Number(shift.onlineCollected) > 0 && (
+                <>
+                  <dt>{t("onlineCollected")}</dt>
+                  <dd>{formatMoney(shift.onlineCollected, shift.currency)}</dd>
+                </>
+              )}
               {shift.status === "closed" && (
                 <>
                   <dt>{t("closedAt")}</dt>

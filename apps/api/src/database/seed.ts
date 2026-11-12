@@ -102,10 +102,16 @@ export async function seedTestData(pool: Pool): Promise<void> {
     await transaction.execute(sql`
       INSERT INTO core.role_permissions (role_id, permission_code) VALUES
         (${id.purchasingManagerRole}, 'purchasing.access'), (${id.purchasingManagerRole}, 'catalog.access'), (${id.purchasingManagerRole}, 'inventory.access'),
+        (${id.purchasingManagerRole}, 'purchasing.budget.view'), (${id.purchasingManagerRole}, 'purchasing.budget.manage'),
         (${id.warehouseKeeperRole}, 'inventory.access')
       ON CONFLICT DO NOTHING`);
 
-    await transaction.execute(sql`DELETE FROM core.user_role_assignments WHERE user_id IN (${sql.join(people.map((person) => sql`${person.userId}`), sql`, `)})`);
+    await transaction.execute(
+      sql`DELETE FROM core.user_role_assignments WHERE user_id IN (${sql.join(
+        people.map((person) => sql`${person.userId}`),
+        sql`, `,
+      )})`,
+    );
     await transaction.execute(sql`
       INSERT INTO core.user_role_assignments (user_id, role_id, scope_type, company_id, branch_id, valid_from) VALUES
         (${id.groupAdmin}, ${groupAdminRole}, 'group', NULL, NULL, '2026-01-01'),
@@ -124,7 +130,10 @@ export async function seedTestData(pool: Pool): Promise<void> {
         JOIN core.role_permissions rp ON rp.role_id = a.role_id
         JOIN core.permissions p ON p.code = rp.permission_code AND p.is_sensitive
         WHERE a.user_id = u.id)
-      WHERE u.id IN (${sql.join(people.map((person) => sql`${person.userId}`), sql`, `)})`);
+      WHERE u.id IN (${sql.join(
+        people.map((person) => sql`${person.userId}`),
+        sql`, `,
+      )})`);
   });
 }
 

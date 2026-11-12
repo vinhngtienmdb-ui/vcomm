@@ -1,6 +1,6 @@
 "use client";
 
-// MAN_HINH_166 Cài đặt cửa hàng (CHUC_NANG_186; API_192): danh sách cửa hàng, ngăn kéo thêm, sửa; quầy của từng cửa hàng.
+// MAN_HINH_166 Cài đặt cửa hàng (CHUC_NANG_186; API_192); cài đặt trạm MAN_HINH_191 (CONG_VIEC_57; API_220): danh sách cửa hàng, ngăn kéo thêm, sửa; quầy của từng cửa hàng.
 import type { RetailRegisterResponse, RetailSetupOptions, RetailStoreResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -10,9 +10,10 @@ import { HistoryLink } from "ui/components/HistoryLink";
 import { Loaded, MessageView } from "ui/components/StatusViews";
 import { useApi } from "ui/lib/use-api";
 import { RegisterEditor } from "@/components/RegisterEditor";
+import { StationEditor } from "@/components/StationEditor";
 import { StoreEditor } from "@/components/StoreEditor";
 
-function StoreCard({ store, onEdit, onChanged }: { store: RetailStoreResponse; onEdit: () => void; onChanged: (text: string) => void }) {
+function StoreCard({ store, onEdit, onStation, onChanged }: { store: RetailStoreResponse; onEdit: () => void; onStation: () => void; onChanged: (text: string) => void }) {
   const t = useTranslations("retailStores");
   const [editing, setEditing] = useState<RetailRegisterResponse | "new" | null>(null);
   return (
@@ -21,7 +22,13 @@ function StoreCard({ store, onEdit, onChanged }: { store: RetailStoreResponse; o
         <h2 style={{ flex: 1 }}>
           {store.branch.name} <span className="chu-thich">{store.branch.code}</span>
         </h2>
+        <span className="nhan trung-tinh">{t(`kind_${store.kind}`)}</span>
         <span className={`nhan ${store.status === "active" ? "thanh-cong" : "trung-tinh"}`}>{t(`status_${store.status}`)}</span>
+        {store.canSetup && (
+          <button type="button" className="nut phu" onClick={onStation}>
+            {t("stationEdit")}
+          </button>
+        )}
         <button type="button" className="nut phu" onClick={onEdit}>
           {t("edit")}
         </button>
@@ -39,6 +46,18 @@ function StoreCard({ store, onEdit, onChanged }: { store: RetailStoreResponse; o
         <dd>{store.bankFund ? [store.bankFund.name, store.bankFund.accountNo, store.vietqrBankBin].filter(Boolean).join(" · ") : t("noBankFund")}</dd>
         <dt>{t("returnDays")}</dt>
         <dd>{store.returnDays}</dd>
+        <dt>{t("station")}</dt>
+        <dd>
+          {store.station.pickupEnabled || store.station.deliveryEnabled
+            ? [
+                store.station.pickupEnabled ? t("pickupEnabled") : null,
+                store.station.deliveryEnabled ? `${t("deliveryEnabled")} · ${t("deliveryWards", { count: store.station.deliveryWards.length })}` : null,
+                store.station.displayName,
+              ]
+                .filter(Boolean)
+                .join(" · ")
+            : t("stationOff")}
+        </dd>
       </dl>
       <h3>{t("registers")}</h3>
       {store.registers.length === 0 && <p className="chu-thich">{t("noRegisters")}</p>}
@@ -80,6 +99,7 @@ export default function StoresPage() {
   const { state, reload } = useApi<RetailStoreResponse[]>("/retail/stores");
   const options = useApi<RetailSetupOptions>("/retail/options");
   const [editing, setEditing] = useState<RetailStoreResponse | "new" | null>(null);
+  const [station, setStation] = useState<RetailStoreResponse | null>(null);
   const changed = (text: string) => {
     notify(text);
     void reload();
@@ -101,12 +121,24 @@ export default function StoresPage() {
           ) : (
             <div style={{ display: "grid", gap: "var(--khoang-4)" }}>
               {stores.map((store) => (
-                <StoreCard key={store.id} store={store} onEdit={() => setEditing(store)} onChanged={changed} />
+                <StoreCard key={store.id} store={store} onEdit={() => setEditing(store)} onStation={() => setStation(store)} onChanged={changed} />
               ))}
             </div>
           )
         }
       </Loaded>
+      {station && (
+        <Drawer title={`${t("stationEdit")} · ${station.branch.name}`} onClose={() => setStation(null)}>
+          <StationEditor
+            store={station}
+            onSaved={() => {
+              setStation(null);
+              changed(t("stationSaved"));
+            }}
+            onCancel={() => setStation(null)}
+          />
+        </Drawer>
+      )}
       {editing && (
         <Drawer title={editing === "new" ? t("create") : t("edit")} onClose={() => setEditing(null)}>
           <Loaded state={options.state} onRetry={() => void options.reload()}>

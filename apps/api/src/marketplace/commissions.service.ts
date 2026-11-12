@@ -58,17 +58,22 @@ export class MarketplaceCommissionsService {
       SELECT b.referrer_user_id, r.is_sales_staff FROM marketplace.buyer_accounts b LEFT JOIN marketplace.buyer_accounts r ON r.user_id = b.referrer_user_id
       WHERE b.user_id = ${input.buyerUserId}`)
     ).rows[0];
-    await executor.execute(sql`UPDATE marketplace.orders SET referrer_user_id = ${referrer?.referrer_user_id ?? null} WHERE id = ${input.orderId}`);
     const recipients = new Map<CommissionShare, string>();
+    // Nhân viên kinh doanh phụ trách khách lúc đặt: căn cứ doanh số (CONG_VIEC_22; QUYTAC_NGHIEPVU_439), cùng người hưởng phần nhân viên.
+    let salesStaffUserId: string | null = null;
     if (referrer?.referrer_user_id) {
       recipients.set("referral", referrer.referrer_user_id);
       // Hoa hồng đội kinh doanh chỉ khi người giới thiệu đang là nhân viên kinh doanh (nhân viên phụ trách, QUYTAC_NGHIEPVU_145).
       if (referrer.is_sales_staff) {
         const team = await this.team.load(executor, input.companyId);
         const title = team.titleOf(referrer.referrer_user_id);
-        if (title) for (const [share, userId] of teamRecipients(referrer.referrer_user_id, title, team.chain(referrer.referrer_user_id))) recipients.set(share, userId);
+        if (title) {
+          salesStaffUserId = referrer.referrer_user_id;
+          for (const [share, userId] of teamRecipients(referrer.referrer_user_id, title, team.chain(referrer.referrer_user_id))) recipients.set(share, userId);
+        }
       }
     }
+    await executor.execute(sql`UPDATE marketplace.orders SET referrer_user_id = ${referrer?.referrer_user_id ?? null}, sales_staff_user_id = ${salesStaffUserId} WHERE id = ${input.orderId}`);
     const lines = await executor.execute<{
       line_id: string;
       product_id: string;
@@ -146,7 +151,8 @@ export class MarketplaceCommissionsService {
   }
 
   // Tổng hoa hồng theo người hưởng (QUYTAC_NGHIEPVU_203): đã cộng ví; đang chờ là ước tính của đơn chưa hoàn tất, không tính đơn hủy.
-  async totals(executor: Executor, userIds: string[]): Promise<Map<string, { credited: string; pending: string }>> {
+  // buyerUserId: chỉ tính đơn của một khách (chi tiết khách, CONG_VIEC_22 QUYTAC_NGHIEPVU_433).
+  async totals(executor: Executor, userIds: string[], buyerUserId?: string): Promise<Map<string, { credited: string; pending: string }>> {
     if (userIds.length === 0) return new Map();
     const rows = await executor.execute<{ user_id: string; credited: string; pending: string }>(sql`
       SELECT c.beneficiary_user_id AS user_id,
@@ -156,7 +162,7 @@ export class MarketplaceCommissionsService {
       WHERE c.beneficiary_user_id IN (${sql.join(
         userIds.map((id) => sql`${id}::uuid`),
         sql`, `,
-      )})
+      )})${buyerUserId ? sql` AND m.buyer_user_id = ${buyerUserId}` : sql``}
       GROUP BY c.beneficiary_user_id`);
     return new Map(rows.rows.map((row) => [row.user_id, { credited: row.credited, pending: row.pending }]));
   }

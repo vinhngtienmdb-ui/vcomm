@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, sơ đồ điều hướng, bảng vai trò – màn hình, đặc tả từng màn hình.
-- Phiên bản: 2.15
-- Ngày cập nhật: 2026-11-11
+- Phiên bản: 2.16
+- Ngày cập nhật: 2026-11-12
 - Trạng thái: Đã phê duyệt 2026-11-09 (bước 06.1, 06.2, 06.4; gồm THAY_DOI_01)
 - Cập nhật giai đoạn 07: bổ sung mã API cho từng màn hình
 - Cập nhật CONG_VIEC_03 (2026-11-09): thêm MAN_HINH_19, MAN_HINH_20, MAN_HINH_21; mở rộng MAN_HINH_01, MAN_HINH_06, MAN_HINH_08 (THAY_DOI_04, THAY_DOI_08)
@@ -31,6 +31,9 @@
 - Cập nhật CONG_VIEC_50 (2026-11-11): thêm MODULE_15 Báo cáo quản trị phần 1, mini app `web-analytics`, MAN_HINH_140 đến MAN_HINH_144 (mục 69 đến mục 71); MAN_HINH_145 giữ chưa dùng; trang chủ mini app thêm ô "Báo cáo quản trị"
 - Cập nhật CONG_VIEC_49 (2026-11-11), THAY_DOI_22: thêm MAN_HINH_132 đến MAN_HINH_139 của MODULE_10 (mục 72, mục 73); sửa MAN_HINH_76 (nút Ví mua sắm, Mời bạn bè, Cộng tác viên), MAN_HINH_80 (chặn ví), MAN_HINH_88 (Chờ chốt nhóm, phần cộng tác viên), MAN_HINH_91 (chia sẻ nhận hoa hồng, điểm đánh giá, mua chung), MAN_HINH_93 (đơn mua chung, dùng ví mua sắm), MAN_HINH_96 (nhóm mua chung, phần ví, viết đánh giá), MAN_HINH_101 (mức cộng tác viên), MAN_HINH_102, MAN_HINH_103 (ví hoa hồng bị chặn); menu web-crm "Cộng tác viên", "Mua chung", "Kiểm duyệt cộng đồng"; thẻ "Bảng tin" trên ứng dụng
 - Cập nhật CONG_VIEC_53 (2026-11-11): thêm MAN_HINH_161 đến MAN_HINH_167 của MODULE_14 (mini app Bán lẻ, bán lẻ tại quầy phần 1; bản mẫu MAN_HINH_161, 162, 164, 167); sửa MAN_HINH_46, MAN_HINH_49, MAN_HINH_54, MAN_HINH_55 (mục 65, 66)
+- Cập nhật CONG_VIEC_58 (2026-11-12): thêm MAN_HINH_204 đến MAN_HINH_209 của MODULE_14 phần 3 (kế hoạch mua theo ngân sách, đặt trong mini app Mua hàng `web-purchasing`; mục 75 đến mục 77); MAN_HINH_209 là khối "Ngân sách mua" trong MAN_HINH_40, MAN_HINH_41 (đơn mua); menu Mua hàng thêm "Kế hoạch ngân sách", "Số còn được mua", "Điều chỉnh ngân sách"
+- Cập nhật CONG_VIEC_57 (2026-11-12): thêm MAN_HINH_188 đến MAN_HINH_195 của MODULE_14 (trạm giao hàng O2O phần 2; bản mẫu MAN_HINH_188 đến 194; mục 78, mục 79); menu Bán lẻ thêm Đơn trực tuyến, Giao cho khách, Đơn tôi đang giao, Nhận hàng trả; sửa MAN_HINH_166 (loại trạm, Cài đặt trạm), MAN_HINH_161, MAN_HINH_162, MAN_HINH_165 (ca của nhân viên giao), MAN_HINH_93, MAN_HINH_96 (ứng dụng VComm), MAN_HINH_88, MAN_HINH_89 (web-crm)
+- Cập nhật CONG_VIEC_22 (2026-11-12), THAY_DOI_26, THAY_DOI_28: thêm MAN_HINH_196 đến MAN_HINH_201 (mục 80, Kinh doanh trên ứng dụng VComm); sửa MAN_HINH_78, MAN_HINH_84, MAN_HINH_91; bỏ MAN_HINH_72 và thẻ ghé thăm trên MAN_HINH_37
 
 ## MODULE_01 Nền tảng
 
@@ -2238,6 +2241,72 @@ flowchart TD
 - MAN_HINH_166 (`/retail/stores`): danh sách cửa hàng ("Chưa có cửa hàng bán lẻ."), nút "Thêm cửa hàng", "Sửa"; ngăn kéo: Chi nhánh, Kho bán, Kênh bán, Quỹ tiền mặt, Quỹ chuyển khoản ("Không nhận chuyển khoản"), Mã ngân hàng VietQR (6 chữ số), Tên chủ tài khoản (in hoa không dấu), Số ngày được trả hàng ("0 là không nhận trả hàng."), Chân hóa đơn bán lẻ, Trạng thái; "Lưu", "Hủy"; công ty chưa có chi nhánh loại Cửa hàng: "Công ty chưa có chi nhánh loại Cửa hàng. Thêm chi nhánh ở mini app Quản trị hệ thống."; danh sách "Quầy thu ngân" (Mã quầy, Tên quầy, trạng thái, "Ca mở: <tên>"), "Thêm quầy", sửa, ngừng. Người không có `retail.setup` chỉ xem. API_192.
 - MAN_HINH_167 (thành phần `Receipt`, `ReturnSlip`, biên bản đóng ca): khổ 80 mm (vùng in 72 mm), in bằng hộp thoại in của trình duyệt; tên, mã số thuế, địa chỉ công ty, cửa hàng; "HÓA ĐƠN BÁN LẺ", "Số: <số>", ngày giờ, "Quầy <mã>", "Thu ngân: <tên>"; dòng hàng ("tặng", "KM", "giảm <phần trăm>%"), Tiền hàng, "Khuyến mãi, giảm giá", "TỔNG THANH TOÁN", "Trong đó thuế GTGT", thanh toán, Tiền thừa; "Người mua: …", "MST người mua: …"; "Hóa đơn điện tử khởi tạo từ máy tính tiền", "Mẫu số … · Ký hiệu … · Số …", "Mã tra cứu: …", "Mã CQT: …" (khi có); mã QR số hóa đơn (để quét khi trả hàng); chân hóa đơn của cửa hàng hoặc "Cảm ơn quý khách!", "Đổi trả trong <số ngày> ngày kèm hóa đơn này.". Phiếu trả hàng ("PHIẾU TRẢ HÀNG", "Theo hóa đơn <số>"), biên bản đóng ca ("BIÊN BẢN ĐÓNG CA") cùng khuôn. Dòng điểm tích, số dư điểm: chưa làm, chờ CONG_VIEC_51.
 - Trạng thái phê duyệt: bản mẫu MAN_HINH_161, 162, 164, 167 duyệt 2026-11-11; MAN_HINH_163, 165, 166 xem trước từng lát thay cho bản mẫu.
+
+## MODULE_14 Bán lẻ tại quầy và trạm giao hàng (phần 2: Trạm giao hàng O2O, CONG_VIEC_57)
+
+## 78. Danh sách màn hình và điều hướng (MODULE_14 phần 2)
+
+Mini app Bán lẻ (`apps/web-retail`, `/retail`) thêm mục menu (hiện theo quyền): Đơn trực tuyến, Giao cho khách (`retail.o2o`), Đơn tôi đang giao (`retail.o2o.deliver`), Nhận hàng trả (`retail.o2o`). Ứng dụng VComm (`apps/mobile-vcomm`) sửa màn hình Đặt hàng, Chi tiết đơn; web-crm sửa màn hình Đơn VComm.
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_188 | Đơn trực tuyến tại trạm (danh sách, chi tiết) | CHUC_NANG_202 | `retail.o2o`; xem: thêm `retail.o2o.deliver` (trong phạm vi chi nhánh) | Menu "Đơn trực tuyến"; thông báo đơn mới; MAN_HINH_194 (số đơn) | `tai_lieu/ban_mau/MAN_HINH_188_DON_TRUC_TUYEN_TAI_TRAM.html` (duyệt 2026-11-11) |
+| MAN_HINH_189 | Giao cho khách tại trạm (quét mã, thu tiền, in phiếu giao hàng) | CHUC_NANG_202 | `retail.o2o` (Thu ngân, Cửa hàng trưởng, quản trị) | Menu "Giao cho khách"; nút "Giao cho khách" ở MAN_HINH_188 | `tai_lieu/ban_mau/MAN_HINH_189_GIAO_CHO_KHACH_TAI_TRAM.html` (duyệt 2026-11-11) |
+| MAN_HINH_190 | Đơn tôi đang giao (tối ưu điện thoại) | CHUC_NANG_202 | `retail.o2o.deliver` (Nhân viên giao hàng trạm, Cửa hàng trưởng, quản trị) | Menu "Đơn tôi đang giao" | `tai_lieu/ban_mau/MAN_HINH_190_DON_TOI_DANG_GIAO.html` (duyệt 2026-11-11) |
+| MAN_HINH_191 | Cài đặt trạm (phần thêm trong ngăn kéo cửa hàng của MAN_HINH_166) | CHUC_NANG_200 | Sửa: `retail.setup` (quản trị, công ty vận hành sàn); xem: như MAN_HINH_166 | MAN_HINH_166, nút "Cài đặt trạm" | `tai_lieu/ban_mau/MAN_HINH_191_CAI_DAT_TRAM.html` (duyệt 2026-11-11) |
+| MAN_HINH_192 | Ứng dụng VComm: Đặt hàng (sửa MAN_HINH_93: cách nhận, trạm, phí giao, thanh toán khi nhận tại trạm) | CHUC_NANG_201 | Người mua | Như MAN_HINH_93 | `tai_lieu/ban_mau/MAN_HINH_192_DAT_HANG_CHON_TRAM.html` (duyệt 2026-11-11) |
+| MAN_HINH_193 | Ứng dụng VComm: Chi tiết đơn của trạm (sửa MAN_HINH_96: trạm, mã nhận hàng, mã QR, hạn giữ, nơi mang hàng trả) | CHUC_NANG_201, CHUC_NANG_202, CHUC_NANG_203 | Người mua (đơn của mình) | Như MAN_HINH_96; thông báo của đơn | `tai_lieu/ban_mau/MAN_HINH_193_CHI_TIET_DON_CUA_TRAM.html` (duyệt 2026-11-11) |
+| MAN_HINH_194 | Nhận hàng trả tại trạm | CHUC_NANG_203 | `retail.o2o` (trong phạm vi chi nhánh) | Menu "Nhận hàng trả" | `tai_lieu/ban_mau/MAN_HINH_194_NHAN_HANG_TRA_TAI_TRAM.html` (duyệt 2026-11-11) |
+| MAN_HINH_195 | Web-crm: Đơn VComm của nhân viên vận hành (sửa MAN_HINH_88: cột, bộ lọc cách nhận, trạm; chi tiết đơn của trạm) | CHUC_NANG_203 | `marketplace.order.view` (chỉ xem đơn của trạm) | Như MAN_HINH_88 | Không làm |
+
+Sửa:
+- MAN_HINH_166 (Cài đặt cửa hàng): ngăn kéo thêm "Loại" (Cửa hàng (bán tại quầy), Điểm giao nhận (không bán tại quầy)); danh sách chi nhánh gồm chi nhánh loại Khác cho điểm giao nhận; danh sách cửa hàng hiện "Trạm giao hàng" hoặc "Chưa bật trạm"; nút "Cài đặt trạm" mở MAN_HINH_191.
+- MAN_HINH_161 (Bán hàng tại quầy): điểm giao nhận không bán tại quầy; người chỉ có `retail.o2o.deliver` không vào màn hình bán.
+- MAN_HINH_162, MAN_HINH_165 (ca thu ngân): người có `retail.o2o.deliver` mở, xem, đóng ca của mình; tiền hệ thống tính, phiếu thu theo quỹ gồm tiền thu đơn trực tuyến (API_193 trả `onlineCollected`).
+- MAN_HINH_89 (web-crm Yêu cầu trả hàng): yêu cầu của đơn của trạm không có nút "Đã nhận hàng trả" (trạm xác nhận ở MAN_HINH_194); vẫn có "Không nhận được hàng".
+- Mục thiết lập tích hợp Zalo ZNS (web-platform): thêm bốn mẫu đơn của trạm (sẵn sàng nhận, nhắc hết hạn giữ, đang giao, đã hủy).
+
+| Màn hình | Quản trị tập đoàn, Quản trị công ty | Cửa hàng trưởng | Thu ngân | Nhân viên giao hàng trạm | Nhân viên vận hành sàn |
+|---|---|---|---|---|---|
+| MAN_HINH_188 | Xem, Đã soạn xong, Giao cho khách, Giao cho nhân viên, Hủy đơn | Như quản trị (chi nhánh) | Như quản trị (chi nhánh) | Xem (chi nhánh) | Không thấy |
+| MAN_HINH_189 | Dùng | Dùng (chi nhánh) | Dùng (chi nhánh) | Không thấy | Không thấy |
+| MAN_HINH_190 | Dùng | Dùng (chi nhánh) | Không thấy | Dùng (chi nhánh) | Không thấy |
+| MAN_HINH_191 | Xem, Sửa | Xem | Xem | Không thấy | Không thấy |
+| MAN_HINH_194 | Dùng | Dùng (chi nhánh) | Dùng (chi nhánh) | Không thấy | Không thấy |
+| MAN_HINH_195 | Theo `marketplace.order.view` | Không thấy | Không thấy | Không thấy | Xem, lọc (không giao cho đơn vị vận chuyển, không hủy đơn của trạm) |
+
+```mermaid
+flowchart TD
+    M{Menu Bán lẻ} -->|Đơn trực tuyến| L[MAN_HINH_188 Danh sách đơn trực tuyến]
+    L -->|số đơn| C[MAN_HINH_188 Chi tiết đơn]
+    C -->|In phiếu soạn hàng, Đã soạn xong, Hủy đơn, Giao cho nhân viên| C
+    C -->|Giao cho khách| G[MAN_HINH_189 Giao cho khách tại trạm]
+    M -->|Giao cho khách| G
+    G -->|In phiếu giao hàng| P[MAN_HINH_167 Mẫu in khổ 80 mm]
+    G -->|đơn chưa thu, chưa có ca| O[MAN_HINH_162 Mở ca]
+    M -->|Đơn tôi đang giao| D[MAN_HINH_190 Đơn tôi đang giao]
+    D -->|Nhận đi giao, Giao thành công, Không giao được| D
+    M -->|Nhận hàng trả| R[MAN_HINH_194 Nhận hàng trả tại trạm]
+    R -->|số đơn| C
+    M -->|Cài đặt cửa hàng| S[MAN_HINH_166 Cài đặt cửa hàng]
+    S -->|Cài đặt trạm| T[MAN_HINH_191 Cài đặt trạm]
+    A[MAN_HINH_192 Đặt hàng trên ứng dụng VComm] -->|đặt xong| B[MAN_HINH_193 Chi tiết đơn của trạm]
+    W[MAN_HINH_195 Đơn VComm web-crm] -->|chi tiết| W
+```
+
+## 79. Đặc tả màn hình (MODULE_14 phần 2)
+
+- MAN_HINH_188 (`/retail/online-orders`, `/retail/online-orders/<id>`): danh sách lọc Trạm ("Tất cả trạm"), Trạng thái (mặc định "Chưa kết thúc": Chờ soạn hàng, Sẵn sàng nhận, Đang giao; Đã giao, Hoàn tất, Đã hủy), Cách nhận (Nhận tại trạm, Trạm giao tận nơi), Thanh toán (Đã trả trước, Trả khi nhận), "Sắp hết hạn giữ (dưới 24 giờ)", tìm "Số đơn, số điện thoại"; cột Số đơn, Đặt lúc, Khách, Cách nhận, Trạng thái, Phải thu tại trạm ("Đã trả trước"), Hạn giữ; phân trang 20; rỗng "Không có đơn.". Nút "Giao cho khách" mở MAN_HINH_189. Chi tiết: khách, số điện thoại, địa chỉ giao (trạm giao), dòng hàng (hàng tặng), Tiền hàng, Phí giao, Tổng, thanh toán ("Trả khi nhận · <số tiền>"), Hạn giữ, "Lần giao <n>/3", "Nhân viên giao: <tên>", Phiếu xuất, Lịch sử (khách đặt đơn, đã giữ hàng; sẵn sàng nhận; đang giao; giao không thành công; đã giao; đã hủy); nút "In phiếu soạn hàng" (khổ 80 mm, "PHIẾU SOẠN HÀNG"), "Đã soạn xong" (gợi ý "Khách đưa mã nhận hàng 6 số hoặc mã QR trong ứng dụng VComm để nhận hàng."), "Giao cho khách", "Giao cho nhân viên" (chọn nhân viên có `retail.o2o.deliver`; gợi ý "Giao đơn cho nhân viên giao hoặc để nhân viên giao tự nhận. Khách đọc mã nhận hàng khi nhận."), "Hủy đơn" (lý do bắt buộc, "Xác nhận hủy đơn"); nút hiện theo trạng thái, cách nhận và quyền. Chi tiết không hiện mã nhận hàng. Nhân viên trạm nhận thông báo trong hệ thống khi có đơn mới, mở chi tiết đơn. API_223, API_225.
+- MAN_HINH_189 (`/retail/online-orders/handover`): ô "Quét mã QR hoặc nhập mã 6 số" (luôn nhận bàn phím), nút "Tìm đơn"; hiện đơn, khách, dòng hàng, "Mã đúng", số còn phải thu; đơn trả trước "Đơn đã trả trước, không thu tiền."; đơn chưa thu: thu tiền mặt (khách đưa, tiền thừa), chuyển khoản mã VietQR (mã giao dịch không bắt buộc) hoặc kết hợp như hộp thoại thanh toán MAN_HINH_161; chưa có ca "Đơn chưa thu tiền: mở ca tại quầy của trạm này trước khi giao.", nút "Mở ca"; nút "Giao cho khách" (F9); xong "Đã giao đơn <số>.", "In phiếu giao hàng" (khổ 80 mm, "PHIẾU GIAO HÀNG"). Mã sai: "Mã nhận hàng không đúng.", lần thứ 4 báo sắp khóa, lần thứ 5 khóa 15 phút. API_224.
+- MAN_HINH_190 (`/retail/deliveries`): tối ưu điện thoại; ca hiện tại ("Ca đang mở: quầy <quầy>, <trạm>, từ <giờ>", "Đóng ca") hoặc phần mở ca (Quầy của trạm, Tiền đầu ca; "Mở ca để giữ tiền thu khi giao đơn chưa thanh toán."); "Đang giao (<số>)": đơn đang giao của tôi (địa chỉ, số điện thoại bấm gọi, số tiền phải thu, "Lần giao <n>/3"), nút "Giao thành công" (mã khách đọc hoặc quét QR, thu tiền vào ca của mình), "Không giao được" (Khách vắng, Khách từ chối nhận (đơn sẽ hủy), Sai địa chỉ, Khác kèm ghi chú; gợi ý "Đơn về Sẵn sàng nhận tại trạm. Lần thứ 3 không thành công thì đơn hủy."); "Sẵn sàng, chờ người giao (<số>)": đơn trạm giao chưa giao cho ai hoặc giao cho tôi, nút "Nhận đi giao". Rỗng "Bạn chưa nhận đơn nào đi giao.", "Không có đơn chờ giao.". API_225, API_193.
+- MAN_HINH_191 (ngăn kéo "Cài đặt trạm" trong `/retail/stores`): Loại (từ ngăn kéo cửa hàng); công tắc "Nhận tại trạm", "Trạm giao tận nơi"; "Thông tin hiện cho khách": Tên hiển thị, Tỉnh, Xã, Địa chỉ, Số điện thoại, Giờ mở cửa; "Số ngày giữ hàng" ("1 đến 14 ngày, tính đến 23:59 của ngày cuối."); phần "Trạm giao tận nơi": "Xã được giao (<số>)" chọn nhiều theo tỉnh ("Thêm xã", "Bỏ"), "Phí giao mỗi đơn", "Miễn phí giao khi tiền hàng từ" ("Để trống: không miễn."); cảnh báo "Tắt trạm khi còn đơn chưa kết thúc: đơn cũ vẫn xử lý, chỉ chặn đơn mới."; công ty không vận hành sàn: "Công ty này không vận hành sàn VComm nên không bật được trạm giao hàng."; lưu "Đã lưu cài đặt trạm.". API_220.
+- MAN_HINH_192 (ứng dụng `/dat-hang`): thẻ "Cách nhận hàng": Giao qua đơn vị vận chuyển, Nhận tại trạm, Trạm giao tận nơi; chọn trạm: danh sách tên, địa chỉ, giờ mở cửa, nhãn "Cùng phường, xã", lọc tỉnh ("Tất cả tỉnh"), gợi ý "Chỉ hiện trạm còn đủ hàng cho cả đơn. Hàng được giữ tại trạm sau khi đặt."; không có trạm: "Chưa có trạm nào còn đủ hàng cho đơn này. Chọn giao qua đơn vị vận chuyển." hoặc "Chưa có trạm nào giao tới địa chỉ này mà còn đủ hàng. Chọn cách nhận khác."; địa chỉ trong sổ vẫn bắt buộc (người nhận; trạm giao lấy cả địa chỉ); phí giao theo cách nhận, trạm; phương thức "Thanh toán khi nhận tại trạm" chỉ với cách nhận của trạm (không có thanh toán khi nhận hàng qua đơn vị vận chuyển); đơn mua chung chỉ giao qua đơn vị vận chuyển. API_221, API_222.
+- MAN_HINH_193 (ứng dụng `/don-hang/<id>`): thẻ trạm (cách nhận, tên, địa chỉ, giờ mở cửa, số điện thoại); trạng thái Chờ soạn hàng ("Trạm đang soạn hàng. Bạn sẽ nhận thông báo khi đơn sẵn sàng."), Sẵn sàng nhận, Đang giao; khi Sẵn sàng nhận hoặc Đang giao: "Mã nhận hàng" 6 số chữ lớn, mã QR, "Đơn đã sẵn sàng. Đến trạm trước <hạn giữ> và đưa mã cho nhân viên."; hủy đơn khi Chờ soạn hàng hoặc Sẵn sàng nhận; yêu cầu trả hàng đã duyệt: "Mang hàng trả đến trạm <tên>: <địa chỉ> (giờ mở cửa <giờ>). Trạm kiểm hàng và xác nhận đã nhận.". API_222, API_126 (bổ sung).
+- MAN_HINH_194 (`/retail/station-returns`): lọc Trạm, Trạng thái (Chờ nhận, Đã nhận), tìm "Số đơn hoặc số điện thoại"; cột Đơn (liên kết MAN_HINH_188), Khách, Hàng trả (dòng, số lượng), Duyệt lúc, Nhận lúc ("<người nhận> · phiếu <số>"); nút "Đã nhận hàng trả" (xác nhận "Xác nhận đã nhận đủ hàng trả của đơn <số>? Hệ thống lập phiếu nhận hàng trả lại vào kho trạm và việc hoàn tiền."); xong "Đã nhận hàng trả, phiếu <số>."; gợi ý: khách không mang hàng đến thì nhân viên vận hành VComm kết thúc yêu cầu; rỗng "Không có yêu cầu trả hàng chờ nhận.", "Chưa nhận hàng trả nào.". API_226.
+- MAN_HINH_195 (web-crm `/crm/orders`, `/crm/orders/<id>`): danh sách thêm cột "Cách nhận" (Giao qua đơn vị vận chuyển, Nhận tại trạm, Trạm giao; kèm tên trạm), bộ lọc Cách nhận, Trạm (`GET /marketplace/order-stations`); chi tiết đơn của trạm: "Cách nhận" (cách nhận · trạm · địa chỉ · số điện thoại), "Sẵn sàng nhận lúc", "Giữ hàng đến", "Trạm giao" ("Lần giao không thành công: <n>/3 · Nhân viên giao: <tên>"); không có mã nhận hàng; ẩn "Giao cho đơn vị vận chuyển", "Hủy đơn" với đơn của trạm. API_127, API_226.
+- Mẫu in (MAN_HINH_167, cùng khuôn khổ 80 mm): "PHIẾU SOẠN HÀNG", "PHIẾU GIAO HÀNG" (thành phần `StationSlip`: đơn, dòng hàng kèm hàng tặng, Tổng, Phải thu tại trạm, Tiền thừa). Biên bản đóng ca tách dòng "Thu đơn trực tuyến" (QUYTAC_NGHIEPVU_431): màn hình chi tiết ca (biên bản đóng ca) hiện dòng "Thu đơn trực tuyến" từ `onlineCollected` của API_193 khi có; bảng theo phương thức đã gồm khoản này.
+- Trạng thái phê duyệt: bản mẫu MAN_HINH_188 đến 194 duyệt 2026-11-11; MAN_HINH_195 xem trước ở lát L6 thay cho bản mẫu.
+
 ## MODULE_08 Nhân sự phần 1 (CONG_VIEC_46)
 
 Mini app Nhân sự `apps/web-hr`, đường dẫn `/hr`. Bản mẫu: `tai_lieu/ban_mau/MAN_HINH_114` đến `MAN_HINH_119` (tệp `nhan_su.js`). Đặc tả chi tiết: `tai_lieu/cong_viec/CONG_VIEC_46.md` mục 8.
@@ -2526,7 +2595,7 @@ Sửa: MAN_HINH_76 (thẻ điểm thưởng), MAN_HINH_88 (thẻ Điểm thưở
 
 Sửa:
 - MAN_HINH_76: thêm nút "Ví mua sắm", "Mời bạn bè", "Cộng tác viên".
-- MAN_HINH_91: cộng tác viên Đã duyệt thấy mức hoa hồng cộng tác viên và nút "Chia sẻ nhận hoa hồng"; dòng điểm đánh giá "<điểm> · <số> đánh giá đã mua · Xem bảng tin" hoặc "Chưa có đánh giá · Xem bảng tin" (mở MAN_HINH_136 lọc theo sản phẩm); nút "Mua chung sản phẩm này" (mở MAN_HINH_134 lọc theo sản phẩm).
+- MAN_HINH_91: cộng tác viên Đã duyệt thấy mức hoa hồng cộng tác viên; nút "Chia sẻ sản phẩm" cho mọi người mua (THAY_DOI_28, CONG_VIEC_22 MAN_HINH_201): đường dẫn kèm mã giới thiệu, thêm mã cộng tác viên nếu đã duyệt; dòng điểm đánh giá "<điểm> · <số> đánh giá đã mua · Xem bảng tin" hoặc "Chưa có đánh giá · Xem bảng tin" (mở MAN_HINH_136 lọc theo sản phẩm); nút "Mua chung sản phẩm này" (mở MAN_HINH_134 lọc theo sản phẩm).
 - MAN_HINH_93: đơn mua chung (giá bậc đầu, chỉ phương thức trực tuyến, gợi ý mua chung); mọi đơn có ô "Dùng ví mua sắm (số dư …)" khi số dư lớn hơn 0, khóa khi ví đang tạm khóa hoặc bị chặn; hiện phần trả bằng ví, số còn phải trả.
 - MAN_HINH_96: trạng thái Chờ chốt nhóm; khối Nhóm mua chung (trạng thái, kết thúc, giá chốt, Xem nhóm); phần trả bằng ví, đã hoàn về ví; đơn Đã giao, Hoàn tất có danh sách dòng chưa đánh giá với nút "Viết đánh giá".
 - MAN_HINH_101: thêm ô mức "Cộng tác viên" (sáu mức).
@@ -2551,7 +2620,7 @@ flowchart TD
     T -->|Mời bạn bè| I[MAN_HINH_133 Mời bạn bè]
     T -->|Ví mua sắm| W[MAN_HINH_135 Ví mua sắm]
     H[Trang chủ] -->|Xem nhóm đang mở| G[MAN_HINH_134 Mua chung]
-    P[MAN_HINH_91 Chi tiết sản phẩm] -->|Chia sẻ nhận hoa hồng| S((Chia sẻ đường dẫn))
+    P[MAN_HINH_91 Chi tiết sản phẩm] -->|Chia sẻ sản phẩm| S((Chia sẻ đường dẫn))
     P -->|Mua chung sản phẩm này| G
     P -->|Xem bảng tin| F[MAN_HINH_136 Bảng tin]
     G -->|Tham gia nhóm| O[MAN_HINH_93 Đặt hàng]
@@ -2593,3 +2662,198 @@ Bản mẫu: `ban_mau/MAN_HINH_110_TO_KHAI_NHAP_KHAU.html` đến `MAN_HINH_113_
 - Quyền hiển thị: nút lập, sửa, ghi sổ, hủy theo `purchasing.import.manage` và `canEdit`, `canPost` của API.
 - Responsive: bảng chuyển thành thẻ; dòng tờ khai, khoản chi phí xếp lưới tự co.
 - Trạng thái phê duyệt: bản mẫu đã duyệt; màn hình xem trước từng lát.
+
+## MODULE_14 Bán lẻ tại quầy và trạm giao hàng (phần 3: Kế hoạch mua theo ngân sách, CONG_VIEC_58)
+
+Đặt trong mini app Mua hàng (`apps/web-purchasing`, đường dẫn gốc `/purchasing`), dùng khung trang, thành phần `packages/ui`, chuỗi `packages/i18n` như các màn hình Mua hàng khác. Bản mẫu: `ban_mau/MAN_HINH_204_KE_HOACH_NGAN_SACH.html` đến `ban_mau/MAN_HINH_209_CANH_BAO_NGAN_SACH_DON_MUA.html`, người dùng duyệt 2026-11-12.
+
+## 75. Danh sách màn hình và điều hướng (MODULE_14 phần 3)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_204 | Danh sách kế hoạch ngân sách mua: lọc trạng thái, năm; cột số, kỳ, tổng ngân sách, đã dùng, còn được mua, trạng thái; nút lập | CHUC_NANG_207 | Người có `purchasing.budget.view` (Quản trị tập đoàn, Quản trị công ty, Nhân viên mua hàng, Trưởng phòng mua hàng); lập: `purchasing.budget.manage` | Menu Mua hàng "Kế hoạch ngân sách" | [ban_mau/MAN_HINH_204_KE_HOACH_NGAN_SACH.html](ban_mau/MAN_HINH_204_KE_HOACH_NGAN_SACH.html) |
+| MAN_HINH_205 | Chi tiết, sửa kế hoạch ngân sách mua: kỳ, ghi chú; bảng ngành hàng × kho theo tháng; gửi duyệt, rút, hủy; khi đã duyệt hiện ngân sách sau điều chỉnh, đã dùng, còn lại từng ô; danh sách phiếu điều chỉnh | CHUC_NANG_207, CHUC_NANG_208 | Như MAN_HINH_204; sửa, gửi, hủy: `purchasing.budget.manage` | MAN_HINH_204 | [ban_mau/MAN_HINH_205_CHI_TIET_KE_HOACH_NGAN_SACH.html](ban_mau/MAN_HINH_205_CHI_TIET_KE_HOACH_NGAN_SACH.html) |
+| MAN_HINH_206 | Số còn được mua: lọc năm, kỳ (tháng, quý, năm), ngành hàng, kho; bảng ngân sách, điều chỉnh, đã dùng, còn được mua, tỷ lệ đã dùng; ô âm tô màu; nhấn ô xem các đơn đã tính | CHUC_NANG_209 | Như MAN_HINH_204 | Menu Mua hàng "Số còn được mua" | [ban_mau/MAN_HINH_206_SO_CON_DUOC_MUA.html](ban_mau/MAN_HINH_206_SO_CON_DUOC_MUA.html) |
+| MAN_HINH_207 | Danh sách phiếu điều chỉnh ngân sách: lọc trạng thái, kế hoạch; cột số, kế hoạch, tổng tăng, tổng giảm, lý do, trạng thái | CHUC_NANG_208 | Như MAN_HINH_204 | Menu Mua hàng "Điều chỉnh ngân sách" | [ban_mau/MAN_HINH_207_PHIEU_DIEU_CHINH_NGAN_SACH.html](ban_mau/MAN_HINH_207_PHIEU_DIEU_CHINH_NGAN_SACH.html) |
+| MAN_HINH_208 | Chi tiết, sửa phiếu điều chỉnh ngân sách: kế hoạch, lý do; dòng ô, số tăng hoặc giảm, ngân sách hiện tại, đã dùng, sau điều chỉnh; gửi duyệt, rút, hủy | CHUC_NANG_208 | Như MAN_HINH_204; lập, sửa, gửi, hủy: `purchasing.budget.manage` | MAN_HINH_207; nút "Lập phiếu điều chỉnh" ở MAN_HINH_205 | [ban_mau/MAN_HINH_208_CHI_TIET_PHIEU_DIEU_CHINH.html](ban_mau/MAN_HINH_208_CHI_TIET_PHIEU_DIEU_CHINH.html) |
+| MAN_HINH_209 | Khối "Ngân sách mua" trong đơn mua: bảng các ô đơn chạm tới, nhãn "Vượt ngân sách", "Chưa có ngân sách"; thông báo đơn sẽ đi luồng duyệt vượt ngân sách; ảnh chụp ô vượt lúc gửi duyệt | CHUC_NANG_209 | Người lập, sửa, xem đơn mua (`purchasing.order.manage`, `purchasing.order.view`) | Nằm trong MAN_HINH_40 (lập đơn), MAN_HINH_41 (chi tiết, sửa đơn) | [ban_mau/MAN_HINH_209_CANH_BAO_NGAN_SACH_DON_MUA.html](ban_mau/MAN_HINH_209_CANH_BAO_NGAN_SACH_DON_MUA.html) |
+
+Sơ đồ điều hướng:
+
+```mermaid
+flowchart TD
+    M{{Menu Mua hàng}} --> P[MAN_HINH_204 Kế hoạch ngân sách]
+    M --> O[MAN_HINH_206 Số còn được mua]
+    M --> A[MAN_HINH_207 Điều chỉnh ngân sách]
+    M --> D[MAN_HINH_40 Đơn mua]
+    P -->|Lập kế hoạch, mở kế hoạch| PD[MAN_HINH_205 Chi tiết kế hoạch]
+    PD -->|Lập phiếu điều chỉnh| AD[MAN_HINH_208 Chi tiết phiếu điều chỉnh]
+    PD -->|Mở phiếu của kế hoạch| AD
+    A -->|Lập phiếu, mở phiếu| AD
+    O -->|Nhấn ô kỳ tháng| N[Ngăn kéo các đơn đã tính]
+    D --> DD[MAN_HINH_41 Chi tiết đơn mua]
+    D -.->|khối| B[MAN_HINH_209 Ngân sách mua]
+    DD -.->|khối| B
+    PD -->|Gửi duyệt| H[MAN_HINH_08 Chi tiết yêu cầu duyệt]
+    AD -->|Gửi duyệt| H
+```
+
+- Menu Mua hàng phẳng, không có tiêu đề nhóm (người dùng chấp nhận khác bản mẫu): sau "Bảng giá mua" thêm "Kế hoạch ngân sách", "Số còn được mua", "Điều chỉnh ngân sách"; ba mục hiện với `purchasing.budget.view`.
+- Đơn vị tiền mọi màn hình là đồng tiền hạch toán của công ty; số định dạng theo tiếng Việt; tháng hiện dạng `MM/YYYY`.
+- Không có quyền ngân sách mà mở thẳng đường dẫn: "Bạn không có quyền xem trang này".
+
+## 76. Bảng vai trò – màn hình (MODULE_14 phần 3)
+
+| Màn hình | Quản trị tập đoàn | Quản trị công ty | Trưởng phòng mua hàng (vai trò tự tạo có `purchasing.budget.manage`) | Nhân viên mua hàng | Thủ kho, vai trò khác |
+|---|---|---|---|---|---|
+| MAN_HINH_204 Kế hoạch ngân sách mua | Xem, Lập | Xem, Lập (công ty mình) | Xem, Lập | Xem | Không |
+| MAN_HINH_205 Chi tiết kế hoạch | Xem, Sửa, Gửi, Rút (của mình), Hủy | Xem, Sửa, Gửi, Rút (của mình), Hủy (công ty mình) | Xem, Sửa, Gửi, Rút (của mình), Hủy | Xem | Không |
+| MAN_HINH_206 Số còn được mua | Xem | Xem (công ty mình) | Xem | Xem | Không |
+| MAN_HINH_207 Điều chỉnh ngân sách | Xem, Lập | Xem, Lập (công ty mình) | Xem, Lập | Xem | Không |
+| MAN_HINH_208 Chi tiết phiếu điều chỉnh | Xem, Sửa, Gửi, Rút (của mình), Hủy | Xem, Sửa, Gửi, Rút (của mình), Hủy (công ty mình) | Xem, Sửa, Gửi, Rút (của mình), Hủy | Xem | Không |
+| MAN_HINH_209 Khối ngân sách mua trong đơn mua | Xem | Xem (công ty mình) | Xem (khi có quyền đơn mua) | Xem | Xem ở chi tiết đơn (Thủ kho có `purchasing.order.view`) |
+
+## 77. Đặc tả từng màn hình (MODULE_14 phần 3)
+
+### MAN_HINH_204: Kế hoạch ngân sách mua
+- Mục đích: Xem các kế hoạch ngân sách mua của công ty, số đã dùng, còn được mua; mở hoặc lập kế hoạch.
+- Chức năng thực hiện: CHUC_NANG_207
+- Đường dẫn: `/purchasing/budget-plans`.
+- Bố cục: tiêu đề "Kế hoạch ngân sách mua", nút "Lập kế hoạch".
+  - Bộ lọc: "Trạng thái" (mặc định tất cả; Nháp, Chờ duyệt, Đã duyệt, Bị từ chối, Đã rút, Đã hủy), "Năm".
+  - Chú thích "Đơn vị: <đồng tiền> (đồng tiền hạch toán của công ty). Đã dùng = giá trị chưa thuế của đơn mua đã duyệt; đơn đóng sớm chỉ tính phần đã nhận.".
+  - Bảng: "Số kế hoạch" (liên kết; chưa gửi hiện "Kế hoạch nháp"), "Kỳ", "Tổng ngân sách", "Đã dùng", "Còn được mua", "Người lập", "Trạng thái"; phân trang 20 dòng.
+- Dữ liệu hiển thị: kỳ dạng "<từ tháng> – <đến tháng>"; đã dùng, còn được mua chỉ có ở kế hoạch đã duyệt (khác hiện "—"); trạng thái là nhãn màu.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_235.
+- Thao tác: đổi bộ lọc tải lại bảng; bấm số kế hoạch mở MAN_HINH_205; "Lập kế hoạch" mở MAN_HINH_205 trống.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có kế hoạch ngân sách mua. Khi chưa có kế hoạch đã duyệt cho tháng của đơn, đơn mua không kiểm tra ngân sách.".
+- Thông báo: không có.
+- Quyền hiển thị: trang với `purchasing.budget.view` hoặc `purchasing.budget.manage`; nút "Lập kế hoạch" với `purchasing.budget.manage`.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; bộ lọc xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
+
+### MAN_HINH_205: Chi tiết, sửa kế hoạch ngân sách mua
+- Mục đích: Lập, sửa bảng ngân sách theo ngành hàng × kho × tháng; gửi duyệt, rút, hủy; theo dõi ô của kế hoạch đã duyệt và các phiếu điều chỉnh.
+- Chức năng thực hiện: CHUC_NANG_207, CHUC_NANG_208
+- Đường dẫn: `/purchasing/budget-plans/new`, `/purchasing/budget-plans/[id]`.
+- Bố cục: liên kết quay lại "Kế hoạch ngân sách mua"; tiêu đề là số kế hoạch (chưa gửi: "Kế hoạch nháp") kèm nhãn trạng thái, người lập.
+  - Ô "Từ tháng", "Đến tháng", "Ghi chú"; chú thích "Kỳ tối đa 12 tháng. Mỗi ô là ngành hàng cấp 1 × kho × tháng. Chỉ kế hoạch đã duyệt mới có hiệu lực; đã duyệt thì thay đổi bằng phiếu điều chỉnh.".
+  - Bảng ngân sách: hàng = ngành hàng × kho ("Ngành hàng", "Kho"), cột = từng tháng của kỳ, ô nhập số tiền (nhãn đọc màn hình "Ngân sách <ngành hàng> · <kho> · <tháng>"), cột "Cộng" theo hàng, dòng "Cộng" theo cột; nút "Bỏ dòng" ở mỗi hàng.
+  - Thêm hàng: chọn "Chọn ngành hàng" (ngành hàng cấp 1 đang dùng), "Chọn kho" (kho của công ty), nút "Thêm dòng ngành hàng × kho".
+  - Nhóm nút: "Lưu nháp", "Gửi duyệt", "Hủy kế hoạch" (khi sửa được); "Rút lại" (người lập, đang chờ duyệt, cấp 1 chưa quyết định); "Lập phiếu điều chỉnh" (kế hoạch đã duyệt).
+  - Kế hoạch đã duyệt: bảng chỉ đọc, mỗi ô hiện ngân sách sau điều chỉnh và dòng "Đã dùng <số> · Còn <số>" (còn âm tô màu lỗi); khối "Phiếu điều chỉnh" liệt kê phiếu của kế hoạch ("Số phiếu", "Lý do", "Tổng tăng", "Tổng giảm", "Trạng thái").
+- Dữ liệu hiển thị: tháng `MM/YYYY`; số tiền theo đồng tiền hạch toán; ô để trống tính là 0 khi cộng.
+- Thành phần: ThanhTrenCung, MenuMiniApp, ONhap, OChon, BangDuLieu, NhanTrangThai, Nut, KhoiCanhBao, HopThoaiXacNhan, ThongBaoNoi, TrangThaiRong (tài liệu `15`).
+- API: API_235, API_236, API_237 (danh sách phiếu theo kế hoạch).
+- Thao tác: đổi kỳ thì bảng thêm, bớt cột tháng; "Lưu nháp" lập hoặc sửa; "Gửi duyệt" lưu rồi gửi; "Hủy kế hoạch" hỏi "Hủy kế hoạch này? Kế hoạch đã hủy không sửa, gửi duyệt được nữa." rồi hủy; "Rút lại" rút yêu cầu duyệt; "Lập phiếu điều chỉnh" mở MAN_HINH_208 chọn sẵn kế hoạch.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; kế hoạch của công ty khác hoặc không tồn tại: "Không tìm thấy dữ liệu hoặc bạn không có quyền xem."; không có phiếu điều chỉnh: "Chưa có phiếu điều chỉnh ngân sách.".
+- Thông báo: "Đã lưu.", "Đã gửi duyệt."; thêm hàng trùng: "Dòng ngành hàng × kho này đã có."; lỗi kiểm tra hiện khối "Có ô ngân sách chưa hợp lệ:" kèm từng ô lỗi và đánh dấu đúng ô; lỗi gửi (chưa có chính sách duyệt, trùng kỳ, kế hoạch chưa có ô) hiện ở thông báo nổi.
+- Quyền hiển thị: ô nhập, nút theo `canEdit`, `canSubmit`, `canWithdraw`, `canCancel`, `canAdjust` của API_235; người chỉ có `purchasing.budget.view` xem chỉ đọc.
+- Responsive: bảng ngân sách cuộn ngang trong khung bảng; nút xuống dòng; trang không cuộn ngang.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
+
+### MAN_HINH_206: Số còn được mua
+- Mục đích: Theo dõi ngân sách, điều chỉnh, đã dùng, còn được mua theo ngành hàng, kho và kỳ; xem các đơn đã tính vào một ô.
+- Chức năng thực hiện: CHUC_NANG_209
+- Đường dẫn: `/purchasing/open-to-buy`.
+- Bố cục: tiêu đề "Số còn được mua".
+  - Bộ lọc: "Năm" (mặc định năm nay), "Ngành hàng" (mặc định "Ngành hàng: tất cả"), "Kho" (mặc định "Kho: tất cả"); chú thích "Còn được mua = ngân sách + điều chỉnh đã duyệt − đã dùng. Số âm: đơn được duyệt qua luồng vượt ngân sách. Chỉ tính các tháng có kế hoạch đã duyệt.".
+  - Các thẻ kỳ: "Tháng" (mặc định), "Quý", "Năm".
+  - Bảng: "Ngành hàng", "Kho", "Kỳ", "Ngân sách", "Điều chỉnh", "Đã dùng", "Còn được mua", "Tỷ lệ đã dùng"; dòng "Cộng".
+  - Ngăn kéo "Đơn đã tính · <ngành hàng> · <kho> · <tháng>": bảng "Số đơn" (số đơn kèm nhãn trạng thái, nhà cung cấp, ngày đơn) và "Đã dùng" (giá trị đã tính vào ô).
+- Dữ liệu hiển thị: ô có đơn nhưng chưa có ngân sách hiện nhãn "Chưa có ngân sách" ở cột ngân sách; còn được mua âm tô màu lỗi, chữ đậm; kỳ quý hiện "Quý <số>/<năm>"; tỷ lệ đã dùng = đã dùng ÷ (ngân sách + điều chỉnh), làm tròn phần trăm, hiện "—" khi mẫu số không lớn hơn 0.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, CacThe, BangDuLieu, NhanTrangThai, NganKeo, TrangThaiRong (tài liệu `15`).
+- API: API_235 (danh sách chọn ngành hàng, kho), API_239.
+- Thao tác: đổi năm, ngành hàng, kho, kỳ tải lại bảng; ở kỳ tháng, nhấn tháng của dòng (nhãn đọc màn hình "Xem các đơn đã tính vào ô <ngành hàng> · <kho> · <tháng>") mở ngăn kéo; bấm số đơn mở MAN_HINH_41.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Không có ngân sách hoặc đơn mua trong năm đã chọn."; ngăn kéo rỗng "Chưa có đơn nào tính vào ô này.".
+- Thông báo: không có.
+- Quyền hiển thị: trang với `purchasing.budget.view` hoặc `purchasing.budget.manage`.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; không cuộn ngang.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
+
+### MAN_HINH_207: Danh sách phiếu điều chỉnh ngân sách
+- Mục đích: Xem các phiếu điều chỉnh ngân sách của công ty; mở hoặc lập phiếu.
+- Chức năng thực hiện: CHUC_NANG_208
+- Đường dẫn: `/purchasing/budget-adjustments`.
+- Bố cục: tiêu đề "Điều chỉnh ngân sách", nút "Lập phiếu điều chỉnh".
+  - Bộ lọc: "Trạng thái" (mặc định tất cả), "Kế hoạch" (mặc định "Kế hoạch: tất cả").
+  - Bảng: "Số phiếu" (liên kết; chưa gửi hiện "Phiếu nháp"), "Kế hoạch", "Lý do", "Tổng tăng", "Tổng giảm", "Người lập", "Trạng thái"; phân trang 20 dòng.
+- Dữ liệu hiển thị: số tiền theo đồng tiền hạch toán; trạng thái là nhãn màu.
+- Thành phần: ThanhTrenCung, MenuMiniApp, BoLoc, BangDuLieu, NhanTrangThai, Nut, TrangThaiRong (tài liệu `15`).
+- API: API_237.
+- Thao tác: đổi bộ lọc tải lại bảng; bấm số phiếu mở MAN_HINH_208; "Lập phiếu điều chỉnh" mở MAN_HINH_208 trống.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; rỗng "Chưa có phiếu điều chỉnh ngân sách.".
+- Thông báo: không có.
+- Quyền hiển thị: trang với `purchasing.budget.view` hoặc `purchasing.budget.manage`; nút "Lập phiếu điều chỉnh" với `purchasing.budget.manage`.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; không cuộn ngang.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
+
+### MAN_HINH_208: Chi tiết, sửa phiếu điều chỉnh ngân sách
+- Mục đích: Lập, sửa phiếu tăng, giảm, chuyển ngân sách của kế hoạch đã duyệt; gửi duyệt, rút, hủy.
+- Chức năng thực hiện: CHUC_NANG_208
+- Đường dẫn: `/purchasing/budget-adjustments/new` (`?planId=` chọn sẵn kế hoạch), `/purchasing/budget-adjustments/[id]`.
+- Bố cục: liên kết quay lại "Điều chỉnh ngân sách"; tiêu đề là số phiếu (chưa gửi: "Phiếu nháp") kèm nhãn trạng thái.
+  - Ô "Kế hoạch" (chọn kế hoạch đã duyệt), "Lý do (bắt buộc)"; chú thích "Chuyển ngân sách = một dòng giảm, một dòng tăng (có thể khác tháng). Không giảm dưới số đã dùng. Duyệt xong mới áp vào ngân sách.".
+  - Bảng dòng: "Ngành hàng", "Kho", "Tháng" (trong kỳ kế hoạch), "Tăng/giảm" ("Tăng", "Giảm"), "Số tiền", "Ngân sách hiện tại", "Đã dùng", "Sau điều chỉnh"; nút "Bỏ dòng" mỗi dòng, "Thêm dòng" dưới bảng.
+  - Nhóm nút: "Lưu nháp", "Gửi duyệt", "Hủy phiếu" (khi sửa được); "Rút lại" (người lập, đang chờ duyệt, cấp 1 chưa quyết định).
+- Dữ liệu hiển thị: "Ngân sách hiện tại", "Đã dùng", "Sau điều chỉnh" có khi dòng đã lưu (chưa lưu hiện "—"); "Sau điều chỉnh" nhỏ hơn "Đã dùng" tô màu lỗi, chữ đậm; phiếu đã duyệt hiện ngân sách trước khi áp phiếu.
+- Thành phần: ThanhTrenCung, MenuMiniApp, ONhap, OChon, BangDuLieu, NhanTrangThai, Nut, KhoiCanhBao, HopThoaiXacNhan, ThongBaoNoi, TrangThaiRong (tài liệu `15`).
+- API: API_235 (kế hoạch đã duyệt, danh sách chọn), API_237, API_238.
+- Thao tác: chọn kế hoạch nạp kỳ và ngân sách hiện tại của ô; "Lưu nháp" lập hoặc sửa; "Gửi duyệt" lưu rồi gửi; "Hủy phiếu" hỏi "Hủy phiếu điều chỉnh này?" rồi hủy; "Rút lại" rút yêu cầu duyệt.
+- Trạng thái: đang tải; lỗi tải kèm "Thử lại"; chưa có kế hoạch đã duyệt: "Chưa có kế hoạch ngân sách đã duyệt để điều chỉnh.".
+- Thông báo: "Đã lưu.", "Đã gửi duyệt."; lỗi kiểm tra hiện khối "Có dòng chưa hợp lệ:" và đánh dấu đúng dòng ("Ngân sách sau điều chỉnh nhỏ hơn số đã dùng của ô.", "Tháng nằm ngoài kỳ kế hoạch."); lỗi gửi (chưa có chính sách duyệt) ở thông báo nổi.
+- Quyền hiển thị: ô nhập, nút theo `canEdit`, `canSubmit`, `canWithdraw`, `canCancel` của API_237; người chỉ có `purchasing.budget.view` xem chỉ đọc.
+- Responsive: dòng phiếu chuyển thành thẻ xếp lưới tự co; nút xuống dòng; không cuộn ngang.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
+
+### MAN_HINH_209: Khối ngân sách mua trong đơn mua
+- Mục đích: Cho người lập, sửa đơn mua biết đơn có vượt ngân sách không trước khi gửi duyệt; cho người xem đơn biết các ô vượt lúc gửi duyệt.
+- Chức năng thực hiện: CHUC_NANG_209
+- Đường dẫn: khối trong MAN_HINH_40 (`/purchasing/orders/new`), MAN_HINH_41 (`/purchasing/orders/[id]`), đặt dưới bảng dòng hàng của đơn.
+- Bố cục: tiêu đề "Ngân sách mua".
+  - Khi có ô vượt hoặc chưa có ngân sách: khối cảnh báo "Đơn vượt hoặc chưa có ngân sách ở <số> ô. Khi gửi duyệt, đơn sẽ đi luồng duyệt "Đơn mua vượt ngân sách"."; khi mọi ô trong ngân sách: khối thông tin "Đơn nằm trong ngân sách.".
+  - Bảng ô: "Ngành hàng", "Kho", "Tháng", "Ngân sách", "Đã dùng (không gồm đơn này)", "Đơn này", "Còn lại sau đơn", nhãn trạng thái "Trong ngân sách", "Vượt ngân sách", "Chưa có ngân sách".
+  - Đơn đã gửi duyệt theo luồng vượt ngân sách: thêm bảng "Các ô vượt lúc gửi duyệt" (ảnh chụp lúc gửi).
+  - Chú thích "Giá trị chưa thuế, quy đổi theo tỷ giá hạch toán ngày đơn. Chỉ cảnh báo, không chặn lưu.".
+- Dữ liệu hiển thị: ô chưa có ngân sách hiện "—" ở ngân sách, còn lại sau đơn; còn lại âm tô màu lỗi, chữ đậm.
+- Thành phần: The, KhoiCanhBao, BangDuLieu, NhanTrangThai (tài liệu `15`).
+- API: API_240 (khi lập, sửa đơn), API_75 (`budgetCheck`, `budgetSnapshot` của chi tiết đơn).
+- Thao tác: đổi kho, ngày đơn, đồng tiền, dòng hàng thì kiểm tra lại; không có nút riêng.
+- Trạng thái: khối ẩn khi tháng của ngày đơn chưa áp dụng ngân sách (QUYTAC_NGHIEPVU_450) và đơn không có ảnh chụp; thiếu tỷ giá hạch toán ngày đơn thì khối ẩn.
+- Thông báo: gửi duyệt khi chưa có chính sách duyệt vượt ngân sách hiện ở thông báo nổi: "Đơn vượt hoặc chưa có ngân sách nhưng chưa có chính sách duyệt "Đơn mua vượt ngân sách". Nhờ quản trị công ty cấu hình ở Nền tảng › Chính sách duyệt.".
+- Quyền hiển thị: người có quyền lập, sửa hoặc xem đơn mua; không cần `purchasing.budget.view`.
+- Responsive: bảng chuyển thành thẻ, nhãn cột hiện đủ; không cuộn ngang.
+- Trạng thái phê duyệt: bản mẫu đã duyệt 2026-11-12 (CONG_VIEC_58 mục 16)
+## MODULE_07 Khách hàng và Đối tác (MODULE_07 phần 3: Kinh doanh trên ứng dụng VComm, CONG_VIEC_22, THAY_DOI_26)
+
+## 80. Danh sách màn hình và điều hướng (Kinh doanh trên ứng dụng VComm)
+
+| Mã | Tên màn hình | Chức năng (10) | Vai trò được truy cập (08) | Mở từ | Bản mẫu |
+|---|---|---|---|---|---|
+| MAN_HINH_196 | Ứng dụng: Chi tiết khách (`/khach/[id]`: họ tên, số điện thoại, ngày đăng ký, nhân viên phụ trách; Gọi, Ghi chú chăm sóc; đơn hoàn tất, đang xử lý; hoa hồng của tôi từ khách; 10 đơn gần nhất; ghi chú chăm sóc, Xem ghi chú cũ hơn) | CHUC_NANG_204 | Tài khoản được đánh dấu nhân viên kinh doanh (khách của mình, của người trong nhánh) | MAN_HINH_78, MAN_HINH_84, MAN_HINH_198 | `ban_mau/MAN_HINH_196_CHI_TIET_KHACH.html` |
+| MAN_HINH_197 | Ứng dụng: Thêm ghi chú chăm sóc (`/ghi-chu/[id]`: kênh, nội dung 1 đến 1.000 ký tự, hẹn lần sau chọn nhanh hoặc nhập ngày/tháng/năm) | CHUC_NANG_205 | Như MAN_HINH_196 | MAN_HINH_196, nút "Ghi chú chăm sóc" | `ban_mau/MAN_HINH_197_THEM_GHI_CHU_CHAM_SOC.html` |
+| MAN_HINH_198 | Ứng dụng: Hẹn chăm sóc (`/hen`: Quá hạn, Hôm nay, 7 ngày tới; bấm khách mở MAN_HINH_196; Đã xong) | CHUC_NANG_205 | Tài khoản được đánh dấu nhân viên kinh doanh (hẹn của mình) | MAN_HINH_78 thẻ "Hẹn chăm sóc", thông báo nhắc hẹn | `ban_mau/MAN_HINH_198_HEN_CUA_TOI.html` |
+| MAN_HINH_199 | Ứng dụng: Doanh số (`/doanh-so`: chọn tháng; của tôi; người quản lý: nhánh, tổng, từng người, bấm mở MAN_HINH_84) | CHUC_NANG_206 | Tài khoản được đánh dấu nhân viên kinh doanh | MAN_HINH_78 thẻ "Doanh số tháng này" | `ban_mau/MAN_HINH_199_DOANH_SO.html` |
+| MAN_HINH_200 | Ứng dụng: Thông báo (`/thong-bao`: 30 thông báo mới nhất, chưa đọc in đậm, nhãn Mới; bấm đánh dấu đã đọc, mở màn hình của ứng dụng nếu có) | CHUC_NANG_205 | Người dùng đăng nhập ứng dụng VComm | Lối vào "Thông báo" kèm số chưa đọc trên thanh tiêu đề mọi thẻ | `ban_mau/MAN_HINH_200_THONG_BAO.html` |
+| MAN_HINH_201 | Ứng dụng: Chia sẻ sản phẩm (thẻ trên MAN_HINH_91: nội dung gửi đi, giải thích mã giới thiệu, Sao chép, Chia sẻ) | CHUC_NANG_204 | Mọi người mua | MAN_HINH_91 nút "Chia sẻ sản phẩm" (THAY_DOI_28) | `ban_mau/MAN_HINH_201_CHIA_SE_SAN_PHAM.html` |
+
+MAN_HINH_202, MAN_HINH_203: dự phòng, chưa dùng.
+
+Sửa màn hình đã có:
+- MAN_HINH_78 Kinh doanh: thêm thẻ "Hẹn chăm sóc" (số hôm nay, quá hạn, 7 ngày tới), thẻ "Doanh số tháng này"; tên khách bấm mở MAN_HINH_196.
+- MAN_HINH_84 Khách của cấp dưới: tên khách bấm mở MAN_HINH_196.
+- MAN_HINH_91 Chi tiết sản phẩm: nút "Chia sẻ sản phẩm" cho mọi người mua (THAY_DOI_28), báo "Sản phẩm không còn bán." kèm "Về trang chủ" khi sản phẩm ngừng bán.
+- Web-crm: bỏ menu Ghé thăm, MAN_HINH_72, thẻ "Ghé thăm gần đây" trên MAN_HINH_37 (QUYTAC_NGHIEPVU_441).
+
+```mermaid
+flowchart LR
+    K[MAN_HINH_78 Kinh doanh] -->|Tên khách| C[MAN_HINH_196 Chi tiết khách]
+    K -->|Hẹn chăm sóc| H[MAN_HINH_198 Hẹn]
+    K -->|Doanh số tháng này| D[MAN_HINH_199 Doanh số]
+    C -->|Ghi chú chăm sóc| G[MAN_HINH_197 Thêm ghi chú]
+    H -->|Tên khách| C
+    D -->|Tên người| M[MAN_HINH_84 Khách của cấp dưới] --> C
+    T[Thanh tiêu đề: Thông báo] --> N[MAN_HINH_200 Thông báo] -->|Nhắc hẹn| H
+    P[MAN_HINH_91 Chi tiết sản phẩm] -->|Chia sẻ sản phẩm| S[MAN_HINH_201]
+```

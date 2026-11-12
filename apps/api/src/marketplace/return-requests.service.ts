@@ -1,6 +1,6 @@
 // Trả hàng trong 7 ngày của đơn VComm (CONG_VIEC_24; CHUC_NANG_118; QUYTAC_NGHIEPVU_161; API_129).
 import { Inject, Injectable } from "@nestjs/common";
-import type { createReturnRequestSchema, PageResponse, ReturnReason, ReturnRequestAdminItem, ReturnRequestItem, ReturnRequestStatus } from "contracts";
+import type { createReturnRequestSchema, PageResponse, ReturnReason, ReturnRequestAdminItem, ReturnRequestItem, ReturnRequestStatus, StationOption } from "contracts";
 import { sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import type { z } from "zod";
@@ -12,6 +12,7 @@ import { DATABASE, type Database } from "../database/database.module";
 import { SalesDeliveriesService } from "../inventory/sales-deliveries.service";
 import type { Actor } from "../permissions/roles.service";
 import { localPhone } from "./buyer-accounts.service";
+import { stationById } from "./stations";
 import type { BuyerAdminActor } from "./buyer-admin.service";
 import { refundReturnedGoods } from "./payments/refund-amounts";
 import { vietnamToday } from "./shop.service";
@@ -43,11 +44,12 @@ type RequestRow = {
   buyer_name: string;
   buyer_phone: string | null;
   buyer_user_id: string;
+  station_id: string | null;
 };
 
 const requestSelect = sql`
   SELECT r.id, r.order_id, so.document_no, r.status, r.reason, r.description, r.decision_note, r.created_at, r.decided_at, r.closed_at, r.version, u.full_name AS buyer_name,
-    u.phone AS buyer_phone, r.buyer_user_id
+    u.phone AS buyer_phone, r.buyer_user_id, m.station_id
   FROM marketplace.return_requests r JOIN marketplace.orders m ON m.id = r.order_id JOIN sales.orders so ON so.id = m.sales_order_id JOIN core.users u ON u.id = r.buyer_user_id`;
 const iso = (value: Date | null) => (value ? new Date(value).toISOString() : null);
 
@@ -62,6 +64,8 @@ async function itemsOf(executor: Executor, rows: RequestRow[], imageBase: string
     FROM marketplace.return_request_lines rl JOIN sales.order_lines l ON l.id = rl.order_line_id JOIN catalog.variants v ON v.id = l.variant_id JOIN catalog.products p ON p.id = v.product_id
     WHERE rl.request_id IN (${ids}) ORDER BY l.line_no`);
   const images = await executor.execute<{ id: string; request_id: string }>(sql`SELECT id, request_id FROM marketplace.return_request_images WHERE request_id IN (${ids}) ORDER BY created_at, id`);
+  const stations = new Map<string, StationOption | null>();
+  for (const stationId of new Set(rows.map((row) => row.station_id).filter((value): value is string => value !== null))) stations.set(stationId, await stationById(executor, stationId));
   return rows.map((row) => ({
     id: row.id,
     orderId: row.order_id,
@@ -78,6 +82,7 @@ async function itemsOf(executor: Executor, rows: RequestRow[], imageBase: string
     decidedAt: iso(row.decided_at),
     closedAt: iso(row.closed_at),
     canWithdraw: row.status === "pending",
+    returnStation: row.station_id ? (stations.get(row.station_id) ?? null) : null,
     version: row.version,
   }));
 }
@@ -211,6 +216,7 @@ export class ReturnRequestsService {
       buyerPhone: localPhone(rows[index]!.buyer_phone ?? ""),
       canDecide: canManage && item.status === "pending",
       canClose: canManage && item.status === "approved",
+      canReceive: canManage && item.status === "approved" && item.returnStation === null,
     }));
   }
 
@@ -218,37 +224,21 @@ export class ReturnRequestsService {
   async decide(actor: BuyerAdminActor, requestId: string, action: "approve" | "reject" | "receive" | "not_received", note: string | null, version: number): Promise<ReturnRequestAdminItem> {
     await this.database.transaction(async (transaction) => {
       const row = (
-        await transaction.execute<{ status: ReturnRequestStatus; version: number; order_id: string; buyer_user_id: string; sales_order_id: string; company_id: string }>(sql`
-        SELECT r.status, r.version, r.order_id, r.buyer_user_id, m.sales_order_id, m.company_id FROM marketplace.return_requests r JOIN marketplace.orders m ON m.id = r.order_id
+        await transaction.execute<{ status: ReturnRequestStatus; version: number; order_id: string; buyer_user_id: string; sales_order_id: string; company_id: string; station_id: string | null }>(sql`
+        SELECT r.status, r.version, r.order_id, r.buyer_user_id, m.sales_order_id, m.company_id, m.station_id FROM marketplace.return_requests r JOIN marketplace.orders m ON m.id = r.order_id
         WHERE r.id = ${requestId} FOR UPDATE OF r`)
       ).rows[0];
       if (!row || row.company_id !== actor.operatorCompanyId) throw new ApiError("NOT_FOUND", "notFound");
       if (row.version !== version) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
       const from = action === "approve" || action === "reject" ? "pending" : "approved";
       if (row.status !== from) throw new ApiError("BUSINESS_RULE", "returnRequestNotOpen");
+      // Đơn của trạm: trạm xác nhận đã nhận hàng trả, vận hành sàn không nhận thay (QUYTAC_NGHIEPVU_430, 431).
+      if (action === "receive" && row.station_id) throw new ApiError("BUSINESS_RULE", "stationReturnAtStation");
       // Đơn đã hoàn tất thì giá trị hoàn tất đã chốt: không duyệt, không nhận hàng trả nữa.
       const orderState = (await transaction.execute<{ status: string }>(sql`SELECT status FROM marketplace.orders WHERE id = ${row.order_id} FOR UPDATE`)).rows[0]!.status;
       if (orderState !== "delivered" && action !== "reject" && action !== "not_received") throw new ApiError("BUSINESS_RULE", "returnRequestNotOpen");
-      let documentId: string | null = null;
-      if (action === "receive") {
-        // Nhận hàng trả theo dòng, số lượng của yêu cầu: phiếu nhận hàng trả lại theo dòng phiếu xuất gốc.
-        const lines = await transaction.execute<{ issue_id: string; issue_line_id: string; quantity: string }>(sql`
-          SELECT d.id AS issue_id, dl.id AS issue_line_id, rl.quantity::text
-          FROM marketplace.return_request_lines rl JOIN inventory.document_lines dl ON dl.source_line_id = rl.order_line_id
-          JOIN inventory.documents d ON d.id = dl.document_id AND d.type = 'sales_issue' AND d.status = 'posted'
-          WHERE rl.request_id = ${requestId} ORDER BY d.created_at, dl.line_no`);
-        const issueId = lines.rows[0]?.issue_id;
-        if (!issueId) throw new ApiError("BUSINESS_RULE", "salesIssueNotPosted");
-        const system: Actor = { userId: actor.userId, companyId: actor.operatorCompanyId, client: actor.client };
-        documentId = await this.deliveries.returnAsSystem(transaction, system, {
-          issueId,
-          documentDate: await vietnamToday(transaction),
-          reason: "Người mua trả hàng trong 7 ngày",
-          lines: lines.rows.map((line) => ({ issueLineId: line.issue_line_id, quantity: line.quantity })),
-        });
-        // Lập việc chờ hoàn tiền phần hàng trả (CONG_VIEC_25; QUYTAC_NGHIEPVU_168).
-        await refundReturnedGoods(transaction, row.order_id, requestId);
-      }
+      const system: Actor = { userId: actor.userId, companyId: actor.operatorCompanyId, client: actor.client };
+      const documentId = action === "receive" ? await this.receiveWithin(transaction, system, requestId, row.order_id) : null;
       const status = { approve: "approved", reject: "rejected", receive: "received", not_received: "not_received" }[action];
       const decided = action === "approve" || action === "reject";
       await transaction.execute(sql`
@@ -257,8 +247,11 @@ export class ReturnRequestsService {
           closed_by = CASE WHEN ${decided} THEN closed_by ELSE ${actor.userId}::uuid END, closed_at = CASE WHEN ${decided} AND ${action !== "reject"} THEN closed_at ELSE now() END,
           version = version + 1
         WHERE id = ${requestId}`);
+      const station = row.station_id ? await stationById(transaction, row.station_id) : null;
       const titles = {
-        approve: "Yêu cầu trả hàng đã được duyệt. Vui lòng gửi hàng về VComm theo hướng dẫn.",
+        approve: station
+          ? `Yêu cầu trả hàng đã được duyệt. Vui lòng mang hàng đến trạm ${station.name}: ${station.address} (${station.openingHours}).`
+          : "Yêu cầu trả hàng đã được duyệt. Vui lòng gửi hàng về VComm theo hướng dẫn.",
         reject: "Yêu cầu trả hàng bị từ chối",
         receive: "VComm đã nhận hàng trả",
         not_received: "Yêu cầu trả hàng đã kết thúc: VComm không nhận được hàng",
@@ -268,5 +261,26 @@ export class ReturnRequestsService {
       ]);
     });
     return this.detail(actor, requestId, true);
+  }
+
+  // Nhận hàng trả theo dòng, số lượng của yêu cầu: phiếu nhận hàng trả lại theo dòng phiếu xuất gốc (về kho đã xuất), lập việc chờ hoàn tiền
+  // (QUYTAC_NGHIEPVU_161, 168, 430). Dùng chung cho vận hành sàn và trạm giao hàng.
+  async receiveWithin(transaction: Pick<Database, "execute" | "insert">, system: Actor, requestId: string, orderId: string): Promise<string> {
+    const lines = await transaction.execute<{ issue_id: string; issue_line_id: string; quantity: string }>(sql`
+      SELECT d.id AS issue_id, dl.id AS issue_line_id, rl.quantity::text
+      FROM marketplace.return_request_lines rl JOIN inventory.document_lines dl ON dl.source_line_id = rl.order_line_id
+      JOIN inventory.documents d ON d.id = dl.document_id AND d.type = 'sales_issue' AND d.status = 'posted'
+      WHERE rl.request_id = ${requestId} ORDER BY d.created_at, dl.line_no`);
+    const issueId = lines.rows[0]?.issue_id;
+    if (!issueId) throw new ApiError("BUSINESS_RULE", "salesIssueNotPosted");
+    const documentId = await this.deliveries.returnAsSystem(transaction, system, {
+      issueId,
+      documentDate: await vietnamToday(transaction),
+      reason: "Người mua trả hàng trong 7 ngày",
+      lines: lines.rows.map((line) => ({ issueLineId: line.issue_line_id, quantity: line.quantity })),
+    });
+    // Lập việc chờ hoàn tiền phần hàng trả (CONG_VIEC_25; QUYTAC_NGHIEPVU_168).
+    await refundReturnedGoods(transaction, orderId, requestId);
+    return documentId;
   }
 }
