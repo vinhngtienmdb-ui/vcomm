@@ -264,6 +264,23 @@ export class SalesDeliveriesService {
     await this.auditService.record({ ...inventoryAudit(actor, "stock_document"), companyId: row.company_id, action: "stock_document.submit", entityId: id, afterData: { documentNo } }, transaction);
   }
 
+  // Dropship (CONG_VIEC_62; QUYTAC_NGHIEPVU_501): lập và ghi sổ phiếu xuất các dòng đơn bán của nhà cung cấp đã giao, không xét quyền kho.
+  async issueAsSystem(transaction: Executor, actor: Actor, input: { orderId: string; documentDate: string; lines: { orderLineId: string; quantity: string }[] }): Promise<string> {
+    const order = await this.order(transaction, input.orderId, true);
+    const issueInput = { orderId: input.orderId, documentDate: input.documentDate, note: null, lines: input.lines.map((line) => ({ ...line, serials: [] })) } as unknown as IssueInput;
+    const { documentInput, sourceLines } = await this.issueInput(order, issueInput);
+    const prepared = await this.documents.prepare(null, documentInput, inventoryPermissions.issueSales);
+    const documentId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO inventory.documents (company_id, warehouse_id, type, document_date, reason_code, reason, note, source_type, source_id, partner_id, created_by)
+      VALUES (${order.company_id}, ${order.warehouse_id}, 'sales_issue', ${input.documentDate}::date, 'sale', ${documentInput.reason}, NULL, ${salesOrderSource}, ${order.id},
+        ${order.customer_id}, ${actor.userId}) RETURNING id`)
+    ).rows[0]!.id;
+    await this.writeLines(transaction, documentId, documentInput, prepared, sourceLines);
+    await this.postDraftAsSystem(transaction, documentId, actor);
+    return documentId;
+  }
+
   // Đơn VComm (CONG_VIEC_24): ghi sổ phiếu xuất nháp khi đơn vị vận chuyển lấy hàng, không xét quyền kho; dãy số đã tạo lúc giao đơn.
   async postDraftAsSystem(transaction: Executor, documentId: string, actor: Actor): Promise<void> {
     const row = (

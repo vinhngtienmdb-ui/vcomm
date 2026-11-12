@@ -84,7 +84,11 @@ export class OpenCatalogService {
     const conditions: SQL[] = [sql`c.company_id = ${caller.companyId}`, sql`c.warehouse_id = ANY(${pgArray(caller.warehouseIds)}::uuid[])`, sql`v.status = 'active'`];
     if (query.warehouse) conditions.push(sql`w.code = ${query.warehouse}`);
     if (query.sku && query.sku.length > 0) conditions.push(sql`v.sku = ANY(${pgArray(query.sku)}::text[])`);
-    const base = sql`FROM inventory.costs c JOIN catalog.variants v ON v.id = c.variant_id JOIN catalog.products p ON p.id = v.product_id
+    // Kho Dropship: tồn là số nhà cung cấp khai báo của sản phẩm dropship đang dùng (QUYTAC_NGHIEPVU_498).
+    const source = sql`(SELECT c.warehouse_id, c.company_id, c.variant_id, c.quantity FROM inventory.costs c JOIN inventory.warehouses cw ON cw.id = c.warehouse_id AND cw.kind = 'standard'
+      UNION ALL SELECT dw.id, dp.company_id, dp.variant_id, dp.declared_quantity FROM purchasing.dropship_products dp
+      JOIN inventory.warehouses dw ON dw.company_id = dp.company_id AND dw.kind = 'dropship' AND dw.status = 'active' WHERE dp.status = 'active')`;
+    const base = sql`FROM ${source} c JOIN catalog.variants v ON v.id = c.variant_id JOIN catalog.products p ON p.id = v.product_id
       JOIN inventory.warehouses w ON w.id = c.warehouse_id JOIN catalog.units u ON u.id = p.base_unit_id WHERE ${sql.join(conditions, sql` AND `)}`;
     const total = (await this.database.execute<{ total: number }>(sql`SELECT count(*)::int AS total ${base}`)).rows[0]?.total ?? 0;
     const rows = await this.database.execute<{ sku: string; warehouse_code: string; unit_code: string; available: string }>(sql`

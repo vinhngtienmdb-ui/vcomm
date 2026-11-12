@@ -412,6 +412,43 @@ export class PurchaseOrdersService implements OnModuleInit {
     return orderId;
   }
 
+  // Dropship (CONG_VIEC_62; QUYTAC_NGHIEPVU_500): đơn mua Đã duyệt do hệ thống lập từ đơn bán kho Dropship, không qua luồng duyệt, không kiểm ngân sách.
+  // Dãy số đơn mua phải có sẵn (ensureOrderSequence).
+  async createDropship(
+    transaction: Executor,
+    input: {
+      companyId: string;
+      supplierId: string;
+      warehouseId: string;
+      orderDate: string;
+      salesOrderId: string;
+      createdBy: string;
+      lines: { variantId: string; unitId: string; quantity: string; baseQuantity: string; unitPrice: string; vatRate: VatRate }[];
+    },
+  ): Promise<string> {
+    const documentNo = await this.sequences.next(input.companyId, documentTypeCode, transaction);
+    const orderId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO purchasing.orders (company_id, document_no, supplier_id, warehouse_id, order_date, currency, status, approved_supplier_id, submitted_at, created_by,
+        dropship_sales_order_id, dropship_status)
+      VALUES (${input.companyId}, ${documentNo}, ${input.supplierId}, ${input.warehouseId}, ${input.orderDate}::date, ${await companyCurrency(transaction, input.companyId)}, 'approved',
+        ${input.supplierId}, now(), ${input.createdBy}, ${input.salesOrderId}, 'awaiting') RETURNING id`)
+    ).rows[0]!.id;
+    const lines = input.lines.map((line) => ({ ...line, requisitionLineId: null }));
+    await this.writeLines(
+      transaction,
+      orderId,
+      { supplierId: input.supplierId, warehouseId: input.warehouseId, orderDate: input.orderDate, expectedDate: null, note: null, lines, version: 0 } as unknown as Input,
+      lines.map((line) => ({ id: null, baseQuantity: line.baseQuantity, amount: (Number(line.quantity) * Number(line.unitPrice)).toFixed(4), estimate: null })),
+    );
+    await transaction.execute(sql`UPDATE purchasing.orders SET approved_total = total_amount WHERE id = ${orderId}`);
+    return orderId;
+  }
+
+  async ensureOrderSequence(actor: Actor): Promise<void> {
+    await ensureSequence(this.database, this.sequences, actor, documentTypeCode, "DMH");
+  }
+
   async linkCounterpart(transaction: Executor, orderId: string, salesOrderId: string): Promise<void> {
     await transaction.execute(sql`UPDATE purchasing.orders SET counterpart_order_id = ${salesOrderId} WHERE id = ${orderId}`);
   }

@@ -2,6 +2,7 @@
 // Giữ hàng ghi qua ReservationsService của module Kho; số đã giao, đã trả tính từ phiếu kho.
 import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
 import type {
+  SalesOrderDropshipItem,
   PageResponse,
   saveSalesOrderSchema,
   SalesExceptionKind,
@@ -134,6 +135,8 @@ export class SalesOrdersService implements OnModuleInit {
   internalHooks: SalesInternalHooks | null = null;
   // Gọi sau khi đơn bán (đơn tay, đơn đối ứng nội bộ; không gồm đơn VComm) sang đã xác nhận, trong cùng giao dịch: lập phiếu xuất dịch vụ (CONG_VIEC_43; QUYTAC_NGHIEPVU_276).
   readonly confirmedHooks: ((transaction: Executor, orderId: string) => Promise<void>)[] = [];
+  // CONG_VIEC_62: khối Dropship của chi tiết đơn bán; DropshipOrdersService đăng ký khi khởi động.
+  dropshipOrders: ((executor: Executor, orderId: string) => Promise<SalesOrderDropshipItem[]>) | null = null;
 
   constructor(
     @Inject(DATABASE) private readonly database: Database,
@@ -324,6 +327,7 @@ export class SalesOrdersService implements OnModuleInit {
         orderDiscountAmount: trimDecimal(line.order_discount_amount),
       })),
       documents: documents.rows.map((document) => ({ id: document.id, documentNo: document.document_no, type: document.type, status: document.status, documentDate: day(document.document_date) })),
+      dropship: this.dropshipOrders ? await this.dropshipOrders(this.database, id) : [],
       version: row.version,
       // Đơn đối ứng nội bộ không sửa dòng được (QUYTAC_NGHIEPVU_78).
       canEdit: manage && !row.is_counterpart && ["draft", "rejected", "withdrawn"].includes(row.status),
@@ -522,6 +526,8 @@ export class SalesOrdersService implements OnModuleInit {
           userId: actor.userId,
         })
         .catch((error: unknown) => {
+          if (error instanceof ApiError && (error.messageKey === "dropshipProductMissing" || error.messageKey === "dropshipPriceMissing"))
+            throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [`lines.${total.index}.variantId`]: error.messageKey } });
           if (!(error instanceof ApiError) || error.messageKey !== "insufficientAvailableStock") throw error;
           throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { [`lines.${total.index}.quantity`]: "insufficientAvailableStock" } });
         });
@@ -990,7 +996,7 @@ export class SalesOrdersService implements OnModuleInit {
     }
     const channel = await transaction.execute(sql`SELECT 1 FROM catalog.sales_channels WHERE id = ${input.channelId} AND company_id = ${companyId} AND status = 'active'`);
     if (channel.rows.length === 0) fields.channelId = "invalidValue";
-    if (!(await isReceivingWarehouse(transaction, companyId, input.warehouseId))) fields.warehouseId = "invalidValue";
+    if (!(await isReceivingWarehouse(transaction, companyId, input.warehouseId, true))) fields.warehouseId = "invalidValue";
     if (input.customerId && !fields.customerId && !fields.channelId) {
       Object.assign(
         fields,

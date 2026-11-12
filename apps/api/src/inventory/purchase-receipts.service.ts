@@ -129,6 +129,55 @@ export class PurchaseReceiptsService {
     return this.documents.detail(actor, id);
   }
 
+  // Dropship (CONG_VIEC_62; QUYTAC_NGHIEPVU_501): nhập đủ số còn lại của đơn mua vào kho Dropship và ghi sổ ngay, không xét quyền kho, không kiểm tra chất lượng.
+  // Dãy số phiếu nhập mua tạo trước, ngoài giao dịch (ensureReceiptSequence).
+  async receiveAsSystem(transaction: Executor, actor: Actor, orderId: string, documentDate: string): Promise<string> {
+    const order = await this.order(transaction, orderId, true);
+    if (order.status !== "approved") throw new ApiError("BUSINESS_RULE", "purchaseOrderNotOpen");
+    const remaining = await transaction.execute<{ id: string; quantity: string }>(sql`
+      SELECT l.id, ((l.base_quantity - ${receivedOnOrderLine(sql`l.id`)}) * l.quantity / l.base_quantity)::text AS quantity
+      FROM purchasing.order_lines l WHERE l.order_id = ${orderId} ORDER BY l.line_no`);
+    const input = {
+      orderId,
+      documentDate,
+      note: null,
+      lines: remaining.rows.filter((row) => Number(row.quantity) > 0).map((row) => ({ orderLineId: row.id, quantity: String(Number(Number(row.quantity).toFixed(4))), serials: [] })),
+    } as unknown as ReceiptInput;
+    const { documentInput, sourceLines } = await this.receiptInput(order, input);
+    const prepared = await this.documents.prepare(null, documentInput, inventoryPermissions.receivePurchases);
+    const documentId = (
+      await transaction.execute<{ id: string }>(sql`
+      INSERT INTO inventory.documents (company_id, warehouse_id, type, document_date, reason_code, reason, note, source_type, source_id, partner_id, created_by)
+      VALUES (${order.company_id}, ${order.warehouse_id}, 'purchase_receipt', ${documentDate}::date, 'purchase', ${documentInput.reason}, NULL, 'purchasing.order',
+        ${order.id}, ${order.supplier_id}, ${actor.userId}) RETURNING id`)
+    ).rows[0]!.id;
+    await this.writeLines(transaction, documentId, documentInput, prepared, sourceLines);
+    const lines = await this.documents.lines(documentId, transaction);
+    const fields = await this.documents.checkForSubmit(
+      { type: "purchase_receipt", company_id: order.company_id, warehouse_id: order.warehouse_id, reason_code: "purchase", stocktake_id: null },
+      lines,
+      transaction,
+    );
+    if (Object.keys(fields).length > 0) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields });
+    const documentNo = await this.sequences.next(order.company_id, documentTypeCodes.purchase_receipt, transaction);
+    await transaction.execute(sql`
+      UPDATE inventory.documents SET status = 'pending', document_no = ${documentNo}, submitted_at = now(), updated_at = now(), version = version + 1 WHERE id = ${documentId}`);
+    await this.documents.postDocument(transaction, documentId);
+    await this.orders.refreshReceived(transaction, orderId);
+    await this.auditService.record(
+      { ...inventoryAudit(actor, "stock_document"), companyId: order.company_id, action: "stock_document.submit", entityId: documentId, afterData: { documentNo, dropship: true } },
+      transaction,
+    );
+    return documentId;
+  }
+
+  async ensureReceiptSequence(actor: Actor, companyId: string): Promise<void> {
+    for (const type of ["purchase_receipt", "purchase_return"] as const) {
+      const configured = await this.database.execute(sql`SELECT 1 FROM core.number_sequences WHERE company_id = ${companyId} AND document_type_code = ${documentTypeCodes[type]} LIMIT 1`);
+      if (configured.rows.length === 0) await this.sequences.update({ ...actor, companyId }, documentTypeCodes[type], { prefix: prefixes[type], resetPeriod: "year", padding: 6 });
+    }
+  }
+
   async updateReceipt(actor: Actor, id: string, input: ReceiptInput): Promise<StockDocumentResponse> {
     const row = await this.ownDraft(actor, id, "purchase_receipt");
     if (row.source_id !== input.orderId) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { orderId: "documentHeaderLocked" } });

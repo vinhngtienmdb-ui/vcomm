@@ -693,11 +693,14 @@ export class StockDocumentsService implements OnModuleInit {
     if (!warehouse) throw new ApiError("NOT_FOUND", "notFound");
     const fields: FieldErrors = {};
     if (warehouse.status !== "active") fields.warehouseId = "invalidValue";
+    // Kho Dropship chỉ nhận chứng từ hệ thống lập (QUYTAC_NGHIEPVU_496).
+    else if (actor && warehouse.kind === "dropship") fields.warehouseId = "dropshipWarehouseManual";
     if (!warehouse.ownerIds.includes(input.companyId)) fields.companyId = "warehouseOwnerNotAllowed";
     if (!(stockReasonCodes[input.type] as readonly string[]).includes(input.reasonCode)) fields.reasonCode = "invalidValue";
     if (input.type === "transfer") {
       const destination = input.destinationWarehouseId ? await this.warehouses.find(input.destinationWarehouseId) : null;
       if (!destination || destination.id === warehouse.id || destination.status !== "active") fields.destinationWarehouseId = "invalidValue";
+      else if (destination.kind === "dropship") fields.destinationWarehouseId = "dropshipWarehouseManual";
       else if (!destination.ownerIds.includes(input.companyId)) fields.destinationWarehouseId = "warehouseOwnerNotAllowed";
     } else if (input.destinationWarehouseId) {
       fields.destinationWarehouseId = "invalidValue";

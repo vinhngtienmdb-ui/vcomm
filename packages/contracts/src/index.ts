@@ -1391,6 +1391,8 @@ export const createWarehouseSchema = z
     address: z.string().trim().max(500).nullable().optional(),
     usesLocations: z.boolean(),
     ownerCompanyIds: z.array(z.uuid()).max(50).default([]),
+    // CONG_VIEC_62 (QUYTAC_NGHIEPVU_496): loại kho chọn khi tạo, không đổi sau.
+    kind: z.enum(["standard", "dropship"]).default("standard"),
   })
   .strict();
 export type CreateWarehouseRequest = z.input<typeof createWarehouseSchema>;
@@ -1414,6 +1416,7 @@ export interface WarehouseResponse {
   name: string;
   address: string | null;
   usesLocations: boolean;
+  kind: "standard" | "dropship";
   owners: { companyId: string; companyName: string }[];
   locationCount: number;
   status: "active" | "inactive";
@@ -2861,6 +2864,8 @@ export interface SalesOrderResponse extends SalesOrderListItem {
   deliveryAddress: string | null;
   recipient: { name: string; phone: string } | null;
   customerCreatedViaOpenApi: boolean;
+  // CONG_VIEC_62: đơn mua dropship theo nhà cung cấp khi kho xuất là kho Dropship (rỗng với kho thường).
+  dropship: import("./dropship").SalesOrderDropshipItem[];
   note: string | null;
   approvalRequestId: string | null;
   exceptions: { kind: SalesExceptionKind; lineNo: number | null; detail: string }[];
@@ -8167,3 +8172,4 @@ export * from "./purchasing-budgets";
 export * from "./office";
 export * from "./office-signing";
 export * from "./office-contracts";
+export * from "./dropship";
