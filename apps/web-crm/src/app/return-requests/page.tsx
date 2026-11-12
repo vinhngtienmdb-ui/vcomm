@@ -50,6 +50,7 @@ function RequestCard({ item, onChanged }: { item: ReturnRequestAdminItem; onChan
       <span>
         <strong>{t(`reason_${item.reason}`)}</strong>: {item.description}
       </span>
+      {item.returnStation && <span className="chu-thich">{t("returnStation", { station: `${item.returnStation.name} · ${item.returnStation.address}` })}</span>}
       <span className="chu-thich">{item.lines.map((line) => `${line.quantity} × ${line.productName}${line.variantLabel ? ` (${line.variantLabel})` : ""}`).join(", ")}</span>
       {item.images.length > 0 && (
         <div style={{ display: "flex", gap: "var(--khoang-2)", flexWrap: "wrap" }}>
@@ -96,9 +97,11 @@ function RequestCard({ item, onChanged }: { item: ReturnRequestAdminItem; onChan
             )}
             {item.canClose && (
               <>
-                <button type="button" className="nut chinh" disabled={busy} onClick={() => window.confirm(t("receiveConfirm")) && void act("receive")}>
-                  {t("action_receive")}
-                </button>
+                {item.canReceive && (
+                  <button type="button" className="nut chinh" disabled={busy} onClick={() => window.confirm(t("receiveConfirm")) && void act("receive")}>
+                    {t("action_receive")}
+                  </button>
+                )}
                 <button type="button" className="nut phu" disabled={busy} onClick={() => setNoting("not-received")}>
                   {t("action_not-received")}
                 </button>

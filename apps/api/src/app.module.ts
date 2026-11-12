@@ -103,6 +103,8 @@ import { RetailReturnsService } from "./retail/retail-returns.service";
 import { RetailSalesService } from "./retail/retail-sales.service";
 import { RetailShiftsService } from "./retail/retail-shifts.service";
 import { RetailStoresService } from "./retail/retail-stores.service";
+import { RetailStationOrdersService } from "./retail/retail-station-orders.service";
+import { RetailStationReturnsService } from "./retail/retail-station-returns.service";
 import { ContractRemindersService } from "./hr/contract-reminders.service";
 import { ContractsService } from "./hr/contracts.service";
 import { EmployeesService } from "./hr/employees.service";
@@ -280,6 +282,8 @@ import { UsersService } from "./users/users.service";
     FundsService,
     RetailStoresService,
     RetailShiftsService,
+    RetailStationOrdersService,
+    RetailStationReturnsService,
     RetailSalesService,
     RetailReturnsService,
     PaymentsService,

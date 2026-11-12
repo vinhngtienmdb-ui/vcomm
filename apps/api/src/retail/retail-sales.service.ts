@@ -62,6 +62,12 @@ type PricedRow = {
 // Thuế suất dạng chữ: "0", "5", "8", "10"; không chịu thuế, không kê khai coi như 0.
 const vatFraction = (rate: string) => (/^\d+(\.\d+)?$/.test(rate) ? Number(rate) / 100 : 0);
 
+// Điểm giao nhận không bán tại quầy (CONG_VIEC_57; QUYTAC_NGHIEPVU_418).
+function counterStore(store: RetailStore): RetailStore {
+  if (store.kind === "pickup_point") throw new ApiError("BUSINESS_RULE", "retailPickupPointNoCounterSale");
+  return store;
+}
+
 @Injectable()
 export class RetailSalesService {
   constructor(
@@ -79,7 +85,7 @@ export class RetailSalesService {
 
   private async counter(executor: Executor, actor: Actor, shiftId: string): Promise<RetailStore> {
     const shift = await this.shifts.requireOwnOpenShift(executor, actor, shiftId);
-    return this.stores.store(executor, actor.companyId, shift.store_id);
+    return counterStore(await this.stores.store(executor, actor.companyId, shift.store_id));
   }
 
   // Tìm, quét hàng (API_194): serial còn trong kho bán, mã vạch, mã hàng, tên; chỉ hàng hóa.
@@ -241,7 +247,7 @@ export class RetailSalesService {
       const shift = await this.shifts.requireOwnOpenShift(transaction, actor, input.shiftId);
       const existing = (await transaction.execute<{ id: string }>(sql`SELECT id FROM retail.sales WHERE register_id = ${shift.register_id} AND client_key = ${input.clientKey}`)).rows[0];
       if (existing) return existing.id;
-      const store = await this.stores.store(transaction, actor.companyId, shift.store_id);
+      const store = counterStore(await this.stores.store(transaction, actor.companyId, shift.store_id));
       await this.validateCart(transaction, actor.companyId, input.lines);
       if (input.payments.some((payment) => payment.method === "bank_transfer") && !store.bank_fund_id) throw new ApiError("BUSINESS_RULE", "retailNoBankFund");
       const today = this.permissionService.today();

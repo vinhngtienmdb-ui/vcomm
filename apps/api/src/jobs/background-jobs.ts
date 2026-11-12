@@ -16,6 +16,7 @@ import { EinvoicesService } from "../einvoice/einvoices.service";
 import { LoyaltyJobsService } from "../loyalty/jobs.service";
 import { GroupBuysService } from "../marketplace/group-buys.service";
 import { MarketplaceOrdersService } from "../marketplace/marketplace-orders.service";
+import { RetailStationOrdersService } from "../retail/retail-station-orders.service";
 import { MarketplacePaymentsService } from "../marketplace/payments/payments.service";
 import { ReservationsService } from "../inventory/reservations.service";
 import { StockLevelsService } from "../inventory/stock-levels.service";
@@ -51,6 +52,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const stockLevels = application.get(StockLevelsService);
   const einvoices = application.get(EinvoicesService);
   const marketplaceOrders = application.get(MarketplaceOrdersService);
+  const stationOrders = application.get(RetailStationOrdersService);
   const payments = application.get(MarketplacePaymentsService);
   const loyalty = application.get(LoyaltyJobsService);
   const groupBuys = application.get(GroupBuysService);
@@ -88,6 +90,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("loyalty-daily", { pattern: "10 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-daily" });
   // Chốt nhóm mua chung hết hạn (CONG_VIEC_49; QUYTAC_NGHIEPVU_331).
   await queue.upsertJobScheduler("marketplace-group-buy-close", { every: 60_000 }, { name: "marketplace-group-buy-close" });
+  // Nhắc, hủy đơn quá hạn giữ tại trạm giao hàng O2O (CONG_VIEC_57; QUYTAC_NGHIEPVU_428).
+  await queue.upsertJobScheduler("station-order-hold", { every: 60 * 60_000 }, { name: "station-order-hold" });
   // Hóa đơn điện tử chạy hàng đợi riêng: gọi nhà cung cấp chậm không làm chậm các tác vụ khác.
   const einvoiceQueue = new Queue(einvoiceQueueName, { connection });
   await einvoiceQueue.upsertJobScheduler("einvoice-send", { every: 30_000 }, { name: "einvoice-send" });
@@ -120,6 +124,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "hr-candidate-erasure") return candidates.eraseDue();
       if (job.name === "hr-review-reminders") return reviews.sendReminders();
       if (job.name === "marketplace-order-completion") return marketplaceOrders.completeDue();
+      if (job.name === "station-order-hold") return stationOrders.expireDue();
       if (job.name === "marketplace-payment-expiry") return payments.expireDue();
       if (job.name === "loyalty-daily") return loyalty.runDaily();
       if (job.name === "marketplace-group-buy-close") return groupBuys.closeDue();

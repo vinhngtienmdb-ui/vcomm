@@ -3985,6 +3985,160 @@ Dữ liệu chung: `apps/api/test/retail-fixture.ts` (`createRetailFixture`, `cr
 
 Dữ liệu chung: công ty VCR; phòng ban có trưởng phòng; tài khoản Quản lý nhân sự, Nhân viên nhân sự, người chỉ có `hr.employee.view`, nhân viên có hồ sơ liên kết. Dữ liệu giả, không dùng dữ liệu thật.
 
+### KICHBAN_KIEMTHU_559: Cài đặt trạm giao hàng O2O
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_390
+- Chức năng: CHUC_NANG_200
+- Loại: Đúng, sai, giá trị biên, phân quyền
+- Vai trò thực hiện: Quản trị công ty; Cửa hàng trưởng
+- Điều kiện ban đầu và dữ liệu: Cửa hàng Thủ Đức đã khai (CONG_VIEC_53), chưa bật trạm.
+- Các bước: (1) Công ty không vận hành sàn: bật trạm; tắt cả hai cách nhận rồi lưu. (2) Đặt công ty vận hành sàn; Cửa hàng trưởng lưu cài đặt trạm, xem danh mục tỉnh. (3) Bật cả hai cách nhận với tên, địa chỉ, giờ mở cửa trống, không tỉnh, xã, số điện thoại, không xã giao; tỉnh `01` với xã của tỉnh `79`, xã giao `99999`; số ngày giữ 15; số điện thoại `12345`; phiên bản cũ. (4) Lưu đúng với xã giao trùng; Cửa hàng trưởng xem danh sách cửa hàng.
+- Kết quả mong đợi: Bước 1: `409` "Chỉ cửa hàng, điểm giao nhận của công ty vận hành sàn VComm bật được trạm giao hàng."; tắt thì `200`. Bước 2: `403`. Bước 3: `400` tại `displayName`, `provinceCode`, `wardCode`, `streetAddress`, `phone`, `openingHours`, `deliveryWardCodes`; `400` tại `wardCode`, `deliveryWardCodes`; `400`; `400`; `409`. Bước 4: `200`, số điện thoại bỏ dấu cách, hai xã giao, nhật ký `retail_store.station`; Cửa hàng trưởng thấy cài đặt trạm.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-stations.test.ts`
+- Lát: L1 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_560: Điểm giao nhận
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_390, TIEUCHI_NGHIEMTHU_401
+- Chức năng: CHUC_NANG_200
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Quản trị công ty; Thu ngân của điểm giao nhận
+- Điều kiện ban đầu và dữ liệu: Chi nhánh loại "Khác" có kho không quản lý vị trí.
+- Các bước: (1) Xem tùy chọn cài đặt. (2) Thêm cửa hàng loại Cửa hàng gắn chi nhánh "Khác". (3) Thêm điểm giao nhận gắn chi nhánh "Khác", thêm quầy. (4) Thu ngân của điểm giao nhận mở ca, tìm hàng để bán.
+- Kết quả mong đợi: Bước 1: chi nhánh có `branchType` `other`. Bước 2: `400` "Chọn chi nhánh loại Cửa hàng đang hoạt động của công ty.". Bước 3: `201`, `kind` `pickup_point`. Bước 4: mở ca `201`; tìm hàng `409` "Điểm giao nhận không bán hàng tại quầy.".
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-stations.test.ts`
+- Lát: L1 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_561: Danh sách trạm khi đặt
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_391
+- Chức năng: CHUC_NANG_201
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Khách mua
+- Điều kiện ban đầu và dữ liệu: Trạm Thủ Đức (xã Linh Xuân, nhận tại trạm và trạm giao Linh Xuân, Tam Bình; phí 15.000, miễn từ 600.000; kho 5 kem); trạm Quận 1 (xã Thủ Đức, chỉ nhận tại trạm; kho 1 kem); bật thanh toán khi nhận tại trạm; khách có địa chỉ Linh Xuân và địa chỉ Hà Nội.
+- Các bước: (1) Xem trước nhận tại trạm 1 kem. (2) 2 kem, chọn Thủ Đức. (3) Trạm giao 2 kem, 3 kem; trạm giao với địa chỉ Hà Nội. (4) Giao qua đơn vị vận chuyển.
+- Kết quả mong đợi: Bước 1: hai trạm, Thủ Đức (cùng xã) trước; phí 0; có `pay_at_station`, không có `cod`. Bước 2: chỉ Thủ Đức; tổng 500.000; không lộ kho. Bước 3: phí 15.000, tổng 515.000; 750.000 miễn phí; Hà Nội không có trạm. Bước 4: không có trạm, phí 30.000, không có `pay_at_station`.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-orders.test.ts`
+- Lát: L2 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_562: Đặt đơn nhận tại trạm, trạm giao
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_392, TIEUCHI_NGHIEMTHU_393, TIEUCHI_NGHIEMTHU_401
+- Chức năng: CHUC_NANG_201
+- Loại: Đúng, sai
+- Vai trò thực hiện: Khách mua; Quản trị công ty (giao cho đơn vị vận chuyển)
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_561.
+- Các bước: (1) Đặt nhận tại trạm thiếu trạm; trạm Quận 1 (thiếu hàng); Quận 1 trạm giao; trạm giao địa chỉ Hà Nội; phương thức `cod`; giao qua đơn vị vận chuyển với `pay_at_station`. (2) Đặt nhận tại trạm Thủ Đức 2 kem, thanh toán khi nhận tại trạm; giao đơn cho đơn vị vận chuyển. (3) Đặt trạm giao 1 kem; đặt giao qua đơn vị vận chuyển 1 kem.
+- Kết quả mong đợi: Bước 1: `400`; "Trạm đã chọn không còn đủ hàng. Chọn trạm khác."; "Trạm đã chọn không còn nhận đơn cho cách nhận hoặc địa chỉ này. Chọn trạm khác."; `409`; "Phương thức thanh toán này hiện không dùng được. Chọn phương thức khác."; `409`. Bước 2: `201`, Chờ giao, phí 0, phải thu 500.000, kho xuất và giữ hàng 2 kem ở kho Thủ Đức, địa chỉ giao ghi nhận tại trạm; giao đơn vị vận chuyển `409`. Bước 3: phí 15.000; đơn vị vận chuyển phí 30.000, kho VComm như cũ.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-orders.test.ts`
+- Lát: L2 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_563: Đơn mua chung với trạm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_401
+- Chức năng: CHUC_NANG_201
+- Loại: Sai
+- Vai trò thực hiện: Khách mua
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_561.
+- Các bước: Xem trước đơn tham gia nhóm mua chung với cách nhận tại trạm.
+- Kết quả mong đợi: `409` "Đơn mua chung chỉ giao qua đơn vị vận chuyển, chưa nhận tại trạm."
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-orders.test.ts`
+- Lát: L2 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_564: Danh sách đơn tại trạm, sẵn sàng nhận
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_394, TIEUCHI_NGHIEMTHU_401
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Thu ngân của trạm Thủ Đức; Thu ngân chi nhánh Quận 1; Khách mua
+- Điều kiện ban đầu và dữ liệu: Dữ liệu của KICHBAN_KIEMTHU_561; khách đặt nhận tại trạm Thủ Đức 2 kem, trả khi nhận.
+- Các bước: (1) Thu ngân Thủ Đức, Quận 1 xem danh sách, chi tiết. (2) Đã soạn xong với phiên bản sai; đúng; bấm lại. (3) Khách xem chi tiết đơn; xem nhật ký thao tác.
+- Kết quả mong đợi: Bước 1: Thủ Đức thấy đơn Chờ soạn hàng, phải thu 500.000; Quận 1 danh sách rỗng, chi tiết `404`. Bước 2: `409`; Sẵn sàng nhận, hạn giữ 23:59 giờ Việt Nam ngày thứ 3; `409`. Bước 3: mã 6 số, nội dung QR `VCOMM-NHAN:{số đơn}:{mã}`; nhật ký không chứa mã.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-handover.test.ts`
+- Lát: L3 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_565: Giao tại trạm, thu tiền trong ca, đóng ca
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_395, TIEUCHI_NGHIEMTHU_396
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Thu ngân của trạm
+- Điều kiện ban đầu và dữ liệu: Đơn Sẵn sàng nhận của KICHBAN_KIEMTHU_564; quầy Q01 của trạm.
+- Các bước: (1) Tìm theo mã sai, nội dung QR, mã đúng. (2) Giao với mã sai 5 lần; mã đúng khi đang khóa. (3) Hết khóa: giao không có ca; mở ca; thu tiền mặt 300.000; chuyển khoản 600.000; chuyển khoản 100.000 và tiền mặt 500.000. (4) Giao lại. (5) Xem ca, đóng ca với tiền đếm 400.000.
+- Kết quả mong đợi: Bước 1: `404`; tìm được; tìm được. Bước 2: bốn lần `400` "Mã nhận hàng không đúng." (lần thứ tư báo sắp khóa), lần thứ năm `409` "Đơn đã nhập sai mã nhận hàng 5 lần, thử lại sau 15 phút."; `409`. Bước 3: "Đơn chưa thu tiền: mở ca trước khi giao."; `409`; `409`; `200` Đã giao, đã thu 500.000, tiền thừa 100.000, phiếu xuất đã ghi sổ, kho còn 3, hết giữ hàng; khách thấy Đã giao, đã thanh toán, không còn mã. Bước 4: `409`. Bước 5: thu đơn trực tuyến 500.000, tiền hệ thống tính 400.000; đóng ca lập phiếu thu 400.000 quỹ tiền mặt và 100.000 quỹ chuyển khoản.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-handover.test.ts`
+- Lát: L3 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_566: Hủy đơn tại trạm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_401
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, phân quyền
+- Vai trò thực hiện: Thu ngân của trạm; Thu ngân chi nhánh khác
+- Điều kiện ban đầu và dữ liệu: Đơn mới 1 kem đã Sẵn sàng nhận.
+- Các bước: Thu ngân chi nhánh khác hủy; thu ngân của trạm hủy với lý do.
+- Kết quả mong đợi: `404`; Đã hủy, nhả giữ hàng, mã hết hiệu lực; khách thấy Đã hủy, không còn mã.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-handover.test.ts`
+- Lát: L3 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_567: Trạm giao: giao cho nhân viên, giao thành công
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_397, TIEUCHI_NGHIEMTHU_401
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, sai, phân quyền
+- Vai trò thực hiện: Cửa hàng trưởng; hai Nhân viên giao hàng trạm; Khách mua
+- Điều kiện ban đầu và dữ liệu: Dữ liệu của KICHBAN_KIEMTHU_561; quầy GH1 của trạm Thủ Đức; đơn trạm giao 1 kem (265.000, trả khi nhận) đã Sẵn sàng nhận.
+- Các bước: (1) Cửa hàng trưởng xem danh sách nhân viên giao, giao cho người không có quyền, giao cho nhân viên A. (2) Nhân viên B nhận đi giao, xem màn hình của mình. (3) Nhân viên A xem màn hình, vào màn hình bán. (4) A nhận đi giao không có ca; mở ca; tìm hàng bán; nhận đi giao. (5) Cửa hàng trưởng ghi giao thành công; A giao thành công với mã, tiền mặt 300.000. (6) Xem ca của A.
+- Kết quả mong đợi: Bước 1: danh sách gồm A, B, cửa hàng trưởng; `400`; `200`. Bước 2: "Đơn đã giao cho nhân viên khác."; không có đơn. Bước 3: đơn ở mục chờ giao, có quầy GH1; `403`. Bước 4: "Đơn chưa thu tiền: mở ca trước khi giao."; `201`; `403`; Đang giao, khách vẫn thấy mã. Bước 5: `409`; Đã giao, đã thu 265.000, tiền thừa 35.000, phiếu xuất ghi sổ. Bước 6: thu đơn trực tuyến 265.000, tiền hệ thống tính 265.000, được đóng ca.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-delivery.test.ts`
+- Lát: L4 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_568: Trạm giao không thành công
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_397
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, sai, giá trị biên
+- Vai trò thực hiện: Nhân viên giao hàng trạm
+- Điều kiện ban đầu và dữ liệu: Như KICHBAN_KIEMTHU_567, nhân viên có ca mở.
+- Các bước: (1) Đơn mới: ba lần nhận đi giao rồi ghi khách vắng. (2) Đơn mới: ghi lý do Khác không ghi chú; ghi khách từ chối nhận.
+- Kết quả mong đợi: Bước 1: lần 1, 2 về Sẵn sàng nhận, số lần giao 1, 2, bỏ nhân viên giao, lịch sử "Khách vắng (1/3)"; lần 3 Đã hủy, nhả giữ hàng. Bước 2: `400`; Đã hủy ngay, lý do "Giao không thành công: Khách từ chối nhận: Đổi ý", nhả giữ hàng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-delivery.test.ts`
+- Lát: L4 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_569: Thông báo đơn mới, đơn sẵn sàng
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_399
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng
+- Vai trò thực hiện: Khách mua; Cửa hàng trưởng của trạm
+- Điều kiện ban đầu và dữ liệu: Dữ liệu của KICHBAN_KIEMTHU_561.
+- Các bước: Khách đặt nhận tại trạm; cửa hàng trưởng bấm Đã soạn xong.
+- Kết quả mong đợi: Cửa hàng trưởng có thông báo "Đơn trực tuyến mới …"; khách có thông báo sẵn sàng gồm tên, địa chỉ, giờ mở cửa của trạm, hạn giữ, không có mã nhận hàng; có sự kiện outbox để gửi Zalo ZNS.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-hold.test.ts`
+- Lát: L5 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_570: Nhắc, hủy khi hết hạn giữ
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_398
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, giá trị biên
+- Vai trò thực hiện: Hệ thống (việc nền)
+- Điều kiện ban đầu và dữ liệu: Đơn nhận tại trạm Sẵn sàng nhận; đơn trạm giao Đang giao.
+- Các bước: (1) Hạn giữ còn 30 giờ: chạy việc nền. (2) Còn 10 giờ: chạy hai lần. (3) Hạn giữ hai đơn đã qua: chạy việc nền.
+- Kết quả mong đợi: Bước 1: không nhắc, không hủy. Bước 2: nhắc một lần. Bước 3: đơn nhận tại trạm Đã hủy (người hủy hệ thống, lý do "Quá hạn giữ hàng tại trạm"), nhả giữ hàng, khách có thông báo hủy; đơn Đang giao giữ nguyên.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-hold.test.ts`
+- Lát: L5 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_571: Zalo ZNS của đơn trạm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_399
+- Chức năng: CHUC_NANG_202
+- Loại: Đúng, sai
+- Vai trò thực hiện: Quản trị tập đoàn; Khách mua
+- Điều kiện ban đầu và dữ liệu: Bộ gửi tin giả lập.
+- Các bước: (1) Chưa cài mẫu: đơn sẵn sàng, đẩy outbox. (2) Cài khóa eSMS, mẫu `station_order_ready` = 571: đơn sẵn sàng, đẩy outbox.
+- Kết quả mong đợi: Bước 1: không gửi. Bước 2: một tin mẫu 571 tới số điện thoại khách, có tên trạm, giờ mở cửa, không có mã nhận hàng.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-hold.test.ts`
+- Lát: L5 (CONG_VIEC_57)
+
+### KICHBAN_KIEMTHU_572: Trả hàng đơn của trạm, vận hành sàn chỉ xem đơn của trạm
+- Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_400, TIEUCHI_NGHIEMTHU_401 (phần phạm vi)
+- Chức năng: CHUC_NANG_203
+- Loại: Đúng, sai, từng vai trò
+- Vai trò thực hiện: Khách mua; Nhân viên vận hành sàn; Cửa hàng trưởng trạm của đơn; Cửa hàng trưởng trạm khác
+- Điều kiện ban đầu và dữ liệu: Trạm Thủ Đức, Quận 1; đơn nhận tại trạm Thủ Đức 2 kem, trả khi nhận.
+- Các bước: (1) Vận hành lọc đơn theo trạm, cách nhận; xem chi tiết đơn Sẵn sàng nhận; thử hủy. (2) Giao tại trạm, khách gửi yêu cầu trả 1 kem. (3) Vận hành duyệt, thử "Đã nhận hàng trả". (4) Trạm khác xem, nhận. (5) Trạm của đơn nhận với phiên bản cũ, rồi đúng phiên bản, rồi nhận lần nữa.
+- Kết quả mong đợi: Bước 1: lọc đúng; chi tiết có hạn giữ, không có mã nhận hàng, không hủy, không giao vận chuyển; hủy bị chặn. Bước 2: yêu cầu có trạm nhận hàng trả. Bước 3: thông báo duyệt ghi tên, địa chỉ, giờ mở cửa trạm; vận hành nhận bị chặn. Bước 4: không thấy, `404`. Bước 5: `409` phiên bản; phiếu nhận hàng trả lại ghi sổ vào kho trạm (tồn 3 → 4), việc chờ hoàn 250.000, người nhận; nhận lần nữa bị chặn.
+- Kiểm thử tự động: Tự động API – `apps/api/test/c57-station-returns.test.ts`
+- Lát: L6 (CONG_VIEC_57)
+
 ### KICHBAN_KIEMTHU_434: Lập hồ sơ, mã tự cấp, kiểm dữ liệu, liên kết tài khoản
 - Tiêu chí nghiệm thu: TIEUCHI_NGHIEMTHU_287
 - Chức năng: CHUC_NANG_162

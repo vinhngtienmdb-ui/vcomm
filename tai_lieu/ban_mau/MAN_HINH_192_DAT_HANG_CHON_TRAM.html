@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MAN_HINH_192 Đặt hàng chọn trạm – VComm</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" />
+    <link rel="stylesheet" href="kho_dien_thoai.css" />
+  </head>
+  <body>
+    <div class="dien-thoai">
+      <div class="dau">
+        <span class="tieu">Đặt hàng<span class="phu">2 sản phẩm · 412.000 đ</span></span>
+      </div>
+      <div class="than-dt">
+        <div class="the">
+          <h3>Người nhận</h3>
+          <span>Trần Văn Minh · 0903 123 456</span>
+          <span class="phu-chu">12 Võ Văn Ngân, P. Linh Xuân, TP. Hồ Chí Minh</span>
+        </div>
+        <div class="the">
+          <h3>Cách nhận hàng</h3>
+          <label><input type="radio" name="cach" /> Giao qua đơn vị vận chuyển · 30.000 đ</label>
+          <label><input type="radio" name="cach" checked /> Nhận tại trạm · miễn phí</label>
+          <label><input type="radio" name="cach" /> Trạm giao tận nơi</label>
+        </div>
+        <div class="the">
+          <h3>Chọn trạm còn đủ hàng</h3>
+          <select style="font: inherit; min-height: 40px; border: 1px solid var(--mau-vien-o-nhap); border-radius: var(--bo-nho)">
+            <option>TP. Hồ Chí Minh</option>
+          </select>
+          <div class="dong">
+            <div class="chinh-dong">
+              <span class="ten">VComm Thủ Đức <span class="nhan xanh">Cùng phường</span></span
+              ><span class="phu-chu">45 Hoàng Diệu 2, P. Linh Xuân · 7:00 – 21:00</span>
+            </div>
+            <input type="radio" name="tram" checked aria-label="Chọn" />
+          </div>
+          <div class="dong">
+            <div class="chinh-dong"><span class="ten">Điểm giao nhận Dĩ An</span><span class="phu-chu">8 Trần Hưng Đạo, P. Dĩ An · 8:00 – 20:00</span></div>
+            <input type="radio" name="tram" aria-label="Chọn" />
+          </div>
+          <span class="phu-chu">Chỉ hiện trạm còn đủ hàng cho cả đơn. Hàng được giữ tại trạm sau khi đặt.</span>
+        </div>
+        <div class="the">
+          <h3>Thanh toán</h3>
+          <label><input type="radio" name="tt" checked /> Thanh toán khi nhận tại trạm (tiền mặt, chuyển khoản)</label>
+          <label><input type="radio" name="tt" /> QR VNPAY</label>
+          <label><input type="radio" name="tt" /> Thẻ ATM nội địa</label>
+        </div>
+        <div class="the">
+          <div class="dong"><span>Tiền hàng</span><span style="margin-left: auto">412.000</span></div>
+          <div class="dong"><span>Phí giao</span><span style="margin-left: auto">0</span></div>
+          <div class="dong"><strong>Tổng</strong><strong style="margin-left: auto">412.000 đ</strong></div>
+        </div>
+      </div>
+      <div class="chan"><button class="nut chinh" type="button">Đặt hàng</button></div>
+    </div>
+  </body>
+</html>
