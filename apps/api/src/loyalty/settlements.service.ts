@@ -9,6 +9,8 @@ import type {
   LoyaltySettlementMismatch,
   LoyaltySettlementMovement,
   LoyaltySettlementMovementKind,
+  LoyaltySettlementPayment,
+  LoyaltySettlementPaymentInput,
   LoyaltySettlementResponse,
   LoyaltySettlementsResponse,
   LoyaltySettlementStatus,
@@ -24,6 +26,8 @@ import { vietnamToday } from "../marketplace/shop.service";
 import { PermissionService } from "../permissions/permission.service";
 import type { Actor } from "../permissions/roles.service";
 import { NumberSequencesService, periodKey } from "../settings/number-sequences.service";
+import { PaymentsService } from "../finance/payments.service";
+import { assertSettlementPayment, settlementPaymentState } from "./settlement-payments";
 import { maskName } from "./smart-otp.service";
 
 type Executor = Pick<Database, "execute">;
@@ -33,8 +37,9 @@ const documentType = "loyalty.settlement";
 // Bảng còn mở (chưa đủ hai bên xác nhận): lập lại được; chặn xác nhận bảng kỳ sau.
 const openStatuses: LoyaltySettlementStatus[] = ["pending", "operator_confirmed", "company_confirmed", "disputed", "mismatched"];
 const confirmableStatuses: LoyaltySettlementStatus[] = ["pending", "operator_confirmed", "company_confirmed"];
-// Nguồn bút toán tính vào đối soát: bút toán điểm hai phía (thanh toán nội bộ thêm ở lát sau).
-const sources = sql`('loyalty_entry', 'loyalty_seller_entry')`;
+// Nguồn bút toán tính vào đối soát: bút toán điểm hai phía và phiếu thu, phiếu chi nợ nội bộ điểm (QUYTAC_NGHIEPVU_473).
+const sourceFilter = sql`(j.source_type IN ('loyalty_entry', 'loyalty_seller_entry')
+  OR (j.source_type = 'payment' AND EXISTS (SELECT 1 FROM finance.payments fp WHERE fp.id = j.source_id AND fp.loyalty_settlement_id IS NOT NULL)))`;
 const roles = sql`('loyalty_intercompany_receivable', 'loyalty_intercompany_payable')`;
 const receivableKinds: LoyaltySettlementMovementKind[] = ["earn", "earn_reversal"];
 const payableKinds: LoyaltySettlementMovementKind[] = ["redeem", "redeem_refund"];
@@ -135,7 +140,7 @@ async function netBalance(executor: Executor, companyId: string, partnerId: stri
     await executor.execute<{ amount: string | null }>(sql`
     SELECT sum(l.debit - l.credit)::text AS amount FROM accounting.journals j JOIN accounting.journal_lines l ON l.journal_id = j.id
     JOIN accounting.posting_rules r ON r.company_id = j.company_id AND r.account_id = l.account_id AND r.role IN ${roles}
-    WHERE j.company_id = ${companyId} AND l.partner_id = ${partnerId} AND j.source_type IN ${sources} AND j.status = 'posted' AND j.journal_date <= ${through}::date`)
+    WHERE j.company_id = ${companyId} AND l.partner_id = ${partnerId} AND ${sourceFilter} AND j.status = 'posted' AND j.journal_date <= ${through}::date`)
   ).rows[0];
   return Number(row?.amount ?? 0);
 }
@@ -148,27 +153,27 @@ export async function settlementFigures(executor: Executor, operator: string, co
   const netOpening = await netBalance(executor, operator, companyPartner, dayBefore(period));
   const netClosing = await netBalance(executor, operator, companyPartner, end);
   // Sổ C ghi ngược chiều: số C phải trả = Có − Nợ.
-  const companyNetClosing = -(await netBalance(executor, company, operatorPartner, end));
+  const companyNetClosing = 0 - (await netBalance(executor, company, operatorPartner, end));
   const movementRows = await executor.execute<{ kind: LoyaltySettlementMovementKind; amount: string }>(sql`
-    SELECT e.kind, sum(l.debit - l.credit)::text AS amount
+    SELECT coalesce(e.kind, 'payment') AS kind, sum(l.debit - l.credit)::text AS amount
     FROM accounting.journals j JOIN accounting.journal_lines l ON l.journal_id = j.id
     JOIN accounting.posting_rules r ON r.company_id = j.company_id AND r.account_id = l.account_id AND r.role IN ${roles}
-    JOIN loyalty.entries e ON e.id = j.source_id
-    WHERE j.company_id = ${operator} AND l.partner_id = ${companyPartner} AND j.source_type IN ${sources} AND j.status = 'posted'
+    LEFT JOIN loyalty.entries e ON e.id = j.source_id AND j.source_type <> 'payment'
+    WHERE j.company_id = ${operator} AND l.partner_id = ${companyPartner} AND ${sourceFilter} AND j.status = 'posted'
       AND j.journal_date BETWEEN ${period}::date AND ${end}::date
-    GROUP BY e.kind`);
+    GROUP BY 1`);
   const amountOf = (kind: LoyaltySettlementMovementKind) => Number(movementRows.rows.find((row) => row.kind === kind)?.amount ?? 0);
   const kinds: LoyaltySettlementMovementKind[] = ["earn", "earn_reversal", "redeem", "redeem_refund", "payment"];
   const movements = kinds.filter((kind) => amountOf(kind) !== 0).map((kind) => ({ kind, amount: money(amountOf(kind)) }));
   const receivableMovement = receivableKinds.reduce((total, kind) => total + amountOf(kind), 0);
   const payableMovement = -payableKinds.reduce((total, kind) => total + amountOf(kind), 0);
-  // Đối chiếu theo bút toán điểm: phía O (Nợ − Có) phải bằng phía C (Có − Nợ); hai phía cùng mã bút toán điểm.
+  // Đối chiếu theo bút toán điểm: phía O (Nợ − Có) phải bằng phía C (Có − Nợ); hai phía cùng mã bút toán điểm. Phiếu thu chi mỗi bên một chứng từ riêng: so tổng.
   const mismatchRows = await executor.execute<{ source_id: string; label: string; day: string; operator_amount: string; company_amount: string }>(sql`
     WITH sides AS (
       SELECT j.source_id, j.company_id = ${operator} AS operator_side, min(j.journal_no) AS label, min(j.journal_date)::text AS day, sum(l.debit - l.credit) AS amount
       FROM accounting.journals j JOIN accounting.journal_lines l ON l.journal_id = j.id
       JOIN accounting.posting_rules r ON r.company_id = j.company_id AND r.account_id = l.account_id AND r.role IN ${roles}
-      WHERE j.source_type IN ${sources} AND j.status = 'posted' AND j.journal_date <= ${end}::date
+      WHERE j.source_type IN ('loyalty_entry', 'loyalty_seller_entry') AND j.status = 'posted' AND j.journal_date <= ${end}::date
         AND ((j.company_id = ${operator} AND l.partner_id = ${companyPartner}) OR (j.company_id = ${company} AND l.partner_id = ${operatorPartner}))
       GROUP BY j.source_id, 2
     )
@@ -177,6 +182,22 @@ export async function settlementFigures(executor: Executor, operator: string, co
     FROM sides GROUP BY source_id
     HAVING abs(coalesce(sum(amount) FILTER (WHERE operator_side), 0) + coalesce(sum(amount) FILTER (WHERE NOT operator_side), 0)) >= 0.5
     ORDER BY min(day), min(label) LIMIT 200`);
+  const paymentSides = async (companyId: string, partnerId: string | null) =>
+    Number(
+      (
+        await executor.execute<{ amount: string | null }>(sql`
+        SELECT sum(l.debit - l.credit)::text AS amount FROM accounting.journals j JOIN accounting.journal_lines l ON l.journal_id = j.id
+        JOIN accounting.posting_rules r ON r.company_id = j.company_id AND r.account_id = l.account_id AND r.role IN ${roles}
+        JOIN finance.payments fp ON fp.id = j.source_id AND fp.loyalty_settlement_id IS NOT NULL
+        WHERE j.source_type = 'payment' AND j.company_id = ${companyId} AND l.partner_id = ${partnerId} AND j.status = 'posted' AND j.journal_date <= ${end}::date`)
+      ).rows[0]?.amount ?? 0,
+    );
+  const operatorPayments = await paymentSides(operator, companyPartner);
+  const companyPayments = 0 - (await paymentSides(company, operatorPartner));
+  const paymentMismatch: LoyaltySettlementMismatch[] =
+    Math.abs(operatorPayments - companyPayments) >= 0.5
+      ? [{ sourceType: "payment", sourceId: "payments", label: "payments", day: end, operatorAmount: money(operatorPayments), companyAmount: money(companyPayments) }]
+      : [];
   return {
     netOpening,
     receivableMovement,
@@ -186,14 +207,16 @@ export async function settlementFigures(executor: Executor, operator: string, co
     netClosing,
     movements,
     companyNetClosing,
-    mismatches: mismatchRows.rows.map((row) => ({
-      sourceType: "loyalty_entry",
-      sourceId: row.source_id,
-      label: row.label,
-      day: row.day,
-      operatorAmount: money(Number(row.operator_amount)),
-      companyAmount: money(Number(row.company_amount)),
-    })),
+    mismatches: mismatchRows.rows
+      .map((row) => ({
+        sourceType: "loyalty_entry",
+        sourceId: row.source_id,
+        label: row.label,
+        day: row.day,
+        operatorAmount: money(Number(row.operator_amount)),
+        companyAmount: money(Number(row.company_amount)),
+      }))
+      .concat(paymentMismatch),
   };
 }
 
@@ -215,6 +238,7 @@ export class LoyaltySettlementsService {
     private readonly permissionService: PermissionService,
     private readonly sequences: NumberSequencesService,
     private readonly audit: AuditService,
+    private readonly payments: PaymentsService,
   ) {}
 
   private async granted(actor: Actor): Promise<Set<string>> {
@@ -255,17 +279,35 @@ export class LoyaltySettlementsService {
     const { row, side } = await this.visible(actor, id);
     const companyPartner = await internalPartnerOf(this.database, row.company_id);
     const lines = await this.database.execute<{ day: string; kind: string; document_no: string; full_name: string | null; points: number; amount: string }>(sql`
-      SELECT j.journal_date::text AS day, e.kind, j.journal_no AS document_no, u.full_name, abs(e.points) AS points, sum(l.debit - l.credit)::text AS amount
+      SELECT j.journal_date::text AS day, coalesce(e.kind, 'payment') AS kind, j.journal_no AS document_no, u.full_name, coalesce(abs(e.points), 0) AS points,
+        sum(l.debit - l.credit)::text AS amount
       FROM accounting.journals j JOIN accounting.journal_lines l ON l.journal_id = j.id
       JOIN accounting.posting_rules r ON r.company_id = j.company_id AND r.account_id = l.account_id AND r.role IN ${roles}
-      JOIN loyalty.entries e ON e.id = j.source_id JOIN core.users u ON u.id = e.user_id
-      WHERE j.company_id = ${row.operator_company_id} AND l.partner_id = ${companyPartner} AND j.source_type IN ${sources} AND j.status = 'posted'
+      LEFT JOIN loyalty.entries e ON e.id = j.source_id AND j.source_type <> 'payment' LEFT JOIN core.users u ON u.id = e.user_id
+      WHERE j.company_id = ${row.operator_company_id} AND l.partner_id = ${companyPartner} AND ${sourceFilter} AND j.status = 'posted'
         AND j.journal_date BETWEEN ${row.period}::date AND ${lastDayOf(row.period)}::date
-      GROUP BY j.id, j.journal_date, e.kind, j.journal_no, u.full_name, e.points, e.created_at, e.id ORDER BY j.journal_date, e.created_at, e.id LIMIT 500`);
+      GROUP BY j.id, j.journal_date, e.kind, j.journal_no, u.full_name, e.points, e.created_at, e.id, j.created_at ORDER BY j.journal_date, coalesce(e.created_at, j.created_at), e.id LIMIT 500`);
     const events = await this.database.execute<{ kind: string; company_name: string | null; actor_name: string | null; note: string | null; created_at: Date | string }>(sql`
       SELECT ev.kind, c.short_name AS company_name, u.full_name AS actor_name, ev.note, ev.created_at FROM loyalty.settlement_events ev
       LEFT JOIN core.companies c ON c.id = ev.company_id LEFT JOIN core.users u ON u.id = ev.actor_id WHERE ev.settlement_id = ${id} ORDER BY ev.created_at, ev.id`);
     const canManage = granted.has(settlementPermissions.manage);
+    const state = (await settlementPaymentState(this.database, id))!;
+    const payments = await this.database.execute<{
+      id: string;
+      document_no: string | null;
+      company_name: string;
+      kind: LoyaltySettlementPayment["kind"];
+      payment_date: string;
+      amount: string;
+      status: string;
+    }>(sql`
+      SELECT p.id, p.document_no, c.short_name AS company_name, p.kind, p.payment_date::text, p.amount::text, p.status FROM finance.payments p JOIN core.companies c ON c.id = p.company_id
+      WHERE p.loyalty_settlement_id = ${id} ORDER BY p.created_at`);
+    const viewerPays = actor.companyId === state.payerCompanyId;
+    const payable = ["confirmed", "partially_paid"].includes(row.status) && state.outstanding >= 0.5;
+    const paymentRemaining = Math.max(state.outstanding - (viewerPays ? state.paid : state.received), 0);
+    const paymentKind = payable && granted.has("finance.payment.manage") && paymentRemaining >= 0.5 ? (viewerPays ? "loyalty_intercompany_payment" : "loyalty_intercompany_receipt") : null;
+    const nameOf = (companyId: string) => (companyId === row.operator_company_id ? row.operator_company_name : row.company_name);
     const confirmedBySide = side === "operator" ? row.operator_confirmed_at !== null : row.company_confirmed_at !== null;
     return {
       ...itemOf(row),
@@ -293,7 +335,61 @@ export class LoyaltySettlementsService {
       viewerSide: side,
       canConfirm: canManage && confirmableStatuses.includes(row.status) && !confirmedBySide,
       canRebuild: canManage && side === "operator" && openStatuses.includes(row.status),
+      payerCompanyName: nameOf(state.payerCompanyId),
+      payeeCompanyName: nameOf(state.payeeCompanyId),
+      paidAmount: money(state.paid),
+      receivedAmount: money(state.received),
+      payments: payments.rows.map((payment) => ({
+        id: payment.id,
+        documentNo: payment.document_no,
+        companyName: payment.company_name,
+        kind: payment.kind,
+        paymentDate: payment.payment_date,
+        amount: money(Number(payment.amount)),
+        status: payment.status,
+      })),
+      paymentKind,
+      paymentRemaining: money(paymentRemaining),
     };
+  }
+
+  // QUYTAC_NGHIEPVU_473: bên trả lập phiếu chi, bên nhận lập phiếu thu, đối tượng là đối tác nội bộ của bên kia; gửi ngay theo luồng phiếu thu chi hiện có
+  // (phiếu thu ghi sổ ngay; phiếu chi qua duyệt nếu công ty có chính sách duyệt).
+  async createPayment(actor: Actor, id: string, input: LoyaltySettlementPaymentInput): Promise<LoyaltySettlementResponse> {
+    await this.granted(actor);
+    const { row } = await this.visible(actor, id);
+    const state = (await settlementPaymentState(this.database, id))!;
+    const kind = actor.companyId === state.payerCompanyId ? "loyalty_intercompany_payment" : "loyalty_intercompany_receipt";
+    const counterparty = actor.companyId === row.operator_company_id ? row.company_id : row.operator_company_id;
+    const paymentId = await this.database.transaction(async (transaction) => {
+      await assertSettlementPayment(transaction, { settlementId: id, companyId: actor.companyId, kind, amount: Number(input.amount), paymentId: null, lock: true });
+      const fund = (await transaction.execute<{ status: string }>(sql`SELECT status FROM finance.funds WHERE id = ${input.fundId} AND company_id = ${actor.companyId}`)).rows[0];
+      if (!fund) throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { fundId: "invalidValue" } });
+      if (fund.status !== "active") throw new ApiError("VALIDATION_FAILED", "validationFailed", { fields: { fundId: "fundInactive" } });
+      const partnerId = await internalPartnerOf(transaction, counterparty);
+      const created = (
+        await transaction.execute<{ id: string; version: number }>(sql`
+        INSERT INTO finance.payments (company_id, kind, partner_id, fund_id, payment_date, amount, note, created_by, loyalty_settlement_id)
+        VALUES (${actor.companyId}, ${kind}, ${partnerId}, ${input.fundId}, ${input.paymentDate}::date, ${input.amount}::numeric,
+          ${input.note ?? `Thanh toán nợ nội bộ điểm thưởng ${row.document_no}`}, ${actor.userId}, ${id})
+        RETURNING id, version`)
+      ).rows[0]!;
+      await this.audit.record(
+        {
+          actorUserId: actor.userId,
+          companyId: actor.companyId,
+          appCode: "finance",
+          action: "loyalty_settlement.payment",
+          entityType: "loyalty_settlement",
+          entityId: id,
+          afterData: { paymentId: created.id, kind, ...input },
+        },
+        transaction,
+      );
+      return created;
+    });
+    await this.payments.submit(actor, paymentId.id, paymentId.version);
+    return this.detail(actor, id);
   }
 
   // Dãy số bảng đối soát của công ty vận hành sàn (tiền tố DN, đặt lại theo năm) khi chưa cấu hình.
@@ -353,7 +449,7 @@ export class LoyaltySettlementsService {
       SELECT p.company_id FROM accounting.journals j JOIN accounting.journal_lines l ON l.journal_id = j.id
       JOIN accounting.posting_rules r ON r.company_id = j.company_id AND r.account_id = l.account_id AND r.role IN ${roles}
       JOIN crm.partners p ON p.id = l.partner_id AND p.company_id IS NOT NULL AND p.company_id <> ${operator}
-      WHERE j.company_id = ${operator} AND j.source_type IN ${sources} AND j.status = 'posted' AND j.journal_date <= ${lastDayOf(period)}::date
+      WHERE j.company_id = ${operator} AND ${sourceFilter} AND j.status = 'posted' AND j.journal_date <= ${lastDayOf(period)}::date
       GROUP BY p.company_id HAVING bool_or(j.journal_date >= ${period}::date) OR abs(sum(l.debit - l.credit)) >= 0.5`);
     let built = 0;
     for (const row of companies.rows) {

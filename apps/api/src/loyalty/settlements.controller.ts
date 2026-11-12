@@ -1,6 +1,13 @@
-// API_249, API_250: bảng đối soát nợ nội bộ điểm thưởng (CONG_VIEC_60). Xem, xác nhận theo công ty đang chọn (công ty vận hành sàn hoặc công ty con); quyền chi tiết kiểm trong service.
+// API_249, API_250, sửa API phiếu thu chi (QUYTAC_NGHIEPVU_473): bảng đối soát nợ nội bộ điểm thưởng (CONG_VIEC_60). Xem, xác nhận theo công ty đang chọn (công ty vận hành sàn hoặc công ty con); quyền chi tiết kiểm trong service.
 import { Body, Controller, Get, Headers, Param, Post, Query, Req } from "@nestjs/common";
-import { loyaltySettlementDisputeSchema, loyaltySettlementListQuerySchema, loyaltySettlementVersionSchema, type LoyaltySettlementResponse, type LoyaltySettlementsResponse } from "contracts";
+import {
+  loyaltySettlementDisputeSchema,
+  loyaltySettlementListQuerySchema,
+  loyaltySettlementPaymentSchema,
+  loyaltySettlementVersionSchema,
+  type LoyaltySettlementResponse,
+  type LoyaltySettlementsResponse,
+} from "contracts";
 import { clientInfo } from "../auth/auth.controller";
 import type { AuthenticatedRequest } from "../auth/auth.guard";
 import { UuidPipe } from "../common/uuid.pipe";
@@ -43,5 +50,10 @@ export class LoyaltySettlementsController {
   @Post(":id/dispute")
   async dispute(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<LoyaltySettlementResponse> {
     return this.settlements.dispute(await this.actor(request, companyId), id, loyaltySettlementDisputeSchema.parse(body));
+  }
+
+  @Post(":id/payments")
+  async payment(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string, @Body() body: unknown, @Headers("x-company-id") companyId?: string): Promise<LoyaltySettlementResponse> {
+    return this.settlements.createPayment(await this.actor(request, companyId), id, loyaltySettlementPaymentSchema.parse(body));
   }
 }

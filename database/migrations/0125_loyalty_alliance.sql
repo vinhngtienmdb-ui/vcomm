@@ -53,3 +53,15 @@ CREATE TABLE loyalty.settlement_events (
     created_at      timestamptz   NOT NULL DEFAULT clock_timestamp()
 );
 CREATE INDEX loyalty_settlement_events_idx ON loyalty.settlement_events (settlement_id, created_at);
+
+-- QUYTAC_NGHIEPVU_473: phiếu thu, phiếu chi nợ nội bộ điểm gắn bảng đối soát. Ràng buộc gồm mọi giá trị trên main (0096).
+ALTER TABLE finance.payments DROP CONSTRAINT payments_kind_check;
+ALTER TABLE finance.payments ADD CONSTRAINT payments_kind_check
+    CHECK (kind IN ('customer_receipt', 'supplier_payment', 'customer_refund', 'supplier_refund', 'retail_receipt', 'retail_refund', 'cash_shortage', 'cash_surplus',
+        'loyalty_intercompany_receipt', 'loyalty_intercompany_payment'));
+ALTER TABLE finance.payments ADD COLUMN loyalty_settlement_id uuid REFERENCES loyalty.settlements(id);
+ALTER TABLE finance.payments ADD CONSTRAINT payments_loyalty_settlement_check
+    CHECK ((kind IN ('loyalty_intercompany_receipt', 'loyalty_intercompany_payment')) = (loyalty_settlement_id IS NOT NULL));
+CREATE INDEX payments_loyalty_settlement_idx ON finance.payments (loyalty_settlement_id) WHERE loyalty_settlement_id IS NOT NULL;
+-- Số đã thanh toán theo sổ từng bên (bên trả: phiếu chi đã ghi sổ; bên nhận: phiếu thu đã ghi sổ).
+ALTER TABLE loyalty.settlements ADD COLUMN paid_amount numeric(18,4) NOT NULL DEFAULT 0, ADD COLUMN received_amount numeric(18,4) NOT NULL DEFAULT 0;

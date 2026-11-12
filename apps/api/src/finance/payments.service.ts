@@ -32,6 +32,7 @@ import { NumberSequencesService } from "../settings/number-sequences.service";
 import { daysBetween, DebtsService, type Executor } from "./debts.service";
 import { financeAudit, financePermissions, requireFinancePermission } from "./finance-context";
 import { fundBalance } from "./funds.service";
+import { assertSettlementPayment, isLoyaltySettlementPaymentKind, refreshSettlementPaid } from "../loyalty/settlement-payments";
 
 type Input = z.output<typeof savePaymentSchema>;
 type FieldErrors = Record<string, keyof Messages["errors"]>;
@@ -276,6 +277,8 @@ export class PaymentsService implements OnModuleInit {
     await requireFinancePermission(this.permissionService, actor, financePermissions.managePayments);
     await this.database.transaction(async (transaction) => {
       const before = await this.single(transaction, actor.companyId, id);
+      // Phiếu nợ nội bộ điểm lập từ bảng đối soát điểm nội bộ, không sửa ở đây (CONG_VIEC_60).
+      if (isLoyaltySettlementPaymentKind(before.kind)) throw new ApiError("BUSINESS_RULE", "documentNotDraft");
       const locked = await transaction.execute(sql`
         SELECT 1 FROM finance.payments WHERE id = ${id} AND status IN ('draft', 'rejected', 'withdrawn') AND version = ${input.version ?? 0} FOR UPDATE`);
       if (locked.rows.length === 0) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
@@ -374,6 +377,10 @@ export class PaymentsService implements OnModuleInit {
       SELECT company_id, kind, partner_id, fund_id, document_no, payment_date::text, amount::text, note FROM finance.payments WHERE id = ${id} AND status = 'pending' FOR UPDATE`)
     ).rows[0];
     if (!payment) throw new ApiError("CONFLICT_VERSION", "conflictVersion");
+    if (isLoyaltySettlementPaymentKind(payment.kind)) {
+      await this.postLoyaltySettlementPayment(transaction, id);
+      return;
+    }
     const side = paymentKindSide[payment.kind];
     await this.debts.lockPartner(transaction, payment.company_id, side, payment.partner_id);
     // Khóa quỹ trước, tính số dư bằng câu lệnh sau để thấy phiếu giao dịch khác vừa ghi sổ (READ COMMITTED lấy ảnh chụp theo từng câu lệnh).
@@ -414,5 +421,30 @@ export class PaymentsService implements OnModuleInit {
     }
     await transaction.execute(sql`UPDATE finance.payments SET status = 'posted', posted_at = now(), post_error = NULL, updated_at = now() WHERE id = ${id}`);
     for (const hook of this.postedHooks) await hook(transaction, id);
+  }
+
+  // CONG_VIEC_60 (QUYTAC_NGHIEPVU_473): phiếu nợ nội bộ điểm không trừ công nợ; kiểm số dư quỹ (phiếu chi) và số còn lại của bảng đối soát.
+  private async postLoyaltySettlementPayment(transaction: Executor, id: string): Promise<void> {
+    const payment = (
+      await transaction.execute<{ company_id: string; kind: "loyalty_intercompany_receipt" | "loyalty_intercompany_payment"; fund_id: string; amount: string; loyalty_settlement_id: string }>(sql`
+      SELECT company_id, kind, fund_id, amount::text, loyalty_settlement_id FROM finance.payments WHERE id = ${id}`)
+    ).rows[0]!;
+    await assertSettlementPayment(transaction, {
+      settlementId: payment.loyalty_settlement_id,
+      companyId: payment.company_id,
+      kind: payment.kind,
+      amount: Number(payment.amount),
+      paymentId: id,
+      lock: true,
+    });
+    const fundStatus = (await transaction.execute<{ status: string }>(sql`SELECT status FROM finance.funds WHERE id = ${payment.fund_id} FOR UPDATE`)).rows[0]!.status;
+    if (fundStatus !== "active") throw new ApiError("BUSINESS_RULE", "fundInactive");
+    if (payment.kind === "loyalty_intercompany_payment") {
+      const balance = (await transaction.execute<{ balance: string }>(sql`SELECT ${fundBalance(payment.fund_id)}::text AS balance`)).rows[0]!.balance;
+      if (Number(payment.amount) > Number(balance) + 0.00005) throw new ApiError("BUSINESS_RULE", "insufficientFundBalance");
+    }
+    await transaction.execute(sql`UPDATE finance.payments SET status = 'posted', posted_at = now(), post_error = NULL, updated_at = now() WHERE id = ${id}`);
+    for (const hook of this.postedHooks) await hook(transaction, id);
+    await refreshSettlementPaid(transaction, id);
   }
 }

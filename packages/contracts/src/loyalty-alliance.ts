@@ -24,6 +24,30 @@ export const loyaltySettlementDisputeSchema = z
   })
   .strict();
 
+// QUYTAC_NGHIEPVU_473: lập phiếu thu (bên nhận) hoặc phiếu chi (bên trả) từ bảng đối soát.
+export const loyaltySettlementPaymentSchema = z
+  .object({
+    fundId: z.uuid(),
+    paymentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    amount: z
+      .string()
+      .trim()
+      .regex(/^\d{1,14}(\.\d{1,4})?$/, "invalidValue")
+      .refine((value) => Number(value) > 0, "invalidValue"),
+    note: z.string().trim().max(500).nullable().default(null),
+  })
+  .strict();
+export type LoyaltySettlementPaymentInput = z.infer<typeof loyaltySettlementPaymentSchema>;
+export interface LoyaltySettlementPayment {
+  id: string;
+  documentNo: string | null;
+  companyName: string;
+  kind: "loyalty_intercompany_receipt" | "loyalty_intercompany_payment";
+  paymentDate: string;
+  amount: string;
+  status: string;
+}
+
 export interface LoyaltySettlementItem {
   id: string;
   documentNo: string;
@@ -89,4 +113,13 @@ export interface LoyaltySettlementResponse extends LoyaltySettlementItem {
   viewerSide: "operator" | "company";
   canConfirm: boolean;
   canRebuild: boolean;
+  // Thanh toán (QUYTAC_NGHIEPVU_473): bên trả, số đã trả (phiếu chi bên trả), đã nhận (phiếu thu bên nhận) đã ghi sổ.
+  payerCompanyName: string;
+  payeeCompanyName: string;
+  paidAmount: string;
+  receivedAmount: string;
+  payments: LoyaltySettlementPayment[];
+  // Loại phiếu người xem lập được (null: không lập được) và số còn lại của phía người xem.
+  paymentKind: "loyalty_intercompany_receipt" | "loyalty_intercompany_payment" | null;
+  paymentRemaining: string;
 }

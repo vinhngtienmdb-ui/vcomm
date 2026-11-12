@@ -32,7 +32,7 @@ type FundRow = {
 };
 
 // Phiếu thu cộng, phiếu chi trừ vào quỹ (chỉ phiếu đã ghi sổ).
-export const signedPaymentAmount = sql`CASE WHEN p.kind IN ('customer_receipt', 'supplier_refund', 'retail_receipt', 'cash_surplus') THEN p.amount ELSE -p.amount END`;
+export const signedPaymentAmount = sql`CASE WHEN p.kind IN ('customer_receipt', 'supplier_refund', 'retail_receipt', 'cash_surplus', 'loyalty_intercompany_receipt') THEN p.amount ELSE -p.amount END`;
 export const fundBalance = (fundId: SQL | string) => sql`
   (SELECT balance_fund.opening_balance + coalesce((SELECT sum(${signedPaymentAmount}) FROM finance.payments p WHERE p.fund_id = balance_fund.id AND p.status = 'posted'), 0)
    FROM finance.funds balance_fund WHERE balance_fund.id = ${fundId})`;
