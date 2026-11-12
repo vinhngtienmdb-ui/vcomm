@@ -187,6 +187,10 @@ export const permissionCatalog: PermissionDefinition[] = [
   { code: "office.document.draft", appCode: "office", nameVi: "Soạn, trình ký công văn đi", nameEn: "Draft outgoing documents", isSensitive: false },
   { code: "office.document.view_all", appCode: "office", nameVi: "Xem mọi công văn của công ty", nameEn: "View all company documents", isSensitive: true },
   { code: "office.bulletin.post", appCode: "office", nameVi: "Đăng tin bảng tin nội bộ", nameEn: "Post bulletin news", isSensitive: false },
+  // CONG_VIEC_59: ký số (tài liệu cong_viec/CONG_VIEC_59.md mục 6).
+  { code: "office.signing.use", appCode: "office", nameVi: "Trình ký tài liệu, kiểm tra chữ ký số", nameEn: "Request signatures and verify signed files", isSensitive: false },
+  { code: "office.signing.company_seal", appCode: "office", nameVi: "Đóng chữ ký số của công ty", nameEn: "Apply the company digital seal", isSensitive: true },
+  { code: "office.signing.manage", appCode: "office", nameVi: "Cài đặt nhà cung cấp ký số, chữ ký số công ty, chứng thư gốc tin cậy", nameEn: "Manage digital signing settings", isSensitive: true },
 ];
 
 const attendancePermissions = ["hr.attendance.view", "hr.attendance.manage", "hr.leave.manage", "hr.timesheet.manage"];
@@ -195,7 +199,7 @@ const analyticsPermissions = permissionCatalog.filter((permission) => permission
 
 export const hrRecruitmentPermissions = ["hr.recruitment.request", "hr.recruitment.manage", "hr.review.manage"];
 // Quyền Văn phòng số của nhân viên và quản trị (CONG_VIEC_52 mục 6).
-const officeEmployeePermissions = ["office.access", "office.document.draft"];
+const officeEmployeePermissions = ["office.access", "office.document.draft", "office.signing.use"];
 const officePermissions = permissionCatalog.filter((permission) => permission.appCode === "office").map((permission) => permission.code);
 
 const inventoryPermissions = permissionCatalog.filter((permission) => permission.appCode === "inventory").map((permission) => permission.code);
@@ -289,7 +293,8 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     // Quản trị tập đoàn: mọi quyền của Nền tảng, Sản phẩm (CONG_VIEC_04), Kho (CONG_VIEC_05), Đối tác (CONG_VIEC_06), Mua hàng (CONG_VIEC_07), Bán hàng (CONG_VIEC_08), Tài chính – Kế toán (CONG_VIEC_13), Bán lẻ (CONG_VIEC_53), cộng quyền truy cập mọi mini app.
     permissionCodes: permissionCatalog
       .filter(
-        (permission) => ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance", "hr", "analytics", "retail", "office"].includes(permission.appCode) || permission.code.endsWith(".access"),
+        (permission) =>
+          ["platform", "catalog", "inventory", "crm", "purchasing", "sales", "finance", "hr", "analytics", "retail", "office"].includes(permission.appCode) || permission.code.endsWith(".access"),
       )
       .map((permission) => permission.code),
   },
@@ -300,7 +305,16 @@ export const systemRoles: { code: string; nameVi: string; nameEn: string; permis
     code: "office_clerk",
     nameVi: "Văn thư",
     nameEn: "Records clerk",
-    permissionCodes: [...employeePermissions, "office.access", "office.document.clerk", "office.document.draft", "office.document.view_all", "office.bulletin.post"],
+    permissionCodes: [
+      ...employeePermissions,
+      "office.access",
+      "office.document.clerk",
+      "office.document.draft",
+      "office.document.view_all",
+      "office.bulletin.post",
+      "office.signing.use",
+      "office.signing.company_seal",
+    ],
   },
   {
     code: "catalog_manager",
@@ -534,6 +548,7 @@ export const documentTypeCatalog = [
   { code: "hr.job_offer", appCode: "hr", nameVi: "Đề nghị nhận việc", nameEn: "Job offer", requiresApproval: true },
   { code: "office.outgoing_document", appCode: "office", nameVi: "Công văn đi", nameEn: "Outgoing document", requiresApproval: true },
   { code: "office.workflow_run", appCode: "office", nameVi: "Phiên quy trình", nameEn: "Workflow run", requiresApproval: false },
+  { code: "office.signing_request", appCode: "office", nameVi: "Phiên ký", nameEn: "Signing request", requiresApproval: false },
 ];
 
 // Đồng bộ danh mục quyền và vai trò hệ thống; chạy được nhiều lần.
