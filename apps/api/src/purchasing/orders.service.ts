@@ -1,7 +1,7 @@
 // Đơn mua (CHUC_NANG_51; QUYTAC_NGHIEPVU_63, 64; API_75): lập, sửa, gửi duyệt, duyệt lại khi tăng giá trị hoặc đổi nhà cung cấp, đóng đơn.
 // Số đã nhận, đã trả của dòng đơn mua tính từ phiếu kho (module Kho ghi), không lưu trùng.
 import { Inject, Injectable, type OnModuleInit } from "@nestjs/common";
-import type { PageResponse, PurchaseDocumentStatus, purchaseListQuerySchema, PurchaseOrderListItem, PurchaseOrderResponse, savePurchaseOrderSchema, VatRate } from "contracts";
+import type { BudgetCheckCell, PageResponse, PurchaseDocumentStatus, purchaseListQuerySchema, PurchaseOrderListItem, PurchaseOrderResponse, savePurchaseOrderSchema, VatRate } from "contracts";
 import { sql, type SQL } from "drizzle-orm";
 import type { z } from "zod";
 import { ApprovalRequestsService } from "../approvals/approval-requests.service";
@@ -18,10 +18,13 @@ import { NumberSequencesService } from "../settings/number-sequences.service";
 import { isActiveSupplier, isReceivingWarehouse, purchasingAudit, purchasingPermissions, requirePermission, variantUnitFactor, type Executor, type FieldErrors } from "./purchasing-context";
 import { companyCurrency, ensureSequence, orderedOnRequisitionLine } from "./requisitions.service";
 import { readSettings } from "./supplier-prices.service";
+import { checkBudget } from "./open-to-buy";
 import { internalCompanyOf } from "../crm/partners.service";
 import { internalPrice, internalPurchaseErrors } from "../sales/internal-trade-rules";
 
 const documentTypeCode = "purchasing.order";
+// CONG_VIEC_58 (QUYTAC_NGHIEPVU_452): đơn vượt ngân sách gửi duyệt theo loại chứng từ riêng; kết quả duyệt xử lý như đơn mua thường.
+const overBudgetDocumentTypeCode = "purchasing.order_over_budget";
 type Input = z.output<typeof savePurchaseOrderSchema>;
 // Móc nối giao dịch nội bộ (CONG_VIEC_09): InternalTradeService đăng ký khi khởi động để sinh, đóng đơn bán đối ứng trong cùng giao dịch.
 export interface PurchasingInternalHooks {
@@ -52,6 +55,7 @@ type OrderRow = {
   total_amount: string;
   tax_amount: string;
   closed_reason: string | null;
+  budget_snapshot: BudgetCheckCell[] | null;
   created_by: string;
   created_by_name: string;
   version: number;
@@ -87,7 +91,7 @@ export class PurchaseOrdersService implements OnModuleInit {
 
   onModuleInit(): void {
     this.outbox.subscribe("core.approval.completed", async (event) => {
-      if (event.payload.documentTypeCode !== documentTypeCode) return;
+      if (event.payload.documentTypeCode !== documentTypeCode && event.payload.documentTypeCode !== overBudgetDocumentTypeCode) return;
       const status = String(event.payload.status);
       if (!["approved", "rejected", "withdrawn"].includes(status)) return;
       await this.database.transaction(async (transaction) => {
@@ -174,8 +178,22 @@ export class PurchaseOrdersService implements OnModuleInit {
     const firstStepDecided = row.approval_request_id
       ? (await this.database.execute(sql`SELECT 1 FROM core.approval_steps WHERE request_id = ${row.approval_request_id} AND level_no = 1 AND decision IS NOT NULL`)).rows.length > 0
       : true;
+    // QUYTAC_NGHIEPVU_451: cảnh báo theo dòng hiện tại khi đơn còn sửa, gửi hoặc đang chờ duyệt; thiếu tỷ giá thì không hiện.
+    const budgetCheck = ["draft", "pending", "rejected", "withdrawn", "approved"].includes(row.status)
+      ? await checkBudget(
+          this.database,
+          row.company_id,
+          { warehouseId: row.warehouse_id, orderDate: day(row.order_date), currency: row.currency, lines: lines.rows.map((line) => ({ variantId: line.variant_id, amount: line.amount })) },
+          row.id,
+        ).catch((error: unknown) => {
+          if (error instanceof ApiError && error.messageKey === "exchangeRateMissing") return null;
+          throw error;
+        })
+      : null;
     return {
       ...toItem(row),
+      budgetCheck,
+      budgetSnapshot: row.budget_snapshot,
       warehouseId: row.warehouse_id,
       note: row.note,
       approvalRequestId: row.approval_request_id,
@@ -428,8 +446,36 @@ export class PurchaseOrdersService implements OnModuleInit {
     // Đơn nhập khẩu luôn đi luồng duyệt (QUYTAC_NGHIEPVU_285).
     const exempt = !row.is_import && estimate !== null && Number(totals.total) <= estimate + 0.00005;
     const documentNo = row.document_no ?? (await this.sequences.next(actor.companyId, documentTypeCode, transaction));
+    // QUYTAC_NGHIEPVU_452: vượt hoặc chưa có ngân sách thì đi luồng duyệt vượt ngân sách, kể cả đơn đang được miễn duyệt.
+    const budget = await checkBudget(
+      transaction,
+      actor.companyId,
+      {
+        warehouseId: row.warehouse_id,
+        orderDate: day(row.order_date),
+        currency: row.currency,
+        lines: (await transaction.execute<{ variantId: string; amount: string }>(sql`SELECT variant_id AS "variantId", amount::text FROM purchasing.order_lines WHERE order_id = ${row.id}`)).rows,
+      },
+      row.id,
+      true,
+    );
+    const overBudget = budget.overBudget;
     let requestId: string | null = null;
-    if (!exempt) {
+    if (overBudget) {
+      try {
+        requestId = await this.approvals.submitWithin(transaction, actor.companyId, actor.userId, {
+          documentTypeCode: overBudgetDocumentTypeCode,
+          documentId: row.id,
+          documentNo,
+          amount: totals.total,
+          currency: row.currency,
+          documentDate: this.permissionService.today(),
+        });
+      } catch (error) {
+        if (error instanceof ApiError && error.messageKey === "policyNotFound") throw new ApiError("BUSINESS_RULE", "overBudgetPolicyMissing");
+        throw error;
+      }
+    } else if (!exempt) {
       try {
         requestId = await this.approvals.submitWithin(transaction, actor.companyId, actor.userId, {
           documentTypeCode,
@@ -445,12 +491,18 @@ export class PurchaseOrdersService implements OnModuleInit {
     }
     await transaction.execute(sql`
       UPDATE purchasing.orders SET status = ${requestId ? "pending" : "approved"}, document_no = ${documentNo}, approval_request_id = ${requestId}, submitted_at = coalesce(submitted_at, now()),
+        budget_snapshot = ${overBudget ? JSON.stringify(budget.cells.filter((cell) => cell.status !== "within")) : null}::jsonb,
         approved_total = CASE WHEN ${requestId === null} THEN total_amount ELSE approved_total END,
         approved_supplier_id = CASE WHEN ${requestId === null} THEN supplier_id ELSE approved_supplier_id END,
         updated_at = now(), version = version + 1
       WHERE id = ${row.id}`);
     await this.auditService.record(
-      { ...purchasingAudit(actor, "purchase_order"), action: "purchase_order.submit", entityId: row.id, afterData: { documentNo, amount: totals.total, approvalRequestId: requestId, exempt } },
+      {
+        ...purchasingAudit(actor, "purchase_order"),
+        action: "purchase_order.submit",
+        entityId: row.id,
+        afterData: { documentNo, amount: totals.total, approvalRequestId: requestId, exempt, overBudget },
+      },
       transaction,
     );
     if (requestId === null) {
@@ -603,7 +655,7 @@ export class PurchaseOrdersService implements OnModuleInit {
     return sql`SELECT o.id, o.company_id, o.document_no, o.supplier_id, s.name AS supplier_name, s.company_id AS supplier_company_id, o.warehouse_id, coalesce(w.name, '') AS warehouse_name,
       o.counterpart_order_id, o.is_counterpart, o.counterpart_rejected_reason, o.order_date, o.expected_date, o.currency, o.is_import, o.note,
       o.status, o.approval_request_id, o.approved_total::text, o.approved_supplier_id, o.total_amount::text, o.tax_amount::text, o.closed_reason, o.created_by,
-      cu.full_name AS created_by_name, o.version`;
+      cu.full_name AS created_by_name, o.version, o.budget_snapshot`;
   }
 
   private from(): SQL {

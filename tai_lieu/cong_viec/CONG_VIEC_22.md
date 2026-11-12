@@ -1,121 +1,164 @@
-# CONG_VIEC_22: Ứng dụng nhân viên kinh doanh (MODULE_07)
+# CONG_VIEC_22: Phần Kinh doanh của ứng dụng VComm (MODULE_07)
 
-- Mô tả: Ứng dụng di động Expo `apps/mobile-sales` cho nhân viên kinh doanh: đăng nhập bằng token, khách của tôi, lập đơn bán, hoa hồng của tôi, ghé thăm khách (vị trí, ảnh, ghi chú); web-crm có màn hình ghé thăm cho trưởng phòng, quản lý.
-- Phiên bản: 0.1
-- Ngày cập nhật: 2026-11-10
-- Trạng thái: Bản nháp. Người dùng xác nhận thiết kế ngày 2026-11-10 (không làm bản mẫu giao diện riêng, xem trước từng lát thay cho bản mẫu).
-- Nguồn: tài liệu `05` mục 2.1 (ứng dụng nhân viên kinh doanh), `12` (`apps/mobile-sales`, Expo), `13`, `22` mục 3 (token làm mới 90 ngày cho ứng dụng kinh doanh); THAY_DOI_13; quyết định của người dùng ngày 2026-11-10 trong tài liệu `02`.
+- Mô tả: Làm lại công việc ứng dụng nhân viên kinh doanh theo mô hình B2C (THAY_DOI_14, THAY_DOI_26). Không còn ứng dụng riêng: mở rộng mục Kinh doanh của ứng dụng VComm với chi tiết khách, chia sẻ sản phẩm kèm mã giới thiệu, ghi chú chăm sóc và lịch hẹn có nhắc trong ứng dụng, doanh số theo tháng. Ẩn chức năng ghé thăm khách.
+- Phiên bản: 0.2
+- Ngày cập nhật: 2026-11-12
+- Trạng thái: Đã nghiệm thu, chờ phát hành. Người dùng nghiệm thu ngày 2026-11-12 (bản cuối commit ca93608: toàn bộ kiểm thử API 103 tệp, 557/557 đạt). Người dùng duyệt đặc tả và bản mẫu MAN_HINH_196 đến 201 ngày 2026-11-12.
+- Nguồn: THAY_DOI_14, THAY_DOI_16, THAY_DOI_26, THAY_DOI_28; CONG_VIEC_23, 24, 26, 27 (đã phát hành 0.3.0); quyết định của người dùng ngày 2026-11-11 (câu hỏi trong phiên CONG_VIEC_22).
+- Nhánh: `chuc-nang/CONG_VIEC_22-kinh-doanh-vcomm` (mới, tạo từ `main` 453d3ed). Nhánh cũ `chuc-nang/CONG_VIEC_22-ung-dung-kinh-doanh` không dùng lại: L0 đến L4 của nhánh cũ đã có trong `main`, CONG_VIEC_23 đã thay `apps/mobile-sales` bằng `apps/mobile-vcomm`.
+
+## 0. Đối chiếu bản cũ (phiên bản 0.1) với `main`
+
+| Phần bản cũ | Hiện trạng trên `main` | Xử lý |
+|---|---|---|
+| Ứng dụng `apps/mobile-sales` | Đã thay bằng `apps/mobile-vcomm` (CONG_VIEC_23) | Bỏ; làm trong mục Kinh doanh của ứng dụng VComm |
+| API_112 đăng nhập ứng dụng bằng token | Ứng dụng VComm, ứng dụng kho đang dùng | Giữ nguyên |
+| Khách của tôi (CHUC_NANG_100) | Đã có danh sách khách phụ trách, khách của cấp dưới (CONG_VIEC_23, 27; MAN_HINH_78, 84) | Giữ; thêm chi tiết khách (CHUC_NANG_204) |
+| API_113 tóm tắt đối tác B2B | Còn, theo `crm.partners` | Không dùng cho khách người mua; giữ cho web-crm |
+| Đơn bán trên ứng dụng (CHUC_NANG_101) | Ứng dụng cũ đã gỡ | Bỏ: không tạo đơn hộ khách (THAY_DOI_14); thay bằng chia sẻ sản phẩm |
+| Hoa hồng của tôi (CHUC_NANG_102, API_115) | Đã gỡ ở CONG_VIEC_43 | Bỏ; ví hoa hồng (CONG_VIEC_26) thay thế |
+| Ghé thăm khách (CHUC_NANG_103, API_114, MAN_HINH_72, bảng `crm.visits`) | Còn, theo đối tác B2B | Ẩn, giữ bảng và mã (THAY_DOI_26) |
 
 ## 1. Mục tiêu
 
-Nhân viên kinh doanh làm việc với khách của mình ngay trên điện thoại: xem khách, công nợ, lập đơn, ghi lượt ghé thăm có bằng chứng, theo dõi hoa hồng.
+Nhân viên kinh doanh và người quản lý chăm sóc khách người mua ngay trên ứng dụng VComm: xem chi tiết từng khách, gửi sản phẩm kèm mã giới thiệu, ghi lại lần chăm sóc, hẹn lần sau và được nhắc, theo dõi doanh số tháng của mình và của nhánh.
 
 ## 2. Phạm vi
 
 Trong phạm vi:
-- Ứng dụng Expo SDK 58 (expo-router, expo-secure-store, expo-location, expo-image-picker; xem trước bằng react-native-web), dùng chung `packages/contracts`, `packages/i18n`.
-- API đăng nhập cho ứng dụng (trả token, làm mới, đăng xuất); xác thực hai lớp như web.
-- Khách của tôi: danh sách, tìm, chi tiết (liên hệ, công nợ, đơn gần đây), gọi điện, chỉ đường, thêm khách, nhận đối tác có sẵn.
-- Đơn bán: danh sách đơn của tôi, lập, sửa, gửi đơn (dùng API đơn bán hiện có).
-- Hoa hồng của tôi: phát sinh tháng, bảng hoa hồng tháng của chính mình.
-- Ghé thăm khách: ghi lượt ghé thăm trên ứng dụng; xem lịch sử trên ứng dụng và web-crm.
+- Chi tiết khách trên ứng dụng VComm (nhân viên phụ trách, cấp trên trong nhánh).
+- Chia sẻ đường dẫn sản phẩm có mã giới thiệu của người chia sẻ.
+- Ghi chú chăm sóc có ngày hẹn; danh sách hẹn; nhắc hẹn bằng thông báo trong ứng dụng; mục Thông báo trên ứng dụng VComm.
+- Doanh số của tôi theo tháng; người quản lý xem doanh số từng người trong nhánh.
+- Ẩn ghé thăm khách trên web-crm; API từ chối ghi mới.
 
-Ngoài phạm vi: dùng khi mất mạng; đóng gói lên App Store, Google Play; thông báo đẩy; đăng nhập bằng Google, Microsoft, Zalo, mã OTP trên ứng dụng (dùng mật khẩu); ứng dụng kho.
+Ngoài phạm vi: tạo đơn hoặc giỏ hàng hộ khách; thông báo đẩy (cần đóng gói ứng dụng, làm sau); sửa, xóa ghi chú; xem địa chỉ giao hàng của khách; dùng khi mất mạng; chỉ tiêu doanh số.
 
 ## 3. Yêu cầu nghiệp vụ và chức năng
 
-- YCAU_NGHIEPVU_47: Nhân viên kinh doanh làm việc với khách của mình trên điện thoại; ghi ghé thăm khách có vị trí; xem hoa hồng của mình.
-- CHUC_NANG_99: Đăng nhập ứng dụng di động bằng token.
-- CHUC_NANG_100: Khách của tôi trên ứng dụng (danh sách, tóm tắt khách, thêm, nhận khách).
-- CHUC_NANG_101: Đơn bán trên ứng dụng.
-- CHUC_NANG_102: Hoa hồng của tôi.
-- CHUC_NANG_103: Ghé thăm khách (ghi, xem trên ứng dụng và web-crm).
+- YCAU_NGHIEPVU_138: Nhân viên kinh doanh, người quản lý chăm sóc khách người mua mình phụ trách hoặc trong nhánh trên ứng dụng VComm: xem chi tiết khách, ghi chú chăm sóc, hẹn và được nhắc.
+- YCAU_NGHIEPVU_139: Nhân viên kinh doanh gửi sản phẩm cho khách bằng đường dẫn có mã giới thiệu; khách tự đặt hàng.
+- YCAU_NGHIEPVU_140: Nhân viên kinh doanh, người quản lý theo dõi doanh số tháng của mình và của từng người trong nhánh.
+- CHUC_NANG_204: Chi tiết khách và chia sẻ sản phẩm.
+- CHUC_NANG_205: Ghi chú chăm sóc, lịch hẹn, nhắc hẹn trong ứng dụng.
+- CHUC_NANG_206: Doanh số của tôi, doanh số nhánh.
+- Sửa CHUC_NANG_103 (ghé thăm khách): ẩn theo THAY_DOI_26.
 
 ## 4. Quy tắc nghiệp vụ
 
-- QUYTAC_NGHIEPVU_136: Ứng dụng đăng nhập bằng thư điện tử, mật khẩu; tài khoản bắt buộc xác thực hai lớp thì nhập mã TOTP hoặc mã dự phòng (chưa đăng ký xác thực hai lớp thì đăng ký trên web trước). Phiên của ứng dụng: token truy cập 15 phút, token làm mới 90 ngày, đổi mới mỗi lần dùng, dùng lại token cũ thì thu hồi cả chuỗi (như web). Token lưu trong bộ nhớ an toàn của máy (trên bản xem trước web: bộ nhớ phiên của trình duyệt). Đăng xuất thu hồi phiên. Giới hạn số lần thử như web. Chỉ người có quyền `sales.access` ở công ty đang chọn dùng được ứng dụng; người khác thấy thông báo không có quyền. Chọn công ty như web (công ty mặc định, đổi được).
-- QUYTAC_NGHIEPVU_137: Khách của tôi theo phạm vi xem của CONG_VIEC_21 (QUYTAC_NGHIEPVU_129). Tóm tắt một khách: thông tin liên hệ, điều khoản thanh toán, công nợ phải thu còn lại và phần quá hạn (theo sổ công nợ CONG_VIEC_13), 10 đơn bán gần nhất trong phạm vi (API_113); 5 lượt ghé thăm gần nhất lấy qua API_114 theo phạm vi xem ghé thăm. Hạn mức công nợ không hiện (thông tin nhạy cảm). Số âm (khách trả trước nhiều hơn nợ) hiện là "Khách trả trước".
-- QUYTAC_NGHIEPVU_138: Ghé thăm khách: chọn khách trong phạm vi xem; bắt buộc vị trí (vĩ độ −90 đến 90, kinh độ −180 đến 180, độ chính xác 0 đến 10.000 mét) lấy từ máy lúc ghi; không cho phép hoặc không lấy được vị trí thì không ghi được. Ghi chú kết quả bắt buộc 1 đến 1.000 ký tự. 0 đến 3 ảnh, mỗi ảnh JPEG hoặc PNG (kiểm theo nội dung tệp), tối đa 5 MB; ứng dụng chỉ mở máy ảnh, không chọn từ thư viện. Thời điểm ghé thăm do máy chủ ghi. Lượt ghé thăm không sửa, không xóa.
-- QUYTAC_NGHIEPVU_139: Xem ghé thăm: người có quyền `crm.customer.view_all` xem mọi lượt của công ty; người khác xem lượt do mình hoặc nhân viên phòng mình quản lý ghi (QUYTAC_NGHIEPVU_130). Lọc theo nhân viên, khách, khoảng ngày. Vị trí mở bằng liên kết bản đồ Google Maps; ảnh chỉ tải qua API có kiểm quyền.
-- QUYTAC_NGHIEPVU_140: Hoa hồng của tôi (quyền `finance.commission.view_own`): theo tháng, tổng tiền thu tính hoa hồng và hoa hồng tạm tính từ các phát sinh của chính mình (CONG_VIEC_17), từng phát sinh theo đơn; các bảng hoa hồng tháng chờ duyệt, đã ghi sổ có dòng của mình (cơ sở, phần trăm đạt, hệ số, hoa hồng). Chỉ trả dữ liệu của người đang đăng nhập.
+- QUYTAC_NGHIEPVU_432: Phạm vi khách trên ứng dụng: người gọi phải đang được đánh dấu nhân viên kinh doanh (không thì 403). Người gọi xem được một khách khi khách đó do chính mình phụ trách (QUYTAC_NGHIEPVU_145) hoặc do một người trong nhánh của mình phụ trách (QUYTAC_NGHIEPVU_150, 151). Ngoài phạm vi trả 404 (không lộ khách có tồn tại hay không). Phạm vi tính tại thời điểm gọi: khách đổi người giới thiệu thì người cũ không còn xem được.
+- QUYTAC_NGHIEPVU_433: Chi tiết khách gồm: họ tên, số điện thoại (định dạng trong nước), ngày đăng ký, nhân viên phụ trách (họ tên, chức danh); số đơn và tổng tiền đơn hoàn tất (theo `completed_amount`, đã trừ trả hàng); số đơn đang xử lý; 10 đơn gần nhất (mã đơn, ngày đặt, tiền hàng, trạng thái); hoa hồng của chính người xem phát sinh từ đơn của khách này (đã cộng ví, đang chờ); 20 ghi chú chăm sóc gần nhất. Không hiện địa chỉ giao hàng, người nhận, chi tiết thanh toán, hạn mức. Không mở chi tiết đơn của khách.
+- QUYTAC_NGHIEPVU_434: Chia sẻ sản phẩm: trên trang sản phẩm (MAN_HINH_91) có một nút "Chia sẻ sản phẩm" cho mọi tài khoản người mua, thay nút "Chia sẻ nhận hoa hồng" của CONG_VIEC_49 (quyết định của người dùng 2026-11-12: một nút, gộp cả hai mã; THAY_DOI_28). Đường dẫn `<địa chỉ ứng dụng>/r/<mã giới thiệu>?sp=<mã sản phẩm>`, cộng tác viên đã duyệt có thêm `&ctv=<mã cộng tác viên>`; không có mã giới thiệu thì dùng đường dẫn cộng tác viên `/p/<mã sản phẩm>?ctv=<mã>` (QUYTAC_NGHIEPVU_325). Bấm nút mở thẻ xem trước nội dung, Sao chép, Chia sẻ (bảng chia sẻ của máy; bản xem trước web dùng chia sẻ của trình duyệt hoặc sao chép). Người nhận chưa đăng nhập: mở đăng ký với mã điền sẵn; đăng ký hoặc đăng nhập xong trong cùng lần mở ứng dụng thì mở trang sản phẩm. Người nhận đã đăng nhập: mở thẳng trang sản phẩm; không đổi người giới thiệu (đổi người giới thiệu theo QUYTAC_NGHIEPVU_142, 143). Có mã cộng tác viên thì ghi lượt bấm như QUYTAC_NGHIEPVU_325 (chưa đăng nhập thì ghi sau khi đăng nhập). Sản phẩm không còn bán thì trang sản phẩm báo "Sản phẩm không còn bán." kèm nút Về trang chủ. Hoa hồng vẫn theo người giới thiệu của người mua lúc đặt (QUYTAC_NGHIEPVU_201) và lượt bấm cộng tác viên (QUYTAC_NGHIEPVU_326).
+- QUYTAC_NGHIEPVU_435: Ghi chú chăm sóc: người xem được khách (QUYTAC_NGHIEPVU_432) ghi được. Gồm kênh (gọi điện, nhắn tin, gặp trực tiếp, khác), nội dung 1 đến 1.000 ký tự, ngày hẹn tiếp theo (tùy chọn, từ hôm nay đến 365 ngày sau, theo giờ Việt Nam). Thời điểm ghi do máy chủ ghi. Ghi chú không sửa, không xóa. Mọi người đang xem được khách thì xem được mọi ghi chú của khách, kể cả ghi chú của người phụ trách trước.
+- QUYTAC_NGHIEPVU_436: Hẹn: mỗi ghi chú có ngày hẹn là một hẹn của người ghi. Hẹn ở trạng thái chờ cho tới khi người ghi bấm Đã xong (ghi thời điểm). Người ghi mất quyền xem khách thì hẹn vẫn giữ nhưng không còn hiện, không nhắc. Danh sách hẹn của tôi: quá hạn (ngày hẹn trước hôm nay), hôm nay, 7 ngày tới; sắp theo ngày hẹn.
+- QUYTAC_NGHIEPVU_437: Nhắc hẹn: 07:00 hằng ngày (giờ Việt Nam) hệ thống tạo cho mỗi người có hẹn chờ đến hạn hoặc quá hạn (còn xem được khách, còn được đánh dấu nhân viên kinh doanh) một thông báo trong ứng dụng (`core.notifications`, loại `sales.follow_up_due`) ghi số hẹn hôm nay và số hẹn quá hạn, liên kết tới danh sách hẹn. Mỗi người tối đa một thông báo một ngày; chạy lại trong ngày không tạo trùng. Không gửi thư điện tử, tin nhắn, thông báo đẩy.
+- QUYTAC_NGHIEPVU_438: Mục Thông báo trên ứng dụng VComm dùng API_48 (30 thông báo mới nhất của chính mình, số chưa đọc); bấm thông báo thì đánh dấu đã đọc và mở liên kết nếu liên kết thuộc ứng dụng. Biểu tượng mục Thông báo hiện số chưa đọc.
+- QUYTAC_NGHIEPVU_439: Doanh số tháng của một nhân viên = tổng `completed_amount` của các đơn VComm hoàn tất trong tháng (theo `completed_at`, giờ Việt Nam) mà nhân viên đó là người phụ trách khách lúc đặt đơn (quyết định của người dùng 2026-11-12; khớp người hưởng hoa hồng, QUYTAC_NGHIEPVU_201). Khách đổi người phụ trách thì doanh số của các đơn đã đặt vẫn thuộc người cũ. Kèm số đơn hoàn tất, số khách có đơn hoàn tất, số đơn đang xử lý (chưa hoàn tất, chưa hủy) và tiền hàng của các đơn đó, tính tại thời điểm xem. Tiền làm tròn theo đơn vị tiền tệ của công ty vận hành sàn.
+- QUYTAC_NGHIEPVU_440: Doanh số nhánh: người quản lý xem doanh số tháng của chính mình và của từng người trong nhánh (một dòng mỗi người, có tổng nhánh); nhân viên không có cấp dưới chỉ thấy của mình. Chọn tháng từ tháng đăng ký đánh dấu đầu tiên đến tháng hiện tại, tối đa 24 tháng gần nhất.
+- QUYTAC_NGHIEPVU_441: Ẩn ghé thăm khách: web-crm bỏ menu Ghé thăm, MAN_HINH_72 trả về trang không tìm thấy, bỏ thẻ "Ghé thăm gần đây" trên MAN_HINH_37. `POST /crm/visits` trả 409 mã `BUSINESS_RULE`, thông báo "Chức năng ghé thăm khách đã tắt, không ghi được lượt mới." (mô hình lỗi tài liệu `17` không có mã riêng). API đọc giữ nguyên quyền, không còn giao diện dùng. Bảng `crm.visits`, ảnh, quyền `crm.visit.manage`, dịch vụ ghi lượt ở máy chủ giữ nguyên để có thể bật lại bằng phiếu thay đổi; mã giao diện ghé thăm trên web-crm gỡ (khôi phục từ lịch sử Git khi bật lại).
 
 ## 5. Vai trò và quyền
 
-| Quyền | Vai trò hệ thống có sẵn |
-|---|---|
-| `crm.visit.manage` Ghi lượt ghé thăm khách | Nhân viên bán hàng, Quản trị công ty, Quản trị tập đoàn |
-| `finance.commission.view_own` Xem hoa hồng của chính mình | Nhân viên bán hàng, Quản trị công ty, Quản trị tập đoàn |
-
-Xem ghé thăm cần `crm.partner.view` (phạm vi theo QUYTAC_NGHIEPVU_139). Lập đơn bán dùng quyền đơn bán hiện có.
+Không thêm quyền. Phần Kinh doanh dùng đánh dấu nhân viên kinh doanh và nhánh của CONG_VIEC_27 (QUYTAC_NGHIEPVU_145, 150, 151). Thông báo dùng API_48 (người đăng nhập). Chia sẻ sản phẩm: mọi tài khoản người mua có mã giới thiệu. Quyền `crm.visit.manage` không còn dùng trên giao diện.
 
 ## 6. Luồng nghiệp vụ
 
-Luồng 34: nhân viên đăng nhập ứng dụng → khách của tôi → mở khách → ghé thăm: bật vị trí, chụp ảnh, ghi chú, lưu → lập đơn bán cho khách, gửi (duyệt ngoại lệ như web) → xem hoa hồng của tôi. Trưởng phòng xem ghé thăm trên web-crm hoặc ứng dụng.
+Luồng 54: nhân viên mở Kinh doanh → thấy hẹn hôm nay, doanh số tháng → mở một khách → xem đơn, hoa hồng từ khách, ghi chú cũ → gọi khách → ghi chú (kênh, nội dung, hẹn) → khi khách hỏi sản phẩm: mở sản phẩm → Chia sẻ → khách mở đường dẫn, tự đặt → 07:00 ngày hẹn nhận thông báo → mở danh sách hẹn → chăm sóc, bấm Đã xong. Người quản lý mở Doanh số nhánh → chọn một người → xem khách của người đó → mở chi tiết khách.
 
-## 7. Màn hình
+## 7. Màn hình (ứng dụng VComm, khổ điện thoại; bản xem trước web)
 
-Ứng dụng (khổ điện thoại; bản xem trước web):
-- MAN_HINH_66 Đăng nhập ứng dụng (thư điện tử, mật khẩu, mã xác thực hai lớp).
-- MAN_HINH_67 Khách của tôi (tìm, danh sách; thêm khách, nhận đối tác có sẵn).
-- MAN_HINH_68 Chi tiết khách (liên hệ, gọi, chỉ đường, công nợ, đơn gần đây, ghé thăm gần đây; nút Ghé thăm, Lập đơn).
-- MAN_HINH_69 Đơn bán (danh sách đơn của tôi; lập, sửa, gửi đơn).
-- MAN_HINH_70 Hoa hồng của tôi (chọn tháng; tổng, phát sinh; bảng tháng).
-- MAN_HINH_71 Ghé thăm (ghi lượt mới; lịch sử của tôi hoặc của phòng).
-- Thanh điều hướng dưới: Khách, Đơn, Ghé thăm, Hoa hồng, Tài khoản (đổi công ty, đăng xuất).
+- Sửa MAN_HINH_78 Kinh doanh: thêm thẻ "Hẹn hôm nay" (số hẹn hôm nay, quá hạn; mở MAN_HINH_198), thẻ "Doanh số tháng này" (mở MAN_HINH_199); mỗi khách trong danh sách bấm mở MAN_HINH_196. MAN_HINH_84 (khách của cấp dưới) cũng mở MAN_HINH_196.
+- MAN_HINH_196 Chi tiết khách: thông tin, nút Gọi, Ghi chú; số liệu đơn; đơn gần nhất; hoa hồng của tôi từ khách; ghi chú chăm sóc.
+- MAN_HINH_197 Thêm ghi chú chăm sóc: kênh, nội dung, hẹn lần sau chọn nhanh (Không hẹn, Ngày mai, 3 ngày nữa, 1 tuần nữa, Chọn ngày nhập ngày/tháng/năm; không thêm thư viện chọn ngày).
+- MAN_HINH_198 Hẹn của tôi: nhóm Quá hạn, Hôm nay, 7 ngày tới; bấm mở khách; nút Đã xong.
+- MAN_HINH_199 Doanh số: chọn tháng; doanh số của tôi; với người quản lý thêm bảng từng người trong nhánh và tổng nhánh, bấm một người mở khách của người đó (MAN_HINH_84).
+- MAN_HINH_200 Thông báo: danh sách, chưa đọc in đậm; lối vào "Thông báo" kèm số chưa đọc ở thanh tiêu đề mọi thẻ của thanh điều hướng dưới. Bấm thông báo có liên kết thuộc ứng dụng (`/hen`, `/khach/`, `/don-hang/`, `/vi-hoa-hong`, `/de-xuat`, `/rut-tien`) thì mở màn hình đó; liên kết khác chỉ đánh dấu đã đọc.
+- MAN_HINH_201 Chia sẻ sản phẩm: nút Chia sẻ trên trang sản phẩm, bảng xem trước nội dung, sao chép, chia sẻ.
+- Sửa web-crm: bỏ menu Ghé thăm, thẻ ghé thăm trên MAN_HINH_37 (MAN_HINH_72 ẩn).
 
-Web-crm:
-- MAN_HINH_72 Ghé thăm khách (lọc nhân viên, khách, ngày; ảnh; liên kết bản đồ).
-- Sửa MAN_HINH_37: thẻ "Ghé thăm gần đây".
+MAN_HINH_202, 203 để dự phòng.
 
 ## 8. Dữ liệu và API
 
-- Database migration 0022: `crm.visits` (công ty, khách, người ghi, thời điểm, vĩ độ, kinh độ, độ chính xác, ghi chú); `core.attachments.owner_type` thêm `visit`; chỉ mục theo công ty và ngày, theo khách, theo người ghi; quyền mới.
-- API_112 đăng nhập ứng dụng: `POST /auth/app/login`, `POST /auth/app/refresh`, `POST /auth/app/logout` (token trong thân yêu cầu, phản hồi); xác thực hai lớp dùng API hiện có với header `Authorization`.
-- API_113 tóm tắt khách: `GET /crm/partners/:id/summary`.
-- API_114 ghé thăm: `POST /crm/visits` (multipart: dữ liệu và ảnh), `GET /crm/visits`, `GET /crm/visits/:id`, `GET /crm/visits/:id/photos/:photoId`.
-- API_115 hoa hồng của tôi: `GET /finance/my-commissions?month=YYYY-MM`.
-- Ứng dụng dùng lại API_71, 72 (đối tác), API đơn bán, tùy chọn bán hàng, giá.
+- Database migration 0113 `marketplace.customer_care_notes`: `id`, `company_id` (công ty vận hành sàn), `buyer_user_id`, `author_user_id`, `channel` (`call`, `message`, `meeting`, `other`), `content` (1 đến 1.000 ký tự), `follow_up_on` (date, có thể trống), `follow_up_done_at`, `created_at`; kiểm tra `follow_up_done_at` chỉ có khi có `follow_up_on`. Chỉ mục theo khách và thời điểm; chỉ mục một phần theo người ghi và ngày hẹn cho hẹn chờ. Không sửa, không xóa (trừ cột đã xong).
+- Database migration 0114: thêm cột `marketplace.orders.sales_staff_user_id` (người phụ trách khách lúc đặt đơn, có thể trống), ghi khi đặt đơn cùng chỗ chụp người giới thiệu và người hưởng hoa hồng (`MarketplaceCommissionsService.snapshot`, không đổi hợp đồng API); điền cho đơn cũ từ dòng hoa hồng phần `staff` của đơn nếu có; chỉ mục theo người phụ trách và `completed_at` cho đơn hoàn tất.
+- API_228 `GET /buyer/sales/customers/:id`: chi tiết khách (QUYTAC_NGHIEPVU_432, 433).
+- API_229 `POST /buyer/sales/customers/:id/notes`: thêm ghi chú (QUYTAC_NGHIEPVU_435; ngày hẹn sai trả 400 ở ô `followUpOn`). `GET /buyer/sales/customers/:id/notes?page=`: 20 ghi chú mỗi trang, mới nhất trước, kèm `hasMore`.
+- API_230 `GET /buyer/sales/follow-ups`: hẹn của tôi (QUYTAC_NGHIEPVU_436); `POST /buyer/sales/follow-ups/:noteId/done`: đánh dấu đã xong (chỉ người ghi).
+- API_231 `GET /buyer/sales/revenue?month=YYYY-MM`: doanh số của tôi và nhánh (QUYTAC_NGHIEPVU_439, 440); trả `months` (tháng chọn được), `me`, `members`, `branchTotal`; tháng ngoài phạm vi trả 400 ở ô `month`.
+- API_48 dùng lại cho thông báo trên ứng dụng. API_232 đến 234 để dự phòng.
+- Việc nền `marketplace-sales-follow-ups` (BullMQ, `0 7 * * *` giờ Việt Nam) tạo thông báo nhắc hẹn.
+- Sửa API_114: `POST /crm/visits` trả 409 `BUSINESS_RULE` (QUYTAC_NGHIEPVU_441).
 
 ## 9. Điều kiện đặc biệt
 
-Vị trí, ảnh là dữ liệu cá nhân: chỉ thu khi nhân viên chủ động ghi ghé thăm; ứng dụng xin quyền vị trí, máy ảnh lúc dùng, không theo dõi nền.
+- Ghi chú chăm sóc có thể chứa dữ liệu cá nhân của khách: chỉ người trong phạm vi xem; không ghi nội dung ghi chú vào nhật ký thao tác (chỉ ghi mã ghi chú, khách, người ghi); bổ sung tài liệu `22`.
+- Hoãn lập trình API_228 (phần đơn), API_231 tới khi `main` đã có bản 0.5.0 (PR #117, đổi đơn, thanh toán); hợp nhất `main` mới trước lát doanh số.
+- Migration 0114 chỉ thêm cột, chỉ mục; không định nghĩa lại ràng buộc kiểm tra của `marketplace.orders` (CONG_VIEC_57, PR #118, migration 0110 định nghĩa lại `orders_cod_amount_method_check`, thêm `fulfillment_mode`, `station_id`, `warehouse_id`). Khi sửa dịch vụ đặt đơn, giữ phần của CONG_VIEC_57 nếu đã vào `main`.
 
-## 10. Tiêu chí nghiệm thu
+## 10. Câu hỏi mở (chờ người dùng)
+
+Không còn. Câu hỏi 1 (gán đơn khi tính doanh số) người dùng chọn người phụ trách lúc đặt đơn (2026-11-12).
+
+## 11. Tiêu chí nghiệm thu
 
 | Mã | Tiêu chí | Mức | Kịch bản |
 |---|---|---|---|
-| TIEUCHI_NGHIEMTHU_157 | Ứng dụng đăng nhập bằng token (kèm xác thực hai lớp), làm mới xoay vòng 90 ngày, dùng lại token cũ thu hồi chuỗi, đăng xuất thu hồi; người không có quyền bán hàng không vào được | Bắt buộc | KICHBAN_KIEMTHU_287, 288 |
-| TIEUCHI_NGHIEMTHU_158 | Khách của tôi, tóm tắt khách đúng phạm vi, công nợ, đơn gần đây; khách ngoài phạm vi nhận 404 | Bắt buộc | KICHBAN_KIEMTHU_289 |
-| TIEUCHI_NGHIEMTHU_159 | Ghé thăm: bắt buộc vị trí, ghi chú; 0 đến 3 ảnh đúng định dạng, kích thước; chỉ khách trong phạm vi; xem theo phạm vi; ảnh kiểm quyền | Bắt buộc | KICHBAN_KIEMTHU_290, 291 |
-| TIEUCHI_NGHIEMTHU_160 | Hoa hồng của tôi chỉ dữ liệu của mình, tổng khớp phát sinh, bảng tháng đúng dòng của mình | Bắt buộc | KICHBAN_KIEMTHU_292 |
-| TIEUCHI_NGHIEMTHU_161 | Ứng dụng: đăng nhập, khách, chi tiết, lập và gửi đơn, ghé thăm, hoa hồng chạy được trên bản xem trước web khổ điện thoại | Bắt buộc | KICHBAN_KIEMTHU_293 |
-| TIEUCHI_NGHIEMTHU_162 | MAN_HINH_72, thẻ ghé thăm trên MAN_HINH_37 hiển thị đúng trên máy tính và điện thoại | Mong muốn | KICHBAN_KIEMTHU_294 |
+| TIEUCHI_NGHIEMTHU_402 | Chi tiết khách đúng phạm vi: khách của mình, của người trong nhánh xem được; ngoài phạm vi, không được đánh dấu nhận 404, 403 | Bắt buộc | KICHBAN_KIEMTHU_573 |
+| TIEUCHI_NGHIEMTHU_403 | Chi tiết khách đúng số liệu (đơn hoàn tất, đang xử lý, 10 đơn gần nhất, hoa hồng của người xem) và không có địa chỉ, người nhận | Bắt buộc | KICHBAN_KIEMTHU_574 |
+| TIEUCHI_NGHIEMTHU_404 | Ghi chú: kiểm kênh, độ dài, ngày hẹn; không sửa, xóa; người trong phạm vi xem được; nhật ký thao tác không chứa nội dung | Bắt buộc | KICHBAN_KIEMTHU_575 |
+| TIEUCHI_NGHIEMTHU_405 | Hẹn của tôi đúng nhóm quá hạn, hôm nay, 7 ngày tới theo giờ Việt Nam; chỉ người ghi đánh dấu đã xong; mất phạm vi thì không hiện | Bắt buộc | KICHBAN_KIEMTHU_576 |
+| TIEUCHI_NGHIEMTHU_406 | Nhắc hẹn tạo đúng một thông báo mỗi người mỗi ngày, đúng số; chạy lại không trùng; không nhắc người hết phạm vi | Bắt buộc | KICHBAN_KIEMTHU_577 |
+| TIEUCHI_NGHIEMTHU_407 | Doanh số tháng đúng định nghĩa, đúng ranh giới tháng giờ Việt Nam, trừ trả hàng; nhánh đúng người, tổng khớp | Bắt buộc | KICHBAN_KIEMTHU_578, 579 |
+| TIEUCHI_NGHIEMTHU_408 | Ghé thăm: ghi mới trả 409 `BUSINESS_RULE`; lượt đã có vẫn đọc được; web-crm không còn menu, trang, thẻ ghé thăm | Bắt buộc | KICHBAN_KIEMTHU_290, 291, 580 |
+| TIEUCHI_NGHIEMTHU_409 | Đường dẫn chia sẻ: chưa đăng nhập đăng ký xong mở đúng sản phẩm; đã đăng nhập mở sản phẩm, không đổi người giới thiệu | Bắt buộc | KICHBAN_KIEMTHU_581 |
+| TIEUCHI_NGHIEMTHU_410 | Ứng dụng: Kinh doanh, chi tiết khách, ghi chú, hẹn, doanh số, thông báo, chia sẻ chạy được trên bản xem trước web khổ 390 điểm ảnh | Bắt buộc | KICHBAN_KIEMTHU_582 |
+| TIEUCHI_NGHIEMTHU_411 | Danh sách khách, chi tiết khách, doanh số nhánh trả lời dưới 1 giây với 1.000 khách, 20.000 đơn | Mong muốn | KICHBAN_KIEMTHU_583 |
 
-## 11. Kịch bản kiểm thử
+## 12. Kịch bản kiểm thử
 
-- KICHBAN_KIEMTHU_287 đến 292: tự động, `apps/api/test/c22-sales-app.test.ts`.
-- KICHBAN_KIEMTHU_293, 294: thủ công trên trình duyệt (bản xem trước web của ứng dụng khổ 390 điểm ảnh; web-crm).
+- KICHBAN_KIEMTHU_573 đến 579: tự động, `apps/api/test/c22-kinh-doanh-vcomm.test.ts`; KICHBAN_KIEMTHU_583: tự động, `apps/api/test/c22-hieu-nang.test.ts` (sinh 1.000 khách, 20.000 đơn bằng SQL).
+- KICHBAN_KIEMTHU_581: chia sẻ không đổi API (dùng lại đăng ký có mã giới thiệu, lượt bấm cộng tác viên đã có kiểm thử ở c23, c49); kiểm điều hướng bằng kịch bản Playwright trên bản xem trước web với API giả lập: đã đăng nhập mở thẳng sản phẩm; chưa đăng nhập vào đăng ký có mã, đăng nhập xong mở sản phẩm; sản phẩm ngừng bán báo đúng.
+- TIEUCHI_NGHIEMTHU_408: kiểm bằng KICHBAN_KIEMTHU_290, 291 đã sửa (`apps/api/test/c22-sales-app.test.ts`); KICHBAN_KIEMTHU_580 kiểm thủ công web-crm không còn menu, trang, thẻ ghé thăm.
+- KICHBAN_KIEMTHU_582: thủ công trên bản xem trước web của ứng dụng VComm khổ 390 điểm ảnh.
+- KICHBAN_KIEMTHU_584 dự phòng.
 
-## 12. Ràng buộc kỹ thuật
+Tiến độ: L0 xong (KICHBAN_KIEMTHU_573, 574, 290, 291 đạt; người dùng đồng ý 2026-11-12). L1 xong (KICHBAN_KIEMTHU_581 đạt trên bản xem trước; người dùng đồng ý 2026-11-12). L2 xong (migration 0113; API_229, 230; MAN_HINH_197, 198; KICHBAN_KIEMTHU_575, 576 đạt; người dùng đồng ý 2026-11-12). L3 xong (việc nền `marketplace-sales-follow-ups` 07:00, MAN_HINH_200; KICHBAN_KIEMTHU_577 đạt; người dùng đồng ý 2026-11-12). L4 xong (migration 0114, API_231, MAN_HINH_199; KICHBAN_KIEMTHU_578, 579 đạt). KICHBAN_KIEMTHU_583 (hiệu năng) đạt.
+- Sửa KICHBAN_KIEMTHU_290, 291 (ghé thăm): ghi mới bị từ chối; đọc giữ nguyên.
 
-Thêm thư viện theo quyết định người dùng: expo 58, expo-router, expo-secure-store, expo-location, expo-image-picker, react-native, react-native-web, react-dom (bản web). Không thêm thư viện giao diện; dùng thành phần React Native cơ bản, màu và khoảng cách lấy từ tài liệu `15` (sao giá trị sang tệp chủ đề của ứng dụng). Lưu ảnh qua `FILE_STORAGE` và bảng `core.attachments` như đề xuất (CONG_VIEC_03).
+## 13. Ràng buộc kỹ thuật
 
-## 13. Thành phần không được thay đổi
+Thêm một thư viện `expo-clipboard` 58.0.4 (người dùng duyệt 2026-11-12 khi nghiệm thu, tài liệu `13` mục 8) cho nút Sao chép trên máy thật; dùng chung cho các nút Sao chép có sẵn ở Tài khoản, Mời bạn bè, Mua chung. Dùng `Share`, `Linking` của React Native có sẵn. Thông báo trong ứng dụng dùng `core.notifications`, API_48. Việc nền dùng bộ lập lịch BullMQ có sẵn (`apps/api/src/jobs/background-jobs.ts`). Mã đặt trong `apps/api/src/marketplace` (phần đội kinh doanh), ghi vào schema `marketplace` và `core.notifications` như các việc nền có sẵn.
 
-Đăng nhập web bằng cookie; phạm vi xem của CONG_VIEC_21; cách tính hoa hồng CONG_VIEC_17.
+## 14. Thành phần không được thay đổi
 
-## 14. Các lát và điểm xem trước
+Cách tính và người hưởng hoa hồng (CONG_VIEC_26); quy tắc người giới thiệu (QUYTAC_NGHIEPVU_142, 143); nhánh, chức danh (CONG_VIEC_27); API_112; dữ liệu `crm.visits`.
 
-- L0: API đăng nhập ứng dụng; khung ứng dụng Expo (đăng nhập, xác thực hai lớp, chọn công ty, thanh điều hướng). Điểm xem trước: đăng nhập trên bản web khổ điện thoại.
-- L1: khách của tôi, tóm tắt khách, thêm, nhận khách.
-- L2: đơn bán trên ứng dụng.
-- L3: hoa hồng của tôi.
-- L4: ghé thăm khách (API, ứng dụng, web-crm).
+## 15. Các lát và điểm xem trước
 
-## 15. Kết quả đối chiếu định nghĩa hoàn thành
+- L0: ẩn ghé thăm; chi tiết khách (API_228, MAN_HINH_196; danh sách khách mở chi tiết). Xem trước: mở một khách trên ứng dụng.
+- L1: chia sẻ sản phẩm (MAN_HINH_201; đường dẫn `/r/<mã>?sp=`).
+- L2: ghi chú, hẹn (migration 0113; API_229, 230; MAN_HINH_197, 198; thẻ hẹn trên MAN_HINH_78).
+- L3: nhắc hẹn (việc nền), mục Thông báo (MAN_HINH_200).
+- L4: doanh số (migration 0114, API_231, MAN_HINH_199; thẻ doanh số trên MAN_HINH_78), sau khi hợp nhất `main` có bản 0.5.0.
 
-Chưa đối chiếu.
+## 16. Kết quả đối chiếu định nghĩa hoàn thành
 
-## 16. Giới hạn đã biết
+Ngày 2026-11-12, sau lát L4 và sửa phát hiện rà soát độc lập (commit 71720f4).
 
-Chưa có.
+- [x] Đúng yêu cầu, nghiệp vụ, phân quyền, dữ liệu: QUYTAC_NGHIEPVU_432 đến 441 có mã và kiểm thử; phạm vi xem theo nhánh kiểm ở KICHBAN_KIEMTHU_573, 575, 576, 579.
+- [x] Đúng giao diện: MAN_HINH_196 đến 201 khớp bản mẫu đã duyệt; người dùng đồng ý xem trước lát L0 đến L3; L4 xem trước bằng ảnh.
+- [x] Đã xử lý lỗi: lỗi ô (`followUpOn`, `month`), `403`, `404`, `409` có thông báo trong tệp dịch.
+- [x] Đã kiểm thử: toàn bộ `pnpm --filter api test` trên bản cuối (commit ca93608) 103 tệp, 557/557 đạt (gồm KICHBAN_KIEMTHU_583 hiệu năng); kết quả ghi tài liệu `25` qua phiên cha.
+- [x] Không phá vỡ chức năng cũ: hồi quy c22-sales-app (290, 291 sửa theo THAY_DOI_26), c23, c24, c26, c27, c49, c50 đạt.
+- [x] Đạt tiêu chí nghiệm thu bắt buộc: TIEUCHI_NGHIEMTHU_402 đến 410 đạt (408 phần web-crm và 410 kiểm thủ công: đọc mã, kiểm tra kiểu, ảnh xem trước); TIEUCHI_NGHIEMTHU_411 (Mong muốn) đạt: 1.000 khách, 20.000 đơn, danh sách khách 7 ms, chi tiết khách 6 ms, doanh số nhánh 19 ms (KICHBAN_KIEMTHU_583, `apps/api/test/c22-hieu-nang.test.ts`).
+- [x] Đạt cổng bảo mật: rà soát độc lập không có lỗi Nghiêm trọng, Cao; phát hiện Trung bình, Thấp đã sửa (commit 71720f4); thêm một thư viện `expo-clipboard` do người dùng duyệt (giấy phép MIT, của Expo); quét khóa bí mật (gitleaks) ở CI đạt; tài liệu `22` có mục kiểm soát.
+- [x] Đã tự rà soát mã và dọn dẹp: tệp tạm, ảnh xem trước chỉ nằm trong thư mục nháp ngoài kho mã.
+- [x] Đã cập nhật tài liệu `27` và tài liệu liên quan: `06`, `07`, `09` (THAY_DOI_28), `10`, `11`, `14`, `16`, `17`, `21`, `22`, `27`.
+
+## 17. Giới hạn đã biết
+
+- Nhắc hẹn chỉ hiện khi mở ứng dụng; thông báo đẩy làm sau khi đóng gói ứng dụng.
+- Đơn cũ (đặt trước database migration 0114) không có dòng hoa hồng phần nhân viên thì không có người phụ trách, không tính vào doanh số ai (quyết định của người dùng 2026-11-12).
+- Sản phẩm chờ mở sau đăng ký chỉ giữ trong lần mở ứng dụng (như lượt bấm cộng tác viên); đóng ứng dụng giữa chừng thì về trang chủ.
+- Tài liệu `09`, `10`, `14` (MAN_HINH_91) đã sửa theo THAY_DOI_28.

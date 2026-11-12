@@ -117,6 +117,12 @@ export class MarketplaceController {
     return this.orders.adminList(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.view"), marketplaceOrderListQuerySchema.parse(query));
   }
 
+  // CONG_VIEC_57: trạm để lọc đơn VComm (MAN_HINH_195; API_226).
+  @Get("order-stations")
+  async orderStations(@Req() request: AuthenticatedRequest): Promise<{ id: string; name: string }[]> {
+    return this.orders.stations(await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.view"));
+  }
+
   @Get("orders/:id")
   async order(@Req() request: AuthenticatedRequest, @Param("id", UuidPipe) id: string): Promise<MarketplaceOrderDetail> {
     const actor = await this.admin.actor(request.auth.userId, clientInfo(request), "marketplace.order.view");

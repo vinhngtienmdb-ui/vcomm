@@ -52,6 +52,8 @@ import { PartnersService } from "./crm/partners.service";
 import { VisitsService } from "./crm/visits.service";
 import { BuyerController } from "./marketplace/buyer.controller";
 import { BuyerAccountsService } from "./marketplace/buyer-accounts.service";
+import { SalesCareService } from "./marketplace/sales-care.service";
+import { SalesRevenueService } from "./marketplace/sales-revenue.service";
 import { BuyerAdminService } from "./marketplace/buyer-admin.service";
 import { MarketplaceController } from "./marketplace/marketplace.controller";
 import { SalesTeamService } from "./marketplace/sales-team.service";
@@ -82,6 +84,7 @@ import { MarketplaceCommissionsService } from "./marketplace/commissions.service
 import { LoyaltyController } from "./loyalty/loyalty.controller";
 import { LoyaltyProgramService } from "./loyalty/program.service";
 import { LoyaltyLedgerService } from "./loyalty/ledger.service";
+import { SmartOtpService } from "./loyalty/smart-otp.service";
 import { LoyaltyAccountsService } from "./loyalty/accounts.service";
 import { BuyerLoyaltyController } from "./loyalty/buyer-loyalty.controller";
 import { LoyaltyPostingsService } from "./loyalty/postings.service";
@@ -92,6 +95,7 @@ import { PurchasingImportsController } from "./purchasing/imports.controller";
 import { ImportDeclarationsService } from "./purchasing/import-declarations.service";
 import { LandedCostsService } from "./purchasing/landed-costs.service";
 import { CostAdjustmentsService } from "./inventory/cost-adjustments.service";
+import { PurchasingBudgetsController } from "./purchasing/budgets.controller";
 import { SalesController } from "./sales/sales.controller";
 import { SalesOrdersService } from "./sales/sales-orders.service";
 import { InternalTradeService } from "./sales/internal-trade.service";
@@ -102,6 +106,8 @@ import { RetailReturnsService } from "./retail/retail-returns.service";
 import { RetailSalesService } from "./retail/retail-sales.service";
 import { RetailShiftsService } from "./retail/retail-shifts.service";
 import { RetailStoresService } from "./retail/retail-stores.service";
+import { RetailStationOrdersService } from "./retail/retail-station-orders.service";
+import { RetailStationReturnsService } from "./retail/retail-station-returns.service";
 import { ContractRemindersService } from "./hr/contract-reminders.service";
 import { ContractsService } from "./hr/contracts.service";
 import { EmployeesService } from "./hr/employees.service";
@@ -161,6 +167,8 @@ import { EinvoicesService } from "./einvoice/einvoices.service";
 import { SupplierPricesService } from "./purchasing/supplier-prices.service";
 import { RequisitionsService } from "./purchasing/requisitions.service";
 import { PurchaseOrdersService } from "./purchasing/orders.service";
+import { BudgetPlansService } from "./purchasing/budgets.service";
+import { BudgetAdjustmentsService } from "./purchasing/budget-adjustments.service";
 import { ReservationsService } from "./inventory/reservations.service";
 import { StockDocumentsService } from "./inventory/stock-documents.service";
 import { StockLedgerService } from "./inventory/stock-ledger.service";
@@ -197,7 +205,7 @@ import { UsersService } from "./users/users.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, OfficeController, OfficeDocumentsController, OfficePostsController],
+  controllers: [AuthController, MeController, HomeController, RolesController, UsersController, OrganizationController, ApprovalsController, SettingsController, IntegrationsController, ProposalsController, CatalogController, PricingController, InventoryController, CrmController, PurchasingController, PurchasingBudgetsController, SalesController, FinanceController, LedgerController, EinvoicesController, BankReconciliationController, CollectionStatementsController, ConsolidationController, BuyerController, MarketplaceController, ShopController, CarrierWebhookController, PaymentsController, RefundsController, WithdrawalsController, HrController, AttendanceController, MyAttendanceController, LeaveController, OvertimeTimesheetsController, PayrollController, AnalyticsController, RecruitmentController, CareersController, InterviewerController, OfferAnswersController, ReviewsController, LoyaltyController, BuyerLoyaltyController, CollaboratorsController, GroupBuysController, WalletsController, CommunityController, PurchasingImportsController, RetailController, OfficeController, OfficeDocumentsController, OfficePostsController],
   providers: [
     AuthService,
     ActivationService,
@@ -252,6 +260,8 @@ import { UsersService } from "./users/users.service";
     PartnersService,
     VisitsService,
     BuyerAccountsService,
+    SalesCareService,
+    SalesRevenueService,
     BuyerAdminService,
     SalesTeamService,
     SalesProposalsService,
@@ -270,6 +280,7 @@ import { UsersService } from "./users/users.service";
     MarketplaceCommissionsService,
     LoyaltyProgramService,
     LoyaltyLedgerService,
+    SmartOtpService,
     LoyaltyAccountsService,
     LoyaltyPostingsService,
     LoyaltyJobsService,
@@ -284,6 +295,8 @@ import { UsersService } from "./users/users.service";
     FundsService,
     RetailStoresService,
     RetailShiftsService,
+    RetailStationOrdersService,
+    RetailStationReturnsService,
     RetailSalesService,
     RetailReturnsService,
     PaymentsService,
@@ -305,6 +318,8 @@ import { UsersService } from "./users/users.service";
     OverviewService,
     RequisitionsService,
     PurchaseOrdersService,
+    BudgetPlansService,
+    BudgetAdjustmentsService,
     StockLedgerService,
     ReservationsService,
     StockService,

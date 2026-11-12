@@ -44,6 +44,7 @@ export const orderStatusTone = {
   awaiting_payment: "warning",
   awaiting_group: "warning",
   awaiting_shipment: "info",
+  ready_for_pickup: "success",
   awaiting_pickup: "info",
   shipping: "warning",
   delivered: "success",

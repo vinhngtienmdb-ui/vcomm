@@ -1,7 +1,7 @@
 "use client";
 
 // MAN_HINH_37 Chi tiết đối tác (CHUC_NANG_46 đến 48; API_71, API_72): thông tin chung, người liên hệ, tài khoản ngân hàng, hồ sơ của công ty đang chọn, lịch sử.
-import type { PageResponse, PartnerProfileOptionsResponse, PartnerResponse, VisitItem } from "contracts";
+import type { PartnerProfileOptionsResponse, PartnerResponse } from "contracts";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -15,7 +15,6 @@ import { apiFetch } from "ui/lib/api";
 import { formatMoney } from "ui/lib/format";
 import { failureOf, useApi } from "ui/lib/use-api";
 import { PartnerDrawer } from "@/components/PartnerDrawer";
-import { VisitList } from "@/components/VisitList";
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -158,7 +157,6 @@ function PartnerDetail({ partner, reload }: { partner: PartnerResponse; reload: 
       </section>
 
       <Profile partner={partner} reload={reload} />
-      {partner.profile?.isCustomer && <RecentVisits partnerId={partner.id} />}
 
       {editing && (
         <PartnerDrawer
@@ -182,19 +180,6 @@ function PartnerDetail({ partner, reload }: { partner: PartnerResponse; reload: 
         />
       )}
     </>
-  );
-}
-
-// Ghé thăm gần đây của khách (CHUC_NANG_103; API_114).
-function RecentVisits({ partnerId }: { partnerId: string }) {
-  const t = useTranslations("visits");
-  const { state } = useApi<PageResponse<VisitItem>>(`/crm/visits?partnerId=${partnerId}&pageSize=5`);
-  if (state.kind !== "ready") return null;
-  return (
-    <section className="the">
-      <h2 style={{ margin: 0 }}>{t("recent")}</h2>
-      {state.data.data.length === 0 ? <span className="chu-thich">{t("none")}</span> : <VisitList visits={state.data.data} showCustomer={false} />}
-    </section>
   );
 }
 

@@ -3,6 +3,7 @@ export const orderTone = {
   awaiting_payment: "canh-bao",
   awaiting_group: "canh-bao",
   awaiting_shipment: "thong-tin",
+  ready_for_pickup: "thong-tin",
   awaiting_pickup: "thong-tin",
   shipping: "canh-bao",
   delivered: "thanh-cong",

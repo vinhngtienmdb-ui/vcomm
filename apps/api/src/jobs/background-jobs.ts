@@ -5,7 +5,8 @@
 // hết hạn, nhắc hạn điểm thưởng và xét hạng lúc 0 giờ 10 phút (CHUC_NANG_179),
 // áp dụng quyết định công tác lúc 0 giờ 5 phút (CHUC_NANG_162), nhắc hết hạn hợp đồng lúc 7 giờ (CHUC_NANG_164),
 // tính lại công ngày hôm trước lúc 1 giờ (CHUC_NANG_165), cộng phép năm, hết hạn phép tồn lúc 0 giờ 15 phút (CHUC_NANG_166),
-// tự xác nhận bảng công hết hạn lúc 0 giờ 30 phút (CHUC_NANG_167), chốt nhóm mua chung mỗi phút (CHUC_NANG_172).
+// tự xác nhận bảng công hết hạn lúc 0 giờ 30 phút (CHUC_NANG_167), chốt nhóm mua chung mỗi phút (CHUC_NANG_172),
+// nhắc hẹn chăm sóc khách lúc 7 giờ (CHUC_NANG_205).
 // Chỉ chạy trong tiến trình API; kiểm thử gọi thẳng dịch vụ nên không cần Redis.
 import { Logger, type INestApplication } from "@nestjs/common";
 import { Queue, Worker } from "bullmq";
@@ -18,6 +19,8 @@ import { GroupBuysService } from "../marketplace/group-buys.service";
 import { OfficeTasksService } from "../office/office-tasks.service";
 import { OfficePostsService } from "../office/office-posts.service";
 import { MarketplaceOrdersService } from "../marketplace/marketplace-orders.service";
+import { RetailStationOrdersService } from "../retail/retail-station-orders.service";
+import { SalesCareService } from "../marketplace/sales-care.service";
 import { MarketplacePaymentsService } from "../marketplace/payments/payments.service";
 import { ReservationsService } from "../inventory/reservations.service";
 import { StockLevelsService } from "../inventory/stock-levels.service";
@@ -53,6 +56,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   const stockLevels = application.get(StockLevelsService);
   const einvoices = application.get(EinvoicesService);
   const marketplaceOrders = application.get(MarketplaceOrdersService);
+  const stationOrders = application.get(RetailStationOrdersService);
+  const salesCare = application.get(SalesCareService);
   const payments = application.get(MarketplacePaymentsService);
   const loyalty = application.get(LoyaltyJobsService);
   const groupBuys = application.get(GroupBuysService);
@@ -76,6 +81,7 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("inventory-stock-alerts", { pattern: "0 7 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "inventory-stock-alerts" });
   await queue.upsertJobScheduler("hr-work-events", { pattern: "5 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-work-events" });
   await queue.upsertJobScheduler("hr-contract-reminders", { pattern: "0 7 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-contract-reminders" });
+  await queue.upsertJobScheduler("marketplace-sales-follow-ups", { pattern: "0 7 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "marketplace-sales-follow-ups" });
   await queue.upsertJobScheduler("hr-timesheet-confirmation", { pattern: "30 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-timesheet-confirmation" });
   await queue.upsertJobScheduler("hr-leave-accrual", { pattern: "15 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-leave-accrual" });
   await queue.upsertJobScheduler("hr-attendance-recalculate", { pattern: "0 1 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "hr-attendance-recalculate" });
@@ -92,6 +98,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
   await queue.upsertJobScheduler("loyalty-daily", { pattern: "10 0 * * *", tz: "Asia/Ho_Chi_Minh" }, { name: "loyalty-daily" });
   // Chốt nhóm mua chung hết hạn (CONG_VIEC_49; QUYTAC_NGHIEPVU_331).
   await queue.upsertJobScheduler("marketplace-group-buy-close", { every: 60_000 }, { name: "marketplace-group-buy-close" });
+  // Nhắc, hủy đơn quá hạn giữ tại trạm giao hàng O2O (CONG_VIEC_57; QUYTAC_NGHIEPVU_428).
+  await queue.upsertJobScheduler("station-order-hold", { every: 60 * 60_000 }, { name: "station-order-hold" });
   // Nhắc công việc sắp đến hạn, quá hạn (CONG_VIEC_52; QUYTAC_NGHIEPVU_358).
   await queue.upsertJobScheduler("office-task-reminders", { every: 15 * 60_000 }, { name: "office-task-reminders" });
   // Tin bảng tin hẹn giờ cần xác nhận đọc: đến giờ thì thông báo (CONG_VIEC_52; QUYTAC_NGHIEPVU_367).
@@ -128,6 +136,8 @@ export async function startBackgroundJobs(application: INestApplication): Promis
       if (job.name === "hr-candidate-erasure") return candidates.eraseDue();
       if (job.name === "hr-review-reminders") return reviews.sendReminders();
       if (job.name === "marketplace-order-completion") return marketplaceOrders.completeDue();
+      if (job.name === "station-order-hold") return stationOrders.expireDue();
+      if (job.name === "marketplace-sales-follow-ups") return salesCare.remindDue();
       if (job.name === "marketplace-payment-expiry") return payments.expireDue();
       if (job.name === "loyalty-daily") return loyalty.runDaily();
       if (job.name === "marketplace-group-buy-close") return groupBuys.closeDue();

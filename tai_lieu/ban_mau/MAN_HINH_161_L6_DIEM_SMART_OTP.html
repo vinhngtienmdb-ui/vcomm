@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lát L6 Điểm tại quầy, Smart OTP – VComm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="chung.css">
+<link rel="stylesheet" href="ban_le.css">
+<style>
+  /* Bản mẫu CONG_VIEC_53 lát L6. Chỉ dùng biến của tài liệu 15. */
+  .luoi-mau { display: grid; gap: var(--khoang-5); }
+  .hang-mau { display: flex; flex-wrap: wrap; gap: var(--khoang-5); align-items: flex-start; }
+  .dien-thoai { width: 340px; border: 8px solid var(--mau-chu); border-radius: 28px; background: var(--mau-nen); overflow: hidden; }
+  .dien-thoai .dau { background: var(--mau-chinh); color: #fff; padding: var(--khoang-3) var(--khoang-4); font-weight: 800; }
+  .dien-thoai .than { padding: var(--khoang-4); display: grid; gap: var(--khoang-3); align-content: start; }
+  .dien-thoai .the, .dien-thoai .khoi { align-content: start; height: auto; }
+  .hang-mau > * { align-self: flex-start; }
+  .ma-otp { font-size: 40px; line-height: 48px; font-weight: 800; letter-spacing: 8px; text-align: center; font-variant-numeric: tabular-nums; }
+  .dem-nguoc { height: 6px; border-radius: var(--bo-tron); background: var(--mau-vien); overflow: hidden; }
+  .dem-nguoc span { display: block; height: 100%; width: 60%; background: var(--mau-chinh); }
+  .o-ma { display: flex; gap: var(--khoang-2); }
+  .o-ma input { width: 34px; height: 48px; text-align: center; font: inherit; font-size: 22px; font-weight: 800; border: 1px solid var(--mau-vien-o-nhap); border-radius: var(--bo-nho); }
+  .hoa-don { width: 300px; background: var(--mau-be-mat); border: 1px solid var(--mau-vien); padding: var(--khoang-3); font-size: 12px; line-height: 16px; }
+  .hoa-don hr { border: 0; border-top: 1px dashed var(--mau-chu); }
+  .hop-thoai.tinh { position: static; max-width: 720px; }
+</style>
+</head>
+<body>
+<div class="trang luoi-mau">
+  <header>
+    <h1>Lát L6 – Điểm tại quầy với Smart OTP</h1>
+    <p class="chu-phu">CONG_VIEC_53; QUYTAC_NGHIEPVU_379; MAN_HINH_161 (bổ sung), MAN_HINH_167 (bổ sung), MAN_HINH_151 (bổ sung trên ứng dụng VComm). Tích điểm chỉ cần số điện thoại; dùng điểm cần mã Smart OTP 6 số trong ứng dụng của khách.</p>
+  </header>
+
+  <section class="hang-mau">
+    <div class="the" style="display:grid;gap:var(--khoang-2);width:360px">
+      <h3>1. Khách VComm – màn hình bán hàng</h3>
+      <label class="truong">Số điện thoại khách VComm (phím F3)<input value="0901234321"></label>
+      <div class="dong"><span><strong>Tr*** V** Minh</strong> · 090****321<br><span class="chu-phu">Hạng Bạc · 12.500 điểm khả dụng · Smart OTP đã kích hoạt</span></span><button class="nut chu" type="button">Bỏ</button></div>
+      <div class="khoi thong-tin">Hóa đơn này dự kiến được tích khoảng 2.600 điểm.</div>
+      <hr style="border:0;border-top:1px solid var(--mau-vien);width:100%">
+      <div class="dong"><span><strong>Số chưa có tài khoản</strong></span></div>
+      <div class="khoi canh-bao">Số 0988 888 999 chưa có tài khoản VComm. Hóa đơn không tích điểm; hóa đơn in dòng mời cài ứng dụng VComm.</div>
+      <div class="khoi canh-bao">Khách chưa kích hoạt Smart OTP: vẫn tích điểm được; muốn dùng điểm, mời khách mở ứng dụng VComm → Điểm thưởng → Kích hoạt Smart OTP.</div>
+    </div>
+
+    <div class="hop-thoai tinh" role="dialog" aria-labelledby="tieu-de-tt">
+      <div class="dong"><h2 id="tieu-de-tt">2. Thanh toán · 262.150</h2><button class="nut chu" type="button">Đóng <span class="phim">Esc</span></button></div>
+      <div class="phuong-thuc">
+        <strong>Điểm</strong>
+        <label class="truong"><input value="5.000" aria-label="Số điểm dùng"><span class="chu-phu">= 50.000 · tối thiểu 1.000, tối đa 12.500 điểm</span></label>
+        <button class="nut chu" type="button">Bỏ</button>
+        <strong>Mã Smart OTP</strong>
+        <div style="display:grid;gap:var(--khoang-1)">
+          <div class="o-ma" aria-label="Mã Smart OTP của khách"><input value="4"><input value="8"><input value="2"><input value="9"><input value="1"><input value="7"></div>
+          <span class="chu-phu">Khách đọc mã 6 số trong ứng dụng VComm (đổi mỗi 30 giây)</span>
+          <span class="loi-o">Mã Smart OTP không đúng hoặc đã dùng. Còn 4 lần thử.</span>
+        </div>
+        <span></span>
+        <strong>Tiền mặt</strong><label class="truong"><input value="220.000" aria-label="Tiền khách đưa"></label><span></span>
+      </div>
+      <div class="dong"><span>Khách đưa</span><span>270.000</span></div>
+      <div class="dong"><span class="tong">Tiền thừa</span><span class="tong">7.850</span></div>
+      <div class="khoi canh-bao">Sai mã 5 lần liên tiếp thì tạm khóa dùng điểm tại quầy 15 phút; vẫn thanh toán được bằng tiền mặt, chuyển khoản và vẫn tích điểm.</div>
+      <button class="nut chinh lon" type="button">Xác nhận thanh toán <span class="phim">Enter</span></button>
+    </div>
+  </section>
+
+  <section class="hang-mau">
+    <div>
+      <h3>3. Hóa đơn bán lẻ in (phần thêm)</h3>
+      <div class="hoa-don">
+        <div class="dong"><span>Tiền mặt</span><span>220.000</span></div>
+        <div class="dong"><span>Điểm (5.000 điểm)</span><span>50.000</span></div>
+        <div class="dong"><span>Tiền thừa</span><span>7.850</span></div>
+        <hr>
+        <div>Khách VComm: Tr*** V** Minh · 090****321</div>
+        <div>Điểm đã dùng: 5.000 · Điểm được tích: 2.121</div>
+        <div>Số dư sau giao dịch: 9.621 điểm</div>
+        <hr>
+        <div style="text-align:center">Chưa có tài khoản? Cài ứng dụng VComm để tích điểm cho lần mua sau.</div>
+      </div>
+      <p class="chu-phu" style="max-width:300px">Dòng mời cài ứng dụng chỉ in khi hóa đơn không có khách VComm.</p>
+    </div>
+
+    <div class="dien-thoai">
+      <div class="dau">Điểm thưởng</div>
+      <div class="than">
+        <div class="the" style="display:grid;gap:var(--khoang-2)">
+          <strong>4a. Smart OTP dùng điểm tại quầy</strong>
+          <span class="chu-phu">Dùng điểm tại cửa hàng cần mã Smart OTP trên điện thoại này. Mã đổi mỗi 30 giây, dùng được khi không có mạng.</span>
+          <button class="nut chinh" type="button">Kích hoạt Smart OTP</button>
+        </div>
+        <div class="the" style="display:grid;gap:var(--khoang-2)">
+          <strong>Nhập mã xác nhận</strong>
+          <span class="chu-phu">Mã 6 số đã gửi qua tin nhắn tới 090****321.</span>
+          <div class="o-ma"><input><input><input><input><input><input></div>
+          <button class="nut chinh" type="button">Kích hoạt trên máy này</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dien-thoai">
+      <div class="dau">Điểm thưởng</div>
+      <div class="than">
+        <div class="the" style="display:grid;gap:var(--khoang-3)">
+          <strong>4b. Mã Smart OTP</strong>
+          <div class="ma-otp">482 917</div>
+          <div class="dem-nguoc" aria-label="Còn 18 giây"><span></span></div>
+          <span class="chu-phu" style="text-align:center">Đọc mã này cho thu ngân khi dùng điểm. Không đưa mã cho người khác.</span>
+          <span class="chu-phu">Máy: iPhone của Minh · kích hoạt 11/11/2026</span>
+          <button class="nut chu" type="button" style="justify-self:start">Hủy Smart OTP</button>
+        </div>
+        <div class="khoi canh-bao">4c. Smart OTP đang dùng trên máy khác. Kích hoạt trên máy này thì máy kia hết hiệu lực.</div>
+        <div class="khoi loi">4d. Dùng điểm tại quầy đang tạm khóa đến 15:42 do nhập sai mã nhiều lần.</div>
+      </div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

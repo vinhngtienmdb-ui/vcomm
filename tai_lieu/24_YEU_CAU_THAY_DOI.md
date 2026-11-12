@@ -426,3 +426,25 @@
 - Mức quy mô: Lớn; làm trong CONG_VIEC_22.
 - Rủi ro: trung bình (dữ liệu cá nhân khách, phạm vi xem theo nhánh).
 - Trạng thái: Đã phê duyệt 2026-11-12 (người dùng chọn qua câu hỏi trong phiên CONG_VIEC_22).
+
+### THAY_DOI_27: Kích hoạt lời mời cửa hàng liên kết bằng số điện thoại và mã OTP – 2026-11-12
+- Lý do: đặc tả CONG_VIEC_55 đã duyệt ghi kích hoạt lời mời bằng đường dẫn gửi qua SMS; SMS thương hiệu hiện chỉ gửi được mẫu OTP.
+- Nội dung thay đổi (người dùng chấp nhận 2026-11-12): chủ cửa hàng và thu ngân kích hoạt lời mời bằng số điện thoại kèm mã OTP trên cổng cửa hàng; dùng phiên web hiện có, không thêm loại phiên.
+- Thành phần bị ảnh hưởng: CONG_VIEC_55 (đặc tả, MAN_HINH_177, 178, API_206, 207).
+- Dữ liệu, API, giao diện, quyền: không thêm bảng; API kích hoạt nhận số điện thoại và mã OTP thay mã trong đường dẫn.
+- Ảnh hưởng chức năng cũ: không (chưa phát hành).
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_55 (kích hoạt lời mời).
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_55.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-12.
+
+### THAY_DOI_28: Gộp nút chia sẻ sản phẩm trên ứng dụng VComm – 2026-11-12
+- Lý do: CONG_VIEC_22 thêm chia sẻ đường dẫn sản phẩm có mã giới thiệu (THAY_DOI_26), trùng với nút "Chia sẻ nhận hoa hồng" của CONG_VIEC_49 (đã phát hành 0.5.0).
+- Nội dung thay đổi (người dùng chọn 2026-11-12 trong phiên CONG_VIEC_22): một nút "Chia sẻ sản phẩm" cho mọi người mua, đường dẫn gộp mã giới thiệu và mã cộng tác viên; thay nút "Chia sẻ nhận hoa hồng" trên MAN_HINH_91.
+- Thành phần bị ảnh hưởng: CONG_VIEC_22, CONG_VIEC_49 (MAN_HINH_91); tài liệu 09, 10, 14.
+- Dữ liệu, API, giao diện, quyền: không đổi API, dữ liệu, quyền; đổi giao diện MAN_HINH_91.
+- Ảnh hưởng chức năng cũ: hành vi chia sẻ của CONG_VIEC_49 giữ nguyên (đường dẫn vẫn mang mã cộng tác viên); chỉ đổi nút.
+- Kiểm thử cần thực hiện: kiểm thử của CONG_VIEC_22 lát L1; hồi quy c49-collaborators.
+- Mức quy mô: Nhỏ; làm trong CONG_VIEC_22.
+- Rủi ro: thấp.
+- Trạng thái: Đã phê duyệt 2026-11-12.
